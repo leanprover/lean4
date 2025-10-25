@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_ppModuleHeader_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_ppModuleHeader_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instQueryJsonOfToJson___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OutFormat_noConfusion___redArg___lam__0___boxed(lean_object*);
 lean_object* l_Lean_Json_compress(lean_object*);
@@ -27,7 +27,7 @@ LEAN_EXPORT lean_object* l_Lake_ToText_ctorIdx(lean_object*, lean_object*);
 static lean_object* l_Lake_instToTextArray___redArg___lam__1___closed__8;
 LEAN_EXPORT lean_object* l_Lake_instToTextOfToString(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_ppModuleHeader_spec__0(uint8_t, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_ppModuleHeader_spec__0(uint8_t, lean_object*, size_t, size_t, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_OutFormat_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToTextList___redArg___lam__0(lean_object*, lean_object*, lean_object*);
@@ -1088,7 +1088,7 @@ x_5 = l_Lake_ppImport(x_1, x_4, x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_ppModuleHeader_spec__0(uint8_t x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_ppModuleHeader_spec__0(uint8_t x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; 
@@ -1174,14 +1174,14 @@ size_t x_9; size_t x_10; lean_object* x_11;
 x_9 = 0;
 x_10 = lean_usize_of_nat(x_6);
 lean_dec(x_6);
-x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_ppModuleHeader_spec__0(x_3, x_2, x_9, x_10, x_4);
+x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_ppModuleHeader_spec__0(x_3, x_2, x_9, x_10, x_4);
 return x_11;
 }
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_ppModuleHeader_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_ppModuleHeader_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; size_t x_7; size_t x_8; lean_object* x_9; 
@@ -1190,7 +1190,7 @@ x_7 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_8 = lean_unbox_usize(x_4);
 lean_dec(x_4);
-x_9 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_ppModuleHeader_spec__0(x_6, x_2, x_7, x_8, x_5);
+x_9 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_ppModuleHeader_spec__0(x_6, x_2, x_7, x_8, x_5);
 lean_dec_ref(x_2);
 return x_9;
 }

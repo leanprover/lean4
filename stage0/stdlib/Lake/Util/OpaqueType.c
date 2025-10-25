@@ -46,10 +46,10 @@ static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__42;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__2;
 static lean_object* l_Lake_nonemptyTypeCmd___closed__15;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0(lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__63;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__11;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__0;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__67;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__29;
@@ -77,7 +77,7 @@ uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__72;
 LEAN_EXPORT lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__30;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_hydrateOpaqueTypeCmd___closed__2;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__3;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__56;
@@ -107,12 +107,12 @@ static lean_object* l_Lake_hydrateOpaqueTypeCmd___closed__5;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__65;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__26;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__50;
-static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__1;
+static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__1;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__30;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_empty(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__2;
 static lean_object* l_Lake_nonemptyTypeCmd___closed__6;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__51;
@@ -126,10 +126,10 @@ static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__44;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__12;
 static lean_object* l_Lake_nonemptyTypeCmd___closed__23;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__36;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__20;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0(lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
 static lean_object* l_Lake_nonemptyTypeCmd___closed__24;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__58;
@@ -155,7 +155,7 @@ static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__36;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__49;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0___redArg(size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0___redArg(size_t, size_t, lean_object*);
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__27;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__69;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__38;
@@ -163,7 +163,7 @@ static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__38;
 lean_object* lean_mk_syntax_ident(lean_object*);
 static lean_object* l_Lake_nonemptyTypeCmd___closed__29;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__17;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__67;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__52;
@@ -175,13 +175,13 @@ static lean_object* l_Lake_nonemptyTypeCmd___closed__2;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__61;
 static lean_object* l_Lake_nonemptyTypeCmd___closed__0;
 static lean_object* l_Lake_nonemptyTypeCmd___closed__14;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__39;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__77;
 static lean_object* l_Lake_hydrateOpaqueTypeCmd___closed__3;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__47;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__23;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__1(size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__1(size_t, size_t, lean_object*);
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__43;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__31;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__56;
@@ -213,7 +213,7 @@ lean_object* l_Lean_Syntax_node7(lean_object*, lean_object*, lean_object*, lean_
 static lean_object* l_Lake_nonemptyTypeCmd___closed__10;
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_nonemptyTypeCmd___closed__18;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__85;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__21;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__40;
@@ -244,12 +244,12 @@ static lean_object* l_Lake_nonemptyTypeCmd___closed__21;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__60;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__52;
 static lean_object* l_Lake_nonemptyTypeCmd___closed__25;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__14;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__59;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__41;
 static lean_object* l_Lake_nonemptyTypeCmd___closed__7;
-static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__0;
+static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__0;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__73;
 static lean_object* l_Lake_nonemptyTypeCmd___closed__3;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__7;
@@ -263,18 +263,18 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Lake_nonemptyTypeCmd___closed__19;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__62;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__34;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_BinderSyntaxView_mkBinder(lean_object*);
 static lean_object* l_Lake_hydrateOpaqueTypeCmd___closed__7;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__8;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__33;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__1;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__39;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0___redArg(size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0___redArg(size_t, size_t, lean_object*);
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__53;
 static lean_object* l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__4;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1___redArg(size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1___redArg(size_t, size_t, lean_object*);
 static lean_object* _init_l_Lake_nonemptyTypeCmd___closed__0() {
 _start:
 {
@@ -593,7 +593,7 @@ x_1 = l_Lake_nonemptyTypeCmd___closed__30;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0___redArg(size_t x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0___redArg(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -623,15 +623,15 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0___redArg(x_2, x_3, x_4);
+x_5 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0___redArg(x_2, x_3, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__1(size_t x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__1(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -1756,7 +1756,7 @@ lean_ctor_set(x_208, 1, x_202);
 lean_ctor_set(x_208, 2, x_207);
 x_209 = l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__50;
 x_210 = lean_array_size(x_172);
-x_211 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__1(x_210, x_174, x_172);
+x_211 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__1(x_210, x_174, x_172);
 x_212 = l_Array_append___redArg(x_191, x_211);
 lean_dec_ref(x_211);
 lean_inc(x_184);
@@ -1984,7 +1984,7 @@ lean_inc(x_275);
 lean_dec_ref(x_273);
 x_276 = lean_array_size(x_274);
 x_277 = 0;
-x_278 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0___redArg(x_276, x_277, x_274);
+x_278 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0___redArg(x_276, x_277, x_274);
 x_279 = l_Array_unzip___redArg(x_278);
 lean_dec_ref(x_278);
 x_280 = lean_ctor_get(x_279, 0);
@@ -2130,7 +2130,7 @@ goto block_301;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; 
@@ -2138,11 +2138,11 @@ x_4 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0___redArg(x_4, x_5, x_3);
+x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0___redArg(x_4, x_5, x_3);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 size_t x_5; size_t x_6; lean_object* x_7; 
@@ -2150,12 +2150,12 @@ x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
-x_7 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0(x_1, x_5, x_6, x_4);
+x_7 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0(x_1, x_5, x_6, x_4);
 lean_dec(x_1);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; 
@@ -2163,7 +2163,7 @@ x_4 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__1(x_4, x_5, x_3);
+x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__1(x_4, x_5, x_3);
 return x_6;
 }
 }
@@ -2293,7 +2293,7 @@ x_1 = l_Lake_hydrateOpaqueTypeCmd___closed__9;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0___redArg(size_t x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0___redArg(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -2317,15 +2317,15 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0___redArg(x_2, x_3, x_4);
+x_5 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0___redArg(x_2, x_3, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1___redArg(size_t x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1___redArg(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -2349,15 +2349,15 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, size_t x_6, size_t x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, size_t x_6, size_t x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1___redArg(x_6, x_7, x_8);
+x_9 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1___redArg(x_6, x_7, x_8);
 return x_9;
 }
 }
-static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__0() {
+static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -2365,7 +2365,7 @@ x_1 = lean_mk_string_unchecked("implicitBinder", 14, 14);
 return x_1;
 }
 }
-static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__1() {
+static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2373,7 +2373,7 @@ x_1 = lean_mk_string_unchecked("{", 1, 1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, size_t x_7, size_t x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, size_t x_7, size_t x_8, lean_object* x_9) {
 _start:
 {
 uint8_t x_10; 
@@ -2394,12 +2394,12 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean
 x_11 = lean_array_uget(x_9, x_8);
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_array_uset(x_9, x_8, x_12);
-x_14 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__0;
+x_14 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__0;
 lean_inc_ref(x_3);
 lean_inc_ref(x_2);
 lean_inc_ref(x_1);
 x_15 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_14);
-x_16 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__1;
+x_16 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__1;
 lean_inc(x_4);
 x_17 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_17, 0, x_4);
@@ -3556,7 +3556,7 @@ x_152 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_152, 0, x_39);
 lean_ctor_set(x_152, 1, x_17);
 lean_ctor_set(x_152, 2, x_151);
-x_153 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1___redArg(x_43, x_30, x_16);
+x_153 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1___redArg(x_43, x_30, x_16);
 x_154 = lean_array_size(x_153);
 lean_inc(x_63);
 lean_inc(x_54);
@@ -3564,7 +3564,7 @@ lean_inc(x_29);
 lean_inc_ref(x_34);
 lean_inc_ref(x_60);
 lean_inc_ref(x_64);
-x_155 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2(x_64, x_60, x_34, x_29, x_54, x_63, x_154, x_30, x_153);
+x_155 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2(x_64, x_60, x_34, x_29, x_54, x_63, x_154, x_30, x_153);
 x_156 = l_Array_append___redArg(x_22, x_155);
 lean_dec_ref(x_155);
 lean_inc(x_54);
@@ -3882,7 +3882,7 @@ x_295 = l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqu
 x_296 = lean_array_size(x_16);
 x_297 = 0;
 lean_inc_ref(x_16);
-x_298 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0___redArg(x_296, x_297, x_16);
+x_298 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0___redArg(x_296, x_297, x_16);
 x_299 = l_Array_append___redArg(x_248, x_298);
 lean_dec_ref(x_298);
 lean_inc(x_237);
@@ -4100,7 +4100,7 @@ goto block_225;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; 
@@ -4108,11 +4108,11 @@ x_4 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0___redArg(x_4, x_5, x_3);
+x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0___redArg(x_4, x_5, x_3);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 size_t x_5; size_t x_6; lean_object* x_7; 
@@ -4120,12 +4120,12 @@ x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
-x_7 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0(x_1, x_5, x_6, x_4);
+x_7 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__0(x_1, x_5, x_6, x_4);
 lean_dec(x_1);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; 
@@ -4133,11 +4133,11 @@ x_4 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1___redArg(x_4, x_5, x_3);
+x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1___redArg(x_4, x_5, x_3);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 size_t x_9; size_t x_10; lean_object* x_11; 
@@ -4145,7 +4145,7 @@ x_9 = lean_unbox_usize(x_6);
 lean_dec(x_6);
 x_10 = lean_unbox_usize(x_7);
 lean_dec(x_7);
-x_11 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1(x_1, x_2, x_3, x_4, x_5, x_9, x_10, x_8);
+x_11 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__1(x_1, x_2, x_3, x_4, x_5, x_9, x_10, x_8);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
@@ -4154,7 +4154,7 @@ lean_dec_ref(x_1);
 return x_11;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
 size_t x_10; size_t x_11; lean_object* x_12; 
@@ -4162,7 +4162,7 @@ x_10 = lean_unbox_usize(x_7);
 lean_dec(x_7);
 x_11 = lean_unbox_usize(x_8);
 lean_dec(x_8);
-x_12 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2(x_1, x_2, x_3, x_4, x_5, x_6, x_10, x_11, x_9);
+x_12 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2(x_1, x_2, x_3, x_4, x_5, x_6, x_10, x_11, x_9);
 return x_12;
 }
 }
@@ -4407,10 +4407,10 @@ l_Lake_hydrateOpaqueTypeCmd___closed__9 = _init_l_Lake_hydrateOpaqueTypeCmd___cl
 lean_mark_persistent(l_Lake_hydrateOpaqueTypeCmd___closed__9);
 l_Lake_hydrateOpaqueTypeCmd = _init_l_Lake_hydrateOpaqueTypeCmd();
 lean_mark_persistent(l_Lake_hydrateOpaqueTypeCmd);
-l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__0 = _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__0();
-lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__0);
-l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__1 = _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__1();
-lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__1);
+l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__0 = _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__0();
+lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__0);
+l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__1 = _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__1();
+lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1_spec__2___closed__1);
 l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__0 = _init_l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__0();
 lean_mark_persistent(l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__0);
 l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__1 = _init_l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__1();

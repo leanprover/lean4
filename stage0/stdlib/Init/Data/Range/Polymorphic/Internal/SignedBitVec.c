@@ -47,12 +47,12 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_Signed
 LEAN_EXPORT uint8_t l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instDecidableLT(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_intMinSealed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at_____private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_intMinSealed_spec__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00__private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_intMinSealed_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxiHasSize(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxcHasSize___lam__0(lean_object*, lean_object*, lean_object*);
 uint8_t l_BitVec_sle(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at_____private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_intMinSealed_spec__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at_____private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_intMinSealed_spec__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00__private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_intMinSealed_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00__private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_intMinSealed_spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -74,11 +74,11 @@ lean_dec(x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at_____private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_intMinSealed_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00__private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_intMinSealed_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Nat_cast___at_____private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_intMinSealed_spec__0(x_1, x_2);
+x_3 = l_Nat_cast___at___00__private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_intMinSealed_spec__0(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

@@ -48,14 +48,14 @@ static lean_object* l_Std_Time_Minute_instOrdOrdinal___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_Minute_instDecidableLeOffset___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_Minute_instDecidableEqOffset(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Minute_instReprOffset_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_Minute_instReprOffset_spec__0(lean_object*);
 lean_object* l_Std_Time_Internal_Bounded_instRepr___lam__0___boxed(lean_object*, lean_object*);
 lean_object* l_Std_Time_Internal_UnitVal_instToString___lam__0___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_Minute_instDecidableLeOffset(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Minute_instInhabitedOrdinal;
 LEAN_EXPORT lean_object* l_Std_Time_Minute_instDecidableLeOrdinal___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Minute_Ordinal_ofFin(lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___Nat_cast___at___Std_Time_Minute_instReprOffset_spec__0_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Nat_cast___at___00Std_Time_Minute_instReprOffset_spec__0_spec__0(lean_object*);
 lean_object* l_Std_Time_Internal_Bounded_LE_instOfNatHAddIntCast(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Minute_instLTOffset;
 static lean_object* l_Std_Time_Minute_instSubOffset___closed__0;
@@ -361,7 +361,7 @@ x_1 = l_Std_Time_Minute_instOrdOrdinal___closed__2;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Nat_cast___at___Std_Time_Minute_instReprOffset_spec__0_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Nat_cast___at___00Std_Time_Minute_instReprOffset_spec__0_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -369,7 +369,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Minute_instReprOffset_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_Minute_instReprOffset_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -418,7 +418,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(60u);
-x_2 = l_Nat_cast___at___Std_Time_Minute_instReprOffset_spec__0(x_1);
+x_2 = l_Nat_cast___at___00Std_Time_Minute_instReprOffset_spec__0(x_1);
 return x_2;
 }
 }

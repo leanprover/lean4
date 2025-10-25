@@ -14,12 +14,12 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_NameMap_filterMap(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_filterMap___at___Lean_NameMap_filterMap_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_filterMap___at___Lean_NameMap_filterMap_spec__0___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_filterMap___at___00Lean_NameMap_filterMap_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_filterMap___at___00Lean_NameMap_filterMap_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_link___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_link2___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameMap_filterMap___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_filterMap___at___Lean_NameMap_filterMap_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_filterMap___at___00Lean_NameMap_filterMap_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -42,8 +42,8 @@ if (lean_obj_tag(x_7) == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 lean_dec(x_3);
 lean_inc_ref(x_1);
-x_8 = l_Std_DTreeMap_Internal_Impl_filterMap___at___Lean_NameMap_filterMap_spec__0___redArg(x_1, x_5);
-x_9 = l_Std_DTreeMap_Internal_Impl_filterMap___at___Lean_NameMap_filterMap_spec__0___redArg(x_1, x_6);
+x_8 = l_Std_DTreeMap_Internal_Impl_filterMap___at___00Lean_NameMap_filterMap_spec__0___redArg(x_1, x_5);
+x_9 = l_Std_DTreeMap_Internal_Impl_filterMap___at___00Lean_NameMap_filterMap_spec__0___redArg(x_1, x_6);
 x_10 = l_Std_DTreeMap_Internal_Impl_link2___redArg(x_8, x_9);
 return x_10;
 }
@@ -54,8 +54,8 @@ x_11 = lean_ctor_get(x_7, 0);
 lean_inc(x_11);
 lean_dec_ref(x_7);
 lean_inc_ref(x_1);
-x_12 = l_Std_DTreeMap_Internal_Impl_filterMap___at___Lean_NameMap_filterMap_spec__0___redArg(x_1, x_5);
-x_13 = l_Std_DTreeMap_Internal_Impl_filterMap___at___Lean_NameMap_filterMap_spec__0___redArg(x_1, x_6);
+x_12 = l_Std_DTreeMap_Internal_Impl_filterMap___at___00Lean_NameMap_filterMap_spec__0___redArg(x_1, x_5);
+x_13 = l_Std_DTreeMap_Internal_Impl_filterMap___at___00Lean_NameMap_filterMap_spec__0___redArg(x_1, x_6);
 x_14 = l_Std_DTreeMap_Internal_Impl_link___redArg(x_3, x_11, x_12, x_13);
 return x_14;
 }
@@ -69,11 +69,11 @@ return x_15;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_filterMap___at___Lean_NameMap_filterMap_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_filterMap___at___00Lean_NameMap_filterMap_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Std_DTreeMap_Internal_Impl_filterMap___at___Lean_NameMap_filterMap_spec__0___redArg(x_3, x_4);
+x_6 = l_Std_DTreeMap_Internal_Impl_filterMap___at___00Lean_NameMap_filterMap_spec__0___redArg(x_3, x_4);
 return x_6;
 }
 }
@@ -81,7 +81,7 @@ LEAN_EXPORT lean_object* l_Lean_NameMap_filterMap___redArg(lean_object* x_1, lea
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_DTreeMap_Internal_Impl_filterMap___at___Lean_NameMap_filterMap_spec__0___redArg(x_1, x_2);
+x_3 = l_Std_DTreeMap_Internal_Impl_filterMap___at___00Lean_NameMap_filterMap_spec__0___redArg(x_1, x_2);
 return x_3;
 }
 }
@@ -89,7 +89,7 @@ LEAN_EXPORT lean_object* l_Lean_NameMap_filterMap(lean_object* x_1, lean_object*
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Std_DTreeMap_Internal_Impl_filterMap___at___Lean_NameMap_filterMap_spec__0___redArg(x_3, x_4);
+x_5 = l_Std_DTreeMap_Internal_Impl_filterMap___at___00Lean_NameMap_filterMap_spec__0___redArg(x_3, x_4);
 return x_5;
 }
 }

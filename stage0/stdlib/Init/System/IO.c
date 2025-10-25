@@ -27,7 +27,7 @@ LEAN_EXPORT lean_object* l_IO_ofExcept___redArg___boxed(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___redArg___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EIO_mapTask___redArg(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_byte_array_copy_slice(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
-static lean_object* l_termPrintln_x21_______closed__9;
+static lean_object* l_termPrintln_x21_____00__closed__9;
 LEAN_EXPORT uint8_t l_IO_FS_instBEqSystemTime_beq(lean_object*, lean_object*);
 static lean_object* l_instOrElseEIO___closed__0;
 LEAN_EXPORT lean_object* l_EIO_toIO_x27(lean_object*, lean_object*, lean_object*);
@@ -100,12 +100,12 @@ lean_object* lean_io_create_tempdir();
 LEAN_EXPORT lean_object* l_EIO_throw(lean_object*, lean_object*, lean_object*);
 lean_object* lean_get_set_stdout(lean_object*);
 LEAN_EXPORT lean_object* l_EIO_toIO___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_termPrintln_x21_______closed__8;
+static lean_object* l_termPrintln_x21_____00__closed__8;
 static lean_object* l_IO_FS_instReprFileType___closed__0;
 LEAN_EXPORT lean_object* l_EIO_map___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_IO_FS_instInhabitedStream_default___lam__2___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_System_IO_0__System_FilePath_walkDir_go_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Init_System_IO_0__System_FilePath_walkDir_go_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l_IO_FS_instReprFileType_repr___closed__0;
 static lean_object* l_IO_FS_instReprDirEntry_repr___redArg___closed__18;
 LEAN_EXPORT lean_object* l_IO_FS_instInhabitedStream_default___lam__1(size_t);
@@ -140,14 +140,14 @@ LEAN_EXPORT lean_object* l_IO_TaskState_noConfusion___redArg___lam__0(lean_objec
 LEAN_EXPORT lean_object* l_IO_FS_instOrdSystemTime;
 LEAN_EXPORT lean_object* l_IO_FS_Mode_append_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_io_eprintln(lean_object*);
-LEAN_EXPORT lean_object* l_IO_eprint___at_____private_Init_System_IO_0__IO_eprintAux_spec__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_eprint___at___00__private_Init_System_IO_0__IO_eprintAux_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Handle_write___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_ByteArray_isEmpty(lean_object*);
 LEAN_EXPORT lean_object* l_IO_mapTasks___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_process_child_take_stdin(lean_object*, lean_object*);
 static lean_object* l_IO_appDir___closed__1;
 LEAN_EXPORT uint8_t l_IO_instDecidableEqTaskState(uint8_t, uint8_t);
-static lean_object* l_termPrintln_x21_______closed__1;
+static lean_object* l_termPrintln_x21_____00__closed__1;
 lean_object* lean_io_rename(lean_object*, lean_object*);
 static lean_object* l_IO_FS_withIsolatedStreams___redArg___closed__1;
 LEAN_EXPORT lean_object* l_IO_bindTask___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -189,7 +189,7 @@ LEAN_EXPORT lean_object* l_IO_checkCanceled___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_IO_monoMsNow___boxed(lean_object*);
 lean_object* lean_io_symlink_metadata(lean_object*);
 LEAN_EXPORT lean_object* l_IO_mapTasks(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
-static lean_object* l_termPrintln_x21_______closed__13;
+static lean_object* l_termPrintln_x21_____00__closed__13;
 LEAN_EXPORT lean_object* l_IO_FS_instReprSystemTime_repr___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_EIO_map___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_allocprof___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -202,7 +202,7 @@ LEAN_EXPORT lean_object* l_EIO_catchExceptions___redArg___boxed(lean_object*, le
 static lean_object* l_IO_instReprTaskState_repr___closed__3;
 LEAN_EXPORT lean_object* l_IO_FS_FileType_file_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Mode_ctorIdx___boxed(lean_object*);
-static lean_object* l_termPrintln_x21_______closed__3;
+static lean_object* l_termPrintln_x21_____00__closed__3;
 LEAN_EXPORT lean_object* l_IO_FS_FileType_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_EIO_tryCatch___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -216,7 +216,7 @@ lean_object* l_panic___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_instReprDirEntry_repr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_TaskState_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_EIO_toBaseIO___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at___IO_FS_Stream_ofBuffer_spec__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at___00IO_FS_Stream_ofBuffer_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Process_Stdio_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadFinallyBaseIO;
 static lean_object* l_IO_Process_run___closed__0;
@@ -271,7 +271,7 @@ LEAN_EXPORT lean_object* l_IO_FS_createDirAll(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_FileType_symlink_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_TaskState_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 lean_object* lean_get_stdout();
-static lean_object* l_termPrintln_x21_______closed__4;
+static lean_object* l_termPrintln_x21_____00__closed__4;
 LEAN_EXPORT lean_object* l_IO_FS_FileType_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instInhabitedEIO(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStdin___redArg___lam__0___boxed(lean_object*);
@@ -290,7 +290,7 @@ LEAN_EXPORT lean_object* l_IO_FS_Mode_writeNew_elim___boxed(lean_object*, lean_o
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_EIO_catchExceptions___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_instOrdTaskState_ord___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_ofExcept___at___IO_Process_output_spec__0___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_IO_ofExcept___at___00IO_Process_output_spec__0___redArg(lean_object*);
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__48;
 LEAN_EXPORT lean_object* l_IO_withStdin___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EIO_toBaseIO___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -410,15 +410,15 @@ lean_object* lean_st_ref_get(lean_object*);
 LEAN_EXPORT lean_object* l_timeit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AccessRight_flags___boxed(lean_object*);
 static lean_object* l_IO_FS_instReprDirEntry_repr___redArg___closed__12;
-LEAN_EXPORT lean_object* l_IO_eprintln___at_____private_Init_System_IO_0__IO_eprintlnAux_spec__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_eprintln___at___00__private_Init_System_IO_0__IO_eprintlnAux_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Mode_noConfusion___redArg(uint8_t, uint8_t);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___IO_FS_removeDirAll_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00IO_FS_removeDirAll_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_FileType_ctorIdx(uint8_t);
 lean_object* lean_st_mk_ref(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Handle_mk___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Runtime_markMultiThreaded___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__34;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___IO_FS_removeDirAll_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00IO_FS_removeDirAll_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Handle_isTty___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_ofExcept___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_print(lean_object*, lean_object*, lean_object*);
@@ -535,7 +535,7 @@ LEAN_EXPORT lean_object* l_IO_TaskState_running_elim___boxed(lean_object*, lean_
 LEAN_EXPORT lean_object* l_IO_FS_Stream_ctorIdx(lean_object*);
 static lean_object* l_IO_FS_instReprFileType_repr___closed__3;
 LEAN_EXPORT lean_object* l_IO_FS_Stream_ofBuffer___lam__3___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_System_IO_0__System_FilePath_walkDir_go_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Init_System_IO_0__System_FilePath_walkDir_go_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_setStderr___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_getRandomBytes___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_asTask___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -567,7 +567,7 @@ LEAN_EXPORT lean_object* l_IO_FS_Stream_Buffer_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_IO_TaskState_running_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Process_Stdio_ctorElim___redArg___boxed(lean_object*);
 static lean_object* l_IO_FS_instReprDirEntry_repr___redArg___closed__3;
-static lean_object* l_termPrintln_x21_______closed__12;
+static lean_object* l_termPrintln_x21_____00__closed__12;
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__7;
 LEAN_EXPORT lean_object* l_IO_FS_FileType_ctorElim___redArg(lean_object*);
 LEAN_EXPORT uint8_t l_IO_FS_instOrdSystemTime_ord(lean_object*, lean_object*);
@@ -579,7 +579,7 @@ static lean_object* l_IO_FS_Stream_ofBuffer___closed__0;
 LEAN_EXPORT lean_object* l_IO_FS_Stream_ofBuffer___lam__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Mode_write_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_FileType_symlink_elim___redArg___boxed(lean_object*);
-static lean_object* l_termPrintln_x21_______closed__15;
+static lean_object* l_termPrintln_x21_____00__closed__15;
 LEAN_EXPORT lean_object* l_IO_FS_createDir___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EIO_toIO_x27___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_print___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -588,7 +588,7 @@ LEAN_EXPORT lean_object* l_EIO_mapTasks(lean_object*, lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_IO_FS_withFile___redArg(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_BaseIO_bindTask___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_instReprSystemTime_repr___redArg___closed__2;
-static lean_object* l_termPrintln_x21_______closed__5;
+static lean_object* l_termPrintln_x21_____00__closed__5;
 LEAN_EXPORT uint8_t l_IO_instMinTaskState___lam__0(uint8_t, uint8_t);
 static lean_object* l_IO_instReprTaskState_repr___closed__7;
 LEAN_EXPORT lean_object* l_IO_FS_Stream_readToEnd___boxed(lean_object*, lean_object*);
@@ -622,7 +622,7 @@ LEAN_EXPORT lean_object* l_EIO_tryCatch___boxed(lean_object*, lean_object*, lean
 static lean_object* l_IO_FS_instReprSystemTime_repr___redArg___closed__3;
 LEAN_EXPORT lean_object* l_IO_instReprTaskState_repr(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_Buffer_ctorIdx(lean_object*);
-static lean_object* l_termPrintln_x21_______closed__16;
+static lean_object* l_termPrintln_x21_____00__closed__16;
 LEAN_EXPORT lean_object* l_BaseIO_toIO___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EIO_bindTask(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -642,7 +642,7 @@ LEAN_EXPORT lean_object* l_IO_FS_SystemTime_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_IO_TaskState_toString___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_runtime_forget(lean_object*);
-LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at___IO_FS_Stream_ofBuffer_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at___00IO_FS_Stream_ofBuffer_spec__0(lean_object*, lean_object*);
 static lean_object* l_IO_FS_instReprMetadata_repr___redArg___closed__8;
 LEAN_EXPORT lean_object* l_IO_FS_Mode_write_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadLiftBaseIOEIO___lam__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -680,14 +680,14 @@ lean_object* lean_io_exit(uint8_t);
 LEAN_EXPORT lean_object* l_IO_iterate___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Mode_noConfusion___redArg___boxed(lean_object*, lean_object*);
 lean_object* l_Substring_prevn(lean_object*, lean_object*, lean_object*);
-static lean_object* l_termPrintln_x21_______closed__10;
+static lean_object* l_termPrintln_x21_____00__closed__10;
 LEAN_EXPORT lean_object* l_IO_FS_FileType_other_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Prim_setAccessRights___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EIO_bindTask___redArg(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_unsafeIO(lean_object*, lean_object*);
 static lean_object* l_IO_FS_instReprDirEntry_repr___redArg___closed__14;
 LEAN_EXPORT lean_object* l_IO_FS_Mode_append_elim___redArg___boxed(lean_object*);
-static lean_object* l_termPrintln_x21_______closed__2;
+static lean_object* l_termPrintln_x21_____00__closed__2;
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 uint32_t lean_uint32_lor(uint32_t, uint32_t);
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__22;
@@ -715,13 +715,13 @@ LEAN_EXPORT lean_object* l_IO_withStderr___redArg(lean_object*, lean_object*, le
 LEAN_EXPORT lean_object* l_EIO_mapTask___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_bind_task(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_IO_FS_FileType_other_elim(lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___IO_FS_instReprDirEntry_repr_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00IO_FS_instReprDirEntry_repr_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_FileType_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Process_Stdio_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_get_set_stdin(lean_object*);
 LEAN_EXPORT lean_object* l_IO_lazyPure(lean_object*, lean_object*);
 LEAN_EXPORT uint32_t l_IO_FileRight_flags(lean_object*);
-static lean_object* l_termPrintln_x21_______closed__14;
+static lean_object* l_termPrintln_x21_____00__closed__14;
 LEAN_EXPORT lean_object* l_IO_instOrdTaskState;
 LEAN_EXPORT lean_object* l_IO_FS_FileType_dir_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BaseIO_chainTask___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -730,7 +730,7 @@ LEAN_EXPORT lean_object* l_IO_FS_Stream_readBinToEndInto___boxed(lean_object*, l
 static lean_object* l_instOrElseEIO___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_System_IO_0__BaseIO_mapTasks_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_eprintln___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_ofExcept___at___IO_Process_output_spec__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_ofExcept___at___00IO_Process_output_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_TaskState_ofNat___boxed(lean_object*);
 static lean_object* l_IO_FS_withIsolatedStreams___redArg___lam__1___closed__1;
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__41;
@@ -749,7 +749,7 @@ LEAN_EXPORT lean_object* l_IO_FS_instLESystemTime;
 LEAN_EXPORT lean_object* l_IO_AccessRight_ctorIdx(lean_object*);
 uint8_t lean_io_initializing();
 LEAN_EXPORT lean_object* l_BaseIO_chainTask___redArg(lean_object*, lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_IO_eprint___at_____private_Init_System_IO_0__IO_eprintAux_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_IO_eprint___at___00__private_Init_System_IO_0__IO_eprintAux_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_BaseIO_toEIO___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Process_Stdio_ctorElim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_IO_instLETaskState;
@@ -806,7 +806,7 @@ LEAN_EXPORT lean_object* l_IO_initializing___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_realPath___boxed(lean_object*, lean_object*);
 static lean_object* l_IO_TaskState_toString___closed__0;
 LEAN_EXPORT lean_object* l_EIO_mapTasks___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_ofExcept___at___IO_Process_output_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_ofExcept___at___00IO_Process_output_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Mode_readWrite_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_instOrdSystemTime___closed__0;
 static lean_object* l_IO_FS_instReprSystemTime_repr___redArg___closed__5;
@@ -814,7 +814,7 @@ LEAN_EXPORT lean_object* l_IO_FS_Mode_write_elim___boxed(lean_object*, lean_obje
 lean_object* lean_string_from_utf8_unchecked(lean_object*);
 LEAN_EXPORT lean_object* l_EIO_asTask___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BaseIO_toEIO(lean_object*, lean_object*, lean_object*);
-static lean_object* l_termPrintln_x21_______closed__11;
+static lean_object* l_termPrintln_x21_____00__closed__11;
 static lean_object* l_IO_instOrdTaskState___closed__0;
 LEAN_EXPORT lean_object* l_IO_Process_Stdio_piped_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__16;
@@ -831,7 +831,7 @@ static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21__
 LEAN_EXPORT lean_object* l_IO_FileRight_ctorIdx(lean_object*);
 static lean_object* l_IO_FS_instReprDirEntry_repr___redArg___closed__6;
 LEAN_EXPORT lean_object* l_IO_Process_Stdio_ctorIdx___boxed(lean_object*);
-static lean_object* l_termPrintln_x21_______closed__0;
+static lean_object* l_termPrintln_x21_____00__closed__0;
 LEAN_EXPORT lean_object* l_IO_FS_writeBinFile___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_TaskState_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_asTask(lean_object*, lean_object*, lean_object*);
@@ -841,7 +841,7 @@ LEAN_EXPORT lean_object* l_EIO_tryCatch___redArg(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_unsafeEIO___redArg(lean_object*);
 static lean_object* l_IO_FS_instInhabitedSystemTime_default___closed__1;
-LEAN_EXPORT lean_object* l_IO_eprintln___at_____private_Init_System_IO_0__IO_eprintlnAux_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_IO_eprintln___at___00__private_Init_System_IO_0__IO_eprintlnAux_spec__0(lean_object*);
 static lean_object* l_IO_FS_instBEqSystemTime___closed__0;
 LEAN_EXPORT lean_object* l_IO_println___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_FileType_dir_elim___redArg(lean_object*);
@@ -857,7 +857,7 @@ uint32_t lean_io_process_get_pid();
 LEAN_EXPORT lean_object* l_IO_FS_readBinFile(lean_object*);
 static lean_object* l_IO_instReprTaskState_repr___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_System_IO_0__IO_FS_Handle_lines_read___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_termPrintln_x21_______closed__6;
+static lean_object* l_termPrintln_x21_____00__closed__6;
 LEAN_EXPORT lean_object* l_EIO_chainTask___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Handle_lines(lean_object*);
 LEAN_EXPORT lean_object* l_EIO_toIO_x27___redArg(lean_object*);
@@ -867,7 +867,7 @@ LEAN_EXPORT lean_object* l_IO_FS_instReprMetadata_repr___redArg(lean_object*);
 lean_object* l_instInhabitedEST___redArg(lean_object*);
 static lean_object* l_IO_FS_instReprDirEntry_repr___redArg___closed__2;
 static lean_object* l_IO_FS_instReprDirEntry_repr___redArg___closed__1;
-LEAN_EXPORT lean_object* l_IO_ofExcept___at___IO_Process_output_spec__0___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_ofExcept___at___00IO_Process_output_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_instBEqSystemTime_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Process_Stdio_inherit_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_byte_array_size(lean_object*);
@@ -905,7 +905,7 @@ LEAN_EXPORT lean_object* l_IO_mapTask___redArg___lam__0___boxed(lean_object*, le
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__14;
 LEAN_EXPORT lean_object* l_IO_iterate___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Process_Stdio_noConfusion___redArg(uint8_t, uint8_t);
-static lean_object* l_termPrintln_x21_______closed__7;
+static lean_object* l_termPrintln_x21_____00__closed__7;
 LEAN_EXPORT lean_object* lean_io_eprint(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Mode_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Process_StdioConfig_ctorIdx___boxed(lean_object*);
@@ -6022,7 +6022,7 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___IO_FS_instReprDirEntry_repr_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00IO_FS_instReprDirEntry_repr_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -7742,7 +7742,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_System_IO_0__System_FilePath_walkDir_go_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, size_t x_5, size_t x_6, lean_object* x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Init_System_IO_0__System_FilePath_walkDir_go_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, size_t x_5, size_t x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_17; 
@@ -8036,7 +8036,7 @@ lean_dec_ref(x_11);
 x_13 = lean_box(0);
 x_14 = lean_array_size(x_12);
 x_15 = 0;
-x_16 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_System_IO_0__System_FilePath_walkDir_go_spec__0(x_1, x_13, x_2, x_12, x_14, x_15, x_13, x_3);
+x_16 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Init_System_IO_0__System_FilePath_walkDir_go_spec__0(x_1, x_13, x_2, x_12, x_14, x_15, x_13, x_3);
 lean_dec(x_12);
 if (lean_obj_tag(x_16) == 0)
 {
@@ -8159,7 +8159,7 @@ lean_dec_ref(x_36);
 x_38 = lean_box(0);
 x_39 = lean_array_size(x_37);
 x_40 = 0;
-x_41 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_System_IO_0__System_FilePath_walkDir_go_spec__0(x_1, x_38, x_2, x_37, x_39, x_40, x_38, x_3);
+x_41 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Init_System_IO_0__System_FilePath_walkDir_go_spec__0(x_1, x_38, x_2, x_37, x_39, x_40, x_38, x_3);
 lean_dec(x_37);
 if (lean_obj_tag(x_41) == 0)
 {
@@ -8253,7 +8253,7 @@ return x_53;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_System_IO_0__System_FilePath_walkDir_go_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Init_System_IO_0__System_FilePath_walkDir_go_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
 size_t x_10; size_t x_11; lean_object* x_12; 
@@ -8261,7 +8261,7 @@ x_10 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_11 = lean_unbox_usize(x_6);
 lean_dec(x_6);
-x_12 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_System_IO_0__System_FilePath_walkDir_go_spec__0(x_1, x_2, x_3, x_4, x_10, x_11, x_7, x_8);
+x_12 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Init_System_IO_0__System_FilePath_walkDir_go_spec__0(x_1, x_2, x_3, x_4, x_10, x_11, x_7, x_8);
 lean_dec_ref(x_4);
 return x_12;
 }
@@ -8930,7 +8930,7 @@ x_5 = l_IO_eprintln(x_1, x_2, x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_IO_eprint___at_____private_Init_System_IO_0__IO_eprintAux_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_IO_eprint___at___00__private_Init_System_IO_0__IO_eprintAux_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -8946,15 +8946,15 @@ LEAN_EXPORT lean_object* lean_io_eprint(lean_object* x_1) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_IO_eprint___at_____private_Init_System_IO_0__IO_eprintAux_spec__0(x_1);
+x_3 = l_IO_eprint___at___00__private_Init_System_IO_0__IO_eprintAux_spec__0(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_IO_eprint___at_____private_Init_System_IO_0__IO_eprintAux_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_IO_eprint___at___00__private_Init_System_IO_0__IO_eprintAux_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_IO_eprint___at_____private_Init_System_IO_0__IO_eprintAux_spec__0(x_1);
+x_3 = l_IO_eprint___at___00__private_Init_System_IO_0__IO_eprintAux_spec__0(x_1);
 return x_3;
 }
 }
@@ -8966,13 +8966,13 @@ x_3 = lean_io_eprint(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_IO_eprintln___at_____private_Init_System_IO_0__IO_eprintlnAux_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_IO_eprintln___at___00__private_Init_System_IO_0__IO_eprintlnAux_spec__0(lean_object* x_1) {
 _start:
 {
 uint32_t x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = 10;
 x_4 = lean_string_push(x_1, x_3);
-x_5 = l_IO_eprint___at_____private_Init_System_IO_0__IO_eprintAux_spec__0(x_4);
+x_5 = l_IO_eprint___at___00__private_Init_System_IO_0__IO_eprintAux_spec__0(x_4);
 return x_5;
 }
 }
@@ -8980,15 +8980,15 @@ LEAN_EXPORT lean_object* lean_io_eprintln(lean_object* x_1) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_IO_eprintln___at_____private_Init_System_IO_0__IO_eprintlnAux_spec__0(x_1);
+x_3 = l_IO_eprintln___at___00__private_Init_System_IO_0__IO_eprintlnAux_spec__0(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_IO_eprintln___at_____private_Init_System_IO_0__IO_eprintlnAux_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_IO_eprintln___at___00__private_Init_System_IO_0__IO_eprintlnAux_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_IO_eprintln___at_____private_Init_System_IO_0__IO_eprintlnAux_spec__0(x_1);
+x_3 = l_IO_eprintln___at___00__private_Init_System_IO_0__IO_eprintlnAux_spec__0(x_1);
 return x_3;
 }
 }
@@ -9211,7 +9211,7 @@ lean_dec_ref(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___IO_FS_removeDirAll_spec__0(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00IO_FS_removeDirAll_spec__0(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_13; 
@@ -9320,7 +9320,7 @@ lean_dec_ref(x_3);
 x_5 = lean_box(0);
 x_6 = lean_array_size(x_4);
 x_7 = 0;
-x_8 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___IO_FS_removeDirAll_spec__0(x_5, x_4, x_6, x_7, x_5);
+x_8 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00IO_FS_removeDirAll_spec__0(x_5, x_4, x_6, x_7, x_5);
 lean_dec(x_4);
 if (lean_obj_tag(x_8) == 0)
 {
@@ -9355,7 +9355,7 @@ return x_12;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___IO_FS_removeDirAll_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00IO_FS_removeDirAll_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; 
@@ -9363,7 +9363,7 @@ x_7 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_8 = lean_unbox_usize(x_4);
 lean_dec(x_4);
-x_9 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___IO_FS_removeDirAll_spec__0(x_1, x_2, x_7, x_8, x_5);
+x_9 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00IO_FS_removeDirAll_spec__0(x_1, x_2, x_7, x_8, x_5);
 lean_dec_ref(x_2);
 return x_9;
 }
@@ -9881,7 +9881,7 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_IO_ofExcept___at___IO_Process_output_spec__0___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_IO_ofExcept___at___00IO_Process_output_spec__0___redArg(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -9933,11 +9933,11 @@ return x_13;
 }
 }
 }
-LEAN_EXPORT lean_object* l_IO_ofExcept___at___IO_Process_output_spec__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_IO_ofExcept___at___00IO_Process_output_spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_IO_ofExcept___at___IO_Process_output_spec__0___redArg(x_2);
+x_4 = l_IO_ofExcept___at___00IO_Process_output_spec__0___redArg(x_2);
 return x_4;
 }
 }
@@ -10415,7 +10415,7 @@ x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 lean_dec_ref(x_14);
 x_16 = lean_task_get_own(x_10);
-x_17 = l_IO_ofExcept___at___IO_Process_output_spec__0___redArg(x_16);
+x_17 = l_IO_ofExcept___at___00IO_Process_output_spec__0___redArg(x_16);
 if (lean_obj_tag(x_17) == 0)
 {
 uint8_t x_18; 
@@ -10518,19 +10518,19 @@ return x_34;
 }
 }
 }
-LEAN_EXPORT lean_object* l_IO_ofExcept___at___IO_Process_output_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_IO_ofExcept___at___00IO_Process_output_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_IO_ofExcept___at___IO_Process_output_spec__0___redArg(x_1);
+x_3 = l_IO_ofExcept___at___00IO_Process_output_spec__0___redArg(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_IO_ofExcept___at___IO_Process_output_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_IO_ofExcept___at___00IO_Process_output_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_IO_ofExcept___at___IO_Process_output_spec__0(x_1, x_2);
+x_4 = l_IO_ofExcept___at___00IO_Process_output_spec__0(x_1, x_2);
 return x_4;
 }
 }
@@ -11108,7 +11108,7 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at___IO_FS_Stream_ofBuffer_spec__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at___00IO_FS_Stream_ofBuffer_spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_9; uint8_t x_10; 
@@ -11366,7 +11366,7 @@ if (lean_is_exclusive(x_3)) {
  x_6 = lean_box(0);
 }
 lean_inc(x_5);
-x_17 = l_ByteArray_findIdx_x3f_loop___at___IO_FS_Stream_ofBuffer_spec__0(x_4, x_5);
+x_17 = l_ByteArray_findIdx_x3f_loop___at___00IO_FS_Stream_ofBuffer_spec__0(x_4, x_5);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; 
@@ -11485,11 +11485,11 @@ lean_ctor_set(x_9, 5, x_8);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at___IO_FS_Stream_ofBuffer_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at___00IO_FS_Stream_ofBuffer_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_ByteArray_findIdx_x3f_loop___at___IO_FS_Stream_ofBuffer_spec__0(x_1, x_2);
+x_3 = l_ByteArray_findIdx_x3f_loop___at___00IO_FS_Stream_ofBuffer_spec__0(x_1, x_2);
 lean_dec_ref(x_1);
 return x_3;
 }
@@ -12058,7 +12058,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_IO_FS_withIsolatedStreams___redArg___lam__1___closed__3;
 x_2 = lean_unsigned_to_nat(46u);
-x_3 = lean_unsigned_to_nat(244u);
+x_3 = lean_unsigned_to_nat(212u);
 x_4 = l_IO_FS_withIsolatedStreams___redArg___lam__1___closed__2;
 x_5 = l_IO_FS_withIsolatedStreams___redArg___lam__1___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -12282,7 +12282,7 @@ x_9 = l_IO_FS_withIsolatedStreams(x_1, x_2, x_3, x_4, x_5, x_6, x_8);
 return x_9;
 }
 }
-static lean_object* _init_l_termPrintln_x21_______closed__0() {
+static lean_object* _init_l_termPrintln_x21_____00__closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -12290,16 +12290,16 @@ x_1 = lean_mk_string_unchecked("termPrintln!__", 14, 14);
 return x_1;
 }
 }
-static lean_object* _init_l_termPrintln_x21_______closed__1() {
+static lean_object* _init_l_termPrintln_x21_____00__closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_termPrintln_x21_______closed__0;
+x_1 = l_termPrintln_x21_____00__closed__0;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_termPrintln_x21_______closed__2() {
+static lean_object* _init_l_termPrintln_x21_____00__closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -12307,16 +12307,16 @@ x_1 = lean_mk_string_unchecked("andthen", 7, 7);
 return x_1;
 }
 }
-static lean_object* _init_l_termPrintln_x21_______closed__3() {
+static lean_object* _init_l_termPrintln_x21_____00__closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_termPrintln_x21_______closed__2;
+x_1 = l_termPrintln_x21_____00__closed__2;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_termPrintln_x21_______closed__4() {
+static lean_object* _init_l_termPrintln_x21_____00__closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -12324,17 +12324,17 @@ x_1 = lean_mk_string_unchecked("println! ", 9, 9);
 return x_1;
 }
 }
-static lean_object* _init_l_termPrintln_x21_______closed__5() {
+static lean_object* _init_l_termPrintln_x21_____00__closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_termPrintln_x21_______closed__4;
+x_1 = l_termPrintln_x21_____00__closed__4;
 x_2 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_termPrintln_x21_______closed__6() {
+static lean_object* _init_l_termPrintln_x21_____00__closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -12342,16 +12342,16 @@ x_1 = lean_mk_string_unchecked("orelse", 6, 6);
 return x_1;
 }
 }
-static lean_object* _init_l_termPrintln_x21_______closed__7() {
+static lean_object* _init_l_termPrintln_x21_____00__closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_termPrintln_x21_______closed__6;
+x_1 = l_termPrintln_x21_____00__closed__6;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_termPrintln_x21_______closed__8() {
+static lean_object* _init_l_termPrintln_x21_____00__closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -12359,16 +12359,16 @@ x_1 = lean_mk_string_unchecked("interpolatedStr", 15, 15);
 return x_1;
 }
 }
-static lean_object* _init_l_termPrintln_x21_______closed__9() {
+static lean_object* _init_l_termPrintln_x21_____00__closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_termPrintln_x21_______closed__8;
+x_1 = l_termPrintln_x21_____00__closed__8;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_termPrintln_x21_______closed__10() {
+static lean_object* _init_l_termPrintln_x21_____00__closed__10() {
 _start:
 {
 lean_object* x_1; 
@@ -12376,46 +12376,46 @@ x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l_termPrintln_x21_______closed__11() {
+static lean_object* _init_l_termPrintln_x21_____00__closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_termPrintln_x21_______closed__10;
+x_1 = l_termPrintln_x21_____00__closed__10;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_termPrintln_x21_______closed__12() {
+static lean_object* _init_l_termPrintln_x21_____00__closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_termPrintln_x21_______closed__11;
+x_2 = l_termPrintln_x21_____00__closed__11;
 x_3 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_termPrintln_x21_______closed__13() {
+static lean_object* _init_l_termPrintln_x21_____00__closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_termPrintln_x21_______closed__12;
-x_2 = l_termPrintln_x21_______closed__9;
+x_1 = l_termPrintln_x21_____00__closed__12;
+x_2 = l_termPrintln_x21_____00__closed__9;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_termPrintln_x21_______closed__14() {
+static lean_object* _init_l_termPrintln_x21_____00__closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_termPrintln_x21_______closed__12;
-x_2 = l_termPrintln_x21_______closed__13;
-x_3 = l_termPrintln_x21_______closed__7;
+x_1 = l_termPrintln_x21_____00__closed__12;
+x_2 = l_termPrintln_x21_____00__closed__13;
+x_3 = l_termPrintln_x21_____00__closed__7;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
@@ -12423,13 +12423,13 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_termPrintln_x21_______closed__15() {
+static lean_object* _init_l_termPrintln_x21_____00__closed__15() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_termPrintln_x21_______closed__14;
-x_2 = l_termPrintln_x21_______closed__5;
-x_3 = l_termPrintln_x21_______closed__3;
+x_1 = l_termPrintln_x21_____00__closed__14;
+x_2 = l_termPrintln_x21_____00__closed__5;
+x_3 = l_termPrintln_x21_____00__closed__3;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
@@ -12437,13 +12437,13 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_termPrintln_x21_______closed__16() {
+static lean_object* _init_l_termPrintln_x21_____00__closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_termPrintln_x21_______closed__15;
+x_1 = l_termPrintln_x21_____00__closed__15;
 x_2 = lean_unsigned_to_nat(1022u);
-x_3 = l_termPrintln_x21_______closed__1;
+x_3 = l_termPrintln_x21_____00__closed__1;
 x_4 = lean_alloc_ctor(3, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
@@ -12455,7 +12455,7 @@ static lean_object* _init_l_termPrintln_x21____() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_termPrintln_x21_______closed__16;
+x_1 = l_termPrintln_x21_____00__closed__16;
 return x_1;
 }
 }
@@ -12940,7 +12940,7 @@ LEAN_EXPORT lean_object* l___aux__Init__System__IO______macroRules__termPrintln_
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = l_termPrintln_x21_______closed__1;
+x_4 = l_termPrintln_x21_____00__closed__1;
 lean_inc(x_1);
 x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
@@ -13487,40 +13487,40 @@ l_IO_FS_withIsolatedStreams___redArg___closed__0 = _init_l_IO_FS_withIsolatedStr
 lean_mark_persistent(l_IO_FS_withIsolatedStreams___redArg___closed__0);
 l_IO_FS_withIsolatedStreams___redArg___closed__1 = _init_l_IO_FS_withIsolatedStreams___redArg___closed__1();
 lean_mark_persistent(l_IO_FS_withIsolatedStreams___redArg___closed__1);
-l_termPrintln_x21_______closed__0 = _init_l_termPrintln_x21_______closed__0();
-lean_mark_persistent(l_termPrintln_x21_______closed__0);
-l_termPrintln_x21_______closed__1 = _init_l_termPrintln_x21_______closed__1();
-lean_mark_persistent(l_termPrintln_x21_______closed__1);
-l_termPrintln_x21_______closed__2 = _init_l_termPrintln_x21_______closed__2();
-lean_mark_persistent(l_termPrintln_x21_______closed__2);
-l_termPrintln_x21_______closed__3 = _init_l_termPrintln_x21_______closed__3();
-lean_mark_persistent(l_termPrintln_x21_______closed__3);
-l_termPrintln_x21_______closed__4 = _init_l_termPrintln_x21_______closed__4();
-lean_mark_persistent(l_termPrintln_x21_______closed__4);
-l_termPrintln_x21_______closed__5 = _init_l_termPrintln_x21_______closed__5();
-lean_mark_persistent(l_termPrintln_x21_______closed__5);
-l_termPrintln_x21_______closed__6 = _init_l_termPrintln_x21_______closed__6();
-lean_mark_persistent(l_termPrintln_x21_______closed__6);
-l_termPrintln_x21_______closed__7 = _init_l_termPrintln_x21_______closed__7();
-lean_mark_persistent(l_termPrintln_x21_______closed__7);
-l_termPrintln_x21_______closed__8 = _init_l_termPrintln_x21_______closed__8();
-lean_mark_persistent(l_termPrintln_x21_______closed__8);
-l_termPrintln_x21_______closed__9 = _init_l_termPrintln_x21_______closed__9();
-lean_mark_persistent(l_termPrintln_x21_______closed__9);
-l_termPrintln_x21_______closed__10 = _init_l_termPrintln_x21_______closed__10();
-lean_mark_persistent(l_termPrintln_x21_______closed__10);
-l_termPrintln_x21_______closed__11 = _init_l_termPrintln_x21_______closed__11();
-lean_mark_persistent(l_termPrintln_x21_______closed__11);
-l_termPrintln_x21_______closed__12 = _init_l_termPrintln_x21_______closed__12();
-lean_mark_persistent(l_termPrintln_x21_______closed__12);
-l_termPrintln_x21_______closed__13 = _init_l_termPrintln_x21_______closed__13();
-lean_mark_persistent(l_termPrintln_x21_______closed__13);
-l_termPrintln_x21_______closed__14 = _init_l_termPrintln_x21_______closed__14();
-lean_mark_persistent(l_termPrintln_x21_______closed__14);
-l_termPrintln_x21_______closed__15 = _init_l_termPrintln_x21_______closed__15();
-lean_mark_persistent(l_termPrintln_x21_______closed__15);
-l_termPrintln_x21_______closed__16 = _init_l_termPrintln_x21_______closed__16();
-lean_mark_persistent(l_termPrintln_x21_______closed__16);
+l_termPrintln_x21_____00__closed__0 = _init_l_termPrintln_x21_____00__closed__0();
+lean_mark_persistent(l_termPrintln_x21_____00__closed__0);
+l_termPrintln_x21_____00__closed__1 = _init_l_termPrintln_x21_____00__closed__1();
+lean_mark_persistent(l_termPrintln_x21_____00__closed__1);
+l_termPrintln_x21_____00__closed__2 = _init_l_termPrintln_x21_____00__closed__2();
+lean_mark_persistent(l_termPrintln_x21_____00__closed__2);
+l_termPrintln_x21_____00__closed__3 = _init_l_termPrintln_x21_____00__closed__3();
+lean_mark_persistent(l_termPrintln_x21_____00__closed__3);
+l_termPrintln_x21_____00__closed__4 = _init_l_termPrintln_x21_____00__closed__4();
+lean_mark_persistent(l_termPrintln_x21_____00__closed__4);
+l_termPrintln_x21_____00__closed__5 = _init_l_termPrintln_x21_____00__closed__5();
+lean_mark_persistent(l_termPrintln_x21_____00__closed__5);
+l_termPrintln_x21_____00__closed__6 = _init_l_termPrintln_x21_____00__closed__6();
+lean_mark_persistent(l_termPrintln_x21_____00__closed__6);
+l_termPrintln_x21_____00__closed__7 = _init_l_termPrintln_x21_____00__closed__7();
+lean_mark_persistent(l_termPrintln_x21_____00__closed__7);
+l_termPrintln_x21_____00__closed__8 = _init_l_termPrintln_x21_____00__closed__8();
+lean_mark_persistent(l_termPrintln_x21_____00__closed__8);
+l_termPrintln_x21_____00__closed__9 = _init_l_termPrintln_x21_____00__closed__9();
+lean_mark_persistent(l_termPrintln_x21_____00__closed__9);
+l_termPrintln_x21_____00__closed__10 = _init_l_termPrintln_x21_____00__closed__10();
+lean_mark_persistent(l_termPrintln_x21_____00__closed__10);
+l_termPrintln_x21_____00__closed__11 = _init_l_termPrintln_x21_____00__closed__11();
+lean_mark_persistent(l_termPrintln_x21_____00__closed__11);
+l_termPrintln_x21_____00__closed__12 = _init_l_termPrintln_x21_____00__closed__12();
+lean_mark_persistent(l_termPrintln_x21_____00__closed__12);
+l_termPrintln_x21_____00__closed__13 = _init_l_termPrintln_x21_____00__closed__13();
+lean_mark_persistent(l_termPrintln_x21_____00__closed__13);
+l_termPrintln_x21_____00__closed__14 = _init_l_termPrintln_x21_____00__closed__14();
+lean_mark_persistent(l_termPrintln_x21_____00__closed__14);
+l_termPrintln_x21_____00__closed__15 = _init_l_termPrintln_x21_____00__closed__15();
+lean_mark_persistent(l_termPrintln_x21_____00__closed__15);
+l_termPrintln_x21_____00__closed__16 = _init_l_termPrintln_x21_____00__closed__16();
+lean_mark_persistent(l_termPrintln_x21_____00__closed__16);
 l_termPrintln_x21____ = _init_l_termPrintln_x21____();
 lean_mark_persistent(l_termPrintln_x21____);
 l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__0 = _init_l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__0();

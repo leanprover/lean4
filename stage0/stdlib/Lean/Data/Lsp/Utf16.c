@@ -16,7 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_FileMap_lspRangeOfStx_x3f(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_FileMap_lspRangeToUtf8Range(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_utf8RangeToLspRange(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_foldrAux___at___String_utf16Length_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_foldrAux___at___00String_utf16Length_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Utf16_0__Lean_FileMap_lineStartPos(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_utf16PosToCodepointPos___boxed(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
@@ -48,7 +48,7 @@ LEAN_EXPORT uint32_t l_Char_utf16Size(uint32_t);
 LEAN_EXPORT lean_object* l_Lean_FileMap_lspRangeToUtf8Range___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_codepointPosToUtf16Pos___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_leanPosToLspPos(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_foldrAux___at___String_utf16Length_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_foldrAux___at___00String_utf16Length_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFromAux(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
@@ -117,7 +117,7 @@ x_3 = l___private_Lean_Data_Lsp_Utf16_0__String_csize16(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_String_foldrAux___at___String_utf16Length_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_String_foldrAux___at___00String_utf16Length_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -149,15 +149,15 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_string_utf8_byte_size(x_1);
-x_4 = l_String_foldrAux___at___String_utf16Length_spec__0(x_2, x_1, x_3, x_2);
+x_4 = l_String_foldrAux___at___00String_utf16Length_spec__0(x_2, x_1, x_3, x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_String_foldrAux___at___String_utf16Length_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_String_foldrAux___at___00String_utf16Length_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_String_foldrAux___at___String_utf16Length_spec__0(x_1, x_2, x_3, x_4);
+x_5 = l_String_foldrAux___at___00String_utf16Length_spec__0(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 lean_dec_ref(x_2);
 return x_5;

@@ -31,15 +31,15 @@ extern lean_object* l_Lean_NameSet_empty;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 static lean_object* l_Lean_collectAxioms___redArg___lam__0___closed__2;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_CollectAxioms_collect_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_CollectAxioms_collect_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_CollectAxioms_collect_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_CollectAxioms_collect_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_collectAxioms___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Expr_getUsedConstants(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_forM___at___Lean_CollectAxioms_collect_spec__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_forM___at___00Lean_CollectAxioms_collect_spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_collectAxioms(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CollectAxioms_State_ctorIdx(lean_object* x_1) {
 _start:
@@ -58,7 +58,7 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_CollectAxioms_collect_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_CollectAxioms_collect_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 uint8_t x_7; 
@@ -92,7 +92,7 @@ return x_15;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_forM___at___Lean_CollectAxioms_collect_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_List_forM___at___00Lean_CollectAxioms_collect_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -165,7 +165,7 @@ size_t x_12; size_t x_13; lean_object* x_14;
 x_12 = 0;
 x_13 = lean_usize_of_nat(x_6);
 lean_dec(x_6);
-x_14 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_CollectAxioms_collect_spec__0(x_4, x_12, x_13, x_7, x_2, x_3);
+x_14 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_CollectAxioms_collect_spec__0(x_4, x_12, x_13, x_7, x_2, x_3);
 lean_dec_ref(x_4);
 return x_14;
 }
@@ -278,7 +278,7 @@ x_29 = l_Lean_CollectAxioms_collect___lam__0(x_28, x_2, x_3);
 x_30 = lean_ctor_get(x_29, 1);
 lean_inc(x_30);
 lean_dec_ref(x_29);
-x_31 = l_List_forM___at___Lean_CollectAxioms_collect_spec__1(x_27, x_2, x_30);
+x_31 = l_List_forM___at___00Lean_CollectAxioms_collect_spec__1(x_27, x_2, x_30);
 return x_31;
 }
 case 6:
@@ -437,7 +437,7 @@ x_67 = l_Lean_CollectAxioms_collect___lam__0(x_66, x_2, x_49);
 x_68 = lean_ctor_get(x_67, 1);
 lean_inc(x_68);
 lean_dec_ref(x_67);
-x_69 = l_List_forM___at___Lean_CollectAxioms_collect_spec__1(x_65, x_2, x_68);
+x_69 = l_List_forM___at___00Lean_CollectAxioms_collect_spec__1(x_65, x_2, x_68);
 return x_69;
 }
 case 6:
@@ -518,7 +518,7 @@ return x_86;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_CollectAxioms_collect_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_CollectAxioms_collect_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; 
@@ -526,7 +526,7 @@ x_7 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_8 = lean_unbox_usize(x_3);
 lean_dec(x_3);
-x_9 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_CollectAxioms_collect_spec__0(x_1, x_7, x_8, x_4, x_5, x_6);
+x_9 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_CollectAxioms_collect_spec__0(x_1, x_7, x_8, x_4, x_5, x_6);
 lean_dec_ref(x_1);
 return x_9;
 }

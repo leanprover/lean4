@@ -49,7 +49,7 @@ static lean_object* l_Std_Time_Year_Offset_days___closed__6;
 LEAN_EXPORT lean_object* l_Std_Time_Year_instToStringOffset;
 static lean_object* l_Std_Time_Year_instReprEra_repr___closed__2;
 LEAN_EXPORT lean_object* l_Std_Time_Year_instLEOffset;
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Year_Offset_weeks_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_Year_Offset_weeks_spec__0(lean_object*);
 static lean_object* l_Std_Time_Year_Offset_days___closed__9;
 LEAN_EXPORT uint8_t l_Std_Time_Year_Offset_isLeap(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Year_Offset_isLeap___boxed(lean_object*);
@@ -1122,7 +1122,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Year_Offset_weeks_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_Year_Offset_weeks_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 

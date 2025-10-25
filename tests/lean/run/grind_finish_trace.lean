@@ -2,7 +2,7 @@ open Lean Grind
 
 /--
 info: Try this:
-  [apply] cases #c4b6 <;> ring <;> cases #4c68 <;> ring
+  [apply] cases #c4b6 <;> cases #4c68 <;> ring
 -/
 #guard_msgs in
 example {α : Type} [CommRing α] (a b c d e : α) :
@@ -30,9 +30,7 @@ example (p : Nat → Prop) (x y z w : Int) :
 
 /--
 info: Try this:
-  [apply] ⏎
-    ac
-    cases #5c4b <;> cases #896f <;> ac
+  [apply] cases #5c4b <;> cases #896f <;> ac
 -/
 #guard_msgs in
 example {α : Type} (op : α → α → α) [Std.Associative op] [Std.Commutative op] (a b c d e : α) :
@@ -68,12 +66,10 @@ info: Try this:
   [apply] ⏎
     cases #c4b6
     next =>
-      ring
       cases #8c9f
       next => ring
       next => sorry
     next =>
-      ring
       cases #8c9f
       next => ring
       next => sorry
@@ -91,11 +87,28 @@ info: Try this:
     instantiate only [= Nat.min_def]
     cases #7640
     next => sorry
-    next =>
-      ring
-      lia
+    next => lia
 -/
 #guard_msgs in
 example (as : Array α) (lo hi i j : Nat) (h₁ : lo ≤ i) (_ : i < j) (_ : j ≤ hi) (_ : j < as.size)
     (_ : ¬as.size = 0) : min lo (as.size - 1) < i := by
   grind => finish?
+
+/--
+info: Try this:
+  [apply] ⏎
+    instantiate only [= getMsbD_setWidth']
+    cases #aa9d
+-/
+#guard_msgs in
+open BitVec in
+example (ge : m ≥ n) (x : BitVec n) (i : Nat) :
+    getMsbD (setWidth' ge x) i = (decide (m - n ≤ i) && getMsbD x (i + n - m)) := by
+  grind => finish?
+
+open BitVec in
+example (ge : m ≥ n) (x : BitVec n) (i : Nat) :
+    getMsbD (setWidth' ge x) i = (decide (m - n ≤ i) && getMsbD x (i + n - m)) := by
+  grind =>
+    instantiate only [= getMsbD_setWidth']
+    cases #aa9d

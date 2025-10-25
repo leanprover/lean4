@@ -255,12 +255,33 @@ def Iter.Partial.find? {α β : Type w} [Iterator α Id β] [IteratorLoopPartial
     (it : Iter.Partial (α := α) β) (f : β → Bool) : Option β :=
   Id.run (it.findM? (pure <| .up <| f ·))
 
-@[always_inline, inline, expose, inherit_doc IterM.size]
+/--
+Computes how many elements the iterator returns. In contrast to `count`, this function might take
+shortcuts instead of actually stepping through the whole iterator.
+
+**Performance**:
+
+Depends on the concrete type of the iterator. The default implementation, which is identical to
+`count`, is linear, but it is sometimes possible to provide an O(1) implementation.
+-/
+@[always_inline, inline, expose]
 def Iter.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorSize α Id]
     (it : Iter (α := α) β) : Nat :=
   (IteratorSize.size it.toIterM).run.down
 
-@[always_inline, inline, inherit_doc IterM.Partial.size]
+/--
+Computes how many elements the iterator returns. In contrast to `count`, this function might take
+shortcuts instead of actually stepping through the whole iterator.
+
+This is the partial version of `size`. It does not require a proof of finiteness and might loop
+forever. It is not possible to verify the behavior in Lean because it uses `partial`.
+
+**Performance**:
+
+Depends on the concrete type of the iterator. The default implementation, which is identical to
+`count`, is linear, but it is sometimes possible to provide an O(1) implementation.
+-/
+@[always_inline, inline]
 def Iter.Partial.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorSizePartial α Id]
     (it : Iter (α := α) β) : Nat :=
   (IteratorSizePartial.size it.toIterM).run.down

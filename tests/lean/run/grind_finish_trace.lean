@@ -162,3 +162,21 @@ example (f : Int → Int → Int) (x y : Int)
   grind =>
     -- We can use `have` to golf proofs using `mbtc` and `cases`
     have : x = 1
+
+example (f : Int → Int) (x y : Int)
+    : 0 ≤ x → x ≤ 2 → f 0 = y → f 1 = y → f 2 = y → f x = y := by
+  grind
+
+example (f : Int → Int) (x y : Int)
+    : 0 ≤ x → x ≤ 2 → f 0 = y → f 1 = y → f 2 = y → f x = y := by
+  grind =>
+    mbtc
+    cases #23ad <;> mbtc <;> cases #beb4 <;> mbtc <;> cases #beed
+
+example (f : Int → Int) (x y : Int)
+    : 0 ≤ x → x ≤ 2 → f 0 = y → f 1 = y → f 2 = y → f x = y := by
+  grind =>
+    -- Again, we can use `have` to goal the proof with `mbtc`
+    have : x ≠ 0
+    have : x ≠ 1
+    have : x ≠ 2

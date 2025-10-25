@@ -112,3 +112,25 @@ example (ge : m ≥ n) (x : BitVec n) (i : Nat) :
   grind =>
     instantiate only [= getMsbD_setWidth']
     cases #aa9d
+
+/--
+info: Try this:
+  [apply] cases #9942 <;>
+      instantiate only [= BitVec.getElem_and] <;> instantiate only [= BitVec.getElem_or] <;> cases #cfbc
+-/
+#guard_msgs in
+example (x y : BitVec 64) : (x ||| y) &&& x = x := by
+  grind => finish?
+
+macro_rules | `(tactic| get_elem_tactic_extensible) => `(tactic| grind)
+
+/--
+info: Try this:
+  [apply] ⏎
+    instantiate only [= Array.getElem_set]
+    ring
+-/
+#guard_msgs in
+example (a : Array (BitVec 64)) (i : Nat) (v : BitVec 64)
+    : (_ : i < a.size) → (_ : i + 1 < a.size) → (a.set i v)[i+1] + a[i+1] = 2*a[i+1] := by
+  grind => finish?

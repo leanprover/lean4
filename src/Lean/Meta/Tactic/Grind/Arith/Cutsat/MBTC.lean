@@ -46,8 +46,16 @@ private def getAssignmentExt? (e : Expr) : GoalM (Option Rat) := do
 private def hasTheoryVar (e : Expr) : GoalM Bool := do
   cutsatExt.hasTermAtRoot e
 
+private def isNonlinearTerm (e : Expr) : GoalM Bool :=
+  match_expr e with
+  | HMul.hMul _ _ _ _ a b => return (← getIntValue? a <|> getIntValue? b).isNone
+  | HDiv.hDiv _ _ _ _ _ b => return (← getIntValue? b).isNone
+  | HMod.hMod _ _ _ _ _ b => return (← getIntValue? b).isNone
+  | _ => return false
+
 private def isInterpreted (e : Expr) : GoalM Bool := do
-  if isInterpretedTerm e then return true
+  if isInterpretedTerm e then
+    return !(← isNonlinearTerm e)
   let f := e.getAppFn
   /-
   **Note**: `grind` normalizes terms, but some of them cannot be rewritten by `simp` because

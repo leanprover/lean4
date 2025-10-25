@@ -414,6 +414,7 @@ def mkValueTypeClosure (type : Expr) (value : Expr) (zetaDelta : Bool) : MetaM M
   let newLetDecls   := s.newLetDecls.reverse
   let type  := mkForall newLocalDecls (mkForall newLetDecls type)
   let value := mkLambda newLocalDecls (mkLambda newLetDecls value)
+  assert! !value.hasFVar  -- In case https://github.com/leanprover/lean4/issues/10705 resurfaces in a new way
   pure {
     type        := type,
     value       := value,

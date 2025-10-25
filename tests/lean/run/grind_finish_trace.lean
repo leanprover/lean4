@@ -156,3 +156,9 @@ info: Try this:
 example (f : Int → Int → Int) (x y : Int)
     : 0 ≤ x → x ≠ 0 → x ≤ 1 → f x y = 2 → f 1 y = 2 := by
   grind => finish?
+
+example (f : Int → Int → Int) (x y : Int)
+    : 0 ≤ x → x ≠ 0 → x ≤ 1 → f x y = 2 → f 1 y = 2 := by
+  grind =>
+    -- We can use `have` to golf proofs using `mbtc` and `cases`
+    have : x = 1

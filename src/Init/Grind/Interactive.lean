@@ -16,6 +16,16 @@ when selecting patterns.
 -/
 syntax grindLemmaMin := ppGroup("!" (Attr.grindMod ppSpace)? ident)
 
+/-!
+`grind` tactic and related tactics.
+-/
+syntax grindErase    := "-" ident
+/--
+The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
+when selecting patterns.
+-/
+syntax grindParam    := grindErase <|> grindLemma <|> grindLemmaMin
+
 namespace Grind
 declare_syntax_cat grind_filter (behavior := both)
 

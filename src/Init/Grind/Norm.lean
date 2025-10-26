@@ -4,11 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Data.Int.Linear
 public import Init.Grind.Ring.Field
-
+public import Init.Data.Rat.Lemmas
 public section
 
 namespace Lean.Grind
@@ -208,5 +207,7 @@ init_grind_norm
   Ring.intCast_mul
   Ring.intCast_pow
   Ring.intCast_sub
+  -- Rationals
+  Rat.ofScientific_def_eq_if Rat.zpow_neg
 
 end Lean.Grind

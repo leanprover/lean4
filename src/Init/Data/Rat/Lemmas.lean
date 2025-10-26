@@ -1011,7 +1011,6 @@ theorem intCast_neg_iff {a : Int} :
 /--
 Alternative statement of `ofScientific_def`.
 -/
-@[grind =]
 theorem ofScientific_def' :
     (OfScientific.ofScientific m s e : Rat) = m * (10 ^ (if s then -e else e : Int)) := by
   change Rat.ofScientific _ _ _ = _
@@ -1022,6 +1021,13 @@ theorem ofScientific_def' :
     rfl
   · push_cast
     rfl
+
+theorem ofScientific_def_eq_if :
+    (OfScientific.ofScientific m s e : Rat) = if s then (m : Rat) / (10 : Rat) ^ e else (m : Rat) * (10 : Rat) ^ e := by
+  simp [ofScientific_def']
+  split
+  next => rw [Rat.zpow_neg, ← Rat.div_def, Rat.zpow_natCast]
+  next => rw [Rat.zpow_natCast]
 
 /-!
 # min and max

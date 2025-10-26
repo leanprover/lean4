@@ -1348,7 +1348,7 @@ namespace Subtype
 theorem exists_of_subtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (fun x => p x)
   | ⟨a, h⟩ => ⟨a, h⟩
 
-variable {α : Type u} {p : α → Prop}
+variable {α : Sort u} {p : α → Prop}
 
 protected theorem ext : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
@@ -1370,7 +1370,7 @@ instance {α : Type u} {p : α → Prop} [BEq α] [ReflBEq α] : ReflBEq {x : α
 instance {α : Type u} {p : α → Prop} [BEq α] [LawfulBEq α] : LawfulBEq {x : α // p x} where
   eq_of_beq h := Subtype.ext (eq_of_beq h)
 
-instance {α : Type u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
+instance {α : Sort u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
   fun ⟨a, h₁⟩ ⟨b, h₂⟩ =>
     if h : a = b then isTrue (by subst h; exact rfl)
     else isFalse (fun h' => Subtype.noConfusion h' (fun h' => absurd h' h))

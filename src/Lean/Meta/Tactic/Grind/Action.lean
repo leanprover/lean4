@@ -159,17 +159,16 @@ def mkGrindSeq (s : List TGrind) : TSyntax ``Parser.Tactic.Grind.grindSeq :=
 /--
 Given `[t₁, ..., tₙ]`, returns
 ```
-next =>
-  t₁
+· t₁
   ...
   tₙ
 ```
-If the list is empty, it returns `next => done`.
+If the list is empty, it returns `· done`.
 -/
 def mkGrindNext (s : List TGrind) : CoreM TGrind := do
   let s ← if s == [] then pure [← `(grind| done)] else pure s
   let s := mkGrindSeq s
-  `(grind| next => $s:grindSeq)
+  `(grind| · $s:grindSeq)
 
 /--
 Given `[t₁, ..., tₙ]`, returns
@@ -189,8 +188,7 @@ private def mkGrindParen (s : List TGrind) : CoreM TGrind := do
 If tracing is enabled and continuation produced `.closed [t₁, ..., tₙ]`,
 returns the singleton sequence `[t]` where `t` is
 ```
-next =>
-  t₁
+· t₁
   ...
   tₙ
 ```
@@ -205,7 +203,7 @@ def group : Action := fun goal _ kp => do
     return r
 
 /--
-If tracing is enabled and continuation produced `.closed [(next => t₁; ...; tₙ)]`,
+If tracing is enabled and continuation produced `.closed [(next => t₁; ...; tₙ)]` or its variant using `·`
 returns `.close [t₁, ... tₙ]`
 -/
 def ungroup : Action := fun goal _ kp => do
@@ -214,7 +212,9 @@ def ungroup : Action := fun goal _ kp => do
     match r with
     | .closed [tac] =>
       match tac with
-      | `(grind| next => $seq;*) => return .closed <| seq.getElems.toList.map TGrindStep.getTactic
+      | `(grind| next => $seq;*)
+      | `(grind| · $seq;*) =>
+        return .closed <| seq.getElems.toList.map TGrindStep.getTactic
       | _ => return r
     | _ => return r
   else

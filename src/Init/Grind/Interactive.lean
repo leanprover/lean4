@@ -16,6 +16,16 @@ when selecting patterns.
 -/
 syntax grindLemmaMin := ppGroup("!" (Attr.grindMod ppSpace)? ident)
 
+/-!
+`grind` tactic and related tactics.
+-/
+syntax grindErase    := "-" ident
+/--
+The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
+when selecting patterns.
+-/
+syntax grindParam    := grindErase <|> grindLemma <|> grindLemmaMin
+
 namespace Grind
 declare_syntax_cat grind_filter (behavior := both)
 
@@ -151,6 +161,12 @@ syntax (name := focus) "focus " grindSeq : grind
 inaccessible names to the given names.
 -/
 syntax (name := next) "next " binderIdent* " => " grindSeq : grind
+
+/--
+`· grindSeq` focuses on the main `grind` goal and tries to solve it using the given
+sequence of `grind` tactics.
+-/
+macro dot:patternIgnore("· " <|> ". ") s:grindSeq : grind => `(grind| next%$dot =>%$dot $s:grindSeq )
 
 /--
 `any_goals tac` applies the tactic `tac` to every goal,

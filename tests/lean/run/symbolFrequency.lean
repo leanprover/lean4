@@ -7,4 +7,4 @@ open Lean PremiseSelection
 #guard_msgs in
 run_meta do
   let f ← symbolFrequency `Nat
-  logInfo m!"{decide (10000 < f)}"
+  logInfo m!"{decide (5000 < f)}"

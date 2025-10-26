@@ -901,7 +901,8 @@ def take : (n : Nat) → (xs : List α) → List α
 
 @[simp, grind =] theorem take_nil {i : Nat} : ([] : List α).take i = [] := by cases i <;> rfl
 @[simp, grind =] theorem take_zero {l : List α} : l.take 0 = [] := rfl
-@[simp, grind =] theorem take_succ_cons {a : α} {as : List α} {i : Nat} : (a::as).take (i+1) = a :: as.take i := rfl
+@[simp, grind =] theorem take_succ_cons {a : α} {as : List α} {i : Nat} :
+    (a::as).take (i+1) = a :: as.take i := rfl
 
 /-! ### drop -/
 

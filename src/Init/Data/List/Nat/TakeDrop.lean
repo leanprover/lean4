@@ -71,7 +71,7 @@ theorem head?_take {l : List α} {i : Nat} :
 theorem head_take {l : List α} {i : Nat} (h : l.take i ≠ []) :
     (l.take i).head h = l.head (by simp_all) := by
   apply Option.some_inj.1
-  rw [← head?_eq_head, ← head?_eq_head, head?_take, if_neg]
+  rw [← head?_eq_some_head, ← head?_eq_some_head, head?_take, if_neg]
   simp_all
 
 theorem getLast?_take {l : List α} : (l.take i).getLast? = if i = 0 then none else l[i - 1]?.or l.getLast? := by
@@ -290,7 +290,7 @@ theorem getLast?_drop {l : List α} : (l.drop i).getLast? = if l.length ≤ i th
     (l.drop i).getLast h = l.getLast (ne_nil_of_length_pos (by simp at h; omega)) := by
   simp only [ne_eq, drop_eq_nil_iff] at h
   apply Option.some_inj.1
-  simp only [← getLast?_eq_getLast, getLast?_drop, ite_eq_right_iff]
+  simp only [← getLast?_eq_some_getLast, getLast?_drop, ite_eq_right_iff]
   omega
 
 theorem drop_length_cons {l : List α} (h : l ≠ []) (a : α) :
@@ -435,10 +435,6 @@ theorem reverse_drop {l : List α} {i : Nat} :
   · have w : l.length - i = 0 := by omega
     rw [w, take_zero, drop_of_length_le, reverse_nil]
     omega
-
-theorem take_add_one {l : List α} {i : Nat} :
-    l.take (i + 1) = l.take i ++ l[i]?.toList := by
-  simp [take_add, take_one]
 
 theorem drop_eq_getElem?_toList_append {l : List α} {i : Nat} :
     l.drop i = l[i]?.toList ++ l.drop (i + 1) := by

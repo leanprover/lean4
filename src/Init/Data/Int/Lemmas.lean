@@ -600,6 +600,4 @@ protected theorem natCast_zero : ((0 : Nat) : Int) = (0 : Int) := rfl
 
 protected theorem natCast_one : ((1 : Nat) : Int) = (1 : Int) := rfl
 
-@[simp, norm_cast] theorem natAbs_cast (n : Nat) : natAbs ↑n = n := rfl
-
 end Int

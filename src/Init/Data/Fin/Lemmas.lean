@@ -157,6 +157,7 @@ theorem le_def {a b : Fin n} : a ≤ b ↔ a.1 ≤ b.1 := .rfl
 
 theorem lt_def {a b : Fin n} : a < b ↔ a.1 < b.1 := .rfl
 
+@[deprecated lt_def (since := "2025-10-26")]
 theorem lt_iff_val_lt_val {a b : Fin n} : a < b ↔ a.val < b.val := Iff.rfl
 
 @[simp] protected theorem not_le {a b : Fin n} : ¬ a ≤ b ↔ b < a := Nat.not_le
@@ -264,7 +265,7 @@ instance : LawfulOrderLT (Fin n) where
   rw [val_rev, val_rev, ← Nat.sub_sub, Nat.sub_sub_self (by exact i.2), Nat.add_sub_cancel]
 
 @[simp] theorem rev_le_rev {i j : Fin n} : rev i ≤ rev j ↔ j ≤ i := by
-  simp only [le_def, val_rev, Nat.sub_le_sub_iff_left (Nat.succ_le.2 j.is_lt)]
+  simp only [le_def, val_rev, Nat.sub_le_sub_iff_left (Nat.succ_le_iff.2 j.is_lt)]
   exact Nat.succ_le_succ_iff
 
 @[simp] theorem rev_inj {i j : Fin n} : rev i = rev j ↔ i = j :=
@@ -383,9 +384,10 @@ theorem add_one_pos (i : Fin (n + 1)) (h : i < Fin.last n) : (0 : Fin (n + 1)) <
     rw [Fin.lt_def, val_add, val_zero, val_one, Nat.mod_eq_of_lt h]
     exact Nat.zero_lt_succ _
 
+@[deprecated zero_lt_one (since := "2025-10-26")]
 theorem one_pos : (0 : Fin (n + 2)) < 1 := Nat.succ_pos 0
 
-theorem zero_ne_one : (0 : Fin (n + 2)) ≠ 1 := Fin.ne_of_lt one_pos
+theorem zero_ne_one : (0 : Fin (n + 2)) ≠ 1 := Fin.ne_of_lt zero_lt_one
 
 /-! ### succ and casts into larger Fin types -/
 
@@ -540,7 +542,7 @@ theorem succ_cast_eq {n' : Nat} (i : Fin n) (h : n = n') :
 
 @[simp] theorem coe_castSucc (i : Fin n) : (i.castSucc : Nat) = i := rfl
 
-@[simp] theorem castSucc_mk (n i : Nat) (h : i < n) : castSucc ⟨i, h⟩ = ⟨i, Nat.lt.step h⟩ := rfl
+@[simp] theorem castSucc_mk (n i : Nat) (h : i < n) : castSucc ⟨i, h⟩ = ⟨i, Nat.lt_succ_of_lt h⟩ := rfl
 
 @[simp] theorem cast_castSucc {n' : Nat} {h : n + 1 = n' + 1} {i : Fin n} :
     i.castSucc.cast h = (i.cast (Nat.succ.inj h)).castSucc := rfl
@@ -754,7 +756,7 @@ theorem pred_mk {n : Nat} (i : Nat) (h : i < n + 1) (w) : Fin.pred ⟨i, h⟩ w 
   | ⟨i + 1, hi⟩, ⟨j + 1, hj⟩, ha, hb => by simp [Fin.ext_iff]
 
 @[simp] theorem pred_one {n : Nat} :
-    Fin.pred (1 : Fin (n + 2)) (Ne.symm (Fin.ne_of_lt one_pos)) = 0 := rfl
+    Fin.pred (1 : Fin (n + 2)) (Ne.symm (Fin.ne_of_lt zero_lt_one)) = 0 := rfl
 
 theorem pred_add_one (i : Fin (n + 2)) (h : (i : Nat) < n + 1) :
     pred (i + 1) (Fin.ne_of_gt (add_one_pos _ (lt_def.2 h))) = castLT i h := by
@@ -1137,6 +1139,7 @@ theorem mul_ofNat [NeZero n] (x : Fin n) (y : Nat) :
 theorem val_mul {n : Nat} : ∀ a b : Fin n, (a * b).val = a.val * b.val % n
   | ⟨_, _⟩, ⟨_, _⟩ => rfl
 
+@[deprecated coe_mul (since := "2025-10-26")]
 theorem coe_mul {n : Nat} : ∀ a b : Fin n, ((a * b : Fin n) : Nat) = a * b % n
   | ⟨_, _⟩, ⟨_, _⟩ => rfl
 

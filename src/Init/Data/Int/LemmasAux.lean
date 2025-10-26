@@ -27,22 +27,24 @@ namespace Int
   natCast_nonneg _
 
 @[simp] theorem neg_natCast_le_natCast (n m : Nat) : -(n : Int) ≤ (m : Int) :=
-  Int.le_trans (by simp) (ofNat_zero_le m)
+  Int.le_trans (by simp) (natCast_nonneg m)
 
 @[simp] theorem neg_natCast_le_ofNat (n m : Nat) : -(n : Int) ≤ (no_index (OfNat.ofNat m)) :=
-  Int.le_trans (by simp) (ofNat_zero_le m)
+  Int.le_trans (by simp) (natCast_nonneg m)
 
 @[simp] theorem neg_ofNat_le_ofNat (n m : Nat) : -(no_index (OfNat.ofNat n)) ≤ (no_index (OfNat.ofNat m)) :=
-  Int.le_trans (by simp) (ofNat_zero_le m)
+  Int.le_trans (by simp) (natCast_nonneg m)
 
 @[simp] theorem neg_ofNat_le_natCast (n m : Nat) : -(no_index (OfNat.ofNat n)) ≤ (m : Int) :=
-  Int.le_trans (by simp) (ofNat_zero_le m)
+  Int.le_trans (by simp) (natCast_nonneg m)
 
 theorem neg_lt_self_iff {n : Int} : -n < n ↔ 0 < n := by
   omega
 
+@[deprecated ofNat_add_ofNat (since := "2025-10-26")]
 protected theorem ofNat_add_out (m n : Nat) : ↑m + ↑n = (↑(m + n) : Int) := rfl
 
+@[deprecated ofNat_mul_ofNat (since := "2025-10-26")]
 protected theorem ofNat_mul_out (m n : Nat) : ↑m * ↑n = (↑(m * n) : Int) := rfl
 
 protected theorem ofNat_add_one_out (n : Nat) : ↑n + (1 : Int) = ↑(Nat.succ n) := rfl
@@ -61,8 +63,6 @@ theorem natCast_ne_zero_iff_pos {n : Nat} : (n : Int) ≠ 0 ↔ 0 < n := by omeg
 theorem natCast_succ_pos (n : Nat) : 0 < (n.succ : Int) := natCast_pos.2 n.succ_pos
 
 @[simp high] theorem natCast_nonpos_iff {n : Nat} : (n : Int) ≤ 0 ↔ n = 0 := by omega
-
-@[simp] theorem sign_natCast_add_one (n : Nat) : sign (n + 1) = 1 := rfl
 
 @[simp, norm_cast] theorem cast_id {n : Int} : Int.cast n = n := rfl
 

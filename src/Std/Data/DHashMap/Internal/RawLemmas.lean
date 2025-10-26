@@ -961,7 +961,7 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
 @[simp]
 theorem mem_keys [LawfulBEq α] (h : m.1.WF) {k : α} :
     k ∈ m.1.keys ↔ m.contains k := by
-  rw [← List.contains_iff]
+  rw [← List.contains_iff_mem]
   simp_to_model [contains, keys]
   rw [List.containsKey_eq_keys_contains]
 

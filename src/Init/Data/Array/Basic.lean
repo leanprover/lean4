@@ -2133,5 +2133,3 @@ instance [ToString α] : ToString (Array α) where
   toString xs := String.Internal.append "#" (toString xs.toList)
 
 end Array
-
-export Array (mkArray)

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.PremiseSelection.Basic
+import Lean.PremiseSelection.SymbolFrequency
 import Lean.Meta.Basic
 
 /-!
@@ -23,14 +24,6 @@ open Lean
 namespace Lean.PremiseSelection.MePo
 
 builtin_initialize registerTraceClass `mepo
-
-def symbolFrequency (env : Environment) : NameMap Nat := Id.run do
-  -- TODO: ideally this would use a precomputed frequency map, as this is too slow.
-  let mut map := {}
-  for (_, ci) in env.constants do
-    for n' in ci.type.getUsedConstantsAsSet do
-      map := map.alter n' fun i? => some (i?.getD 0 + 1)
-  return map
 
 def weightedScore (weight : Name → Float) (relevant candidate : NameSet) : Float :=
   let S := candidate
@@ -71,26 +64,19 @@ def mepo (initialRelevant : NameSet) (score : NameSet → NameSet → Float) (ac
     p := p + (1 - p) / c
   return accepted.qsort (fun a b => a.score > b.score)
 
-open Lean Meta MVarId in
-def _root_.Lean.MVarId.getConstants (g : MVarId) : MetaM NameSet := withContext g do
-  let mut c := (← g.getType).getUsedConstantsAsSet
-  for t in (← getLocalHyps) do
-    c := c ∪ (← inferType t).getUsedConstantsAsSet
-  return c
-
 end MePo
 
 open MePo
 
 -- The values of p := 0.6 and c := 2.4 are taken from the MePo paper, and need to be tuned.
 public def mepoSelector (useRarity : Bool) (p : Float := 0.6) (c : Float := 2.4) : Selector := fun g config => do
-  let constants ← g.getConstants
+  let constants ← g.getRelevantConstants
   let env ← getEnv
-  let score := if useRarity then
-    let frequency := symbolFrequency env
-    frequencyScore (frequency.getD · 0)
+  let score ← if useRarity then do
+    let frequency ← symbolFrequencyMap
+    pure <| frequencyScore (fun n => frequency.getD n 0)
   else
-    unweightedScore
+    pure <| unweightedScore
   let accept := fun ci => return !isDeniedPremise env ci.name
   let suggestions ← mepo constants score accept config.maxSuggestions p c
   let suggestions := suggestions

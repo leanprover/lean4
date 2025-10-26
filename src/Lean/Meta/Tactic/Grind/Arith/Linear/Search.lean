@@ -18,6 +18,9 @@ def IneqCnstr.throwUnexpected (c : IneqCnstr) : LinearM α := do
 def DiseqCnstr.throwUnexpected (c : DiseqCnstr) : LinearM α := do
   throwError "`grind linarith` internal error, unexpected{indentD (← c.denoteExpr)}"
 
+def EqCnstr.throwUnexpected (c :EqCnstr) : LinearM α := do
+  throwError "`grind linarith` internal error, unexpected{indentD (← c.denoteExpr)}"
+
 private def checkIsNextVar (x : Var) : LinearM Unit := do
   if x != (← getStruct).assignment.size then
     throwError "`grind linarith` internal error, assigning variable out of order"
@@ -246,6 +249,28 @@ private def resetDecisionStack : SearchM Unit := do
   let first := (← get).cases[0]!
   modifyStruct fun s => { first.saved with assignment := s.assignment }
 
+/-- Assign eliminated variables using `elimEqs` field. -/
+private def assignElimVars : SearchM Unit := do
+  if (← inconsistent) then return ()
+  go (← getStruct).elimStack
+where
+  go (xs : List Var) : SearchM Unit := do
+    match xs with
+    | [] => return ()
+    | x :: xs =>
+      let some c := (← getStruct).elimEqs[x]!
+        | throwError "`grind` internal error, eliminated variable must have equation associated with it"
+      -- `x` may not be the max variable
+      let a := c.p.coeff x
+      if a == 0 then c.throwUnexpected
+      -- ensure `x` is 0 when evaluating `c.p`
+      modifyStruct fun s => { s with assignment := s.assignment.set x 0 }
+      let some v ← c.p.eval? | c.throwUnexpected
+      let v := (-v) / a
+      traceAssignment x v
+      modifyStruct fun s => { s with assignment := s.assignment.set x v }
+      go xs
+
 /-- Search for an assignment/model for the linear constraints. -/
 private def searchAssignmentMain : SearchM Unit := do
   repeat
@@ -253,6 +278,7 @@ private def searchAssignmentMain : SearchM Unit := do
     checkSystem "linarith"
     if (← hasAssignment) then
       trace[grind.debug.linarith.search] "found assignment"
+      assignElimVars
       return ()
     if (← isInconsistent) then
       -- `grind` state is inconsistent

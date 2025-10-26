@@ -92,9 +92,6 @@ theorem ofNat_dvd_left {n : Nat} {z : Int} : (↑n : Int) ∣ z ↔ n ∣ z.natA
 
 @[simp, norm_cast] theorem natCast_emod (m n : Nat) : (↑(m % n) : Int) = m % n := rfl
 
-@[deprecated natCast_emod (since := "2025-04-17")]
-theorem ofNat_emod (m n : Nat) : (↑(m % n) : Int) = m % n := natCast_emod m n
-
 /-! ### mod definitions -/
 
 theorem emod_add_mul_ediv : ∀ a b : Int, a % b + b * (a / b) = a
@@ -232,10 +229,6 @@ theorem emod_lt_of_pos (a : Int) {b : Int} (H : 0 < b) : a % b < b :=
 
 @[simp] theorem mul_add_emod_self_left (a b c : Int) : (a * b + c) % a = c % a := by
   rw [Int.add_comm, add_mul_emod_self_left]
-
-@[deprecated add_mul_emod_self_right (since := "2025-04-11")]
-theorem add_mul_emod_self {a b c : Int} : (a + b * c) % c = a % c :=
-  add_mul_emod_self_right ..
 
 @[simp] theorem emod_add_emod (m n k : Int) : (m % n + k) % n = (m + k) % n := by
   have := (add_mul_emod_self_left (m % n + k) n (m / n)).symm

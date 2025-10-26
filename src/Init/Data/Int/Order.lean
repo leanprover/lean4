@@ -551,9 +551,6 @@ protected theorem mul_le_mul_of_nonpos_left {a b c : Int}
 
 @[simp, norm_cast] theorem natAbs_natCast (n : Nat) : natAbs ↑n = n := rfl
 
-@[deprecated natAbs_natCast (since := "2025-04-16")]
-theorem natAbs_ofNat (n : Nat) : natAbs ↑n = n := natAbs_natCast n
-
 /-
 TODO: rename `natAbs_ofNat'` to `natAbs_ofNat` once the current deprecated alias
 `natAbs_ofNat := natAbs_natCast` is removed
@@ -643,16 +640,10 @@ theorem toNat_of_nonneg {a : Int} (h : 0 ≤ a) : (toNat a : Int) = a := by
 
 @[simp] theorem toNat_natCast (n : Nat) : toNat ↑n = n := rfl
 
-@[deprecated toNat_natCast (since := "2025-04-16")]
-theorem toNat_ofNat (n : Nat) : toNat ↑n = n := rfl
-
 @[simp] theorem toNat_negSucc (n : Nat) : (Int.negSucc n).toNat = 0 := by
   simp [toNat]
 
 @[simp] theorem toNat_natCast_add_one {n : Nat} : ((n : Int) + 1).toNat = n + 1 := rfl
-
-@[deprecated toNat_natCast_add_one (since := "2025-04-16")]
-theorem toNat_ofNat_add_one {n : Nat} : ((n : Int) + 1).toNat = n + 1 := toNat_natCast_add_one
 
 @[simp] theorem ofNat_toNat (a : Int) : (a.toNat : Int) = max a 0 := by
   match a with
@@ -1253,17 +1244,9 @@ theorem natAbs_sign (z : Int) : z.sign.natAbs = if z = 0 then 0 else 1 :=
 theorem natAbs_sign_of_ne_zero {z : Int} (hz : z ≠ 0) : z.sign.natAbs = 1 := by
   rw [Int.natAbs_sign, if_neg hz]
 
-@[deprecated natAbs_sign_of_ne_zero (since := "2025-04-16")]
-theorem natAbs_sign_of_nonzero {z : Int} (hz : z ≠ 0) : z.sign.natAbs = 1 :=
-  natAbs_sign_of_ne_zero hz
-
 theorem sign_natCast_of_ne_zero {n : Nat} (hn : n ≠ 0) : Int.sign n = 1 :=
   match n, Nat.exists_eq_succ_of_ne_zero hn with
   | _, ⟨n, rfl⟩ => Int.sign_of_add_one n
-
-@[deprecated sign_natCast_of_ne_zero (since := "2025-04-16")]
-theorem sign_ofNat_of_nonzero {n : Nat} (hn : n ≠ 0) : Int.sign n = 1 :=
-  sign_natCast_of_ne_zero hn
 
 @[simp] theorem sign_neg (z : Int) : Int.sign (-z) = -Int.sign z := by
   match z with | 0 | succ _ | -[_+1] => rfl

@@ -220,15 +220,6 @@ protected theorem add_right_inj {n : Nat} : n + m = n + k ↔ m = k := Nat.add_l
 @[simp high] protected theorem left_eq_add {a b : Nat} : a = a + b ↔ b = 0 := by omega
 @[simp high] protected theorem right_eq_add {a b : Nat} : b = a + b ↔ a = 0 := by omega
 
-@[deprecated Nat.add_eq_right (since := "2025-04-15")]
-protected theorem add_left_eq_self  {a b : Nat} : a + b = b ↔ a = 0 := Nat.add_eq_right
-@[deprecated Nat.add_eq_left (since := "2025-04-15")]
-protected theorem add_right_eq_self {a b : Nat} : a + b = a ↔ b = 0 := Nat.add_eq_left
-@[deprecated Nat.left_eq_add (since := "2025-04-15")]
-protected theorem self_eq_add_right {a b : Nat} : a = a + b ↔ b = 0 := Nat.left_eq_add
-@[deprecated Nat.right_eq_add (since := "2025-04-15")]
-protected theorem self_eq_add_left  {a b : Nat} : a = b + a ↔ b = 0 := Nat.right_eq_add
-
 protected theorem lt_of_add_lt_add_right : ∀ {n : Nat}, k + n < m + n → k < m
   | 0, h => h
   | _+1, h => Nat.lt_of_add_lt_add_right (Nat.lt_of_succ_lt_succ h)

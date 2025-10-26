@@ -14,14 +14,6 @@ theorem getElem_ofFin (x : Fin (2^n)) (i : Nat) (h : i < n) :
 theorem getMsbD_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getMsbD x i = false := by
   grind [getMsbD]
 
-set_option linter.missingDocs false in
-@[deprecated getLsbD_of_ge (since := "2025-04-04")]
-abbrev getLsbD_ge := @getLsbD_of_ge
-
-set_option linter.missingDocs false in
-@[deprecated getMsbD_of_ge (since := "2025-04-04")]
-abbrev getMsbD_ge := @getMsbD_of_ge
-
 theorem lt_of_getLsbD {x : BitVec w} {i : Nat} : getLsbD x i = true → i < w := by grind
 
 theorem lt_of_getMsbD {x : BitVec w} {i : Nat} : getMsbD x i = true → i < w := by grind
@@ -127,12 +119,6 @@ theorem getElem?_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : x[i]? = none :=
 
 theorem getMsb?_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getMsb? x i = none := by grind
 
-set_option linter.missingDocs false in
-@[deprecated getElem?_of_ge (since := "2025-04-04")] abbrev getLsb?_ge := @getElem?_of_ge
-
-set_option linter.missingDocs false in
-@[deprecated getMsb?_of_ge (since := "2025-04-04")] abbrev getMsb?_ge := @getMsb?_of_ge
-
 theorem lt_of_getElem?_eq_some (x : BitVec w) (i : Nat) : x[i]? = some b → i < w := by grind
 
 theorem lt_of_getMsb?_eq_some (x : BitVec w) (i : Nat) : getMsb? x i = some b → i < w := by grind
@@ -140,18 +126,6 @@ theorem lt_of_getMsb?_eq_some (x : BitVec w) (i : Nat) : getMsb? x i = some b �
 theorem lt_of_isSome_getElem? (x : BitVec w) (i : Nat) : x[i]?.isSome → i < w := by grind
 
 theorem lt_of_isSome_getMsb? (x : BitVec w) (i : Nat) : (getMsb? x i).isSome → i < w := by grind
-
-set_option linter.missingDocs false in
-@[deprecated lt_of_getElem?_eq_some (since := "2025-04-04")]
-abbrev lt_of_getLsb?_eq_some := @lt_of_getElem?_eq_some
-
-set_option linter.missingDocs false in
-@[deprecated lt_of_isSome_getElem? (since := "2025-04-04")]
-abbrev lt_of_getLsb?_isSome := @lt_of_isSome_getElem?
-
-set_option linter.missingDocs false in
-@[deprecated lt_of_isSome_getMsb? (since := "2025-04-04")]
-abbrev lt_of_getMsb?_isSome := @lt_of_isSome_getMsb?
 
 theorem getMsbD_eq_getMsb?_getD (x : BitVec w) (i : Nat) :
     x.getMsbD i = (x.getMsb? i).getD false := by grind
@@ -1332,9 +1306,6 @@ theorem not_or_self (x : BitVec w) : ~~~x ||| x = allOnes w := by grind
 
 theorem not_eq_comm {x y : BitVec w} : ~~~ x = y ↔ x = ~~~ y := by grind
 
-set_option linter.missingDocs false in
-@[deprecated getMsbD_not (since := "2025-04-04")] abbrev getMsb_not := @getMsbD_not
-
 theorem msb_not {x : BitVec w} : (~~~x).msb = (decide (0 < w) && !x.msb) := by grind
 
 /--
@@ -1889,10 +1860,6 @@ theorem msb_signExtend {x : BitVec w} :
 /-- Sign extending to a width smaller than the starting width is a truncation. -/
 theorem signExtend_eq_setWidth_of_le (x : BitVec w) {v : Nat} (hv : v ≤ w) :
     x.signExtend v = x.setWidth v := by grind
-
-@[deprecated signExtend_eq_setWidth_of_le (since := "2025-03-07")]
-theorem signExtend_eq_setWidth_of_lt (x : BitVec w) {v : Nat} (hv : v ≤ w) :
-    x.signExtend v = x.setWidth v := signExtend_eq_setWidth_of_le x hv
 
 /-- Sign extending to the same bitwidth is a no op. -/
 theorem signExtend_eq (x : BitVec w) : x.signExtend w = x := by grind
@@ -2633,9 +2600,6 @@ theorem sub_eq_add_neg {n} (x y : BitVec n) : x - y = x + - y := by
   simp only [toNat_sub, toNat_add, toNat_neg, Nat.add_mod_mod]
   rw [Nat.add_comm]
 
-set_option linter.missingDocs false in
-@[deprecated sub_eq_add_neg (since := "2025-04-04")] abbrev sub_toAdd := @sub_eq_add_neg
-
 theorem add_left_neg (x : BitVec w) : -x + x = 0#w := by
   apply toInt_inj.mp
   simp [toInt_neg, Int.add_left_neg]
@@ -2674,10 +2638,6 @@ theorem neg_one_eq_allOnes : -1#w = allOnes w := by
     have q : 1 < 2^w := by simp [g]
     have r : (2^w - 1) < 2^w := by omega
     simp [Nat.mod_eq_of_lt q, Nat.mod_eq_of_lt r]
-
-set_option linter.missingDocs false in
-@[deprecated neg_one_eq_allOnes (since := "2025-04-04")]
-abbrev negOne_eq_allOnes := @neg_one_eq_allOnes
 
 theorem neg_eq_not_add (x : BitVec w) : -x = ~~~x + 1#w := by
   apply eq_of_toNat_eq
@@ -3545,9 +3505,6 @@ theorem getElem_ofBoolListBE (h : i < bs.length) :
 theorem getLsbD_ofBoolListLE : (ofBoolListLE bs).getLsbD i = bs.getD i false := by
   induction bs generalizing i <;> cases i <;> simp_all [ofBoolListLE]
 
-set_option linter.missingDocs false in
-@[deprecated getLsbD_ofBoolListLE (since := "2025-04-04")] abbrev getLsb_ofBoolListLE := @getLsbD_ofBoolListLE
-
 theorem getMsbD_ofBoolListLE :
     (ofBoolListLE bs).getMsbD i = (decide (i < bs.length) && bs.getD (bs.length - 1 - i) false) := by
   simp [getMsbD_eq_getLsbD]
@@ -3608,14 +3565,6 @@ Then, access the bit at `i` from the right `(+i)`.
 theorem getLsbD_rotateLeftAux_of_ge {x : BitVec w} {r : Nat} {i : Nat} (hi : i ≥ r) :
     (x.rotateLeftAux r).getLsbD i = (decide (i < w) && x.getLsbD (i - r)) := by
   grind [rotateLeftAux]
-
-set_option linter.missingDocs false in
-@[deprecated getLsbD_rotateLeftAux_of_lt (since := "2025-04-04")]
-abbrev getLsbD_rotateLeftAux_of_le := @getLsbD_rotateLeftAux_of_lt
-
-set_option linter.missingDocs false in
-@[deprecated getLsbD_rotateLeftAux_of_ge (since := "2025-04-04")]
-abbrev getLsbD_rotateLeftAux_of_geq := @getLsbD_rotateLeftAux_of_ge
 
 /-- When `r < w`, we give a formula for `(x.rotateLeft r).getLsbD i`. -/
 theorem getLsbD_rotateLeft_of_le {x : BitVec w} {r i : Nat} (hr: r < w) :
@@ -3744,14 +3693,6 @@ x.rotateRight 2 = (<6 5 4 3 2 | 1 0>).rotateRight 2 = <1 0 | 6 5 4 3 2>
 theorem getLsbD_rotateRightAux_of_ge {x : BitVec w} {r : Nat} {i : Nat} (hi : i ≥ w - r) :
     (x.rotateRightAux r).getLsbD i = (decide (i < w) && x.getLsbD (i - (w - r))) := by
   grind [rotateRightAux]
-
-set_option linter.missingDocs false in
-@[deprecated getLsbD_rotateRightAux_of_lt (since := "2025-04-04")]
-abbrev getLsbD_rotateRightAux_of_le := @getLsbD_rotateRightAux_of_lt
-
-set_option linter.missingDocs false in
-@[deprecated getLsbD_rotateRightAux_of_ge (since := "2025-04-04")]
-abbrev getLsbD_rotateRightAux_of_geq := @getLsbD_rotateRightAux_of_ge
 
 /-- `rotateRight` equals the bit fiddling definition of `rotateRightAux` when the rotation amount is
 smaller than the bitwidth. -/

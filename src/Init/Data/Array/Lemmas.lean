@@ -1056,12 +1056,6 @@ theorem mem_or_eq_of_mem_setIfInBounds
   cases xs
   simp
 
-@[deprecated beq_empty_eq (since := "2025-04-04")]
-abbrev beq_empty_iff := @beq_empty_eq
-
-@[deprecated empty_beq_eq (since := "2025-04-04")]
-abbrev empty_beq_iff := @empty_beq_eq
-
 @[simp, grind =] theorem push_beq_push [BEq α] {a b : α} {xs ys : Array α} :
     (xs.push a == ys.push b) = (xs == ys && a == b) := by
   cases xs
@@ -1696,9 +1690,6 @@ theorem forall_none_of_filterMap_eq_empty (h : filterMap f xs = #[]) : ∀ x ∈
 @[simp] theorem filterMap_eq_empty_iff {xs : Array α} : filterMap f xs = #[] ↔ ∀ a, a ∈ xs → f a = none := by
   cases xs
   simp
-
-@[deprecated filterMap_eq_empty_iff (since := "2025-04-04")]
-abbrev filterMap_eq_nil_iff := @filterMap_eq_empty_iff
 
 theorem filterMap_eq_push_iff {f : α → Option β} {xs : Array α} {ys : Array β} {b : β} :
     filterMap f xs = ys.push b ↔ ∃ as a bs,
@@ -3618,9 +3609,6 @@ theorem size_rightpad {n : Nat} {a : α} {xs : Array α} :
 
 theorem elem_push_self [BEq α] [LawfulBEq α] {xs : Array α} {a : α} : (xs.push a).elem a = true := by simp
 
-@[deprecated elem_push_self (since := "2025-04-04")]
-abbrev elem_cons_self := @elem_push_self
-
 theorem contains_eq_any_beq [BEq α] {xs : Array α} {a : α} : xs.contains a = xs.any (a == ·) := by
   rcases xs with ⟨xs⟩
   simp [List.contains_eq_any_beq]
@@ -4324,12 +4312,6 @@ theorem getElem?_push_eq {xs : Array α} {x : α} : (xs.push x)[xs.size]? = some
     forIn' xs.toList b f = forIn' xs b (fun a m b => f a (mem_toList_iff.mpr m) b) := by
   cases xs
   simp
-
-/-! ### contains -/
-
-@[deprecated contains_iff (since := "2025-04-07")]
-abbrev contains_def [DecidableEq α] {a : α} {xs : Array α} : xs.contains a ↔ a ∈ xs :=
-  contains_iff
 
 /-! ### isPrefixOf -/
 

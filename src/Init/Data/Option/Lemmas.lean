@@ -396,9 +396,6 @@ theorem isSome_of_isSome_filter (p : α → Bool) (o : Option α) (h : (o.filter
     o.isSome := by
   cases o <;> simp at h ⊢
 
-@[deprecated isSome_of_isSome_filter (since := "2025-03-18")]
-abbrev isSome_filter_of_isSome := @isSome_of_isSome_filter
-
 @[simp] theorem filter_eq_none_iff {o : Option α} {p : α → Bool} :
     o.filter p = none ↔ ∀ a, o = some a → ¬ p a := by
   cases o <;> simp [filter_some]
@@ -615,9 +612,6 @@ abbrev guard_eq_some := @guard_eq_some_iff
 
 @[simp, grind =] theorem isSome_guard : (Option.guard p a).isSome = p a :=
   if h : p a then by simp [Option.guard, h] else by simp [Option.guard, h]
-
-@[deprecated isSome_guard (since := "2025-03-18")]
-abbrev guard_isSome := @isSome_guard
 
 @[simp, grind =] theorem isNone_guard : (Option.guard p a).isNone = !p a := by
   rw [← not_isSome, isSome_guard]
@@ -860,9 +854,6 @@ grind_pattern isSome_choice_iff_nonempty => (choice α).isSome
 @[simp]
 theorem isSome_choice [Nonempty α] : (choice α).isSome :=
   isSome_choice_iff_nonempty.2 inferInstance
-
-@[deprecated isSome_choice_iff_nonempty (since := "2025-03-18")]
-abbrev choice_isSome_iff_nonempty := @isSome_choice_iff_nonempty
 
 @[simp]
 theorem isNone_choice_eq_false [Nonempty α] : (choice α).isNone = false := by

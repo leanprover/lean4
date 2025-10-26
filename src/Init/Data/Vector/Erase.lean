@@ -93,9 +93,6 @@ theorem eraseIdx_replicate {n : Nat} {a : α} {k : Nat} {h} :
   rw [replicate_eq_mk_replicate, eraseIdx_mk]
   simp [Array.eraseIdx_replicate, *]
 
-@[deprecated eraseIdx_replicate (since := "2025-03-18")]
-abbrev eraseIdx_mkVector := @eraseIdx_replicate
-
 theorem mem_eraseIdx_iff_getElem {x : α} {xs : Vector α n} {k} {h} : x ∈ xs.eraseIdx k h ↔ ∃ i w, i ≠ k ∧ xs[i]'w = x := by
   rcases xs with ⟨xs⟩
   simp [Array.mem_eraseIdx_iff_getElem, *]

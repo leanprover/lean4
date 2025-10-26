@@ -76,8 +76,6 @@ public instance : ToString (OptDataKind α) := ⟨(·.name.toString)⟩
 
 end OptDataKind
 
-@[deprecated DataType (since := "2025-03-26")] public abbrev TargetData := DataType
-
 /--
 The open type family which maps a Lake facet to its output type.
 For example, a `FilePath` for the `module.olean` facet.

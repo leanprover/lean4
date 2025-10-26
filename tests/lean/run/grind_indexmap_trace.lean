@@ -149,25 +149,18 @@ info: Try this:
     instantiate only [= mem_indices_of_mem, insert]
     instantiate only [=_ HashMap.contains_iff_mem, = getElem?_neg, = getElem?_pos]
     cases #4ed2
-    next =>
-      cases #ffdf
-      next => instantiate only
-      next =>
-        instantiate only
+    · cases #ffdf
+      · instantiate only
+      · instantiate only
         instantiate only [= HashMap.contains_insert]
-    next =>
-      cases #95a0
-      next =>
-        cases #2688
-        next => instantiate only
-        next =>
-          instantiate only
+    · cases #95a0
+      · cases #2688
+        · instantiate only
+        · instantiate only
           instantiate only [= HashMap.contains_insert]
-      next =>
-        cases #ffdf
-        next => instantiate only
-        next =>
-          instantiate only
+      · cases #ffdf
+        · instantiate only
+        · instantiate only
           instantiate only [= HashMap.contains_insert]
 -/
 #guard_msgs in
@@ -181,25 +174,18 @@ info: Try this:
     instantiate only [= mem_indices_of_mem, insert]
     instantiate only [=_ HashMap.contains_iff_mem, = getElem?_neg, = getElem?_pos]
     cases #4ed2
-    next =>
-      cases #ffdf
-      next => instantiate only
-      next =>
-        instantiate only
+    · cases #ffdf
+      · instantiate only
+      · instantiate only
         instantiate only [= HashMap.contains_insert]
-    next =>
-      cases #95a0
-      next =>
-        cases #2688
-        next => instantiate only
-        next =>
-          instantiate only
+    · cases #95a0
+      · cases #2688
+        · instantiate only
+        · instantiate only
           instantiate only [= HashMap.contains_insert]
-      next =>
-        cases #ffdf
-        next => instantiate only
-        next =>
-          instantiate only
+      · cases #ffdf
+        · instantiate only
+        · instantiate only
           instantiate only [= HashMap.contains_insert]
 -/
 #guard_msgs in
@@ -240,25 +226,19 @@ info: Try this:
     instantiate only [= mem_indices_of_mem, insert, = getElem_def]
     instantiate only [= getElem?_neg, = getElem?_pos]
     cases #f590
-    next =>
-      cases #ffdf
-      next =>
-        instantiate only
+    · cases #ffdf
+      · instantiate only
         instantiate only [= Array.getElem_set]
-      next =>
-        instantiate only
+      · instantiate only
         instantiate only [size, = HashMap.mem_insert, = HashMap.getElem_insert, = Array.getElem_push]
-    next =>
-      instantiate only [= mem_indices_of_mem, = getElem_def]
+    · instantiate only [= mem_indices_of_mem, = getElem_def]
       instantiate only [usr getElem_indices_lt]
       instantiate only [size]
       cases #ffdf
-      next =>
-        instantiate only [=_ WF]
+      · instantiate only [=_ WF]
         instantiate only [= getElem?_neg, = getElem?_pos, = Array.getElem_set]
         instantiate only [WF']
-      next =>
-        instantiate only
+      · instantiate only
         instantiate only [= HashMap.mem_insert, = HashMap.getElem_insert, = Array.getElem_push]
 -/
 #guard_msgs in
@@ -300,9 +280,8 @@ info: Try this:
     instantiate only [findIdx, insert, = mem_indices_of_mem]
     instantiate only [= getElem?_neg, = getElem?_pos]
     cases #1bba
-    next => instantiate only [findIdx]
-    next =>
-      instantiate only
+    · instantiate only [findIdx]
+    · instantiate only
       instantiate only [= HashMap.mem_insert, = HashMap.getElem_insert]
 -/
 #guard_msgs in

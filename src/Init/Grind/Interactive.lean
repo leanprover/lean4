@@ -163,6 +163,12 @@ inaccessible names to the given names.
 syntax (name := next) "next " binderIdent* " => " grindSeq : grind
 
 /--
+`· grindSeq` focuses on the main `grind` goal and tries to solve it using the given
+sequence of `grind` tactics.
+-/
+macro dot:patternIgnore("· " <|> ". ") s:grindSeq : grind => `(grind| next%$dot =>%$dot $s:grindSeq )
+
+/--
 `any_goals tac` applies the tactic `tac` to every goal,
 concatenating the resulting goals for successful tactic applications.
 If the tactic fails on all of the goals, the entire `any_goals` tactic fails.

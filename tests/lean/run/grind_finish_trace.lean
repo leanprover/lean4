@@ -17,8 +17,8 @@ example {α : Type} [CommRing α] (a b c d e : α) :
 info: Try this:
   [apply] ⏎
     cases #b0f4
-    next => cases #50fc
-    next => cases #50fc <;> lia
+    · cases #50fc
+    · cases #50fc <;> lia
 -/
 #guard_msgs in
 example (p : Nat → Prop) (x y z w : Int) :
@@ -65,14 +65,12 @@ set_option warn.sorry false
 info: Try this:
   [apply] ⏎
     cases #c4b6
-    next =>
-      cases #8c9f
-      next => ring
-      next => sorry
-    next =>
-      cases #8c9f
-      next => ring
-      next => sorry
+    · cases #8c9f
+      · ring
+      · sorry
+    · cases #8c9f
+      · ring
+      · sorry
 -/
 #guard_msgs in
 example {α : Type} [CommRing α] (a b c d e : α) :
@@ -86,8 +84,8 @@ info: Try this:
   [apply] ⏎
     instantiate only [= Nat.min_def]
     cases #7640
-    next => sorry
-    next => lia
+    · sorry
+    · lia
 -/
 #guard_msgs in
 example (as : Array α) (lo hi i j : Nat) (h₁ : lo ≤ i) (_ : i < j) (_ : j ≤ hi) (_ : j < as.size)

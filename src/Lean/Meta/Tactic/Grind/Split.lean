@@ -322,6 +322,7 @@ where
 private def isCompressibleSeq (seq : List (TSyntax `grind)) : Bool :=
   seq.all fun tac => match tac with
     | `(grind| next $_* => $_:grindSeq) => false
+    | `(grind| · $_:grindSeq) => false
     | _ => true
 
 /--

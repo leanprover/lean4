@@ -259,14 +259,6 @@ scoped macro (name := libraryDataDecl)
   doc?:optional(docComment) tk:"library_data " facet:ident " : " ty:term
 : command => `($[$doc?]? facet_data%$tk $(mkIdentFrom tk LeanLib.facetKind) $facet : $ty)
 
-/-- Macro for declaring new `TargetData`. -/
-scoped macro (name := targetDataDecl)
-  doc?:optional(docComment) tk:"target_data " id:ident " : " ty:term
-: command => withRef tk do
-  let fam := mkCIdentFrom (← getRef) ``TargetData
-  let idx := Name.quoteFrom id id.getId
-  `($[$doc?]? family_def $id : $fam $idx := $ty)
-
 /-- Macro for declaring new `CustomData`. -/
 scoped macro (name := customDataDecl)
   doc?:optional(docComment) tk:"custom_data " pkg:ident tgt:ident " : " ty:term

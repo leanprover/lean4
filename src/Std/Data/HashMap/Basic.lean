@@ -70,9 +70,6 @@ namespace HashMap
     HashMap α β :=
   ⟨DHashMap.emptyWithCapacity capacity⟩
 
-@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
-abbrev empty := @emptyWithCapacity
-
 instance [BEq α] [Hashable α] : EmptyCollection (HashMap α β) where
   emptyCollection := emptyWithCapacity
 

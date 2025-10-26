@@ -1890,10 +1890,6 @@ theorem msb_signExtend {x : BitVec w} :
 theorem signExtend_eq_setWidth_of_le (x : BitVec w) {v : Nat} (hv : v ≤ w) :
     x.signExtend v = x.setWidth v := by grind
 
-@[deprecated signExtend_eq_setWidth_of_le (since := "2025-03-07")]
-theorem signExtend_eq_setWidth_of_lt (x : BitVec w) {v : Nat} (hv : v ≤ w) :
-    x.signExtend v = x.setWidth v := signExtend_eq_setWidth_of_le x hv
-
 /-- Sign extending to the same bitwidth is a no op. -/
 theorem signExtend_eq (x : BitVec w) : x.signExtend w = x := by grind
 

@@ -184,10 +184,6 @@ def getKeyD [TransCmp cmp] (t : ExtTreeMap α β cmp) (a : α) (fallback : α) :
 def minEntry? [TransCmp cmp] (t : ExtTreeMap α β cmp) : Option (α × β) :=
   ExtDTreeMap.Const.minEntry? t.inner
 
-@[inline, inherit_doc minEntry?, deprecated minEntry? (since := "2025-03-13")]
-def min? [TransCmp cmp] (t : ExtTreeMap α β cmp) : Option (α × β) :=
-  t.minEntry?
-
 @[inline, inherit_doc ExtDTreeMap.Const.minEntry]
 def minEntry [TransCmp cmp] (t : ExtTreeMap α β cmp) (h : t ≠ ∅) : α × β :=
   ExtDTreeMap.Const.minEntry t.inner (fun _ => nomatch t)

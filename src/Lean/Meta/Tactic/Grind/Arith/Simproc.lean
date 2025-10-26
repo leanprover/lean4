@@ -168,6 +168,18 @@ builtin_simproc_decl normIntCastNum (IntCast.intCast _) := fun e => do
     let h := mkApp4 (mkConst ``Grind.Ring.intCast_eq_ofNat_of_nonneg us) α ringInst a eagerReflBoolTrue
     return .done { expr := n, proof? := some h }
 
+builtin_dsimproc [simp, seval] normPowRatInt ((_ : Rat) ^ (_ : Int)) := fun e => do
+  let_expr HPow.hPow _ _ _ _ a b ← e | return .continue
+  let some v₁ ← getRatValue? a | return .continue
+  let some v₂ ← getIntValue? b | return .continue
+  let warning := (← Simp.getConfig).warnExponents
+  unless (← checkExponent v₂.natAbs (warning := warning)) do return .continue
+  if v₂ < 0 then
+    -- **Note**: we use `Rat.zpow_neg` as a normalization rule
+    return .continue
+  else
+    return .done <| toExpr (v₁ ^ v₂)
+
 /-!
 Add additional arithmetic simprocs
 -/
@@ -193,6 +205,7 @@ def addSimproc (s : Simprocs) : CoreM Simprocs := do
   let s ← s.add ``normIntOfNatInst (post := false)
   let s ← s.add ``normNatCastNum (post := false)
   let s ← s.add ``normIntCastNum (post := false)
+  let s ← s.add ``normPowRatInt (post := false)
   return s
 
 end Lean.Meta.Grind.Arith

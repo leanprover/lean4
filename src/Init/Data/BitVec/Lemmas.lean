@@ -2572,10 +2572,6 @@ theorem signExtend_eq_setWidth_of_le (x : BitVec w) {v : Nat} (hv : v ≤ w) :
   ext i h
   simp [getElem_signExtend, show i < w by omega]
 
-@[deprecated signExtend_eq_setWidth_of_le (since := "2025-03-07")]
-theorem signExtend_eq_setWidth_of_lt (x : BitVec w) {v : Nat} (hv : v ≤ w) :
-  x.signExtend v = x.setWidth v := signExtend_eq_setWidth_of_le x hv
-
 /-- Sign extending to the same bitwidth is a no op. -/
 @[simp] theorem signExtend_eq (x : BitVec w) : x.signExtend w = x := by
   rw [signExtend_eq_setWidth_of_le _ (Nat.le_refl _), setWidth_eq]

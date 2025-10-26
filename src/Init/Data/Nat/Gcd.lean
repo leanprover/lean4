@@ -242,10 +242,6 @@ theorem gcd_left_eq_iff {m m' n : Nat} : gcd m n = gcd m' n ↔ ∀ k, k ∣ n �
 @[simp] theorem gcd_add_mul_right_right (m n k : Nat) : gcd m (n + k * m) = gcd m n := by
   simp [gcd_rec m (n + k * m), gcd_rec m n]
 
-@[deprecated gcd_add_mul_right_right (since := "2025-03-31")]
-theorem gcd_add_mul_self (m n k : Nat) : gcd m (n + k * m) = gcd m n :=
-  gcd_add_mul_right_right _ _ _
-
 @[simp] theorem gcd_add_mul_left_right (m n k : Nat) : gcd m (n + m * k) = gcd m n := by
   rw [Nat.mul_comm, gcd_add_mul_right_right]
 

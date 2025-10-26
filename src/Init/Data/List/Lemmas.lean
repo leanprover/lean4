@@ -933,9 +933,6 @@ theorem head?_eq_some_iff {xs : List α} {a : α} : xs.head? = some a ↔ ∃ ys
 @[simp] theorem isSome_head? : l.head?.isSome ↔ l ≠ [] := by
   cases l <;> simp
 
-@[deprecated isSome_head? (since := "2025-03-18")]
-abbrev head?_isSome := @isSome_head?
-
 @[simp] theorem head_mem : ∀ {l : List α} (h : l ≠ []), head l h ∈ l
   | [], h => absurd rfl h
   | _::_, _ => .head ..

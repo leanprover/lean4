@@ -210,20 +210,6 @@ def replicate {α : Type u} (n : Nat) (v : α) : Array α where
   toList := List.replicate n v
 
 /--
-Creates an array that contains `n` repetitions of `v`.
-
-The corresponding `List` function is `List.replicate`.
-
-Examples:
- * `Array.mkArray 2 true = #[true, true]`
- * `Array.mkArray 3 () = #[(), (), ()]`
- * `Array.mkArray 0 "anything" = #[]`
--/
-@[extern "lean_mk_array", deprecated replicate (since := "2025-03-18")]
-def mkArray {α : Type u} (n : Nat) (v : α) : Array α where
-  toList := List.replicate n v
-
-/--
 Swaps two elements of an array. The modification is performed in-place when the reference to the
 array is unique.
 

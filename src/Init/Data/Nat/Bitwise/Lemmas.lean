@@ -529,15 +529,9 @@ theorem and_lt_two_pow (x : Nat) {y n : Nat} (right : y < 2^n) : (x &&& y) < 2^n
   simp only [testBit_and, testBit_mod_two_pow]
   cases testBit x i <;> simp
 
-@[deprecated and_two_pow_sub_one_eq_mod (since := "2025-03-18")]
-abbrev and_pow_two_sub_one_eq_mod := @and_two_pow_sub_one_eq_mod
-
 theorem and_two_pow_sub_one_of_lt_two_pow {x : Nat} (lt : x < 2^n) : x &&& 2^n - 1 = x := by
   rw [and_two_pow_sub_one_eq_mod]
   apply Nat.mod_eq_of_lt lt
-
-@[deprecated and_two_pow_sub_one_of_lt_two_pow (since := "2025-03-18")]
-abbrev and_pow_two_sub_one_of_lt_two_pow := @and_two_pow_sub_one_of_lt_two_pow
 
 @[simp] theorem and_mod_two_eq_one : (a &&& b) % 2 = 1 ↔ a % 2 = 1 ∧ b % 2 = 1 := by
   simp only [mod_two_eq_one_iff_testBit_zero]
@@ -728,9 +722,6 @@ theorem testBit_two_pow_mul_add (a : Nat) {b i : Nat} (b_lt : b < 2^i) (j : Nat)
           Nat.div_eq_of_lt b_lt,
           Nat.two_pow_pos i]
 
-@[deprecated testBit_two_pow_mul_add (since := "2025-03-18")]
-abbrev testBit_mul_pow_two_add := @testBit_two_pow_mul_add
-
 @[grind =]
 theorem testBit_two_pow_mul :
     testBit (2 ^ i * a) j = (decide (j ≥ i) && testBit a (j-i)) := by
@@ -744,9 +735,6 @@ theorem testBit_two_pow_mul :
 theorem testBit_mul_two_pow (x j i : Nat) :
     (x * 2 ^ i).testBit j = (decide (i ≤ j) && x.testBit (j - i)) := by
   rw [Nat.mul_comm, testBit_two_pow_mul]
-
-@[deprecated testBit_two_pow_mul (since := "2025-03-18")]
-abbrev testBit_mul_pow_two := @testBit_two_pow_mul
 
 theorem two_pow_add_eq_or_of_lt {b : Nat} (b_lt : b < 2^i) (a : Nat) :
     2^i * a + b = 2^i * a ||| b := by
@@ -762,9 +750,6 @@ theorem two_pow_add_eq_or_of_lt {b : Nat} (b_lt : b < 2^i) (a : Nat) :
             calc b < 2 ^ i := b_lt
                  _ ≤ 2 ^ j := Nat.pow_le_pow_right Nat.zero_lt_two i_le
     simp [i_le, j_lt, testBit_lt_two_pow, b_lt_j]
-
-@[deprecated two_pow_add_eq_or_of_lt (since := "2025-03-18")]
-abbrev mul_add_lt_is_or := @two_pow_add_eq_or_of_lt
 
 /-! ### shiftLeft and shiftRight -/
 

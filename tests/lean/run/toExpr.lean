@@ -3,7 +3,6 @@ import Lean
 open Lean
 
 unsafe def test {α : Type} [ToString α] [ToExpr α] [BEq α] (a : α) : CoreM Unit := do
-let env ← getEnv;
 let auxName := `_toExpr._test;
 let decl := Declaration.defnDecl {
   name        := auxName,
@@ -30,3 +29,13 @@ match newEnv.evalConst α {} auxName with
 #eval test ['a', 'b', 'c']
 #eval test ("hello", true)
 #eval test ((), 10)
+#eval test (1:Rat)
+#eval test (-1:Rat)
+#eval test (2:Rat)
+#eval test (-2:Rat)
+#eval test (1/(-2):Rat)
+#eval test (-2/3:Rat)
+#eval test (-2/1:Rat)
+#eval test (-20/3:Rat)
+#eval test (-1.234:Rat)
+#eval test (0.67:Rat)

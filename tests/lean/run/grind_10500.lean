@@ -56,3 +56,25 @@ theorem upper_bound
   sorry
 
 end Ex2
+
+/--
+trace: [grind.linarith.model] a := 0
+[grind.linarith.model] b := 0
+[grind.linarith.model] c := 0
+-/
+#guard_msgs in
+set_option trace.grind.linarith.model true in
+example [Field α] [LE α] [LT α] [Std.IsPreorder α] [OrderedRing α] (a b c : α) (h : a = b + c) : False := by
+  fail_if_success grind
+  sorry
+
+/--
+trace: [grind.linarith.model] a := 0
+[grind.linarith.model] b := 0
+[grind.linarith.model] c := 0
+-/
+#guard_msgs in
+set_option trace.grind.linarith.model true in
+example (a b c : Rat) (h : a = b + c) : False := by
+  fail_if_success grind
+  sorry

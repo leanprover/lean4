@@ -182,16 +182,8 @@ theorem gcd_dvd_gcd_of_dvd_right {m k : Nat} (n : Nat) (H : m ∣ k) : gcd n m �
 theorem gcd_dvd_gcd_mul_left_left (m n k : Nat) : gcd m n ∣ gcd (k * m) n :=
   gcd_dvd_gcd_of_dvd_left _ (Nat.dvd_mul_left _ _)
 
-@[deprecated gcd_dvd_gcd_mul_left_left (since := "2025-04-01")]
-theorem gcd_dvd_gcd_mul_left (m n k : Nat) : gcd m n ∣ gcd (k * m) n :=
-  gcd_dvd_gcd_mul_left_left m n k
-
 theorem gcd_dvd_gcd_mul_right_left (m n k : Nat) : gcd m n ∣ gcd (m * k) n :=
   gcd_dvd_gcd_of_dvd_left _ (Nat.dvd_mul_right _ _)
-
-@[deprecated gcd_dvd_gcd_mul_right_left (since := "2025-04-01")]
-theorem gcd_dvd_gcd_mul_right (m n k : Nat) : gcd m n ∣ gcd (m * k) n :=
-  gcd_dvd_gcd_mul_right_left m n k
 
 theorem gcd_dvd_gcd_mul_left_right (m n k : Nat) : gcd m n ∣ gcd m (k * n) :=
   gcd_dvd_gcd_of_dvd_right _ (Nat.dvd_mul_left _ _)
@@ -385,11 +377,6 @@ def dvdProdDvdOfDvdProd {k m n : Nat} (h : k ∣ m * n) :
     rw [hd, ← gcd_mul_right]
     exact Nat.dvd_gcd (Nat.dvd_mul_right _ _) h
 
-@[inherit_doc dvdProdDvdOfDvdProd, deprecated dvdProdDvdOfDvdProd (since := "2025-04-01")]
-def prod_dvd_and_dvd_of_dvd_prod {k m n : Nat} (H : k ∣ m * n) :
-    {d : {m' // m' ∣ m} × {n' // n' ∣ n} // k = d.1.val * d.2.val} :=
-  dvdProdDvdOfDvdProd H
-
 protected theorem dvd_mul {k m n : Nat} : k ∣ m * n ↔ ∃ k₁ k₂, k₁ ∣ m ∧ k₂ ∣ n ∧ k₁ * k₂ = k := by
   refine ⟨fun h => ?_, ?_⟩
   · obtain ⟨⟨⟨k₁, hk₁⟩, ⟨k₂, hk₂⟩⟩, rfl⟩ := dvdProdDvdOfDvdProd h
@@ -405,10 +392,6 @@ theorem gcd_mul_right_dvd_mul_gcd (k m n : Nat) : gcd k (m * n) ∣ gcd k m * gc
   exact Nat.mul_dvd_mul
     (dvd_gcd (Nat.dvd_trans (Nat.dvd_mul_right m' n') h') hm')
     (dvd_gcd (Nat.dvd_trans (Nat.dvd_mul_left n' m') h') hn')
-
-@[deprecated gcd_mul_right_dvd_mul_gcd (since := "2025-04-02")]
-theorem gcd_mul_dvd_mul_gcd (k m n : Nat) : gcd k (m * n) ∣ gcd k m * gcd k n :=
-  gcd_mul_right_dvd_mul_gcd k m n
 
 theorem gcd_mul_left_dvd_mul_gcd (k m n : Nat) : gcd (m * n) k ∣ gcd m k * gcd n k := by
   simpa [gcd_comm, Nat.mul_comm] using gcd_mul_right_dvd_mul_gcd _ _ _

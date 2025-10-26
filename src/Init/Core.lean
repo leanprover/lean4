@@ -1084,14 +1084,6 @@ theorem of_toBoolUsing_eq_true {p : Prop} {d : Decidable p} (h : toBoolUsing d =
 theorem of_toBoolUsing_eq_false {p : Prop} {d : Decidable p} (h : toBoolUsing d = false) : ¬p :=
   of_decide_eq_false h
 
-set_option linter.missingDocs false in
-@[deprecated of_toBoolUsing_eq_true (since := "2025-04-04")]
-abbrev ofBoolUsing_eq_true := @of_toBoolUsing_eq_true
-
-set_option linter.missingDocs false in
-@[deprecated of_toBoolUsing_eq_false (since := "2025-04-04")]
-abbrev ofBoolUsing_eq_false := @of_toBoolUsing_eq_false
-
 instance : Decidable True :=
   isTrue trivial
 
@@ -1355,10 +1347,6 @@ namespace Subtype
 
 theorem exists_of_subtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (fun x => p x)
   | ⟨a, h⟩ => ⟨a, h⟩
-
-set_option linter.missingDocs false in
-@[deprecated exists_of_subtype (since := "2025-04-04")]
-abbrev existsOfSubtype := @exists_of_subtype
 
 variable {α : Type u} {p : α → Prop}
 

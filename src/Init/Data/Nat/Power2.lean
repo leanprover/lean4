@@ -50,9 +50,6 @@ theorem isPowerOfTwo_mul_two_of_isPowerOfTwo (h : isPowerOfTwo n) : isPowerOfTwo
   have ⟨k, h⟩ := h
   ⟨k+1, by simp [h, Nat.pow_succ]⟩
 
-@[deprecated isPowerOfTwo_mul_two_of_isPowerOfTwo (since := "2025-04-04")]
-abbrev mul2_isPowerOfTwo_of_isPowerOfTwo := @isPowerOfTwo_mul_two_of_isPowerOfTwo
-
 theorem pos_of_isPowerOfTwo (h : isPowerOfTwo n) : n > 0 := by
   have ⟨k, h⟩ := h
   rw [h]

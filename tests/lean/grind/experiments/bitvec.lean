@@ -160,18 +160,6 @@ theorem lt_of_isSome_getMsb? (x : BitVec w) (i : Nat) : (getMsb? x i).isSome →
   else
     simp [Nat.ge_of_not_lt h]
 
-set_option linter.missingDocs false in
-@[deprecated lt_of_getElem?_eq_some (since := "2025-04-04")]
-abbrev lt_of_getLsb?_eq_some := @lt_of_getElem?_eq_some
-
-set_option linter.missingDocs false in
-@[deprecated lt_of_isSome_getElem? (since := "2025-04-04")]
-abbrev lt_of_getLsb?_isSome := @lt_of_isSome_getElem?
-
-set_option linter.missingDocs false in
-@[deprecated lt_of_isSome_getMsb? (since := "2025-04-04")]
-abbrev lt_of_getMsb?_isSome := @lt_of_isSome_getMsb?
-
 theorem getMsbD_eq_getMsb?_getD (x : BitVec w) (i : Nat) :
     x.getMsbD i = (x.getMsb? i).getD false := by
   rw [getMsbD_eq_getLsbD]
@@ -1666,9 +1654,6 @@ theorem not_eq_comm {x y : BitVec w} : ~~~ x = y ↔ x = ~~~ y := by
   · intro h
     rw [h]
     simp
-
-set_option linter.missingDocs false in
-@[deprecated getMsbD_not (since := "2025-04-04")] abbrev getMsb_not := @getMsbD_not
 
 @[simp] theorem msb_not {x : BitVec w} : (~~~x).msb = (decide (0 < w) && !x.msb) := by
   simp [BitVec.msb]
@@ -3369,9 +3354,6 @@ theorem sub_eq_add_neg {n} (x y : BitVec n) : x - y = x + - y := by
   simp only [toNat_sub, toNat_add, toNat_neg, Nat.add_mod_mod]
   rw [Nat.add_comm]
 
-set_option linter.missingDocs false in
-@[deprecated sub_eq_add_neg (since := "2025-04-04")] abbrev sub_toAdd := @sub_eq_add_neg
-
 theorem add_left_neg (x : BitVec w) : -x + x = 0#w := by
   apply toInt_inj.mp
   simp [toInt_neg, Int.add_left_neg]
@@ -3410,10 +3392,6 @@ theorem neg_one_eq_allOnes : -1#w = allOnes w := by
     have q : 1 < 2^w := by simp [g]
     have r : (2^w - 1) < 2^w := by omega
     simp [Nat.mod_eq_of_lt q, Nat.mod_eq_of_lt r]
-
-set_option linter.missingDocs false in
-@[deprecated neg_one_eq_allOnes (since := "2025-04-04")]
-abbrev negOne_eq_allOnes := @neg_one_eq_allOnes
 
 theorem neg_eq_not_add (x : BitVec w) : -x = ~~~x + 1#w := by
   apply eq_of_toNat_eq
@@ -4273,9 +4251,6 @@ theorem zero_smod {x : BitVec w} : (0#w).smod x = 0#w := by
 @[simp] theorem getLsbD_ofBoolListLE : (ofBoolListLE bs).getLsbD i = bs.getD i false := by
   induction bs generalizing i <;> cases i <;> simp_all [ofBoolListLE]
 
-set_option linter.missingDocs false in
-@[deprecated getLsbD_ofBoolListLE (since := "2025-04-04")] abbrev getLsb_ofBoolListLE := @getLsbD_ofBoolListLE
-
 @[simp] theorem getMsbD_ofBoolListLE :
     (ofBoolListLE bs).getMsbD i = (decide (i < bs.length) && bs.getD (bs.length - 1 - i) false) := by
   simp [getMsbD_eq_getLsbD]
@@ -4345,14 +4320,6 @@ theorem getLsbD_rotateLeftAux_of_ge {x : BitVec w} {r : Nat} {i : Nat} (hi : i �
   simp only [getLsbD_ushiftRight]
   apply getLsbD_of_ge
   omega
-
-set_option linter.missingDocs false in
-@[deprecated getLsbD_rotateLeftAux_of_lt (since := "2025-04-04")]
-abbrev getLsbD_rotateLeftAux_of_le := @getLsbD_rotateLeftAux_of_lt
-
-set_option linter.missingDocs false in
-@[deprecated getLsbD_rotateLeftAux_of_ge (since := "2025-04-04")]
-abbrev getLsbD_rotateLeftAux_of_geq := @getLsbD_rotateLeftAux_of_ge
 
 /-- When `r < w`, we give a formula for `(x.rotateLeft r).getLsbD i`. -/
 theorem getLsbD_rotateLeft_of_le {x : BitVec w} {r i : Nat} (hr: r < w) :
@@ -4506,14 +4473,6 @@ theorem getLsbD_rotateRightAux_of_ge {x : BitVec w} {r : Nat} {i : Nat} (hi : i 
   simp only [getLsbD_ushiftRight]
   apply getLsbD_of_ge
   omega
-
-set_option linter.missingDocs false in
-@[deprecated getLsbD_rotateRightAux_of_lt (since := "2025-04-04")]
-abbrev getLsbD_rotateRightAux_of_le := @getLsbD_rotateRightAux_of_lt
-
-set_option linter.missingDocs false in
-@[deprecated getLsbD_rotateRightAux_of_ge (since := "2025-04-04")]
-abbrev getLsbD_rotateRightAux_of_geq := @getLsbD_rotateRightAux_of_ge
 
 /-- `rotateRight` equals the bit fiddling definition of `rotateRightAux` when the rotation amount is
 smaller than the bitwidth. -/

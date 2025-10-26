@@ -903,11 +903,6 @@ theorem mem_toList_iff_getKey?_eq_some_and_getElem?_eq_some [EquivBEq α] [Lawfu
     (k, v) ∈ m.toList ↔ m.getKey? k = some k ∧ m[k]? = some v :=
   DHashMap.Raw.Const.mem_toList_iff_getKey?_eq_some_and_get?_eq_some h.out
 
-set_option linter.missingDocs false in
-@[deprecated mem_toList_iff_getKey?_eq_some_and_getElem?_eq_some (since := "2025-04-13")]
-abbrev mem_toList_iff_getKey?_eq_some_and_getElem_eq_some :=
-  @mem_toList_iff_getKey?_eq_some_and_getElem?_eq_some
-
 theorem getElem?_eq_some_iff_exists_beq_and_mem_toList [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {k : α} {v : β} :
     m[k]? = some v ↔ ∃ (k' : α), k == k' ∧ (k', v) ∈ m.toList :=
@@ -2411,13 +2406,6 @@ theorem of_forall_getKey_eq_of_forall_getElem?_eq [EquivBEq α] [LawfulHashable 
     (h₁ : m₁.WF) (h₂ : m₂.WF) (hk : ∀ k hk hk', m₁.getKey k hk = m₂.getKey k hk')
     (hv : ∀ k : α, m₁[k]? = m₂[k]?) : m₁ ~m m₂ :=
   ⟨.of_forall_getKey_eq_of_forall_constGet?_eq h₁.1 h₂.1 hk hv⟩
-
-set_option linter.deprecated false in
-@[deprecated of_forall_getKey_eq_of_forall_getElem?_eq (since := "2025-04-25")]
-theorem of_forall_getKey?_eq_of_forall_getElem?_eq [EquivBEq α] [LawfulHashable α]
-    (h₁ : m₁.WF) (h₂ : m₂.WF) (hk : ∀ k, m₁.getKey? k = m₂.getKey? k)
-    (hv : ∀ k : α, m₁[k]? = m₂[k]?) : m₁ ~m m₂ :=
-  ⟨.of_forall_getKey?_eq_of_forall_constGet?_eq h₁.1 h₂.1 hk hv⟩
 
 theorem of_forall_getElem?_eq [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
     (h : ∀ k : α, m₁[k]? = m₂[k]?) : m₁ ~m m₂ :=

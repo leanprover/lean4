@@ -132,9 +132,6 @@ theorem testBit_eq_decide_div_mod_eq {x : Nat} : testBit x i = decide (x / 2^i %
   | succ i hyp =>
     simp [hyp, Nat.div_div_eq_div_mul, Nat.pow_succ']
 
-@[deprecated testBit_eq_decide_div_mod_eq (since := "2025-04-04")]
-abbrev testBit_to_div_mod := @testBit_eq_decide_div_mod_eq
-
 theorem toNat_testBit (x i : Nat) :
     (x.testBit i).toNat = x / 2 ^ i % 2 := by
   rw [testBit_eq_decide_div_mod_eq]
@@ -154,9 +151,6 @@ theorem exists_testBit_of_ne_zero {x : Nat} (xnz : x ≠ 0) : ∃ i, testBit x i
     | Or.inr mod2_eq =>
       apply Exists.intro 0
       simp_all
-
-@[deprecated exists_testBit_of_ne_zero (since := "2025-04-04")]
-abbrev ne_zero_implies_bit_true := @exists_testBit_of_ne_zero
 
 theorem exists_testBit_ne_of_ne {x y : Nat} (p : x ≠ y) : ∃ i, testBit x i ≠ testBit y i := by
   induction y using Nat.div2Induction generalizing x with
@@ -182,9 +176,6 @@ theorem exists_testBit_ne_of_ne {x y : Nat} (p : x ≠ y) : ∃ i, testBit x i �
         revert lsb_diff
         cases mod_two_eq_zero_or_one x with
         | _ p => cases mod_two_eq_zero_or_one y with | _ q => simp [p,q]
-
-@[deprecated exists_testBit_ne_of_ne (since := "2025-04-04")]
-abbrev ne_implies_bit_diff := @exists_testBit_ne_of_ne
 
 /--
 `eq_of_testBit_eq` allows proving two natural numbers are equal
@@ -218,18 +209,12 @@ theorem exists_ge_and_testBit_of_ge_two_pow {x : Nat} (p : x ≥ 2^n) : ∃ i �
       case right =>
         simpa using jp.right
 
-@[deprecated exists_ge_and_testBit_of_ge_two_pow (since := "2025-04-04")]
-abbrev ge_two_pow_implies_high_bit_true := @exists_ge_and_testBit_of_ge_two_pow
-
 theorem ge_two_pow_of_testBit {x : Nat} (p : testBit x i = true) : x ≥ 2^i := by
   simp only [Nat.testBit_eq_decide_div_mod_eq] at p
   apply Decidable.by_contra
   intro not_ge
   have x_lt : x < 2^i := Nat.lt_of_not_le not_ge
   simp [div_eq_of_lt x_lt] at p
-
-@[deprecated ge_two_pow_of_testBit (since := "2025-04-04")]
-abbrev testBit_implies_ge := @ge_two_pow_of_testBit
 
 theorem testBit_lt_two_pow {x i : Nat} (lt : x < 2^i) : x.testBit i = false := by
   match p : x.testBit i with

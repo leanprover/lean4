@@ -664,9 +664,6 @@ theorem toList_inj {xs ys : Vector α n} : xs.toList = ys.toList ↔ xs = ys := 
   simp only [toList, Array.toList_eq_nil_iff]
   exact ⟨by rintro rfl; simp_all, by rintro rfl; simpa using h⟩
 
-@[deprecated toList_eq_nil_iff (since := "2025-04-04")]
-abbrev toList_eq_empty_iff {α n} (xs) := @toList_eq_nil_iff α n xs
-
 @[simp] theorem mem_toList_iff {a : α} {xs : Vector α n} : a ∈ xs.toList ↔ a ∈ xs := by
   simp [toList]
 

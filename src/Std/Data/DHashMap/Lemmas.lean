@@ -3661,13 +3661,6 @@ theorem of_forall_getKey_eq_of_forall_constGet?_eq [EquivBEq α] [LawfulHashable
     m₁ ~m m₂ :=
   ⟨Raw₀.Const.equiv_of_forall_getKey_eq_of_forall_get?_eq ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ m₁.2 m₂.2 hk hv⟩
 
-set_option linter.deprecated false in
-@[deprecated of_forall_getKey_eq_of_forall_constGet?_eq (since := "2025-04-25")]
-theorem of_forall_getKey?_eq_of_forall_constGet?_eq [EquivBEq α] [LawfulHashable α]
-    (hk : ∀ k, m₁.getKey? k = m₂.getKey? k) (hv : ∀ k, Const.get? m₁ k = Const.get? m₂ k) :
-    m₁ ~m m₂ :=
-  ⟨Raw₀.Const.equiv_of_forall_getKey?_eq_of_forall_get?_eq ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ m₁.2 m₂.2 hk hv⟩
-
 theorem of_forall_constGet?_eq [LawfulBEq α] (hv : ∀ k, Const.get? m₁ k = Const.get? m₂ k) :
     m₁ ~m m₂ :=
   ⟨Raw₀.Const.equiv_of_forall_get?_eq m₁.2 m₂.2 hv⟩

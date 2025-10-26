@@ -153,7 +153,7 @@ init_grind_norm
   /- Pre theorems -/
   |
   /- Post theorems -/
-  iff_eq heq_eq_eq
+  iff_eq heq_eq_eq eq_self
   -- And
   and_true true_and and_false false_and and_assoc
   -- ite

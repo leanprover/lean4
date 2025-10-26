@@ -6,10 +6,8 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Lean.CoreM
 public import Lean.Parser.Extension
 public import Lean.Parser.StrInterpolation
-public import Lean.KeyedDeclsAttribute
 public import Lean.ParserCompiler.Attribute
 public import Lean.PrettyPrinter.Basic
 public import Lean.PrettyPrinter.Delaborator.Options
@@ -391,7 +389,7 @@ def pushToken (info : SourceInfo) (tk : String) (ident : Bool) : FormatterM Unit
         -- Check if we would parse more than `tk` as a single token
         let tk' := tk.trimLeft
         let t ← parseToken $ tk' ++ st.leadWord
-        if t.pos ≤ tk'.endPos then
+        if t.pos ≤ tk'.rawEndPos then
           -- stopped within `tk` => use it as is
           pure false
         else
@@ -614,8 +612,8 @@ def continuation : String := " [...]"
 instance : Std.Format.MonadPrettyFormat M where
   pushOutput s := do
     let lineEnd := s.find (· == '\n')
-    if lineEnd < s.endPos then
-      let s := (s.extract 0 lineEnd).trimRight ++ continuation
+    if lineEnd < s.rawEndPos then
+      let s := (String.Pos.Raw.extract s 0 lineEnd).trimRight ++ continuation
       modify fun st => { st with line := st.line.append s }
       throw ()
     else

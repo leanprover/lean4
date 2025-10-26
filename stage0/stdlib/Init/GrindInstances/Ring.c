@@ -13,37 +13,37 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init_GrindInstances_Ring_Nat(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_GrindInstances_Ring_Int(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_GrindInstances_Ring_UInt(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_GrindInstances_Ring_SInt(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_GrindInstances_Ring_Fin(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_GrindInstances_Ring_BitVec(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_GrindInstances_Ring_Rat(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_GrindInstances_Ring_Nat(uint8_t builtin);
+lean_object* initialize_Init_GrindInstances_Ring_Int(uint8_t builtin);
+lean_object* initialize_Init_GrindInstances_Ring_UInt(uint8_t builtin);
+lean_object* initialize_Init_GrindInstances_Ring_SInt(uint8_t builtin);
+lean_object* initialize_Init_GrindInstances_Ring_Fin(uint8_t builtin);
+lean_object* initialize_Init_GrindInstances_Ring_BitVec(uint8_t builtin);
+lean_object* initialize_Init_GrindInstances_Ring_Rat(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_GrindInstances_Ring(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_GrindInstances_Ring(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_GrindInstances_Ring_Nat(builtin, lean_io_mk_world());
+res = initialize_Init_GrindInstances_Ring_Nat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GrindInstances_Ring_Int(builtin, lean_io_mk_world());
+res = initialize_Init_GrindInstances_Ring_Int(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GrindInstances_Ring_UInt(builtin, lean_io_mk_world());
+res = initialize_Init_GrindInstances_Ring_UInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GrindInstances_Ring_SInt(builtin, lean_io_mk_world());
+res = initialize_Init_GrindInstances_Ring_SInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GrindInstances_Ring_Fin(builtin, lean_io_mk_world());
+res = initialize_Init_GrindInstances_Ring_Fin(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GrindInstances_Ring_BitVec(builtin, lean_io_mk_world());
+res = initialize_Init_GrindInstances_Ring_BitVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GrindInstances_Ring_Rat(builtin, lean_io_mk_world());
+res = initialize_Init_GrindInstances_Ring_Rat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

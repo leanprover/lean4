@@ -8,13 +8,9 @@ hygiene workings and data types. -/
 module
 
 prelude
-public import Lean.Syntax
-public import Lean.ResolveName
-public import Lean.Elab.Term
 public import Lean.Elab.Quotation.Util
 public import Lean.Elab.Quotation.Precheck
 public import Lean.Elab.Syntax
-public import Lean.Parser.Syntax
 
 public section
 

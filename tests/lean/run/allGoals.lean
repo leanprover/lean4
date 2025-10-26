@@ -125,8 +125,8 @@ but is expected to have type
   false = false
 ---
 info: Try this:
-  Bool.casesOn (motive := fun t => b = t → b = b) b
-    (fun h => Eq.symm h ▸ sorry) (fun h => Eq.symm h ▸ Eq.refl true) (Eq.refl b)
+  [apply] Bool.casesOn (motive := fun t => b = t → b = b) b (fun h => Eq.symm h ▸ sorry)
+    (fun h => Eq.symm h ▸ Eq.refl true) (Eq.refl b)
 -/
 #guard_msgs in
 example (b : Bool) : b = b := by?
@@ -221,7 +221,7 @@ error: Failed: `fail` tactic was invoked
 ⊢ True
 ---
 info: Try this:
-  sorry
+  [apply] sorry
 -/
 #guard_msgs in
 example : True := by?
@@ -241,7 +241,7 @@ use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information
 ---
 info: Try this:
-  sorry
+  [apply] sorry
 -/
 #guard_msgs in
 example : True := by?

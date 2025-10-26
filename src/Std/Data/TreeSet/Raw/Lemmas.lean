@@ -204,7 +204,7 @@ theorem size_le_size_erase [TransCmp cmp] (h : t.WF) {k : α} :
   TreeMap.Raw.size_le_size_erase h
 
 @[simp, grind =]
-theorem get?_emptyc {a : α} : (∅ : TreeSet α cmp).get? a = none :=
+theorem get?_emptyc {a : α} : (∅ : Raw α cmp).get? a = none :=
   TreeMap.Raw.getKey?_emptyc
 
 theorem get?_of_isEmpty [TransCmp cmp] (h : t.WF) {a : α} :
@@ -313,7 +313,7 @@ theorem get_eq [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} (h' : k ∈ 
 
 @[simp, grind =]
 theorem get!_emptyc {a : α} [Inhabited α] :
-    (∅ : TreeSet α cmp).get! a = default :=
+    (∅ : Raw α cmp).get! a = default :=
   TreeMap.Raw.getKey!_emptyc
 
 theorem get!_of_isEmpty [TransCmp cmp] [Inhabited α] (h : t.WF) {a : α} :
@@ -373,7 +373,7 @@ theorem get!_eq_of_mem [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF
 
 @[simp, grind =]
 theorem getD_emptyc {a : α} {fallback : α} :
-    (∅ : TreeSet α cmp).getD a fallback = fallback :=
+    (∅ : Raw α cmp).getD a fallback = fallback :=
   TreeMap.Raw.getKeyD_emptyc
 
 theorem getD_of_isEmpty [TransCmp cmp] (h : t.WF) {a fallback : α} :

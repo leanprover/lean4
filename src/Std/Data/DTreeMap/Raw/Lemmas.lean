@@ -7,7 +7,6 @@ module
 
 prelude
 import Std.Data.DTreeMap.Internal.Lemmas
-public import Std.Data.DTreeMap.Raw.Basic
 public import Std.Data.DTreeMap.Raw.AdditionalOperations
 
 @[expose] public section
@@ -220,7 +219,7 @@ theorem containsThenInsertIfNew_snd [TransCmp cmp] (h : t.WF) {k : α} {v : β k
 
 @[simp, grind =]
 theorem get?_emptyc [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
-    (∅ : DTreeMap α β cmp).get? a = none :=
+    (∅ : Raw α β cmp).get? a = none :=
   Impl.get?_empty
 
 theorem get?_of_isEmpty [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} :
@@ -538,7 +537,7 @@ end Const
 
 @[simp, grind =]
 theorem getD_emptyc [TransCmp cmp] [LawfulEqCmp cmp] {a : α} {fallback : β a} :
-    (∅ : DTreeMap α β cmp).getD a fallback = fallback :=
+    (∅ : Raw α β cmp).getD a fallback = fallback :=
   Impl.getD_empty
 
 theorem getD_of_isEmpty [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} {fallback : β a} :
@@ -667,7 +666,7 @@ theorem getD_congr [TransCmp cmp] (h : t.WF) {a b : α} {fallback : β} (hab : c
 end Const
 
 @[simp, grind =]
-theorem getKey?_emptyc {a : α} : (∅ : DTreeMap α β cmp).getKey? a = none :=
+theorem getKey?_emptyc {a : α} : (∅ : Raw α β cmp).getKey? a = none :=
   Impl.getKey?_empty
 
 theorem getKey?_of_isEmpty [TransCmp cmp] (h : t.WF) {a : α} :

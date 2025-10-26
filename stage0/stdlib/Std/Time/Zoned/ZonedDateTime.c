@@ -9277,21 +9277,21 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Std_Time_Zoned_DateTime(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Time_Zoned_ZoneRules(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Time_DateTime_PlainDateTime(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Time_Zoned_DateTime(uint8_t builtin);
+lean_object* initialize_Std_Time_Zoned_ZoneRules(uint8_t builtin);
+lean_object* initialize_Std_Time_DateTime_PlainDateTime(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Time_Zoned_ZonedDateTime(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Time_Zoned_ZonedDateTime(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Time_Zoned_DateTime(builtin, lean_io_mk_world());
+res = initialize_Std_Time_Zoned_DateTime(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Time_Zoned_ZoneRules(builtin, lean_io_mk_world());
+res = initialize_Std_Time_Zoned_ZoneRules(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Time_DateTime_PlainDateTime(builtin, lean_io_mk_world());
+res = initialize_Std_Time_DateTime_PlainDateTime(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Time_instInhabitedZonedDateTime___private__1___closed__0 = _init_l_Std_Time_instInhabitedZonedDateTime___private__1___closed__0();

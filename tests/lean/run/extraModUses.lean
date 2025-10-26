@@ -187,7 +187,7 @@ References from `@[grind]` are tracked (here `List.append` from Init.Prelude)
 attribute [grind =] List.append
 
 /--
-info: Entries: [import Init.Grind.Attr, import Init.Prelude]
+info: Entries: [import Init.Grind.Attr, public import Init.Prelude]
 Is rev mod use: true
 -/
 #guard_msgs in #eval showExtraModUses
@@ -292,7 +292,7 @@ public meta def myElab : Lean.Elab.Tactic.Tactic := fun _ => pure ()
 attribute [tactic Lean.Parser.Tactic.done] myElab
 
 /--
-info: Entries: [import Init.Tactics]
+info: Entries: [public import Init.Tactics]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses
@@ -308,7 +308,7 @@ public meta def myFormatter : Lean.PrettyPrinter.Formatter := fun _ => pure ()
 attribute [formatter Lean.Parser.Tactic.done] myFormatter
 
 /--
-info: Entries: [import Init.Tactics]
+info: Entries: [public import Init.Tactics]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses
@@ -324,7 +324,7 @@ public meta def myParenthesizer : Lean.PrettyPrinter.Parenthesizer := fun _ => p
 attribute [parenthesizer Lean.Parser.Tactic.done] myParenthesizer
 
 /--
-info: Entries: [import Init.Tactics]
+info: Entries: [public import Init.Tactics]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses

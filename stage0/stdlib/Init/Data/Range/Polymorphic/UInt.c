@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.UInt
-// Imports: public import Init.Data.Range.Polymorphic.Instances public import Init.Data.Order.Lemmas public import Init.Data.UInt import Init.Omega public import Init.Data.Range.Polymorphic.BitVec
+// Imports: import Init.Omega public import Init.Data.Range.Polymorphic.BitVec
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1176,29 +1176,17 @@ x_3 = l_USize_instHasSize__2___lam__0(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Data_Range_Polymorphic_Instances(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_UInt(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Range_Polymorphic_BitVec(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Omega(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_BitVec(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Range_Polymorphic_UInt(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Range_Polymorphic_UInt(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Range_Polymorphic_Instances(builtin, lean_io_mk_world());
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Order_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_UInt(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Omega(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_BitVec(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Range_Polymorphic_BitVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_UInt8_instUpwardEnumerable = _init_l_UInt8_instUpwardEnumerable();

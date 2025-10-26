@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Meta.Reduce
-public import Lean.Meta.Tactic.Util
 public import Lean.Meta.Tactic.Apply
 
 public section

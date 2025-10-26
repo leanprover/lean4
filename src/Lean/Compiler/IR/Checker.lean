@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Compiler.IR.CompilerM
-public import Lean.Compiler.IR.Format
 
 public section
 

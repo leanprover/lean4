@@ -6,9 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Elab.PreDefinition.Basic
-public import Lean.Elab.PreDefinition.TerminationMeasure
-public import Lean.Elab.PreDefinition.Mutual
 public import Lean.Elab.PreDefinition.WF.PackMutual
 public import Lean.Elab.PreDefinition.WF.FloatRecApp
 public import Lean.Elab.PreDefinition.WF.Rel

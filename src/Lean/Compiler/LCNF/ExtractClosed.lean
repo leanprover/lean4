@@ -8,11 +8,7 @@ module
 prelude
 public import Lean.Compiler.ClosedTermCache
 public import Lean.Compiler.NeverExtractAttr
-public import Lean.Compiler.LCNF.Basic
-public import Lean.Compiler.LCNF.InferType
 public import Lean.Compiler.LCNF.Internalize
-public import Lean.Compiler.LCNF.MonoTypes
-public import Lean.Compiler.LCNF.PassManager
 public import Lean.Compiler.LCNF.ToExpr
 
 public section

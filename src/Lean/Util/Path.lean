@@ -13,6 +13,7 @@ module
 prelude
 public import Init.System.IO
 import Init.Data.ToString.Name
+import Init.Data.String.TakeDrop
 
 public section
 

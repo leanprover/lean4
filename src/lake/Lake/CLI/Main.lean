@@ -102,7 +102,7 @@ def LakeOptions.getInstall (opts : LakeOptions) : Except CliError (LeanInstall �
 /-- Compute the Lake environment based on `opts`. Error if an install is missing. -/
 def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
   Env.compute (← opts.getLakeInstall) (← opts.getLeanInstall) opts.elanInstall?
-    opts.noCache |>.adaptExcept fun msg => .invalidEnv msg
+    opts.noCache |>.adapt fun msg => .invalidEnv msg
 
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
 public def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig := do
@@ -192,10 +192,10 @@ def getWantsHelp : CliStateM Bool :=
 def setConfigOpt (kvPair : String) : CliM PUnit :=
   let pos := kvPair.posOf '='
   let (key, val) :=
-    if pos = kvPair.endPos then
+    if pos = kvPair.rawEndPos then
       (kvPair.toName, "")
     else
-      (kvPair.extract 0 pos |>.toName, kvPair.extract (kvPair.next pos) kvPair.endPos)
+      (String.Pos.Raw.extract kvPair 0 pos |>.toName, String.Pos.Raw.extract kvPair (pos.next kvPair) kvPair.rawEndPos)
   modifyThe LakeOptions fun opts =>
     {opts with configOpts := opts.configOpts.insert key val}
 
@@ -220,7 +220,7 @@ def lakeShortOption : (opt : Char) → CliM PUnit
 def validateRepo? (repo : String) : Option String := Id.run do
   unless repo.all isValidRepoChar do
     return "invalid characters in repository name"
-  match repo.split (· == '/') with
+  match repo.splitToList (· == '/') with
   | [owner, name] =>
     if owner.length > 39 then
       return "invalid repository name; owner must be at most 390 characters long"

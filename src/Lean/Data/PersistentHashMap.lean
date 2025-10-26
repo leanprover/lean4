@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Array.BasicAux
-public import Init.Data.ToString.Macro
 public import Init.Data.UInt.Basic
 import Init.Data.String.Basic
 

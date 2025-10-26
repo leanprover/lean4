@@ -6,15 +6,10 @@ Authors: Mario Carneiro
 module
 
 prelude
-public import Init.Data.List.Control
 import all Init.Data.List.Control
-public import Init.Data.List.Impl
-public import Init.Data.List.Nat.Erase
 public import Init.Data.List.Monadic
 public import Init.Data.List.Nat.InsertIdx
-public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
-public import Init.Data.Array.Set
 import all Init.Data.Array.Set
 
 public section
@@ -552,9 +547,6 @@ private theorem popWhile_toArray_aux (p : α → Bool) (l : List α) :
 theorem _root_.Array.replicate_eq_toArray_replicate :
     Array.replicate n v = (List.replicate n v).toArray := by
   simp
-
-@[deprecated _root_.Array.replicate_eq_toArray_replicate (since := "2025-03-18")]
-abbrev _root_.Array.mkArray_eq_toArray_replicate := @_root_.Array.replicate_eq_toArray_replicate
 
 @[simp, grind =] theorem flatMap_empty {β} (f : α → Array β) : (#[] : Array α).flatMap f = #[] := rfl
 

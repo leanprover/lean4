@@ -6,11 +6,11 @@ Authors: Mac Malone
 module
 
 prelude
-public import Init.System.IO
 public import Lean.Data.Json
 import Init.Data.Nat.Fold
 import Lake.Util.String
 import Lake.Util.IO
+public import Init.Data.String.Extra
 
 /-! # Lake Traces
 

@@ -7,9 +7,9 @@ module
 
 prelude
 public import Lake.Util.Log
-import all Init.Data.String.Extra
 import Lake.Util.JsonObject
 import Lake.Util.Proc
+import Init.Data.String.TakeDrop
 
 open Lean
 

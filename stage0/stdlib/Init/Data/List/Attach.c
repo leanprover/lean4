@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Attach
-// Imports: public import Init.Data.List.Lemmas import all Init.Data.List.Lemmas public import Init.Data.List.Count public import Init.Data.Subtype.Basic public import Init.BinderNameHint
+// Imports: import all Init.Data.List.Lemmas public import Init.Data.List.Count public import Init.Data.Subtype.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -38,12 +38,12 @@ LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_pmap_match__1
 lean_object* l_List_reverse___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_pmap_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_attachWithImpl___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___List_unattach_spec__0___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00List_unattach_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_attach(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_findSome_x3f_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_filterMap_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_pmapImpl___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___List_unattach_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00List_unattach_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_filterMap_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_filter_match__1_splitter(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_pmap___redArg(lean_object* x_1, lean_object* x_2) {
@@ -271,7 +271,7 @@ lean_dec(x_4);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___List_unattach_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00List_unattach_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -315,11 +315,11 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___List_unattach_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00List_unattach_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_List_mapTR_loop___at___List_unattach_spec__0___redArg(x_2, x_3);
+x_4 = l_List_mapTR_loop___at___00List_unattach_spec__0___redArg(x_2, x_3);
 return x_4;
 }
 }
@@ -328,7 +328,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_box(0);
-x_3 = l_List_mapTR_loop___at___List_unattach_spec__0___redArg(x_1, x_2);
+x_3 = l_List_mapTR_loop___at___00List_unattach_spec__0___redArg(x_1, x_2);
 return x_3;
 }
 }
@@ -438,29 +438,21 @@ lean_dec(x_3);
 return x_6;
 }
 }
-lean_object* initialize_Init_Data_List_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Count(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Subtype_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_BinderNameHint(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Count(uint8_t builtin);
+lean_object* initialize_Init_Data_Subtype_Basic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_List_Attach(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_List_Attach(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Count(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Count(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Subtype_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_BinderNameHint(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Subtype_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

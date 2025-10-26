@@ -7,8 +7,6 @@ module
 
 prelude
 public import Init.Ext
-public import Init.SimpLemmas
-public import Init.Meta
 
 public section
 
@@ -256,11 +254,6 @@ instance : LawfulMonad Id := by
 @[simp] theorem run_seqRight (x y : Id α) : (x *> y).run = y.run := rfl
 @[simp] theorem run_seqLeft (x y : Id α) : (x <* y).run = x.run := rfl
 @[simp] theorem run_seq (f : Id (α → β)) (x : Id α) : (f <*> x).run = f.run x.run := rfl
-
--- These lemmas are bad as they abuse the defeq of `Id α` and `α`
-@[deprecated run_map (since := "2025-03-05")] theorem map_eq (x : Id α) (f : α → β) : f <$> x = f x := rfl
-@[deprecated run_bind (since := "2025-03-05")] theorem bind_eq (x : Id α) (f : α → id β) : x >>= f = f x := rfl
-@[deprecated run_pure (since := "2025-03-05")] theorem pure_eq (a : α) : (pure a : Id α) = a := rfl
 
 end Id
 

@@ -7,13 +7,11 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.Bool
 public import Init.Data.Option.Lemmas
 public import Init.Data.List.BasicAux
 import all Init.Data.List.BasicAux
 public import Init.Data.List.Control
 import all Init.Data.List.Control
-public import Init.Control.Lawful.Basic
 public import Init.BinderPredicates
 
 public section
@@ -934,9 +932,6 @@ theorem head?_eq_some_iff {xs : List α} {a : α} : xs.head? = some a ↔ ∃ ys
 
 @[simp] theorem isSome_head? : l.head?.isSome ↔ l ≠ [] := by
   cases l <;> simp
-
-@[deprecated isSome_head? (since := "2025-03-18")]
-abbrev head?_isSome := @isSome_head?
 
 @[simp] theorem head_mem : ∀ {l : List α} (h : l ≠ []), head l h ∈ l
   | [], h => absurd rfl h
@@ -2932,7 +2927,7 @@ theorem contains_iff_exists_mem_beq [BEq α] {l : List α} {a : α} :
 -- With `LawfulBEq α`, it would be better to use `contains_iff_mem` directly.
 grind_pattern contains_iff_exists_mem_beq => l.contains a
 
-@[grind _=_]
+@[grind =]
 theorem contains_iff_mem [BEq α] [LawfulBEq α] {l : List α} {a : α} :
     l.contains a ↔ a ∈ l := by
   simp

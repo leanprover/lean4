@@ -6,11 +6,7 @@ Authors: Siddharth Bhat
 module
 
 prelude
-public import Lean.Runtime
 public import Lean.Compiler.NameMangling
-public import Lean.Compiler.ExportAttr
-public import Lean.Compiler.InitAttr
-public import Lean.Compiler.IR.CompilerM
 public import Lean.Compiler.IR.EmitUtil
 public import Lean.Compiler.IR.NormIds
 public import Lean.Compiler.IR.SimpCase
@@ -23,6 +19,18 @@ public section
 open Lean.IR.ExplicitBoxing (isBoxedName)
 
 namespace Lean.IR
+/-
+TODO: At the time of writing this our CI for LLVM is dysfunctional so this code is not actually
+tested. When we get back to fixing it we need to account for changes made to the ABI in the mean
+time. These changes can likely be done similar to the ones in EmitC:
+- IO.RealWorld elimination:
+  - init functions don't take a real world parameter anymore
+  - parameters that are `void` are erased and do not appear in function signatures or call sites
+    anymore. This means in particular:
+    - function decls need to be fixed
+    - full applications need to be fixed
+    - tail calls need to be fixed
+-/
 
 def leanMainFn := "_lean_main"
 
@@ -329,6 +337,7 @@ def toLLVMType (t : IRType) : M llvmctx (LLVM.LLVMType llvmctx) := do
   | IRType.tagged     => do LLVM.pointerType (← LLVM.i8Type llvmctx)
   | IRType.tobject    => do LLVM.pointerType (← LLVM.i8Type llvmctx)
   | IRType.erased     => do LLVM.pointerType (← LLVM.i8Type llvmctx)
+  | IRType.void       => do LLVM.pointerType (← LLVM.i8Type llvmctx)
   | IRType.struct _ _ => panic! "not implemented yet"
   | IRType.union _ _  => panic! "not implemented yet"
 

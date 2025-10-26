@@ -29,8 +29,8 @@ static lean_object* l_Lean_RBMap_fromArray___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_RBNode_any___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_min___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_RBMap_0__Lean_RBNode_depth_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_intersectBy_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_intersectBy_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_max_x21___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_forM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBColor_ctorIdx___boxed(lean_object*);
@@ -70,7 +70,7 @@ LEAN_EXPORT uint8_t l_Lean_RBMap_any(lean_object*, lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_RBMap_filter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_forM___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_RBMap_instRepr___redArg___lam__0___closed__0;
-LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at___Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at___00Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_RBMap_all(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_setBlack___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_mapM___redArg___lam__3(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -78,8 +78,8 @@ static lean_object* l_Lean_RBMap_find_x21___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_RBMap_foldM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_instRepr___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_ofList___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBNode_toArray_spec__0___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_filterMap_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBNode_toArray_spec__0___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_filterMap_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_max_x21___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_fromList___redArg(lean_object*, lean_object*);
@@ -102,12 +102,12 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_balRight(lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* l_Lean_RBMap_size___redArg___boxed(lean_object*);
 static lean_object* l_Lean_RBMap_fromArray___redArg___closed__9;
 LEAN_EXPORT lean_object* l_Lean_RBMap_max_x21(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBNode_toArray_spec__0___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBNode_toArray_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_findD___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_RBMap_toArray___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_RBNode_mapM___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_forM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_filter_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_filter_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_find_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_RBMap_0__Lean_RBNode_depth_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_size___boxed(lean_object*, lean_object*, lean_object*);
@@ -156,10 +156,10 @@ LEAN_EXPORT lean_object* l_Lean_RBMap_maxDepth___redArg___lam__0___boxed(lean_ob
 LEAN_EXPORT lean_object* l_Lean_RBNode_foldM___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_RBMap_contains(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkRBMap(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_size_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_size_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_min_x21___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_isRed___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_size_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_size_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_empty___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedRBMap___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_maxDepth___redArg___boxed(lean_object*);
@@ -171,9 +171,9 @@ lean_object* l_List_repr___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBColor_noConfusion___redArg(uint8_t, uint8_t);
 LEAN_EXPORT uint8_t l_Lean_RBMap_isEmpty___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_instForInProd___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_size_spec__0___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_size_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_max___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_List_foldl___at___Lean_rbmapOf_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at___00Lean_rbmapOf_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBColor_red_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_findCore_x3f___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -192,9 +192,9 @@ LEAN_EXPORT lean_object* l_Lean_RBMap_max___redArg___boxed(lean_object*);
 static lean_object* l_Lean_RBMap_fromArray___redArg___closed__0;
 LEAN_EXPORT uint8_t l_Lean_RBNode_any___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_erase___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_mergeBy_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_mergeBy_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_setRed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___Lean_RBMap_mergeBy_spec__2___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___00Lean_RBMap_mergeBy_spec__2___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_forIn___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_balance2___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_max(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -208,7 +208,7 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_leaf_elim(lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_RBNode_min(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_RBMap_0__Lean_RBNode_forIn_visit___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBColor_black_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_filterMap_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_filterMap_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_ctorIdx___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_fromArray___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_depth(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -217,8 +217,8 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_min___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_maxDepth___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_mergeBy_spec__3___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at___Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_mergeBy_spec__3___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at___00Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_toArray___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_RBMap_min_x21___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_RBNode_forM___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -248,13 +248,13 @@ LEAN_EXPORT lean_object* l_Lean_RBColor_black_elim___redArg___boxed(lean_object*
 LEAN_EXPORT lean_object* l_Lean_RBMap_instForInProd___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_toArray(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_maxDepth___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_foldl___at___Lean_rbmapOf_spec__0___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at___00Lean_rbmapOf_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_toList(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instEmptyCollectionRBMap___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_RBMap_contains___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_depth___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_findD___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___Lean_RBMap_mergeBy_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___00Lean_RBMap_mergeBy_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_RBMap_isEmpty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_forM___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_RBMap_min_x21___redArg___closed__3;
@@ -271,10 +271,10 @@ lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_o
 LEAN_EXPORT lean_object* l_Lean_RBColor_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_mapM___redArg___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_RBMap_0__Lean_RBNode_forIn_visit___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBNode_toArray_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBNode_toArray_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_del(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_toList___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_foldM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_size___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_toArray___boxed(lean_object*, lean_object*, lean_object*);
@@ -294,9 +294,9 @@ LEAN_EXPORT lean_object* l_Lean_RBMap_fold___redArg(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_RBColor_noConfusion___redArg___lam__0(lean_object*);
 static lean_object* l_Lean_RBMap_min_x21___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_RBNode_setRed___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBNode_toArray_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBNode_toArray_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_erase(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_filter_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_filter_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBColor_black_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_node_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_RBMap_0__Lean_RBNode_isRed_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -347,8 +347,8 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_ctorElim___redArg(lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Lean_RBMap_find_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_revFold___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_setBlack(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_size_spec__0___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_intersectBy_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_size_spec__0___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_intersectBy_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_forM___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBColor_ctorIdx(uint8_t x_1) {
 _start:
@@ -4662,13 +4662,13 @@ lean_ctor_set(x_21, 0, x_17);
 lean_ctor_set(x_21, 1, x_18);
 lean_ctor_set(x_21, 2, x_19);
 lean_ctor_set(x_21, 3, x_20);
-lean_ctor_set_uint8(x_21, sizeof(void*)*4, x_14);
+lean_ctor_set_uint8(x_21, sizeof(void*)*4, x_13);
 x_22 = lean_alloc_ctor(1, 4, 1);
-lean_ctor_set(x_22, 0, x_12);
-lean_ctor_set(x_22, 1, x_15);
-lean_ctor_set(x_22, 2, x_16);
+lean_ctor_set(x_22, 0, x_16);
+lean_ctor_set(x_22, 1, x_12);
+lean_ctor_set(x_22, 2, x_15);
 lean_ctor_set(x_22, 3, x_21);
-lean_ctor_set_uint8(x_22, sizeof(void*)*4, x_13);
+lean_ctor_set_uint8(x_22, sizeof(void*)*4, x_14);
 return x_22;
 }
 block_43:
@@ -4679,25 +4679,25 @@ lean_ctor_set(x_39, 0, x_29);
 lean_ctor_set(x_39, 1, x_30);
 lean_ctor_set(x_39, 2, x_31);
 lean_ctor_set(x_39, 3, x_32);
-lean_ctor_set_uint8(x_39, sizeof(void*)*4, x_26);
+lean_ctor_set_uint8(x_39, sizeof(void*)*4, x_25);
 x_40 = lean_alloc_ctor(1, 4, 1);
 lean_ctor_set(x_40, 0, x_35);
 lean_ctor_set(x_40, 1, x_36);
 lean_ctor_set(x_40, 2, x_37);
 lean_ctor_set(x_40, 3, x_38);
-lean_ctor_set_uint8(x_40, sizeof(void*)*4, x_26);
+lean_ctor_set_uint8(x_40, sizeof(void*)*4, x_25);
 x_41 = lean_alloc_ctor(1, 4, 1);
 lean_ctor_set(x_41, 0, x_39);
 lean_ctor_set(x_41, 1, x_33);
 lean_ctor_set(x_41, 2, x_34);
 lean_ctor_set(x_41, 3, x_40);
-lean_ctor_set_uint8(x_41, sizeof(void*)*4, x_25);
+lean_ctor_set_uint8(x_41, sizeof(void*)*4, x_26);
 x_42 = lean_alloc_ctor(1, 4, 1);
-lean_ctor_set(x_42, 0, x_24);
-lean_ctor_set(x_42, 1, x_27);
-lean_ctor_set(x_42, 2, x_28);
+lean_ctor_set(x_42, 0, x_28);
+lean_ctor_set(x_42, 1, x_24);
+lean_ctor_set(x_42, 2, x_27);
 lean_ctor_set(x_42, 3, x_41);
-lean_ctor_set_uint8(x_42, sizeof(void*)*4, x_25);
+lean_ctor_set_uint8(x_42, sizeof(void*)*4, x_26);
 return x_42;
 }
 block_108:
@@ -4714,11 +4714,11 @@ lean_ctor_set_uint8(x_56, sizeof(void*)*4, x_55);
 x_57 = l_Lean_RBNode_setRed___redArg(x_53);
 if (lean_obj_tag(x_57) == 0)
 {
-x_12 = x_56;
-x_13 = x_54;
-x_14 = x_55;
-x_15 = x_48;
-x_16 = x_49;
+x_12 = x_48;
+x_13 = x_55;
+x_14 = x_54;
+x_15 = x_49;
+x_16 = x_56;
 x_17 = x_50;
 x_18 = x_51;
 x_19 = x_52;
@@ -4751,11 +4751,11 @@ lean_dec(x_62);
 x_63 = lean_ctor_get(x_57, 0);
 lean_dec(x_63);
 lean_ctor_set(x_57, 0, x_60);
-x_12 = x_56;
-x_13 = x_54;
-x_14 = x_55;
-x_15 = x_48;
-x_16 = x_49;
+x_12 = x_48;
+x_13 = x_55;
+x_14 = x_54;
+x_15 = x_49;
+x_16 = x_56;
 x_17 = x_50;
 x_18 = x_51;
 x_19 = x_52;
@@ -4776,11 +4776,11 @@ lean_ctor_set(x_66, 1, x_64);
 lean_ctor_set(x_66, 2, x_65);
 lean_ctor_set(x_66, 3, x_60);
 lean_ctor_set_uint8(x_66, sizeof(void*)*4, x_58);
-x_12 = x_56;
-x_13 = x_54;
-x_14 = x_55;
-x_15 = x_48;
-x_16 = x_49;
+x_12 = x_48;
+x_13 = x_55;
+x_14 = x_54;
+x_15 = x_49;
+x_16 = x_56;
 x_17 = x_50;
 x_18 = x_51;
 x_19 = x_52;
@@ -4809,11 +4809,11 @@ lean_inc(x_72);
 x_73 = lean_ctor_get(x_60, 3);
 lean_inc(x_73);
 lean_dec_ref(x_60);
-x_24 = x_56;
-x_25 = x_54;
-x_26 = x_55;
-x_27 = x_48;
-x_28 = x_49;
+x_24 = x_48;
+x_25 = x_55;
+x_26 = x_54;
+x_27 = x_49;
+x_28 = x_56;
 x_29 = x_50;
 x_30 = x_51;
 x_31 = x_52;
@@ -4829,11 +4829,11 @@ goto block_43;
 else
 {
 lean_dec_ref(x_60);
-x_12 = x_56;
-x_13 = x_54;
-x_14 = x_55;
-x_15 = x_48;
-x_16 = x_49;
+x_12 = x_48;
+x_13 = x_55;
+x_14 = x_54;
+x_15 = x_49;
+x_16 = x_56;
 x_17 = x_50;
 x_18 = x_51;
 x_19 = x_52;
@@ -4865,11 +4865,11 @@ lean_inc(x_80);
 x_81 = lean_ctor_get(x_59, 3);
 lean_inc(x_81);
 lean_dec_ref(x_59);
-x_24 = x_56;
-x_25 = x_54;
-x_26 = x_55;
-x_27 = x_48;
-x_28 = x_49;
+x_24 = x_48;
+x_25 = x_55;
+x_26 = x_54;
+x_27 = x_49;
+x_28 = x_56;
 x_29 = x_50;
 x_30 = x_51;
 x_31 = x_52;
@@ -4890,11 +4890,11 @@ lean_inc(x_82);
 if (lean_obj_tag(x_82) == 0)
 {
 lean_dec_ref(x_59);
-x_12 = x_56;
-x_13 = x_54;
-x_14 = x_55;
-x_15 = x_48;
-x_16 = x_49;
+x_12 = x_48;
+x_13 = x_55;
+x_14 = x_54;
+x_15 = x_49;
+x_16 = x_56;
 x_17 = x_50;
 x_18 = x_51;
 x_19 = x_52;
@@ -4922,11 +4922,11 @@ lean_inc(x_88);
 x_89 = lean_ctor_get(x_82, 3);
 lean_inc(x_89);
 lean_dec_ref(x_82);
-x_24 = x_56;
-x_25 = x_54;
-x_26 = x_55;
-x_27 = x_48;
-x_28 = x_49;
+x_24 = x_48;
+x_25 = x_55;
+x_26 = x_54;
+x_27 = x_49;
+x_28 = x_56;
 x_29 = x_50;
 x_30 = x_51;
 x_31 = x_52;
@@ -4954,11 +4954,11 @@ x_93 = !lean_is_exclusive(x_59);
 if (x_93 == 0)
 {
 lean_ctor_set_uint8(x_59, sizeof(void*)*4, x_83);
-x_12 = x_56;
-x_13 = x_54;
-x_14 = x_55;
-x_15 = x_48;
-x_16 = x_49;
+x_12 = x_48;
+x_13 = x_55;
+x_14 = x_54;
+x_15 = x_49;
+x_16 = x_56;
 x_17 = x_50;
 x_18 = x_51;
 x_19 = x_52;
@@ -4984,11 +4984,11 @@ lean_ctor_set(x_98, 2, x_96);
 lean_ctor_set(x_98, 3, x_97);
 lean_ctor_set_uint8(x_98, sizeof(void*)*4, x_83);
 lean_ctor_set(x_57, 0, x_98);
-x_12 = x_56;
-x_13 = x_54;
-x_14 = x_55;
-x_15 = x_48;
-x_16 = x_49;
+x_12 = x_48;
+x_13 = x_55;
+x_14 = x_54;
+x_15 = x_49;
+x_16 = x_56;
 x_17 = x_50;
 x_18 = x_51;
 x_19 = x_52;
@@ -5038,11 +5038,11 @@ lean_ctor_set(x_107, 1, x_99);
 lean_ctor_set(x_107, 2, x_100);
 lean_ctor_set(x_107, 3, x_82);
 lean_ctor_set_uint8(x_107, sizeof(void*)*4, x_58);
-x_12 = x_56;
-x_13 = x_54;
-x_14 = x_55;
-x_15 = x_48;
-x_16 = x_49;
+x_12 = x_48;
+x_13 = x_55;
+x_14 = x_54;
+x_15 = x_49;
+x_16 = x_56;
 x_17 = x_50;
 x_18 = x_51;
 x_19 = x_52;
@@ -5056,11 +5056,11 @@ goto block_23;
 }
 else
 {
-x_12 = x_56;
-x_13 = x_54;
-x_14 = x_55;
-x_15 = x_48;
-x_16 = x_49;
+x_12 = x_48;
+x_13 = x_55;
+x_14 = x_54;
+x_15 = x_49;
+x_16 = x_56;
 x_17 = x_50;
 x_18 = x_51;
 x_19 = x_52;
@@ -5319,7 +5319,7 @@ return x_7;
 LEAN_EXPORT lean_object* l_Lean_RBNode_balRight___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-uint8_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_24; uint8_t x_25; lean_object* x_26; uint8_t x_27; lean_object* x_28; lean_object* x_29; lean_object* x_33; uint8_t x_34; lean_object* x_35; uint8_t x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; uint8_t x_52; lean_object* x_53; lean_object* x_54; uint8_t x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; 
+uint8_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_24; lean_object* x_25; uint8_t x_26; uint8_t x_27; lean_object* x_28; lean_object* x_29; lean_object* x_33; lean_object* x_34; uint8_t x_35; uint8_t x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_52; lean_object* x_53; uint8_t x_54; uint8_t x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; 
 if (lean_obj_tag(x_4) == 0)
 {
 goto block_204;
@@ -5422,13 +5422,13 @@ lean_ctor_set(x_30, 0, x_28);
 lean_ctor_set(x_30, 1, x_2);
 lean_ctor_set(x_30, 2, x_3);
 lean_ctor_set(x_30, 3, x_4);
-lean_ctor_set_uint8(x_30, sizeof(void*)*4, x_27);
+lean_ctor_set_uint8(x_30, sizeof(void*)*4, x_26);
 x_31 = lean_alloc_ctor(1, 4, 1);
 lean_ctor_set(x_31, 0, x_29);
-lean_ctor_set(x_31, 1, x_26);
+lean_ctor_set(x_31, 1, x_25);
 lean_ctor_set(x_31, 2, x_24);
 lean_ctor_set(x_31, 3, x_30);
-lean_ctor_set_uint8(x_31, sizeof(void*)*4, x_25);
+lean_ctor_set_uint8(x_31, sizeof(void*)*4, x_27);
 return x_31;
 }
 block_51:
@@ -5439,19 +5439,19 @@ lean_ctor_set(x_48, 0, x_38);
 lean_ctor_set(x_48, 1, x_39);
 lean_ctor_set(x_48, 2, x_40);
 lean_ctor_set(x_48, 3, x_41);
-lean_ctor_set_uint8(x_48, sizeof(void*)*4, x_36);
+lean_ctor_set_uint8(x_48, sizeof(void*)*4, x_35);
 x_49 = lean_alloc_ctor(1, 4, 1);
 lean_ctor_set(x_49, 0, x_44);
 lean_ctor_set(x_49, 1, x_45);
 lean_ctor_set(x_49, 2, x_46);
 lean_ctor_set(x_49, 3, x_47);
-lean_ctor_set_uint8(x_49, sizeof(void*)*4, x_36);
+lean_ctor_set_uint8(x_49, sizeof(void*)*4, x_35);
 x_50 = lean_alloc_ctor(1, 4, 1);
 lean_ctor_set(x_50, 0, x_48);
 lean_ctor_set(x_50, 1, x_42);
 lean_ctor_set(x_50, 2, x_43);
 lean_ctor_set(x_50, 3, x_49);
-lean_ctor_set_uint8(x_50, sizeof(void*)*4, x_34);
+lean_ctor_set_uint8(x_50, sizeof(void*)*4, x_36);
 x_24 = x_33;
 x_25 = x_34;
 x_26 = x_35;
@@ -5468,9 +5468,9 @@ lean_ctor_set(x_61, 0, x_57);
 lean_ctor_set(x_61, 1, x_58);
 lean_ctor_set(x_61, 2, x_59);
 lean_ctor_set(x_61, 3, x_60);
-lean_ctor_set_uint8(x_61, sizeof(void*)*4, x_55);
-x_24 = x_53;
-x_25 = x_52;
+lean_ctor_set_uint8(x_61, sizeof(void*)*4, x_54);
+x_24 = x_52;
+x_25 = x_53;
 x_26 = x_54;
 x_27 = x_55;
 x_28 = x_56;
@@ -5526,10 +5526,10 @@ lean_dec_ref(x_64);
 x_73 = l_Lean_RBNode_setRed___redArg(x_66);
 if (lean_obj_tag(x_73) == 0)
 {
-x_52 = x_63;
-x_53 = x_71;
-x_54 = x_70;
-x_55 = x_65;
+x_52 = x_71;
+x_53 = x_70;
+x_54 = x_65;
+x_55 = x_63;
 x_56 = x_72;
 x_57 = x_73;
 x_58 = x_67;
@@ -5563,10 +5563,10 @@ lean_dec(x_78);
 x_79 = lean_ctor_get(x_73, 0);
 lean_dec(x_79);
 lean_ctor_set(x_73, 0, x_76);
-x_52 = x_63;
-x_53 = x_71;
-x_54 = x_70;
-x_55 = x_65;
+x_52 = x_71;
+x_53 = x_70;
+x_54 = x_65;
+x_55 = x_63;
 x_56 = x_72;
 x_57 = x_73;
 x_58 = x_67;
@@ -5588,10 +5588,10 @@ lean_ctor_set(x_82, 1, x_80);
 lean_ctor_set(x_82, 2, x_81);
 lean_ctor_set(x_82, 3, x_76);
 lean_ctor_set_uint8(x_82, sizeof(void*)*4, x_74);
-x_52 = x_63;
-x_53 = x_71;
-x_54 = x_70;
-x_55 = x_65;
+x_52 = x_71;
+x_53 = x_70;
+x_54 = x_65;
+x_55 = x_63;
 x_56 = x_72;
 x_57 = x_82;
 x_58 = x_67;
@@ -5622,9 +5622,9 @@ x_89 = lean_ctor_get(x_76, 3);
 lean_inc(x_89);
 lean_dec_ref(x_76);
 x_33 = x_71;
-x_34 = x_63;
-x_35 = x_70;
-x_36 = x_65;
+x_34 = x_70;
+x_35 = x_65;
+x_36 = x_63;
 x_37 = x_72;
 x_38 = x_75;
 x_39 = x_84;
@@ -5641,10 +5641,10 @@ goto block_51;
 else
 {
 lean_dec_ref(x_76);
-x_52 = x_63;
-x_53 = x_71;
-x_54 = x_70;
-x_55 = x_65;
+x_52 = x_71;
+x_53 = x_70;
+x_54 = x_65;
+x_55 = x_63;
 x_56 = x_72;
 x_57 = x_73;
 x_58 = x_67;
@@ -5678,9 +5678,9 @@ x_97 = lean_ctor_get(x_75, 3);
 lean_inc(x_97);
 lean_dec_ref(x_75);
 x_33 = x_71;
-x_34 = x_63;
-x_35 = x_70;
-x_36 = x_65;
+x_34 = x_70;
+x_35 = x_65;
+x_36 = x_63;
 x_37 = x_72;
 x_38 = x_94;
 x_39 = x_95;
@@ -5702,10 +5702,10 @@ lean_inc(x_98);
 if (lean_obj_tag(x_98) == 0)
 {
 lean_dec_ref(x_75);
-x_52 = x_63;
-x_53 = x_71;
-x_54 = x_70;
-x_55 = x_65;
+x_52 = x_71;
+x_53 = x_70;
+x_54 = x_65;
+x_55 = x_63;
 x_56 = x_72;
 x_57 = x_73;
 x_58 = x_67;
@@ -5735,9 +5735,9 @@ x_105 = lean_ctor_get(x_98, 3);
 lean_inc(x_105);
 lean_dec_ref(x_98);
 x_33 = x_71;
-x_34 = x_63;
-x_35 = x_70;
-x_36 = x_65;
+x_34 = x_70;
+x_35 = x_65;
+x_36 = x_63;
 x_37 = x_72;
 x_38 = x_75;
 x_39 = x_100;
@@ -5766,10 +5766,10 @@ x_109 = !lean_is_exclusive(x_75);
 if (x_109 == 0)
 {
 lean_ctor_set_uint8(x_75, sizeof(void*)*4, x_99);
-x_52 = x_63;
-x_53 = x_71;
-x_54 = x_70;
-x_55 = x_65;
+x_52 = x_71;
+x_53 = x_70;
+x_54 = x_65;
+x_55 = x_63;
 x_56 = x_72;
 x_57 = x_73;
 x_58 = x_67;
@@ -5796,10 +5796,10 @@ lean_ctor_set(x_114, 2, x_112);
 lean_ctor_set(x_114, 3, x_113);
 lean_ctor_set_uint8(x_114, sizeof(void*)*4, x_99);
 lean_ctor_set(x_73, 0, x_114);
-x_52 = x_63;
-x_53 = x_71;
-x_54 = x_70;
-x_55 = x_65;
+x_52 = x_71;
+x_53 = x_70;
+x_54 = x_65;
+x_55 = x_63;
 x_56 = x_72;
 x_57 = x_73;
 x_58 = x_67;
@@ -5850,10 +5850,10 @@ lean_ctor_set(x_123, 1, x_115);
 lean_ctor_set(x_123, 2, x_116);
 lean_ctor_set(x_123, 3, x_98);
 lean_ctor_set_uint8(x_123, sizeof(void*)*4, x_74);
-x_52 = x_63;
-x_53 = x_71;
-x_54 = x_70;
-x_55 = x_65;
+x_52 = x_71;
+x_53 = x_70;
+x_54 = x_65;
+x_55 = x_63;
 x_56 = x_72;
 x_57 = x_123;
 x_58 = x_67;
@@ -5868,10 +5868,10 @@ goto block_62;
 }
 else
 {
-x_52 = x_63;
-x_53 = x_71;
-x_54 = x_70;
-x_55 = x_65;
+x_52 = x_71;
+x_53 = x_70;
+x_54 = x_65;
+x_55 = x_63;
 x_56 = x_72;
 x_57 = x_73;
 x_58 = x_67;
@@ -7774,7 +7774,7 @@ x_6 = l_Lean_RBNode_map___redArg(x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBNode_toArray_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBNode_toArray_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -7788,7 +7788,7 @@ x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
 x_5 = lean_ctor_get(x_2, 2);
 x_6 = lean_ctor_get(x_2, 3);
-x_7 = l_Lean_RBNode_fold___at___Lean_RBNode_toArray_spec__0___redArg(x_1, x_3);
+x_7 = l_Lean_RBNode_fold___at___00Lean_RBNode_toArray_spec__0___redArg(x_1, x_3);
 lean_inc(x_5);
 lean_inc(x_4);
 x_8 = lean_alloc_ctor(0, 2, 0);
@@ -7801,11 +7801,11 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBNode_toArray_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBNode_toArray_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_RBNode_fold___at___Lean_RBNode_toArray_spec__0___redArg(x_3, x_4);
+x_5 = l_Lean_RBNode_fold___at___00Lean_RBNode_toArray_spec__0___redArg(x_3, x_4);
 return x_5;
 }
 }
@@ -7822,7 +7822,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_RBNode_toArray___redArg___closed__0;
-x_3 = l_Lean_RBNode_fold___at___Lean_RBNode_toArray_spec__0___redArg(x_2, x_1);
+x_3 = l_Lean_RBNode_fold___at___00Lean_RBNode_toArray_spec__0___redArg(x_2, x_1);
 return x_3;
 }
 }
@@ -7834,20 +7834,20 @@ x_4 = l_Lean_RBNode_toArray___redArg(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBNode_toArray_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBNode_toArray_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_RBNode_fold___at___Lean_RBNode_toArray_spec__0___redArg(x_1, x_2);
+x_3 = l_Lean_RBNode_fold___at___00Lean_RBNode_toArray_spec__0___redArg(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBNode_toArray_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBNode_toArray_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_RBNode_fold___at___Lean_RBNode_toArray_spec__0(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_RBNode_fold___at___00Lean_RBNode_toArray_spec__0(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 return x_5;
 }
@@ -9305,7 +9305,7 @@ x_7 = lean_box(x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_size_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_size_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -9317,7 +9317,7 @@ else
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 3);
-x_5 = l_Lean_RBNode_fold___at___Lean_RBMap_size_spec__0___redArg(x_1, x_3);
+x_5 = l_Lean_RBNode_fold___at___00Lean_RBMap_size_spec__0___redArg(x_1, x_3);
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_add(x_5, x_6);
 lean_dec(x_5);
@@ -9327,11 +9327,11 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_size_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_size_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_RBNode_fold___at___Lean_RBMap_size_spec__0___redArg(x_3, x_4);
+x_5 = l_Lean_RBNode_fold___at___00Lean_RBMap_size_spec__0___redArg(x_3, x_4);
 return x_5;
 }
 }
@@ -9340,7 +9340,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_Lean_RBNode_fold___at___Lean_RBMap_size_spec__0___redArg(x_2, x_1);
+x_3 = l_Lean_RBNode_fold___at___00Lean_RBMap_size_spec__0___redArg(x_2, x_1);
 return x_3;
 }
 }
@@ -9352,20 +9352,20 @@ x_5 = l_Lean_RBMap_size___redArg(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_size_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_size_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_RBNode_fold___at___Lean_RBMap_size_spec__0___redArg(x_1, x_2);
+x_3 = l_Lean_RBNode_fold___at___00Lean_RBMap_size_spec__0___redArg(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_size_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_size_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_RBNode_fold___at___Lean_RBMap_size_spec__0(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_RBNode_fold___at___00Lean_RBMap_size_spec__0(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 return x_5;
 }
@@ -9799,7 +9799,7 @@ return x_10;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at___Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at___00Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -9839,7 +9839,7 @@ switch (x_14) {
 case 0:
 {
 lean_object* x_15; 
-x_15 = l_Lean_RBNode_ins___at___Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0_spec__0___redArg(x_1, x_9, x_3, x_4);
+x_15 = l_Lean_RBNode_ins___at___00Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0_spec__0___redArg(x_1, x_9, x_3, x_4);
 lean_ctor_set(x_2, 0, x_15);
 return x_2;
 }
@@ -9855,7 +9855,7 @@ return x_2;
 default: 
 {
 lean_object* x_16; 
-x_16 = l_Lean_RBNode_ins___at___Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0_spec__0___redArg(x_1, x_12, x_3, x_4);
+x_16 = l_Lean_RBNode_ins___at___00Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0_spec__0___redArg(x_1, x_12, x_3, x_4);
 lean_ctor_set(x_2, 3, x_16);
 return x_2;
 }
@@ -9882,7 +9882,7 @@ switch (x_22) {
 case 0:
 {
 lean_object* x_23; lean_object* x_24; 
-x_23 = l_Lean_RBNode_ins___at___Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0_spec__0___redArg(x_1, x_17, x_3, x_4);
+x_23 = l_Lean_RBNode_ins___at___00Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0_spec__0___redArg(x_1, x_17, x_3, x_4);
 x_24 = lean_alloc_ctor(1, 4, 1);
 lean_ctor_set(x_24, 0, x_23);
 lean_ctor_set(x_24, 1, x_18);
@@ -9908,7 +9908,7 @@ return x_25;
 default: 
 {
 lean_object* x_26; lean_object* x_27; 
-x_26 = l_Lean_RBNode_ins___at___Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0_spec__0___redArg(x_1, x_20, x_3, x_4);
+x_26 = l_Lean_RBNode_ins___at___00Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0_spec__0___redArg(x_1, x_20, x_3, x_4);
 x_27 = lean_alloc_ctor(1, 4, 1);
 lean_ctor_set(x_27, 0, x_17);
 lean_ctor_set(x_27, 1, x_18);
@@ -9950,7 +9950,7 @@ switch (x_34) {
 case 0:
 {
 lean_object* x_35; uint8_t x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
-x_35 = l_Lean_RBNode_ins___at___Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0_spec__0___redArg(x_1, x_28, x_3, x_4);
+x_35 = l_Lean_RBNode_ins___at___00Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0_spec__0___redArg(x_1, x_28, x_3, x_4);
 x_36 = lean_ctor_get_uint8(x_35, sizeof(void*)*4);
 x_37 = lean_ctor_get(x_35, 0);
 lean_inc(x_37);
@@ -10378,7 +10378,7 @@ return x_117;
 default: 
 {
 lean_object* x_118; uint8_t x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; 
-x_118 = l_Lean_RBNode_ins___at___Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0_spec__0___redArg(x_1, x_31, x_3, x_4);
+x_118 = l_Lean_RBNode_ins___at___00Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0_spec__0___redArg(x_1, x_31, x_3, x_4);
 x_119 = lean_ctor_get_uint8(x_118, sizeof(void*)*4);
 x_120 = lean_ctor_get(x_118, 0);
 lean_inc(x_120);
@@ -10790,15 +10790,15 @@ return x_136;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at___Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at___00Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
-x_7 = l_Lean_RBNode_ins___at___Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0_spec__0___redArg(x_2, x_4, x_5, x_6);
+x_7 = l_Lean_RBNode_ins___at___00Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0_spec__0___redArg(x_2, x_4, x_5, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -10806,27 +10806,27 @@ x_5 = l_Lean_RBNode_isRed___redArg(x_2);
 if (x_5 == 0)
 {
 lean_object* x_6; 
-x_6 = l_Lean_RBNode_ins___at___Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0_spec__0___redArg(x_1, x_2, x_3, x_4);
+x_6 = l_Lean_RBNode_ins___at___00Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0_spec__0___redArg(x_1, x_2, x_3, x_4);
 return x_6;
 }
 else
 {
 lean_object* x_7; lean_object* x_8; 
-x_7 = l_Lean_RBNode_ins___at___Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0_spec__0___redArg(x_1, x_2, x_3, x_4);
+x_7 = l_Lean_RBNode_ins___at___00Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0_spec__0___redArg(x_1, x_2, x_3, x_4);
 x_8 = l_Lean_RBNode_setBlack___redArg(x_7);
 return x_8;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
-x_7 = l_Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0___redArg(x_2, x_4, x_5, x_6);
+x_7 = l_Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0___redArg(x_2, x_4, x_5, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___Lean_RBMap_mergeBy_spec__2___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___00Lean_RBMap_mergeBy_spec__2___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -10883,15 +10883,15 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___Lean_RBMap_mergeBy_spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___00Lean_RBMap_mergeBy_spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Lean_RBNode_find___at___Lean_RBMap_mergeBy_spec__2___redArg(x_2, x_4, x_5);
+x_6 = l_Lean_RBNode_find___at___00Lean_RBMap_mergeBy_spec__2___redArg(x_2, x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_mergeBy_spec__3___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_mergeBy_spec__3___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 if (lean_obj_tag(x_4) == 0)
@@ -10914,11 +10914,11 @@ lean_inc(x_8);
 lean_dec_ref(x_4);
 lean_inc(x_2);
 lean_inc_ref(x_1);
-x_9 = l_Lean_RBNode_fold___at___Lean_RBMap_mergeBy_spec__3___redArg(x_1, x_2, x_3, x_5);
+x_9 = l_Lean_RBNode_fold___at___00Lean_RBMap_mergeBy_spec__3___redArg(x_1, x_2, x_3, x_5);
 lean_inc(x_6);
 lean_inc(x_9);
 lean_inc_ref(x_1);
-x_14 = l_Lean_RBNode_find___at___Lean_RBMap_mergeBy_spec__2___redArg(x_1, x_9, x_6);
+x_14 = l_Lean_RBNode_find___at___00Lean_RBMap_mergeBy_spec__2___redArg(x_1, x_9, x_6);
 if (lean_obj_tag(x_14) == 0)
 {
 x_10 = x_7;
@@ -10940,7 +10940,7 @@ block_13:
 {
 lean_object* x_11; 
 lean_inc_ref(x_1);
-x_11 = l_Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0___redArg(x_1, x_9, x_6, x_10);
+x_11 = l_Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0___redArg(x_1, x_9, x_6, x_10);
 x_3 = x_11;
 x_4 = x_8;
 goto _start;
@@ -10948,11 +10948,11 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_mergeBy_spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_mergeBy_spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
-x_7 = l_Lean_RBNode_fold___at___Lean_RBMap_mergeBy_spec__3___redArg(x_3, x_4, x_5, x_6);
+x_7 = l_Lean_RBNode_fold___at___00Lean_RBMap_mergeBy_spec__3___redArg(x_3, x_4, x_5, x_6);
 return x_7;
 }
 }
@@ -10960,7 +10960,7 @@ LEAN_EXPORT lean_object* l_Lean_RBMap_mergeBy___redArg(lean_object* x_1, lean_ob
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_RBNode_fold___at___Lean_RBMap_mergeBy_spec__3___redArg(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_RBNode_fold___at___00Lean_RBMap_mergeBy_spec__3___redArg(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
@@ -10968,11 +10968,11 @@ LEAN_EXPORT lean_object* l_Lean_RBMap_mergeBy(lean_object* x_1, lean_object* x_2
 _start:
 {
 lean_object* x_7; 
-x_7 = l_Lean_RBNode_fold___at___Lean_RBMap_mergeBy_spec__3___redArg(x_3, x_4, x_5, x_6);
+x_7 = l_Lean_RBNode_fold___at___00Lean_RBMap_mergeBy_spec__3___redArg(x_3, x_4, x_5, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_intersectBy_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_intersectBy_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 if (lean_obj_tag(x_5) == 0)
@@ -10997,11 +10997,11 @@ lean_dec_ref(x_5);
 lean_inc(x_3);
 lean_inc_ref(x_2);
 lean_inc(x_1);
-x_10 = l_Lean_RBNode_fold___at___Lean_RBMap_intersectBy_spec__0___redArg(x_1, x_2, x_3, x_4, x_6);
+x_10 = l_Lean_RBNode_fold___at___00Lean_RBMap_intersectBy_spec__0___redArg(x_1, x_2, x_3, x_4, x_6);
 lean_inc(x_7);
 lean_inc(x_1);
 lean_inc_ref(x_2);
-x_11 = l_Lean_RBNode_find___at___Lean_RBMap_mergeBy_spec__2___redArg(x_2, x_1, x_7);
+x_11 = l_Lean_RBNode_find___at___00Lean_RBMap_mergeBy_spec__2___redArg(x_2, x_1, x_7);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_dec(x_8);
@@ -11020,7 +11020,7 @@ lean_inc(x_3);
 lean_inc(x_7);
 x_14 = lean_apply_3(x_3, x_7, x_8, x_13);
 lean_inc_ref(x_2);
-x_15 = l_Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0___redArg(x_2, x_10, x_7, x_14);
+x_15 = l_Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0___redArg(x_2, x_10, x_7, x_14);
 x_4 = x_15;
 x_5 = x_9;
 goto _start;
@@ -11028,11 +11028,11 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_intersectBy_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_intersectBy_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
 lean_object* x_10; 
-x_10 = l_Lean_RBNode_fold___at___Lean_RBMap_intersectBy_spec__0___redArg(x_5, x_6, x_7, x_8, x_9);
+x_10 = l_Lean_RBNode_fold___at___00Lean_RBMap_intersectBy_spec__0___redArg(x_5, x_6, x_7, x_8, x_9);
 return x_10;
 }
 }
@@ -11041,7 +11041,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_box(0);
-x_6 = l_Lean_RBNode_fold___at___Lean_RBMap_intersectBy_spec__0___redArg(x_4, x_1, x_2, x_5, x_3);
+x_6 = l_Lean_RBNode_fold___at___00Lean_RBMap_intersectBy_spec__0___redArg(x_4, x_1, x_2, x_5, x_3);
 return x_6;
 }
 }
@@ -11053,7 +11053,7 @@ x_9 = l_Lean_RBMap_intersectBy___redArg(x_3, x_6, x_7, x_8);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_filter_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_filter_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 if (lean_obj_tag(x_4) == 0)
@@ -11076,7 +11076,7 @@ lean_inc(x_8);
 lean_dec_ref(x_4);
 lean_inc_ref(x_2);
 lean_inc_ref(x_1);
-x_9 = l_Lean_RBNode_fold___at___Lean_RBMap_filter_spec__0___redArg(x_1, x_2, x_3, x_5);
+x_9 = l_Lean_RBNode_fold___at___00Lean_RBMap_filter_spec__0___redArg(x_1, x_2, x_3, x_5);
 lean_inc_ref(x_1);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -11094,7 +11094,7 @@ else
 {
 lean_object* x_13; 
 lean_inc_ref(x_2);
-x_13 = l_Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0___redArg(x_2, x_9, x_6, x_7);
+x_13 = l_Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0___redArg(x_2, x_9, x_6, x_7);
 x_3 = x_13;
 x_4 = x_8;
 goto _start;
@@ -11102,11 +11102,11 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_filter_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_filter_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
-x_7 = l_Lean_RBNode_fold___at___Lean_RBMap_filter_spec__0___redArg(x_3, x_4, x_5, x_6);
+x_7 = l_Lean_RBNode_fold___at___00Lean_RBMap_filter_spec__0___redArg(x_3, x_4, x_5, x_6);
 return x_7;
 }
 }
@@ -11115,7 +11115,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_box(0);
-x_5 = l_Lean_RBNode_fold___at___Lean_RBMap_filter_spec__0___redArg(x_2, x_1, x_4, x_3);
+x_5 = l_Lean_RBNode_fold___at___00Lean_RBMap_filter_spec__0___redArg(x_2, x_1, x_4, x_3);
 return x_5;
 }
 }
@@ -11127,7 +11127,7 @@ x_6 = l_Lean_RBMap_filter___redArg(x_3, x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_filterMap_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_filterMap_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 if (lean_obj_tag(x_4) == 0)
@@ -11150,7 +11150,7 @@ lean_inc(x_8);
 lean_dec_ref(x_4);
 lean_inc_ref(x_2);
 lean_inc_ref(x_1);
-x_9 = l_Lean_RBNode_fold___at___Lean_RBMap_filterMap_spec__0___redArg(x_1, x_2, x_3, x_5);
+x_9 = l_Lean_RBNode_fold___at___00Lean_RBMap_filterMap_spec__0___redArg(x_1, x_2, x_3, x_5);
 lean_inc_ref(x_1);
 lean_inc(x_6);
 x_10 = lean_apply_2(x_1, x_6, x_7);
@@ -11168,7 +11168,7 @@ x_12 = lean_ctor_get(x_10, 0);
 lean_inc(x_12);
 lean_dec_ref(x_10);
 lean_inc_ref(x_2);
-x_13 = l_Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0___redArg(x_2, x_9, x_6, x_12);
+x_13 = l_Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0___redArg(x_2, x_9, x_6, x_12);
 x_3 = x_13;
 x_4 = x_8;
 goto _start;
@@ -11176,11 +11176,11 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_RBMap_filterMap_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___00Lean_RBMap_filterMap_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
-x_8 = l_Lean_RBNode_fold___at___Lean_RBMap_filterMap_spec__0___redArg(x_4, x_5, x_6, x_7);
+x_8 = l_Lean_RBNode_fold___at___00Lean_RBMap_filterMap_spec__0___redArg(x_4, x_5, x_6, x_7);
 return x_8;
 }
 }
@@ -11189,7 +11189,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_box(0);
-x_5 = l_Lean_RBNode_fold___at___Lean_RBMap_filterMap_spec__0___redArg(x_2, x_1, x_4, x_3);
+x_5 = l_Lean_RBNode_fold___at___00Lean_RBMap_filterMap_spec__0___redArg(x_2, x_1, x_4, x_3);
 return x_5;
 }
 }
@@ -11201,7 +11201,7 @@ x_7 = l_Lean_RBMap_filterMap___redArg(x_3, x_5, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_List_foldl___at___Lean_rbmapOf_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_List_foldl___at___00Lean_rbmapOf_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_3) == 0)
@@ -11223,18 +11223,18 @@ x_7 = lean_ctor_get(x_4, 1);
 lean_inc(x_7);
 lean_dec(x_4);
 lean_inc_ref(x_1);
-x_8 = l_Lean_RBNode_insert___at___Lean_RBMap_mergeBy_spec__0___redArg(x_1, x_2, x_6, x_7);
+x_8 = l_Lean_RBNode_insert___at___00Lean_RBMap_mergeBy_spec__0___redArg(x_1, x_2, x_6, x_7);
 x_2 = x_8;
 x_3 = x_5;
 goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_foldl___at___Lean_rbmapOf_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_List_foldl___at___00Lean_rbmapOf_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_List_foldl___at___Lean_rbmapOf_spec__0___redArg(x_3, x_4, x_5);
+x_6 = l_List_foldl___at___00Lean_rbmapOf_spec__0___redArg(x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -11243,7 +11243,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_box(0);
-x_4 = l_List_foldl___at___Lean_rbmapOf_spec__0___redArg(x_2, x_3, x_1);
+x_4 = l_List_foldl___at___00Lean_rbmapOf_spec__0___redArg(x_2, x_3, x_1);
 return x_4;
 }
 }
@@ -11255,17 +11255,17 @@ x_5 = l_Lean_rbmapOf___redArg(x_3, x_4);
 return x_5;
 }
 }
-lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Data_RBMap(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Data_RBMap(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Ord_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Ord_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Nat_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_RBNode_toArray___redArg___closed__0 = _init_l_Lean_RBNode_toArray___redArg___closed__0();

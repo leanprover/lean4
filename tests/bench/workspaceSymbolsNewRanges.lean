@@ -37,7 +37,7 @@ private def containsInOrderLower (a b : String) : Bool := Id.run do
     return true
   let mut aIt := a.mkIterator
     -- TODO: the following code is assuming all characters are ASCII
-  for i in *...b.endPos.byteIdx do
+  for i in *...b.rawEndPos.byteIdx do
     if aIt.curr.toLower == (b.get ⟨i⟩).toLower then
       aIt := aIt.next
       if !aIt.hasNext then

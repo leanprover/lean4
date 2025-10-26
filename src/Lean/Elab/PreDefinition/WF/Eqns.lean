@@ -12,7 +12,6 @@ import Lean.Elab.PreDefinition.EqnsUtils
 import Lean.Meta.Tactic.Rewrite
 import Lean.Meta.Tactic.Split
 import Lean.Elab.PreDefinition.Basic
-import Init.Data.Array.Basic
 
 namespace Lean.Elab.WF
 open Meta

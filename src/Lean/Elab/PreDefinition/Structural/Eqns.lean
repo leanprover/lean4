@@ -6,13 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Basic
 public import Lean.Elab.PreDefinition.FixedParams
 import Lean.Elab.PreDefinition.EqnsUtils
-import Lean.Meta.Eqns
 import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.Simp.Main
-import Lean.Meta.Tactic.Apply
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Meta.Match.MatchEqs

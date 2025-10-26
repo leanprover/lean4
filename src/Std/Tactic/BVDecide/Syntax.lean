@@ -6,7 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Init.Notation
 public import Init.Simproc
 
 @[expose] public section

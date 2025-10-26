@@ -8,7 +8,6 @@ notation, basic datatypes and type classes
 module
 
 prelude
-public meta import Init.Prelude
 public import Init.SizeOf
 
 public section
@@ -600,17 +599,6 @@ class LawfulSingleton (α : Type u) (β : Type v) [EmptyCollection β] [Insert �
 export LawfulSingleton (insert_empty_eq)
 
 attribute [simp] insert_empty_eq
-
-@[deprecated insert_empty_eq (since := "2025-03-12")]
-theorem insert_emptyc_eq [EmptyCollection β] [Insert α β] [Singleton α β]
-    [LawfulSingleton α β] (x : α) : (insert x ∅ : β) = singleton x :=
-  insert_empty_eq _
-
-@[deprecated insert_empty_eq (since := "2025-03-12")]
-theorem LawfulSingleton.insert_emptyc_eq [EmptyCollection β] [Insert α β] [Singleton α β]
-    [LawfulSingleton α β] (x : α) : (insert x ∅ : β) = singleton x :=
-  insert_empty_eq _
-
 
 /-- Type class used to implement the notation `{ a ∈ c | p a }` -/
 class Sep (α : outParam <| Type u) (γ : Type v) where

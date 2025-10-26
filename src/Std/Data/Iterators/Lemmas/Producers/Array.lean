@@ -45,7 +45,7 @@ theorem _root_.Array.step_iterFromIdx {array : Array β} {pos : Nat} :
       else
         .done (Nat.not_lt.mp h) := by
   simp only [Array.iterFromIdx_eq_toIter_iterFromIdxM, Iter.step, Iter.toIterM_toIter,
-    Array.step_iterFromIdxM, Id.run_pure]
+    Array.step_iterFromIdxM, Id.run_pure, Shrink.inflate_deflate]
   split <;> rfl
 
 theorem _root_.Array.step_iter {array : Array β} :

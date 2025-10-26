@@ -8,7 +8,6 @@ module
 
 prelude
 public import Init.Data.List.TakeDrop
-public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
 
 public section

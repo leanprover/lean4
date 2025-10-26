@@ -7,10 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Generalize
-public import Lean.Meta.Check
-public import Lean.Meta.Tactic.Intro
 public import Lean.Elab.Binders
-public import Lean.Elab.Tactic.ElabTerm
 public import Lean.Elab.Tactic.Location
 
 public section

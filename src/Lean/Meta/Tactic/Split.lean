@@ -12,7 +12,6 @@ public import Lean.Meta.Tactic.Generalize
 public import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.SplitIf
-import Lean.Meta.Tactic.Generalize
 
 public section
 

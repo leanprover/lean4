@@ -8,8 +8,6 @@ module
 
 prelude
 public import Lean.Meta.Match
-public import Lean.Meta.InferType
-public import Lean.Meta.Check
 public import Lean.Meta.Tactic.Split
 
 public section

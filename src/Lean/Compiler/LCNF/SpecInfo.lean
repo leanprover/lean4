@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.Specialize
 public import Lean.Compiler.LCNF.FixedParams
 public import Lean.Compiler.LCNF.InferType
 

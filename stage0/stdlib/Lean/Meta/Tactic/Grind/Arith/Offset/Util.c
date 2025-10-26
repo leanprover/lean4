@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Offset.Util
-// Imports: public import Lean.Expr public import Lean.Message public import Lean.Meta.Tactic.Grind.Arith.Util
+// Imports: public import Lean.Meta.Tactic.Grind.Arith.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -57,7 +57,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedCnstr___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedCnstr_default(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_toMessageData___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at_____private_Lean_Meta_Tactic_Grind_Arith_Offset_Util_0__Lean_Meta_Grind_Arith_Offset_isNatOffsetCnstr_x3f_go_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00__private_Lean_Meta_Tactic_Grind_Arith_Offset_Util_0__Lean_Meta_Grind_Arith_Offset_isNatOffsetCnstr_x3f_go_spec__0(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_isNatOffsetCnstr_x3f___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_isNatOffset_x3f(lean_object* x_1) {
 _start:
@@ -449,7 +449,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at_____private_Lean_Meta_Tactic_Grind_Arith_Offset_Util_0__Lean_Meta_Grind_Arith_Offset_isNatOffsetCnstr_x3f_go_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00__private_Lean_Meta_Tactic_Grind_Arith_Offset_Util_0__Lean_Meta_Grind_Arith_Offset_isNatOffsetCnstr_x3f_go_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -799,21 +799,13 @@ return x_24;
 }
 }
 }
-lean_object* initialize_Lean_Expr(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Message(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Util(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Util(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Offset_Util(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Offset_Util(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Expr(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Message(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_Arith_Util(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Grind_Arith_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Grind_Arith_Offset_instInhabitedCnstr_default___redArg___closed__0 = _init_l_Lean_Meta_Grind_Arith_Offset_instInhabitedCnstr_default___redArg___closed__0();

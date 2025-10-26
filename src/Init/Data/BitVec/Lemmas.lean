@@ -6,25 +6,14 @@ Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed, Siddharth B
 module
 
 prelude
-public import Init.Data.Bool
-public import Init.Data.BitVec.Basic
 import all Init.Data.BitVec.Basic
-public import Init.Data.BitVec.BasicAux
 import all Init.Data.BitVec.BasicAux
 public import Init.Data.Fin.Lemmas
-public import Init.Data.Nat.Lemmas
-public import Init.Data.Nat.Div.Lemmas
-public import Init.Data.Nat.Mod
-public import Init.Data.Nat.Div.Lemmas
 public import Init.Data.Int.Bitwise.Lemmas
 public import Init.Data.Int.LemmasAux
-public import Init.Data.Int.Pow
-public import Init.Data.Int.LemmasAux
 public import Init.Data.BitVec.Bootstrap
-public import Init.Data.Order.Factories
 public import Init.Data.List.BasicAux
 import Init.Data.List.Lemmas
-import Init.Data.BEq
 
 public section
 
@@ -2582,10 +2571,6 @@ theorem signExtend_eq_setWidth_of_le (x : BitVec w) {v : Nat} (hv : v ≤ w) :
   x.signExtend v = x.setWidth v := by
   ext i h
   simp [getElem_signExtend, show i < w by omega]
-
-@[deprecated signExtend_eq_setWidth_of_le (since := "2025-03-07")]
-theorem signExtend_eq_setWidth_of_lt (x : BitVec w) {v : Nat} (hv : v ≤ w) :
-  x.signExtend v = x.setWidth v := signExtend_eq_setWidth_of_le x hv
 
 /-- Sign extending to the same bitwidth is a no op. -/
 @[simp] theorem signExtend_eq (x : BitVec w) : x.signExtend w = x := by

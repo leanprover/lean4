@@ -6,13 +6,7 @@ Authors: Jeremy Avigad, Mario Carneiro, Kim Morrison, Markus Himmel
 module
 
 prelude
-public import Init.Data.Int.DivMod.Bootstrap
-public import Init.Data.Nat.Lemmas
 public import Init.Data.Nat.Div.Lemmas
-public import Init.Data.Int.Order
-public import Init.Data.Int.Lemmas
-public import Init.Data.Nat.Dvd
-public import Init.RCases
 import Init.TacticsExtra
 
 public section
@@ -516,9 +510,6 @@ theorem ediv_neg_of_neg_of_pos {a b : Int} (Ha : a < 0) (Hb : 0 < b) : a / b < 0
   match a, b, eq_negSucc_of_lt_zero Ha, eq_succ_of_zero_lt Hb with
   | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => negSucc_lt_zero _
 
-@[deprecated ediv_neg_of_neg_of_pos (since := "2025-03-04")]
-abbrev ediv_neg' := @ediv_neg_of_neg_of_pos
-
 theorem negSucc_ediv (m : Nat) {b : Int} (H : 0 < b) : -[m+1] / b = -(ediv m b + 1) :=
   match b, eq_succ_of_zero_lt H with
   | _, ⟨_, rfl⟩ => rfl
@@ -550,9 +541,6 @@ theorem ediv_pos_of_neg_of_neg {a b : Int} (ha : a < 0) (hb : b < 0) : 0 < a / b
 
 theorem ediv_nonpos_of_nonneg_of_nonpos {a b : Int} (Ha : 0 ≤ a) (Hb : b ≤ 0) : a / b ≤ 0 :=
   Int.nonpos_of_neg_nonneg <| Int.ediv_neg .. ▸ Int.ediv_nonneg Ha (Int.neg_nonneg_of_nonpos Hb)
-
-@[deprecated ediv_nonpos_of_nonneg_of_nonpos (since := "2025-03-04")]
-abbrev ediv_nonpos := @ediv_nonpos_of_nonneg_of_nonpos
 
 theorem ediv_eq_zero_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : a / b = 0 :=
   match a, b, eq_ofNat_of_zero_le H1, eq_succ_of_zero_lt (Int.lt_of_le_of_lt H1 H2) with
@@ -943,9 +931,6 @@ where
   | -[_+1], 0 => Nat.zero_le _
   | -[_+1], succ _ => Nat.succ_le_succ (Nat.div_le_self _ _)
 
-@[deprecated natAbs_ediv_le_natAbs (since := "2025-03-05")]
-abbrev natAbs_div_le_natAbs := natAbs_ediv_le_natAbs
-
 theorem ediv_le_self {a : Int} (b : Int) (Ha : 0 ≤ a) : a / b ≤ a := by
   have := Int.le_trans le_natAbs (ofNat_le.2 <| natAbs_ediv_le_natAbs a b)
   rwa [natAbs_of_nonneg Ha] at this
@@ -977,14 +962,6 @@ theorem emod_eq_iff {a b c : Int} (hb : b ≠ 0) : a % b = c ↔ 0 ≤ c ∧ c <
 @[simp] theorem neg_mul_emod_right (a b : Int) : -(a * b) % a = 0 := by
   rw [← dvd_iff_emod_eq_zero, Int.dvd_neg]
   exact Int.dvd_mul_right a b
-
-@[deprecated mul_ediv_cancel (since := "2025-03-05")]
-theorem neg_mul_ediv_cancel (a b : Int) (h : b ≠ 0) : -(a * b) / b = -a := by
-  rw [neg_ediv_of_dvd (Int.dvd_mul_left a b), mul_ediv_cancel _ h]
-
-@[deprecated mul_ediv_cancel (since := "2025-03-05")]
-theorem neg_mul_ediv_cancel_left (a b : Int) (h : a ≠ 0) : -(a * b) / a = -b := by
-  rw [neg_ediv_of_dvd (Int.dvd_mul_right a b), mul_ediv_cancel_left _ h]
 
 @[simp] theorem ediv_one : ∀ a : Int, a / 1 = a
   | (_:Nat) => congrArg Nat.cast (Nat.div_one _)
@@ -1334,9 +1311,6 @@ theorem tdiv_nonneg_of_nonpos_of_nonpos {a b : Int} (Ha : a ≤ 0) (Hb : b ≤ 0
 
 protected theorem tdiv_nonpos_of_nonneg_of_nonpos {a b : Int} (Ha : 0 ≤ a) (Hb : b ≤ 0) : a.tdiv b ≤ 0 :=
   Int.nonpos_of_neg_nonneg <| Int.tdiv_neg .. ▸ Int.tdiv_nonneg Ha (Int.neg_nonneg_of_nonpos Hb)
-
-@[deprecated Int.tdiv_nonpos_of_nonneg_of_nonpos (since := "2025-03-04")]
-abbrev tdiv_nonpos := @Int.tdiv_nonpos_of_nonneg_of_nonpos
 
 theorem tdiv_eq_zero_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : a.tdiv b = 0 :=
   match a, b, eq_ofNat_of_zero_le H1, eq_succ_of_zero_lt (Int.lt_of_le_of_lt H1 H2) with
@@ -2035,9 +2009,6 @@ theorem fdiv_nonpos_of_nonneg_of_nonpos : ∀ {a b : Int}, 0 ≤ a → b ≤ 0 �
   | 0, 0, _, _ | 0, -[_+1], _, _ | succ _, 0, _, _ | succ _, -[_+1], _, _ => by
     simp [fdiv, negSucc_le_zero]
 
-@[deprecated fdiv_nonpos_of_nonneg_of_nonpos (since := "2025-03-04")]
-abbrev fdiv_nonpos := @fdiv_nonpos_of_nonneg_of_nonpos
-
 theorem fdiv_neg_of_neg_of_pos : ∀ {a b : Int}, a < 0 → 0 < b → a.fdiv b < 0
   | -[_+1], succ _, _, _ => negSucc_lt_zero _
 
@@ -2155,9 +2126,6 @@ theorem fmod_nonneg {a b : Int} (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ a.fmod b :
 
 theorem fmod_nonneg_of_pos (a : Int) {b : Int} (hb : 0 < b) : 0 ≤ a.fmod b :=
   fmod_eq_emod_of_nonneg _ (Int.le_of_lt hb) ▸ emod_nonneg _ (Int.ne_of_lt hb).symm
-
-@[deprecated fmod_nonneg_of_pos (since := "2025-03-04")]
-abbrev fmod_nonneg' := @fmod_nonneg_of_pos
 
 theorem fmod_lt_of_pos (a : Int) {b : Int} (H : 0 < b) : a.fmod b < b :=
   fmod_eq_emod_of_nonneg _ (Int.le_of_lt H) ▸ emod_lt_of_pos a H

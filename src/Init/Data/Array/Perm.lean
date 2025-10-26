@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.List.Nat.Perm
-public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
 public import Init.Data.Array.Lemmas
 

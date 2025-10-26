@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Char.Basic
 import all Init.Data.Char.Basic
 public import Init.Data.UInt.Lemmas
 
@@ -69,5 +68,10 @@ def notLTTotal : Std.Total (¬ · < · : Char → Char → Prop) where
 @[simp] theorem ofNat_toNat (c : Char) : Char.ofNat c.toNat = c := by
   rw [Char.ofNat, dif_pos]
   rfl
+
+@[simp]
+theorem toUInt8_val {c : Char} : c.val.toUInt8 = c.toUInt8 := rfl
+
+theorem toString_eq_singleton {c : Char} : c.toString = String.singleton c := rfl
 
 end Char

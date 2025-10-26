@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.SInt
-// Imports: public import Init.Data.Range.Polymorphic.Instances public import Init.Data.Order.Lemmas public import Init.Data.SInt import Init.Omega import Init.Data.Range.Polymorphic.UInt import all Init.Data.SInt.Basic import all Init.Data.Range.Polymorphic.Internal.SignedBitVec
+// Imports: public import Init.Data.Range.Polymorphic.Instances public import Init.Data.Order.Lemmas public import Init.Data.SInt import Init.Data.Range.Polymorphic.UInt import all Init.Data.SInt.Basic import all Init.Data.Range.Polymorphic.Internal.SignedBitVec
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2174,37 +2174,33 @@ x_3 = l_ISize_instRxiHasSize___lam__0(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Data_Range_Polymorphic_Instances(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_SInt(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Range_Polymorphic_UInt(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Range_Polymorphic_Internal_SignedBitVec(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Range_Polymorphic_Instances(uint8_t builtin);
+lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_SInt(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_UInt(uint8_t builtin);
+lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Internal_SignedBitVec(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Range_Polymorphic_SInt(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Range_Polymorphic_SInt(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Range_Polymorphic_Instances(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Range_Polymorphic_Instances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Order_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Order_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_SInt(builtin, lean_io_mk_world());
+res = initialize_Init_Data_SInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Range_Polymorphic_UInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_UInt(builtin, lean_io_mk_world());
+res = initialize_Init_Data_SInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_SInt_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_Internal_SignedBitVec(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Range_Polymorphic_Internal_SignedBitVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Init_Data_Range_Polymorphic_SInt_0__HasModel_instHasSizeInt8___lam__0___closed__0 = _init_l___private_Init_Data_Range_Polymorphic_SInt_0__HasModel_instHasSizeInt8___lam__0___closed__0();

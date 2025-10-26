@@ -6,14 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.CtorRecognizer
 public import Lean.Meta.Match.Match
 public import Lean.Meta.Match.MatchEqsExt
-public import Lean.Meta.Tactic.Apply
 public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.Delta
-public import Lean.Meta.Tactic.Injection
-public import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.Tactic.SplitIf
 
 public section

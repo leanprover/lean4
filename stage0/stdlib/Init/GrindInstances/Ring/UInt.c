@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.GrindInstances.Ring.UInt
-// Imports: public import Init.Grind.Ring.Basic public import Init.GrindInstances.ToInt import all Init.GrindInstances.ToInt public import Init.Data.UInt.Basic import all Init.Data.UInt.Basic public import Init.Data.UInt.Lemmas
+// Imports: public import Init.GrindInstances.ToInt import all Init.GrindInstances.ToInt import all Init.Data.UInt.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1140,33 +1140,21 @@ x_5 = lean_box_usize(x_4);
 return x_5;
 }
 }
-lean_object* initialize_Init_Grind_Ring_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin);
+lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin);
+lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_GrindInstances_Ring_UInt(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_GrindInstances_Ring_UInt(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Grind_Ring_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_GrindInstances_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GrindInstances_ToInt(builtin, lean_io_mk_world());
+res = initialize_Init_GrindInstances_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GrindInstances_ToInt(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_UInt_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_UInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_UInt8_natCast = _init_l_UInt8_natCast();

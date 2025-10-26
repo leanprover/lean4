@@ -245,6 +245,8 @@ structure State where
   typeIdOf : PHashMap ExprPtr (Option Nat) := {}
   /- Mapping from expressions/terms to their structure ids. -/
   exprToStructId : PHashMap ExprPtr Nat := {}
+  /-- `exprToStructId` content as an array for traversal. -/
+  exprToStructIdEntries : PArray (Expr × Nat) := {}
   /--
   Some types are unordered rings, so we do not process them in `linarith`.
   When such types are detected in `getStructId?`, we add them to the set

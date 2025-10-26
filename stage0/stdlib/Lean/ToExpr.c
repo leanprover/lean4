@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.ToExpr
-// Imports: public import Lean.Expr public import Lean.ToLevel public import Init.Data.BitVec.Basic public import Init.Data.SInt.Basic
+// Imports: public import Lean.ToLevel
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -70,7 +70,7 @@ LEAN_EXPORT lean_object* l_Lean_instToExprUSize___lam__0___boxed(lean_object*);
 static lean_object* l_Lean_instToExprInt_mkNat___closed__6;
 static lean_object* l_Lean_instToExprUInt16___lam__0___closed__1;
 static lean_object* l_Lean_instToExprArrayOfToLevel___redArg___lam__0___closed__1;
-LEAN_EXPORT lean_object* l_panic___at_____private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr_spec__0(lean_object*);
 static lean_object* l_Lean_instToExprInt32___closed__0;
 LEAN_EXPORT lean_object* l_Lean_instToExprOptionOfToLevel___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instToExprPreresolved___closed__1;
@@ -2541,7 +2541,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at_____private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -2614,7 +2614,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr___closed__6;
 x_2 = lean_unsigned_to_nat(11u);
-x_3 = lean_unsigned_to_nat(206u);
+x_3 = lean_unsigned_to_nat(203u);
 x_4 = l___private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr___closed__5;
 x_5 = l___private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr___closed__4;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -2666,7 +2666,7 @@ lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_20 = l___private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr___closed__7;
-x_21 = l_panic___at_____private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr_spec__0(x_20);
+x_21 = l_panic___at___00__private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr_spec__0(x_20);
 return x_21;
 }
 }
@@ -3903,25 +3903,13 @@ lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* initialize_Lean_Expr(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_ToLevel(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_ToLevel(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_ToExpr(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_ToExpr(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Expr(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_ToLevel(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_SInt_Basic(builtin, lean_io_mk_world());
+res = initialize_Lean_ToLevel(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instToExprNat___closed__0 = _init_l_Lean_instToExprNat___closed__0();

@@ -228,6 +228,12 @@ instance {m : Type w → Type w'} : ForM m (Raw α β) (α × β) where
 instance {m : Type w → Type w'} : ForIn m (Raw α β) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
 
+/-- Computes the union of the given hash maps, inserting smaller hash map into a bigger hash map. In the case of clashes of keys, entries from the left argument, are replaced with entries from the right argument. -/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
+  ⟨DHashMap.Raw.union m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
+
 section Unverified
 
 @[inline, inherit_doc DHashMap.Raw.filterMap] def filterMap {γ : Type w} (f : α → β → Option γ)
@@ -262,12 +268,6 @@ m.inner.values
 @[inline, inherit_doc DHashMap.Raw.Const.insertManyIfNewUnit] def insertManyIfNewUnit [BEq α]
     [Hashable α] {ρ : Type w} [ForIn Id ρ α] (m : Raw α Unit) (l : ρ) : Raw α Unit :=
   ⟨DHashMap.Raw.Const.insertManyIfNewUnit m.inner l⟩
-
-/-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
-@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
-  m₂.fold (init := m₁) fun acc x => acc.insert x
-
-instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
 
 @[inline, inherit_doc DHashMap.Raw.Const.unitOfArray] def unitOfArray [BEq α] [Hashable α]
     (l : Array α) : Raw α Unit :=
@@ -341,6 +341,9 @@ theorem WF.ofList [BEq α] [Hashable α] {l : List (α × β)} : (ofList l).WF :
 
 theorem WF.unitOfList [BEq α] [Hashable α] {l : List α} : (unitOfList l).WF :=
   ⟨DHashMap.Raw.WF.Const.unitOfList⟩
+
+theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.union m₂).WF :=
+  ⟨DHashMap.Raw.WF.union h₁.out h₂.out⟩
 
 end Raw
 

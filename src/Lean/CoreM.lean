@@ -686,6 +686,10 @@ def traceBlock (tag : String) (t : Task α) : CoreM α := do
     profileitM Exception "blocked" (← getOptions) do
       IO.wait t
 
+register_builtin_option compiler.postponeCompile : Bool := {
+  defValue := true
+}
+
 structure PostponedCompileDecl where
   declName : Name
   logErrors : Bool
@@ -724,7 +728,7 @@ def compileDeclsImpl (declNames : Array Name) : CoreM Unit := do
 -- `ref?` is used for error reporting if available
 def compileDecls (decls : Array Name) (logErrors := true) (mayPostpone := true) : CoreM Unit := do
   let env ← getEnv
-  if mayPostpone && env.header.isModule && !decls.any (isMeta env) then
+  if mayPostpone && env.header.isModule && !decls.any (isMeta env) && (← compiler.postponeCompile.getM) then
     for decl in decls do
       trace[Compiler.init] "postponing compilation of {decl}"
       modifyEnv (postponedCompileDeclsExt.addEntry · { declName := decl, logErrors })

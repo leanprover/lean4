@@ -64,7 +64,7 @@ structure Raw (α : Type u) (β : Type v) where
 
 namespace Raw
 
-@[inline, inherit_doc DHashMap.Raw.empty] def emptyWithCapacity (capacity := 8) : Raw α β :=
+@[inline, inherit_doc DHashMap.Raw.emptyWithCapacity] def emptyWithCapacity (capacity := 8) : Raw α β :=
   ⟨DHashMap.Raw.emptyWithCapacity capacity⟩
 
 @[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]

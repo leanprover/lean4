@@ -66,7 +66,7 @@ structure HashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
 
 namespace HashMap
 
-@[inline, inherit_doc DHashMap.empty] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) :
+@[inline, inherit_doc DHashMap.emptyWithCapacity] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) :
     HashMap α β :=
   ⟨DHashMap.emptyWithCapacity capacity⟩
 

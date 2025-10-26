@@ -160,11 +160,11 @@ private def findEnvDeclBoxed (env : Environment) (declName : Name) : Option Decl
   -- latter's module index would be `none` and we may do an expensive blocking wait on the
   -- environment extension state even if in this situation we definitely know that `declName'` is
   -- not a local declaration.
-  match env.getModuleIdxFor? declName with
-  | some modIdx =>
-    findAtSorted? (declMapExt.getModuleIREntries env modIdx) boxed <|>
-    findAtSorted? (declMapExt.getModuleEntries env modIdx) boxed
-  | none => declMapExt.getState env |>.find? boxed
+  Lean.Compiler.LCNF.withCompilerModIdx env declName
+    (fun modIdx =>
+      findAtSorted? (declMapExt.getModuleIREntries env modIdx) boxed <|>
+      findAtSorted? (declMapExt.getModuleEntries env modIdx) boxed)
+    (fun _ => declMapExt.getState env |>.find? boxed)
 
 @[export lean_has_compile_error]
 private def hasCompileError (env : Environment) (constName : Name) : Bool :=

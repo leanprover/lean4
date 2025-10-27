@@ -9,6 +9,7 @@ prelude
 public import Init.Data.String.Pattern.Basic
 public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Monadic.Loop
+import Init.Data.String.Termination
 
 set_option doc.verso true
 
@@ -152,8 +153,8 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
     | .atEnd => pure (.deflate ⟨.done, by simp⟩)
 
 private def toOption : ForwardSliceSearcher s → Option (Nat × Nat)
-  | .emptyBefore pos => some (s.utf8ByteSize - pos.offset.byteIdx, 1)
-  | .emptyAt pos _ => some (s.utf8ByteSize - pos.offset.byteIdx, 0)
+  | .emptyBefore pos => some (pos.remainingBytes, 1)
+  | .emptyAt pos _ => some (pos.remainingBytes, 0)
   | .proper _ _ sp _ => some (s.utf8ByteSize - sp.byteIdx, 0)
   | .atEnd => none
 
@@ -179,12 +180,10 @@ private def finitenessRelation :
       | .emptyBefore pos =>
         rintro (⟨h, h'⟩|h') <;> simp [h', ForwardSliceSearcher.toOption, Option.lt, Prod.lex_def]
       | .emptyAt pos h =>
-        simp
+        simp only [forall_exists_index, and_imp]
         intro x hx h
-        have := x.isValidForSlice.le_utf8ByteSize
-        simp [h, ForwardSliceSearcher.toOption, Option.lt, Prod.lex_def, Slice.Pos.lt_iff,
-          Pos.Raw.lt_iff] at ⊢ hx
-        omega
+        simpa [h, ForwardSliceSearcher.toOption, Option.lt, Prod.lex_def,
+          ← Pos.lt_iff_remainingBytes_lt]
       | .proper needle table stackPos needlePos =>
         simp only [exists_and_left]
         rintro (⟨newStackPos, h₁, h₂, ⟨x, hx⟩⟩|h)

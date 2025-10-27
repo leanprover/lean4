@@ -59,8 +59,8 @@ public theorem total_of_refl_of_trichotomous (r : α → α → Prop) [Refl r] [
   total a b := (Trichotomous.rel_or_eq_or_rel_swap (a := a) (b := b) (r := r)).elim Or.inl <|
     fun h => h.elim (fun h => h ▸ Or.inl (Refl.refl _)) Or.inr
 
-public theorem asymm_of_irrefl_of_antisymm (r : α → α → Prop) [Irrefl r] [Antisymm r] : Asymm r where
-  asymm a b h h' := Irrefl.irrefl _ (Antisymm.antisymm a b h h' ▸ h)
+public theorem asymm_of_irrefl_of_antisymm (r : α → α → Prop) [Irrefl r] [Antisymm r] :
+    Asymm r where asymm a b h h' := Irrefl.irrefl _ (Antisymm.antisymm a b h h' ▸ h)
 
 public theorem Total.asymm_of_total_not {r : α → α → Prop} [i : Total (¬ r · ·)] : Asymm r where
   asymm a b h := (i.total a b).resolve_left (· h)

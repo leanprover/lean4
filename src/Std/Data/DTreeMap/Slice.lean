@@ -101,7 +101,8 @@ public instance {α : Type u} {β : α → Type v} (cmp : α → α → Ordering
     Roo.Sliceable (DTreeMap α β cmp) α (@Internal.RooSlice α β ⟨cmp⟩) :=
   letI _ : Ord α := ⟨cmp⟩;⟨fun carrier range => ⟨carrier.inner, range⟩⟩
 
-@[simp] public theorem toList_roo {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare) [TransCmp cmp]
+@[simp] public theorem toList_roo {α : Type u} {β : α → Type v}
+    (cmp : α → α → Ordering := by exact compare) [TransCmp cmp]
     {t : DTreeMap α β cmp} {lowerBound upperBound : α} : t[lowerBound<...upperBound].toList =
       t.toList.filter (fun e => (cmp e.fst lowerBound).isGT ∧ (cmp e.fst upperBound).isLT) :=
   @Internal.toList_roo α β ⟨cmp⟩ _ t.inner (@t.wf.ordered α β ⟨cmp⟩ _) lowerBound upperBound

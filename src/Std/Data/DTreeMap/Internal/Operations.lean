@@ -517,32 +517,30 @@ def insertMany! [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Imp
 -/
 
 /--
-  Removes all elements with key less than or equal to `lower_bound`.
+  Removes all elements with key less than or equal to `lowerBound`.
   Does not modify size information stored in the tree.
 -/
-def prune_LE {α β} [Ord α] (t : Internal.Impl α β)
-    (ord_t : t.Ordered) (lower_bound : α) : Internal.Impl α β :=
+def pruneLE {α β} [Ord α] (t : Internal.Impl α β) (lowerBound : α) : Internal.Impl α β :=
   match t with
   | .leaf => .leaf
   | .inner sz k v l r =>
-    match compare lower_bound k with
-    | .lt => .inner sz k v (l.prune_LE (Internal.Impl.Ordered.left ord_t) lower_bound) r
+    match compare lowerBound k with
+    | .lt => .inner sz k v (l.pruneLE lowerBound) r
     | .eq => .inner sz k v .leaf r
-    | .gt => r.prune_LE (Internal.Impl.Ordered.right ord_t) lower_bound
+    | .gt => r.pruneLE lowerBound
 
 /--
-  Removes all elements with key less than to `lower_bound`.
+  Removes all elements with key less than to `lowerBound`.
   Does not modify size information stored in the tree.
 -/
-def prune_LT {α β} [Ord α] (t : Internal.Impl α β)
-    (ord_t : t.Ordered) (lower_bound : α) : Internal.Impl α β :=
+def pruneLT {α β} [Ord α] (t : Internal.Impl α β) (lowerBound : α) : Internal.Impl α β :=
   match t with
   | .leaf => .leaf
   | .inner sz k v l r =>
-    match compare lower_bound k with
-    | .lt => .inner sz k v (l.prune_LT (Internal.Impl.Ordered.left ord_t) lower_bound) r
+    match compare lowerBound k with
+    | .lt => .inner sz k v (l.pruneLT lowerBound) r
     | .eq => r
-    | .gt => r.prune_LT (Internal.Impl.Ordered.right ord_t) lower_bound
+    | .gt => r.pruneLT lowerBound
 
 namespace Const
 

@@ -55,9 +55,9 @@ public instance {α : Type u} {β : α → Type v} [Ord α] (cmp : α → α →
   mkSlice carrier range := ⟨carrier.inner, range⟩
 
 @[simp] public theorem toList_rco {α : Type u} {β : α → Type v} [Ord α] [TransOrd α]
-  {t : DTreeMap α β compare} {lower_bound upper_bound : α} :
-  t[lower_bound...<upper_bound].toList =
-    t.toList.filter (fun e => (compare e.fst lower_bound).isGE ∧ (compare e.fst upper_bound).isLT) := by
+  {t : DTreeMap α β compare} {lowerBound upperBound : α} :
+  t[lowerBound...<upperBound].toList =
+    t.toList.filter (fun e => (compare e.fst lowerBound).isGE ∧ (compare e.fst upperBound).isLT) := by
   apply Internal.toList_rco
   . exact t.wf.ordered
 
@@ -66,8 +66,8 @@ public instance {α : Type u} {β : α → Type v} [Ord α] (cmp : α → α →
   mkSlice carrier range := ⟨carrier.inner, range⟩
 
 @[simp] public theorem toList_rcc {α : Type u} {β : α → Type v} [Ord α] [TransOrd α]
-    {t : DTreeMap α β compare} {lower_bound upper_bound : α} : t[lower_bound...=upper_bound].toList =
-    t.toList.filter (fun e => (compare e.fst lower_bound).isGE ∧ (compare e.fst upper_bound).isLE) := by
+    {t : DTreeMap α β compare} {lowerBound upperBound : α} : t[lowerBound...=upperBound].toList =
+    t.toList.filter (fun e => (compare e.fst lowerBound).isGE ∧ (compare e.fst upperBound).isLE) := by
   apply Internal.toList_rcc
   . exact t.wf.ordered
 
@@ -86,9 +86,9 @@ public instance {α : Type u} {β : α → Type v} [Ord α] (cmp : α → α →
   mkSlice carrier range := ⟨carrier.inner, range⟩
 
 @[simp] public theorem toList_roc {α : Type u} {β : α → Type v} [Ord α] [TransOrd α]
-    {t : DTreeMap α β compare} {lower_bound upper_bound : α} :
-    t[lower_bound<...=upper_bound].toList =
-      t.toList.filter (fun e => (compare e.fst lower_bound).isGT ∧ (compare e.fst upper_bound).isLE) := by
+    {t : DTreeMap α β compare} {lowerBound upperBound : α} :
+    t[lowerBound<...=upperBound].toList =
+      t.toList.filter (fun e => (compare e.fst lowerBound).isGT ∧ (compare e.fst upperBound).isLE) := by
   apply Internal.toList_roc
   . exact t.wf.ordered
 
@@ -97,8 +97,8 @@ public instance {α : Type u} {β : α → Type v} [Ord α] (cmp : α → α →
   mkSlice carrier range := ⟨carrier.inner, range⟩
 
 @[simp] public theorem toList_roo {α : Type u} {β : α → Type v} [Ord α] [TransOrd α]
-    {t : DTreeMap α β compare} {lower_bound upper_bound : α} : t[lower_bound<...upper_bound].toList =
-      t.toList.filter (fun e => (compare e.fst lower_bound).isGT ∧ (compare e.fst upper_bound).isLT) := by
+    {t : DTreeMap α β compare} {lowerBound upperBound : α} : t[lowerBound<...upperBound].toList =
+      t.toList.filter (fun e => (compare e.fst lowerBound).isGT ∧ (compare e.fst upperBound).isLT) := by
   apply Internal.toList_roo
   . exact t.wf.ordered
 

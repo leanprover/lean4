@@ -7945,14 +7945,14 @@ end Const
 
 end map
 
-theorem prune_LE_eq_filter {α β} [Ord α] [TransOrd α] (t : Internal.Impl α β) (ord_t : t.Ordered) (lower_bound : α) :
-    (t.prune_LE ord_t lower_bound).toList = t.toList.filter (fun e => (compare e.fst lower_bound).isGE) := by
+theorem pruneLE_eq_filter {α β} [Ord α] [TransOrd α] (t : Internal.Impl α β) (ord_t : t.Ordered) (lowerBound : α) :
+    (t.pruneLE lowerBound).toList = t.toList.filter (fun e => (compare e.fst lowerBound).isGE) := by
   induction t
   case leaf =>
-    simp only [prune_LE, toList_eq_toListModel, toListModel_leaf, List.filter_nil]
+    simp only [pruneLE, toList_eq_toListModel, toListModel_leaf, List.filter_nil]
   case inner _ k v l r l_ih r_ih =>
-    simp only [prune_LE, toList_eq_toListModel, toListModel_inner, List.filter_append]
-    generalize heq : compare lower_bound k = x
+    simp only [pruneLE, toList_eq_toListModel, toListModel_inner, List.filter_append]
+    generalize heq : compare lowerBound k = x
     cases x
     case lt =>
       simp only [toListModel_inner]
@@ -7972,7 +7972,7 @@ theorem prune_LE_eq_filter {α β} [Ord α] [TransOrd α] (t : Internal.Impl α 
       simp only [toListModel_inner, toListModel_leaf, List.nil_append, List.filter]
       rw [OrientedCmp.eq_comm] at heq
       simp only [heq, Ordering.isGE_eq]
-      suffices new_goal : List.filter (fun e => (compare e.fst lower_bound).isGE) l.toListModel = [] from by
+      suffices new_goal : List.filter (fun e => (compare e.fst lowerBound).isGE) l.toListModel = [] from by
         simp only [new_goal, List.nil_append, List.cons.injEq, true_and]
         symm
         apply List.filter_eq_self.2
@@ -7989,23 +7989,25 @@ theorem prune_LE_eq_filter {α β} [Ord α] [TransOrd α] (t : Internal.Impl α 
       simp only [List.filter]
       rw [OrientedOrd.eq_swap, Ordering.swap_eq_gt] at heq
       rw [heq]
-      suffices new_goal : List.filter (fun e => (compare e.fst lower_bound).isGE) l.toListModel = [] from by
-        simp only [new_goal, Ordering.isGE_lt, List.nil_append]
+      simp
+      suffices new_goal : List.filter (fun e => (compare e.fst lowerBound).isGE) l.toListModel = [] from by
+        simp only [new_goal, List.nil_append]
         simp only [toList_eq_toListModel] at r_ih
         apply r_ih
+        exact Internal.Impl.Ordered.right ord_t
       rw [List.filter_eq_nil_iff]
       intro a mem
       simp only [Bool.not_eq_true, Ordering.isGE_eq_false]
       exact TransCmp.lt_trans (Internal.Impl.Ordered.compare_left ord_t mem) heq
 
-theorem prune_LT_eq_filter {α β} [Ord α] [TransOrd α] (t : Internal.Impl α β) (ord_t : t.Ordered) (lower_bound : α) :
-    (t.prune_LT ord_t lower_bound).toList = t.toList.filter (fun e => (compare e.fst lower_bound).isGT) := by
+theorem pruneLT_eq_filter {α β} [Ord α] [TransOrd α] (t : Internal.Impl α β) (ord_t : t.Ordered) (lowerBound : α) :
+    (t.pruneLT lowerBound).toList = t.toList.filter (fun e => (compare e.fst lowerBound).isGT) := by
   induction t
   case leaf =>
-    simp only [prune_LT, toList_eq_toListModel, toListModel_leaf, List.filter_nil]
+    simp only [pruneLT, toList_eq_toListModel, toListModel_leaf, List.filter_nil]
   case inner _ k v l r l_ih r_ih =>
-    simp only [prune_LT, toList_eq_toListModel, toListModel_inner, List.filter_append]
-    generalize heq : compare lower_bound k = x
+    simp only [pruneLT, toList_eq_toListModel, toListModel_inner, List.filter_append]
+    generalize heq : compare lowerBound k = x
     cases x
     case lt =>
       simp
@@ -8025,8 +8027,8 @@ theorem prune_LT_eq_filter {α β} [Ord α] [TransOrd α] (t : Internal.Impl α 
       simp only [List.filter]
       rw [OrientedCmp.eq_comm] at heq
       rw [heq]
-      suffices new_goal : List.filter (fun e => (compare e.fst lower_bound).isGT) l.toListModel = [] ∧
-          List.filter (fun e => (compare e.fst lower_bound).isGT) r.toListModel = r.toListModel from by
+      suffices new_goal : List.filter (fun e => (compare e.fst lowerBound).isGT) l.toListModel = [] ∧
+          List.filter (fun e => (compare e.fst lowerBound).isGT) r.toListModel = r.toListModel from by
         simp only [new_goal, Ordering.isGT_eq, List.nil_append]
       apply And.intro
       . rw [List.filter_eq_nil_iff]

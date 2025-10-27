@@ -2543,9 +2543,9 @@ class Irrefl (r : α → α → Prop) : Prop where
   /-- An irreflexive relation satisfies `¬ r a a`. -/
   irrefl : ∀ a, ¬r a a
 
-/-- `Tricho r` says that `r` is trichotomous, that is, `¬ r a b → ¬ r b a → a = b`. -/
-class Tricho (r : α → α → Prop) : Prop where
+/-- `Trichotomous r` says that `r` is trichotomous, that is, `¬ r a b → ¬ r b a → a = b`. -/
+class Trichotomous (r : α → α → Prop) : Prop where
   /-- An trichotomous relation `r` satisfies `¬ r a b → ¬ r b a → a = b`. -/
-  tricho (a b : α) : ¬ r a b → ¬ r b a → a = b
+  trichotomous (a b : α) : ¬ r a b → ¬ r b a → a = b
 
 end Std

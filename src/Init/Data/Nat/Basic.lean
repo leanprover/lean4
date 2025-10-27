@@ -468,8 +468,13 @@ protected theorem eq_iff_le_and_ge : ∀{a b : Nat}, a = b ↔ a ≤ b ∧ b ≤
 instance : Std.Antisymm ( . ≤ . : Nat → Nat → Prop) where
   antisymm _ _ h₁ h₂ := Nat.le_antisymm h₁ h₂
 
-instance : Std.Tricho (. < . : Nat → Nat → Prop) where
-  tricho _ _ h₁ h₂ := Nat.le_antisymm (Nat.ge_of_not_lt h₂) (Nat.ge_of_not_lt h₁)
+instance : Std.Trichotomous (. < . : Nat → Nat → Prop) where
+  trichotomous _ _ h₁ h₂ := Nat.le_antisymm (Nat.ge_of_not_lt h₂) (Nat.ge_of_not_lt h₁)
+
+set_option linter.missingDocs false in
+@[deprecated Nat.instTrichotomousLt (since := "2025-10-27")]
+def Nat.instAntisymmNotLt : Std.Antisymm (¬ . < . : Nat → Nat → Prop) where
+  antisymm := Nat.instTrichotomousLt.trichotomous
 
 protected theorem add_le_add_left {n m : Nat} (h : n ≤ m) (k : Nat) : k + n ≤ k + m :=
   match le.dest h with

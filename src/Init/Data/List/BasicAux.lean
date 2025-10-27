@@ -272,8 +272,8 @@ theorem sizeOf_get [SizeOf α] (as : List α) (i : Fin as.length) : sizeOf (as.g
     apply Nat.lt_trans ih
     simp +arith
 
-theorem lex_tricho [DecidableEq α] {r : α → α → Prop} [DecidableRel r]
-    (tricho : ∀ x y : α, ¬ r x y → ¬ r y x → x = y)
+theorem lex_trichotomous [DecidableEq α] {r : α → α → Prop} [DecidableRel r]
+    (trichotomous : ∀ x y : α, ¬ r x y → ¬ r y x → x = y)
     {as bs : List α} (h₁ : ¬ Lex r bs as) (h₂ : ¬ Lex r as bs) : as = bs :=
   match as, bs with
   | [],    []    => rfl
@@ -286,20 +286,26 @@ theorem lex_tricho [DecidableEq α] {r : α → α → Prop} [DecidableRel r]
       · subst eq
         have h₁ : ¬ Lex r bs as := fun h => h₁ (List.Lex.cons h)
         have h₂ : ¬ Lex r as bs := fun h => h₂ (List.Lex.cons h)
-        simp [lex_tricho tricho h₁ h₂]
+        simp [lex_trichotomous trichotomous h₁ h₂]
       · exfalso
         by_cases hba : r b a
         · exact h₁ (Lex.rel hba)
-        · exact eq (tricho _ _ hab hba)
+        · exact eq (trichotomous _ _ hab hba)
+
+@[deprecated lex_trichotomous (since := "2025-10-27")]
+theorem lex_antisymm [DecidableEq α] {r : α → α → Prop} [DecidableRel r]
+    (antisymm : ∀ x y : α, ¬ r x y → ¬ r y x → x = y)
+    {as bs : List α} (h₁ : ¬ Lex r bs as) (h₂ : ¬ Lex r as bs) : as = bs :=
+  lex_trichotomous antisymm h₁ h₂
 
 protected theorem le_antisymm [LT α]
-    [i : Std.Tricho (· < · : α → α → Prop)]
+    [i : Std.Trichotomous (· < · : α → α → Prop)]
     {as bs : List α} (h₁ : as ≤ bs) (h₂ : bs ≤ as) : as = bs :=
   open Classical in
-  lex_tricho i.tricho h₁ h₂
+  lex_trichotomous i.trichotomous h₁ h₂
 
 instance [LT α]
-    [s : Std.Tricho (· < · : α → α → Prop)] :
+    [s : Std.Trichotomous (· < · : α → α → Prop)] :
     Std.Antisymm (· ≤ · : List α → List α → Prop) where
   antisymm _ _ h₁ h₂ := List.le_antisymm h₁ h₂
 

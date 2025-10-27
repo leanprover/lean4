@@ -430,7 +430,7 @@ private def processNewToIntEq (a b : Expr) : ToIntM Unit := do
   c.assertCore
 
 def processNewEq (a b : Expr) : GoalM Unit := do
-  unless (← getConfig).cutsat do return ()
+  unless (← getConfig).lia do return ()
   if (← isNatTerm a <&&> isNatTerm b) then
     processNewNatEq a b
   else if (← isIntTerm a <&&> isIntTerm b) then
@@ -485,7 +485,7 @@ private def processNewToIntDiseq (a b : Expr) : ToIntM Unit := do
   c.assertCore
 
 def processNewDiseq (a b : Expr) : GoalM Unit := do
-  unless (← getConfig).cutsat do return ()
+  unless (← getConfig).lia do return ()
   if (← isNatTerm a <&&> isNatTerm b) then
     processNewNatDiseq a b
   else if (← isIntTerm a <&&> isIntTerm b) then
@@ -704,7 +704,7 @@ Internalizes an integer (and `Nat`) expression. Here are the different cases tha
   back to the congruence closure module. Example: we have `f 5`, `f x`, `x - y = 3`, `y = 2`.
 -/
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
-  unless (← getConfig).cutsat do return ()
+  unless (← getConfig).lia do return ()
   if let some (k, type) := getKindAndType? e then
     if type.isConstOf ``Int then
       internalizeIntTerm e type parent? k

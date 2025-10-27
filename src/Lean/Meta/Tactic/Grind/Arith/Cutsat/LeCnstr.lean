@@ -186,7 +186,7 @@ def propagateToIntLe (e : Expr) (eqTrue : Bool) : ToIntM Unit := do
   c.assertCore
 
 def propagateLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
-  unless (← getConfig).cutsat do return ()
+  unless (← getConfig).lia do return ()
   let_expr LE.le α _ _ _ := e | return ()
   if α.isConstOf ``Nat then
     propagateNatLe e eqTrue
@@ -196,7 +196,7 @@ def propagateLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
     propagateToIntLe e eqTrue
 
 def propagateLt (e : Expr) (eqTrue : Bool) : GoalM Unit := do
-  unless (← getConfig).cutsat do return ()
+  unless (← getConfig).lia do return ()
   let_expr LT.lt α _ a b := e | return ()
   ToIntM.run α do
     let some thm ← if eqTrue then getOfLT? else getOfNotLT? | return ()

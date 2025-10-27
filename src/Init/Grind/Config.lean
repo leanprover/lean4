@@ -119,7 +119,7 @@ structure Config where
   /--
   When `true` (default: `true`), uses procedure for handling linear integer arithmetic for `Int` and `Nat`.
   -/
-  cutsat := true
+  lia := true
   /--
   When `true` (default: `true`), uses procedure for handling associative (and commutative) operators.
   -/

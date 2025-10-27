@@ -129,7 +129,7 @@ def propagateNatDvd (e : Expr) : GoalM Unit := do
     pushNewFact <| mkApp3 (mkConst ``Nat.emod_pos_of_not_dvd) d₀ a (mkOfEqFalseCore e (← mkEqFalseProof e))
 
 builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do
-  unless (← getConfig).cutsat do return ()
+  unless (← getConfig).lia do return ()
   let_expr Dvd.dvd α _ _ _ ← e | return ()
   if α.isConstOf ``Nat then
     propagateNatDvd e

@@ -31,11 +31,11 @@ public instance (r : α → α → Prop) [Asymm r] : Antisymm r where
 public instance (r : α → α → Prop) [Total r] : Trichotomous r where
   trichotomous a b h h' := by simpa [h, h'] using Total.total (r := r) a b
 
-public theorem Trichotomous.rel_or_eq_or_rel_swap {r : α → α → Prop} [Trichotomous r] {a b} :
+public theorem Trichotomous.rel_or_eq_or_rel_swap {r : α → α → Prop} [i : Trichotomous r] {a b} :
     r a b ∨ a = b ∨ r b a := match Classical.em (r a b) with
   | .inl hab => .inl hab | .inr hab => match Classical.em (r b a) with
     | .inl hba => .inr <| .inr hba
-    | .inr hba => .inr <| .inl <| Trichotomous.trichotomous _ _ hab hba
+    | .inr hba => .inr <| .inl <| i.trichotomous _ _ hab hba
 
 public theorem trichotomous_of_rel_or_eq_or_rel_swap {r : α → α → Prop}
     (h : ∀ {a b}, r a b ∨ a = b ∨ r b a) : Trichotomous r where
@@ -52,7 +52,7 @@ public theorem Total.of_not_swap {r : α → α → Prop} [Total r] {a b} (h : �
 
 public theorem total_of_not_rel_swap_imp_rel {r : α → α → Prop} (h : ∀ {a b}, ¬ r a b → r b a) :
     Total r where
-  total a b := Classical.byCases (p := r a b) Or.inl (fun hab => Or.inr (h hab))
+  total a b := match Classical.em (r a b) with | .inl hab => .inl hab | .inr hab => .inr (h hab)
 
 public theorem total_of_refl_of_trichotomous (r : α → α → Prop) [Refl r] [Trichotomous r] :
     Total r where
@@ -63,13 +63,12 @@ public theorem asymm_of_irrefl_of_antisymm (r : α → α → Prop) [Irrefl r] [
   asymm a b h h' := Irrefl.irrefl _ (Antisymm.antisymm a b h h' ▸ h)
 
 public theorem Total.asymm_of_total_not {r : α → α → Prop} [i : Total (¬ r · ·)] : Asymm r where
-  asymm a b h := by cases i.total a b <;> trivial
+  asymm a b h := (i.total a b).resolve_left (· h)
 
 public theorem Asymm.total_not {r : α → α → Prop} [i : Asymm r] : Total (¬ r · ·) where
-  total a b := by
-    apply Classical.byCases (p := r a b) <;> intro hab
-    · exact Or.inr <| i.asymm a b hab
-    · exact Or.inl hab
+  total a b := match Classical.em (r b a) with
+  | .inl hba => .inl <| i.asymm b a hba
+  | .inr hba => .inr hba
 
 public instance {α : Type u} [LE α] [IsPartialOrder α] :
     Antisymm (α := α) (· ≤ ·) where

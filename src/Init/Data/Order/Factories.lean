@@ -234,13 +234,13 @@ If an `LT α` instance is asymmetric and its negation is transitive and antisymm
 public theorem IsLinearOrder.of_lt {α : Type u} [LT α]
     (lt_asymm : Asymm (α := α) (· < ·) := by exact inferInstance)
     (not_lt_trans : Trans (α := α) (¬ · < ·) (¬ · < ·) (¬ · < ·) := by exact inferInstance)
-    (lt_tricho : Tricho (α := α) (· < ·) := by exact inferInstance) :
+    (lt_trichotomous : Trichotomous (α := α) (· < ·) := by exact inferInstance) :
     haveI := LE.ofLT α
     IsLinearOrder α :=
   letI := LE.ofLT α
   haveI : IsLinearPreorder α := .of_lt
   { le_antisymm := by
-      simpa [LE.ofLT] using fun a b hab hba => lt_tricho.tricho a b hba hab }
+      simpa [LE.ofLT] using fun a b hab hba => lt_trichotomous.trichotomous a b hba hab }
 
 /--
 This lemma characterizes in terms of `LT α` when a `Min α` instance

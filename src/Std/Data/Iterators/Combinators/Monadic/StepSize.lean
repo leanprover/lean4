@@ -155,13 +155,13 @@ instance Types.StepSizeIterator.instIteratorLoopPartial {m n} [Iterator α m β]
   .defaultImplementation
 
 instance Types.StepSizeIterator.instIteratorSize [Iterator α Id β]
-    [IteratorAccess α Id] [Monad Id] [Finite (Types.StepSizeIterator α Id β) Id] :
+    [IteratorAccess α Id] [Finite (Types.StepSizeIterator α Id β) Id] :
     IteratorSize (Types.StepSizeIterator α Id β) Id :=
   .defaultImplementation
 
-instance Types.StepSizeIterator.instIteratorSizePartial [Iterator α m β]
-    [IteratorAccess α m] [Monad m] :
-    IteratorSizePartial (Types.StepSizeIterator α m β) m :=
+instance Types.StepSizeIterator.instIteratorSizePartial [Iterator α Id β]
+    [IteratorAccess α Id] :
+    IteratorSizePartial (Types.StepSizeIterator α Id β) Id :=
   .defaultImplementation
 
 end Std.Iterators

@@ -118,13 +118,21 @@ finish immediately if its size is zero. All of these properties are expressed us
 
 This class is experimental and users of the iterator API should not explicitly depend on it.
 -/
-class LawfulIteratorSize (α : Type w) {β : Type w} [Iterator α m β] [IteratorSize α m] where
-    size_eq_of_yield {it it' : IterM (α := α) m β} {out} :
-      it.IsPlausibleStep (.yield it' out) → IteratorSize.size it = IteratorSize.size it' + 1
-    size_eq_of_skip {it it' : IterM (α := α) m β} :
-      it.IsPlausibleStep (.skip it') → IteratorSize.size it = IteratorSize.size it'
-    size_eq_of_done {it : IterM (α := α) m β} :
-      it.IsPlausibleStep .done → IteratorSize.size it = 0
+class LawfulIteratorSize (α : Type w) {β : Type w} [Iterator α m β] [IteratorSize α m]
+    [Monad m] where
+    ex {it : IterM (α := α) m β} :
+      ∃ s : m (Shrink ({ s : IterStep (IterM (α := α) m β) β // match s with
+          | .yield it' _ => IteratorSize.size it = IteratorSize.size it' + 1
+          | .skip it' => IteratorSize.size it = IteratorSize.size it'
+          | .done => IteratorSize.size it = 0 })),
+        (Shrink.deflate <| Subtype.val <| Shrink.inflate ·) <$> s =
+          (Shrink.deflate <| Subtype.val <| Shrink.inflate ·) <$> it.step
+    -- size_eq_of_yield {it it' : IterM (α := α) m β} {out} :
+    --   it.IsPlausibleStep (.yield it' out) → IteratorSize.size it = IteratorSize.size it' + 1
+    -- size_eq_of_skip {it it' : IterM (α := α) m β} :
+    --   it.IsPlausibleStep (.skip it') → IteratorSize.size it = IteratorSize.size it'
+    -- size_eq_of_done {it : IterM (α := α) m β} :
+    --   it.IsPlausibleStep .done → IteratorSize.size it = 0
 
 end Typeclasses
 

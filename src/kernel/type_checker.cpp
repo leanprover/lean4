@@ -120,7 +120,7 @@ expr type_checker::infer_lambda(expr const & _e, bool infer_only) {
     while (is_lambda(e)) {
         expr d    = instantiate_rev(binding_domain(e), fvars.size(), fvars.data());
         expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(e), d, binding_info(e));
-        fvars.push_back(fvar);
+        fvars.push_back(std::move(fvar));
         if (!infer_only) {
             ensure_sort_core(infer_type_core(d, infer_only), d);
         }

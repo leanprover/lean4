@@ -14,7 +14,7 @@ auto equiv_manager::mk_node() -> node_ref {
     node n;
     n.m_parent = r;
     n.m_rank   = 0;
-    m_nodes.push_back(n);
+    m_nodes.push_back(std::move(n));
     return r;
 }
 

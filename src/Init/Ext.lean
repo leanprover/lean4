@@ -84,6 +84,9 @@ end Lean
 attribute [ext] Prod PProd Sigma PSigma
 attribute [ext] funext propext Subtype.ext Array.ext Char.ext
 
+@[deprecated Subtype.ext_iff (since := "2025-10-26")]
+protected def Subtype.eq_iff := @Subtype.ext_iff
+
 attribute [grind ext] funext Array.ext
 
 attribute [ext] PUnit.ext

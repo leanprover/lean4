@@ -281,4 +281,9 @@ theorem append_toByteArray_singleton {as : ByteArray} {a : UInt8} :
   ext1
   simp
 
+@[simp]
+theorem extract_zero_max_size {a : ByteArray} {i : Nat} : a.extract 0 (max i a.size) = a := by
+  ext1
+  simp [Nat.le_max_right]
+
 end ByteArray

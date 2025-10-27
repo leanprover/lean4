@@ -312,6 +312,11 @@ theorem Pos.Raw.isValid_rawEndPos {s : String} : s.rawEndPos.IsValid s where
   le_rawEndPos := by simp
   isValidUTF8_extract_zero := by simp [← size_bytes, s.isValidUTF8]
 
+theorem Pos.Raw.isValid_of_eq_rawEndPos {s : String} {p : Pos.Raw} (h : p = s.rawEndPos) :
+    p.IsValid s := by
+  subst h
+  exact isValid_rawEndPos
+
 @[simp]
 theorem Pos.Raw.isValid_empty_iff {p : Pos.Raw} : p.IsValid "" ↔ p = 0 := by
   refine ⟨?_, ?_⟩
@@ -405,6 +410,15 @@ def toSlice (s : String) : Slice where
   startInclusive := s.startValidPos
   endExclusive := s.endValidPos
   startInclusive_le_endExclusive := by simp [ValidPos.le_iff, Pos.Raw.le_iff]
+
+@[simp]
+theorem startInclusive_toSlice {s : String} : s.toSlice.startInclusive = s.startValidPos := rfl
+
+@[simp]
+theorem endExclusive_toSlice {s : String} : s.toSlice.endExclusive = s.endValidPos := rfl
+
+@[simp]
+theorem str_toSlice {s : String} : s.toSlice.str = s := rfl
 
 /-- The number of bytes of the UTF-8 encoding of the string slice. -/
 @[expose]
@@ -526,11 +540,20 @@ theorem Pos.Raw.offsetBy_sliceRawEndPos_right {p : Pos.Raw} {s : Slice} :
     p.offsetBy s.rawEndPos = s + p := by
   simp [Pos.Raw.ext_iff]
 
+@[simp]
+theorem Pos.Raw.isValidForSlice_rawEndPos {s : Slice} : (s.rawEndPos).IsValidForSlice s where
+  le_rawEndPos := by simp
+  isValid_offsetBy := by simpa using s.endExclusive.isValid
+
+theorem Pos.Raw.isValidForSlice_of_eq_rawEndPos {p : Pos.Raw} {s : Slice} (h : p = s.rawEndPos) :
+    p.IsValidForSlice s := by
+  subst h; simp
+
 /-- The past-the-end position of `s`, as an `s.Pos`. -/
 @[inline, expose]
 def Slice.endPos (s : Slice) : s.Pos where
   offset := s.rawEndPos
-  isValidForSlice := ⟨by simp, by simpa using s.endExclusive.isValid⟩
+  isValidForSlice := Pos.Raw.isValidForSlice_rawEndPos
 
 @[simp]
 theorem Slice.offset_endPos {s : Slice} : s.endPos.offset = s.rawEndPos := (rfl)

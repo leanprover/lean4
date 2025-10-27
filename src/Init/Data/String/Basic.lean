@@ -468,6 +468,7 @@ theorem Pos.Raw.isValid_iff_exists_append {s : String} {p : Pos.Raw} :
   · rintro ⟨s₁, s₂, rfl, rfl⟩
     refine isValid_iff_isValidUTF8_extract_zero.2 ⟨by simp [Pos.Raw.le_iff], ?_⟩
     simpa [ByteArray.extract_append_eq_left] using s₁.isValidUTF8
+
 theorem Pos.Raw.isValid_asString {l : List Char} {p : Pos.Raw} :
     p.IsValid l.asString ↔ ∃ i, p.byteIdx = (l.take i).asString.utf8ByteSize := by
   rw [isValid_iff_exists_append]
@@ -756,6 +757,10 @@ theorem Slice.utf8ByteSize_copy {s : Slice} :
 @[simp]
 theorem Slice.rawEndPos_copy {s : Slice} : s.copy.rawEndPos = s.rawEndPos := by
   simp [Pos.Raw.ext_iff, utf8ByteSize_eq]
+
+@[simp]
+theorem copy_toSlice {s : String} : s.toSlice.copy = s := by
+  simp [← bytes_inj, Slice.bytes_copy, ← size_bytes]
 
 theorem Slice.getUTF8Byte_eq_getUTF8Byte_copy {s : Slice} {p : Pos.Raw} {h : p < s.rawEndPos} :
     s.getUTF8Byte p h = s.copy.getUTF8Byte p (by simpa) := by
@@ -1057,19 +1062,6 @@ def Slice.Pos.get! {s : Slice} (pos : s.Pos) : Char :=
   if h : pos = s.endPos then panic! "Cannot retrieve character at end position" else pos.get h
 
 @[simp]
-theorem startInclusive_toSlice {s : String} : s.toSlice.startInclusive = s.startValidPos := rfl
-
-@[simp]
-theorem endExclusive_toSlice {s : String} : s.toSlice.endExclusive = s.endValidPos := rfl
-
-@[simp]
-theorem str_toSlice {s : String} : s.toSlice.str = s := rfl
-
-@[simp]
-theorem copy_toSlice {s : String} : s.toSlice.copy = s := by
-  simp [← bytes_inj, Slice.bytes_copy, ← size_bytes]
-
-@[simp]
 theorem Pos.Raw.isValidForSlice_toSlice_iff {s : String} {p : Pos.Raw} :
     p.IsValidForSlice s.toSlice ↔ p.IsValid s := by
   rw [← isValid_copy_iff, copy_toSlice]
@@ -1120,6 +1112,38 @@ theorem ValidPos.ofSlice_toSlice {s : String} (pos : s.ValidPos) : pos.toSlice.o
 @[simp]
 theorem Slice.Pos.toSlice_ofSlice {s : String} (pos : s.toSlice.Pos) : pos.ofSlice.toSlice = pos :=
   Slice.Pos.ext (by simp)
+
+@[simp]
+theorem Slice.Pos.toSlice_comp_ofSlice {s : String} :
+    ValidPos.toSlice ∘ (ofSlice (s := s)) = id := by ext; simp
+
+@[simp]
+theorem ValidPos.ofSlice_comp_toSlice {s : String} :
+    Slice.Pos.ofSlice ∘ (toSlice (s := s)) = id := by ext; simp
+
+theorem ValidPos.toSlice_inj {s : String} {p q : s.ValidPos} : p.toSlice = q.toSlice ↔ p = q :=
+  ⟨fun h => by simpa using congrArg Slice.Pos.ofSlice h, (· ▸ rfl)⟩
+
+theorem Slice.Pos.ofSlice_inj {s : String} {p q : s.toSlice.Pos} : p.ofSlice = q.ofSlice ↔ p = q :=
+  ⟨fun h => by simpa using congrArg ValidPos.toSlice h, (· ▸ rfl)⟩
+
+@[simp]
+theorem ValidPos.toSlice_le {s : String} {p q : s.ValidPos} : p.toSlice ≤ q.toSlice ↔ p ≤ q := by
+  simp [le_iff, Slice.Pos.le_iff]
+
+@[simp]
+theorem Slice.Pos.ofSlice_le {s : String} {p q : s.toSlice.Pos} :
+    p.ofSlice ≤ q.ofSlice ↔ p ≤ q := by
+  simp [ValidPos.le_iff, le_iff]
+
+@[simp]
+theorem ValidPos.toSlice_lt {s : String} {p q : s.ValidPos} : p.toSlice < q.toSlice ↔ p < q := by
+  simp [lt_iff, Slice.Pos.lt_iff]
+
+@[simp]
+theorem Slice.Pos.ofSlice_lt {s : String} {p q : s.toSlice.Pos} :
+    p.ofSlice < q.ofSlice ↔ p < q := by
+  simp [ValidPos.lt_iff, lt_iff]
 
 /--
 Returns the character at the position `pos` of a string, taking a proof that `p` is not the
@@ -1548,6 +1572,10 @@ theorem ValidPos.offset_cast {s t : String} {pos : s.ValidPos} {h : s = t} :
 theorem ValidPos.cast_rfl {s : String} {pos : s.ValidPos} : pos.cast rfl = pos :=
   ValidPos.ext (by simp)
 
+theorem ValidPos.toCopy_toSlice_eq_cast {s : String} (p : s.ValidPos) :
+    p.toSlice.toCopy = p.cast copy_toSlice.symm :=
+  ValidPos.ext (by simp)
+
 /-- Given a byte position within a string slice, obtains the smallest valid position that is
 strictly greater than the given byte position. -/
 @[inline]
@@ -1613,12 +1641,20 @@ theorem Slice.Pos.prev_ne_endPos {s : Slice} {p : s.Pos} {h} : p.prev h ≠ s.en
 theorem ValidPos.prev_ne_endValidPos {s : String} {p : s.ValidPos} {h} : p.prev h ≠ s.endValidPos :=
   mt (congrArg (·.toSlice)) (Slice.Pos.prev_ne_endPos (h := mt (congrArg (·.ofSlice)) h))
 
+theorem ValidPos.toSlice_prev {s : String} {p : s.ValidPos} {h} :
+    (p.prev h).toSlice = p.toSlice.prev (ne_of_apply_ne Slice.Pos.ofSlice (by simpa)) := by
+  simp [prev]
+
 theorem Slice.Pos.offset_prev_lt_offset {s : Slice} {p : s.Pos} {h} : (p.prev h).offset < p.offset := by
   simpa [prev] using prevAux_lt_self
 
 @[simp]
 theorem Slice.Pos.prev_lt {s : Slice} {p : s.Pos} {h} : p.prev h < p :=
   lt_iff.2 offset_prev_lt_offset
+
+@[simp]
+theorem ValidPos.prev_lt {s : String} {p : s.ValidPos} {h} : p.prev h < p := by
+  simp [← toSlice_lt, toSlice_prev]
 
 /-- Advances the position `p` `n` times, saturating at `s.endPos` if necessary. -/
 def Slice.Pos.nextn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
@@ -1752,11 +1788,19 @@ theorem ValidPos.byteIdx_offset_next {s : String} (p : s.ValidPos) (h : p ≠ s.
     (p.next h).offset.byteIdx = p.offset.byteIdx + (p.get h).utf8Size := by
   simp
 
+theorem ValidPos.toSlice_next {s : String} {p : s.ValidPos} {h} :
+    (p.next h).toSlice = p.toSlice.next (ne_of_apply_ne Slice.Pos.ofSlice (by simpa)) := by
+  simp [next]
+
 theorem ValidPos.byteIdx_lt_utf8ByteSize {s : String} (p : s.ValidPos) (h : p ≠ s.endValidPos) :
     p.offset.byteIdx < s.utf8ByteSize := by
   have := byteIdx_rawEndPos ▸ Pos.Raw.le_iff.1 p.isValid.le_rawEndPos
   simp only [ne_eq, ValidPos.ext_iff, offset_endValidPos, Pos.Raw.ext_iff, byteIdx_rawEndPos] at h
   omega
+
+@[simp]
+theorem ValidPos.lt_next {s : String} (p : s.ValidPos) {h} : p < p.next h := by
+  simp [← ValidPos.toSlice_lt, toSlice_next]
 
 @[simp]
 theorem ValidPos.str_toSlice {s : String} {p : s.ValidPos} : p.toSlice.str = p := by
@@ -1779,6 +1823,11 @@ theorem startInclusive_replaceEnd {s : String} {p : s.ValidPos} :
 @[simp]
 theorem endExclusive_replaceEnd {s : String} {p : s.ValidPos} :
     (s.replaceEnd p).endExclusive = p := by
+  simp [replaceEnd]
+
+@[simp]
+theorem rawEndPos_replaceEnd {s : String} {p : s.ValidPos} :
+    (s.replaceEnd p).rawEndPos = p.offset := by
   simp [replaceEnd]
 
 theorem Pos.Raw.isValidForSlice_stringReplaceEnd {s : String} {p : s.ValidPos} {q : Pos.Raw} :

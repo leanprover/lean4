@@ -168,12 +168,12 @@ instance Drop.instIteratorLoopPartial {n : Type x → Type x'} [Monad m] [Monad 
     IteratorLoopPartial (Drop α m β) m n :=
   .defaultImplementation
 
-instance {α : Type w} [Monad m] [Iterator α m β] [Finite α m] [IteratorLoop α m m] :
-    IteratorSize (Drop α m β) m :=
+instance {α : Type w} [Monad Id] [Iterator α Id β] [Finite α Id] [IteratorLoop α Id Id] :
+    IteratorSize (Drop α Id β) Id :=
   .defaultImplementation
 
-instance {α : Type w} [Monad m] [Iterator α m β] [IteratorLoopPartial α m m] :
-    IteratorSizePartial (Drop α m β) m :=
+instance {α : Type w} [Monad Id] [Iterator α Id β] [IteratorLoopPartial α Id Id] :
+    IteratorSizePartial (Drop α Id β) Id :=
   .defaultImplementation
 
 end Std.Iterators

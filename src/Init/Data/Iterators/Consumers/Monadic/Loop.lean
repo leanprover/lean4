@@ -96,7 +96,7 @@ They can, however, assume that consumers that require an instance will work for 
 provided by the standard library.
 -/
 class IteratorSize (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
-  size : IterM (α := α) m β → m (ULift Nat)
+  size : IterM (α := α) m β → Nat
 
 /--
 `IteratorSizePartial α m` provides an implementation of the `IterM.Partial.size` function that
@@ -107,7 +107,24 @@ They can, however, assume that consumers that require an instance will work for 
 provided by the standard library.
 -/
 class IteratorSizePartial (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
-  size : IterM (α := α) m β → m (ULift Nat)
+  size : IterM (α := α) m β → Nat
+
+/--
+`LawfulIteratorSize α m` ensures that the `size` function of an iterator is well-behaved.
+More concretely, it ensures that the successor's size is one less in case of an
+`IterStep.yield` result and equal in the case of an `IterStep.skip` result. The iterator may only
+finish immediately if its size is zero. All of these properties are expressed using the
+`IterM.IsPlausibleStep` predicate.
+
+This class is experimental and users of the iterator API should not explicitly depend on it.
+-/
+class LawfulIteratorSize (α : Type w) {β : Type w} [Iterator α m β] [IteratorSize α m] where
+    size_eq_of_yield {it it' : IterM (α := α) m β} {out} :
+      it.IsPlausibleStep (.yield it' out) → IteratorSize.size it = IteratorSize.size it' + 1
+    size_eq_of_skip {it it' : IterM (α := α) m β} :
+      it.IsPlausibleStep (.skip it') → IteratorSize.size it = IteratorSize.size it'
+    size_eq_of_done {it : IterM (α := α) m β} :
+      it.IsPlausibleStep .done → IteratorSize.size it = 0
 
 end Typeclasses
 
@@ -685,10 +702,10 @@ It simply iterates using `IteratorLoop` and counts the elements.
 For certain iterators, more efficient implementations are possible and should be used instead.
 -/
 @[always_inline, inline]
-def IteratorSize.defaultImplementation {α β : Type w} [Monad m]
-    [Iterator α m β] [Finite α m] [IteratorLoop α m m] :
-    IteratorSize α m where
-  size := IterM.DefaultConsumers.count
+def IteratorSize.defaultImplementation {α β : Type w}
+    [Iterator α Id β] [Finite α Id] [IteratorLoop α Id Id] :
+    IteratorSize α Id where
+  size it := IterM.DefaultConsumers.count it |>.run.down
 
 /--
 This is the default implementation of the `IteratorSizePartial` class.
@@ -696,14 +713,18 @@ It simply iterates using `IteratorLoopPartial` and counts the elements.
 For certain iterators, more efficient implementations are possible and should be used instead.
 -/
 @[always_inline, inline]
-instance IteratorSizePartial.defaultImplementation {α β : Type w} [Monad m]
-    [Iterator α m β] [IteratorLoopPartial α m m] :
-    IteratorSizePartial α m where
-  size := IterM.DefaultConsumers.countPartial
+instance IteratorSizePartial.defaultImplementation {α β : Type w}
+    [Iterator α Id β] [IteratorLoopPartial α Id Id] :
+    IteratorSizePartial α Id where
+  size it := IterM.DefaultConsumers.countPartial it |>.run.down
 
 /--
 Computes how many elements the iterator returns. In contrast to `count`, this function might take
-shortcuts instead of actually stepping through the whole iterator.
+shortcuts instead of actually stepping through the whole iterator and it has no monadic side effects.
+
+This operation is not available for all iterators. If you get an error that `IteratorSize` cannot
+be synthesized, consider using `count` instead. It is always available and steps through the whole
+iterator to compute its size.
 
 **Performance**:
 
@@ -711,13 +732,17 @@ Depends on the concrete type of the iterator. The default implementation, which 
 `count`, is linear, but it is sometimes possible to provide an O(1) implementation.
 -/
 @[always_inline, inline]
-def IterM.size {α : Type} {β : Type} [Iterator α Id β]
-    (it : IterM (α := α) Id β) [IteratorSize α Id] : Nat :=
-  (IteratorSize.size it).run.down
+def IterM.size {α : Type w} {β : Type w} [Iterator α m β] [IteratorSize α m]
+    (it : IterM (α := α) m β) : Nat :=
+  IteratorSize.size it
 
 /--
 Computes how many elements the iterator returns. In contrast to `count`, this function might take
 shortcuts instead of actually stepping through the whole iterator.
+
+This operation is not available for all iterators. If you get an error that `IteratorSizePartial`
+cannot be synthesized, consider using `count` instead. It is always available and steps through the
+whole iterator to compute its size.
 
 This is the partial version of `size`. It does not require a proof of finiteness and might loop
 forever. It is not possible to verify the behavior in Lean because it uses `partial`.
@@ -728,9 +753,9 @@ Depends on the concrete type of the iterator. The default implementation, which 
 `count`, is linear, but it is sometimes possible to provide an O(1) implementation.
 -/
 @[always_inline, inline]
-def IterM.Partial.size {α : Type} {β : Type} [Iterator α Id β]
-    (it : IterM.Partial (α := α) Id β) [IteratorSizePartial α Id] : Nat :=
-  (IteratorSizePartial.size it.it).run.down
+def IterM.Partial.size {α : Type w} {β : Type w} [Iterator α m β]
+    (it : IterM.Partial (α := α) m β) [IteratorSizePartial α m] : Nat :=
+  IteratorSizePartial.size it.it
 
 end Size
 

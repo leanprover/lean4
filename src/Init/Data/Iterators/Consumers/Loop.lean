@@ -259,6 +259,10 @@ def Iter.Partial.find? {α β : Type w} [Iterator α Id β] [IteratorLoopPartial
 Computes how many elements the iterator returns. In contrast to `count`, this function might take
 shortcuts instead of actually stepping through the whole iterator.
 
+This operation is not available for all iterators. If you get an error that `IteratorSizePartial`
+cannot be synthesized, consider using `count` instead. It is always available and steps through the
+whole iterator to compute its size.
+
 **Performance**:
 
 Depends on the concrete type of the iterator. The default implementation, which is identical to
@@ -267,11 +271,15 @@ Depends on the concrete type of the iterator. The default implementation, which 
 @[always_inline, inline, expose]
 def Iter.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorSize α Id]
     (it : Iter (α := α) β) : Nat :=
-  (IteratorSize.size it.toIterM).run.down
+  IteratorSize.size it.toIterM
 
 /--
 Computes how many elements the iterator returns. In contrast to `count`, this function might take
 shortcuts instead of actually stepping through the whole iterator.
+
+This operation is not available for all iterators. If you get an error that `IteratorSizePartial`
+cannot be synthesized, consider using `count` instead. It is always available and steps through the
+whole iterator to compute its size.
 
 This is the partial version of `size`. It does not require a proof of finiteness and might loop
 forever. It is not possible to verify the behavior in Lean because it uses `partial`.
@@ -284,20 +292,6 @@ Depends on the concrete type of the iterator. The default implementation, which 
 @[always_inline, inline]
 def Iter.Partial.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorSizePartial α Id]
     (it : Iter (α := α) β) : Nat :=
-  (IteratorSizePartial.size it.toIterM).run.down
-
-/--
-`LawfulIteratorSize α m` ensures that the `size` function of an iterator behaves as if it
-iterated over the whole iterator, counting its elements and causing all the monadic side effects
-of the iterations. This is a fairly strong condition for monadic iterators and it will be false
-for many efficient implementations of `size` that compute the size without actually iterating.
-
-This class is experimental and users of the iterator API should not explicitly depend on it.
--/
-class LawfulIteratorSize (α : Type w) {β : Type w} [Iterator α Id β] [Finite α Id]
-    [IteratorSize α Id] where
-    size_eq_size_toArray {it : Iter (α := α) β} : it.size =
-      haveI : IteratorCollect α Id Id := .defaultImplementation
-      it.toArray.size
+  IteratorSizePartial.size it.toIterM
 
 end Std.Iterators

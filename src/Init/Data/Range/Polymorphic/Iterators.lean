@@ -27,8 +27,8 @@ Iterators for right-closed ranges implementing {name}`Rxc.HasSize` support {name
 instance [Rxc.HasSize α] [UpwardEnumerable α] [LE α] [DecidableLE α] :
     IteratorSize (Rxc.Iterator α) Id where
   size it := match it.internalState.next with
-    | none => pure (.up 0)
-    | some next => pure (.up (Rxc.HasSize.size next it.internalState.upperBound))
+    | none => 0
+    | some next => Rxc.HasSize.size next it.internalState.upperBound
 
 end Rxc
 
@@ -40,8 +40,8 @@ Iterators for ranges implementing {name}`Rxo.HasSize` support {name}`Iter.size`.
 instance [Rxo.HasSize α] [UpwardEnumerable α] [LT α] [DecidableLT α] :
     IteratorSize (Rxo.Iterator α) Id where
   size it := match it.internalState.next with
-    | none => pure (.up 0)
-    | some next => pure (.up (Rxo.HasSize.size next it.internalState.upperBound))
+    | none => 0
+    | some next => Rxo.HasSize.size next it.internalState.upperBound
 
 end Rxo
 
@@ -53,8 +53,8 @@ Iterators for ranges implementing {name}`Rxi.HasSize` support {name}`Iter.size`.
 instance [Rxi.HasSize α] [UpwardEnumerable α] :
     IteratorSize (Rxi.Iterator α) Id where
   size it := match it.internalState.next with
-    | none => pure (.up 0)
-    | some next => pure (.up (Rxi.HasSize.size next))
+    | none => 0
+    | some next => Rxi.HasSize.size next
 
 end Rxi
 

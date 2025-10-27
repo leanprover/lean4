@@ -142,12 +142,13 @@ instance Types.ULiftIterator.instIteratorCollectPartial {o} [Monad n] [Monad o] 
 
 instance Types.ULiftIterator.instIteratorSize [Monad n] [Iterator α m β] [IteratorSize α m]
     [Finite (ULiftIterator α m n β lift) n] :
-    IteratorSize (ULiftIterator α m n β lift) n :=
-  .defaultImplementation
+    IteratorSize (ULiftIterator α m n β lift) n where
+  size it := it.internalState.inner.size
 
-instance Types.ULiftIterator.instIteratorSizePartial [Monad n] [Iterator α m β] [IteratorSize α m] :
-    IteratorSizePartial (ULiftIterator α m n β lift) n :=
-  .defaultImplementation
+instance Types.ULiftIterator.instIteratorSizePartial [Monad n] [Iterator α m β]
+    [IteratorSizePartial α m] :
+    IteratorSizePartial (ULiftIterator α m n β lift) n where
+  size it := it.internalState.inner.allowNontermination.size
 
 /--
 Transforms an `m`-monadic iterator with values in `β` into an `n`-monadic iterator with

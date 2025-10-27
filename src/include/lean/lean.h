@@ -715,7 +715,7 @@ static inline lean_object ** lean_closure_arg_cptr(lean_object * o) { return lea
 static inline lean_obj_res lean_alloc_closure(void * fun, unsigned arity, unsigned num_fixed) {
     assert(arity > 0);
     assert(num_fixed < arity);
-    lean_closure_object * o = (lean_closure_object*)lean_alloc_small_object(sizeof(lean_closure_object) + sizeof(void*)*num_fixed);
+    lean_closure_object * o = (lean_closure_object*)lean_alloc_object(sizeof(lean_closure_object) + sizeof(void*)*num_fixed);
     lean_set_st_header((lean_object*)o, LeanClosure, 0);
     o->m_fun = fun;
     o->m_arity = arity;

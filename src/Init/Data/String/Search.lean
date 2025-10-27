@@ -39,7 +39,7 @@ Examples:
 * {lean}`"red green blue".replace "e" "" = "rd grn blu"`
 * {lean}`"red green blue".replace "ee" "E" = "red grEn blue"`
 * {lean}`"red green blue".replace "e" "E" = "rEd grEEn bluE"`
-* {lean}`"abc".replace "" "k" = "rakbkck"`
+* {lean}`"abc".replace "" "k" = "kakbkck"`
 -/
 @[inline]
 def replace [ToForwardSearcher ρ σ] [ToSlice α] (s : String) (pattern : ρ)

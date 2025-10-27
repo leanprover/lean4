@@ -364,7 +364,7 @@ Examples:
 * {lean}`"red green blue".toSlice.replace "e" "" = "rd grn blu"`
 * {lean}`"red green blue".toSlice.replace "ee" "E" = "red grEn blue"`
 * {lean}`"red green blue".toSlice.replace "e" "E" = "rEd grEEn bluE"`
-* {lean}`"abc".toSlice.replace "" "k" = "rakbkck"`
+* {lean}`"abc".toSlice.replace "" "k" = "kakbkck"`
 -/
 def replace [ToForwardSearcher ρ σ] [ToSlice α] (s : Slice) (pattern : ρ) (replacement : α) :
     String :=

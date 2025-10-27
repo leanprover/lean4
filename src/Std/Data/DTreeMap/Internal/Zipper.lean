@@ -270,7 +270,7 @@ theorem Zipper.prepend_pruneLT_eq_prependMapGT [Ord α] [TransOrd α] (t : Impl 
       apply r_ih
       exact Impl.Ordered.right ord_t
 
-public theorem Zipper.toList_prependMap_eq_append (t : Impl α β)
+theorem Zipper.toList_prependMap_eq_append (t : Impl α β)
     (it : Zipper α β) : (Zipper.prependMap t it).toList = t.toList ++ it.toList := by
   induction t generalizing it
   case leaf =>
@@ -283,10 +283,10 @@ public theorem Zipper.toList_prependMap_eq_append (t : Impl α β)
     simp only [Impl.toList_eq_toListModel, toList, List.cons_append,
       Impl.toListModel_inner, List.append_assoc]
 
-public theorem Zipper.toList_prependMap_done (t : Impl α β) : (Zipper.prependMap t .done).toList = t.toList := by
+theorem Zipper.toList_prependMap_done (t : Impl α β) : (Zipper.prependMap t .done).toList = t.toList := by
   simp [Zipper.toList_prependMap_eq_append, Zipper.toList]
 
-theorem Zipper.prependMap_invariant [Ord α] [TransOrd α] {t : Impl α β}
+theorem Zipper.ordered_prependMap [Ord α] [TransOrd α] {t : Impl α β}
     {ord_t : t.Ordered} {z : Zipper α β} {ord_z : z.Ordered}
     (hyp : ∀ k ∈ z.toList, ∀ k' ∈ t.toListModel, compare k'.1 k.1 = .lt ) :
     (Zipper.prependMap t z).Ordered := by
@@ -335,15 +335,15 @@ theorem Zipper.prependMap_invariant [Ord α] [TransOrd α] {t : Impl α β}
           apply hyp k₁ in_z k₂
           simp only [Impl.toListModel_inner, List.mem_append, mem₂, List.mem_cons, true_or]
 
-theorem Zipper.prependMap_done_invariant [Ord α] [TransOrd α] {t : Impl α β}
+theorem Zipper.ordered_prependMap_done [Ord α] [TransOrd α] {t : Impl α β}
     {ord_t : t.Ordered} :
     (Zipper.prependMap t .done).Ordered := by
-  apply Zipper.prependMap_invariant
+  apply ordered_prependMap
   . exact ord_t
   . simp only [Ordered, toList, List.Pairwise.nil]
   simp only [toList, List.not_mem_nil, false_implies, implies_true]
 
-public theorem Zipper.ordered_of_cons_ordered [Ord α] [TransOrd α] {t : Impl α β}
+theorem Zipper.ordered_of_cons_ordered [Ord α] [TransOrd α] {t : Impl α β}
     {z : Zipper α β} : (Zipper.cons k v t z).Ordered → z.Ordered := by
   intro hyp
   simp only [Zipper.Ordered, Zipper.toList] at hyp
@@ -403,14 +403,14 @@ public instance Zipper.instFinite : Finite (Zipper α β) Id :=
 
 public def Zipper.iter (t : Zipper α β) : Iter (α := Zipper α β) ((a : α) × β a) := ⟨t⟩
 
-public def Zipper.iter_of_tree (t : Impl α β) : Iter (α := Zipper α β) ((a : α) × β a) :=
+public def Zipper.iterOfTree (t : Impl α β) : Iter (α := Zipper α β) ((a : α) × β a) :=
   Zipper.iter <| Zipper.done.prependMap t
 
 public instance {z : Zipper α β} : ToIterator z Id ((a : α) × β a) where
   State := Zipper α β
   iterMInternal := Iter.toIterM <| Zipper.iter z
 
-public theorem Zipper.step_eq_match {it : IterM (α := Zipper α β) Id ((a : α) × β a)} :
+theorem Zipper.step_eq_match {it : IterM (α := Zipper α β) Id ((a : α) × β a)} :
     it.step = ⟨match it.internalState.iter with
     | ⟨Zipper.done⟩ => IterStep.done
     | ⟨Zipper.cons k v t z⟩ => IterStep.yield { internalState := Zipper.prependMap t z } ⟨k, v⟩,
@@ -430,7 +430,7 @@ public theorem Zipper.step_eq_match {it : IterM (α := Zipper α β) Id ((a : α
     case cons k v tree next =>
       simp only [Zipper.iter]
 
-public theorem Zipper.val_step_Zipper_eq_match {α β}
+theorem Zipper.val_step_Zipper_eq_match {α β}
     {it : Iter (α := Zipper α β) (Sigma β)} :
     it.step.val =
         match it.internalState.iter with
@@ -459,7 +459,7 @@ public theorem Zipper.val_step_Zipper_eq_match {α β}
         Iter.mk.injEq, Sigma.mk.injEq]
       simp_all
 
-public theorem Zipper.toList_iter {α β} {z : Zipper α β}: z.iter.toList = z.toList := by
+theorem Zipper.toList_iter {α β} {z : Zipper α β}: z.iter.toList = z.toList := by
   rw [Iter.toList_eq_match_step]
   generalize hit : (z.iter.step.val) = step
   rw [val_step_Zipper_eq_match] at hit
@@ -495,20 +495,20 @@ decreasing_by
     simp only [Zipper.prependMap_size, Impl.treeSize, Nat.add_lt_add_iff_right, Nat.lt_add_left_iff_pos,
       Nat.lt_add_one]
 
-public theorem Zipper.iter_of_tree_toList_eq_toList (t : Impl α β) :
-    (Zipper.iter_of_tree t).toList = t.toList := by
-  unfold iter_of_tree
+public theorem Zipper.iterOfTree_toList_eq_toList (t : Impl α β) :
+    (Zipper.iterOfTree t).toList = t.toList := by
+  unfold iterOfTree
   unfold iter
   have := @Zipper.toList_iter α β (prependMap t .done)
   simp only [iter] at this
   rw [this]
   simp only [Zipper.toList_prependMap_eq_append, toList, List.append_nil]
 
-public theorem Zipper.map_iter_of_tree_eq_tree_toList_map (t : Impl α β) :
-   (Iter.map f (Internal.Zipper.iter_of_tree t)).toList = List.map f t.toList := by
+public theorem Zipper.map_iterOfTree_eq_tree_toList_map (t : Impl α β) :
+   (Iter.map f (Internal.Zipper.iterOfTree t)).toList = List.map f t.toList := by
   rw [Iter.toList_map]
   congr
-  unfold iter_of_tree
+  unfold iterOfTree
   rw [@toList_iter α β (prependMap t .done)]
   simp [Zipper.toList_prependMap_eq_append, toList]
 
@@ -529,7 +529,7 @@ def Zipper.instProductivenessRelation : ProductivenessRelation (Zipper α β) Id
 public instance instProductive : Productive (Zipper α β) Id :=
   .of_productivenessRelation Zipper.instProductivenessRelation
 
-public theorem Zipper.val_step_map_Zipper_eq_match {α β γ} {f : (a : α) × β a → γ}
+theorem Zipper.val_step_map_Zipper_eq_match {α β γ} {f : (a : α) × β a → γ}
     {it : Iter (α := Zipper α β) (Sigma β)} :
     (it.map f).step.val =
         match it.internalState.iter with
@@ -901,7 +901,8 @@ public theorem toList_ric {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
   rw [toList_rxcIter, toList_eq_takeWhile_list]
   . rw [Zipper.toList_prependMap_eq_append]
     simp [Zipper.toList]
-  . exact @Zipper.prependMap_done_invariant _ _ _ _ t ordered
+  . apply Zipper.ordered_prependMap_done
+    . exact ordered
 
 end Ric
 
@@ -926,7 +927,8 @@ public theorem toList_rio {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
   rw [toList_rxoIter, toList_eq_takeWhile_list_LT]
   . rw [Zipper.toList_prependMap_eq_append]
     simp [Zipper.toList]
-  . exact @Zipper.prependMap_done_invariant _ _ _ _ t ordered
+  . apply Zipper.ordered_prependMap_done
+    . exact ordered
 
 end Rio
 

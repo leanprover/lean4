@@ -13,7 +13,7 @@ open Std.Iterators
 
 @[inline]
 public def iter {α : Type u} {β : α → Type v} [Ord α] (m : Raw α β) :=
-  (Internal.Zipper.iter_of_tree m.inner : Iter ((a : α) × β a))
+  (Internal.Zipper.iterOfTree m.inner : Iter ((a : α) × β a))
 
 @[inline]
 public def keysIter {α : Type u} {β : α → Type u} [Ord α] (m : Raw α β) :=
@@ -27,7 +27,7 @@ public theorem iter_toList [Ord α] (m : Raw α β) :
     m.iter.toList = m.toList := by
   unfold iter
   simp [Raw.toList]
-  exact @Internal.Zipper.iter_of_tree_toList_eq_toList α β m.inner
+  exact @Internal.Zipper.iterOfTree_toList_eq_toList α β m.inner
 
 public theorem keysIter_toList {α β} [Ord α] (m : Raw α β) :
     m.keysIter.toList = m.keys := by
@@ -35,7 +35,7 @@ public theorem keysIter_toList {α β} [Ord α] (m : Raw α β) :
   unfold keys
   unfold iter
   rw [← Internal.Impl.map_fst_toList_eq_keys]
-  exact Internal.Zipper.map_iter_of_tree_eq_tree_toList_map m.inner
+  exact Internal.Zipper.map_iterOfTree_eq_tree_toList_map m.inner
 
 public theorem valuesIter_toList {α β} [Ord α] (m : Raw α (fun _ => β)) :
     m.valuesIter.toList = m.values := by
@@ -44,6 +44,6 @@ public theorem valuesIter_toList {α β} [Ord α] (m : Raw α (fun _ => β)) :
   unfold iter
   rw [Internal.Impl.values_eq_map_snd]
   rw [← Internal.Impl.toList_eq_toListModel]
-  exact Internal.Zipper.map_iter_of_tree_eq_tree_toList_map m.inner
+  exact Internal.Zipper.map_iterOfTree_eq_tree_toList_map m.inner
 
 end Std.DTreeMap.Raw

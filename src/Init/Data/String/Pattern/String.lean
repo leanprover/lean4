@@ -9,6 +9,7 @@ prelude
 public import Init.Data.String.Pattern.Basic
 public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Monadic.Loop
+import Init.Data.String.Termination
 
 set_option doc.verso true
 
@@ -22,7 +23,8 @@ public section
 namespace String.Slice.Pattern
 
 inductive ForwardSliceSearcher (s : Slice) where
-  | empty (pos : s.Pos)
+  | emptyBefore (pos : s.Pos)
+  | emptyAt (pos : s.Pos) (h : pos ≠ s.endPos)
   | proper (needle : Slice) (table : Array String.Pos.Raw) (stackPos : String.Pos.Raw) (needlePos : String.Pos.Raw)
   | atEnd
 deriving Inhabited
@@ -56,7 +58,7 @@ where
 @[inline]
 def iter (s : Slice) (pat : Slice) : Std.Iter (α := ForwardSliceSearcher s) (SearchStep s) :=
   if pat.utf8ByteSize == 0 then
-    { internalState := .empty s.startPos }
+    { internalState := .emptyBefore s.startPos }
   else
     { internalState := .proper pat (buildTable pat) s.startPos.offset pat.startPos.offset }
 
@@ -71,9 +73,8 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
   IsPlausibleStep it
     | .yield it' out =>
       match it.internalState with
-      | .empty pos =>
-        (∃ newPos, pos < newPos ∧ it'.internalState = .empty newPos) ∨
-        it'.internalState = .atEnd
+      | .emptyBefore pos => (∃ h, it'.internalState = .emptyAt pos h) ∨ it'.internalState = .atEnd
+      | .emptyAt pos h => ∃ newPos, pos < newPos ∧ it'.internalState = .emptyBefore newPos
       | .proper needle table stackPos needlePos =>
         (∃ newStackPos newNeedlePos,
           stackPos < newStackPos ∧
@@ -85,12 +86,15 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
     | .done => True
   step := fun ⟨iter⟩ =>
     match iter with
-    | .empty pos =>
+    | .emptyBefore pos =>
       let res := .matched pos pos
       if h : pos ≠ s.endPos then
-        pure (.deflate ⟨.yield ⟨.empty (pos.next h)⟩ res, by simp⟩)
+        pure (.deflate ⟨.yield ⟨.emptyAt pos h⟩ res, by simp [h]⟩)
       else
         pure (.deflate ⟨.yield ⟨.atEnd⟩ res, by simp⟩)
+    | .emptyAt pos h =>
+      let res := .rejected pos (pos.next h)
+      pure (.deflate ⟨.yield ⟨.emptyBefore (pos.next h)⟩ res, by simp⟩)
     | .proper needle table stackPos needlePos =>
       let rec findNext (startPos : String.Pos.Raw)
           (currStackPos : String.Pos.Raw) (needlePos : String.Pos.Raw) (h : stackPos ≤ currStackPos) :=
@@ -148,15 +152,17 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
       findNext stackPos stackPos needlePos (by simp)
     | .atEnd => pure (.deflate ⟨.done, by simp⟩)
 
-private def toPair : ForwardSliceSearcher s → (Nat × Nat)
-  | .empty pos => (1, s.utf8ByteSize - pos.offset.byteIdx)
-  | .proper _ _ sp _ => (1, s.utf8ByteSize - sp.byteIdx)
-  | .atEnd => (0, 0)
+private def toOption : ForwardSliceSearcher s → Option (Nat × Nat)
+  | .emptyBefore pos => some (pos.remainingBytes, 1)
+  | .emptyAt pos _ => some (pos.remainingBytes, 0)
+  | .proper _ _ sp _ => some (s.utf8ByteSize - sp.byteIdx, 0)
+  | .atEnd => none
 
 private instance : WellFoundedRelation (ForwardSliceSearcher s) where
-  rel s1 s2 := Prod.Lex (· < ·) (· < ·) s1.toPair s2.toPair
+  rel := InvImage (Option.lt (Prod.Lex (· < ·) (· < ·))) ForwardSliceSearcher.toOption
   wf := by
     apply InvImage.wf
+    apply Option.wellFounded_lt
     apply (Prod.lex _ _).wf
 
 private def finitenessRelation :
@@ -168,30 +174,24 @@ private def finitenessRelation :
     obtain ⟨step, h, h'⟩ := h
     cases step
     · cases h
-      simp only [Std.Iterators.IterM.IsPlausibleStep, Std.Iterators.Iterator.IsPlausibleStep] at h'
-      split at h'
-      · next heq =>
-        rw [heq]
-        rcases h' with ⟨np, h1', h2'⟩ | h'
-        · rw [h2']
-          apply Prod.Lex.right'
-          · simp
-          · have haux := np.isValidForSlice.le_utf8ByteSize
-            simp [Slice.Pos.lt_iff, String.Pos.Raw.lt_iff] at h1' haux ⊢
-            omega
-        · apply Prod.Lex.left
-          simp [h']
-      · next heq =>
-        rw [heq]
-        rcases h' with ⟨np, sp, h1', h2', h3'⟩ | h'
-        · rw [h3']
-          apply Prod.Lex.right'
-          · simp
-          · simp [String.Pos.Raw.le_iff, String.Pos.Raw.lt_iff] at h1' h2' ⊢
-            omega
-        · apply Prod.Lex.left
-          simp [h']
-      · contradiction
+      revert h'
+      simp only [Std.Iterators.IterM.IsPlausibleStep, Std.Iterators.Iterator.IsPlausibleStep]
+      match it.internalState with
+      | .emptyBefore pos =>
+        rintro (⟨h, h'⟩|h') <;> simp [h', ForwardSliceSearcher.toOption, Option.lt, Prod.lex_def]
+      | .emptyAt pos h =>
+        simp only [forall_exists_index, and_imp]
+        intro x hx h
+        simpa [h, ForwardSliceSearcher.toOption, Option.lt, Prod.lex_def,
+          ← Pos.lt_iff_remainingBytes_lt]
+      | .proper needle table stackPos needlePos =>
+        simp only [exists_and_left]
+        rintro (⟨newStackPos, h₁, h₂, ⟨x, hx⟩⟩|h)
+        · simp [hx, ForwardSliceSearcher.toOption, Option.lt, Prod.lex_def, Pos.Raw.lt_iff,
+            Pos.Raw.le_iff] at ⊢ h₁ h₂
+          omega
+        · simp [h, ForwardSliceSearcher.toOption, Option.lt]
+      | .atEnd .. => simp
     · cases h'
     · cases h
 

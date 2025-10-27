@@ -7,17 +7,53 @@ module
 
 prelude
 public import Std.Data.DTreeMap.Raw.Iterator
+
+/-!
+# Iterators on `DTreeMap`
+-/
+
 namespace Std.DTreeMap
 open Std.Iterators
 
+/--
+Returns a finite iterator over the entries of a dependent tree map.
+The iterator yields the elements of the map in order and then terminates.
+
+**Termination properties:**
+
+* `Finite` instance: always
+* `Productive` instance: always
+-/
 @[inline]
 public def iter {α : Type u} {β : α → Type v} [Ord α] (m : DTreeMap α β) :=
   Raw.iter ⟨m.inner⟩
 
+/--
+Returns a finite iterator over the keys of a dependent tree map.
+The iterator yields the keys in order and then terminates.
+
+The key and value types must live in the same universe.
+
+**Termination properties:**
+
+* `Finite` instance: always
+* `Productive` instance: always
+-/
 @[inline]
 public def keysIter {α : Type u} {β : α → Type u} [Ord α] (m : Raw α β) :=
   Raw.keysIter ⟨m.inner⟩
 
+/--
+Returns a finite iterator over the values of a tree map.
+The iterator yields the values in order and then terminates.
+
+The key and value types must live in the same universe.
+
+**Termination properties:**
+
+* `Finite` instance: always
+* `Productive` instance: always
+-/
 @[inline]
 public def valuesIter {α : Type u} {β : Type u} [Ord α](m : Raw α (fun _ => β)) :=
   Raw.valuesIter ⟨m.inner⟩

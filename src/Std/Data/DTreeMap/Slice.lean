@@ -7,6 +7,12 @@ module
 
 prelude
 public import Std.Data.DTreeMap.Raw.Slice
+
+/-!
+This module provides slice notation for `TreeMap` slices and implements an iterator
+for those slices.
+-/
+
 namespace Std.DTreeMap
 open Std.Iterators
 

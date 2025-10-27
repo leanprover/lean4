@@ -10,6 +10,11 @@ public import Std.Data.DTreeMap.Internal.Ordered
 public import Std.Data.DTreeMap.Internal.Zipper
 public import Std.Data.DTreeMap.Raw.Basic
 
+/-!
+This module provides slice notation for `TreeMap` slices and implements an iterator
+for those slices.
+-/
+
 namespace Std.DTreeMap.Raw
 open Std.Iterators
 
@@ -19,7 +24,8 @@ public instance {α : Type u} {β : α → Type v}
   mkSlice carrier range := ⟨carrier.inner, range⟩
 
 @[simp] public theorem toList_rii {α : Type u} {β : α → Type v}
-    (cmp : α → α → Ordering := by exact compare) {t : Raw α β cmp} : t[*...*].toList = t.toList := by
+    (cmp : α → α → Ordering := by exact compare) {t : Raw α β cmp} :
+    t[*...*].toList = t.toList := by
   apply Internal.toList_rii
 
 public instance {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare) :

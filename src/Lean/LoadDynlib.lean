@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.System.IO
+import Init.Data.String.TakeDrop
 
 public section
 

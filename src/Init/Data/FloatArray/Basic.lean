@@ -29,9 +29,6 @@ attribute [ext] FloatArray
 def emptyWithCapacity (c : @& Nat) : FloatArray :=
   { data := #[] }
 
-@[deprecated emptyWithCapacity (since := "2025-03-12")]
-abbrev mkEmpty := emptyWithCapacity
-
 def empty : FloatArray :=
   emptyWithCapacity 0
 

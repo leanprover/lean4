@@ -21,7 +21,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__4;
 static lean_object* l_Lake_instInhabitedArtifactDescr_default___closed__2;
 LEAN_EXPORT lean_object* l_Lake_instReprArtifactDescr;
-LEAN_EXPORT lean_object* l_Nat_cast___at___Lake_instReprArtifactDescr_repr_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lake_instReprArtifactDescr_repr_spec__0(lean_object*);
 static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__17;
 static lean_object* l_Lake_instReprArtifact_repr___redArg___closed__4;
 lean_object* l_String_quote(lean_object*);
@@ -220,7 +220,7 @@ x_1 = l_Lake_instInhabitedArtifactDescr_default;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Lake_instReprArtifactDescr_repr_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lake_instReprArtifactDescr_repr_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -1322,13 +1322,13 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Lake_Build_Trace(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Build_Trace(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Config_Artifact(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Config_Artifact(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Build_Trace(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Trace(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_artifactPath___closed__0 = _init_l_Lake_artifactPath___closed__0();

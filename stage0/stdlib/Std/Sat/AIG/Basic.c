@@ -209,7 +209,7 @@ static lean_object* l_Std_Sat_AIG_instReprDecl_repr___redArg___closed__6;
 static lean_object* l_Std_Sat_AIG_unexpandDenote___closed__12;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_ArbitraryShiftTarget_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Sat_AIG_instReprFanin_repr_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Sat_AIG_instReprFanin_repr_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_Entrypoint_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toGraphviz_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -440,7 +440,7 @@ x_1 = l_Std_Sat_AIG_instHashableFanin___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Sat_AIG_instReprFanin_repr_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Sat_AIG_instReprFanin_repr_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -7278,21 +7278,21 @@ lean_dec_ref(x_2);
 return x_6;
 }
 }
-lean_object* initialize_Std_Data_HashSet(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Hashable(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_HashSet(uint8_t builtin);
+lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Hashable(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Sat_AIG_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Sat_AIG_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_HashSet(builtin, lean_io_mk_world());
+res = initialize_Std_Data_HashSet(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Vector_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Hashable(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Hashable(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Sat_AIG_instHashableFanin___closed__0 = _init_l_Std_Sat_AIG_instHashableFanin___closed__0();

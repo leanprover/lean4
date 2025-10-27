@@ -10,6 +10,7 @@ public import Init.System.FilePath
 public import Std.Data.TreeMap.Basic
 public import Lean.Data.Name
 import Lake.Util.Name
+import Init.Data.String.TakeDrop
 
 open System Lean
 
@@ -149,13 +150,6 @@ public instance : IsPattern StrPatDescr String := ⟨flip StrPatDescr.matches⟩
 
 /-- A `String` pattern. Matches some subset of strings. -/
 public abbrev StrPat := Pattern String StrPatDescr
-
-@[inherit_doc Pattern.empty, deprecated Pattern.empty (since := "2025-03-27")]
-public abbrev StrPat.none : StrPat := Pattern.empty
-
-@[inherit_doc Pattern.ofFn, deprecated Pattern.ofFn (since := "2025-03-27")]
-public abbrev StrPat.satisfies (f : String → Bool) (name := Name.anonymous) : StrPat :=
-  Pattern.ofFn f name
 
 @[inherit_doc StrPatDescr.mem, inline]
 public def StrPat.mem (xs : Array String) : StrPat :=

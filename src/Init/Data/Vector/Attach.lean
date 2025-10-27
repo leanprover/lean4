@@ -603,7 +603,4 @@ and simplifies these to the function directly taking the value.
     (replicate n x).unattach = replicate n x.1 := by
   simp [unattach]
 
-@[deprecated unattach_replicate (since := "2025-03-18")]
-abbrev unattach_mkVector := @unattach_replicate
-
 end Vector

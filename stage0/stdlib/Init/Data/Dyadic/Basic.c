@@ -113,7 +113,7 @@ static lean_object* l_Dyadic_instHShiftLeftInt___closed__0;
 LEAN_EXPORT lean_object* l_Dyadic_roundUp___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_zero_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_instHShiftRightNat___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___Dyadic_ofIntWithPrec_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Dyadic_ofIntWithPrec_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Dyadic_toRat_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Dyadic_add_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -124,12 +124,12 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Dyadic_pow_match_
 LEAN_EXPORT lean_object* l_Dyadic_instNeg;
 lean_object* lean_int_ediv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_ofInt(lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___Dyadic_toRat_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Dyadic_toRat_spec__0(lean_object*);
 lean_object* l_Rat_ofInt(lean_object*);
 lean_object* lean_int_neg(lean_object*);
 static lean_object* l_Dyadic_instMul___closed__0;
 lean_object* lean_nat_add(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_cast___at___Dyadic_toRat_spec__1(lean_object*);
+LEAN_EXPORT lean_object* l_Int_cast___at___00Dyadic_toRat_spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_instHShiftLeftNat;
 LEAN_EXPORT lean_object* l_Dyadic_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_toRat(lean_object*);
@@ -432,7 +432,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Dyadic_ofIntWithPrec_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Dyadic_ofIntWithPrec_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -1181,7 +1181,7 @@ x_1 = lean_alloc_closure((void*)(l_Dyadic_instHShiftRightNat___lam__0), 2, 0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Dyadic_toRat_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Dyadic_toRat_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -1190,7 +1190,7 @@ x_3 = l_Rat_ofInt(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Int_cast___at___Dyadic_toRat_spec__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Int_cast___at___00Dyadic_toRat_spec__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -1205,7 +1205,7 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_Nat_cast___at___Dyadic_toRat_spec__0(x_2);
+x_3 = l_Nat_cast___at___00Dyadic_toRat_spec__0(x_2);
 return x_3;
 }
 else
@@ -2123,21 +2123,21 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* initialize_Init_Data_Rat_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Int_Bitwise_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Hints(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Rat_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Bitwise_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Hints(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Dyadic_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Dyadic_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Rat_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Rat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Bitwise_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Int_Bitwise_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Hints(builtin, lean_io_mk_world());
+res = initialize_Init_Hints(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Int_trailingZeros_aux___redArg___closed__0 = _init_l_Int_trailingZeros_aux___redArg___closed__0();

@@ -402,7 +402,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_instReprExpr_repr(lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Poly_powC___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Expr_add_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ring_CommSolver_0__Lean_Grind_CommRing_Expr_toPoly_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_Grind_CommRing_instReprPower_repr_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_Grind_CommRing_instReprPower_repr_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Mon_denote_x27(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Expr_neg_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ring_CommSolver_0__Lean_Grind_CommRing_eq__gcd__cert_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2197,7 +2197,7 @@ lean_dec(x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_Grind_CommRing_instReprPower_repr_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_Grind_CommRing_instReprPower_repr_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -5033,7 +5033,7 @@ block_48:
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; uint8_t x_45; lean_object* x_46; lean_object* x_47; 
 x_37 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_37, 0, x_34);
+lean_ctor_set(x_37, 0, x_35);
 lean_ctor_set(x_37, 1, x_36);
 lean_inc(x_33);
 x_38 = lean_alloc_ctor(5, 2, 0);
@@ -5051,7 +5051,7 @@ x_43 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_43, 0, x_41);
 lean_ctor_set(x_43, 1, x_42);
 x_44 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_44, 0, x_35);
+lean_ctor_set(x_44, 0, x_34);
 lean_ctor_set(x_44, 1, x_43);
 x_45 = 0;
 x_46 = lean_alloc_ctor(6, 1, 1);
@@ -5075,8 +5075,8 @@ lean_dec(x_29);
 x_55 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_55, 0, x_54);
 x_33 = x_50;
-x_34 = x_51;
-x_35 = x_49;
+x_34 = x_49;
+x_35 = x_51;
 x_36 = x_55;
 goto block_48;
 }
@@ -5089,8 +5089,8 @@ x_57 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_57, 0, x_56);
 x_58 = l_Repr_addAppParen(x_57, x_32);
 x_33 = x_50;
-x_34 = x_51;
-x_35 = x_49;
+x_34 = x_49;
+x_35 = x_51;
 x_36 = x_58;
 goto block_48;
 }
@@ -10628,37 +10628,37 @@ x_5 = l___private_Init_Grind_Ring_CommSolver_0__Lean_Grind_CommRing_eq__gcd__cer
 return x_5;
 }
 }
-lean_object* initialize_Init_Data_Hashable(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Ring_Field(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Ordered_Ring(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_GrindInstances_Ring_Int(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_LawfulBEqTactics(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Hashable(uint8_t builtin);
+lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin);
+lean_object* initialize_Init_Grind_Ring_Field(uint8_t builtin);
+lean_object* initialize_Init_Grind_Ordered_Ring(uint8_t builtin);
+lean_object* initialize_Init_GrindInstances_Ring_Int(uint8_t builtin);
+lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin);
+lean_object* initialize_Init_LawfulBEqTactics(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Grind_Ring_CommSolver(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Grind_Ring_CommSolver(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Hashable(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Hashable(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Ord_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Ord_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ring_Field(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Ring_Field(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ordered_Ring(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Ordered_Ring(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GrindInstances_Ring_Int(builtin, lean_io_mk_world());
+res = initialize_Init_GrindInstances_Ring_Int(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Ord_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Ord_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_LawfulBEqTactics(builtin, lean_io_mk_world());
+res = initialize_Init_LawfulBEqTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Grind_CommRing_instInhabitedExpr_default___closed__0 = _init_l_Lean_Grind_CommRing_instInhabitedExpr_default___closed__0();

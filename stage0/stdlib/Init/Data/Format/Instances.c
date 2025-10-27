@@ -50,7 +50,7 @@ static lean_object* l_instToFormatArray___redArg___lam__0___closed__1;
 static lean_object* l_List_format___redArg___closed__4;
 LEAN_EXPORT lean_object* l_instToFormatOfToString___redArg(lean_object*);
 static lean_object* l_List_format___redArg___closed__5;
-LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___String_toFormat_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___00String_toFormat_spec__0(lean_object*, lean_object*);
 static lean_object* l_Option_format___redArg___closed__1;
 LEAN_EXPORT lean_object* l_instToFormatRaw___lam__0(lean_object*);
 static lean_object* l_List_format___redArg___closed__3;
@@ -59,7 +59,7 @@ static lean_object* l_instToFormatProd___redArg___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_instToFormatArray(lean_object*, lean_object*);
 static lean_object* l_List_format___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Option_format___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_foldl___at___Std_Format_joinSep___at___String_toFormat_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at___00Std_Format_joinSep___at___00String_toFormat_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToFormatProd___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToFormatOption(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToFormatOption___redArg(lean_object*);
@@ -554,7 +554,7 @@ x_5 = l_instToFormatProd___redArg(x_3, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_List_foldl___at___Std_Format_joinSep___at___String_toFormat_spec__0_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_List_foldl___at___00Std_Format_joinSep___at___00String_toFormat_spec__0_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_3) == 0)
@@ -608,7 +608,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___String_toFormat_spec__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___00String_toFormat_spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -642,7 +642,7 @@ lean_inc(x_7);
 lean_dec_ref(x_1);
 x_8 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
-x_9 = l_List_foldl___at___Std_Format_joinSep___at___String_toFormat_spec__0_spec__0(x_2, x_8, x_4);
+x_9 = l_List_foldl___at___00Std_Format_joinSep___at___00String_toFormat_spec__0_spec__0(x_2, x_8, x_4);
 return x_9;
 }
 }
@@ -665,7 +665,7 @@ x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_box(0);
 x_5 = l_String_splitOnAux(x_1, x_2, x_3, x_3, x_3, x_4);
 x_6 = lean_box(1);
-x_7 = l_Std_Format_joinSep___at___String_toFormat_spec__0(x_5, x_6);
+x_7 = l_Std_Format_joinSep___at___00String_toFormat_spec__0(x_5, x_6);
 return x_7;
 }
 }
@@ -696,17 +696,17 @@ x_1 = lean_alloc_closure((void*)(l_instToFormatRaw___lam__0), 1, 0);
 return x_1;
 }
 }
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Format_Instances(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Format_Instances(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_List_format___redArg___closed__0 = _init_l_List_format___redArg___closed__0();

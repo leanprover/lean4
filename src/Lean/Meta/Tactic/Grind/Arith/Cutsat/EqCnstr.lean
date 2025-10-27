@@ -359,6 +359,8 @@ def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
   trace[grind.debug.cutsat.subst] ">> {← getVar x}, {← c.pp}"
   trace[grind.cutsat.assert.store] "{← c.pp}"
   trace[grind.debug.cutsat.elimEq] "{← getVar x}, {← c.pp}"
+  if (← c.satisfied) == .false then
+    resetAssignmentFrom x
   modify' fun s => { s with
     elimEqs := s.elimEqs.set x (some c)
     elimStack := x :: s.elimStack

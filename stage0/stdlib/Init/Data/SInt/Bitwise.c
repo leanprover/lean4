@@ -15,7 +15,7 @@ extern "C" {
 #endif
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__51;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__66;
-static lean_object* l_commandDeclare__bitwise__int__theorems_______closed__5;
+static lean_object* l_commandDeclare__bitwise__int__theorems_____00__closed__5;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__121;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__11;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__88;
@@ -23,7 +23,7 @@ static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandD
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__91;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__17;
-static lean_object* l_commandDeclare__bitwise__int__theorems_______closed__10;
+static lean_object* l_commandDeclare__bitwise__int__theorems_____00__closed__10;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__0;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__99;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__7;
@@ -70,10 +70,10 @@ lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__131;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__80;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__70;
-static lean_object* l_commandDeclare__bitwise__int__theorems_______closed__12;
+static lean_object* l_commandDeclare__bitwise__int__theorems_____00__closed__12;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__113;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__102;
-static lean_object* l_commandDeclare__bitwise__int__theorems_______closed__4;
+static lean_object* l_commandDeclare__bitwise__int__theorems_____00__closed__4;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__81;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__23;
@@ -83,7 +83,7 @@ static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandD
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__100;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__54;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__14;
-static lean_object* l_commandDeclare__bitwise__int__theorems_______closed__2;
+static lean_object* l_commandDeclare__bitwise__int__theorems_____00__closed__2;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__124;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__67;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__126;
@@ -91,9 +91,9 @@ static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandD
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__33;
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__42;
-static lean_object* l_commandDeclare__bitwise__int__theorems_______closed__8;
+static lean_object* l_commandDeclare__bitwise__int__theorems_____00__closed__8;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__10;
-static lean_object* l_commandDeclare__bitwise__int__theorems_______closed__14;
+static lean_object* l_commandDeclare__bitwise__int__theorems_____00__closed__14;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__101;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__114;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__34;
@@ -125,14 +125,14 @@ static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandD
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__4;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__74;
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_commandDeclare__bitwise__int__theorems_______closed__0;
+static lean_object* l_commandDeclare__bitwise__int__theorems_____00__closed__0;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__96;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__120;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__136;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__55;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__48;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__15;
-static lean_object* l_commandDeclare__bitwise__int__theorems_______closed__3;
+static lean_object* l_commandDeclare__bitwise__int__theorems_____00__closed__3;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__144;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__25;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__97;
@@ -141,7 +141,7 @@ static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandD
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__45;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__142;
-static lean_object* l_commandDeclare__bitwise__int__theorems_______closed__9;
+static lean_object* l_commandDeclare__bitwise__int__theorems_____00__closed__9;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__50;
 lean_object* l_Lean_Syntax_node7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__69;
@@ -150,11 +150,11 @@ static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandD
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__5;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__46;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__59;
-static lean_object* l_commandDeclare__bitwise__int__theorems_______closed__11;
+static lean_object* l_commandDeclare__bitwise__int__theorems_____00__closed__11;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__57;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__135;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__98;
-static lean_object* l_commandDeclare__bitwise__int__theorems_______closed__7;
+static lean_object* l_commandDeclare__bitwise__int__theorems_____00__closed__7;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__39;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__107;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__140;
@@ -165,9 +165,9 @@ static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandD
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__41;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__49;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__64;
-static lean_object* l_commandDeclare__bitwise__int__theorems_______closed__13;
-static lean_object* l_commandDeclare__bitwise__int__theorems_______closed__6;
-static lean_object* l_commandDeclare__bitwise__int__theorems_______closed__1;
+static lean_object* l_commandDeclare__bitwise__int__theorems_____00__closed__13;
+static lean_object* l_commandDeclare__bitwise__int__theorems_____00__closed__6;
+static lean_object* l_commandDeclare__bitwise__int__theorems_____00__closed__1;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__141;
@@ -194,7 +194,7 @@ static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandD
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__116;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__84;
 static lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__18;
-static lean_object* _init_l_commandDeclare__bitwise__int__theorems_______closed__0() {
+static lean_object* _init_l_commandDeclare__bitwise__int__theorems_____00__closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -202,16 +202,16 @@ x_1 = lean_mk_string_unchecked("commandDeclare_bitwise_int_theorems__", 37, 37);
 return x_1;
 }
 }
-static lean_object* _init_l_commandDeclare__bitwise__int__theorems_______closed__1() {
+static lean_object* _init_l_commandDeclare__bitwise__int__theorems_____00__closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_commandDeclare__bitwise__int__theorems_______closed__0;
+x_1 = l_commandDeclare__bitwise__int__theorems_____00__closed__0;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_commandDeclare__bitwise__int__theorems_______closed__2() {
+static lean_object* _init_l_commandDeclare__bitwise__int__theorems_____00__closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -219,16 +219,16 @@ x_1 = lean_mk_string_unchecked("andthen", 7, 7);
 return x_1;
 }
 }
-static lean_object* _init_l_commandDeclare__bitwise__int__theorems_______closed__3() {
+static lean_object* _init_l_commandDeclare__bitwise__int__theorems_____00__closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_commandDeclare__bitwise__int__theorems_______closed__2;
+x_1 = l_commandDeclare__bitwise__int__theorems_____00__closed__2;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_commandDeclare__bitwise__int__theorems_______closed__4() {
+static lean_object* _init_l_commandDeclare__bitwise__int__theorems_____00__closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -236,17 +236,17 @@ x_1 = lean_mk_string_unchecked("declare_bitwise_int_theorems", 28, 28);
 return x_1;
 }
 }
-static lean_object* _init_l_commandDeclare__bitwise__int__theorems_______closed__5() {
+static lean_object* _init_l_commandDeclare__bitwise__int__theorems_____00__closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_commandDeclare__bitwise__int__theorems_______closed__4;
+x_1 = l_commandDeclare__bitwise__int__theorems_____00__closed__4;
 x_2 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_commandDeclare__bitwise__int__theorems_______closed__6() {
+static lean_object* _init_l_commandDeclare__bitwise__int__theorems_____00__closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -254,32 +254,32 @@ x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
-static lean_object* _init_l_commandDeclare__bitwise__int__theorems_______closed__7() {
+static lean_object* _init_l_commandDeclare__bitwise__int__theorems_____00__closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_commandDeclare__bitwise__int__theorems_______closed__6;
+x_1 = l_commandDeclare__bitwise__int__theorems_____00__closed__6;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_commandDeclare__bitwise__int__theorems_______closed__8() {
+static lean_object* _init_l_commandDeclare__bitwise__int__theorems_____00__closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_commandDeclare__bitwise__int__theorems_______closed__7;
+x_1 = l_commandDeclare__bitwise__int__theorems_____00__closed__7;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_commandDeclare__bitwise__int__theorems_______closed__9() {
+static lean_object* _init_l_commandDeclare__bitwise__int__theorems_____00__closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_commandDeclare__bitwise__int__theorems_______closed__8;
-x_2 = l_commandDeclare__bitwise__int__theorems_______closed__5;
-x_3 = l_commandDeclare__bitwise__int__theorems_______closed__3;
+x_1 = l_commandDeclare__bitwise__int__theorems_____00__closed__8;
+x_2 = l_commandDeclare__bitwise__int__theorems_____00__closed__5;
+x_3 = l_commandDeclare__bitwise__int__theorems_____00__closed__3;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
@@ -287,7 +287,7 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_commandDeclare__bitwise__int__theorems_______closed__10() {
+static lean_object* _init_l_commandDeclare__bitwise__int__theorems_____00__closed__10() {
 _start:
 {
 lean_object* x_1; 
@@ -295,34 +295,34 @@ x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l_commandDeclare__bitwise__int__theorems_______closed__11() {
+static lean_object* _init_l_commandDeclare__bitwise__int__theorems_____00__closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_commandDeclare__bitwise__int__theorems_______closed__10;
+x_1 = l_commandDeclare__bitwise__int__theorems_____00__closed__10;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_commandDeclare__bitwise__int__theorems_______closed__12() {
+static lean_object* _init_l_commandDeclare__bitwise__int__theorems_____00__closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(1023u);
-x_2 = l_commandDeclare__bitwise__int__theorems_______closed__11;
+x_2 = l_commandDeclare__bitwise__int__theorems_____00__closed__11;
 x_3 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_commandDeclare__bitwise__int__theorems_______closed__13() {
+static lean_object* _init_l_commandDeclare__bitwise__int__theorems_____00__closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_commandDeclare__bitwise__int__theorems_______closed__12;
-x_2 = l_commandDeclare__bitwise__int__theorems_______closed__9;
-x_3 = l_commandDeclare__bitwise__int__theorems_______closed__3;
+x_1 = l_commandDeclare__bitwise__int__theorems_____00__closed__12;
+x_2 = l_commandDeclare__bitwise__int__theorems_____00__closed__9;
+x_3 = l_commandDeclare__bitwise__int__theorems_____00__closed__3;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
@@ -330,13 +330,13 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_commandDeclare__bitwise__int__theorems_______closed__14() {
+static lean_object* _init_l_commandDeclare__bitwise__int__theorems_____00__closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_commandDeclare__bitwise__int__theorems_______closed__13;
+x_1 = l_commandDeclare__bitwise__int__theorems_____00__closed__13;
 x_2 = lean_unsigned_to_nat(1022u);
-x_3 = l_commandDeclare__bitwise__int__theorems_______closed__1;
+x_3 = l_commandDeclare__bitwise__int__theorems_____00__closed__1;
 x_4 = lean_alloc_ctor(3, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
@@ -348,7 +348,7 @@ static lean_object* _init_l_commandDeclare__bitwise__int__theorems____() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_commandDeclare__bitwise__int__theorems_______closed__14;
+x_1 = l_commandDeclare__bitwise__int__theorems_____00__closed__14;
 return x_1;
 }
 }
@@ -1669,7 +1669,7 @@ LEAN_EXPORT lean_object* l___aux__Init__Data__SInt__Bitwise______macroRules__com
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = l_commandDeclare__bitwise__int__theorems_______closed__1;
+x_4 = l_commandDeclare__bitwise__int__theorems_____00__closed__1;
 lean_inc(x_1);
 x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
@@ -2327,65 +2327,65 @@ lean_dec_ref(x_2);
 return x_4;
 }
 }
-lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_UInt_Bitwise(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_SInt_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_UInt_Bitwise(uint8_t builtin);
+lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_SInt_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_SInt_Bitwise(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_SInt_Bitwise(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_UInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_UInt_Bitwise(builtin, lean_io_mk_world());
+res = initialize_Init_Data_UInt_Bitwise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_BitVec_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_BitVec_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_SInt_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_SInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_SInt_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_SInt_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_commandDeclare__bitwise__int__theorems_______closed__0 = _init_l_commandDeclare__bitwise__int__theorems_______closed__0();
-lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_______closed__0);
-l_commandDeclare__bitwise__int__theorems_______closed__1 = _init_l_commandDeclare__bitwise__int__theorems_______closed__1();
-lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_______closed__1);
-l_commandDeclare__bitwise__int__theorems_______closed__2 = _init_l_commandDeclare__bitwise__int__theorems_______closed__2();
-lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_______closed__2);
-l_commandDeclare__bitwise__int__theorems_______closed__3 = _init_l_commandDeclare__bitwise__int__theorems_______closed__3();
-lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_______closed__3);
-l_commandDeclare__bitwise__int__theorems_______closed__4 = _init_l_commandDeclare__bitwise__int__theorems_______closed__4();
-lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_______closed__4);
-l_commandDeclare__bitwise__int__theorems_______closed__5 = _init_l_commandDeclare__bitwise__int__theorems_______closed__5();
-lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_______closed__5);
-l_commandDeclare__bitwise__int__theorems_______closed__6 = _init_l_commandDeclare__bitwise__int__theorems_______closed__6();
-lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_______closed__6);
-l_commandDeclare__bitwise__int__theorems_______closed__7 = _init_l_commandDeclare__bitwise__int__theorems_______closed__7();
-lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_______closed__7);
-l_commandDeclare__bitwise__int__theorems_______closed__8 = _init_l_commandDeclare__bitwise__int__theorems_______closed__8();
-lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_______closed__8);
-l_commandDeclare__bitwise__int__theorems_______closed__9 = _init_l_commandDeclare__bitwise__int__theorems_______closed__9();
-lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_______closed__9);
-l_commandDeclare__bitwise__int__theorems_______closed__10 = _init_l_commandDeclare__bitwise__int__theorems_______closed__10();
-lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_______closed__10);
-l_commandDeclare__bitwise__int__theorems_______closed__11 = _init_l_commandDeclare__bitwise__int__theorems_______closed__11();
-lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_______closed__11);
-l_commandDeclare__bitwise__int__theorems_______closed__12 = _init_l_commandDeclare__bitwise__int__theorems_______closed__12();
-lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_______closed__12);
-l_commandDeclare__bitwise__int__theorems_______closed__13 = _init_l_commandDeclare__bitwise__int__theorems_______closed__13();
-lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_______closed__13);
-l_commandDeclare__bitwise__int__theorems_______closed__14 = _init_l_commandDeclare__bitwise__int__theorems_______closed__14();
-lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_______closed__14);
+l_commandDeclare__bitwise__int__theorems_____00__closed__0 = _init_l_commandDeclare__bitwise__int__theorems_____00__closed__0();
+lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_____00__closed__0);
+l_commandDeclare__bitwise__int__theorems_____00__closed__1 = _init_l_commandDeclare__bitwise__int__theorems_____00__closed__1();
+lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_____00__closed__1);
+l_commandDeclare__bitwise__int__theorems_____00__closed__2 = _init_l_commandDeclare__bitwise__int__theorems_____00__closed__2();
+lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_____00__closed__2);
+l_commandDeclare__bitwise__int__theorems_____00__closed__3 = _init_l_commandDeclare__bitwise__int__theorems_____00__closed__3();
+lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_____00__closed__3);
+l_commandDeclare__bitwise__int__theorems_____00__closed__4 = _init_l_commandDeclare__bitwise__int__theorems_____00__closed__4();
+lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_____00__closed__4);
+l_commandDeclare__bitwise__int__theorems_____00__closed__5 = _init_l_commandDeclare__bitwise__int__theorems_____00__closed__5();
+lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_____00__closed__5);
+l_commandDeclare__bitwise__int__theorems_____00__closed__6 = _init_l_commandDeclare__bitwise__int__theorems_____00__closed__6();
+lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_____00__closed__6);
+l_commandDeclare__bitwise__int__theorems_____00__closed__7 = _init_l_commandDeclare__bitwise__int__theorems_____00__closed__7();
+lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_____00__closed__7);
+l_commandDeclare__bitwise__int__theorems_____00__closed__8 = _init_l_commandDeclare__bitwise__int__theorems_____00__closed__8();
+lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_____00__closed__8);
+l_commandDeclare__bitwise__int__theorems_____00__closed__9 = _init_l_commandDeclare__bitwise__int__theorems_____00__closed__9();
+lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_____00__closed__9);
+l_commandDeclare__bitwise__int__theorems_____00__closed__10 = _init_l_commandDeclare__bitwise__int__theorems_____00__closed__10();
+lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_____00__closed__10);
+l_commandDeclare__bitwise__int__theorems_____00__closed__11 = _init_l_commandDeclare__bitwise__int__theorems_____00__closed__11();
+lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_____00__closed__11);
+l_commandDeclare__bitwise__int__theorems_____00__closed__12 = _init_l_commandDeclare__bitwise__int__theorems_____00__closed__12();
+lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_____00__closed__12);
+l_commandDeclare__bitwise__int__theorems_____00__closed__13 = _init_l_commandDeclare__bitwise__int__theorems_____00__closed__13();
+lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_____00__closed__13);
+l_commandDeclare__bitwise__int__theorems_____00__closed__14 = _init_l_commandDeclare__bitwise__int__theorems_____00__closed__14();
+lean_mark_persistent(l_commandDeclare__bitwise__int__theorems_____00__closed__14);
 l_commandDeclare__bitwise__int__theorems____ = _init_l_commandDeclare__bitwise__int__theorems____();
 lean_mark_persistent(l_commandDeclare__bitwise__int__theorems____);
 l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__0 = _init_l___aux__Init__Data__SInt__Bitwise______macroRules__commandDeclare__bitwise__int__theorems______1___closed__0();

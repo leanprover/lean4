@@ -80,14 +80,8 @@ def elimAsList {motive : Vector α n → Sort u}
 /-- Make an empty vector with pre-allocated capacity. -/
 @[inline, expose] def emptyWithCapacity (capacity : Nat) : Vector α 0 := ⟨.emptyWithCapacity capacity, by simp⟩
 
-@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
-abbrev mkEmpty := @emptyWithCapacity
-
 /-- Makes a vector of size `n` with all cells containing `v`. -/
 @[inline, expose] def replicate (n) (v : α) : Vector α n := ⟨Array.replicate n v, by simp⟩
-
-@[deprecated replicate (since := "2025-03-18")]
-abbrev mkVector := @replicate
 
 instance : Nonempty (Vector α 0) := ⟨#v[]⟩
 instance [Nonempty α] : Nonempty (Vector α n) := ⟨replicate _ Classical.ofNonempty⟩

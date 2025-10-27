@@ -122,25 +122,25 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* initialize_Init_Grind_Ordered_Order(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_ToInt(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Ordered_Order(uint8_t builtin);
+lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin);
+lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin);
+lean_object* initialize_Init_Grind_ToInt(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_GrindInstances_Ring_BitVec(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_GrindInstances_Ring_BitVec(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Grind_Ordered_Order(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Ordered_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GrindInstances_ToInt(builtin, lean_io_mk_world());
+res = initialize_Init_GrindInstances_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_BitVec_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_ToInt(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.Data.String.Basic
+import Init.Data.String.Iterator
+import Init.Data.String.Modify
 
 public section
 

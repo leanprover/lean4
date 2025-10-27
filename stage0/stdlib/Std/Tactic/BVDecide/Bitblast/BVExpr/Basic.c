@@ -53,7 +53,7 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVUnOp_eval(lean_object*, lean_ob
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 static lean_object* l_Std_Tactic_BVDecide_BVPred_instToString___closed__0;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_un___override(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Tactic_BVDecide_instReprBVBit_repr_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Tactic_BVDecide_instReprBVBit_repr_spec__0(lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_instInhabitedBVBit___closed__0;
 static lean_object* l_Std_Tactic_BVDecide_instReprBVBit_repr___redArg___closed__18;
 static lean_object* l_Std_Tactic_BVDecide_instReprBVBit_repr___redArg___closed__0;
@@ -453,7 +453,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Tactic_BVDecide_instReprBVBit_repr_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Tactic_BVDecide_instReprBVBit_repr_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -6134,17 +6134,17 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* initialize_Init_Data_Hashable(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BoolExpr_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Hashable(uint8_t builtin);
+lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BoolExpr_Basic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Hashable(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Hashable(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Tactic_BVDecide_Bitblast_BoolExpr_Basic(builtin, lean_io_mk_world());
+res = initialize_Std_Tactic_BVDecide_Bitblast_BoolExpr_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Tactic_BVDecide_instHashableBVBit___closed__0 = _init_l_Std_Tactic_BVDecide_instHashableBVBit___closed__0();

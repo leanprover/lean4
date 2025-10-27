@@ -66,7 +66,7 @@ LEAN_EXPORT lean_object* l_Lake_InputFileConfig_instEmptyCollection(lean_object*
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_text_instConfigField(lean_object*);
 static uint8_t l_Lake_InputFileConfig_instConfigInfo___closed__12;
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_text___proj___lam__1___boxed(lean_object*, lean_object*);
-lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_InputDirConfig___fields___closed__3;
 LEAN_EXPORT uint8_t l_Lake_InputDirConfig_text___proj___lam__3(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputDirConfig_filter___proj___lam__3(lean_object*);
@@ -525,7 +525,7 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
-x_4 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
+x_4 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
 return x_4;
 }
 }
@@ -1332,25 +1332,25 @@ lean_ctor_set_uint8(x_5, sizeof(void*)*2, x_2);
 return x_5;
 }
 }
-lean_object* initialize_Lake_Config_Pattern(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_MetaClasses(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_ToString_Name(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_Meta(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Config_Pattern(uint8_t builtin);
+lean_object* initialize_Lake_Config_MetaClasses(uint8_t builtin);
+lean_object* initialize_Init_Data_ToString_Name(uint8_t builtin);
+lean_object* initialize_Lake_Config_Meta(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Config_InputFileConfig(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Config_InputFileConfig(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Config_Pattern(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_Pattern(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_MetaClasses(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_MetaClasses(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ToString_Name(builtin, lean_io_mk_world());
+res = initialize_Init_Data_ToString_Name(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_Meta(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_Meta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_InputFileConfig___fields___closed__0 = _init_l_Lake_InputFileConfig___fields___closed__0();

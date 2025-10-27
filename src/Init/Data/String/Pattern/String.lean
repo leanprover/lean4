@@ -177,7 +177,7 @@ private def finitenessRelation :
           apply Prod.Lex.right'
           · simp
           · have haux := np.isValidForSlice.le_utf8ByteSize
-            simp [Slice.Pos.lt_iff, String.Pos.Raw.le_iff, String.Pos.Raw.lt_iff] at h1' haux ⊢
+            simp [Slice.Pos.lt_iff, String.Pos.Raw.lt_iff] at h1' haux ⊢
             omega
         · apply Prod.Lex.left
           simp [h']

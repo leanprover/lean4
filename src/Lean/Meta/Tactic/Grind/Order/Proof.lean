@@ -210,8 +210,19 @@ public def mkUnsatProof (u v : Expr) (k₁ : Weight) (h₁ : Expr) (k₂ : Weigh
   else
     mkUnsatProofCore u v k₁ h₁ k₂ h₂
 
-public def mkEqProofOfLeOfLe (u v : Expr) (h₁ : Expr) (h₂ : Expr) : OrderM Expr := do
+public def mkEqProofOfLeOfLeCore (u v : Expr) (h₁ : Expr) (h₂ : Expr) : OrderM Expr := do
   let h ← mkLePartialPrefix ``Grind.Order.eq_of_le_of_le
   return mkApp4 h u v h₁ h₂
+
+public def mkEqProofOfLeOfLeOffset (u v : Expr) (h₁ : Expr) (h₂ : Expr) : OrderM Expr := do
+  let h ← mkLePartialPrefix ``Grind.Order.eq_of_le_of_le_0
+  let h := mkApp h (← getStruct).ringInst?.get!
+  return mkApp4 h u v h₁ h₂
+
+public def mkEqProofOfLeOfLe (u v : Expr) (h₁ : Expr) (h₂ : Expr) : OrderM Expr := do
+  if (← isRing) then
+    mkEqProofOfLeOfLeOffset  u v h₁ h₂
+  else
+    mkEqProofOfLeOfLeCore u v h₁ h₂
 
 end Lean.Meta.Grind.Order

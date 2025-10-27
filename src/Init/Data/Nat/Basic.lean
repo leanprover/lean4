@@ -627,9 +627,6 @@ theorem eq_zero_or_eq_succ_pred : ∀ n, n = 0 ∨ n = succ (pred n)
 
 theorem succ_inj : succ a = succ b ↔ a = b := (Nat.succ.injEq a b).to_iff
 
-@[deprecated succ_inj (since := "2025-04-14")]
-theorem succ_inj' : succ a = succ b ↔ a = b := succ_inj
-
 theorem succ_le_succ_iff : succ a ≤ succ b ↔ a ≤ b := ⟨le_of_succ_le_succ, succ_le_succ⟩
 
 theorem succ_lt_succ_iff : succ a < succ b ↔ a < b := ⟨lt_of_succ_lt_succ, succ_lt_succ⟩

@@ -289,9 +289,6 @@ theorem extract_append_right {as bs : Array α} :
   · simp only [size_extract, size_replicate] at h₁ h₂
     simp only [getElem_extract, getElem_replicate]
 
-@[deprecated extract_replicate (since := "2025-03-18")]
-abbrev extract_mkArray := @extract_replicate
-
 theorem extract_eq_extract_right {as : Array α} {i j j' : Nat} :
     as.extract i j = as.extract i j' ↔ min (j - i) (as.size - i) = min (j' - i) (as.size - i) := by
   rcases as with ⟨as⟩
@@ -429,31 +426,19 @@ theorem popWhile_append {xs ys : Array α} :
     (replicate n a).takeWhile p = (replicate n a).filter p := by
   simp [← List.toArray_replicate]
 
-@[deprecated takeWhile_replicate_eq_filter (since := "2025-03-18")]
-abbrev takeWhile_mkArray_eq_filter := @takeWhile_replicate_eq_filter
-
 theorem takeWhile_replicate {p : α → Bool} :
     (replicate n a).takeWhile p = if p a then replicate n a else #[] := by
   simp [takeWhile_replicate_eq_filter, filter_replicate]
 
-@[deprecated takeWhile_replicate (since := "2025-03-18")]
-abbrev takeWhile_mkArray := @takeWhile_replicate
-
 @[simp] theorem popWhile_replicate_eq_filter_not {p : α → Bool} :
     (replicate n a).popWhile p = (replicate n a).filter (fun a => !p a) := by
   simp [← List.toArray_replicate, ← List.filter_reverse]
-
-@[deprecated popWhile_replicate_eq_filter_not (since := "2025-03-18")]
-abbrev popWhile_mkArray_eq_filter_not := @popWhile_replicate_eq_filter_not
 
 theorem popWhile_replicate {p : α → Bool} :
     (replicate n a).popWhile p = if p a then #[] else replicate n a := by
   simp only [popWhile_replicate_eq_filter_not, size_replicate, filter_replicate, Bool.not_eq_eq_eq_not,
     Bool.not_true]
   split <;> simp_all
-
-@[deprecated popWhile_replicate (since := "2025-03-18")]
-abbrev popWhile_mkArray := @popWhile_replicate
 
 theorem extract_takeWhile {as : Array α} {i : Nat} :
     (as.takeWhile p).extract 0 i = (as.extract 0 i).takeWhile p := by

@@ -294,7 +294,12 @@ hypotheses introduced during case analysis. If the proof is of the form `fun _ _
 -/
 private def getFalseProof? (mvarId : MVarId) : MetaM (Option Expr) := mvarId.withContext do
   let proof ← instantiateMVars (mkMVar mvarId)
-  go proof
+  if proof.hasSyntheticSorry then
+    /- **Note**: We do not perform non-chronological backtracking if the proof
+    contains synthetic `sorry`. -/
+    return none
+  else
+    go proof
 where
   go (proof : Expr) : MetaM (Option Expr) := do
     match_expr proof with
@@ -317,6 +322,7 @@ where
 private def isCompressibleSeq (seq : List (TSyntax `grind)) : Bool :=
   seq.all fun tac => match tac with
     | `(grind| next $_* => $_:grindSeq) => false
+    | `(grind| · $_:grindSeq) => false
     | _ => true
 
 /--
@@ -344,11 +350,25 @@ private def isCompressibleAlts (alts : Array (List (TSyntax `grind))) : Bool :=
   else
     true
 
+def isSorryAlt (alt : List (TSyntax `grind)) : Bool :=
+  match alt with
+  | [tac] => match tac with
+    | `(grind| sorry) => true
+    | _ => false
+  | _ => false
+
 private def mkCasesResultSeq (cases : TSyntax `grind) (alts : Array (List (TSyntax `grind)))
     (compress : Bool) : CoreM (List (TSyntax `grind)) := do
   if compress && isCompressibleAlts alts then
-    if h : alts.size > 0 then
-      return [(← mkCasesAndThen cases alts[0]!)]
+    if alts.size > 0 then
+      let firstAlt := alts[0]!
+      if isSorryAlt firstAlt then
+        /-
+        **Note**: It is a bit pointless to return a script of the form `cases #<anchor> <;> sorry`
+        -/
+        return firstAlt
+      else
+        return [(← mkCasesAndThen cases firstAlt)]
     else
       return [cases]
   else
@@ -444,7 +464,7 @@ def splitNext (stopAtFirstFailure := true) (compress := true) : Action := fun go
     | kna goal
   let cExpr := c.getExpr
   let gen := goal.getGeneration cExpr
-  let x : Action := splitCore c numCases isRec stopAtFirstFailure compress >> intros gen
+  let x : Action := splitCore c numCases isRec stopAtFirstFailure compress >> intros gen >> assertAll
   x goal kna kp
 
 end Action
@@ -503,7 +523,7 @@ Tries to perform a case-split using `c`. Returns `none` if `c` has already been 
 is not ready.
 -/
 def split? (c : SplitInfo) : SearchM (Option (List Goal × Nat)) := do
-  let .ready numCases isRec ← checkSplitStatus c | return none
+  let .ready numCases isRec _ ← checkSplitStatus c | return none
   let mvarId := (← getGoal).mvarId
   return some (← splitCore mvarId c numCases isRec)
 

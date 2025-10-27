@@ -69,6 +69,7 @@ public:
         m_start     = std::move(other.m_start);
         m_fn        = std::move(other.m_fn); // TODO: use `std::exchange(_, nullptr)` in C++14
         other.m_fn = nullptr;
+        return *this;
     }
     ~xtimeit() {
         if (!m_fn) return;

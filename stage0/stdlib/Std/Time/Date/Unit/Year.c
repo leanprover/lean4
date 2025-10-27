@@ -49,7 +49,7 @@ static lean_object* l_Std_Time_Year_Offset_days___closed__6;
 LEAN_EXPORT lean_object* l_Std_Time_Year_instToStringOffset;
 static lean_object* l_Std_Time_Year_instReprEra_repr___closed__2;
 LEAN_EXPORT lean_object* l_Std_Time_Year_instLEOffset;
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Year_Offset_weeks_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_Year_Offset_weeks_spec__0(lean_object*);
 static lean_object* l_Std_Time_Year_Offset_days___closed__9;
 LEAN_EXPORT uint8_t l_Std_Time_Year_Offset_isLeap(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Year_Offset_isLeap___boxed(lean_object*);
@@ -1122,7 +1122,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Year_Offset_weeks_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_Year_Offset_weeks_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -1250,13 +1250,13 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Std_Time_Date_Unit_Month(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Time_Date_Unit_Month(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Time_Date_Unit_Year(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Time_Date_Unit_Year(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Time_Date_Unit_Month(builtin, lean_io_mk_world());
+res = initialize_Std_Time_Date_Unit_Month(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Time_Year_instReprEra_repr___closed__0 = _init_l_Std_Time_Year_instReprEra_repr___closed__0();

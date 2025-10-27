@@ -59,28 +59,6 @@ declare_int_theorems Int32 32
 declare_int_theorems Int64 64
 declare_int_theorems ISize System.Platform.numBits
 
-@[deprecated Int8.le_iff_toBitVec_sle (since := "2025-03-20")]
-theorem Int8.le_def {a b : Int8} : a ≤ b ↔ a.toBitVec.sle b.toBitVec := Iff.rfl
-@[deprecated Int16.le_iff_toBitVec_sle (since := "2025-03-20")]
-theorem Int16.le_def {a b : Int16} : a ≤ b ↔ a.toBitVec.sle b.toBitVec := Iff.rfl
-@[deprecated Int32.le_iff_toBitVec_sle (since := "2025-03-20")]
-theorem Int32.le_def {a b : Int32} : a ≤ b ↔ a.toBitVec.sle b.toBitVec := Iff.rfl
-@[deprecated Int64.le_iff_toBitVec_sle (since := "2025-03-20")]
-theorem Int64.le_def {a b : Int64} : a ≤ b ↔ a.toBitVec.sle b.toBitVec := Iff.rfl
-@[deprecated ISize.le_iff_toBitVec_sle (since := "2025-03-20")]
-theorem ISize.le_def {a b : ISize} : a ≤ b ↔ a.toBitVec.sle b.toBitVec := Iff.rfl
-
-@[deprecated Int8.lt_iff_toBitVec_slt (since := "2025-03-20")]
-theorem Int8.lt_def {a b : Int8} : a < b ↔ a.toBitVec.slt b.toBitVec := Iff.rfl
-@[deprecated Int16.lt_iff_toBitVec_slt (since := "2025-03-20")]
-theorem Int16.lt_def {a b : Int16} : a < b ↔ a.toBitVec.slt b.toBitVec := Iff.rfl
-@[deprecated Int32.lt_iff_toBitVec_slt (since := "2025-03-20")]
-theorem Int32.lt_def {a b : Int32} : a < b ↔ a.toBitVec.slt b.toBitVec := Iff.rfl
-@[deprecated Int64.lt_iff_toBitVec_slt (since := "2025-03-20")]
-theorem Int64.lt_def {a b : Int64} : a < b ↔ a.toBitVec.slt b.toBitVec := Iff.rfl
-@[deprecated ISize.lt_iff_toBitVec_slt (since := "2025-03-20")]
-theorem ISize.lt_def {a b : ISize} : a < b ↔ a.toBitVec.slt b.toBitVec := Iff.rfl
-
 theorem Int8.toInt.inj {x y : Int8} (h : x.toInt = y.toInt) : x = y := Int8.toBitVec.inj (BitVec.eq_of_toInt_eq h)
 theorem Int8.toInt_inj {x y : Int8} : x.toInt = y.toInt ↔ x = y := ⟨Int8.toInt.inj, fun h => h ▸ rfl⟩
 theorem Int16.toInt.inj {x y : Int16} (h : x.toInt = y.toInt) : x = y := Int16.toBitVec.inj (BitVec.eq_of_toInt_eq h)

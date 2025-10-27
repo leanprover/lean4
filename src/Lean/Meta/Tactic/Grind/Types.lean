@@ -640,6 +640,17 @@ We want to avoid instantiating the same theorem with the same assignment more th
 Therefore, we store the (pre-)instance information in set.
 Recall that the proofs of activated theorems have been hash-consed.
 The assignment contains internalized expressions, which have also been hash-consed.
+
+**Note**: We used to use pointer equality to implement `PreInstanceSet`. However,
+this low-level trick was incorrect in interactive mode because we add new
+`EMatchTheorem` objects using `instantiate [...]`. For example, suppose we write
+```
+instantiate [thm_1]; instantiate [thm_1]
+```
+The `EMatchTheorem` object `thm_1` is created twice. Using pointer equality will
+miss instances created using the two different objects. Recall we do not use
+hash-consing on proof objects. If we hash-cons the proof objects, it would be ok
+to use pointer equality.
 -/
 structure PreInstance where
   proof      : Expr
@@ -647,14 +658,14 @@ structure PreInstance where
 
 instance : Hashable PreInstance where
   hash i := Id.run do
-    let mut r := hashPtrExpr i.proof
+    let mut r := hash i.proof -- **Note**: See note at `PreInstance`.
     for v in i.assignment do
       r := mixHash r (hashPtrExpr v)
     return r
 
 instance : BEq PreInstance where
   beq i₁ i₂ := Id.run do
-    unless isSameExpr i₁.proof i₂.proof do return false
+    unless i₁.proof == i₂.proof do return false -- **Note**: See note at `PreInstance`.
     unless i₁.assignment.size == i₂.assignment.size do return false
     for v₁ in i₁.assignment, v₂ in i₂.assignment do
       unless isSameExpr v₁ v₂ do return false

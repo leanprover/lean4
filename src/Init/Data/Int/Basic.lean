@@ -369,9 +369,6 @@ def toNat? : Int → Option Nat
   | (n : Nat) => some n
   | -[_+1] => none
 
-@[deprecated toNat? (since := "2025-03-11"), inherit_doc toNat?]
-abbrev toNat' := toNat?
-
 /-! ## divisibility -/
 
 /--

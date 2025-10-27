@@ -1087,7 +1087,7 @@ def getModifiersForLetRecs (mainHeaders : Array DefViewElabHeader) : Modifiers :
     if mainHeaders.any (·.modifiers.isNoncomputable) then .noncomputable
     else if mainHeaders.any (·.modifiers.isMeta) then .meta
     else .regular
-  recKind     := if mainHeaders.any fun h => h.modifiers.isInferredPartial then RecKind.partial else RecKind.default
+  recKind     := if mainHeaders.any fun h => h.modifiers.isPartial then RecKind.partial else RecKind.default
   isUnsafe    := mainHeaders.any fun h => h.modifiers.isUnsafe
 }
 

@@ -46,10 +46,6 @@ Try to use the Boolean comparisons `Option.isNone` or `Option.isSome` instead.
 @[inline] def decidableEqNone {o : Option α} : Decidable (o = none) :=
   decidable_of_decidable_of_iff isNone_iff_eq_none
 
-@[deprecated decidableEqNone (since := "2025-04-10"), inline]
-def decidable_eq_none {o : Option α} : Decidable (o = none) :=
-  decidableEqNone
-
 instance decidableForallMem {p : α → Prop} [DecidablePred p] :
     ∀ o : Option α, Decidable (∀ a, a ∈ o → p a)
   | none => isTrue nofun

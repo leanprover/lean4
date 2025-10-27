@@ -13,33 +13,33 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Lean_Widget_InteractiveCode(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Widget_InteractiveDiagnostic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Widget_InteractiveGoal(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Widget_TaggedText(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Widget_UserWidget(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Widget_Commands(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Widget_InteractiveCode(uint8_t builtin);
+lean_object* initialize_Lean_Widget_InteractiveDiagnostic(uint8_t builtin);
+lean_object* initialize_Lean_Widget_InteractiveGoal(uint8_t builtin);
+lean_object* initialize_Lean_Widget_TaggedText(uint8_t builtin);
+lean_object* initialize_Lean_Widget_UserWidget(uint8_t builtin);
+lean_object* initialize_Lean_Widget_Commands(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Widget(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Widget(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Widget_InteractiveCode(builtin, lean_io_mk_world());
+res = initialize_Lean_Widget_InteractiveCode(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Widget_InteractiveDiagnostic(builtin, lean_io_mk_world());
+res = initialize_Lean_Widget_InteractiveDiagnostic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Widget_InteractiveGoal(builtin, lean_io_mk_world());
+res = initialize_Lean_Widget_InteractiveGoal(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Widget_TaggedText(builtin, lean_io_mk_world());
+res = initialize_Lean_Widget_TaggedText(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Widget_UserWidget(builtin, lean_io_mk_world());
+res = initialize_Lean_Widget_UserWidget(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Widget_Commands(builtin, lean_io_mk_world());
+res = initialize_Lean_Widget_Commands(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

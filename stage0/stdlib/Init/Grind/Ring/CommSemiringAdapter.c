@@ -58,7 +58,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_denoteSInt___redArg(lean_object*,
 lean_object* l_Lean_Grind_Ring_OfSemiring_add___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Expr_denoteSAsRing(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_CommRing_Expr_toPolyS___closed__0;
-LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_Grind_CommRing_Expr_toPolyS_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_Grind_CommRing_Expr_toPolyS_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Poly_denoteS(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Grind_CommRing_Poly_pow(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ring_CommSemiringAdapter_0__Lean_Grind_CommRing_Expr_toPolyS_match__3_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -484,7 +484,7 @@ x_12 = l___private_Init_Grind_Ring_CommSemiringAdapter_0__Lean_Grind_CommRing_Ex
 return x_12;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_Grind_CommRing_Expr_toPolyS_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_Grind_CommRing_Expr_toPolyS_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -1328,17 +1328,17 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* initialize_Init_Grind_Ring_Envelope(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Ring_CommSolver(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Ring_Envelope(uint8_t builtin);
+lean_object* initialize_Init_Grind_Ring_CommSolver(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Grind_Ring_CommSemiringAdapter(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Grind_Ring_CommSemiringAdapter(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Grind_Ring_Envelope(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Ring_Envelope(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ring_CommSolver(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Ring_CommSolver(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Grind_CommRing_Expr_toPolyS___closed__0 = _init_l_Lean_Grind_CommRing_Expr_toPolyS___closed__0();

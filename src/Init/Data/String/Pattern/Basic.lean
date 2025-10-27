@@ -38,7 +38,7 @@ inductive SearchStep (s : Slice) where
   The subslice starting at {name}`startPos` and ending at {name}`endPos` did not match the pattern.
   -/
   | matched (startPos endPos : s.Pos)
-deriving Inhabited
+deriving Inhabited, BEq
 
 /--
 Provides a conversion from a pattern to an iterator of {name}`SearchStep` that searches for matches

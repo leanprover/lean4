@@ -82,7 +82,7 @@ def toListModel : Impl α β → List ((a : α) × β a)
   Computes the size of the tree. Used for verification of iterators.
 -/
 def treeSize : Internal.Impl α β → Nat
-| .leaf => 0
-| .inner _ _ _ l r => 1 + l.treeSize + treeSize r
+  | .leaf => 0
+  | .inner _ _ _ l r => 1 + l.treeSize + treeSize r
 
 end Std.DTreeMap.Internal.Impl

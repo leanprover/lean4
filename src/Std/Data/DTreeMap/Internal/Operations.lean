@@ -516,32 +516,6 @@ def insertMany! [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Imp
 ## Operations for verification of iterators and slices
 -/
 
-/--
-  Removes all elements with key less than or equal to `lowerBound`.
-  Does not modify size information stored in the tree.
--/
-def pruneLE {α β} [Ord α] (t : Internal.Impl α β) (lowerBound : α) : Internal.Impl α β :=
-  match t with
-  | .leaf => .leaf
-  | .inner sz k v l r =>
-    match compare lowerBound k with
-    | .lt => .inner sz k v (l.pruneLE lowerBound) r
-    | .eq => .inner sz k v .leaf r
-    | .gt => r.pruneLE lowerBound
-
-/--
-  Removes all elements with key less than to `lowerBound`.
-  Does not modify size information stored in the tree.
--/
-def pruneLT {α β} [Ord α] (t : Internal.Impl α β) (lowerBound : α) : Internal.Impl α β :=
-  match t with
-  | .leaf => .leaf
-  | .inner sz k v l r =>
-    match compare lowerBound k with
-    | .lt => .inner sz k v (l.pruneLT lowerBound) r
-    | .eq => r
-    | .gt => r.pruneLT lowerBound
-
 namespace Const
 
 variable {β : Type v}

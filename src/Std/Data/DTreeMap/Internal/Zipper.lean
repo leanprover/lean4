@@ -11,6 +11,150 @@ public import Init.Data.Slice
 public import Std.Data.DTreeMap.Internal.Lemmas
 
 namespace Std.DTreeMap.Internal
+
+namespace Impl
+/--
+  Removes all elements with key less than or equal to `lowerBound`.
+
+  Does not modify size information stored in the tree.
+-/
+def pruneLE {α β} [Ord α] (t : Internal.Impl α β) (lowerBound : α) : Internal.Impl α β :=
+  match t with
+  | .leaf => .leaf
+  | .inner sz k v l r =>
+    match compare lowerBound k with
+    | .lt => .inner sz k v (l.pruneLE lowerBound) r
+    | .eq => .inner sz k v .leaf r
+    | .gt => r.pruneLE lowerBound
+
+/--
+  Removes all elements with key less than to `lowerBound`.
+
+  Does not modify size information stored in the tree.
+-/
+def pruneLT {α β} [Ord α] (t : Internal.Impl α β) (lowerBound : α) : Internal.Impl α β :=
+  match t with
+  | .leaf => .leaf
+  | .inner sz k v l r =>
+    match compare lowerBound k with
+    | .lt => .inner sz k v (l.pruneLT lowerBound) r
+    | .eq => r
+    | .gt => r.pruneLT lowerBound
+
+theorem pruneLE_eq_filter {α β} [Ord α] [TransOrd α] (t : Internal.Impl α β) (ord_t : t.Ordered) (lowerBound : α) :
+    (t.pruneLE lowerBound).toList = t.toList.filter (fun e => (compare e.fst lowerBound).isGE) := by
+  induction t
+  case leaf =>
+    simp only [pruneLE, toList_eq_toListModel, toListModel_leaf, List.filter_nil]
+  case inner _ k v l r l_ih r_ih =>
+    simp only [pruneLE, toList_eq_toListModel, toListModel_inner, List.filter_append]
+    generalize heq : compare lowerBound k = x
+    cases x
+    case lt =>
+      simp only [toListModel_inner]
+      specialize l_ih (Internal.Impl.Ordered.left ord_t)
+      rw [toList_eq_toListModel] at l_ih
+      simp only [l_ih, toList_eq_toListModel, List.filter, List.append_cancel_left_eq]
+      rw [OrientedOrd.eq_swap, Ordering.swap_eq_lt] at heq
+      simp only [heq, Ordering.isGE_gt, List.cons.injEq, true_and]
+      symm
+      apply List.filter_eq_self.2
+      intro a mem
+      apply Ordering.isGE_of_eq_gt
+      apply TransCmp.gt_trans ?_ heq
+      rw [OrientedOrd.eq_swap, Ordering.swap_eq_gt]
+      exact Internal.Impl.Ordered.compare_right ord_t mem
+    case eq =>
+      simp only [toListModel_inner, toListModel_leaf, List.nil_append, List.filter]
+      rw [OrientedCmp.eq_comm] at heq
+      simp only [heq, Ordering.isGE_eq]
+      suffices new_goal : List.filter (fun e => (compare e.fst lowerBound).isGE) l.toListModel = [] from by
+        simp only [new_goal, List.nil_append, List.cons.injEq, true_and]
+        symm
+        apply List.filter_eq_self.2
+        intro a mem
+        apply Ordering.isGE_of_eq_gt
+        apply TransCmp.gt_of_gt_of_eq ?_ heq
+        rw [OrientedOrd.eq_swap, Ordering.swap_eq_gt]
+        apply Internal.Impl.Ordered.compare_right ord_t mem
+      rw [List.filter_eq_nil_iff]
+      intro a mem
+      simp only [Bool.not_eq_true, Ordering.isGE_eq_false]
+      exact TransCmp.lt_of_lt_of_eq (Internal.Impl.Ordered.compare_left ord_t mem) heq
+    case gt =>
+      simp only [List.filter]
+      rw [OrientedOrd.eq_swap, Ordering.swap_eq_gt] at heq
+      rw [heq]
+      simp
+      suffices new_goal : List.filter (fun e => (compare e.fst lowerBound).isGE) l.toListModel = [] from by
+        simp only [new_goal, List.nil_append]
+        simp only [toList_eq_toListModel] at r_ih
+        apply r_ih
+        exact Internal.Impl.Ordered.right ord_t
+      rw [List.filter_eq_nil_iff]
+      intro a mem
+      simp only [Bool.not_eq_true, Ordering.isGE_eq_false]
+      exact TransCmp.lt_trans (Internal.Impl.Ordered.compare_left ord_t mem) heq
+
+theorem pruneLT_eq_filter {α β} [Ord α] [TransOrd α] (t : Internal.Impl α β) (ord_t : t.Ordered) (lowerBound : α) :
+    (t.pruneLT lowerBound).toList = t.toList.filter (fun e => (compare e.fst lowerBound).isGT) := by
+  induction t
+  case leaf =>
+    simp only [pruneLT, toList_eq_toListModel, toListModel_leaf, List.filter_nil]
+  case inner _ k v l r l_ih r_ih =>
+    simp only [pruneLT, toList_eq_toListModel, toListModel_inner, List.filter_append]
+    generalize heq : compare lowerBound k = x
+    cases x
+    case lt =>
+      simp
+      specialize l_ih (Internal.Impl.Ordered.left ord_t)
+      rw [toList_eq_toListModel] at l_ih
+      simp only [l_ih, toList_eq_toListModel, List.filter, List.append_cancel_left_eq]
+      rw [OrientedOrd.eq_swap, Ordering.swap_eq_lt] at heq
+      simp only [heq, Ordering.isGT_gt, List.cons.injEq, true_and]
+      symm
+      apply List.filter_eq_self.2
+      intro a mem
+      rw [Ordering.isGT_iff_eq_gt]
+      apply TransCmp.gt_trans ?_ heq
+      rw [OrientedOrd.eq_swap, Ordering.swap_eq_gt]
+      exact Internal.Impl.Ordered.compare_right ord_t mem
+    case eq =>
+      simp only [List.filter]
+      rw [OrientedCmp.eq_comm] at heq
+      rw [heq]
+      suffices new_goal : List.filter (fun e => (compare e.fst lowerBound).isGT) l.toListModel = [] ∧
+          List.filter (fun e => (compare e.fst lowerBound).isGT) r.toListModel = r.toListModel from by
+        simp only [new_goal, Ordering.isGT_eq, List.nil_append]
+      apply And.intro
+      . rw [List.filter_eq_nil_iff]
+        intro a mem
+        simp only [Ordering.isGT_iff_eq_gt, ← Ordering.isLE_iff_ne_gt]
+        apply TransOrd.isLE_trans _ (Ordering.isLE_of_eq_eq heq)
+        apply Ordering.isLE_of_eq_lt
+        exact Internal.Impl.Ordered.compare_left ord_t mem
+      . apply List.filter_eq_self.2
+        intro a mem
+        rw [Ordering.isGT_iff_eq_gt]
+        apply TransCmp.gt_of_gt_of_eq ?_ heq
+        rw [OrientedOrd.eq_swap, Ordering.swap_eq_gt]
+        exact Internal.Impl.Ordered.compare_right ord_t mem
+    case gt =>
+      simp only [List.filter]
+      rw [OrientedOrd.eq_swap] at heq
+      rw [Ordering.swap_eq_gt] at heq
+      simp only [heq, Ordering.isGT_lt]
+      specialize r_ih (Ordered.right ord_t)
+      rw [toList_eq_toListModel] at r_ih
+      simp only [r_ih, toList_eq_toListModel, List.self_eq_append_left, List.filter_eq_nil_iff,
+        Ordering.isGT_iff_eq_gt]
+      intro a mem
+      rw [← Ordering.isLE_iff_ne_gt]
+      apply Ordering.isLE_of_eq_lt
+      exact TransCmp.lt_trans (Internal.Impl.Ordered.compare_left ord_t mem) heq
+
+end Impl
+
 open Std.Iterators
 
 section Zipper

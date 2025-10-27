@@ -15,15 +15,18 @@ public instance {α : Type u} {β : α → Type v}
     Rii.Sliceable (DTreeMap α β cmp) α (Internal.RiiSlice α β) where
   mkSlice carrier range := ⟨carrier.inner, range⟩
 
-public theorem toList_rii {α : Type u} {β : α → Type v} [Ord α] {t : DTreeMap α β compare} : t[*...*].toList = t.toList := by
+@[simp] public theorem toList_rii {α : Type u} {β : α → Type v}
+    [Ord α] {t : DTreeMap α β compare} : t[*...*].toList = t.toList := by
   apply Internal.toList_rii
 
-public instance {α : Type u} {β : α → Type v} [Ord α] (cmp : α → α → Ordering := by exact compare) :
+public instance {α : Type u} {β : α → Type v}
+    [Ord α] (cmp : α → α → Ordering := by exact compare) :
     Ric.Sliceable (DTreeMap α β cmp) α (Internal.RicSlice α β) where
   mkSlice carrier range := ⟨carrier.inner, range⟩
 
-public theorem toList_ric {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {t : DTreeMap α β compare} {bound : α} :
-  t[*...=bound].toList = t.toList.filter (fun e => (compare e.fst bound).isLE) := by
+@[simp] public theorem toList_ric {α : Type u} {β : α → Type v} [Ord α] [TransOrd α]
+    {t : DTreeMap α β compare} {bound : α} : t[*...=bound].toList =
+      t.toList.filter (fun e => (compare e.fst bound).isLE) := by
   apply Internal.toList_ric
   . exact t.wf.ordered
 
@@ -31,8 +34,9 @@ public instance {α : Type u} {β : α → Type v} [Ord α] (cmp : α → α →
     Rio.Sliceable (DTreeMap α β cmp) α (Internal.RioSlice α β) where
   mkSlice carrier range := ⟨carrier.inner, range⟩
 
-public theorem toList_rio {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {t : DTreeMap α β compare} {bound : α} :
-  t[*...<bound].toList = t.toList.filter (fun e => (compare e.fst bound).isLT) := by
+@[simp] public theorem toList_rio {α : Type u} {β : α → Type v} [Ord α] [TransOrd α]
+    {t : DTreeMap α β compare} {bound : α} : t[*...<bound].toList =
+      t.toList.filter (fun e => (compare e.fst bound).isLT) := by
   apply Internal.toList_rio
   . exact t.wf.ordered
 
@@ -40,8 +44,9 @@ public instance {α : Type u} {β : α → Type v} [Ord α] (cmp : α → α →
     Rci.Sliceable (DTreeMap α β cmp) α (Internal.RciSlice α β) where
   mkSlice carrier range := ⟨carrier.inner, range⟩
 
-public theorem toList_rci {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {t : DTreeMap α β compare} {bound : α} :
-  t[bound...*].toList = t.toList.filter (fun e => (compare e.fst bound).isGE) := by
+@[simp] public theorem toList_rci {α : Type u} {β : α → Type v} [Ord α] [TransOrd α]
+    {t : DTreeMap α β compare} {bound : α} : t[bound...*].toList =
+      t.toList.filter (fun e => (compare e.fst bound).isGE) := by
   apply Internal.toList_rci
   . exact t.wf.ordered
 
@@ -49,8 +54,10 @@ public instance {α : Type u} {β : α → Type v} [Ord α] (cmp : α → α →
     Rco.Sliceable (DTreeMap α β cmp) α (Internal.RcoSlice α β) where
   mkSlice carrier range := ⟨carrier.inner, range⟩
 
-public theorem toList_rco {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {t : DTreeMap α β compare} {lower_bound upper_bound : α} :
-  t[lower_bound...<upper_bound].toList = t.toList.filter (fun e => (compare e.fst lower_bound).isGE ∧ (compare e.fst upper_bound).isLT) := by
+@[simp] public theorem toList_rco {α : Type u} {β : α → Type v} [Ord α] [TransOrd α]
+  {t : DTreeMap α β compare} {lower_bound upper_bound : α} :
+  t[lower_bound...<upper_bound].toList =
+    t.toList.filter (fun e => (compare e.fst lower_bound).isGE ∧ (compare e.fst upper_bound).isLT) := by
   apply Internal.toList_rco
   . exact t.wf.ordered
 
@@ -58,8 +65,8 @@ public instance {α : Type u} {β : α → Type v} [Ord α] (cmp : α → α →
     Rcc.Sliceable (DTreeMap α β cmp) α (Internal.RccSlice α β) where
   mkSlice carrier range := ⟨carrier.inner, range⟩
 
-public theorem toList_rcc {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {t : DTreeMap α β compare} {lower_bound upper_bound : α} :
-  t[lower_bound...=upper_bound].toList =
+@[simp] public theorem toList_rcc {α : Type u} {β : α → Type v} [Ord α] [TransOrd α]
+    {t : DTreeMap α β compare} {lower_bound upper_bound : α} : t[lower_bound...=upper_bound].toList =
     t.toList.filter (fun e => (compare e.fst lower_bound).isGE ∧ (compare e.fst upper_bound).isLE) := by
   apply Internal.toList_rcc
   . exact t.wf.ordered
@@ -68,9 +75,9 @@ public instance {α : Type u} {β : α → Type v} [Ord α] (cmp : α → α →
     Roi.Sliceable (DTreeMap α β cmp) α (Internal.RoiSlice α β) where
   mkSlice carrier range := ⟨carrier.inner, range⟩
 
-public theorem toList_roi {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {t : DTreeMap α β compare} {bound: α} :
-  t[bound<...*].toList =
-    t.toList.filter (fun e => (compare e.fst bound).isGT) := by
+@[simp] public theorem toList_roi {α : Type u} {β : α → Type v} [Ord α] [TransOrd α]
+    {t : DTreeMap α β compare} {bound : α} :t[bound<...*].toList =
+      t.toList.filter (fun e => (compare e.fst bound).isGT) := by
   apply Internal.toList_roi
   . exact t.wf.ordered
 
@@ -78,9 +85,10 @@ public instance {α : Type u} {β : α → Type v} [Ord α] (cmp : α → α →
     Roc.Sliceable (DTreeMap α β cmp) α (Internal.RocSlice α β) where
   mkSlice carrier range := ⟨carrier.inner, range⟩
 
-public theorem toList_roc {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {t : DTreeMap α β compare} {lower_bound upper_bound : α} :
-  t[lower_bound<...=upper_bound].toList =
-    t.toList.filter (fun e => (compare e.fst lower_bound).isGT ∧ (compare e.fst upper_bound).isLE) := by
+@[simp] public theorem toList_roc {α : Type u} {β : α → Type v} [Ord α] [TransOrd α]
+    {t : DTreeMap α β compare} {lower_bound upper_bound : α} :
+    t[lower_bound<...=upper_bound].toList =
+      t.toList.filter (fun e => (compare e.fst lower_bound).isGT ∧ (compare e.fst upper_bound).isLE) := by
   apply Internal.toList_roc
   . exact t.wf.ordered
 
@@ -88,9 +96,9 @@ public instance {α : Type u} {β : α → Type v} [Ord α] (cmp : α → α →
     Roo.Sliceable (DTreeMap α β cmp) α (Internal.RooSlice α β) where
   mkSlice carrier range := ⟨carrier.inner, range⟩
 
-public theorem toList_roo {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {t : DTreeMap α β compare} {lower_bound upper_bound : α} :
-  t[lower_bound<...upper_bound].toList =
-    t.toList.filter (fun e => (compare e.fst lower_bound).isGT ∧ (compare e.fst upper_bound).isLT) := by
+@[simp] public theorem toList_roo {α : Type u} {β : α → Type v} [Ord α] [TransOrd α]
+    {t : DTreeMap α β compare} {lower_bound upper_bound : α} : t[lower_bound<...upper_bound].toList =
+      t.toList.filter (fun e => (compare e.fst lower_bound).isGT ∧ (compare e.fst upper_bound).isLT) := by
   apply Internal.toList_roo
   . exact t.wf.ordered
 

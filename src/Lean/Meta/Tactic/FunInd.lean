@@ -347,6 +347,8 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
     if e.getAppArgs.any (·.isFVarOf oldIH) then
       -- Sometimes Fix.lean abstracts over oldIH in a proof definition.
       -- So beta-reduce that definition. We need to look through theorems here!
+      if e.isHeadBetaTarget then
+        return ← foldAndCollect oldIH newIH isRecCall e.headBeta
       if let some e' ← withTransparency .all do unfoldDefinition? e then
         return ← foldAndCollect oldIH newIH isRecCall e'
       else

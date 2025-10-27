@@ -158,6 +158,7 @@ end Impl
 open Std.Iterators
 
 section Zipper
+
 public inductive Zipper (α : Type u) (β : α → Type v) where
   | done
   | cons (k : α) (v : β k) (tree : Impl α β) (next : Zipper α β)
@@ -529,6 +530,7 @@ theorem Zipper.val_step_map_Zipper_eq_match {α β γ} {f : (a : α) × β a →
 end Zipper
 
 section Rxc
+
 public structure RxcIterator (α : Type u) (β : α → Type v) [Ord α] where
   iter : Zipper α β
   upper : α
@@ -630,7 +632,7 @@ public theorem val_step_rxcIterator_eq_match {α β} [Ord α]
   · simp only [IterM.Step.toPure, IterStep.mapIterator, Id.run]
   · split <;> simp only [IterM.Step.toPure, IterM.toIter, IterStep.mapIterator, Id.run]
 
-public theorem toList_rxcIter {α β} [Ord α]
+theorem toList_rxcIter {α β} [Ord α]
     {z : Zipper α β} {bound : α} :
     (⟨RxcIterator.mk z bound⟩ : Iter (Sigma β)).toList =
       z.toList.takeWhile (fun e => (compare e.fst bound).isLE) := by
@@ -651,7 +653,7 @@ termination_by z.size
 decreasing_by
   simp_all [Zipper.size, Zipper.prependMap_size]
 
-public theorem toList_eq_takeWhile_list {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {bound : α} {l : List ((a : α) × β a)}
+theorem toList_eq_takeWhile_list {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {bound : α} {l : List ((a : α) × β a)}
     {l_ordered : l.Pairwise (fun a b => compare a.1 b.1 = .lt)} :
   l.takeWhile (fun e => (compare e.fst bound).isLE) = l.filter (fun e => (compare e.fst bound).isLE) := by
     induction l
@@ -787,7 +789,7 @@ public theorem val_step_rxoIterator_eq_match {α β} [Ord α]
   · simp only [IterM.Step.toPure, IterStep.mapIterator, Id.run]
   · split <;> simp only [IterM.Step.toPure, IterM.toIter, IterStep.mapIterator, Id.run]
 
-public theorem toList_rxoIter {α β} [Ord α]
+theorem toList_rxoIter {α β} [Ord α]
     {z : Zipper α β} {bound : α} :
     (⟨RxoIterator.mk z bound⟩ : Iter (Sigma β)).toList =
       z.toList.takeWhile (fun e => (compare e.fst bound).isLT) := by
@@ -808,7 +810,7 @@ termination_by z.size
 decreasing_by
   simp_all [Zipper.size, Zipper.prependMap_size]
 
-public theorem toList_eq_takeWhile_list_LT {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {bound : α} {l : List ((a : α) × β a)}
+theorem toList_eq_takeWhile_list_LT {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {bound : α} {l : List ((a : α) × β a)}
     {l_ordered : l.Pairwise (fun a b => compare a.1 b.1 = .lt)} :
   l.takeWhile (fun e => (compare e.fst bound).isLT) = l.filter (fun e => (compare e.fst bound).isLT) := by
     induction l
@@ -844,6 +846,7 @@ public theorem toList_eq_takeWhile_LT {α β} [Ord α] [TransOrd α] {z : Zipper
 end Rxo
 
 section Ric
+
 public structure RicSliceData (α : Type u) (β : α → Type v) [Ord α] where
   treeMap : Impl α β
   range : Ric α
@@ -870,6 +873,7 @@ public theorem toList_ric {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
 end Ric
 
 section Rio
+
 public structure RioSliceData (α : Type u) (β : α → Type v) [Ord α] where
   treeMap : Impl α β
   range : Rio α
@@ -901,7 +905,7 @@ section Rcc
 public def RccIterator [Ord α] (t : Impl α β) (lowerBound : α) (upperBound : α)  : Iter (α := RxcIterator α β) ((a : α) × β a) :=
   ⟨RxcIterator.mk (Zipper.prependMapGE t lowerBound .done) upperBound⟩
 
-public theorem toList_rccIter {α β} [Ord α] [TransOrd α]
+theorem toList_rccIter {α β} [Ord α] [TransOrd α]
     {t : Impl α β} {t_ord : t.Ordered} {lowerBound upperBound : α} :
     (RccIterator t lowerBound upperBound : Iter (Sigma β)).toList =
       t.toList.filter (fun e => (compare e.fst lowerBound).isGE ∧ (compare e.fst upperBound).isLE) := by
@@ -958,7 +962,7 @@ section Rco
 public def RcoIterator [Ord α] (t : Impl α β) (lowerBound : α) (upperBound : α)  : Iter (α := RxoIterator α β) ((a : α) × β a) :=
   ⟨RxoIterator.mk (Zipper.prependMapGE t lowerBound .done) upperBound⟩
 
-public theorem toList_rcoIter {α β} [Ord α] [TransOrd α]
+theorem toList_rcoIter {α β} [Ord α] [TransOrd α]
     {t : Impl α β} {t_ord : t.Ordered} {lowerBound upperBound : α} :
     (RcoIterator t lowerBound upperBound : Iter (Sigma β)).toList =
       t.toList.filter (fun e => (compare e.fst lowerBound).isGE ∧ (compare e.fst upperBound).isLT) := by
@@ -1010,11 +1014,12 @@ public theorem toList_rco {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
 end Rco
 
 section Roo
+
 @[always_inline]
 public def RooIterator [Ord α] (t : Impl α β) (lowerBound : α) (upperBound : α)  : Iter (α := RxoIterator α β) ((a : α) × β a) :=
   ⟨RxoIterator.mk (Zipper.prependMapGT t lowerBound .done) upperBound⟩
 
-public theorem toList_rooIter {α β} [Ord α] [TransOrd α]
+theorem toList_rooIter {α β} [Ord α] [TransOrd α]
     {t : Impl α β} {t_ord : t.Ordered} {lowerBound upperBound : α} :
     (RooIterator t lowerBound upperBound : Iter (Sigma β)).toList =
       t.toList.filter (fun e => (compare e.fst lowerBound).isGT ∧ (compare e.fst upperBound).isLT) := by
@@ -1066,11 +1071,12 @@ public theorem toList_roo {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
 end Roo
 
 section Roc
+
 @[always_inline]
 public def RocIterator [Ord α] (t : Impl α β) (lowerBound : α) (upperBound : α)  : Iter (α := RxcIterator α β) ((a : α) × β a) :=
   ⟨RxcIterator.mk (Zipper.prependMapGT t lowerBound .done) upperBound⟩
 
-public theorem toList_rocIter {α β} [Ord α] [TransOrd α]
+theorem toList_rocIter {α β} [Ord α] [TransOrd α]
     {t : Impl α β} {t_ord : t.Ordered} {lowerBound upperBound : α} :
     (RocIterator t lowerBound upperBound : Iter (Sigma β)).toList =
       t.toList.filter (fun e => (compare e.fst lowerBound).isGT ∧ (compare e.fst upperBound).isLE) := by
@@ -1122,11 +1128,12 @@ public theorem toList_roc {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
 end Roc
 
 section Rci
+
 @[always_inline]
 public def RciIterator [Ord α] (t : Impl α β) (lowerBound : α) : Iter (α := Zipper α β) ((a : α) × β a) :=
   ⟨Zipper.prependMapGE t lowerBound .done⟩
 
-public theorem toList_rciIter {α β} [Ord α] [TransOrd α]
+theorem toList_rciIter {α β} [Ord α] [TransOrd α]
     {t : Impl α β} {t_ord : t.Ordered} {lowerBound : α} :
     (RciIterator t lowerBound : Iter (Sigma β)).toList =
       t.toList.filter (fun e => (compare e.fst lowerBound).isGE) := by
@@ -1163,11 +1170,12 @@ public theorem toList_rci {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
 end Rci
 
 section Roi
+
 @[always_inline]
 public def RoiIterator [Ord α] (t : Impl α β) (lowerBound : α) : Iter (α := Zipper α β) ((a : α) × β a) :=
   ⟨Zipper.prependMapGT t lowerBound .done⟩
 
-public theorem toList_roiIter {α β} [Ord α] [TransOrd α]
+theorem toList_roiIter {α β} [Ord α] [TransOrd α]
     {t : Impl α β} {t_ord : t.Ordered} {lowerBound : α} :
     (RoiIterator t lowerBound : Iter (Sigma β)).toList =
       t.toList.filter (fun e => (compare e.fst lowerBound).isGT) := by
@@ -1208,7 +1216,7 @@ section Rii
 public def RiiIterator (t : Impl α β) : Iter (α := Zipper α β) ((a : α) × β a) :=
   ⟨Zipper.prependMap t .done⟩
 
-public theorem toList_riiIter {α β}
+theorem toList_riiIter {α β}
     {t : Impl α β} :
     (RiiIterator t : Iter (Sigma β)).toList =
       t.toList := by

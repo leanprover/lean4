@@ -19,85 +19,83 @@ public instance {α : Type u} {β : α → Type v}
   mkSlice carrier range := ⟨carrier.inner, range⟩
 
 @[simp] public theorem toList_rii {α : Type u} {β : α → Type v}
-    [Ord α] {t : Raw α β compare} : t[*...*].toList = t.toList := by
+    (cmp : α → α → Ordering := by exact compare) {t : Raw α β cmp} : t[*...*].toList = t.toList := by
   apply Internal.toList_rii
 
-public instance {α : Type u} {β : α → Type v} [Ord α] (cmp : α → α → Ordering := by exact compare) :
-    Ric.Sliceable (Raw α β cmp) α (Internal.RicSlice α β) where
-  mkSlice carrier range := ⟨carrier.inner, range⟩
+public instance {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare) :
+    Ric.Sliceable (Raw α β cmp) α (@Internal.RicSlice α β ⟨cmp⟩) :=
+  letI _ : Ord α := ⟨cmp⟩;⟨fun carrier range => ⟨carrier.inner, range⟩⟩
 
-public theorem toList_ric {α : Type u} {β : α → Type v} [Ord α] [TransOrd α]
-    {t : Raw α β compare} {wf : t.WF} {bound : α} :
-    t[*...=bound].toList = t.toList.filter (fun e => (compare e.fst bound).isLE) := by
-  apply Internal.toList_ric
-  . exact wf.out.ordered
+public theorem toList_ric {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare)
+    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {bound : α} :
+    t[*...=bound].toList = t.toList.filter (fun e => (cmp e.fst bound).isLE) :=
+  @Internal.toList_ric α β ⟨cmp⟩ _ t.inner (@wf.out.ordered α β ⟨cmp⟩ _) bound
 
-public instance {α : Type u} {β : α → Type v} [Ord α] (cmp : α → α → Ordering := by exact compare) :
-    Rio.Sliceable (Raw α β cmp) α (Internal.RioSlice α β) where
-  mkSlice carrier range := ⟨carrier.inner, range⟩
+public instance {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare) :
+    Rio.Sliceable (Raw α β cmp) α (@Internal.RioSlice α β ⟨cmp⟩) :=
+  letI _ : Ord α := ⟨cmp⟩;⟨fun carrier range => ⟨carrier.inner, range⟩⟩
 
-public theorem toList_rio {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {t : Raw α β compare} {wf : t.WF} {bound : α} :
-    t[*...<bound].toList = t.toList.filter (fun e => (compare e.fst bound).isLT) := by
-  apply Internal.toList_rio
-  . exact wf.out.ordered
+public theorem toList_rio {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare)
+    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {bound : α} :
+    t[*...<bound].toList = t.toList.filter (fun e => (cmp e.fst bound).isLT) :=
+  @Internal.toList_rio α β ⟨cmp⟩ _ t.inner (@wf.out.ordered α β ⟨cmp⟩ _) bound
 
-public instance {α : Type u} {β : α → Type v} [Ord α] (cmp : α → α → Ordering := by exact compare) :
-    Rci.Sliceable (Raw α β cmp) α (Internal.RciSlice α β) where
-  mkSlice carrier range := ⟨carrier.inner, range⟩
+public instance {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare) :
+    Rci.Sliceable (Raw α β cmp) α (@Internal.RciSlice α β ⟨cmp⟩) :=
+  letI _ : Ord α := ⟨cmp⟩;⟨fun carrier range => ⟨carrier.inner, range⟩⟩
 
-public theorem toList_rci {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {t : Raw α β compare} {wf : t.WF} {bound : α} :
-    t[bound...*].toList = t.toList.filter (fun e => (compare e.fst bound).isGE) := by
-  apply Internal.toList_rci
-  . exact wf.out.ordered
+public theorem toList_rci {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare)
+    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {bound : α} :
+    t[bound...*].toList = t.toList.filter (fun e => (cmp e.fst bound).isGE) :=
+  @Internal.toList_rci α β ⟨cmp⟩ _ t.inner (@wf.out.ordered α β ⟨cmp⟩ _) bound
 
-public instance {α : Type u} {β : α → Type v} [Ord α] (cmp : α → α → Ordering := by exact compare) :
-    Rco.Sliceable (Raw α β cmp) α (Internal.RcoSlice α β) where
-  mkSlice carrier range := ⟨carrier.inner, range⟩
+public instance {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare) :
+    Rco.Sliceable (Raw α β cmp) α (@Internal.RcoSlice α β ⟨cmp⟩) :=
+  letI _ : Ord α := ⟨cmp⟩;⟨fun carrier range => ⟨carrier.inner, range⟩⟩
 
-public theorem toList_rco {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {t : Raw α β compare}
-    {wf : t.WF} {lowerBound upperBound : α} : t[lowerBound...<upperBound].toList =
-      t.toList.filter (fun e => (compare e.fst lowerBound).isGE ∧ (compare e.fst upperBound).isLT) := by
-  apply Internal.toList_rco
-  . exact wf.out.ordered
+public theorem toList_rco {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare)
+    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {lowerBound upperBound : α} :
+    t[lowerBound...<upperBound].toList =
+      t.toList.filter (fun e => (cmp e.fst lowerBound).isGE ∧ (cmp e.fst upperBound).isLT) :=
+  @Internal.toList_rco α β ⟨cmp⟩ _ t.inner (@wf.out.ordered α β ⟨cmp⟩ _) lowerBound upperBound
 
-public instance {α : Type u} {β : α → Type v} [Ord α] (cmp : α → α → Ordering := by exact compare) :
-    Rcc.Sliceable (Raw α β cmp) α (Internal.RccSlice α β) where
-  mkSlice carrier range := ⟨carrier.inner, range⟩
+public instance {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare) :
+    Rcc.Sliceable (Raw α β cmp) α (@Internal.RccSlice α β ⟨cmp⟩) :=
+  letI _ : Ord α := ⟨cmp⟩;⟨fun carrier range => ⟨carrier.inner, range⟩⟩
 
-public theorem toList_rcc {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {t : Raw α β compare}
-    {wf : t.WF} {lowerBound upperBound : α} : t[lowerBound...=upperBound].toList =
-      t.toList.filter (fun e => (compare e.fst lowerBound).isGE ∧ (compare e.fst upperBound).isLE) := by
-  apply Internal.toList_rcc
-  . exact wf.out.ordered
+public theorem toList_rcc {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare)
+    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {lowerBound upperBound : α} :
+    t[lowerBound...=upperBound].toList =
+      t.toList.filter (fun e => (cmp e.fst lowerBound).isGE ∧ (cmp e.fst upperBound).isLE) :=
+  @Internal.toList_rcc α β ⟨cmp⟩ _ t.inner (@wf.out.ordered α β ⟨cmp⟩ _) lowerBound upperBound
 
-public instance {α : Type u} {β : α → Type v} [Ord α] (cmp : α → α → Ordering := by exact compare) :
-    Roi.Sliceable (Raw α β cmp) α (Internal.RoiSlice α β) where
-  mkSlice carrier range := ⟨carrier.inner, range⟩
+public instance {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare) :
+    Roi.Sliceable (Raw α β cmp) α (@Internal.RoiSlice α β ⟨cmp⟩) :=
+  letI _ : Ord α := ⟨cmp⟩;⟨fun carrier range => ⟨carrier.inner, range⟩⟩
 
-public theorem toList_roi {α : Type u} {β : α → Type v} [Ord α] [TransOrd α]
-    {t : Raw α β compare} {wf : t.WF} {bound: α} : t[bound<...*].toList =
-      t.toList.filter (fun e => (compare e.fst bound).isGT) := by
-  apply Internal.toList_roi
-  . exact wf.out.ordered
+public theorem toList_roi {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare)
+    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {bound: α} : t[bound<...*].toList =
+      t.toList.filter (fun e => (cmp e.fst bound).isGT) :=
+  @Internal.toList_roi α β ⟨cmp⟩ _ t.inner (@wf.out.ordered α β ⟨cmp⟩ _) bound
 
-public instance {α : Type u} {β : α → Type v} [Ord α] (cmp : α → α → Ordering := by exact compare) :
-    Roc.Sliceable (Raw α β cmp) α (Internal.RocSlice α β) where
-  mkSlice carrier range := ⟨carrier.inner, range⟩
+public instance {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare) :
+    Roc.Sliceable (Raw α β cmp) α (@Internal.RocSlice α β ⟨cmp⟩) :=
+  letI _ : Ord α := ⟨cmp⟩;⟨fun carrier range => ⟨carrier.inner, range⟩⟩
 
-public theorem toList_roc {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {t : Raw α β compare}
-    {wf : t.WF} {lowerBound upperBound : α} : t[lowerBound<...=upperBound].toList =
-      t.toList.filter (fun e => (compare e.fst lowerBound).isGT ∧ (compare e.fst upperBound).isLE) := by
-  apply Internal.toList_roc
-  . exact wf.out.ordered
+public theorem toList_roc {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare)
+    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {lowerBound upperBound : α} :
+    t[lowerBound<...=upperBound].toList =
+      t.toList.filter (fun e => (cmp e.fst lowerBound).isGT ∧ (cmp e.fst upperBound).isLE) :=
+  @Internal.toList_roc α β ⟨cmp⟩ _ t.inner (@wf.out.ordered α β ⟨cmp⟩ _) lowerBound upperBound
 
-public instance {α : Type u} {β : α → Type v} [Ord α] (cmp : α → α → Ordering := by exact compare) :
-    Roo.Sliceable (Raw α β cmp) α (Internal.RooSlice α β) where
-  mkSlice carrier range := ⟨carrier.inner, range⟩
+public instance {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare) :
+    Roo.Sliceable (Raw α β cmp) α (@Internal.RooSlice α β ⟨cmp⟩) :=
+  letI _ : Ord α := ⟨cmp⟩;⟨fun carrier range => ⟨carrier.inner, range⟩⟩
 
-public theorem toList_roo {α : Type u} {β : α → Type v} [Ord α] [TransOrd α]
-    {t : Raw α β compare} {wf : t.WF} {lowerBound upperBound : α} : t[lowerBound<...upperBound].toList =
-      t.toList.filter (fun e => (compare e.fst lowerBound).isGT ∧ (compare e.fst upperBound).isLT) := by
-  apply Internal.toList_roo
-  . exact wf.out.ordered
+public theorem toList_roo {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare)
+    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {lowerBound upperBound : α} :
+    t[lowerBound<...upperBound].toList =
+      t.toList.filter (fun e => (cmp e.fst lowerBound).isGT ∧ (cmp e.fst upperBound).isLT) :=
+  @Internal.toList_roo α β ⟨cmp⟩ _ t.inner (@wf.out.ordered α β ⟨cmp⟩ _) lowerBound upperBound
 
 end Std.DTreeMap.Raw

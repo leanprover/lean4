@@ -22,3 +22,4 @@ public import Init.Data.String.Substring
 public import Init.Data.String.TakeDrop
 public import Init.Data.String.Modify
 public import Init.Data.String.Termination
+public import Init.Data.String.ToSlice

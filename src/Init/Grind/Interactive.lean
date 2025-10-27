@@ -83,6 +83,10 @@ that may have redundant arguments.
 -/
 syntax (name := instantiate) "instantiate" (&" only")? (&" approx")? (" [" withoutPosition(thm,*,?) "]")? : grind
 
+/-- Shorthand for `instantiate only` -/
+syntax (name := use) "use" " [" withoutPosition(thm,*,?) "]" : grind
+macro_rules | `(grind| use%$u [$ts:thm,*]) => `(grind| instantiate%$u only [$ts,*])
+
 -- **Note**: Should we rename the following tactics to `trace_`?
 /-- Shows asserted facts. -/
 syntax (name := showAsserted) "show_asserted" ppSpace grindFilter : grind

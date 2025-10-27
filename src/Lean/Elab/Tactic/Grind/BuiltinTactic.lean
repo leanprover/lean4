@@ -25,6 +25,7 @@ import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.RenameInaccessibles
 import Lean.Elab.Tactic.Grind.Filter
 import Lean.Elab.Tactic.Grind.ShowState
+import Lean.Elab.Tactic.Grind.Config
 import Lean.Elab.SetOption
 namespace Lean.Elab.Tactic.Grind
 
@@ -425,9 +426,30 @@ where
   liftGrindM <| resetAnchors
   replaceMainGoal [{ goal with mvarId }]
 
+def isGrindConfigField? (stx : Syntax) : CoreM (Option Name) := do
+  unless stx.isIdent do return none
+  let id := stx.getId
+  let env ← getEnv
+  let info := getStructureInfo env ``Grind.Config
+  unless info.fieldNames.contains id do return none
+  return some id
+
 @[builtin_grind_tactic setOption] def elabSetOption : GrindTactic := fun stx => do
-  let options ← Elab.elabSetOption stx[1] stx[3]
-  withOptions (fun _ => options) do evalGrindTactic stx[5]
+  if let some fieldName ← isGrindConfigField? stx[1] then
+    let val := stx[3]
+    let val ← match val.isNatLit? with
+      | some num => pure <| DataValue.ofNat num
+      | none     => match val with
+        | Syntax.atom _ "true"  => pure <| DataValue.ofBool true
+        | Syntax.atom _ "false" => pure <| DataValue.ofBool false
+        | _ => throwErrorAt val "`grind` configuration option must be a Boolean or a numeral"
+    let config := (← read).ctx.config
+    let config ← setConfigField config fieldName val
+    withReader (fun c => { c with ctx.config := config }) do
+      evalGrindTactic stx[5]
+  else
+    let options ← Elab.elabSetOption stx[1] stx[3]
+    withOptions (fun _ => options) do evalGrindTactic stx[5]
 
 @[builtin_grind_tactic mbtc] def elabMBTC : GrindTactic := fun _ => do
   liftGoalM do

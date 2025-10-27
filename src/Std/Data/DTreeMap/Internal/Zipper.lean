@@ -512,23 +512,6 @@ public theorem Zipper.map_iterOfTree_eq_tree_toList_map (t : Impl α β) :
   rw [@toList_iter α β (prependMap t .done)]
   simp [Zipper.toList_prependMap_eq_append, toList]
 
-def Zipper.instProductivenessRelation : ProductivenessRelation (Zipper α β) Id where
-  rel x x' := x.1.size < x'.1.size
-  wf := by
-    apply InvImage.wf
-    exact Nat.lt_wfRel.wf
-  subrelation {it it'} h := by
-    simp [IterM.IsPlausibleSkipSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep] at h
-    have := @Zipper.step_eq_match α β ⟨it.1⟩
-    simp [IterM.step, Iterator.step] at this
-    injections val_eq
-    rw [h] at val_eq
-    split at val_eq <;> contradiction
-
-@[no_expose]
-public instance instProductive : Productive (Zipper α β) Id :=
-  .of_productivenessRelation Zipper.instProductivenessRelation
-
 theorem Zipper.val_step_map_Zipper_eq_match {α β γ} {f : (a : α) × β a → γ}
     {it : Iter (α := Zipper α β) (Sigma β)} :
     (it.map f).step.val =
@@ -698,26 +681,6 @@ public theorem toList_eq_takeWhile {α β} [Ord α] [TransOrd α] {z : Zipper α
   simp only [Zipper.Ordered] at z_ord
   apply toList_eq_takeWhile_list
   exact z_ord
-
-def instProductivenessRelation [Ord α] : ProductivenessRelation (RxcIterator α β) Id where
-  rel t' t := t'.internalState.iter.size < t.internalState.iter.size
-  wf := by
-    apply InvImage.wf
-    exact Nat.lt_wfRel.wf
-  subrelation {it it'} h := by
-    simp [IterM.IsPlausibleSkipSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep] at h
-    have := @step_rxcIterator_eq_match α β _ ⟨it.1⟩
-    simp [IterM.step, Iterator.step] at this
-    injections val_eq
-    rw [h] at val_eq
-    split at val_eq
-    case h_1 => contradiction
-    case h_2 =>
-      split at val_eq <;> contradiction
-
-@[no_expose]
-public instance RxcIterator.instProductive [Ord α] : Productive (RxcIterator α β) Id :=
-  .of_productivenessRelation instProductivenessRelation
 
 end Rxc
 

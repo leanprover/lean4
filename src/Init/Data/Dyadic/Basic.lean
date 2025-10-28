@@ -682,9 +682,11 @@ instance : LE Dyadic where
 instance : DecidableLT Dyadic := fun _ _ => inferInstanceAs (Decidable (_ = true))
 instance : DecidableLE Dyadic := fun _ _ => inferInstanceAs (Decidable (_ = true))
 
-theorem lt_iff_toRat {x y : Dyadic} : x < y ↔ x.toRat < y.toRat := blt_iff_toRat
+@[simp]
+theorem toRat_lt_toRat_iff {x y : Dyadic} : x.toRat < y.toRat ↔ x < y := blt_iff_toRat.symm
 
-theorem le_iff_toRat {x y : Dyadic} : x ≤ y ↔ x.toRat ≤ y.toRat := ble_iff_toRat
+@[simp]
+theorem toRat_le_toRat_iff {x y : Dyadic} : x.toRat ≤ y.toRat ↔ x ≤ y := ble_iff_toRat.symm
 
 @[simp]
 protected theorem not_le {x y : Dyadic} : ¬x < y ↔ y ≤ x := by
@@ -696,20 +698,20 @@ protected theorem not_lt {x y : Dyadic} : ¬x ≤ y ↔ y < x := by
 
 @[simp]
 protected theorem le_refl (x : Dyadic) : x ≤ x := by
-  rw [le_iff_toRat]
+  rw [← toRat_le_toRat_iff]
   exact Rat.le_refl
 
 protected theorem le_trans {x y z : Dyadic} (h : x ≤ y) (h' : y ≤ z) : x ≤ z := by
-  rw [le_iff_toRat] at h h' ⊢
+  rw [← toRat_le_toRat_iff] at h h' ⊢
   exact Rat.le_trans h h'
 
 protected theorem le_antisymm {x y : Dyadic} (h : x ≤ y) (h' : y ≤ x) : x = y := by
-  rw [le_iff_toRat] at h h'
+  rw [← toRat_le_toRat_iff] at h h'
   rw [← toRat_inj]
   exact Rat.le_antisymm h h'
 
 protected theorem le_total (x y : Dyadic) : x ≤ y ∨ y ≤ x := by
-  rw [le_iff_toRat, le_iff_toRat]
+  rw [← toRat_le_toRat_iff, ← toRat_le_toRat_iff]
   exact Rat.le_total
 
 instance : Std.LawfulOrderLT Dyadic where

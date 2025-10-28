@@ -241,6 +241,11 @@ but it sets the option only within the tactics `tacs`. -/
 syntax (name := setOption) "set_option " (ident (noWs "." noWs ident)?) ppSpace optionValue " in " grindSeq : grind
 
 /--
+`set_config configItem+ in tacs` executes `tacs` with the updated configuration options `configItem+`
+-/
+syntax (name := setConfig) "set_config " configItem+ " in " grindSeq : grind
+
+/--
 Proves `<term>` using the current `grind` state and default search strategy.
 -/
 syntax (name := haveSilent) "have" (ppSpace ident)? ppSpace ": " term : grind

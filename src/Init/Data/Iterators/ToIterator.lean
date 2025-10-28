@@ -107,16 +107,4 @@ instance {x : γ} {State : Type w} {iter}
     IteratorLoopPartial (α := i.State) m n :=
   inferInstanceAs <| IteratorLoopPartial (α := State) m n
 
-instance {x : γ} {State : Type w} {iter}
-    [Iterator (α := State) m β] [IteratorSize State m] :
-    letI i : ToIterator x m β := .ofM State iter
-    IteratorSize (α := i.State) m :=
-  inferInstanceAs <| IteratorSize (α := State) m
-
-instance {x : γ} {State : Type w} {iter}
-    [Iterator (α := State) m β] [IteratorSizePartial State m] :
-    letI i : ToIterator x m β := .ofM State iter
-    IteratorSizePartial (α := i.State) m :=
-  inferInstanceAs <| IteratorSizePartial (α := State) m
-
 end Std.Iterators

@@ -19,45 +19,6 @@ open Std.Iterators
 namespace Std
 open PRange
 
-namespace Rxc
-
-/--
-Iterators for right-closed ranges implementing {name}`Rxc.HasSize` support {name}`Iter.size`.
--/
-instance [Rxc.HasSize α] [UpwardEnumerable α] [LE α] [DecidableLE α] :
-    IteratorSize (Rxc.Iterator α) Id where
-  size it := match it.internalState.next with
-    | none => 0
-    | some next => Rxc.HasSize.size next it.internalState.upperBound
-
-end Rxc
-
-namespace Rxo
-
-/--
-Iterators for ranges implementing {name}`Rxo.HasSize` support {name}`Iter.size`.
--/
-instance [Rxo.HasSize α] [UpwardEnumerable α] [LT α] [DecidableLT α] :
-    IteratorSize (Rxo.Iterator α) Id where
-  size it := match it.internalState.next with
-    | none => 0
-    | some next => Rxo.HasSize.size next it.internalState.upperBound
-
-end Rxo
-
-namespace Rxi
-
-/--
-Iterators for ranges implementing {name}`Rxi.HasSize` support {name}`Iter.size`.
--/
-instance [Rxi.HasSize α] [UpwardEnumerable α] :
-    IteratorSize (Rxi.Iterator α) Id where
-  size it := match it.internalState.next with
-    | none => 0
-    | some next => Rxi.HasSize.size next
-
-end Rxi
-
 namespace Rcc
 
 variable {α : Type u}
@@ -92,8 +53,8 @@ def toArray [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerab
 Returns the number of elements contained in the given closed range.
 -/
 @[always_inline, inline]
-def size [Rxc.HasSize α] [UpwardEnumerable α] [LE α] [DecidableLE α] (r : Rcc α) : Nat :=
-  Internal.iter r |>.size
+def size [Rxc.HasSize α] (r : Rcc α) : Nat :=
+  Rxc.HasSize.size r.lower r.upper
 
 section Iterator
 
@@ -178,8 +139,8 @@ def toArray [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerab
 Returns the number of elements contained in the given left-closed right-open range.
 -/
 @[always_inline, inline]
-def size [Rxo.HasSize α] [UpwardEnumerable α] [LT α] [DecidableLT α] (r : Rco α) : Nat :=
-  Internal.iter r |>.size
+def size [Rxo.HasSize α] (r : Rco α) : Nat :=
+  Rxo.HasSize.size r.lower r.upper
 
 section Iterator
 
@@ -265,8 +226,8 @@ def toArray [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinit
 Returns the number of elements contained in the given left-closed right-unbounded range.
 -/
 @[always_inline, inline]
-def size [Rxi.HasSize α] [UpwardEnumerable α] (r : Rci α) : Nat :=
-  Internal.iter r |>.size
+def size [Rxi.HasSize α] (r : Rci α) : Nat :=
+  Rxi.HasSize.size r.lower
 
 section Iterator
 
@@ -349,8 +310,10 @@ def toArray [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerab
 Returns the number of elements contained in the given left-open right-closed range.
 -/
 @[always_inline, inline]
-def size [Rxc.HasSize α] [UpwardEnumerable α] [LE α] [DecidableLE α] (r : Roc α) : Nat :=
-  Internal.iter r |>.size
+def size [Rxc.HasSize α] [UpwardEnumerable α] (r : Roc α) : Nat :=
+  match UpwardEnumerable.succ? r.lower with
+  | none => 0
+  | some lower => Rxc.HasSize.size lower r.upper
 
 section Iterator
 
@@ -428,8 +391,10 @@ def toArray [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerab
 Returns the number of elements contained in the given open range.
 -/
 @[always_inline, inline]
-def size [Rxo.HasSize α] [UpwardEnumerable α] [LT α] [DecidableLT α] (r : Roo α) : Nat :=
-  Internal.iter r |>.size
+def size [Rxo.HasSize α] [UpwardEnumerable α] (r : Roo α) : Nat :=
+  match UpwardEnumerable.succ? r.lower with
+  | none => 0
+  | some lower => Rxo.HasSize.size lower r.upper
 
 section Iterator
 
@@ -507,7 +472,9 @@ Returns the number of elements contained in the given left-open right-unbounded 
 -/
 @[always_inline, inline]
 def size [Rxi.HasSize α] [UpwardEnumerable α] (r : Roi α) : Nat :=
-  Internal.iter r |>.size
+  match UpwardEnumerable.succ? r.lower with
+  | none => 0
+  | some lower => Rxi.HasSize.size lower
 
 section Iterator
 
@@ -580,8 +547,10 @@ def toArray [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUp
 Returns the number of elements contained in the given closed range.
 -/
 @[always_inline, inline]
-def size [Rxc.HasSize α] [UpwardEnumerable α] [Least? α] [LE α] [DecidableLE α] (r : Ric α) : Nat :=
-  Internal.iter r |>.size
+def size [Rxc.HasSize α] [Least? α] (r : Ric α) : Nat :=
+  match Least?.least? (α := α) with
+  | none => 0
+  | some least => Rxc.HasSize.size least r.upper
 
 section Iterator
 
@@ -653,8 +622,10 @@ def toArray [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUp
 Returns the number of elements contained in the given closed range.
 -/
 @[always_inline, inline]
-def size [Rxo.HasSize α] [UpwardEnumerable α] [Least? α] [LT α] [DecidableLT α] (r : Rio α) : Nat :=
-  Internal.iter r |>.size
+def size [Rxo.HasSize α] [Least? α] (r : Rio α) : Nat :=
+  match Least?.least? (α := α) with
+  | none => 0
+  | some least => Rxo.HasSize.size least r.upper
 
 section Iterator
 
@@ -727,8 +698,10 @@ def toArray {α} [UpwardEnumerable α] [Least? α] (r : Rii α)
 Returns the number of elements contained in the full range.
 -/
 @[always_inline, inline]
-def size [UpwardEnumerable α] [Least? α] (r : Rii α) [IteratorSize (Rxi.Iterator α) Id] : Nat :=
-  Internal.iter r |>.size
+def size (_ : Rii α) [Least? α] [Rxi.HasSize α] : Nat :=
+  match Least?.least? (α := α) with
+  | none => 0
+  | some least => Rxi.HasSize.size least
 
 section Iterator
 

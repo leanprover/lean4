@@ -256,42 +256,27 @@ def Iter.Partial.find? {α β : Type w} [Iterator α Id β] [IteratorLoopPartial
   Id.run (it.findM? (pure <| .up <| f ·))
 
 /--
-Computes how many elements the iterator returns. In contrast to `count`, this function might take
-shortcuts instead of actually stepping through the whole iterator.
-
-This operation is not available for all iterators. If you get an error that `IteratorSizePartial`
-cannot be synthesized, consider using `count` instead. It is always available and steps through the
-whole iterator to compute its size.
+Steps through the whole iterator, counting the number of outputs emitted.
 
 **Performance**:
 
-Depends on the concrete type of the iterator. The default implementation, which is identical to
-`count`, is linear, but it is sometimes possible to provide an O(1) implementation.
+linear in the number of steps taken by the iterator
 -/
 @[always_inline, inline, expose]
-def Iter.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorSize α Id]
+def Iter.count {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id Id]
     (it : Iter (α := α) β) : Nat :=
-  IteratorSize.size it.toIterM
+  it.toIterM.count.run.down
 
 /--
-Computes how many elements the iterator returns. In contrast to `count`, this function might take
-shortcuts instead of actually stepping through the whole iterator.
-
-This operation is not available for all iterators. If you get an error that `IteratorSizePartial`
-cannot be synthesized, consider using `count` instead. It is always available and steps through the
-whole iterator to compute its size.
-
-This is the partial version of `size`. It does not require a proof of finiteness and might loop
-forever. It is not possible to verify the behavior in Lean because it uses `partial`.
+Steps through the whole iterator, counting the number of outputs emitted.
 
 **Performance**:
 
-Depends on the concrete type of the iterator. The default implementation, which is identical to
-`count`, is linear, but it is sometimes possible to provide an O(1) implementation.
+linear in the number of steps taken by the iterator
 -/
-@[always_inline, inline]
-def Iter.Partial.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorSizePartial α Id]
-    (it : Iter (α := α) β) : Nat :=
-  IteratorSizePartial.size it.toIterM
+@[always_inline, inline, expose]
+def Iter.Partial.count {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoopPartial α Id Id]
+    (it : Iter.Partial (α := α) β) : Nat :=
+  it.it.toIterM.allowNontermination.count.run.down
 
 end Std.Iterators

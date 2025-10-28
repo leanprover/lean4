@@ -45,4 +45,10 @@ private theorem toList_internalIter {α : Type u} {s : Subarray α} :
   rw [internalIter_Rco_eq, Iter.toList_map, Iter.toList_uLift, Iter.toList_attachWith]
   simp [Rco.toList]
 
+instance : LawfulSliceSize (Internal.SubarrayData α) where
+  lawful s := by
+    obtain ⟨⟨xs, l, u, _, _⟩⟩ := s
+    simp only [SliceSize.size, ToIterator.iter, ToIterator.iterM, ToIterator.iterMInternal, ToIterator.of, ToIterator.ofM]
+    simp only [instToIteratorSubarrayId, ToIterator.toIter]
+
 end Std.Slice.Array

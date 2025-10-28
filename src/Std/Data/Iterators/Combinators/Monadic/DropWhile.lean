@@ -288,12 +288,4 @@ instance DropWhile.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
     IteratorLoopPartial (DropWhile α m β P) m n :=
   .defaultImplementation
 
-instance {α : Type w} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id Id] {P} :
-    IteratorSize (DropWhile α Id β P) Id :=
-  .defaultImplementation
-
-instance {α : Type w} [Iterator α Id β] [IteratorLoopPartial α Id Id] {P} :
-    IteratorSizePartial (DropWhile α Id β P) Id :=
-  .defaultImplementation
-
 end Std.Iterators

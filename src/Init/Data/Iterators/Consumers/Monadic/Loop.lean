@@ -88,52 +88,6 @@ class IteratorLoopPartial (α : Type w) (m : Type w → Type w') {β : Type w} [
       (it : IterM (α := α) m β) → γ →
       ((b : β) → it.IsPlausibleIndirectOutput b → (c : γ) → n (ForInStep γ)) → n γ
 
-/--
-`IteratorSize α m` provides an implementation of the `IterM.size` function.
-
-This class is experimental and users of the iterator API should not explicitly depend on it.
-They can, however, assume that consumers that require an instance will work for all iterators
-provided by the standard library.
--/
-class IteratorSize (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
-  size : IterM (α := α) m β → Nat
-
-/--
-`IteratorSizePartial α m` provides an implementation of the `IterM.Partial.size` function that
-can be used as `it.allowTermination.size`.
-
-This class is experimental and users of the iterator API should not explicitly depend on it.
-They can, however, assume that consumers that require an instance will work for all iterators
-provided by the standard library.
--/
-class IteratorSizePartial (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
-  size : IterM (α := α) m β → Nat
-
-/--
-`LawfulIteratorSize α m` ensures that the `size` function of an iterator is well-behaved.
-More concretely, it ensures that the successor's size is one less in case of an
-`IterStep.yield` result and equal in the case of an `IterStep.skip` result. The iterator may only
-finish immediately if its size is zero. All of these properties are expressed using the
-`IterM.IsPlausibleStep` predicate.
-
-This class is experimental and users of the iterator API should not explicitly depend on it.
--/
-class LawfulIteratorSize (α : Type w) {β : Type w} [Iterator α m β] [IteratorSize α m]
-    [Monad m] where
-    ex {it : IterM (α := α) m β} :
-      ∃ s : m (Shrink ({ s : IterStep (IterM (α := α) m β) β // match s with
-          | .yield it' _ => IteratorSize.size it = IteratorSize.size it' + 1
-          | .skip it' => IteratorSize.size it = IteratorSize.size it'
-          | .done => IteratorSize.size it = 0 })),
-        (Shrink.deflate <| Subtype.val <| Shrink.inflate ·) <$> s =
-          (Shrink.deflate <| Subtype.val <| Shrink.inflate ·) <$> it.step
-    -- size_eq_of_yield {it it' : IterM (α := α) m β} {out} :
-    --   it.IsPlausibleStep (.yield it' out) → IteratorSize.size it = IteratorSize.size it' + 1
-    -- size_eq_of_skip {it it' : IterM (α := α) m β} :
-    --   it.IsPlausibleStep (.skip it') → IteratorSize.size it = IteratorSize.size it'
-    -- size_eq_of_done {it : IterM (α := α) m β} :
-    --   it.IsPlausibleStep .done → IteratorSize.size it = 0
-
 end Typeclasses
 
 /-- Internal implementation detail of the iterator library. -/
@@ -340,7 +294,7 @@ instance {m : Type w → Type w'} {n : Type w → Type w''}
   forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
 
 instance {m : Type w → Type w'} {n : Type w → Type w''}
-    {α : Type w} {β : Type w} [Iterator α m β] [Finite α m] [IteratorLoopPartial α m n]
+    {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoopPartial α m n]
     [MonadLiftT m n] :
     ForM n (IterM.Partial (α := α) m β) β where
   forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
@@ -658,14 +612,14 @@ def IterM.Partial.find? {α β : Type w} {m : Type w → Type w'} [Monad m] [Ite
     m (Option β) :=
   it.findM? (pure <| .up <| f ·)
 
-section Size
+section Count
 
 /--
 This is the implementation of the default instance `IteratorSize.defaultImplementation`.
 -/
 @[always_inline, inline]
 def IterM.DefaultConsumers.count {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
-    [Iterator α m β] [IteratorLoop α m m] [Finite α m] (it : IterM (α := α) m β) :
+    [Iterator α m β] [Finite α m] [IteratorLoop α m m] (it : IterM (α := α) m β) :
     m (ULift Nat) :=
   it.fold (init := .up 0) fun acc _ => .up (acc.down + 1)
 
@@ -686,9 +640,10 @@ Steps through the whole iterator, counting the number of outputs emitted.
 linear in the number of steps taken by the iterator
 -/
 @[always_inline, inline]
-def IterM.count {α : Type} {m : Type → Type w'} {β : Type} [Iterator α m β] [IteratorLoop α m m]
-    [Monad m] [Finite α m] (it : IterM (α := α) m β) : m Nat :=
-  ULift.down <$> IterM.DefaultConsumers.count it
+def IterM.count {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β] [Finite α m]
+    [IteratorLoop α m m]
+    [Monad m] (it : IterM (α := α) m β) : m (ULift Nat) :=
+  IterM.DefaultConsumers.count it
 
 /--
 Steps through the whole iterator, counting the number of outputs emitted.
@@ -698,73 +653,10 @@ Steps through the whole iterator, counting the number of outputs emitted.
 linear in the number of steps taken by the iterator
 -/
 @[always_inline, inline]
-def IterM.Partial.count {α : Type} {m : Type → Type w'} {β : Type} [Iterator α m β]
-    [IteratorLoopPartial α m m] [Monad m] (it : IterM.Partial (α := α) m β)
-    [IteratorSizePartial α m] : m Nat :=
-  ULift.down <$> IterM.DefaultConsumers.countPartial it.it
+def IterM.Partial.count {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    [IteratorLoopPartial α m m] [Monad m] (it : IterM.Partial (α := α) m β) : m (ULift Nat) :=
+  IterM.DefaultConsumers.countPartial it.it
 
-set_option pp.universes true
-/--
-This is the default implementation of the `IteratorSize` class.
-It simply iterates using `IteratorLoop` and counts the elements.
-For certain iterators, more efficient implementations are possible and should be used instead.
--/
-@[always_inline, inline]
-def IteratorSize.defaultImplementation {α β : Type w}
-    [Iterator α Id β] [Finite α Id] [IteratorLoop α Id Id] :
-    IteratorSize α Id where
-  size it := IterM.DefaultConsumers.count it |>.run.down
-
-/--
-This is the default implementation of the `IteratorSizePartial` class.
-It simply iterates using `IteratorLoopPartial` and counts the elements.
-For certain iterators, more efficient implementations are possible and should be used instead.
--/
-@[always_inline, inline]
-instance IteratorSizePartial.defaultImplementation {α β : Type w}
-    [Iterator α Id β] [IteratorLoopPartial α Id Id] :
-    IteratorSizePartial α Id where
-  size it := IterM.DefaultConsumers.countPartial it |>.run.down
-
-/--
-Computes how many elements the iterator returns. In contrast to `count`, this function might take
-shortcuts instead of actually stepping through the whole iterator and it has no monadic side effects.
-
-This operation is not available for all iterators. If you get an error that `IteratorSize` cannot
-be synthesized, consider using `count` instead. It is always available and steps through the whole
-iterator to compute its size.
-
-**Performance**:
-
-Depends on the concrete type of the iterator. The default implementation, which is identical to
-`count`, is linear, but it is sometimes possible to provide an O(1) implementation.
--/
-@[always_inline, inline]
-def IterM.size {α : Type w} {β : Type w} [Iterator α m β] [IteratorSize α m]
-    (it : IterM (α := α) m β) : Nat :=
-  IteratorSize.size it
-
-/--
-Computes how many elements the iterator returns. In contrast to `count`, this function might take
-shortcuts instead of actually stepping through the whole iterator.
-
-This operation is not available for all iterators. If you get an error that `IteratorSizePartial`
-cannot be synthesized, consider using `count` instead. It is always available and steps through the
-whole iterator to compute its size.
-
-This is the partial version of `size`. It does not require a proof of finiteness and might loop
-forever. It is not possible to verify the behavior in Lean because it uses `partial`.
-
-**Performance**:
-
-Depends on the concrete type of the iterator. The default implementation, which is identical to
-`count`, is linear, but it is sometimes possible to provide an O(1) implementation.
--/
-@[always_inline, inline]
-def IterM.Partial.size {α : Type w} {β : Type w} [Iterator α m β]
-    (it : IterM.Partial (α := α) m β) [IteratorSizePartial α m] : Nat :=
-  IteratorSizePartial.size it.it
-
-end Size
+end Count
 
 end Std.Iterators

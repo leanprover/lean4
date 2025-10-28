@@ -1554,11 +1554,11 @@ extern "C" LEAN_EXPORT obj_res lean_io_wait(obj_arg t) {
     return lean_task_get_own(t);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_wait_any(b_obj_arg task_list, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_wait_any(b_obj_arg task_list) {
     object * t = lean_io_wait_any_core(task_list);
     object * v = lean_task_get(t);
     lean_inc(v);
-    return io_result_mk_ok(v);
+    return v;
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_exit(uint8_t code) {

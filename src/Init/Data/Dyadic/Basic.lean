@@ -682,9 +682,11 @@ instance : LE Dyadic where
 instance : DecidableLT Dyadic := fun _ _ => inferInstanceAs (Decidable (_ = true))
 instance : DecidableLE Dyadic := fun _ _ => inferInstanceAs (Decidable (_ = true))
 
-theorem lt_iff_toRat {x y : Dyadic} : x < y ↔ x.toRat < y.toRat := blt_iff_toRat
+@[simp]
+theorem toRat_lt_toRat_iff {x y : Dyadic} : x.toRat < y.toRat ↔ x < y := blt_iff_toRat.symm
 
-theorem le_iff_toRat {x y : Dyadic} : x ≤ y ↔ x.toRat ≤ y.toRat := ble_iff_toRat
+@[simp]
+theorem toRat_le_toRat_iff {x y : Dyadic} : x.toRat ≤ y.toRat ↔ x ≤ y := ble_iff_toRat.symm
 
 @[simp]
 protected theorem not_le {x y : Dyadic} : ¬x < y ↔ y ≤ x := by

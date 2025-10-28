@@ -10,6 +10,7 @@ public import Lean.Compiler.LCNF.PullFunDecls
 public import Lean.Compiler.LCNF.FVarUtil
 public import Lean.Compiler.LCNF.ScopeM
 public import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.LCNF.PrettyPrinter
 
 public section
 
@@ -18,6 +19,11 @@ namespace Lean.Compiler.LCNF
 namespace JoinPointFinder
 
 open ScopeM
+
+inductive Continuation
+  | return
+  | joinPoint (fvarId : FVarId)
+  deriving Inhabited, BEq, Repr
 
 /--
 Info about a join point candidate (a `fun` declaration) during the find phase.
@@ -32,6 +38,10 @@ structure CandidateInfo where
   For a more detailed explanation see the documentation of `find`
   -/
   associated : Std.HashSet FVarId
+  /--
+  The continuation that the candidate is invoked with.
+  -/
+  continuation? : Option Continuation
   deriving Inhabited
 
 /--
@@ -48,7 +58,13 @@ structure FindState where
   -/
   scope : Std.HashSet FVarId := ∅
 
-abbrev ReplaceCtx := Std.HashMap FVarId Name
+structure ReplaceInfo where
+  name : Name
+  continuation : Continuation
+
+structure ReplaceCtx where
+  replacements : Std.HashMap FVarId ReplaceInfo
+  currentContinuation? : Option Continuation
 
 abbrev FindM := ReaderT (Option FVarId) StateRefT FindState ScopeM
 abbrev ReplaceM := ReaderT ReplaceCtx CompilerM
@@ -90,7 +106,7 @@ private partial def removeCandidatesInLetValue (e : LetValue) : FindM Unit := do
 Add a new join point candidate to the state.
 -/
 private def addCandidate (fvarId : FVarId) (arity : Nat) : FindM Unit := do
-  let cinfo := { arity, associated := ∅ }
+  let cinfo := { arity, associated := ∅, continuation? := none }
   modifyCandidates (fun cs => cs.insert fvarId cinfo )
 
 /--
@@ -101,6 +117,42 @@ private def addDependency (src : FVarId) (target : FVarId) : FindM Unit := do
     modifyCandidates (fun cs => cs.insert target { targetInfo with associated := targetInfo.associated.insert src })
   else
     eraseCandidate src
+
+private def addContinuation (fvarId : FVarId) (continuation : Continuation)
+    : FindM Unit := do
+  if let some info ← findCandidate? fvarId then
+    modifyCandidates (fun cs => cs.insert fvarId { info with continuation? := some continuation })
+
+abbrev FilterM := StateRefT FindState ScopeM
+
+private def findCandidate?' (fvarId : FVarId) : FilterM (Option CandidateInfo) := do
+  return (← get).candidates[fvarId]?
+
+private partial def eraseCandidate' (fvarId : FVarId) : FilterM Unit := do
+  if let some info ← findCandidate?' fvarId then
+    modify (fun state => { state with candidates := state.candidates.erase fvarId })
+    info.associated.forM eraseCandidate'
+
+private partial def filterContinuationScopes (code : Code) : FilterM Unit := do
+  match code with
+  | .fun decl k =>
+    if let some candidateInfo ← findCandidate?' decl.fvarId then
+      match candidateInfo.continuation? with
+      | some (.joinPoint jpId) =>
+        if !(← isInScope jpId) then
+          eraseCandidate' decl.fvarId
+      | _ => pure ()
+    withNewScope do
+      filterContinuationScopes decl.value
+    filterContinuationScopes k
+  | .jp decl k =>
+    filterContinuationScopes decl.value
+    addToScope decl.fvarId
+    filterContinuationScopes k
+  | .let _ k => filterContinuationScopes k
+  | .cases { alts, .. } =>
+    alts.forM (filterContinuationScopes ·.getCode)
+  | .jmp .. | .return _ | .unreach _ => return ()
 
 /--
 Find all `fun` declarations that qualify as a join point, that is:
@@ -136,23 +188,16 @@ produce out of scope join point jumps.
 -/
 partial def find (decl : Decl) : CompilerM FindState := do
   let (_, candidates) ← decl.value.forCodeM go |>.run none |>.run {} |>.run' {}
+  let (_, candidates) ← decl.value.forCodeM filterContinuationScopes |>.run candidates |>.run' {}
   return candidates
 where
   go : Code → FindM Unit
   | .let decl k => do
     match k, decl.value with
     | .return valId, .fvar fvarId args =>
-      args.forM removeCandidatesInArg
-      if let some candidateInfo ← findCandidate? fvarId then
-        -- Erase candidate that are not fully applied or applied outside of tail position
-        if valId != decl.fvarId || args.size != candidateInfo.arity then
-          eraseCandidate fvarId
-        -- Out of scope join point candidate handling
-        else if let some upperCandidate ← read then
-          if !(← isInScope fvarId) then
-            addDependency fvarId upperCandidate
-      else
-        eraseCandidate fvarId
+      checkCandidate decl valId fvarId args .return
+    | .jmp jpId #[.fvar valId], .fvar fvarId args =>
+      checkCandidate decl valId fvarId args (.joinPoint jpId)
     | _, _ =>
       removeCandidatesInLetValue decl.value
       go k
@@ -173,13 +218,43 @@ where
     c.alts.forM (·.forCodeM go)
   | .unreach .. => return ()
 
+  checkCandidate (decl : LetDecl) (valId fvarId : FVarId) (args : Array Arg)
+      (continuation : Continuation) : FindM Unit := do
+    args.forM removeCandidatesInArg
+    if let some candidateInfo ← findCandidate? fvarId then
+      -- Erase candidate that are not fully applied or applied outside of tail position
+      if valId != decl.fvarId || args.size != candidateInfo.arity then
+        eraseCandidate fvarId
+        eraseCandidate valId
+        return ()
+      if let some upperCandidate ← read then
+        if !(← isInScope fvarId) then
+          addDependency fvarId upperCandidate
+      if let some existingContinuation := candidateInfo.continuation? then
+        if continuation != existingContinuation then
+          eraseCandidate fvarId
+          eraseCandidate valId
+          return ()
+      else
+        addContinuation fvarId continuation
+    else
+      eraseCandidate fvarId
+      eraseCandidate valId
+
 /--
 Replace all join point candidate `fun` declarations with `jp` ones
 and all calls to them with `jmp`s.
 -/
 partial def replace (decl : Decl) (state : FindState) : CompilerM Decl := do
-  let mapper := fun acc cname _ => do return acc.insert cname (← mkFreshJpName)
-  let replaceCtx : ReplaceCtx ← state.candidates.foldM (init := ∅) mapper
+  let mapper := fun acc cname info => do
+    if let some continuation := info.continuation? then
+      return acc.insert cname { name := (← mkFreshJpName), continuation }
+    else
+      return acc
+  let replaceCtx : ReplaceCtx := {
+    replacements := ← state.candidates.foldM (init := ∅) mapper
+    currentContinuation? := none
+  }
   let newValue ← decl.value.mapCodeM go |>.run replaceCtx
   return { decl with value := newValue }
 where
@@ -187,33 +262,48 @@ where
     match code with
     | .let decl k =>
       match k, decl.value with
-      | .return valId, .fvar fvarId args =>
+      | .return valId, .fvar fvarId args
+      | .jmp _ #[.fvar valId], .fvar fvarId args =>
         if valId == decl.fvarId then
-          if (← read).contains fvarId then
+          if (← read).replacements.contains fvarId then
             eraseLetDecl decl
             return .jmp fvarId args
           else
-            return code
+            return Code.updateLet! code decl (← go k)
         else
-          return code
+          return Code.updateLet! code decl (← go k)
       | _, _ => return Code.updateLet! code decl (← go k)
     | .fun decl k =>
-      if let some replacement := (← read)[decl.fvarId]? then
+      if let some replacementInfo := (← read).replacements[decl.fvarId]? then
+        let value ← withReader (x := go decl.value) fun ctx =>
+          { ctx with currentContinuation? :=
+              match ctx.currentContinuation?, replacementInfo.continuation with
+              | some (.joinPoint _), .return => ctx.currentContinuation?
+              | _, _ => some replacementInfo.continuation }
         let newDecl := { decl with
-          binderName := replacement,
-          value := (← go decl.value)
+          binderName := replacementInfo.name,
+          value
         }
         modifyLCtx fun lctx => lctx.addFunDecl newDecl
         return .jp newDecl (← go k)
       else
-        let newDecl ← decl.updateValue (← go decl.value)
+        let value ← withReader (x := go decl.value) fun ctx =>
+          { ctx with currentContinuation? := none }
+        let newDecl ← decl.updateValue value
         return Code.updateFun! code newDecl (← go k)
     | .jp decl k =>
        let newDecl ← decl.updateValue (← go decl.value)
        return Code.updateFun! code newDecl (← go k)
     | .cases cs =>
       return Code.updateCases! code cs.resultType cs.discr (← cs.alts.mapM (·.mapCodeM go))
-    | .jmp .. | .return .. | .unreach .. =>
+    | .return val =>
+      if let some continuation := (← read).currentContinuation? then
+        match continuation with
+        | .return => return code
+        | .joinPoint jpId => return .jmp jpId #[.fvar val]
+      else
+        return code
+    | .jmp .. | .unreach .. =>
       return code
 
 end JoinPointFinder
@@ -611,8 +701,8 @@ def Decl.findJoinPoints (decl : Decl) : CompilerM Decl := do
   trace[Compiler.findJoinPoints] "Found {findResult.candidates.size} jp candidates for {decl.name}"
   JoinPointFinder.replace decl findResult
 
-def findJoinPoints : Pass :=
-  .mkPerDeclaration `findJoinPoints Decl.findJoinPoints .base
+def findJoinPoints (phase : Phase) (occurrence : Nat) : Pass :=
+  .mkPerDeclaration `findJoinPoints Decl.findJoinPoints phase (occurrence := occurrence)
 
 builtin_initialize
   registerTraceClass `Compiler.findJoinPoints (inherited := true)

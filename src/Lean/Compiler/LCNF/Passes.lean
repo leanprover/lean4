@@ -80,7 +80,7 @@ def builtinPassManager : PassManager := {
     cse (shouldElimFunDecls := false),
     simp,
     floatLetIn,
-    findJoinPoints,
+    findJoinPoints (phase := .base) (occurrence := 0),
     pullFunDecls,
     reduceJpArity,
     /-
@@ -95,6 +95,7 @@ def builtinPassManager : PassManager := {
     checkTemplateVisibility,
     specialize,
     simp (occurrence := 2),
+    findJoinPoints (phase := .base) (occurrence := 1),
     cse (shouldElimFunDecls := false) (occurrence := 1),
     saveBase, -- End of base phase
     -- should come last so it can see all created decls

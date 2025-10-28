@@ -157,10 +157,10 @@ where
       removeCandidatesInLetValue decl.value
       go k
   | .fun decl k => do
+    addCandidate decl.fvarId decl.getArity
     withReader (fun _ => some decl.fvarId) do
       withNewScope do
         go decl.value
-    addCandidate decl.fvarId decl.getArity
     addToScope decl.fvarId
     go k
   | .jp decl k => do

@@ -38,3 +38,19 @@ set_premise_selector (fun _ _ => pure #[{ name := `p, score := 1.0 }])
 
 example : P 7 := by
   grind +premises
+
+set_premise_selector (fun _ _ => pure #[{ name := `List.append_assoc, score := 1.0 }])
+
+-- Make sure there is no warning about the redundant theorem.
+#guard_msgs in
+example (x y z : List Nat) : x ++ (y ++ z) = (x ++ y) ++ z := by
+  grind +premises
+
+theorem f : True := trivial
+
+set_premise_selector (fun _ _ => pure #[{ name := `f, score := 1.0 }])
+
+-- Make sure that bad suggestions (e.g. not patterns) from premise selection are dropped silently.
+#guard_msgs in
+example (x y z : List Nat) : x ++ (y ++ z) = (x ++ y) ++ z := by
+  grind +premises

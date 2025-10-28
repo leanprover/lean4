@@ -120,7 +120,9 @@ def elabGrindParams
     | none => pure <| .ematch (.default false)
     match attr with
     | .ematch kind =>
-      params ← addEMatchTheorem params (mkIdent p.name) p.name kind false
+      try
+        params ← addEMatchTheorem params (mkIdent p.name) p.name kind false (warn := false)
+      catch _ => pure () -- Don't worry if premise suggestion gave bad suggetions.
     | _ =>
       -- We could actually support arbitrary grind modifiers,
       -- and call `processParam` rather than `addEMatchTheorem`,

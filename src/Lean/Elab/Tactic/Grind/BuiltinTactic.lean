@@ -239,7 +239,8 @@ where
     | .cases _ | .intro | .inj | .ext | .symbol _ =>
       throwError "invalid modifier"
 
-def logAnchor (e : Expr) : TermElabM Unit := do
+def logAnchor (c : SplitInfo) : TermElabM Unit := do
+  let e := c.getExpr
   let stx ← getRef
   if e.isFVar || e.isConst then
     /-
@@ -266,16 +267,15 @@ def logAnchor (e : Expr) : TermElabM Unit := do
   let anchorRef ← elabAnchorRef anchor
   let goal ← getMainGoal
   let candidates := goal.split.candidates
-  let (e, goals, genNew) ← liftSearchM do
+  let (c, goals, genNew) ← liftSearchM do
     for c in candidates do
-      let e := c.getExpr
-      let anchor ← getAnchor c.getExpr
+      let anchor ← c.getAnchor
       if anchorRef.matches anchor then
         let some result ← split? c
           | throwError "`cases` tactic failed, case-split is not ready{indentExpr c.getExpr}"
-        return (e, result)
+        return (c, result)
     throwError "`cases` tactic failed, invalid anchor"
-  goal.withContext <| withRef anchor <| logAnchor e
+  goal.withContext <| withRef anchor <| logAnchor c
   let goals ← goals.filterMapM fun goal => do
     let goal := { goal with ematch.num := 0 }
     let (goal, _) ← liftGrindM <| SearchM.run goal do

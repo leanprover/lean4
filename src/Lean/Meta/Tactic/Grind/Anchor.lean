@@ -132,4 +132,7 @@ public def mkAnchorSyntax (numDigits : Nat) (anchor : UInt64) : CoreM (TSyntax `
   let anchorPrefix := anchor >>> (64 - 4*numDigits.toUInt64)
   mkAnchorSyntaxFromPrefix numDigits anchorPrefix
 
+public def SplitInfo.getAnchor (s : SplitInfo) : GrindM UInt64 := do
+  Grind.getAnchor s.getExpr
+
 end Lean.Meta.Grind

@@ -312,6 +312,10 @@ def getOrderingEqExpr : GrindM Expr := do
 def getIntExpr : GrindM Expr := do
   return (← readThe Context).intExpr
 
+/-- Returns the anchor references (if any) being used to restrict the search. -/
+def getAnchorRefs : GrindM (Option (Array AnchorRef)) := do
+  return (← readThe Context).anchorRefs?
+
 def resetAnchors : GrindM Unit := do
   modify fun s => { s with anchors := {} }
 

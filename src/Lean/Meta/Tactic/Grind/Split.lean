@@ -167,6 +167,15 @@ private inductive SplitCandidate where
   | none
   | some (c : SplitInfo) (numCases : Nat) (isRec : Bool) (tryPostpone : Bool)
 
+/--
+Returns `true`, if there are no anchor references restricting the search,
+or there is an anchor references `ref` s.t. `ref` matches `c`.
+-/
+private def checkAnchorRefs (c : SplitInfo) : GrindM Bool := do
+  let some anchorRefs ← getAnchorRefs | return true
+  let anchor ← c.getAnchor
+  return anchorRefs.any (·.matches anchor)
+
 /-- Returns the next case-split to be performed. It uses a very simple heuristic. -/
 private def selectNextSplit? : GoalM SplitCandidate := do
   if (← isInconsistent) then return .none
@@ -186,30 +195,38 @@ where
         modify fun s => { s with split.num := numSplits, ematch.num := 0 }
       return c?
     | c::cs =>
-    trace_goal[grind.debug.split] "checking: {c.getExpr}"
-    match (← checkSplitStatus c) with
-    | .notReady => go cs c? (c::cs')
-    | .resolved => go cs c? cs'
-    | .ready numCases isRec tryPostpone =>
-    if (← cheapCasesOnly) && numCases > 1 then
-      go cs c? (c::cs')
-    else match c? with
-    | .none => go cs (.some c numCases isRec tryPostpone) cs'
-    | .some c' numCases' _ tryPostpone' =>
-     let isBetter : GoalM Bool := do
-       if tryPostpone' && !tryPostpone then
-         return true
-       else if tryPostpone && !tryPostpone' then
-         return false
-       else if numCases == 1 && !isRec && numCases' > 1 then
-         return true
-       if (← getGeneration c.getExpr) < (← getGeneration c'.getExpr) then
-         return true
-       return numCases < numCases'
-     if (← isBetter) then
-        go cs (.some c numCases isRec tryPostpone) (c'::cs')
-      else
+    if !(← checkAnchorRefs c) then
+      /-
+      **Note**: `grind`s context contains anchor references restricting the
+      case-splits that can be performed, and `c` does not matches any of
+      the references provided.
+      -/
+      go cs c? cs'
+    else
+      trace_goal[grind.debug.split] "checking: {c.getExpr}"
+      match (← checkSplitStatus c) with
+      | .notReady => go cs c? (c::cs')
+      | .resolved => go cs c? cs'
+      | .ready numCases isRec tryPostpone =>
+      if (← cheapCasesOnly) && numCases > 1 then
         go cs c? (c::cs')
+      else match c? with
+      | .none => go cs (.some c numCases isRec tryPostpone) cs'
+      | .some c' numCases' _ tryPostpone' =>
+      let isBetter : GoalM Bool := do
+        if tryPostpone' && !tryPostpone then
+          return true
+        else if tryPostpone && !tryPostpone' then
+          return false
+        else if numCases == 1 && !isRec && numCases' > 1 then
+          return true
+        if (← getGeneration c.getExpr) < (← getGeneration c'.getExpr) then
+          return true
+        return numCases < numCases'
+      if (← isBetter) then
+          go cs (.some c numCases isRec tryPostpone) (c'::cs')
+        else
+          go cs c? (c::cs')
 
 private def mkGrindEM (c : Expr) :=
   mkApp (mkConst ``Lean.Grind.em) c
@@ -266,7 +283,7 @@ def getSplitCandidateAnchors (filter : Expr → GoalM Bool := fun _ => return tr
   let candidates := (← get).split.candidates
   let candidates ← candidates.toArray.filterMapM fun c => do
     let e := c.getExpr
-    let anchor ← getAnchor e
+    let anchor ← c.getAnchor
     let status ← checkSplitStatus c
     -- **Note**: we ignore case-splits that are not ready or have already been resolved.
     -- We may consider adding an option for including "not-ready" splits in the future.

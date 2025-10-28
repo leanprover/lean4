@@ -73,11 +73,12 @@ true
 true
 true
 [Compiler.IR] [result]
-    def _private.lean.sint_basic.0.myId8 (x_1 : u8) : u8 :=
+    def _private.lean.sint_basic.0.myId8 (x_1 : i8) : i8 :=
       ret x_1
-    def _private.lean.sint_basic.0.myId8._boxed (x_1 : tagged) : tagged :=
-      let x_2 : u8 := unbox x_1;
-      let x_3 : u8 := _private.lean.sint_basic.0.myId8 x_2;
+    def _private.lean.sint_basic.0.myId8._boxed (x_1 : tobj) : tobj :=
+      let x_2 : i8 := unbox x_1;
+      dec x_1;
+      let x_3 : i8 := _private.lean.sint_basic.0.myId8 x_2;
       let x_4 : tobj := box x_3;
       ret x_4
 Int16 : Type
@@ -155,11 +156,12 @@ true
 true
 true
 [Compiler.IR] [result]
-    def _private.lean.sint_basic.0.myId16 (x_1 : u16) : u16 :=
+    def _private.lean.sint_basic.0.myId16 (x_1 : i16) : i16 :=
       ret x_1
-    def _private.lean.sint_basic.0.myId16._boxed (x_1 : tagged) : tagged :=
-      let x_2 : u16 := unbox x_1;
-      let x_3 : u16 := _private.lean.sint_basic.0.myId16 x_2;
+    def _private.lean.sint_basic.0.myId16._boxed (x_1 : tobj) : tobj :=
+      let x_2 : i16 := unbox x_1;
+      dec x_1;
+      let x_3 : i16 := _private.lean.sint_basic.0.myId16 x_2;
       let x_4 : tobj := box x_3;
       ret x_4
 Int32 : Type
@@ -237,12 +239,12 @@ true
 true
 true
 [Compiler.IR] [result]
-    def _private.lean.sint_basic.0.myId32 (x_1 : u32) : u32 :=
+    def _private.lean.sint_basic.0.myId32 (x_1 : i32) : i32 :=
       ret x_1
     def _private.lean.sint_basic.0.myId32._boxed (x_1 : tobj) : tobj :=
-      let x_2 : u32 := unbox x_1;
+      let x_2 : i32 := unbox x_1;
       dec x_1;
-      let x_3 : u32 := _private.lean.sint_basic.0.myId32 x_2;
+      let x_3 : i32 := _private.lean.sint_basic.0.myId32 x_2;
       let x_4 : tobj := box x_3;
       ret x_4
 Int64 : Type
@@ -320,12 +322,12 @@ true
 true
 true
 [Compiler.IR] [result]
-    def _private.lean.sint_basic.0.myId64 (x_1 : u64) : u64 :=
+    def _private.lean.sint_basic.0.myId64 (x_1 : i64) : i64 :=
       ret x_1
     def _private.lean.sint_basic.0.myId64._boxed (x_1 : tobj) : tobj :=
-      let x_2 : u64 := unbox x_1;
+      let x_2 : i64 := unbox x_1;
       dec x_1;
-      let x_3 : u64 := _private.lean.sint_basic.0.myId64 x_2;
+      let x_3 : i64 := _private.lean.sint_basic.0.myId64 x_2;
       let x_4 : tobj := box x_3;
       ret x_4
 ISize : Type
@@ -403,11 +405,11 @@ true
 true
 true
 [Compiler.IR] [result]
-    def _private.lean.sint_basic.0.myIdSize (x_1 : usize) : usize :=
+    def _private.lean.sint_basic.0.myIdSize (x_1 : isize) : isize :=
       ret x_1
     def _private.lean.sint_basic.0.myIdSize._boxed (x_1 : tobj) : tobj :=
-      let x_2 : usize := unbox x_1;
+      let x_2 : isize := unbox x_1;
       dec x_1;
-      let x_3 : usize := _private.lean.sint_basic.0.myIdSize x_2;
+      let x_3 : isize := _private.lean.sint_basic.0.myIdSize x_2;
       let x_4 : tobj := box x_3;
       ret x_4

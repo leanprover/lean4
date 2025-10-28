@@ -176,4 +176,4 @@ set_option trace.grind.cutsat.assert true in -- cutsat should **not** process th
 set_option trace.grind.linarith.assert true in -- linarith should take over
 set_option trace.grind.linarith.assert.store false in
 example (x y z : Int) (h1 : 2 * x < 3 * y) (h2 : -4 * x + 2 * z < 0) : ¬ 12*y - 4* z < 0 := by
-  grind -cutsat
+  grind -lia

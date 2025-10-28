@@ -1139,7 +1139,7 @@ theorem mul_ofNat [NeZero n] (x : Fin n) (y : Nat) :
 theorem val_mul {n : Nat} : ∀ a b : Fin n, (a * b).val = a.val * b.val % n
   | ⟨_, _⟩, ⟨_, _⟩ => rfl
 
-@[deprecated coe_mul (since := "2025-10-26")]
+@[deprecated val_mul (since := "2025-10-26")]
 theorem coe_mul {n : Nat} : ∀ a b : Fin n, ((a * b : Fin n) : Nat) = a * b % n
   | ⟨_, _⟩, ⟨_, _⟩ => rfl
 

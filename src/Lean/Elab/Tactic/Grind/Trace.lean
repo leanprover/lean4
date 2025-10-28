@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Elab.Tactic.Grind.Basic
+import Lean.Elab.Tactic.Grind.Config
 import Init.Grind.Interactive
 import Lean.Meta.Tactic.TryThis
 import Lean.Meta.Tactic.Grind.Action
@@ -26,18 +27,20 @@ def mkFinish (maxIterations : Nat) : IO Action := do
 def maxIterations := 1000 -- **TODO**: Add option
 
 @[builtin_grind_tactic finishTrace] def evalFinishTrace : GrindTactic := fun stx => do
-  let a ← mkFinish maxIterations
-  let goal ← getMainGoal
-  withTracing do
-  match (← liftGrindM <| a.run goal) with
-  | .closed seq =>
-    replaceMainGoal []
-    let seq := Action.mkGrindSeq seq
-    Tactic.TryThis.addSuggestion stx { suggestion := .tsyntax seq }
-  | .stuck gs =>
-    let goal :: _ := gs | throwError "`finish?` failed, but resulting goal is not available"
-    let params := (← read).params
-    let result ← liftGrindM do mkResult params (some goal)
-    throwError "`finish?` failed\n{← result.toMessageData}"
+  let `(grind| finish? $[$configItems]*) := stx | throwUnsupportedSyntax
+  withConfigItems configItems do
+    let a ← mkFinish maxIterations
+    let goal ← getMainGoal
+    withTracing do
+    match (← liftGrindM <| a.run goal) with
+    | .closed seq =>
+      replaceMainGoal []
+      let seq := Action.mkGrindSeq seq
+      Tactic.TryThis.addSuggestion stx { suggestion := .tsyntax seq }
+    | .stuck gs =>
+      let goal :: _ := gs | throwError "`finish?` failed, but resulting goal is not available"
+      let params := (← read).params
+      let result ← liftGrindM do mkResult params (some goal)
+      throwError "`finish?` failed\n{← result.toMessageData}"
 
 end Lean.Elab.Tactic.Grind

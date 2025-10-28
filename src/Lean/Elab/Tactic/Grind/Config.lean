@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.CoreM
+public import Lean.Elab.Tactic.Grind.Basic
 meta import Lean.Elab.Tactic.ConfigSetter
 public section
 namespace Lean.Elab.Tactic.Grind
@@ -28,5 +28,14 @@ def elabConfigItems (init : Grind.Config) (items : Array (TSyntax `Lean.Parser.T
       config ← setConfigField config fieldName.getId (.ofNat val.getNat)
     | _ => throwErrorAt item "unexpected configuration option"
   return config
+
+def withConfigItems (items : Array (TSyntax `Lean.Parser.Tactic.configItem))
+    (k : GrindTacticM α) : GrindTacticM α := do
+  if items.isEmpty then
+    k
+  else
+    let config := (← read).ctx.config
+    let config ← elabConfigItems config items
+    withReader (fun c => { c with ctx.config := config }) do k
 
 end Lean.Elab.Tactic.Grind

@@ -20,3 +20,17 @@ example : f (x + 100) = a := by
     set_config (lia := true) in
     have : 3*x ≠ 1
     sorry
+
+opaque foo : Nat → Nat
+axiom fooAx1 : foo (x + 1) = foo x
+axiom fooAx2 : foo 0 ≥ 10
+
+example : foo 40 ≥ 5 := by
+  grind [fooAx1] =>
+    have := fooAx2
+    finish (gen := 50) (ematch := 50)
+
+example : foo 10 ≥ 5 := by
+  grind [fooAx1] =>
+    have := fooAx2
+    finish? (gen := 10) (ematch := 10)

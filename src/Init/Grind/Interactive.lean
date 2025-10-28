@@ -129,10 +129,10 @@ syntax (name := casesTrace) "cases?" grindFilter : grind
 syntax (name := done) "done" : grind
 
 /-- `finish` tries to close the current goal using `grind`'s default strategy -/
-syntax (name := finish) "finish" : grind
+syntax (name := finish) "finish" ppSpace configItem* : grind
 
 /-- `finish?` tries to close the current goal using `grind`'s default strategy and suggests a tactic script. -/
-syntax (name := finishTrace) "finish?" : grind
+syntax (name := finishTrace) "finish?" ppSpace configItem* : grind
 
 /--
 The `have` tactic is for adding opaque definitions and hypotheses to the local context of the main goal.

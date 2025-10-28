@@ -82,14 +82,16 @@ def evalGrindSeq : GrindTactic := fun stx =>
 
 open Meta Grind
 
-@[builtin_grind_tactic finish] def evalFinish : GrindTactic := fun _ => do
-  let goal ← getMainGoal
-  if let some goal ← liftGrindM <| solve goal then
-    let params := (← read).params
-    let result ← liftGrindM do mkResult params (some goal)
-    throwError "`finish` failed\n{← result.toMessageData}"
-  else
-    replaceMainGoal []
+@[builtin_grind_tactic finish] def evalFinish : GrindTactic := fun stx => withMainContext do
+  let `(grind| finish $[$configItems]*) := stx | throwUnsupportedSyntax
+  withConfigItems configItems do
+    let goal ← getMainGoal
+    if let some goal ← liftGrindM <| solve goal then
+      let params := (← read).params
+      let result ← liftGrindM do mkResult params (some goal)
+      throwError "`finish` failed\n{← result.toMessageData}"
+    else
+      replaceMainGoal []
 
 /--
 Helper function to executing "check" tactics that return a flag indicating
@@ -432,10 +434,7 @@ where
 
 @[builtin_grind_tactic setConfig] def elabSetConfig : GrindTactic := fun stx => do
   let `(grind| set_config $[$items:configItem]* in $seq:grindSeq) := stx | throwUnsupportedSyntax
-  let config := (← read).ctx.config
-  let config ← elabConfigItems config items
-  withReader (fun c => { c with ctx.config := config }) do
-    evalGrindTactic seq
+  withConfigItems items do evalGrindTactic seq
 
 @[builtin_grind_tactic mbtc] def elabMBTC : GrindTactic := fun _ => do
   liftGoalM do

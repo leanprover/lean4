@@ -25,8 +25,9 @@ The iterator yields the elements of the map in order and then terminates.
 * `Productive` instance: always
 -/
 @[inline]
-public def iter {α : Type u} {β : α → Type v} [Ord α] (m : DTreeMap α β) :=
-  Raw.iter ⟨m.inner⟩
+public def iter {α : Type u} {β : α → Type v}
+    (cmp : α → α → Ordering := by exact compare) (m : DTreeMap α β cmp) :=
+  Raw.iter cmp ⟨m.inner⟩
 
 /--
 Returns a finite iterator over the keys of a dependent tree map.
@@ -40,8 +41,9 @@ The key and value types must live in the same universe.
 * `Productive` instance: always
 -/
 @[inline]
-public def keysIter {α : Type u} {β : α → Type u} [Ord α] (m : Raw α β) :=
-  Raw.keysIter ⟨m.inner⟩
+public def keysIter {α : Type u} {β : α → Type u}
+    (cmp : α → α → Ordering := by exact compare) (m : DTreeMap α β cmp) :=
+  Raw.keysIter cmp ⟨m.inner⟩
 
 /--
 Returns a finite iterator over the values of a tree map.
@@ -55,16 +57,20 @@ The key and value types must live in the same universe.
 * `Productive` instance: always
 -/
 @[inline]
-public def valuesIter {α : Type u} {β : Type u} [Ord α](m : Raw α (fun _ => β)) :=
-  Raw.valuesIter ⟨m.inner⟩
+public def valuesIter {α : Type u} {β : Type u} (cmp : α → α → Ordering := by exact compare)
+    (m : DTreeMap α (fun _ => β) cmp) :=
+  Raw.valuesIter cmp ⟨m.inner⟩
 
-public theorem iter_toList [Ord α] (m : Raw α β) :
-    m.iter.toList = m.toList := Raw.iter_toList ⟨m.inner⟩
+@[simp]
+public theorem iter_toList {cmp : α → α → Ordering} (m : DTreeMap α β cmp) :
+    (m.iter cmp).toList = m.toList := Raw.iter_toList ⟨m.inner⟩
 
-public theorem keysIter_toList {α β} [Ord α] (m : Raw α β) :
-    m.keysIter.toList = m.keys := Raw.keysIter_toList ⟨m.inner⟩
+@[simp]
+public theorem keysIter_toList {α β} {cmp : α → α → Ordering} (m : DTreeMap α β cmp) :
+    (m.keysIter cmp).toList = m.keys := Raw.keysIter_toList ⟨m.inner⟩
 
-public theorem valuesIter_toList {α β} [Ord α] (m : Raw α (fun _ => β)) :
-    m.valuesIter.toList = m.values := Raw.valuesIter_toList ⟨m.inner⟩
+@[simp]
+public theorem valuesIter_toList {α β} {cmp : α → α → Ordering} (m : DTreeMap α (fun _ => β) cmp) :
+    (m.valuesIter cmp).toList = m.values := Raw.valuesIter_toList ⟨m.inner⟩
 
 end Std.DTreeMap

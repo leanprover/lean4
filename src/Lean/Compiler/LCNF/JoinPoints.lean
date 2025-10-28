@@ -611,8 +611,8 @@ def Decl.findJoinPoints (decl : Decl) : CompilerM Decl := do
   trace[Compiler.findJoinPoints] "Found {findResult.candidates.size} jp candidates for {decl.name}"
   JoinPointFinder.replace decl findResult
 
-def findJoinPoints : Pass :=
-  .mkPerDeclaration `findJoinPoints Decl.findJoinPoints .base
+def findJoinPoints (occurrence : Nat := 0) : Pass :=
+  .mkPerDeclaration `findJoinPoints Decl.findJoinPoints .base (occurrence := occurrence)
 
 builtin_initialize
   registerTraceClass `Compiler.findJoinPoints (inherited := true)

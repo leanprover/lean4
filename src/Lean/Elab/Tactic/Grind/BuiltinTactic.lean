@@ -155,14 +155,14 @@ def ematchThms (only : Bool) (thms : Array EMatchTheorem) : GrindTacticM Unit :=
       | _ => throwErrorAt thmRef "unexpected theorem reference"
   ematchThms only thms
 where
-  collectThms (numDigits : Nat) (anchorPrefix : UInt64) (thms : PArray EMatchTheorem) : StateT (Array EMatchTheorem) GrindTacticM Unit := do
+  collectThms (anchorRef : AnchorRef) (thms : PArray EMatchTheorem) : StateT (Array EMatchTheorem) GrindTacticM Unit := do
     let mut found : Std.HashSet Expr := {}
     for thm in thms do
       -- **Note**: `anchors` are cached using pointer addresses, if this is a performance issue, we should
       -- cache the theorem types.
       let type ← inferType thm.proof
       let anchor ← liftGrindM <| getAnchor type
-      if isAnchorPrefix numDigits anchorPrefix anchor then
+      if anchorRef.matches anchor then
         -- **Note**: We display the anchor term at most once.
         unless found.contains type do
           logTheoremAnchor thm.proof
@@ -170,11 +170,11 @@ where
         modify (·.push thm)
 
   elabLocalEMatchTheorem (anchor : TSyntax `hexnum) : GrindTacticM (Array EMatchTheorem) := withRef anchor do
-    let { numDigits, anchorPrefix } ← elabAnchor anchor
+    let anchorRef ← elabAnchorRef anchor
     let goal ← getMainGoal
     let thms ← StateT.run' (s := #[]) do
-      collectThms numDigits anchorPrefix goal.ematch.thms
-      collectThms numDigits anchorPrefix goal.ematch.newThms
+      collectThms anchorRef goal.ematch.thms
+      collectThms anchorRef goal.ematch.newThms
       get
     if thms.isEmpty then
       throwError "no local theorems"
@@ -263,14 +263,14 @@ def logAnchor (e : Expr) : TermElabM Unit := do
 
 @[builtin_grind_tactic cases] def evalCases : GrindTactic := fun stx => do
   let `(grind| cases #$anchor:hexnum) := stx | throwUnsupportedSyntax
-  let { numDigits, anchorPrefix := val } ← elabAnchor anchor
+  let anchorRef ← elabAnchorRef anchor
   let goal ← getMainGoal
   let candidates := goal.split.candidates
   let (e, goals, genNew) ← liftSearchM do
     for c in candidates do
       let e := c.getExpr
       let anchor ← getAnchor c.getExpr
-      if isAnchorPrefix numDigits val anchor then
+      if anchorRef.matches anchor then
         let some result ← split? c
           | throwError "`cases` tactic failed, case-split is not ready{indentExpr c.getExpr}"
         return (e, result)

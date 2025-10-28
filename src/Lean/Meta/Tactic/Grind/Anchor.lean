@@ -86,11 +86,11 @@ public partial def getAnchor (e : Expr) : GrindM UInt64 := do
   return a
 
 /--
-Example: `isAnchorPrefix 4 0x0c88 0x0c88ab10ef20206a` returns `true`
+Example: `{ numDigits := 4, anchorPrefix := 0x0c88 }.matches 0x0c88ab10ef20206a` returns `true`
 -/
-public def isAnchorPrefix (numHexDigits : Nat) (anchorPrefix : UInt64) (anchor : UInt64) : Bool :=
-  let shift := 64 - numHexDigits.toUInt64*4
-  anchorPrefix == anchor >>> shift
+public def AnchorRef.matches (anchorRef : AnchorRef) (anchor : UInt64) : Bool :=
+  let shift := 64 - anchorRef.numDigits.toUInt64*4
+  anchorRef.anchorPrefix == anchor >>> shift
 
 public class HasAnchor (α : Type u) where
   getAnchor : α → UInt64

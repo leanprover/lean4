@@ -9,7 +9,7 @@ public import Lean.Meta.Tactic.Grind.Types
 namespace Lean.Elab.Tactic.Grind
 open Meta Grind
 
-public def elabAnchor (anchor : TSyntax `hexnum) : CoreM Anchor := do
+public def elabAnchorRef (anchor : TSyntax `hexnum) : CoreM AnchorRef := do
   let numDigits := anchor.getHexNumSize
   let val := anchor.getHexNumVal
   if val >= UInt64.size then

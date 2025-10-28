@@ -62,7 +62,7 @@ Anchors are used to reference terms, local theorems, and case-splits in the `gri
 We also use anchors to prune the search space when they are provided as `grind` parameters
 and the `finish` tactic.
 -/
-structure Anchor where
+structure AnchorRef where
   numDigits : Nat
   anchorPrefix : UInt64
 
@@ -110,10 +110,10 @@ structure Context where
   simpMethods  : Simp.Methods
   config       : Grind.Config
   /--
-  If `anchors? := some anchors`, then only local instances and case-splits in `anchors`
+  If `anchorRefs? := some anchorRefs`, then only local instances and case-splits in `anchorRefs`
   are considered.
   -/
-  anchors?     : Option (Array Anchor)
+  anchorRefs?  : Option (Array AnchorRef)
   /--
   If `cheapCases` is `true`, `grind` only applies `cases` to types that contain
   at most one minor premise.

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Server.ServerTask
+public import Init.System.Promise
 
 public section
 
@@ -37,10 +38,10 @@ def cancelByEdit (tk : RequestCancellationToken) : BaseIO Unit := do
   tk.editCancellationPromise.resolve ()
 
 def requestCancellationTask (tk : RequestCancellationToken): ServerTask Unit :=
-  tk.requestCancellationPromise.resultD ()
+  tk.requestCancellationPromise.result!
 
 def editCancellationTask (tk : RequestCancellationToken) : ServerTask Unit :=
-  tk.editCancellationPromise.resultD ()
+  tk.editCancellationPromise.result!
 
 def cancellationTasks (tk : RequestCancellationToken) : List (ServerTask Unit) :=
   [tk.requestCancellationTask, tk.editCancellationTask]

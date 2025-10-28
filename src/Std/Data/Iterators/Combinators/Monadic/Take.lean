@@ -149,12 +149,4 @@ instance Take.instIteratorLoopPartial [Monad m] [Monad n] [Iterator α m β]
     IteratorLoopPartial (Take α m β) m n :=
   .defaultImplementation
 
-instance {α : Type w} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id Id] :
-    IteratorSize (Take α Id β) Id :=
-  .defaultImplementation
-
-instance {α : Type w} [Iterator α Id β] [IteratorLoopPartial α Id Id] :
-    IteratorSizePartial (Take α Id β) Id :=
-  .defaultImplementation
-
 end Std.Iterators

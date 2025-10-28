@@ -57,6 +57,15 @@ register_builtin_option grind.warning : Bool := {
   descr    := "generate a warning whenever `grind` is used"
 }
 
+/--
+Anchors are used to reference terms, local theorems, and case-splits in the `grind` state.
+We also use anchors to prune the search space when they are provided as `grind` parameters
+and the `finish` tactic.
+-/
+structure Anchor where
+  numDigits : Nat
+  anchorPrefix : UInt64
+
 /-- Opaque solver extension state. -/
 opaque SolverExtensionStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩⟩
 @[expose] def SolverExtensionState : Type := SolverExtensionStateSpec.fst
@@ -100,6 +109,11 @@ structure Context where
   simp         : Simp.Context
   simpMethods  : Simp.Methods
   config       : Grind.Config
+  /--
+  If `anchors? := some anchors`, then only local instances and case-splits in `anchors`
+  are considered.
+  -/
+  anchors?     : Option (Array Anchor)
   /--
   If `cheapCases` is `true`, `grind` only applies `cases` to types that contain
   at most one minor premise.

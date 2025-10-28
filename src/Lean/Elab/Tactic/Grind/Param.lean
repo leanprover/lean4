@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Main
 import Lean.Elab.Tactic.Grind.Basic
+import Lean.Elab.Tactic.Grind.Anchor
 namespace Lean.Elab.Tactic
 open Meta
 
@@ -135,6 +136,11 @@ def processParam (params : Grind.Params)
     params := { params with symPrios := params.symPrios.insert declName prio }
   return params
 
+def processAnchor (params : Grind.Params) (val : TSyntax `hexnum) : CoreM Grind.Params := do
+  let anchors := params.anchors?.getD #[]
+  let anchor ← Grind.elabAnchor val
+  return { params with anchors? := some <| anchors.push anchor }
+
 public def elabGrindParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.Tactic.grindParam)
     (only : Bool) (lax : Bool := false) : MetaM Grind.Params := do
   let mut params := params
@@ -154,6 +160,8 @@ public def elabGrindParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.T
         params ← processParam params p mod? id (minIndexable := false) (only := only)
       | `(Parser.Tactic.grindParam| ! $[$mod?:grindMod]? $id:ident) =>
         params ← processParam params p mod? id (minIndexable := true) (only := only)
+      | `(Parser.Tactic.grindParam| #$anchor:hexnum) =>
+        params ← processAnchor params anchor
       | _ => throwError "unexpected `grind` parameter{indentD p}"
     catch ex =>
       if !lax then throw ex

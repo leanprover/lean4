@@ -24,6 +24,7 @@ import Lean.Meta.Tactic.ExposeNames
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.RenameInaccessibles
 import Lean.Elab.Tactic.Grind.Filter
+import Lean.Elab.Tactic.Grind.Anchor
 import Lean.Elab.Tactic.Grind.ShowState
 import Lean.Elab.Tactic.Grind.Config
 import Lean.Elab.SetOption
@@ -139,14 +140,6 @@ def ematchThms (only : Bool) (thms : Array EMatchTheorem) : GrindTacticM Unit :=
     getGoal
   replaceMainGoal [goal]
 
-def elabAnchor (anchor : TSyntax `hexnum) : CoreM (Nat × UInt64) := do
-  let numDigits := anchor.getHexNumSize
-  let val := anchor.getHexNumVal
-  if val >= UInt64.size then
-    throwError "invalid anchor, value is too big"
-  let val := val.toUInt64
-  return (numDigits, val)
-
 @[builtin_grind_tactic instantiate] def evalInstantiate : GrindTactic := fun stx => withMainContext do
   let `(grind| instantiate $[ only%$only ]? $[ approx ]? $[ [ $[$thmRefs?:thm],* ] ]?) := stx | throwUnsupportedSyntax
   let goal ← getMainGoal
@@ -177,7 +170,7 @@ where
         modify (·.push thm)
 
   elabLocalEMatchTheorem (anchor : TSyntax `hexnum) : GrindTacticM (Array EMatchTheorem) := withRef anchor do
-    let (numDigits, anchorPrefix) ← elabAnchor anchor
+    let { numDigits, anchorPrefix } ← elabAnchor anchor
     let goal ← getMainGoal
     let thms ← StateT.run' (s := #[]) do
       collectThms numDigits anchorPrefix goal.ematch.thms
@@ -270,7 +263,7 @@ def logAnchor (e : Expr) : TermElabM Unit := do
 
 @[builtin_grind_tactic cases] def evalCases : GrindTactic := fun stx => do
   let `(grind| cases #$anchor:hexnum) := stx | throwUnsupportedSyntax
-  let (numDigits, val) ← elabAnchor anchor
+  let { numDigits, anchorPrefix := val } ← elabAnchor anchor
   let goal ← getMainGoal
   let candidates := goal.split.candidates
   let (e, goals, genNew) ← liftSearchM do

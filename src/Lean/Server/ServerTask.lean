@@ -6,7 +6,7 @@ Authors: Marc Huisinga
 module
 
 prelude
-public import Init.System.IO
+public import Init.Task
 
 public section
 

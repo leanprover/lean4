@@ -374,8 +374,6 @@ where go : ∀ (i : Nat) (l : List α),
       omega
 termination_by _ l => l.length
 
-
-
 theorem mergeSort_cons {le : α → α → Bool}
     (trans : ∀ (a b c : α), le a b → le b c → le a c)
     (total : ∀ (a b : α), le a b || le b a)

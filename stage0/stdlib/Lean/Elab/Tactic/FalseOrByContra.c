@@ -171,7 +171,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("expected at most one sugoal", 27, 27);
+x_1 = lean_mk_string_unchecked("expected at most one subgoal", 28, 28);
 return x_1;
 }
 }

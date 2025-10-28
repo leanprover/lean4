@@ -91,9 +91,10 @@ theorem isEqv_self [DecidableEq α] (xs : Array α) : Array.isEqv xs xs (· = ·
 
 instance [DecidableEq α] : DecidableEq (Array α) :=
   fun xs ys =>
-    match h:isEqv xs ys (fun a b => a = b) with
-    | true  => isTrue (eq_of_isEqv xs ys h)
-    | false => isFalse fun h' => by subst h'; rw [isEqv_self] at h; contradiction
+    Decidable.intro (isEqv xs ys (fun a b => a = b))
+      (match h : isEqv xs ys (fun a b => a = b) with
+      | true  => eq_of_isEqv xs ys h
+      | false => fun h' => by subst h'; rw [isEqv_self] at h; contradiction)
 
 theorem beq_eq_decide [BEq α] (xs ys : Array α) :
     (xs == ys) = if h : xs.size = ys.size then

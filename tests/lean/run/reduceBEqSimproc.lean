@@ -31,11 +31,11 @@ deriving BEq
 info: Linear.instBEqL.beq.eq_1.{u_1} {α✝ : Type u_1} [BEq α✝] (x✝ x✝¹ : L α✝) :
   instBEqL.beq x✝ x✝¹ =
     match decEq x✝.ctorIdx x✝¹.ctorIdx with
-    | isTrue h =>
+    | { decide := true, reflects_decide := h } =>
       match x✝, x✝¹, h with
       | L.nil, L.nil, ⋯ => true
       | L.cons a a_1, L.cons a' a'_1, ⋯ => a == a' && instBEqL.beq a_1 a'_1
-    | isFalse h => false
+    | { decide := false, reflects_decide := reflects_decide } => false
 -/
 #guard_msgs in
 #check instBEqL.beq.eq_1

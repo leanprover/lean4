@@ -326,7 +326,7 @@ where
         if info.numCtors = 1 then
           withLocalDeclD `p P fun p => mkLambdaFVars #[p] p
         else
-          mkAppOptM ``noConfusionEnum #[none, none, none, ctorIdx, P, x, y, h]
+          mkAppOptM ``noConfusionEnum #[none, ctorIdx, P, x, y, h]
       let declName  := Name.mkStr enumName "noConfusion"
       addAndCompile <| Declaration.defnDecl {
         name        := declName

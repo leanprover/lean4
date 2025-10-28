@@ -1289,8 +1289,8 @@ goto _start;
 block_32:
 {
 lean_object* x_28; uint8_t x_29; 
-x_28 = lean_nat_add(x_22, x_24);
-lean_dec(x_24);
+x_28 = lean_nat_add(x_22, x_25);
+lean_dec(x_25);
 x_29 = lean_nat_dec_le(x_23, x_28);
 if (x_29 == 0)
 {
@@ -1300,7 +1300,7 @@ x_30 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_30, 0, x_21);
 lean_ctor_set(x_30, 1, x_27);
 lean_ctor_set(x_30, 2, x_28);
-x_15 = x_25;
+x_15 = x_24;
 x_16 = x_26;
 x_17 = x_30;
 goto block_20;
@@ -1315,7 +1315,7 @@ x_31 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_31, 0, x_21);
 lean_ctor_set(x_31, 1, x_27);
 lean_ctor_set(x_31, 2, x_23);
-x_15 = x_25;
+x_15 = x_24;
 x_16 = x_26;
 x_17 = x_31;
 goto block_20;
@@ -1348,8 +1348,8 @@ lean_dec(x_3);
 x_41 = lean_nat_dec_le(x_23, x_40);
 if (x_41 == 0)
 {
-x_24 = x_38;
-x_25 = x_37;
+x_24 = x_37;
+x_25 = x_38;
 x_26 = x_33;
 x_27 = x_40;
 goto block_32;
@@ -1358,8 +1358,8 @@ else
 {
 lean_dec(x_40);
 lean_inc(x_23);
-x_24 = x_38;
-x_25 = x_37;
+x_24 = x_37;
+x_25 = x_38;
 x_26 = x_33;
 x_27 = x_23;
 goto block_32;

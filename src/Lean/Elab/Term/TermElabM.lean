@@ -1461,10 +1461,6 @@ private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catch
   | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
   | elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
 
-instance : MonadMacroAdapter TermElabM where
-  getNextMacroScope := return (← getThe Core.State).nextMacroScope
-  setNextMacroScope next := modifyThe Core.State fun s => { s with nextMacroScope := next }
-
 private def isExplicit (stx : Syntax) : Bool :=
   match stx with
   | `(@$_) => true

@@ -511,7 +511,6 @@ LEAN_EXPORT lean_object* l___private_Std_Sync_Broadcast_0__Std_Bounded_close___r
 LEAN_EXPORT lean_object* l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_tryRecv___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__17_00___x40_Std_Sync_Broadcast_64347732____hygCtx___hyg_6_;
 static lean_object* l_Std_Broadcast_instReprError_repr___closed__6;
-uint8_t l_instDecidableNot___redArg(uint8_t);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_io_bind_task(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_recvSelector___redArg___lam__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10433,15 +10432,22 @@ return x_2;
 LEAN_EXPORT lean_object* l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_recv___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; 
+lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 7);
 lean_inc(x_6);
 lean_dec_ref(x_5);
 x_7 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_recv_spec__0___redArg(x_1, x_6);
 lean_dec(x_6);
-x_8 = l_instDecidableNot___redArg(x_7);
-if (x_8 == 0)
+if (x_7 == 0)
+{
+lean_object* x_8; 
+lean_dec_ref(x_2);
+lean_dec(x_1);
+x_8 = l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_recv___redArg___lam__1___closed__0;
+return x_8;
+}
+else
 {
 lean_object* x_9; 
 x_9 = l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_tryRecv_x27___at___00__private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_tryRecv_spec__0___redArg(x_1, x_3);
@@ -10547,14 +10553,6 @@ lean_dec_ref(x_2);
 x_45 = lean_task_pure(x_9);
 return x_45;
 }
-}
-else
-{
-lean_object* x_46; 
-lean_dec_ref(x_2);
-lean_dec(x_1);
-x_46 = l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_recv___redArg___lam__1___closed__0;
-return x_46;
 }
 }
 }

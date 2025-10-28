@@ -547,7 +547,6 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitMainFn___closed__16;
 lean_object* l_Lean_IR_mkVarJPMaps(lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitJmp___closed__2;
-uint8_t l_instDecidableNot___redArg(uint8_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___at___00Lean_IR_EmitC_emitSimpleExternalCall_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_toHexDigit___boxed(lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitReset___closed__2;
@@ -5239,13 +5238,18 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_isIf(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; uint8_t x_4; uint8_t x_5; 
+lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 x_2 = lean_array_get_size(x_1);
 x_3 = lean_unsigned_to_nat(2u);
 x_4 = lean_nat_dec_eq(x_2, x_3);
 lean_dec(x_2);
-x_5 = l_instDecidableNot___redArg(x_4);
-if (x_5 == 0)
+if (x_4 == 0)
+{
+lean_object* x_5; 
+x_5 = lean_box(0);
+return x_5;
+}
+else
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_unsigned_to_nat(0u);
@@ -5306,12 +5310,6 @@ lean_dec_ref(x_7);
 x_26 = lean_box(0);
 return x_26;
 }
-}
-else
-{
-lean_object* x_27; 
-x_27 = lean_box(0);
-return x_27;
 }
 }
 }

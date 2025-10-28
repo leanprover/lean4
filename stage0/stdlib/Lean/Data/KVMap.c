@@ -211,7 +211,6 @@ uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* l_List_toString___redArg(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Bool_repr___redArg(uint8_t);
-uint8_t l_instDecidableNot___redArg(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_KVMap_get_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instReprKVMap_repr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KVMap_insert(lean_object*, lean_object*, lean_object*);
@@ -2790,20 +2789,12 @@ uint8_t x_5;
 x_5 = !lean_is_exclusive(x_2);
 if (x_5 == 0)
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; uint8_t x_10; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_6 = lean_ctor_get(x_2, 0);
 x_7 = lean_ctor_get(x_2, 1);
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_name_eq(x_8, x_1);
-x_10 = l_instDecidableNot___redArg(x_9);
-if (x_10 == 0)
-{
-lean_free_object(x_2);
-lean_dec(x_6);
-x_2 = x_7;
-goto _start;
-}
-else
+if (x_9 == 0)
 {
 lean_ctor_set(x_2, 1, x_3);
 {
@@ -2814,32 +2805,38 @@ x_3 = _tmp_2;
 }
 goto _start;
 }
+else
+{
+lean_free_object(x_2);
+lean_dec(x_6);
+x_2 = x_7;
+goto _start;
+}
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; uint8_t x_17; 
-x_13 = lean_ctor_get(x_2, 0);
-x_14 = lean_ctor_get(x_2, 1);
-lean_inc(x_14);
+lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_12 = lean_ctor_get(x_2, 0);
+x_13 = lean_ctor_get(x_2, 1);
 lean_inc(x_13);
+lean_inc(x_12);
 lean_dec(x_2);
-x_15 = lean_ctor_get(x_13, 0);
-x_16 = lean_name_eq(x_15, x_1);
-x_17 = l_instDecidableNot___redArg(x_16);
-if (x_17 == 0)
+x_14 = lean_ctor_get(x_12, 0);
+x_15 = lean_name_eq(x_14, x_1);
+if (x_15 == 0)
 {
-lean_dec(x_13);
-x_2 = x_14;
+lean_object* x_16; 
+x_16 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_16, 0, x_12);
+lean_ctor_set(x_16, 1, x_3);
+x_2 = x_13;
+x_3 = x_16;
 goto _start;
 }
 else
 {
-lean_object* x_19; 
-x_19 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_19, 0, x_13);
-lean_ctor_set(x_19, 1, x_3);
-x_2 = x_14;
-x_3 = x_19;
+lean_dec(x_12);
+x_2 = x_13;
 goto _start;
 }
 }

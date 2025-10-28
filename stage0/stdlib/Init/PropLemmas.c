@@ -15,16 +15,10 @@ extern "C" {
 #endif
 LEAN_EXPORT uint8_t l_decidable__of__iff___redArg(uint8_t);
 LEAN_EXPORT lean_object* l_decidable__of__iff___redArg___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_exists__prop__decidable___redArg(uint8_t, lean_object*);
 LEAN_EXPORT uint8_t l_decidable__of__iff(lean_object*, lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT uint8_t l_forall__prop__decidable___redArg(uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_forall__prop__decidable___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Or_by__cases_x27___redArg(uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_exists__prop__decidable___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Or_by__cases_x27(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_decidable__of__bool___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_forall__prop__decidable(lean_object*, lean_object*, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_forall__prop__decidable___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidablePredComp___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instDecidablePredComp___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_decidable__of__iff___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -36,14 +30,12 @@ LEAN_EXPORT uint8_t l_Decidable_predToBool___redArg___lam__0(lean_object*, lean_
 LEAN_EXPORT uint8_t l_decidable__of__bool(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Or_by__cases___redArg(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_decidable__of__iff_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_exists__prop__decidable___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Or_by__cases_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_decidable__of__iff_x27(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Decidable_predToBool___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instDecidablePredComp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Decidable_predToBool(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidablePredComp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_exists__prop__decidable(lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_decidable__of__iff_x27___redArg___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_decidable__of__bool___redArg(uint8_t);
 LEAN_EXPORT lean_object* l_Or_by__cases___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -137,98 +129,6 @@ uint8_t x_8; lean_object* x_9;
 x_8 = lean_unbox(x_3);
 x_9 = l_Or_by__cases_x27(x_1, x_2, x_8, x_4, x_5, x_6, x_7);
 return x_9;
-}
-}
-LEAN_EXPORT uint8_t l_exists__prop__decidable___redArg(uint8_t x_1, lean_object* x_2) {
-_start:
-{
-if (x_1 == 0)
-{
-lean_dec_ref(x_2);
-return x_1;
-}
-else
-{
-lean_object* x_3; uint8_t x_4; 
-x_3 = lean_apply_1(x_2, lean_box(0));
-x_4 = lean_unbox(x_3);
-return x_4;
-}
-}
-}
-LEAN_EXPORT uint8_t l_exists__prop__decidable(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; 
-x_5 = l_exists__prop__decidable___redArg(x_3, x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_exists__prop__decidable___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = lean_unbox(x_1);
-x_4 = l_exists__prop__decidable___redArg(x_3, x_2);
-x_5 = lean_box(x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_exists__prop__decidable___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; uint8_t x_6; lean_object* x_7; 
-x_5 = lean_unbox(x_3);
-x_6 = l_exists__prop__decidable(x_1, x_2, x_5, x_4);
-x_7 = lean_box(x_6);
-return x_7;
-}
-}
-LEAN_EXPORT uint8_t l_forall__prop__decidable___redArg(uint8_t x_1, lean_object* x_2) {
-_start:
-{
-if (x_1 == 0)
-{
-uint8_t x_3; 
-lean_dec_ref(x_2);
-x_3 = 1;
-return x_3;
-}
-else
-{
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_apply_1(x_2, lean_box(0));
-x_5 = lean_unbox(x_4);
-return x_5;
-}
-}
-}
-LEAN_EXPORT uint8_t l_forall__prop__decidable(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; 
-x_5 = l_forall__prop__decidable___redArg(x_3, x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_forall__prop__decidable___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = lean_unbox(x_1);
-x_4 = l_forall__prop__decidable___redArg(x_3, x_2);
-x_5 = lean_box(x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_forall__prop__decidable___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; uint8_t x_6; lean_object* x_7; 
-x_5 = lean_unbox(x_3);
-x_6 = l_forall__prop__decidable(x_1, x_2, x_5, x_4);
-x_7 = lean_box(x_6);
-return x_7;
 }
 }
 LEAN_EXPORT uint8_t l_decidable__of__iff___redArg(uint8_t x_1) {

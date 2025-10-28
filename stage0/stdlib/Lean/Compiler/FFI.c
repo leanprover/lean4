@@ -60,7 +60,6 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_FFI_getLinkerFlags___closed__0;
 static lean_object* l_Lean_Compiler_FFI_getCFlags___closed__2;
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
-uint8_t l_instDecidableNot___redArg(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_FFI_getCFlags(lean_object*);
 lean_object* lean_array_mk(lean_object*);
 size_t lean_usize_add(size_t, size_t);
@@ -99,12 +98,17 @@ lean_object* x_5; uint8_t x_10;
 x_10 = lean_usize_dec_eq(x_2, x_3);
 if (x_10 == 0)
 {
-lean_object* x_11; lean_object* x_12; uint8_t x_13; uint8_t x_14; 
+lean_object* x_11; lean_object* x_14; uint8_t x_15; 
 x_11 = lean_array_uget(x_1, x_2);
-x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_FFI_0__Lean_Compiler_FFI_flagsStringToArray_spec__0___closed__0;
-x_13 = lean_string_dec_eq(x_11, x_12);
-x_14 = l_instDecidableNot___redArg(x_13);
-if (x_14 == 0)
+x_14 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_FFI_0__Lean_Compiler_FFI_flagsStringToArray_spec__0___closed__0;
+x_15 = lean_string_dec_eq(x_11, x_14);
+if (x_15 == 0)
+{
+goto block_13;
+}
+else
+{
+if (x_10 == 0)
 {
 lean_dec_ref(x_11);
 x_5 = x_4;
@@ -112,9 +116,14 @@ goto block_9;
 }
 else
 {
-lean_object* x_15; 
-x_15 = lean_array_push(x_4, x_11);
-x_5 = x_15;
+goto block_13;
+}
+}
+block_13:
+{
+lean_object* x_12; 
+x_12 = lean_array_push(x_4, x_11);
+x_5 = x_12;
 goto block_9;
 }
 }

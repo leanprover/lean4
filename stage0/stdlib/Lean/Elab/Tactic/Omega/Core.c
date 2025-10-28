@@ -472,7 +472,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_m
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_Justification_bmodProof___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_Problem_solveEqualities(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_instDecidableNot___redArg(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_Justification_toString(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_Problem_proveFalse___closed__4;
@@ -12867,11 +12866,16 @@ lean_object* x_5; uint8_t x_10;
 x_10 = lean_usize_dec_eq(x_2, x_3);
 if (x_10 == 0)
 {
-lean_object* x_11; uint8_t x_12; uint8_t x_13; 
+lean_object* x_11; uint8_t x_14; 
 x_11 = lean_array_uget(x_1, x_2);
-x_12 = l_Lean_Elab_Tactic_Omega_Problem_FourierMotzkinData_isEmpty(x_11);
-x_13 = l_instDecidableNot___redArg(x_12);
-if (x_13 == 0)
+x_14 = l_Lean_Elab_Tactic_Omega_Problem_FourierMotzkinData_isEmpty(x_11);
+if (x_14 == 0)
+{
+goto block_13;
+}
+else
+{
+if (x_10 == 0)
 {
 lean_dec_ref(x_11);
 x_5 = x_4;
@@ -12879,9 +12883,14 @@ goto block_9;
 }
 else
 {
-lean_object* x_14; 
-x_14 = lean_array_push(x_4, x_11);
-x_5 = x_14;
+goto block_13;
+}
+}
+block_13:
+{
+lean_object* x_12; 
+x_12 = lean_array_push(x_4, x_11);
+x_5 = x_12;
 goto block_9;
 }
 }

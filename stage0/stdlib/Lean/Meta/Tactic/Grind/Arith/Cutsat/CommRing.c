@@ -4769,7 +4769,7 @@ static lean_object* _init_l_Int_Linear_Poly_normCommRing_x3f___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("cutsat", 6, 6);
+x_1 = lean_mk_string_unchecked("lia", 3, 3);
 return x_1;
 }
 }

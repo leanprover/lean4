@@ -102,7 +102,6 @@ uint32_t lean_uint32_shift_left(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Extra_0__String_findLeadingSpacesSize_consumeSpaces___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__2(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t l_instDecidableNot___redArg(uint8_t);
 lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 lean_object* l_String_foldlAux___at___00String_toNat_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1958,52 +1957,62 @@ uint8_t x_5;
 x_5 = lean_string_utf8_at_end(x_1, x_4);
 if (x_5 == 0)
 {
-lean_object* x_6; uint8_t x_7; uint8_t x_8; 
-x_6 = lean_string_utf8_next_fast(x_1, x_4);
-x_7 = lean_string_utf8_at_end(x_1, x_6);
-x_8 = l_instDecidableNot___redArg(x_7);
-if (x_8 == 0)
+uint32_t x_6; lean_object* x_7; uint8_t x_20; 
+x_6 = lean_string_utf8_get_fast(x_1, x_4);
+x_7 = lean_string_utf8_next_fast(x_1, x_4);
+x_20 = lean_string_utf8_at_end(x_1, x_7);
+if (x_20 == 0)
+{
+goto block_19;
+}
+else
+{
+if (x_5 == 0)
 {
 lean_dec(x_4);
-x_4 = x_6;
+x_4 = x_7;
 goto _start;
 }
 else
 {
-uint32_t x_10; uint32_t x_11; uint8_t x_12; 
-x_10 = lean_string_utf8_get_fast(x_1, x_4);
-x_11 = 13;
-x_12 = lean_uint32_dec_eq(x_10, x_11);
-if (x_12 == 0)
+goto block_19;
+}
+}
+block_19:
+{
+uint32_t x_8; uint8_t x_9; 
+x_8 = 13;
+x_9 = lean_uint32_dec_eq(x_6, x_8);
+if (x_9 == 0)
 {
 lean_dec(x_4);
-x_4 = x_6;
+x_4 = x_7;
 goto _start;
 }
 else
 {
-uint32_t x_14; uint32_t x_15; uint8_t x_16; 
-x_14 = lean_string_utf8_get(x_1, x_6);
-x_15 = 10;
-x_16 = lean_uint32_dec_eq(x_14, x_15);
-if (x_16 == 0)
+uint32_t x_11; uint32_t x_12; uint8_t x_13; 
+x_11 = lean_string_utf8_get(x_1, x_7);
+x_12 = 10;
+x_13 = lean_uint32_dec_eq(x_11, x_12);
+if (x_13 == 0)
 {
 lean_dec(x_4);
-x_4 = x_6;
+x_4 = x_7;
 goto _start;
 }
 else
 {
-lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_18 = lean_string_utf8_extract(x_1, x_3, x_4);
+lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_15 = lean_string_utf8_extract(x_1, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
-x_19 = lean_string_append(x_2, x_18);
-lean_dec_ref(x_18);
-x_20 = lean_string_utf8_next_fast(x_1, x_6);
-x_2 = x_19;
-x_3 = x_6;
-x_4 = x_20;
+x_16 = lean_string_append(x_2, x_15);
+lean_dec_ref(x_15);
+x_17 = lean_string_utf8_next_fast(x_1, x_7);
+x_2 = x_16;
+x_3 = x_7;
+x_4 = x_17;
 goto _start;
 }
 }

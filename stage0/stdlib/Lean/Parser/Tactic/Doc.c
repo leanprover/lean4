@@ -450,7 +450,6 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn_00___x40_Lean_Parser_Tactic_Doc_710499956____hygCtx___hyg_2__spec__0_spec__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00__private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn_00___x40_Lean_Parser_Tactic_Doc_710499956____hygCtx___hyg_2__spec__9_spec__9(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
-uint8_t l_instDecidableNot___redArg(uint8_t);
 static lean_object* l_Lean_Parser_Tactic_Doc_initFn___closed__2_00___x40_Lean_Parser_Tactic_Doc_2845012366____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_Parser_Tactic_Doc_initFn_00___x40_Lean_Parser_Tactic_Doc_44007290____hygCtx___hyg_2__spec__0_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___00Lean_Parser_Tactic_Doc_initFn_00___x40_Lean_Parser_Tactic_Doc_44007290____hygCtx___hyg_2__spec__0___boxed(lean_object*, lean_object*);
@@ -2903,14 +2902,20 @@ uint8_t x_5;
 x_5 = lean_usize_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
-uint8_t x_6; uint8_t x_7; lean_object* x_12; lean_object* x_13; uint8_t x_14; uint8_t x_15; 
+uint8_t x_6; uint8_t x_7; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_6 = 1;
 x_12 = lean_array_uget(x_2, x_3);
 x_13 = l_Lean_Parser_Tactic_Doc_isTactic___closed__3;
 x_14 = lean_name_eq(x_12, x_13);
 lean_dec(x_12);
-x_15 = l_instDecidableNot___redArg(x_14);
-if (x_15 == 0)
+if (x_14 == 0)
+{
+x_7 = x_5;
+goto block_11;
+}
+else
+{
+if (x_5 == 0)
 {
 x_7 = x_1;
 goto block_11;
@@ -2919,6 +2924,7 @@ else
 {
 x_7 = x_5;
 goto block_11;
+}
 }
 block_11:
 {
@@ -2938,9 +2944,9 @@ return x_6;
 }
 else
 {
-uint8_t x_16; 
-x_16 = 0;
-return x_16;
+uint8_t x_15; 
+x_15 = 0;
+return x_15;
 }
 }
 }

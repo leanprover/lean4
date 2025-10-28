@@ -39,7 +39,7 @@ def LeCnstr.applyEq (a : Int) (x : Var) (c₁ : EqCnstr) (b : Int) (c₂ : LeCns
     q.mul a |>.combine (p.mul (-b))
   else
     p.mul b |>.combine (q.mul (-a))
-  trace[grind.cutsat.subst] "{← getVar x}, {← c₁.pp}, {← c₂.pp}"
+  trace[grind.lia.subst] "{← getVar x}, {← c₁.pp}, {← c₂.pp}"
   return { p, h := .subst x c₁ c₂ }
 
 partial def LeCnstr.applySubsts (c : LeCnstr) : GoalM LeCnstr := withIncRecDepth do
@@ -74,7 +74,7 @@ private def findEq (c : LeCnstr) : GoalM Bool := do
     if c.p.isNegEq c'.p then
       c'.erase
       let eq := { p := c.p, h := .ofLeGe c c' : EqCnstr }
-      trace[grind.debug.cutsat.eq] "new eq: {← eq.pp}"
+      trace[grind.debug.lia.eq] "new eq: {← eq.pp}"
       eq.assert
       return true
   return false
@@ -103,20 +103,20 @@ where
 @[export lean_grind_cutsat_assert_le]
 def LeCnstr.assertImpl (c : LeCnstr) : GoalM Unit := do
   if (← inconsistent) then return ()
-  trace[grind.cutsat.assert] "{← c.pp}"
+  trace[grind.lia.assert] "{← c.pp}"
   let c ← c.norm.applySubsts
   if c.isUnsat then
-    trace[grind.cutsat.assert.unsat] "{← c.pp}"
+    trace[grind.lia.assert.unsat] "{← c.pp}"
     setInconsistent (.le c)
     return ()
   if c.isTrivial then
-    trace[grind.cutsat.assert.trivial] "{← c.pp}"
+    trace[grind.lia.assert.trivial] "{← c.pp}"
     return ()
   let .add a x _ := c.p | c.throwUnexpected
   if (← findEq c) then
     return ()
   let c ← refineWithDiseq c
-  trace[grind.cutsat.assert.store] "{← c.pp}"
+  trace[grind.lia.assert.store] "{← c.pp}"
   c.p.updateOccs
   if a < 0 then
     modify' fun s => { s with lowers := s.lowers.modify x (·.push c) }

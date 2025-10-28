@@ -151,8 +151,6 @@ where
         else if let some upperCandidate ← read then
           if !(← isInScope fvarId) then
             addDependency fvarId upperCandidate
-      else
-        eraseCandidate fvarId
     | _, _ =>
       removeCandidatesInLetValue decl.value
       go k
@@ -168,9 +166,7 @@ where
     go k
   | .jmp _ args => args.forM removeCandidatesInArg
   | .return val => eraseCandidate val
-  | .cases c => do
-    eraseCandidate c.discr
-    c.alts.forM (·.forCodeM go)
+  | .cases c => c.alts.forM (·.forCodeM go)
   | .unreach .. => return ()
 
 /--

@@ -119,7 +119,7 @@ structure Config where
   /--
   When `true` (default: `true`), uses procedure for handling linear integer arithmetic for `Int` and `Nat`.
   -/
-  cutsat := true
+  lia := true
   /--
   When `true` (default: `true`), uses procedure for handling associative (and commutative) operators.
   -/
@@ -191,7 +191,7 @@ structure NoopConfig extends Config where
   -- Disable all solver modules
   ring      := false
   linarith  := false
-  cutsat    := false
+  lia       := false
   ac        := false
 
 /--
@@ -202,7 +202,7 @@ We don't currently have a mechanism to enable only a small set of lemmas.
 -/
 -- This is a `structure` rather than `def` so we can use `declare_config_elab`.
 structure CutsatConfig extends NoopConfig where
-  cutsat := true
+  lia := true
   -- Allow the default number of splits.
   splits := ({} : Config).splits
 

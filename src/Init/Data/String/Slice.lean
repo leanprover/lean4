@@ -360,10 +360,16 @@ def dropPrefix [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
 Constructs a new string obtained by replacing all occurrences of {name}`pattern` with
 {name}`replacement` in {name}`s`.
 
+This function is generic over all currently supported patterns. The replacement may be a
+{name}`String` or a {name}`String.Slice`.
+
 Examples:
+* {lean}`"red green blue".toSlice.replace 'e' "" = "rd grn blu"`
+* {lean}`"red green blue".toSlice.replace (fun c => c == 'u' || c == 'e') "" = "rd grn bl"`
 * {lean}`"red green blue".toSlice.replace "e" "" = "rd grn blu"`
 * {lean}`"red green blue".toSlice.replace "ee" "E" = "red grEn blue"`
 * {lean}`"red green blue".toSlice.replace "e" "E" = "rEd grEEn bluE"`
+* {lean}`"aaaaa".toSlice.replace "aa" "b" = "bba"`
 * {lean}`"abc".toSlice.replace "" "k" = "kakbkck"`
 -/
 def replace [ToForwardSearcher ρ σ] [ToSlice α] (s : Slice) (pattern : ρ) (replacement : α) :

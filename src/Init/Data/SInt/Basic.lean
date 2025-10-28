@@ -30,6 +30,9 @@ structure Int8 where
   -/
   toUInt8 : UInt8
 
+attribute [extern "lean_int8_of_uint8_mk"] Int8.ofUInt8
+attribute [extern "lean_int8_to_uint8"] Int8.toUInt8
+
 /--
 Signed 16-bit integers.
 
@@ -42,6 +45,9 @@ structure Int16 where
   encoding.
   -/
   toUInt16 : UInt16
+
+attribute [extern "lean_int16_of_uint16_mk"] Int16.ofUInt16
+attribute [extern "lean_int16_to_uint16"] Int16.toUInt16
 
 /--
 Signed 32-bit integers.
@@ -56,6 +62,9 @@ structure Int32 where
   -/
   toUInt32 : UInt32
 
+attribute [extern "lean_int32_of_uint32_mk"] Int32.ofUInt32
+attribute [extern "lean_int32_to_uint32"] Int32.toUInt32
+
 /--
 Signed 64-bit integers.
 
@@ -68,6 +77,9 @@ structure Int64 where
   encoding.
   -/
   toUInt64 : UInt64
+
+attribute [extern "lean_int64_of_uint64_mk"] Int64.ofUInt64
+attribute [extern "lean_int64_to_uint64"] Int64.toUInt64
 
 /--
 Signed integers that are the size of a word on the platform's architecture.
@@ -82,6 +94,9 @@ structure ISize where
   complement encoding.
   -/
   toUSize : USize
+
+attribute [extern "lean_isize_of_usize_mk"] ISize.ofUSize
+attribute [extern "lean_isize_to_usize"] ISize.toUSize
 
 /-- The number of distinct values representable by `Int8`, that is, `2^8 = 256`. -/
 abbrev Int8.size : Nat := 256

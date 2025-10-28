@@ -9,18 +9,29 @@ Author: Leonardo de Moura
 namespace lean {
 namespace ir {
 /*
-inductive IRType
-| float | uint8 | uint16 | uint32 | uint64 | usize
-| irrelevant | object | tobject
-| float32
-| struct (leanTypeName : Option Name) (types : Array IRType) : IRType
-| union (leanTypeName : Name) (types : Array IRType) : IRType
-| tagged
-| void
+inductive IRType where
+  | float | uint8 | uint16 | uint32 | uint64 | usize
+  | erased | object | tobject
+  | float32
+  | struct (leanTypeName : Option Name) (types : Array IRType) : IRType
+  | union (leanTypeName : Name) (types : Array IRType) : IRType
+  | tagged
+  | void
+  | int8 | int16 | int32 | int64 | isize
+  deriving Inhabited, BEq, Repr
 
 Remark: we don't create struct/union types from C++.
 */
-enum class type { Float, UInt8, UInt16, UInt32, UInt64, USize, Irrelevant, Object, TObject, Float32, Struct, Union, Tagged, Void };
+enum class type {
+  Float, UInt8, UInt16, UInt32, UInt64, USize,
+  Irrelevant, Object, TObject,
+  Float32,
+  Struct,
+  Union,
+  Tagged,
+  Void,
+  Int8, Int16, Int32, Int64, ISize
+};
 
 typedef nat        var_id;
 typedef nat        jp_id;

@@ -100,6 +100,7 @@ array_ref<arg> const & expr_reuse_args(expr const & e) { lean_assert(expr_tag(e)
 nat const & expr_proj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Proj); return cnstr_get_ref_t<nat>(e, 0); }
 var_id const & expr_proj_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Proj); return cnstr_get_ref_t<var_id>(e, 1); }
 nat const & expr_uproj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::UProj); return cnstr_get_ref_t<nat>(e, 0); }
+bool expr_uproj_signed(expr const & e) { lean_assert(expr_tag(e) == expr_kind::UProj); return get_bool_field(e.raw(), 2); }
 var_id const & expr_uproj_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::UProj); return cnstr_get_ref_t<var_id>(e, 1); }
 nat const & expr_sproj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::SProj); return cnstr_get_ref_t<nat>(e, 0); }
 nat const & expr_sproj_offset(expr const & e) { lean_assert(expr_tag(e) == expr_kind::SProj); return cnstr_get_ref_t<nat>(e, 1); }
@@ -150,6 +151,7 @@ var_id const & fn_body_uset_target(fn_body const & b) { lean_assert(fn_body_tag(
 nat const & fn_body_uset_idx(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::USet); return cnstr_get_ref_t<nat>(b, 1); }
 var_id const & fn_body_uset_source(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::USet); return cnstr_get_ref_t<var_id>(b, 2); }
 fn_body const & fn_body_uset_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::USet); return cnstr_get_ref_t<fn_body>(b, 3); }
+bool fn_body_uset_signed(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::USet); return get_bool_field(b.raw(), 4); }
 var_id const & fn_body_sset_target(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<var_id>(b, 0); }
 nat const & fn_body_sset_idx(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<nat>(b, 1); }
 nat const & fn_body_sset_offset(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<nat>(b, 2); }
@@ -260,6 +262,36 @@ union value {
         v.m_float32 = f;
         return v;
     }
+
+    static value from_int8(int8_t i) {
+        value v;
+        v.m_num = i;
+        return v;
+    }
+
+    static value from_int16(int16_t i) {
+        value v;
+        v.m_num = i;
+        return v;
+    }
+
+    static value from_int32(int32_t i) {
+        value v;
+        v.m_num = i;
+        return v;
+    }
+
+    static value from_int64(int64_t i) {
+        value v;
+        v.m_num = i;
+        return v;
+    }
+
+    static value from_isize(ptrdiff_t i) {
+        value v;
+        v.m_num = i;
+        return v;
+    }
 };
 
 object * box_t(value v, type t) {
@@ -271,6 +303,11 @@ object * box_t(value v, type t) {
     case type::UInt32:  return box_uint32(v.m_num);
     case type::UInt64:  return box_uint64(v.m_num);
     case type::USize:   return box_size_t(v.m_num);
+    case type::Int8:    return box(v.m_num);
+    case type::Int16:   return box(v.m_num);
+    case type::Int32:   return box_int32(v.m_num);
+    case type::Int64:   return box_int64(v.m_num);
+    case type::ISize:   return box_isize(v.m_num);
     case type::Object:
     case type::Tagged:
     case type::TObject:
@@ -293,6 +330,11 @@ value unbox_t(object * o, type t) {
     case type::UInt32:  return unbox_uint32(o);
     case type::UInt64:  return unbox_uint64(o);
     case type::USize:   return unbox_size_t(o);
+    case type::Int8:    return value::from_int8(unbox(o));
+    case type::Int16:   return value::from_int16(unbox(o));
+    case type::Int32:   return value::from_int32(unbox_int32(o));
+    case type::Int64:   return value::from_int64(unbox_int64(o));
+    case type::ISize:   return value::from_isize(unbox_isize(o));
     case type::Irrelevant:
     case type::Void:
     case type::Object:
@@ -511,7 +553,11 @@ private:
             case expr_kind::Proj: // object field access
                 return cnstr_get(var(expr_proj_obj(e)).m_obj, expr_proj_idx(e).get_small_value());
             case expr_kind::UProj: // USize field access
-                return cnstr_get_usize(var(expr_uproj_obj(e)).m_obj, expr_uproj_idx(e).get_small_value());
+                if (expr_uproj_signed(e)) {
+                    return value::from_isize(cnstr_get_isize(var(expr_uproj_obj(e)).m_obj, expr_uproj_idx(e).get_small_value()));
+                } else {
+                    return cnstr_get_usize(var(expr_uproj_obj(e)).m_obj, expr_uproj_idx(e).get_small_value());
+                }
             case expr_kind::SProj: { // other unboxed field access
                 size_t offset = expr_sproj_idx(e).get_small_value() * sizeof(void *) +
                                 expr_sproj_offset(e).get_small_value();
@@ -523,7 +569,12 @@ private:
                     case type::UInt16: return cnstr_get_uint16(o, offset);
                     case type::UInt32: return cnstr_get_uint32(o, offset);
                     case type::UInt64: return cnstr_get_uint64(o, offset);
+                    case type::Int8: return value::from_int8(cnstr_get_int8(o, offset));
+                    case type::Int16: return value::from_int16(cnstr_get_int16(o, offset));
+                    case type::Int32: return value::from_int32(cnstr_get_int32(o, offset));
+                    case type::Int64: return value::from_int64(cnstr_get_int64(o, offset));
                     case type::USize:
+                    case type::ISize:
                     case type::Irrelevant:
                     case type::Void:
                     case type::Object:
@@ -596,6 +647,11 @@ private:
                             case type::Tagged:
                             case type::TObject:
                                 return n.to_obj_arg();
+                            case type::Int8:
+                            case type::Int16:
+                            case type::Int32:
+                            case type::Int64:
+                            case type::ISize:
                             case type::Irrelevant:
                             case type::Void:
                                 break;
@@ -701,7 +757,11 @@ private:
                 case fn_body_kind::USet: { // set USize field of unique reference
                     object * o = var(fn_body_uset_target(b)).m_obj;
                     lean_assert(is_exclusive(o));
-                    cnstr_set_usize(o, fn_body_uset_idx(b).get_small_value(), var(fn_body_uset_source(b)).m_num);
+                    if (fn_body_uset_signed(b)) {
+                        cnstr_set_isize(o, fn_body_uset_idx(b).get_small_value(), var(fn_body_uset_source(b)).m_num);
+                    } else {
+                        cnstr_set_usize(o, fn_body_uset_idx(b).get_small_value(), var(fn_body_uset_source(b)).m_num);
+                    }
                     b = fn_body_uset_cont(b);
                     break;
                 }
@@ -718,7 +778,12 @@ private:
                         case type::UInt16: cnstr_set_uint16(o, offset, v.m_num); break;
                         case type::UInt32: cnstr_set_uint32(o, offset, v.m_num); break;
                         case type::UInt64: cnstr_set_uint64(o, offset, v.m_num); break;
+                        case type::Int8: cnstr_set_int8(o, offset, v.m_num); break;
+                        case type::Int16: cnstr_set_int16(o, offset, v.m_num); break;
+                        case type::Int32: cnstr_set_int32(o, offset, v.m_num); break;
+                        case type::Int64: cnstr_set_int64(o, offset, v.m_num); break;
                         case type::USize:
+                        case type::ISize:
                         case type::Irrelevant:
                         case type::Void:
                         case type::Object:
@@ -900,6 +965,11 @@ private:
                 case type::UInt32: return *static_cast<uint32 *>(e.m_native.m_addr);
                 case type::UInt64: return *static_cast<uint64 *>(e.m_native.m_addr);
                 case type::USize: return *static_cast<size_t *>(e.m_native.m_addr);
+                case type::Int8: return *static_cast<int8 *>(e.m_native.m_addr);
+                case type::Int16: return *static_cast<int16 *>(e.m_native.m_addr);
+                case type::Int32: return *static_cast<int32 *>(e.m_native.m_addr);
+                case type::Int64: return *static_cast<int64 *>(e.m_native.m_addr);
+                case type::ISize: return *static_cast<ptrdiff_t *>(e.m_native.m_addr);
                 case type::Object:
                 case type::Tagged:
                 case type::TObject:

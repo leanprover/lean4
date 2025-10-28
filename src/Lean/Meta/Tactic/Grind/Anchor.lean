@@ -124,11 +124,11 @@ public structure ExprWithAnchor where
 public instance : HasAnchor ExprWithAnchor where
   getAnchor e := e.anchor
 
-public def mkAnchorSyntaxFromPrefix (numDigits : Nat) (anchorPrefix : UInt64) : CoreM (TSyntax ``Parser.Tactic.Grind.anchor) := do
+public def mkAnchorSyntaxFromPrefix (numDigits : Nat) (anchorPrefix : UInt64) : CoreM (TSyntax ``Parser.Tactic.anchor) := do
   let hexnum := mkNode `hexnum #[mkAtom (anchorPrefixToString numDigits anchorPrefix)]
-  `(Parser.Tactic.Grind.anchor| #$hexnum)
+  `(Parser.Tactic.anchor| #$hexnum)
 
-public def mkAnchorSyntax (numDigits : Nat) (anchor : UInt64) : CoreM (TSyntax ``Parser.Tactic.Grind.anchor) := do
+public def mkAnchorSyntax (numDigits : Nat) (anchor : UInt64) : CoreM (TSyntax ``Parser.Tactic.anchor) := do
   let anchorPrefix := anchor >>> (64 - 4*numDigits.toUInt64)
   mkAnchorSyntaxFromPrefix numDigits anchorPrefix
 

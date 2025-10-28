@@ -9,6 +9,8 @@ public import Init.Grind.Attr
 public section
 namespace Lean.Parser.Tactic
 
+syntax anchor := "#" noWs hexnum
+
 syntax grindLemma    := ppGroup((Attr.grindMod ppSpace)? ident)
 /--
 The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
@@ -16,9 +18,6 @@ when selecting patterns.
 -/
 syntax grindLemmaMin := ppGroup("!" (Attr.grindMod ppSpace)? ident)
 
-/-!
-`grind` tactic and related tactics.
--/
 syntax grindErase    := "-" ident
 /--
 The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
@@ -73,7 +72,6 @@ syntax (name := linarith) "linarith" : grind
 /-- The `sorry` tactic is a temporary placeholder for an incomplete tactic proof. -/
 syntax (name := «sorry») "sorry" : grind
 
-syntax anchor := "#" noWs hexnum
 syntax thm := anchor <|> grindLemma <|> grindLemmaMin
 
 /--

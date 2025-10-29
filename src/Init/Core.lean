@@ -1146,6 +1146,7 @@ end
     else isFalse (fun h => absurd (h hp) hq)
   else isTrue (fun h => absurd h hp)
 
+@[inline]
 instance {p q} [Decidable p] [Decidable q] : Decidable (p ↔ q) :=
   if hp : p then
     if hq : q then
@@ -1193,11 +1194,13 @@ theorem dif_eq_if (c : Prop) {h : Decidable c} {α : Sort u} (t : α) (e : α) :
   | isTrue _    => rfl
   | isFalse _   => rfl
 
+@[macro_inline]
 instance {c t e : Prop} [dC : Decidable c] [dT : Decidable t] [dE : Decidable e] : Decidable (if c then t else e) :=
   match dC with
   | isTrue _   => dT
   | isFalse _  => dE
 
+@[inline]
 instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT : ∀ h, Decidable (t h)] [dE : ∀ h, Decidable (e h)] : Decidable (if h : c then t h else e h) :=
   match dC with
   | isTrue hc  => dT hc

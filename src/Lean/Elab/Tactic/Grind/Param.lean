@@ -117,7 +117,7 @@ def processParam (params : Grind.Params)
       throwError "invalid use of `intro` modifier, `{.ofConstName declName}` is not an inductive predicate"
   | .inj =>
     let thm ← Grind.mkInjectiveTheorem declName
-    params := { params with inj := params.inj.insert thm }
+    params := { params with extraInj := params.extraInj.push thm }
   | .ext =>
     throwError "`[grind ext]` cannot be set using parameters"
   | .infer =>

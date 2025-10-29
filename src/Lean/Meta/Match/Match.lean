@@ -495,8 +495,7 @@ private def hasRecursiveType (x : Expr) : MetaM Bool := do
 
 /-- Given `alt` s.t. the next pattern is an inaccessible pattern `e`,
    try to normalize `e` into a constructor application.
-   If it is not a constructor, throw an error.
-   Otherwise, if it is a constructor application of `ctorName`,
+   If it is a constructor application of `ctorName`,
    update the next patterns with the fields of the constructor.
    Otherwise, move it to contraints, so that we fail unless some later step
    eliminates this alternative.
@@ -507,16 +506,13 @@ def processInaccessibleAsCtor (alt : Alt) (ctorName : Name) : MetaM Alt := do
   withExistingLocalDecls alt.fvarDecls do
     -- Try to push inaccessible annotations.
     let e ← whnfD e
-    match (← constructorApp? e) with
-    | some (ctorVal, ctorArgs) =>
+    if let some (ctorVal, ctorArgs) ← constructorApp? e then
       if ctorVal.name == ctorName then
         let fields := ctorArgs.extract ctorVal.numParams ctorArgs.size
         let fields := fields.toList.map .inaccessible
         return { alt with patterns := fields ++ ps }
-      else
-        let alt' ← expandInaccessibleIntoVar alt
-        expandVarIntoCtor? alt' ctorName
-    | _ => throwErrorAt alt.ref "Dependent match elimination failed: Expected a constructor, but found the inaccessible pattern{indentD p.toMessageData}"
+    let alt' ← expandInaccessibleIntoVar alt
+    expandVarIntoCtor? alt' ctorName
 
 private def hasNonTrivialExample (p : Problem) : Bool :=
   p.examples.any fun | Example.underscore => false | _ => true

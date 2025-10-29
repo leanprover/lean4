@@ -6155,7 +6155,7 @@ theorem minKey?_eq_some_iff_mem_and_forall [Ord α] [LawfulEqOrd α] [TransOrd �
     exact ⟨containsKey_of_mem hm, hcmp⟩
   · rintro ⟨hc, hle⟩
     have heq := beq_iff_eq.mp <| getKey_eq_getEntry_fst (α := α) ▸ getKey_beq hc
-    refine ⟨getEntry k l hc, ⟨getEntry_mem hc, ?_⟩, heq⟩
+    refine ⟨getEntry k l hc, ⟨getEntry_mem, ?_⟩, heq⟩
     intro k' hk'
     rw [heq]
     exact hle _ hk'

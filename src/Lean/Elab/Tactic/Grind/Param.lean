@@ -161,6 +161,8 @@ public def elabGrindParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.T
       | `(Parser.Tactic.grindParam| ! $[$mod?:grindMod]? $id:ident) =>
         params ← processParam params p mod? id (minIndexable := true) (only := only)
       | `(Parser.Tactic.grindParam| #$anchor:hexnum) =>
+        unless only do
+          throwErrorAt anchor "invalid anchor, `only` modifier expected"
         params ← processAnchor params anchor
       | _ => throwError "unexpected `grind` parameter{indentD p}"
     catch ex =>

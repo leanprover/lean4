@@ -218,7 +218,7 @@ example (f g : Int → Int) (x y z w : Int)
       g w ≠ z → f x = y := by
   fail_if_success grind [#23ad] -- not possible to solve using this set of anchors.
   set_option trace.grind.split true in
-  grind [#23ad, #beb4] -- Only these two splits were performed.
+  grind only [#23ad, #beb4] -- Only these two splits were performed.
 
 /--
 trace: [grind.ematch.instance] h: f (f a) = f a
@@ -250,4 +250,4 @@ example (f g : Int → Int)
     (_ : g (g b) = b)
     : f (f (f a)) = f a := by
   set_option trace.grind.ematch.instance true in
-  grind [#99cb]
+  grind only [#99cb]

@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Iterators.Combinators.Monadic.Attach
 import all Init.Data.Iterators.Combinators.Monadic.Attach
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 
 public section
 
@@ -58,5 +59,15 @@ theorem IterM.map_unattach_toArray_attachWith [Iterator α m β] [Monad m] [Mona
     (·.map Subtype.val) <$> (it.attachWith P hP).toArray = it.toArray := by
   rw [← toArray_toList, ← toArray_toList, ← map_unattach_toList_attachWith (it := it) (hP := hP)]
   simp [-map_unattach_toList_attachWith, -IterM.toArray_toList]
+
+@[simp]
+theorem IterM.count_attachWith [Iterator α m β] [Monad m] [Monad n]
+    {it : IterM (α := α) m β} {hP}
+    [Finite α m] [IteratorLoop α m m] [LawfulMonad m] [LawfulIteratorLoop α m m] :
+    (it.attachWith P hP).count = it.count := by
+  letI : IteratorCollect α m m := .defaultImplementation
+  rw [← up_length_toList_eq_count, ← up_length_toList_eq_count,
+    ← map_unattach_toList_attachWith (it := it) (P := P) (hP := hP)]
+  simp only [Functor.map_map, List.length_unattach]
 
 end Std.Iterators

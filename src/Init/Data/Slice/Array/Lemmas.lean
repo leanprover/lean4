@@ -12,17 +12,15 @@ public import Init.Data.Slice.Array.Iterator
 import all Init.Data.Slice.Array.Iterator
 import all Init.Data.Slice.Operations
 import all Init.Data.Range.Polymorphic.Iterators
-public import Init.Data.Range.Polymorphic.Lemmas
+import all Init.Data.Range.Polymorphic.Lemmas
 public import Init.Data.Slice.Lemmas
 public import Init.Data.Iterators.Lemmas
-
-public section
 
 open Std.Iterators Std.PRange
 
 namespace Std.Slice.Array
 
-private theorem internalIter_Rco_eq {α : Type u} {s : Subarray α} :
+theorem internalIter_Rco_eq {α : Type u} {s : Subarray α} :
     Internal.iter s = (Rco.Internal.iter (s.start...<s.stop)
       |>.attachWith (· < s.array.size)
         (fun out h => h
@@ -33,7 +31,7 @@ private theorem internalIter_Rco_eq {α : Type u} {s : Subarray α} :
       |>.map fun | .up i => s.array[i.1]) := by
   simp [Internal.iter, ToIterator.iter_eq, Subarray.start, Subarray.stop, Subarray.array]
 
-private theorem toList_internalIter {α : Type u} {s : Subarray α} :
+theorem toList_internalIter {α : Type u} {s : Subarray α} :
     (Internal.iter s).toList =
       ((s.start...s.stop).toList
         |>.attachWith (· < s.array.size)
@@ -45,10 +43,15 @@ private theorem toList_internalIter {α : Type u} {s : Subarray α} :
   rw [internalIter_Rco_eq, Iter.toList_map, Iter.toList_uLift, Iter.toList_attachWith]
   simp [Rco.toList]
 
-instance : LawfulSliceSize (Internal.SubarrayData α) where
+public instance : LawfulSliceSize (Internal.SubarrayData α) where
   lawful s := by
     obtain ⟨⟨xs, l, u, _, _⟩⟩ := s
-    simp only [SliceSize.size, ToIterator.iter, ToIterator.iterM, ToIterator.iterMInternal, ToIterator.of, ToIterator.ofM]
-    simp only [instToIteratorSubarrayId, ToIterator.toIter]
+    simp [SliceSize.size, ToIterator.iter_eq, Iter.toIter_toIterM]
+    -- TODO: Why doesn't simp work?
+    rw [Iter.count_map, Iter.count_uLift, Iter.count_attachWith,
+      ← Iter.size_toArray_eq_count, ← Rco.Internal.toArray_eq_toArray_iter,
+      Rco.size_toArray, Rco.size]
+    simp only [Rxo.HasSize.size, Rxc.HasSize.size]
+    omega
 
 end Std.Slice.Array

@@ -467,6 +467,17 @@ theorem Iter.fold_map {α β γ : Type w} {δ : Type x}
 
 end Fold
 
+section Count
+
+@[simp]
+theorem Iter.count_map {α β β' : Type w} [Iterator α Id β]
+    [IteratorLoop α Id Id] [Finite α Id] [LawfulIteratorLoop α Id Id]
+    {it : Iter (α := α) β} {f : β → β'} :
+    (it.map f).count = it.count := by
+  simp [map_eq_toIter_map_toIterM, count_eq_count_toIterM]
+
+end Count
+
 theorem Iter.anyM_filterMapM {α β β' : Type w} {m : Type w → Type w'}
     [Iterator α Id β] [Finite α Id] [Monad m] [LawfulMonad m]
     {it : Iter (α := α) β} {f : β → m (Option β')} {p : β' → m (ULift Bool)} :

@@ -514,6 +514,7 @@ theorem exists_bool {p : Bool → Prop} : (∃ b, p b) ↔ p false ∨ p true :=
 theorem cond_eq_ite {α} (b : Bool) (t e : α) : cond b t e = if b then t else e := by
   cases b <;> simp
 
+@[deprecated cond_eq_ite (since := "2025-10-29")]
 theorem cond_eq_if : (bif b then x else y) = (if b then x else y) := cond_eq_ite b x y
 
 @[simp] theorem cond_not (b : Bool) (t e : α) : cond (!b) t e = cond b e t := by

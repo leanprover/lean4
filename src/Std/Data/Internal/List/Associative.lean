@@ -1200,6 +1200,7 @@ theorem getEntry_replaceEntry_of_true [BEq α] [PartialEquivBEq α] {l : List ((
   simp only [getEntry, getEntry?_replaceEntry]
   simp_all [containsKey_congr h]
 
+@[deprecated getEntry_mem (since := "2025-10-29")]
 theorem mem_getEntry [BEq α] {l : List ((a : α) × β a)} {k : α} (hl : containsKey k l) :
     getEntry k l hl ∈ l := by
   induction l using assoc_induction

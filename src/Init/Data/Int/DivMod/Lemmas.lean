@@ -2477,6 +2477,10 @@ theorem bmod_eq_self_sub_mul_bdiv (x : Int) (m : Nat) : bmod x m = x - m * bdiv 
 theorem bmod_eq_self_sub_bdiv_mul (x : Int) (m : Nat) : bmod x m = x - bdiv x m * m := by
   rw [← Int.add_sub_cancel (bmod x m), bmod_add_bdiv']
 
+theorem bmod_eq_emod_of_lt {x : Int} {m : Nat} (hx : x % m < (m + 1) / 2) : bmod x m = x % m := by
+  simp [bmod, hx]
+
+@[deprecated Int.bmod_eq_emod_of_lt (since := "2025-10-29")]
 theorem bmod_pos (x : Int) (m : Nat) (p : x % m < (m + 1) / 2) : bmod x m = x % m := by
   simp [bmod_def, p]
 
@@ -2486,7 +2490,7 @@ theorem bmod_neg (x : Int) (m : Nat) (p : x % m ≥ (m + 1) / 2) : bmod x m = (x
 theorem bmod_eq_emod (x : Int) (m : Nat) : bmod x m = x % m - if x % m ≥ (m + 1) / 2 then m else 0 := by
   split
   · rwa [bmod_neg]
-  · rw [bmod_pos] <;> simp_all
+  · rw [bmod_eq_emod_of_lt] <;> simp_all
 
 @[simp]
 theorem bmod_one (x : Int) : Int.bmod x 1 = 0 := by
@@ -2723,9 +2727,6 @@ theorem bmod_eq_iff {a : Int} {b : Nat} {c : Int} (hb : 0 < b) :
     have := bmod_lt (x := a) (m := b) hb
     omega
 
-theorem bmod_eq_emod_of_lt {x : Int} {m : Nat} (hx : x % m < (m + 1) / 2) : bmod x m = x % m := by
-  simp [bmod, hx]
-
 theorem bmod_eq_neg {n : Nat} {m : Int} (hm : 0 ≤ m) (hn : n = 2 * m) : m.bmod n = -m := by
   by_cases h : m = 0
   · subst h; simp
@@ -2766,7 +2767,7 @@ theorem one_bmod_two : Int.bmod 1 2 = -1 := by simp
 
 theorem one_bmod {b : Nat} (h : 3 ≤ b) : Int.bmod 1 b = 1 := by
   have hb : 1 % (b : Int) = 1 := by rw [one_emod]; omega
-  rw [bmod_pos _ _ (by omega), hb]
+  rw [bmod_eq_emod_of_lt (by omega), hb]
 
 theorem bmod_two_eq (x : Int) : x.bmod 2 = -1 ∨ x.bmod 2 = 0 := by
   have := le_bmod (x := x) (m := 2) (by omega)

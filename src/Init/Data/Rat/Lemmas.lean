@@ -165,6 +165,7 @@ theorem mk_eq_divInt (num den nz c) : ⟨num, den, nz, c⟩ = num /. (den : Nat)
 
 theorem num_divInt_den (a : Rat) : a.num /. a.den = a := by rw [divInt_ofNat, mkRat_self]
 
+@[deprecated mk_eq_divInt (since := "2025-10-29")]
 theorem mk'_eq_divInt {n d h c} : (⟨n, d, h, c⟩ : Rat) = n /. d := (num_divInt_den _).symm
 
 @[deprecated num_divInt_den (since := "2025-08-22")]
@@ -242,7 +243,7 @@ numbers of the form `n /. d` with `0 < d` and coprime `n`, `d`. -/
 @[elab_as_elim]
 def numDenCasesOn.{u} {C : Rat → Sort u} :
     ∀ (a : Rat) (_ : ∀ n d, 0 < d → (Int.natAbs n).Coprime d → C (n /. d)), C a
-  | ⟨n, d, h, c⟩, H => by rw [mk'_eq_divInt]; exact H n d (Nat.pos_of_ne_zero h) c
+  | ⟨n, d, h, c⟩, H => by rw [mk_eq_divInt]; exact H n d (Nat.pos_of_ne_zero h) c
 
 /-- Define a (dependent) function or prove `∀ r : Rat, p r` by dealing with rational
 numbers of the form `n /. d` with `d ≠ 0`. -/
@@ -529,7 +530,7 @@ protected theorem mul_eq_zero {a b : Rat} : a * b = 0 ↔ a = 0 ∨ b = 0 := by
 theorem div_def (a b : Rat) : a / b = a * b⁻¹ := rfl
 
 theorem divInt_eq_div (a b : Int) : a /. b = a / b := by
-  rw [← Rat.mk_den_one, ← Rat.mk_den_one, Rat.mk'_eq_divInt, Rat.mk'_eq_divInt, div_def,
+  rw [← Rat.mk_den_one, ← Rat.mk_den_one, Rat.mk_eq_divInt, Rat.mk_eq_divInt, div_def,
     inv_divInt, divInt_mul_divInt, Int.cast_ofNat_Int, Int.mul_one, Int.one_mul]
 
 theorem mkRat_eq_div (a : Int) (b : Nat) : mkRat a b = a / b := by
@@ -553,7 +554,7 @@ theorem pow_def (q : Rat) (n : Nat) :
 protected theorem pow_succ (q : Rat) (n : Nat) : q ^ (n + 1) = q ^ n * q := by
   rcases q with ⟨n, d, hn, r⟩
   simp only [pow_def, Int.pow_succ, Nat.pow_succ]
-  simp only [mk'_eq_divInt, Int.natCast_mul, divInt_mul_divInt]
+  simp only [mk_eq_divInt, Int.natCast_mul, divInt_mul_divInt]
 
 @[simp] protected theorem pow_one (q : Rat) : q ^ 1 = q := by simp [Rat.pow_succ]
 
@@ -621,7 +622,7 @@ theorem num_eq_zero {q : Rat} : q.num = 0 ↔ q = 0 := by
   induction q
   constructor
   · rintro rfl
-    rw [mk'_eq_divInt, zero_divInt]
+    rw [mk_eq_divInt, zero_divInt]
   · exact congrArg Rat.num
 
 protected theorem nonneg_antisymm {q : Rat} : 0 ≤ q → 0 ≤ -q → q = 0 := by
@@ -634,7 +635,7 @@ protected theorem nonneg_total (a : Rat) : 0 ≤ a ∨ 0 ≤ -a := by
 @[simp] theorem divInt_nonneg_iff_of_pos_right {a b : Int} (hb : 0 < b) :
     0 ≤ a /. b ↔ 0 ≤ a := by
   rcases hab : a /. b with ⟨n, d, hd, hnd⟩
-  rw [mk'_eq_divInt, divInt_eq_divInt_iff (Int.ne_of_gt hb) (mod_cast hd)] at hab
+  rw [mk_eq_divInt, divInt_eq_divInt_iff (Int.ne_of_gt hb) (mod_cast hd)] at hab
   rw [← num_nonneg, ← Int.mul_nonneg_iff_of_pos_right hb, ← hab,
     Int.mul_nonneg_iff_of_pos_right (mod_cast Nat.pos_of_ne_zero hd)]
 

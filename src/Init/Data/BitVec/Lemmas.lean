@@ -64,6 +64,7 @@ theorem getElem?_eq_none_iff {l : BitVec w} : l[n]? = none ↔ w ≤ n := by
 theorem none_eq_getElem?_iff {l : BitVec w} : none = l[n]? ↔ w ≤ n := by
   simp
 
+@[simp]
 theorem getElem?_eq_none {l : BitVec w} (h : w ≤ n) : l[n]? = none := getElem?_eq_none_iff.mpr h
 
 theorem getElem?_eq (l : BitVec w) (i : Nat) :
@@ -158,7 +159,8 @@ theorem getLsbD_eq_getMsbD (x : BitVec w) (i : Nat) : x.getLsbD i = (decide (i <
     apply getLsbD_of_ge
     omega
 
-@[simp] theorem getElem?_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : x[i]? = none := by
+@[deprecated getElem?_eq_none (since := "2025-10-29")]
+theorem getElem?_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : x[i]? = none := by
   simp [ge]
 
 @[simp] theorem getMsb?_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getMsb? x i = none := by
@@ -418,8 +420,14 @@ theorem getElem?_zero_ofBool (b : Bool) : (ofBool b)[0]? = some b := by
   simp only [ofBool, ofNat_eq_ofNat, cond_eq_if]
   split <;> simp_all
 
-@[simp, grind =] theorem getElem_zero_ofBool (b : Bool) : (ofBool b)[0] = b := by
+@[simp, grind =]
+theorem getElem_ofBool_zero {b : Bool} : (ofBool b)[0] = b := by
   rw [getElem_eq_iff, getElem?_zero_ofBool]
+
+
+@[deprecated getElem_ofBool_zero (since := "2025-10-29")]
+theorem getElem_zero_ofBool (b : Bool) : (ofBool b)[0] = b := by
+  simp
 
 theorem getElem?_succ_ofBool (b : Bool) (i : Nat) : (ofBool b)[i + 1]? = none := by
   simp
@@ -430,8 +438,6 @@ theorem getLsbD_ofBool (b : Bool) (i : Nat) : (ofBool b).getLsbD i = ((i = 0) &&
   · simp [ofBool]
   · simp only [ofBool, ofNat_eq_ofNat, cond_true, getLsbD_ofNat, Bool.and_true]
     by_cases hi : i = 0 <;> simp [hi] <;> omega
-
-theorem getElem_ofBool_zero {b : Bool} : (ofBool b)[0] = b := by simp
 
 @[simp]
 theorem getElem_ofBool {b : Bool} {h : i < 1}: (ofBool b)[i] = b := by
@@ -988,7 +994,14 @@ theorem msb_setWidth' (x : BitVec w) (h : w ≤ v) : (x.setWidth' h).msb = (deci
 theorem msb_setWidth'' (x : BitVec w) : (x.setWidth (k + 1)).msb = x.getLsbD k := by
   simp [BitVec.msb, getMsbD]
 
+/-- Truncating to width 1 produces a bitvector equal to the least significant bit. -/
+theorem setWidth_one {x : BitVec w} :
+    x.setWidth 1 = ofBool (x.getLsbD 0) := by
+  ext i
+  simp [show i = 0 by omega]
+
 /-- zero extending a bitvector to width 1 equals the boolean of the lsb. -/
+@[deprecated setWidth_one (since := "2025-10-29")]
 theorem setWidth_one_eq_ofBool_getLsb_zero (x : BitVec w) :
     x.setWidth 1 = BitVec.ofBool (x.getLsbD 0) := by
   ext i h
@@ -1003,12 +1016,6 @@ theorem setWidth_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v) :
     ]
   have hv := (@Nat.testBit_one_eq_true_iff_self_eq_zero i)
   by_cases h : Nat.testBit 1 i = true <;> simp_all
-
-/-- Truncating to width 1 produces a bitvector equal to the least significant bit. -/
-theorem setWidth_one {x : BitVec w} :
-    x.setWidth 1 = ofBool (x.getLsbD 0) := by
-  ext i
-  simp [show i = 0 by omega]
 
 @[simp, grind =] theorem setWidth_ofNat_of_le (h : v ≤ w) (x : Nat) : setWidth v (BitVec.ofNat w x) = BitVec.ofNat v x := by
   apply BitVec.eq_of_toNat_eq

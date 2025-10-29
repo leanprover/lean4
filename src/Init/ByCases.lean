@@ -44,3 +44,10 @@ theorem apply_ite (f : α → β) (P : Prop) [Decidable P] (x y : α) :
 /-- A `dite` whose results do not actually depend on the condition may be reduced to an `ite`. -/
 @[simp] theorem dite_eq_ite [Decidable P] :
   (dite P (fun _ => a) (fun _ => b)) = ite P a b := rfl
+
+-- Remark: dite and ite are "defally equal" when we ignore the proofs.
+@[deprecated dite_eq_ite (since := "2025-10-29")]
+theorem dif_eq_if (c : Prop) {h : Decidable c} {α : Sort u} (t : α) (e : α) : dite c (fun _ => t) (fun _ => e) = ite c t e :=
+  match h with
+  | isTrue _    => rfl
+  | isFalse _   => rfl

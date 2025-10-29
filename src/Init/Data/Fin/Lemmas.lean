@@ -587,8 +587,12 @@ theorem castSucc_pos [NeZero n] {i : Fin n} (h : 0 < i) : 0 < i.castSucc := by
 theorem castSucc_ne_zero_iff [NeZero n] {a : Fin n} : a.castSucc ≠ 0 ↔ a ≠ 0 :=
   not_congr <| castSucc_eq_zero_iff
 
+@[simp, grind _=_]
+theorem castSucc_succ (i : Fin n) : i.succ.castSucc = i.castSucc.succ := rfl
+
+@[deprecated castSucc_succ (since := "2025-10-29")]
 theorem castSucc_fin_succ (n : Nat) (j : Fin n) :
-    j.succ.castSucc = (j.castSucc).succ := by simp [Fin.ext_iff]
+    j.succ.castSucc = (j.castSucc).succ := by simp
 
 @[simp]
 theorem coeSucc_eq_succ {a : Fin n} : a.castSucc + 1 = a.succ := by
@@ -596,6 +600,7 @@ theorem coeSucc_eq_succ {a : Fin n} : a.castSucc + 1 = a.succ := by
   · exact a.elim0
   · simp [Fin.ext_iff, add_def, Nat.mod_eq_of_lt (Nat.succ_lt_succ a.is_lt)]
 
+@[deprecated castSucc_lt_succ (since := "2025-10-29")]
 theorem lt_succ {a : Fin n} : a.castSucc < a.succ := by
   rw [castSucc, lt_def, coe_castAdd, val_succ]; exact Nat.lt_succ_self a.val
 
@@ -698,9 +703,6 @@ theorem rev_addNat (k : Fin n) (m : Nat) : rev (addNat k m) = castAdd m (rev k) 
 theorem rev_castSucc (k : Fin n) : rev (castSucc k) = succ (rev k) := k.rev_castAdd 1
 
 theorem rev_succ (k : Fin n) : rev (succ k) = castSucc (rev k) := k.rev_addNat 1
-
-@[simp, grind _=_]
-theorem castSucc_succ (i : Fin n) : i.succ.castSucc = i.castSucc.succ := rfl
 
 @[simp, grind =]
 theorem castLE_refl (h : n ≤ n) (i : Fin n) : i.castLE h = i := rfl

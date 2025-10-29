@@ -548,7 +548,8 @@ theorem _root_.Array.replicate_eq_toArray_replicate :
     Array.replicate n v = (List.replicate n v).toArray := by
   simp
 
-@[simp, grind =] theorem flatMap_empty {β} (f : α → Array β) : (#[] : Array α).flatMap f = #[] := rfl
+@[simp, grind =] theorem _root_.Array.flatMap_empty {β} (f : α → Array β) :
+    (#[] : Array α).flatMap f = #[] := rfl
 
 theorem flatMap_toArray_cons {β} (f : α → Array β) (a : α) (as : List α) :
     (a :: as).toArray.flatMap f = f a ++ as.toArray.flatMap f := by

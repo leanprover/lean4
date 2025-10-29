@@ -135,8 +135,15 @@ partial def natToBin' : (n : Nat) → List Bool
   | Parity.odd  j => true  :: natToBin j
 
 /--
-error: Dependent match elimination failed: Expected a constructor, but found the inaccessible pattern
-  .(j + j)
+error: Tactic `cases` failed with a nested error:
+Dependent elimination failed: Failed to solve equation
+  n✝¹.succ = n✝.add n✝
+at case `Parity.even` after processing
+  (Nat.succ _), _
+the dependent pattern matcher can solve the following kinds of equations
+- <var> = <term> and <term> = <var>
+- <term> = <term> where the terms are definitionally equal
+- <constructor> = <constructor>, examples: List.cons x xs = List.cons y ys, and List.cons x xs = List.nil
 -/
 #guard_msgs in
 partial def natToBinBad (n : Nat) : List Bool :=

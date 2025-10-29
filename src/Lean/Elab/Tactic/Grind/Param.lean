@@ -141,6 +141,9 @@ def processAnchor (params : Grind.Params) (val : TSyntax `hexnum) : CoreM Grind.
   let anchorRef ← Grind.elabAnchorRef val
   return { params with anchorRefs? := some <| anchorRefs.push anchorRef }
 
+/--
+Elaborates `grind` parameters.
+-/
 public def elabGrindParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.Tactic.grindParam)
     (only : Bool) (lax : Bool := false) : MetaM Grind.Params := do
   let mut params := params

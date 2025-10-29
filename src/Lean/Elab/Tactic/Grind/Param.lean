@@ -217,7 +217,10 @@ public def withParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.Tactic
   else
     let mut params := params
     if only then
-      params := { params with anchorRefs? := none }
+      params := { params with
+        ematch := {}
+        anchorRefs? := none
+      }
     params ← elabGrindParams params ps (only := only) (incremental := true)
     let anchorRefs? := params.anchorRefs?
     withReader (fun c => { c with params, ctx.anchorRefs? := anchorRefs? }) do

@@ -226,7 +226,7 @@ private theorem findSomeRevM?_find_toArray [Monad m] [LawfulMonad m] (f : α →
   | zero => simp [Array.findSomeRevM?.find]
   | succ i ih =>
     rw [size_toArray] at h
-    rw [Array.findSomeRevM?.find, take_succ, getElem?_eq_getElem (by omega)]
+    rw [Array.findSomeRevM?.find, take_add_one, getElem?_eq_getElem (by omega)]
     simp only [ih, reverse_append]
     congr
     ext1 (_|_) <;> simp
@@ -510,7 +510,7 @@ private theorem takeWhile_go_toArray (p : α → Bool) (l : List α) (i : Nat) :
         getElem_toArray, getElem_cons_succ, drop_succ_cons]
       split <;> rename_i h₁
       · rw [takeWhile_go_succ, ih]
-        rw [← getElem_cons_drop_succ_eq_drop h₁, takeWhile_cons]
+        rw [← getElem_cons_drop h₁, takeWhile_cons]
         split <;> simp_all
       · simp_all [drop_eq_nil_of_le]
 

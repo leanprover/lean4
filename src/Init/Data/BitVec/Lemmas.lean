@@ -132,9 +132,6 @@ theorem two_pow_le_toNat_of_getElem_eq_true {i : Nat} {x : BitVec w}
   rw [← getElem_eq_testBit_toNat x i hi]
   exact hx
 
-@[grind =] theorem msb_eq_getMsbD (x : BitVec w) : x.msb = x.getMsbD 0 := by
-  simp [BitVec.msb]
-
 @[grind =] theorem getMsb_eq_getLsb (x : BitVec w) (i : Fin w) :
     x.getMsb i = x.getLsb ⟨w - 1 - i, by omega⟩ := by
   simp only [getMsb, getLsb]
@@ -517,6 +514,10 @@ theorem toNat_ge_of_msb_true {x : BitVec n} (p : BitVec.msb x = true) : x.toNat 
 
 @[grind _=_] theorem msb_eq_getMsbD_zero (x : BitVec w) : x.msb = x.getMsbD 0 := by
   cases w <;> simp [getMsbD_eq_getLsbD, msb_eq_getLsbD_last]
+
+@[deprecated msb_eq_getMsbD_zero (since := "2025-10-26")]
+theorem msb_eq_getMsbD (x : BitVec w) : x.msb = x.getMsbD 0 := by
+  simp [BitVec.msb]
 
 /-! ### cast -/
 
@@ -1182,7 +1183,7 @@ let x' = x.extractLsb' 7 5  =   _ _ 9 8 7
 
 @[simp] theorem getLsbD_extract (hi lo : Nat) (x : BitVec n) (i : Nat) :
     getLsbD (extractLsb hi lo x) i = (i ≤ (hi-lo) && getLsbD x (lo+i)) := by
-  simp [getLsbD, Nat.lt_succ]
+  simp [getLsbD, Nat.lt_succ_iff]
 
 @[simp] theorem getLsbD_extractLsb {hi lo : Nat} {x : BitVec n} {i : Nat} :
     (extractLsb hi lo x).getLsbD i = (decide (i < hi - lo + 1) && x.getLsbD (lo + i)) := by
@@ -4057,6 +4058,7 @@ protected theorem umod_lt (x : BitVec n) {y : BitVec n} : 0 < y → x % y < y :=
   simp only [ofNat_eq_ofNat, lt_def, toNat_ofNat, Nat.zero_mod]
   apply Nat.mod_lt
 
+@[deprecated BitVec.not_lt (since := "2025-10-26")]
 theorem not_lt_iff_le {x y : BitVec w} : (¬ x < y) ↔ y ≤ x := by
   constructor <;>
     (intro h; simp only [lt_def, Nat.not_lt, le_def] at h ⊢; omega)
@@ -4073,7 +4075,7 @@ theorem not_lt_zero {x : BitVec w} : ¬x < 0#w := of_decide_eq_false rfl
 theorem le_zero_iff {x : BitVec w} : x ≤ 0#w ↔ x = 0#w := by
   constructor
   · intro h
-    have : x ≥ 0 := not_lt_iff_le.mp not_lt_zero
+    have : x ≥ 0 := BitVec.not_lt.mp not_lt_zero
     exact Eq.symm (BitVec.le_antisymm this h)
   · simp_all
 
@@ -4096,7 +4098,7 @@ theorem not_allOnes_lt {x : BitVec w} : ¬allOnes w < x := by
 theorem allOnes_le_iff {x : BitVec w} : allOnes w ≤ x ↔ x = allOnes w := by
   constructor
   · intro h
-    have : x ≤ allOnes w := not_lt_iff_le.mp not_allOnes_lt
+    have : x ≤ allOnes w := BitVec.not_lt.mp not_allOnes_lt
     exact Eq.symm (BitVec.le_antisymm h this)
   · simp_all
 

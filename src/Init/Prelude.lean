@@ -1877,7 +1877,7 @@ theorem Nat.succ_le_succ : LE.le n m → LE.le (succ n) (succ m)
 theorem Nat.zero_lt_succ (n : Nat) : LT.lt 0 (succ n) :=
   succ_le_succ (zero_le n)
 
-theorem Nat.le_step (h : LE.le n m) : LE.le n (succ m) :=
+theorem Nat.le_succ_of_le (h : LE.le n m) : LE.le n (succ m) :=
   Nat.le.step h
 
 protected theorem Nat.le_trans {n m k : Nat} : LE.le n m → LE.le m k → LE.le n k
@@ -1888,13 +1888,10 @@ protected theorem Nat.lt_of_lt_of_le {n m k : Nat} : LT.lt n m → LE.le m k →
   Nat.le_trans
 
 protected theorem Nat.lt_trans {n m k : Nat} (h₁ : LT.lt n m) : LT.lt m k → LT.lt n k :=
-  Nat.le_trans (le_step h₁)
+  Nat.le_trans (le_succ_of_le h₁)
 
 theorem Nat.le_succ (n : Nat) : LE.le n (succ n) :=
   Nat.le.step Nat.le.refl
-
-theorem Nat.le_succ_of_le {n m : Nat} (h : LE.le n m) : LE.le n (succ m) :=
-  Nat.le_trans h (le_succ m)
 
 protected theorem Nat.le_refl (n : Nat) : LE.le n n :=
   Nat.le.refl
@@ -2813,7 +2810,7 @@ def Char.ofNat (n : Nat) : Char :=
     (fun h => Char.ofNatAux n h)
     (fun _ => { val := ⟨BitVec.ofNatLT 0 (of_decide_eq_true rfl)⟩, valid := Or.inl (of_decide_eq_true rfl) })
 
-theorem Char.eq_of_val_eq : ∀ {c d : Char}, Eq c.val d.val → Eq c d
+theorem Char.ext : ∀ {c d : Char}, Eq c.val d.val → Eq c d
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
 theorem Char.val_eq_of_eq : ∀ {c d : Char}, Eq c d → Eq c.val d.val
@@ -2823,12 +2820,12 @@ theorem Char.ne_of_val_ne {c d : Char} (h : Not (Eq c.val d.val)) : Not (Eq c d)
   fun h' => absurd (val_eq_of_eq h') h
 
 theorem Char.val_ne_of_ne {c d : Char} (h : Not (Eq c d)) : Not (Eq c.val d.val) :=
-  fun h' => absurd (eq_of_val_eq h') h
+  fun h' => absurd (ext h') h
 
 instance : DecidableEq Char :=
   fun c d =>
     match decEq c.val d.val with
-    | isTrue h  => isTrue (Char.eq_of_val_eq h)
+    | isTrue h  => isTrue (Char.ext h)
     | isFalse h => isFalse (Char.ne_of_val_ne h)
 
 /-- Returns the number of bytes required to encode this `Char` in UTF-8. -/

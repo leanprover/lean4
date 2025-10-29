@@ -1359,8 +1359,12 @@ namespace Subtype
 theorem exists_of_subtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (fun x => p x)
   | ⟨a, h⟩ => ⟨a, h⟩
 
-variable {α : Type u} {p : α → Prop}
+variable {α : Sort u} {p : α → Prop}
 
+protected theorem ext : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
+  | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
+
+@[deprecated Subtype.ext (since := "2025-10-26")]
 protected theorem eq : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
@@ -1375,9 +1379,9 @@ instance {α : Type u} {p : α → Prop} [BEq α] [ReflBEq α] : ReflBEq {x : α
   rfl {x} := BEq.refl x.1
 
 instance {α : Type u} {p : α → Prop} [BEq α] [LawfulBEq α] : LawfulBEq {x : α // p x} where
-  eq_of_beq h := Subtype.eq (eq_of_beq h)
+  eq_of_beq h := Subtype.ext (eq_of_beq h)
 
-instance {α : Type u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
+instance {α : Sort u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
   fun ⟨a, h₁⟩ ⟨b, h₂⟩ =>
     if h : a = b then isTrue (by subst h; exact rfl)
     else isFalse (fun h' => Subtype.noConfusion h' (fun h' => absurd h' h))
@@ -1494,20 +1498,24 @@ protected theorem PSigma.eta {α : Sort u} {β : α → Sort v} {a₁ a₂ : α}
 
 /-! # Universe polymorphic unit -/
 
+theorem PUnit.ext (a b : PUnit) : a = b := by
+  cases a; cases b; exact rfl
+
+@[deprecated PUnit.ext (since := "2025-10-26")]
 theorem PUnit.subsingleton (a b : PUnit) : a = b := by
   cases a; cases b; exact rfl
 
 theorem PUnit.eq_punit (a : PUnit) : a = ⟨⟩ :=
-  PUnit.subsingleton a ⟨⟩
+  PUnit.ext a ⟨⟩
 
 instance : Subsingleton PUnit :=
-  Subsingleton.intro PUnit.subsingleton
+  Subsingleton.intro PUnit.ext
 
 instance : Inhabited PUnit where
   default := ⟨⟩
 
 instance : DecidableEq PUnit :=
-  fun a b => isTrue (PUnit.subsingleton a b)
+  fun a b => isTrue (PUnit.ext a b)
 
 /-! # Setoid -/
 

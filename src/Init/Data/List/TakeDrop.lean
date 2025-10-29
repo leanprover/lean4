@@ -72,12 +72,6 @@ theorem lt_length_of_take_ne_self {l : List α} {i} (h : l.take i ≠ l) : i < l
 
 @[simp, grind =] theorem take_length {l : List α} : l.take l.length = l := take_of_length_le (Nat.le_refl _)
 
-@[simp]
-theorem getElem_cons_drop : ∀ {l : List α} {i : Nat} (h : i < l.length),
-    l[i] :: drop (i + 1) l = drop i l
-  | _::_, 0, _ => rfl
-  | _::_, _+1, h => getElem_cons_drop (Nat.add_one_lt_add_one_iff.mp h)
-
 theorem drop_eq_getElem_cons {i} {l : List α} (h : i < l.length) : drop i l = l[i] :: drop (i + 1) l :=
   (getElem_cons_drop h).symm
 
@@ -186,7 +180,7 @@ theorem set_drop {l : List α} {i j : Nat} {a : α} :
 theorem take_concat_get {l : List α} {i : Nat} (h : i < l.length) :
     (l.take i).concat l[i] = l.take (i+1) :=
   Eq.symm <| (append_left_inj _).1 <| (take_append_drop (i+1) l).trans <| by
-    rw [concat_eq_append, append_assoc, singleton_append, getElem_cons_drop_succ_eq_drop, take_append_drop]
+    rw [concat_eq_append, append_assoc, singleton_append, getElem_cons_drop, take_append_drop]
 
 @[simp] theorem take_append_getElem {l : List α} {i : Nat} (h : i < l.length) :
     (l.take i) ++ [l[i]] = l.take (i+1) := by
@@ -227,7 +221,7 @@ theorem take_left : ∀ {l₁ l₂ : List α}, take (length l₁) (l₁ ++ l₂)
 theorem take_left' {l₁ l₂ : List α} {i} (h : length l₁ = i) : take i (l₁ ++ l₂) = l₁ := by
   rw [← h]; apply take_left
 
-theorem take_succ {l : List α} {i : Nat} : l.take (i + 1) = l.take i ++ l[i]?.toList := by
+theorem take_add_one {l : List α} {i : Nat} : l.take (i + 1) = l.take i ++ l[i]?.toList := by
   induction l generalizing i with
   | nil =>
     simp only [take_nil, Option.toList, getElem?_nil, append_nil]
@@ -235,6 +229,9 @@ theorem take_succ {l : List α} {i : Nat} : l.take (i + 1) = l.take i ++ l[i]?.t
     cases i
     · simp only [take, Option.toList, getElem?_cons_zero, nil_append]
     · simp only [take, hl, getElem?_cons_succ, cons_append]
+
+@[deprecated take_add_one (since := "2025-10-26")]
+theorem take_succ {l : List α} {i : Nat} : l.take (i + 1) = l.take i ++ l[i]?.toList := take_add_one
 
 theorem dropLast_eq_take {l : List α} : l.dropLast = l.take (l.length - 1) := by
   cases l with
@@ -321,7 +318,7 @@ theorem head?_dropWhile_not (p : α → Bool) (l : List α) :
 -- The argument `p` is explicit, as otherwise the head of the left hand side may be a metavariable.
 theorem head_dropWhile_not (p : α → Bool) {l : List α} (w) :
     p ((l.dropWhile p).head w) = false := by
-  simpa [head?_eq_head, w] using head?_dropWhile_not p l
+  simpa [head?_eq_some_head, w] using head?_dropWhile_not p l
 
 theorem takeWhile_map {f : α → β} {p : β → Bool} {l : List α} :
     (l.map f).takeWhile p = (l.takeWhile (p ∘ f)).map f := by

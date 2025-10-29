@@ -1602,7 +1602,7 @@ private theorem Slice.le_offset_findNextPosGo {s : Slice} {o : String.Pos.Raw} (
   | case2 x h₁ h₂ ih =>
     refine Pos.Raw.le_of_lt (Pos.Raw.lt_of_lt_of_le Pos.Raw.lt_inc (ih ?_))
     rw [Pos.Raw.le_iff, Pos.Raw.byteIdx_inc]
-    exact Nat.succ_le.2 h₁
+    exact Nat.succ_le_iff.2 h₁
   | case3 x h => exact h
 
 theorem Slice.lt_offset_findNextPos {s : Slice} {o : String.Pos.Raw} (h) : o < (s.findNextPos o h).offset :=

@@ -231,7 +231,7 @@ theorem den_divInt (a b : Int) : (a /. b).den = if b = 0 then 1 else b.natAbs / 
   rw [divInt.eq_def]
   simp only [inline, Nat.succ_eq_add_one]
   split <;> rename_i d
-  · simp only [den_mkRat, Int.ofNat_eq_coe, Int.natAbs_cast]
+  · simp only [den_mkRat, Int.ofNat_eq_coe, Int.natAbs_natCast]
     split <;> rename_i h
     · simp_all
     · simp [if_neg (by omega), Int.gcd]
@@ -650,7 +650,7 @@ protected theorem add_nonneg {a b : Rat} : 0 ≤ a → 0 ≤ b → 0 ≤ a + b :
     simp only [d₁0, d₂0, h₁, h₂, Int.mul_pos, divInt_nonneg_iff_of_pos_right, divInt_add_divInt,
       ne_eq, Int.natCast_eq_zero, not_false_eq_true]
     intro n₁0 n₂0
-    apply Int.add_nonneg <;> apply Int.mul_nonneg <;> · first | assumption | apply Int.ofNat_zero_le
+    apply Int.add_nonneg <;> apply Int.mul_nonneg <;> · first | assumption | apply Int.natCast_nonneg
 
 protected theorem mul_nonneg {a b : Rat} : 0 ≤ a → 0 ≤ b → 0 ≤ a * b :=
   numDenCasesOn' a fun n₁ d₁ h₁ =>

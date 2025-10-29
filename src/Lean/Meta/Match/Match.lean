@@ -501,8 +501,8 @@ private def hasRecursiveType (x : Expr) : MetaM Bool := do
    eliminates this alternative.
 -/
 def processInaccessibleAsCtor (alt : Alt) (ctorName : Name) : MetaM Alt := do
-  let p@(.inaccessible e) :: ps := alt.patterns | unreachable!
-  trace[Meta.Match.match] "inaccessible in ctor step {e}"
+  let .inaccessible e :: ps := alt.patterns | unreachable!
+  trace[Meta.Match.match] "inaccessible step {e} as ctor {ctorName}"
   withExistingLocalDecls alt.fvarDecls do
     -- Try to push inaccessible annotations.
     let e ← whnfD e

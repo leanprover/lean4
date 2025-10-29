@@ -119,12 +119,12 @@ def ofNatWrapping { lo hi : Int } (val : Int) (h : lo ≤ hi) : Bounded.LE lo hi
 
 instance {k : Nat} : OfNat (Bounded.LE lo (lo + k)) n where
   ofNat :=
-    let h : lo ≤ lo + k := Int.le_add_of_nonneg_right (Int.ofNat_zero_le k)
+    let h : lo ≤ lo + k := Int.le_add_of_nonneg_right (Int.natCast_nonneg k)
     ofNatWrapping n h
 
 instance {k : Nat} : Inhabited (Bounded.LE lo (lo + k)) where
   default :=
-    let h : lo ≤ lo + k := Int.le_add_of_nonneg_right (Int.ofNat_zero_le k)
+    let h : lo ≤ lo + k := Int.le_add_of_nonneg_right (Int.natCast_nonneg k)
     ofNatWrapping lo h
 
 /--
@@ -155,7 +155,7 @@ Convert a `Nat` to a `Bounded.LE`.
 -/
 @[inline]
 def ofNat (val : Nat) (h : val ≤ hi) : Bounded.LE 0 hi :=
-  Bounded.mk val (And.intro (Int.ofNat_zero_le val) (Int.ofNat_le.mpr h))
+  Bounded.mk val (And.intro (Int.natCast_nonneg val) (Int.ofNat_le.mpr h))
 
 /--
 Convert a `Nat` to a `Bounded.LE` if it checks.

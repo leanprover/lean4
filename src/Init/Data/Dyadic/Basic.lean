@@ -472,7 +472,7 @@ theorem toRat_toDyadic (x : Rat) (prec : Int) :
       Rat.den_ofNat, Nat.one_pow, Nat.mul_one]
     split
     · simp_all
-    · rw [Int.ediv_ediv (Int.ofNat_zero_le _)]
+    · rw [Int.ediv_ediv (Int.natCast_nonneg _)]
       congr 1
       rw [Int.natCast_ediv, Int.mul_ediv_cancel']
       rw [Int.natCast_dvd_natCast]
@@ -495,7 +495,7 @@ theorem toRat_toDyadic (x : Rat) (prec : Int) :
     simp only [this, Int.mul_one]
     split
     · simp_all
-    · rw [Int.ediv_ediv (Int.ofNat_zero_le _)]
+    · rw [Int.ediv_ediv (Int.natCast_nonneg _)]
       congr 1
       rw [Int.natCast_ediv, Int.mul_ediv_cancel']
       · simp

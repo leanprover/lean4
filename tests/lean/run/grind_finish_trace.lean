@@ -178,3 +178,76 @@ example (f : Int → Int) (x y : Int)
     have : x ≠ 0
     have : x ≠ 1
     have : x ≠ 2
+
+example (f g : Int → Int) (x y z w : Int)
+    : 0 ≤ x → x ≤ 1 → 0 ≤ w →
+      g 0 = z → g 1 = z → g 2 = z →
+      f 0 = y → f 1 = y →
+      g w ≠ z → f x = y := by
+  set_option trace.grind.split true in
+  grind =>
+    mbtc
+    cases #23ad
+    mbtc
+    cases #beb4
+
+/--
+trace: [grind.split] w = 0, generation: 0
+[grind.split] x = 0, generation: 0
+[grind.split] w = 1, generation: 0
+[grind.split] x = 1, generation: 0
+-/
+#guard_msgs in
+example (f g : Int → Int) (x y z w : Int)
+    : 0 ≤ x → x ≤ 1 → 0 ≤ w →
+      g 0 = z → g 1 = z → g 2 = z →
+      f 0 = y → f 1 = y →
+      g w ≠ z → f x = y := by
+  set_option trace.grind.split true in
+  grind
+
+/--
+trace: [grind.split] x = 0, generation: 0
+[grind.split] x = 1, generation: 0
+-/
+#guard_msgs in
+example (f g : Int → Int) (x y z w : Int)
+    : 0 ≤ x → x ≤ 1 → 0 ≤ w →
+      g 0 = z → g 1 = z → g 2 = z →
+      f 0 = y → f 1 = y →
+      g w ≠ z → f x = y := by
+  fail_if_success grind [#23ad] -- not possible to solve using this set of anchors.
+  set_option trace.grind.split true in
+  grind only [#23ad, #beb4] -- Only these two splits were performed.
+
+/--
+trace: [grind.ematch.instance] h: f (f a) = f a
+[grind.ematch.instance] h: f (f (f a)) = f (f a)
+[grind.ematch.instance] h: f (f (f (f a))) = f (f (f a))
+[grind.ematch.instance] h_1: g (g (g b)) = g (g b)
+[grind.ematch.instance] h_1: g (g b) = g b
+-/
+#guard_msgs in
+example (f g : Int → Int)
+    (_ : ∀ x, f (f x) = f x)
+    (_ : ∀ x, g (g x) = g x)
+    (a b : Int)
+    (_ : g (g b) = b)
+    : f (f (f a)) = f a := by
+  set_option trace.grind.ematch.instance true in
+  grind
+
+/--
+trace: [grind.ematch.instance] h: f (f a) = f a
+[grind.ematch.instance] h: f (f (f a)) = f (f a)
+[grind.ematch.instance] h: f (f (f (f a))) = f (f (f a))
+-/
+#guard_msgs in
+example (f g : Int → Int)
+    (_ : ∀ x, f (f x) = f x)
+    (_ : ∀ x, g (g x) = g x)
+    (a b : Int)
+    (_ : g (g b) = b)
+    : f (f (f a)) = f a := by
+  set_option trace.grind.ematch.instance true in
+  grind only [#99cb]

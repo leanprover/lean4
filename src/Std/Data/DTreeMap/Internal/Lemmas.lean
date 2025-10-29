@@ -1599,7 +1599,7 @@ theorem contains_keys [BEq α] [beqOrd : LawfulBEqOrd α] [TransOrd α] {k : α}
 
 theorem mem_keys [LawfulEqOrd α] [TransOrd α] {k : α} (h : t.WF) :
     k ∈ t.keys ↔ k ∈ t := by
-  simpa only [mem_iff_contains, ← List.contains_iff, ← Bool.eq_iff_iff] using contains_keys h
+  simpa only [mem_iff_contains, ← List.contains_iff_mem, ← Bool.eq_iff_iff] using contains_keys h
 
 theorem mem_of_mem_keys [TransOrd α] (h : t.WF) {k : α}
     (h' : k ∈ t.keys) : k ∈ t :=

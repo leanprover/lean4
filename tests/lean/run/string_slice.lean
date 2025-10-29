@@ -23,12 +23,14 @@ Tests for `String.Slice` functions
 #guard ("coffee tea water".toSlice.split ' ').toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]
 #guard ("coffee tea water".toSlice.split " tea ").toList == ["coffee".toSlice, "water".toSlice]
 #guard ("baaab".toSlice.split "aa").toList == ["b".toSlice, "ab".toSlice]
+#guard ("aababaaba".toSlice.split "ab").toList == ["a".toSlice, "".toSlice, "a".toSlice, "a".toSlice]
 
 #guard ("coffee tea water".toSlice.splitInclusive Char.isWhitespace).toList == ["coffee ".toSlice, "tea ".toSlice, "water".toSlice]
 #guard ("coffee tea water".toSlice.splitInclusive ' ').toList == ["coffee ".toSlice, "tea ".toSlice, "water".toSlice]
 #guard ("coffee tea water".toSlice.splitInclusive " tea ").toList == ["coffee tea ".toSlice, "water".toSlice]
 #guard ("a".toSlice.splitInclusive (fun (_ : Char) => true)).toList == ["a".toSlice]
 #guard ("baaab".toSlice.splitInclusive "aa").toList == ["baa".toSlice, "ab".toSlice]
+#guard ("aababaaba".toSlice.splitInclusive "ab").toList == ["aab".toSlice, "ab".toSlice, "aab".toSlice, "a".toSlice]
 
 #guard "red green blue".toSlice.drop 4 == "green blue".toSlice
 #guard "red green blue".toSlice.drop 10 == "blue".toSlice

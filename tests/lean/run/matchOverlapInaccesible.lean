@@ -16,9 +16,9 @@ else
 /--
 error: Tactic `cases` failed with a nested error:
 Dependent elimination failed: Failed to solve equation
-  n✝¹.succ = n✝.add n✝
+  Nat.zero = n✝.add n✝
 at case `Parity.even` after processing
-  (Nat.succ _), _
+  Nat.zero, _
 the dependent pattern matcher can solve the following kinds of equations
 - <var> = <term> and <term> = <var>
 - <term> = <term> where the terms are definitionally equal
@@ -48,14 +48,14 @@ inductive Parity : MyNat -> Type
 
 def parity (n : MyNat) : Parity n := sorry
 
-set_option trace.Meta.Match.match true
+-- set_option trace.Meta.Match.match true
 
 /--
 error: Tactic `cases` failed with a nested error:
 Dependent elimination failed: Failed to solve equation
-  a✝.succ = sorry n✝ n✝
+  zero = sorry n✝ n✝
 at case `Parity.even` after processing
-  (succ _), _
+  zero, _
 the dependent pattern matcher can solve the following kinds of equations
 - <var> = <term> and <term> = <var>
 - <term> = <term> where the terms are definitionally equal

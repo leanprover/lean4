@@ -1,8 +1,6 @@
 /--
-error: Dependent elimination failed: Type mismatch when solving this alternative: it has type
-  motive false
-but is expected to have type
-  motive b✝
+error: Dependent match elimination failed: Could not solve constraints
+  true ≋ false
 -/
 #guard_msgs in
 def test1 b := match b with
@@ -10,10 +8,8 @@ def test1 b := match b with
   | true => 2
 
 /--
-error: Dependent elimination failed: Type mismatch when solving this alternative: it has type
-  motive false ⋯
-but is expected to have type
-  motive x✝¹ x✝
+error: Dependent match elimination failed: Could not solve constraints
+  true ≋ false
 -/
 #guard_msgs in
 def test2 : (b : Bool) → (h : b = false) → Nat

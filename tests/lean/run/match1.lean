@@ -137,9 +137,9 @@ partial def natToBin' : (n : Nat) → List Bool
 /--
 error: Tactic `cases` failed with a nested error:
 Dependent elimination failed: Failed to solve equation
-  n✝¹.succ = n✝.add n✝
+  Nat.zero = n✝.add n✝
 at case `Parity.even` after processing
-  (Nat.succ _), _
+  Nat.zero, _
 the dependent pattern matcher can solve the following kinds of equations
 - <var> = <term> and <term> = <var>
 - <term> = <term> where the terms are definitionally equal

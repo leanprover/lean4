@@ -432,11 +432,11 @@ alternative `cnstrs` field.
 private def inLocalDecls (localDecls : List LocalDecl) (fvarId : FVarId) : Bool :=
   localDecls.any fun d => d.fvarId == fvarId
 
-private def expandVarIntoCtor? (alt : Alt) (ctorName : Name) : MetaM Alt := do
+private def expandVarIntoCtor (alt : Alt) (ctorName : Name) : MetaM Alt := do
   let .var fvarId :: ps := alt.patterns | unreachable!
   let alt := { alt with patterns := ps}
   withExistingLocalDecls alt.fvarDecls do
-    trace[Meta.Match.unify] "expandVarIntoCtor? fvarId: {mkFVar fvarId}, ctorName: {ctorName}, alt:\n{← alt.toMessageData}"
+    trace[Meta.Match.unify] "expandVarIntoCtor fvarId: {mkFVar fvarId}, ctorName: {ctorName}, alt:\n{← alt.toMessageData}"
     let expectedType ← inferType (mkFVar fvarId)
     let expectedType ← whnfD expectedType
     let (ctorLevels, ctorParams) ← getInductiveUniverseAndParams expectedType
@@ -450,7 +450,7 @@ private def expandVarIntoCtor? (alt : Alt) (ctorName : Name) : MetaM Alt := do
       let mut cnstrs := alt.cnstrs
       unless (← isDefEqGuarded resultType expectedType) do
          cnstrs := (resultType, expectedType) :: cnstrs
-      trace[Meta.Match.unify] "expandVarIntoCtor? {mkFVar fvarId} : {expectedType}, ctor: {ctor}"
+      trace[Meta.Match.unify] "expandVarIntoCtor {mkFVar fvarId} : {expectedType}, ctor: {ctor}"
       let ctorFieldPatterns := ctorFieldDecls.toList.map fun decl => Pattern.var decl.fvarId
       return { alt with fvarDecls := newAltDecls, patterns := ctorFieldPatterns ++ alt.patterns, cnstrs }
 
@@ -493,7 +493,7 @@ def processInaccessibleAsCtor (alt : Alt) (ctorName : Name) : MetaM Alt := do
         return { alt with patterns := fields ++ ps }
       else
         let alt' ← expandInaccessibleIntoVar alt
-        expandVarIntoCtor? alt' ctorName
+        expandVarIntoCtor alt' ctorName
     | _ => throwErrorAt alt.ref "Dependent match elimination failed: Expected a constructor, but found the inaccessible pattern{indentD p.toMessageData}"
 
 private def hasNonTrivialExample (p : Problem) : Bool :=
@@ -558,7 +558,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
     let newAlts ← newAlts.mapM fun alt => do
       match alt.patterns with
       | .ctor _ _ _ fields :: ps  => return { alt with patterns := fields ++ ps }
-      | .var _ :: _               => expandVarIntoCtor? alt subgoal.ctorName
+      | .var _ :: _               => expandVarIntoCtor alt subgoal.ctorName
       | .inaccessible _ :: _      => processInaccessibleAsCtor alt subgoal.ctorName
       | _                         => unreachable!
     return { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
@@ -575,7 +575,7 @@ private def processNonVariable (p : Problem) : MetaM Problem := withGoalOf p do
           else
             return some { alt with patterns := fields ++ ps }
         | .inaccessible _ :: _ => processInaccessibleAsCtor alt ctorVal.name
-        | .var _ :: _          => expandVarIntoCtor? alt ctorVal.name
+        | .var _ :: _          => expandVarIntoCtor alt ctorVal.name
         | _ => unreachable!
       let xFields := xArgs.extract ctorVal.numParams xArgs.size
       return { p with alts := alts, vars := xFields.toList ++ xs }

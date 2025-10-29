@@ -292,12 +292,18 @@ example (m : IndexMap α β) (a : α) (b : β) :
 example (m : IndexMap α β) (a : α) (b : β) :
     (m.insert a b).findIdx a = if h : a ∈ m then m.findIdx a else m.size := by
   grind =>
-    instantiate only [insert, = mem_indices_of_mem, findIdx]
-    instantiate only [= getElem?_pos, = getElem?_neg]
+    instantiate only [findIdx, insert, = mem_indices_of_mem]
+    instantiate only [= getElem?_neg, = getElem?_pos]
     cases #1bba
-    next => instantiate only [findIdx]
-    next =>
-      instantiate only
-      instantiate only [= HashMap.mem_insert, = HashMap.getElem_insert]
+    · instantiate only [findIdx]
+    · finish only [= HashMap.mem_insert, = HashMap.getElem_insert]
+
+example (m : IndexMap α β) (a : α) (b : β) :
+    (m.insert a b).findIdx a = if h : a ∈ m then m.findIdx a else m.size := by
+  grind =>
+    instantiate only [findIdx, insert, = mem_indices_of_mem]
+    instantiate only [= getElem?_neg, = getElem?_pos]
+    cases #1bba <;>
+      finish only [findIdx, = HashMap.mem_insert, = HashMap.getElem_insert]
 
 end IndexMap

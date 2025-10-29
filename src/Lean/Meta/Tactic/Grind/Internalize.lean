@@ -268,7 +268,7 @@ private def mkEMatchTheoremWithKind'? (origin : Origin) (levelParams : Array Nam
   catch _ =>
     return none
 
-private def activateInjectiveTheorem (injThm : InjectiveTheorem) (generation : Nat) : GoalM Unit := do
+def activateInjectiveTheorem (injThm : InjectiveTheorem) (generation : Nat) : GoalM Unit := do
   let type ← inferType injThm.proof
   if type.isForall then
     let symPrios ← getSymbolPriorities

@@ -27,6 +27,7 @@ import Lean.Elab.Tactic.Grind.Filter
 import Lean.Elab.Tactic.Grind.Anchor
 import Lean.Elab.Tactic.Grind.ShowState
 import Lean.Elab.Tactic.Grind.Config
+import Lean.Elab.Tactic.Grind.Param
 import Lean.Elab.SetOption
 namespace Lean.Elab.Tactic.Grind
 
@@ -84,8 +85,10 @@ def evalGrindSeq : GrindTactic := fun stx =>
 open Meta Grind
 
 @[builtin_grind_tactic finish] def evalFinish : GrindTactic := fun stx => withMainContext do
-  let `(grind| finish $[$configItems]*) := stx | throwUnsupportedSyntax
+  let `(grind| finish $[$configItems]* $[only%$only]? $[[$params?,*]]?) := stx | throwUnsupportedSyntax
   withConfigItems configItems do
+  let params := params?.getD {}
+  withParams (← read).params params only.isSome do
     let goal ← getMainGoal
     if let some goal ← liftGrindM <| solve goal then
       let params := (← read).params

@@ -35,6 +35,7 @@ structure Params where
   symPrios    : SymbolPriorities := {}
   casesTypes  : CasesTypes := {}
   extra       : PArray EMatchTheorem := {}
+  extraInj    : PArray InjectiveTheorem := {}
   norm        : Simp.Context
   normProcs   : Array Simprocs
   anchorRefs? : Option (Array AnchorRef) := none

@@ -57,6 +57,15 @@ register_builtin_option grind.warning : Bool := {
   descr    := "generate a warning whenever `grind` is used"
 }
 
+/--
+Anchors are used to reference terms, local theorems, and case-splits in the `grind` state.
+We also use anchors to prune the search space when they are provided as `grind` parameters
+and the `finish` tactic.
+-/
+structure AnchorRef where
+  numDigits : Nat
+  anchorPrefix : UInt64
+
 /-- Opaque solver extension state. -/
 opaque SolverExtensionStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩⟩
 @[expose] def SolverExtensionState : Type := SolverExtensionStateSpec.fst
@@ -100,6 +109,11 @@ structure Context where
   simp         : Simp.Context
   simpMethods  : Simp.Methods
   config       : Grind.Config
+  /--
+  If `anchorRefs? := some anchorRefs`, then only local instances and case-splits in `anchorRefs`
+  are considered.
+  -/
+  anchorRefs?  : Option (Array AnchorRef)
   /--
   If `cheapCases` is `true`, `grind` only applies `cases` to types that contain
   at most one minor premise.
@@ -297,6 +311,10 @@ def getOrderingEqExpr : GrindM Expr := do
 /-- Returns the internalized `Int`.  -/
 def getIntExpr : GrindM Expr := do
   return (← readThe Context).intExpr
+
+/-- Returns the anchor references (if any) being used to restrict the search. -/
+def getAnchorRefs : GrindM (Option (Array AnchorRef)) := do
+  return (← readThe Context).anchorRefs?
 
 def resetAnchors : GrindM Unit := do
   modify fun s => { s with anchors := {} }
@@ -1877,6 +1895,12 @@ def anchorPrefixToString (numDigits : Nat) (anchorPrefix : UInt64) : String :=
 
 def anchorToString (numDigits : Nat) (anchor : UInt64) : String :=
   anchorPrefixToString numDigits (anchor >>> (64 - 4*numDigits.toUInt64))
+
+def AnchorRef.toString (anchorRef : AnchorRef) : String :=
+  anchorPrefixToString anchorRef.numDigits anchorRef.anchorPrefix
+
+instance : ToString AnchorRef where
+  toString := AnchorRef.toString
 
 /--
 Returns activated `match`-declaration equations.

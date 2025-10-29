@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Propagate
 import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Anchor
 import Lean.Meta.Tactic.Grind.EqResolution
 import Lean.Meta.Tactic.Grind.SynthInstance
 public section
@@ -74,6 +75,15 @@ private def mkEMatchTheoremWithKind'? (origin : Origin) (proof : Expr) (kind : E
 private def isNewPat (patternsFoundSoFar : Array (List Expr)) (thm' : EMatchTheorem) : Bool :=
   patternsFoundSoFar.all fun ps => thm'.patterns != ps
 
+/--
+Returns `true`, if there are no anchor references restricting the search,
+or there is an anchor references `ref` s.t. `ref` matches `proof`.
+-/
+private def checkAnchorRefs (proof : Expr) : GrindM Bool := do
+  let some anchorRefs ← getAnchorRefs | return true
+  let anchor ← getAnchor (← inferType proof)
+  return anchorRefs.any (·.matches anchor)
+
 private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   let proof ← mkEqTrueProof e
   let origin ← if let some fvarId := isEqTrueHyp? proof then
@@ -82,6 +92,9 @@ private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
     let idx ← modifyGet fun s => (s.ematch.nextThmIdx, { s with ematch.nextThmIdx := s.ematch.nextThmIdx + 1 })
     pure <| .local ((`local).appendIndexAfter idx)
   let proof := mkOfEqTrueCore e proof
+  -- **Note**: Do we really need to restrict the instantiation of local theorems?
+  -- **Note**: Should we distinguish anchors restricting case-splits and local theorems?
+  unless (← checkAnchorRefs proof) do return ()
   let size := (← get).ematch.newThms.size
   let gen ← getGeneration e
   let mut patternsFoundSoFar := #[]

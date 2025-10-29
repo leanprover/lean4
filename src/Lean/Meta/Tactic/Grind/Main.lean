@@ -29,14 +29,15 @@ public section
 namespace Lean.Meta.Grind
 
 structure Params where
-  config     : Grind.Config
-  ematch     : EMatchTheorems := default
-  inj        : InjectiveTheorems := default
-  symPrios   : SymbolPriorities := {}
-  casesTypes : CasesTypes := {}
-  extra      : PArray EMatchTheorem := {}
-  norm       : Simp.Context
-  normProcs  : Array Simprocs
+  config      : Grind.Config
+  ematch      : EMatchTheorems := default
+  inj         : InjectiveTheorems := default
+  symPrios    : SymbolPriorities := {}
+  casesTypes  : CasesTypes := {}
+  extra       : PArray EMatchTheorem := {}
+  norm        : Simp.Context
+  normProcs   : Array Simprocs
+  anchorRefs? : Option (Array AnchorRef) := none
   -- TODO: inductives to split
 
 def mkParams (config : Grind.Config) : MetaM Params := do
@@ -90,7 +91,8 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
   let simp := params.norm
   let config := params.config
   let symPrios := params.symPrios
-  x (← mkMethods evalTactic?).toMethodsRef { config, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr, symPrios }
+  let anchorRefs? := params.anchorRefs?
+  x (← mkMethods evalTactic?).toMethodsRef { config, anchorRefs?, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr, symPrios }
     |>.run' { scState }
 
 private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State := mvarId.withContext do

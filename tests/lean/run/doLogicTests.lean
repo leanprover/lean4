@@ -429,6 +429,8 @@ theorem add_unfold [Monad m] [WPMonad m sh] :
 
 theorem mkFreshPair_triple : ⦃⌜True⌝⦄ mkFreshPair ⦃⇓ (a, b) => ⌜a ≠ b⌝⦄ := by
   mvcgen -elimLets +trivial [mkFreshPair]
+  -- this tests whether `mSpec` immediately discharges by `rfl` and `And.intro` and in the process
+  -- eagerly instantiates some schematic variables.
   simp_all
 
 theorem sum_loop_spec :

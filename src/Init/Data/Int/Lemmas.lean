@@ -6,8 +6,6 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
-public import Init.Conv
-public import Init.NotationExtra
 public import Init.PropLemmas
 
 public section
@@ -75,9 +73,6 @@ theorem ofNat_ne_zero : ((n : Nat) : Int) ≠ 0 ↔ n ≠ 0 := not_congr ofNat_e
 theorem negSucc_inj : negSucc m = negSucc n ↔ m = n := ⟨negSucc.inj, fun H => by simp [H]⟩
 
 theorem negSucc_eq (n : Nat) : -[n+1] = -((n : Int) + 1) := rfl
-
-@[deprecated negSucc_eq (since := "2025-03-11")]
-theorem negSucc_coe (n : Nat) : -[n+1] = -↑(n + 1) := rfl
 
 @[simp] theorem negSucc_ne_zero (n : Nat) : -[n+1] ≠ 0 := nofun
 
@@ -355,10 +350,6 @@ protected theorem add_sub_assoc (a b c : Int) : a + b - c = a + (b - c) := by
     change ofNat (n - succ m) = subNatNat n (succ m)
     rw [subNatNat, Nat.sub_eq_zero_of_le h]
 
-@[deprecated negSucc_eq (since := "2025-03-11")]
-theorem negSucc_coe' (n : Nat) : -[n+1] = -↑n - 1 := by
-  rw [Int.sub_eq_add_neg, ← Int.neg_add]; rfl
-
 protected theorem subNatNat_eq_coe {m n : Nat} : subNatNat m n = ↑m - ↑n := by
   apply subNatNat_elim m n fun m n i => i = m - n
   · intro i n
@@ -608,7 +599,5 @@ but it is convenient to have these earlier, for users who only need `Nat` and `I
 protected theorem natCast_zero : ((0 : Nat) : Int) = (0 : Int) := rfl
 
 protected theorem natCast_one : ((1 : Nat) : Int) = (1 : Int) := rfl
-
-@[simp, norm_cast] theorem natAbs_cast (n : Nat) : natAbs ↑n = n := rfl
 
 end Int

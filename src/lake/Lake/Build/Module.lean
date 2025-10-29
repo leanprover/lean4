@@ -6,16 +6,13 @@ Authors: Sebastian Ullrich, Mac Malone, Siddharth Bhat
 module
 
 prelude
-public import Lake.Util.Name
 public import Lake.Config.FacetConfig
 public import Lake.Build.Job.Monad
 public import Lake.Build.Infos
 import Lean.Elab.ParseImportsFast
 import Lake.Util.IO
 import Lake.Util.Proc
-import Lake.Util.OrdHashSet
 import Lake.Build.Job.Register
-import Lake.Build.Actions
 import Lake.Build.Common
 import Lake.Build.Target
 
@@ -28,18 +25,6 @@ namespace Lake
 /-! ## Facet Builds
 Build function definitions for a module's builtin facets.
 -/
-
-/-- Compute library directories and build external library Jobs of the given packages. -/
-@[deprecated "Deprecated without replacement" (since := "2025-03-28")]
-public def recBuildExternDynlibs
-  (pkgs : Array Package)
-: FetchM (Array (Job Dynlib) × Array FilePath) := do
-  let mut libDirs := #[]
-  let mut jobs : Array (Job Dynlib) := #[]
-  for pkg in pkgs do
-    libDirs := libDirs.push pkg.sharedLibDir
-    jobs := jobs.append <| ← pkg.externLibs.mapM (·.dynlib.fetch)
-  return (jobs, libDirs)
 
 /-- Parse the header of a Lean file from its source. -/
 private def Module.recFetchInput (mod : Module) : FetchM (Job ModuleInput) := Job.async do

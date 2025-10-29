@@ -8,13 +8,9 @@ hygiene workings and data types. -/
 module
 
 prelude
-public import Lean.Syntax
-public import Lean.ResolveName
-public import Lean.Elab.Term
 public import Lean.Elab.Quotation.Util
 public import Lean.Elab.Quotation.Precheck
 public import Lean.Elab.Syntax
-public import Lean.Parser.Syntax
 
 public section
 
@@ -134,8 +130,6 @@ private partial def quoteSyntax : Syntax → TermElabM Term
     -- Add global scopes at compilation time (now), add macro scope at runtime (in the quotation).
     -- See the paper for details.
     let consts ← resolveGlobalName val
-    -- Record all constants to make sure they can still be resolved after shaking imports
-    consts.forM fun (n, _) => recordExtraModUseFromDecl (isMeta := false) n
     -- extension of the paper algorithm: also store unique section variable names as top-level scopes
     -- so they can be captured and used inside the section, but not outside
     let sectionVars := resolveSectionVariable (← read).sectionVars val

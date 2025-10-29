@@ -154,7 +154,7 @@ partial def versoSyntaxToString' (stx : Syntax) : ReaderT Nat (StateM String) Un
       out "\n"
       let i ← read
       let s := Syntax.decodeStrLit (atomString s) |>.getD ""
-        |>.split (· == '\n')
+        |>.splitToList (· == '\n')
         |>.map ("".pushn ' ' i ++ · ) |> "\n".intercalate
       out s
       out <| "".pushn ' ' i

@@ -7,8 +7,8 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 module
 
 prelude
-public import Init.System.IO
 public import Lean.Data.JsonRpc
+import Init.Data.String.TakeDrop
 
 public section
 

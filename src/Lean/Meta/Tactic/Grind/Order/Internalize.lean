@@ -7,12 +7,8 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Order.OrderM
 import Init.Data.Int.OfNat
-import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
-import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
 import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat

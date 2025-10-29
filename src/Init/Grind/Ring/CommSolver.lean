@@ -5,12 +5,8 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Data.Nat.Lemmas
-public import Init.Data.Int.LemmasAux
 public import Init.Data.Hashable
 public import Init.Data.Ord.Basic
-public import Init.Data.RArray
-public import Init.Grind.Ring.Basic
 public import Init.Grind.Ring.Field
 public import Init.Grind.Ordered.Ring
 public import Init.GrindInstances.Ring.Int

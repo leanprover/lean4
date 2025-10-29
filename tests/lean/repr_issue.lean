@@ -13,5 +13,5 @@ foo
 
 -- The following examples were producing an element of Type `id (Except String Nat)`.
 -- Type class resolution was failing to produce an instance for `Repr (id (Except String Nat))` because `id` is not transparent.
-#eval ex₁.run' (mkArray 10 1000) |>.run
-#eval ex₂.run' (mkArray 10 1000) |>.run
+#eval ex₁.run' (Array.replicate 10 1000) |>.run
+#eval ex₂.run' (Array.replicate 10 1000) |>.run

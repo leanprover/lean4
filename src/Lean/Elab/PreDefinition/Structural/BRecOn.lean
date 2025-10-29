@@ -9,8 +9,6 @@ prelude
 public import Lean.Util.HasConstCache
 public import Lean.Meta.PProdN
 public import Lean.Meta.Match.MatcherApp.Transform
-public import Lean.Elab.RecAppSyntax
-public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.Structural.Basic
 public import Lean.Elab.PreDefinition.Structural.RecArgInfo
 

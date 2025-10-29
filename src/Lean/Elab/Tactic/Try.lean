@@ -6,12 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Try
-public import Init.Grind.Tactics
 public import Lean.Meta.Tactic.ExposeNames
 public import Lean.Meta.Tactic.Try
-public import Lean.Meta.Tactic.TryThis
-public import Lean.Elab.Tactic.Config
 public import Lean.Elab.Tactic.SimpTrace
 public import Lean.Elab.Tactic.LibrarySearch
 public import Lean.Elab.Tactic.Grind

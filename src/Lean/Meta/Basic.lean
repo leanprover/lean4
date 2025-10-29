@@ -7,10 +7,8 @@ module
 
 prelude
 public import Lean.Data.LOption
-public import Lean.Environment
 public import Lean.Class
 public import Lean.ReducibilityAttrs
-public import Lean.Util.ReplaceExpr
 public import Lean.Util.MonadBacktrack
 public import Lean.Compiler.InlineAttrs
 public import Lean.Meta.TransparencyMode

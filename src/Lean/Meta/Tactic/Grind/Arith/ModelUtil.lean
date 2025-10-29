@@ -22,7 +22,7 @@ Returns `true` if adding the assignment `e := v` to `a` will falsify any asserte
 -/
 private partial def satisfyDiseqs (goal : Goal) (a : Std.HashMap Expr Rat) (e : Expr) (v : Int) : Bool := Id.run do
   let some parents := goal.parents.find? { expr := e } | return true
-  for parent in parents do
+  for parent in parents.elems do
     let_expr Eq _ lhs rhs := parent | continue
     let some root := goal.getRoot? parent | continue
     if root.isConstOf ``False then
@@ -59,7 +59,7 @@ Returns `true` if `e` should be treated as an interpreted value by the arithmeti
 def isInterpretedTerm (e : Expr) : Bool :=
   isNatNum e || isIntNum e || e.isAppOf ``HAdd.hAdd || e.isAppOf ``HMul.hMul || e.isAppOf ``HSub.hSub || e.isAppOf ``HSMul.hSMul
   || e.isAppOf ``Neg.neg || e.isAppOf ``HDiv.hDiv || e.isAppOf ``HMod.hMod || e.isAppOf ``One.one || e.isAppOf ``Zero.zero
-  || e.isAppOf ``NatCast.natCast || e.isIte || e.isDIte || e.isAppOf ``OfNat.ofNat || e.isAppOf ``Grind.ToInt.toInt
+  || e.isAppOf ``Inv.inv || e.isAppOf ``NatCast.natCast || e.isIte || e.isDIte || e.isAppOf ``OfNat.ofNat || e.isAppOf ``Grind.ToInt.toInt
   || e.isAppOf ``Grind.IntModule.OfNatModule.toQ || e matches .lit (.natVal _)
 
 /--

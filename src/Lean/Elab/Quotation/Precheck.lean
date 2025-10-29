@@ -6,9 +6,6 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Lean.KeyedDeclsAttribute
-public import Lean.Parser.Command  -- for `precheckedQuot`
-public import Lean.Elab.Term
 public import Lean.Elab.Quotation.Util
 
 public section

@@ -6,16 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.ProjFns
 public import Lean.Meta.AppBuilder
-public import Lean.Meta.CtorRecognizer
-public import Lean.Compiler.BorrowedAnnotation
 public import Lean.Compiler.CSimpAttr
 public import Lean.Compiler.ImplementedByAttr
-public import Lean.Compiler.LCNF.Types
 public import Lean.Compiler.LCNF.Bind
-public import Lean.Compiler.LCNF.InferType
-public import Lean.Compiler.LCNF.Util
 public import Lean.Compiler.NeverExtractAttr
 
 public section

@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Server.Completion.CompletionCollectors
-public import Lean.Server.RequestCancellation
 public import Std.Data.HashMap
 
 public section

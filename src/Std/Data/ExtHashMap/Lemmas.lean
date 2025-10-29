@@ -1698,7 +1698,7 @@ section Ext
 
 variable {m₁ m₂ : ExtHashMap α β}
 
-@[ext 900]
+@[ext 900, grind ext]
 theorem ext_getKey_getElem? [EquivBEq α] [LawfulHashable α]
     {m₁ m₂ : ExtHashMap α β}
     (hk : ∀ k hk hk', m₁.getKey k hk = m₂.getKey k hk')

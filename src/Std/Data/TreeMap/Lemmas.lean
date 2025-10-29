@@ -7,7 +7,6 @@ module
 
 prelude
 import Std.Data.DTreeMap.Lemmas
-public import Std.Data.TreeMap.Basic
 public import Std.Data.TreeMap.AdditionalOperations
 
 @[expose] public section
@@ -364,11 +363,6 @@ theorem getElem?_eq_some_getElem! [TransCmp cmp] [Inhabited β] {a : α} :
   DTreeMap.Const.get?_eq_some_get!
 
 theorem getElem!_eq_get!_getElem? [TransCmp cmp] [Inhabited β] {a : α} :
-    t[a]! = t[a]?.get! :=
-  DTreeMap.Const.get!_eq_get!_get?
-
-@[deprecated getElem!_eq_get!_getElem? (since := "2025-03-19")]
-theorem getElem!_eq_getElem!_getElem? [TransCmp cmp] [Inhabited β] {a : α} :
     t[a]! = t[a]?.get! :=
   DTreeMap.Const.get!_eq_get!_get?
 

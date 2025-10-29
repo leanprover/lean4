@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Dyadic.Basic
 import all Init.Data.Dyadic.Instances
-import Init.Data.Int.Bitwise.Lemmas
 import Init.Grind.Ordered.Rat
 import Init.Grind.Ordered.Field
 
@@ -29,7 +28,7 @@ theorem roundDown_le {x : Dyadic} {prec : Int} : roundDown x prec ≤ x :=
     match h : k - prec with
     | .ofNat l =>
       dsimp
-      rw [ofOdd_eq_ofIntWithPrec, le_iff_toRat]
+      rw [ofOdd_eq_ofIntWithPrec, ← toRat_le_toRat_iff]
       replace h : k = Int.ofNat l + prec := by omega
       subst h
       simp only [toRat_ofIntWithPrec_eq_mul_two_pow]

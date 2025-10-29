@@ -6,10 +6,7 @@ Authors: Mario Carneiro, Kim Morrison
 module
 
 prelude
-public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
-public import Init.Data.Array.Lemmas
-public import Init.Data.Array.Attach
 public import Init.Data.Array.OfFn
 public import Init.Data.List.MapIdx
 import all Init.Data.List.MapIdx
@@ -299,9 +296,6 @@ theorem mapFinIdx_eq_replicate_iff {xs : Array α} {f : (i : Nat) → α → (h 
   rw [← toList_inj]
   simp [List.mapFinIdx_eq_replicate_iff]
 
-@[deprecated mapFinIdx_eq_replicate_iff (since := "2025-03-18")]
-abbrev mapFinIdx_eq_mkArray_iff := @mapFinIdx_eq_replicate_iff
-
 @[simp, grind =] theorem mapFinIdx_reverse {xs : Array α} {f : (i : Nat) → α → (h : i < xs.reverse.size) → β} :
     xs.reverse.mapFinIdx f = (xs.mapFinIdx (fun i a h => f (xs.size - 1 - i) a (by simp; omega))).reverse := by
   rcases xs with ⟨l⟩
@@ -440,9 +434,6 @@ theorem mapIdx_eq_replicate_iff {xs : Array α} {f : Nat → α → β} {b : β}
   rcases xs with ⟨xs⟩
   rw [← toList_inj]
   simp [List.mapIdx_eq_replicate_iff]
-
-@[deprecated mapIdx_eq_replicate_iff (since := "2025-03-18")]
-abbrev mapIdx_eq_mkArray_iff := @mapIdx_eq_replicate_iff
 
 @[simp, grind =] theorem mapIdx_reverse {xs : Array α} {f : Nat → α → β} :
     xs.reverse.mapIdx f = (mapIdx (fun i => f (xs.size - 1 - i)) xs).reverse := by

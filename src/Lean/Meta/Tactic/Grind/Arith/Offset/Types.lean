@@ -5,8 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Data.AssocList
-public import Lean.Data.PersistentArray
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Arith.Offset.Util
 public section

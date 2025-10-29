@@ -6,7 +6,6 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.BasicAux
 public import Lean.Meta.Iterator
 public import Lean.Meta.Tactic.IndependentOf
 

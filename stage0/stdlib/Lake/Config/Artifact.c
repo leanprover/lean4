@@ -15,14 +15,13 @@ extern "C" {
 #endif
 static lean_object* l_Lake_ArtifactDescr_fromJson_x3f___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedArtifact;
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_relPath(lean_object*);
 extern lean_object* l_System_instInhabitedFilePath_default;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__4;
 static lean_object* l_Lake_instInhabitedArtifactDescr_default___closed__2;
 LEAN_EXPORT lean_object* l_Lake_instReprArtifactDescr;
-LEAN_EXPORT lean_object* l_Nat_cast___at___Lake_instReprArtifactDescr_repr_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lake_instReprArtifactDescr_repr_spec__0(lean_object*);
 static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__17;
 static lean_object* l_Lake_instReprArtifact_repr___redArg___closed__4;
 lean_object* l_String_quote(lean_object*);
@@ -58,7 +57,7 @@ LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_instToJson___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instReprArtifact_repr(lean_object*, lean_object*);
 static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__13;
 static lean_object* l_Lake_instReprArtifactDescr___closed__0;
-uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_posOfAux(lean_object*, uint32_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_ofFilePath_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_artifactWithExt___boxed(lean_object*, lean_object*);
@@ -73,6 +72,7 @@ static lean_object* l_Lake_instReprArtifact_repr___redArg___closed__11;
 LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_fromJson_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_instToString;
 LEAN_EXPORT lean_object* l_Lake_Artifact_ctorIdx___boxed(lean_object*);
+uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 static lean_object* l_Lake_instReprArtifact_repr___redArg___closed__3;
 static lean_object* l_Lake_ArtifactDescr_ofFilePath_x3f___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedArtifactDescr_default;
@@ -96,8 +96,8 @@ static lean_object* l_Lake_instReprArtifact_repr___redArg___closed__9;
 LEAN_EXPORT lean_object* l_Lake_Artifact_withName(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_artifactPath(uint64_t, lean_object*);
 static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__12;
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 static uint64_t l_Lake_instInhabitedArtifactDescr_default___closed__0;
+lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instReprArtifactDescr_repr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instReprArtifactDescr_repr___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instReprArtifact_repr___redArg(lean_object*);
@@ -220,7 +220,7 @@ x_1 = l_Lake_instInhabitedArtifactDescr_default;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Lake_instReprArtifactDescr_repr_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lake_instReprArtifactDescr_repr_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -1322,13 +1322,13 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Lake_Build_Trace(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Build_Trace(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Config_Artifact(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Config_Artifact(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Build_Trace(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Trace(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_artifactPath___closed__0 = _init_l_Lake_artifactPath___closed__0();

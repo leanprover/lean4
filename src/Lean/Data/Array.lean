@@ -6,7 +6,6 @@ Authors: Joachim Breitner
 module
 
 prelude
-public import Init.Prelude
 import Init.Data.Stream
 public import Init.Data.Range.Polymorphic.Nat
 public import Init.Data.Range.Polymorphic.Iterators

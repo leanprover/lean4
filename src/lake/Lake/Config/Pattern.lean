@@ -6,9 +6,11 @@ Authors: Mac Malone
 module
 
 prelude
-public import Init.Data.Array.Basic
 public import Init.System.FilePath
+public import Std.Data.TreeMap.Basic
+public import Lean.Data.Name
 import Lake.Util.Name
+import Init.Data.String.TakeDrop
 
 open System Lean
 
@@ -149,13 +151,6 @@ public instance : IsPattern StrPatDescr String := ⟨flip StrPatDescr.matches⟩
 /-- A `String` pattern. Matches some subset of strings. -/
 public abbrev StrPat := Pattern String StrPatDescr
 
-@[inherit_doc Pattern.empty, deprecated Pattern.empty (since := "2025-03-27")]
-public abbrev StrPat.none : StrPat := Pattern.empty
-
-@[inherit_doc Pattern.ofFn, deprecated Pattern.ofFn (since := "2025-03-27")]
-public abbrev StrPat.satisfies (f : String → Bool) (name := Name.anonymous) : StrPat :=
-  Pattern.ofFn f name
-
 @[inherit_doc StrPatDescr.mem, inline]
 public def StrPat.mem (xs : Array String) : StrPat :=
   StrPatDescr.mem xs
@@ -229,8 +224,8 @@ That is, a `v` followed by a digit.
 -/
 public def isVerLike (s : String) : Bool :=
   if h : s.utf8ByteSize ≥ 2 then
-    s.get' 0 (by simp [-String.utf8ByteSize_eq_zero_iff, String.atEnd]; omega) == 'v' &&
-    (s.get' ⟨1⟩ (by simp [String.atEnd]; omega)).isDigit
+    String.Pos.Raw.get' s 0 (by simp [-String.utf8ByteSize_eq_zero_iff, String.Pos.Raw.atEnd]; omega) == 'v' &&
+    (String.Pos.Raw.get' s ⟨1⟩ (by simp [String.Pos.Raw.atEnd]; omega)).isDigit
   else
     false
 

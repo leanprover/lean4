@@ -9,7 +9,6 @@ module
 prelude
 public import Lean.DocString
 public import Lean.PrettyPrinter
-public import Lean.Parser.Tactic.Doc
 meta import Lean.Parser.Term
 
 public section
@@ -203,7 +202,7 @@ def Info.pos? (i : Info) : Option String.Pos.Raw :=
 def Info.tailPos? (i : Info) : Option String.Pos.Raw :=
   i.stx.getTailPos? (canonicalOnly := true)
 
-def Info.range? (i : Info) : Option String.Range :=
+def Info.range? (i : Info) : Option Lean.Syntax.Range :=
   i.stx.getRange? (canonicalOnly := true)
 
 def Info.contains (i : Info) (pos : String.Pos.Raw) (includeStop := false) : Bool :=
@@ -393,15 +392,19 @@ where
         let eFmt ← PrettyPrinter.ppSignature c
         return (some { eFmt with fmt := f!"```lean\n{eFmt.fmt}\n```" }, ← fmtModule? c)
       let eFmt ← Meta.ppExpr e
+      let lctx ← getLCtx
       -- Try not to show too scary internals
       let showTerm :=
-        if let .fvar _ := e then
-          if let some ldecl := (← getLCtx).findFVar? e then
-            !ldecl.userName.hasMacroScopes
-          else
-            false
+        if ti.isDisplayableTerm then
+          true
         else
-          isAtomicFormat eFmt
+          if let .fvar _ := e then
+            if let some ldecl := lctx.findFVar? e then
+              !ldecl.userName.hasMacroScopes
+            else
+              false
+          else
+            isAtomicFormat eFmt
       let fmt := if showTerm then f!"{eFmt} : {tpFmt}" else tpFmt
       return (some f!"```lean\n{fmt}\n```", none)
     | Info.ofFieldInfo fi =>
@@ -450,7 +453,7 @@ partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String
       | return gs
     let trailSize := i.stx.getTrailingSize
     -- show info at EOF even if strictly outside token + trail
-    let atEOF := tailPos.byteIdx + trailSize == text.source.endPos.byteIdx
+    let atEOF := tailPos.byteIdx + trailSize == text.source.rawEndPos.byteIdx
     -- include at least one trailing character (see also `priority` below)
     if pos ≤ hoverPos ∧ (hoverPos.byteIdx < tailPos.byteIdx + max 1 trailSize || atEOF) then
       -- overwrite bottom-up results according to "innermost" heuristics documented above

@@ -21,7 +21,7 @@ theorem IterM.step_uLift [Iterator α m β] [Monad n] {it : IterM (α := α) m �
     [MonadLiftT m (ULiftT n)] :
     (it.uLift n).step = (do
       let step := (← (monadLift it.step : ULiftT n _).run).down
-      return ⟨Types.ULiftIterator.Monadic.modifyStep step.val, step.val, step.property, rfl⟩) :=
+      return .deflate ⟨Types.ULiftIterator.Monadic.modifyStep step.inflate.val, step.inflate.val, step.inflate.property, rfl⟩) :=
   rfl
 
 @[simp]
@@ -37,7 +37,7 @@ theorem IterM.toList_uLift [Iterator α m β] [Monad m] [Monad n] {it : IterM (�
   apply bind_congr
   intro step
   simp [Types.ULiftIterator.Monadic.modifyStep]
-  cases step.down using PlausibleIterStep.casesOn
+  cases step.down.inflate using PlausibleIterStep.casesOn
   · simp only [uLift] at ihy
     simp [ihy ‹_›]
   · exact ihs ‹_›

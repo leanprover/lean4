@@ -6,7 +6,7 @@ Authors: Kim Morrison
 
 /--
 info: Try this:
-  exact (n, 37)
+  [apply] exact (n, 37)
 -/
 #guard_msgs in example (n : Nat) : Nat × Nat := by
   show_term
@@ -16,7 +16,7 @@ info: Try this:
 
 /--
 info: Try this:
-  refine (?_, ?_)
+  [apply] refine (?_, ?_)
 -/
 #guard_msgs in example : Nat × Nat := by
   show_term constructor
@@ -24,7 +24,7 @@ info: Try this:
 
 /--
 info: Try this:
-  fun {X} => X
+  [apply] fun {X} => X
 -/
 #guard_msgs in example : {_a : Nat} → Nat :=
   show_term by

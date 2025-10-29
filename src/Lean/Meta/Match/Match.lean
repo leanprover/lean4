@@ -6,11 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.LitValues
-public import Lean.Meta.Check
 public import Lean.Meta.Closure
-public import Lean.Meta.CtorRecognizer
-public import Lean.Meta.Tactic.Cases
 public import Lean.Meta.Tactic.Contradiction
 public import Lean.Meta.GeneralizeTelescope
 public import Lean.Meta.Match.Basic
@@ -296,10 +292,10 @@ where
 Solve pending alternative constraints. If all constraints can be solved perform assignment
 `mvarId := alt.rhs`, and return true.
 -/
-private partial def solveCnstrs (mvarId : MVarId) (alt : Alt) : StateRefT State MetaM Bool := do
+private partial def solveCnstrs (mvarId : MVarId) (alt : Alt) : StateRefT State MetaM Unit := do
   go (reorientCnstrs alt)
 where
-  go (alt : Alt) : StateRefT State MetaM Bool := do
+  go (alt : Alt) : StateRefT State MetaM Unit := do
     match (← solveSomeLocalFVarIdCnstr? alt) with
     | some alt => go alt
     | none =>
@@ -312,10 +308,12 @@ where
           throwErrorAt alt.ref "Dependent elimination failed: Type mismatch when solving this alternative: it {← mkHasTypeButIsExpectedMsg eType targetType}"
         mvarId.assign alt.rhs
         modify fun s => { s with used := s.used.insert alt.idx }
-        return true
       else
         trace[Meta.Match.match] "alt has unsolved cnstrs:\n{← alt.toMessageData}"
-        return false
+        let mut msg := m!"Dependent match elimination failed: Could not solve constraints"
+        for (lhs, rhs) in alt.cnstrs do
+          msg := msg ++ m!"\n  {lhs} ≋ {rhs}"
+        throwErrorAt alt.ref msg
 
 private abbrev isCtorIdxIneq? (e : Expr) : Option FVarId := do
   if let some (_, lhs, _rhs) := e.ne? then
@@ -362,9 +360,8 @@ where
       unless (← contradiction mvarId) do
         trace[Meta.Match.match] "contradiction failed, missing alternative"
         modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
-    | alt :: alts =>
-      unless (← solveCnstrs p.mvarId alt) do
-        go alts
+    | alt :: _ =>
+      solveCnstrs p.mvarId alt
 
 private def processAsPattern (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: _ := p.vars | unreachable!
@@ -446,7 +443,9 @@ alternative `cnstrs` field.
 private def inLocalDecls (localDecls : List LocalDecl) (fvarId : FVarId) : Bool :=
   localDecls.any fun d => d.fvarId == fvarId
 
-private def expandVarIntoCtor? (alt : Alt) (fvarId : FVarId) (ctorName : Name) : MetaM (Option Alt) :=
+private def expandVarIntoCtor? (alt : Alt) (ctorName : Name) : MetaM Alt := do
+  let .var fvarId :: ps := alt.patterns | unreachable!
+  let alt := { alt with patterns := ps}
   withExistingLocalDecls alt.fvarDecls do
     trace[Meta.Match.unify] "expandVarIntoCtor? fvarId: {mkFVar fvarId}, ctorName: {ctorName}, alt:\n{← alt.toMessageData}"
     let expectedType ← inferType (mkFVar fvarId)
@@ -464,7 +463,19 @@ private def expandVarIntoCtor? (alt : Alt) (fvarId : FVarId) (ctorName : Name) :
          cnstrs := (resultType, expectedType) :: cnstrs
       trace[Meta.Match.unify] "expandVarIntoCtor? {mkFVar fvarId} : {expectedType}, ctor: {ctor}"
       let ctorFieldPatterns := ctorFieldDecls.toList.map fun decl => Pattern.var decl.fvarId
-      return some { alt with fvarDecls := newAltDecls, patterns := ctorFieldPatterns ++ alt.patterns, cnstrs }
+      return { alt with fvarDecls := newAltDecls, patterns := ctorFieldPatterns ++ alt.patterns, cnstrs }
+
+private def expandInaccessibleIntoVar (alt : Alt) : MetaM Alt := do
+  let .inaccessible e :: ps := alt.patterns | unreachable!
+  withExistingLocalDecls alt.fvarDecls do
+    let type ← inferType e
+    withLocalDeclD `x type fun x => do
+      trace[Meta.Match.unify] "expandInaccessibleIntoVar {x} : {type} := {e}"
+      return { alt with
+        fvarDecls := (← x.fvarId!.getDecl) :: alt.fvarDecls
+        patterns := .var x.fvarId! :: ps
+        cnstrs := (x, e) :: alt.cnstrs
+      }
 
 private def getInductiveVal? (x : Expr) : MetaM (Option InductiveVal) := do
   let xType ← inferType x
@@ -487,24 +498,25 @@ private def hasRecursiveType (x : Expr) : MetaM Bool := do
    If it is not a constructor, throw an error.
    Otherwise, if it is a constructor application of `ctorName`,
    update the next patterns with the fields of the constructor.
-   Otherwise, return none. -/
-def processInaccessibleAsCtor (alt : Alt) (ctorName : Name) : MetaM (Option Alt) := do
-  match alt.patterns with
-  | p@(.inaccessible e) :: ps =>
-    trace[Meta.Match.match] "inaccessible in ctor step {e}"
-    withExistingLocalDecls alt.fvarDecls do
-      -- Try to push inaccessible annotations.
-      let e ← whnfD e
-      match (← constructorApp? e) with
-      | some (ctorVal, ctorArgs) =>
-        if ctorVal.name == ctorName then
-          let fields := ctorArgs.extract ctorVal.numParams ctorArgs.size
-          let fields := fields.toList.map .inaccessible
-          return some { alt with patterns := fields ++ ps }
-        else
-          return none
-      | _ => throwErrorAt alt.ref "Dependent match elimination failed: Expected a constructor, but found the inaccessible pattern{indentD p.toMessageData}"
-  | _ => unreachable!
+   Otherwise, move it to contraints, so that we fail unless some later step
+   eliminates this alternative.
+-/
+def processInaccessibleAsCtor (alt : Alt) (ctorName : Name) : MetaM Alt := do
+  let p@(.inaccessible e) :: ps := alt.patterns | unreachable!
+  trace[Meta.Match.match] "inaccessible in ctor step {e}"
+  withExistingLocalDecls alt.fvarDecls do
+    -- Try to push inaccessible annotations.
+    let e ← whnfD e
+    match (← constructorApp? e) with
+    | some (ctorVal, ctorArgs) =>
+      if ctorVal.name == ctorName then
+        let fields := ctorArgs.extract ctorVal.numParams ctorArgs.size
+        let fields := fields.toList.map .inaccessible
+        return { alt with patterns := fields ++ ps }
+      else
+        let alt' ← expandInaccessibleIntoVar alt
+        expandVarIntoCtor? alt' ctorName
+    | _ => throwErrorAt alt.ref "Dependent match elimination failed: Expected a constructor, but found the inaccessible pattern{indentD p.toMessageData}"
 
 private def hasNonTrivialExample (p : Problem) : Bool :=
   p.examples.any fun | Example.underscore => false | _ => true
@@ -530,11 +542,13 @@ private def collectCtors (p : Problem) : Array Name :=
 private def processConstructor (p : Problem) : MetaM (Array Problem) := do
   trace[Meta.Match.match] "constructor step"
   let x :: xs := p.vars | unreachable!
-  let interestingCtors? :=
+  let interestingCtors? ←
     if match.use_sparse_cases.get (← getOptions) then
-      some (collectCtors p)
+      let ctors := collectCtors p
+      trace[Meta.Match.match] "using sparse cases: {ctors}"
+      pure (some ctors)
     else
-      none
+      pure none
   let subgoals? ← commitWhenSome? do
      let subgoals ←
        try
@@ -574,15 +588,15 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
       let examples := p.examples.map <| Example.replaceFVarId x.fvarId! subex
       let examples := examples.map <| Example.applyFVarSubst subst
       let newAlts  := p.alts.filter fun alt => match alt.patterns with
-        | .ctor n .. :: _       => n == subgoal.ctorName
+        | .ctor n .. :: _       => n == ctorName
         | .var _ :: _           => true
         | .inaccessible _ :: _  => true
         | _                     => false
       let newAlts  := newAlts.map fun alt => alt.applyFVarSubst subst
-      let newAlts ← newAlts.filterMapM fun alt => do
+      let newAlts ← newAlts.mapM fun alt => do
         match alt.patterns with
-        | .ctor _ _ _ fields :: ps  => return some { alt with patterns := fields ++ ps }
-        | .var fvarId :: ps         => expandVarIntoCtor? { alt with patterns := ps } fvarId ctorName
+        | .ctor _ _ _ fields :: ps  => return { alt with patterns := fields ++ ps }
+        | .var _ :: _               => expandVarIntoCtor? alt ctorName
         | .inaccessible _ :: _      => processInaccessibleAsCtor alt ctorName
         | _                         => unreachable!
       return { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
@@ -598,16 +612,10 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
       let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst
       return { mvarId := subgoal.mvarId, alts := newAlts, vars := newVars, examples := examples }
 
-private def altsAreCtorLike (p : Problem) : MetaM Bool := withGoalOf p do
-  p.alts.allM fun alt => do match alt.patterns with
-    | .ctor .. :: _ => return true
-    | .inaccessible e :: _ => isConstructorApp e
-    | _ => return false
-
 private def processNonVariable (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: xs := p.vars | unreachable!
   if let some (ctorVal, xArgs) ← withTransparency .default <| constructorApp'? x then
-    if (← altsAreCtorLike p) then
+    if hasCtorPattern p then
       let alts ← p.alts.filterMapM fun alt => do
         match alt.patterns with
         | .ctor ctorName _ _ fields :: ps   =>
@@ -616,6 +624,7 @@ private def processNonVariable (p : Problem) : MetaM Problem := withGoalOf p do
           else
             return some { alt with patterns := fields ++ ps }
         | .inaccessible _ :: _ => processInaccessibleAsCtor alt ctorVal.name
+        | .var _ :: _          => expandVarIntoCtor? alt ctorVal.name
         | _ => unreachable!
       let xFields := xArgs.extract ctorVal.numParams xArgs.size
       return { p with alts := alts, vars := xFields.toList ++ xs }
@@ -798,12 +807,28 @@ private def checkNextPatternTypes (p : Problem) : MetaM Unit := do
           unless (← isDefEq xType eType) do
             throwError "Type mismatch in pattern: Pattern{indentExpr e}\n{← mkHasTypeButIsExpectedMsg eType xType}"
 
+def isExFalsoTransition (p : Problem) : MetaM Bool := do
+  if p.alts.isEmpty then
+    withGoalOf p do
+      let targetType ← p.mvarId.getType
+      return !targetType.isFalse
+  else
+    return false
+
+def processExFalso (p : Problem) : MetaM Problem := do
+  let mvarId' ← p.mvarId.exfalso
+  return { p with mvarId := mvarId' }
+
 private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   traceState p
   let isInductive ← isCurrVarInductive p
   if isDone p then
     traceStep ("leaf")
     processLeaf p
+  else if (← isExFalsoTransition p) then
+    traceStep ("ex falso")
+    let p ← processExFalso p
+    process p
   else if hasAsPattern p then
     traceStep ("as-pattern")
     let p ← processAsPattern p

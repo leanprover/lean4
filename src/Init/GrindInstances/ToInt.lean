@@ -6,15 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Grind.ToInt
 import all Init.Grind.ToInt
-public import Init.Grind.Module.Basic
 public import Init.Grind.Ring.ToInt
-public import Init.Data.Int.DivMod.Basic
-public import Init.Data.Int.Lemmas
-public import Init.Data.Int.Order
-public import Init.Data.Fin.Lemmas
-public import Init.Data.UInt.Lemmas
 public import Init.Data.SInt.Lemmas
 
 public section
@@ -287,7 +280,7 @@ instance : ToInt USize (.uint System.Platform.numBits) where
   toInt x := (x.toNat : Int)
   toInt_inj x y w := USize.toNat_inj.mp (Int.ofNat_inj.mp w)
   toInt_mem x := by
-    simp only [IntInterval.mem_co, Int.ofNat_zero_le, true_and]
+    simp only [IntInterval.mem_co, Int.natCast_nonneg, true_and]
     rw [show (2 : Int) ^ System.Platform.numBits = (2 ^ System.Platform.numBits : Nat) by simp,
       Int.ofNat_lt]
     exact USize.toNat_lt_two_pow_numBits x

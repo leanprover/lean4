@@ -6,9 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Int.Order
 public import Init.Data.Int.Pow
-public import Init.Omega
 
 public section
 
@@ -29,22 +27,24 @@ namespace Int
   natCast_nonneg _
 
 @[simp] theorem neg_natCast_le_natCast (n m : Nat) : -(n : Int) ≤ (m : Int) :=
-  Int.le_trans (by simp) (ofNat_zero_le m)
+  Int.le_trans (by simp) (natCast_nonneg m)
 
 @[simp] theorem neg_natCast_le_ofNat (n m : Nat) : -(n : Int) ≤ (no_index (OfNat.ofNat m)) :=
-  Int.le_trans (by simp) (ofNat_zero_le m)
+  Int.le_trans (by simp) (natCast_nonneg m)
 
 @[simp] theorem neg_ofNat_le_ofNat (n m : Nat) : -(no_index (OfNat.ofNat n)) ≤ (no_index (OfNat.ofNat m)) :=
-  Int.le_trans (by simp) (ofNat_zero_le m)
+  Int.le_trans (by simp) (natCast_nonneg m)
 
 @[simp] theorem neg_ofNat_le_natCast (n m : Nat) : -(no_index (OfNat.ofNat n)) ≤ (m : Int) :=
-  Int.le_trans (by simp) (ofNat_zero_le m)
+  Int.le_trans (by simp) (natCast_nonneg m)
 
 theorem neg_lt_self_iff {n : Int} : -n < n ↔ 0 < n := by
   omega
 
+@[deprecated ofNat_add_ofNat (since := "2025-10-26")]
 protected theorem ofNat_add_out (m n : Nat) : ↑m + ↑n = (↑(m + n) : Int) := rfl
 
+@[deprecated ofNat_mul_ofNat (since := "2025-10-26")]
 protected theorem ofNat_mul_out (m n : Nat) : ↑m * ↑n = (↑(m * n) : Int) := rfl
 
 protected theorem ofNat_add_one_out (n : Nat) : ↑n + (1 : Int) = ↑(Nat.succ n) := rfl
@@ -63,8 +63,6 @@ theorem natCast_ne_zero_iff_pos {n : Nat} : (n : Int) ≠ 0 ↔ 0 < n := by omeg
 theorem natCast_succ_pos (n : Nat) : 0 < (n.succ : Int) := natCast_pos.2 n.succ_pos
 
 @[simp high] theorem natCast_nonpos_iff {n : Nat} : (n : Int) ≤ 0 ↔ n = 0 := by omega
-
-@[simp] theorem sign_natCast_add_one (n : Nat) : sign (n + 1) = 1 := rfl
 
 @[simp, norm_cast] theorem cast_id {n : Int} : Int.cast n = n := rfl
 
@@ -120,13 +118,7 @@ theorem pos_iff_toNat_pos {n : Int} : 0 < n ↔ 0 < n.toNat := by
 
 theorem natCast_toNat_eq_self {a : Int} : a.toNat = a ↔ 0 ≤ a := by omega
 
-@[deprecated natCast_toNat_eq_self (since := "2025-04-16")]
-theorem ofNat_toNat_eq_self {a : Int} : a.toNat = a ↔ 0 ≤ a := natCast_toNat_eq_self
-
 theorem eq_natCast_toNat {a : Int} : a = a.toNat ↔ 0 ≤ a := by omega
-
-@[deprecated eq_natCast_toNat (since := "2025-04-16")]
-theorem eq_ofNat_toNat {a : Int} : a = a.toNat ↔ 0 ≤ a := eq_natCast_toNat
 
 theorem toNat_le_toNat {n m : Int} (h : n ≤ m) : n.toNat ≤ m.toNat := by omega
 theorem toNat_lt_toNat {n m : Int} (hn : 0 < m) : n.toNat < m.toNat ↔ n < m := by omega

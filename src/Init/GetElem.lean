@@ -300,11 +300,16 @@ theorem getElem_cons_succ (a : α) (as : List α) (i : Nat) (h : i + 1 < (a :: a
 
 grind_pattern getElem_mem => l[n]'h ∈ l
 
-theorem getElem_cons_drop_succ_eq_drop {as : List α} {i : Nat} (h : i < as.length) :
+@[simp]
+theorem getElem_cons_drop {as : List α} {i : Nat} (h : i < as.length) :
     as[i] :: as.drop (i+1) = as.drop i :=
   match as, i with
   | _::_, 0   => rfl
-  | _::_, i+1 => getElem_cons_drop_succ_eq_drop (i := i) (Nat.add_one_lt_add_one_iff.mp h)
+  | _::_, i+1 => getElem_cons_drop (i := i) (Nat.add_one_lt_add_one_iff.mp h)
+
+@[deprecated getElem_cons_drop (since := "2025-10-26")]
+theorem getElem_cons_drop_succ_eq_drop {as : List α} {i : Nat} (h : i < as.length) :
+    as[i] :: as.drop (i+1) = as.drop i := getElem_cons_drop h
 
 /-! ### getElem? -/
 

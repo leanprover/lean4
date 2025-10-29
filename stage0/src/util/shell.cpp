@@ -157,9 +157,9 @@ int getopt_long(int argc, char *in_argv[], const char *optstring, const option *
 
 using namespace lean; // NOLINT
 
-extern "C" obj_res lean_display_header(obj_arg);
+extern "C" obj_res lean_display_header();
 static void display_header() {
-    consume_io_result(lean_display_header(io_mk_world()));
+    consume_io_result(lean_display_header());
 }
 
 static void display_version(std::ostream & out) {
@@ -174,9 +174,9 @@ static void display_features(std::ostream & out) {
     out << "]\n";
 }
 
-extern "C" obj_res lean_display_help(uint8 use_stderr, obj_arg);
+extern "C" obj_res lean_display_help(uint8 use_stderr);
 static void display_help(bool use_stderr) {
-    consume_io_result(lean_display_help(use_stderr, io_mk_world()));
+    consume_io_result(lean_display_help(use_stderr));
 }
 
 static int only_src_deps = 0;
@@ -292,8 +292,7 @@ extern "C" obj_res lean_shell_main(
     uint8    json_output,
     obj_arg  error_kinds,
     uint8    print_stats,
-    uint8    run,
-    obj_arg  w
+    uint8    run
 );
 uint32 run_shell_main(
     int argc, char* argv[],
@@ -342,19 +341,18 @@ uint32 run_shell_main(
         json_output,
         error_kinds.to_obj_arg(),
         print_stats,
-        run,
-        io_mk_world()
+        run
     ));
 }
 
-extern "C" object* lean_init_search_path(object* w);
+extern "C" object* lean_init_search_path();
 void init_search_path() {
-    get_io_scalar_result<unsigned>(lean_init_search_path(io_mk_world()));
+    get_io_scalar_result<unsigned>(lean_init_search_path());
 }
 
-extern "C" object* lean_environment_free_regions(object * env, object * w);
+extern "C" object* lean_environment_free_regions(object * env);
 void environment_free_regions(elab_environment && env) {
-    consume_io_result(lean_environment_free_regions(env.steal(), io_mk_world()));
+    consume_io_result(lean_environment_free_regions(env.steal()));
 }
 }
 
@@ -365,7 +363,7 @@ void check_optarg(char const * option_name) {
     }
 }
 
-extern "C" object * lean_enable_initializer_execution(object * w);
+extern "C" object * lean_enable_initializer_execution();
 
 namespace lean {
 extern void (*g_lean_report_task_get_blocked_time)(std::chrono::nanoseconds);
@@ -437,7 +435,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
         std::cerr << "error: " << ex.what() << std::endl;
         return 1;
     }
-    consume_io_result(lean_enable_initializer_execution(io_mk_world()));
+    consume_io_result(lean_enable_initializer_execution());
 
     options opts = get_default_options();
     optional<std::string> c_output;

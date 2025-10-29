@@ -6,8 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Grind.Ring.Envelope
-public import Init.Data.Hashable
-public import Init.Data.RArray
 public import Init.Grind.Ring.CommSolver
 @[expose] public section
 namespace Lean.Grind
@@ -487,7 +485,7 @@ theorem Expr.toPolyS_NonnegCoeffs {e : Expr} : e.toPolyS.NonnegCoeffs := by
   next => constructor; apply Int.pow_nonneg; apply Int.natCast_nonneg
   next => constructor; decide; constructor; decide
   next => apply Poly.pow_NonnegCoeffs; assumption
-  next => constructor; apply Int.ofNat_zero_le
+  next => constructor; apply Int.natCast_nonneg
   all_goals exact Poly.num_zero_NonnegCoeffs
 
 attribute [local simp] Expr.toPolyS_NonnegCoeffs
@@ -501,7 +499,7 @@ theorem Expr.toPolyS_nc_NonnegCoeffs {e : Expr} : e.toPolyS_nc.NonnegCoeffs := b
   next => constructor; apply Int.pow_nonneg; apply Int.natCast_nonneg
   next => constructor; decide; constructor; decide
   next => apply Poly.pow_nc_NonnegCoeffs; assumption
-  next => constructor; apply Int.ofNat_zero_le
+  next => constructor; apply Int.natCast_nonneg
   all_goals exact Poly.num_zero_NonnegCoeffs
 
 attribute [local simp] Expr.toPolyS_nc_NonnegCoeffs

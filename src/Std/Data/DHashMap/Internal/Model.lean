@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Array.TakeDrop
 public import Std.Data.DHashMap.Basic
-public import Std.Data.DHashMap.Internal.Defs
 import all Std.Data.DHashMap.Internal.Defs
 public import Std.Data.DHashMap.Internal.HashesTo
 public import Std.Data.DHashMap.Internal.AssocList.Lemmas
@@ -231,10 +230,6 @@ theorem replicate [BEq α] [Hashable α] {c : Nat} : IsHashSelf
     (Array.replicate c (AssocList.nil : AssocList α β)) :=
   ⟨by simp⟩
 
-set_option linter.missingDocs false in
-@[deprecated replicate (since := "2025-03-18")]
-abbrev mkArray := @replicate
-
 theorem uset [BEq α] [Hashable α] {m : Array (AssocList α β)} {i : USize} {h : i.toNat < m.size}
     {d : AssocList α β}
     (hd : HashesTo m[i].toList i.toNat m.size → HashesTo d.toList i.toNat m.size)
@@ -395,6 +390,19 @@ def insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) 
   match l with
   | .nil => m
   | .cons hd tl => insertListₘ (m.insert hd.1 hd.2) tl
+
+/-- Internal implementation detail of the hash map -/
+def insertListIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) : Raw₀ α β :=
+  match l with
+  | .nil => m
+  | .cons hd tl => insertListIfNewₘ (m.insertIfNew hd.1 hd.2) tl
+
+/-- Internal implementation detail of the hash map -/
+def unionₘ [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
+  if m₁.1.size ≤ m₂.1.size then
+    insertListIfNewₘ m₂ (toListModel m₁.1.buckets)
+  else
+    insertListₘ m₁ (toListModel m₂.1.buckets)
 
 section
 
@@ -612,6 +620,20 @@ theorem insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l
   | nil => simp [insertListₘ]
   | cons hd tl ih =>
     simp only [List.foldl_cons, insertListₘ]
+    apply ih
+
+theorem insertManyIfNew_eq_insertListIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) :
+    insertManyIfNew m l = insertListIfNewₘ m l := by
+  simp only [insertManyIfNew, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
+  suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
+    (∀ {m'' : Raw₀ α β} {a : α} {b : β a}, P m'' → P (m''.insertIfNew a b)) → P m → P m' }),
+      (List.foldl (fun m' p => ⟨m'.val.insertIfNew p.1 p.2, fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =
+    t.val.insertListIfNewₘ l from this _
+  intro t
+  induction l generalizing m with
+  | nil => simp [insertListIfNewₘ]
+  | cons hd tl ih =>
+    simp only [List.foldl_cons, insertListIfNewₘ]
     apply ih
 
 section

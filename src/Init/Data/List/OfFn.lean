@@ -27,7 +27,7 @@ Examples:
  * `List.ofFn (n := 3) toString = ["0", "1", "2"]`
  * `List.ofFn (fun i => #["red", "green", "blue"].get i.val i.isLt) = ["red", "green", "blue"]`
 -/
-def ofFn {n} (f : Fin n → α) : List α := Fin.foldr n (f · :: ·) []
+@[expose] def ofFn {n} (f : Fin n → α) : List α := Fin.foldr n (f · :: ·) []
 
 /--
 Creates a list wrapped in a monad by applying the monadic function `f : Fin n → m α`

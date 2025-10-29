@@ -849,7 +849,7 @@ theorem toListModel_insertIfNewₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulH
     (h : Raw.WFImp m.1) {a : α} {b : β a} :
     Perm (toListModel (m.insertIfNewₘ a b).1.buckets)
       (insertEntryIfNew a b (toListModel m.1.buckets)) := by
-  rw [insertIfNewₘ, insertEntryIfNew, containsₘ_eq_containsKey h, cond_eq_if]
+  rw [insertIfNewₘ, insertEntryIfNew, containsₘ_eq_containsKey h, cond_eq_ite]
   split
   next h' => exact Perm.refl _
   next h' => exact (toListModel_expandIfNecessary _).trans (toListModel_consₘ m h a b)

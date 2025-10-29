@@ -221,7 +221,7 @@ theorem num_divInt (a b : Int) : (a /. b).num = b.sign * a / b.gcd a := by
   rw [divInt.eq_def]
   simp only [inline, Nat.succ_eq_add_one]
   split <;> rename_i d
-  · simp only [num_mkRat, Int.ofNat_eq_coe]
+  · simp only [num_mkRat, Int.ofNat_eq_natCast]
     split <;> rename_i h
     · simp_all
     · rw [Int.sign_natCast_of_ne_zero h, Int.one_mul, Int.gcd]
@@ -232,7 +232,7 @@ theorem den_divInt (a b : Int) : (a /. b).den = if b = 0 then 1 else b.natAbs / 
   rw [divInt.eq_def]
   simp only [inline, Nat.succ_eq_add_one]
   split <;> rename_i d
-  · simp only [den_mkRat, Int.ofNat_eq_coe, Int.natAbs_natCast]
+  · simp only [den_mkRat, Int.ofNat_eq_natCast, Int.natAbs_natCast]
     split <;> rename_i h
     · simp_all
     · simp [if_neg (by omega), Int.gcd]

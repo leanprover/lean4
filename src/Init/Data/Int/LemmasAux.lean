@@ -82,7 +82,7 @@ theorem natCast_succ_pos (n : Nat) : 0 < (n.succ : Int) := natCast_pos.2 n.succ_
   symm
   simp only [Int.toNat]
   split <;> rename_i x a
-  · simp only [Int.ofNat_eq_coe]
+  · simp only [Int.ofNat_eq_natCast]
     split <;> rename_i y b h
     · simp at h
       omega

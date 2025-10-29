@@ -121,7 +121,7 @@ theorem ofNat_max (a b : Nat) : ((max a b : Nat) : Int) = max (a : Int) (b : Int
 theorem ofNat_natAbs (a : Int) : (a.natAbs : Int) = if 0 ≤ a then a else -a := by
   rw [Int.natAbs.eq_def]
   split <;> rename_i n
-  · simp only [Int.ofNat_eq_coe]
+  · simp only [Int.ofNat_eq_natCast]
     rw [if_pos (Int.natCast_nonneg n)]
   · simp
 

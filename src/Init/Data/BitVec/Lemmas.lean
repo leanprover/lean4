@@ -417,7 +417,7 @@ theorem getElem?_zero_ofNat_one : (BitVec.ofNat (w+1) 1)[0]? = some true := by
 
 -- This does not need to be a `@[simp]` theorem as it is already handled by `getElem?_eq_getElem`.
 theorem getElem?_zero_ofBool (b : Bool) : (ofBool b)[0]? = some b := by
-  simp only [ofBool, ofNat_eq_ofNat, cond_eq_if]
+  simp only [ofBool, ofNat_eq_ofNat, cond_eq_ite]
   split <;> simp_all
 
 @[simp, grind =]
@@ -586,7 +586,7 @@ theorem toInt_eq_toNat_bmod (x : BitVec n) : x.toInt = Int.bmod x.toNat (2^n) :=
   simp only [toInt_eq_toNat_cond]
   split
   next g =>
-    rw [Int.bmod_pos] <;> simp only [←Int.natCast_emod, toNat_mod_cancel]
+    rw [Int.bmod_eq_emod_of_lt] <;> simp only [←Int.natCast_emod, toNat_mod_cancel]
     omega
   next g =>
     rw [Int.bmod_neg] <;> simp only [←Int.natCast_emod, toNat_mod_cancel]
@@ -1646,11 +1646,11 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
 
 @[simp] theorem ofInt_negSucc_eq_not_ofNat {w n : Nat} :
     BitVec.ofInt w (Int.negSucc n) = ~~~.ofNat w n := by
-  simp only [BitVec.ofInt, Int.toNat, Int.ofNat_eq_coe, toNat_eq, toNat_ofNatLT, toNat_not,
+  simp only [BitVec.ofInt, Int.toNat, Int.ofNat_eq_natCast, toNat_eq, toNat_ofNatLT, toNat_not,
     toNat_ofNat]
   cases h : Int.negSucc n % ((2 ^ w : Nat) : Int)
   case ofNat =>
-    rw [Int.ofNat_eq_coe, Int.negSucc_emod] at h
+    rw [Int.ofNat_eq_natCast, Int.negSucc_emod] at h
     · dsimp only
       omega
     · omega

@@ -1,3 +1,5 @@
+module
+
 def isVowel (c : Char) : Bool :=
   c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u'
 
@@ -15,3 +17,5 @@ def isVowel (c : Char) : Bool :=
 #guard ("abcde".toSlice.drop 1).replace (· == 'c') "C" = "bCde"
 #guard (("ac  bc  cc  cd".toSlice.split "  ").map (·.replace 'c' "C") |>.toList) = ["aC", "bC", "CC", "Cd"]
 #guard "red green blue".replace (fun c => c == 'u' || c == 'e') "" = "rd grn bl"
+#guard "aab".replace "ab" "X" = "aX"
+#guard " ℚℚ\n ".replace "ℚ\n" "\n" = " ℚ\n "

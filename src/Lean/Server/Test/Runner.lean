@@ -638,11 +638,11 @@ def processGenericRequest : RunnerM Unit := do
 def processDirective (ws directive : String) (directiveTargetLineNo : Nat) : RunnerM Unit := do
   let directive := directive.drop 1
   let colon := directive.posOf ':'
-  let method := directive.extract 0 colon |>.trim
+  let method := String.Pos.Raw.extract directive 0 colon |>.trim
   -- TODO: correctly compute in presence of Unicode
-  let directiveTargetColumn := ws.endPos + "--"
+  let directiveTargetColumn := ws.rawEndPos + "--"
   let pos : Lsp.Position := { line := directiveTargetLineNo, character := directiveTargetColumn.byteIdx }
-  let params := if colon < directive.endPos then directive.extract (colon + ':') directive.endPos |>.trim else "{}"
+  let params := if colon < directive.rawEndPos then String.Pos.Raw.extract directive (colon + ':') directive.rawEndPos |>.trim else "{}"
   modify fun s => { s with pos, method, params }
   match method with
   -- `delete: "foo"` deletes the given string's number of characters at the given position.
@@ -697,8 +697,8 @@ partial def main (args : List String) : IO Unit := do
   -- We want `dbg_trace` tactics to write directly to stderr instead of being caught in reuse
   Ipc.runWith ipcCmd ipcArgs do
     let initializationOptions? := some {
-      editDelay? := none
       hasWidgets? := some true
+      logCfg? := none
     }
     let capabilities := {
       textDocument? := some {

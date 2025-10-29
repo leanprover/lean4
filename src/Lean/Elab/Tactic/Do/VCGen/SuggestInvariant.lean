@@ -369,7 +369,9 @@ public def suggestInvariant (vcs : Array MVarId) (inv : MVarId) : TacticM Term :
   let invType ← instantiateMVars (← inv.getType)
   let_expr c@Std.Do.Invariant α l letMutsTy _ps := invType
     | throwError "Expected invariant type, got {invType}"
-  let us := c.constLevels!
+  let us := c.constLevels!.take 1 -- This is the list of universe params for `List.Cursor`. It only
+                                  -- takes the level `u₁` for `α` in the type of `Invariant`, so
+                                  -- we drop the rest (i.e., `u₂` for `β`).
 
   -- Simplify the VCs a bit using `mleave`. Makes the job of the analysis below simpler.
   let vcs ← vcs.flatMapM fun vc =>

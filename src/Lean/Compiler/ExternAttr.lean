@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.ProjFns
-public import Lean.Meta.Basic
+public import Lean.Attributes
 
 public section
 

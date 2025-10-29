@@ -87,19 +87,6 @@ def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx 
 def mkInitialTacticInfo (stx : Syntax) : GrindTacticM (GrindTacticM Info) := do
   let mctxBefore  ← getMCtx
   let goalsBefore ← getUnsolvedGoalMVarIds
-  /-
-  **Note**: We only display the grind state if there is exactly one goal.
-  This is a hack because we currently use a silent info to display the grind state, and we cannot attach it after each goal.
-  We claim this is not a big deal since the user will probably use `next =>` to focus on subgoals.
-  -/
-  if let [goal]  ← getGoals then goal.withContext do
-    let config := (← read).params.config
-    let msg := MessageData.lazy fun ctx => do
-      let .ok msg ← EIO.toBaseIO <| ctx.runMetaM
-          <| Grind.goalDiagToMessageData goal config (header := "Grind state") (collapsedMain := false)
-        | return "Grind state could not be generated"
-      return msg
-    logAt (severity := .information) (isSilent := true) stx msg
   return mkTacticInfo mctxBefore goalsBefore stx
 
 @[inline] def withTacticInfoContext (stx : Syntax) (x : GrindTacticM α) : GrindTacticM α := do
@@ -180,12 +167,6 @@ where
 def throwNoGoalsToBeSolved : GrindTacticM α :=
   throwError "No goals to be solved"
 
-def done : GrindTacticM Unit := do
-  let gs ← getUnsolvedGoalMVarIds
-  unless gs.isEmpty do
-    Term.reportUnsolvedGoals gs
-    throwAbortTactic
-
 instance : MonadBacktrack SavedState GrindTacticM where
   saveState := Grind.saveState
   restoreState b := b.restore
@@ -195,38 +176,13 @@ Runs `x` with only the first unsolved goal as the goal.
 Fails if there are no goal to be solved.
 -/
 def focus (k : GrindTacticM α) : GrindTacticM α := do
-  let mvarId :: mvarIds ← getUnsolvedGoals
+  let goal :: goals ← getUnsolvedGoals
     | throwNoGoalsToBeSolved
-  setGoals [mvarId]
+  setGoals [goal]
   let a ← k
-  let mvarIds' ← getUnsolvedGoals
-  setGoals (mvarIds' ++ mvarIds)
+  let goals' ← getUnsolvedGoals
+  setGoals (goals' ++ goals)
   pure a
-
-/--
-Runs `tactic` with only the first unsolved goal as the goal, and expects it leave no goals.
-Fails if there are no goal to be solved.
--/
-def focusAndDone (tactic : GrindTacticM α) : GrindTacticM α :=
-  focus do
-    let a ← tactic
-    done
-    pure a
-
-/-- Close the main goal using the given tactic. If it fails, log the error and `admit` -/
-def closeUsingOrAdmit (tac : GrindTacticM Unit) : GrindTacticM Unit := do
-  /- Important: we must define `closeUsingOrAdmit` before we define
-     the instance `MonadExcept` for `GrindTacticM` since it backtracks the state including error messages. -/
-  let goal :: goals ← getUnsolvedGoals | throwNoGoalsToBeSolved
-  tryCatchRuntimeEx
-    (focusAndDone tac)
-    fun ex => do
-      if (← read).recover then
-        logException ex
-        admitGoal goal.mvarId
-        setGoals goals
-      else
-        throw ex
 
 /--
 Non-backtracking `try`/`catch`.
@@ -354,13 +310,76 @@ def liftSearchM (k : SearchM α) : GrindTacticM α := do
   replaceMainGoal [state.goal]
   return a
 
+def done : GrindTacticM Unit := do
+  pruneSolvedGoals
+  let goals ← getGoals
+  unless goals.isEmpty do
+    let params := (← read).params
+    let results ← liftGrindM do goals.mapM fun goal => Grind.mkResult params (some goal)
+    let msgs ← results.mapM fun result => result.toMessageData
+    let msg := MessageData.joinSep msgs m!"\n\n"
+    logError <| MessageData.tagged `Tactic.unsolvedGoals <| m!"unsolved goals\n{msg}"
+    goals.forM fun goal => admitGoal goal.mvarId
+    throwAbortTactic
+
+/--
+Runs `tactic` with only the first unsolved goal as the goal, and expects it leave no goals.
+Fails if there are no goal to be solved.
+-/
+def focusAndDone (tactic : GrindTacticM α) : GrindTacticM α :=
+  focus do
+    let a ← tactic
+    done
+    pure a
+
+/-- Close the main goal using the given tactic. If it fails, log the error and `admit` -/
+def closeUsingOrAdmit (tac : GrindTacticM Unit) : GrindTacticM Unit := do
+  /- Important: we must define `closeUsingOrAdmit` before we define
+     the instance `MonadExcept` for `GrindTacticM` since it backtracks the state including error messages. -/
+  let goal :: goals ← getUnsolvedGoals | throwNoGoalsToBeSolved
+  tryCatchRuntimeEx
+    (focusAndDone tac)
+    fun ex => do
+      if (← read).recover then
+        logException ex
+        admitGoal goal.mvarId
+        setGoals goals
+      else
+        throw ex
+
+def GrindTacticM.run (x : GrindTacticM α) (ctx : Context) (s : State) : TermElabM (α × State) :=
+  x ctx |>.run s
+
+def mkEvalTactic' (elaborator : Name) (params : Params) : TermElabM (Goal → TSyntax `grind → GrindM (List Goal)) := do
+  let termState ← getThe Term.State
+  let termCtx ← readThe Term.Context
+  let eval (goal : Goal) (stx : TSyntax `grind) : GrindM (List Goal) := do
+    let methods ← getMethods
+    let grindCtx ← readThe Meta.Grind.Context
+    let grindState ← get
+    -- **Note**: we discard changes to `Term.State`
+    let (subgoals, grindState') ← Term.TermElabM.run' (ctx := termCtx) (s := termState) do
+      let (_, s) ← GrindTacticM.run
+            (ctx := { recover := false, methods, ctx := grindCtx, params, elaborator })
+            (s := { state := grindState, goals := [goal] }) do
+        evalGrindTactic stx.raw
+        pruneSolvedGoals
+      return (s.goals, s.state)
+    set grindState'
+    return subgoals
+  return eval
+
+def mkEvalTactic (params : Params) : TacticM (Goal → TSyntax `grind → GrindM (List Goal)) := do
+  mkEvalTactic' (← read).elaborator params
+
 def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM α) : TacticM (α × State) := do
-  let (methods, ctx, state) ← liftMetaM <| GrindM.runAtGoal mvarId params fun goal => do
+  let evalTactic ← mkEvalTactic params
+  let (methods, ctx, state) ← liftMetaM <| GrindM.runAtGoal mvarId params (evalTactic? := some evalTactic) fun goal => do
     let methods ← getMethods
     -- **Note**: We use `withCheapCasesOnly` to ensure multiple goals are not created.
     -- We will add support for this case in the future.
     let (goal, _) ← withCheapCasesOnly <| SearchM.run goal do
-      intros 0
+      intros 0; discard <| assertAll
       getGoal
     let goals := if goal.inconsistent then [] else [goal]
     let ctx ← readThe Meta.Grind.Context

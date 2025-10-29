@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.RevertAll
@@ -43,9 +42,10 @@ public import Lean.Meta.Tactic.Grind.PropagateInj
 public import Lean.Meta.Tactic.Grind.Order
 public import Lean.Meta.Tactic.Grind.Anchor
 public import Lean.Meta.Tactic.Grind.Action
-
+public import Lean.Meta.Tactic.Grind.EMatchTheoremParam
+public import Lean.Meta.Tactic.Grind.EMatchAction
+public import Lean.Meta.Tactic.Grind.Filter
 public section
-
 namespace Lean
 
 /-! Trace options for `grind` users -/

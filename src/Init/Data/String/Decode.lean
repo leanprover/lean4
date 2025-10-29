@@ -11,6 +11,14 @@ import Init.Data.Char.Lemmas
 public import Init.Data.ByteArray.Basic
 import Init.Data.ByteArray.Lemmas
 
+/-!
+# UTF-8 decoding
+
+This file contains the low-level proof that UTF-8 decoding and encoding are inverses.
+An important corollary is that attempting to decode a byte array that is valid UTF-8 will
+succeed, which is required for the definition of `String.toList`.
+-/
+
 /-! # `Char.utf8Size` -/
 
 public theorem Char.utf8Size_eq_one_iff {c : Char} : c.utf8Size = 1 ↔ c.val ≤ 127 := by
@@ -134,19 +142,19 @@ public theorem String.utf8EncodeChar_eq_utf8EncodeCharFast : @utf8EncodeChar = @
   cases Decidable.em (c.val ≤ 0x7ff) <;> simp [*]
   cases Decidable.em (c.val ≤ 0xffff) <;> simp [*]
 
-theorem String.utf8EncodeChar_eq_singleton {c : Char} : c.utf8Size = 1 →
+public theorem String.utf8EncodeChar_eq_singleton {c : Char} : c.utf8Size = 1 →
     String.utf8EncodeChar c = [c.val.toUInt8] := by
   rw [← length_utf8EncodeChar]
   fun_cases utf8EncodeChar
   all_goals simp_all; try rfl
 
-theorem String.utf8EncodeChar_eq_cons_cons {c : Char} : c.utf8Size = 2 →
+public theorem String.utf8EncodeChar_eq_cons_cons {c : Char} : c.utf8Size = 2 →
     String.utf8EncodeChar c = [(c.val >>>  6).toUInt8 &&& 0x1f ||| 0xc0, c.val.toUInt8 &&& 0x3f ||| 0x80] := by
   rw [← length_utf8EncodeChar, utf8EncodeChar_eq_utf8EncodeCharFast]
   fun_cases utf8EncodeCharFast
   all_goals simp_all <;> (repeat' apply And.intro) <;> rfl
 
-theorem String.utf8EncodeChar_eq_cons_cons_cons {c : Char} : c.utf8Size = 3 →
+public theorem String.utf8EncodeChar_eq_cons_cons_cons {c : Char} : c.utf8Size = 3 →
     String.utf8EncodeChar c =
     [(c.val >>> 12).toUInt8 &&& 0x0f ||| 0xe0,
      (c.val >>>  6).toUInt8 &&& 0x3f ||| 0x80,
@@ -155,7 +163,7 @@ theorem String.utf8EncodeChar_eq_cons_cons_cons {c : Char} : c.utf8Size = 3 →
   fun_cases utf8EncodeCharFast
   all_goals simp_all <;> (repeat' apply And.intro) <;> rfl
 
-theorem String.utf8EncodeChar_eq_cons_cons_cons_cons {c : Char} : c.utf8Size = 4 →
+public theorem String.utf8EncodeChar_eq_cons_cons_cons_cons {c : Char} : c.utf8Size = 4 →
     String.utf8EncodeChar c =
     [(c.val >>> 18).toUInt8 &&& 0x07 ||| 0xf0,
      (c.val >>> 12).toUInt8 &&& 0x3f ||| 0x80,
@@ -182,7 +190,7 @@ theorem String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_one {c : Char
     simpa [Char.utf8Size_eq_one_iff, UInt32.le_iff_toNat_le] using h
   have h₁ : c.val.toNat < 256 := by omega
   rw [← BitVec.toNat_inj, BitVec.toNat_append]
-  simp [utf8EncodeChar_eq_singleton h, Nat.mod_eq_of_lt h₀, Nat.mod_eq_of_lt h₁]
+  simp [-Char.toUInt8_val, utf8EncodeChar_eq_singleton h, Nat.mod_eq_of_lt h₀, Nat.mod_eq_of_lt h₁]
 
 /-! ### Size two -/
 
@@ -495,7 +503,8 @@ theorem assemble₁_eq_some_iff_utf8EncodeChar_eq {w : UInt8} {c : Char} :
     have : c.val.toNat < 256 := by
       simp only [Char.utf8Size_eq_one_iff, UInt32.le_iff_toNat_le, UInt32.reduceToNat] at hc
       omega
-    simpa [String.utf8EncodeChar_eq_singleton hc, assemble₁, Char.ext_iff, ← UInt32.toNat_inj]
+    simpa [String.utf8EncodeChar_eq_singleton hc, assemble₁, Char.ext_iff, ← UInt32.toNat_inj,
+      -Char.toUInt8_val]
 
 @[inline, expose]
 public def verify₁ (_w : UInt8) (_h : parseFirstByte w = .done) : Bool :=
@@ -1464,7 +1473,8 @@ public theorem ByteArray.isUTF8FirstByte_getElem_zero_utf8EncodeChar_append {c :
 public theorem ByteArray.isUTF8FirstByte_of_isSome_utf8DecodeChar? {b : ByteArray} {i : Nat}
     (h : (utf8DecodeChar? b i).isSome) : (b[i]'(lt_size_of_isSome_utf8DecodeChar? h)).IsUTF8FirstByte := by
   rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract] at h
-  suffices ((b.extract i b.size)[0]'(lt_size_of_isSome_utf8DecodeChar? h)).IsUTF8FirstByte by
+  suffices ((b.extract i b.size)[0]'
+      (by simpa using lt_size_of_isSome_utf8DecodeChar? h)).IsUTF8FirstByte by
     simpa [ByteArray.getElem_extract, Nat.add_zero] using this
   obtain ⟨c, hc⟩ := Option.isSome_iff_exists.1 h
   conv => congr; congr; rw [eq_of_utf8DecodeChar?_eq_some hc]

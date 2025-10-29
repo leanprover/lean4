@@ -6,7 +6,7 @@ Authors: Leonardo de Moura and Sebastian Ullrich
 module
 
 prelude
-public import Init.Data.String.Extra
+public import Init.Data.String.Substring
 
 /-!
 Here we give the. implementation of `Name.toString`. There is also a private implementation in
@@ -37,7 +37,7 @@ private partial def needsNoEscapeAsciiRest (s : String) (i : Nat) : Bool :=
 
 -- If you change this, also change the corresponding function in `Init.Meta`.
 @[inline] private def needsNoEscape (s : String) (h : s.utf8ByteSize > 0) : Bool :=
-  needsNoEscapeAscii s h || isIdFirst (s.get 0) && (s.toSubstring.drop 1).all isIdRest
+  needsNoEscapeAscii s h || isIdFirst s.front && (s.toSubstring.drop 1).all isIdRest
 
 -- If you change this, also change the corresponding function in `Init.Meta`.
 @[inline] private def escape (s : String) : String :=

@@ -14,16 +14,16 @@ partial def String.charactersIn (a b : String) : Bool :=
   go ⟨0⟩ ⟨0⟩
 where
   go (aPos bPos : String.Pos.Raw) : Bool :=
-    if ha : a.atEnd aPos then
+    if ha : aPos.atEnd a then
       true
-    else if hb : b.atEnd bPos then
+    else if hb : bPos.atEnd b then
       false
     else
-      let ac := a.get' aPos ha
-      let bc := b.get' bPos hb
-      let bPos := b.next' bPos hb
+      let ac := aPos.get' a ha
+      let bc := bPos.get' b hb
+      let bPos := bPos.next' b hb
       if ac == bc then
-        let aPos := a.next' aPos ha
+        let aPos := aPos.next' a ha
         go aPos bPos
       else
         go aPos bPos

@@ -94,7 +94,7 @@ it.filterMapWithPostcondition     ---a'-----c'-------⊥
 **Termination properties:**
 
 * `Finite` instance: only if `it` is finite
-* `Productive` instance: only if `it` is finite`
+* `Productive` instance: only if `it` is finite
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For example, if `f` never returns `none`, then

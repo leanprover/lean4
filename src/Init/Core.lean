@@ -600,17 +600,6 @@ export LawfulSingleton (insert_empty_eq)
 
 attribute [simp] insert_empty_eq
 
-@[deprecated insert_empty_eq (since := "2025-03-12")]
-theorem insert_emptyc_eq [EmptyCollection β] [Insert α β] [Singleton α β]
-    [LawfulSingleton α β] (x : α) : (insert x ∅ : β) = singleton x :=
-  insert_empty_eq _
-
-@[deprecated insert_empty_eq (since := "2025-03-12")]
-theorem LawfulSingleton.insert_emptyc_eq [EmptyCollection β] [Insert α β] [Singleton α β]
-    [LawfulSingleton α β] (x : α) : (insert x ∅ : β) = singleton x :=
-  insert_empty_eq _
-
-
 /-- Type class used to implement the notation `{ a ∈ c | p a }` -/
 class Sep (α : outParam <| Type u) (γ : Type v) where
   /-- Computes `{ a ∈ c | p a }`. -/
@@ -1095,14 +1084,6 @@ theorem of_toBoolUsing_eq_true {p : Prop} {d : Decidable p} (h : toBoolUsing d =
 theorem of_toBoolUsing_eq_false {p : Prop} {d : Decidable p} (h : toBoolUsing d = false) : ¬p :=
   of_decide_eq_false h
 
-set_option linter.missingDocs false in
-@[deprecated of_toBoolUsing_eq_true (since := "2025-04-04")]
-abbrev ofBoolUsing_eq_true := @of_toBoolUsing_eq_true
-
-set_option linter.missingDocs false in
-@[deprecated of_toBoolUsing_eq_false (since := "2025-04-04")]
-abbrev ofBoolUsing_eq_false := @of_toBoolUsing_eq_false
-
 instance : Decidable True :=
   isTrue trivial
 
@@ -1159,12 +1140,21 @@ variable {p q : Prop}
   decidable_of_decidable_of_iff (p := p) (h ▸ Iff.rfl)
 end
 
-@[macro_inline] instance {p q} [Decidable p] [Decidable q] : Decidable (p → q) :=
-  if hp : p then
-    if hq : q then isTrue (fun _ => hq)
-    else isFalse (fun h => absurd (h hp) hq)
-  else isTrue (fun h => absurd h hp)
+@[inline]
+instance exists_prop_decidable {p} (P : p → Prop)
+    [Decidable p] [∀ h, Decidable (P h)] : Decidable (Exists P) :=
+  if h : p then
+    decidable_of_decidable_of_iff ⟨fun h2 => ⟨h, h2⟩, fun ⟨_, h2⟩ => h2⟩
+  else isFalse fun ⟨h', _⟩ => h h'
 
+@[inline]
+instance forall_prop_decidable {p} (P : p → Prop)
+    [Decidable p] [∀ h, Decidable (P h)] : Decidable (∀ h, P h) :=
+  if h : p then
+    decidable_of_decidable_of_iff ⟨fun h2 _ => h2, fun al => al h⟩
+  else isTrue fun h2 => absurd h2 h
+
+@[inline]
 instance {p q} [Decidable p] [Decidable q] : Decidable (p ↔ q) :=
   if hp : p then
     if hq : q then
@@ -1212,11 +1202,13 @@ theorem dif_eq_if (c : Prop) {h : Decidable c} {α : Sort u} (t : α) (e : α) :
   | isTrue _    => rfl
   | isFalse _   => rfl
 
+@[macro_inline]
 instance {c t e : Prop} [dC : Decidable c] [dT : Decidable t] [dE : Decidable e] : Decidable (if c then t else e) :=
   match dC with
   | isTrue _   => dT
   | isFalse _  => dE
 
+@[inline]
 instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT : ∀ h, Decidable (t h)] [dE : ∀ h, Decidable (e h)] : Decidable (if h : c then t h else e h) :=
   match dC with
   | isTrue hc  => dT hc
@@ -1366,10 +1358,6 @@ namespace Subtype
 
 theorem exists_of_subtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (fun x => p x)
   | ⟨a, h⟩ => ⟨a, h⟩
-
-set_option linter.missingDocs false in
-@[deprecated exists_of_subtype (since := "2025-04-04")]
-abbrev existsOfSubtype := @exists_of_subtype
 
 variable {α : Type u} {p : α → Prop}
 

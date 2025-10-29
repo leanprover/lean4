@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Monadic
-// Imports: public import Init.Data.List.Control import all Init.Data.List.Control public import Init.Data.Array.Basic import all Init.Data.Array.Basic public import Init.Data.Array.Lemmas public import Init.Data.Array.Attach public import Init.Data.List.Monadic
+// Imports: import all Init.Data.List.Control import all Init.Data.Array.Basic public import Init.Data.Array.Attach
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -283,37 +283,21 @@ lean_dec(x_4);
 return x_6;
 }
 }
-lean_object* initialize_Init_Data_List_Control(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Control(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Attach(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Monadic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Control(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Attach(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Array_Monadic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Array_Monadic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_Control(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Control(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Control(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array_Attach(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_Monadic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

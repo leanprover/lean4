@@ -16,14 +16,26 @@ These comments explain the scripts' behavior, which repositories get special han
 ## Process
 
 1. Run `script/release_checklist.py {version}` to check the current status
-2. Create a todo list tracking all repositories that need updates
-3. For each repository that needs updating:
+2. **CRITICAL: If preliminary lean4 checks fail, STOP immediately and alert the user**
+   - Check for: release branch exists, CMake version correct, tag exists, release page exists, release notes exist
+   - **IMPORTANT**: The release page is created AUTOMATICALLY by CI after pushing the tag - DO NOT create it manually
+   - Do NOT create any PRs or proceed with repository updates if these checks fail
+3. Create a todo list tracking all repositories that need updates
+4. **CRITICAL RULE: You can ONLY run `release_steps.py` for a repository if `release_checklist.py` explicitly says to do so**
+   - The checklist output will say "Run `script/release_steps.py {version} {repo_name}` to create it"
+   - If a repository shows "🟡 Dependencies not ready", you CANNOT create a PR for it yet
+   - You MUST rerun `release_checklist.py` before attempting to create PRs for any new repositories
+5. For each repository that the checklist says needs updating:
    - Run `script/release_steps.py {version} {repo_name}` to create the PR
    - Mark it complete when the PR is created
-4. After creating PRs, notify the user which PRs need review and merging
-5. Continuously rerun `script/release_checklist.py {version}` to check progress
-6. As PRs are merged, dependent repositories will become ready - create PRs for those as well
-7. Continue until all repositories are updated and the release is complete
+6. After creating PRs, notify the user which PRs need review and merging
+7. **MANDATORY: Rerun `release_checklist.py` to check current status**
+   - Do this after creating each batch of PRs
+   - Do this after the user reports PRs have been merged
+   - NEVER assume a repository is ready without checking the checklist output
+8. As PRs are merged and tagged, dependent repositories will become ready
+9. Continue the cycle: run checklist → create PRs for ready repos → wait for merges → repeat
+10. Continue until all repositories are updated and the release is complete
 
 ## Important Notes
 

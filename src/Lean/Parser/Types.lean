@@ -21,7 +21,7 @@ abbrev mkIdent (info : SourceInfo) (rawVal : Substring) (val : Name) : Syntax :=
 
 /-- Return character after position `pos` -/
 def getNext (input : String) (pos : String.Pos.Raw) : Char :=
-  input.get (input.next pos)
+  (pos.next input).get input
 
 /-- Maximal (and function application) precedence.
    In the standard lean language, no parser has precedence higher than `maxPrec`.
@@ -50,18 +50,18 @@ structure InputContext where
   inputString : String
   fileName : String
   fileMap : FileMap
-  endPos : String.Pos.Raw := inputString.endPos
-  endPos_valid : endPos ≤ inputString.endPos := by simp
+  endPos : String.Pos.Raw := inputString.rawEndPos
+  endPos_valid : endPos ≤ inputString.rawEndPos := by simp
 
 instance : Inhabited InputContext where
-  default := ⟨"", default, default, "".endPos, String.Pos.Raw.mk_le_mk.mpr (Nat.le_refl _)⟩
+  default := ⟨"", default, default, "".rawEndPos, String.Pos.Raw.mk_le_mk.mpr (Nat.le_refl _)⟩
 
 
 namespace InputContext
 def mk
     (input fileName : String)
-    (endPos : String.Pos.Raw := input.endPos)
-    (endPos_valid : endPos ≤ input.endPos := by simp)
+    (endPos : String.Pos.Raw := input.rawEndPos)
+    (endPos_valid : endPos ≤ input.rawEndPos := by simp)
     (fileMap : FileMap := FileMap.ofString input) :
     InputContext where
   inputString := input
@@ -71,7 +71,7 @@ def mk
   fileMap := fileMap
 
 @[deprecated "Call `InputContext.get`, `InputContext.get'`, `InputContext.next'`, and `InputContext.atEnd` directly" (since := "2025-08-21")]
-def input (c : InputContext) : String := c.inputString.extract 0 c.endPos
+def input (c : InputContext) : String := String.Pos.Raw.extract c.inputString 0 c.endPos
 
 /--
 Returns `true` if a specified byte position is greater than or equal to the position which points to
@@ -84,15 +84,15 @@ Returns the character at position `p` of the input string. If `p` is not a valid
 the fallback value `(default : Char)`, which is `'A'`, but does not panic.
 -/
 @[inline]
-def get (c : InputContext) (p : String.Pos.Raw) : Char := c.inputString.get p
+def get (c : InputContext) (p : String.Pos.Raw) : Char := p.get c.inputString
 
 theorem not_atEnd_inputString {c : InputContext} {p : String.Pos.Raw} :
-    ¬c.atEnd p → ¬c.inputString.atEnd p := by
+    ¬c.atEnd p → ¬p.atEnd c.inputString := by
   intro h
   let {inputString, endPos := ⟨e⟩, endPos_valid, ..} := c
   cases p
-  simp only [String.endPos, String.Pos.Raw.mk_le_mk] at endPos_valid
-  simp_all [String.atEnd, InputContext.atEnd, String.Pos.Raw.mk_le_mk]
+  simp only [String.rawEndPos, String.Pos.Raw.mk_le_mk] at endPos_valid
+  simp_all [String.Pos.Raw.atEnd, InputContext.atEnd, String.Pos.Raw.mk_le_mk]
   exact Nat.lt_of_lt_of_le h endPos_valid
 
 /--
@@ -113,7 +113,7 @@ multi-byte UTF-8 character.
 -/
 @[inline]
 def get' (c : InputContext) (p : String.Pos.Raw) (h : ¬c.atEnd p) : Char :=
-  c.inputString.get' p (c.not_atEnd_inputString h)
+  p.get' c.inputString (c.not_atEnd_inputString h)
 
 /--
 Returns the next position in the input string after position `p`. If `p` is not a valid position or
@@ -124,7 +124,7 @@ bounds check has already been performed, use `InputContext.next'` to avoid a rep
 -/
 @[inline]
 def next (c : InputContext) (p : String.Pos.Raw)  : String.Pos.Raw :=
-  c.inputString.next p
+  p.next c.inputString
 
 /--
 Returns the next position in the input string after position `p`. The result is unspecified if `p`
@@ -134,7 +134,7 @@ Requires evidence, `h`, that `p` is within bounds. No run-time bounds check is p
 -/
 @[inline]
 def next' (c : InputContext) (p : String.Pos.Raw) (h : ¬c.atEnd p) : String.Pos.Raw :=
-  c.inputString.next' p (c.not_atEnd_inputString h)
+  p.next' c.inputString (c.not_atEnd_inputString h)
 
 /--
 Creates a new string that consists of the region of the input string delimited by the two positions.
@@ -145,7 +145,7 @@ at the middle of a multi-byte UTF-8 character) then the result is unspecified.
 -/
 @[inline]
 def extract (c : InputContext) : String.Pos.Raw → String.Pos.Raw → String :=
-  c.inputString.extract
+  String.Pos.Raw.extract c.inputString
 
 /--
 Extracts a substring of the input string, bounded by `startPos` and `stopPos`.
@@ -162,7 +162,7 @@ def getNext (input : InputContext) (pos : String.Pos.Raw) : Char :=
 /-- Returns the character position prior to `pos` -/
 @[inline]
 def prev (c : InputContext) (pos : String.Pos.Raw) : String.Pos.Raw :=
-  c.inputString.prev pos
+  pos.prev c.inputString
 
 end InputContext
 
@@ -198,7 +198,7 @@ instance : Coe ParserContext InputContext := ⟨(·.toInputContext)⟩
 Modifies the ending position of a parser context.
 -/
 def ParserContext.setEndPos (c : ParserContext)
-    (endPos : String.Pos.Raw) (endPos_valid : endPos ≤ c.inputString.endPos) :
+    (endPos : String.Pos.Raw) (endPos_valid : endPos ≤ c.inputString.rawEndPos) :
     ParserContext :=
   { c with endPos, endPos_valid }
 
@@ -263,7 +263,7 @@ structure ParserCache where
   parserCache : Std.HashMap ParserCacheKey ParserCacheEntry
 
 def initCacheForInput (input : String) : ParserCache where
-  tokenCache  := { startPos := input.endPos + ' ' /- make sure it is not a valid position -/ }
+  tokenCache  := { startPos := input.rawEndPos + ' ' /- make sure it is not a valid position -/ }
   parserCache := {}
 
 /-- A syntax array with an inaccessible prefix, used for sound caching. -/

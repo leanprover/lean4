@@ -48,9 +48,9 @@ builtin_initialize
     (internalize := Linear.internalize)
     (newEq       := Linear.processNewEq)
     (newDiseq    := Linear.processNewDiseq)
+    (action      := Action.linarith)
     (check       := Linear.check)
     (checkInv    := Linear.checkInvariants)
     (mbtc        := Linear.mbtc)
-    (mkTactic?   := return some (← `(grind| linarith)))
 
 end Lean.Meta.Grind.Arith.Linear

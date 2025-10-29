@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.LawfulBEqTactics
-// Imports: public import Init.Prelude public import Init.Notation public import Init.Tactics public import Init.Core import Init.Data.Bool import Init.ByCases
+// Imports: public import Init.Core import Init.Data.Bool import Init.ByCases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3756,33 +3756,21 @@ return x_106;
 }
 }
 }
-lean_object* initialize_Init_Prelude(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Notation(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Tactics(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Core(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Bool(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_ByCases(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Core(uint8_t builtin);
+lean_object* initialize_Init_Data_Bool(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_LawfulBEqTactics(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_LawfulBEqTactics(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Prelude(builtin, lean_io_mk_world());
+res = initialize_Init_Core(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Notation(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Bool(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Tactics(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Core(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Bool(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_ByCases(builtin, lean_io_mk_world());
+res = initialize_Init_ByCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_DerivingHelpers_tacticDeriving__ReflEq__tactic___closed__0 = _init_l_DerivingHelpers_tacticDeriving__ReflEq__tactic___closed__0();

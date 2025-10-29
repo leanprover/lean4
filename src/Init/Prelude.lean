@@ -23,6 +23,16 @@ use `PUnit` in the desugaring of `do` notation, or in the pattern match compiler
 
 universe u v w
 
+/-- Marker for information that has been erased by the code generator. -/
+unsafe axiom lcErased : Type
+
+/-- Marker for type dependency that has been erased by the code generator. -/
+unsafe axiom lcAny : Type
+
+/-- Internal representation of `Void` in the compiler. -/
+unsafe axiom lcVoid : Type
+
+
 /--
 The identity function. `id` takes an implicit argument `α : Sort u`
 (a type in any universe), and an argument `a : α`, and returns `a`.
@@ -134,15 +144,6 @@ The only element of the unit type.
 It can be written as an empty tuple: `()`.
 -/
 @[match_pattern] abbrev Unit.unit : Unit := PUnit.unit
-
-/-- Marker for information that has been erased by the code generator. -/
-unsafe axiom lcErased : Type
-
-/-- Marker for type dependency that has been erased by the code generator. -/
-unsafe axiom lcAny : Type
-
-/-- Internal representation of `IO.RealWorld` in the compiler. -/
-unsafe axiom lcRealWorld : Type
 
 /--
 Auxiliary unsafe constant used by the Compiler when erasing proofs from code.
@@ -1098,6 +1099,7 @@ until `c` is known.
         | Or.inl h => hp h
         | Or.inr h => hq h
 
+@[inline]
 instance [dp : Decidable p] : Decidable (Not p) :=
   match dp with
   | isTrue hp  => isFalse (absurd hp)
@@ -3441,7 +3443,7 @@ Character positions (counting the Unicode code points rather than bytes) are rep
 `Nat`s. Indexing a `String` by a `String.Pos.Raw` takes constant time, while character positions need to
 be translated internally to byte positions, which takes linear time.
 
-A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.endPos` and `p` lies on a UTF-8
+A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.rawEndPos` and `p` lies on a UTF-8
 character boundary, see `String.Pos.IsValid`.
 
 There is another type, `String.ValidPos`, which bundles the validity predicate. Using `String.ValidPos`
@@ -3501,10 +3503,10 @@ def String.utf8ByteSize (s : @& String) : Nat :=
 /--
 A UTF-8 byte position that points at the end of a string, just after the last character.
 
-* `"abc".endPos = ⟨3⟩`
-* `"L∃∀N".endPos = ⟨8⟩`
+* `"abc".rawEndPos = ⟨3⟩`
+* `"L∃∀N".rawEndPos = ⟨8⟩`
 -/
-@[inline] def String.endPos (s : String) : String.Pos.Raw where
+@[inline] def String.rawEndPos (s : String) : String.Pos.Raw where
   byteIdx := utf8ByteSize s
 
 /--
@@ -3513,7 +3515,7 @@ Converts a `String` into a `Substring` that denotes the entire string.
 @[inline] def String.toSubstring (s : String) : Substring where
   str      := s
   startPos := {}
-  stopPos  := s.endPos
+  stopPos  := s.rawEndPos
 
 /--
 Converts a `String` into a `Substring` that denotes the entire string.
@@ -3703,7 +3705,7 @@ When thinking about `f` as potential side effects, `*>` evaluates first the left
 argument for their side effects, discarding the value of the left argument and returning the value
 of the right argument.
 
-For most applications, `Applicative` or `Monad` should be used rather than `SeqLeft` itself.
+For most applications, `Applicative` or `Monad` should be used rather than `SeqRight` itself.
 -/
 class SeqRight (f : Type u → Type v) : Type (max (u+1) v) where
   /--

@@ -10,12 +10,7 @@ import Lean.Meta.Tactic.Grind.AC.Eq
 namespace Lean.Meta.Grind.Action
 
 /-- Associative-Commutative solver action. -/
-public def ac : Action := fun goal kna kp => do
-  let (result, goal') ← GoalM.run goal AC.check
-  match result with
-  | .none       => kna goal'
-  | .progress   => kp goal'
-  | .propagated => concatTactic (← kp goal') `(grind| ac)
-  | .closed     => closeWith `(grind| ac)
+public def ac : Action :=
+  solverAction AC.check `(grind| ac)
 
 end Lean.Meta.Grind.Action

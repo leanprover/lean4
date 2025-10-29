@@ -48,5 +48,26 @@ partial def inferMeta (decls : Array Decl) : CompilerM Unit := do
       modifyEnv (setDeclMeta · decl.name)
       setClosureMeta decl
 
+/--
+Checks meta availability just before `evalConst`. This is a "last line of defense" as accesses
+should have been checked at declaration time in case of attributes. We do not solely want to rely on
+errors from the interpreter itself as those depend on whether we are running in the server.
+-/
+@[export lean_eval_check_meta]
+private partial def evalCheckMeta (env : Environment) (declName : Name) : Except String Unit := do
+  if !env.header.isModule then
+    return
+  go declName |>.run' {}
+where go (ref : Name) : StateT NameSet (Except String) Unit := do
+    if (← get).contains ref then
+      return
+    modify (·.insert ref)
+    if let some localDecl := declMapExt.getState env |>.find? ref then
+      for ref in collectUsedFDecls localDecl do
+        go ref
+    else
+      if getIRPhases env ref == .runtime then
+        throw s!"Cannot evaluate constant `{declName}` as it uses `{ref}` which is neither marked nor imported as `meta`"
+
 builtin_initialize
   registerTraceClass `compiler.ir.inferMeta

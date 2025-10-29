@@ -7,4 +7,5 @@ module
 
 prelude
 import Lean.PremiseSelection.Basic
+import Lean.PremiseSelection.SymbolFrequency
 import Lean.PremiseSelection.MePo

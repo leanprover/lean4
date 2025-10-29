@@ -746,12 +746,28 @@ private def checkNextPatternTypes (p : Problem) : MetaM Unit := do
           unless (← isDefEq xType eType) do
             throwError "Type mismatch in pattern: Pattern{indentExpr e}\n{← mkHasTypeButIsExpectedMsg eType xType}"
 
+def isExFalsoTransition (p : Problem) : MetaM Bool := do
+  if p.alts.isEmpty then
+    withGoalOf p do
+      let targetType ← p.mvarId.getType
+      return !targetType.isFalse
+  else
+    return false
+
+def processExFalso (p : Problem) : MetaM Problem := do
+  let mvarId' ← p.mvarId.exfalso
+  return { p with mvarId := mvarId' }
+
 private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   traceState p
   let isInductive ← isCurrVarInductive p
   if isDone p then
     traceStep ("leaf")
     processLeaf p
+  else if (← isExFalsoTransition p) then
+    traceStep ("ex falso")
+    let p ← processExFalso p
+    process p
   else if hasAsPattern p then
     traceStep ("as-pattern")
     let p ← processAsPattern p

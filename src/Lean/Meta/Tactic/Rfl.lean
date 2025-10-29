@@ -120,7 +120,7 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
         ++ MessageData.hint' m!"Add the `[refl]` attribute to reflexivity lemmas for{inlineExpr rel}to use this tactic"
 
 /-- Helper theorem for `Lean.MVarId.liftReflToEq`. -/
-private theorem rel_of_eq_and_refl {α : Sort _} {R : α → α → Prop}
+theorem rel_of_eq_and_refl {α : Sort _} {R : α → α → Prop}
     {x y : α} (hxy : x = y) (h : R x x) : R x y :=
   hxy ▸ h
 

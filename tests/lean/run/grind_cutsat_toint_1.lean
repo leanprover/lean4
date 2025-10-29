@@ -81,11 +81,11 @@ example (a : Fin 2) : a ≠ 0 → a ≠ 1 → False := by
   grind
 
 /--
-trace: [grind.cutsat.model] a := 2
-[grind.cutsat.model] b := 0
+trace: [grind.lia.model] a := 2
+[grind.lia.model] b := 0
 -/
 #guard_msgs (drop error, trace) in
-set_option trace.grind.cutsat.model true in
+set_option trace.grind.lia.model true in
 example (a b : Fin 3) : a > 0 → a ≠ b → a + b ≠ 0 → a + b ≠ 1 → False := by
   grind
 

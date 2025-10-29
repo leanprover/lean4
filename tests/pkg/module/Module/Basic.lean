@@ -479,3 +479,28 @@ attribute [simp] f_struct
 /-! `initialize` should be run even if imported IR-only. -/
 
 public initialize initialized : Nat ← pure 5
+
+/-! Error message on private dot notation access. -/
+
+public structure S
+
+def S.s := 1
+
+/--
+error: Invalid field `s`: The environment does not contain `S.s`
+  s
+has type
+  S
+
+Note: A private declaration `S.s` (from the current module) exists but would need to be public to access here.
+-/
+#guard_msgs in
+@[expose] public def useS (s : S) := s.s
+
+/- `meta` should trump `noncomputable`. -/
+
+noncomputable section
+/-- error: Invalid `meta` definition `m`, `S.s` not marked `meta` -/
+#guard_msgs in
+meta def m := S.s
+end

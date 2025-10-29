@@ -10,6 +10,9 @@ prelude
 
 import Init.Data.Ord
 public import Lean.DocString.Types
+public import Init.Data.String.TakeDrop
+import Init.Data.String.Iterator
+public import Init.Data.String.Modify
 
 set_option linter.missingDocs true
 

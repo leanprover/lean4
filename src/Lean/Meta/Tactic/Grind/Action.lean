@@ -68,17 +68,7 @@ use `callCC` here.
 
 -/
 
-/-- Result type for a `grind` Action -/
-inductive ActionResult where
-  | /--
-    The goal has been closed, and you can use `seq` to close the goal efficiently.
-    -/
-    closed (seq : List (TSyntax `grind))
-  | /--
-    The action could not make further progress.
-    `gs` are subgoals that could not be closed. They are used for producing error messages.
-    -/
-    stuck (gs : List Goal)
+abbrev TGrindStep := TSyntax ``Parser.Tactic.Grind.grindStep
 
 def ActionResult.toMessageData : ActionResult → MessageData
   | .closed seq => m!"closed {seq}"
@@ -87,19 +77,10 @@ def ActionResult.toMessageData : ActionResult → MessageData
 instance : ToMessageData ActionResult where
   toMessageData := ActionResult.toMessageData
 
-abbrev ActionCont : Type :=
-  Goal → GrindM ActionResult
-
-abbrev Action : Type :=
-  Goal → (kna : ActionCont) → (kp : ActionCont) → GrindM ActionResult
-
 namespace Action
 
 def skip : Action := fun goal _ kp =>
   kp goal
-
-def notApplicable : Action := fun goal kna _ =>
-  kna goal
 
 /--
 If the `goal` is already inconsistent, returns `.closed []`. Otherwise, executes
@@ -142,7 +123,15 @@ def loop (n : Nat) (x : Action) : Action := fun goal _ kp =>
 Runs action `a` on the given `goal`.
 -/
 def run (goal : Goal) (a : Action) : GrindM ActionResult := do
-  let k := fun goal => if goal.inconsistent then return .closed [] else return .stuck [goal]
+  let k := fun goal => do
+    if goal.inconsistent then
+      return .closed []
+    else if (← getConfig).trace then
+      goal.mvarId.admit
+      let sorryTac ← `(grind| sorry)
+      return .closed [sorryTac]
+    else
+      return .stuck [goal]
   a goal k k
 
 /--
@@ -151,8 +140,16 @@ Executes `x`, but behaves like a `skip` if it is not applicable.
 def skipIfNA (x : Action) : Action := fun goal _ kp =>
   x goal kp kp
 
-def mkGrindSeq (s : List (TSyntax `grind)) : TSyntax ``Parser.Tactic.Grind.grindSeq :=
-  let s := s.map (·.raw)
+/-- ``TSyntax `grind`` => ``TSyntax `Lean.Parser.Tactic.Grind.grindStep`` -/
+def mkGrindStep (t : TGrind) : TGrindStep :=
+  mkNode ``Parser.Tactic.Grind.grindStep #[ t, mkNullNode ]
+
+def TGrindStep.getTactic : TGrindStep → TGrind
+  | `(Parser.Tactic.Grind.grindStep| $tac:grind $[| $_]?) => tac
+  | _ => ⟨mkNullNode⟩
+
+def mkGrindSeq (s : List TGrind) : TSyntax ``Parser.Tactic.Grind.grindSeq :=
+  let s := s.map fun tac => (mkGrindStep tac).raw
   let s := s.intersperse (mkNullNode #[])
   mkNode ``Parser.Tactic.Grind.grindSeq #[
   mkNode ``Parser.Tactic.Grind.grindSeq1Indented #[
@@ -162,24 +159,36 @@ def mkGrindSeq (s : List (TSyntax `grind)) : TSyntax ``Parser.Tactic.Grind.grind
 /--
 Given `[t₁, ..., tₙ]`, returns
 ```
-next =>
-  t₁
+· t₁
   ...
   tₙ
 ```
-If the list is empty, it returns `next => done`.
+If the list is empty, it returns `· done`.
 -/
-def mkGrindNext (s : List (TSyntax `grind)) : CoreM (TSyntax `grind) := do
+def mkGrindNext (s : List TGrind) : CoreM TGrind := do
   let s ← if s == [] then pure [← `(grind| done)] else pure s
   let s := mkGrindSeq s
-  `(grind| next => $s:grindSeq)
+  `(grind| · $s:grindSeq)
+
+/--
+Given `[t₁, ..., tₙ]`, returns
+```
+(t₁
+ ...
+ tₙ)
+```
+If the list is empty, it returns `(skip)`.
+-/
+private def mkGrindParen (s : List TGrind) : CoreM TGrind := do
+  let s ← if s == [] then pure [← `(grind| skip)] else pure s
+  let s := mkGrindSeq s
+  `(grind| ($s:grindSeq))
 
 /--
 If tracing is enabled and continuation produced `.closed [t₁, ..., tₙ]`,
 returns the singleton sequence `[t]` where `t` is
 ```
-next =>
-  t₁
+· t₁
   ...
   tₙ
 ```
@@ -194,7 +203,7 @@ def group : Action := fun goal _ kp => do
     return r
 
 /--
-If tracing is enabled and continuation produced `.closed [(next => t₁; ...; tₙ)]`,
+If tracing is enabled and continuation produced `.closed [(next => t₁; ...; tₙ)]` or its variant using `·`
 returns `.close [t₁, ... tₙ]`
 -/
 def ungroup : Action := fun goal _ kp => do
@@ -203,7 +212,9 @@ def ungroup : Action := fun goal _ kp => do
     match r with
     | .closed [tac] =>
       match tac with
-      | `(grind| next => $seq;*) => return .closed seq.getElems.toList
+      | `(grind| next => $seq;*)
+      | `(grind| · $seq;*) =>
+        return .closed <| seq.getElems.toList.map TGrindStep.getTactic
       | _ => return r
     | _ => return r
   else
@@ -214,7 +225,7 @@ Appends a new tactic syntax to a successful result.
 Used by leaf actions to record the tactic that produced progress.
 If `(← getConfig).trace` is `false`, it just returns `r`.
 -/
-def concatTactic (r : ActionResult) (mk : GrindM (TSyntax `grind)) : GrindM ActionResult := do
+def concatTactic (r : ActionResult) (mk : GrindM TGrind) : GrindM ActionResult := do
   if (← getConfig).trace then
     match r with
     | .closed seq =>
@@ -225,7 +236,7 @@ def concatTactic (r : ActionResult) (mk : GrindM (TSyntax `grind)) : GrindM Acti
     return r
 
 /-- Returns `.closed [← mk]` if tracing is enabled, and `.closed []` otherwise. -/
-def closeWith (mk : GrindM (TSyntax `grind)) : GrindM ActionResult := do
+def closeWith (mk : GrindM TGrind) : GrindM ActionResult := do
   if (← getConfig).trace then
     return .closed [(← mk)]
   else
@@ -236,11 +247,104 @@ A terminal action which closes the goal or not.
 This kind of action may make progress, but we only include `mkTac` into the resulting tactic sequence
 if it closed the goal.
 -/
-public def terminalAction (check : GoalM Bool) (mkTac : GrindM (TSyntax `grind)) : Action := fun goal kna kp => do
+def terminalAction (check : GoalM Bool) (mkTac : GrindM TGrind) : Action := fun goal kna kp => do
   let (progress, goal') ← GoalM.run goal check
   if progress then
     if goal'.inconsistent then
       closeWith mkTac
+    else
+      kp goal'
+  else
+    kna goal'
+
+def saveStateIfTracing : GrindM (Option SavedState) := do
+  if (← getConfig).trace then
+    return some (← saveState)
+  else
+    return none
+/--
+Returns `true` if the tactic sequence `seq` closes `goal` starting at saved state `s?`.
+If `s?` is `none` just returns `true`.
+-/
+def checkSeqAt (s? : Option SavedState) (goal : Goal) (seq : List TGrind) : GrindM Bool := do
+  let some s := s? | return true
+  Lean.withoutModifyingState do
+    s.restore
+    let tac ← mkGrindParen seq
+    -- **Note**: Ensure tracing is disabled.
+    withTheReader Grind.Context (fun ctx => { ctx with config.trace := false }) do
+      try
+        let subgoals ← evalTactic goal tac
+        return subgoals.isEmpty
+      catch _  =>
+        return false
+
+/--
+Helper action that checks whether the resulting tactic script produced by its continuation
+can close the original goal.
+If `warnOnly = true`, just generates a warning message instead of an error
+-/
+def checkTactic (warnOnly : Bool) : Action := fun goal _ kp => do
+  let s ← saveStateIfTracing
+  let r ← kp goal
+  match r with
+  | .closed seq =>
+    unless (← checkSeqAt s goal seq) do
+      let m := m!"generated tactic cannot close the goal{indentD (← mkGrindNext seq)}\nInitial goal\n{goal.mvarId}"
+      if warnOnly then
+        logWarning m
+      else
+        throwError m
+    return r
+  | _ => return r
+
+/--
+Helper action for satellite solvers that use `CheckResult`.
+-/
+def solverAction (check : GoalM CheckResult) (mkTac : GrindM TGrind) : Action := fun goal kna kp => do
+  let saved? ← saveStateIfTracing
+  let (result, goal') ← GoalM.run goal check
+  match result with
+  | .none       => kna goal'
+  | .progress   => kp goal'
+  | .propagated =>
+    let goal' ← GoalM.run' goal' processNewFacts
+    if goal'.inconsistent then
+      closeWith mkTac
+    else if (← getConfig).trace then
+      match (← kp goal') with
+      | .closed seq =>
+        /-
+        **Note**: Check whether the progress made by this solver was actually used to close the goal.
+        This is not just an optimization, if we include an unnecessary step, we may fail to replay
+        the generated script when `cases` steps are pruned using non-chronological backtracking (NCB).
+        For example, when executing `finish?`, we may have performed a `cases #<anchor>` step
+        that enabled `ring` to propagate a new fact. If this fact is not used in the final proof,
+        and the corresponding `cases #<anchor>` step is pruned by NCB, the `ring` step will fail during replay.
+        -/
+        if (← checkSeqAt saved? goal seq) then
+          return .closed seq
+        else
+          let tac ← mkTac
+          return .closed (tac :: seq)
+      | r => return r
+    else
+      kp goal'
+  | .closed     => closeWith mkTac
+
+def mbtc : Action := fun goal kna kp => do
+  let saved? ← saveStateIfTracing
+  let (progress, goal') ← GoalM.run goal Solvers.mbtc
+  if progress then
+    if (← getConfig).trace then
+      match (← kp goal') with
+      | .closed seq =>
+        if (← checkSeqAt saved? goal seq) then
+          return .closed seq
+        else
+          let tac ← `(grind| mbtc)
+          return .closed (tac :: seq)
+      | r => return r
     else
       kp goal'
   else

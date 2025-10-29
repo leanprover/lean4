@@ -60,7 +60,7 @@ private def isNonTrivialIsCharInst (isCharInst? : Option (Expr × Nat)) : Bool :
   | none => false
 
 private def isCutsatType (type : Expr) : GoalM Bool := do
-  if (← getConfig).cutsat then
+  if (← getConfig).lia then
     if (← Cutsat.isSupportedType type) then
       -- If `type` is supported by cutsat, let it handle
       return true

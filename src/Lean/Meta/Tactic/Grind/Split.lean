@@ -7,11 +7,11 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.SearchM
 public import Lean.Meta.Tactic.Grind.Action
+public import Lean.Meta.Tactic.Grind.Anchor
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Internalize
-import Lean.Meta.Tactic.Grind.Anchor
 public section
 namespace Lean.Meta.Grind
 
@@ -242,9 +242,19 @@ private def casesWithTrace (mvarId : MVarId) (major : Expr) : GoalM (List MVarId
       saveCases declName false
   cases mvarId major
 
+structure SplitCandidateWithAnchor where
+  c        : SplitInfo
+  numCases : Nat
+  isRec    : Bool
+  e        : Expr
+  anchor   : UInt64
+
+instance : HasAnchor SplitCandidateWithAnchor where
+  getAnchor e := e.anchor
+
 structure SplitCandidateAnchors where
   /-- Pairs `(anchor, split)` -/
-  candidates : Array (UInt64 × Expr)
+  candidates : Array SplitCandidateWithAnchor
   /-- Number of digits (≥ 4) sufficient for distinguishing anchors. We usually display only the first `numDigits`. -/
   numDigits  : Nat
 
@@ -254,20 +264,22 @@ Applies additional `filter` if provided.
 -/
 def getSplitCandidateAnchors (filter : Expr → GoalM Bool := fun _ => return true) : GoalM SplitCandidateAnchors := do
   let candidates := (← get).split.candidates
-  let candidates ← candidates.toArray.mapM fun c => do
+  let candidates ← candidates.toArray.filterMapM fun c => do
     let e := c.getExpr
     let anchor ← getAnchor e
     let status ← checkSplitStatus c
-    return (e, status, anchor)
-  let candidates ← candidates.filterM fun (e, status, _) => do
     -- **Note**: we ignore case-splits that are not ready or have already been resolved.
     -- We may consider adding an option for including "not-ready" splits in the future.
-    if status matches .resolved | .notReady then return false
-    filter e
+    match status with
+    | .resolved | .notReady => return none
+    | .ready numCases isRec _ =>
+      if (← filter e) then
+        return some { e, c, numCases, isRec, anchor }
+      else
+        return none
   -- **TODO**: Add an option for including propositions that are only considered when using `+splitImp`
   -- **TODO**: Add an option for including terms whose type is an inductive predicate or type
-  let candidates := candidates.map fun (e, _, anchor) => (anchor, e)
-  let (candidates, numDigits) := truncateAnchors candidates
+  let numDigits := getNumDigitsForAnchors candidates
   return { candidates, numDigits }
 
 namespace Action
@@ -282,7 +294,12 @@ hypotheses introduced during case analysis. If the proof is of the form `fun _ _
 -/
 private def getFalseProof? (mvarId : MVarId) : MetaM (Option Expr) := mvarId.withContext do
   let proof ← instantiateMVars (mkMVar mvarId)
-  go proof
+  if proof.hasSyntheticSorry then
+    /- **Note**: We do not perform non-chronological backtracking if the proof
+    contains synthetic `sorry`. -/
+    return none
+  else
+    go proof
 where
   go (proof : Expr) : MetaM (Option Expr) := do
     match_expr proof with
@@ -305,6 +322,7 @@ where
 private def isCompressibleSeq (seq : List (TSyntax `grind)) : Bool :=
   seq.all fun tac => match tac with
     | `(grind| next $_* => $_:grindSeq) => false
+    | `(grind| · $_:grindSeq) => false
     | _ => true
 
 /--
@@ -332,11 +350,25 @@ private def isCompressibleAlts (alts : Array (List (TSyntax `grind))) : Bool :=
   else
     true
 
+def isSorryAlt (alt : List (TSyntax `grind)) : Bool :=
+  match alt with
+  | [tac] => match tac with
+    | `(grind| sorry) => true
+    | _ => false
+  | _ => false
+
 private def mkCasesResultSeq (cases : TSyntax `grind) (alts : Array (List (TSyntax `grind)))
     (compress : Bool) : CoreM (List (TSyntax `grind)) := do
   if compress && isCompressibleAlts alts then
-    if h : alts.size > 0 then
-      return [(← mkCasesAndThen cases alts[0]!)]
+    if alts.size > 0 then
+      let firstAlt := alts[0]!
+      if isSorryAlt firstAlt then
+        /-
+        **Note**: It is a bit pointless to return a script of the form `cases #<anchor> <;> sorry`
+        -/
+        return firstAlt
+      else
+        return [(← mkCasesAndThen cases firstAlt)]
     else
       return [cases]
   else
@@ -350,7 +382,7 @@ private def mkCasesResultSeq (cases : TSyntax `grind) (alts : Array (List (TSynt
 Performs a case-split using `c`.
 Remark: `numCases` and `isRec` are computed using `checkSplitStatus`.
 -/
-private def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
+def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
     (stopAtFirstFailure : Bool)
     (compress : Bool) : Action := fun goal _ kp => do
   let traceEnabled := (← getConfig).trace
@@ -402,9 +434,7 @@ private def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
   if stuckNew.isEmpty then
     if traceEnabled then
       let anchor ← goal.withContext <| getAnchor cExpr
-      let anchorPrefix := anchor >>> (64 - 4*numDigits.toUInt64)
-      let hexnum := mkNode `hexnum #[mkAtom (anchorToString numDigits anchorPrefix)]
-      let cases ← `(grind| cases #$hexnum)
+      let cases ← `(grind| cases $(← mkAnchorSyntax numDigits anchor):anchor)
       return .closed (← mkCasesResultSeq cases seqNew compress)
     else
       return .closed []
@@ -434,7 +464,7 @@ def splitNext (stopAtFirstFailure := true) (compress := true) : Action := fun go
     | kna goal
   let cExpr := c.getExpr
   let gen := goal.getGeneration cExpr
-  let x : Action := splitCore c numCases isRec stopAtFirstFailure compress >> intros gen
+  let x : Action := splitCore c numCases isRec stopAtFirstFailure compress >> intros gen >> assertAll
   x goal kna kp
 
 end Action
@@ -493,7 +523,7 @@ Tries to perform a case-split using `c`. Returns `none` if `c` has already been 
 is not ready.
 -/
 def split? (c : SplitInfo) : SearchM (Option (List Goal × Nat)) := do
-  let .ready numCases isRec ← checkSplitStatus c | return none
+  let .ready numCases isRec _ ← checkSplitStatus c | return none
   let mvarId := (← getGoal).mvarId
   return some (← splitCore mvarId c numCases isRec)
 

@@ -41,10 +41,6 @@ theorem Raw₀.buckets_emptyWithCapacity {c} {i : Nat} {h} :
     (emptyWithCapacity c : Raw₀ α β).1.buckets[i]'h = AssocList.nil := by
   simp [emptyWithCapacity]
 
-set_option linter.missingDocs false in
-@[deprecated Raw₀.buckets_emptyWithCapacity (since := "2025-03-12")]
-abbrev Raw₀.buckets_empty := @Raw₀.buckets_emptyWithCapacity
-
 @[simp]
 theorem Raw.buckets_emptyWithCapacity {c} {i : Nat} {h} :
     (Raw.emptyWithCapacity c : Raw α β).buckets[i]'h = AssocList.nil := by
@@ -54,10 +50,6 @@ theorem Raw.buckets_emptyWithCapacity {c} {i : Nat} {h} :
 theorem Raw.buckets_empty {i : Nat} {h} :
     (∅ : Raw α β).buckets[i]'h = AssocList.nil :=
   buckets_emptyWithCapacity
-
-set_option linter.missingDocs false in
-@[deprecated Raw.buckets_empty (since := "2025-03-12")]
-abbrev Raw.buckets_emptyc := @Raw.buckets_empty
 
 variable [BEq α] [Hashable α]
 
@@ -71,10 +63,6 @@ theorem buckets_empty {i : Nat} {h} :
     (∅ : DHashMap α β).1.buckets[i]'h = AssocList.nil :=
   buckets_emptyWithCapacity
 
-set_option linter.missingDocs false in
-@[deprecated buckets_empty (since := "2025-03-12")]
-abbrev buckets_emptyc := @buckets_empty
-
 end empty
 
 namespace Raw₀
@@ -83,10 +71,6 @@ variable (m : Raw₀ α β)
 
 @[simp]
 theorem size_emptyWithCapacity {c} : (emptyWithCapacity c : Raw₀ α β).1.size = 0 := (rfl)
-
-set_option linter.missingDocs false in
-@[deprecated size_emptyWithCapacity (since := "2025-03-12")]
-abbrev size_empty := @size_emptyWithCapacity
 
 theorem isEmpty_eq_size_eq_zero : m.1.isEmpty = (m.1.size == 0) := by
   simp [Raw.isEmpty]
@@ -205,10 +189,6 @@ macro_rules
 theorem isEmpty_emptyWithCapacity {c} : (emptyWithCapacity c : Raw₀ α β).1.isEmpty := by
   rw [Raw.isEmpty_eq_isEmpty wfImp_emptyWithCapacity, toListModel_buckets_emptyWithCapacity, List.isEmpty_nil]
 
-set_option linter.missingDocs false in
-@[deprecated isEmpty_emptyWithCapacity (since := "2025-03-12")]
-abbrev isEmpty_empty := @isEmpty_emptyWithCapacity
-
 @[simp]
 theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {v : β k} :
     (m.insert k v).1.isEmpty = false := by
@@ -221,10 +201,6 @@ theorem contains_congr [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a b : α}
 @[simp]
 theorem contains_emptyWithCapacity {a : α} {c : Nat} : (emptyWithCapacity c : Raw₀ α β).contains a = false := by
   simp [contains]
-
-set_option linter.missingDocs false in
-@[deprecated contains_emptyWithCapacity (since := "2025-03-12")]
-abbrev contains_empty := @contains_emptyWithCapacity
 
 theorem contains_of_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} :
     m.1.isEmpty = true → m.contains a = false := by
@@ -265,10 +241,6 @@ theorem size_insert_le [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {
 @[simp]
 theorem erase_emptyWithCapacity {k : α} {c : Nat} : (emptyWithCapacity c : Raw₀ α β).erase k = emptyWithCapacity c := by
   simp [erase, emptyWithCapacity]
-
-set_option linter.missingDocs false in
-@[deprecated erase_emptyWithCapacity (since := "2025-03-12")]
-abbrev erase_empty := @erase_emptyWithCapacity
 
 theorem isEmpty_erase [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
     (m.erase k).1.isEmpty = (m.1.isEmpty || (m.1.size == 1 && m.contains k)) := by
@@ -316,10 +288,6 @@ theorem containsThenInsertIfNew_snd {k : α} {v : β k} :
 theorem get?_emptyWithCapacity [LawfulBEq α] {a : α} {c} : (emptyWithCapacity c : Raw₀ α β).get? a = none := by
   simp [get?]
 
-set_option linter.missingDocs false in
-@[deprecated get?_emptyWithCapacity (since := "2025-03-12")]
-abbrev get?_empty := @get?_emptyWithCapacity
-
 theorem get?_of_isEmpty [LawfulBEq α] (h : m.1.WF) {a : α} :
     m.1.isEmpty = true → m.get? a = none := by
   simp_to_model [isEmpty, get?]; empty
@@ -358,10 +326,6 @@ variable {β : Type v} (m : Raw₀ α (fun _ => β)) (h : m.1.WF)
 @[simp]
 theorem get?_emptyWithCapacity {a : α} {c} : get? (emptyWithCapacity c : Raw₀ α (fun _ => β)) a = none := by
   simp [get?]
-
-set_option linter.missingDocs false in
-@[deprecated get?_emptyWithCapacity (since := "2025-03-12")]
-abbrev get?_empty := @get?_emptyWithCapacity
 
 theorem get?_of_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} :
     m.1.isEmpty = true → get? m a = none := by
@@ -460,10 +424,6 @@ theorem get!_emptyWithCapacity [LawfulBEq α] {a : α} [Inhabited (β a)] {c} :
     (emptyWithCapacity c : Raw₀ α β).get! a = default := by
   simp [get!, emptyWithCapacity]
 
-set_option linter.missingDocs false in
-@[deprecated get!_emptyWithCapacity (since := "2025-03-12")]
-abbrev get!_empty := @get!_emptyWithCapacity
-
 theorem get!_of_isEmpty [LawfulBEq α] (h : m.1.WF) {a : α} [Inhabited (β a)] :
     m.1.isEmpty = true → m.get! a = default := by
   simp_to_model [isEmpty, get!]; empty
@@ -508,10 +468,6 @@ variable {β : Type v} (m : Raw₀ α (fun _ => β)) (h : m.1.WF)
 theorem get!_emptyWithCapacity [Inhabited β] {a : α} {c} :
     get! (emptyWithCapacity c : Raw₀ α (fun _ => β)) a = default := by
   simp [get!, emptyWithCapacity]
-
-set_option linter.missingDocs false in
-@[deprecated get!_emptyWithCapacity (since := "2025-03-12")]
-abbrev get!_empty := @get!_emptyWithCapacity
 
 theorem get!_of_isEmpty [EquivBEq α] [LawfulHashable α] [Inhabited β] (h : m.1.WF) {a : α} :
     m.1.isEmpty = true → get! m a = default := by
@@ -563,10 +519,6 @@ theorem getD_emptyWithCapacity [LawfulBEq α] {a : α} {fallback : β a} {c} :
     (emptyWithCapacity c : Raw₀ α β).getD a fallback = fallback := by
   simp [getD, emptyWithCapacity]
 
-set_option linter.missingDocs false in
-@[deprecated getD_emptyWithCapacity (since := "2025-03-12")]
-abbrev getD_empty := @getD_emptyWithCapacity
-
 theorem getD_of_isEmpty [LawfulBEq α] (h : m.1.WF) {a : α} {fallback : β a} :
     m.1.isEmpty = true → m.getD a fallback = fallback := by
   simp_to_model [isEmpty, getD]; empty
@@ -615,10 +567,6 @@ variable {β : Type v} (m : Raw₀ α (fun _ => β)) (h : m.1.WF)
 theorem getD_emptyWithCapacity {a : α} {fallback : β} {c} :
     getD (emptyWithCapacity c : Raw₀ α (fun _ => β)) a fallback = fallback := by
   simp [getD, emptyWithCapacity]
-
-set_option linter.missingDocs false in
-@[deprecated getD_emptyWithCapacity (since := "2025-03-12")]
-abbrev getD_empty := @getD_emptyWithCapacity
 
 theorem getD_of_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} {fallback : β} :
     m.1.isEmpty = true → getD m a fallback = fallback := by
@@ -673,10 +621,6 @@ end Const
 @[simp]
 theorem getKey?_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : Raw₀ α β).getKey? a = none := by
   simp [getKey?]
-
-set_option linter.missingDocs false in
-@[deprecated getKey?_emptyWithCapacity (since := "2025-03-12")]
-abbrev getKey?_empty := @getKey?_emptyWithCapacity
 
 theorem getKey?_of_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} :
     m.1.isEmpty = true → m.getKey? a = none := by
@@ -766,10 +710,6 @@ theorem getKey!_emptyWithCapacity {a : α} [Inhabited α] {c} :
     (emptyWithCapacity c : Raw₀ α β).getKey! a = default := by
   simp [getKey!, emptyWithCapacity]
 
-set_option linter.missingDocs false in
-@[deprecated getKey!_emptyWithCapacity (since := "2025-03-12")]
-abbrev getKey!_empty := @getKey!_emptyWithCapacity
-
 theorem getKey!_of_isEmpty [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.1.WF) {a : α} :
     m.1.isEmpty = true → m.getKey! a = default := by
   simp_to_model [isEmpty, getKey!]; empty;
@@ -818,10 +758,6 @@ theorem getKey!_eq_of_contains [LawfulBEq α] [Inhabited α] (h : m.1.WF) {k : �
 theorem getKeyD_emptyWithCapacity {a : α} {fallback : α} {c} :
     (emptyWithCapacity c : Raw₀ α β).getKeyD a fallback = fallback := by
   simp [getKeyD, emptyWithCapacity]
-
-set_option linter.missingDocs false in
-@[deprecated getKeyD_emptyWithCapacity (since := "2025-03-12")]
-abbrev getKeyD_empty := @getKeyD_emptyWithCapacity
 
 theorem getKeyD_of_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a fallback : α} :
     m.1.isEmpty = true → m.getKeyD a fallback = fallback := by
@@ -2046,36 +1982,20 @@ theorem insertMany_emptyWithCapacity_list_nil :
     (insertMany emptyWithCapacity ([] : List ((a : α) × (β a)))).1 = emptyWithCapacity := by
   simp
 
-set_option linter.missingDocs false in
-@[deprecated insertMany_emptyWithCapacity_list_nil (since := "2025-03-12")]
-abbrev insertMany_empty_list_nil := @insertMany_emptyWithCapacity_list_nil
-
 @[simp]
 theorem insertMany_emptyWithCapacity_list_singleton {k : α} {v : β k} :
     (insertMany emptyWithCapacity [⟨k, v⟩]).1 = emptyWithCapacity.insert k v := by
   simp
-
-set_option linter.missingDocs false in
-@[deprecated insertMany_emptyWithCapacity_list_singleton (since := "2025-03-12")]
-abbrev insertMany_empty_list_singleton := @insertMany_emptyWithCapacity_list_singleton
 
 theorem insertMany_emptyWithCapacity_list_cons {k : α} {v : β k}
     {tl : List ((a : α) × (β a))} :
     (insertMany emptyWithCapacity (⟨k, v⟩ :: tl)).1 = ((emptyWithCapacity.insert k v).insertMany tl).1 := by
   rw [insertMany_cons]
 
-set_option linter.missingDocs false in
-@[deprecated insertMany_emptyWithCapacity_list_cons (since := "2025-03-12")]
-abbrev insertMany_empty_list_cons := @insertMany_emptyWithCapacity_list_cons
-
 theorem contains_insertMany_emptyWithCapacity_list [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} {k : α} :
     (insertMany emptyWithCapacity l).1.contains k = (l.map Sigma.fst).contains k := by
   simp [contains_insertMany_list _ Raw.WF.emptyWithCapacity₀]
-
-set_option linter.missingDocs false in
-@[deprecated contains_insertMany_emptyWithCapacity_list (since := "2025-03-12")]
-abbrev contains_insertMany_empty_list := @contains_insertMany_emptyWithCapacity_list
 
 theorem get?_insertMany_emptyWithCapacity_list_of_contains_eq_false [LawfulBEq α]
     {l : List ((a : α) × β a)} {k : α}
@@ -2083,20 +2003,12 @@ theorem get?_insertMany_emptyWithCapacity_list_of_contains_eq_false [LawfulBEq �
     (insertMany emptyWithCapacity l).1.get? k = none := by
   simp [get?_insertMany_list_of_contains_eq_false _ Raw.WF.emptyWithCapacity₀ h]
 
-set_option linter.missingDocs false in
-@[deprecated get?_insertMany_emptyWithCapacity_list_of_contains_eq_false (since := "2025-03-12")]
-abbrev get?_insertMany_empty_list_of_contains_eq_false := @get?_insertMany_emptyWithCapacity_list_of_contains_eq_false
-
 theorem get?_insertMany_emptyWithCapacity_list_of_mem [LawfulBEq α]
     {l : List ((a : α) × β a)} {k k' : α} (k_beq : k == k') {v : β k}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ l) :
     (insertMany emptyWithCapacity l).1.get? k' = some (cast (by congr; apply LawfulBEq.eq_of_beq k_beq) v) := by
   rw [get?_insertMany_list_of_mem _ Raw.WF.emptyWithCapacity₀ k_beq distinct mem]
-
-set_option linter.missingDocs false in
-@[deprecated get?_insertMany_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
-abbrev get?_insertMany_empty_list_of_mem := @get?_insertMany_emptyWithCapacity_list_of_mem
 
 theorem get_insertMany_emptyWithCapacity_list_of_mem [LawfulBEq α]
     {l : List ((a : α) × β a)} {k k' : α} (k_beq : k == k') {v : β k}
@@ -2106,20 +2018,12 @@ theorem get_insertMany_emptyWithCapacity_list_of_mem [LawfulBEq α]
     (insertMany emptyWithCapacity l).1.get k' h = cast (by congr; apply LawfulBEq.eq_of_beq k_beq) v := by
   rw [get_insertMany_list_of_mem _ Raw.WF.emptyWithCapacity₀ k_beq distinct mem]
 
-set_option linter.missingDocs false in
-@[deprecated get_insertMany_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
-abbrev get_insertMany_empty_list_of_mem := @get_insertMany_emptyWithCapacity_list_of_mem
-
 theorem get!_insertMany_emptyWithCapacity_list_of_contains_eq_false [LawfulBEq α]
     {l : List ((a : α) × β a)} {k : α} [Inhabited (β k)]
     (h : (l.map Sigma.fst).contains k = false) :
     (insertMany emptyWithCapacity l).1.get! k = default := by
   simp only [get!_insertMany_list_of_contains_eq_false _ Raw.WF.emptyWithCapacity₀ h]
   apply get!_emptyWithCapacity
-
-set_option linter.missingDocs false in
-@[deprecated get!_insertMany_emptyWithCapacity_list_of_contains_eq_false (since := "2025-03-12")]
-abbrev get!_insertMany_empty_list_of_contains_eq_false := @get!_insertMany_emptyWithCapacity_list_of_contains_eq_false
 
 theorem get!_insertMany_emptyWithCapacity_list_of_mem [LawfulBEq α]
     {l : List ((a : α) × β a)} {k k' : α} (k_beq : k == k') {v : β k} [Inhabited (β k')]
@@ -2128,20 +2032,12 @@ theorem get!_insertMany_emptyWithCapacity_list_of_mem [LawfulBEq α]
     (insertMany emptyWithCapacity l).1.get! k' = cast (by congr; apply LawfulBEq.eq_of_beq k_beq) v := by
   rw [get!_insertMany_list_of_mem _ Raw.WF.emptyWithCapacity₀ k_beq distinct mem]
 
-set_option linter.missingDocs false in
-@[deprecated get!_insertMany_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
-abbrev get!_insertMany_empty_list_of_mem := @get!_insertMany_emptyWithCapacity_list_of_mem
-
 theorem getD_insertMany_emptyWithCapacity_list_of_contains_eq_false [LawfulBEq α]
     {l : List ((a : α) × β a)} {k : α} {fallback : β k}
     (contains_eq_false : (l.map Sigma.fst).contains k = false) :
     (insertMany emptyWithCapacity l).1.getD k fallback = fallback := by
   rw [getD_insertMany_list_of_contains_eq_false _ Raw.WF.emptyWithCapacity₀ contains_eq_false]
   apply getD_emptyWithCapacity
-
-set_option linter.missingDocs false in
-@[deprecated getD_insertMany_emptyWithCapacity_list_of_contains_eq_false (since := "2025-03-12")]
-abbrev getD_insertMany_empty_list_of_contains_eq_false := @getD_insertMany_emptyWithCapacity_list_of_contains_eq_false
 
 theorem getD_insertMany_emptyWithCapacity_list_of_mem [LawfulBEq α]
     {l : List ((a : α) × β a)} {k k' : α} (k_beq : k == k') {v : β k} {fallback : β k'}
@@ -2151,20 +2047,12 @@ theorem getD_insertMany_emptyWithCapacity_list_of_mem [LawfulBEq α]
       cast (by congr; apply LawfulBEq.eq_of_beq k_beq) v := by
   rw [getD_insertMany_list_of_mem _ Raw.WF.emptyWithCapacity₀ k_beq distinct mem]
 
-set_option linter.missingDocs false in
-@[deprecated getD_insertMany_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
-abbrev getD_insertMany_empty_list_of_mem := @getD_insertMany_emptyWithCapacity_list_of_mem
-
 theorem getKey?_insertMany_emptyWithCapacity_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} {k : α}
     (h : (l.map Sigma.fst).contains k = false) :
     (insertMany emptyWithCapacity l).1.getKey? k = none := by
   rw [getKey?_insertMany_list_of_contains_eq_false _ Raw.WF.emptyWithCapacity₀ h]
   apply getKey?_emptyWithCapacity
-
-set_option linter.missingDocs false in
-@[deprecated getKey?_insertMany_emptyWithCapacity_list_of_contains_eq_false (since := "2025-03-12")]
-abbrev getKey?_insertMany_empty_list_of_contains_eq_false := @getKey?_insertMany_emptyWithCapacity_list_of_contains_eq_false
 
 theorem getKey?_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)}
@@ -2173,10 +2061,6 @@ theorem getKey?_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHa
     (mem : k ∈ l.map Sigma.fst) :
     (insertMany emptyWithCapacity l).1.getKey? k' = some k := by
   rw [getKey?_insertMany_list_of_mem _ Raw.WF.emptyWithCapacity₀ k_beq distinct mem]
-
-set_option linter.missingDocs false in
-@[deprecated getKey?_insertMany_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
-abbrev getKey?_insertMany_empty_list_of_mem := @getKey?_insertMany_emptyWithCapacity_list_of_mem
 
 theorem getKey_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)}
@@ -2187,20 +2071,12 @@ theorem getKey_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHas
     (insertMany emptyWithCapacity l).1.getKey k' h' = k := by
   rw [getKey_insertMany_list_of_mem _ Raw.WF.emptyWithCapacity₀ k_beq distinct mem]
 
-set_option linter.missingDocs false in
-@[deprecated getKey_insertMany_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
-abbrev getKey_insertMany_empty_list_of_mem := @getKey_insertMany_emptyWithCapacity_list_of_mem
-
 theorem getKey!_insertMany_emptyWithCapacity_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     [Inhabited α] {l : List ((a : α) × β a)} {k : α}
     (h : (l.map Sigma.fst).contains k = false) :
     (insertMany emptyWithCapacity l).1.getKey! k = default := by
   rw [getKey!_insertMany_list_of_contains_eq_false _ Raw.WF.emptyWithCapacity₀ h]
   apply getKey!_emptyWithCapacity
-
-set_option linter.missingDocs false in
-@[deprecated getKey!_insertMany_emptyWithCapacity_list_of_contains_eq_false (since := "2025-03-12")]
-abbrev getKey!_insertMany_empty_list_of_contains_eq_false := @getKey!_insertMany_emptyWithCapacity_list_of_contains_eq_false
 
 theorem getKey!_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHashable α] [Inhabited α]
     {l : List ((a : α) × β a)}
@@ -2210,20 +2086,12 @@ theorem getKey!_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHa
     (insertMany emptyWithCapacity l).1.getKey! k' = k := by
   rw [getKey!_insertMany_list_of_mem _ Raw.WF.emptyWithCapacity₀ k_beq distinct mem]
 
-set_option linter.missingDocs false in
-@[deprecated getKey!_insertMany_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
-abbrev getKey!_insertMany_empty_list_of_mem := @getKey!_insertMany_emptyWithCapacity_list_of_mem
-
 theorem getKeyD_insertMany_emptyWithCapacity_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} {k fallback : α}
     (h : (l.map Sigma.fst).contains k = false) :
     (insertMany emptyWithCapacity l).1.getKeyD k fallback = fallback := by
   rw [getKeyD_insertMany_list_of_contains_eq_false _ Raw.WF.emptyWithCapacity₀ h]
   apply getKeyD_emptyWithCapacity
-
-set_option linter.missingDocs false in
-@[deprecated getKeyD_insertMany_emptyWithCapacity_list_of_contains_eq_false (since := "2025-03-12")]
-abbrev getKeyD_insertMany_empty_list_of_contains_eq_false := @getKeyD_insertMany_emptyWithCapacity_list_of_contains_eq_false
 
 theorem getKeyD_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)}
@@ -2233,10 +2101,6 @@ theorem getKeyD_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHa
     (insertMany emptyWithCapacity l).1.getKeyD k' fallback = k := by
   rw [getKeyD_insertMany_list_of_mem _ Raw.WF.emptyWithCapacity₀ k_beq distinct mem]
 
-set_option linter.missingDocs false in
-@[deprecated getKeyD_insertMany_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
-abbrev getKeyD_insertMany_empty_list_of_mem := @getKeyD_insertMany_emptyWithCapacity_list_of_mem
-
 theorem size_insertMany_emptyWithCapacity_list [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
     (insertMany emptyWithCapacity l).1.1.size = l.length := by
@@ -2244,28 +2108,16 @@ theorem size_insertMany_emptyWithCapacity_list [EquivBEq α] [LawfulHashable α]
   · simp only [size_emptyWithCapacity, Nat.zero_add]
   · simp only [contains_emptyWithCapacity, Bool.false_eq_true, false_implies, implies_true]
 
-set_option linter.missingDocs false in
-@[deprecated size_insertMany_emptyWithCapacity_list (since := "2025-03-12")]
-abbrev size_insertMany_empty_list := @size_insertMany_emptyWithCapacity_list
-
 theorem size_insertMany_emptyWithCapacity_list_le [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} :
     (insertMany emptyWithCapacity l).1.1.size ≤ l.length := by
   rw [← Nat.zero_add l.length]
   apply (size_insertMany_list_le _ Raw.WF.emptyWithCapacity₀)
 
-set_option linter.missingDocs false in
-@[deprecated size_insertMany_emptyWithCapacity_list_le (since := "2025-03-12")]
-abbrev size_insertMany_empty_list_le := @size_insertMany_emptyWithCapacity_list_le
-
 theorem isEmpty_insertMany_emptyWithCapacity_list [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} :
     (insertMany emptyWithCapacity l).1.1.isEmpty = l.isEmpty := by
   simp [isEmpty_insertMany_list _ Raw.WF.emptyWithCapacity₀]
-
-set_option linter.missingDocs false in
-@[deprecated isEmpty_insertMany_emptyWithCapacity_list (since := "2025-03-12")]
-abbrev isEmpty_insertMany_empty_list := @isEmpty_insertMany_emptyWithCapacity_list
 
 namespace Const
 variable {β : Type v}
@@ -2275,36 +2127,20 @@ theorem insertMany_emptyWithCapacity_list_nil :
     (insertMany emptyWithCapacity ([] : List (α × β))).1 = emptyWithCapacity := by
   simp only [insertMany_nil]
 
-set_option linter.missingDocs false in
-@[deprecated insertMany_emptyWithCapacity_list_nil (since := "2025-03-12")]
-abbrev insertMany_empty_list_nil := @insertMany_emptyWithCapacity_list_nil
-
 @[simp]
 theorem insertMany_emptyWithCapacity_list_singleton {k : α} {v : β} :
     (insertMany emptyWithCapacity [⟨k, v⟩]).1 = emptyWithCapacity.insert k v := by
   simp only [insertMany_list_singleton]
-
-set_option linter.missingDocs false in
-@[deprecated insertMany_emptyWithCapacity_list_singleton (since := "2025-03-12")]
-abbrev insertMany_empty_list_singleton := @insertMany_emptyWithCapacity_list_singleton
 
 theorem insertMany_emptyWithCapacity_list_cons {k : α} {v : β}
     {tl : List (α × β)} :
     (insertMany emptyWithCapacity (⟨k, v⟩ :: tl)) = (insertMany (emptyWithCapacity.insert k v) tl).1 := by
   rw [insertMany_cons]
 
-set_option linter.missingDocs false in
-@[deprecated insertMany_emptyWithCapacity_list_cons (since := "2025-03-12")]
-abbrev insertMany_empty_list_cons := @insertMany_emptyWithCapacity_list_cons
-
 theorem contains_insertMany_emptyWithCapacity_list [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α} :
     (insertMany emptyWithCapacity l).1.contains k = (l.map Prod.fst).contains k := by
   simp [contains_insertMany_list _ Raw.WF.emptyWithCapacity₀]
-
-set_option linter.missingDocs false in
-@[deprecated contains_insertMany_emptyWithCapacity_list (since := "2025-03-12")]
-abbrev contains_insertMany_empty_list := @contains_insertMany_emptyWithCapacity_list
 
 theorem get?_insertMany_emptyWithCapacity_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α}
@@ -2313,20 +2149,12 @@ theorem get?_insertMany_emptyWithCapacity_list_of_contains_eq_false [EquivBEq α
   rw [get?_insertMany_list_of_contains_eq_false _ Raw.WF.emptyWithCapacity₀ h]
   apply get?_emptyWithCapacity
 
-set_option linter.missingDocs false in
-@[deprecated get?_insertMany_emptyWithCapacity_list_of_contains_eq_false (since := "2025-03-12")]
-abbrev get?_insertMany_empty_list_of_contains_eq_false := @get?_insertMany_emptyWithCapacity_list_of_contains_eq_false
-
 theorem get?_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ l) :
     get? (insertMany (emptyWithCapacity : Raw₀ α (fun _ => β)) l) k' = some v := by
   rw [get?_insertMany_list_of_mem _ Raw.WF.emptyWithCapacity₀ k_beq distinct mem]
-
-set_option linter.missingDocs false in
-@[deprecated get?_insertMany_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
-abbrev get?_insertMany_empty_list_of_mem := @get?_insertMany_emptyWithCapacity_list_of_mem
 
 theorem get_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
@@ -2336,20 +2164,12 @@ theorem get_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHashab
     get (insertMany emptyWithCapacity l) k' h = v := by
   rw [get_insertMany_list_of_mem _ Raw.WF.emptyWithCapacity₀ k_beq distinct mem]
 
-set_option linter.missingDocs false in
-@[deprecated get_insertMany_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
-abbrev get_insertMany_empty_list_of_mem := @get_insertMany_emptyWithCapacity_list_of_mem
-
 theorem get!_insertMany_emptyWithCapacity_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α} [Inhabited β]
     (h : (l.map Prod.fst).contains k = false) :
     get! (insertMany emptyWithCapacity l) k = (default : β) := by
   rw [get!_insertMany_list_of_contains_eq_false _ Raw.WF.emptyWithCapacity₀ h]
   apply get!_emptyWithCapacity
-
-set_option linter.missingDocs false in
-@[deprecated get!_insertMany_emptyWithCapacity_list_of_contains_eq_false (since := "2025-03-12")]
-abbrev get!_insertMany_empty_list_of_contains_eq_false := @get!_insertMany_emptyWithCapacity_list_of_contains_eq_false
 
 theorem get!_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β} [Inhabited β]
@@ -2358,20 +2178,12 @@ theorem get!_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHasha
     get! (insertMany (emptyWithCapacity : Raw₀ α (fun _ => β)) l) k' = v := by
   rw [get!_insertMany_list_of_mem _ Raw.WF.emptyWithCapacity₀ k_beq distinct mem]
 
-set_option linter.missingDocs false in
-@[deprecated get!_insertMany_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
-abbrev get!_insertMany_empty_list_of_mem := @get!_insertMany_emptyWithCapacity_list_of_mem
-
 theorem getD_insertMany_emptyWithCapacity_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α} {fallback : β}
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
     getD (insertMany emptyWithCapacity l) k fallback = fallback := by
   rw [getD_insertMany_list_of_contains_eq_false _ Raw.WF.emptyWithCapacity₀ contains_eq_false]
   apply getD_emptyWithCapacity
-
-set_option linter.missingDocs false in
-@[deprecated getD_insertMany_emptyWithCapacity_list_of_contains_eq_false (since := "2025-03-12")]
-abbrev getD_insertMany_empty_list_of_contains_eq_false := @getD_insertMany_emptyWithCapacity_list_of_contains_eq_false
 
 theorem getD_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β} {fallback : β}
@@ -2380,20 +2192,12 @@ theorem getD_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHasha
     getD (insertMany (emptyWithCapacity : Raw₀ α (fun _ => β)) l) k' fallback = v := by
   rw [getD_insertMany_list_of_mem _ Raw.WF.emptyWithCapacity₀ k_beq distinct mem]
 
-set_option linter.missingDocs false in
-@[deprecated getD_insertMany_empty_list_of_mem (since := "2025-03-12")]
-abbrev getD_insertMany_empty_list_of_mem := @getD_insertMany_emptyWithCapacity_list_of_mem
-
 theorem getKey?_insertMany_emptyWithCapacity_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α}
     (h : (l.map Prod.fst).contains k = false) :
     (insertMany emptyWithCapacity l).1.getKey? k = none := by
   rw [getKey?_insertMany_list_of_contains_eq_false _ Raw.WF.emptyWithCapacity₀ h]
   apply getKey?_emptyWithCapacity
-
-set_option linter.missingDocs false in
-@[deprecated getKey?_insertMany_emptyWithCapacity_list_of_contains_eq_false (since := "2025-03-12")]
-abbrev getKey?_insertMany_empty_list_of_contains_eq_false := @getKey?_insertMany_emptyWithCapacity_list_of_contains_eq_false
 
 theorem getKey?_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)}
@@ -2402,10 +2206,6 @@ theorem getKey?_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHa
     (mem : k ∈ l.map Prod.fst) :
     (insertMany (emptyWithCapacity : Raw₀ α (fun _ => β)) l).1.getKey? k' = some k := by
   rw [getKey?_insertMany_list_of_mem _ Raw.WF.emptyWithCapacity₀ k_beq distinct mem]
-
-set_option linter.missingDocs false in
-@[deprecated getKey?_insertMany_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
-abbrev getKey?_insertMany_empty_list_of_mem := @getKey?_insertMany_emptyWithCapacity_list_of_mem
 
 theorem getKey_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)}
@@ -2416,20 +2216,12 @@ theorem getKey_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHas
     (insertMany (emptyWithCapacity : Raw₀ α (fun _ => β)) l).1.getKey k' h' = k := by
   rw [getKey_insertMany_list_of_mem _ Raw.WF.emptyWithCapacity₀ k_beq distinct mem]
 
-set_option linter.missingDocs false in
-@[deprecated getKey_insertMany_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
-abbrev getKey_insertMany_empty_list_of_mem := @getKey_insertMany_emptyWithCapacity_list_of_mem
-
 theorem getKey!_insertMany_emptyWithCapacity_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     [Inhabited α] {l : List (α × β)} {k : α}
     (h : (l.map Prod.fst).contains k = false) :
     (insertMany emptyWithCapacity l).1.getKey! k = default := by
   rw [getKey!_insertMany_list_of_contains_eq_false _ Raw.WF.emptyWithCapacity₀ h]
   apply getKey!_emptyWithCapacity
-
-set_option linter.missingDocs false in
-@[deprecated getKey!_insertMany_emptyWithCapacity_list_of_contains_eq_false (since := "2025-03-12")]
-abbrev getKey!_insertMany_empty_list_of_contains_eq_false := @getKey!_insertMany_emptyWithCapacity_list_of_contains_eq_false
 
 theorem getKey!_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHashable α] [Inhabited α]
     {l : List (α × β)}
@@ -2439,20 +2231,12 @@ theorem getKey!_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHa
     (insertMany (emptyWithCapacity : Raw₀ α (fun _ => β)) l).1.getKey! k' = k := by
   rw [getKey!_insertMany_list_of_mem _ Raw.WF.emptyWithCapacity₀ k_beq distinct mem]
 
-set_option linter.missingDocs false in
-@[deprecated getKey!_insertMany_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
-abbrev getKey!_insertMany_empty_list_of_mem := @getKey!_insertMany_emptyWithCapacity_list_of_mem
-
 theorem getKeyD_insertMany_emptyWithCapacity_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k fallback : α}
     (h : (l.map Prod.fst).contains k = false) :
     (insertMany (emptyWithCapacity : Raw₀ α (fun _ => β)) l).1.getKeyD k fallback = fallback := by
   rw [getKeyD_insertMany_list_of_contains_eq_false _ Raw.WF.emptyWithCapacity₀ h]
   apply getKeyD_emptyWithCapacity
-
-set_option linter.missingDocs false in
-@[deprecated getKeyD_insertMany_emptyWithCapacity_list_of_contains_eq_false (since := "2025-03-12")]
-abbrev getKeyD_insertMany_empty_list_of_contains_eq_false := @getKeyD_insertMany_emptyWithCapacity_list_of_contains_eq_false
 
 theorem getKeyD_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)}
@@ -2462,10 +2246,6 @@ theorem getKeyD_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHa
     (insertMany (emptyWithCapacity : Raw₀ α (fun _ => β)) l).1.getKeyD k' fallback = k := by
   rw [getKeyD_insertMany_list_of_mem _ Raw.WF.emptyWithCapacity₀ k_beq distinct mem]
 
-set_option linter.missingDocs false in
-@[deprecated getKeyD_insertMany_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
-abbrev getKeyD_insertMany_empty_list_of_mem := @getKeyD_insertMany_emptyWithCapacity_list_of_mem
-
 theorem size_insertMany_emptyWithCapacity_list [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
     (insertMany (emptyWithCapacity : Raw₀ α (fun _ => β)) l).1.1.size = l.length := by
@@ -2473,28 +2253,16 @@ theorem size_insertMany_emptyWithCapacity_list [EquivBEq α] [LawfulHashable α]
   · simp only [size_emptyWithCapacity, Nat.zero_add]
   · simp only [contains_emptyWithCapacity, Bool.false_eq_true, false_implies, implies_true]
 
-set_option linter.missingDocs false in
-@[deprecated size_insertMany_emptyWithCapacity_list (since := "2025-03-12")]
-abbrev size_insertMany_empty_list := @size_insertMany_emptyWithCapacity_list
-
 theorem size_insertMany_emptyWithCapacity_list_le [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} :
     (insertMany (emptyWithCapacity : Raw₀ α (fun _ => β)) l).1.1.size ≤ l.length := by
   rw [← Nat.zero_add l.length]
   apply (size_insertMany_list_le _ Raw.WF.emptyWithCapacity₀)
 
-set_option linter.missingDocs false in
-@[deprecated size_insertMany_emptyWithCapacity_list_le (since := "2025-03-12")]
-abbrev size_insertMany_empty_list_le := @size_insertMany_emptyWithCapacity_list_le
-
 theorem isEmpty_insertMany_emptyWithCapacity_list [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} :
     (insertMany (emptyWithCapacity : Raw₀ α (fun _ => β)) l).1.1.isEmpty = l.isEmpty := by
   simp [isEmpty_insertMany_list _ Raw.WF.emptyWithCapacity₀]
-
-set_option linter.missingDocs false in
-@[deprecated isEmpty_insertMany_emptyWithCapacity_list (since := "2025-03-12")]
-abbrev isEmpty_insertMany_empty_list := @isEmpty_insertMany_emptyWithCapacity_list
 
 @[simp]
 theorem insertManyIfNewUnit_emptyWithCapacity_list_nil :
@@ -2502,36 +2270,20 @@ theorem insertManyIfNewUnit_emptyWithCapacity_list_nil :
       (emptyWithCapacity : Raw₀ α (fun _ => Unit)) := by
   simp
 
-set_option linter.missingDocs false in
-@[deprecated insertManyIfNewUnit_emptyWithCapacity_list_nil (since := "2025-03-12")]
-abbrev insertManyIfNewUnit_empty_list_nil := @insertManyIfNewUnit_emptyWithCapacity_list_nil
-
 @[simp]
 theorem insertManyIfNewUnit_emptyWithCapacity_list_singleton {k : α} :
     (insertManyIfNewUnit (emptyWithCapacity : Raw₀ α (fun _ => Unit)) [k]).1 = emptyWithCapacity.insertIfNew k () := by
   simp
-
-set_option linter.missingDocs false in
-@[deprecated insertManyIfNewUnit_emptyWithCapacity_list_singleton (since := "2025-03-12")]
-abbrev insertManyIfNewUnit_empty_list_singleton := @insertManyIfNewUnit_emptyWithCapacity_list_singleton
 
 theorem insertManyIfNewUnit_emptyWithCapacity_list_cons {hd : α} {tl : List α} :
     insertManyIfNewUnit (emptyWithCapacity : Raw₀ α (fun _ => Unit)) (hd :: tl) =
       (insertManyIfNewUnit (emptyWithCapacity.insertIfNew hd ()) tl).1 := by
   rw [insertManyIfNewUnit_cons]
 
-set_option linter.missingDocs false in
-@[deprecated insertManyIfNewUnit_emptyWithCapacity_list_cons (since := "2025-03-12")]
-abbrev insertManyIfNewUnit_empty_list_cons := @insertManyIfNewUnit_emptyWithCapacity_list_cons
-
 theorem contains_insertManyIfNewUnit_emptyWithCapacity_list [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :
     (insertManyIfNewUnit (emptyWithCapacity : Raw₀ α (fun _ => Unit)) l).1.contains k = l.contains k := by
   simp [contains_insertManyIfNewUnit_list _ Raw.WF.emptyWithCapacity₀]
-
-set_option linter.missingDocs false in
-@[deprecated contains_insertManyIfNewUnit_emptyWithCapacity_list (since := "2025-03-12")]
-abbrev contains_insertManyIfNewUnit_empty_list := @contains_insertManyIfNewUnit_emptyWithCapacity_list
 
 theorem getKey?_insertManyIfNewUnit_emptyWithCapacity_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} (h' : l.contains k = false) :
@@ -2539,20 +2291,12 @@ theorem getKey?_insertManyIfNewUnit_emptyWithCapacity_list_of_contains_eq_false 
   exact getKey?_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false _ Raw.WF.emptyWithCapacity₀
     contains_emptyWithCapacity h'
 
-set_option linter.missingDocs false in
-@[deprecated getKey?_insertManyIfNewUnit_emptyWithCapacity_list_of_contains_eq_false (since := "2025-03-12")]
-abbrev getKey?_insertManyIfNewUnit_empty_list_of_contains_eq_false := @getKey?_insertManyIfNewUnit_emptyWithCapacity_list_of_contains_eq_false
-
 theorem getKey?_insertManyIfNewUnit_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List α} {k k' : α} (k_beq : k == k')
     (distinct : l.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ l) :
     getKey? (insertManyIfNewUnit (emptyWithCapacity : Raw₀ α (fun _ => Unit)) l).1 k' = some k := by
   exact getKey?_insertManyIfNewUnit_list_of_contains_eq_false_of_mem _ Raw.WF.emptyWithCapacity₀ k_beq
     contains_emptyWithCapacity distinct mem
-
-set_option linter.missingDocs false in
-@[deprecated getKey?_insertManyIfNewUnit_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
-abbrev getKey?_insertManyIfNewUnit_empty_list_of_mem := @getKey?_insertManyIfNewUnit_emptyWithCapacity_list_of_mem
 
 theorem getKey_insertManyIfNewUnit_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List α}
@@ -2563,20 +2307,12 @@ theorem getKey_insertManyIfNewUnit_emptyWithCapacity_list_of_mem [EquivBEq α] [
   exact getKey_insertManyIfNewUnit_list_of_contains_eq_false_of_mem _ Raw.WF.emptyWithCapacity₀ k_beq
     contains_emptyWithCapacity distinct mem
 
-set_option linter.missingDocs false in
-@[deprecated getKey_insertManyIfNewUnit_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
-abbrev getKey_insertManyIfNewUnit_empty_list_of_mem := @getKey_insertManyIfNewUnit_emptyWithCapacity_list_of_mem
-
 theorem getKey!_insertManyIfNewUnit_emptyWithCapacity_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     [Inhabited α] {l : List α} {k : α}
     (h' : l.contains k = false) :
     getKey! (insertManyIfNewUnit (emptyWithCapacity : Raw₀ α (fun _ => Unit)) l).1 k = default := by
   exact getKey!_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false _ Raw.WF.emptyWithCapacity₀
     contains_emptyWithCapacity h'
-
-set_option linter.missingDocs false in
-@[deprecated getKey!_insertManyIfNewUnit_emptyWithCapacity_list_of_contains_eq_false (since := "2025-03-12")]
-abbrev getKey!_insertManyIfNewUnit_empty_list_of_contains_eq_false := @getKey!_insertManyIfNewUnit_emptyWithCapacity_list_of_contains_eq_false
 
 theorem getKey!_insertManyIfNewUnit_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHashable α]
     [Inhabited α] {l : List α} {k k' : α} (k_beq : k == k')
@@ -2586,20 +2322,12 @@ theorem getKey!_insertManyIfNewUnit_emptyWithCapacity_list_of_mem [EquivBEq α] 
   exact getKey!_insertManyIfNewUnit_list_of_contains_eq_false_of_mem _ Raw.WF.emptyWithCapacity₀ k_beq
     contains_emptyWithCapacity distinct mem
 
-set_option linter.missingDocs false in
-@[deprecated getKey!_insertManyIfNewUnit_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
-abbrev getKey!_insertManyIfNewUnit_empty_list_of_mem := @getKey!_insertManyIfNewUnit_emptyWithCapacity_list_of_mem
-
 theorem getKeyD_insertManyIfNewUnit_emptyWithCapacity_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List α} {k fallback : α}
     (h' : l.contains k = false) :
     getKeyD (insertManyIfNewUnit (emptyWithCapacity : Raw₀ α (fun _ => Unit)) l).1 k fallback = fallback := by
   exact getKeyD_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
     _ Raw.WF.emptyWithCapacity₀ contains_emptyWithCapacity h'
-
-set_option linter.missingDocs false in
-@[deprecated getKeyD_insertManyIfNewUnit_emptyWithCapacity_list_of_contains_eq_false (since := "2025-03-12")]
-abbrev getKeyD_insertManyIfNewUnit_empty_list_of_contains_eq_false := @getKeyD_insertManyIfNewUnit_emptyWithCapacity_list_of_contains_eq_false
 
 theorem getKeyD_insertManyIfNewUnit_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List α} {k k' fallback : α} (k_beq : k == k')
@@ -2609,19 +2337,11 @@ theorem getKeyD_insertManyIfNewUnit_emptyWithCapacity_list_of_mem [EquivBEq α] 
   exact getKeyD_insertManyIfNewUnit_list_of_contains_eq_false_of_mem _ Raw.WF.emptyWithCapacity₀ k_beq
     contains_emptyWithCapacity distinct mem
 
-set_option linter.missingDocs false in
-@[deprecated getKeyD_insertManyIfNewUnit_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
-abbrev getKeyD_insertManyIfNewUnit_empty_list_of_mem := @getKeyD_insertManyIfNewUnit_emptyWithCapacity_list_of_mem
-
 theorem size_insertManyIfNewUnit_emptyWithCapacity_list [EquivBEq α] [LawfulHashable α]
     {l : List α}
     (distinct : l.Pairwise (fun a b => (a == b) = false)) :
     (insertManyIfNewUnit (emptyWithCapacity : Raw₀ α (fun _ => Unit)) l).1.1.size = l.length := by
   simp [size_insertManyIfNewUnit_list _ Raw.WF.emptyWithCapacity₀ distinct]
-
-set_option linter.missingDocs false in
-@[deprecated size_insertManyIfNewUnit_emptyWithCapacity_list (since := "2025-03-12")]
-abbrev size_insertManyIfNewUnit_empty_list := @size_insertManyIfNewUnit_emptyWithCapacity_list
 
 theorem size_insertManyIfNewUnit_emptyWithCapacity_list_le [EquivBEq α] [LawfulHashable α]
     {l : List α} :
@@ -2629,19 +2349,11 @@ theorem size_insertManyIfNewUnit_emptyWithCapacity_list_le [EquivBEq α] [Lawful
   apply Nat.le_trans (size_insertManyIfNewUnit_list_le _ Raw.WF.emptyWithCapacity₀)
   simp
 
-set_option linter.missingDocs false in
-@[deprecated size_insertManyIfNewUnit_emptyWithCapacity_list_le (since := "2025-03-12")]
-abbrev size_insertManyIfNewUnit_empty_list_le := @size_insertManyIfNewUnit_emptyWithCapacity_list_le
-
 theorem isEmpty_insertManyIfNewUnit_emptyWithCapacity_list [EquivBEq α] [LawfulHashable α]
     {l : List α} :
     (insertManyIfNewUnit (emptyWithCapacity : Raw₀ α (fun _ => Unit)) l).1.1.isEmpty = l.isEmpty := by
   rw [isEmpty_insertManyIfNewUnit_list _ Raw.WF.emptyWithCapacity₀]
   simp
-
-set_option linter.missingDocs false in
-@[deprecated isEmpty_insertManyIfNewUnit_emptyWithCapacity_list (since := "2025-03-12")]
-abbrev isEmpty_insertManyIfNewUnit_empty_list := @isEmpty_insertManyIfNewUnit_emptyWithCapacity_list
 
 theorem get?_insertManyIfNewUnit_emptyWithCapacity_list [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :
@@ -2650,36 +2362,20 @@ theorem get?_insertManyIfNewUnit_emptyWithCapacity_list [EquivBEq α] [LawfulHas
   rw [get?_insertManyIfNewUnit_list _ Raw.WF.emptyWithCapacity₀]
   simp
 
-set_option linter.missingDocs false in
-@[deprecated get?_insertManyIfNewUnit_emptyWithCapacity_list (since := "2025-03-12")]
-abbrev get?_insertManyIfNewUnit_empty_list := @get?_insertManyIfNewUnit_emptyWithCapacity_list
-
 theorem get_insertManyIfNewUnit_emptyWithCapacity_list
     {l : List α} {k : α} {h} :
     get (insertManyIfNewUnit (emptyWithCapacity : Raw₀ α (fun _ => Unit)) l) k h = () := by
   simp
-
-set_option linter.missingDocs false in
-@[deprecated get_insertManyIfNewUnit_emptyWithCapacity_list (since := "2025-03-12")]
-abbrev get_insertManyIfNewUnit_empty_list := @get_insertManyIfNewUnit_emptyWithCapacity_list
 
 theorem get!_insertManyIfNewUnit_emptyWithCapacity_list
     {l : List α} {k : α} :
     get! (insertManyIfNewUnit (emptyWithCapacity : Raw₀ α (fun _ => Unit)) l) k = () := by
   simp
 
-set_option linter.missingDocs false in
-@[deprecated get!_insertManyIfNewUnit_emptyWithCapacity_list (since := "2025-03-12")]
-abbrev get!_insertManyIfNewUnit_empty_list := @get!_insertManyIfNewUnit_emptyWithCapacity_list
-
 theorem getD_insertManyIfNewUnit_emptyWithCapacity_list
     {l : List α} {k : α} {fallback : Unit} :
     getD (insertManyIfNewUnit (emptyWithCapacity : Raw₀ α (fun _ => Unit)) l) k fallback = () := by
   simp
-
-set_option linter.missingDocs false in
-@[deprecated getD_insertManyIfNewUnit_emptyWithCapacity_list (since := "2025-03-12")]
-abbrev getD_insertManyIfNewUnit_empty_list := @getD_insertManyIfNewUnit_emptyWithCapacity_list
 
 end Const
 
@@ -3674,10 +3370,6 @@ theorem equiv_emptyWithCapacity_iff_isEmpty [EquivBEq α] [LawfulHashable α] (h
   simp_to_model [Equiv, isEmpty]
   simp only [toListModel_buckets_emptyWithCapacity, List.perm_nil, List.isEmpty_iff]
 
-set_option linter.missingDocs false in
-@[deprecated equiv_emptyWithCapacity_iff_isEmpty (since := "2025-03-12")]
-abbrev equiv_empty_iff_isEmpty := @equiv_emptyWithCapacity_iff_isEmpty
-
 theorem isEmpty_eq_of_equiv [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ~m m₂.1) :
     m₁.1.isEmpty = m₂.1.isEmpty := by
@@ -3805,11 +3497,6 @@ theorem modify_equiv_congr (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ~m 
 theorem equiv_of_forall_getKey_eq_of_forall_get?_eq (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) :
     (∀ k hk hk', m₁.getKey k hk = m₂.getKey k hk') → (∀ k, get? m₁ k = get? m₂ k) → m₁.1 ~m m₂.1 := by
   simp_to_model [getKey, Const.get?, contains, Equiv] using List.getKey_getValue?_ext
-
-@[deprecated equiv_of_forall_getKey_eq_of_forall_get?_eq (since := "2025-04-25")]
-theorem equiv_of_forall_getKey?_eq_of_forall_get?_eq (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) :
-    (∀ k, m₁.getKey? k = m₂.getKey? k) → (∀ k, get? m₁ k = get? m₂ k) → m₁.1 ~m m₂.1 := by
-  simp_to_model [getKey?, Const.get?, Equiv] using List.getKey?_getValue?_ext
 
 theorem equiv_of_forall_get?_eq {α : Type u} [BEq α] [Hashable α] [LawfulBEq α]
     {m₁ m₂ : Raw₀ α fun _ => β} (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) :

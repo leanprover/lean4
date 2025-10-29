@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Order
 import Lake.Util.Name
 import Lake.Config.Kinds
+import Init.Data.String.TakeDrop
 
 namespace Lake
 open Lean (Name)

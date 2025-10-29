@@ -24,7 +24,7 @@ namespace Normalize
 
 section Reduce
 
-attribute [bv_normalize] BitVec.sub_toAdd
+attribute [bv_normalize] BitVec.sub_eq_add_neg
 
 @[bv_normalize]
 theorem BitVec.le_ult (x y : BitVec w) : (x ≤ y) ↔ ((!y.ult x) = true) := by

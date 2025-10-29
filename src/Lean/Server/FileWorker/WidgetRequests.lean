@@ -200,22 +200,22 @@ private def hightlightStringMatches? (query text : String) (matchPositions : Arr
   let mut r : Array (TaggedText α) := #[]
   let mut p : String.Pos.Raw := ⟨0⟩
   for i in 0...matchPositions.size do
-    if p >= text.endPos then
+    if p >= text.rawEndPos then
       break
     let i := mapIdx i
     let globalMatchPos := matchPositions[i]!
     let matchPos := globalMatchPos.unoffsetBy offset
-    if matchPos >= text.endPos then
+    if matchPos >= text.rawEndPos then
       break
     if let some nonMatch := nonMatch? p matchPos then
       r := r.push nonMatch
     let globalMatchEndPos := matchEndPos query globalMatchPos
     let matchEndPos := globalMatchEndPos.unoffsetBy offset
-    let «match» := text.extract matchPos matchEndPos
+    let «match» := String.Pos.Raw.extract text matchPos matchEndPos
     r := r.push <| .tag highlight (.text «match»)
     p := matchEndPos
     anyMatch := true
-  if let some nonMatch := nonMatch? p text.endPos then
+  if let some nonMatch := nonMatch? p text.rawEndPos then
     r := r.push nonMatch
   if ! anyMatch then
     return none
@@ -225,7 +225,7 @@ private def hightlightStringMatches? (query text : String) (matchPositions : Arr
 where
   nonMatch? (p matchPosition : String.Pos.Raw) : Option (TaggedText α) := do
     guard <| p < matchPosition
-    let nonMatch := text.extract p matchPosition
+    let nonMatch := String.Pos.Raw.extract text p matchPosition
     return .text nonMatch
 
 private def findTaggedTextMatches (query : String) (tt : TaggedText α) (toText : α → String) :

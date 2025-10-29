@@ -234,9 +234,6 @@ theorem eq_natAbs_of_nonneg {a : Int} (h : 0 ≤ a) : a = natAbs a := by
   let ⟨n, e⟩ := eq_ofNat_of_zero_le h
   rw [e]; rfl
 
-@[deprecated eq_natAbs_of_nonneg (since := "2025-03-11")]
-abbrev eq_natAbs_of_zero_le := @eq_natAbs_of_nonneg
-
 theorem le_natAbs {a : Int} : a ≤ natAbs a :=
   match Int.le_total 0 a with
   | .inl h => by rw [eq_natAbs_of_nonneg h]; apply Int.le_refl
@@ -554,9 +551,6 @@ protected theorem mul_le_mul_of_nonpos_left {a b c : Int}
 
 @[simp, norm_cast] theorem natAbs_natCast (n : Nat) : natAbs ↑n = n := rfl
 
-@[deprecated natAbs_natCast (since := "2025-04-16")]
-theorem natAbs_ofNat (n : Nat) : natAbs ↑n = n := natAbs_natCast n
-
 /-
 TODO: rename `natAbs_ofNat'` to `natAbs_ofNat` once the current deprecated alias
 `natAbs_ofNat := natAbs_natCast` is removed
@@ -646,16 +640,10 @@ theorem toNat_of_nonneg {a : Int} (h : 0 ≤ a) : (toNat a : Int) = a := by
 
 @[simp] theorem toNat_natCast (n : Nat) : toNat ↑n = n := rfl
 
-@[deprecated toNat_natCast (since := "2025-04-16")]
-theorem toNat_ofNat (n : Nat) : toNat ↑n = n := rfl
-
 @[simp] theorem toNat_negSucc (n : Nat) : (Int.negSucc n).toNat = 0 := by
   simp [toNat]
 
 @[simp] theorem toNat_natCast_add_one {n : Nat} : ((n : Int) + 1).toNat = n + 1 := rfl
-
-@[deprecated toNat_natCast_add_one (since := "2025-04-16")]
-theorem toNat_ofNat_add_one {n : Nat} : ((n : Int) + 1).toNat = n + 1 := toNat_natCast_add_one
 
 @[simp] theorem ofNat_toNat (a : Int) : (a.toNat : Int) = max a 0 := by
   match a with
@@ -716,9 +704,6 @@ theorem toNat_neg_nat : ∀ n : Nat, (-(n : Int)).toNat = 0 := toNat_neg_natCast
 theorem mem_toNat? : ∀ {a : Int} {n : Nat}, toNat? a = some n ↔ a = n
   | (m : Nat), n => by simp [toNat?, Int.ofNat_inj]
   | -[m+1], n => by constructor <;> nofun
-
-@[deprecated mem_toNat? (since := "2025-03-11")]
-abbrev mem_toNat' := @mem_toNat?
 
 /-! ## Order properties of the integers -/
 
@@ -1259,17 +1244,9 @@ theorem natAbs_sign (z : Int) : z.sign.natAbs = if z = 0 then 0 else 1 :=
 theorem natAbs_sign_of_ne_zero {z : Int} (hz : z ≠ 0) : z.sign.natAbs = 1 := by
   rw [Int.natAbs_sign, if_neg hz]
 
-@[deprecated natAbs_sign_of_ne_zero (since := "2025-04-16")]
-theorem natAbs_sign_of_nonzero {z : Int} (hz : z ≠ 0) : z.sign.natAbs = 1 :=
-  natAbs_sign_of_ne_zero hz
-
 theorem sign_natCast_of_ne_zero {n : Nat} (hn : n ≠ 0) : Int.sign n = 1 :=
   match n, Nat.exists_eq_succ_of_ne_zero hn with
   | _, ⟨n, rfl⟩ => Int.sign_of_add_one n
-
-@[deprecated sign_natCast_of_ne_zero (since := "2025-04-16")]
-theorem sign_ofNat_of_nonzero {n : Nat} (hn : n ≠ 0) : Int.sign n = 1 :=
-  sign_natCast_of_ne_zero hn
 
 @[simp] theorem sign_neg (z : Int) : Int.sign (-z) = -Int.sign z := by
   match z with | 0 | succ _ | -[_+1] => rfl
@@ -1324,8 +1301,6 @@ theorem neg_of_sign_eq_neg_one : ∀ {a : Int}, sign a = -1 → a < 0
     simp +decide only [sign, true_iff]
     exact Int.le_add_one (natCast_nonneg _)
   | .negSucc _ => simp +decide [sign]
-
-@[deprecated sign_nonneg_iff (since := "2025-03-11")] abbrev sign_nonneg := @sign_nonneg_iff
 
 @[simp] theorem sign_pos_iff : 0 < sign x ↔ 0 < x := by
   match x with
@@ -1409,9 +1384,6 @@ theorem natAbs_add_of_nonpos {a b : Int} (ha : a ≤ 0) (hb : b ≤ 0) :
     natAbs_add_of_nonneg (Int.neg_nonneg_of_nonpos ha) (Int.neg_nonneg_of_nonpos hb),
     natAbs_neg (-a), natAbs_neg (-b)]
 
-@[deprecated negSucc_eq (since := "2025-03-11")]
-theorem negSucc_eq' (m : Nat) : -[m+1] = -m - 1 := by simp only [negSucc_eq, Int.neg_add]; rfl
-
 theorem natAbs_lt_natAbs_of_nonneg_of_lt {a b : Int}
     (w₁ : 0 ≤ a) (w₂ : a < b) : a.natAbs < b.natAbs :=
   match a, b, eq_ofNat_of_zero_le w₁, eq_ofNat_of_zero_le (Int.le_trans w₁ (Int.le_of_lt w₂)) with
@@ -1419,9 +1391,6 @@ theorem natAbs_lt_natAbs_of_nonneg_of_lt {a b : Int}
 
 theorem natAbs_eq_iff_mul_eq_zero : natAbs a = n ↔ (a - n) * (a + n) = 0 := by
   rw [natAbs_eq_iff, Int.mul_eq_zero, ← Int.sub_neg, Int.sub_eq_zero, Int.sub_eq_zero]
-
-@[deprecated natAbs_eq_iff_mul_eq_zero (since := "2025-03-11")]
-abbrev eq_natAbs_iff_mul_eq_zero := @natAbs_eq_iff_mul_eq_zero
 
 instance instIsLinearOrder : IsLinearOrder Int := by
   apply IsLinearOrder.of_le

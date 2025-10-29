@@ -366,7 +366,7 @@ private def expandWhereStructInst : Macro := fun whereStx => do
   let endOfStructureTkInfo : SourceInfo :=
     match structureStxTailInfo with
     | some (SourceInfo.original _ _ trailing _) =>
-      let tokenPos := trailing.str.prev trailing.stopPos
+      let tokenPos := trailing.stopPos.prev trailing.str
       let tokenEndPos := trailing.stopPos
       .synthetic tokenPos tokenEndPos true
     | _ => .none
@@ -1087,7 +1087,7 @@ def getModifiersForLetRecs (mainHeaders : Array DefViewElabHeader) : Modifiers :
     if mainHeaders.any (·.modifiers.isNoncomputable) then .noncomputable
     else if mainHeaders.any (·.modifiers.isMeta) then .meta
     else .regular
-  recKind     := if mainHeaders.any fun h => h.modifiers.isInferredPartial then RecKind.partial else RecKind.default
+  recKind     := if mainHeaders.any fun h => h.modifiers.isPartial then RecKind.partial else RecKind.default
   isUnsafe    := mainHeaders.any fun h => h.modifiers.isUnsafe
 }
 
@@ -1222,7 +1222,9 @@ where
     assert! view.kind.isTheorem
     let env ← getEnv
     let async ← env.addConstAsync declId.declName .thm
-      (exportedKind? := guard (!isPrivateName declId.declName) *> some .axiom)
+      (exportedKind? :=
+        guard (!isPrivateName declId.declName || (← ResolveName.backward.privateInPublic.getM)) *>
+        some .axiom)
     setEnv async.mainEnv
 
     -- TODO: parallelize header elaboration as well? Would have to refactor auto implicits catch,

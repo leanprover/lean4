@@ -107,4 +107,10 @@ instance {x : γ} {State : Type w} {iter}
     IteratorLoopPartial (α := i.State) m n :=
   inferInstanceAs <| IteratorLoopPartial (α := State) m n
 
+@[simp]
+theorem ToIterator.state_eq {x : γ} {State : Type w} {iter} :
+    haveI : ToIterator x Id β := .of State iter
+    ToIterator.State x Id = State :=
+  rfl
+
 end Std.Iterators

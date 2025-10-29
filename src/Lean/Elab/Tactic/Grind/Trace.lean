@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Elab.Tactic.Grind.Basic
 import Lean.Elab.Tactic.Grind.Config
+import Lean.Elab.Tactic.Grind.Param
 import Init.Grind.Interactive
 import Lean.Meta.Tactic.TryThis
 import Lean.Meta.Tactic.Grind.Action
@@ -27,8 +28,10 @@ def mkFinish (maxIterations : Nat) : IO Action := do
 def maxIterations := 1000 -- **TODO**: Add option
 
 @[builtin_grind_tactic finishTrace] def evalFinishTrace : GrindTactic := fun stx => do
-  let `(grind| finish? $[$configItems]*) := stx | throwUnsupportedSyntax
+  let `(grind| finish? $[$configItems]* $[only%$only]? $[[$params?,*]]?) := stx | throwUnsupportedSyntax
   withConfigItems configItems do
+  let params := params?.getD {}
+  withParams (← read).params params only.isSome do
     let a ← mkFinish maxIterations
     let goal ← getMainGoal
     withTracing do

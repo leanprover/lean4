@@ -5,7 +5,10 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
+public import Lean.Elab.Tactic.Grind.Basic
 public import Lean.Meta.Tactic.Grind.Main
+import Lean.Meta.Tactic.Grind.Internalize
+import Lean.Meta.Tactic.Grind.ForallProp
 import Lean.Elab.Tactic.Grind.Basic
 import Lean.Elab.Tactic.Grind.Anchor
 namespace Lean.Elab.Tactic
@@ -81,6 +84,7 @@ def processParam (params : Grind.Params)
     (id : TSyntax `ident)
     (minIndexable : Bool)
     (only : Bool)
+    (incremental : Bool)
     : MetaM Grind.Params := do
   let mut params := params
   let declName ← try
@@ -106,11 +110,13 @@ def processParam (params : Grind.Params)
   | .ematch kind =>
     params ← withRef p <| addEMatchTheorem params id declName kind minIndexable
   | .cases eager =>
+    if incremental then throwError "`cases` parameter are not supported here"
     ensureNoMinIndexable minIndexable
     withRef p <| Grind.validateCasesAttr declName eager
     params := { params with casesTypes := params.casesTypes.insert declName eager }
   | .intro =>
     if let some info ← Grind.isCasesAttrPredicateCandidate? declName false then
+      if incremental then throwError "`cases` parameter are not supported here"
       for ctor in info.ctors do
         params ← withRef p <| addEMatchTheorem params id ctor (.default false) minIndexable
     else
@@ -143,14 +149,18 @@ def processAnchor (params : Grind.Params) (val : TSyntax `hexnum) : CoreM Grind.
 
 /--
 Elaborates `grind` parameters.
+`incremental = true` for tactics such as `finish`, in this case, we disable some kinds of parameters
+such as `- ident`.
 -/
 public def elabGrindParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.Tactic.grindParam)
-    (only : Bool) (lax : Bool := false) : MetaM Grind.Params := do
+    (only : Bool) (lax : Bool := false) (incremental := false) : MetaM Grind.Params := do
   let mut params := params
   for p in ps do
     try
       match p with
       | `(Parser.Tactic.grindParam| - $id:ident) =>
+        if incremental then
+          throwErrorAt p "invalid `-` occurrence, it can only used at the `grind` tactic entry point"
         let declName ← realizeGlobalConstNoOverloadWithInfo id
         if let some declName ← Grind.isCasesAttrCandidate? declName false then
           Grind.ensureNotBuiltinCases declName
@@ -160,9 +170,9 @@ public def elabGrindParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.T
         else
           params := { params with ematch := (← params.ematch.eraseDecl declName) }
       | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $id:ident) =>
-        params ← processParam params p mod? id (minIndexable := false) (only := only)
+        params ← processParam params p mod? id (minIndexable := false) (only := only) (incremental := incremental)
       | `(Parser.Tactic.grindParam| ! $[$mod?:grindMod]? $id:ident) =>
-        params ← processParam params p mod? id (minIndexable := true) (only := only)
+        params ← processParam params p mod? id (minIndexable := true) (only := only) (incremental := incremental)
       | `(Parser.Tactic.grindParam| #$anchor:hexnum) =>
         unless only do
           throwErrorAt anchor "invalid anchor, `only` modifier expected"
@@ -172,4 +182,63 @@ public def elabGrindParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.T
       if !lax then throw ex
   return params
 
+namespace Grind
+open Meta Grind
+
+/--
+Returns `true` if we should keep the theorem when `only` is used.
+We keep
+1- Local theorems. We use anchors to restrict their instantiation.
+2- `match`-equations. They are always active.
+-/
+def shouldKeep (thm : EMatchTheorem) : GrindM Bool := do
+  if let .decl declName := thm.origin then
+    isMatchEqLikeDeclName declName
+  else
+    checkAnchorRefsEMatchTheoremProof thm.proof
+
+/--
+Removes all theorems that are not `match`-equations nor local theorems.
+-/
+def filterThms (thms : PArray EMatchTheorem) : GrindM (PArray EMatchTheorem) := do
+  let mut result := {}
+  for thm in thms do
+    if (← shouldKeep thm) then
+      result := result.push thm
+  return result
+
+/--
+Helper method for processing parameters in tactics such as `finish` and `finish?`
+-/
+public def withParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.Tactic.grindParam) (only : Bool)
+    (k : GrindTacticM α) : GrindTacticM α := do
+  if !only && ps.isEmpty then
+    k
+  else
+    let mut params := params
+    if only then
+      params := { params with anchorRefs? := none }
+    params ← elabGrindParams params ps (only := only) (incremental := true)
+    let anchorRefs? := params.anchorRefs?
+    withReader (fun c => { c with params, ctx.anchorRefs? := anchorRefs? }) do
+    if only then
+      -- Cleanup main goal before adding new facts
+      let goal ← getMainGoal
+      let goal ← liftGrindM do
+        pure { goal with
+        -- **TODO**: cleanup injective theorems
+        ematch.thmMap  := {}
+        ematch.thms    := (← filterThms goal.ematch.thms)
+        ematch.newThms := (← filterThms goal.ematch.newThms)
+      }
+      replaceMainGoal [goal]
+    liftGoalM do
+      for thm in params.extra do
+        activateTheorem thm 0
+      for thm in params.extraInj do
+        activateInjectiveTheorem thm 0
+      -- **TODO**: `cases` parameters
+    k
+
+end Grind
 end Lean.Elab.Tactic

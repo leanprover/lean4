@@ -219,3 +219,35 @@ example (f g : Int → Int) (x y z w : Int)
   fail_if_success grind [#23ad] -- not possible to solve using this set of anchors.
   set_option trace.grind.split true in
   grind [#23ad, #beb4] -- Only these two splits were performed.
+
+/--
+trace: [grind.ematch.instance] h: f (f a) = f a
+[grind.ematch.instance] h: f (f (f a)) = f (f a)
+[grind.ematch.instance] h: f (f (f (f a))) = f (f (f a))
+[grind.ematch.instance] h_1: g (g (g b)) = g (g b)
+[grind.ematch.instance] h_1: g (g b) = g b
+-/
+#guard_msgs in
+example (f g : Int → Int)
+    (_ : ∀ x, f (f x) = f x)
+    (_ : ∀ x, g (g x) = g x)
+    (a b : Int)
+    (_ : g (g b) = b)
+    : f (f (f a)) = f a := by
+  set_option trace.grind.ematch.instance true in
+  grind
+
+/--
+trace: [grind.ematch.instance] h: f (f a) = f a
+[grind.ematch.instance] h: f (f (f a)) = f (f a)
+[grind.ematch.instance] h: f (f (f (f a))) = f (f (f a))
+-/
+#guard_msgs in
+example (f g : Int → Int)
+    (_ : ∀ x, f (f x) = f x)
+    (_ : ∀ x, g (g x) = g x)
+    (a b : Int)
+    (_ : g (g b) = b)
+    : f (f (f a)) = f a := by
+  set_option trace.grind.ematch.instance true in
+  grind [#99cb]

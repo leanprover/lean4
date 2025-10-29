@@ -1896,6 +1896,12 @@ def anchorPrefixToString (numDigits : Nat) (anchorPrefix : UInt64) : String :=
 def anchorToString (numDigits : Nat) (anchor : UInt64) : String :=
   anchorPrefixToString numDigits (anchor >>> (64 - 4*numDigits.toUInt64))
 
+def AnchorRef.toString (anchorRef : AnchorRef) : String :=
+  anchorPrefixToString anchorRef.numDigits anchorRef.anchorPrefix
+
+instance : ToString AnchorRef where
+  toString := AnchorRef.toString
+
 /--
 Returns activated `match`-declaration equations.
 Recall that in tactics such as `instantiate only [...]`, `match`-declarations are always instantiated.

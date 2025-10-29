@@ -223,8 +223,7 @@ private def hasCtorOrInaccessible (p : Problem) : Bool :=
     | _                    => false
 
 private def isNatValueTransition (p : Problem) : MetaM Bool := do
-  unless (← hasNatValPattern p) do return false
-  return hasCtorOrInaccessible p
+  return (← hasNatValPattern p) && hasCtorOrInaccessible p
 
 /--
 Predicate for testing whether we need to expand `Int` value patterns into constructors.
@@ -811,6 +810,18 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
     processLeaf p
     return
 
+  if (← isExFalsoTransition p) then
+    traceStep ("ex falso")
+    let p ← processExFalso p
+    process p
+    return
+
+  if hasAsPattern p then
+    traceStep ("as-pattern")
+    let p ← processAsPattern p
+    process p
+    return
+
   match firstRefutablePattern p with
   | some i =>
     if i > 0 then
@@ -825,51 +836,62 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
       process p
       return
 
-  if (← isExFalsoTransition p) then
-    traceStep ("ex falso")
-    let p ← processExFalso p
-    process p
-  else if hasAsPattern p then
-    traceStep ("as-pattern")
-    let p ← processAsPattern p
-    process p
-  else if (← isNatValueTransition p) then
+  if (← isNatValueTransition p) then
     traceStep ("nat value to constructor")
     process (← expandNatValuePattern p)
-  else if (← isIntValueTransition p) then
+    return
+
+  if (← isIntValueTransition p) then
     traceStep ("int value to constructor")
     process (← expandIntValuePattern p)
-  else if (← isFinValueTransition p) then
+    return
+
+  if (← isFinValueTransition p) then
     traceStep ("fin value to constructor")
     process (← expandFinValuePattern p)
-  else if (← isBitVecValueTransition p) then
+    return
+
+  if (← isBitVecValueTransition p) then
     traceStep ("bitvec value to constructor")
     process (← expandBitVecValuePattern p)
-  else if !isNextVar p then
+    return
+
+  if !isNextVar p then
     traceStep ("non variable")
     let p ← processNonVariable p
     process p
-  else if (← isConstructorTransition p) then
+    return
+
+  if (← isConstructorTransition p) then
     let ps ← processConstructor p
     ps.forM process
-  else if isVariableTransition p then
+    return
+
+  if isVariableTransition p then
     traceStep ("variable")
     let p ← processVariable p
     process p
-  else if isValueTransition p then
+    return
+
+  if isValueTransition p then
     let ps ← processValue p
     ps.forM process
-  else if isArrayLitTransition p then
+    return
+
+  if isArrayLitTransition p then
     let ps ← processArrayLit p
     ps.forM process
-  else if (← hasNatValPattern p) then
+    return
+
+  if (← hasNatValPattern p) then
     -- This branch is reachable when `p`, for example, is just values without an else-alternative.
     -- We added it just to get better error messages.
     traceStep ("nat value to constructor")
     process (← expandNatValuePattern p)
-  else
-    checkNextPatternTypes p
-    throwNonSupported p
+    return
+
+  checkNextPatternTypes p
+  throwNonSupported p
 
 private def getUElimPos? (matcherLevels : List Level) (uElim : Level) : MetaM (Option Nat) :=
   if uElim == levelZero then

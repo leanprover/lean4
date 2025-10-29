@@ -357,8 +357,9 @@ private def processAsPattern (p : Problem) : MetaM Problem := withGoalOf p do
   let alts ← p.alts.mapM fun alt => do
     match alt.patterns with
     | .as fvarId p h :: ps =>
-      /- We used to use `checkAndReplaceFVarId` here, but `x` and `fvarId` may have different types
-        when dependent types are being used. Let's consider the repro for issue #471
+      /- We used to use eagerly check the types here (using what was called `checkAndReplaceFVarId`),
+        but `x` and `fvarId` can have different types when dependent types are being used.
+        Let's consider the repro for issue #471
         ```
         inductive vec : Nat → Type
         | nil : vec 0

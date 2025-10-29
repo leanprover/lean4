@@ -20,36 +20,36 @@ public import Std.Sync.Mutex
 public section
 
 /-- Checks whether `r` contains `hoverPos`, taking into account EOF according to `text`. -/
-def Lean.FileMap.rangeContainsHoverPos (text : Lean.FileMap) (r : String.Range)
+def Lean.FileMap.rangeContainsHoverPos (text : Lean.FileMap) (r : Lean.Syntax.Range)
     (hoverPos : String.Pos.Raw) (includeStop := false) : Bool :=
   -- When `hoverPos` is at the very end of the file, it is *after* the last position in `text`.
   -- However, for `includeStop = false`, all ranges stop at the last position in `text`,
   -- which always excludes a `hoverPos` at the very end of the file.
   -- For the purposes of the language server, we generally assume that ranges that extend to
   -- the end of the file also include a `hoverPos` at the very end of the file.
-  let isRangeAtEOF := r.stop == text.source.endPos
+  let isRangeAtEOF := r.stop == text.source.rawEndPos
   r.contains hoverPos (includeStop := includeStop || isRangeAtEOF)
 
 def Lean.FileMap.rangeOverlapsRequestedRange
     (text : Lean.FileMap)
-    (documentRange : String.Range)
-    (requestedRange : String.Range)
+    (documentRange : Lean.Syntax.Range)
+    (requestedRange : Lean.Syntax.Range)
     (includeDocumentRangeStop := false)
     (includeRequestedRangeStop := false)
     : Bool :=
-  let isDocumentRangeAtEOF := documentRange.stop == text.source.endPos
+  let isDocumentRangeAtEOF := documentRange.stop == text.source.rawEndPos
   documentRange.overlaps requestedRange
     (includeFirstStop := includeDocumentRangeStop || isDocumentRangeAtEOF)
     (includeSecondStop := includeRequestedRangeStop)
 
 def Lean.FileMap.rangeIncludesRequestedRange
     (text : Lean.FileMap)
-    (documentRange : String.Range)
-    (requestedRange : String.Range)
+    (documentRange : Lean.Syntax.Range)
+    (requestedRange : Lean.Syntax.Range)
     (includeDocumentRangeStop := false)
     (includeRequestedRangeStop := false)
     : Bool :=
-  let isDocumentRangeAtEOF := documentRange.stop == text.source.endPos
+  let isDocumentRangeAtEOF := documentRange.stop == text.source.rawEndPos
   documentRange.includes requestedRange
     (includeSuperStop := includeDocumentRangeStop || isDocumentRangeAtEOF)
     (includeSubStop := includeRequestedRangeStop)
@@ -117,7 +117,7 @@ partial def SnapshotTree.findInfoTreeAtPos (text : FileMap) (tree : SnapshotTree
         | return (none, .proceed (foldChildren := true))
       return (infoTree, .done)
 
-partial def SnapshotTree.foldInfosInRange (tree : SnapshotTree) (requestedRange : String.Range)
+partial def SnapshotTree.foldInfosInRange (tree : SnapshotTree) (requestedRange : Lean.Syntax.Range)
     (init : α) (f : Elab.ContextInfo → Elab.Info → α → α) : ServerTask α :=
   tree.foldSnaps (init := init) fun snap acc => Id.run do
     let some stx := snap.stx?
@@ -138,7 +138,7 @@ partial def SnapshotTree.foldInfosInRange (tree : SnapshotTree) (requestedRange 
       return (acc, .proceed (foldChildren := true))
 
 partial def SnapshotTree.collectMessagesInRange (tree : SnapshotTree)
-    (requestedRange : String.Range) : ServerTask MessageLog :=
+    (requestedRange : Lean.Syntax.Range) : ServerTask MessageLog :=
   tree.foldSnaps (init := .empty) fun snap log => Id.run do
     let some stx := snap.stx?
       | return .pure (log, .proceed (foldChildren := true))
@@ -252,7 +252,7 @@ open FileWorker
 open Snapshots
 
 def runInIO (x : RequestM α) (ctx : RequestContext) : IO α := do
-  x.run ctx |>.adaptExcept (IO.userError ·.message)
+  x.run ctx |>.adapt (IO.userError ·.message)
 
 def readDoc [Monad m] [MonadReaderOf RequestContext m] : m EditableDocument := do
   let rc ← readThe RequestContext

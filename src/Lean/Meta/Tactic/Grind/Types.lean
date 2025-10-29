@@ -598,8 +598,40 @@ instance : BEq (CongrKey enodeMap) where
 
 abbrev CongrTable (enodeMap : ENodeMap) := PHashSet (CongrKey enodeMap)
 
--- Remark: we cannot use pointer addresses here because we have to traverse the tree.
-abbrev ParentSet := Std.TreeSet Expr Expr.quickComp
+/-
+**Note**: If inserting elements in a `ParentSet` becomes a performance bottleneck,
+we can add an extra field `Std.HashSet ExprPtr` for detecting whether the `ParentSet` already
+contains an element or not.
+
+**Note**: We used to implement `ParentSet`s as
+```abbrev ParentSet := Std.TreeSet Expr Expr.quickComp```
+This representation created proof stability issues.
+For example, we traverse this set to implement congruence closure.
+There is no non-determinism here, but the traversal depends on the `Expr`
+hash code, which is very sensitive to changes in a `.lean` file.
+Thus, minor changes may affect the proof found by `grind`. We found examples
+where proving the same goal multiple times in the same file produced different
+proofs.
+When we inspected the hash codes, they were completely different.
+Using `Expr.comp` does not help because it still relies on internal free variable IDs.
+One might think we can just reset them at the beginning of the `grind` search, but
+this is not sufficient. When tactics such as `finish?` generate the final tactic
+script, we remove unnecessary case splits. Removing case splits affects the generated
+free variable IDs, which in turn affects the result of Expr.comp :(
+-/
+structure ParentSet where
+  parents : List Expr := []
+  deriving Inhabited
+
+def ParentSet.insert (ps : ParentSet) (p : Expr) : ParentSet :=
+  { ps with parents := ps.parents.insert p }
+
+def ParentSet.isEmpty (ps : ParentSet) : Bool :=
+  ps.parents.isEmpty
+
+def ParentSet.elems (ps : ParentSet) : List Expr :=
+  ps.parents
+
 abbrev ParentMap := PHashMap ExprPtr ParentSet
 
 /--
@@ -608,6 +640,17 @@ We want to avoid instantiating the same theorem with the same assignment more th
 Therefore, we store the (pre-)instance information in set.
 Recall that the proofs of activated theorems have been hash-consed.
 The assignment contains internalized expressions, which have also been hash-consed.
+
+**Note**: We used to use pointer equality to implement `PreInstanceSet`. However,
+this low-level trick was incorrect in interactive mode because we add new
+`EMatchTheorem` objects using `instantiate [...]`. For example, suppose we write
+```
+instantiate [thm_1]; instantiate [thm_1]
+```
+The `EMatchTheorem` object `thm_1` is created twice. Using pointer equality will
+miss instances created using the two different objects. Recall we do not use
+hash-consing on proof objects. If we hash-cons the proof objects, it would be ok
+to use pointer equality.
 -/
 structure PreInstance where
   proof      : Expr
@@ -615,14 +658,14 @@ structure PreInstance where
 
 instance : Hashable PreInstance where
   hash i := Id.run do
-    let mut r := hashPtrExpr i.proof
+    let mut r := hash i.proof -- **Note**: See note at `PreInstance`.
     for v in i.assignment do
       r := mixHash r (hashPtrExpr v)
     return r
 
 instance : BEq PreInstance where
   beq i₁ i₂ := Id.run do
-    unless isSameExpr i₁.proof i₂.proof do return false
+    unless i₁.proof == i₂.proof do return false -- **Note**: See note at `PreInstance`.
     unless i₁.assignment.size == i₂.assignment.size do return false
     for v₁ in i₁.assignment, v₂ in i₂.assignment do
       unless isSameExpr v₁ v₂ do return false
@@ -1124,7 +1167,7 @@ Copy `parents` to the parents of `root`.
 -/
 def copyParentsTo (parents : ParentSet) (root : Expr) : GoalM Unit := do
   let mut curr := if let some parents := (← get).parents.find? { expr := root } then parents else {}
-  for parent in parents do
+  for parent in parents.elems do
     curr := curr.insert parent
   modify fun s => { s with parents := s.parents.insert { expr := root } curr }
 
@@ -1172,7 +1215,7 @@ For each equality `b = c` in `parents`, executes `k b c` IF
 - `b = c` is equal to `False`, and
 -/
 @[inline] def forEachDiseq (parents : ParentSet) (k : (lhs : Expr) → (rhs : Expr) → GoalM Unit) : GoalM Unit := do
-  for parent in parents do
+  for parent in parents.elems do
     let_expr Eq _ b c := parent | continue
     if (← isEqFalse parent) then
       if (← isEqv b c) then

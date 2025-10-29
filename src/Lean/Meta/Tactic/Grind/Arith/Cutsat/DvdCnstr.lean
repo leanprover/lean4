@@ -40,7 +40,7 @@ def DvdCnstr.applyEq (a : Int) (x : Var) (c₁ : EqCnstr) (b : Int) (c₂ : DvdC
   let q := c₂.p
   let d := Int.ofNat (a * c₂.d).natAbs
   let p := (q.mul a |>.combine (p.mul (-b)))
-  trace[grind.debug.cutsat.subst] "{← getVar x}, {← c₁.pp}, {← c₂.pp}"
+  trace[grind.debug.lia.subst] "{← getVar x}, {← c₁.pp}, {← c₂.pp}"
   return { d, p, h := .subst x c₁ c₂ }
 
 partial def DvdCnstr.applySubsts (c : DvdCnstr) : GoalM DvdCnstr := withIncRecDepth do
@@ -52,14 +52,14 @@ partial def DvdCnstr.applySubsts (c : DvdCnstr) : GoalM DvdCnstr := withIncRecDe
 /-- Asserts divisibility constraint. -/
 partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
   if (← inconsistent) then return ()
-  trace[grind.cutsat.assert] "{← c.pp}"
+  trace[grind.lia.assert] "{← c.pp}"
   let c ← c.norm.applySubsts
   if c.isUnsat then
-    trace[grind.cutsat.assert.unsat] "{← c.pp}"
+    trace[grind.lia.assert.unsat] "{← c.pp}"
     setInconsistent (.dvd c)
     return ()
   if c.isTrivial then
-    trace[grind.cutsat.assert.trivial] "{← c.pp}"
+    trace[grind.lia.assert.trivial] "{← c.pp}"
     return ()
   let d₁ := c.d
   let .add a₁ x p₁ := c.p | c.throwUnexpected
@@ -87,7 +87,7 @@ partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
     let elim := { d, p := a₂_p₁.combine a₁_p₂, h := .solveElim c c' : DvdCnstr }
     elim.assert
   else
-    trace[grind.cutsat.assert.store] "{← c.pp}"
+    trace[grind.lia.assert.store] "{← c.pp}"
     c.p.updateOccs
     modify' fun s => { s with dvds := s.dvds.set x (some c) }
 
@@ -129,7 +129,7 @@ def propagateNatDvd (e : Expr) : GoalM Unit := do
     pushNewFact <| mkApp3 (mkConst ``Nat.emod_pos_of_not_dvd) d₀ a (mkOfEqFalseCore e (← mkEqFalseProof e))
 
 builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do
-  unless (← getConfig).cutsat do return ()
+  unless (← getConfig).lia do return ()
   let_expr Dvd.dvd α _ _ _ ← e | return ()
   if α.isConstOf ``Nat then
     propagateNatDvd e

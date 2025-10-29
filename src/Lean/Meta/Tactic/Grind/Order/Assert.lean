@@ -112,47 +112,57 @@ def propagatePending : OrderM Unit := do
         pushEq ue ve h
 
 /--
+Returns `true` if `e` is already `True` in the `grind` core.
+Recall that `e` may be an auxiliary term created for a term `e'` (see `cnstrsMapInv`).
+-/
+private def isAlreadyTrue (e : Expr) : OrderM Bool := do
+  if let some (e', _) := (← get').cnstrsMapInv.find? { expr := e } then
+    alreadyInternalized e' <&&> isEqTrue e'
+  else
+    alreadyInternalized e <&&> isEqTrue e
+
+/--
 Given `e` represented by constraint `c` (from `u` to `v`).
 Checks whether `e = True` can be propagated using the path `u --(k)--> v`.
 If it can, adds a new entry to propagation list.
 -/
-def checkEqTrue (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : OrderM Bool := do
-  if (← alreadyInternalized e <&&> isEqTrue e) then return true
+def checkEqTrue (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : OrderM Unit := do
+  if (← isAlreadyTrue e) then return ()
   let k' := c.getWeight
   trace[grind.debug.order.check_eq_true] "{← getExpr u}, {← getExpr v}, {k}, {k'}, {← c.pp}"
   if k ≤ k' then
     pushToPropagate <| .eqTrue c e u v k k'
-    return true
+
+/--
+Returns `true` if `e` is already `False` in the `grind` core.
+Recall that `e` may be an auxiliary term created for a term `e'` (see `cnstrsMapInv`).
+-/
+private def isAlreadyFalse (e : Expr) : OrderM Bool := do
+  if let some (e', _) := (← get').cnstrsMapInv.find? { expr := e } then
+    alreadyInternalized e' <&&> isEqFalse e'
   else
-    return false
+    alreadyInternalized e <&&> isEqFalse e
 
 /--
 Given `e` represented by constraint `c` (from `v` to `u`).
 Checks whether `e = False` can be propagated using the path `u --(k)--> v`.
 If it can, adds a new entry to propagation list.
 -/
-def checkEqFalse (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : OrderM Bool := do
-  if (← alreadyInternalized e <&&> isEqFalse e) then return true
+def checkEqFalse (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : OrderM Unit := do
+  if (← isAlreadyFalse e) then return ()
   let k' := c.getWeight
   trace[grind.debug.order.check_eq_false] "{← getExpr u}, {← getExpr v}, {k}, {k'} {← c.pp}"
   if (k + k').isNeg  then
     pushToPropagate <| .eqFalse c e u v k k'
-    return true
-  return false
 
 /--
 Auxiliary function for implementing theory propagation.
 Traverses the constraints `c` (representing an expression `e`) s.t.
-`c.u = u` and `c.v = v`, it removes `c` from the list of constraints
-associated with `(u, v)` IF
-- `e` is already assigned, or
-- `f c e` returns true
+`c.u = u` and `c.v = v`.
 -/
-@[inline] def updateCnstrsOf (u v : NodeId) (f : Cnstr NodeId → Expr → OrderM Bool) : OrderM Unit := do
+@[inline] def forEachCnstrsOf (u v : NodeId) (f : Cnstr NodeId → Expr → OrderM Unit) : OrderM Unit := do
   if let some cs := (← getStruct).cnstrsOf.find? (u, v) then
-    let cs' ← cs.filterM fun (c, e) => do
-      return !(← f c e)
-    modifyStruct fun s => { s with cnstrsOf := s.cnstrsOf.insert (u, v) cs' }
+    cs.forM fun (c, e) => f c e
 
 /-- Equality propagation. -/
 def checkEq (u v : NodeId) (k : Weight) : OrderM Unit := do
@@ -168,8 +178,8 @@ def checkEq (u v : NodeId) (k : Weight) : OrderM Unit := do
 
 /-- Finds constrains and equalities to be propagated. -/
 def checkToPropagate (u v : NodeId) (k : Weight) : OrderM Unit := do
-  updateCnstrsOf u v fun c e => return !(← checkEqTrue u v k c e)
-  updateCnstrsOf v u fun c e => return !(← checkEqFalse u v k c e)
+  forEachCnstrsOf u v fun c e => checkEqTrue u v k c e
+  forEachCnstrsOf v u fun c e => checkEqFalse u v k c e
   checkEq u v k
 
 /--

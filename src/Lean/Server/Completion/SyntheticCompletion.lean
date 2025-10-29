@@ -309,7 +309,7 @@ private def isSyntheticStructFieldCompletion
         stx.getTrailingTailPos? (canonicalOnly := true)
           <|> leadingToken.getTrailingTailPos? (canonicalOnly := true)
       | return false
-    let outerBounds : String.Range := ⟨outerBoundsStart, outerBoundsStop⟩
+    let outerBounds : Lean.Syntax.Range := ⟨outerBoundsStart, outerBoundsStop⟩
 
     let isCompletionInEmptyBlock :=
       fieldsAndSeps.isEmpty && outerBounds.contains hoverPos (includeStop := true)

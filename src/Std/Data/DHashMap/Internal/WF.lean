@@ -43,10 +43,6 @@ theorem toListModel_replicate_nil {c} :
   intro d
   induction d <;> simp_all [List.replicate]
 
-set_option linter.missingDocs false in
-@[deprecated toListModel_replicate_nil (since := "2025-03-18")]
-abbrev toListModel_mkArray_nil := @toListModel_replicate_nil
-
 @[simp]
 theorem computeSize_eq {buckets : Array (AssocList α β)} :
     computeSize buckets = (toListModel buckets).length := by
@@ -263,18 +259,10 @@ namespace Raw₀
 theorem toListModel_buckets_emptyWithCapacity {c} : toListModel (emptyWithCapacity c : Raw₀ α β).1.buckets = [] :=
   toListModel_replicate_nil
 
-set_option linter.missingDocs false in
-@[deprecated toListModel_buckets_emptyWithCapacity (since := "2025-03-12")]
-abbrev toListModel_buckets_empty := @toListModel_buckets_emptyWithCapacity
-
 theorem wfImp_emptyWithCapacity [BEq α] [Hashable α] {c} : Raw.WFImp (emptyWithCapacity c : Raw₀ α β).1 where
   buckets_hash_self := by simp [Raw₀.emptyWithCapacity]
   size_eq := by simp [Raw₀.emptyWithCapacity]
   distinct := by simp
-
-set_option linter.missingDocs false in
-@[deprecated wfImp_emptyWithCapacity (since := "2025-03-12")]
-abbrev wfImp_empty := @wfImp_emptyWithCapacity
 
 theorem isHashSelf_reinsertAux [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
     (data : {d : Array (AssocList α β) // 0 < d.size}) (a : α) (b : β a) (h : IsHashSelf data.1) :

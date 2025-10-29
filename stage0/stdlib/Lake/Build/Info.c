@@ -15,9 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_key___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Package_targetBuildKey___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_targetKey(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Package_buildKey(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_key(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_targetKey___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_ctorIdx___boxed(lean_object*);
@@ -25,15 +23,11 @@ LEAN_EXPORT lean_object* l_Lake_BuildInfo_ctorElim(lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_facet_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_target_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Package_buildKey___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToStringBuildInfo___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_target_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_BuildKey_toString(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Package_targetBuildKey(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToStringBuildInfo;
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_facet_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Package_facetBuildKey___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Package_facetBuildKey(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_key(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_ctorIdx(lean_object* x_1) {
@@ -162,49 +156,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Package_buildKey(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Package_buildKey___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Package_buildKey(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Package_facetBuildKey(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
-x_4 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_4, 0, x_3);
-x_5 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_5, 0, x_4);
-lean_ctor_set(x_5, 1, x_1);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Package_facetBuildKey___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_Package_facetBuildKey(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_Package_targetKey(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -222,27 +173,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_Package_targetKey(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Package_targetBuildKey(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
-x_4 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_1);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Package_targetBuildKey___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_Package_targetBuildKey(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }
@@ -314,17 +244,17 @@ x_1 = lean_alloc_closure((void*)(l_Lake_instToStringBuildInfo___lam__0), 1, 0);
 return x_1;
 }
 }
-lean_object* initialize_Lake_Config_Package(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Build_Data(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Config_Package(uint8_t builtin);
+lean_object* initialize_Lake_Build_Data(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Build_Info(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Build_Info(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Config_Package(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_Package(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Data(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Data(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instToStringBuildInfo = _init_l_Lake_instToStringBuildInfo();

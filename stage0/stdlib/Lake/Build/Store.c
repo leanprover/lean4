@@ -34,7 +34,7 @@ static lean_object* l_Lake_BuildStore_collectModuleFacetArray___redArg___closed_
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_BuildStore_collectSharedExternLibs___redArg___closed__2;
 lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__6;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -322,7 +322,7 @@ return x_5;
 else
 {
 lean_object* x_10; 
-x_10 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_8, x_3, x_4);
+x_10 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(x_8, x_3, x_4);
 lean_ctor_set_tag(x_5, 1);
 lean_ctor_set(x_5, 0, x_10);
 return x_5;
@@ -348,7 +348,7 @@ return x_13;
 else
 {
 lean_object* x_14; lean_object* x_15; 
-x_14 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_11, x_3, x_4);
+x_14 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(x_11, x_3, x_4);
 x_15 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_15, 0, x_14);
 return x_15;
@@ -647,25 +647,25 @@ x_4 = l_Lake_BuildStore_collectSharedExternLibs___redArg(x_2);
 return x_4;
 }
 }
-lean_object* initialize_Lake_Util_Store(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Build_Job_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Util_StoreInsts(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Build_Data(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Util_Store(uint8_t builtin);
+lean_object* initialize_Lake_Build_Job_Basic(uint8_t builtin);
+lean_object* initialize_Lake_Util_StoreInsts(uint8_t builtin);
+lean_object* initialize_Lake_Build_Data(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Build_Store(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Build_Store(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Util_Store(builtin, lean_io_mk_world());
+res = initialize_Lake_Util_Store(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Job_Basic(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Job_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_StoreInsts(builtin, lean_io_mk_world());
+res = initialize_Lake_Util_StoreInsts(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Data(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Data(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_BuildStore_empty = _init_l_Lake_BuildStore_empty();

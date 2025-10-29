@@ -107,6 +107,11 @@ Helper theorem for equality propagation
 theorem eq_of_le_of_le {α} [LE α] [Std.IsPartialOrder α] {a b : α} : a ≤ b → b ≤ a → a = b :=
   Std.IsPartialOrder.le_antisymm _ _
 
+theorem eq_of_le_of_le_0 {α} [LE α] [Std.IsPartialOrder α] [Ring α]
+    {a b : α} : a ≤ b + Int.cast (R := α) 0 → b ≤ a + Int.cast (R := α) 0 → a = b := by
+  simp [Ring.intCast_zero, Semiring.add_zero]
+  apply Std.IsPartialOrder.le_antisymm
+
 /-!
 Transitivity
 -/

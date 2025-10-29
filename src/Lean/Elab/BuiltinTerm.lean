@@ -164,7 +164,7 @@ private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
     -- `by` switches from an exported to a private context, so we must disallow unassigned
     -- metavariables in the goal in this case as they could otherwise leak private data back into
     -- the exported context.
-    mkTacticMVar expectedType stx .term (delayOnMVars := (← getEnv).isExporting)
+    mkTacticMVar expectedType stx .term (delayOnMVars := (← getEnv).isExporting && !(← backward.proofsInPublic.getM))
   | none =>
     tryPostpone
     throwError ("invalid 'by' tactic, expected type has not been provided")
@@ -240,9 +240,10 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
 
 @[builtin_term_elab doubleQuotedName] def elabDoubleQuotedName : TermElab := fun stx _ => do
   -- Always allow quoting private names.
-  let n ← withoutExporting <| realizeGlobalConstNoOverloadWithInfo stx[2]
-  recordExtraModUseFromDecl (isMeta := false) n
-  return toExpr n
+  withoutExporting do
+    let n ← realizeGlobalConstNoOverloadWithInfo stx[2]
+    recordExtraModUseFromDecl (isMeta := false) n
+    return toExpr n
 
 @[builtin_term_elab declName] def elabDeclName : TermElab := adaptExpander fun _ => do
   let some declName ← getDeclName?

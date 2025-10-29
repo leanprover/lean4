@@ -79,7 +79,7 @@ This is a pure syntax pass, without regard to elaboration information.
 
 The return value is either a selected tactic, or a selected point in a tactic sequence.
 -/
-partial def findTactic? (preferred : String.Pos.Raw → Bool) (range : String.Range)
+partial def findTactic? (preferred : String.Pos.Raw → Bool) (range : Lean.Syntax.Range)
     (root : Syntax) : Option FindTacticResult := do _ ← visit root; ← go [] root
 where
   /-- Returns `none` if we should not visit this syntax at all, and `some false` if we only
@@ -148,7 +148,7 @@ Returns the info tree corresponding to a syntax, using `kind` and `range` for id
 (This is not foolproof, but it is a fairly accurate proxy for `Syntax` equality and a lot cheaper
 than deep comparison.)
 -/
-partial def findInfoTree? (kind : SyntaxNodeKind) (tgtRange : String.Range)
+partial def findInfoTree? (kind : SyntaxNodeKind) (tgtRange : Lean.Syntax.Range)
   (ctx? : Option ContextInfo) (t : InfoTree)
   (f : ContextInfo → Info → Bool) (canonicalOnly := false) :
     Option (ContextInfo × InfoTree) :=

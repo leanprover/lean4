@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.Data.DateTime
-// Imports: public import Lake.Util.Date import Lake.Util.String import Init.Data.String.Basic
+// Imports: public import Lake.Util.Date import Lake.Util.String import Init.Data.String.TakeDrop
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT uint8_t l_String_anyAux___at___Lake_Toml_DateTime_ofString_x3f_spec__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_String_anyAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_zpad(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_DateTime_instToString___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_localDate_elim(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -26,19 +26,19 @@ LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_ctorElim___boxed(lean_object*, lea
 static lean_object* l_Lake_Toml_Time_instToString___closed__0;
 lean_object* l_String_toNat_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedTime;
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_Toml_DateTime_ofString_x3f_spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Time_ofValid_x3f(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lake_instDecidableEqDate_decEq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instDecidableEqDateTime___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Toml_instDecidableEqTime(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_Toml_Time_ofString_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_Toml_Time_ofString_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lake_Toml_Time_toString___closed__1;
 LEAN_EXPORT uint8_t l_Lake_Toml_instDecidableEqDateTime(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_ctorIdx(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_Toml_DateTime_ofString_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_Toml_DateTime_ofString_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_instDecidableEqProd___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Toml_instDecidableEqDateTime_decEq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instCoeDateDateTime;
@@ -62,10 +62,10 @@ static lean_object* l_Lake_Toml_DateTime_toString___closed__2;
 LEAN_EXPORT lean_object* l_Lake_Toml_Time_zero;
 LEAN_EXPORT lean_object* l_Lake_Toml_Time_ofString_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Time_instOfNat;
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_Toml_Time_ofString_x3f_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_Toml_Time_ofString_x3f_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Toml_instDecidableEqTime_decEq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_ctorElim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_Toml_DateTime_ofString_x3f_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Time_toString(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -78,8 +78,8 @@ LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_localTime_elim___redArg(lean_objec
 lean_object* l_Lake_rpad(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_localDateTime_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Substring_prevn(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_Toml_DateTime_ofString_x3f_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_Toml_Time_ofString_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_Toml_Time_ofString_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instDecidableEqDateTime_decEq___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -94,15 +94,15 @@ LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_instToString;
 LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_localTime_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_offsetDateTime_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_Toml_DateTime_ofString_x3f_spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Option_instDecidableEq_decEq___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_Toml_Time_ofString_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_Toml_Time_ofString_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_localDateTime_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Time_instToString;
 LEAN_EXPORT lean_object* l_Lake_Toml_Time_ofString_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Time_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_String_anyAux___at___Lake_Toml_DateTime_ofString_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_anyAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Time_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instDecidableEqDateTime_decEq___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_instInhabitedTime_default___closed__0;
@@ -314,7 +314,7 @@ return x_15;
 }
 }
 }
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_Toml_Time_ofString_x3f_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_Toml_Time_ofString_x3f_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -364,7 +364,7 @@ return x_17;
 }
 }
 }
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_Toml_Time_ofString_x3f_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_Toml_Time_ofString_x3f_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -420,7 +420,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_box(0);
-x_4 = l_String_splitAux___at___Lake_Toml_Time_ofString_x3f_spec__0(x_1, x_2, x_2, x_3);
+x_4 = l_String_splitAux___at___00Lake_Toml_Time_ofString_x3f_spec__0(x_1, x_2, x_2, x_3);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; 
@@ -505,7 +505,7 @@ lean_dec_ref(x_6);
 x_21 = lean_ctor_get(x_8, 0);
 lean_inc(x_21);
 lean_dec_ref(x_8);
-x_22 = l_String_splitAux___at___Lake_Toml_Time_ofString_x3f_spec__1(x_21, x_2, x_2, x_18);
+x_22 = l_String_splitAux___at___00Lake_Toml_Time_ofString_x3f_spec__1(x_21, x_2, x_2, x_18);
 lean_dec(x_21);
 if (lean_obj_tag(x_22) == 0)
 {
@@ -793,20 +793,20 @@ return x_79;
 }
 }
 }
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_Toml_Time_ofString_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_Toml_Time_ofString_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_String_splitAux___at___Lake_Toml_Time_ofString_x3f_spec__0(x_1, x_2, x_3, x_4);
+x_5 = l_String_splitAux___at___00Lake_Toml_Time_ofString_x3f_spec__0(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_1);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_Toml_Time_ofString_x3f_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_Toml_Time_ofString_x3f_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_String_splitAux___at___Lake_Toml_Time_ofString_x3f_spec__1(x_1, x_2, x_3, x_4);
+x_5 = l_String_splitAux___at___00Lake_Toml_Time_ofString_x3f_spec__1(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_1);
 return x_5;
 }
@@ -1374,7 +1374,7 @@ x_1 = lean_alloc_closure((void*)(l_Lake_Toml_instCoeTimeDateTime___lam__0), 1, 0
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_Toml_DateTime_ofString_x3f_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_10; 
@@ -1454,7 +1454,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT uint8_t l_String_anyAux___at___Lake_Toml_DateTime_ofString_x3f_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT uint8_t l_String_anyAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -1486,7 +1486,7 @@ return x_7;
 }
 }
 }
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_Toml_DateTime_ofString_x3f_spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -1536,7 +1536,7 @@ return x_17;
 }
 }
 }
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_Toml_DateTime_ofString_x3f_spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -1592,7 +1592,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_box(0);
-x_4 = l_String_splitAux___at___Lake_Toml_DateTime_ofString_x3f_spec__0(x_1, x_2, x_2, x_3);
+x_4 = l_String_splitAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__0(x_1, x_2, x_2, x_3);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; 
@@ -1611,7 +1611,7 @@ x_7 = lean_ctor_get(x_4, 0);
 lean_inc(x_7);
 lean_dec_ref(x_4);
 x_8 = lean_string_utf8_byte_size(x_7);
-x_9 = l_String_anyAux___at___Lake_Toml_DateTime_ofString_x3f_spec__1(x_7, x_8, x_2);
+x_9 = l_String_anyAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__1(x_7, x_8, x_2);
 lean_dec(x_8);
 if (x_9 == 0)
 {
@@ -1800,7 +1800,7 @@ return x_40;
 block_87:
 {
 lean_object* x_43; 
-x_43 = l_String_splitAux___at___Lake_Toml_DateTime_ofString_x3f_spec__2(x_28, x_2, x_2, x_26);
+x_43 = l_String_splitAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__2(x_28, x_2, x_2, x_26);
 if (lean_obj_tag(x_43) == 0)
 {
 goto block_41;
@@ -2047,7 +2047,7 @@ if (x_88 == 0)
 {
 uint8_t x_89; lean_object* x_90; 
 x_89 = 1;
-x_90 = l_String_splitAux___at___Lake_Toml_DateTime_ofString_x3f_spec__3(x_28, x_2, x_2, x_26);
+x_90 = l_String_splitAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__3(x_28, x_2, x_2, x_26);
 if (lean_obj_tag(x_90) == 0)
 {
 x_42 = x_89;
@@ -2366,40 +2366,40 @@ return x_157;
 }
 }
 }
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_Toml_DateTime_ofString_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_String_splitAux___at___Lake_Toml_DateTime_ofString_x3f_spec__0(x_1, x_2, x_3, x_4);
+x_5 = l_String_splitAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__0(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_1);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_String_anyAux___at___Lake_Toml_DateTime_ofString_x3f_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_String_anyAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; lean_object* x_5; 
-x_4 = l_String_anyAux___at___Lake_Toml_DateTime_ofString_x3f_spec__1(x_1, x_2, x_3);
+x_4 = l_String_anyAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__1(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_5 = lean_box(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_Toml_DateTime_ofString_x3f_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_String_splitAux___at___Lake_Toml_DateTime_ofString_x3f_spec__2(x_1, x_2, x_3, x_4);
+x_5 = l_String_splitAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__2(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_1);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_Toml_DateTime_ofString_x3f_spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_String_splitAux___at___Lake_Toml_DateTime_ofString_x3f_spec__3(x_1, x_2, x_3, x_4);
+x_5 = l_String_splitAux___at___00Lake_Toml_DateTime_ofString_x3f_spec__3(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_1);
 return x_5;
 }
@@ -2600,21 +2600,21 @@ x_1 = l_Lake_Toml_DateTime_instToString___closed__0;
 return x_1;
 }
 }
-lean_object* initialize_Lake_Util_Date(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Util_String(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Util_Date(uint8_t builtin);
+lean_object* initialize_Lake_Util_String(uint8_t builtin);
+lean_object* initialize_Init_Data_String_TakeDrop(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Toml_Data_DateTime(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Toml_Data_DateTime(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Util_Date(builtin, lean_io_mk_world());
+res = initialize_Lake_Util_Date(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_String(builtin, lean_io_mk_world());
+res = initialize_Lake_Util_String(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_String_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_Toml_instInhabitedTime_default___closed__0 = _init_l_Lake_Toml_instInhabitedTime_default___closed__0();

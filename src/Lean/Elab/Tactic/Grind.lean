@@ -11,3 +11,4 @@ public import Lean.Elab.Tactic.Grind.BuiltinTactic
 public import Lean.Elab.Tactic.Grind.ShowState
 public import Lean.Elab.Tactic.Grind.Have
 public import Lean.Elab.Tactic.Grind.Trace
+public import Lean.Elab.Tactic.Grind.Config

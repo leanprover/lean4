@@ -504,12 +504,13 @@ x_2 = l_Lean_Elab_instInhabitedTermInfo_default___closed__3;
 x_3 = lean_box(0);
 x_4 = l_Lean_Elab_instInhabitedTermInfo_default___closed__0;
 x_5 = l_Lean_Elab_instInhabitedElabInfo_default;
-x_6 = lean_alloc_ctor(0, 4, 1);
+x_6 = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_4);
 lean_ctor_set(x_6, 2, x_3);
 lean_ctor_set(x_6, 3, x_2);
 lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_1);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4 + 1, x_1);
 return x_6;
 }
 }
@@ -2659,29 +2660,29 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Lean_Data_DeclarationRange(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_OpenDecl(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_MetavarContext(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Environment(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Widget_Types(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_DeclarationRange(uint8_t builtin);
+lean_object* initialize_Lean_Data_OpenDecl(uint8_t builtin);
+lean_object* initialize_Lean_MetavarContext(uint8_t builtin);
+lean_object* initialize_Lean_Environment(uint8_t builtin);
+lean_object* initialize_Lean_Widget_Types(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Elab_InfoTree_Types(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Elab_InfoTree_Types(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Data_DeclarationRange(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_DeclarationRange(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_OpenDecl(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_OpenDecl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_MetavarContext(builtin, lean_io_mk_world());
+res = initialize_Lean_MetavarContext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Environment(builtin, lean_io_mk_world());
+res = initialize_Lean_Environment(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Widget_Types(builtin, lean_io_mk_world());
+res = initialize_Lean_Widget_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_instInhabitedElabInfo_default___closed__0 = _init_l_Lean_Elab_instInhabitedElabInfo_default___closed__0();

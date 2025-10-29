@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_Syntax_formatStx(lean_object*, lean_object*, uint8_t);
 static lean_object* l___private_Lean_Elab_SetOption_0__Lean_Elab_ctorType_x3f___closed__0;
-lean_object* l_IO_toEIO(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_IO_toEIO___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_SetOption_0__Lean_Elab_ctorType_x3f___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Elab_validateOptionValue___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentD(lean_object*);
@@ -46,6 +46,7 @@ static lean_object* l_Lean_Elab_elabSetOption___redArg___lam__1___closed__1;
 lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l___private_Lean_Elab_SetOption_0__Lean_Elab_ctorType_x3f___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_validateOptionValue___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_getOptionDecl___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_SetOption_0__Lean_Elab_ctorType_x3f___closed__3;
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
@@ -99,7 +100,6 @@ uint8_t l_Lean_DataValue_sameCtor(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_SetOption_0__Lean_Elab_validateOptionValue_throwMistypedOptionValue___redArg___closed__8;
 static lean_object* l___private_Lean_Elab_SetOption_0__Lean_Elab_validateOptionValue_throwMistypedOptionValue___redArg___closed__5;
-lean_object* l_Lean_getOptionDecl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_SetOption_0__Lean_Elab_ctorType_x3f(lean_object*);
 lean_object* lean_erase_macro_scopes(lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1215,9 +1215,9 @@ lean_closure_set(x_13, 4, x_5);
 lean_closure_set(x_13, 5, x_1);
 lean_closure_set(x_13, 6, x_6);
 lean_closure_set(x_13, 7, x_7);
-x_14 = lean_alloc_closure((void*)(l_Lean_getOptionDecl), 2, 1);
+x_14 = lean_alloc_closure((void*)(l_Lean_getOptionDecl___boxed), 2, 1);
 lean_closure_set(x_14, 0, x_12);
-x_15 = lean_alloc_closure((void*)(l_IO_toEIO), 5, 4);
+x_15 = lean_alloc_closure((void*)(l_IO_toEIO___boxed), 5, 4);
 lean_closure_set(x_15, 0, lean_box(0));
 lean_closure_set(x_15, 1, lean_box(0));
 lean_closure_set(x_15, 2, x_8);
@@ -1321,13 +1321,13 @@ lean_dec_ref(x_2);
 return x_9;
 }
 }
-lean_object* initialize_Lean_Elab_InfoTree(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_InfoTree(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Elab_SetOption(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Elab_SetOption(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_InfoTree(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_InfoTree(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Elab_SetOption_0__Lean_Elab_throwUnconfigurable___redArg___closed__0 = _init_l___private_Lean_Elab_SetOption_0__Lean_Elab_throwUnconfigurable___redArg___closed__0();

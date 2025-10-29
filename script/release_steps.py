@@ -589,8 +589,19 @@ def execute_release_steps(repo, version, config):
         
         # Clean lake cache for a fresh build
         print(blue("Cleaning lake cache..."))
-        run_command("rm -rf .lake", cwd=repo_path)
-        
+        run_command("lake clean", cwd=repo_path)
+
+        # Check if downstream of Mathlib and get cache if so
+        mathlib_package_dir = repo_path / ".lake" / "packages" / "mathlib"
+        if mathlib_package_dir.exists():
+            print(blue("Project is downstream of Mathlib, fetching cache..."))
+            try:
+                run_command("lake exe cache get", cwd=repo_path, stream_output=True)
+                print(green("Cache fetched successfully"))
+            except subprocess.CalledProcessError as e:
+                print(yellow("Failed to fetch cache, continuing anyway..."))
+                print(yellow(f"Cache fetch error: {e}"))
+
         try:
             run_command("lake build", cwd=repo_path, stream_output=True)
             print(green("Build completed successfully"))

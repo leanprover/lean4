@@ -148,7 +148,7 @@ where
   Counterpart of `String.findLineStart`.
   -/
   findLineEnd (s : String) (p : String.Pos.Raw) : String.Pos.Raw :=
-    s.findAux (· == '\n') s.endPos p
+    s.findAux (· == '\n') s.rawEndPos p
 
   /--
   Is the structure instance notation `stx` described by `view` using single-line styling?

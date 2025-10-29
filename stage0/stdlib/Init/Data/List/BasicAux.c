@@ -63,7 +63,7 @@ static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__Li
 size_t lean_ptr_addr(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__11;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__77;
-LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at___List_mapMono_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at___00List_mapMono_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__67;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__76;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__78;
@@ -100,7 +100,7 @@ lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_tail_x21___redArg___boxed(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__36;
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_panic___at___List_tail_x21_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_panic___at___00List_tail_x21_spec__0(lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__40;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__60;
 static lean_object* l_List_head_x21___redArg___closed__0;
@@ -117,7 +117,7 @@ LEAN_EXPORT lean_object* l_List_mapMono(lean_object*, lean_object*, lean_object*
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_get_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__63;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__12;
-LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at___List_mapMono_spec__0___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at___00List_mapMono_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__64;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__tacticDecreasing__trivial__1___closed__1;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__72;
@@ -157,7 +157,7 @@ lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_List_getLast_x21(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_partitionMap_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__62;
-LEAN_EXPORT lean_object* l_panic___at___List_tail_x21_spec__0___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_panic___at___00List_tail_x21_spec__0___redArg(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__39;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -381,7 +381,7 @@ lean_dec(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at___List_tail_x21_spec__0___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_panic___at___00List_tail_x21_spec__0___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -390,11 +390,11 @@ x_3 = lean_panic_fn(x_2, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at___List_tail_x21_spec__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_panic___at___00List_tail_x21_spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_panic___at___List_tail_x21_spec__0___redArg(x_2);
+x_3 = l_panic___at___00List_tail_x21_spec__0___redArg(x_2);
 return x_3;
 }
 }
@@ -426,7 +426,7 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_List_tail_x21___redArg___closed__1;
-x_3 = l_panic___at___List_tail_x21_spec__0___redArg(x_2);
+x_3 = l_panic___at___00List_tail_x21_spec__0___redArg(x_2);
 return x_3;
 }
 else
@@ -867,7 +867,7 @@ x_6 = l_List_mapMonoM___redArg(x_3, x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at___List_mapMono_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at___00List_mapMono_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -884,7 +884,7 @@ lean_inc(x_1);
 lean_inc(x_3);
 x_5 = lean_apply_1(x_1, x_3);
 lean_inc(x_4);
-x_6 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at___List_mapMono_spec__0___redArg(x_1, x_4);
+x_6 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at___00List_mapMono_spec__0___redArg(x_1, x_4);
 x_13 = lean_ptr_addr(x_5);
 x_14 = lean_ptr_addr(x_3);
 x_15 = lean_usize_dec_eq(x_13, x_14);
@@ -939,11 +939,11 @@ return x_2;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at___List_mapMono_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at___00List_mapMono_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at___List_mapMono_spec__0___redArg(x_2, x_3);
+x_4 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at___00List_mapMono_spec__0___redArg(x_2, x_3);
 return x_4;
 }
 }
@@ -951,7 +951,7 @@ LEAN_EXPORT lean_object* l_List_mapMono___redArg(lean_object* x_1, lean_object* 
 _start:
 {
 lean_object* x_3; 
-x_3 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at___List_mapMono_spec__0___redArg(x_2, x_1);
+x_3 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at___00List_mapMono_spec__0___redArg(x_2, x_1);
 return x_3;
 }
 }
@@ -959,7 +959,7 @@ LEAN_EXPORT lean_object* l_List_mapMono(lean_object* x_1, lean_object* x_2, lean
 _start:
 {
 lean_object* x_4; 
-x_4 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at___List_mapMono_spec__0___redArg(x_3, x_2);
+x_4 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at___00List_mapMono_spec__0___redArg(x_3, x_2);
 return x_4;
 }
 }
@@ -2170,13 +2170,13 @@ lean_dec(x_4);
 return x_7;
 }
 }
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_List_BasicAux(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_List_BasicAux(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Nat_Linear(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Nat_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_List_getLast_x21___redArg___closed__0 = _init_l_List_getLast_x21___redArg___closed__0();

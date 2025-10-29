@@ -101,6 +101,9 @@ with_cdn_endpoints test_not_out "downloading" cache get .lake/outputs.jsonl --sc
 with_cdn_endpoints test_not_out "downloading artifact" cache get --scope='!/test'
 with_cdn_endpoints test_not_out "downloading" cache get --scope='!/test'
 
+# Test that the revision cache directory for the package is properly created
+test_exp -d $LAKE_CACHE_DIR/revisions/test
+
 # Test `--force-download`
 with_cdn_endpoints test_out "downloading" cache get --scope='!/test' --force-download
 

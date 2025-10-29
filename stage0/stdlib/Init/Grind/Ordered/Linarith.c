@@ -47,7 +47,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denote_x27_go___redArg___box
 static lean_object* l_Lean_Grind_Linarith_instReprExpr_repr___closed__9;
 static lean_object* l_Lean_Grind_Linarith_instReprExpr_repr___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Poly_denote_x27_go_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_Grind_Linarith_Expr_toPoly_x27_go_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_Grind_Linarith_Expr_toPoly_x27_go_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_instBEqPoly_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Expr_denote_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_Linarith_instReprExpr_repr___closed__18;
@@ -171,7 +171,6 @@ LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_L
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_norm__cert___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t l_instDecidableNot___redArg(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_norm(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1222,17 +1221,17 @@ if (lean_is_scalar(x_107)) {
  x_113 = x_107;
  lean_ctor_set_tag(x_113, 5);
 }
-lean_ctor_set(x_113, 0, x_109);
+lean_ctor_set(x_113, 0, x_111);
 lean_ctor_set(x_113, 1, x_112);
 x_114 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_114, 0, x_113);
-lean_ctor_set(x_114, 1, x_111);
+lean_ctor_set(x_114, 1, x_110);
 x_115 = l_Lean_Grind_Linarith_instReprExpr_repr(x_106, x_108);
 x_116 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_116, 0, x_114);
 lean_ctor_set(x_116, 1, x_115);
 x_117 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_117, 0, x_110);
+lean_ctor_set(x_117, 0, x_109);
 lean_ctor_set(x_117, 1, x_116);
 x_118 = 0;
 x_119 = lean_alloc_ctor(6, 1, 1);
@@ -1255,9 +1254,9 @@ x_127 = l_Int_repr(x_105);
 lean_dec(x_105);
 x_128 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_128, 0, x_127);
-x_109 = x_124;
-x_110 = x_122;
-x_111 = x_123;
+x_109 = x_122;
+x_110 = x_123;
+x_111 = x_124;
 x_112 = x_128;
 goto block_121;
 }
@@ -1269,9 +1268,9 @@ lean_dec(x_105);
 x_130 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_130, 0, x_129);
 x_131 = l_Repr_addAppParen(x_130, x_108);
-x_109 = x_124;
-x_110 = x_122;
-x_111 = x_123;
+x_109 = x_122;
+x_110 = x_123;
+x_111 = x_124;
 x_112 = x_131;
 goto block_121;
 }
@@ -1862,7 +1861,7 @@ block_34:
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; lean_object* x_32; lean_object* x_33; 
 x_22 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_22, 0, x_19);
+lean_ctor_set(x_22, 0, x_18);
 lean_ctor_set(x_22, 1, x_21);
 lean_inc(x_20);
 x_23 = lean_alloc_ctor(5, 2, 0);
@@ -1882,7 +1881,7 @@ x_29 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_29, 0, x_27);
 lean_ctor_set(x_29, 1, x_28);
 x_30 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_30, 0, x_18);
+lean_ctor_set(x_30, 0, x_19);
 lean_ctor_set(x_30, 1, x_29);
 x_31 = 0;
 x_32 = lean_alloc_ctor(6, 1, 1);
@@ -1905,8 +1904,8 @@ x_40 = l_Int_repr(x_14);
 lean_dec(x_14);
 x_41 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_41, 0, x_40);
-x_18 = x_35;
-x_19 = x_37;
+x_18 = x_37;
+x_19 = x_35;
 x_20 = x_36;
 x_21 = x_41;
 goto block_34;
@@ -1919,8 +1918,8 @@ lean_dec(x_14);
 x_43 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_43, 0, x_42);
 x_44 = l_Repr_addAppParen(x_43, x_17);
-x_18 = x_35;
-x_19 = x_37;
+x_18 = x_37;
+x_19 = x_35;
 x_20 = x_36;
 x_21 = x_44;
 goto block_34;
@@ -2741,7 +2740,7 @@ x_4 = l_Lean_Grind_Linarith_Poly_combine_x27(x_3, x_1, x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_Grind_Linarith_Expr_toPoly_x27_go_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_Grind_Linarith_Expr_toPoly_x27_go_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -3648,26 +3647,27 @@ return x_5;
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_eq__diseq__subst__cert(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; uint8_t x_8; uint8_t x_9; 
+lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_nat_abs(x_1);
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_nat_dec_eq(x_6, x_7);
 lean_dec(x_6);
-x_9 = l_instDecidableNot___redArg(x_8);
-if (x_9 == 0)
+if (x_8 == 0)
 {
-lean_dec(x_4);
-lean_dec(x_3);
-return x_9;
+lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+x_9 = l_Lean_Grind_Linarith_Poly_mul(x_3, x_2);
+x_10 = l_Lean_Grind_Linarith_Poly_mul(x_4, x_1);
+x_11 = l_Lean_Grind_Linarith_Poly_combine(x_9, x_10);
+x_12 = l_Lean_Grind_Linarith_instBEqPoly_beq(x_5, x_11);
+lean_dec(x_11);
+return x_12;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
-x_10 = l_Lean_Grind_Linarith_Poly_mul(x_3, x_2);
-x_11 = l_Lean_Grind_Linarith_Poly_mul(x_4, x_1);
-x_12 = l_Lean_Grind_Linarith_Poly_combine(x_10, x_11);
-x_13 = l_Lean_Grind_Linarith_instBEqPoly_beq(x_5, x_12);
-lean_dec(x_12);
+uint8_t x_13; 
+lean_dec(x_4);
+lean_dec(x_3);
+x_13 = 0;
 return x_13;
 }
 }
@@ -3819,37 +3819,37 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* initialize_Init_Grind_Ordered_Ring(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Ring_Field(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_AC(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_AC(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_LawfulBEqTactics(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Ordered_Ring(uint8_t builtin);
+lean_object* initialize_Init_Grind_Ring_Field(uint8_t builtin);
+lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_AC(uint8_t builtin);
+lean_object* initialize_Init_Data_AC(uint8_t builtin);
+lean_object* initialize_Init_LawfulBEqTactics(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Grind_Ordered_Linarith(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Grind_Ordered_Linarith(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Grind_Ordered_Ring(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Ordered_Ring(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ring_Field(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Ring_Field(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Ord_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Ord_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Ord_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Ord_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_AC(builtin, lean_io_mk_world());
+res = initialize_Init_Data_AC(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_AC(builtin, lean_io_mk_world());
+res = initialize_Init_Data_AC(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_LawfulBEqTactics(builtin, lean_io_mk_world());
+res = initialize_Init_LawfulBEqTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Grind_Linarith_instInhabitedExpr_default = _init_l_Lean_Grind_Linarith_instInhabitedExpr_default();

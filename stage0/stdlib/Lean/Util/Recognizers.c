@@ -4384,13 +4384,13 @@ return x_435;
 }
 }
 }
-lean_object* initialize_Lean_Environment(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Environment(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Util_Recognizers(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Util_Recognizers(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Environment(builtin, lean_io_mk_world());
+res = initialize_Lean_Environment(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Expr_eq_x3f___closed__0 = _init_l_Lean_Expr_eq_x3f___closed__0();

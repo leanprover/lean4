@@ -33,6 +33,11 @@ structure Cnstr (α : Type) where
   k      : Int := 0
   /-- Denotation of this constraint as an expression. -/
   e      : Expr
+  /--
+  If `h? := some h`, then `h` is proof for that the expression associated with this constraint
+  is equal to `e`. Recall that the input constraints are normalized. For example, given `x y : Int`,
+  `x ≤ y` is internally represented as `x ≤ y + 0`
+  -/
   h?     : Option Expr := none
   deriving Inhabited
 

@@ -26,18 +26,6 @@ namespace Lake
 Build function definitions for a module's builtin facets.
 -/
 
-/-- Compute library directories and build external library Jobs of the given packages. -/
-@[deprecated "Deprecated without replacement" (since := "2025-03-28")]
-public def recBuildExternDynlibs
-  (pkgs : Array Package)
-: FetchM (Array (Job Dynlib) × Array FilePath) := do
-  let mut libDirs := #[]
-  let mut jobs : Array (Job Dynlib) := #[]
-  for pkg in pkgs do
-    libDirs := libDirs.push pkg.sharedLibDir
-    jobs := jobs.append <| ← pkg.externLibs.mapM (·.dynlib.fetch)
-  return (jobs, libDirs)
-
 /-- Parse the header of a Lean file from its source. -/
 private def Module.recFetchInput (mod : Module) : FetchM (Job ModuleInput) := Job.async do
   let path := mod.leanFile

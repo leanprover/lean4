@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Grind
-// Imports: public import Lean.Elab.Tactic.Grind.Main public import Lean.Elab.Tactic.Grind.Basic public import Lean.Elab.Tactic.Grind.BuiltinTactic public import Lean.Elab.Tactic.Grind.ShowState public import Lean.Elab.Tactic.Grind.Have public import Lean.Elab.Tactic.Grind.Trace
+// Imports: public import Lean.Elab.Tactic.Grind.Main public import Lean.Elab.Tactic.Grind.Basic public import Lean.Elab.Tactic.Grind.BuiltinTactic public import Lean.Elab.Tactic.Grind.ShowState public import Lean.Elab.Tactic.Grind.Have public import Lean.Elab.Tactic.Grind.Trace public import Lean.Elab.Tactic.Grind.Config
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,33 +13,37 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Lean_Elab_Tactic_Grind_Main(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Grind_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Grind_BuiltinTactic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Grind_ShowState(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Grind_Have(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Grind_Trace(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Tactic_Grind_Main(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Grind_Basic(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Grind_BuiltinTactic(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Grind_ShowState(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Grind_Have(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Grind_Trace(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Grind_Config(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Grind(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Grind(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_Tactic_Grind_Main(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Grind_Main(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Grind_Basic(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Grind_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Grind_BuiltinTactic(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Grind_BuiltinTactic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Grind_ShowState(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Grind_ShowState(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Grind_Have(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Grind_Have(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Grind_Trace(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Grind_Trace(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Tactic_Grind_Config(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

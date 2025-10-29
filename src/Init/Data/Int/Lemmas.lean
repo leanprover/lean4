@@ -74,9 +74,6 @@ theorem negSucc_inj : negSucc m = negSucc n ↔ m = n := ⟨negSucc.inj, fun H =
 
 theorem negSucc_eq (n : Nat) : -[n+1] = -((n : Int) + 1) := rfl
 
-@[deprecated negSucc_eq (since := "2025-03-11")]
-theorem negSucc_coe (n : Nat) : -[n+1] = -↑(n + 1) := rfl
-
 @[simp] theorem negSucc_ne_zero (n : Nat) : -[n+1] ≠ 0 := nofun
 
 @[simp] theorem zero_ne_negSucc (n : Nat) : 0 ≠ -[n+1] := nofun
@@ -352,10 +349,6 @@ protected theorem add_sub_assoc (a b c : Int) : a + b - c = a + (b - c) := by
   | succ m =>
     change ofNat (n - succ m) = subNatNat n (succ m)
     rw [subNatNat, Nat.sub_eq_zero_of_le h]
-
-@[deprecated negSucc_eq (since := "2025-03-11")]
-theorem negSucc_coe' (n : Nat) : -[n+1] = -↑n - 1 := by
-  rw [Int.sub_eq_add_neg, ← Int.neg_add]; rfl
 
 protected theorem subNatNat_eq_coe {m n : Nat} : subNatNat m n = ↑m - ↑n := by
   apply subNatNat_elim m n fun m n i => i = m - n

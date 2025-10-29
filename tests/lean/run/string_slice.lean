@@ -55,6 +55,11 @@ Tests for `String.Slice` functions
 #guard "red red green blue".toSlice.takeWhile "red " == "red red ".toSlice
 #guard "red green blue".toSlice.takeWhile (fun (_ : Char) => true) == "red green blue".toSlice
 
+#guard (" ".toSlice.dropWhile ' ' |>.takeWhile Char.isLower) == "".toSlice
+#guard (" ".toSlice.dropWhile ' ' |>.takeEndWhile Char.isLower) == "".toSlice
+#guard ("∃a∃".toSlice.drop 1 |>.takeWhile Char.isLower) == "a".toSlice
+#guard ("∃a∃".toSlice.dropEnd 1 |>.takeEndWhile Char.isLower) == "a".toSlice
+
 #guard "red green blue".toSlice.dropPrefix? "red " == some "green blue".toSlice
 #guard "red green blue".toSlice.dropPrefix? "reed " == none
 #guard "red green blue".toSlice.dropPrefix? 'r' == some "ed green blue".toSlice
@@ -205,3 +210,25 @@ Tests for `String.Slice` functions
 
 #guard "abc".toSlice.back = 'c'
 #guard "".toSlice.back = (default : Char)
+
+section
+open String.Slice.Pattern
+
+instance [Monad n]{s : String.Slice} : Std.Iterators.IteratorCollect (ForwardSliceSearcher s) Id n :=
+  .defaultImplementation
+
+#guard (ToForwardSearcher.toSearcher "".toSlice "").toList == [.matched "".toSlice.startPos "".toSlice.startPos]
+#guard (ToForwardSearcher.toSearcher "abc".toSlice "").toList == [
+  .matched ("abc".toSlice.pos ⟨0⟩ (by decide)) ("abc".toSlice.pos ⟨0⟩ (by decide)),
+  .rejected ("abc".toSlice.pos ⟨0⟩ (by decide)) ("abc".toSlice.pos ⟨1⟩ (by decide)),
+  .matched ("abc".toSlice.pos ⟨1⟩ (by decide)) ("abc".toSlice.pos ⟨1⟩ (by decide)),
+  .rejected ("abc".toSlice.pos ⟨1⟩ (by decide)) ("abc".toSlice.pos ⟨2⟩ (by decide)),
+  .matched ("abc".toSlice.pos ⟨2⟩ (by decide)) ("abc".toSlice.pos ⟨2⟩ (by decide)),
+  .rejected ("abc".toSlice.pos ⟨2⟩ (by decide)) ("abc".toSlice.pos ⟨3⟩ (by decide)),
+  .matched ("abc".toSlice.pos ⟨3⟩ (by decide)) ("abc".toSlice.pos ⟨3⟩ (by decide)),
+]
+
+end
+
+#guard ("".toSlice.split "").toList == ["".toSlice, "".toSlice]
+#guard ("abc".toSlice.split "").toList == ["".toSlice, "a".toSlice, "b".toSlice, "c".toSlice, "".toSlice]

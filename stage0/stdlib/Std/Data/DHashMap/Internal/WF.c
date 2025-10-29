@@ -406,33 +406,33 @@ lean_dec(x_4);
 return x_6;
 }
 }
-lean_object* initialize_Std_Data_Internal_List_Associative(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DHashMap_Raw(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DHashMap_Internal_Defs(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DHashMap_Internal_Model(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DHashMap_Internal_AssocList_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DHashMap_RawDef(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_Internal_List_Associative(uint8_t builtin);
+lean_object* initialize_Std_Data_DHashMap_Raw(uint8_t builtin);
+lean_object* initialize_Std_Data_DHashMap_Internal_Defs(uint8_t builtin);
+lean_object* initialize_Std_Data_DHashMap_Internal_Model(uint8_t builtin);
+lean_object* initialize_Std_Data_DHashMap_Internal_AssocList_Basic(uint8_t builtin);
+lean_object* initialize_Std_Data_DHashMap_RawDef(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Data_DHashMap_Internal_WF(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Data_DHashMap_Internal_WF(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_Internal_List_Associative(builtin, lean_io_mk_world());
+res = initialize_Std_Data_Internal_List_Associative(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Raw(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DHashMap_Raw(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Internal_Defs(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DHashMap_Internal_Defs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Internal_Model(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DHashMap_Internal_Model(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Internal_AssocList_Basic(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DHashMap_Internal_AssocList_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_RawDef(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DHashMap_RawDef(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

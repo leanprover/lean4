@@ -201,6 +201,9 @@ theorem pow_add (a : α) (k₁ k₂ : Nat) : a ^ (k₁ + k₂) = a^k₁ * a^k₂
   next => simp [pow_zero, mul_one]
   next k₂ ih => rw [Nat.add_succ, pow_succ, pow_succ, ih, mul_assoc]
 
+theorem pow_add_congr (a r : α) (k k₁ k₂ : Nat) : k = k₁ + k₂ → a^k₁ * a^k₂ = r → a ^ k = r := by
+  intros; subst k r; rw [pow_add]
+
 theorem natCast_pow (x : Nat) (k : Nat) : ((x ^ k : Nat) : α) = (x : α) ^ k := by
   induction k
   next => simp [pow_zero, Nat.pow_zero, natCast_one]

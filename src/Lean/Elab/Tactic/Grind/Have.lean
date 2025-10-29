@@ -7,7 +7,9 @@ module
 prelude
 public import Lean.Elab.Tactic.Grind.Basic
 import Lean.Meta.Tactic.Grind.Intro
+import Lean.Meta.Tactic.Grind.RevertAll
 import Lean.Elab.SyntheticMVars
+import Lean.Meta.Tactic.Grind.Solve
 namespace Lean.Elab.Tactic.Grind
 open Meta Grind
 
@@ -27,21 +29,41 @@ where
     return e
 
 @[builtin_grind_tactic Parser.Tactic.Grind.«have»] def evalHave : GrindTactic := fun stx => withMainContext do
-  match stx with
-  | `(grind| have $decl:letDecl) =>
-    let stx' ← `(have $decl:letDecl; False)
-    let e ← elabTerm stx' none
-    let .letE n t v _ _ := e
-      | throwError "elaborated term is not a `have` declaration{indentExpr e}"
-    if t.hasMVar then throwError "type has metavariables{indentExpr t}"
-    if v.hasMVar then throwError "value has metavariables{indentExpr v}"
-    let goal ← getMainGoal
-    let mvarId ← goal.mvarId.assert n t v
-    let goal := { goal with mvarId }
-    let (goal, _) ← liftGrindM <| withCheapCasesOnly <| SearchM.run goal do
-      intros 0
-      getGoal
-    replaceMainGoal [goal]
-  | _ => throwUnsupportedSyntax
+  let `(grind| have $decl:letDecl) := stx | throwUnsupportedSyntax
+  let stx' ← `(have $decl:letDecl; False)
+  let e ← elabTerm stx' none
+  let .letE n t v _ _ := e
+    | throwError "elaborated term is not a `have` declaration{indentExpr e}"
+  if t.hasMVar then throwError "type has metavariables{indentExpr t}"
+  if v.hasMVar then throwError "value has metavariables{indentExpr v}"
+  let goal ← getMainGoal
+  let mvarId ← goal.mvarId.assert n t v
+  let goal := { goal with mvarId }
+  let (goal, _) ← liftGrindM <| withCheapCasesOnly <| SearchM.run goal do
+    intros 0
+    getGoal
+  replaceMainGoal [goal]
+
+@[builtin_grind_tactic Parser.Tactic.Grind.haveSilent] def evalHaveSilent : GrindTactic := fun stx => withMainContext do
+  let `(grind| have $[$id?:ident]? : $prop:term) := stx | throwUnsupportedSyntax
+  let id := if let some id := id? then id.getId else `this
+  let id := if id.hasMacroScopes then id else markGrindName id
+  let prop ← elabTerm prop none
+  let mvar ← mkFreshExprMVar prop
+  let mvarId := mvar.mvarId!
+  let goal :: goals ← getGoals | throwNoGoalsToBeSolved
+  let goalNew := { goal with mvarId }
+  setGoals [goalNew]
+  if let some goal ← liftGrindM <| solve goalNew then
+    let params := (← read).params
+    let result ← liftGrindM do mkResult params (some goal)
+    throwError "`finish` failed\n{← result.toMessageData}"
+  let v ← instantiateMVars mvar
+  let mvarId ← goal.mvarId.assert id prop v
+  let goal := { goal with mvarId }
+  let (goal, _) ← liftGrindM <| withCheapCasesOnly <| SearchM.run goal do
+    intros 0
+    getGoal
+  setGoals (goal :: goals)
 
 end Lean.Elab.Tactic.Grind

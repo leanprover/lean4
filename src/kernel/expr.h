@@ -50,9 +50,9 @@ public:
     explicit literal(nat const & v);
     literal():literal(0u) {}
     literal(literal const & other):object_ref(other) {}
-    literal(literal && other):object_ref(std::move(other)) {}
+    literal(literal && other) noexcept:object_ref(std::move(other)) {}
     literal & operator=(literal const & other) { object_ref::operator=(other); return *this; }
-    literal & operator=(literal && other) { object_ref::operator=(std::move(other)); return *this; }
+    literal & operator=(literal && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
 
     static literal_kind kind(object * o) { return static_cast<literal_kind>(cnstr_tag(o)); }
     literal_kind kind() const { return kind(raw()); }
@@ -83,7 +83,7 @@ inductive Expr
 */
 enum class expr_kind { BVar, FVar, MVar, Sort, Const, App, Lambda, Pi, Let, Lit, MData, Proj };
 class expr : public object_ref {
-    explicit expr(object_ref && o):object_ref(o) {}
+    explicit expr(object_ref && o) noexcept:object_ref(o) {}
 
     friend expr mk_lit(literal const & lit);
     friend expr mk_mdata(kvmap const & d, expr const & e);
@@ -100,14 +100,14 @@ class expr : public object_ref {
 public:
     expr();
     expr(expr const & other):object_ref(other) {}
-    expr(expr && other):object_ref(std::move(other)) {}
+    expr(expr && other) noexcept:object_ref(std::move(other)) {}
     explicit expr(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit expr(obj_arg o):object_ref(o) {}
     static expr_kind kind(object * o) { return static_cast<expr_kind>(cnstr_tag(o)); }
     expr_kind kind() const { return kind(raw()); }
 
     expr & operator=(expr const & other) { object_ref::operator=(other); return *this; }
-    expr & operator=(expr && other) { object_ref::operator=(std::move(other)); return *this; }
+    expr & operator=(expr && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
 
     friend bool is_eqp(expr const & e1, expr const & e2) { return e1.raw() == e2.raw(); }
 };

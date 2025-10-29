@@ -207,17 +207,17 @@ x_1 = l_Int_instHShiftLeftNat___closed__0;
 return x_1;
 }
 }
-lean_object* initialize_Init_Data_Int_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Nat_Bitwise_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Bitwise_Basic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Int_Bitwise_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Int_Bitwise_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Int_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Int_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Bitwise_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Nat_Bitwise_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Int_not___closed__0 = _init_l_Int_not___closed__0();

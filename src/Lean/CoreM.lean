@@ -684,9 +684,25 @@ def traceBlock (tag : String) (t : Task α) : CoreM α := do
     profileitM Exception "blocked" (← getOptions) do
       IO.wait t
 
--- Forward declaration
-@[extern "lean_lcnf_compile_decls"]
-opaque compileDeclsImpl (declNames : Array Name) : CoreM Unit
+/--
+This ref exists to break a linking cycle that goes as follows:
+- We start in `Environment.lean`, there we have functions referencing the compiler such as
+  `evalConst`
+- This pulls in the entire compiler transitively as well as all of its dependents
+- The compiler relies on things like WHNF to inspect types
+- WHNF in turn imports Environment
+
+On Windows this causes a large amount of symbols to be included in one DLL as everything that
+imports the Environment instantly requires a large chunk of the Meta stack to be linked. This ref
+breaks the cycle by making `compileDeclsImpl` a "dynamic" call through the ref that is not visible
+to the linker. In the compiler there is a matching `builtin_initialize` to set this ref to the
+actual implementation of compileDeclsRef.
+-/
+builtin_initialize compileDeclsRef : IO.Ref (Array Name → CoreM Unit) ←
+  IO.mkRef (fun _ => throwError m!"call to compileDecls with uninitialized compileDeclsRef")
+
+def compileDeclsImpl (declNames : Array Name) : CoreM Unit := do
+  (← compileDeclsRef.get) declNames
 
 -- `ref?` is used for error reporting if available
 partial def compileDecls (decls : Array Name) (logErrors := true) : CoreM Unit := do

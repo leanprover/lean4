@@ -200,8 +200,8 @@ jobs:
                 "test": true,
                 // NOTE: `test-speedcenter` currently seems to be broken on `ubuntu-latest`
                 "test-speedcenter": large && level >= 2,
-                // made explicit until it can be assumed to have propagated to PRs
-                "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
+                // We are not warning-free yet on all platforms, start here
+                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror",
               },
               {
                 "name": "Linux Reldebug",

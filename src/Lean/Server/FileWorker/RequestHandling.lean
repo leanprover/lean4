@@ -79,7 +79,7 @@ def handleHover (p : HoverParams)
     : RequestM (RequestTask (Option Hover)) := do
   let doc ← readDoc
   let text := doc.meta.text
-  let mkHover (s : String) (r : String.Range) : Hover :=
+  let mkHover (s : String) (r : Lean.Syntax.Range) : Hover :=
     let s := Hover.rewriteExamples s
     {
       contents := {
@@ -151,7 +151,7 @@ def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos.Raw) : ServerTa
           | return .pure (oldGoals, .proceed (foldChildren := false))
         let some (pos, tailPos, trailingPos) := getPositions stx
           | return .pure (oldGoals, .proceed (foldChildren := true))
-        let snapRange : String.Range := ⟨pos, trailingPos⟩
+        let snapRange : Lean.Syntax.Range := ⟨pos, trailingPos⟩
         -- When there is no trailing whitespace, we also consider snapshots directly before the
         -- cursor.
         let hasNoTrailingWhitespace := tailPos == trailingPos
@@ -163,7 +163,7 @@ def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos.Raw) : ServerTa
             | return (oldGoals, .proceed (foldChildren := true))
 
           let goals := infoTree.goalsAt? text hoverPos
-          let optimalSnapRange : String.Range := ⟨pos, tailPos⟩
+          let optimalSnapRange : Lean.Syntax.Range := ⟨pos, tailPos⟩
           let isOptimalGoalSet :=
             text.rangeContainsHoverPos optimalSnapRange hoverPos
                 (includeStop := hasNoTrailingWhitespace)
@@ -300,7 +300,7 @@ def NamespaceEntry.finish (text : FileMap) (syms : Array DocumentSymbol) (endStx
     -- we can assume that commands always have at least one position (see `parseCommand`)
     let range := match endStx with
       | some endStx => (mkNullNode #[stx, endStx]).getRange?.get!
-      | none        =>  { stx.getRange?.get! with stop := text.source.endPos }
+      | none        =>  { stx.getRange?.get! with stop := text.source.rawEndPos }
     let name := name.foldr (fun x y => y ++ x) Name.anonymous
     prevSiblings.push <| DocumentSymbol.mk {
       -- anonymous sections are represented by `«»` name components
@@ -386,7 +386,7 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
     addRanges (text : FileMap) sections
     | [] => do
       if let (_, start)::rest := sections then
-        addRange text FoldingRangeKind.region start text.source.endPos
+        addRange text FoldingRangeKind.region start text.source.rawEndPos
         addRanges text rest []
     | stx::stxs => do
       RequestM.checkCancelled

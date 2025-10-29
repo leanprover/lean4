@@ -105,8 +105,7 @@ syntax (name := mleft) "mleft" : tactic
 syntax (name := mpure) "mpure" colGt ident : tactic
 
 @[tactic_alt Lean.Parser.Tactic.mpureIntroMacro]
-macro (name := mpureIntro) "mpure_intro" : tactic =>
-  `(tactic| apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro))
+syntax (name := mpureIntro) "mpure_intro" : tactic
 
 @[tactic_alt Lean.Parser.Tactic.mrenameIMacro]
 syntax (name := mrenameI) "mrename_i" (ppSpace colGt binderIdent)+ : tactic

@@ -36,7 +36,10 @@ inductive MyNat : Type where
 | zero : MyNat
 | succ : MyNat -> MyNat
 
-def MyNat.add : MyNat -> MyNat -> MyNat := sorry
+def MyNat.add : MyNat -> MyNat -> MyNat
+  | zero, n => n
+  | succ m, n => succ (add m n)
+
 instance : Add MyNat where
   add := MyNat.add
 
@@ -53,7 +56,7 @@ def parity (n : MyNat) : Parity n := sorry
 /--
 error: Tactic `cases` failed with a nested error:
 Dependent elimination failed: Failed to solve equation
-  zero = sorry n✝ n✝
+  zero = n✝.add n✝
 at case `Parity.even` after processing
   zero, _
 the dependent pattern matcher can solve the following kinds of equations

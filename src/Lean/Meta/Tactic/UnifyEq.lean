@@ -46,22 +46,13 @@ private def toOffset? (e : Expr) : MetaM (Option (Expr × Nat)) := do
 -/
 def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
              (acyclic : MVarId → Expr → MetaM Bool := fun _ _ => return false)
-             (caseName? : Option Name := none) (mayFail : Bool := false)
+             (caseName? : Option Name := none)
              : MetaM (Option UnifyEqResult) := do
    mvarId.withContext do
     let eqDecl ← eqFVarId.getDecl
-    trace[Meta.Tactic.cases] "unifyEq? {mkFVar eqDecl.fvarId} : {eqDecl.type}"
     if eqDecl.type.isHEq then
-      let (varId, mvarId) ← heqToEq mvarId eqDecl.fvarId
-      if varId == eqDecl.fvarId then
-        -- heqToEq failed
-        if mayFail then
-          return some { mvarId, subst }
-        else
-          throwError "Dependent elimination failed: Failed to convert heterogeneous equality{indentExpr eqDecl.type} to homogeneous equality"
-      else
-        let (_, mvarId) ← mvarId.revert #[varId]
-        return some { mvarId, subst, numNewEqs := 1 }
+      let mvarId ← heqToEq' mvarId eqDecl
+      return some { mvarId, subst, numNewEqs := 1 }
     else match eqDecl.type.eq? with
       | none => throwError "Expected an equality, but found{indentExpr eqDecl.type}"
       | some (_, a, b) =>
@@ -86,10 +77,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
           else if (← acyclic mvarId (mkFVar eqFVarId)) then
             return none -- this alternative has been solved
           else
-            if mayFail then
-              return some { mvarId, subst }
-            else
-              throwError "Dependent elimination failed: Failed to solve equation{indentExpr eqDecl.type}"
+            throwError "Dependent elimination failed: Failed to solve equation{indentExpr eqDecl.type}"
         /- Special support for offset equalities -/
         let injectionOffset? (a b : Expr) := do
           unless (← getEnv).contains ``Nat.elimOffset do return none
@@ -130,12 +118,9 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
               let mvarId ←  mvarId.clear eqFVarId
               return some { mvarId, subst, numNewEqs := 1 }
             else
-              if mayFail then
-                return some { mvarId, subst }
-              else
-                match caseName? with
-                | none => throwError "Dependent elimination failed: Failed to solve equation{indentExpr eqDecl.type}"
-                | some caseName => throwError "Dependent elimination failed: Failed to solve equation{indentExpr eqDecl.type}\nat case `{.ofConstName caseName}`"
+              match caseName? with
+              | none => throwError "Dependent elimination failed: Failed to solve equation{indentExpr eqDecl.type}"
+              | some caseName => throwError "Dependent elimination failed: Failed to solve equation{indentExpr eqDecl.type}\nat case `{.ofConstName caseName}`"
         let a ← instantiateMVars a
         let b ← instantiateMVars b
         match a, b with

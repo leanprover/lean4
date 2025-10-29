@@ -513,7 +513,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
   let subgoals? ← commitWhenSome? do
      let subgoals ←
        try
-         p.mvarId.cases x.fvarId! (mayLeaveEquations := true)
+         p.mvarId.cases x.fvarId!
        catch ex =>
          if p.alts.isEmpty then
            /- If we have no alternatives and dependent pattern matching fails, then a "missing cases" error is better than a "stuck" error message. -/

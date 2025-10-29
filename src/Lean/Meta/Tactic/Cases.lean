@@ -226,20 +226,19 @@ private def toCasesSubgoals (s : Array InductionSubgoal) (ctorNames : Array Name
     { ctorName           := ctorName,
       toInductionSubgoal := s }
 
-partial def unifyEqs? (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst)
-    (caseName? : Option Name := none) (mayFail : Bool := false) : MetaM (Option (MVarId × FVarSubst)) := withIncRecDepth do
+partial def unifyEqs? (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) (caseName? : Option Name := none): MetaM (Option (MVarId × FVarSubst)) := withIncRecDepth do
   if numEqs == 0 then
     return some (mvarId, subst)
   else
     let (eqFVarId, mvarId) ← mvarId.intro1
-    if let some { mvarId, subst, numNewEqs } ← unifyEq? mvarId eqFVarId subst MVarId.acyclic caseName? (mayFail := mayFail) then
-      unifyEqs? (numEqs - 1 + numNewEqs) mvarId subst caseName? (mayFail := mayFail)
+    if let some { mvarId, subst, numNewEqs } ← unifyEq? mvarId eqFVarId subst MVarId.acyclic caseName? then
+      unifyEqs? (numEqs - 1 + numNewEqs) mvarId subst caseName?
     else
       return none
 
-private def unifyCasesEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) (mayFail := false) : MetaM (Array CasesSubgoal) :=
+private def unifyCasesEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) : MetaM (Array CasesSubgoal) :=
   subgoals.filterMapM fun s => do
-    match (← unifyEqs? numEqs s.mvarId s.subst s.ctorName (mayFail := mayFail)) with
+    match (← unifyEqs? numEqs s.mvarId s.subst s.ctorName) with
     | none                 => pure none
     | some (mvarId, subst) =>
       return some { s with
@@ -259,7 +258,7 @@ private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenName
   let s ← mvarId.induction majorFVarId casesOn givenNames
   return toCasesSubgoals s ctors majorFVarId us params
 
-def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) (useNatCasesAuxOn : Bool := false) (mayLeaveEquations := false) : MetaM (Array CasesSubgoal) := do
+def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) (useNatCasesAuxOn : Bool := false) : MetaM (Array CasesSubgoal) := do
   try
     mvarId.withContext do
       mvarId.checkNotAssigned `cases
@@ -278,7 +277,7 @@ def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNam
           trace[Meta.Tactic.cases] "after generalizeIndices\n{MessageData.ofGoal s₁.mvarId}"
           let s₂ ← inductionCasesOn s₁.mvarId s₁.fvarId givenNames ctx
           let s₂ ← elimAuxIndices s₁ s₂
-          unifyCasesEqs s₁.numEqs s₂ (mayFail := mayLeaveEquations)
+          unifyCasesEqs s₁.numEqs s₂
   catch ex =>
     throwNestedTacticEx `cases ex
 
@@ -293,9 +292,8 @@ Apply `casesOn` using the free variable `majorFVarId` as the major premise (aka 
   It enables using `Nat.casesAuxOn` instead of `Nat.casesOn`,
   which causes case splits on `n : Nat` to be represented as `0` and `n' + 1` rather than as `Nat.zero` and `Nat.succ n'`.
 -/
-def _root_.Lean.MVarId.cases (mvarId : MVarId) (majorFVarId : FVarId)
-    (givenNames : Array AltVarNames := #[]) (useNatCasesAuxOn : Bool := false) (mayLeaveEquations := false) : MetaM (Array CasesSubgoal) :=
-  Cases.cases mvarId majorFVarId givenNames (useNatCasesAuxOn := useNatCasesAuxOn) (mayLeaveEquations := mayLeaveEquations)
+def _root_.Lean.MVarId.cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) (useNatCasesAuxOn : Bool := false) : MetaM (Array CasesSubgoal) :=
+  Cases.cases mvarId majorFVarId givenNames (useNatCasesAuxOn := useNatCasesAuxOn)
 
 /--
 Keep applying `cases` on any hypothesis that satisfies `p`.

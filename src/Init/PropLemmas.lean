@@ -447,6 +447,18 @@ theorem Decidable.by_contra [Decidable p] : (¬p → False) → p := of_not_not
 @[expose] protected def Or.by_cases' [Decidable q] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
   if hq : q then h₂ hq else h₁ (h.resolve_right hq)
 
+instance exists_prop_decidable {p} (P : p → Prop)
+  [Decidable p] [∀ h, Decidable (P h)] : Decidable (∃ h, P h) :=
+if h : p then
+  decidable_of_decidable_of_iff ⟨fun h2 => ⟨h, h2⟩, fun ⟨_, h2⟩ => h2⟩
+else isFalse fun ⟨h', _⟩ => h h'
+
+instance forall_prop_decidable {p} (P : p → Prop)
+  [Decidable p] [∀ h, Decidable (P h)] : Decidable (∀ h, P h) :=
+if h : p then
+  decidable_of_decidable_of_iff ⟨fun h2 _ => h2, fun al => al h⟩
+else isTrue fun h2 => absurd h2 h
+
 @[bool_to_prop] theorem decide_eq_true_iff {p : Prop} [Decidable p] : (decide p = true) ↔ p := by simp
 
 @[simp, bool_to_prop] theorem decide_eq_decide {p q : Prop} {_ : Decidable p} {_ : Decidable q} :

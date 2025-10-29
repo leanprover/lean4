@@ -129,7 +129,7 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
           let nextStackPos := stackPos.inc
           let nextNeedlePos := needlePos.inc
           if h : nextNeedlePos = needle.rawEndPos then
-            -- Safety: the section from `nextStackPos.descreaseBy needle.utf8ByteSize` to `nextStackPos`
+            -- Safety: the section from `nextStackPos.decreaseBy needle.utf8ByteSize` to `nextStackPos`
             -- (exclusive) is exactly the needle, so it must represent a valid range.
             let res := .matched (s.pos! (nextStackPos.decreaseBy needle.utf8ByteSize)) (s.pos! nextStackPos)
             -- Invariants still satisfied

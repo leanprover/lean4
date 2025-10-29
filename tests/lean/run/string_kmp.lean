@@ -34,3 +34,6 @@ def run (s pat : String) : List S :=
 #guard run "𝔸b𝕸xu∅" "𝕸x" = [.r 0 4, .r 4 5, .m 5 10, .r 10 11, .r 11 14]
 #guard run "é" "ù" = [.r 0 2]
 #guard run "éB" "ù" = [.r 0 2, .r 2 3]
+#guard run "abcabdabcabcabcabe" "abcabdabcabe" = [.r 0 6, .r 6 9, .r 9 12, .r 12 15, .r 15 17, .r 17 18]
+#guard run "abcabdabcxabcabdabcabe" "abcabdabcabe" = [.r 0 6, .r 6 9, .r 9 10, .m 10 22]
+#guard run "€α𝕸€α𝔸€α𝕸€α𝕸€α𝕸€αù" "€α𝕸€α𝔸€α𝕸€αù" = [.r 0 18, .r 18 27, .r 27 36, .r 36 45,  .r 45 50, .r 50 52]

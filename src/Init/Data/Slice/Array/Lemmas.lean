@@ -45,13 +45,9 @@ theorem toList_internalIter {α : Type u} {s : Subarray α} :
 
 public instance : LawfulSliceSize (Internal.SubarrayData α) where
   lawful s := by
-    obtain ⟨⟨xs, l, u, _, _⟩⟩ := s
-    simp [SliceSize.size, ToIterator.iter_eq, Iter.toIter_toIterM]
-    -- TODO: Why doesn't simp work?
-    rw [Iter.count_map, Iter.count_uLift, Iter.count_attachWith,
+    simp [SliceSize.size, ToIterator.iter_eq, Iter.toIter_toIterM,
       ← Iter.size_toArray_eq_count, ← Rco.Internal.toArray_eq_toArray_iter,
-      Rco.size_toArray, Rco.size]
-    simp only [Rxo.HasSize.size, Rxc.HasSize.size]
+      Rco.size_toArray, Rco.size, Rxo.HasSize.size, Rxc.HasSize.size]
     omega
 
 end Std.Slice.Array

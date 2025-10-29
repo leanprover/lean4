@@ -54,15 +54,8 @@ def parity (n : MyNat) : Parity n := sorry
 -- set_option trace.Meta.Match.match true
 
 /--
-error: Tactic `cases` failed with a nested error:
-Dependent elimination failed: Failed to solve equation
-  a✝.succ = n✝.add n✝
-at case `Parity.even` after processing
-  (succ _), _
-the dependent pattern matcher can solve the following kinds of equations
-- <var> = <term> and <term> = <var>
-- <term> = <term> where the terms are definitionally equal
-- <constructor> = <constructor>, examples: List.cons x xs = List.cons y ys, and List.cons x xs = List.nil
+error: Dependent match elimination failed: Could not solve constraints
+  a✝.succ ≋ n✝ + n✝
 -/
 #guard_msgs(pass trace, all) in
 partial def myNatToBinBad (n : MyNat) : List Bool :=
@@ -70,3 +63,14 @@ match n, parity n with
 | zero, _             => []
 | _, Parity.even j => false :: myNatToBinBad j
 | _, Parity.odd  j => true  :: myNatToBinBad j
+
+set_option trace.Meta.Tactic.cases true
+/--
+error: Tactic `cases` failed with a nested error:
+Dependent elimination failed: Failed to solve equation
+  n.succ = n✝.add n✝
+at case `Parity.even`
+-/
+#guard_msgs(pass trace, all) in
+example (h : Parity (MyNat.succ n)) : false := by
+  rcases h

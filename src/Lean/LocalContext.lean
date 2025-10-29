@@ -395,6 +395,11 @@ def findFromUserName? (lctx : LocalContext) (userName : Name) : Option LocalDecl
     | none      => none
     | some decl => if decl.userName == userName then some decl else none
 
+def getFromUserName! (lctx : LocalContext) (userName : Name) : LocalDecl :=
+  match lctx.findFromUserName? userName with
+  | some decl => decl
+  | none      => panic! s!"unknown local declaration `{userName}`"
+
 def usesUserName (lctx : LocalContext) (userName : Name) : Bool :=
   (lctx.findFromUserName? userName).isSome
 

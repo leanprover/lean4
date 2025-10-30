@@ -81,11 +81,35 @@ public def propagateEqTrue (c : Cnstr NodeId) (e : Expr) (u v : NodeId) (k k' : 
   else
     pushEqTrue e h
 
+public def propagateSelfEqTrue (c : Cnstr NodeId) (e : Expr) : OrderM Unit := do
+  let u ← getExpr c.u
+  assert! c.u == c.v
+  let mut h ← mkPropagateSelfEqTrueProof u c.getWeight
+  if let some he := c.h? then
+    h := mkApp4 (mkConst ``Grind.Order.eq_trans_true) e c.e he h
+  if let some (e', he) := (← get').cnstrsMapInv.find? { expr := e } then
+    h := mkApp4 (mkConst ``Grind.Order.eq_trans_true) e' e he h
+    pushEqTrue e' h
+  else
+    pushEqTrue e h
+
 public def propagateEqFalse (c : Cnstr NodeId) (e : Expr) (u v : NodeId) (k k' : Weight) : OrderM Unit := do
   let kuv ← mkProofForPath u v
   let u ← getExpr u
   let v ← getExpr v
   let mut h ← mkPropagateEqFalseProof u v k kuv k'
+  if let some he := c.h? then
+    h := mkApp4 (mkConst ``Grind.Order.eq_trans_false) e c.e he h
+  if let some (e', he) := (← get').cnstrsMapInv.find? { expr := e } then
+    h := mkApp4 (mkConst ``Grind.Order.eq_trans_false) e' e he h
+    pushEqFalse e' h
+  else
+    pushEqFalse e h
+
+public def propagateSelfEqFalse (c : Cnstr NodeId) (e : Expr) : OrderM Unit := do
+  let u ← getExpr c.u
+  assert! c.u == c.v
+  let mut h ← mkPropagateSelfEqFalseProof u c.getWeight
   if let some he := c.h? then
     h := mkApp4 (mkConst ``Grind.Order.eq_trans_false) e c.e he h
   if let some (e', he) := (← get').cnstrsMapInv.find? { expr := e } then

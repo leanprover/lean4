@@ -1091,7 +1091,7 @@ theorem eq_unsat_coeff (ctx : Context) (p : Poly) (k : Int) : eq_unsat_coeff_cer
   induction p
   next => rfl
   next a y p ih =>
-    simp [coeff_k, coeff, cond_eq_if]; split
+    simp [coeff_k, coeff, cond_eq_ite]; split
     next h => simp [h]
     next h => rw [← Nat.beq_eq, Bool.not_eq_true] at h; simp [h, ← ih]; rfl
 

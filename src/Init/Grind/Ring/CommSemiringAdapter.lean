@@ -79,7 +79,7 @@ def denoteSInt {α} [Semiring α] (k : Int) : α :=
     OfNat.ofNat (α := α) k.natAbs
 
 theorem denoteSInt_eq {α} [Semiring α] (k : Int) : denoteSInt (α := α) k = k.toNat := by
-  simp [denoteSInt, cond_eq_if] <;> split
+  simp [denoteSInt, cond_eq_ite] <;> split
   next h => rw [ofNat_eq_natCast, Int.toNat_of_nonpos (Int.le_of_lt h)]
   next h =>
     have : (k.natAbs : Int) = k.toNat := by
@@ -103,7 +103,7 @@ theorem Poly.denoteS_ofVar {α} [Semiring α] (ctx : Context α) (x : Var)
 
 theorem Poly.denoteS_addConst {α} [Semiring α] (ctx : Context α) (p : Poly) (k : Int)
     : k ≥ 0 → p.NonnegCoeffs → (addConst p k).denoteS ctx = p.denoteS ctx + k.toNat := by
-  simp [addConst, cond_eq_if]; split
+  simp [addConst, cond_eq_ite]; split
   next => subst k; simp
   next =>
     fun_induction addConst.go <;> simp [denoteS, *]
@@ -116,7 +116,7 @@ theorem Poly.denoteS_addConst {α} [Semiring α] (ctx : Context α) (p : Poly) (
 
 theorem Poly.denoteS_insert {α} [Semiring α] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
     : k ≥ 0 → p.NonnegCoeffs → (insert k m p).denoteS ctx = k.toNat * m.denote ctx + p.denoteS ctx := by
-  simp [insert, cond_eq_if] <;> split
+  simp [insert, cond_eq_ite] <;> split
   next => simp [*]
   next =>
     split
@@ -149,7 +149,7 @@ theorem Poly.denoteS_concat {α} [Semiring α] (ctx : Context α) (p₁ p₂ : P
 
 theorem Poly.denoteS_mulConst {α} [Semiring α] (ctx : Context α) (k : Int) (p : Poly)
     : k ≥ 0 → p.NonnegCoeffs → (mulConst k p).denoteS ctx = k.toNat * p.denoteS ctx := by
-  simp [mulConst, cond_eq_if] <;> split
+  simp [mulConst, cond_eq_ite] <;> split
   next => simp [denoteS, *, zero_mul]
   next =>
     split <;> try simp [*]
@@ -196,7 +196,7 @@ theorem Poly.denoteS_combine {α} [Semiring α] (ctx : Context α) (p₁ p₂ : 
 
 theorem Poly.denoteS_mulMon {α} [CommSemiring α] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
     : k ≥ 0 → p.NonnegCoeffs → (mulMon k m p).denoteS ctx = k.toNat * m.denote ctx * p.denoteS ctx := by
-  simp [mulMon, cond_eq_if] <;> split
+  simp [mulMon, cond_eq_ite] <;> split
   next => simp [denoteS, *]
   next =>
     split
@@ -218,7 +218,7 @@ theorem Poly.denoteS_mulMon {α} [CommSemiring α] (ctx : Context α) (k : Int) 
         assumption; assumption
 
 theorem Poly.addConst_NonnegCoeffs {p : Poly} {k : Int} : k ≥ 0 → p.NonnegCoeffs → (p.addConst k).NonnegCoeffs := by
-  simp [addConst, cond_eq_if]; split
+  simp [addConst, cond_eq_ite]; split
   next => intros; assumption
   fun_induction addConst.go
   next h _ => intro _ h; cases h; constructor; apply Int.add_nonneg <;> assumption
@@ -269,7 +269,7 @@ theorem Poly.num_zero_NonnegCoeffs : (num 0).NonnegCoeffs := by
 
 theorem Poly.denoteS_mulMon_nc {α} [Semiring α] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
     : k ≥ 0 → p.NonnegCoeffs → (mulMon_nc k m p).denoteS ctx = k.toNat * m.denote ctx * p.denoteS ctx := by
-  simp [mulMon_nc, cond_eq_if] <;> split
+  simp [mulMon_nc, cond_eq_ite] <;> split
   next => simp [denoteS, *]
   next =>
     split
@@ -282,7 +282,7 @@ theorem Poly.denoteS_mulMon_nc {α} [Semiring α] (ctx : Context α) (k : Int) (
       simp [this, denoteS]
 
 theorem Poly.mulConst_NonnegCoeffs {p : Poly} {k : Int} : k ≥ 0 → p.NonnegCoeffs → (p.mulConst k).NonnegCoeffs := by
-  simp [mulConst, cond_eq_if]; split
+  simp [mulConst, cond_eq_ite]; split
   next => intros; constructor; decide
   split; intros; assumption
   fun_induction mulConst.go
@@ -295,7 +295,7 @@ theorem Poly.mulConst_NonnegCoeffs {p : Poly} {k : Int} : k ≥ 0 → p.NonnegCo
     next ih _ h => exact ih h₁ h
 
 theorem Poly.mulMon_NonnegCoeffs {p : Poly} {k : Int} (m : Mon) : k ≥ 0 → p.NonnegCoeffs → (p.mulMon k m).NonnegCoeffs := by
-  simp [mulMon, cond_eq_if]; split
+  simp [mulMon, cond_eq_ite]; split
   next => intros; constructor; decide
   split
   next => intros; apply mulConst_NonnegCoeffs <;> assumption
@@ -323,7 +323,7 @@ theorem Poly.mulMon_nc_go_NonnegCoeffs {p : Poly} {k : Int} (m : Mon) {acc : Pol
     next => assumption
 
 theorem Poly.mulMon_nc_NonnegCoeffs {p : Poly} {k : Int} (m : Mon) : k ≥ 0 → p.NonnegCoeffs → (p.mulMon_nc k m).NonnegCoeffs := by
-  simp [mulMon_nc, cond_eq_if]; split
+  simp [mulMon_nc, cond_eq_ite]; split
   next => intros; constructor; decide
   split
   next => intros; apply mulConst_NonnegCoeffs <;> assumption

@@ -547,7 +547,7 @@ theorem succ_cast_eq {n' : Nat} (i : Fin n) (h : n = n') :
 @[simp] theorem cast_castSucc {n' : Nat} {h : n + 1 = n' + 1} {i : Fin n} :
     i.castSucc.cast h = (i.cast (Nat.succ.inj h)).castSucc := rfl
 
-theorem castSucc_lt_succ (i : Fin n) : i.castSucc < i.succ :=
+theorem castSucc_lt_succ {i : Fin n} : i.castSucc < i.succ :=
   lt_def.2 <| by simp only [coe_castSucc, val_succ, Nat.lt_succ_self]
 
 theorem le_castSucc_iff {i : Fin (n + 1)} {j : Fin n} : i ≤ j.castSucc ↔ i < j.succ := by

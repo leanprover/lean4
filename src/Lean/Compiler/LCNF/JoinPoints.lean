@@ -34,6 +34,23 @@ structure CandidateInfo where
   associated : Std.HashSet FVarId
   deriving Inhabited
 
+structure FindCtx where
+  /--
+  The current definition depth is defined by how many `fun` binders we are
+  nested in at the current point. Note that this does *not* include `jp`
+  binders.
+  -/
+  definitionDepth : Nat := 0
+  /--
+  A map from function declarations that are currently in scope to their
+  definition depth.
+  -/
+  scope : FVarIdMap Nat := {}
+  /--
+  The current function binder we are inside of if any.
+  -/
+  currentFunction : Option FVarId := none
+
 /--
 The state for the join point candidate finder.
 -/
@@ -42,22 +59,26 @@ structure FindState where
   All current join point candidates accessible by their `FVarId`.
   -/
   candidates : Std.HashMap FVarId CandidateInfo := ∅
-  /--
-  The `FVarId`s of all `fun` declarations that were declared within the
-  current `fun`.
-  -/
-  scope : Std.HashSet FVarId := ∅
+
+
+abbrev FindM := ReaderT FindCtx StateRefT FindState CompilerM
 
 abbrev ReplaceCtx := Std.HashMap FVarId Name
-
-abbrev FindM := ReaderT (Option FVarId) StateRefT FindState ScopeM
 abbrev ReplaceM := ReaderT ReplaceCtx CompilerM
 
 /--
 Attempt to find a join point candidate by its `FVarId`.
 -/
+@[inline]
 private def findCandidate? (fvarId : FVarId) : FindM (Option CandidateInfo) := do
   return (← get).candidates[fvarId]?
+
+/--
+Combinator for modifying the candidates in `FindM`.
+-/
+@[inline]
+private def modifyCandidates (f : Std.HashMap FVarId CandidateInfo → Std.HashMap FVarId CandidateInfo) : FindM Unit :=
+  modify (fun state => { state with candidates := f state.candidates })
 
 /--
 Erase a join point candidate as well as all the ones that depend on it
@@ -65,14 +86,8 @@ by its `FVarId`, no error is thrown is the candidate does not exist.
 -/
 private partial def eraseCandidate (fvarId : FVarId) : FindM Unit := do
   if let some info ← findCandidate? fvarId then
-    modify (fun state => { state with candidates := state.candidates.erase fvarId })
+    modifyCandidates  fun cs => cs.erase fvarId
     info.associated.forM eraseCandidate
-
-/--
-Combinator for modifying the candidates in `FindM`.
--/
-private def modifyCandidates (f : Std.HashMap FVarId CandidateInfo → Std.HashMap FVarId CandidateInfo) : FindM Unit :=
-  modify (fun state => {state with candidates := f state.candidates })
 
 /--
 Remove all join point candidates contained in `a`.
@@ -91,16 +106,30 @@ Add a new join point candidate to the state.
 -/
 private def addCandidate (fvarId : FVarId) (arity : Nat) : FindM Unit := do
   let cinfo := { arity, associated := ∅ }
-  modifyCandidates (fun cs => cs.insert fvarId cinfo )
+  modifyCandidates fun cs => cs.insert fvarId cinfo
 
 /--
 Add a new join point dependency from `src` to `dst`.
 -/
 private def addDependency (src : FVarId) (target : FVarId) : FindM Unit := do
-  if let some targetInfo ← findCandidate? target then
-    modifyCandidates (fun cs => cs.insert target { targetInfo with associated := targetInfo.associated.insert src })
-  else
-    eraseCandidate src
+  modifyCandidates fun cs =>
+    cs.modify target fun targetInfo =>
+      { targetInfo with associated := targetInfo.associated.insert src }
+
+@[inline]
+private def withFnBody (decl : FunDecl) (x : FindM α) : FindM α :=
+    withReader (fun ctx => {
+        ctx with
+          definitionDepth := ctx.definitionDepth + 1,
+          currentFunction := some decl.fvarId }) do
+      x
+
+@[inline]
+private def withFnDefined (decl : FunDecl) (x : FindM α) : FindM α :=
+    withReader (fun ctx => {
+        ctx with
+          scope := ctx.scope.insert decl.fvarId ctx.definitionDepth }) do
+      x
 
 /--
 Find all `fun` declarations that qualify as a join point, that is:
@@ -135,7 +164,7 @@ this. This is because otherwise the calls to `myjp` in `f` and `g` would
 produce out of scope join point jumps.
 -/
 partial def find (decl : Decl) : CompilerM FindState := do
-  let (_, candidates) ← decl.value.forCodeM go |>.run none |>.run {} |>.run' {}
+  let (_, candidates) ← decl.value.forCodeM go |>.run {} |>.run {}
   return candidates
 where
   go : Code → FindM Unit
@@ -148,29 +177,30 @@ where
         if valId != decl.fvarId || args.size != candidateInfo.arity then
           eraseCandidate fvarId
         -- Out of scope join point candidate handling
-        else if let some upperCandidate ← read then
-          if !(← isInScope fvarId) then
-            addDependency fvarId upperCandidate
-      else
-        eraseCandidate fvarId
+        else
+          let currDepth := (← read).definitionDepth
+          let calleeDepth := (← read).scope.get! fvarId
+          if currDepth == calleeDepth then
+            return ()
+          else if calleeDepth + 1 == currDepth then
+            addDependency fvarId (← read).currentFunction.get!
+          else
+            eraseCandidate fvarId
     | _, _ =>
       removeCandidatesInLetValue decl.value
       go k
   | .fun decl k => do
-    withReader (fun _ => some decl.fvarId) do
-      withNewScope do
-        go decl.value
     addCandidate decl.fvarId decl.getArity
-    addToScope decl.fvarId
-    go k
+    withFnBody decl do
+      go decl.value
+    withFnDefined decl do
+      go k
   | .jp decl k => do
     go decl.value
     go k
   | .jmp _ args => args.forM removeCandidatesInArg
   | .return val => eraseCandidate val
-  | .cases c => do
-    eraseCandidate c.discr
-    c.alts.forM (·.forCodeM go)
+  | .cases c => c.alts.forM (·.forCodeM go)
   | .unreach .. => return ()
 
 /--
@@ -602,17 +632,23 @@ where
 
 end JoinPointCommonArgs
 
+def Decl.findJoinPoints? (decl : Decl) : CompilerM (Option Decl) := do
+  let findResult ← JoinPointFinder.find decl
+  trace[Compiler.findJoinPoints] "Found {findResult.candidates.size} jp candidates for {decl.name}"
+  if findResult.candidates.isEmpty then
+    return none
+  else
+    return some (← JoinPointFinder.replace decl findResult)
+
 /--
 Find all `fun` declarations in `decl` that qualify as join points then replace
 their definitions and call sites with `jp`/`jmp`.
 -/
 def Decl.findJoinPoints (decl : Decl) : CompilerM Decl := do
-  let findResult ← JoinPointFinder.find decl
-  trace[Compiler.findJoinPoints] "Found {findResult.candidates.size} jp candidates for {decl.name}"
-  JoinPointFinder.replace decl findResult
+  return (← Decl.findJoinPoints? decl).getD decl
 
-def findJoinPoints : Pass :=
-  .mkPerDeclaration `findJoinPoints Decl.findJoinPoints .base
+def findJoinPoints (occurrence : Nat := 0) : Pass :=
+  .mkPerDeclaration `findJoinPoints Decl.findJoinPoints .base (occurrence := occurrence)
 
 builtin_initialize
   registerTraceClass `Compiler.findJoinPoints (inherited := true)

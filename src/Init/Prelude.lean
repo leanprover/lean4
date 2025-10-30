@@ -2216,6 +2216,7 @@ theorem Nat.mod_lt : (x : Nat) →  {y : Nat} → (hy : LT.lt 0 y) → LT.lt (HM
       | .isFalse h => Nat.lt_of_not_le h
 
 attribute [gen_constructor_elims] Nat
+attribute [gen_constructor_elims] Bool
 
 /--
 Gets the word size of the current platform. The word size may be 64 or 32 bits.

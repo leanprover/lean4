@@ -3376,7 +3376,7 @@ theorem union_insert_right_equiv_insert_union [TransOrd α]  {p : (a : α) × β
       . apply List.Perm.symm
         . apply toListModel_union_list (by wf_trivial) (by wf_trivial)
 
-theorem union!_insert_right_equiv_insert_union! [TransOrd α]  {p : (a : α) × β a}
+theorem union!_insert_right_equiv_insert_union! [TransOrd α] {p : (a : α) × β a}
     (h₁ : m₁.WF) (h₂ : m₂.WF) :
     Equiv (m₁.union! (m₂.insert! p.fst p.snd)) ((m₁.union! m₂).insert! p.fst p.snd) := by
   rw [← union_eq_union!, ← union_eq_union!]

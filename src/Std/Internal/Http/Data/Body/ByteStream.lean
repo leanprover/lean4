@@ -194,7 +194,8 @@ partial def write (stream : ByteStream) (data : ByteArray) (extensions : Array (
 
   match result with
   | .inr (success, remaining, exts) =>
-    if remaining.isEmpty then
+    if remaining.isEmpty ∨ ¬ success
+     then
       return success
     else
       write stream remaining exts

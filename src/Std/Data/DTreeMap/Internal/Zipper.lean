@@ -41,7 +41,7 @@ def pruneLT {α β} [Ord α] (t : Internal.Impl α β) (lowerBound : α) : Inter
     | .eq => r
     | .gt => r.pruneLT lowerBound
 
-theorem pruneLE_eq_filter {α β} [Ord α] [TransOrd α] (t : Internal.Impl α β) (ord_t : t.Ordered) (lowerBound : α) :
+theorem toList_pruneLE {α β} [Ord α] [TransOrd α] (t : Internal.Impl α β) (ord_t : t.Ordered) (lowerBound : α) :
     (t.pruneLE lowerBound).toList = t.toList.filter (fun e => (compare e.fst lowerBound).isGE) := by
   induction t
   case leaf =>
@@ -164,6 +164,7 @@ public inductive Zipper (α : Type u) (β : α → Type v) where
   | cons (k : α) (v : β k) (tree : Impl α β) (next : Zipper α β)
 
 variable {α : Type u} {β : α → Type v}
+
 public def Zipper.toList : Zipper α β → List ((a : α) × β a)
 | .done => []
 | .cons k v tree next => ⟨k,v⟩ :: tree.toList ++ next.toList
@@ -284,57 +285,16 @@ theorem Zipper.toList_prependMap_eq_append (t : Impl α β)
     simp only [Impl.toList_eq_toListModel, toList, List.cons_append,
       Impl.toListModel_inner, List.append_assoc]
 
-theorem Zipper.toList_prependMap_of_done (t : Impl α β) : (Zipper.prependMap t .done).toList = t.toList := by
+theorem Zipper.toList_prependMap_done (t : Impl α β) : (Zipper.prependMap t .done).toList = t.toList := by
   simp [Zipper.toList_prependMap_eq_append, Zipper.toList]
 
 theorem Zipper.ordered_prependMap [Ord α] [TransOrd α] {t : Impl α β}
     {ord_t : t.Ordered} {z : Zipper α β} {ord_z : z.Ordered}
-    (hyp : ∀ k ∈ z.toList, ∀ k' ∈ t.toListModel, compare k'.1 k.1 = .lt ) :
+    (hyp : ∀ k ∈ z.toList, ∀ k' ∈ t.toListModel, compare k'.1 k.1 = .lt) :
     (Zipper.prependMap t z).Ordered := by
-  induction t generalizing z
-  case leaf =>
-    rw [prependMap]
-    exact ord_z
-  case inner _ k v l r l_ih r_ih =>
-    rw [prependMap]
-    apply l_ih
-    . exact Impl.Ordered.left ord_t
-    . rw [Zipper.Ordered]
-      simp only [Zipper.toList]
-      simp
-      apply And.intro
-      . intro a hyp
-        cases hyp
-        . rename_i in_r
-          rw [Impl.toList_eq_toListModel] at in_r
-          exact @Impl.Ordered.compare_right α β _ _ k v l r ord_t a in_r
-        . rename_i in_r
-          specialize hyp a in_r ⟨k,v⟩
-          simp at hyp
-          exact hyp
-      . have := @r_ih (Impl.Ordered.right ord_t) z ord_z
-        simp only [Ordered, Zipper.toList_prependMap_eq_append] at this
-        . apply this
-          intro k₁ mem₁ k₂ mem₂
-          specialize hyp k₁ mem₁ k₂ (by simp only [Impl.toListModel_inner,
-            List.mem_append, List.mem_cons, mem₂, or_true])
-          exact hyp
-    . intro k₁ mem₁ k₂ mem₂
-      simp only [toList, List.cons_append, List.mem_cons, List.mem_append] at mem₁
-      apply Or.elim mem₁
-      . intro eq_key
-        rw [eq_key]
-        exact Impl.Ordered.compare_left ord_t mem₂
-      . intro hyp₂
-        apply Or.elim hyp₂
-        . intro in_r
-          apply TransCmp.lt_trans
-          . exact Impl.Ordered.compare_left ord_t mem₂
-          . rw [Impl.toList_eq_toListModel] at in_r
-            exact Impl.Ordered.compare_right ord_t in_r
-        . intro in_z
-          apply hyp k₁ in_z k₂
-          simp only [Impl.toListModel_inner, List.mem_append, mem₂, List.mem_cons, true_or]
+  rw [Ordered, toList_prependMap_eq_append, List.pairwise_append]
+  refine ⟨by rwa [Impl.toList_eq_toListModel], ord_z, ?_⟩
+  exact fun a ha b hb => hyp _ hb _ (Impl.toList_eq_toListModel ▸ ha)
 
 theorem Zipper.ordered_prependMap_done [Ord α] [TransOrd α] {t : Impl α β}
     {ord_t : t.Ordered} :
@@ -344,14 +304,14 @@ theorem Zipper.ordered_prependMap_done [Ord α] [TransOrd α] {t : Impl α β}
   . simp only [Ordered, toList, List.Pairwise.nil]
   simp only [toList, List.not_mem_nil, false_implies, implies_true]
 
-theorem Zipper.ordered_of_cons_ordered [Ord α] [TransOrd α] {t : Impl α β}
+theorem Zipper.ordered_of_ordered_cons [Ord α] [TransOrd α] {t : Impl α β}
     {z : Zipper α β} : (Zipper.cons k v t z).Ordered → z.Ordered := by
   intro hyp
   simp only [Zipper.Ordered, Zipper.toList] at hyp
   simp only [Ordered]
   exact List.Pairwise.sublist (List.sublist_append_right (⟨k, v⟩ :: t.toList) z.toList) hyp
 
-theorem Zipper.prependMap_size_eq (t : Impl α β) (it : Zipper α β) :
+theorem Zipper.size_prependMap (t : Impl α β) (it : Zipper α β) :
     (Zipper.prependMap t it).size = t.treeSize + it.size := by
   fun_induction Zipper.prependMap
   case case1 =>
@@ -396,7 +356,7 @@ def Zipper.instFinitenessRelation : FinitenessRelation (Zipper α β) Id where
         contradiction
       case h_2 h2 =>
           simp at h'
-          simp only [h2, ← h'.1, Zipper.prependMap_size_eq, Zipper.size, Nat.add_lt_add_iff_right,
+          simp only [h2, ← h'.1, Zipper.size_prependMap, Zipper.size, Nat.add_lt_add_iff_right,
             Nat.lt_add_left_iff_pos, Nat.lt_add_one]
 
 @[no_expose]
@@ -432,6 +392,7 @@ theorem Zipper.eq_toIterM_iter (it : IterM (α := Zipper α β) Id ((a : α) × 
 
 @[simp]
 theorem Zipper.size_cons : (cons k v t it : Zipper α β).size = 1 + t.treeSize + it.size := rfl
+
 theorem Zipper.toList_iter {α β} {z : Zipper α β} : z.iter.toList = z.toList := by
   rw [Iter.toList_eq_toList_toIterM, IterM.toList_eq_match_step]
   simp only [bind_pure_comp, Id.run_bind, val_run_step_toIterM_iter]
@@ -443,7 +404,7 @@ theorem Zipper.toList_iter {α β} {z : Zipper α β} : z.iter.toList = z.toList
     simp only
     rw [← Iter.toList_eq_toList_toIterM, toList_iter, toList_prependMap_eq_append]
 termination_by z.size
-decreasing_by simp [prependMap_size_eq]
+decreasing_by simp [size_prependMap]
 
 public theorem Zipper.iterOfTree_toList_eq_toList (t : Impl α β) :
     (Zipper.iterOfTree t).toList = t.toList := by
@@ -517,7 +478,7 @@ def instFinitenessRelation [Ord α] : FinitenessRelation (RxcIterator α β) Id 
           contradiction
         case isTrue heq =>
           simp at h'
-          simp only [h2, ← h'.1, Zipper.prependMap_size_eq, Zipper.size, Nat.add_lt_add_iff_right,
+          simp only [h2, ← h'.1, Zipper.size_prependMap, Zipper.size, Nat.add_lt_add_iff_right,
             Nat.lt_add_left_iff_pos, Nat.lt_add_one]
 
 @[no_expose]
@@ -585,7 +546,7 @@ theorem toList_rxcIter {α β} [Ord α]
       rw [List.takeWhile_cons_of_neg ‹_›]
 termination_by z.size
 decreasing_by
-  simp_all [Zipper.size, Zipper.prependMap_size_eq]
+  simp_all [Zipper.size, Zipper.size_prependMap]
 
 theorem toList_eq_takeWhile_list {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {bound : α} {l : List ((a : α) × β a)}
     {l_ordered : l.Pairwise (fun a b => compare a.1 b.1 = .lt)} :
@@ -674,7 +635,7 @@ def RxoIterator.instFinitenessRelation [Ord α] : FinitenessRelation (RxoIterato
           contradiction
         case isTrue heq =>
           simp at h'
-          simp only [h2, ← h'.1, Zipper.prependMap_size_eq, Zipper.size, Nat.add_lt_add_iff_right,
+          simp only [h2, ← h'.1, Zipper.size_prependMap, Zipper.size, Nat.add_lt_add_iff_right,
             Nat.lt_add_left_iff_pos, Nat.lt_add_one]
 
 @[no_expose]
@@ -742,7 +703,7 @@ theorem toList_rxoIter {α β} [Ord α]
       rw [List.takeWhile_cons_of_neg ‹_›]
 termination_by z.size
 decreasing_by
-  simp_all [Zipper.size, Zipper.prependMap_size_eq]
+  simp_all [Zipper.size, Zipper.size_prependMap]
 
 theorem toList_eq_takeWhile_list_LT {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {bound : α} {l : List ((a : α) × β a)}
     {l_ordered : l.Pairwise (fun a b => compare a.1 b.1 = .lt)} :
@@ -918,13 +879,13 @@ theorem toList_rccIter {α β} [Ord α] [TransOrd α]
     congr 1
     rw [← Zipper.prependMap_of_pruneLE_eq_prependMapGE]
     . rw [Zipper.toList_prependMap_eq_append]
-      rw [Impl.pruneLE_eq_filter]
+      rw [Impl.toList_pruneLE]
       . simp [Zipper.toList]
       . exact t_ord
     . exact t_ord
   . rw [← Zipper.prependMap_of_pruneLE_eq_prependMapGE]
     . simp only [Zipper.toList_prependMap_eq_append, Zipper.toList, List.append_nil]
-      rw [Impl.pruneLE_eq_filter]
+      rw [Impl.toList_pruneLE]
       . apply List.Pairwise.filter
         simp only [Impl.Ordered] at t_ord
         rw [Impl.toList_eq_toListModel]
@@ -975,13 +936,13 @@ theorem toList_rcoIter {α β} [Ord α] [TransOrd α]
     congr 1
     rw [← Zipper.prependMap_of_pruneLE_eq_prependMapGE]
     . rw [Zipper.toList_prependMap_eq_append]
-      rw [Impl.pruneLE_eq_filter]
+      rw [Impl.toList_pruneLE]
       . simp only [Zipper.toList, List.append_nil]
       . exact t_ord
     . exact t_ord
   . rw [← Zipper.prependMap_of_pruneLE_eq_prependMapGE]
     . simp only [Zipper.toList_prependMap_eq_append, Zipper.toList, List.append_nil]
-      rw [Impl.pruneLE_eq_filter]
+      rw [Impl.toList_pruneLE]
       . apply List.Pairwise.filter
         simp only [Impl.Ordered] at t_ord
         rw [Impl.toList_eq_toListModel]
@@ -1042,7 +1003,7 @@ public theorem toList_rco {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t 
     rw [← List.filter_filter]
     rw [← Zipper.prependMap_of_pruneLE_eq_prependMapGE]
     . rw [Zipper.toList_prependMap_eq_append]
-      rw [Impl.pruneLE_eq_filter]
+      rw [Impl.toList_pruneLE]
       . have heq : (fun (e : (_ : α) × β) => (compare e.fst upperBound).isLT) = (fun (e : (α × β)) => (compare e.fst upperBound).isLT) ∘ (fun (e : (_ : α) × β) => (e.1,e.2)) := by ext e; simp
         rw [heq]
         conv =>
@@ -1058,7 +1019,7 @@ public theorem toList_rco {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t 
     . exact ordered
   . rw [← Zipper.prependMap_of_pruneLE_eq_prependMapGE]
     . simp only [Zipper.toList_prependMap_eq_append, Zipper.toList, List.append_nil]
-      rw [Impl.pruneLE_eq_filter]
+      rw [Impl.toList_pruneLE]
       . apply List.Pairwise.filter
         simp only [Impl.Ordered] at ordered
         rw [Impl.toList_eq_toListModel]
@@ -1198,7 +1159,7 @@ theorem toList_rciIter {α β} [Ord α] [TransOrd α]
   simp only [this]
   rw [← Zipper.prependMap_of_pruneLE_eq_prependMapGE]
   . simp only [Zipper.toList_prependMap_eq_append, Zipper.toList, List.append_nil]
-    apply Impl.pruneLE_eq_filter
+    apply Impl.toList_pruneLE
     exact t_ord
   . exact t_ord
 
@@ -1253,7 +1214,7 @@ public theorem toList_rci {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t 
   simp only [this]
   rw [← Zipper.prependMap_of_pruneLE_eq_prependMapGE]
   . simp [Zipper.toList_prependMap_eq_append]
-    rw [Impl.pruneLE_eq_filter]
+    rw [Impl.toList_pruneLE]
     simp [Impl.toList_eq_toListModel]
     congr
     . exact ordered

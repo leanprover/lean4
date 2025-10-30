@@ -512,10 +512,6 @@ def insertMany! [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Imp
     r := ⟨r.val.insert! a b, fun h₀ h₁ => h₁ _ _ _ (r.2 h₀ h₁)⟩
   return r
 
-/-!
-## Operations for verification of iterators and slices
--/
-
 namespace Const
 
 variable {β : Type v}

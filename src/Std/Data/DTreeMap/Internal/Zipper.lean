@@ -68,7 +68,7 @@ theorem pruneLE_eq_filter {α β} [Ord α] [TransOrd α] (t : Internal.Impl α �
       simp only [toListModel_inner, toListModel_leaf, List.nil_append, List.filter]
       rw [OrientedCmp.eq_comm] at heq
       simp only [heq, Ordering.isGE_eq]
-      suffices new_goal : List.filter (fun e => (compare e.fst lowerBound).isGE) l.toListModel = [] from by
+      suffices new_goal : List.filter (fun e => (compare e.fst lowerBound).isGE) l.toListModel = [] by
         simp only [new_goal, List.nil_append, List.cons.injEq, true_and]
         symm
         apply List.filter_eq_self.2
@@ -86,7 +86,7 @@ theorem pruneLE_eq_filter {α β} [Ord α] [TransOrd α] (t : Internal.Impl α �
       rw [OrientedOrd.eq_swap, Ordering.swap_eq_gt] at heq
       rw [heq]
       simp
-      suffices new_goal : List.filter (fun e => (compare e.fst lowerBound).isGE) l.toListModel = [] from by
+      suffices new_goal : List.filter (fun e => (compare e.fst lowerBound).isGE) l.toListModel = [] by
         simp only [new_goal, List.nil_append]
         simp only [toList_eq_toListModel] at r_ih
         apply r_ih
@@ -124,7 +124,7 @@ theorem pruneLT_eq_filter {α β} [Ord α] [TransOrd α] (t : Internal.Impl α �
       rw [OrientedCmp.eq_comm] at heq
       rw [heq]
       suffices new_goal : List.filter (fun e => (compare e.fst lowerBound).isGT) l.toListModel = [] ∧
-          List.filter (fun e => (compare e.fst lowerBound).isGT) r.toListModel = r.toListModel from by
+          List.filter (fun e => (compare e.fst lowerBound).isGT) r.toListModel = r.toListModel by
         simp only [new_goal, Ordering.isGT_eq, List.nil_append]
       apply And.intro
       . rw [List.filter_eq_nil_iff]
@@ -412,95 +412,42 @@ public instance {z : Zipper α β} : ToIterator z Id ((a : α) × β a) where
   State := Zipper α β
   iterMInternal := Iter.toIterM <| Zipper.iter z
 
-theorem Zipper.step_eq_match {it : IterM (α := Zipper α β) Id ((a : α) × β a)} :
-    it.step = ⟨match it.internalState.iter with
-    | ⟨Zipper.done⟩ => IterStep.done
-    | ⟨Zipper.cons k v t z⟩ => IterStep.yield { internalState := Zipper.prependMap t z } ⟨k, v⟩,
-    (by
-      simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Zipper.step]; split; all_goals (rename_i heq; simp only [Zipper.iter,
-        heq]))⟩ := by
-  simp only [IterM.step, Iterator.step, Zipper.step]
-  congr 1
-  cases it
-  next =>
-    rename_i internalState
-    simp
-    congr 1
-    cases internalState
-    case done =>
-      simp only [Zipper.iter]
-    case cons k v tree next =>
-      simp only [Zipper.iter]
+@[simp]
+theorem Zipper.toList_done : (done : Zipper α β).toList = [] := rfl
 
-theorem Zipper.val_step_Zipper_eq_match {α β}
-    {it : Iter (α := Zipper α β) (Sigma β)} :
-    it.step.val =
-        match it.internalState.iter with
-        | ⟨Zipper.done⟩ => IterStep.done
-        | ⟨Zipper.cons k v t it'⟩ =>
-            IterStep.yield { internalState := Zipper.prependMap t it' } ⟨k, v⟩
-        := by
-  rcases it with ⟨z, upper⟩
-  rw [Iter.step]
-  rw [Zipper.step_eq_match]
-  simp only [Iter.toIterM]
-  split
-  · simp only [IterM.Step.toPure, IterStep.mapIterator, Id.run, Zipper.iter]
-  · rename_i heq
-    simp only [Zipper.iter, Iter.mk.injEq, reduceCtorEq] at heq
-  . split
-    case h_1 =>
-      rename_i heq
-      simp only [Zipper.iter, Iter.mk.injEq, reduceCtorEq] at heq
-    case h_2 k v tree next x k v t it' heq =>
-      simp only [Zipper.iter] at heq
-      injections
-      rename_i k_eq v_eq tree_eq next_eq
-      simp only [Iter.step, Iter.toIterM, Id.run, IterM.step, Iterator.step, Zipper.step,
-        IterM.Step.toPure_yield, PlausibleIterStep.yield, IterM.toIter, IterStep.yield.injEq,
-        Iter.mk.injEq, Sigma.mk.injEq]
-      simp_all
+@[simp]
+theorem Zipper.toList_cons : (cons k v tree next).toList = ⟨k, v⟩ :: tree.toList ++ next.toList := rfl
 
-theorem Zipper.toList_iter {α β} {z : Zipper α β}: z.iter.toList = z.toList := by
-  rw [Iter.toList_eq_match_step]
-  generalize hit : (z.iter.step.val) = step
-  rw [val_step_Zipper_eq_match] at hit
-  split at hit <;> rename_i heq
-  · simp only [← hit, List.nil_eq]
-    cases z
-    . rw [Zipper.toList]
-    . simp only [Zipper.iter, Iter.mk.injEq, reduceCtorEq] at heq
-  . rename_i x k v t it'
-    simp only [← hit]
-    have := @Zipper.toList_iter α β (prependMap t it')
-    simp only [iter] at this
-    rw [this]
-    . generalize heq2 : Zipper.cons k v t it' = y
-      rw [heq2] at heq
-      simp only [Zipper.iter, Iter.mk.injEq] at heq
-      rw [heq]
-      rw [← heq2]
-      simp only [Zipper.toList, List.cons_append, List.cons.injEq, true_and]
-      rw [Zipper.toList_prependMap_eq_append]
+@[simp]
+theorem Zipper.step_done : (done : Zipper α β).step = .done := rfl
+
+@[simp]
+theorem Zipper.step_cons : (cons k v t it : Zipper α β).step = .yield ⟨it.prependMap t⟩ ⟨k, v⟩ := rfl
+
+@[simp]
+theorem Zipper.val_run_step_toIterM_iter {z : Zipper α β} : z.iter.toIterM.step.run.val = z.step := rfl
+
+theorem Zipper.eq_toIterM_iter (it : IterM (α := Zipper α β) Id ((a : α) × β a)) :
+    it = it.internalState.iter.toIterM := rfl
+
+@[simp]
+theorem Zipper.size_cons : (cons k v t it : Zipper α β).size = 1 + t.treeSize + it.size := rfl
+theorem Zipper.toList_iter {α β} {z : Zipper α β} : z.iter.toList = z.toList := by
+  rw [Iter.toList_eq_toList_toIterM, IterM.toList_eq_match_step]
+  simp only [bind_pure_comp, Id.run_bind, val_run_step_toIterM_iter]
+  cases z with
+  | done => simp
+  | cons k v t it' =>
+    simp only [step_cons, Id.run_map, toList_cons, List.cons_append, List.cons.injEq, true_and]
+    rw [eq_toIterM_iter ⟨prependMap _ _⟩]
+    simp only
+    rw [← Iter.toList_eq_toList_toIterM, toList_iter, toList_prependMap_eq_append]
 termination_by z.size
-decreasing_by
-  simp_all
-  rename_i t _ _ heq
-  simp only [Zipper.iter, Iter.mk.injEq] at heq
-  rw [heq]
-  simp only [Zipper.size]
-  induction t
-  case leaf =>
-    simp only [Zipper.prependMap, Impl.treeSize, Nat.add_zero, Nat.lt_add_left_iff_pos,
-      Nat.lt_add_one]
-  case inner =>
-    simp only [Zipper.prependMap_size_eq, Impl.treeSize, Nat.add_lt_add_iff_right, Nat.lt_add_left_iff_pos,
-      Nat.lt_add_one]
+decreasing_by simp [prependMap_size_eq]
 
 public theorem Zipper.iterOfTree_toList_eq_toList (t : Impl α β) :
     (Zipper.iterOfTree t).toList = t.toList := by
-  unfold iterOfTree
-  unfold iter
+  rw [iterOfTree, iter]
   have := @Zipper.toList_iter α β (prependMap t .done)
   simp only [iter] at this
   rw [this]
@@ -510,23 +457,9 @@ public theorem Zipper.map_iterOfTree_eq_tree_toList_map (t : Impl α β) :
    (Iter.map f (Internal.Zipper.iterOfTree t)).toList = List.map f t.toList := by
   rw [Iter.toList_map]
   congr
-  unfold iterOfTree
+  rw [iterOfTree]
   rw [@toList_iter α β (prependMap t .done)]
   simp [Zipper.toList_prependMap_eq_append, toList]
-
-theorem Zipper.val_step_map_Zipper_eq_match {α β γ} {f : (a : α) × β a → γ}
-    {it : Iter (α := Zipper α β) (Sigma β)} :
-    (it.map f).step.val =
-        match it.internalState.iter with
-        | ⟨Zipper.done⟩ => IterStep.done
-        | ⟨Zipper.cons k v t it'⟩ =>
-            IterStep.yield (({internalState := Zipper.prependMap t it' : Iter (α := Zipper α β) (Sigma β)}).map f) (f ⟨k, v⟩) := by
-  simp [Iter.step_map]
-  generalize heq : it.step = x
-  have := @val_step_Zipper_eq_match _ _ it
-  rcases x with ⟨val, prop⟩
-  simp [heq] at this
-  split at this <;> (rename_i heq2 ; simp [heq2, this])
 
 end Zipper
 
@@ -1320,7 +1253,6 @@ public theorem toList_rci {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t 
   simp only [this]
   rw [← Zipper.prependMap_of_pruneLE_eq_prependMapGE]
   . simp [Zipper.toList_prependMap_eq_append]
-    simp [Zipper.toList]
     rw [Impl.pruneLE_eq_filter]
     simp [Impl.toList_eq_toListModel]
     congr

@@ -116,6 +116,21 @@ private def addDependency (src : FVarId) (target : FVarId) : FindM Unit := do
     cs.modify target fun targetInfo =>
       { targetInfo with associated := targetInfo.associated.insert src }
 
+@[inline]
+private def withFnBody (decl : FunDecl) (x : FindM α) : FindM α :=
+    withReader (fun ctx => {
+        ctx with
+          definitionDepth := ctx.definitionDepth + 1,
+          currentFunction := some decl.fvarId }) do
+      x
+
+@[inline]
+private def withFnDefined (decl : FunDecl) (x : FindM α) : FindM α :=
+    withReader (fun ctx => {
+        ctx with
+          scope := ctx.scope.insert decl.fvarId ctx.definitionDepth }) do
+      x
+
 /--
 Find all `fun` declarations that qualify as a join point, that is:
 - are always fully applied
@@ -176,12 +191,9 @@ where
       go k
   | .fun decl k => do
     addCandidate decl.fvarId decl.getArity
-    withReader (fun ctx => {
-        ctx with
-          definitionDepth := ctx.definitionDepth + 1,
-          currentFunction := some decl.fvarId }) do
+    withFnBody decl do
       go decl.value
-    withReader (fun ctx => { ctx with scope := ctx.scope.insert decl.fvarId ctx.definitionDepth }) do
+    withFnDefined decl do
       go k
   | .jp decl k => do
     go decl.value

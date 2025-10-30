@@ -3535,7 +3535,7 @@ theorem getD_union!_of_contains_eq_false_left [TransOrd α] [LawfulEqOrd α] (h�
   all_goals assumption
 
 theorem getD_union_of_contains_eq_false_right [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} {fallback : β k} (contains_eq_false : m₂.contains k = false)  :
+    {k : α} {fallback : β k} (contains_eq_false : m₂.contains k = false) :
     (m₁.union m₂ h₁.balanced h₂.balanced).getD k fallback = m₁.getD k fallback := by
   revert contains_eq_false
   simp_to_model [union, getD, contains]

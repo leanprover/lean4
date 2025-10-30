@@ -488,6 +488,54 @@ meta def ContVarId.getReassignedMutVars (contVarId : ContVarId) (rootCtx : Local
   Do.getReassignedMutVars rootCtx (mvarDecls.map (·.lctx))
 
 /--
+Capture the local context `ctx` and call `k` with `restoreCtx : Name → DoElabM Expr → DoElabM Expr`.
+Calling `restoreCtx r k` resets the local context to `ctx`, just like `withLCtx' ctx`.
+Furthermore, it will figure out reassigned definitions of mut vars and the result `r` and make them
+available in the local context.
+
+This function is useful to de-nest
+```
+let mut x := 0
+let y := 3
+let z ← do
+  let mut y ← e
+  x := y + 1
+  pure y
+let y := y + 3
+pure (x + y + z)
+```
+into
+```
+let mut x := 0
+let y := 3
+let mut y† ← e
+x := y† + 1
+let z ← pure y†
+let y := y + 3
+pure (x + y + z)
+```
+Note that the continuation of the `let z ← ...` bind, roughly
+``k := .cont `z _ `(let y := y + 3; pure (x + y + z))``,
+needs to elaborated in a local context that contains the reassignment of `x`, but not the shadowing
+mut var definition of `y`.
+-/
+meta def restoreLCtxKeepingMutVarDefs (oldLCtx : LocalContext) (oldMutVars : Array Name) (resultName : Name) (k : DoElabM α) : DoElabM α := do
+  -- Find the subset of mut vars that are reassigned.
+  let reassignedMutVars := filterReassigned oldMutVars oldLCtx (← getLCtx)
+  let reassignedMutVarDefs ← reassignedMutVars.mapM (getFVarFromUserName ·)
+  -- Tunnel mut vars and result into the outer context:
+  let tunnelDecls ← reassignedMutVarDefs
+    |>.push (← getFVarFromUserName resultName)
+    |>.mapM (·.fvarId!.getDecl)
+  -- Forget the value of every ldecl.
+  let tunnelDecls := tunnelDecls.map fun decl =>
+    .cdecl 0 decl.fvarId decl.userName decl.type decl.binderInfo decl.kind
+  withLCtx' oldLCtx do
+  withExistingLocalDecls tunnelDecls.toList do
+  withReader (fun ctx => { ctx with mutVars := oldMutVars }) do
+  k
+
+/--
 This data type communicates to `do` element elaborators whether they are the last element of the
 `do` block and what is the expected monadic result type. When it's not the last element, there's a
 continuation for elaborating the remaining `do` elements of the block.
@@ -557,52 +605,14 @@ meta def DoElemCont.continueWithUnit (k : DoElemCont) : DoElabM Expr := do
   | .last _ => mkPureApp (← mkPUnit) unit
 
 /--
-Capture the local context `ctx` and call `k` with `restoreCtx : Name → DoElabM Expr → DoElabM Expr`.
-Calling `restoreCtx r k` resets the local context to `ctx`, just like `withLCtx' ctx`.
-Furthermore, it will figure out reassigned definitions of mut vars and the result `r` and make them
-available in the local context.
-
-This function is useful to de-nest
-```
-let mut x := 0
-let y := 3
-let z ← do
-  let mut y ← e
-  x := y + 1
-  pure y
-let y := y + 3
-pure (x + y + z)
-```
-into
-```
-let mut x := 0
-let y := 3
-let mut y† ← e
-x := y† + 1
-let z ← pure y†
-let y := y + 3
-pure (x + y + z)
-```
-Note that the continuation of the `let z ← ...` bind, roughly
-``k := .cont `z _ `(let y := y + 3; pure (x + y + z))``,
-needs to elaborated in a local context that contains the reassignment of `x`, but not the shadowing
-mut var definition of `y`.
+If `k` matches `.last ..`, just return `k`.
+If `k` matches `.cont _ _ k`, wrap `restoreLCtxKeepingMutVarDefs` around the continuation `k`.
 -/
-meta def restoreLCtxKeepingMutVarDefs (oldLCtx : LocalContext) (oldMutVars : Array Name) (resultName : Name) (k : DoElabM α) : DoElabM α := do
-  -- Find the subset of mut vars that are reassigned.
-  let reassignedMutVars := filterReassigned oldMutVars oldLCtx (← getLCtx)
-  let reassignedMutVarDefs ← reassignedMutVars.mapM (getFVarFromUserName ·)
-  -- Tunnel mut vars and result into the outer context:
-  let tunnelDecls ← reassignedMutVarDefs
-    |>.push (← getFVarFromUserName resultName)
-    |>.mapM (·.fvarId!.getDecl)
-  -- Forget the value of every ldecl.
-  let tunnelDecls := tunnelDecls.map fun decl =>
-    .cdecl 0 decl.fvarId decl.userName decl.type decl.binderInfo decl.kind
-  withLCtx' oldLCtx do
-  withExistingLocalDecls tunnelDecls.toList do
-  withReader (fun ctx => { ctx with mutVars := oldMutVars }) do
-  k
+meta def DoElemCont.withRestoredLCtxAndMutVarDefs (k : DoElemCont) (lctx : LocalContext) (mutVars : Array Name) : DoElemCont :=
+  match k with
+  | .last .. => k
+  | .cont rName resultType k => DoElemCont.cont rName resultType do
+    restoreLCtxKeepingMutVarDefs lctx mutVars rName k
 
 /--
 Call `caller` with a duplicable proxy of `dec`.
@@ -622,9 +632,8 @@ meta def DoElemCont.withDuplicableCont (dec : DoElemCont) (caller : DoElemCont �
     let lctx ← getLCtx
     let mutVars := (← read).mutVars
     let contVarId ← mkFreshContVar α
-    let duplicableDec := DoElemCont.cont rName resultType do
-      restoreLCtxKeepingMutVarDefs lctx mutVars rName do
-        contVarId.mkJump
+    let duplicableDec := DoElemCont.cont rName resultType contVarId.mkJump
+      |>.withRestoredLCtxAndMutVarDefs lctx mutVars
     let e ← caller duplicableDec
 
     -- Now determine whether we need to realize the join point.
@@ -785,19 +794,12 @@ mutual
     | `(dooElem| let $[mut%$mutTk?]? $x:ident $[: $xType?]? ← $rhs) =>
       checkMutVarsForShadowing x.getId
       let xType ← elabType xType?
-      let lctx ← getLCtx
-      let mutVars := (← read).mutVars
       elabElem rhs <| .cont x.getId xType do
-        restoreLCtxKeepingMutVarDefs lctx mutVars x.getId do
-          declareMutVar? mutTk? x.getId k.continueWithUnit
+        declareMutVar? mutTk? x.getId k.continueWithUnit
     | `(dooElem| $x:ident ← $rhs) =>
       throwUnlessMutVarDeclared x.getId
       let xType := (← getLocalDeclFromUserName x.getId).type
-      let lctx ← getLCtx
-      let mutVars := (← read).mutVars
-      elabElem rhs <| .cont x.getId xType do
-        restoreLCtxKeepingMutVarDefs lctx mutVars x.getId do
-          k.continueWithUnit
+      elabElem rhs <| .cont x.getId xType k.continueWithUnit
     | `(dooElem| let $[mut%$mutTk?]? $x:ident $[: $xType?]? := $rhs) =>
       checkMutVarsForShadowing x.getId
       -- We want to allow `do let foo : Nat = Nat := rfl; pure (foo ▸ 23)`. Note that the type of
@@ -820,7 +822,11 @@ mutual
         let then_ ← Term.exprToSyntax then_
         let else_ ← Term.exprToSyntax else_
         Term.elabTerm (← `(if $cond then $then_ else $else_)) none
-    | `(dooElem| doo $dooSeq) => elabElems1 (getDooElems dooSeq) k
+    | `(dooElem| doo $dooSeq) =>
+      let lctx ← getLCtx
+      let mutVars := (← read).mutVars
+      -- See the example in the docstring of `restoreLCtxKeepingMutVarDefs`.
+      elabElems1 (getDooElems dooSeq) (k.withRestoredLCtxAndMutVarDefs lctx mutVars)
     | `(dooElem| for $x:ident in $xs doo $dooSeq) =>
       -- set_option pp.universes true in #print forBreakMem_
       let uα ← mkFreshLevelMVar
@@ -1526,9 +1532,8 @@ example : (Id.run doo let mut x ← pure 42; let y ← if true then {pure 3} els
 example : (Id.run doo let mut x ← pure 42; let y ← if true then {pure 3} else {pure 4}; x := x + y; return x)
         = (Id.run  do let mut x ← pure 42; let y ← if true then {pure 3} else {pure 4}; x := x + y; return x) := by rfl
 example : Nat := Id.run doo let mut foo : Nat = Nat := rfl; pure (foo ▸ 23)
-
-example : (Id.run doo let mut x := 0; let y := 3; let z ← doo { let mut y ← e; x := y + 1; pure y }; let y := y + 3; pure (x + y + z))
-        = (Id.run  do let mut x := 0; let y := 3; let z ← do { let mut y ← e; x := y + 1; pure y }; let y := y + 3; pure (x + y + z)) := by rfl
+example {e} : (Id.run doo let mut x := 0; let y := 3; let z ← doo { let mut y ← e; x := y + 1; pure y }; let y := y + 3; pure (x + y + z))
+            = (Id.run  do let mut x := 0; let y := 3; let z ←  do { let mut y ← e; x := y + 1; pure y }; let y := y + 3; pure (x + y + z)) := by rfl
 
 -- Test: Nested if-then-else with multiple mutable variables
 example : (Id.run doo

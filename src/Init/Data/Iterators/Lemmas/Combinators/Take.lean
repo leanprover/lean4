@@ -6,8 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Std.Data.Iterators.Combinators.Take
-public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Take
+public import Init.Data.Iterators.Combinators.Take
+public import Init.Data.Iterators.Lemmas.Combinators.Monadic.Take
 public import Init.Data.Iterators.Lemmas.Consumers
 
 @[expose] public section

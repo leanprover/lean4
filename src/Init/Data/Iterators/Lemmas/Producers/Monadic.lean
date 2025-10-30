@@ -6,5 +6,4 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Std.Data.Iterators.Lemmas.Producers.Monadic.Array
-public import Std.Data.Iterators.Lemmas.Producers.Monadic.Empty
+public import Init.Data.Iterators.Lemmas.Producers.Monadic.List

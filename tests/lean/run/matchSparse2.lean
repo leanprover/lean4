@@ -22,3 +22,12 @@ def boo (x : Fin 3) : Nat :=
 def List.nth : (as : List α) → (i : Fin as.length) → α
   | a::as, ⟨0, _⟩   => a
   | a::as, ⟨i+1, h⟩ => nth as ⟨i, Nat.lt_of_succ_lt_succ h⟩
+
+
+-- Before this change, the last case was not necessary because
+-- the match was split sufficiently
+example : (a b : Int) → (h : a * b = 0) → a = 0 ∨ b = 0
+  | .ofNat 0, _, _ => by simp
+  | _, .ofNat 0, _ => by simp
+  | .ofNat (a+1), .negSucc b, h => by cases h
+  | .negSucc _, .negSucc _, h => by cases h

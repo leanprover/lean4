@@ -552,7 +552,8 @@ protected theorem mul_eq_zero {a b : Int} : a * b = 0 ↔ a = 0 ∨ b = 0 := by
   exact match a, b, h with
   | .ofNat 0, _, _ => by simp
   | _, .ofNat 0, _ => by simp
-  | .ofNat (a+1), .negSucc b, h => by cases h
+  | .ofNat (_+1), .negSucc _, h => by cases h
+  | .negSucc _, .negSucc _, h => by cases h
 
 protected theorem mul_ne_zero {a b : Int} (a0 : a ≠ 0) (b0 : b ≠ 0) : a * b ≠ 0 :=
   Or.rec a0 b0 ∘ Int.mul_eq_zero.mp

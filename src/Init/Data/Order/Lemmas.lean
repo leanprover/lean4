@@ -41,7 +41,7 @@ public theorem trichotomous_of_rel_or_eq_or_rel_swap {r : α → α → Prop}
     (h : ∀ {a b}, r a b ∨ a = b ∨ r b a) : Trichotomous r where
   trichotomous _ _ hab hba := (h.resolve_left hab).resolve_right hba
 
-public theorem Antisymm.trichotomous_of_antisymm_not {r : α → α → Prop} [i : Antisymm (¬ r · ·)] :
+public instance Antisymm.trichotomous_of_antisymm_not {r : α → α → Prop} [i : Antisymm (¬ r · ·)] :
     Trichotomous r where trichotomous := i.antisymm
 
 public theorem Trichotomous.antisymm_not {r : α → α → Prop} [i : Trichotomous r] :
@@ -62,7 +62,7 @@ public theorem total_of_refl_of_trichotomous (r : α → α → Prop) [Refl r] [
 public theorem asymm_of_irrefl_of_antisymm (r : α → α → Prop) [Irrefl r] [Antisymm r] :
     Asymm r where asymm a b h h' := Irrefl.irrefl _ (Antisymm.antisymm a b h h' ▸ h)
 
-public theorem Total.asymm_of_total_not {r : α → α → Prop} [i : Total (¬ r · ·)] : Asymm r where
+public instance Total.asymm_of_total_not {r : α → α → Prop} [i : Total (¬ r · ·)] : Asymm r where
   asymm a b h := (i.total a b).resolve_left (· h)
 
 public theorem Asymm.total_not {r : α → α → Prop} [i : Asymm r] : Total (¬ r · ·) where

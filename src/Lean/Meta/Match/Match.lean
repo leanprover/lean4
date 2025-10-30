@@ -158,6 +158,12 @@ private def hasArrayLitPattern (p : Problem) : Bool :=
     | .arrayLit .. :: _ => true
     | _                 => false
 
+private def hasVarOrInaccessiblePattern (p : Problem) : Bool :=
+  p.alts.any fun alt => match alt.patterns with
+    | .inaccessible _ :: _ => true
+    | .var _ :: _          => true
+    | _                    => false
+
 private def isVariableTransition (p : Problem) : Bool :=
   p.alts.all fun alt => match alt.patterns with
     | .inaccessible _ :: _ => true
@@ -551,7 +557,10 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
   trace[Meta.Match.match] "constructor step"
   let x :: xs := p.vars | unreachable!
   let interestingCtors? ←
-    if match.sparseCases.get (← getOptions) then
+    -- We use a sparse case analysis only if there is a non-constructor pattern,
+    -- but not just because there are constructors missing (in that case we benefit from
+    -- the eager split in ruling out constructors by type or by a more explicit error message)
+    if match.sparseCases.get (← getOptions) && hasVarOrInaccessiblePattern p  then
       let ctors := collectCtors p
       trace[Meta.Match.match] "using sparse cases: {ctors}"
       pure (some ctors)

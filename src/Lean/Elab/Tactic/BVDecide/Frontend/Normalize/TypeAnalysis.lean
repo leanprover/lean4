@@ -97,12 +97,12 @@ def isSupportedMatch (declName : Name) : MetaM (Option MatchKind) := do
 
       if !defaultOk then return none
 
-      if !(← verifyEnumWithDefault defnInfo inductiveInfo handledCtors) then return none
+      -- if !(← verifyEnumWithDefault defnInfo inductiveInfo handledCtors) then return none
       return some <| .enumWithDefault inductiveInfo handledCtors
     else
       return none
 where
-  trySimpleEnum (defnInfo : DefinitionVal) (inductiveInfo : InductiveVal) (xs : Array Expr)
+  trySimpleEnum (_defnInfo : DefinitionVal) (inductiveInfo : InductiveVal) (xs : Array Expr)
       (numCtors : Nat) (motive : Expr) : MetaM (Option MatchKind) := do
     -- Check that all parameters are `h_n EnumInductive.ctor`
     let mut handledCtors := Array.mkEmpty numCtors
@@ -113,7 +113,7 @@ where
       let .ctorInfo ctorInfo ← getConstInfo c | return none
       handledCtors := handledCtors.push ctorInfo
 
-    if !(← verifySimpleEnum defnInfo inductiveInfo handledCtors) then return none
+    -- if !(← verifySimpleEnum defnInfo inductiveInfo handledCtors) then return none
 
     return some <| .simpleEnum inductiveInfo handledCtors
 

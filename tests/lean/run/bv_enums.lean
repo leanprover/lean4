@@ -1,8 +1,6 @@
 import Std.Tactic.BVDecide
 import Lean.Elab.Tactic.BVDecide
 
-set_option match.sparseCases false -- TODO
-
 namespace Ex1
 
 inductive State where

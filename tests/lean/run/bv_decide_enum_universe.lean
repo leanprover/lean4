@@ -65,7 +65,6 @@ def test4 (x : PBool.{1}) : Bool :=
   | .false => false
   | .true => false
 
-set_option match.sparseCases false -- TODO
 def test5 (x : PBool) : Bool :=
   match x with
   | .true => false

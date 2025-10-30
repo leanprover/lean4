@@ -166,6 +166,9 @@ E-match theorems and case-splits performed by `grind`.
 Note that it may contain elements that are not needed by the final proof.
 For example, `grind` instantiated the theorem, but theorem instance was not actually used
 in the proof.
+
+**Note**: Consider removing this, we are using a new approach for implementing
+`grind?`
 -/
 structure Trace where
   thms       : PHashSet EMatchTheoremTrace := {}

@@ -89,12 +89,12 @@ def elabGrindPremises
     | .ematch kind =>
       try
         params ← addEMatchTheorem params (mkIdent p.name) p.name kind false (warn := false)
-      catch _ => pure () -- Don't worry if premise suggestion gave bad suggetions.
+      catch _ => pure () -- Don't worry if premise suggestion gave bad suggestions.
     | _ =>
       -- We could actually support arbitrary grind modifiers,
       -- and call `processParam` rather than `addEMatchTheorem`,
       -- but this would require a larger refactor.
-      -- Let's only do this if there is a prospect of a premise selector supprting this.
+      -- Let's only do this if there is a prospect of a premise selector supporting this.
       throwError "unexpected modifier {p.flag}"
   return params
 
@@ -113,7 +113,11 @@ def mkGrindParams
   let params ← Grind.mkParams config
   let ematch ← if only then pure default else Grind.getEMatchTheorems
   let inj ← if only then pure default else Grind.getInjectiveTheorems
-  let casesTypes ← if only then pure default else Grind.getCasesTypes
+  /-
+  **Note**: We used to skip the global cases attribute when `only = true`, but
+  this is not very effective. We now use anchors to restrict the set of case-splits.
+  -/
+  let casesTypes ← Grind.getCasesTypes
   let params := { params with ematch, casesTypes, inj }
   let premises ← if config.premises then
     let suggestions ← PremiseSelection.select mvarId
@@ -213,16 +217,6 @@ def mkGrindOnly
       else
         let param ← Grind.globalDeclToGrindParamSyntax declName kind minIndexable
         params := params.push param
-  for declName in trace.eagerCases.toList do
-    unless Grind.isBuiltinEagerCases declName do
-      let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
-      let param ← `(Parser.Tactic.grindParam| cases eager $decl)
-      params := params.push param
-  for declName in trace.cases.toList do
-    unless trace.eagerCases.contains declName || Grind.isBuiltinEagerCases declName do
-      let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
-      let param ← `(Parser.Tactic.grindParam| cases $decl)
-      params := params.push param
   let result ← `(tactic| grind $config:optConfig only)
   return setGrindParams result params
 

@@ -76,10 +76,11 @@ private def isNewPat (patternsFoundSoFar : Array (List Expr)) (thm' : EMatchTheo
   patternsFoundSoFar.all fun ps => thm'.patterns != ps
 
 /--
-Returns `true`, if there are no anchor references restricting the search,
-or there is an anchor references `ref` s.t. `ref` matches `proof`.
+Given a proof of an `EMatchTheorem`, returns `true`, if there are no
+anchor references restricting the search, or there is an anchor
+references `ref` s.t. `ref` matches `proof`.
 -/
-private def checkAnchorRefs (proof : Expr) : GrindM Bool := do
+def checkAnchorRefsEMatchTheoremProof (proof : Expr) : GrindM Bool := do
   let some anchorRefs ← getAnchorRefs | return true
   let anchor ← getAnchor (← inferType proof)
   return anchorRefs.any (·.matches anchor)
@@ -94,7 +95,7 @@ private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   let proof := mkOfEqTrueCore e proof
   -- **Note**: Do we really need to restrict the instantiation of local theorems?
   -- **Note**: Should we distinguish anchors restricting case-splits and local theorems?
-  unless (← checkAnchorRefs proof) do return ()
+  unless (← checkAnchorRefsEMatchTheoremProof proof) do return ()
   let size := (← get).ematch.newThms.size
   let gen ← getGeneration e
   let mut patternsFoundSoFar := #[]

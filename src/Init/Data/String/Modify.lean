@@ -209,32 +209,6 @@ Examples:
   mapAux f s s.startValidPos
 
 /--
-In the string `s`, replaces all occurrences of `pattern` with `replacement`.
-
-Examples:
-* `"red green blue".replace "e" "" = "rd grn blu"`
-* `"red green blue".replace "ee" "E" = "red grEn blue"`
-* `"red green blue".replace "e" "E" = "rEd grEEn bluE"`
--/
-def replace (s pattern replacement : String) : String :=
-  if h : pattern.rawEndPos.1 = 0 then s
-  else
-    have hPatt := Nat.zero_lt_of_ne_zero h
-    let rec loop (acc : String) (accStop pos : String.Pos.Raw) :=
-      if h : pos.byteIdx + pattern.rawEndPos.byteIdx > s.rawEndPos.byteIdx then
-        acc ++ accStop.extract s s.rawEndPos
-      else
-        have := Nat.lt_of_lt_of_le (Nat.add_lt_add_left hPatt _) (Nat.ge_of_not_lt h)
-        if Pos.Raw.substrEq s pos pattern 0 pattern.rawEndPos.byteIdx then
-          have := Nat.sub_lt_sub_left this (Nat.add_lt_add_left hPatt _)
-          loop (acc ++ accStop.extract s pos ++ replacement) (pos + pattern) (pos + pattern)
-        else
-          have := Nat.sub_lt_sub_left this (Pos.Raw.lt_next s pos)
-          loop acc accStop (pos.next s)
-      termination_by s.rawEndPos.1 - pos.1
-    loop "" 0 0
-
-/--
 Replaces each character in `s` with the result of applying `Char.toUpper` to it.
 
 `Char.toUpper` has no effect on characters outside of the range `'a'`–`'z'`.

@@ -82,10 +82,10 @@ LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_BaseIO_bindTaskCheap___redArg_
 static lean_object* l___auto___closed__40_00___x40_Lean_Server_ServerTask_2118130630____hygCtx___hyg_12_;
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_bindTaskCostly___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_join___redArg___boxed(lean_object*);
+lean_object* lean_io_wait_any(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_bindTaskCostly___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_bindTaskCostly___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__4_00___x40_Lean_Server_ServerTask_2118130630____hygCtx___hyg_12_;
-lean_object* l_IO_waitAny___redArg(lean_object*);
 static lean_object* l___auto___closed__15_00___x40_Lean_Server_ServerTask_2118130630____hygCtx___hyg_12_;
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_join___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_BaseIO_mapTaskCostly___redArg(lean_object*, lean_object*);
@@ -1979,7 +1979,8 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_box(0);
 x_4 = l_List_mapTR_loop___at___00Lean_Server_ServerTask_waitAny_spec__0___redArg(x_1, x_3);
-x_5 = l_IO_waitAny___redArg(x_4);
+x_5 = lean_io_wait_any(x_4);
+lean_dec(x_4);
 return x_5;
 }
 }

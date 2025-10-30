@@ -454,7 +454,6 @@ LEAN_EXPORT lean_object* l_Lean_Doc_Parser_UnorderedListType_asterisk_elim___red
 static lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_linkTarget_notRefEnd___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_UnorderedListType_dash_elim___redArg___boxed(lean_object*);
 static lean_object* l_Lean_Doc_Parser_para___lam__0___closed__0;
-lean_object* lean_string_data(lean_object*);
 static lean_object* l_Lean_Doc_Parser_para___lam__3___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_listItem_bulletFn___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_instBEqOrderedListType_beq___boxed(lean_object*, lean_object*);
@@ -880,6 +879,7 @@ static lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_atLeast
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_directive___lam__7(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_Parser_para___lam__1___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_blocks1(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_data(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_bold(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_directive_withFencePos___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_OrderedListType_ctorElim___redArg___boxed(lean_object*);

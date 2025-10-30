@@ -7,9 +7,11 @@ module
 
 prelude
 public import Lean.CoreM
+public import Lean.Meta.Basic
 import Lean.Meta.InferType
 import Lean.Meta.FunInfo
 import Lean.AddDecl
+import Lean.PremiseSelection.Basic
 
 /-!
 # Symbol frequency
@@ -19,67 +21,55 @@ This module provides a persistent environment extension for computing the freque
 
 namespace Lean.PremiseSelection
 
-namespace FoldRelevantConstsImpl
+/--
+Collect the frequencies for constants occurring in declarations defined in the current module,
+skipping instance arguments and proofs.
+-/
+public def localSymbolFrequencyMap : MetaM (NameMap Nat) := do
+  let env := (← getEnv)
+  env.constants.map₂.foldlM (init := ∅) (fun acc m ci => do
+    if isDeniedPremise env m || !Lean.wasOriginallyTheorem env m then
+      pure acc
+    else
+      ci.type.foldRelevantConstants (init := acc) fun n' acc => return acc.alter n' fun i? => some (i?.getD 0 + 1))
 
-open Lean Meta
+/--
+A global `IO.Ref` containing the local symbol frequency map. This is initialized on first use.
+-/
+builtin_initialize localSymbolFrequencyMapRef : IO.Ref (Option (NameMap Nat)) ← IO.mkRef none
 
-unsafe structure State where
- visited       : PtrSet Expr := mkPtrSet
- visitedConsts : NameHashSet := {}
+/--
+A cached version of the local symbol frequency map.
 
-unsafe abbrev FoldM := StateT State MetaM
+Note that the local symbol frequency map changes during elaboration of a file,
+so if this is called at different times it may give the wrong result.
+The intended use case is that it is only called by environment extension export functions,
+i.e. after all declarations have been elaborated.
+-/
+def cachedLocalSymbolFrequencyMap : MetaM (NameMap Nat) := do
+  match ← localSymbolFrequencyMapRef.get with
+  | some map => return map
+  | none =>
+    let map ← localSymbolFrequencyMap
+    localSymbolFrequencyMapRef.set (some map)
+    return map
 
-unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α) : FoldM α :=
-  let rec visit (e : Expr) (acc : α) : FoldM α := do
-    if (← get).visited.contains e then
-      return acc
-    modify fun s => { s with visited := s.visited.insert e }
-    if ← isProof e then
-      -- Don't visit proofs.
-      return acc
-    match e with
-    | .forallE n d b bi  =>
-      let r ← visit d acc
-      withLocalDecl n bi d fun x =>
-        visit (b.instantiate1 x) r
-    | .lam n d b bi      =>
-      let r ← visit d acc
-      withLocalDecl n bi d fun x =>
-        visit (b.instantiate1 x) r
-    | .mdata _ b         => visit b acc
-    | .letE n t v b nondep    =>
-      let r₁ ← visit t acc
-      let r₂ ← visit v r₁
-      withLetDecl n t v (nondep := nondep) fun x =>
-        visit (b.instantiate1 x) r₂
-    | .app f a           =>
-      let fi ← getFunInfo f (some 1)
-      if fi.paramInfo[0]!.isInstImplicit then
-        -- Don't visit implicit arguments.
-        visit f acc
-      else
-        visit a (← visit f acc)
-    | .proj _ _ b        => visit b acc
-    | .const c _         =>
-      if (← get).visitedConsts.contains c then
-        return acc
-      else
-        modify fun s => { s with visitedConsts := s.visitedConsts.insert c };
-        f c acc
-    | _ => return acc
-  visit e acc
+/--
+Return the number of times a `Name` appears
+in the signatures of (non-internal) theorems in the current module,
+skipping instance arguments and proofs.
 
-@[inline] unsafe def foldUnsafe {α : Type} (e : Expr) (init : α) (f : Name → α → MetaM α) : MetaM α :=
-  (fold f e init).run' {}
+Note that this is cached, and so returns the frequency within theorems that had been elaborated
+when the function is first called (with any argument).
+-/
+public def localSymbolFrequency (n : Name) : MetaM Nat := do
+  return (← cachedLocalSymbolFrequencyMap) |>.getD n 0
 
-end FoldRelevantConstsImpl
-
-/-- Apply `f` to every constant occurring in `e` once, skipping instance arguments and proofs. -/
-@[implemented_by FoldRelevantConstsImpl.foldUnsafe]
-opaque foldRelevantConsts {α : Type} (e : Expr) (init : α) (f : Name → α → MetaM α) : MetaM α := pure init
-
-/-- Helper function for running `MetaM` code during module export. We have nothing but an `Environment` available. -/
-private def runMetaM [Inhabited α] (env : Environment) (x : MetaM α) : α :=
+/--
+Helper function for running `MetaM` code during module export, when there is nothing but an `Environment` available.
+Panics on errors.
+-/
+public def _root_.Lean.Environment.unsafeRunMetaM [Inhabited α] (env : Environment) (x : MetaM α) : α :=
    match unsafe unsafeEIO ((((withoutExporting x).run' {} {}).run' { fileName := "symbolFrequency", fileMap := default } { env })) with
    | Except.ok a => a
    | Except.error ex => panic! match unsafe unsafeIO ex.toMessageData.toString with
@@ -100,13 +90,7 @@ builtin_initialize symbolFrequencyExt : PersistentEnvExtension (NameMap Nat) Emp
     mkInitial       := pure ∅
     addImportedFn   := fun mapss _ => pure mapss
     addEntryFn      := nofun
-    exportEntriesFnEx := fun env _ _ => runMetaM env do
-      let r ← env.constants.map₂.foldlM (init := (∅ : NameMap Nat)) (fun acc n ci => do
-        if n.isInternalDetail || !Lean.wasOriginallyTheorem env n then
-          pure acc
-        else
-          foldRelevantConsts ci.type (init := acc) fun n' acc => pure (acc.alter n' fun i? => some (i?.getD 0 + 1)))
-      return #[r]
+    exportEntriesFnEx := fun env _ _ => env.unsafeRunMetaM do return #[← cachedLocalSymbolFrequencyMap]
     statsFn         := fun _ => "symbol frequency extension"
   }
 
@@ -118,7 +102,7 @@ private local instance : Add (NameMap Nat) where
   add x y := y.foldl (init := x) fun x' n c => x'.insert n (x'.getD n 0 + c)
 
 /-- The symbol frequency map for imported constants. This is initialized on first use. -/
-def symbolFrequencyMap : CoreM (NameMap Nat) := do
+public def symbolFrequencyMap : CoreM (NameMap Nat) := do
   match ← symbolFrequencyMapRef.get with
   | some map => return map
   | none =>

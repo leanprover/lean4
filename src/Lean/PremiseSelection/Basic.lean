@@ -27,6 +27,90 @@ Lean does not provide a default premise selector, so this module is intended to 
 with a downstream package which registers a premise selector.
 -/
 
+namespace Lean.Expr.FoldRelevantConstantsImpl
+
+open Lean Meta
+
+unsafe structure State where
+ visited       : PtrSet Expr := mkPtrSet
+ visitedConsts : NameHashSet := {}
+
+unsafe abbrev FoldM := StateT State MetaM
+
+unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α) : FoldM α :=
+  let rec visit (e : Expr) (acc : α) : FoldM α := do
+    if (← get).visited.contains e then
+      return acc
+    modify fun s => { s with visited := s.visited.insert e }
+    if ← isProof e then
+      -- Don't visit proofs.
+      return acc
+    match e with
+    | .forallE n d b bi  =>
+      let r ← visit d acc
+      withLocalDecl n bi d fun x =>
+        visit (b.instantiate1 x) r
+    | .lam n d b bi      =>
+      let r ← visit d acc
+      withLocalDecl n bi d fun x =>
+        visit (b.instantiate1 x) r
+    | .mdata _ b         => visit b acc
+    | .letE n t v b nondep    =>
+      let r₁ ← visit t acc
+      let r₂ ← visit v r₁
+      withLetDecl n t v (nondep := nondep) fun x =>
+        visit (b.instantiate1 x) r₂
+    | .app f a           =>
+      let fi ← getFunInfo f (some 1)
+      if fi.paramInfo[0]!.isInstImplicit then
+        -- Don't visit implicit arguments.
+        visit f acc
+      else
+        visit a (← visit f acc)
+    | .proj _ _ b        => visit b acc
+    | .const c _         =>
+      if (← get).visitedConsts.contains c then
+        return acc
+      else
+        modify fun s => { s with visitedConsts := s.visitedConsts.insert c }
+        if ← isInstance c then
+          return acc
+        else
+          f c acc
+    | _ => return acc
+  visit e acc
+
+@[inline] unsafe def foldUnsafe {α : Type} (e : Expr) (init : α) (f : Name → α → MetaM α) : MetaM α :=
+  (fold f e init).run' {}
+
+end FoldRelevantConstantsImpl
+
+/-- Apply `f` to every constant occurring in `e` once, skipping instance arguments and proofs. -/
+@[implemented_by FoldRelevantConstantsImpl.foldUnsafe]
+public opaque foldRelevantConstants {α : Type} (e : Expr) (init : α) (f : Name → α → MetaM α) : MetaM α := pure init
+
+/-- Collect the constants occuring in `e` (once each), skipping instance arguments and proofs. -/
+public def relevantConstants (e : Expr) : MetaM (Array Name) := foldRelevantConstants e #[] (fun n ns => return ns.push n)
+
+/-- Collect the constants occuring in `e` (once each), skipping instance arguments and proofs. -/
+public def relevantConstantsAsSet (e : Expr) : MetaM NameSet := foldRelevantConstants e ∅ (fun n ns => return ns.insert n)
+
+end Lean.Expr
+
+open Lean Meta MVarId in
+public def Lean.MVarId.getConstants (g : MVarId) : MetaM NameSet := withContext g do
+  let mut c := (← g.getType).getUsedConstantsAsSet
+  for t in (← getLocalHyps) do
+    c := c ∪ (← inferType t).getUsedConstantsAsSet
+  return c
+
+open Lean Meta MVarId in
+public def Lean.MVarId.getRelevantConstants (g : MVarId) : MetaM NameSet := withContext g do
+  let mut c ← (← g.getType).relevantConstantsAsSet
+  for t in (← getLocalHyps) do
+    c := c ∪ (← (← inferType t).relevantConstantsAsSet)
+  return c
+
 @[expose] public section
 
 namespace Lean.PremiseSelection
@@ -130,25 +214,37 @@ end Selector
 
 section DenyList
 
-/-- Premises from a module whose name has one of the following components are not retrieved. -/
+/--
+Premises from a module whose name has one of the following components are not retrieved.
+
+Use `run_cmd modifyEnv fun env => moduleDenyListExt.addEntry env module` to add a module to the deny list.
+-/
 builtin_initialize moduleDenyListExt : SimplePersistentEnvExtension String (List String) ←
   registerSimplePersistentEnvExtension {
     addEntryFn := (·.cons)
-    addImportedFn := mkStateFromImportedEntries (·.cons) []
+    addImportedFn := mkStateFromImportedEntries (·.cons) ["Lake", "Lean", "Internal", "Tactic"]
   }
 
-/-- A premise whose name has one of the following components is not retrieved. -/
+/--
+A premise whose name has one of the following components is not retrieved.
+
+Use `run_cmd modifyEnv fun env => nameDenyListExt.addEntry env name` to add a name to the deny list.
+-/
 builtin_initialize nameDenyListExt : SimplePersistentEnvExtension String (List String) ←
   registerSimplePersistentEnvExtension {
     addEntryFn := (·.cons)
-    addImportedFn := mkStateFromImportedEntries (·.cons) []
+    addImportedFn := mkStateFromImportedEntries (·.cons) ["Lake", "Lean", "Internal", "Tactic"]
   }
 
-/-- A premise whose `type.getForallBody.getAppFn` is a constant that has one of these prefixes is not retrieved. -/
+/--
+A premise whose `type.getForallBody.getAppFn` is a constant that has one of these prefixes is not retrieved.
+
+Use `run_cmd modifyEnv fun env => typePrefixDenyListExt.addEntry env typePrefix` to add a type prefix to the deny list.
+-/
 builtin_initialize typePrefixDenyListExt : SimplePersistentEnvExtension Name (List Name) ←
   registerSimplePersistentEnvExtension {
     addEntryFn := (·.cons)
-    addImportedFn := mkStateFromImportedEntries (·.cons) []
+    addImportedFn := mkStateFromImportedEntries (·.cons) [`Lake, `Lean]
   }
 
 def isDeniedModule (env : Environment) (moduleName : Name) : Bool :=
@@ -157,6 +253,7 @@ def isDeniedModule (env : Environment) (moduleName : Name) : Bool :=
 def isDeniedPremise (env : Environment) (name : Name) : Bool := Id.run do
   if name == ``sorryAx then return true
   if name.isInternalDetail then return true
+  if Lean.Meta.isInstanceCore env name then return true
   if (nameDenyListExt.getState env).any (fun p => name.anyS (· == p)) then return true
   if let some moduleIdx := env.getModuleIdxFor? name then
     let moduleName := env.header.moduleNames[moduleIdx.toNat]!

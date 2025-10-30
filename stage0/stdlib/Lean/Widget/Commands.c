@@ -7975,9 +7975,9 @@ goto block_451;
 block_444:
 {
 lean_object* x_441; lean_object* x_442; lean_object* x_443; 
-x_441 = lean_nat_add(x_439, x_440);
+x_441 = lean_nat_add(x_438, x_440);
 lean_dec(x_440);
-lean_dec(x_439);
+lean_dec(x_438);
 if (lean_is_scalar(x_435)) {
  x_442 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -7996,7 +7996,7 @@ if (lean_is_scalar(x_425)) {
 lean_ctor_set(x_443, 0, x_437);
 lean_ctor_set(x_443, 1, x_427);
 lean_ctor_set(x_443, 2, x_428);
-lean_ctor_set(x_443, 3, x_438);
+lean_ctor_set(x_443, 3, x_439);
 lean_ctor_set(x_443, 4, x_442);
 return x_443;
 }
@@ -8022,8 +8022,8 @@ if (lean_obj_tag(x_430) == 0)
 lean_object* x_449; 
 x_449 = lean_ctor_get(x_430, 0);
 lean_inc(x_449);
-x_438 = x_447;
-x_439 = x_448;
+x_438 = x_448;
+x_439 = x_447;
 x_440 = x_449;
 goto block_444;
 }
@@ -8031,8 +8031,8 @@ else
 {
 lean_object* x_450; 
 x_450 = lean_unsigned_to_nat(0u);
-x_438 = x_447;
-x_439 = x_448;
+x_438 = x_448;
+x_439 = x_447;
 x_440 = x_450;
 goto block_444;
 }

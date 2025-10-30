@@ -7,12 +7,12 @@ def test (a : List Nat) : Nat :=
   | _ => 3
   | [] => 4
 
--- Should have no `casesOn`
+-- Should have exactly two `casesOn`
 
 /--
 info: def test.match_1.{u_1} : (motive : List Nat → Sort u_1) →
   (a : List Nat) → ((x : List Nat) → motive x) → (Unit → motive []) → motive a :=
-fun motive a h_1 h_2 => test._sparseCasesOn_1 a (h_1 []) fun h_0 => h_1 a
+fun motive a h_1 h_2 => h_1 a
 -/
 #guard_msgs in #print test.match_1
 
@@ -21,6 +21,8 @@ def test2 (a b : List Nat) : Nat :=
   | [], _ => 3
   | _, [] => 4
   | _ :: _, _ :: _ => 5
+
+-- Should have exactly two `casesOn`
 
 /--
 info: def test2.match_1.{u_1} : (motive : List Nat → List Nat → Sort u_1) →
@@ -31,7 +33,7 @@ info: def test2.match_1.{u_1} : (motive : List Nat → List Nat → Sort u_1) �
             (tail : List Nat) → (head_1 : Nat) → (tail_1 : List Nat) → motive (head :: tail) (head_1 :: tail_1)) →
           motive a b :=
 fun motive a b h_1 h_2 h_3 =>
-  List.casesOn a (test._sparseCasesOn_1 b (h_1 []) fun h_0 => h_1 b) fun head tail =>
+  List.casesOn a (h_1 b) fun head tail =>
     List.casesOn b (h_2 (head :: tail)) fun head_1 tail_1 => h_3 head tail head_1 tail_1
 -/
 #guard_msgs in #print test2.match_1
@@ -50,8 +52,7 @@ info: def test3.match_1.{u_1} : (motive : List Nat → Bool → Sort u_1) →
     (b : Bool) →
       ((x : List Nat) → motive x true) →
         ((x : Bool) → motive [] x) → ((x : List Nat) → (x_1 : Bool) → motive x x_1) → motive a b :=
-fun motive a b h_1 h_2 h_3 =>
-  test._sparseCasesOn_1 a (Bool.casesOn b (h_2 false) (h_1 [])) fun h_0 => Bool.casesOn b (h_3 a false) (h_1 a)
+fun motive a b h_1 h_2 h_3 => Bool.casesOn b (test3._sparseCasesOn_1 a (h_2 false) fun h_0 => h_3 a false) (h_1 a)
 -/
 #guard_msgs in #print test3.match_1
 
@@ -62,10 +63,10 @@ example (P : Nat → Prop) (x : Nat) (h : x = 12345) (hP : P 12345) : P x :=
 
 def test4 : Bool → Bool → Bool → Bool → Bool → Bool
   | _, _ , _ , _ , true => true
-  | _, _ , _ , true , _ => true
-  | _, _ , true , _ , _ => true
-  | _, true , _ , _ , _ => true
-  | true , _ , _ , _ , _ => true
+  | _, _ , _ , true, _ => true
+  | _, _ , true, _ , _ => true
+  | _, true, _ , _ , _ => true
+  | true, _ , _ , _ , _ => true
   | _ , _ , _ , _ , _ => false
 
 /--
@@ -78,29 +79,62 @@ info: def test4.match_1.{u_1} : (motive : Bool → Bool → Bool → Bool → Bo
             ((x x_5 x_6 x_7 : Bool) → motive true x x_5 x_6 x_7) →
               ((x x_5 x_6 x_7 x_8 : Bool) → motive x x_5 x_6 x_7 x_8) → motive x x_1 x_2 x_3 x_4 :=
 fun motive x x_1 x_2 x_3 x_4 h_1 h_2 h_3 h_4 h_5 h_6 =>
-  Bool.casesOn x
-    (Bool.casesOn x_1
+  Bool.casesOn x_4
+    (Bool.casesOn x_3
       (Bool.casesOn x_2
-        (Bool.casesOn x_3 (Bool.casesOn x_4 (h_6 false false false false false) (h_1 false false false false))
-          (Bool.casesOn x_4 (h_2 false false false false) (h_1 false false false true)))
-        (Bool.casesOn x_3 (Bool.casesOn x_4 (h_3 false false false false) (h_1 false false true false))
-          (Bool.casesOn x_4 (h_2 false false true false) (h_1 false false true true))))
-      (Bool.casesOn x_2
-        (Bool.casesOn x_3 (Bool.casesOn x_4 (h_4 false false false false) (h_1 false true false false))
-          (Bool.casesOn x_4 (h_2 false true false false) (h_1 false true false true)))
-        (Bool.casesOn x_3 (Bool.casesOn x_4 (h_3 false true false false) (h_1 false true true false))
-          (Bool.casesOn x_4 (h_2 false true true false) (h_1 false true true true)))))
-    (Bool.casesOn x_1
-      (Bool.casesOn x_2
-        (Bool.casesOn x_3 (Bool.casesOn x_4 (h_5 false false false false) (h_1 true false false false))
-          (Bool.casesOn x_4 (h_2 true false false false) (h_1 true false false true)))
-        (Bool.casesOn x_3 (Bool.casesOn x_4 (h_3 true false false false) (h_1 true false true false))
-          (Bool.casesOn x_4 (h_2 true false true false) (h_1 true false true true))))
-      (Bool.casesOn x_2
-        (Bool.casesOn x_3 (Bool.casesOn x_4 (h_4 true false false false) (h_1 true true false false))
-          (Bool.casesOn x_4 (h_2 true true false false) (h_1 true true false true)))
-        (Bool.casesOn x_3 (Bool.casesOn x_4 (h_3 true true false false) (h_1 true true true false))
-          (Bool.casesOn x_4 (h_2 true true true false) (h_1 true true true true)))))
+        (Bool.casesOn x_1 (Bool.casesOn x (h_6 false false false false false) (h_5 false false false false))
+          (h_4 x false false false))
+        (h_3 x x_1 false false))
+      (h_2 x x_1 x_2 false))
+    (h_1 x x_1 x_2 x_3)
 -/
 #guard_msgs in
 #print test4.match_1
+
+def test4' : Bool → Bool → Bool → Bool → Bool → Bool
+  | _, _ , _ , _ , true => true
+  | _, _ , _ , true, _ => true
+  | _, _ , true, _ , _ => true
+  | _, true, _ , _ , _ => true
+  | true, _ , _ , _ , _ => true
+  | false, false, false, false, false => false
+
+/--
+info: def test4'.match_1.{u_1} : (motive : Bool → Bool → Bool → Bool → Bool → Sort u_1) →
+  (x x_1 x_2 x_3 x_4 : Bool) →
+    ((x x_5 x_6 x_7 : Bool) → motive x x_5 x_6 x_7 true) →
+      ((x x_5 x_6 x_7 : Bool) → motive x x_5 x_6 true x_7) →
+        ((x x_5 x_6 x_7 : Bool) → motive x x_5 true x_6 x_7) →
+          ((x x_5 x_6 x_7 : Bool) → motive x true x_5 x_6 x_7) →
+            ((x x_5 x_6 x_7 : Bool) → motive true x x_5 x_6 x_7) →
+              (Unit → motive false false false false false) → motive x x_1 x_2 x_3 x_4 :=
+fun motive x x_1 x_2 x_3 x_4 h_1 h_2 h_3 h_4 h_5 h_6 =>
+  Bool.casesOn x_4
+    (Bool.casesOn x_3
+      (Bool.casesOn x_2
+        (Bool.casesOn x_1 (Bool.casesOn x (h_6 ()) (h_5 false false false false)) (h_4 x false false false))
+        (h_3 x x_1 false false))
+      (h_2 x x_1 x_2 false))
+    (h_1 x x_1 x_2 x_3)
+-/
+#guard_msgs in
+#print test4'.match_1
+
+-- Just testing the backwards compatibility option
+
+set_option match.ignoreUnusedAlts true in
+set_option backwards.match.rowMajor false in
+def testOld (a : List Nat) : Nat :=
+  match a with
+  | _ => 3
+  | [] => 4
+
+-- Has unnecessary `casesOn`
+
+/--
+info: def testOld.match_1.{u_1} : (motive : List Nat → Sort u_1) →
+  (a : List Nat) → ((x : List Nat) → motive x) → (Unit → motive []) → motive a :=
+fun motive a h_1 h_2 => test3._sparseCasesOn_1 a (h_1 []) fun h_0 => h_1 a
+-/
+#guard_msgs in
+#print testOld.match_1

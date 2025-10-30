@@ -1555,7 +1555,7 @@ class HomogeneousPow (α : Type u) where
 
 /-- Typeclass for types with a scalar multiplication operation, denoted `•` (`\bu`) -/
 class SMul (M : Type u) (α : Type v) where
-  /-- `a • b` computes the product of `a` and `b`. The meaning of this notation is type-dependent,
+  /-- `m • a : α` denotes the product of `m : M` and `a : α`. The meaning of this notation is type-dependent,
   but it is intended to be used for left actions. -/
   smul : M → α → α
 
@@ -3395,7 +3395,10 @@ Note that in order for this definition to be well-behaved it is necessary to kno
 is unique. To show this, one defines UTF-8 decoding and shows that encoding and decoding are
 mutually inverse. -/
 inductive ByteArray.IsValidUTF8 (b : ByteArray) : Prop
-  /-- Show that a byte -/
+  /--
+  Show that a byte array is valid UTF-8 by exhibiting it as `List.utf8Encode m` for some list `m`
+  of characters.
+   -/
   | intro (m : List Char) (hm : Eq b (List.utf8Encode m))
 
 /--

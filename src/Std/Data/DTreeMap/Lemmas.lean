@@ -2279,7 +2279,7 @@ theorem mem_of_mem_union_of_not_mem_left [TransCmp cmp]
 /- Equiv -/
 theorem union_insert_right_equiv_union_insert [TransCmp cmp] {p : (a : α) × β a} :
     (t₁ ∪ (t₂.insert p.fst p.snd)).Equiv ((t₁ ∪ t₂).insert p.fst p.snd) :=
-    ⟨Impl.union_insert_right_equiv_insert_union t₁.wf t₂.wf⟩
+  ⟨Impl.union_insert_right_equiv_insert_union t₁.wf t₂.wf⟩
 
 /- get? -/
 theorem get?_union [TransCmp cmp] [LawfulEqCmp cmp] {k : α} :

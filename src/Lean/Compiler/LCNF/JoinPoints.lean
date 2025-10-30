@@ -45,7 +45,7 @@ structure FindCtx where
   A map from function declarations that are currently in scope to their
   definition depth.
   -/
-  scope : PersistentHashMap FVarId Nat := {}
+  scope : FVarIdMap Nat := {}
   /--
   The current function binder we are inside of if any.
   -/
@@ -187,7 +187,7 @@ where
             eraseCandidate fvarId
           else
             let currDepth := (← read).definitionDepth
-            let calleeDepth := (← read).scope.find! fvarId
+            let calleeDepth := (← read).scope.get! fvarId
             if currDepth == calleeDepth then
               /-
               we are in a situation like:

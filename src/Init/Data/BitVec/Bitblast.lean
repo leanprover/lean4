@@ -635,12 +635,11 @@ theorem mulRec_eq_mul_signExtend_setWidth (x y : BitVec w) (s : Nat) :
     simp only [mulRec_zero_eq, ofNat_eq_ofNat, Nat.reduceAdd]
     by_cases y.getLsbD 0
     case pos hy =>
-      simp only [hy, ↓reduceIte, setWidth_one_eq_ofBool_getLsb_zero,
-        ofBool_true, ofNat_eq_ofNat]
+      simp only [hy, ↓reduceIte, setWidth_one, ofBool_true, ofNat_eq_ofNat]
       rw [setWidth_ofNat_one_eq_ofNat_one_of_lt (by omega)]
       simp
     case neg hy =>
-      simp [hy, setWidth_one_eq_ofBool_getLsb_zero]
+      simp [hy, setWidth_one]
   case succ s' hs =>
     rw [mulRec_succ_eq, hs]
     have heq :

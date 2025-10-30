@@ -17,7 +17,7 @@ open Nat
 /-! ## Definitions of basic functions -/
 
 theorem subNatNat_of_sub_eq_zero {m n : Nat} (h : n - m = 0) : subNatNat m n = ↑(m - n) := by
-  rw [subNatNat, h, ofNat_eq_coe]
+  rw [subNatNat, h, ofNat_eq_natCast]
 
 theorem subNatNat_of_sub_eq_succ {m n k : Nat} (h : n - m = succ k) : subNatNat m n = -[k+1] := by
   rw [subNatNat, h]
@@ -129,7 +129,7 @@ theorem subNatNat_elim (m n : Nat) (motive : Nat → Nat → Int → Prop)
 
 theorem subNatNat_add_left : subNatNat (m + n) m = n := by
   unfold subNatNat
-  rw [Nat.sub_eq_zero_of_le (Nat.le_add_right ..), Nat.add_sub_cancel_left, ofNat_eq_coe]
+  rw [Nat.sub_eq_zero_of_le (Nat.le_add_right ..), Nat.add_sub_cancel_left, ofNat_eq_natCast]
 
 theorem subNatNat_add_right : subNatNat m (m + n + 1) = negSucc n := by
   simp [subNatNat, Nat.add_assoc, Nat.add_sub_cancel_left]

@@ -287,7 +287,7 @@ theorem toRat_add (x y : Dyadic) : toRat (x + y) = toRat x + toRat y := by
     · rename_i h
       cases Int.sub_eq_iff_eq_add.mp h
       rw [toRat_ofOdd_eq_mkRat, Rat.mkRat_eq_iff (NeZero.ne _) (NeZero.ne _)]
-      simp only [succ_eq_add_one, Int.ofNat_eq_coe, Int.add_shiftLeft, ← Int.shiftLeft_add,
+      simp only [succ_eq_add_one, Int.ofNat_eq_natCast, Int.add_shiftLeft, ← Int.shiftLeft_add,
         Int.natCast_mul, Int.natCast_shiftLeft, Int.shiftLeft_mul_shiftLeft, Int.add_mul]
       congr 2 <;> omega
     · rename_i h
@@ -438,7 +438,7 @@ theorem toDyadic_mkRat (a : Int) (b : Nat) (prec : Int) :
   rcases h : mkRat a b with ⟨n, d, hnz, hr⟩
   obtain ⟨m, hm, rfl, rfl⟩ := Rat.mkRat_num_den hb h
   cases prec
-  · simp only [Rat.toDyadic, Int.ofNat_eq_coe, Int.toNat_natCast, Int.toNat_neg_natCast,
+  · simp only [Rat.toDyadic, Int.ofNat_eq_natCast, Int.toNat_natCast, Int.toNat_neg_natCast,
       shiftLeft_zero, Int.natCast_mul]
     rw [Int.mul_comm d, ← Int.ediv_ediv (by simp), ← Int.shiftLeft_mul,
       Int.mul_ediv_cancel _ (by simpa using hm)]
@@ -463,7 +463,7 @@ theorem toRat_toDyadic (x : Rat) (prec : Int) :
   rw [Rat.floor_def, Int.shiftLeft_eq, Nat.shiftLeft_eq]
   match prec with
   | .ofNat prec =>
-    simp only [Int.ofNat_eq_coe, Int.toNat_natCast, Int.toNat_neg_natCast, Nat.pow_zero,
+    simp only [Int.ofNat_eq_natCast, Int.toNat_natCast, Int.toNat_neg_natCast, Nat.pow_zero,
       Nat.mul_one]
     have : (2 ^ prec : Rat) = ((2 ^ prec : Nat) : Rat) := by simp
     rw [Rat.zpow_natCast, this, Rat.mul_def']

@@ -619,14 +619,20 @@ where
 
 end JoinPointCommonArgs
 
+def Decl.findJoinPoints? (decl : Decl) : CompilerM (Option Decl) := do
+  let findResult ← JoinPointFinder.find decl
+  trace[Compiler.findJoinPoints] "Found {findResult.candidates.size} jp candidates for {decl.name}"
+  if findResult.candidates.isEmpty then
+    return none
+  else
+    return some (← JoinPointFinder.replace decl findResult)
+
 /--
 Find all `fun` declarations in `decl` that qualify as join points then replace
 their definitions and call sites with `jp`/`jmp`.
 -/
 def Decl.findJoinPoints (decl : Decl) : CompilerM Decl := do
-  let findResult ← JoinPointFinder.find decl
-  trace[Compiler.findJoinPoints] "Found {findResult.candidates.size} jp candidates for {decl.name}"
-  JoinPointFinder.replace decl findResult
+  return (← Decl.findJoinPoints? decl).getD decl
 
 def findJoinPoints (occurrence : Nat := 0) : Pass :=
   .mkPerDeclaration `findJoinPoints Decl.findJoinPoints .base (occurrence := occurrence)

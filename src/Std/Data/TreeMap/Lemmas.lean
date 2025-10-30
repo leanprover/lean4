@@ -1642,7 +1642,6 @@ theorem getKey?_union [TransCmp cmp]
   DTreeMap.getKey?_union
 
 theorem getKey?_union_of_not_mem_left [TransCmp cmp]
-
     {k : α} (not_mem : ¬k ∈ t₁) :
     (t₁ ∪ t₂).getKey? k = t₂.getKey? k :=
   DTreeMap.getKey?_union_of_not_mem_left not_mem

@@ -1,8 +1,8 @@
 matchUnknownFVarBug.lean:2:2-2:7: error: Missing cases:
+(some (Nat.succ _)), (some _)
+(some (Nat.succ _)), none
 none, (some _)
 none, none
-(some _), (some _)
-(some _), none
 matchUnknownFVarBug.lean:3:18-3:19: error: unsolved goals
 n? x✝ : Option Nat
 h : n? = some 0

@@ -89,21 +89,6 @@ theorem pure_elim' {φ : Prop} {P : SPred σs} : (φ → ⌜True⌝ ⊢ₛ P) �
 -- theorem pure_elim' {φ : Prop} : SPred.entails (σs:=σs) ⌜True⌝ ⌜φ⌝ → φ
 -- Unfortunately, this is only true if all `σs` are Inhabited.
 
-theorem and_pure {P Q : Prop} : ⌜P⌝ ∧ ⌜Q⌝ ⊣⊢ₛ (⌜P ∧ Q⌝ : SPred σs) := by
-  induction σs
-  case nil => rfl
-  case cons σ σs ih => intro s; simp only [and_cons]; exact ih
-
-theorem or_pure {P Q : Prop} : ⌜P⌝ ∨ ⌜Q⌝ ⊣⊢ₛ (⌜P ∨ Q⌝ : SPred σs) := by
-  induction σs
-  case nil => rfl
-  case cons σ σs ih => intro s; simp only [or_cons]; exact ih
-
-theorem imp_pure {P Q : Prop} : (⌜P⌝ → ⌜Q⌝) ⊣⊢ₛ (⌜P → Q⌝ : SPred σs) := by
-  induction σs
-  case nil => rfl
-  case cons σ σs ih => intro s; simp only [imp_cons]; exact ih
-
 /-! # Conjunction -/
 
 theorem and_intro {P Q R : SPred σs} (h1 : P ⊢ₛ Q) (h2 : P ⊢ₛ R) : P ⊢ₛ Q ∧ R := by

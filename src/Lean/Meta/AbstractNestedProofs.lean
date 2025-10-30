@@ -6,16 +6,17 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Grind.Util
+public import Lean.Meta.Basic
 public import Lean.Meta.Closure
 public import Lean.Meta.Transform
-
-public section
+import Init.Grind.Util
+import Lean.Meta.InferType
+import Lean.Util.Recognizers
 
 namespace Lean.Meta
 
 /-- Abstracts the given proof into an auxiliary theorem, suitably pre-processing its type. -/
-def abstractProof [Monad m] [MonadLiftT MetaM m] [MonadEnv m] [MonadOptions m] [MonadFinally m]
+public def abstractProof [Monad m] [MonadLiftT MetaM m] [MonadEnv m] [MonadOptions m] [MonadFinally m]
     (proof : Expr) (cache := true) (postprocessType : Expr → m Expr := pure) : m Expr := do
   let type ← withoutExporting do inferType proof
   let type ← (Core.betaReduce type : MetaM _)
@@ -47,7 +48,7 @@ def isNonTrivialProof (e : Expr) : MetaM Bool := do
   -- declarations but the code might still be run under `isExporting = true` in order to create the
   -- new aux decls in the public scope. Thus we always shift to the private scope here.
   withoutExporting do
-  if !(← isProof e) then
+  if !(← Lean.Meta.isProof e) then
     return false
   else if e.isAppOf ``Grind.nestedProof then
     -- Grind.nestedProof is a gadget created by the `grind` tactic.
@@ -102,7 +103,7 @@ partial def visit (e : Expr) : M Expr := do
 end AbstractNestedProofs
 
 /-- Replace proofs nested in `e` with new lemmas. The new lemmas are named using `getDeclNGen`. -/
-def abstractNestedProofs (e : Expr) (cache := true) : MetaM Expr := do
+public def abstractNestedProofs (e : Expr) (cache := true) : MetaM Expr := do
   if (← isProof e) then
     -- `e` is a proof itself. So, we don't abstract nested proofs
     return e

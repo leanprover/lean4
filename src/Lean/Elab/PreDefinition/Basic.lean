@@ -34,7 +34,6 @@ structure PreDefinition where
   modifiers   : Modifiers
   declName    : Name
   binders     : Syntax
-  numSectionVars : Nat := 0
   type        : Expr
   value       : Expr
   termination : TerminationHints

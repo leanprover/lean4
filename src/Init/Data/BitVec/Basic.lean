@@ -203,7 +203,7 @@ If `n` is `0`, then one digit is returned. Otherwise, `⌊(n + 3) / 4⌋` digits
 -- `Internal` string functions by moving this definition out to a separate file that can live
 -- downstream of `Init.Data.String.Basic`.
 protected def toHex {n : Nat} (x : BitVec n) : String :=
-  let s := String.ofList  (Nat.toDigits 16 x.toNat)
+  let s := String.ofList (Nat.toDigits 16 x.toNat)
   let t := String.ofList (List.replicate ((n+3) / 4 - String.Internal.length s) '0')
   String.Internal.append t s
 

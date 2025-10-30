@@ -27,7 +27,7 @@ The iterator yields the elements of the map in order and then terminates.
 -/
 @[inline]
 public def iter {α : Type u} {β : α → Type v}
-    (cmp : α → α → Ordering := by exact compare) (m : Raw α β cmp) :=
+    {cmp : α → α → Ordering} (m : Raw α β cmp) :=
   (Internal.Zipper.iterOfTree m.inner : Iter ((a : α) × β a))
 
 /--
@@ -43,8 +43,8 @@ The key and value types must live in the same universe.
 -/
 @[inline]
 public def keysIter {α : Type u} {β : α → Type u}
-    (cmp : α → α → Ordering := by exact compare) (m : Raw α β cmp) :=
-  ((m.iter cmp).map fun e => e.1 : Iter α)
+    {cmp : α → α → Ordering} (m : Raw α β cmp) :=
+  (m.iter.map fun e => e.1 : Iter α)
 
 /--
 Returns a finite iterator over the values of a tree map.
@@ -59,24 +59,24 @@ The key and value types must live in the same universe.
 -/
 @[inline]
 public def valuesIter {α : Type u} {β : Type u}
-    (cmp : α → α → Ordering := by exact compare) (m : Raw α (fun _ => β) cmp) :=
-  ((m.iter cmp).map fun e => e.2 : Iter β)
+    {cmp : α → α → Ordering} (m : Raw α (fun _ => β) cmp) :=
+  (m.iter.map fun e => e.2 : Iter β)
 
 @[simp]
 public theorem iter_toList {cmp : α → α → Ordering} (m : Raw α β cmp) :
-    (m.iter cmp).toList = m.toList := by
+    (m.iter).toList = m.toList := by
   rw [iter, toList]
   apply Internal.Zipper.toList.iterOfTree
 
 @[simp]
-public theorem keysIter_toList {α β} {cmp : α → α → Ordering} (m : Raw α β cmp) :
-    (m.keysIter cmp).toList = m.keys := by
+public theorem keysIter_toList {cmp : α → α → Ordering} (m : Raw α β cmp) :
+    (m.keysIter).toList = m.keys := by
   rw [keysIter, keys, iter, ← Internal.Impl.map_fst_toList_eq_keys]
   apply Internal.Zipper.map_iterOfTree_eq_tree_toList_map
 
 @[simp]
-public theorem valuesIter_toList {α β} {cmp : α → α → Ordering} (m : Raw α (fun _ => β) cmp) :
-    (m.valuesIter cmp).toList = m.values := by
+public theorem valuesIter_toList {cmp : α → α → Ordering} (m : Raw α (fun _ => β) cmp) :
+    (m.valuesIter).toList = m.values := by
   rw [valuesIter, values, iter, Internal.Impl.values_eq_map_snd, ← Internal.Impl.toList_eq_toListModel]
   apply Internal.Zipper.map_iterOfTree_eq_tree_toList_map
 

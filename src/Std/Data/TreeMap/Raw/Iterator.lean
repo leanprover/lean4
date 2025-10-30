@@ -27,8 +27,8 @@ The iterator yields the elements of the map in order and then terminates.
 -/
 @[inline]
 public def iter {α : Type u} {β : Type v}
-    (cmp : α → α → Ordering := by exact compare) (m : Raw α β cmp) :=
-  ((m.inner.iter cmp).map fun e => (e.1, e.2) : Iter (α × β))
+    {cmp : α → α → Ordering} (m : Raw α β cmp) :=
+  (m.inner.iter.map fun e => (e.1, e.2) : Iter (α × β))
 
 /--
 Returns a finite iterator over the keys of a tree map.
@@ -43,8 +43,8 @@ The key and value types must live in the same universe.
 -/
 @[inline]
 public def keysIter {α : Type u} {β : Type u}
-    (cmp : α → α → Ordering := by exact compare) (m : Raw α β cmp) :=
-  (DTreeMap.Raw.keysIter cmp m.inner : Iter α)
+    {cmp : α → α → Ordering} (m : Raw α β cmp) :=
+  (m.inner.keysIter : Iter α)
 
 /--
 Returns a finite iterator over the values of a tree map.
@@ -59,24 +59,24 @@ The key and value types must live in the same universe.
 -/
 @[inline]
 public def valuesIter {α : Type u} {β : Type u}
-    (cmp : α → α → Ordering := by exact compare) (m : Raw α β cmp) :=
-  (DTreeMap.Raw.valuesIter cmp m.inner : Iter β)
+    {cmp : α → α → Ordering} (m : Raw α β cmp) :=
+  (m.inner.valuesIter : Iter β)
 
 @[simp]
 public theorem iter_toList {α : Type u} {β : Type v} {cmp : α → α → Ordering} (m : Raw α β cmp) :
-    ((m.iter cmp).toList) = m.toList := by
+    (m.iter.toList) = m.toList := by
   simp only [iter, Iter.toList_map, DTreeMap.Raw.iter_toList]
   simp only [DTreeMap.Raw.toList, DTreeMap.Internal.Impl.toList_eq_toListModel, toList,
     DTreeMap.Raw.Const.toList, DTreeMap.Internal.Impl.Const.toList_eq_toListModel_map]
 
 @[simp]
 public theorem keysIter_toList {α β} {cmp : α → α → Ordering} (m : Raw α β cmp) :
-    (m.keysIter cmp).toList = m.keys :=
+    m.keysIter.toList = m.keys :=
   DTreeMap.Raw.keysIter_toList m.inner
 
 @[simp]
 public theorem valuesIter_toList {α β} {cmp : α → α → Ordering} (m : Raw α β cmp) :
-    (m.valuesIter cmp).toList = m.values :=
+    m.valuesIter.toList = m.values :=
   DTreeMap.Raw.valuesIter_toList m.inner
 
 end Std.TreeMap.Raw

@@ -9,7 +9,12 @@ import Std.Data.TreeSet.Raw.Basic
 import Std.Data.DTreeMap.Raw.AdditionalOperations
 import Std.Data.TreeMap.Raw.AdditionalOperations
 import Std.Data.TreeMap.AdditionalOperations
-
+import Std.Data.DTreeMap.Iterator
+import Std.Data.DTreeMap.Raw.Iterator
+import Std.Data.TreeMap.Iterator
+import Std.Data.TreeMap.Raw.Iterator
+import Std.Data.TreeSet.Iterator
+import Std.Data.TreeSet.Raw.Iterator
 open Std
 
 variable {α : Type u} {β : Type v} [Ord α]
@@ -466,6 +471,18 @@ local instance : Inhabited ((_ : Nat) × Nat) where
 /-- info: Std.DTreeMap.Raw.ofList [⟨0, 0⟩, ⟨1, 0⟩, ⟨2, 0⟩, ⟨3, 6⟩] -/
 #guard_msgs in
 #eval DTreeMap.Raw.Const.mergeWith (fun _ v v' => v' - v) t (.ofList [⟨0, 0⟩, ⟨1, 1⟩, ⟨2, 2⟩])
+
+/-- info: [⟨1, 2⟩, ⟨2, 4⟩, ⟨3, 6⟩] -/
+#guard_msgs in
+#eval t.iter.toList
+
+/-- info: [1, 2, 3] -/
+#guard_msgs in
+#eval t.keysIter.toList
+
+/-- info: [2, 4, 6] -/
+#guard_msgs in
+#eval t.valuesIter.toList
 
 end DTreeMap.Raw
 
@@ -951,6 +968,18 @@ warning: declaration uses 'sorry'
 #guard_msgs in
 #eval DTreeMap.Const.mergeWith (fun _ v v' => v' - v) t (.ofList [⟨0, 0⟩, ⟨1, 1⟩, ⟨2, 2⟩])
 
+/-- info: [⟨1, 2⟩, ⟨2, 4⟩, ⟨3, 6⟩] -/
+#guard_msgs in
+#eval t.iter.toList
+
+/-- info: [1, 2, 3] -/
+#guard_msgs in
+#eval t.keysIter.toList
+
+/-- info: [2, 4, 6] -/
+#guard_msgs in
+#eval t.valuesIter.toList
+
 end DTreeMap
 
 namespace TreeMap.Raw
@@ -1256,6 +1285,19 @@ local instance : Inhabited ((_ : Nat) × Nat) where
 /-- info: Std.TreeMap.Raw.ofList [(0, 0), (1, 0), (2, 0), (3, 6)] -/
 #guard_msgs in
 #eval TreeMap.Raw.mergeWith (fun _ v v' => v' - v) t (.ofList [⟨0, 0⟩, ⟨1, 1⟩, ⟨2, 2⟩])
+
+/-- info: [(1, 2), (2, 4), (3, 6)] -/
+#guard_msgs in
+#eval t.iter.toList
+
+/-- info: [1, 2, 3] -/
+#guard_msgs in
+#eval t.keysIter.toList
+
+/-- info: [2, 4, 6] -/
+#guard_msgs in
+#eval t.valuesIter.toList
+
 
 end TreeMap.Raw
 
@@ -1595,6 +1637,18 @@ warning: declaration uses 'sorry'
 #guard_msgs in
 #eval TreeMap.mergeWith (fun _ v v' => v' - v) t (.ofList [⟨0, 0⟩, ⟨1, 1⟩, ⟨2, 2⟩])
 
+/-- info: [(1, 2), (2, 4), (3, 6)] -/
+#guard_msgs in
+#eval t.iter.toList
+
+/-- info: [1, 2, 3] -/
+#guard_msgs in
+#eval t.keysIter.toList
+
+/-- info: [2, 4, 6] -/
+#guard_msgs in
+#eval t.valuesIter.toList
+
 end TreeMap
 
 namespace TreeSet.Raw
@@ -1761,6 +1815,10 @@ def t : TreeSet.Raw Nat :=
 /-- info: Std.TreeSet.Raw.ofList [0, 1, 2, 3] -/
 #guard_msgs in
 #eval TreeSet.Raw.merge t (.ofList [0, 1, 2])
+
+/-- info: [1, 2, 3] -/
+#guard_msgs in
+#eval t.iter.toList
 
 end TreeSet.Raw
 

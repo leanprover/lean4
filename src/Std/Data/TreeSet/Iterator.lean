@@ -28,12 +28,12 @@ The iterator yields the elements of the set in order and then terminates.
 -/
 @[inline]
 public def iter {α : Type u}
-    (cmp : α → α → Ordering := by exact compare) (m : TreeSet α cmp) :=
-  ((m.inner.iter cmp).map fun e => e.1 : Iter α)
+    {cmp : α → α → Ordering} (m : TreeSet α cmp) :=
+  (m.inner.iter.map fun e => e.1 : Iter α)
 
 @[simp]
 public theorem iter_toList {cmp : α → α → Ordering} (m : TreeSet α cmp) :
-    (m.iter cmp).toList = m.toList := by
+    m.iter.toList = m.toList := by
   rw [iter, Iter.toList_map, TreeMap.iter_toList, toList, TreeMap.toList, TreeMap.keys, Std.DTreeMap.Const.map_fst_toList_eq_keys]
 
 end Std.TreeSet

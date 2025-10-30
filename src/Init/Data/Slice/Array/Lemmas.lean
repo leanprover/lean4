@@ -20,7 +20,7 @@ open Std.Iterators Std.PRange
 
 namespace Std.Slice.Array
 
-theorem internalIter_Rco_eq {α : Type u} {s : Subarray α} :
+theorem internalIter_rco_eq {α : Type u} {s : Subarray α} :
     Internal.iter s = (Rco.Internal.iter (s.start...<s.stop)
       |>.attachWith (· < s.array.size)
         (fun out h => h
@@ -40,7 +40,7 @@ theorem toList_internalIter {α : Type u} {s : Subarray α} :
               |> Rco.lt_upper_of_mem
               |> (Nat.lt_of_lt_of_le · s.stop_le_array_size))
         |>.map fun i => s.array[i.1]) := by
-  rw [internalIter_Rco_eq, Iter.toList_map, Iter.toList_uLift, Iter.toList_attachWith]
+  rw [internalIter_rco_eq, Iter.toList_map, Iter.toList_uLift, Iter.toList_attachWith]
   simp [Rco.toList]
 
 public instance : LawfulSliceSize (Internal.SubarrayData α) where

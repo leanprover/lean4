@@ -235,6 +235,32 @@ def String.Internal.toArray (b : String) : Array Char :=
 theorem String.Internal.toArray_empty : String.Internal.toArray "" = #[] := by
   simp [toArray]
 
+/--
+Converts a string to a list of characters.
+
+Since strings are represented as dynamic arrays of bytes containing the string encoded using
+UTF-8, this operation takes time and space linear in the length of the string.
+
+Examples:
+ * `"abc".toList = ['a', 'b', 'c']`
+ * `"".toList = []`
+ * `"\n".toList = ['\n']`
+-/
+@[extern "lean_string_data", expose]
+def String.toList (s : String) : List Char :=
+  (String.Internal.toArray s).toList
+
+/--
+Converts a string to a list of characters.
+
+Since strings are represented as dynamic arrays of bytes containing the string encoded using
+UTF-8, this operation takes time and space linear in the length of the string.
+
+Examples:
+ * `"abc".toList = ['a', 'b', 'c']`
+ * `"".toList = []`
+ * `"\n".toList = ['\n']`
+-/
 @[extern "lean_string_data", expose]
 def String.data (b : String) : List Char :=
   (String.Internal.toArray b).toList
@@ -395,21 +421,6 @@ instance : LE String :=
 
 instance decLE (s₁ s₂ : String) : Decidable (s₁ ≤ s₂) :=
   inferInstanceAs (Decidable (Not _))
-
-/--
-Converts a string to a list of characters.
-
-Since strings are represented as dynamic arrays of bytes containing the string encoded using
-UTF-8, this operation takes time and space linear in the length of the string.
-
-Examples:
- * `"abc".toList = ['a', 'b', 'c']`
- * `"".toList = []`
- * `"\n".toList = ['\n']`
--/
-@[inline, expose]
-def toList (s : String) : List Char :=
-  s.data
 
 theorem _root_.List.isPrefix_of_utf8Encode_append_eq_utf8Encode {l m : List Char} (b : ByteArray)
     (h : l.utf8Encode ++ b = m.utf8Encode) : l <+: m := by

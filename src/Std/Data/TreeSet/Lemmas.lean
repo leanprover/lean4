@@ -589,8 +589,7 @@ theorem size_left_le_size_union [TransCmp cmp] : t₁.size ≤ (t₁ ∪ t₂).s
 theorem size_right_le_size_union [TransCmp cmp] : t₂.size ≤ (t₁ ∪ t₂).size :=
   DTreeMap.size_right_le_size_union
 
-theorem size_union_le_size_add_size [TransCmp cmp]
-    :
+theorem size_union_le_size_add_size [TransCmp cmp] :
     (t₁ ∪ t₂).size ≤ t₁.size + t₂.size :=
   DTreeMap.size_union_le_size_add_size
 

@@ -257,7 +257,9 @@ numbers of the form `mk' n d` with `d ≠ 0`. -/
 @[elab_as_elim]
 def numDenCasesOn''.{u} {C : Rat → Sort u} (a : Rat)
     (H : ∀ (n : Int) (d : Nat) (nz red), C (mk' n d nz red)) : C a :=
-  numDenCasesOn a fun n d h h' ↦ by rw [← mk_eq_divInt _ _ (Nat.ne_of_gt h) h']; exact H n d (Nat.ne_of_gt h) _
+  numDenCasesOn a fun n d h h' ↦ by
+    rw [← mk_eq_divInt (c := h')]
+    exact H n d (Nat.ne_of_gt h) _
 
 @[simp] protected theorem ofInt_ofNat : ofInt (OfNat.ofNat n) = OfNat.ofNat n := rfl
 

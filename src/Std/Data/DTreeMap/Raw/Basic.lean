@@ -757,7 +757,7 @@ def insertMany {ρ} [ForIn Id ρ ((a : α) × β a)] (t : Raw α β cmp) (l : ρ
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertMany! l⟩
 
 /--
-Computes the union of the given tree maps. If a key appears in both maps, the entry contains in the second argument will appear in the result.
+Computes the union of the given tree maps. If a key appears in both maps, the entry contained in the second argument will appear in the result.
 
 This function always merges the smaller map into the larger map.
 -/

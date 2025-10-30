@@ -17,9 +17,9 @@ public section
 
 namespace Lean.Meta.Match
 
-register_builtin_option match.use_sparse_cases : Bool := {
+register_builtin_option match.sparseCases : Bool := {
   defValue := true
-  descr := "if true, generate and use sparse cases on constructs"
+  descr := "if true, generate and use sparse case constructs when splitting inductive types"
 }
 
 private def mkIncorrectNumberOfPatternsMsg [ToMessageData α]
@@ -539,7 +539,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
   trace[Meta.Match.match] "constructor step"
   let x :: xs := p.vars | unreachable!
   let interestingCtors? ←
-    if match.use_sparse_cases.get (← getOptions) then
+    if match.sparseCases.get (← getOptions) then
       let ctors := collectCtors p
       trace[Meta.Match.match] "using sparse cases: {ctors}"
       pure (some ctors)

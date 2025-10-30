@@ -13,6 +13,7 @@ public import Std.Data.DTreeMap.Internal.Lemmas
 namespace Std.DTreeMap.Internal
 
 namespace Impl
+
 /--
   Removes all elements with key less than or equal to `lowerBound`.
 
@@ -546,7 +547,7 @@ theorem toList_rxcIter {α β} [Ord α]
       rw [List.takeWhile_cons_of_neg ‹_›]
 termination_by z.size
 decreasing_by
-  simp_all [Zipper.size, Zipper.size_prependMap]
+  simp_all [Zipper.size_prependMap]
 
 theorem toList_eq_takeWhile_list {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {bound : α} {l : List ((a : α) × β a)}
     {l_ordered : l.Pairwise (fun a b => compare a.1 b.1 = .lt)} :
@@ -703,7 +704,7 @@ theorem toList_rxoIter {α β} [Ord α]
       rw [List.takeWhile_cons_of_neg ‹_›]
 termination_by z.size
 decreasing_by
-  simp_all [Zipper.size, Zipper.size_prependMap]
+  simp_all [Zipper.size_prependMap]
 
 theorem toList_eq_takeWhile_list_LT {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {bound : α} {l : List ((a : α) × β a)}
     {l_ordered : l.Pairwise (fun a b => compare a.1 b.1 = .lt)} :

@@ -65,27 +65,19 @@ public def valuesIter {α : Type u} {β : Type u}
 @[simp]
 public theorem iter_toList {cmp : α → α → Ordering} (m : Raw α β cmp) :
     (m.iter cmp).toList = m.toList := by
-  unfold iter
-  simp [Raw.toList]
-  exact @Internal.Zipper.iterOfTree_toList_eq_toList α β m.inner
+  rw [iter, toList]
+  apply Internal.Zipper.iterOfTree_toList_eq_toList
 
 @[simp]
 public theorem keysIter_toList {α β} {cmp : α → α → Ordering} (m : Raw α β cmp) :
     (m.keysIter cmp).toList = m.keys := by
-  unfold keysIter
-  unfold keys
-  unfold iter
-  rw [← Internal.Impl.map_fst_toList_eq_keys]
-  exact Internal.Zipper.map_iterOfTree_eq_tree_toList_map m.inner
+  rw [keysIter, keys, iter, ← Internal.Impl.map_fst_toList_eq_keys]
+  apply Internal.Zipper.map_iterOfTree_eq_tree_toList_map
 
 @[simp]
 public theorem valuesIter_toList {α β} {cmp : α → α → Ordering} (m : Raw α (fun _ => β) cmp) :
     (m.valuesIter cmp).toList = m.values := by
-  unfold valuesIter
-  unfold values
-  unfold iter
-  rw [Internal.Impl.values_eq_map_snd]
-  rw [← Internal.Impl.toList_eq_toListModel]
-  exact Internal.Zipper.map_iterOfTree_eq_tree_toList_map m.inner
+  rw [valuesIter, values, iter, Internal.Impl.values_eq_map_snd, ← Internal.Impl.toList_eq_toListModel]
+  apply Internal.Zipper.map_iterOfTree_eq_tree_toList_map
 
 end Std.DTreeMap.Raw

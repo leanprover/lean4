@@ -8,7 +8,7 @@ module
 prelude
 public import Std.Data.Iterators.Combinators.Drop
 public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Drop
-public import Std.Data.Iterators.Lemmas.Combinators.Take
+public import Init.Data.Iterators.Lemmas.Combinators.Take
 
 @[expose] public section
 

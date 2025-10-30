@@ -6,7 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Std.Data.Iterators.Combinators.Monadic.Take
+public import Init.Data.Iterators.Combinators.Monadic.Take
 
 @[expose] public section
 

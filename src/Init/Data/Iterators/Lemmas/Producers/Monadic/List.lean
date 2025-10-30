@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic
-public import Std.Data.Iterators.Producers.Monadic.List
+public import Init.Data.Iterators.Producers.Monadic.List
 public import Std.Data.Iterators.Lemmas.Equivalence.Basic
 
 @[expose] public section

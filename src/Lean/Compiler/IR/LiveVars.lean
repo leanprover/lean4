@@ -53,7 +53,7 @@ partial def visitFnBody (w : Index) : FnBody → M Bool
     visitFnBody w v <||> visitFnBody w b
   | .set x _ y b =>
     visitVar w x <||> visitArg w y <||> visitFnBody w b
-  | .uset x _ y b | .sset x _ _ y _ b =>
+  | .uset x _ y _ b | .sset x _ _ y _ b =>
     visitVar w x <||> visitVar w y <||> visitFnBody w b
   | .setTag x _ b | .inc x _ _ _ b | .dec x _ _ _ b | .del x b =>
     visitVar w x <||> visitFnBody w b
@@ -118,7 +118,7 @@ private def visitJP (m : JPLiveVarMap) (j : JoinPointId) : M Unit :=
 
 private def useExpr (e : Expr) : M Unit := do
   match e with
-  | .proj _ x | .uproj _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
+  | .proj _ x | .uproj _ _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
     useVar x
   | .ctor _ ys | .fap _ ys | .pap _ ys =>
     ys.forM useArg
@@ -141,7 +141,7 @@ private partial def visitFnBody (fnBody : FnBody) (m : JPLiveVarMap) : M Unit :=
     visitFnBody b m
     useVar x
     useArg y
-  | .uset x _ y b | .sset x _ _ y _ b =>
+  | .uset x _ y _ b | .sset x _ _ y _ b =>
     visitFnBody b m
     useVar x
     useVar y

@@ -64,6 +64,11 @@ where fillCache : CoreM IRType := do
     | ``UInt32 => return .uint32
     | ``UInt64 => return .uint64
     | ``USize => return .usize
+    | ``Int8 => return .int8
+    | ``Int16 => return .int16
+    | ``Int32 => return .int32
+    | ``Int64 => return .int64
+    | ``ISize => return .isize
     | ``Float => return .float
     | ``Float32 => return .float32
     | ``lcErased => return .erased
@@ -132,7 +137,7 @@ where
 inductive CtorFieldInfo where
   | erased
   | object (i : Nat) (type : IRType)
-  | usize  (i : Nat)
+  | usize  (i : Nat) (signed : Bool)
   | scalar (sz : Nat) (offset : Nat) (type : IRType)
   | void
   deriving Inhabited
@@ -143,7 +148,7 @@ def format : CtorFieldInfo → Format
   | erased => "◾"
   | void => "void"
   | object i type => f!"obj@{i}:{type}"
-  | usize i    => f!"usize@{i}"
+  | usize i s => if s then f!"isize@{i}" else f!"usize@{i}"
   | scalar sz offset type => f!"scalar#{sz}@{offset}:{type}"
 
 instance : ToFormat CtorFieldInfo := ⟨format⟩
@@ -184,21 +189,34 @@ where fillCache := do
         let i := nextIdx
         nextIdx := nextIdx + 1
         pure <| .object i irFieldType
-      | .usize => pure <| .usize 0
+      | .usize => pure <| .usize 0 false
+      | .isize => pure <| .usize 0 true
       | .erased => .pure <| .erased
       | .void => .pure <| .void
       | .uint8 =>
         has1BScalar := true
         .pure <| .scalar 1 0 .uint8
+      | .int8 =>
+        has1BScalar := true
+        .pure <| .scalar 1 0 .int8
       | .uint16 =>
         has2BScalar := true
         .pure <| .scalar 2 0 .uint16
+      | .int16 =>
+        has2BScalar := true
+        .pure <| .scalar 2 0 .int16
       | .uint32 =>
         has4BScalar := true
         .pure <| .scalar 4 0 .uint32
+      | .int32 =>
+        has4BScalar := true
+        .pure <| .scalar 4 0 .int32
       | .uint64 =>
         has8BScalar := true
         .pure <| .scalar 8 0 .uint64
+      | .int64 =>
+        has8BScalar := true
+        .pure <| .scalar 8 0 .int64
       | .float32 =>
         has4BScalar := true
         .pure <| .scalar 4 0 .float32
@@ -210,9 +228,9 @@ where fillCache := do
     let numObjs := nextIdx
     ⟨fields, nextIdx⟩ := Id.run <| StateT.run (s := nextIdx) <| fields.mapM fun field => do
       match field with
-      | .usize _ => do
+      | .usize _ s => do
         let i ← modifyGet fun nextIdx => (nextIdx, nextIdx + 1)
-        return .usize i
+        return .usize i s
       | .object .. | .scalar .. | .erased | .void => return field
     let numUSize := nextIdx - numObjs
     let adjustScalarsForSize (fields : Array CtorFieldInfo) (size : Nat) (nextOffset : Nat)
@@ -225,7 +243,7 @@ where fillCache := do
             return .scalar sz offset type
           else
             return field
-        | .object .. | .usize _ | .erased | .void => return field
+        | .object .. | .usize _ _ | .erased | .void => return field
     let mut nextOffset := 0
     if has8BScalar then
       ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 8 nextOffset

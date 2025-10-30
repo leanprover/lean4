@@ -63,7 +63,7 @@ partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (mask : Mask) (ke
     let b := bs.back!
     match b with
     | .vdecl _ _ (.sproj _ _ _) _ => keepInstr b
-    | .vdecl _ _ (.uproj _ _) _   => keepInstr b
+    | .vdecl _ _ (.uproj _ _ _) _ => keepInstr b
     | .inc z n c p _ =>
       if n == 0 then done () else
       let b' := bs[bs.size - 2]
@@ -160,7 +160,7 @@ def isSelfSet (ctx : Context) (x : VarId) (i : Nat) (y : Arg) : Bool :=
 /-- Given `uset x[i] := y`, return true iff `y := uproj[i] x` -/
 def isSelfUSet (ctx : Context) (x : VarId) (i : Nat) (y : VarId) : Bool :=
   match ctx.projMap[y]? with
-  | some (Expr.uproj j w) => j == i && w == x
+  | some (Expr.uproj j _ w) => j == i && w == x
   | _                     => false
 
 /-- Given `sset x[n, i] := y`, return true iff `y := sproj[n, i] x` -/
@@ -174,9 +174,9 @@ partial def removeSelfSet (ctx : Context) : FnBody → FnBody
   | FnBody.set x i y b   =>
     if isSelfSet ctx x i y then removeSelfSet ctx b
     else FnBody.set x i y (removeSelfSet ctx b)
-  | FnBody.uset x i y b   =>
+  | FnBody.uset x i y s b   =>
     if isSelfUSet ctx x i y then removeSelfSet ctx b
-    else FnBody.uset x i y (removeSelfSet ctx b)
+    else FnBody.uset x i y s (removeSelfSet ctx b)
   | FnBody.sset x n i y t b   =>
     if isSelfSSet ctx x n i y then removeSelfSet ctx b
     else FnBody.sset x n i y t (removeSelfSet ctx b)

@@ -34,7 +34,8 @@ In the case of `@[extern]` all *irrelevant* types are removed first; see next se
 
 ### Translating Types from Lean to C
 
-* The integer types `UInt8`, ..., `UInt64`, `USize` are represented by the C types `uint8_t`, ..., `uint64_t`, `size_t`, respectively
+* The integer types `UInt8`, ..., `UInt64`, `USize`, `Int8`, ..., `Int64`, `ISize` are represented by
+  the C types `uint8_t`, ..., `uint64_t`, `size_t`, `int8_t`, ..., `int64_t`, `ptrdiff_t` respectively
 * `Char` is represented by `uint32_t`
 * `Float` is represented by `double`
 * An *enum* inductive type of at least 2 and at most 2^32 constructors, each of which with no parameters, is represented by the first type of `uint8_t`, `uint16_t`, `uint32_t` that is sufficient to represent all constructor indices.
@@ -49,7 +50,6 @@ In the case of `@[extern]` all *irrelevant* types are removed first; see next se
   is represented by the representation of that parameter's type.
 
   For example, `{ x : α // p }`, the `Subtype` structure of a value of type `α` and an irrelevant proof, is represented by the representation of `α`.
-  Similarly, the signed integer types `Int8`, ..., `Int64`, `ISize` are also represented by the unsigned C types `uint8_t`, ..., `uint64_t`, `size_t`, respectively, because they have a trivial structure.
 * `Nat` and `Int` are represented by `lean_object *`.
   Their runtime values is either a pointer to an opaque bignum object or, if the lowest bit of the "pointer" is 1 (`lean_is_scalar`), an encoded unboxed natural number or integer (`lean_box`/`lean_unbox`).
 * A universe `Sort u`, type constructor `... → Sort u`, `Void α` or proposition `p : Prop` is *irrelevant* and is either statically erased (see above) or represented as a `lean_object *` with the runtime value `lean_box(0)`

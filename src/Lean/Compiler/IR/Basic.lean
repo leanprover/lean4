@@ -82,6 +82,7 @@ inductive IRType where
   -- TODO: Move this upwards after a stage0 update.
   | tagged
   | void
+  | int8 | int16 | int32 | int64 | isize
   deriving Inhabited, BEq, Repr
 
 namespace IRType
@@ -94,6 +95,11 @@ def isScalar : IRType → Bool
   | uint32   => true
   | uint64   => true
   | usize    => true
+  | int8    => true
+  | int16   => true
+  | int32   => true
+  | int64   => true
+  | isize    => true
   | _        => false
 
 def isObj : IRType → Bool
@@ -123,6 +129,9 @@ def boxed : IRType → IRType
   | object | float | float32 => object
   | void | tagged | uint8 | uint16 => tagged
   | _ => tobject
+
+def ptrSizedTypeForSign (signed : Bool) : IRType :=
+  if signed then .isize else .usize
 
 end IRType
 
@@ -185,7 +194,7 @@ inductive Expr where
   We also use `proj` for extracting fields from `struct` return values, and casting `union` return values. -/
   |  proj (i : Nat) (x : VarId)
   /-- Extract the `Usize` value at Position `sizeof(void*)*i` from `x`. -/
-  | uproj (i : Nat) (x : VarId)
+  | uproj (i : Nat) (signed : Bool) (x : VarId)
   /-- Extract the scalar value at Position `sizeof(void*)*n + offset` from `x`. -/
   | sproj (n : Nat) (offset : Nat) (x : VarId)
   /-- Full application. -/
@@ -226,7 +235,7 @@ inductive FnBody where
   | set (x : VarId) (i : Nat) (y : Arg) (b : FnBody)
   | setTag (x : VarId) (cidx : Nat) (b : FnBody)
   /-- Store `y : Usize` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1. -/
-  | uset (x : VarId) (i : Nat) (y : VarId) (b : FnBody)
+  | uset (x : VarId) (i : Nat) (y : VarId) (signed : Bool) (b : FnBody)
   /-- Store `y : ty` at Position `sizeof(void*)*i + offset` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
   `ty` must not be `object`, `tobject`, `erased` nor `Usize`. -/
   | sset (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody)
@@ -261,7 +270,7 @@ def FnBody.body : FnBody → FnBody
   | FnBody.vdecl _ _ _ b    => b
   | FnBody.jdecl _ _ _ b    => b
   | FnBody.set _ _ _ b      => b
-  | FnBody.uset _ _ _ b     => b
+  | FnBody.uset _ _ _ _ b   => b
   | FnBody.sset _ _ _ _ _ b => b
   | FnBody.setTag _ _ b     => b
   | FnBody.inc _ _ _ _ b    => b
@@ -273,7 +282,7 @@ def FnBody.setBody : FnBody → FnBody → FnBody
   | FnBody.vdecl x t v _,    b => FnBody.vdecl x t v b
   | FnBody.jdecl j xs v _,   b => FnBody.jdecl j xs v b
   | FnBody.set x i y _,      b => FnBody.set x i y b
-  | FnBody.uset x i y _,     b => FnBody.uset x i y b
+  | FnBody.uset x i y s _,   b => FnBody.uset x i y s b
   | FnBody.sset x i o y t _, b => FnBody.sset x i o y t b
   | FnBody.setTag x i _,     b => FnBody.setTag x i b
   | FnBody.inc x n c p _,    b => FnBody.inc x n c p b
@@ -484,7 +493,7 @@ def Expr.alphaEqv (ρ : IndexRenaming) : Expr → Expr → Bool
   | Expr.reset n₁ x₁,        Expr.reset n₂ x₂        => n₁ == n₂ && aeqv ρ x₁ x₂
   | Expr.reuse x₁ i₁ u₁ ys₁, Expr.reuse x₂ i₂ u₂ ys₂ => aeqv ρ x₁ x₂ && i₁ == i₂ && u₁ == u₂ && aeqv ρ ys₁ ys₂
   | Expr.proj i₁ x₁,         Expr.proj i₂ x₂         => i₁ == i₂ && aeqv ρ x₁ x₂
-  | Expr.uproj i₁ x₁,        Expr.uproj i₂ x₂        => i₁ == i₂ && aeqv ρ x₁ x₂
+  | Expr.uproj i₁ s₁ x₁,     Expr.uproj i₂ s₂ x₂     => i₁ == i₂ && s₁ == s₂ && aeqv ρ x₁ x₂
   | Expr.sproj n₁ o₁ x₁,     Expr.sproj n₂ o₂ x₂     => n₁ == n₂ && o₁ == o₂ && aeqv ρ x₁ x₂
   | Expr.fap c₁ ys₁,         Expr.fap c₂ ys₂         => c₁ == c₂ && aeqv ρ ys₁ ys₂
   | Expr.pap c₁ ys₁,         Expr.pap c₂ ys₂         => c₁ == c₂ && aeqv ρ ys₁ ys₂
@@ -521,7 +530,7 @@ partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
     | some ρ' => alphaEqv ρ' v₁ v₂ && alphaEqv (addVarRename ρ j₁.idx j₂.idx) b₁ b₂
     | none    => false
   | ρ, FnBody.set x₁ i₁ y₁ b₁,        FnBody.set x₂ i₂ y₂ b₂        => aeqv ρ x₁ x₂ && i₁ == i₂ && aeqv ρ y₁ y₂ && alphaEqv ρ b₁ b₂
-  | ρ, FnBody.uset x₁ i₁ y₁ b₁,       FnBody.uset x₂ i₂ y₂ b₂       => aeqv ρ x₁ x₂ && i₁ == i₂ && aeqv ρ y₁ y₂ && alphaEqv ρ b₁ b₂
+  | ρ, FnBody.uset x₁ i₁ y₁ s₁ b₁,    FnBody.uset x₂ i₂ y₂ s₂ b₂    => aeqv ρ x₁ x₂ && i₁ == i₂ && aeqv ρ y₁ y₂ && s₁ == s₂ && alphaEqv ρ b₁ b₂
   | ρ, FnBody.sset x₁ i₁ o₁ y₁ t₁ b₁, FnBody.sset x₂ i₂ o₂ y₂ t₂ b₂ =>
     aeqv ρ x₁ x₂ && i₁ = i₂ && o₁ = o₂ && aeqv ρ y₁ y₂ && t₁ == t₂ && alphaEqv ρ b₁ b₂
   | ρ, FnBody.setTag x₁ i₁ b₁,        FnBody.setTag x₂ i₂ b₂        => aeqv ρ x₁ x₂ && i₁ == i₂ && alphaEqv ρ b₁ b₂
@@ -556,6 +565,9 @@ def getUnboxOpName (t : IRType) : String :=
   | IRType.usize    => "lean_unbox_usize"
   | IRType.uint32   => "lean_unbox_uint32"
   | IRType.uint64   => "lean_unbox_uint64"
+  | IRType.isize    => "lean_unbox_isize"
+  | IRType.int32   => "lean_unbox_int32"
+  | IRType.int64   => "lean_unbox_int64"
   | IRType.float    => "lean_unbox_float"
   | IRType.float32  => "lean_unbox_float32"
   | _               => "lean_unbox"

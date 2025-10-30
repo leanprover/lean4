@@ -83,6 +83,7 @@ List of types that have builtin runtime support
 def builtinRuntimeTypes : Array Name := #[
   ``String,
   ``UInt8, ``UInt16, ``UInt32, ``UInt64, ``USize,
+  ``Int8, ``Int16, ``Int32, ``Int64, ``ISize,
   ``Float, ``Float32,
   ``Thunk, ``Task,
   ``Array, ``ByteArray, ``FloatArray,

@@ -168,9 +168,9 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
       else
         throwCheckerError "invalid proj index"
     | _ => throwCheckerError s!"unexpected IR type '{xType}'"
-  | .uproj _ x =>
+  | .uproj _ s x =>
     checkObjVar x
-    checkType ty (· == .usize)
+    checkType ty (· == IRType.ptrSizedTypeForSign s)
   | .sproj _ _ x =>
     checkObjVar x
     checkScalarType ty
@@ -202,7 +202,7 @@ partial def checkFnBody (fnBody : FnBody) : M Unit := do
     checkVar x
     checkArg y
     checkFnBody b
-  | .uset x _ y b =>
+  | .uset x _ y _ b =>
     checkVar x
     checkVar y
     checkFnBody b

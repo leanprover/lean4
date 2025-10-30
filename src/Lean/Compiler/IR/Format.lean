@@ -44,7 +44,7 @@ private def formatExpr : Expr → Format
   | Expr.reset n x      => "reset[" ++ format n ++ "] " ++ format x
   | Expr.reuse x i u ys => "reuse" ++ (if u then "!" else "") ++ " " ++ format x ++ " in " ++ format i ++ formatArray ys
   | Expr.proj i x       => "proj[" ++ format i ++ "] " ++ format x
-  | Expr.uproj i x      => "uproj[" ++ format i ++ "] " ++ format x
+  | Expr.uproj i s x    => "uproj[" ++ format i ++ (if s then ", s" else ", u") ++ "] " ++ format x
   | Expr.sproj n o x    => "sproj[" ++ format n ++ ", " ++ format o ++ "] " ++ format x
   | Expr.fap c ys       => format c ++ formatArray ys
   | Expr.pap c ys       => "pap " ++ format c ++ formatArray ys
@@ -65,6 +65,11 @@ private partial def formatIRType : IRType → Format
   | IRType.uint32       => "u32"
   | IRType.uint64       => "u64"
   | IRType.usize        => "usize"
+  | IRType.int8         => "i8"
+  | IRType.int16        => "i16"
+  | IRType.int32        => "i32"
+  | IRType.int64        => "i64"
+  | IRType.isize        => "isize"
   | IRType.erased       => "◾"
   | IRType.void         => "void"
   | IRType.object       => "obj"
@@ -96,7 +101,7 @@ def formatFnBodyHead : FnBody → Format
   | FnBody.vdecl x ty e _      => "let " ++ format x ++ " : " ++ format ty ++ " := " ++ format e
   | FnBody.jdecl j xs _ _      => format j ++ formatParams xs ++ " := ..."
   | FnBody.set x i y _         => "set " ++ format x ++ "[" ++ format i ++ "] := " ++ format y
-  | FnBody.uset x i y _        => "uset " ++ format x ++ "[" ++ format i ++ "] := " ++ format y
+  | FnBody.uset x i y s _      => "uset " ++ format x ++ "[" ++ format i ++ (if s then ", s" else ", u") ++ "] := " ++ format y
   | FnBody.sset x i o y ty _   => "sset " ++ format x ++ "[" ++ format i ++ ", " ++ format o ++ "] : " ++ format ty ++ " := " ++ format y
   | FnBody.setTag x cidx _     => "setTag " ++ format x ++ " := " ++ format cidx
   | FnBody.inc x n _ _ _       => "inc" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x
@@ -116,7 +121,7 @@ partial def formatFnBody (fnBody : FnBody) (indent : Nat := 2) : Format :=
     | FnBody.vdecl x ty e b      => "let " ++ format x ++ " : " ++ format ty ++ " := " ++ format e ++ ";" ++ Format.line ++ loop b
     | FnBody.jdecl j xs v b      => format j ++ formatParams xs ++ " :=" ++ Format.nest indent (Format.line ++ loop v) ++ ";" ++ Format.line ++ loop b
     | FnBody.set x i y b         => "set " ++ format x ++ "[" ++ format i ++ "] := " ++ format y ++ ";" ++ Format.line ++ loop b
-    | FnBody.uset x i y b        => "uset " ++ format x ++ "[" ++ format i ++ "] := " ++ format y ++ ";" ++ Format.line ++ loop b
+    | FnBody.uset x i y s b      => "uset " ++ format x ++ "[" ++ format i ++ (if s then ", s" else ", u") ++ "] := " ++ format y ++ ";" ++ Format.line ++ loop b
     | FnBody.sset x i o y ty b   => "sset " ++ format x ++ "[" ++ format i ++ ", " ++ format o ++ "] : " ++ format ty ++ " := " ++ format y ++ ";" ++ Format.line ++ loop b
     | FnBody.setTag x cidx b     => "setTag " ++ format x ++ " := " ++ format cidx ++ ";" ++ Format.line ++ loop b
     | FnBody.inc x n _ _ b       => "inc" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x ++ ";" ++ Format.line ++ loop b

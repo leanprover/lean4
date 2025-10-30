@@ -264,6 +264,17 @@ partial def casesUIntToMono (c : Cases) (uintName : Name) (_ : c.typeName == uin
   let k ← k.toMono
   return .let decl k
 
+/-- Eliminate `cases` for `SInt` types. -/
+partial def casesSIntToMono (c : Cases) (sintName : Name) (sintProj : String) (_ : c.typeName == sintName) : ToMonoM Code := do
+  assert! c.alts.size == 1
+  let .alt _ ps k := c.alts[0]! | unreachable!
+  eraseParams ps
+  let p := ps[0]!
+  let decl := { fvarId := p.fvarId, binderName := p.binderName, type := anyExpr, value := .const (.str sintName sintProj) [] #[.fvar c.discr] }
+  modifyLCtx fun lctx => lctx.addLetDecl decl
+  let k ← k.toMono
+  return .let decl k
+
 /-- Eliminate `cases` for `Array. -/
 partial def casesArrayToMono (c : Cases) (_ : c.typeName == ``Array) : ToMonoM Code := do
   assert! c.alts.size == 1
@@ -386,6 +397,14 @@ partial def Code.toMono (code : Code) : ToMonoM Code := do
       casesUIntToMono c ``UInt32 h
     else if h : c.typeName == ``UInt64 then
       casesUIntToMono c ``UInt64 h
+    else if h : c.typeName == ``Int8 then
+      casesSIntToMono c ``Int8 "toUInt8" h
+    else if h : c.typeName == ``Int16 then
+      casesSIntToMono c ``Int16 "toUInt16" h
+    else if h : c.typeName == ``Int32 then
+      casesSIntToMono c ``Int32 "toUInt32" h
+    else if h : c.typeName == ``Int64 then
+      casesSIntToMono c ``Int64 "toUInt64" h
     else if h : c.typeName == ``Array then
       casesArrayToMono c h
     else if h : c.typeName == ``ByteArray then

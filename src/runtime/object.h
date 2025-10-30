@@ -80,16 +80,26 @@ inline void cnstr_set(u_obj_arg o, unsigned i, obj_arg v) { lean_ctor_set(o, i, 
 inline void cnstr_release(u_obj_arg o, unsigned i) { lean_ctor_release(o, i); }
 inline usize cnstr_get_usize(b_obj_arg o, unsigned i) { return lean_ctor_get_usize(o, i); }
 inline void cnstr_set_usize(b_obj_arg o, unsigned i, usize v) { lean_ctor_set_usize(o, i, v); }
+inline ptrdiff_t cnstr_get_isize(b_obj_arg o, unsigned i) { return lean_ctor_get_isize(o, i); }
+inline void cnstr_set_isize(b_obj_arg o, unsigned i, ptrdiff_t v) { lean_ctor_set_isize(o, i, v); }
 inline uint8 cnstr_get_uint8(b_obj_arg o, unsigned offset) { return lean_ctor_get_uint8(o, offset); }
 inline uint16 cnstr_get_uint16(b_obj_arg o, unsigned offset) { return lean_ctor_get_uint16(o, offset); }
 inline uint32 cnstr_get_uint32(b_obj_arg o, unsigned offset) { return lean_ctor_get_uint32(o, offset); }
 inline uint64 cnstr_get_uint64(b_obj_arg o, unsigned offset) { return lean_ctor_get_uint64(o, offset); }
+inline int8 cnstr_get_int8(b_obj_arg o, unsigned offset) { return lean_ctor_get_int8(o, offset); }
+inline int16 cnstr_get_int16(b_obj_arg o, unsigned offset) { return lean_ctor_get_int16(o, offset); }
+inline int32 cnstr_get_int32(b_obj_arg o, unsigned offset) { return lean_ctor_get_int32(o, offset); }
+inline int64 cnstr_get_int64(b_obj_arg o, unsigned offset) { return lean_ctor_get_int64(o, offset); }
 inline double cnstr_get_float(b_obj_arg o, unsigned offset) { return lean_ctor_get_float(o, offset); }
 inline float cnstr_get_float32(b_obj_arg o, unsigned offset) { return lean_ctor_get_float32(o, offset); }
 inline void cnstr_set_uint8(b_obj_arg o, unsigned offset, uint8 v) { lean_ctor_set_uint8(o, offset, v); }
 inline void cnstr_set_uint16(b_obj_arg o, unsigned offset, uint16 v) { lean_ctor_set_uint16(o, offset, v); }
 inline void cnstr_set_uint32(b_obj_arg o, unsigned offset, uint32 v) { lean_ctor_set_uint32(o, offset, v); }
 inline void cnstr_set_uint64(b_obj_arg o, unsigned offset, uint64 v) { lean_ctor_set_uint64(o, offset, v); }
+inline void cnstr_set_int8(b_obj_arg o, unsigned offset, int8 v) { lean_ctor_set_int8(o, offset, v); }
+inline void cnstr_set_int16(b_obj_arg o, unsigned offset, int16 v) { lean_ctor_set_int16(o, offset, v); }
+inline void cnstr_set_int32(b_obj_arg o, unsigned offset, int32 v) { lean_ctor_set_int32(o, offset, v); }
+inline void cnstr_set_int64(b_obj_arg o, unsigned offset, int64 v) { lean_ctor_set_int64(o, offset, v); }
 inline void cnstr_set_float(b_obj_arg o, unsigned offset, double v) { lean_ctor_set_float(o, offset, v); }
 inline void cnstr_set_float32(b_obj_arg o, unsigned offset, float v) { lean_ctor_set_float32(o, offset, v); }
 
@@ -376,14 +386,20 @@ inline uint8 int_dec_nonneg(b_obj_arg a) { return lean_int_dec_nonneg(a); }
 
 inline obj_res box_uint32(unsigned v) { return lean_box_uint32(v); }
 inline unsigned unbox_uint32(b_obj_arg o) { return lean_unbox_uint32(o); }
+inline obj_res box_int32(int32_t v) { return lean_box_int32(v); }
+inline int32_t unbox_int32(b_obj_arg o) { return lean_unbox_int32(o); }
 inline obj_res box_uint64(unsigned long long v) { return lean_box_uint64(v); }
 inline unsigned long long unbox_uint64(b_obj_arg o) { return lean_unbox_uint64(o); }
+inline obj_res box_int64(int64_t v) { return lean_box_int64(v); }
+inline int64_t unbox_int64(b_obj_arg o) { return lean_unbox_int64(o); }
 inline obj_res box_float(double v) { return lean_box_float(v); }
 inline obj_res box_float32(float v) { return lean_box_float32(v); }
 inline double unbox_float(b_obj_arg o) { return lean_unbox_float(o); }
 inline float unbox_float32(b_obj_arg o) { return lean_unbox_float32(o); }
 inline obj_res box_size_t(size_t v) { return lean_box_usize(v); }
 inline size_t unbox_size_t(b_obj_arg o) { return lean_unbox_usize(o); }
+inline obj_res box_isize(ptrdiff_t v) { return lean_box_isize(v); }
+inline ptrdiff_t unbox_isize(b_obj_arg o) { return lean_unbox_isize(o); }
 
 // =======================================
 // uint8

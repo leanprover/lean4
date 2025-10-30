@@ -108,7 +108,7 @@ def lowerProj (base : VarId) (ctorInfo : CtorInfo) (field : CtorFieldInfo)
     : TranslatedProj × IRType :=
   match field with
   | .object i irType => ⟨.expr (.proj i base), irType⟩
-  | .usize i => ⟨.expr (.uproj i base), .usize⟩
+  | .usize i s => ⟨.expr (.uproj i s base), IRType.ptrSizedTypeForSign s⟩
   | .scalar _ offset irType => ⟨.expr (.sproj (ctorInfo.size + ctorInfo.usize) offset base), irType⟩
   | .erased => ⟨.erased, .erased⟩
   | .void => ⟨.erased, .void⟩
@@ -228,9 +228,9 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
             match irArgs[i]? with
             | some (.var varId) =>
               match fields[i]! with
-              | .usize usizeIdx =>
+              | .usize usizeIdx s =>
                 let k ← loop (i + 1)
-                return .uset objVar usizeIdx varId k
+                return .uset objVar usizeIdx varId s k
               | .scalar _ offset argType =>
                 let k ← loop (i + 1)
                 return .sset objVar (ctorInfo.size + ctorInfo.usize) offset varId argType k

@@ -45,7 +45,7 @@ private def visitParam (p : Param) : M Unit :=
 
 private def visitExpr (e : Expr) : M Unit := do
   match e with
-  | .proj _ x | .uproj _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
+  | .proj _ x | .uproj _ _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
     visitVar x
   | .ctor _ ys | .fap _ ys | .pap _ ys =>
     ys.forM visitArg
@@ -69,7 +69,7 @@ partial def visitFnBody (fnBody : FnBody) : M Unit := do
     visitVar x
     visitArg y
     visitFnBody b
-  | .uset x _ y b | .sset x _ _ y _ b =>
+  | .uset x _ y _ b | .sset x _ _ y _ b =>
     visitVar x
     visitVar y
     visitFnBody b
@@ -132,7 +132,7 @@ private def visitParam (p : Param) : M Unit :=
 
 private def visitExpr (e : Expr) : M Unit := do
   match e with
-  | .proj _ x | .uproj _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
+  | .proj _ x | .uproj _ _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
     visitVar x
   | .ctor _ ys | .fap _ ys | .pap _ ys =>
     ys.forM visitArg
@@ -156,7 +156,7 @@ partial def visitFnBody (fnBody : FnBody) : M Unit := do
     visitVar x
     visitArg y
     visitFnBody b
-  | .uset x _ y b | .sset x _ _ y _ b =>
+  | .uset x _ y _ b | .sset x _ _ y _ b =>
     visitVar x
     visitVar y
     visitFnBody b
@@ -209,7 +209,7 @@ def visitParams (w : Index) (ps : Array Param) : Bool :=
   ps.any (fun p => w == p.x.idx)
 
 def visitExpr (w : Index) : Expr → Bool
-  | .proj _ x | .uproj _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
+  | .proj _ x | .uproj _ _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
     visitVar w x
   | .ctor _ ys | .fap _ ys | .pap _ ys =>
     visitArgs w ys
@@ -224,7 +224,7 @@ partial def visitFnBody (w : Index) : FnBody → Bool
     visitFnBody w v || visitFnBody w b
   | FnBody.set x _ y b =>
     visitVar w x || visitArg w y || visitFnBody w b
-  | .uset x _ y b | .sset x _ _ y _ b =>
+  | .uset x _ y _ b | .sset x _ _ y _ b =>
     visitVar w x || visitVar w y || visitFnBody w b
   | .setTag x _ b | .inc x _ _ _ b | .dec x _ _ _ b | .del x b =>
     visitVar w x || visitFnBody w b

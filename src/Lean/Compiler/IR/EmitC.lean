@@ -61,6 +61,11 @@ def toCType : IRType → String
   | IRType.uint32     => "uint32_t"
   | IRType.uint64     => "uint64_t"
   | IRType.usize      => "size_t"
+  | IRType.int8      => "int8_t"
+  | IRType.int16     => "int16_t"
+  | IRType.int32     => "int32_t"
+  | IRType.int64     => "int64_t"
+  | IRType.isize      => "ptrdiff_t"
   | IRType.object     => "lean_object*"
   | IRType.tagged     => "lean_object*"
   | IRType.tobject    => "lean_object*"
@@ -314,8 +319,13 @@ def emitOffset (n : Nat) (offset : Nat) : M Unit := do
   else
     emit offset
 
-def emitUSet (x : VarId) (n : Nat) (y : VarId) : M Unit := do
-  emit "lean_ctor_set_usize("; emit x; emit ", "; emit n; emit ", "; emit y; emitLn ");"
+def emitUSet (x : VarId) (n : Nat) (s : Bool) (y : VarId) : M Unit := do
+  if s then
+    emit "lean_ctor_set_isize(";
+  else
+    emit "lean_ctor_set_usize(";
+
+  emit x; emit ", "; emit n; emit ", "; emit y; emitLn ");"
 
 def emitSSet (x : VarId) (n : Nat) (offset : Nat) (y : VarId) (t : IRType) : M Unit := do
   match t with
@@ -325,6 +335,10 @@ def emitSSet (x : VarId) (n : Nat) (offset : Nat) (y : VarId) (t : IRType) : M U
   | IRType.uint16  => emit "lean_ctor_set_uint16"
   | IRType.uint32  => emit "lean_ctor_set_uint32"
   | IRType.uint64  => emit "lean_ctor_set_uint64"
+  | IRType.int8    => emit "lean_ctor_set_int8"
+  | IRType.int16   => emit "lean_ctor_set_int16"
+  | IRType.int32   => emit "lean_ctor_set_int32"
+  | IRType.int64   => emit "lean_ctor_set_int64"
   | _              => throw "invalid instruction";
   emit "("; emit x; emit ", "; emitOffset n offset; emit ", "; emit y; emitLn ");"
 
@@ -389,8 +403,13 @@ def emitReuse (z : VarId) (x : VarId) (c : CtorInfo) (updtHeader : Bool) (ys : A
 def emitProj (z : VarId) (i : Nat) (x : VarId) : M Unit := do
   emitLhs z; emit "lean_ctor_get("; emit x; emit ", "; emit i; emitLn ");"
 
-def emitUProj (z : VarId) (i : Nat) (x : VarId) : M Unit := do
-  emitLhs z; emit "lean_ctor_get_usize("; emit x; emit ", "; emit i; emitLn ");"
+def emitUProj (z : VarId) (i : Nat) (s : Bool) (x : VarId) : M Unit := do
+  emitLhs z;
+  if s then
+    emit "lean_ctor_get_isize("
+  else
+    emit "lean_ctor_get_usize("
+  emit x; emit ", "; emit i; emitLn ");"
 
 def emitSProj (z : VarId) (t : IRType) (n offset : Nat) (x : VarId) : M Unit := do
   emitLhs z;
@@ -401,6 +420,10 @@ def emitSProj (z : VarId) (t : IRType) (n offset : Nat) (x : VarId) : M Unit := 
   | IRType.uint16   => emit "lean_ctor_get_uint16"
   | IRType.uint32   => emit "lean_ctor_get_uint32"
   | IRType.uint64   => emit "lean_ctor_get_uint64"
+  | IRType.int8     => emit "lean_ctor_get_int8"
+  | IRType.int16    => emit "lean_ctor_get_int16"
+  | IRType.int32    => emit "lean_ctor_get_int32"
+  | IRType.int64    => emit "lean_ctor_get_int64"
   | _               => throw "invalid instruction"
   emit "("; emit x; emit ", "; emitOffset n offset; emitLn ");"
 
@@ -461,6 +484,9 @@ def emitBoxFn (xType : IRType) : M Unit :=
   | IRType.usize   => emit "lean_box_usize"
   | IRType.uint32  => emit "lean_box_uint32"
   | IRType.uint64  => emit "lean_box_uint64"
+  | IRType.isize   => emit "lean_box_isize"
+  | IRType.int32   => emit "lean_box_int32"
+  | IRType.int64   => emit "lean_box_int64"
   | IRType.float   => emit "lean_box_float"
   | IRType.float32 => emit "lean_box_float32"
   | _              => emit "lean_box"
@@ -529,7 +555,7 @@ def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
   | Expr.reset n x      => emitReset z n x
   | Expr.reuse x c u ys => emitReuse z x c u ys
   | Expr.proj i x       => emitProj z i x
-  | Expr.uproj i x      => emitUProj z i x
+  | Expr.uproj i s x    => emitUProj z i s x
   | Expr.sproj n o x    => emitSProj z t n o x
   | Expr.fap c ys       => emitFullApp z c ys
   | Expr.pap c ys       => emitPartialApp z c ys
@@ -639,7 +665,7 @@ partial def emitBlock (b : FnBody) : M Unit := do
   | FnBody.del x b             => emitDel x; emitBlock b
   | FnBody.setTag x i b        => emitSetTag x i; emitBlock b
   | FnBody.set x i y b         => emitSet x i y; emitBlock b
-  | FnBody.uset x i y b        => emitUSet x i y; emitBlock b
+  | FnBody.uset x i y s b      => emitUSet x i s y; emitBlock b
   | FnBody.sset x i o y t b    => emitSSet x i o y t; emitBlock b
   | FnBody.ret x               => emit "return "; emitArg x; emitLn ";"
   | FnBody.case _ x xType alts => emitCase x xType alts

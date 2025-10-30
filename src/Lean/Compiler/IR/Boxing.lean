@@ -281,10 +281,10 @@ partial def visitFnBody : FnBody → M FnBody
     let v ← withParams xs (visitFnBody v)
     let b ← withJDecl j xs v (visitFnBody b)
     return .jdecl j xs v b
-  | .uset x i y b      => do
+  | .uset x i y s b      => do
     let b ← visitFnBody b
-    castVarIfNeeded y IRType.usize fun y =>
-      return .uset x i y b
+    castVarIfNeeded y (IRType.ptrSizedTypeForSign s) fun y =>
+      return .uset x i y s b
   | .sset x i o y ty b => do
     let b ← visitFnBody b
     castVarIfNeeded y ty fun y =>

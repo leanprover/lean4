@@ -45,7 +45,7 @@ structure FindCtx where
   A map from function declarations that are currently in scope to their
   definition depth.
   -/
-  scope : FVarIdMap Nat := {}
+  scope : PersistentHashMap FVarId Nat := {}
   /--
   The current function binder we are inside of if any.
   -/
@@ -69,6 +69,7 @@ abbrev ReplaceM := ReaderT ReplaceCtx CompilerM
 /--
 Attempt to find a join point candidate by its `FVarId`.
 -/
+@[inline]
 private def findCandidate? (fvarId : FVarId) : FindM (Option CandidateInfo) := do
   return (← get).candidates[fvarId]?
 
@@ -76,6 +77,7 @@ private def findCandidate? (fvarId : FVarId) : FindM (Option CandidateInfo) := d
 Erase a join point candidate as well as all the ones that depend on it
 by its `FVarId`, no error is thrown is the candidate does not exist.
 -/
+@[inline]
 private partial def eraseCandidate (fvarId : FVarId) : FindM Unit := do
   if let some info ← findCandidate? fvarId then
     modify (fun state => { state with candidates := state.candidates.erase fvarId })
@@ -84,24 +86,28 @@ private partial def eraseCandidate (fvarId : FVarId) : FindM Unit := do
 /--
 Combinator for modifying the candidates in `FindM`.
 -/
+@[inline]
 private def modifyCandidates (f : Std.HashMap FVarId CandidateInfo → Std.HashMap FVarId CandidateInfo) : FindM Unit :=
   modify (fun state => {state with candidates := f state.candidates })
 
 /--
 Remove all join point candidates contained in `a`.
 -/
-private partial def removeCandidatesInArg (a : Arg) : FindM Unit := do
+@[inline]
+private def removeCandidatesInArg (a : Arg) : FindM Unit := do
   forFVarM eraseCandidate a
 
 /--
 Remove all join point candidates contained in `a`.
 -/
-private partial def removeCandidatesInLetValue (e : LetValue) : FindM Unit := do
+@[inline]
+private def removeCandidatesInLetValue (e : LetValue) : FindM Unit := do
   forFVarM eraseCandidate e
 
 /--
 Add a new join point candidate to the state.
 -/
+@[inline]
 private def addCandidate (fvarId : FVarId) (arity : Nat) : FindM Unit := do
   let cinfo := { arity, associated := ∅ }
   modifyCandidates (fun cs => cs.insert fvarId cinfo )
@@ -109,11 +115,25 @@ private def addCandidate (fvarId : FVarId) (arity : Nat) : FindM Unit := do
 /--
 Add a new join point dependency from `src` to `dst`.
 -/
+@[inline]
 private def addDependency (src : FVarId) (target : FVarId) : FindM Unit := do
   if let some targetInfo ← findCandidate? target then
     modifyCandidates (fun cs => cs.insert target { targetInfo with associated := targetInfo.associated.insert src })
   else
     eraseCandidate src
+
+@[inline]
+private def withFnBody (decl : FunDecl) (x : FindM α) : FindM α := do
+  withReader (fun ctx => {
+      ctx with
+        definitionDepth := ctx.definitionDepth + 1,
+        currentFunction := some decl.fvarId }) do
+    x
+
+@[inline]
+private def withDefinedFn (decl : FunDecl) (x : FindM α) : FindM α := do
+  withReader (fun ctx => { ctx with scope := ctx.scope.insert decl.fvarId ctx.definitionDepth }) do
+    x
 
 /--
 Find all `fun` declarations that qualify as a join point, that is:
@@ -137,7 +157,7 @@ def test (b : Bool) (x y : Nat) : Nat :=
   fun f y =>
     let x := Nat.add y y
     myjp x
-  fun f y =>
+  fun g y =>
     let x := Nat.mul y y
     myjp x
   cases b (f x) (g y)
@@ -145,50 +165,75 @@ def test (b : Bool) (x y : Nat) : Nat :=
 `f` and `g` can be detected as a join point right away, however
 `myjp` can only ever be detected as a join point after we have established
 this. This is because otherwise the calls to `myjp` in `f` and `g` would
-produce out of scope join point jumps.
+produce out of scope join point jumps. This analysis supports detecting `myjp`
+as a join point. However, it does not support this in situations where `f` and `g`
+are nested within another function block that might become a join point.
+We believe this should be fine because this analysis gets run multiple times together
+with floating declarations out of nested ones so the vast majority of practically
+detectable join points should be detectable.
 -/
 partial def find (decl : Decl) : CompilerM FindState := do
   let (_, candidates) ← decl.value.forCodeM go |>.run {} |>.run {}
   return candidates
 where
   go : Code → FindM Unit
-  | .let decl k => do
-    match k, decl.value with
-    | .return valId, .fvar fvarId args =>
-      args.forM removeCandidatesInArg
-      if let some candidateInfo ← findCandidate? fvarId then
-        -- Erase candidate that are not fully applied or applied outside of tail position
-        if valId != decl.fvarId || args.size != candidateInfo.arity then
-          eraseCandidate fvarId
-        -- Out of scope join point candidate handling
-        else
-          let currDepth := (← read).definitionDepth
-          let calleeDepth := (← read).scope.get! fvarId
-          if currDepth == calleeDepth then
-            return ()
-          else if calleeDepth + 1 == currDepth then
-            addDependency fvarId (← read).currentFunction.get!
-          else
+    | .let decl k => do
+      match k, decl.value with
+      | .return valId, .fvar fvarId args =>
+        args.forM removeCandidatesInArg
+        if let some candidateInfo ← findCandidate? fvarId then
+          -- Erase candidate that are not fully applied or applied outside of tail position
+          if valId != decl.fvarId || args.size != candidateInfo.arity then
             eraseCandidate fvarId
-    | _, _ =>
-      removeCandidatesInLetValue decl.value
-      go k
-  | .fun decl k => do
-    addCandidate decl.fvarId decl.getArity
-    withReader (fun ctx => {
-        ctx with
-          definitionDepth := ctx.definitionDepth + 1,
-          currentFunction := some decl.fvarId }) do
+          else
+            let currDepth := (← read).definitionDepth
+            let calleeDepth := (← read).scope.find! fvarId
+            if currDepth == calleeDepth then
+              /-
+              we are in a situation like:
+              fun f x :=
+                ...
+              ...
+              f ()
+              -/
+              return ()
+            else if calleeDepth + 1 == currDepth then
+              /-
+              we are in a situation like:
+              fun f x :=
+                ...
+              fun g x :=
+                ...
+                f ()
+              -/
+              addDependency fvarId (← read).currentFunction.get!
+            else
+              /-
+              we are in a situation like:
+              fun f x :=
+                ...
+              fun h x :=
+                fun g x :=
+                  ...
+                  f ()
+              -/
+              eraseCandidate fvarId
+      | _, _ =>
+        removeCandidatesInLetValue decl.value
+        go k
+    | .fun decl k => do
+      addCandidate decl.fvarId decl.getArity
+      withFnBody decl do
+        go decl.value
+      withDefinedFn decl do
+        go k
+    | .jp decl k => do
       go decl.value
-    withReader (fun ctx => { ctx with scope := ctx.scope.insert decl.fvarId ctx.definitionDepth }) do
       go k
-  | .jp decl k => do
-    go decl.value
-    go k
-  | .jmp _ args => args.forM removeCandidatesInArg
-  | .return val => eraseCandidate val
-  | .cases c => c.alts.forM (·.forCodeM go)
-  | .unreach .. => return ()
+    | .jmp _ args => args.forM removeCandidatesInArg
+    | .return val => eraseCandidate val
+    | .cases c => c.alts.forM (·.forCodeM go)
+    | .unreach .. => return ()
 
 /--
 Replace all join point candidate `fun` declarations with `jp` ones

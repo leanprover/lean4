@@ -17,6 +17,15 @@ public section
 
 namespace Lean.Meta.Match
 
+register_builtin_option backwards.match.rowMajor : Bool := {
+  defValue := true
+  group := "bootstrap"
+  descr := "If true (the default), match compilation will split the discrimnants based \
+    on position of the first constructor pattern in the first alternative. If false, \
+    it splits them from left to right, which can lead to unnecessary code bloat."
+}
+
+
 private def mkIncorrectNumberOfPatternsMsg [ToMessageData α]
     (discrepancyKind : String) (expected actual : Nat) (pats : List α) :=
   let patternsMsg := MessageData.joinSep (pats.map toMessageData) ", "
@@ -818,19 +827,20 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
     process p
     return
 
-  match firstRefutablePattern p with
-  | some i =>
-    if i > 0 then
-      traceStep ("move var to front")
-      process (moveToFront p i)
-      return
-  | none =>
-    if 1 < p.alts.length then
-      traceStep ("drop all but first alt")
-      -- all patterns are irrefutable, we can drop all other alts
-      let p := { p with alts := p.alts.take 1 }
-      process p
-      return
+  if backwards.match.rowMajor.get (← getOptions) then
+    match firstRefutablePattern p with
+    | some i =>
+      if i > 0 then
+        traceStep ("move var to front")
+        process (moveToFront p i)
+        return
+    | none =>
+      if 1 < p.alts.length then
+        traceStep ("drop all but first alt")
+        -- all patterns are irrefutable, we can drop all other alts
+        let p := { p with alts := p.alts.take 1 }
+        process p
+        return
 
   if (← isNatValueTransition p) then
     traceStep ("nat value to constructor")

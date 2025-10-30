@@ -89,3 +89,22 @@ fun motive x x_1 x_2 x_3 x_4 h_1 h_2 h_3 h_4 h_5 h_6 =>
 -/
 #guard_msgs in
 #print test4.match_1
+
+-- Just testing the backwards compatibility option
+
+set_option match.ignoreUnusedAlts true in
+set_option backwards.match.rowMajor false in
+def testOld (a : List Nat) : Nat :=
+  match a with
+  | _ => 3
+  | [] => 4
+
+-- Has unnecessary `casesOn`
+
+/--
+info: def testOld.match_1.{u_1} : (motive : List Nat → Sort u_1) →
+  (a : List Nat) → ((x : List Nat) → motive x) → (Unit → motive []) → motive a :=
+fun motive a h_1 h_2 => List.casesOn a (h_1 []) fun head tail => h_1 (head :: tail)
+-/
+#guard_msgs in
+#print testOld.match_1

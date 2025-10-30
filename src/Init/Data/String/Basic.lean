@@ -634,6 +634,7 @@ theorem utf8ByteSize_push {s : String} {c : Char} :
     (s.push c).utf8ByteSize = s.utf8ByteSize + c.utf8Size := by
   simp [← size_bytes, List.utf8Encode_singleton]
 
+@[simp]
 theorem rawEndPos_push {s : String} {c : Char} : (s.push c).rawEndPos = s.rawEndPos + c := by
   simp [Pos.Raw.ext_iff]
 
@@ -1130,6 +1131,11 @@ theorem Slice.Pos.get_eq_utf8DecodeChar {s : Slice} (pos : s.Pos) (h : pos ≠ s
     pos.get h = s.str.bytes.utf8DecodeChar (s.startInclusive.offset.byteIdx + pos.offset.byteIdx)
       ((Pos.Raw.isValidForSlice_iff_isSome_utf8DecodeChar?.1 pos.isValidForSlice).elim (by simp_all [Pos.ext_iff]) (·.2)) := (rfl)
 
+theorem Slice.Pos.utf8Encode_get_eq_extract {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) :
+    List.utf8Encode [pos.get h] = s.str.bytes.extract (s.startInclusive.offset.byteIdx + pos.offset.byteIdx)
+      (s.startInclusive.offset.byteIdx + pos.offset.byteIdx + (pos.get h).utf8Size) := by
+  rw [get_eq_utf8DecodeChar pos h, List.utf8Encode_singleton, ByteArray.utf8EncodeChar_utf8DecodeChar]
+
 /-- Returns the byte at the given position in the string, or `none` if the position is the end
 position. -/
 @[expose]
@@ -1494,6 +1500,14 @@ theorem Slice.Pos.byteIdx_offset_next {s : Slice} {pos : s.Pos} {h : pos ≠ s.e
 theorem Slice.Pos.lt_next {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos} :
     pos < pos.next h := by
   simp [Pos.lt_iff, Pos.Raw.lt_iff, Char.utf8Size_pos]
+
+theorem Slice.Pos.copy_eq_copy_replaceEnd_append_get {s : Slice} {pos : s.Pos} (h : pos ≠ s.endPos) :
+    s.copy = (s.replaceEnd pos).copy ++ singleton (pos.get h) ++ (s.replaceStart (pos.next h)).copy := by
+  suffices (max (s.startInclusive.offset.byteIdx + (pos.offset.byteIdx + (pos.get h).utf8Size)) s.endExclusive.offset.byteIdx)
+      = s.endExclusive.offset.byteIdx by
+    simp [← bytes_inj, bytes_copy, utf8Encode_get_eq_extract, Nat.add_assoc, this]
+  rw [Nat.max_eq_right]
+  simpa [Pos.Raw.le_iff] using (pos.next h).offset_str_le_offset_endExclusive
 
 @[inline, expose]
 def Slice.Pos.prevAux {s : Slice} (pos : s.Pos) (h : pos ≠ s.startPos) : String.Pos.Raw :=
@@ -1861,9 +1875,12 @@ abbrev utf8SetAux (c' : Char) : List Char → Pos.Raw → Pos.Raw → List Char 
   Pos.Raw.utf8SetAux c'
 
 @[simp]
-theorem ValidPos.toSlice_get {s : String} {p : s.ValidPos} {h} :
+theorem ValidPos.get_toSlice {s : String} {p : s.ValidPos} {h} :
     p.toSlice.get h = p.get (ne_of_apply_ne (·.toSlice) (by simp_all)) := by
   rfl
+
+theorem ValidPos.get_eq_get_toSlice {s : String} {p : s.ValidPos} {h}  :
+    p.get h = p.toSlice.get (ne_of_apply_ne Slice.Pos.ofSlice (by simp [h])) := rfl
 
 @[simp]
 theorem ValidPos.offset_next {s : String} (p : s.ValidPos) (h : p ≠ s.endValidPos) :
@@ -1943,6 +1960,14 @@ theorem Pos.Raw.isValidForSlice_stringReplaceStart {s : String} {p : s.ValidPos}
   rw [replaceStart, isValidForSlice_replaceStart, isValidForSlice_toSlice_iff,
     ValidPos.offset_toSlice]
 
+theorem ValidPos.utf8Encode_get_eq_extract {s : String} (pos : s.ValidPos) (h : pos ≠ s.endValidPos) :
+    List.utf8Encode [pos.get h] = s.bytes.extract pos.offset.byteIdx (pos.offset.byteIdx + (pos.get h).utf8Size) := by
+  rw [get_eq_get_toSlice, Slice.Pos.utf8Encode_get_eq_extract]
+  simp
+
+theorem ValidPos.eq_copy_replaceEnd_append_get {s : String} {pos : s.ValidPos} (h : pos ≠ s.endValidPos) :
+    s = (s.replaceEnd pos).copy ++ singleton (pos.get h) ++ (s.replaceStart (pos.next h)).copy := by
+  simp [← bytes_inj, utf8Encode_get_eq_extract pos h, Slice.bytes_copy, ← size_bytes]
 
 /--
 Returns the next position in a string after position `p`. If `p` is not a valid position or

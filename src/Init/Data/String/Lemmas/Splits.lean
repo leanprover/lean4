@@ -89,11 +89,25 @@ theorem Slice.Pos.splits {s : Slice} (p : s.Pos) :
   eq_append := copy_eq_copy_replaceEnd
   offset_eq_rawEndPos := by simp
 
+theorem ValidPos.Splits.bytes_left_eq {s : String} {p : s.ValidPos} {t₁ t₂}
+    (h : p.Splits t₁ t₂) : t₁.bytes = s.bytes.extract 0 p.offset.byteIdx := by
+  simp [h.eq_append, h.offset_eq_rawEndPos, ByteArray.extract_append_eq_left]
+
+theorem ValidPos.Splits.bytes_right_eq {s : String} {p : s.ValidPos} {t₁ t₂}
+    (h : p.Splits t₁ t₂) : t₂.bytes = s.bytes.extract p.offset.byteIdx s.utf8ByteSize := by
+  simp [h.eq_append, h.offset_eq_rawEndPos, ByteArray.extract_append_eq_right]
+
 theorem ValidPos.Splits.eq_left {s : String} {p : s.ValidPos} {t₁ t₂ t₃ t₄}
-    (h₁ : p.Splits t₁ t₂) (h₂ : p.Splits t₃ t₄) : t₁ = t₃ := sorry
+    (h₁ : p.Splits t₁ t₂) (h₂ : p.Splits t₃ t₄) : t₁ = t₃ := by
+  rw [← String.bytes_inj, h₁.bytes_left_eq, h₂.bytes_left_eq]
 
 theorem ValidPos.Splits.eq_right {s : String} {p : s.ValidPos} {t₁ t₂ t₃ t₄}
-    (h₁ : p.Splits t₁ t₂) (h₂ : p.Splits t₃ t₄) : t₂ = t₄ := sorry
+    (h₁ : p.Splits t₁ t₂) (h₂ : p.Splits t₃ t₄) : t₂ = t₄ := by
+  rw [← String.bytes_inj, h₁.bytes_right_eq, h₂.bytes_right_eq]
+
+theorem ValidPos.Splits.eq {s : String} {p : s.ValidPos} {t₁ t₂ t₃ t₄}
+    (h₁ : p.Splits t₁ t₂) (h₂ : p.Splits t₃ t₄) : t₁ = t₃ ∧ t₂ = t₄ :=
+  ⟨h₁.eq_left h₂, h₁.eq_right h₂⟩
 
 @[simp]
 theorem splits_endValidPos (s : String) : s.endValidPos.Splits s "" where
@@ -111,9 +125,43 @@ theorem splits_startValidPos (s : String) : s.startValidPos.Splits "" s where
   offset_eq_rawEndPos := by simp
 
 theorem ValidPos.splits_next_right {s : String} (p : s.ValidPos) (hp : p ≠ s.endValidPos) :
-    p.Splits (s.replaceEnd p).copy (singleton (p.get hp) ++ (s.replaceStart (p.next hp)).copy) := sorry
+    p.Splits (s.replaceEnd p).copy (singleton (p.get hp) ++ (s.replaceStart (p.next hp)).copy) where
+  eq_append := by simpa [← append_assoc] using p.eq_copy_replaceEnd_append_get hp
+  offset_eq_rawEndPos := by simp
 
 theorem ValidPos.splits_next {s : String} (p : s.ValidPos) (hp : p ≠ s.endValidPos) :
-    (p.next hp).Splits ((s.replaceEnd p).copy ++ singleton (p.get hp)) (s.replaceStart (p.next hp)).copy := sorry
+    (p.next hp).Splits ((s.replaceEnd p).copy ++ singleton (p.get hp)) (s.replaceStart (p.next hp)).copy where
+  eq_append := p.eq_copy_replaceEnd_append_get hp
+  offset_eq_rawEndPos := by simp
+
+theorem ValidPos.Splits.exists_eq_singleton_append {s : String} {p : s.ValidPos}
+    (hp : p ≠ s.endValidPos) (h : p.Splits t₁ t₂) : ∃ t₂', t₂ = singleton (p.get hp) ++ t₂' :=
+  ⟨(s.replaceStart (p.next hp)).copy, h.eq_right (p.splits_next_right hp)⟩
+
+theorem ValidPos.Splits.exists_eq_append_singleton {s : String} {p : s.ValidPos}
+    (hp : p ≠ s.endValidPos) (h : (p.next hp).Splits t₁ t₂) : ∃ t₁', t₁ = t₁' ++ singleton (p.get hp) :=
+  ⟨(s.replaceEnd p).copy, h.eq_left (p.splits_next hp)⟩
+
+-- TODO: move
+@[simp]
+theorem singleton_append_inj : singleton c ++ s = singleton d ++ t ↔ c = d ∧ s = t := by
+  simp [← toList_inj]
+
+-- TODO: move
+@[simp]
+theorem _root_.List.append_singleton_inj {l m : List α} : l ++ [a] = m ++ [b] ↔ l = m ∧ a = b := by
+  rw [← List.reverse_inj, And.comm]; simp
+
+-- TODO: move
+@[simp]
+theorem push_append_inj : push s c = push t d ↔ s = t ∧ c = d := by
+  simp [← toList_inj]
+
+-- TODO: `hp` actually follows from `h`.
+/-- You might want to invoke `ValidPos.Splits.exists_eq_singleton_append` to be able to apply this. -/
+theorem ValidPos.Splits.next {s : String} {p : s.ValidPos} (h : p.Splits t₁ (singleton c ++ t₂))
+    (hp : p ≠ s.endValidPos) : (p.next hp).Splits (t₁ ++ singleton c) t₂ := by
+  obtain ⟨rfl, rfl, rfl⟩ := by simpa using h.eq (splits_next_right p hp)
+  exact splits_next p hp
 
 end String

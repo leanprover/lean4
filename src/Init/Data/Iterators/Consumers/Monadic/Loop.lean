@@ -652,10 +652,35 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 linear in the number of steps taken by the iterator
 -/
+@[always_inline, inline, deprecated IterM.count (since := "2025-10-29")]
+def IterM.size {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β] [Finite α m]
+    [IteratorLoop α m m]
+    [Monad m] (it : IterM (α := α) m β) : m (ULift Nat) :=
+  it.count
+
+/--
+Steps through the whole iterator, counting the number of outputs emitted.
+
+**Performance**:
+
+linear in the number of steps taken by the iterator
+-/
 @[always_inline, inline]
 def IterM.Partial.count {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     [IteratorLoopPartial α m m] [Monad m] (it : IterM.Partial (α := α) m β) : m (ULift Nat) :=
   IterM.DefaultConsumers.countPartial it.it
+
+/--
+Steps through the whole iterator, counting the number of outputs emitted.
+
+**Performance**:
+
+linear in the number of steps taken by the iterator
+-/
+@[always_inline, inline, deprecated IterM.Partial.count (since := "2025-10-29")]
+def IterM.Partial.size {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    [IteratorLoopPartial α m m] [Monad m] (it : IterM.Partial (α := α) m β) : m (ULift Nat) :=
+  it.count
 
 end Count
 

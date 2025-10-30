@@ -511,6 +511,9 @@ theorem Iter.size_toArray_eq_count {α β : Type w} [Iterator α Id β] [Finite 
   simp only [toArray_eq_toArray_toIterM, count_eq_count_toIterM, Id.run_map,
     ← IterM.up_size_toArray_eq_count]
 
+@[deprecated Iter.size_toArray_eq_count (since := "2025-10-29")]
+def Iter.size_toArray_eq_size := @size_toArray_eq_count
+
 @[simp]
 theorem Iter.length_toList_eq_count {α β : Type w} [Iterator α Id β] [Finite α Id]
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
@@ -519,6 +522,9 @@ theorem Iter.length_toList_eq_count {α β : Type w} [Iterator α Id β] [Finite
     it.toList.length = it.count := by
   rw [← toList_toArray, Array.length_toList, size_toArray_eq_count]
 
+@[deprecated Iter.length_toList_eq_count (since := "2025-10-29")]
+def Iter.length_toList_eq_size := @length_toList_eq_count
+
 @[simp]
 theorem Iter.length_toListRev_eq_count {α β : Type w} [Iterator α Id β] [Finite α Id]
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
@@ -526,6 +532,9 @@ theorem Iter.length_toListRev_eq_count {α β : Type w} [Iterator α Id β] [Fin
     {it : Iter (α := α) β} :
     it.toListRev.length = it.count := by
   rw [toListRev_eq, List.length_reverse, length_toList_eq_count]
+
+@[deprecated Iter.length_toListRev_eq_count (since := "2025-10-29")]
+def Iter.length_toListRev_eq_size := @length_toListRev_eq_count
 
 theorem Iter.anyM_eq_forIn {α β : Type w} {m : Type → Type w'} [Iterator α Id β]
     [Finite α Id] [Monad m] [LawfulMonad m] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]

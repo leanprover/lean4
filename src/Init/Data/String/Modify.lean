@@ -73,7 +73,7 @@ theorem ValidPos.offset_toSetOfLE {s : String} {q p : s.ValidPos} {c : Char} {hp
 
 theorem Pos.Raw.isValid_add_char_set {s : String} {p : s.ValidPos} {c : Char} {hp} :
     (p.offset + c).IsValid (p.set c hp) :=
-  ValidPos.set_eq_append ▸ IsValid.append_right (isValid_of_eq_rawEndPos (by simp [Pos.Raw.ext_iff])) _
+  ValidPos.set_eq_append ▸ IsValid.append_right (isValid_of_eq_rawEndPos (by simp)) _
 
 /-- The position just after the position that changed in a `ValidPos.set` call. -/
 @[inline]
@@ -93,7 +93,7 @@ def ValidPos.appendRight {s : String} (p : s.ValidPos) (t : String) : (s ++ t).V
 theorem ValidPos.splits_pastSet {s : String} {p : s.ValidPos} {c : Char} {hp} :
     (p.pastSet c hp).Splits ((s.replaceEnd p).copy ++ singleton c) (s.replaceStart (p.next hp)).copy where
   eq_append := set_eq_append
-  offset_eq_rawEndPos := by simp [Pos.Raw.ext_iff]
+  offset_eq_rawEndPos := by simp
 
 theorem remainingBytes_pastSet {s : String} {p : s.ValidPos} {c : Char} {hp} :
     (p.pastSet c hp).remainingBytes = (p.next hp).remainingBytes := by

@@ -1894,7 +1894,7 @@ def anchorPrefixToString (numDigits : Nat) (anchorPrefix : UInt64) : String :=
   let n := cs.length
   let zs := List.replicate (numDigits - n) '0'
   let cs := zs ++ cs
-  cs.asString
+  String.ofList cs
 
 def anchorToString (numDigits : Nat) (anchor : UInt64) : String :=
   anchorPrefixToString numDigits (anchor >>> (64 - 4*numDigits.toUInt64))

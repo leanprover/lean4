@@ -160,11 +160,11 @@ Examples:
 -/
 @[extern "lean_string_utf8_set", expose]
 def Pos.Raw.set : String → (@& Pos.Raw) → Char → String
-  | s, i, c => (Pos.Raw.utf8SetAux c s.data 0 i).asString
+  | s, i, c => ofList (Pos.Raw.utf8SetAux c s.toList 0 i)
 
 @[extern "lean_string_utf8_set", expose, deprecated Pos.Raw.set (since := "2025-10-14")]
 def set : String → (@& Pos.Raw) → Char → String
-  | s, i, c => (Pos.Raw.utf8SetAux c s.data 0 i).asString
+  | s, i, c => ofList (Pos.Raw.utf8SetAux c s.toList 0 i)
 
 /--
 Replaces the character at position `p` in the string `s` with the result of applying `f` to that

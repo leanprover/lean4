@@ -22,7 +22,7 @@ public instance {α : Type u} {β : Type v}
     Rii.Sliceable (Raw α β cmp) α (DTreeMap.Internal.Const.RiiSlice α β) where
   mkSlice carrier range := ⟨carrier.inner.inner, range⟩
 
-@[simp] public theorem toList_rii {α : Type u} {β : Type v}
+@[simp] public theorem toList_rii {α : Type ąu} {β : Type v}
     (cmp : α → α → Ordering := by exact compare) {t : Raw α β cmp} :
     t[*...*].toList = t.toList := by
   apply DTreeMap.Internal.Const.toList_rii

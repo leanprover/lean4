@@ -10,3 +10,4 @@ public import Std.Data.TreeSet.Basic
 public import Std.Data.TreeSet.AdditionalOperations
 public import Std.Data.TreeSet.Lemmas
 public import Std.Data.TreeSet.Iterator
+public import Std.Data.TreeSet.Slice

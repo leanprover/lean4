@@ -199,6 +199,10 @@ node pairs.
 -/
 def addEdge (u : NodeId) (v : NodeId) (k : Weight) (h : Expr) : OrderM Unit := do
   if (← isInconsistent) then return ()
+  if u == v then
+    if k.isNeg then
+      closeGoal (← mkSelfUnsatProof (← getExpr u) k h)
+    return ()
   trace[grind.debug.order.add_edge] "{← getExpr u}, {← getExpr v}, {k}"
   if let some k' ← getDist? v u then
     if (k + k').isNeg then

@@ -134,9 +134,7 @@ def addFunctionSummary (env : Environment) (fid : FunId) (v : Value) : Environme
   functionSummariesExt.addEntry env (fid, v)
 
 def getFunctionSummary? (env : Environment) (fid : FunId) : Option Value :=
-  Lean.Compiler.LCNF.withCompilerModIdx env fid
-    (fun modIdx => findAtSorted? (functionSummariesExt.getModuleEntries env modIdx) fid)
-    (fun _ => functionSummariesExt.getState env |>.find? fid)
+  Lean.Compiler.LCNF.findExtEntry? env functionSummariesExt fid findAtSorted? (·.2.find?)
 
 abbrev Assignment := Std.HashMap VarId Value
 

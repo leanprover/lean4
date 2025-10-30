@@ -145,14 +145,7 @@ private def exportIREntries (env : Environment) : Array (Name × Array EnvExtens
     (Lean.regularInitAttr.ext.name, initDecls)]
 
 def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
-  Lean.Compiler.LCNF.withCompilerModIdx env declName
-    (fun modIdx =>
-      -- `meta import/import all`
-      guard (env.header.modules[modIdx]?.any (·.irPhases != .runtime)) *>
-      findAtSorted? (declMapExt.getModuleIREntries env modIdx) declName <|>
-      -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
-      findAtSorted? (declMapExt.getModuleEntries env modIdx) declName)
-    (fun _ => declMapExt.getState env |>.find? declName)
+  Lean.Compiler.LCNF.findExtEntry? env declMapExt declName findAtSorted? (·.2.find?)
 
 @[export lean_ir_find_env_decl]
 private def findInterpDecl (env : Environment) (declName : Name) : Option Decl :=

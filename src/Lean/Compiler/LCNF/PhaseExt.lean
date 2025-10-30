@@ -132,9 +132,7 @@ builtin_initialize baseExt : DeclExt ← mkDeclExt .base
 builtin_initialize monoExt : DeclExt ← mkDeclExt .mono
 
 def getDeclCore? (env : Environment) (ext : DeclExt) (declName : Name) : Option Decl :=
-  withCompilerModIdx env declName
-    (fun modIdx => findAtSorted? (ext.getModuleEntries env modIdx) declName)
-    (fun _ => ext.getState env |>.find? declName)
+  findExtEntry? env ext declName findAtSorted? (·.find?)
 
 def getBaseDecl? (declName : Name) : CoreM (Option Decl) := do
   return getDeclCore? (← getEnv) baseExt declName

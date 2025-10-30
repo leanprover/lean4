@@ -57,15 +57,16 @@ public theorem toList_rci {α : Type u} {β : Type v} (cmp : α → α → Order
   apply @DTreeMap.Internal.Const.toList_rci _ _ ⟨cmp⟩ _ _
   . exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
 
--- public instance {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare) :
---     Rco.Sliceable (Raw α β cmp) α (@Internal.RcoSlice α β ⟨cmp⟩) :=
---   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner, range⟩⟩
+public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare) :
+    Rco.Sliceable (Raw α β cmp) α (@DTreeMap.Internal.Const.RcoSlice α β ⟨cmp⟩) :=
+  letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner.inner, range⟩⟩
 
--- public theorem toList_rco {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare)
---     [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {lowerBound upperBound : α} :
---     t[lowerBound...<upperBound].toList =
---       t.toList.filter (fun e => (cmp e.fst lowerBound).isGE ∧ (cmp e.fst upperBound).isLT) :=
---   @Internal.toList_rco α β ⟨cmp⟩ _ t.inner (@wf.out.ordered α β ⟨cmp⟩ _) lowerBound upperBound
+public theorem toList_rco {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare)
+    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {lowerBound upperBound : α} :
+    t[lowerBound...<upperBound].toList =
+      t.toList.filter (fun e => (cmp e.fst lowerBound).isGE ∧ (cmp e.fst upperBound).isLT) := by
+  apply @DTreeMap.Internal.Const.toList_rco _ _ ⟨cmp⟩ _ _
+  . exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
 
 -- public instance {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare) :
 --     Rcc.Sliceable (Raw α β cmp) α (@Internal.RccSlice α β ⟨cmp⟩) :=

@@ -184,6 +184,12 @@ def internalizeCnstr (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM Uni
   let v ← mkNode c.v
   let c := { c with u, v }
   let k' := c.getWeight
+  if u == v then
+    if k'.isNeg then
+      propagateSelfEqFalse c e
+    else
+      propagateSelfEqTrue c e
+    return ()
   if let some k ← getDist? u v then
     if k ≤ k' then
       propagateEqTrue c e u v k k'

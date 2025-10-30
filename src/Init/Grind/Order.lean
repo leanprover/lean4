@@ -206,6 +206,30 @@ theorem le_eq_true_of_lt {α} [LE α] [LT α] [Std.LawfulOrderLT α]
   simp; intro h
   exact Std.le_of_lt h
 
+theorem le_eq_true {α} [LE α] [Std.IsPreorder α]
+    {a : α} : (a ≤ a) = True := by
+  simp; exact Std.le_refl a
+
+theorem le_eq_true_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
+    {a : α} {k : Int} : (0 : Int).ble' k → (a ≤ a + k) = True := by
+  simp
+  intro h
+  replace h := OrderedRing.nonneg_intCast_of_nonneg (R := α) _ h
+  have h₁ := Std.le_refl a
+  replace h₁ := OrderedAdd.add_le_add h₁ h
+  simp [Semiring.add_zero] at h₁
+  assumption
+
+theorem lt_eq_true_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
+    {a : α} {k : Int} : (0 : Int).blt' k → (a < a + k) = True := by
+  simp
+  intro h
+  replace h := OrderedRing.pos_intCast_of_pos (R := α) _ h
+  have h₁ := Std.le_refl a
+  replace h₁ := add_lt_add_of_le_of_lt h₁ h
+  simp [Semiring.add_zero] at h₁
+  assumption
+
 theorem le_eq_true_of_le_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
     {a b : α} {k₁ k₂ : Int} : k₁.ble' k₂ → a ≤ b + k₁ → (a ≤ b + k₂) = True := by
   simp; intro h₁ h₂
@@ -246,6 +270,38 @@ theorem lt_eq_true_of_le_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPr
   assumption
 
 /-! Theorems for propagating constraints to `False` -/
+
+theorem lt_eq_false {α} [LE α] [LT α] [Std.LawfulOrderLT α]
+    {a : α} : (a < a) = False := by
+  simp; intro h
+  have := Preorder.lt_irrefl a
+  contradiction
+
+theorem le_eq_false_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
+    {a : α} {k : Int} : k.blt' 0 → (a ≤ a + k) = False := by
+  simp
+  intro h
+  replace h := OrderedRing.neg_intCast_of_neg (R := α) _ h
+  have h₁ := Std.le_refl a
+  replace h₁ := add_lt_add_of_le_of_lt h₁ h
+  simp [Semiring.add_zero] at h₁
+  intro h
+  have := Std.lt_of_lt_of_le h₁ h
+  have := Preorder.lt_irrefl (a + k)
+  contradiction
+
+theorem lt_eq_false_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
+    {a : α} {k : Int} : k.ble' 0 → (a < a + k) = False := by
+  simp
+  intro h
+  replace h := OrderedRing.nonpos_intCast_of_nonpos (R := α) _ h
+  have h₁ := Std.le_refl a
+  replace h₁ := OrderedAdd.add_le_add h₁ h
+  simp [Semiring.add_zero] at h₁
+  intro h
+  have := Std.lt_of_le_of_lt h₁ h
+  have := Preorder.lt_irrefl (a + k)
+  contradiction
 
 theorem le_eq_false_of_lt {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α]
     {a b : α} : a < b → (b ≤ a) = False := by

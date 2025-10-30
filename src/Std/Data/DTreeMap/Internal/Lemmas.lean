@@ -3351,7 +3351,7 @@ theorem contains_of_contains_union!_of_contains_eq_false_left [TransOrd α]
   all_goals assumption
 
 /- Equiv -/
-theorem union_insert_right_equiv_insert_union [TransOrd α]  {p : (a : α) × β a}
+theorem union_insert_right_equiv_insert_union [TransOrd α] {p : (a : α) × β a}
     (h₁ : m₁.WF) (h₂ : m₂.WF) :
     Equiv (m₁.union (m₂.insert p.fst p.snd h₂.balanced).impl h₁.balanced h₂.insert.balanced) ((m₁.union m₂ h₁.balanced h₂.balanced).insert p.fst p.snd (@WF.union _ _ _ m₁ h₁ m₂ h₂).balanced).1 := by
   simp_to_model [union, insert]

@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+import Lean.Meta.Tactic.Grind.Arith.IsRelevant
 import Lean.Meta.Match.MatchEqs
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Beta
@@ -120,7 +121,7 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
     if (← getConfig).splitImp then
       if (← isProp d) then
         addSplitCandidate (.imp e (h ▸ rfl) currSplitSource)
-    else if Arith.isRelevantPred d then
+    else if (← Arith.isRelevantPred d) then
       -- TODO: should we keep lookahead after we implement non-chronological backtracking?
       if (← getConfig).lookahead then
         addLookaheadCandidate (.imp e (h ▸ rfl) currSplitSource)

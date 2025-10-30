@@ -79,7 +79,7 @@ private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs 
     simp only [bind_pure_comp, map_pure]
     rw [cons_lex_cons.forIn'_congr_aux (if_pos (by omega)) rfl (fun _ _ _ => rfl)]
   simp only [Std.toList_roo_eq_toList_rco_of_isSome_succ? (lo := 0) (h := rfl),
-    Std.PRange.UpwardEnumerable.succ?, Nat.add_comm 1, Std.PRange.Nat.toList_Rco_succ_succ,
+    Std.PRange.UpwardEnumerable.succ?, Nat.add_comm 1, Std.PRange.Nat.toList_rco_succ_succ,
     Option.get_some, List.forIn'_cons, List.size_toArray, List.length_cons, List.length_nil,
     Nat.lt_add_one, getElem_append_left, List.getElem_toArray, List.getElem_cons_zero]
   cases lt a b

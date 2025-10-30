@@ -13,17 +13,6 @@ if h : n % 2 = 0 then
 else
   Eq.ndrec (Parity.odd (n/2)) (nDiv2Succ n h).symm
 
-/--
-error: Tactic `cases` failed with a nested error:
-Dependent elimination failed: Failed to solve equation
-  n✝¹.succ = n✝.add n✝
-at case `Parity.even` after processing
-  (Nat.succ _), _
-the dependent pattern matcher can solve the following kinds of equations
-- <var> = <term> and <term> = <var>
-- <term> = <term> where the terms are definitionally equal
-- <constructor> = <constructor>, examples: List.cons x xs = List.cons y ys, and List.cons x xs = List.nil
--/
 #guard_msgs in
 partial def natToBinBad (n : Nat) : List Bool :=
 match n, parity n with
@@ -53,17 +42,6 @@ def parity (n : MyNat) : Parity n := sorry
 
 -- set_option trace.Meta.Match.match true
 
-/--
-error: Tactic `cases` failed with a nested error:
-Dependent elimination failed: Failed to solve equation
-  a✝.succ = n✝.add n✝
-at case `Parity.even` after processing
-  (succ _), _
-the dependent pattern matcher can solve the following kinds of equations
-- <var> = <term> and <term> = <var>
-- <term> = <term> where the terms are definitionally equal
-- <constructor> = <constructor>, examples: List.cons x xs = List.cons y ys, and List.cons x xs = List.nil
--/
 #guard_msgs(pass trace, all) in
 partial def myNatToBinBad (n : MyNat) : List Bool :=
 match n, parity n with

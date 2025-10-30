@@ -134,6 +134,16 @@ partial def natToBin' : (n : Nat) → List Bool
   | Parity.even j => false :: natToBin j
   | Parity.odd  j => true  :: natToBin j
 
+-- This used to be bad until we used sparse matchers,
+-- which meant that the `0` pattern does not cause the remaining
+-- to have `n = .succ _`, whic breaks dependent pattern matching
+partial def natToBinBad (n : Nat) : List Bool :=
+match n, parity n with
+| 0, _             => []
+| _, Parity.even j => false :: natToBin j
+| _, Parity.odd  j => true  :: natToBin j
+
+set_option match.sparseCases false in
 /--
 error: Tactic `cases` failed with a nested error:
 Dependent elimination failed: Failed to solve equation
@@ -146,7 +156,7 @@ the dependent pattern matcher can solve the following kinds of equations
 - <constructor> = <constructor>, examples: List.cons x xs = List.cons y ys, and List.cons x xs = List.nil
 -/
 #guard_msgs in
-partial def natToBinBad (n : Nat) : List Bool :=
+partial def natToBinBadOld (n : Nat) : List Bool :=
 match n, parity n with
 | 0, _             => []
 | _, Parity.even j => false :: natToBin j

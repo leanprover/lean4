@@ -11,6 +11,14 @@ import Init.Data.Char.Lemmas
 public import Init.Data.ByteArray.Basic
 import Init.Data.ByteArray.Lemmas
 
+/-!
+# UTF-8 decoding
+
+This file contains the low-level proof that UTF-8 decoding and encoding are inverses.
+An important corollary is that attempting to decode a byte array that is valid UTF-8 will
+succeed, which is required for the definition of `String.toList`.
+-/
+
 /-! # `Char.utf8Size` -/
 
 public theorem Char.utf8Size_eq_one_iff {c : Char} : c.utf8Size = 1 ↔ c.val ≤ 127 := by
@@ -182,7 +190,7 @@ theorem String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_one {c : Char
     simpa [Char.utf8Size_eq_one_iff, UInt32.le_iff_toNat_le] using h
   have h₁ : c.val.toNat < 256 := by omega
   rw [← BitVec.toNat_inj, BitVec.toNat_append]
-  simp [utf8EncodeChar_eq_singleton h, Nat.mod_eq_of_lt h₀, Nat.mod_eq_of_lt h₁]
+  simp [-Char.toUInt8_val, utf8EncodeChar_eq_singleton h, Nat.mod_eq_of_lt h₀, Nat.mod_eq_of_lt h₁]
 
 /-! ### Size two -/
 
@@ -495,7 +503,8 @@ theorem assemble₁_eq_some_iff_utf8EncodeChar_eq {w : UInt8} {c : Char} :
     have : c.val.toNat < 256 := by
       simp only [Char.utf8Size_eq_one_iff, UInt32.le_iff_toNat_le, UInt32.reduceToNat] at hc
       omega
-    simpa [String.utf8EncodeChar_eq_singleton hc, assemble₁, Char.ext_iff, ← UInt32.toNat_inj]
+    simpa [String.utf8EncodeChar_eq_singleton hc, assemble₁, Char.ext_iff, ← UInt32.toNat_inj,
+      -Char.toUInt8_val]
 
 @[inline, expose]
 public def verify₁ (_w : UInt8) (_h : parseFirstByte w = .done) : Bool :=

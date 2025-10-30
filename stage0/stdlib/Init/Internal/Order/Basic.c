@@ -19,14 +19,14 @@ static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroR
 LEAN_EXPORT lean_object* l_Lean_Order_lfp(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_instCCPOStateT___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_instCompleteLatticePProd___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Order_term___u2291_____closed__11;
+static lean_object* l_Lean_Order_term___u2291___00__closed__11;
 LEAN_EXPORT lean_object* l_Lean_Order_fix(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__11;
 static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term_u22a5__1___closed__2;
-static lean_object* l_Lean_Order_term___u2291_____closed__10;
+static lean_object* l_Lean_Order_term___u2291___00__closed__10;
 LEAN_EXPORT lean_object* l_Lean_Order_instPartialOrderStateT___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_Example_findF(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Order_term___u2291_____closed__0;
+static lean_object* l_Lean_Order_term___u2291___00__closed__0;
 LEAN_EXPORT lean_object* l_Lean_Order_lfp__monotone(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_instCompleteLatticePi(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_fun__sup___redArg(lean_object*, lean_object*);
@@ -52,7 +52,7 @@ lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_instPartialOrderPProd(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_FlatOrder_instOrder(lean_object*, lean_object*);
-static lean_object* l_Lean_Order_term___u2291_____closed__7;
+static lean_object* l_Lean_Order_term___u2291___00__closed__7;
 LEAN_EXPORT lean_object* l_Lean_Order_lfp__monotone___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______unexpand__Lean__Order__PartialOrder__rel__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_instPartialOrderStateRefT_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -60,15 +60,15 @@ lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Order_instCCPOPProd___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__10;
 static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__5;
-static lean_object* l_Lean_Order_term___u2291_____closed__2;
+static lean_object* l_Lean_Order_term___u2291___00__closed__2;
 LEAN_EXPORT lean_object* l_Lean_Order_instCCPOStateT(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_instOrderPi___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Order_term___u2291_____closed__6;
+static lean_object* l_Lean_Order_term___u2291___00__closed__6;
 LEAN_EXPORT lean_object* l_Lean_Order_instCCPOStateRefT_x27___redArg(lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_instCCPOStateRefT_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__13;
-static lean_object* l_Lean_Order_term___u2291_____closed__4;
+static lean_object* l_Lean_Order_term___u2291___00__closed__4;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_ReverseImplicationOrder_instCompleteLattice;
 static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term_u22a5__1___closed__3;
@@ -78,7 +78,7 @@ lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_
 static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term_u22a5__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Order_bot(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-static lean_object* l_Lean_Order_term___u2291_____closed__8;
+static lean_object* l_Lean_Order_term___u2291___00__closed__8;
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 static lean_object* l_Lean_Order_term_u22a5___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Internal_Order_Basic_0__EST_bind_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
@@ -89,7 +89,7 @@ LEAN_EXPORT lean_object* l_Lean_Order_instPartialOrderStateT(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lean_Order_instPartialOrderExceptT___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_fun__csup___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_CompleteLattice_ctorIdx(lean_object*, lean_object*);
-static lean_object* l_Lean_Order_term___u2291_____closed__1;
+static lean_object* l_Lean_Order_term___u2291___00__closed__1;
 LEAN_EXPORT lean_object* l_Lean_Order_instPartialOrderExceptT(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_fix___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_fun__csup(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -106,7 +106,7 @@ lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__9;
 static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Order_instCompleteLatticePProd(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Order_term___u2291_____closed__5;
+static lean_object* l_Lean_Order_term___u2291___00__closed__5;
 LEAN_EXPORT lean_object* l_Lean_Order_term_u22a5;
 LEAN_EXPORT lean_object* l_Lean_Order_CCPO_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_inf(lean_object*, lean_object*, lean_object*);
@@ -114,9 +114,9 @@ LEAN_EXPORT lean_object* l_Lean_Order_ReverseImplicationOrder_instOrder;
 LEAN_EXPORT lean_object* l_Lean_Order_instCCPOOptionT___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_instCCPOReaderT___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_lfp___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Order_term___u2291_____closed__3;
+static lean_object* l_Lean_Order_term___u2291___00__closed__3;
 static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term_u22a5__1___closed__0;
-static lean_object* l_Lean_Order_term___u2291_____closed__12;
+static lean_object* l_Lean_Order_term___u2291___00__closed__12;
 LEAN_EXPORT lean_object* l_Lean_Order_instCompleteLatticePi___redArg(lean_object*);
 static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Order_fun__sup(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -135,7 +135,7 @@ static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroR
 LEAN_EXPORT lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______unexpand__Lean__Order__bot__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Order_term_u22a5___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term_u22a5__1(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Order_term___u2291_____closed__9;
+static lean_object* l_Lean_Order_term___u2291___00__closed__9;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Order_instCCPOPProd(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -152,7 +152,7 @@ x_3 = lean_unsigned_to_nat(0u);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Order_term___u2291_____closed__0() {
+static lean_object* _init_l_Lean_Order_term___u2291___00__closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -160,7 +160,7 @@ x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Order_term___u2291_____closed__1() {
+static lean_object* _init_l_Lean_Order_term___u2291___00__closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -168,7 +168,7 @@ x_1 = lean_mk_string_unchecked("Order", 5, 5);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Order_term___u2291_____closed__2() {
+static lean_object* _init_l_Lean_Order_term___u2291___00__closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -176,18 +176,18 @@ x_1 = lean_mk_string_unchecked("term_⊑_", 9, 7);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Order_term___u2291_____closed__3() {
+static lean_object* _init_l_Lean_Order_term___u2291___00__closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Order_term___u2291_____closed__2;
-x_2 = l_Lean_Order_term___u2291_____closed__1;
-x_3 = l_Lean_Order_term___u2291_____closed__0;
+x_1 = l_Lean_Order_term___u2291___00__closed__2;
+x_2 = l_Lean_Order_term___u2291___00__closed__1;
+x_3 = l_Lean_Order_term___u2291___00__closed__0;
 x_4 = l_Lean_Name_mkStr3(x_3, x_2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Order_term___u2291_____closed__4() {
+static lean_object* _init_l_Lean_Order_term___u2291___00__closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -195,16 +195,16 @@ x_1 = lean_mk_string_unchecked("andthen", 7, 7);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Order_term___u2291_____closed__5() {
+static lean_object* _init_l_Lean_Order_term___u2291___00__closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Order_term___u2291_____closed__4;
+x_1 = l_Lean_Order_term___u2291___00__closed__4;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Order_term___u2291_____closed__6() {
+static lean_object* _init_l_Lean_Order_term___u2291___00__closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -212,17 +212,17 @@ x_1 = lean_mk_string_unchecked(" ⊑ ", 5, 3);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Order_term___u2291_____closed__7() {
+static lean_object* _init_l_Lean_Order_term___u2291___00__closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Order_term___u2291_____closed__6;
+x_1 = l_Lean_Order_term___u2291___00__closed__6;
 x_2 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Order_term___u2291_____closed__8() {
+static lean_object* _init_l_Lean_Order_term___u2291___00__closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -230,34 +230,34 @@ x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Order_term___u2291_____closed__9() {
+static lean_object* _init_l_Lean_Order_term___u2291___00__closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Order_term___u2291_____closed__8;
+x_1 = l_Lean_Order_term___u2291___00__closed__8;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Order_term___u2291_____closed__10() {
+static lean_object* _init_l_Lean_Order_term___u2291___00__closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(51u);
-x_2 = l_Lean_Order_term___u2291_____closed__9;
+x_2 = l_Lean_Order_term___u2291___00__closed__9;
 x_3 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Order_term___u2291_____closed__11() {
+static lean_object* _init_l_Lean_Order_term___u2291___00__closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Order_term___u2291_____closed__10;
-x_2 = l_Lean_Order_term___u2291_____closed__7;
-x_3 = l_Lean_Order_term___u2291_____closed__5;
+x_1 = l_Lean_Order_term___u2291___00__closed__10;
+x_2 = l_Lean_Order_term___u2291___00__closed__7;
+x_3 = l_Lean_Order_term___u2291___00__closed__5;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
@@ -265,14 +265,14 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Order_term___u2291_____closed__12() {
+static lean_object* _init_l_Lean_Order_term___u2291___00__closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Order_term___u2291_____closed__11;
+x_1 = l_Lean_Order_term___u2291___00__closed__11;
 x_2 = lean_unsigned_to_nat(51u);
 x_3 = lean_unsigned_to_nat(50u);
-x_4 = l_Lean_Order_term___u2291_____closed__3;
+x_4 = l_Lean_Order_term___u2291___00__closed__3;
 x_5 = lean_alloc_ctor(4, 4, 0);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
@@ -285,7 +285,7 @@ static lean_object* _init_l_Lean_Order_term___u2291__() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Order_term___u2291_____closed__12;
+x_1 = l_Lean_Order_term___u2291___00__closed__12;
 return x_1;
 }
 }
@@ -320,7 +320,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__2;
 x_2 = l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__1;
 x_3 = l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__0;
-x_4 = l_Lean_Order_term___u2291_____closed__0;
+x_4 = l_Lean_Order_term___u2291___00__closed__0;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -374,8 +374,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__7;
 x_2 = l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__6;
-x_3 = l_Lean_Order_term___u2291_____closed__1;
-x_4 = l_Lean_Order_term___u2291_____closed__0;
+x_3 = l_Lean_Order_term___u2291___00__closed__1;
+x_4 = l_Lean_Order_term___u2291___00__closed__0;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -425,7 +425,7 @@ LEAN_EXPORT lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______m
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = l_Lean_Order_term___u2291_____closed__3;
+x_4 = l_Lean_Order_term___u2291___00__closed__3;
 lean_inc(x_1);
 x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
@@ -563,8 +563,8 @@ lean_dec(x_9);
 x_23 = 0;
 x_24 = l_Lean_SourceInfo_fromRef(x_22, x_23);
 lean_dec(x_22);
-x_25 = l_Lean_Order_term___u2291_____closed__3;
-x_26 = l_Lean_Order_term___u2291_____closed__6;
+x_25 = l_Lean_Order_term___u2291___00__closed__3;
+x_26 = l_Lean_Order_term___u2291___00__closed__6;
 lean_inc(x_24);
 x_27 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_27, 0, x_24);
@@ -637,8 +637,8 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Order_term_u22a5___closed__0;
-x_2 = l_Lean_Order_term___u2291_____closed__1;
-x_3 = l_Lean_Order_term___u2291_____closed__0;
+x_2 = l_Lean_Order_term___u2291___00__closed__1;
+x_3 = l_Lean_Order_term___u2291___00__closed__0;
 x_4 = l_Lean_Name_mkStr3(x_3, x_2, x_1);
 return x_4;
 }
@@ -714,8 +714,8 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term_u22a5__1___closed__0;
-x_2 = l_Lean_Order_term___u2291_____closed__1;
-x_3 = l_Lean_Order_term___u2291_____closed__0;
+x_2 = l_Lean_Order_term___u2291___00__closed__1;
+x_3 = l_Lean_Order_term___u2291___00__closed__0;
 x_4 = l_Lean_Name_mkStr3(x_3, x_2, x_1);
 return x_4;
 }
@@ -1514,32 +1514,32 @@ lean_dec_ref(res);
 res = initialize_Init_System_ST(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Order_term___u2291_____closed__0 = _init_l_Lean_Order_term___u2291_____closed__0();
-lean_mark_persistent(l_Lean_Order_term___u2291_____closed__0);
-l_Lean_Order_term___u2291_____closed__1 = _init_l_Lean_Order_term___u2291_____closed__1();
-lean_mark_persistent(l_Lean_Order_term___u2291_____closed__1);
-l_Lean_Order_term___u2291_____closed__2 = _init_l_Lean_Order_term___u2291_____closed__2();
-lean_mark_persistent(l_Lean_Order_term___u2291_____closed__2);
-l_Lean_Order_term___u2291_____closed__3 = _init_l_Lean_Order_term___u2291_____closed__3();
-lean_mark_persistent(l_Lean_Order_term___u2291_____closed__3);
-l_Lean_Order_term___u2291_____closed__4 = _init_l_Lean_Order_term___u2291_____closed__4();
-lean_mark_persistent(l_Lean_Order_term___u2291_____closed__4);
-l_Lean_Order_term___u2291_____closed__5 = _init_l_Lean_Order_term___u2291_____closed__5();
-lean_mark_persistent(l_Lean_Order_term___u2291_____closed__5);
-l_Lean_Order_term___u2291_____closed__6 = _init_l_Lean_Order_term___u2291_____closed__6();
-lean_mark_persistent(l_Lean_Order_term___u2291_____closed__6);
-l_Lean_Order_term___u2291_____closed__7 = _init_l_Lean_Order_term___u2291_____closed__7();
-lean_mark_persistent(l_Lean_Order_term___u2291_____closed__7);
-l_Lean_Order_term___u2291_____closed__8 = _init_l_Lean_Order_term___u2291_____closed__8();
-lean_mark_persistent(l_Lean_Order_term___u2291_____closed__8);
-l_Lean_Order_term___u2291_____closed__9 = _init_l_Lean_Order_term___u2291_____closed__9();
-lean_mark_persistent(l_Lean_Order_term___u2291_____closed__9);
-l_Lean_Order_term___u2291_____closed__10 = _init_l_Lean_Order_term___u2291_____closed__10();
-lean_mark_persistent(l_Lean_Order_term___u2291_____closed__10);
-l_Lean_Order_term___u2291_____closed__11 = _init_l_Lean_Order_term___u2291_____closed__11();
-lean_mark_persistent(l_Lean_Order_term___u2291_____closed__11);
-l_Lean_Order_term___u2291_____closed__12 = _init_l_Lean_Order_term___u2291_____closed__12();
-lean_mark_persistent(l_Lean_Order_term___u2291_____closed__12);
+l_Lean_Order_term___u2291___00__closed__0 = _init_l_Lean_Order_term___u2291___00__closed__0();
+lean_mark_persistent(l_Lean_Order_term___u2291___00__closed__0);
+l_Lean_Order_term___u2291___00__closed__1 = _init_l_Lean_Order_term___u2291___00__closed__1();
+lean_mark_persistent(l_Lean_Order_term___u2291___00__closed__1);
+l_Lean_Order_term___u2291___00__closed__2 = _init_l_Lean_Order_term___u2291___00__closed__2();
+lean_mark_persistent(l_Lean_Order_term___u2291___00__closed__2);
+l_Lean_Order_term___u2291___00__closed__3 = _init_l_Lean_Order_term___u2291___00__closed__3();
+lean_mark_persistent(l_Lean_Order_term___u2291___00__closed__3);
+l_Lean_Order_term___u2291___00__closed__4 = _init_l_Lean_Order_term___u2291___00__closed__4();
+lean_mark_persistent(l_Lean_Order_term___u2291___00__closed__4);
+l_Lean_Order_term___u2291___00__closed__5 = _init_l_Lean_Order_term___u2291___00__closed__5();
+lean_mark_persistent(l_Lean_Order_term___u2291___00__closed__5);
+l_Lean_Order_term___u2291___00__closed__6 = _init_l_Lean_Order_term___u2291___00__closed__6();
+lean_mark_persistent(l_Lean_Order_term___u2291___00__closed__6);
+l_Lean_Order_term___u2291___00__closed__7 = _init_l_Lean_Order_term___u2291___00__closed__7();
+lean_mark_persistent(l_Lean_Order_term___u2291___00__closed__7);
+l_Lean_Order_term___u2291___00__closed__8 = _init_l_Lean_Order_term___u2291___00__closed__8();
+lean_mark_persistent(l_Lean_Order_term___u2291___00__closed__8);
+l_Lean_Order_term___u2291___00__closed__9 = _init_l_Lean_Order_term___u2291___00__closed__9();
+lean_mark_persistent(l_Lean_Order_term___u2291___00__closed__9);
+l_Lean_Order_term___u2291___00__closed__10 = _init_l_Lean_Order_term___u2291___00__closed__10();
+lean_mark_persistent(l_Lean_Order_term___u2291___00__closed__10);
+l_Lean_Order_term___u2291___00__closed__11 = _init_l_Lean_Order_term___u2291___00__closed__11();
+lean_mark_persistent(l_Lean_Order_term___u2291___00__closed__11);
+l_Lean_Order_term___u2291___00__closed__12 = _init_l_Lean_Order_term___u2291___00__closed__12();
+lean_mark_persistent(l_Lean_Order_term___u2291___00__closed__12);
 l_Lean_Order_term___u2291__ = _init_l_Lean_Order_term___u2291__();
 lean_mark_persistent(l_Lean_Order_term___u2291__);
 l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__0 = _init_l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__0();

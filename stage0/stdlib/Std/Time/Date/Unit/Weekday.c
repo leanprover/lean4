@@ -176,7 +176,7 @@ LEAN_EXPORT lean_object* l_Std_Time_instDecidableEqWeekday___boxed(lean_object*,
 lean_object* lean_int_add(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Weekday_instOrdOrdinal___closed__2;
 LEAN_EXPORT uint8_t l_Std_Time_instInhabitedWeekday;
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Weekday_toOrdinal_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_Weekday_toOrdinal_spec__0(lean_object*);
 static lean_object* l_Std_Time_Weekday_toOrdinal___closed__11;
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Std_Time_instReprWeekday_repr___closed__3;
@@ -1511,7 +1511,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Weekday_toOrdinal_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_Weekday_toOrdinal_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 

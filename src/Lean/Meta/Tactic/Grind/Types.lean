@@ -57,6 +57,15 @@ register_builtin_option grind.warning : Bool := {
   descr    := "generate a warning whenever `grind` is used"
 }
 
+/--
+Anchors are used to reference terms, local theorems, and case-splits in the `grind` state.
+We also use anchors to prune the search space when they are provided as `grind` parameters
+and the `finish` tactic.
+-/
+structure AnchorRef where
+  numDigits : Nat
+  anchorPrefix : UInt64
+
 /-- Opaque solver extension state. -/
 opaque SolverExtensionStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩⟩
 @[expose] def SolverExtensionState : Type := SolverExtensionStateSpec.fst
@@ -100,6 +109,11 @@ structure Context where
   simp         : Simp.Context
   simpMethods  : Simp.Methods
   config       : Grind.Config
+  /--
+  If `anchorRefs? := some anchorRefs`, then only local instances and case-splits in `anchorRefs`
+  are considered.
+  -/
+  anchorRefs?  : Option (Array AnchorRef)
   /--
   If `cheapCases` is `true`, `grind` only applies `cases` to types that contain
   at most one minor premise.
@@ -152,6 +166,9 @@ E-match theorems and case-splits performed by `grind`.
 Note that it may contain elements that are not needed by the final proof.
 For example, `grind` instantiated the theorem, but theorem instance was not actually used
 in the proof.
+
+**Note**: Consider removing this, we are using a new approach for implementing
+`grind?`
 -/
 structure Trace where
   thms       : PHashSet EMatchTheoremTrace := {}
@@ -297,6 +314,10 @@ def getOrderingEqExpr : GrindM Expr := do
 /-- Returns the internalized `Int`.  -/
 def getIntExpr : GrindM Expr := do
   return (← readThe Context).intExpr
+
+/-- Returns the anchor references (if any) being used to restrict the search. -/
+def getAnchorRefs : GrindM (Option (Array AnchorRef)) := do
+  return (← readThe Context).anchorRefs?
 
 def resetAnchors : GrindM Unit := do
   modify fun s => { s with anchors := {} }
@@ -640,6 +661,17 @@ We want to avoid instantiating the same theorem with the same assignment more th
 Therefore, we store the (pre-)instance information in set.
 Recall that the proofs of activated theorems have been hash-consed.
 The assignment contains internalized expressions, which have also been hash-consed.
+
+**Note**: We used to use pointer equality to implement `PreInstanceSet`. However,
+this low-level trick was incorrect in interactive mode because we add new
+`EMatchTheorem` objects using `instantiate [...]`. For example, suppose we write
+```
+instantiate [thm_1]; instantiate [thm_1]
+```
+The `EMatchTheorem` object `thm_1` is created twice. Using pointer equality will
+miss instances created using the two different objects. Recall we do not use
+hash-consing on proof objects. If we hash-cons the proof objects, it would be ok
+to use pointer equality.
 -/
 structure PreInstance where
   proof      : Expr
@@ -647,14 +679,14 @@ structure PreInstance where
 
 instance : Hashable PreInstance where
   hash i := Id.run do
-    let mut r := hashPtrExpr i.proof
+    let mut r := hash i.proof -- **Note**: See note at `PreInstance`.
     for v in i.assignment do
       r := mixHash r (hashPtrExpr v)
     return r
 
 instance : BEq PreInstance where
   beq i₁ i₂ := Id.run do
-    unless isSameExpr i₁.proof i₂.proof do return false
+    unless i₁.proof == i₂.proof do return false -- **Note**: See note at `PreInstance`.
     unless i₁.assignment.size == i₂.assignment.size do return false
     for v₁ in i₁.assignment, v₂ in i₂.assignment do
       unless isSameExpr v₁ v₂ do return false
@@ -1866,6 +1898,12 @@ def anchorPrefixToString (numDigits : Nat) (anchorPrefix : UInt64) : String :=
 
 def anchorToString (numDigits : Nat) (anchor : UInt64) : String :=
   anchorPrefixToString numDigits (anchor >>> (64 - 4*numDigits.toUInt64))
+
+def AnchorRef.toString (anchorRef : AnchorRef) : String :=
+  anchorPrefixToString anchorRef.numDigits anchorRef.anchorPrefix
+
+instance : ToString AnchorRef where
+  toString := AnchorRef.toString
 
 /--
 Returns activated `match`-declaration equations.

@@ -9,12 +9,21 @@ public import Init.Grind.Attr
 public section
 namespace Lean.Parser.Tactic
 
+syntax anchor := "#" noWs hexnum
+
 syntax grindLemma    := ppGroup((Attr.grindMod ppSpace)? ident)
 /--
 The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
 when selecting patterns.
 -/
 syntax grindLemmaMin := ppGroup("!" (Attr.grindMod ppSpace)? ident)
+
+syntax grindErase    := "-" ident
+/--
+The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
+when selecting patterns.
+-/
+syntax grindParam    := grindErase <|> grindLemma <|> grindLemmaMin <|> anchor
 
 namespace Grind
 declare_syntax_cat grind_filter (behavior := both)
@@ -63,7 +72,6 @@ syntax (name := linarith) "linarith" : grind
 /-- The `sorry` tactic is a temporary placeholder for an incomplete tactic proof. -/
 syntax (name := «sorry») "sorry" : grind
 
-syntax anchor := "#" noWs hexnum
 syntax thm := anchor <|> grindLemma <|> grindLemmaMin
 
 /--
@@ -72,6 +80,10 @@ The `approx` modifier is just a marker for users to easily identify automaticall
 that may have redundant arguments.
 -/
 syntax (name := instantiate) "instantiate" (&" only")? (&" approx")? (" [" withoutPosition(thm,*,?) "]")? : grind
+
+/-- Shorthand for `instantiate only` -/
+syntax (name := use) "use" " [" withoutPosition(thm,*,?) "]" : grind
+macro_rules | `(grind| use%$u [$ts:thm,*]) => `(grind| instantiate%$u only [$ts,*])
 
 -- **Note**: Should we rename the following tactics to `trace_`?
 /-- Shows asserted facts. -/
@@ -98,19 +110,38 @@ declare_syntax_cat grind_ref (behavior := both)
 syntax:max anchor : grind_ref
 syntax term : grind_ref
 
+/--
+Performs a case-split on a logical connective, `match`-expression, `if-then-else`-expression,
+or inductive predicate. The argument is an anchor referencing one of the case-split candidates
+in the `grind` state. You can use `cases?` to select a specific candidate using a code action.
+-/
 syntax (name := cases) "cases " grind_ref : grind
 
+/--
+A variant of `cases` that provides a code-action for selecting one of the candidate case-splits
+available in the `grind` state.
+-/
 syntax (name := casesTrace) "cases?" grindFilter : grind
 
 /-- `done` succeeds iff there are no remaining goals. -/
 syntax (name := done) "done" : grind
 
 /-- `finish` tries to close the current goal using `grind`'s default strategy -/
-syntax (name := finish) "finish" : grind
+syntax (name := finish) "finish" ppSpace configItem*
+    (&" only")? (" [" withoutPosition(grindParam,*) "]")? : grind
 
 /-- `finish?` tries to close the current goal using `grind`'s default strategy and suggests a tactic script. -/
-syntax (name := finishTrace) "finish?" : grind
+syntax (name := finishTrace) "finish?" ppSpace configItem*
+    (&" only")? (" [" withoutPosition(grindParam,*) "]")? : grind
 
+/--
+The `have` tactic is for adding opaque definitions and hypotheses to the local context of the main goal.
+The definitions forget their associated value and cannot be unfolded.
+
+* `have h : t := e` adds the hypothesis `h : t` if `e` is a term of type `t`.
+* `have h := e` uses the type of `e` for `t`.
+* `have : t := e` and `have := e` use `this` for the name of the hypothesis.
+-/
 syntax (name := «have») "have" letDecl : grind
 
 /-- Executes the given tactic block to close the current goal. -/
@@ -128,7 +159,18 @@ Usually `· tac`, which enforces that the goal is closed by `tac`, should be pre
 -/
 syntax (name := focus) "focus " grindSeq : grind
 
+/--
+`next => tac` focuses on the next goal and solves it using `tac`, or else fails.
+`next x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with
+inaccessible names to the given names.
+-/
 syntax (name := next) "next " binderIdent* " => " grindSeq : grind
+
+/--
+`· grindSeq` focuses on the main `grind` goal and tries to solve it using the given
+sequence of `grind` tactics.
+-/
+macro dot:patternIgnore("· " <|> ". ") s:grindSeq : grind => `(grind| next%$dot =>%$dot $s:grindSeq )
 
 /--
 `any_goals tac` applies the tactic `tac` to every goal,
@@ -199,9 +241,19 @@ but it sets the option only within the tactics `tacs`. -/
 syntax (name := setOption) "set_option " (ident (noWs "." noWs ident)?) ppSpace optionValue " in " grindSeq : grind
 
 /--
+`set_config configItem+ in tacs` executes `tacs` with the updated configuration options `configItem+`
+-/
+syntax (name := setConfig) "set_config " configItem+ " in " grindSeq : grind
+
+/--
 Proves `<term>` using the current `grind` state and default search strategy.
 -/
 syntax (name := haveSilent) "have" (ppSpace ident)? ppSpace ": " term : grind
+
+/--
+Adds new case-splits using model-based theory combination.
+-/
+syntax (name := mbtc) "mbtc" : grind
 
 end Grind
 end Lean.Parser.Tactic

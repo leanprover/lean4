@@ -85,7 +85,7 @@ static lean_object* l_Lean_instReprDeclarationRanges_repr___redArg___closed__2;
 extern lean_object* l_Lean_instInhabitedPosition_default;
 static lean_object* l_Lean_instReprDeclarationRange_repr___redArg___closed__8;
 static lean_object* l_Lean_instToExprDeclarationRange___lam__0___closed__1;
-LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_instReprDeclarationRange_repr_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_instReprDeclarationRange_repr_spec__0(lean_object*);
 static lean_object* l_Lean_instReprDeclarationRanges_repr___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_DeclarationRange_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_instInhabitedDeclarationRange_default___closed__1;
@@ -254,7 +254,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_instReprDeclarationRange_repr_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_instReprDeclarationRange_repr_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 

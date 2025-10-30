@@ -187,65 +187,33 @@ def getKeyD (t : TreeMap α β cmp) (a : α) (fallback : α) : α :=
 def minEntry? (t : TreeMap α β cmp) : Option (α × β) :=
   DTreeMap.Const.minEntry? t.inner
 
-@[inline, inherit_doc minEntry?, deprecated minEntry? (since := "2025-03-13")]
-def min? (t : TreeMap α β cmp) : Option (α × β) :=
-  t.minEntry?
-
 @[inline, inherit_doc DTreeMap.Const.minEntry]
 def minEntry (t : TreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
   DTreeMap.Const.minEntry t.inner h
-
-@[inline, inherit_doc minEntry, deprecated minEntry (since := "2025-03-13")]
-def min (t : TreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
-  t.minEntry h
 
 @[inline, inherit_doc DTreeMap.Const.minEntry!]
 def minEntry! [Inhabited (α × β)] (t : TreeMap α β cmp) : α × β :=
   DTreeMap.Const.minEntry! t.inner
 
-@[inline, inherit_doc minEntry!, deprecated minEntry! (since := "2025-03-13")]
-def min! [Inhabited (α × β)] (t : TreeMap α β cmp) : α × β :=
-  t.minEntry!
-
 @[inline, inherit_doc DTreeMap.Const.minEntryD]
 def minEntryD (t : TreeMap α β cmp) (fallback : α × β) : α × β :=
   DTreeMap.Const.minEntryD t.inner fallback
-
-@[inline, inherit_doc minEntryD, deprecated minEntryD (since := "2025-03-13")]
-def minD (t : TreeMap α β cmp) (fallback : α × β) : α × β :=
-  t.minEntryD fallback
 
 @[inline, inherit_doc DTreeMap.Const.maxEntry?]
 def maxEntry? (t : TreeMap α β cmp) : Option (α × β) :=
   DTreeMap.Const.maxEntry? t.inner
 
-@[inline, inherit_doc maxEntry?, deprecated maxEntry? (since := "2025-03-13")]
-def max? (t : TreeMap α β cmp) : Option (α × β) :=
-  t.maxEntry?
-
 @[inline, inherit_doc DTreeMap.Const.maxEntry]
 def maxEntry (t : TreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
   DTreeMap.Const.maxEntry t.inner h
-
-@[inline, inherit_doc maxEntry, deprecated maxEntry (since := "2025-03-13")]
-def max (t : TreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
-  t.maxEntry h
 
 @[inline, inherit_doc DTreeMap.Const.maxEntry!]
 def maxEntry! [Inhabited (α × β)] (t : TreeMap α β cmp) : α × β :=
   DTreeMap.Const.maxEntry! t.inner
 
-@[inline, inherit_doc maxEntry!, deprecated maxEntry! (since := "2025-03-13")]
-def max! [Inhabited (α × β)] (t : TreeMap α β cmp) : α × β :=
-  t.maxEntry!
-
 @[inline, inherit_doc DTreeMap.Const.maxEntryD]
 def maxEntryD (t : TreeMap α β cmp) (fallback : α × β) : α × β :=
   DTreeMap.Const.maxEntryD t.inner fallback
-
-@[inline, inherit_doc maxEntryD, deprecated maxEntryD (since := "2025-03-13")]
-def maxD (t : TreeMap α β cmp) (fallback : α × β) : α × β :=
-  t.maxEntryD fallback
 
 @[inline, inherit_doc DTreeMap.minKey?]
 def minKey? (t : TreeMap α β cmp) : Option α :=
@@ -299,33 +267,17 @@ def entryAtIdxD (t : TreeMap α β cmp) (n : Nat) (fallback : α × β) : α × 
 def keyAtIdx? (t : TreeMap α β cmp) (n : Nat) : Option α :=
   DTreeMap.keyAtIdx? t.inner n
 
-@[inline, inherit_doc DTreeMap.keyAtIdx?, deprecated keyAtIdx? (since := "2025-03-25")]
-def keyAtIndex? (t : TreeMap α β cmp) (n : Nat) : Option α :=
-  keyAtIdx? t n
-
 @[inline, inherit_doc DTreeMap.keyAtIdx]
 def keyAtIdx (t : TreeMap α β cmp) (n : Nat) (h : n < t.size) : α :=
   DTreeMap.keyAtIdx t.inner n h
-
-@[inline, inherit_doc DTreeMap.keyAtIdx, deprecated keyAtIdx (since := "2025-03-25")]
-def keyAtIndex (t : TreeMap α β cmp) (n : Nat) (h : n < t.size) : α :=
-  keyAtIdx t n h
 
 @[inline, inherit_doc DTreeMap.keyAtIdx!]
 def keyAtIdx! [Inhabited α] (t : TreeMap α β cmp) (n : Nat) : α :=
   DTreeMap.keyAtIdx! t.inner n
 
-@[inline, inherit_doc DTreeMap.keyAtIdx!, deprecated keyAtIdx! (since := "2025-03-25")]
-def keyAtIndex! [Inhabited α] (t : TreeMap α β cmp) (n : Nat) : α :=
-  keyAtIdx! t n
-
 @[inline, inherit_doc DTreeMap.keyAtIdxD]
 def keyAtIdxD (t : TreeMap α β cmp) (n : Nat) (fallback : α) : α :=
   DTreeMap.keyAtIdxD t.inner n fallback
-
-@[inline, inherit_doc DTreeMap.keyAtIdxD, deprecated keyAtIdxD (since := "2025-03-25")]
-def keyAtIndexD (t : TreeMap α β cmp) (n : Nat) (fallback : α) : α :=
-  keyAtIdxD t n fallback
 
 @[inline, inherit_doc DTreeMap.Const.getEntryGE?]
 def getEntryGE? (t : TreeMap α β cmp) (k : α) : Option (α × β) :=

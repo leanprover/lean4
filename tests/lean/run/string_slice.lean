@@ -23,12 +23,14 @@ Tests for `String.Slice` functions
 #guard ("coffee tea water".toSlice.split ' ').toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]
 #guard ("coffee tea water".toSlice.split " tea ").toList == ["coffee".toSlice, "water".toSlice]
 #guard ("baaab".toSlice.split "aa").toList == ["b".toSlice, "ab".toSlice]
+#guard ("aababaaba".toSlice.split "ab").toList == ["a".toSlice, "".toSlice, "a".toSlice, "a".toSlice]
 
 #guard ("coffee tea water".toSlice.splitInclusive Char.isWhitespace).toList == ["coffee ".toSlice, "tea ".toSlice, "water".toSlice]
 #guard ("coffee tea water".toSlice.splitInclusive ' ').toList == ["coffee ".toSlice, "tea ".toSlice, "water".toSlice]
 #guard ("coffee tea water".toSlice.splitInclusive " tea ").toList == ["coffee tea ".toSlice, "water".toSlice]
 #guard ("a".toSlice.splitInclusive (fun (_ : Char) => true)).toList == ["a".toSlice]
 #guard ("baaab".toSlice.splitInclusive "aa").toList == ["baa".toSlice, "ab".toSlice]
+#guard ("aababaaba".toSlice.splitInclusive "ab").toList == ["aab".toSlice, "ab".toSlice, "aab".toSlice, "a".toSlice]
 
 #guard "red green blue".toSlice.drop 4 == "green blue".toSlice
 #guard "red green blue".toSlice.drop 10 == "blue".toSlice
@@ -210,3 +212,25 @@ Tests for `String.Slice` functions
 
 #guard "abc".toSlice.back = 'c'
 #guard "".toSlice.back = (default : Char)
+
+section
+open String.Slice.Pattern
+
+instance [Monad n]{s : String.Slice} : Std.Iterators.IteratorCollect (ForwardSliceSearcher s) Id n :=
+  .defaultImplementation
+
+#guard (ToForwardSearcher.toSearcher "".toSlice "").toList == [.matched "".toSlice.startPos "".toSlice.startPos]
+#guard (ToForwardSearcher.toSearcher "abc".toSlice "").toList == [
+  .matched ("abc".toSlice.pos ⟨0⟩ (by decide)) ("abc".toSlice.pos ⟨0⟩ (by decide)),
+  .rejected ("abc".toSlice.pos ⟨0⟩ (by decide)) ("abc".toSlice.pos ⟨1⟩ (by decide)),
+  .matched ("abc".toSlice.pos ⟨1⟩ (by decide)) ("abc".toSlice.pos ⟨1⟩ (by decide)),
+  .rejected ("abc".toSlice.pos ⟨1⟩ (by decide)) ("abc".toSlice.pos ⟨2⟩ (by decide)),
+  .matched ("abc".toSlice.pos ⟨2⟩ (by decide)) ("abc".toSlice.pos ⟨2⟩ (by decide)),
+  .rejected ("abc".toSlice.pos ⟨2⟩ (by decide)) ("abc".toSlice.pos ⟨3⟩ (by decide)),
+  .matched ("abc".toSlice.pos ⟨3⟩ (by decide)) ("abc".toSlice.pos ⟨3⟩ (by decide)),
+]
+
+end
+
+#guard ("".toSlice.split "").toList == ["".toSlice, "".toSlice]
+#guard ("abc".toSlice.split "").toList == ["".toSlice, "a".toSlice, "b".toSlice, "c".toSlice, "".toSlice]

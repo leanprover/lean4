@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static uint64_t l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2_spec__2___closed__0;
+static uint64_t l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2_spec__2___closed__0;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst;
@@ -26,7 +26,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__0___boxed(lea
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__0(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Database_Windows_getZoneRules___closed__4;
 LEAN_EXPORT lean_object* l_Std_Time_Database_Windows_getZoneRules___closed__5___boxed__const__1;
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*);
 static uint64_t l_Std_Time_Database_Windows_getZoneRules___closed__0;
 lean_object* lean_nat_to_int(lean_object*);
 uint64_t lean_int64_neg(uint64_t);
@@ -37,10 +37,10 @@ LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__1___boxed(lea
 static uint64_t l_Std_Time_Database_Windows_getZoneRules___closed__1;
 lean_object* lean_windows_get_next_transition(lean_object*, uint64_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_toCtorIdx(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_Windows_getNextTransition___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Database_Windows_getZoneRules_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_Database_Windows_getZoneRules_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Time_Zoned_Database_Windows_0__Std_Time_Database_Windows_getZoneRules_toLocalTime___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_noConfusion___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_Windows_getLocalTimeZoneIdentifierAt___boxed(lean_object*, lean_object*);
@@ -50,12 +50,12 @@ LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_noConfusion(lean_object*,
 lean_object* lean_get_windows_local_timezone_id_at(uint64_t);
 LEAN_EXPORT lean_object* l_Std_Time_Database_Windows_getZoneRules___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Database_Windows_getZoneRules___closed__2;
-LEAN_EXPORT lean_object* l_Nat_cast___at___Nat_cast___at___Std_Time_Database_Windows_getZoneRules_spec__0_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Nat_cast___at___00Std_Time_Database_Windows_getZoneRules_spec__0_spec__0(lean_object*);
 lean_object* l_Rat_ofInt(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Time_Zoned_Database_Windows_0__Std_Time_Database_Windows_getZoneRules_toLocalTime(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_default;
 LEAN_EXPORT lean_object* l_Std_Time_Database_Windows_getZoneRules(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2_spec__2(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2_spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_Windows_getNextTransition___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -110,7 +110,7 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Nat_cast___at___Std_Time_Database_Windows_getZoneRules_spec__0_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Nat_cast___at___00Std_Time_Database_Windows_getZoneRules_spec__0_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -118,7 +118,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Database_Windows_getZoneRules_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_Database_Windows_getZoneRules_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -127,7 +127,7 @@ x_3 = l_Rat_ofInt(x_2);
 return x_3;
 }
 }
-static uint64_t _init_l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2_spec__2___closed__0() {
+static uint64_t _init_l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2_spec__2___closed__0() {
 _start:
 {
 lean_object* x_1; uint64_t x_2; 
@@ -136,7 +136,7 @@ x_2 = lean_int64_of_nat(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2_spec__2(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2_spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; uint64_t x_8; lean_object* x_9; 
@@ -210,7 +210,7 @@ x_27 = lean_int64_dec_le(x_25, x_26);
 if (x_27 == 0)
 {
 uint64_t x_28; uint64_t x_29; uint8_t x_30; 
-x_28 = l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2_spec__2___closed__0;
+x_28 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2_spec__2___closed__0;
 x_29 = lean_unbox_uint64(x_16);
 x_30 = lean_int64_dec_le(x_28, x_29);
 if (x_30 == 0)
@@ -277,7 +277,7 @@ x_45 = lean_int64_dec_le(x_43, x_44);
 if (x_45 == 0)
 {
 uint64_t x_46; uint64_t x_47; uint8_t x_48; 
-x_46 = l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2_spec__2___closed__0;
+x_46 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2_spec__2___closed__0;
 x_47 = lean_unbox_uint64(x_33);
 x_48 = lean_int64_dec_le(x_46, x_47);
 if (x_48 == 0)
@@ -348,7 +348,7 @@ return x_53;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; uint64_t x_8; lean_object* x_9; 
@@ -422,7 +422,7 @@ x_27 = lean_int64_dec_le(x_25, x_26);
 if (x_27 == 0)
 {
 uint64_t x_28; uint64_t x_29; uint8_t x_30; 
-x_28 = l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2_spec__2___closed__0;
+x_28 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2_spec__2___closed__0;
 x_29 = lean_unbox_uint64(x_16);
 x_30 = lean_int64_dec_le(x_28, x_29);
 if (x_30 == 0)
@@ -434,7 +434,7 @@ lean_dec(x_4);
 x_31 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_31, 0, x_16);
 lean_ctor_set(x_31, 1, x_21);
-x_32 = l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2_spec__2(x_1, x_31);
+x_32 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2_spec__2(x_1, x_31);
 return x_32;
 }
 else
@@ -489,7 +489,7 @@ x_45 = lean_int64_dec_le(x_43, x_44);
 if (x_45 == 0)
 {
 uint64_t x_46; uint64_t x_47; uint8_t x_48; 
-x_46 = l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2_spec__2___closed__0;
+x_46 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2_spec__2___closed__0;
 x_47 = lean_unbox_uint64(x_33);
 x_48 = lean_int64_dec_le(x_46, x_47);
 if (x_48 == 0)
@@ -501,7 +501,7 @@ lean_dec(x_4);
 x_49 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_49, 0, x_33);
 lean_ctor_set(x_49, 1, x_39);
-x_50 = l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2_spec__2(x_1, x_49);
+x_50 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2_spec__2(x_1, x_49);
 return x_50;
 }
 else
@@ -656,7 +656,7 @@ x_9 = lean_ctor_get(x_7, 0);
 lean_inc(x_9);
 lean_dec_ref(x_7);
 x_10 = l_Std_Time_Database_Windows_getZoneRules___closed__5;
-x_11 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2(x_1, x_10);
+x_11 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2(x_1, x_10);
 if (lean_obj_tag(x_11) == 0)
 {
 uint8_t x_12; 
@@ -773,7 +773,7 @@ x_35 = lean_ctor_get(x_32, 0);
 lean_inc(x_35);
 lean_dec_ref(x_32);
 x_36 = l_Std_Time_Database_Windows_getZoneRules___closed__5;
-x_37 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2(x_1, x_36);
+x_37 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2(x_1, x_36);
 if (lean_obj_tag(x_37) == 0)
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; 
@@ -861,20 +861,20 @@ return x_51;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2_spec__2(x_1, x_2);
+x_4 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2_spec__2(x_1, x_2);
 lean_dec_ref(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2(x_1, x_2);
+x_4 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2(x_1, x_2);
 lean_dec_ref(x_1);
 return x_4;
 }
@@ -1031,7 +1031,7 @@ lean_dec_ref(res);
 res = initialize_Std_Time_Zoned_Database_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2_spec__2___closed__0 = _init_l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2_spec__2___closed__0();
+l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2_spec__2___closed__0 = _init_l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__2_spec__2___closed__0();
 l_Std_Time_Database_Windows_getZoneRules___closed__0 = _init_l_Std_Time_Database_Windows_getZoneRules___closed__0();
 l_Std_Time_Database_Windows_getZoneRules___closed__1 = _init_l_Std_Time_Database_Windows_getZoneRules___closed__1();
 l_Std_Time_Database_Windows_getZoneRules___closed__2 = _init_l_Std_Time_Database_Windows_getZoneRules___closed__2();

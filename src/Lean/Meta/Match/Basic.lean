@@ -195,59 +195,6 @@ def replaceFVarId (fvarId : FVarId) (v : Expr) (alt : Alt) : Alt :=
 def isLocalDecl (fvarId : FVarId) (alt : Alt) : Bool :=
    alt.fvarDecls.any fun d => d.fvarId == fvarId
 
-/--
-  Similar to `checkAndReplaceFVarId`, but ensures type of `v` is definitionally equal to type of `fvarId`.
-  This extra check is necessary when performing dependent elimination and inaccessible terms have been used.
-  For example, consider the following code fragment:
-
-```
-inductive Vec (α : Type u) : Nat → Type u where
-  | nil : Vec α 0
-  | cons {n} (head : α) (tail : Vec α n) : Vec α (n+1)
-
-inductive VecPred {α : Type u} (P : α → Prop) : {n : Nat} → Vec α n → Prop where
-  | nil   : VecPred P Vec.nil
-  | cons  {n : Nat} {head : α} {tail : Vec α n} : P head → VecPred P tail → VecPred P (Vec.cons head tail)
-
-theorem ex {α : Type u} (P : α → Prop) : {n : Nat} → (v : Vec α (n+1)) → VecPred P v → Exists P
-  | _, Vec.cons head _, VecPred.cons h (w : VecPred P Vec.nil) => ⟨head, h⟩
-```
-Recall that `_` in a pattern can be elaborated into pattern variable or an inaccessible term.
-The elaborator uses an inaccessible term when typing constraints restrict its value.
-Thus, in the example above, the `_` at `Vec.cons head _` becomes the inaccessible pattern `.(Vec.nil)`
-because the type ascription `(w : VecPred P Vec.nil)` propagates typing constraints that restrict its value to be `Vec.nil`.
-After elaboration the alternative becomes:
-```
-  | .(0), @Vec.cons .(α) .(0) head .(Vec.nil), @VecPred.cons .(α) .(P) .(0) .(head) .(Vec.nil) h w => ⟨head, h⟩
-```
-where
-```
-(head : α), (h: P head), (w : VecPred P Vec.nil)
-```
-Then, when we process this alternative in this module, the following check will detect that
-`w` has type `VecPred P Vec.nil`, when it is supposed to have type `VecPred P tail`.
-Note that if we had written
-```
-theorem ex {α : Type u} (P : α → Prop) : {n : Nat} → (v : Vec α (n+1)) → VecPred P v → Exists P
-  | _, Vec.cons head Vec.nil, VecPred.cons h (w : VecPred P Vec.nil) => ⟨head, h⟩
-```
-we would get the easier to digest error message
-```
-missing cases:
-_, (Vec.cons _ _ (Vec.cons _ _ _)), _
-```
--/
-def checkAndReplaceFVarId (fvarId : FVarId) (v : Expr) (alt : Alt) : MetaM Alt := do
-  match alt.fvarDecls.find? fun (fvarDecl : LocalDecl) => fvarDecl.fvarId == fvarId with
-  | none          => throwErrorAt alt.ref "Unknown free pattern variable"
-  | some fvarDecl => do
-    let vType ← inferType v
-    unless (← isDefEqGuarded fvarDecl.type vType) do
-      withExistingLocalDecls alt.fvarDecls do
-        let (expectedType, givenType) ← addPPExplicitToExposeDiff vType fvarDecl.type
-        throwErrorAt alt.ref "Type mismatch during dependent match-elimination at pattern variable `{mkFVar fvarDecl.fvarId}` with type{indentExpr givenType}\nExpected type{indentExpr expectedType}"
-    return replaceFVarId fvarId v alt
-
 end Alt
 
 inductive Example where

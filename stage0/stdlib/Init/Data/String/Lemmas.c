@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Lemmas
-// Imports: public import Init.Data.Char.Order public import Init.Data.Char.Lemmas public import Init.Data.List.Lex import Init.Data.Order.Lemmas public import Init.Data.String.Basic
+// Imports: public import Init.Data.String.Lemmas.Splits public import Init.Data.Char.Order public import Init.Data.Char.Lemmas public import Init.Data.List.Lex import Init.Data.Order.Lemmas public import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* initialize_Init_Data_String_Lemmas_Splits(uint8_t builtin);
 lean_object* initialize_Init_Data_Char_Order(uint8_t builtin);
 lean_object* initialize_Init_Data_Char_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Lex(uint8_t builtin);
@@ -23,6 +24,9 @@ LEAN_EXPORT lean_object* initialize_Init_Data_String_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Data_String_Lemmas_Splits(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Char_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

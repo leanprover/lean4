@@ -159,13 +159,32 @@ private def isVariableTransition (p : Problem) : Bool :=
     | .var _ :: _          => true
     | _                    => false
 
-private def isConstructorTransition (p : Problem) : Bool :=
-  (hasCtorPattern p || p.alts.isEmpty)
-  && p.alts.all fun alt => match alt.patterns with
-     | .ctor .. :: _        => true
-     | .var _ :: _          => true
-     | .inaccessible _ :: _ => true
-     | _                    => false
+private def getInductiveVal? (x : Expr) : MetaM (Option InductiveVal) := do
+  let xType ← inferType x
+  let xType ← whnfD xType
+  match xType.getAppFn with
+  | Expr.const constName _ =>
+    let cinfo ← getConstInfo constName
+    match cinfo with
+    | ConstantInfo.inductInfo val => return some val
+    | _ => return none
+  | _ => return none
+
+def isCurrVarInductive (p : Problem) : MetaM Bool := do
+  match p.vars with
+  | []   => return false
+  | x::_ => withGoalOf p do
+    let val? ← getInductiveVal? x
+    return val?.isSome
+
+private def isConstructorTransition (p : Problem) : MetaM Bool := do
+  return (← isCurrVarInductive p)
+    && (hasCtorPattern p || p.alts.isEmpty)
+    && p.alts.all fun alt => match alt.patterns with
+      | .ctor .. :: _        => true
+      | .var _ :: _          => true
+      | .inaccessible _ :: _ => true
+      | _                    => false
 
 private def isValueTransition (p : Problem) : Bool :=
   hasVarPattern p && hasValPattern p
@@ -204,8 +223,7 @@ private def hasCtorOrInaccessible (p : Problem) : Bool :=
     | _                    => false
 
 private def isNatValueTransition (p : Problem) : MetaM Bool := do
-  unless (← hasNatValPattern p) do return false
-  return hasCtorOrInaccessible p
+  return (← hasNatValPattern p) && hasCtorOrInaccessible p
 
 /--
 Predicate for testing whether we need to expand `Int` value patterns into constructors.
@@ -249,6 +267,10 @@ private def reorientCnstrs (alt : Alt) : Alt :=
 /--
 Remove constraints of the form `lhs ≋ rhs` where `lhs` and `rhs` are definitionally equal,
 or `lhs` is a free variable.
+
+Dropping unsolved constraints where `lhs` is a free variable seems unsound, but simply leads to later
+errors about the type of the alternative not matching the goal type, which is arguably a bit more
+user-friendly than showing possibly match-compilation-internal variable names.
 -/
 private def filterTrivialCnstrs (alt : Alt) : MetaM Alt := do
    let cnstrs ← withExistingLocalDecls alt.fvarDecls do
@@ -334,8 +356,9 @@ private def processAsPattern (p : Problem) : MetaM Problem := withGoalOf p do
   let alts ← p.alts.mapM fun alt => do
     match alt.patterns with
     | .as fvarId p h :: ps =>
-      /- We used to use `checkAndReplaceFVarId` here, but `x` and `fvarId` may have different types
-        when dependent types are being used. Let's consider the repro for issue #471
+      /- We used to use eagerly check the types here (using what was called `checkAndReplaceFVarId`),
+        but `x` and `fvarId` can have different types when dependent types are being used.
+        Let's consider the repro for issue #471
         ```
         inductive vec : Nat → Type
         | nil : vec 0
@@ -409,11 +432,11 @@ alternative `cnstrs` field.
 private def inLocalDecls (localDecls : List LocalDecl) (fvarId : FVarId) : Bool :=
   localDecls.any fun d => d.fvarId == fvarId
 
-private def expandVarIntoCtor? (alt : Alt) (ctorName : Name) : MetaM Alt := do
+private def expandVarIntoCtor (alt : Alt) (ctorName : Name) : MetaM Alt := do
   let .var fvarId :: ps := alt.patterns | unreachable!
   let alt := { alt with patterns := ps}
   withExistingLocalDecls alt.fvarDecls do
-    trace[Meta.Match.unify] "expandVarIntoCtor? fvarId: {mkFVar fvarId}, ctorName: {ctorName}, alt:\n{← alt.toMessageData}"
+    trace[Meta.Match.unify] "expandVarIntoCtor fvarId: {mkFVar fvarId}, ctorName: {ctorName}, alt:\n{← alt.toMessageData}"
     let expectedType ← inferType (mkFVar fvarId)
     let expectedType ← whnfD expectedType
     let (ctorLevels, ctorParams) ← getInductiveUniverseAndParams expectedType
@@ -427,7 +450,7 @@ private def expandVarIntoCtor? (alt : Alt) (ctorName : Name) : MetaM Alt := do
       let mut cnstrs := alt.cnstrs
       unless (← isDefEqGuarded resultType expectedType) do
          cnstrs := (resultType, expectedType) :: cnstrs
-      trace[Meta.Match.unify] "expandVarIntoCtor? {mkFVar fvarId} : {expectedType}, ctor: {ctor}"
+      trace[Meta.Match.unify] "expandVarIntoCtor {mkFVar fvarId} : {expectedType}, ctor: {ctor}"
       let ctorFieldPatterns := ctorFieldDecls.toList.map fun decl => Pattern.var decl.fvarId
       return { alt with fvarDecls := newAltDecls, patterns := ctorFieldPatterns ++ alt.patterns, cnstrs }
 
@@ -443,17 +466,6 @@ private def expandInaccessibleIntoVar (alt : Alt) : MetaM Alt := do
         cnstrs := (x, e) :: alt.cnstrs
       }
 
-private def getInductiveVal? (x : Expr) : MetaM (Option InductiveVal) := do
-  let xType ← inferType x
-  let xType ← whnfD xType
-  match xType.getAppFn with
-  | Expr.const constName _ =>
-    let cinfo ← getConstInfo constName
-    match cinfo with
-    | ConstantInfo.inductInfo val => return some val
-    | _ => return none
-  | _ => return none
-
 private def hasRecursiveType (x : Expr) : MetaM Bool := do
   match (← getInductiveVal? x) with
   | some val => return val.isRec
@@ -461,28 +473,24 @@ private def hasRecursiveType (x : Expr) : MetaM Bool := do
 
 /-- Given `alt` s.t. the next pattern is an inaccessible pattern `e`,
    try to normalize `e` into a constructor application.
-   If it is not a constructor, throw an error.
-   Otherwise, if it is a constructor application of `ctorName`,
+   If it is a constructor application of `ctorName`,
    update the next patterns with the fields of the constructor.
    Otherwise, move it to contraints, so that we fail unless some later step
    eliminates this alternative.
 -/
 def processInaccessibleAsCtor (alt : Alt) (ctorName : Name) : MetaM Alt := do
-  let p@(.inaccessible e) :: ps := alt.patterns | unreachable!
-  trace[Meta.Match.match] "inaccessible in ctor step {e}"
+  let .inaccessible e :: ps := alt.patterns | unreachable!
+  trace[Meta.Match.match] "inaccessible step {e} as ctor {ctorName}"
   withExistingLocalDecls alt.fvarDecls do
     -- Try to push inaccessible annotations.
     let e ← whnfD e
-    match (← constructorApp? e) with
-    | some (ctorVal, ctorArgs) =>
+    if let some (ctorVal, ctorArgs) ← constructorApp? e then
       if ctorVal.name == ctorName then
         let fields := ctorArgs.extract ctorVal.numParams ctorArgs.size
         let fields := fields.toList.map .inaccessible
         return { alt with patterns := fields ++ ps }
-      else
-        let alt' ← expandInaccessibleIntoVar alt
-        expandVarIntoCtor? alt' ctorName
-    | _ => throwErrorAt alt.ref "Dependent match elimination failed: Expected a constructor, but found the inaccessible pattern{indentD p.toMessageData}"
+    let alt' ← expandInaccessibleIntoVar alt
+    expandVarIntoCtor alt' ctorName
 
 private def hasNonTrivialExample (p : Problem) : Bool :=
   p.examples.any fun | Example.underscore => false | _ => true
@@ -546,7 +554,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
     let newAlts ← newAlts.mapM fun alt => do
       match alt.patterns with
       | .ctor _ _ _ fields :: ps  => return { alt with patterns := fields ++ ps }
-      | .var _ :: _               => expandVarIntoCtor? alt subgoal.ctorName
+      | .var _ :: _               => expandVarIntoCtor alt subgoal.ctorName
       | .inaccessible _ :: _      => processInaccessibleAsCtor alt subgoal.ctorName
       | _                         => unreachable!
     return { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
@@ -563,7 +571,7 @@ private def processNonVariable (p : Problem) : MetaM Problem := withGoalOf p do
           else
             return some { alt with patterns := fields ++ ps }
         | .inaccessible _ :: _ => processInaccessibleAsCtor alt ctorVal.name
-        | .var _ :: _          => expandVarIntoCtor? alt ctorVal.name
+        | .var _ :: _          => expandVarIntoCtor alt ctorVal.name
         | _ => unreachable!
       let xFields := xArgs.extract ctorVal.numParams xArgs.size
       return { p with alts := alts, vars := xFields.toList ++ xs }
@@ -724,13 +732,6 @@ private def throwNonSupported (p : Problem) : MetaM Unit :=
     let msg ← p.toMessageData
     throwError "Failed to compile pattern matching: Stuck at{indentD msg}"
 
-def isCurrVarInductive (p : Problem) : MetaM Bool := do
-  match p.vars with
-  | []   => return false
-  | x::_ => withGoalOf p do
-    let val? ← getInductiveVal? x
-    return val?.isSome
-
 private def checkNextPatternTypes (p : Problem) : MetaM Unit := do
   match p.vars with
   | []   => return ()
@@ -760,55 +761,79 @@ def processExFalso (p : Problem) : MetaM Problem := do
 
 private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   traceState p
-  let isInductive ← isCurrVarInductive p
   if isDone p then
     traceStep ("leaf")
     processLeaf p
-  else if (← isExFalsoTransition p) then
+    return
+
+  if (← isExFalsoTransition p) then
     traceStep ("ex falso")
     let p ← processExFalso p
     process p
-  else if hasAsPattern p then
+    return
+
+  if hasAsPattern p then
     traceStep ("as-pattern")
     let p ← processAsPattern p
     process p
-  else if (← isNatValueTransition p) then
+    return
+
+  if (← isNatValueTransition p) then
     traceStep ("nat value to constructor")
     process (← expandNatValuePattern p)
-  else if (← isIntValueTransition p) then
+    return
+
+  if (← isIntValueTransition p) then
     traceStep ("int value to constructor")
     process (← expandIntValuePattern p)
-  else if (← isFinValueTransition p) then
+    return
+
+  if (← isFinValueTransition p) then
     traceStep ("fin value to constructor")
     process (← expandFinValuePattern p)
-  else if (← isBitVecValueTransition p) then
+    return
+
+  if (← isBitVecValueTransition p) then
     traceStep ("bitvec value to constructor")
     process (← expandBitVecValuePattern p)
-  else if !isNextVar p then
+    return
+
+  if !isNextVar p then
     traceStep ("non variable")
     let p ← processNonVariable p
     process p
-  else if isInductive && isConstructorTransition p then
+    return
+
+  if (← isConstructorTransition p) then
     let ps ← processConstructor p
     ps.forM process
-  else if isVariableTransition p then
+    return
+
+  if isVariableTransition p then
     traceStep ("variable")
     let p ← processVariable p
     process p
-  else if isValueTransition p then
+    return
+
+  if isValueTransition p then
     let ps ← processValue p
     ps.forM process
-  else if isArrayLitTransition p then
+    return
+
+  if isArrayLitTransition p then
     let ps ← processArrayLit p
     ps.forM process
-  else if (← hasNatValPattern p) then
+    return
+
+  if (← hasNatValPattern p) then
     -- This branch is reachable when `p`, for example, is just values without an else-alternative.
     -- We added it just to get better error messages.
     traceStep ("nat value to constructor")
     process (← expandNatValuePattern p)
-  else
-    checkNextPatternTypes p
-    throwNonSupported p
+    return
+
+  checkNextPatternTypes p
+  throwNonSupported p
 
 private def getUElimPos? (matcherLevels : List Level) (uElim : Level) : MetaM (Option Nat) :=
   if uElim == levelZero then

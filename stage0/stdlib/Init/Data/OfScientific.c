@@ -17,7 +17,7 @@ LEAN_EXPORT lean_object* l_Float32_ofBinaryScientific___boxed(lean_object*, lean
 LEAN_EXPORT float l_Nat_toFloat32(lean_object*);
 double lean_float_scaleb(double, lean_object*);
 float lean_float32_negate(float);
-LEAN_EXPORT lean_object* l_Nat_cast___at___Float_ofBinaryScientific_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Float_ofBinaryScientific_spec__0(lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 static lean_object* l_Float_ofScientific___closed__0;
 LEAN_EXPORT float l_Float32_ofBinaryScientific(lean_object*, lean_object*);
@@ -86,7 +86,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Float_ofBinaryScientific_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Float_ofBinaryScientific_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 

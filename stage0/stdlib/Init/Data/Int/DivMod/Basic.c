@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_int_mod(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___Int_bmod_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Int_bmod_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Int_instDiv;
 static lean_object* l_Int_bmod___closed__1;
 LEAN_EXPORT lean_object* l_Int_divExact___boxed(lean_object*, lean_object*, lean_object*);
@@ -507,7 +507,7 @@ lean_dec(x_2);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Int_bmod_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Int_bmod_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 

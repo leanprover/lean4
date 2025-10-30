@@ -390,27 +390,6 @@ Examples:
   | none => List.toArray .nil
   | some a => List.toArray (.cons a .nil)
 
-/--
-Applies a function to a two optional values if both are present. Otherwise, if one value is present,
-it is returned and the function is not used.
-
-The value is `some (f a b)` if the inputs are `some a` and `some b`. Otherwise, the behavior is
-equivalent to `Option.orElse`. If only one input is `some x`, then the value is `some x`. If both
-are `none`, then the value is `none`.
-
-Examples:
- * `Option.liftOrGet (· + ·) none (some 3) = some 3`
- * `Option.liftOrGet (· + ·) (some 2) (some 3) = some 5`
- * `Option.liftOrGet (· + ·) (some 2) none = some 2`
- * `Option.liftOrGet (· + ·) none none = none`
--/
-@[deprecated merge (since := "2025-04-04")]
-def liftOrGet (f : α → α → α) : Option α → Option α → Option α
-  | none, none => none
-  | some a, none => some a
-  | none, some b => some b
-  | some a, some b => some (f a b)
-
 /-- Lifts a relation `α → β → Prop` to a relation `Option α → Option β → Prop` by just adding
 `none ~ none`. -/
 inductive Rel (r : α → β → Prop) : Option α → Option β → Prop

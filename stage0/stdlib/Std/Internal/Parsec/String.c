@@ -65,7 +65,6 @@ static lean_object* l_Std_Internal_Parsec_String_pchar___closed__1;
 static lean_object* l_Std_Internal_Parsec_String_digit___closed__0;
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t l_instDecidableNot___redArg(uint8_t);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_Parsec_String_Parser_run___redArg___closed__1;
@@ -373,30 +372,40 @@ return x_1;
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_pstring(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_18; lean_object* x_19; uint8_t x_20; uint8_t x_24; uint8_t x_25; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
 x_5 = lean_string_length(x_1);
 lean_inc_ref(x_2);
 x_6 = l_String_Iterator_forward(x_2, x_5);
-x_18 = lean_ctor_get(x_6, 0);
-lean_inc_ref(x_18);
-x_19 = lean_ctor_get(x_6, 1);
-lean_inc(x_19);
-x_24 = lean_string_dec_eq(x_3, x_18);
-lean_dec_ref(x_18);
-x_25 = l_instDecidableNot___redArg(x_24);
-if (x_25 == 0)
+x_20 = lean_ctor_get(x_6, 0);
+lean_inc_ref(x_20);
+x_21 = lean_ctor_get(x_6, 1);
+lean_inc(x_21);
+x_22 = lean_string_dec_eq(x_3, x_20);
+lean_dec_ref(x_20);
+if (x_22 == 0)
 {
-uint8_t x_26; 
-x_26 = lean_nat_dec_lt(x_19, x_4);
-x_20 = x_26;
-goto block_23;
+lean_dec(x_21);
+goto block_19;
 }
 else
 {
-x_20 = x_25;
-goto block_23;
+uint8_t x_23; 
+x_23 = lean_nat_dec_lt(x_21, x_4);
+if (x_23 == 0)
+{
+lean_object* x_24; 
+x_24 = lean_string_utf8_extract(x_3, x_4, x_21);
+lean_dec(x_21);
+x_7 = x_24;
+goto block_17;
+}
+else
+{
+lean_dec(x_21);
+goto block_19;
+}
 }
 block_17:
 {
@@ -442,24 +451,12 @@ return x_16;
 }
 }
 }
-block_23:
+block_19:
 {
-if (x_20 == 0)
-{
-lean_object* x_21; 
-x_21 = lean_string_utf8_extract(x_3, x_4, x_19);
-lean_dec(x_19);
-x_7 = x_21;
+lean_object* x_18; 
+x_18 = l_Std_Internal_Parsec_String_pstring___closed__1;
+x_7 = x_18;
 goto block_17;
-}
-else
-{
-lean_object* x_22; 
-lean_dec(x_19);
-x_22 = l_Std_Internal_Parsec_String_pstring___closed__1;
-x_7 = x_22;
-goto block_17;
-}
 }
 }
 }
@@ -1464,30 +1461,40 @@ return x_4;
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_take(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_16; lean_object* x_17; uint8_t x_18; uint8_t x_22; uint8_t x_23; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc(x_1);
 lean_inc_ref(x_2);
 x_5 = l_String_Iterator_forward(x_2, x_1);
-x_16 = lean_ctor_get(x_5, 0);
-lean_inc_ref(x_16);
-x_17 = lean_ctor_get(x_5, 1);
-lean_inc(x_17);
-x_22 = lean_string_dec_eq(x_3, x_16);
-lean_dec_ref(x_16);
-x_23 = l_instDecidableNot___redArg(x_22);
-if (x_23 == 0)
+x_18 = lean_ctor_get(x_5, 0);
+lean_inc_ref(x_18);
+x_19 = lean_ctor_get(x_5, 1);
+lean_inc(x_19);
+x_20 = lean_string_dec_eq(x_3, x_18);
+lean_dec_ref(x_18);
+if (x_20 == 0)
 {
-uint8_t x_24; 
-x_24 = lean_nat_dec_lt(x_17, x_4);
-x_18 = x_24;
-goto block_21;
+lean_dec(x_19);
+goto block_17;
 }
 else
 {
-x_18 = x_23;
-goto block_21;
+uint8_t x_21; 
+x_21 = lean_nat_dec_lt(x_19, x_4);
+if (x_21 == 0)
+{
+lean_object* x_22; 
+x_22 = lean_string_utf8_extract(x_3, x_4, x_19);
+lean_dec(x_19);
+x_6 = x_22;
+goto block_15;
+}
+else
+{
+lean_dec(x_19);
+goto block_17;
+}
 }
 block_15:
 {
@@ -1533,24 +1540,12 @@ return x_14;
 }
 }
 }
-block_21:
+block_17:
 {
-if (x_18 == 0)
-{
-lean_object* x_19; 
-x_19 = lean_string_utf8_extract(x_3, x_4, x_17);
-lean_dec(x_17);
-x_6 = x_19;
+lean_object* x_16; 
+x_16 = l_Std_Internal_Parsec_String_pstring___closed__1;
+x_6 = x_16;
 goto block_15;
-}
-else
-{
-lean_object* x_20; 
-lean_dec(x_17);
-x_20 = l_Std_Internal_Parsec_String_pstring___closed__1;
-x_6 = x_20;
-goto block_15;
-}
 }
 }
 }

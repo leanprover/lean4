@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.System.IOError
-// Imports: public import Init.Data.ToString.Basic import Init.Data.String.Basic
+// Imports: public import Init.Data.ToString.Basic import Init.Data.String.Modify
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2027,7 +2027,7 @@ return x_1;
 }
 }
 lean_object* initialize_Init_Data_ToString_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Modify(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_System_IOError(uint8_t builtin) {
 lean_object * res;
@@ -2036,7 +2036,7 @@ _G_initialized = true;
 res = initialize_Init_Data_ToString_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin);
+res = initialize_Init_Data_String_Modify(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_instInhabitedError___closed__0 = _init_l_instInhabitedError___closed__0();

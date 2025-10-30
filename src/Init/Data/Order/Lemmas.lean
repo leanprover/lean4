@@ -110,7 +110,7 @@ public instance {α : Type u} [LT α] [LE α] [LawfulOrderLT α] :
     intro h h'
     exact h.2.elim h'.1
 
-public instance {α : Type u} [LT α] [LE α] [IsPreorder α] [LawfulOrderLT α] :
+public instance {α : Type u} [LT α] [LE α] [LawfulOrderLT α] :
     Std.Irrefl (α := α) (· < ·) := inferInstance
 
 public instance {α : Type u} [LT α] [LE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) ]

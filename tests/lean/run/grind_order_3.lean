@@ -17,7 +17,7 @@ example [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsLinearPreorder α] [CommRi
   grind -linarith (splits := 0)
 
 example (p : Prop) (a b c : Int) : (p ↔ b ≤ a) → (p ↔ c ≤ b) → ¬ p → c ≤ a + 1 → False := by
-  grind -linarith -cutsat (splits := 0)
+  grind -linarith -lia (splits := 0)
 
 /--
 error: `grind` failed

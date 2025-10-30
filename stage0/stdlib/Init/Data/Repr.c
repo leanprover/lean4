@@ -91,7 +91,7 @@ static lean_object* l_List_repr___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_instNatCastInt___lam__0(lean_object*);
 lean_object* lean_string_foldl(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at_____private_Init_Data_Repr_0__Nat_reprArray_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00__private_Init_Data_Repr_0__Nat_reprArray_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprProdOfReprTuple___redArg(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Sigma_repr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -153,7 +153,7 @@ LEAN_EXPORT lean_object* l_Repr_addAppParen___boxed(lean_object*, lean_object*);
 static lean_object* l_instReprSourceInfo_repr___closed__2;
 static lean_object* l_Option_repr___redArg___closed__2;
 LEAN_EXPORT lean_object* l_instReprNat___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___Repr_addAppParen_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Repr_addAppParen_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_instReprChar___lam__0(uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_List_repr___redArg(lean_object*, lean_object*);
 static lean_object* l_Nat_reprFast___closed__0;
@@ -583,7 +583,7 @@ x_1 = l_instReprBool___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Repr_addAppParen_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Repr_addAppParen_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -1958,7 +1958,7 @@ x_3 = lean_string_of_usize(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at_____private_Init_Data_Repr_0__Nat_reprArray_spec__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00__private_Init_Data_Repr_0__Nat_reprArray_spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -2025,7 +2025,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l___private_Init_Data_Repr_0__Nat_reprArray___closed__0;
 x_2 = lean_box(0);
-x_3 = l_List_mapTR_loop___at_____private_Init_Data_Repr_0__Nat_reprArray_spec__0(x_1, x_2);
+x_3 = l_List_mapTR_loop___at___00__private_Init_Data_Repr_0__Nat_reprArray_spec__0(x_1, x_2);
 x_4 = lean_array_mk(x_3);
 return x_4;
 }

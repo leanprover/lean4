@@ -447,12 +447,14 @@ theorem Decidable.by_contra [Decidable p] : (¬p → False) → p := of_not_not
 @[expose] protected def Or.by_cases' [Decidable q] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
   if hq : q then h₂ hq else h₁ (h.resolve_right hq)
 
+@[inline]
 instance exists_prop_decidable {p} (P : p → Prop)
   [Decidable p] [∀ h, Decidable (P h)] : Decidable (∃ h, P h) :=
 if h : p then
   decidable_of_decidable_of_iff ⟨fun h2 => ⟨h, h2⟩, fun ⟨_, h2⟩ => h2⟩
 else isFalse fun ⟨h', _⟩ => h h'
 
+@[inline]
 instance forall_prop_decidable {p} (P : p → Prop)
   [Decidable p] [∀ h, Decidable (P h)] : Decidable (∀ h, P h) :=
 if h : p then
@@ -543,30 +545,14 @@ theorem Decidable.not_and_not_right [Decidable b] : ¬(a ∧ ¬b) ↔ (a → b) 
 theorem Decidable.not_and_iff_not_or_not [Decidable a] : ¬(a ∧ b) ↔ ¬a ∨ ¬b :=
   ⟨fun h => if ha : a then .inr (h ⟨ha, ·⟩) else .inl ha, not_and_of_not_or_not⟩
 
-set_option linter.missingDocs false in
-@[deprecated Decidable.not_and_iff_not_or_not (since := "2025-03-18")]
-abbrev Decidable.not_and_iff_or_not_not := @Decidable.not_and_iff_not_or_not
-
 theorem Decidable.not_and_iff_not_or_not' [Decidable b] : ¬(a ∧ b) ↔ ¬a ∨ ¬b :=
   ⟨fun h => if hb : b then .inl (h ⟨·, hb⟩) else .inr hb, not_and_of_not_or_not⟩
-
-set_option linter.missingDocs false in
-@[deprecated Decidable.not_and_iff_not_or_not' (since := "2025-03-18")]
-abbrev Decidable.not_and_iff_or_not_not' := @Decidable.not_and_iff_not_or_not'
 
 theorem Decidable.or_iff_not_not_and_not [Decidable a] [Decidable b] : a ∨ b ↔ ¬(¬a ∧ ¬b) := by
   rw [← not_or, not_not]
 
-set_option linter.missingDocs false in
-@[deprecated Decidable.or_iff_not_not_and_not (since := "2025-03-18")]
-abbrev Decidable.or_iff_not_and_not := @Decidable.or_iff_not_not_and_not
-
 theorem Decidable.and_iff_not_not_or_not [Decidable a] [Decidable b] : a ∧ b ↔ ¬(¬a ∨ ¬b) := by
   rw [← not_and_iff_not_or_not, not_not]
-
-set_option linter.missingDocs false in
-@[deprecated Decidable.and_iff_not_not_or_not (since := "2025-03-18")]
-abbrev Decidable.and_iff_not_or_not := @Decidable.and_iff_not_not_or_not
 
 theorem Decidable.imp_iff_right_iff [Decidable a] : (a → b ↔ b) ↔ a ∨ b :=
   Iff.intro

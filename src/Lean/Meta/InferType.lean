@@ -415,6 +415,7 @@ partial def isProofQuick : Expr → MetaM LBool
 
 end
 
+/-- Check if `e` is a proof, i.e. the type of `e` is a proposition. -/
 def isProof (e : Expr) : MetaM Bool := do
   match (← isProofQuick e) with
   | .true  => return true

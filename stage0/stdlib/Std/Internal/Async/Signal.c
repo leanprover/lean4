@@ -57,7 +57,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Signal_noConfusion___redArg___l
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__3;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Signal_sigxfsz_elim___redArg(lean_object*);
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__0;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___Std_Internal_IO_Async_Signal_Waiter_selector_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_Signal_Waiter_selector_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Signal_sigtstp_elim___redArg(lean_object*);
 static lean_object* l_Std_Internal_IO_Async_instReprSignal_repr___closed__43;
 static lean_object* l_Std_Internal_IO_Async_instReprSignal_repr___closed__13;
@@ -141,7 +141,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Signal_sigxcpu_elim___redArg(le
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Signal_sigttin_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Signal_Waiter_selector___lam__9(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Signal_sigterm_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___Std_Internal_IO_Async_Signal_Waiter_selector_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_Signal_Waiter_selector_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Signal_sigsys_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Signal_sigsys_elim___redArg___boxed(lean_object*);
 lean_object* lean_io_map_task(lean_object*, lean_object*, lean_object*, uint8_t);
@@ -3574,7 +3574,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___Std_Internal_IO_Async_Signal_Waiter_selector_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_Signal_Waiter_selector_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; uint8_t x_9; 
@@ -4161,7 +4161,7 @@ lean_dec(x_10);
 x_11 = lean_box(0);
 x_12 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Signal_Waiter_selector___lam__8___boxed), 2, 1);
 lean_closure_set(x_12, 0, x_11);
-x_13 = l_Std_Internal_IO_Async_Waiter_race___at___Std_Internal_IO_Async_Signal_Waiter_selector_spec__0(x_11, x_1, x_12);
+x_13 = l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_Signal_Waiter_selector_spec__0(x_11, x_1, x_12);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; 
@@ -4190,7 +4190,7 @@ lean_dec(x_2);
 x_16 = lean_box(0);
 x_17 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Signal_Waiter_selector___lam__8___boxed), 2, 1);
 lean_closure_set(x_17, 0, x_16);
-x_18 = l_Std_Internal_IO_Async_Waiter_race___at___Std_Internal_IO_Async_Signal_Waiter_selector_spec__0(x_16, x_1, x_17);
+x_18 = l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_Signal_Waiter_selector_spec__0(x_16, x_1, x_17);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; lean_object* x_20; 
@@ -4338,11 +4338,11 @@ lean_ctor_set(x_12, 2, x_2);
 return x_12;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___Std_Internal_IO_Async_Signal_Waiter_selector_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_Signal_Waiter_selector_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Std_Internal_IO_Async_Waiter_race___at___Std_Internal_IO_Async_Signal_Waiter_selector_spec__0(x_1, x_2, x_3);
+x_5 = l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_Signal_Waiter_selector_spec__0(x_1, x_2, x_3);
 lean_dec_ref(x_2);
 return x_5;
 }

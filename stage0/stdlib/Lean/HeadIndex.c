@@ -49,7 +49,7 @@ LEAN_EXPORT lean_object* l_Lean_HeadIndex_proj_elim___redArg(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lean_HeadIndex_sort_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HeadIndex_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_instBEqLiteral_beq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_panic___at_____private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HeadIndex_ctorIdx___boxed(lean_object*);
 static lean_object* l___private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Expr_toHeadIndex(lean_object*);
@@ -1490,7 +1490,7 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at_____private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -1545,7 +1545,7 @@ case 0:
 lean_object* x_2; lean_object* x_3; 
 lean_dec_ref(x_1);
 x_2 = l___private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow___closed__3;
-x_3 = l_panic___at_____private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow_spec__0(x_2);
+x_3 = l_panic___at___00__private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow_spec__0(x_2);
 return x_3;
 }
 case 1:

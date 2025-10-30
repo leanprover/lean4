@@ -331,11 +331,6 @@ The package's `buildDir` joined with its `nativeLibDir` configuration.
 @[inline] public def sharedLibDir (self : Package) : FilePath :=
   self.buildDir / self.config.nativeLibDir.normalize
 
-/-- The package's `buildDir` joined with its `nativeLibDir` configuration. -/
-@[inline, deprecated "Use staticLibDir or sharedLibDir instead." (since := "2025-03-29")]
-public def nativeLibDir (self : Package) : FilePath :=
-  self.buildDir / self.config.nativeLibDir.normalize
-
 /-- The package's `buildDir` joined with its `binDir` configuration. -/
 @[inline] public def binDir (self : Package) : FilePath :=
   self.buildDir / self.config.binDir.normalize

@@ -230,10 +230,6 @@ theorem replicate [BEq α] [Hashable α] {c : Nat} : IsHashSelf
     (Array.replicate c (AssocList.nil : AssocList α β)) :=
   ⟨by simp⟩
 
-set_option linter.missingDocs false in
-@[deprecated replicate (since := "2025-03-18")]
-abbrev mkArray := @replicate
-
 theorem uset [BEq α] [Hashable α] {m : Array (AssocList α β)} {i : USize} {h : i.toNat < m.size}
     {d : AssocList α β}
     (hd : HashesTo m[i].toList i.toNat m.size → HashesTo d.toList i.toNat m.size)

@@ -108,7 +108,7 @@ def mkInstantiateTactic (goal : Goal) (usedThms : Array EMatchTheorem) (approx :
   | false, true  => `(grind| instantiate only approx [$params,*])
 
 def mkNewSeq (goal : Goal) (thms : Array EMatchTheorem) (seq : List TGrind) (approx : Bool) : GrindM (List TGrind) := do
-  if thms.isEmpty then
+  if thms.isEmpty && !approx then
     return seq
   else
     return ((← mkInstantiateTactic goal thms approx) :: seq)

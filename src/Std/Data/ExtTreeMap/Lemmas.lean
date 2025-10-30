@@ -343,11 +343,6 @@ theorem getElem!_eq_get!_getElem? [TransCmp cmp] [Inhabited β] {a : α} :
     t[a]! = t[a]?.get! :=
   ExtDTreeMap.Const.get!_eq_get!_get?
 
-@[deprecated getElem!_eq_get!_getElem? (since := "2025-03-19")]
-theorem getElem!_eq_getElem!_getElem? [TransCmp cmp] [Inhabited β] {a : α} :
-    t[a]! = t[a]?.get! :=
-  ExtDTreeMap.Const.get!_eq_get!_get?
-
 theorem getElem_eq_getElem! [TransCmp cmp] [Inhabited β] {a : α} {h} :
     t[a]'h = t[a]! :=
   ExtDTreeMap.Const.get_eq_get! (h := h)
@@ -3020,7 +3015,7 @@ section Ext
 
 variable {t₁ t₂ : ExtTreeMap α β cmp}
 
-@[ext 900]
+@[ext 900, grind ext]
 theorem ext_getKey_getElem? [TransCmp cmp] {t₁ t₂ : ExtTreeMap α β cmp}
     (hk : ∀ k hk hk', t₁.getKey k hk = t₂.getKey k hk')
     (hv : ∀ k : α, t₁[k]? = t₂[k]?) : t₁ = t₂ :=

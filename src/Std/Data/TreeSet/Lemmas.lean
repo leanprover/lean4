@@ -526,7 +526,6 @@ theorem get?_union_of_not_mem_left [TransCmp cmp]
   TreeMap.getKey?_union_of_not_mem_left not_mem
 
 theorem get?_union_of_not_mem_right [TransCmp cmp]
-
     {k : α} (not_mem : ¬k ∈ t₂) :
     (t₁ ∪ t₂).get? k = t₁.get? k :=
   TreeMap.getKey?_union_of_not_mem_right not_mem

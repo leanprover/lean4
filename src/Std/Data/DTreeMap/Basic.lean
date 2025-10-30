@@ -1075,7 +1075,7 @@ def insertMany {ρ} [ForIn Id ρ ((a : α) × β a)] (t : DTreeMap α β cmp) (l
 
 /--
 Inserts multiple mappings into the tree map by iterating over the given collection and calling
-`insert`. If the same key appears multiple times, the first occurrence takes precedence.
+`insertIfNew`. If the same key appears multiple times, the first occurrence takes precedence.
 -/
 @[inline]
 def insertManyIfNew {ρ} [ForIn Id ρ ((a : α) × β a)] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=

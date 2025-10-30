@@ -155,7 +155,7 @@ Tries to retrieve the `HeaderValue` for the given key.
 Returns `none` if the header is absent.
 -/
 @[inline]
-def get? (headers : Headers) (name : String) : Option HeaderValue :=
+def get (headers : Headers) (name : String) : Option HeaderValue :=
   headers.data.get? name.toLower
   |>.map (.joinCommaSep ∘ Prod.snd)
 
@@ -184,14 +184,14 @@ Like `get?`, but returns an empty HashSet if absent.
 -/
 @[inline]
 def getD (headers : Headers) (name : String) (d : HeaderValue) : HeaderValue :=
-  headers.get? name |>.getD d
+  headers.get name |>.getD d
 
 /--
 Like `get?`, but panics if absent.
 -/
 @[inline]
 def get! (headers : Headers) (name : String) : HeaderValue :=
-  headers.get? name |>.get!
+  headers.get name |>.get!
 
 /--
 Inserts a new key-value pair into the headers.

@@ -86,7 +86,7 @@ namespace Config
 /--
 Converts to HTTP 1.1 config
 -/
-def toH1Config (config : Config) : Protocol.H1.Machine.Config :=
+def toH1Config (config : Config) : Protocol.H1.Config :=
   { maxMessages := config.maxRequests
     maxHeaders := config.maxHeaders
     maxHeaderSize := config.maxHeaderSize

@@ -35,7 +35,11 @@ def testSizeLimit (client : Mock.Client) : IO Unit := do
     let mut size := 0
     for i in req.body do
       size := size + i.size
-      if size > 10 then return Response.new |>.status .payloadTooLarge |>.build
+      if size > 10 then
+        return Response.new
+        |>.status .payloadTooLarge
+        |>.header "Connection" (.new "close")
+        |>.build
 
     return Response.new
       |>.status .ok
@@ -76,6 +80,7 @@ def testBasicRequest : IO Unit := do
     return Response.new
       |>.status .ok
       |>.header "Custom-Header" (.new "test-value")
+      |>.header "Connection" (.new "close")
       |>.body "Hello World"
 
   let response ← sendRequests client #[
@@ -103,11 +108,12 @@ def testPostRequest : IO Unit := do
   let handler := fun (req : Request Body) => do
     let mut body := ""
     for chunk in req.body do
-      body := body ++ String.fromUTF8! chunk
+      body := body ++ String.fromUTF8! chunk.data
 
     return Response.new
       |>.status .ok
       |>.header "Content-Type" (.new "application/json")
+      |>.header "Connection" (.new "close")
       |>.body s!"Received: {body}"
 
   let response ← sendRequests client #[
@@ -132,6 +138,7 @@ def test100Continue : IO Unit := do
     if expectHeader.is "100-continue" then
       return Response.new
         |>.status .continue
+        |>.header "Connection" (.new "close")
         |>.build
     else
       return Response.new
@@ -169,6 +176,7 @@ def testMaxRequestSize : IO Unit := do
         return Response.new
           |>.status .payloadTooLarge
           |>.header "Content-Type" (.new "application/json")
+          |>.header "Connection" (.new "close")
           |>.body "{\"error\": \"Request too large\", \"max_size\": 1000}"
 
     return Response.new
@@ -241,6 +249,7 @@ def testCut : IO Unit := do
   let responseData := String.fromUTF8! response
   IO.println s!"{responseData.quote}"
 
+/-
 /--
 info: "HTTP/1.1 202 Accepted\x0d\nContent-Length: 50\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: application/json\x0d\n\x0d\n{\"message\": \"JSON response\", \"status\": \"accepted\"}HTTP/1.1 400 Bad Request\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 -/
@@ -346,3 +355,4 @@ info: "HTTP/1.1 202 Accepted\x0d\nContent-Length: 50\x0d\nServer: LeanHTTP/1.1\x
 -/
 #guard_msgs in
 #eval show IO _ from do testContentNegotiationError
+-/

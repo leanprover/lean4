@@ -39,8 +39,7 @@ open Std.Iterators
 #eval (2<...<15).iter.stepSize 2 |>.toList
 
 example : (1...5).size = 4 := by
-  rw [← Std.Rco.size_toArray]
-  simp [Std.Rco.toArray_eq_if, Std.Roo.toArray_eq_match_rco]
+  simp [← Std.Rco.size_toArray, Std.Rco.toArray_eq_if_rco]
 
 /-- info: true -/
 #guard_msgs in

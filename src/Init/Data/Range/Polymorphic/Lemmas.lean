@@ -819,6 +819,23 @@ public theorem toArray_eq_if_roo [UpwardEnumerable α] [LT α] [DecidableLT α]
         #[] := by
   rw [Internal.toArray_eq_toArray_iter, Rxo.Iterator.toArray_eq_match]; rfl
 
+public theorem toArray_eq_if_rco [UpwardEnumerable α] [LT α] [DecidableLT α]
+    [LawfulUpwardEnumerable α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerableLT α] :
+    r.toArray = if r.lower < r.upper then
+        match UpwardEnumerable.succ? r.lower with
+        | none => #[r.lower]
+        | some next => #[r.lower] ++ (next...r.upper).toArray
+      else
+        #[] := by
+  rw [Internal.toArray_eq_toArray_iter, Rxo.Iterator.toArray_eq_match]
+  simp only [Internal.iter]
+  split
+  · split
+    · simp [Rxo.Iterator.toArray_eq_match, *]
+    · simp only [*]
+      rfl
+  · rfl
+
 @[deprecated toArray_eq_if_roo (since := "2025-10-29")]
 def toArray_eq_if := @toArray_eq_if_roo
 

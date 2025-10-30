@@ -69,8 +69,16 @@ abbrev ReplaceM := ReaderT ReplaceCtx CompilerM
 /--
 Attempt to find a join point candidate by its `FVarId`.
 -/
+@[inline]
 private def findCandidate? (fvarId : FVarId) : FindM (Option CandidateInfo) := do
   return (← get).candidates[fvarId]?
+
+/--
+Combinator for modifying the candidates in `FindM`.
+-/
+@[inline]
+private def modifyCandidates (f : Std.HashMap FVarId CandidateInfo → Std.HashMap FVarId CandidateInfo) : FindM Unit :=
+  modify (fun state => { state with candidates := f state.candidates })
 
 /--
 Erase a join point candidate as well as all the ones that depend on it
@@ -78,14 +86,8 @@ by its `FVarId`, no error is thrown is the candidate does not exist.
 -/
 private partial def eraseCandidate (fvarId : FVarId) : FindM Unit := do
   if let some info ← findCandidate? fvarId then
-    modify (fun state => { state with candidates := state.candidates.erase fvarId })
+    modifyCandidates  fun cs => cs.erase fvarId
     info.associated.forM eraseCandidate
-
-/--
-Combinator for modifying the candidates in `FindM`.
--/
-private def modifyCandidates (f : Std.HashMap FVarId CandidateInfo → Std.HashMap FVarId CandidateInfo) : FindM Unit :=
-  modify (fun state => {state with candidates := f state.candidates })
 
 /--
 Remove all join point candidates contained in `a`.
@@ -104,16 +106,15 @@ Add a new join point candidate to the state.
 -/
 private def addCandidate (fvarId : FVarId) (arity : Nat) : FindM Unit := do
   let cinfo := { arity, associated := ∅ }
-  modifyCandidates (fun cs => cs.insert fvarId cinfo )
+  modifyCandidates fun cs => cs.insert fvarId cinfo
 
 /--
 Add a new join point dependency from `src` to `dst`.
 -/
 private def addDependency (src : FVarId) (target : FVarId) : FindM Unit := do
-  if let some targetInfo ← findCandidate? target then
-    modifyCandidates (fun cs => cs.insert target { targetInfo with associated := targetInfo.associated.insert src })
-  else
-    eraseCandidate src
+  modifyCandidates fun cs =>
+    cs.modify target fun targetInfo =>
+      { targetInfo with associated := targetInfo.associated.insert src }
 
 /--
 Find all `fun` declarations that qualify as a join point, that is:

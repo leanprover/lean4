@@ -1082,7 +1082,7 @@ def insertManyIfNew {ρ} [ForIn Id ρ ((a : α) × β a)] (t : DTreeMap α β cm
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertManyIfNew l t.wf.balanced, t.wf.insertManyIfNew⟩
 
 /--
-Computes the union of the given tree maps. If a key appears in both maps, the entry contains in
+Computes the union of the given tree maps. If a key appears in both maps, the entry contained in
 the second argument will appear in the result.
 
 This function always merges the smaller map into the larger map.

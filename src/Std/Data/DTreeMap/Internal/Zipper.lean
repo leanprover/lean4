@@ -874,6 +874,42 @@ public theorem toList_rcc {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
 
 end Rcc
 
+namespace Const
+
+public structure RccSliceData (α : Type u) (β : Type v) [Ord α] where
+  treeMap : Impl α (fun _ => β)
+  range : Rcc α
+
+public abbrev RccSlice α β [Ord α] := Slice (RccSliceData α β)
+
+public instance {α : Type u} {β : Type v} [Ord α] : Rcc.Sliceable (Impl α (fun _ => β)) α (RccSlice α β) where
+  mkSlice carrier range := ⟨carrier, range⟩
+
+public instance [Ord α] {s : RccSlice α β} : ToIterator s Id (α × β) := by
+  apply ToIterator.of
+  . exact (⟨RxcIterator.mk (Zipper.prependMapGE s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
+
+public theorem toList_rcc {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t : Impl α (fun _ => β))
+    (ordered : t.Ordered) (lowerBound upperBound : α) : t[lowerBound...=upperBound].toList = (Internal.Impl.Const.toList t).filter (fun e => (compare e.fst lowerBound).isGE ∧ (compare e.fst upperBound).isLE) := by
+  simp only [Rcc.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+    Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
+    Iter.toIter_toIterM]
+  rw [Iter.toList_map]
+  have := @toList_rccIter α (fun _ => β) _ _ t ordered lowerBound upperBound
+  rw [RccIterator] at this
+  rw [this]
+  have eq : (fun (e : (_ : α) × β) => decide ((compare e.fst lowerBound).isGE = true ∧ (compare e.fst upperBound).isLE = true)) =
+    (fun (e : α × β) => decide ((compare e.fst lowerBound).isGE = true ∧ (compare e.fst upperBound).isLE = true)) ∘ (fun e => (e.1, e.2)) := by congr
+  conv =>
+    lhs
+    rhs
+    rw [eq]
+  rw [← List.filter_map]
+  congr
+  rw [Impl.Const.toList_eq_toListModel_map, Impl.toList_eq_toListModel]
+
+end Const
+
 section Rco
 
 @[always_inline]
@@ -1023,6 +1059,43 @@ public theorem toList_roo {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
 
 end Roo
 
+namespace Const
+
+public structure RooSliceData (α : Type u) (β : Type v) [Ord α] where
+  treeMap : Impl α (fun _ => β)
+  range : Roo α
+
+public abbrev RooSlice α β [Ord α] := Slice (RooSliceData α β)
+
+public instance {α : Type u} {β : Type v} [Ord α] : Roo.Sliceable (Impl α (fun _ => β)) α (RooSlice α β) where
+  mkSlice carrier range := ⟨carrier, range⟩
+
+public instance [Ord α] {s : RooSlice α β} : ToIterator s Id (α × β) := by
+  apply ToIterator.of
+  . exact (⟨RxoIterator.mk (Zipper.prependMapGT s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
+
+public theorem toList_roo {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t : Impl α (fun _ => β))
+    (ordered : t.Ordered) (lowerBound upperBound : α) : t[lowerBound<...<upperBound].toList = (Internal.Impl.Const.toList t).filter (fun e => (compare e.fst lowerBound).isGT ∧ (compare e.fst upperBound).isLT) := by
+  simp only [Roo.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+    Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
+    Iter.toIter_toIterM]
+  rw [Iter.toList_map]
+  have := @toList_rooIter α (fun _ => β) _ _ t ordered lowerBound upperBound
+  rw [RooIterator] at this
+  rw [this]
+  have eq : (fun (e : (_ : α) × β) => decide ((compare e.fst lowerBound).isGT = true ∧ (compare e.fst upperBound).isLT = true)) =
+    (fun (e : α × β) => decide ((compare e.fst lowerBound).isGT = true ∧ (compare e.fst upperBound).isLT = true)) ∘ (fun e => (e.1, e.2)) := by congr
+  conv =>
+    lhs
+    rhs
+    rw [eq]
+  rw [← List.filter_map]
+  congr
+  rw [Impl.Const.toList_eq_toListModel_map, Impl.toList_eq_toListModel]
+
+end Const
+
+
 section Roc
 
 @[always_inline]
@@ -1079,6 +1152,42 @@ public theorem toList_roc {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
   . exact ordered
 
 end Roc
+
+namespace Const
+
+public structure RocSliceData (α : Type u) (β : Type v) [Ord α] where
+  treeMap : Impl α (fun _ => β)
+  range : Roc α
+
+public abbrev RocSlice α β [Ord α] := Slice (RocSliceData α β)
+
+public instance {α : Type u} {β : Type v} [Ord α] : Roc.Sliceable (Impl α (fun _ => β)) α (RocSlice α β) where
+  mkSlice carrier range := ⟨carrier, range⟩
+
+public instance [Ord α] {s : RocSlice α β} : ToIterator s Id (α × β) := by
+  apply ToIterator.of
+  . exact (⟨RxcIterator.mk (Zipper.prependMapGT s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
+
+public theorem toList_roc {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t : Impl α (fun _ => β))
+    (ordered : t.Ordered) (lowerBound upperBound : α) : t[lowerBound<...=upperBound].toList = (Internal.Impl.Const.toList t).filter (fun e => (compare e.fst lowerBound).isGT ∧ (compare e.fst upperBound).isLE) := by
+  simp only [Roc.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+    Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
+    Iter.toIter_toIterM]
+  rw [Iter.toList_map]
+  have := @toList_rocIter α (fun _ => β) _ _ t ordered lowerBound upperBound
+  rw [RocIterator] at this
+  rw [this]
+  have eq : (fun (e : (_ : α) × β) => decide ((compare e.fst lowerBound).isGT = true ∧ (compare e.fst upperBound).isLE = true)) =
+    (fun (e : α × β) => decide ((compare e.fst lowerBound).isGT = true ∧ (compare e.fst upperBound).isLE = true)) ∘ (fun e => (e.1, e.2)) := by congr
+  conv =>
+    lhs
+    rhs
+    rw [eq]
+  rw [← List.filter_map]
+  congr
+  rw [Impl.Const.toList_eq_toListModel_map, Impl.toList_eq_toListModel]
+
+end Const
 
 section Rci
 
@@ -1200,6 +1309,42 @@ public theorem toList_roi {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
   . exact ordered
 
 end Roi
+
+namespace Const
+
+public structure RoiSliceData (α : Type u) (β : Type v) [Ord α] where
+  treeMap : Impl α (fun _ => β)
+  range : Roi α
+
+public abbrev RoiSlice α β [Ord α] := Slice (RoiSliceData α β)
+
+public instance {α : Type u} {β : Type v} [Ord α] : Roi.Sliceable (Impl α (fun _ => β)) α (RoiSlice α β) where
+  mkSlice carrier range := ⟨carrier, range⟩
+
+public instance [Ord α] {s : RoiSlice α β} : ToIterator s Id (α × β) := by
+  apply ToIterator.of
+  . exact (⟨(Zipper.prependMapGT s.1.treeMap s.1.range.lower .done)⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
+
+public theorem toList_roi {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t : Impl α (fun _ => β))
+    (ordered : t.Ordered) (lowerBound : α) : t[lowerBound<...*].toList = (Internal.Impl.Const.toList t).filter (fun e => (compare e.fst lowerBound).isGT) := by
+  simp only [Roi.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+    Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
+    Iter.toIter_toIterM]
+  rw [Iter.toList_map]
+  have := @toList_roiIter α (fun _ => β) _ _ t ordered lowerBound
+  rw [RoiIterator] at this
+  rw [this]
+  have eq : (fun (e : (_ : α) × β) => ((compare e.fst lowerBound).isGT)) = ((fun (e : α × β) => ((compare e.fst lowerBound).isGT)) ∘ (fun e => (e.1,e.2))) := by congr
+  conv =>
+    lhs
+    rhs
+    rw [eq]
+  rw [← List.filter_map]
+  congr
+  rw [Impl.Const.toList_eq_toListModel_map, Impl.toList_eq_toListModel]
+
+end Const
+
 
 section Rii
 

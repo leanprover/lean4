@@ -18,11 +18,19 @@ public import Lean.Compiler.LCNF.Simp.InlineProj
 public import Lean.Compiler.LCNF.Simp.DefaultAlt
 public import Lean.Compiler.LCNF.Simp.SimpValue
 public import Lean.Compiler.LCNF.Simp.Used
+import Lean.Compiler.LCNF.JoinPoints
 
 public section
 
 namespace Lean.Compiler.LCNF
 open Simp
+
+private def findJoinPointsInCode (decl : Decl) (code : Code) : SimpM Code := do
+  match ← Decl.findJoinPoints? { decl with value := .code code } with
+  | some { value := .code code, ..} =>
+    markSimplified
+    return code
+  | _ => return code
 
 def Decl.simp? (decl : Decl) : SimpM (Option Decl) := do
   let .code code := decl.value | return none
@@ -34,6 +42,7 @@ def Decl.simp? (decl : Decl) : SimpM (Option Decl) := do
   let code ← code.applyRenaming s.binderRenaming
   traceM `Compiler.simp.step.new do return m!"{decl.name} :=\n{← ppCode code}"
   trace[Compiler.simp.stat] "{decl.name}, size: {code.size}, # visited: {s.visited}, # inline: {s.inline}, # inline local: {s.inlineLocal}"
+  let code ← findJoinPointsInCode decl code
   if let some code ← simpJpCases? code then
     let decl := { decl with value := .code code }
     decl.reduceJpArity

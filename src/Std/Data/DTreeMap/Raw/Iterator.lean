@@ -43,7 +43,7 @@ The key and value types must live in the same universe.
 -/
 @[inline]
 public def keysIter {α : Type u} {β : α → Type u}
-  (cmp : α → α → Ordering := by exact compare) (m : Raw α β cmp) :=
+    (cmp : α → α → Ordering := by exact compare) (m : Raw α β cmp) :=
   ((m.iter cmp).map fun e => e.1 : Iter α)
 
 /--
@@ -66,7 +66,7 @@ public def valuesIter {α : Type u} {β : Type u}
 public theorem iter_toList {cmp : α → α → Ordering} (m : Raw α β cmp) :
     (m.iter cmp).toList = m.toList := by
   rw [iter, toList]
-  apply Internal.Zipper.iterOfTree_toList_eq_toList
+  apply Internal.Zipper.toList.iterOfTree
 
 @[simp]
 public theorem keysIter_toList {α β} {cmp : α → α → Ordering} (m : Raw α β cmp) :

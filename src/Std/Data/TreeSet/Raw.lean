@@ -9,3 +9,4 @@ prelude
 public import Std.Data.TreeSet.Raw.Basic
 public import Std.Data.TreeSet.Raw.Lemmas
 public import Std.Data.TreeSet.Raw.WF
+public import Std.Data.TreeSet.Raw.Iterator

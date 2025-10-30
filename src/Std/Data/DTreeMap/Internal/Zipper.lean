@@ -201,7 +201,7 @@ public def Zipper.prependMapGT [Ord α] (t : Impl α β) (lowerBound : α)
     | .eq => prependMapGT r lowerBound it
     | .gt => prependMapGT r lowerBound it
 
-theorem Zipper.prependMap_of_pruneLE_eq_prependMapGE [Ord α] (t : Impl α β) (ord_t : t.Ordered)
+theorem Zipper.prependMap_pruneLE_eq_prependMapGE [Ord α] (t : Impl α β) (ord_t : t.Ordered)
     (z : Zipper α β) (lowerBound : α) :
     z.prependMap (t.pruneLE lowerBound) = z.prependMapGE t lowerBound := by
   induction t generalizing z
@@ -322,8 +322,8 @@ theorem Zipper.size_prependMap (t : Impl α β) (it : Zipper α β) :
 
 public def Zipper.step : Zipper α β → IterStep (IterM (α := Zipper α β) Id ((a : α) × β a)) ((a : α) × β a)
   | .done => .done
-  | .cons k v t it=>
-      .yield ⟨it.prependMap t⟩ ⟨k, v⟩
+  | .cons k v t it =>
+    .yield ⟨it.prependMap t⟩ ⟨k, v⟩
 
 public instance : Iterator (Zipper α β) Id ((a : α) × β a) where
   IsPlausibleStep it step := it.internalState.step = step
@@ -333,7 +333,7 @@ public instance : IteratorCollect (Zipper α β) Id Id := .defaultImplementation
 
 public instance : IteratorCollectPartial (Zipper α β) Id Id := .defaultImplementation
 
-def Zipper.instFinitenessRelation : FinitenessRelation (Zipper α β) Id where
+def Zipper.FinitenessRelation : FinitenessRelation (Zipper α β) Id where
   rel t' t := t'.internalState.size < t.internalState.size
   wf := by
     apply InvImage.wf
@@ -362,7 +362,7 @@ def Zipper.instFinitenessRelation : FinitenessRelation (Zipper α β) Id where
 
 @[no_expose]
 public instance Zipper.instFinite : Finite (Zipper α β) Id :=
-  .of_finitenessRelation Zipper.instFinitenessRelation
+  .of_finitenessRelation Zipper.FinitenessRelation
 
 public def Zipper.iter (t : Zipper α β) : Iter (α := Zipper α β) ((a : α) × β a) := ⟨t⟩
 
@@ -407,9 +407,9 @@ theorem Zipper.toList_iter {α β} {z : Zipper α β} : z.iter.toList = z.toList
 termination_by z.size
 decreasing_by simp [size_prependMap]
 
-public theorem Zipper.iterOfTree_toList_eq_toList (t : Impl α β) :
+public theorem Zipper.toList.iterOfTree (t : Impl α β) :
     (Zipper.iterOfTree t).toList = t.toList := by
-  rw [iterOfTree, iter]
+  rw [Zipper.iterOfTree, Zipper.iter]
   have := @Zipper.toList_iter α β (prependMap t .done)
   simp only [iter] at this
   rw [this]
@@ -417,11 +417,7 @@ public theorem Zipper.iterOfTree_toList_eq_toList (t : Impl α β) :
 
 public theorem Zipper.map_iterOfTree_eq_tree_toList_map (t : Impl α β) :
    (Iter.map f (Internal.Zipper.iterOfTree t)).toList = List.map f t.toList := by
-  rw [Iter.toList_map]
-  congr
-  rw [iterOfTree]
-  rw [@toList_iter α β (prependMap t .done)]
-  simp [Zipper.toList_prependMap_eq_append, toList]
+  rw [Iter.toList_map, toList.iterOfTree]
 
 end Zipper
 
@@ -449,7 +445,7 @@ public instance [Ord α] : IteratorCollect (RxcIterator α β) Id Id := .default
 
 public instance [Ord α] : IteratorCollectPartial (RxcIterator α β) Id Id := .defaultImplementation
 
-def instFinitenessRelation [Ord α] : FinitenessRelation (RxcIterator α β) Id where
+def RxcIterator.FinitenessRelation [Ord α] : FinitenessRelation (RxcIterator α β) Id where
   rel t' t := t'.internalState.iter.size < t.internalState.iter.size
   wf := by
     apply InvImage.wf
@@ -484,7 +480,7 @@ def instFinitenessRelation [Ord α] : FinitenessRelation (RxcIterator α β) Id 
 
 @[no_expose]
 public instance instFinite [Ord α] : Finite (RxcIterator α β) Id :=
-  .of_finitenessRelation instFinitenessRelation
+  .of_finitenessRelation RxcIterator.FinitenessRelation
 
 @[simp]
 theorem RxcIterator.step_done [Ord α] {upper : α} : ({iter := .done, upper := upper } : RxcIterator α β).step = .done := rfl
@@ -836,13 +832,13 @@ theorem toList_rccIter {α β} [Ord α] [TransOrd α]
       rw [Bool.and_comm]
     rw [← List.filter_filter]
     congr 1
-    rw [← Zipper.prependMap_of_pruneLE_eq_prependMapGE]
+    rw [← Zipper.prependMap_pruneLE_eq_prependMapGE]
     . rw [Zipper.toList_prependMap_eq_append]
       rw [Impl.toList_pruneLE]
       . simp [Zipper.toList]
       . exact t_ord
     . exact t_ord
-  . rw [← Zipper.prependMap_of_pruneLE_eq_prependMapGE]
+  . rw [← Zipper.prependMap_pruneLE_eq_prependMapGE]
     . simp only [Zipper.toList_prependMap_eq_append, Zipper.toList, List.append_nil]
       rw [Impl.toList_pruneLE]
       . apply List.Pairwise.filter
@@ -929,13 +925,13 @@ theorem toList_rcoIter {α β} [Ord α] [TransOrd α]
       rw [Bool.and_comm]
     rw [← List.filter_filter]
     congr 1
-    rw [← Zipper.prependMap_of_pruneLE_eq_prependMapGE]
+    rw [← Zipper.prependMap_pruneLE_eq_prependMapGE]
     . rw [Zipper.toList_prependMap_eq_append]
       rw [Impl.toList_pruneLE]
       . simp only [Zipper.toList, List.append_nil]
       . exact t_ord
     . exact t_ord
-  . rw [← Zipper.prependMap_of_pruneLE_eq_prependMapGE]
+  . rw [← Zipper.prependMap_pruneLE_eq_prependMapGE]
     . simp only [Zipper.toList_prependMap_eq_append, Zipper.toList, List.append_nil]
       rw [Impl.toList_pruneLE]
       . apply List.Pairwise.filter
@@ -1203,7 +1199,7 @@ theorem toList_rciIter {α β} [Ord α] [TransOrd α]
   have := @Zipper.toList_iter _ _ (Zipper.prependMapGE t lowerBound Zipper.done)
   simp only [Zipper.iter] at this
   simp only [this]
-  rw [← Zipper.prependMap_of_pruneLE_eq_prependMapGE]
+  rw [← Zipper.prependMap_pruneLE_eq_prependMapGE]
   . simp only [Zipper.toList_prependMap_eq_append, Zipper.toList, List.append_nil]
     apply Impl.toList_pruneLE
     exact t_ord
@@ -1258,7 +1254,7 @@ public theorem toList_rci {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t 
   have := @Zipper.toList_iter _ _ (Zipper.prependMapGE t lowerBound Zipper.done)
   simp only [Zipper.iter] at this
   simp only [this]
-  rw [← Zipper.prependMap_of_pruneLE_eq_prependMapGE]
+  rw [← Zipper.prependMap_pruneLE_eq_prependMapGE]
   . simp [Zipper.toList_prependMap_eq_append]
     rw [Impl.toList_pruneLE]
     simp [Impl.toList_eq_toListModel]

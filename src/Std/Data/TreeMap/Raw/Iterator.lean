@@ -63,7 +63,7 @@ public def valuesIter {α : Type u} {β : Type u}
   (DTreeMap.Raw.valuesIter cmp m.inner : Iter β)
 
 @[simp]
-public theorem iter_toList {α : Type u} {β : Type u} {cmp : α → α → Ordering} (m : Raw α β cmp) :
+public theorem iter_toList {α : Type u} {β : Type v} {cmp : α → α → Ordering} (m : Raw α β cmp) :
     ((m.iter cmp).toList) = m.toList := by
   simp only [iter, Iter.toList_map, DTreeMap.Raw.iter_toList]
   simp only [DTreeMap.Raw.toList, DTreeMap.Internal.Impl.toList_eq_toListModel, toList,

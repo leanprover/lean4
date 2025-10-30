@@ -518,7 +518,7 @@ abbrev IteratedSlowNewInsertionInto [Ord α] (t) :=
   { t' // ∀ {P : Impl α β → Prop}, P t → (∀ t'' a b, P t'' → P (t''.insertIfNew! a b)) → P t' }
 
 /--
-Computes the union of the given tree maps. If a key appears in both maps, the entry contains in the second argument will appear in the result.
+Computes the union of the given tree maps. If a key appears in both maps, the entry contained in the second argument will appear in the result.
 
 This function always merges the smaller map into the larger map.
 -/

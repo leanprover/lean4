@@ -1,4 +1,4 @@
-set_option match.use_sparse_cases false -- TODO
+set_option match.sparseCases false -- TODO
 -- set_option trace.Meta.Match.match true
 
 /-

@@ -12,7 +12,7 @@ def test (a : List Nat) : Nat :=
 /--
 info: def test.match_1.{u_1} : (motive : List Nat → Sort u_1) →
   (a : List Nat) → ((x : List Nat) → motive x) → (Unit → motive []) → motive a :=
-fun motive a h_1 h_2 => List.casesOn a (h_1 []) fun head tail => h_1 (head :: tail)
+fun motive a h_1 h_2 => test._sparseCasesOn_1 a (h_1 []) fun h_0 => h_1 a
 -/
 #guard_msgs in #print test.match_1
 
@@ -31,7 +31,7 @@ info: def test2.match_1.{u_1} : (motive : List Nat → List Nat → Sort u_1) �
             (tail : List Nat) → (head_1 : Nat) → (tail_1 : List Nat) → motive (head :: tail) (head_1 :: tail_1)) →
           motive a b :=
 fun motive a b h_1 h_2 h_3 =>
-  List.casesOn a (List.casesOn b (h_1 []) fun head tail => h_1 (head :: tail)) fun head tail =>
+  List.casesOn a (test._sparseCasesOn_1 b (h_1 []) fun h_0 => h_1 b) fun head tail =>
     List.casesOn b (h_2 (head :: tail)) fun head_1 tail_1 => h_3 head tail head_1 tail_1
 -/
 #guard_msgs in #print test2.match_1
@@ -51,8 +51,7 @@ info: def test3.match_1.{u_1} : (motive : List Nat → Bool → Sort u_1) →
       ((x : List Nat) → motive x true) →
         ((x : Bool) → motive [] x) → ((x : List Nat) → (x_1 : Bool) → motive x x_1) → motive a b :=
 fun motive a b h_1 h_2 h_3 =>
-  List.casesOn a (Bool.casesOn b (h_2 false) (h_1 [])) fun head tail =>
-    Bool.casesOn b (h_3 (head :: tail) false) (h_1 (head :: tail))
+  test._sparseCasesOn_1 a (Bool.casesOn b (h_2 false) (h_1 [])) fun h_0 => Bool.casesOn b (h_3 a false) (h_1 a)
 -/
 #guard_msgs in #print test3.match_1
 

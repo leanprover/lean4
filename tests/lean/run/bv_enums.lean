@@ -1,7 +1,7 @@
 import Std.Tactic.BVDecide
 import Lean.Elab.Tactic.BVDecide
 
-set_option match.use_sparse_cases false -- TODO
+set_option match.sparseCases false -- TODO
 
 namespace Ex1
 

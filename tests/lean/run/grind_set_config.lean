@@ -34,3 +34,13 @@ example : foo 10 ≥ 5 := by
   grind [fooAx1] =>
     have := fooAx2
     finish? (gen := 10) (ematch := 10)
+
+attribute [grind] fooAx2
+
+example : foo 30 ≥ 5 := by
+  have := fooAx2
+  grind => finish (gen := 50) (ematch := 50) [fooAx1]
+
+example : foo 30 ≥ 5 := by
+  have := fooAx2
+  grind => finish? (gen := 50) (ematch := 50) [fooAx1]

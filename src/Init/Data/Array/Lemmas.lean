@@ -2252,8 +2252,6 @@ theorem flatMap_def {xs : Array α} {f : α → Array β} : xs.flatMap f = flatt
   rcases xs with ⟨l⟩
   simp [flatten_toArray, Function.comp_def, List.flatMap_def]
 
-@[simp, grind =] theorem flatMap_empty {β} {f : α → Array β} : (#[] : Array α).flatMap f = #[] := rfl
-
 theorem flatMap_toList {xs : Array α} {f : α → List β} :
     xs.toList.flatMap f = (xs.flatMap (fun a => (f a).toArray)).toList := by
   rcases xs with ⟨l⟩
@@ -2264,6 +2262,7 @@ theorem flatMap_toList {xs : Array α} {f : α → List β} :
   rcases xs with ⟨l⟩
   simp
 
+@[deprecated List.flatMap_toArray_cons (since := "2025-10-29")]
 theorem flatMap_toArray_cons {β} {f : α → Array β} {a : α} {as : List α} :
     (a :: as).toArray.flatMap f = f a ++ as.toArray.flatMap f := by
   simp [flatMap]
@@ -2274,6 +2273,7 @@ theorem flatMap_toArray_cons {β} {f : α → Array β} {a : α} {as : List α} 
   intro cs
   induction as generalizing cs <;> simp_all
 
+@[deprecated List.flatMap_toArray (since := "2025-10-29")]
 theorem flatMap_toArray {β} {f : α → Array β} {as : List α} :
     as.toArray.flatMap f = (as.flatMap (fun a => (f a).toList)).toArray := by
   simp

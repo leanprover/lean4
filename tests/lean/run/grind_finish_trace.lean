@@ -221,6 +221,19 @@ example (f g : Int → Int) (x y z w : Int)
   grind only [#23ad, #beb4] -- Only these two splits were performed.
 
 /--
+trace: [grind.split] x = 0, generation: 0
+[grind.split] x = 1, generation: 0
+-/
+#guard_msgs in
+example (f g : Int → Int) (x y z w : Int)
+    : 0 ≤ x → x ≤ 1 → 0 ≤ w →
+      g 0 = z → g 1 = z → g 2 = z →
+      f 0 = y → f 1 = y →
+      g w ≠ z → f x = y := by
+  set_option trace.grind.split true in
+  grind => finish only [#23ad, #beb4] -- Only these two splits were performed.
+
+/--
 trace: [grind.ematch.instance] h: f (f a) = f a
 [grind.ematch.instance] h: f (f (f a)) = f (f a)
 [grind.ematch.instance] h: f (f (f (f a))) = f (f (f a))
@@ -251,3 +264,18 @@ example (f g : Int → Int)
     : f (f (f a)) = f a := by
   set_option trace.grind.ematch.instance true in
   grind only [#99cb]
+
+/--
+trace: [grind.ematch.instance] h✝³: f (f a) = f a
+[grind.ematch.instance] h✝³: f (f (f a)) = f (f a)
+[grind.ematch.instance] h✝³: f (f (f (f a))) = f (f (f a))
+-/
+#guard_msgs in
+example (f g : Int → Int)
+    (_ : ∀ x, f (f x) = f x)
+    (_ : ∀ x, g (g x) = g x)
+    (a b : Int)
+    (_ : g (g b) = b)
+    : f (f (f a)) = f a := by
+  set_option trace.grind.ematch.instance true in
+  grind => finish only [#99cb]

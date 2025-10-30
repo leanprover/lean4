@@ -214,7 +214,7 @@ theorem tdiv_eq_ediv {a b : Int} :
   | ofNat a, -[b+1] => simp [tdiv_eq_ediv_of_nonneg]
   | -[a+1], 0 => simp
   | -[a+1], ofNat (succ b) =>
-    simp only [tdiv, Nat.succ_eq_add_one, ofNat_eq_coe, Int.natCast_add, cast_ofNat_Int,
+    simp only [tdiv, Nat.succ_eq_add_one, ofNat_eq_natCast, Int.natCast_add, cast_ofNat_Int,
       negSucc_not_nonneg, sign_natCast_add_one]
     simp only [negSucc_emod_ofNat_succ_eq_zero_iff]
     norm_cast
@@ -225,7 +225,7 @@ theorem tdiv_eq_ediv {a b : Int} :
     · rw [neg_ofNat_eq_negSucc_add_one_iff]
       exact Nat.succ_div_of_mod_ne_zero h
   | -[a+1], -[b+1] =>
-    simp only [tdiv, ofNat_eq_coe, negSucc_not_nonneg, false_or, sign_negSucc]
+    simp only [tdiv, ofNat_eq_natCast, negSucc_not_nonneg, false_or, sign_negSucc]
     norm_cast
     simp only [negSucc_ediv_negSucc]
     rw [Int.natCast_add, Int.natCast_one]
@@ -256,7 +256,7 @@ theorem fdiv_eq_ediv {a b : Int} :
   | 0, -[b+1] => simp
   | ofNat (a + 1), -[b+1] =>
     simp only [fdiv, ofNat_ediv_negSucc, negSucc_not_nonneg, negSucc_dvd, false_or]
-    simp only [ofNat_eq_coe, ofNat_dvd]
+    simp only [ofNat_eq_natCast, ofNat_dvd]
     norm_cast
     rw [Nat.succ_div, negSucc_eq]
     split <;> rename_i h
@@ -264,7 +264,7 @@ theorem fdiv_eq_ediv {a b : Int} :
     · simp [Int.neg_add]
       norm_cast
   | -[a+1], -[b+1] =>
-    simp only [fdiv, ofNat_eq_coe, negSucc_ediv_negSucc, negSucc_not_nonneg, dvd_negSucc, negSucc_dvd,
+    simp only [fdiv, ofNat_eq_natCast, negSucc_ediv_negSucc, negSucc_not_nonneg, dvd_negSucc, negSucc_dvd,
       false_or]
     norm_cast
     rw [Int.natCast_add, Int.natCast_one, Nat.succ_div]
@@ -559,7 +559,7 @@ theorem ediv_eq_one_of_neg_of_le {a b : Int} (H1 : a < 0) (H2 : b ≤ a) : a / b
   match a, b, H1, H2 with
   | negSucc a', ofNat n', H1, H2 => simp [Int.negSucc_eq] at H2; omega
   | negSucc a', negSucc b', H1, H2 =>
-    rw [Int.div_def, ediv, ofNat_eq_coe]
+    rw [Int.div_def, ediv, ofNat_eq_natCast]
     norm_cast
     rw [Nat.succ_eq_add_one, Nat.add_eq_right, Nat.div_eq_zero_iff_lt (by omega)]
     simp [Int.negSucc_eq] at H2
@@ -579,7 +579,7 @@ theorem neg_one_ediv (b : Int) : -1 / b = -b.sign :=
   match b with
   | ofNat 0 => by simp
   | ofNat (b + 1) =>
-    ediv_eq_neg_one_of_neg_of_le (by decide) (by simp [ofNat_eq_coe]; omega)
+    ediv_eq_neg_one_of_neg_of_le (by decide) (by simp [ofNat_eq_natCast]; omega)
   | negSucc b =>
     ediv_eq_one_of_neg_of_le (by decide) (by omega)
 
@@ -1389,7 +1389,7 @@ theorem tmod_lt_of_pos (a : Int) {b : Int} (H : 0 < b) : tmod a b < b :=
 
 theorem lt_tmod_of_pos (a : Int) {b : Int} (H : 0 < b) : -b < tmod a b :=
   match a, b, eq_succ_of_zero_lt H with
-  | ofNat _, _, ⟨n, rfl⟩ => by rw [ofNat_eq_coe, ← Int.natCast_succ, ← ofNat_tmod]; omega
+  | ofNat _, _, ⟨n, rfl⟩ => by rw [ofNat_eq_natCast, ← Int.natCast_succ, ← ofNat_tmod]; omega
   | -[a+1], _, ⟨n, rfl⟩ => by
     rw [negSucc_eq, neg_tmod, ← Int.natCast_add_one, ← Int.natCast_add_one, ← ofNat_tmod]
     have : (a + 1) % (n + 1) < n + 1 := Nat.mod_lt _ (Nat.zero_lt_succ n)
@@ -1836,7 +1836,7 @@ theorem le_emod_self_add_one_iff {a b : Int} (h : 0 < b) : b ≤ a % b + 1 ↔ b
   match b, h with
   | .ofNat 1, h => simp
   | .ofNat (b + 2), h =>
-    simp only [ofNat_eq_coe, Int.natCast_add, cast_ofNat_Int] at *
+    simp only [ofNat_eq_natCast, Int.natCast_add, cast_ofNat_Int] at *
     constructor
     · rw [dvd_iff_emod_eq_zero]
       intro w
@@ -1857,7 +1857,7 @@ theorem add_one_tdiv_of_pos {a b : Int} (h : 0 < b) :
   match b, h with
   | .ofNat 1, h => simp; omega
   | .ofNat (b + 2), h =>
-    simp only [ofNat_eq_coe]
+    simp only [ofNat_eq_natCast]
     rw [tdiv_eq_ediv, add_ediv (by omega), tdiv_eq_ediv]
     simp only [Int.natCast_add, cast_ofNat_Int]
     have : 1 / (b + 2 : Int) = 0 := by rw [one_ediv]; omega
@@ -2059,20 +2059,20 @@ theorem neg_fdiv {a b : Int} : (-a).fdiv b = -(a.fdiv b) - if b = 0 ∨ b ∣ a 
   | ofNat (a + 1), 0 => simp
   | ofNat (a + 1), ofNat (b + 1) =>
     unfold fdiv
-    simp only [ofNat_eq_coe, Int.natCast_add, cast_ofNat_Int, Nat.succ_eq_add_one]
+    simp only [ofNat_eq_natCast, Int.natCast_add, cast_ofNat_Int, Nat.succ_eq_add_one]
     rw [← negSucc_eq, ← negSucc_eq]
   | ofNat (a + 1), -[b+1] =>
     unfold fdiv
-    simp only [ofNat_eq_coe, Int.natCast_add, cast_ofNat_Int, Nat.succ_eq_add_one]
+    simp only [ofNat_eq_natCast, Int.natCast_add, cast_ofNat_Int, Nat.succ_eq_add_one]
     rw [← negSucc_eq, neg_negSucc]
   | -[a+1], 0 => simp
   | -[a+1], ofNat (b + 1) =>
     unfold fdiv
-    simp only [ofNat_eq_coe, Int.natCast_add, cast_ofNat_Int, Nat.succ_eq_add_one]
+    simp only [ofNat_eq_natCast, Int.natCast_add, cast_ofNat_Int, Nat.succ_eq_add_one]
     rw [neg_negSucc, ← negSucc_eq]
   | -[a+1], -[b+1] =>
     unfold fdiv
-    simp only [ofNat_eq_coe, natCast_ediv, Nat.succ_eq_add_one, Int.natCast_add, cast_ofNat_Int]
+    simp only [ofNat_eq_natCast, natCast_ediv, Nat.succ_eq_add_one, Int.natCast_add, cast_ofNat_Int]
     rw [neg_negSucc, neg_negSucc]
     simp
 
@@ -2361,7 +2361,7 @@ theorem natAbs_fdiv_le_natAbs (a b : Int) : natAbs (a.fdiv b) ≤ natAbs a := by
     | 0, .negSucc b, h => simp at h
     | .ofNat (a + 1), .negSucc 0, h => simp at h
     | .ofNat (a + 1), .negSucc (b + 1), h =>
-      rw [negSucc_eq, ofNat_eq_coe]
+      rw [negSucc_eq, ofNat_eq_natCast]
       norm_cast
       rw [Int.ediv_neg, Int.sub_eq_add_neg, ← Int.neg_add, natAbs_neg]
       norm_cast
@@ -2477,6 +2477,10 @@ theorem bmod_eq_self_sub_mul_bdiv (x : Int) (m : Nat) : bmod x m = x - m * bdiv 
 theorem bmod_eq_self_sub_bdiv_mul (x : Int) (m : Nat) : bmod x m = x - bdiv x m * m := by
   rw [← Int.add_sub_cancel (bmod x m), bmod_add_bdiv']
 
+theorem bmod_eq_emod_of_lt {x : Int} {m : Nat} (hx : x % m < (m + 1) / 2) : bmod x m = x % m := by
+  simp [bmod, hx]
+
+@[deprecated Int.bmod_eq_emod_of_lt (since := "2025-10-29")]
 theorem bmod_pos (x : Int) (m : Nat) (p : x % m < (m + 1) / 2) : bmod x m = x % m := by
   simp [bmod_def, p]
 
@@ -2486,7 +2490,7 @@ theorem bmod_neg (x : Int) (m : Nat) (p : x % m ≥ (m + 1) / 2) : bmod x m = (x
 theorem bmod_eq_emod (x : Int) (m : Nat) : bmod x m = x % m - if x % m ≥ (m + 1) / 2 then m else 0 := by
   split
   · rwa [bmod_neg]
-  · rw [bmod_pos] <;> simp_all
+  · rw [bmod_eq_emod_of_lt] <;> simp_all
 
 @[simp]
 theorem bmod_one (x : Int) : Int.bmod x 1 = 0 := by
@@ -2723,9 +2727,6 @@ theorem bmod_eq_iff {a : Int} {b : Nat} {c : Int} (hb : 0 < b) :
     have := bmod_lt (x := a) (m := b) hb
     omega
 
-theorem bmod_eq_emod_of_lt {x : Int} {m : Nat} (hx : x % m < (m + 1) / 2) : bmod x m = x % m := by
-  simp [bmod, hx]
-
 theorem bmod_eq_neg {n : Nat} {m : Int} (hm : 0 ≤ m) (hn : n = 2 * m) : m.bmod n = -m := by
   by_cases h : m = 0
   · subst h; simp
@@ -2766,7 +2767,7 @@ theorem one_bmod_two : Int.bmod 1 2 = -1 := by simp
 
 theorem one_bmod {b : Nat} (h : 3 ≤ b) : Int.bmod 1 b = 1 := by
   have hb : 1 % (b : Int) = 1 := by rw [one_emod]; omega
-  rw [bmod_pos _ _ (by omega), hb]
+  rw [bmod_eq_emod_of_lt (by omega), hb]
 
 theorem bmod_two_eq (x : Int) : x.bmod 2 = -1 ∨ x.bmod 2 = 0 := by
   have := le_bmod (x := x) (m := 2) (by omega)
@@ -2941,7 +2942,7 @@ theorem neg_self_le_ediv_of_nonneg_of_nonpos (x y : Int) (hx : 0 ≤ x) (hy : y 
   · obtain ⟨xn, rfl⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
     obtain ⟨yn, rfl⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
     rw [show xn = ofNat xn by norm_cast, Int.ofNat_ediv_negSucc (a := xn)]
-    simp only [ofNat_eq_coe, natCast_ediv, Int.natCast_add, cast_ofNat_Int, Int.neg_le_neg_iff]
+    simp only [ofNat_eq_natCast, natCast_ediv, Int.natCast_add, cast_ofNat_Int, Int.neg_le_neg_iff]
     norm_cast
     apply Nat.le_trans (m := xn) (by exact Nat.div_le_self xn (yn + 1)) (by omega)
 

@@ -49,8 +49,6 @@ protected theorem ofNat_mul_out (m n : Nat) : ↑m * ↑n = (↑(m * n) : Int) :
 
 protected theorem ofNat_add_one_out (n : Nat) : ↑n + (1 : Int) = ↑(Nat.succ n) := rfl
 
-@[simp] theorem ofNat_eq_natCast (n : Nat) : Int.ofNat n = n := rfl
-
 @[norm_cast] theorem natCast_inj {m n : Nat} : (m : Int) = (n : Int) ↔ m = n := ofNat_inj
 
 @[norm_cast]
@@ -84,7 +82,7 @@ theorem natCast_succ_pos (n : Nat) : 0 < (n.succ : Int) := natCast_pos.2 n.succ_
   symm
   simp only [Int.toNat]
   split <;> rename_i x a
-  · simp only [Int.ofNat_eq_coe]
+  · simp only [Int.ofNat_eq_natCast]
     split <;> rename_i y b h
     · simp at h
       omega

@@ -55,6 +55,7 @@ enable_testing()
 
 option(MULTI_THREAD       "MULTI_THREAD"       ON)
 option(CCACHE             "use ccache"         ON)
+option(SCCACHE            "use sccache"        OFF)
 option(SPLIT_STACK        "SPLIT_STACK"        OFF)
 # When OFF we disable LLVM support
 option(LLVM               "LLVM"               OFF)
@@ -341,13 +342,25 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 endif()
 
 # ccache
-if(CCACHE AND NOT CMAKE_CXX_COMPILER_LAUNCHER AND NOT CMAKE_C_COMPILER_LAUNCHER)
+if(CCACHE AND NOT SCCACHE AND NOT CMAKE_CXX_COMPILER_LAUNCHER AND NOT CMAKE_C_COMPILER_LAUNCHER)
   find_program(CCACHE_PATH ccache)
   if(CCACHE_PATH)
     set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PATH}")
     set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PATH}")
   else()
     message(WARNING "Failed to find ccache, prepare for longer and redundant builds...")
+  endif()
+endif()
+
+if(SCCACHE AND NOT CMAKE_CXX_COMPILER_LAUNCHER AND NOT CMAKE_C_COMPILER_LAUNCHER)
+  # Extend the search path to the local Cargo directory, which may be on the PATH but ignored by CMake.
+  find_program(SCCACHE_PATH sccache PATHS ~/.cargo/bin)
+  if(SCCACHE_PATH)
+    message(STATUS "found sccache")
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${SCCACHE_PATH}")
+    set(CMAKE_C_COMPILER_LAUNCHER "${SCCACHE_PATH}")
+  else()
+    message(WARNING "Failed to find sccache, prepare for longer and redundant builds...")
   endif()
 endif()
 

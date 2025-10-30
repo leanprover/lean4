@@ -60,7 +60,7 @@ as: ;name=value;name=value Plus 2 bytes for \r\n at the end.
 -/
 def size (chunk : Chunk) : Nat :=
   let extensionsSize := chunk.extensions.foldl (fun acc (name, value) => acc + name.length + (value.get!).length + 2) 0
-  chunk.data.size + extensionsSize + 2
+  chunk.data.size + extensionsSize + (if extensionsSize > 0 then 2 else 0)
 
 instance : Encode .v11 Chunk where
   encode buffer chunk :=

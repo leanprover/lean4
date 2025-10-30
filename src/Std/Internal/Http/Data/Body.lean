@@ -23,8 +23,6 @@ open Std Internal IO Async
 
 set_option linter.all true
 
-set_option linter.all true
-
 /--
 Type that represents the body of a request or response with streams of bytearrays or bytearrays of fixed
 size.
@@ -90,7 +88,6 @@ protected partial def forIn
 
 instance : ForIn Async Body Chunk where
   forIn := Body.forIn
-
 
 /--
 Collect all data from the body into a single `ByteArray`. This reads the entire body content into memory,

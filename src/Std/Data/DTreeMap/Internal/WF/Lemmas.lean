@@ -1580,7 +1580,7 @@ theorem insertMany_eq_foldl {_ : Ord α} {l : List ((a : α) × β a)} {t : Impl
     (t.insertMany l h).val = l.foldl (init := t) fun acc ⟨k, v⟩ => acc.insert! k v := by
   simp [insertMany, insert_eq_insert!, ← List.foldl_hom Subtype.val, List.forIn_pure_yield_eq_foldl]
 
-theorem insertMany_eq_foldl_tree {_ : Ord α} {t₁ : Impl α β} (h₁ : t₁.Balanced) {t₂ : Impl α β}:
+theorem insertMany_eq_foldl_impl {_ : Ord α} {t₁ : Impl α β} (h₁ : t₁.Balanced) {t₂ : Impl α β}:
     (t₁.insertMany t₂ h₁).val = t₂.foldl (init := t₁) fun acc k v => acc.insert! k v := by
   simp [foldl_eq_foldl]
   rw [← insertMany_eq_foldl]
@@ -1590,7 +1590,7 @@ theorem insertMany_eq_foldl_tree {_ : Ord α} {t₁ : Impl α β} (h₁ : t₁.B
     rw [forIn_eq_forIn_toListModel]
     congr
 
-theorem insertMany!_eq_foldl_tree {_ : Ord α} {t₁ : Impl α β} {t₂ : Impl α β}:
+theorem insertMany!_eq_foldl_impl {_ : Ord α} {t₁ : Impl α β} {t₂ : Impl α β}:
     (t₁.insertMany! t₂).val = t₂.foldl (init := t₁) fun acc k v => acc.insert! k v := by
   simp [foldl_eq_foldl]
   rw [← insertMany!_eq_foldl]
@@ -1606,7 +1606,7 @@ theorem insertManyIfNew!_eq_foldl {_ : Ord α} {l : List ((a : α) × β a)} {t 
     (t.insertManyIfNew! l).val = l.foldl (init := t) fun acc ⟨k, v⟩ => acc.insertIfNew! k v := by
   simp [insertManyIfNew!, ← List.foldl_hom Subtype.val, List.forIn_pure_yield_eq_foldl]
 
-theorem insertManyIfNew_eq_foldl_tree {_ : Ord α} {t₁ : Impl α β} (h₁ : t₁.Balanced) {t₂ : Impl α β} :
+theorem insertManyIfNew_eq_foldl_impl {_ : Ord α} {t₁ : Impl α β} (h₁ : t₁.Balanced) {t₂ : Impl α β} :
     (t₁.insertManyIfNew t₂ h₁).val = t₂.foldl (init := t₁) fun acc k v => acc.insertIfNew! k v := by
   simp [foldl_eq_foldl]
   rw [← insertManyIfNew_eq_foldl]
@@ -1616,7 +1616,7 @@ theorem insertManyIfNew_eq_foldl_tree {_ : Ord α} {t₁ : Impl α β} (h₁ : t
     rw [forIn_eq_forIn_toListModel]
     congr
 
-theorem insertManyIfNew!_eq_foldl_tree {_ : Ord α} {t₁ : Impl α β} {t₂ : Impl α β}:
+theorem insertManyIfNew!_eq_foldl_impl {_ : Ord α} {t₁ : Impl α β} {t₂ : Impl α β}:
     (t₁.insertManyIfNew! t₂).val = t₂.foldl (init := t₁) fun acc k v => acc.insertIfNew! k v := by
   simp [foldl_eq_foldl]
   rw [← insertManyIfNew!_eq_foldl]
@@ -1629,20 +1629,20 @@ theorem insertMany_eq_insertMany! {_ : Ord α} {l : List ((a : α) × β a)}
     (t.insertMany l h).val = (t.insertMany! l).val := by
   simp only [insertMany_eq_foldl, insertMany!_eq_foldl]
 
-theorem insertMany_eq_insertMany!_tree {_ : Ord α}
+theorem insertMany_eq_insertMany!_impl {_ : Ord α}
     {t₁ t₂: Impl α β} (h : t₁.Balanced) :
     (t₁.insertMany t₂ h).val = (t₁.insertMany! t₂).val := by
-  simp only [insertMany_eq_foldl_tree, insertMany!_eq_foldl_tree]
+  simp only [insertMany_eq_foldl_impl, insertMany!_eq_foldl_impl]
 
 theorem insertManyIfNew_eq_insertManyIfNew! {_ : Ord α} {l : List ((a : α) × β a)}
     {t : Impl α β} (h : t.Balanced) :
     (t.insertMany l h).val = (t.insertMany! l).val := by
   simp only [insertMany_eq_foldl, insertMany!_eq_foldl]
 
-theorem insertManyIfNew_eq_insertManyIfNew!_tree {_ : Ord α}
+theorem insertManyIfNew_eq_insertManyIfNew!_impl {_ : Ord α}
     {t₁ t₂ : Impl α β} (h : t₁.Balanced) :
     (t₁.insertManyIfNew t₂ h).val = (t₁.insertManyIfNew! t₂).val := by
-  simp only [insertManyIfNew_eq_foldl_tree, insertManyIfNew!_eq_foldl_tree]
+  simp only [insertManyIfNew_eq_foldl_impl, insertManyIfNew!_eq_foldl_impl]
 
 theorem toListModel_insertMany_list {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
     {l : List ((a : α) × β a)}
@@ -1659,7 +1659,7 @@ theorem toListModel_insertMany_list {_ : Ord α} [BEq α] [LawfulBEqOrd α] [Tra
 theorem toListModel_insertMany_impl {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
     {t₁ : Impl α β} (h₁ : t₁.WF) {t₂ : Impl α β} :
     List.Perm (t₁.insertMany t₂ h₁.balanced).val.toListModel (t₁.toListModel.insertList t₂.toListModel) := by
-  rw [insertMany_eq_foldl_tree]
+  rw [insertMany_eq_foldl_impl]
   rw [foldl_eq_foldl]
   induction t₂.toListModel generalizing t₁ with
   | nil => rfl
@@ -1675,7 +1675,7 @@ theorem toListModel_insertMany_impl {_ : Ord α} [BEq α] [LawfulBEqOrd α] [Tra
 theorem toListModel_insertManyIfNew_impl {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
     {t₁ : Impl α β} (h₁ : t₁.WF) {t₂ : Impl α β} :
     List.Perm (t₁.insertManyIfNew t₂ h₁.balanced).val.toListModel (t₁.toListModel.insertListIfNew t₂.toListModel) := by
-  rw [insertManyIfNew_eq_foldl_tree]
+  rw [insertManyIfNew_eq_foldl_impl]
   rw [foldl_eq_foldl]
   induction t₂.toListModel generalizing t₁ with
   | nil => rfl
@@ -1715,8 +1715,8 @@ theorem union_eq_union! [Ord α]
     (t₁.union t₂ h₁.balanced h₂.balanced) = t₁.union! t₂ := by
   simp [union, union!]
   split
-  . apply insertManyIfNew_eq_insertManyIfNew!_tree
-  . apply insertMany_eq_insertMany!_tree
+  . apply insertManyIfNew_eq_insertManyIfNew!_impl
+  . apply insertMany_eq_insertMany!_impl
 
 theorem toListModel_insertMany!_list {_ : Ord α} [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} {t : Impl α β} (h : t.WF) :

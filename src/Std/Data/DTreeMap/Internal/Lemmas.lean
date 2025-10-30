@@ -3271,9 +3271,7 @@ end Const
 
 section Union
 
-variable (m₁ m₂ : Impl α β)
-
-variable {m₁ m₂}
+variable {m₁ m₂ : Impl α β}
 
 /- contains -/
 theorem contains_union_of_left [TransOrd α] (h₁ : m₁.WF)

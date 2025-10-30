@@ -135,6 +135,10 @@ Examples:
  * `['a', 'a', 'a'].asString = "aaa"`
 -/
 @[extern "lean_string_mk", expose]
+def String.ofList (data : List Char) : String :=
+  ⟨List.utf8Encode data,.intro data rfl⟩
+
+@[extern "lean_string_mk", expose]
 def String.mk (data : List Char) : String :=
   ⟨List.utf8Encode data,.intro data rfl⟩
 

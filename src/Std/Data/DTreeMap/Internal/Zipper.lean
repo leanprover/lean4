@@ -486,65 +486,44 @@ def instFinitenessRelation [Ord α] : FinitenessRelation (RxcIterator α β) Id 
 public instance instFinite [Ord α] : Finite (RxcIterator α β) Id :=
   .of_finitenessRelation instFinitenessRelation
 
-public theorem step_rxcIterator_eq_match [Ord α] {it : IterM (α := RxcIterator α β) Id ((a : α) × β a)} :
-    it.step = ⟨match it.internalState.iter with
-    | Zipper.done => IterStep.done
-    | Zipper.cons k v t z =>
-      if (compare k it.internalState.upper).isLE = true then
-        IterStep.yield { internalState := { iter := Zipper.prependMap t z, upper := it.internalState.upper } } ⟨k, v⟩
-      else IterStep.done,
-    (by simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, RxcIterator.step]; split; all_goals (rename_i heq; simp only [heq]))⟩ := by
-  simp only [IterM.step, Iterator.step, RxcIterator.step]
-  ext
-  congr 1
-  congr 1
-  cases it
-  next =>
-    rename_i internalState
-    simp
-    cases internalState
-    case mk iter upper =>
-      simp
-      cases iter
-      case done =>
-        simp only
-      case cons k v tree next =>
-        simp only
+@[simp]
+theorem RxcIterator.step_done [Ord α] {upper : α} : ({iter := .done, upper := upper } : RxcIterator α β).step = .done := rfl
 
-public theorem val_step_rxcIterator_eq_match {α β} [Ord α]
-    {it : Iter (α := RxcIterator α β) (Sigma β)} :
-    it.step.val =
-        match it.internalState.iter with
-        | Zipper.done => IterStep.done
-        | Zipper.cons k v t it' =>
-          if (compare k it.internalState.upper).isLE = true then
-            IterStep.yield { internalState := { iter := Zipper.prependMap t it', upper := it.internalState.upper } } ⟨k, v⟩
-          else IterStep.done := by
-  rcases it with ⟨z, upper⟩
-  rw [Iter.step]
-  rw [step_rxcIterator_eq_match]
-  simp only [Iter.toIterM]
-  split
-  · simp only [IterM.Step.toPure, IterStep.mapIterator, Id.run]
-  · split <;> simp only [IterM.Step.toPure, IterM.toIter, IterStep.mapIterator, Id.run]
+@[simp]
+theorem RxcIterator.step_cons_of_LE [Ord α] {upper : α} {h : (compare k upper).isLE} : ({iter := (.cons k v t it), upper := upper } : RxcIterator α β).step = .yield ⟨it.prependMap t, upper⟩ ⟨k,v⟩ := by
+  rw [step, h]
+  simp only [↓reduceIte]
 
-theorem toList_rxcIter {α β} [Ord α]
+@[simp]
+theorem RxcIterator.step_cons_of_not_LE [Ord α] {upper : α} {h : (compare k upper).isLE = false} : ({iter := (.cons k v t it), upper := upper } : RxcIterator α β).step = .done := by
+  rw [step, h]
+  simp only [Bool.false_eq_true, ↓reduceIte]
+
+@[simp]
+theorem RxcIterator.val_run_step_toIterM_iter [Ord α] {z : RxcIterator α β} : (⟨z⟩ : Iter (α := RxcIterator α β) ((a : α) × β a)).toIterM.step.run.val = z.step := rfl
+
+theorem RxcIterator.eq_toIterM_iter [Ord α] (it : Iter (α := RxcIterator α β) ((a : α) × β a)) :
+    it.toIterM = ⟨it.internalState⟩ := by rfl
+
+theorem RxcIterator.toList_rxcIter {α β} [Ord α]
     {z : Zipper α β} {bound : α} :
     (⟨RxcIterator.mk z bound⟩ : Iter (Sigma β)).toList =
       z.toList.takeWhile (fun e => (compare e.fst bound).isLE) := by
-  rw [Iter.toList_eq_match_step]
-  generalize hit : (⟨RxcIterator.mk z bound⟩ : Iter (Sigma β)).step.val = step
-  rw [val_step_rxcIterator_eq_match] at hit
-  simp only at hit
-  split at hit <;> rename_i heq
-  · simp only [← hit, Zipper.toList, List.takeWhile_nil]
-  · split at hit
-    · simp only [← hit, Zipper.toList, List.cons_append]
-      rw [List.takeWhile_cons_of_pos ‹_›]
-      simp
-      rw [toList_rxcIter, Zipper.toList_prependMap_eq_append]
-    · simp only [← hit, Zipper.toList, List.cons_append, List.nil_eq]
-      rw [List.takeWhile_cons_of_neg ‹_›]
+  rw [Iter.toList_eq_toList_toIterM, IterM.toList_eq_match_step]
+  simp only [bind_pure_comp, Id.run_bind]
+  rw [val_run_step_toIterM_iter]
+  cases z with
+  | done => simp
+  | cons k v t it' =>
+    generalize heq : (compare k bound).isLE = x
+    cases x
+    . simp only [@RxcIterator.step_cons_of_not_LE _ _ k v t it' _ bound heq, Id.run_pure,
+      Zipper.toList_cons, List.cons_append, heq, Bool.false_eq_true, not_false_eq_true,
+      List.takeWhile_cons_of_neg]
+    . simp only [@RxcIterator.step_cons_of_LE _ _ k v t it' _ bound heq, Id.run_map,
+      Zipper.toList_cons, List.cons_append, heq, List.takeWhile_cons_of_pos, List.cons.injEq,
+      true_and]
+      rw [← eq_toIterM_iter, ← Iter.toList_eq_toList_toIterM, toList_rxcIter, Zipper.toList_prependMap_eq_append]
 termination_by z.size
 decreasing_by
   simp_all [Zipper.size_prependMap]
@@ -643,65 +622,44 @@ def RxoIterator.instFinitenessRelation [Ord α] : FinitenessRelation (RxoIterato
 public instance Rxo.instFinite [Ord α] : Finite (RxoIterator α β) Id :=
   .of_finitenessRelation RxoIterator.instFinitenessRelation
 
-public theorem step_rxoIterator_eq_match [Ord α] {it : IterM (α := RxoIterator α β) Id ((a : α) × β a)} :
-    it.step = ⟨match it.internalState.iter with
-    | Zipper.done => IterStep.done
-    | Zipper.cons k v t z =>
-      if (compare k it.internalState.upper).isLT = true then
-        IterStep.yield { internalState := { iter := Zipper.prependMap t z, upper := it.internalState.upper } } ⟨k, v⟩
-      else IterStep.done,
-    (by simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, RxoIterator.step]; split; all_goals (rename_i heq; simp only [heq]))⟩ := by
-  simp only [IterM.step, Iterator.step, RxoIterator.step]
-  ext
-  congr 1
-  congr 1
-  cases it
-  next =>
-    rename_i internalState
-    simp
-    cases internalState
-    case mk iter upper =>
-      simp
-      cases iter
-      case done =>
-        simp only
-      case cons k v tree next =>
-        simp only
+@[simp]
+theorem RxoIterator.step_done [Ord α] {upper : α} : ({iter := .done, upper := upper } : RxoIterator α β).step = .done := rfl
 
-public theorem val_step_rxoIterator_eq_match {α β} [Ord α]
-    {it : Iter (α := RxoIterator α β) (Sigma β)} :
-    it.step.val =
-        match it.internalState.iter with
-        | Zipper.done => IterStep.done
-        | Zipper.cons k v t it' =>
-          if (compare k it.internalState.upper).isLT = true then
-            IterStep.yield { internalState := { iter := Zipper.prependMap t it', upper := it.internalState.upper } } ⟨k, v⟩
-          else IterStep.done := by
-  rcases it with ⟨z, upper⟩
-  rw [Iter.step]
-  rw [step_rxoIterator_eq_match]
-  simp only [Iter.toIterM]
-  split
-  · simp only [IterM.Step.toPure, IterStep.mapIterator, Id.run]
-  · split <;> simp only [IterM.Step.toPure, IterM.toIter, IterStep.mapIterator, Id.run]
+@[simp]
+theorem RxoIterator.step_cons_of_LT [Ord α] {upper : α} {h : (compare k upper).isLT} : ({iter := (.cons k v t it), upper := upper } : RxoIterator α β).step = .yield ⟨it.prependMap t, upper⟩ ⟨k,v⟩ := by
+  rw [step, h]
+  simp only [↓reduceIte]
 
-theorem toList_rxoIter {α β} [Ord α]
+@[simp]
+theorem RxoIterator.step_cons_of_not_LT [Ord α] {upper : α} {h : (compare k upper).isLT = false} : ({iter := (.cons k v t it), upper := upper } : RxoIterator α β).step = .done := by
+  rw [step, h]
+  simp only [Bool.false_eq_true, ↓reduceIte]
+
+@[simp]
+theorem RxoIterator.val_run_step_toIterM_iter [Ord α] {z : RxoIterator α β} : (⟨z⟩ : Iter (α := RxoIterator α β) ((a : α) × β a)).toIterM.step.run.val = z.step := rfl
+
+theorem RxoIterator.eq_toIterM_iter [Ord α] (it : Iter (α := RxoIterator α β) ((a : α) × β a)) :
+    it.toIterM = ⟨it.internalState⟩ := by rfl
+
+theorem RxoIterator.toList_rxoIter {α β} [Ord α]
     {z : Zipper α β} {bound : α} :
     (⟨RxoIterator.mk z bound⟩ : Iter (Sigma β)).toList =
       z.toList.takeWhile (fun e => (compare e.fst bound).isLT) := by
-  rw [Iter.toList_eq_match_step]
-  generalize hit : (⟨RxoIterator.mk z bound⟩ : Iter (Sigma β)).step.val = step
-  rw [val_step_rxoIterator_eq_match] at hit
-  simp only at hit
-  split at hit <;> rename_i heq
-  · simp only [← hit, Zipper.toList, List.takeWhile_nil]
-  · split at hit
-    · simp only [← hit, Zipper.toList, List.cons_append]
-      rw [List.takeWhile_cons_of_pos ‹_›]
-      simp
-      rw [toList_rxoIter, Zipper.toList_prependMap_eq_append]
-    · simp only [← hit, Zipper.toList, List.cons_append, List.nil_eq]
-      rw [List.takeWhile_cons_of_neg ‹_›]
+  rw [Iter.toList_eq_toList_toIterM, IterM.toList_eq_match_step]
+  simp only [bind_pure_comp, Id.run_bind]
+  rw [val_run_step_toIterM_iter]
+  cases z with
+  | done => simp
+  | cons k v t it' =>
+    generalize heq : (compare k bound).isLT = x
+    cases x
+    . simp only [@RxoIterator.step_cons_of_not_LT _ _ k v t it' _ bound heq, Id.run_pure,
+      Zipper.toList_cons, List.cons_append, heq, Bool.false_eq_true, not_false_eq_true,
+      List.takeWhile_cons_of_neg]
+    . simp only [@RxoIterator.step_cons_of_LT _ _ k v t it' _ bound heq, Id.run_map,
+      Zipper.toList_cons, List.cons_append, heq, List.takeWhile_cons_of_pos, List.cons.injEq,
+      true_and]
+      rw [← eq_toIterM_iter, ← Iter.toList_eq_toList_toIterM, toList_rxoIter, Zipper.toList_prependMap_eq_append]
 termination_by z.size
 decreasing_by
   simp_all [Zipper.size_prependMap]
@@ -760,7 +718,7 @@ public theorem toList_ric {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
   simp only [Ric.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
-  rw [toList_rxcIter, toList_eq_takeWhile_list]
+  rw [RxcIterator.toList_rxcIter, toList_eq_takeWhile_list]
   . rw [Zipper.toList_prependMap_eq_append]
     simp [Zipper.toList]
   . apply Zipper.ordered_prependMap_done
@@ -792,7 +750,7 @@ public theorem toList_ric {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t 
   rw [Impl.Const.toList_eq_toListModel_map]
   rw [List.filter_map]
   congr
-  rw [toList_rxcIter, toList_eq_takeWhile_list]
+  rw [RxcIterator.toList_rxcIter, toList_eq_takeWhile_list]
   . congr
     simp [Zipper.toList_prependMap_eq_append, Zipper.toList, Impl.toList_eq_toListModel]
   . apply Zipper.ordered_prependMap_done
@@ -819,7 +777,7 @@ public theorem toList_rio {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
   simp only [Rio.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
-  rw [toList_rxoIter, toList_eq_takeWhile_list_LT]
+  rw [RxoIterator.toList_rxoIter, toList_eq_takeWhile_list_LT]
   . rw [Zipper.toList_prependMap_eq_append]
     simp [Zipper.toList]
   . apply Zipper.ordered_prependMap_done
@@ -851,7 +809,7 @@ public theorem toList_rio {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t 
   rw [Impl.Const.toList_eq_toListModel_map]
   rw [List.filter_map]
   congr
-  rw [toList_rxoIter, toList_eq_takeWhile_list_LT]
+  rw [RxoIterator.toList_rxoIter, toList_eq_takeWhile_list_LT]
   . congr
     simp [Zipper.toList_prependMap_eq_append, Zipper.toList, Impl.toList_eq_toListModel]
   . apply Zipper.ordered_prependMap_done
@@ -870,7 +828,7 @@ theorem toList_rccIter {α β} [Ord α] [TransOrd α]
     (RccIterator t lowerBound upperBound : Iter (Sigma β)).toList =
       t.toList.filter (fun e => (compare e.fst lowerBound).isGE ∧ (compare e.fst upperBound).isLE) := by
   simp only [RccIterator, Bool.decide_and, Bool.decide_eq_true]
-  rw [toList_rxcIter, toList_eq_takeWhile_list]
+  rw [RxcIterator.toList_rxcIter, toList_eq_takeWhile_list]
   . conv =>
       rhs
       lhs
@@ -927,7 +885,7 @@ theorem toList_rcoIter {α β} [Ord α] [TransOrd α]
     (RcoIterator t lowerBound upperBound : Iter (Sigma β)).toList =
       t.toList.filter (fun e => (compare e.fst lowerBound).isGE ∧ (compare e.fst upperBound).isLT) := by
   simp only [RcoIterator, Bool.decide_and, Bool.decide_eq_true]
-  rw [toList_rxoIter, toList_eq_takeWhile_list_LT]
+  rw [RxoIterator.toList_rxoIter, toList_eq_takeWhile_list_LT]
   . conv =>
       rhs
       lhs
@@ -994,39 +952,17 @@ public theorem toList_rco {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t 
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [Iter.toList_map]
-  simp only [Ordering.isLT_iff_eq_lt, Bool.decide_and, Bool.decide_eq_true]
-  rw [toList_rxoIter, toList_eq_takeWhile_list_LT]
-  . conv =>
-      rhs
-      lhs
-      ext x
-      rw [Bool.and_comm]
-    rw [← List.filter_filter]
-    rw [← Zipper.prependMap_of_pruneLE_eq_prependMapGE]
-    . rw [Zipper.toList_prependMap_eq_append]
-      rw [Impl.toList_pruneLE]
-      . have heq : (fun (e : (_ : α) × β) => (compare e.fst upperBound).isLT) = (fun (e : (α × β)) => (compare e.fst upperBound).isLT) ∘ (fun (e : (_ : α) × β) => (e.1,e.2)) := by ext e; simp
-        rw [heq]
-        conv =>
-          lhs
-          rw [← List.filter_map]
-          rhs
-        congr
-        . ext x
-          simp [← Ordering.isLT_iff_eq_lt]
-        . have heq2 : (fun (e : (_ : α) × β) => (compare e.fst lowerBound).isGE) = (fun (e : (α × β)) => (compare e.fst lowerBound).isGE) ∘ (fun (e : (_ : α) × β) => (e.1,e.2)) := by ext e; simp
-          sorry
-      . exact ordered
-    . exact ordered
-  . rw [← Zipper.prependMap_of_pruneLE_eq_prependMapGE]
-    . simp only [Zipper.toList_prependMap_eq_append, Zipper.toList, List.append_nil]
-      rw [Impl.toList_pruneLE]
-      . apply List.Pairwise.filter
-        simp only [Impl.Ordered] at ordered
-        rw [Impl.toList_eq_toListModel]
-        exact ordered
-      . exact ordered
-    . exact ordered
+  have := @toList_rcoIter α (fun _ => β) _ _ t ordered lowerBound upperBound
+  rw [RcoIterator] at this
+  rw [this]
+  have eq : (fun (e : (_ : α) × β) => decide ((compare e.fst lowerBound).isGE = true ∧ (compare e.fst upperBound).isLT = true)) = (fun (e : α × β) => decide ((compare e.fst lowerBound).isGE = true ∧ (compare e.fst upperBound).isLT = true)) ∘ (fun e => (e.1, e.2)) := by congr
+  conv =>
+    lhs
+    rhs
+    rw [eq]
+  rw [← List.filter_map]
+  congr
+  rw [Impl.Const.toList_eq_toListModel_map, Impl.toList_eq_toListModel]
 
 end Const
 
@@ -1041,7 +977,7 @@ theorem toList_rooIter {α β} [Ord α] [TransOrd α]
     (RooIterator t lowerBound upperBound : Iter (Sigma β)).toList =
       t.toList.filter (fun e => (compare e.fst lowerBound).isGT ∧ (compare e.fst upperBound).isLT) := by
   simp only [RooIterator, Bool.decide_and, Bool.decide_eq_true]
-  rw [toList_rxoIter, toList_eq_takeWhile_list_LT]
+  rw [RxoIterator.toList_rxoIter, toList_eq_takeWhile_list_LT]
   . conv =>
       rhs
       lhs
@@ -1098,7 +1034,7 @@ theorem toList_rocIter {α β} [Ord α] [TransOrd α]
     (RocIterator t lowerBound upperBound : Iter (Sigma β)).toList =
       t.toList.filter (fun e => (compare e.fst lowerBound).isGT ∧ (compare e.fst upperBound).isLE) := by
   simp only [RocIterator, Bool.decide_and, Bool.decide_eq_true]
-  rw [toList_rxcIter, toList_eq_takeWhile_list]
+  rw [RxcIterator.toList_rxcIter, toList_eq_takeWhile_list]
   . conv =>
       rhs
       lhs

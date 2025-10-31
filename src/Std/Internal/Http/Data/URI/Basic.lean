@@ -100,6 +100,11 @@ structure Path where
   absolute : Bool := false
 deriving Inhabited, Repr
 
+instance : ToString Path where
+  toString path :=
+    let result := String.intercalate "/" path.segments.toList
+    if path.absolute then "/" ++ result else result
+
 /--
 Query string represented as an array of key–value pairs.
 -/

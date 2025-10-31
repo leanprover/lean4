@@ -220,7 +220,6 @@ private def processHeaders (machine : Machine dir) : Machine dir :=
       | .fixed n => .needFixedBody n
       | .chunked => .needChunkedSize
 
-
 def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : Machine dir :=
   let hasClose := hasConnectionClose messageHead.headers
 
@@ -285,7 +284,8 @@ def shouldFlush (machine : Machine dir) : Bool :=
   machine.failed ∨
   machine.reader.state == .closed ∨
   machine.writer.userData.size ≥ machine.config.highMark ∨
-  machine.writer.isReadyToSend
+  machine.writer.isReadyToSend ∨
+  machine.writer.knownSize.isSome
 
 @[inline]
 def isReaderComplete (machine : Machine dir) : Bool :=

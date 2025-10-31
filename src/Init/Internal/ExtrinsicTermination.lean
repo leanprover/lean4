@@ -71,7 +71,7 @@ public def extrinsicFix [∀ a, Nonempty (C a)] (F : ∀ a, (∀ a', C a') → C
     -- In effect, `extrinsicFix` is opaque if `TerminatesTotally F` is false.
     opaqueFix F a
 
-public def extrinsicFix_eq [∀ a, Nonempty (C a)] {F : ∀ a, (∀ a', C a') → C a}
+public theorem extrinsicFix_eq [∀ a, Nonempty (C a)] {F : ∀ a, (∀ a', C a') → C a}
     (h : TerminatesTotally F) {a : α} :
     extrinsicFix F a = F a (extrinsicFix F) := by
   simp only [extrinsicFix, dif_pos h]
@@ -128,7 +128,7 @@ public def extrinsicFix₂ [∀ a b, Nonempty (C₂ a b)]
     F x.1 x.2 (fun a b => G ⟨a, b⟩)
   extrinsicFix (C := fun x : PSigma β => C₂ x.1 x.2) F' ⟨a, b⟩
 
-public def extrinsicFix₂_eq [∀ a b, Nonempty (C₂ a b)]
+public theorem extrinsicFix₂_eq [∀ a b, Nonempty (C₂ a b)]
     {F : (a : α) → (b : β a) → ((a' : α) → (b' : β a') → C₂ a' b') → C₂ a b}
     (h : TerminatesTotally₂ F) {a : α} {b : β a} :
     extrinsicFix₂ F a b = F a b (extrinsicFix₂ F) := by

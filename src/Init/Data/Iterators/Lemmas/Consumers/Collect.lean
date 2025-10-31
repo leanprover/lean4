@@ -34,19 +34,19 @@ theorem Iter.toListRev_eq_toListRev_toIterM {α β} [Iterator α Id β] [Finite 
   (rfl)
 
 @[simp]
-theorem Iter.ensureTerminationToArray_eq_toArray {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id]
+theorem Iter.toArray_ensureTermination {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id]
     [LawfulIteratorCollect α Id Id] {it : Iter (α := α) β} :
     it.ensureTermination.toArray = it.toArray :=
   (rfl)
 
 @[simp]
-theorem Iter.ensureTerminationToList_eq_toList {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id]
+theorem Iter.toList_ensureTermination {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id]
     [LawfulIteratorCollect α Id Id] {it : Iter (α := α) β} :
     it.ensureTermination.toList = it.toList :=
   (rfl)
 
 @[simp]
-theorem Iter.ensureTerminationToListRev_eq_toListRev {α β} [Iterator α Id β] [Finite α Id]
+theorem Iter.toListRev_ensureTermination_eq_toListRev {α β} [Iterator α Id β] [Finite α Id]
     {it : Iter (α := α) β} : it.ensureTermination.toListRev = it.toListRev :=
   (rfl)
 
@@ -68,11 +68,10 @@ theorem Iter.toList_toArray {α β} [Iterator α Id β] [Finite α Id] [Iterator
     it.toArray.toList = it.toList := by
   simp [toArray_eq_toArray_toIterM, toList_eq_toList_toIterM, ← IterM.toList_toArray]
 
-@[simp]
-theorem Iter.toList_ensureTerminationToArray {α β} [Iterator α Id β] [Finite α Id]
+theorem Iter.toList_toArray_ensureTermination {α β} [Iterator α Id β] [Finite α Id]
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] {it : Iter (α := α) β} :
     it.ensureTermination.toArray.toList = it.toList := by
-  rw [ensureTerminationToArray_eq_toArray, toList_toArray]
+  simp
 
 @[simp]
 theorem Iter.toArray_toList {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id]
@@ -80,11 +79,10 @@ theorem Iter.toArray_toList {α β} [Iterator α Id β] [Finite α Id] [Iterator
     it.toList.toArray = it.toArray := by
   simp [toArray_eq_toArray_toIterM, toList_eq_toList_toIterM, ← IterM.toArray_toList]
 
-@[simp]
-theorem Iter.toArray_ensureTerminationToList {α β} [Iterator α Id β] [Finite α Id]
+theorem Iter.toArray_toList_ensureTermination {α β} [Iterator α Id β] [Finite α Id]
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] {it : Iter (α := α) β} :
     it.ensureTermination.toList.toArray = it.toArray := by
-  rw [ensureTerminationToList_eq_toList, toArray_toList]
+  simp
 
 @[simp]
 theorem Iter.reverse_toListRev [Iterator α Id β] [Finite α Id]
@@ -93,21 +91,20 @@ theorem Iter.reverse_toListRev [Iterator α Id β] [Finite α Id]
     it.toListRev.reverse = it.toList := by
   simp [toListRev_eq_toListRev_toIterM, toList_eq_toList_toIterM, ← IterM.reverse_toListRev]
 
-@[simp]
-theorem Iter.reverse_ensureTerminationToListRev [Iterator α Id β] [Finite α Id]
+theorem Iter.reverse_toListRev_ensureTermination [Iterator α Id β] [Finite α Id]
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] {it : Iter (α := α) β} :
     it.ensureTermination.toListRev.reverse = it.toList := by
-  rw [ensureTerminationToListRev_eq_toListRev, reverse_toListRev]
+  simp
 
 theorem Iter.toListRev_eq {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id]
     [LawfulIteratorCollect α Id Id] {it : Iter (α := α) β} :
     it.toListRev = it.toList.reverse := by
   simp [Iter.toListRev_eq_toListRev_toIterM, Iter.toList_eq_toList_toIterM, IterM.toListRev_eq]
 
-theorem Iter.ensureTerminationToListRev_eq {α β} [Iterator α Id β] [Finite α Id]
+theorem Iter.toListRev_ensureTermination {α β} [Iterator α Id β] [Finite α Id]
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] {it : Iter (α := α) β} :
     it.ensureTermination.toListRev = it.toList.reverse := by
-  rw [ensureTerminationToListRev_eq_toListRev, toListRev_eq]
+  simp [toListRev_eq]
 
 theorem Iter.toArray_eq_match_step {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id]
     [LawfulIteratorCollect α Id Id] {it : Iter (α := α) β} :
@@ -120,13 +117,13 @@ theorem Iter.toArray_eq_match_step {α β} [Iterator α Id β] [Finite α Id] [I
   generalize it.toIterM.step.run = step
   cases step.inflate using PlausibleIterStep.casesOn <;> simp
 
-theorem Iter.ensureTerminationToArray_eq_match_step {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id]
+theorem Iter.toArray_ensureTermination_eq_match_step {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id]
     [LawfulIteratorCollect α Id Id] {it : Iter (α := α) β} :
     it.ensureTermination.toArray = match it.step.val with
       | .yield it' out => #[out] ++ it'.toArray
       | .skip it' => it'.toArray
       | .done => #[] := by
-  rw [ensureTerminationToArray_eq_toArray, toArray_eq_match_step]
+  rw [toArray_ensureTermination, toArray_eq_match_step]
 
 theorem Iter.toList_eq_match_step {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id]
     [LawfulIteratorCollect α Id Id] {it : Iter (α := α) β} :
@@ -137,13 +134,13 @@ theorem Iter.toList_eq_match_step {α β} [Iterator α Id β] [Finite α Id] [It
   rw [← Iter.toList_toArray, Iter.toArray_eq_match_step]
   split <;> simp [Iter.toList_toArray]
 
-theorem Iter.ensureTerminationToList_eq_match_step {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id]
+theorem Iter.toList_ensureTermination_eq_match_step {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id]
     [LawfulIteratorCollect α Id Id] {it : Iter (α := α) β} :
     it.ensureTermination.toList = match it.step.val with
       | .yield it' out => out :: it'.toList
       | .skip it' => it'.toList
       | .done => [] := by
-  rw [ensureTerminationToList_eq_toList, toList_eq_match_step]
+  rw [toList_ensureTermination, toList_eq_match_step]
 
 theorem Iter.toListRev_eq_match_step {α β} [Iterator α Id β] [Finite α Id] {it : Iter (α := α) β} :
     it.toListRev = match it.step.val with
@@ -154,12 +151,12 @@ theorem Iter.toListRev_eq_match_step {α β} [Iterator α Id β] [Finite α Id] 
   generalize it.toIterM.step.run = step
   cases step.inflate using PlausibleIterStep.casesOn <;> simp
 
-theorem Iter.ensureTerminationToListRev_eq_match_step {α β} [Iterator α Id β] [Finite α Id] {it : Iter (α := α) β} :
+theorem Iter.toListRev_ensureTermination_eq_match_step {α β} [Iterator α Id β] [Finite α Id] {it : Iter (α := α) β} :
     it.ensureTermination.toListRev = match it.step.val with
       | .yield it' out => it'.toListRev ++ [out]
       | .skip it' => it'.toListRev
       | .done => [] := by
-  rw [ensureTerminationToListRev_eq_toListRev, toListRev_eq_match_step]
+  rw [toListRev_ensureTermination_eq_toListRev, toListRev_eq_match_step]
 
 theorem Iter.getElem?_toList_eq_atIdxSlow? {α β}
     [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]

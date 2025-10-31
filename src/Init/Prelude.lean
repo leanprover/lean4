@@ -1177,8 +1177,7 @@ Boolean negation, also known as Boolean complement. `not x` can be written `!x`.
 This is a function that maps the value `true` to `false` and the value `false` to `true`. The
 propositional connective is `Not : Prop → Prop`.
 -/
-@[extern "lean_bool_complement"]
-def Bool.not : Bool → Bool
+@[inline] def Bool.not : Bool → Bool
   | true  => false
   | false => true
 

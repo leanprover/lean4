@@ -88,7 +88,7 @@ private def handle
   let socket := connection.socket
 
   let mut requestStream ← Body.ByteStream.emptyWithCapacity
-  let mut requestTimer := (← Timestamp.now ) + config.requestTimeout.val
+  let mut requestTimer := (← Timestamp.now) + config.requestTimeout.val
   let mut connectionTimer := (← Timestamp.now) + config.keepAliveTimeout.val
 
   let mut response ← IO.Promise.new

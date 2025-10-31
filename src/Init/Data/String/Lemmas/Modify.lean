@@ -49,4 +49,12 @@ theorem toList_mapAux {f : Char → Char} {s : String} {p : s.ValidPos}
 theorem toList_map {f : Char → Char} {s : String} : (s.map f).toList = s.toList.map f := by
   simp [map, toList_mapAux s.splits_startValidPos]
 
+@[simp]
+theorem length_map {f : Char → Char} {s : String} : (s.map f).length = s.length := by
+  simp [← length_toList]
+
+@[simp]
+theorem map_eq_empty {f : Char → Char} {s : String} : s.map f = "" ↔ s = "" := by
+  simp [← toList_eq_nil_iff]
+
 end String

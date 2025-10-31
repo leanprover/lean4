@@ -13,6 +13,21 @@ public section
 namespace Bool
 
 /--
+Boolean complement, or “logical not”. `lnot x`.
+
+`lnot x` is `true` when `x` is `false`. It is functionally the same as
+`!x` but it uses non-branching code at runtime.
+
+Examples:
+ * `lnot true = false`
+ * `lnot false = true`
+-/
+@[expose, extern "lean_bool_complement"]
+def lnot (x : Bool) : Bool := !x
+
+@[simp] theorem lnot_eq_not (x : Bool) : lnot x = (!x) := rfl
+
+/--
 Boolean “logical and”. `land x y`.
 
 `land x y` is `true` when both of `x` or `y` are `true`. It is functionally the same as

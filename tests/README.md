@@ -47,6 +47,8 @@ Benchmarks belonging to the old framework are not included in this description.
 - `elab_bench`:
   Like `elab`, but measuring the elaboration performance.
   These are also executed as part of the test suite, and `.out.expected` files are ignored when benchmarking.
+- `fmt`:
+  Tests that format lean files with the auto-formatter (`Lean.Fmt.fileMain`), verifying the formatted file.
 - `server`, `server_interactive`:
   Test LSP server requests.
 - `lake:`

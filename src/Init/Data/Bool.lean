@@ -13,19 +13,6 @@ public section
 namespace Bool
 
 /--
-Boolean “equality”. `beq x y` can be written `x == y`.
-
-`x == y` is `true` when `x = y`.  It is functionally the same as
-`decide (x = y)` but it uses non-branching code at runtime.
--/
-@[extern "lean_bool_dec_eq"]
-protected def beq (x y : Bool) : Bool := decide (x = y)
-
--- We override the default `BEq` so that it uses non-branching code at runtime.
-instance : BEq Bool := ⟨Bool.beq⟩
-instance : LawfulBEq Bool := ⟨of_decide_eq_true⟩
-
-/--
 Boolean “logical or”. `lor x y`.
 
 `land x y` is `true` when both of `x` or `y` are `true`. It is functionally the same as
@@ -75,7 +62,7 @@ Examples:
  * `true ^^ true = false`
 -/
 @[expose, reducible, extern "lean_bool_xor"]
-def xor (x y : Bool) : Bool := x != y
+def xor (x y : Bool) : Bool := bne x y
 
 @[inherit_doc] infixl:33 " ^^ " => Bool.xor
 

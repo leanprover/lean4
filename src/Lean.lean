@@ -16,6 +16,7 @@ public import Lean.Attributes
 public import Lean.Parser
 public import Lean.ReducibilityAttrs
 public import Lean.Elab
+public import Lean.Fmt
 public import Lean.Class
 public import Lean.LocalContext
 public import Lean.MetavarContext

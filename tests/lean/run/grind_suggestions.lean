@@ -1,7 +1,7 @@
 import Lean.LibrarySuggestions.Basic
 
 /--
-error: No premise selector registered. (Note that Lean does not provide a default premise selector, these must be provided by a downstream library, and configured using `set_premise_selector`.)
+error: No library suggestions engine registered. (Note that Lean does not provide a default library suggestions engine, these must be provided by a downstream library, and configured using `set_library_suggestions`.)
 -/
 #guard_msgs in
 example : True := by

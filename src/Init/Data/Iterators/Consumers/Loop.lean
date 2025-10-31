@@ -260,7 +260,7 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 **Performance**:
 
-linear in the number of steps taken by the iterator
+This function's runtime is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline, expose]
 def Iter.count {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id Id]
@@ -272,7 +272,7 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 **Performance**:
 
-linear in the number of steps taken by the iterator
+This function's runtime is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline, expose, deprecated Iter.count (since := "2025-10-29")]
 def Iter.size {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id Id]
@@ -284,7 +284,7 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 **Performance**:
 
-linear in the number of steps taken by the iterator
+This function's runtime is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline, expose]
 def Iter.Partial.count {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoopPartial α Id Id]
@@ -296,7 +296,7 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 **Performance**:
 
-linear in the number of steps taken by the iterator
+This function's runtime is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline, expose, deprecated Iter.Partial.count (since := "2025-10-29")]
 def Iter.Partial.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoopPartial α Id Id]

@@ -615,42 +615,24 @@ def IterM.Partial.find? {α β : Type w} {m : Type w → Type w'} [Monad m] [Ite
 section Count
 
 /--
-This is the implementation of the default instance `IteratorSize.defaultImplementation`.
--/
-@[always_inline, inline]
-def IterM.DefaultConsumers.count {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
-    [Iterator α m β] [Finite α m] [IteratorLoop α m m] (it : IterM (α := α) m β) :
-    m (ULift Nat) :=
-  it.fold (init := .up 0) fun acc _ => .up (acc.down + 1)
-
-/--
-This is the implementation of the default instance `IteratorSizePartial.defaultImplementation`.
--/
-@[always_inline, inline]
-def IterM.DefaultConsumers.countPartial {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
-    [Iterator α m β] [IteratorLoopPartial α m m] (it : IterM (α := α) m β) :
-    m (ULift Nat) :=
-  it.allowNontermination.fold (init := .up 0) fun acc _ => .up (acc.down + 1)
-
-/--
 Steps through the whole iterator, counting the number of outputs emitted.
 
 **Performance**:
 
-linear in the number of steps taken by the iterator
+This function's runtime is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline]
 def IterM.count {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β] [Finite α m]
     [IteratorLoop α m m]
     [Monad m] (it : IterM (α := α) m β) : m (ULift Nat) :=
-  IterM.DefaultConsumers.count it
+  it.fold (init := .up 0) fun acc _ => .up (acc.down + 1)
 
 /--
 Steps through the whole iterator, counting the number of outputs emitted.
 
 **Performance**:
 
-linear in the number of steps taken by the iterator
+This function's runtime is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline, deprecated IterM.count (since := "2025-10-29")]
 def IterM.size {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β] [Finite α m]
@@ -663,19 +645,19 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 **Performance**:
 
-linear in the number of steps taken by the iterator
+This function's runtime is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline]
 def IterM.Partial.count {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     [IteratorLoopPartial α m m] [Monad m] (it : IterM.Partial (α := α) m β) : m (ULift Nat) :=
-  IterM.DefaultConsumers.countPartial it.it
+  it.fold (init := .up 0) fun acc _ => .up (acc.down + 1)
 
 /--
 Steps through the whole iterator, counting the number of outputs emitted.
 
 **Performance**:
 
-linear in the number of steps taken by the iterator
+This function's runtime is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline, deprecated IterM.Partial.count (since := "2025-10-29")]
 def IterM.Partial.size {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]

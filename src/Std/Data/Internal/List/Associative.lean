@@ -50,8 +50,10 @@ def getEntry? [BEq α] (a : α) : List ((a : α) × β a) → Option ((a : α) �
 
 @[simp] theorem getEntry?_nil [BEq α] {a : α} :
     getEntry? a ([] : List ((a : α) × β a)) = none := (rfl)
+
 theorem getEntry?_cons [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} :
     getEntry? a (⟨k, v⟩ :: l) = bif k == a then some ⟨k, v⟩ else getEntry? a l := (rfl)
+
 
 theorem getEntry?_eq_find [BEq α] {k : α} {l : List ((a : α) × β a)} :
     getEntry? k l = l.find? (·.1 == k) := by
@@ -482,6 +484,23 @@ theorem getEntry?_eq_some_getEntry [BEq α] {l : List ((a : α) × β a)} {a : �
 theorem getEntry_eq_of_getEntry?_eq_some [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k}
     (h : getEntry? a l = some ⟨k, v⟩) {h'} : getEntry a l h' = ⟨k, v⟩ := by
   simp [getEntry, h]
+
+theorem getEntry_cons [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k}
+    (h : containsKey a (⟨k, v⟩ :: l)) :
+    getEntry a (⟨k, v⟩ :: l) h =
+      if h' : k == a then
+        ⟨k, v⟩
+      else
+        getEntry a l (containsKey_of_containsKey_cons (k := k) h (Bool.eq_false_iff.2 h')) := by
+  rw [getEntry, Option.get_congr getEntry?_cons]
+  split
+  case _ =>
+    rename_i h
+    simp [h]
+  case _ =>
+    rename_i h
+    simp [h]
+    rw [getEntry]
 
 theorem getEntry_cons_of_beq [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} (h : k == a) :
     getEntry a (⟨k, v⟩ :: l) (containsKey_cons_of_beq (v := v) h) = ⟨k, v⟩ := by
@@ -1620,6 +1639,14 @@ theorem getValueCast_insertEntry [BEq α] [LawfulBEq α] {l : List ((a : α) × 
     getValueCast?_insertEntry]
   simp only [← getValueCast?_eq_some_getValueCast]
 
+theorem getEntry_insertEntry [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {k a : α}
+    {v : β k} {h} :
+    getEntry a (insertEntry k v l) h = if h' : k == a then ⟨k, v⟩ else getEntry a l (containsKey_of_containsKey_insertEntry h (Bool.eq_false_iff.2 h')) := by
+  suffices some (getEntry a (insertEntry k v l) h) = if h' : (k == a) = true then some ⟨k, v⟩ else some (getEntry a l (containsKey_of_containsKey_insertEntry h (Bool.eq_false_iff.2 h'))) by
+    split <;> (rename_i h; simpa [h] using this)
+  simp only [← getEntry?_eq_some_getEntry]
+  apply getEntry?_insertEntry
+
 theorem getValueCast_insertEntry_self [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {k : α}
     {v : β k} : getValueCast k (insertEntry k v l) containsKey_insertEntry_self = v := by
   simp [getValueCast_insertEntry]
@@ -2131,6 +2158,7 @@ theorem getEntry?_of_perm [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) �
     exact ((Bool.eq_false_iff.1 hl.2.1).elim (BEq.trans h₁ (BEq.symm h₂))).elim
   next l₁ l₂ l₃ hl₁₂ _ ih₁ ih₂ => exact (ih₁ hl).trans (ih₂ (hl.perm (hl₁₂.symm)))
 
+
 theorem containsKey_of_perm [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) × β a)} {k : α}
     (h : Perm l l') : containsKey k l = containsKey k l' := by
   induction h
@@ -2150,6 +2178,12 @@ theorem getValueCast_of_perm [BEq α] [LawfulBEq α] {l l' : List ((a : α) × �
     getValueCast a l h' = getValueCast a l' ((containsKey_of_perm h).symm.trans h') := by
   rw [← Option.some_inj, ← getValueCast?_eq_some_getValueCast, ← getValueCast?_eq_some_getValueCast,
     getValueCast?_of_perm hl h]
+
+theorem getEntry_of_perm [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) × β a)} {a : α} {h'} (hl : DistinctKeys l) (h : Perm l l') : getEntry a l h' = getEntry a l' ((containsKey_of_perm h).symm.trans h') := by
+  suffices some (getEntry a l h') = some (getEntry a l' ((containsKey_of_perm h).symm.trans h')) by injections
+  rw [← getEntry?_eq_some_getEntry, ← getEntry?_eq_some_getEntry]
+  apply getEntry?_of_perm hl h
+
 
 theorem getValueCast!_of_perm [BEq α] [LawfulBEq α] {l l' : List ((a : α) × β a)} {a : α}
     [Inhabited (β a)] (hl : DistinctKeys l) (h : Perm l l') :
@@ -2325,6 +2359,13 @@ theorem getEntry?_append [BEq α] {l l' : List ((a : α) × β a)} {a : α} :
 theorem getEntry?_append_of_containsKey_eq_false [BEq α] {l l' : List ((a : α) × β a)} {a : α}
     (h : containsKey a l' = false) : getEntry? a (l ++ l') = getEntry? a l := by
   rw [getEntry?_append, getEntry?_eq_none.2 h, Option.or_none]
+
+theorem getEntry_append_of_containsKey_eq_false [BEq α] {l l' : List ((a : α) × β a)} {a : α}
+    (h : containsKey a l' = false) {h₁ h₂}: getEntry a (l ++ l') h₁ = getEntry a l  h₂ := by
+  suffices some (getEntry a (l ++ l') h₁) = some (getEntry a l h₂) by
+    injections
+  simp only [← getEntry?_eq_some_getEntry]
+  apply getEntry?_append_of_containsKey_eq_false h
 
 @[simp]
 theorem containsKey_append [BEq α] {l l' : List ((a : α) × β a)} {a : α} :

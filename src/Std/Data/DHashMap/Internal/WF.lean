@@ -405,10 +405,26 @@ theorem getₘ_eq_getValue [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α 
   apply_bucket_with_proof hm a AssocList.getCast List.getValueCast AssocList.getCast_eq
     List.getValueCast_of_perm List.getValueCast_append_of_containsKey_eq_false
 
+theorem getEntryₘ_eq_getEntry [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
+    {a : α} {h : m.containsₘ a} :
+    m.getEntryₘ a h = List.getEntry a (toListModel m.1.buckets) (containsₘ_eq_containsKey hm ▸ h) := by
+  apply apply_bucket_with_proof hm a AssocList.getEntry List.getEntry
+  · intro a' l h
+    apply AssocList.getEntry_eq
+  · intro l l' a' h hd hp
+    apply getEntry_of_perm hd hp
+  · intro l l' a' h₁ h₂
+    apply getEntry_append_of_containsKey_eq_false h₂
+
 theorem get_eq_getValueCast [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
     {a : α} {h : m.contains a} :
     m.get a h = getValueCast a (toListModel m.1.buckets) (contains_eq_containsKey hm ▸ h) := by
   rw [get_eq_getₘ, getₘ_eq_getValue hm]
+
+theorem getEntry_eq_getEntry [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
+    {a : α} {h : m.contains a} :
+    m.getEntry a h = List.getEntry a (toListModel m.1.buckets) (contains_eq_containsKey hm ▸ h) := by
+  rw [getEntry_eq_getEntryₘ, getEntryₘ_eq_getEntry hm]
 
 theorem get!ₘ_eq_getValueCast! [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β}
     (hm : Raw.WFImp m.1) {a : α} [Inhabited (β a)] :

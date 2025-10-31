@@ -369,6 +369,13 @@ def get [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (hma :
   buckets[idx.1].getCast a hma
 
 /-- Internal implementation detail of the hash map -/
+def getEntry [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (hma : m.contains a) :
+    (a : α) × β a :=
+  let ⟨⟨_, buckets⟩, h⟩ := m
+  let idx := mkIdx buckets.size h (hash a)
+  buckets[idx.1].getEntry a hma
+
+/-- Internal implementation detail of the hash map -/
 def getD [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : β a) :
     β a :=
   let ⟨⟨_, buckets⟩, h⟩ := m

@@ -123,6 +123,11 @@ def getCast [BEq α] [LawfulBEq α] (a : α) : (l : AssocList α β) → l.conta
       else es.getCast a (by rw [← h, contains, Bool.of_not_eq_true hka, Bool.false_or])
 
 /-- Internal implementation detail of the hash map -/
+def getEntry [BEq α] (a : α) : (l : AssocList α β) → l.contains a → (a : α) × β a
+  | cons k v es, h => if hka : k == a then ⟨k, v⟩
+      else es.getEntry a (by rw [← h, contains, Bool.of_not_eq_true hka, Bool.false_or])
+
+/-- Internal implementation detail of the hash map -/
 def getKey [BEq α] (a : α) : (l : AssocList α β) → l.contains a → α
   | cons k _ es, h => if hka : k == a then k
       else es.getKey a (by rw [← h, contains, Bool.of_not_eq_true hka, Bool.false_or])

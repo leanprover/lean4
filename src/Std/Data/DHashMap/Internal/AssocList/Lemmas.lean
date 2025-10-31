@@ -83,6 +83,14 @@ theorem get_eq {β : Type v} [BEq α] {l : AssocList α (fun _ => β)} {a : α} 
   next k v t ih => simp only [get, toList_cons, List.getValue_cons, ih]
 
 @[simp]
+theorem getEntry_eq [BEq α] {l : AssocList α β} {a : α} {h} :
+    l.getEntry a h = List.getEntry a l.toList (contains_eq.symm.trans h) := by
+  induction l
+  · simp [contains] at h
+  next k v t ih =>
+    simp only [getEntry, toList_cons, List.getEntry_cons, ih]
+
+@[simp]
 theorem getCastD_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} {fallback : β a} :
     l.getCastD a fallback = getValueCastD a l.toList fallback := by
   induction l

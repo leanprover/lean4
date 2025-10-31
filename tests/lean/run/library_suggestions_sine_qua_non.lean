@@ -1,19 +1,19 @@
 module
-import all Lean.PremiseSelection.SineQuaNon
+import all Lean.LibrarySuggestions.SineQuaNon
 import Lean.Meta.Basic
 import Std.Data.ExtHashMap
 
-open Lean PremiseSelection SineQuaNon
+open Lean LibrarySuggestions SineQuaNon
 
-set_premise_selector Lean.PremiseSelection.sineQuaNonSelector
+set_library_suggestions Lean.LibrarySuggestions.sineQuaNonSelector
 
 example {x : Dyadic} {prec : Int} : x.roundDown prec ≤ x := by
   fail_if_success grind
-  grind +premises
+  grind +suggestions
 
 example {x : Dyadic} {prec : Int} : (x.roundUp prec).precision ≤ some prec := by
   fail_if_success grind
-  grind +premises
+  grind +suggestions
 
 /-- info: [(HAppend.hAppend, 1.000000)] -/
 #guard_msgs in

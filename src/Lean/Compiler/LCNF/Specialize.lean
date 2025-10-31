@@ -168,8 +168,8 @@ The keys never contain free variables or loose bound variables.
 
 /--
 Given the specialization mask `paramsInfo` and the arguments `args`,
-collect their dependencies, and return an array `mask` of size `paramsInfo.size` s.t.
-- `mask[i] = some args[i]` if `paramsInfo[i] != .other`
+collect their dependencies, and return an array `mask` of size `args.size` s.t.
+- `mask[i] = some args[i]` if `paramsInfo[i]? != some .other`
 - `mask[i] = none`, otherwise.
 That is, `mask` contains only the arguments that are contributing to the code specialization.
 We use this information to compute a "key" to uniquely identify the code specialization, and
@@ -185,7 +185,9 @@ def collect (paramsInfo : Array SpecParamInfo) (args : Array Arg) : SpecializeM 
     !ctx.ground.contains fvarId
   Closure.run (inScope := ctx.scope.contains) (abstract := abstract) do
     let mut argMask := #[]
-    for paramInfo in paramsInfo, arg in args do
+    for i in *...args.size do
+      let paramInfo := paramsInfo[i]?.getD .fixedHO
+      let arg := args[i]!
       match paramInfo with
       | .other =>
         argMask := argMask.push none
@@ -200,7 +202,9 @@ end Collector
 Return `true` if it is worth using arguments `args` for specialization given the parameter specialization information.
 -/
 def shouldSpecialize (paramsInfo : Array SpecParamInfo) (args : Array Arg) : SpecializeM Bool := do
-  for paramInfo in paramsInfo, arg in args do
+  for i in *...args.size do
+    let arg := args[i]!
+    let paramInfo := paramsInfo[i]?.getD .fixedHO -- .fixedHO might be too aggressive
     match paramInfo with
     | .other => pure ()
     | .fixedNeutral => pure () -- If we want to monomorphize types such as `Array`, we need to change here
@@ -267,21 +271,54 @@ where
     let .code code := decl.value | panic! "can only specialize decls with code"
     let mut params ← params.mapM internalizeParam
     let decls ← decls.mapM internalizeCodeDecl
-    for param in decl.params, arg in argMask do
+    let mut bodyType := decl.type.instantiateLevelParamsNoCache decl.levelParams us
+    for arg in argMask, param in decl.params do
+      let .forallE _ d b _ := bodyType.headBeta
+        | panic! "has param of type {param.type}, but bodyType {bodyType} was not a forall"
       if let some arg := arg then
         let arg ← normArg arg
         modify fun s => s.insert param.fvarId arg
+        bodyType := b.instantiate1 arg.toExpr
       else
         -- Keep the parameter
-        let param := { param with type := param.type.instantiateLevelParamsNoCache decl.levelParams us }
-        params := params.push (← internalizeParam param)
-    for param in decl.params[argMask.size...*] do
-      let param := { param with type := param.type.instantiateLevelParamsNoCache decl.levelParams us }
-      params := params.push (← internalizeParam param)
+        let param ← internalizeParam { param with type := d }
+        params := params.push param
+        bodyType := b.instantiate1 (.fvar param.fvarId)
+    let extraParams := decl.params[argMask.size...*] -- non-empty if undersaturated app
+    let extraMask := argMask[decl.params.size...*]   -- non-empty if oversaturated app
+    -- Add extraneous parameters to decl
+    for param in extraParams do
+      let .forallE _ d b _ := bodyType.headBeta
+        | panic! "has param of type {param.type}, but bodyType {bodyType} was not a forall"
+      -- Keep the parameter
+      let param ← internalizeParam { param with type := d }
+      params := params.push param
+      bodyType := b.instantiate1 (.fvar param.fvarId)
     let code := code.instantiateValueLevelParams decl.levelParams us
     let code ← internalizeCode code
     let code := attachCodeDecls decls code
-    let type ← code.inferType
+    -- Eta-expand to accomodate extraneous args (cf. `etaExpandCore`)
+    let code ←
+      if extraMask.size = 0 then
+        pure code
+      else
+        let mut extraArgs := #[]
+        for arg in extraMask do
+          let .forallE _ d b _ := bodyType.headBeta
+            | panic! "oversaturated arg mask but decl.type was not a forall"
+          if let some arg := arg then
+            let arg ← normArg arg
+            extraArgs := extraArgs.push arg
+            bodyType := b.instantiate1 arg.toExpr
+          else
+            let p ← mkAuxParam d
+            params := params.push p
+            extraArgs := extraArgs.push (.fvar p.fvarId)
+            bodyType := b.instantiate1 (.fvar p.fvarId)
+        code.bind fun fvarId => do
+          let auxDecl ← mkAuxLetDecl (.fvar fvarId extraArgs)
+          return .let auxDecl (.return auxDecl.fvarId)
+    let type := bodyType
     let type ← mkForallParams params type
     let value := .code code
     let safe := decl.safe
@@ -298,7 +335,7 @@ def getRemainingArgs (paramsInfo : Array SpecParamInfo) (args : Array Arg) : Arr
   for info in paramsInfo, arg in args do
     if info matches .other then
       result := result.push arg
-  return result ++ args[paramsInfo.size...*]
+  return result -- ++ args[paramsInfo.size...*]
 
 def paramsToGroundVars (params : Array Param) : CompilerM FVarIdSet :=
   params.foldlM (init := {}) fun r p => do

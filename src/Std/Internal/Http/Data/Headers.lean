@@ -160,6 +160,15 @@ def get (headers : Headers) (name : String) : Option HeaderValue :=
   |>.map (.joinCommaSep ∘ Prod.snd)
 
 /--
+Tries to retrieve the `HeaderValue` for the given key.
+Returns `none` if the header is absent.
+-/
+@[inline]
+def getAll? (headers : Headers) (name : String) : Option (Array HeaderValue) :=
+  headers.data.get? name.toLower
+  |>.map Prod.snd
+
+/--
 Tries to check if the entry is present in the `Headers`
 -/
 @[inline]
@@ -265,8 +274,9 @@ def merge (headers1 headers2 : Headers) : Headers :=
 
 instance : ToString Headers where
   toString headers :=
-    let pairs := headers.data.toList.map (fun (_, (k, vs)) => s!"{k}: {HeaderValue.joinCommaSep vs |>.value}")
-    String.intercalate "\r\n" pairs
+    let pairs := headers.data.toArray.flatMap (fun (_, (k, vs)) => vs.map (k, ·))
+    let pairs := pairs.map (fun (k, vs) => s!"{k}: {vs.value}")
+    String.intercalate "\r\n" pairs.toList
 
 instance : Encode .v11 Headers where
   encode buffer := buffer.writeString ∘ toString

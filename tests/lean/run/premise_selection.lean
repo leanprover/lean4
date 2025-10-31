@@ -1,4 +1,4 @@
-import Lean.PremiseSelection
+import Lean.LibrarySuggestions
 
 /--
 error: Type mismatch
@@ -6,34 +6,34 @@ error: Type mismatch
 has type
   Type
 of sort `Type 1` but is expected to have type
-  Lean.PremiseSelection.Selector
+  Lean.LibrarySuggestions.Selector
 of sort `Type`
 ---
 error: Failed to elaborate Nat as a `MVarId → Config → MetaM (Array Suggestion)`.
 -/
 #guard_msgs in
-set_premise_selector Nat
+set_library_suggestions Nat
 
 /--
-error: No premise selector registered. (Note that Lean does not provide a default premise selector, these must be provided by a downstream library, and configured using `set_premise_selector`.)
+error: No premise selector registered. (Note that Lean does not provide a default premise selector, these must be provided by a downstream library, and configured using `set_library_suggestions`.)
 -/
 #guard_msgs in
 example : True := by
-  suggest_premises
+  suggestions
   trivial
 
-set_premise_selector (fun _ _ => pure #[])
+set_library_suggestions (fun _ _ => pure #[])
 
-/-- info: Premise suggestions: [] -/
+/-- info: Library suggestions: [] -/
 #guard_msgs in
 example : True := by
-  suggest_premises
+  suggestions
   trivial
 
-set_premise_selector Lean.PremiseSelection.random ⟨1,1⟩
+set_library_suggestions Lean.LibrarySuggestions.random ⟨1,1⟩
 
 -- This would be an extremely fragile test (select 10 random constants!)
 -- so we do not use #guard_msgs.
 example : True := by
-  suggest_premises
+  suggestions
   trivial

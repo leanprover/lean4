@@ -9,7 +9,7 @@ public import Lean.Meta.Tactic.Grind.Main
 public import Lean.Meta.Tactic.TryThis
 public import Lean.Elab.Command
 public import Lean.Elab.Tactic.Config
-public import Lean.PremiseSelection.Basic
+public import Lean.LibrarySuggestions.Basic
 import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Meta.Tactic.Grind.EMatchTheoremParam
 import Lean.Elab.Tactic.Grind.Basic
@@ -77,11 +77,11 @@ private def parseModifier (s : String) : CoreM Grind.AttrKind := do
   | .ok stx => Grind.getAttrKindCore stx
   | _ => throwError "unexpected modifier {s}"
 
-open PremiseSelection in
-def elabGrindPremises
-    (params : Grind.Params) (premises : Array Suggestion := #[]) : MetaM Grind.Params := do
+open LibrarySuggestions in
+def elabGrindSuggestions
+    (params : Grind.Params) (suggestions : Array Suggestion := #[]) : MetaM Grind.Params := do
   let mut params := params
-  for p in premises do
+  for p in suggestions do
     let attr ← match p.flag with
     | some flag => parseModifier flag
     | none => pure <| .ematch (.default false)
@@ -89,23 +89,23 @@ def elabGrindPremises
     | .ematch kind =>
       try
         params ← addEMatchTheorem params (mkIdent p.name) p.name kind false (warn := false)
-      catch _ => pure () -- Don't worry if premise suggestion gave bad suggestions.
+      catch _ => pure () -- Don't worry if library suggestions gave bad theorems.
     | _ =>
       -- We could actually support arbitrary grind modifiers,
       -- and call `processParam` rather than `addEMatchTheorem`,
       -- but this would require a larger refactor.
-      -- Let's only do this if there is a prospect of a premise selector supporting this.
+      -- Let's only do this if there is a prospect of a library suggestion engine supporting this.
       throwError "unexpected modifier {p.flag}"
   return params
 
-open PremiseSelection in
-def elabGrindParamsAndPremises
+open LibrarySuggestions in
+def elabGrindParamsAndSuggestions
     (params : Grind.Params)
     (ps : TSyntaxArray ``Parser.Tactic.grindParam)
-    (premises : Array Suggestion := #[])
+    (suggestions : Array Suggestion := #[])
     (only : Bool) (lax : Bool := false) : MetaM Grind.Params := do
   let params ← elabGrindParams params ps (lax := lax) (only := only)
-  elabGrindPremises params premises
+  elabGrindSuggestions params suggestions
 
 def mkGrindParams
     (config : Grind.Config) (only : Bool) (ps : TSyntaxArray ``Parser.Tactic.grindParam) (mvarId : MVarId) :
@@ -119,12 +119,11 @@ def mkGrindParams
   -/
   let casesTypes ← Grind.getCasesTypes
   let params := { params with ematch, casesTypes, inj }
-  let premises ← if config.premises then
-    let suggestions ← PremiseSelection.select mvarId
-    pure suggestions
+  let suggestions ← if config.suggestions then
+    LibrarySuggestions.select mvarId
   else
     pure #[]
-  let params ← elabGrindParamsAndPremises params ps premises (only := only) (lax := config.lax)
+  let params ← elabGrindParamsAndSuggestions params ps suggestions (only := only) (lax := config.lax)
   trace[grind.debug.inj] "{params.inj.getOrigins.map (·.pp)}"
   return params
 

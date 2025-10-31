@@ -1,21 +1,21 @@
-import Lean.PremiseSelection.MePo
+import Lean.LibrarySuggestions.MePo
 
-set_premise_selector Lean.PremiseSelection.mepoSelector (useRarity := false)
+set_library_suggestions Lean.LibrarySuggestions.mepoSelector (useRarity := false)
 
 example (a b : Int) : a + b = b + a := by
-  suggest_premises
+  suggestions
   sorry
 
 example (x y z : List Int) : x ++ y ++ z = x ++ (y ++ z) := by
-  suggest_premises
+  suggestions
   sorry
 
-set_premise_selector Lean.PremiseSelection.mepoSelector (useRarity := true)
+set_library_suggestions Lean.LibrarySuggestions.mepoSelector (useRarity := true)
 
 example (a b : Int) : a + b = b + a := by
-  suggest_premises
+  suggestions
   sorry
 
 example (x y z : List Int) : x ++ y ++ z = x ++ (y ++ z) := by
-  suggest_premises
+  suggestions
   sorry

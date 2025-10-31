@@ -1601,6 +1601,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     triggerCharacters? := some #[" "]
   }
   colorProvider? := some {}
+  documentFormattingProvider? := some {}
   experimental? := some {
     moduleHierarchyProvider? := some {}
     rpcProvider? := some {

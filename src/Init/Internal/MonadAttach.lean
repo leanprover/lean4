@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.System.IO
+import all Init.System.ST
 
 public class MonadAttach (m : Type u → Type v) [Monad m] where
   CanReturn : m α → α → Prop
@@ -21,4 +22,20 @@ public class LawfulMonadAttach (m : Type u → Type v) [Monad m] [MonadAttach m]
 
 instance : MonadAttach IO where
   CanReturn x a := ∃ world world', x world = .ok a world'
-  attach x := fun world => match (x world)
+  attach x := fun world => match h : x world with
+    | .ok a world' => .ok ⟨a, world, world', h⟩ world'
+    | .error e world' => .error e world'
+  map_val_attach := by
+    intro α x
+    rw [funext_iff]
+    intro world
+    simp only [Functor.map, EST.bind, Function.comp_apply]
+    split <;> rename_i heq
+    · split at heq
+      · cases heq
+        simp_all [EST.pure]
+      · cases heq
+    · split at heq
+      · cases heq
+      · cases heq
+        simp_all

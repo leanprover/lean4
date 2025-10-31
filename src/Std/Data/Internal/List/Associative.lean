@@ -2360,13 +2360,6 @@ theorem getEntry?_append_of_containsKey_eq_false [BEq α] {l l' : List ((a : α)
     (h : containsKey a l' = false) : getEntry? a (l ++ l') = getEntry? a l := by
   rw [getEntry?_append, getEntry?_eq_none.2 h, Option.or_none]
 
-theorem getEntry_append_of_containsKey_eq_false [BEq α] {l l' : List ((a : α) × β a)} {a : α}
-    (h : containsKey a l' = false) {h₁ h₂}: getEntry a (l ++ l') h₁ = getEntry a l  h₂ := by
-  suffices some (getEntry a (l ++ l') h₁) = some (getEntry a l h₂) by
-    injections
-  simp only [← getEntry?_eq_some_getEntry]
-  apply getEntry?_append_of_containsKey_eq_false h
-
 @[simp]
 theorem containsKey_append [BEq α] {l l' : List ((a : α) × β a)} {a : α} :
     containsKey a (l ++ l') = (containsKey a l || containsKey a l') := by
@@ -2415,6 +2408,12 @@ theorem getValueCast_append_of_containsKey_eq_false [BEq α] [LawfulBEq α]
       getValueCast a l ((containsKey_append_of_not_contains_right hl').symm.trans h) := by
   rw [← Option.some_inj, ← getValueCast?_eq_some_getValueCast, ← getValueCast?_eq_some_getValueCast,
     getValueCast?_append_of_containsKey_eq_false hl']
+
+theorem getEntry_append_of_containsKey_eq_false [BEq α] {l l' : List ((a : α) × β a)} {a : α} {h} (hl' : containsKey a l' = false) : getEntry a (l ++ l') h = getEntry a l ((containsKey_append_of_not_contains_right hl').symm.trans h) := by
+  suffices some (getEntry a (l ++ l') h) = some (getEntry a l ((containsKey_append_of_not_contains_right hl').symm.trans h)) by
+    injections
+  simp only [← getEntry?_eq_some_getEntry]
+  apply getEntry?_append_of_containsKey_eq_false hl'
 
 theorem getKey?_append_of_containsKey_eq_false [BEq α] [PartialEquivBEq α]
     {l l' : List ((a : α) × β a)} {a : α} (hl' : containsKey a l' = false) :

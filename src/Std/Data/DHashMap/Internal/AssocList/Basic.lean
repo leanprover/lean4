@@ -108,6 +108,12 @@ def getCast? [BEq α] [LawfulBEq α] (a : α) : AssocList α β → Option (β a
       else es.getCast? a
 
 /-- Internal implementation detail of the hash map -/
+def getEntry? [BEq α] (a : α) : (l : AssocList α β) → Option ((a : α) × β a)
+  | nil => none
+  | cons k v es => if k == a then some ⟨k, v⟩
+      else es.getEntry? a
+
+/-- Internal implementation detail of the hash map -/
 def contains [BEq α] (a : α) : AssocList α β → Bool
   | nil => false
   | cons k _ l => k == a || l.contains a

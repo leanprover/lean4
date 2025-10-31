@@ -11,7 +11,7 @@ public import Lean.Meta.Basic
 import Lean.Meta.InferType
 import Lean.Meta.FunInfo
 import Lean.AddDecl
-import Lean.PremiseSelection.Basic
+import Lean.LibrarySuggestions.Basic
 
 /-!
 # Symbol frequency
@@ -19,7 +19,7 @@ import Lean.PremiseSelection.Basic
 This module provides a persistent environment extension for computing the frequency of symbols in the environment.
 -/
 
-namespace Lean.PremiseSelection
+namespace Lean.LibrarySuggestions
 
 /--
 Collect the frequencies for constants occurring in declarations defined in the current module,

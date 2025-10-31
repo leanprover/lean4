@@ -6,7 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-import Lean.PremiseSelection.Basic
-import Lean.PremiseSelection.SymbolFrequency
-import Lean.PremiseSelection.MePo
-import Lean.PremiseSelection.SineQuaNon
+import Lean.LibrarySuggestions.Basic
+import Lean.LibrarySuggestions.SymbolFrequency
+import Lean.LibrarySuggestions.MePo
+import Lean.LibrarySuggestions.SineQuaNon

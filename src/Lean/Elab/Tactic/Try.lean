@@ -673,7 +673,7 @@ private def mkTryEvalSuggestStx (info : Try.Info) : MetaM (TSyntax `tactic) := d
 
 -- TODO: vanilla `induction`.
 -- TODO: make it extensible.
--- TODO: premise selection.
+-- TODO: library suggestions.
 
 @[builtin_tactic Lean.Parser.Tactic.tryTrace] def evalTryTrace : Tactic := fun stx => do
   match stx with

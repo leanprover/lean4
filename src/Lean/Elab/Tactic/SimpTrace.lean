@@ -9,7 +9,7 @@ prelude
 public import Lean.Elab.ElabRules
 public import Lean.Elab.Tactic.Simp
 public import Lean.Meta.Tactic.TryThis
-public import Lean.PremiseSelection.Basic
+public import Lean.LibrarySuggestions.Basic
 
 public section
 
@@ -56,7 +56,7 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
       if let some a := args then a.getElems else #[]
     if config.suggestions then
       -- Get premise suggestions from the premise selector
-      let suggestions ← Lean.PremiseSelection.select (← getMainGoal)
+      let suggestions ← Lean.LibrarySuggestions.select (← getMainGoal)
       -- Convert suggestions to simp argument syntax and add them to the args
       for sugg in suggestions do
         let arg ← `(Parser.Tactic.simpLemma| $(mkIdent sugg.name):term)
@@ -91,7 +91,7 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
       if let some a := args then a.getElems else #[]
     if config.suggestions then
       -- Get premise suggestions from the premise selector
-      let suggestions ← Lean.PremiseSelection.select (← getMainGoal)
+      let suggestions ← Lean.LibrarySuggestions.select (← getMainGoal)
       -- Convert suggestions to simp argument syntax and add them to the args
       for sugg in suggestions do
         let arg ← `(Parser.Tactic.simpLemma| $(mkIdent sugg.name):term)

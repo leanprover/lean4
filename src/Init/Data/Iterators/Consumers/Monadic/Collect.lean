@@ -10,6 +10,7 @@ public import Init.Data.Iterators.Consumers.Monadic.Partial
 public import Init.Data.Iterators.Consumers.Monadic.Total
 public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 public import Init.Internal.ExtrinsicTermination
+public import Init.Internal.MonadAttach
 
 @[expose] public section
 
@@ -68,7 +69,7 @@ of `f` into an array.
 -/
 @[always_inline, no_expose]
 def IterM.DefaultConsumers.toArrayMapped {α β : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β]
+    {n : Type w → Type w''} [Monad n] [MonadAttach n] [Iterator α m β]
     (lift : ⦃α : Type w⦄ → m α → n α) {γ : Type w} (f : β → n γ)
     (it : IterM (α := α) m β) : n (Array γ) :=
   letI : MonadLift m n := ⟨lift (α := _)⟩
@@ -77,11 +78,15 @@ where
   @[always_inline]
   go it (acc : Array γ) : n (Array γ) :=
     letI : MonadLift m n := ⟨lift (α := _)⟩
-    extrinsicFix₂ (C₂ := fun _ _ => n (Array γ)) (fun it acc recur => do
-      match (← it.step).inflate.val with
-      | .yield it' out => recur it' (acc.push (← f out))
-      | .skip it' => recur it' acc
-      | .done => return acc) it acc
+    extrinsicFix₂ (C₂ := fun _ _ => n (Array γ))
+    (InvImage (IterM.TerminationMeasures.Finite.RelExtrinsic R) (·.1.finitelyManyStepsExtrinsic))
+    (fun (it : IterM (α := α) m β) acc recur => do
+      match (← it.step).inflate with
+      | .yield it' out h =>
+        let fx ← MonadAttach.attach (f out)
+        recur it' (acc.push fx.val) sorry
+      | .skip it' h => recur it' acc sorry
+      | .done h => return acc) it acc
 
 /--
 This is the default implementation of the `IteratorCollect` class.

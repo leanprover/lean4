@@ -743,7 +743,9 @@ List.map.match_1 : {α : Type _} →
 partial def delabAppMatch : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation <| whenPPOption getPPMatch do
   -- Check that this is a matcher, and then set up overapplication.
   let Expr.const c us := (← getExpr).getAppFn | failure
-  let some info ← getMatcherInfo? c | failure
+  -- Delab `casesOn` as match only if we are not in `pp.analyze` mode
+  let alsoCasesOn := !(← getPPOption getPPAnalyze)
+  let some info ← getMatcherInfo? (alsoCasesOn := alsoCasesOn) c | failure
   withOverApp info.arity do
     -- First pass visiting the match application. Incrementally fills `AppMatchState`,
     -- collecting information needed to delaborate the patterns and RHSs.

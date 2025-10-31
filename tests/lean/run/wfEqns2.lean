@@ -71,14 +71,14 @@ info: h.eq_def (i j : Nat) :
 /--
 info: g._mutual.eq_def (i : Nat) (x✝ : Nat ⊕' Nat) :
   g._mutual i x✝ =
-    PSum.casesOn x✝
-      (fun j =>
-        if i < 5 then 0
-        else
-          match j with
-          | Nat.zero => 1
-          | j.succ => g._mutual i (PSum.inr j))
-      fun j =>
+    match x✝ with
+    | PSum.inl j =>
+      if i < 5 then 0
+      else
+        match j with
+        | Nat.zero => 1
+        | j.succ => g._mutual i (PSum.inr j)
+    | PSum.inr j =>
       match j with
       | 0 => g._mutual i (PSum.inl 0)
       | j.succ => g._mutual i (PSum.inl j)

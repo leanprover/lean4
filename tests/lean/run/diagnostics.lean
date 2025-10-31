@@ -19,8 +19,6 @@ trace: [diag] Diagnostics
     [reduction] OfNat.ofNat ↦ 5
   [reduction] unfolded instances (max: 5, num: 1):
     [reduction] instOfNatNat ↦ 5
-  [reduction] unfolded reducible declarations (max: 15, num: 1):
-    [reduction] Nat.casesOn ↦ 15
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
@@ -40,8 +38,6 @@ trace: [diag] Diagnostics
     [reduction] OfNat.ofNat ↦ 5
   [reduction] unfolded instances (max: 5, num: 1):
     [reduction] instOfNatNat ↦ 5
-  [reduction] unfolded reducible declarations (max: 15, num: 1):
-    [reduction] Nat.casesOn ↦ 15
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in

@@ -528,7 +528,7 @@ private def whnfMatcher (e : Expr) : MetaM Expr := do
 def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
   let .const declName declLevels := e.getAppFn
     | return .notMatcher
-  let some info ← getMatcherInfo? declName
+  let some info ← getMatcherInfo? declName (alsoCasesOn := true)
     | return .notMatcher
   let args := e.getAppArgs
   let prefixSz := info.numParams + 1 + info.numDiscrs
@@ -870,7 +870,7 @@ mutual
                 recordUnfold fInfo.name
                 return some r
             | _ =>
-              if (← getMatcherInfo? fInfo.name).isSome then
+              if (← getMatcherInfo? fInfo.name (alsoCasesOn := false)).isSome then
                 -- Recall that `whnfCore` tries to reduce "matcher" applications.
                 return none
               else

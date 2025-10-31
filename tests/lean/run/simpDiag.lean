@@ -109,9 +109,8 @@ trace: [diag] Diagnostics
   [reduction] unfolded declarations (max: 246, num: 2):
     [reduction] Nat.rec ↦ 246
     [reduction] OfNat.ofNat ↦ 24
-  [reduction] unfolded reducible declarations (max: 246, num: 2):
+  [reduction] unfolded reducible declarations (max: 246, num: 1):
     [reduction] h ↦ 246
-    [reduction] Nat.casesOn ↦ 246
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in

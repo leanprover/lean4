@@ -40,7 +40,7 @@ Inline auxiliary `matcher` applications.
 partial def inlineMatchers (e : Expr) : CoreM Expr :=
   Meta.MetaM.run' <| Meta.transform e fun e => do
     let .const declName us := e.getAppFn | return .continue
-    let some info ← Meta.getMatcherInfo? declName | return .continue
+    let some info ← Meta.getMatcherInfo? declName (alsoCasesOn := false) | return .continue
     let numArgs := e.getAppNumArgs
     if numArgs > info.arity then
       return .continue

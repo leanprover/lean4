@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Classical
 public import Init.Ext
+public import Init.Internal.MonadAttach
 
 set_option doc.verso true
 
@@ -394,6 +395,31 @@ abbrev IterM.Step {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator
   PlausibleIterStep it.IsPlausibleStep
 
 /--
+Makes a single step with the given iterator `it`, potentially emitting a value and providing a
+succeeding iterator. If this function is used recursively, termination can sometimes be proved with
+the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
+-/
+@[always_inline, inline, expose]
+def IterM.step {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    (it : IterM (α := α) m β) : m (Shrink it.Step) :=
+  Iterator.step it
+
+/--
+Asserts that certain step is plausibly the successor of a given iterator. What "plausible" means
+is up to the `Iterator` instance but it should be strong enough to allow termination proofs.
+-/
+@[expose]
+abbrev IterM.IsPlausibleStepE {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    [MonadAttach m] (it : IterM (α := α) m β) (step : IterStep (IterM (α := α) m β) β) : Prop :=
+  ∃ h, MonadAttach.CanReturn it.step (.deflate ⟨step, h⟩)
+
+theorem IterM.isPlausibleStep_of_isPlausibleStepE {α : Type w} {m : Type w → Type w'} {β : Type w}
+    [Iterator α m β] [MonadAttach m]
+    {it : IterM (α := α) m β} {step : IterStep (IterM (α := α) m β) β}
+    (h : it.IsPlausibleStepE step) : it.IsPlausibleStep step :=
+  h.choose
+
+/--
 Asserts that a certain output value could plausibly be emitted by the given iterator in its next
 step.
 -/
@@ -413,22 +439,27 @@ def IterM.IsPlausibleSuccessorOf {α : Type w} {m : Type w → Type w'} {β : Ty
 
 /--
 Asserts that a certain iterator `it'` could plausibly be the directly succeeding iterator of another
+given iterator `it`.
+-/
+@[expose]
+def IterM.IsPlausibleSuccessorOfE {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    [MonadAttach m] (it' it : IterM (α := α) m β) : Prop :=
+  ∃ step, step.successor = some it' ∧ it.IsPlausibleStepE step
+
+theorem IterM.isPlausibleSuccessorOf_of_isPlausibleSuccessorOfE {α : Type w} {m : Type w → Type w'}
+    {β : Type w} [Iterator α m β] [MonadAttach m] {it' it : IterM (α := α) m β}
+    (h : it'.IsPlausibleSuccessorOfE it) : it'.IsPlausibleSuccessorOf it :=
+  let ⟨step, hs, hp⟩ := h
+  ⟨step, hs, isPlausibleStep_of_isPlausibleStepE hp⟩
+
+/--
+Asserts that a certain iterator `it'` could plausibly be the directly succeeding iterator of another
 given iterator `it` while no value is emitted (see `IterStep.skip`).
 -/
 @[expose]
 def IterM.IsPlausibleSkipSuccessorOf {α : Type w} {m : Type w → Type w'} {β : Type w}
     [Iterator α m β] (it' it : IterM (α := α) m β) : Prop :=
   it.IsPlausibleStep (.skip it')
-
-/--
-Makes a single step with the given iterator `it`, potentially emitting a value and providing a
-succeeding iterator. If this function is used recursively, termination can sometimes be proved with
-the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
--/
-@[always_inline, inline, expose]
-def IterM.step {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
-    (it : IterM (α := α) m β) : m (Shrink it.Step) :=
-  Iterator.step it
 
 end Monadic
 
@@ -733,7 +764,7 @@ Termination measure to be used in well-founded recursive functions recursing ove
 (see also `Finite`).
 -/
 @[expose]
-def IterM.finitelyManyStepsExtrinsic {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+def IterM.finitelyManySteps! {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     (it : IterM (α := α) m β) : IterM.TerminationMeasures.Finite α m :=
   ⟨it⟩
 

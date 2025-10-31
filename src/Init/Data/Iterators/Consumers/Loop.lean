@@ -51,10 +51,8 @@ def Iter.Partial.instForIn' {α : Type w} {β : Type w} {n : Type x → Type x'}
     [Iterator α Id β] [IteratorLoop α Id n] :
     ForIn' n (Iter.Partial (α := α) β) β ⟨fun it out => it.it.IsPlausibleIndirectOutput out⟩ where
   forIn' it init f :=
-    IteratorLoop.forIn (α := α) (m := Id) (n := n) (fun _ _ f c => f c.run) _
-      it.it.toIterM init
-      fun out h acc =>
-        f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc
+    haveI := @Iter.instForIn'
+    forIn' it.it init f
 
 instance (α : Type w) (β : Type w) (n : Type x → Type x') [Monad n]
     [Iterator α Id β] [IteratorLoop α Id n] :

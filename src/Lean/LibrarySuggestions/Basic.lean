@@ -286,6 +286,22 @@ def random (gen : StdGen := ⟨37, 59⟩) : Selector := fun _ cfg => do
       suggestions := suggestions.push { name := name, score := 1.0 / consts.size.toFloat }
   return suggestions
 
+/-- A library suggestion engine that returns locally defined theorems (those in the current file). -/
+def currentFile : Selector := fun _ cfg => do
+  let env ← getEnv
+  let max := cfg.maxSuggestions
+  -- Use map₂ from the staged map, which contains locally defined constants
+  let mut suggestions := #[]
+  for (name, ci) in env.constants.map₂.toList do
+    if suggestions.size >= max then
+      break
+    if isDeniedPremise env name then
+      continue
+    match ci with
+    | .thmInfo _ => suggestions := suggestions.push { name := name, score := 1.0 }
+    | _ => continue
+  return suggestions
+
 builtin_initialize librarySuggestionsExt : EnvExtension (Option Selector) ←
   registerEnvExtension (pure none)
 

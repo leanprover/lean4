@@ -40,8 +40,21 @@ def getType? (e : Expr) : Option Expr :=
   | _ => none
 
 def isForbiddenParent (parent? : Option Expr) : Bool :=
-  if let some parent := parent? then
-    getType? parent |>.isSome
+  if isIntModuleVirtualParent parent? then
+    /-
+    **Note**: `linarith` uses a virtual parent to mark auxiliary declarations used to encode
+    terms into an `IntModule`.
+    -/
+    true
+  else if let some parent := parent? then
+    (getType? parent |>.isSome)
+    ||
+    /-
+    **Note**: We currently ignore `•`. We may reconsider it in the future.
+    -/
+    match_expr parent with
+    | HSMul.hSMul _ _ _ _ _ _ => true
+    | _ => false
   else
     false
 

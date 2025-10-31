@@ -32,9 +32,9 @@ public def iter {α : Type u}
   (m.inner.iter.map fun e => e.1 : Iter α)
 
 @[simp]
-public theorem iter_toList {cmp : α → α → Ordering} (m : Raw α cmp) :
+public theorem toList_iter {cmp : α → α → Ordering} (m : Raw α cmp) :
     m.iter.toList = m.toList := by
-  rw [iter, Iter.toList_map, TreeMap.Raw.iter_toList, TreeMap.Raw.toList]
+  rw [iter, Iter.toList_map, TreeMap.Raw.toList_iter, TreeMap.Raw.toList]
   rw [TreeSet.Raw.toList]
   rw [Std.DTreeMap.Internal.Impl.foldr_eq_foldr_toList]
   simp only [DTreeMap.Raw.Const.map_fst_toList_eq_keys, List.empty_eq, List.foldr_cons_eq_append,

@@ -35,7 +35,7 @@ public theorem toList_ric {α : Type u} {β : Type v} (cmp : α → α → Order
     [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {bound : α} :
     t[*...=bound].toList = t.toList.filter (fun e => (cmp e.fst bound).isLE) := by
   apply @DTreeMap.Internal.Const.toList_ric _ _ ⟨cmp⟩ _ _
-  . exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
+  · exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
 
 public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare) :
     Rio.Sliceable (Raw α β cmp) α (@DTreeMap.Internal.Const.RioSlice α β ⟨cmp⟩) :=
@@ -45,7 +45,7 @@ public theorem toList_rio {α : Type u} {β : Type v} (cmp : α → α → Order
     [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {bound : α} :
     t[*...<bound].toList = t.toList.filter (fun e => (cmp e.fst bound).isLT) := by
   apply @DTreeMap.Internal.Const.toList_rio _ _ ⟨cmp⟩ _ _
-  . exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
+  · exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
 
 public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare) :
     Rci.Sliceable (Raw α β cmp) α (@DTreeMap.Internal.Const.RciSlice α β ⟨cmp⟩) :=
@@ -55,7 +55,7 @@ public theorem toList_rci {α : Type u} {β : Type v} (cmp : α → α → Order
     [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {bound : α} :
     t[bound...*].toList = t.toList.filter (fun e => (cmp e.fst bound).isGE) := by
   apply @DTreeMap.Internal.Const.toList_rci _ _ ⟨cmp⟩ _ _
-  . exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
+  · exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
 
 public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare) :
     Rco.Sliceable (Raw α β cmp) α (@DTreeMap.Internal.Const.RcoSlice α β ⟨cmp⟩) :=
@@ -66,7 +66,7 @@ public theorem toList_rco {α : Type u} {β : Type v} (cmp : α → α → Order
     t[lowerBound...<upperBound].toList =
       t.toList.filter (fun e => (cmp e.fst lowerBound).isGE ∧ (cmp e.fst upperBound).isLT) := by
   apply @DTreeMap.Internal.Const.toList_rco _ _ ⟨cmp⟩ _ _
-  . exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
+  · exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
 
 public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare) :
     Rcc.Sliceable (Raw α β cmp) α (@DTreeMap.Internal.Const.RccSlice α β ⟨cmp⟩) :=
@@ -77,7 +77,7 @@ public theorem toList_rcc {α : Type u} {β : Type v} (cmp : α → α → Order
     t[lowerBound...=upperBound].toList =
       t.toList.filter (fun e => (cmp e.fst lowerBound).isGE ∧ (cmp e.fst upperBound).isLE) := by
   apply @DTreeMap.Internal.Const.toList_rcc _ _ ⟨cmp⟩ _ _
-  . exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
+  · exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
 
 public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare) :
     Roi.Sliceable (Raw α β cmp) α (@DTreeMap.Internal.Const.RoiSlice α β ⟨cmp⟩) :=
@@ -87,7 +87,7 @@ public theorem toList_roi {α : Type u} {β : Type v} (cmp : α → α → Order
     [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {bound: α} : t[bound<...*].toList =
       t.toList.filter (fun e => (cmp e.fst bound).isGT) := by
   apply @DTreeMap.Internal.Const.toList_roi _ _ ⟨cmp⟩ _
-  . exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
+  · exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
 
 public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare) :
     Roc.Sliceable (Raw α β cmp) α (@DTreeMap.Internal.Const.RocSlice α β ⟨cmp⟩) :=
@@ -98,7 +98,7 @@ public theorem toList_roc {α : Type u} {β : Type v} (cmp : α → α → Order
     t[lowerBound<...=upperBound].toList =
       t.toList.filter (fun e => (cmp e.fst lowerBound).isGT ∧ (cmp e.fst upperBound).isLE) := by
   apply @DTreeMap.Internal.Const.toList_roc _ _ ⟨cmp⟩ _
-  . exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
+  · exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
 
 public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare) :
     Roo.Sliceable (Raw α β cmp) α (@DTreeMap.Internal.Const.RooSlice α β ⟨cmp⟩) :=
@@ -109,6 +109,6 @@ public theorem toList_roo {α : Type u} {β : Type v} (cmp : α → α → Order
     t[lowerBound<...upperBound].toList =
       t.toList.filter (fun e => (cmp e.fst lowerBound).isGT ∧ (cmp e.fst upperBound).isLT) := by
   apply @DTreeMap.Internal.Const.toList_roo _ _ ⟨cmp⟩ _
-  . exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
+  · exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
 
 end Std.TreeMap.Raw

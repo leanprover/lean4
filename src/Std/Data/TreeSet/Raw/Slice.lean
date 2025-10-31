@@ -35,7 +35,7 @@ public theorem toList_ric {α : Type u} (cmp : α → α → Ordering := by exac
     [TransCmp cmp] {t : Raw α cmp} {wf : t.WF} {bound : α} :
     t[*...=bound].toList = t.toList.filter (fun e => (cmp e bound).isLE) := by
   apply @DTreeMap.Internal.Unit.toList_ric _ ⟨cmp⟩ _ _
-  . exact @wf.out.out.out.ordered _ _ ⟨cmp⟩ _
+  · exact @wf.out.out.out.ordered _ _ ⟨cmp⟩ _
 
 public instance {α : Type u} (cmp : α → α → Ordering := by exact compare) :
     Rio.Sliceable (Raw α cmp) α (@DTreeMap.Internal.Unit.RioSlice α ⟨cmp⟩) :=
@@ -45,7 +45,7 @@ public theorem toList_rio {α : Type u} (cmp : α → α → Ordering := by exac
     [TransCmp cmp] {t : Raw α cmp} {wf : t.WF} {bound : α} :
     t[*...<bound].toList = t.toList.filter (fun e => (cmp e bound).isLT) := by
   apply @DTreeMap.Internal.Unit.toList_rio _ ⟨cmp⟩ _ _
-  . exact @wf.out.out.out.ordered _ _ ⟨cmp⟩ _
+  · exact @wf.out.out.out.ordered _ _ ⟨cmp⟩ _
 
 public instance {α : Type u} (cmp : α → α → Ordering := by exact compare) :
     Rci.Sliceable (Raw α cmp) α (@DTreeMap.Internal.Unit.RciSlice α ⟨cmp⟩) :=
@@ -55,7 +55,7 @@ public theorem toList_rci {α : Type u} (cmp : α → α → Ordering := by exac
     [TransCmp cmp] {t : Raw α cmp} {wf : t.WF} {bound : α} :
     t[bound...*].toList = t.toList.filter (fun e => (cmp e bound).isGE) := by
   apply @DTreeMap.Internal.Unit.toList_rci _ ⟨cmp⟩ _ _
-  . exact @wf.out.out.out.ordered _ _ ⟨cmp⟩ _
+  · exact @wf.out.out.out.ordered _ _ ⟨cmp⟩ _
 
 public instance {α : Type u} (cmp : α → α → Ordering := by exact compare) :
     Rco.Sliceable (Raw α cmp) α (@DTreeMap.Internal.Unit.RcoSlice α ⟨cmp⟩) :=
@@ -66,7 +66,7 @@ public theorem toList_rco {α : Type u} (cmp : α → α → Ordering := by exac
     t[lowerBound...<upperBound].toList =
       t.toList.filter (fun e => (cmp e lowerBound).isGE ∧ (cmp e upperBound).isLT) := by
   apply @DTreeMap.Internal.Unit.toList_rco _ ⟨cmp⟩ _ _
-  . exact @wf.out.out.out.ordered _ _ ⟨cmp⟩ _
+  · exact @wf.out.out.out.ordered _ _ ⟨cmp⟩ _
 
 public instance {α : Type u} (cmp : α → α → Ordering := by exact compare) :
     Rcc.Sliceable (Raw α cmp) α (@DTreeMap.Internal.Unit.RccSlice α ⟨cmp⟩) :=
@@ -77,7 +77,7 @@ public theorem toList_rcc {α : Type u} (cmp : α → α → Ordering := by exac
     t[lowerBound...=upperBound].toList =
       t.toList.filter (fun e => (cmp e lowerBound).isGE ∧ (cmp e upperBound).isLE) := by
   apply @DTreeMap.Internal.Unit.toList_rcc _ ⟨cmp⟩ _ _
-  . exact @wf.out.out.out.ordered _ _ ⟨cmp⟩ _
+  · exact @wf.out.out.out.ordered _ _ ⟨cmp⟩ _
 
 public instance {α : Type u} (cmp : α → α → Ordering := by exact compare) :
     Roi.Sliceable (Raw α cmp) α (@DTreeMap.Internal.Unit.RoiSlice α ⟨cmp⟩) :=
@@ -87,7 +87,7 @@ public theorem toList_roi {α : Type u} (cmp : α → α → Ordering := by exac
     [TransCmp cmp] {t : Raw α cmp} {wf : t.WF} {bound: α} : t[bound<...*].toList =
       t.toList.filter (fun e => (cmp e bound).isGT) := by
   apply @DTreeMap.Internal.Unit.toList_roi _ ⟨cmp⟩ _
-  . exact @wf.out.out.out.ordered _ _ ⟨cmp⟩ _
+  · exact @wf.out.out.out.ordered _ _ ⟨cmp⟩ _
 
 public instance {α : Type u} (cmp : α → α → Ordering := by exact compare) :
     Roc.Sliceable (Raw α cmp) α (@DTreeMap.Internal.Unit.RocSlice α ⟨cmp⟩) :=
@@ -98,7 +98,7 @@ public theorem toList_roc {α : Type u} (cmp : α → α → Ordering := by exac
     t[lowerBound<...=upperBound].toList =
       t.toList.filter (fun e => (cmp e lowerBound).isGT ∧ (cmp e upperBound).isLE) := by
   apply @DTreeMap.Internal.Unit.toList_roc _  ⟨cmp⟩ _
-  . exact @wf.out.out.out.ordered _ _ ⟨cmp⟩ _
+  · exact @wf.out.out.out.ordered _ _ ⟨cmp⟩ _
 
 public instance {α : Type u} (cmp : α → α → Ordering := by exact compare) :
     Roo.Sliceable (Raw α cmp) α (@DTreeMap.Internal.Unit.RooSlice α ⟨cmp⟩) :=
@@ -109,6 +109,6 @@ public theorem toList_roo {α : Type u} (cmp : α → α → Ordering := by exac
     t[lowerBound<...upperBound].toList =
       t.toList.filter (fun e => (cmp e lowerBound).isGT ∧ (cmp e upperBound).isLT) := by
   apply @DTreeMap.Internal.Unit.toList_roo _ ⟨cmp⟩ _
-  . exact @wf.out.out.out.ordered _ _ ⟨cmp⟩ _
+  · exact @wf.out.out.out.ordered _ _ ⟨cmp⟩ _
 
 end Std.TreeSet.Raw

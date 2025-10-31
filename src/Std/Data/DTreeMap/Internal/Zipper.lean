@@ -128,13 +128,13 @@ theorem toList_pruneLT {α β} [Ord α] [TransOrd α] (t : Internal.Impl α β) 
           List.filter (fun e => (compare e.fst lowerBound).isGT) r.toListModel = r.toListModel by
         simp only [new_goal, Ordering.isGT_eq, List.nil_append]
       apply And.intro
-      . rw [List.filter_eq_nil_iff]
+      · rw [List.filter_eq_nil_iff]
         intro a mem
         simp only [Ordering.isGT_iff_eq_gt, ← Ordering.isLE_iff_ne_gt]
         apply TransOrd.isLE_trans _ (Ordering.isLE_of_eq_eq heq)
         apply Ordering.isLE_of_eq_lt
         exact Internal.Impl.Ordered.compare_left ord_t mem
-      . apply List.filter_eq_self.2
+      · apply List.filter_eq_self.2
         intro a mem
         rw [Ordering.isGT_iff_eq_gt]
         apply TransCmp.gt_of_gt_of_eq ?_ heq
@@ -236,13 +236,13 @@ theorem Zipper.prependMap_eq_prependMapGT_self [Ord α] [TransOrd α] (r : Impl 
     simp at hyp'
     rw [hyp']
     apply l_ih
-    . exact (Impl.Ordered.left ord_r)
-    . intro e mem
+    · exact (Impl.Ordered.left ord_r)
+    · intro e mem
       apply hyp e
       simp only [Impl.toList_eq_toListModel, Impl.toListModel_inner,
         List.mem_append, List.mem_cons]
       apply Or.inl
-      . rw [Impl.toList_eq_toListModel] at mem
+      · rw [Impl.toList_eq_toListModel] at mem
         exact mem
 
 theorem Zipper.prependMap_pruneLT_eq_prependMapGT [Ord α] [TransOrd α] (t : Impl α β)
@@ -262,8 +262,8 @@ theorem Zipper.prependMap_pruneLT_eq_prependMapGT [Ord α] [TransOrd α] (t : Im
     case eq =>
       simp only
       apply Zipper.prependMap_eq_prependMapGT_self
-      . exact Impl.Ordered.right ord_t
-      . intro e mem
+      · exact Impl.Ordered.right ord_t
+      · intro e mem
         apply TransCmp.lt_of_eq_of_lt heq
         apply Impl.Ordered.compare_right ord_t
         rw [← Impl.toList_eq_toListModel]
@@ -301,8 +301,8 @@ theorem Zipper.ordered_prependMap_done [Ord α] [TransOrd α] {t : Impl α β}
     {ord_t : t.Ordered} :
     (Zipper.prependMap t .done).Ordered := by
   apply ordered_prependMap
-  . exact ord_t
-  . simp only [Ordered, toList, List.Pairwise.nil]
+  · exact ord_t
+  · simp only [Ordered, toList, List.Pairwise.nil]
   simp only [toList, List.not_mem_nil, false_implies, implies_true]
 
 theorem Zipper.ordered_of_ordered_cons [Ord α] [TransOrd α] {t : Impl α β}
@@ -331,7 +331,6 @@ public instance : Iterator (Zipper α β) Id ((a : α) × β a) where
 
 public instance : IteratorCollect (Zipper α β) Id Id := .defaultImplementation
 
-public instance : IteratorCollectPartial (Zipper α β) Id Id := .defaultImplementation
 
 def Zipper.FinitenessRelation : FinitenessRelation (Zipper α β) Id where
   rel t' t := t'.internalState.size < t.internalState.size
@@ -407,17 +406,13 @@ theorem Zipper.toList_iter {α β} {z : Zipper α β} : z.iter.toList = z.toList
 termination_by z.size
 decreasing_by simp [size_prependMap]
 
-public theorem Zipper.toList.iterOfTree (t : Impl α β) :
+public theorem Zipper.toList_iterOfTree (t : Impl α β) :
     (Zipper.iterOfTree t).toList = t.toList := by
   rw [Zipper.iterOfTree, Zipper.iter]
   have := @Zipper.toList_iter α β (prependMap t .done)
   simp only [iter] at this
   rw [this]
   simp only [Zipper.toList_prependMap_eq_append, toList, List.append_nil]
-
-public theorem Zipper.map_iterOfTree_eq_tree_toList_map (t : Impl α β) :
-   (Iter.map f (Internal.Zipper.iterOfTree t)).toList = List.map f t.toList := by
-  rw [Iter.toList_map, toList.iterOfTree]
 
 end Zipper
 
@@ -443,8 +438,6 @@ public instance [Ord α] : Iterator (RxcIterator α β) Id ((a : α) × β a) wh
 
 public instance [Ord α] : IteratorCollect (RxcIterator α β) Id Id := .defaultImplementation
 
-public instance [Ord α] : IteratorCollectPartial (RxcIterator α β) Id Id := .defaultImplementation
-
 def RxcIterator.FinitenessRelation [Ord α] : FinitenessRelation (RxcIterator α β) Id where
   rel t' t := t'.internalState.iter.size < t.internalState.iter.size
   wf := by
@@ -459,7 +452,7 @@ def RxcIterator.FinitenessRelation [Ord α] : FinitenessRelation (RxcIterator α
       simp only [RxcIterator.step] at h'
       split at h'
       any_goals contradiction
-      . split at h'
+      · split at h'
         all_goals contradiction
     case done =>
       cases h
@@ -483,15 +476,15 @@ public instance instFinite [Ord α] : Finite (RxcIterator α β) Id :=
   .of_finitenessRelation RxcIterator.FinitenessRelation
 
 @[simp]
-theorem RxcIterator.step_done [Ord α] {upper : α} : ({iter := .done, upper := upper } : RxcIterator α β).step = .done := rfl
+theorem RxcIterator.step_done [Ord α] {upper : α} : ({ iter := .done, upper := upper } : RxcIterator α β).step = .done := rfl
 
 @[simp]
-theorem RxcIterator.step_cons_of_LE [Ord α] {upper : α} {h : (compare k upper).isLE} : ({iter := (.cons k v t it), upper := upper } : RxcIterator α β).step = .yield ⟨it.prependMap t, upper⟩ ⟨k,v⟩ := by
+theorem RxcIterator.step_cons_of_LE [Ord α] {upper : α} {h : (compare k upper).isLE} : ({ iter := (.cons k v t it), upper := upper } : RxcIterator α β).step = .yield ⟨it.prependMap t, upper⟩ ⟨k,v⟩ := by
   rw [step, h]
   simp only [↓reduceIte]
 
 @[simp]
-theorem RxcIterator.step_cons_of_not_LE [Ord α] {upper : α} {h : (compare k upper).isLE = false} : ({iter := (.cons k v t it), upper := upper } : RxcIterator α β).step = .done := by
+theorem RxcIterator.step_cons_of_not_LE [Ord α] {upper : α} {h : (compare k upper).isLE = false} : ({ iter := (.cons k v t it), upper := upper } : RxcIterator α β).step = .done := by
   rw [step, h]
   simp only [Bool.false_eq_true, ↓reduceIte]
 
@@ -513,10 +506,10 @@ theorem RxcIterator.toList_rxcIter {α β} [Ord α]
   | cons k v t it' =>
     generalize heq : (compare k bound).isLE = x
     cases x
-    . simp only [@RxcIterator.step_cons_of_not_LE _ _ k v t it' _ bound heq, Id.run_pure,
+    · simp only [@RxcIterator.step_cons_of_not_LE _ _ k v t it' _ bound heq, Id.run_pure,
       Zipper.toList_cons, List.cons_append, heq, Bool.false_eq_true, not_false_eq_true,
       List.takeWhile_cons_of_neg]
-    . simp only [@RxcIterator.step_cons_of_LE _ _ k v t it' _ bound heq, Id.run_map,
+    · simp only [@RxcIterator.step_cons_of_LE _ _ k v t it' _ bound heq, Id.run_map,
       Zipper.toList_cons, List.cons_append, heq, List.takeWhile_cons_of_pos, List.cons.injEq,
       true_and]
       rw [← eq_toIterM_iter, ← Iter.toList_eq_toList_toIterM, toList_rxcIter, Zipper.toList_prependMap_eq_append]
@@ -545,9 +538,9 @@ theorem toList_eq_takeWhile_list {α : Type u} {β : α → Type v} [Ord α] [Tr
         have := l_ordered.1 a mem
         rw [← Ordering.swap_eq_gt] at this
         apply TransCmp.gt_of_gt_of_gt
-        . rw [← OrientedOrd.eq_swap] at this
-          . exact this
-        . exact heq
+        · rw [← OrientedOrd.eq_swap] at this
+          · exact this
+        · exact heq
 
 public theorem toList_eq_takeWhile {α β} [Ord α] [TransOrd α] {z : Zipper α β} {bound : α} {z_ord : z.Ordered} :
     z.toList.takeWhile (fun e => (compare e.fst bound).isLE) = z.toList.filter (fun e => (compare e.fst bound).isLE) := by
@@ -579,8 +572,6 @@ public instance [Ord α] : Iterator (RxoIterator α β) Id ((a : α) × β a) wh
 
 public instance [Ord α] : IteratorCollect (RxoIterator α β) Id Id := .defaultImplementation
 
-public instance [Ord α] : IteratorCollectPartial (RxoIterator α β) Id Id := .defaultImplementation
-
 def RxoIterator.instFinitenessRelation [Ord α] : FinitenessRelation (RxoIterator α β) Id where
   rel t' t := t'.internalState.iter.size < t.internalState.iter.size
   wf := by
@@ -595,7 +586,7 @@ def RxoIterator.instFinitenessRelation [Ord α] : FinitenessRelation (RxoIterato
       simp only [RxoIterator.step] at h'
       split at h'
       any_goals contradiction
-      . split at h'
+      · split at h'
         all_goals contradiction
     case done =>
       cases h
@@ -619,15 +610,15 @@ public instance Rxo.instFinite [Ord α] : Finite (RxoIterator α β) Id :=
   .of_finitenessRelation RxoIterator.instFinitenessRelation
 
 @[simp]
-theorem RxoIterator.step_done [Ord α] {upper : α} : ({iter := .done, upper := upper } : RxoIterator α β).step = .done := rfl
+theorem RxoIterator.step_done [Ord α] {upper : α} : ({ iter := .done, upper := upper } : RxoIterator α β).step = .done := rfl
 
 @[simp]
-theorem RxoIterator.step_cons_of_LT [Ord α] {upper : α} {h : (compare k upper).isLT} : ({iter := (.cons k v t it), upper := upper } : RxoIterator α β).step = .yield ⟨it.prependMap t, upper⟩ ⟨k,v⟩ := by
+theorem RxoIterator.step_cons_of_isLT [Ord α] {upper : α} {h : (compare k upper).isLT} : ({ iter := (.cons k v t it), upper := upper } : RxoIterator α β).step = .yield ⟨it.prependMap t, upper⟩ ⟨k,v⟩ := by
   rw [step, h]
   simp only [↓reduceIte]
 
 @[simp]
-theorem RxoIterator.step_cons_of_not_LT [Ord α] {upper : α} {h : (compare k upper).isLT = false} : ({iter := (.cons k v t it), upper := upper } : RxoIterator α β).step = .done := by
+theorem RxoIterator.step_cons_of_isLT_eq_false [Ord α] {upper : α} {h : (compare k upper).isLT = false} : ({ iter := (.cons k v t it), upper := upper } : RxoIterator α β).step = .done := by
   rw [step, h]
   simp only [Bool.false_eq_true, ↓reduceIte]
 
@@ -649,10 +640,10 @@ theorem RxoIterator.toList_rxoIter {α β} [Ord α]
   | cons k v t it' =>
     generalize heq : (compare k bound).isLT = x
     cases x
-    . simp only [@RxoIterator.step_cons_of_not_LT _ _ k v t it' _ bound heq, Id.run_pure,
+    · simp only [@RxoIterator.step_cons_of_isLT_eq_false _ _ k v t it' _ bound heq, Id.run_pure,
       Zipper.toList_cons, List.cons_append, heq, Bool.false_eq_true, not_false_eq_true,
       List.takeWhile_cons_of_neg]
-    . simp only [@RxoIterator.step_cons_of_LT _ _ k v t it' _ bound heq, Id.run_map,
+    · simp only [@RxoIterator.step_cons_of_isLT _ _ k v t it' _ bound heq, Id.run_map,
       Zipper.toList_cons, List.cons_append, heq, List.takeWhile_cons_of_pos, List.cons.injEq,
       true_and]
       rw [← eq_toIterM_iter, ← Iter.toList_eq_toList_toIterM, toList_rxoIter, Zipper.toList_prependMap_eq_append]
@@ -684,8 +675,8 @@ theorem toList_eq_takeWhile_list_LT {α : Type u} {β : α → Type v} [Ord α] 
         simp only [Bool.eq_false_iff, ne_eq, Ordering.isLT_iff_eq_lt] at heq
         rw [Ordering.ne_lt_iff_isGE] at heq
         apply TransOrd.isGE_trans
-        . apply Ordering.isGE_of_eq_gt this
-        . exact heq
+        · apply Ordering.isGE_of_eq_gt this
+        · exact heq
 
 public theorem toList_eq_takeWhile_LT {α β} [Ord α] [TransOrd α] {z : Zipper α β} {bound : α} {z_ord : z.Ordered} :
     z.toList.takeWhile (fun e => (compare e.fst bound).isLT) = z.toList.filter (fun e => (compare e.fst bound).isLT) := by
@@ -715,10 +706,10 @@ public theorem toList_ric {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [RxcIterator.toList_rxcIter, toList_eq_takeWhile_list]
-  . rw [Zipper.toList_prependMap_eq_append]
+  · rw [Zipper.toList_prependMap_eq_append]
     simp [Zipper.toList]
-  . apply Zipper.ordered_prependMap_done
-    . exact ordered
+  · apply Zipper.ordered_prependMap_done
+    · exact ordered
 
 end Ric
 
@@ -735,7 +726,7 @@ public instance {α : Type u} [Ord α] : Ric.Sliceable (Impl α (fun _ => Unit))
 
 public instance [Ord α] {s : Unit.RicSlice α} : ToIterator s Id α := by
   apply ToIterator.of
-  . exact (⟨RxcIterator.mk (Zipper.prependMap s.1.treeMap Zipper.done) s.1.range.upper⟩ : Iter _ ).map fun e => (e.1)
+  · exact (⟨RxcIterator.mk (Zipper.prependMap s.1.treeMap Zipper.done) s.1.range.upper⟩ : Iter _ ).map fun e => (e.1)
 
 public theorem toList_ric {α : Type u} [Ord α] [TransOrd α] (t : Impl α (fun _ => Unit))
     (ordered : t.Ordered) (bound : α) : (t : Impl α (fun _ => Unit))[*...=bound].toList = (Internal.Impl.keys t).filter (fun e => (compare e bound).isLE) := by
@@ -747,10 +738,10 @@ public theorem toList_ric {α : Type u} [Ord α] [TransOrd α] (t : Impl α (fun
   rw [List.filter_map]
   congr
   rw [RxcIterator.toList_rxcIter, toList_eq_takeWhile_list]
-  . congr
+  · congr
     simp [Zipper.toList_prependMap_eq_append, Zipper.toList, Impl.toList_eq_toListModel]
-  . apply Zipper.ordered_prependMap_done
-    . exact ordered
+  · apply Zipper.ordered_prependMap_done
+    · exact ordered
 
 end Unit
 
@@ -767,7 +758,7 @@ public instance {α : Type u} {β : Type v} [Ord α] : Ric.Sliceable (Impl α (f
 
 public instance [Ord α] {s : RicSlice α β} : ToIterator s Id (α × β) := by
   apply ToIterator.of
-  . exact (⟨RxcIterator.mk (Zipper.prependMap s.1.treeMap Zipper.done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
+  · exact (⟨RxcIterator.mk (Zipper.prependMap s.1.treeMap Zipper.done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
 
 public theorem toList_ric {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t : Impl α (fun _ => β))
     (ordered : t.Ordered) (bound : α) : t[*...=bound].toList = (Internal.Impl.Const.toList t).filter (fun e => (compare e.fst bound).isLE) := by
@@ -779,10 +770,10 @@ public theorem toList_ric {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t 
   rw [List.filter_map]
   congr
   rw [RxcIterator.toList_rxcIter, toList_eq_takeWhile_list]
-  . congr
+  · congr
     simp [Zipper.toList_prependMap_eq_append, Zipper.toList, Impl.toList_eq_toListModel]
-  . apply Zipper.ordered_prependMap_done
-    . exact ordered
+  · apply Zipper.ordered_prependMap_done
+    · exact ordered
 
 end Const
 
@@ -806,10 +797,10 @@ public theorem toList_rio {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [RxoIterator.toList_rxoIter, toList_eq_takeWhile_list_LT]
-  . rw [Zipper.toList_prependMap_eq_append]
+  · rw [Zipper.toList_prependMap_eq_append]
     simp [Zipper.toList]
-  . apply Zipper.ordered_prependMap_done
-    . exact ordered
+  · apply Zipper.ordered_prependMap_done
+    · exact ordered
 
 end Rio
 
@@ -826,7 +817,7 @@ public instance {α : Type u} [Ord α] : Rio.Sliceable (Impl α (fun _ => Unit))
 
 public instance [Ord α] {s : Unit.RioSlice α} : ToIterator s Id α := by
   apply ToIterator.of
-  . exact (⟨RxoIterator.mk (Zipper.prependMap s.1.treeMap Zipper.done) s.1.range.upper⟩ : Iter _ ).map fun e => (e.1)
+  · exact (⟨RxoIterator.mk (Zipper.prependMap s.1.treeMap Zipper.done) s.1.range.upper⟩ : Iter _ ).map fun e => (e.1)
 
 public theorem toList_rio {α : Type u} [Ord α] [TransOrd α] (t : Impl α (fun _ => Unit))
     (ordered : t.Ordered) (bound : α) : (t : Impl α (fun _ => Unit))[*...<bound].toList = (Internal.Impl.keys t).filter (fun e => (compare e bound).isLT) := by
@@ -838,10 +829,10 @@ public theorem toList_rio {α : Type u} [Ord α] [TransOrd α] (t : Impl α (fun
   rw [List.filter_map]
   congr
   rw [RxoIterator.toList_rxoIter, toList_eq_takeWhile_list_LT]
-  . congr
+  · congr
     simp [Zipper.toList_prependMap_eq_append, Zipper.toList, Impl.toList_eq_toListModel]
-  . apply Zipper.ordered_prependMap_done
-    . exact ordered
+  · apply Zipper.ordered_prependMap_done
+    · exact ordered
 
 end Unit
 
@@ -858,7 +849,7 @@ public instance {α : Type u} {β : Type v} [Ord α] : Rio.Sliceable (Impl α (f
 
 public instance [Ord α] {s : RioSlice α β} : ToIterator s Id (α × β) := by
   apply ToIterator.of
-  . exact (⟨RxoIterator.mk (Zipper.prependMap s.1.treeMap Zipper.done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
+  · exact (⟨RxoIterator.mk (Zipper.prependMap s.1.treeMap Zipper.done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
 
 public theorem toList_rio {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t : Impl α (fun _ => β))
     (ordered : t.Ordered) (bound : α) : t[*...<bound].toList = (Internal.Impl.Const.toList t).filter (fun e => (compare e.fst bound).isLT) := by
@@ -870,10 +861,10 @@ public theorem toList_rio {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t 
   rw [List.filter_map]
   congr
   rw [RxoIterator.toList_rxoIter, toList_eq_takeWhile_list_LT]
-  . congr
+  · congr
     simp [Zipper.toList_prependMap_eq_append, Zipper.toList, Impl.toList_eq_toListModel]
-  . apply Zipper.ordered_prependMap_done
-    . exact ordered
+  · apply Zipper.ordered_prependMap_done
+    · exact ordered
 
 end Const
 
@@ -889,7 +880,7 @@ theorem toList_rccIter {α β} [Ord α] [TransOrd α]
       t.toList.filter (fun e => (compare e.fst lowerBound).isGE ∧ (compare e.fst upperBound).isLE) := by
   simp only [RccIterator, Bool.decide_and, Bool.decide_eq_true]
   rw [RxcIterator.toList_rxcIter, toList_eq_takeWhile_list]
-  . conv =>
+  · conv =>
       rhs
       lhs
       ext x
@@ -897,20 +888,20 @@ theorem toList_rccIter {α β} [Ord α] [TransOrd α]
     rw [← List.filter_filter]
     congr 1
     rw [← Zipper.prependMap_pruneLE_eq_prependMapGE]
-    . rw [Zipper.toList_prependMap_eq_append]
+    · rw [Zipper.toList_prependMap_eq_append]
       rw [Impl.toList_pruneLE]
-      . simp [Zipper.toList]
-      . exact t_ord
-    . exact t_ord
-  . rw [← Zipper.prependMap_pruneLE_eq_prependMapGE]
-    . simp only [Zipper.toList_prependMap_eq_append, Zipper.toList, List.append_nil]
+      · simp [Zipper.toList]
+      · exact t_ord
+    · exact t_ord
+  · rw [← Zipper.prependMap_pruneLE_eq_prependMapGE]
+    · simp only [Zipper.toList_prependMap_eq_append, Zipper.toList, List.append_nil]
       rw [Impl.toList_pruneLE]
-      . apply List.Pairwise.filter
+      · apply List.Pairwise.filter
         simp only [Impl.Ordered] at t_ord
         rw [Impl.toList_eq_toListModel]
         exact t_ord
-      . exact t_ord
-    . exact t_ord
+      · exact t_ord
+    · exact t_ord
 
 public structure RccSliceData (α : Type u) (β : α → Type v) [Ord α] where
   treeMap : Impl α β
@@ -930,7 +921,7 @@ public theorem toList_rcc {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [toList_rccIter]
-  . exact ordered
+  · exact ordered
 
 end Rcc
 
@@ -947,7 +938,7 @@ public instance {α : Type u} [Ord α] : Rcc.Sliceable (Impl α (fun _ => Unit))
 
 public instance [Ord α] {s : Unit.RccSlice α} : ToIterator s Id α := by
   apply ToIterator.of
-  . exact (⟨RxcIterator.mk (Zipper.prependMapGE s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter _ ).map fun e => (e.1)
+  · exact (⟨RxcIterator.mk (Zipper.prependMapGE s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter _ ).map fun e => (e.1)
 
 public theorem toList_rcc {α : Type u} [Ord α] [TransOrd α] (t : Impl α (fun _ => Unit))
     (ordered : t.Ordered) (lowerBound upperBound: α) : (t : Impl α (fun _ => Unit))[lowerBound...=upperBound].toList = (Internal.Impl.keys t).filter (fun e => (compare e lowerBound).isGE ∧ (compare e upperBound).isLE) := by
@@ -981,7 +972,7 @@ public instance {α : Type u} {β : Type v} [Ord α] : Rcc.Sliceable (Impl α (f
 
 public instance [Ord α] {s : RccSlice α β} : ToIterator s Id (α × β) := by
   apply ToIterator.of
-  . exact (⟨RxcIterator.mk (Zipper.prependMapGE s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
+  · exact (⟨RxcIterator.mk (Zipper.prependMapGE s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
 
 public theorem toList_rcc {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t : Impl α (fun _ => β))
     (ordered : t.Ordered) (lowerBound upperBound : α) : t[lowerBound...=upperBound].toList = (Internal.Impl.Const.toList t).filter (fun e => (compare e.fst lowerBound).isGE ∧ (compare e.fst upperBound).isLE) := by
@@ -1016,7 +1007,7 @@ theorem toList_rcoIter {α β} [Ord α] [TransOrd α]
       t.toList.filter (fun e => (compare e.fst lowerBound).isGE ∧ (compare e.fst upperBound).isLT) := by
   simp only [RcoIterator, Bool.decide_and, Bool.decide_eq_true]
   rw [RxoIterator.toList_rxoIter, toList_eq_takeWhile_list_LT]
-  . conv =>
+  · conv =>
       rhs
       lhs
       ext x
@@ -1024,20 +1015,20 @@ theorem toList_rcoIter {α β} [Ord α] [TransOrd α]
     rw [← List.filter_filter]
     congr 1
     rw [← Zipper.prependMap_pruneLE_eq_prependMapGE]
-    . rw [Zipper.toList_prependMap_eq_append]
+    · rw [Zipper.toList_prependMap_eq_append]
       rw [Impl.toList_pruneLE]
-      . simp only [Zipper.toList, List.append_nil]
-      . exact t_ord
-    . exact t_ord
-  . rw [← Zipper.prependMap_pruneLE_eq_prependMapGE]
-    . simp only [Zipper.toList_prependMap_eq_append, Zipper.toList, List.append_nil]
+      · simp only [Zipper.toList, List.append_nil]
+      · exact t_ord
+    · exact t_ord
+  · rw [← Zipper.prependMap_pruneLE_eq_prependMapGE]
+    · simp only [Zipper.toList_prependMap_eq_append, Zipper.toList, List.append_nil]
       rw [Impl.toList_pruneLE]
-      . apply List.Pairwise.filter
+      · apply List.Pairwise.filter
         simp only [Impl.Ordered] at t_ord
         rw [Impl.toList_eq_toListModel]
         exact t_ord
-      . exact t_ord
-    . exact t_ord
+      · exact t_ord
+    · exact t_ord
 
 public structure RcoSliceData (α : Type u) (β : α → Type v) [Ord α] where
   treeMap : Impl α β
@@ -1057,7 +1048,7 @@ public theorem toList_rco {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [toList_rcoIter]
-  . exact ordered
+  · exact ordered
 
 end Rco
 
@@ -1074,7 +1065,7 @@ public instance {α : Type u} [Ord α] : Rco.Sliceable (Impl α (fun _ => Unit))
 
 public instance [Ord α] {s : Unit.RcoSlice α} : ToIterator s Id α := by
   apply ToIterator.of
-  . exact (⟨RxoIterator.mk (Zipper.prependMapGE s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter _ ).map fun e => (e.1)
+  · exact (⟨RxoIterator.mk (Zipper.prependMapGE s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter _ ).map fun e => (e.1)
 
 public theorem toList_rco {α : Type u} [Ord α] [TransOrd α] (t : Impl α (fun _ => Unit))
     (ordered : t.Ordered) (lowerBound upperBound: α) : (t : Impl α (fun _ => Unit))[lowerBound...<upperBound].toList = (Internal.Impl.keys t).filter (fun e => (compare e lowerBound).isGE ∧ (compare e upperBound).isLT) := by
@@ -1108,7 +1099,7 @@ public instance {α : Type u} {β : Type v} [Ord α] : Rco.Sliceable (Impl α (f
 
 public instance [Ord α] {s : RcoSlice α β} : ToIterator s Id (α × β) := by
   apply ToIterator.of
-  . exact (⟨RxoIterator.mk (Zipper.prependMapGE s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
+  · exact (⟨RxoIterator.mk (Zipper.prependMapGE s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
 
 public theorem toList_rco {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t : Impl α (fun _ => β))
     (ordered : t.Ordered) (lowerBound upperBound : α) : t[lowerBound...<upperBound].toList = (Internal.Impl.Const.toList t).filter (fun e => (compare e.fst lowerBound).isGE ∧ (compare e.fst upperBound).isLT) := by
@@ -1142,7 +1133,7 @@ theorem toList_rooIter {α β} [Ord α] [TransOrd α]
       t.toList.filter (fun e => (compare e.fst lowerBound).isGT ∧ (compare e.fst upperBound).isLT) := by
   simp only [RooIterator, Bool.decide_and, Bool.decide_eq_true]
   rw [RxoIterator.toList_rxoIter, toList_eq_takeWhile_list_LT]
-  . conv =>
+  · conv =>
       rhs
       lhs
       ext x
@@ -1150,20 +1141,20 @@ theorem toList_rooIter {α β} [Ord α] [TransOrd α]
     rw [← List.filter_filter]
     congr 1
     rw [← Zipper.prependMap_pruneLT_eq_prependMapGT]
-    . rw [Zipper.toList_prependMap_eq_append]
+    · rw [Zipper.toList_prependMap_eq_append]
       rw [Impl.toList_pruneLT]
-      . simp only [Zipper.toList, List.append_nil]
-      . exact t_ord
-    . exact t_ord
-  . rw [← Zipper.prependMap_pruneLT_eq_prependMapGT]
-    . simp only [Zipper.toList_prependMap_eq_append, Zipper.toList, List.append_nil]
+      · simp only [Zipper.toList, List.append_nil]
+      · exact t_ord
+    · exact t_ord
+  · rw [← Zipper.prependMap_pruneLT_eq_prependMapGT]
+    · simp only [Zipper.toList_prependMap_eq_append, Zipper.toList, List.append_nil]
       rw [Impl.toList_pruneLT]
-      . apply List.Pairwise.filter
+      · apply List.Pairwise.filter
         simp only [Impl.Ordered] at t_ord
         rw [Impl.toList_eq_toListModel]
         exact t_ord
-      . exact t_ord
-    . exact t_ord
+      · exact t_ord
+    · exact t_ord
 
 public structure RooSliceData (α : Type u) (β : α → Type v) [Ord α] where
   treeMap : Impl α β
@@ -1183,7 +1174,7 @@ public theorem toList_roo {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [toList_rooIter]
-  . exact ordered
+  · exact ordered
 
 end Roo
 
@@ -1200,7 +1191,7 @@ public instance {α : Type u} [Ord α] : Roo.Sliceable (Impl α (fun _ => Unit))
 
 public instance [Ord α] {s : Unit.RooSlice α} : ToIterator s Id α := by
   apply ToIterator.of
-  . exact (⟨RxoIterator.mk (Zipper.prependMapGT s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter _ ).map fun e => (e.1)
+  · exact (⟨RxoIterator.mk (Zipper.prependMapGT s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter _ ).map fun e => (e.1)
 
 public theorem toList_roo {α : Type u} [Ord α] [TransOrd α] (t : Impl α (fun _ => Unit))
     (ordered : t.Ordered) (lowerBound upperBound: α) : (t : Impl α (fun _ => Unit))[lowerBound<...<upperBound].toList = (Internal.Impl.keys t).filter (fun e => (compare e lowerBound).isGT ∧ (compare e upperBound).isLT) := by
@@ -1234,7 +1225,7 @@ public instance {α : Type u} {β : Type v} [Ord α] : Roo.Sliceable (Impl α (f
 
 public instance [Ord α] {s : RooSlice α β} : ToIterator s Id (α × β) := by
   apply ToIterator.of
-  . exact (⟨RxoIterator.mk (Zipper.prependMapGT s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
+  · exact (⟨RxoIterator.mk (Zipper.prependMapGT s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
 
 public theorem toList_roo {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t : Impl α (fun _ => β))
     (ordered : t.Ordered) (lowerBound upperBound : α) : t[lowerBound<...<upperBound].toList = (Internal.Impl.Const.toList t).filter (fun e => (compare e.fst lowerBound).isGT ∧ (compare e.fst upperBound).isLT) := by
@@ -1269,7 +1260,7 @@ theorem toList_rocIter {α β} [Ord α] [TransOrd α]
       t.toList.filter (fun e => (compare e.fst lowerBound).isGT ∧ (compare e.fst upperBound).isLE) := by
   simp only [RocIterator, Bool.decide_and, Bool.decide_eq_true]
   rw [RxcIterator.toList_rxcIter, toList_eq_takeWhile_list]
-  . conv =>
+  · conv =>
       rhs
       lhs
       ext x
@@ -1277,20 +1268,20 @@ theorem toList_rocIter {α β} [Ord α] [TransOrd α]
     rw [← List.filter_filter]
     congr 1
     rw [← Zipper.prependMap_pruneLT_eq_prependMapGT]
-    . rw [Zipper.toList_prependMap_eq_append]
+    · rw [Zipper.toList_prependMap_eq_append]
       rw [Impl.toList_pruneLT]
-      . simp only [Zipper.toList, List.append_nil]
-      . exact t_ord
-    . exact t_ord
-  . rw [← Zipper.prependMap_pruneLT_eq_prependMapGT]
-    . simp only [Zipper.toList_prependMap_eq_append, Zipper.toList, List.append_nil]
+      · simp only [Zipper.toList, List.append_nil]
+      · exact t_ord
+    · exact t_ord
+  · rw [← Zipper.prependMap_pruneLT_eq_prependMapGT]
+    · simp only [Zipper.toList_prependMap_eq_append, Zipper.toList, List.append_nil]
       rw [Impl.toList_pruneLT]
-      . apply List.Pairwise.filter
+      · apply List.Pairwise.filter
         simp only [Impl.Ordered] at t_ord
         rw [Impl.toList_eq_toListModel]
         exact t_ord
-      . exact t_ord
-    . exact t_ord
+      · exact t_ord
+    · exact t_ord
 
 public structure RocSliceData (α : Type u) (β : α → Type v) [Ord α] where
   treeMap : Impl α β
@@ -1310,7 +1301,7 @@ public theorem toList_roc {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [toList_rocIter]
-  . exact ordered
+  · exact ordered
 
 end Roc
 
@@ -1327,7 +1318,7 @@ public instance {α : Type u} [Ord α] : Roc.Sliceable (Impl α (fun _ => Unit))
 
 public instance [Ord α] {s : Unit.RocSlice α} : ToIterator s Id α := by
   apply ToIterator.of
-  . exact (⟨RxcIterator.mk (Zipper.prependMapGT s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter _ ).map fun e => (e.1)
+  · exact (⟨RxcIterator.mk (Zipper.prependMapGT s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter _ ).map fun e => (e.1)
 
 public theorem toList_roc {α : Type u} [Ord α] [TransOrd α] (t : Impl α (fun _ => Unit))
     (ordered : t.Ordered) (lowerBound upperBound: α) : (t : Impl α (fun _ => Unit))[lowerBound<...=upperBound].toList = (Internal.Impl.keys t).filter (fun e => (compare e lowerBound).isGT ∧ (compare e upperBound).isLE) := by
@@ -1361,7 +1352,7 @@ public instance {α : Type u} {β : Type v} [Ord α] : Roc.Sliceable (Impl α (f
 
 public instance [Ord α] {s : RocSlice α β} : ToIterator s Id (α × β) := by
   apply ToIterator.of
-  . exact (⟨RxcIterator.mk (Zipper.prependMapGT s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
+  · exact (⟨RxcIterator.mk (Zipper.prependMapGT s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
 
 public theorem toList_roc {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t : Impl α (fun _ => β))
     (ordered : t.Ordered) (lowerBound upperBound : α) : t[lowerBound<...=upperBound].toList = (Internal.Impl.Const.toList t).filter (fun e => (compare e.fst lowerBound).isGT ∧ (compare e.fst upperBound).isLE) := by
@@ -1399,10 +1390,10 @@ theorem toList_rciIter {α β} [Ord α] [TransOrd α]
   simp only [Zipper.iter] at this
   simp only [this]
   rw [← Zipper.prependMap_pruneLE_eq_prependMapGE]
-  . simp only [Zipper.toList_prependMap_eq_append, Zipper.toList, List.append_nil]
+  · simp only [Zipper.toList_prependMap_eq_append, Zipper.toList, List.append_nil]
     apply Impl.toList_pruneLE
     exact t_ord
-  . exact t_ord
+  · exact t_ord
 
 public structure RciSliceData (α : Type u) (β : α → Type v) [Ord α] where
   treeMap : Impl α β
@@ -1422,7 +1413,7 @@ public theorem toList_rci {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [toList_rciIter]
-  . exact ordered
+  · exact ordered
 
 end Rci
 
@@ -1439,7 +1430,7 @@ public instance {α : Type u} [Ord α] : Rci.Sliceable (Impl α (fun _ => Unit))
 
 public instance [Ord α] {s : Unit.RciSlice α} : ToIterator s Id α := by
   apply ToIterator.of
-  . exact (⟨Zipper.prependMapGE s.1.treeMap s.1.range.lower Zipper.done⟩ : Iter _ ).map fun e => (e.1)
+  · exact (⟨Zipper.prependMapGE s.1.treeMap s.1.range.lower Zipper.done⟩ : Iter _ ).map fun e => (e.1)
 
 public theorem toList_rci {α : Type u} [Ord α] [TransOrd α] (t : Impl α (fun _ => Unit))
     (ordered : t.Ordered) (lowerBound : α) : (t : Impl α (fun _ => Unit))[lowerBound...*].toList = (Internal.Impl.keys t).filter (fun e => (compare e lowerBound).isGE) := by
@@ -1454,12 +1445,12 @@ public theorem toList_rci {α : Type u} [Ord α] [TransOrd α] (t : Impl α (fun
   simp only [Zipper.iter] at this
   simp only [this]
   rw [← Zipper.prependMap_pruneLE_eq_prependMapGE]
-  . simp [Zipper.toList_prependMap_eq_append]
+  · simp [Zipper.toList_prependMap_eq_append]
     rw [Impl.toList_pruneLE]
     simp [Impl.toList_eq_toListModel]
     congr
-    . exact ordered
-  . exact ordered
+    · exact ordered
+  · exact ordered
 
 end Unit
 
@@ -1476,7 +1467,7 @@ public instance {α : Type u} {β : Type v} [Ord α] : Rci.Sliceable (Impl α (f
 
 public instance [Ord α] {s : RciSlice α β} : ToIterator s Id (α × β) := by
   apply ToIterator.of
-  . exact (⟨(Zipper.prependMapGE s.1.treeMap s.1.range.lower Zipper.done)⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
+  · exact (⟨(Zipper.prependMapGE s.1.treeMap s.1.range.lower Zipper.done)⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
 
 public theorem toList_rci {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t : Impl α (fun _ => β))
     (ordered : t.Ordered) (lowerBound : α) : t[lowerBound...*].toList = (Internal.Impl.Const.toList t).filter (fun e => (compare e.fst lowerBound).isGE) := by
@@ -1491,12 +1482,12 @@ public theorem toList_rci {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t 
   simp only [Zipper.iter] at this
   simp only [this]
   rw [← Zipper.prependMap_pruneLE_eq_prependMapGE]
-  . simp [Zipper.toList_prependMap_eq_append]
+  · simp [Zipper.toList_prependMap_eq_append]
     rw [Impl.toList_pruneLE]
     simp [Impl.toList_eq_toListModel]
     congr
-    . exact ordered
-  . exact ordered
+    · exact ordered
+  · exact ordered
 
 end Const
 
@@ -1515,10 +1506,10 @@ theorem toList_roiIter {α β} [Ord α] [TransOrd α]
   simp only [Zipper.iter] at this
   rw [this]
   rw [← Zipper.prependMap_pruneLT_eq_prependMapGT]
-  . simp only [Zipper.toList_prependMap_eq_append, Zipper.toList, List.append_nil]
+  · simp only [Zipper.toList_prependMap_eq_append, Zipper.toList, List.append_nil]
     apply Impl.toList_pruneLT
     exact t_ord
-  . exact t_ord
+  · exact t_ord
 
 public structure RoiSliceData (α : Type u) (β : α → Type v) [Ord α] where
   treeMap : Impl α β
@@ -1538,7 +1529,7 @@ public theorem toList_roi {α : Type u} {β : α → Type v} [Ord α] [TransOrd 
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [toList_roiIter]
-  . exact ordered
+  · exact ordered
 
 end Roi
 
@@ -1555,7 +1546,7 @@ public instance {α : Type u} [Ord α] : Roi.Sliceable (Impl α (fun _ => Unit))
 
 public instance [Ord α] {s : Unit.RoiSlice α} : ToIterator s Id α := by
   apply ToIterator.of
-  . exact (⟨Zipper.prependMapGT s.1.treeMap s.1.range.lower Zipper.done⟩ : Iter _ ).map fun e => (e.1)
+  · exact (⟨Zipper.prependMapGT s.1.treeMap s.1.range.lower Zipper.done⟩ : Iter _ ).map fun e => (e.1)
 
 public theorem toList_roi {α : Type u} [Ord α] [TransOrd α] (t : Impl α (fun _ => Unit))
     (ordered : t.Ordered) (lowerBound : α) : (t : Impl α (fun _ => Unit))[lowerBound<...*].toList = (Internal.Impl.keys t).filter (fun e => (compare e lowerBound).isGT) := by
@@ -1570,12 +1561,12 @@ public theorem toList_roi {α : Type u} [Ord α] [TransOrd α] (t : Impl α (fun
   simp only [Zipper.iter] at this
   simp only [this]
   rw [← Zipper.prependMap_pruneLT_eq_prependMapGT]
-  . simp [Zipper.toList_prependMap_eq_append]
+  · simp [Zipper.toList_prependMap_eq_append]
     rw [Impl.toList_pruneLT]
     simp [Impl.toList_eq_toListModel]
     congr
-    . exact ordered
-  . exact ordered
+    · exact ordered
+  · exact ordered
 
 end Unit
 
@@ -1592,7 +1583,7 @@ public instance {α : Type u} {β : Type v} [Ord α] : Roi.Sliceable (Impl α (f
 
 public instance [Ord α] {s : RoiSlice α β} : ToIterator s Id (α × β) := by
   apply ToIterator.of
-  . exact (⟨(Zipper.prependMapGT s.1.treeMap s.1.range.lower .done)⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
+  · exact (⟨(Zipper.prependMapGT s.1.treeMap s.1.range.lower .done)⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
 
 public theorem toList_roi {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t : Impl α (fun _ => β))
     (ordered : t.Ordered) (lowerBound : α) : t[lowerBound<...*].toList = (Internal.Impl.Const.toList t).filter (fun e => (compare e.fst lowerBound).isGT) := by
@@ -1663,7 +1654,7 @@ public instance {α : Type u} : Rii.Sliceable (Impl α (fun _ => Unit)) α (Unit
 
 public instance {s : Unit.RiiSlice α} : ToIterator s Id α := by
   apply ToIterator.of
-  . exact (⟨Zipper.prependMap s.internalRepresentation.treeMap .done⟩ : Iter _ ).map fun e => (e.1)
+  · exact (⟨Zipper.prependMap s.internalRepresentation.treeMap .done⟩ : Iter _ ).map fun e => (e.1)
 
 public theorem toList_rii {α : Type u} (t : Impl α (fun _ => Unit)) :
     (t : Impl α fun _ => Unit)[*...*].toList = Internal.Impl.keys t := by
@@ -1693,7 +1684,7 @@ public instance {α : Type u} {β : Type v} : Rii.Sliceable (Impl α (fun _ => �
 
 public instance {s : Const.RiiSlice α β} : ToIterator s Id (α × β) := by
   apply ToIterator.of
-  . exact (⟨Zipper.prependMap s.internalRepresentation.treeMap .done⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
+  · exact (⟨Zipper.prependMap s.internalRepresentation.treeMap .done⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
 
 public theorem toList_rii {α : Type u} {β : Type v} (t : Impl α (fun _ => β)) :
     (t : Impl α fun _ => β)[*...*].toList = Internal.Impl.Const.toList t := by

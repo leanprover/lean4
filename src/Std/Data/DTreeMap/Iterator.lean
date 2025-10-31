@@ -61,8 +61,8 @@ public def valuesIter {α : Type u} {β : Type u} {cmp : α → α → Ordering}
   @Raw.valuesIter _ _ cmp  ⟨m.inner⟩
 
 @[simp]
-public theorem iter_toList {cmp : α → α → Ordering} (m : DTreeMap α β cmp) :
-    m.iter.toList = m.toList := Raw.iter_toList ⟨m.inner⟩
+public theorem toList_iter {cmp : α → α → Ordering} (m : DTreeMap α β cmp) :
+    m.iter.toList = m.toList := Raw.toList_iter ⟨m.inner⟩
 
 @[simp]
 public theorem keysIter_toList {cmp : α → α → Ordering} (m : DTreeMap α β cmp) :

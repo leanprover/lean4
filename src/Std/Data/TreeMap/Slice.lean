@@ -83,7 +83,7 @@ public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by 
 
 @[simp] public theorem toList_roi {α : Type u} {β : Type v}
     (cmp : α → α → Ordering := by exact compare) [TransCmp cmp]
-    {t : TreeMap α β cmp} {bound : α} :t[bound<...*].toList =
+    {t : TreeMap α β cmp} {bound : α} : t[bound<...*].toList =
       t.toList.filter (fun e => (cmp e.fst bound).isGT) :=
   @DTreeMap.Internal.Const.toList_roi α β ⟨cmp⟩ _ t.inner.inner (@t.inner.wf.ordered α (fun _ => β) ⟨cmp⟩ _) bound
 

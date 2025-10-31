@@ -77,6 +77,8 @@ trace: [grind.assert] foo (c + 1) = a
 [grind.assert] ¬a = g (foo b)
 [grind.ematch.instance] foo.eq_3: foo b.succ.succ = g (foo b)
 [grind.assert] foo (b + 2) = g (foo b)
+[grind.assert] c + 1 = b + 2
+[grind.assert] ¬c + 1 = b + 2
 -/
 #guard_msgs (trace) in
 example : foo (c + 1) = a → c = b + 1 → a = g (foo b) := by

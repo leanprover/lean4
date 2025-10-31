@@ -232,21 +232,15 @@ This function always merges the smaller set into the larger set, so the expected
 
 instance [BEq α] [Hashable α] : Union (Raw α) := ⟨union⟩
 
+/-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
+@[inline] def all (m : Raw α) (p : α → Bool) : Bool := m.inner.all (fun x _ => p x)
+
+/-- Check if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
+@[inline] def any (m : Raw α) (p : α → Bool) : Bool := m.inner.any (fun x _ => p x)
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
-
-/-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
-@[inline] def all (m : Raw α) (p : α → Bool) : Bool := Id.run do
-  for a in m do
-    if ¬ p a then return false
-  return true
-
-/-- Check if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
-@[inline] def any (m : Raw α) (p : α → Bool) : Bool := Id.run do
-  for a in m do
-    if p a then return true
-  return false
 
 /--
 Inserts multiple mappings into the hash set by iterating over the given collection and calling

@@ -52,10 +52,6 @@ public instance {α : Type u} {β : α → Type v} {m : Type (max u v) → Type 
   .defaultImplementation
 
 public instance {α : Type u} {β : α → Type v} {m : Type (max u v) → Type w''} [Monad m] :
-    IteratorCollectPartial (AssocListIterator α β) Id m :=
-  .defaultImplementation
-
-public instance {α : Type u} {β : α → Type v} {m : Type (max u v) → Type w''} [Monad m] :
     IteratorLoop (AssocListIterator α β) Id m :=
   .defaultImplementation
 

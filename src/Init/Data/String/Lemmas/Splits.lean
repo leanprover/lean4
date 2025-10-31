@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.String.Basic
 import Init.Data.ByteArray.Lemmas
+import Init.Data.String.Lemmas.Basic
 
 /-!
 # `Splits` predicates on `String.ValidPos` and `String.Slice.Pos`.
@@ -141,21 +142,6 @@ theorem ValidPos.Splits.exists_eq_singleton_append {s : String} {p : s.ValidPos}
 theorem ValidPos.Splits.exists_eq_append_singleton {s : String} {p : s.ValidPos}
     (hp : p ≠ s.endValidPos) (h : (p.next hp).Splits t₁ t₂) : ∃ t₁', t₁ = t₁' ++ singleton (p.get hp) :=
   ⟨(s.replaceEnd p).copy, h.eq_left (p.splits_next hp)⟩
-
--- TODO: move
-@[simp]
-theorem singleton_append_inj : singleton c ++ s = singleton d ++ t ↔ c = d ∧ s = t := by
-  simp [← toList_inj]
-
--- TODO: move
-@[simp]
-theorem _root_.List.append_singleton_inj {l m : List α} : l ++ [a] = m ++ [b] ↔ l = m ∧ a = b := by
-  rw [← List.reverse_inj, And.comm]; simp
-
--- TODO: move
-@[simp]
-theorem push_append_inj : push s c = push t d ↔ s = t ∧ c = d := by
-  simp [← toList_inj]
 
 -- TODO: `hp` actually follows from `h`.
 /-- You might want to invoke `ValidPos.Splits.exists_eq_singleton_append` to be able to apply this. -/

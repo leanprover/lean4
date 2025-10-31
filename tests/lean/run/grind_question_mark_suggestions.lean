@@ -1,6 +1,6 @@
 import Lean
 
-set_premise_selector Lean.LibrarySuggestions.sineQuaNonSelector
+set_library_suggestions Lean.LibrarySuggestions.sineQuaNonSelector
 
 -- Test that grind? +suggestions does NOT include +suggestions in its output
 /--

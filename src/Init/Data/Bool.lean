@@ -13,7 +13,7 @@ public section
 namespace Bool
 
 /--
-Boolean “logical or”. `lor x y`.
+Boolean “logical and”. `land x y`.
 
 `land x y` is `true` when both of `x` or `y` are `true`. It is functionally the same as
 `x && y` but it does not have short-circuiting behavior: any call to `land` will evaluate both

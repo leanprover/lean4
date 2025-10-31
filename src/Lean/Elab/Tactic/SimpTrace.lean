@@ -22,9 +22,9 @@ namespace Lean.Elab.Tactic
 open Lean Elab Parser Tactic Meta Simp Tactic.TryThis
 
 /-- Filter out `+suggestions` from the config syntax -/
-def filterSuggestionsFromConfig (config : TSyntax ``Lean.Parser.Tactic.optConfig) : MetaM (TSyntax ``Lean.Parser.Tactic.optConfig) := do
+def filterSuggestionsFromConfig (cfg : TSyntax ``Lean.Parser.Tactic.optConfig) : MetaM (TSyntax ``Lean.Parser.Tactic.optConfig) := do
   -- The config has one arg: a null node containing configItem nodes
-  let nullNode := config.raw.getArg 0
+  let nullNode := cfg.raw.getArg 0
   let configItems := nullNode.getArgs
 
   -- Filter out configItem nodes that contain +suggestions
@@ -38,7 +38,7 @@ def filterSuggestionsFromConfig (config : TSyntax ``Lean.Parser.Tactic.optConfig
 
   -- Reconstruct the config with filtered items
   let newNullNode := nullNode.setArgs filteredItems
-  return ⟨config.raw.setArg 0 newNullNode⟩
+  return ⟨cfg.raw.setArg 0 newNullNode⟩
 
 open TSyntax.Compat in
 /-- Constructs the syntax for a simp call, for use with `simp?`. -/
@@ -85,18 +85,50 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
 @[builtin_tactic simpAllTrace] def evalSimpAllTrace : Tactic := fun stx => withMainContext do withSimpDiagnostics do
   match stx with
   | `(tactic| simp_all?%$tk $[!%$bang]? $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]?) =>
-    let stx ← if bang.isSome then
-      `(tactic| simp_all!%$tk $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]?)
-    else
-      `(tactic| simp_all%$tk $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]?)
-    let { ctx, simprocs, .. } ← mkSimpContext stx (eraseLocal := true)
+    -- Check if premise selection is enabled
+    let config ← elabSimpConfig cfg (kind := .simpAll)
+    let mut argsArray : TSyntaxArray [`Lean.Parser.Tactic.simpErase, `Lean.Parser.Tactic.simpLemma] :=
+      if let some a := args then a.getElems else #[]
+    if config.suggestions then
+      -- Get premise suggestions from the premise selector
+      let suggestions ← Lean.PremiseSelection.select (← getMainGoal)
+      -- Convert suggestions to simp argument syntax and add them to the args
+      for sugg in suggestions do
+        let arg ← `(Parser.Tactic.simpLemma| $(mkIdent sugg.name):term)
+        argsArray := argsArray.push arg
+    -- Build the simp_all syntax with the updated arguments
+    let stxForExecution ←
+      if argsArray.isEmpty then
+        if bang.isSome then
+          `(tactic| simp_all!%$tk $cfg:optConfig $[$discharger]? $[only%$o]?)
+        else
+          `(tactic| simp_all%$tk $cfg:optConfig $[$discharger]? $[only%$o]?)
+      else
+        if bang.isSome then
+          `(tactic| simp_all!%$tk $cfg:optConfig $[$discharger]? $[only%$o]? [$argsArray,*])
+        else
+          `(tactic| simp_all%$tk $cfg:optConfig $[$discharger]? $[only%$o]? [$argsArray,*])
+    -- Build syntax for suggestion (without +suggestions config)
+    let filteredCfg ← filterSuggestionsFromConfig cfg
+    let stxForSuggestion ←
+      if argsArray.isEmpty then
+        if bang.isSome then
+          `(tactic| simp_all!%$tk $filteredCfg:optConfig $[$discharger]? $[only%$o]?)
+        else
+          `(tactic| simp_all%$tk $filteredCfg:optConfig $[$discharger]? $[only%$o]?)
+      else
+        if bang.isSome then
+          `(tactic| simp_all!%$tk $filteredCfg:optConfig $[$discharger]? $[only%$o]? [$argsArray,*])
+        else
+          `(tactic| simp_all%$tk $filteredCfg:optConfig $[$discharger]? $[only%$o]? [$argsArray,*])
+    let { ctx, simprocs, .. } ← mkSimpContext stxForExecution (eraseLocal := true)
       (kind := .simpAll) (ignoreStarArg := true)
     let ctx := if bang.isSome then ctx.setAutoUnfold else ctx
     let (result?, stats) ← simpAll (← getMainGoal) ctx (simprocs := simprocs)
     match result? with
     | none => replaceMainGoal []
     | some mvarId => replaceMainGoal [mvarId]
-    let stx ← mkSimpCallStx stx stats.usedTheorems
+    let stx ← mkSimpCallStx stxForSuggestion stats.usedTheorems
     addSuggestion tk stx (origSpan? := ← getRef)
     return stats.diag
   | _ => throwUnsupportedSyntax

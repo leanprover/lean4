@@ -27,7 +27,7 @@ theorem Rcc.toArray_iter_eq_toArray [LE α] [DecidableLE α] [UpwardEnumerable �
  rfl
 
 @[simp]
-theorem Rcc.count_iter_eq_count [LE α] [DecidableLE α] [UpwardEnumerable α]
+theorem Rcc.count_iter_eq_size [LE α] [DecidableLE α] [UpwardEnumerable α]
     [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
     [Rxc.HasSize α] [Rxc.LawfulHasSize α]
     {r : Rcc α} :
@@ -47,7 +47,7 @@ theorem Rco.toArray_iter_eq_toArray [LT α] [DecidableLT α] [UpwardEnumerable �
  rfl
 
 @[simp]
-theorem Rco.count_iter_eq_count [LT α] [DecidableLT α] [UpwardEnumerable α]
+theorem Rco.count_iter_eq_size [LT α] [DecidableLT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
     [Rxo.HasSize α] [Rxo.LawfulHasSize α]
     {r : Rco α} :
@@ -67,7 +67,7 @@ theorem Rci.toArray_iter_eq_toArray [UpwardEnumerable α]
  rfl
 
 @[simp]
-theorem Rci.count_iter_eq_count [UpwardEnumerable α]
+theorem Rci.count_iter_eq_size [UpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
     [Rxi.HasSize α] [Rxi.LawfulHasSize α]
     {r : Rci α} :
@@ -87,7 +87,7 @@ theorem Roc.toArray_iter_eq_toArray [LE α] [DecidableLE α] [UpwardEnumerable �
  rfl
 
 @[simp]
-theorem Roc.count_iter_eq_count [LE α] [DecidableLE α] [UpwardEnumerable α]
+theorem Roc.count_iter_eq_size [LE α] [DecidableLE α] [UpwardEnumerable α]
     [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
     [Rxc.HasSize α] [Rxc.LawfulHasSize α]
     {r : Roc α} :
@@ -107,7 +107,7 @@ theorem Roo.toArray_iter_eq_toArray [LT α] [DecidableLT α] [UpwardEnumerable �
  rfl
 
 @[simp]
-theorem Roo.count_iter_eq_count [LT α] [DecidableLT α] [UpwardEnumerable α]
+theorem Roo.count_iter_eq_size [LT α] [DecidableLT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
     [Rxo.HasSize α] [Rxo.LawfulHasSize α]
     {r : Roo α} :
@@ -127,7 +127,7 @@ theorem Roi.toArray_iter_eq_toArray [UpwardEnumerable α]
  rfl
 
 @[simp]
-theorem Roi.count_iter_eq_count [UpwardEnumerable α]
+theorem Roi.count_iter_eq_size [UpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
     [Rxi.HasSize α] [Rxi.LawfulHasSize α]
     {r : Roi α} :
@@ -147,7 +147,7 @@ theorem Ric.toArray_iter_eq_toArray [Least? α] [LE α] [DecidableLE α] [Upward
  rfl
 
 @[simp]
-theorem Ric.count_iter_eq_count [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α]
+theorem Ric.count_iter_eq_size [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α]
     [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
     [Rxc.HasSize α] [Rxc.LawfulHasSize α]
     {r : Ric α} :
@@ -167,7 +167,7 @@ theorem Rio.toArray_iter_eq_toArray [Least? α] [LT α] [DecidableLT α] [Upward
  rfl
 
 @[simp]
-theorem Rio.count_iter_eq_count [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α]
+theorem Rio.count_iter_eq_size [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
     [Rxo.HasSize α] [Rxo.LawfulHasSize α]
     {r : Rio α} :
@@ -187,7 +187,7 @@ theorem Rii.toArray_iter_eq_toArray [Least? α] [UpwardEnumerable α]
  rfl
 
 @[simp]
-theorem Rii.count_iter_eq_count [Least? α] [UpwardEnumerable α]
+theorem Rii.count_iter_eq_size [Least? α] [UpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
     [Rxi.HasSize α] [Rxi.LawfulHasSize α]
     {r : Rii α} :

@@ -27,13 +27,21 @@ theorem iter_eq_toIteratorIter {γ : Type u} {s : Slice γ}
     s.iter = ToIterator.iter s := by
   simp [Internal.iter_eq_iter, Internal.iter_eq_toIteratorIter]
 
-theorem size_eq_size_iter [∀ s : Slice γ, ToIterator s Id β]
+theorem size_eq_count_iter [∀ s : Slice γ, ToIterator s Id β]
     [∀ s : Slice γ, Iterator (ToIterator.State s Id) Id β] {s : Slice γ}
     [Finite (ToIterator.State s Id) Id]
     [IteratorLoop (ToIterator.State s Id) Id Id] [LawfulIteratorLoop (ToIterator.State s Id) Id Id]
     [SliceSize γ] [LawfulSliceSize γ] :
     s.size = s.iter.count := by
   simp [Internal.iter_eq_iter, Internal.size_eq_count_iter]
+
+theorem count_iter_eq_size [∀ s : Slice γ, ToIterator s Id β]
+    [∀ s : Slice γ, Iterator (ToIterator.State s Id) Id β] {s : Slice γ}
+    [Finite (ToIterator.State s Id) Id]
+    [IteratorLoop (ToIterator.State s Id) Id Id] [LawfulIteratorLoop (ToIterator.State s Id) Id Id]
+    [SliceSize γ] [LawfulSliceSize γ] :
+    s.iter.count = s.size :=
+  size_eq_count_iter.symm
 
 theorem toArray_eq_toArray_iter {s : Slice γ} [ToIterator s Id β]
     [Iterator (ToIterator.State s Id) Id β] [IteratorCollect (ToIterator.State s Id) Id Id]

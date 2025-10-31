@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.TryThis
 import Lean.Meta.Tactic.Grind.Action
 import Lean.Meta.Tactic.Grind.EMatchAction
 import Lean.Meta.Tactic.Grind.Split
+import Lean.Meta.Tactic.Grind.CollectParams
 namespace Lean.Elab.Tactic.Grind
 open Meta
 open Meta.Grind
@@ -20,7 +21,7 @@ open Meta.Grind
 def withTracing (x : GrindTacticM α) : GrindTacticM α := do
   withReader (fun ctx => { ctx with ctx.config.trace := true }) x
 
-def mkFinish (maxIterations : Nat) : IO Action := do
+def mkFinishAction (maxIterations : Nat) : IO Action := do
   let solvers ← Solvers.mkAction
   let step : Action := Action.done <|> solvers <|> Action.instantiate <|> Action.splitNext <|> Action.mbtc
   return Action.checkTactic (warnOnly := true) >> step.loop maxIterations
@@ -32,18 +33,30 @@ def maxIterations := 1000 -- **TODO**: Add option
   withConfigItems configItems do
   let params := params?.getD {}
   withParams (← read).params params only.isSome do
-    let a ← mkFinish maxIterations
+    let a ← mkFinishAction maxIterations
     let goal ← getMainGoal
+    let params := (← read).params
     withTracing do
-    match (← liftGrindM <| a.run goal) with
-    | .closed seq =>
+    let solved ← liftGrindM do
+      let saved ← saveState
+      match (← a.run goal) with
+      | .closed seq =>
+        let finishTac ← mkFinishTactic seq
+        let seq := Action.mkGrindSeq seq
+        if (← Action.checkSeqAt saved goal [finishTac]) then
+          Tactic.TryThis.addSuggestions stx #[
+            { suggestion := .tsyntax seq },
+            { suggestion := .tsyntax finishTac }
+          ]
+        else
+          Tactic.TryThis.addSuggestion stx { suggestion := .tsyntax seq }
+        return true
+      | .stuck gs =>
+        let goal :: _ := gs | throwError "`finish?` failed, but resulting goal is not available"
+        let result ← mkResult params (some goal)
+        throwError "`finish?` failed\n{← result.toMessageData}"
+        return false
+    if solved then
       replaceMainGoal []
-      let seq := Action.mkGrindSeq seq
-      Tactic.TryThis.addSuggestion stx { suggestion := .tsyntax seq }
-    | .stuck gs =>
-      let goal :: _ := gs | throwError "`finish?` failed, but resulting goal is not available"
-      let params := (← read).params
-      let result ← liftGrindM do mkResult params (some goal)
-      throwError "`finish?` failed\n{← result.toMessageData}"
 
 end Lean.Elab.Tactic.Grind

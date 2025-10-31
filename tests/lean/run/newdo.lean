@@ -1,4 +1,5 @@
 import Lean
+import Lean.Parser.Term.Basic
 import Lean.Elab.Tactic.Do.LetElim
 import Std.Tactic.Do
 import Init.Control.OptionCps
@@ -26,6 +27,21 @@ abbrev EarlyReturnT.return {m : Type w → Type x} [Monad m] : ρ → EarlyRetur
 abbrev BreakT := OptionT
 abbrev BreakT.break {m : Type w → Type x} [Monad m] : BreakT (StateT σ (EarlyReturnT ρ m)) PUnit := throw ()
 abbrev BreakT.continue {m : Type w → Type x} [Monad m] : BreakT (StateT σ (EarlyReturnT ρ m)) PUnit := pure ⟨⟩
+
+inductive BreakContinue where
+  | break
+  | continue
+
+inductive LetMuts
+
+inductive EarlyReturn
+
+/-- info: fun α => Except EarlyReturn (Except BreakContinue α × LetMuts) -/
+#guard_msgs in
+#reduce (types := true) stM Id (ExceptT BreakContinue (StateT LetMuts (ExceptT EarlyReturn Id)))
+
+#reduce liftWith (m:=Id) (n:=ExceptT BreakContinue (StateT LetMuts (ExceptT EarlyReturn Id)))
+#reduce restoreM (m:=Id) (n:=ExceptT BreakContinue (StateT LetMuts (ExceptT EarlyReturn Id)))
 
 class Foldable (ρ : Type u) (α : outParam (Type v)) extends Membership α ρ where
   foldr {β : Type w} : (α → β → β) → β → ρ → β
@@ -95,6 +111,13 @@ def Foldable.forBreak_ {ρ : Type u} {α : Type v} [Foldable ρ α] {m : Type w 
     xs
     s
 
+set_option pp.all true in
+@[inline]
+def Foldable.forBreak_Inv {ρ : Type u} {α : Type v} [Foldable ρ α] {m : Type (max v w) → Type x} [Monad m] {σ ε γ}
+    (xs : ρ) (s : σ) (body : α → BreakT (StateT σ (EarlyReturnT ε m)) PUnit) (kreturn : ε → m γ) (kbreak : σ → m γ)
+    [inst : Foldable ρ α] {ps} [Std.Do.WP m ps] (inv : Std.Do.Invariant (inst.toList xs) σ ps) : m γ :=
+  forBreak_ xs s body kreturn kbreak
+
 declare_syntax_cat dooElem
 
 meta def dooElemParser (rbp : Nat := 0) : Parser :=
@@ -114,7 +137,9 @@ meta def dooIdDecl := leading_parser
   dooElemParser
 syntax:arg (name := dooBlock) "doo" dooSeq : term
 
-syntax (name := dooTerm) Term.doExpr : dooElem
+-- syntax (name := dooTerm) Term.doExpr : dooElem
+abbrev dooTerm := Term.doExpr
+attribute [dooElem_parser] dooTerm
 syntax (name := dooParens) "(" dooSeq ")" : dooElem
 syntax (name := dooReturn) &"return " term : dooElem
 syntax (name := dooBreak) &"break" : dooElem
@@ -125,6 +150,19 @@ syntax (name := dooNested) "doo" dooSeq : dooElem
 meta def dooForDecl := leading_parser
   termParser >> " in " >> withForbidden "doo" termParser
 syntax (name := dooFor) "for " dooForDecl,+ "doo " dooSeq : dooElem
+syntax (name := dooCatch) ppDedent(ppLine) atomic("catch " binderIdent) Term.optType " => " dooSeq : dooElem
+syntax (name := dooFinally) ppDedent(ppLine) "finally " dooSeq : dooElem
+syntax (name := dooTry) "try " dooSeq (dooCatch)* (dooFinally)? : dooElem
+-- def dooCatch      := leading_parser
+--   ppDedent ppLine >> atomic ("catch " >> Term.binderIdent) >> optional (" : " >> termParser) >> darrow >> dooSeq
+-- def dooFinally    := leading_parser
+--   ppDedent ppLine >> "finally " >> dooSeq
+-- @[dooElem_parser] def dooTry    := leading_parser
+--   "try " >> dooSeq >> many dooCatch >> optional dooFinally
+
+meta def dooInvariant := leading_parser
+  "invariant " >> withPosition Term.basicFun
+syntax (name := dooForInvariant) "for " dooForDecl dooInvariant "doo " dooSeq : dooElem
 
 @[dooElem_parser]
 meta def dooReassign      := leading_parser
@@ -412,6 +450,9 @@ meta def elabType (ty? : Option (TSyntax `term)) (freshLevel := false) : DoElabM
   match ty? with
   | none => mkFreshExprMVar sort
   | some ty => Term.elabTermEnsuringType ty sort
+
+meta def elabBinder (binder : Syntax) (x : Expr → DoElabM α) : DoElabM α := do
+  controlAt TermElabM fun runInBase => Term.elabBinder binder (runInBase ∘ x)
 
 /--
 Keeps only those `mutVars` that have different definitions in `oldCtx` and `newCtx`.
@@ -737,6 +778,16 @@ meta def enterLoopBody (resultType : Expr) (returnCont : Expr → DoElabM Expr) 
   withReader fun ctx => { ctx with contInfo, doBlockResultType := resultType }
 
 /--
+Prepare the context for elaborating the body of a `finally` block.
+There is no support for `mut` vars, `break`, `continue` or `return` in a `finally` block.
+-/
+meta def enterFinally (resultType : Expr) : (body : DoElabM Expr) → DoElabM Expr :=
+  let error := throwError "`finally` does not support `break`, `continue` or `return`."
+  let contInfo := { breakCont := error, continueCont := error, returnCont := fun _ => error : ContInfo}
+  let contInfo := ContInfo.toContInfoRef contInfo
+  withReader fun ctx => { ctx with contInfo, doBlockResultType := resultType }
+
+/--
 Introduce proxy redefinitions for *all* mut vars and call the continuation `k` with a function
 `elimProxyDefs : Expr → MetaM Expr` similar to `mkLetFVars` that will replace the proxy defs with
 the actual reassigned or original definitions.
@@ -794,12 +845,19 @@ mutual
     | `(dooElem| let $[mut%$mutTk?]? $x:ident $[: $xType?]? ← $rhs) =>
       checkMutVarsForShadowing x.getId
       let xType ← elabType xType?
+      let lctx ← getLCtx
+      let mutVars := (← read).mutVars
       elabElem rhs <| .cont x.getId xType do
-        declareMutVar? mutTk? x.getId k.continueWithUnit
+        restoreLCtxKeepingMutVarDefs lctx mutVars x.getId do
+          declareMutVar? mutTk? x.getId k.continueWithUnit
     | `(dooElem| $x:ident ← $rhs) =>
       throwUnlessMutVarDeclared x.getId
       let xType := (← getLocalDeclFromUserName x.getId).type
-      elabElem rhs <| .cont x.getId xType k.continueWithUnit
+      let lctx ← getLCtx
+      let mutVars := (← read).mutVars
+      elabElem rhs <| .cont x.getId xType do
+        restoreLCtxKeepingMutVarDefs lctx mutVars x.getId do
+          k.continueWithUnit
     | `(dooElem| let $[mut%$mutTk?]? $x:ident $[: $xType?]? := $rhs) =>
       checkMutVarsForShadowing x.getId
       -- We want to allow `do let foo : Nat = Nat := rfl; pure (foo ▸ 23)`. Note that the type of
@@ -822,11 +880,7 @@ mutual
         let then_ ← Term.exprToSyntax then_
         let else_ ← Term.exprToSyntax else_
         Term.elabTerm (← `(if $cond then $then_ else $else_)) none
-    | `(dooElem| doo $dooSeq) =>
-      let lctx ← getLCtx
-      let mutVars := (← read).mutVars
-      -- See the example in the docstring of `restoreLCtxKeepingMutVarDefs`.
-      elabElems1 (getDooElems dooSeq) (k.withRestoredLCtxAndMutVarDefs lctx mutVars)
+    | `(dooElem| doo $dooSeq) => elabElems1 (getDooElems dooSeq) k
     | `(dooElem| for $x:ident in $xs doo $dooSeq) =>
       -- set_option pp.universes true in #print forBreakMem_
       let uα ← mkFreshLevelMVar
@@ -840,7 +894,7 @@ mutual
       let preS ← mkFreshExprMVar σ (userName := `s)
       let ε := (← read).earlyReturnType
       let γ := (← read).doBlockResultType
-      let (body, reassignedMutVars) ←
+      let (body, preS, reassignedMutVars) ←
         withLocalDeclD x.getId α fun x => do
         withLocalDeclD (← mkFreshUserName `s) σ fun loopS => do
           -- result type is
@@ -880,11 +934,11 @@ mutual
             pure (mutVars.filter (cont ++ brk).contains)
 
           -- Assign the state tuple type and the initial tuple of states.
-          preS.mvarId!.withContext do
+          let preS ← σ.mvarId!.withContext do
             let defs ← reassignedMutVars.mapM (getFVarFromUserName ·)
             let (tuple, tupleTy) ← mkProdMkN defs
-            discard <| isDefEq preS tuple
             discard <| isDefEq σ tupleTy
+            pure tuple
 
           -- Synthesize the `break` and `continue` jumps.
           continueK.synthesizeJumps do
@@ -902,7 +956,7 @@ mutual
             elimProxyDefs block
           let body ← mkLambdaFVars #[x, loopS] block
 
-          return (body, reassignedMutVars)
+          return (body, preS, reassignedMutVars)
 
       let kreturn ← withLocalDeclD (← mkFreshUserName `r) ε fun r => do mkLambdaFVars #[r] <| ← do
         let k ← getReturnCont
@@ -916,7 +970,104 @@ mutual
       let app := mkApp5 app ρ α instFoldable mi.m instMonad
       let app := mkApp8 app σ ε γ xs preS body kreturn kafter
       return app
-    | _ => throwError "unexpected do element {dooElem}"
+    | `(dooElem| for $x:ident in $xs invariant $binders* => $body
+                 doo $dooSeq) =>
+      let call ← elabElem (← `(dooElem| for $x:ident in $xs doo $dooSeq)) k
+      let_expr Foldable.forBreak_ ρ α _ _ _ σ _ _ xs s _ _ _ := call
+        | throwError "Internal elaboration error: `for` loop did not elaborate to a call of `Foldable.forBreak_`."
+      call.withApp fun head args => do
+      let [u, v, w, x] := head.constLevels!
+        | throwError "`Foldable.forBreak_` had wrong number of levels {head.constLevels!}"
+      unless ← isLevelDefEq v w do
+        throwError "The universe level of the monadic result type {w} and that of the state tuple {v} were different. Cannot elaborate invariants for this case."
+      let head := mkConst ``Foldable.forBreak_Inv [u, v, w, x]
+      let instFoldable ← Term.mkInstMVar (mkApp2 (mkConst ``Foldable [u, v, v]) ρ α)
+      let ps ← mkFreshExprMVar (mkConst ``Std.Do.PostShape [w])
+      let instWP ← Term.mkInstMVar (mkApp2 (mkConst ``Std.Do.WP [w, x]) (← read).monadInfo.m ps)
+      let xsToList := mkApp4 (mkConst ``Foldable.toList [u, v, v]) ρ α instFoldable xs
+      let inv ← mkFreshExprMVar (mkApp4 (mkConst ``Std.Do.Invariant [v, v]) α xsToList σ ps)
+      -- let cursor := mkApp2 (mkConst ``List.Cursor [v]) α xsToList
+      -- let assertion := mkApp (mkConst ``Std.Do.Assertion [w]) ps
+      -- let (binders, body, _) ← liftMacroM <| Term.expandFunBinders ody
+      -- let success ← Term.elabFunBinders binders (← mkArrow cursor assertion) fun bs expectedType? => do
+      --   /- We ensure the expectedType here since it will force coercions to be applied if needed.
+      --       If we just use `elabTerm`, then we will need to a coercion `Coe (α → β) (α → δ)` whenever there is a coercion `Coe β δ`,
+      --       and another instance for the dependent version. -/
+      --   let e ← elabTermEnsuringType body expectedType?
+      --   let #[b,bs] := bs | unreachable!
+      --   mkLambdaFVars xs e
+      -- let success ← Term.elabFun (← `(fun $inv:basicFun)) (← mkArrow cursor assertion)
+      -- let inv := mkApp (mkConst ``Std.Do.PostCond.noThrow [w] ps cursor success)
+      return mkApp4 (mkAppN head args) instFoldable ps instWP inv
+-- Why doesn't the following work?
+--    | `(dooElem| try $trySeq:dooSeq $[$catchSeqs:dooCatch]* $[finally $finSeq?]?) =>
+    | `(dooElem| try $trySeq:dooSeq $[catch $xs $[: $eTypes?]? => $catchSeqs]* $[finally $finSeq?]?) =>
+      for x in xs do if x.raw.isIdent then
+        checkMutVarsForShadowing x.raw.getId
+      if catchSeqs.isEmpty && finSeq?.isNone then
+        throwError "Invalid `try`. There must be a `catch` or `finally`."
+      -- We cannot use join points because `tryCatch` and `tryFinally` are never tail-resumptive.
+      -- (Proof: `do tryCatch e h; throw x ≠ tryCatch (do e; throw x) (fun e => do h e; throw x)`)
+      -- This is also known as the "algebraicity property" in the algebraic effects and handlers
+      -- community.
+      --
+      -- So we need to pack up our effects and unpack them after the `try`.
+      -- We could optimize for the `.last` case by omitting the state tuple ... in the future.
+      let mi := (← read).monadInfo
+      let α := k.resultType
+      let ασ ← mkFreshExprMVar (mkSort (mkLevelSucc mi.u)) (userName := `ασ)
+      let pureKVar ← mkFreshContVar ασ
+      let rName ← mkFreshUserName `r
+      let pureK := DoElemCont.cont rName α pureKVar.mkJump
+      let body ← elabElems1 (getDooElems trySeq) pureK
+      let body ← xs.zip (eTypes?.zip catchSeqs) |>.foldlM (init := body) fun body (x, eType?, catchSeq) => do
+        let x := Term.mkExplicitBinder x.raw[0] <| match eType? with
+          | some eType => eType
+          | none => mkHole x
+        let (catch_, ε, uε) ← elabBinder x fun x => do
+          let ε ←
+            if let some eType := eType? then
+              let eType ← Term.elabType eType
+              discard <| Term.ensureHasType eType x
+              pure eType
+            else
+              inferType x
+          let uε ← getDecLevel ε
+          let catch_ ← elabElems1 (getDooElems catchSeq) pureK
+          let catch_ ← mkLambdaFVars #[x] catch_
+          return (catch_, ε, uε)
+        if eType?.isSome then
+          let inst ← Term.mkInstMVar <| mkApp2 (mkConst ``MonadExceptOf [uε, mi.u, mi.v]) ε mi.m
+          return mkApp6 (mkConst ``tryCatchThe [uε, mi.u, mi.v])
+            ε mi.m inst ασ body catch_
+        else
+          let inst ← Term.mkInstMVar <| mkApp2 (mkConst ``MonadExcept [uε, mi.u, mi.v]) ε mi.m
+          return mkApp6 (mkConst ``MonadExcept.tryCatch [uε, mi.u, mi.v])
+            ε mi.m inst ασ body catch_
+      let body ← match finSeq? with
+        | none => pure body
+        | some finSeq => do
+          let β ← mkFreshResultType `β
+          let fin ← enterFinally β <| elabElems1 (getDooElems finSeq) (.last β)
+          let instMonadFinally ← Term.mkInstMVar <| mkApp (mkConst ``MonadFinally [mi.u, mi.v]) mi.m
+          let instFunctor ← Term.mkInstMVar <| mkApp (mkConst ``Functor [mi.u, mi.v]) mi.m
+          return mkApp7 (mkConst ``tryFinally [mi.u, mi.v])
+            mi.m ασ β instMonadFinally instFunctor body fin
+      let reassignedMutVars ← pureKVar.getReassignedMutVars (← ασ.mvarId!.getDecl).lctx
+      pureKVar.synthesizeJumps do
+        let r ← getFVarFromUserName rName
+        let (tuple, tupleTy) ← mkProdMkN (#[r] ++ (← reassignedMutVars.mapM (getFVarFromUserName ·)))
+        discard <| isDefEq ασ tupleTy
+        mkPureApp ασ tuple
+      mkBind (← mkFreshUserName `r) ασ body fun p => do
+        match k with
+        | .last _ =>
+          let a ← if reassignedMutVars.isEmpty then pure p else (·.1) <$> getProdFields p ασ
+          mkPureApp α a
+        | .cont rName _ k => do
+          bindMutVarsFromTuple (rName :: reassignedMutVars.toList) p.fvarId! do
+            k
+    | _ => throwError "unexpected do element {dooElem}, {repr dooElem}"
 
   meta def elabElems1 (dooElems : Array (TSyntax `dooElem)) (k : DoElemCont) : DoElabM Expr := do
     let last := dooElems.back!
@@ -928,7 +1079,7 @@ mutual
 end
 
 meta def elabDooBlock (dooSeq : TSyntax `dooSeq) (expectedType? : Expr) : TermElabM Expr := do
-  -- trace[Elab.do] "Doo block: {dooSeq}, expectedType?: {expectedType?}"
+  trace[Elab.do] "Doo block: {toString dooSeq}, expectedType?: {expectedType?}"
   Term.tryPostponeIfNoneOrMVar expectedType?
   let ctx ← mkContext expectedType?
   let res ← elabElems1 (getDooElems dooSeq) (.last ctx.doBlockResultType) |>.run ctx |>.run' {}
@@ -960,16 +1111,26 @@ set_option pp.raw false in
 #check doo let mut x : Nat := 0; if true then {x := x + 1} else {pure ()}; pure x
 #check doo let mut x : Nat := 0; if true then {pure ()} else {pure ()}; pure 13
 #check doo let x : Nat := 0; if true then {pure ()} else {pure ()}; pure 13
-#check Id.run doo
-  let mut x ← pure 42
-  let mut z := 0
-  z ←
-    if true then
-      return z
-    else
-      pure 4
-  x := x + 3
-  return x
+set_option trace.Elab.do true in
+#check Id.run doo ExceptT.run doo
+  let e ← try
+      let x := 0
+      throw "error"
+    catch e : String =>
+      pure e
+  return e
+
+set_option trace.compiler.ir.result true in
+example (x : DoResultPRBC α PEmpty σ) : Nat :=
+  match x with
+  | .pure _ _ => 0
+  | .break _ => 1
+  | .continue _ => 2
+
+set_option trace.Compiler.saveBase true in
+example (x : Option PEmpty) : Nat :=
+  match x with
+  | none => 0
 
 /--
 info: (let x := 42;
@@ -1534,6 +1695,8 @@ example : (Id.run doo let mut x ← pure 42; let y ← if true then {pure 3} els
 example : Nat := Id.run doo let mut foo : Nat = Nat := rfl; pure (foo ▸ 23)
 example {e} : (Id.run doo let mut x := 0; let y := 3; let z ← doo { let mut y ← e; x := y + 1; pure y }; let y := y + 3; pure (x + y + z))
             = (Id.run  do let mut x := 0; let y := 3; let z ←  do { let mut y ← e; x := y + 1; pure y }; let y := y + 3; pure (x + y + z)) := by rfl
+example : (Id.run doo let x := 0; let y ← let x := x + 1; pure x)
+        = (Id.run doo let x := 0; pure x) := by rfl
 
 -- Test: Nested if-then-else with multiple mutable variables
 example : (Id.run doo
@@ -1765,7 +1928,7 @@ example : (Id.run doo
       return 13
   return x + y) := by rfl
 
--- For loops with break, continue and return
+-- Test: For loops with break, continue and return
 example :
   (Id.run doo
   let mut x := 42
@@ -1788,13 +1951,15 @@ example :
   x := x + 13
   return x) := by rfl
 
--- Nested for loops with break, continue and return
+-- Test: Nested for loops with break, continue and return
 example :
   (Id.run doo
   let mut x := 42
   let mut y := 0
   let mut z := 1
-  for i in [1,2,3] doo
+  for i in [1,2,3]
+    invariant xs => True
+    doo
     x := x + i
     for j in [i:10].toList doo
       if j < 5 then z := z + j
@@ -1816,6 +1981,88 @@ example :
       if j > 6 then break
       z := z + i
   return x + y + z) := by rfl
+
+-- Test: Try/catch
+example {try_ : Except String Nat} {catch_ : String → Except String Nat} :
+  (Id.run <| ExceptT.run (ε:=String) doo
+  let x ←
+    try try_ -- TODO: investigate why we can't put it on the same line
+    catch e => catch_ e
+  return x + 23)
+= (Id.run <| ExceptT.run (ε:=String) do
+  let x ← try try_ catch e => catch_ e
+  return x + 23) := by simp
+
+-- Test: Try/catch with throw in continuation (i.e., `tryCatch` is non-algebraic)
+example :
+  (Id.run <| ExceptT.run (ε:=String) doo
+  try pure ()
+  catch e => pure ()
+  throw (α:=Nat) "error")
+= throw (α:=Nat) "error" := by rfl
+
+#check (Id.run <| ExceptT.run (ε:=String) do
+  let mut x := 0
+  try
+    if true then
+      x := 10
+      throw "error"
+      return ()
+    else
+      x := 5
+  catch e =>
+    x := x + 1)
+
+#check (Id.run <| ExceptT.run (ε:=String) do
+  let mut x := 0
+  try
+    if true then
+      throw "error"
+      return ()
+    else
+      pure ()
+  catch e =>
+    pure ())
+
+-- Try/catch with reassignment
+example :
+  (Id.run (α:=Nat) <| ExceptT.run (ε:=String) doo
+  let mut x := 0
+  try
+    if true then
+      x := 10
+      throw "error"
+    else
+      x := 5
+  catch e =>
+    x := x + 1
+  return x)
+= (Id.run <| ExceptT.run (ε:=String) do
+  let mut x := 0
+  try
+    if true then
+      x := 10
+      throw "error"
+    else
+      x := 5
+  catch e =>
+    x := x + 1
+  return x) := by rfl
+
+-- Try/finally
+example {s} :
+  (Id.run <| StateT.run' (σ := Nat) (s := s) <| ExceptT.run (ε:=String) doo
+  try
+    e
+  finally
+    set 0
+  get)
+= (Id.run <| StateT.run' (σ := Nat) (s := s) <| ExceptT.run (ε:=String) do
+  try
+    e
+  finally
+    set 0
+  get) := by rfl
 
 /-!
 Postponing Monad instance resolution appropriately

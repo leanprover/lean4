@@ -1794,7 +1794,7 @@ static inline size_t lean_bool_to_isize(uint8_t a) { return (size_t)(ptrdiff_t)a
 static inline uint8_t lean_bool_land(uint8_t a, uint8_t b) { return a & b; }
 static inline uint8_t lean_bool_lor(uint8_t a, uint8_t b) { return a | b; }
 static inline uint8_t lean_bool_xor(uint8_t a, uint8_t b) { return a ^ b; }
-static inline uint8_t lean_bool_complement(uint8_t a) { return a == 0; }
+static inline uint8_t lean_bool_complement(uint8_t a) { return a ^ 1; }
 static inline uint8_t lean_bool_dec_eq(uint8_t a, uint8_t b) { return a == b; }
 static inline uint8_t lean_bool_dec_lt(uint8_t a, uint8_t b) { return a < b; }
 static inline uint8_t lean_bool_dec_le(uint8_t a, uint8_t b) { return a <= b; }

@@ -113,6 +113,9 @@ instance : FileSource SignatureHelpParams where
 instance : FileSource DocumentColorParams where
   fileSource p := fileSource p.textDocument
 
+instance : FileSource DocumentFormattingParams where
+  fileSource p := fileSource p.textDocument
+
 /--
 Yields the file source of `item` by attempting to obtain `mod : Name` from `item.data?`. \
 Panics if `item.data?` is not present or does not contain a `mod` field and the first element of a

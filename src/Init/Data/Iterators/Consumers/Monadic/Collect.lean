@@ -79,13 +79,22 @@ where
   go it (acc : Array γ) : n (Array γ) :=
     letI : MonadLift m n := ⟨lift (α := _)⟩
     extrinsicFix₂ (C₂ := fun _ _ => n (Array γ))
-    (InvImage (IterM.TerminationMeasures.Finite.RelExtrinsic R) (·.1.finitelyManyStepsExtrinsic))
+    (fun x' x => (∃ out h, MonadAttach.CanReturn (m := n) x.1.step (.deflate <| .yield x'.1 out h) ∧ ∃ fx, MonadAttach.CanReturn (f out) fx ∧ x'.2 = x.2.push fx) ∨ (∃ h, MonadAttach.CanReturn (m := n) x.1.step (.deflate <| .skip x'.1 h) ∧ x'.2 = x.2))
     (fun (it : IterM (α := α) m β) acc recur => do
-      match (← it.step).inflate with
+      let ⟨step, hs⟩ ← MonadAttach.attach (m := n) it.step
+      match hs' : step.inflate with
       | .yield it' out h =>
         let fx ← MonadAttach.attach (f out)
-        recur it' (acc.push fx.val) sorry
-      | .skip it' h => recur it' acc sorry
+        recur it' (acc.push fx.val) (by
+          apply Or.inl
+          have : step = .deflate (.yield it' out h) := by simp [← hs']
+          rw [this] at hs
+          exact ⟨out, h, hs, fx.val, fx.property, rfl⟩)
+      | .skip it' h => recur it' acc (by
+          apply Or.inr
+          have : step = .deflate (.skip it' h) := by simp [← hs']
+          rw [this] at hs
+          exact ⟨h, hs, rfl⟩)
       | .done h => return acc) it acc
 
 /--
@@ -96,7 +105,7 @@ used instead.
 -/
 @[always_inline]
 def IteratorCollect.defaultImplementation {α β : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β] :
+    {n : Type w → Type w''} [Monad n] [MonadAttach n] [Iterator α m β] :
     IteratorCollect α m n where
   toArrayMapped := IterM.DefaultConsumers.toArrayMapped
 
@@ -106,13 +115,13 @@ Asserts that a given `IteratorCollect` instance is equal to `IteratorCollect.def
 (Even though equal, the given instance might be vastly more efficient.)
 -/
 class LawfulIteratorCollect (α : Type w) (m : Type w → Type w') (n : Type w → Type w'')
-    {β : Type w} [Monad m] [Monad n] [Iterator α m β] [i : IteratorCollect α m n] where
+    {β : Type w} [Monad m] [Monad n] [MonadAttach n] [Iterator α m β] [i : IteratorCollect α m n] where
   lawful_toArrayMapped : ∀ lift [LawfulMonadLiftFunction lift] [Finite α m],
     i.toArrayMapped lift (α := α) (γ := γ)
       = IteratorCollect.defaultImplementation.toArrayMapped lift
 
 theorem LawfulIteratorCollect.toArrayMapped_eq {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad m] [Monad n] [Iterator α m β] [Finite α m] [IteratorCollect α m n]
+    {n : Type w → Type w''} [Monad m] [Monad n] [MonadAttach n] [Iterator α m β] [Finite α m] [IteratorCollect α m n]
     [hl : LawfulIteratorCollect α m n] {lift : ⦃δ : Type w⦄ → m δ → n δ}
     [LawfulMonadLiftFunction lift]
     {f : β → n γ} {it : IterM (α := α) m β} :
@@ -120,7 +129,7 @@ theorem LawfulIteratorCollect.toArrayMapped_eq {α β γ : Type w} {m : Type w �
       IterM.DefaultConsumers.toArrayMapped lift f it (m := m) := by
   rw [lawful_toArrayMapped]; rfl
 
-instance (α β : Type w) (m : Type w → Type w') (n : Type w → Type w'') [Monad n]
+instance (α β : Type w) (m : Type w → Type w') (n : Type w → Type w'') [Monad n] [MonadAttach n]
     [Iterator α m β] [Monad m] [Iterator α m β] [Finite α m] :
     haveI : IteratorCollect α m n := .defaultImplementation
     LawfulIteratorCollect α m n :=

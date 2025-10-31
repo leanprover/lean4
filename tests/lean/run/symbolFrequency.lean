@@ -1,7 +1,7 @@
 import Lean.Meta.Basic
-import Lean.PremiseSelection.SymbolFrequency
+import Lean.LibrarySuggestions.SymbolFrequency
 
-open Lean PremiseSelection
+open Lean LibrarySuggestions
 
 /-- info: true -/
 #guard_msgs in

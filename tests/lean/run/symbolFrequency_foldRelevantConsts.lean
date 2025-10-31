@@ -1,9 +1,9 @@
 module
 
-import all Lean.PremiseSelection.SymbolFrequency
+import all Lean.LibrarySuggestions.SymbolFrequency
 import all Init.Data.Array.Basic
 
-open Lean PremiseSelection
+open Lean LibrarySuggestions
 
 /-- info: [List, Eq, HAppend.hAppend] -/
 #guard_msgs in

@@ -202,25 +202,19 @@ def getGrindParams (stx : TSyntax `tactic) : Array Syntax :=
   stx.raw[grindParamsPos][1].getSepArgs
 
 /-- Filter out `+premises` from the config syntax -/
-def filterPremisesFromConfig (config : TSyntax ``Lean.Parser.Tactic.optConfig) : MetaM (TSyntax ``Lean.Parser.Tactic.optConfig) := do
+def filterPremisesFromConfig (config : TSyntax ``Lean.Parser.Tactic.optConfig) : TSyntax ``Lean.Parser.Tactic.optConfig :=
   let configItems := config.raw.getArgs
   let filteredItems := configItems.filter fun item =>
-    -- The structure is: null node -> configItem node -> posConfigItem node
-    -- We need to check if this is a +premises config item
-    if let some configItem := item[0]? then
-      if let some innerItem := configItem[0]? then
-        if innerItem.getKind == ``Lean.Parser.Tactic.posConfigItem then
-          if let some ident := innerItem[1]? then
-            ident.getId != `premises
-          else
-            true
-        else
-          true
-      else
-        true
-    else
-      true
-  return ⟨config.raw.setArgs filteredItems⟩
+    -- Keep all items except +premises
+    -- Structure: null node -> configItem -> posConfigItem -> ["+", ident]
+    match item[0]? with
+    | some configItem => match configItem[0]? with
+      | some posConfigItem => match posConfigItem[1]? with
+        | some ident => !(posConfigItem.getKind == ``Lean.Parser.Tactic.posConfigItem && ident.getId == `premises)
+        | none => true
+      | none => true
+    | none => true
+  ⟨config.raw.setArgs filteredItems⟩
 
 def mkGrindOnly
     (config : TSyntax ``Lean.Parser.Tactic.optConfig)
@@ -238,7 +232,7 @@ def mkGrindOnly
       else
         let param ← Grind.globalDeclToGrindParamSyntax declName kind minIndexable
         params := params.push param
-  let filteredConfig ← filterPremisesFromConfig config
+  let filteredConfig := filterPremisesFromConfig config
   let result ← `(tactic| grind $filteredConfig:optConfig only)
   return setGrindParams result params
 

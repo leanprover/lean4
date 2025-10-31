@@ -143,10 +143,19 @@ theorem ValidPos.Splits.exists_eq_append_singleton {s : String} {p : s.ValidPos}
     (hp : p ≠ s.endValidPos) (h : (p.next hp).Splits t₁ t₂) : ∃ t₁', t₁ = t₁' ++ singleton (p.get hp) :=
   ⟨(s.replaceEnd p).copy, h.eq_left (p.splits_next hp)⟩
 
--- TODO: `hp` actually follows from `h`.
+theorem ValidPos.Splits.eq_endValidPos_iff {s : String} {p : s.ValidPos} (h : p.Splits t₁ t₂) :
+    p = s.endValidPos ↔ t₂ = "" :=
+  ⟨fun h' => h.eq_right (h' ▸ s.splits_endValidPos),
+   by rintro rfl; simp [ValidPos.ext_iff, h.offset_eq_rawEndPos, h.eq_append] ⟩
+
+theorem ValidPos.Splits.ne_endValidPos_of_singleton {s : String} {p : s.ValidPos}
+    (h : p.Splits t₁ (singleton c ++ t₂)) : p ≠ s.endValidPos := by
+  simp [h.eq_endValidPos_iff]
+
 /-- You might want to invoke `ValidPos.Splits.exists_eq_singleton_append` to be able to apply this. -/
-theorem ValidPos.Splits.next {s : String} {p : s.ValidPos} (h : p.Splits t₁ (singleton c ++ t₂))
-    (hp : p ≠ s.endValidPos) : (p.next hp).Splits (t₁ ++ singleton c) t₂ := by
+theorem ValidPos.Splits.next {s : String} {p : s.ValidPos}
+    (h : p.Splits t₁ (singleton c ++ t₂)) : (p.next h.ne_endValidPos_of_singleton).Splits (t₁ ++ singleton c) t₂ := by
+  generalize h.ne_endValidPos_of_singleton = hp
   obtain ⟨rfl, rfl, rfl⟩ := by simpa using h.eq (splits_next_right p hp)
   exact splits_next p hp
 

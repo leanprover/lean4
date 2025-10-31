@@ -446,26 +446,26 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LE α] [DecidableLE α
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {n : Type u → Type w} [Monad n] :
     IteratorLoop (Rxc.Iterator α) Id n where
-  forIn _ γ it init f :=
+  forIn _ γ Pl it init f :=
     match it with
     | ⟨⟨some next, upperBound⟩⟩ =>
-      loop γ (next ≤ ·) (fun a b hab hna => ?hle) upperBound init next ?hle'' (fun a ha₁ ha₂ c => f a ?hf c)
+      loop γ Pl (next ≤ ·) (fun a b hab hna => ?hle) upperBound init next ?hle'' (fun a ha₁ ha₂ c => f a ?hf c)
     | ⟨⟨none, _⟩⟩ => return init
   where
     @[always_inline, inline]
-    loop γ (LargeEnough : α → Prop) (hl : ∀ a b : α, a ≤ b → LargeEnough a → LargeEnough b)
+    loop γ (Pl : α → γ → ForInStep γ → Prop) (LargeEnough : α → Prop) (hl : ∀ a b : α, a ≤ b → LargeEnough a → LargeEnough b)
         (upperBound : α) (acc : γ) (next : α) (h : LargeEnough next)
-        (f : (out : α) → LargeEnough out → out ≤ upperBound → (c : γ) → n (ForInStep γ)) : n γ :=
+        (f : (out : α) → LargeEnough out → out ≤ upperBound → (c : γ) → n (Subtype (Pl out c))) : n γ :=
       haveI : Nonempty γ := ⟨acc⟩
-      Internal.extrinsicFix₃ (C₃ := fun _ _ _ => n γ)
+      Internal.extrinsicFixE₃ (C₃ := fun _ _ _ => n γ) (InvImage (IteratorLoop.rel _ Id Pl) (fun x => (⟨Rxc.Iterator.mk (some x.1) upperBound⟩, x.2.1)))
         (fun next acc (h : LargeEnough next) G => do
           if hu : next ≤ upperBound then
             match ← f next h hu acc with
-            | .yield acc' =>
+            | ⟨.yield acc', h'⟩ =>
               match hs : UpwardEnumerable.succ? next with
-              | some next' => G next' acc' (hl _ _ ?hle' h)
+              | some next' => G next' acc' (hl _ _ ?hle' h) ?decreasing
               | none => return acc'
-            | .done acc' => return acc'
+            | ⟨.done acc', _⟩ => return acc'
           else
             return acc) next acc h
   finally
@@ -483,6 +483,9 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LE α] [DecidableLE α
       simpa [succMany?_one] using hs
     case hle'' =>
       exact UpwardEnumerable.le_iff.mpr (UpwardEnumerable.le_refl _)
+    case decreasing =>
+      simp_wf
+      simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 
 private noncomputable def Iterator.instIteratorLoop.loop.wf [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
@@ -515,31 +518,11 @@ where finally
 private theorem Iterator.instIteratorLoop.loop_eq_wf [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Monad n] [LawfulMonad n]
     {γ LargeEnough hl upperBound} {next hn} {acc} (Pl wf f) :
-    loop γ LargeEnough hl upperBound acc next hn (fun out h₁ h₂ acc => Subtype.val <$> f out h₁ h₂ acc) =
+    loop γ Pl LargeEnough hl upperBound acc next hn f =
       loop.wf (α := α) (n := n) γ Pl wf LargeEnough hl upperBound acc next hn f := by
   haveI : Nonempty γ := ⟨acc⟩
-  rw [loop, Internal.extrinsicFix₃_eq_wellFoundedFix]; rotate_left
-  · exact InvImage WellFoundedRelation.rel (fun x => IteratorLoop.WithWF.mk ⟨⟨some x.1, upperBound⟩⟩ x.2.1 (hwf := wf))
-  · exact fun next acc hn G => do
-      if hu : next ≤ upperBound then
-        match ← f next hn hu acc with
-        | ⟨.yield acc', _⟩ =>
-          match hs : UpwardEnumerable.succ? next with
-          | some next' =>
-            G next' acc' (hl _ _ (by simp only [UpwardEnumerable.le_iff]; refine ⟨1, ?_⟩; simpa [succMany?_one]) hn)
-              (by simp_wf; simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *])
-          | none => return acc'
-        | ⟨.done acc', _⟩ => return acc'
-      else
-        return acc
-  · exact InvImage.wf _ WellFoundedRelation.wf
-  · intro a b c G
-    simp only [map_eq_pure_bind, bind_assoc]
-    congr; ext h
-    apply bind_congr; intro forInStep
-    match forInStep with
-    | ⟨.yield c, h⟩ => simp
-    | ⟨.done c, h⟩ => simp
+  rw [loop, Internal.extrinsicFixE₃_eq_wellFoundedFix]; rotate_left
+  · exact InvImage.wf _ wf
   · fun_induction loop.wf γ Pl wf LargeEnough hl upperBound acc  next hn f
     · rw [WellFounded.fix_eq]
       simp only [↓reduceDIte, *]
@@ -567,7 +550,7 @@ private theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α] [LE α
         match ← f next h hu acc with
         | ⟨.yield acc', _⟩ =>
           letI it' : IterM (α := Rxc.Iterator α) Id α := ⟨⟨succ? next, upperBound⟩⟩
-          IterM.DefaultConsumers.forIn' (m := Id) (n := n) lift γ it' acc'
+          IterM.DefaultConsumers.forIn' (m := Id) (n := n) lift γ Pl it' acc'
             it'.IsPlausibleIndirectOutput (fun _ => id)
             fun next' h acc' => f next'
               (by
@@ -587,21 +570,17 @@ private theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α] [LE α
   apply bind_congr; intro forInStep
   split
   · split
-    · simp only [bind_pure_comp]
-      rw [loopWf_eq (lift := lift) _ Pl wf]
-      rw [IterM.DefaultConsumers.forIn'_eq_match_step (lift := lift) Pl wf _ (by intros; rfl)]; rotate_left
+    · rw [loopWf_eq (lift := lift) _ Pl wf]
+      rw [IterM.DefaultConsumers.forIn'_eq_match_step (lift := lift) Pl wf]; rotate_left
       · simp only [Monadic.step_eq_step, Monadic.step,
           Shrink.inflate_deflate, instLawfulMonadLiftFunction.liftBind_pure, *]
         split
-        · simp only [map_eq_pure_bind, bind_assoc, pure_bind]
-          apply bind_congr; intro forInStep
+        · apply bind_congr; intro forInStep
           split
-          · simp only [bind_pure_comp]
-            apply IterM.DefaultConsumers.forIn'_eq_forIn' Pl wf <;> (intros; rfl)
+          · apply IterM.DefaultConsumers.forIn'_eq_forIn' Pl wf <;> (intros; rfl)
           · simp
         · simp
-    · simp only [bind_pure_comp]
-      rw [IterM.DefaultConsumers.forIn'_eq_match_step Pl wf _ (by intros; rfl)]
+    · rw [IterM.DefaultConsumers.forIn'_eq_match_step Pl wf]
       simp [Monadic.step_eq_step, Monadic.step, instLawfulMonadLiftFunction.liftBind_pure, *]
   · simp
 termination_by IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf := wf)
@@ -615,7 +594,7 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LE α] [Decidabl
   lawful := by
     intro lift instLawfulMonadLiftFunction γ it init Pl wf f
     simp only [IteratorLoop.defaultImplementation, IteratorLoop.forIn,
-      IterM.DefaultConsumers.forIn'_eq_wf Pl wf (hf := fun _ _ _ => rfl)]
+      IterM.DefaultConsumers.forIn'_eq_wf Pl wf]
     rw [IterM.DefaultConsumers.forIn'.wf]
     split; rotate_left
     · simp [Monadic.step_eq_step, Monadic.step, Internal.LawfulMonadLiftBindFunction.liftBind_pure]
@@ -627,8 +606,7 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LE α] [Decidabl
     · apply bind_congr; intro forInStep
       split
       · simp only
-        rw [← IterM.DefaultConsumers.forIn'_eq_wf Pl wf _ _ (by intros; rfl)]
-        simp only [← map_eq_pure_bind]
+        rw [← IterM.DefaultConsumers.forIn'_eq_wf Pl wf _]
         apply IterM.DefaultConsumers.forIn'_eq_forIn' Pl wf <;> all_goals (intros; rfl)
       · simp
     · simp
@@ -1048,26 +1026,27 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LT α] [DecidableLT α
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     {n : Type u → Type w} [Monad n] :
     IteratorLoop (Rxo.Iterator α) Id n where
-  forIn _ γ it init f :=
+  forIn _ γ Pl it init f :=
     match it with
     | ⟨⟨some next, upperBound⟩⟩ =>
-      loop γ (UpwardEnumerable.LE next ·) (fun a b hab hna => ?hle) upperBound init next ?hle'' (fun a ha₁ ha₂ c => f a ?hf c)
+      loop γ Pl (UpwardEnumerable.LE next ·) (fun a b hab hna => ?hle) upperBound init next ?hle'' (fun a ha₁ ha₂ c => f a ?hf c)
     | ⟨⟨none, _⟩⟩ => return init
   where
     @[always_inline, inline]
-    loop γ (LargeEnough : α → Prop) (hl : ∀ a b : α, UpwardEnumerable.LE a b → LargeEnough a → LargeEnough b)
+    loop γ (Pl : α → γ → ForInStep γ → Prop) (LargeEnough : α → Prop)
+        (hl : ∀ a b : α, UpwardEnumerable.LE a b → LargeEnough a → LargeEnough b)
         (upperBound : α) (acc : γ) (next : α) (h : LargeEnough next)
-        (f : (out : α) → LargeEnough out → out < upperBound → (c : γ) → n (ForInStep γ)) : n γ :=
+        (f : (out : α) → LargeEnough out → out < upperBound → (c : γ) → n (Subtype (Pl out c))) : n γ :=
       haveI : Nonempty γ := ⟨acc⟩
-      Internal.extrinsicFix₃ (C₃ := fun _ _ _ => n γ)
+      Internal.extrinsicFixE₃ (C₃ := fun _ _ _ => n γ) (InvImage (IteratorLoop.rel _ Id Pl) (fun x => (⟨Rxo.Iterator.mk (some x.1) upperBound⟩, x.2.1)))
         (fun next acc (h : LargeEnough next) G => do
           if hu : next < upperBound then
             match ← f next h hu acc with
-            | .yield acc' =>
+            | ⟨.yield acc', h'⟩ =>
               match hs : UpwardEnumerable.succ? next with
-              | some next' => G next' acc' (hl _ _ ?hle' h)
+              | some next' => G next' acc' (hl _ _ ?hle' h) ?decreasing
               | none => return acc'
-            | .done acc' => return acc'
+            | ⟨.done acc', _⟩ => return acc'
           else
             return acc) next acc h
   finally
@@ -1082,6 +1061,8 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LT α] [DecidableLT α
       simpa [succMany?_one] using hs
     case hle'' =>
       exact UpwardEnumerable.le_refl _
+    case decreasing =>
+      simp_wf; simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 
 private noncomputable def Iterator.instIteratorLoop.loop.wf [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
@@ -1113,31 +1094,11 @@ where finally
 private theorem Iterator.instIteratorLoop.loop_eq_wf [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Monad n] [LawfulMonad n]
     {γ LargeEnough hl upperBound} {next hn} {acc} (Pl wf f) :
-    loop γ LargeEnough hl upperBound acc next hn (fun out h₁ h₂ acc => Subtype.val <$> f out h₁ h₂ acc) =
+    loop γ Pl LargeEnough hl upperBound acc next hn f =
       loop.wf (α := α) (n := n) γ Pl wf LargeEnough hl upperBound acc next hn f := by
   haveI : Nonempty γ := ⟨acc⟩
-  rw [loop, Internal.extrinsicFix₃_eq_wellFoundedFix]; rotate_left
-  · exact InvImage WellFoundedRelation.rel (fun x => IteratorLoop.WithWF.mk ⟨⟨some x.1, upperBound⟩⟩ x.2.1 (hwf := wf))
-  · exact fun next acc hn G => do
-      if hu : next < upperBound then
-        match ← f next hn hu acc with
-        | ⟨.yield acc', _⟩ =>
-          match hs : UpwardEnumerable.succ? next with
-          | some next' =>
-            G next' acc' (hl _ _ (by refine ⟨1, ?_⟩; simpa [succMany?_one]) hn)
-              (by simp_wf; simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *])
-          | none => return acc'
-        | ⟨.done acc', _⟩ => return acc'
-      else
-        return acc
-  · exact InvImage.wf _ WellFoundedRelation.wf
-  · intro a b c G
-    simp only [map_eq_pure_bind, bind_assoc]
-    congr; ext h
-    apply bind_congr; intro forInStep
-    match forInStep with
-    | ⟨.yield c, h⟩ => simp
-    | ⟨.done c, h⟩ => simp
+  rw [loop, Internal.extrinsicFixE₃_eq_wellFoundedFix]; rotate_left
+  · exact InvImage.wf _ wf
   · fun_induction loop.wf γ Pl wf LargeEnough hl upperBound acc  next hn f
     · rw [WellFounded.fix_eq]
       simp only [↓reduceDIte, *]
@@ -1165,7 +1126,7 @@ private theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α] [LT α
         match ← f next h hu acc with
         | ⟨.yield acc', _⟩ =>
           letI it' : IterM (α := Rxo.Iterator α) Id α := ⟨⟨succ? next, upperBound⟩⟩
-          IterM.DefaultConsumers.forIn' (m := Id) (n := n) lift γ it' acc'
+          IterM.DefaultConsumers.forIn' (m := Id) (n := n) lift γ Pl it' acc'
             it'.IsPlausibleIndirectOutput (fun _ => id)
             fun next' h acc' => f next'
               (by
@@ -1185,21 +1146,17 @@ private theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α] [LT α
   apply bind_congr; intro forInStep
   split
   · split
-    · simp only [bind_pure_comp]
-      rw [loopWf_eq (lift := lift) _ Pl wf]
-      rw [IterM.DefaultConsumers.forIn'_eq_match_step (lift := lift) Pl wf _ (by intros; rfl)]; rotate_left
+    · rw [loopWf_eq (lift := lift) _ Pl wf]
+      rw [IterM.DefaultConsumers.forIn'_eq_match_step (lift := lift) Pl wf]; rotate_left
       · simp only [Monadic.step_eq_step, Monadic.step,
           Shrink.inflate_deflate, instLawfulMonadLiftFunction.liftBind_pure, *]
         split
-        · simp only [map_eq_pure_bind, bind_assoc, pure_bind]
-          apply bind_congr; intro forInStep
+        · apply bind_congr; intro forInStep
           split
-          · simp only [bind_pure_comp]
-            apply IterM.DefaultConsumers.forIn'_eq_forIn' Pl wf <;> (intros; rfl)
+          · apply IterM.DefaultConsumers.forIn'_eq_forIn' Pl wf <;> (intros; rfl)
           · simp
         · simp
-    · simp only [bind_pure_comp]
-      rw [IterM.DefaultConsumers.forIn'_eq_match_step Pl wf _ (by intros; rfl)]
+    · rw [IterM.DefaultConsumers.forIn'_eq_match_step Pl wf]
       simp [Monadic.step_eq_step, Monadic.step, instLawfulMonadLiftFunction.liftBind_pure, *]
   · simp
 termination_by IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf := wf)
@@ -1213,7 +1170,7 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LT α] [Decidabl
   lawful := by
     intro lift instLawfulMonadLiftFunction γ it init Pl wf f
     simp only [IteratorLoop.defaultImplementation, IteratorLoop.forIn,
-      IterM.DefaultConsumers.forIn'_eq_wf Pl wf (hf := fun _ _ _ => rfl)]
+      IterM.DefaultConsumers.forIn'_eq_wf Pl wf]
     rw [IterM.DefaultConsumers.forIn'.wf]
     split; rotate_left
     · simp [Monadic.step_eq_step, Monadic.step, Internal.LawfulMonadLiftBindFunction.liftBind_pure]
@@ -1225,8 +1182,7 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LT α] [Decidabl
     · apply bind_congr; intro forInStep
       split
       · simp only
-        rw [← IterM.DefaultConsumers.forIn'_eq_wf Pl wf _ _ (by intros; rfl)]
-        simp only [← map_eq_pure_bind]
+        rw [← IterM.DefaultConsumers.forIn'_eq_wf Pl wf _]
         apply IterM.DefaultConsumers.forIn'_eq_forIn' Pl wf <;> all_goals (intros; rfl)
       · simp
     · simp
@@ -1559,25 +1515,25 @@ loop implementation.
 instance Iterator.instIteratorLoop [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     {n : Type u → Type w} [Monad n] :
     IteratorLoop (Rxi.Iterator α) Id n where
-  forIn _ γ it init f :=
+  forIn _ γ Pl it init f :=
     match it with
     | ⟨⟨some next⟩⟩ =>
-      loop γ (UpwardEnumerable.LE next ·) (fun a b hab hna => ?hle) init next ?hle'' (fun a ha c => f a ?hf c)
+      loop γ Pl (UpwardEnumerable.LE next ·) (fun a b hab hna => ?hle) init next ?hle'' (fun a ha c => f a ?hf c)
     | ⟨⟨none⟩⟩ => return init
   where
     @[always_inline, inline]
-    loop γ (LargeEnough : α → Prop) (hl : ∀ a b : α, UpwardEnumerable.LE a b → LargeEnough a → LargeEnough b)
+    loop γ (Pl : α → γ → ForInStep γ → Prop) (LargeEnough : α → Prop) (hl : ∀ a b : α, UpwardEnumerable.LE a b → LargeEnough a → LargeEnough b)
         (acc : γ) (next : α) (h : LargeEnough next)
-        (f : (out : α) → LargeEnough out → (c : γ) → n (ForInStep γ)) : n γ :=
+        (f : (out : α) → LargeEnough out → (c : γ) → n (Subtype (Pl out c))) : n γ :=
       haveI : Nonempty γ := ⟨acc⟩
-      Internal.extrinsicFix₃ (C₃ := fun _ _ _ => n γ)
+      Internal.extrinsicFixE₃ (C₃ := fun _ _ _ => n γ) (InvImage (IteratorLoop.rel _ Id Pl) (fun x => (⟨Rxi.Iterator.mk (some x.1)⟩, x.2.1)))
         (fun next acc (h : LargeEnough next) G => do
           match ← f next h acc with
-          | .yield acc' =>
+          | ⟨.yield acc', h'⟩ =>
             match hs : UpwardEnumerable.succ? next with
-            | some next' => G next' acc' (hl _ _ ?hle' h)
+            | some next' => G next' acc' (hl _ _ ?hle' h) ?decreasing
             | none => return acc'
-          | .done acc' => return acc') next acc h
+          | ⟨.done acc', _⟩ => return acc') next acc h
   finally
     case hf =>
       rw [Monadic.isPlausibleIndirectOutput_iff]
@@ -1589,6 +1545,8 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LawfulUpwardEnumerable
       simpa [succMany?_one] using hs
     case hle'' =>
       exact UpwardEnumerable.le_refl _
+    case decreasing =>
+      simp_wf; simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 
 private noncomputable def Iterator.instIteratorLoop.loop.wf [UpwardEnumerable α]
     [LawfulUpwardEnumerable α]
@@ -1617,27 +1575,11 @@ where finally
 private theorem Iterator.instIteratorLoop.loop_eq_wf [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [Monad n] [LawfulMonad n]
     {γ LargeEnough hl} {next hn} {acc} (Pl wf f) :
-    loop γ LargeEnough hl acc next hn (fun out h acc => Subtype.val <$> f out h acc) =
+    loop γ Pl LargeEnough hl acc next hn f =
       loop.wf (α := α) (n := n) γ Pl wf LargeEnough hl acc next hn f := by
   haveI : Nonempty γ := ⟨acc⟩
-  rw [loop, Internal.extrinsicFix₃_eq_wellFoundedFix]; rotate_left
-  · exact InvImage WellFoundedRelation.rel (fun x => IteratorLoop.WithWF.mk ⟨⟨some x.1⟩⟩ x.2.1 (hwf := wf))
-  · exact fun next acc hn G => do
-      match ← f next hn acc with
-      | ⟨.yield acc', _⟩ =>
-        match hs : UpwardEnumerable.succ? next with
-        | some next' =>
-          G next' acc' (hl _ _ (by refine ⟨1, ?_⟩; simpa [succMany?_one]) hn)
-            (by simp_wf; simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *])
-        | none => return acc'
-      | ⟨.done acc', _⟩ => return acc'
-  · exact InvImage.wf _ WellFoundedRelation.wf
-  · intro a b c G
-    simp only [map_eq_pure_bind, bind_assoc, pure_bind]
-    apply bind_congr; intro forInStep
-    match forInStep with
-    | ⟨.yield c, h⟩ => simp
-    | ⟨.done c, h⟩ => simp
+  rw [loop, Internal.extrinsicFixE₃_eq_wellFoundedFix]; rotate_left
+  · exact InvImage.wf _ wf
   · fun_induction loop.wf γ Pl wf LargeEnough hl acc  next hn f
     · rw [WellFounded.fix_eq]
       apply bind_congr; intro forInStep
@@ -1661,7 +1603,7 @@ private theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α]
         match ← f next h acc with
         | ⟨.yield acc', _⟩ =>
           letI it' : IterM (α := Rxi.Iterator α) Id α := ⟨⟨succ? next⟩⟩
-          IterM.DefaultConsumers.forIn' (m := Id) (n := n) lift γ it' acc'
+          IterM.DefaultConsumers.forIn' (m := Id) (n := n) lift γ Pl it' acc'
             it'.IsPlausibleIndirectOutput (fun _ => id)
             fun next' h acc' => f next'
               (by
@@ -1676,19 +1618,15 @@ private theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α]
   apply bind_congr; intro forInStep
   split
   · split
-    · simp only [bind_pure_comp]
-      rw [loopWf_eq (lift := lift) _ Pl wf]
-      rw [IterM.DefaultConsumers.forIn'_eq_match_step (lift := lift) Pl wf _ (by intros; rfl)]; rotate_left
+    · rw [loopWf_eq (lift := lift) _ Pl wf]
+      rw [IterM.DefaultConsumers.forIn'_eq_match_step (lift := lift) Pl wf]; rotate_left
       · simp only [Monadic.step_eq_step, Monadic.step,
           Shrink.inflate_deflate, instLawfulMonadLiftFunction.liftBind_pure, *]
-        simp only [map_eq_pure_bind, bind_assoc, pure_bind]
         apply bind_congr; intro forInStep
         split
-        · simp only [bind_pure_comp]
-          apply IterM.DefaultConsumers.forIn'_eq_forIn' Pl wf <;> (intros; rfl)
+        · apply IterM.DefaultConsumers.forIn'_eq_forIn' Pl wf <;> (intros; rfl)
         · simp
-    · simp only [bind_pure_comp]
-      rw [IterM.DefaultConsumers.forIn'_eq_match_step Pl wf _ (by intros; rfl)]
+    · rw [IterM.DefaultConsumers.forIn'_eq_match_step Pl wf]
       simp [Monadic.step_eq_step, Monadic.step, instLawfulMonadLiftFunction.liftBind_pure, *]
   · simp
 termination_by IteratorLoop.WithWF.mk ⟨⟨some next⟩⟩ acc (hwf := wf)
@@ -1702,7 +1640,7 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α]
   lawful := by
     intro lift instLawfulMonadLiftFunction γ it init Pl wf f
     simp only [IteratorLoop.defaultImplementation, IteratorLoop.forIn,
-      IterM.DefaultConsumers.forIn'_eq_wf Pl wf (hf := fun _ _ _ => rfl)]
+      IterM.DefaultConsumers.forIn'_eq_wf Pl wf]
     rw [IterM.DefaultConsumers.forIn'.wf]
     split; rotate_left
     · simp [Monadic.step_eq_step, Monadic.step, Internal.LawfulMonadLiftBindFunction.liftBind_pure]
@@ -1713,8 +1651,7 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α]
     apply bind_congr; intro forInStep
     split
     · simp only
-      rw [← IterM.DefaultConsumers.forIn'_eq_wf Pl wf _ _ (by intros; rfl)]
-      simp only [← map_eq_pure_bind]
+      rw [← IterM.DefaultConsumers.forIn'_eq_wf Pl wf _]
       apply IterM.DefaultConsumers.forIn'_eq_forIn' Pl wf <;> all_goals (intros; rfl)
     · simp
 

@@ -621,7 +621,7 @@ mutual
           asStringFn (atomicFn (noSpaceBefore >> repFn count (satisfyFn (· == char) s!"'{tok count}'"))))
 
   where
-    tok (count : Nat) : String := (List.replicate count char).asString
+    tok (count : Nat) : String := String.ofList (List.replicate count char)
     opener (ctxt : InlineCtxt) : ParserFn :=
       match getter ctxt with
       | none => many1Fn (satisfyFn (· == char) s!"any number of {char}s")
@@ -665,7 +665,7 @@ mutual
   where
     opener : ParserFn := asStringFn (many1Fn (satisfyFn (· == '`') s!"any number of backticks"))
     closer (count : Nat) : ParserFn :=
-      asStringFn (atomicFn (repFn count (satisfyFn' (· == '`') s!"expected '{String.mk (.replicate count '`')}' to close inline code"))) >>
+      asStringFn (atomicFn (repFn count (satisfyFn' (· == '`') s!"expected '{String.ofList (.replicate count '`')}' to close inline code"))) >>
       notFollowedByFn (satisfyFn (· == '`') "`") "backtick"
     takeBackticksFn : Nat → ParserFn
       | 0 => satisfyFn (fun _ => false)
@@ -1081,7 +1081,7 @@ mutual
               (closeFence l fenceWidth >>
                withFence 0 fun info _ c s =>
                 if (c.fileMap.toPosition info.getPos?.get!).column != col then
-                  s.mkErrorAt s!"closing '{String.mk <| List.replicate fenceWidth ':'}' from directive on line {l} at column {col}, but it's at column {(c.fileMap.toPosition info.getPos?.get!).column}" info.getPos?.get!
+                  s.mkErrorAt s!"closing '{String.ofList <| List.replicate fenceWidth ':'}' from directive on line {l} at column {col}, but it's at column {(c.fileMap.toPosition info.getPos?.get!).column}" info.getPos?.get!
                 else
                   s))
 
@@ -1114,7 +1114,7 @@ mutual
         else skipFn
 
     closeFence (line width : Nat) :=
-      let str := String.mk (.replicate width ':')
+      let str := String.ofList (.replicate width ':')
       bolThen (description := s!"closing '{str}' for directive from line {line}")
         (eatSpaces >>
          asStringFn (strFn str) >> notFollowedByFn (chFn ':') "':'" >>

@@ -86,7 +86,7 @@ where
   stringContents : Parser String := attempt do
     let escaped := pchar '\\' *> pchar '"'
     let cs ← many (notFollowedBy (pchar '"') *> (escaped <|> any))
-    return String.mk cs.toList
+    return String.ofList cs.toList
 
   /--
   Parses all input up to the next whitespace. If `nonempty` is `true`, fails if there is no input

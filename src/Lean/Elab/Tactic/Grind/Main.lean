@@ -200,6 +200,21 @@ def setGrindParams (stx : TSyntax `tactic) (params : Array Syntax) : TSyntax `ta
 def getGrindParams (stx : TSyntax `tactic) : Array Syntax :=
   stx.raw[grindParamsPos][1].getSepArgs
 
+/-- Filter out `+premises` from the config syntax -/
+def filterPremisesFromConfig (config : TSyntax ``Lean.Parser.Tactic.optConfig) : TSyntax ``Lean.Parser.Tactic.optConfig :=
+  let configItems := config.raw.getArgs
+  let filteredItems := configItems.filter fun item =>
+    -- Keep all items except +premises
+    -- Structure: null node -> configItem -> posConfigItem -> ["+", ident]
+    match item[0]? with
+    | some configItem => match configItem[0]? with
+      | some posConfigItem => match posConfigItem[1]? with
+        | some ident => !(posConfigItem.getKind == ``Lean.Parser.Tactic.posConfigItem && ident.getId == `premises)
+        | none => true
+      | none => true
+    | none => true
+  ⟨config.raw.setArgs filteredItems⟩
+
 def mkGrindOnly
     (config : TSyntax ``Lean.Parser.Tactic.optConfig)
     (trace : Grind.Trace)
@@ -216,7 +231,8 @@ def mkGrindOnly
       else
         let param ← Grind.globalDeclToGrindParamSyntax declName kind minIndexable
         params := params.push param
-  let result ← `(tactic| grind $config:optConfig only)
+  let filteredConfig := filterPremisesFromConfig config
+  let result ← `(tactic| grind $filteredConfig:optConfig only)
   return setGrindParams result params
 
 private def elabGrindConfig' (config : TSyntax ``Lean.Parser.Tactic.optConfig) (interactive : Bool) : TacticM Grind.Config := do

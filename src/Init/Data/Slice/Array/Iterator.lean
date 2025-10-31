@@ -17,8 +17,7 @@ import Init.Omega
 public section
 
 /-!
-This module provides slice notation for array slices (a.k.a. `Subarray`) and implements an iterator
-for those slices.
+This module implements an iterator for array slices (`Subarray`).
 -/
 
 open Std Slice PRange Iterators

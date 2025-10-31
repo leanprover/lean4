@@ -240,7 +240,7 @@ theorem ValidPos.Splits.next {s : String} {p : s.ValidPos}
   obtain ⟨rfl, rfl, rfl⟩ := by simpa using h.eq (splits_next_right p hp)
   exact splits_next p hp
 
-/-- You might want to invoke `ValidPos.Splits.exists_eq_singleton_append` to be able to apply this. -/
+/-- You might want to invoke `Slice.Pos.Splits.exists_eq_singleton_append` to be able to apply this. -/
 theorem Slice.Pos.Splits.next {s : Slice} {p : s.Pos}
     (h : p.Splits t₁ (singleton c ++ t₂)) : (p.next h.ne_endPos_of_singleton).Splits (t₁ ++ singleton c) t₂ := by
   generalize h.ne_endPos_of_singleton = hp

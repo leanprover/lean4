@@ -220,8 +220,8 @@ theorem String.append_empty {s : String} : s ++ "" = s := by
   simp [← String.bytes_inj]
 
 @[simp]
-theorem String.ofList_nil : String.ofList [] = "" := by
-  simp [← String.bytes_inj]
+theorem String.ofList_nil : String.ofList [] = "" :=
+  rfl
 
 @[deprecated String.ofList_nil (since := "2025-10-30")]
 theorem List.asString_nil : String.ofList  [] = "" :=

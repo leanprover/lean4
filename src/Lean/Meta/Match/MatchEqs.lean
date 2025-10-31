@@ -46,7 +46,7 @@ private def _root_.Lean.MVarId.contradictionQuick (mvarId : MVarId) : MetaM Bool
     return false
 
 /--
-  Helper method for `proveCondEqThm`. Given a goal of the form `C.rec ... xMajor = rhs`,
+  Helper method for `proveCondEqThm`. Given a goal of the form `C.casesOn ... xMajor ... = rhs`,
   apply `cases xMajor`. -/
 partial def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
   let target ← mvarId.getType
@@ -71,14 +71,24 @@ where
           else
             return none
         | none =>
-          matchConstRec f (fun _ => return none) fun recVal _ => do
-            if recVal.getMajorIdx >= args.size then
+          if isCasesOnRecursor (← getEnv) declName then
+            let some matcherInfo := getMatcherInfoForCasesOn (← getEnv) declName | return none
+            if matcherInfo.getFirstDiscrPos >= args.size then
               return none
-            let major := args[recVal.getMajorIdx]!.consumeMData
+            let major := args[matcherInfo.getLastDiscrPos]!.consumeMData
             if major.isFVar then
               return some major.fvarId!
             else
               return none
+          else
+            matchConstRec f (fun _ => return none) fun recVal _ => do
+              if recVal.getMajorIdx >= args.size then
+                return none
+              let major := args[recVal.getMajorIdx]!.consumeMData
+              if major.isFVar then
+                return some major.fvarId!
+              else
+                return none
 
 def casesOnStuckLHS? (mvarId : MVarId) : MetaM (Option (Array MVarId)) := do
   try casesOnStuckLHS mvarId catch _ => return none
@@ -751,7 +761,7 @@ def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
 where go baseName splitterName := withConfig (fun c => { c with etaStruct := .none }) do
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
-  let some matchInfo ← getMatcherInfo? matchDeclName | throwError "`{matchDeclName}` is not a matcher function"
+  let some matchInfo ← getMatcherInfo? matchDeclName (alsoCasesOn := true) | throwError "`{matchDeclName}` is not a matcher function"
   let numDiscrEqs := getNumEqsFromDiscrInfos matchInfo.discrInfos
   forallTelescopeReducing constInfo.type fun xs matchResultType => do
     let mut eqnNames := #[]
@@ -867,7 +877,7 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
   withConfig (fun c => { c with etaStruct := .none }) do
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
-  let some matchInfo ← getMatcherInfo? matchDeclName | throwError "`{matchDeclName}` is not a matcher function"
+  let some matchInfo ← getMatcherInfo? matchDeclName (alsoCasesOn := true) | throwError "`{matchDeclName}` is not a matcher function"
   let numDiscrEqs := matchInfo.getNumDiscrEqs
   forallTelescopeReducing constInfo.type fun xs _matchResultType => do
     let mut eqnNames := #[]

@@ -29,3 +29,25 @@ fun x =>
 -/
 #guard_msgs in
 #print bar
+
+-- Does `split` work?
+
+-- set_option trace.split.debug true
+
+/--
+trace: case h_1
+t✝ : Bool
+⊢ false = false
+
+case h_2
+t✝ : Bool
+⊢ true = true
+-/
+#guard_msgs in
+theorem splitTest (b : Bool) : b = b.casesOn false true := by
+  split
+  trace_state
+  · rfl
+  · rfl
+
+-- #print splitTest

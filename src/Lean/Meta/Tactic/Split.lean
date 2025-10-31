@@ -150,7 +150,7 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
   if discrs.all (·.isFVar) then
     trace[split.debug] "no need to generalize discriminants, all are fvars"
     return (discrs.map (·.fvarId!), #[], mvarId)
-  let some matcherInfo ← getMatcherInfo? matcherDeclName | unreachable!
+  let some matcherInfo ← getMatcherInfo? matcherDeclName (alsoCasesOn := true) | unreachable!
   let numDiscrEqs := matcherInfo.getNumDiscrEqs -- Number of `h : discr = pattern` equations
   let (targetNew, rfls) ←
     forallTelescope motiveType fun discrVars _ =>
@@ -249,7 +249,7 @@ private def substDiscrEqs (mvarId : MVarId) (fvarSubst : FVarSubst) (discrEqs : 
   return mvarId
 
 def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Level) (params : Array Expr) (discrs : Array Expr) : MetaM (List MVarId) := do
-  let some info ← getMatcherInfo? matcherDeclName | throwInternalMisuseError m!"Internal error in `split` tactic: `{matcherDeclName}` is not an auxiliary declaration used to encode `match`-expressions"
+  let some info ← getMatcherInfo? matcherDeclName (alsoCasesOn := true) | throwInternalMisuseError m!"Internal error in `split` tactic: `{matcherDeclName}` is not an auxiliary declaration used to encode `match`-expressions"
   let matchEqns ← Match.getEquationsFor matcherDeclName
   -- splitterPre does not have the correct universe elimination level, but this is fine, we only use it to compute the `motiveType`,
   -- and we only care about the `motiveType` arguments, and not the resulting `Sort u`.
@@ -302,7 +302,7 @@ def throwDiscrGenError (e : Expr) : MetaM α :=
   throwError (mkDiscrGenErrorMsg e)
 
 def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := mvarId.withContext do
-  let some app ← matchMatcherApp? e | throwInternalMisuseError m!"Internal error in `split` tactic: Match application expected{indentExpr e}"
+  let some app ← matchMatcherApp? e (alsoCasesOn := true) | throwInternalMisuseError m!"Internal error in `split` tactic: Match application expected{indentExpr e}"
   let matchEqns ← Match.getEquationsFor app.matcherName
   let mvarIds ← applyMatchSplitter mvarId app.matcherName app.matcherLevels app.params app.discrs
   let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
@@ -315,7 +315,7 @@ end Split
 open Split
 
 /--
-Splits an `if-then-else` of `match`-expression in the goal target.
+Splits an `if-then-else` or `match`-expression in the goal target.
 If `useNewSemantics` is `true`, the flag `backward.split` is ignored. Recall this flag only affects the split of `if-then-else` expressions.
 -/
 partial def splitTarget? (mvarId : MVarId) (splitIte := true) (useNewSemantics := false) : MetaM (Option (List MVarId)) := commitWhenSome? do mvarId.withContext do

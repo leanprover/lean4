@@ -115,6 +115,7 @@ for dir in (
     "tests/elab",
     "tests/elab_bench",
     "tests/elab_fail",
+    "tests/fmt",
     "tests/misc",
     "tests/misc_bench",
     "tests/server",

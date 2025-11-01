@@ -38,6 +38,9 @@ open Std.Iterators
 #guard_msgs in
 #eval (2<...<15).iter.stepSize 2 |>.toList
 
+example : (1...5).size = 4 := by
+  simp [← Std.Rco.size_toArray, Std.Rco.toArray_eq_if_rco]
+
 /-- info: true -/
 #guard_msgs in
 #eval 1 ∈ (1...=5)

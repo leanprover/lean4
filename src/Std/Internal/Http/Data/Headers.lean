@@ -106,11 +106,13 @@ Returns `true` if they match.
 def is (s : HeaderValue) (h : String) : Bool :=
   s.value.toLower == h.toLower
 
+
 /--
 Concatenates two `HeaderValue` instances, preserving the validity guarantee.
 -/
-def append (l : HeaderValue) (r : HeaderValue) : HeaderValue := by
-  refine ⟨l.value ++ r.value, ?_⟩
+def append (l : HeaderValue) (r : HeaderValue) : HeaderValue :=
+  ⟨l.value ++ r.value, ?_⟩
+where finally
   unfold isValidHeaderValue
   rw [String.data_append]
   rw [List.all_append]

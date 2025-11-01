@@ -164,38 +164,29 @@ partial def write (stream : ByteStream) (data : ByteArray) (extensions : Array (
 
     let availableSpace := state.maxBufferSize - state.bufferedSize
 
-    if availableSpace = 0 then
+    if availableSpace < data.size then
       let promise ← IO.Promise.new
       modify fun s => { s with backpressureWaiting := s.backpressureWaiting.enqueue promise }
       return Sum.inl (promise, data, extensions)
     else
-      let toWrite := min data.size availableSpace
-      let dataToAdd := data.extract 0 toWrite
-      let remaining := if toWrite < data.size then data.extract toWrite data.size else ByteArray.empty
-
-      let chunk : Chunk := {
-        data := dataToAdd,
-        extensions := extensions
-      }
+      let chunk : Chunk := { data := data, extensions := extensions }
 
       state := { state with
         pendingChunks := state.pendingChunks.push chunk,
         bufferedSize := state.bufferedSize + chunk.size
       }
 
-      -- Notify waiting consumers if we've reached highMark
       if state.bufferedSize >= state.highMark then
         if let some (consumer, rest) := state.waiting.dequeue? then
           discard <| consumer.resolve true
           state := { state with waiting := rest }
 
       set state
-      return Sum.inr (true, remaining, extensions)
+      return Sum.inr (true, ByteArray.empty, extensions)
 
   match result with
   | .inr (success, remaining, exts) =>
-    if remaining.isEmpty ∨ ¬ success
-     then
+    if remaining.isEmpty ∨ ¬ success then
       return success
     else
       write stream remaining exts
@@ -346,24 +337,23 @@ Iterate over the body content in chunks, processing each ByteArray chunk with th
 -/
 @[inline]
 protected partial def forIn
-  {β : Type} (stream : ByteStream) (acc : β)
-  (step : Chunk → β → Async (ForInStep β)) :
-  Async β := do
-    let rec @[specialize] loop (stream : ByteStream) (acc : β) : Async β := do
+    {β : Type} (stream : ByteStream) (acc : β)
+    (step : Chunk → β → Async (ForInStep β)) : Async β := do
 
-      if let some data ← stream.recv then
-        let mut acc := acc
+  let rec @[specialize] loop (stream : ByteStream) (acc : β) : Async β := do
+    if let some data ← stream.recv then
+      let mut acc := acc
 
-        for data in data do
-          match ← step data acc with
-          | .done res => return res
-          | .yield res => acc := res
+      for data in data do
+        match ← step data acc with
+        | .done res => return res
+        | .yield res => acc := res
 
-        loop stream acc
-      else
-        return acc
+      loop stream acc
+    else
+      return acc
 
-    loop stream acc
+  loop stream acc
 
 instance : ForIn Async ByteStream Chunk where
   forIn := Std.Http.Body.ByteStream.forIn

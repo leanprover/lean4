@@ -17,6 +17,11 @@ public section
 
 namespace Lean.Meta.Match
 
+register_builtin_option match.sparseCases : Bool := {
+  defValue := true
+  descr := "if true, generate and use sparse case constructs when splitting inductive types"
+}
+
 register_builtin_option backwards.match.rowMajor : Bool := {
   defValue := true
   group := "bootstrap"
@@ -24,7 +29,6 @@ register_builtin_option backwards.match.rowMajor : Bool := {
     on position of the first constructor pattern in the first alternative. If false, \
     it splits them from left to right, which can lead to unnecessary code bloat."
 }
-
 
 private def mkIncorrectNumberOfPatternsMsg [ToMessageData α]
     (discrepancyKind : String) (expected actual : Nat) (pats : List α) :=
@@ -161,6 +165,12 @@ private def hasArrayLitPattern (p : Problem) : Bool :=
   p.alts.any fun alt => match alt.patterns with
     | .arrayLit .. :: _ => true
     | _                 => false
+
+private def hasVarOrInaccessiblePattern (p : Problem) : Bool :=
+  p.alts.any fun alt => match alt.patterns with
+    | .inaccessible _ :: _ => true
+    | .var _ :: _          => true
+    | _                    => false
 
 private def isVariableTransition (p : Problem) : Bool :=
   p.alts.all fun alt => match alt.patterns with
@@ -341,6 +351,35 @@ where
           msg := msg ++ m!"\n  {lhs} ≋ {rhs}"
         throwErrorAt alt.ref msg
 
+private abbrev isCtorIdxIneq? (e : Expr) : Option FVarId := do
+  if let some (_, lhs, _rhs) := e.ne? then
+    if
+      lhs.isApp &&
+      lhs.getAppFn.isConst &&
+      (`ctorIdx).isSuffixOf lhs.getAppFn.constName! && -- This should be an env extension maybe
+      lhs.appArg!.isFVar
+    then
+      return lhs.appArg!.fvarId!
+  none
+
+private partial def contradiction (mvarId : MVarId) : MetaM Bool := do
+  mvarId.withContext do
+    withTraceNode `Meta.Match.match (msg := (return m!"{exceptBoolEmoji ·} Match.contradiction")) do
+    trace[Meta.Match.match] m!"Match.contradiction:\n{mvarId}"
+    if (← mvarId.contradictionCore {}) then
+      trace[Meta.Match.match] "Contradiction found!"
+      return true
+    else
+      -- Try harder by splitting `ctorIdx x ≠ 23` assumptions
+      for localDecl in (← getLCtx) do
+        if let some fvarId := isCtorIdxIneq? localDecl.type then
+          trace[Meta.Match.match] "splitting ctorIdx assumption {localDecl.type}"
+          let subgoals ← mvarId.cases fvarId
+          return ← subgoals.allM (contradiction ·.mvarId)
+
+      mvarId.admit
+      return false
+
 /--
 Try to solve the problem by using the first alternative whose pending constraints can be resolved.
 -/
@@ -352,10 +391,10 @@ where
   go (alts : List Alt) : StateRefT State MetaM Unit := do
     match alts with
     | [] =>
+      let mvarId ← p.mvarId.exfalso
       /- TODO: allow users to configure which tactic is used to close leaves. -/
-      unless (← p.mvarId.contradictionCore {}) do
-        trace[Meta.Match.match] "missing alternative"
-        p.mvarId.admit
+      unless (← contradiction mvarId) do
+        trace[Meta.Match.match] "contradiction failed, missing alternative"
         modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
     | alt :: _ =>
       solveCnstrs p.mvarId alt
@@ -516,13 +555,29 @@ private def throwCasesException (p : Problem) (ex : Exception) : MetaM α := do
               "- <constructor> = <constructor>, examples: List.cons x xs = List.cons y ys, and List.cons x xs = List.nil"
   | _ => throw ex
 
+private def collectCtors (p : Problem) : Array Name :=
+  p.alts.foldl (init := #[]) fun ctors alt =>
+    match alt.patterns with
+    | .ctor n _ _ _ :: _ => if ctors.contains n then ctors else ctors.push n
+    | _                  => ctors
+
 private def processConstructor (p : Problem) : MetaM (Array Problem) := do
   trace[Meta.Match.match] "constructor step"
   let x :: xs := p.vars | unreachable!
+  let interestingCtors? ←
+    -- We use a sparse case analysis only if there is a non-constructor pattern,
+    -- but not just because there are constructors missing (in that case we benefit from
+    -- the eager split in ruling out constructors by type or by a more explicit error message)
+    if match.sparseCases.get (← getOptions) && hasVarOrInaccessiblePattern p then
+      let ctors := collectCtors p
+      trace[Meta.Match.match] "using sparse cases: {ctors}"
+      pure (some ctors)
+    else
+      pure none
   let subgoals? ← commitWhenSome? do
      let subgoals ←
        try
-         p.mvarId.cases x.fvarId!
+         p.mvarId.cases x.fvarId! (interestingCtors? := interestingCtors?)
        catch ex =>
          if p.alts.isEmpty then
            /- If we have no alternatives and dependent pattern matching fails, then a "missing cases" error is better than a "stuck" error message. -/
@@ -545,28 +600,42 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
          return some subgoals
   let some subgoals := subgoals? | return #[{ p with vars := xs }]
   subgoals.mapM fun subgoal => subgoal.mvarId.withContext do
-    let subst    := subgoal.subst
-    let fields   := subgoal.fields.toList
-    let newVars  := fields ++ xs
-    let newVars  := newVars.map fun x => x.applyFVarSubst subst
-    let subex    := Example.ctor subgoal.ctorName <| fields.map fun field => match field with
-      | .fvar fvarId => Example.var fvarId
-      | _            => Example.underscore -- This case can happen due to dependent elimination
-    let examples := p.examples.map <| Example.replaceFVarId x.fvarId! subex
-    let examples := examples.map <| Example.applyFVarSubst subst
-    let newAlts  := p.alts.filter fun alt => match alt.patterns with
-      | .ctor n .. :: _       => n == subgoal.ctorName
-      | .var _ :: _           => true
-      | .inaccessible _ :: _  => true
-      | _                     => false
-    let newAlts  := newAlts.map fun alt => alt.applyFVarSubst subst
-    let newAlts ← newAlts.mapM fun alt => do
-      match alt.patterns with
-      | .ctor _ _ _ fields :: ps  => return { alt with patterns := fields ++ ps }
-      | .var _ :: _               => expandVarIntoCtor alt subgoal.ctorName
-      | .inaccessible _ :: _      => processInaccessibleAsCtor alt subgoal.ctorName
-      | _                         => unreachable!
-    return { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
+    -- withTraceNode `Meta.Match.match (msg := (return m!"{exceptEmoji ·} case {subgoal.ctorName}")) do
+    if let some ctorName := subgoal.ctorName then
+      -- A normal constructor case
+      let subst    := subgoal.subst
+      let fields   := subgoal.fields.toList
+      let newVars  := fields ++ xs
+      let newVars  := newVars.map fun x => x.applyFVarSubst subst
+      let subex    := Example.ctor ctorName <| fields.map fun field => match field with
+        | .fvar fvarId => Example.var fvarId
+        | _            => Example.underscore -- This case can happen due to dependent elimination
+      let examples := p.examples.map <| Example.replaceFVarId x.fvarId! subex
+      let examples := examples.map <| Example.applyFVarSubst subst
+      let newAlts  := p.alts.filter fun alt => match alt.patterns with
+        | .ctor n .. :: _       => n == ctorName
+        | .var _ :: _           => true
+        | .inaccessible _ :: _  => true
+        | _                     => false
+      let newAlts  := newAlts.map fun alt => alt.applyFVarSubst subst
+      let newAlts ← newAlts.mapM fun alt => do
+        match alt.patterns with
+        | .ctor _ _ _ fields :: ps  => return { alt with patterns := fields ++ ps }
+        | .var _ :: _               => expandVarIntoCtor alt ctorName
+        | .inaccessible _ :: _      => processInaccessibleAsCtor alt ctorName
+        | _                         => unreachable!
+      return { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
+    else
+      -- A catch-all case
+      let subst := subgoal.subst
+      trace[Meta.Match.match] "constructor catch-all case"
+      let examples := p.examples.map <| Example.applyFVarSubst subst
+      let newVars := p.vars.map fun x => x.applyFVarSubst subst
+      let newAlts := p.alts.filter fun alt => match alt.patterns with
+        | .ctor .. :: _ => false
+        | _             => true
+      let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst
+      return { mvarId := subgoal.mvarId, alts := newAlts, vars := newVars, examples := examples }
 
 private def processNonVariable (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: xs := p.vars | unreachable!
@@ -870,7 +939,12 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
 
   if (← isConstructorTransition p) then
     let ps ← processConstructor p
-    ps.forM process
+    let _ ← ps.mapIdxM fun i p =>
+      if ps.size > 1 then
+        withTraceNode `Meta.Match.match (msg := (return m!"{exceptEmoji ·} subgoal {i+1}/{ps.size}")) do
+          process p
+      else
+        process p
     return
 
   if isVariableTransition p then

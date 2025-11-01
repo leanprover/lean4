@@ -23,7 +23,7 @@ def mkRecOnName (indDeclName : Name) : Name   := Name.mkStr indDeclName recOnSuf
 def mkBRecOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName brecOnSuffix
 def mkBelowName (indDeclName : Name) : Name := Name.mkStr indDeclName belowSuffix
 
-builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExtension
+builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExtension (asyncMode := .local)
 
 def markAuxRecursor (env : Environment) (declName : Name) : Environment :=
   auxRecExt.tag env declName
@@ -49,6 +49,14 @@ def isRecOnRecursor (env : Environment) (declName : Name) : Bool :=
 
 def isBRecOnRecursor (env : Environment) (declName : Name) : Bool :=
   isAuxRecursorWithSuffix env declName brecOnSuffix
+
+private builtin_initialize sparseCasesOnExt : TagDeclarationExtension ← mkTagDeclarationExtension (asyncMode := .local)
+
+def markSparseCasesOn (env : Environment) (declName : Name) : Environment :=
+  sparseCasesOnExt.tag env declName
+
+public def isSparseCasesOn (env : Environment) (declName : Name) : Bool :=
+  sparseCasesOnExt.isTagged env declName
 
 builtin_initialize noConfusionExt : TagDeclarationExtension ← mkTagDeclarationExtension
 

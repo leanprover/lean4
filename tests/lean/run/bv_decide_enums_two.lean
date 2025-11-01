@@ -4,7 +4,6 @@ inductive State : Type
 | A : State
 | B : State
 
-
 def myFunc (s : State) : Bool :=
   match s with
   | .A => true

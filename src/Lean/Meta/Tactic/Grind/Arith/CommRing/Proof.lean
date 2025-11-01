@@ -413,6 +413,16 @@ def mkEqIffProof (lhs rhs lhs' rhs' : RingExpr) : RingM Expr := do
   let h := mkApp2 (mkConst ``Grind.CommRing.eq_norm_expr [ring.u]) ring.type ring.commRingInst
   return mkApp6 h ctx (toExpr lhs) (toExpr rhs) (toExpr lhs') (toExpr rhs') eagerReflBoolTrue
 
+/--
+Given `e` and `e'` s.t. `e.toPoly == e'.toPoly`, returns a proof that `e.denote ctx = e'.denote ctx`
+-/
+def mkTermEqProof (e e' : RingExpr) : RingM Expr := do
+  let ring ← getCommRing
+  let { lhs, lhs', vars, .. } := norm ring.vars e (.num 0) e' (.num 0)
+  let ctx ← toContextExpr vars
+  let h := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPoly_eq [ring.u]) ring.type ring.commRingInst
+  return mkApp4 h ctx (toExpr lhs) (toExpr lhs') eagerReflBoolTrue
+
 def mkNonCommLeIffProof (leInst ltInst isPreorderInst orderedRingInst : Expr) (lhs rhs lhs' rhs' : RingExpr) : NonCommRingM Expr := do
   let ring ← getRing
   let { lhs, rhs, lhs', rhs', vars } := norm ring.vars lhs rhs lhs' rhs'
@@ -433,5 +443,15 @@ def mkNonCommEqIffProof (lhs rhs lhs' rhs' : RingExpr) : NonCommRingM Expr := do
   let ctx ← toContextExpr vars
   let h := mkApp2 (mkConst ``Grind.CommRing.eq_norm_expr_nc [ring.u]) ring.type ring.ringInst
   return mkApp6 h ctx (toExpr lhs) (toExpr rhs) (toExpr lhs') (toExpr rhs') eagerReflBoolTrue
+
+/--
+Given `e` and `e'` s.t. `e.toPoly_nc == e'.toPoly_nc`, returns a proof that `e.denote ctx = e'.denote ctx`
+-/
+def mkNonCommTermEqProof (e e' : RingExpr) : NonCommRingM Expr := do
+  let ring ← getRing
+  let { lhs, lhs', vars, .. } := norm ring.vars e (.num 0) e' (.num 0)
+  let ctx ← toContextExpr vars
+  let h := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPoly_nc_eq [ring.u]) ring.type ring.ringInst
+  return mkApp4 h ctx (toExpr lhs) (toExpr lhs') eagerReflBoolTrue
 
 end Lean.Meta.Grind.Arith.CommRing

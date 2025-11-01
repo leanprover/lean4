@@ -75,7 +75,7 @@ public def propagateEqTrue (c : Cnstr NodeId) (e : Expr) (u v : NodeId) (k k' : 
   let mut h ← mkPropagateEqTrueProof u v k kuv k'
   if let some he := c.h? then
     h := mkApp4 (mkConst ``Grind.Order.eq_trans_true) e c.e he h
-  if let some (e', he) := (← get').cnstrsMapInv.find? { expr := e } then
+  if let some (e', he) := (← get').termMapInv.find? { expr := e } then
     h := mkApp4 (mkConst ``Grind.Order.eq_trans_true) e' e he h
     pushEqTrue e' h
   else
@@ -87,7 +87,7 @@ public def propagateSelfEqTrue (c : Cnstr NodeId) (e : Expr) : OrderM Unit := do
   let mut h ← mkPropagateSelfEqTrueProof u c.getWeight
   if let some he := c.h? then
     h := mkApp4 (mkConst ``Grind.Order.eq_trans_true) e c.e he h
-  if let some (e', he) := (← get').cnstrsMapInv.find? { expr := e } then
+  if let some (e', he) := (← get').termMapInv.find? { expr := e } then
     h := mkApp4 (mkConst ``Grind.Order.eq_trans_true) e' e he h
     pushEqTrue e' h
   else
@@ -100,7 +100,7 @@ public def propagateEqFalse (c : Cnstr NodeId) (e : Expr) (u v : NodeId) (k k' :
   let mut h ← mkPropagateEqFalseProof u v k kuv k'
   if let some he := c.h? then
     h := mkApp4 (mkConst ``Grind.Order.eq_trans_false) e c.e he h
-  if let some (e', he) := (← get').cnstrsMapInv.find? { expr := e } then
+  if let some (e', he) := (← get').termMapInv.find? { expr := e } then
     h := mkApp4 (mkConst ``Grind.Order.eq_trans_false) e' e he h
     pushEqFalse e' h
   else
@@ -112,7 +112,7 @@ public def propagateSelfEqFalse (c : Cnstr NodeId) (e : Expr) : OrderM Unit := d
   let mut h ← mkPropagateSelfEqFalseProof u c.getWeight
   if let some he := c.h? then
     h := mkApp4 (mkConst ``Grind.Order.eq_trans_false) e c.e he h
-  if let some (e', he) := (← get').cnstrsMapInv.find? { expr := e } then
+  if let some (e', he) := (← get').termMapInv.find? { expr := e } then
     h := mkApp4 (mkConst ``Grind.Order.eq_trans_false) e' e he h
     pushEqFalse e' h
   else
@@ -140,7 +140,7 @@ Returns `true` if `e` is already `True` in the `grind` core.
 Recall that `e` may be an auxiliary term created for a term `e'` (see `cnstrsMapInv`).
 -/
 private def isAlreadyTrue (e : Expr) : OrderM Bool := do
-  if let some (e', _) := (← get').cnstrsMapInv.find? { expr := e } then
+  if let some (e', _) := (← get').termMapInv.find? { expr := e } then
     alreadyInternalized e' <&&> isEqTrue e'
   else
     alreadyInternalized e <&&> isEqTrue e
@@ -162,7 +162,7 @@ Returns `true` if `e` is already `False` in the `grind` core.
 Recall that `e` may be an auxiliary term created for a term `e'` (see `cnstrsMapInv`).
 -/
 private def isAlreadyFalse (e : Expr) : OrderM Bool := do
-  if let some (e', _) := (← get').cnstrsMapInv.find? { expr := e } then
+  if let some (e', _) := (← get').termMapInv.find? { expr := e } then
     alreadyInternalized e' <&&> isEqFalse e'
   else
     alreadyInternalized e <&&> isEqFalse e
@@ -221,7 +221,7 @@ Adds an edge `u --(k) --> v` justified by the proof term `p`, and then
 if no negative cycle was created, updates the shortest distance of affected
 node pairs.
 -/
-def addEdge (u : NodeId) (v : NodeId) (k : Weight) (h : Expr) : OrderM Unit := do
+public def addEdge (u : NodeId) (v : NodeId) (k : Weight) (h : Expr) : OrderM Unit := do
   if (← isInconsistent) then return ()
   if u == v then
     if k.isNeg then
@@ -303,7 +303,7 @@ def getStructIdOf? (e : Expr) : GoalM (Option Nat) := do
   return (← get').exprToStructId.find? { expr := e }
 
 def propagateIneq (e : Expr) : GoalM Unit := do
-  if let some (e', he) := (← get').cnstrsMap.find? { expr := e } then
+  if let some (e', he) := (← get').termMap.find? { expr := e } then
     go e' (some he)
   else
     go e none

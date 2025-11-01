@@ -55,6 +55,16 @@ theorem le_of_eq_2_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder
   rw [Ring.intCast_zero, Semiring.add_zero]
   intro h; subst a; apply Std.IsPreorder.le_refl
 
+theorem le_of_offset_eq_1_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
+    {a b : α} {k : Int} : a = b + k → a ≤ b + k := by
+  intro h; subst a; apply Std.IsPreorder.le_refl
+
+theorem le_of_offset_eq_2_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
+    {a b : α} {k : Int} : a = b + k → b ≤ a + (-k : Int) := by
+  intro h; subst a
+  rw [Ring.intCast_neg, Semiring.add_assoc, Semiring.add_comm (α := α) k, Ring.neg_add_cancel, Semiring.add_zero]
+  apply Std.IsPreorder.le_refl
+
 theorem le_of_not_le {α} [LE α] [Std.IsLinearPreorder α]
     {a b : α} : ¬ a ≤ b → b ≤ a := by
   intro h

@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Option.Attach
 public import Init.Data.List.Perm
+public import Init.Data.List.Monadic
 public import Std.Data.Internal.List.Defs
 import all Std.Data.Internal.List.Defs
 public import Init.Data.Order.Ord

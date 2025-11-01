@@ -86,7 +86,8 @@ instance Attach.instProductive {α β : Type w} {m : Type w → Type w'} [Monad 
     Productive (Attach α m P) m :=
   .of_productivenessRelation instProductivenessRelation
 
-instance Attach.instIteratorCollect {α β : Type w} {m : Type w → Type w'} [Monad m] [Monad n]
+instance Attach.instIteratorCollect {α β : Type w} {m : Type w → Type w'}
+    [Monad m] [MonadAttach m] [Monad n] [MonadAttach n]
     {P : β → Prop} [Iterator α m β] :
     IteratorCollect (Attach α m P) m n :=
   .defaultImplementation

@@ -57,7 +57,8 @@ private def Empty.instFinitenessRelation [Monad m] :
 instance Empty.instFinite [Monad m] : Finite (Empty m β) m := by
   exact Finite.of_finitenessRelation instFinitenessRelation
 
-instance Empty.instIteratorCollect {n : Type w → Type w''} [Monad m] [Monad n] :
+instance Empty.instIteratorCollect {n : Type w → Type w''}
+    [Monad m] [MonadAttach m] [Monad n] [MonadAttach n] :
     IteratorCollect (Empty m β) m n :=
   .defaultImplementation
 

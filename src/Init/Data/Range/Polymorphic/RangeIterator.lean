@@ -120,7 +120,7 @@ theorem Iterator.step_eq_step [UpwardEnumerable α] [LE α] [DecidableLE α]
   simp [Iter.step, step_eq_monadicStep, Monadic.step_eq_step, IterM.Step.toPure]
 
 instance Iterator.instIteratorCollect [UpwardEnumerable α] [LE α] [DecidableLE α]
-    {n : Type u → Type w} [Monad n] : IteratorCollect (Rxc.Iterator α) Id n :=
+    {n : Type u → Type w} [Monad n] [MonadAttach n] : IteratorCollect (Rxc.Iterator α) Id n :=
   .defaultImplementation
 
 theorem Iterator.Monadic.isPlausibleOutput_next {a}
@@ -700,7 +700,7 @@ theorem Iterator.step_eq_step [UpwardEnumerable α] [LT α] [DecidableLT α]
   simp [Iter.step, step_eq_monadicStep, Monadic.step_eq_step, IterM.Step.toPure]
 
 instance Iterator.instIteratorCollect [UpwardEnumerable α] [LT α] [DecidableLT α]
-    {n : Type u → Type w} [Monad n] : IteratorCollect (Rxo.Iterator α) Id n :=
+    {n : Type u → Type w} [Monad n] [MonadAttach n] : IteratorCollect (Rxo.Iterator α) Id n :=
   .defaultImplementation
 
 theorem Iterator.Monadic.isPlausibleOutput_next {a}
@@ -1266,7 +1266,7 @@ theorem Iterator.step_eq_step [UpwardEnumerable α]
   simp [Iter.step, step_eq_monadicStep, Monadic.step_eq_step, IterM.Step.toPure]
 
 instance Iterator.instIteratorCollect [UpwardEnumerable α]
-    {n : Type u → Type w} [Monad n] : IteratorCollect (Rxi.Iterator α) Id n :=
+    {n : Type u → Type w} [Monad n] [MonadAttach n] : IteratorCollect (Rxi.Iterator α) Id n :=
   .defaultImplementation
 
 theorem Iterator.Monadic.isPlausibleOutput_next {a} [UpwardEnumerable α]

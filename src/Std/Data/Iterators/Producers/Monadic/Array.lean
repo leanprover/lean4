@@ -112,7 +112,7 @@ instance [Pure m] : Finite (ArrayIterator α) m := by
   exact Finite.of_finitenessRelation ArrayIterator.finitenessRelation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] {n : Type w → Type w''} [Monad n] :
+instance {α : Type w} [Monad m] [MonadAttach m] {n : Type w → Type w''} [Monad n] [MonadAttach n] :
     IteratorCollect (ArrayIterator α) m n :=
   .defaultImplementation
 

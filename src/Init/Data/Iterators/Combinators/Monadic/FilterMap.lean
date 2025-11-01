@@ -215,7 +215,8 @@ instance Map.instProductive {α β γ : Type w} {m : Type w → Type w'}
   Productive.of_productivenessRelation Map.instProductivenessRelation
 
 instance {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} {o : Type w → Type x} [Monad n] [Monad o] [Iterator α m β]
+    {n : Type w → Type w''} {o : Type w → Type x}
+    [Monad n] [MonadAttach n] [Monad o] [MonadAttach o] [Iterator α m β]
     {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} :
     IteratorCollect (FilterMap α m n lift f) n o :=

@@ -19,7 +19,7 @@ theorem IterM.step_empty {m β} [Monad m] :
   rfl
 
 @[simp]
-theorem IterM.toList_empty {m β} [Monad m] [LawfulMonad m] :
+theorem IterM.toList_empty {m β} [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] :
     (IterM.empty m β).toList = pure [] := by
   rw [toList_eq_match_step]
   simp
@@ -31,7 +31,7 @@ theorem IterM.toListRev_empty {m β} [Monad m] [LawfulMonad m] :
   simp
 
 @[simp]
-theorem IterM.toArray_empty {m β} [Monad m] [LawfulMonad m] :
+theorem IterM.toArray_empty {m β} [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] :
     (IterM.empty m β).toArray = pure #[] := by
   rw [toArray_eq_match_step]
   simp

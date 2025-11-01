@@ -65,15 +65,9 @@ def IterM.DefaultConsumers.toArrayMapped.RecursionRel {α β : Type w} {m : Type
   (∃ out, x.1.IsPlausibleStep (.yield x'.1 out) ∧ ∃ fx, x'.2 = x.2.push fx) ∨
     (x.1.IsPlausibleStep (.skip x'.1) ∧ x'.2 = x.2)
 
-/--
-This is an internal function used in `IteratorCollect.defaultImplementation`.
-
-It iterates over an iterator and applies `f` whenever a value is emitted before inserting the result
-of `f` into an array.
--/
 @[always_inline, no_expose]
 def IterM.DefaultConsumers.toArrayMapped {α β : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β]
+    {n : Type w → Type w''} [Monad m] [MonadAttach m] [Monad n] [MonadAttach n] [Iterator α m β]
     (lift : ⦃α : Type w⦄ → m α → n α) {γ : Type w} (f : β → n γ)
     (it : IterM (α := α) m β) : n (Array γ) :=
   letI : MonadLift m n := ⟨lift (α := _)⟩
@@ -82,43 +76,15 @@ where
   @[always_inline]
   go it (acc : Array γ) : n (Array γ) :=
     letI : MonadLift m n := ⟨lift (α := _)⟩
-    extrinsicFixE₂ (C₂ := fun _ _ => n (Array γ)) (InvImage TerminationMeasures.Finite.Rel (·.1.finitelyManySteps!))
+    extrinsicFixE₂ (C₂ := fun _ _ => n (Array γ))
+    (fun x' x => (∃ out, x.1.IsPlausibleStepE (.yield x'.1 out) ∧ ∃ fx, MonadAttach.CanReturn (f out) fx ∧ x'.2 = x.2.push fx) ∨ (x.1.IsPlausibleStepE (.skip x'.1) ∧ x'.2 = x.2))
     (fun (it : IterM (α := α) m β) acc recur => do
-      match (← it.step).inflate with
+      match (← it.stepAttach).inflate with
       | .yield it' out h =>
-        recur it' (acc.push (← f out)) (by exact TerminationMeasures.Finite.rel_of_yield ‹_›)
-      | .skip it' h => recur it' acc (by exact TerminationMeasures.Finite.rel_of_skip ‹_›)
+        let fx ← MonadAttach.attach (f out)
+        recur it' (acc.push fx.val) (Or.inl ⟨out, h, fx.val, fx.property, rfl⟩)
+      | .skip it' h => recur it' acc (Or.inr ⟨h, rfl⟩)
       | .done _ => return acc) it acc
-
--- @[always_inline, no_expose]
--- def IterM.DefaultConsumers.toArrayMapped {α β : Type w} {m : Type w → Type w'}
---     {n : Type w → Type w''} [Monad n] [MonadAttach n] [Iterator α m β]
---     (lift : ⦃α : Type w⦄ → m α → n α) {γ : Type w} (f : β → n γ)
---     (it : IterM (α := α) m β) : n (Array γ) :=
---   letI : MonadLift m n := ⟨lift (α := _)⟩
---   go it #[]
--- where
---   @[always_inline]
---   go it (acc : Array γ) : n (Array γ) :=
---     letI : MonadLift m n := ⟨lift (α := _)⟩
---     extrinsicFixE₂ (C₂ := fun _ _ => n (Array γ))
---     (fun x' x => (∃ out, x.1.IsPlausibleStepE (.yield x'.1 out) ∧ ∃ fx, MonadAttach.CanReturn (f out) fx ∧ x'.2 = x.2.push fx) ∨ (∃ h, MonadAttach.CanReturn (m := n) x.1.step (.deflate <| .skip x'.1 h) ∧ x'.2 = x.2))
---     (fun (it : IterM (α := α) m β) acc recur => do
---       let ⟨step, hs⟩ ← MonadAttach.attach (m := n) it.step
---       match hs' : step.inflate with
---       | .yield it' out h =>
---         let fx ← MonadAttach.attach (f out)
---         recur it' (acc.push fx.val) (by
---           apply Or.inl
---           have : step = .deflate (.yield it' out h) := by simp [← hs']
---           rw [this] at hs
---           exact ⟨out, h, hs, fx.val, fx.property, rfl⟩)
---       | .skip it' h => recur it' acc (by
---           apply Or.inr
---           have : step = .deflate (.skip it' h) := by simp [← hs']
---           rw [this] at hs
---           exact ⟨h, hs, rfl⟩)
---       | .done h => return acc) it acc
 
 /--
 This is the default implementation of the `IteratorCollect` class.
@@ -128,7 +94,7 @@ used instead.
 -/
 @[always_inline]
 def IteratorCollect.defaultImplementation {α β : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β] :
+    {n : Type w → Type w''} [Monad m] [MonadAttach m] [Monad n] [MonadAttach n] [Iterator α m β] :
     IteratorCollect α m n where
   toArrayMapped := IterM.DefaultConsumers.toArrayMapped
 
@@ -138,13 +104,15 @@ Asserts that a given `IteratorCollect` instance is equal to `IteratorCollect.def
 (Even though equal, the given instance might be vastly more efficient.)
 -/
 class LawfulIteratorCollect (α : Type w) (m : Type w → Type w') (n : Type w → Type w'')
-    {β : Type w} [Monad m] [Monad n] [Iterator α m β] [i : IteratorCollect α m n] where
+    {β : Type w} [Monad m] [MonadAttach m] [Monad n] [MonadAttach n] [Iterator α m β]
+    [i : IteratorCollect α m n] where
   lawful_toArrayMapped : ∀ lift [LawfulMonadLiftFunction lift] [Finite α m],
     i.toArrayMapped lift (α := α) (γ := γ)
       = IteratorCollect.defaultImplementation.toArrayMapped lift
 
 theorem LawfulIteratorCollect.toArrayMapped_eq {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad m] [Monad n] [Iterator α m β] [Finite α m] [IteratorCollect α m n]
+    {n : Type w → Type w''} [Monad m] [MonadAttach m] [Monad n] [MonadAttach n] [Iterator α m β]
+    [Finite α m] [IteratorCollect α m n]
     [hl : LawfulIteratorCollect α m n] {lift : ⦃δ : Type w⦄ → m δ → n δ}
     [LawfulMonadLiftFunction lift]
     {f : β → n γ} {it : IterM (α := α) m β} :
@@ -152,8 +120,8 @@ theorem LawfulIteratorCollect.toArrayMapped_eq {α β γ : Type w} {m : Type w �
       IterM.DefaultConsumers.toArrayMapped lift f it (m := m) := by
   rw [lawful_toArrayMapped]; rfl
 
-instance (α β : Type w) (m : Type w → Type w') (n : Type w → Type w'') [Monad n]
-    [Iterator α m β] [Monad m] [Iterator α m β] [Finite α m] :
+instance (α β : Type w) (m : Type w → Type w') (n : Type w → Type w'') [Monad n] [MonadAttach n]
+    [Iterator α m β] [Monad m] [MonadAttach m] [Iterator α m β] [Finite α m] :
     haveI : IteratorCollect α m n := .defaultImplementation
     LawfulIteratorCollect α m n :=
   letI : IteratorCollect α m n := .defaultImplementation
@@ -194,6 +162,7 @@ def IterM.Total.toArray {α : Type w} {m : Type w → Type w'} {β : Type w} [Mo
 
 end ToArray
 
+-- TODO: strengthen the termination condition using `stepAttach`
 /--
 Traverses the given iterator and stores the emitted values in reverse order in a list. Because
 lists are prepend-only, this `toListRev` is usually more efficient that `toList`.

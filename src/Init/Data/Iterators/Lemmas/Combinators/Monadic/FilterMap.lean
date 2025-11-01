@@ -235,7 +235,9 @@ section Lawful
 
 @[no_expose]
 instance {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type x}
-    [Monad m] [Monad n] [Monad o] [LawfulMonad n] [LawfulMonad o] [Iterator α m β] [Finite α m]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [LawfulMonadAttach n]
+    [Monad o] [MonadAttach o] [LawfulMonad o] [LawfulMonadAttach o] [Iterator α m β] [Finite α m]
     [IteratorCollect α m o] [LawfulIteratorCollect α m o]
     {lift : ⦃δ : Type w⦄ -> m δ → n δ} {f : β → PostconditionT n γ} [LawfulMonadLiftFunction lift] :
     LawfulIteratorCollect (Map α m n lift f) n o where
@@ -274,7 +276,7 @@ end Lawful
 section ToList
 
 theorem IterM.InternalConsumers.toList_filterMap {α β γ: Type w} {m : Type w → Type w'}
-    [Monad m] [LawfulMonad m]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
     [Iterator α m β] [IteratorCollect α m m] [LawfulIteratorCollect α m m] [Finite α m]
     {f : β → Option γ} (it : IterM (α := α) m β) :
     (it.filterMap f).toList = (fun x => x.filterMap f) <$> it.toList := by
@@ -293,7 +295,7 @@ theorem IterM.InternalConsumers.toList_filterMap {α β γ: Type w} {m : Type w 
   · simp
 
 theorem IterM.toList_map_eq_toList_mapM {α β γ : Type w}
-    {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    {m : Type w → Type w'} [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
     [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {f : β → γ} {it : IterM (α := α) m β} :
     (it.map f).toList = (it.mapM fun b => pure (f b)).toList := by
@@ -304,7 +306,8 @@ theorem IterM.toList_map_eq_toList_mapM {α β γ : Type w}
 
 theorem IterM.toList_mapM_eq_toList_filterMapM {α β γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [Monad m] [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m]
+    [Monad n] [LawfulMonad n] [MonadAttach n] [LawfulMonadAttach n]
     [MonadLiftT m n][LawfulMonadLiftT m n]
     [Iterator α m β] [Finite α m] [IteratorCollect α m n] [LawfulIteratorCollect α m n]
     {f : β → n γ} {it : IterM (α := α) m β} :
@@ -315,8 +318,8 @@ theorem IterM.toList_mapM_eq_toList_filterMapM {α β γ : Type w}
   apply bind_congr; intro step
   split <;> simp (discharger := assumption) [ihy, ihs]
 
-theorem IterM.toList_map_eq_toList_filterMapM {α β γ : Type w}
-    {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+theorem IterM.toList_map_eq_toList_filterMapM {α β γ : Type w} {m : Type w → Type w'}
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
     [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {f : β → γ} {it : IterM (α := α) m β} :
     (it.map f).toList = (it.filterMapM fun b => pure (some (f b))).toList := by
@@ -326,7 +329,9 @@ theorem IterM.toList_map_eq_toList_filterMapM {α β γ : Type w}
 @[simp]
 theorem IterM.toList_filterMapM_filterMapM {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [Monad m] [MonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n]
+    [Monad o] [MonadAttach o] [LawfulMonad o] [LawfulMonadAttach o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {f : β → n (Option γ)} {g : γ → o (Option δ)}
@@ -358,7 +363,9 @@ theorem IterM.toList_filterMapM_filterMapM {α β γ δ : Type w}
 @[simp]
 theorem IterM.toList_filterMapM_mapM {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [Monad m] [MonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n]
+    [Monad o] [MonadAttach o] [LawfulMonad o] [LawfulMonadAttach o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m]
     {f : β → n γ} {g : γ → o (Option δ)}
@@ -385,7 +392,8 @@ theorem IterM.toList_filterMapM_mapM {α β γ δ : Type w}
 @[simp]
 theorem IterM.toList_filterMapM_map {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [Monad m] [MonadAttach m] [LawfulMonad m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [LawfulMonadAttach n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     [Iterator α m β] [Finite α m]
     {f : β → γ} {g : γ → n (Option δ)}
@@ -407,7 +415,9 @@ theorem IterM.toList_filterMapM_map {α β γ δ : Type w}
 @[simp]
 theorem IterM.toList_mapM_filterMapM {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [Monad m] [MonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [LawfulMonadAttach n]
+    [Monad o] [MonadAttach o] [LawfulMonad o] [LawfulMonadAttach o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {f : β → n (Option γ)} {g : γ → o δ}
@@ -423,7 +433,9 @@ theorem IterM.toList_mapM_filterMapM {α β γ δ : Type w}
 @[simp]
 theorem IterM.toList_mapM_mapM {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [LawfulMonadAttach n]
+    [Monad o] [MonadAttach o] [LawfulMonad o] [LawfulMonadAttach o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m] [IteratorCollect α m o] [LawfulIteratorCollect α m o]
     {f : β → n γ} {g : γ → o δ}
@@ -437,7 +449,8 @@ theorem IterM.toList_mapM_mapM {α β γ δ : Type w}
 @[simp]
 theorem IterM.toList_mapM_map {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [LawfulMonadAttach n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     [Iterator α m β] [Finite α m] [IteratorCollect α m n] [LawfulIteratorCollect α m n]
     {f : β → γ} {g : γ → n δ}
@@ -447,7 +460,7 @@ theorem IterM.toList_mapM_map {α β γ δ : Type w}
   simp [toList_mapM_eq_toList_filterMapM]
 
 theorem IterM.toList_filterMap {α β γ : Type w} {m : Type w → Type w'}
-    [Monad m] [LawfulMonad m]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
     [Iterator α m β] [IteratorCollect α m m] [LawfulIteratorCollect α m m] [Finite α m]
     {f : β → Option γ} (it : IterM (α := α) m β) :
     (it.filterMap f).toList = (fun x => x.filterMap f) <$> it.toList := by
@@ -474,7 +487,8 @@ theorem IterM.toList_filterMap {α β γ : Type w} {m : Type w → Type w'}
     assumption
   · simp
 
-theorem IterM.toList_map {α β β' : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+theorem IterM.toList_map {α β β' : Type w} {m : Type w → Type w'}
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
     [Iterator α m β] [IteratorCollect α m m] [LawfulIteratorCollect α m m] [Finite α m] {f : β → β'}
     (it : IterM (α := α) m β) :
     (it.map f).toList = (fun x => x.map f) <$> it.toList := by
@@ -497,7 +511,8 @@ theorem IterM.toList_map {α β β' : Type w} {m : Type w → Type w'} [Monad m]
     · simp [Map]
     · simp
 
-theorem IterM.toList_filter {α : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+theorem IterM.toList_filter {α : Type w} {m : Type w → Type w'}
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
     {β : Type w} [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {f : β → Bool} {it : IterM (α := α) m β} :
     (it.filter f).toList = List.filter f <$> it.toList := by
@@ -509,7 +524,8 @@ end ToList
 section ToListRev
 
 theorem IterM.toListRev_map_eq_toListRev_mapM {α β γ : Type w}
-    {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    {m : Type w → Type w'}
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
     [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {f : β → γ} {it : IterM (α := α) m β} :
     (it.map f).toListRev = (it.mapM fun b => pure (f b)).toListRev := by
@@ -517,7 +533,8 @@ theorem IterM.toListRev_map_eq_toListRev_mapM {α β γ : Type w}
 
 theorem IterM.toListRev_mapM_eq_toListRev_filterMapM {α β γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [LawfulMonadAttach n]
     [MonadLiftT m n][LawfulMonadLiftT m n]
     [Iterator α m β] [Finite α m] [IteratorCollect α m n] [LawfulIteratorCollect α m n]
     {f : β → n γ} {it : IterM (α := α) m β} :
@@ -526,26 +543,29 @@ theorem IterM.toListRev_mapM_eq_toListRev_filterMapM {α β γ : Type w}
   simp [toListRev_eq, toList_mapM_eq_toList_filterMapM]
 
 theorem IterM.toListRev_map_eq_toListRev_filterMapM {α β γ : Type w}
-    {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    {m : Type w → Type w'}
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
     [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {f : β → γ} {it : IterM (α := α) m β} :
     (it.map f).toListRev = (it.filterMapM fun b => pure (some (f b))).toListRev := by
   simp [toListRev_eq, toList_map_eq_toList_filterMapM]
 
 theorem IterM.toListRev_filterMap {α β γ : Type w} {m : Type w → Type w'}
-    [Monad m] [LawfulMonad m]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
     [Iterator α m β] [IteratorCollect α m m] [LawfulIteratorCollect α m m] [Finite α m]
     {f : β → Option γ} (it : IterM (α := α) m β) :
     (it.filterMap f).toListRev = (fun x => x.filterMap f) <$> it.toListRev := by
   simp [toListRev_eq, toList_filterMap]
 
-theorem IterM.toListRev_map {α β γ : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+theorem IterM.toListRev_map {α β γ : Type w} {m : Type w → Type w'}
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
     [Iterator α m β] [IteratorCollect α m m] [LawfulIteratorCollect α m m] [Finite α m] {f : β → γ}
     (it : IterM (α := α) m β) :
     (it.map f).toListRev = (fun x => x.map f) <$> it.toListRev := by
   simp [toListRev_eq, toList_map]
 
-theorem IterM.toListRev_filter {α β : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+theorem IterM.toListRev_filter {α β : Type w} {m : Type w → Type w'}
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
     [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {f : β → Bool} {it : IterM (α := α) m β} :
     (it.filter f).toListRev = List.filter f <$> it.toListRev := by
@@ -554,7 +574,9 @@ theorem IterM.toListRev_filter {α β : Type w} {m : Type w → Type w'} [Monad 
 @[simp]
 theorem IterM.toListRev_filterMapM_filterMapM {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [Monad m] [MonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n]
+    [Monad o] [MonadAttach o] [LawfulMonad o] [LawfulMonadAttach o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {f : β → n (Option γ)} {g : γ → o (Option δ)}
@@ -570,7 +592,9 @@ theorem IterM.toListRev_filterMapM_filterMapM {α β γ δ : Type w}
 @[simp]
 theorem IterM.toListRev_filterMapM_mapM {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [Monad m] [MonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n]
+    [Monad o] [MonadAttach o] [LawfulMonad o] [LawfulMonadAttach o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {f : β → n γ} {g : γ → o (Option δ)}
@@ -583,7 +607,8 @@ theorem IterM.toListRev_filterMapM_mapM {α β γ δ : Type w}
 @[simp]
 theorem IterM.toListRev_filterMapM_map {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [LawfulMonadAttach n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {f : β → γ} {g : γ → n (Option δ)}
@@ -595,7 +620,9 @@ theorem IterM.toListRev_filterMapM_map {α β γ δ : Type w}
 @[simp]
 theorem IterM.toListRev_mapM_filterMapM {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [Monad m] [MonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [LawfulMonadAttach n]
+    [Monad o] [MonadAttach o] [LawfulMonad o] [LawfulMonadAttach o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {f : β → n (Option γ)} {g : γ → o δ}
@@ -611,7 +638,9 @@ theorem IterM.toListRev_mapM_filterMapM {α β γ δ : Type w}
 @[simp]
 theorem IterM.toListRev_mapM_mapM {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [LawfulMonadAttach n]
+    [Monad o] [MonadAttach o] [LawfulMonad o] [LawfulMonadAttach o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m]
     {f : β → n γ} {g : γ → o δ}
@@ -625,7 +654,8 @@ theorem IterM.toListRev_mapM_mapM {α β γ δ : Type w}
 @[simp]
 theorem IterM.toListRev_mapM_map {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [LawfulMonadAttach n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     [Iterator α m β] [Finite α m] {f : β → γ} {g : γ → n δ} {it : IterM (α := α) m β} :
     ((it.map f).mapM g).toListRev =
@@ -638,7 +668,8 @@ end ToListRev
 section ToArray
 
 theorem IterM.toArray_map_eq_toArray_mapM {α β γ : Type w}
-    {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    {m : Type w → Type w'}
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
     [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {f : β → γ} {it : IterM (α := α) m β} :
     (it.map f).toArray = (it.mapM fun b => pure (f b)).toArray := by
@@ -646,7 +677,8 @@ theorem IterM.toArray_map_eq_toArray_mapM {α β γ : Type w}
 
 theorem IterM.toArray_mapM_eq_toArray_filterMapM {α β γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [LawfulMonadAttach n]
     [MonadLiftT m n][LawfulMonadLiftT m n]
     [Iterator α m β] [Finite α m] [IteratorCollect α m n] [LawfulIteratorCollect α m n]
     {f : β → n γ} {it : IterM (α := α) m β} :
@@ -654,26 +686,29 @@ theorem IterM.toArray_mapM_eq_toArray_filterMapM {α β γ : Type w}
   simp [← toArray_toList, toList_mapM_eq_toList_filterMapM]
 
 theorem IterM.toArray_map_eq_toArray_filterMapM {α β γ : Type w}
-    {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    {m : Type w → Type w'}
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
     [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {f : β → γ} {it : IterM (α := α) m β} :
     (it.map f).toArray = (it.filterMapM fun b => pure (some (f b))).toArray := by
   simp [← toArray_toList, toList_map_eq_toList_filterMapM]
 
 theorem IterM.toArray_filterMap {α β γ : Type w} {m : Type w → Type w'}
-    [Monad m] [LawfulMonad m]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
     [Iterator α m β] [IteratorCollect α m m] [LawfulIteratorCollect α m m] [Finite α m]
     {f : β → Option γ} (it : IterM (α := α) m β) :
     (it.filterMap f).toArray = (fun x => x.filterMap f) <$> it.toArray := by
   simp [← toArray_toList, toList_filterMap]
 
-theorem IterM.toArray_map {α β γ : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+theorem IterM.toArray_map {α β γ : Type w} {m : Type w → Type w'}
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
     [Iterator α m β] [IteratorCollect α m m] [LawfulIteratorCollect α m m] [Finite α m] {f : β → γ}
     (it : IterM (α := α) m β) :
     (it.map f).toArray = (fun x => x.map f) <$> it.toArray := by
   simp [← toArray_toList, toList_map]
 
-theorem IterM.toArray_filter {α : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+theorem IterM.toArray_filter {α : Type w} {m : Type w → Type w'}
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
     {β : Type w} [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {f : β → Bool} {it : IterM (α := α) m β} :
     (it.filter f).toArray = Array.filter f <$> it.toArray := by
@@ -682,7 +717,9 @@ theorem IterM.toArray_filter {α : Type w} {m : Type w → Type w'} [Monad m] [L
 @[simp]
 theorem IterM.toArray_filterMapM_filterMapM {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [Monad m] [MonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n]
+    [Monad o] [MonadAttach o] [LawfulMonad o] [LawfulMonadAttach o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {f : β → n (Option γ)} {g : γ → o (Option δ)}
@@ -698,7 +735,9 @@ theorem IterM.toArray_filterMapM_filterMapM {α β γ δ : Type w}
 @[simp]
 theorem IterM.toArray_filterMapM_mapM {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [Monad m] [MonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n]
+    [Monad o] [MonadAttach o] [LawfulMonad o] [LawfulMonadAttach o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {f : β → n γ} {g : γ → o (Option δ)}
@@ -711,7 +750,8 @@ theorem IterM.toArray_filterMapM_mapM {α β γ δ : Type w}
 @[simp]
 theorem IterM.toArray_filterMapM_map {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [Monad m] [MonadAttach m] [LawfulMonad m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [LawfulMonadAttach n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {f : β → γ} {g : γ → n (Option δ)}
@@ -723,7 +763,9 @@ theorem IterM.toArray_filterMapM_map {α β γ δ : Type w}
 @[simp]
 theorem IterM.toArray_mapM_filterMapM {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [Monad m] [MonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [LawfulMonadAttach n]
+    [Monad o] [MonadAttach o] [LawfulMonad o] [LawfulMonadAttach o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {f : β → n (Option γ)} {g : γ → o δ}
@@ -739,7 +781,9 @@ theorem IterM.toArray_mapM_filterMapM {α β γ δ : Type w}
 @[simp]
 theorem IterM.toArray_mapM_mapM {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [LawfulMonadAttach n]
+    [Monad o] [MonadAttach o] [LawfulMonad o] [LawfulMonadAttach o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m] [IteratorCollect α m o] [LawfulIteratorCollect α m o]
     {f : β → n γ} {g : γ → o δ}
@@ -752,7 +796,8 @@ theorem IterM.toArray_mapM_mapM {α β γ δ : Type w}
 @[simp]
 theorem IterM.toArray_mapM_map {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [LawfulMonadAttach n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     [Iterator α m β] [Finite α m] [IteratorCollect α m n] [LawfulIteratorCollect α m n]
     {f : β → γ} {g : γ → n δ}

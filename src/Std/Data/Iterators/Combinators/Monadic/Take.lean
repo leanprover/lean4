@@ -132,7 +132,8 @@ instance Take.instFinite [Monad m] [Iterator α m β] [Productive α m] :
     Finite (Take α m β) m :=
   by exact Finite.of_finitenessRelation instFinitenessRelation
 
-instance Take.instIteratorCollect {n : Type w → Type w'} [Monad m] [Monad n] [Iterator α m β] :
+instance Take.instIteratorCollect {n : Type w → Type w'}
+    [Monad m] [MonadAttach m] [Monad n] [MonadAttach n] [Iterator α m β] :
     IteratorCollect (Take α m β) m n :=
   .defaultImplementation
 

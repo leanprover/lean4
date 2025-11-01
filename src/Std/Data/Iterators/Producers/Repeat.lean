@@ -73,7 +73,7 @@ instance RepeatIterator.instIteratorLoop {α : Type w} {f : α → α} {n : Type
   .defaultImplementation
 
 instance RepeatIterator.instIteratorCollect {α : Type w} {f : α → α} {n : Type w → Type w'}
-    [Monad n] : IteratorCollect (RepeatIterator α f) Id n :=
+    [Monad n] [MonadAttach n] : IteratorCollect (RepeatIterator α f) Id n :=
   .defaultImplementation
 
 end Std.Iterators

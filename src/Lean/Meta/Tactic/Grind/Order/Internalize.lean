@@ -50,17 +50,20 @@ def isForbiddenParent (parent? : Option Expr) : Bool :=
     -/
     true
   else if let some parent := parent? then
-    (getType? parent |>.isSome)
-    ||
-    /-
-    **Note**: We currently ignore `•`. We may reconsider it in the future.
-    -/
-    match_expr parent with
-    | HSMul.hSMul _ _ _ _ _ _ => true
-    | Nat.cast _ _ _ => true
-    | NatCast.natCast _ _ _ => true
-    | Grind.IntModule.OfNatModule.toQ _ _ _ => true
-    | _ => false
+    if parent.isEq then
+      false
+    else
+      (getType? parent |>.isSome)
+      ||
+      /-
+      **Note**: We currently ignore `•`. We may reconsider it in the future.
+      -/
+      match_expr parent with
+      | HSMul.hSMul _ _ _ _ _ _ => true
+      | Nat.cast _ _ _ => true
+      | NatCast.natCast _ _ _ => true
+      | Grind.IntModule.OfNatModule.toQ _ _ _ => true
+      | _ => false
   else
     false
 

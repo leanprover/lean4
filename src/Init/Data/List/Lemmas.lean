@@ -2494,6 +2494,9 @@ theorem flatten_reverse {L : List (List α)} :
     ⟨by rw [length_reverse, length_replicate],
      fun _ h => eq_of_mem_replicate (mem_reverse.1 h)⟩
 
+@[simp]
+theorem append_singleton_inj {as bs : List α} : as ++ [a] = bs ++ [b] ↔ as = bs ∧ a = b := by
+  rw [← List.reverse_inj, And.comm]; simp
 
 /-! ### foldlM and foldrM -/
 

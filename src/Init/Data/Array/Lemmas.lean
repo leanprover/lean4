@@ -245,25 +245,19 @@ theorem back_eq_of_push_eq {a b : α} {xs ys : Array α} (h : xs.push a = ys.pus
   replace h := List.append_inj_right' h (by simp)
   simpa using h
 
-theorem pop_eq_of_push_eq {a b : α} {xs ys : Array α} (h : xs.push a = ys.push b) : xs = ys := by
+theorem push_eq_push {a b : α} {xs ys : Array α} : xs.push a = ys.push b ↔ a = b ∧ xs = ys := by
   cases xs
   cases ys
-  simp at h
-  replace h := List.append_inj_left' h (by simp)
-  simp [h]
+  simp [And.comm]
+
+theorem pop_eq_of_push_eq {a b : α} {xs ys : Array α} (h : xs.push a = ys.push b) : xs = ys :=
+  (push_eq_push.1 h).2
 
 theorem push_inj_left {a : α} {xs ys : Array α} : xs.push a = ys.push a ↔ xs = ys :=
   ⟨pop_eq_of_push_eq, fun h => by simp [h]⟩
 
 theorem push_inj_right {a b : α} {xs : Array α} : xs.push a = xs.push b ↔ a = b :=
   ⟨back_eq_of_push_eq, fun h => by simp [h]⟩
-
-theorem push_eq_push {a b : α} {xs ys : Array α} : xs.push a = ys.push b ↔ a = b ∧ xs = ys := by
-  constructor
-  · intro h
-    exact ⟨back_eq_of_push_eq h, pop_eq_of_push_eq h⟩
-  · rintro ⟨rfl, rfl⟩
-    rfl
 
 theorem exists_push_of_ne_empty {xs : Array α} (h : xs ≠ #[]) :
     ∃ (ys : Array α) (a : α), xs = ys.push a := by

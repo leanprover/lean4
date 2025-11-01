@@ -286,7 +286,7 @@ where
     let (rhs', h₂) ← natToInt rhs
     let eNew := if isLT then mkIntLT lhs' rhs' else mkIntLE lhs' rhs'
     let h := mkApp6
-        (mkConst (if isLT then ``Nat.ToInt.le_eq else ``Nat.ToInt.lt_eq))
+        (mkConst (if isLT then ``Nat.ToInt.lt_eq else ``Nat.ToInt.le_eq))
         lhs rhs lhs' rhs' h₁ h₂
     updateTermMap e eNew h
     return eNew

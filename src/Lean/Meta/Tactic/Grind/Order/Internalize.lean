@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Order.OrderM
 import Init.Data.Int.OfNat
+import Init.Grind.Module.Envelope
 import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
@@ -54,6 +55,9 @@ def isForbiddenParent (parent? : Option Expr) : Bool :=
     -/
     match_expr parent with
     | HSMul.hSMul _ _ _ _ _ _ => true
+    | Nat.cast _ _ _ => true
+    | NatCast.natCast _ _ _ => true
+    | Grind.IntModule.OfNatModule.toQ _ _ _ => true
     | _ => false
   else
     false

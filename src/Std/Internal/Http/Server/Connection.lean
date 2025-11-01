@@ -97,16 +97,22 @@ private def handle
 
   let mut waitingResponse := false
 
+  let mut t := 0
+
   while ¬machine.halted ∧ machine.writer.outputData.isEmpty do
     let (newMachine, step) := machine.step
     machine := newMachine
+
+    if machine.reader.state == .closed ∧ ¬waitingResponse then
+      machine := machine.closeWriter
 
     for event in step.events do
       match event with
       | .needMoreData expect => do
         match ← processNeedMoreData config socket expect requestTimer connectionTimer with
         | .ok (some bs) => machine := machine.feed bs
-        | .ok none => machine := machine.noMoreInput
+        | .ok none => do
+          machine := machine.noMoreInput
         | .error _ =>
           machine := machine.closeReader
 

@@ -53,7 +53,8 @@ def handler (req : Request Body) : Async (Response Body) := do
   return Response.ok ("hi, " ++ data)
 
 def mainAsync : Async Unit := do
-  Server.serve (.v4 (.mk (.ofParts 0 0 0 0) 8080)) handler
+  let server ← Server.serve (.v4 (.mk (.ofParts 0 0 0 0) 8080)) handler
+  server.waitShutdown
 
 def main := mainAsync.block
 ```

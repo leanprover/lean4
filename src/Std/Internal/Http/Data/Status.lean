@@ -347,6 +347,11 @@ inductive Status where
   511 Network Authentication Required
   -/
   | networkAuthenticationRequired
+
+  /--
+  Other
+  -/
+  | other (number : UInt16)
 deriving Repr, Inhabited, BEq
 
 instance : ToString Status where
@@ -414,6 +419,7 @@ instance : ToString Status where
     | .loopDetected => "Loop Detected"
     | .notExtended => "Not Extended"
     | .networkAuthenticationRequired => "Network Authentication Required"
+    | .other _ => "<none>"
 
 namespace Status
 
@@ -484,144 +490,145 @@ def toCode : Status -> UInt16
   | loopDetected => 508
   | notExtended => 510
   | networkAuthenticationRequired => 511
+  | other n => n
 
 /--
-Converts a `Uint16` to `Option Status`
+Converts a `Uint16` to `Status`
 -/
-def ofCode? : UInt16 -> Option Status
-  | 100 => some .«continue»
-  | 101 => some .switchingProtocols
-  | 102 => some .processing
-  | 103 => some .earlyHints
-  | 200 => some .ok
-  | 201 => some .created
-  | 202 => some .accepted
-  | 203 => some .nonAuthoritativeInformation
-  | 204 => some .noContent
-  | 205 => some .resetContent
-  | 206 => some .partialContent
-  | 207 => some .multiStatus
-  | 208 => some .alreadyReported
-  | 226 => some .imUsed
-  | 300 => some .multipleChoices
-  | 301 => some .movedPermanently
-  | 302 => some .found
-  | 303 => some .seeOther
-  | 304 => some .notModified
-  | 305 => some .useProxy
-  | 306 => some .unused
-  | 307 => some .temporaryRedirect
-  | 308 => some .permanentRedirect
-  | 400 => some .badRequest
-  | 401 => some .unauthorized
-  | 402 => some .paymentRequired
-  | 403 => some .forbidden
-  | 404 => some .notFound
-  | 405 => some .methodNotAllowed
-  | 406 => some .notAcceptable
-  | 407 => some .proxyAuthenticationRequired
-  | 408 => some .requestTimeout
-  | 409 => some .conflict
-  | 410 => some .gone
-  | 411 => some .lengthRequired
-  | 412 => some .preconditionFailed
-  | 413 => some .payloadTooLarge
-  | 414 => some .uriTooLong
-  | 415 => some .unsupportedMediaType
-  | 416 => some .rangeNotSatisfiable
-  | 417 => some .expectationFailed
-  | 418 => some .imATeapot
-  | 421 => some .misdirectedRequest
-  | 422 => some .unprocessableEntity
-  | 423 => some .locked
-  | 424 => some .failedDependency
-  | 425 => some .tooEarly
-  | 426 => some .upgradeRequired
-  | 428 => some .preconditionRequired
-  | 429 => some .tooManyRequests
-  | 431 => some .requestHeaderFieldsTooLarge
-  | 451 => some .unavailableForLegalReasons
-  | 500 => some .internalServerError
-  | 501 => some .notImplemented
-  | 502 => some .badGateway
-  | 503 => some .serviceUnavailable
-  | 504 => some .gatewayTimeout
-  | 505 => some .httpVersionNotSupported
-  | 506 => some .variantAlsoNegotiates
-  | 507 => some .insufficientStorage
-  | 508 => some .loopDetected
-  | 510 => some .notExtended
-  | 511 => some .networkAuthenticationRequired
-  | _ => none
+def ofCode : UInt16 -> Status
+  | 100 => .«continue»
+  | 101 => .switchingProtocols
+  | 102 => .processing
+  | 103 => .earlyHints
+  | 200 => .ok
+  | 201 => .created
+  | 202 => .accepted
+  | 203 => .nonAuthoritativeInformation
+  | 204 => .noContent
+  | 205 => .resetContent
+  | 206 => .partialContent
+  | 207 => .multiStatus
+  | 208 => .alreadyReported
+  | 226 => .imUsed
+  | 300 => .multipleChoices
+  | 301 => .movedPermanently
+  | 302 => .found
+  | 303 => .seeOther
+  | 304 => .notModified
+  | 305 => .useProxy
+  | 306 => .unused
+  | 307 => .temporaryRedirect
+  | 308 => .permanentRedirect
+  | 400 => .badRequest
+  | 401 => .unauthorized
+  | 402 => .paymentRequired
+  | 403 => .forbidden
+  | 404 => .notFound
+  | 405 => .methodNotAllowed
+  | 406 => .notAcceptable
+  | 407 => .proxyAuthenticationRequired
+  | 408 => .requestTimeout
+  | 409 => .conflict
+  | 410 => .gone
+  | 411 => .lengthRequired
+  | 412 => .preconditionFailed
+  | 413 => .payloadTooLarge
+  | 414 => .uriTooLong
+  | 415 => .unsupportedMediaType
+  | 416 => .rangeNotSatisfiable
+  | 417 => .expectationFailed
+  | 418 => .imATeapot
+  | 421 => .misdirectedRequest
+  | 422 => .unprocessableEntity
+  | 423 => .locked
+  | 424 => .failedDependency
+  | 425 => .tooEarly
+  | 426 => .upgradeRequired
+  | 428 => .preconditionRequired
+  | 429 => .tooManyRequests
+  | 431 => .requestHeaderFieldsTooLarge
+  | 451 => .unavailableForLegalReasons
+  | 500 => .internalServerError
+  | 501 => .notImplemented
+  | 502 => .badGateway
+  | 503 => .serviceUnavailable
+  | 504 => .gatewayTimeout
+  | 505 => .httpVersionNotSupported
+  | 506 => .variantAlsoNegotiates
+  | 507 => .insufficientStorage
+  | 508 => .loopDetected
+  | 510 => .notExtended
+  | 511 => .networkAuthenticationRequired
+  | n => .other n
 
 /--
 Converts an `UInt16` to a `Status`.
 -/
-def fromCode? : UInt16 → Option Status
-  | 100 => some «continue»
-  | 101 => some switchingProtocols
-  | 102 => some processing
-  | 103 => some earlyHints
-  | 200 => some ok
-  | 201 => some created
-  | 202 => some accepted
-  | 203 => some nonAuthoritativeInformation
-  | 204 => some noContent
-  | 205 => some resetContent
-  | 206 => some partialContent
-  | 207 => some multiStatus
-  | 208 => some alreadyReported
-  | 226 => some imUsed
-  | 300 => some multipleChoices
-  | 301 => some movedPermanently
-  | 302 => some found
-  | 303 => some seeOther
-  | 304 => some notModified
-  | 305 => some useProxy
-  | 306 => some unused
-  | 307 => some temporaryRedirect
-  | 308 => some permanentRedirect
-  | 400 => some badRequest
-  | 401 => some unauthorized
-  | 402 => some paymentRequired
-  | 403 => some forbidden
-  | 404 => some notFound
-  | 405 => some methodNotAllowed
-  | 406 => some notAcceptable
-  | 407 => some proxyAuthenticationRequired
-  | 408 => some requestTimeout
-  | 409 => some conflict
-  | 410 => some gone
-  | 411 => some lengthRequired
-  | 412 => some preconditionFailed
-  | 413 => some payloadTooLarge
-  | 414 => some uriTooLong
-  | 415 => some unsupportedMediaType
-  | 416 => some rangeNotSatisfiable
-  | 417 => some expectationFailed
-  | 418 => some imATeapot
-  | 421 => some misdirectedRequest
-  | 422 => some unprocessableEntity
-  | 423 => some locked
-  | 424 => some failedDependency
-  | 425 => some tooEarly
-  | 426 => some upgradeRequired
-  | 428 => some preconditionRequired
-  | 429 => some tooManyRequests
-  | 431 => some requestHeaderFieldsTooLarge
-  | 451 => some unavailableForLegalReasons
-  | 500 => some internalServerError
-  | 501 => some notImplemented
-  | 502 => some badGateway
-  | 503 => some serviceUnavailable
-  | 504 => some gatewayTimeout
-  | 505 => some httpVersionNotSupported
-  | 506 => some variantAlsoNegotiates
-  | 507 => some insufficientStorage
-  | 508 => some loopDetected
-  | 510 => some notExtended
-  | 511 => some networkAuthenticationRequired
-  | _   => none
+def fromCode? : UInt16 → Status
+  | 100 => «continue»
+  | 101 => switchingProtocols
+  | 102 => processing
+  | 103 => earlyHints
+  | 200 => ok
+  | 201 => created
+  | 202 => accepted
+  | 203 => nonAuthoritativeInformation
+  | 204 => noContent
+  | 205 => resetContent
+  | 206 => partialContent
+  | 207 => multiStatus
+  | 208 => alreadyReported
+  | 226 => imUsed
+  | 300 => multipleChoices
+  | 301 => movedPermanently
+  | 302 => found
+  | 303 => seeOther
+  | 304 => notModified
+  | 305 => useProxy
+  | 306 => unused
+  | 307 => temporaryRedirect
+  | 308 => permanentRedirect
+  | 400 => badRequest
+  | 401 => unauthorized
+  | 402 => paymentRequired
+  | 403 => forbidden
+  | 404 => notFound
+  | 405 => methodNotAllowed
+  | 406 => notAcceptable
+  | 407 => proxyAuthenticationRequired
+  | 408 => requestTimeout
+  | 409 => conflict
+  | 410 => gone
+  | 411 => lengthRequired
+  | 412 => preconditionFailed
+  | 413 => payloadTooLarge
+  | 414 => uriTooLong
+  | 415 => unsupportedMediaType
+  | 416 => rangeNotSatisfiable
+  | 417 => expectationFailed
+  | 418 => imATeapot
+  | 421 => misdirectedRequest
+  | 422 => unprocessableEntity
+  | 423 => locked
+  | 424 => failedDependency
+  | 425 => tooEarly
+  | 426 => upgradeRequired
+  | 428 => preconditionRequired
+  | 429 => tooManyRequests
+  | 431 => requestHeaderFieldsTooLarge
+  | 451 => unavailableForLegalReasons
+  | 500 => internalServerError
+  | 501 => notImplemented
+  | 502 => badGateway
+  | 503 => serviceUnavailable
+  | 504 => gatewayTimeout
+  | 505 => httpVersionNotSupported
+  | 506 => variantAlsoNegotiates
+  | 507 => insufficientStorage
+  | 508 => loopDetected
+  | 510 => notExtended
+  | 511 => networkAuthenticationRequired
+  | n   => other n
 
 /--
 Checks if the type of the status code is informational, meaning that the request was received

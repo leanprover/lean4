@@ -204,9 +204,12 @@ private def handle [Transport α] (connection : Connection α) (config : Client.
       | .needMoreData expect => do
         try
           match ← processNeedMoreData config socket expect requestTimer connectionTimer with
-          | .ok (some bs) => machine := machine.feed bs
-          | .ok none => machine := machine.noMoreInput
-          | .error _ => machine := machine.closeWriter.closeReader.userClosedBody
+          | .ok (some bs) =>
+            machine := machine.feed bs
+          | .ok none =>
+            machine := machine.noMoreInput
+          | .error _ =>
+            machine := machine.closeWriter.closeReader.userClosedBody
 
         catch e =>
           if let some packet := currentRequest then

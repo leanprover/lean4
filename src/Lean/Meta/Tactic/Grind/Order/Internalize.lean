@@ -252,6 +252,11 @@ def toOffsetTermNonCommRing? (e : Expr) : NonCommRingM (Option OffsetTermResult)
 
 def toOffsetTerm? (e : Expr) : OrderM (Option OffsetTermResult) := do
   let s ← getStruct
+  /-
+  **Note**: If it is not a partial order, then it is not worth internalizing term
+  since we will not be able to propagate implied equalities back to core.
+  -/
+  unless s.isPartialInst?.isSome do return none
   let some ringId := s.ringId? | return none
   if s.isCommRing then
     RingM.run ringId <| toOffsetTermCommRing? e

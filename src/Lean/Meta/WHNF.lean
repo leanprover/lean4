@@ -319,6 +319,7 @@ mutual
 
   /-- Return `some (Expr.mvar mvarId)` if metavariable `mvarId` is blocking reduction. -/
   partial def getStuckMVar? (e : Expr) : MetaM (Option MVarId) := do
+    unless e.hasExprMVar do return none
     match e with
     | .mdata _ e  => getStuckMVar? e
     | .proj _ _ e => getStuckMVar? (← whnf e)

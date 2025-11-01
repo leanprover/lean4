@@ -21,6 +21,8 @@ open System Lean
 
 namespace Lake
 
+/-! ## Parser Utils -/
+
 /--
 Parses version components separated by a `.` from the head of the string.
 
@@ -68,8 +70,52 @@ private def isWildVer (s : String.Slice) : Bool :=
 
 @[inline] private def parseVerNat (what : String) (s : String.Slice) : EStateM String σ Nat := do
   let some v := s.toNat?
-    | throw s!"expected numeral {what} version, got '{s.copy}'"
+    | throw s!"invalid {what} version: expected numeral, got '{s.copy}'"
   return v
+
+inductive VerComponent
+| none | wild | nat (n : Nat)
+
+private def parseVerComponent {σ} (what : String) (s? : Option String.Slice) : EStateM String σ VerComponent := do
+    let some s := s?
+      | return .none
+    if isWildVer s then
+      return .wild
+    let some n := s.toNat?
+      | throw s!"invalid {what} version: expected numeral or wildcard, got '{s.copy}'"
+    return .nat n
+
+def parseSpecialDescr (s : String) : EStateM String s.ValidPos String := do
+  let p ← get
+  if h : p = s.endValidPos then
+    return ""
+  else
+    let c := p.get h
+    if c == '-' then
+      let p := p.next h
+      let p' := nextUntilWhitespace p
+      set p'
+      let specialDescr := p.extract p'
+      if specialDescr.isEmpty then
+        throw "invalid version: '-' suffix cannot be empty"
+      return specialDescr
+    else
+      return ""
+where
+  nextUntilWhitespace p :=
+    if h : p = s.endValidPos then
+      p
+    else if (p.get h).isWhitespace then
+      p
+    else
+      nextUntilWhitespace (p.next h)
+  termination_by s.utf8ByteSize - p.offset.byteIdx
+  decreasing_by
+    rw [p.byteIdx_offset_next]
+    have := (p.get h).utf8Size_pos
+    have := p.byteIdx_lt_utf8ByteSize h
+    omega
+
 
 private def runVerParse
   (s : String) (x : (s : String) → EStateM String s.ValidPos α)
@@ -84,6 +130,8 @@ private def runVerParse
       throw s!"unexpected characters at end of version: {tail}"
   | .error e _ => throw e
 
+/-! ## SemVerCore -/
+
 /-- The major-minor-patch triple of a [SemVer](https://semver.org/). -/
 public structure SemVerCore where
   major : Nat := 0
@@ -91,12 +139,14 @@ public structure SemVerCore where
   patch : Nat := 0
   deriving Inhabited, Repr, DecidableEq, Ord
 
+namespace SemVerCore
+
 public instance : LT SemVerCore := ltOfOrd
 public instance : LE SemVerCore := leOfOrd
 public instance : Min SemVerCore := minOfLe
 public instance : Max SemVerCore := maxOfLe
 
-def SemVerCore.parseM (s : String) : EStateM String s.ValidPos SemVerCore := do
+def parseM (s : String) : EStateM String s.ValidPos SemVerCore := do
   try
     let cs ← parseVerComponents s
     if h : cs.size = 3 then
@@ -109,15 +159,19 @@ def SemVerCore.parseM (s : String) : EStateM String s.ValidPos SemVerCore := do
   catch e =>
     throw s!"invalid version core: {e}"
 
-@[inline] public def SemVerCore.parse (s : String) : Except String SemVerCore := do
+@[inline] public def parse (s : String) : Except String SemVerCore := do
   runVerParse s parseM
 
-public protected def SemVerCore.toString (ver : SemVerCore) : String :=
+public protected def toString (ver : SemVerCore) : String :=
   s!"{ver.major}.{ver.minor}.{ver.patch}"
 
 public instance : ToString SemVerCore := ⟨SemVerCore.toString⟩
 public instance : ToJson SemVerCore := ⟨(·.toString)⟩
 public instance : FromJson SemVerCore := ⟨(do SemVerCore.parse <| ← fromJson? ·)⟩
+
+end SemVerCore
+
+/-! ## StdVer -/
 
 /--
 A Lean-style semantic version.
@@ -130,14 +184,16 @@ public structure StdVer extends SemVerCore where
 /-- A Lean version. -/
 public abbrev LeanVer := StdVer
 
+namespace StdVer
+
 public instance : Coe StdVer SemVerCore := ⟨StdVer.toSemVerCore⟩
 
-@[inline] public def StdVer.ofSemVerCore (ver : SemVerCore) : StdVer :=
+@[inline] public def ofSemVerCore (ver : SemVerCore) : StdVer :=
   {toSemVerCore := ver, specialDescr := ""}
 
 public instance : Coe SemVerCore StdVer := ⟨StdVer.ofSemVerCore⟩
 
-public protected def StdVer.compare (a b : StdVer) : Ordering :=
+public protected def compare (a b : StdVer) : Ordering :=
   match compare a.toSemVerCore b.toSemVerCore with
   | .eq =>
     match a.specialDescr, b.specialDescr with
@@ -154,42 +210,15 @@ public instance : LE StdVer := leOfOrd
 public instance : Min StdVer := minOfLe
 public instance : Max StdVer := maxOfLe
 
-public def StdVer.parseM (s : String) : EStateM String s.ValidPos StdVer := do
+public def parseM (s : String) : EStateM String s.ValidPos StdVer := do
   let core ← SemVerCore.parseM s
-  let p ← get
-  if h : p = s.endValidPos then
-    return core
-  else
-    let c := p.get h
-    if c == '-' then
-      let p := p.next h
-      let p' := nextUntilWhitespace p
-      set p'
-      let specialDescr := p.extract p'
-      if specialDescr.isEmpty then
-        throw "invalid version: '-' suffix cannot be empty"
-      return {toSemVerCore := core, specialDescr}
-    else
-      return core
-where
-  nextUntilWhitespace p :=
-    if h : p = s.endValidPos then
-      p
-    else if (p.get h).isWhitespace then
-      p
-    else
-      nextUntilWhitespace (p.next h)
-  termination_by s.utf8ByteSize - p.offset.byteIdx
-  decreasing_by
-    rw [p.byteIdx_offset_next]
-    have := (p.get h).utf8Size_pos
-    have := p.byteIdx_lt_utf8ByteSize h
-    omega
+  let specialDescr ← parseSpecialDescr s
+  return {toSemVerCore := core, specialDescr}
 
-@[inline] public def StdVer.parse (s : String) : Except String StdVer := do
+@[inline] public def parse (s : String) : Except String StdVer := do
   runVerParse s parseM
 
-public protected def StdVer.toString (ver : StdVer) : String :=
+public protected def toString (ver : StdVer) : String :=
   if ver.specialDescr.isEmpty then
     ver.toSemVerCore.toString
   else
@@ -198,6 +227,10 @@ public protected def StdVer.toString (ver : StdVer) : String :=
 public instance : ToString StdVer := ⟨StdVer.toString⟩
 public instance : ToJson StdVer := ⟨(·.toString)⟩
 public instance : FromJson StdVer := ⟨(do StdVer.parse <| ← fromJson? ·)⟩
+
+end StdVer
+
+/-! ## ToolchainVer -/
 
 /-- The `elan` toolchain file name (i.e., `lean-toolchain`). -/
 public def toolchainFileName : FilePath := "lean-toolchain"
@@ -301,6 +334,8 @@ end ToolchainVer
 public def normalizeToolchain (s : String) : String :=
   ToolchainVer.ofString s |>.toString
 
+/-! ## DecodeVersion -/
+
 /-- Parses a version from a string. -/
 public class DecodeVersion (α : Type u) where
   decodeVersion : String → Except String α
@@ -311,9 +346,11 @@ public instance : DecodeVersion SemVerCore := ⟨SemVerCore.parse⟩
 @[default_instance] public instance : DecodeVersion StdVer := ⟨StdVer.parse⟩
 public instance : DecodeVersion ToolchainVer := ⟨(pure <| ToolchainVer.ofString ·)⟩
 
+/-! ## VerRange -/
+
 public inductive Comparator
 | lt | le | gt | ge | eq | ne
-deriving Repr
+deriving Repr, Inhabited
 
 namespace Comparator
 
@@ -366,6 +403,12 @@ public structure VerComparator where
 
 namespace VerComparator
 
+/-- A version comparator that matches any version (i.e., `≥0.0.0`). -/
+def any : VerComparator :=
+  {op := .ge, ver := .ofSemVerCore {}}
+
+instance : Inhabited VerComparator := ⟨.any⟩
+
 def parseM (s : String) : EStateM String s.ValidPos VerComparator := do
   let op ← Comparator.parseM s
   let ver ← StdVer.parseM s
@@ -375,13 +418,28 @@ def parseM (s : String) : EStateM String s.ValidPos VerComparator := do
   runVerParse s parseM
 
 public def test (self : VerComparator) (ver : StdVer) : Bool :=
-  match self.op with
-  | .lt => ver < self.ver
-  | .le => ver ≤ self.ver
-  | .gt => ver > self.ver
-  | .ge => ver ≥ self.ver
-  | .eq => ver = self.ver
-  | .ne => ver ≠ self.ver
+  match self.ver.specialDescr, ver.specialDescr with
+  | _, "" =>
+    match self.op with
+    | .lt => ver < self.ver
+    | .le => ver ≤ self.ver
+    | .gt => ver > self.ver
+    | .ge => ver ≥ self.ver
+    | .eq => ver = self.ver
+    | .ne => ver ≠ self.ver
+  | "", _ =>
+    false
+  | selfDescr, verDescr =>
+    if self.ver.toSemVerCore = ver.toSemVerCore then
+      match self.op with
+      | .lt => verDescr < selfDescr
+      | .le => verDescr ≤ selfDescr
+      | .gt => verDescr > selfDescr
+      | .ge => verDescr ≥ selfDescr
+      | .eq => verDescr = selfDescr
+      | .ne => verDescr ≠ selfDescr
+    else
+      false
 
 public protected def toString (self : VerComparator) : String :=
   s!"{self.op}{self.ver}"
@@ -394,7 +452,7 @@ public structure VerRange where
   private innerMk ::
     toString : String
     clauses : Array (Array VerComparator)
-    deriving Repr
+    deriving Repr, Inhabited
 
 namespace VerRange
 
@@ -433,6 +491,10 @@ where
         | .ok ands p =>
           go false ors ands p
         | .error e p => .error e p
+      else if c == '^' then
+        .error "caret ranges are unsupported; \
+          if a specific major version is desired, use a tilde or wildcard range; \
+          otherwise, use '≥' instead" p
       else if c == '~' then
         match parseTilde s ands (p.next h) with
         | .ok ands p =>
@@ -461,57 +523,50 @@ where
         | .ok cmp p =>
           go false ors (ands.push cmp) p
         | .error e p => .error e p
-  @[inline] appendRange ands minVer maxVer :=
-    let minVer := StdVer.ofSemVerCore minVer
+  @[inline] appendRange ands minVer maxVer (specialDescr := "") :=
+    let minVer := StdVer.mk minVer specialDescr
     let maxVer := StdVer.ofSemVerCore maxVer
     ands.push {op := .ge, ver := minVer} |>.push {op := .lt, ver := maxVer}
-  parseVerNat? {σ} what (s? : Option String.Slice) : EStateM String σ (Option Nat) := do
-    let some s := s?
-      | return none
-    if isWildVer s then
-      return none
-    let some n := s.toNat?
-      | throw s!"expected numeral or wildcard {what} version, got '{s.copy}'"
-    return some n
-  parseWild s ands : EStateM String s.ValidPos _ := do
+  parseWild (s : String) ands : EStateM String s.ValidPos _ := do
     let cs ← parseVerComponents s
-    if cs.size = 0 ∨ cs.size > 3 then
-      throw s!"invalid wildcard version: incorrect number of components: got {cs.size}, expected 1-3"
+    if (← get).get?.any (· == '-') then
+      throw s!"invalid wildcard range: wildcard versions do not support suffixes"
+    else if cs.size = 0 ∨ cs.size > 3 then
+      throw s!"invalid wildcard range: incorrect number of components: got {cs.size}, expected 1-3"
     else
-      let major? ← parseVerNat? "major" cs[0]?
-      let minor? ← parseVerNat? "minor" cs[1]?
-      let patch? ← parseVerNat? "patch" cs[2]?
-      if let some major := major? then
-        if let some minor := minor? then
-          if let some patch := patch? then
-            -- TODO: decide on an approach for plain versions
-            return ands.push {op := .eq, ver := .ofSemVerCore {major, minor, patch}}
-          else
-            return appendRange ands {major, minor} {major, minor := minor + 1}
-        else if patch?.isSome then
-          throw s!"invalid patch version: components after a wildcard must be wildcards"
-        else
-          return appendRange ands {major} {major := major + 1}
-      else if minor?.isSome then
-        throw "invalid minor version: components after a wildcard must be wildcards"
-      else if patch?.isSome then
+      let major? ← parseVerComponent "major" cs[0]?
+      let minor? ← parseVerComponent "minor" cs[1]?
+      let patch? ← parseVerComponent "patch" cs[2]?
+      match major?, minor?, patch? with
+      | .nat major, .nat minor, .wild =>
+        return appendRange ands {major, minor} {major, minor := minor + 1}
+      | .wild, _, .nat _ | _, .wild, .nat _ =>
         throw "invalid patch version: components after a wildcard must be wildcards"
-      else
-        return ands.push {op := .ge, ver := .ofSemVerCore {}}
-  parseTilde s ands : EStateM String s.ValidPos _ := do
+      | .wild, .nat _, _ =>
+        throw "invalid minor version: components after a wildcard must be wildcards"
+      | .nat major, .wild, _ =>
+        return appendRange ands {major} {major := major + 1}
+      | .nat _, _, _ =>
+        throw "invalid version range: bare versions are not supported; \
+          if you want to fix a specific version, use '=' before the full version; \
+          otherwise, use '≥' to support it and future versions"
+      | _, _, _ =>
+        return ands.push .any
+  parseTilde (s : String) ands : EStateM String s.ValidPos _ := do
     let cs ← parseVerComponents s
+    let specialDescr ← parseSpecialDescr s
     if h : cs.size = 1 then
       let major ← parseVerNat "major" cs[0]
-      return appendRange ands {major} {major := major + 1}
+      return appendRange ands {major} {major := major + 1} specialDescr
     else if h : cs.size = 2 then
       let major ← parseVerNat "major" cs[0]
       let minor ← parseVerNat "minor" cs[1]
-      return appendRange ands {major, minor} {major, minor := minor + 1}
+      return appendRange ands {major, minor} {major, minor := minor + 1} specialDescr
     else if h : cs.size = 3 then
       let major ← parseVerNat "major" cs[0]
       let minor ← parseVerNat "minor" cs[1]
       let patch ← parseVerNat "patch" cs[2]
-      return appendRange ands {major, minor, patch} {major, minor := minor + 1}
+      return appendRange ands {major, minor, patch} {major, minor, patch := patch + 1} specialDescr
     else
       throw s!"invalid tilde range: incorrect number of components: got {cs.size}, expected 1-3"
 

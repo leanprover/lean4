@@ -18,3 +18,15 @@ example (a b : Nat) (f : Nat → Int) : a ≤ b + 1 → b + 1 ≤ c → c ≤ a 
 
 example (a b : Nat) (f : Nat → Int) : a ≤ b + 1 → b + 1 ≤ a → f (1 + a) = f (1 + b + 1) := by
   grind -offset -mbtc -lia -linarith (splits := 0)
+
+example
+    : 2*n_1 + a = 1 → 2*n_1 + a = n_2 + 1 → n = 1 → n = n_3 + 1 → n_2 ≠ n_3 → False := by
+  grind -lia -linarith -offset -ring (splits := 0)
+
+example
+    : a = b → a ≤ b + 1 := by
+  grind -lia -linarith -offset -ring (splits := 0) only
+
+example
+    : a = b + 1 → a ≤ b + 2 := by
+  grind -lia -linarith -offset -ring (splits := 0) only

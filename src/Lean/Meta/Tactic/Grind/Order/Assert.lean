@@ -136,8 +136,8 @@ def propagatePending : OrderM Unit := do
           let h ← mkEqProofOfLeOfLe ue ve huv hvu
           pushEq ue ve h
       -- Checks whether `ue` and `ve` are auxiliary terms
-      let some (ue', h₁) ← getOriginal? ue | return ()
-      let some (ve', h₂) ← getOriginal? ve | return ()
+      let some (ue', h₁) ← getOriginal? ue | continue
+      let some (ve', h₂) ← getOriginal? ve | continue
       if (← alreadyInternalized ue' <&&> alreadyInternalized ve') then
       unless (← isEqv ue' ve') do
         let huv ← mkProofForPath u v

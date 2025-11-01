@@ -18,9 +18,3 @@ example (a b : Vec α 2) : h a b = 20 := by
 
 example (a b : Vec α 2) : h a b = 20 := by
   grind (splits := 4) [h.eq_def, Vec]
-
-example (a b : Vec α 2) : h a b = 20 := by
-  grind -offset [h.eq_def, Vec]
-
-example (a b : Vec α 2) : h a b = 20 := by
-  grind -offset (splits := 4) [h.eq_def, Vec]

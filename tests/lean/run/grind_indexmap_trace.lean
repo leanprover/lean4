@@ -240,14 +240,14 @@ info: Try these:
       instantiate only [usr getElem_indices_lt]
       instantiate only [size]
       cases #ffdf
-      · instantiate only [=_ WF]
-        instantiate only [= getElem?_neg, = getElem?_pos, = Array.getElem_set]
+      · instantiate only [usr getElem_indices_lt, =_ WF]
+        instantiate only [= mem_indices_of_mem, = getElem?_pos, = Array.size_set, = Array.getElem_set]
         instantiate only [WF']
       · instantiate only
         instantiate only [= HashMap.mem_insert, = HashMap.getElem_insert, = Array.getElem_push]
   [apply] finish only [= mem_indices_of_mem, insert, = getElem_def, = getElem?_neg, = getElem?_pos, = Array.getElem_set,
-    size, = HashMap.mem_insert, = HashMap.getElem_insert, = Array.getElem_push, usr getElem_indices_lt, =_ WF, WF',
-    #f590, #ffdf]
+    size, = HashMap.mem_insert, = HashMap.getElem_insert, = Array.getElem_push, usr getElem_indices_lt, =_ WF,
+    = Array.size_set, WF', #f590, #ffdf]
 -/
 #guard_msgs in
 example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
@@ -260,26 +260,21 @@ example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
     instantiate only [= mem_indices_of_mem, insert, = getElem_def]
     instantiate only [= getElem?_neg, = getElem?_pos]
     cases #f590
-    next =>
-      cases #ffdf
-      next =>
-        instantiate only
+    · cases #ffdf
+      · instantiate only
         instantiate only [= Array.getElem_set]
-      next =>
-        instantiate only
+      · instantiate only
         instantiate only [size, = HashMap.mem_insert, = HashMap.getElem_insert,
           = Array.getElem_push]
-    next =>
-      instantiate only [= mem_indices_of_mem, = getElem_def]
+    · instantiate only [= mem_indices_of_mem, = getElem_def]
       instantiate only [usr getElem_indices_lt]
       instantiate only [size]
       cases #ffdf
-      next =>
-        instantiate only [=_ WF]
-        instantiate only [= getElem?_neg, = getElem?_pos, = Array.getElem_set]
+      · instantiate only [usr getElem_indices_lt, =_ WF]
+        instantiate only [= mem_indices_of_mem, = getElem?_pos, = Array.size_set,
+          = Array.getElem_set]
         instantiate only [WF']
-      next =>
-        instantiate only
+      · instantiate only
         instantiate only [= HashMap.mem_insert, = HashMap.getElem_insert, = Array.getElem_push]
 
 /--

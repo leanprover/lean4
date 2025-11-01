@@ -192,7 +192,18 @@ def mkNode (e : Expr) : OrderM NodeId := do
   -/
   if (← alreadyInternalized e) then
     orderExt.markTerm e
+  else if let some e' ← getOriginal? e then
+    orderExt.markTerm e'
   return nodeId
+where
+  getOriginal? (e : Expr) : GoalM (Option Expr) := do
+    if let some (e', _) := (← get').termMapInv.find? { expr := e } then
+      return some e'
+    let_expr NatCast.natCast _ _ a := e | return none
+    if (← alreadyInternalized a) then
+      return some a
+    else
+      return none
 
 def internalizeCnstr (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM Unit := do
   let some c ← mkCnstr? e kind lhs rhs | return ()

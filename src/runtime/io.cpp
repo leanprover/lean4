@@ -1495,10 +1495,8 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_swap(b_obj_arg ref, obj_arg a) {
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_st_ref_ptr_eq(b_obj_arg ref1, b_obj_arg ref2) {
-    // TODO(Leo): ref_maybe_mt
-    bool r = lean_to_ref(ref1)->m_value == lean_to_ref(ref2)->m_value;
-    return box(r);
+extern "C" LEAN_EXPORT uint8_t lean_st_ref_ptr_eq(b_obj_arg ref1, b_obj_arg ref2) {
+    return lean_to_ref(ref1) == lean_to_ref(ref2);
 }
 
 /* {α : Type} (act : BaseIO α) : α */

@@ -60,6 +60,11 @@ end Typeclasses
 
 section ToArray
 
+def IterM.DefaultConsumers.toArrayMapped.RecursionRel {α β : Type w} {m : Type w → Type w'}
+    [Iterator α m β] {γ : Type w} (x' x : (_ : IterM (α := α) m β) ×' Array γ) : Prop :=
+  (∃ out, x.1.IsPlausibleStep (.yield x'.1 out) ∧ ∃ fx, x'.2 = x.2.push fx) ∨
+    (x.1.IsPlausibleStep (.skip x'.1) ∧ x'.2 = x.2)
+
 /--
 This is an internal function used in `IteratorCollect.defaultImplementation`.
 
@@ -77,11 +82,43 @@ where
   @[always_inline]
   go it (acc : Array γ) : n (Array γ) :=
     letI : MonadLift m n := ⟨lift (α := _)⟩
-    extrinsicFix₂ (C₂ := fun _ _ => n (Array γ)) (fun it acc recur => do
-      match (← it.step).inflate.val with
-      | .yield it' out => recur it' (acc.push (← f out))
-      | .skip it' => recur it' acc
-      | .done => return acc) it acc
+    extrinsicFixE₂ (C₂ := fun _ _ => n (Array γ)) (InvImage TerminationMeasures.Finite.Rel (·.1.finitelyManySteps!))
+    (fun (it : IterM (α := α) m β) acc recur => do
+      match (← it.step).inflate with
+      | .yield it' out h =>
+        recur it' (acc.push (← f out)) (by exact TerminationMeasures.Finite.rel_of_yield ‹_›)
+      | .skip it' h => recur it' acc (by exact TerminationMeasures.Finite.rel_of_skip ‹_›)
+      | .done _ => return acc) it acc
+
+-- @[always_inline, no_expose]
+-- def IterM.DefaultConsumers.toArrayMapped {α β : Type w} {m : Type w → Type w'}
+--     {n : Type w → Type w''} [Monad n] [MonadAttach n] [Iterator α m β]
+--     (lift : ⦃α : Type w⦄ → m α → n α) {γ : Type w} (f : β → n γ)
+--     (it : IterM (α := α) m β) : n (Array γ) :=
+--   letI : MonadLift m n := ⟨lift (α := _)⟩
+--   go it #[]
+-- where
+--   @[always_inline]
+--   go it (acc : Array γ) : n (Array γ) :=
+--     letI : MonadLift m n := ⟨lift (α := _)⟩
+--     extrinsicFixE₂ (C₂ := fun _ _ => n (Array γ))
+--     (fun x' x => (∃ out, x.1.IsPlausibleStepE (.yield x'.1 out) ∧ ∃ fx, MonadAttach.CanReturn (f out) fx ∧ x'.2 = x.2.push fx) ∨ (∃ h, MonadAttach.CanReturn (m := n) x.1.step (.deflate <| .skip x'.1 h) ∧ x'.2 = x.2))
+--     (fun (it : IterM (α := α) m β) acc recur => do
+--       let ⟨step, hs⟩ ← MonadAttach.attach (m := n) it.step
+--       match hs' : step.inflate with
+--       | .yield it' out h =>
+--         let fx ← MonadAttach.attach (f out)
+--         recur it' (acc.push fx.val) (by
+--           apply Or.inl
+--           have : step = .deflate (.yield it' out h) := by simp [← hs']
+--           rw [this] at hs
+--           exact ⟨out, h, hs, fx.val, fx.property, rfl⟩)
+--       | .skip it' h => recur it' acc (by
+--           apply Or.inr
+--           have : step = .deflate (.skip it' h) := by simp [← hs']
+--           rw [this] at hs
+--           exact ⟨h, hs, rfl⟩)
+--       | .done h => return acc) it acc
 
 /--
 This is the default implementation of the `IteratorCollect` class.
@@ -171,11 +208,12 @@ def IterM.toListRev {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type 
 where
   @[always_inline, inline]
   go (it : IterM m β) acc :=
-    extrinsicFix₂ (fun it acc recur => do
-      match (← it.step).inflate with
-      | .yield it' out _ => recur it' (out :: acc)
-      | .skip it' _ => recur it' acc
-      | .done _ => return acc) it acc
+    extrinsicFixE₂ (InvImage TerminationMeasures.Finite.Rel (·.1.finitelyManySteps!))
+      (fun it acc recur => do
+        match (← it.step).inflate with
+        | .yield it' out h => recur it' (out :: acc) (TerminationMeasures.Finite.rel_of_yield h)
+        | .skip it' h => recur it' acc (TerminationMeasures.Finite.rel_of_skip h)
+        | .done _ => return acc) it acc
 
 /--
 Traverses the given iterator and stores the emitted values in reverse order in a list. Because

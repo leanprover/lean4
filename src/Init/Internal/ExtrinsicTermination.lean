@@ -9,6 +9,7 @@ prelude
 import Init.Classical
 import Init.Ext
 public import Init.NotationExtra
+public import Init.Internal.ExtrinsicTermination2
 
 set_option doc.verso true
 
@@ -73,7 +74,7 @@ public def extrinsicFix [∀ a, Nonempty (C a)] (F : ∀ a, (∀ a', C a') → C
     -- In effect, `extrinsicFix` is opaque if `TerminatesTotally F` is false.
     opaqueFix F a
 
-public theorem extrinsicFix_eq_wellFoundedFix [∀ a, Nonempty (C a)] {F : ∀ a, (∀ a', C a') → C a}
+public def extrinsicFix_eq_wellFoundedFix [∀ a, Nonempty (C a)] {F : ∀ a, (∀ a', C a') → C a}
     (r : α → α → Prop) (F' : ∀ a, (∀ a', r a' a → C a') → C a)
     (wf : WellFounded r) (heq : ∀ a G, F a G = F' a (fun a' _ => G a')) {a : α} :
     extrinsicFix F a = wf.fix F' a := by
@@ -93,7 +94,7 @@ public noncomputable def wfFix_induction {r : α → α → Prop} {wf : WellFoun
     motive a (wf.fix F a) := by
   exact WellFounded.recursion (C := fun a' => motive a' (wf.fix F a')) wf a h
 
-public theorem extrinsicFix_eq [∀ a, Nonempty (C a)] {F : ∀ a, (∀ a', C a') → C a}
+public def extrinsicFix_eq [∀ a, Nonempty (C a)] {F : ∀ a, (∀ a', C a') → C a}
     (h : TerminatesTotally F) {a : α} :
     extrinsicFix F a = F a (extrinsicFix F) := by
   simp only [extrinsicFix, dif_pos h]
@@ -150,7 +151,7 @@ public def extrinsicFix₂ [∀ a b, Nonempty (C₂ a b)]
     F x.1 x.2 (fun a b => G ⟨a, b⟩)
   extrinsicFix (C := fun x : PSigma β => C₂ x.1 x.2) F' ⟨a, b⟩
 
-public theorem extrinsicFix₂_eq [∀ a b, Nonempty (C₂ a b)]
+public def extrinsicFix₂_eq [∀ a b, Nonempty (C₂ a b)]
     {F : (a : α) → (b : β a) → ((a' : α) → (b' : β a') → C₂ a' b') → C₂ a b}
     (h : TerminatesTotally₂ F) {a : α} {b : β a} :
     extrinsicFix₂ F a b = F a b (extrinsicFix₂ F) := by
@@ -223,7 +224,7 @@ public noncomputable def wellFoundedFix₃
     C₃ a b c :=
   wf.fix (fun x G => F x.1 x.2.1 x.2.2 (fun a b c h => G ⟨a, b, c⟩ h)) ⟨a, b, c⟩
 
-public theorem extrinsicFix₃_eq_wellFoundedFix [∀ a b c, Nonempty (C₃ a b c)]
+public def extrinsicFix₃_eq_wellFoundedFix [∀ a b c, Nonempty (C₃ a b c)]
     {F : ∀ a b c, (∀ a' b' c', C₃ a' b' c') → C₃ a b c}
     (r : (a : α) ×' (b : β a) ×' γ a b → (a : α) ×' (b : β a) ×' γ a b → Prop)
     (F' : ∀ a b c, (∀ a' b' c', r ⟨a', b', c'⟩ ⟨a, b, c⟩ → C₃ a' b' c') → C₃ a b c)
@@ -232,7 +233,7 @@ public theorem extrinsicFix₃_eq_wellFoundedFix [∀ a b c, Nonempty (C₃ a b 
   rw [extrinsicFix₃, extrinsicFix_eq_wellFoundedFix r]
   simp +contextual [heq]
 
-public theorem extrinsicFix₃_eq [∀ a b c, Nonempty (C₃ a b c)]
+public def extrinsicFix₃_eq [∀ a b c, Nonempty (C₃ a b c)]
     {F : ∀ (a b c), (∀ (a' b' c'), C₃ a' b' c') → C₃ a b c}
     (h : TerminatesTotally₃ F) {a : α} {b : β a} {c : γ a b} :
     extrinsicFix₃ F a b c = F a b c (extrinsicFix₃ F) := by

@@ -20,13 +20,20 @@ public class LawfulMonadAttach (m : Type u → Type v) [Monad m] [MonadAttach m]
   -- ump {P : α → Prop} {x : m (Subtype P)} :
   --   (fun x => ⟨x.val, strongest x.property⟩) <$> MonadAttach.attach (Subtype.val <$> x) = x
 
-instance : MonadAttach IO where
+public instance : MonadAttach Id where
+  CanReturn x a := a = x.run
+  attach x := pure ⟨x.run, rfl⟩
+
+public instance : LawfulMonadAttach Id where
+  map_val_attach := rfl
+
+public instance : MonadAttach IO where
   CanReturn x a := ∃ world world', x world = .ok a world'
   attach x := fun world => match h : x world with
     | .ok a world' => .ok ⟨a, world, world', h⟩ world'
     | .error e world' => .error e world'
 
-instance : LawfulMonadAttach IO where
+public instance : LawfulMonadAttach IO where
   map_val_attach := by
     intro α x
     rw [funext_iff]

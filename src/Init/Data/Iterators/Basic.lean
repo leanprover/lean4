@@ -420,6 +420,39 @@ theorem IterM.isPlausibleStep_of_isPlausibleStepE {α : Type w} {m : Type w → 
   h.choose
 
 /--
+The type of the step object returned by `IterM.step`, containing an `IterStep`
+and a proof that this is a plausible step for the given iterator.
+-/
+@[expose]
+abbrev IterM.StepAttach {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    [MonadAttach m] (it : IterM (α := α) m β) :=
+  PlausibleIterStep it.IsPlausibleStepE
+
+/--
+TODO
+-/
+@[always_inline, inline, expose]
+def IterM.stepAttach {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    [MonadAttach m] [Monad m] (it : IterM (α := α) m β) : m (Shrink it.StepAttach) :=
+  (fun x => .deflate ⟨x.val.inflate.val, x.val.inflate.property, Shrink.deflate_inflate ▸ x.property⟩) <$>
+    MonadAttach.attach (Iterator.step it)
+
+theorem IterM.stepAttach_eq_map_attach_step {α : Type w} {m : Type w → Type w'} {β : Type w}
+    [Iterator α m β] [MonadAttach m] [Monad m] (it : IterM (α := α) m β) :
+    it.stepAttach =
+      (fun x => .deflate ⟨x.val.inflate.val, x.val.inflate.property, Shrink.deflate_inflate ▸ x.property⟩) <$>
+        MonadAttach.attach (Iterator.step it) :=
+  (rfl)
+
+theorem IterM.step_eq_map_stepAttach {α : Type w} {m : Type w → Type w'} {β : Type w}
+    [Iterator α m β] [MonadAttach m] [Monad m] [LawfulMonad m] [LawfulMonadAttach m]
+    (it : IterM (α := α) m β) :
+    it.step = (fun x => .deflate <| ⟨x.inflate.val, x.inflate.property.choose⟩) <$> it.stepAttach := by
+  simp [IterM.stepAttach_eq_map_attach_step, ← LawfulMonadAttach.map_val_attach (x := it.step)]
+  congr 1; ext step
+  exact Shrink.deflate_inflate.symm
+
+/--
 Asserts that a certain output value could plausibly be emitted by the given iterator in its next
 step.
 -/

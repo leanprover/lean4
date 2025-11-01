@@ -47,7 +47,8 @@ def AssocListIterator.finitenessRelation :
 public instance : Finite (AssocListIterator α β) Id :=
   Finite.of_finitenessRelation AssocListIterator.finitenessRelation
 
-public instance {α : Type u} {β : α → Type v} {m : Type (max u v) → Type w''} [Monad m] :
+public instance {α : Type u} {β : α → Type v} {m : Type (max u v) → Type w''}
+    [Monad m] [MonadAttach m] :
     IteratorCollect (AssocListIterator α β) Id m :=
   .defaultImplementation
 

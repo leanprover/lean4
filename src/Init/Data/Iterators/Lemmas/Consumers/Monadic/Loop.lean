@@ -324,8 +324,9 @@ theorem IterM.fold_hom {m : Type w → Type w'} [Iterator α m β] [Finite α m]
   · simp
 
 theorem IterM.toList_eq_fold {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
-    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
-    [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    [Finite α m] [Monad m] [MonadAttach m] [LawfulMonadAttach m]
+    [LawfulMonad m] [IteratorLoop α m m]
+    [LawfulIteratorLoop α m m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {it : IterM (α := α) m β} :
     it.toList = it.fold (init := []) (fun l out => l ++ [out]) := by
   suffices h : ∀ l' : List β, (l' ++ ·) <$> it.toList =
@@ -347,7 +348,8 @@ theorem IterM.toList_eq_fold {α β : Type w} {m : Type w → Type w'} [Iterator
   · simp
 
 theorem IterM.toArray_eq_fold {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
-    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    [Finite α m] [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {it : IterM (α := α) m β} :
     it.toArray = it.fold (init := #[]) (fun xs out => xs.push out) := by
@@ -382,7 +384,8 @@ theorem IterM.drain_eq_match_step {α β : Type w} {m : Type w → Type w'} [Ite
   simp [IterM.drain_eq_fold]
 
 theorem IterM.drain_eq_map_toList {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
-    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    [Finite α m] [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {it : IterM (α := α) m β} :
     it.drain = (fun _ => .unit) <$> it.toList := by
@@ -399,14 +402,16 @@ theorem IterM.drain_eq_map_toList {α β : Type w} {m : Type w → Type w'} [Ite
   · simp
 
 theorem IterM.drain_eq_map_toListRev {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
-    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    [Finite α m] [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {it : IterM (α := α) m β} :
     it.drain = (fun _ => .unit) <$> it.toListRev := by
   simp [IterM.drain_eq_map_toList, IterM.toListRev_eq]
 
 theorem IterM.drain_eq_map_toArray {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
-    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    [Finite α m] [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {it : IterM (α := α) m β} :
     it.drain = (fun _ => .unit) <$> it.toList := by

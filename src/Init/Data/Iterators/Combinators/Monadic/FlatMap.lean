@@ -366,7 +366,8 @@ public instance [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator �
 
 end Productive
 
-public instance Flatten.instIteratorCollect [Monad m] [Monad n] [Iterator α m (IterM (α := α₂) m β)]
+public instance Flatten.instIteratorCollect
+    [Monad m] [MonadAttach m] [Monad n] [MonadAttach n] [Iterator α m (IterM (α := α₂) m β)]
     [Iterator α₂ m β] : IteratorCollect (Flatten α α₂ β m) m n :=
   .defaultImplementation
 

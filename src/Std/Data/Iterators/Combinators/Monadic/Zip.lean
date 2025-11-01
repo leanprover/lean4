@@ -311,7 +311,7 @@ instance Zip.instProductive [Monad m] [Productive α₁ m] [Productive α₂ m] 
     Productive (Zip α₁ m α₂ β₂) m :=
   Productive.of_productivenessRelation Zip.instProductivenessRelation
 
-instance Zip.instIteratorCollect [Monad m] [Monad n] :
+instance Zip.instIteratorCollect [Monad m] [MonadAttach m] [Monad n] [MonadAttach n] :
     IteratorCollect (Zip α₁ m α₂ β₂) m n :=
   .defaultImplementation
 

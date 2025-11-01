@@ -135,7 +135,7 @@ def IterM.stepSize [Iterator α m β] [IteratorAccess α m] [Monad m]
   ⟨⟨0, n - 1, it⟩⟩
 
 instance Types.StepSizeIterator.instIteratorCollect {m n} [Iterator α m β]
-    [IteratorAccess α m] [Monad m] [Monad n] :
+    [IteratorAccess α m] [Monad m] [MonadAttach m] [Monad n] [MonadAttach n] :
     IteratorCollect (Types.StepSizeIterator α m β) m n :=
   .defaultImplementation
 

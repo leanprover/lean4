@@ -68,7 +68,7 @@ instance [Pure m] : Finite (ListIterator α) m :=
   by exact Finite.of_finitenessRelation ListIterator.finitenessRelation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] {n : Type w → Type w''} [Monad n] :
+instance {α : Type w} [Monad m] [MonadAttach m] {n : Type w → Type w''} [Monad n] [MonadAttach n] :
     IteratorCollect (ListIterator α) m n :=
   .defaultImplementation
 

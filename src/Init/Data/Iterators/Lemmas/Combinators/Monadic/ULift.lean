@@ -25,10 +25,12 @@ theorem IterM.step_uLift [Iterator α m β] [Monad n] {it : IterM (α := α) m �
   rfl
 
 @[simp]
-theorem IterM.toList_uLift [Iterator α m β] [Monad m] [Monad n] {it : IterM (α := α) m β}
+theorem IterM.toList_uLift [Iterator α m β]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [LawfulMonadAttach n]
     [MonadLiftT m (ULiftT n)] [Finite α m] [IteratorCollect α m m]
-    [LawfulMonad m] [LawfulMonad n] [LawfulIteratorCollect α m m]
-    [LawfulMonadLiftT m (ULiftT n)] :
+    [LawfulIteratorCollect α m m] [LawfulMonadLiftT m (ULiftT n)]
+    {it : IterM (α := α) m β} :
     (it.uLift n).toList =
       (fun l => l.down.map ULift.up) <$> (monadLift it.toList : ULiftT n _).run := by
   induction it using IterM.inductSteps with | step it ihy ihs
@@ -44,20 +46,25 @@ theorem IterM.toList_uLift [Iterator α m β] [Monad m] [Monad n] {it : IterM (�
   · simp
 
 @[simp]
-theorem IterM.toListRev_uLift [Iterator α m β] [Monad m] [Monad n] {it : IterM (α := α) m β}
+theorem IterM.toListRev_uLift [Iterator α m β]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [LawfulMonadAttach n]
     [MonadLiftT m (ULiftT n)] [Finite α m] [IteratorCollect α m m]
-    [LawfulMonad m] [LawfulMonad n] [LawfulIteratorCollect α m m]
-    [LawfulMonadLiftT m (ULiftT n)] :
+    [LawfulIteratorCollect α m m] [LawfulMonadLiftT m (ULiftT n)]
+    {it : IterM (α := α) m β} :
     (it.uLift n).toListRev =
       (fun l => l.down.map ULift.up) <$> (monadLift it.toListRev : ULiftT n _).run := by
   rw [toListRev_eq, toListRev_eq, toList_uLift, monadLift_map]
   simp
 
 @[simp]
-theorem IterM.toArray_uLift [Iterator α m β] [Monad m] [Monad n] {it : IterM (α := α) m β}
+theorem IterM.toArray_uLift [Iterator α m β] [Monad m] [Monad n]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [LawfulMonadAttach n]
     [MonadLiftT m (ULiftT n)] [Finite α m] [IteratorCollect α m m]
-    [LawfulMonad m] [LawfulMonad n] [LawfulIteratorCollect α m m]
-    [LawfulMonadLiftT m (ULiftT n)] :
+    [LawfulIteratorCollect α m m]
+    [LawfulMonadLiftT m (ULiftT n)]
+    {it : IterM (α := α) m β} :
     (it.uLift n).toArray =
       (fun l => l.down.map ULift.up) <$> (monadLift it.toArray : ULiftT n _).run := by
   rw [← toArray_toList, ← toArray_toList, toList_uLift, monadLift_map]

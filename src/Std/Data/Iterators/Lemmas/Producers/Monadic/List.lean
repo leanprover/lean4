@@ -40,7 +40,8 @@ theorem _root_.List.step_iterM {l : List β} :
       | x :: xs => pure (.deflate ⟨.yield (xs.iterM m) x, rfl⟩) := by
   cases l <;> simp [List.step_iterM_cons, List.step_iterM_nil]
 
-theorem ListIterator.toArrayMapped_iterM [Monad n] [LawfulMonad n]
+theorem ListIterator.toArrayMapped_iterM [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [LawfulMonadAttach n]
     {β : Type w} {γ : Type w} {lift : ⦃δ : Type w⦄ → m δ → n δ}
     [LawfulMonadLiftFunction lift] {f : β → n γ} {l : List β} :
     IteratorCollect.toArrayMapped lift f (l.iterM m) (m := m) = List.toArray <$> l.mapM f := by
@@ -54,18 +55,19 @@ theorem ListIterator.toArrayMapped_iterM [Monad n] [LawfulMonad n]
     simp [List.step_iterM_cons, List.mapM_cons, pure_bind, ih, LawfulMonadLiftFunction.lift_pure]
 
 @[simp]
-theorem _root_.List.toArray_iterM [LawfulMonad m] {l : List β} :
-    (l.iterM m).toArray = pure l.toArray := by
+theorem _root_.List.toArray_iterM [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    {l : List β} : (l.iterM m).toArray = pure l.toArray := by
   simp only [IterM.toArray, ListIterator.toArrayMapped_iterM]
   rw [List.mapM_pure, map_pure, List.map_id']
 
 @[simp]
-theorem _root_.List.toList_iterM [LawfulMonad m] {l : List β} :
-    (l.iterM m).toList = pure l := by
+theorem _root_.List.toList_iterM [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    {l : List β} : (l.iterM m).toList = pure l := by
   rw [← IterM.toList_toArray, List.toArray_iterM, map_pure, List.toList_toArray]
 
 @[simp]
-theorem _root_.List.toListRev_iterM [LawfulMonad m] {l : List β} :
+theorem _root_.List.toListRev_iterM [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    {l : List β} :
     (l.iterM m).toListRev = pure l.reverse := by
   simp [IterM.toListRev_eq, List.toList_iterM]
 

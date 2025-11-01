@@ -122,36 +122,38 @@ theorem Array.iterM_equiv_iterM_toList {α : Type w} {array : Array α} {m : Typ
 end Equivalence
 
 @[simp]
-theorem _root_.Array.toList_iterFromIdxM [LawfulMonad m] {array : Array β}
-    {pos : Nat} :
+theorem _root_.Array.toList_iterFromIdxM [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    {array : Array β} {pos : Nat} :
     (array.iterFromIdxM m pos).toList = pure (array.toList.drop pos) := by
   simp [Array.iterFromIdxM_equiv_iterM_drop_toList.toList_eq]
 
 @[simp]
-theorem _root_.Array.toList_iterM [LawfulMonad m] {array : Array β} :
-    (array.iterM m).toList = pure array.toList := by
+theorem _root_.Array.toList_iterM [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    {array : Array β} : (array.iterM m).toList = pure array.toList := by
   simp [Array.iterM_eq_iterFromIdxM, Array.toList_iterFromIdxM]
 
 @[simp]
-theorem _root_.Array.toArray_iterFromIdxM [LawfulMonad m] {array : Array β} {pos : Nat} :
+theorem _root_.Array.toArray_iterFromIdxM [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    {array : Array β} {pos : Nat} :
     (array.iterFromIdxM m pos).toArray = pure (array.extract pos) := by
   simp [← IterM.toArray_toList, Array.toList_iterFromIdxM]
   rw (occs := [2]) [← Array.toArray_toList (xs := array)]
   rw [← List.toArray_drop]
 
 @[simp]
-theorem _root_.Array.toArray_toIterM [LawfulMonad m] {array : Array β} :
-    (array.iterM m).toArray = pure array := by
+theorem _root_.Array.toArray_toIterM [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    {array : Array β} : (array.iterM m).toArray = pure array := by
   simp [Array.iterM_eq_iterFromIdxM, Array.toArray_iterFromIdxM]
 
 @[simp]
-theorem _root_.Array.toListRev_iterFromIdxM [LawfulMonad m] {array : Array β} {pos : Nat} :
+theorem _root_.Array.toListRev_iterFromIdxM [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    {array : Array β} {pos : Nat} :
     (array.iterFromIdxM m pos).toListRev = pure (array.toList.drop pos).reverse := by
   simp [IterM.toListRev_eq, Array.toList_iterFromIdxM]
 
 @[simp]
-theorem _root_.Array.toListRev_toIterM [LawfulMonad m] {array : Array β} :
-    (array.iterM m).toListRev = pure array.toListRev := by
+theorem _root_.Array.toListRev_toIterM [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    {array : Array β} : (array.iterM m).toListRev = pure array.toListRev := by
   simp [Array.iterM_eq_iterFromIdxM, Array.toListRev_iterFromIdxM]
 
 end Std.Iterators

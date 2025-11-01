@@ -226,7 +226,8 @@ instance TakeWhile.instProductive [Monad m] [Iterator α m β] [Productive α m]
     Productive (TakeWhile α m β P) m :=
   by exact Productive.of_productivenessRelation instProductivenessRelation
 
-instance TakeWhile.instIteratorCollect [Monad m] [Monad n] [Iterator α m β] [Productive α m] {P} :
+instance TakeWhile.instIteratorCollect
+    [Monad m] [MonadAttach m] [Monad n] [MonadAttach n] [Iterator α m β] [Productive α m] {P} :
     IteratorCollect (TakeWhile α m β P) m n :=
   .defaultImplementation
 

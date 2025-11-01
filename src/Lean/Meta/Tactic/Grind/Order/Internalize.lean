@@ -260,9 +260,11 @@ def toOffsetTerm? (e : Expr) : OrderM (Option OffsetTermResult) := do
 
 def internalizeTerm (e : Expr) : OrderM Unit := do
   let some r ← toOffsetTerm? e | return ()
+  let _ ← mkNode e
+  let _ ← mkNode r.a
   -- **TODO**:
   -- trace[Meta.debug] "e: {e}, a: {r.a}, k: {r.k}"
-  check r.h
+  -- check r.h
   return ()
 
 def updateTermMap (e eNew h : Expr) : GoalM Unit := do
@@ -273,13 +275,15 @@ def updateTermMap (e eNew h : Expr) : GoalM Unit := do
 
 open Arith.Cutsat in
 def adaptNat (e : Expr) : GoalM Expr := do
-  match_expr e with
-  | LE.le _ _ lhs rhs => adaptCnstr lhs rhs (isLT := false)
-  | LT.lt _ _ lhs rhs => adaptCnstr lhs rhs (isLT := true)
-  | HAdd.hAdd _ _ _ _ _ _ => adaptTerm
-  | HSub.hSub _ _ _ _ _ _ => adaptTerm
-  | OfNat.ofNat _ _ _ => adaptTerm
-  | _ => return e
+  if let some (eNew, _) := (← get').termMap.find? { expr := e } then
+    return eNew
+  else match_expr e with
+    | LE.le _ _ lhs rhs => adaptCnstr lhs rhs (isLT := false)
+    | LT.lt _ _ lhs rhs => adaptCnstr lhs rhs (isLT := true)
+    | HAdd.hAdd _ _ _ _ _ _ => adaptTerm
+    | HSub.hSub _ _ _ _ _ _ => adaptTerm
+    | OfNat.ofNat _ _ _ => adaptTerm
+    | _ => return e
 where
   adaptCnstr (lhs rhs : Expr) (isLT : Bool) : GoalM Expr := do
     let (lhs', h₁) ← natToInt lhs

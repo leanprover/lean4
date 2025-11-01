@@ -86,14 +86,13 @@ namespace Config
 /--
 Convert this client config into an HTTP/1.1 protocol configuration.
 -/
-def toH1Config (config : Config) : Protocol.H1.Config :=
-  { maxMessages := config.maxRequestsPerConnection
-    maxHeaders := config.maxResponseHeaders
-    maxHeaderSize := config.maxHeaderValueSize
-    enableKeepAlive := config.enableKeepAlive
-    highMark := config.writeBufferHighWatermark
-    identityHeader := config.userAgent
-  }
+def toH1Config (config : Config) : Protocol.H1.Config where
+  maxMessages := config.maxRequestsPerConnection
+  maxHeaders := config.maxResponseHeaders
+  maxHeaderSize := config.maxHeaderValueSize
+  enableKeepAlive := config.enableKeepAlive
+  highMark := config.writeBufferHighWatermark
+  identityHeader := config.userAgent
 
 end Config
 end Std.Http.Client

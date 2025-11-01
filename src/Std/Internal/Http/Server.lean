@@ -109,9 +109,8 @@ private def frameCancellation (s : Server) (action : Async α) : Async α := do
   return result
 
 /--
-Start a new HTTP/1.1 server on the given socket address. This function uses the `Async` for handling
-tasks and TCP connections, it also returns a `Server` structure that can be used to the cancellation
-of the server.
+Start a new HTTP/1.1 server on the given socket address. This function uses `Async` to handle tasks
+and TCP connections, and returns a `Server` structure that can be used to cancel the server.
 -/
 def serve
     (addr : Net.SocketAddress)

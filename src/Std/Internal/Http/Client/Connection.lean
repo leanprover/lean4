@@ -103,7 +103,7 @@ namespace PersistentConnection
 /--
 Send a request through the persistent connection.
 -/
-def send [Transport α] (pc : PersistentConnection α) (request : Request Body) : Async (Response Body) := do
+def send (pc : PersistentConnection α) (request : Request Body) : Async (Response Body) := do
   let responsePromise ← IO.Promise.new
   let cancellationToken ← Std.CancellationToken.new
 
@@ -278,22 +278,15 @@ Create a persistent connection that can handle multiple sequential requests.
 # Example
 
 ```lean
--- Connect to a server
-let socket ← Socket.mk
-socket.connect serverAddr
+let client ← TCP.Socket.Client.mk
+client.connect addr
 
--- Create persistent connection
-let pc ← createPersistentConnection socket config
+let persistent ← Client.createPersistentConnection client
 
--- Spawn the connection handler
-async (pc.connection.handlePersistent pc.config pc.requestChannel)
+let res1 ← persistent.send req1
+let res2 ← persistent.send req2
 
--- Send multiple requests
-pc.send request1 (fun response => IO.println s!"Response 1: {response.head.status}")
-pc.send request2 (fun response => IO.println s!"Response 2: {response.head.status}")
-
--- Close when done
-pc.close
+persistent.close
 ```
 -/
 def createPersistentConnection [Transport t] (client : t) (config : Client.Config := {}) : Async (PersistentConnection t) := do

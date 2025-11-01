@@ -137,7 +137,7 @@ protected def pure (x : α) : ETask ε α :=
   Task.pure <| .ok x
 
 /--
-Returns `true` if a `ETask` has finished it's execution
+Returns `true` if a `ETask` has finished its execution
 -/
 @[inline]
 protected def isFinished (x : ETask ε α) : BaseIO Bool := do

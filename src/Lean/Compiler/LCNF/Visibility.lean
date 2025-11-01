@@ -122,9 +122,11 @@ errors from the interpreter itself as those depend on whether we are running in 
 private partial def evalCheckMeta (env : Environment) (declName : Name) : Except String Unit := do
   if !env.header.isModule then
     return
-  let some decl := getDeclCore? env baseExt declName
-    | return  -- We might not have the LCNF available, in which case there's nothing we can do
-  go decl |>.run' {}
+  if let some localDecl := baseExt.getState env |>.find? declName then
+    go localDecl |>.run' {}
+  else
+    if getIRPhases env declName == .runtime then
+      throw s!"Cannot evaluate constant `{declName}` as it is neither marked nor imported as `meta`"
 where go (decl : Decl) : StateT NameSet (Except String) Unit :=
   decl.value.forCodeM fun code =>
     for ref in collectUsedDecls code do

@@ -355,7 +355,7 @@ def arithmeticFolders : List (Name × Folder) := [
   (``UInt16.add,  Folder.first #[Folder.mkBinary UInt16.add, Folder.leftRightNeutral (0 : UInt16)]),
   (``UInt32.add,  Folder.first #[Folder.mkBinary UInt32.add, Folder.leftRightNeutral (0 : UInt32)]),
   (``UInt64.add,  Folder.first #[Folder.mkBinary UInt64.add, Folder.leftRightNeutral (0 : UInt64)]),
-  (``Nat.sub,    Folder.first #[Folder.mkBinary Nat.sub, Folder.leftRightNeutral 0]),
+  (``Nat.sub,    Folder.first #[Folder.mkBinary Nat.sub, Folder.leftAnnihilator 0 0, Folder.rightNeutral 0]),
   (``UInt8.sub,  Folder.first #[Folder.mkBinary UInt8.sub, Folder.rightNeutral (0 : UInt8)]),
   (``UInt16.sub,  Folder.first #[Folder.mkBinary UInt16.sub, Folder.rightNeutral (0 : UInt16)]),
   (``UInt32.sub,  Folder.first #[Folder.mkBinary UInt32.sub, Folder.rightNeutral (0 : UInt32)]),

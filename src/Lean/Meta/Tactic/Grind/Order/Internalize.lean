@@ -330,7 +330,7 @@ def adapt (α : Expr) (e : Expr) : GoalM (Expr × Expr) := do
   else
     return (α, e)
 
-def alreadyInternalized (e : Expr) : OrderM Bool := do
+def alreadyInternalizedHere (e : Expr) : OrderM Bool := do
   let s ← getStruct
   return s.cnstrs.contains { expr := e } || s.nodeMap.contains { expr := e }
 
@@ -340,7 +340,7 @@ public def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   let (α, e) ← adapt α e
   if isForbiddenParent parent? then return ()
   if let some structId ← getStructId? α then OrderM.run structId do
-    if (← alreadyInternalized e) then return ()
+    if (← alreadyInternalizedHere e) then return ()
     match_expr e with
     | LE.le _ _ lhs rhs => internalizeCnstr e .le lhs rhs
     | LT.lt _ _ lhs rhs => if (← hasLt) then internalizeCnstr e .lt lhs rhs

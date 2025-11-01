@@ -20,7 +20,14 @@ A "low-level" HTTP 1.1 Server and Client implementation for Lean. It is designed
 # Overview
 
 This module of the standard library defines many concepts related to the HTTP protocol
-and its semantics in a SANS-IO format. The main function of this library is `Std.Http.Server.serve`,
+and its semantics in a sans I/O format.
+
+**sans I/O** means that the core logic of the library doesn’t perform any actual input/output itself,
+it just defines how data *should* be processed. This separation allows the protocol implementation
+to remain pure and testable, while different transports (like TCP sockets or mocks) can handle
+the actual reading and writing of bytes.
+
+The main function of this library is `Std.Http.Server.serve`,
 located in the module `Std.Internal.Http.Server`. It starts a simple HTTP/1.1 server that
 handles all requests and sends them to a simple handler function. It uses the default `Std.Internal.Async`
 library, but it can be customized to use whatever IO library you want, as the protocol implementation
@@ -28,14 +35,6 @@ is pure.
 
 If you want to customize how your server handles sockets, you can use `Std.Http.Server.serveConnection`,
 which is a simple function to bind a handler to a `Transport`.
-
-# Low-Level Protocol Implementation
-
-This library provides a low-level foundation that allows you to implement your own IO layer on top
-of it. The core protocol parsing and generation logic is available in `Std.Internal.Http.Protocol`,
-which provides pure functions for HTTP message parsing and serialization. This design allows you to
-integrate the HTTP protocol handling with any IO system or networking library of your choice, while
-reusing the robust protocol implementation.
 
 # Minimal Example
 
@@ -63,26 +62,19 @@ def main := mainAsync.block
 
 ## Transport
 
-`Std.Http.Server.Transport` is a type class used for describing a way of communication between a `Connection` and outside
-of the `Connection`. It can be a `Mock.Client` that sends and receives byte arrays so it can be used for
-deterministic testing a HTTP connection or a `TCP.Socket.Client` that is how usually it communicated with
-the internet.
+`Std.Http.Server.Transport` is a type class that defines how communication occurs between a `Connection`
+and the outside world. It can be implemented by, for example, a `Mock.Client`, which sends and receives
+byte arrays for deterministic HTTP connection testing, or by a `TCP.Socket.Client`, which is the
+standard way to communicate over the internet in HTTP/1.1.
 
 ## Connection
 
-`Std.Http.Server.Connection` is a structure that stores both a `Transport` and a `Machine`
-the machine right now is only a `Protocol.H1.Machine` that implements a State Machine for parsing request and responses for HTTP/1.1
+`Std.Http.Server.Connection` is a structure that holds both a `Transport` and a `Machine`. Currently,
+the machine is a `Protocol.H1.Machine`, which implements the state machine responsible for parsing HTTP/1.1
+requests and responses.
 
 If you want to customize how your server handles sockets, you can use `Std.Http.Server.serveConnection`,
-which is a simple function to bind a handler to a `ClientConnection`.
-
-# Low-Level Protocol Implementation
-
-This library provides a low-level foundation that allows you to implement your own IO layer on top
-of it. The core protocol parsing and generation logic is available in `Std.Internal.Http.Protocol`,
-which provides pure functions for HTTP message parsing and serialization. This design allows you to
-integrate the HTTP protocol handling with any IO system or networking library of your choice, while
-reusing the robust protocol implementation.
+a simple function that binds a handler to a `ClientConnection`.
 
 # Minimal Example
 
@@ -100,10 +92,9 @@ def handler (req : Request Body) : Async (Response Body) := do
   return Response.ok ("hi, " ++ data)
 
 def mainAsync : Async Unit := do
-  Server.serve (.v4 (.mk (.ofParts 0 0 0 0) 8080)) handler
+  let server ← Server.serve (.v4 (.mk (.ofParts 0 0 0 0) 8080)) handler
+  server.waitShutdown
 
 def main := mainAsync.block
 ```
 -/
-
-namespace Std.Http

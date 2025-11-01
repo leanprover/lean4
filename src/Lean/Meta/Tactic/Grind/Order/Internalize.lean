@@ -223,27 +223,78 @@ def internalizeCnstr (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM Uni
       s.cnstrsOf.insert (u, v) cs
   }
 
+/--
+Normalization result. A nested term `e` is normalized as `a + k` and
+`h` is a proof for `e = a + k`
+-/
+structure OffsetTermResult where
+  a : Expr
+  k : Int
+  h : Expr
+
+def toOffsetTermCommRing? (e : Expr) : RingM (Option OffsetTermResult) := do
+  let some e ← reify? e (skipVar := false) | return none
+  let p ← e.toPolyM
+  let k := p.getConst
+  let p := p.addConst (-k)
+  let a ← shareCommon (← p.denoteExpr)
+  let h ← mkTermEqProof e (.add (p.toExpr) (.intCast k))
+  return some { a, k, h }
+
+def toOffsetTermNonCommRing? (e : Expr) : NonCommRingM (Option OffsetTermResult) := do
+  let some e ← ncreify? e (skipVar := false) | return none
+  let p := e.toPoly_nc
+  let k := p.getConst
+  let p := p.addConst (-k)
+  let a ← shareCommon (← p.denoteExpr)
+  let h ← mkNonCommTermEqProof e (.add (p.toExpr) (.intCast k))
+  return some { a, k, h }
+
+def toOffsetTerm? (e : Expr) : OrderM (Option OffsetTermResult) := do
+  let s ← getStruct
+  let some ringId := s.ringId? | return none
+  if s.isCommRing then
+    RingM.run ringId <| toOffsetTermCommRing? e
+  else
+    NonCommRingM.run ringId <| toOffsetTermNonCommRing? e
+
+def internalizeTerm (e : Expr) : OrderM Unit := do
+  let some r ← toOffsetTerm? e | return ()
+  -- **TODO**:
+  -- trace[Meta.debug] "e: {e}, a: {r.a}, k: {r.k}"
+  check r.h
+  return ()
+
+def updateTermMap (e eNew h : Expr) : GoalM Unit := do
+  modify' fun s => { s with
+    termMap    := s.termMap.insert { expr := e } (eNew, h)
+    termMapInv := s.termMapInv.insert { expr := eNew } (e, h)
+  }
+
 open Arith.Cutsat in
 def adaptNat (e : Expr) : GoalM Expr := do
-  let (eNew, h) ← match_expr e with
-    | LE.le _ _ lhs rhs =>
-      let (lhs', h₁) ← natToInt lhs
-      let (rhs', h₂) ← natToInt rhs
-      let eNew := mkIntLE lhs' rhs'
-      let h := mkApp6 (mkConst ``Nat.ToInt.le_eq) lhs rhs lhs' rhs' h₁ h₂
-      pure (eNew, h)
-    | LT.lt _ _ lhs rhs =>
-      let (lhs', h₁) ← natToInt lhs
-      let (rhs', h₂) ← natToInt rhs
-      let eNew := mkIntLT lhs' rhs'
-      let h := mkApp6 (mkConst ``Nat.ToInt.lt_eq) lhs rhs lhs' rhs' h₁ h₂
-      pure (eNew, h)
-    | _ => return e
-  modify' fun s => { s with
-    cnstrsMap    := s.cnstrsMap.insert { expr := e } (eNew, h)
-    cnstrsMapInv := s.cnstrsMapInv.insert { expr := eNew } (e, h)
-  }
-  return eNew
+  match_expr e with
+  | LE.le _ _ lhs rhs => adaptCnstr lhs rhs (isLT := false)
+  | LT.lt _ _ lhs rhs => adaptCnstr lhs rhs (isLT := true)
+  | HAdd.hAdd _ _ _ _ _ _ => adaptTerm
+  | HSub.hSub _ _ _ _ _ _ => adaptTerm
+  | OfNat.ofNat _ _ _ => adaptTerm
+  | _ => return e
+where
+  adaptCnstr (lhs rhs : Expr) (isLT : Bool) : GoalM Expr := do
+    let (lhs', h₁) ← natToInt lhs
+    let (rhs', h₂) ← natToInt rhs
+    let eNew := if isLT then mkIntLT lhs' rhs' else mkIntLE lhs' rhs'
+    let h := mkApp6
+        (mkConst (if isLT then ``Nat.ToInt.le_eq else ``Nat.ToInt.lt_eq))
+        lhs rhs lhs' rhs' h₁ h₂
+    updateTermMap e eNew h
+    return eNew
+
+  adaptTerm : GoalM Expr := do
+    let (eNew, h) ← natToInt e
+    updateTermMap e eNew h
+    return eNew
 
 def adapt (α : Expr) (e : Expr) : GoalM (Expr × Expr) := do
   -- **Note**: We currently only adapt `Nat` expressions
@@ -267,8 +318,9 @@ public def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     match_expr e with
     | LE.le _ _ lhs rhs => internalizeCnstr e .le lhs rhs
     | LT.lt _ _ lhs rhs => if (← hasLt) then internalizeCnstr e .lt lhs rhs
-    | _ =>
-      -- **Note**: We currently do not internalize offset terms nested in other terms.
-      return ()
+    | HAdd.hAdd _ _ _ _ _ _ => internalizeTerm e
+    | HSub.hSub _ _ _ _ _ _ => internalizeTerm e
+    | OfNat.ofNat _ _ _ => internalizeTerm e
+    | _ => return ()
 
 end Lean.Meta.Grind.Order

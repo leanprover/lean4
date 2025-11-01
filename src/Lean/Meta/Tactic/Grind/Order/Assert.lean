@@ -148,23 +148,18 @@ def propagatePending : OrderM Unit := do
         - `h₁ : ↑ue' = ue`
         - `h₂ : ↑ve' = ve`
         - `h : ue = ve`
+        **Note**: We currently only support `Nat`. Thus `↑a` is actually
+        `NatCast.natCast a`. If we decide to support arbitrary semirings
+        in this module, we must adjust this code.
         -/
         pushEq ue' ve' <| mkApp7 (mkConst ``Grind.Order.nat_eq) ue' ve' ue ve h₁ h₂ h
 where
   /--
   If `e` is an auxiliary term used to represent some term `a`, returns
   `some (a, h)` s.t. `h : ↑a = e`
-  **Note**: We currently only support `Nat`. Thus `↑a` is actually
-  `NatCast.natCast a`. If we decide to support arbitrary semirings
-  in this module, we must adjust this code.
   -/
   getOriginal? (e : Expr) : GoalM (Option (Expr × Expr)) := do
-    if let some r := (← get').termMapInv.find? { expr := e } then
-      return some r
-    else
-      let_expr NatCast.natCast _ _ a := e | return none
-      let h ← mkEqRefl e
-      return some (a, h)
+    return (← get').termMapInv.find? { expr := e }
 
 /--
 Returns `true` if `e` is already `True` in the `grind` core.
@@ -233,10 +228,7 @@ def checkEq (u v : NodeId) (k : Weight) : OrderM Unit := do
     pushToPropagate <| .eq u v
   else
     /-
-    Check whether `ue` and `ve` are auxiliary terms used to encode `Nat` terms.
-    **Note**: `getOriginal?` is currently hard coded to the `Nat` case since
-    it is the only type we map to rings. If in the future, we want to support
-    arbitrary `Semiring`s, we must adjust this code.
+    Check whether `ue` and `ve` are auxiliary terms.
     -/
     let some ue ← getOriginal? ue | return ()
     let some ve ← getOriginal? ve | return ()
@@ -245,9 +237,7 @@ def checkEq (u v : NodeId) (k : Weight) : OrderM Unit := do
       pushToPropagate <| .eq u v
 where
   getOriginal? (e : Expr) : GoalM (Option Expr) := do
-    let_expr NatCast.natCast _ _ a := e
-      | let some (a, _) := (← get').termMapInv.find? { expr := e } | return none
-        return some a
+    let some (a, _) := (← get').termMapInv.find? { expr := e } | return none
     return some a
 
 /-- Finds constrains and equalities to be propagated. -/
@@ -378,6 +368,24 @@ builtin_grind_propagator propagateLT ↓LT.lt := propagateIneq
 
 public def processNewEq (a b : Expr) : GoalM Unit := do
   unless isSameExpr a b do
+    let h ← mkEqProof a b
+    if let some (a', h₁) ← getAuxTerm? a then
+      let some (b', h₂) ← getAuxTerm? b | return ()
+      /-
+      We have
+      - `h  : a = b`
+      - `h₁ : ↑a = a'`
+      - `h₂ : ↑b = b'`
+      -/
+      let h := mkApp7 (mkConst ``Grind.Order.of_nat_eq) a b a' b' h₁ h₂ h
+      go a' b' h
+    else
+      go a b h
+where
+  getAuxTerm? (e : Expr) : GoalM (Option (Expr × Expr)) := do
+    return (← get').termMap.find? { expr := e }
+
+  go (a b h : Expr) : GoalM Unit := do
     let some id₁ ← getStructIdOf? a | return ()
     let some id₂ ← getStructIdOf? b | return ()
     unless id₁ == id₂ do return ()
@@ -385,7 +393,6 @@ public def processNewEq (a b : Expr) : GoalM Unit := do
       trace[grind.order.assert] "{a} = {b}"
       let u ← getNodeId a
       let v ← getNodeId b
-      let h ← mkEqProof a b
       if (← isRing) then
         let h₁ := mkApp3 (← mkOrdRingPrefix ``Grind.Order.le_of_eq_1_k) a b h
         let h₂ := mkApp3 (← mkOrdRingPrefix ``Grind.Order.le_of_eq_2_k) a b h

@@ -173,6 +173,12 @@ def setStructId (e : Expr) : OrderM Unit := do
     exprToStructId := s.exprToStructId.insert { expr := e } structId
   }
 
+def updateTermMap (e eNew h : Expr) : GoalM Unit := do
+  modify' fun s => { s with
+    termMap    := s.termMap.insert { expr := e } (eNew, h)
+    termMapInv := s.termMapInv.insert { expr := eNew } (e, h)
+  }
+
 def mkNode (e : Expr) : OrderM NodeId := do
   if let some nodeId := (← getStruct).nodeMap.find? { expr := e } then
     return nodeId
@@ -192,7 +198,7 @@ def mkNode (e : Expr) : OrderM NodeId := do
   -/
   if (← alreadyInternalized e) then
     orderExt.markTerm e
-  else if let some e' ← getOriginal? e then
+  if let some e' ← getOriginal? e then
     orderExt.markTerm e'
   return nodeId
 where
@@ -201,6 +207,7 @@ where
       return some e'
     let_expr NatCast.natCast _ _ a := e | return none
     if (← alreadyInternalized a) then
+      updateTermMap a e (← mkEqRefl e)
       return some a
     else
       return none
@@ -278,6 +285,7 @@ def toOffsetTerm? (e : Expr) : OrderM (Option OffsetTermResult) := do
 
 def internalizeTerm (e : Expr) : OrderM Unit := do
   let some r ← toOffsetTerm? e | return ()
+  if e == r.a && r.k == 0 then return ()
   let x ← mkNode e
   let y ← mkNode r.a
   let h₁ ← mkOrdRingPrefix ``Grind.Order.le_of_offset_eq_1_k
@@ -286,12 +294,6 @@ def internalizeTerm (e : Expr) : OrderM Unit := do
   let h₂ ← mkOrdRingPrefix ``Grind.Order.le_of_offset_eq_2_k
   let h₂ := mkApp4 h₂ e r.a (toExpr r.k) r.h
   addEdge y x { k := -r.k } h₂
-
-def updateTermMap (e eNew h : Expr) : GoalM Unit := do
-  modify' fun s => { s with
-    termMap    := s.termMap.insert { expr := e } (eNew, h)
-    termMapInv := s.termMapInv.insert { expr := eNew } (e, h)
-  }
 
 open Arith.Cutsat in
 def adaptNat (e : Expr) : GoalM Expr := do

@@ -1601,8 +1601,8 @@ such element is found.
 `O(|l|)`.
 
 Examples:
-* `[7, 6, 5, 8, 1, 2, 6].find? (· < 5) = some 2`
-* `[7, 6, 5, 8, 1, 2, 6].find? (· < 1) = none`
+* `[7, 6, 5, 8, 1, 2, 6].findRev? (· < 5) = some 2`
+* `[7, 6, 5, 8, 1, 2, 6].findRev? (· < 1) = none`
 -/
 def findRev? (p : α → Bool) : List α → Option α
   | []    => none

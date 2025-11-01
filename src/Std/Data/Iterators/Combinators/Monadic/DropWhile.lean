@@ -279,16 +279,11 @@ instance DropWhile.instIteratorLoop [Monad m] [Monad n] [Iterator α m β] :
     IteratorLoop (DropWhile α m β P) m n :=
   .defaultImplementation
 
-instance DropWhile.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
-    [IteratorLoopPartial α m n] [MonadLiftT m n] {P} :
-    IteratorLoopPartial (DropWhile α m β P) m n :=
-  .defaultImplementation
-
 instance {α : Type w} [Monad m] [Iterator α m β] [Finite α m] [IteratorLoop α m m] {P} :
     IteratorSize (DropWhile α m β P) m :=
   .defaultImplementation
 
-instance {α : Type w} [Monad m] [Iterator α m β] [IteratorLoopPartial α m m] {P} :
+instance {α : Type w} [Monad m] [Iterator α m β] [IteratorLoop α m m] {P} :
     IteratorSizePartial (DropWhile α m β P) m :=
   .defaultImplementation
 

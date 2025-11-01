@@ -45,8 +45,6 @@ universe v w
 @[no_expose] instance {s : Subarray α} : IteratorCollect (ToIterator.State s Id) Id Id := inferInstance
 @[no_expose] instance {s : Subarray α} {m : Type v → Type w} [Monad m] :
     IteratorLoop (ToIterator.State s Id) Id m := inferInstance
-@[no_expose] instance {s : Subarray α} {m : Type v → Type w} [Monad m] :
-    IteratorLoopPartial (ToIterator.State s Id) Id m := inferInstance
 @[no_expose] instance {s : Subarray α} :
     IteratorSize (ToIterator.State s Id) Id := inferInstance
 @[no_expose] instance {s : Subarray α} :

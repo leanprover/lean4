@@ -31,9 +31,6 @@ instance [Pure m] : Std.Iterators.Iterator RandomIterator m UInt64 where
   step := fun ⟨it⟩ =>
     pure (.deflate ⟨.yield (iterRandM <| (it.state + (1 : UInt64)) * (3_787_392_781 : UInt64)) it.state, by trivial⟩)
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (RandomIterator) m n :=
-  .defaultImplementation
-
 def mkMapWithCap (seed : UInt64) (size : Nat) : Std.HashMap UInt64 UInt64 := Id.run do
   let mut map := Std.HashMap.emptyWithCapacity size
   for val in iterRand seed |>.take size |>.allowNontermination do

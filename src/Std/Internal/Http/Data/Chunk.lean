@@ -30,12 +30,13 @@ Represents a chunk of data with optional extensions (key-value pairs).
 structure Chunk where
 
   /--
-  ?
+  The byte data contained in this chunk.
   -/
   data : ByteArray
 
   /--
-  ?
+  Optional metadata associated with this chunk as key-value pairs. Keys are strings, values are
+  optional strings.
   -/
   extensions : Array (String × Option String) := #[]
   deriving Inhabited
@@ -59,14 +60,14 @@ Returns the total size of the chunk including data and formatted extensions. Ext
 as: ;name=value;name=value Plus 2 bytes for \r\n at the end.
 -/
 def size (chunk : Chunk) : Nat :=
-  let extensionsSize := chunk.extensions.foldl (fun acc (name, value) => acc + name.length + (value.get!).length + 2) 0
+  let extensionsSize := chunk.extensions.foldl (fun acc (name, value) => acc + name.length + (value.map (fun v => v.length + 1) |>.getD 0) + 1) 0
   chunk.data.size + extensionsSize + (if extensionsSize > 0 then 2 else 0)
 
 instance : Encode .v11 Chunk where
   encode buffer chunk :=
-  let chunkLen := chunk.data.size
-  let exts := chunk.extensions.foldl (fun acc (name, value)  => acc ++ ";" ++ name ++ (value.map (fun x => "=" ++ x) |>.getD "")) ""
-  let size := Nat.toDigits 16 chunkLen |>.toArray |>.map Char.toUInt8 |> ByteArray.mk
-  buffer.append #[size, exts.toUTF8, "\r\n".toUTF8, chunk.data, "\r\n".toUTF8]
+    let chunkLen := chunk.data.size
+    let exts := chunk.extensions.foldl (fun acc (name, value)  => acc ++ ";" ++ name ++ (value.map (fun x => "=" ++ x) |>.getD "")) ""
+    let size := Nat.toDigits 16 chunkLen |>.toArray |>.map Char.toUInt8 |> ByteArray.mk
+    buffer.append #[size, exts.toUTF8, "\r\n".toUTF8, chunk.data, "\r\n".toUTF8]
 
 end Chunk

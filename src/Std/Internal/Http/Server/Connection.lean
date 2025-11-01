@@ -97,8 +97,6 @@ private def handle
 
   let mut waitingResponse := false
 
-  let mut t := 0
-
   while ¬machine.halted ∧ machine.writer.outputData.isEmpty do
     let (newMachine, step) := machine.step
     machine := newMachine

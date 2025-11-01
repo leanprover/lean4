@@ -259,10 +259,7 @@ def parseStatusCode : Parser Status := do
   let d3 ← digit
   let code := (d1.toNat - 48) * 100 + (d2.toNat - 48) * 10 + (d3.toNat - 48)
 
-  if let some res := Status.ofCode? code.toUInt16 then
-    return res
-  else
-    fail "invalid status code"
+  return Status.ofCode code.toUInt16
 
 /--
 Parses reason phrase (text after status code)

@@ -50,17 +50,20 @@ def isForbiddenParent (parent? : Option Expr) : Bool :=
     -/
     true
   else if let some parent := parent? then
-    (getType? parent |>.isSome)
-    ||
-    /-
-    **Note**: We currently ignore `•`. We may reconsider it in the future.
-    -/
-    match_expr parent with
-    | HSMul.hSMul _ _ _ _ _ _ => true
-    | Nat.cast _ _ _ => true
-    | NatCast.natCast _ _ _ => true
-    | Grind.IntModule.OfNatModule.toQ _ _ _ => true
-    | _ => false
+    if parent.isEq then
+      false
+    else
+      (getType? parent |>.isSome)
+      ||
+      /-
+      **Note**: We currently ignore `•`. We may reconsider it in the future.
+      -/
+      match_expr parent with
+      | HSMul.hSMul _ _ _ _ _ _ => true
+      | Nat.cast _ _ _ => true
+      | NatCast.natCast _ _ _ => true
+      | Grind.IntModule.OfNatModule.toQ _ _ _ => true
+      | _ => false
   else
     false
 
@@ -173,6 +176,12 @@ def setStructId (e : Expr) : OrderM Unit := do
     exprToStructId := s.exprToStructId.insert { expr := e } structId
   }
 
+def updateTermMap (e eNew h : Expr) : GoalM Unit := do
+  modify' fun s => { s with
+    termMap    := s.termMap.insert { expr := e } (eNew, h)
+    termMapInv := s.termMapInv.insert { expr := eNew } (e, h)
+  }
+
 def mkNode (e : Expr) : OrderM NodeId := do
   if let some nodeId := (← getStruct).nodeMap.find? { expr := e } then
     return nodeId
@@ -192,7 +201,19 @@ def mkNode (e : Expr) : OrderM NodeId := do
   -/
   if (← alreadyInternalized e) then
     orderExt.markTerm e
+  if let some e' ← getOriginal? e then
+    orderExt.markTerm e'
   return nodeId
+where
+  getOriginal? (e : Expr) : GoalM (Option Expr) := do
+    if let some (e', _) := (← get').termMapInv.find? { expr := e } then
+      return some e'
+    let_expr NatCast.natCast _ _ a := e | return none
+    if (← alreadyInternalized a) then
+      updateTermMap a e (← mkEqRefl e)
+      return some a
+    else
+      return none
 
 def internalizeCnstr (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM Unit := do
   let some c ← mkCnstr? e kind lhs rhs | return ()
@@ -267,6 +288,7 @@ def toOffsetTerm? (e : Expr) : OrderM (Option OffsetTermResult) := do
 
 def internalizeTerm (e : Expr) : OrderM Unit := do
   let some r ← toOffsetTerm? e | return ()
+  if e == r.a && r.k == 0 then return ()
   let x ← mkNode e
   let y ← mkNode r.a
   let h₁ ← mkOrdRingPrefix ``Grind.Order.le_of_offset_eq_1_k
@@ -275,12 +297,6 @@ def internalizeTerm (e : Expr) : OrderM Unit := do
   let h₂ ← mkOrdRingPrefix ``Grind.Order.le_of_offset_eq_2_k
   let h₂ := mkApp4 h₂ e r.a (toExpr r.k) r.h
   addEdge y x { k := -r.k } h₂
-
-def updateTermMap (e eNew h : Expr) : GoalM Unit := do
-  modify' fun s => { s with
-    termMap    := s.termMap.insert { expr := e } (eNew, h)
-    termMapInv := s.termMapInv.insert { expr := eNew } (e, h)
-  }
 
 open Arith.Cutsat in
 def adaptNat (e : Expr) : GoalM Expr := do
@@ -317,7 +333,7 @@ def adapt (α : Expr) (e : Expr) : GoalM (Expr × Expr) := do
   else
     return (α, e)
 
-def alreadyInternalized (e : Expr) : OrderM Bool := do
+def alreadyInternalizedHere (e : Expr) : OrderM Bool := do
   let s ← getStruct
   return s.cnstrs.contains { expr := e } || s.nodeMap.contains { expr := e }
 
@@ -327,7 +343,7 @@ public def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   let (α, e) ← adapt α e
   if isForbiddenParent parent? then return ()
   if let some structId ← getStructId? α then OrderM.run structId do
-    if (← alreadyInternalized e) then return ()
+    if (← alreadyInternalizedHere e) then return ()
     match_expr e with
     | LE.le _ _ lhs rhs => internalizeCnstr e .le lhs rhs
     | LT.lt _ _ lhs rhs => if (← hasLt) then internalizeCnstr e .lt lhs rhs

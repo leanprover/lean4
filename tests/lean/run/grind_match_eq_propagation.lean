@@ -73,6 +73,9 @@ def h (v w : Vec α n) : Nat :=
 example : h a b > 0 := by
   grind [h.eq_def]
 
+example : h a b > 0 := by
+  grind -offset [h.eq_def]
+
 -- TODO: introduce casts while instantiating equation theorems for `h.match_1`
 -- example (a b : Vec α 2) : h a b = 20 := by
 --  unfold h

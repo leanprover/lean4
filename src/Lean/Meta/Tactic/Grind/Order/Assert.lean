@@ -129,11 +129,42 @@ def propagatePending : OrderM Unit := do
     | .eq u v =>
       let ue ← getExpr u
       let ve ← getExpr v
-      unless (← isEqv ue ve) do
+      if (← alreadyInternalized ue <&&> alreadyInternalized ve) then
+        unless (← isEqv ue ve) do
+          let huv ← mkProofForPath u v
+          let hvu ← mkProofForPath v u
+          let h ← mkEqProofOfLeOfLe ue ve huv hvu
+          pushEq ue ve h
+      -- Checks whether `ue` and `ve` are auxiliary terms
+      let some (ue', h₁) ← getOriginal? ue | continue
+      let some (ve', h₂) ← getOriginal? ve | continue
+      if (← alreadyInternalized ue' <&&> alreadyInternalized ve') then
+      unless (← isEqv ue' ve') do
         let huv ← mkProofForPath u v
         let hvu ← mkProofForPath v u
         let h ← mkEqProofOfLeOfLe ue ve huv hvu
-        pushEq ue ve h
+        /-
+        We have
+        - `h₁ : ↑ue' = ue`
+        - `h₂ : ↑ve' = ve`
+        - `h : ue = ve`
+        -/
+        pushEq ue' ve' <| mkApp7 (mkConst ``Grind.Order.nat_eq) ue' ve' ue ve h₁ h₂ h
+where
+  /--
+  If `e` is an auxiliary term used to represent some term `a`, returns
+  `some (a, h)` s.t. `h : ↑a = e`
+  **Note**: We currently only support `Nat`. Thus `↑a` is actually
+  `NatCast.natCast a`. If we decide to support arbitrary semirings
+  in this module, we must adjust this code.
+  -/
+  getOriginal? (e : Expr) : GoalM (Option (Expr × Expr)) := do
+    if let some r := (← get').termMapInv.find? { expr := e } then
+      return some r
+    else
+      let_expr NatCast.natCast _ _ a := e | return none
+      let h ← mkEqRefl e
+      return some (a, h)
 
 /--
 Returns `true` if `e` is already `True` in the `grind` core.
@@ -190,6 +221,7 @@ Traverses the constraints `c` (representing an expression `e`) s.t.
 
 /-- Equality propagation. -/
 def checkEq (u v : NodeId) (k : Weight) : OrderM Unit := do
+  if u == v then return ()
   if (← isPartialOrder) then
   if !k.isZero then return ()
   let some k' ← getDist? v u | return ()
@@ -199,6 +231,24 @@ def checkEq (u v : NodeId) (k : Weight) : OrderM Unit := do
   if (← alreadyInternalized ue <&&> alreadyInternalized ve) then
     if (← isEqv ue ve) then return ()
     pushToPropagate <| .eq u v
+  else
+    /-
+    Check whether `ue` and `ve` are auxiliary terms used to encode `Nat` terms.
+    **Note**: `getOriginal?` is currently hard coded to the `Nat` case since
+    it is the only type we map to rings. If in the future, we want to support
+    arbitrary `Semiring`s, we must adjust this code.
+    -/
+    let some ue ← getOriginal? ue | return ()
+    let some ve ← getOriginal? ve | return ()
+    if (← alreadyInternalized ue <&&> alreadyInternalized ve) then
+      if (← isEqv ue ve) then return ()
+      pushToPropagate <| .eq u v
+where
+  getOriginal? (e : Expr) : GoalM (Option Expr) := do
+    let_expr NatCast.natCast _ _ a := e
+      | let some (a, _) := (← get').termMapInv.find? { expr := e } | return none
+        return some a
+    return some a
 
 /-- Finds constrains and equalities to be propagated. -/
 def checkToPropagate (u v : NodeId) (k : Weight) : OrderM Unit := do

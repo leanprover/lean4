@@ -65,6 +65,10 @@ theorem le_of_offset_eq_2_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsP
   rw [Ring.intCast_neg, Semiring.add_assoc, Semiring.add_comm (α := α) k, Ring.neg_add_cancel, Semiring.add_zero]
   apply Std.IsPreorder.le_refl
 
+theorem nat_eq (a b : Nat) (x y : Int) : NatCast.natCast a = x → NatCast.natCast b = y → x = y → a = b := by
+  intro _ _; subst x y; intro h
+  exact Int.natCast_inj.mp h
+
 theorem le_of_not_le {α} [LE α] [Std.IsLinearPreorder α]
     {a b : α} : ¬ a ≤ b → b ≤ a := by
   intro h

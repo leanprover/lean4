@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Order.OrderM
 import Init.Data.Int.OfNat
 import Init.Grind.Module.Envelope
+import Init.Grind.Order
 import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
@@ -16,6 +17,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 import Lean.Meta.Tactic.Grind.Order.StructId
 import Lean.Meta.Tactic.Grind.Order.Util
 import Lean.Meta.Tactic.Grind.Order.Assert
+import Lean.Meta.Tactic.Grind.Order.Proof
 namespace Lean.Meta.Grind.Order
 
 open Arith CommRing
@@ -265,12 +267,14 @@ def toOffsetTerm? (e : Expr) : OrderM (Option OffsetTermResult) := do
 
 def internalizeTerm (e : Expr) : OrderM Unit := do
   let some r ← toOffsetTerm? e | return ()
-  let _ ← mkNode e
-  let _ ← mkNode r.a
-  -- **TODO**:
-  -- trace[Meta.debug] "e: {e}, a: {r.a}, k: {r.k}"
-  -- check r.h
-  return ()
+  let x ← mkNode e
+  let y ← mkNode r.a
+  let h₁ ← mkOrdRingPrefix ``Grind.Order.le_of_offset_eq_1_k
+  let h₁ := mkApp4 h₁ e r.a (toExpr r.k) r.h
+  addEdge x y { k := r.k } h₁
+  let h₂ ← mkOrdRingPrefix ``Grind.Order.le_of_offset_eq_2_k
+  let h₂ := mkApp4 h₂ e r.a (toExpr r.k) r.h
+  addEdge y x { k := -r.k } h₂
 
 def updateTermMap (e eNew h : Expr) : GoalM Unit := do
   modify' fun s => { s with

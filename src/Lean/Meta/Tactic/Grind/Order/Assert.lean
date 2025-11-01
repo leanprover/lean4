@@ -221,7 +221,7 @@ Adds an edge `u --(k) --> v` justified by the proof term `p`, and then
 if no negative cycle was created, updates the shortest distance of affected
 node pairs.
 -/
-def addEdge (u : NodeId) (v : NodeId) (k : Weight) (h : Expr) : OrderM Unit := do
+public def addEdge (u : NodeId) (v : NodeId) (k : Weight) (h : Expr) : OrderM Unit := do
   if (← isInconsistent) then return ()
   if u == v then
     if k.isNeg then

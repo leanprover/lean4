@@ -130,6 +130,7 @@ def mkGrindParams
   trace[grind.debug.inj] "{params.inj.getOrigins.map (·.pp)}"
   return params
 
+-- **TODO**: Remove `Grind.Trace`
 def grind
     (mvarId : MVarId) (config : Grind.Config)
     (only : Bool)

@@ -19,6 +19,7 @@ namespace Collector
 structure State where
   params : Array TParam := #[]
   anchors : Array TAnchor := #[]
+  hasSorry : Bool := false
 
 abbrev Collect := StateRefT State CoreM
 
@@ -47,6 +48,7 @@ def collectInstantiateParams (params : Syntax.TSepArray `Lean.Parser.Tactic.Grin
 
 partial def collect (tac : TGrind) : Collect Unit := do
   match tac with
+  | `(grind| sorry) => modify fun s => { s with hasSorry := true }
   | `(grind| next => $$seq;*)
   | `(grind| · $$seq;*) =>
     for step in seq.getElems do
@@ -67,11 +69,15 @@ def main (seq : List TGrind) : Collect Unit :=
 
 end Collector
 
-def collectParams (seq : List TGrind) : CoreM (Array TParam) := do
+def collectParamsCore (seq : List TGrind) : CoreM (Bool × Array TParam × Array TParam) := do
   let (_, s) ← Collector.main seq |>.run {}
   let anchors ← s.anchors.mapM fun anchor =>
     `(Parser.Tactic.grindParam| $anchor:anchor)
-  return s.params ++ anchors
+  return (s.hasSorry, s.params, anchors)
+
+def collectParams (seq : List TGrind) : CoreM (Array TParam) := do
+  let (_, params, anchors) ← collectParamsCore seq
+  return params ++ anchors
 
 /--
 Given a `grind` tactic sequence, extracts parameters and builds an terminal `finish only` tactic.
@@ -79,5 +85,28 @@ Given a `grind` tactic sequence, extracts parameters and builds an terminal `fin
 public def mkFinishTactic (seq : List TGrind) : CoreM TGrind := do
   let params ← collectParams seq
   `(grind| finish only [$params,*])
+
+/--
+Given a `grind` tactic sequence, extracts parameters and builds a `grind only` tactics.
+It returns at most two. The first tactic uses anchors to restrict the search if applicable.
+The second does not restrict the search using anchors. The second option is included only if there
+are anchors.
+-/
+public def mkGrindOnlyTactics (cfg : TSyntax `Lean.Parser.Tactic.optConfig) (seq : List TGrind) : CoreM (Array (TSyntax `tactic)) := do
+  let (hasSorry, params, anchors) ← collectParamsCore seq
+  if hasSorry then return #[]
+  let allParams := params ++ anchors
+  let s₁ ← mkTac allParams
+  if anchors.isEmpty then
+    return #[s₁]
+  else
+    let s₂ ← mkTac params
+    return #[s₁, s₂]
+where
+  mkTac (params : Array TParam) : CoreM (TSyntax `tactic) :=
+    if params.isEmpty then
+      `(tactic| grind $cfg:optConfig only)
+    else
+      `(tactic| grind $cfg:optConfig only [$params,*])
 
 end Lean.Meta.Grind

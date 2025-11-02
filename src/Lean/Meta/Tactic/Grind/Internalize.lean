@@ -209,11 +209,14 @@ where
       internalize e generation
     pushEq matchCond e (← mkEqRefl matchCond)
 
-def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do
+def preprocessTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM EMatchTheorem := do
   -- Recall that we use the proof as part of the key for a set of instances found so far.
   -- We don't want to use structural equality when comparing keys.
   let proof ← shareCommon thm.proof
-  let thm := { thm with proof, patterns := (← thm.patterns.mapM (internalizePattern · generation thm.origin)) }
+  return { thm with proof, patterns := (← thm.patterns.mapM (internalizePattern · generation thm.origin)) }
+
+def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do
+  let thm ← preprocessTheorem thm generation
   trace_goal[grind.ematch] "activated `{thm.origin.pp}`, {thm.patterns.map ppPattern}"
   modify fun s => { s with ematch.newThms := s.ematch.newThms.push thm }
 

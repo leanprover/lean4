@@ -378,6 +378,7 @@ where
                     $tacs2*)
       modify (·.push tac)
 
+-- **TODO**: Use `finish?` infrastructure
 private def evalSuggestGrindTrace : TryTactic := fun tac => do
   match tac with
   | `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?) =>

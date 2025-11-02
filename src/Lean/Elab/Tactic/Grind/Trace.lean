@@ -21,19 +21,19 @@ open Meta.Grind
 def withTracing (x : GrindTacticM α) : GrindTacticM α := do
   withReader (fun ctx => { ctx with ctx.config.trace := true }) x
 
-def mkFinishAction (maxIterations : Nat) : IO Action := do
+public abbrev maxIterationsDefault := 10000 -- **TODO**: Add option
+
+public def mkFinishAction (maxIterations : Nat := maxIterationsDefault) : IO Action := do
   let solvers ← Solvers.mkAction
   let step : Action := Action.done <|> solvers <|> Action.instantiate <|> Action.splitNext <|> Action.mbtc
   return Action.checkTactic (warnOnly := true) >> step.loop maxIterations
-
-def maxIterations := 1000 -- **TODO**: Add option
 
 @[builtin_grind_tactic finishTrace] def evalFinishTrace : GrindTactic := fun stx => do
   let `(grind| finish? $[$configItems]* $[only%$only]? $[[$params?,*]]?) := stx | throwUnsupportedSyntax
   withConfigItems configItems do
   let params := params?.getD {}
   withParams (← read).params params only.isSome do
-    let a ← mkFinishAction maxIterations
+    let a ← mkFinishAction
     let goal ← getMainGoal
     let params := (← read).params
     withTracing do

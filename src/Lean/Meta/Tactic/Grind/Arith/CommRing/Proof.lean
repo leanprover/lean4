@@ -438,9 +438,13 @@ Given `e` and `e'` s.t. `e.toPoly == e'.toPoly`, returns a proof that `e.denote 
 def mkTermEqProof (e e' : RingExpr) : RingM Expr := do
   let ring ← getCommRing
   let { lhs, lhs', vars, .. } := norm ring.vars e (.num 0) e' (.num 0)
-  let ctx ← toContextExpr vars
-  let h := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPoly_eq [ring.u]) ring.type ring.commRingInst
-  return mkApp4 h ctx (toExpr lhs) (toExpr lhs') eagerReflBoolTrue
+  withAbstractAtoms vars ring.type fun vars => do
+    let ctx ← toContextExpr vars
+    let h := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPoly_eq [ring.u]) ring.type ring.commRingInst
+    let h := mkApp4 h ctx (toExpr lhs) (toExpr lhs') eagerReflBoolTrue
+    let eqFn := mkApp (mkConst ``Eq [Level.succ ring.u]) ring.type
+    let expected := mkApp2 eqFn (← lhs.denoteExpr' vars) (← lhs'.denoteExpr' vars)
+    return mkExpectedPropHint h expected
 
 def mkNonCommLeIffProof (leInst ltInst isPreorderInst orderedRingInst : Expr) (lhs rhs lhs' rhs' : RingExpr) : NonCommRingM Expr := do
   let ring ← getRing
@@ -487,8 +491,12 @@ Given `e` and `e'` s.t. `e.toPoly_nc == e'.toPoly_nc`, returns a proof that `e.d
 def mkNonCommTermEqProof (e e' : RingExpr) : NonCommRingM Expr := do
   let ring ← getRing
   let { lhs, lhs', vars, .. } := norm ring.vars e (.num 0) e' (.num 0)
-  let ctx ← toContextExpr vars
-  let h := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPoly_nc_eq [ring.u]) ring.type ring.ringInst
-  return mkApp4 h ctx (toExpr lhs) (toExpr lhs') eagerReflBoolTrue
+  withAbstractAtoms vars ring.type fun vars => do
+    let ctx ← toContextExpr vars
+    let h := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPoly_nc_eq [ring.u]) ring.type ring.ringInst
+    let h := mkApp4 h ctx (toExpr lhs) (toExpr lhs') eagerReflBoolTrue
+    let eqFn := mkApp (mkConst ``Eq [Level.succ ring.u]) ring.type
+    let expected := mkApp2 eqFn (← lhs.denoteExpr' vars) (← lhs'.denoteExpr' vars)
+    return mkExpectedPropHint h expected
 
 end Lean.Meta.Grind.Arith.CommRing

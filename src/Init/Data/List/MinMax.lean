@@ -155,6 +155,51 @@ theorem foldl_min [Min α] [Std.IdempotentOp (min : α → α → α)] [Std.Asso
     {l : List α} {a : α} : l.foldl (init := a) min = min a (l.min?.getD a) := by
   cases l <;> simp [min?, foldl_assoc, Std.IdempotentOp.idempotent]
 
+/-! ### min -/
+
+theorem min?_eq_some_min [Min α] : {l : List α} → (hl : l ≠ []) →
+    l.min? = some (l.min hl)
+  | a::as, _ => by simp [List.min, List.min?_cons']
+
+theorem min_eq_head {α : Type u} [Min α] {l : List α}
+    (hl : l ≠ [])
+    (h : l.Pairwise (fun a b => min a b = a)) : l.min hl = l.head hl := by
+  apply Option.some.inj
+  rw [← min?_eq_some_min, ←head?_eq_some_head]
+  exact min?_eq_head? h
+
+theorem min_mem [Min α] [MinEqOr α] {l : List α} {hl : l ≠ []} :
+    l.min hl ∈ l := by
+  exact min?_mem (min?_eq_some_min hl)
+
+protected theorem le_min_iff [Min α] [LE α] [LawfulOrderInf α]
+    {l : List α} {hl : l ≠ []} : ∀ {x}, x ≤ l.min hl ↔ ∀ b, b ∈ l → x ≤ b := by
+  exact le_min?_iff (min?_eq_some_min hl)
+
+theorem min_iff  [Min α] [LE α] {l : List α} [IsLinearOrder α] [LawfulOrderMin α] {hl : l ≠ []} :
+    l.min hl = a ↔ a ∈ l ∧ ∀ b, b ∈ l → a ≤ b := by
+  simpa [min?_eq_some_min hl] using (min?_eq_some_iff (xs := l))
+
+theorem min_eq_min_attach [Min α] [MinEqOr α] {l : List α} {hl : l ≠ []} :
+    l.min hl = Subtype.val (l.attach.min (List.attach_ne_nil_iff.mpr hl)) := by
+  simpa [min?_eq_some_min hl, min?_eq_some_min (List.attach_ne_nil_iff.mpr hl)]
+    using (min?_eq_min?_attach (xs := l))
+
+theorem min_iff_subtype [Min α] [LE α] {l : List α} {hl : l ≠ []}
+    [MinEqOr α] [IsLinearOrder (Subtype (· ∈ l))] [LawfulOrderMin (Subtype (· ∈ l))] :
+    l.min hl = a ↔ a ∈ l ∧ ∀ b, b ∈ l → a ≤ b := by
+  simpa [min?_eq_some_min hl] using (min?_eq_some_iff_subtype (xs := l))
+
+theorem min_replicate [Min α] [MinEqOr α] {n : Nat} {a : α} (h: replicate n a ≠ []) :
+    (replicate n a).min h = a := by
+  have n_pos : 0 < n := Nat.pos_of_ne_zero (fun hn => by simp [hn] at h)
+  simpa [min?_eq_some_min h] using (min?_replicate_of_pos (a:=a) n_pos)
+
+theorem foldl_min_eq_min [Min α] [Std.IdempotentOp (min : α → α → α)] [Std.Associative (min : α → α → α)]
+    {l : List α} {hl : l ≠ []} {a : α}:
+    l.foldl min a = min a (l.min hl) := by
+  simpa [min?_eq_some_min hl] using foldl_min (l := l)
+
 /-! ### max? -/
 
 @[simp] theorem max?_nil [Max α] : ([] : List α).max? = none := rfl
@@ -295,5 +340,50 @@ This lemma is also applicable given the following instances:
 theorem foldl_max [Max α] [Std.IdempotentOp (max : α → α → α)] [Std.Associative (max : α → α → α)]
     {l : List α} {a : α} : l.foldl (init := a) max = max a (l.max?.getD a) := by
   cases l <;> simp [max?, foldl_assoc, Std.IdempotentOp.idempotent]
+
+/-! ### max -/
+
+theorem max?_eq_some_max [Max α] : {l : List α} → (hl : l ≠ []) →
+    l.max? = some (l.max hl)
+  | a::as, _ => by simp [List.max, List.max?_cons']
+
+theorem max_eq_head {α : Type u} [Max α] {l : List α}
+    (hl : l ≠ [])
+    (h : l.Pairwise (fun a b => max a b = a)) : l.max hl = l.head hl := by
+  apply Option.some.inj
+  rw [← max?_eq_some_max, ←head?_eq_some_head]
+  exact max?_eq_head? h
+
+theorem max_mem [Max α] [MaxEqOr α] {l : List α} {hl : l ≠ []} :
+    l.max hl ∈ l := by
+  exact max?_mem (max?_eq_some_max hl)
+
+protected theorem max_le_iff [Max α] [LE α] [LawfulOrderSup α]
+    {l : List α} {hl : l ≠ []} : ∀ {x}, l.max hl ≤ x ↔ ∀ b, b ∈ l → b ≤ x := by
+  exact max?_le_iff (max?_eq_some_max hl)
+
+theorem max_iff  [Max α] [LE α] {l : List α} [IsLinearOrder α] [LawfulOrderMax α] {hl : l ≠ []} :
+    l.max hl = a ↔ a ∈ l ∧ ∀ b, b ∈ l → b ≤ a := by
+  simpa [max?_eq_some_max hl] using (max?_eq_some_iff (xs := l))
+
+theorem max_eq_max_attach [Max α] [MaxEqOr α] {l : List α} {hl : l ≠ []} :
+    l.max hl = Subtype.val (l.attach.max (List.attach_ne_nil_iff.mpr hl)) := by
+  simpa [max?_eq_some_max hl, max?_eq_some_max (List.attach_ne_nil_iff.mpr hl)]
+    using (max?_eq_max?_attach (xs := l))
+
+theorem max_iff_subtype [Max α] [LE α] {l : List α} {hl : l ≠ []}
+    [MaxEqOr α] [IsLinearOrder (Subtype (· ∈ l))] [LawfulOrderMax (Subtype (· ∈ l))] :
+    l.max hl = a ↔ a ∈ l ∧ ∀ b, b ∈ l → b ≤ a := by
+  simpa [max?_eq_some_max hl] using (max?_eq_some_iff_subtype (xs := l))
+
+theorem max_replicate [Max α] [MaxEqOr α] {n : Nat} {a : α} (h: replicate n a ≠ []) :
+    (replicate n a).max h = a := by
+  have n_pos : 0 < n := Nat.pos_of_ne_zero (fun hn => by simp [hn] at h)
+  simpa [max?_eq_some_max h] using (max?_replicate_of_pos (a:=a) n_pos)
+
+theorem foldl_max_eq_max [Max α] [Std.IdempotentOp (max : α → α → α)] [Std.Associative (max : α → α → α)]
+    {l : List α} {hl : l ≠ []} {a : α}:
+    l.foldl max a = max a (l.max hl) := by
+  simpa [max?_eq_some_max hl] using foldl_max (l := l)
 
 end List

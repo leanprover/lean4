@@ -351,6 +351,7 @@ Throw an exception if `e` cannot be type checked using the kernel.
 This function is used for debugging purposes only.
 -/
 def checkWithKernel (e : Expr) : MetaM Unit := do
+  let e ← instantiateExprMVars e
   match Kernel.check (← getEnv) (← getLCtx) e with
   | .ok .. => return ()
   | .error ex => throwError "kernel type checker failed at{indentExpr e}\nwith error message\n{ex.toMessageData (← getOptions)}"

@@ -50,12 +50,18 @@ https://doc.rust-lang.org/stable/cargo/reference/specifying-dependencies.html#co
 #eval checkMatch "=1.2.3"   #["1.2.3"] #["1.0.0", "2.0.0"]
 #eval checkMatch "≠1.2.3"   #["1.0.0", "2.0.0"] #["1.2.3"]
 
-#eval checkMatch "<1.2.3-alpha.3" #["1.2.3-alpha.1"] #["1.2.3-alpha.3", "1.2.3-alpha.7", "1.0.0-alpha.9"]
-#eval checkMatch "≤1.2.3-alpha.3" #["1.2.3-alpha.1", "1.2.3-alpha.3"] #["1.2.3-alpha.7", "1.0.0-alpha.9"]
-#eval checkMatch ">1.2.3-alpha.3" #["1.2.3-alpha.7"] #["1.2.3-alpha.1", "1.2.3-alpha.3", "3.4.5-alpha.9"]
-#eval checkMatch "≥1.2.3-alpha.3" #["1.2.3-alpha.3", "1.2.3-alpha.7"] #["1.2.3-alpha.1", "3.4.5-alpha.9"]
-#eval checkMatch "=1.2.3-alpha.3" #["1.2.3-alpha.3"] #["1.2.3-alpha.1", "1.2.3-alpha.7", "3.4.5-alpha.9"]
-#eval checkMatch "≠1.2.3-alpha.3" #["1.2.3-alpha.1", "1.2.3-alpha.7"] #["1.2.3-alpha.3", "3.4.5-alpha.9"]
+#eval checkMatch "<1.2.3-alpha.3"
+  #["1.2.3-alpha.1"] #["1.2.3", "1.2.3-alpha.7", "1.2.3-alpha.3", "1.0.0-alpha.9"]
+#eval checkMatch "≤1.2.3-alpha.3"
+  #["1.2.3-alpha.1", "1.2.3-alpha.3"] #["1.2.3", "1.2.3-alpha.7", "1.0.0-alpha.9"]
+#eval checkMatch ">1.2.3-alpha.3"
+  #["1.2.3-alpha.7", "1.2.3"] #["1.2.3-alpha.1", "1.2.3-alpha.3", "3.4.5-alpha.9"]
+#eval checkMatch "≥1.2.3-alpha.3"
+  #["1.2.3-alpha.3", "1.2.3-alpha.7", "1.2.3"] #["1.2.3-alpha.1", "3.4.5-alpha.9"]
+#eval checkMatch "=1.2.3-alpha.3"
+  #["1.2.3-alpha.3"] #["1.2.3-alpha.1", "1.2.3-alpha.7", "1.2.3", "3.4.5-alpha.9"]
+#eval checkMatch "≠1.2.3-alpha.3"
+  #["1.2.3-alpha.1", "1.2.3-alpha.7", "1.2.3"] #["1.2.3-alpha.3", "3.4.5-alpha.9"]
 
 /-!
 ## Clauses
@@ -144,6 +150,9 @@ https://doc.rust-lang.org/stable/cargo/reference/specifying-dependencies.html#ti
 
 /-- error: invalid tilde range: incorrect number of components: got 4, expected 1-3 -/
 #guard_msgs in #eval runParse "~1.2.3.4"
+
+#eval checkMatch "~1.2.3-beta.2"
+  #["1.2.3-beta.2", "1.2.3-beta.7", "1.2.3"] #["1.2.4-alpha.3", "1.2.4"]
 
 /-! ## Wildcard Ranges
 

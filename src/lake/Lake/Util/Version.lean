@@ -397,17 +397,19 @@ public instance : ToString Comparator := ⟨Comparator.toString⟩
 end Comparator
 
 public structure VerComparator where
-  ver : StdVer
-  op : Comparator
-  deriving Repr
+  private innerMk ::
+    private ver : StdVer
+    private op : Comparator
+    private includePrereleases : Bool := false
+    deriving Repr
 
 namespace VerComparator
 
-/-- A version comparator that matches any version (i.e., `≥0.0.0`). -/
-def any : VerComparator :=
+/-- A version comparator that matches any non-prerelease version (i.e., `*`, `≥0.0.0`). -/
+public def wild : VerComparator :=
   {op := .ge, ver := .ofSemVerCore {}}
 
-instance : Inhabited VerComparator := ⟨.any⟩
+public instance : Inhabited VerComparator := ⟨.wild⟩
 
 def parseM (s : String) : EStateM String s.ValidPos VerComparator := do
   let op ← Comparator.parseM s
@@ -418,28 +420,34 @@ def parseM (s : String) : EStateM String s.ValidPos VerComparator := do
   runVerParse s parseM
 
 public def test (self : VerComparator) (ver : StdVer) : Bool :=
-  match self.ver.specialDescr, ver.specialDescr with
-  | _, "" =>
-    match self.op with
-    | .lt => ver < self.ver
-    | .le => ver ≤ self.ver
-    | .gt => ver > self.ver
-    | .ge => ver ≥ self.ver
-    | .eq => ver = self.ver
-    | .ne => ver ≠ self.ver
-  | "", _ =>
-    false
-  | selfDescr, verDescr =>
-    if self.ver.toSemVerCore = ver.toSemVerCore then
-      match self.op with
-      | .lt => verDescr < selfDescr
-      | .le => verDescr ≤ selfDescr
-      | .gt => verDescr > selfDescr
-      | .ge => verDescr ≥ selfDescr
-      | .eq => verDescr = selfDescr
-      | .ne => verDescr ≠ selfDescr
-    else
+  let fullCheck op selfVer ver :=
+    match op with
+    | .lt => ver < selfVer
+    | .le => ver ≤ selfVer
+    | .gt => ver > selfVer
+    | .ge => ver ≥ selfVer
+    | .eq => ver = selfVer
+    | .ne => ver ≠ selfVer
+  let {op, ver := selfVer, includePrereleases} := self
+  if includePrereleases then
+    fullCheck op selfVer ver
+  else
+    match selfVer.specialDescr, ver.specialDescr with
+    | _, "" =>
+      fullCheck op selfVer ver
+    | "", _ =>
       false
+    | selfDescr, verDescr =>
+      if selfVer.toSemVerCore = ver.toSemVerCore then
+        match op with
+        | .lt => verDescr < selfDescr
+        | .le => verDescr ≤ selfDescr
+        | .gt => verDescr > selfDescr
+        | .ge => verDescr ≥ selfDescr
+        | .eq => verDescr = selfDescr
+        | .ne => verDescr ≠ selfDescr
+      else
+        false
 
 public protected def toString (self : VerComparator) : String :=
   s!"{self.op}{self.ver}"
@@ -526,7 +534,7 @@ where
   @[inline] appendRange ands minVer maxVer (specialDescr := "") :=
     let minVer := StdVer.mk minVer specialDescr
     let maxVer := StdVer.ofSemVerCore maxVer
-    ands.push {op := .ge, ver := minVer} |>.push {op := .lt, ver := maxVer}
+    ands.push {op := .ge, ver := minVer} |>.push {op := .lt, ver := maxVer, includePrereleases := true}
   parseWild (s : String) ands : EStateM String s.ValidPos _ := do
     let cs ← parseVerComponents s
     if (← get).get?.any (· == '-') then
@@ -551,7 +559,7 @@ where
           if you want to fix a specific version, use '=' before the full version; \
           otherwise, use '≥' to support it and future versions"
       | _, _, _ =>
-        return ands.push .any
+        return ands.push .wild
   parseTilde (s : String) ands : EStateM String s.ValidPos _ := do
     let cs ← parseVerComponents s
     let specialDescr ← parseSpecialDescr s

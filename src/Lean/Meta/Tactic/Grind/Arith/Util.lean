@@ -14,8 +14,9 @@ namespace Lean.Meta.Grind.Arith
 To prevent the kernel from accidentally reducing the atoms in the equation while typechecking,
 we abstract over them.
 -/
-def withAbstractAtoms (atoms : Array Expr) (type : Expr) (k : Array Expr → MetaM Expr) : MetaM Expr := do
-  let rec go (i : Nat) (atoms' : Array Expr) (xs : Array Expr) (args : Array Expr) : MetaM Expr := do
+def withAbstractAtoms [Monad m] [MonadControlT MetaM m] [MonadLiftT CoreM m] [MonadLiftT MetaM m]
+    (atoms : Array Expr) (type : Expr) (k : Array Expr → m Expr) : m Expr := do
+  let rec go (i : Nat) (atoms' : Array Expr) (xs : Array Expr) (args : Array Expr) : m Expr := do
     if h : i < atoms.size then
       let atom := atoms[i]
       if atom.isFVar then

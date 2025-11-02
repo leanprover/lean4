@@ -11,6 +11,7 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM
 import Lean.Data.RArray
 import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.ProofUtil
+import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
 import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
@@ -395,23 +396,41 @@ private def norm (vars : PArray Expr) (lhs rhs lhs' rhs' : RingExpr) : NormResul
 def mkLeIffProof (leInst ltInst isPreorderInst orderedRingInst : Expr) (lhs rhs lhs' rhs' : RingExpr) : RingM Expr := do
   let ring ← getCommRing
   let { lhs, rhs, lhs', rhs', vars } := norm ring.vars lhs rhs lhs' rhs'
-  let ctx ← toContextExpr vars
-  let h := mkApp6 (mkConst ``Grind.CommRing.le_norm_expr [ring.u]) ring.type ring.commRingInst leInst ltInst isPreorderInst orderedRingInst
-  return mkApp6 h ctx (toExpr lhs) (toExpr rhs) (toExpr lhs') (toExpr rhs') eagerReflBoolTrue
+  withAbstractAtoms vars ring.type fun vars => do
+    let ctx ← toContextExpr vars
+    let h := mkApp6 (mkConst ``Grind.CommRing.le_norm_expr [ring.u]) ring.type ring.commRingInst leInst ltInst isPreorderInst orderedRingInst
+    let h := mkApp6 h ctx (toExpr lhs) (toExpr rhs) (toExpr lhs') (toExpr rhs') eagerReflBoolTrue
+    let leFn := mkApp2 (mkConst ``LE.le [ring.u]) ring.type leInst
+    let le   := mkApp2 leFn (← lhs.denoteExpr' vars) (← rhs.denoteExpr' vars)
+    let le'  := mkApp2 leFn (← lhs'.denoteExpr' vars) (← rhs'.denoteExpr' vars)
+    let expected := mkPropEq le le'
+    return mkExpectedPropHint h expected
 
 def mkLtIffProof (leInst ltInst lawfulOrdLtInst isPreorderInst orderedRingInst : Expr) (lhs rhs lhs' rhs' : RingExpr) : RingM Expr := do
   let ring ← getCommRing
   let { lhs, rhs, lhs', rhs', vars } := norm ring.vars lhs rhs lhs' rhs'
-  let ctx ← toContextExpr vars
-  let h := mkApp7 (mkConst ``Grind.CommRing.lt_norm_expr [ring.u]) ring.type ring.commRingInst leInst ltInst lawfulOrdLtInst isPreorderInst orderedRingInst
-  return mkApp6 h ctx (toExpr lhs) (toExpr rhs) (toExpr lhs') (toExpr rhs') eagerReflBoolTrue
+  withAbstractAtoms vars ring.type fun vars => do
+    let ctx ← toContextExpr vars
+    let h := mkApp7 (mkConst ``Grind.CommRing.lt_norm_expr [ring.u]) ring.type ring.commRingInst leInst ltInst lawfulOrdLtInst isPreorderInst orderedRingInst
+    let h := mkApp6 h ctx (toExpr lhs) (toExpr rhs) (toExpr lhs') (toExpr rhs') eagerReflBoolTrue
+    let ltFn := mkApp2 (mkConst ``LT.lt [ring.u]) ring.type ltInst
+    let lt   := mkApp2 ltFn (← lhs.denoteExpr' vars) (← rhs.denoteExpr' vars)
+    let lt'  := mkApp2 ltFn (← lhs'.denoteExpr' vars) (← rhs'.denoteExpr' vars)
+    let expected := mkPropEq lt lt'
+    return mkExpectedPropHint h expected
 
 def mkEqIffProof (lhs rhs lhs' rhs' : RingExpr) : RingM Expr := do
   let ring ← getCommRing
   let { lhs, rhs, lhs', rhs', vars } := norm ring.vars lhs rhs lhs' rhs'
-  let ctx ← toContextExpr vars
-  let h := mkApp2 (mkConst ``Grind.CommRing.eq_norm_expr [ring.u]) ring.type ring.commRingInst
-  return mkApp6 h ctx (toExpr lhs) (toExpr rhs) (toExpr lhs') (toExpr rhs') eagerReflBoolTrue
+  withAbstractAtoms vars ring.type fun vars => do
+    let ctx ← toContextExpr vars
+    let h := mkApp2 (mkConst ``Grind.CommRing.eq_norm_expr [ring.u]) ring.type ring.commRingInst
+    let h := mkApp6 h ctx (toExpr lhs) (toExpr rhs) (toExpr lhs') (toExpr rhs') eagerReflBoolTrue
+    let eqFn := mkApp (mkConst ``Eq [Level.succ ring.u]) ring.type
+    let eq   := mkApp2 eqFn (← lhs.denoteExpr' vars) (← rhs.denoteExpr' vars)
+    let eq'  := mkApp2 eqFn (← lhs'.denoteExpr' vars) (← rhs'.denoteExpr' vars)
+    let expected := mkPropEq eq eq'
+    return mkExpectedPropHint h expected
 
 /--
 Given `e` and `e'` s.t. `e.toPoly == e'.toPoly`, returns a proof that `e.denote ctx = e'.denote ctx`

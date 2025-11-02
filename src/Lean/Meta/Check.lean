@@ -346,6 +346,15 @@ def isTypeCorrect (e : Expr) : MetaM Bool := do
   catch _ =>
     pure false
 
+/--
+Throw an exception if `e` cannot be type checked using the kernel.
+This function is used for debugging purposes only.
+-/
+def checkWithKernel (e : Expr) : MetaM Unit := do
+  match Kernel.check (← getEnv) (← getLCtx) e with
+  | .ok .. => return ()
+  | .error ex => throwError "kernel type checker failed at{indentExpr e}\nwith error message\n{ex.toMessageData (← getOptions)}"
+
 builtin_initialize
   registerTraceClass `Meta.check
 

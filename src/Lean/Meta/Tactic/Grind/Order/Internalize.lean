@@ -77,20 +77,11 @@ def split (p : Poly) : Poly × Poly × Int :=
     else
       (.add k m lhs, rhs, c)
 
-def propEq := mkApp (mkConst ``Eq [1]) (mkSort 0)
-
-/--
-Given a proof `h` that `e = rel lhs rhs`, returns `(e', h')` where
-`e'` is `rel lhs rhs`, and `h'` is `h` with the expected proposition hint around it.
--/
-def mkExpectedHint (s : Struct) (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) (h : Expr) : Expr × Expr :=
+def mkRel (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : Expr :=
   let rel := match kind with
     | .le => s.leFn
     | .lt => s.ltFn?.get!
-  let e' := mkApp2 rel lhs rhs
-  let prop :=  mkApp2 propEq e e'
-  let h' := mkExpectedPropHint h prop
-  (e', h')
+  mkApp2 rel lhs rhs
 
 def mkLeNorm0 (s : Struct) (ringInst : Expr) (lhs rhs : Expr) : Expr :=
   mkApp5 (mkConst ``Grind.CommRing.le_norm0 [s.u]) s.type ringInst s.leInst lhs rhs
@@ -111,13 +102,10 @@ Returns `rel lhs (rhs + 0)`
 -/
 def mkDenote0 [MonadLiftT MetaM m] [MonadError m] [Monad m] [MonadCanon m] [MonadRing m]
     (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : m Expr := do
-  let rel := match kind with
-    | .le => s.leFn
-    | .lt => s.ltFn?.get!
   let rhs' := mkApp2 (← getAddFn) rhs (mkApp (← getIntCastFn) (mkIntLit 0))
-  return mkApp2 rel lhs rhs'
+  return mkRel s kind lhs rhs'
 
-def mkCommRingCnstr? (e : Expr) (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : RingM (Option (Cnstr Expr)) := do
+def mkCommRingCnstr? (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : RingM (Option (Cnstr Expr)) := do
   if !isArithTerm lhs && !isArithTerm rhs then
     let e ← mkDenote0 s kind lhs rhs
     return some { u := lhs, v := rhs, k := 0, e, kind, h? := some (mkCnstrNorm0 s (← getRing).ringInst kind lhs rhs)  }
@@ -133,12 +121,12 @@ def mkCommRingCnstr? (e : Expr) (s : Struct) (kind : CnstrKind) (lhs rhs : Expr)
   let h ← match kind with
     | .le => mkLeIffProof s.leInst s.ltInst?.get! s.isPreorderInst s.orderedRingInst?.get! lhs rhs lhs' rhs'
     | .lt => mkLtIffProof s.leInst s.ltInst?.get! s.lawfulOrderLTInst?.get! s.isPreorderInst s.orderedRingInst?.get! lhs rhs lhs' rhs'
-  let (e', h') := mkExpectedHint s e kind u (← rhs'.denoteExpr) h
+  let e' := mkRel s kind u (← rhs'.denoteExpr)
   return some {
-    kind, u, v, k, e := e', h? := some h'
+    kind, u, v, k, e := e', h? := some h
   }
 
-def mkNonCommRingCnstr? (e : Expr) (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : NonCommRingM (Option (Cnstr Expr)) := do
+def mkNonCommRingCnstr? (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : NonCommRingM (Option (Cnstr Expr)) := do
   if !isArithTerm lhs && !isArithTerm rhs then
     let e ← mkDenote0 s kind lhs rhs
     return some { u := lhs, v := rhs, k := 0, e, kind, h? := some (mkCnstrNorm0 s (← getRing).ringInst kind lhs rhs)  }
@@ -155,18 +143,18 @@ def mkNonCommRingCnstr? (e : Expr) (s : Struct) (kind : CnstrKind) (lhs rhs : Ex
   let h ← match kind with
     | .le => mkNonCommLeIffProof s.leInst s.ltInst?.get! s.isPreorderInst s.orderedRingInst?.get! lhs rhs lhs' rhs'
     | .lt => mkNonCommLtIffProof s.leInst s.ltInst?.get! s.lawfulOrderLTInst?.get! s.isPreorderInst s.orderedRingInst?.get! lhs rhs lhs' rhs'
-  let (e', h') := mkExpectedHint s e kind u (← rhs'.denoteExpr) h
+  let e' := mkRel s kind u (← rhs'.denoteExpr)
   return some {
-    kind, u, v, k, e := e', h? := some h'
+    kind, u, v, k, e := e', h? := some h
   }
 
 def mkCnstr? (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM (Option (Cnstr Expr)) := do
   let s ← getStruct
   if let some ringId := s.ringId? then
     if s.isCommRing then
-      RingM.run ringId <| mkCommRingCnstr? e s kind lhs rhs
+      RingM.run ringId <| mkCommRingCnstr? s kind lhs rhs
     else
-      NonCommRingM.run ringId <| mkNonCommRingCnstr? e s kind lhs rhs
+      NonCommRingM.run ringId <| mkNonCommRingCnstr? s kind lhs rhs
   else
     return some { kind, u := lhs, v := rhs, e }
 

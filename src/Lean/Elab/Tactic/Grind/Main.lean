@@ -244,35 +244,29 @@ private def elabGrindConfig' (config : TSyntax ``Lean.Parser.Tactic.optConfig) (
 @[builtin_tactic Lean.Parser.Tactic.grind] def evalGrind : Tactic := fun stx => do
   -- Preserve this import in core; all others import `Init` anyway
   recordExtraModUse (isMeta := false) `Init.Grind.Tactics
-  match stx with
-  | `(tactic| grind $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[=> $seq:grindSeq]?) =>
-    let interactive := seq.isSome
-    let config ← elabGrindConfig' config interactive
-    discard <| evalGrindCore stx config only params seq
-  | _ => throwUnsupportedSyntax
+  let `(tactic| grind $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[=> $seq:grindSeq]?) := stx
+    | throwUnsupportedSyntax
+  let interactive := seq.isSome
+  let config ← elabGrindConfig' config interactive
+  discard <| evalGrindCore stx config only params seq
 
 @[builtin_tactic Lean.Parser.Tactic.grindTrace] def evalGrindTrace : Tactic := fun stx => do
-  match stx with
-  | `(tactic| grind?%$tk $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?) =>
-    let config ← elabGrindConfig configStx
-    let config := { config with trace := true }
-    let trace ← evalGrindCore stx config only params none
-    let stx ← mkGrindOnly configStx trace
-    Tactic.TryThis.addSuggestion tk stx (origSpan? := ← getRef)
-  | _ => throwUnsupportedSyntax
+  let `(tactic| grind?%$tk $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?) := stx
+    | throwUnsupportedSyntax
+  let config ← elabGrindConfig configStx
+  let config := { config with trace := true }
+  let trace ← evalGrindCore stx config only params none
+  let stx ← mkGrindOnly configStx trace
+  Tactic.TryThis.addSuggestion tk stx (origSpan? := ← getRef)
 
 @[builtin_tactic Lean.Parser.Tactic.cutsat] def evalCutsat : Tactic := fun stx => do
-  match stx with
-  | `(tactic| cutsat $config:optConfig) =>
-    let config ← elabCutsatConfig config
-    discard <| evalGrindCore stx { config with } none none none
-  | _ => throwUnsupportedSyntax
+  let `(tactic| cutsat $config:optConfig) := stx | throwUnsupportedSyntax
+  let config ← elabCutsatConfig config
+  discard <| evalGrindCore stx { config with } none none none
 
 @[builtin_tactic Lean.Parser.Tactic.grobner] def evalGrobner : Tactic := fun stx => do
-  match stx with
-  | `(tactic| grobner $config:optConfig) =>
-    let config ← elabGrobnerConfig config
-    discard <| evalGrindCore stx { config with } none none none
-  | _ => throwUnsupportedSyntax
+  let `(tactic| grobner $config:optConfig) := stx | throwUnsupportedSyntax
+  let config ← elabGrobnerConfig config
+  discard <| evalGrindCore stx { config with } none none none
 
 end Lean.Elab.Tactic

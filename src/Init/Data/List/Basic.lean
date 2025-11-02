@@ -2089,13 +2089,13 @@ def min? [Min α] : List α → Option α
 /-! ### min -/
 
 /--
-Returns the smallest element of a non empty list.
+Returns the smallest element of a non-empty list.
 
 Examples:
 * `[4].min (by decide) = 4`
 * `[1, 4, 2, 10, 6].min (by decide) = 1`
 -/
-protected def min [Min α] : (l: List α) → (h: l ≠ []) → α
+protected def min [Min α] : (l : List α) → (h : l ≠ []) → α
   | a::as, _ => as.foldl min a
 
 /-! ### max? -/
@@ -2115,12 +2115,13 @@ def max? [Max α] : List α → Option α
 /-! ### max -/
 
 /--
-Returns the largest element of a non empty list.
+Returns the largest element of a non-empty list.
+
 Examples:
 * `[4].max (by decide) = 4`
 * `[1, 4, 2, 10, 6].max (by decide) = 10`
 -/
-protected def max [Max α] : (l: List α) → (h: l ≠ []) → α
+protected def max [Max α] : (l : List α) → (h : l ≠ []) → α
   | a::as, _ => as.foldl max a
 
 /-! ## Other list operations

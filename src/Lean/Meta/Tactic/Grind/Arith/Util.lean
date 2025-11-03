@@ -78,17 +78,6 @@ def isNatNum? (e : Expr) : Option Nat := Id.run do
   let .lit (.natVal k) := k | none
   some k
 
-def isSupportedType (e : Expr) : Bool :=
-  isNatType e || isIntType e
-
-partial def isRelevantPred (e : Expr) : Bool :=
-  match_expr e with
-  | Not p => isRelevantPred p
-  | LE.le α _ _ _ => isSupportedType α
-  | Eq α _ _ => isSupportedType α
-  | Dvd.dvd α _ _ _ => isSupportedType α
-  | _ => false
-
 def isArithTerm (e : Expr) : Bool :=
   match_expr e with
   | HAdd.hAdd _ _ _ _ _ _ => true

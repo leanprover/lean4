@@ -528,6 +528,22 @@ private def assignGeneralizedPatternProof (mvarId : MVarId) (eqProof : Expr) (or
     reportEMatchIssue! "invalid generalized pattern at `{origin.pp}`\nfailed to assign {mkMVar mvarId}\nwith{indentExpr eqProof}"
     failure
 
+/--
+At `processDelayed`, `lhs` is extracted using `instantiateMVars`. We know it is structurally equal to a term in `assignment`, but
+it is not necessarily pointer equal. This can happen when the type of `lhs` depends on previous parameters, and we have a
+metavariable application.
+If the `lhs` has already been internalized, nothing needs to be done. Otherwise, we traverse the assignment looking for
+a term that is structurally equal.
+**Note**: If this solution is not robust enough, we should store the original `lhs` when we perform an delayed assignment.
+-/
+private def findOriginalGeneralizedPatternLhs (lhs : Expr) : OptionT (StateT Choice M) Expr := do
+  if (← alreadyInternalized lhs) then return lhs
+  for val in (← get).assignment do
+    if val == lhs then
+      return val
+  reportEMatchIssue! "invalid generalized pattern at `{(← read).thm.origin.pp}`\nwhen processing argument{indentExpr lhs}"
+  failure
+
 /-- Helper function for `applyAssignment. -/
 private def processDelayed (mvars : Array Expr) (i : Nat) (h : i < mvars.size) : OptionT (StateT Choice M) Unit := do
   let thm := (← read).thm
@@ -535,9 +551,11 @@ private def processDelayed (mvars : Array Expr) (i : Nat) (h : i < mvars.size) :
   let mvarIdType ← instantiateMVars (← mvarId.getType)
   match_expr mvarIdType with
   | Eq α lhs rhs =>
+    let lhs ← findOriginalGeneralizedPatternLhs lhs
     let rhs ← preprocessGeneralizedPatternRHS lhs rhs thm.origin mvarIdType
     assignGeneralizedPatternProof mvarId (← mkEqProof lhs rhs) thm.origin
   | HEq α lhs β rhs =>
+    let lhs ← findOriginalGeneralizedPatternLhs lhs
     let rhs ← preprocessGeneralizedPatternRHS lhs rhs thm.origin mvarIdType
     assignGeneralizedPatternProof mvarId (← mkHEqProof lhs rhs) thm.origin
   | _ =>

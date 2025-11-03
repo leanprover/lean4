@@ -9,8 +9,8 @@ prelude
 public import Lean.CoreM
 public import Lean.Meta.Basic
 import Lean.Meta.Instances
-import Lean.PremiseSelection.SymbolFrequency
-public import Lean.PremiseSelection.Basic
+import Lean.LibrarySuggestions.SymbolFrequency
+public import Lean.LibrarySuggestions.Basic
 
 /-!
 # Sine Qua Non premise selection
@@ -21,7 +21,7 @@ This is an implementation of the "Sine Qua Non" premise selection algorithm, fro
 It needs to be tuned and evaluated for Lean.
 -/
 
-namespace Lean.PremiseSelection.SineQuaNon
+namespace Lean.LibrarySuggestions.SineQuaNon
 
 builtin_initialize registerTraceClass `sineQuaNon
 
@@ -193,4 +193,4 @@ public def sineQuaNonSelector (depthFactor : Float := 1.5) : Selector := fun g c
   let suggestions ← sineQuaNon constants config.maxSuggestions depthFactor
   return suggestions.take config.maxSuggestions
 
-end Lean.PremiseSelection
+end Lean.LibrarySuggestions

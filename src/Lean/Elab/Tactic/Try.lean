@@ -378,6 +378,7 @@ where
                     $tacs2*)
       modify (·.push tac)
 
+-- **TODO**: Use `finish?` infrastructure
 private def evalSuggestGrindTrace : TryTactic := fun tac => do
   match tac with
   | `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?) =>
@@ -673,7 +674,7 @@ private def mkTryEvalSuggestStx (info : Try.Info) : MetaM (TSyntax `tactic) := d
 
 -- TODO: vanilla `induction`.
 -- TODO: make it extensible.
--- TODO: premise selection.
+-- TODO: library suggestions.
 
 @[builtin_tactic Lean.Parser.Tactic.tryTrace] def evalTryTrace : Tactic := fun stx => do
   match stx with

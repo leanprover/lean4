@@ -99,7 +99,7 @@ attribute [local grind] getIdx findIdx insert
 
 example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
     (m.insert a b)[a'] = if h' : a' == a then b else m[a'] := by
-  grind -offset -ring -linarith -lia =>
+  grind -ring -linarith -lia =>
     instantiate only [= getElem_def, insert]
     cases #f590
     next =>
@@ -114,7 +114,7 @@ example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
 
 example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
     (m.insert a b)[a'] = if h' : a' == a then b else m[a'] := by
-  grind -offset -ring -linarith -lia =>
+  grind -ring -linarith -lia =>
     instantiate only [= getElem_def, insert]
     cases #f590
     next =>

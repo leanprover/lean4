@@ -14,6 +14,7 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
 import Lean.Meta.Tactic.Grind.AC.Eq
 import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.PP
+import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.Anchor
@@ -134,7 +135,9 @@ def logTheoremAnchor (proof : Expr) : TermElabM Unit := do
   Term.addTermInfo' stx proof
 
 def ematchThms (only : Bool) (thms : Array EMatchTheorem) : GrindTacticM Unit := do
-  let progress ← liftGoalM <| if only then ematchOnly thms else ematch thms
+  let progress ← liftGoalM do
+    let thms ← thms.mapM (preprocessTheorem · 0)
+    if only then ematchOnly thms else ematch thms
   unless progress do
     throwError "`instantiate` tactic failed to instantiate new facts, use `show_patterns` to see active theorems and their patterns."
   let goal ← getMainGoal

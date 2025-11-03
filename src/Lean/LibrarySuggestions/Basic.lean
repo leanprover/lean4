@@ -12,19 +12,20 @@ public import Lean.Meta.CompletionName
 public import Init.Data.Random
 
 /-!
-# An API for premise selection algorithms.
+# An API for library suggestion algorithms.
 
-This module provides a basic API for premise selection algorithms,
-which are used to suggest identifiers that should be introduced in a proof.
+This module provides a basic API for library suggestion algorithms,
+which are used to suggest relevant theorems from the library for the current goal.
+In the literature this is usually known as "premise selection",
+but we mostly avoid that term as most of our users will not be familiar with the term.
 
 The core interface is the `Selector` type, which is a function from a metavariable
 and a configuration to a list of suggestions.
+The `Selector` is registered as an environment extension,
+and the trivial (no suggestions) implementation is `Lean.LibrarySuggestions.empty`.
 
-The `Selector` is registered as an environment extension, and the trivial (no suggestions) implementation
-is `Lean.PremiseSelection.empty`.
-
-Lean does not provide a default premise selector, so this module is intended to be used in conjunction
-with a downstream package which registers a premise selector.
+Lean does not provide a default library suggestion engine, so this module is intended to be used in conjunction
+with a downstream package which registers a library suggestion engine.
 -/
 
 namespace Lean.Expr.FoldRelevantConstantsImpl
@@ -113,7 +114,7 @@ public def Lean.MVarId.getRelevantConstants (g : MVarId) : MetaM NameSet := with
 
 @[expose] public section
 
-namespace Lean.PremiseSelection
+namespace Lean.LibrarySuggestions
 
 /--
 A `Suggestion` is essentially just an identifier and a confidence score that the identifier is relevant.
@@ -285,52 +286,68 @@ def random (gen : StdGen := ⟨37, 59⟩) : Selector := fun _ cfg => do
       suggestions := suggestions.push { name := name, score := 1.0 / consts.size.toFloat }
   return suggestions
 
-builtin_initialize premiseSelectorExt : EnvExtension (Option Selector) ←
+/-- A library suggestion engine that returns locally defined theorems (those in the current file). -/
+def currentFile : Selector := fun _ cfg => do
+  let env ← getEnv
+  let max := cfg.maxSuggestions
+  -- Use map₂ from the staged map, which contains locally defined constants
+  let mut suggestions := #[]
+  for (name, ci) in env.constants.map₂.toList do
+    if suggestions.size >= max then
+      break
+    if isDeniedPremise env name then
+      continue
+    match ci with
+    | .thmInfo _ => suggestions := suggestions.push { name := name, score := 1.0 }
+    | _ => continue
+  return suggestions
+
+builtin_initialize librarySuggestionsExt : EnvExtension (Option Selector) ←
   registerEnvExtension (pure none)
 
-/-- Generate premise suggestions for the given metavariable, using the currently registered premise selector. -/
+/-- Generate library suggestions for the given metavariable, using the currently registered library suggestions engine. -/
 def select (m : MVarId) (c : Config := {}) : MetaM (Array Suggestion) := do
-  let some selector := premiseSelectorExt.getState (← getEnv) |
-    throwError "No premise selector registered. \
-      (Note that Lean does not provide a default premise selector, \
+  let some selector := librarySuggestionsExt.getState (← getEnv) |
+    throwError "No library suggestions engine registered. \
+      (Note that Lean does not provide a default library suggestions engine, \
       these must be provided by a downstream library, \
-      and configured using `set_premise_selector`.)"
+      and configured using `set_library_suggestions`.)"
   selector m c
 
 /-!
 Currently the registration mechanism is just global state.
-This means that if multiple modules register premise selectors,
+This means that if multiple modules register library suggestions engines,
 the behaviour will be dependent on the order of loading modules.
 
 We should replace this with a mechanism so that
-premise selectors are configured via options in the `lakefile`, and
+library suggestions engines are configured via options in the `lakefile`, and
 commands are only used to override in a single declaration or file.
 -/
 
-/-- Set the current premise selector.-/
-def registerPremiseSelector (selector : Selector) : CoreM Unit := do
-  modifyEnv fun env => premiseSelectorExt.setState env (some selector)
+/-- Set the current library suggestions engine.-/
+def registerLibrarySuggestions (selector : Selector) : CoreM Unit := do
+  modifyEnv fun env => librarySuggestionsExt.setState env (some selector)
 
 open Lean Elab Command in
-@[builtin_command_elab setPremiseSelectorCmd, inherit_doc setPremiseSelectorCmd]
-def elabSetPremiseSelector : CommandElab
-  | `(command| set_premise_selector $selector) => do
-    if `Lean.PremiseSelection.Basic ∉ (← getEnv).header.moduleNames then
-      logWarning "Add `import Lean.PremiseSelection.Basic` before using the `set_premise_selector` command."
+@[builtin_command_elab setLibrarySuggestionsCmd, inherit_doc setLibrarySuggestionsCmd]
+def elabSetLibrarySuggestions : CommandElab
+  | `(command| set_library_suggestions $selector) => do
+    if `Lean.LibrarySuggestions.Basic ∉ (← getEnv).header.moduleNames then
+      logWarning "Add `import Lean.LibrarySuggestions.Basic` before using the `set_library_suggestions` command."
     let selector ← liftTermElabM do
       try
         let selectorTerm ← Term.elabTermEnsuringType selector (some (Expr.const ``Selector []))
         unsafe Meta.evalExpr Selector (Expr.const ``Selector []) selectorTerm
       catch _ =>
         throwError "Failed to elaborate {selector} as a `MVarId → Config → MetaM (Array Suggestion)`."
-    liftCoreM (registerPremiseSelector selector)
+    liftCoreM (registerLibrarySuggestions selector)
   | _ => throwUnsupportedSyntax
 
 open Lean.Elab.Tactic in
-@[builtin_tactic Lean.Parser.Tactic.suggestPremises] def evalSuggestPremises : Tactic := fun _ =>
+@[builtin_tactic Lean.Parser.Tactic.suggestions] def evalSuggestions : Tactic := fun _ =>
   liftMetaTactic1 fun mvarId => do
     let suggestions ← select mvarId
-    logInfo m!"Premise suggestions: {suggestions.map (·.name)}"
+    logInfo m!"Library suggestions: {suggestions.map (·.name)}"
     return mvarId
 
-end Lean.PremiseSelection
+end Lean.LibrarySuggestions

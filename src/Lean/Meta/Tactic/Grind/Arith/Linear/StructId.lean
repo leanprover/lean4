@@ -171,7 +171,7 @@ def getStructId? (type : Expr) : GoalM (Option Nat) := do
     return id?
 where
   go? : GoalM (Option Nat) := do
-    let u ← getDecLevel type
+    let some u ← getDecLevel? type | return none
     let ringId? ← CommRing.getCommRingId? type
     let leInst? ← getInst? ``LE u type
     let ltInst? ← getInst? ``LT u type

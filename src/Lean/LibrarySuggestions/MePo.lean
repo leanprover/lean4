@@ -6,8 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Lean.PremiseSelection.Basic
-import Lean.PremiseSelection.SymbolFrequency
+public import Lean.LibrarySuggestions.Basic
+import Lean.LibrarySuggestions.SymbolFrequency
 import Lean.Meta.Basic
 
 /-!
@@ -21,7 +21,7 @@ It needs to be tuned and evaluated for Lean.
 
 open Lean
 
-namespace Lean.PremiseSelection.MePo
+namespace Lean.LibrarySuggestions.MePo
 
 builtin_initialize registerTraceClass `mepo
 

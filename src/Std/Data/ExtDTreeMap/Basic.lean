@@ -90,6 +90,10 @@ abbrev ExtDTreeMap.lift {γ : Sort w} (f : DTreeMap α β cmp → γ) (h : ∀ a
   t.1.lift f h
 
 /-- Implementation detail of the tree map -/
+def ExtDTreeMap.lift₂ {γ : Sort w}  (f : DTreeMap α β cmp → DTreeMap α β cmp → γ) (h : ∀ a b c d, a ~m c → b ~m d → f a b = f c d) (m₁ m₂ : ExtDTreeMap α β cmp) : γ :=
+  Quotient.lift₂ f h m₁.inner m₂.inner
+
+/-- Implementation detail of the tree map -/
 abbrev ExtDTreeMap.liftOn₂ {γ : Sort w} (t₁ t₂ : ExtDTreeMap α β cmp)
     (f : DTreeMap α β cmp → DTreeMap α β cmp → γ) (h : ∀ a b c d, a ~m c → b ~m d → f a b = f c d) : γ :=
   t₁.1.liftOn₂ t₂.1 f h
@@ -902,6 +906,18 @@ def insertManyIfNewUnit [TransCmp cmp] {ρ} [ForIn Id ρ α] (t : ExtDTreeMap α
   return acc.1
 
 end Const
+
+theorem union_congr [TransCmp cmp] (a b c d : DTreeMap α β cmp) (h₁ : a ~m c) (h₂ : b ~m d) : a ∪ b ~m c ∪ d :=
+  DTreeMap.Equiv.trans (DTreeMap.union_equiv_congr_left h₁) (DTreeMap.union_equiv_congr_right h₂)
+
+@[inline, inherit_doc DTreeMap.union]
+def union [TransCmp cmp] (m₁ m₂ : ExtDTreeMap α β cmp) : ExtDTreeMap α β cmp := lift₂ (fun x y : DTreeMap α β cmp => mk (x.union y))
+  (fun a b c d equiv₁ equiv₂ => by
+    simp only [DTreeMap.union_eq, mk'.injEq]
+    apply Quotient.sound
+    apply union_congr
+    . exact equiv₁
+    . exact equiv₂) m₁ m₂
 
 instance [TransCmp cmp] [Repr α] [(a : α) → Repr (β a)] : Repr (ExtDTreeMap α β cmp) where
   reprPrec m prec := Repr.addAppParen ("Std.ExtDTreeMap.ofList " ++ repr m.toList) prec

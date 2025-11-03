@@ -85,10 +85,10 @@ private def parseVerComponent {σ} (what : String) (s? : Option String.Slice) : 
       | throw s!"invalid {what} version: expected numeral or wildcard, got '{s.copy}'"
     return .nat n
 
-def parseSpecialDescr (s : String) : EStateM String s.ValidPos String := do
+def parseSpecialDescr? (s : String) : EStateM String s.ValidPos (Option String) := do
   let p ← get
   if h : p = s.endValidPos then
-    return ""
+    return none
   else
     let c := p.get h
     if c == '-' then
@@ -96,11 +96,9 @@ def parseSpecialDescr (s : String) : EStateM String s.ValidPos String := do
       let p' := nextUntilWhitespace p
       set p'
       let specialDescr := p.extract p'
-      if specialDescr.isEmpty then
-        throw "invalid version: '-' suffix cannot be empty"
-      return specialDescr
+      return some specialDescr
     else
-      return ""
+      return none
 where
   nextUntilWhitespace p :=
     if h : p = s.endValidPos then
@@ -116,6 +114,12 @@ where
     have := p.byteIdx_lt_utf8ByteSize h
     omega
 
+private def parseSpecialDescr (s : String) : EStateM String s.ValidPos String := do
+  let some specialDescr ← parseSpecialDescr? s
+    | return ""
+  if specialDescr.isEmpty then
+    throw "invalid version: '-' suffix cannot be empty"
+  return specialDescr
 
 private def runVerParse
   (s : String) (x : (s : String) → EStateM String s.ValidPos α)
@@ -400,12 +404,12 @@ public structure VerComparator where
   private innerMk ::
     private ver : StdVer
     private op : Comparator
-    private includePrereleases : Bool := false
+    private includeSuffixes : Bool := false
     deriving Repr
 
 namespace VerComparator
 
-/-- A version comparator that matches any non-prerelease version (i.e., `*`, `≥0.0.0`). -/
+/-- A version comparator that matches any non-suffixed version (i.e., `*`, `≥0.0.0`). -/
 public def wild : VerComparator :=
   {op := .ge, ver := .ofSemVerCore {}}
 
@@ -413,8 +417,14 @@ public instance : Inhabited VerComparator := ⟨.wild⟩
 
 def parseM (s : String) : EStateM String s.ValidPos VerComparator := do
   let op ← Comparator.parseM s
-  let ver ← StdVer.parseM s
-  return {ver, op}
+  let core ← SemVerCore.parseM s
+  if let some specialDescr ← parseSpecialDescr? s then
+    if  specialDescr.isEmpty then
+      return {ver := .ofSemVerCore core, op, includeSuffixes := true}
+    else
+      return {ver := .mk core specialDescr, op}
+  else
+    return {ver := .ofSemVerCore core, op}
 
 @[inline] public def parse (s : String) : Except String VerComparator := do
   runVerParse s parseM
@@ -428,8 +438,8 @@ public def test (self : VerComparator) (ver : StdVer) : Bool :=
     | .ge => ver ≥ selfVer
     | .eq => ver = selfVer
     | .ne => ver ≠ selfVer
-  let {op, ver := selfVer, includePrereleases} := self
-  if includePrereleases then
+  let {op, ver := selfVer, includeSuffixes} := self
+  if includeSuffixes then
     fullCheck op selfVer ver
   else
     match selfVer.specialDescr, ver.specialDescr with
@@ -450,7 +460,7 @@ public def test (self : VerComparator) (ver : StdVer) : Bool :=
         false
 
 public protected def toString (self : VerComparator) : String :=
-  s!"{self.op}{self.ver}"
+  s!"{self.op}{self.ver}{if self.includeSuffixes then "-" else ""}"
 
 public  instance : ToString VerComparator := ⟨VerComparator.toString⟩
 
@@ -534,7 +544,7 @@ where
   @[inline] appendRange ands minVer maxVer (specialDescr := "") :=
     let minVer := StdVer.mk minVer specialDescr
     let maxVer := StdVer.ofSemVerCore maxVer
-    ands.push {op := .ge, ver := minVer} |>.push {op := .lt, ver := maxVer, includePrereleases := true}
+    ands.push {op := .ge, ver := minVer} |>.push {op := .lt, ver := maxVer, includeSuffixes := true}
   parseWild (s : String) ands : EStateM String s.ValidPos _ := do
     let cs ← parseVerComponents s
     if (← get).get?.any (· == '-') then
@@ -574,7 +584,7 @@ where
       let major ← parseVerNat "major" cs[0]
       let minor ← parseVerNat "minor" cs[1]
       let patch ← parseVerNat "patch" cs[2]
-      return appendRange ands {major, minor, patch} {major, minor, patch := patch + 1} specialDescr
+      return appendRange ands {major, minor, patch}  {major, minor := minor + 1} specialDescr
     else
       throw s!"invalid tilde range: incorrect number of components: got {cs.size}, expected 1-3"
 

@@ -50,18 +50,28 @@ https://doc.rust-lang.org/stable/cargo/reference/specifying-dependencies.html#co
 #eval checkMatch "=1.2.3"   #["1.2.3"] #["1.0.0", "2.0.0"]
 #eval checkMatch "≠1.2.3"   #["1.0.0", "2.0.0"] #["1.2.3"]
 
-#eval checkMatch "<1.2.3-alpha.3"
-  #["1.2.3-alpha.1"] #["1.2.3", "1.2.3-alpha.7", "1.2.3-alpha.3", "1.0.0-alpha.9"]
-#eval checkMatch "≤1.2.3-alpha.3"
-  #["1.2.3-alpha.1", "1.2.3-alpha.3"] #["1.2.3", "1.2.3-alpha.7", "1.0.0-alpha.9"]
-#eval checkMatch ">1.2.3-alpha.3"
-  #["1.2.3-alpha.7", "1.2.3"] #["1.2.3-alpha.1", "1.2.3-alpha.3", "3.4.5-alpha.9"]
-#eval checkMatch "≥1.2.3-alpha.3"
-  #["1.2.3-alpha.3", "1.2.3-alpha.7", "1.2.3"] #["1.2.3-alpha.1", "3.4.5-alpha.9"]
-#eval checkMatch "=1.2.3-alpha.3"
-  #["1.2.3-alpha.3"] #["1.2.3-alpha.1", "1.2.3-alpha.7", "1.2.3", "3.4.5-alpha.9"]
-#eval checkMatch "≠1.2.3-alpha.3"
-  #["1.2.3-alpha.1", "1.2.3-alpha.7", "1.2.3"] #["1.2.3-alpha.3", "3.4.5-alpha.9"]
+#eval checkMatch "<1.2.3-beta.2"
+  #["1.2.3-alpha.3", "1.2.3-beta.1"]
+  #["1.2.3", "1.2.3-beta.7", "1.2.3-beta.2", "1.2.3-gamma.7", "1.0.0-pre"]
+#eval checkMatch "≤1.2.3-beta.2"
+  #["1.2.3-alpha.3", "1.2.3-beta.1", "1.2.3-beta.2"]
+  #["1.0.0-pre",  "1.2.3-beta.7", "1.2.3-gamma.7", "1.2.3"]
+#eval checkMatch ">1.2.3-beta.2"
+  #["1.2.3-beta.7", "1.2.3-gamma.7", "1.2.3"]
+  #["1.2.3-alpha.2", "1.2.3-beta.2", "3.4.5-pre"]
+#eval checkMatch "≥1.2.3-beta.2"
+  #["1.2.3-beta.2", "1.2.3-beta.7", "1.2.3-gamma.7", "1.2.3"]
+  #["1.2.3-alpha.2","3.4.5-pre"]
+#eval checkMatch "=1.2.3-beta.2"
+  #["1.2.3-beta.2"] #["1.2.3-beta.0", "1.2.3", "3.4.5-pre"]
+#eval checkMatch "≠1.2.3-beta.2"
+  #["1.2.3-beta.0", "1.2.3"] #["1.0.0-pre", "1.2.3-beta.2", "3.4.5-pre"]
+
+#eval checkMatch "<1.2.3-"
+  #["1.0.0-alpha.9", "1.2.3-alpha.1"] #["1.2.3", "1.2.4-beta.2"]
+
+/-- error: invalid version core: incorrect number of components: got 2, expected 3 -/
+#guard_msgs in #eval runParse ">1.2"
 
 /-!
 ## Clauses
@@ -132,27 +142,30 @@ use a tilde or wildcard range; otherwise, use '≥' instead
 
 /-! ## Tilde Ranges
 
-Lake mostly follows Node's and Rust's behavior, except in the case of patch versions.
+Lake mostly follows Node's and Rust's behavior for tilde ranges.
 
 https://github.com/npm/node-semver/tree/v7.7.3?tab=readme-ov-file#tilde-ranges-123-12-1
 https://doc.rust-lang.org/stable/cargo/reference/specifying-dependencies.html#tilde-requirements
 -/
 
-#eval checkParse "~1"       "≥1.0.0, <2.0.0"
-#eval checkParse "~1.2"     "≥1.2.0, <1.3.0"
-#eval checkParse "~1.2.3"   "≥1.2.3, <1.2.4"
+#eval checkParse "~1"       "≥1.0.0, <2.0.0-"
+#eval checkParse "~1.2"     "≥1.2.0, <1.3.0-"
+#eval checkParse "~1.2.3"   "≥1.2.3, <1.3.0-"
 
-#eval checkParse "~0"       "≥0.0.0, <1.0.0"
-#eval checkParse "~0.2"     "≥0.2.0, <0.3.0"
-#eval checkParse "~0.2.3"   "≥0.2.3, <0.2.4"
+#eval checkParse "~0"       "≥0.0.0, <1.0.0-"
+#eval checkParse "~0.2"     "≥0.2.0, <0.3.0-"
+#eval checkParse "~0.2.3"   "≥0.2.3, <0.3.0-"
 
-#eval checkParse "~1.2.3-beta.2" "≥1.2.3-beta.2, <1.2.4"
+#eval checkParse "~1-beta.2"      "≥1.0.0-beta.2, <2.0.0-"
+#eval checkParse "~1.2-beta.2"    "≥1.2.0-beta.2, <1.3.0-"
+#eval checkParse "~1.2.3-beta.2"  "≥1.2.3-beta.2, <1.3.0-"
 
 /-- error: invalid tilde range: incorrect number of components: got 4, expected 1-3 -/
 #guard_msgs in #eval runParse "~1.2.3.4"
 
 #eval checkMatch "~1.2.3-beta.2"
-  #["1.2.3-beta.2", "1.2.3-beta.7", "1.2.3"] #["1.2.4-alpha.3", "1.2.4"]
+  #["1.2.3-beta.2", "1.2.3-beta.7", "1.2.3", "1.2.7"]
+  #["1.2.1", "1.2.3-alpha.3", "1.2.3-beta.1"]
 
 /-! ## Wildcard Ranges
 
@@ -168,15 +181,15 @@ https://doc.rust-lang.org/stable/cargo/reference/specifying-dependencies.html#wi
 #eval checkParse "x.*"      "≥0.0.0"
 #eval checkParse "x.*.X"    "≥0.0.0"
 
-#eval checkParse "1.x"      "≥1.0.0, <2.0.0"
-#eval checkParse "1.X"      "≥1.0.0, <2.0.0"
-#eval checkParse "1.*"      "≥1.0.0, <2.0.0"
-#eval checkParse "1.x.X"    "≥1.0.0, <2.0.0"
-#eval checkParse "1.*.*"    "≥1.0.0, <2.0.0"
+#eval checkParse "1.x"      "≥1.0.0, <2.0.0-"
+#eval checkParse "1.X"      "≥1.0.0, <2.0.0-"
+#eval checkParse "1.*"      "≥1.0.0, <2.0.0-"
+#eval checkParse "1.x.X"    "≥1.0.0, <2.0.0-"
+#eval checkParse "1.*.*"    "≥1.0.0, <2.0.0-"
 
-#eval checkParse "1.2.*"    "≥1.2.0, <1.3.0"
-#eval checkParse "1.2.x"    "≥1.2.0, <1.3.0"
-#eval checkParse "1.2.X"    "≥1.2.0, <1.3.0"
+#eval checkParse "1.2.*"    "≥1.2.0, <1.3.0-"
+#eval checkParse "1.2.x"    "≥1.2.0, <1.3.0-"
+#eval checkParse "1.2.X"    "≥1.2.0, <1.3.0-"
 
 /-! ### Errors -/
 

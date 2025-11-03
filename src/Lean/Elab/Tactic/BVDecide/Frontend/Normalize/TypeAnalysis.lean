@@ -71,7 +71,7 @@ def isSupportedMatch (declName : Name) : MetaM (Option MatchKind) := do
       Where we have as many arms as constructors but the last arm is a default.
       -/
 
-      if let some kind ← trySimpleEnum defnInfo inductiveInfo xs numCtors motive then
+      if let some kind ← trySimpleEnum inductiveInfo xs numCtors motive then
         return kind
 
     if xs.size > 2 then
@@ -101,7 +101,7 @@ def isSupportedMatch (declName : Name) : MetaM (Option MatchKind) := do
     else
       return none
 where
-  trySimpleEnum (defnInfo : DefinitionVal) (inductiveInfo : InductiveVal) (xs : Array Expr)
+  trySimpleEnum (inductiveInfo : InductiveVal) (xs : Array Expr)
       (numCtors : Nat) (motive : Expr) : MetaM (Option MatchKind) := do
     -- Check that all parameters are `h_n EnumInductive.ctor`
     let mut handledCtors := Array.mkEmpty numCtors

@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 static lean_object* l_instReprIterator___lam__0___closed__3;
-LEAN_EXPORT lean_object* l_String_anyAux___at___String_isInt_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_panic___at___String_toInt_x21_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_String_anyAux___at___00String_isInt_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_panic___at___00String_toInt_x21_spec__0(lean_object*);
 extern lean_object* l_Int_instInhabited;
 lean_object* l_Substring_toNat_x3f(lean_object*);
 lean_object* l_String_toNat_x3f(lean_object*);
@@ -35,7 +35,7 @@ static lean_object* l_instReprIterator___lam__0___closed__2;
 static lean_object* l_instReprIterator___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_instToStringIterator___lam__0(lean_object*);
 static lean_object* l_instReprIterator___lam__0___closed__7;
-LEAN_EXPORT uint8_t l_String_anyAux___at___String_isInt_spec__0(uint8_t, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_String_anyAux___at___00String_isInt_spec__0(uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_instReprIterator___lam__0___closed__0;
 lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -347,7 +347,7 @@ return x_28;
 }
 }
 }
-LEAN_EXPORT uint8_t l_String_anyAux___at___String_isInt_spec__0(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT uint8_t l_String_anyAux___at___00String_isInt_spec__0(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; uint8_t x_6; 
@@ -419,7 +419,7 @@ x_7 = lean_nat_dec_eq(x_6, x_2);
 if (x_7 == 0)
 {
 uint8_t x_8; 
-x_8 = l_String_anyAux___at___String_isInt_spec__0(x_7, x_1, x_6, x_2);
+x_8 = l_String_anyAux___at___00String_isInt_spec__0(x_7, x_1, x_6, x_2);
 lean_dec(x_6);
 lean_dec_ref(x_1);
 if (x_8 == 0)
@@ -459,7 +459,7 @@ lean_dec(x_14);
 if (x_15 == 0)
 {
 uint8_t x_16; 
-x_16 = l_String_anyAux___at___String_isInt_spec__0(x_15, x_1, x_10, x_13);
+x_16 = l_String_anyAux___at___00String_isInt_spec__0(x_15, x_1, x_10, x_13);
 lean_dec(x_10);
 lean_dec_ref(x_1);
 if (x_16 == 0)
@@ -483,12 +483,12 @@ return x_17;
 }
 }
 }
-LEAN_EXPORT lean_object* l_String_anyAux___at___String_isInt_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_String_anyAux___at___00String_isInt_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_1);
-x_6 = l_String_anyAux___at___String_isInt_spec__0(x_5, x_2, x_3, x_4);
+x_6 = l_String_anyAux___at___00String_isInt_spec__0(x_5, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 x_7 = lean_box(x_6);
@@ -504,7 +504,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at___String_toInt_x21_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_panic___at___00String_toInt_x21_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -530,7 +530,7 @@ if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_String_toInt_x21___closed__0;
-x_4 = l_panic___at___String_toInt_x21_spec__0(x_3);
+x_4 = l_panic___at___00String_toInt_x21_spec__0(x_3);
 return x_4;
 }
 else

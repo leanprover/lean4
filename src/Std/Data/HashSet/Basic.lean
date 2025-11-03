@@ -68,9 +68,6 @@ capacity.
 @[inline] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) : HashSet α :=
   ⟨HashMap.emptyWithCapacity capacity⟩
 
-@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
-abbrev empty := @emptyWithCapacity
-
 instance [BEq α] [Hashable α] : EmptyCollection (HashSet α) where
   emptyCollection := emptyWithCapacity
 

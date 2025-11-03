@@ -239,7 +239,7 @@ theorem Pos.Raw.lt_inc {p : Pos.Raw} : p < p.inc := by simp [lt_iff]
 
 theorem Pos.Raw.le_of_lt {p q : Pos.Raw} : p < q → p ≤ q := by simpa [lt_iff, le_iff] using Nat.le_of_lt
 
-theorem Pos.Raw.inc_le {p q : Pos.Raw} : p.inc ≤ q ↔ p < q := by simpa [lt_iff, le_iff] using Nat.succ_le
+theorem Pos.Raw.inc_le {p q : Pos.Raw} : p.inc ≤ q ↔ p < q := by simpa [lt_iff, le_iff] using Nat.succ_le_iff
 
 theorem Pos.Raw.lt_of_le_of_lt {a b c : Pos.Raw} : a ≤ b → b < c → a < c := by
   simpa [le_iff, lt_iff] using Nat.lt_of_le_of_lt
@@ -322,9 +322,6 @@ theorem ne_of_gt {i₁ i₂ : Pos.Raw} (h : i₁ < i₂) : i₂ ≠ i₁ := (ne_
 theorem byteIdx_addString (p : Pos.Raw) (s : String) :
     (p + s).byteIdx = p.byteIdx + s.utf8ByteSize := byteIdx_add_string
 
-@[deprecated byteIdx_addString (since := "2025-03-18")]
-abbrev addString_byteIdx := @byteIdx_add_string
-
 theorem addString_eq (p : Pos.Raw) (s : String) : p + s = ⟨p.byteIdx + s.utf8ByteSize⟩ := rfl
 
 theorem byteIdx_zero_add_string (s : String) : ((0 : Pos.Raw) + s).byteIdx = s.utf8ByteSize := by
@@ -333,9 +330,6 @@ theorem byteIdx_zero_add_string (s : String) : ((0 : Pos.Raw) + s).byteIdx = s.u
 @[deprecated byteIdx_zero_add_string (since := "2025-10-10")]
 theorem byteIdx_zero_addString (s : String) : ((0 : Pos.Raw) + s).byteIdx = s.utf8ByteSize :=
   byteIdx_zero_add_string s
-
-@[deprecated byteIdx_zero_addString (since := "2025-03-18")]
-abbrev zero_addString_byteIdx := @byteIdx_zero_add_string
 
 theorem zero_add_string_eq (s : String) : (0 : Pos.Raw) + s = ⟨s.utf8ByteSize⟩ := by
   rw [← byteIdx_zero_add_string]

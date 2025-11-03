@@ -23,7 +23,7 @@ theorem monadLift_map [LawfulMonad m] [LawfulMonad n] (f : α → β) (ma : m α
 
 theorem monadLift_seq [LawfulMonad m] [LawfulMonad n] (mf : m (α → β)) (ma : m α) :
     monadLift (mf <*> ma) = monadLift mf <*> (monadLift ma : n α) := by
-  simp only [seq_eq_bind, monadLift_map, monadLift_bind]
+  simp only [seq_eq_bind_map, monadLift_map, monadLift_bind]
 
 theorem monadLift_seqLeft [LawfulMonad m] [LawfulMonad n] (x : m α) (y : m β) :
     monadLift (x <* y) = (monadLift x : n α) <* (monadLift y : n β) := by

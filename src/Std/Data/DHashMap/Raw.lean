@@ -55,9 +55,6 @@ capacity.
 @[inline] def emptyWithCapacity (capacity := 8) : Raw α β :=
   (Raw₀.emptyWithCapacity capacity).1
 
-@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
-abbrev empty := @emptyWithCapacity
-
 instance : EmptyCollection (Raw α β) where
   emptyCollection := emptyWithCapacity
 
@@ -660,10 +657,6 @@ theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 
 
 @[simp] theorem WF.empty [BEq α] [Hashable α] : (∅ : Raw α β).WF :=
   .emptyWithCapacity
-
-set_option linter.missingDocs false in
-@[deprecated WF.empty (since := "2025-03-12")]
-abbrev WF.emptyc := @WF.empty
 
 theorem WF.insert [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β a} (h : m.WF) :
     (m.insert a b).WF := by

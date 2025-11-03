@@ -24,9 +24,6 @@ attribute [ext] ByteArray
 instance : DecidableEq ByteArray :=
   fun _ _ => decidable_of_decidable_of_iff ByteArray.ext_iff.symm
 
-@[deprecated emptyWithCapacity (since := "2025-03-12")]
-abbrev mkEmpty := emptyWithCapacity
-
 instance : Inhabited ByteArray where
   default := empty
 

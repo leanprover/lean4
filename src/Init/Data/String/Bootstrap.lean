@@ -135,6 +135,10 @@ Examples:
  * `['a', 'a', 'a'].asString = "aaa"`
 -/
 @[extern "lean_string_mk", expose]
+def String.ofList (data : List Char) : String :=
+  ⟨List.utf8Encode data,.intro data rfl⟩
+
+@[extern "lean_string_mk", expose, deprecated String.ofList (since := "2025-10-30")]
 def String.mk (data : List Char) : String :=
   ⟨List.utf8Encode data,.intro data rfl⟩
 
@@ -146,9 +150,9 @@ Examples:
  * `[].asString = ""`
  * `['a', 'a', 'a'].asString = "aaa"`
 -/
-@[expose, inline]
+@[expose, inline, deprecated String.ofList (since := "2025-10-30")]
 def List.asString (s : List Char) : String :=
-  String.mk s
+  String.ofList s
 
 namespace Substring.Internal
 

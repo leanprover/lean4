@@ -22,14 +22,14 @@ LEAN_EXPORT lean_object* l_Lean_withImporting___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initializing();
 LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_runInitializersRef;
 LEAN_EXPORT lean_object* lean_enable_initializer_execution();
-LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn____x40_Lean_ImportingFlag_2251799370____hygCtx___hyg_2____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn_00___x40_Lean_ImportingFlag_2251799370____hygCtx___hyg_2____boxed(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_importingRef;
-LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn____x40_Lean_ImportingFlag_1124607303____hygCtx___hyg_2_();
-LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn____x40_Lean_ImportingFlag_1124607303____hygCtx___hyg_2____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn_00___x40_Lean_ImportingFlag_1124607303____hygCtx___hyg_2_();
+LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn_00___x40_Lean_ImportingFlag_1124607303____hygCtx___hyg_2____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withImporting___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn____x40_Lean_ImportingFlag_2251799370____hygCtx___hyg_2_();
+LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn_00___x40_Lean_ImportingFlag_2251799370____hygCtx___hyg_2_();
 LEAN_EXPORT lean_object* l_Lean_withImporting___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withImporting___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_io_initializing();
@@ -37,7 +37,7 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isInitializerExecutionEnabled___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withImporting___redArg___lam__0(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initializing___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn____x40_Lean_ImportingFlag_1124607303____hygCtx___hyg_2_() {
+LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn_00___x40_Lean_ImportingFlag_1124607303____hygCtx___hyg_2_() {
 _start:
 {
 uint8_t x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -49,15 +49,15 @@ lean_ctor_set(x_5, 0, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn____x40_Lean_ImportingFlag_1124607303____hygCtx___hyg_2____boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn_00___x40_Lean_ImportingFlag_1124607303____hygCtx___hyg_2____boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l___private_Lean_ImportingFlag_0__Lean_initFn____x40_Lean_ImportingFlag_1124607303____hygCtx___hyg_2_();
+x_2 = l___private_Lean_ImportingFlag_0__Lean_initFn_00___x40_Lean_ImportingFlag_1124607303____hygCtx___hyg_2_();
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn____x40_Lean_ImportingFlag_2251799370____hygCtx___hyg_2_() {
+LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn_00___x40_Lean_ImportingFlag_2251799370____hygCtx___hyg_2_() {
 _start:
 {
 uint8_t x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -69,11 +69,11 @@ lean_ctor_set(x_5, 0, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn____x40_Lean_ImportingFlag_2251799370____hygCtx___hyg_2____boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn_00___x40_Lean_ImportingFlag_2251799370____hygCtx___hyg_2____boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l___private_Lean_ImportingFlag_0__Lean_initFn____x40_Lean_ImportingFlag_2251799370____hygCtx___hyg_2_();
+x_2 = l___private_Lean_ImportingFlag_0__Lean_initFn_00___x40_Lean_ImportingFlag_2251799370____hygCtx___hyg_2_();
 return x_2;
 }
 }
@@ -323,12 +323,12 @@ _G_initialized = true;
 res = initialize_Init_System_IO(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l___private_Lean_ImportingFlag_0__Lean_initFn____x40_Lean_ImportingFlag_1124607303____hygCtx___hyg_2_();
+if (builtin) {res = l___private_Lean_ImportingFlag_0__Lean_initFn_00___x40_Lean_ImportingFlag_1124607303____hygCtx___hyg_2_();
 if (lean_io_result_is_error(res)) return res;
 l___private_Lean_ImportingFlag_0__Lean_importingRef = lean_io_result_get_value(res);
 lean_mark_persistent(l___private_Lean_ImportingFlag_0__Lean_importingRef);
 lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_ImportingFlag_0__Lean_initFn____x40_Lean_ImportingFlag_2251799370____hygCtx___hyg_2_();
+}if (builtin) {res = l___private_Lean_ImportingFlag_0__Lean_initFn_00___x40_Lean_ImportingFlag_2251799370____hygCtx___hyg_2_();
 if (lean_io_result_is_error(res)) return res;
 l___private_Lean_ImportingFlag_0__Lean_runInitializersRef = lean_io_result_get_value(res);
 lean_mark_persistent(l___private_Lean_ImportingFlag_0__Lean_runInitializersRef);

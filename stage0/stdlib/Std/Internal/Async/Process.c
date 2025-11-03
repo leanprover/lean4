@@ -41,7 +41,7 @@ static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___
 extern lean_object* l_Std_Time_Millisecond_instInhabitedOffset;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_ResourceUsageStats_ctorIdx(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__11;
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Internal_IO_Process_instReprResourceUsageStats_repr_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Internal_IO_Process_instReprResourceUsageStats_repr_spec__0(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__54;
 lean_object* lean_uv_os_getpid();
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_constrainedMemory();
@@ -174,7 +174,7 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Internal_IO_Process_instReprResourceUsageStats_repr_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Internal_IO_Process_instReprResourceUsageStats_repr_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 

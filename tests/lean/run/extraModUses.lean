@@ -61,20 +61,6 @@ Is rev mod use: false
 #guard_msgs in #eval showExtraModUses
 
 /-!
-Running `attribute` with declarations from an imported module causes a rev use.
--/
-
-#eval resetExtraModUses
-
-attribute [builtin_doc] Int.natCast_add
-
-/--
-info: Entries: []
-Is rev mod use: true
--/
-#guard_msgs in #eval showExtraModUses
-
-/-!
 `recommended_spelling` records a dependency.
 -/
 
@@ -188,7 +174,7 @@ attribute [grind =] List.append
 
 /--
 info: Entries: [import Init.Grind.Attr, public import Init.Prelude]
-Is rev mod use: true
+Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses
 
@@ -262,20 +248,6 @@ def test8 : Lean.MacroM Lean.Syntax := `(Lean.Parser.Command.declaration| def a 
 
 /--
 info: Entries: [import Init.Notation, import Init.Coe, meta import Lean.Parser.Command]
-Is rev mod use: false
--/
-#guard_msgs in #eval showExtraModUses
-
-/-!
-Resolved constants from syntax quotations get added (here `List.sum` from Init.Data.List.Basic).
--/
-
-#eval resetExtraModUses
-
-def test9 : Lean.MacroM Lean.Syntax := `(List.sum)
-
-/--
-info: Entries: [import Init.Notation, import Init.Coe, import Init.Data.List.Basic]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses

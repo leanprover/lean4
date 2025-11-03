@@ -99,9 +99,6 @@ theorem countP_le_size : countP p xs ≤ xs.size := by
 theorem countP_replicate {a : α} {n : Nat} : countP p (replicate n a) = if p a then n else 0 := by
   simp [← List.toArray_replicate, List.countP_replicate]
 
-@[deprecated countP_replicate (since := "2025-03-18")]
-abbrev countP_mkArray := @countP_replicate
-
 theorem boole_getElem_le_countP {xs : Array α} {i : Nat} (h : i < xs.size) :
     (if p xs[i] then 1 else 0) ≤ xs.countP p := by
   rcases xs with ⟨xs⟩
@@ -262,14 +259,8 @@ theorem count_eq_size {xs : Array α} : count a xs = xs.size ↔ ∀ b ∈ xs, a
 @[simp] theorem count_replicate_self {a : α} {n : Nat} : count a (replicate n a) = n := by
   simp [← List.toArray_replicate]
 
-@[deprecated count_replicate_self (since := "2025-03-18")]
-abbrev count_mkArray_self := @count_replicate_self
-
 theorem count_replicate {a b : α} {n : Nat} : count a (replicate n b) = if b == a then n else 0 := by
   simp [← List.toArray_replicate, List.count_replicate]
-
-@[deprecated count_replicate (since := "2025-03-18")]
-abbrev count_mkArray := @count_replicate
 
 theorem filter_beq {xs : Array α} (a : α) : xs.filter (· == a) = replicate (count a xs) a := by
   rcases xs with ⟨xs⟩
@@ -283,9 +274,6 @@ theorem replicate_count_eq_of_count_eq_size {xs : Array α} (h : count a xs = xs
   rcases xs with ⟨xs⟩
   rw [← toList_inj]
   simp [List.replicate_count_eq_of_count_eq_length (by simpa using h)]
-
-@[deprecated replicate_count_eq_of_count_eq_size (since := "2025-03-18")]
-abbrev mkArray_count_eq_of_count_eq_size := @replicate_count_eq_of_count_eq_size
 
 @[simp] theorem count_filter {xs : Array α} (h : p a) : count a (filter p xs) = count a xs := by
   rcases xs with ⟨xs⟩

@@ -102,9 +102,6 @@ theorem fixF_eq (x : α) (acx : Acc r x) : fixF F x acx = F x (fun (y : α) (p :
   induction acx with
   | intro x r _ => exact rfl
 
-@[deprecated fixF_eq (since := "2025-04-04")]
-abbrev fixFEq := @fixF_eq
-
 end
 
 variable {α : Sort u} {C : α → Sort v} {r : α → α → Prop}

@@ -1544,7 +1544,7 @@ section Ext
 
 variable {t₁ t₂ : ExtTreeSet α cmp}
 
-@[ext 900]
+@[ext 900, grind ext]
 theorem ext_get? [TransCmp cmp] {t₁ t₂ : ExtTreeSet α cmp}
     (h : ∀ k, t₁.get? k = t₂.get? k) : t₁ = t₂ :=
   ext (ExtTreeMap.ext_getKey?_unit h)

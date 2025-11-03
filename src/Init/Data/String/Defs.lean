@@ -108,13 +108,22 @@ theorem String.bytes_inj {s t : String} : s.bytes = t.bytes ↔ s = t := by
   subst h
   rfl
 
-@[simp] theorem List.bytes_asString {l : List Char} : l.asString.bytes = l.utf8Encode := by
-  simp [List.asString, String.mk]
+@[simp] theorem String.bytes_ofList {l : List Char} : (String.ofList l).bytes = l.utf8Encode := by
+  simp [String.ofList]
 
-theorem String.exists_eq_asString (s : String) :
-    ∃ l : List Char, s = l.asString := by
+@[deprecated String.bytes_ofList (since := "2025-10-30")]
+theorem List.bytes_asString {l : List Char} : (String.ofList l).bytes = l.utf8Encode :=
+  String.bytes_ofList
+
+theorem String.exists_eq_ofList (s : String) :
+    ∃ l : List Char, s = String.ofList l := by
   rcases s with ⟨_, ⟨l, rfl⟩⟩
   refine ⟨l, by simp [← String.bytes_inj]⟩
+
+@[deprecated String.exists_eq_ofList (since := "2025-10-30")]
+theorem String.exists_eq_asString (s : String) :
+    ∃ l : List Char, s = String.ofList l :=
+  s.exists_eq_ofList
 
 @[simp]
 theorem String.utf8ByteSize_empty : "".utf8ByteSize = 0 := (rfl)
@@ -158,8 +167,12 @@ theorem utf8ByteSize_ofByteArray {b : ByteArray} {h} :
 theorem bytes_singleton {c : Char} : (String.singleton c).bytes = [c].utf8Encode := by
   simp [singleton]
 
-theorem singleton_eq_asString {c : Char} : String.singleton c = [c].asString := by
+theorem singleton_eq_ofList {c : Char} : String.singleton c = String.ofList [c] := by
   simp [← String.bytes_inj]
+
+@[deprecated singleton_eq_ofList (since := "2025-10-30")]
+theorem singleton_eq_asString {c : Char} : String.singleton c = String.ofList [c] :=
+  singleton_eq_ofList
 
 @[simp]
 theorem append_singleton {s : String} {c : Char} : s ++ singleton c = s.push c := by
@@ -312,6 +325,11 @@ theorem Pos.Raw.isValid_rawEndPos {s : String} : s.rawEndPos.IsValid s where
   le_rawEndPos := by simp
   isValidUTF8_extract_zero := by simp [← size_bytes, s.isValidUTF8]
 
+theorem Pos.Raw.isValid_of_eq_rawEndPos {s : String} {p : Pos.Raw} (h : p = s.rawEndPos) :
+    p.IsValid s := by
+  subst h
+  exact isValid_rawEndPos
+
 @[simp]
 theorem Pos.Raw.isValid_empty_iff {p : Pos.Raw} : p.IsValid "" ↔ p = 0 := by
   refine ⟨?_, ?_⟩
@@ -405,6 +423,15 @@ def toSlice (s : String) : Slice where
   startInclusive := s.startValidPos
   endExclusive := s.endValidPos
   startInclusive_le_endExclusive := by simp [ValidPos.le_iff, Pos.Raw.le_iff]
+
+@[simp]
+theorem startInclusive_toSlice {s : String} : s.toSlice.startInclusive = s.startValidPos := rfl
+
+@[simp]
+theorem endExclusive_toSlice {s : String} : s.toSlice.endExclusive = s.endValidPos := rfl
+
+@[simp]
+theorem str_toSlice {s : String} : s.toSlice.str = s := rfl
 
 /-- The number of bytes of the UTF-8 encoding of the string slice. -/
 @[expose]
@@ -526,11 +553,20 @@ theorem Pos.Raw.offsetBy_sliceRawEndPos_right {p : Pos.Raw} {s : Slice} :
     p.offsetBy s.rawEndPos = s + p := by
   simp [Pos.Raw.ext_iff]
 
+@[simp]
+theorem Pos.Raw.isValidForSlice_rawEndPos {s : Slice} : (s.rawEndPos).IsValidForSlice s where
+  le_rawEndPos := by simp
+  isValid_offsetBy := by simpa using s.endExclusive.isValid
+
+theorem Pos.Raw.isValidForSlice_of_eq_rawEndPos {p : Pos.Raw} {s : Slice} (h : p = s.rawEndPos) :
+    p.IsValidForSlice s := by
+  subst h; simp
+
 /-- The past-the-end position of `s`, as an `s.Pos`. -/
 @[inline, expose]
 def Slice.endPos (s : Slice) : s.Pos where
   offset := s.rawEndPos
-  isValidForSlice := ⟨by simp, by simpa using s.endExclusive.isValid⟩
+  isValidForSlice := Pos.Raw.isValidForSlice_rawEndPos
 
 @[simp]
 theorem Slice.offset_endPos {s : Slice} : s.endPos.offset = s.rawEndPos := (rfl)
@@ -562,9 +598,6 @@ def Slice.Pos.byte {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : UInt8 :=
     omega)
 
 @[simp] theorem default_eq : default = "" := rfl
-
-@[simp]
-theorem mk_eq_asString (s : List Char) : String.mk s = List.asString s := rfl
 
 theorem push_eq_append (c : Char) : String.push s c = s ++ singleton c := by
   simp

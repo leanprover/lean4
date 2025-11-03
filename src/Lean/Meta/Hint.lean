@@ -196,8 +196,8 @@ such as `b̵a̵c̲h̲e̲e̲rs̲`.
 -/
 private def mkDiffString (ds : Array (Diff.Action × String)) : String :=
   let rangeStrs := ds.map fun
-    | (.insert, s) => String.mk (s.data.flatMap ([·, '\u0332'])) -- U+0332 Combining Low Line
-    | (.delete, s) => String.mk (s.data.flatMap ([·, '\u0335'])) -- U+0335 Combining Short Stroke Overlay
+    | (.insert, s) => String.ofList (s.toList.flatMap ([·, '\u0332'])) -- U+0332 Combining Low Line
+    | (.delete, s) => String.ofList (s.toList.flatMap ([·, '\u0335'])) -- U+0335 Combining Short Stroke Overlay
     | (.skip  , s) => s
   rangeStrs.foldl (· ++ ·) ""
 
@@ -277,7 +277,7 @@ partial def readableDiff (s s' : String) (granularity : DiffGranularity := .auto
     -- front and back, or at a single interior point. This will always be fairly readable (and
     -- splitting by a larger unit would likely only be worse)
     if charArrDiff.size ≤ 3 || approxEditDistance ≤ maxCharDiffDistance then
-      charArrDiff.map fun (act, cs) => (act, String.mk cs.toList)
+      charArrDiff.map fun (act, cs) => (act, String.ofList cs.toList)
     else if approxEditDistance ≤ maxWordDiffDistance then
       wordDiff
     else
@@ -375,14 +375,14 @@ where
 
   /-- Given a `Char` diff, produces an equivalent `String` diff, joining actions of the same kind. -/
   joinCharDiff (d : Array (Diff.Action × Char)) :=
-    joinEdits d |>.map fun (act, cs) => (act, String.mk cs.toList)
+    joinEdits d |>.map fun (act, cs) => (act, String.ofList cs.toList)
 
   maxDiff :=
     #[(.delete, s), (.insert, s')]
 
   mkWhitespaceDiff (oldWs newWs : String) :=
     if !oldWs.contains '\n' then
-      Diff.diff oldWs.data.toArray newWs.data.toArray |> joinCharDiff
+      Diff.diff oldWs.toList.toArray newWs.toList.toArray |> joinCharDiff
     else
       #[(.skip, newWs)]
 

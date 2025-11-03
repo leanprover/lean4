@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init
-// Imports: public import Init.Prelude public import Init.Notation public import Init.Tactics public import Init.TacticsExtra public import Init.ByCases public import Init.RCases public import Init.Core public import Init.Control public import Init.Data.Basic public import Init.WF public import Init.WFTactics public import Init.Data public import Init.System public import Init.Util public import Init.Dynamic public import Init.ShareCommon public import Init.MetaTypes public import Init.Meta public import Init.NotationExtra public import Init.SimpLemmas public import Init.PropLemmas public import Init.Hints public import Init.Conv public import Init.Guard public import Init.Simproc public import Init.SizeOfLemmas public import Init.BinderPredicates public import Init.Ext public import Init.Omega public import Init.MacroTrace public import Init.Grind public import Init.GrindInstances public import Init.While public import Init.Syntax public import Init.Internal public import Init.Try public meta import Init.Try public import Init.BinderNameHint public import Init.Task public import Init.MethodSpecsSimp public import Init.LawfulBEqTactics
+// Imports: public import Init.Prelude public import Init.Notation public import Init.Tactics public import Init.TacticsExtra public import Init.ByCases public import Init.RCases public import Init.Core public import Init.Control public import Init.WF public import Init.WFTactics public import Init.Data public import Init.System public import Init.Util public import Init.Dynamic public import Init.ShareCommon public import Init.MetaTypes public import Init.Meta public import Init.NotationExtra public import Init.SimpLemmas public import Init.PropLemmas public import Init.Hints public import Init.Conv public import Init.Guard public import Init.Simproc public import Init.SizeOfLemmas public import Init.BinderPredicates public import Init.Ext public import Init.Omega public import Init.MacroTrace public import Init.Grind public import Init.GrindInstances public import Init.While public import Init.Syntax public import Init.Internal public import Init.Try public meta import Init.Try public import Init.BinderNameHint public import Init.Task public import Init.MethodSpecsSimp public import Init.LawfulBEqTactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -21,7 +21,6 @@ lean_object* initialize_Init_ByCases(uint8_t builtin);
 lean_object* initialize_Init_RCases(uint8_t builtin);
 lean_object* initialize_Init_Core(uint8_t builtin);
 lean_object* initialize_Init_Control(uint8_t builtin);
-lean_object* initialize_Init_Data_Basic(uint8_t builtin);
 lean_object* initialize_Init_WF(uint8_t builtin);
 lean_object* initialize_Init_WFTactics(uint8_t builtin);
 lean_object* initialize_Init_Data(uint8_t builtin);
@@ -81,9 +80,6 @@ res = initialize_Init_Core(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_WF(builtin);

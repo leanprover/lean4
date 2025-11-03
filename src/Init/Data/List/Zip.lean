@@ -96,7 +96,7 @@ theorem head?_zipWith {f : α → β → γ} :
 theorem head_zipWith {f : α → β → γ} (h):
     (List.zipWith f as bs).head h = f (as.head (by rintro rfl; simp_all)) (bs.head (by rintro rfl; simp_all)) := by
   apply Option.some.inj
-  rw [← head?_eq_head, head?_zipWith, head?_eq_head, head?_eq_head]
+  rw [← head?_eq_some_head, head?_zipWith, head?_eq_some_head, head?_eq_some_head]
 
 @[simp, grind =]
 theorem zipWith_map {μ} {f : γ → δ → μ} {g : α → γ} {h : β → δ} {l₁ : List α} {l₂ : List β} :
@@ -392,7 +392,7 @@ theorem head?_zipWithAll {f : Option α → Option β → γ} :
 @[simp, grind =] theorem head_zipWithAll {f : Option α → Option β → γ} (h) :
     (zipWithAll f as bs).head h = f as.head? bs.head? := by
   apply Option.some.inj
-  rw [← head?_eq_head, head?_zipWithAll]
+  rw [← head?_eq_some_head, head?_zipWithAll]
   split <;> simp_all
 
 @[simp, grind =] theorem tail_zipWithAll {f : Option α → Option β → γ} :

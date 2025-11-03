@@ -21,17 +21,17 @@ static lean_object* l_IO_FS_Stream_writeLspMessage___closed__49;
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__57;
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__10;
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__30;
-static lean_object* l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__1;
+static lean_object* l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__1;
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspRequest(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_mkObj(lean_object*);
 static lean_object* l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__1;
 static lean_object* l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_parseHeaderField___closed__1;
 lean_object* l_String_toNat_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspRequest___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__1;
-LEAN_EXPORT lean_object* l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1(lean_object*);
+static lean_object* l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__1;
+LEAN_EXPORT lean_object* l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1(lean_object*);
 static lean_object* l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__1;
-static lean_object* l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__2;
+static lean_object* l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__2;
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__8;
 lean_object* l_String_quote(lean_object*);
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__50;
@@ -64,10 +64,10 @@ lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l_Lean_Json_getObjVal_x3f(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__0;
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__7;
-LEAN_EXPORT lean_object* l_Lean_Json_opt___at___IO_FS_Stream_writeLspMessage_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Json_opt___at___00IO_FS_Stream_writeLspMessage_spec__0(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__2;
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__14;
-LEAN_EXPORT lean_object* l_Lean_Json_opt___at___IO_FS_Stream_writeLspMessage_spec__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Json_opt___at___00IO_FS_Stream_writeLspMessage_spec__1(lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__42;
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__38;
 lean_object* l_Nat_reprFast(lean_object*);
@@ -90,7 +90,7 @@ LEAN_EXPORT lean_object* l_IO_FS_Stream_readLspResponseAs___boxed(lean_object*, 
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspMessage___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__35;
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__21;
-static lean_object* l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__0;
+static lean_object* l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__0;
 LEAN_EXPORT lean_object* l_IO_FS_Stream_readLspResponseAs___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspNotification___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__4;
@@ -99,7 +99,7 @@ static lean_object* l_IO_FS_Stream_writeLspMessage___closed__4;
 static lean_object* l_IO_FS_Stream_readLspNotificationAs___redArg___closed__0;
 static lean_object* l_IO_FS_Stream_readLspMessage___closed__0;
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspRequest___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_lookup___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_lookup___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspResponse___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_isLean3Request___boxed(lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
@@ -108,7 +108,7 @@ static lean_object* l_IO_FS_Stream_writeLspMessage___closed__0;
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__52;
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__3;
 lean_object* lean_mk_io_user_error(lean_object*);
-static lean_object* l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__0;
+static lean_object* l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__0;
 static lean_object* l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_parseHeaderField___closed__0;
 LEAN_EXPORT lean_object* l_IO_FS_Stream_readLspRequestAs___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__55;
@@ -124,13 +124,13 @@ lean_object* l_List_appendTR___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspRequest___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_IO_FS_Stream_readLspMessageAsString___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_lookup___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_List_lookup___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___boxed(lean_object*);
 static lean_object* l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__0;
 static lean_object* l_IO_FS_Stream_writeSerializedLspMessage___closed__1;
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspNotification(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__26;
-LEAN_EXPORT lean_object* l_Lean_Json_opt___at___IO_FS_Stream_writeLspMessage_spec__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Json_opt___at___00IO_FS_Stream_writeLspMessage_spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__18;
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__59;
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__37;
@@ -158,7 +158,6 @@ LEAN_EXPORT lean_object* l_IO_FS_Stream_readLspRequestAs___redArg(lean_object*, 
 lean_object* l_Substring_prevn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_toStructured_x3f___redArg(lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__22;
-uint8_t l_instDecidableNot___redArg(uint8_t);
 lean_object* l_IO_FS_Stream_readNotificationAs___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -169,8 +168,8 @@ LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspResponseError(lean_object*, lean
 LEAN_EXPORT lean_object* l_IO_FS_Stream_readLspMessageAsString(lean_object*);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___boxed(lean_object*, lean_object*);
-static lean_object* l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__2;
-LEAN_EXPORT lean_object* l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___boxed(lean_object*, lean_object*);
+static lean_object* l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__2;
+LEAN_EXPORT lean_object* l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__33;
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeSerializedLspMessage(lean_object*, lean_object*);
@@ -183,12 +182,12 @@ static lean_object* l_IO_FS_Stream_writeLspMessage___closed__51;
 lean_object* l_Lean_Json_parse(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspResponseErrorWithData___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader(lean_object*);
-LEAN_EXPORT lean_object* l_List_lookup___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_lookup___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_lookup___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_lookup___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__28;
 lean_object* l_IO_FS_Stream_readUTF8(lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__54;
-LEAN_EXPORT lean_object* l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1(lean_object*, lean_object*);
 static lean_object* _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_parseHeaderField___closed__0() {
 _start:
 {
@@ -216,106 +215,105 @@ return x_1;
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_parseHeaderField(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint8_t x_3; uint8_t x_4; 
+lean_object* x_2; uint8_t x_3; 
 x_2 = l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_parseHeaderField___closed__0;
 x_3 = lean_string_dec_eq(x_1, x_2);
-x_4 = l_instDecidableNot___redArg(x_3);
-if (x_4 == 0)
+if (x_3 == 0)
 {
-lean_object* x_5; 
-lean_dec_ref(x_1);
-x_5 = lean_box(0);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
-x_6 = lean_unsigned_to_nat(2u);
-x_7 = lean_unsigned_to_nat(0u);
-x_8 = lean_string_utf8_byte_size(x_1);
-lean_inc(x_8);
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+x_4 = lean_unsigned_to_nat(2u);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = lean_string_utf8_byte_size(x_1);
+lean_inc(x_6);
 lean_inc_ref(x_1);
-x_9 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_9, 0, x_1);
-lean_ctor_set(x_9, 1, x_7);
-lean_ctor_set(x_9, 2, x_8);
-lean_inc(x_8);
-x_10 = l_Substring_prevn(x_9, x_6, x_8);
+x_7 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_7, 0, x_1);
+lean_ctor_set(x_7, 1, x_5);
+lean_ctor_set(x_7, 2, x_6);
+lean_inc(x_6);
+x_8 = l_Substring_prevn(x_7, x_4, x_6);
+lean_dec_ref(x_7);
+x_9 = lean_string_utf8_extract(x_1, x_8, x_6);
+lean_dec(x_6);
+x_10 = l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_parseHeaderField___closed__1;
+x_11 = lean_string_dec_eq(x_9, x_10);
 lean_dec_ref(x_9);
-x_11 = lean_string_utf8_extract(x_1, x_10, x_8);
-lean_dec(x_8);
-x_12 = l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_parseHeaderField___closed__1;
-x_13 = lean_string_dec_eq(x_11, x_12);
-lean_dec_ref(x_11);
-if (x_13 == 0)
+if (x_11 == 0)
 {
-lean_object* x_14; 
-lean_dec(x_10);
+lean_object* x_12; 
+lean_dec(x_8);
 lean_dec_ref(x_1);
-x_14 = lean_box(0);
-return x_14;
+x_12 = lean_box(0);
+return x_12;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_15 = l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_parseHeaderField___closed__2;
-x_16 = lean_string_utf8_extract(x_1, x_7, x_10);
-lean_dec(x_10);
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+x_13 = l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_parseHeaderField___closed__2;
+x_14 = lean_string_utf8_extract(x_1, x_5, x_8);
+lean_dec(x_8);
 lean_dec_ref(x_1);
+x_15 = lean_box(0);
+x_16 = l_String_splitOnAux(x_14, x_13, x_5, x_5, x_5, x_15);
+lean_dec_ref(x_14);
+if (lean_obj_tag(x_16) == 0)
+{
+lean_object* x_17; 
 x_17 = lean_box(0);
-x_18 = l_String_splitOnAux(x_16, x_15, x_7, x_7, x_7, x_17);
-lean_dec_ref(x_16);
+return x_17;
+}
+else
+{
+lean_object* x_18; 
+x_18 = lean_ctor_get(x_16, 1);
+lean_inc(x_18);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; 
+lean_dec_ref(x_16);
 x_19 = lean_box(0);
 return x_19;
 }
 else
 {
-lean_object* x_20; 
-x_20 = lean_ctor_get(x_18, 1);
-lean_inc(x_20);
-if (lean_obj_tag(x_20) == 0)
+uint8_t x_20; 
+x_20 = !lean_is_exclusive(x_16);
+if (x_20 == 0)
 {
-lean_object* x_21; 
-lean_dec_ref(x_18);
-x_21 = lean_box(0);
-return x_21;
+lean_object* x_21; lean_object* x_22; lean_object* x_23; 
+x_21 = lean_ctor_get(x_16, 1);
+lean_dec(x_21);
+x_22 = l_String_intercalate(x_13, x_18);
+lean_ctor_set_tag(x_16, 0);
+lean_ctor_set(x_16, 1, x_22);
+x_23 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_23, 0, x_16);
+return x_23;
 }
 else
 {
-uint8_t x_22; 
-x_22 = !lean_is_exclusive(x_18);
-if (x_22 == 0)
-{
-lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-x_23 = lean_ctor_get(x_18, 1);
-lean_dec(x_23);
-x_24 = l_String_intercalate(x_15, x_20);
-lean_ctor_set_tag(x_18, 0);
-lean_ctor_set(x_18, 1, x_24);
-x_25 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_25, 0, x_18);
-return x_25;
+lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+x_24 = lean_ctor_get(x_16, 0);
+lean_inc(x_24);
+lean_dec(x_16);
+x_25 = l_String_intercalate(x_13, x_18);
+x_26 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_26, 0, x_24);
+lean_ctor_set(x_26, 1, x_25);
+x_27 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_27, 0, x_26);
+return x_27;
 }
-else
-{
-lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
-x_26 = lean_ctor_get(x_18, 0);
-lean_inc(x_26);
-lean_dec(x_18);
-x_27 = l_String_intercalate(x_15, x_20);
-x_28 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_28, 0, x_26);
-lean_ctor_set(x_28, 1, x_27);
-x_29 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_29, 0, x_28);
-return x_29;
 }
 }
 }
 }
+else
+{
+lean_object* x_28; 
+lean_dec_ref(x_1);
+x_28 = lean_box(0);
+return x_28;
 }
 }
 }
@@ -716,7 +714,7 @@ x_3 = l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields(x
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_List_lookup___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_lookup___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -749,15 +747,15 @@ return x_10;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_lookup___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_List_lookup___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_List_lookup___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0___redArg(x_2, x_3);
+x_4 = l_List_lookup___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0___redArg(x_2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__0() {
+static lean_object* _init_l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -765,7 +763,7 @@ x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
-static lean_object* _init_l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__1() {
+static lean_object* _init_l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -773,7 +771,7 @@ x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
-static lean_object* _init_l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__2() {
+static lean_object* _init_l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -781,7 +779,7 @@ x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -795,13 +793,13 @@ x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
 x_5 = lean_ctor_get(x_3, 0);
 x_6 = lean_ctor_get(x_3, 1);
-x_7 = l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__0;
+x_7 = l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__0;
 x_8 = lean_string_append(x_1, x_7);
-x_9 = l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__1;
+x_9 = l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__1;
 x_10 = lean_string_append(x_9, x_5);
 x_11 = lean_string_append(x_10, x_7);
 x_12 = lean_string_append(x_11, x_6);
-x_13 = l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__2;
+x_13 = l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__2;
 x_14 = lean_string_append(x_12, x_13);
 x_15 = lean_string_append(x_8, x_14);
 lean_dec_ref(x_14);
@@ -811,7 +809,7 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__0() {
+static lean_object* _init_l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -819,7 +817,7 @@ x_1 = lean_mk_string_unchecked("[]", 2, 2);
 return x_1;
 }
 }
-static lean_object* _init_l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__1() {
+static lean_object* _init_l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -827,7 +825,7 @@ x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
-static lean_object* _init_l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__2() {
+static lean_object* _init_l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -835,13 +833,13 @@ x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_2; 
-x_2 = l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__0;
+x_2 = l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__0;
 return x_2;
 }
 else
@@ -854,17 +852,17 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_4, 0);
 x_6 = lean_ctor_get(x_4, 1);
-x_7 = l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__1;
-x_8 = l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__1;
+x_7 = l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__1;
+x_8 = l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__1;
 x_9 = lean_string_append(x_8, x_5);
-x_10 = l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__0;
+x_10 = l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__0;
 x_11 = lean_string_append(x_9, x_10);
 x_12 = lean_string_append(x_11, x_6);
-x_13 = l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__2;
+x_13 = l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__2;
 x_14 = lean_string_append(x_12, x_13);
 x_15 = lean_string_append(x_7, x_14);
 lean_dec_ref(x_14);
-x_16 = l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__2;
+x_16 = l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__2;
 x_17 = lean_string_append(x_15, x_16);
 return x_17;
 }
@@ -874,17 +872,17 @@ lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean
 x_18 = lean_ctor_get(x_1, 0);
 x_19 = lean_ctor_get(x_18, 0);
 x_20 = lean_ctor_get(x_18, 1);
-x_21 = l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__1;
-x_22 = l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__1;
+x_21 = l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__1;
+x_22 = l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__1;
 x_23 = lean_string_append(x_22, x_19);
-x_24 = l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__0;
+x_24 = l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__0;
 x_25 = lean_string_append(x_23, x_24);
 x_26 = lean_string_append(x_25, x_20);
-x_27 = l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__2;
+x_27 = l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__2;
 x_28 = lean_string_append(x_26, x_27);
 x_29 = lean_string_append(x_21, x_28);
 lean_dec_ref(x_28);
-x_30 = l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1(x_29, x_3);
+x_30 = l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1(x_29, x_3);
 x_31 = 93;
 x_32 = lean_string_push(x_30, x_31);
 return x_32;
@@ -938,12 +936,12 @@ if (x_4 == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_3, 0);
 x_6 = l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__0;
-x_7 = l_List_lookup___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0___redArg(x_6, x_5);
+x_7 = l_List_lookup___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0___redArg(x_6, x_5);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_8 = l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__1;
-x_9 = l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1(x_5);
+x_9 = l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1(x_5);
 lean_dec(x_5);
 x_10 = lean_string_append(x_8, x_9);
 lean_dec_ref(x_9);
@@ -992,12 +990,12 @@ x_20 = lean_ctor_get(x_3, 0);
 lean_inc(x_20);
 lean_dec(x_3);
 x_21 = l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__0;
-x_22 = l_List_lookup___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0___redArg(x_21, x_20);
+x_22 = l_List_lookup___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0___redArg(x_21, x_20);
 if (lean_obj_tag(x_22) == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 x_23 = l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__1;
-x_24 = l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1(x_20);
+x_24 = l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1(x_20);
 lean_dec(x_20);
 x_25 = lean_string_append(x_23, x_24);
 lean_dec_ref(x_24);
@@ -1062,40 +1060,40 @@ return x_40;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_lookup___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_lookup___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_List_lookup___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0___redArg(x_1, x_2);
+x_3 = l_List_lookup___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0___redArg(x_1, x_2);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_List_lookup___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_List_lookup___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_List_lookup___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0(x_1, x_2, x_3);
+x_4 = l_List_lookup___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__0(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1(x_1, x_2);
+x_3 = l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1(x_1);
+x_2 = l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -1561,7 +1559,7 @@ lean_dec_ref(x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Json_opt___at___IO_FS_Stream_writeLspMessage_spec__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Json_opt___at___00IO_FS_Stream_writeLspMessage_spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -1589,7 +1587,7 @@ return x_8;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Json_opt___at___IO_FS_Stream_writeLspMessage_spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Json_opt___at___00IO_FS_Stream_writeLspMessage_spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -2251,7 +2249,7 @@ x_22 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_22, 0, x_16);
 lean_ctor_set(x_22, 1, x_21);
 x_23 = l_IO_FS_Stream_writeLspMessage___closed__6;
-x_24 = l_Lean_Json_opt___at___IO_FS_Stream_writeLspMessage_spec__0(x_23, x_13);
+x_24 = l_Lean_Json_opt___at___00IO_FS_Stream_writeLspMessage_spec__0(x_23, x_13);
 x_25 = l_List_appendTR___redArg(x_22, x_24);
 x_5 = x_25;
 goto block_10;
@@ -2273,7 +2271,7 @@ lean_ctor_set_tag(x_2, 0);
 lean_ctor_set(x_2, 1, x_38);
 lean_ctor_set(x_2, 0, x_37);
 x_39 = l_IO_FS_Stream_writeLspMessage___closed__6;
-x_40 = l_Lean_Json_opt___at___IO_FS_Stream_writeLspMessage_spec__0(x_39, x_36);
+x_40 = l_Lean_Json_opt___at___00IO_FS_Stream_writeLspMessage_spec__0(x_39, x_36);
 x_41 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_41, 0, x_2);
 lean_ctor_set(x_41, 1, x_40);
@@ -2295,7 +2293,7 @@ x_46 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_46, 0, x_44);
 lean_ctor_set(x_46, 1, x_45);
 x_47 = l_IO_FS_Stream_writeLspMessage___closed__6;
-x_48 = l_Lean_Json_opt___at___IO_FS_Stream_writeLspMessage_spec__0(x_47, x_43);
+x_48 = l_Lean_Json_opt___at___00IO_FS_Stream_writeLspMessage_spec__0(x_47, x_43);
 x_49 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_49, 0, x_46);
 lean_ctor_set(x_49, 1, x_48);
@@ -2483,7 +2481,7 @@ x_83 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_83, 0, x_77);
 lean_ctor_set(x_83, 1, x_82);
 x_84 = l_IO_FS_Stream_writeLspMessage___closed__9;
-x_85 = l_Lean_Json_opt___at___IO_FS_Stream_writeLspMessage_spec__1(x_84, x_72);
+x_85 = l_Lean_Json_opt___at___00IO_FS_Stream_writeLspMessage_spec__1(x_84, x_72);
 lean_dec(x_72);
 x_86 = l_List_appendTR___redArg(x_83, x_85);
 x_87 = l_Lean_Json_mkObj(x_86);
@@ -2646,11 +2644,11 @@ return x_9;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Json_opt___at___IO_FS_Stream_writeLspMessage_spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Json_opt___at___00IO_FS_Stream_writeLspMessage_spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_Json_opt___at___IO_FS_Stream_writeLspMessage_spec__1(x_1, x_2);
+x_3 = l_Lean_Json_opt___at___00IO_FS_Stream_writeLspMessage_spec__1(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -3069,18 +3067,18 @@ l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___close
 lean_mark_persistent(l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__4);
 l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__5 = _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__5();
 lean_mark_persistent(l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__5);
-l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__0 = _init_l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__0();
-lean_mark_persistent(l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__0);
-l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__1 = _init_l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__1();
-lean_mark_persistent(l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__1);
-l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__2 = _init_l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__2();
-lean_mark_persistent(l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__2);
-l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__0 = _init_l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__0();
-lean_mark_persistent(l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__0);
-l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__1 = _init_l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__1();
-lean_mark_persistent(l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__1);
-l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__2 = _init_l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__2();
-lean_mark_persistent(l_List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__2);
+l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__0 = _init_l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__0();
+lean_mark_persistent(l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__0);
+l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__1 = _init_l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__1();
+lean_mark_persistent(l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__1);
+l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__2 = _init_l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__2();
+lean_mark_persistent(l_List_foldl___at___00List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__2);
+l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__0 = _init_l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__0();
+lean_mark_persistent(l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__0);
+l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__1 = _init_l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__1();
+lean_mark_persistent(l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__1);
+l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__2 = _init_l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__2();
+lean_mark_persistent(l_List_toString___at___00__private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1___closed__2);
 l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__0 = _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__0();
 lean_mark_persistent(l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__0);
 l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__1 = _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__1();

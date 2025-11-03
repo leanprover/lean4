@@ -669,7 +669,7 @@ end
 
 section Ext
 
-@[ext 900]
+@[ext 900, grind ext]
 theorem ext_get? [EquivBEq α] [LawfulHashable α] {m₁ m₂ : ExtHashSet α}
     (h : ∀ k, m₁.get? k = m₂.get? k) : m₁ = m₂ :=
   ext (ExtHashMap.ext_getKey?_unit h)

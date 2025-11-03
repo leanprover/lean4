@@ -94,6 +94,7 @@ def builtinPassManager : PassManager := {
     -- checked without nested functions whose bodies specialization does not require access to.
     checkTemplateVisibility,
     specialize,
+    findJoinPoints (occurrence := 1),
     simp (occurrence := 2),
     cse (shouldElimFunDecls := false) (occurrence := 1),
     saveBase, -- End of base phase

@@ -1145,10 +1145,6 @@ def applySimpResult (mvarId : MVarId) (val : Expr) (type : Expr) (r : Simp.Resul
       else
         return some (val, r.expr)
 
-@[deprecated applySimpResult (since := "2025-03-26")]
-def applySimpResultToProp (mvarId : MVarId) (proof : Expr) (prop : Expr) (r : Simp.Result) (mayCloseGoal := true) : MetaM (Option (Expr × Expr)) :=
-  applySimpResult mvarId proof prop r mayCloseGoal
-
 def applySimpResultToFVarId (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result) (mayCloseGoal : Bool) : MetaM (Option (Expr × Expr)) := do
   let localDecl ← fvarId.getDecl
   applySimpResult mvarId (mkFVar fvarId) localDecl.type r mayCloseGoal

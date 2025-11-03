@@ -64,11 +64,8 @@ structure Raw (α : Type u) (β : Type v) where
 
 namespace Raw
 
-@[inline, inherit_doc DHashMap.Raw.empty] def emptyWithCapacity (capacity := 8) : Raw α β :=
+@[inline, inherit_doc DHashMap.Raw.emptyWithCapacity] def emptyWithCapacity (capacity := 8) : Raw α β :=
   ⟨DHashMap.Raw.emptyWithCapacity capacity⟩
-
-@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
-abbrev empty := @emptyWithCapacity
 
 instance : EmptyCollection (Raw α β) where
   emptyCollection := emptyWithCapacity
@@ -301,10 +298,6 @@ theorem WF.emptyWithCapacity [BEq α] [Hashable α] {c} : (emptyWithCapacity c :
 
 theorem WF.empty [BEq α] [Hashable α] : (∅ : Raw α β).WF :=
   WF.emptyWithCapacity
-
-set_option linter.missingDocs false in
-@[deprecated WF.empty (since := "2025-03-12")]
-abbrev WF.emptyc := @WF.empty
 
 theorem WF.insert [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β} (h : m.WF) :
     (m.insert a b).WF :=

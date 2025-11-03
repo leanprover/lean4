@@ -483,6 +483,17 @@ def insertMany {ρ} [ForIn Id ρ α] (t : TreeSet α cmp) (l : ρ) : TreeSet α 
   ⟨TreeMap.insertManyIfNewUnit t.inner l⟩
 
 /--
+Computes the union of the given tree sets. If both maps contain elements that are equal according
+to the comparison function, the element contained in the second argument will appear in the result.
+
+This function always merges the smaller set into the larger set.
+-/
+def union (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
+  ⟨TreeMap.union t₁.inner t₂.inner⟩
+
+instance : Union (TreeSet α cmp) := ⟨union⟩
+
+/--
 Erases multiple items from the tree set by iterating over the given collection and calling erase.
 -/
 @[inline]

@@ -77,9 +77,6 @@ namespace DHashMap
 @[inline, inherit_doc Raw.emptyWithCapacity] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) : DHashMap α β :=
   ⟨Raw.emptyWithCapacity capacity, .emptyWithCapacity₀⟩
 
-@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
-abbrev empty := @emptyWithCapacity
-
 instance [BEq α] [Hashable α] : EmptyCollection (DHashMap α β) where
   emptyCollection := emptyWithCapacity
 

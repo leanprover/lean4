@@ -69,9 +69,6 @@ the empty collection notations `∅` and `{}` to create an empty hash set with t
 @[inline] def emptyWithCapacity (capacity := 8) : Raw α :=
   ⟨HashMap.Raw.emptyWithCapacity capacity⟩
 
-@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
-abbrev empty := @emptyWithCapacity
-
 instance : EmptyCollection (Raw α) where
   emptyCollection := emptyWithCapacity
 
@@ -293,10 +290,6 @@ theorem WF.emptyWithCapacity [BEq α] [Hashable α] {c} : (emptyWithCapacity c :
 
 theorem WF.empty [BEq α] [Hashable α] : (∅ : Raw α).WF :=
   WF.emptyWithCapacity
-
-set_option linter.missingDocs false in
-@[deprecated WF.empty (since := "2025-03-12")]
-abbrev WF.emptyc := @WF.empty
 
 theorem WF.insert [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.insert a).WF :=
   ⟨HashMap.Raw.WF.insertIfNew h.out⟩

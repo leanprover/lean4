@@ -114,30 +114,6 @@ where go (isMeta isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit 
             go isMeta isPublic refDecl
 
 /--
-Checks meta availability just before `evalConst`. This is a "last line of defense" as accesses
-should have been checked at declaration time in case of attributes. We do not solely want to rely on
-errors from the interpreter itself as those depend on whether we are running in the server.
--/
-@[export lean_eval_check_meta]
-private partial def evalCheckMeta (env : Environment) (declName : Name) : Except String Unit := do
-  if !env.header.isModule then
-    return
-  let some decl := getDeclCore? env baseExt declName
-    | return  -- We might not have the LCNF available, in which case there's nothing we can do
-  go decl |>.run' {}
-where go (decl : Decl) : StateT NameSet (Except String) Unit :=
-  decl.value.forCodeM fun code =>
-    for ref in collectUsedDecls code do
-      if (← get).contains ref then
-        continue
-      modify (·.insert ref)
-      if let some localDecl := baseExt.getState env |>.find? ref then
-        go localDecl
-      else
-        if getIRPhases env ref == .runtime then
-          throw s!"Cannot evaluate constant `{declName}` as it uses `{ref}` which is neither marked nor imported as `meta`"
-
-/--
 Checks that imports necessary for inlining/specialization are public as otherwise we may run into
 unknown declarations at the point of inlining/specializing. This is a limitation that we want to
 lift in the future by moving main compilation into a different process that can use a different

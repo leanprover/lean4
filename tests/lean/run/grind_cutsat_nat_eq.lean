@@ -75,22 +75,22 @@ example (a b : Int) : (a - b).toNat = 0 ↔ a ≤ b := by
   grind
 
 /--
-trace: [grind.cutsat.model] x := 3
-[grind.cutsat.model] y := 1
-[grind.cutsat.model] z := 4
+trace: [grind.lia.model] x := 3
+[grind.lia.model] y := 1
+[grind.lia.model] z := 4
 -/
 #guard_msgs (trace) in
-set_option trace.grind.cutsat.model true in
+set_option trace.grind.lia.model true in
 example (x y z : Nat) : x ≥ 3 → x ≠ z → x > y → z ≤ 6 → x + y = z → False := by
   fail_if_success grind
   sorry
 
 /--
-trace: [grind.cutsat.model] x := 13
-[grind.cutsat.model] y := 9
+trace: [grind.lia.model] x := 13
+[grind.lia.model] y := 9
 -/
 #guard_msgs (trace) in
-set_option trace.grind.cutsat.model true in
+set_option trace.grind.lia.model true in
 example (x y : Nat) : x > 8 → y > 8 → x ≠ y → (x - y) % 4 = 1 := by
   fail_if_success grind
   sorry
@@ -120,11 +120,11 @@ example (x y : Nat) : x ^ 0 + y = 0 → False := by
   grind
 
 /--
-trace: [grind.cutsat.model] x := 4
-[grind.cutsat.model] y := 1
+trace: [grind.lia.model] x := 4
+[grind.lia.model] y := 1
 -/
 #guard_msgs (trace) in
-set_option trace.grind.cutsat.model true in
+set_option trace.grind.lia.model true in
 example (x y : Nat) : x = y + 3 → y > 0 → False := by
   fail_if_success grind
   sorry

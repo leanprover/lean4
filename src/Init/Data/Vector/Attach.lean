@@ -556,12 +556,12 @@ and simplifies these to the function directly taking the value.
   simp
   rw [Array.findSome?_subtype hf]
 
-@[simp] theorem find?_subtype {p : α → Prop} {xs : Array { x // p x }}
+@[simp] theorem find?_subtype {p : α → Prop} {xs : Vector { x // p x } n}
     {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     (xs.find? f).map Subtype.val = xs.unattach.find? g := by
-  rcases xs with ⟨l, rfl⟩
+  rcases xs with ⟨xs, rfl⟩
+  rw [find?_mk, Array.find?_subtype hf]
   simp
-  rw [Array.find?_subtype hf]
 
 @[simp] theorem all_subtype {p : α → Prop} {xs : Vector { x // p x } n} {f : { x // p x } → Bool} {g : α → Bool}
     (hf : ∀ x h, f ⟨x, h⟩ = g x) :
@@ -602,8 +602,5 @@ and simplifies these to the function directly taking the value.
 @[simp] theorem unattach_replicate {p : α → Prop} {n : Nat} {x : { x // p x }} :
     (replicate n x).unattach = replicate n x.1 := by
   simp [unattach]
-
-@[deprecated unattach_replicate (since := "2025-03-18")]
-abbrev unattach_mkVector := @unattach_replicate
 
 end Vector

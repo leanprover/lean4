@@ -46,7 +46,7 @@ static lean_object* l_Std_Time_instReprTimestamp_repr___redArg___closed__17;
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_ctorIdx___boxed(lean_object*);
 static lean_object* l_Std_Time_instReprTimestamp_repr___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Std_Time_instDecidableLtTimestamp___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_instReprTimestamp_repr_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_instReprTimestamp_repr_spec__0(lean_object*);
 lean_object* lean_string_length(lean_object*);
 static lean_object* l_Std_Time_instReprTimestamp___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_subDuration(lean_object*, lean_object*);
@@ -135,7 +135,7 @@ uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instDecidableEqTimestamp_decEq___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_instHAddOffset__4;
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_instInhabitedTimestamp_default_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_instInhabitedTimestamp_default_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_instHSubOffset;
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_instHSubOffset__1;
@@ -204,7 +204,7 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_instReprTimestamp_repr_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_instReprTimestamp_repr_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -635,7 +635,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_instInhabitedTimestamp_default_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_instInhabitedTimestamp_default_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 

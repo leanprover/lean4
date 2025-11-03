@@ -156,9 +156,6 @@ theorem extract_append_left {xs : Vector α n} {ys : Vector α m} :
   ext i h
   simp
 
-@[deprecated extract_mkVector (since := "2025-03-18")]
-abbrev extract_mkVector := @extract_replicate
-
 theorem extract_add_left {xs : Vector α n} {i j k : Nat} :
     xs.extract (i + j) k = ((xs.extract i k).extract j (k - i)).cast (by omega) := by
   rcases xs with ⟨xs, rfl⟩

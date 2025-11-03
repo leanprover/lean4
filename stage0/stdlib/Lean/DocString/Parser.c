@@ -557,7 +557,6 @@ lean_object* l_Lean_Parser_ParserState_mkErrorAt(lean_object*, lean_object*, lea
 static lean_object* l_Lean_Doc_Parser_lookaheadOrderedListIndicator___closed__5;
 static lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_skipUntilDedent___lam__6___closed__0;
 static lean_object* l_Lean_Doc_Parser_metadataContents_formatter___closed__2;
-lean_object* lean_string_mk(lean_object*);
 static lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_opener___closed__1;
 static lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_bullet_go___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_instReprOrderedListType_repr___boxed(lean_object*, lean_object*);
@@ -1252,6 +1251,7 @@ LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_bo
 lean_object* l_Lean_Parser_ParserState_pushSyntax(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_unorderedListIndicator___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_ifVerso(lean_object*, lean_object*);
+lean_object* lean_string_mk(lean_object*);
 static lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_recoverCode___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_orderedList___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_Parser_metadataContents___closed__18;

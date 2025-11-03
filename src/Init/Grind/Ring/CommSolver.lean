@@ -42,16 +42,18 @@ inductive Expr where
 
 abbrev Context (α : Type u) := RArray α
 
-def Var.denote {α} (ctx : Context α) (v : Var) : α :=
+set_option allowUnsafeReducibility true
+
+abbrev Var.denote {α} (ctx : Context α) (v : Var) : α :=
   ctx.get v
 
-noncomputable def denoteInt {α} [Ring α] (k : Int) : α :=
+noncomputable abbrev denoteInt {α} [Ring α] (k : Int) : α :=
   Bool.rec
     (OfNat.ofNat (α := α) k.natAbs)
     (- OfNat.ofNat (α := α) k.natAbs)
     (Int.blt' k 0)
 
-noncomputable def Expr.denote {α} [Ring α] (ctx : Context α) (e : Expr) : α :=
+noncomputable abbrev Expr.denote {α} [Ring α] (ctx : Context α) (e : Expr) : α :=
   Expr.rec
     (fun k => denoteInt k)
     (fun k => NatCast.natCast (R := α) k)
@@ -63,6 +65,8 @@ noncomputable def Expr.denote {α} [Ring α] (ctx : Context α) (e : Expr) : α 
     (fun _ _ ih₁ ih₂ => ih₁ * ih₂)
     (fun _ k ih => ih ^ k)
     e
+
+attribute [semireducible] Var.denote denoteInt Expr.denote
 
 structure Power where
   x : Var
@@ -78,12 +82,14 @@ protected noncomputable def Power.beq' (pw₁ pw₂ : Power) : Bool :=
 def Power.varLt (p₁ p₂ : Power) : Bool :=
   p₁.x.blt p₂.x
 
-def Power.denote {α} [Semiring α] (ctx : Context α) : Power → α
+abbrev Power.denote {α} [Semiring α] (ctx : Context α) : Power → α
   | {x, k} =>
     match k with
     | 0 => 1
     | 1 => x.denote ctx
     | k => x.denote ctx ^ k
+
+attribute [semireducible] Power.denote
 
 inductive Mon where
   | unit
@@ -102,19 +108,21 @@ protected noncomputable def Mon.beq' (m₁ : Mon) : Mon → Bool :=
   simp [← ih m₂, ← Bool.and'_eq_and]
   rfl
 
-def Mon.denote {α} [Semiring α] (ctx : Context α) : Mon → α
+abbrev Mon.denote {α} [Semiring α] (ctx : Context α) : Mon → α
   | unit => 1
   | .mult p m => p.denote ctx * denote ctx m
 
-def Mon.denote' {α} [Semiring α] (ctx : Context α) (m : Mon) : α :=
+abbrev Mon.denote'.go [Semiring α] (ctx : Context α) (m : Mon) (acc : α) : α :=
+  match m with
+  | .unit => acc
+  | .mult pw m => go ctx m (acc * (pw.denote ctx))
+
+abbrev Mon.denote' {α} [Semiring α] (ctx : Context α) (m : Mon) : α :=
   match m with
   | .unit => 1
-  | .mult pw m => go m (pw.denote ctx)
-where
-  go (m : Mon) (acc : α) : α :=
-    match m with
-    | .unit => acc
-    | .mult pw m => go m (acc * (pw.denote ctx))
+  | .mult pw m => denote'.go ctx m (pw.denote ctx)
+
+attribute [semireducible] Mon.denote Mon.denote' Mon.denote'.go
 
 def Mon.ofVar (x : Var) : Mon :=
   .mult { x, k := 1 } .unit
@@ -328,27 +336,29 @@ protected noncomputable def Poly.beq' (p₁ : Poly) : Poly → Bool :=
   intro _ _; subst k₁ m₁
   simp [← ih p₂, ← Bool.and'_eq_and]; rfl
 
-def Poly.denote [Ring α] (ctx : Context α) (p : Poly) : α :=
+abbrev Poly.denote [Ring α] (ctx : Context α) (p : Poly) : α :=
   match p with
   | .num k => Int.cast k
   | .add k m p => k • (m.denote ctx) + denote ctx p
 
-def Poly.denote' [Ring α] (ctx : Context α) (p : Poly) : α :=
-  match p with
-  | .num k => Int.cast k
-  | .add k m p => go p (denoteTerm k m)
-where
-  denoteTerm (k : Int) (m : Mon) : α :=
-    bif k == 1 then
-      m.denote' ctx
-    else
-      k • m.denote' ctx
+abbrev denoteTerm [Ring α] (ctx : Context α) (k : Int) (m : Mon) : α :=
+  bif k == 1 then
+    m.denote' ctx
+  else
+    k • m.denote' ctx
 
-  go (p : Poly) (acc : α) : α :=
+abbrev Poly.denote'.go [Ring α] (ctx : Context α) (p : Poly) (acc : α) : α :=
     match p with
     | .num 0 => acc
     | .num k => acc + Int.cast k
-    | .add k m p => go p (acc + denoteTerm k m)
+    | .add k m p => go ctx p (acc + denoteTerm ctx k m)
+
+abbrev Poly.denote' [Ring α] (ctx : Context α) (p : Poly) : α :=
+  match p with
+  | .num k => Int.cast k
+  | .add k m p => denote'.go ctx p (denoteTerm ctx k m)
+
+attribute [semireducible] Poly.denote Poly.denote' Poly.denote'.go denoteTerm
 
 def Poly.ofMon (m : Mon) : Poly :=
   .add 1 m (.num 0)
@@ -995,8 +1005,8 @@ theorem Mon.eq_of_revlex {m₁ m₂ : Mon} : revlex m₁ m₂ = .eq → m₁ = m
 theorem Mon.eq_of_grevlex {m₁ m₂ : Mon} : grevlex m₁ m₂ = .eq → m₁ = m₂ := by
   simp [grevlex]; intro; apply eq_of_revlex
 
-theorem Poly.denoteTerm_eq  {α} [Ring α] (ctx : Context α) (k : Int) (m : Mon) : denote'.denoteTerm ctx k m = k * m.denote ctx := by
-  simp [denote'.denoteTerm, Mon.denote'_eq_denote, cond_eq_ite, zsmul_eq_intCast_mul]; intro; subst k; rw [Ring.intCast_one, Semiring.one_mul]
+theorem Poly.denoteTerm_eq  {α} [Ring α] (ctx : Context α) (k : Int) (m : Mon) : denoteTerm ctx k m = k * m.denote ctx := by
+  simp [denoteTerm, Mon.denote'_eq_denote, cond_eq_ite, zsmul_eq_intCast_mul]; intro; subst k; rw [Ring.intCast_one, Semiring.one_mul]
 
 theorem Poly.denote'_eq_denote {α} [Ring α] (ctx : Context α) (p : Poly) : p.denote' ctx = p.denote ctx := by
   cases p <;> simp [denote', denote, denoteTerm_eq, zsmul_eq_intCast_mul]

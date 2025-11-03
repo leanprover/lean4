@@ -30,7 +30,7 @@ abbrev Context := Lean.RArray Nat
   The denotation of `fixedVar` is always `1`. -/
 def fixedVar := 100000000 -- Any big number should work here
 
-def Var.denote (ctx : Context) (v : Var) : Nat :=
+abbrev Var.denote (ctx : Context) (v : Var) : Nat :=
   bif v == fixedVar then 1 else ctx.get v
 
 inductive Expr where
@@ -41,7 +41,7 @@ inductive Expr where
   | mulR (a : Expr) (k : Nat)
   deriving Inhabited, BEq
 
-def Expr.denote (ctx : Context) : Expr → Nat
+abbrev Expr.denote (ctx : Context) : Expr → Nat
   | .add a b  => Nat.add (denote ctx a) (denote ctx b)
   | .num k    => k
   | .var v    => v.denote ctx

@@ -376,16 +376,6 @@ theorem le_max_of_mem [Max α] [LE α] [Std.IsLinearOrder α] [Std.LawfulOrderMa
     a ≤ l.max (List.ne_nil_of_mem ha) :=
   (max?_eq_some_iff.mp (max?_eq_some_max (List.ne_nil_of_mem ha))).right a ha
 
-theorem max_eq_max_attach [Max α] [MaxEqOr α] {l : List α} (hl : l ≠ []) :
-    l.max hl = Subtype.val (l.attach.max (List.attach_ne_nil_iff.mpr hl)) := by
-  simpa [max?_eq_some_max hl, max?_eq_some_max (List.attach_ne_nil_iff.mpr hl)]
-    using (max?_eq_max?_attach (xs := l))
-
-theorem max_eq_iff_subtype [Max α] [LE α] {l : List α} (hl : l ≠ [])
-    [MaxEqOr α] [IsLinearOrder (Subtype (· ∈ l))] [LawfulOrderMax (Subtype (· ∈ l))] :
-    l.max hl = a ↔ a ∈ l ∧ ∀ b, b ∈ l → b ≤ a := by
-  simpa [max?_eq_some_max hl] using (max?_eq_some_iff_subtype (xs := l))
-
 @[simp] theorem max_replicate [Max α] [MaxEqOr α] {n : Nat} {a : α} (h : replicate n a ≠ []) :
     (replicate n a).max h = a := by
   have n_pos : 0 < n := Nat.pos_of_ne_zero (fun hn => by simp [hn] at h)

@@ -189,6 +189,25 @@ def List.getfirst (l : List α) (n : Nat) :=
     | .nil => nil
     | .cons hd tl => hd::(tl.getfirst m)
 
+def createTest : IO (Std.HashSet Nat ) := do
+  let mut set := Std.HashSet.emptyWithCapacity (α := Nat) 100
+  let mut i:= 0
+
+  while i < 100 do
+    set := set.insert i
+    i := (i + 1)
+
+  return set
+
+set_option trace.compiler.ir true in
+def test : IO Unit := do
+  let set ← createTest
+
+  let res := set.iter.any (fun x => [2,3,5].all (fun y => x%y = 0))
+
+  if (res || ! res) = false then
+    throw <| .userError "Fail"
+
 /--
   Returns the average time to find solutions to a chinese remainder problem using the built-in any function of the hashset
 -/

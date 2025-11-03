@@ -2753,6 +2753,7 @@ theorem union_insert_right_equiv_insert_union [EquivBEq α] [LawfulHashable α] 
       . apply List.Perm.symm
         . apply toListModel_union (by wf_trivial) (by wf_trivial)
 
+@[deprecated union_insert_right_equiv_insert_union (since := "2025-11-03")]
 theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
     (m₁.union (m₂.insert p.fst p.snd)).1.Equiv ((m₁.union m₂).insert p.fst p.snd).1 :=

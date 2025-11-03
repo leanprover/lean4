@@ -1,5 +1,6 @@
 import Lean
 
+
 /-- info: test._sparseCasesOn_1 -/
 #guard_msgs in
 run_meta
@@ -21,3 +22,25 @@ run_meta
   Lean.withDeclNameForAuxNaming `test do
     let name ← Lean.Meta.mkSparseCasesOn ``Or #[``Or.inl]
     Lean.logInfo m!"{name}"
+
+
+/- Check that the compiler is producin good code -/
+
+set_option trace.Compiler.saveBase true
+
+/--
+trace: [Compiler.saveBase] size: 7
+    def testDecl motive t fvar sort x.1 : motive lcAny :=
+      cases t : motive lcAny
+      | Lean.Expr.fvar fvarId =>
+        let _x.2 := fvar fvarId;
+        return _x.2
+      | Lean.Expr.sort u =>
+        let _x.3 := sort u;
+        return _x.3
+      | _ =>
+        let _x.4 := x.1 _ _;
+        return _x.4
+-/
+#guard_msgs in
+def testDecl := @test._sparseCasesOn_1

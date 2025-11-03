@@ -83,7 +83,8 @@ def getSparseCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
       assert! r.appArg!.isFVar
       let some discrPos := xs.idxOf? r.appArg! | unreachable!
       let some indName := (← inferType xs[discrPos]!).getAppFn.constName? | unreachable!
-      let altsRange := (discrPos + 1)...arity
+      let hasSideCondition : Bool := (← inferType xs[discrPos +1]!).getForallBody.getAppFn != r.getAppFn
+      let altsRange := (discrPos + (if hasSideCondition then 2 else 1))...arity
       let altNumParams ← altsRange.toArray.mapM fun idx => do
         forallTelescope (← inferType xs[idx]!) fun ys mr => do
           assert! mr.isApp

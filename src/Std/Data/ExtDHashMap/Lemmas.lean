@@ -2181,9 +2181,9 @@ theorem mem_of_mem_union_of_not_mem_left [EquivBEq α]
     k ∈ m₁ ∪ m₂ → ¬k ∈ m₁ → k ∈ m₂ :=
   m₁.inductionOn₂ m₂ fun _ _ => DHashMap.mem_of_mem_union_of_not_mem_left
 
-theorem union_insert_right_eq_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a} :
+theorem union_insert_right_eq_insert_union [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a} :
     (m₁ ∪ (m₂.insert p.fst p.snd)) = ((m₁ ∪ m₂).insert p.fst p.snd) :=
-  m₁.inductionOn₂ m₂ fun _ _ => sound DHashMap.union_insert_right_equiv_union_insert
+  m₁.inductionOn₂ m₂ fun _ _ => sound DHashMap.union_insert_right_equiv_insert_union
 
 /- get? -/
 theorem get?_union [LawfulBEq α] {k : α} :

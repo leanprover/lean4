@@ -1403,11 +1403,11 @@ theorem mem_of_mem_union_of_not_mem_left [EquivBEq α]
     k ∈ m₁ ∪ m₂ → ¬k ∈ m₁ → k ∈ m₂ :=
   ExtDHashMap.mem_of_mem_union_of_not_mem_left
 
-theorem union_insert_right_eq_union_insert [EquivBEq α] [LawfulHashable α] {p : (_ : α) × β} :
+theorem union_insert_right_eq_insert_union [EquivBEq α] [LawfulHashable α] {p : (_ : α) × β} :
     (m₁ ∪ (m₂.insert p.fst p.snd)) = ((m₁ ∪ m₂).insert p.fst p.snd) := by
   simp only [Union.union]
   simp only [union, insert, ExtDHashMap.union_eq, mk.injEq]
-  exact ExtDHashMap.union_insert_right_eq_union_insert
+  exact ExtDHashMap.union_insert_right_eq_insert_union
 
 /- get? -/
 theorem get?_union [EquivBEq α] [LawfulHashable α] {k : α} :

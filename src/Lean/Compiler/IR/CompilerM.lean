@@ -132,7 +132,7 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
             if let some (.str _ s) := getExportNameFor? env f then
               return .extern f xs ty { entries := [.standard `all s] }
             else
-              return .extern f xs ty { entries := [.opaque f] }
+              return .extern f xs ty { entries := [.opaque] }
           | d => some d
       else entries
     -- Written to on codegen environment branch but accessed from other elaboration branches when

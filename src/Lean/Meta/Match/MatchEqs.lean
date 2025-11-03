@@ -824,7 +824,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
           pure <| mkConst constInfo.name us
         else
           mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew splitterAltNumParams altArgMasks)
-      addAndCompile <| Declaration.defnDecl {
+      addAndCompile (logCompileErrors := false) <| Declaration.defnDecl {
         name        := splitterName
         levelParams := constInfo.levelParams
         type        := splitterType

@@ -9,6 +9,8 @@ prelude
 public import Lean.Util.RecDepth
 public import Lean.ResolveName
 public import Lean.Language.Basic
+import Lean.Compiler.MetaAttr
+import Lean.Util.ForEachExpr
 
 public section
 
@@ -684,6 +686,25 @@ def traceBlock (tag : String) (t : Task α) : CoreM α := do
     profileitM Exception "blocked" (← getOptions) do
       IO.wait t
 
+register_builtin_option compiler.postponeCompile : Bool := {
+  defValue := true
+}
+
+structure PostponedCompileDecl where
+  declName : Name
+  logErrors : Bool
+deriving BEq, Hashable
+
+builtin_initialize postponedCompileDeclsExt : SimplePersistentEnvExtension PostponedCompileDecl (NameMap PostponedCompileDecl) ←
+  registerSimplePersistentEnvExtension {
+    addImportedFn := fun _ => {}
+    addEntryFn    := fun s e => s.insert e.declName e
+    toArrayFn     := fun es => es.toArray
+    asyncMode     := .sync
+    replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
+      (!·.contains ·.declName) (fun s e => s.insert e.declName e)
+  }
+
 /--
 This ref exists to break a linking cycle that goes as follows:
 - We start in `Environment.lean`, there we have functions referencing the compiler such as
@@ -705,7 +726,14 @@ def compileDeclsImpl (declNames : Array Name) : CoreM Unit := do
   (← compileDeclsRef.get) declNames
 
 -- `ref?` is used for error reporting if available
-partial def compileDecls (decls : Array Name) (logErrors := true) : CoreM Unit := do
+def compileDecls (decls : Array Name) (logErrors := true) (mayPostpone := true) : CoreM Unit := do
+  let env ← getEnv
+  if mayPostpone && env.header.isModule && !decls.any (isMeta env) && (← compiler.postponeCompile.getM) then
+    for decl in decls do
+      trace[Compiler.init] "postponing compilation of {decl}"
+      modifyEnv (postponedCompileDeclsExt.addEntry · { declName := decl, logErrors })
+    return
+
   -- When inside `realizeConst`, do compilation synchronously so that `_cstage*` constants are found
   -- by the replay code
   if !Elab.async.get (← getOptions) || (← getEnv).isRealizing then
@@ -741,8 +769,8 @@ where doCompile := do
       if logErrors then
         throw e
 
-def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
-  compileDecls (Compiler.getDeclNamesForCodeGen decl) logErrors
+def compileDecl (decl : Declaration) (logErrors mayPostpone := true) : CoreM Unit := do
+  compileDecls (Compiler.getDeclNamesForCodeGen decl) logErrors mayPostpone
 
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts

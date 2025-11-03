@@ -262,7 +262,7 @@ def Folder.rightAnnihilator [Literal α] [BEq α] (annihilator : α) (zero : α)
   mkLit zero
 
 def Folder.divShift [Literal α] [BEq α] (shiftRight : Name) (pow2 : α → α) (log2 : α → α) : Folder := fun args => do
-  unless (← getEnv).contains shiftRight do return none
+  unless (← getDecl? shiftRight).isSome do return none
   let #[lhs, .fvar fvarId] := args | return none
   let some rhs ← getLit fvarId | return none
   let exponent := log2 rhs
@@ -271,7 +271,7 @@ def Folder.divShift [Literal α] [BEq α] (shiftRight : Name) (pow2 : α → α)
   return some <| .const shiftRight [] #[lhs, .fvar shiftLit]
 
 def Folder.mulRhsShift [Literal α] [BEq α] (shiftLeft : Name) (pow2 : α → α) (log2 : α → α) : Folder := fun args => do
-  unless (← getEnv).contains shiftLeft do return none
+  unless (← getDecl? shiftLeft).isSome do return none
   let #[lhs, .fvar fvarId] := args | return none
   let some rhs ← getLit fvarId | return none
   let exponent := log2 rhs
@@ -280,7 +280,7 @@ def Folder.mulRhsShift [Literal α] [BEq α] (shiftLeft : Name) (pow2 : α → �
   return some <| .const shiftLeft [] #[lhs, .fvar shiftLit]
 
 def Folder.mulLhsShift [Literal α] [BEq α] (shiftLeft : Name) (pow2 : α → α) (log2 : α → α) : Folder := fun args => do
-  unless (← getEnv).contains shiftLeft do return none
+  unless (← getDecl? shiftLeft).isSome do return none
   let #[.fvar fvarId, rhs] := args | return none
   let some lhs ← getLit fvarId | return none
   let exponent := log2 lhs

@@ -119,22 +119,7 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
     -- Leave storing the remainder for `meta import` and server `#eval` to `exportIREntries` below.
     exportEntriesFnEx? := some fun env s entries _ =>
       let decls := entries.foldl (init := #[]) fun decls decl => decls.push decl
-      let entries := sortDecls decls
-      -- Do not save all IR even in .olean.private as it will be in .ir anyway
-      if env.header.isModule then
-        entries.filterMap fun d => do
-          if isDeclMeta env d.name then
-            return d
-          guard <| Compiler.LCNF.isDeclPublic env d.name
-          -- Bodies of imported IR decls are not relevant for codegen, only interpretation
-          match d with
-          | .fdecl f xs ty b info =>
-            if let some (.str _ s) := getExportNameFor? env f then
-              return .extern f xs ty { entries := [.standard `all s] }
-            else
-              return .extern f xs ty { entries := [.opaque f] }
-          | d => some d
-      else entries
+      sortDecls decls
     -- Written to on codegen environment branch but accessed from other elaboration branches when
     -- calling into the interpreter. We cannot use `async` as the IR declarations added may not
     -- share a name prefix with the top-level Lean declaration being compiled, e.g. from
@@ -159,13 +144,14 @@ private def exportIREntries (env : Environment) : Array (Name × Array EnvExtens
   #[(declMapExt.name, irEntries),
     (Lean.regularInitAttr.ext.name, initDecls)]
 
-@[export lean_ir_find_env_decl]
 def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
+  Lean.Compiler.LCNF.findExtEntry? env declMapExt declName findAtSorted? (·.2.find?)
+
+@[export lean_ir_find_env_decl]
+private def findInterpDecl (env : Environment) (declName : Name) : Option Decl :=
   match env.getModuleIdxFor? declName with
   | some modIdx =>
     -- `meta import/import all` and server `#eval`
-    -- This case is important even for codegen because it needs to see IR via `import all` (because
-    -- it can also see the LCNF)
     findAtSorted? (declMapExt.getModuleIREntries env modIdx) declName <|>
     -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
     findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
@@ -173,7 +159,7 @@ def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
 
 /-- Like ``findEnvDecl env (declName ++ `_boxed)`` but with optimized negative lookup. -/
 @[export lean_ir_find_env_decl_boxed]
-private def findEnvDeclBoxed (env : Environment) (declName : Name) : Option Decl :=
+private def findInterpDeclBoxed (env : Environment) (declName : Name) : Option Decl :=
   let boxed := declName ++ `_boxed
   -- Important: get module index of base name, not boxed version. Usually the interpreter never
   -- does negative lookups except in the case of `call_boxed` which must check whether a boxed

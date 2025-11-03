@@ -206,13 +206,7 @@ def saveSpecParamInfo (decls : Array Decl) : CompilerM Unit := do
         modifyEnv fun env => specExtension.addEntry env { declName := decl.name, paramsInfo }
 
 def getSpecParamInfoCore? (env : Environment) (declName : Name) : Option (Array SpecParamInfo) :=
-  match env.getModuleIdxFor? declName with
-  | some modIdx =>
-    if let some entry := findAtSorted? (specExtension.getModuleEntries env modIdx) declName then
-      some entry.paramsInfo
-    else
-      none
-  | none => (specExtension.getState env).specInfo.find? declName
+  findExtEntry? env specExtension declName (findAtSorted? · · |>.map (·.paramsInfo)) (·.2.specInfo.find?)
 
 def getSpecParamInfo? [Monad m] [MonadEnv m] (declName : Name) : m (Option (Array SpecParamInfo)) :=
   return getSpecParamInfoCore? (← getEnv) declName

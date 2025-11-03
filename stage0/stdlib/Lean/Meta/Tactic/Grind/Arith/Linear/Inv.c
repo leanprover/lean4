@@ -216,15 +216,16 @@ lean_object* l_Lean_Meta_Grind_Arith_Linear_inconsistent(lean_object*, lean_obje
 LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Inv_0__Lean_Grind_Linarith_Poly_isSorted_go(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
-{
 if (lean_obj_tag(x_2) == 0)
 {
 uint8_t x_3; 
+lean_dec(x_1);
 x_3 = 1;
 return x_3;
 }
 else
+{
+if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_2, 1);
@@ -236,63 +237,53 @@ x_1 = x_6;
 x_2 = x_5;
 goto _start;
 }
-}
 else
-{
-if (lean_obj_tag(x_2) == 0)
 {
 uint8_t x_8; 
-lean_dec_ref(x_1);
-x_8 = 1;
-return x_8;
-}
-else
+x_8 = !lean_is_exclusive(x_1);
+if (x_8 == 0)
 {
-uint8_t x_9; 
-x_9 = !lean_is_exclusive(x_1);
-if (x_9 == 0)
-{
-lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
-x_10 = lean_ctor_get(x_1, 0);
-x_11 = lean_ctor_get(x_2, 1);
-x_12 = lean_ctor_get(x_2, 2);
-x_13 = lean_nat_dec_lt(x_11, x_10);
-lean_dec(x_10);
-if (x_13 == 0)
+lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+x_9 = lean_ctor_get(x_2, 1);
+x_10 = lean_ctor_get(x_2, 2);
+x_11 = lean_ctor_get(x_1, 0);
+x_12 = lean_nat_dec_lt(x_9, x_11);
+lean_dec(x_11);
+if (x_12 == 0)
 {
 lean_free_object(x_1);
-return x_13;
+return x_12;
 }
 else
 {
-lean_inc(x_11);
-lean_ctor_set(x_1, 0, x_11);
-x_2 = x_12;
+lean_inc(x_9);
+lean_ctor_set(x_1, 0, x_9);
+x_2 = x_10;
 goto _start;
 }
 }
 else
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
-x_15 = lean_ctor_get(x_1, 0);
-lean_inc(x_15);
+lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
+x_14 = lean_ctor_get(x_2, 1);
+x_15 = lean_ctor_get(x_2, 2);
+x_16 = lean_ctor_get(x_1, 0);
+lean_inc(x_16);
 lean_dec(x_1);
-x_16 = lean_ctor_get(x_2, 1);
-x_17 = lean_ctor_get(x_2, 2);
-x_18 = lean_nat_dec_lt(x_16, x_15);
-lean_dec(x_15);
-if (x_18 == 0)
+x_17 = lean_nat_dec_lt(x_14, x_16);
+lean_dec(x_16);
+if (x_17 == 0)
 {
-return x_18;
+return x_17;
 }
 else
 {
-lean_object* x_19; 
-lean_inc(x_16);
-x_19 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_19, 0, x_16);
-x_1 = x_19;
-x_2 = x_17;
+lean_object* x_18; 
+lean_inc(x_14);
+x_18 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_18, 0, x_14);
+x_1 = x_18;
+x_2 = x_15;
 goto _start;
 }
 }

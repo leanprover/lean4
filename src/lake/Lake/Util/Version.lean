@@ -352,15 +352,15 @@ public instance : DecodeVersion ToolchainVer := ⟨(pure <| ToolchainVer.ofStrin
 
 /-! ## VerRange -/
 
-public inductive Comparator
+public inductive ComparatorOp
 | lt | le | gt | ge | eq | ne
 deriving Repr, Inhabited
 
-namespace Comparator
+namespace ComparatorOp
 
 def parseM
   (s : String)
-: EStateM String s.ValidPos Comparator := fun p =>
+: EStateM String s.ValidPos ComparatorOp := fun p =>
   if let some (tk, op) := trie.matchPrefix s p.offset then
     let p' := p.offset + tk
     if h : p'.isValid s then
@@ -371,7 +371,7 @@ def parseM
     .error "expected comparison operator" p
 where trie :=
   let add sym cmp t := t.insert sym (sym, cmp)
-  (∅ : Lean.Data.Trie (String × Comparator))
+  (∅ : Lean.Data.Trie (String × ComparatorOp))
   |> add "<"  .lt
   |> add "<=" .le
   |> add "≤"  .le
@@ -382,12 +382,12 @@ where trie :=
   |> add "!=" .ne
   |> add "≠"  .ne
 
-public def ofString? (s : String) : Option Comparator :=
+public def ofString? (s : String) : Option ComparatorOp :=
   match parseM s s.startValidPos with
   | .ok op p => if p = s.endValidPos then some op else none
   | .error .. => none
 
-public protected def toString (self : Comparator) : String :=
+public protected def toString (self : ComparatorOp) : String :=
   match self with
   | .lt => "<"
   | .le => "≤"
@@ -396,14 +396,14 @@ public protected def toString (self : Comparator) : String :=
   | .eq => "="
   | .ne => "≠"
 
-public instance : ToString Comparator := ⟨Comparator.toString⟩
+public instance : ToString ComparatorOp := ⟨ComparatorOp.toString⟩
 
-end Comparator
+end ComparatorOp
 
 public structure VerComparator where
   private innerMk ::
     private ver : StdVer
-    private op : Comparator
+    private op : ComparatorOp
     private includeSuffixes : Bool := false
     deriving Repr
 
@@ -416,7 +416,7 @@ public def wild : VerComparator :=
 public instance : Inhabited VerComparator := ⟨.wild⟩
 
 def parseM (s : String) : EStateM String s.ValidPos VerComparator := do
-  let op ← Comparator.parseM s
+  let op ← ComparatorOp.parseM s
   let core ← SemVerCore.parseM s
   if let some specialDescr ← parseSpecialDescr? s then
     if  specialDescr.isEmpty then

@@ -128,21 +128,43 @@ otherwise, use '≥' to support it and future versions
 
 /-! ## Caret Ranges
 
-Lake does not support caret ranges.
+Lake follows Node's and Rust's behavior for caret ranges.
 
 https://github.com/npm/node-semver/tree/v7.7.3?tab=readme-ov-file#caret-ranges-123-025-004
 https://doc.rust-lang.org/stable/cargo/reference/specifying-dependencies.html#caret-requirements
 -/
 
-/--
-error: caret ranges are unsupported; if a specific major version is desired,
-use a tilde or wildcard range; otherwise, use '≥' instead
--/
-#guard_msgs in #eval runParse "^1.2.3"
+#eval checkParse "^1"       "≥1.0.0, <2.0.0-"
+#eval checkParse "^1.2"     "≥1.2.0, <2.0.0-"
+#eval checkParse "^1.2.3"   "≥1.2.3, <2.0.0-"
+
+#eval checkParse "^0.2"     "≥0.2.0, <0.3.0-"
+#eval checkParse "^0.2.3"   "≥0.2.3, <0.3.0-"
+#eval checkParse "^0.0.3"   "≥0.0.3, <0.0.4-"
+
+#eval checkParse "^0"       "≥0.0.0, <1.0.0-"
+#eval checkParse "^0.0"     "≥0.0.0, <0.1.0-"
+
+#eval checkParse "^1-beta.2"      "≥1.0.0-beta.2, <2.0.0-"
+#eval checkParse "^1.2-beta.2"    "≥1.2.0-beta.2, <2.0.0-"
+#eval checkParse "^1.2.3-beta.2"  "≥1.2.3-beta.2, <2.0.0-"
+#eval checkParse "^0.0.0-beta.2"  "≥0.0.0-beta.2, <0.0.1-"
+
+/-- error: invalid major version: expected numeral, got '' -/
+#guard_msgs in #eval runParse "^"
+
+/-- error: invalid version: '-' suffix cannot be empty -/
+#guard_msgs in #eval runParse "^1.2.3-"
+
+/-- error: invalid caret range: incorrect number of components: got 4, expected 1-3 -/
+#guard_msgs in #eval runParse "^1.2.3.4"
+
+/-- error: invalid caret range: `^0.0.0` is degenerate; use `=0.0.0` instead -/
+#guard_msgs in #eval runParse "^0.0.0"
 
 /-! ## Tilde Ranges
 
-Lake mostly follows Node's and Rust's behavior for tilde ranges.
+Lake follows Node's and Rust's behavior for tilde ranges.
 
 https://github.com/npm/node-semver/tree/v7.7.3?tab=readme-ov-file#tilde-ranges-123-12-1
 https://doc.rust-lang.org/stable/cargo/reference/specifying-dependencies.html#tilde-requirements
@@ -152,20 +174,30 @@ https://doc.rust-lang.org/stable/cargo/reference/specifying-dependencies.html#ti
 #eval checkParse "~1.2"     "≥1.2.0, <1.3.0-"
 #eval checkParse "~1.2.3"   "≥1.2.3, <1.3.0-"
 
-#eval checkParse "~0"       "≥0.0.0, <1.0.0-"
 #eval checkParse "~0.2"     "≥0.2.0, <0.3.0-"
 #eval checkParse "~0.2.3"   "≥0.2.3, <0.3.0-"
+#eval checkParse "~0.0.3"   "≥0.0.3, <0.1.0-"
+
+#eval checkParse "~0"       "≥0.0.0, <1.0.0-"
+#eval checkParse "~0.0"     "≥0.0.0, <0.1.0-"
+#eval checkParse "~0.0.0"   "≥0.0.0, <0.1.0-"
 
 #eval checkParse "~1-beta.2"      "≥1.0.0-beta.2, <2.0.0-"
 #eval checkParse "~1.2-beta.2"    "≥1.2.0-beta.2, <1.3.0-"
 #eval checkParse "~1.2.3-beta.2"  "≥1.2.3-beta.2, <1.3.0-"
 
-/-- error: invalid tilde range: incorrect number of components: got 4, expected 1-3 -/
-#guard_msgs in #eval runParse "~1.2.3.4"
-
 #eval checkMatch "~1.2.3-beta.2"
   #["1.2.3-beta.2", "1.2.3-beta.7", "1.2.3", "1.2.7"]
   #["1.2.1", "1.2.3-alpha.3", "1.2.3-beta.1"]
+
+/-- error: invalid major version: expected numeral, got '' -/
+#guard_msgs in #eval runParse "~"
+
+/-- error: invalid version: '-' suffix cannot be empty -/
+#guard_msgs in #eval runParse "~1.2.3-"
+
+/-- error: invalid tilde range: incorrect number of components: got 4, expected 1-3 -/
+#guard_msgs in #eval runParse "~1.2.3.4"
 
 /-! ## Wildcard Ranges
 

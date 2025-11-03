@@ -73,6 +73,13 @@ private def isWildVer (s : String.Slice) : Bool :=
     | throw s!"invalid {what} version: expected numeral, got '{s.copy}'"
   return v
 
+@[inline] private def parseOptVerNat (what : String) (s? : Option String.Slice) : EStateM String σ Nat := do
+  let some s := s?
+    | return 0
+  let some v := s.toNat?
+    | throw s!"invalid {what} version: expected numeral, got '{s.copy}'"
+  return v
+
 inductive VerComponent
 | none | wild | nat (n : Nat)
 
@@ -510,9 +517,10 @@ where
           go false ors ands p
         | .error e p => .error e p
       else if c == '^' then
-        .error "caret ranges are unsupported; \
-          if a specific major version is desired, use a tilde or wildcard range; \
-          otherwise, use '≥' instead" p
+        match parseCaret s ands (p.next h) with
+        | .ok ands p =>
+          go false ors ands p
+        | .error e p => .error e p
       else if c == '~' then
         match parseTilde s ands (p.next h) with
         | .ok ands p =>
@@ -570,6 +578,35 @@ where
           otherwise, use '≥' to support it and future versions"
       | _, _, _ =>
         return ands.push .wild
+  parseCaret (s : String) ands : EStateM String s.ValidPos _ := do
+    let cs ← parseVerComponents s
+    let specialDescr ← parseSpecialDescr s
+    if h : cs.size = 1 then
+      let major ← parseVerNat "major" cs[0]
+      return appendRange ands {major} {major := major + 1} specialDescr
+    else if h : cs.size = 2 then
+      let major ← parseVerNat "major" cs[0]
+      let minor ← parseVerNat "minor" cs[1]
+      if major = 0 then
+        return appendRange ands {major, minor}  {major, minor := minor + 1} specialDescr
+      else
+        return appendRange ands {major, minor}  {major := major + 1} specialDescr
+    else if h : cs.size = 3 then
+      let major ← parseVerNat "major" cs[0]
+      let minor ← parseVerNat "minor" cs[1]
+      let patch ← parseVerNat "patch" cs[2]
+      if major = 0 then
+        if minor = 0 then
+          if patch = 0 && specialDescr.isEmpty then
+            throw "invalid caret range: `^0.0.0` is degenerate; use `=0.0.0` instead"
+          else
+            return appendRange ands {major, minor, patch}  {major,  minor, patch := patch + 1} specialDescr
+        else
+          return appendRange ands {major, minor, patch}  {major, minor := minor + 1} specialDescr
+      else
+        return appendRange ands {major, minor, patch}  {major := major + 1} specialDescr
+    else
+      throw s!"invalid caret range: incorrect number of components: got {cs.size}, expected 1-3"
   parseTilde (s : String) ands : EStateM String s.ValidPos _ := do
     let cs ← parseVerComponents s
     let specialDescr ← parseSpecialDescr s

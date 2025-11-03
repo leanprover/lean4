@@ -11,6 +11,7 @@ public import Lean.Compiler.CSimpAttr
 public import Lean.Compiler.ImplementedByAttr
 public import Lean.Compiler.LCNF.Bind
 public import Lean.Compiler.NeverExtractAttr
+import Lean.Meta.CasesInfo
 
 public section
 
@@ -733,8 +734,6 @@ where
       else if declName == ``lcUnreachable then
         visitLcUnreachable e
       else if let some casesInfo ← getCasesInfo? declName then
-        visitCases casesInfo e
-      else if let some casesInfo ← getSparseCasesInfo? declName then
         visitCases casesInfo e
       else if let some arity ← getCtorArity? declName then
         visitCtor arity e

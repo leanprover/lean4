@@ -46,6 +46,9 @@ theorem isSome_min?_of_mem {l : List α} [Min α] {a : α} (h : a ∈ l) :
     l.min?.isSome := by
   cases l <;> simp_all [min?_cons']
 
+theorem isSome_min?_of_ne_nil [Min α] : {l : List α} → (hl : l ≠ []) → l.min?.isSome
+  | x::xs, h => by simp [min?_cons']
+
 theorem min?_eq_head? {α : Type u} [Min α] {l : List α}
     (h : l.Pairwise (fun a b => min a b = a)) : l.min? = l.head? := by
   cases l with
@@ -161,6 +164,10 @@ theorem min?_eq_some_min [Min α] : {l : List α} → (hl : l ≠ []) →
     l.min? = some (l.min hl)
   | a::as, _ => by simp [List.min, List.min?_cons']
 
+theorem min_eq_get_min? [Min α] : (l : List α) → (hl : l ≠ []) →
+    l.min hl = l.min?.get (isSome_min?_of_ne_nil hl)
+  | a::as, _ => by simp [List.min, List.min?_cons']
+
 theorem min_eq_head {α : Type u} [Min α] {l : List α} (hl : l ≠ [])
     (h : l.Pairwise (fun a b => min a b = a)) : l.min hl = l.head hl := by
   apply Option.some.inj
@@ -169,6 +176,11 @@ theorem min_eq_head {α : Type u} [Min α] {l : List α} (hl : l ≠ [])
 
 theorem min_mem [Min α] [MinEqOr α] {l : List α} (hl : l ≠ []) : l.min hl ∈ l :=
   min?_mem (min?_eq_some_min hl)
+
+theorem min_le_of_mem [Min α] [LE α] [Std.IsLinearOrder α] [Std.LawfulOrderMin α]
+    {l : List α} {a : α} (ha : a ∈ l) :
+    l.min (ne_nil_of_mem ha) ≤ a :=
+  (min?_eq_some_iff.mp (min?_eq_some_min (List.ne_nil_of_mem ha))).right a ha
 
 protected theorem le_min_iff [Min α] [LE α] [LawfulOrderInf α]
     {l : List α} (hl : l ≠ []) : ∀ {x}, x ≤ l.min hl ↔ ∀ b, b ∈ l → x ≤ b :=
@@ -216,6 +228,9 @@ theorem max?_cons' [Max α] {xs : List α} : (x :: xs).max? = some (foldl max x 
 theorem isSome_max?_of_mem {l : List α} [Max α] {a : α} (h : a ∈ l) :
     l.max?.isSome := by
   cases l <;> simp_all [max?_cons']
+
+theorem isSome_max?_of_ne_nil [Max α] : {l : List α} → (hl : l ≠ []) → l.max?.isSome
+  | x::xs, h => by simp [max?_cons']
 
 theorem max?_eq_head? {α : Type u} [Max α] {l : List α}
     (h : l.Pairwise (fun a b => max a b = a)) : l.max? = l.head? := by
@@ -345,6 +360,10 @@ theorem max?_eq_some_max [Max α] : {l : List α} → (hl : l ≠ []) →
     l.max? = some (l.max hl)
   | a::as, _ => by simp [List.max, List.max?_cons']
 
+theorem max_eq_get_max? [Max α] : (l : List α) → (hl : l ≠ []) →
+    l.max hl = l.max?.get (isSome_max?_of_ne_nil hl)
+  | a::as, _ => by simp [List.max, List.max?_cons']
+
 theorem max_eq_head {α : Type u} [Max α] {l : List α} (hl : l ≠ [])
     (h : l.Pairwise (fun a b => max a b = a)) : l.max hl = l.head hl := by
   apply Option.some.inj
@@ -361,6 +380,11 @@ protected theorem max_le_iff [Max α] [LE α] [LawfulOrderSup α]
 theorem max_eq_iff  [Max α] [LE α] {l : List α} [IsLinearOrder α] [LawfulOrderMax α] (hl : l ≠ []) :
     l.max hl = a ↔ a ∈ l ∧ ∀ b, b ∈ l → b ≤ a := by
   simpa [max?_eq_some_max hl] using (max?_eq_some_iff (xs := l))
+
+theorem le_max_of_mem [Max α] [LE α] [Std.IsLinearOrder α] [Std.LawfulOrderMax α]
+    {l : List α} {a : α} (ha : a ∈ l) :
+    a ≤ l.max (List.ne_nil_of_mem ha) :=
+  (max?_eq_some_iff.mp (max?_eq_some_max (List.ne_nil_of_mem ha))).right a ha
 
 theorem max_eq_max_attach [Max α] [MaxEqOr α] {l : List α} (hl : l ≠ []) :
     l.max hl = Subtype.val (l.attach.max (List.attach_ne_nil_iff.mpr hl)) := by

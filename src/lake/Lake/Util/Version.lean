@@ -73,13 +73,6 @@ private def isWildVer (s : String.Slice) : Bool :=
     | throw s!"invalid {what} version: expected numeral, got '{s.copy}'"
   return v
 
-@[inline] private def parseOptVerNat (what : String) (s? : Option String.Slice) : EStateM String σ Nat := do
-  let some s := s?
-    | return 0
-  let some v := s.toNat?
-    | throw s!"invalid {what} version: expected numeral, got '{s.copy}'"
-  return v
-
 inductive VerComponent
 | none | wild | nat (n : Nat)
 
@@ -574,7 +567,7 @@ where
         return appendRange ands {major} {major := major + 1}
       | .nat _, _, _ =>
         throw "invalid version range: bare versions are not supported; \
-          if you want to fix a specific version, use '=' before the full version; \
+          if you want to pin a specific version, use '=' before the full version; \
           otherwise, use '≥' to support it and future versions"
       | _, _, _ =>
         return ands.push .wild

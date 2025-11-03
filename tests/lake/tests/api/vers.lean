@@ -107,21 +107,21 @@ https://doc.rust-lang.org/stable/cargo/reference/specifying-dependencies.html#de
 
 /--
 error: invalid version range: bare versions are not supported;
-if you want to fix a specific version, use '=' before the full version;
+if you want to pin a specific version, use '=' before the full version;
 otherwise, use '≥' to support it and future versions
 -/
 #guard_msgs in #eval runParse "1"
 
 /--
 error: invalid version range: bare versions are not supported;
-if you want to fix a specific version, use '=' before the full version;
+if you want to pin a specific version, use '=' before the full version;
 otherwise, use '≥' to support it and future versions
 -/
 #guard_msgs in #eval runParse "1.2"
 
 /--
 error: invalid version range: bare versions are not supported;
-if you want to fix a specific version, use '=' before the full version;
+if you want to pin a specific version, use '=' before the full version;
 otherwise, use '≥' to support it and future versions
 -/
 #guard_msgs in #eval runParse "1.2.3"

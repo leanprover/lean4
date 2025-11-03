@@ -919,6 +919,8 @@ def union [TransCmp cmp] (m₁ m₂ : ExtDTreeMap α β cmp) : ExtDTreeMap α β
     . exact equiv₁
     . exact equiv₂) m₁ m₂
 
+instance [TransCmp cmp] : Union (ExtDTreeMap α β cmp) := ⟨union⟩
+
 instance [TransCmp cmp] [Repr α] [(a : α) → Repr (β a)] : Repr (ExtDTreeMap α β cmp) where
   reprPrec m prec := Repr.addAppParen ("Std.ExtDTreeMap.ofList " ++ repr m.toList) prec
 

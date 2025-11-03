@@ -33,8 +33,6 @@ def parts : List (List Nat) := List.insert ([1, 1, 0, 0]) <| List.insert ([0, 0,
   List.insert ([1, 0, 0, 1]) <| List.insert ([1, 1, 1, 0]) <| List.insert ([1, 0, 0, 0]) <|
   List.insert [1, 2, 3, 4] <| List.insert [5, 6, 7, 8] []
 
-set_option trace.profiler false
-
 #time
 run_cmd
   for _ in *...(10 : Nat) do

@@ -7,7 +7,7 @@ def test (a : List Nat) : Nat :=
   | _ => 3
   | [] => 4
 
--- Should have exactly two `casesOn`
+-- Should have no `casesOn`
 
 /--
 info: def test.match_1.{u_1} : (motive : List Nat → Sort u_1) →

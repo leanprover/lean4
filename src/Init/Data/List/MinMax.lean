@@ -186,7 +186,7 @@ protected theorem le_min_iff [Min α] [LE α] [LawfulOrderInf α]
     {l : List α} (hl : l ≠ []) : ∀ {x}, x ≤ l.min hl ↔ ∀ b, b ∈ l → x ≤ b :=
   le_min?_iff (min?_eq_some_min hl)
 
-theorem min_eq_iff  [Min α] [LE α] {l : List α} [IsLinearOrder α] [LawfulOrderMin α] (hl : l ≠ []) :
+theorem min_eq_iff [Min α] [LE α] {l : List α} [IsLinearOrder α] [LawfulOrderMin α] (hl : l ≠ []) :
     l.min hl = a ↔ a ∈ l ∧ ∀ b, b ∈ l → a ≤ b := by
   simpa [min?_eq_some_min hl] using (min?_eq_some_iff (xs := l))
 
@@ -367,7 +367,7 @@ protected theorem max_le_iff [Max α] [LE α] [LawfulOrderSup α]
     {l : List α} (hl : l ≠ []) : ∀ {x}, l.max hl ≤ x ↔ ∀ b, b ∈ l → b ≤ x :=
   max?_le_iff (max?_eq_some_max hl)
 
-theorem max_eq_iff  [Max α] [LE α] {l : List α} [IsLinearOrder α] [LawfulOrderMax α] (hl : l ≠ []) :
+theorem max_eq_iff [Max α] [LE α] {l : List α} [IsLinearOrder α] [LawfulOrderMax α] (hl : l ≠ []) :
     l.max hl = a ↔ a ∈ l ∧ ∀ b, b ∈ l → b ≤ a := by
   simpa [max?_eq_some_max hl] using (max?_eq_some_iff (xs := l))
 

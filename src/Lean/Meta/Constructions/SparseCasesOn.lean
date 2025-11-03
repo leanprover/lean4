@@ -40,8 +40,10 @@ The minor arguments come in the order of the given `ctors` array.
 
 The catch-all provides `x.ctorIdx ≠ i` hypotheses for each constructor `i` that is matched.
 
-This is (or rather will be, currently it's doing the naive thing to get off the ground) implemented
-internally by branching on the constructor index.
+This function is implemented with a simple call to `.rec`, i.e. no clever branching on the constructor
+index. The compiler has native support for these sparse matches anyways, and kernel reduction would
+not benefit from from a more sophisticated implementan unless it has itself native support for
+`.ctorIdx` and constructor elimination functions.
 -/
 public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name := do
   let env ← getEnv
@@ -65,9 +67,7 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name :=
 
   unless casesOnInfo.levelParams.length = indInfo.levelParams.length + 1 do
     throwError "mkSparseCasesOn: unexpected number of universe parameters in `{.ofConstName casesOnName}`"
-  let l::lps := casesOnInfo.levelParams |
-    throwError "mkSparseCasesOn: unexpected number of universe parameters in `{.ofConstName casesOnName}`"
-  let u := mkLevelParam l
+  let _::lps := casesOnInfo.levelParams | unreachable!
   let us := lps.map mkLevelParam
 
   let (value : Expr) ← forallTelescope casesOnInfo.type fun xs _ => do
@@ -96,7 +96,8 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name :=
       withLocalDeclsDND overlapTypes fun hs =>
         mkForallFVars hs (mkAppN motive ism)
 
-    let e := mkConst casesOnInfo.name (u :: us)
+    -- Morally `mkConst casesOnInfo.name (u :: us)` but for faster reduction we unfold this here
+    let e := casesOnInfo.value!
     let e := mkAppN e params
     let motive' ← id do
       mkLambdaFVars ism (← mkArrow catchAllType (mkAppN motive ism))
@@ -118,6 +119,7 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name :=
             let otherIdx := ctorInfo'.cidx
             return mkNatNe idx otherIdx
           mkLambdaFVars ys e
+    let e ← Core.betaReduce e
     mkLambdaFVars (params ++ #[motive] ++ indices ++ #[major] ++ minors') e
 
   -- logInfo m!"mkSparseCasesOn {declName} : {value}"

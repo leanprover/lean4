@@ -275,7 +275,7 @@ private def elabGrindConfig' (config : TSyntax ``Lean.Parser.Tactic.optConfig) (
       -- let saved ← saveState
       match (← finish.run goal) with
       | .closed seq =>
-        let configCtx' := filterSuggestionsFromConfig configStx
+        let configCtx' := filterSuggestionsFromGrindConfig configStx
         let tacs ← Grind.mkGrindOnlyTactics configCtx' seq
         let seq := Grind.Action.mkGrindSeq seq
         let tac ← `(tactic| grind => $seq:grindSeq)

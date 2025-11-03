@@ -2334,7 +2334,7 @@ theorem mem_of_mem_union_of_not_mem_left [TransCmp cmp]
   exact Impl.contains_of_contains_union!_of_contains_eq_false_left h₁ h₂
 
 /- Equiv -/
-theorem union_insert_right_equiv_union_insert [TransCmp cmp] {p : (a : α) × β a}
+theorem union_insert_right_equiv_insert_union [TransCmp cmp] {p : (a : α) × β a}
     (h₁ : t₁.WF) (h₂ : t₂.WF) :
     (t₁ ∪ (t₂.insert p.fst p.snd)).Equiv ((t₁ ∪ t₂).insert p.fst p.snd) := by
   simp only [Union.union]

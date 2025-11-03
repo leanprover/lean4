@@ -11,6 +11,7 @@ public import Lean.Meta.Tactic.Assert
 public import Lean.Meta.Tactic.Cleanup
 public import Lean.Meta.Tactic.Rename
 public import Lean.Elab.Tactic.Config
+import Lean.Meta.Tactic.AuxLemma
 
 public section
 

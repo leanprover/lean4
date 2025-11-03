@@ -24,7 +24,6 @@ register_builtin_option match.sparseCases : Bool := {
 
 register_builtin_option backwards.match.rowMajor : Bool := {
   defValue := true
-  group := "bootstrap"
   descr := "If true (the default), match compilation will split the discrimnants based \
     on position of the first constructor pattern in the first alternative. If false, \
     it splits them from left to right, which can lead to unnecessary code bloat."

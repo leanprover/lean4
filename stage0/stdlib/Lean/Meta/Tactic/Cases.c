@@ -5414,10 +5414,10 @@ x_134 = l_Lean_Expr_hasMVar(x_127);
 if (x_134 == 0)
 {
 lean_dec_ref(x_127);
-x_68 = lean_box(0);
-x_69 = x_128;
-x_70 = x_116;
-x_71 = x_113;
+x_68 = x_116;
+x_69 = x_113;
+x_70 = x_128;
+x_71 = lean_box(0);
 x_72 = x_134;
 x_73 = x_132;
 goto block_78;
@@ -5428,10 +5428,10 @@ lean_object* x_135;
 lean_inc_ref(x_113);
 lean_inc_ref(x_116);
 x_135 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_116, x_113, x_127, x_132);
-x_79 = x_128;
-x_80 = lean_box(0);
-x_81 = x_116;
-x_82 = x_113;
+x_79 = x_116;
+x_80 = x_113;
+x_81 = x_128;
+x_82 = lean_box(0);
 x_83 = x_135;
 goto block_87;
 }
@@ -5442,10 +5442,10 @@ lean_object* x_136;
 lean_inc_ref(x_113);
 lean_inc_ref(x_116);
 x_136 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_116, x_113, x_127, x_132);
-x_79 = x_128;
-x_80 = lean_box(0);
-x_81 = x_116;
-x_82 = x_113;
+x_79 = x_116;
+x_80 = x_113;
+x_81 = x_128;
+x_82 = lean_box(0);
 x_83 = x_136;
 goto block_87;
 }
@@ -5698,16 +5698,16 @@ block_78:
 if (x_72 == 0)
 {
 uint8_t x_74; 
-x_74 = l_Lean_Expr_hasFVar(x_69);
+x_74 = l_Lean_Expr_hasFVar(x_70);
 if (x_74 == 0)
 {
 uint8_t x_75; 
-x_75 = l_Lean_Expr_hasMVar(x_69);
+x_75 = l_Lean_Expr_hasMVar(x_70);
 if (x_75 == 0)
 {
-lean_dec_ref(x_71);
 lean_dec_ref(x_70);
 lean_dec_ref(x_69);
+lean_dec_ref(x_68);
 x_47 = lean_box(0);
 x_48 = x_75;
 x_49 = x_73;
@@ -5716,7 +5716,7 @@ goto block_61;
 else
 {
 lean_object* x_76; 
-x_76 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_70, x_71, x_69, x_73);
+x_76 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_68, x_69, x_70, x_73);
 x_62 = lean_box(0);
 x_63 = x_76;
 goto block_67;
@@ -5725,7 +5725,7 @@ goto block_67;
 else
 {
 lean_object* x_77; 
-x_77 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_70, x_71, x_69, x_73);
+x_77 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_68, x_69, x_70, x_73);
 x_62 = lean_box(0);
 x_63 = x_77;
 goto block_67;
@@ -5733,9 +5733,9 @@ goto block_67;
 }
 else
 {
-lean_dec_ref(x_71);
 lean_dec_ref(x_70);
 lean_dec_ref(x_69);
+lean_dec_ref(x_68);
 x_47 = lean_box(0);
 x_48 = x_72;
 x_49 = x_73;
@@ -5752,10 +5752,10 @@ lean_inc(x_85);
 lean_dec_ref(x_83);
 x_86 = lean_unbox(x_84);
 lean_dec(x_84);
-x_68 = lean_box(0);
-x_69 = x_79;
+x_68 = x_79;
+x_69 = x_80;
 x_70 = x_81;
-x_71 = x_82;
+x_71 = lean_box(0);
 x_72 = x_86;
 x_73 = x_85;
 goto block_78;

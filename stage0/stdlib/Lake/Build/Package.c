@@ -4386,8 +4386,6 @@ goto block_26;
 }
 else
 {
-if (x_31 == 0)
-{
 lean_dec(x_27);
 lean_dec_ref(x_6);
 lean_dec(x_5);
@@ -4399,14 +4397,6 @@ x_9 = x_28;
 x_10 = lean_box(0);
 x_11 = x_31;
 goto block_17;
-}
-else
-{
-x_18 = x_27;
-x_19 = x_28;
-x_20 = lean_box(0);
-goto block_26;
-}
 }
 }
 }

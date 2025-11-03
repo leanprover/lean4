@@ -2370,6 +2370,7 @@ lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_1);
 x_15 = l_Lean_Meta_Hint_mkSuggestionsMessage(x_13, x_1, x_5, x_14, x_7, x_8);
+lean_dec_ref(x_13);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
@@ -2654,6 +2655,7 @@ lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_1);
 x_15 = l_Lean_Meta_Hint_mkSuggestionsMessage(x_13, x_1, x_5, x_14, x_7, x_8);
+lean_dec_ref(x_13);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 

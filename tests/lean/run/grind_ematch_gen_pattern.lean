@@ -9,8 +9,14 @@ example (h : b = some a) : (b.pbind fun a h => some <| a + f b (by grind)) = som
   grind [f]
 
 /--
-info: Try this:
-  [apply] grind only [= gen Option.pbind_some', f, cases Or]
+info: Try these:
+  [apply] grind only [= gen Option.pbind_some', f, #ebef]
+  [apply] grind only [= gen Option.pbind_some', f]
+  [apply] grind =>
+    instantiate only [= gen Option.pbind_some']
+    instantiate only [f]
+    mbtc
+    cases #ebef
 -/
 #guard_msgs (info) in
 example (h : b = some a) : (b.pbind fun a h => some <| a + f b (by grind)) = some (a + a) := by

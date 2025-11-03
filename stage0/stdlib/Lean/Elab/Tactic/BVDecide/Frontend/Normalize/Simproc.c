@@ -798,7 +798,6 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and___red
 static lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__udiv__of__two__pow_declare__95___closed__11_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3934891525____hygCtx___hyg_27_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__allOnes__eq__and___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__eq__self_declare__38___closed__3_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_716624576____hygCtx___hyg_24_;
-uint8_t l_instDecidableNot___redArg(uint8_t);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_neg__eq__not__add___redArg___closed__1;
 static lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and__eq__allOnes_declare__110___closed__2_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1054245347____hygCtx___hyg_30_;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__udiv__of__two__pow___redArg___closed__2;
@@ -14178,38 +14177,37 @@ return x_2;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Nat_log2Exact(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint8_t x_3; uint8_t x_4; 
+lean_object* x_2; uint8_t x_3; 
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_nat_dec_eq(x_1, x_2);
-x_4 = l_instDecidableNot___redArg(x_3);
-if (x_4 == 0)
+if (x_3 == 0)
 {
-lean_object* x_5; 
-x_5 = lean_box(0);
-return x_5;
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_4 = lean_nat_log2(x_1);
+x_5 = lean_unsigned_to_nat(2u);
+x_6 = lean_nat_pow(x_5, x_4);
+x_7 = lean_nat_dec_eq(x_6, x_1);
+lean_dec(x_6);
+if (x_7 == 0)
+{
+lean_object* x_8; 
+lean_dec(x_4);
+x_8 = lean_box(0);
+return x_8;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_6 = lean_nat_log2(x_1);
-x_7 = lean_unsigned_to_nat(2u);
-x_8 = lean_nat_pow(x_7, x_6);
-x_9 = lean_nat_dec_eq(x_8, x_1);
-lean_dec(x_8);
-if (x_9 == 0)
+lean_object* x_9; 
+x_9 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_9, 0, x_4);
+return x_9;
+}
+}
+else
 {
 lean_object* x_10; 
-lean_dec(x_6);
 x_10 = lean_box(0);
 return x_10;
-}
-else
-{
-lean_object* x_11; 
-x_11 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_11, 0, x_6);
-return x_11;
-}
 }
 }
 }

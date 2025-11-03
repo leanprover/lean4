@@ -474,7 +474,6 @@ static lean_object* l___auto___closed__40_00___x40_Init_Data_List_Basic_14997924
 LEAN_EXPORT lean_object* l_List_instDecidableRelSubsetOfDecidableEq___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_map___at___00List_zipWithAll_spec__1___redArg(lean_object*, lean_object*);
-uint8_t l_instDecidableNot___redArg(uint8_t);
 static lean_object* l_List___aux__Init__Data__List__Basic______macroRules__List__term___x3c_x2b____1___closed__5;
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_length_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_tailD___redArg___boxed(lean_object*, lean_object*);
@@ -1157,10 +1156,20 @@ return x_3;
 LEAN_EXPORT uint8_t l_List_decidableLE___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-uint8_t x_5; uint8_t x_6; 
+uint8_t x_5; 
 x_5 = l_List_decidableLex___redArg(x_1, x_2, x_4, x_3);
-x_6 = l_instDecidableNot___redArg(x_5);
+if (x_5 == 0)
+{
+uint8_t x_6; 
+x_6 = 1;
 return x_6;
+}
+else
+{
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
+}
 }
 }
 LEAN_EXPORT uint8_t l_List_decidableLE(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -5900,11 +5909,21 @@ return x_6;
 LEAN_EXPORT uint8_t l_List_nodupDecidable___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; uint8_t x_5; uint8_t x_6; 
+lean_object* x_4; uint8_t x_5; 
 x_4 = lean_apply_2(x_1, x_2, x_3);
 x_5 = lean_unbox(x_4);
-x_6 = l_instDecidableNot___redArg(x_5);
+if (x_5 == 0)
+{
+uint8_t x_6; 
+x_6 = 1;
 return x_6;
+}
+else
+{
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
+}
 }
 }
 LEAN_EXPORT uint8_t l_List_nodupDecidable___redArg(lean_object* x_1, lean_object* x_2) {

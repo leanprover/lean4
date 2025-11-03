@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Grind
-// Imports: public import Lean.Elab.Tactic.Grind.Main public import Lean.Elab.Tactic.Grind.Basic public import Lean.Elab.Tactic.Grind.BuiltinTactic public import Lean.Elab.Tactic.Grind.ShowState public import Lean.Elab.Tactic.Grind.Have public import Lean.Elab.Tactic.Grind.Trace
+// Imports: public import Lean.Elab.Tactic.Grind.Main public import Lean.Elab.Tactic.Grind.Basic public import Lean.Elab.Tactic.Grind.BuiltinTactic public import Lean.Elab.Tactic.Grind.ShowState public import Lean.Elab.Tactic.Grind.Have public import Lean.Elab.Tactic.Grind.Trace public import Lean.Elab.Tactic.Grind.Config
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,6 +19,7 @@ lean_object* initialize_Lean_Elab_Tactic_Grind_BuiltinTactic(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Grind_ShowState(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Grind_Have(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Grind_Trace(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Grind_Config(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Grind(uint8_t builtin) {
 lean_object * res;
@@ -40,6 +41,9 @@ res = initialize_Lean_Elab_Tactic_Grind_Have(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Grind_Trace(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Tactic_Grind_Config(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

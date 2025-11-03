@@ -1759,11 +1759,12 @@ as well as tactics such as `next`, `case`, and `rename_i`.
 syntax (name := exposeNames) "expose_names" : tactic
 
 /--
-`#suggest_premises` will suggest premises for the current goal, using the currently registered premise selector.
+`#suggestions` will suggest relevant theorems from the library for the current goal,
+using the currently registered library suggestion engine.
 
 The suggestions are printed in the order of their confidence, from highest to lowest.
 -/
-syntax (name := suggestPremises) "suggest_premises" : tactic
+syntax (name := suggestions) "suggestions" : tactic
 
 /--
 Close fixed-width `BitVec` and `Bool` goals by obtaining a proof from an external SAT solver and

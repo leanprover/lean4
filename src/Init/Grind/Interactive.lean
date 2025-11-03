@@ -9,6 +9,8 @@ public import Init.Grind.Attr
 public section
 namespace Lean.Parser.Tactic
 
+syntax anchor := "#" noWs hexnum
+
 syntax grindLemma    := ppGroup((Attr.grindMod ppSpace)? ident)
 /--
 The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
@@ -16,15 +18,12 @@ when selecting patterns.
 -/
 syntax grindLemmaMin := ppGroup("!" (Attr.grindMod ppSpace)? ident)
 
-/-!
-`grind` tactic and related tactics.
--/
 syntax grindErase    := "-" ident
 /--
 The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
 when selecting patterns.
 -/
-syntax grindParam    := grindErase <|> grindLemma <|> grindLemmaMin
+syntax grindParam    := grindErase <|> grindLemma <|> grindLemmaMin <|> anchor
 
 namespace Grind
 declare_syntax_cat grind_filter (behavior := both)
@@ -73,7 +72,6 @@ syntax (name := linarith) "linarith" : grind
 /-- The `sorry` tactic is a temporary placeholder for an incomplete tactic proof. -/
 syntax (name := «sorry») "sorry" : grind
 
-syntax anchor := "#" noWs hexnum
 syntax thm := anchor <|> grindLemma <|> grindLemmaMin
 
 /--
@@ -129,10 +127,12 @@ syntax (name := casesTrace) "cases?" grindFilter : grind
 syntax (name := done) "done" : grind
 
 /-- `finish` tries to close the current goal using `grind`'s default strategy -/
-syntax (name := finish) "finish" : grind
+syntax (name := finish) "finish" (ppSpace configItem)*
+    (ppSpace &"only")? (" [" withoutPosition(grindParam,*) "]")? : grind
 
 /-- `finish?` tries to close the current goal using `grind`'s default strategy and suggests a tactic script. -/
-syntax (name := finishTrace) "finish?" : grind
+syntax (name := finishTrace) "finish?" (ppSpace configItem)*
+    (ppSpace &"only")? (" [" withoutPosition(grindParam,*) "]")? : grind
 
 /--
 The `have` tactic is for adding opaque definitions and hypotheses to the local context of the main goal.
@@ -239,6 +239,11 @@ syntax (name := exposeNames) "expose_names" : grind
 `set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,
 but it sets the option only within the tactics `tacs`. -/
 syntax (name := setOption) "set_option " (ident (noWs "." noWs ident)?) ppSpace optionValue " in " grindSeq : grind
+
+/--
+`set_config configItem+ in tacs` executes `tacs` with the updated configuration options `configItem+`
+-/
+syntax (name := setConfig) "set_config " configItem+ " in " grindSeq : grind
 
 /--
 Proves `<term>` using the current `grind` state and default search strategy.

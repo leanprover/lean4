@@ -119,22 +119,6 @@ def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMa
 
 open IO
 
-/--
-Duplicates an I/O stream to a log file `fName` in LEAN_SERVER_LOG_DIR
-if that envvar is set.
--/
-def maybeTee (fName : String) (isOut : Bool) (h : FS.Stream) : IO FS.Stream := do
-  match (← IO.getEnv "LEAN_SERVER_LOG_DIR") with
-  | none => pure h
-  | some logDir =>
-    IO.FS.createDirAll logDir
-    let hTee ← FS.Handle.mk (System.mkFilePath [logDir, fName]) FS.Mode.write
-    let hTee := FS.Stream.ofHandle hTee
-    pure $ if isOut then
-      hTee.chainLeft h true
-    else
-      h.chainRight hTee true
-
 open Lsp
 
 /-- Returns the document contents with the change applied. -/

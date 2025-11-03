@@ -237,11 +237,11 @@ partial def unifyEqs? (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) (case
       return none
 
 private def unifyCasesEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) : MetaM (Array CasesSubgoal) :=
-  subgoals.foldlM (init := #[]) fun subgoals s => do
+  subgoals.filterMapM fun s => do
     match (← unifyEqs? numEqs s.mvarId s.subst s.ctorName) with
-    | none                 => pure subgoals
+    | none                 => pure none
     | some (mvarId, subst) =>
-      return subgoals.push { s with
+      return some { s with
         mvarId := mvarId,
         subst  := subst,
         fields := s.fields.map (subst.apply ·)

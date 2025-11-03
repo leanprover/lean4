@@ -137,6 +137,11 @@ def addDecl (decl : Declaration) (forceExpose := false) : CoreM Unit :=
       trace[addDecl] "no matching async adding rules, adding synchronously"
       return (← doAdd)
 
+  -- Check early so we can avoid related env ext panics that would happen before the check in the
+  -- kernel.
+  if (← getEnv).containsOnBranch name then
+    throwKernelException <| .alreadyDeclared (← getEnv).toKernelEnv name
+
   if decl.getTopLevelNames.all isPrivateName then
     if (← ResolveName.backward.privateInPublic.getM) then
       trace[addDecl] "private decl under `privateInPublic`, exporting as is"
@@ -152,9 +157,9 @@ def addDecl (decl : Declaration) (forceExpose := false) : CoreM Unit :=
       trace[addDecl] "no matching exporting rules, exporting as is"
       exportedInfo? := some info
 
+  let env ← getEnv
   -- no environment extension changes to report after kernel checking; ensures we do not
   -- accidentally wait for this snapshot when querying extension states
-  let env ← getEnv
   let async ← env.addConstAsync (reportExts := false) name kind
     (exportedKind? := exportedInfo?.map (.ofConstantInfo))
   -- report preliminary constant info immediately

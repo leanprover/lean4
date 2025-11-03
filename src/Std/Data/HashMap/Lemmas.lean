@@ -1313,9 +1313,14 @@ theorem union_equiv_congr_right {m₃ : HashMap α β} [EquivBEq α] [LawfulHash
     (m₁ ∪ m₂) ~m (m₁ ∪ m₃) :=
   ⟨DHashMap.union_equiv_congr_right equiv.1⟩
 
+theorem union_insert_right_equiv_insert_union [EquivBEq α] [LawfulHashable α] {p : α × β} :
+    (m₁ ∪ (m₂.insert p.fst p.snd)) ~m ((m₁ ∪ m₂).insert p.fst p.snd) :=
+  ⟨@DHashMap.union_insert_right_equiv_insert_union _ _ _ _ m₁.inner m₂.inner _ _ ⟨p.fst, p.snd⟩⟩
+
+@[deprecated union_insert_right_equiv_insert_union (since := "2025-11-03")]
 theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : α × β} :
     (m₁ ∪ (m₂.insert p.fst p.snd)) ~m ((m₁ ∪ m₂).insert p.fst p.snd) :=
-  ⟨@DHashMap.union_insert_right_equiv_union_insert _ _ _ _ m₁.inner m₂.inner _ _ ⟨p.fst, p.snd⟩⟩
+  union_insert_right_equiv_insert_union
 
 /- get? -/
 theorem get?_union [EquivBEq α] [LawfulHashable α] {k : α} :

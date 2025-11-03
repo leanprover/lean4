@@ -10,6 +10,28 @@ public import Lean.Meta.SynthInstance
 public import Init.Data.Rat.Basic
 public section
 namespace Lean.Meta.Grind.Arith
+/--
+To prevent the kernel from accidentally reducing the atoms in the equation while typechecking,
+we abstract over them.
+-/
+def withAbstractAtoms [Monad m] [MonadControlT MetaM m] [MonadLiftT CoreM m] [MonadLiftT MetaM m]
+    (atoms : Array Expr) (type : Expr) (k : Array Expr → m Expr) : m Expr := do
+  let rec go (i : Nat) (atoms' : Array Expr) (xs : Array Expr) (args : Array Expr) : m Expr := do
+    if h : i < atoms.size then
+      let atom := atoms[i]
+      if atom.isFVar then
+        go (i+1) (atoms'.push atom) xs args
+      else
+        withLocalDeclD (← mkFreshUserName `x) type fun x =>
+          go (i+1) (atoms'.push x) (xs.push x) (args.push atom)
+    else
+      let p ← k atoms'
+      if xs.isEmpty then
+        return p
+      else
+        return mkAppN (← mkLambdaFVars xs p) args
+  go 0 #[] #[] #[]
+
 /-- Returns `true` if `e` is a numeral and has type `Nat`. -/
 def isNatNum (e : Expr) : Bool := Id.run do
   let_expr OfNat.ofNat _ _ inst := e | false
@@ -77,17 +99,6 @@ def isNatNum? (e : Expr) : Option Nat := Id.run do
   let_expr instOfNatNat k := inst | none
   let .lit (.natVal k) := k | none
   some k
-
-def isSupportedType (e : Expr) : Bool :=
-  isNatType e || isIntType e
-
-partial def isRelevantPred (e : Expr) : Bool :=
-  match_expr e with
-  | Not p => isRelevantPred p
-  | LE.le α _ _ _ => isSupportedType α
-  | Eq α _ _ => isSupportedType α
-  | Dvd.dvd α _ _ _ => isSupportedType α
-  | _ => false
 
 def isArithTerm (e : Expr) : Bool :=
   match_expr e with

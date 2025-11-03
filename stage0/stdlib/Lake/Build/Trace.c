@@ -152,7 +152,6 @@ LEAN_EXPORT lean_object* l_Lake_instReprHash_repr___redArg(uint64_t);
 LEAN_EXPORT lean_object* l_Lake_Hash_ofString_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Hash_ofHex___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instComputeHashBoolId;
-lean_object* lean_string_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Hash_instFromJson;
 static lean_object* l_Lake_Hash_ofJsonNumber_x3f___closed__5;
 lean_object* l_List_foldl___redArg(lean_object*, lean_object*, lean_object*);
@@ -327,6 +326,7 @@ lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Lake_instReprBuildTrace_repr___boxed(lean_object*, lean_object*);
 lean_object* l_System_FilePath_pathExists___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+lean_object* lean_string_mk(lean_object*);
 static lean_object* l_Lake_mixTraceArray___redArg___closed__8;
 static lean_object* l_Lake_instComputeHashFilePathIO___closed__0;
 static lean_object* l_Lake_instReprHash_repr___redArg___closed__1;

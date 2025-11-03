@@ -1770,9 +1770,14 @@ theorem union_equiv_congr_right {m₃ : DHashMap α β} [EquivBEq α] [LawfulHas
     (m₁ ∪ m₂) ~m (m₁ ∪ m₃) :=
   ⟨@Raw₀.union_equiv_congr_right α β _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ ⟨m₃.1, m₃.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 m₃.2 equiv.1⟩
 
-theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a} :
+theorem union_insert_right_equiv_insert_union [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a} :
     (m₁ ∪ (m₂.insert p.fst p.snd)) ~m ((m₁ ∪ m₂).insert p.fst p.snd) :=
   ⟨@Raw₀.union_insert_right_equiv_insert_union _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ p m₁.2 m₂.2⟩
+
+@[deprecated union_insert_right_equiv_insert_union (since := "2025-11-03")]
+theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a} :
+    (m₁ ∪ (m₂.insert p.fst p.snd)) ~m ((m₁ ∪ m₂).insert p.fst p.snd) :=
+  union_insert_right_equiv_insert_union
 
 /- get? -/
 theorem get?_union [LawfulBEq α] {k : α} :

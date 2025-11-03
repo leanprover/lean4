@@ -109,7 +109,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapIdxM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_findFinIdx_x3f___redArg___boxed(lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_allDiff(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -170,7 +169,6 @@ static lean_object* l_term_x23_x5b___x2c_x5d___closed__4;
 LEAN_EXPORT lean_object* l_Array_back(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_filterM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_mkArray___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_swapAt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyM_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_range_x27___lam__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -1333,14 +1331,6 @@ x_4 = lean_mk_array(x_2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mkArray___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_mk_array(x_2, x_3);
-return x_4;
-}
-}
 static lean_object* _init_l___auto___closed__0_00___x40_Init_Data_Array_Basic_2605673588____hygCtx___hyg_9_() {
 _start:
 {
@@ -2238,7 +2228,7 @@ lean_ctor_set(x_6, 0, x_3);
 lean_ctor_set(x_6, 1, x_1);
 x_7 = l_Array_swapAt_x21___redArg___closed__0;
 x_8 = l_Array_swapAt_x21___redArg___closed__1;
-x_9 = lean_unsigned_to_nat(433u);
+x_9 = lean_unsigned_to_nat(419u);
 x_10 = lean_unsigned_to_nat(4u);
 x_11 = l_Array_swapAt_x21___redArg___closed__2;
 x_12 = l_Nat_reprFast(x_2);
@@ -2279,7 +2269,7 @@ lean_ctor_set(x_7, 0, x_4);
 lean_ctor_set(x_7, 1, x_2);
 x_8 = l_Array_swapAt_x21___redArg___closed__0;
 x_9 = l_Array_swapAt_x21___redArg___closed__1;
-x_10 = lean_unsigned_to_nat(433u);
+x_10 = lean_unsigned_to_nat(419u);
 x_11 = lean_unsigned_to_nat(4u);
 x_12 = l_Array_swapAt_x21___redArg___closed__2;
 x_13 = l_Nat_reprFast(x_3);
@@ -6856,7 +6846,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_findSome_x21___redArg___closed__1;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(1213u);
+x_3 = lean_unsigned_to_nat(1199u);
 x_4 = l_Array_findSome_x21___redArg___closed__0;
 x_5 = l_Array_swapAt_x21___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -9939,7 +9929,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_eraseIdx_x21___redArg___closed__1;
 x_2 = lean_unsigned_to_nat(47u);
-x_3 = lean_unsigned_to_nat(1800u);
+x_3 = lean_unsigned_to_nat(1786u);
 x_4 = l_Array_eraseIdx_x21___redArg___closed__0;
 x_5 = l_Array_swapAt_x21___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -10144,7 +10134,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_eraseIdx_x21___redArg___closed__1;
 x_2 = lean_unsigned_to_nat(7u);
-x_3 = lean_unsigned_to_nat(1882u);
+x_3 = lean_unsigned_to_nat(1868u);
 x_4 = l_Array_insertIdx_x21___redArg___closed__0;
 x_5 = l_Array_swapAt_x21___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

@@ -3015,7 +3015,7 @@ section Ext
 
 variable {t₁ t₂ : ExtTreeMap α β cmp}
 
-@[ext 900]
+@[ext 900, grind ext]
 theorem ext_getKey_getElem? [TransCmp cmp] {t₁ t₂ : ExtTreeMap α β cmp}
     (hk : ∀ k hk hk', t₁.getKey k hk = t₂.getKey k hk')
     (hv : ∀ k : α, t₁[k]? = t₂[k]?) : t₁ = t₂ :=

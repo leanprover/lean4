@@ -73,7 +73,7 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Rat)) := do
       let some v := model[i]? | pure ()
       model := assignEqc goal n v model
   let r ← finalizeModel goal isIntNatENode model
-  traceModel `grind.cutsat.model r
+  traceModel `grind.lia.model r
   return r
 
 end Lean.Meta.Grind.Arith.Cutsat

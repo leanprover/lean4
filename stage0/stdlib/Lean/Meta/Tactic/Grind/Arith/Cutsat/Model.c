@@ -5222,7 +5222,7 @@ static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("cutsat", 6, 6);
+x_1 = lean_mk_string_unchecked("lia", 3, 3);
 return x_1;
 }
 }

@@ -143,7 +143,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_instCoeHeadTSyntaxConsSyntax
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_success___closed__1;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_asInaccessible___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t l_instDecidableNot___redArg(uint8_t);
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__0;
 uint8_t lean_float_decLe(double, double);
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_TryThisInfo_ctorIdx___boxed(lean_object*);
@@ -1462,11 +1461,21 @@ return x_1;
 LEAN_EXPORT uint8_t l_Lean_Meta_Tactic_TryThis_getIndentAndColumn___lam__0(uint32_t x_1) {
 _start:
 {
-uint32_t x_2; uint8_t x_3; uint8_t x_4; 
+uint32_t x_2; uint8_t x_3; 
 x_2 = 32;
 x_3 = lean_uint32_dec_eq(x_1, x_2);
-x_4 = l_instDecidableNot___redArg(x_3);
+if (x_3 == 0)
+{
+uint8_t x_4; 
+x_4 = 1;
 return x_4;
+}
+else
+{
+uint8_t x_5; 
+x_5 = 0;
+return x_5;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_getIndentAndColumn(lean_object* x_1, lean_object* x_2) {

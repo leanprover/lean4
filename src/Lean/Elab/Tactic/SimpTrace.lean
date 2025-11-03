@@ -22,7 +22,8 @@ namespace Lean.Elab.Tactic
 open Lean Elab Parser Tactic Meta Simp Tactic.TryThis
 
 /-- Filter out `+suggestions` from the config syntax -/
-def filterSuggestionsFromConfig (cfg : TSyntax ``Lean.Parser.Tactic.optConfig) : MetaM (TSyntax ``Lean.Parser.Tactic.optConfig) := do
+def filterSuggestionsFromSimpConfig (cfg : TSyntax ``Lean.Parser.Tactic.optConfig) :
+    MetaM (TSyntax ``Lean.Parser.Tactic.optConfig) := do
   -- The config has one arg: a null node containing configItem nodes
   let nullNode := cfg.raw.getArg 0
   let configItems := nullNode.getArgs
@@ -67,7 +68,7 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
     else
       `(tactic| simp%$tk $cfg:optConfig $[$discharger]? $[only%$o]? [$argsArray,*] $[$loc]?)
     -- Build syntax for suggestion (without +suggestions config)
-    let filteredCfg ← filterSuggestionsFromConfig cfg
+    let filteredCfg ← filterSuggestionsFromSimpConfig cfg
     let stxForSuggestion ← if bang.isSome then
       `(tactic| simp!%$tk $filteredCfg:optConfig $[$discharger]? $[only%$o]? [$argsArray,*] $[$loc]?)
     else
@@ -109,7 +110,7 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
         else
           `(tactic| simp_all%$tk $cfg:optConfig $[$discharger]? $[only%$o]? [$argsArray,*])
     -- Build syntax for suggestion (without +suggestions config)
-    let filteredCfg ← filterSuggestionsFromConfig cfg
+    let filteredCfg ← filterSuggestionsFromSimpConfig cfg
     let stxForSuggestion ←
       if argsArray.isEmpty then
         if bang.isSome then

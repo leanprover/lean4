@@ -205,7 +205,8 @@ def getGrindParams (stx : TSyntax `tactic) : Array Syntax :=
   stx.raw[grindParamsPos][1].getSepArgs
 
 /-- Filter out `+suggestions` from the config syntax -/
-def filterSuggestionsFromConfig (config : TSyntax ``Lean.Parser.Tactic.optConfig) : TSyntax ``Lean.Parser.Tactic.optConfig :=
+def filterSuggestionsFromGrindConfig (config : TSyntax ``Lean.Parser.Tactic.optConfig) :
+    TSyntax ``Lean.Parser.Tactic.optConfig :=
   let configItems := config.raw.getArgs
   let filteredItems := configItems.filter fun item =>
     -- Keep all items except +suggestions
@@ -236,7 +237,7 @@ def mkGrindOnly
       else
         let param ← Grind.globalDeclToGrindParamSyntax declName kind minIndexable
         params := params.push param
-  let filteredConfig := filterSuggestionsFromConfig config
+  let filteredConfig := filterSuggestionsFromGrindConfig config
   let result ← `(tactic| grind $filteredConfig:optConfig only)
   return setGrindParams result params
 

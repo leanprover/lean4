@@ -1655,6 +1655,29 @@ theorem getEntry_insertEntry [BEq α] [PartialEquivBEq α] {l : List ((a : α) �
   simp only [← getEntry?_eq_some_getEntry]
   apply getEntry?_insertEntry
 
+theorem getEntry_eq [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {k k' : α}
+    {v : β k'} {h} :
+    getEntry k l h = ⟨k', v⟩ → k == k' := by
+  intro w
+  induction l using assoc_induction
+  case nil => simp only [containsKey_nil, Bool.false_eq_true] at h
+  case cons k'' v' t ih =>
+    have w' : some (getEntry k (⟨k'', v'⟩ :: t) h) = some ⟨k', v⟩ := by simp only [w]
+    rw [← getEntry?_eq_some_getEntry] at w'
+    simp [getEntry?_cons] at w'
+    apply Or.elim <| Classical.em <| k'' == k
+    . intro heq
+      simp [heq] at w'
+      rw [w'.1] at heq
+      rw [BEq.symm]
+      exact heq
+    . intro heq
+      simp [heq] at w'
+      simp [heq] at h
+      rw [getEntry?_eq_some_getEntry h] at w'
+      injections heq₂
+      exact @ih h heq₂
+
 theorem getValueCast_insertEntry_self [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {k : α}
     {v : β k} : getValueCast k (insertEntry k v l) containsKey_insertEntry_self = v := by
   simp [getValueCast_insertEntry]

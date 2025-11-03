@@ -502,6 +502,13 @@ theorem getEntry_cons [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β 
     simp [h]
     rw [getEntry]
 
+theorem getEntry_congr [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {a b : α}
+    (h : a == b) {h₁ h₂} : getEntry a l h₁ = getEntry b l h₂ := by
+  suffices some (getEntry a l h₁) = some (getEntry b l h₂) by
+    injections
+  simp only [← getEntry?_eq_some_getEntry]
+  apply getEntry?_congr h
+
 theorem getEntry_cons_of_beq [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} (h : k == a) :
     getEntry a (⟨k, v⟩ :: l) (containsKey_cons_of_beq (v := v) h) = ⟨k, v⟩ := by
   simp [getEntry, getEntry?_cons_of_true h]
@@ -617,6 +624,7 @@ end
 def getValueCast [BEq α] [LawfulBEq α] (a : α) (l : List ((a : α) × β a)) (h : containsKey a l) :
     β a :=
   (getValueCast? a l).get <| containsKey_eq_isSome_getValueCast?.symm.trans h
+
 
 theorem getValueCast?_eq_some_getValueCast [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {a : α}
     (h : containsKey a l) : getValueCast? a l = some (getValueCast a l h) := by

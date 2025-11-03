@@ -98,7 +98,6 @@ variable {β : Type v}
 def get? [BEq α] (a : α) : AssocList α (fun _ => β) → Option β
   | nil => none
   | cons k v es => bif k == a then some v else get? a es
-
 end
 
 /-- Internal implementation detail of the hash map -/

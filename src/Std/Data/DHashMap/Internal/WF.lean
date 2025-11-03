@@ -405,20 +405,30 @@ theorem getₘ_eq_getValue [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α 
   apply_bucket_with_proof hm a AssocList.getCast List.getValueCast AssocList.getCast_eq
     List.getValueCast_of_perm List.getValueCast_append_of_containsKey_eq_false
 
-theorem getEntryₘ_eq_getEntry [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
+theorem getEntryₘ_eq_getEntry [BEq α] [PartialEquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
     {a : α} {h : m.containsₘ a} :
     m.getEntryₘ a h = List.getEntry a (toListModel m.1.buckets) (containsₘ_eq_containsKey hm ▸ h) :=
   apply_bucket_with_proof hm a AssocList.getEntry List.getEntry AssocList.getEntry_eq getEntry_of_perm getEntry_append_of_containsKey_eq_false
+
+theorem getEntry?ₘ_eq_getEntry? [BEq α] [PartialEquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
+    {a : α} :
+    m.getEntry?ₘ a = List.getEntry? a (toListModel m.1.buckets) :=
+  apply_bucket hm AssocList.getEntry?_eq getEntry?_of_perm getEntry?_append_of_containsKey_eq_false
 
 theorem get_eq_getValueCast [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
     {a : α} {h : m.contains a} :
     m.get a h = getValueCast a (toListModel m.1.buckets) (contains_eq_containsKey hm ▸ h) := by
   rw [get_eq_getₘ, getₘ_eq_getValue hm]
 
-theorem getEntry_eq_getEntry [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
+theorem getEntry_eq_getEntry [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
     {a : α} {h : m.contains a} :
     m.getEntry a h = List.getEntry a (toListModel m.1.buckets) (contains_eq_containsKey hm ▸ h) := by
   rw [getEntry_eq_getEntryₘ, getEntryₘ_eq_getEntry hm]
+
+theorem getEntry?_eq_getEntry? [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
+    {a : α} :
+    m.getEntry? a = List.getEntry? a (toListModel m.1.buckets) := by
+  rw [getEntry?_eq_getEntry?ₘ, getEntry?ₘ_eq_getEntry? hm]
 
 theorem get!ₘ_eq_getValueCast! [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β}
     (hm : Raw.WFImp m.1) {a : α} [Inhabited (β a)] :

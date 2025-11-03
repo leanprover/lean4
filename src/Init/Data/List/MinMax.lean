@@ -190,16 +190,6 @@ theorem min_eq_iff  [Min α] [LE α] {l : List α} [IsLinearOrder α] [LawfulOrd
     l.min hl = a ↔ a ∈ l ∧ ∀ b, b ∈ l → a ≤ b := by
   simpa [min?_eq_some_min hl] using (min?_eq_some_iff (xs := l))
 
-theorem min_eq_min_attach [Min α] [MinEqOr α] {l : List α} (hl : l ≠ []) :
-    l.min hl = Subtype.val (l.attach.min (List.attach_ne_nil_iff.mpr hl)) := by
-  simpa [min?_eq_some_min hl, min?_eq_some_min (List.attach_ne_nil_iff.mpr hl)]
-    using (min?_eq_min?_attach (xs := l))
-
-theorem min_eq_iff_subtype [Min α] [LE α] {l : List α} (hl : l ≠ [])
-    [MinEqOr α] [IsLinearOrder (Subtype (· ∈ l))] [LawfulOrderMin (Subtype (· ∈ l))] :
-    l.min hl = a ↔ a ∈ l ∧ ∀ b, b ∈ l → a ≤ b := by
-  simpa [min?_eq_some_min hl] using (min?_eq_some_iff_subtype (xs := l))
-
 @[simp] theorem min_replicate [Min α] [MinEqOr α] {n : Nat} {a : α} (h : replicate n a ≠ []) :
     (replicate n a).min h = a := by
   have n_pos : 0 < n := Nat.pos_of_ne_zero (fun hn => by simp [hn] at h)

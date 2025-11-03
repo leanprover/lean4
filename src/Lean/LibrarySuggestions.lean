@@ -10,3 +10,4 @@ import Lean.LibrarySuggestions.Basic
 import Lean.LibrarySuggestions.SymbolFrequency
 import Lean.LibrarySuggestions.MePo
 import Lean.LibrarySuggestions.SineQuaNon
+import Lean.LibrarySuggestions.Default

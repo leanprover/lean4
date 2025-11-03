@@ -2365,9 +2365,7 @@ end Const
 
 section Union
 
-variable (t₁ t₂ : ExtDTreeMap α β cmp)
-
-variable {t₁ t₂}
+variable {t₁ t₂ : ExtDTreeMap α β cmp}
 
 @[simp]
 theorem union_eq [TransCmp cmp] : t₁.union t₂ = t₁ ∪ t₂ := by

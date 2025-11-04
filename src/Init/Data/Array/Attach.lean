@@ -749,9 +749,6 @@ and simplifies these to the function directly taking the value.
     (Array.replicate n x).unattach = Array.replicate n x.1 := by
   simp [unattach]
 
-@[deprecated unattach_replicate (since := "2025-03-18")]
-abbrev unattach_mkArray := @unattach_replicate
-
 /-! ### Well-founded recursion preprocessing setup -/
 
 @[wf_preprocess] theorem map_wfParam {xs : Array α} {f : α → β} :

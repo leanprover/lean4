@@ -130,7 +130,7 @@ If `grind!` is used, then only minimal indexable subexpressions are considered.
 syntax grindLR     := patternIgnore("⇒" <|> "=>")
 /--
 The `.` modifier instructs `grind` to select a multi-pattern by traversing the conclusion of the
-theorem, and then the hypotheses from eft to right. We say this is the default modifier.
+theorem, and then the hypotheses from left to right. We say this is the default modifier.
 Each time it encounters a subexpression which covers an argument which was not
 previously covered, it adds that subexpression as a pattern, until all arguments have been covered.
 If `grind!` is used, then only minimal indexable subexpressions are considered.

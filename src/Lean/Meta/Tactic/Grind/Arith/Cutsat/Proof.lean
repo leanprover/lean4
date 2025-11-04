@@ -325,7 +325,7 @@ private def mkPowEqProof (ka : Int) (ca? : Option EqCnstr) (kb : Nat) (cb? : Opt
 mutual
 @[export lean_cutsat_eq_cnstr_to_proof]
 private partial def EqCnstr.toExprProofImpl (c' : EqCnstr) : ProofM Expr := caching c' do
-  trace[grind.debug.cutsat.proof] "{← c'.pp}"
+  trace[grind.debug.lia.proof] "{← c'.pp}"
   match c'.h with
   | .core0 a zero =>
     mkEqProof a zero
@@ -377,7 +377,7 @@ private partial def EqCnstr.toExprProofImpl (c' : EqCnstr) : ProofM Expr := cach
   | .pow ka ca? kb cb? => mkPowEqProof ka ca? kb cb? c'
 
 private partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
-  trace[grind.debug.cutsat.proof] "{← c'.pp}"
+  trace[grind.debug.lia.proof] "{← c'.pp}"
   match c'.h with
   | .core e =>
     mkOfEqTrue (← mkEqTrueProof e)
@@ -441,7 +441,7 @@ private partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := cachin
     return mkApp6 (mkConst ``Int.Linear.dvd_norm_poly) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
 
 private partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
-  trace[grind.debug.cutsat.proof] "{← c'.pp}"
+  trace[grind.debug.lia.proof] "{← c'.pp}"
   match c'.h with
   | .core e =>
     mkOfEqTrue (← mkEqTrueProof e)

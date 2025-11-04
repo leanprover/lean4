@@ -258,10 +258,10 @@ where
       else
         mkAtomLinearCombo e
     | _ => match n.getAppFnArgs with
-    | (``Nat.succ, #[n]) => rewrite e (.app (.const ``Int.ofNat_succ []) n)
+    | (``Nat.succ, #[n]) => rewrite e (.app (.const ``Int.natCast_succ []) n)
     | (``HAdd.hAdd, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.natCast_add []) a b)
     | (``HMul.hMul, #[_, _, _, _, a, b]) =>
-      let (lc, prf, r) ← rewrite e (mkApp2 (.const ``Int.ofNat_mul []) a b)
+      let (lc, prf, r) ← rewrite e (mkApp2 (.const ``Int.natCast_mul []) a b)
       -- Add the fact that the multiplication is non-negative.
       pure (lc, prf, r.insert (mkApp2 (.const ``Int.ofNat_mul_nonneg []) a b))
     | (``HDiv.hDiv, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.natCast_ediv []) a b)

@@ -9,6 +9,7 @@ prelude
 public import Init.Data.String.Pattern
 public import Init.Data.Ord.Basic
 public import Init.Data.Iterators.Combinators.FilterMap
+public import Init.Data.String.ToSlice
 
 set_option doc.verso true
 
@@ -35,6 +36,12 @@ provide subslices according to matches etc. The key design principles behind thi
 public section
 
 namespace String.Slice
+
+instance : HAppend String String.Slice String where
+  -- This implementation performs an unnecessary copy which could be avoided by providing a custom
+  -- C++ implementation for this instance. Note: if `String` had no custom runtime representation
+  -- at all, then this would be very easy to get right from Lean using `ByteArray.copySlice`.
+  hAppend s t := s ++ t.copy
 
 open Pattern
 
@@ -348,6 +355,28 @@ Examples:
 @[specialize pat]
 def dropPrefix [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
   dropPrefix? s pat |>.getD s
+
+/--
+Constructs a new string obtained by replacing all occurrences of {name}`pattern` with
+{name}`replacement` in {name}`s`.
+
+This function is generic over all currently supported patterns. The replacement may be a
+{name}`String` or a {name}`String.Slice`.
+
+Examples:
+* {lean}`"red green blue".toSlice.replace 'e' "" = "rd grn blu"`
+* {lean}`"red green blue".toSlice.replace (fun c => c == 'u' || c == 'e') "" = "rd grn bl"`
+* {lean}`"red green blue".toSlice.replace "e" "" = "rd grn blu"`
+* {lean}`"red green blue".toSlice.replace "ee" "E" = "red grEn blue"`
+* {lean}`"red green blue".toSlice.replace "e" "E" = "rEd grEEn bluE"`
+* {lean}`"aaaaa".toSlice.replace "aa" "b" = "bba"`
+* {lean}`"abc".toSlice.replace "" "k" = "kakbkck"`
+-/
+def replace [ToForwardSearcher ρ σ] [ToSlice α] (s : Slice) (pattern : ρ) (replacement : α) :
+    String :=
+  (ToForwardSearcher.toSearcher s pattern).fold (init := "") (fun
+    | sofar, .matched .. => sofar ++ ToSlice.toSlice replacement
+    | sofar, .rejected start stop => sofar ++ s.replaceStartEnd! start stop)
 
 /--
 Removes the specified number of characters (Unicode code points) from the start of the slice.

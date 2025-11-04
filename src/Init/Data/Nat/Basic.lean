@@ -255,6 +255,10 @@ protected theorem two_mul (n) : 2 * n = n + n := by rw [Nat.succ_mul, Nat.one_mu
 
 attribute [simp] Nat.le_refl
 
+@[deprecated Nat.le_succ_of_le (since := "2025-10-26")]
+theorem le_step (h : LE.le n m) : LE.le n (succ m) :=
+  Nat.le.step h
+
 theorem succ_lt_succ {n m : Nat} : n < m → succ n < succ m := succ_le_succ
 
 theorem le_of_lt_add_one {n m : Nat} : n < m + 1 → n ≤ m := le_of_succ_le_succ
@@ -310,8 +314,6 @@ instance : Trans (. ≤ . : Nat → Nat → Prop) (. < . : Nat → Nat → Prop)
 protected theorem le_of_eq {n m : Nat} (p : n = m) : n ≤ m :=
   p ▸ Nat.le_refl n
 
-theorem lt.step {n m : Nat} : n < m → n < succ m := le_step
-
 theorem le_of_succ_le {n m : Nat} (h : succ n ≤ m) : n ≤ m := Nat.le_trans (le_succ n) h
 theorem lt_of_succ_lt      {n m : Nat} : succ n < m → n < m := le_of_succ_le
 protected theorem le_of_lt {n m : Nat} : n < m → n ≤ m := le_of_succ_le
@@ -320,6 +322,8 @@ theorem lt_of_succ_lt_succ {n m : Nat} : succ n < succ m → n < m := le_of_succ
 
 theorem lt_of_succ_le {n m : Nat} (h : succ n ≤ m) : n < m := h
 theorem succ_le_of_lt {n m : Nat} (h : n < m) : succ n ≤ m := h
+
+theorem succ_le_iff : succ m ≤ n ↔ m < n := ⟨lt_of_succ_le, succ_le_of_lt⟩
 
 theorem eq_zero_or_pos : ∀ (n : Nat), n = 0 ∨ n > 0
   | 0   => Or.inl rfl
@@ -331,6 +335,7 @@ theorem pos_of_neZero (n : Nat) [NeZero n] : 0 < n := Nat.pos_of_ne_zero (NeZero
 
 attribute [simp] Nat.lt_add_one
 
+@[deprecated Nat.lt_add_one (since := "2025-10-26")]
 theorem lt.base (n : Nat) : n < succ n := Nat.le_refl (succ n)
 
 protected theorem le_total (m n : Nat) : m ≤ n ∨ n ≤ m :=
@@ -611,13 +616,15 @@ attribute [simp] zero_lt_succ
 
 theorem add_one_ne_self (n) : n + 1 ≠ n := Nat.ne_of_gt (lt_succ_self n)
 
-theorem succ_le : succ n ≤ m ↔ n < m := .rfl
-
 theorem add_one_le_iff : n + 1 ≤ m ↔ n < m := .rfl
 
+@[deprecated Nat.lt_succ_iff (since := "2025-10-26")]
 theorem lt_succ : m < succ n ↔ m ≤ n := ⟨le_of_lt_succ, lt_succ_of_le⟩
 
 theorem lt_succ_of_lt (h : a < b) : a < succ b := le_succ_of_le h
+
+@[deprecated lt_succ_of_lt (since := "2025-10-26")]
+theorem lt.step {n m : Nat} : n < m → n < succ m := le_succ_of_le
 
 theorem lt_add_one_of_lt (h : a < b) : a < b + 1 := le_succ_of_le h
 
@@ -632,9 +639,6 @@ theorem eq_zero_or_eq_succ_pred : ∀ n, n = 0 ∨ n = succ (pred n)
 
 theorem succ_inj : succ a = succ b ↔ a = b := (Nat.succ.injEq a b).to_iff
 
-@[deprecated succ_inj (since := "2025-04-14")]
-theorem succ_inj' : succ a = succ b ↔ a = b := succ_inj
-
 theorem succ_le_succ_iff : succ a ≤ succ b ↔ a ≤ b := ⟨le_of_succ_le_succ, succ_le_succ⟩
 
 theorem succ_lt_succ_iff : succ a < succ b ↔ a < b := ⟨lt_of_succ_lt_succ, succ_lt_succ⟩
@@ -647,6 +651,7 @@ theorem add_one_inj : a + 1 = b + 1 ↔ a = b := succ_inj
 
 theorem ne_add_one (n : Nat) : n ≠ n + 1 := fun h => by cases h
 
+@[deprecated add_one_ne_self (since := "2025-10-26")]
 theorem add_one_ne (n : Nat) : n + 1 ≠ n := fun h => by cases h
 
 theorem add_one_le_add_one_iff : a + 1 ≤ b + 1 ↔ a ≤ b := succ_le_succ_iff
@@ -672,25 +677,35 @@ theorem pred_lt_self : ∀ {a}, 0 < a → pred a < a
 theorem pred_lt_pred : ∀ {n m}, n ≠ 0 → n < m → pred n < pred m
   | _+1, _+1, _, h => lt_of_succ_lt_succ h
 
+theorem pred_le_iff : ∀ {n m}, pred n ≤ m ↔ n ≤ succ m
+  | 0, _ => ⟨fun _ => Nat.zero_le _, fun _ => Nat.zero_le _⟩
+  | _+1, _ => Nat.succ_le_succ_iff.symm
+
+@[deprecated pred_le_iff (since := "2025-10-26")]
 theorem pred_le_iff_le_succ : ∀ {n m}, pred n ≤ m ↔ n ≤ succ m
   | 0, _ => ⟨fun _ => Nat.zero_le _, fun _ => Nat.zero_le _⟩
   | _+1, _ => Nat.succ_le_succ_iff.symm
 
-theorem le_succ_of_pred_le : pred n ≤ m → n ≤ succ m := pred_le_iff_le_succ.1
+theorem le_succ_of_pred_le : pred n ≤ m → n ≤ succ m := pred_le_iff.1
 
-theorem pred_le_of_le_succ : n ≤ succ m → pred n ≤ m := pred_le_iff_le_succ.2
+theorem pred_le_of_le_succ : n ≤ succ m → pred n ≤ m := pred_le_iff.2
 
+theorem lt_pred_iff : ∀ {n m}, n < pred m ↔ succ n < m
+  | _, 0 => ⟨nofun, nofun⟩
+  | _, _+1 => Nat.succ_lt_succ_iff.symm
+
+@[deprecated lt_pred_iff (since := "2025-10-26")]
 theorem lt_pred_iff_succ_lt : ∀ {n m}, n < pred m ↔ succ n < m
   | _, 0 => ⟨nofun, nofun⟩
   | _, _+1 => Nat.succ_lt_succ_iff.symm
 
-theorem succ_lt_of_lt_pred : n < pred m → succ n < m := lt_pred_iff_succ_lt.1
+theorem succ_lt_of_lt_pred : n < pred m → succ n < m := lt_pred_iff.1
 
-theorem lt_pred_of_succ_lt : succ n < m → n < pred m := lt_pred_iff_succ_lt.2
+theorem lt_pred_of_succ_lt : succ n < m → n < pred m := lt_pred_iff.2
 
 theorem le_pred_iff_lt : ∀ {n m}, 0 < m → (n ≤ pred m ↔ n < m)
   | 0, _+1, _ => ⟨fun _ => Nat.zero_lt_succ _, fun _ => Nat.zero_le _⟩
-  | _+1, _+1, _ => Nat.lt_pred_iff_succ_lt
+  | _+1, _+1, _ => Nat.lt_pred_iff
 
 theorem le_pred_of_lt (h : n < m) : n ≤ pred m := (le_pred_iff_lt (Nat.zero_lt_of_lt h)).2 h
 
@@ -711,6 +726,7 @@ theorem exists_eq_add_one_of_ne_zero : ∀ {n}, n ≠ 0 → Exists fun k => n = 
 
 /-! # Basic theorems for comparing numerals -/
 
+@[deprecated zero_eq (since := "2025-10-26")]
 theorem ctor_eq_zero : Nat.zero = 0 :=
   rfl
 

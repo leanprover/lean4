@@ -108,7 +108,7 @@ def mkMissingFieldsHint (fields : Array (Name × Option Expr)) (stx : Syntax) : 
       match interveningLineEndPos? with
       | none => (.line, .nil)
       | some interveningLineEndPos =>
-        (String.mk (List.replicate (indent - col interveningLineEndPos) ' '), .nil)
+        (String.ofList (List.replicate (indent - col interveningLineEndPos) ' '), .nil)
   let suggestionText := preWs ++ suggestionText ++ postWs
   let insPos := view.lastFieldTailPos?.getD <| interveningLineEndPos?.getD view.leaderTailPos
   let width := Tactic.TryThis.format.inputWidth.get (← getOptions)

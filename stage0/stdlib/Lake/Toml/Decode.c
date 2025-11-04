@@ -79,7 +79,7 @@ static lean_object* l_Lake_Toml_Value_decodeNat___closed__1;
 static lean_object* l_Lake_Toml_Value_decodeNat___closed__0;
 static lean_object* l_Lake_Toml_Value_decodeValueArray___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_instDecodeTomlFloat;
-lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_decodeArray___redArg___closed__5;
 static lean_object* l_Lake_Toml_Value_decodeArrayOrSingleton___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_decodeNameMap___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3250,7 +3250,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_Table_decodeNameMap___redArg___lam__0(lean_
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_1, x_3, x_2);
+x_4 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(x_1, x_3, x_2);
 return x_4;
 }
 }

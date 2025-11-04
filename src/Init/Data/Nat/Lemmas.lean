@@ -114,6 +114,7 @@ protected theorem sub_one (n) : n - 1 = pred n := rfl
 
 theorem one_add (n) : 1 + n = succ n := Nat.add_comm ..
 
+@[deprecated succ_ne_succ_iff (since := "2025-10-26")]
 theorem succ_ne_succ : succ m ≠ succ n ↔ m ≠ n :=
   ⟨mt (congrArg Nat.succ ·), mt succ.inj⟩
 
@@ -121,7 +122,8 @@ theorem one_lt_succ_succ (n : Nat) : 1 < n.succ.succ := succ_lt_succ <| succ_pos
 
 theorem not_succ_lt_self : ¬ succ n < n := Nat.not_lt_of_ge n.le_succ
 
-theorem succ_le_iff : succ m ≤ n ↔ m < n := ⟨lt_of_succ_le, succ_le_of_lt⟩
+@[deprecated succ_le_iff (since := "2025-10-26")]
+theorem succ_le : succ n ≤ m ↔ n < m := .rfl
 
 theorem le_succ_iff {m n : Nat} : m ≤ n.succ ↔ m ≤ n ∨ m = n.succ := by
   refine ⟨fun hmn ↦ (Nat.lt_or_eq_of_le hmn).imp_left le_of_lt_succ, ?_⟩
@@ -179,17 +181,9 @@ theorem sub_one_add_self (n : Nat) : (n - 1) + n = 2 * n - 1 := Nat.add_comm _ n
 theorem self_add_pred (n : Nat) : n + pred n = (2 * n).pred := self_add_sub_one n
 theorem pred_add_self (n : Nat) : pred n + n = (2 * n).pred := sub_one_add_self n
 
-theorem pred_le_iff : pred m ≤ n ↔ m ≤ succ n :=
-  ⟨le_succ_of_pred_le, by
-    cases m
-    · exact fun _ ↦ zero_le n
-    · exact le_of_succ_le_succ⟩
-
 theorem lt_of_lt_pred (h : m < n - 1) : m < n := by omega
 
 theorem le_add_pred_of_pos (a : Nat) (hb : b ≠ 0) : a ≤ b + (a - 1) := by omega
-
-theorem lt_pred_iff : a < pred b ↔ succ a < b := by simp; omega
 
 /-! ## add -/
 
@@ -203,7 +197,7 @@ theorem succ_add_eq_add_succ (a b) : succ a + b = a + succ b := Nat.succ_add ..
 protected theorem eq_zero_of_add_eq_zero_right (h : n + m = 0) : n = 0 :=
   (Nat.eq_zero_of_add_eq_zero h).1
 
-protected theorem add_eq_zero_iff : n + m = 0 ↔ n = 0 ∧ m = 0 :=
+@[simp high] protected theorem add_eq_zero_iff : n + m = 0 ↔ n = 0 ∧ m = 0 :=
   ⟨Nat.eq_zero_of_add_eq_zero, fun ⟨h₁, h₂⟩ => h₂.symm ▸ h₁⟩
 
 @[simp high] protected theorem add_left_cancel_iff {n : Nat} : n + m = n + k ↔ m = k :=
@@ -219,15 +213,6 @@ protected theorem add_right_inj {n : Nat} : n + m = n + k ↔ m = k := Nat.add_l
 @[simp high] protected theorem add_eq_right {a b : Nat} : a + b = b ↔ a = 0 := by omega
 @[simp high] protected theorem left_eq_add {a b : Nat} : a = a + b ↔ b = 0 := by omega
 @[simp high] protected theorem right_eq_add {a b : Nat} : b = a + b ↔ a = 0 := by omega
-
-@[deprecated Nat.add_eq_right (since := "2025-04-15")]
-protected theorem add_left_eq_self  {a b : Nat} : a + b = b ↔ a = 0 := Nat.add_eq_right
-@[deprecated Nat.add_eq_left (since := "2025-04-15")]
-protected theorem add_right_eq_self {a b : Nat} : a + b = a ↔ b = 0 := Nat.add_eq_left
-@[deprecated Nat.left_eq_add (since := "2025-04-15")]
-protected theorem self_eq_add_right {a b : Nat} : a = a + b ↔ b = 0 := Nat.left_eq_add
-@[deprecated Nat.right_eq_add (since := "2025-04-15")]
-protected theorem self_eq_add_left  {a b : Nat} : a = b + a ↔ b = 0 := Nat.right_eq_add
 
 protected theorem lt_of_add_lt_add_right : ∀ {n : Nat}, k + n < m + n → k < m
   | 0, h => h
@@ -271,7 +256,8 @@ protected theorem add_self_ne_one : ∀ n, n + n ≠ 1
 theorem le_iff_lt_add_one : x ≤ y ↔ x < y + 1 := by
   omega
 
-@[simp high] protected theorem add_eq_zero : m + n = 0 ↔ m = 0 ∧ n = 0 := by omega
+@[deprecated Nat.add_eq_zero_iff (since := "2025-10-26")]
+protected theorem add_eq_zero : m + n = 0 ↔ m = 0 ∧ n = 0 := by omega
 
 theorem add_pos_iff_pos_or_pos : 0 < m + n ↔ 0 < m ∨ 0 < n := by omega
 

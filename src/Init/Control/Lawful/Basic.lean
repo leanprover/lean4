@@ -170,6 +170,7 @@ theorem bind_pure_unit [Monad m] [LawfulMonad m] {x : m PUnit} : (x >>= fun _ =>
 theorem map_congr [Functor m] {x : m α} {f g : α → β} (h : ∀ a, f a = g a) : (f <$> x : m β) = g <$> x := by
   simp [funext h]
 
+@[deprecated seq_eq_bind_map (since := "2025-10-26")]
 theorem seq_eq_bind {α β : Type u} [Monad m] [LawfulMonad m] (mf : m (α → β)) (x : m α) : mf <*> x = mf >>= fun f => f <$> x := by
   rw [bind_map]
 
@@ -255,20 +256,4 @@ instance : LawfulMonad Id := by
 @[simp] theorem run_seqLeft (x y : Id α) : (x <* y).run = x.run := rfl
 @[simp] theorem run_seq (f : Id (α → β)) (x : Id α) : (f <*> x).run = f.run x.run := rfl
 
--- These lemmas are bad as they abuse the defeq of `Id α` and `α`
-@[deprecated run_map (since := "2025-03-05")] theorem map_eq (x : Id α) (f : α → β) : f <$> x = f x := rfl
-@[deprecated run_bind (since := "2025-03-05")] theorem bind_eq (x : Id α) (f : α → id β) : x >>= f = f x := rfl
-@[deprecated run_pure (since := "2025-03-05")] theorem pure_eq (a : α) : (pure a : Id α) = a := rfl
-
 end Id
-
-/-! # Option -/
-
-instance : LawfulMonad Option := LawfulMonad.mk'
-  (id_map := fun x => by cases x <;> rfl)
-  (pure_bind := fun _ _ => rfl)
-  (bind_assoc := fun x _ _ => by cases x <;> rfl)
-  (bind_pure_comp := fun _ x => by cases x <;> rfl)
-
-instance : LawfulApplicative Option := inferInstance
-instance : LawfulFunctor Option := inferInstance

@@ -2791,7 +2791,7 @@ section Ext
 
 variable {m₁ m₂ : Std.ExtDHashMap α β}
 
-@[ext]
+@[ext, grind ext]
 theorem ext_get? [LawfulBEq α] {m₁ m₂ : Std.ExtDHashMap α β} (h : ∀ k, m₁.get? k = m₂.get? k) : m₁ = m₂ :=
   m₁.inductionOn₂ m₂ (fun _ _ h => sound (.of_forall_get?_eq h)) h
 

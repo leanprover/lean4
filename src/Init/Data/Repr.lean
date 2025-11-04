@@ -226,7 +226,7 @@ Examples:
 -/
 @[extern "lean_string_of_usize"]
 protected def _root_.USize.repr (n : @& USize) : String :=
-  (toDigits 10 n.toNat).asString
+  String.ofList (toDigits 10 n.toNat)
 
 /-- We statically allocate and memoize reprs for small natural numbers. -/
 private def reprArray : Array String := Id.run do
@@ -235,14 +235,14 @@ private def reprArray : Array String := Id.run do
 def reprFast (n : Nat) : String :=
   if h : n < Nat.reprArray.size then Nat.reprArray.getInternal n h else
   if h : n < USize.size then (USize.ofNatLT n h).repr
-  else (toDigits 10 n).asString
+  else String.ofList (toDigits 10 n)
 
 /--
 Converts a natural number to its decimal string representation.
 -/
 @[implemented_by reprFast]
 protected def repr (n : Nat) : String :=
-  (toDigits 10 n).asString
+  String.ofList (toDigits 10 n)
 
 /--
 Converts a natural number less than `10` to the corresponding Unicode superscript digit character.
@@ -293,7 +293,7 @@ Examples:
  * `Nat.toSuperscriptString 35 = "³⁵"`
 -/
 def toSuperscriptString (n : Nat) : String :=
-  (toSuperDigits n).asString
+  String.ofList (toSuperDigits n)
 
 /--
 Converts a natural number less than `10` to the corresponding Unicode subscript digit character.
@@ -344,7 +344,7 @@ Examples:
  * `Nat.toSubscriptString 35 = "₃₅"`
 -/
 def toSubscriptString (n : Nat) : String :=
-  (toSubDigits n).asString
+  String.ofList (toSubDigits n)
 
 end Nat
 

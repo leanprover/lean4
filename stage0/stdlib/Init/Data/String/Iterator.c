@@ -27,7 +27,6 @@ LEAN_EXPORT lean_object* l_String_Iterator_next(lean_object*);
 LEAN_EXPORT lean_object* l_String_Iterator_remainingBytes___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Iterator_remainingToString(lean_object*);
 LEAN_EXPORT lean_object* l_String_instInhabitedIterator;
-LEAN_EXPORT lean_object* l_String_Iterator_setCurr___boxed(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Iterator_0__String_Pos_Raw_get_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
@@ -60,9 +59,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_String_Iterator_0__String_Iterato
 LEAN_EXPORT lean_object* l_String_Iterator_toString(lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t l_instDecidableNot___redArg(uint8_t);
 LEAN_EXPORT uint8_t l_String_instDecidableEqIterator(lean_object*, lean_object*);
-lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 static lean_object* l_String_instInhabitedIterator_default___closed__0;
@@ -72,7 +69,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_String_Iterator_0__String_Iterato
 LEAN_EXPORT uint8_t l_String_Iterator_atEnd(lean_object*);
 LEAN_EXPORT lean_object* l_String_Iterator_toString___boxed(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Iterator_setCurr(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_String_instSizeOfIterator;
 LEAN_EXPORT lean_object* l_String_Iterator_toEnd(lean_object*);
 LEAN_EXPORT lean_object* l_String_Iterator_next_x27(lean_object*, lean_object*);
@@ -579,46 +575,6 @@ return x_10;
 }
 }
 }
-LEAN_EXPORT lean_object* l_String_Iterator_setCurr(lean_object* x_1, uint32_t x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = !lean_is_exclusive(x_1);
-if (x_3 == 0)
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_ctor_get(x_1, 1);
-x_6 = lean_string_utf8_set(x_4, x_5, x_2);
-lean_ctor_set(x_1, 0, x_6);
-return x_1;
-}
-else
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_7 = lean_ctor_get(x_1, 0);
-x_8 = lean_ctor_get(x_1, 1);
-lean_inc(x_8);
-lean_inc(x_7);
-lean_dec(x_1);
-x_9 = lean_string_utf8_set(x_7, x_8, x_2);
-x_10 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set(x_10, 1, x_8);
-return x_10;
-}
-}
-}
-LEAN_EXPORT lean_object* l_String_Iterator_setCurr___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint32_t x_3; lean_object* x_4; 
-x_3 = lean_unbox_uint32(x_2);
-lean_dec(x_2);
-x_4 = l_String_Iterator_setCurr(x_1, x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_String_Iterator_toEnd(lean_object* x_1) {
 _start:
 {
@@ -651,38 +607,33 @@ return x_8;
 LEAN_EXPORT lean_object* l_String_Iterator_extract(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_11; uint8_t x_12; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_1, 1);
 x_5 = lean_ctor_get(x_2, 0);
 x_6 = lean_ctor_get(x_2, 1);
-x_11 = lean_string_dec_eq(x_3, x_5);
-x_12 = l_instDecidableNot___redArg(x_11);
-if (x_12 == 0)
-{
-uint8_t x_13; 
-x_13 = lean_nat_dec_lt(x_6, x_4);
-x_7 = x_13;
-goto block_10;
-}
-else
-{
-x_7 = x_12;
-goto block_10;
-}
-block_10:
-{
+x_7 = lean_string_dec_eq(x_3, x_5);
 if (x_7 == 0)
 {
 lean_object* x_8; 
-x_8 = lean_string_utf8_extract(x_3, x_4, x_6);
+x_8 = l_String_instInhabitedIterator_default___closed__0;
 return x_8;
 }
 else
 {
-lean_object* x_9; 
-x_9 = l_String_instInhabitedIterator_default___closed__0;
-return x_9;
+uint8_t x_9; 
+x_9 = lean_nat_dec_lt(x_6, x_4);
+if (x_9 == 0)
+{
+lean_object* x_10; 
+x_10 = lean_string_utf8_extract(x_3, x_4, x_6);
+return x_10;
+}
+else
+{
+lean_object* x_11; 
+x_11 = l_String_instInhabitedIterator_default___closed__0;
+return x_11;
 }
 }
 }

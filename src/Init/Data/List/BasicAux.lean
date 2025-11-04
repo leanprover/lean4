@@ -293,7 +293,7 @@ theorem lex_trichotomous [DecidableEq α] {r : α → α → Prop} [DecidableRel
         · exact eq (trichotomous _ _ hab hba)
 
 @[deprecated lex_trichotomous (since := "2025-10-27")]
-theorem lex_antisymm [DecidableEq α] {r : α → α → Prop} [DecidableRel r]
+theorem not_lex_antisymm [DecidableEq α] {r : α → α → Prop} [DecidableRel r]
     (antisymm : ∀ x y : α, ¬ r x y → ¬ r y x → x = y)
     {as bs : List α} (h₁ : ¬ Lex r bs as) (h₂ : ¬ Lex r as bs) : as = bs :=
   lex_trichotomous antisymm h₁ h₂

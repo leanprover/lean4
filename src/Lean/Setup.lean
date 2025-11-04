@@ -9,6 +9,8 @@ prelude
 public import Lean.Data.Json.Parser
 public import Lean.Util.LeanOptions
 
+set_option doc.verso true
+
 public section
 
 /-!
@@ -46,7 +48,7 @@ structure ModuleHeader where
   deriving Repr, Inhabited, ToJson, FromJson
 
 /--
-Module data files used for an `import` statement.
+Module data files used for an {lit}`import` statement.
 This structure is designed for efficient JSON serialization.
 -/
 structure ImportArtifacts where
@@ -107,18 +109,29 @@ def ModuleArtifacts.oleanParts (arts : ModuleArtifacts) : Array System.FilePath 
         fnames := fnames.push pFile
   return fnames
 
+/--
+The type of module package identifiers.
+
+This is a {name}`String` that is used to disambiguate native symbol prefixes between
+different packages (and different versions of the same package).
+-/
+public abbrev PkgId := String
+
 /-- A module's setup information as described by a JSON file. -/
 structure ModuleSetup where
-  /-- Name of the module. -/
+  /-- The name of the module. -/
   name : Name
+  /-- The package to which the module belongs (if any). -/
+  package? : Option PkgId := none
   /--
   Whether the module, by default, participates in the module system.
-  Even if `false`, a module can still choose to participate by using `module` in its header.
+  Even if {lean}`false`, a module can still choose to participate by using
+  {lit}`module` in its header.
   -/
   isModule : Bool := false
   /--
   The module's direct imports.
-  If `none`, uses the imports from the module header.
+  If {lean}`none`, uses the imports from the module header.
   -/
   imports? : Option (Array Import) := none
   /-- Pre-resolved artifacts of transitively imported modules. -/
@@ -131,7 +144,7 @@ structure ModuleSetup where
   options : LeanOptions := {}
   deriving Repr, Inhabited, ToJson, FromJson
 
-/-- Load a `ModuleSetup` from a JSON file. -/
+/-- Load a {lean}`ModuleSetup` from a JSON file. -/
 def ModuleSetup.load (path : System.FilePath) : IO ModuleSetup := do
   let contents ← IO.FS.readFile path
   match Json.parse contents >>= fromJson? with

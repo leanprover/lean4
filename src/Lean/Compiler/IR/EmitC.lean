@@ -11,6 +11,7 @@ public import Lean.Compiler.IR.EmitUtil
 public import Lean.Compiler.IR.NormIds
 public import Lean.Compiler.IR.SimpCase
 public import Lean.Compiler.IR.Boxing
+public import Lean.Compiler.ModPkgExt
 
 public section
 
@@ -28,8 +29,14 @@ structure Context where
 
 abbrev M := ReaderT Context (EStateM String String)
 
-def getEnv : M Environment := Context.env <$> read
-def getModName : M Name := Context.modName <$> read
+@[inline] def getEnv : M Environment := Context.env <$> read
+
+@[inline] def getModName : M Name := Context.modName <$> read
+
+@[inline] def getModInitFn : M String := do
+  let pkg? := (← getEnv).getModulePackage?
+  return mkModuleInitializationFunctionName (← getModName) pkg?
+
 def getDecl (n : Name) : M Decl := do
   let env ← getEnv
   match findEnvDecl env n with
@@ -72,13 +79,21 @@ def toCType : IRType → String
 def throwInvalidExportName {α : Type} (n : Name) : M α :=
   throw s!"invalid export name '{n}'"
 
+@[export lean_get_symbol_stem]
+private def getSymbolStem (env : Environment) (fn : Name) : String :=
+  let pkg? :=
+    match env.getModuleIdxFor? fn with
+    | some idx => env.getModulePackageByIdx? idx
+    | none => env.getModulePackage?
+  fn.mangle (mkPackageSymbolPrefix pkg?)
+
 def toCName (n : Name) : M String := do
   let env ← getEnv;
   -- TODO: we should support simple export names only
   match getExportNameFor? env n with
-  | some (.str .anonymous s) => pure s
+  | some (.str .anonymous s) => return s
   | some _                   => throwInvalidExportName n
-  | none                     => if n == `main then pure leanMainFn else pure n.mangle
+  | none                     => if n == `main then return leanMainFn else return getSymbolStem env n
 
 def emitCName (n : Name) : M Unit :=
   toCName n >>= emit
@@ -89,7 +104,7 @@ def toCInitName (n : Name) : M String := do
   match getExportNameFor? env n with
   | some (.str .anonymous s) => return "_init_" ++ s
   | some _                   => throwInvalidExportName n
-  | none                     => pure ("_init_" ++ n.mangle)
+  | none                     => return "_init_" ++ getSymbolStem env n
 
 def emitCInitName (n : Name) : M Unit :=
   toCInitName n >>= emit
@@ -168,11 +183,10 @@ def emitMainFn : M Unit := do
       emitLn "lean_initialize();"
     else
       emitLn "lean_initialize_runtime_module();"
-    let modName ← getModName
     /- We disable panic messages because they do not mesh well with extracted closed terms.
        See issue #534. We can remove this workaround after we implement issue #467. -/
     emitLn "lean_set_panic_messages(false);"
-    emitLn ("res = " ++ mkModuleInitializationFunctionName modName ++ "(1 /* builtin */);")
+    emitLn s!"res = {← getModInitFn}(1 /* builtin */);"
     emitLn "lean_set_panic_messages(true);"
     emitLns ["lean_io_mark_end_initialization();",
              "if (lean_io_result_is_ok(res)) {",
@@ -747,17 +761,22 @@ def emitDeclInit (d : Decl) : M Unit := do
 
 def emitInitFn : M Unit := do
   let env ← getEnv
-  let modName ← getModName
-  env.imports.forM fun imp => emitLn ("lean_object* " ++ mkModuleInitializationFunctionName imp.module ++ "(uint8_t builtin);")
+  let impInitFns ← env.imports.mapM fun imp => do
+    let some idx := env.getModuleIdx? imp.module
+      | throw "(internal) import without module index" -- should be unreachable
+    let pkg? := env.getModulePackageByIdx? idx
+    return mkModuleInitializationFunctionName imp.module pkg?
+  impInitFns.forM fun fn => do
+    emitLn s!"lean_object* {fn}(uint8_t builtin);"
   emitLns [
     "static bool _G_initialized = false;",
-    "LEAN_EXPORT lean_object* " ++ mkModuleInitializationFunctionName modName ++ "(uint8_t builtin) {",
+    s!"LEAN_EXPORT lean_object* {← getModInitFn}(uint8_t builtin) \{",
     "lean_object * res;",
     "if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));",
     "_G_initialized = true;"
   ]
-  env.imports.forM fun imp => emitLns [
-    "res = " ++ mkModuleInitializationFunctionName imp.module ++ "(builtin);",
+  impInitFns.forM fun fn => emitLns [
+    s!"res = {fn}(builtin);",
     "if (lean_io_result_is_error(res)) return res;",
     "lean_dec_ref(res);"]
   let decls := getDecls env
@@ -774,9 +793,8 @@ def main : M Unit := do
 
 end EmitC
 
-@[export lean_ir_emit_c]
 def emitC (env : Environment) (modName : Name) : Except String String :=
-  match (EmitC.main { env := env, modName := modName }).run "" with
+  match EmitC.main { env, modName } |>.run "" with
   | EStateM.Result.ok    _   s => Except.ok s
   | EStateM.Result.error err _ => Except.error err
 

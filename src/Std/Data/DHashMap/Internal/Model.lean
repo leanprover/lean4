@@ -412,6 +412,10 @@ def unionₘ [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
   else
     insertListₘ m₁ (toListModel m₂.1.buckets)
 
+/-- Internal implementation detail of the hash map -/
+def foldlₘ {δ} (f : δ → (a : α) → β a → δ) (init : δ) (m : List ((a : α) × β a)) : δ :=
+  m.foldl (fun acc ⟨k,v⟩ => f acc k v) init
+
 section
 
 variable {β : Type v}

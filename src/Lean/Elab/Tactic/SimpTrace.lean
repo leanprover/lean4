@@ -59,9 +59,13 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
       -- Get premise suggestions from the premise selector
       let suggestions ← Lean.LibrarySuggestions.select (← getMainGoal)
       -- Convert suggestions to simp argument syntax and add them to the args
+      -- If a name is ambiguous, we add ALL interpretations
       for sugg in suggestions do
-        let arg ← `(Parser.Tactic.simpLemma| $(mkIdent sugg.name):term)
-        argsArray := argsArray.push arg
+        let ident := mkIdent sugg.name
+        let candidates ← resolveGlobalConst ident
+        for candidate in candidates do
+          let arg ← `(Parser.Tactic.simpLemma| $(mkCIdentFrom ident candidate (canonical := true)):term)
+          argsArray := argsArray.push arg
     -- Build the simp syntax with the updated arguments
     let stxForExecution ← if bang.isSome then
       `(tactic| simp!%$tk $cfg:optConfig $[$discharger]? $[only%$o]? [$argsArray,*] $[$loc]?)
@@ -94,9 +98,13 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
       -- Get premise suggestions from the premise selector
       let suggestions ← Lean.LibrarySuggestions.select (← getMainGoal)
       -- Convert suggestions to simp argument syntax and add them to the args
+      -- If a name is ambiguous, we add ALL interpretations
       for sugg in suggestions do
-        let arg ← `(Parser.Tactic.simpLemma| $(mkIdent sugg.name):term)
-        argsArray := argsArray.push arg
+        let ident := mkIdent sugg.name
+        let candidates ← resolveGlobalConst ident
+        for candidate in candidates do
+          let arg ← `(Parser.Tactic.simpLemma| $(mkCIdentFrom ident candidate (canonical := true)):term)
+          argsArray := argsArray.push arg
     -- Build the simp_all syntax with the updated arguments
     let stxForExecution ←
       if argsArray.isEmpty then

@@ -3,7 +3,7 @@ When asked to implement new features:
 * write comprehensive tests first (expecting that these will initially fail)
 * and then iterate on the implementation until the tests pass.
 
-To build Lean you should use `make -j32 -C build/release`.
+To build Lean you should use `make -j$(nproc) -C build/release`.
 
 To run a test you should use `cd tests/lean/run && ./test_single.sh example_test.lean`.
 

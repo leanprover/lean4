@@ -386,9 +386,9 @@ theorem getEntry_insert [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k a : α
         m.getEntry a (contains_of_contains_insert _ h h₁ (Bool.eq_false_iff.2 h₂)) := by
   simp_to_model [insert, getEntry] using List.getEntry_insertEntry
 
-theorem getEntry_eq [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k k': α} {v : β k'} {h} :
-    m.getEntry k h = ⟨k', v⟩ → k == k' := by
-  simp_to_model [getEntry, contains] using List.getEntry_eq
+theorem beq_of_getEntry_eq [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {p : ((a : α) × β a)} {k : α} {h₁} :
+    (w : m.getEntry k h₁ = p) → p.fst == k := by
+  simp_to_model [getEntry, contains] using List.beq_of_getEntry_eq
 
 theorem getEntry_congr [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a b : α} (hab : a == b) {h₁ h₂} :
     getEntry m a h₁ = getEntry m b h₂ := by

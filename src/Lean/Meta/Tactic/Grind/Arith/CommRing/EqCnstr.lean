@@ -522,7 +522,7 @@ where
             trace_goal[grind.ring.impEq] "skip: {← mkEq a b}, k: {k}, noZeroDivisors: false"
             modify fun (propagated, map) => (propagated, map.insert (k, d.p) (a, ra))
             return ()
-        trace_goal[grind.ring.impEq] "{← mkEq a b}, {k}, {← p.denoteExpr}"
+        trace_goal[grind.ring.impEq] "{← mkEq a b}, {k}, {← d.p.denoteExpr}"
         propagateEq a b ra rb d
         modify fun s => (true, s.2)
     else

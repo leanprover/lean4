@@ -64,7 +64,7 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
         let ident := mkIdent sugg.name
         let candidates ← resolveGlobalConst ident
         for candidate in candidates do
-          let arg ← `(Parser.Tactic.simpLemma| $(mkIdent candidate):term)
+          let arg ← `(Parser.Tactic.simpLemma| $(mkCIdentFrom ident candidate (canonical := true)):term)
           argsArray := argsArray.push arg
     -- Build the simp syntax with the updated arguments
     let stxForExecution ← if bang.isSome then
@@ -103,8 +103,7 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
         let ident := mkIdent sugg.name
         let candidates ← resolveGlobalConst ident
         for candidate in candidates do
-          logInfo m!"suggestion: {sugg.name} candidate: {candidate}"
-          let arg ← `(Parser.Tactic.simpLemma| $(mkIdent candidate):term)
+          let arg ← `(Parser.Tactic.simpLemma| $(mkCIdentFrom ident candidate (canonical := true)):term)
           argsArray := argsArray.push arg
     -- Build the simp_all syntax with the updated arguments
     let stxForExecution ←

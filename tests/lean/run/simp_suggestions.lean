@@ -73,10 +73,14 @@ theorem Foo.myCustomAdd_id (x : Nat) : myCustomAdd x 0 = x := by
 set_library_suggestions (fun _ _ => pure #[{ name := `myCustomAdd_id, score := 1.0 }])
 
 open Foo
-#check Nat
+
 -- This goal needs BOTH lemmas to solve:
 -- myCustomAdd 0 a simplifies to a (using root version)
 -- myCustomAdd b 0 simplifies to b (using Foo version)
+/--
+info: Try this:
+  [apply] simp_all only [_root_.myCustomAdd_id, Foo.myCustomAdd_id]
+-/
 #guard_msgs in
 example (a b : Nat) (h : myCustomAdd 0 a = myCustomAdd b 0) : a = b := by
   simp_all? +suggestions

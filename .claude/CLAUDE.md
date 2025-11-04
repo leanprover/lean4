@@ -5,7 +5,7 @@ When asked to implement new features:
 
 To build Lean you should use `make -j32 -C build/release`.
 
-To run a test you should use `tests/lean/run/test_single.sh`
+To run a test you should use `cd tests/lean/run && ./test_single.sh example_test.lean`.
 
 *Never* report success on a task unless you have verified both a clean build without errors, and that the relevant tests pass. You have to keep working until you have verified both of these.
 

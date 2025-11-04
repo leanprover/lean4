@@ -10,3 +10,5 @@ To run a test you should use `tests/lean/run/test_single.sh`
 *Never* report success on a task unless you have verified both a clean build without errors, and that the relevant tests pass. You have to keep working until you have verified both of these.
 
 All new tests should go in `tests/lean/run/`. Note that these tests don't have expected output, and just run on a success or failure basis. So you should use `#guard_msgs` to check for specific messages.
+
+If you are not following best practices specific to this repository and the user expresses frustration, stop and ask them to help update this `.claude/claude.md` file with the missing guidance.

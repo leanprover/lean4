@@ -416,6 +416,12 @@ def unionₘ [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
 def foldlₘ {δ} (f : δ → (a : α) → β a → δ) (init : δ) (m : List ((a : α) × β a)) : δ :=
   m.foldl (fun acc ⟨k,v⟩ => f acc k v) init
 
+/-- Internal implementation detail of the hash map -/
+def interSmallerFnₘ [BEq α] [Hashable α] (m sofar : Raw₀ α β) (k : α) : Raw₀ α β :=
+  match m.getEntry?ₘ k with
+  | some kv' => sofar.insertₘ kv'.1 kv'.2
+  | none => sofar
+
 section
 
 variable {β : Type v}
@@ -653,6 +659,14 @@ theorem insertManyIfNew_eq_insertListIfNewₘ [BEq α] [Hashable α] (m : Raw₀
   | cons hd tl ih =>
     simp only [List.foldl_cons, insertListIfNewₘ]
     apply ih
+
+theorem interSmallerFn_eq_interSmallerFnₘ [BEq α] [Hashable α] (m sofar : Raw₀ α β) (k : α) :
+    interSmallerFn m sofar k = interSmallerFnₘ m sofar k := by
+  rw [interSmallerFn, interSmallerFnₘ]
+  rw [getEntry?_eq_getEntry?ₘ]
+  congr
+  ext
+  rw [insert_eq_insertₘ]
 
 section
 

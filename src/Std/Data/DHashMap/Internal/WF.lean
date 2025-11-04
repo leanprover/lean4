@@ -1293,10 +1293,8 @@ theorem toListModel_union [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable �
 /-! # `foldl`-/
 theorem foldl_eq_foldlₘ {δ} (f : δ → (a : α) → β a → δ) (init : δ) (m : Raw₀ α β) :
     foldl f init m = foldlₘ f init (m.1.toList) := by
-  simp [foldl,foldlₘ]
-  simp [ForIn.forIn]
-  rw [Raw.forIn_eq_forIn_toListModel]
-  rw [Raw.toList_eq_toListModel]
+  simp only [foldl, ForIn.forIn, bind_pure_comp, map_pure, bind_pure, foldlₘ]
+  rw [Raw.forIn_eq_forIn_toListModel, Raw.toList_eq_toListModel]
   generalize (toListModel m.val.buckets) = l
   simp only [forIn_pure_yield_eq_foldl, Id.run_pure]
   suffices ∀ (t : { d : δ // ∀ (P : δ → Prop),
@@ -1308,8 +1306,178 @@ theorem foldl_eq_foldlₘ {δ} (f : δ → (a : α) → β a → δ) (init : δ)
   | nil => simp [foldlₘ]
   | cons hd tl ih =>
     simp only [List.foldl_cons, foldlₘ]
-    simp [foldlₘ] at ih
+    simp only [foldlₘ, Subtype.forall] at ih
     apply ih
+
+-- /-- Internal implementation detail of the hash map -/
+-- def interSmaller [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
+--   (m₂.foldl (fun sofar k _ => match m₁.getEntry? k with | some kv' => sofar.insert kv'.1 kv'.2 | none => sofar) emptyWithCapacity).1
+
+-- /-- Internal implementation detail of the hash map -/
+-- @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
+--   if m₁.1.size ≤ m₂.1.size then (m₂.insertManyIfNew m₁.1).1 else (m₁.insertMany m₂.1).1
+
+-- /-- Internal implementation detail of the hash map -/
+-- def inter [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
+--   if m₁.1.size ≤ m₂.1.size then m₁.filter fun k _ => m₂.contains k else interSmaller m₁ m₂
+
+/-- Internal implementation detail of the hash map -/
+def interSmallerₘ [BEq α] [Hashable α] (m₁ : Raw₀ α β) (l : List ((a : α) × β a)) : Raw₀ α β :=
+  foldlₘ (fun sofar k _ => interSmallerFnₘ m₁ sofar k) emptyWithCapacity l
+
+theorem foldl_perm_cong  [BEq α] {init₁ init₂ : List ((a : α) × β a)} {l : List ((a : α) × β a)}
+    {f : List ((a : α) × β a) → ((a : α) × β a) → List ((a : α) × β a)} (h₁ : Perm init₁ init₂)
+    (h₂ : ∀ h l₁ l₂, (w : DistinctKeys l₁) → Perm l₁ l₂ → Perm (f l₁ h) (f l₂ h) ∧ DistinctKeys (f l₁ h))
+    (h₃ : DistinctKeys init₁)
+     : Perm (List.foldl f init₁ l) (List.foldl f init₂ l) := by
+  induction l generalizing init₁ init₂
+  case nil =>
+    simp only [foldl_nil, h₁]
+  case cons h t ih =>
+    simp only [foldl_cons]
+    apply ih
+    . exact (h₂ h init₁ init₂ h₃ h₁).1
+    . exact (h₂ h init₁ init₂ h₃ h₁).2
+
+theorem toListModel_interSmallerFnₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] (m sofar : Raw₀ α β) (hm₁ : Raw.WFImp m.1) (hm₂ : Raw.WFImp sofar.1) (k : α) :
+    Perm (toListModel ((interSmallerFnₘ m sofar k).1.buckets)) (match List.getEntry? k (toListModel m.1.buckets) with
+    | some kv' => List.insertEntry kv'.1 kv'.2 (toListModel sofar.1.buckets)
+    | none => (toListModel sofar.1.buckets)) := by
+  rw [interSmallerFnₘ]
+  rw [←getEntry?_eq_getEntry?ₘ, getEntry?_eq_getEntry?]
+  . split
+    case h_1 _ kv' heq =>
+      simp only [heq]
+      apply toListModel_insertₘ
+      . exact hm₂
+    case h_2 _ heq =>
+      simp [heq]
+  . exact hm₁
+
+theorem toListModel_interSmallerₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] (m₁ m₂ : Raw₀ α β) (hm₁ : Raw.WFImp m₁.1) (hm₂ : Raw.WFImp m₂.1) (l : List ((a : α) × β a)) :
+    toListModel
+    (List.foldl
+          (fun sofar x =>
+            match x with
+            | ⟨k, _⟩ => m₁.interSmallerFnₘ sofar k)
+          m₂ l).val.buckets ~
+  List.foldl
+    (fun sofar x =>
+      match x with
+      | ⟨k, _⟩ =>
+        match List.getEntry? k (toListModel m₁.val.buckets) with
+        | some kv' => insertEntry kv'.fst kv'.snd sofar
+        | none => sofar)
+    (toListModel m₂.val.buckets) l := by
+  induction l generalizing m₂
+  case nil =>
+    simp
+  case cons kv t ih =>
+    simp
+    apply Perm.trans
+    . apply ih
+      . unfold interSmallerFnₘ
+        split
+        case _ kv' heq =>
+          rw [← insert_eq_insertₘ]
+          apply wfImp_insert hm₂
+        . exact hm₂
+    . rw [interSmallerFnₘ]
+      apply foldl_perm_cong
+      . split
+        case h_1 _ kv' heq =>
+          rw [← getEntry?_eq_getEntry?ₘ, getEntry?_eq_getEntry?] at heq
+          simp only [heq]
+          apply toListModel_insertₘ
+          . exact hm₂
+          . exact hm₁
+        case h_2 _ heq =>
+          rw [← getEntry?_eq_getEntry?ₘ, getEntry?_eq_getEntry?] at heq
+          simp only [heq]
+          apply Perm.refl
+          . exact hm₁
+      . intro h l₁ l₂ hd hp
+        simp
+        apply And.intro
+        . split
+          case h_1 _ kv' heq =>
+            apply insertEntry_of_perm
+            . exact hd
+            . exact hp
+          case h_2 _ heq =>
+            exact hp
+        . split
+          case h_1 _ kv' heq =>
+            apply DistinctKeys.insertEntry
+            . exact hd
+          case h_2 _ heq =>
+            . exact hd
+      . split
+        case h_1 _ kv' heq =>
+          apply DistinctKeys.perm
+          . apply toListModel_insertₘ
+            . exact hm₂
+          . apply DistinctKeys.insertEntry
+            . exact hm₂.distinct
+        case h_2 _ =>
+          exact hm₂.distinct
+
+theorem interSmaller_eq_interSmallerₘ [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) :
+  interSmaller m₁ m₂ = interSmallerₘ m₁ (toListModel m₂.1.buckets) := by
+    rw [interSmaller, foldl_eq_foldlₘ]
+    rw [interSmallerₘ]
+    rw [Raw.toList_eq_toListModel]
+    simp only [interSmallerFn_eq_interSmallerFnₘ]
+
+theorem toListModel_inter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] (m₁ m₂ : Raw₀ α β) (hm₁ : Raw.WFImp m₁.1) (hm₂ : Raw.WFImp m₂.1) :
+    Perm (toListModel (m₁.inter m₂).1.buckets) ((toListModel m₁.1.buckets).filter fun p => containsKey p.1 (toListModel m₂.1.buckets) ) := by
+  simp [inter]
+  split
+  . rw [filter_eq_filterₘ]
+    apply Perm.trans
+    . apply toListModel_filterₘ
+    . suffices (fun p : (a : α) × β a => m₂.contains p.fst) = (fun p :  (a : α) × β a => containsKey p.fst (toListModel m₂.val.buckets)) by rw [this]
+      ext x
+      rw [contains_eq_containsKey]
+      exact hm₂
+  . apply Perm.trans
+    . rw [interSmaller_eq_interSmallerₘ]
+    . rw [interSmallerₘ, foldlₘ]
+      apply Perm.trans
+      . apply toListModel_interSmallerₘ
+        . exact hm₁
+        . apply wfImp_emptyWithCapacity
+      . generalize heq1 : (toListModel m₁.val.buckets) = l₁
+        generalize heq2 : (toListModel m₂.val.buckets) = l₂
+        induction l₁
+        case nil =>
+          simp
+          induction l₂
+          case nil => simp
+          case cons h t ih =>
+            rename_i heq
+            rw [Raw.WFImp.size_eq, Raw.WFImp.size_eq, heq1, heq2] at heq
+            simp [length] at heq
+            . exact hm₂
+            . exact hm₁
+        case cons h t t_ih =>
+          simp
+          rw [List.filter_cons]
+          sorry
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /-! # `Const.insertListₘ` -/
 

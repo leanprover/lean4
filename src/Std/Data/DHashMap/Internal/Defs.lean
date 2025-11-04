@@ -458,8 +458,14 @@ def insertMany {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [BEq α] [Hashable
   return r
 
 /-- Internal implementation detail of the hash map -/
+def interSmallerFn [BEq α] [Hashable α] (m sofar : Raw₀ α β) (k : α) : Raw₀ α β :=
+  match m.getEntry? k with
+  | some kv' => sofar.insert kv'.1 kv'.2
+  | none => sofar
+
+/-- Internal implementation detail of the hash map -/
 def interSmaller [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
-  (m₂.foldl (fun sofar k _ => match m₁.getEntry? k with | some kv' => sofar.insert kv'.1 kv'.2 | none => sofar) emptyWithCapacity).1
+  (m₂.foldl (fun sofar k _ => interSmallerFn m₁ sofar k) emptyWithCapacity).1
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=

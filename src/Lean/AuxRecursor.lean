@@ -55,8 +55,13 @@ private builtin_initialize sparseCasesOnExt : TagDeclarationExtension ← mkTagD
 def markSparseCasesOn (env : Environment) (declName : Name) : Environment :=
   sparseCasesOnExt.tag env declName
 
+/-- Is this a constructor elimination or a sparse casesOn? -/
 public def isSparseCasesOn (env : Environment) (declName : Name) : Bool :=
   sparseCasesOnExt.isTagged env declName
+
+/-- Is this a `.casesOn`, a constructor elimination or a sparse casesOn? -/
+public def isCasesOnLike (env : Environment) (declName : Name) : Bool :=
+  isCasesOnRecursor env declName || isSparseCasesOn env declName
 
 builtin_initialize noConfusionExt : TagDeclarationExtension ← mkTagDeclarationExtension
 

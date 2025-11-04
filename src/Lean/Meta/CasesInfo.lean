@@ -52,9 +52,7 @@ public def CasesInfo.numAlts (c : CasesInfo) : Nat :=
   c.altNumParams.size
 
 public def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
-  unless isCasesOnRecursor (← getEnv) declName || isSparseCasesOn (← getEnv) declName do
-    return none
-
+  unless isCasesOnLike (← getEnv) declName do return none
   let info ← getConstVal declName
   MetaM.run' <|
     forallTelescope info.type fun xs r => do

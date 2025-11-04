@@ -126,8 +126,16 @@ def mkGrindParams
     LibrarySuggestions.select mvarId
   else
     pure #[]
-  let params ← elabGrindParamsAndSuggestions params ps suggestions (only := only) (lax := config.lax)
+  let mut params ← elabGrindParamsAndSuggestions params ps suggestions (only := only) (lax := config.lax)
   trace[grind.debug.inj] "{params.inj.getOrigins.map (·.pp)}"
+  if params.anchorRefs?.isSome then
+    /-
+    **Note**: anchors are automatically computed in interactive mode where
+    hygiene is turned on. So, we must disable hypotheses id cleanup since
+    different ids will affect the anchor values.
+    **TODO**: a more robust solution since users may use `grind +clean => finish?`
+    -/
+    params := { params with config.clean := false }
   return params
 
 -- **TODO**: Remove `Grind.Trace`
@@ -260,7 +268,7 @@ private def elabGrindConfig' (config : TSyntax ``Lean.Parser.Tactic.optConfig) (
   let `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params?:grindParam,*] ]?) := stx
     | throwUnsupportedSyntax
   let config ← elabGrindConfig configStx
-  let config := { config with trace := true }
+  let config := { config with trace := true, clean := false }
   let only := only.isSome
   let params := if let some params := params? then params.getElems else #[]
   let mvarId ← getMainGoal

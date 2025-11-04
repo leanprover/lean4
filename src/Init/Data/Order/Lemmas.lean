@@ -67,8 +67,8 @@ public instance Total.asymm_of_total_not {r : α → α → Prop} [i : Total (¬
 
 public theorem Asymm.total_not {r : α → α → Prop} [i : Asymm r] : Total (¬ r · ·) where
   total a b := match Classical.em (r b a) with
-  | .inl hba => .inl <| i.asymm b a hba
-  | .inr hba => .inr hba
+    | .inl hba => .inl <| i.asymm b a hba
+    | .inr hba => .inr hba
 
 public instance {α : Type u} [LE α] [IsPartialOrder α] :
     Antisymm (α := α) (· ≤ ·) where

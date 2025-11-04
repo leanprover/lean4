@@ -55,7 +55,7 @@ instance ltTrichotomous : Std.Trichotomous (· < · : Char → Char → Prop) wh
   trichotomous _ _ h₁ h₂ := Char.le_antisymm (by simpa using h₂) (by simpa using h₁)
 
 @[deprecated ltTrichotomous (since := "2025-10-27")]
-def notLtAntisymm : Std.Antisymm (¬ · < · : Char → Char → Prop) where
+def notLTAntisymm : Std.Antisymm (¬ · < · : Char → Char → Prop) where
   antisymm := Char.ltTrichotomous.trichotomous
 
 instance ltAsymm : Std.Asymm (· < · : Char → Char → Prop) where

@@ -377,9 +377,8 @@ def mustEtaExpand (env : Environment) (e : Expr) : Bool :=
   if let .const declName _ := e.getAppFn then
     match env.find? declName with
     | some (.recInfo ..) | some (.ctorInfo ..) | some (.quotInfo ..) => true
-    | _ => isCasesOnRecursor env declName || isNoConfusion env declName ||
-           env.isProjectionFn declName || declName == ``Eq.ndrec ||
-           isSparseCasesOn env declName
+    | _ => isCasesOnLike env declName || isNoConfusion env declName ||
+           env.isProjectionFn declName || declName == ``Eq.ndrec
   else
     false
 

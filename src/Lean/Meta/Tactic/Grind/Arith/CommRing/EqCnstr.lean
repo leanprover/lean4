@@ -522,7 +522,12 @@ where
             trace_goal[grind.ring.impEq] "skip: {← mkEq a b}, k: {k}, noZeroDivisors: false"
             modify fun (propagated, map) => (propagated, map.insert (k, d.p) (a, ra))
             return ()
-        trace_goal[grind.ring.impEq] "{← mkEq a b}, {k}, {← p.denoteExpr}"
+        trace_goal[grind.ring.impEq] "{← mkEq a b}, {k}, {← d.p.denoteExpr}"
+        /-
+        **Note**: If max number of steps has been reached, then `d.p` is not fully simplified.
+        Recall that `propagateEq` assumes that it is.
+        -/
+        if (← checkMaxSteps) then return ()
         propagateEq a b ra rb d
         modify fun s => (true, s.2)
     else

@@ -204,6 +204,21 @@ example (m : IndexMap α β) (a a' : α) (b : β) :
     instantiate only [= mem_indices_of_mem, insert]
     instantiate only [=_ HashMap.contains_iff_mem, = getElem?_neg, = getElem?_pos]
     cases #4ed2
+    · cases #ffdf
+      · instantiate only
+      · instantiate only
+        set_option trace.grind.ematch.instance true in
+        instantiate only [= HashMap.contains_insert]
+    · cases #95a0
+      · cases #2688 <;> finish [= HashMap.contains_insert]
+      · cases #ffdf <;> finish
+
+example (m : IndexMap α β) (a a' : α) (b : β) :
+    a' ∈ m.insert a b ↔ a' = a ∨ a' ∈ m := by
+  grind =>
+    instantiate only [= mem_indices_of_mem, insert]
+    instantiate only [=_ HashMap.contains_iff_mem, = getElem?_neg, = getElem?_pos]
+    cases #4ed2
     next =>
       cases #ffdf
       next => instantiate only
@@ -276,6 +291,67 @@ example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
         instantiate only [WF']
       · instantiate only
         instantiate only [= HashMap.mem_insert, = HashMap.getElem_insert, = Array.getElem_push]
+
+/--
+info: Try these:
+  [apply] grind only [= mem_indices_of_mem, insert, = getElem_def, = getElem?_neg, = getElem?_pos, = Array.getElem_set,
+    size, = HashMap.mem_insert, = HashMap.getElem_insert, = Array.getElem_push, usr getElem_indices_lt, =_ WF,
+    = Array.size_set, WF', #f590, #ffdf]
+  [apply] grind only [= mem_indices_of_mem, insert, = getElem_def, = getElem?_neg, = getElem?_pos, = Array.getElem_set,
+    size, = HashMap.mem_insert, = HashMap.getElem_insert, = Array.getElem_push, usr getElem_indices_lt, =_ WF,
+    = Array.size_set, WF']
+  [apply] grind =>
+    instantiate only [= mem_indices_of_mem, insert, = getElem_def]
+    instantiate only [= getElem?_neg, = getElem?_pos]
+    cases #f590
+    · cases #ffdf
+      · instantiate only
+        instantiate only [= Array.getElem_set]
+      · instantiate only
+        instantiate only [size, = HashMap.mem_insert, = HashMap.getElem_insert, = Array.getElem_push]
+    · instantiate only [= mem_indices_of_mem, = getElem_def]
+      instantiate only [usr getElem_indices_lt]
+      instantiate only [size]
+      cases #ffdf
+      · instantiate only [usr getElem_indices_lt, =_ WF]
+        instantiate only [= mem_indices_of_mem, = getElem?_pos, = Array.size_set, = Array.getElem_set]
+        instantiate only [WF']
+      · instantiate only
+        instantiate only [= HashMap.mem_insert, = HashMap.getElem_insert, = Array.getElem_push]
+-/
+#guard_msgs in
+example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
+    (m.insert a b)[a'] = if h' : a' == a then b else m[a'] := by
+  grind?
+
+example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
+    (m.insert a b)[a'] = if h' : a' == a then b else m[a'] := by
+  grind =>
+    instantiate only [= mem_indices_of_mem, insert, = getElem_def]
+    instantiate only [= getElem?_neg, = getElem?_pos]
+    cases #f590
+    · cases #ffdf
+      · instantiate only
+        instantiate only [= Array.getElem_set]
+      · instantiate only
+        instantiate only [size, = HashMap.mem_insert, = HashMap.getElem_insert,
+          = Array.getElem_push]
+    · instantiate only [= mem_indices_of_mem, = getElem_def]
+      instantiate only [usr getElem_indices_lt]
+      instantiate only [size]
+      cases #ffdf
+      · instantiate only [usr getElem_indices_lt, =_ WF]
+        instantiate only [= mem_indices_of_mem, = getElem?_pos, = Array.size_set,
+          = Array.getElem_set]
+        instantiate only [WF']
+      · instantiate only
+        instantiate only [= HashMap.mem_insert, = HashMap.getElem_insert, = Array.getElem_push]
+
+example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
+    (m.insert a b)[a'] = if h' : a' == a then b else m[a'] := by
+  grind only [= mem_indices_of_mem, insert, = getElem_def, = getElem?_neg, = getElem?_pos,
+    = Array.getElem_set, size, = HashMap.mem_insert, = HashMap.getElem_insert, = Array.getElem_push,
+    usr getElem_indices_lt, =_ WF, = Array.size_set, WF', #f590, #ffdf]
 
 /--
 info: Try these:

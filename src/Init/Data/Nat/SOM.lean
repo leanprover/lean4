@@ -4,12 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Data.List.BasicAux
-
 public section
-
 namespace Nat.SOM
 
 open Linear (Var hugeFuel Context Var.denote)
@@ -21,7 +18,9 @@ inductive Expr where
   | mul (a b : Expr)
   deriving Inhabited
 
-def Expr.denote (ctx : Context) : Expr → Nat
+set_option allowUnsafeReducibility true
+
+noncomputable abbrev Expr.denote (ctx : Context) : Expr → Nat
   | num n   => n
   | var v   => v.denote ctx
   | add a b => Nat.add (a.denote ctx) (b.denote ctx)
@@ -29,9 +28,11 @@ def Expr.denote (ctx : Context) : Expr → Nat
 
 abbrev Mon := List Var
 
-def Mon.denote (ctx : Context) : Mon → Nat
+noncomputable abbrev Mon.denote (ctx : Context) : Mon → Nat
   | [] => 1
   | v::vs => Nat.mul (v.denote ctx) (denote ctx vs)
+
+attribute [semireducible] Expr.denote Mon.denote
 
 def Mon.mul (m₁ m₂ : Mon) : Mon :=
   go hugeFuel m₁ m₂
@@ -53,9 +54,11 @@ where
 
 abbrev Poly := List (Nat × Mon)
 
-def Poly.denote (ctx : Context) : Poly → Nat
+noncomputable abbrev Poly.denote (ctx : Context) : Poly → Nat
   | [] => 0
   | (k, m) :: p => Nat.add (Nat.mul k (m.denote ctx)) (denote ctx p)
+
+attribute [semireducible] Poly.denote
 
 def Poly.add (p₁ p₂ : Poly) : Poly :=
   go hugeFuel p₁ p₂

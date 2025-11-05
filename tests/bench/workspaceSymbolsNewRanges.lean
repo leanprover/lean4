@@ -18,7 +18,8 @@ just use `TermElabM` to extract the list of symbols from the environment.
 -/
 
 module
-import Lean.Elab.Term
+public import Lean.Elab.Term
+meta import Lean.Elab.Term.TermElabM
 
 @[specialize] private def iterateLookaround (f : (Option Char × Char × Option Char) → α) (string : String) : Array α :=
   if string.isEmpty then
@@ -251,7 +252,7 @@ def fuzzyMatch (pattern word : String) (threshold := 0.2) : Bool :=
 -- The constants have been generated using the following code.
 open Lean Elab Term Meta
 
-def getConsts : MetaM (List Name) := do
+meta def getConsts : MetaM (List Name) := do
   let env ← getEnv
   return env.constants.toList.map (·.1)
 

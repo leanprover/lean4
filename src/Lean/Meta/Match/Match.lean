@@ -876,6 +876,15 @@ def processExFalso (p : Problem) : MetaM Problem := do
   let mvarId' ← p.mvarId.exfalso
   return { p with mvarId := mvarId' }
 
+private def tracedForM (xs : Array α) (process : α → StateRefT State MetaM Unit) : StateRefT State MetaM Unit :=
+  if xs.size > 1 then
+    for x in xs, i in [:xs.size] do
+      withTraceNode `Meta.Match.match (msg := (return m!"{exceptEmoji ·} subgoal {i+1}/{xs.size}")) do
+        process x
+  else
+    for x in xs do
+      process x
+
 private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   traceState p
   if isDone p then
@@ -938,12 +947,7 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
 
   if (← isConstructorTransition p) then
     let ps ← processConstructor p
-    let _ ← ps.mapIdxM fun i p =>
-      if ps.size > 1 then
-        withTraceNode `Meta.Match.match (msg := (return m!"{exceptEmoji ·} subgoal {i+1}/{ps.size}")) do
-          process p
-      else
-        process p
+    tracedForM ps process
     return
 
   if isVariableTransition p then
@@ -954,12 +958,12 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
 
   if isValueTransition p then
     let ps ← processValue p
-    ps.forM process
+    tracedForM ps process
     return
 
   if isArrayLitTransition p then
     let ps ← processArrayLit p
-    ps.forM process
+    tracedForM ps process
     return
 
   if (← hasNatValPattern p) then

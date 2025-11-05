@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Basic
+public import Lean.Deprecation
 import Lean.Linter.Basic
 import Lean.Elab.InfoTree.Main
 import Lean.ExtraModUses
@@ -19,12 +20,6 @@ register_builtin_option linter.deprecated : Bool := {
   defValue := true
   descr := "if true, generate deprecation warnings"
 }
-
-structure DeprecationEntry where
-  newName? : Option Name := none
-  text? : Option String := none
-  since? : Option String := none
-  deriving Inhabited
 
 builtin_initialize deprecatedAttr : ParametricAttribute DeprecationEntry ←
   registerParametricAttribute {

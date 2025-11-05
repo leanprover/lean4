@@ -73,8 +73,7 @@ structure InitializationOptions where
 structure InitializeParams where
   processId? : Option Int := none
   clientInfo? : Option ClientInfo := none
-  /- We don't support the deprecated rootPath
-  (rootPath? : Option String) -/
+  /-- Not used by the language server. We use the cwd of the server process instead. -/
   rootUri? : Option String := none
   initializationOptions? : Option InitializationOptions := none
   capabilities : ClientCapabilities

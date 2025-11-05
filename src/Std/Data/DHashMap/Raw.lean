@@ -470,6 +470,23 @@ This function always merges the smaller map into the larger map, so the expected
 
 instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
 
+/--
+Computes the intersection of the given hash maps. The result will only contain entries from the first map.
+
+This function always merges the smaller map into the larger map, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def inter [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
+  if h₁ : 0 < m₁.buckets.size then
+    if h₂ : 0 < m₂.buckets.size then
+      Raw₀.inter ⟨m₁, h₁⟩ ⟨m₂, h₂⟩
+    else
+      m₁
+  else
+    m₂
+
+instance [BEq α] [Hashable α] : Inter (Raw α β) := ⟨inter⟩
+
 
 section Unverified
 
@@ -711,9 +728,29 @@ theorem WF.union₀ [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.
   . exact (Raw₀.insertManyIfNew ⟨m₂, h₂.size_buckets_pos⟩ m₁).2 _ WF.insertIfNew₀ h₂
   . exact (Raw₀.insertMany ⟨m₁, h₁.size_buckets_pos⟩ m₂).2 _ WF.insert₀ h₁
 
+theorem WF.inter₀ [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (Raw₀.inter ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩).val.WF := by
+  simp only [Raw₀.inter]
+  split
+  . apply WF.filter₀ h₁
+  . rw [Raw₀.interSmaller]
+    have := (@Raw₀.foldl α β _ (fun sofar k _ => Raw₀.interSmallerFn ⟨m₁, h₁.size_buckets_pos⟩ sofar k) Raw₀.emptyWithCapacity ⟨m₂, h₂.size_buckets_pos⟩).2 (fun x => x.val.WF)
+    apply this
+    . intro ⟨d, hd⟩ k v hw
+      rw [Raw₀.interSmallerFn]
+      split
+      . apply insert₀
+        simp [hw]
+      . exact hw
+    . apply emptyWithCapacity₀
+
+
 theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.union m₂ : Raw α β).WF := by
   simp [Std.DHashMap.Raw.union, h₁.size_buckets_pos, h₂.size_buckets_pos]
   exact WF.union₀ h₁ h₂
+
+theorem WF.inter [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.inter m₂ : Raw α β).WF := by
+  simp [Std.DHashMap.Raw.inter, h₁.size_buckets_pos, h₂.size_buckets_pos]
+  exact WF.inter₀ h₁ h₂
 
 end WF
 

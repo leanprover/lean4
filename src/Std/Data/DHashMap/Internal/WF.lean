@@ -1309,18 +1309,6 @@ theorem foldl_eq_foldlₘ {δ} (f : δ → (a : α) → β a → δ) (init : δ)
     simp only [foldlₘ, Subtype.forall] at ih
     apply ih
 
--- /-- Internal implementation detail of the hash map -/
--- def interSmaller [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
---   (m₂.foldl (fun sofar k _ => match m₁.getEntry? k with | some kv' => sofar.insert kv'.1 kv'.2 | none => sofar) emptyWithCapacity).1
-
--- /-- Internal implementation detail of the hash map -/
--- @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
---   if m₁.1.size ≤ m₂.1.size then (m₂.insertManyIfNew m₁.1).1 else (m₁.insertMany m₂.1).1
-
--- /-- Internal implementation detail of the hash map -/
--- def inter [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
---   if m₁.1.size ≤ m₂.1.size then m₁.filter fun k _ => m₂.contains k else interSmaller m₁ m₂
-
 /-- Internal implementation detail of the hash map -/
 def interSmallerₘ [BEq α] [Hashable α] (m₁ : Raw₀ α β) (l : List ((a : α) × β a)) : Raw₀ α β :=
   foldlₘ (fun sofar k _ => interSmallerFnₘ m₁ sofar k) emptyWithCapacity l
@@ -1607,6 +1595,16 @@ theorem toListModel_inter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable �
           . intro a _ _
             apply Or.inl
             simp
+
+theorem wf_inter₀ [BEq α] [Hashable α] [LawfulHashable α]
+    {m₁ m₂ : Raw α β} {h₁ : 0 < m₁.buckets.size} {h₂ : 0 < m₂.buckets.size} (h'₁ : m₁.WF)
+    (h'₂ : m₂.WF) :
+    (Raw₀.inter ⟨m₁, h₁⟩ ⟨m₂, h₂⟩).1.WF := by
+  rw [inter]
+  split
+  . sorry
+  . sorry
+
 
 /-! # `Const.insertListₘ` -/
 

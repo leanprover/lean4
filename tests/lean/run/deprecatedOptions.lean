@@ -36,12 +36,18 @@ warning: `backward.eqns.nonrecursive` has been deprecated
 -/
 #guard_msgs (positions := true) in
 set_option backward.eqns.nonrecursive true in
-def foo := 0
+example := 0
 
+set_option linter.deprecated.options false in
+set_option backward.eqns.nonrecursive true
+
+set_option linter.deprecated.options false in
+set_option backward.eqns.nonrecursive true in
+example := 0
 
 set_option linter.deprecated.options false
 
 set_option backward.eqns.nonrecursive true
 
 set_option backward.eqns.nonrecursive false in
-def bar := 0
+example := 0

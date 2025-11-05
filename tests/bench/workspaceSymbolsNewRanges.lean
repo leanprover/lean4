@@ -1270,7 +1270,7 @@ def bench (pattern : String) : IO Unit := do
     if fuzzyMatch pattern c then n := n + 1
   IO.println s!"{n} matches"
 
-def main : IO Unit := do
+public def main : IO Unit := do
   bench "L"
   bench "Lean."
   bench "Lean.Expr"

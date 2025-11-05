@@ -17,6 +17,7 @@ Because interpretation of the fuzzy matching algorithm is prohibitively slow, we
 just use `TermElabM` to extract the list of symbols from the environment.
 -/
 
+module
 import Lean.Elab.Term
 
 @[specialize] private def iterateLookaround (f : (Option Char × Char × Option Char) → α) (string : String) : Array α :=

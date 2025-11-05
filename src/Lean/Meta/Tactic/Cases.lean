@@ -155,7 +155,6 @@ namespace Cases
 
 structure Context where
   inductiveVal     : InductiveVal
-  casesOnVal       : DefinitionVal
   nminors          : Nat := inductiveVal.ctors.length
   majorDecl        : LocalDecl
   majorTypeFn      : Expr
@@ -171,16 +170,13 @@ private def mkCasesContext? (majorFVarId : FVarId) : MetaM (Option Context) := d
     let majorType ← whnf majorDecl.type
     majorType.withApp fun f args => matchConstInduct f (fun _ => pure none) fun ival _ =>
       if args.size != ival.numIndices + ival.numParams then pure none
-      else match env.find? (Name.mkStr ival.name "casesOn") with
-        | ConstantInfo.defnInfo cval =>
-          return some {
-            inductiveVal  := ival,
-            casesOnVal    := cval,
-            majorDecl     := majorDecl,
-            majorTypeFn   := f,
-            majorTypeArgs := args
-          }
-        | _ => pure none
+      else if !env.contains (Name.mkStr ival.name "casesOn") then pure none
+      else return some {
+        inductiveVal  := ival,
+        majorDecl     := majorDecl,
+        majorTypeFn   := f,
+        majorTypeArgs := args
+      }
 
 /--
 We say the major premise has independent indices IF

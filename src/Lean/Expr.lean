@@ -704,7 +704,7 @@ def mkSimpleThunk (type : Expr) : Expr :=
 /--
 `.lit l` is now the preferred form.
 -/
-def mkLit (l : Literal) : Expr :=
+@[match_pattern, expose] def mkLit (l : Literal) : Expr :=
   .lit l
 
 /--
@@ -712,7 +712,7 @@ Return the "raw" natural number `.lit (.natVal n)`.
 This is not the default representation used by the Lean frontend.
 See `mkNatLit`.
 -/
-def mkRawNatLit (n : Nat) : Expr :=
+@[match_pattern, expose] def mkRawNatLit (n : Nat) : Expr :=
   mkLit (.natVal n)
 
 /--
@@ -720,12 +720,12 @@ Return a natural number literal used in the frontend. It is a `OfNat.ofNat` appl
 Recall that all theorems and definitions containing numeric literals are encoded using
 `OfNat.ofNat` applications in the frontend.
 -/
-def mkNatLit (n : Nat) : Expr :=
+@[match_pattern, expose] def mkNatLit (n : Nat) : Expr :=
   let r := mkRawNatLit n
   mkApp3 (mkConst ``OfNat.ofNat [levelZero]) (mkConst ``Nat) r (mkApp (mkConst ``instOfNatNat) r)
 
 /-- Return the string literal `.lit (.strVal s)` -/
-def mkStrLit (s : String) : Expr :=
+@[match_pattern, expose] def mkStrLit (s : String) : Expr :=
   mkLit (.strVal s)
 
 @[export lean_expr_mk_bvar] def mkBVarEx : Nat → Expr := mkBVar

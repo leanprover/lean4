@@ -11,36 +11,52 @@ import Init.Grind.Injective
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Simp
 namespace Lean.Meta.Grind
+
+/--
+Initialize the left inverse for an injective function `f`.
+Requires a witness `a : α` to prove `Nonempty α`.
+-/
+private def initLeftInv (us : List Level) (α β : Expr) (f : Expr) (h : Expr) (a : Expr) : GoalM Unit := do
+  let [u, _] := us | unreachable!
+  let nonEmpty := mkApp2 (mkConst ``Nonempty.intro [u]) α a
+  let inv := mkApp5 (mkConst ``Grind.leftInv us) α β f h nonEmpty
+  let inv ← preprocessLight inv
+  let args := inv.getAppArgs
+  let heq := mkAppN (mkConst ``Grind.leftInv_eq us) args
+  modify fun s => { s with inj.fns := s.inj.fns.insert { expr := f } { inv, heq } }
+
 /--
 If `e` is an application of the form `f a` where `f` is an injective function
-in `(← get).inj.fns`, asserts `f⁻¹ (f a) = a`
+in `(← get).inj.fns`, asserts `f⁻¹ (f a) = a`.
+If `f` is in the pending queue, initializes it first.
 -/
 public def mkInjEq (e : Expr) : GoalM Unit := do
   let .app f a := e | return ()
-  let some info := (← get).inj.fns.find? { expr := f } | return ()
-  let invApp := mkApp info.inv e
-  internalize invApp (← getGeneration e)
-  trace[grind.inj.assert] "{invApp}, {a}"
-  pushEq invApp a <| mkApp info.heq a
+  -- Check if pending initialization
+  if let some pendingInfo := (← get).inj.pending.find? { expr := f } then
+    -- Initialize the left inverse with this application's argument as witness
+    initLeftInv pendingInfo.us pendingInfo.α pendingInfo.β f pendingInfo.h a
+    -- Remove from pending queue
+    modify fun s => { s with inj.pending := s.inj.pending.erase { expr := f } }
+  -- Check if already initialized (or just initialized above)
+  if let some info := (← get).inj.fns.find? { expr := f } then
+    let invApp := mkApp info.inv e
+    internalize invApp (← getGeneration e)
+    trace[grind.inj.assert] "{invApp}, {a}"
+    pushEq invApp a <| mkApp info.heq a
 
 def initInjFn (us : List Level) (α β : Expr) (f : Expr) (h : Expr) : GoalM Unit := do
   let hidx := f.toHeadIndex
-  let mut first := true
-  for e in (← get).appMap.findD hidx [] do
-    if e.isApp && isSameExpr e.appFn! f then
-      if first then
-        initLeftInv e.appArg!
-        first := false
+  let apps := (← get).appMap.findD hidx []
+  let matchingApps := apps.filter fun e => e.isApp && isSameExpr e.appFn! f
+  if matchingApps.isEmpty then
+    -- No applications found yet, store as pending
+    modify fun s => { s with inj.pending := s.inj.pending.insert { expr := f } { us, α, β, h } }
+  else
+    -- Found applications, initialize left inverse and process them
+    initLeftInv us α β f h matchingApps[0]!.appArg!
+    for e in matchingApps do
       mkInjEq e
-where
-  initLeftInv (a : Expr) : GoalM Unit := do
-    let [u, _] := us | unreachable!
-    let nonEmpty := mkApp2 (mkConst ``Nonempty.intro [u]) α a
-    let inv := mkApp5 (mkConst ``Grind.leftInv us) α β f h nonEmpty
-    let inv ← preprocessLight inv
-    let args := inv.getAppArgs
-    let heq := mkAppN (mkConst ``Grind.leftInv_eq us) args
-    modify fun s => { s with inj.fns := s.inj.fns.insert { expr := f } { inv, heq } }
 
 builtin_grind_propagator propagateInj ↓Function.Injective := fun e => do
   let_expr i@Function.Injective α β f := e | return ()

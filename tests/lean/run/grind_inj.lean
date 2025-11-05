@@ -74,3 +74,5 @@ error: invalid `[grind inj]` theorem, theorem has universe levels, but no hypoth
 #guard_msgs in
 @[grind inj] theorem weird_inj : Function.Injective weird := by
   intro a b; simp
+
+example (f : α → β) (h : Function.Injective f) : f a = f b → a = b := by grind

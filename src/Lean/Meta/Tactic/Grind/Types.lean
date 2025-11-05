@@ -863,10 +863,19 @@ structure InjectiveInfo where
   heq : Expr
   deriving Inhabited
 
+/-- Pending injective function that hasn't been initialized yet (no applications seen). -/
+structure PendingInjectiveInfo where
+  us : List Level
+  α  : Expr
+  β  : Expr
+  h  : Expr
+  deriving Inhabited
+
 /-- State for injective theorem support. -/
 structure Injective.State where
-  thms : InjectiveTheorems
-  fns  : PHashMap ExprPtr InjectiveInfo := {}
+  thms    : InjectiveTheorems
+  fns     : PHashMap ExprPtr InjectiveInfo := {}
+  pending : PHashMap ExprPtr PendingInjectiveInfo := {}
   deriving Inhabited
 
 /-- The `grind` goal. -/

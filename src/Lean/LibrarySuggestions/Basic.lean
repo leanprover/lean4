@@ -417,7 +417,16 @@ open Lean.Elab.Tactic in
 @[builtin_tactic Lean.Parser.Tactic.suggestions] def evalSuggestions : Tactic := fun _ =>
   liftMetaTactic1 fun mvarId => do
     let suggestions ← select mvarId
-    logInfo m!"Library suggestions: {suggestions.map (·.name)}"
+    let mut msg : MessageData := "Library suggestions:"
+    -- Check if all scores are 1.0
+    let allScoresOne := suggestions.all (·.score == 1.0)
+    for s in suggestions do
+      msg := msg ++ Format.line ++ "  " ++ MessageData.ofConstName s.name
+      if !allScoresOne then
+        msg := msg ++ m!" (score: {s.score})"
+      if let some flag := s.flag then
+        msg := msg ++ m!" [{flag}]"
+    logInfo msg
     return mvarId
 
 end Lean.LibrarySuggestions

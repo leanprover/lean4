@@ -17,9 +17,13 @@ public section
 
 namespace Lean.Meta.Match
 
-register_builtin_option match.sparseCases : Bool := {
+register_builtin_option backwards.match.sparseCases : Bool := {
   defValue := true
-  descr := "if true, generate and use sparse case constructs when splitting inductive types"
+  descr := "if true (the default), generate and use sparse case constructs when splitting inductive
+    types. In some cases this will prevent Lean from noticing that a match statement is complete
+    because it performs less case-splitting for the unreachable case. In this case, give explicit
+    patterns to perform the deeper split with `by contradiction` as the right-hand side.
+     ,"
 }
 
 register_builtin_option backwards.match.rowMajor : Bool := {
@@ -567,7 +571,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
     -- We use a sparse case analysis only if there is at least one non-constructor pattern,
     -- but not just because there are constructors missing (in that case we benefit from
     -- the eager split in ruling out constructors by type or by a more explicit error message)
-    if match.sparseCases.get (← getOptions) && hasVarOrInaccessiblePattern p then
+    if backwards.match.sparseCases.get (← getOptions) && hasVarOrInaccessiblePattern p then
       let ctors := collectCtors p
       trace[Meta.Match.match] "using sparse cases: {ctors}"
       pure (some ctors)

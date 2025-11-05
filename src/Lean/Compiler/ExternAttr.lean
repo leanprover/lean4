@@ -18,7 +18,7 @@ inductive ExternEntry where
   | inline   (backend : Name) (pattern : String)
   | standard (backend : Name) (fn : String)
   /-- Call to a Lean function without exported IR. -/
-  | opaque   (fn : Name)
+  | opaque
   deriving BEq, Hashable
 
 /--

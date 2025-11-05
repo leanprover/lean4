@@ -3,6 +3,7 @@ module
 prelude
 public import Module.Basic
 import Lean.DocString
+meta import Lean.Elab.Command
 
 /-! Definitions should be exported without their bodies by default -/
 
@@ -185,3 +186,20 @@ theorem f_struct_eq : f_struct 0 = 0 := by
 #guard_msgs in
 open Lean in
 #eval show CoreM _ from do findDocString? (← getEnv) ``pubInheritDoc
+
+/-! Cross-module `meta` checks, including involving compiler-introduced constants. -/
+
+attribute [local delab Nat] delab
+
+/--
+error: Cannot add attribute `[Lean.PrettyPrinter.Delaborator.delabAttribute]`: Declaration `noMetaDelab` must be marked as `meta`
+-/
+#guard_msgs in
+attribute [local delab Nat] noMetaDelab
+
+@[noinline] meta def pap (f : α → β) (a : α) : β := f a
+public meta def delab' : Lean.PrettyPrinter.Delaborator.Delab :=
+  pap delab
+
+-- Used to complain about `_boxed` not being meta
+attribute [local delab Nat] delab'

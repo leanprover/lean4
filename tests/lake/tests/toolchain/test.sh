@@ -3,8 +3,6 @@ source ../common.sh
 
 # Tests which require Elan to download a toolchain
 
-ELAN=${ELAN:-elan}
-
 # skip if no elan found
 echo "# Check if elan exists"
 if ! command -v $ELAN > /dev/null; then

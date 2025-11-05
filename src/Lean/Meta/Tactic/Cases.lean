@@ -226,11 +226,10 @@ private def toCasesSubgoals (s : Array InductionSubgoal) (ctorNames : Array Name
     if _ : i < ctorNames.size then
       let ctorName := ctorNames[i]
       let ctorApp  := mkAppN (mkAppN (mkConst ctorName us) params) s.fields
-      let subst := s.subst.insert majorFVarId ctorApp
+      let subst := s.subst.erase majorFVarId |>.insert majorFVarId ctorApp
       { s with ctorName := ctorName, subst}
     else
-      let subst := s.subst.insert majorFVarId s.major
-      { s with ctorName := none, subst }
+      { s with ctorName := none }
 
 partial def unifyEqs? (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) (caseName? : Option Name := none): MetaM (Option (MVarId × FVarSubst)) := withIncRecDepth do
   if numEqs == 0 then

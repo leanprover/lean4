@@ -323,7 +323,7 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
           let (v, g) ← g.intro x
           let (varsOut, g) ← g.introNP vars.size
           let fs' := (vars.zip varsOut).foldl (init := fs) fun fs (v, w) => fs.insert v (mkFVar w)
-          pure ([(n, ps)], #[{mvarId := g, fields := #[mkFVar v], subst := fs', ctorName := n, major := e }])
+          pure ([(n, ps)], #[{mvarId := g, fields := #[mkFVar v], subst := fs', ctorName := n }])
       | ConstantInfo.inductInfo info, _ => do
         let (altVarNames, r) ← processConstructors pat.ref info.numParams #[] info.ctors pat.asAlts
         (r, ·) <$> g.cases e.fvarId! altVarNames (useNatCasesAuxOn := true)

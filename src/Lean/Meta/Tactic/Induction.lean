@@ -42,9 +42,6 @@ structure InductionSubgoal where
   mvarId : MVarId
   fields : Array Expr := #[]
   subst  : FVarSubst := {}
-  /- The major fvar after reintroduction. Usually cleaned, but useful in the catch-all
-     case of a sparse caseseOn -/
-  major  : Expr
   deriving Inhabited
 
 private def getTypeBody (mvarId : MVarId) (type : Expr) (x : Expr) : MetaM Expr := do
@@ -98,7 +95,7 @@ private partial def finalize
               let mvar ← mkFreshExprSyntheticOpaqueMVar d tag'
               let recursor := mkApp recursor mvar
               let recursorType ← getTypeBody mvarId recursorType mvar
-              loop (pos+1) (minorIdx+1) recursor recursorType consumedMajor (subgoals.push { mvarId := mvar.mvarId!, major })
+              loop (pos+1) (minorIdx+1) recursor recursorType consumedMajor (subgoals.push { mvarId := mvar.mvarId! })
           else
             let arity := getTargetArity d
             if arity < initialArity then throwTacticEx `induction mvarId "ill-formed recursor"
@@ -120,7 +117,7 @@ private partial def finalize
                 let newFVarId      := extra[i - indices.size - 1]!
                 subst.insert revertedFVarId (mkFVar newFVarId)
             let fields := fields.map mkFVar
-            loop (pos+1) (minorIdx+1) recursor recursorType consumedMajor (subgoals.push { mvarId := mvarId', fields, subst, major })
+            loop (pos+1) (minorIdx+1) recursor recursorType consumedMajor (subgoals.push { mvarId := mvarId', fields, subst})
         | _ => unreachable!
     else
       unless consumedMajor do throwTacticEx `induction mvarId "ill-formed recursor"
@@ -226,9 +223,10 @@ def _root_.Lean.MVarId.induction (mvarId : MVarId) (majorFVarId : FVarId) (recur
       -- Re-introduce indices and major
       let (indices', mvarId) ← mvarId.introNP indices.size
       let (majorFVarId', mvarId) ← mvarId.intro1P
-      -- Create FVarSubst with indices
+      -- Create FVarSubst with indices and major
       let baseSubst := Id.run do
         let mut subst : FVarSubst := {}
+        subst := subst.insert majorFVarId (mkFVar majorFVarId')
         let mut i := 0
         for index in indices do
           subst := subst.insert index.fvarId! (mkFVar indices'[i]!)
@@ -237,10 +235,9 @@ def _root_.Lean.MVarId.induction (mvarId : MVarId) (majorFVarId : FVarId) (recur
       trace[Meta.Tactic.induction] "after revert&intro\n{MessageData.ofGoal mvarId}"
       -- Update indices and major
       let indices := indices'.map mkFVar
-      let majorFVarId := majorFVarId'
-      let major := mkFVar majorFVarId
+      let major := mkFVar majorFVarId'
       mvarId.withContext do
-        let recursor ← mkRecursorAppPrefix mvarId `induction majorFVarId recursorInfo indices
+        let recursor ← mkRecursorAppPrefix mvarId `induction majorFVarId' recursorInfo indices
         finalize mvarId givenNames recursorInfo reverted major indices baseSubst recursor
 
 builtin_initialize registerTraceClass `Meta.Tactic.induction

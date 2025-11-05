@@ -120,6 +120,10 @@ inductive MeasureSet (τ : Type) where
   | tainted (tm : TaintedMeasure τ)
   | set (ms : Array (Measure τ))
 
+def MeasureSet.extractAtMostOne? : MeasureSet τ → Option (Measure τ)
+  | .tainted tm => tm.thunk.get
+  | .set ms => ms[0]?
+
 def MeasureSet.merge (ms1 ms2 : MeasureSet τ) (prunable : Bool) : MeasureSet τ :=
   match ms1, ms2 with
   | _, .set #[] =>
@@ -215,9 +219,21 @@ def memoize (f : Resolver τ) : Resolver τ := fun doc columnPos indentation ful
   cacheSet doc columnPos indentation fullness r
   return r
 
+def resolveCore : Resolver τ :=
+  sorry
+
 def resolve : Resolver τ := memoize fun doc columnPos indentation fullness => do
   let columnPos' :=
     if let .text s := doc then
       columnPos + s.length
     else
       columnPos
+  if columnPos' > Cost.optimalityCutoffWidth τ || indentation > Cost.optimalityCutoffWidth τ then
+    return .tainted {
+      thunk := Thunk.mk fun _ =>
+        let r ← resolveCore doc columnPos indentation fullness
+        let r := r.extractAtMostOne?
+        sorry
+      maxNewlineCount? := doc.maxNewlineCount?
+    }
+  return ← resolveCore doc columnPos indentation fullness

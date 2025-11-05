@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Util
+public import Lean.Meta.Closure
 import Lean.PrettyPrinter
 import Lean.Meta.Tactic.ExposeNames
 import Lean.Meta.Tactic.Simp.Diagnostics
@@ -15,7 +17,6 @@ import Lean.Meta.Tactic.Grind.RevertAll
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Proj
 import Lean.Meta.Tactic.Grind.ForallProp
-import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.EMatch
@@ -200,8 +201,12 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
   return MessageData.joinSep msgs m!"\n"
 
 private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
-  let mvarId ← mvarId.abstractMVars
-  let mvarId ← mvarId.clearImplDetails
+  /-
+  **Note**: We used to use `abstractMVars` and `clearImpDetails` here.
+  These operations are now performed at `withProtectedMCtx`
+  -/
+  -- let mvarId ← mvarId.abstractMVars
+  -- let mvarId ← mvarId.clearImplDetails
   let mvarId ← if params.config.clean then pure mvarId else mvarId.markAccessible
   let mvarId ← mvarId.revertAll
   let mvarId ← mvarId.unfoldReducible
@@ -232,5 +237,46 @@ def main (mvarId : MVarId) (params : Params) : MetaM Result := do profileitM Exc
   GrindM.runAtGoal mvarId params fun goal => do
     let failure? ← solve goal
     mkResult params failure?
+
+/--
+A helper combinator for executing a `grind`-based terminal tactic.
+Given an input goal `mvarId`, it first abstracts meta-variables, cleans up local hypotheses
+corresponding to internal details, creates an auxiliary meta-variable `mvarId'`, and executes `k mvarId'`.
+The execution is performed in a new meta-variable context depth to ensure that universe meta-variables
+cannot be accidentally assigned by `grind`. If `k` fails, it admits the input goal.
+
+See issue #11806 for a motivating example.
+-/
+def withProtectedMCtx [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
+    [MonadExcept Exception m] [MonadRuntimeException m]
+    (abstractProof : Bool) (mvarId : MVarId) (k : MVarId → m α) : m α := do
+  let mvarId ← mvarId.abstractMVars
+  let mvarId ← mvarId.clearImplDetails
+  tryCatchRuntimeEx (main mvarId) fun ex => do
+    mvarId.admit
+    throw ex
+where
+  main (mvarId : MVarId) : m α := mvarId.withContext do
+    let type ← mvarId.getType
+    let (a, val) ← withNewMCtxDepth do
+      let mvar' ← mkFreshExprSyntheticOpaqueMVar type
+      let a ← k mvar'.mvarId!
+      let val ← finalize mvar'
+      return (a, val)
+    (mvarId.assign val : MetaM _)
+    return a
+
+  finalize (mvar' : Expr) : MetaM Expr := do
+    trace[grind.debug.proof] "{← instantiateMVars mvar'}"
+    let type ← inferType mvar'
+    -- `grind` proofs are often big, if `abstractProof` is true, we create an auxiliary theorem.
+    let val ← if !abstractProof then
+      instantiateMVarsProfiling mvar'
+    else if (← isProp type) then
+      mkAuxTheorem type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+    else
+      let auxName ← mkAuxDeclName `grind
+      mkAuxDefinition auxName type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+    return val
 
 end Lean.Meta.Grind

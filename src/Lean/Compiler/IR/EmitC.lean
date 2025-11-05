@@ -93,7 +93,7 @@ def toCName (n : Name) : M String := do
   match getExportNameFor? env n with
   | some (.str .anonymous s) => return s
   | some _                   => throwInvalidExportName n
-  | none                     => if n == `main then return leanMainFn else return getSymbolStem env n
+  | none                     => return if n == `main then leanMainFn else getSymbolStem env n
 
 def emitCName (n : Name) : M Unit :=
   toCName n >>= emit
@@ -765,9 +765,9 @@ def emitInitFn : M Unit := do
     let some idx := env.getModuleIdx? imp.module
       | throw "(internal) import without module index" -- should be unreachable
     let pkg? := env.getModulePackageByIdx? idx
-    return mkModuleInitializationFunctionName imp.module pkg?
-  impInitFns.forM fun fn => do
+    let fn := mkModuleInitializationFunctionName imp.module pkg?
     emitLn s!"lean_object* {fn}(uint8_t builtin);"
+    return fn
   emitLns [
     "static bool _G_initialized = false;",
     s!"LEAN_EXPORT lean_object* {← getModInitFn}(uint8_t builtin) \{",

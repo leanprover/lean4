@@ -285,7 +285,7 @@ simple uses, these can be computed eagerly without looking at the imports.
 structure SetupImportsResult where
   /-- Module name of the file being processed. -/
   mainModuleName : Name
-    /-- Package name of the file being processed (if any). -/
+  /-- Package name of the file being processed (if any). -/
   package? : Option PkgId := none
   /-- Whether the file is participating in the module system. -/
   isModule : Bool

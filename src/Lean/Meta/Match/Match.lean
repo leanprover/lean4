@@ -564,7 +564,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
   trace[Meta.Match.match] "constructor step"
   let x :: xs := p.vars | unreachable!
   let interestingCtors? ←
-    -- We use a sparse case analysis only if there is a non-constructor pattern,
+    -- We use a sparse case analysis only if there is at least one non-constructor pattern,
     -- but not just because there are constructors missing (in that case we benefit from
     -- the eager split in ruling out constructors by type or by a more explicit error message)
     if match.sparseCases.get (← getOptions) && hasVarOrInaccessiblePattern p then

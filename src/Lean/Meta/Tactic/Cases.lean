@@ -258,10 +258,11 @@ private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenName
   let majorType ← inferType (mkFVar majorFVarId)
   let (us, params) ← getInductiveUniverseAndParams majorType
 
-  -- We can only create a sparse casesOn if we have `ctorIdx` (in particular, if it is a type)
-  let hasNE := (← getEnv).contains ``Ne
-  let hasCtorIdx := (← getEnv).contains (mkCtorIdxName ctx.inductiveVal.name)
   if let some interestingCtors := interestingCtors? then
+    -- Avoid Init.Prelude complications
+    let hasNE := (← getEnv).contains ``Ne
+    -- We can only create a sparse casesOn if we have `ctorIdx` (in particular, if it is a type)
+    let hasCtorIdx := (← getEnv).contains (mkCtorIdxName ctx.inductiveVal.name)
     if hasNE && hasCtorIdx && !interestingCtors.isEmpty &&
       interestingCtors.size < ctx.inductiveVal.ctors.length then
       let casesOn ← Lean.Meta.mkSparseCasesOn ctx.inductiveVal.name interestingCtors

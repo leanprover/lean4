@@ -1429,6 +1429,122 @@ theorem interSmaller_eq_interSmallerₘ [BEq α] [Hashable α] (m₁ m₂ : Raw�
     rw [Raw.toList_eq_toListModel]
     simp only [interSmallerFn_eq_interSmallerFnₘ]
 
+theorem getEntry_foldl [BEq α] [EquivBEq α] (a : α) {acc l₁ l₂ : List ((a : α) × β a)} (hd : DistinctKeys l₁) (hyp : ∀ (a : α) (kv''), List.getEntry? a l₁ = some kv'' → (List.getEntry? a acc = none) ∨ (List.getEntry? a acc = some kv'')): List.getEntry? a
+    (List.foldl
+      (fun sofar x =>
+        match List.getEntry? x.fst l₁ with
+        | some kv' => insertEntry kv'.fst kv'.snd sofar
+        | none => sofar)
+      acc l₂) = List.getEntry? a (acc ++ List.filter (fun p => containsKey p.fst l₂) l₁) := by
+  induction l₂ generalizing acc
+  case nil =>
+    simp
+    suffices (List.getEntry? a (List.filter (fun p => false) l₁)) = .none by
+      simp [this]
+    have : (List.filter (fun p => false) l₁) = [] := by simp
+    simp [this]
+  case cons h t ih =>
+    simp only [foldl_cons, getEntry?_append]
+    simp at ih
+    specialize @ih ((match List.getEntry? h.fst l₁ with
+      | some kv' => insertEntry kv'.fst kv'.snd acc
+      | none => acc))
+    specialize ih ?goal
+    . intro a kv hkv
+      split
+      case h_1 _ kv' heq =>
+        by_cases a == kv'.fst
+        case pos isTrue =>
+          apply Or.inr
+          simp [getEntry?_insertEntry]
+          simp [PartialEquivBEq.symm isTrue]
+          rw [@getEntry?_congr α β _ _ l₁ _ _ (PartialEquivBEq.trans (PartialEquivBEq.symm <| beq_of_getEntry?_eq_some heq) ( PartialEquivBEq.symm <| isTrue))] at heq
+          rw [heq] at hkv
+          injections
+        case neg isFalse =>
+          specialize hyp a kv hkv
+          apply Or.elim hyp
+          . intro hyp2
+            apply Or.inl
+            simp [containsKey_insertEntry]
+            simp at isFalse
+            simp [BEq.symm_false isFalse]
+            rw [containsKey_eq_isSome_getEntry?, hyp2]
+            simp
+          . intro isSome
+            apply Or.inr
+            simp at isFalse
+            simp [getEntry?_insertEntry, BEq.symm_false isFalse, isSome]
+      case h_2  _ heq =>
+        apply Or.elim <| hyp a kv hkv
+        . rw [containsKey_eq_isSome_getEntry?]
+          intro hyp
+          simp [hyp]
+        . intro hyp
+          exact Or.inr hyp
+    simp [ih]
+    split
+    case h_1 _ kv' heq =>
+      by_cases ha : a == kv'.fst
+      case pos =>
+        simp [getEntry?_insertEntry, PartialEquivBEq.symm ha]
+        have heq2 := beq_of_getEntry?_eq_some heq
+        specialize hyp a kv' (by rw [getEntry?_congr ha, getEntry?_congr heq2]; exact heq)
+        apply Or.elim hyp
+        . intro isNone
+          simp [isNone]
+          rw [getEntry?_filter]
+          rw [getEntry?_congr ha, getEntry?_congr heq2, heq]
+          simp [Option.filter]
+          simp [containsKey, PartialEquivBEq.symm heq2]
+          . exact hd
+        . intro hyp
+          simp [hyp]
+      case neg =>
+        simp at ha
+        simp [getEntry?_insertEntry, BEq.symm_false ha]
+        rw [getEntry?_filter, getEntry?_filter]
+        generalize heq3 : List.getEntry? a l₁ = x
+        cases x
+        case none =>
+           simp
+        case some kv'' =>
+          simp [containsKey, Option.filter]
+          split
+          case isTrue heq4 =>
+            simp [heq4]
+          case isFalse heq4 =>
+            simp [heq4, BEq.symm_false (BEq.neq_of_beq_of_neq (beq_of_getEntry?_eq_some heq3) (BEq.neq_of_neq_of_beq ha (beq_of_getEntry?_eq_some heq)))]
+        . exact hd
+        . exact hd
+    case h_2 _ heq =>
+      congr 1
+      rw [getEntry?_filter, getEntry?_filter]
+      generalize heq2 : List.getEntry? a l₁ = x
+      cases x
+      case e_a.none =>
+        simp [Option.filter]
+      case e_a.some kv' =>
+        simp [Option.filter, containsKey]
+        congr
+        simp
+        intro hyp
+        have heq3 := beq_of_getEntry?_eq_some heq2
+        have heq4 : h.fst == a := by
+          apply PartialEquivBEq.trans
+          . exact hyp
+          . exact heq3
+        rw [@getEntry?_congr α β _ _ l₁ h.fst a heq4] at heq
+        rw [heq] at heq2
+        simp_all
+      . exact hd
+      . exact hd
+
+
+
+
+
+
 theorem toListModel_inter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] (m₁ m₂ : Raw₀ α β) (hm₁ : Raw.WFImp m₁.1) (hm₂ : Raw.WFImp m₂.1) :
     Perm (toListModel (m₁.inter m₂).1.buckets) ((toListModel m₁.1.buckets).filter fun p => containsKey p.1 (toListModel m₂.1.buckets) ) := by
   simp [inter]
@@ -1447,34 +1563,16 @@ theorem toListModel_inter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable �
       . apply toListModel_interSmallerₘ
         . exact hm₁
         . apply wfImp_emptyWithCapacity
-      . generalize heq1 : (toListModel m₁.val.buckets) = l₁
-        generalize heq2 : (toListModel m₂.val.buckets) = l₂
-        induction l₁
-        case nil =>
+      . generalize (toListModel m₁.val.buckets) = l₁
+        generalize (toListModel m₂.val.buckets) = l₂
+        apply getEntry?_ext
+        . sorry
+        . sorry
+        . intro a
           simp
-          induction l₂
-          case nil => simp
-          case cons h t ih =>
-            rename_i heq
-            rw [Raw.WFImp.size_eq, Raw.WFImp.size_eq, heq1, heq2] at heq
-            simp [length] at heq
-            . exact hm₂
-            . exact hm₁
-        case cons h t t_ih =>
-          simp
-          rw [List.filter_cons]
+          apply getEntry_foldl
           sorry
-
-
-
-
-
-
-
-
-
-
-
+          sorry
 
 
 

@@ -1831,8 +1831,7 @@ Examples:
 -/
 @[extern "lean_nat_dec_le"]
 def Nat.ble : @& Nat → @& Nat → Bool
-  | zero,   zero   => true
-  | zero,   succ _ => true
+  | zero,   _      => true
   | succ _, zero   => false
   | succ n, succ m => ble n m
 

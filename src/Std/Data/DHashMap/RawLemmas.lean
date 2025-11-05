@@ -1865,11 +1865,17 @@ theorem mem_of_mem_union_of_not_mem_left [EquivBEq α]
   simp_to_raw using Raw₀.contains_of_contains_union_of_contains_eq_false_left
 
 /- Equiv -/
-theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
+theorem union_insert_right_equiv_insert_union [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
     (h₁ : m₁.WF) (h₂ : m₂.WF) :
     (m₁ ∪ (m₂.insert p.fst p.snd)).Equiv ((m₁ ∪ m₂).insert p.fst p.snd) := by
   simp only [Union.union]
   simp_to_raw using Raw₀.union_insert_right_equiv_insert_union
+
+@[deprecated union_insert_right_equiv_insert_union (since := "2025-11-03")]
+theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
+    (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁ ∪ (m₂.insert p.fst p.snd)).Equiv ((m₁ ∪ m₂).insert p.fst p.snd) :=
+  union_insert_right_equiv_insert_union h₁ h₂
 
 /- get? -/
 theorem get?_union [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)

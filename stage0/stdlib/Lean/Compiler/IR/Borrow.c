@@ -4041,7 +4041,7 @@ if (x_9 == 1)
 {
 lean_object* x_10; lean_object* x_11; 
 lean_dec(x_5);
-lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_10 = lean_box(0);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
@@ -4057,8 +4057,8 @@ lean_dec(x_5);
 x_14 = lean_nat_sub(x_4, x_13);
 x_15 = lean_nat_sub(x_14, x_12);
 lean_dec(x_14);
-lean_inc_ref(x_2);
-x_16 = lean_array_get_borrowed(x_2, x_3, x_15);
+lean_inc_ref(x_1);
+x_16 = lean_array_get_borrowed(x_1, x_2, x_15);
 x_17 = lean_ctor_get_uint8(x_16, sizeof(void*)*2);
 if (x_17 == 0)
 {
@@ -4068,7 +4068,7 @@ x_19 = l_Lean_IR_IRType_isScalar(x_18);
 if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_20 = lean_array_fget_borrowed(x_1, x_15);
+x_20 = lean_array_fget_borrowed(x_3, x_15);
 lean_dec(x_15);
 lean_inc(x_20);
 x_21 = l_Lean_IR_Borrow_ownArg(x_20, x_6, x_7);
@@ -4118,7 +4118,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7;
 x_5 = l_Lean_IR_Borrow_ownArgsUsingParams___closed__0;
 x_6 = lean_array_get_size(x_1);
 lean_inc(x_6);
-x_7 = l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lean_IR_Borrow_ownArgsUsingParams_spec__0___redArg(x_1, x_5, x_2, x_6, x_6, x_3, x_4);
+x_7 = l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lean_IR_Borrow_ownArgsUsingParams_spec__0___redArg(x_5, x_2, x_1, x_6, x_6, x_3, x_4);
 lean_dec(x_6);
 return x_7;
 }
@@ -4131,7 +4131,7 @@ x_8 = l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lean_IR_Borrow
 lean_dec_ref(x_6);
 lean_dec(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 return x_8;
 }
 }
@@ -4143,7 +4143,7 @@ x_9 = l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lean_IR_Borrow
 lean_dec_ref(x_7);
 lean_dec(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 return x_9;
 }
 }

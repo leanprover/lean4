@@ -671,73 +671,64 @@ return x_1;
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_CheckResult_lt(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-switch (x_1) {
+switch (x_2) {
 case 0:
-{
-if (x_2 == 0)
 {
 uint8_t x_3; 
 x_3 = 0;
 return x_3;
 }
-else
+case 1:
+{
+if (x_1 == 0)
 {
 uint8_t x_4; 
 x_4 = 1;
 return x_4;
 }
-}
-case 1:
-{
-switch (x_2) {
-case 2:
+else
 {
 uint8_t x_5; 
-x_5 = 1;
+x_5 = 0;
 return x_5;
 }
-case 3:
+}
+case 2:
+{
+switch (x_1) {
+case 2:
 {
 uint8_t x_6; 
-x_6 = 1;
+x_6 = 0;
 return x_6;
 }
-default: 
+case 3:
 {
 uint8_t x_7; 
 x_7 = 0;
 return x_7;
 }
-}
-}
-case 2:
-{
-if (x_2 == 3)
+default: 
 {
 uint8_t x_8; 
 x_8 = 1;
 return x_8;
 }
-else
+}
+}
+default: 
+{
+if (x_1 == 3)
 {
 uint8_t x_9; 
 x_9 = 0;
 return x_9;
 }
-}
-default: 
-{
-if (x_2 == 3)
-{
-uint8_t x_10; 
-x_10 = 0;
-return x_10;
-}
 else
 {
-uint8_t x_11; 
-x_11 = 0;
-return x_11;
+uint8_t x_10; 
+x_10 = 1;
+return x_10;
 }
 }
 }

@@ -269,7 +269,7 @@ def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNam
         /- Remark: if caller does not need a `FVarSubst` (variable substitution), and `hasIndepIndices ctx` is true,
            then we can also use the simple case. This is a minor optimization, and we currently do not even
            allow callers to specify whether they want the `FVarSubst` or not. -/
-        if ctx.inductiveVal.numIndices == 0 then
+        if (← hasIndepIndices ctx) then
           -- Simple case
           inductionCasesOn mvarId majorFVarId givenNames ctx (useNatCasesAuxOn := useNatCasesAuxOn)
         else

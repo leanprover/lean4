@@ -1869,6 +1869,18 @@ def mapLetDecl [MonadLiftT MetaM n] (name : Name) (type : Expr) (val : Expr) (k 
   withLetDecl name type val (nondep := nondep) (kind := kind) fun x => do
     mkLetFVars (usedLetOnly := usedLetOnly) (generalizeNondepLet := false) #[x] (← k x)
 
+def toLocalInstances (lctx : LocalContext) : MetaM LocalInstances := do
+  let mut localInstances := #[]
+  for decl in lctx do
+    unless decl.isImplementationDetail do
+      if let some className ← withReader ({ · with localInstances }) (Meta.isClass? decl.type) then
+        localInstances := localInstances.push { className, fvar := decl.toExpr }
+  return localInstances
+
+def withPopulatingLocalInstances {α} (k : MetaM α) : MetaM α := do
+  let localInstances ← toLocalInstances (← getLCtx)
+  withReader ({ · with localInstances }) k
+
 def withLocalInstancesImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := do
   let mut localInsts := (← read).localInstances
   let size := localInsts.size
@@ -2691,7 +2703,8 @@ def runCoreM {α : Type} (ppCtx : PPContext) (x : CoreM α) : IO α :=
                       { env := ppCtx.env, ngen := { namePrefix := `_pp_uniq } }
 
 def runMetaM {α : Type} (ppCtx : PPContext) (x : MetaM α) : IO α :=
-  ppCtx.runCoreM <| x.run' { lctx := ppCtx.lctx } { mctx := ppCtx.mctx }
+  ppCtx.runCoreM <|
+    (withPopulatingLocalInstances x).run' { lctx := ppCtx.lctx } { mctx := ppCtx.mctx }
 
 end PPContext
 

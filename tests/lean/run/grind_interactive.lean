@@ -494,10 +494,6 @@ h✝¹ : p ∨ ¬q
 h2 : ¬p ∨ q
 h✝ : ¬p ∨ ¬q
 ⊢ False
----
-error: unsolved goals
-r p q : Prop
-⊢ p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → False
 -/
 #guard_msgs in
 example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → False := by

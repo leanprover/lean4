@@ -1,4 +1,6 @@
+module
 import Lean
+meta import Lean.Data.FuzzyMatching
 open Lean Elab
 
 def bench (pattern : String) : TermElabM Unit := do

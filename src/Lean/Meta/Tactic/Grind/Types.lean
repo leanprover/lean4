@@ -859,8 +859,15 @@ structure UnitLike.State where
   deriving Inhabited
 
 structure InjectiveInfo where
-  inv : Expr
-  heq : Expr
+  us   : List Level
+  α    : Expr
+  β    : Expr
+  h    : Expr
+  /--
+  Inverse function and a proof that `∀ a, inv (f a) = a`
+  **Note**: The following two fields are `none` if no `f`-application has been found yet.
+  -/
+  inv?  : Option (Expr × Expr) := none
   deriving Inhabited
 
 /-- State for injective theorem support. -/

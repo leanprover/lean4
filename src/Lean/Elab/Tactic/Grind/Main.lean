@@ -11,6 +11,7 @@ public import Lean.Elab.Command
 public import Lean.Elab.Tactic.Config
 public import Lean.LibrarySuggestions.Basic
 import Lean.Meta.Tactic.Grind.SimpUtil
+import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.EMatchTheoremParam
 import Lean.Elab.Tactic.Grind.Basic
 import Lean.Elab.Tactic.Grind.Param
@@ -150,32 +151,21 @@ def grind
     return {}
   mvarId.withContext do
     let params ← mkGrindParams config only ps mvarId
-    let type ← mvarId.getType
-    let mvar' ← mkFreshExprSyntheticOpaqueMVar type
-    let finalize (result : Grind.Result) : TacticM Grind.Trace := do
-      if result.hasFailed then
-        throwError "`grind` failed\n{← result.toMessageData}"
-      trace[grind.debug.proof] "{← instantiateMVars mvar'}"
-      -- `grind` proofs are often big, if `abstractProof` is true, we create an auxiliary theorem.
-      let e ← if !config.abstractProof then
-        instantiateMVarsProfiling mvar'
-      else if (← isProp type) then
-        mkAuxTheorem type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+    Grind.withProtectedMCtx config.abstractProof mvarId fun mvarId' => do
+      let finalize (result : Grind.Result) : TacticM Grind.Trace := do
+        if result.hasFailed then
+          throwError "`grind` failed\n{← result.toMessageData}"
+        return result.trace
+      if let some seq := seq? then
+        let (result, _) ← Grind.GrindTacticM.runAtGoal mvarId' params do
+          Grind.evalGrindTactic seq
+          -- **Note**: We are returning only the first goal that could not be solved.
+          let goal? := if let goal :: _ := (← get).goals then some goal else none
+          Grind.liftGrindM <| Grind.mkResult params goal?
+        finalize result
       else
-        let auxName ← Term.mkAuxName `grind
-        mkAuxDefinition auxName type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
-      mvarId.assign e
-      return result.trace
-    if let some seq := seq? then
-      let (result, _) ← Grind.GrindTacticM.runAtGoal mvar'.mvarId! params do
-        Grind.evalGrindTactic seq
-        -- **Note**: We are returning only the first goal that could not be solved.
-        let goal? := if let goal :: _ := (← get).goals then some goal else none
-        Grind.liftGrindM <| Grind.mkResult params goal?
-      finalize result
-    else
-      let result ← Grind.main mvar'.mvarId! params
-      finalize result
+        let result ← Grind.main mvarId' params
+        finalize result
 
 def evalGrindCore
     (ref : Syntax)
@@ -273,7 +263,8 @@ private def elabGrindConfig' (config : TSyntax ``Lean.Parser.Tactic.optConfig) (
   let params := if let some params := params? then params.getElems else #[]
   let mvarId ← getMainGoal
   let params ← mkGrindParams config only params mvarId
-  discard <| Grind.GrindTacticM.runAtGoal mvarId params do
+  Grind.withProtectedMCtx config.abstractProof mvarId fun mvarId' =>
+    discard <| Grind.GrindTacticM.runAtGoal mvarId' params do
     let finish ← Grind.mkFinishAction
     let goal :: _ ← Grind.getGoals
       | let tac ← `(tactic| grind only)

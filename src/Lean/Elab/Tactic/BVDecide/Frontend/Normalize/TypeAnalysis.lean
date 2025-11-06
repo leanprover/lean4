@@ -71,7 +71,7 @@ def isSupportedMatch (declName : Name) : MetaM (Option MatchKind) := do
       Where we have as many arms as constructors but the last arm is a default.
       -/
 
-      if let some kind ← trySimpleEnum defnInfo inductiveInfo xs numCtors motive then
+      if let some kind ← trySimpleEnum inductiveInfo xs numCtors motive then
         return kind
 
     if xs.size > 2 then
@@ -97,12 +97,11 @@ def isSupportedMatch (declName : Name) : MetaM (Option MatchKind) := do
 
       if !defaultOk then return none
 
-      -- if !(← verifyEnumWithDefault defnInfo inductiveInfo handledCtors) then return none
       return some <| .enumWithDefault inductiveInfo handledCtors
     else
       return none
 where
-  trySimpleEnum (_defnInfo : DefinitionVal) (inductiveInfo : InductiveVal) (xs : Array Expr)
+  trySimpleEnum (inductiveInfo : InductiveVal) (xs : Array Expr)
       (numCtors : Nat) (motive : Expr) : MetaM (Option MatchKind) := do
     -- Check that all parameters are `h_n EnumInductive.ctor`
     let mut handledCtors := Array.mkEmpty numCtors
@@ -113,65 +112,7 @@ where
       let .ctorInfo ctorInfo ← getConstInfo c | return none
       handledCtors := handledCtors.push ctorInfo
 
-    -- if !(← verifySimpleEnum defnInfo inductiveInfo handledCtors) then return none
-
     return some <| .simpleEnum inductiveInfo handledCtors
-
-  verifySimpleCasesOnApp (inductiveInfo : InductiveVal) (fn : Expr) (args : Array Expr)
-      (params : Array Expr) : MetaM Bool := do
-    -- Body is an application of `EnumInductive.casesOn`
-    if !fn.isConstOf (mkCasesOnName inductiveInfo.name) then return false
-    if args.size != inductiveInfo.numCtors + 2 then return false
-    -- first argument is `(fun x => motive x)`
-    let firstArgOk ← lambdaTelescope args[0]! fun args body => do
-      if args.size != 1 then return false
-      let arg := args[0]!
-      let .app fn arg' := body | return false
-      return fn == params[0]! && arg == arg'
-
-    if !firstArgOk then return false
-
-    -- second argument is discr
-    return args[1]! == params[1]!
-
-  verifySimpleEnum (defnInfo : DefinitionVal) (inductiveInfo : InductiveVal)
-      (ctors : Array ConstructorVal) : MetaM Bool := do
-    lambdaTelescope defnInfo.value fun params body =>
-      body.withApp fun fn args => do
-        if !(← verifySimpleCasesOnApp inductiveInfo fn args params) then return false
-
-        -- remaining arguments are of the form `(h_n Unit.unit)`
-        for i in *...inductiveInfo.numCtors do
-          let .app fn (.const ``Unit.unit []) := args[i + 2]! | return false
-          let some (_, .app _ (.const relevantCtor ..)) := (← inferType fn).arrow? | unreachable!
-          let some ctorIdx := ctors.findIdx? (·.name == relevantCtor) | unreachable!
-          if fn != params[ctorIdx + 2]! then return false
-
-        return true
-
-  verifyEnumWithDefault (defnInfo : DefinitionVal) (inductiveInfo : InductiveVal)
-      (ctors : Array ConstructorVal) : MetaM Bool := do
-    lambdaTelescope defnInfo.value fun params body =>
-      body.withApp fun fn args => do
-        if !(← verifySimpleCasesOnApp inductiveInfo fn args params) then return false
-
-        /-
-        Remaining arguments are of the form:
-        - `(h_n Unit.unit)` if the constructor is handled explicitly
-        - `(h_n InductiveEnum.ctor)` if the constructor is handled as part of the default case
-        -/
-        for i in *...inductiveInfo.numCtors do
-          let .app fn (.const argName ..) := args[i + 2]! | return false
-          if argName == ``Unit.unit then
-            let some (_, .app _ (.const relevantCtor ..)) := (← inferType fn).arrow? | unreachable!
-            let some ctorIdx := ctors.findIdx? (·.name == relevantCtor) | unreachable!
-            if fn != params[ctorIdx + 2]! then return false
-          else
-            let .ctorInfo ctorInfo ← getConstInfo argName | return false
-            if ctorInfo.cidx != i then return false
-            if fn != params[params.size - 1]! then return false
-
-        return true
 
 def builtinTypes : Array Name :=
   #[``BitVec, ``Bool,

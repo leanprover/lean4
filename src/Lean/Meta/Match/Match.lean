@@ -201,7 +201,7 @@ def isCurrVarInductive (p : Problem) : MetaM Bool := do
 
 private def isConstructorTransition (p : Problem) : MetaM Bool := do
   return (← isCurrVarInductive p)
-    && (hasCtorPattern p || p.alts.isEmpty)
+    && hasCtorPattern p
     && p.alts.all fun alt => match alt.patterns with
       | .ctor .. :: _        => true
       | .var _ :: _          => true
@@ -389,18 +389,7 @@ Try to solve the problem by using the first alternative whose pending constraint
 private def processLeaf (p : Problem) : StateRefT State MetaM Unit :=
   p.mvarId.withContext do
     trace[Meta.Match.match] "local context at processLeaf:\n{(← mkFreshTypeMVar).mvarId!}"
-    go p.alts
-where
-  go (alts : List Alt) : StateRefT State MetaM Unit := do
-    match alts with
-    | [] =>
-      let mvarId ← p.mvarId.exfalso
-      /- TODO: allow users to configure which tactic is used to close leaves. -/
-      unless (← contradiction mvarId) do
-        trace[Meta.Match.match] "contradiction failed, missing alternative"
-        modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
-    | alt :: _ =>
-      solveCnstrs p.mvarId alt
+    solveCnstrs p.mvarId p.alts.head!
 
 private def processAsPattern (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: _ := p.vars | unreachable!
@@ -577,31 +566,11 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
       pure (some ctors)
     else
       pure none
-  let subgoals? ← commitWhenSome? do
-     let subgoals ←
-       try
-         p.mvarId.cases x.fvarId! (interestingCtors? := interestingCtors?)
-       catch ex =>
-         if p.alts.isEmpty then
-           /- If we have no alternatives and dependent pattern matching fails, then a "missing cases" error is better than a "stuck" error message. -/
-           return none
-         else
-           throwCasesException p ex
-     if subgoals.isEmpty then
-       /- Easy case: we have solved problem `p` since there are no subgoals -/
-       return some #[]
-     else if !p.alts.isEmpty then
-       return some subgoals
-     else do
-       let isRec ← withGoalOf p <| hasRecursiveType x
-        /- If there are no alternatives and the type of the current variable is recursive, we do NOT consider
-          a constructor-transition to avoid nontermination.
-          TODO: implement a more general approach if this is not sufficient in practice -/
-       if isRec then
-         return none
-       else
-         return some subgoals
-  let some subgoals := subgoals? | return #[{ p with vars := xs }]
+  let subgoals ← commitIfNoEx do
+    try
+      p.mvarId.cases x.fvarId! (interestingCtors? := interestingCtors?)
+    catch ex =>
+      throwCasesException p ex
   subgoals.mapM fun subgoal => subgoal.mvarId.withContext do
     -- withTraceNode `Meta.Match.match (msg := (return m!"{exceptEmoji ·} case {subgoal.ctorName}")) do
     if let some ctorName := subgoal.ctorName then
@@ -639,6 +608,43 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
         | _             => true
       let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst
       return { mvarId := subgoal.mvarId, alts := newAlts, vars := newVars, examples := examples }
+
+/-- Like above, but for when there are no alternatives -/
+private def processConstructorFalse (p : Problem) : MetaM (Array Problem) := do
+  trace[Meta.Match.match] "processFalse constructor step"
+  let x :: xs := p.vars | unreachable!
+  let subgoals? ← commitWhenSome? (m := MetaM) do
+    let subgoals ←
+      try
+        p.mvarId.cases x.fvarId!
+      catch _ =>
+        /- If we have no alternatives and dependent pattern matching fails, then a "missing cases" error is better than a "stuck" error message. -/
+        return none
+    if subgoals.isEmpty then
+      /- Easy case: we have solved problem `p` since there are no subgoals -/
+      return some #[]
+    else do
+      let isRec ← withGoalOf p <| hasRecursiveType x
+        /- If there are no alternatives and the type of the current variable is recursive, we do NOT consider
+          a constructor-transition to avoid nontermination.
+          TODO: implement a more general approach if this is not sufficient in practice -/
+      if isRec then
+        return none
+      else
+        return some subgoals
+  let some subgoals := subgoals? | return #[{ p with vars := xs }]
+  subgoals.mapM fun subgoal => subgoal.mvarId.withContext do
+    -- A normal constructor case
+    let subst    := subgoal.subst
+    let fields   := subgoal.fields.toList
+    let newVars  := fields ++ xs
+    let newVars  := newVars.map fun x => x.applyFVarSubst subst
+    let subex    := Example.ctor subgoal.ctorName.get! <| fields.map fun field => match field with
+      | .fvar fvarId => Example.var fvarId
+      | _            => Example.underscore -- This case can happen due to dependent elimination
+    let examples := p.examples.map <| Example.replaceFVarId x.fvarId! subex
+    let examples := examples.map <| Example.applyFVarSubst subst
+    return { mvarId := subgoal.mvarId, vars := newVars, examples := examples, alts := [] }
 
 private def processNonVariable (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: xs := p.vars | unreachable!
@@ -868,14 +874,6 @@ private def firstRefutablePattern (p : Problem) : Option Nat :=
   | alt:: _ => alt.patterns.findIdx? (·.isRefutable)
   | _ => none
 
-def isExFalsoTransition (p : Problem) : MetaM Bool := do
-  if p.alts.isEmpty then
-    withGoalOf p do
-      let targetType ← p.mvarId.getType
-      return !targetType.isFalse
-  else
-    return false
-
 def processExFalso (p : Problem) : MetaM Problem := do
   let mvarId' ← p.mvarId.exfalso
   return { p with mvarId := mvarId' }
@@ -889,18 +887,41 @@ private def tracedForM (xs : Array α) (process : α → StateRefT State MetaM U
     for x in xs do
       process x
 
+/-- Unsed once `p.alts.isEmpty` and the proof goal is `False` -/
+private partial def processFalse (p : Problem) : StateRefT State MetaM Unit := do
+  assert! p.alts.isEmpty
+  match p.vars with
+  | [] =>
+    traceStep ("processFalse leaf")
+    /- TODO: allow users to configure which tactic is used to close leaves. -/
+    unless (← contradiction p.mvarId) do
+      trace[Meta.Match.match] "contradiction failed, missing alternative"
+      modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
+    return
+  | _::xs =>
+    if !isNextVar p then
+      let p ← processNonVariable p
+      processFalse p
+    else if (← isCurrVarInductive p) then
+      let ps ← processConstructorFalse p
+      tracedForM ps processFalse
+    else
+      processFalse { p with vars := xs }
+
 private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   traceState p
+
+  if p.alts.isEmpty then
+    traceStep ("ex falso")
+    let p ← processExFalso p
+    processFalse p
+    return
+
   if isDone p then
     traceStep ("leaf")
     processLeaf p
     return
 
-  if (← isExFalsoTransition p) then
-    traceStep ("ex falso")
-    let p ← processExFalso p
-    process p
-    return
 
   if hasAsPattern p then
     traceStep ("as-pattern")

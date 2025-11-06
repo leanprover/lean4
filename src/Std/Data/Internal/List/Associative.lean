@@ -6191,7 +6191,6 @@ theorem isEmpty_filter_key_iff [BEq α] [EquivBEq α] {f : α → Bool}
     simp only [getKey, getKey?_eq_getEntry?, this] at h
     exact h
 
-
 namespace Const
 
 theorem getKey_getValue_mem [BEq α] [EquivBEq α] {β : Type v} {l : List ((_ : α) × β)} {k : α} {h} :
@@ -6462,6 +6461,46 @@ theorem length_filter_key_eq_length_iff {β : Type v} [BEq α] [EquivBEq α]
       ∀ (a : α) (h : containsKey a l), f (getKey a l h) = true := by
   simp [← List.filterMap_eq_filter,
     forall_mem_iff_forall_contains_getKey_getValue (p := fun a b => f a = true) distinct]
+
+theorem length_filter_containsKey_le [BEq α] [EquivBEq α]
+    {l₁ l₂ acc : List ((a : α) × β a)}
+    (hyp : ∀ e, e ∈ l₁ → containsKey e.fst acc = false)
+    (dl₁ : DistinctKeys (l₂ ++ acc))
+    (dl₂ : DistinctKeys (l₁ ++ acc)) :
+    (l₁.filter fun p => containsKey p.fst (acc ++ l₂)).length ≤ l₂.length + acc.length := by
+  induction l₂ generalizing acc with
+  | nil =>
+    simp only [List.append_nil, List.length_nil]
+    induction l₁
+    case nil => simp
+    case cons h t ih =>
+      simp [List.filter_cons]
+      simp [hyp h (by simp)]
+      simp at ih
+      apply ih
+      intro e mem
+      apply hyp
+      simp [mem]
+  | cons h t ih =>
+      by_cases mem : containsKey h.fst l₁
+      . specialize @ih (acc ++ [h]) ?refine1 ?refine2 ?refine3
+        case refine1 => sorry
+        case refine2 => sorry
+        sorry
+        sorry
+      . suffices sublemma : (List.filter (fun p => containsKey p.fst (acc ++ h :: t)) l₁) = (List.filter (fun p => containsKey p.fst (acc ++ t)) l₁) by
+          rw [sublemma]
+          apply Nat.le_trans
+          . apply ih
+            . exact hyp
+            . sorry
+            . exact dl₂
+          simp
+        sorry
+
+
+
+
 
 theorem isEmpty_filterMap_eq_true [BEq α] [EquivBEq α] {β : Type v} {γ : Type w}
     {f : (_ : α) → β → Option γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) :

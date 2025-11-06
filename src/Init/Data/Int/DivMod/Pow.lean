@@ -21,15 +21,10 @@ theorem dvd_pow {a b : Int} {n : Nat} (hab : b ∣ a) : b ^ n ∣ a ^ n := by
 
 theorem ediv_pow {a b : Int} {n : Nat} (hab : b ∣ a) :
     (a / b) ^ n = a ^ n / b ^ n := by
-  induction n with
-  | zero => simp
-  | succ n ih =>
-    have w : b ^ n ∣ a ^ n := dvd_pow hab
-    have h : b ^ n ∣ a / b * a ^ n := Int.dvd_mul_of_dvd_right w
-    rw [Int.pow_succ, ih, Int.pow_succ, Int.pow_succ, Int.mul_comm _ b,
-      Int.ediv_mul, Int.mul_ediv_assoc _ hab, Int.mul_comm (a ^ n),
-      Int.mul_ediv_assoc _ w, if_neg, Int.add_zero, Int.mul_comm]
-    simp [h]
+  obtain ⟨c, rfl⟩ := hab
+  by_cases b = 0
+  · by_cases n = 0 <;> simp [*, Int.zero_pow]
+  · simp [Int.mul_pow, Int.pow_ne_zero, *]
 
 theorem tdiv_pow {a b : Int} {n : Nat} (hab : b ∣ a) :
     (a.tdiv b) ^ n = (a ^ n).tdiv (b ^ n) := by

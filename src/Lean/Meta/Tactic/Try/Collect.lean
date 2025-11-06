@@ -35,7 +35,7 @@ def OrdSet.isEmpty {_ : Hashable α} {_ : BEq α} (s : OrdSet α) : Bool :=
   s.elems.isEmpty
 
 structure Result where
-  /-- All constant symbols occurring in the gal. -/
+  /-- All constant symbols occurring in the goal. -/
   allConsts : OrdSet Name  := {}
   /-- Unfolding candidates. -/
   unfoldCandidates : OrdSet Name  := {}

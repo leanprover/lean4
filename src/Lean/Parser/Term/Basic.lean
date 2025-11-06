@@ -88,7 +88,7 @@ The strict indentation requirement only apply to *nested* `by`s, as top-level `b
 position set. -/
 @[builtin_doc, run_builtin_parser_attribute_hooks]
 def tacticSeqIndentGt := withAntiquot (mkAntiquot "tacticSeq" ``tacticSeq) <| node ``tacticSeq <|
-  tacticSeqBracketed <|> (checkColGt "indented tactic sequence" >> tacticSeq1Indented)
+  tacticSeqBracketed <|> (checkColGt "indented tactic sequence" >> tacticSeq1Indented) <|> sepByIndentSemicolon tacticParser
 
 /- Raw sequence for quotation and grouping -/
 @[run_builtin_parser_attribute_hooks]

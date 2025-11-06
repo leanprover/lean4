@@ -50,6 +50,9 @@ namespace Lean.Parser.Tactic
 
 syntax (name := tryTrace) "try?" optConfig : tactic
 
+/-- Helper tactic for empty `by` blocks: runs `try?` and then reports unsolved goals. -/
+syntax (name := tryAndFail) "tryAndFail!" : tactic
+
 /-- Helper internal tactic for implementing the tactic `try?`. -/
 syntax (name := attemptAll) "attempt_all " withPosition((ppDedent(ppLine) colGe "| " tacticSeq)+) : tactic
 

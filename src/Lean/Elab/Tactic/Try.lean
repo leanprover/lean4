@@ -685,4 +685,50 @@ private def mkTryEvalSuggestStx (info : Try.Info) : MetaM (TSyntax `tactic) := d
     evalAndSuggest tk stx config
   | _ => throwUnsupportedSyntax
 
+/-- Helper tactic for empty `by` blocks: runs `try? +harder` for suggestions,
+    then restores the goal without failing. -/
+@[builtin_tactic tryAndFail] def evalTryAndFail : Tactic := fun stx => do
+  match stx with
+  | `(tactic| tryAndFail!) => do withMainContext do
+    -- Prepare to run `try? +harder`.
+    let config : Try.Config := { harder := true }
+    let mainGoal ← getMainGoal
+    let info ← Try.collect mainGoal config
+    let tacStx ← mkTryEvalSuggestStx info
+
+    -- Evaluate the tactics and collect suggestions (this will consume goals)
+    let savedState ← saveState
+    let suggestions? ← try
+      let tac' ← evalSuggest tacStx |>.run { terminal := true, root := tacStx, config }
+      pure (some ((getSuggestions tac')[*...config.max].toArray))
+    catch _ =>
+      -- If try? fails to find a proof, just continue without suggestions
+      pure none
+    -- Restore state before adding suggestions
+    restoreState savedState
+
+    -- Now add the suggestions if we found any
+    if let some suggestions := suggestions? then
+      unless suggestions.isEmpty do
+        -- Wrap each tactic suggestion in `by` to make it a term suggestion
+        -- Use string format since constructing proper syntax is complex
+        let wrappedSuggestions ← suggestions.mapM fun sugg => do
+          let suggStr ← sugg.pretty
+          return { sugg with suggestion := .string s!"by {suggStr}" }
+        -- Use the reference to the enclosing term (the `by` block) instead of tk
+        let ref ← getRef
+        Tactic.TryThis.addSuggestions ref wrappedSuggestions (origSpan? := ref)
+  | _ => throwUnsupportedSyntax
+
 end Lean.Elab.Tactic.Try
+
+open Lean.Parser.Term in
+-- Macro to expand empty `by` blocks to `by tryAndFail!; done`
+-- This ensures we get both the try? suggestions AND the unsolved goals error
+@[builtin_macro Lean.Parser.Term.byTactic] def expandEmptyBy : Lean.Macro
+  | `(by%$tk $seq:tacticSeq) =>
+    if seq.raw.getArgs.all (·.isNone) then
+      `(by%$tk tryAndFail!; done)
+    else
+      Lean.Macro.throwUnsupported
+  | _ => Lean.Macro.throwUnsupported

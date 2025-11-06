@@ -6067,12 +6067,6 @@ theorem List.length_filter_containsKey_of_forall [BEq α] [EquivBEq α]
     . apply w
       rw [containsKey_cons, BEq.rfl, Bool.true_or]
 
-theorem List.length_filter_containsKey_right [BEq α] [EquivBEq α]
-    {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁)
-    (w : ∀ (a : α), containsKey a l₂ → containsKey a l₁) :
-    (l₁.filter fun p => containsKey p.fst l₂).length = l₂.length := by
-  sorry
-
 theorem nil_of_containsKey_eq_false [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} :
     (∀ k, containsKey k l = false) ↔ l = [] := by
   constructor

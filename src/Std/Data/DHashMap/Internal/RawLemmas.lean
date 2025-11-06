@@ -2917,24 +2917,57 @@ theorem getKey_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h�
     {k : α} {h_contains : (m₁.inter m₂).contains k} :
     (m₁.inter m₂).getKey k h_contains =
     m₁.getKey k (by simp [contains_inter_iff h₁ h₂] at h_contains; exact h_contains.1) := by
-  simp_to_model [inter, contains, getKey] -- using List.getKey_filter
-  sorry
+  simp_to_model [inter, contains, getKey] using List.getKey_filter_containsKey_eq_containsKey
 
 /- getKeyD -/
 theorem getKeyD_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (h₂ : m₂.val.WF) {k fallback : α} :
     (m₁.inter m₂).getKeyD k fallback =
     if m₂.contains k then m₁.getKeyD k fallback else fallback := by
-  simp_to_model [inter, getKeyD, contains] -- using List.getKeyD_filter
-  sorry
+  simp_to_model [inter, getKeyD, contains] using List.getKeyD_filter_containsKey_eq_if_containsKey
+
+theorem getKeyD_inter_of_contains_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k fallback : α} (h : m₂.contains k) :
+    (m₁.inter m₂).getKeyD k fallback = m₁.getKeyD k fallback := by
+  revert h
+  simp_to_model [inter, getKeyD, contains] using List.getKeyD_filter_containsKey_eq_containsKey
+
+theorem getKeyD_inter_of_not_contains_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k fallback : α} (h : m₂.contains k = false) :
+    (m₁.inter m₂).getKeyD k fallback = fallback := by
+  revert h
+  simp_to_model [inter, getKeyD, contains] using List.getKeyD_filter_of_not_contains_right
+
+theorem getKeyD_inter_of_not_contains_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k fallback : α} (h : m₁.contains k = false) :
+    (m₁.inter m₂).getKeyD k fallback = fallback := by
+  revert h
+  simp_to_model [inter, getKeyD, contains] using List.getKeyD_filter_of_not_contains_left
 
 /- getKey! -/
-theorem getKey!_inter [EquivBEq α] [LawfulHashable α] [Inhabited α]
-    (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) {k : α} :
+theorem getKey!_inter [EquivBEq α] [LawfulHashable α] [Inhabited α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k : α} [Inhabited α] :
     (m₁.inter m₂).getKey! k =
     if m₂.contains k then m₁.getKey! k else default := by
-  simp_to_model [inter, getKey!, contains] -- using List.getKeyD_filter
-  sorry
+  simp_to_model [inter, getKey!, contains] using List.getKeyD_filter_containsKey_eq_if_containsKey
+
+theorem getKey!_inter_of_contains_right [EquivBEq α] [LawfulHashable α] [Inhabited α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k : α} (h : m₂.contains k) :
+    (m₁.inter m₂).getKey! k = m₁.getKey! k := by
+  revert h
+  simp_to_model [inter, getKey!, contains] using List.getKeyD_filter_containsKey_eq_containsKey
+
+theorem getKey!_inter_of_not_contains_right [EquivBEq α] [LawfulHashable α] [Inhabited α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k : α} (h : m₂.contains k = false) :
+    (m₁.inter m₂).getKey! k = default := by
+  revert h
+  simp_to_model [inter, getKey!, contains] using List.getKeyD_filter_of_not_contains_right
+
+theorem getKey!_inter_of_not_contains_left [EquivBEq α] [LawfulHashable α] [Inhabited α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k : α} (h : m₁.contains k = false) :
+    (m₁.inter m₂).getKey! k = default := by
+  revert h
+  simp_to_model [inter, getKey!, contains] using List.getKeyD_filter_of_not_contains_left
 
 /- size -/
 theorem size_inter_le_size_left [EquivBEq α] [LawfulHashable α]
@@ -2948,21 +2981,122 @@ theorem size_inter_le_size_right [EquivBEq α] [LawfulHashable α]
   simp_to_model [inter, size, contains] -- using List.length_filter_containsKey_le
   sorry
 
-theorem size_inter_eq_size_left_of_subset [EquivBEq α] [LawfulHashable α]
+theorem size_inter_eq_size_left [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     (h : ∀ (a : α), m₁.contains a → m₂.contains a) :
     (m₁.inter m₂).1.size = m₁.1.size := by
-  simp_to_model [inter, size, contains] -- using List.length_filter_of_forall_pred
+  revert h
+  simp_to_model [inter, size, contains] using List.length_filter_containsKey_of_forall
+
+theorem size_inter_eq_size_right [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    (h : ∀ (a : α), m₂.contains a → m₁.contains a) :
+    (m₁.inter m₂).1.size = m₂.1.size := by
+  revert h
+  simp_to_model [inter, size, contains]
   sorry
 
 /- isEmpty -/
 @[simp]
-theorem isEmpty_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
-    (m₁.inter m₂).1.isEmpty = (m₁.1.isEmpty || m₂.1.isEmpty) := by
-  simp_to_model [isEmpty, inter, contains] -- using List.isEmpty_filter_containsKey
-  sorry
+theorem isEmpty_inter_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h : m₁.1.isEmpty):
+    (m₁.inter m₂).1.isEmpty = true := by
+  revert h
+  simp_to_model [isEmpty, inter, contains] using List.isEmpty_filter_containsKey_left
+
+/- isEmpty -/
+@[simp]
+theorem isEmpty_inter_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h : m₁.1.isEmpty):
+    (m₁.inter m₂).1.isEmpty = true := by
+  revert h
+  simp_to_model [isEmpty, inter, contains] using List.isEmpty_filter_containsKey_left
 
 end Inter
+
+namespace Const
+
+variable {β : Type v} {m₁ m₂ : Raw₀ α (fun _ => β)}
+
+/- get? -/
+theorem get?_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
+    Const.get? (m₁.inter m₂) k =
+    if m₂.contains k then Const.get? m₁ k else none := by
+  simp_to_model [inter, Const.get?, contains] using List.getValue?_filter_containsKey_eq_if_containsKey
+
+theorem get?_inter_of_contains_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (h : m₂.contains k) :
+    Const.get? (m₁.inter m₂) k = Const.get? m₁ k := by
+  revert h
+  simp_to_model [inter, Const.get?, contains] using List.getValue?_filter_containsKey_eq_containsKey
+
+theorem get?_inter_of_not_contains_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (h : m₁.contains k = false) :
+    Const.get? (m₁.inter m₂) k = none := by
+  revert h
+  simp_to_model [inter, Const.get?, contains] using List.getValue?_filter_of_not_contains
+
+theorem get?_inter_of_not_contains_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (h : m₂.contains k = false) :
+    Const.get? (m₁.inter m₂) k = none := by
+  revert h
+  simp_to_model [inter, Const.get?, contains] using List.getValue?_filter_of_not_contains_right
+
+theorem get_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} {h_contains : (m₁.inter m₂).contains k} :
+    Const.get (m₁.inter m₂) k h_contains =
+    Const.get m₁ k ((contains_inter_iff h₁ h₂).1 h_contains).1 := by
+  simp_to_model [inter, Const.get, contains] using List.getValue_filter_containsKey_eq_containsKey
+
+/- getD -/
+theorem getD_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} {fallback : β} :
+    Const.getD (m₁.inter m₂) k fallback =
+    if m₂.contains k then Const.getD m₁ k fallback else fallback := by
+  simp_to_model [inter, Const.getD, contains] using List.getValueD_filter_containsKey_eq_if_containsKey
+
+theorem getD_inter_of_contains_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} {fallback : β} (h : m₂.contains k) :
+    Const.getD (m₁.inter m₂) k fallback = Const.getD m₁ k fallback := by
+  revert h
+  simp_to_model [inter, Const.getD, contains] using List.getValueD_filter_containsKey_eq_containsKey
+
+theorem getD_inter_of_not_contains_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} {fallback : β} (h : m₂.contains k = false) :
+    Const.getD (m₁.inter m₂) k fallback = fallback := by
+  revert h
+  simp_to_model [inter, Const.getD, contains] using List.getValueD_filter_of_not_contains_right
+
+theorem getD_inter_of_not_contains_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} {fallback : β} (h : m₁.contains k = false) :
+    Const.getD (m₁.inter m₂) k fallback = fallback := by
+  revert h
+  simp_to_model [inter, Const.getD, contains] using List.getValueD_filter_of_not_contains_left
+
+/- get! -/
+theorem get!_inter [EquivBEq α] [LawfulHashable α] [Inhabited β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α}  :
+    Const.get! (m₁.inter m₂) k =
+    if m₂.contains k then Const.get! m₁ k else default := by
+  simp_to_model [inter, Const.get!, contains] using List.getValueD_filter_containsKey_eq_if_containsKey
+
+theorem get!_inter_of_contains_right [EquivBEq α] [LawfulHashable α] [Inhabited β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (h : m₂.contains k) :
+    Const.get! (m₁.inter m₂) k = Const.get! m₁ k := by
+  revert h
+  simp_to_model [inter, Const.get!, contains] using List.getValueD_filter_containsKey_eq_containsKey
+
+theorem get!_inter_of_not_contains_right [EquivBEq α] [LawfulHashable α] [Inhabited β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (h : m₂.contains k = false) :
+    Const.get! (m₁.inter m₂) k = default := by
+  revert h
+  simp_to_model [inter, Const.get!, contains] using List.getValueD_filter_of_not_contains_right
+
+theorem get!_inter_of_not_contains_left [EquivBEq α] [LawfulHashable α] [Inhabited β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (h : m₁.contains k = false) :
+    Const.get! (m₁.inter m₂) k = default := by
+  revert h
+  simp_to_model [inter, Const.get!, contains] using List.getValueD_filter_of_not_contains_left
+
+end Const
 
 section Alter
 

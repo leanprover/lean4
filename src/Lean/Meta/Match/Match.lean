@@ -33,6 +33,12 @@ register_builtin_option backwards.match.rowMajor : Bool := {
     it splits them from left to right, which can lead to unnecessary code bloat."
 }
 
+
+register_builtin_option backwards.match.divide : Bool := {
+  defValue := true
+  descr := "If true (the default), match compilation will TODO"
+}
+
 private def mkIncorrectNumberOfPatternsMsg [ToMessageData α]
     (discrepancyKind : String) (expected actual : Nat) (pats : List α) :=
   let patternsMsg := MessageData.joinSep (pats.map toMessageData) ", "
@@ -180,6 +186,42 @@ private def isVariableTransition (p : Problem) : Bool :=
     | .inaccessible _ :: _ => true
     | .var _ :: _          => true
     | _                    => false
+
+def Pattern.isRefutable : Pattern → Bool
+  | .var _           => false
+  | .inaccessible _  => false
+  | .as _ p _        => p.isRefutable
+  | .arrayLit ..     => true
+  | .ctor ..         => true
+  | .val ..          => true
+
+/--
+Returns the index of the first pattern in the first alternative that is refutable
+(i.e. not a variable or inaccessible pattern). We want to handle these first
+so that the generated code branches in the order suggested by the user's code.
+-/
+private def firstRefutablePattern (p : Problem) : Option Nat :=
+  match p.alts with
+  | alt:: _ => alt.patterns.findIdx? (·.isRefutable)
+  | _ => none
+
+/--
+If there is a catch-all, and not all other patterns have constructors at the head,
+return the index of the first alternative that doesn't. That is where we want to divide
+the match compiliation.
+(If there was no catch-all we'd have to carry over the information that we are not in the first
+cases for the final completeness proof.)
+-/
+private def isDivideTransition (p : Problem) : MetaM (Option Nat) := do
+  if backwards.match.divide.get (← getOptions) then return do
+    guard !p.vars.isEmpty
+    guard !p.alts.isEmpty
+    guard (p.alts.getLast!.patterns.all (!·.isRefutable))
+    let i ← p.alts.findIdx? (! ·.patterns.head!.isRefutable)
+    guard (i + 1 < p.alts.length)
+    return i
+  else
+    return none
 
 private def getInductiveVal? (x : Expr) : MetaM (Option InductiveVal) := do
   let xType ← inferType x
@@ -640,6 +682,32 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
       let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst
       return { mvarId := subgoal.mvarId, alts := newAlts, vars := newVars, examples := examples }
 
+private def mkCatchAll (vars : List Expr) (rhs : Expr) : Alt where
+  ref := .missing
+  idx := 0 -- TODO (none? or index of the first below?)
+  rhs := rhs
+  fvarDecls := []
+  patterns := vars.map (Pattern.inaccessible ·)
+  cnstrs := []
+
+private def processDivide (p : Problem) (i : Nat) : MetaM (Array Problem) := do
+  let mvarType ← p.mvarId.getType
+  let mvarLower ← mkFreshExprSyntheticOpaqueMVar mvarType
+  let idx := p.alts[i]!.idx
+  let n := (`cont).appendIndexAfter idx
+  -- We don't have `mvarId.have` like `mvarId.define`?
+  let (fvarId, mvarUpper) ← withLetDecl n mvarType mvarLower (nondep := true) fun fvarId => do
+    let mvarUpper ← mkFreshExprSyntheticOpaqueMVar mvarType
+    p.mvarId.assign (← mkLambdaFVars (generalizeNondepLet := false) #[fvarId] mvarUpper)
+    pure (fvarId, mvarUpper)
+
+  let (altsUpper, altsLower) := p.alts.splitAt i
+  let altsUpper := altsUpper ++ [ mkCatchAll p.vars fvarId ]
+  let pUpper := { p with mvarId := mvarUpper.mvarId!, alts := altsUpper }
+  let pLower := { p with mvarId := mvarLower.mvarId!, alts := altsLower }
+  return #[pUpper, pLower]
+
+
 private def processNonVariable (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: xs := p.vars | unreachable!
   if let some (ctorVal, xArgs) ← withTransparency .default <| constructorApp'? x then
@@ -850,24 +918,6 @@ private def moveToFront (p : Problem) (i : Nat) : Problem :=
   else
     p
 
-def Pattern.isRefutable : Pattern → Bool
-  | .var _           => false
-  | .inaccessible _  => false
-  | .as _ p _        => p.isRefutable
-  | .arrayLit ..     => true
-  | .ctor ..         => true
-  | .val ..          => true
-
-/--
-Returns the index of the first pattern in the first alternative that is refutable
-(i.e. not a variable or inaccessible pattern). We want to handle these first
-so that the generated code branches in the order suggested by the user's code.
--/
-private def firstRefutablePattern (p : Problem) : Option Nat :=
-  match p.alts with
-  | alt:: _ => alt.patterns.findIdx? (·.isRefutable)
-  | _ => none
-
 def isExFalsoTransition (p : Problem) : MetaM Bool := do
   if p.alts.isEmpty then
     withGoalOf p do
@@ -889,7 +939,7 @@ private def tracedForM (xs : Array α) (process : α → StateRefT State MetaM U
     for x in xs do
       process x
 
-private partial def process (p : Problem) : StateRefT State MetaM Unit := do
+private partial def process (p : Problem) : StateRefT State MetaM Unit := p.mvarId.withContext do
   traceState p
   if isDone p then
     traceStep ("leaf")
@@ -947,6 +997,12 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
     traceStep ("non variable")
     let p ← processNonVariable p
     process p
+    return
+
+  if let some i ← isDivideTransition p then
+    traceStep s!"dividing at {i}"
+    let ps ← processDivide p i
+    tracedForM ps process
     return
 
   if (← isConstructorTransition p) then

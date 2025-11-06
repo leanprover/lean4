@@ -32,6 +32,13 @@ protected theorem zero_pow {n : Nat} (h : n ≠ 0) : (0 : Int) ^ n = 0 := by
 protected theorem one_pow {n : Nat} : (1 : Int) ^ n = 1 := by
   induction n with simp_all [Int.pow_succ]
 
+protected theorem mul_pow {a b : Int} {n : Nat} : (a * b) ^ n = a ^ n * b ^ n := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [Int.pow_succ, Int.pow_succ, Int.pow_succ, ih, Int.mul_assoc, Int.mul_assoc,
+      Int.mul_left_comm (b^n)]
+
 protected theorem pow_pos {n : Int} {m : Nat} : 0 < n → 0 < n ^ m := by
   induction m with
   | zero => simp

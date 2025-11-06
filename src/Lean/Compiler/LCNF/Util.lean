@@ -9,6 +9,7 @@ prelude
 public import Init.Data.FloatArray.Basic
 public import Lean.CoreM
 public import Lean.Util.Recognizers
+import Lean.Meta.Basic
 
 public section
 

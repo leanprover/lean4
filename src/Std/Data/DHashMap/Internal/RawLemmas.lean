@@ -2994,6 +2994,7 @@ theorem size_inter_eq_size_right [EquivBEq α] [LawfulHashable α]
   revert h
   simp_to_model [inter, size, contains] using List.length_filter_containsKey_of_forall_right
 
+
 /- isEmpty -/
 @[simp]
 theorem isEmpty_inter_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h : m₁.1.isEmpty):

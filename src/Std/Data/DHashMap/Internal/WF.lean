@@ -1601,10 +1601,7 @@ theorem wf_inter₀ [BEq α] [Hashable α] [LawfulHashable α]
     (h'₂ : m₂.WF) :
     (Raw₀.inter ⟨m₁, h₁⟩ ⟨m₂, h₂⟩).1.WF := by
   rw [inter]
-  split
-  . sorry
-  . sorry
-
+  apply Raw.WF.inter₀ h'₁ h'₂
 
 /-! # `Const.insertListₘ` -/
 

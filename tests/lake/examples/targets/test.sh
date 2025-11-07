@@ -17,6 +17,8 @@ LIB_PREFIX=lib
 SHARED_LIB_EXT=so
 fi
 
+PKG=targets
+
 ./clean.sh
 
 # Test error on nonexistent facet
@@ -66,19 +68,19 @@ test -f ./.lake/build/ir/Bar.c.o.export
 # Test default targets
 test ! -f ./.lake/build/bin/c
 test ! -f ./.lake/build/lib/lean/Foo.olean
-test ! -f ./.lake/build/lib/${LIB_PREFIX}Foo.a
+test ! -f ./.lake/build/lib/${LIB_PREFIX}${PKG}_Foo.a
 test ! -f ./.lake/build/meow.txt
 $LAKE build targets/
 ./.lake/build/bin/c
 test -f ./.lake/build/lib/lean/Foo.olean
-test -f ./.lake/build/lib/${LIB_PREFIX}Foo.a
+test -f ./.lake/build/lib/${LIB_PREFIX}${PKG}_Foo.a
 cat ./.lake/build/meow.txt | grep Meow!
 
 # Test shared lib facets
-test ! -f ./.lake/build/lib/${LIB_PREFIX}Foo.$SHARED_LIB_EXT
+test ! -f ./.lake/build/lib/${LIB_PREFIX}${PKG}_Foo.$SHARED_LIB_EXT
 test ! -f ./.lake/build/lib/libBar.$SHARED_LIB_EXT
 $LAKE build Foo:shared Bar
-test -f ./.lake/build/lib/${LIB_PREFIX}Foo.$SHARED_LIB_EXT
+test -f ./.lake/build/lib/${LIB_PREFIX}${PKG}_Foo.$SHARED_LIB_EXT
 test -f ./.lake/build/lib/libBar.$SHARED_LIB_EXT
 
 # Test static lib facet
@@ -87,9 +89,9 @@ $LAKE build Foo:shared Bar:static
 test -f ./.lake/build/lib/libBar.a
 
 # Test dynlib facet
-test ! -f ./.lake/build/lib/lean/Foo.$SHARED_LIB_EXT
+test ! -f ./.lake/build/lib/lean/${PKG}_Foo.$SHARED_LIB_EXT
 $LAKE build +Foo:dynlib
-test -f ./.lake/build/lib/lean/Foo.$SHARED_LIB_EXT
+test -f ./.lake/build/lib/lean/${PKG}_Foo.$SHARED_LIB_EXT
 
 # Test library `extraDepTargets`
 test ! -f ./.lake/build/caw.txt

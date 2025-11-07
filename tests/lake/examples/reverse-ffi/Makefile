@@ -9,6 +9,8 @@ all: run run-local
 lake:
 	$(LAKE) --dir=lib build
 
+LIB_NAME=rffi_RFFI
+
 OUT_DIR = out
 LEAN_SYSROOT ?= $(shell lean --print-prefix)
 LEAN_LIBDIR := $(LEAN_SYSROOT)/lib/lean
@@ -23,7 +25,7 @@ endif
 
 $(OUT_DIR)/main: main.c lake | $(OUT_DIR)
 # Add library paths for Lake package and for Lean itself
-	cc -o $@ $< -I $(LEAN_SYSROOT)/include -L $(LEAN_LIBDIR) -L lib/.lake/build/lib -lRFFI -lInit_shared -lleanshared_2 -lleanshared_1 -lleanshared $(LINK_FLAGS)
+	cc -o $@ $< -I $(LEAN_SYSROOT)/include -L $(LEAN_LIBDIR) -L lib/.lake/build/lib -l$(LIB_NAME) -lInit_shared -lleanshared_2 -lleanshared_1 -lleanshared $(LINK_FLAGS)
 
 run: $(OUT_DIR)/main
 ifeq ($(OS),Windows_NT)
@@ -54,8 +56,8 @@ LEAN_SHLIB_ROOT := $(LEAN_LIBDIR)
 endif
 
 $(OUT_DIR)/main-local: main.c lake | $(OUT_DIR)
-	cp -f $(LEAN_SHLIB_ROOT)/*.$(SHLIB_EXT) lib/.lake/build/lib/$(SHLIB_PREFIX)RFFI.$(SHLIB_EXT) $(OUT_DIR)
-	cc -o $@ $< -I $(LEAN_SYSROOT)/include -L $(OUT_DIR) -lRFFI -lInit_shared -lleanshared_2 -lleanshared_1 -lleanshared $(LINK_FLAGS_LOCAL)
+	cp -f $(LEAN_SHLIB_ROOT)/*.$(SHLIB_EXT) lib/.lake/build/lib/$(SHLIB_PREFIX)$(LIB_NAME).$(SHLIB_EXT) $(OUT_DIR)
+	cc -o $@ $< -I $(LEAN_SYSROOT)/include -L $(OUT_DIR) -l$(LIB_NAME) -lInit_shared -lleanshared_2 -lleanshared_1 -lleanshared $(LINK_FLAGS_LOCAL)
 
 run-local: $(OUT_DIR)/main-local
 	$(OUT_DIR)/main-local

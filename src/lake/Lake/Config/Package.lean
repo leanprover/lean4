@@ -129,6 +129,10 @@ namespace Package
 @[inline] public def bootstrap (self : Package) : Bool  :=
   self.config.bootstrap
 
+/-- The identifier passed to Lean to disambiguate the package's native symbols. -/
+public def id? (self : Package) : Option PkgId :=
+  if self.bootstrap then none else some <| self.name.toString (escape := false)
+
 /-- The package version. -/
 @[inline] public def version (self : Package) : LeanVer  :=
   self.config.version

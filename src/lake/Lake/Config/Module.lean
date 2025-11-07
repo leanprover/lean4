@@ -79,9 +79,6 @@ namespace Module
 public abbrev pkg (self : Module) : Package :=
   self.lib.pkg
 
-public def pkgId? (self : Module) : Option PkgId :=
-  if self.pkg.bootstrap then none else some <| self.pkg.name.toString (escape := false)
-
 @[inline] public def rootDir (self : Module) : FilePath :=
   self.lib.rootDir
 
@@ -152,7 +149,7 @@ public def dynlibSuffix := "-1"
     name used for the module's initialization function, thus enabling it
     to be loaded as a plugin.
   -/
-  mkModuleInitializationStem self.name self.pkgId?
+  mkModuleInitializationStem self.name self.pkg.id?
 
 @[inline] public def dynlibFile (self : Module) : FilePath :=
   self.pkg.leanLibDir / s!"{self.dynlibName}.{sharedLibExt}"

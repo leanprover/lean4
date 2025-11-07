@@ -2978,8 +2978,7 @@ theorem size_inter_le_size_left [EquivBEq α] [LawfulHashable α]
 theorem size_inter_le_size_right [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
     (m₁.inter m₂).1.size ≤ m₂.1.size := by
-  simp_to_model [inter, size, contains] -- using List.length_filter_containsKey_le
-  sorry
+  simp_to_model [inter, size, contains] using List.length_filter_containsKey_le
 
 theorem size_inter_eq_size_left [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)

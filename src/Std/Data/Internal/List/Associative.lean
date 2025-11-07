@@ -6479,19 +6479,18 @@ theorem length_filter_containsKey_le [BEq α] [EquivBEq α]
         case nil =>
           simp at heq
         case cons h' t' ih' =>
-          simp
-          simp [eraseKey]
+          simp only [List.length_cons, eraseKey, Nat.add_right_cancel_iff]
           by_cases heq2 : h'.fst == h.fst
           case pos =>
             simp [heq2]
           case neg =>
-            simp at heq2
-            simp [heq2]
+            simp only [Bool.not_eq_true] at heq2
+            simp only [heq2, cond_false, List.length_cons]
             apply ih'
             . rw [List.distinctKeys_cons_iff] at dl₁
               exact dl₁.1
             . rw [containsKey_cons] at heq
-              simp [heq2] at heq
+              simp only [heq2, Bool.false_or] at heq
               exact heq
       rw [len_eq]
       simp only [Nat.add_le_add_iff_right, ge_iff_le]
@@ -6513,32 +6512,34 @@ theorem length_filter_containsKey_le [BEq α] [EquivBEq α]
             rw [List.distinctKeys_cons_iff] at dl₂
             replace dl₂ := dl₂.2
             rw [containsKey_cons] at dl₂
-            simp at dl₂
+            simp only [Bool.or_eq_false_iff] at dl₂
             replace dl₂ := dl₂.1
             rw [PartialEquivBEq.symm] at dl₂
             . contradiction
             . exact heq2
           case neg =>
-            simp at heq2
+            simp only [Bool.not_eq_true] at heq2
             simp only [List.countP_cons]
             split
             case isTrue contains =>
               rw [containsKey_eraseKey]
-              simp [contains, heq2]
+              simp only [heq2, Bool.not_false, contains, Bool.and_self, ↓reduceIte,
+                Nat.add_le_add_iff_right]
               apply ih'
               . rw [List.distinctKeys_cons_iff, List.distinctKeys_cons_iff, containsKey_cons] at dl₂
-                simp at dl₂
+                simp only [Bool.or_eq_false_iff] at dl₂
                 apply DistinctKeys.cons
-                all_goals simp [dl₂]
+                all_goals simp only [dl₂]
               . exact dl₁
             case isFalse contains =>
               rw [containsKey_eraseKey]
-              simp [heq2, contains]
+              simp only [Nat.add_zero, heq2, Bool.not_false, contains, Bool.and_false,
+                Bool.false_eq_true, ↓reduceIte]
               apply ih'
               . rw [List.distinctKeys_cons_iff, List.distinctKeys_cons_iff, containsKey_cons] at dl₂
-                simp at dl₂
+                simp only [Bool.or_eq_false_iff] at dl₂
                 apply DistinctKeys.cons
-                all_goals simp [dl₂]
+                all_goals simp only [dl₂]
               . exact dl₁
     case neg =>
       simp only [List.filter_cons, heq, Bool.false_eq_true, ↓reduceIte]

@@ -421,10 +421,10 @@ order.
 def forIn (f : α → δ → m (ForInStep δ)) (init : δ) (t : TreeSet α cmp) : m δ :=
   t.inner.forIn (fun a _ c => f a c) init
 
-instance : ForM m (TreeSet α cmp) α where
+instance [Monad m] : ForM m (TreeSet α cmp) α where
   forM t f := t.forM f
 
-instance : ForIn m (TreeSet α cmp) α where
+instance [Monad m] : ForIn m (TreeSet α cmp) α where
   forIn m init f := m.forIn (fun a acc => f a acc) init
 
 /-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/

@@ -37,7 +37,7 @@ instance : SliceSize (Internal.ListSliceData α) where
   size s := (Internal.iter s).count
 
 @[no_expose]
-instance {α : Type u} {m : Type v → Type w} :
+instance {α : Type u} {m : Type v → Type w} [Monad m] :
     ForIn m (ListSlice α) α where
   forIn xs init f := forIn (Internal.iter xs) init f
 

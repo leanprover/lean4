@@ -63,12 +63,12 @@ instance (α : Type w) (β : Type w) (n : Type x → Type x') [Monad n]
   instForInOfForIn'
 
 instance {m : Type x → Type x'}
-    {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m] :
+    {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m] [Monad m] :
     ForM m (Iter (α := α) β) β where
   forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
 
 instance {m : Type x → Type x'}
-    {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] [IteratorLoopPartial α Id m] :
+    {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] [IteratorLoopPartial α Id m] [Monad m] :
     ForM m (Iter.Partial (α := α) β) β where
   forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
 

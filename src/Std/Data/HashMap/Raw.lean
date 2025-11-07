@@ -219,10 +219,10 @@ instance [BEq α] [Hashable α] : GetElem? (Raw α β) α β (fun m a => a ∈ m
     (f : (a : α) → β → γ → m (ForInStep γ)) (init : γ) (b : Raw α β) : m γ :=
   b.inner.forIn f init
 
-instance {m : Type w → Type w'} : ForM m (Raw α β) (α × β) where
+instance {m : Type w → Type w'} [Monad m] : ForM m (Raw α β) (α × β) where
   forM m f := m.forM (fun a b => f (a, b))
 
-instance {m : Type w → Type w'} : ForIn m (Raw α β) (α × β) where
+instance {m : Type w → Type w'} [Monad m] : ForIn m (Raw α β) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
 
 @[inline, inherit_doc DHashMap.Raw.all] def all (m : Raw α β) (p : α → β → Bool) : Bool :=

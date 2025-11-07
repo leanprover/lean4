@@ -368,7 +368,7 @@ If `firstChoiceOnly` is `true`, only visit the first argument of each choice nod
 -/
 def topDown (stx : Syntax) (firstChoiceOnly := false) : TopDown := ⟨firstChoiceOnly, stx⟩
 
-partial instance : ForIn m TopDown Syntax where
+partial instance [Monad m] : ForIn m TopDown Syntax where
   forIn := fun ⟨firstChoiceOnly, stx⟩ init f => do
     let rec @[specialize] loop stx b [Inhabited (type_of% b)] := do
       match (← f stx b) with

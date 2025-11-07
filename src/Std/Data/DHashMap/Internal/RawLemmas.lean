@@ -2969,6 +2969,37 @@ theorem getKey!_inter_of_not_contains_left [EquivBEq α] [LawfulHashable α] [In
   revert h
   simp_to_model [inter, getKey!, contains] using List.getKeyD_filter_of_not_contains_left
 
+/- getEntry? -/
+theorem getEntry?_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
+    (m₁.inter m₂).getEntry? k =
+    if m₂.contains k then m₁.getEntry? k else none := by
+  simp_to_model [inter, getEntry?, contains] using List.getEntry?_filter_containsKey_eq_if_containsKey
+
+theorem getEntry?_inter_of_contains_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (h : m₂.contains k) :
+    (m₁.inter m₂).getEntry? k = m₁.getEntry? k := by
+  revert h
+  simp_to_model [inter, getEntry?, contains] using List.getEntry?_filter_containsKey_eq_containsKey
+
+theorem getEntry?_inter_of_not_contains_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (h : m₁.contains k = false) :
+    (m₁.inter m₂).getEntry? k = none := by
+  revert h
+  simp_to_model [inter, getEntry?, contains] using List.getEntry?_filter_of_not_contains
+
+theorem getEntry?_inter_of_not_contains_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (h : m₂.contains k = false) :
+    (m₁.inter m₂).getEntry? k = none := by
+  revert h
+  simp_to_model [inter, getEntry?, contains] using List.getEntry?_filter_of_not_contains_right
+
+/- getEntry -/
+theorem getEntry_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} {h_contains : (m₁.inter m₂).contains k} :
+    (m₁.inter m₂).getEntry k h_contains =
+    m₁.getEntry k (((@contains_inter_iff α β _ _ m₁ m₂ _ _ h₁ h₂ k).1 h_contains).1) := by
+  simp_to_model [inter, getEntry, contains] using List.getEntry_filter_containsKey_eq_containsKey
+
 /- size -/
 theorem size_inter_le_size_left [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :

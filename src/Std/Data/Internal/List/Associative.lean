@@ -5254,6 +5254,68 @@ theorem getValueCast?_filter_of_not_contains_right [BEq α] [LawfulBEq α]
   . simp only [Bool.false_eq_true, ↓reduceIte]
   . exact dl₁
 
+theorem getEntry?_filter_containsKey_eq_if_containsKey [BEq α] [EquivBEq α]
+    {l₁ l₂ : List ((a : α) × β a)} {k : α}
+    (dl₁ : DistinctKeys l₁) :
+    getEntry? k (List.filter (fun p => containsKey p.fst l₂) l₁) =
+    if containsKey k l₂ = true then getEntry? k l₁ else none := by
+  split
+  case isTrue h =>
+    rw [getEntry?_filter]
+    · simp [Option.filter]
+      split
+      case h_1 _ val heq =>
+        have key_eq := beq_of_getEntry?_eq_some heq
+        rw [@containsKey_congr _ _ _ _ l₂ _ _ (PartialEquivBEq.symm key_eq)] at h
+        simp [h, heq]
+      case h_2 _ heq =>
+        simp [heq]
+    · exact dl₁
+  case isFalse h =>
+    suffices (getEntry? k (List.filter (fun p => containsKey p.fst l₂) l₁)) = none by
+      simp [this]
+    rw [getEntry?_filter]
+    · simp [Option.filter]
+      split
+      case h_1 _ val heq =>
+        have key_eq := beq_of_getEntry?_eq_some heq
+        simp at h
+        rw [@containsKey_congr _ _ _ _ l₂ _ _ (PartialEquivBEq.symm key_eq)] at h
+        simp [h]
+      case h_2 => rfl
+    · exact dl₁
+
+theorem getEntry?_filter_containsKey_eq_containsKey [BEq α] [EquivBEq α]
+    {l₁ l₂ : List ((a : α) × β a)} {k : α}
+    (dl₁ : DistinctKeys l₁) :
+    containsKey k l₂ → getEntry? k (List.filter (fun p => containsKey p.fst l₂) l₁) =
+      getEntry? k l₁ := by
+  intro h
+  rw [getEntry?_filter_containsKey_eq_if_containsKey, h]
+  · simp only [↓reduceIte]
+  · exact dl₁
+
+theorem getEntry?_filter_of_not_contains [BEq α] [EquivBEq α]
+    {l₁ l₂ : List ((a : α) × β a)} {k : α}
+    (dl₁ : DistinctKeys l₁) :
+    containsKey k l₁ = false → getEntry? k (List.filter (fun p => containsKey p.fst l₂) l₁) = none := by
+  intro h
+  rw [getEntry?_filter_containsKey_eq_if_containsKey]
+  · split
+    · apply (@getEntry?_eq_none _ _ _ l₁ k).2
+      exact h
+    · rfl
+  · exact dl₁
+
+theorem getEntry?_filter_of_not_contains_right [BEq α] [EquivBEq α]
+    {l₁ l₂ : List ((a : α) × β a)} {k : α}
+    (dl₁ : DistinctKeys l₁) :
+    containsKey k l₂ = false → getEntry? k (List.filter (fun p => containsKey p.fst l₂) l₁) = none := by
+  intro h
+  rw [getEntry?_filter_containsKey_eq_if_containsKey, h]
+  · simp only [Bool.false_eq_true, ↓reduceIte]
+  · exact dl₁
+
 theorem getEntry?_filterMap [BEq α] [EquivBEq α]
     {f : (a : α) → β a → Option (γ a)}
     {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
@@ -5304,6 +5366,18 @@ theorem getValueCast_filter_containsKey_eq_containsKey [BEq α] [LawfulBEq α]
   . rw [contains_filter_iff] at h₁
     . exact h₁.2
     . exact dl₁
+
+theorem getEntry_filter_containsKey_eq_containsKey [BEq α] [EquivBEq α]
+    {l₁ l₂ : List ((a : α) × β a)} {k : α}
+    (dl₁ : DistinctKeys l₁) {h₁ h₂} :
+    getEntry k (List.filter (fun p => containsKey p.fst l₂) l₁) h₁ = getEntry k l₁ h₂ := by
+  suffices some (getEntry k (List.filter (fun p => containsKey p.fst l₂) l₁) h₁) = some (getEntry k l₁ h₂) by
+    injections
+  simp only [← getEntry?_eq_some_getEntry]
+  apply getEntry?_filter_containsKey_eq_containsKey dl₁
+  · rw [contains_filter_iff] at h₁
+    · exact h₁.2
+    · exact dl₁
 
 theorem getKey_filter_containsKey_eq_containsKey [BEq α] [EquivBEq α]
     {l₁ l₂ : List ((a : α) × β a)} {k : α}

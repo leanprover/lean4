@@ -14,6 +14,7 @@ public import Std.Data.HashMap.Basic
 public import Init.Data.Hashable
 public import Std.Data.HashSet.Basic
 public import Std.Data.Iterators
+public import Init.Grind
 
 public section
 
@@ -28,20 +29,20 @@ structure FullnessState where
 
 abbrev FailureCond := FullnessState → Bool
 
-inductive CoreDoc where
+inductive Doc where
   | failure
-  | newline
+  | newline (flattened? : Option String)
   | text (s : String)
-  | indent (n : Nat) (d : CoreDoc)
-  | align (d : CoreDoc)
-  | reset (d : CoreDoc)
-  | full (d : CoreDoc)
-  | either (a b : CoreDoc)
-  | concat (a b : CoreDoc)
+  | indent (n : Nat) (d : Doc)
+  | align (d : Doc)
+  | reset (d : Doc)
+  | full (d : Doc)
+  | either (a b : Doc)
+  | concat (a b : Doc)
 with
-  @[computed_field] isFailure : CoreDoc → FailureCond
+  @[computed_field] isFailure : Doc → FailureCond
     | .failure => fun _ => true
-    | .newline => (·.isFullAfter)
+    | .newline .. => (·.isFullAfter)
     | .text s => fun
       | { isFullBefore := false, isFullAfter := false } => false
       | { isFullBefore := true, isFullAfter := false } => true
@@ -49,9 +50,9 @@ with
       | { isFullBefore := true, isFullAfter := true } => ! s.isEmpty
     | .full _ => (! ·.isFullAfter)
     | _ => fun _ => false
-  @[computed_field] maxNewlineCount? : CoreDoc → Option Nat
+  @[computed_field] maxNewlineCount? : Doc → Option Nat
     | .failure => none
-    | .newline => some 1
+    | .newline .. => some 1
     | .text _ => some 0
     | .indent _ d
     | .align d
@@ -59,14 +60,94 @@ with
     | .full d => maxNewlineCount? d
     | .either a b => .merge (max · ·) (maxNewlineCount? a) (maxNewlineCount? b)
     | .concat a b => .merge (· + ·) (maxNewlineCount? a) (maxNewlineCount? b)
+deriving Inhabited
 
-def CoreDoc.ptr (doc : CoreDoc) : USize :=
-  unsafe ptrAddrUnsafe doc
+def Doc.ptr (d : Doc) : USize :=
+  unsafe ptrAddrUnsafe d
+
+structure Doc.TraversalState (α : Type) where
+  cache : HashMap USize α := {}
+
+abbrev Doc.TraverseM (α : Type) := StateM (TraversalState α)
+
+@[expose] def Doc.Traverser (α : Type) := (d : Doc) → TraverseM α α
+
+def Doc.fold (d : Doc)
+    (f : (d : Doc) → (children : Array Doc) → (childAccs : Array α) → α) :
+    α :=
+  goMemoized d |>.run' {}
+where
+  goMemoized (d : Doc) : TraverseM α α := do
+    if let some cached := (← get).cache.get? d.ptr then
+      return cached
+    let r ← go d
+    modify fun state => { state with
+      cache := state.cache.insert d.ptr r
+    }
+    return r
+  go (d : Doc) : TraverseM α α := do
+    match d with
+    | .failure
+    | .newline ..
+    | .text .. =>
+      return f d #[] #[]
+    | .indent _ child
+    | .align child
+    | .reset child
+    | .full child =>
+      let acc ← goMemoized child
+      return f d #[child] #[acc]
+    | .either child1 child2
+    | .concat child1 child2 =>
+      let acc1 ← goMemoized child1
+      let acc2 ← goMemoized child2
+      return f d #[child1, child2] #[acc1, acc2]
+
+def Doc.map (d : Doc)
+    (f : (d : Doc) → (mappedChildren : Array Doc) → Option Doc) : Doc :=
+  d.fold fun d _ mappedChildren =>
+    match f d mappedChildren with
+    | some d' => d'
+    | none =>
+      match d, mappedChildren with
+      | .failure, #[]
+      | .newline .., #[]
+      | .text .., #[] =>
+        d
+      | .indent n .., #[child'] =>
+        .indent n child'
+      | .align .., #[child'] =>
+        .align child'
+      | .reset .., #[child'] =>
+        .reset child'
+      | .full .., #[child'] =>
+        .full child'
+      | .either .., #[child1', child2'] =>
+        .either child1' child2'
+      | .concat .., #[child1', child2'] =>
+        .concat child1' child2'
+      | _, _ =>
+        unreachable!
+
+
+partial def Doc.flatten (d : Doc) : Doc :=
+  d.map fun d _ =>
+    match d with
+    | .newline none =>
+      some .failure
+    | .newline (some flattened) =>
+      some <| .text flattened
+    | _ =>
+      none
 
 class Cost (τ : Type) [Add τ] [LE τ] where
   textCost : (columnPos length : Nat) → τ
   newlineCost : (indentationAfterNewline : Nat) → τ
   optimalityCutoffWidth : Nat
+
+-- Not used, just for documentation purposes.
+class LawfulCost (τ : Type) [Add τ] [LE τ] extends Cost τ, Grind.AddCommMonoid τ, Std.IsLinearOrder τ where
+  zero := textCost 0 0
 
   textCost_columnPos_monotone (cp₁ cp₂ n : Nat) :
     cp₁ ≤ cp₂ → textCost cp₁ n ≤ textCost cp₂ n
@@ -74,15 +155,6 @@ class Cost (τ : Type) [Add τ] [LE τ] where
     textCost cp (n₁ + n₂) = textCost cp n₁ + textCost (cp + n₁) n₂
   newlineCost_monotone (i₁ i₂ : Nat) :
     i₁ ≤ i₂ → newlineCost i₁ ≤ newlineCost i₂
-
-  add_zero (c : τ) : c + textCost 0 0 = c
-  add_comm (c₁ c₂ : τ) : c₁ + c₂ = c₂ + c₁
-  add_assoc (c₁ c₂ c₃ : τ) : (c₁ + c₂) + c₃ = c₁ + (c₂ + c₃)
-
-  le_refl (c : τ) : c ≤ c
-  le_trans (c₁ c₂ c₃ : τ) : c₁ ≤ c₂ → c₂ ≤ c₃ → c₁ ≤ c₃
-  le_antisymm (c₁ c₂ : τ) : c₁ ≤ c₂ → c₂ ≤ c₁ → c₁ = c₂
-  le_total (c₁ c₂ : τ) : c₁ ≤ c₂ ∨ c₂ ≤ c₁
 
   le_add_invariant (c₁ c₂ c₃ c₄ : τ) : c₁ ≤ c₂ → c₃ ≤ c₄ → c₁ + c₃ ≤ c₂ + c₄
 
@@ -109,9 +181,9 @@ def Measure.print (m : Measure τ) : String :=
 
 inductive TaintedMeasure (τ : Type) where
   | mergeTainted (tm1 tm2 : TaintedMeasure τ) (maxNewlineCount? : Option Nat)
-  | taintedConcat (tm1 : TaintedMeasure τ) (doc2 : CoreDoc) (indentation : Nat) (fullness : FullnessState) (maxNewlineCount? : Option Nat)
+  | taintedConcat (tm1 : TaintedMeasure τ) (d2 : Doc) (indentation : Nat) (fullness : FullnessState) (maxNewlineCount? : Option Nat)
   | concatTainted (m1 : Measure τ) (tm2 : TaintedMeasure τ) (maxNewlineCount? : Option Nat)
-  | resolveTainted (doc : CoreDoc) (columnPos : Nat) (indentation : Nat) (fullness : FullnessState) (maxNewlineCount? : Option Nat)
+  | resolveTainted (d : Doc) (columnPos : Nat) (indentation : Nat) (fullness : FullnessState) (maxNewlineCount? : Option Nat)
 
 def TaintedMeasure.ptr (tm : TaintedMeasure τ) : USize :=
   unsafe ptrAddrUnsafe tm
@@ -210,20 +282,20 @@ abbrev ResolverM (τ : Type) := StateM (ResolutionState τ)
 def ResolverM.run (f : ResolverM τ α) : α :=
   StateT.run' f {}
 
-def getCachedSet? (doc : CoreDoc) (columnPos indentation : Nat) (fullness : FullnessState) :
+def getCachedSet? (d : Doc) (columnPos indentation : Nat) (fullness : FullnessState) :
     ResolverM τ (Option (MeasureSet τ)) := do
   return (← get).setCache.get? {
-    docPtr := doc.ptr
+    docPtr := d.ptr
     columnPos
     indentation
     fullness
   }
 
-def setCachedSet (doc : CoreDoc) (columnPos indentation : Nat) (fullness : FullnessState)
+def setCachedSet (d : Doc) (columnPos indentation : Nat) (fullness : FullnessState)
     (set : MeasureSet τ) : ResolverM τ Unit :=
   modify fun state => { state with
     setCache := state.setCache.insert {
-        docPtr := doc.ptr
+        docPtr := d.ptr
         columnPos
         indentation
         fullness
@@ -246,44 +318,45 @@ def setCachedResolvedTainted (tm : TaintedMeasure τ) (m? : Option (Measure τ))
     resolvedTaintedCache := state.resolvedTaintedCache.insert tm.ptr m?
   }
 
-def isFailing (doc : CoreDoc) (fullness : FullnessState) : ResolverM τ Bool := do
+def isFailing (d : Doc) (fullness : FullnessState) : ResolverM τ Bool := do
   let isCachedFailure := (← get).failureCache.contains {
-    docPtr := doc.ptr
+    docPtr := d.ptr
     fullness
   }
-  return isCachedFailure || doc.isFailure fullness
+  return isCachedFailure || d.isFailure fullness
 
-def setCachedFailing (doc : CoreDoc) (fullness : FullnessState) : ResolverM τ Unit :=
+def setCachedFailing (d : Doc) (fullness : FullnessState) : ResolverM τ Unit :=
   modify fun state => { state with
     failureCache := state.failureCache.insert {
-      docPtr := doc.ptr
+      docPtr := d.ptr
       fullness
     }
   }
 
 @[expose] def Resolver (τ : Type) :=
-  (doc : CoreDoc) → (columnPos indentation : Nat) → (fullness : FullnessState) →
+  (d : Doc) → (columnPos indentation : Nat) → (fullness : FullnessState) →
     ResolverM τ (MeasureSet τ)
 
-def Resolver.memoize (f : Resolver τ) : Resolver τ := fun doc columnPos indentation fullness => do
-  if ← isFailing doc fullness then
+@[specialize]
+def Resolver.memoize (f : Resolver τ) : Resolver τ := fun d columnPos indentation fullness => do
+  if ← isFailing d fullness then
     -- TODO: Set failing, unlike Racket impl?
     return .set #[]
   if columnPos > Cost.optimalityCutoffWidth τ || indentation > Cost.optimalityCutoffWidth τ then
-    return ← f doc columnPos indentation fullness
-  if let some cachedSet ← getCachedSet? doc columnPos indentation fullness then
+    return ← f d columnPos indentation fullness
+  if let some cachedSet ← getCachedSet? d columnPos indentation fullness then
     return cachedSet
-  let r ← f doc columnPos indentation fullness
-  setCachedSet doc columnPos indentation fullness r
+  let r ← f d columnPos indentation fullness
+  setCachedSet d columnPos indentation fullness r
   return r
 
 mutual
 
-partial def MeasureSet.resolveCore : Resolver τ := fun doc columnPos indentation fullness => do
-  match doc with
+partial def MeasureSet.resolveCore : Resolver τ := fun d columnPos indentation fullness => do
+  match d with
   | .failure =>
     return .set #[]
-  | .newline =>
+  | .newline .. =>
     return .set #[{
       lastLineLength := indentation
       cost := Cost.newlineCost indentation
@@ -297,61 +370,62 @@ partial def MeasureSet.resolveCore : Resolver τ := fun doc columnPos indentatio
       output := modify fun out =>
         out ++ s
     }]
-  | .indent n doc =>
-    resolve doc columnPos (indentation + n) fullness
-  | .align doc =>
-    resolve doc columnPos columnPos fullness
-  | .reset doc =>
-    resolve doc columnPos 0 fullness
-  | .full doc =>
-    let set1 ← resolve doc columnPos indentation { fullness with isFullAfter := false }
-    let set2 ← resolve doc columnPos indentation { fullness with isFullAfter := true }
+  | .indent n d =>
+    resolve d columnPos (indentation + n) fullness
+  | .align d =>
+    resolve d columnPos columnPos fullness
+  | .reset d =>
+    resolve d columnPos 0 fullness
+  | .full d =>
+    let set1 ← resolve d columnPos indentation { fullness with isFullAfter := false }
+    let set2 ← resolve d columnPos indentation { fullness with isFullAfter := true }
     return .merge set1 set2 (prunable := false)
-  | .either doc1 doc2 =>
-    let set1 ← resolve doc1 columnPos indentation fullness
-    let set2 ← resolve doc2 columnPos indentation fullness
+  | .either d1 d2 =>
+    let set1 ← resolve d1 columnPos indentation fullness
+    let set2 ← resolve d2 columnPos indentation fullness
     return .merge set1 set2 (prunable := false)
-  | .concat doc1 doc2 =>
-    let set1 ← analyzeConcat doc doc1 doc2 columnPos indentation fullness false
-    let set2 ← analyzeConcat doc doc1 doc2 columnPos indentation fullness false
+  | .concat d1 d2 =>
+    let set1 ← analyzeConcat d d1 d2 columnPos indentation fullness false
+    let set2 ← analyzeConcat d d1 d2 columnPos indentation fullness false
     return .merge set1 set2 (prunable := false)
 where
-  analyzeConcat (doc doc1 doc2 : CoreDoc) (columnPos indentation : Nat) (fullness : FullnessState)
+  analyzeConcat (d d1 d2 : Doc) (columnPos indentation : Nat) (fullness : FullnessState)
       (isMidFull : Bool) : ResolverM τ (MeasureSet τ) := do
     let fullness1 := { fullness with isFullAfter := isMidFull }
     let fullness2 := { fullness with isFullBefore := isMidFull }
-    let set1 ← resolve doc1 columnPos indentation fullness1
+    let set1 ← resolve d1 columnPos indentation fullness1
     match set1 with
     | .tainted tm1 =>
-      return .tainted (.taintedConcat tm1 doc2 indentation fullness2 doc.maxNewlineCount?)
+      return .tainted (.taintedConcat tm1 d2 indentation fullness2 d.maxNewlineCount?)
     | .set ms1 =>
       let mut result := .set #[]
       for m1 in ms1 do
-        let set2 ← resolve doc2 m1.lastLineLength indentation fullness2
+        let set2 ← resolve d2 m1.lastLineLength indentation fullness2
         match set2 with
         | .tainted tm2 =>
-          return .tainted (.concatTainted m1 tm2 doc.maxNewlineCount?)
+          return .tainted (.concatTainted m1 tm2 d.maxNewlineCount?)
         | .set ms2 =>
           let m1Result : MeasureSet.Set τ := ms2.map m1.concat
           let m1Result := m1Result.dedup
           result := MeasureSet.merge result (.set m1Result) (prunable := true)
       return result
 
-partial def MeasureSet.resolve : Resolver τ := Resolver.memoize fun doc columnPos indentation fullness => do
+partial def MeasureSet.resolve : Resolver τ := Resolver.memoize fun d columnPos indentation fullness => do
   let columnPos' :=
-    if let .text s := doc then
+    if let .text s := d then
       columnPos + s.length
     else
       columnPos
   if columnPos' > Cost.optimalityCutoffWidth τ || indentation > Cost.optimalityCutoffWidth τ then
-    return .tainted (.resolveTainted doc columnPos indentation fullness doc.maxNewlineCount?)
-  return ← resolveCore doc columnPos indentation fullness
+    return .tainted (.resolveTainted d columnPos indentation fullness d.maxNewlineCount?)
+  return ← resolveCore d columnPos indentation fullness
 
 end
 
 @[expose] def TaintedResolver (τ : Type) :=
     (tm : TaintedMeasure τ) → ResolverM τ (Option (Measure τ))
 
+@[specialize]
 def TaintedResolver.memoize (f : TaintedResolver τ) : TaintedResolver τ := fun tm => do
   let cachedResolvedTainted? ← getCachedResolvedTainted? tm
   if let .hit m := cachedResolvedTainted? then
@@ -368,22 +442,22 @@ partial def TaintedMeasure.resolve? : TaintedResolver τ := TaintedResolver.memo
       | let m2? ← tm2.resolve?
         return m2?
     return some m1
-  | .taintedConcat tm doc indentation fullness _ =>
+  | .taintedConcat tm d indentation fullness _ =>
     let some m1 ← tm.resolve?
       | return none
-    let ms2 ← MeasureSet.resolve doc m1.lastLineLength indentation fullness
+    let ms2 ← MeasureSet.resolve d m1.lastLineLength indentation fullness
     let m2? ← ms2.extractAtMostOne?
     return m2?
   | .concatTainted m1 tm2 _ =>
     let some m2 ← tm2.resolve?
       | return none
     return some <| m1.concat m2
-  | .resolveTainted doc columnPos indentation fullness _ =>
+  | .resolveTainted d columnPos indentation fullness _ =>
     -- TODO: Why resolveCore instead of resolve?
-    let ms ← MeasureSet.resolveCore doc columnPos indentation fullness
+    let ms ← MeasureSet.resolveCore d columnPos indentation fullness
     let m? ← ms.extractAtMostOne?
     if m?.isNone then
-      setCachedFailing doc fullness
+      setCachedFailing d fullness
     return m?
 
 partial def MeasureSet.extractAtMostOne? (ms : MeasureSet τ) : ResolverM τ (Option (Measure τ)) := do
@@ -395,12 +469,12 @@ partial def MeasureSet.extractAtMostOne? (ms : MeasureSet τ) : ResolverM τ (Op
 
 end
 
-def resolve? (doc : CoreDoc) (offset : Nat) : Option (Measure τ) := ResolverM.run do
-  let ms1 ← MeasureSet.resolve doc offset 0 {
+def resolve? (d : Doc) (offset : Nat) : Option (Measure τ) := ResolverM.run do
+  let ms1 ← MeasureSet.resolve d offset 0 {
     isFullBefore := false
     isFullAfter := false
   }
-  let ms2 ← MeasureSet.resolve doc offset 0 {
+  let ms2 ← MeasureSet.resolve d offset 0 {
     isFullBefore := false
     isFullAfter := true
   }
@@ -408,6 +482,55 @@ def resolve? (doc : CoreDoc) (offset : Nat) : Option (Measure τ) := ResolverM.r
   ms.extractAtMostOne?
 
 def format? (τ : Type) [Add τ] [LE τ] [DecidableLE τ] [Cost τ]
-    (doc : CoreDoc) (offset : Nat) : Option String := do
-  let m ← resolve? (τ := τ) doc offset
+    (d : Doc) (offset : Nat) : Option String := do
+  let m ← resolve? (τ := τ) d offset
   return m.print
+
+@[grind ext]
+structure DefaultCost (softWidth : Nat) (optimalityCutoffWidth : Nat) where
+  widthCost : Nat
+  heightCost : Nat
+
+def DefaultCost.zero : DefaultCost w W :=
+  ⟨0, 0⟩
+
+instance : Zero (DefaultCost w W) where
+  zero := DefaultCost.zero
+
+def DefaultCost.add (c1 c2 : DefaultCost w W) : DefaultCost w W :=
+  ⟨c1.widthCost + c2.widthCost, c1.heightCost + c2.heightCost⟩
+
+instance : Add (DefaultCost w W) where
+  add := DefaultCost.add
+
+def DefaultCost.le
+    (c1 c2 : DefaultCost w W) : Prop :=
+  if c1.widthCost = c2.widthCost then
+    c1.heightCost ≤ c2.heightCost
+  else
+    c1.widthCost ≤ c2.widthCost
+
+instance : LE (DefaultCost w W) where
+  le := DefaultCost.le
+
+def DefaultCost.textCost (softWidth optimalityCutoffWidth columnPos length : Nat) :
+    DefaultCost softWidth optimalityCutoffWidth :=
+  if columnPos + length <= softWidth then
+    ⟨0, 0⟩
+  else if columnPos <= softWidth then
+    let lengthOverflow := (columnPos + length) - softWidth
+    ⟨lengthOverflow*lengthOverflow, 0⟩
+  else
+    -- TODO: Explain
+    let columnPosOverflow := columnPos - softWidth
+    let lengthOverflow := length
+    ⟨lengthOverflow*(2*columnPosOverflow + lengthOverflow), 0⟩
+
+def DefaultCost.newlineCost (w W _length : Nat) :
+    DefaultCost w W :=
+  ⟨0, 1⟩
+
+instance : Cost (DefaultCost softWidth optimalityCutoffWidth) where
+  textCost := DefaultCost.textCost softWidth optimalityCutoffWidth
+  newlineCost := DefaultCost.newlineCost softWidth optimalityCutoffWidth
+  optimalityCutoffWidth := optimalityCutoffWidth

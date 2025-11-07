@@ -6067,6 +6067,203 @@ theorem List.length_filter_containsKey_of_forall [BEq α] [EquivBEq α]
     . apply w
       rw [containsKey_cons, BEq.rfl, Bool.true_or]
 
+theorem List.length_filter_containsKey_of_forall_right [BEq α] [EquivBEq α]
+    {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂)
+    (w : ∀ (a : α), containsKey a l₂ → containsKey a l₁) :
+    (l₁.filter fun p => containsKey p.fst l₂).length = l₂.length := by
+  rw [← List.countP_eq_length_filter]
+  induction l₁ generalizing l₂
+  case nil =>
+    simp only [List.countP_nil]
+    by_cases heq : l₂ = []
+    case pos =>
+      simp only [heq, List.length_nil]
+    case neg =>
+      have ⟨⟨ek, ev⟩, emem⟩ := @List.exists_mem_of_ne_nil _ l₂ (by simp [heq])
+      specialize w ek
+      rw [List.containsKey_eq_true_iff_exists_mem] at w
+      specialize w ?_
+      . refine ⟨⟨ek,ev⟩, emem, ?_⟩
+        simp only [BEq.rfl]
+      . simp at w
+  case cons h t ih =>
+    by_cases heq : containsKey h.fst l₂
+    case pos =>
+      have len_eq : l₂.length = (eraseKey h.fst l₂).length + 1 := by
+        induction l₂
+        case nil => simp at heq
+        case cons h' t' ih' =>
+          simp only [List.length_cons, eraseKey, Nat.add_right_cancel_iff]
+          by_cases heq2 : h'.fst == h.fst
+          case pos =>
+            simp [heq2]
+          case neg =>
+            simp only [Bool.not_eq_true] at heq2
+            simp only [heq2, cond_false, List.length_cons]
+            apply ih'
+            . rw [List.distinctKeys_cons_iff] at hl₂
+              exact hl₂.1
+            . intro a mem
+              specialize w a
+              apply w
+              rw [containsKey_cons]
+              simp only [mem, Bool.or_true]
+            . rw [containsKey_cons] at heq
+              simp only [heq2, Bool.false_or] at heq
+              exact heq
+      rw [len_eq]
+      rw [List.countP_cons]
+      simp only [heq, ↓reduceIte, Nat.add_right_cancel_iff]
+      suffices List.countP (fun p => containsKey p.fst l₂) t = List.countP (fun p =>  containsKey p.fst (eraseKey h.fst l₂)) t by
+        rw [this]
+        apply ih
+        . rw [List.distinctKeys_cons_iff] at hl₁
+          exact hl₁.1
+        . apply DistinctKeys.eraseKey hl₂
+        . intro a
+          rw [containsKey_eraseKey]
+          simp
+          intro neq contains
+          specialize w a contains
+          rw [containsKey_cons] at w
+          . simp only [neq, Bool.false_or] at w
+            exact w
+          . exact hl₂
+      clear ih w
+      induction t
+      case nil => simp
+      case cons h' t' ih' =>
+        simp only [List.countP_cons]
+        split
+        case isTrue heq2 =>
+          rw [containsKey_eraseKey]
+          . simp only [heq2, Bool.and_true, Bool.not_eq_eq_eq_not, Bool.not_true]
+            suffices (h.fst == h'.fst) = false by
+              simp [this]
+              apply ih'
+              . rw [List.distinctKeys_cons_iff, List.distinctKeys_cons_iff, containsKey_cons] at hl₁
+                simp only [Bool.or_eq_false_iff] at hl₁
+                apply DistinctKeys.cons
+                all_goals simp only [hl₁]
+            . rw [List.distinctKeys_cons_iff, containsKey_cons] at hl₁
+              apply BEq.symm_false
+              simp only [Bool.or_eq_false_iff] at hl₁
+              exact hl₁.2.1
+          . exact hl₂
+        case isFalse heq2 =>
+          simp only [Bool.not_eq_true] at heq2
+          rw [containsKey_eraseKey]
+          simp only [Nat.add_zero, heq2, Bool.and_false, Bool.false_eq_true, ↓reduceIte]
+          apply ih'
+          . rw [List.distinctKeys_cons_iff, List.distinctKeys_cons_iff, containsKey_cons] at hl₁
+            simp only [Bool.or_eq_false_iff] at hl₁
+            apply DistinctKeys.cons
+            all_goals simp only [hl₁]
+          . exact hl₂
+    case neg =>
+      simp only [Bool.not_eq_true] at heq
+      simp only [heq, Bool.false_eq_true, not_false_eq_true, List.countP_cons_of_neg]
+      apply ih
+      . rw [List.distinctKeys_cons_iff] at hl₁
+        exact hl₁.1
+      . exact hl₂
+      . intro a mem
+        specialize w a mem
+        rw [containsKey_cons] at w
+        simp at w
+        rcases w with inl | inr
+        case w.inl =>
+          rw [containsKey_congr inl] at heq
+          rw [mem] at heq
+          contradiction
+        case w.inr =>
+          exact inr
+
+theorem length_filter_containsKey_le [BEq α] [EquivBEq α]
+    {l₁ l₂ : List ((a : α) × β a)}
+    (dl₁ : DistinctKeys l₂)
+    (dl₂ : DistinctKeys l₁) :
+    (l₁.filter fun p => containsKey p.fst l₂).length ≤ l₂.length := by
+  induction l₁ generalizing l₂
+  case nil => simp
+  case cons h t ih =>
+    by_cases heq : containsKey h.fst l₂
+    case pos =>
+      simp [← List.countP_eq_length_filter]
+      simp only [heq, List.countP_cons_of_pos]
+      have len_eq : l₂.length = (eraseKey h.fst l₂).length + 1 := by
+        induction l₂
+        case nil =>
+          simp at heq
+        case cons h' t' ih' =>
+          simp only [List.length_cons, eraseKey, Nat.add_right_cancel_iff]
+          by_cases heq2 : h'.fst == h.fst
+          case pos =>
+            simp [heq2]
+          case neg =>
+            simp only [Bool.not_eq_true] at heq2
+            simp only [heq2, cond_false, List.length_cons]
+            apply ih'
+            . rw [List.distinctKeys_cons_iff] at dl₁
+              exact dl₁.1
+            . rw [containsKey_cons] at heq
+              simp only [heq2, Bool.false_or] at heq
+              exact heq
+      rw [len_eq]
+      simp only [Nat.add_le_add_iff_right, ge_iff_le]
+      specialize @ih (eraseKey h.fst l₂) ?refine1 ?refine2
+      case refine1 =>
+        apply DistinctKeys.eraseKey dl₁
+      case refine2 =>
+        rw [List.distinctKeys_cons_iff] at dl₂
+        exact dl₂.1
+      rw [← List.countP_eq_length_filter] at ih
+      apply Nat.le_trans ?refine3 ih
+      case refine3 =>
+        clear ih len_eq
+        induction t
+        case nil => simp
+        case cons h' t' ih' =>
+          by_cases heq2 : h.fst == h'.fst
+          case pos =>
+            rw [List.distinctKeys_cons_iff] at dl₂
+            replace dl₂ := dl₂.2
+            rw [containsKey_cons] at dl₂
+            simp only [Bool.or_eq_false_iff] at dl₂
+            replace dl₂ := dl₂.1
+            rw [PartialEquivBEq.symm] at dl₂
+            . contradiction
+            . exact heq2
+          case neg =>
+            simp only [Bool.not_eq_true] at heq2
+            simp only [List.countP_cons]
+            split
+            case isTrue contains =>
+              rw [containsKey_eraseKey]
+              simp only [heq2, Bool.not_false, contains, Bool.and_self, ↓reduceIte,
+                Nat.add_le_add_iff_right]
+              apply ih'
+              . rw [List.distinctKeys_cons_iff, List.distinctKeys_cons_iff, containsKey_cons] at dl₂
+                simp only [Bool.or_eq_false_iff] at dl₂
+                apply DistinctKeys.cons
+                all_goals simp only [dl₂]
+              . exact dl₁
+            case isFalse contains =>
+              rw [containsKey_eraseKey]
+              simp only [Nat.add_zero, heq2, Bool.not_false, contains, Bool.and_false,
+                Bool.false_eq_true, ↓reduceIte]
+              apply ih'
+              . rw [List.distinctKeys_cons_iff, List.distinctKeys_cons_iff, containsKey_cons] at dl₂
+                simp only [Bool.or_eq_false_iff] at dl₂
+                apply DistinctKeys.cons
+                all_goals simp only [dl₂]
+              . exact dl₁
+    case neg =>
+      simp only [List.filter_cons, heq, Bool.false_eq_true, ↓reduceIte]
+      apply ih dl₁
+      rw [List.distinctKeys_cons_iff] at dl₂
+      exact dl₂.1
+
 theorem nil_of_containsKey_eq_false [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} :
     (∀ k, containsKey k l = false) ↔ l = [] := by
   constructor
@@ -6089,6 +6286,8 @@ theorem nil_of_containsKey_eq_false [BEq α] [EquivBEq α] {l : List ((a : α) �
   case mpr =>
     intro hyp k
     simp [hyp]
+
+
 
 theorem isEmpty_filter_containsKey_left [BEq α] [EquivBEq α]
     {l₁ l₂ : List ((a : α) × β a)} :
@@ -6461,91 +6660,6 @@ theorem length_filter_key_eq_length_iff {β : Type v} [BEq α] [EquivBEq α]
       ∀ (a : α) (h : containsKey a l), f (getKey a l h) = true := by
   simp [← List.filterMap_eq_filter,
     forall_mem_iff_forall_contains_getKey_getValue (p := fun a b => f a = true) distinct]
-
-theorem length_filter_containsKey_le [BEq α] [EquivBEq α]
-    {l₁ l₂ : List ((a : α) × β a)}
-    (dl₁ : DistinctKeys l₂)
-    (dl₂ : DistinctKeys l₁) :
-    (l₁.filter fun p => containsKey p.fst l₂).length ≤ l₂.length := by
-  induction l₁ generalizing l₂
-  case nil => simp
-  case cons h t ih =>
-    by_cases heq : containsKey h.fst l₂
-    case pos =>
-      simp [← List.countP_eq_length_filter]
-      simp only [heq, List.countP_cons_of_pos]
-      have len_eq : l₂.length = (eraseKey h.fst l₂).length + 1 := by
-        induction l₂
-        case nil =>
-          simp at heq
-        case cons h' t' ih' =>
-          simp only [List.length_cons, eraseKey, Nat.add_right_cancel_iff]
-          by_cases heq2 : h'.fst == h.fst
-          case pos =>
-            simp [heq2]
-          case neg =>
-            simp only [Bool.not_eq_true] at heq2
-            simp only [heq2, cond_false, List.length_cons]
-            apply ih'
-            . rw [List.distinctKeys_cons_iff] at dl₁
-              exact dl₁.1
-            . rw [containsKey_cons] at heq
-              simp only [heq2, Bool.false_or] at heq
-              exact heq
-      rw [len_eq]
-      simp only [Nat.add_le_add_iff_right, ge_iff_le]
-      specialize @ih (eraseKey h.fst l₂) ?refine1 ?refine2
-      case refine1 =>
-        apply DistinctKeys.eraseKey dl₁
-      case refine2 =>
-        rw [List.distinctKeys_cons_iff] at dl₂
-        exact dl₂.1
-      rw [← List.countP_eq_length_filter] at ih
-      apply Nat.le_trans ?refine3 ih
-      case refine3 =>
-        clear ih len_eq
-        induction t
-        case nil => simp
-        case cons h' t' ih' =>
-          by_cases heq2 : h.fst == h'.fst
-          case pos =>
-            rw [List.distinctKeys_cons_iff] at dl₂
-            replace dl₂ := dl₂.2
-            rw [containsKey_cons] at dl₂
-            simp only [Bool.or_eq_false_iff] at dl₂
-            replace dl₂ := dl₂.1
-            rw [PartialEquivBEq.symm] at dl₂
-            . contradiction
-            . exact heq2
-          case neg =>
-            simp only [Bool.not_eq_true] at heq2
-            simp only [List.countP_cons]
-            split
-            case isTrue contains =>
-              rw [containsKey_eraseKey]
-              simp only [heq2, Bool.not_false, contains, Bool.and_self, ↓reduceIte,
-                Nat.add_le_add_iff_right]
-              apply ih'
-              . rw [List.distinctKeys_cons_iff, List.distinctKeys_cons_iff, containsKey_cons] at dl₂
-                simp only [Bool.or_eq_false_iff] at dl₂
-                apply DistinctKeys.cons
-                all_goals simp only [dl₂]
-              . exact dl₁
-            case isFalse contains =>
-              rw [containsKey_eraseKey]
-              simp only [Nat.add_zero, heq2, Bool.not_false, contains, Bool.and_false,
-                Bool.false_eq_true, ↓reduceIte]
-              apply ih'
-              . rw [List.distinctKeys_cons_iff, List.distinctKeys_cons_iff, containsKey_cons] at dl₂
-                simp only [Bool.or_eq_false_iff] at dl₂
-                apply DistinctKeys.cons
-                all_goals simp only [dl₂]
-              . exact dl₁
-    case neg =>
-      simp only [List.filter_cons, heq, Bool.false_eq_true, ↓reduceIte]
-      apply ih dl₁
-      rw [List.distinctKeys_cons_iff] at dl₂
-      exact dl₂.1
 
 theorem isEmpty_filterMap_eq_true [BEq α] [EquivBEq α] {β : Type v} {γ : Type w}
     {f : (_ : α) → β → Option γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) :

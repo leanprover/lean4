@@ -2992,8 +2992,7 @@ theorem size_inter_eq_size_right [EquivBEq α] [LawfulHashable α]
     (h : ∀ (a : α), m₂.contains a → m₁.contains a) :
     (m₁.inter m₂).1.size = m₂.1.size := by
   revert h
-  simp_to_model [inter, size, contains]
-  sorry
+  simp_to_model [inter, size, contains] using List.length_filter_containsKey_of_forall_right
 
 /- isEmpty -/
 @[simp]

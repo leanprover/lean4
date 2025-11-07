@@ -79,14 +79,6 @@ def toCType : IRType → String
 def throwInvalidExportName {α : Type} (n : Name) : M α :=
   throw s!"invalid export name '{n}'"
 
-@[export lean_get_symbol_stem]
-private def getSymbolStem (env : Environment) (fn : Name) : String :=
-  let pkg? :=
-    match env.getModuleIdxFor? fn with
-    | some idx => env.getModulePackageByIdx? idx
-    | none => env.getModulePackage?
-  fn.mangle (mkPackageSymbolPrefix pkg?)
-
 def toCName (n : Name) : M String := do
   let env ← getEnv;
   -- TODO: we should support simple export names only

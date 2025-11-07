@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Environment
+import Lean.Compiler.NameMangling
 
 set_option doc.verso true
 
@@ -50,3 +51,11 @@ public def Environment.getModulePackageByIdx? (env : Environment) (idx : ModuleI
 /-- Sets the package of the current module. -/
 @[inline] public def Environment.setModulePackage (pkg? : Option PkgId) (env : Environment) : Environment :=
   modPkgExt.setState env pkg?
+
+@[export lean_get_symbol_stem]
+public def getSymbolStem (env : Environment) (fn : Name) : String :=
+  let pkg? :=
+    match env.getModuleIdxFor? fn with
+    | some idx => env.getModulePackageByIdx? idx
+    | none => env.getModulePackage?
+  fn.mangle (mkPackageSymbolPrefix pkg?)

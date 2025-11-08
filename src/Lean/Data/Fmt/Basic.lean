@@ -565,11 +565,6 @@ instance : Std.IsLinearOrder (DefaultCost w W) where
   le_antisymm := DefaultCost.le_antisymm
   le_total := DefaultCost.le_total
 
-theorem DefaultCost.le_of_le {c₁ c₂ : DefaultCost w W} :
-    c₁.widthCost ≤ c₂.widthCost → c₁.heightCost ≤ c₂.heightCost → c₁ ≤ c₂ := by
-  simp only [le_def]
-  grind
-
 def DefaultCost.textCost (softWidth optimalityCutoffWidth columnPos length : Nat) :
     DefaultCost softWidth optimalityCutoffWidth :=
   if columnPos + length <= softWidth then

@@ -437,8 +437,16 @@ from an `ELogT` (e.g., `LogIO`).
 @[inline] public def withLoggedIO
   [Monad m] [MonadLiftT BaseIO m] [MonadLog m] [MonadFinally m] (x : m α)
 : m α := do
-  let (out, a) ← IO.FS.withIsolatedStreams x
-  unless out.isEmpty do logInfo s!"stdout/stderr:\n{out.trim}"
+  let buf ← IO.mkRef { : IO.FS.Stream.Buffer }
+  let stdout ← IO.setStdout <| .ofBuffer buf
+  let stderr ← IO.setStderr <| .ofBuffer buf
+  let a ← try x finally
+    discard <| IO.setStdout stdout
+    discard <| IO.setStderr stderr
+  let buf ← liftM (m := BaseIO) buf.get
+  let out := String.fromUTF8! buf.data
+  unless out.isEmpty do
+    logInfo s!"stdout/stderr:\n{out.trim}"
   return a
 
 /-- Throw with the logged error `message`. -/

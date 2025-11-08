@@ -145,7 +145,6 @@ class Cost (τ : Type) [Add τ] [LE τ] where
   newlineCost : (indentationAfterNewline : Nat) → τ
   optimalityCutoffWidth : Nat
 
--- Not used, just for documentation purposes.
 class LawfulCost (τ : Type) [Add τ] [LE τ] extends Cost τ, Grind.AddCommMonoid τ, Std.IsLinearOrder τ where
   zero := textCost 0 0
 
@@ -497,11 +496,34 @@ def DefaultCost.zero : DefaultCost w W :=
 instance : Zero (DefaultCost w W) where
   zero := DefaultCost.zero
 
+theorem DefaultCost.zero_def : (0 : DefaultCost w W) = ⟨0, 0⟩ := by
+  simp [Zero.zero, OfNat.ofNat, DefaultCost.zero]
+
 def DefaultCost.add (c1 c2 : DefaultCost w W) : DefaultCost w W :=
   ⟨c1.widthCost + c2.widthCost, c1.heightCost + c2.heightCost⟩
 
 instance : Add (DefaultCost w W) where
   add := DefaultCost.add
+
+theorem DefaultCost.add_def {c₁ c₂ : DefaultCost w W} :
+    c₁ + c₂ = ⟨c₁.widthCost + c₂.widthCost, c₁.heightCost + c₂.heightCost⟩ := by
+  simp only [HAdd.hAdd, Add.add, DefaultCost.add]
+
+theorem DefaultCost.add_zero (c : DefaultCost w W) : c + 0 = c := by
+  grind [= zero_def, = add_def]
+
+theorem DefaultCost.add_comm (c₁ c₂ : DefaultCost w W) : c₁ + c₂ = c₂ + c₁ := by
+  grind [= add_def]
+
+theorem DefaultCost.add_assoc (c₁ c₂ c₃ : DefaultCost w W) :
+    (c₁ + c₂) + c₃ = c₁ + (c₂ + c₃) := by
+  grind [= add_def]
+
+instance : Grind.AddCommMonoid (DefaultCost w W) where
+  zero := DefaultCost.zero
+  add_zero := DefaultCost.add_zero
+  add_comm := DefaultCost.add_comm
+  add_assoc := DefaultCost.add_assoc
 
 def DefaultCost.le
     (c1 c2 : DefaultCost w W) : Prop :=
@@ -512,6 +534,38 @@ def DefaultCost.le
 
 instance : LE (DefaultCost w W) where
   le := DefaultCost.le
+
+theorem DefaultCost.le_def {c₁ c₂ : DefaultCost w W} :
+    c₁ ≤ c₂ ↔
+      (if c₁.widthCost = c₂.widthCost then
+          c₁.heightCost ≤ c₂.heightCost
+        else
+          c₁.widthCost ≤ c₂.widthCost) := by
+  simp only [LE.le]
+  simp [le]
+
+theorem DefaultCost.le_refl (c : DefaultCost w W) : c ≤ c := by
+  grind [= le_def]
+
+theorem DefaultCost.le_trans (c₁ c₂ c₃ : DefaultCost w W) : c₁ ≤ c₂ → c₂ ≤ c₃ → c₁ ≤ c₃ := by
+  grind [= le_def]
+
+theorem DefaultCost.le_antisymm (c₁ c₂ : DefaultCost w W) : c₁ ≤ c₂ → c₂ ≤ c₁ → c₁ = c₂ := by
+  grind [= le_def]
+
+theorem DefaultCost.le_total (c₁ c₂ : DefaultCost w W) : c₁ ≤ c₂ ∨ c₂ ≤ c₁ := by
+  grind [= le_def]
+
+instance : Std.IsLinearOrder (DefaultCost w W) where
+  le_refl := DefaultCost.le_refl
+  le_trans := DefaultCost.le_trans
+  le_antisymm := DefaultCost.le_antisymm
+  le_total := DefaultCost.le_total
+
+theorem DefaultCost.le_of_le {c₁ c₂ : DefaultCost w W} :
+    c₁.widthCost ≤ c₂.widthCost → c₁.heightCost ≤ c₂.heightCost → c₁ ≤ c₂ := by
+  intro h₁ h₂
+  grind [= le_def]
 
 def DefaultCost.textCost (softWidth optimalityCutoffWidth columnPos length : Nat) :
     DefaultCost softWidth optimalityCutoffWidth :=
@@ -526,11 +580,119 @@ def DefaultCost.textCost (softWidth optimalityCutoffWidth columnPos length : Nat
     let lengthOverflow := length
     ⟨lengthOverflow*(2*columnPosOverflow + lengthOverflow), 0⟩
 
+theorem DefaultCost.textCost_columnPos_monotone
+    (cp₁ cp₂ n : Nat) : cp₁ ≤ cp₂ → textCost w W cp₁ n ≤ textCost w W cp₂ n := by
+  intro h
+  fun_cases textCost w W cp₁ n with
+  | case1 =>
+    grind [= le_def]
+  | case2 h₁ h₂ b₁ =>
+    fun_cases textCost with
+    | case1 h₃ =>
+      grind
+    | case2 h₃ h₄ b₂ =>
+      apply le_of_le
+      · apply Nat.mul_le_mul
+        · grind
+        · grind
+      · simp
+    | case3 h₃ h₄ a₂ b₂ =>
+      apply le_of_le
+      · have : (cp₁ + n - w) * (cp₁ + n - w) <= (w + n - w) * (w + n - w) := by
+          apply Nat.mul_le_mul <;> grind
+        grind
+      · simp
+  | case3 h₁ h₂ a₁ b₁ =>
+    fun_cases textCost with
+    | case1 h₃ =>
+      grind
+    | case2 h₃ h₄ b₂ =>
+      grind
+    | case3 h₃ h₄ a₂ b₂ =>
+      apply le_of_le
+      · dsimp [a₁, a₂, b₁, b₂]
+        clear a₁ a₂ b₁ b₂
+        apply Nat.mul_le_mul
+        · simp
+        · grind
+      · simp
+
+theorem DefaultCost.textCost_length_add_decompose (cp n₁ n₂ : Nat) :
+    textCost w W cp (n₁ + n₂) = textCost w W cp n₁ + textCost w W (cp + n₁) n₂ := by
+  fun_cases textCost w W cp (n₁ + n₂) with
+  | case1 h₁ =>
+    fun_cases textCost w W cp n₁ with
+    | case1 h₂ =>
+      fun_cases textCost with
+      | case1 h₃ =>
+        grind [= add_def]
+      | case2 h₃ h₄ b₃ =>
+        grind
+      | case3 h₃ h₃ a₃ b₃ =>
+        grind
+    | case2 h₂ h₃ b₂ =>
+      grind
+    | case3 h₂ h₃ a₂ b₂ =>
+      grind
+  | case2 h₁ h₂ b₁ =>
+    fun_cases textCost w W cp n₁ with
+    | case1 h₃ =>
+      fun_cases textCost with
+      | case1 h₄ =>
+        grind
+      | case2 h₄ h₅ b₃ =>
+        grind [= add_def]
+      | case3 h₄ h₅ a₃ b₃ =>
+        grind
+    | case2 h₃ h₄ b₂ =>
+      fun_cases textCost with
+      | case1 h₅ =>
+        grind
+      | case2 h₅ h₆ b₃ =>
+        grind
+      | case3 h₅ h₆ a₃ b₃ =>
+        simp only [add_def, a₃, b₁, b₂, b₃]
+        rw [← Nat.add_assoc, Nat.sub_add_comm]
+        · grind
+        · grind
+    | case3 h₃ h₄ a₂ b₂ =>
+      grind
+  | case3 h₂ h₃ a₁ b₁ =>
+    fun_cases textCost w W cp n₁ with
+    | case1 h₄ =>
+      grind
+    | case2 h₄ h₅ b₂ =>
+      grind
+    | case3 h₄ h₅ a₂ b₂ =>
+      fun_cases textCost with
+      | case1 h₆ =>
+        grind
+      | case2 h₆ h₇ b₃ =>
+        grind
+      | case3 h₆ h₇ a₃ b₃ =>
+        simp only [add_def, a₁, a₂, a₃, b₁, b₂, b₃]
+        rw [Nat.sub_add_comm]
+        · grind
+        · grind
+
 def DefaultCost.newlineCost (w W _length : Nat) :
     DefaultCost w W :=
   ⟨0, 1⟩
 
-instance : Cost (DefaultCost softWidth optimalityCutoffWidth) where
+theorem DefaultCost.newlineCost_monotone (i₁ i₂ : Nat) :
+    i₁ ≤ i₂ → newlineCost w W i₁ ≤ newlineCost w W i₂ := by
+  grind [newlineCost]
+
+def DefaultCost.le_add_invariant (c₁ c₂ c₃ c₄ : DefaultCost w W) : c₁ ≤ c₂ → c₃ ≤ c₄ → c₁ + c₃ ≤ c₂ + c₄ := by
+  grind [= le_def, = add_def]
+
+instance : LawfulCost (DefaultCost softWidth optimalityCutoffWidth) where
   textCost := DefaultCost.textCost softWidth optimalityCutoffWidth
   newlineCost := DefaultCost.newlineCost softWidth optimalityCutoffWidth
   optimalityCutoffWidth := optimalityCutoffWidth
+
+  textCost_columnPos_monotone := DefaultCost.textCost_columnPos_monotone
+  textCost_length_add_decompose := DefaultCost.textCost_length_add_decompose
+  newlineCost_monotone := DefaultCost.newlineCost_monotone
+
+  le_add_invariant := DefaultCost.le_add_invariant

@@ -7,14 +7,10 @@ Author: Marc Huisinga
 module
 
 prelude
-public import Init.Prelude
-public import Init.Data.String.Defs
-public import Init.Data.Array
+public import Init
 public import Std.Data.HashMap.Basic
-public import Init.Data.Hashable
 public import Std.Data.HashSet.Basic
 public import Std.Data.Iterators
-public import Init.Grind
 
 public section
 
@@ -497,7 +493,7 @@ instance : Zero (DefaultCost w W) where
   zero := DefaultCost.zero
 
 theorem DefaultCost.zero_def : (0 : DefaultCost w W) = ⟨0, 0⟩ := by
-  simp [Zero.zero, OfNat.ofNat, DefaultCost.zero]
+  simp only [Zero.zero, OfNat.ofNat, DefaultCost.zero]
 
 def DefaultCost.add (c1 c2 : DefaultCost w W) : DefaultCost w W :=
   ⟨c1.widthCost + c2.widthCost, c1.heightCost + c2.heightCost⟩
@@ -510,14 +506,17 @@ theorem DefaultCost.add_def {c₁ c₂ : DefaultCost w W} :
   simp only [HAdd.hAdd, Add.add, DefaultCost.add]
 
 theorem DefaultCost.add_zero (c : DefaultCost w W) : c + 0 = c := by
-  grind [= zero_def, = add_def]
+  simp only [zero_def, add_def]
+  grind
 
 theorem DefaultCost.add_comm (c₁ c₂ : DefaultCost w W) : c₁ + c₂ = c₂ + c₁ := by
-  grind [= add_def]
+  simp only [add_def]
+  grind
 
 theorem DefaultCost.add_assoc (c₁ c₂ c₃ : DefaultCost w W) :
     (c₁ + c₂) + c₃ = c₁ + (c₂ + c₃) := by
-  grind [= add_def]
+  simp only [add_def]
+  grind
 
 instance : Grind.AddCommMonoid (DefaultCost w W) where
   zero := DefaultCost.zero
@@ -545,16 +544,20 @@ theorem DefaultCost.le_def {c₁ c₂ : DefaultCost w W} :
   simp [le]
 
 theorem DefaultCost.le_refl (c : DefaultCost w W) : c ≤ c := by
-  grind [= le_def]
+  simp only [le_def]
+  grind
 
 theorem DefaultCost.le_trans (c₁ c₂ c₃ : DefaultCost w W) : c₁ ≤ c₂ → c₂ ≤ c₃ → c₁ ≤ c₃ := by
-  grind [= le_def]
+  simp only [le_def]
+  grind
 
 theorem DefaultCost.le_antisymm (c₁ c₂ : DefaultCost w W) : c₁ ≤ c₂ → c₂ ≤ c₁ → c₁ = c₂ := by
-  grind [= le_def]
+  simp only [le_def]
+  grind
 
 theorem DefaultCost.le_total (c₁ c₂ : DefaultCost w W) : c₁ ≤ c₂ ∨ c₂ ≤ c₁ := by
-  grind [= le_def]
+  simp only [le_def]
+  grind
 
 instance : Std.IsLinearOrder (DefaultCost w W) where
   le_refl := DefaultCost.le_refl
@@ -564,8 +567,8 @@ instance : Std.IsLinearOrder (DefaultCost w W) where
 
 theorem DefaultCost.le_of_le {c₁ c₂ : DefaultCost w W} :
     c₁.widthCost ≤ c₂.widthCost → c₁.heightCost ≤ c₂.heightCost → c₁ ≤ c₂ := by
-  intro h₁ h₂
-  grind [= le_def]
+  simp only [le_def]
+  grind
 
 def DefaultCost.textCost (softWidth optimalityCutoffWidth columnPos length : Nat) :
     DefaultCost softWidth optimalityCutoffWidth :=
@@ -582,98 +585,11 @@ def DefaultCost.textCost (softWidth optimalityCutoffWidth columnPos length : Nat
 
 theorem DefaultCost.textCost_columnPos_monotone
     (cp₁ cp₂ n : Nat) : cp₁ ≤ cp₂ → textCost w W cp₁ n ≤ textCost w W cp₂ n := by
-  intro h
-  fun_cases textCost w W cp₁ n with
-  | case1 =>
-    grind [= le_def]
-  | case2 h₁ h₂ b₁ =>
-    fun_cases textCost with
-    | case1 h₃ =>
-      grind
-    | case2 h₃ h₄ b₂ =>
-      apply le_of_le
-      · apply Nat.mul_le_mul
-        · grind
-        · grind
-      · simp
-    | case3 h₃ h₄ a₂ b₂ =>
-      apply le_of_le
-      · have : (cp₁ + n - w) * (cp₁ + n - w) <= (w + n - w) * (w + n - w) := by
-          apply Nat.mul_le_mul <;> grind
-        grind
-      · simp
-  | case3 h₁ h₂ a₁ b₁ =>
-    fun_cases textCost with
-    | case1 h₃ =>
-      grind
-    | case2 h₃ h₄ b₂ =>
-      grind
-    | case3 h₃ h₄ a₂ b₂ =>
-      apply le_of_le
-      · dsimp [a₁, a₂, b₁, b₂]
-        clear a₁ a₂ b₁ b₂
-        apply Nat.mul_le_mul
-        · simp
-        · grind
-      · simp
+  grind [textCost, = le_def, Nat.mul_le_mul]
 
 theorem DefaultCost.textCost_length_add_decompose (cp n₁ n₂ : Nat) :
     textCost w W cp (n₁ + n₂) = textCost w W cp n₁ + textCost w W (cp + n₁) n₂ := by
-  fun_cases textCost w W cp (n₁ + n₂) with
-  | case1 h₁ =>
-    fun_cases textCost w W cp n₁ with
-    | case1 h₂ =>
-      fun_cases textCost with
-      | case1 h₃ =>
-        grind [= add_def]
-      | case2 h₃ h₄ b₃ =>
-        grind
-      | case3 h₃ h₃ a₃ b₃ =>
-        grind
-    | case2 h₂ h₃ b₂ =>
-      grind
-    | case3 h₂ h₃ a₂ b₂ =>
-      grind
-  | case2 h₁ h₂ b₁ =>
-    fun_cases textCost w W cp n₁ with
-    | case1 h₃ =>
-      fun_cases textCost with
-      | case1 h₄ =>
-        grind
-      | case2 h₄ h₅ b₃ =>
-        grind [= add_def]
-      | case3 h₄ h₅ a₃ b₃ =>
-        grind
-    | case2 h₃ h₄ b₂ =>
-      fun_cases textCost with
-      | case1 h₅ =>
-        grind
-      | case2 h₅ h₆ b₃ =>
-        grind
-      | case3 h₅ h₆ a₃ b₃ =>
-        simp only [add_def, a₃, b₁, b₂, b₃]
-        rw [← Nat.add_assoc, Nat.sub_add_comm]
-        · grind
-        · grind
-    | case3 h₃ h₄ a₂ b₂ =>
-      grind
-  | case3 h₂ h₃ a₁ b₁ =>
-    fun_cases textCost w W cp n₁ with
-    | case1 h₄ =>
-      grind
-    | case2 h₄ h₅ b₂ =>
-      grind
-    | case3 h₄ h₅ a₂ b₂ =>
-      fun_cases textCost with
-      | case1 h₆ =>
-        grind
-      | case2 h₆ h₇ b₃ =>
-        grind
-      | case3 h₆ h₇ a₃ b₃ =>
-        simp only [add_def, a₁, a₂, a₃, b₁, b₂, b₃]
-        rw [Nat.sub_add_comm]
-        · grind
-        · grind
+  grind [textCost, = add_def, Nat.sub_add_comm]
 
 def DefaultCost.newlineCost (w W _length : Nat) :
     DefaultCost w W :=

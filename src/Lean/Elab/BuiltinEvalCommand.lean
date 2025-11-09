@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.MutualDef
 import Lean.Compiler.Options
+import Lean.Elab.InfoTree.EvalInfo
 
 public section
 
@@ -241,6 +242,8 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
   | .inl ex => logException ex
   | .inr (_, none) => pure ()
   | .inr (res, some type) =>
+    let evalResultInfo : EvalResultInfo := { stx := tk, result := res, type }
+    liftTermElabM <| evalResultInfo.pushInfoLeaf term
     if eval.type.get (← getOptions) then
       logInfo m!"{res} : {type}"
     else

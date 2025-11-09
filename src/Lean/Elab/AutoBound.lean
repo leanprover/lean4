@@ -7,6 +7,8 @@ module
 
 prelude
 public import Lean.Data.Options
+public import Lean.Message
+public import Lean.Meta.Hint
 
 public section
 
@@ -24,7 +26,11 @@ register_builtin_option relaxedAutoImplicit : Bool := {
     descr    := "When \"relaxed\" mode is enabled, any atomic nonempty identifier is eligible for auto bound implicit locals (see option `autoImplicit`)."
   }
 
-
+/--
+Intuitively a variable can be auto-bound in strict mode if it is a single character (`α` or `x`),
+but also it can have an arbitrary trailing sequence of numbers, subscripts, and underscores: both
+`αᵣₒₛₑ₂₁₁'''` and `X123_45` can be auto-bound even with `relaxedAutoBound` set to `false`.
+-/
 private def isValidAutoBoundSuffix (s : String) : Bool :=
   s.toSubstring.drop 1 |>.all fun c => c.isDigit || isSubScriptAlnum c || c == '_' || c == '\''
 
@@ -39,13 +45,26 @@ Thus, in the example above, when `A` is expanded, a `x` with a fresh macro scope
 `x`+macros-scope is not in scope and is a valid auto-bound implicit name after macro scopes are erased.
 So, an auto-bound exception would be thrown, and `x`+macro-scope would be added as a new implicit.
 When, we try again, a `x` with a new macro scope is created and this process keeps repeating.
-Therefore, we do consider identifier with macro scopes anymore.
+Therefore, we don't consider identifier with macro scopes anymore.
+
+An `.error` value should be treated as a `false` --- this is not a valid auto-bound implicit name --
+but is tagged with additional notes and hints (above and beyond `Unknown identifier`) to attach to
+an error message.
 -/
 
-def isValidAutoBoundImplicitName (n : Name) (relaxed : Bool) : Bool :=
+def checkValidAutoBoundImplicitName (n : Name) (allowed : Bool) (relaxed : Bool) : Except (CoreM MessageData) Bool :=
   match n with
-  | .str .anonymous s => s.length > 0 && (relaxed || isValidAutoBoundSuffix s)
-  | _ => false
+  | .str .anonymous s =>
+    if s.length = 0 then
+      .ok false
+    else if allowed && (relaxed || isValidAutoBoundSuffix s) then
+      .ok true
+    else if !allowed then
+      .error <| do
+        return (.note m!"It is not possible to treat `{.ofConstName n}` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.")
+    else
+      .error <| pure (.note m!"It is not possible to treat `{.ofConstName n}` as an implicitly bound variable here because it has multiple characters while the `relaxedAutoImplicit` option is set to `false`.")
+  | _ => .ok false
 
 def isValidAutoBoundLevelName (n : Name) (relaxed : Bool) : Bool :=
   match n with

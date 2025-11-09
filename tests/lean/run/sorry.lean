@@ -106,7 +106,7 @@ error: Unknown identifier `b`
 
 Note: It is not possible to treat `b` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
 ---
-trace: ⊢ sorry `«lean.run.sorry:114:10» = sorry `«sorry:114:14»
+trace: ⊢ sorry `«lean.run.sorry:114:10» = sorry `«lean.run.sorry:114:14»
 -/
 #guard_msgs in
 set_option autoImplicit false in

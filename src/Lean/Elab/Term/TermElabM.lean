@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Coe
+public import Lean.Meta.Hint
 public import Lean.Util.CollectLevelMVars
 public import Lean.Linter.Deprecated
 public import Lean.Elab.Attributes
@@ -256,12 +257,17 @@ structure Context where
      we must not set `errToSorry` to `true` when it is currently set to `false`. -/
   errToSorry : Bool := true
   /--
-     When `autoBoundImplicit` is set to true, instead of producing
-     an "unknown identifier" error for unbound variables, we generate an
-     internal exception. This exception is caught at `withAutoBoundImplicit`
-     which adds an implicit declaration for the unbound variable and tries again. -/
-  autoBoundImplicit  : Bool            := false
-  autoBoundImplicits : PArray Expr := {}
+     During elaboration we track the current context for adding auto-bound
+     implicit variables. (We mark the entry to such a region with
+     `withAutoBoundImplicit` and leave it with `withoutAutoBoundImplicit`.)
+
+     When the `autoImplicit` option is `false`, this context is only used to
+     affect error messages. When `autoImplicit` is `true` and an identifier is
+     unbound and potentially an auto-bound implicit, an internal exception is
+     thrown and caught at the closest surrounding `withAutoBoundImplicit`,
+     which adds an implicit declaration for the unbound variable and tries
+     again. -/
+  autoBoundImplicitContext : Option (PArray Expr) := .none
   /--
     A name `n` is only eligible to be an auto implicit name if `autoBoundImplicitForbidden n = false`.
     We use this predicate to disallow `f` to be considered an auto implicit name in a definition such
@@ -601,7 +607,11 @@ instance : MonadParentDecl TermElabM where
   getParentDeclName? := getDeclName?
 
 instance : MonadAutoImplicits TermElabM where
-  getAutoImplicits := return (← read).autoBoundImplicits.toArray
+  getAutoImplicits := do
+    if let .some implicits := (← read).autoBoundImplicitContext then
+      pure implicits.toArray
+    else
+      pure {}
 
 /--
 Executes `x` in the context of the given declaration name. Ensures that the info tree is set up
@@ -717,7 +727,11 @@ def liftLevelM (x : LevelElabM α) : TermElabM α := do
   let ctx ← read
   let mctx ← getMCtx
   let ngen ← getNGen
-  let lvlCtx : Level.Context := { options := (← getOptions), ref := (← getRef), autoBoundImplicit := ctx.autoBoundImplicit }
+  let lvlCtx : Level.Context := {
+    options := (← getOptions),
+    ref := (← getRef),
+    autoBoundImplicit := ctx.autoBoundImplicitContext.isSome && autoImplicit.get (← getOptions)
+  }
   match (x lvlCtx).run { ngen := ngen, mctx := mctx, levelNames := (← getLevelNames) } with
   | .ok a newS  => setMCtx newS.mctx; setNGen newS.ngen; setLevelNames newS.levelNames; pure a
   | .error ex _ => throw ex
@@ -1757,28 +1771,28 @@ def elabType (stx : Syntax) : TermElabM Expr := do
   Enable auto-bound implicits, and execute `k` while catching auto bound implicit exceptions. When an exception is caught,
   a new local declaration is created, registered, and `k` is tried to be executed again. -/
 partial def withAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
+  withReader ({ · with autoBoundImplicitContext := .some {} }) do
   let flag := autoImplicit.get (← getOptions)
   if flag then
-    withReader (fun ctx => { ctx with autoBoundImplicit := flag, autoBoundImplicits := {} }) do
-      let rec loop (s : SavedState) : TermElabM α := withIncRecDepth do
-        checkSystem "auto-implicit"
-        try
-          withSaveAutoImplicitInfoContext k
-        catch
-          | ex => match isAutoBoundImplicitLocalException? ex with
-            | some n =>
-              -- Restore state, declare `n`, and try again
-              s.restore (restoreInfo := true)
-              withLocalDecl n .implicit (← mkFreshTypeMVar) fun x =>
-                withReader (fun ctx => { ctx with autoBoundImplicits := ctx.autoBoundImplicits.push x } ) do
-                  loop (← saveState)
-            | none   => throw ex
-      loop (← saveState)
+    let rec loop (s : SavedState) : TermElabM α := withIncRecDepth do
+      checkSystem "auto-implicit"
+      try
+        withSaveAutoImplicitInfoContext k
+      catch
+        | ex => match isAutoBoundImplicitLocalException? ex with
+          | some n =>
+            -- Restore state, declare `n`, and try again
+            s.restore (restoreInfo := true)
+            withLocalDecl n .implicit (← mkFreshTypeMVar) fun x =>
+              withReader (fun ctx => { ctx with autoBoundImplicitContext := .some <| ctx.autoBoundImplicitContext.get!.push x } ) do
+                loop (← saveState)
+          | none   => throw ex
+    loop (← saveState)
   else
     k
 
 def withoutAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
-  withReader (fun ctx => { ctx with autoBoundImplicit := false, autoBoundImplicits := {} }) k
+  withReader (fun ctx => { ctx with autoBoundImplicitContext := .none }) k
 
 partial def withAutoBoundImplicitForbiddenPred (p : Name → Bool) (x : TermElabM α) : TermElabM α := do
   withReader (fun ctx => { ctx with autoBoundImplicitForbidden := fun n => p n || ctx.autoBoundImplicitForbidden n }) x
@@ -1867,7 +1881,7 @@ def addAutoBoundImplicitsInlayHint (autos : Array Expr) (inlayHintPos : String.P
   use-case may not be able to handle the metavariables in the array being given to `k`.
 -/
 def addAutoBoundImplicits (xs : Array Expr) (inlayHintPos? : Option String.Pos.Raw) : TermElabM (Array Expr) := do
-  let autos := (← read).autoBoundImplicits
+  let autos ← getAutoImplicits
   go autos.toList #[]
 where
   go (todo : List Expr) (autos : Array Expr) : TermElabM (Array Expr) := do
@@ -1979,10 +1993,12 @@ where
     if env.isExporting then
       if let [(npriv, _)] ← withoutExporting <| resolveGlobalName (enableLog := false) n then
         throwUnknownIdentifierAt (declHint := npriv) stx m!"Unknown identifier `{.ofConstName n}`"
-    if (← read).autoBoundImplicit &&
-          !(← read).autoBoundImplicitForbidden n &&
-          isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
-      throwAutoBoundImplicitLocal n
+    if !(← read).autoBoundImplicitForbidden n then
+      if (← read).autoBoundImplicitContext.isSome then
+        match checkValidAutoBoundImplicitName n (allowed := autoImplicit.get (← getOptions)) (relaxed := relaxedAutoImplicit.get (← getOptions)) with
+          | .ok true => throwAutoBoundImplicitLocal n
+          | .ok false => throwUnknownIdentifierAt (declHint := n) stx m!"Unknown identifier `{.ofConstName n}`"
+          | .error msg => throwUnknownIdentifierAt (declHint := n) stx (m!"Unknown identifier `{.ofConstName n}`" ++ (← msg))
     throwUnknownIdentifierAt (declHint := n) stx m!"Unknown identifier `{.ofConstName n}`"
 
 /--

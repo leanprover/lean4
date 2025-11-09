@@ -81,8 +81,12 @@ Elaboration errors are just labeled, not unique, to limit cascading errors.
 -/
 /--
 error: Unknown identifier `a`
+
+Note: It is not possible to treat `a` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
 ---
 error: Unknown identifier `b`
+
+Note: It is not possible to treat `b` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
 ---
 trace: ⊢ sorry = sorry
 -/
@@ -95,10 +99,14 @@ Showing that the sorries in the previous test are labeled.
 -/
 /--
 error: Unknown identifier `a`
+
+Note: It is not possible to treat `a` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
 ---
 error: Unknown identifier `b`
+
+Note: It is not possible to treat `b` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
 ---
-trace: ⊢ sorry `«lean.run.sorry:106:10» = sorry `«lean.run.sorry:106:14»
+trace: ⊢ sorry `«lean.run.sorry:114:10» = sorry `«sorry:114:14»
 -/
 #guard_msgs in
 set_option autoImplicit false in

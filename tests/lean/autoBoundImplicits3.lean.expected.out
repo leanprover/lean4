@@ -1,0 +1,9 @@
+autoBoundImplicits3.lean:6:29-6:34: error(lean.unknownIdentifier): Unknown identifier `size₂`
+
+Note: It is not possible to treat `size₂` as an implicitly bound variable here because it has multiple characters while the `relaxedAutoImplicit` option is set to `false`.
+autoBoundImplicits3.lean:9:24-9:26: error(lean.unknownIdentifier): Unknown identifier `α₃`
+
+Note: It is not possible to treat `α₃` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+autoBoundImplicits3.lean:9:33-9:38: error(lean.unknownIdentifier): Unknown identifier `size₃`
+
+Note: It is not possible to treat `size₃` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.

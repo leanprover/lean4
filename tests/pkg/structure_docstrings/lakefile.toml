@@ -1,0 +1,6 @@
+name = "structure_docstrings"
+defaultTargets = ["StructureDocstrings"]
+
+[[lean_lib]]
+name = "StructureDocstrings"
+leanOptions = { experimental.module = true }

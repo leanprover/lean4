@@ -184,6 +184,50 @@ the expected type of the expression in which it occurs, which—due to the type 
 this code seemingly intended—use *generalized field notation* as shown in the first corrected
 example. Alternatively, the correct namespace can be explicitly specified by writing the fully
 qualified function name.
+
+## Auto-bound variables
+
+```lean broken
+set autoImplicit false in
+def thisBreaks (x : α₁) (y : size₁) := ()
+
+set relaxedAutoImplicit false in
+def thisBreaks (x : α₂) (y : size₂) := ()
+```
+```output
+Unknown identifier `size₁`
+
+Note: It is not possible to treat `size₁` as an implicitly bound variable here because it has multiple characters while the `relaxedAutoImplicit` option is set to `false`.
+Unknown identifier `α₂`
+
+Note: It is not possible to treat `α₂` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+Unknown identifier `size₂`
+
+Note: It is not possible to treat `size₂` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+```
+```lean fixed (title := "Fixed (modifying options)")
+set autoImplicit true in
+def thisBreaks (x : α₁) (y : size₁) := ()
+
+set relaxedAutoImplicit true in
+def thisBreaks (x : α₂) (y : size₂) := ()
+```
+```lean fixed (title := "Fixed (added the missing implicit bindings)")
+set autoImplicit false in
+def thisBreaks {size₁} (x : α₁) (y : size₁) := ()
+
+set relaxedAutoImplicit false in
+def thisBreaks {α₂ size₂} (x : α₂) (y : size₂) := ()
+```
+
+By default, when Lean sees an identifier it can't identify in the type of a definition, Lean will
+add [automatic implicit parameters](lean-manual://section/automatic-implicit-parameters) for those
+unknown identifiers. However, many files or projects disable this setting by setting the
+`autoImplicit` or `relaxedAutoImplicit` options to `false`.
+
+Without re-enabling the `autoImplicit` or `relaxedAutoImplicit` options, the easiest way to fix
+this error is to add the unknown identifiers as implicit parameters.
+
 -/
 register_error_explanation lean.unknownIdentifier {
   summary := "Failed to resolve identifier to variable or constant."

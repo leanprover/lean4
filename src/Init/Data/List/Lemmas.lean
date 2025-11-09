@@ -2632,6 +2632,22 @@ theorem foldr_map_hom {g : α → β} {f : α → α → α} {f' : β → β →
 @[simp, grind _=_] theorem foldr_append {f : α → β → β} {b : β} {l l' : List α} :
     (l ++ l').foldr f b = l.foldr f (l'.foldr f b) := by simp [foldr_eq_foldrM, -foldrM_pure]
 
+theorem foldl_flatMap {f : α → List β} {g : γ → β → γ} {l : List α} {init : γ} :
+    (l.flatMap f).foldl g init = l.foldl (fun acc x => (f x).foldl g acc) init := by
+  induction l generalizing init
+  · simp
+  next a l ih =>
+    simp only [flatMap_cons, foldl_cons]
+    rw [foldl_append, ih]
+
+theorem foldr_flatMap {f : α → List β} {g : β → γ → γ} {l : List α} {init : γ} :
+    (l.flatMap f).foldr g init = l.foldr (fun x acc => (f x).foldr g acc) init := by
+  induction l generalizing init
+  · simp
+  next a l ih =>
+    simp only [flatMap_cons, foldr_cons]
+    rw [foldr_append, ih]
+
 @[grind =] theorem foldl_flatten {f : β → α → β} {b : β} {L : List (List α)} :
     (flatten L).foldl f b = L.foldl (fun b l => l.foldl f b) b := by
   induction L generalizing b <;> simp_all

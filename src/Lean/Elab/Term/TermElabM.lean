@@ -267,7 +267,7 @@ structure Context where
      thrown and caught at the closest surrounding `withAutoBoundImplicit`,
      which adds an implicit declaration for the unbound variable and tries
      again. -/
-  autoBoundImplicitContext : Option (PArray Expr) := .none
+  autoBoundImplicitContext : Option AutoBoundImplicitContext := .none
   /--
     A name `n` is only eligible to be an auto implicit name if `autoBoundImplicitForbidden n = false`.
     We use this predicate to disallow `f` to be considered an auto implicit name in a definition such
@@ -318,6 +318,11 @@ structure Context where
 
 abbrev TermElabM := ReaderT Context $ StateRefT State MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
+
+def Context.autoBoundImplicit (ctx : Context) : Bool :=
+  match ctx.autoBoundImplicitContext with
+    | .none => false
+    | .some subCtx => subCtx.flag
 
 /-
 Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
@@ -609,7 +614,7 @@ instance : MonadParentDecl TermElabM where
 instance : MonadAutoImplicits TermElabM where
   getAutoImplicits := do
     if let .some implicits := (← read).autoBoundImplicitContext then
-      pure implicits.toArray
+      pure implicits.boundVariables.toArray
     else
       pure {}
 
@@ -1771,8 +1776,8 @@ def elabType (stx : Syntax) : TermElabM Expr := do
   Enable auto-bound implicits, and execute `k` while catching auto bound implicit exceptions. When an exception is caught,
   a new local declaration is created, registered, and `k` is tried to be executed again. -/
 partial def withAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
-  withReader ({ · with autoBoundImplicitContext := .some {} }) do
   let flag := autoImplicit.get (← getOptions)
+  withReader ({ · with autoBoundImplicitContext := .some { flag := flag } }) do
   if flag then
     let rec loop (s : SavedState) : TermElabM α := withIncRecDepth do
       checkSystem "auto-implicit"

@@ -71,4 +71,30 @@ def isValidAutoBoundLevelName (n : Name) (relaxed : Bool) : Bool :=
   | .str .anonymous s => s.length > 0 && (relaxed || (s.front.isLower && isValidAutoBoundSuffix s))
   | _ => false
 
+/--
+  Tracks extra context needed within the scope of `Lean.Elab.Term.withAutoBoundImplicit`
+-/
+public structure AutoBoundImplicitContext where
+  /--
+    This always matches the `autoImplicit` option; it is duplicated here in
+    order to support the behavior of the deprecated `Lean.Elab.Term.Context.autoImplicit`
+    method.
+  -/
+  flag : Bool
+  /--
+    Tracks a working set of variables that are currently poised to be
+    implicitly bound.
+  -/
+  boundVariables : PArray Expr := {}
+deriving Inhabited
+
+instance : EmptyCollection AutoBoundImplicitContext where
+  emptyCollection := AutoBoundImplicitContext.mk (flag := false) (boundVariables := {})
+
+/--
+  Push a new variable onto the autoImplicit context
+-/
+public def AutoBoundImplicitContext.push (ctx : AutoBoundImplicitContext) (x : Expr) :=
+  { ctx with boundVariables := ctx.boundVariables.push x }
+
 end Lean.Elab

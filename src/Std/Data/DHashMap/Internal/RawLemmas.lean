@@ -142,6 +142,8 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
      ⟨`getKey!, (``getKey!_eq_getKey!, #[`(getKey!_of_perm _)])⟩,
      ⟨`getEntry, (``getEntry_eq_getEntry, #[`(getEntry_of_perm _)])⟩,
      ⟨`getEntry?, (``getEntry?_eq_getEntry?, #[`(getEntry?_of_perm _)])⟩,
+     ⟨`getEntryD, (``getEntryD_eq_getEntryD, #[`(getEntryD_of_perm _)])⟩,
+         --  ⟨`getEntry!, (``getEntry!_eq_getEntry!, #[`(getEntry!_of_perm _)])⟩,
      ⟨`toList, (``Raw.toList_eq_toListModel, #[])⟩,
      ⟨`keys, (``Raw.keys_eq_keys_toListModel, #[`(perm_keys_congr_left)])⟩,
      ⟨`Const.toList, (``Raw.Const.toList_eq_toListModel_map, #[`(perm_map_congr_left)])⟩,
@@ -289,6 +291,10 @@ theorem containsThenInsertIfNew_snd {k : α} {v : β k} :
 @[simp]
 theorem get?_emptyWithCapacity [LawfulBEq α] {a : α} {c} : (emptyWithCapacity c : Raw₀ α β).get? a = none := by
   simp [get?]
+
+@[simp]
+theorem getEntry?_emptyWithCapacity [LawfulBEq α] {a : α} {c} : (emptyWithCapacity c : Raw₀ α β).getEntry? a = none := by
+  simp [getEntry?]
 
 theorem get?_of_isEmpty [LawfulBEq α] (h : m.1.WF) {a : α} :
     m.1.isEmpty = true → m.get? a = none := by

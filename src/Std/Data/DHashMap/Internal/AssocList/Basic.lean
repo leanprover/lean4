@@ -133,6 +133,16 @@ def getEntry [BEq α] (a : α) : (l : AssocList α β) → l.contains a → (a :
       else es.getEntry a (by rw [← h, contains, Bool.of_not_eq_true hka, Bool.false_or])
 
 /-- Internal implementation detail of the hash map -/
+def getEntryD [BEq α] (a : α) (fallback : (a : α) × β a) : AssocList α β → (a : α) × β a
+  | nil => fallback
+  | cons k v es => if k == a then ⟨k, v⟩ else es.getEntryD a fallback
+
+/-- Internal implementation detail of the hash map -/
+def getEntry! [BEq α] (a : α) [Inhabited ((a : α) × β a)] : AssocList α β → (a : α) × β a
+  | nil => default
+  | cons k v es => if k == a then ⟨k, v⟩ else es.getEntry! a
+
+/-- Internal implementation detail of the hash map -/
 def getKey [BEq α] (a : α) : (l : AssocList α β) → l.contains a → α
   | cons k _ es, h => if hka : k == a then k
       else es.getKey a (by rw [← h, contains, Bool.of_not_eq_true hka, Bool.false_or])

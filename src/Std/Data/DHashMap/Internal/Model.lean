@@ -303,6 +303,14 @@ def getEntry?ₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Option ((a
   (bucket m.1.buckets m.2 a).getEntry? a
 
 /-- Internal implementation detail of the hash map -/
+def getEntryDₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : (a : α) × β a) : (a : α) × β a :=
+  (bucket m.1.buckets m.2 a).getEntryD a fallback
+
+/-- Internal implementation detail of the hash map -/
+def getEntry!ₘ [BEq α] [Hashable α] [Inhabited ((a : α) × β a)] (m : Raw₀ α β) (a : α) : (a : α) × β a :=
+  (bucket m.1.buckets m.2 a).getEntry! a
+
+/-- Internal implementation detail of the hash map -/
 def getDₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : β a) : β a :=
   (m.get?ₘ a).getD fallback
 
@@ -465,6 +473,12 @@ theorem getEntry_eq_getEntryₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : �
 
 theorem getEntry?_eq_getEntry?ₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
     getEntry? m a = getEntry?ₘ m a  := (rfl)
+
+theorem getEntryD_eq_getEntryDₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : (a : α) × β a) :
+    getEntryD m a fallback = getEntryDₘ m a fallback := (rfl)
+
+theorem getEntry!_eq_getEntry!ₘ [BEq α] [Hashable α] [Inhabited ((a : α) × β a)] (m : Raw₀ α β) (a : α) :
+    getEntry! m a = getEntry!ₘ m a := (rfl)
 
 theorem getD_eq_getDₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : β a) :
     getD m a fallback = getDₘ m a fallback := by

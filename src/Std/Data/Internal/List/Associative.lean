@@ -48,12 +48,27 @@ def getEntry? [BEq α] (a : α) : List ((a : α) × β a) → Option ((a : α) �
   | [] => none
   | ⟨k, v⟩ :: l => bif k == a then some ⟨k, v⟩ else getEntry? a l
 
+/-- Internal implementation detail of the hash map -/
+def getEntryD [BEq α] (a : α) (fallback : (a : α) × β a) : List ((a : α) × β a) → (a : α) × β a
+  | [] => fallback
+  | ⟨k, v⟩ :: l => bif k == a then ⟨k, v⟩ else getEntryD a fallback l
+
+/-- Internal implementation detail of the hash map -/
+def getEntry! [BEq α] (a : α) [Inhabited ((a : α) × β a)] : List ((a : α) × β a) → (a : α) × β a
+  | [] => panic! "key is not present in associative list"
+  | ⟨k, v⟩ :: l => bif k == a then ⟨k, v⟩ else getEntry! a l
+
 @[simp] theorem getEntry?_nil [BEq α] {a : α} :
     getEntry? a ([] : List ((a : α) × β a)) = none := (rfl)
 
+@[simp] theorem getEntryD_nil [BEq α] {a : α} (fallback : (a : α) × β a) :
+    getEntryD a fallback ([] : List ((a : α) × β a)) = fallback := (rfl)
+
+@[simp] theorem getEntry!_nil [BEq α] {a : α} [Inhabited ((a : α) × β a)] :
+    getEntry! a ([] : List ((a : α) × β a)) = default := (rfl)
+
 theorem getEntry?_cons [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} :
     getEntry? a (⟨k, v⟩ :: l) = bif k == a then some ⟨k, v⟩ else getEntry? a l := (rfl)
-
 
 theorem getEntry?_eq_find [BEq α] {k : α} {l : List ((a : α) × β a)} :
     getEntry? k l = l.find? (·.1 == k) := by
@@ -73,6 +88,38 @@ theorem getEntry?_cons_of_false [BEq α] {l : List ((a : α) × β a)} {k a : α
 theorem getEntry?_cons_self [BEq α] [ReflBEq α] {l : List ((a : α) × β a)} {k : α} {v : β k} :
     getEntry? k (⟨k, v⟩ :: l) = some ⟨k, v⟩ :=
   getEntry?_cons_of_true BEq.rfl
+
+theorem getEntryD_cons [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} {fallback : (a : α) × β a} :
+    getEntryD a fallback (⟨k, v⟩ :: l) = bif k == a then ⟨k, v⟩ else getEntryD a fallback l := (rfl)
+
+theorem getEntryD_cons_of_true [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} {fallback : (a : α) × β a}
+    (h : k == a) : getEntryD a fallback (⟨k, v⟩ :: l) = ⟨k, v⟩ := by
+  simp [getEntryD, h]
+
+theorem getEntryD_cons_of_false [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} {fallback : (a : α) × β a}
+    (h : (k == a) = false) : getEntryD a fallback (⟨k, v⟩ :: l) = getEntryD a fallback l := by
+  simp [getEntryD, h]
+
+@[simp]
+theorem getEntryD_cons_self [BEq α] [ReflBEq α] {l : List ((a : α) × β a)} {k : α} {v : β k} {fallback : (a : α) × β a} :
+    getEntryD k fallback (⟨k, v⟩ :: l) = ⟨k, v⟩ :=
+  getEntryD_cons_of_true BEq.rfl
+
+theorem getEntry!_cons [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} [Inhabited ((a : α) × β a)] :
+    getEntry! a (⟨k, v⟩ :: l) = bif k == a then ⟨k, v⟩ else getEntry! a l := (rfl)
+
+theorem getEntry!_cons_of_true [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} [Inhabited ((a : α) × β a)]
+    (h : k == a) : getEntry! a (⟨k, v⟩ :: l) = ⟨k, v⟩ := by
+  simp [getEntry!, h]
+
+theorem getEntry!_cons_of_false [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} [Inhabited ((a : α) × β a)]
+    (h : (k == a) = false) : getEntry! a (⟨k, v⟩ :: l) = getEntry! a l := by
+  simp [getEntry!, h]
+
+@[simp]
+theorem getEntry!_cons_self [BEq α] [ReflBEq α] {l : List ((a : α) × β a)} {k : α} {v : β k} [Inhabited ((a : α) × β a)] :
+    getEntry! k (⟨k, v⟩ :: l) = ⟨k, v⟩ :=
+  getEntry!_cons_of_true BEq.rfl
 
 theorem beq_of_getEntry?_eq_some [BEq α] {l : List ((a : α) × β a)} {a : α} {p : (a : α) × β a}
     (h : getEntry? a l = some p) : p.1 == a := by
@@ -95,6 +142,18 @@ theorem getEntry?_congr [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β 
     · have h₂ : (k == b) = false := BEq.neq_of_neq_of_beq h' h
       rw [getEntry?_cons_of_false h', getEntry?_cons_of_false h₂, ih]
     · rw [getEntry?_cons_of_true h', getEntry?_cons_of_true (BEq.trans h' h)]
+
+theorem getEntryD_eq_getEntry? [BEq α] {l : List ((a : α) × β a)} {a : α} {fallback : (a : α) × β a} :
+    getEntryD a fallback l = (getEntry? a l).getD fallback := by
+  induction l using assoc_induction with
+  | nil => simp [getEntryD, getEntry?]
+  | cons k v t ih => cases h : k == a <;> simp_all [getEntryD, getEntry?]
+
+theorem getEntry!_eq_getEntry? [BEq α] {l : List ((a : α) × β a)} {a : α} [Inhabited ((a : α) × β a)] :
+    getEntry! a l = (getEntry? a l).get! := by
+  induction l using assoc_induction with
+  | nil => rfl
+  | cons k v t ih => cases h : k == a <;> simp_all [getEntry!, getEntry?]
 
 theorem keys_eq_map {l : List ((a : α) × β a)} :
     keys l = l.map (·.1) := by
@@ -2172,6 +2231,13 @@ theorem getEntry?_of_perm [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) �
     exact ((Bool.eq_false_iff.1 hl.2.1).elim (BEq.trans h₁ (BEq.symm h₂))).elim
   next l₁ l₂ l₃ hl₁₂ _ ih₁ ih₂ => exact (ih₁ hl).trans (ih₂ (hl.perm (hl₁₂.symm)))
 
+theorem getEntryD_of_perm [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) × β a)} {a : α} {fallback : (a : α) × β a}
+    (hl : DistinctKeys l) (h : Perm l l') : getEntryD a fallback l = getEntryD a fallback l' := by
+  rw [getEntryD_eq_getEntry?, getEntryD_eq_getEntry?, getEntry?_of_perm hl h]
+
+theorem getEntry!_of_perm [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) × β a)} {a : α} [Inhabited ((a : α) × β a)]
+    (hl : DistinctKeys l) (h : Perm l l') : getEntry! a l = getEntry! a l' := by
+  rw [getEntry!_eq_getEntry?, getEntry!_eq_getEntry?, getEntry?_of_perm hl h]
 
 theorem containsKey_of_perm [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) × β a)} {k : α}
     (h : Perm l l') : containsKey k l = containsKey k l' := by
@@ -2373,6 +2439,14 @@ theorem getEntry?_append [BEq α] {l l' : List ((a : α) × β a)} {a : α} :
 theorem getEntry?_append_of_containsKey_eq_false [BEq α] {l l' : List ((a : α) × β a)} {a : α}
     (h : containsKey a l' = false) : getEntry? a (l ++ l') = getEntry? a l := by
   rw [getEntry?_append, getEntry?_eq_none.2 h, Option.or_none]
+
+theorem getEntryD_append_of_containsKey_eq_false [BEq α] {l l' : List ((a : α) × β a)} {a : α} {fallback : (a : α) × β a}
+    (h : containsKey a l' = false) : getEntryD a fallback (l ++ l') = getEntryD a fallback l := by
+  simp [getEntryD_eq_getEntry?, getEntry?_append_of_containsKey_eq_false h]
+
+theorem getEntry!_append_of_containsKey_eq_false [BEq α] {l l' : List ((a : α) × β a)} {a : α} [Inhabited ((a : α) × β a)]
+    (h : containsKey a l' = false) : getEntry! a (l ++ l') = getEntry! a l := by
+  simp [getEntry!_eq_getEntry?, getEntry?_append_of_containsKey_eq_false h]
 
 @[simp]
 theorem containsKey_append [BEq α] {l l' : List ((a : α) × β a)} {a : α} :

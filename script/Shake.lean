@@ -230,12 +230,15 @@ def calcNeeds (env : Environment) (i : ModuleIdx) : Needs := Id.run do
   return needs
 where
   /-- Accumulate the results from expression `e` into `deps`. -/
-  visitExpr (k : NeedsKind) e deps :=
-    Lean.Expr.foldConsts e deps fun c deps => match env.getModuleIdxFor? c with
-      | some j =>
-        let k := { k with isMeta := k.isMeta && !isMeta env c }
-        if j != i then deps.union k {j} else deps
-      | _ => deps
+  visitExpr (k : NeedsKind) (e : Expr) (deps : Needs) : Needs :=
+    Lean.Expr.foldConsts e deps fun c deps => Id.run do
+      let mut deps := deps
+      if !isReservedName env c then
+        if let some j := env.getModuleIdxFor? c then
+          let k := { k with isMeta := k.isMeta && !isMeta env c }
+          if j != i then
+            deps := deps.union k {j}
+      return deps
 
 /--
 Calculates the same as `calcNeeds` but tracing each module to a use-def declaration pair or
@@ -263,18 +266,18 @@ def getExplanations (env : Environment) (i : ModuleIdx) :
 where
   /-- Accumulate the results from expression `e` into `deps`. -/
   visitExpr (k : NeedsKind) name e deps :=
-    Lean.Expr.foldConsts e deps fun c deps => match env.getModuleIdxFor? c with
-      | some i =>
-        let k := { k with isMeta := k.isMeta && !isMeta env c }
-        if
-          if let some (some (name', _)) := deps[(i, k)]? then
-            decide (name.toString.length < name'.toString.length)
-          else true
-        then
-          deps.insert (i, k) (name, c)
-        else
-          deps
-      | _ => deps
+    Lean.Expr.foldConsts e deps fun c deps => Id.run do
+      let mut deps := deps
+      if !isReservedName env c then
+        if let some j := env.getModuleIdxFor? c then
+          let k := { k with isMeta := k.isMeta && !isMeta env c }
+          if
+            if let some (some (name', _)) := deps[(j, k)]? then
+              decide (name.toString.length < name'.toString.length)
+            else true
+          then
+            deps := deps.insert (j, k) (name, c)
+      return deps
 
 partial def initStateFromEnv (env : Environment) : State := Id.run do
   let mut s := { env }

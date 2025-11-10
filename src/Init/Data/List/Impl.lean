@@ -38,7 +38,7 @@ The following operations are still missing `@[csimp]` replacements:
 The following operations are not recursive to begin with
 (or are defined in terms of recursive primitives):
 `isEmpty`, `isSuffixOf`, `isSuffixOf?`, `rotateLeft`, `rotateRight`, `insert`, `zip`, `enum`,
-`min?`, `max?`, and `removeAll`.
+`min?`, `max?`, `min`, `max` and `removeAll`.
 
 The following operations were already given `@[csimp]` replacements in `Init/Data/List/Basic.lean`:
 `length`, `map`, `filter`, `replicate`, `leftPad`, `unzip`, `range'`, `iota`, `intersperse`.

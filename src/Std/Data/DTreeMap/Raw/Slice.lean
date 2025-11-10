@@ -33,7 +33,7 @@ public instance {α : Type u} {β : α → Type v} (cmp : α → α → Ordering
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner, range⟩⟩
 
 public theorem toList_ric {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare)
-    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {bound : α} :
+    [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {bound : α} :
     t[*...=bound].toList = t.toList.filter (fun e => (cmp e.fst bound).isLE) :=
   @Internal.toList_ric α β ⟨cmp⟩ _ t.inner (@wf.out.ordered α β ⟨cmp⟩ _) bound
 
@@ -42,7 +42,7 @@ public instance {α : Type u} {β : α → Type v} (cmp : α → α → Ordering
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner, range⟩⟩
 
 public theorem toList_rio {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare)
-    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {bound : α} :
+    [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {bound : α} :
     t[*...<bound].toList = t.toList.filter (fun e => (cmp e.fst bound).isLT) :=
   @Internal.toList_rio α β ⟨cmp⟩ _ t.inner (@wf.out.ordered α β ⟨cmp⟩ _) bound
 
@@ -51,7 +51,7 @@ public instance {α : Type u} {β : α → Type v} (cmp : α → α → Ordering
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner, range⟩⟩
 
 public theorem toList_rci {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare)
-    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {bound : α} :
+    [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {bound : α} :
     t[bound...*].toList = t.toList.filter (fun e => (cmp e.fst bound).isGE) :=
   @Internal.toList_rci α β ⟨cmp⟩ _ t.inner (@wf.out.ordered α β ⟨cmp⟩ _) bound
 
@@ -60,7 +60,7 @@ public instance {α : Type u} {β : α → Type v} (cmp : α → α → Ordering
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner, range⟩⟩
 
 public theorem toList_rco {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare)
-    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {lowerBound upperBound : α} :
+    [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {lowerBound upperBound : α} :
     t[lowerBound...<upperBound].toList =
       t.toList.filter (fun e => (cmp e.fst lowerBound).isGE ∧ (cmp e.fst upperBound).isLT) :=
   @Internal.toList_rco α β ⟨cmp⟩ _ t.inner (@wf.out.ordered α β ⟨cmp⟩ _) lowerBound upperBound
@@ -70,7 +70,7 @@ public instance {α : Type u} {β : α → Type v} (cmp : α → α → Ordering
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner, range⟩⟩
 
 public theorem toList_rcc {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare)
-    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {lowerBound upperBound : α} :
+    [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {lowerBound upperBound : α} :
     t[lowerBound...=upperBound].toList =
       t.toList.filter (fun e => (cmp e.fst lowerBound).isGE ∧ (cmp e.fst upperBound).isLE) :=
   @Internal.toList_rcc α β ⟨cmp⟩ _ t.inner (@wf.out.ordered α β ⟨cmp⟩ _) lowerBound upperBound
@@ -80,7 +80,7 @@ public instance {α : Type u} {β : α → Type v} (cmp : α → α → Ordering
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner, range⟩⟩
 
 public theorem toList_roi {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare)
-    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {bound: α} : t[bound<...*].toList =
+    [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {bound: α} : t[bound<...*].toList =
       t.toList.filter (fun e => (cmp e.fst bound).isGT) :=
   @Internal.toList_roi α β ⟨cmp⟩ _ t.inner (@wf.out.ordered α β ⟨cmp⟩ _) bound
 
@@ -89,7 +89,7 @@ public instance {α : Type u} {β : α → Type v} (cmp : α → α → Ordering
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner, range⟩⟩
 
 public theorem toList_roc {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare)
-    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {lowerBound upperBound : α} :
+    [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {lowerBound upperBound : α} :
     t[lowerBound<...=upperBound].toList =
       t.toList.filter (fun e => (cmp e.fst lowerBound).isGT ∧ (cmp e.fst upperBound).isLE) :=
   @Internal.toList_roc α β ⟨cmp⟩ _ t.inner (@wf.out.ordered α β ⟨cmp⟩ _) lowerBound upperBound
@@ -99,7 +99,7 @@ public instance {α : Type u} {β : α → Type v} (cmp : α → α → Ordering
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner, range⟩⟩
 
 public theorem toList_roo {α : Type u} {β : α → Type v} (cmp : α → α → Ordering := by exact compare)
-    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {lowerBound upperBound : α} :
+    [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {lowerBound upperBound : α} :
     t[lowerBound<...upperBound].toList =
       t.toList.filter (fun e => (cmp e.fst lowerBound).isGT ∧ (cmp e.fst upperBound).isLT) :=
   @Internal.toList_roo α β ⟨cmp⟩ _ t.inner (@wf.out.ordered α β ⟨cmp⟩ _) lowerBound upperBound

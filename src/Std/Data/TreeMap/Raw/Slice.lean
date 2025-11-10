@@ -32,7 +32,7 @@ public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by 
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner.inner, range⟩⟩
 
 public theorem toList_ric {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare)
-    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {bound : α} :
+    [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {bound : α} :
     t[*...=bound].toList = t.toList.filter (fun e => (cmp e.fst bound).isLE) := by
   apply @DTreeMap.Internal.Const.toList_ric _ _ ⟨cmp⟩ _ _
   · exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
@@ -42,7 +42,7 @@ public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by 
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner.inner, range⟩⟩
 
 public theorem toList_rio {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare)
-    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {bound : α} :
+    [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {bound : α} :
     t[*...<bound].toList = t.toList.filter (fun e => (cmp e.fst bound).isLT) := by
   apply @DTreeMap.Internal.Const.toList_rio _ _ ⟨cmp⟩ _ _
   · exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
@@ -52,7 +52,7 @@ public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by 
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner.inner, range⟩⟩
 
 public theorem toList_rci {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare)
-    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {bound : α} :
+    [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {bound : α} :
     t[bound...*].toList = t.toList.filter (fun e => (cmp e.fst bound).isGE) := by
   apply @DTreeMap.Internal.Const.toList_rci _ _ ⟨cmp⟩ _ _
   · exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
@@ -62,7 +62,7 @@ public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by 
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner.inner, range⟩⟩
 
 public theorem toList_rco {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare)
-    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {lowerBound upperBound : α} :
+    [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {lowerBound upperBound : α} :
     t[lowerBound...<upperBound].toList =
       t.toList.filter (fun e => (cmp e.fst lowerBound).isGE ∧ (cmp e.fst upperBound).isLT) := by
   apply @DTreeMap.Internal.Const.toList_rco _ _ ⟨cmp⟩ _ _
@@ -73,7 +73,7 @@ public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by 
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner.inner, range⟩⟩
 
 public theorem toList_rcc {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare)
-    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {lowerBound upperBound : α} :
+    [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {lowerBound upperBound : α} :
     t[lowerBound...=upperBound].toList =
       t.toList.filter (fun e => (cmp e.fst lowerBound).isGE ∧ (cmp e.fst upperBound).isLE) := by
   apply @DTreeMap.Internal.Const.toList_rcc _ _ ⟨cmp⟩ _ _
@@ -84,7 +84,7 @@ public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by 
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner.inner, range⟩⟩
 
 public theorem toList_roi {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare)
-    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {bound: α} : t[bound<...*].toList =
+    [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {bound: α} : t[bound<...*].toList =
       t.toList.filter (fun e => (cmp e.fst bound).isGT) := by
   apply @DTreeMap.Internal.Const.toList_roi _ _ ⟨cmp⟩ _
   · exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
@@ -94,7 +94,7 @@ public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by 
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner.inner, range⟩⟩
 
 public theorem toList_roc {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare)
-    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {lowerBound upperBound : α} :
+    [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {lowerBound upperBound : α} :
     t[lowerBound<...=upperBound].toList =
       t.toList.filter (fun e => (cmp e.fst lowerBound).isGT ∧ (cmp e.fst upperBound).isLE) := by
   apply @DTreeMap.Internal.Const.toList_roc _ _ ⟨cmp⟩ _
@@ -105,7 +105,7 @@ public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by 
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner.inner, range⟩⟩
 
 public theorem toList_roo {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare)
-    [TransCmp cmp] {t : Raw α β cmp} {wf : t.WF} {lowerBound upperBound : α} :
+    [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {lowerBound upperBound : α} :
     t[lowerBound<...upperBound].toList =
       t.toList.filter (fun e => (cmp e.fst lowerBound).isGT ∧ (cmp e.fst upperBound).isLT) := by
   apply @DTreeMap.Internal.Const.toList_roo _ _ ⟨cmp⟩ _

@@ -1524,7 +1524,7 @@ theorem any_eq_false [LawfulHashable α] [EquivBEq α] {p : (_ : α) → β → 
     rw [← ha', ← hb]
     apply h'
 
-theorem any_eq_false' [LawfulBEq α] [EquivBEq α] {p : (_ : α) → β → Bool} (h : m.1.WF) :
+theorem any_eq_false' [LawfulBEq α] {p : (_ : α) → β → Bool} (h : m.1.WF) :
     m.1.any p = false ↔
       ∀ (a : α) (h : m.contains a), p a (Const.get m a h) = false := by
   simp [any_eq_false _ h, getKey_eq _ h]

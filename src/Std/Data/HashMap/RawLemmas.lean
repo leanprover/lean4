@@ -1069,6 +1069,64 @@ theorem forIn_eq_forIn_toArray [Monad m'] [LawfulMonad m']
 
 end monadic
 
+theorem all_eq_neg_any_neg {p : α → β → Bool} (h : m.WF) :
+    m.all p = ! m.any (fun a b => ! p a b) := DHashMap.Raw.all_eq_neg_any_neg h.out
+
+theorem any_eq_neg_all_neg {p : α → β → Bool} (h : m.WF) :
+    m.any p = ! m.all (fun a b => ! p a b) := DHashMap.Raw.any_eq_neg_all_neg h.out
+
+theorem any_eq_toList_any {p : α → β → Bool} (h : m.WF) :
+    m.any p = m.toList.any (fun x => p x.1 x.2) :=
+  DHashMap.Raw.Const.any_eq_toList_any h.out
+
+theorem any_eq_true_iff_exists_mem_getKey_getElem [LawfulHashable α] [EquivBEq α]
+    {p : α → β → Bool} (h : m.WF) :
+    m.any p = true ↔ ∃ (a : α) (h : a ∈ m), p (m.getKey a h) (m[a]'h) :=
+  DHashMap.Raw.Const.any_eq_true_iff_exists_contains_getKey_get h.out
+
+theorem any_eq_true_iff_exists_mem_getElem [LawfulBEq α] {p : α → β → Bool} (h : m.WF) :
+    m.any p = true ↔ ∃ (a : α) (h : a ∈ m), p a (m[a]'h) :=
+  DHashMap.Raw.Const.any_eq_true_iff_exists_contains_get h.out
+
+theorem any_eq_false_iff_forall_mem_getKey_getElem [LawfulHashable α] [EquivBEq α]
+    {p : α → β → Bool} (h : m.WF) :
+    m.any p = false ↔
+      ∀ (a : α) (h : a ∈ m), p (m.getKey a h) (m[a]'h) = false :=
+  DHashMap.Raw.Const.any_eq_false_iff_forall_contains_getKey_get h.out
+
+theorem any_eq_false_iff_forall_mem_getElem [LawfulBEq α] {p : α → β → Bool} (h : m.WF) :
+    m.any p = false ↔
+      ∀ (a : α) (h : a ∈ m), p a (m[a]'h) = false :=
+  DHashMap.Raw.Const.any_eq_false_iff_forall_contains_get h.out
+
+theorem all_eq_toList_all {p : α → β → Bool} (h : m.WF) :
+    m.all p = m.toList.all (fun x => p x.1 x.2) :=
+  DHashMap.Raw.Const.all_eq_toList_all h.out
+
+theorem all_eq_true_iff_forall_mem_getKey_getElem [EquivBEq α] [LawfulHashable α]
+    {p : α → β → Bool} (h : m.WF) :
+    m.all p = true ↔ ∀ (a : α) (h : a ∈ m), p (m.getKey a h) (m[a]'h) :=
+  DHashMap.Raw.Const.all_eq_true_iff_forall_mem_getKey_get h.out
+
+theorem all_eq_true_iff_forall_mem_getElem [LawfulBEq α] {p : α → β → Bool} (h : m.WF) :
+    m.all p = true ↔ ∀ (a : α) (h : a ∈ m), p a (m[a]'h) :=
+  DHashMap.Raw.Const.all_eq_true_iff_forall_contains_get h.out
+
+theorem all_eq_false_iff_exists_mem_getKey_getElem [EquivBEq α] [LawfulHashable α]
+    {p : α → β → Bool} (h : m.WF) :
+    m.all p = false ↔ ∃ (a : α) (h : a ∈ m), p (m.getKey a h) (m[a]'h) = false :=
+  DHashMap.Raw.Const.all_eq_false_iff_exists_contains_getKey_get h.out
+
+theorem all_eq_false_iff_exists_mem_getElem [LawfulBEq α] {p : α → β → Bool} (h : m.WF) :
+    m.all p = false ↔ ∃ (a : α) (h : a ∈ m), p a (m[a]'h) = false :=
+  DHashMap.Raw.Const.all_eq_false_iff_exists_contains_get h.out
+
+theorem any_keys_eq_keys_any [LawfulHashable α] [EquivBEq α] {p : α → Bool} (h : m.WF) :
+    m.any (fun a _ => p a) = m.keys.any p := DHashMap.Raw.Const.any_keys_eq_keys_any h.out
+
+theorem all_keys_eq_keys_all [LawfulHashable α] [EquivBEq α] {p : α → Bool} (h : m.WF) :
+    m.all (fun a _ => p a) = m.keys.all p := DHashMap.Raw.Const.all_keys_eq_keys_all h.out
+
 variable {ρ : Type w} [ForIn Id ρ (α × β)]
 
 @[simp, grind =]

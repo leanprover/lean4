@@ -13,6 +13,7 @@ public import Init.Data.String.Iterator
 import all Init.Data.String.Iterator
 public import Init.Data.String.Substring
 public import Init.Data.String.Modify
+import Init.Data.String.Search
 
 public section
 
@@ -116,35 +117,39 @@ returns `none`.
 end Iterator
 
 private def findLeadingSpacesSize (s : String) : Nat :=
-  let it := s.iter
-  let it := it.find (· == '\n') |>.next
-  consumeSpaces it 0 s.length
+  let it := s.startValidPos
+  let it := it.find? (· == '\n') |>.bind String.ValidPos.next?
+  match it with
+  | some it => consumeSpaces it 0 s.length
+  | none => 0
 where
-  consumeSpaces (it : String.Iterator) (curr min : Nat) : Nat :=
-    if it.atEnd then min
-    else if it.curr == ' ' || it.curr == '\t' then consumeSpaces it.next (curr + 1) min
-    else if it.curr == '\n' then findNextLine it.next min
-    else findNextLine it.next (Nat.min curr min)
-  findNextLine (it : String.Iterator) (min : Nat) : Nat :=
-    if it.atEnd then min
-    else if it.curr == '\n' then consumeSpaces it.next 0 min
-    else findNextLine it.next min
+  consumeSpaces {s : String} (it : s.ValidPos) (curr min : Nat) : Nat :=
+    if h : it.IsAtEnd then min
+    else if it.get h == ' ' || it.get h == '\t' then consumeSpaces (it.next h) (curr + 1) min
+    else if it.get h == '\n' then findNextLine (it.next h) min
+    else findNextLine (it.next h) (Nat.min curr min)
+  termination_by it
+  findNextLine {s : String} (it : s.ValidPos) (min : Nat) : Nat :=
+    if h : it.IsAtEnd then min
+    else if it.get h == '\n' then consumeSpaces (it.next h) 0 min
+    else findNextLine (it.next h) min
+  termination_by it
 
 private def removeNumLeadingSpaces (n : Nat) (s : String) : String :=
-  consumeSpaces n s.iter ""
+  consumeSpaces n s.startValidPos ""
 where
-  consumeSpaces (n : Nat) (it : String.Iterator) (r : String) : String :=
+  consumeSpaces (n : Nat) {s : String} (it : s.ValidPos) (r : String) : String :=
      match n with
      | 0 => saveLine it r
      | n+1 =>
-       if it.atEnd then r
-       else if it.curr == ' ' || it.curr == '\t' then consumeSpaces n it.next r
+       if h : it.IsAtEnd then r
+       else if it.get h == ' ' || it.get h == '\t' then consumeSpaces n (it.next h) r
        else saveLine it r
   termination_by (it, 1)
-  saveLine (it : String.Iterator) (r : String) : String :=
-    if it.atEnd then r
-    else if it.curr == '\n' then consumeSpaces n it.next (r.push '\n')
-    else saveLine it.next (r.push it.curr)
+  saveLine {s : String} (it : s.ValidPos) (r : String) : String :=
+    if h : it.IsAtEnd then r
+    else if it.get h  == '\n' then consumeSpaces n (it.next h) (r.push '\n')
+    else saveLine (it.next h) (r.push (it.get h))
   termination_by (it, 0)
 
 /--

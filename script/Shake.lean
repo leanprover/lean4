@@ -327,24 +327,28 @@ def decodeImport : TSyntax ``Parser.Module.import → Import
     { module := id.getId, isExported := pubTk?.isSome, isMeta := metaTk?.isSome, importAll := allTk?.isSome }
   | stx => panic! s!"unexpected syntax {stx}"
 
-/-- Analyze and report issues from module `i`. Arguments:
+/-- Analyze and report issues from module `i`. Returns new `(edits, preserve)`. Arguments:
 
 * `srcSearchPath`: Used to find the path for error reporting purposes
 * `i`: the module index
 * `needs`: the module's calculated needs
+* `preserve`: imports that should always be preserved (but not inserted if missing)
 * `pinned`: dependencies that should be preserved even if unused
 * `edits`: accumulates the list of edits to apply if `--fix` is true
 * `addOnly`: if true, only add missing imports, do not remove unused ones
 -/
 def visitModule (srcSearchPath : SearchPath)
     (i : Nat) (needs : Needs) (preserve : Needs) (edits : Edits) (headerStx : TSyntax ``Parser.Module.header)
-    (addOnly := false) (githubStyle := false) (explain := false) : StateT State IO Edits := do
+    (addOnly := false) (githubStyle := false) (explain := false) : StateT State IO (Edits × Needs) := do
   let s ← get
+  let (module?, prelude?, imports) := decodeHeader headerStx
+  let preserve := if module?.any (·.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep")) then
+    preserve.union .pub {i}
+  else
+    preserve
+
   -- Do transitive reduction of `needs` in `deps`.
   let mut deps := needs
-  let (_, prelude?, imports) := decodeHeader headerStx
-  if prelude?.isNone then
-    deps := deps.union .pub {s.env.getModuleIdx? `Init |>.get!}
   for imp in imports do
     if addOnly || imp.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep") then
       let imp := decodeImport imp
@@ -360,6 +364,8 @@ def visitModule (srcSearchPath : SearchPath)
         let transDeps := addTransitiveImps .empty { k with module := .anonymous } j transDeps
         for k' in NeedsKind.all do
           deps := deps.sub k' (transDeps.sub k' {j} |>.get k')
+  if prelude?.isNone then
+    deps := deps.union .pub {s.env.getModuleIdx? `Init |>.get!}
 
   -- Any import which is not in `transDeps` was unused.
   -- Also accumulate `newDeps` which is the transitive closure of the remaining imports
@@ -455,7 +461,7 @@ def visitModule (srcSearchPath : SearchPath)
         run j
     for i in toAdd do run i
 
-  return edits
+  return (edits, preserve)
 
 /-- Convert a list of module names to a bitset of module indexes -/
 def toBitset (s : State) (ns : List Name) : Bitset :=
@@ -560,14 +566,14 @@ def main (args : List String) : IO UInt32 := do
 
   -- Check all selected modules
   let mut edits : Edits := ∅
-  let mut revNeeds : Needs := default
+  let mut preserve : Needs := default
   for i in [0:s.mods.size], t in needs, header in headers do
     match header.get with
     | .ok (_, _, stx, _) =>
-      edits ← visitModule (addOnly := !pkg.isPrefixOf s.modNames[i]!)
-        srcSearchPath i t.get revNeeds edits stx args.githubStyle args.explain
+      (edits, preserve) ← visitModule (addOnly := !pkg.isPrefixOf s.modNames[i]!)
+        srcSearchPath i t.get preserve edits stx args.githubStyle args.explain
       if isExtraRevModUse s.env i then
-        revNeeds := revNeeds.union .priv {i}
+        preserve := preserve.union .priv {i}
     | .error e =>
       println! e.toString
 

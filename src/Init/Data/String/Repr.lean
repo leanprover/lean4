@@ -7,15 +7,8 @@ module
 
 prelude
 public import Init.Data.String.Substring
-public import Init.Data.String.Iterator
 
 public section
-
-instance : Repr String.Iterator where
-  reprPrec | ⟨s, pos⟩, prec => Repr.addAppParen ("String.Iterator.mk " ++ reprArg s ++ " " ++ reprArg pos) prec
-
-instance : ToString String.Iterator :=
-  ⟨fun it => it.remainingToString⟩
 
 /--
 Interprets a string as the decimal representation of an integer, returning it. Returns `none` if

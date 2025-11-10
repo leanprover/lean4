@@ -9,7 +9,6 @@ module
 prelude
 public import Lean.Syntax
 import Init.Data.String.TakeDrop
-import Init.Data.String.Iterator
 
 public section
 

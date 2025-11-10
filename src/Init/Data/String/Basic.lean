@@ -1994,6 +1994,13 @@ theorem Pos.Raw.isValidForSlice_stringReplaceStart {s : String} {p : s.ValidPos}
   rw [replaceStart, isValidForSlice_replaceStart, isValidForSlice_toSlice_iff,
     ValidPos.offset_toSlice]
 
+/-
+Given a string  and two valid positions within the string, obtain a slice on the string formed by
+the new bounds, or panic if the given end is strictly less than the given start.
+-/
+def replaceStartEnd! (s : String) (p₁ p₂ : s.ValidPos) : Slice :=
+  s.toSlice.replaceStartEnd! p₁.toSlice p₂.toSlice
+
 theorem ValidPos.utf8Encode_get_eq_extract {s : String} (pos : s.ValidPos) (h : pos ≠ s.endValidPos) :
     List.utf8Encode [pos.get h] = s.bytes.extract pos.offset.byteIdx (pos.offset.byteIdx + (pos.get h).utf8Size) := by
   rw [get_eq_get_toSlice, Slice.Pos.utf8Encode_get_eq_extract]

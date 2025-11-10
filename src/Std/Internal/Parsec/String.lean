@@ -7,7 +7,6 @@ module
 
 prelude
 public import Std.Internal.Parsec.Basic
-public import Init.Data.String.Iterator
 public import Init.Data.String.Slice
 public import Init.Data.String.Termination
 
@@ -26,7 +25,7 @@ instance : Input (Sigma String.ValidPos) Char String.Pos.Raw where
   curr' it h := it.2.get (by simpa using h)
 
 /--
-`Parser α` is a parser that consumes a `String` input using a `String.Iterator` and returns a result of type `α`.
+`Parser α` is a parser that consumes a `String` input using a `Sigma String.ValidPos` and returns a result of type `α`.
 -/
 abbrev Parser (α : Type) : Type := Parsec (Sigma String.ValidPos) α
 

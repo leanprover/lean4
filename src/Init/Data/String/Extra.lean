@@ -9,25 +9,11 @@ prelude
 import all Init.Data.ByteArray.Basic
 public import Init.Data.String.Basic
 import all Init.Data.String.Basic
-public import Init.Data.String.Iterator
-import all Init.Data.String.Iterator
 public import Init.Data.String.Substring
 public import Init.Data.String.Modify
 import Init.Data.String.Search
 
 public section
-
-namespace Substring
-
-/--
-Returns an iterator into the underlying string, at the substring's starting position. The ending
-position is discarded, so the iterator alone cannot be used to determine whether its current
-position is within the original substring.
--/
-@[inline] def toIterator : Substring → String.Iterator
-  | ⟨s, b, _⟩ => ⟨s, b⟩
-
-end Substring
 
 namespace String
 
@@ -62,59 +48,6 @@ Checks whether an array of bytes is a valid UTF-8 encoding of a string.
 @[deprecated ByteArray.validateUTF8 (since := "2025-10-01")]
 abbrev validateUTF8 (a : ByteArray) : Bool :=
   a.validateUTF8
-
-theorem Iterator.sizeOf_next_lt_of_hasNext (i : String.Iterator) (h : i.hasNext) : sizeOf i.next < sizeOf i := by
-  cases i; rename_i s pos; simp [Iterator.next, Iterator.sizeOf_eq]; simp [Iterator.hasNext] at h
-  exact Nat.sub_lt_sub_left h (String.Pos.Raw.lt_next s pos)
-
-macro_rules
-| `(tactic| decreasing_trivial) =>
-  `(tactic| with_reducible apply String.Iterator.sizeOf_next_lt_of_hasNext; assumption)
-
-theorem Iterator.sizeOf_next_lt_of_atEnd (i : String.Iterator) (h : ¬ i.atEnd = true) : sizeOf i.next < sizeOf i :=
-  have h : i.hasNext := decide_eq_true <| Nat.gt_of_not_le <| mt decide_eq_true h
-  sizeOf_next_lt_of_hasNext i h
-
-macro_rules
-| `(tactic| decreasing_trivial) =>
-  `(tactic| with_reducible apply String.Iterator.sizeOf_next_lt_of_atEnd; assumption)
-
-namespace Iterator
-
-/--
-Replaces the current character in the string.
-
-Does nothing if the iterator is at the end of the string. If both the replacement character and the
-replaced character are 7-bit ASCII characters and the string is not shared, then it is updated
-in-place and not copied.
--/
-@[inline] def setCurr : Iterator → Char → Iterator
-  | ⟨s, i⟩, c => ⟨i.set s c, i⟩
-
-/--
-Moves the iterator forward until the Boolean predicate `p` returns `true` for the iterator's current
-character or until the end of the string is reached. Does nothing if the current character already
-satisfies `p`.
--/
-@[specialize] def find (it : Iterator) (p : Char → Bool) : Iterator :=
-  if it.atEnd then it
-  else if p it.curr then it
-  else find it.next p
-
-/--
-Iterates over a string, updating a state at each character using the provided function `f`, until
-`f` returns `none`. Begins with the state `init`. Returns the state and character for which `f`
-returns `none`.
--/
-@[specialize] def foldUntil (it : Iterator) (init : α) (f : α → Char → Option α) : α × Iterator :=
-  if it.atEnd then
-    (init, it)
-  else if let some a := f init it.curr then
-    foldUntil it.next a f
-  else
-    (init, it)
-
-end Iterator
 
 private def findLeadingSpacesSize (s : String) : Nat :=
   let it := s.startValidPos

@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Command
 public import Lean.Meta.Eval
 public import Lean.Meta.CompletionName
+public import Lean.Linter.Deprecated
 public import Init.Data.Random
 
 /-!
@@ -299,6 +300,7 @@ def isDeniedPremise (env : Environment) (name : Name) : Bool := Id.run do
   if name == ``sorryAx then return true
   if name.isInternalDetail then return true
   if Lean.Meta.isInstanceCore env name then return true
+  if Lean.Linter.isDeprecated env name then return false
   if (nameDenyListExt.getState env).any (fun p => name.anyS (· == p)) then return true
   if let some moduleIdx := env.getModuleIdxFor? name then
     let moduleName := env.header.moduleNames[moduleIdx.toNat]!

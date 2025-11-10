@@ -56,7 +56,7 @@ with
     | .full d => maxNewlineCount? d
     | .either a b => .merge (max · ·) (maxNewlineCount? a) (maxNewlineCount? b)
     | .concat a b => .merge (· + ·) (maxNewlineCount? a) (maxNewlineCount? b)
-deriving Inhabited
+deriving Inhabited, Repr
 
 def Doc.ptr (d : Doc) : USize :=
   unsafe ptrAddrUnsafe d
@@ -125,7 +125,6 @@ def Doc.map (d : Doc)
       | _, _ =>
         unreachable!
 
-
 partial def Doc.flatten (d : Doc) : Doc :=
   d.map fun d _ =>
     match d with
@@ -135,6 +134,56 @@ partial def Doc.flatten (d : Doc) : Doc :=
       some <| .text flattened
     | _ =>
       none
+
+def Doc.maybeFlattened (d : Doc) : Doc :=
+  .either d d.flatten
+
+def Doc.nl : Doc :=
+  .newline (some " ")
+
+def Doc.break : Doc :=
+  .newline (some "")
+
+def Doc.hardNl : Doc :=
+  .newline none
+
+def Doc.oneOf (ds : Array Doc) : Doc :=
+  match ds[0]? with
+  | none =>
+    .failure
+  | some d =>
+    ds[1:].foldl (init := d) fun acc d => acc.either d
+
+def Doc.join (ds : Array Doc) : Doc :=
+  match ds[0]? with
+  | none =>
+    .text ""
+  | some d =>
+    ds[1:].foldl (init := d) fun acc d => acc.concat d
+
+def Doc.joinUsing (sep : Doc) (ds : Array Doc) : Doc :=
+  match ds[0]? with
+  | none =>
+    .text ""
+  | some d =>
+    ds[1:].foldl (init := d) fun acc d => acc.concat sep |>.concat d
+
+instance : Append Doc where
+  append d1 d2 := d1.concat d2
+
+class ToDoc (α : Type) where
+  toDoc : α → Doc
+
+instance : ToDoc Doc where
+  toDoc d := d
+
+instance : ToDoc String where
+  toDoc s := .text s
+
+syntax:max "f'!" interpolatedStr(term) : term
+
+macro_rules
+  | `(f'! $interpStr) => do interpStr.expandInterpolatedStr (← `(Doc)) (← `(ToDoc.toDoc))
 
 class Cost (τ : Type) [Add τ] [LE τ] where
   textCost : (columnPos length : Nat) → τ
@@ -441,8 +490,9 @@ partial def TaintedMeasure.resolve? : TaintedResolver τ := TaintedResolver.memo
     let some m1 ← tm.resolve?
       | return none
     let ms2 ← MeasureSet.resolve d m1.lastLineLength indentation fullness
-    let m2? ← ms2.extractAtMostOne?
-    return m2?
+    let some m2 ← ms2.extractAtMostOne?
+      | return none
+    return some <| m1.concat m2
   | .concatTainted m1 tm2 _ =>
     let some m2 ← tm2.resolve?
       | return none
@@ -476,8 +526,8 @@ def resolve? (d : Doc) (offset : Nat) : Option (Measure τ) := ResolverM.run do
   let ms := ms1.merge ms2 (prunable := false)
   ms.extractAtMostOne?
 
-def format? (τ : Type) [Add τ] [LE τ] [DecidableLE τ] [Cost τ]
-    (d : Doc) (offset : Nat) : Option String := do
+def formatWithCost? (τ : Type) [Add τ] [LE τ] [DecidableLE τ] [Cost τ]
+    (d : Doc) (offset : Nat := 0) : Option String := do
   let m ← resolve? (τ := τ) d offset
   return m.print
 
@@ -525,14 +575,16 @@ instance : Grind.AddCommMonoid (DefaultCost w W) where
   add_assoc := DefaultCost.add_assoc
 
 def DefaultCost.le
-    (c1 c2 : DefaultCost w W) : Prop :=
+    (c1 c2 : DefaultCost w W) : Bool :=
   if c1.widthCost = c2.widthCost then
     c1.heightCost ≤ c2.heightCost
   else
     c1.widthCost ≤ c2.widthCost
 
 instance : LE (DefaultCost w W) where
-  le := DefaultCost.le
+  le c1 c2 := DefaultCost.le c1 c2
+
+instance : DecidableLE (DefaultCost w W) := fun _ _ => inferInstanceAs (Decidable (_ = true))
 
 theorem DefaultCost.le_def {c₁ c₂ : DefaultCost w W} :
     c₁ ≤ c₂ ↔
@@ -607,3 +659,9 @@ instance : LawfulCost (DefaultCost softWidth optimalityCutoffWidth) where
   newlineCost_monotone := DefaultCost.newlineCost_monotone
 
   le_add_invariant := DefaultCost.le_add_invariant
+
+def format? (d : Doc) (width : Nat)
+    (optimalityCutoffWidth : Nat := Nat.max ((5*width)/4) 200)
+    (offset : Nat := 0) :
+    Option String := do
+  formatWithCost? (τ := DefaultCost width optimalityCutoffWidth) d offset

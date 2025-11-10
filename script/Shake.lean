@@ -573,7 +573,10 @@ def main (args : List String) : IO UInt32 := do
 
   -- Parse headers in parallel
   let headers ← s.mods.mapIdxM fun i _ =>
-    BaseIO.asTask (parseHeader srcSearchPath s.modNames[i]! |>.toBaseIO)
+    if !pkg.isPrefixOf s.modNames[i]! then
+      pure <| Task.pure <| .ok default
+    else
+      BaseIO.asTask (parseHeader srcSearchPath s.modNames[i]! |>.toBaseIO)
 
   if args.fix then
     println! "The following changes will be made automatically:"
@@ -584,7 +587,9 @@ def main (args : List String) : IO UInt32 := do
   for i in [0:s.mods.size], t in needs, header in headers do
     match header.get with
     | .ok (_, _, stx, _) =>
-      (edits, preserve) ← visitModule (addOnly := !pkg.isPrefixOf s.modNames[i]!)
+      if !pkg.isPrefixOf s.modNames[i]! then
+        continue
+      (edits, preserve) ← visitModule (addOnly := false)
         srcSearchPath i t.get preserve edits stx args
       if isExtraRevModUse s.env i then
         preserve := preserve.union .priv {i}

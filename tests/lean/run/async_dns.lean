@@ -25,6 +25,35 @@ def runDNS : Async Unit := do
   unless infos.size > 0 do
     (throw <| IO.userError <| "No DNS results for google.com" : IO _)
 
+  -- Regression test: validate that IP addresses have all octets populated
+  -- Bug fix: array_push return values were not captured in lean_in_addr_to_ipv4_addr
+  let ipv4 := infos.filterMap (fun | .v4 e => some e | _ => none)
+
+  if let some head := ipv4[0]? then
+    let parts : Vector UInt8 4 := head.octets
+
+    let isValid :=
+      -- Not in 0.0.0.0/8 (current network)
+      -- This check would fail with the bug since first octet was always 0
+      parts[0] != 0 &&
+      -- Not in 10.0.0.0/8 (private)
+      parts[0] != 10 &&
+      -- Not in 127.0.0.0/8 (loopback)
+      parts[0] != 127 &&
+      -- Not in 169.254.0.0/16 (link-local)
+      !(parts[0] == 169 && parts[1] == 254) &&
+      -- Not in 172.16.0.0/12 (private)
+      !(parts[0] == 172 && parts[1] >= 16 && parts[1] <= 31) &&
+      -- Not in 192.168.0.0/16 (private)
+      !(parts[0] == 192 && parts[1] == 168) &&
+      -- Not in 224.0.0.0/4 (multicast)
+      parts[0] < 224 &&
+      -- Not 255.255.255.255 (broadcast)
+      !(parts[0] == 255 && parts[1] == 255 && parts[2] == 255 && parts[3] == 255)
+
+    unless isValid do
+      throw <| IO.userError <| s!"Invalid IP address for google.com: {parts[0]}.{parts[1]}.{parts[2]}.{parts[3]}"
+
 def runDNSNoAscii : Async Unit := do
   let infos ← timeout (DNS.getAddrInfo "google.com▸" "http") 10000
 

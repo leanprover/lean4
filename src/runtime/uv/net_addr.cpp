@@ -82,7 +82,7 @@ lean_obj_res lean_in_addr_to_ipv4_addr(const in_addr* ipv4_addr) {
 
     for (int i = 0; i < 4; i++) {
         uint8_t octet = (uint8_t)(hostaddr >> (3 - i) * 8);
-        array_push(ret, lean_box(octet));
+        ret = array_push(ret, lean_box(octet));
     }
 
     lean_assert(array_size(ret) == 4);
@@ -96,7 +96,7 @@ lean_obj_res lean_in6_addr_to_ipv6_addr(const in6_addr* ipv6_addr) {
         uint16_t part1 = (uint16_t)ipv6_addr->s6_addr[i];
         uint16_t part2 = (uint16_t)ipv6_addr->s6_addr[i + 1];
         uint16_t segment = ntohs((part2 << 8) | part1);
-        array_push(ret, lean_box(segment));
+        ret = array_push(ret, lean_box(segment));
     }
 
     lean_assert(array_size(ret) == 8);
@@ -108,7 +108,7 @@ lean_obj_res lean_phys_addr_to_mac_addr(char phys_addr[6]) {
 
     for (int i = 0; i < 6; i++) {
         uint8_t byte = (uint8_t)phys_addr[i];
-        array_push(ret, lean_box(byte));
+        ret = array_push(ret, lean_box(byte));
     }
 
     lean_assert(array_size(ret) == 6);

@@ -28,12 +28,32 @@ Options:
   --force
     Skips the `lake build --no-build` sanity check
 
+  --keep-public
+    Preserves all `public` imports to avoid breaking changes
+
+  --explain
+    Gives constants explaining why each module is needed
+
   --fix
     Apply the suggested fixes directly. Make sure you have a clean checkout
     before running this, so you can review the changes.
+
+  --gh-style
+    Outputs messages that can be parsed by `gh-problem-matcher-wrap`
 "
 
 open Lean
+
+/-- The parsed CLI arguments. See `help` for more information -/
+structure Args where
+  help : Bool := false
+  keepPublic : Bool := false
+  force : Bool := false
+  githubStyle : Bool := false
+  explain : Bool := false
+  fix : Bool := false
+  /-- `<MODULE>..`: the list of root modules to check -/
+  mods : Array Name := #[]
 
 /-- We use `Nat` as a bitset for doing efficient set operations.
 The bit indexes will usually be a module index. -/
@@ -339,7 +359,7 @@ def decodeImport : TSyntax ``Parser.Module.import → Import
 -/
 def visitModule (srcSearchPath : SearchPath)
     (i : Nat) (needs : Needs) (preserve : Needs) (edits : Edits) (headerStx : TSyntax ``Parser.Module.header)
-    (addOnly := false) (githubStyle := false) (explain := false) : StateT State IO (Edits × Needs) := do
+    (addOnly := false) (args : Args) : StateT State IO (Edits × Needs) := do
   let s ← get
   let (module?, prelude?, imports) := decodeHeader headerStx
   let preserve := if module?.any (·.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep")) then
@@ -349,9 +369,10 @@ def visitModule (srcSearchPath : SearchPath)
 
   -- Do transitive reduction of `needs` in `deps`.
   let mut deps := needs
-  for imp in imports do
-    if addOnly || imp.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep") then
-      let imp := decodeImport imp
+  for impStx in imports do
+    let imp := decodeImport impStx
+    if addOnly || args.keepPublic && imp.isExported ||
+        impStx.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep") then
       let j := s.env.getModuleIdx? imp.module |>.get!
       let k := NeedsKind.ofImport imp
       deps := deps.union k {j}
@@ -401,7 +422,7 @@ def visitModule (srcSearchPath : SearchPath)
   let mut edits := toRemove.foldl (init := edits) fun edits imp =>
     edits.remove s.modNames[i]! imp
 
-  if !toAdd.isEmpty || !toRemove.isEmpty || explain then
+  if !toAdd.isEmpty || !toRemove.isEmpty || args.explain then
     if let some path ← srcSearchPath.findModuleWithExt "lean" s.modNames[i]! then
       println! "{path}:"
     else
@@ -410,7 +431,7 @@ def visitModule (srcSearchPath : SearchPath)
   if !toRemove.isEmpty then
     println! "  remove {toRemove}"
 
-  if githubStyle then
+  if args.githubStyle then
     try
       let (path, inputCtx, stx, endHeader) ← parseHeader srcSearchPath s.modNames[i]!
       let (_, _, imports) := decodeHeader stx
@@ -445,7 +466,7 @@ def visitModule (srcSearchPath : SearchPath)
 
   set { s with transDeps := s.transDeps.set! i newTransDepsI }
 
-  if explain then
+  if args.explain then
     let explanation := getExplanations s.env i
     let sanitize n := if n.hasMacroScopes then (sanitizeName n).run' { options := {} } else n
     let run (imp : Import) := do
@@ -470,21 +491,6 @@ def toBitset (s : State) (ns : List Name) : Bitset :=
     | some i => c ∪ {i}
     | none => c
 
-/-- The parsed CLI arguments. See `help` for more information -/
-structure Args where
-  /-- `--help`: shows the help -/
-  help : Bool := false
-  /-- `--force`: skips the `lake build --no-build` sanity check -/
-  force : Bool := false
-  /-- `--gh-style`: output messages that can be parsed by `gh-problem-matcher-wrap` -/
-  githubStyle : Bool := false
-  /-- `--explain`: give constants explaining why each module is needed -/
-  explain : Bool := false
-  /-- `--fix`: apply the fixes directly -/
-  fix : Bool := false
-  /-- `<MODULE>..`: the list of root modules to check -/
-  mods : Array Name := #[]
-
 local instance : Ord Import where
   compare a b :=
     if a.isExported && !b.isExported then
@@ -501,6 +507,7 @@ def main (args : List String) : IO UInt32 := do
   let rec parseArgs (args : Args) : List String → Args
     | [] => args
     | "--help" :: rest => parseArgs { args with help := true } rest
+    | "--keep-public" :: rest => parseArgs { args with keepPublic := true } rest
     | "--force" :: rest => parseArgs { args with force := true } rest
     | "--fix" :: rest => parseArgs { args with fix := true } rest
     | "--explain" :: rest => parseArgs { args with explain := true } rest
@@ -571,7 +578,7 @@ def main (args : List String) : IO UInt32 := do
     match header.get with
     | .ok (_, _, stx, _) =>
       (edits, preserve) ← visitModule (addOnly := !pkg.isPrefixOf s.modNames[i]!)
-        srcSearchPath i t.get preserve edits stx args.githubStyle args.explain
+        srcSearchPath i t.get preserve edits stx args
       if isExtraRevModUse s.env i then
         preserve := preserve.union .priv {i}
     | .error e =>

@@ -31,6 +31,9 @@ Options:
   --keep-public
     Preserves all `public` imports to avoid breaking changes
 
+  --add-public
+    Adds all new imports as `public`
+
   --explain
     Gives constants explaining why each module is needed
 
@@ -48,6 +51,7 @@ open Lean
 structure Args where
   help : Bool := false
   keepPublic : Bool := false
+  addPublic : Bool := false
   force : Bool := false
   githubStyle : Bool := false
   explain : Bool := false
@@ -414,7 +418,9 @@ def visitModule (srcSearchPath : SearchPath)
   for j in [0:s.mods.size] do
     for k in NeedsKind.all do
       if deps.has k j && !newDeps.has k j && !newDeps.has { k with isExported := true } j then
-        let imp := { k with module := s.modNames[j]! }
+        let mut imp := { k with module := s.modNames[j]! }
+        if args.addPublic then
+          imp := { imp with isExported := true }
         toAdd := toAdd.push imp
         newDeps := addTransitiveImps newDeps imp j s.transDeps[j]!
 
@@ -508,6 +514,7 @@ def main (args : List String) : IO UInt32 := do
     | [] => args
     | "--help" :: rest => parseArgs { args with help := true } rest
     | "--keep-public" :: rest => parseArgs { args with keepPublic := true } rest
+    | "--add-public" :: rest => parseArgs { args with addPublic := true } rest
     | "--force" :: rest => parseArgs { args with force := true } rest
     | "--fix" :: rest => parseArgs { args with fix := true } rest
     | "--explain" :: rest => parseArgs { args with explain := true } rest

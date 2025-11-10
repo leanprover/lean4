@@ -486,7 +486,7 @@
     tags: [other]
   run_config:
     <<: *time
-    cmd: lean workspaceSymbols.lean
+    cmd: lean -Dexperimental.module=true workspaceSymbols.lean
     max_runs: 2
 - attributes:
     description: bv_decide_realworld

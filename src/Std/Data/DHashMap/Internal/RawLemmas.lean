@@ -2426,7 +2426,7 @@ theorem union_equiv_congr_left {m₃ : Raw₀ α β} [EquivBEq α] [LawfulHashab
   revert equiv
   simp_to_model [union]
   intro equiv
-  apply @List.insertList_perm_of_perm_first _ _ _ _ (toListModel m₁.val.buckets) (toListModel m₂.val.buckets) (toListModel m₃.val.buckets) equiv
+  apply List.insertList_perm_of_perm_first equiv
   wf_trivial
 
 theorem union_equiv_congr_right {m₃ : Raw₀ α β} [EquivBEq α] [LawfulHashable α]

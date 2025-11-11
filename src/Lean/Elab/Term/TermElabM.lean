@@ -1777,24 +1777,26 @@ def elabType (stx : Syntax) : TermElabM Expr := do
   a new local declaration is created, registered, and `k` is tried to be executed again. -/
 partial def withAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
   let flag := autoImplicit.get (← getOptions)
-  withReader ({ · with autoBoundImplicitContext := .some { flag := flag } }) do
+  let initCtx : AutoBoundImplicitContext := { flag }
   if flag then
-    let rec loop (s : SavedState) : TermElabM α := withIncRecDepth do
+    let rec loop (s : SavedState) (ctx : AutoBoundImplicitContext) : TermElabM α := withIncRecDepth do
       checkSystem "auto-implicit"
       try
-        withSaveAutoImplicitInfoContext k
+        withReader ({ · with autoBoundImplicitContext := .some ctx }) <|
+          withSaveAutoImplicitInfoContext k
       catch
         | ex => match isAutoBoundImplicitLocalException? ex with
           | some n =>
             -- Restore state, declare `n`, and try again
             s.restore (restoreInfo := true)
-            withLocalDecl n .implicit (← mkFreshTypeMVar) fun x =>
-              withReader (fun ctx => { ctx with autoBoundImplicitContext := .some <| ctx.autoBoundImplicitContext.get!.push x } ) do
-                loop (← saveState)
+            withLocalDecl n .implicit (← mkFreshTypeMVar) fun x => do
+              loop (← saveState) (ctx.push x)
           | none   => throw ex
-    loop (← saveState)
+    loop (← saveState) initCtx
   else
-    k
+    -- Track whether we are in an auto-bound context regardless of whether
+    -- the `autoImplicit` flag is enabled; this can influence error messages.
+    withReader ({ · with autoBoundImplicitContext := .some initCtx}) k
 
 def withoutAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
   withReader (fun ctx => { ctx with autoBoundImplicitContext := .none }) k

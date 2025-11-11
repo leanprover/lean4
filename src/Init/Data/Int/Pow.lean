@@ -14,9 +14,19 @@ namespace Int
 
 /-! # pow -/
 
-@[simp] protected theorem pow_zero (b : Int) : b^0 = 1 := rfl
+@[simp] protected theorem pow_zero (b : Int) : b^0 = 1 := by simp [Int.pow_def]
 
-protected theorem pow_succ (b : Int) (e : Nat) : b ^ (e+1) = (b ^ e) * b := rfl
+protected theorem pow_succ (b : Int) (e : Nat) : b ^ (e+1) = (b ^ e) * b := by
+  simp only [Int.pow_def]
+  by_cases h : 0 ≤ b
+  · simp [h, Nat.pow_add_one, ofNat_natAbs_of_nonneg]
+  · simp [h]
+    split <;> rename_i h
+    · rw [if_neg (by omega), Nat.pow_add_one, natCast_mul, ofNat_natAbs_of_nonpos (by omega)]
+      simp [Int.neg_mul, Int.mul_neg]
+    · rw [if_pos (by omega), Nat.pow_add_one, natCast_mul, ofNat_natAbs_of_nonpos (by omega)]
+      simp [Int.mul_neg]
+
 protected theorem pow_succ' (b : Int) (e : Nat) : b ^ (e+1) = b * (b ^ e) := by
   rw [Int.mul_comm, Int.pow_succ]
 
@@ -39,6 +49,9 @@ protected theorem mul_pow {a b : Int} {n : Nat} : (a * b) ^ n = a ^ n * b ^ n :=
     rw [Int.pow_succ, Int.pow_succ, Int.pow_succ, ih, Int.mul_assoc, Int.mul_assoc,
       Int.mul_left_comm (b^n)]
 
+protected theorem pow_one (a : Int) : a ^ 1 = a := by
+  rw [Int.pow_succ, Int.pow_zero, Int.one_mul]
+
 protected theorem pow_mul {a : Int} {n m : Nat} : a ^ (n * m) = (a ^ n) ^ m := by
   induction m with
   | zero => simp
@@ -48,17 +61,23 @@ protected theorem pow_mul {a : Int} {n m : Nat} : a ^ (n * m) = (a ^ n) ^ m := b
 protected theorem pow_pos {n : Int} {m : Nat} : 0 < n → 0 < n ^ m := by
   induction m with
   | zero => simp
-  | succ m ih => exact fun h => Int.mul_pos (ih h) h
+  | succ m ih =>
+    simp only [Int.pow_succ]
+    exact fun h => Int.mul_pos (ih h) h
 
 protected theorem pow_nonneg {n : Int} {m : Nat} : 0 ≤ n → 0 ≤ n ^ m := by
   induction m with
   | zero => simp
-  | succ m ih => exact fun h => Int.mul_nonneg (ih h) h
+  | succ m ih =>
+    simp only [Int.pow_succ]
+    exact fun h => Int.mul_nonneg (ih h) h
 
 protected theorem pow_ne_zero {n : Int} {m : Nat} : n ≠ 0 → n ^ m ≠ 0 := by
   induction m with
   | zero => simp
-  | succ m ih => exact fun h => Int.mul_ne_zero (ih h) h
+  | succ m ih =>
+    simp only [Int.pow_succ]
+    exact fun h => Int.mul_ne_zero (ih h) h
 
 instance {n : Int} {m : Nat} [NeZero n] : NeZero (n ^ m) := ⟨Int.pow_ne_zero (NeZero.ne _)⟩
 
@@ -90,7 +109,7 @@ theorem pow_lt_pow_of_lt {a : Int} {b c : Nat} (ha : 1 < a) (hbc : b < c):
   omega
 
 @[simp] theorem natAbs_pow (n : Int) : (k : Nat) → (n ^ k).natAbs = n.natAbs ^ k
-  | 0 => rfl
+  | 0 => by simp
   | k + 1 => by rw [Int.pow_succ, natAbs_mul, natAbs_pow, Nat.pow_succ]
 
 theorem toNat_pow_of_nonneg {x : Int} (h : 0 ≤ x) (k : Nat) : (x ^ k).toNat = x.toNat ^ k := by
@@ -100,8 +119,7 @@ theorem toNat_pow_of_nonneg {x : Int} (h : 0 ≤ x) (k : Nat) : (x ^ k).toNat = 
     rw [Int.pow_succ, Int.toNat_mul (Int.pow_nonneg h) h, ih, Nat.pow_succ]
 
 protected theorem sq_nonnneg (m : Int) : 0 ≤ m ^ 2 := by
-  change 0 ≤ 1 * m * m
-  rw [Int.one_mul]
+  rw [Int.pow_succ, Int.pow_one]
   cases m
   · apply Int.mul_nonneg <;> simp
   · apply Int.mul_nonneg_of_nonpos_of_nonpos <;> exact negSucc_le_zero _

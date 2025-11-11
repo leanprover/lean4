@@ -392,12 +392,20 @@ Examples:
 * `(0 : Int) ^ 10 = 0`
 * `(-7 : Int) ^ 3 = -343`
 -/
-protected def pow (m : Int) : Nat → Int
-  | 0      => 1
-  | succ n => Int.pow m n * m
+protected def pow (m : Int) (n : Nat) : Int :=
+  if m >= 0 || n % 2 = 0 then
+    Int.ofNat <| m.natAbs ^ n
+  else
+    - (Int.ofNat <| m.natAbs ^ n)
 
 instance : NatPow Int where
   pow := Int.pow
+
+protected theorem pow_def (m : Int) (n : Nat) :
+  m ^ n = if m >= 0 || n % 2 = 0 then
+    Int.ofNat <| m.natAbs ^ n
+  else
+    - (Int.ofNat <| m.natAbs ^ n) := rfl
 
 instance : LawfulBEq Int where
   eq_of_beq h := by simp [BEq.beq] at h; assumption

@@ -20,7 +20,7 @@ We considered `evalExpr` as an alternative, but it introduces considerable overh
  many `grind` calls. We may still use `evalExpr` as a fallback in the future.
 -/
 
-private def checkExp (k : Nat) : OptionT GrindM Unit := do
+def checkExp (k : Nat) : OptionT GrindM Unit := do
   if k > (← getConfig).exp then
     reportIssue! "exponent {k} exceeds threshold for exponentiation `(exp := {(← getConfig).exp})`"
     failure

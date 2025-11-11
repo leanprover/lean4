@@ -212,7 +212,7 @@ def thisBreaks (x : α₁) (y : size₁) := ()
 set relaxedAutoImplicit true in
 def thisBreaks (x : α₂) (y : size₂) := ()
 ```
-```lean fixed (title := "Fixed (added the missing implicit bindings)")
+```lean fixed (title := "Fixed (add implicit bindings for the unknown identifiers)")
 set autoImplicit false in
 def thisBreaks {size₁} (x : α₁) (y : size₁) := ()
 
@@ -226,7 +226,8 @@ unknown identifiers. However, many files or projects disable this setting by set
 `autoImplicit` or `relaxedAutoImplicit` options to `false`.
 
 Without re-enabling the `autoImplicit` or `relaxedAutoImplicit` options, the easiest way to fix
-this error is to add the unknown identifiers as implicit parameters.
+this error is to add the unknown identifiers as [ordinary implicit parameters](lean-manual://section/implicit-functions)
+as shown in the example above.
 
 -/
 register_error_explanation lean.unknownIdentifier {

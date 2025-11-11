@@ -413,10 +413,6 @@ def unionₘ [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
     insertListₘ m₁ (toListModel m₂.1.buckets)
 
 /-- Internal implementation detail of the hash map -/
-def foldlₘ {δ} (f : δ → (a : α) → β a → δ) (init : δ) (m : List ((a : α) × β a)) : δ :=
-  m.foldl (fun acc ⟨k,v⟩ => f acc k v) init
-
-/-- Internal implementation detail of the hash map -/
 def interSmallerFnₘ [BEq α] [Hashable α] (m sofar : Raw₀ α β) (k : α) : Raw₀ α β :=
   match m.getEntry?ₘ k with
   | some kv' => sofar.insertₘ kv'.1 kv'.2

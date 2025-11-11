@@ -1307,25 +1307,6 @@ theorem toListModel_union [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable �
   rw [union_eq_unionₘ]
   exact toListModel_unionₘ h₁ h₂
 
-/-! # `foldl`-/
-theorem foldl_eq_foldlₘ {δ} (f : δ → (a : α) → β a → δ) (init : δ) (m : Raw₀ α β) :
-    foldl f init m = foldlₘ f init (m.1.toList) := by
-  simp only [foldl, ForIn.forIn, bind_pure_comp, map_pure, bind_pure, foldlₘ]
-  rw [Raw.forIn_eq_forIn_toListModel, Raw.toList_eq_toListModel]
-  generalize (toListModel m.val.buckets) = l
-  simp only [forIn_pure_yield_eq_foldl, Id.run_pure]
-  suffices ∀ (t : { d : δ // ∀ (P : δ → Prop),
-      (∀ {d' : δ} {a : α} {b : β a}, P d' → P (f d' a b)) → P init → P d }),
-        (List.foldl (fun d' p => ⟨f d'.val p.1 p.2, fun P h₁ h₂ => h₁ (d'.2 _ h₁ h₂)⟩) t l).val =
-      foldlₘ f t.val l from this _
-  intro t
-  induction l generalizing t with
-  | nil => simp [foldlₘ]
-  | cons hd tl ih =>
-    simp only [List.foldl_cons, foldlₘ]
-    simp only [foldlₘ, Subtype.forall] at ih
-    apply ih
-
 /-- Internal implementation detail of the hash map -/
 def interSmallerₘ [BEq α] [Hashable α] (m₁ : Raw₀ α β) (l : List ((a : α) × β a)) : Raw₀ α β :=
   l.foldl (fun sofar k => interSmallerFnₘ m₁ sofar k.1) emptyWithCapacity

@@ -599,6 +599,7 @@ abbrev ValidPos.IsAtEnd {s : String} (pos : s.ValidPos) : Prop :=
 theorem ValidPos.isAtEnd_iff {s : String} {pos : s.ValidPos} :
     pos.IsAtEnd ↔ pos = s.endValidPos := Iff.rfl
 
+@[inline]
 instance {s : String} {pos : s.ValidPos} : Decidable pos.IsAtEnd :=
   decidable_of_iff _ ValidPos.isAtEnd_iff
 
@@ -612,6 +613,7 @@ abbrev Slice.Pos.IsAtEnd {s : Slice} (pos : s.Pos) : Prop :=
 theorem Slice.Pos.isAtEnd_iff {s : Slice} {pos : s.Pos} :
     pos.IsAtEnd ↔ pos = s.endPos := Iff.rfl
 
+@[inline]
 instance {s : Slice} {pos : s.Pos} : Decidable pos.IsAtEnd :=
   decidable_of_iff _ Slice.Pos.isAtEnd_iff
 

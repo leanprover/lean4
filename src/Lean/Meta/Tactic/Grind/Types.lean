@@ -1393,6 +1393,18 @@ def getExprs : GoalM (PArray Expr) := do
     if isSameExpr n.next e then return ()
     curr := n.next
 
+/--
+Executes `f` to each term in the equivalence class containing `e`, and stops as soon as `f` returns `true`.
+-/
+@[inline] def findEqc (e : Expr) (f : ENode → GoalM Bool) : GoalM Bool := do
+  let mut curr := e
+  repeat
+    let n ← getENode curr
+    if (← f n) then return true
+    if isSameExpr n.next e then break
+    curr := n.next
+  return false
+
 /-- Folds using `f` and `init` over the equivalence class containing `e` -/
 @[inline] def foldEqc (e : Expr) (init : α) (f : ENode → α → GoalM α) : GoalM α := do
   let mut curr := e

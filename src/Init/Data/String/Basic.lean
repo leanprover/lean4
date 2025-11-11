@@ -1756,7 +1756,11 @@ theorem Slice.Pos.prev_lt {s : Slice} {p : s.Pos} {h} : p.prev h < p :=
 theorem ValidPos.prev_lt {s : String} {p : s.ValidPos} {h} : p.prev h < p := by
   simp [← toSlice_lt, toSlice_prev]
 
-/-- Advances the position `p` `n` times, saturating at `s.endPos` if necessary. -/
+/--
+Advances the position `p` `n` times.
+
+If this would move `p` past the end of `s`, the result is `s.endPos`.
+-/
 def Slice.Pos.nextn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
   match n with
   | 0 => p
@@ -1766,7 +1770,11 @@ def Slice.Pos.nextn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
     else
       p
 
-/-- Iterates `p.prev` `n` times, saturating at `s.startPos` if necessary. -/
+/--
+Iterates `p.prev` `n` times.
+
+If this would move `p` past the start of `s`, the result is `s.endPos`.
+-/
 def Slice.Pos.prevn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
   match n with
   | 0 => p
@@ -1776,12 +1784,20 @@ def Slice.Pos.prevn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
     else
       p
 
-/-- Advances the position `p` `n` times, saturating at `s.endValidPos` if necessary. -/
+/--
+Advances the position `p` `n` times.
+
+If this would move `p` past the end of `s`, the result is `s.endValidPos`.
+-/
 @[inline]
 def ValidPos.nextn {s : String} (p : s.ValidPos) (n : Nat) : s.ValidPos :=
   (p.toSlice.nextn n).ofSlice
 
-/-- Iterates `p.prev` `n` times, saturating at `s.startValidPos` if necessary. -/
+/--
+Iterates `p.prev` `n` times.
+
+If this would move `p` past the start of `s`, the result is `s.startValidPos`.
+-/
 @[inline]
 def ValidPos.prevn {s : String} (p : s.ValidPos) (n : Nat) : s.ValidPos :=
   (p.toSlice.prevn n).ofSlice

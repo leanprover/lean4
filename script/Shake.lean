@@ -378,10 +378,10 @@ def visitModule (srcSearchPath : SearchPath)
   let mut deps := needs
   for impStx in imports do
     let imp := decodeImport impStx
-    if addOnly || args.keepPublic && imp.isExported ||
+    let j := s.env.getModuleIdx? imp.module |>.get!
+    let k := NeedsKind.ofImport imp
+    if addOnly || preserve.has k j || args.keepPublic && imp.isExported ||
         impStx.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep") then
-      let j := s.env.getModuleIdx? imp.module |>.get!
-      let k := NeedsKind.ofImport imp
       deps := deps.union k {j}
   for j in [0:s.mods.size] do
     let transDeps := s.transDeps[j]!

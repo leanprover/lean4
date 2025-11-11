@@ -18,7 +18,7 @@ namespace Std.TreeSet
 open Std.Iterators
 
 /--
-Returns a finite iterator over the entries of a tree setz.
+Returns a finite iterator over the entries of a tree set.
 The iterator yields the elements of the set in order and then terminates.
 
 **Termination properties:**

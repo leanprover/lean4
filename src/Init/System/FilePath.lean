@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.String.Basic
-import Init.Data.String.Iterator
 import Init.Data.String.Modify
 
 public section
@@ -93,7 +92,7 @@ An absolute path starts at the root directory or a drive letter. Accessing files
 path does not depend on the current working directory.
 -/
 def isAbsolute (p : FilePath) : Bool :=
-  pathSeparators.contains p.toString.front || (isWindows && p.toString.length > 1 && p.toString.iter.next.curr == ':')
+  pathSeparators.contains p.toString.front || (isWindows && p.toString.length > 1 && p.toString.startValidPos.next?.bind (·.get?) == some ':')
 
 /--
 A relative path is one that depends on the current working directory for interpretation. Relative

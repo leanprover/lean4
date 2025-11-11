@@ -9,7 +9,6 @@ prelude
 public import Init.Data.String.Basic
 public import Init.Data.String.Modify
 
-
 /-!
 # `String.Iterator`
 
@@ -18,8 +17,6 @@ a future release.
 -/
 
 public section
-
-
 
 namespace String
 

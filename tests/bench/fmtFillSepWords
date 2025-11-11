@@ -1,8 +1,4 @@
-import Lean.Data.Fmt.Basic
-
-open Lean.Fmt
-
-def words := s!"A
+A
 a
 aa
 aal
@@ -10001,29 +9997,4 @@ anticonceptionist
 anticonductor
 anticonfederationist
 anticonformist
-anticonscience"
-
-def n := 1000 --0
-
-def fillSep (xs : Array String) : Doc := Id.run do
-  let some hd := xs[0]?
-    | return .text ""
-  let mut r : Doc := .text hd
-  for x in xs do
-    r := Doc.either
-      (Doc.joinUsing (.text " ") #[r, .text x])
-      (Doc.joinUsing .hardNl #[r, .text x])
-  return r
-
-def xs := words.splitOn "\n" |>.take n |>.toArray
-
-def doc := fillSep xs
-
-@[noinline]
-def format : IO String := do
-  return format? doc 80 100 |>.getD ""
-
-def bench : IO Unit := do
-  discard <| timeit "" format
-
-#eval bench
+anticonscience

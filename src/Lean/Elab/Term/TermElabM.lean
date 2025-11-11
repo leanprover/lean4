@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Meta.Coe
-public import Lean.Meta.Hint
 public import Lean.Util.CollectLevelMVars
 public import Lean.Linter.Deprecated
 public import Lean.Elab.Attributes

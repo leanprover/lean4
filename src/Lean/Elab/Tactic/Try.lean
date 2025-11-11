@@ -197,6 +197,18 @@ private def evalSuggestAtomic (tac : TSyntax `tactic) : TacticM (TSyntax `tactic
   else
     return tac
 
+/-- Check if a config contains `+suggestions` -/
+private def configHasSuggestions (config : TSyntax ``Lean.Parser.Tactic.optConfig) : Bool :=
+  let configItems := config.raw.getArgs
+  configItems.any fun item =>
+    match item[0]? with
+    | some configItem => match configItem[0]? with
+      | some posConfigItem => match posConfigItem[1]? with
+        | some ident => posConfigItem.getKind == ``Lean.Parser.Tactic.posConfigItem && ident.getId == `suggestions
+        | none => false
+      | none => false
+    | none => false
+
 private def grindTraceToGrind (tac : TSyntax `tactic) : TacticM (TSyntax `tactic) := do
   match tac with
   | `(tactic| grind? $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?) =>
@@ -389,24 +401,84 @@ private def evalSuggestGrindTrace : TryTactic := fun tac => do
     trace[try.debug] "`grind` succeeded"
     if (← read).config.only then
       let tac' ← mkGrindOnly configStx trace
-      mkTrySuggestions #[tac, tac']
+      -- If config has +suggestions, only return the 'only' version, not the original
+      if configHasSuggestions configStx then
+        mkTrySuggestions #[tac']
+      else
+        mkTrySuggestions #[tac, tac']
     else
       return tac
   | _ => throwUnsupportedSyntax
 
 private def evalSuggestSimpTrace : TryTactic := fun tac => do (← getMainGoal).withContext do
   match tac with
-  | `(tactic| simp? $_:optConfig $[only%$only]? $[[$args,*]]? $(loc)?) =>
+  | `(tactic| simp? $configStx:optConfig $[only%$only]? $[[$args,*]]? $(loc)?) =>
     let tac ← simpTraceToSimp tac
     let { ctx, simprocs, .. } ← mkSimpContext tac (eraseLocal := false)
     let stats ← simpLocation ctx (simprocs := simprocs) none <| (loc.map expandLocation).getD (.targets #[] true)
     trace[try.debug] "`simp` succeeded"
     if (← read).config.only then
       let tac' ← mkSimpCallStx tac stats.usedTheorems
-      mkTrySuggestions #[tac, tac']
+      -- If config has +suggestions, only return the 'only' version, not the original
+      if configHasSuggestions configStx then
+        mkTrySuggestions #[tac']
+      else
+        mkTrySuggestions #[tac, tac']
     else
       return tac
   | _ => throwUnsupportedSyntax
+
+private def evalSuggestSimpAllTrace : TryTactic := fun tac => do
+  match tac with
+  | `(tactic| simp_all? $[!%$_bang]? $configStx:optConfig $(_discharger)? $[only%$_only]? $[[$_args,*]]?) =>
+    (← getMainGoal).withContext do
+      let hasSuggestions := configHasSuggestions configStx
+
+      -- Get library suggestions if +suggestions is present
+      let config ← elabSimpConfig configStx (kind := .simpAll)
+      let mut argsArray : TSyntaxArray [`Lean.Parser.Tactic.simpErase, `Lean.Parser.Tactic.simpLemma] := #[]
+      if config.suggestions then
+        let suggestions ← Lean.LibrarySuggestions.select (← getMainGoal)
+        for sugg in suggestions do
+          let ident := mkIdent sugg.name
+          let candidates ← resolveGlobalConst ident
+          for candidate in candidates do
+            let arg ← `(Parser.Tactic.simpLemma| $(mkCIdentFrom ident candidate (canonical := true)):term)
+            argsArray := argsArray.push arg
+
+      -- Build tactic with resolved suggestions for execution
+      -- If +suggestions was present, we need to create a tactic without +suggestions,
+      -- either with the resolved suggestions or without arguments if none were found
+      -- Note: We use simp_all (without ?) for execution, not simp_all?
+      let tacForExec ← if config.suggestions then
+        if argsArray.isEmpty then
+          `(tactic| simp_all)
+        else
+          `(tactic| simp_all [$argsArray,*])
+      else
+        pure tac
+
+      let { ctx, simprocs, .. } ← mkSimpContext tacForExec (eraseLocal := true) (kind := .simpAll) (ignoreStarArg := true)
+      let (result?, stats) ← simpAll (← getMainGoal) ctx (simprocs := simprocs)
+      match result? with
+      | none => replaceMainGoal []
+      | some mvarId => replaceMainGoal [mvarId]
+      trace[try.debug] "`simp_all` succeeded"
+      if (← read).config.only then
+        -- Remove +suggestions from config for the output (similar to SimpTrace.lean)
+        let filteredCfg ← filterSuggestionsFromSimpConfig configStx
+        -- Convert simp_all? to simp_all for mkSimpCallStx (similar to simpTraceToSimp)
+        let tacWithoutTrace ← `(tactic| simp_all $filteredCfg:optConfig $[only%$_only]? $[[$_args,*]]?)
+        let tac' ← mkSimpCallStx tacWithoutTrace stats.usedTheorems
+        -- If config has +suggestions, only return the 'only' version, not the original
+        if hasSuggestions then
+          mkTrySuggestions #[tac']
+        else
+          mkTrySuggestions #[tac, tac']
+      else
+        return tac
+  | _ => throwUnsupportedSyntax
+
 
 @[extern "lean_eval_suggest_tactic"] -- forward definition to avoid mutual block
 opaque evalSuggest : TryTactic
@@ -547,6 +619,8 @@ private partial def evalSuggestImpl : TryTactic := fun tac => do
         evalSuggestGrindTrace tac
       else if k == ``Parser.Tactic.simpTrace then
         evalSuggestSimpTrace tac
+      else if k == ``Parser.Tactic.simpAllTrace then
+        evalSuggestSimpAllTrace tac
       else if k == ``Parser.Tactic.exact? then
         evalSuggestExact
       else
@@ -629,6 +703,11 @@ set_option hygiene false in -- Avoid tagger at `+arith`
 private def mkSimpStx : CoreM (TSyntax `tactic) :=
   `(tactic| first | simp? | simp? [*] | simp? +arith | simp? +arith [*])
 
+set_option hygiene false in -- Avoid tagger at `+suggestions`
+/-- Atomic tactics with library suggestions -/
+private def mkAtomicWithSuggestionsStx : CoreM (TSyntax `tactic) :=
+  `(tactic| attempt_all | grind? +suggestions | simp_all? +suggestions)
+
 /-- `simple` tactics -/
 private def mkSimpleTacStx : CoreM (TSyntax `tactic) :=
   `(tactic| attempt_all | rfl | assumption)
@@ -668,13 +747,13 @@ private def mkTryEvalSuggestStx (info : Try.Info) : MetaM (TSyntax `tactic) := d
   let simp ← mkSimpStx
   let grind ← mkGrindStx info
   let atomic ← `(tactic| attempt_all | $simple:tactic | $simp:tactic | $grind:tactic | simp_all)
+  let atomicSuggestions ← mkAtomicWithSuggestionsStx
   let funInds ← mkAllFunIndStx info atomic
   let extra ← `(tactic| (intros; first | $simple:tactic | $simp:tactic | exact?))
-  `(tactic| first | $atomic:tactic | $funInds:tactic | $extra:tactic)
+  `(tactic| first | $atomic:tactic | $atomicSuggestions:tactic | $funInds:tactic | $extra:tactic)
 
 -- TODO: vanilla `induction`.
 -- TODO: make it extensible.
--- TODO: library suggestions.
 
 @[builtin_tactic Lean.Parser.Tactic.tryTrace] def evalTryTrace : Tactic := fun stx => do
   match stx with

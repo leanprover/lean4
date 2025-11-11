@@ -43,12 +43,20 @@ def readJson : IO Lean.Json := do
   IO.ofExcept <| Lean.Json.parse c
 
 @[noinline]
-def format (doc : Doc) : IO String := do
-  return format? doc 80 100 |>.getD ""
+def doc : IO Doc := do
+  let json ← IO.FS.readFile "fmtJson10k.json"
+  let json ← IO.ofExcept <| Lean.Json.parse json
+  return pp json
 
-def bench : IO Unit := do
-  let json ← readJson
-  let doc := pp json
-  discard <| timeit "" (format doc)
+@[noinline]
+def format (doc : Doc) : IO (Option String) := do
+  return format? doc 80 100
 
-#eval bench
+def main (_ : List String) : IO Unit := do
+  let d ← doc
+  let startNs ← IO.monoNanosNow
+  let r? ← format d
+  let endNs ← IO.monoNanosNow
+  let benchTime : Float := (endNs - startNs).toFloat / 1_000_000_000.0
+  assert! r?.isSome
+  IO.println s!"format: {benchTime}"

@@ -297,6 +297,46 @@
     cmd: lean -Dlinter.all=false --run identifier_completion_runner.lean
     parse_output: true
 - attributes:
+    description: format (flatten)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: ./fmtFlatten.lean.out 16000
+  build_config:
+    cmd: ./compile.sh fmtFlatten.lean
+- attributes:
+    description: format (concat)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: ./fmtConcat.lean.out 50000
+  build_config:
+    cmd: ./compile.sh fmtConcat.lean
+- attributes:
+    description: format (sexpr full)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: ./fmtSExprFull.lean.out 15
+  build_config:
+    cmd: ./compile.sh fmtSExprFull.lean
+- attributes:
+    description: format (fill-sep)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: ./fmtFillSep.lean.out 10000
+  build_config:
+    cmd: ./compile.sh fmtFillSep.lean
+- attributes:
+    description: format (json)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: ./fmtJson.lean.out
+  build_config:
+    cmd: ./compile.sh fmtJson.lean
+- attributes:
     description: liasolver
     tags: [other]
   run_config:

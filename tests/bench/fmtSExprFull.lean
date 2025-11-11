@@ -35,13 +35,20 @@ def testExpr (n c : Nat) : SExpr × Nat :=
     let (t2, c2) := testExpr (n - 1) c1
     (.node [t1, t2], c2)
 
-def doc : Doc := pp (testExpr 10 0).1
+@[noinline]
+def doc (n : Nat) : IO Doc :=
+  return pp (testExpr n 0).1
 
 @[noinline]
-def format : IO String := do
-  return format? doc 80 100 |>.getD ""
+def format (doc : Doc) : IO (Option String) := do
+  return format? doc 80 100
 
-def bench : IO Unit := do
-  discard <| timeit "" format
-
-#eval bench
+def main (args : List String) : IO Unit := do
+  let n := (args[0]!).toNat!
+  let d ← doc n
+  let startNs ← IO.monoNanosNow
+  let r? ← format d
+  let endNs ← IO.monoNanosNow
+  let benchTime : Float := (endNs - startNs).toFloat / 1_000_000_000.0
+  assert! r?.isSome
+  IO.println s!"format: {benchTime}"

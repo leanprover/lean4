@@ -31,10 +31,6 @@ jobs:
   configure:
     runs-on: ubuntu-latest
     outputs:
-      # 0: PRs without special label
-      # 1: PRs with `merge-ci` label, merge queue checks, master commits
-      # 2: PRs with `release-ci` label, releases (incl. nightlies)
-      check-level: ${{ steps.set-level.outputs.check-level }}
       # The build matrix, dynamically generated here
       matrix: ${{ steps.set-matrix.outputs.matrix }}
       # secondary build jobs that should not block the CI success/merge queue
@@ -110,6 +106,9 @@ jobs:
           TAG_NAME="${GITHUB_REF##*/}"
           echo "RELEASE_TAG=$TAG_NAME" >> "$GITHUB_OUTPUT"
 
+      # 0: PRs without special label
+      # 1: PRs with `merge-ci` label, merge queue checks, master commits
+      # 2: PRs with `release-ci` label, releases (incl. nightlies)
       - name: Set check level
         id: set-level
         # We do not use github.event.pull_request.labels.*.name here because
@@ -117,6 +116,7 @@ jobs:
         # rerun the workflow run after setting the `release-ci`/`merge-ci` labels.
         run: |
           check_level=0
+          fast=false
 
           if [[ -n "${{ steps.set-nightly.outputs.nightly }}" || -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.outputs.RELEASE_TAG }}" ]]; then
             check_level=2
@@ -129,9 +129,13 @@ jobs:
             elif echo "$labels" | grep -q "merge-ci"; then
               check_level=1
             fi
+            if echo "$labels" | grep -q "fast-ci"; then
+              fast=true
+            fi
           fi
 
           echo "check-level=$check_level" >> "$GITHUB_OUTPUT"
+          echo "fast=$fast" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -141,7 +145,8 @@ jobs:
         with:
           script: |
             const level = ${{ steps.set-level.outputs.check-level }};
-            console.log(`level: ${level}`);
+            const fast = ${{ steps.set-level.outputs.fast }};
+            console.log(`level: ${level}, fast: ${fast}`);
             // use large runners where available (original repo)
             let large = ${{ github.repository == 'leanprover/lean4' }};
             const isPr = "${{ github.event_name }}" == "pull_request";
@@ -152,7 +157,8 @@ jobs:
                 "name": "Linux LLVM",
                 "os": "ubuntu-latest",
                 "release": false,
-                "check-level": 2,
+                "enabled": level >= 2,
+                "test": true,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
@@ -165,17 +171,19 @@ jobs:
               {
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
-                "os": "ubuntu-latest",
+                // usually not a bottleneck so make exclusive to `fast-ci`
+                "os": large && fast ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
                 "release": true,
                 // Special handling for release jobs. We want:
-                // 1. To run it in PRs so developers get PR toolchains (so secondary is sufficient)
+                // 1. To run it in PRs so developers get PR toolchains (so secondary without tests is sufficient)
                 // 2. To skip it in merge queues as it takes longer than the
                 //    Linux lake build and adds little value in the merge queue
                 // 3. To run it in release (obviously)
                 // 4. To run it for pushes to master so that pushes to master have a Linux toolchain
                 //    available as an artifact for Grove to use.
-                "check-level": (isPr || isPushToMaster) ? 0 : 2,
-                "secondary": isPr,
+                "enabled": isPr || level != 1 || isPushToMaster,
+                "test": level >= 1,
+                "secondary": level == 0,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
@@ -186,26 +194,28 @@ jobs:
               {
                 "name": "Linux Lake",
                 "os": large ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
-                "check-level": 0,
-                "test": true,
+                "enabled": true,
                 "check-rebootstrap": level >= 1,
                 "check-stage3": level >= 2,
+                "test": true,
                 // NOTE: `test-speedcenter` currently seems to be broken on `ubuntu-latest`
                 "test-speedcenter": large && level >= 2,
-                // made explicit until it can be assumed to have propagated to PRs
-                "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
+                // We are not warning-free yet on all platforms, start here
+                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror",
               },
               {
                 "name": "Linux Reldebug",
                 "os": "ubuntu-latest",
-                "check-level": 2,
+                "enabled": level >= 2,
+                "test": true,
                 "CMAKE_PRESET": "reldebug",
               },
               // TODO: suddenly started failing in CI
               /*{
                 "name": "Linux fsanitize",
                 "os": "ubuntu-latest",
-                "check-level": 2,
+                "enabled": level >= 2,
+                "test": true,
                 // turn off custom allocator & symbolic functions to make LSAN do its magic
                 "CMAKE_PRESET": "sanitize",
                 // exclude seriously slow/problematic tests (laketests crash)
@@ -215,7 +225,8 @@ jobs:
                 "name": "macOS",
                 "os": "macos-15-intel",
                 "release": true,
-                "check-level": 2,
+                "test": false,  // Tier 2 platform
+                "enabled": level >= 2,
                 "shell": "bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-apple-darwin.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
@@ -226,7 +237,7 @@ jobs:
               {
                 "name": "macOS aarch64",
                 // standard GH runner only comes with 7GB so use large runner if possible when running tests
-                "os": large && !isPr ? "nscloud-macos-sequoia-arm64-6x14" : "macos-15",
+                "os": large && (fast || level >= 1) ? "nscloud-macos-sequoia-arm64-6x14" : "macos-15",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
                 "shell": "bash -euxo pipefail {0}",
@@ -235,14 +246,16 @@ jobs:
                 "binary-check": "otool -L",
                 "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
                 // See "Linux release" for release job levels; Grove is not a concern here
-                "check-level": isPr ? 0 : 2,
-                "secondary": isPr,
+                "enabled": isPr || level != 1,
+                "test": level >= 1,
+                "secondary": level == 0,
               },
               {
                 "name": "Windows",
-                "os": large && level == 2 ? "namespace-profile-windows-amd64-4x16" : "windows-2022",
+                "os": large && (fast || level == 2) ? "namespace-profile-windows-amd64-4x16" : "windows-2022",
                 "release": true,
-                "check-level": 2,
+                "enabled": level >= 2,
+                "test": true,
                 "shell": "msys2 {0}",
                 "CMAKE_OPTIONS": "-G \"Unix Makefiles\"",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
@@ -254,7 +267,8 @@ jobs:
                 "os": "nscloud-ubuntu-22.04-arm64-4x16",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-linux_aarch64",
                 "release": true,
-                "check-level": 2,
+                "enabled": level >= 2,
+                "test": true,
                 "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-aarch64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
@@ -267,7 +281,7 @@ jobs:
               //  "CMAKE_OPTIONS": "-DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF -DLEAN_INSTALL_SUFFIX=-linux_x86 -DCMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/ -DSTAGE0_CMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/ -DPKG_CONFIG_EXECUTABLE=/usr/bin/i386-linux-gnu-pkg-config",
               //  "cmultilib": true,
               //  "release": true,
-              //  "check-level": 2,
+              //  "enabled": level >= 2,
               //  "cross": true,
               //  "shell": "bash -euxo pipefail {0}"
               //}
@@ -279,7 +293,7 @@ jobs:
               //   "wasm": true,
               //   "cmultilib": true,
               //   "release": true,
-              //   "check-level": 2,
+              //   "enabled": level >= 2,
               //   "cross": true,
               //   "shell": "bash -euxo pipefail {0}",
               //   // Just a few selected tests because wasm is slow
@@ -293,7 +307,7 @@ jobs:
               }
             }
             console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`);
-            matrix = matrix.filter((job) => level >= job["check-level"]);
+            matrix = matrix.filter((job) => job["enabled"]);
             core.setOutput('matrix', matrix.filter((job) => !job["secondary"]));
             core.setOutput('matrix-secondary', matrix.filter((job) => job["secondary"]));
 
@@ -303,7 +317,6 @@ jobs:
     uses: ./.github/workflows/build-template.yml
     with:
       config: ${{needs.configure.outputs.matrix}}
-      check-level: ${{ needs.configure.outputs.check-level }}
       nightly: ${{ needs.configure.outputs.nightly }}
       LEAN_VERSION_MAJOR: ${{ needs.configure.outputs.LEAN_VERSION_MAJOR }}
       LEAN_VERSION_MINOR: ${{ needs.configure.outputs.LEAN_VERSION_MINOR }}
@@ -319,7 +332,6 @@ jobs:
     uses: ./.github/workflows/build-template.yml
     with:
       config: ${{needs.configure.outputs.matrix-secondary}}
-      check-level: ${{ needs.configure.outputs.check-level }}
       nightly: ${{ needs.configure.outputs.nightly }}
       LEAN_VERSION_MAJOR: ${{ needs.configure.outputs.LEAN_VERSION_MAJOR }}
       LEAN_VERSION_MINOR: ${{ needs.configure.outputs.LEAN_VERSION_MINOR }}
@@ -363,11 +375,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           path: artifacts
       - name: Release
-        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836
+        uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090
         with:
           files: artifacts/*/*
           fail_on_unmatched_files: true
@@ -392,8 +404,10 @@ jobs:
         with:
           # needed for tagging
           fetch-depth: 0
+          # Doesn't seem to be working when additionally fetching from lean4-nightly
+          #filter: tree:0
           token: ${{ secrets.PUSH_NIGHTLY_TOKEN }}
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           path: artifacts
       - name: Prepare Nightly Release
@@ -411,7 +425,7 @@ jobs:
           echo -e "\n*Full commit log*\n" >> diff.md
           git log --oneline "$last_tag"..HEAD | sed 's/^/* /' >> diff.md
       - name: Release Nightly
-        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836
+        uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090
         with:
           body_path: diff.md
           prerelease: true

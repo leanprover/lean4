@@ -3,5 +3,5 @@ open System Lake DSL
 
 package dep
 
-target name : String := do
-  return .pure <| (__name__).toString
+target name : String := Job.sync do
+  return  (__name__).toString

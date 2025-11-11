@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_int_mod(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___Int_bmod_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Int_bmod_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Int_instDiv;
 static lean_object* l_Int_bmod___closed__1;
 LEAN_EXPORT lean_object* l_Int_divExact___boxed(lean_object*, lean_object*, lean_object*);
@@ -507,7 +507,7 @@ lean_dec(x_2);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Int_bmod_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Int_bmod_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -621,13 +621,13 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* initialize_Init_Data_Int_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_Basic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Int_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Int_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Int_instDiv___closed__0 = _init_l_Int_instDiv___closed__0();

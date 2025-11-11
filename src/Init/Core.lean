@@ -8,7 +8,6 @@ notation, basic datatypes and type classes
 module
 
 prelude
-public meta import Init.Prelude
 public import Init.SizeOf
 
 public section
@@ -601,17 +600,6 @@ export LawfulSingleton (insert_empty_eq)
 
 attribute [simp] insert_empty_eq
 
-@[deprecated insert_empty_eq (since := "2025-03-12")]
-theorem insert_emptyc_eq [EmptyCollection β] [Insert α β] [Singleton α β]
-    [LawfulSingleton α β] (x : α) : (insert x ∅ : β) = singleton x :=
-  insert_empty_eq _
-
-@[deprecated insert_empty_eq (since := "2025-03-12")]
-theorem LawfulSingleton.insert_emptyc_eq [EmptyCollection β] [Insert α β] [Singleton α β]
-    [LawfulSingleton α β] (x : α) : (insert x ∅ : β) = singleton x :=
-  insert_empty_eq _
-
-
 /-- Type class used to implement the notation `{ a ∈ c | p a }` -/
 class Sep (α : outParam <| Type u) (γ : Type v) where
   /-- Computes `{ a ∈ c | p a }`. -/
@@ -1096,14 +1084,6 @@ theorem of_toBoolUsing_eq_true {p : Prop} {d : Decidable p} (h : toBoolUsing d =
 theorem of_toBoolUsing_eq_false {p : Prop} {d : Decidable p} (h : toBoolUsing d = false) : ¬p :=
   of_decide_eq_false h
 
-set_option linter.missingDocs false in
-@[deprecated of_toBoolUsing_eq_true (since := "2025-04-04")]
-abbrev ofBoolUsing_eq_true := @of_toBoolUsing_eq_true
-
-set_option linter.missingDocs false in
-@[deprecated of_toBoolUsing_eq_false (since := "2025-04-04")]
-abbrev ofBoolUsing_eq_false := @of_toBoolUsing_eq_false
-
 instance : Decidable True :=
   isTrue trivial
 
@@ -1166,6 +1146,7 @@ end
     else isFalse (fun h => absurd (h hp) hq)
   else isTrue (fun h => absurd h hp)
 
+@[inline]
 instance {p q} [Decidable p] [Decidable q] : Decidable (p ↔ q) :=
   if hp : p then
     if hq : q then
@@ -1207,17 +1188,13 @@ theorem dif_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : c �
   | isTrue hc   => absurd hc hnc
   | isFalse _   => rfl
 
--- Remark: dite and ite are "defally equal" when we ignore the proofs.
-theorem dif_eq_if (c : Prop) {h : Decidable c} {α : Sort u} (t : α) (e : α) : dite c (fun _ => t) (fun _ => e) = ite c t e :=
-  match h with
-  | isTrue _    => rfl
-  | isFalse _   => rfl
-
+@[macro_inline]
 instance {c t e : Prop} [dC : Decidable c] [dT : Decidable t] [dE : Decidable e] : Decidable (if c then t else e) :=
   match dC with
   | isTrue _   => dT
   | isFalse _  => dE
 
+@[inline]
 instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT : ∀ h, Decidable (t h)] [dE : ∀ h, Decidable (e h)] : Decidable (if h : c then t h else e h) :=
   match dC with
   | isTrue hc  => dT hc
@@ -1368,12 +1345,12 @@ namespace Subtype
 theorem exists_of_subtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (fun x => p x)
   | ⟨a, h⟩ => ⟨a, h⟩
 
-set_option linter.missingDocs false in
-@[deprecated exists_of_subtype (since := "2025-04-04")]
-abbrev existsOfSubtype := @exists_of_subtype
+variable {α : Sort u} {p : α → Prop}
 
-variable {α : Type u} {p : α → Prop}
+protected theorem ext : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
+  | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
+@[deprecated Subtype.ext (since := "2025-10-26")]
 protected theorem eq : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
@@ -1388,9 +1365,9 @@ instance {α : Type u} {p : α → Prop} [BEq α] [ReflBEq α] : ReflBEq {x : α
   rfl {x} := BEq.refl x.1
 
 instance {α : Type u} {p : α → Prop} [BEq α] [LawfulBEq α] : LawfulBEq {x : α // p x} where
-  eq_of_beq h := Subtype.eq (eq_of_beq h)
+  eq_of_beq h := Subtype.ext (eq_of_beq h)
 
-instance {α : Type u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
+instance {α : Sort u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
   fun ⟨a, h₁⟩ ⟨b, h₂⟩ =>
     if h : a = b then isTrue (by subst h; exact rfl)
     else isFalse (fun h' => Subtype.noConfusion h' (fun h' => absurd h' h))
@@ -1491,6 +1468,8 @@ def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ 
 
 @[simp] theorem Prod.map_apply (f : α → β) (g : γ → δ) (x) (y) :
     Prod.map f g (x, y) = (f x, g y) := rfl
+
+-- We add `@[grind =]` to these in `Init.Data.Prod`.
 @[simp] theorem Prod.map_fst (f : α → β) (g : γ → δ) (x) : (Prod.map f g x).1 = f x.1 := rfl
 @[simp] theorem Prod.map_snd (f : α → β) (g : γ → δ) (x) : (Prod.map f g x).2 = g x.2 := rfl
 
@@ -1507,20 +1486,24 @@ protected theorem PSigma.eta {α : Sort u} {β : α → Sort v} {a₁ a₂ : α}
 
 /-! # Universe polymorphic unit -/
 
+theorem PUnit.ext (a b : PUnit) : a = b := by
+  cases a; cases b; exact rfl
+
+@[deprecated PUnit.ext (since := "2025-10-26")]
 theorem PUnit.subsingleton (a b : PUnit) : a = b := by
   cases a; cases b; exact rfl
 
 theorem PUnit.eq_punit (a : PUnit) : a = ⟨⟩ :=
-  PUnit.subsingleton a ⟨⟩
+  PUnit.ext a ⟨⟩
 
 instance : Subsingleton PUnit :=
-  Subsingleton.intro PUnit.subsingleton
+  Subsingleton.intro PUnit.ext
 
 instance : Inhabited PUnit where
   default := ⟨⟩
 
 instance : DecidableEq PUnit :=
-  fun a b => isTrue (PUnit.subsingleton a b)
+  fun a b => isTrue (PUnit.ext a b)
 
 /-! # Setoid -/
 

@@ -49,7 +49,7 @@ LEAN_EXPORT lean_object* l_Lean_HeadIndex_proj_elim___redArg(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lean_HeadIndex_sort_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HeadIndex_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_instBEqLiteral_beq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_panic___at_____private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HeadIndex_ctorIdx___boxed(lean_object*);
 static lean_object* l___private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Expr_toHeadIndex(lean_object*);
@@ -1490,7 +1490,7 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at_____private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -1545,7 +1545,7 @@ case 0:
 lean_object* x_2; lean_object* x_3; 
 lean_dec_ref(x_1);
 x_2 = l___private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow___closed__3;
-x_3 = l_panic___at_____private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow_spec__0(x_2);
+x_3 = l_panic___at___00__private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow_spec__0(x_2);
 return x_3;
 }
 case 1:
@@ -1679,13 +1679,13 @@ return x_4;
 }
 }
 }
-lean_object* initialize_Lean_Expr(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Expr(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_HeadIndex(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_HeadIndex(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Expr(builtin, lean_io_mk_world());
+res = initialize_Lean_Expr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instInhabitedHeadIndex_default___closed__0 = _init_l_Lean_instInhabitedHeadIndex_default___closed__0();

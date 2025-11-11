@@ -62,8 +62,6 @@ protected theorem le_total (a b : Int) : a ≤ b ∨ b ≤ a :=
     let ⟨k, (hk : m + k = n)⟩ := Nat.le.dest h
     le.intro k (by rw [← hk]; rfl)⟩
 
-@[simp] theorem ofNat_zero_le (n : Nat) : 0 ≤ (↑n : Int) := ofNat_le.2 n.zero_le
-
 theorem eq_ofNat_of_zero_le {a : Int} (h : 0 ≤ a) : ∃ n : Nat, a = n := by
   have t := le.dest_sub h; rwa [Int.sub_zero] at t
 
@@ -88,7 +86,11 @@ theorem lt.dest {a b : Int} (h : a < b) : ∃ n : Nat, a + Nat.succ n = b :=
 @[deprecated natCast_pos (since := "2025-05-13"), simp high]
 theorem ofNat_pos {n : Nat} : 0 < (↑n : Int) ↔ 0 < n := ofNat_lt
 
+@[simp]
 theorem natCast_nonneg (n : Nat) : 0 ≤ (n : Int) := ⟨_⟩
+
+@[deprecated natCast_nonneg (since := "2025-10-26")]
+theorem ofNat_zero_le (n : Nat) : 0 ≤ (↑n : Int) := ofNat_le.2 n.zero_le
 
 @[deprecated natCast_nonneg (since := "2025-05-13")]
 theorem ofNat_nonneg (n : Nat) : 0 ≤ (n : Int) := ⟨_⟩
@@ -234,13 +236,10 @@ theorem eq_natAbs_of_nonneg {a : Int} (h : 0 ≤ a) : a = natAbs a := by
   let ⟨n, e⟩ := eq_ofNat_of_zero_le h
   rw [e]; rfl
 
-@[deprecated eq_natAbs_of_nonneg (since := "2025-03-11")]
-abbrev eq_natAbs_of_zero_le := @eq_natAbs_of_nonneg
-
 theorem le_natAbs {a : Int} : a ≤ natAbs a :=
   match Int.le_total 0 a with
   | .inl h => by rw [eq_natAbs_of_nonneg h]; apply Int.le_refl
-  | .inr h => Int.le_trans h (ofNat_zero_le _)
+  | .inr h => Int.le_trans h (natCast_nonneg _)
 
 @[simp] theorem negSucc_lt_zero (n : Nat) : -[n+1] < 0 :=
   Int.not_le.1 fun h => let ⟨_, h⟩ := eq_ofNat_of_zero_le h; nomatch h
@@ -468,10 +467,10 @@ protected theorem max_lt {a b c : Int} : max a b < c ↔ a < c ∧ b < c := by
   simpa using Int.max_le (a := a + 1) (b := b + 1) (c := c)
 
 @[simp] theorem ofNat_max_zero (n : Nat) : (max (n : Int) 0) = n := by
-  rw [Int.max_eq_left (ofNat_zero_le n)]
+  rw [Int.max_eq_left (natCast_nonneg n)]
 
 @[simp] theorem zero_max_ofNat (n : Nat) : (max 0 (n : Int)) = n := by
-  rw [Int.max_eq_right (ofNat_zero_le n)]
+  rw [Int.max_eq_right (natCast_nonneg n)]
 
 @[simp] theorem negSucc_max_zero (n : Nat) : (max (Int.negSucc n) 0) = 0 := by
   rw [Int.max_eq_right (negSucc_le_zero _)]
@@ -554,8 +553,8 @@ protected theorem mul_le_mul_of_nonpos_left {a b c : Int}
 
 @[simp, norm_cast] theorem natAbs_natCast (n : Nat) : natAbs ↑n = n := rfl
 
-@[deprecated natAbs_natCast (since := "2025-04-16")]
-theorem natAbs_ofNat (n : Nat) : natAbs ↑n = n := natAbs_natCast n
+@[deprecated natAbs_natCast (since := "2025-10-26")]
+theorem natAbs_cast (n : Nat) : natAbs ↑n = n := rfl
 
 /-
 TODO: rename `natAbs_ofNat'` to `natAbs_ofNat` once the current deprecated alias
@@ -634,7 +633,7 @@ theorem eq_zero_of_dvd_of_natAbs_lt_natAbs {d n : Int} (h : d ∣ n) (h₁ : n.n
 /-! ### toNat -/
 
 theorem toNat_eq_max : ∀ a : Int, (toNat a : Int) = max a 0
-  | (n : Nat) => (Int.max_eq_left (ofNat_zero_le n)).symm
+  | (n : Nat) => (Int.max_eq_left (natCast_nonneg n)).symm
   | -[n+1] => (Int.max_eq_right (Int.le_of_lt (negSucc_lt_zero n))).symm
 
 @[simp] theorem toNat_zero : (0 : Int).toNat = 0 := rfl
@@ -646,16 +645,10 @@ theorem toNat_of_nonneg {a : Int} (h : 0 ≤ a) : (toNat a : Int) = a := by
 
 @[simp] theorem toNat_natCast (n : Nat) : toNat ↑n = n := rfl
 
-@[deprecated toNat_natCast (since := "2025-04-16")]
-theorem toNat_ofNat (n : Nat) : toNat ↑n = n := rfl
-
 @[simp] theorem toNat_negSucc (n : Nat) : (Int.negSucc n).toNat = 0 := by
   simp [toNat]
 
 @[simp] theorem toNat_natCast_add_one {n : Nat} : ((n : Int) + 1).toNat = n + 1 := rfl
-
-@[deprecated toNat_natCast_add_one (since := "2025-04-16")]
-theorem toNat_ofNat_add_one {n : Nat} : ((n : Int) + 1).toNat = n + 1 := toNat_natCast_add_one
 
 @[simp] theorem ofNat_toNat (a : Int) : (a.toNat : Int) = max a 0 := by
   match a with
@@ -717,9 +710,6 @@ theorem mem_toNat? : ∀ {a : Int} {n : Nat}, toNat? a = some n ↔ a = n
   | (m : Nat), n => by simp [toNat?, Int.ofNat_inj]
   | -[m+1], n => by constructor <;> nofun
 
-@[deprecated mem_toNat? (since := "2025-03-11")]
-abbrev mem_toNat' := @mem_toNat?
-
 /-! ## Order properties of the integers -/
 
 protected theorem le_of_not_le {a b : Int} : ¬ a ≤ b → b ≤ a := (Int.le_total a b).resolve_left
@@ -728,7 +718,7 @@ protected theorem le_of_not_le {a b : Int} : ¬ a ≤ b → b ≤ a := (Int.le_t
   simp only [Int.not_lt, iff_false]; constructor
 
 theorem eq_negSucc_of_lt_zero : ∀ {a : Int}, a < 0 → ∃ n : Nat, a = -[n+1]
-  | ofNat _, h => absurd h (Int.not_lt.2 (ofNat_zero_le _))
+  | ofNat _, h => absurd h (Int.not_lt.2 (natCast_nonneg _))
   | -[n+1],  _ => ⟨n, rfl⟩
 
 protected theorem lt_of_add_lt_add_left {a b c : Int} (h : a + b < a + c) : b < c := by
@@ -796,10 +786,10 @@ theorem add_one_le_iff {a b : Int} : a + 1 ≤ b ↔ a < b := .rfl
 theorem lt_add_one_iff {a b : Int} : a < b + 1 ↔ a ≤ b := Int.add_le_add_iff_right _
 
 @[simp] theorem succ_ofNat_pos (n : Nat) : 0 < (n : Int) + 1 :=
-  lt_add_one_iff.mpr (ofNat_zero_le _)
+  lt_add_one_iff.mpr (natCast_nonneg _)
 
 theorem not_ofNat_neg (n : Nat) : ¬((n : Int) < 0) :=
-  Int.not_lt.mpr (ofNat_zero_le ..)
+  Int.not_lt.mpr (natCast_nonneg ..)
 
 theorem le_add_one {a b : Int} (h : a ≤ b) : a ≤ b + 1 :=
   Int.le_of_lt (Int.lt_add_one_iff.2 h)
@@ -1250,7 +1240,11 @@ protected theorem neg_of_mul_pos_right {a b : Int}
 @[simp] theorem sign_one : sign 1 = 1 := rfl
 theorem sign_neg_one : sign (-1) = -1 := rfl
 
-@[simp] theorem sign_of_add_one (x : Nat) : Int.sign (x + 1) = 1 := rfl
+@[simp] theorem sign_natCast_add_one (n : Nat) : sign (n + 1) = 1 := rfl
+
+@[deprecated sign_natCast_add_one (since := "2025-10-26")]
+theorem sign_of_add_one (x : Nat) : Int.sign (x + 1) = 1 := rfl
+
 @[simp] theorem sign_negSucc (x : Nat) : Int.sign (Int.negSucc x) = -1 := rfl
 
 theorem natAbs_sign (z : Int) : z.sign.natAbs = if z = 0 then 0 else 1 :=
@@ -1259,17 +1253,9 @@ theorem natAbs_sign (z : Int) : z.sign.natAbs = if z = 0 then 0 else 1 :=
 theorem natAbs_sign_of_ne_zero {z : Int} (hz : z ≠ 0) : z.sign.natAbs = 1 := by
   rw [Int.natAbs_sign, if_neg hz]
 
-@[deprecated natAbs_sign_of_ne_zero (since := "2025-04-16")]
-theorem natAbs_sign_of_nonzero {z : Int} (hz : z ≠ 0) : z.sign.natAbs = 1 :=
-  natAbs_sign_of_ne_zero hz
-
 theorem sign_natCast_of_ne_zero {n : Nat} (hn : n ≠ 0) : Int.sign n = 1 :=
   match n, Nat.exists_eq_succ_of_ne_zero hn with
-  | _, ⟨n, rfl⟩ => Int.sign_of_add_one n
-
-@[deprecated sign_natCast_of_ne_zero (since := "2025-04-16")]
-theorem sign_ofNat_of_nonzero {n : Nat} (hn : n ≠ 0) : Int.sign n = 1 :=
-  sign_natCast_of_ne_zero hn
+  | _, ⟨n, rfl⟩ => Int.sign_natCast_add_one n
 
 @[simp] theorem sign_neg (z : Int) : Int.sign (-z) = -Int.sign z := by
   match z with | 0 | succ _ | -[_+1] => rfl
@@ -1324,8 +1310,6 @@ theorem neg_of_sign_eq_neg_one : ∀ {a : Int}, sign a = -1 → a < 0
     simp +decide only [sign, true_iff]
     exact Int.le_add_one (natCast_nonneg _)
   | .negSucc _ => simp +decide [sign]
-
-@[deprecated sign_nonneg_iff (since := "2025-03-11")] abbrev sign_nonneg := @sign_nonneg_iff
 
 @[simp] theorem sign_pos_iff : 0 < sign x ↔ 0 < x := by
   match x with
@@ -1409,9 +1393,6 @@ theorem natAbs_add_of_nonpos {a b : Int} (ha : a ≤ 0) (hb : b ≤ 0) :
     natAbs_add_of_nonneg (Int.neg_nonneg_of_nonpos ha) (Int.neg_nonneg_of_nonpos hb),
     natAbs_neg (-a), natAbs_neg (-b)]
 
-@[deprecated negSucc_eq (since := "2025-03-11")]
-theorem negSucc_eq' (m : Nat) : -[m+1] = -m - 1 := by simp only [negSucc_eq, Int.neg_add]; rfl
-
 theorem natAbs_lt_natAbs_of_nonneg_of_lt {a b : Int}
     (w₁ : 0 ≤ a) (w₂ : a < b) : a.natAbs < b.natAbs :=
   match a, b, eq_ofNat_of_zero_le w₁, eq_ofNat_of_zero_le (Int.le_trans w₁ (Int.le_of_lt w₂)) with
@@ -1419,9 +1400,6 @@ theorem natAbs_lt_natAbs_of_nonneg_of_lt {a b : Int}
 
 theorem natAbs_eq_iff_mul_eq_zero : natAbs a = n ↔ (a - n) * (a + n) = 0 := by
   rw [natAbs_eq_iff, Int.mul_eq_zero, ← Int.sub_neg, Int.sub_eq_zero, Int.sub_eq_zero]
-
-@[deprecated natAbs_eq_iff_mul_eq_zero (since := "2025-03-11")]
-abbrev eq_natAbs_iff_mul_eq_zero := @natAbs_eq_iff_mul_eq_zero
 
 instance instIsLinearOrder : IsLinearOrder Int := by
   apply IsLinearOrder.of_le

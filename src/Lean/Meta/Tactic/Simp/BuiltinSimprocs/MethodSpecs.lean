@@ -10,8 +10,6 @@ prelude
 import Init.Simproc
 public import Lean.Meta.Tactic.Simp.Simproc
 import Lean.Meta.MethodSpecs
-import Lean.Meta.Tactic.Simp.SimpTheorems
-import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Simp.Main
 
 open Lean Meta Simp

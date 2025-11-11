@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Ext
-public import Init.Grind.Tactics
 
 public section
 

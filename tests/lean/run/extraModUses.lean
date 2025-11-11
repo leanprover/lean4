@@ -61,20 +61,6 @@ Is rev mod use: false
 #guard_msgs in #eval showExtraModUses
 
 /-!
-Running `attribute` with declarations from an imported module causes a rev use.
--/
-
-#eval resetExtraModUses
-
-attribute [builtin_doc] Int.natCast_add
-
-/--
-info: Entries: []
-Is rev mod use: true
--/
-#guard_msgs in #eval showExtraModUses
-
-/-!
 `recommended_spelling` records a dependency.
 -/
 
@@ -187,8 +173,8 @@ References from `@[grind]` are tracked (here `List.append` from Init.Prelude)
 attribute [grind =] List.append
 
 /--
-info: Entries: [import Init.Grind.Attr, import Init.Prelude]
-Is rev mod use: true
+info: Entries: [import Init.Grind.Attr, public import Init.Prelude]
+Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses
 
@@ -267,20 +253,6 @@ Is rev mod use: false
 #guard_msgs in #eval showExtraModUses
 
 /-!
-Resolved constants from syntax quotations get added (here `List.sum` from Init.Data.List.Basic).
--/
-
-#eval resetExtraModUses
-
-def test9 : Lean.MacroM Lean.Syntax := `(List.sum)
-
-/--
-info: Entries: [import Init.Notation, import Init.Coe, import Init.Data.List.Basic]
-Is rev mod use: false
--/
-#guard_msgs in #eval showExtraModUses
-
-/-!
 Elaboration attributes add dependency on the syntax node kind
 (here `Lean.Parser.Tactic.done` from Init.Tactics).
 -/
@@ -292,7 +264,7 @@ public meta def myElab : Lean.Elab.Tactic.Tactic := fun _ => pure ()
 attribute [tactic Lean.Parser.Tactic.done] myElab
 
 /--
-info: Entries: [import Init.Tactics]
+info: Entries: [public import Init.Tactics]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses
@@ -308,7 +280,7 @@ public meta def myFormatter : Lean.PrettyPrinter.Formatter := fun _ => pure ()
 attribute [formatter Lean.Parser.Tactic.done] myFormatter
 
 /--
-info: Entries: [import Init.Tactics]
+info: Entries: [public import Init.Tactics]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses
@@ -324,7 +296,7 @@ public meta def myParenthesizer : Lean.PrettyPrinter.Parenthesizer := fun _ => p
 attribute [parenthesizer Lean.Parser.Tactic.done] myParenthesizer
 
 /--
-info: Entries: [import Init.Tactics]
+info: Entries: [public import Init.Tactics]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses

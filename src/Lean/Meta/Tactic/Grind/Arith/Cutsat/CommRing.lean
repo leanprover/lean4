@@ -11,7 +11,6 @@ import Lean.Meta.Tactic.Grind.ProveEq
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 public section
@@ -56,7 +55,7 @@ def _root_.Int.Linear.Poly.normCommRing? (p : Poly) : GoalM (Option (CommRing.Ri
     let p'' ← toPoly e'
     if p == p'' then return none
     modify' fun s => { s with usedCommRing := true }
-    trace[grind.cutsat.assert.nonlinear] "{← p.pp} ===> {← p''.pp}"
+    trace[grind.lia.assert.nonlinear] "{← p.pp} ===> {← p''.pp}"
     return some (re, p', p'')
 
 end Lean.Meta.Grind.Arith.Cutsat

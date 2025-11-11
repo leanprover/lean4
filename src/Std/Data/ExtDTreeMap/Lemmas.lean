@@ -4369,7 +4369,7 @@ section Ext
 
 variable {t₁ t₂ : ExtDTreeMap α β cmp}
 
-@[ext]
+@[ext, grind ext]
 theorem ext_get? [TransCmp cmp] [LawfulEqCmp cmp] {t₁ t₂ : ExtDTreeMap α β cmp}
     (h : ∀ k, t₁.get? k = t₂.get? k) : t₁ = t₂ :=
   t₁.inductionOn₂ t₂ (fun _ _ h => sound (.of_forall_get?_eq h)) h

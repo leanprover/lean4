@@ -6,11 +6,7 @@ Authors: Joseph Rotella
 module
 
 prelude
-public import Lean.ErrorExplanation
 meta import Lean.ErrorExplanation
-public import Lean.Meta.Eval
-public import Lean.Elab.Term
-public import Lean.Elab.Command
 public import Lean.Widget.UserWidget
 
 public section

@@ -62,18 +62,18 @@ theorem Iter.step_filterMapWithPostcondition {f : β → PostconditionT n (Optio
     | .yield it' out h => do
       match ← (f out).operation with
       | ⟨none, h'⟩ =>
-        pure <| .skip (it'.filterMapWithPostcondition f) (.yieldNone (out := out) h h')
+        pure <| .deflate <| .skip (it'.filterMapWithPostcondition f) (.yieldNone (out := out) h h')
       | ⟨some out', h'⟩ =>
-        pure <| .yield (it'.filterMapWithPostcondition f) out' (.yieldSome (out := out) h h')
+        pure <| .deflate <| .yield (it'.filterMapWithPostcondition f) out' (.yieldSome (out := out) h h')
     | .skip it' h =>
-      pure <| .skip (it'.filterMapWithPostcondition f) (.skip h)
+      pure <| .deflate <| .skip (it'.filterMapWithPostcondition f) (.skip h)
     | .done h =>
-      pure <| .done (.done h)) := by
+      pure <| .deflate <| .done (.done h)) := by
   simp only [filterMapWithPostcondition_eq_toIter_filterMapWithPostcondition_toIterM, IterM.step_filterMapWithPostcondition,
     step]
   simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
-  match step with
+  match step.inflate with
   | .yield it' out h =>
     apply bind_congr
     intro step
@@ -88,17 +88,17 @@ theorem Iter.step_filterWithPostcondition {f : β → PostconditionT n (ULift Bo
     | .yield it' out h => do
       match ← (f out).operation with
       | ⟨.up false, h'⟩ =>
-        pure <| .skip (it'.filterWithPostcondition f) (.yieldNone (out := out) h ⟨⟨_, h'⟩, rfl⟩)
+        pure <| .deflate <| .skip (it'.filterWithPostcondition f) (.yieldNone (out := out) h ⟨⟨_, h'⟩, rfl⟩)
       | ⟨.up true, h'⟩ =>
-        pure <| .yield (it'.filterWithPostcondition f) out (.yieldSome (out := out) h ⟨⟨_, h'⟩, rfl⟩)
+        pure <| .deflate <| .yield (it'.filterWithPostcondition f) out (.yieldSome (out := out) h ⟨⟨_, h'⟩, rfl⟩)
     | .skip it' h =>
-      pure <| .skip (it'.filterWithPostcondition f) (.skip h)
+      pure <| .deflate <| .skip (it'.filterWithPostcondition f) (.skip h)
     | .done h =>
-      pure <| .done (.done h)) := by
+      pure <| .deflate <| .done (.done h)) := by
   simp only [filterWithPostcondition_eq_toIter_filterMapWithPostcondition_toIterM, IterM.step_filterWithPostcondition, step]
   simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
-  match step with
+  match step.inflate with
   | .yield it' out h =>
     apply bind_congr
     intro step
@@ -112,15 +112,15 @@ theorem Iter.step_mapWithPostcondition {f : β → PostconditionT n γ}
     match it.step with
     | .yield it' out h => do
       let out' ← (f out).operation
-      pure <| .yield (it'.mapWithPostcondition f) out'.1 (.yieldSome h ⟨out', rfl⟩)
+      pure <| .deflate <| .yield (it'.mapWithPostcondition f) out'.1 (.yieldSome h ⟨out', rfl⟩)
     | .skip it' h =>
-      pure <| .skip (it'.mapWithPostcondition f) (.skip h)
+      pure <| .deflate <| .skip (it'.mapWithPostcondition f) (.skip h)
     | .done h =>
-      pure <| .done (.done h)) := by
+      pure <| .deflate <| .done (.done h)) := by
   simp only [mapWithPostcondition_eq_toIter_mapWithPostcondition_toIterM, IterM.step_mapWithPostcondition, step]
   simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
-  match step with
+  match step.inflate with
   | .yield it' out h =>
     simp only [bind_pure_comp]
     rfl
@@ -134,17 +134,17 @@ theorem Iter.step_filterMapM {β' : Type w} {f : β → n (Option β')}
     | .yield it' out h => do
       match ← f out with
       | none =>
-        pure <| .skip (it'.filterMapM f) (.yieldNone (out := out) h .intro)
+        pure <| .deflate <| .skip (it'.filterMapM f) (.yieldNone (out := out) h .intro)
       | some out' =>
-        pure <| .yield (it'.filterMapM f) out' (.yieldSome (out := out) h .intro)
+        pure <| .deflate <| .yield (it'.filterMapM f) out' (.yieldSome (out := out) h .intro)
     | .skip it' h =>
-      pure <| .skip (it'.filterMapM f) (.skip h)
+      pure <| .deflate <| .skip (it'.filterMapM f) (.skip h)
     | .done h =>
-      pure <| .done (.done h)) := by
+      pure <| .deflate <| .done (.done h)) := by
   simp only [filterMapM_eq_toIter_filterMapM_toIterM, IterM.step_filterMapM, step]
   simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
-  match step with
+  match step.inflate with
   | .yield it' out h =>
     apply bind_congr
     intro step
@@ -159,17 +159,17 @@ theorem Iter.step_filterM {f : β → n (ULift Bool)}
     | .yield it' out h => do
       match ← f out with
       | .up false =>
-        pure <| .skip (it'.filterM f) (.yieldNone (out := out) h ⟨⟨.up false, .intro⟩, rfl⟩)
+        pure <| .deflate <| .skip (it'.filterM f) (.yieldNone (out := out) h ⟨⟨.up false, .intro⟩, rfl⟩)
       | .up true =>
-        pure <| .yield (it'.filterM f) out (.yieldSome (out := out) h ⟨⟨.up true, .intro⟩, rfl⟩)
+        pure <| .deflate <| .yield (it'.filterM f) out (.yieldSome (out := out) h ⟨⟨.up true, .intro⟩, rfl⟩)
     | .skip it' h =>
-      pure <| .skip (it'.filterM f) (.skip h)
+      pure <| .deflate <| .skip (it'.filterM f) (.skip h)
     | .done h =>
-      pure <| .done (.done h)) := by
+      pure <| .deflate <| .done (.done h)) := by
   simp only [filterM_eq_toIter_filterM_toIterM, IterM.step_filterM, step]
   simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
-  match step with
+  match step.inflate with
   | .yield it' out h =>
     simp [PostconditionT.lift]
     apply bind_congr
@@ -184,15 +184,15 @@ theorem Iter.step_mapM {f : β → n γ}
     match it.step with
     | .yield it' out h => do
       let out' ← f out
-      pure <| .yield (it'.mapM f) out' (.yieldSome h ⟨⟨out', True.intro⟩, rfl⟩)
+      pure <| .deflate <| .yield (it'.mapM f) out' (.yieldSome h ⟨⟨out', True.intro⟩, rfl⟩)
     | .skip it' h =>
-      pure <| .skip (it'.mapM f) (.skip h)
+      pure <| .deflate <| .skip (it'.mapM f) (.skip h)
     | .done h =>
-      pure <| .done (.done h)) := by
+      pure <| .deflate <| .done (.done h)) := by
   simp only [mapM_eq_toIter_mapM_toIterM, IterM.step_mapM, step]
   simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
-  match step with
+  match step.inflate with
   | .yield it' out h =>
     simp only [bind_pure_comp]
     rfl
@@ -210,14 +210,14 @@ theorem Iter.step_filterMap {f : β → Option γ} :
   simp only [filterMap_eq_toIter_filterMap_toIterM, toIterM_toIter, IterM.step_filterMap, step]
   simp only [monadLift, Id.run_bind]
   generalize it.toIterM.step.run = step
-  cases step using PlausibleIterStep.casesOn
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp only [IterM.Step.toPure_yield, toIter_toIterM, toIterM_toIter]
     split <;> split <;> (try exfalso; simp_all; done)
-    · rfl
+    · simp
     · rename_i h₁ _ h₂
       rw [h₁] at h₂
       cases h₂
-      rfl
+      simp
   · simp
   · simp
 
@@ -249,7 +249,7 @@ theorem Iter.step_map {f : β → γ} :
         .done (.done h) := by
   simp only [map_eq_toIter_map_toIterM, step, toIterM_toIter, IterM.step_map, Id.run_bind]
   generalize it.toIterM.step.run = step
-  cases step using PlausibleIterStep.casesOn <;> simp
+  cases step.inflate using PlausibleIterStep.casesOn <;> simp
 
 def Iter.step_filter {f : β → Bool} :
     (it.filter f).step = match it.step with
@@ -264,7 +264,7 @@ def Iter.step_filter {f : β → Bool} :
         .done (.done h) := by
   simp only [filter_eq_toIter_filter_toIterM, step, toIterM_toIter, IterM.step_filter, Id.run_bind]
   generalize it.toIterM.step.run = step
-  cases step using PlausibleIterStep.casesOn
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp only
     split <;> simp [*]
   · simp
@@ -283,7 +283,7 @@ def Iter.val_step_filter {f : β → Bool} :
         .done := by
   simp only [filter_eq_toIter_filter_toIterM, step, toIterM_toIter, IterM.step_filter, Id.run_bind]
   generalize it.toIterM.step.run = step
-  cases step using PlausibleIterStep.casesOn
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp only
     split <;> simp [*]
   · simp
@@ -490,7 +490,7 @@ theorem Iter.anyM_eq_anyM_mapM_pure {α β : Type} {m : Type → Type w'} [Itera
   induction it using Iter.inductSteps with | step it ihy ihs =>
   rw [forIn_eq_match_step, IterM.forIn_eq_match_step, bind_assoc, step_mapM]
   cases it.step using PlausibleIterStep.casesOn
-  · simp only [bind_assoc, liftM_pure, pure_bind, map_eq_pure_bind]
+  · simp only [bind_assoc, liftM_pure, pure_bind, map_eq_pure_bind, Shrink.inflate_deflate]
     apply bind_congr; intro px
     split
     · simp
@@ -646,7 +646,7 @@ theorem Iter.allM_eq_allM_mapM_pure {α β : Type} {m : Type → Type w'} [Itera
   induction it using Iter.inductSteps with | step it ihy ihs =>
   rw [forIn_eq_match_step, IterM.forIn_eq_match_step, bind_assoc, step_mapM]
   cases it.step using PlausibleIterStep.casesOn
-  · simp only [bind_assoc, liftM_pure, pure_bind, map_eq_pure_bind]
+  · simp only [bind_assoc, liftM_pure, pure_bind, map_eq_pure_bind, Shrink.inflate_deflate]
     apply bind_congr; intro px
     split
     · simp [ihy ‹_›]

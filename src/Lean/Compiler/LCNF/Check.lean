@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.LCNF.InferType
 public import Lean.Compiler.LCNF.PrettyPrinter
 public import Lean.Compiler.LCNF.CompatibleTypes
 

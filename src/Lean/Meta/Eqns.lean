@@ -6,9 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.ReservedNameAction
-public import Lean.AddDecl
-public import Lean.Meta.Basic
 public import Lean.Meta.Match.MatcherInfo
 public import Lean.DefEqAttrib
 public import Lean.Meta.LetToHave

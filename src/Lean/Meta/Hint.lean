@@ -8,13 +8,8 @@ module
 
 prelude
 
-public import Lean.CoreM
-public import Lean.Data.Lsp.Utf16
-public import Lean.Message
 public import Lean.Meta.TryThis
 public import Lean.Util.Diff
-public import Lean.Widget.Types
-public import Lean.PrettyPrinter
 
 public section
 
@@ -201,8 +196,8 @@ such as `b̵a̵c̲h̲e̲e̲rs̲`.
 -/
 private def mkDiffString (ds : Array (Diff.Action × String)) : String :=
   let rangeStrs := ds.map fun
-    | (.insert, s) => String.mk (s.data.flatMap ([·, '\u0332'])) -- U+0332 Combining Low Line
-    | (.delete, s) => String.mk (s.data.flatMap ([·, '\u0335'])) -- U+0335 Combining Short Stroke Overlay
+    | (.insert, s) => String.ofList (s.toList.flatMap ([·, '\u0332'])) -- U+0332 Combining Low Line
+    | (.delete, s) => String.ofList (s.toList.flatMap ([·, '\u0335'])) -- U+0335 Combining Short Stroke Overlay
     | (.skip  , s) => s
   rangeStrs.foldl (· ++ ·) ""
 
@@ -282,7 +277,7 @@ partial def readableDiff (s s' : String) (granularity : DiffGranularity := .auto
     -- front and back, or at a single interior point. This will always be fairly readable (and
     -- splitting by a larger unit would likely only be worse)
     if charArrDiff.size ≤ 3 || approxEditDistance ≤ maxCharDiffDistance then
-      charArrDiff.map fun (act, cs) => (act, String.mk cs.toList)
+      charArrDiff.map fun (act, cs) => (act, String.ofList cs.toList)
     else if approxEditDistance ≤ maxWordDiffDistance then
       wordDiff
     else
@@ -380,14 +375,14 @@ where
 
   /-- Given a `Char` diff, produces an equivalent `String` diff, joining actions of the same kind. -/
   joinCharDiff (d : Array (Diff.Action × Char)) :=
-    joinEdits d |>.map fun (act, cs) => (act, String.mk cs.toList)
+    joinEdits d |>.map fun (act, cs) => (act, String.ofList cs.toList)
 
   maxDiff :=
     #[(.delete, s), (.insert, s')]
 
   mkWhitespaceDiff (oldWs newWs : String) :=
     if !oldWs.contains '\n' then
-      Diff.diff oldWs.data.toArray newWs.data.toArray |> joinCharDiff
+      Diff.diff oldWs.toList.toArray newWs.toList.toArray |> joinCharDiff
     else
       #[(.skip, newWs)]
 
@@ -398,16 +393,16 @@ where
     splitWordsAux s 0 0 #[] #[]
 
   splitWordsAux (s : String) (b : String.Pos.Raw) (i : String.Pos.Raw) (r ws : Array String) : Array String × Array String :=
-    if h : s.atEnd i then
-      (r.push (s.extract b i), ws)
+    if h : i.atEnd s then
+      (r.push (String.Pos.Raw.extract s b i), ws)
     else
-      have := Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (String.lt_next s _)
-      if (s.get i).isWhitespace then
-        let skipped := (Substring.mk s i s.endPos).takeWhile (·.isWhitespace)
+      have := Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (String.Pos.Raw.lt_next s _)
+      if (i.get s).isWhitespace then
+        let skipped := (Substring.mk s i s.rawEndPos).takeWhile (·.isWhitespace)
         let i' := skipped.stopPos
-        splitWordsAux s i' i' (r.push (s.extract b i)) (ws.push (s.extract i i'))
+        splitWordsAux s i' i' (r.push (String.Pos.Raw.extract s b i)) (ws.push (String.Pos.Raw.extract s i i'))
       else
-        splitWordsAux s b (s.next i) r ws
+        splitWordsAux s b (i.next s) r ws
 
   joinEdits {α} (ds : Array (Diff.Action × α)) : Array (Diff.Action × Array α) :=
     ds.foldl (init := #[]) fun acc (act, c) =>
@@ -448,7 +443,7 @@ def mkSuggestionsMessage (suggestions : Array Suggestion) (ref : Syntax)
     }
     pushInfoLeaf info
     let map ← getFileMap
-    let rangeContents := map.source.extract range.start range.stop
+    let rangeContents := String.Pos.Raw.extract map.source range.start range.stop
     let edits ← do
       if let some msgData := suggestion.messageData? then
         pure #[(.insert, toString <| ← msgData.format)]
@@ -459,9 +454,9 @@ def mkSuggestionsMessage (suggestions : Array Suggestion) (ref : Syntax)
       if previewRange.includes range then
         let map ← getFileMap
         if previewRange.start < range.start then
-          edits := #[(.skip, (map.source.extract previewRange.start range.start))] ++ edits
+          edits := #[(.skip, (String.Pos.Raw.extract map.source previewRange.start range.start))] ++ edits
         if range.stop < previewRange.stop then
-          edits := edits.push (.skip, (map.source.extract range.stop previewRange.stop))
+          edits := edits.push (.skip, (String.Pos.Raw.extract map.source range.stop previewRange.stop))
     let preInfo := suggestion.preInfo?.getD ""
     let postInfo := suggestion.postInfo?.getD ""
     let isDiffSuggestion :=

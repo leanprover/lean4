@@ -6,12 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Instances
-public import Lean.Compiler.InlineAttrs
 public import Lean.Compiler.LCNF.Closure
-public import Lean.Compiler.LCNF.Types
 public import Lean.Compiler.LCNF.MonadScope
-public import Lean.Compiler.LCNF.Internalize
 public import Lean.Compiler.LCNF.Level
 public import Lean.Compiler.LCNF.AuxDeclCache
 
@@ -173,16 +169,17 @@ def lambdaLifting : Pass where
     decls.foldlM (init := #[]) fun decls decl => return decls ++ (← decl.lambdaLifting false (suffix := `_lam))
 
 /--
-During eager lambda lifting, we lift
-- All local function declarations from instances (motivation: make sure it is cheap to inline them later)
-- Local function declarations that take local instances as parameters (motivation: ensure they are specialized)
+During eager lambda lifting, we inspect declarations that are not inlineable or instances (doing it
+everywhere can accidentally introduce mutual recursion which the compiler cannot handle well at the
+moment). We then lift local function declarations that take local instances as parameters from
+their body to ensure they are specialized.
 -/
 def eagerLambdaLifting : Pass where
   phase      := .base
   name       := `eagerLambdaLifting
   run        := fun decls => do
     decls.foldlM (init := #[]) fun decls decl => do
-      if decl.inlineAttr || (← Meta.isInstance decl.name) then
+      if decl.inlineable || (← Meta.isInstance decl.name) then
         return decls.push decl
       else
         return decls ++ (← decl.lambdaLifting (liftInstParamOnly := true) (suffix := `_elam))

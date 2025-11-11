@@ -7,17 +7,13 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
-import Init.Grind.Util
-import Init.Grind.Lemmas
-import Lean.Meta.LitValues
-import Lean.Meta.Match.MatcherInfo
-import Lean.Meta.Match.MatchEqsExt
+import Lean.Meta.Tactic.Grind.Arith.IsRelevant
 import Lean.Meta.Match.MatchEqs
-import Lean.Util.CollectLevelParams
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Beta
 import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Proof
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Tactic.Grind.PropagateInj
 public section
@@ -36,7 +32,29 @@ def addCongrTable (e : Expr) : GoalM Unit := do
           reportIssue! "found congruence between{indentExpr e}\nand{indentExpr e'}\nbut functions have different types"
           return ()
     trace_goal[grind.debug.congr] "{e} = {e'}"
-    pushEqHEq e e' congrPlaceholderProof
+    if (← isEqCongrProp e) then
+      /-
+      **Note**: We added this case to avoid a non-termination during proof construction.
+      We had the following equivalence class
+      ```
+      {p, q, p = q, q = p, True}
+      ```
+      Recall that `True` is always the root of its equivalence class.
+      We had the following two paths in the equivalence class:
+      ```
+      1. p -> p = q -> q = p -> True
+      2. q -> True
+      ```
+      Then, suppose we try to build a proof for `p = True`.
+      We have to construct a proof for `(p = q) = (q = p)`.
+      The equalities are congruent, but if we try to prove `p = q` and `q = p`,
+      We have to construct `p = True` and `True = q`, and we are back to `p = True`.
+      By constructing the congruence proof eagerly we ensure the non-termination cannot happen.
+      Note that this can only happen if `α₁` is a `Prop`.
+      -/
+      pushEqHEq e e' (← mkEqCongrProof e e')
+    else
+      pushEqHEq e e' congrPlaceholderProof
     if (← swapCgrRepr e e') then
       /-
       Recall that `isDiseq` and `mkDiseqProof?` are implemented using the the congruence table.
@@ -56,6 +74,10 @@ def addCongrTable (e : Expr) : GoalM Unit := do
   else
     modify fun s => { s with congrTable := s.congrTable.insert { e } }
 where
+  isEqCongrProp (e : Expr) : GoalM Bool := do
+    let_expr Eq α _ _ := e | return false
+    return α.isProp
+
   swapCgrRepr (e e' : Expr) : GoalM Bool := do
     let_expr Eq _ _ _ := e | return false
     unless (← isEqFalse e) do return false
@@ -126,7 +148,7 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
     if (← getConfig).splitImp then
       if (← isProp d) then
         addSplitCandidate (.imp e (h ▸ rfl) currSplitSource)
-    else if Arith.isRelevantPred d then
+    else if (← Arith.isRelevantPred d) then
       -- TODO: should we keep lookahead after we implement non-chronological backtracking?
       if (← getConfig).lookahead then
         addLookaheadCandidate (.imp e (h ▸ rfl) currSplitSource)
@@ -214,11 +236,14 @@ where
       internalize e generation
     pushEq matchCond e (← mkEqRefl matchCond)
 
-def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do
+def preprocessTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM EMatchTheorem := do
   -- Recall that we use the proof as part of the key for a set of instances found so far.
   -- We don't want to use structural equality when comparing keys.
   let proof ← shareCommon thm.proof
-  let thm := { thm with proof, patterns := (← thm.patterns.mapM (internalizePattern · generation thm.origin)) }
+  return { thm with proof, patterns := (← thm.patterns.mapM (internalizePattern · generation thm.origin)) }
+
+def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do
+  let thm ← preprocessTheorem thm generation
   trace_goal[grind.ematch] "activated `{thm.origin.pp}`, {thm.patterns.map ppPattern}"
   modify fun s => { s with ematch.newThms := s.ematch.newThms.push thm }
 
@@ -274,7 +299,7 @@ private def mkEMatchTheoremWithKind'? (origin : Origin) (levelParams : Array Nam
   catch _ =>
     return none
 
-private def activateInjectiveTheorem (injThm : InjectiveTheorem) (generation : Nat) : GoalM Unit := do
+def activateInjectiveTheorem (injThm : InjectiveTheorem) (generation : Nat) : GoalM Unit := do
   let type ← inferType injThm.proof
   if type.isForall then
     let symPrios ← getSymbolPriorities

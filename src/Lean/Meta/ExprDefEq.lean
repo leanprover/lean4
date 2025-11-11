@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Offset
 public import Lean.Meta.UnificationHint
 public import Lean.Util.OccursCheck
 
@@ -156,12 +155,12 @@ def isDefEqNat (s t : Expr) : MetaM LBool := do
     | none,   some t => isDefEq s t
     | none,   none   => pure LBool.undef
 
-/-- Support for constraints of the form `("..." =?= String.mk cs)` -/
+/-- Support for constraints of the form `("..." =?= String.ofList cs)` -/
 def isDefEqStringLit (s t : Expr) : MetaM LBool := do
   let isDefEq (s t) : MetaM LBool := toLBoolM <| Meta.isExprDefEqAux s t
-  if s.isStringLit && t.isAppOf ``String.mk then
+  if s.isStringLit && t.isAppOf ``String.ofList then
     isDefEq (← s.toCtorIfLit) t
-  else if s.isAppOf ``String.mk && t.isStringLit then
+  else if s.isAppOf ``String.ofList && t.isStringLit then
     isDefEq s (← t.toCtorIfLit)
   else
     pure LBool.undef

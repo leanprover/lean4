@@ -22,7 +22,7 @@ private def getAssignmentExt? (e : Expr) : GoalM (Option Rat) := do
     return none
   else if type == Nat.mkType then
     -- TODO: improve this case.
-    for parent in (← getParents e) do
+    for parent in (← getParents e).elems do
       let_expr NatCast.natCast _ inst _ := parent | pure ()
       let_expr instNatCastInt := inst | pure ()
       return (← getAssignment? (← get) parent)
@@ -46,8 +46,35 @@ private def getAssignmentExt? (e : Expr) : GoalM (Option Rat) := do
 private def hasTheoryVar (e : Expr) : GoalM Bool := do
   cutsatExt.hasTermAtRoot e
 
+/-
+**Note**: cutsat is a procedure for linear integer arithmetic. Thus, morally a
+nonlinear multiplication, division, and modulo are **not** interpreted by cutsat.
+Thus, we enable model-theory combination for them. This is necessary for examples
+such as:
+```
+example {a b : Nat} (ha : 1 ≤ a) : (a - 1 + 1) * b = a * b := by grind
+```
+Note that we currently use a restrictive/cheaper version of mbtc. We only case-split
+on `a = b`, if they have the same assignment **and** occur as the `i`-th argument of
+the same function symbol. The latter reduces the number of case-splits we have to
+perform, but misses the following variant of the problem above.
+```
+example {a b : Nat} (ha : 1 ≤ a) : (a - 1 + 1) * b = b * a := by grind
+```
+If this becomes an issue in practice, we can add a flag for enabling the more
+expensive version of `mbtc`.
+-/
+
+private def isNonlinearTerm (e : Expr) : GoalM Bool :=
+  match_expr e with
+  | HMul.hMul _ _ _ _ a b => return (← getIntValue? a <|> getIntValue? b).isNone
+  | HDiv.hDiv _ _ _ _ _ b => return (← getIntValue? b).isNone
+  | HMod.hMod _ _ _ _ _ b => return (← getIntValue? b).isNone
+  | _ => return false
+
 private def isInterpreted (e : Expr) : GoalM Bool := do
-  if isInterpretedTerm e then return true
+  if isInterpretedTerm e then
+    return !(← isNonlinearTerm e)
   let f := e.getAppFn
   /-
   **Note**: `grind` normalizes terms, but some of them cannot be rewritten by `simp` because

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Casing
-// Imports: public import Init.Data.String.Basic
+// Imports: public import Init.Data.String.Basic import Init.Data.String.Modify
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,29 +13,27 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_splitAux___at___String_split___at___Lake_toUpperCamelCaseString_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lake_toUpperCamelCaseString_spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_toUpperCamelCaseString___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_String_split___at___Lake_toUpperCamelCaseString_spec__0(lean_object*);
-lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 uint32_t l_Char_toUpper(uint32_t);
 LEAN_EXPORT lean_object* l_Lake_toUpperCamelCase___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_List_foldl___at___Lake_toUpperCamelCaseString_spec__3___boxed(lean_object*, lean_object*);
-uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_foldl___at___Lake_toUpperCamelCaseString_spec__3(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_toUpperCamelCaseString_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at___00Lake_toUpperCamelCaseString_spec__2___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Lake_toUpperCamelCaseString_spec__1(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 static lean_object* l_Lake_toUpperCamelCaseString___closed__0;
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* l_List_reverse___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_String_split___at___Lake_toUpperCamelCaseString_spec__0___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_String_splitAux___at___String_split___at___Lake_toUpperCamelCaseString_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
+lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_toUpperCamelCase(lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at___00Lake_toUpperCamelCaseString_spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_toUpperCamelCaseString(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_splitAux___at___String_split___at___Lake_toUpperCamelCaseString_spec__0_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_toUpperCamelCaseString_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_toUpperCamelCaseString_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; uint8_t x_13; 
@@ -101,17 +99,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_String_split___at___Lake_toUpperCamelCaseString_spec__0(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_box(0);
-x_4 = l_String_splitAux___at___String_split___at___Lake_toUpperCamelCaseString_spec__0_spec__0(x_1, x_2, x_2, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lake_toUpperCamelCaseString_spec__2(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Lake_toUpperCamelCaseString_spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -165,7 +153,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_foldl___at___Lake_toUpperCamelCaseString_spec__3(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_foldl___at___00Lake_toUpperCamelCaseString_spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -195,39 +183,31 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lake_toUpperCamelCaseString(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l_String_split___at___Lake_toUpperCamelCaseString_spec__0(x_1);
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_box(0);
-x_4 = l_List_mapTR_loop___at___Lake_toUpperCamelCaseString_spec__2(x_2, x_3);
-x_5 = l_Lake_toUpperCamelCaseString___closed__0;
-x_6 = l_List_foldl___at___Lake_toUpperCamelCaseString_spec__3(x_5, x_4);
-lean_dec(x_4);
-return x_6;
+x_4 = l_String_splitAux___at___00Lake_toUpperCamelCaseString_spec__0(x_1, x_2, x_2, x_3);
+x_5 = l_List_mapTR_loop___at___00Lake_toUpperCamelCaseString_spec__1(x_4, x_3);
+x_6 = l_Lake_toUpperCamelCaseString___closed__0;
+x_7 = l_List_foldl___at___00Lake_toUpperCamelCaseString_spec__2(x_6, x_5);
+lean_dec(x_5);
+return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_String_splitAux___at___String_split___at___Lake_toUpperCamelCaseString_spec__0_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_toUpperCamelCaseString_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_String_splitAux___at___String_split___at___Lake_toUpperCamelCaseString_spec__0_spec__0(x_1, x_2, x_3, x_4);
+x_5 = l_String_splitAux___at___00Lake_toUpperCamelCaseString_spec__0(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_1);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_String_split___at___Lake_toUpperCamelCaseString_spec__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_String_split___at___Lake_toUpperCamelCaseString_spec__0(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_List_foldl___at___Lake_toUpperCamelCaseString_spec__3___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_foldl___at___00Lake_toUpperCamelCaseString_spec__2___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_List_foldl___at___Lake_toUpperCamelCaseString_spec__3(x_1, x_2);
+x_3 = l_List_foldl___at___00Lake_toUpperCamelCaseString_spec__2(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -270,13 +250,17 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Modify(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Util_Casing(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Util_Casing(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_String_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Modify(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_toUpperCamelCaseString___closed__0 = _init_l_Lake_toUpperCamelCaseString___closed__0();

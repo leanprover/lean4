@@ -6,13 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.CoreM
-public import Lean.Environment
-public import Lean.Compiler.IR.Basic
 public import Lean.Compiler.IR.Format
-public import Lean.Compiler.MetaAttr
 public import Lean.Compiler.ExportAttr
 public import Lean.Compiler.LCNF.PhaseExt
+import Lean.Compiler.InitAttr
 
 public section
 
@@ -135,7 +132,7 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
             if let some (.str _ s) := getExportNameFor? env f then
               return .extern f xs ty { entries := [.standard `all s] }
             else
-              return .extern f xs ty { entries := [.opaque f] }
+              return .extern f xs ty { entries := [.opaque] }
           | d => some d
       else entries
     -- Written to on codegen environment branch but accessed from other elaboration branches when
@@ -148,26 +145,37 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
 
 @[export lean_ir_export_entries]
 private def exportIREntries (env : Environment) : Array (Name × Array EnvExtensionEntry) :=
-  let decls := declMapExt.getEntries env |>.foldl (init := #[]) fun decls decl => decls.push decl
+  let irDecls := declMapExt.getEntries env |>.foldl (init := #[]) fun decls decl => decls.push decl
   -- safety: cast to erased type
-  let entries : Array EnvExtensionEntry := unsafe unsafeCast <| sortDecls decls
-  #[(``declMapExt, entries)]
+  let irEntries : Array EnvExtensionEntry := unsafe unsafeCast <| sortDecls irDecls
 
-@[export lean_ir_find_env_decl]
-def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
+  -- see `regularInitAttr.filterExport`
+  let initDecls : Array (Name × Name) := regularInitAttr.ext.getState env
+      |>.2.foldl (fun a n p => a.push (n, p)) #[]
+      |>.qsort (fun a b => Name.quickLt a.1 b.1)
+  -- safety: cast to erased type
+  let initDecls : Array EnvExtensionEntry := unsafe unsafeCast initDecls
+
+  #[(declMapExt.name, irEntries),
+    (Lean.regularInitAttr.ext.name, initDecls)]
+
+def findEnvDecl (env : Environment) (declName : Name) (includeServer := false): Option Decl :=
   match env.getModuleIdxFor? declName with
   | some modIdx =>
-    -- `meta import/import all` and server `#eval`
-    -- This case is important even for codegen because it needs to see IR via `import all` (because
-    -- it can also see the LCNF)
+    -- `meta import/import all` and, optionally, additional server-mode IR
+    guard (includeServer || env.header.modules[modIdx]?.any (·.irPhases != .runtime)) *>
     findAtSorted? (declMapExt.getModuleIREntries env modIdx) declName <|>
     -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
     findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
   | none => declMapExt.getState env |>.find? declName
 
-/-- Like ``findEnvDecl env (declName ++ `_boxed)`` but with optimized negative lookup. -/
+@[export lean_ir_find_env_decl]
+private def findInterpDecl (env : Environment) (declName : Name) : Option Decl :=
+  findEnvDecl (includeServer := true) env declName
+
+/-- Like ``findInterpDecl env (declName ++ `_boxed)`` but with optimized negative lookup. -/
 @[export lean_ir_find_env_decl_boxed]
-private def findEnvDeclBoxed (env : Environment) (declName : Name) : Option Decl :=
+private def findInterpDeclBoxed (env : Environment) (declName : Name) : Option Decl :=
   let boxed := declName ++ `_boxed
   -- Important: get module index of base name, not boxed version. Usually the interpreter never
   -- does negative lookups except in the case of `call_boxed` which must check whether a boxed

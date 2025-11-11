@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Init.Grind.ToIntLemmas
 import Lean.Meta.Tactic.Grind.SynthInstance
@@ -16,7 +15,7 @@ public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 private def reportMissingToIntAdapter (type : Expr) (instType : Expr) : MetaM Unit := do
-  trace[grind.debug.cutsat.debug] "`ToInt` initialization failure, failed to synthesize{indentExpr instType}\nfor type{indentExpr type}"
+  trace[grind.debug.lia.debug] "`ToInt` initialization failure, failed to synthesize{indentExpr instType}\nfor type{indentExpr type}"
 
 private def throwMissingDecl (declName : Name) : MetaM Unit :=
   throwError "`grind cutsat`, unexpected missing declaration {.ofConstName declName}"
@@ -61,7 +60,7 @@ where
       let hi ← normalizeBound hi
       return some (.co lo hi)
     | _ =>
-      trace[grind.debug.cutsat.toInt] "unsupported `ToInt` interval{indentExpr rangeExpr}\nfor type{indentExpr type}"
+      trace[grind.debug.lia.toInt] "unsupported `ToInt` interval{indentExpr rangeExpr}\nfor type{indentExpr type}"
       return none
 
   go? : GoalM (Option Nat) := withNewMCtxDepth do
@@ -70,7 +69,7 @@ where
     let rangeExpr ← mkFreshExprMVar (mkConst ``Grind.IntInterval)
     let toIntType := mkApp2 (mkConst ``Grind.ToInt [u]) type rangeExpr
     let some toIntInst ← synthInstance? toIntType |
-      trace[grind.debug.cutsat.toInt] "failed to synthesize {indentExpr toIntType}"
+      trace[grind.debug.lia.toInt] "failed to synthesize {indentExpr toIntType}"
       return none
     let rangeExpr ← instantiateMVars rangeExpr
     let some range ← toIntInterval? rangeExpr | return none
@@ -102,7 +101,7 @@ where
         let some_hi ← mkSome Int.mkType hi.val
         pure <| some <| mkApp5 (mkConst ``Grind.ToInt.le_upper' [u]) type rangeExpr toIntInst hi.val (← mkEqRefl some_hi)
     else pure none
-    trace[grind.debug.cutsat.toInt] "registered toInt: {type}"
+    trace[grind.debug.lia.toInt] "registered toInt: {type}"
     let id := (← get').toIntInfos.size
     modify' fun s => { s with toIntInfos := s.toIntInfos.push { id, type, u, toIntInst, rangeExpr, range, toInt, wrap, ofWrap0?, ofEq, ofDiseq, lowerThm?, upperThm? } }
     return some id

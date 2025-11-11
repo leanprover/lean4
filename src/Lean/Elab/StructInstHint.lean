@@ -7,9 +7,7 @@ Authors: Joseph Rotella
 module
 
 prelude
-public import Lean.Parser.Term
 public import Lean.Meta.Hint
-public import Lean.PrettyPrinter
 
 public section
 
@@ -89,8 +87,8 @@ def mkMissingFieldsHint (fields : Array (Name × Option Expr)) (stx : Syntax) : 
   let interveningLineEndPos? :=
     if leaderLine + 1 ≥ (fileMap.utf8PosToLspPos view.closingPos).line then none else
       let leaderLineEnd := findLineEnd fileMap.source view.leaderTailPos
-      let indentPos := (indent + 1).fold (init := leaderLineEnd) (fun _ _ p => fileMap.source.next p)
-      let interveningLineEnd := findLineEnd fileMap.source (fileMap.source.next leaderLineEnd)
+      let indentPos := (indent + 1).fold (init := leaderLineEnd) (fun _ _ p => p.next fileMap.source)
+      let interveningLineEnd := findLineEnd fileMap.source (leaderLineEnd.next fileMap.source)
       let nextTwoLines := Substring.mk fileMap.source view.leaderTailPos interveningLineEnd
       if nextTwoLines.all (·.isWhitespace) then some (min indentPos nextTwoLines.stopPos) else none
 
@@ -110,7 +108,7 @@ def mkMissingFieldsHint (fields : Array (Name × Option Expr)) (stx : Syntax) : 
       match interveningLineEndPos? with
       | none => (.line, .nil)
       | some interveningLineEndPos =>
-        (String.mk (List.replicate (indent - col interveningLineEndPos) ' '), .nil)
+        (String.ofList (List.replicate (indent - col interveningLineEndPos) ' '), .nil)
   let suggestionText := preWs ++ suggestionText ++ postWs
   let insPos := view.lastFieldTailPos?.getD <| interveningLineEndPos?.getD view.leaderTailPos
   let width := Tactic.TryThis.format.inputWidth.get (← getOptions)
@@ -150,7 +148,7 @@ where
   Counterpart of `String.findLineStart`.
   -/
   findLineEnd (s : String) (p : String.Pos.Raw) : String.Pos.Raw :=
-    s.findAux (· == '\n') s.endPos p
+    s.findAux (· == '\n') s.rawEndPos p
 
   /--
   Is the structure instance notation `stx` described by `view` using single-line styling?

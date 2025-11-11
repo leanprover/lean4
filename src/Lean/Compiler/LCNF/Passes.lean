@@ -6,15 +6,10 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Compiler.LCNF.PassManager
 public import Lean.Compiler.LCNF.PullLetDecls
 public import Lean.Compiler.LCNF.CSE
-public import Lean.Compiler.LCNF.Simp
-public import Lean.Compiler.LCNF.PullFunDecls
-public import Lean.Compiler.LCNF.ReduceJpArity
 public import Lean.Compiler.LCNF.JoinPoints
 public import Lean.Compiler.LCNF.Specialize
-public import Lean.Compiler.LCNF.PhaseExt
 public import Lean.Compiler.LCNF.ToMono
 public import Lean.Compiler.LCNF.LambdaLifting
 public import Lean.Compiler.LCNF.FloatLetIn
@@ -99,6 +94,7 @@ def builtinPassManager : PassManager := {
     -- checked without nested functions whose bodies specialization does not require access to.
     checkTemplateVisibility,
     specialize,
+    findJoinPoints (occurrence := 1),
     simp (occurrence := 2),
     cse (shouldElimFunDecls := false) (occurrence := 1),
     saveBase, -- End of base phase

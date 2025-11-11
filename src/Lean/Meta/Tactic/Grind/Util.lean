@@ -5,13 +5,9 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Basic
-public import Lean.Meta.Transform
 public import Lean.Meta.Tactic.Simp.Simproc
 import Init.Simproc
-import Init.Grind.Tactics
 import Lean.Meta.AbstractNestedProofs
-import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Clear
 public section
 namespace Lean.Meta.Grind

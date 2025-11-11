@@ -84,28 +84,17 @@ inductive SearchControl where
   /-- Stop the search through a syntax stack. -/
   | stop
 
-private def lineCommentPosition? (s : String) : Option String.Pos.Raw := Id.run do
-  let mut it := s.mkIterator
-  while h : it.hasNext do
-    let pos := it.pos
-    let c₁ := it.curr' h
-    it := it.next' h
-    if c₁ == '-' then
-      if h' : it.hasNext then
-        let c₂ := it.curr' h'
-        it := it.next' h'
-        if c₂ == '-' then
-          return some pos
-  return none
+private def lineCommentPosition? (s : String) : Option s.ValidPos :=
+  s.find? "--"
 
 private def isPositionInLineComment (text : FileMap) (pos : String.Pos.Raw) : Bool := Id.run do
   let requestedLineNumber := text.toPosition pos |>.line
   let lineStartPos := text.lineStart requestedLineNumber
   let lineEndPos := text.lineStart (requestedLineNumber + 1)
-  let line := text.source.extract lineStartPos lineEndPos
+  let line := String.Pos.Raw.extract text.source lineStartPos lineEndPos
   let some lineCommentPos := lineCommentPosition? line
     | return false
-  return pos >= lineCommentPos.offsetBy lineStartPos
+  return pos >= lineCommentPos.offset.offsetBy lineStartPos
 
 open CandidateKind in
 def findSignatureHelp? (text : FileMap) (ctx? : Option Lsp.SignatureHelpContext) (cmdStx : Syntax)

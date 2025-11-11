@@ -6,11 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Runtime
 public import Lean.Compiler.NameMangling
-public import Lean.Compiler.ExportAttr
-public import Lean.Compiler.InitAttr
-public import Lean.Compiler.IR.CompilerM
 public import Lean.Compiler.IR.EmitUtil
 public import Lean.Compiler.IR.NormIds
 public import Lean.Compiler.IR.SimpCase
@@ -19,7 +15,7 @@ public import Lean.Compiler.IR.Boxing
 public section
 
 namespace Lean.IR.EmitC
-open ExplicitBoxing (requiresBoxedVersion mkBoxedName isBoxedName)
+open ExplicitBoxing (isBoxedName)
 
 def leanMainFn := "_lean_main"
 
@@ -69,6 +65,7 @@ def toCType : IRType → String
   | IRType.tagged     => "lean_object*"
   | IRType.tobject    => "lean_object*"
   | IRType.erased     => "lean_object*"
+  | IRType.void       => "lean_object*"
   | IRType.struct _ _ => panic! "not implemented yet"
   | IRType.union _ _  => panic! "not implemented yet"
 
@@ -109,6 +106,8 @@ def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M U
   emit (toCType decl.resultType ++ " " ++ cppBaseName)
   unless ps.isEmpty do
     emit "("
+    -- We omit void parameters, note that they are guaranteed not to occur in boxed functions
+    let ps := ps.filter (fun p => !p.ty.isVoid)
     -- We omit erased parameters for extern constants
     let ps := if isExternC env decl.name then ps.filter (fun p => !p.ty.isErased) else ps
     if ps.size > closureMaxArgs && isBoxedName decl.name then
@@ -173,7 +172,7 @@ def emitMainFn : M Unit := do
     /- We disable panic messages because they do not mesh well with extracted closed terms.
        See issue #534. We can remove this workaround after we implement issue #467. -/
     emitLn "lean_set_panic_messages(false);"
-    emitLn ("res = " ++ mkModuleInitializationFunctionName modName ++ "(1 /* builtin */, lean_io_mk_world());")
+    emitLn ("res = " ++ mkModuleInitializationFunctionName modName ++ "(1 /* builtin */);")
     emitLn "lean_set_panic_messages(true);"
     emitLns ["lean_io_mark_end_initialization();",
              "if (lean_io_result_is_ok(res)) {",
@@ -188,9 +187,9 @@ def emitMainFn : M Unit := do
                " n = lean_alloc_ctor(1,2,0); lean_ctor_set(n, 0, lean_mk_string(argv[i])); lean_ctor_set(n, 1, in);",
                " in = n;",
               "}"]
-      emitLn ("res = " ++ leanMainFn ++ "(in, lean_io_mk_world());")
+      emitLn ("res = " ++ leanMainFn ++ "(in);")
     else
-      emitLn ("res = " ++ leanMainFn ++ "(lean_io_mk_world());")
+      emitLn ("res = " ++ leanMainFn ++ "();")
     emitLn "}"
     -- `IO _`
     let retTy := env.find? `main |>.get! |>.type |>.getForallBody
@@ -413,7 +412,8 @@ def emitSimpleExternalCall (f : String) (ps : Array Param) (ys : Array Arg) : M 
   -- We must remove erased arguments to extern calls.
   discard <| ys.size.foldM
     (fun i _ (first : Bool) =>
-      if ps[i]!.ty.isErased then
+      let ty := ps[i]!.ty
+      if ty.isErased || ty.isVoid then
         pure first
       else do
         unless first do emit ", "
@@ -433,9 +433,11 @@ def emitFullApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
   emitLhs z
   let decl ← getDecl f
   match decl with
-  | .fdecl .. | .extern _ _ _ { entries := [.opaque _], .. } =>
+  | .fdecl (xs := ps) .. | .extern (xs := ps) (ext := { entries := [.opaque], .. }) .. =>
     emitCName f
-    if ys.size > 0 then emit "("; emitArgs ys; emit ")"
+    if ys.size > 0 then
+      let (ys, _) := ys.zip ps |>.filter (fun (_, p) => !p.ty.isVoid) |>.unzip
+      emit "("; emitArgs ys; emit ")"
     emitLn ";"
   | Decl.extern _ ps _ extData => emitExternCall f ps extData ys
 
@@ -575,22 +577,23 @@ def emitTailCall (v : Expr) : M Unit :=
     let ctx ← read
     let ps := ctx.mainParams
     if h : ps.size = ys.size then
+      let (ps, ys) := ps.zip ys |>.filter (fun (p, _) => !p.ty.isVoid) |>.unzip
       if overwriteParam ps ys then
         emitLn "{"
         ps.size.forM fun i _ => do
           let p := ps[i]
-          let y := ys[i]
+          let y := ys[i]!
           unless paramEqArg p y do
             emit (toCType p.ty); emit " _tmp_"; emit i; emit " = "; emitArg y; emitLn ";"
         ps.size.forM fun i _ => do
           let p := ps[i]
-          let y := ys[i]
+          let y := ys[i]!
           unless paramEqArg p y do emit p.x; emit " = _tmp_"; emit i; emitLn ";"
         emitLn "}"
       else
-        ys.size.forM fun i _ => do
+        ps.size.forM fun i _ => do
           let p := ps[i]
-          let y := ys[i]
+          let y := ys[i]!
           unless paramEqArg p y do emit p.x; emit " = "; emitArg y; emitLn ";"
       emitLn "goto _start;"
     else
@@ -671,6 +674,7 @@ def emitDeclAux (d : Decl) : M Unit := do
         emit "LEAN_EXPORT "  -- make symbol visible to the interpreter
       emit (toCType t); emit " ";
       if xs.size > 0 then
+        let xs := xs.filter (fun p => !p.ty.isVoid)
         emit baseName;
         emit "(";
         if xs.size > closureMaxArgs && isBoxedName d.name then
@@ -717,7 +721,7 @@ def emitDeclInit (d : Decl) : M Unit := do
   if isIOUnitInitFn env n then
     if isIOUnitBuiltinInitFn env n then
       emit "if (builtin) {"
-    emit "res = "; emitCName n; emitLn "(lean_io_mk_world());"
+    emit "res = "; emitCName n; emitLn "();"
     emitLn "if (lean_io_result_is_error(res)) return res;"
     emitLn "lean_dec_ref(res);"
     if isIOUnitBuiltinInitFn env n then
@@ -727,7 +731,7 @@ def emitDeclInit (d : Decl) : M Unit := do
     | some initFn =>
       if getBuiltinInitFnNameFor? env d.name |>.isSome then
         emit "if (builtin) {"
-      emit "res = "; emitCName initFn; emitLn "(lean_io_mk_world());"
+      emit "res = "; emitCName initFn; emitLn "();"
       emitLn "if (lean_io_result_is_error(res)) return res;"
       emitCName n
       if d.resultType.isScalar then
@@ -744,16 +748,16 @@ def emitDeclInit (d : Decl) : M Unit := do
 def emitInitFn : M Unit := do
   let env ← getEnv
   let modName ← getModName
-  env.imports.forM fun imp => emitLn ("lean_object* " ++ mkModuleInitializationFunctionName imp.module ++ "(uint8_t builtin, lean_object*);")
+  env.imports.forM fun imp => emitLn ("lean_object* " ++ mkModuleInitializationFunctionName imp.module ++ "(uint8_t builtin);")
   emitLns [
     "static bool _G_initialized = false;",
-    "LEAN_EXPORT lean_object* " ++ mkModuleInitializationFunctionName modName ++ "(uint8_t builtin, lean_object* w) {",
+    "LEAN_EXPORT lean_object* " ++ mkModuleInitializationFunctionName modName ++ "(uint8_t builtin) {",
     "lean_object * res;",
     "if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));",
     "_G_initialized = true;"
   ]
   env.imports.forM fun imp => emitLns [
-    "res = " ++ mkModuleInitializationFunctionName imp.module ++ "(builtin, lean_io_mk_world());",
+    "res = " ++ mkModuleInitializationFunctionName imp.module ++ "(builtin);",
     "if (lean_io_result_is_error(res)) return res;",
     "lean_dec_ref(res);"]
   let decls := getDecls env

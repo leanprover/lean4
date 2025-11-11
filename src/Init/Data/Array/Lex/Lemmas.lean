@@ -10,9 +10,7 @@ import all Init.Data.Array.Lex.Basic
 public import Init.Data.Array.Lex.Basic
 public import Init.Data.Array.Lemmas
 public import Init.Data.List.Lex
-import Init.Data.Range.Polymorphic.Lemmas
 import Init.Data.Range.Polymorphic.NatLemmas
-import Init.Data.Order.Lemmas
 
 public section
 
@@ -36,7 +34,18 @@ grind_pattern _root_.List.le_toArray => l₁.toArray ≤ l₂.toArray
 grind_pattern lt_toList => xs.toList < ys.toList
 grind_pattern le_toList => xs.toList ≤ ys.toList
 
+@[simp]
+protected theorem not_lt [LT α] {xs ys : Array α} : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl
+
+@[deprecated Array.not_lt (since := "2025-10-26")]
 protected theorem not_lt_iff_ge [LT α] {xs ys : Array α} : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl
+
+@[simp]
+protected theorem not_le [LT α] {xs ys : Array α} :
+    ¬ xs ≤ ys ↔ ys < xs :=
+  Classical.not_not
+
+@[deprecated Array.not_le (since := "2025-10-26")]
 protected theorem not_le_iff_gt [LT α] {xs ys : Array α} :
     ¬ xs ≤ ys ↔ ys < xs :=
   Classical.not_not
@@ -179,12 +188,6 @@ instance [LT α]
 protected theorem le_total [LT α]
     [i : Std.Asymm (· < · : α → α → Prop)] (xs ys : Array α) : xs ≤ ys ∨ ys ≤ xs :=
   List.le_total xs.toList ys.toList
-
-@[simp] protected theorem not_lt [LT α]
-    {xs ys : Array α} : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl
-
-@[simp] protected theorem not_le [LT α]
-    {xs ys : Array α} : ¬ ys ≤ xs ↔ xs < ys := Classical.not_not
 
 protected theorem le_of_lt [LT α]
     [i : Std.Asymm (· < · : α → α → Prop)]

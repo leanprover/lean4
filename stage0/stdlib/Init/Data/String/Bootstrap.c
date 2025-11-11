@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Bootstrap
-// Imports: public import Init.Data.List.Basic public import Init.Data.Char.Basic public import Init.Data.ByteArray.Bootstrap
+// Imports: public import Init.Data.Char.Basic public import Init.Data.ByteArray.Bootstrap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -41,6 +41,7 @@ lean_object* lean_string_foldl(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Internal_isPrefixOf___boxed(lean_object*, lean_object*);
 uint8_t lean_string_contains(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_String_Internal_isEmpty___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_String_ofList___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Internal_drop___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Internal_any___boxed(lean_object*, lean_object*);
 lean_object* lean_string_mk(lean_object*);
@@ -83,6 +84,7 @@ LEAN_EXPORT lean_object* l_Substring_Internal_get___boxed(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_String_Pos_Raw_Internal_sub___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Internal_extract___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_dropright(lean_object*, lean_object*);
+lean_object* lean_string_mk(lean_object*);
 static lean_object* l_String_instInhabited___closed__0;
 LEAN_EXPORT lean_object* l_String_Internal_getUTF8Byte___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_substring_beq(lean_object*, lean_object*);
@@ -348,6 +350,14 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_String_ofList___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_string_mk(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_String_mk___boxed(lean_object* x_1) {
 _start:
 {
@@ -484,21 +494,17 @@ x_3 = l_Char_toString(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Data_List_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Char_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_ByteArray_Bootstrap(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Char_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_ByteArray_Bootstrap(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_String_Bootstrap(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_String_Bootstrap(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Char_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Char_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_ByteArray_Bootstrap(builtin, lean_io_mk_world());
+res = initialize_Init_Data_ByteArray_Bootstrap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_String_instOfNatRaw = _init_l_String_instOfNatRaw();

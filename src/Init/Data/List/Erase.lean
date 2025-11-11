@@ -7,7 +7,6 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Pairwise
 public import Init.Data.List.Find
 
 public section
@@ -45,7 +44,7 @@ theorem eraseP_of_forall_not {l : List α} (h : ∀ a, a ∈ l → ¬p a) : l.er
   induction xs with
   | nil => simp
   | cons x xs ih =>
-    simp only [eraseP_cons, cond_eq_if]
+    simp only [eraseP_cons, cond_eq_ite]
     split <;> rename_i h
     · simp only [reduceCtorEq, cons.injEq, false_or]
       constructor

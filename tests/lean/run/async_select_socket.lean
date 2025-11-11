@@ -12,7 +12,7 @@ def testClient (addr : Net.SocketAddress) : Async String := do
 
   Selectable.one #[
     .case (← Selector.sleep 1000) fun _ => return "Timeout",
-    .case (← client.recvSelector 4096) fun data? => do
+    .case (client.recvSelector 4096) fun data? => do
       if let some data := data? then
         return String.fromUTF8! data
       else
@@ -65,7 +65,7 @@ def testClient (addr : Net.SocketAddress) : Async String := do
 
   Selectable.one #[
     .case (← Selector.sleep 1000) fun _ => return "Timeout",
-    .case (← client.recvSelector 4096) fun (data, _) => do
+    .case (client.recvSelector 4096) fun (data, _) => do
       return String.fromUTF8! data
   ]
 

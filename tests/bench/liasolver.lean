@@ -64,10 +64,10 @@ namespace Std.HashMap
     return false
 
   def mapValsM [Monad m] (f : β → m γ) (xs : HashMap α β) : m (HashMap α γ) :=
-    HashMap.empty (capacity := xs.size) |> xs.foldM fun acc k v => return acc.insert k (←f v)
+    HashMap.emptyWithCapacity (capacity := xs.size) |> xs.foldM fun acc k v => return acc.insert k (←f v)
 
   def mapVals (f : β → γ) (xs : HashMap α β) : HashMap α γ :=
-    HashMap.empty (capacity := xs.size) |> xs.fold fun acc k v => acc.insert k (f v)
+    HashMap.emptyWithCapacity (capacity := xs.size) |> xs.fold fun acc k v => acc.insert k (f v)
 
   def fastMapVals (f : α → β → β) (xs : HashMap α β) : HashMap α β :=
     xs.map f
@@ -275,7 +275,7 @@ partial def readSolution? (p : Problem) : Option Solution := Id.run <| do
     return none
   if p.equations.any (fun _ eq => eq.const ≠ 0) then
     return some Solution.unsat
-  let mut assignment : Array (Option Int) := mkArray p.nVars none
+  let mut assignment : Array (Option Int) := Array.replicate p.nVars none
   for i in *...p.nVars do
     assignment := readSolution i assignment
   return Solution.sat <| assignment.map (·.get!)

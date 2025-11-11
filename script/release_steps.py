@@ -1,30 +1,53 @@
 #!/usr/bin/env python3
 
 """
-Execute release steps for Lean4 repositories.
+Execute Release Steps for Lean4 Downstream Repositories
 
-This script helps automate the release process for Lean4 and its dependent repositories
-by actually executing the step-by-step instructions for updating toolchains, creating tags,
-and managing branches.
+This script automates the process of updating a downstream repository to a new Lean4 release.
+It handles creating branches, updating toolchains, merging changes, building, testing, and
+creating pull requests.
+
+IMPORTANT: Keep this documentation up-to-date when modifying the script's behavior!
+
+What this script does:
+1. Sets up the downstream_releases/ directory for cloning repositories
+
+2. Clones or updates the target repository
+
+3. Creates a branch named bump_to_{version} for the changes
+
+4. Updates the lean-toolchain file to the target version
+
+5. Handles repository-specific variations:
+   - Different dependency update mechanisms
+   - Special merging strategies for repositories with nightly-testing branches
+   - Safety checks for repositories using bump branches
+   - Custom build and test procedures
+
+6. Commits the changes with message "chore: bump toolchain to {version}"
+
+7. Builds the project (with a clean .lake cache)
+
+8. Runs tests if available
+
+9. Pushes the branch to GitHub
+
+10. Creates a pull request (or reports if one already exists)
 
 Usage:
-    python3 release_steps.py <version> <repo>
+    ./release_steps.py v4.24.0 batteries    # Update batteries to v4.24.0
+    ./release_steps.py v4.24.0-rc1 mathlib4 # Update mathlib4 to v4.24.0-rc1
 
-Arguments:
-    version: The version to set in the lean-toolchain file (e.g., v4.6.0)
-    repo: The repository name as specified in release_repos.yml
+The script reads repository configurations from release_repos.yml.
+Each repository has specific handling for merging, dependencies, and testing.
 
-Example:
-    python3 release_steps.py v4.6.0 mathlib4
-    python3 release_steps.py v4.6.0 batteries
+This script is idempotent - it's safe to rerun if it fails partway through.
+Existing branches, commits, and PRs will be reused rather than duplicated.
 
-The script reads repository configurations from release_repos.yml in the same directory.
-Each repository may have specific requirements for:
-- Branch management
-- Toolchain updates
-- Dependency updates
-- Tagging conventions
-- Stable branch handling
+Error handling:
+- If build or tests fail, the script continues to create the PR anyway
+- Manual conflicts must be resolved by the user
+- Network issues during push/PR creation are reported with manual instructions
 """
 
 import argparse
@@ -566,8 +589,19 @@ def execute_release_steps(repo, version, config):
         
         # Clean lake cache for a fresh build
         print(blue("Cleaning lake cache..."))
-        run_command("rm -rf .lake", cwd=repo_path)
-        
+        run_command("lake clean", cwd=repo_path)
+
+        # Check if downstream of Mathlib and get cache if so
+        mathlib_package_dir = repo_path / ".lake" / "packages" / "mathlib"
+        if mathlib_package_dir.exists():
+            print(blue("Project is downstream of Mathlib, fetching cache..."))
+            try:
+                run_command("lake exe cache get", cwd=repo_path, stream_output=True)
+                print(green("Cache fetched successfully"))
+            except subprocess.CalledProcessError as e:
+                print(yellow("Failed to fetch cache, continuing anyway..."))
+                print(yellow(f"Cache fetch error: {e}"))
+
         try:
             run_command("lake build", cwd=repo_path, stream_output=True)
             print(green("Build completed successfully"))

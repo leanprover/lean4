@@ -7,7 +7,6 @@ Authors: Gabriel Ebner, Marc Huisinga
 module
 
 prelude
-public import Lean.Data.Json.Basic
 public import Lean.Data.Json.Printer
 
 public section

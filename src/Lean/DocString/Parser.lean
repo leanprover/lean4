@@ -5,9 +5,7 @@ Author: David Thrane Christiansen
 -/
 module
 prelude
-public import Lean.Parser.Types
 public import Lean.DocString.Syntax
-import Lean.PrettyPrinter.Formatter
 import Lean.Parser.Term.Basic
 
 set_option linter.missingDocs true
@@ -125,14 +123,14 @@ private def withInfoSyntaxFn (p : ParserFn) (infoP : SourceInfo → ParserFn) : 
 
 private def unescapeStr (str : String) : String := Id.run do
   let mut out := ""
-  let mut iter := str.iter
-  while !iter.atEnd do
-    let c := iter.curr
-    iter := iter.next
+  let mut iter := str.startValidPos
+  while h : ¬iter.IsAtEnd do
+    let c := iter.get h
+    iter := iter.next h
     if c == '\\' then
-      if !iter.atEnd then
-        out := out.push iter.curr
-        iter := iter.next
+      if h : ¬iter.IsAtEnd then
+        out := out.push (iter.get h)
+        iter := iter.next h
     else
       out := out.push c
   out
@@ -203,18 +201,19 @@ private def onlyBlockOpeners : ParserFn := fun c s =>
   let position := c.fileMap.toPosition s.pos
   let lineStart := c.fileMap.lineStart position.line
   let ok : Bool := Id.run do
-    let mut iter := {c.inputString.iter with i := lineStart}
-    while iter.i < s.pos && iter.hasNext && iter.i < c.endPos do
-      if iter.curr.isDigit then
-        while iter.curr.isDigit && iter.i < s.pos && iter.hasNext do
-          iter := iter.next
-        if !iter.hasNext then return false
-        else if iter.curr == '.' || iter.curr == ')' then iter := iter.next
-      else if iter.curr == ' ' then iter := iter.next
-      else if iter.curr == '>' then iter := iter.next
-      else if iter.curr == '*' then iter := iter.next
-      else if iter.curr == '+' then iter := iter.next
-      else if iter.curr == '-' then iter := iter.next
+    let mut iter := c.inputString.pos! lineStart
+    while h : iter.offset < s.pos && ¬iter.IsAtEnd && iter.offset < c.endPos do
+      have h : ¬iter.IsAtEnd := by simp at h; exact h.1.2
+      if (iter.get h).isDigit then
+        while h : ¬iter.IsAtEnd && iter.get!.isDigit && iter.offset < s.pos do
+          iter := iter.next (by simp at h; exact h.1.1)
+        if h : iter.IsAtEnd then return false
+        else if iter.get h == '.' || iter.get h == ')' then iter := iter.next h
+      else if iter.get h == ' ' then iter := iter.next h
+      else if iter.get h == '>' then iter := iter.next h
+      else if iter.get h == '*' then iter := iter.next h
+      else if iter.get h == '+' then iter := iter.next h
+      else if iter.get h == '-' then iter := iter.next h
       else return false
     true
 
@@ -247,14 +246,15 @@ private def pushMissing : ParserFn := fun _c s =>
   s.pushSyntax .missing
 
 private def strFn (str : String) : ParserFn := asStringFn <| fun c s =>
-  let rec go (iter : String.Iterator) (s : ParserState) :=
-    if iter.atEnd then s
+  let rec go (iter : str.ValidPos) (s : ParserState) :=
+    if h : iter.IsAtEnd then s
     else
-      let ch := iter.curr
-      go iter.next <| satisfyFn (· == ch) ch.toString c s
+      let ch := iter.get h
+      go (iter.next h) <| satisfyFn (· == ch) ch.toString c s
+  termination_by iter
   let iniPos := s.pos
   let iniSz := s.stxStack.size
-  let s := go str.iter s
+  let s := go str.startValidPos s
   if s.hasError then s.mkErrorAt s!"'{str}'" iniPos (some iniSz) else s
 
 /--
@@ -623,7 +623,7 @@ mutual
           asStringFn (atomicFn (noSpaceBefore >> repFn count (satisfyFn (· == char) s!"'{tok count}'"))))
 
   where
-    tok (count : Nat) : String := (List.replicate count char).asString
+    tok (count : Nat) : String := String.ofList (List.replicate count char)
     opener (ctxt : InlineCtxt) : ParserFn :=
       match getter ctxt with
       | none => many1Fn (satisfyFn (· == char) s!"any number of {char}s")
@@ -667,7 +667,7 @@ mutual
   where
     opener : ParserFn := asStringFn (many1Fn (satisfyFn (· == '`') s!"any number of backticks"))
     closer (count : Nat) : ParserFn :=
-      asStringFn (atomicFn (repFn count (satisfyFn' (· == '`') s!"expected '{String.mk (.replicate count '`')}' to close inline code"))) >>
+      asStringFn (atomicFn (repFn count (satisfyFn' (· == '`') s!"expected '{String.ofList (.replicate count '`')}' to close inline code"))) >>
       notFollowedByFn (satisfyFn (· == '`') "`") "backtick"
     takeBackticksFn : Nat → ParserFn
       | 0 => satisfyFn (fun _ => false)
@@ -1083,7 +1083,7 @@ mutual
               (closeFence l fenceWidth >>
                withFence 0 fun info _ c s =>
                 if (c.fileMap.toPosition info.getPos?.get!).column != col then
-                  s.mkErrorAt s!"closing '{String.mk <| List.replicate fenceWidth ':'}' from directive on line {l} at column {col}, but it's at column {(c.fileMap.toPosition info.getPos?.get!).column}" info.getPos?.get!
+                  s.mkErrorAt s!"closing '{String.ofList <| List.replicate fenceWidth ':'}' from directive on line {l} at column {col}, but it's at column {(c.fileMap.toPosition info.getPos?.get!).column}" info.getPos?.get!
                 else
                   s))
 
@@ -1116,7 +1116,7 @@ mutual
         else skipFn
 
     closeFence (line width : Nat) :=
-      let str := String.mk (.replicate width ':')
+      let str := String.ofList (.replicate width ':')
       bolThen (description := s!"closing '{str}' for directive from line {line}")
         (eatSpaces >>
          asStringFn (strFn str) >> notFollowedByFn (chFn ':') "':'" >>

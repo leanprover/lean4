@@ -10,7 +10,6 @@ prelude
 public import Init.Data.Range.Polymorphic.Instances
 public import Init.Data.Order.Lemmas
 public import Init.Data.SInt
-import Init.Omega
 import Init.Data.Range.Polymorphic.UInt
 import all Init.Data.SInt.Basic
 

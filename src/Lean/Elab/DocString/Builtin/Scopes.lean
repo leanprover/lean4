@@ -8,7 +8,6 @@ prelude
 
 public import Lean.Elab.DocString
 import Lean.Elab.DocString.Builtin.Parsing
-import Lean.Parser.Basic
 
 namespace Lean.Doc
 open Lean.Parser

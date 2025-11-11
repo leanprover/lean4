@@ -7,13 +7,8 @@ module
 
 prelude
 public import Lean.Meta.Basic
-import Init.Data.Range.Polymorphic.Stream
-import Lean.Meta.InferType
-import Lean.AuxRecursor
-import Lean.AddDecl
 import Lean.Meta.CompletionName
 import Lean.Meta.PProdN
-import Lean.Meta.AppBuilder
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Refl
 

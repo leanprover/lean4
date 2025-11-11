@@ -22,7 +22,7 @@ static lean_object* l_Lean_Grind_Linarith_Poly_denoteN___redArg___closed__0;
 lean_object* l_Lean_Grind_Linarith_Poly_combine(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Module_NatModuleNorm_0__Lean_Grind_Linarith_Expr_denoteN_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_denoteN(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_Grind_Linarith_Expr_toPolyN_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_Grind_Linarith_Expr_toPolyN_spec__0(lean_object*);
 lean_object* l_Lean_RArray_getImpl___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denoteN___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
@@ -329,7 +329,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_Grind_Linarith_Expr_toPolyN_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_Grind_Linarith_Expr_toPolyN_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -564,17 +564,17 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* initialize_Init_Grind_Module_Envelope(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Ordered_Linarith(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Module_Envelope(uint8_t builtin);
+lean_object* initialize_Init_Grind_Ordered_Linarith(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Grind_Module_NatModuleNorm(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Grind_Module_NatModuleNorm(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Grind_Module_Envelope(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Module_Envelope(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ordered_Linarith(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Ordered_Linarith(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Grind_Linarith_Poly_denoteN___redArg___closed__0 = _init_l_Lean_Grind_Linarith_Poly_denoteN___redArg___closed__0();

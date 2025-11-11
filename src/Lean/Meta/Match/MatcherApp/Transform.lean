@@ -8,8 +8,6 @@ module
 
 prelude
 public import Lean.Meta.Match
-public import Lean.Meta.InferType
-public import Lean.Meta.Check
 public import Lean.Meta.Tactic.Split
 
 public section
@@ -24,8 +22,10 @@ private partial def updateAlts (unrefinedArgType : Expr) (typeNew : Expr) (altNu
     let typeNew ← whnfD typeNew
     match typeNew with
     | Expr.forallE _ d b _ =>
-      let (alt, refined) ← forallBoundedTelescope d (some numParams) fun xs d => do
-        let alt ← try instantiateLambda alt xs catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
+      let (alt, refined) ← lambdaBoundedTelescope alt numParams fun xs alt => do
+        unless xs.size == numParams do
+          throwError "unexpected matcher application, alternative must have {numParams} parameters"
+        let d ← try instantiateForall d xs catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
         forallBoundedTelescope d (some 1) fun x _ => do
           let alt ← mkLambdaFVars x alt -- x is the new argument we are adding to the alternative
           let refined ← if refined then

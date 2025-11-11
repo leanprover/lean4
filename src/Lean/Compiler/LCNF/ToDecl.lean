@@ -6,11 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Transform
-public import Lean.Meta.Match.MatcherInfo
-public import Lean.Compiler.ExternAttr
 public import Lean.Compiler.InitAttr
-public import Lean.Compiler.ImplementedByAttr
 public import Lean.Compiler.LCNF.ToLCNF
 
 public section

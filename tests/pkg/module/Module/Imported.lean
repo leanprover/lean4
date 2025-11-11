@@ -2,6 +2,8 @@ module
 
 prelude
 public import Module.Basic
+import Lean.DocString
+meta import Lean.Elab.Command
 
 /-! Definitions should be exported without their bodies by default -/
 
@@ -25,6 +27,23 @@ Note: The following definitions were not unfolded because their definition is no
 -/
 #guard_msgs in
 example : f = 1 := rfl
+
+/--
+error: Tactic `apply` failed: could not unify the conclusion of `@rfl`
+  ?a = ?a
+with the goal
+  f = 1
+
+Note: The full type of `@rfl` is
+  ∀ {α : Sort ?u.115} {a : α}, a = a
+
+Note: The following definitions were not unfolded because their definition is not exposed:
+  f ↦ 1
+
+⊢ f = 1
+-/
+#guard_msgs in
+example : f = 1 := by apply rfl
 
 /-! Theorems should be exported without their bodies -/
 
@@ -160,3 +179,27 @@ def nonMeta := pubMeta
 #guard_msgs in
 theorem f_struct_eq : f_struct 0 = 0 := by
   simp
+
+/-! `[inherit_doc]` should work independently of visibility. -/
+
+/-- info: some "A private definition. " -/
+#guard_msgs in
+open Lean in
+#eval show CoreM _ from do findDocString? (← getEnv) ``pubInheritDoc
+
+/-! Cross-module `meta` checks, including involving compiler-introduced constants. -/
+
+attribute [local delab Nat] delab
+
+/--
+error: Cannot add attribute `[Lean.PrettyPrinter.Delaborator.delabAttribute]`: Declaration `noMetaDelab` must be marked as `meta`
+-/
+#guard_msgs in
+attribute [local delab Nat] noMetaDelab
+
+@[noinline] meta def pap (f : α → β) (a : α) : β := f a
+public meta def delab' : Lean.PrettyPrinter.Delaborator.Delab :=
+  pap delab
+
+-- Used to complain about `_boxed` not being meta
+attribute [local delab Nat] delab'

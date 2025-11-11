@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Subst
-public import Lean.Meta.Tactic.Clear
 public import Lean.Meta.Match.Value
 
 public section

@@ -204,7 +204,8 @@ end A
 error: Unknown constant `a`
 
 Hint: Insert a fully-qualified name:
-  {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲A̲.̲a̲)̲}`a`
+  • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲A̲.̲a̲)̲}`a`
+  • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲S̲t̲d̲.̲T̲i̲m̲e̲.̲M̲o̲d̲i̲f̲i̲e̲r̲.̲a̲)̲}`a`
 -/
 #guard_msgs in
 /--

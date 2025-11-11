@@ -215,7 +215,7 @@ def calcNeeds (env : Environment) (i : ModuleIdx) : Needs := Id.run do
   for ci in env.header.moduleData[i]!.constants do
     -- Added guard for cases like `structure` that are still exported even if private
     let pubCI? := guard (!isPrivateName ci.name) *> (env.setExporting true).find? ci.name
-    let k := { isExported := pubCI?.isSome, isMeta := isMeta env ci.name }
+    let k := { isExported := pubCI?.isSome, isMeta := isDeclMeta env ci.name }
     needs := visitExpr k ci.type needs
     if let some e := ci.value? (allowOpaque := true) then
       -- type and value has identical visibility under `meta`
@@ -235,7 +235,7 @@ where
       let mut deps := deps
       if !isReservedName env c then
         if let some j := env.getModuleIdxFor? c then
-          let k := { k with isMeta := k.isMeta && !isMeta env c }
+          let k := { k with isMeta := k.isMeta && !isDeclMeta env c }
           if j != i then
             deps := deps.union k {j}
       return deps
@@ -250,7 +250,7 @@ def getExplanations (env : Environment) (i : ModuleIdx) :
   for ci in env.header.moduleData[i]!.constants do
     -- Added guard for cases like `structure` that are still exported even if private
     let pubCI? := guard (!isPrivateName ci.name) *> (env.setExporting true).find? ci.name
-    let k := { isExported := pubCI?.isSome, isMeta := isMeta env ci.name }
+    let k := { isExported := pubCI?.isSome, isMeta := isDeclMeta env ci.name }
     deps := visitExpr k ci.name ci.type deps
     if let some e := ci.value? (allowOpaque := true) then
       let k := if k.isMeta then k else
@@ -270,7 +270,7 @@ where
       let mut deps := deps
       if !isReservedName env c then
         if let some j := env.getModuleIdxFor? c then
-          let k := { k with isMeta := k.isMeta && !isMeta env c }
+          let k := { k with isMeta := k.isMeta && !isDeclMeta env c }
           if
             if let some (some (name', _)) := deps[(j, k)]? then
               decide (name.toString.length < name'.toString.length)

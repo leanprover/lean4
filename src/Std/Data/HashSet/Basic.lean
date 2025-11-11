@@ -206,10 +206,10 @@ order.
     (f : α → β → m (ForInStep β)) (init : β) (b : HashSet α) : m β :=
   b.inner.forIn (fun a _ acc => f a acc) init
 
-instance [BEq α] [Hashable α] {m : Type v → Type w} : ForM m (HashSet α) α where
+instance [BEq α] [Hashable α] {m : Type v → Type w} [Monad m] : ForM m (HashSet α) α where
   forM m f := m.forM f
 
-instance [BEq α] [Hashable α] {m : Type v → Type w} : ForIn m (HashSet α) α where
+instance [BEq α] [Hashable α] {m : Type v → Type w} [Monad m] : ForIn m (HashSet α) α where
   forIn m init f := m.forIn f init
 
 /-- Removes all elements from the hash set for which the given function returns `false`. -/

@@ -110,7 +110,7 @@ def all (p : α → β → Bool) : AssocList α β → Bool
       | ForInStep.yield d => loop d es
   loop init as
 
-instance : ForIn m (AssocList α β) (α × β) where
+instance [Monad m] : ForIn m (AssocList α β) (α × β) where
   forIn := AssocList.forIn
 
 end Lean.AssocList

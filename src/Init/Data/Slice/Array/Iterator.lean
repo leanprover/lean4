@@ -54,7 +54,7 @@ universe v w
     IteratorSizePartial (ToIterator.State s Id) Id := inferInstance
 
 @[no_expose]
-instance {α : Type u} {m : Type v → Type w} :
+instance {α : Type u} {m : Type v → Type w} [Monad m] :
     ForIn m (Subarray α) α where
   forIn xs init f := forIn (Std.Slice.Internal.iter xs) init f
 

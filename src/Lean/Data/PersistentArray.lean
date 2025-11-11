@@ -252,7 +252,7 @@ partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad 
       | ForInStep.yield bNew => b := bNew
     return b
 
-instance : ForIn m (PersistentArray α) α where
+instance [Monad m] : ForIn m (PersistentArray α) α where
   forIn := PersistentArray.forIn
 
 @[specialize] partial def findSomeMAux (f : α → m (Option β)) : PersistentArrayNode α → m (Option β)

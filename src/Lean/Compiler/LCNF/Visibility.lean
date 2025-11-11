@@ -77,7 +77,7 @@ where go (isMeta isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit 
       let env ← getEnv
       if isMeta && isPublic then
         if let some modIdx := env.getModuleIdxFor? ref then
-          if Lean.isMeta env ref then
+          if isMarkedMeta env ref then
             if env.header.modules[modIdx]?.any (!·.isExported) then
               throwError "Invalid public `meta` definition `{.ofConstName origDecl.name}`, \
                 `{.ofConstName ref}` is not accessible here; consider adding \
@@ -99,7 +99,7 @@ where go (isMeta isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit 
             `{.ofConstName ref}` not marked `meta`"
       | .comptime, false =>
         if let some modIdx := env.getModuleIdxFor? ref then
-          if !Lean.isMeta env ref then
+          if !isMarkedMeta env ref then
             throwError "Invalid definition `{.ofConstName origDecl.name}`, may not access \
               declaration `{.ofConstName ref}` imported as `meta`; consider adding \
               `import {env.header.moduleNames[modIdx]!}`"
@@ -129,7 +129,7 @@ partial def checkTemplateVisibility : Pass where
         -- A private template-like decl cannot directly be used by a different module. If it could be used
         -- indirectly via a public template-like, we do a recursive check when checking the latter.
         if !isPrivateName decl.name && (← decl.isTemplateLike) then
-          let isMeta := isMeta (← getEnv) decl.name
+          let isMeta := isMarkedMeta (← getEnv) decl.name
           go decl decl |>.run' {}
     return decls
 where go (origDecl decl : Decl) : StateT NameSet CompilerM Unit := do

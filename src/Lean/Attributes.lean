@@ -156,7 +156,7 @@ def ensureAttrDeclIsPublic (attrName declName : Name) (attrKind : AttributeKind)
         throwError m!"Cannot add attribute `[{attrName}]`: Declaration `{.ofConstName declName}` must be public"
 
 def ensureAttrDeclIsMeta (attrName declName : Name) (attrKind : AttributeKind) : AttrM Unit := do
-  if (← getEnv).header.isModule && !isMeta (← getEnv) declName then
+  if (← getEnv).header.isModule && !isMarkedMeta (← getEnv) declName then
     throwError m!"Cannot add attribute `[{attrName}]`: Declaration `{.ofConstName declName}` must be marked as `meta`"
   -- Make sure attributed decls can't refer to private meta imports, which is already checked for
   -- public decls.

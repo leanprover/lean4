@@ -1192,7 +1192,7 @@ where
     for view in views, declId in expandedDeclIds do
       -- Add tags early so elaboration can access them
       match view.modifiers.computeKind with
-      | .meta          => modifyEnv (addMeta · declId.declName)
+      | .meta          => modifyEnv (markMeta · declId.declName)
       | .noncomputable => modifyEnv (addNoncomputable · declId.declName)
       | .regular       => pure ()
     withExporting (isExporting :=

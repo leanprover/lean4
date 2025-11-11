@@ -99,7 +99,7 @@ def declareTacticSyntax (tactic : Syntax) (name? : Option Name := none) : TermEl
     let decl := Declaration.defnDecl { name, levelParams := [], type, value, hints := .opaque,
                                        safety := DefinitionSafety.safe }
     addDecl decl
-    modifyEnv (addMeta · name)
+    modifyEnv (markMeta · name)
     compileDecl decl
     return name
 

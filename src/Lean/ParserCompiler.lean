@@ -109,8 +109,8 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
         }
         -- usually `meta` is infered during compilation for auxiliary definitions, but as
         -- `ctx.combinatorAttr` may enforce correct use of the modifier, infer now.
-        if isMeta (← getEnv) c then
-          modifyEnv (addMeta · c')
+        if isMarkedMeta (← getEnv) c then
+          modifyEnv (markMeta · c')
         addAndCompile decl
         modifyEnv (ctx.combinatorAttr.setDeclFor · c c')
         if cinfo.type.isConst then

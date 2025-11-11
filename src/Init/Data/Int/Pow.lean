@@ -39,6 +39,12 @@ protected theorem mul_pow {a b : Int} {n : Nat} : (a * b) ^ n = a ^ n * b ^ n :=
     rw [Int.pow_succ, Int.pow_succ, Int.pow_succ, ih, Int.mul_assoc, Int.mul_assoc,
       Int.mul_left_comm (b^n)]
 
+protected theorem pow_mul {a : Int} {n m : Nat} : a ^ (n * m) = (a ^ n) ^ m := by
+  induction m with
+  | zero => simp
+  | succ m ih =>
+    rw [Int.pow_succ, Nat.mul_add_one, Int.pow_add, ih]
+
 protected theorem pow_pos {n : Int} {m : Nat} : 0 < n → 0 < n ^ m := by
   induction m with
   | zero => simp
@@ -92,5 +98,44 @@ theorem toNat_pow_of_nonneg {x : Int} (h : 0 ≤ x) (k : Nat) : (x ^ k).toNat = 
   | zero => simp
   | succ k ih =>
     rw [Int.pow_succ, Int.toNat_mul (Int.pow_nonneg h) h, ih, Nat.pow_succ]
+
+protected theorem sq_nonnneg (m : Int) : 0 ≤ m ^ 2 := by
+  change 0 ≤ 1 * m * m
+  rw [Int.one_mul]
+  cases m
+  · apply Int.mul_nonneg <;> simp
+  · apply Int.mul_nonneg_of_nonpos_of_nonpos <;> exact negSucc_le_zero _
+
+protected theorem pow_nonneg_of_even {m : Int} {n : Nat} (h : n % 2 = 0) : 0 ≤ m ^ n := by
+  rw [← Nat.mod_add_div n 2, h, Nat.zero_add, Int.pow_mul]
+  apply Int.pow_nonneg
+  exact Int.sq_nonnneg m
+
+protected theorem neg_pow {m : Int} {n : Nat} : (-m)^n = (-1)^(n % 2) * m^n := by
+  rw [Int.neg_eq_neg_one_mul, Int.mul_pow]
+  rw (occs := [1]) [← Nat.mod_add_div n 2]
+  rw [Int.pow_add, Int.pow_mul]
+  simp [Int.one_pow]
+
+/-- The runtime behaviour of `Int.pow` is slow, so we replace it via a `@[csimp]` lemma. -/
+def powImp (m : Int) (n : Nat) : Int :=
+  if m ≥ 0 ∨ n % 2 = 0 then
+    Int.ofNat <| m.natAbs ^ n
+  else
+    - (Int.ofNat <| m.natAbs ^ n)
+
+@[csimp]
+theorem pow_eq_powImp : @Int.pow = @powImp := by
+  funext m n
+  change m^n = _
+  dsimp [powImp]
+  split <;> rename_i h
+  · rcases h with (h | h)
+    · simp [ofNat_natAbs_of_nonneg h]
+    · rw [← natAbs_pow, ofNat_natAbs_of_nonneg (Int.pow_nonneg_of_even h)]
+  · simp at h
+    obtain ⟨h₁, h₂⟩ := h
+    rw [Int.natCast_pow, ofNat_natAbs_of_nonpos (by omega), Int.neg_pow, h₂]
+    simp
 
 end Int

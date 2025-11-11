@@ -34,6 +34,10 @@ structure Take (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α
   countdown : Nat
   /-- Internal implementation detail of the iterator library -/
   inner : IterM (α := α) m β
+  /--
+  Internal implementation detail of the iterator library.
+  This proof term ensures that a `take` always produces a finite iterator from a productive one.
+  -/
   finite : countdown > 0 ∨ Finite α m
 
 /--

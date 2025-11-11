@@ -29,6 +29,7 @@ inductive Doc where
   | failure
   | newline (flattened? : Option String)
   | text (s : String)
+  | flatten (d : Doc)
   | indent (n : Nat) (d : Doc)
   | align (d : Doc)
   | reset (d : Doc)
@@ -46,10 +47,22 @@ with
       | { isFullBefore := true, isFullAfter := true } => ! s.isEmpty
     | .full _ => (! ·.isFullAfter)
     | _ => fun _ => false
+  @[computed_field] minNewlineCount? : Doc → Option Nat
+    | .failure => none
+    | .newline .. => some 1
+    | .text _
+    | .flatten _ => some 0
+    | .indent _ d
+    | .align d
+    | .reset d
+    | .full d => minNewlineCount? d
+    | .either a b => .merge (min · ·) (minNewlineCount? a) (minNewlineCount? b)
+    | .concat a b => .merge (· + ·) (minNewlineCount? a) (minNewlineCount? b)
   @[computed_field] maxNewlineCount? : Doc → Option Nat
     | .failure => none
     | .newline .. => some 1
-    | .text _ => some 0
+    | .text _
+    | .flatten _ => some 0
     | .indent _ d
     | .align d
     | .reset d
@@ -87,6 +100,7 @@ where
     | .newline ..
     | .text .. =>
       return f d #[] #[]
+    | .flatten child
     | .indent _ child
     | .align child
     | .reset child
@@ -110,6 +124,8 @@ def Doc.map (d : Doc)
       | .newline .., #[]
       | .text .., #[] =>
         d
+      | .flatten .., #[child'] =>
+        .flatten child'
       | .indent n .., #[child'] =>
         .indent n child'
       | .align .., #[child'] =>
@@ -125,7 +141,8 @@ def Doc.map (d : Doc)
       | _, _ =>
         unreachable!
 
-partial def Doc.flatten (d : Doc) : Doc :=
+-- WIP
+def Doc.preprocess (d : Doc) : Doc :=
   d.map fun d _ =>
     match d with
     | .newline none =>
@@ -414,6 +431,9 @@ partial def MeasureSet.resolveCore : Resolver τ := fun d columnPos indentation 
       output := modify fun out =>
         out ++ s
     }]
+  | .flatten _ =>
+    -- Eliminated during pre-processing
+    unreachable!
   | .indent n d =>
     resolve d columnPos (indentation + n) fullness
   | .align d =>

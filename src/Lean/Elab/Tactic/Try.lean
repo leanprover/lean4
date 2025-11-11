@@ -739,6 +739,28 @@ private def mkAllFunIndStx (info : Try.Info) (cont : TSyntax `tactic) : MetaM (T
   let tacs ← info.funIndCandidates.calls.mapM (mkFunIndStx uniques · cont)
   mkFirstStx tacs
 
+/-! Vanilla induction generators -/
+
+open Try.Collector in
+private def mkIndStx (cand : InductionCandidate) (cont : TSyntax `tactic) :
+    MetaM (TSyntax `tactic) := do
+  let fvar := mkFVar cand.fvarId
+  let isAccessible ← isExprAccessible fvar
+  withExposedNames do
+    let stx ← PrettyPrinter.delab fvar
+    let tac₁ ← `(tactic| induction $stx:term <;> $cont)
+    -- if fvar has no inaccessible names, use as is
+    if isAccessible then
+      pure tac₁
+    else
+      -- if it has inaccessible names, still try without, in case they are all implicit
+      let tac₂ ← `(tactic| (expose_names; $tac₁))
+      mkFirstStx #[tac₁, tac₂]
+
+private def mkAllIndStx (info : Try.Info) (cont : TSyntax `tactic) : MetaM (TSyntax `tactic) := do
+  let tacs ← info.indCandidates.mapM (mkIndStx · cont)
+  mkFirstStx tacs
+
 /-! Main code -/
 
 /-- Returns tactic for `evalAndSuggest` -/
@@ -749,10 +771,10 @@ private def mkTryEvalSuggestStx (info : Try.Info) : MetaM (TSyntax `tactic) := d
   let atomic ← `(tactic| attempt_all | $simple:tactic | $simp:tactic | $grind:tactic | simp_all)
   let atomicSuggestions ← mkAtomicWithSuggestionsStx
   let funInds ← mkAllFunIndStx info atomic
+  let inds ← mkAllIndStx info atomic
   let extra ← `(tactic| (intros; first | $simple:tactic | $simp:tactic | exact?))
-  `(tactic| first | $atomic:tactic | $atomicSuggestions:tactic | $funInds:tactic | $extra:tactic)
+  `(tactic| first | $atomic:tactic | $atomicSuggestions:tactic | $funInds:tactic | $inds:tactic | $extra:tactic)
 
--- TODO: vanilla `induction`.
 -- TODO: make it extensible.
 
 @[builtin_tactic Lean.Parser.Tactic.tryTrace] def evalTryTrace : Tactic := fun stx => do

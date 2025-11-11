@@ -1791,10 +1791,6 @@ static inline uint16_t lean_bool_to_int16(uint8_t a) { return (uint16_t)(int16_t
 static inline uint32_t lean_bool_to_int32(uint8_t a) { return (uint32_t)(int32_t)a; }
 static inline uint64_t lean_bool_to_int64(uint8_t a) { return (uint64_t)(int64_t)a; }
 static inline size_t lean_bool_to_isize(uint8_t a) { return (size_t)(ptrdiff_t)a; }
-static inline uint8_t lean_bool_land(uint8_t a, uint8_t b) { return a & b; }
-static inline uint8_t lean_bool_lor(uint8_t a, uint8_t b) { return a | b; }
-static inline uint8_t lean_bool_xor(uint8_t a, uint8_t b) { return a ^ b; }
-static inline uint8_t lean_bool_complement(uint8_t a) { return a ^ 1; }
 static inline uint8_t lean_bool_dec_eq(uint8_t a, uint8_t b) { return a == b; }
 static inline uint8_t lean_bool_dec_lt(uint8_t a, uint8_t b) { return a < b; }
 static inline uint8_t lean_bool_dec_le(uint8_t a, uint8_t b) { return a <= b; }
@@ -3122,11 +3118,15 @@ static inline lean_obj_res lean_get_max_ctor_tag(lean_obj_arg _unit) {
 }
 
 static inline uint8_t lean_strict_or(uint8_t b1, uint8_t b2) {
-    return b1 || b2;
+    return b1 | b2;
 }
 
 static inline uint8_t lean_strict_and(uint8_t b1, uint8_t b2) {
-    return b1 && b2;
+    return b1 & b2;
+}
+
+static inline uint8_t lean_strict_xor(uint8_t b1, uint8_t b2) {
+    return b1 ^ b2;
 }
 
 static inline lean_obj_res lean_version_get_major(lean_obj_arg _unit) {

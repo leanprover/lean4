@@ -13,57 +13,6 @@ public section
 namespace Bool
 
 /--
-Boolean complement, or “logical not”. `lnot x`.
-
-`lnot x` is `true` when `x` is `false`. It is functionally the same as
-`!x` but it uses non-branching code at runtime.
-
-Examples:
- * `lnot true = false`
- * `lnot false = true`
--/
-@[expose, extern "lean_bool_complement"]
-def lnot (x : Bool) : Bool := !x
-
-@[simp] theorem lnot_eq_not (x : Bool) : lnot x = (!x) := rfl
-
-/--
-Boolean “logical and”. `land x y`.
-
-`land x y` is `true` when both of `x` or `y` are `true`. It is functionally the same as
-`x && y` but it does not have short-circuiting behavior: any call to `land` will evaluate both
-arguments. It uses non-branching code at runtime.
-
-Examples:
- * `land false false = false`
- * `land true false = false`
- * `land false true = false`
- * `land true true = true`
--/
-@[expose, extern "lean_bool_land"]
-def land (x y : Bool) : Bool := x && y
-
-@[simp] theorem land_eq_and (x y : Bool) : land x y = (x && y) := rfl
-
-/--
-Boolean “logical or”. `lor x y`.
-
-`lor x y` is `true` when at least one of `x` or `y` is `true`. It is functionally the same as
-`x || y` but it does not have short-circuiting behavior: any call to `lor` will evaluate both
-arguments. It uses non-branching code at runtime.
-
-Examples:
- * `lor false false = false`
- * `lor true false = true`
- * `lor false true = true`
- * `lor true true = true`
--/
-@[expose, extern "lean_bool_lor"]
-def lor (x y : Bool) : Bool := x || y
-
-@[simp] theorem lor_eq_or (x y : Bool) : lor x y = (x || y) := rfl
-
-/--
 Boolean “exclusive or”. `xor x y` can be written `x ^^ y`.
 
 `x ^^ y` is `true` when precisely one of `x` or `y` is `true`. Unlike `and` and `or`, it does not
@@ -76,8 +25,7 @@ Examples:
  * `false ^^ true = true`
  * `true ^^ true = false`
 -/
-@[expose, reducible, extern "lean_bool_xor"]
-def xor (x y : Bool) : Bool := bne x y
+abbrev xor (x y : Bool) : Bool := bne x y
 
 @[inherit_doc] infixl:33 " ^^ " => Bool.xor
 
@@ -107,8 +55,8 @@ instance (x y : Bool) : Decidable (x ≤ y) := inferInstanceAs (Decidable (x →
 @[extern "lean_bool_dec_lt"]
 instance (x y : Bool) : Decidable (x < y) := inferInstanceAs (Decidable (!x && y))
 
-instance : Max Bool := ⟨lor⟩
-instance : Min Bool := ⟨land⟩
+instance : Max Bool := ⟨or⟩
+instance : Min Bool := ⟨and⟩
 
 theorem false_ne_true : false ≠ true := Bool.noConfusion
 
@@ -465,7 +413,7 @@ theorem toNat_lt (b : Bool) : b.toNat < 2 :=
 /--
 Converts `true` to `1` and `false` to `0`.
 -/
-@[expose] def toInt (b : Bool) : Int := cond b 1 0
+@[expose] def toInt (b : Bool) : Int := ↑b.toNat
 
 @[simp, grind =] theorem toInt_false : false.toInt = 0 := rfl
 

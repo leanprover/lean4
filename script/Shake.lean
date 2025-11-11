@@ -369,10 +369,11 @@ def visitModule (srcSearchPath : SearchPath)
     (addOnly := false) (args : Args) : StateT State IO (Edits × Needs) := do
   let s ← get
   let (module?, prelude?, imports) := decodeHeader headerStx
-  let preserve := if module?.any (·.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep")) then
+  let preserve := if module?.any (·.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep-downstream")) then
     preserve.union .pub {i}
   else
     preserve
+  let addOnly := addOnly || module?.any (·.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep-all"))
   let mut deps := needs
 
   -- Add additional preserved imports
@@ -389,13 +390,14 @@ def visitModule (srcSearchPath : SearchPath)
         deps := deps.union k {j}
 
   -- Do transitive reduction of `needs` in `deps`.
-  for j in [0:s.mods.size] do
-    let transDeps := s.transDeps[j]!
-    for k in NeedsKind.all do
-      if deps.has k j then
-        let transDeps := addTransitiveImps .empty { k with module := .anonymous } j transDeps
-        for k' in NeedsKind.all do
-          deps := deps.sub k' (transDeps.sub k' {j} |>.get k')
+  if !addOnly then
+    for j in [0:s.mods.size] do
+      let transDeps := s.transDeps[j]!
+      for k in NeedsKind.all do
+        if deps.has k j then
+          let transDeps := addTransitiveImps .empty { k with module := .anonymous } j transDeps
+          for k' in NeedsKind.all do
+            deps := deps.sub k' (transDeps.sub k' {j} |>.get k')
 
   if prelude?.isNone then
     deps := deps.union .pub {s.env.getModuleIdx? `Init |>.get!}
@@ -485,7 +487,8 @@ def visitModule (srcSearchPath : SearchPath)
     let sanitize n := if n.hasMacroScopes then (sanitizeName n).run' { options := {} } else n
     let run (imp : Import) := do
       let j := s.env.getModuleIdx? imp.module |>.get!
-      if let some exp? := explanation[(j, NeedsKind.ofImport imp)]? then
+      let mut k := NeedsKind.ofImport imp
+      if let some exp? := explanation[(j, k)]? <|> guard args.addPublic *> explanation[(j, { k with isExported := false})]? then
         println! "  note: `{imp}` required"
         if let some (n, c) := exp? then
           println! "    because `{sanitize n}` refers to `{sanitize c}`"

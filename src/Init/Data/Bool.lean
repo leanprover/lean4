@@ -616,6 +616,12 @@ theorem decide_beq_decide (p q : Prop) [dpq : Decidable (p ↔ q)] [dp : Decidab
     (decide p == decide q) = decide (p ↔ q) := by
   cases dp with | _ p => simp [p]
 
+@[simp] theorem strictAnd_eq_and (a b : Bool) : strictAnd a b = (a && b) := rfl
+
+@[simp] theorem strictOr_eq_or (a b : Bool) : strictOr a b = (a || b) := rfl
+
+@[simp] theorem strictXor_eq_xor (a b : Bool) : strictXor a b = (a ^^ b) := rfl
+
 end Bool
 
 export Bool (cond_eq_if cond_eq_ite xor and or not)

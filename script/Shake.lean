@@ -373,9 +373,9 @@ def visitModule (srcSearchPath : SearchPath)
     preserve.union .pub {i}
   else
     preserve
-
-  -- Do transitive reduction of `needs` in `deps`.
   let mut deps := needs
+
+  -- Add additional preserved imports
   for impStx in imports do
     let imp := decodeImport impStx
     let j := s.env.getModuleIdx? imp.module |>.get!
@@ -384,14 +384,19 @@ def visitModule (srcSearchPath : SearchPath)
         impStx.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep") then
       deps := deps.union k {j}
   for j in [0:s.mods.size] do
-    let transDeps := s.transDeps[j]!
     for k in NeedsKind.all do
       if s.transDepsOrig[i]!.has k j && preserve.has k j then
         deps := deps.union k {j}
+
+  -- Do transitive reduction of `needs` in `deps`.
+  for j in [0:s.mods.size] do
+    let transDeps := s.transDeps[j]!
+    for k in NeedsKind.all do
       if deps.has k j then
         let transDeps := addTransitiveImps .empty { k with module := .anonymous } j transDeps
         for k' in NeedsKind.all do
           deps := deps.sub k' (transDeps.sub k' {j} |>.get k')
+
   if prelude?.isNone then
     deps := deps.union .pub {s.env.getModuleIdx? `Init |>.get!}
 

@@ -301,7 +301,7 @@
     tags: [other]
   run_config:
     <<: *time
-    cmd: ./fmtFlatten.lean.out 16000
+    cmd: bash -c "ulimit -s unlimited && ./fmtFlatten.lean.out 16000"
     parse_output: true
   build_config:
     cmd: ./compile.sh fmtFlatten.lean
@@ -310,7 +310,7 @@
     tags: [other]
   run_config:
     <<: *time
-    cmd: ./fmtConcat.lean.out 50000
+    cmd: bash -c "ulimit -s unlimited && ./fmtConcat.lean.out 50000"
     parse_output: true
   build_config:
     cmd: ./compile.sh fmtConcat.lean
@@ -319,7 +319,7 @@
     tags: [other]
   run_config:
     <<: *time
-    cmd: ./fmtSExprFull.lean.out 15
+    cmd: bash -c "ulimit -s unlimited && ./fmtSExprFull.lean.out 15"
     parse_output: true
   build_config:
     cmd: ./compile.sh fmtSExprFull.lean
@@ -328,7 +328,7 @@
     tags: [other]
   run_config:
     <<: *time
-    cmd: ./fmtFillSep.lean.out 10000
+    cmd: bash -c "ulimit -s unlimited && ./fmtFillSep.lean.out 10000"
     parse_output: true
   build_config:
     cmd: ./compile.sh fmtFillSep.lean
@@ -337,7 +337,7 @@
     tags: [other]
   run_config:
     <<: *time
-    cmd: ./fmtJson.lean.out
+    cmd: bash -c "ulimit -s unlimited && ./fmtJson.lean.out"
     parse_output: true
   build_config:
     cmd: ./compile.sh fmtJson.lean

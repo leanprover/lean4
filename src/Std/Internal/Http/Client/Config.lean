@@ -91,7 +91,6 @@ def toH1Config (config : Config) : Protocol.H1.Config where
   maxHeaders := config.maxResponseHeaders
   maxHeaderSize := config.maxHeaderValueSize
   enableKeepAlive := config.enableKeepAlive
-  highMark := config.writeBufferHighWatermark
   identityHeader := config.userAgent
 
 end Config

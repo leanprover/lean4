@@ -25,7 +25,9 @@ open Std Slice PRange Iterators
 variable {shape : RangeShape} {α : Type u}
 
 instance {s : ListSlice α} : ToIterator s Id α :=
-  .of _ (s.internalRepresentation.list.iter.take s.internalRepresentation.stop)
+  .of _ (match s.internalRepresentation.stop with
+      | some n => s.internalRepresentation.list.iter.take n
+      | none => s.internalRepresentation.list.iter.toTake)
 
 universe v w
 
@@ -48,11 +50,11 @@ instance {α : Type u} {m : Type v → Type w} :
 
 namespace List
 
-/--
-Allocates a new list that contains the contents of the slice.
--/
+/-- Allocates a new list that contains the contents of the slice. -/
 def ofSlice (s : ListSlice α) : List α :=
   s.toList
+
+docs_to_verso ofSlice
 
 instance : Append (ListSlice α) where
   append x y :=

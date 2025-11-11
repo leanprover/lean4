@@ -26,7 +26,7 @@ public class Std.Slice.Internal.ListSliceData (α : Type u) where
   /-- The relevant suffix of the underlying list. -/
   list : List α
   /-- The maximum length of the slice, starting at the beginning of `list`. -/
-  stop : Nat
+  stop : Option Nat
 
 /--
 A region of some underlying list. List slices can be used to avoid copying or allocating space,
@@ -43,58 +43,59 @@ variable {α : Type u}
 /--
 Returns a slice of a list with the given bounds.
 
-If `start` or `stop` are not valid bounds for a subarray, then they are clamped to the list's length.
+If `start` or `stop` are not valid bounds for a sublist, then they are clamped to the list's length.
 Additionally, the starting index is clamped to the ending index.
 
 This function is linear in `start` because it stores `as.drop start` in the slice.
 -/
 public def List.toSlice (as : List α) (start : Nat) (stop : Nat) : ListSlice α :=
   if start ≤ stop then
-    ⟨{ list := as.drop start, stop := stop - start }⟩
+    ⟨{ list := as.drop start, stop := some (stop - start) }⟩
   else
-    ⟨{ list := [], stop := 0 }⟩
+    ⟨{ list := [], stop := some 0 }⟩
+
+/--
+Returns a slice of a list with the given lower bound.
+
+If `start` is not a valid bound for a sublist, then they are clamped to the list's length.
+
+This function is linear in `start` because it stores `as.drop start` in the slice.
+-/
+public def List.toUnboundedSlice (as : List α) (start : Nat) : ListSlice α :=
+  ⟨{ list := as.drop start, stop := none }⟩
 
 public instance : Rcc.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    let halfOpenRange := Rcc.HasRcoIntersection.intersection range 0...xs.length
-    (xs.toSlice halfOpenRange.lower halfOpenRange.upper)
+    (xs.toSlice range.lower (range.upper + 1))
 
 public instance : Rco.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    let halfOpenRange := Rco.HasRcoIntersection.intersection range 0...xs.length
-    (xs.toSlice halfOpenRange.lower halfOpenRange.upper)
+    (xs.toSlice range.lower range.upper)
 
 public instance : Rci.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    let halfOpenRange := Rci.HasRcoIntersection.intersection range 0...xs.length
-    (xs.toSlice halfOpenRange.lower halfOpenRange.upper)
+    (xs.toUnboundedSlice range.lower)
 
 public instance : Roc.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    let halfOpenRange := Roc.HasRcoIntersection.intersection range 0...xs.length
-    (xs.toSlice halfOpenRange.lower halfOpenRange.upper)
+    (xs.toSlice (range.lower + 1) (range.upper + 1))
 
 public instance : Roo.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    let halfOpenRange := Roo.HasRcoIntersection.intersection range 0...xs.length
-    (xs.toSlice halfOpenRange.lower halfOpenRange.upper)
+    (xs.toSlice (range.lower + 1) range.upper)
 
 public instance : Roi.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    let halfOpenRange := Roi.HasRcoIntersection.intersection range 0...xs.length
-    (xs.toSlice halfOpenRange.lower halfOpenRange.upper)
+    (xs.toUnboundedSlice (range.lower + 1))
 
 public instance : Ric.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    let halfOpenRange := Ric.HasRcoIntersection.intersection range 0...xs.length
-    (xs.toSlice halfOpenRange.lower halfOpenRange.upper)
+    (xs.toSlice 0 (range.upper + 1))
 
 public instance : Rio.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    let halfOpenRange := Rio.HasRcoIntersection.intersection range 0...xs.length
-    (xs.toSlice halfOpenRange.lower halfOpenRange.upper)
+    (xs.toSlice 0 range.upper)
 
 public instance : Rii.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs _ :=
-    let halfOpenRange := 0...<xs.length
-    (xs.toSlice halfOpenRange.lower halfOpenRange.upper)
+    (xs.toUnboundedSlice 0)

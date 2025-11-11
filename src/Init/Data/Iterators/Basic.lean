@@ -817,6 +817,24 @@ def IterM.TerminationMeasures.Productive.Rel
     TerminationMeasures.Productive α m → TerminationMeasures.Productive α m → Prop :=
   Relation.TransGen <| InvImage IterM.IsPlausibleSkipSuccessorOf IterM.TerminationMeasures.Productive.it
 
+theorem IterM.TerminationMeasures.Finite.Rel.of_productive
+    {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β] {a b : Finite α m} :
+    Productive.Rel ⟨a.it⟩ ⟨b.it⟩ → Finite.Rel a b := by
+  generalize ha' : Productive.mk a.it = a'
+  generalize hb' : Productive.mk b.it = b'
+  have ha : a = ⟨a'.it⟩ := by simp [← ha']
+  have hb : b = ⟨b'.it⟩ := by simp [← hb']
+  rw [ha, hb]
+  clear ha hb ha' hb' a b
+  rw [Productive.Rel, Finite.Rel]
+  intro h
+  induction h
+  · rename_i ih
+    exact .single ⟨_, rfl, ih⟩
+  · rename_i hab ih
+    refine .trans ih ?_
+    exact .single ⟨_, rfl, hab⟩
+
 instance {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     [Productive α m] : WellFoundedRelation (IterM.TerminationMeasures.Productive α m) where
   rel := IterM.TerminationMeasures.Productive.Rel

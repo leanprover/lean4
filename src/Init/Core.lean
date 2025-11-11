@@ -1338,6 +1338,13 @@ theorem Relation.TransGen.trans {α : Sort u} {r : α → α → Prop} {a b c} :
   | single h => exact TransGen.tail hab h
   | tail _ h ih => exact TransGen.tail ih h
 
+theorem Relation.TransGen.mono {α : Sort u} {r s : α → α → Prop} (h : ∀ a b, r a b → s a b) {a b} :
+    TransGen r a b → TransGen s a b := by
+  intro hab
+  induction hab
+  case single rab => exact .single (h _ _ rab)
+  case tail rbc ih => exact .tail ih (h _ _ rbc)
+
 /-! # Subtype -/
 
 namespace Subtype

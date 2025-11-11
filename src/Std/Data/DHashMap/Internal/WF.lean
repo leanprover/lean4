@@ -162,6 +162,23 @@ theorem foldM_eq_foldlM_toListModel {δ : Type w} {m : Type w → Type w'} [Mona
       funext init'
       rw [ih]
 
+theorem fold_induction {δ : Type w}
+    {f : δ → (a : α) → β a → δ} {init : δ} {b : Raw α β} {P : δ → Prop}
+    (base : P init) (step : ∀ acc a b , P acc → P (f acc a b)) :
+    P (b.fold f init) := by
+  simp [Raw.fold, Raw.foldM, ← Array.foldlM_toList]
+  induction b.buckets.toList generalizing init with
+  | nil => simp [base]
+  | cons hd tl ih =>
+    apply ih
+    induction hd generalizing init with
+    | nil => simp [AssocList.foldlM, pure, base]
+    | cons hda hdb tl ih =>
+      simp only [AssocList.foldlM, pure_bind]
+      apply ih
+      apply step
+      exact base
+
 theorem fold_eq_foldl_toListModel {l : Raw α β} {f : γ → (a : α) → β a → γ} {init : γ} :
     l.fold f init = (toListModel l.buckets).foldl (fun a b => f a b.1 b.2) init := by
   simp [Raw.fold, foldM_eq_foldlM_toListModel]
@@ -1311,7 +1328,7 @@ theorem foldl_eq_foldlₘ {δ} (f : δ → (a : α) → β a → δ) (init : δ)
 
 /-- Internal implementation detail of the hash map -/
 def interSmallerₘ [BEq α] [Hashable α] (m₁ : Raw₀ α β) (l : List ((a : α) × β a)) : Raw₀ α β :=
-  foldlₘ (fun sofar k _ => interSmallerFnₘ m₁ sofar k) emptyWithCapacity l
+  l.foldl (fun sofar k => interSmallerFnₘ m₁ sofar k.1) emptyWithCapacity
 
 theorem foldl_perm_cong  [BEq α] {init₁ init₂ : List ((a : α) × β a)} {l : List ((a : α) × β a)}
     {f : List ((a : α) × β a) → ((a : α) × β a) → List ((a : α) × β a)} (h₁ : Perm init₁ init₂)
@@ -1412,9 +1429,7 @@ theorem toListModel_interSmallerₘ [BEq α] [EquivBEq α] [Hashable α] [Lawful
 
 theorem interSmaller_eq_interSmallerₘ [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) :
   interSmaller m₁ m₂ = interSmallerₘ m₁ (toListModel m₂.1.buckets) := by
-    rw [interSmaller, foldl_eq_foldlₘ]
-    rw [interSmallerₘ]
-    rw [Raw.toList_eq_toListModel]
+    rw [interSmaller, interSmallerₘ, Raw.fold_eq_foldl_toListModel]
     simp only [interSmallerFn_eq_interSmallerFnₘ]
 
 theorem getEntry_foldl [BEq α] [EquivBEq α] (a : α) {acc l₁ l₂ : List ((a : α) × β a)} (hd : DistinctKeys l₁) (hyp : ∀ (a : α) (kv''), List.getEntry? a l₁ = some kv'' → (List.getEntry? a acc = none) ∨ (List.getEntry? a acc = some kv'')): List.getEntry? a
@@ -1573,7 +1588,7 @@ theorem toListModel_inter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable �
       exact hm₂
   . apply Perm.trans
     . rw [interSmaller_eq_interSmallerₘ]
-    . rw [interSmallerₘ, foldlₘ]
+    . rw [interSmallerₘ]
       apply Perm.trans
       . apply toListModel_interSmallerₘ
         . exact hm₁
@@ -1597,11 +1612,18 @@ theorem toListModel_inter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable �
             simp
 
 theorem wf_inter₀ [BEq α] [Hashable α] [LawfulHashable α]
-    {m₁ m₂ : Raw α β} {h₁ : 0 < m₁.buckets.size} {h₂ : 0 < m₂.buckets.size} (h'₁ : m₁.WF)
-    (h'₂ : m₂.WF) :
+    {m₁ m₂ : Raw α β} {h₁ : 0 < m₁.buckets.size} {h₂ : 0 < m₂.buckets.size} (wh₁ : m₁.WF) :
     (Raw₀.inter ⟨m₁, h₁⟩ ⟨m₂, h₂⟩).1.WF := by
   rw [inter]
-  apply Raw.WF.inter₀ h'₁ h'₂
+  split
+  . apply Raw.WF.filter₀ wh₁
+  . rw [interSmaller]
+    apply @Raw.fold_induction _ _ _ (fun sofar k x => interSmallerFn ⟨m₁, h₁⟩ sofar k) _ _ (·.val.WF) Raw.WF.emptyWithCapacity₀
+    intro acc a b wf
+    rw [interSmallerFn]
+    split
+    . apply Raw.WF.insert₀ wf
+    . apply wf
 
 /-! # `Const.insertListₘ` -/
 

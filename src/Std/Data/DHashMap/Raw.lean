@@ -349,17 +349,6 @@ This function ensures that the value is used linearly.
   else
     ∅
 
-/--
-Monadically computes a value by folding the given function over the mappings in the hash
-map in some order.
--/
-@[inline] def foldM (f : δ → (a : α) → β a → m δ) (init : δ) (b : Raw α β) : m δ :=
-  b.buckets.foldlM (fun acc l => l.foldlM f acc) init
-
-/-- Folds the given function over the mappings in the hash map in some order. -/
-@[inline] def fold (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
-  Id.run (b.foldM (pure <| f · · ·) init)
-
 namespace Internal
 
 /--
@@ -733,15 +722,15 @@ theorem WF.inter₀ [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.
   split
   . apply WF.filter₀ h₁
   . rw [Raw₀.interSmaller]
-    have := (@Raw₀.foldl α β _ (fun sofar k _ => Raw₀.interSmallerFn ⟨m₁, h₁.size_buckets_pos⟩ sofar k) Raw₀.emptyWithCapacity ⟨m₂, h₂.size_buckets_pos⟩).2 (fun x => x.val.WF)
-    apply this
-    . intro ⟨d, hd⟩ k v hw
-      rw [Raw₀.interSmallerFn]
-      split
-      . apply insert₀
-        simp [hw]
-      . exact hw
-    . apply emptyWithCapacity₀
+    sorry
+
+
+
+
+
+
+
+
 
 theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.union m₂ : Raw α β).WF := by
   simp [Std.DHashMap.Raw.union, h₁.size_buckets_pos, h₂.size_buckets_pos]

@@ -464,8 +464,8 @@ def interSmallerFn [BEq α] [Hashable α] (m sofar : Raw₀ α β) (k : α) : Ra
   | none => sofar
 
 /-- Internal implementation detail of the hash map -/
-def interSmaller [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
-  (m₂.foldl (fun sofar k _ => interSmallerFn m₁ sofar k) emptyWithCapacity).1
+def interSmaller [BEq α] [Hashable α] (m₁ : Raw₀ α β) (m₂ : Raw α β) : Raw₀ α β :=
+  (m₂.fold (fun sofar k _ => interSmallerFn m₁ sofar k) emptyWithCapacity)
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=

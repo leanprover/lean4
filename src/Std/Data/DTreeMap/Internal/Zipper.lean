@@ -327,7 +327,7 @@ public def Zipper.step : Zipper α β → IterStep (IterM (α := Zipper α β) I
 
 public instance : Iterator (Zipper α β) Id ((a : α) × β a) where
   IsPlausibleStep it step := it.internalState.step = step
-  step it := ⟨it.internalState.step, rfl⟩
+  step it := pure <| Shrink.deflate ⟨it.internalState.step, rfl⟩
 
 public instance : IteratorCollect (Zipper α β) Id Id := .defaultImplementation
 
@@ -385,7 +385,10 @@ theorem Zipper.step_done : (done : Zipper α β).step = .done := rfl
 theorem Zipper.step_cons : (cons k v t it : Zipper α β).step = .yield ⟨it.prependMap t⟩ ⟨k, v⟩ := rfl
 
 @[simp]
-theorem Zipper.val_run_step_toIterM_iter {z : Zipper α β} : z.iter.toIterM.step.run.val = z.step := rfl
+theorem Zipper.val_run_step_toIterM_iter {z : Zipper α β} : z.iter.toIterM.step.run.inflate.val = z.step := by
+  rw [IterM.step]
+  simp only [Iterator.step, Id.run_pure, Shrink.inflate_deflate]
+  rfl
 
 theorem Zipper.eq_toIterM_iter (it : IterM (α := Zipper α β) Id ((a : α) × β a)) :
     it = it.internalState.iter.toIterM := rfl
@@ -434,7 +437,7 @@ public def RxcIterator.step [Ord α] : RxcIterator α β → IterStep (IterM (α
 
 public instance [Ord α] : Iterator (RxcIterator α β) Id ((a : α) × β a) where
   IsPlausibleStep it step := it.internalState.step = step
-  step it := ⟨it.internalState.step, rfl⟩
+  step it := pure <| Shrink.deflate ⟨it.internalState.step, rfl⟩
 
 public instance [Ord α] : IteratorCollect (RxcIterator α β) Id Id := .defaultImplementation
 
@@ -489,7 +492,10 @@ theorem RxcIterator.step_cons_of_not_LE [Ord α] {upper : α} {h : (compare k up
   simp only [Bool.false_eq_true, ↓reduceIte]
 
 @[simp]
-theorem RxcIterator.val_run_step_toIterM_iter [Ord α] {z : RxcIterator α β} : (⟨z⟩ : Iter (α := RxcIterator α β) ((a : α) × β a)).toIterM.step.run.val = z.step := rfl
+theorem RxcIterator.val_run_step_toIterM_iter [Ord α] {z : RxcIterator α β} : (⟨z⟩ : Iter (α := RxcIterator α β) ((a : α) × β a)).toIterM.step.run.inflate.val = z.step := by
+  rw [IterM.step]
+  simp only [Iterator.step, Id.run_pure, Shrink.inflate_deflate]
+  rfl
 
 theorem RxcIterator.eq_toIterM_iter [Ord α] (it : Iter (α := RxcIterator α β) ((a : α) × β a)) :
     it.toIterM = ⟨it.internalState⟩ := by rfl
@@ -534,7 +540,7 @@ theorem RxcIterator.takeWhile_eq_filter {α : Type u} {β : α → Type v} [Ord 
     l.takeWhile (fun e => (compare e.fst bound).isLE) = l.filter (fun e => (compare e.fst bound).isLE) := by
   refine List.takeWhile_eq_filter_of_pairwise (l_ordered.imp (fun {a b} h₁ h₂ => ?_))
   simp only [Ordering.isLE_eq_false] at *
-  exact TransCmp.gt_of_gt_of_gt (OrientedCmp.gt_of_lt h₁) h₂
+  exact TransCmp.gt_trans (OrientedCmp.gt_of_lt h₁) h₂
 
 public theorem RxcIterator.takeWhile_toList {α β} [Ord α] [TransOrd α] {z : Zipper α β} {bound : α} {z_ord : z.Ordered} :
     z.toList.takeWhile (fun e => (compare e.fst bound).isLE) = z.toList.filter (fun e => (compare e.fst bound).isLE) := by
@@ -562,7 +568,7 @@ public def RxoIterator.step [Ord α] : RxoIterator α β → IterStep (IterM (α
 
 public instance [Ord α] : Iterator (RxoIterator α β) Id ((a : α) × β a) where
   IsPlausibleStep it step := it.internalState.step = step
-  step it := ⟨it.internalState.step, rfl⟩
+  step it := pure <| Shrink.deflate ⟨it.internalState.step, rfl⟩
 
 public instance [Ord α] : IteratorCollect (RxoIterator α β) Id Id := .defaultImplementation
 
@@ -617,7 +623,10 @@ theorem RxoIterator.step_cons_of_isLT_eq_false [Ord α] {upper : α} {h : (compa
   simp only [Bool.false_eq_true, ↓reduceIte]
 
 @[simp]
-theorem RxoIterator.val_run_step_toIterM_iter [Ord α] {z : RxoIterator α β} : (⟨z⟩ : Iter (α := RxoIterator α β) ((a : α) × β a)).toIterM.step.run.val = z.step := rfl
+theorem RxoIterator.val_run_step_toIterM_iter [Ord α] {z : RxoIterator α β} : (⟨z⟩ : Iter (α := RxoIterator α β) ((a : α) × β a)).toIterM.step.run.inflate.val = z.step := by
+  rw [IterM.step]
+  simp only [Iterator.step, Id.run_pure, Shrink.inflate_deflate]
+  rfl
 
 theorem RxoIterator.eq_toIterM_iter [Ord α] (it : Iter (α := RxoIterator α β) ((a : α) × β a)) :
     it.toIterM = ⟨it.internalState⟩ := by rfl

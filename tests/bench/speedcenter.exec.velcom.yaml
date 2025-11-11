@@ -302,6 +302,7 @@
   run_config:
     <<: *time
     cmd: ./fmtFlatten.lean.out 16000
+    parse_output: true
   build_config:
     cmd: ./compile.sh fmtFlatten.lean
 - attributes:
@@ -310,6 +311,7 @@
   run_config:
     <<: *time
     cmd: ./fmtConcat.lean.out 50000
+    parse_output: true
   build_config:
     cmd: ./compile.sh fmtConcat.lean
 - attributes:
@@ -318,6 +320,7 @@
   run_config:
     <<: *time
     cmd: ./fmtSExprFull.lean.out 15
+    parse_output: true
   build_config:
     cmd: ./compile.sh fmtSExprFull.lean
 - attributes:
@@ -326,6 +329,7 @@
   run_config:
     <<: *time
     cmd: ./fmtFillSep.lean.out 10000
+    parse_output: true
   build_config:
     cmd: ./compile.sh fmtFillSep.lean
 - attributes:
@@ -334,6 +338,7 @@
   run_config:
     <<: *time
     cmd: ./fmtJson.lean.out
+    parse_output: true
   build_config:
     cmd: ./compile.sh fmtJson.lean
 - attributes:

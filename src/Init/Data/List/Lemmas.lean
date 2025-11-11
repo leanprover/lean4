@@ -60,7 +60,7 @@ See also
 * `Init.Data.List.Erase` for lemmas about `List.eraseP` and `List.erase`.
 * `Init.Data.List.Find` for lemmas about `List.find?`, `List.findSome?`, `List.findIdx`,
   `List.findIdx?`, and `List.indexOf`
-* `Init.Data.List.MinMax` for lemmas about `List.min?` and `List.max?`.
+* `Init.Data.List.MinMax` for lemmas about `List.min?`, `List.min`, `List.max?` and `List.max`.
 * `Init.Data.List.Pairwise` for lemmas about `List.Pairwise` and `List.Nodup`.
 * `Init.Data.List.Sublist` for lemmas about `List.Subset`, `List.Sublist`, `List.IsPrefix`,
   `List.IsSuffix`, and `List.IsInfix`.
@@ -2494,6 +2494,9 @@ theorem flatten_reverse {L : List (List α)} :
     ⟨by rw [length_reverse, length_replicate],
      fun _ h => eq_of_mem_replicate (mem_reverse.1 h)⟩
 
+@[simp]
+theorem append_singleton_inj {as bs : List α} : as ++ [a] = bs ++ [b] ↔ as = bs ∧ a = b := by
+  rw [← List.reverse_inj, And.comm]; simp
 
 /-! ### foldlM and foldrM -/
 
@@ -2628,6 +2631,22 @@ theorem foldr_map_hom {g : α → β} {f : α → α → α} {f' : β → β →
 
 @[simp, grind _=_] theorem foldr_append {f : α → β → β} {b : β} {l l' : List α} :
     (l ++ l').foldr f b = l.foldr f (l'.foldr f b) := by simp [foldr_eq_foldrM, -foldrM_pure]
+
+theorem foldl_flatMap {f : α → List β} {g : γ → β → γ} {l : List α} {init : γ} :
+    (l.flatMap f).foldl g init = l.foldl (fun acc x => (f x).foldl g acc) init := by
+  induction l generalizing init
+  · simp
+  next a l ih =>
+    simp only [flatMap_cons, foldl_cons]
+    rw [foldl_append, ih]
+
+theorem foldr_flatMap {f : α → List β} {g : β → γ → γ} {l : List α} {init : γ} :
+    (l.flatMap f).foldr g init = l.foldr (fun x acc => (f x).foldr g acc) init := by
+  induction l generalizing init
+  · simp
+  next a l ih =>
+    simp only [flatMap_cons, foldr_cons]
+    rw [foldr_append, ih]
 
 @[grind =] theorem foldl_flatten {f : β → α → β} {b : β} {L : List (List α)} :
     (flatten L).foldl f b = L.foldl (fun b l => l.foldl f b) b := by

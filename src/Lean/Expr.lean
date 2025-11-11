@@ -704,7 +704,7 @@ def mkSimpleThunk (type : Expr) : Expr :=
 /--
 `.lit l` is now the preferred form.
 -/
-def mkLit (l : Literal) : Expr :=
+@[match_pattern, expose] def mkLit (l : Literal) : Expr :=
   .lit l
 
 /--
@@ -712,7 +712,7 @@ Return the "raw" natural number `.lit (.natVal n)`.
 This is not the default representation used by the Lean frontend.
 See `mkNatLit`.
 -/
-def mkRawNatLit (n : Nat) : Expr :=
+@[match_pattern, expose] def mkRawNatLit (n : Nat) : Expr :=
   mkLit (.natVal n)
 
 /--
@@ -720,12 +720,12 @@ Return a natural number literal used in the frontend. It is a `OfNat.ofNat` appl
 Recall that all theorems and definitions containing numeric literals are encoded using
 `OfNat.ofNat` applications in the frontend.
 -/
-def mkNatLit (n : Nat) : Expr :=
+@[match_pattern, expose] def mkNatLit (n : Nat) : Expr :=
   let r := mkRawNatLit n
   mkApp3 (mkConst ``OfNat.ofNat [levelZero]) (mkConst ``Nat) r (mkApp (mkConst ``instOfNatNat) r)
 
 /-- Return the string literal `.lit (.strVal s)` -/
-def mkStrLit (s : String) : Expr :=
+@[match_pattern, expose] def mkStrLit (s : String) : Expr :=
   mkLit (.strVal s)
 
 @[export lean_expr_mk_bvar] def mkBVarEx : Nat → Expr := mkBVar
@@ -2191,9 +2191,9 @@ def mkAndN : List Expr → Expr
   | [] => mkConst ``True
   | [p] => p
   | p :: ps => mkAnd p (mkAndN ps)
-/-- Return `Classical.em p` -/
+/-- Returns `Classical.em p` -/
 def mkEM (p : Expr) : Expr := mkApp (mkConst ``Classical.em) p
-/-- Return `p ↔ q` -/
+/-- Returns `p ↔ q` -/
 def mkIff (p q : Expr) : Expr := mkApp2 (mkConst ``Iff) p q
 
 /-! Constants for Nat typeclasses. -/
@@ -2271,9 +2271,10 @@ private def natEqPred : Expr :=
 def mkNatEq (a b : Expr) : Expr :=
   mkApp2 natEqPred a b
 
-/-- Given `a b : Prop`, return `a = b` -/
+private def propEq := mkApp (mkConst ``Eq [1]) (mkSort 0)
+/-- Given `a b : Prop`, returns `a = b` -/
 def mkPropEq (a b : Expr) : Expr :=
-  mkApp3 (mkConst ``Eq [levelOne]) (mkSort levelZero) a b
+  mkApp2 propEq a b
 
 /-! Constants for Int typeclasses. -/
 namespace Int

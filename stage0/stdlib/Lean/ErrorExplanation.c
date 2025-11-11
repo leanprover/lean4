@@ -191,7 +191,6 @@ LEAN_EXPORT lean_object* l_Lean_ErrorExplanation_CodeInfo_Kind_ctorElim___redArg
 LEAN_EXPORT lean_object* l_Lean_getErrorExplanationRaw_x3f___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_fence___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_CodeInfo_parse_upToWs___boxed(lean_object*, lean_object*);
-lean_object* lean_string_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ErrorExplanation_processDoc___boxed(lean_object*);
 static lean_object* l_Lean_ErrorExplanation_instFromJsonMetadata_fromJson___closed__16;
 LEAN_EXPORT lean_object* l_Option_repr___at___00Lean_ErrorExplanation_instReprCodeInfo_repr_spec__1(lean_object*, lean_object*);
@@ -412,6 +411,7 @@ static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_p
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_ValidationState_ofSource(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ErrorExplanation_CodeInfo_Kind_ofString(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+lean_object* lean_string_mk(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_CodeInfo_parse_namedAttr(lean_object*);
 static lean_object* l_Lean_getErrorExplanation_x3f___redArg___lam__2___closed__0;

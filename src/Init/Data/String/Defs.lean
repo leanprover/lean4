@@ -108,13 +108,22 @@ theorem String.bytes_inj {s t : String} : s.bytes = t.bytes ↔ s = t := by
   subst h
   rfl
 
-@[simp] theorem List.bytes_asString {l : List Char} : l.asString.bytes = l.utf8Encode := by
-  simp [List.asString, String.mk]
+@[simp] theorem String.bytes_ofList {l : List Char} : (String.ofList l).bytes = l.utf8Encode := by
+  simp [String.ofList]
 
-theorem String.exists_eq_asString (s : String) :
-    ∃ l : List Char, s = l.asString := by
+@[deprecated String.bytes_ofList (since := "2025-10-30")]
+theorem List.bytes_asString {l : List Char} : (String.ofList l).bytes = l.utf8Encode :=
+  String.bytes_ofList
+
+theorem String.exists_eq_ofList (s : String) :
+    ∃ l : List Char, s = String.ofList l := by
   rcases s with ⟨_, ⟨l, rfl⟩⟩
   refine ⟨l, by simp [← String.bytes_inj]⟩
+
+@[deprecated String.exists_eq_ofList (since := "2025-10-30")]
+theorem String.exists_eq_asString (s : String) :
+    ∃ l : List Char, s = String.ofList l :=
+  s.exists_eq_ofList
 
 @[simp]
 theorem String.utf8ByteSize_empty : "".utf8ByteSize = 0 := (rfl)
@@ -158,8 +167,12 @@ theorem utf8ByteSize_ofByteArray {b : ByteArray} {h} :
 theorem bytes_singleton {c : Char} : (String.singleton c).bytes = [c].utf8Encode := by
   simp [singleton]
 
-theorem singleton_eq_asString {c : Char} : String.singleton c = [c].asString := by
+theorem singleton_eq_ofList {c : Char} : String.singleton c = String.ofList [c] := by
   simp [← String.bytes_inj]
+
+@[deprecated singleton_eq_ofList (since := "2025-10-30")]
+theorem singleton_eq_asString {c : Char} : String.singleton c = String.ofList [c] :=
+  singleton_eq_ofList
 
 @[simp]
 theorem append_singleton {s : String} {c : Char} : s ++ singleton c = s.push c := by
@@ -576,6 +589,32 @@ instance {s : Slice} (l r : s.Pos) : Decidable (l ≤ r) :=
 instance {s : Slice} (l r : s.Pos) : Decidable (l < r) :=
   decidable_of_iff' _ Slice.Pos.lt_iff
 
+/--
+`pos.IsAtEnd` is just shorthand for `pos = s.endValidPos` that is easier to write if `s` is long.
+-/
+abbrev ValidPos.IsAtEnd {s : String} (pos : s.ValidPos) : Prop :=
+  pos = s.endValidPos
+
+@[simp]
+theorem ValidPos.isAtEnd_iff {s : String} {pos : s.ValidPos} :
+    pos.IsAtEnd ↔ pos = s.endValidPos := Iff.rfl
+
+instance {s : String} {pos : s.ValidPos} : Decidable pos.IsAtEnd :=
+  decidable_of_iff _ ValidPos.isAtEnd_iff
+
+/--
+`pos.IsAtEnd` is just shorthand for `pos = s.endPos` that is easier to write if `s` is long.
+-/
+abbrev Slice.Pos.IsAtEnd {s : Slice} (pos : s.Pos) : Prop :=
+  pos = s.endPos
+
+@[simp]
+theorem Slice.Pos.isAtEnd_iff {s : Slice} {pos : s.Pos} :
+    pos.IsAtEnd ↔ pos = s.endPos := Iff.rfl
+
+instance {s : Slice} {pos : s.Pos} : Decidable pos.IsAtEnd :=
+  decidable_of_iff _ Slice.Pos.isAtEnd_iff
+
 /-- Returns the byte at a position in a slice that is not the end position. -/
 @[inline, expose]
 def Slice.Pos.byte {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : UInt8 :=
@@ -585,9 +624,6 @@ def Slice.Pos.byte {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : UInt8 :=
     omega)
 
 @[simp] theorem default_eq : default = "" := rfl
-
-@[simp]
-theorem mk_eq_asString (s : List Char) : String.mk s = List.asString s := rfl
 
 theorem push_eq_append (c : Char) : String.push s c = s ++ singleton c := by
   simp

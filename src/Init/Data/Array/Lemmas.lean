@@ -245,25 +245,19 @@ theorem back_eq_of_push_eq {a b : α} {xs ys : Array α} (h : xs.push a = ys.pus
   replace h := List.append_inj_right' h (by simp)
   simpa using h
 
-theorem pop_eq_of_push_eq {a b : α} {xs ys : Array α} (h : xs.push a = ys.push b) : xs = ys := by
+theorem push_eq_push {a b : α} {xs ys : Array α} : xs.push a = ys.push b ↔ a = b ∧ xs = ys := by
   cases xs
   cases ys
-  simp at h
-  replace h := List.append_inj_left' h (by simp)
-  simp [h]
+  simp [And.comm]
+
+theorem pop_eq_of_push_eq {a b : α} {xs ys : Array α} (h : xs.push a = ys.push b) : xs = ys :=
+  (push_eq_push.1 h).2
 
 theorem push_inj_left {a : α} {xs ys : Array α} : xs.push a = ys.push a ↔ xs = ys :=
   ⟨pop_eq_of_push_eq, fun h => by simp [h]⟩
 
 theorem push_inj_right {a b : α} {xs : Array α} : xs.push a = xs.push b ↔ a = b :=
   ⟨back_eq_of_push_eq, fun h => by simp [h]⟩
-
-theorem push_eq_push {a b : α} {xs ys : Array α} : xs.push a = ys.push b ↔ a = b ∧ xs = ys := by
-  constructor
-  · intro h
-    exact ⟨back_eq_of_push_eq h, pop_eq_of_push_eq h⟩
-  · rintro ⟨rfl, rfl⟩
-    rfl
 
 theorem exists_push_of_ne_empty {xs : Array α} (h : xs ≠ #[]) :
     ∃ (ys : Array α) (a : α), xs = ys.push a := by
@@ -3330,6 +3324,16 @@ theorem foldl_filterMap {f : α → Option β} {g : γ → β → γ} {xs : Arra
 theorem foldr_filterMap {f : α → Option β} {g : β → γ → γ} {xs : Array α} {init : γ} :
     (xs.filterMap f).foldr g init = xs.foldr (fun x y => match f x with | some b => g b y | none => y) init := by
   simp [foldr_filterMap']
+
+theorem foldl_flatMap {f : α → Array β} {g : γ → β → γ} {xs : Array α} {init : γ} :
+    (xs.flatMap f).foldl g init = xs.foldl (fun acc x => (f x).foldl g acc) init := by
+  rcases xs with ⟨l⟩
+  simp [List.foldl_flatMap]
+
+theorem foldr_flatMap {f : α → Array β} {g : β → γ → γ} {xs : Array α} {init : γ} :
+    (xs.flatMap f).foldr g init = xs.foldr (fun x acc => (f x).foldr g acc) init := by
+  rcases xs with ⟨l⟩
+  simp [List.foldr_flatMap]
 
 theorem foldl_map_hom' {g : α → β} {f : α → α → α} {f' : β → β → β} {a : α} {xs : Array α}
     {stop : Nat} (h : ∀ x y, f' (g x) (g y) = g (f x y)) (w : stop = xs.size) :

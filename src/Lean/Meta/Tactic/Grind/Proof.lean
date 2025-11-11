@@ -207,7 +207,7 @@ mutual
         let proof ← mkEqNDRec motive proof fEq
         mkEqOfHEqIfNeeded proof heq
 
-  private partial def mkEqCongrProof (lhs rhs : Expr) : GoalM Expr := do
+  partial def mkEqCongrProof (lhs rhs : Expr) : GoalM Expr := withIncRecDepth do
     let_expr f@Eq α₁ a₁ b₁ := lhs | unreachable!
     let_expr Eq α₂ a₂ b₂ := rhs | unreachable!
     let us := f.constLevels!
@@ -216,7 +216,7 @@ mutual
         return mkApp8 (mkConst ``Grind.heq_congr us) α₁ α₂ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ a₂ true) (← mkEqProofCore b₁ b₂ true)
       else
         return mkApp8 (mkConst ``Grind.heq_congr' us) α₁ α₂ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ b₂ true) (← mkEqProofCore b₁ a₂ true)
-    else if (← get).hasSameRoot a₁ a₂ && (← get).hasSameRoot b₁ b₂ then
+    if (← get).hasSameRoot a₁ a₂ && (← get).hasSameRoot b₁ b₂ then
       return mkApp7 (mkConst ``Grind.eq_congr us) α₁ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ a₂ false) (← mkEqProofCore b₁ b₂ false)
     else
       assert! (← get).hasSameRoot a₁ b₂ && (← get).hasSameRoot b₁ a₂

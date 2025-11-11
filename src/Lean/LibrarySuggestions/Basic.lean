@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Command
 public import Lean.Meta.Eval
 public import Lean.Meta.CompletionName
+public import Lean.Linter.Deprecated
 public import Init.Data.Random
 
 /-!
@@ -194,7 +195,7 @@ def maxSuggestions (selector : Selector) : Selector := fun g c => do
   return suggestions.take c.maxSuggestions
 
 /-- Combine two premise selectors, returning the best suggestions. -/
-def combine (selector₁ : Selector) (selector₂ : Selector) : Selector := fun g c => do
+def combine (selector₁ selector₂ : Selector) : Selector := fun g c => do
   let suggestions₁ ← selector₁ g c
   let suggestions₂ ← selector₂ g c
 
@@ -210,6 +211,50 @@ def combine (selector₁ : Selector) (selector₂ : Selector) : Selector := fun 
   let sorted := deduped.qsort (fun s₁ s₂ => s₁.score > s₂.score)
 
   return sorted.take c.maxSuggestions
+
+/--
+Combine two premise selectors by interspersing their results (ignoring scores).
+The parameter `ratio` (defaulting to 0.5) controls the ratio of suggestions from each selector
+while results are available from both.
+-/
+def intersperse (selector₁ selector₂ : Selector) (ratio : Float := 0.5) : Selector := fun g c => do
+  -- Calculate how many suggestions to request from each selector based on the ratio
+  let max₁ := (c.maxSuggestions.toFloat * ratio).toUInt32.toNat
+  let max₂ := (c.maxSuggestions.toFloat * (1 - ratio)).toUInt32.toNat
+
+  let suggestions₁ ← selector₁ g { c with maxSuggestions := max₁ }
+  let suggestions₂ ← selector₂ g { c with maxSuggestions := max₂ }
+
+  let mut result := #[]
+  let mut i₁ := 0
+  let mut i₂ := 0
+  let mut count₁ := 0.0
+  let mut count₂ := 0.0
+
+  -- Intersperse while both arrays have elements
+  while h : i₁ < suggestions₁.size ∧ i₂ < suggestions₂.size ∧ result.size < c.maxSuggestions do
+    -- Decide whether to take from selector₁ or selector₂ based on the ratio
+    let currentRatio := if count₁ + count₂ <= 0.0 then 0.0 else count₁ / (count₁ + count₂)
+    if currentRatio < ratio then
+      result := result.push suggestions₁[i₁]
+      i₁ := i₁ + 1
+      count₁ := count₁ + 1
+    else
+      result := result.push suggestions₂[i₂]
+      i₂ := i₂ + 1
+      count₂ := count₂ + 1
+
+  -- Append remaining elements from selector₁
+  while h : i₁ < suggestions₁.size ∧ result.size < c.maxSuggestions do
+    result := result.push suggestions₁[i₁]
+    i₁ := i₁ + 1
+
+  -- Append remaining elements from selector₂
+  while h : i₂ < suggestions₂.size ∧ result.size < c.maxSuggestions do
+    result := result.push suggestions₂[i₂]
+    i₂ := i₂ + 1
+
+  return result
 
 end Selector
 
@@ -255,6 +300,7 @@ def isDeniedPremise (env : Environment) (name : Name) : Bool := Id.run do
   if name == ``sorryAx then return true
   if name.isInternalDetail then return true
   if Lean.Meta.isInstanceCore env name then return true
+  if Lean.Linter.isDeprecated env name then return false
   if (nameDenyListExt.getState env).any (fun p => name.anyS (· == p)) then return true
   if let some moduleIdx := env.getModuleIdxFor? name then
     let moduleName := env.header.moduleNames[moduleIdx.toNat]!
@@ -302,12 +348,41 @@ def currentFile : Selector := fun _ cfg => do
     | _ => continue
   return suggestions
 
-builtin_initialize librarySuggestionsExt : EnvExtension (Option Selector) ←
-  registerEnvExtension (pure none)
+builtin_initialize librarySuggestionsExt : SimplePersistentEnvExtension Syntax (Option Syntax) ←
+  registerSimplePersistentEnvExtension {
+    addEntryFn := fun _ stx => some stx  -- Last entry wins
+    addImportedFn := fun entries =>
+      -- Take the last selector syntax from all imported modules
+      entries.foldl (init := none) fun acc moduleEntries =>
+        moduleEntries.foldl (init := acc) fun _ stx => some stx
+  }
+
+/--
+Helper function to elaborate and evaluate selector syntax.
+This is shared by both validation (`elabSetLibrarySuggestions`) and retrieval (`getSelector`).
+-/
+def elabAndEvalSelector (stx : Syntax) : MetaM Selector :=
+  Elab.Term.TermElabM.run' do
+    let selectorTerm ← Elab.Term.elabTermEnsuringType stx (some (Expr.const ``Selector []))
+    unsafe Meta.evalExpr Selector (Expr.const ``Selector []) selectorTerm
+
+/--
+Get the currently registered library suggestions selector by evaluating the stored syntax.
+Returns `none` if no selector is registered or if evaluation fails.
+
+Uses `Term.elabTermEnsuringType` to elaborate arbitrary syntax (not just identifiers).
+-/
+def getSelector : MetaM (Option Selector) := do
+  let some stx := librarySuggestionsExt.getState (← getEnv) | return none
+  try
+    let selector ← elabAndEvalSelector stx
+    return some selector
+  catch _ =>
+    return none
 
 /-- Generate library suggestions for the given metavariable, using the currently registered library suggestions engine. -/
 def select (m : MVarId) (c : Config := {}) : MetaM (Array Suggestion) := do
-  let some selector := librarySuggestionsExt.getState (← getEnv) |
+  let some selector ← getSelector |
     throwError "No library suggestions engine registered. \
       (Note that Lean does not provide a default library suggestions engine, \
       these must be provided by a downstream library, \
@@ -324,30 +399,36 @@ library suggestions engines are configured via options in the `lakefile`, and
 commands are only used to override in a single declaration or file.
 -/
 
-/-- Set the current library suggestions engine.-/
-def registerLibrarySuggestions (selector : Selector) : CoreM Unit := do
-  modifyEnv fun env => librarySuggestionsExt.setState env (some selector)
-
 open Lean Elab Command in
 @[builtin_command_elab setLibrarySuggestionsCmd, inherit_doc setLibrarySuggestionsCmd]
 def elabSetLibrarySuggestions : CommandElab
   | `(command| set_library_suggestions $selector) => do
     if `Lean.LibrarySuggestions.Basic ∉ (← getEnv).header.moduleNames then
       logWarning "Add `import Lean.LibrarySuggestions.Basic` before using the `set_library_suggestions` command."
-    let selector ← liftTermElabM do
+    -- Validate that the syntax can be elaborated (to catch errors early)
+    liftTermElabM do
       try
-        let selectorTerm ← Term.elabTermEnsuringType selector (some (Expr.const ``Selector []))
-        unsafe Meta.evalExpr Selector (Expr.const ``Selector []) selectorTerm
+        discard <| elabAndEvalSelector selector
       catch _ =>
         throwError "Failed to elaborate {selector} as a `MVarId → Config → MetaM (Array Suggestion)`."
-    liftCoreM (registerLibrarySuggestions selector)
+    -- Store the syntax (not the evaluated Selector) for persistence
+    modifyEnv fun env => librarySuggestionsExt.addEntry env selector
   | _ => throwUnsupportedSyntax
 
 open Lean.Elab.Tactic in
 @[builtin_tactic Lean.Parser.Tactic.suggestions] def evalSuggestions : Tactic := fun _ =>
   liftMetaTactic1 fun mvarId => do
     let suggestions ← select mvarId
-    logInfo m!"Library suggestions: {suggestions.map (·.name)}"
+    let mut msg : MessageData := "Library suggestions:"
+    -- Check if all scores are 1.0
+    let allScoresOne := suggestions.all (·.score == 1.0)
+    for s in suggestions do
+      msg := msg ++ Format.line ++ "  " ++ MessageData.ofConstName s.name
+      if !allScoresOne then
+        msg := msg ++ m!" (score: {s.score})"
+      if let some flag := s.flag then
+        msg := msg ++ m!" [{flag}]"
+    logInfo msg
     return mvarId
 
 end Lean.LibrarySuggestions

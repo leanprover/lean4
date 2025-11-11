@@ -1947,7 +1947,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_String_Slice_replaceStartEnd_x21___closed__1;
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(997u);
+x_3 = lean_unsigned_to_nat(1068u);
 x_4 = l_String_Slice_replaceStartEnd_x21___closed__0;
 x_5 = l_String_fromUTF8_x21___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -2151,7 +2151,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_String_Slice_Pos_get_x21___closed__1;
 x_2 = lean_unsigned_to_nat(29u);
-x_3 = lean_unsigned_to_nat(1073u);
+x_3 = lean_unsigned_to_nat(1149u);
 x_4 = l_String_Slice_Pos_get_x21___closed__0;
 x_5 = l_String_fromUTF8_x21___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -2715,7 +2715,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_String_Slice_Pos_next_x21___closed__1;
 x_2 = lean_unsigned_to_nat(29u);
-x_3 = lean_unsigned_to_nat(1406u);
+x_3 = lean_unsigned_to_nat(1487u);
 x_4 = l_String_Slice_Pos_next_x21___closed__0;
 x_5 = l_String_fromUTF8_x21___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3002,7 +3002,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_String_Slice_Pos_prev_x21___closed__1;
 x_2 = lean_unsigned_to_nat(31u);
-x_3 = lean_unsigned_to_nat(1480u);
+x_3 = lean_unsigned_to_nat(1569u);
 x_4 = l_String_Slice_Pos_prev_x21___closed__0;
 x_5 = l_String_fromUTF8_x21___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3127,7 +3127,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_String_Slice_pos_x21___closed__1;
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(1505u);
+x_3 = lean_unsigned_to_nat(1594u);
 x_4 = l_String_Slice_pos_x21___closed__0;
 x_5 = l_String_fromUTF8_x21___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

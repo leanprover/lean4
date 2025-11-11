@@ -176,7 +176,6 @@ LEAN_EXPORT lean_object* l_Lean_withoutModifyingEnv_x27___redArg___lam__4(lean_o
 lean_object* l_Lean_mkLevelParam(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findModuleOf_x3f___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_evalConst___redArg___closed__0;
-LEAN_EXPORT lean_object* l_Lean_matchConstStructureLike___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstVal___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_hasConst___redArg___lam__0(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -2233,199 +2232,6 @@ lean_inc(x_20);
 lean_dec_ref(x_17);
 if (lean_obj_tag(x_20) == 5)
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; lean_object* x_25; 
-x_21 = lean_ctor_get(x_20, 0);
-lean_inc_ref(x_21);
-lean_dec_ref(x_20);
-x_22 = lean_ctor_get(x_21, 2);
-lean_inc(x_22);
-x_23 = lean_ctor_get(x_21, 4);
-lean_inc(x_23);
-x_24 = lean_ctor_get_uint8(x_21, sizeof(void*)*6);
-lean_inc(x_2);
-x_25 = lean_alloc_closure((void*)(l_Lean_matchConstStructure___redArg___lam__0), 5, 4);
-lean_closure_set(x_25, 0, x_3);
-lean_closure_set(x_25, 1, x_21);
-lean_closure_set(x_25, 2, x_4);
-lean_closure_set(x_25, 3, x_2);
-if (x_24 == 0)
-{
-lean_object* x_31; uint8_t x_32; 
-x_31 = lean_unsigned_to_nat(0u);
-x_32 = lean_nat_dec_eq(x_22, x_31);
-lean_dec(x_22);
-if (x_32 == 0)
-{
-lean_dec_ref(x_25);
-lean_dec(x_23);
-lean_dec(x_8);
-lean_dec_ref(x_7);
-lean_dec_ref(x_6);
-lean_dec_ref(x_5);
-goto block_15;
-}
-else
-{
-goto block_30;
-}
-}
-else
-{
-lean_dec(x_22);
-goto block_30;
-}
-block_30:
-{
-if (x_24 == 0)
-{
-if (lean_obj_tag(x_23) == 0)
-{
-lean_dec_ref(x_25);
-lean_dec(x_8);
-lean_dec_ref(x_7);
-lean_dec_ref(x_6);
-lean_dec_ref(x_5);
-goto block_12;
-}
-else
-{
-lean_object* x_26; 
-x_26 = lean_ctor_get(x_23, 1);
-if (lean_obj_tag(x_26) == 0)
-{
-lean_object* x_27; lean_object* x_28; lean_object* x_29; 
-lean_dec(x_2);
-x_27 = lean_ctor_get(x_23, 0);
-lean_inc(x_27);
-lean_dec_ref(x_23);
-x_28 = l_Lean_getConstInfo___redArg(x_5, x_6, x_7, x_27);
-x_29 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_28, x_25);
-return x_29;
-}
-else
-{
-lean_dec_ref(x_25);
-lean_dec_ref(x_23);
-lean_dec(x_8);
-lean_dec_ref(x_7);
-lean_dec_ref(x_6);
-lean_dec_ref(x_5);
-goto block_12;
-}
-}
-}
-else
-{
-lean_dec_ref(x_25);
-lean_dec(x_23);
-lean_dec(x_8);
-lean_dec_ref(x_7);
-lean_dec_ref(x_6);
-lean_dec_ref(x_5);
-goto block_15;
-}
-}
-}
-else
-{
-lean_object* x_33; lean_object* x_34; 
-lean_dec(x_20);
-lean_dec(x_8);
-lean_dec_ref(x_7);
-lean_dec_ref(x_6);
-lean_dec_ref(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-x_33 = lean_box(0);
-x_34 = lean_apply_1(x_2, x_33);
-return x_34;
-}
-}
-block_12:
-{
-lean_object* x_10; lean_object* x_11; 
-x_10 = lean_box(0);
-x_11 = lean_apply_1(x_2, x_10);
-return x_11;
-}
-block_15:
-{
-lean_object* x_13; lean_object* x_14; 
-x_13 = lean_box(0);
-x_14 = lean_apply_1(x_2, x_13);
-return x_14;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_matchConstStructureLike___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-if (lean_obj_tag(x_4) == 4)
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_7 = lean_ctor_get(x_1, 1);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_4, 0);
-lean_inc(x_8);
-x_9 = lean_ctor_get(x_4, 1);
-lean_inc(x_9);
-lean_dec_ref(x_4);
-x_10 = lean_ctor_get(x_2, 0);
-lean_inc(x_10);
-lean_inc(x_7);
-x_11 = lean_alloc_closure((void*)(l_Lean_matchConstStructureLike___redArg___lam__1), 9, 8);
-lean_closure_set(x_11, 0, x_8);
-lean_closure_set(x_11, 1, x_5);
-lean_closure_set(x_11, 2, x_6);
-lean_closure_set(x_11, 3, x_9);
-lean_closure_set(x_11, 4, x_1);
-lean_closure_set(x_11, 5, x_2);
-lean_closure_set(x_11, 6, x_3);
-lean_closure_set(x_11, 7, x_7);
-x_12 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_10, x_11);
-return x_12;
-}
-else
-{
-lean_object* x_13; lean_object* x_14; 
-lean_dec(x_6);
-lean_dec_ref(x_4);
-lean_dec_ref(x_3);
-lean_dec_ref(x_2);
-lean_dec_ref(x_1);
-x_13 = lean_box(0);
-x_14 = lean_apply_1(x_5, x_13);
-return x_14;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_matchConstStructureLike___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
-_start:
-{
-uint8_t x_16; lean_object* x_17; 
-x_16 = 0;
-x_17 = l_Lean_Environment_find_x3f(x_9, x_1, x_16);
-if (lean_obj_tag(x_17) == 0)
-{
-lean_object* x_18; lean_object* x_19; 
-lean_dec(x_8);
-lean_dec_ref(x_7);
-lean_dec_ref(x_6);
-lean_dec_ref(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-x_18 = lean_box(0);
-x_19 = lean_apply_1(x_2, x_18);
-return x_19;
-}
-else
-{
-lean_object* x_20; 
-x_20 = lean_ctor_get(x_17, 0);
-lean_inc(x_20);
-lean_dec_ref(x_17);
-if (lean_obj_tag(x_20) == 5)
-{
 lean_object* x_21; uint8_t x_22; 
 x_21 = lean_ctor_get(x_20, 0);
 lean_inc_ref(x_21);
@@ -2537,6 +2343,48 @@ return x_14;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lean_matchConstStructureLike___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+if (lean_obj_tag(x_4) == 4)
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_7 = lean_ctor_get(x_1, 1);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_4, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_4, 1);
+lean_inc(x_9);
+lean_dec_ref(x_4);
+x_10 = lean_ctor_get(x_2, 0);
+lean_inc(x_10);
+lean_inc(x_7);
+x_11 = lean_alloc_closure((void*)(l_Lean_matchConstStructureLike___redArg___lam__1), 9, 8);
+lean_closure_set(x_11, 0, x_8);
+lean_closure_set(x_11, 1, x_5);
+lean_closure_set(x_11, 2, x_6);
+lean_closure_set(x_11, 3, x_9);
+lean_closure_set(x_11, 4, x_1);
+lean_closure_set(x_11, 5, x_2);
+lean_closure_set(x_11, 6, x_3);
+lean_closure_set(x_11, 7, x_7);
+x_12 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_10, x_11);
+return x_12;
+}
+else
+{
+lean_object* x_13; lean_object* x_14; 
+lean_dec(x_6);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
+x_13 = lean_box(0);
+x_14 = lean_apply_1(x_5, x_13);
+return x_14;
+}
+}
+}
 LEAN_EXPORT lean_object* l_Lean_matchConstStructureLike(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -2553,7 +2401,7 @@ lean_dec_ref(x_6);
 x_12 = lean_ctor_get(x_4, 0);
 lean_inc(x_12);
 lean_inc(x_9);
-x_13 = lean_alloc_closure((void*)(l_Lean_matchConstStructureLike___lam__1), 9, 8);
+x_13 = lean_alloc_closure((void*)(l_Lean_matchConstStructureLike___redArg___lam__1), 9, 8);
 lean_closure_set(x_13, 0, x_10);
 lean_closure_set(x_13, 1, x_7);
 lean_closure_set(x_13, 2, x_8);

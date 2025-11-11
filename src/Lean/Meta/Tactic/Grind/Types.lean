@@ -859,8 +859,15 @@ structure UnitLike.State where
   deriving Inhabited
 
 structure InjectiveInfo where
-  inv : Expr
-  heq : Expr
+  us   : List Level
+  α    : Expr
+  β    : Expr
+  h    : Expr
+  /--
+  Inverse function and a proof that `∀ a, inv (f a) = a`
+  **Note**: The following two fields are `none` if no `f`-application has been found yet.
+  -/
+  inv?  : Option (Expr × Expr) := none
   deriving Inhabited
 
 /-- State for injective theorem support. -/
@@ -1386,6 +1393,18 @@ def getExprs : GoalM (PArray Expr) := do
     if isSameExpr n.next e then return ()
     curr := n.next
 
+/--
+Executes `f` to each term in the equivalence class containing `e`, and stops as soon as `f` returns `true`.
+-/
+@[inline] def findEqc (e : Expr) (f : ENode → GoalM Bool) : GoalM Bool := do
+  let mut curr := e
+  repeat
+    let n ← getENode curr
+    if (← f n) then return true
+    if isSameExpr n.next e then break
+    curr := n.next
+  return false
+
 /-- Folds using `f` and `init` over the equivalence class containing `e` -/
 @[inline] def foldEqc (e : Expr) (init : α) (f : ENode → α → GoalM α) : GoalM α := do
   let mut curr := e
@@ -1894,7 +1913,7 @@ def anchorPrefixToString (numDigits : Nat) (anchorPrefix : UInt64) : String :=
   let n := cs.length
   let zs := List.replicate (numDigits - n) '0'
   let cs := zs ++ cs
-  cs.asString
+  String.ofList cs
 
 def anchorToString (numDigits : Nat) (anchor : UInt64) : String :=
   anchorPrefixToString numDigits (anchor >>> (64 - 4*numDigits.toUInt64))

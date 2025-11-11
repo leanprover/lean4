@@ -144,9 +144,9 @@ structure State where
   Example: given `x y : Nat`, `x ≤ y + 1` is mapped to `Int.ofNat x ≤ Int.ofNat y + 1`, and proof
   of equivalence.
   -/
-  cnstrsMap    : PHashMap ExprPtr (Expr × Expr) := {}
-  /-- `cnstrsMap` inverse -/
-  cnstrsMapInv : PHashMap ExprPtr (Expr × Expr) := {}
+  termMap    : PHashMap ExprPtr (Expr × Expr) := {}
+  /-- `termMap` inverse -/
+  termMapInv : PHashMap ExprPtr (Expr × Expr) := {}
   deriving Inhabited
 
 builtin_initialize orderExt : SolverExtension State ← registerSolverExtension (return {})

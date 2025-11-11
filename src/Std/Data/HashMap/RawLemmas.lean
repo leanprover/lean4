@@ -1265,10 +1265,26 @@ theorem mem_of_mem_union_of_not_mem_left [EquivBEq α]
   @DHashMap.Raw.mem_of_mem_union_of_not_mem_left _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k
 
 /- Equiv -/
+theorem union_equiv_congr_left {m₃ : Raw α β} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF)
+    (equiv : m₁ ~m m₂) :
+    (m₁ ∪ m₃) ~m (m₂ ∪ m₃) :=
+  ⟨@DHashMap.Raw.union_equiv_congr_left _ _ _ _ m₁.inner m₂.inner m₃.inner _ _ h₁.out h₂.out h₃.out equiv.1⟩
+
+theorem union_equiv_congr_right {m₃ : Raw α β} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF)
+    (equiv : m₂ ~m m₃) :
+    (m₁ ∪ m₂) ~m (m₁ ∪ m₃) :=
+  ⟨@DHashMap.Raw.union_equiv_congr_right _ _ _ _ m₁.inner m₂.inner m₃.inner _ _ h₁.out h₂.out h₃.out equiv.1⟩
+
+theorem union_insert_right_equiv_insert_union [EquivBEq α] [LawfulHashable α] {p : α × β}
+    (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁ ∪ (m₂.insert p.fst p.snd)).Equiv ((m₁ ∪ m₂).insert p.fst p.snd) :=
+  ⟨@DHashMap.Raw.union_insert_right_equiv_insert_union _ _ _ _ m₁.inner m₂.inner _ _ ⟨p.fst, p.snd⟩ h₁.out h₂.out⟩
+
+@[deprecated union_insert_right_equiv_insert_union (since := "2025-11-03")]
 theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : α × β}
     (h₁ : m₁.WF) (h₂ : m₂.WF) :
     (m₁ ∪ (m₂.insert p.fst p.snd)).Equiv ((m₁ ∪ m₂).insert p.fst p.snd) :=
-  ⟨@DHashMap.Raw.union_insert_right_equiv_union_insert _ _ _ _ m₁.inner m₂.inner _ _ ⟨p.fst, p.snd⟩ h₁.out h₂.out⟩
+  union_insert_right_equiv_insert_union h₁ h₂
 
 theorem get?_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
     get? (m₁ ∪ m₂) k = (get? m₂ k).or (get? m₁ k) :=

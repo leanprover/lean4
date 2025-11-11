@@ -1,8 +1,9 @@
 open Lean Grind
 
 /--
-info: Try this:
+info: Try these:
   [apply] cases #c4b6 <;> cases #4c68 <;> ring
+  [apply] finish only [#c4b6, #4c68]
 -/
 #guard_msgs in
 example {α : Type} [CommRing α] (a b c d e : α) :
@@ -14,11 +15,12 @@ example {α : Type} [CommRing α] (a b c d e : α) :
 
 
 /--
-info: Try this:
+info: Try these:
   [apply] ⏎
     cases #b0f4
     · cases #50fc
     · cases #50fc <;> lia
+  [apply] finish only [#b0f4, #50fc]
 -/
 #guard_msgs in
 example (p : Nat → Prop) (x y z w : Int) :
@@ -29,8 +31,9 @@ example (p : Nat → Prop) (x y z w : Int) :
   grind => finish?
 
 /--
-info: Try this:
+info: Try these:
   [apply] cases #5c4b <;> cases #896f <;> ac
+  [apply] finish only [#5c4b, #896f]
 -/
 #guard_msgs in
 example {α : Type} (op : α → α → α) [Std.Associative op] [Std.Commutative op] (a b c d e : α) :
@@ -41,10 +44,11 @@ example {α : Type} (op : α → α → α) [Std.Associative op] [Std.Commutativ
   grind => finish?
 
 /--
-info: Try this:
+info: Try these:
   [apply] ⏎
     instantiate only [= Array.getElem_set]
     instantiate only [= Array.getElem_set]
+  [apply] finish only [= Array.getElem_set]
 -/
 #guard_msgs in
 example (as bs cs : Array α) (v₁ v₂ : α)
@@ -93,10 +97,11 @@ example (as : Array α) (lo hi i j : Nat) (h₁ : lo ≤ i) (_ : i < j) (_ : j �
   grind => finish?
 
 /--
-info: Try this:
+info: Try these:
   [apply] ⏎
     instantiate only [= getMsbD_setWidth']
     cases #aa9d
+  [apply] finish only [= getMsbD_setWidth', #aa9d]
 -/
 #guard_msgs in
 open BitVec in
@@ -112,21 +117,28 @@ example (ge : m ≥ n) (x : BitVec n) (i : Nat) :
     cases #aa9d
 
 /--
-info: Try this:
+info: Try these:
   [apply] cases #9942 <;>
       instantiate only [= BitVec.getElem_and] <;> instantiate only [= BitVec.getElem_or] <;> cases #cfbc
+  [apply] finish only [= BitVec.getElem_and, = BitVec.getElem_or, #9942, #cfbc]
 -/
 #guard_msgs in
 example (x y : BitVec 64) : (x ||| y) &&& x = x := by
   grind => finish?
 
+set_option trace.Meta.debug true in
+example (x y : BitVec 64) : (x ||| y) &&& x = x := by
+  grind => finish?
+
+
 macro_rules | `(tactic| get_elem_tactic_extensible) => `(tactic| grind)
 
 /--
-info: Try this:
+info: Try these:
   [apply] ⏎
     instantiate only [= Array.getElem_set]
     ring
+  [apply] finish only [= Array.getElem_set]
 -/
 #guard_msgs in
 example (a : Array (BitVec 64)) (i : Nat) (v : BitVec 64)
@@ -134,10 +146,11 @@ example (a : Array (BitVec 64)) (i : Nat) (v : BitVec 64)
   grind => finish?
 
 /--
-info: Try this:
+info: Try these:
   [apply] ⏎
     mbtc
     cases #a6c8
+  [apply] finish only [#a6c8]
 -/
 #guard_msgs in
 example (f : Nat → Nat) (x : Nat)
@@ -145,10 +158,11 @@ example (f : Nat → Nat) (x : Nat)
   grind => finish?
 
 /--
-info: Try this:
+info: Try these:
   [apply] ⏎
     mbtc
     cases #beb4
+  [apply] finish only [#beb4]
 -/
 #guard_msgs in
 example (f : Int → Int → Int) (x y : Int)
@@ -251,9 +265,9 @@ example (f g : Int → Int)
   grind
 
 /--
-trace: [grind.ematch.instance] h: f (f a) = f a
-[grind.ematch.instance] h: f (f (f a)) = f (f a)
-[grind.ematch.instance] h: f (f (f (f a))) = f (f (f a))
+trace: [grind.ematch.instance] h✝³: f (f a) = f a
+[grind.ematch.instance] h✝³: f (f (f a)) = f (f a)
+[grind.ematch.instance] h✝³: f (f (f (f a))) = f (f (f a))
 -/
 #guard_msgs in
 example (f g : Int → Int)

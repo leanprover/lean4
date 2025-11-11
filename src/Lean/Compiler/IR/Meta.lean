@@ -66,7 +66,10 @@ where go (ref : Name) : StateT NameSet (Except String) Unit := do
       for ref in collectUsedFDecls localDecl do
         go ref
     else
-      if getIRPhases env ref == .runtime then
+      -- NOTE: We do not use `getIRPhases` here as it's intended for env decls, nor IR decls. We do
+      -- not set `includeServer` as we want this check to be independent of server mode. Server-only
+      -- users disable this check instead.
+      if findEnvDecl env ref |>.isNone then
         throw s!"Cannot evaluate constant `{declName}` as it uses `{ref}` which is neither marked nor imported as `meta`"
 
 builtin_initialize

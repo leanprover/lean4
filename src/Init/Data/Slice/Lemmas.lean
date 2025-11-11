@@ -10,6 +10,7 @@ public import Init.Data.Slice.Operations
 import all Init.Data.Slice.Operations
 import Init.Data.Iterators.Consumers
 import Init.Data.Iterators.Lemmas.Consumers
+public import Init.Data.List.Control
 
 public section
 
@@ -23,6 +24,45 @@ theorem Internal.iter_eq_toIteratorIter {γ : Type u} {s : Slice γ}
     [ToIterator s Id β] :
     Internal.iter s = ToIterator.iter s :=
   (rfl)
+
+theorem forIn_internalIter {γ : Type u} {β : Type v}
+    {m : Type w → Type x} [Monad m] {δ : Type w}
+    [∀ s : Slice γ, ToIterator s Id β]
+    [∀ s : Slice γ, Iterator (ToIterator.State s Id) Id β]
+    [∀ s : Slice γ, IteratorLoop (ToIterator.State s Id) Id m]
+    [∀ s : Slice γ, LawfulIteratorLoop (ToIterator.State s Id) Id m]
+    [∀ s : Slice γ, Finite (ToIterator.State s Id) Id] {s : Slice γ}
+    {init : δ} {f : β → δ → m (ForInStep δ)} :
+    ForIn.forIn (Internal.iter s) init f = ForIn.forIn s init f :=
+  (rfl)
+
+@[simp]
+public theorem forIn_toList {γ : Type u} {β : Type v}
+    {m : Type w → Type x} [Monad m] [LawfulMonad m] {δ : Type w}
+    [∀ s : Slice γ, ToIterator s Id β]
+    [∀ s : Slice γ, Iterator (ToIterator.State s Id) Id β]
+    [∀ s : Slice γ, IteratorLoop (ToIterator.State s Id) Id m]
+    [∀ s : Slice γ, LawfulIteratorLoop (ToIterator.State s Id) Id m]
+    [∀ s : Slice γ, IteratorCollect (ToIterator.State s Id) Id Id]
+    [∀ s : Slice γ, LawfulIteratorCollect (ToIterator.State s Id) Id Id]
+    [∀ s : Slice γ, Finite (ToIterator.State s Id) Id] {s : Slice γ}
+    {init : δ} {f : β → δ → m (ForInStep δ)} :
+    ForIn.forIn s.toList init f = ForIn.forIn s init f := by
+  rw [← forIn_internalIter, ← Iter.forIn_toList, Slice.toList]
+
+@[simp]
+public theorem forIn_toArray {γ : Type u} {β : Type v}
+    {m : Type w → Type x} [Monad m] [LawfulMonad m] {δ : Type w}
+    [∀ s : Slice γ, ToIterator s Id β]
+    [∀ s : Slice γ, Iterator (ToIterator.State s Id) Id β]
+    [∀ s : Slice γ, IteratorLoop (ToIterator.State s Id) Id m]
+    [∀ s : Slice γ, LawfulIteratorLoop (ToIterator.State s Id) Id m]
+    [∀ s : Slice γ, IteratorCollect (ToIterator.State s Id) Id Id]
+    [∀ s : Slice γ, LawfulIteratorCollect (ToIterator.State s Id) Id Id]
+    [∀ s : Slice γ, Finite (ToIterator.State s Id) Id] {s : Slice γ}
+    {init : δ} {f : β → δ → m (ForInStep δ)} :
+    ForIn.forIn s.toArray init f = ForIn.forIn s init f := by
+  rw [← forIn_internalIter, ← Iter.forIn_toArray, Slice.toArray]
 
 theorem Internal.size_eq_count_iter [∀ s : Slice γ, ToIterator s Id β]
     [∀ s : Slice γ, Iterator (ToIterator.State s Id) Id β] {s : Slice γ}

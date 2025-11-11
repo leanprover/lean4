@@ -10,6 +10,7 @@ public import Std.Do.Triple.Basic
 public import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic
 public import Init.Data.Slice.Array
+public import Init.Data.Iterators.ToIterator
 
 -- This public import is a workaround for #10652.
 -- Without it, adding the `spec` attribute for `instMonadLiftTOfMonadLift` will fail.
@@ -1088,7 +1089,33 @@ theorem Spec.forIn_rii {α β : Type u} {m : Type u → Type v} {ps : PostShape}
   simp only [forIn]
   apply Spec.forIn'_rii inv step
 
-open Std.PRange in
+open Std.Iterators in
+@[spec]
+theorem Spec.forIn_slice {m : Type w → Type x} {ps : PostShape}
+    [Monad m] [WPMonad m ps]
+    {γ : Type u} {β : Type w}
+    [LawfulMonad m] {δ : Type w}
+    [∀ s : Slice γ, ToIterator s Id β]
+    [∀ s : Slice γ, Iterator (ToIterator.State s Id) Id β]
+    [∀ s : Slice γ, IteratorLoop (ToIterator.State s Id) Id m]
+    [∀ s : Slice γ, LawfulIteratorLoop (ToIterator.State s Id) Id m]
+    [∀ s : Slice γ, IteratorCollect (ToIterator.State s Id) Id Id]
+    [∀ s : Slice γ, LawfulIteratorCollect (ToIterator.State s Id) Id Id]
+    [∀ s : Slice γ, Finite (ToIterator.State s Id) Id]
+    {init : δ} {f : β → δ → m (ForInStep δ)}
+    {xs : Slice γ}
+    (inv : Invariant xs.toList δ ps)
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+      Triple
+        (f cur b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
+  simp only [← Slice.forIn_toList]
+  exact Spec.forIn_list inv step
+
 @[spec]
 theorem Spec.forIn_subarray {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
@@ -1101,9 +1128,8 @@ theorem Spec.forIn_subarray {α β : Type u} {m : Type u → Type v} {ps : PostS
         (fun r => match r with
           | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
           | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
-    Triple (forIn xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
-  simp only [← Std.Slice.Array.forIn_toList]
-  exact Spec.forIn_list inv step
+    Triple (forIn xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) :=
+  forIn_slice inv step
 
 @[spec]
 theorem Spec.forIn'_array {α β : Type u} {m : Type u → Type v} {ps : PostShape}

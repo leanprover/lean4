@@ -8,6 +8,7 @@ module
 prelude
 import all Init.Data.Array.Subarray
 import all Init.Data.Slice.Array.Basic
+import Init.Data.Slice.Lemmas
 public import Init.Data.Slice.Array.Iterator
 import all Init.Data.Slice.Array.Iterator
 import all Init.Data.Slice.Operations
@@ -50,12 +51,6 @@ public instance : LawfulSliceSize (Internal.SubarrayData α) where
       Rco.size_toArray, Rco.size, Rxo.HasSize.size, Rxc.HasSize.size]
     omega
 
-theorem forIn_internalIter {α : Type u} {s : Subarray α}
-    {m : Type v → Type w} [Monad m] [LawfulMonad m] {γ : Type v} {init : γ}
-    {f : α → γ → m (ForInStep γ)} :
-    ForIn.forIn (Internal.iter s) init f = ForIn.forIn s init f := by
-  simp only [ForIn.forIn]
-
 public theorem toArray_eq_sliceToArray {α : Type u} {s : Subarray α} :
     s.toArray = Slice.toArray s := by
   simp [Subarray.toArray, Array.ofSubarray]
@@ -64,14 +59,14 @@ public theorem toArray_eq_sliceToArray {α : Type u} {s : Subarray α} :
 public theorem forIn_toList {α : Type u} {s : Subarray α}
     {m : Type v → Type w} [Monad m] [LawfulMonad m] {γ : Type v} {init : γ}
     {f : α → γ → m (ForInStep γ)} :
-    ForIn.forIn s.toList init f = ForIn.forIn s init f := by
-  rw [← forIn_internalIter, ← Iter.forIn_toList, Slice.toList]
+    ForIn.forIn s.toList init f = ForIn.forIn s init f :=
+  Slice.forIn_toList
 
 @[simp]
 public theorem forIn_toArray {α : Type u} {s : Subarray α}
     {m : Type v → Type w} [Monad m] [LawfulMonad m] {γ : Type v} {init : γ}
     {f : α → γ → m (ForInStep γ)} :
-    ForIn.forIn s.toArray init f = ForIn.forIn s init f := by
-  rw [← forIn_internalIter, ← Iter.forIn_toArray, toArray_eq_sliceToArray, Slice.toArray]
+    ForIn.forIn s.toArray init f = ForIn.forIn s init f :=
+  Slice.forIn_toArray
 
 end Subarray

@@ -16,11 +16,11 @@ import all Init.Data.Range.Polymorphic.Lemmas
 public import Init.Data.Slice.Lemmas
 public import Init.Data.Iterators.Lemmas
 
-open Std.Iterators Std.PRange
+open Std Std.Iterators Std.PRange Std.Slice
 
-namespace Std.Slice.Array
+namespace Subarray
 
-theorem internalIter_rco_eq {α : Type u} {s : Subarray α} :
+theorem internalIter_eq {α : Type u} {s : Subarray α} :
     Internal.iter s = (Rco.Internal.iter (s.start...<s.stop)
       |>.attachWith (· < s.array.size)
         (fun out h => h
@@ -40,7 +40,7 @@ theorem toList_internalIter {α : Type u} {s : Subarray α} :
               |> Rco.lt_upper_of_mem
               |> (Nat.lt_of_lt_of_le · s.stop_le_array_size))
         |>.map fun i => s.array[i.1]) := by
-  rw [internalIter_rco_eq, Iter.toList_map, Iter.toList_uLift, Iter.toList_attachWith]
+  rw [internalIter_eq, Iter.toList_map, Iter.toList_uLift, Iter.toList_attachWith]
   simp [Rco.toList]
 
 public instance : LawfulSliceSize (Internal.SubarrayData α) where
@@ -50,4 +50,28 @@ public instance : LawfulSliceSize (Internal.SubarrayData α) where
       Rco.size_toArray, Rco.size, Rxo.HasSize.size, Rxc.HasSize.size]
     omega
 
-end Std.Slice.Array
+theorem forIn_internalIter {α : Type u} {s : Subarray α}
+    {m : Type v → Type w} [Monad m] [LawfulMonad m] {γ : Type v} {init : γ}
+    {f : α → γ → m (ForInStep γ)} :
+    ForIn.forIn (Internal.iter s) init f = ForIn.forIn s init f := by
+  simp only [ForIn.forIn]
+
+public theorem toArray_eq_sliceToArray {α : Type u} {s : Subarray α} :
+    s.toArray = Slice.toArray s := by
+  simp [Subarray.toArray, Array.ofSubarray]
+
+@[simp]
+public theorem forIn_toList {α : Type u} {s : Subarray α}
+    {m : Type v → Type w} [Monad m] [LawfulMonad m] {γ : Type v} {init : γ}
+    {f : α → γ → m (ForInStep γ)} :
+    ForIn.forIn s.toList init f = ForIn.forIn s init f := by
+  rw [← forIn_internalIter, ← Iter.forIn_toList, Slice.toList]
+
+@[simp]
+public theorem forIn_toArray {α : Type u} {s : Subarray α}
+    {m : Type v → Type w} [Monad m] [LawfulMonad m] {γ : Type v} {init : γ}
+    {f : α → γ → m (ForInStep γ)} :
+    ForIn.forIn s.toArray init f = ForIn.forIn s init f := by
+  rw [← forIn_internalIter, ← Iter.forIn_toArray, toArray_eq_sliceToArray, Slice.toArray]
+
+end Subarray

@@ -13,6 +13,7 @@ import all Init.Data.Range.Polymorphic.Basic
 public import Init.Data.Range.Polymorphic.Iterators
 public import Init.Data.Slice.Operations
 import Init.Omega
+import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
 
 public section
 
@@ -43,9 +44,12 @@ universe v w
 @[no_expose] instance {s : Subarray α} : Iterator (ToIterator.State s Id) Id α := inferInstance
 @[no_expose] instance {s : Subarray α} : Finite (ToIterator.State s Id) Id := inferInstance
 @[no_expose] instance {s : Subarray α} : IteratorCollect (ToIterator.State s Id) Id Id := inferInstance
+@[no_expose] instance {s : Subarray α} : LawfulIteratorCollect (ToIterator.State s Id) Id Id := inferInstance
 @[no_expose] instance {s : Subarray α} : IteratorCollectPartial (ToIterator.State s Id) Id Id := inferInstance
 @[no_expose] instance {s : Subarray α} {m : Type v → Type w} [Monad m] :
     IteratorLoop (ToIterator.State s Id) Id m := inferInstance
+@[no_expose] instance {s : Subarray α} {m : Type v → Type w} [Monad m] :
+    LawfulIteratorLoop (ToIterator.State s Id) Id m := inferInstance
 @[no_expose] instance {s : Subarray α} {m : Type v → Type w} [Monad m] :
     IteratorLoopPartial (ToIterator.State s Id) Id m := inferInstance
 

@@ -47,17 +47,6 @@ with
       | { isFullBefore := true, isFullAfter := true } => ! s.isEmpty
     | .full _ => (! ·.isFullAfter)
     | _ => fun _ => false
-  @[computed_field] minNewlineCount? : Doc → Option Nat
-    | .failure => none
-    | .newline .. => some 1
-    | .text _
-    | .flatten _ => some 0
-    | .indent _ d
-    | .align d
-    | .reset d
-    | .full d => minNewlineCount? d
-    | .either a b => .merge (min · ·) (minNewlineCount? a) (minNewlineCount? b)
-    | .concat a b => .merge (· + ·) (minNewlineCount? a) (minNewlineCount? b)
   @[computed_field] maxNewlineCount? : Doc → Option Nat
     | .failure => none
     | .newline .. => some 1
@@ -74,83 +63,58 @@ deriving Inhabited, Repr
 def Doc.ptr (d : Doc) : USize :=
   unsafe ptrAddrUnsafe d
 
-structure Doc.TraversalState (α : Type) where
-  cache : HashMap USize α := {}
+structure PreprocessingCacheKey where
+  docPtr : USize
+  isFlattened : Bool
+  deriving BEq, Hashable
 
-abbrev Doc.TraverseM (α : Type) := StateM (TraversalState α)
+structure PreprocessingState where
+  cache : HashMap PreprocessingCacheKey Doc := {}
 
-@[expose] def Doc.Traverser (α : Type) := (d : Doc) → TraverseM α α
-
-def Doc.fold (d : Doc)
-    (f : (d : Doc) → (children : Array Doc) → (childAccs : Array α) → α) :
-    α :=
-  goMemoized d |>.run' {}
-where
-  goMemoized (d : Doc) : TraverseM α α := do
-    if let some cached := (← get).cache.get? d.ptr then
-      return cached
-    let r ← go d
-    modify fun state => { state with
-      cache := state.cache.insert d.ptr r
-    }
-    return r
-  go (d : Doc) : TraverseM α α := do
-    match d with
-    | .failure
-    | .newline ..
-    | .text .. =>
-      return f d #[] #[]
-    | .flatten child
-    | .indent _ child
-    | .align child
-    | .reset child
-    | .full child =>
-      let acc ← goMemoized child
-      return f d #[child] #[acc]
-    | .either child1 child2
-    | .concat child1 child2 =>
-      let acc1 ← goMemoized child1
-      let acc2 ← goMemoized child2
-      return f d #[child1, child2] #[acc1, acc2]
-
-def Doc.map (d : Doc)
-    (f : (d : Doc) → (mappedChildren : Array Doc) → Option Doc) : Doc :=
-  d.fold fun d _ mappedChildren =>
-    match f d mappedChildren with
-    | some d' => d'
-    | none =>
-      match d, mappedChildren with
-      | .failure, #[]
-      | .newline .., #[]
-      | .text .., #[] =>
-        d
-      | .flatten .., #[child'] =>
-        .flatten child'
-      | .indent n .., #[child'] =>
-        .indent n child'
-      | .align .., #[child'] =>
-        .align child'
-      | .reset .., #[child'] =>
-        .reset child'
-      | .full .., #[child'] =>
-        .full child'
-      | .either .., #[child1', child2'] =>
-        .either child1' child2'
-      | .concat .., #[child1', child2'] =>
-        .concat child1' child2'
-      | _, _ =>
-        unreachable!
-
--- WIP
 def Doc.preprocess (d : Doc) : Doc :=
-  d.map fun d _ =>
+  goMemoized d false |>.run' {}
+where
+  goMemoized (d : Doc) (isFlattened : Bool) : StateM PreprocessingState Doc := do
+    let cacheKey := { docPtr := d.ptr, isFlattened }
+    if let some d' := (← get).cache.get? cacheKey then
+      return d'
+    let d' ← go d isFlattened
+    modify fun s => { s with cache := s.cache.insert cacheKey d' }
+    return d'
+  go (d : Doc) (isFlattened : Bool) : StateM PreprocessingState Doc := do
     match d with
-    | .newline none =>
-      some .failure
-    | .newline (some flattened) =>
-      some <| .text flattened
-    | _ =>
-      none
+    | .newline flattened? =>
+      if isFlattened then
+        let some flattened := flattened?
+          | return .failure
+        return .text flattened
+      else
+        return .newline none
+    | .flatten d =>
+      goMemoized d true
+    | .failure
+    | .text .. =>
+      return d
+    | .indent n d =>
+      let d ← goMemoized d isFlattened
+      return .indent n d
+    | .align d =>
+      let d ← goMemoized d isFlattened
+      return .align d
+    | .reset d =>
+      let d ← goMemoized d isFlattened
+      return .reset d
+    | .full d =>
+      let d ← goMemoized d isFlattened
+      return .full d
+    | .either d1 d2 =>
+      let d1 ← goMemoized d1 isFlattened
+      let d2 ← goMemoized d2 isFlattened
+      return .either d1 d2
+    | .concat d1 d2 =>
+      let d1 ← goMemoized d1 isFlattened
+      let d2 ← goMemoized d2 isFlattened
+      return .concat d1 d2
 
 def Doc.maybeFlattened (d : Doc) : Doc :=
   .either d d.flatten
@@ -548,6 +512,7 @@ def resolve? (d : Doc) (offset : Nat) : Option (Measure τ) := ResolverM.run do
 
 def formatWithCost? (τ : Type) [Add τ] [LE τ] [DecidableLE τ] [Cost τ]
     (d : Doc) (offset : Nat := 0) : Option String := do
+  let d := d.preprocess
   let m ← resolve? (τ := τ) d offset
   return m.print
 

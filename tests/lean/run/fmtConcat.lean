@@ -13,8 +13,8 @@ def pp (n : Nat) : Doc :=
 def doc := pp n
 
 @[noinline]
-def format : IO (Option String) := do
-  return format? doc 80 100
+def format : IO String := do
+  return format? doc 80 100 |>.getD ""
 
 def bench : IO Unit := do
   discard <| timeit "" format

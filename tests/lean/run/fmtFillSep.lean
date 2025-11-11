@@ -10020,11 +10020,10 @@ def xs := words.splitOn "\n" |>.take n |>.toArray
 def doc := fillSep xs
 
 @[noinline]
-def format : IO (Option String) := do
-  return format? doc 80 100
+def format : IO String := do
+  return format? doc 80 100 |>.getD ""
 
 def bench : IO Unit := do
-  let r ← timeit "" format
-  IO.println <| r.getD ""
+  discard <| timeit "" format
 
 #eval bench

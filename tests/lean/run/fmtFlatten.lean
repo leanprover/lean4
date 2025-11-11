@@ -14,10 +14,10 @@ def quadratic (n : Nat) : Doc :=
 def doc := quadratic n
 
 @[noinline]
-def format : IO (Option String) := do
-  return format? doc 80 100
+def format : IO String := do
+  return format? doc 80 100 |>.getD ""
 
 def bench : IO Unit := do
-  discard <| timeit "" format
+  IO.println <| ← timeit "" format
 
---#eval bench
+#eval bench

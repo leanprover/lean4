@@ -23,9 +23,9 @@ theorem Iter.forIn'_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
     {f : (b : β) → it.IsPlausibleIndirectOutput b → γ → m (ForInStep γ)} :
     letI : ForIn' m (Iter (α := α) β) β _ := Iter.instForIn'
     ForIn'.forIn' it init f =
-      IterM.DefaultConsumers.forIn' (fun _ _ f x => f x.run) γ (fun _ _ _ => True)
-        IteratorLoop.wellFounded_of_finite it.toIterM init _ (fun _ => id)
-          (fun out h acc => (⟨·, .intro⟩) <$>
+      IterM.DefaultConsumers.forIn' (fun _ _ f x => f x.run) γ
+        it.toIterM init _ (fun _ => id)
+          (fun out h acc =>
             f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc) := by
   simp [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn', hl.lawful (fun γ δ f x => f x.run),
     IteratorLoop.defaultImplementation]
@@ -35,9 +35,9 @@ theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
     [hl : LawfulIteratorLoop α Id m] {γ : Type x} {it : Iter (α := α) β} {init : γ}
     {f : (b : β) → γ → m (ForInStep γ)} :
     ForIn.forIn it init f =
-      IterM.DefaultConsumers.forIn' (fun _ _ f c => f c.run) γ (fun _ _ _ => True)
-        IteratorLoop.wellFounded_of_finite it.toIterM init _ (fun _ => id)
-          (fun out _ acc => (⟨·, .intro⟩) <$>
+      IterM.DefaultConsumers.forIn' (fun _ _ f c => f c.run) γ
+        it.toIterM init _ (fun _ => id)
+          (fun out _ acc =>
             f out acc) := by
   simp [ForIn.forIn, forIn'_eq, -forIn'_eq_forIn]
 

@@ -74,7 +74,7 @@ structure Machine (dir : Direction) where
   keepAlive : Bool := false
 
   /--
-
+  Whether a forced flush has been requested by the user.
   -/
   forcedFlush : Bool := false
 
@@ -283,7 +283,7 @@ def failed (machine : Machine dir) : Bool :=
 def shouldFlush (machine : Machine dir) : Bool :=
   machine.failed ∨
   machine.reader.state == .closed ∨
-  machine.writer.userData.size ≥ machine.config.highMark ∨
+  machine.writer.userData.size > 0 ∧
   machine.writer.isReadyToSend ∨
   machine.writer.knownSize.isSome
 
@@ -420,48 +420,6 @@ def setKnownSize (machine : Machine dir) (size : Nat) : Machine dir :=
   machine.modifyWriter ({ · with knownSize := some size })
 
 /--
-?
--/
-@[inline]
-def needsInput (machine : Machine dir) : Bool :=
-  match machine.reader.state with
-  | .needStartLine | .needHeader _ | .needChunkedSize
-  | .needChunkedBody _ | .needFixedBody _ => true
-  | _ => false
-
-/--
-?
--/
-@[inline]
-def canAcceptResponse (machine : Machine dir) : Bool :=
-  machine.writer.state == .waitingHeaders
-
-/--
-?
--/
-@[inline]
-def isProcessingRequest (machine : Machine dir) : Bool :=
-  match machine.reader.state with
-  | .closed | .complete | .failed _ => false
-  | _ => true
-
-/--
-?
--/
-@[inline]
-def requiresResponse (machine : Machine dir) : Bool :=
-  match machine.reader.state with
-  | .needStartLine | .closed | .complete => false
-  | _ => true
-/--
-?
--/
-@[inline]
-def needsOutputFlush (machine : Machine dir) : Bool :=
-  ¬machine.writer.outputData.isEmpty ∨
-  machine.writer.userData.size ≥ machine.config.highMark
-
-/--
 This function processes the writer part of the machine.
 -/
 partial def processWrite (machine : Machine dir) : Machine dir :=
@@ -484,7 +442,7 @@ partial def processWrite (machine : Machine dir) : Machine dir :=
     |> processWrite
 
   | .writingBody (.fixed _) =>
-    if machine.writer.userData.size ≥ machine.config.highMark ∨ machine.writer.isReadyToSend then
+    if machine.writer.userData.size > 0 ∨ machine.writer.isReadyToSend then
       let machine := machine.modifyWriter Writer.writeFixedBody
       if machine.writer.isReadyToSend then
         machine.setWriterState .complete |> processWrite
@@ -498,7 +456,7 @@ partial def processWrite (machine : Machine dir) : Machine dir :=
       machine.modifyWriter Writer.writeFinalChunk
       |>.setWriterState .complete
       |> processWrite
-    else if machine.writer.userData.size >= machine.config.highMark ∨ machine.writer.isReadyToSend then
+    else if machine.writer.userData.size > 0 ∨ machine.writer.isReadyToSend then
       machine.modifyWriter Writer.writeChunkedBody
       |> processWrite
     else

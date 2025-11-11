@@ -43,11 +43,6 @@ structure Config where
   enableKeepAlive : Bool
 
   /--
-  Size threshold for flushing output buffer.
-  -/
-  highMark : Nat
-
-  /--
   The server name (for sending responses) or user agent (for sending requests)
   -/
   identityHeader : Option HeaderValue

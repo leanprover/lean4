@@ -62,11 +62,6 @@ structure Config where
   enableKeepAlive : Bool := true
 
   /--
-  Size threshold for flushing output buffer.
-  -/
-  highMark : Nat := 1
-
-  /--
   The maximum size that the connection can receive in a single recv call.
   -/
   maximumRecvSize : Nat := 8192
@@ -91,7 +86,6 @@ def toH1Config (config : Config) : Protocol.H1.Config where
   maxHeaders := config.maxHeaders
   maxHeaderSize := config.maxHeaderSize
   enableKeepAlive := config.enableKeepAlive
-  highMark := config.highMark
   identityHeader := config.serverName
 
 end Std.Http.Config

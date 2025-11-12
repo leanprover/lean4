@@ -65,6 +65,9 @@ private def State.render (state : State) : String :=
 private def State.push (state : State) (txt : String) : State :=
   { state with currentBlock := state.currentBlock ++ txt }
 
+private def State.endsWith (state : State) (txt : String) : Bool :=
+  state.currentBlock.endsWith txt || (state.currentBlock.isEmpty && state.priorBlocks.endsWith txt)
+
 end MarkdownM
 
 open MarkdownM in
@@ -90,6 +93,12 @@ public def MarkdownM.run' (act : MarkdownM Unit) (context : Context := {}) (stat
 Adds a string to the current Markdown output.
 -/
 public def MarkdownM.push (txt : String) : MarkdownM Unit := modify (·.push txt)
+
+/--
+Checks whether the current output ends with the given string.
+-/
+public def MarkdownM.endsWith (txt : String) : MarkdownM Bool := do
+  return (← get).endsWith txt
 
 /--
 Terminates the current block.
@@ -247,7 +256,11 @@ private partial def inlineMarkdown [MarkdownInline i] : Inline i → MarkdownM U
     push s!"[ˆ^{name}]"
     let footnoteContent := (content.forM inlineMarkdown) {} {} |>.2.render
     modify fun st => { st with footnotes := st.footnotes.push (name, footnoteContent) }
-  | .code str =>
+  | .code str => do
+    if (← endsWith "`") then
+      -- Markdown has no reasonable way to put one code element after another. This is a zero-width
+      -- space to work around this syntactic limitation:
+      push "​"
     push (quoteCode str)
   | .math .display m => push s!"$${m}$$"
   | .math .inline m => push s!"${m}$"
@@ -273,8 +286,9 @@ private def quoteCodeBlock (indent : Nat) (str : String) : String := Id.run do
     out := out.push c
     if c == '\n' then
       out := out.pushn ' ' indent
+  out := if out.endsWith "\n" then out else out.push '\n'
   let backticks := "" |>.pushn ' ' indent |>.pushn '`' (max longest current + 1)
-  backticks ++ "\n" ++ out ++ "\n" ++ backticks ++ "\n"
+  backticks ++ "\n" ++ out ++ backticks ++ "\n"
 
 open MarkdownM in
 private partial def blockMarkdown [MarkdownInline i] [MarkdownBlock i b] : Block i b → MarkdownM Unit

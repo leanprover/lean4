@@ -48,7 +48,7 @@ When, we try again, a `x` with a new macro scope is created and this process kee
 Therefore, we don't consider identifier with macro scopes anymore.
 
 An `.error` value should be treated as a `false`—this is not a valid auto-bound implicit name—
-but is tagged with additional notes and hints (above and beyond `Unknown identifier`) to attach to
+but it contains additional notes (above and beyond `Unknown identifier`) to attach to
 an error message.
 -/
 

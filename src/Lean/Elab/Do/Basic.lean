@@ -702,8 +702,8 @@ partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) : DoElabM Exp
   | some (_decl, stxNew?) =>
     let stxNew ← liftMacroM <| liftExcept stxNew?
     -- withTermInfoContext' decl stx (expectedType? := expectedType?) <|
-    Term.withMacroExpansion stx stxNew <|
-      withRef stxNew <| elabDoElem stx cont
+    controlAt TermElabM fun runInBase => Term.withMacroExpansion stx stxNew <|
+      withRef stxNew <| runInBase <| elabDoElem stx cont
   | none =>
     match doElemElabAttribute.getEntries (← getEnv) k with
     | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"

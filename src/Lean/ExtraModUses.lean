@@ -37,7 +37,7 @@ public builtin_initialize indirectModUseExt : SimplePersistentEnvExtension Indir
 public def getIndirectModUses (env : Environment) (modIdx : ModuleIdx) : Array IndirectModUse :=
   indirectModUseExt.getModuleEntries env modIdx
 
-variable [Monad m] [MonadEnv m] [MonadTrace m] [MonadOptions m] [MonadRef m] [AddMessageContext m]
+variable [Monad m] [i : MonadOnlyEnv m] [MonadTrace m] [MonadOptions m] [MonadRef m] [AddMessageContext m]
 
 /--
 Lets `shake` know that references to `declName` may also require importing the current module due to
@@ -47,6 +47,7 @@ an attribute applied to `declName`, which is not from the current module, in the
 current module but may in the future.
 -/
 public def recordIndirectModUse (kind : String) (declName : Name) : m Unit := do
+  have := i.monadEnv
   -- We can assume this is called from the main thread only and that the list of entries is short
   if !(indirectModUseExt.getEntries (asyncMode := .mainOnly) (← getEnv) |>.contains { kind, declName }) then
     trace[extraModUses] "recording indirect mod use of `{declName}` ({kind})"
@@ -85,6 +86,7 @@ public def copyExtraModUses (src dest : Environment) : Environment := Id.run do
   env
 
 def recordExtraModUseCore (mod : Name) (isMeta : Bool) (hint : Name := .anonymous) : m Unit := do
+  have := i.monadEnv
   let entry := { module := mod, isExported := (← getEnv).isExporting, isMeta }
   if !(extraModUses.getState (asyncMode := .local) (← getEnv)).contains entry then
     trace[extraModUses] "recording {if entry.isExported then "public" else "private"} \
@@ -100,6 +102,7 @@ NOTE: Directly recording a module name does not trigger including indirect depen
 `recordIndirectModUse`, prefer `recordExtraModUseFromDecl` instead.
 -/
 public def recordExtraModUse (modName : Name) (isMeta : Bool) : m Unit := do
+  have := i.monadEnv
   if modName != (← getEnv).mainModule then
     recordExtraModUseCore modName isMeta
 
@@ -109,6 +112,7 @@ module, using `Environment.isExporting` as the visibility level. If the declarat
 already `meta`, the module dependency is recorded as a non-`meta` dependency.
 -/
 public def recordExtraModUseFromDecl (declName : Name) (isMeta : Bool) : m Unit := do
+  have := i.monadEnv
   let env ← getEnv
   if let some mod := env.getModuleIdxFor? declName |>.bind (env.header.modules[·]?) then
     -- If the declaration itself is already `meta`, no need to mark the import.
@@ -130,6 +134,7 @@ public def isExtraRevModUse (env : Environment) (modIdx : ModuleIdx) : Bool :=
 
 /-- Records this module to be preserved as an import by `shake`. -/
 public def recordExtraRevUseOfCurrentModule : m Unit := do
+  have := i.monadEnv
   if isExtraRevModUseExt.getEntries (asyncMode := .local) (← getEnv) |>.isEmpty then
     trace[extraModUses] "recording extra reverse use of current module"
     modifyEnv (isExtraRevModUseExt.addEntry · ())

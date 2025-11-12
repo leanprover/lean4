@@ -118,6 +118,9 @@ instance : MonadEnv CommandElabM where
   getEnv := do pure (← get).env
   modifyEnv f := modify fun s => { s with env := f s.env }
 
+instance : MonadOnlyEnv CommandElabM where
+  monadEnv := inferInstance
+
 @[always_inline]
 instance : MonadOptions CommandElabM where
   getOptions := do pure (← get).scopes.head!.opts

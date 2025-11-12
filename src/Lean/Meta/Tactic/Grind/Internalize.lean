@@ -32,27 +32,9 @@ def addCongrTable (e : Expr) : GoalM Unit := do
           reportIssue! "found congruence between{indentExpr e}\nand{indentExpr e'}\nbut functions have different types"
           return ()
     trace_goal[grind.debug.congr] "{e} = {e'}"
-    if (← isEqCongrProp e) then
-      /-
-      **Note**: We added this case to avoid a non-termination during proof construction.
-      We had the following equivalence class
-      ```
-      {p, q, p = q, q = p, True}
-      ```
-      Recall that `True` is always the root of its equivalence class.
-      We had the following two paths in the equivalence class:
-      ```
-      1. p -> p = q -> q = p -> True
-      2. q -> True
-      ```
-      Then, suppose we try to build a proof for `p = True`.
-      We have to construct a proof for `(p = q) = (q = p)`.
-      The equalities are congruent, but if we try to prove `p = q` and `q = p`,
-      We have to construct `p = True` and `True = q`, and we are back to `p = True`.
-      By constructing the congruence proof eagerly we ensure the non-termination cannot happen.
-      Note that this can only happen if `α₁` is a `Prop`.
-      -/
-      pushEqHEq e e' (← mkEqCongrProof e e')
+    if (← isEqCongrSymm e e') then
+      -- **Note**: See comment at `eqCongrSymmPlaceholderProof`
+      pushEqHEq e e' eqCongrSymmPlaceholderProof
     else
       pushEqHEq e e' congrPlaceholderProof
     if (← swapCgrRepr e e') then
@@ -74,9 +56,11 @@ def addCongrTable (e : Expr) : GoalM Unit := do
   else
     modify fun s => { s with congrTable := s.congrTable.insert { e } }
 where
-  isEqCongrProp (e : Expr) : GoalM Bool := do
-    let_expr Eq α _ _ := e | return false
-    return α.isProp
+  isEqCongrSymm (e e' : Expr) : GoalM Bool := do
+    let_expr Eq _ a₁ b₁ := e | return false
+    let_expr Eq _ a₂ b₂ := e' | return false
+    let goal ← get
+    return goal.hasSameRoot a₁ b₂ && goal.hasSameRoot b₁ a₂
 
   swapCgrRepr (e e' : Expr) : GoalM Bool := do
     let_expr Eq _ _ _ := e | return false

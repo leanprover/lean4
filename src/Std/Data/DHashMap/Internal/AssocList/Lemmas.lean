@@ -83,6 +83,38 @@ theorem get_eq {β : Type v} [BEq α] {l : AssocList α (fun _ => β)} {a : α} 
   next k v t ih => simp only [get, toList_cons, List.getValue_cons, ih]
 
 @[simp]
+theorem getEntry_eq [BEq α] {l : AssocList α β} {a : α} {h} :
+    l.getEntry a h = List.getEntry a l.toList (contains_eq.symm.trans h) := by
+  induction l
+  · simp [contains] at h
+  next k v t ih =>
+    simp only [getEntry, toList_cons, List.getEntry_cons, ih]
+
+@[simp]
+theorem getEntry?_eq [BEq α] {l : AssocList α β} {a : α} :
+    l.getEntry? a = List.getEntry? a l.toList  := by
+  induction l
+  · simp only [getEntry?, toList_nil, getEntry?_nil]
+  next k v t ih =>
+    simp only [getEntry?, ih, toList_cons, getEntry?_cons, Bool.ite_eq_cond_iff]
+
+@[simp]
+theorem getEntryD_eq [BEq α] {l : AssocList α β} {a : α} {fallback : (a : α) × β a} :
+    l.getEntryD a fallback = List.getEntryD a fallback l.toList := by
+  induction l
+  · simp only [getEntryD, toList_nil, getEntryD_nil]
+  next k v t ih =>
+    simp only [getEntryD, ih, toList_cons, getEntryD_cons, Bool.ite_eq_cond_iff]
+
+@[simp]
+theorem getEntry!_eq [BEq α] {l : AssocList α β} {a : α} [Inhabited ((a : α) × β a)] :
+    l.getEntry! a = List.getEntry! a l.toList := by
+  induction l
+  · simp only [getEntry!, toList_nil, getEntry!_nil]
+  next k v t ih =>
+    simp only [getEntry!, ih, toList_cons, List.getEntry!_cons, Bool.ite_eq_cond_iff]
+
+@[simp]
 theorem getCastD_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} {fallback : β a} :
     l.getCastD a fallback = getValueCastD a l.toList fallback := by
   induction l

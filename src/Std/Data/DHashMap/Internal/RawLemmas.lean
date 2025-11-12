@@ -143,6 +143,8 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
      ⟨`getKey!, (``getKey!_eq_getKey!, #[`(getKey!_of_perm _)])⟩,
      ⟨`getEntry, (``getEntry_eq_getEntry, #[`(getEntry_of_perm _)])⟩,
      ⟨`getEntry?, (``getEntry?_eq_getEntry?, #[`(getEntry?_of_perm _)])⟩,
+     ⟨`getEntryD, (``getEntryD_eq_getEntryD, #[`(getEntryD_of_perm _)])⟩,
+     ⟨`getEntry!, (``getEntry!_eq_getEntry!, #[`(getEntry!_of_perm _)])⟩,
      ⟨`toList, (``Raw.toList_eq_toListModel, #[])⟩,
      ⟨`keys, (``Raw.keys_eq_keys_toListModel, #[`(perm_keys_congr_left)])⟩,
      ⟨`Const.toList, (``Raw.Const.toList_eq_toListModel_map, #[`(perm_map_congr_left)])⟩,
@@ -378,22 +380,6 @@ theorem get_insert [LawfulBEq α] (h : m.1.WF) {k a : α} {v : β k} {h₁} :
       else
         m.get a (contains_of_contains_insert _ h h₁ (Bool.eq_false_iff.2 h₂)) := by
   simp_to_model [insert, get] using List.getValueCast_insertEntry
-
-theorem getEntry_insert [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k a : α} {v : β k} {h₁} :
-    (m.insert k v).getEntry a h₁ =
-      if h₂ : k == a then
-        ⟨k, v⟩
-      else
-        m.getEntry a (contains_of_contains_insert _ h h₁ (Bool.eq_false_iff.2 h₂)) := by
-  simp_to_model [insert, getEntry] using List.getEntry_insertEntry
-
-theorem beq_of_getEntry_eq [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {p : ((a : α) × β a)} {k : α} {h₁} :
-    (w : m.getEntry k h₁ = p) → p.fst == k := by
-  simp_to_model [getEntry, contains] using List.beq_of_getEntry_eq
-
-theorem getEntry_congr [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a b : α} (hab : a == b) {h₁ h₂} :
-    getEntry m a h₁ = getEntry m b h₂ := by
-  simp_to_model [getEntry, contains] using List.getEntry_congr
 
 theorem get_insert_self [LawfulBEq α] (h : m.1.WF) {k : α} {v : β k} :
     (m.insert k v).get k (contains_insert_self _ h) = v := by
@@ -2442,10 +2428,10 @@ theorem contains_of_contains_union_of_contains_eq_false_left [EquivBEq α]
 theorem union_insert_right_equiv_insert_union [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
     (m₁.union (m₂.insert p.fst p.snd)).1.Equiv ((m₁.union m₂).insert p.fst p.snd).1 := by
-  simp_to_model [union, insert]
+  simp_to_model [Equiv, union, insert]
   apply List.Perm.trans
   . apply insertList_perm_of_perm_second
-    simp_to_model [insert]
+    simp_to_model [Equiv, insert]
     . apply insertEntry_of_perm
       . wf_trivial
       . apply List.Perm.refl

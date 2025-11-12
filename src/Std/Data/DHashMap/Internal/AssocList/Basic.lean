@@ -98,6 +98,7 @@ variable {β : Type v}
 def get? [BEq α] (a : α) : AssocList α (fun _ => β) → Option β
   | nil => none
   | cons k v es => bif k == a then some v else get? a es
+
 end
 
 /-- Internal implementation detail of the hash map -/
@@ -131,6 +132,16 @@ def getCast [BEq α] [LawfulBEq α] (a : α) : (l : AssocList α β) → l.conta
 def getEntry [BEq α] (a : α) : (l : AssocList α β) → l.contains a → (a : α) × β a
   | cons k v es, h => if hka : k == a then ⟨k, v⟩
       else es.getEntry a (by rw [← h, contains, Bool.of_not_eq_true hka, Bool.false_or])
+
+/-- Internal implementation detail of the hash map -/
+def getEntryD [BEq α] (a : α) (fallback : (a : α) × β a) : AssocList α β → (a : α) × β a
+  | nil => fallback
+  | cons k v es => if k == a then ⟨k, v⟩ else es.getEntryD a fallback
+
+/-- Internal implementation detail of the hash map -/
+def getEntry! [BEq α] (a : α) [Inhabited ((a : α) × β a)] : AssocList α β → (a : α) × β a
+  | nil => default
+  | cons k v es => if k == a then ⟨k, v⟩ else es.getEntry! a
 
 /-- Internal implementation detail of the hash map -/
 def getKey [BEq α] (a : α) : (l : AssocList α β) → l.contains a → α

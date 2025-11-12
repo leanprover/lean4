@@ -447,6 +447,26 @@ theorem getEntry?_eq_getEntry? [BEq α] [Hashable α] [PartialEquivBEq α] [Lawf
     m.getEntry? a = List.getEntry? a (toListModel m.1.buckets) := by
   rw [getEntry?_eq_getEntry?ₘ, getEntry?ₘ_eq_getEntry? hm]
 
+theorem getEntryDₘ_eq_getEntryD [BEq α] [PartialEquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
+    {a : α} {fallback : (a : α) × β a} :
+    m.getEntryDₘ a fallback = List.getEntryD a fallback (toListModel m.1.buckets) :=
+  apply_bucket hm AssocList.getEntryD_eq getEntryD_of_perm getEntryD_append_of_containsKey_eq_false
+
+theorem getEntryD_eq_getEntryD [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
+    {a : α} {fallback : (a : α) × β a} :
+    m.getEntryD a fallback = List.getEntryD a fallback (toListModel m.1.buckets) := by
+  rw [getEntryD_eq_getEntryDₘ, getEntryDₘ_eq_getEntryD hm]
+
+theorem getEntry!ₘ_eq_getEntry! [BEq α] [PartialEquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
+    {a : α} [Inhabited ((a : α) × β a)] :
+    m.getEntry!ₘ a = List.getEntry! a (toListModel m.1.buckets) :=
+  apply_bucket hm AssocList.getEntry!_eq getEntry!_of_perm getEntry!_append_of_containsKey_eq_false
+
+theorem getEntry!_eq_getEntry! [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
+    {a : α} [Inhabited ((a : α) × β a)] :
+    m.getEntry! a = List.getEntry! a (toListModel m.1.buckets) := by
+  rw [getEntry!_eq_getEntry!ₘ, getEntry!ₘ_eq_getEntry! hm]
+
 theorem get!ₘ_eq_getValueCast! [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β}
     (hm : Raw.WFImp m.1) {a : α} [Inhabited (β a)] :
     m.get!ₘ a = getValueCast! a (toListModel m.1.buckets) := by

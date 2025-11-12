@@ -18,6 +18,14 @@ namespace Lean.Fmt
 
 open Std
 
+def memoHeightLimit : Nat := 6
+
+def nextMemoHeight (memoHeight : Nat) : Nat :=
+  if memoHeight = 0 then
+    memoHeightLimit
+  else
+    memoHeight - 1
+
 structure FullnessState where
   isFullBefore : Bool
   isFullAfter : Bool
@@ -58,7 +66,27 @@ with
     | .full d => maxNewlineCount? d
     | .either a b => .merge (max · ·) (maxNewlineCount? a) (maxNewlineCount? b)
     | .concat a b => .merge (· + ·) (maxNewlineCount? a) (maxNewlineCount? b)
+  @[computed_field] memoHeight : Doc → Nat
+    | .failure
+    | .newline ..
+    | .text _ => memoHeightLimit
+    | .flatten d
+    | .indent _ d
+    | .align d
+    | .reset d
+    | .full d =>
+      let n := memoHeight d
+      nextMemoHeight n
+    | .either a b
+    | .concat a b =>
+      let n := min (memoHeight a) (memoHeight b)
+      nextMemoHeight n
+
 deriving Inhabited, Repr
+
+def Doc.shouldMemoize (d : Doc) : Bool :=
+  d.memoHeight = 0
+
 
 structure PreprocessingCacheKey where
   docPtr : USize
@@ -361,7 +389,8 @@ def Resolver.memoize (f : Resolver τ) : Resolver τ := fun d columnPos indentat
   if ← isFailing d fullness then
     -- TODO: Set failing, unlike Racket impl?
     return .set #[]
-  if columnPos > Cost.optimalityCutoffWidth τ || indentation > Cost.optimalityCutoffWidth τ then
+  if columnPos > Cost.optimalityCutoffWidth τ || indentation > Cost.optimalityCutoffWidth τ
+      || ! d.shouldMemoize then
     return ← f d columnPos indentation fullness
   if let some cachedSet ← getCachedSet? d columnPos indentation fullness then
     return cachedSet

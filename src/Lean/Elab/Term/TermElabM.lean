@@ -325,7 +325,7 @@ abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
 def Context.autoBoundImplicit (ctx : Context) : Bool :=
   match ctx.autoBoundImplicitContext with
     | .none => false
-    | .some subCtx => subCtx.flag
+    | .some subCtx => subCtx.autoImplicitEnabled
 
 /-
 Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
@@ -735,7 +735,7 @@ def liftLevelM (x : LevelElabM α) : TermElabM α := do
   let ctx ← read
   let mctx ← getMCtx
   let ngen ← getNGen
-  let lvlCtx : Level.Context := { options := (← getOptions), ref := (← getRef), autoBoundImplicit := ctx.autoBoundImplicit }
+  let lvlCtx : Level.Context := { options := (← getOptions), ref := (← getRef), autoBoundImplicit := ctx.autoBoundImplicitContext.map (·.autoImplicitEnabled) |>.getD false }
   match (x lvlCtx).run { ngen := ngen, mctx := mctx, levelNames := (← getLevelNames) } with
   | .ok a newS  => setMCtx newS.mctx; setNGen newS.ngen; setLevelNames newS.levelNames; pure a
   | .error ex _ => throw ex

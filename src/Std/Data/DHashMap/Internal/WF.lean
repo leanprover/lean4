@@ -1115,7 +1115,6 @@ theorem insertMany_eq_insertListₘ_toListModel [BEq α] [Hashable α] (m m₂ :
     simp only [List.foldl_cons, insertListₘ]
     apply ih
 
-
 theorem insertManyIfNew_eq_insertListIfNewₘ_toListModel [BEq α] [Hashable α] (m m₂ : Raw₀ α β) :
     insertManyIfNew m m₂.1 = insertListIfNewₘ m (toListModel m₂.1.buckets) := by
   simp only [insertManyIfNew, bind_pure_comp, map_pure, bind_pure]
@@ -1150,6 +1149,20 @@ theorem toListModel_unionₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashabl
   · exact toListModel_insertListIfNewₘ ‹_›
   · exact toListModel_insertListₘ ‹_›
 
+theorem wfimp_inter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α]
+    {m₁ m₂ : Raw α β} {h₁ : 0 < m₁.buckets.size} {h₂ : 0 < m₂.buckets.size} (wh₁ : Raw.WFImp m₁) :
+    Raw.WFImp (Raw₀.inter ⟨m₁, h₁⟩ ⟨m₂, h₂⟩).val := by
+  rw [inter]
+  split
+  . apply wfImp_filter wh₁
+  . rw [interSmaller]
+    apply @Raw.fold_induction _ β _ (fun sofar k x => interSmallerFn ⟨m₁, h₁⟩ sofar k) emptyWithCapacity m₂ (Raw.WFImp ·.val) wfImp_emptyWithCapacity
+    intro acc a b wf
+    rw [interSmallerFn]
+    split
+    . apply wfImp_insert wf
+    . apply wf
+
 end Raw₀
 
 namespace Raw
@@ -1171,6 +1184,7 @@ theorem WF.out [BEq α] [Hashable α] [i₁ : EquivBEq α] [i₂ : LawfulHashabl
   | constModify₀ _ h => exact Raw₀.Const.wfImp_modify (by apply h)
   | alter₀ _ h => exact Raw₀.wfImp_alter (by apply h)
   | constAlter₀ _ h => exact Raw₀.Const.wfImp_alter (by apply h)
+  | inter₀ _ _ h _  => exact Raw₀.wfimp_inter (by apply h)
 
 end Raw
 

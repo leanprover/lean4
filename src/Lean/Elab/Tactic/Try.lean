@@ -244,6 +244,46 @@ builtin_initialize tryTacticElabAttribute : KeyedDeclsAttribute TryTactic ← do
 private def getEvalFns (kind : SyntaxNodeKind) : CoreM (List (KeyedDeclsAttribute.AttributeEntry TryTactic)) := do
   return tryTacticElabAttribute.getEntries (← getEnv) kind
 
+/-! User-extensible try suggestion generators -/
+
+/-- A user-defined generator that proposes tactics for `try?` to attempt.
+Takes the goal MVarId and collected info, returns array of tactics to try. -/
+abbrev TrySuggestionGenerator := MVarId → Try.Info → MetaM (Array (TSyntax `tactic))
+
+/-- Entry in the try suggestion registry -/
+structure TrySuggestionEntry where
+  name : Name
+  priority : Nat
+  deriving Inhabited
+
+/-- Environment extension for user try suggestion generators -/
+builtin_initialize trySuggestionExtension :
+    SimplePersistentEnvExtension TrySuggestionEntry (Array TrySuggestionEntry) ←
+  registerSimplePersistentEnvExtension {
+    addImportedFn := fun ess =>
+      -- Flatten imported entries and sort by priority (higher = runs first)
+      (ess.flatten).qsort (·.priority > ·.priority)
+    addEntryFn := fun entries entry =>
+      -- Insert new entry and maintain sorted order
+      (entries.push entry).qsort (·.priority > ·.priority)
+  }
+
+/-- Register the @[try_suggestion prio] attribute -/
+builtin_initialize registerBuiltinAttribute {
+  name := `try_suggestion
+  descr := "Register a tactic suggestion generator for try? (runs after built-in tactics)"
+  add := fun declName stx _kind => do
+    let priority ← match stx with
+      | `(attr| try_suggestion $n:num) => pure n.getNat
+      | `(attr| try_suggestion) => pure 1000  -- Default priority
+      | _ => throwError "invalid 'try_suggestion' attribute syntax"
+    modifyEnv fun env =>
+      trySuggestionExtension.addEntry env {
+        name := declName,
+        priority := priority
+      }
+}
+
 -- TODO: polymorphic `Tactic.focus`
 abbrev focus (x : TryTacticM α) : TryTacticM α := fun ctx => Tactic.focus (x ctx)
 
@@ -763,26 +803,46 @@ private def mkAllIndStx (info : Try.Info) (cont : TSyntax `tactic) : MetaM (TSyn
 
 /-! Main code -/
 
-/-- Returns tactic for `evalAndSuggest` -/
-private def mkTryEvalSuggestStx (info : Try.Info) : MetaM (TSyntax `tactic) := do
+/-- Returns tactic for `evalAndSuggest` (unsafe version that can evaluate user generators) -/
+private unsafe def mkTryEvalSuggestStxUnsafe (goal : MVarId) (info : Try.Info) : MetaM (TSyntax `tactic) := do
   let simple ← mkSimpleTacStx
   let simp ← mkSimpStx
   let grind ← mkGrindStx info
+
   let atomic ← `(tactic| attempt_all | $simple:tactic | $simp:tactic | $grind:tactic | simp_all)
   let atomicSuggestions ← mkAtomicWithSuggestionsStx
   let funInds ← mkAllFunIndStx info atomic
   let inds ← mkAllIndStx info atomic
   let extra ← `(tactic| (intros; first | $simple:tactic | $simp:tactic | exact?))
-  `(tactic| first | $atomic:tactic | $atomicSuggestions:tactic | $funInds:tactic | $inds:tactic | $extra:tactic)
 
--- TODO: make it extensible.
+  -- Collect user-defined suggestions (runs after built-in tactics)
+  let userEntries := trySuggestionExtension.getState (← getEnv)
+  let mut userTactics := #[]
+  for entry in userEntries do
+    try
+      let generator ← evalConst TrySuggestionGenerator entry.name
+      let suggestions ← generator goal info
+      userTactics := userTactics ++ suggestions
+    catch e =>
+      logWarning m!"try_suggestion generator {entry.name} failed: {e.toMessageData}"
+
+  -- Build final tactic: built-ins first, then user suggestions as fallback
+  if userTactics.isEmpty then
+    `(tactic| first | $atomic:tactic | $funInds:tactic | $extra:tactic)
+  else
+    let userAttemptAll ← `(tactic| attempt_all $[| $userTactics:tactic]*)
+    `(tactic| first | $atomic:tactic | $atomicSuggestions:tactic | $funInds:tactic | $inds:tactic | $extra:tactic | $userAttemptAll:tactic)
+
+@[implemented_by mkTryEvalSuggestStxUnsafe]
+private opaque mkTryEvalSuggestStx (goal : MVarId) (info : Try.Info) : MetaM (TSyntax `tactic)
 
 @[builtin_tactic Lean.Parser.Tactic.tryTrace] def evalTryTrace : Tactic := fun stx => do
   match stx with
   | `(tactic| try?%$tk $config:optConfig) => Tactic.focus do withMainContext do
     let config ← elabTryConfig config
-    let info ← Try.collect (← getMainGoal) config
-    let stx ← mkTryEvalSuggestStx info
+    let goal ← getMainGoal
+    let info ← Try.collect goal config
+    let stx ← mkTryEvalSuggestStx goal info
     evalAndSuggest tk stx config
   | _ => throwUnsupportedSyntax
 

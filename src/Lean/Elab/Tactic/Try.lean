@@ -256,33 +256,69 @@ structure TrySuggestionEntry where
   priority : Nat
   deriving Inhabited
 
-/-- Environment extension for user try suggestion generators -/
-builtin_initialize trySuggestionExtension :
-    SimplePersistentEnvExtension TrySuggestionEntry (Array TrySuggestionEntry) ←
-  registerSimplePersistentEnvExtension {
-    addImportedFn := fun ess =>
-      -- Flatten imported entries and sort by priority (higher = runs first)
-      (ess.flatten).qsort (·.priority > ·.priority)
-    addEntryFn := fun entries entry =>
-      -- Insert new entry and maintain sorted order
+/-- Environment extension for user try suggestion generators (supports local scoping) -/
+builtin_initialize trySuggestionExtension : SimpleScopedEnvExtension TrySuggestionEntry (Array TrySuggestionEntry) ←
+  registerSimpleScopedEnvExtension {
+    addEntry := fun entries entry =>
+      -- Insert new entry and maintain sorted order by priority (higher = runs first)
       (entries.push entry).qsort (·.priority > ·.priority)
+    initial := #[]
   }
 
 /-- Register the @[try_suggestion prio] attribute -/
 builtin_initialize registerBuiltinAttribute {
   name := `try_suggestion
   descr := "Register a tactic suggestion generator for try? (runs after built-in tactics)"
-  add := fun declName stx _kind => do
+  add := fun declName stx kind => do
     let priority ← match stx with
       | `(attr| try_suggestion $n:num) => pure n.getNat
       | `(attr| try_suggestion) => pure 1000  -- Default priority
       | _ => throwError "invalid 'try_suggestion' attribute syntax"
-    modifyEnv fun env =>
-      trySuggestionExtension.addEntry env {
-        name := declName,
-        priority := priority
-      }
+    let attrKind := if kind == AttributeKind.local then AttributeKind.local else AttributeKind.global
+    trySuggestionExtension.add {
+      name := declName,
+      priority := priority
+    } attrKind
 }
+
+/--
+Evaluates a user-generated tactic and captures any "Try this" suggestions it produces
+by examining the message log.
+
+Returns an array of tactics: the original tactic followed by any extracted suggestions.
+-/
+private def expandUserTactic (tac : TSyntax `tactic) (goal : MVarId) : MetaM (Array (TSyntax `tactic)) := do
+  Term.TermElabM.run' <| do
+    let initialState ← saveState
+    let initialLog ← Core.getMessageLog
+    let initialMsgCount := initialLog.toList.length
+
+    try
+      -- Run the tactic to capture its "Try this" messages
+      discard <| Tactic.run goal do
+        evalTactic tac
+
+      -- Extract tactic suggestions from new messages
+      let newMsgs := (← Core.getMessageLog).toList.drop initialMsgCount
+      let mut suggestions : Array (TSyntax `tactic) := #[]
+      for msg in newMsgs do
+        if msg.severity == MessageSeverity.information then
+          let msgText ← msg.data.toString
+          -- Message format: "Try this:\n  [apply] exact Foo.bar"
+          for line in msgText.splitOn "\n" do
+            if line.startsWith "  [apply] " then
+              let tacticText := line.drop 10
+              let env ← getEnv
+              if let .ok stx := Parser.runParserCategory env `tactic tacticText then
+                suggestions := suggestions.push ⟨stx⟩
+
+      initialState.restore
+      Core.setMessageLog initialLog
+      return #[tac] ++ suggestions
+    catch _ =>
+      initialState.restore
+      Core.setMessageLog initialLog
+      return #[tac]
 
 -- TODO: polymorphic `Tactic.focus`
 abbrev focus (x : TryTacticM α) : TryTacticM α := fun ctx => Tactic.focus (x ctx)
@@ -693,10 +729,13 @@ private def addSuggestions (tk : Syntax) (s : Array Tactic.TryThis.Suggestion) :
     Tactic.TryThis.addSuggestions tk (s.map fun stx => stx) (origSpan? := (← getRef))
 
 def evalAndSuggest (tk : Syntax) (tac : TSyntax `tactic) (config : Try.Config := {}) : TacticM Unit := do
+  let initialLog ← Core.getMessageLog
   let tac' ← try
     evalSuggest tac |>.run { terminal := true, root := tac, config }
   catch _ =>
     throwEvalAndSuggestFailed config
+  -- Restore message log to suppress "Try this" messages from intermediate tactic executions
+  Core.setMessageLog initialLog
   let s := (getSuggestions tac')[*...config.max].toArray
   if s.isEmpty then
     throwEvalAndSuggestFailed config
@@ -822,7 +861,10 @@ private unsafe def mkTryEvalSuggestStxUnsafe (goal : MVarId) (info : Try.Info) :
     try
       let generator ← evalConst TrySuggestionGenerator entry.name
       let suggestions ← generator goal info
-      userTactics := userTactics ++ suggestions
+      -- Expand each tactic to capture nested "Try this" suggestions
+      for userTac in suggestions do
+        let expandedTacs ← expandUserTactic userTac goal
+        userTactics := userTactics ++ expandedTacs
     catch e =>
       logWarning m!"try_suggestion generator {entry.name} failed: {e.toMessageData}"
 

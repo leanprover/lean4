@@ -14,8 +14,9 @@ inductive CustomProp : Prop where
 -- Lemma about CustomProp
 theorem customPropHolds : CustomProp := CustomProp.mk
 
+section BasicTest
 -- Define a generator that suggests the custom lemma
-@[try_suggestion]
+@[local try_suggestion]
 meta def customPropSolver (_goal : MVarId) (_info : Try.Info) : MetaM (Array (TSyntax `tactic)) := do
   return #[← `(tactic| exact CustomProp.mk)]
 
@@ -28,13 +29,19 @@ info: Try this:
 #guard_msgs in
 example : CustomProp := by
   try?
+end BasicTest
 
+section PriorityTest
 -- Test priority ordering with multiple generators
-@[try_suggestion 2000]
+@[local try_suggestion 2000]
 meta def highPrioritySolver (_goal : MVarId) (_info : Try.Info) : MetaM (Array (TSyntax `tactic)) := do
   return #[← `(tactic| apply CustomProp.mk)]
 
-@[try_suggestion 500]
+@[local try_suggestion 1000]
+meta def midPrioritySolver (_goal : MVarId) (_info : Try.Info) : MetaM (Array (TSyntax `tactic)) := do
+  return #[← `(tactic| exact CustomProp.mk)]
+
+@[local try_suggestion 500]
 meta def lowPrioritySolver (_goal : MVarId) (_info : Try.Info) : MetaM (Array (TSyntax `tactic)) := do
   return #[← `(tactic| constructor)]
 
@@ -48,10 +55,12 @@ info: Try these:
 #guard_msgs in
 example : CustomProp := by
   try?
+end PriorityTest
 
+section BuiltInFallback
 -- Test that user generators only run if built-ins fail
 -- For True, built-ins succeed so user generators shouldn't run
-@[try_suggestion]
+@[local try_suggestion]
 meta def shouldNotRunForTrue (_goal : MVarId) (_info : Try.Info) : MetaM (Array (TSyntax `tactic)) := do
   return #[← `(tactic| exact True.intro)]
 
@@ -67,3 +76,25 @@ info: Try these:
 #guard_msgs in
 example : True := by
   try?
+end BuiltInFallback
+
+section DoubleSuggestion
+-- Test double-suggestion: when a user tactic produces "Try this" messages,
+-- both the original tactic and the suggestions should appear
+-- Use CustomProp which built-ins can't solve
+@[local try_suggestion]
+meta def doubleSuggestionSolver (_goal : MVarId) (_info : Try.Info) : MetaM (Array (TSyntax `tactic)) := do
+  return #[← `(tactic| show_term apply CustomProp.mk)]
+
+-- Double-suggestion: when show_term produces a "Try this" message,
+-- both the original tactic and the extracted suggestion should appear
+-- The message from show_term during extraction is suppressed
+/--
+info: Try these:
+  [apply] show_term apply CustomProp.mk✝
+  [apply] exact CustomProp.mk
+-/
+#guard_msgs in
+example : CustomProp := by
+  try?
+end DoubleSuggestion

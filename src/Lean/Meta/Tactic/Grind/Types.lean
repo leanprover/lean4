@@ -23,6 +23,38 @@ namespace Lean.Meta.Grind
 /-- We use this auxiliary constant to mark delayed congruence proofs. -/
 def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
 
+/--
+We use this auxiliary constant to mark delayed symmetric congruence proofs.
+**Example:** `a = b` is symmetrically congruent to `c = d` if `a = d` and `b = c`.
+
+**Note:** We previously used `congrPlaceholderProof` for this case, but it
+caused non-termination during proof term construction when `a = b = c = d`.
+The issue was that we did not have enough information to determine how
+`a = b` and `c = d` became congruent. The new marker resolves this issue.
+
+If `congrPlaceholderProof` is used, then `a = b` became congruent to `c = d`
+because `a = c` and `b = d`.
+If `eqCongrSymmPlaceholderProof` is used, then it was because `a = d` and `b = c`.
+
+**Example:** suppose we have the following equivalence class:
+```
+{p, q, p = q, q = p, True}
+```
+Recall that `True` is always the root of its equivalence class.
+Assume we also have the following two paths in the class:
+```
+1. p -> p = q -> q = p -> True
+2. q -> True
+```
+Now suppose we try to build a proof for `p = True`.
+We must construct a proof for `(p = q) = (q = p)`.
+These equalities are congruent, but if we try to prove `p = q` and `q = p`
+using the facts `p = True` and `q = True`, we end up trying to prove `p = True` again.
+In other words, we are missing the information that `p = q` became congruent to `q = p`
+because of the symmetric case. By using `eqCongrSymmPlaceholderProof`, we retain this information.
+-/
+def eqCongrSymmPlaceholderProof := mkConst (Name.mkSimple "[eq_congr_symm]")
+
 /-- Similar to `isDefEq`, but ensures default transparency is used. -/
 def isDefEqD (t s : Expr) : MetaM Bool :=
   withDefault <| isDefEq t s
@@ -1122,7 +1154,7 @@ def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
       throwError "`grind` internal error, lhs of new equality has not been internalized{indentExpr lhs}"
     unless (← alreadyInternalized rhs) do
       throwError "`grind` internal error, rhs of new equality has not been internalized{indentExpr rhs}"
-    unless proof == congrPlaceholderProof do
+    if proof != congrPlaceholderProof && proof != eqCongrSymmPlaceholderProof then
       let expectedType ← if isHEq then mkHEq lhs rhs else mkEq lhs rhs
       unless (← withReducible <| isDefEq (← inferType proof) expectedType) do
         throwError "`grind` internal error, trying to assert equality{indentExpr expectedType}\n\

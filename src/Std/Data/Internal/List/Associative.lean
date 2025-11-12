@@ -6338,6 +6338,43 @@ theorem length_filter_containsKey_le [BEq α] [EquivBEq α]
       rw [List.distinctKeys_cons_iff] at dl₂
       exact dl₂.1
 
+theorem isEmpty_filter_containsKey_iff [BEq α] [EquivBEq α]
+    {l₁ l₂ : List ((a : α) × β a)} (dl₁ : DistinctKeys l₁) :
+    (List.filter (fun p => containsKey p.fst l₂) l₁).isEmpty = true ↔
+    ∀ (k : α), containsKey k l₁ = true → containsKey k l₂ = false := by
+  constructor
+  case mpr =>
+    intro hyp
+    rw [List.isEmpty_iff]
+    simp only [List.filter_eq_nil_iff, Bool.not_eq_true]
+    intro ⟨k,v⟩ mem
+    apply hyp
+    apply List.containsKey_of_mem mem
+  case mp =>
+    intro hyp k mem
+    rw [List.isEmpty_iff] at hyp
+    induction l₁ with
+    | nil => simp at mem
+    | cons h t ih =>
+      rw [containsKey_cons] at mem
+      simp only [Bool.or_eq_true] at mem
+      rw [List.filter_cons] at hyp
+      split at hyp
+      case cons.isTrue _ =>
+        simp at hyp
+      case cons.isFalse heq =>
+        simp only [Bool.not_eq_true] at heq
+        cases mem
+        case inl heq2 =>
+          rw [containsKey_congr (PartialEquivBEq.symm heq2)]
+          exact heq
+        case inr heq2 =>
+          apply ih
+          . rw [List.distinctKeys_cons_iff] at dl₁
+            exact dl₁.1
+          . exact hyp
+          . exact heq2
+
 theorem nil_of_containsKey_eq_false [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} :
     (∀ k, containsKey k l = false) ↔ l = [] := by
   constructor

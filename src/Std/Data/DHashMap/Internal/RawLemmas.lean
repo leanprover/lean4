@@ -2833,7 +2833,7 @@ theorem get?_inter_of_not_contains_right [LawfulBEq α] (h₁ : m₁.val.WF) (h�
 theorem get_inter [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} {h_contains : (m₁.inter m₂).contains k} :
     (m₁.inter m₂).get k h_contains =
-    m₁.get k (((@contains_inter_iff α β _ _ m₁ m₂ _ _ h₁ h₂ k).1 h_contains).1) := by
+    m₁.get k ((contains_inter_iff h₁ h₂).1 h_contains).1 := by
   simp_to_model [inter, get, contains] using List.getValueCast_filter_containsKey
 
 /- getD -/
@@ -2996,7 +2996,7 @@ theorem getEntry?_inter_of_not_contains_right [EquivBEq α] [LawfulHashable α] 
 theorem getEntry_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} {h_contains : (m₁.inter m₂).contains k} :
     (m₁.inter m₂).getEntry k h_contains =
-    m₁.getEntry k (((@contains_inter_iff α β _ _ m₁ m₂ _ _ h₁ h₂ k).1 h_contains).1) := by
+    m₁.getEntry k ((contains_inter_iff h₁ h₂).1 h_contains).1 := by
   simp_to_model [inter, getEntry, contains] using List.getEntry_filter_containsKey
 
 /- size -/
@@ -3024,20 +3024,24 @@ theorem size_inter_eq_size_right [EquivBEq α] [LawfulHashable α]
   revert h
   simp_to_model [inter, size, contains] using List.length_filter_containsKey_of_length_right
 
-
 /- isEmpty -/
 @[simp]
-theorem isEmpty_inter_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h : m₁.1.isEmpty):
+theorem isEmpty_inter_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h : m₁.1.isEmpty) :
     (m₁.inter m₂).1.isEmpty = true := by
   revert h
   simp_to_model [isEmpty, inter, contains] using List.isEmpty_filter_containsKey_left
 
 /- isEmpty -/
 @[simp]
-theorem isEmpty_inter_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h : m₁.1.isEmpty):
+theorem isEmpty_inter_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h : m₁.1.isEmpty) :
     (m₁.inter m₂).1.isEmpty = true := by
   revert h
   simp_to_model [isEmpty, inter, contains] using List.isEmpty_filter_containsKey_left
+
+theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
+    (m₁.inter m₂).1.isEmpty ↔ ∀ k, m₁.contains k → m₂.contains k = false := by
+  simp_to_model [inter, contains, isEmpty] using List.isEmpty_filter_containsKey_iff
+
 
 end Inter
 

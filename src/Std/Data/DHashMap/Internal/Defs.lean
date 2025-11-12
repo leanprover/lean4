@@ -448,6 +448,7 @@ def insertMany {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [BEq α] [Hashable
   return r
 
 /-- Internal implementation detail of the hash map -/
+@[inline]
 def interSmallerFn [BEq α] [Hashable α] (m sofar : Raw₀ α β) (k : α) : Raw₀ α β :=
   match m.getEntry? k with
   | some kv' => sofar.insert kv'.1 kv'.2

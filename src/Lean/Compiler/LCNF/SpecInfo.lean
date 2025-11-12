@@ -116,7 +116,7 @@ performance. For example, let's consider the function.
 ```
 def liftMacroM
     {α : Type} {m : Type → Type}
-    [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m]
+    [Monad m] [MonadMacroAdapter m] [MonadOnlyEnv m] [MonadRecDepth m] [MonadError m]
     [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLiftT IO m] (x : MacroM α) : m α := do
 ```
 The parameter `α` does not occur in any local instance, and `x` is marked as `.other` since the function

@@ -48,7 +48,7 @@ private meta def baseNames : Array Name :=
     ``getKey?_eq, ``getKey_eq, ``getKey!_eq, ``getKeyD_eq,
     ``insertMany_eq, ``Const.insertMany_eq, ``Const.insertManyIfNewUnit_eq,
     ``ofList_eq, ``Const.ofList_eq, ``Const.unitOfList_eq,
-    ``alter_eq, ``Const.alter_eq, ``modify_eq, ``Const.modify_eq, ``union_eq]
+    ``alter_eq, ``Const.alter_eq, ``modify_eq, ``Const.modify_eq, ``union_eq, ``inter_eq]
 
 /-- Internal implementation detail of the hash map -/
 scoped syntax "simp_to_raw" ("using" term)? : tactic
@@ -2128,6 +2128,331 @@ theorem isEmpty_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ :
   simp_to_raw using Raw₀.isEmpty_union
 
 end Union
+
+section Inter
+
+variable {m₁ m₂ : Raw α β}
+
+@[simp]
+theorem inter_eq : m₁.inter m₂ = m₁ ∩ m₂ := by
+  simp only [Inter.inter]
+
+/- contains -/
+
+@[simp]
+theorem contains_inter [EquivBEq α] [LawfulHashable α] {k : α} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁ ∩ m₂).contains k = (m₁.contains k && m₂.contains k) := by
+  simp only [Inter.inter]
+  simp_to_raw using Raw₀.contains_inter
+
+/- mem -/
+
+theorem mem_inter_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} :
+    k ∈ m₁ ∩ m₂ ↔ k ∈ m₁ ∧ k ∈ m₂ := by
+  simp only [Inter.inter, Membership.mem]
+  simp_to_raw using Raw₀.contains_inter_iff
+
+theorem not_mem_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α}
+    (not_mem : k ∉ m₁) :
+    k ∉ m₁ ∩ m₂ := by
+  simp only [Inter.inter]
+  rw [← contains_eq_false_iff_not_mem] at not_mem |-
+  revert not_mem
+  simp_to_raw using Raw₀.contains_inter_eq_false_of_contains_eq_false_left
+
+theorem not_mem_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α}
+    (not_mem : k ∉ m₂) :
+    k ∉ m₁ ∩ m₂ := by
+  simp only [Inter.inter]
+  rw [← contains_eq_false_iff_not_mem] at not_mem |-
+  revert not_mem
+  simp_to_raw using Raw₀.contains_inter_eq_false_of_contains_eq_false_right
+
+/- get? -/
+theorem get?_inter [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
+    (m₁ ∩ m₂).get? k =
+    if k ∈ m₂ then m₁.get? k else none := by
+  simp only [Membership.mem, Inter.inter]
+  simp_to_raw using Raw₀.get?_inter
+
+theorem get?_inter_of_mem_right [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (mem : k ∈ m₂) :
+    (m₁ ∩ m₂).get? k = m₁.get? k := by
+  simp only [Membership.mem] at mem
+  simp only [Inter.inter]
+  revert mem
+  simp_to_raw using Raw₀.get?_inter_of_contains_right
+
+theorem get?_inter_of_not_mem_left [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (not_mem : k ∉ m₁) :
+    (m₁ ∩ m₂).get? k = none := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  revert not_mem
+  simp only [Inter.inter]
+  simp_to_raw using Raw₀.get?_inter_of_contains_eq_false_left
+
+theorem get?_inter_of_not_mem_right [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (not_mem : k ∉ m₂) :
+    (m₁ ∩ m₂).get? k = none := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  revert not_mem
+  simp only [Inter.inter]
+  simp_to_raw using Raw₀.get?_inter_of_contains_eq_false_right
+
+/- get -/
+theorem get_inter [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {h_mem: k ∈ m₁ ∩ m₂} :
+    (m₁ ∩ m₂).get k h_mem =
+    m₁.get k ((mem_inter_iff h₁ h₂).1 h_mem).1 := by
+  revert h_mem
+  simp only [Membership.mem, Inter.inter]
+  simp_to_raw
+  intro h_mem
+  apply Raw₀.get_inter
+  all_goals wf_trivial
+
+/- getD -/
+theorem getD_inter [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β k} :
+    (m₁ ∩ m₂).getD k fallback =
+    if k ∈ m₂ then m₁.getD k fallback else fallback := by
+  simp only [Inter.inter, Membership.mem]
+  simp_to_raw using Raw₀.getD_inter
+
+theorem getD_inter_of_mem_right [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β k} (mem : k ∈ m₂) :
+    (m₁ ∩ m₂).getD k fallback = m₁.getD k fallback := by
+  revert mem
+  simp only [Membership.mem, Inter.inter]
+  simp_to_raw using Raw₀.getD_inter_of_contains_right
+
+theorem getD_inter_of_not_mem_right [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β k} (not_mem : k ∉ m₂) :
+    (m₁ ∩ m₂).getD k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  simp only [Inter.inter]
+  revert not_mem
+  simp_to_raw using Raw₀.getD_inter_of_contains_eq_false_right
+
+theorem  getD_inter_of_not_mem_left [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β k} (not_mem : k ∉ m₁) :
+    (m₁ ∩ m₂).getD k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  simp only [Inter.inter]
+  revert not_mem
+  simp_to_raw using Raw₀.getD_inter_of_contains_eq_false_left
+
+/- get! -/
+theorem get!_inter [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} [Inhabited (β k)] :
+    (m₁ ∩ m₂).get! k =
+    if k ∈ m₂ then m₁.get! k else default := by
+  simp only [Inter.inter, Membership.mem]
+  simp_to_raw using Raw₀.get!_inter
+
+theorem get!_inter_of_mem_right [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} [Inhabited (β k)] (mem : k ∈ m₂) :
+    (m₁ ∩ m₂).get! k = m₁.get! k  := by
+  revert mem
+  simp only [Membership.mem, Inter.inter]
+  simp_to_raw using Raw₀.get!_inter_of_contains_right
+
+theorem get!_inter_of_not_mem_right [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} [Inhabited (β k)] (not_mem : k ∉ m₂) :
+    (m₁ ∩ m₂).get! k = default := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  simp only [Inter.inter]
+  revert not_mem
+  simp_to_raw using Raw₀.get!_inter_of_contains_eq_false_right
+
+theorem get!_inter_of_not_mem_left [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} [Inhabited (β k)] (not_mem : k ∉ m₁) :
+    (m₁ ∩ m₂).get! k = default := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  simp only [Inter.inter]
+  revert not_mem
+  simp_to_raw using Raw₀.get!_inter_of_contains_eq_false_left
+
+/- getKey? -/
+theorem getKey?_inter [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
+    (m₁ ∩ m₂).getKey? k =
+    if k ∈ m₂ then m₁.getKey? k else none := by
+  simp only [Membership.mem, Inter.inter]
+  simp_to_raw using Raw₀.getKey?_inter
+
+theorem getKey?_inter_of_mem_right [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} (mem : k ∈ m₂) :
+    (m₁ ∩ m₂).getKey? k = m₁.getKey? k := by
+  simp only [Membership.mem] at mem
+  simp only [Inter.inter]
+  revert mem
+  simp_to_raw using Raw₀.getKey?_inter_of_contains_right
+
+theorem getKey?_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} (not_mem : k ∉ m₂) :
+    (m₁ ∩ m₂).getKey? k = none := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  simp only [Inter.inter]
+  revert not_mem
+  simp_to_raw using Raw₀.getKey?_inter_of_contains_eq_false_right
+
+theorem getKey?_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} (not_mem : k ∉ m₁) :
+    (m₁ ∩ m₂).getKey? k = none := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  simp only [Inter.inter]
+  revert not_mem
+  simp_to_raw using Raw₀.getKey?_inter_of_contains_eq_false_left
+
+/- getKey -/
+theorem getKey_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {h_mem : k ∈ m₁ ∩ m₂} :
+    (m₁ ∩ m₂).getKey k h_mem =
+    m₁.getKey k ((mem_inter_iff h₁ h₂).1 h_mem).1 := by
+  revert h_mem
+  simp only [Membership.mem, Inter.inter]
+  simp_to_raw
+  intro h_mem
+  apply Raw₀.getKey_inter
+  all_goals wf_trivial
+
+/- getKeyD -/
+theorem getKeyD_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k fallback : α} :
+    (m₁ ∩ m₂).getKeyD k fallback =
+    if k ∈ m₂ then m₁.getKeyD k fallback else fallback := by
+  simp only [Membership.mem, Inter.inter]
+  simp_to_raw using Raw₀.getKeyD_inter
+
+theorem getKeyD_inter_of_mem_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k fallback : α} (mem : k ∈ m₂) :
+    (m₁ ∩ m₂).getKeyD k fallback = m₁.getKeyD k fallback := by
+  simp only [Membership.mem] at mem
+  simp only [Inter.inter]
+  revert mem
+  simp_to_raw using Raw₀.getKeyD_inter_of_contains_right
+
+theorem getKeyD_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k fallback : α} (not_mem : k ∉ m₂) :
+    (m₁ ∩ m₂).getKeyD k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  simp only [Inter.inter]
+  revert not_mem
+  simp_to_raw using Raw₀.getKeyD_inter_of_contains_eq_false_right
+
+theorem getKeyD_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k fallback : α} (not_mem : k ∉ m₁) :
+    (m₁ ∩ m₂).getKeyD k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  simp only [Inter.inter]
+  revert not_mem
+  simp_to_raw using Raw₀.getKeyD_inter_of_contains_eq_false_left
+
+/- getKey! -/
+theorem getKey!_inter [EquivBEq α] [LawfulHashable α] [Inhabited α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} :
+    (m₁ ∩ m₂).getKey! k =
+    if k ∈ m₂ then m₁.getKey! k else default := by
+  simp only [Membership.mem, Inter.inter]
+  simp_to_raw using Raw₀.getKey!_inter
+
+theorem getKey!_inter_of_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} (mem : k ∈ m₂) :
+    (m₁ ∩ m₂).getKey! k = m₁.getKey! k := by
+  simp only [Membership.mem] at mem
+  simp only [Inter.inter]
+  revert mem
+  simp_to_raw using Raw₀.getKey!_inter_of_contains_right
+
+theorem getKey!_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} (not_mem : k ∉ m₂) :
+    (m₁ ∩ m₂).getKey! k = default := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  simp only [Inter.inter]
+  revert not_mem
+  simp_to_raw using Raw₀.getKey!_inter_of_contains_eq_false_right
+
+theorem getKey!_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α] [Inhabited α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} (not_mem : k ∉ m₁) :
+    (m₁ ∩ m₂).getKey! k = default := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  simp only [Inter.inter]
+  revert not_mem
+  simp_to_raw using Raw₀.getKey!_inter_of_contains_eq_false_left
+
+/- size -/
+theorem size_inter_le_size_left [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁ ∩ m₂).size ≤ m₁.size := by
+  simp only [Inter.inter]
+  simp_to_raw using Raw₀.size_inter_le_size_left
+
+theorem size_inter_le_size_right [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁ ∩ m₂).size ≤ m₂.size := by
+  simp only [Inter.inter]
+  simp_to_raw using Raw₀.size_inter_le_size_right
+
+theorem size_inter_eq_size_left [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF)
+    (h : ∀ (a : α), a ∈ m₁ → a ∈ m₂) :
+    (m₁ ∩ m₂).size = m₁.size := by
+  have : ∀ (a : α), m₁.contains a → m₂.contains a := by
+    intro a ha
+    rw [contains_iff_mem] at ha ⊢
+    exact h a ha
+  revert this
+  simp only [Inter.inter]
+  simp_to_raw using Raw₀.size_inter_eq_size_left
+
+theorem size_inter_eq_size_right [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF)
+    (h : ∀ (a : α), a ∈ m₂ → a ∈ m₁) :
+    (m₁ ∩ m₂).size = m₂.size := by
+  have : ∀ (a : α), m₂.contains a → m₁.contains a := by
+    intro a ha
+    rw [contains_iff_mem] at ha ⊢
+    exact h a ha
+  revert this
+  simp only [Inter.inter]
+  simp_to_raw using Raw₀.size_inter_eq_size_right
+
+theorem size_add_size_eq_size_union_add_size_inter [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    m₁.size + m₂.size = (m₁ ∪ m₂).size + (m₁ ∩ m₂).size := by
+  simp only [Union.union, Inter.inter]
+  simp_to_raw using @Raw₀.size_add_size_eq_size_union_add_size_inter _ _ _ _ ⟨m₁, _⟩ ⟨m₂, _⟩
+
+/- isEmpty -/
+@[simp]
+theorem isEmpty_inter_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁.isEmpty) :
+    (m₁ ∩ m₂).isEmpty = true := by
+  revert h
+  simp only [Inter.inter]
+  simp_to_raw using @Raw₀.isEmpty_inter_left _ _ _ _ ⟨m₁, _⟩ ⟨m₂, _⟩ _ _
+
+@[simp]
+theorem isEmpty_inter_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₂.isEmpty) :
+    (m₁ ∩ m₂).isEmpty = true := by
+  revert h
+  simp only [Inter.inter]
+  simp_to_raw using @Raw₀.isEmpty_inter_right _ _ _ _ ⟨m₁, _⟩ ⟨m₂, _⟩ _ _
+
+theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁ ∩ m₂).isEmpty ↔ ∀ k, k ∈ m₁ → k ∉ m₂ := by
+  conv =>
+    rhs
+    rhs
+    rhs
+    rw [← contains_eq_false_iff_not_mem]
+  simp only [Inter.inter, Membership.mem]
+  simp_to_raw using @Raw₀.isEmpty_inter_iff _ _ _ _ ⟨m₁, _⟩ ⟨m₂, _⟩ _ _
+
+end Inter
 
 namespace Const
 

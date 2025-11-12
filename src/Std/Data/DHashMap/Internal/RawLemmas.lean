@@ -2777,19 +2777,19 @@ theorem contains_inter_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF
     (m₁.inter m₂).contains k ↔ m₁.contains k ∧ m₂.contains k := by
   simp_to_model [inter, contains] using List.containsKey_filter_containsKey_iff
 
-theorem not_contains_inter_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α]
+theorem contains_inter_eq_false_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α}
     (h : m₁.contains k = false) :
     (m₁.inter m₂).contains k = false := by
   revert h
-  simp_to_model [inter, contains] using List.not_contains_filter_containsKey_of_containsKey_eq_false_left
+  simp_to_model [inter, contains] using List.containsKey_filter_containsKey_eq_false_of_containsKey_eq_false_left
 
-theorem not_contains_inter_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α]
+theorem contains_inter_eq_false_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α}
     (h : m₂.contains k = false) :
     (m₁.inter m₂).contains k = false := by
   revert h
-  simp_to_model [inter, contains] using List.not_contains_filter_containsKey_of_containsKey_eq_false_right
+  simp_to_model [inter, contains] using List.containsKey_filter_containsKey_eq_false_of_containsKey_eq_false_right
 
 /- get? -/
 theorem get?_inter [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
@@ -2993,10 +2993,10 @@ theorem isEmpty_inter_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF
 
 /- isEmpty -/
 @[simp]
-theorem isEmpty_inter_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h : m₁.1.isEmpty) :
+theorem isEmpty_inter_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h : m₂.1.isEmpty) :
     (m₁.inter m₂).1.isEmpty = true := by
   revert h
-  simp_to_model [isEmpty, inter, contains] using List.isEmpty_filter_containsKey_left
+  simp_to_model [isEmpty, inter, contains] using List.isEmpty_filter_containsKey_right
 
 theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
     (m₁.inter m₂).1.isEmpty ↔ ∀ k, m₁.contains k → m₂.contains k = false := by

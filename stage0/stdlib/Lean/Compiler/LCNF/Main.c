@@ -108,6 +108,7 @@ static lean_object* l_Lean_Compiler_LCNF_shouldGenerateCode___closed__7;
 extern lean_object* l_Lean_trace_profiler_useHeartbeats;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_SMap_find_x3f___at___00Lean_Compiler_LCNF_shouldGenerateCode_spec__0_spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
+uint8_t l_Lean_isCasesOnLike(lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Compiler_LCNF_Main_0__Lean_Compiler_LCNF_shouldGenerateCode_isCompIrrelevant_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___redArg___closed__3;
 lean_object* l_Lean_MessageData_note(lean_object*);
 lean_object* l_Lean_Compiler_getImplementedBy_x3f(lean_object*, lean_object*);
@@ -438,7 +439,6 @@ static lean_object* l_Lean_withTraceNode___at___00Lean_Compiler_LCNF_PassManager
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Compiler_LCNF_PassManager_run_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
-uint8_t l_Lean_isCasesOnRecursor(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Compiler_LCNF_Main_0__Lean_Compiler_LCNF_shouldGenerateCode_isCompIrrelevant_spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getLocalDeclAt_x3f___redArg(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_addTrace___at___00Lean_Compiler_LCNF_checkpoint_spec__3___redArg___closed__1;
@@ -2088,7 +2088,7 @@ lean_dec(x_14);
 if (x_15 == 0)
 {
 uint8_t x_16; 
-x_16 = l_Lean_isCasesOnRecursor(x_10, x_1);
+x_16 = l_Lean_isCasesOnLike(x_10, x_1);
 if (x_16 == 0)
 {
 lean_object* x_17; 
@@ -2125,7 +2125,7 @@ lean_dec(x_20);
 if (x_21 == 0)
 {
 uint8_t x_22; 
-x_22 = l_Lean_isCasesOnRecursor(x_10, x_1);
+x_22 = l_Lean_isCasesOnLike(x_10, x_1);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; 

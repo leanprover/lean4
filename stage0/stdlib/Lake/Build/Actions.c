@@ -905,6 +905,7 @@ lean_object* x_213; lean_object* x_214;
 x_213 = lean_ctor_get(x_160, 0);
 lean_inc(x_213);
 lean_dec_ref(x_160);
+lean_inc(x_213);
 x_214 = l_Lake_createParentDirs(x_213);
 if (lean_obj_tag(x_214) == 0)
 {
@@ -978,6 +979,7 @@ goto block_15;
 block_159:
 {
 lean_object* x_23; 
+lean_inc_ref(x_4);
 x_23 = l_Lake_createParentDirs(x_4);
 if (lean_obj_tag(x_23) == 0)
 {
@@ -1344,6 +1346,7 @@ lean_object* x_167; lean_object* x_168;
 x_167 = lean_ctor_get(x_163, 0);
 lean_inc(x_167);
 lean_dec_ref(x_163);
+lean_inc(x_167);
 x_168 = l_Lake_createParentDirs(x_167);
 if (lean_obj_tag(x_168) == 0)
 {
@@ -1400,6 +1403,7 @@ lean_object* x_183; lean_object* x_184;
 x_183 = lean_ctor_get(x_162, 0);
 lean_inc(x_183);
 lean_dec_ref(x_162);
+lean_inc(x_183);
 x_184 = l_Lake_createParentDirs(x_183);
 if (lean_obj_tag(x_184) == 0)
 {
@@ -1457,6 +1461,7 @@ lean_object* x_199; lean_object* x_200;
 x_199 = lean_ctor_get(x_161, 0);
 lean_inc(x_199);
 lean_dec_ref(x_161);
+lean_inc(x_199);
 x_200 = l_Lake_createParentDirs(x_199);
 if (lean_obj_tag(x_200) == 0)
 {
@@ -1600,6 +1605,7 @@ LEAN_EXPORT lean_object* l_Lake_compileO(lean_object* x_1, lean_object* x_2, lea
 _start:
 {
 lean_object* x_7; 
+lean_inc_ref(x_1);
 x_7 = l_Lake_createParentDirs(x_1);
 if (lean_obj_tag(x_7) == 0)
 {
@@ -2051,6 +2057,7 @@ LEAN_EXPORT lean_object* l_Lake_compileStaticLib(lean_object* x_1, lean_object* 
 _start:
 {
 lean_object* x_7; 
+lean_inc_ref(x_1);
 x_7 = l_Lake_createParentDirs(x_1);
 if (lean_obj_tag(x_7) == 0)
 {
@@ -2339,6 +2346,7 @@ LEAN_EXPORT lean_object* l_Lake_compileSharedLib(lean_object* x_1, lean_object* 
 _start:
 {
 lean_object* x_6; 
+lean_inc_ref(x_1);
 x_6 = l_Lake_createParentDirs(x_1);
 if (lean_obj_tag(x_6) == 0)
 {
@@ -2434,6 +2442,7 @@ LEAN_EXPORT lean_object* l_Lake_compileExe(lean_object* x_1, lean_object* x_2, l
 _start:
 {
 lean_object* x_6; 
+lean_inc_ref(x_1);
 x_6 = l_Lake_createParentDirs(x_1);
 if (lean_obj_tag(x_6) == 0)
 {
@@ -2665,6 +2674,7 @@ x_33 = l_System_FilePath_pathExists(x_2);
 if (x_33 == 0)
 {
 lean_object* x_34; 
+lean_inc_ref(x_2);
 x_34 = l_Lake_createParentDirs(x_2);
 if (lean_obj_tag(x_34) == 0)
 {
@@ -2862,6 +2872,7 @@ LEAN_EXPORT lean_object* l_Lake_untar(lean_object* x_1, lean_object* x_2, uint8_
 _start:
 {
 lean_object* x_6; 
+lean_inc_ref(x_2);
 x_6 = l_IO_FS_createDirAll(x_2);
 if (lean_obj_tag(x_6) == 0)
 {
@@ -3085,6 +3096,7 @@ LEAN_EXPORT lean_object* l_Lake_tar(lean_object* x_1, lean_object* x_2, uint8_t 
 _start:
 {
 uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_19; 
+lean_inc_ref(x_2);
 x_19 = l_Lake_createParentDirs(x_2);
 if (lean_obj_tag(x_19) == 0)
 {

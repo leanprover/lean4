@@ -1522,7 +1522,6 @@ lean_inc(x_5);
 lean_dec_ref(x_4);
 x_6 = l_Lean_Server_documentUriFromModule_x3f___closed__0;
 x_7 = l_Lean_SearchPath_findModuleWithExt(x_5, x_6, x_1);
-lean_dec(x_1);
 if (lean_obj_tag(x_7) == 0)
 {
 uint8_t x_8; 

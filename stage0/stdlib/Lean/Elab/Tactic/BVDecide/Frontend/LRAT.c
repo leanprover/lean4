@@ -474,7 +474,6 @@ if (lean_is_exclusive(x_10)) {
  x_12 = lean_box(0);
 }
 x_22 = l_System_FilePath_parent(x_11);
-lean_dec(x_11);
 if (lean_obj_tag(x_22) == 0)
 {
 lean_object* x_23; lean_object* x_24; 

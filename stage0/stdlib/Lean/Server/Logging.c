@@ -506,6 +506,7 @@ lean_dec_ref(x_21);
 x_24 = l_Lean_Server_Logging_LogConfig_ofLspLogConfig___closed__2;
 x_25 = lean_string_append(x_23, x_24);
 x_26 = l_Lean_Server_Logging_LogConfig_ofLspLogConfig___closed__3;
+lean_inc_ref(x_25);
 x_27 = l_System_FilePath_join(x_26, x_25);
 if (lean_obj_tag(x_1) == 0)
 {
@@ -559,7 +560,6 @@ x_37 = lean_ctor_get(x_33, 0);
 lean_inc(x_37);
 lean_dec_ref(x_33);
 x_38 = l_System_FilePath_join(x_37, x_25);
-lean_dec_ref(x_25);
 x_9 = x_36;
 x_10 = x_34;
 x_11 = x_35;

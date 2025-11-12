@@ -309,7 +309,7 @@ static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyn
 lean_object* l_Lean_Parser_resolveParserName(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_zipWithMAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_processAlias_spec__5___redArg___closed__3;
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_processSepBy1___closed__1;
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at___00Lean_Elab_Term_checkLeftRec_spec__0___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabDeclareSyntaxCat___regBuiltin_Lean_Elab_Command_elabDeclareSyntaxCat_declRange__3___boxed(lean_object*);
@@ -19009,7 +19009,7 @@ lean_dec(x_9);
 if (x_10 == 0)
 {
 uint32_t x_11; uint8_t x_12; uint8_t x_15; uint32_t x_22; uint8_t x_23; 
-x_11 = lean_string_utf8_get(x_1, x_2);
+x_11 = lean_string_utf8_get_fast(x_1, x_2);
 x_22 = 32;
 x_23 = lean_uint32_dec_eq(x_11, x_22);
 if (x_23 == 0)

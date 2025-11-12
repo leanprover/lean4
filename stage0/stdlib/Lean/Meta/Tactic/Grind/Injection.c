@@ -48,7 +48,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___00Lean_Persis
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Meta_Grind_injection_x3f_spec__0_spec__0_spec__0_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Meta_Grind_injection_x3f_spec__0_spec__0_spec__0_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
-lean_object* l_Lean_MVarId_clear(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Meta_Grind_injection_x3f_spec__0_spec__0_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_assign___at___00Lean_Meta_Grind_injection_x3f_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
@@ -65,6 +64,7 @@ lean_object* l_Lean_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*)
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at___00Lean_PersistentHashMap_insertAtCollisionNode___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Meta_Grind_injection_x3f_spec__0_spec__0_spec__0_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_type(lean_object*);
+lean_object* l_Lean_MVarId_tryClear(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at___00Lean_PersistentHashMap_insertAtCollisionNode___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Meta_Grind_injection_x3f_spec__0_spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Meta_Grind_injection_x3f_spec__0_spec__0_spec__0___redArg(lean_object*, size_t, size_t, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
@@ -1077,7 +1077,7 @@ x_51 = lean_ctor_get(x_49, 0);
 lean_dec(x_51);
 x_52 = l_Lean_Expr_mvarId_x21(x_47);
 lean_dec(x_47);
-x_53 = l_Lean_MVarId_clear(x_52, x_1, x_3, x_4, x_5, x_6);
+x_53 = l_Lean_MVarId_tryClear(x_52, x_1, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_53) == 0)
 {
 uint8_t x_54; 
@@ -1131,7 +1131,7 @@ lean_object* x_61; lean_object* x_62;
 lean_dec(x_49);
 x_61 = l_Lean_Expr_mvarId_x21(x_47);
 lean_dec(x_47);
-x_62 = l_Lean_MVarId_clear(x_61, x_1, x_3, x_4, x_5, x_6);
+x_62 = l_Lean_MVarId_tryClear(x_61, x_1, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_62) == 0)
 {
 lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; 
@@ -1288,7 +1288,7 @@ if (lean_is_exclusive(x_85)) {
 }
 x_87 = l_Lean_Expr_mvarId_x21(x_83);
 lean_dec(x_83);
-x_88 = l_Lean_MVarId_clear(x_87, x_1, x_3, x_4, x_5, x_6);
+x_88 = l_Lean_MVarId_tryClear(x_87, x_1, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_88) == 0)
 {
 lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; 
@@ -1748,7 +1748,7 @@ if (lean_is_exclusive(x_153)) {
 }
 x_155 = l_Lean_Expr_mvarId_x21(x_151);
 lean_dec(x_151);
-x_156 = l_Lean_MVarId_clear(x_155, x_1, x_3, x_4, x_5, x_6);
+x_156 = l_Lean_MVarId_tryClear(x_155, x_1, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_156) == 0)
 {
 lean_object* x_157; lean_object* x_158; lean_object* x_159; lean_object* x_160; 

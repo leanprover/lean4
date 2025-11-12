@@ -95,7 +95,7 @@ LEAN_EXPORT lean_object* l___private_Lake_CLI_Init_0__Lake_mathLaxLeanConfigFile
 static lean_object* l_Lake_InitTemplate_ofString_x3f___closed__0;
 static lean_object* l___private_Lake_CLI_Init_0__Lake_validatePkgName___closed__8;
 LEAN_EXPORT uint8_t l_Lake_instInhabitedInitTemplate;
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 lean_object* l_IO_FS_createDirAll(lean_object*);
 static lean_object* l___private_Lake_CLI_Init_0__Lake_leanActionWorkflowContents___closed__0;
 static lean_object* l___private_Lake_CLI_Init_0__Lake_mathLaxTomlConfigFileContents___closed__0;
@@ -2300,7 +2300,7 @@ lean_dec(x_9);
 if (x_10 == 0)
 {
 uint32_t x_11; uint32_t x_12; uint8_t x_13; 
-x_11 = lean_string_utf8_get(x_1, x_2);
+x_11 = lean_string_utf8_get_fast(x_1, x_2);
 x_12 = 46;
 x_13 = lean_uint32_dec_eq(x_11, x_12);
 if (x_13 == 0)
@@ -2357,7 +2357,7 @@ lean_dec(x_3);
 if (x_4 == 0)
 {
 uint32_t x_5; uint32_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_5 = lean_string_utf8_get(x_1, x_2);
+x_5 = lean_string_utf8_get_fast(x_1, x_2);
 x_6 = l_Char_toLower(x_5);
 lean_inc(x_2);
 x_7 = lean_string_utf8_set(x_1, x_2, x_6);
@@ -2708,6 +2708,7 @@ x_8 = l___private_Lake_CLI_Init_0__Lake_createLeanActionWorkflow___closed__2;
 x_9 = l_Lake_joinRelative(x_1, x_8);
 x_10 = l___private_Lake_CLI_Init_0__Lake_createLeanActionWorkflow___closed__3;
 x_11 = l_Lake_joinRelative(x_9, x_10);
+lean_inc_ref(x_11);
 x_12 = l_IO_FS_createDirAll(x_11);
 if (lean_obj_tag(x_12) == 0)
 {
@@ -3261,7 +3262,6 @@ x_399 = l_System_FilePath_addExtension(x_13, x_398);
 lean_dec_ref(x_398);
 lean_inc_ref(x_1);
 x_400 = l_Lake_joinRelative(x_1, x_399);
-lean_dec_ref(x_399);
 x_489 = l_System_FilePath_pathExists(x_400);
 x_517 = l___private_Lake_CLI_Init_0__Lake_initPkg___closed__9;
 x_518 = l___private_Lake_CLI_Init_0__Lake_initPkg___closed__11;
@@ -4481,7 +4481,6 @@ if (x_364 == 0)
 {
 lean_object* x_366; 
 x_366 = l_IO_FS_createDirAll(x_357);
-lean_dec_ref(x_357);
 if (lean_obj_tag(x_366) == 0)
 {
 lean_object* x_367; lean_object* x_368; 
@@ -4813,6 +4812,7 @@ if (x_457 == 0)
 lean_object* x_458; lean_object* x_459; uint8_t x_460; lean_object* x_461; uint8_t x_462; 
 lean_dec_ref(x_456);
 x_458 = l_Lake_toUpperCamelCase(x_2);
+lean_inc(x_458);
 x_459 = l_Lean_modToFilePath(x_1, x_458, x_455);
 lean_dec_ref(x_455);
 x_460 = l_System_FilePath_pathExists(x_459);
@@ -4894,6 +4894,7 @@ block_488:
 {
 lean_object* x_478; lean_object* x_479; uint8_t x_480; lean_object* x_481; uint8_t x_482; 
 x_478 = l___private_Lake_CLI_Init_0__Lake_initPkg___closed__20;
+lean_inc(x_2);
 x_479 = l_Lean_modToFilePath(x_1, x_2, x_478);
 x_480 = l_System_FilePath_pathExists(x_479);
 x_481 = l___private_Lake_CLI_Init_0__Lake_initPkg___closed__9;
@@ -5631,7 +5632,6 @@ x_399 = l_System_FilePath_addExtension(x_13, x_398);
 lean_dec_ref(x_398);
 lean_inc_ref(x_2);
 x_400 = l_Lake_joinRelative(x_2, x_399);
-lean_dec_ref(x_399);
 x_489 = l_System_FilePath_pathExists(x_400);
 x_517 = l___private_Lake_CLI_Init_0__Lake_initPkg___closed__9;
 x_518 = l___private_Lake_CLI_Init_0__Lake_initPkg___closed__11;
@@ -6851,7 +6851,6 @@ if (x_364 == 0)
 {
 lean_object* x_366; 
 x_366 = l_IO_FS_createDirAll(x_360);
-lean_dec_ref(x_360);
 if (lean_obj_tag(x_366) == 0)
 {
 lean_object* x_367; lean_object* x_368; 
@@ -7183,6 +7182,7 @@ if (x_457 == 0)
 lean_object* x_458; lean_object* x_459; uint8_t x_460; lean_object* x_461; uint8_t x_462; 
 lean_dec_ref(x_454);
 x_458 = l_Lake_toUpperCamelCase(x_3);
+lean_inc(x_458);
 x_459 = l_Lean_modToFilePath(x_2, x_458, x_456);
 lean_dec_ref(x_456);
 x_460 = l_System_FilePath_pathExists(x_459);
@@ -7264,6 +7264,7 @@ block_488:
 {
 lean_object* x_478; lean_object* x_479; uint8_t x_480; lean_object* x_481; uint8_t x_482; 
 x_478 = l___private_Lake_CLI_Init_0__Lake_initPkg___closed__20;
+lean_inc(x_3);
 x_479 = l_Lean_modToFilePath(x_2, x_3, x_478);
 x_480 = l_System_FilePath_pathExists(x_479);
 x_481 = l___private_Lake_CLI_Init_0__Lake_initPkg___closed__9;
@@ -7584,6 +7585,7 @@ return x_11;
 block_32:
 {
 lean_object* x_15; 
+lean_inc_ref(x_5);
 x_15 = l_IO_FS_createDirAll(x_5);
 if (lean_obj_tag(x_15) == 0)
 {
@@ -7906,7 +7908,7 @@ x_19 = l_Lake_stringToLegalOrSimpleName(x_17);
 lean_inc(x_19);
 x_20 = l___private_Lake_CLI_Init_0__Lake_dotlessName(x_19);
 x_21 = l_Lake_joinRelative(x_5, x_20);
-lean_dec_ref(x_20);
+lean_inc_ref(x_21);
 x_22 = l_IO_FS_createDirAll(x_21);
 if (lean_obj_tag(x_22) == 0)
 {

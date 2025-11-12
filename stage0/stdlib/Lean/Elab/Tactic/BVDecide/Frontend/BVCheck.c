@@ -627,6 +627,7 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_ctor_get(x_5, 0);
+lean_inc_ref(x_8);
 x_9 = l_System_FilePath_parent(x_8);
 if (lean_obj_tag(x_9) == 0)
 {
@@ -644,11 +645,13 @@ x_15 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
 lean_ctor_set(x_15, 1, x_14);
 x_16 = l_Lean_throwError___at___00Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_getSrcDir_spec__0___redArg(x_15, x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec_ref(x_5);
 return x_16;
 }
 else
 {
 uint8_t x_17; 
+lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 x_17 = !lean_is_exclusive(x_9);
 if (x_17 == 0)
@@ -747,7 +750,6 @@ _start:
 lean_object* x_8; 
 x_8 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_getSrcDir(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_6);
-lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_2);
@@ -758,6 +760,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_mkContext(
 _start:
 {
 lean_object* x_10; 
+lean_inc_ref(x_7);
 lean_inc_ref(x_3);
 x_10 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_getSrcDir(x_3, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_10) == 0)
@@ -768,14 +771,17 @@ lean_inc(x_11);
 lean_dec_ref(x_10);
 x_12 = l_System_FilePath_join(x_11, x_1);
 x_13 = l_Lean_Elab_Tactic_BVDecide_Frontend_TacticContext_new(x_12, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+lean_dec_ref(x_7);
 lean_dec_ref(x_3);
 return x_13;
 }
 else
 {
 uint8_t x_14; 
+lean_dec_ref(x_7);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_14 = !lean_is_exclusive(x_10);
 if (x_14 == 0)
 {
@@ -800,11 +806,9 @@ _start:
 lean_object* x_10; 
 x_10 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_mkContext(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_8);
-lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
-lean_dec_ref(x_1);
 return x_10;
 }
 }
@@ -3791,10 +3795,10 @@ lean_inc(x_28);
 lean_dec_ref(x_27);
 x_29 = l_Lean_TSyntax_getString(x_23);
 lean_dec(x_23);
+lean_inc_ref(x_8);
 lean_inc_ref(x_4);
 lean_inc(x_28);
 x_30 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_mkContext(x_29, x_28, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec_ref(x_29);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 

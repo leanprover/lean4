@@ -515,7 +515,6 @@ x_4 = l_Lake_instInhabitedEnv_default___closed__2;
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = l___private_Lake_Config_InstallPath_0__Lake_toolchain2Dir_go(x_2, x_4, x_5);
 x_7 = l_System_FilePath_join(x_3, x_6);
-lean_dec_ref(x_6);
 x_8 = l___private_Lake_Config_Env_0__Lake_ElanInstall_lakeToolchainCache___closed__0;
 x_9 = l_System_FilePath_join(x_7, x_8);
 x_10 = l___private_Lake_Config_Env_0__Lake_ElanInstall_lakeToolchainCache___closed__1;

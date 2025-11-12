@@ -1267,7 +1267,9 @@ uint8_t x_24; uint8_t x_25; lean_object* x_26;
 x_24 = lean_ctor_get_uint8(x_20, sizeof(void*)*2 + 1);
 x_25 = 0;
 lean_ctor_set_uint8(x_20, sizeof(void*)*2, x_25);
+lean_inc_ref(x_8);
 lean_inc_ref(x_4);
+lean_inc(x_22);
 x_26 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_mkContext(x_22, x_20, x_4, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_26) == 0)
 {
@@ -1380,6 +1382,7 @@ goto block_54;
 else
 {
 lean_object* x_77; 
+lean_inc_ref(x_8);
 x_77 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_getSrcDir(x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -1390,6 +1393,7 @@ lean_object* x_78; lean_object* x_79; lean_object* x_80;
 x_78 = lean_ctor_get(x_77, 0);
 lean_inc(x_78);
 lean_dec_ref(x_77);
+lean_inc(x_22);
 x_79 = l_System_FilePath_join(x_78, x_22);
 x_80 = l_Std_Tactic_BVDecide_LRAT_loadLRATProof(x_79);
 if (lean_obj_tag(x_80) == 0)
@@ -1612,6 +1616,7 @@ goto block_54;
 else
 {
 lean_object* x_127; 
+lean_inc_ref(x_8);
 x_127 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_getSrcDir(x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -1622,6 +1627,7 @@ lean_object* x_128; lean_object* x_129; lean_object* x_130;
 x_128 = lean_ctor_get(x_127, 0);
 lean_inc(x_128);
 lean_dec_ref(x_127);
+lean_inc(x_22);
 x_129 = l_System_FilePath_join(x_128, x_22);
 x_130 = l_Std_Tactic_BVDecide_LRAT_loadLRATProof(x_129);
 if (lean_obj_tag(x_130) == 0)
@@ -1944,7 +1950,9 @@ lean_ctor_set_uint8(x_184, sizeof(void*)*2 + 6, x_178);
 lean_ctor_set_uint8(x_184, sizeof(void*)*2 + 7, x_179);
 lean_ctor_set_uint8(x_184, sizeof(void*)*2 + 8, x_180);
 lean_ctor_set_uint8(x_184, sizeof(void*)*2 + 9, x_182);
+lean_inc_ref(x_8);
 lean_inc_ref(x_4);
+lean_inc(x_22);
 x_185 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_mkContext(x_22, x_184, x_4, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_185) == 0)
 {
@@ -2058,6 +2066,7 @@ goto block_213;
 else
 {
 lean_object* x_235; 
+lean_inc_ref(x_8);
 x_235 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_getSrcDir(x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -2068,6 +2077,7 @@ lean_object* x_236; lean_object* x_237; lean_object* x_238;
 x_236 = lean_ctor_get(x_235, 0);
 lean_inc(x_236);
 lean_dec_ref(x_235);
+lean_inc(x_22);
 x_237 = l_System_FilePath_join(x_236, x_22);
 x_238 = l_Std_Tactic_BVDecide_LRAT_loadLRATProof(x_237);
 if (lean_obj_tag(x_238) == 0)

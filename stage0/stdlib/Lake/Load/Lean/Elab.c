@@ -7336,7 +7336,7 @@ x_35 = l_Lake_importConfigFile___closed__3;
 lean_inc_ref(x_34);
 x_36 = l_Lake_joinRelative(x_34, x_35);
 x_37 = l_Lake_joinRelative(x_36, x_32);
-lean_dec_ref(x_32);
+lean_inc_ref(x_37);
 x_38 = l_IO_FS_createDirAll(x_37);
 if (lean_obj_tag(x_38) == 0)
 {
@@ -7354,23 +7354,19 @@ lean_inc(x_30);
 x_42 = l_System_FilePath_withExtension(x_30, x_41);
 lean_inc_ref(x_37);
 x_43 = l_Lake_joinRelative(x_37, x_42);
-lean_dec_ref(x_42);
 x_44 = l_System_FilePath_pathExists(x_43);
 x_45 = l_Lake_importConfigFile___closed__5;
 lean_inc(x_30);
 x_46 = l_System_FilePath_withExtension(x_30, x_45);
 lean_inc_ref(x_37);
 x_47 = l_Lake_joinRelative(x_37, x_46);
-lean_dec_ref(x_46);
 x_190 = l_Lake_importConfigFile___closed__7;
 x_191 = l_System_FilePath_withExtension(x_30, x_190);
 x_192 = l_Lake_joinRelative(x_37, x_191);
-lean_dec_ref(x_191);
 if (x_44 == 0)
 {
 lean_object* x_293; 
 x_293 = l_IO_FS_createDirAll(x_34);
-lean_dec_ref(x_34);
 if (lean_obj_tag(x_293) == 0)
 {
 uint8_t x_294; lean_object* x_295; 

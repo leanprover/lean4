@@ -10480,7 +10480,6 @@ lean_dec(x_4);
 x_16 = l_String_crlfToLf(x_14);
 lean_dec_ref(x_14);
 x_17 = l_Lean_FileMap_ofString(x_16);
-lean_inc_ref(x_17);
 x_18 = l_Lean_FileMap_ofPosition(x_17, x_15);
 x_5 = x_17;
 x_6 = x_18;

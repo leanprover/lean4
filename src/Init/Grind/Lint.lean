@@ -1,0 +1,73 @@
+/-
+Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Leonardo de Moura
+-/
+module
+prelude
+public import Init.Grind.Interactive
+public import Init.Grind.Config
+public section
+namespace Lean.Grind
+open Parser Tactic Grind
+
+/--
+`#grind_lint check` analyzes all theorems annotated for theorem instantiation using E-matching.
+
+It creates artificial goals and reports the number of instances each theorem produces.
+The command helps detect long or unbounded theorem instantiation chains.
+
+Usage examples:
+```
+#grind_lint check
+#grind_lint check (min:=10) (detailed:=50)
+#grind_lint check in Foo Bar -- restrict analysis to these namespaces
+```
+
+Options can include any valid `grind` configuration option, and `min` and `detailed`.
+- `min`:      minimum number of instantiations to print a summary (default: 10)
+- `detailed`: minimum number of instantiations to print detailed breakdown (default: 50)
+If the option `trace.grind.*` is enabled, additional details are printed.
+-/
+syntax "#grind_lint" ppSpace &"check" (ppSpace configItem)* (ppSpace "in" ident+)? : command
+
+/--
+`#grind_lint inspect thm₁ …` analyzes the specified theorem(s) individually.
+
+It always prints detailed statistics regardless of thresholds and is useful
+for investigating specific `grind` lemmas that may generate excessive
+instantiations.
+Examples:
+```
+#grind_lint inspect Array.zip_map
+```
+-/
+syntax "#grind_lint" ppSpace &"inspect" (ppSpace configItem)* ident+ : command
+
+/--
+`#grind_lint mute thm₁ …` marks the given theorem(s) as *muted* during linting.
+
+Muted theorems remain in the environment but are not instantiated when running
+`#grind_lint check` or `#grind_lint inspect`.
+This is useful for suppressing noisy or recursive lemmas that cause excessive
+E-matching without removing their annotations.
+
+Example:
+```
+#grind_lint mute Array.zip_map Int.zero_shiftRight
+```
+-/
+syntax "#grind_lint" ppSpace &"mute" ident+ : command
+
+/--
+`#grind_lint skip thm₁ …` marks the given theorem(s) to be skipped entirely by `#grind_lint check`.
+Skipped theorems are neither analyzed nor reported, but may still be used for
+instantiation when analyzing other theorems.
+Example:
+```
+#grind_lint skip Array.range_succ
+```
+-/
+syntax "#grind_lint" ppSpace &"skip" ident+ : command
+
+end Lean.Grind

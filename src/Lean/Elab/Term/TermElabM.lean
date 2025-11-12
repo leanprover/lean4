@@ -242,38 +242,41 @@ structure Context where
   declName? : Option Name := none
   macroStack        : MacroStack      := []
   /--
-     When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
-     The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
-     the list of pending synthetic metavariables, and returns `?m`. -/
+  When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
+  The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
+  the list of pending synthetic metavariables, and returns `?m`.
+  -/
   mayPostpone : Bool := true
   /--
-     When `errToSorry` is set to true, the method `elabTerm` catches
-     exceptions and converts them into synthetic `sorry`s.
-     The implementation of choice nodes and overloaded symbols rely on the fact
-     that when `errToSorry` is set to false for an elaboration function `F`, then
-     `errToSorry` remains `false` for all elaboration functions invoked by `F`.
-     That is, it is safe to transition `errToSorry` from `true` to `false`, but
-     we must not set `errToSorry` to `true` when it is currently set to `false`. -/
+  When `errToSorry` is set to true, the method `elabTerm` catches
+  exceptions and converts them into synthetic `sorry`s.
+  The implementation of choice nodes and overloaded symbols rely on the fact
+  that when `errToSorry` is set to false for an elaboration function `F`, then
+  `errToSorry` remains `false` for all elaboration functions invoked by `F`.
+  That is, it is safe to transition `errToSorry` from `true` to `false`, but
+  we must not set `errToSorry` to `true` when it is currently set to `false`.
+  -/
   errToSorry : Bool := true
   /--
-     During elaboration we track the current context for adding auto-bound
-     implicit variables. (We mark the entry to such a region with
-     `withAutoBoundImplicit` and leave it with `withoutAutoBoundImplicit`.)
+  During elaboration we track the current context for adding auto-bound
+  implicit variables. (We mark the entry to such a region with
+  `withAutoBoundImplicit` and leave it with `withoutAutoBoundImplicit`.)
 
-     When the `autoImplicit` option is `false`, this context is only used to
-     affect error messages. When `autoImplicit` is `true` and an identifier is
-     unbound and potentially an auto-bound implicit, an internal exception is
-     thrown and caught at the closest surrounding `withAutoBoundImplicit`,
-     which adds an implicit declaration for the unbound variable and tries
-     again. -/
+  When the `autoImplicit` option is `false`, this context is only used to
+  affect error messages. When `autoImplicit` is `true` and an identifier is
+  unbound and potentially an auto-bound implicit, an internal exception is
+  thrown and caught at the closest surrounding `withAutoBoundImplicit`,
+  which adds an implicit declaration for the unbound variable and tries
+  again.
+  -/
   autoBoundImplicitContext : Option AutoBoundImplicitContext := .none
   /--
-    A name `n` is only eligible to be an auto implicit name if `autoBoundImplicitForbidden n = false`.
-    We use this predicate to disallow `f` to be considered an auto implicit name in a definition such
-    as
-    ```
-    def f : f → Bool := fun _ => true
-    ```
+  A name `n` is only eligible to be an auto implicit name if `autoBoundImplicitForbidden n = false`.
+  We use this predicate to disallow `f` to be considered an auto implicit name in a definition such
+  as
+  ```
+  def f : f → Bool := fun _ => true
+  ```
   -/
   autoBoundImplicitForbidden : Name → Bool := fun _ => false
   /-- Map from user name to internal unique name -/
@@ -318,6 +321,7 @@ structure Context where
 abbrev TermElabM := ReaderT Context $ StateRefT State MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
 
+@[deprecated "replace with a check of autoBoundImplicitContext" (since := "2025-11-11")]
 def Context.autoBoundImplicit (ctx : Context) : Bool :=
   match ctx.autoBoundImplicitContext with
     | .none => false
@@ -1771,9 +1775,9 @@ def elabType (stx : Syntax) : TermElabM Expr := do
   Enable auto-bound implicits, and execute `k` while catching auto bound implicit exceptions. When an exception is caught,
   a new local declaration is created, registered, and `k` is tried to be executed again. -/
 partial def withAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
-  let flag := autoImplicit.get (← getOptions)
-  let initCtx : AutoBoundImplicitContext := { flag }
-  if flag then
+  let autoImplicitEnabled := autoImplicit.get (← getOptions)
+  let initCtx : AutoBoundImplicitContext := { autoImplicitEnabled }
+  if autoImplicitEnabled then
     let rec loop (s : SavedState) (ctx : AutoBoundImplicitContext) : TermElabM α := withIncRecDepth do
       checkSystem "auto-implicit"
       try
@@ -1997,10 +2001,12 @@ where
         throwUnknownIdentifierAt (declHint := npriv) stx m!"Unknown identifier `{.ofConstName n}`"
     if !(← read).autoBoundImplicitForbidden n then
       if (← read).autoBoundImplicitContext.isSome then
-        match checkValidAutoBoundImplicitName n (allowed := autoImplicit.get (← getOptions)) (relaxed := relaxedAutoImplicit.get (← getOptions)) with
+        let allowed := autoImplicit.get (← getOptions)
+        let relaxed := relaxedAutoImplicit.get (← getOptions)
+        match checkValidAutoBoundImplicitName n (allowed := allowed) (relaxed := relaxed) with
           | .ok true => throwAutoBoundImplicitLocal n
           | .ok false => throwUnknownIdentifierAt (declHint := n) stx m!"Unknown identifier `{.ofConstName n}`"
-          | .error msg => throwUnknownIdentifierAt (declHint := n) stx (m!"Unknown identifier `{.ofConstName n}`" ++ (← msg))
+          | .error msg => throwUnknownIdentifierAt (declHint := n) stx (m!"Unknown identifier `{.ofConstName n}`" ++ msg)
     throwUnknownIdentifierAt (declHint := n) stx m!"Unknown identifier `{.ofConstName n}`"
 
 /--

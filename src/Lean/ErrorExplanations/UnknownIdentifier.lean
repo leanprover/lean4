@@ -220,9 +220,9 @@ set relaxedAutoImplicit false in
 def thisBreaks {α₂ size₂} (x : α₂) (y : size₂) := ()
 ```
 
-By default, when Lean sees an identifier it can't identify in the type of a definition, Lean will
-add [automatic implicit parameters](lean-manual://section/automatic-implicit-parameters) for those
-unknown identifiers. However, many files or projects disable this setting by setting the
+Lean's default behavior, when it encounters an identifier it can't identify in the type of a
+definition, is to add [automatic implicit parameters](lean-manual://section/automatic-implicit-parameters)
+for those unknown identifiers. However, many files or projects disable this feature by setting the
 `autoImplicit` or `relaxedAutoImplicit` options to `false`.
 
 Without re-enabling the `autoImplicit` or `relaxedAutoImplicit` options, the easiest way to fix

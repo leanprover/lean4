@@ -27,9 +27,12 @@ register_builtin_option relaxedAutoImplicit : Bool := {
   }
 
 /--
-Intuitively a variable can be auto-bound in strict mode if it is a single character (`α` or `x`),
-but also it can have an arbitrary trailing sequence of numbers, subscripts, and underscores: both
-`αᵣₒₛₑ₂₁₁'''` and `X123_45` can be auto-bound even with `relaxedAutoBound` set to `false`.
+Checks whether a string is a name that can be auto-bound when the `relaxedAutoImplicit` option is
+set to `false`.
+
+In "strict" auto implicit mode, a identifier can only be auto-bound if it is a single character (`α`
+or `x`) or has an arbitrary postfix sequence of numbers, subscripts, and underscores. Therefore,
+both `αᵣₒₛₑ₂₁₁'''` and `X123_45` can be auto-bound even with `relaxedAutoBound` set to `false`.
 -/
 private def isValidAutoBoundSuffix (s : String) : Bool :=
   s.toSubstring.drop 1 |>.all fun c => c.isDigit || isSubScriptAlnum c || c == '_' || c == '\''
@@ -52,7 +55,7 @@ but it contains additional notes (above and beyond `Unknown identifier`) to atta
 an error message.
 -/
 
-def checkValidAutoBoundImplicitName (n : Name) (allowed : Bool) (relaxed : Bool) : Except (CoreM MessageData) Bool :=
+def checkValidAutoBoundImplicitName (n : Name) (allowed : Bool) (relaxed : Bool) : Except MessageData Bool :=
   match n with
   | .str .anonymous s =>
     if s.length = 0 then
@@ -60,10 +63,9 @@ def checkValidAutoBoundImplicitName (n : Name) (allowed : Bool) (relaxed : Bool)
     else if allowed && (relaxed || isValidAutoBoundSuffix s) then
       .ok true
     else if !allowed then
-      .error <| do
-        return (.note m!"It is not possible to treat `{.ofConstName n}` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.")
+      .error <| .note m!"It is not possible to treat `{.ofConstName n}` as an implicitly bound variable here because the `autoImplicit` option is set to `false`."
     else
-      .error <| pure (.note m!"It is not possible to treat `{.ofConstName n}` as an implicitly bound variable here because it has multiple characters while the `relaxedAutoImplicit` option is set to `false`.")
+      .error <| .note m!"It is not possible to treat `{.ofConstName n}` as an implicitly bound variable here because it has multiple characters while the `relaxedAutoImplicit` option is set to `false`."
   | _ => .ok false
 
 def isValidAutoBoundLevelName (n : Name) (relaxed : Bool) : Bool :=
@@ -72,27 +74,28 @@ def isValidAutoBoundLevelName (n : Name) (relaxed : Bool) : Bool :=
   | _ => false
 
 /--
-  Tracks extra context needed within the scope of `Lean.Elab.Term.withAutoBoundImplicit`
+Tracks extra context needed within the scope of `Lean.Elab.Term.withAutoBoundImplicit`
 -/
 public structure AutoBoundImplicitContext where
   /--
-    This always matches the `autoImplicit` option; it is duplicated here in
-    order to support the behavior of the deprecated `Lean.Elab.Term.Context.autoImplicit`
-    method.
+  This always matches the `autoImplicit` option; it is duplicated here in
+  order to support the behavior of the deprecated `Lean.Elab.Term.Context.autoImplicit`
+  method.
   -/
-  flag : Bool
+  autoImplicitEnabled : Bool
   /--
-    Tracks a working set of variables that are currently poised to be
-    implicitly bound.
+  Tracks a working set of variables that the auto-binding process currently
+  anticipates adding implicit binding for.
   -/
   boundVariables : PArray Expr := {}
 deriving Inhabited
 
 instance : EmptyCollection AutoBoundImplicitContext where
-  emptyCollection := AutoBoundImplicitContext.mk (flag := false) (boundVariables := {})
+  emptyCollection := AutoBoundImplicitContext.mk (autoImplicitEnabled := false) (boundVariables := {})
 
 /--
-  Push a new variable onto the autoImplicit context
+Pushes a new variable onto the autoImplicit context, indicating that it needs
+to be bound as an implicit parameter.
 -/
 public def AutoBoundImplicitContext.push (ctx : AutoBoundImplicitContext) (x : Expr) :=
   { ctx with boundVariables := ctx.boundVariables.push x }

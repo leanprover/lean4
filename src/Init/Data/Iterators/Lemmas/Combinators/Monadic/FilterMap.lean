@@ -233,6 +233,43 @@ end Step
 
 section Lawful
 
+@[no_expose]
+instance {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type x}
+    [Monad m] [Monad n] [Monad o] [LawfulMonad n] [LawfulMonad o] [Iterator α m β] [Finite α m]
+    [IteratorCollect α m o] [LawfulIteratorCollect α m o]
+    {lift : ⦃δ : Type w⦄ -> m δ → n δ} {f : β → PostconditionT n γ} [LawfulMonadLiftFunction lift] :
+    LawfulIteratorCollect (Map α m n lift f) n o where
+  lawful_toArrayMapped := by
+    intro δ lift' _ _
+    letI : MonadLift m n := ⟨lift (δ := _)⟩
+    letI : MonadLift n o := ⟨lift' (α := _)⟩
+    ext g it
+    have : it = IterM.mapWithPostcondition _ it.internalState.inner := by rfl
+    generalize it.internalState.inner = it at *
+    cases this
+    simp only [LawfulIteratorCollect.toArrayMapped_eq]
+    simp only [IteratorCollect.toArrayMapped]
+    rw [LawfulIteratorCollect.toArrayMapped_eq]
+    induction it using IterM.inductSteps with | step it ih_yield ih_skip
+    rw [IterM.DefaultConsumers.toArrayMapped_eq_match_step]
+    rw [IterM.DefaultConsumers.toArrayMapped_eq_match_step]
+    simp only [bind_assoc]
+    rw [IterM.step_mapWithPostcondition]
+    simp only [liftM_bind (m := n) (n := o), bind_assoc]
+    apply bind_congr
+    intro step
+    cases step.inflate using PlausibleIterStep.casesOn
+    · simp only [bind_pure_comp]
+      simp only [liftM_map, bind_map_left]
+      apply bind_congr
+      intro out'
+      simp only [Shrink.inflate_deflate, ← ih_yield ‹_›]
+      rfl
+    · simp only [bind_pure_comp, pure_bind, liftM_pure, pure_bind, ← ih_skip ‹_›,
+        Shrink.inflate_deflate]
+      simp only [IterM.mapWithPostcondition, IterM.InternalCombinators.map, internalState_toIterM]
+    · simp
+
 end Lawful
 
 section ToList

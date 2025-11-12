@@ -16,21 +16,23 @@ namespace Std.Iterators
 
 theorem IterM.DefaultConsumers.forIn'_eq_match_step {α β : Type w} {m : Type w → Type w'}
     [Iterator α m β]
-    {n : Type x → Type x'} [Monad n] [Finite α m]
+    {n : Type x → Type x'} [Monad n]
     {lift : ∀ γ δ, (γ → n δ) → m γ → n δ} {γ : Type x}
+    {plausible_forInStep : β → γ → ForInStep γ → Prop}
+    {wf : IteratorLoop.WellFounded α m plausible_forInStep}
     {it : IterM (α := α) m β} {init : γ}
-    {P hP} {f : (b : β) → P b → (c : γ) → n (ForInStep γ)} :
-    IterM.DefaultConsumers.forIn' lift γ it init P hP f =
+    {P hP} {f : (b : β) → P b → (c : γ) → n (Subtype (plausible_forInStep b c))} :
+    IterM.DefaultConsumers.forIn' lift γ plausible_forInStep wf it init P hP f =
       (lift _ _ · it.step) (fun s =>
           match s.inflate with
           | .yield it' out h => do
             match ← f out (hP _ <| .direct ⟨_, h⟩) init with
-            | .yield c =>
-              IterM.DefaultConsumers.forIn' lift _ it' c P
+            | ⟨.yield c, _⟩ =>
+              IterM.DefaultConsumers.forIn' lift _ plausible_forInStep wf it' c P
                 (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') f
-            | .done c => return c
+            | ⟨.done c, _⟩ => return c
           | .skip it' h =>
-            IterM.DefaultConsumers.forIn' lift _ it' init P
+            IterM.DefaultConsumers.forIn' lift _ plausible_forInStep wf it' init P
               (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') f
           | .done _ => return init) := by
   rw [forIn']
@@ -44,8 +46,8 @@ theorem IterM.forIn'_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m
     {f : (b : β) → it.IsPlausibleIndirectOutput b → γ → n (ForInStep γ)} :
     letI : ForIn' n (IterM (α := α) m β) β _ := IterM.instForIn'
     ForIn'.forIn' it init f = IterM.DefaultConsumers.forIn' (n := n)
-        (fun _ _ f x => monadLift x >>= f) γ
-        it init _ (fun _ => id) (f · · ·) := by
+        (fun _ _ f x => monadLift x >>= f) γ (fun _ _ _ => True)
+        IteratorLoop.wellFounded_of_finite it init _ (fun _ => id) ((⟨·, .intro⟩) <$> f · · ·) := by
   simp [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn',
     hl.lawful (fun _ _ f x => monadLift x >>= f), IteratorLoop.defaultImplementation]
 
@@ -55,8 +57,8 @@ theorem IterM.forIn_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m 
     [MonadLiftT m n] [LawfulMonadLiftT m n] {γ : Type w} {it : IterM (α := α) m β} {init : γ}
     {f : β → γ → n (ForInStep γ)} :
     ForIn.forIn it init f = IterM.DefaultConsumers.forIn' (n := n)
-        (fun _ _ f x => monadLift x >>= f) γ
-        it init _ (fun _ => id) (fun out _ acc => f out acc) := by
+        (fun _ _ f x => monadLift x >>= f) γ (fun _ _ _ => True)
+        IteratorLoop.wellFounded_of_finite it init _ (fun _ => id) (fun out _ acc => (⟨·, .intro⟩) <$> f out acc) := by
   simp only [ForIn.forIn, forIn'_eq]
 
 @[congr] theorem IterM.forIn'_congr {α β : Type w} {m : Type w → Type w'}

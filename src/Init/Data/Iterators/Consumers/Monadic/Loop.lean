@@ -68,9 +68,10 @@ provided by the standard library.
 class IteratorLoop (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
     (n : Type x → Type x') where
   forIn : ∀ (_liftBind : (γ : Type w) → (δ : Type x) → (γ → n δ) → m γ → n δ) (γ : Type x),
-      Finite α m →
+      (plausible_forInStep : β → γ → ForInStep γ → Prop) →
+      IteratorLoop.WellFounded α m plausible_forInStep →
       (it : IterM (α := α) m β) → γ →
-      ((b : β) → it.IsPlausibleIndirectOutput b → (c : γ) → n (ForInStep γ)) →
+      ((b : β) → it.IsPlausibleIndirectOutput b → (c : γ) → n (Subtype (plausible_forInStep b c))) →
       n γ
 
 /--
@@ -131,38 +132,45 @@ This is the loop implementation of the default instance `IteratorLoop.defaultImp
 @[specialize, expose]
 def IterM.DefaultConsumers.forIn' {m : Type w → Type w'} {α : Type w} {β : Type w}
     [Iterator α m β]
-    {n : Type x → Type x'} [Monad n] [Finite α m]
+    {n : Type x → Type x'} [Monad n]
     (lift : ∀ γ δ, (γ → n δ) → m γ → n δ) (γ : Type x)
+    (plausible_forInStep : β → γ → ForInStep γ → Prop)
+    (wf : IteratorLoop.WellFounded α m plausible_forInStep)
     (it : IterM (α := α) m β) (init : γ)
     (P : β → Prop) (hP : ∀ b, it.IsPlausibleIndirectOutput b → P b)
-    (f : (b : β) → P b → (c : γ) → n (ForInStep γ)) : n γ :=
+    (f : (b : β) → P b → (c : γ) → n (Subtype (plausible_forInStep b c))) : n γ :=
+  haveI : WellFounded _ := wf
   (lift _ _ · it.step) fun s =>
     match s.inflate with
     | .yield it' out h => do
       match ← f out (hP _ <| .direct ⟨_, h⟩) init with
-      | .yield c =>
-        IterM.DefaultConsumers.forIn' lift _ it' c P
+      | ⟨.yield c, _⟩ =>
+        IterM.DefaultConsumers.forIn' lift _ plausible_forInStep wf it' c P
           (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') f
-      | .done c => return c
+      | ⟨.done c, _⟩ => return c
     | .skip it' h =>
-      IterM.DefaultConsumers.forIn' lift _ it' init P
+      IterM.DefaultConsumers.forIn' lift _ plausible_forInStep wf it' init P
           (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') f
     | .done _ => return init
-termination_by it.finitelyManySteps
+termination_by IteratorLoop.WithWF.mk it init (hwf := wf)
+decreasing_by
+  · exact Or.inl ⟨out, ‹_›, ‹_›⟩
+  · exact Or.inr ⟨‹_›, rfl⟩
 
 theorem IterM.DefaultConsumers.forIn'_eq_forIn' {m : Type w → Type w'} {α : Type w} {β : Type w}
     [Iterator α m β]
     {n : Type x → Type x'} [Monad n]
     {lift : ∀ γ δ, (γ → n δ) → m γ → n δ} {γ : Type x}
-    [Finite α m]
+    {Pl : β → γ → ForInStep γ → Prop}
+    {wf : IteratorLoop.WellFounded α m Pl}
     {it : IterM (α := α) m β} {init : γ}
     {P : β → Prop} {hP : ∀ b, it.IsPlausibleIndirectOutput b → P b}
     {Q : β → Prop} {hQ : ∀ b, it.IsPlausibleIndirectOutput b → Q b}
-    {f : (b : β) → P b → (c : γ) → n (ForInStep γ)}
-    {g : (b : β) → Q b → (c : γ) → n (ForInStep γ)}
+    {f : (b : β) → P b → (c : γ) → n (Subtype (Pl b c))}
+    {g : (b : β) → Q b → (c : γ) → n (Subtype (Pl b c))}
     (hfg : ∀ b c, (hPb : P b) → (hQb : Q b) → f b hPb c = g b hQb c) :
-    IterM.DefaultConsumers.forIn' lift γ it init P hP f =
-      IterM.DefaultConsumers.forIn' lift γ it init Q hQ g := by
+    IterM.DefaultConsumers.forIn' lift γ Pl wf it init P hP f =
+      IterM.DefaultConsumers.forIn' lift γ Pl wf it init Q hQ g := by
   rw [forIn', forIn']
   congr; ext step
   split
@@ -176,7 +184,10 @@ theorem IterM.DefaultConsumers.forIn'_eq_forIn' {m : Type w → Type w'} {α : T
   · apply IterM.DefaultConsumers.forIn'_eq_forIn'
     assumption
   · rfl
-termination_by it.finitelyManySteps
+termination_by IteratorLoop.WithWF.mk it init (hwf := wf)
+decreasing_by
+  · exact Or.inl ⟨_, ‹_›, ‹_›⟩
+  · exact Or.inr ⟨‹_›, rfl⟩
 
 /--
 This is the default implementation of the `IteratorLoop` class.
@@ -187,7 +198,7 @@ implementations are possible and should be used instead.
 def IteratorLoop.defaultImplementation {α : Type w} {m : Type w → Type w'} {n : Type x → Type x'}
     [Monad n] [Iterator α m β] :
     IteratorLoop α m n where
-  forIn lift γ _ it init := IterM.DefaultConsumers.forIn' lift γ it init _ (fun _ => id)
+  forIn lift γ Pl wf it init := IterM.DefaultConsumers.forIn' lift γ Pl wf it init _ (fun _ => id)
 
 /--
 Asserts that a given `IteratorLoop` instance is equal to `IteratorLoop.defaultImplementation`.
@@ -261,8 +272,9 @@ def IteratorLoop.finiteForIn' {m : Type w → Type w'} {n : Type x → Type x'}
     (lift : ∀ γ δ, (γ → n δ) → m γ → n δ) :
     ForIn' n (IterM (α := α) m β) β ⟨fun it out => it.IsPlausibleIndirectOutput out⟩ where
   forIn' {γ} [Monad n] it init f :=
-    IteratorLoop.forIn (α := α) (m := m) lift γ inferInstance
-      it init (fun out h acc => f out h acc)
+    IteratorLoop.forIn (α := α) (m := m) lift γ (fun _ _ _ => True)
+      wellFounded_of_finite
+      it init (fun out h acc => (⟨·, .intro⟩) <$> f out h acc)
 
 /--
 A `ForIn'` instance for iterators. Its generic membership relation is not easy to use,

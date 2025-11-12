@@ -250,14 +250,26 @@ instance Map.instIteratorCollect {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type w → Type x} [Monad n] [Monad o] [Iterator α m β]
     {lift₁ : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n γ} [IteratorCollect α m o] [Finite α m] :
-    IteratorCollect (Map α m n lift₁ f) n o := .defaultImplementation
+    IteratorCollect (Map α m n lift₁ f) n o where
+  toArrayMapped lift₂ _ g it :=
+    letI : MonadLift m n := ⟨lift₁ (α := _)⟩
+    letI : MonadLift n o := ⟨lift₂ (δ := _)⟩
+    IteratorCollect.toArrayMapped
+      (lift := fun ⦃_⦄ => monadLift)
+      (fun x => do g (← (f x).operation))
+      it.internalState.inner (m := m)
 
 @[no_expose]
 instance Map.instIteratorCollectPartial {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type w → Type x} [Monad n] [Monad o] [Iterator α m β]
     {lift₁ : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n γ} [IteratorCollectPartial α m o] :
-    IteratorCollectPartial (Map α m n lift₁ f) n o := .defaultImplementation
+    IteratorCollectPartial (Map α m n lift₁ f) n o where
+  toArrayMappedPartial lift₂ _ g it :=
+    IteratorCollectPartial.toArrayMappedPartial
+      (lift := fun ⦃_⦄ a => lift₂ (lift₁ a))
+      (fun x => do g (← lift₂ (f x).operation))
+      it.internalState.inner (m := m)
 
 instance Map.instIteratorLoop {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type x → Type x'} [Monad n] [Monad o] [Iterator α m β]

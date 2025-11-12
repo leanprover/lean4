@@ -1334,6 +1334,17 @@ theorem wf_union₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
   · exact wf_insertManyIfNew₀ ‹_›
   · exact wf_insertMany₀ ‹_›
 
+
+theorem toListModel_union [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m₁ m₂ : Raw₀ α β}
+    (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1) :
+    Perm (toListModel (m₁.union m₂).1.buckets)
+      (List.insertList (toListModel m₁.1.buckets) (toListModel m₂.1.buckets)) := by
+  rw [union_eq_unionₘ]
+  exact toListModel_unionₘ h₁ h₂
+
+
+/-! # `inter` -/
+
 theorem wfImp_interSmallerFnₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] (m₁ : Raw₀ α β) (m₂ : Raw₀ α β)
     (hm₂ : Raw.WFImp m₂.1) (k : α) : Raw.WFImp (m₁.interSmallerFnₘ m₂ k).1 := by
   rw [interSmallerFnₘ]

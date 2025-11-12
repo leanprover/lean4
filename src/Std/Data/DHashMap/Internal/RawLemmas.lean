@@ -2428,7 +2428,7 @@ theorem union_equiv_congr_left {m₃ : Raw₀ α β} [EquivBEq α] [LawfulHashab
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (equiv : m₁.1.Equiv m₂.1) :
     (m₁.union m₃).1.Equiv (m₂.union m₃).1 := by
   revert equiv
-  simp_to_model [union]
+  simp_to_model [Equiv, union]
   intro equiv
   apply List.insertList_perm_of_perm_first equiv
   wf_trivial
@@ -2437,7 +2437,7 @@ theorem union_equiv_congr_right {m₃ : Raw₀ α β} [EquivBEq α] [LawfulHasha
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (equiv : m₂.1.Equiv m₃.1) :
     (m₁.union m₂).1.Equiv (m₁.union m₃).1 := by
   revert equiv
-  simp_to_model [union]
+  simp_to_model [Equiv, union]
   intro equiv
   apply @List.insertList_perm_of_perm_second _ _ _ _ (toListModel m₂.val.buckets) (toListModel m₃.val.buckets) (toListModel m₁.val.buckets) equiv
   all_goals wf_trivial

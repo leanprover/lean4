@@ -18,7 +18,7 @@ namespace Lean.Fmt
 
 open Std
 
-def memoHeightLimit : Nat := 6
+def memoHeightLimit : Nat := 0
 
 def nextMemoHeight (memoHeight : Nat) : Nat :=
   if memoHeight = 0 then
@@ -81,12 +81,10 @@ with
     | .concat a b =>
       let n := min (memoHeight a) (memoHeight b)
       nextMemoHeight n
-
 deriving Inhabited, Repr
 
 def Doc.shouldMemoize (d : Doc) : Bool :=
   d.memoHeight = 0
-
 
 structure PreprocessingCacheKey where
   docPtr : USize
@@ -272,17 +270,26 @@ def MeasureSet.Set.merge (ms1 ms2 : MeasureSet.Set τ) : MeasureSet.Set τ := Id
     else
       r := r.push m2
       i2 := i2 + 1
-  r := r ++ ms1[i1...*]
-  r := r ++ ms2[i2...*]
+  while h : i1 < ms1.size do
+    r := r.push ms1[i1]
+    i1 := i1 + 1
+  while h : i2 < ms2.size do
+    r := r.push ms2[i2]
+    i2 := i2 + 1
   return r
 
 def MeasureSet.Set.dedup (ms : MeasureSet.Set τ) : MeasureSet.Set τ := Id.run do
   let mut deduped := #[]
-  for previous in ms, current in ms[1:] do
+  let mut i := 0
+  while h : i < ms.size - 1 do
+    let previous := ms[i]
+    let current := ms[i+1]
     -- TODO: Why was this sound again?
     if current.cost <= previous.cost then
+      i := i + 1
       continue
     deduped := deduped.push previous
+    i := i + 1
   if let some last := ms[ms.size - 1]? then
     deduped := deduped.push last
   return deduped

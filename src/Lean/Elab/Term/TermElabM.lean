@@ -615,7 +615,7 @@ instance : MonadAutoImplicits TermElabM where
     if let .some implicits := (← read).autoBoundImplicitContext then
       pure implicits.boundVariables.toArray
     else
-      pure {}
+      pure #[]
 
 /--
 Executes `x` in the context of the given declaration name. Ensures that the info tree is set up

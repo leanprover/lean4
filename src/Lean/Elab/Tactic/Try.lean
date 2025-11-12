@@ -288,6 +288,8 @@ meta def elabRegisterTryTactic : Command.CommandElab := fun stx => do
   if `Lean.Elab.Tactic.Try ∉ (← getEnv).header.moduleNames then
     logWarning "Add `import Lean.Elab.Tactic.Try` before using the `register_try?_tactic` command."
     return
+  -- stx[0]: optional docComment, stx[1]: "register_try?_tactic",
+  -- stx[2]: optional priority clause, stx[3]: tacticSeq
   let doc? := stx[0]
   let prio := if stx[2].isNone then 1000 else stx[2][0][3].isNatLit?.getD 1000
   let tacStx := stx[3]
@@ -325,32 +327,32 @@ private def expandUserTactic (tac : TSyntax `tactic) (goal : MVarId) : MetaM (Ar
     let initialLog ← Core.getMessageLog
     let initialMsgCount := initialLog.toList.length
 
-    try
+    let result ← try
       -- Run the tactic to capture its "Try this" messages
       discard <| Tactic.run goal do
         evalTactic tac
 
       -- Extract tactic suggestions from new messages
+      -- This parses the format produced by TryThis.addSuggestions: "Try this:\n  [apply] tactic"
       let newMsgs := (← Core.getMessageLog).toList.drop initialMsgCount
       let mut suggestions : Array (TSyntax `tactic) := #[]
       for msg in newMsgs do
         if msg.severity == MessageSeverity.information then
           let msgText ← msg.data.toString
-          -- Message format: "Try this:\n  [apply] exact Foo.bar"
           for line in msgText.splitOn "\n" do
             if line.startsWith "  [apply] " then
-              let tacticText := line.drop 10
+              let tacticText := line.drop "  [apply] ".length
               let env ← getEnv
               if let .ok stx := Parser.runParserCategory env `tactic tacticText then
                 suggestions := suggestions.push ⟨stx⟩
 
-      initialState.restore
-      Core.setMessageLog initialLog
-      return #[tac] ++ suggestions
+      pure (some suggestions)
     catch _ =>
-      initialState.restore
-      Core.setMessageLog initialLog
-      return #[tac]
+      pure none
+
+    initialState.restore
+    Core.setMessageLog initialLog
+    return #[tac] ++ (result.getD #[])
 
 -- TODO: polymorphic `Tactic.focus`
 abbrev focus (x : TryTacticM α) : TryTacticM α := fun ctx => Tactic.focus (x ctx)

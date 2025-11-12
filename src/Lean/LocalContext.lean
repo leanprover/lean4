@@ -395,11 +395,6 @@ def findFromUserName? (lctx : LocalContext) (userName : Name) : Option LocalDecl
     | none      => none
     | some decl => if decl.userName == userName then some decl else none
 
-def getFromUserName! (lctx : LocalContext) (userName : Name) : LocalDecl :=
-  match lctx.findFromUserName? userName with
-  | some decl => decl
-  | none      => panic! s!"unknown local declaration `{userName}`"
-
 def usesUserName (lctx : LocalContext) (userName : Name) : Bool :=
   (lctx.findFromUserName? userName).isSome
 
@@ -635,22 +630,6 @@ def sortFVarsByContextOrder (lctx : LocalContext) (hyps : Array FVarId) : Array 
     | none => (0, fvarId)
     | some ldecl => (ldecl.index, fvarId)
   hyps.qsort (fun h i => h.fst < i.fst) |>.map (·.snd)
-
-/--
-Batched version of `Lean.LocalContext.findFromUserName?`.
-Finds the visible local declarations for each of the given `userNames` up to a certain `start`
-index exclusively, if any.
--/
-def findFromUserNames (lctx : LocalContext) (userNames : Std.HashSet Name) (start := 0) : Array LocalDecl :=
-  Array.reverse <| Id.run <| ExceptT.runCatch do
-    let (_, _, acc) ← lctx.foldrM (init := (userNames, lctx.numIndices, #[])) fun decl (userNames, num, acc) => do
-      if userNames.isEmpty then throw acc -- stop when we found all user names
-      if num ≤ start then throw acc         -- stop when we reached the start index
-      if userNames.contains decl.userName then
-        pure (userNames.erase decl.userName, num - 1, acc.push decl)
-      else
-        pure (userNames, num - 1, acc)
-    return acc.reverse
 
 end LocalContext
 

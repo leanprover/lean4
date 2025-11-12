@@ -1785,31 +1785,30 @@ partial def withLocalDecls
     [Inhabited α]
     (declInfos : Array (Name × BinderInfo × (Array Expr → n Expr)))
     (k : (xs : Array Expr) → n α)
-    (kind : LocalDeclKind := .default)
     : n α :=
   loop #[]
 where
   loop [Inhabited α] (acc : Array Expr) : n α := do
     if acc.size < declInfos.size then
       let (name, bi, typeCtor) := declInfos[acc.size]!
-      withLocalDecl name bi (←typeCtor acc) (fun x => loop (acc.push x)) kind
+      withLocalDecl name bi (←typeCtor acc) fun x => loop (acc.push x)
     else
       k acc
 
 /--
 Variant of `withLocalDecls` using `BinderInfo.default`
 -/
-def withLocalDeclsD [Inhabited α] (declInfos : Array (Name × (Array Expr → n Expr))) (k : (xs : Array Expr) → n α) (kind : LocalDeclKind := .default) : n α :=
+def withLocalDeclsD [Inhabited α] (declInfos : Array (Name × (Array Expr → n Expr))) (k : (xs : Array Expr) → n α) : n α :=
   withLocalDecls
-    (declInfos.map (fun (name, typeCtor) => (name, BinderInfo.default, typeCtor))) k kind
+    (declInfos.map (fun (name, typeCtor) => (name, BinderInfo.default, typeCtor))) k
 
 /--
 Simpler variant of `withLocalDeclsD` for bringing variables into scope whose types do not depend
 on each other.
 -/
-def withLocalDeclsDND [Inhabited α] (declInfos : Array (Name × Expr)) (k : (xs : Array Expr) → n α) (kind : LocalDeclKind := .default) : n α :=
+def withLocalDeclsDND [Inhabited α] (declInfos : Array (Name × Expr)) (k : (xs : Array Expr) → n α) : n α :=
   withLocalDeclsD
-    (declInfos.map (fun (name, typeCtor) => (name, fun _ => pure typeCtor))) k (kind := kind)
+    (declInfos.map (fun (name, typeCtor) => (name, fun _ => pure typeCtor))) k
 
 private def withAuxDeclImp (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr → MetaM α) : MetaM α := do
   let fvarId ← mkFreshFVarId
@@ -1869,15 +1868,6 @@ Afterwards, the result is wrapped in the given `let`/`have` expression (accordin
 def mapLetDecl [MonadLiftT MetaM n] (name : Name) (type : Expr) (val : Expr) (k : Expr → n Expr) (nondep : Bool := false) (kind : LocalDeclKind := .default) (usedLetOnly : Bool := true) : n Expr :=
   withLetDecl name type val (nondep := nondep) (kind := kind) fun x => do
     mkLetFVars (usedLetOnly := usedLetOnly) (generalizeNondepLet := false) #[x] (← k x)
-
-/--
-Runs `k x` with the local declaration `<name> : <type> := <val>` added to the local context, where `x` is the new free variable.
-Afterwards, the local declaration is zeta-reduced into the result.
--/
-def mapLetDeclZeta [MonadLiftT MetaM n] (name : Name) (type rhs : Expr) (k : Expr → n Expr) : n Expr := do
-  withLetDecl (n:=n) name type rhs fun x => do
-    let e ← elimMVarDeps #[x] (← k x)
-    return e.replaceFVar x rhs
 
 def withLocalInstancesImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := do
   let mut localInsts := (← read).localInstances

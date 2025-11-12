@@ -46,7 +46,7 @@ def toAttributeKind (attrKindStx : Syntax) : MacroM AttributeKind := do
 def mkAttrKindGlobal : Syntax :=
   mkNode ``Lean.Parser.Term.attrKind #[mkNullNode]
 
-def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLiftT IO m] [MonadFinally m] (attrInstance : Syntax) : m Attribute := do
+def elabAttr [Monad m] [MonadOnlyEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLiftT IO m] [MonadFinally m] (attrInstance : Syntax) : m Attribute := do
   -- Resolving the attribute itself can be done in the private scope; running the attribute handler
   -- will later be done in a scope determined by `applyAttributesCore`.
   withoutExporting do
@@ -76,7 +76,7 @@ def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMa
       So, we expand them before here before we invoke the attributer handlers implemented using `AttrM`. -/
     return { kind := attrKind, name := attrName, stx := attr }
 
-def elabAttrs [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadLiftT IO m] [MonadFinally m] (attrInstances : Array Syntax) : m (Array Attribute) := do
+def elabAttrs [Monad m] [MonadOnlyEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadLiftT IO m] [MonadFinally m] (attrInstances : Array Syntax) : m (Array Attribute) := do
   let mut attrs := #[]
   for attr in attrInstances do
     try
@@ -86,7 +86,7 @@ def elabAttrs [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadM
   return attrs
 
 -- leading_parser "@[" >> sepBy1 attrInstance ", " >> "]"
-def elabDeclAttrs [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadLiftT IO m] [MonadFinally m] (stx : Syntax) : m (Array Attribute) :=
+def elabDeclAttrs [Monad m] [MonadOnlyEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadLiftT IO m] [MonadFinally m] (stx : Syntax) : m (Array Attribute) :=
   elabAttrs stx[1].getSepArgs
 
 end Lean.Elab

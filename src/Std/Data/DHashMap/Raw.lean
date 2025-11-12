@@ -302,16 +302,16 @@ If no panic occurs the result is guaranteed to be pointer equal to the key in th
 
 /--
 Checks if a mapping for the given key exists and returns the key-value pair if it does, otherwise `none`.
-The result in the `some` case is guaranteed to have the key pointer equal to the key in the map.
+The key in the returned pair will be `BEq` to the input `a`.
 -/
 @[inline] def getEntry? [BEq α] [Hashable α] (m : Raw α β) (a : α) : Option ((a : α) × β a) :=
   if h : 0 < m.buckets.size then
     Raw₀.getEntry? ⟨m, h⟩ a
-  else none -- will never happen for well-formed inputs
+  else none -- will never  happen for well-formed inputs
 
 /--
 Retrieves the key-value pair, whose key matches `a`. Ensures that such a mapping exists by
-requiring a proof of `a ∈ m`. The key of the result is guaranteed to be pointer equal to the key in the map.
+requiring a proof of `a ∈ m`. The key in the returned pair will be `BEq` to the input `a`.
 -/
 @[inline] def getEntry [BEq α] [Hashable α] (m : Raw α β) (a : α) (h : a ∈ m) : (a : α) × β a :=
   Raw₀.getEntry ⟨m, by change dite .. = true at h; split at h <;> simp_all⟩ a
@@ -319,7 +319,7 @@ requiring a proof of `a ∈ m`. The key of the result is guaranteed to be pointe
 
 /--
 Checks if a mapping for the given key exists and returns the key-value pair if it does, otherwise `fallback`.
-If a mapping exists the result is guaranteed to have the key pointer equal to the key in the map.
+The key in the returned pair will be `BEq` to the input `a`.
 -/
 @[inline] def getEntryD [BEq α] [Hashable α] (m : Raw α β) (a : α) (fallback : (a : α) × β a) : (a : α) × β a :=
   if h : 0 < m.buckets.size then
@@ -328,14 +328,12 @@ If a mapping exists the result is guaranteed to have the key pointer equal to th
 
 /--
 Checks if a mapping for the given key exists and returns the key-value pair if it does, otherwise panics.
-If no panic occurs the result is guaranteed to have the key pointer equal to the key in the map.
+The key in the returned pair will be `BEq` to the input `a`.
 -/
 @[inline] def getEntry! [BEq α] [Hashable α] [Inhabited ((a : α) × β a)] (m : Raw α β) (a : α) : (a : α) × β a :=
   if h : 0 < m.buckets.size then
     Raw₀.getEntry! ⟨m, h⟩ a
   else default -- will never happen for well-formed inputs
-
-
 
 /--
 Returns `true` if the hash map contains no mappings.

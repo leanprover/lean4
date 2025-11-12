@@ -6253,6 +6253,52 @@ theorem List.length_filter_containsKey_of_length_right [BEq α] [EquivBEq α]
         case w.inr =>
           exact inr
 
+theorem List.size_insertList_filter_containsKey_eq_size [BEq α] [EquivBEq α]
+    {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
+    l₁.length + l₂.length =
+    (insertList l₁ l₂).length +
+    (List.filter (fun p => containsKey p.fst l₂) l₁).length := by
+  rw [← Perm.length_eq (insertListIfNew_perm_insertList hl₂ hl₁)]
+  induction l₁ generalizing l₂
+  case nil => simp [insertListIfNew]
+  case cons h t ih =>
+    simp [insertListIfNew, List.filter_cons]
+    split
+    case isTrue hyp =>
+      simp only [insertEntryIfNew, hyp, cond_true, List.length_cons]
+      specialize ih (by rw [List.distinctKeys_cons_iff] at hl₁; exact hl₁.1) hl₂
+      omega
+    case isFalse hyp =>
+      rw [Bool.not_eq_true] at hyp
+      simp [insertEntryIfNew, hyp]
+      specialize @ih (⟨h.fst, h.snd⟩ :: l₂) (by rw [List.distinctKeys_cons_iff] at hl₁; exact hl₁.1)
+      rw [List.distinctKeys_cons_iff] at ih
+      specialize ih ⟨hl₂, hyp⟩
+      simp at ih
+      suffices (List.filter (fun p => h.fst == p.fst || containsKey p.fst l₂) t).length = (List.filter (fun p => containsKey p.fst l₂) t).length by omega
+      clear ih hl₂
+      induction t
+      case nil => simp
+      case cons h' t' ih' =>
+        simp  [List.filter_cons, Bool.or_eq_true]
+        by_cases hyp2 : containsKey h'.fst l₂
+        case pos =>
+          simp [hyp2]
+          apply ih'
+          rw [List.distinctKeys_cons_iff]
+          rw [List.distinctKeys_cons_iff, List.distinctKeys_cons_iff, List.containsKey_cons] at hl₁
+          simp only [Bool.or_eq_false_iff] at hl₁
+          exact ⟨hl₁.1.1, hl₁.2.2⟩
+        case neg =>
+          simp [hyp2]
+          simp at hyp2
+          rw [List.distinctKeys_cons_iff, containsKey_cons] at hl₁
+          simp at hl₁
+          simp [BEq.symm_false hl₁.2.1]
+          apply ih'
+          rw [List.distinctKeys_cons_iff] at hl₁ |-
+          exact ⟨hl₁.1.1, hl₁.2.2⟩
+
 theorem length_filter_containsKey_le [BEq α] [EquivBEq α]
     {l₁ l₂ : List ((a : α) × β a)}
     (dl₁ : DistinctKeys l₂)

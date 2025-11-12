@@ -1,0 +1,11 @@
+name = "DiamondExample-B"
+defaultTargets = ["DiamondExampleB"]
+
+[[require]]
+name = "DiamondExample-A"
+git = "../DiamondExample-A"
+rev = "v1"
+
+[[lean_lib]]
+name = "DiamondExampleB"
+leanOptions.experimental.module = true

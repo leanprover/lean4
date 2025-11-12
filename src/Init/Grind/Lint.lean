@@ -39,7 +39,7 @@ By default, `#grind_lint` uses the following `grind` configuration:
   gen          := 10
 ```
 -/
-syntax "#grind_lint" ppSpace &"check" (ppSpace configItem)* (ppSpace "in" ident+)? : command
+syntax (name := grindLintCheck) "#grind_lint" ppSpace &"check" (ppSpace configItem)* (ppSpace "in" ident+)? : command
 
 /--
 `#grind_lint inspect thm₁ …` analyzes the specified theorem(s) individually.
@@ -52,7 +52,7 @@ Examples:
 #grind_lint inspect Array.zip_map
 ```
 -/
-syntax "#grind_lint" ppSpace &"inspect" (ppSpace configItem)* ident+ : command
+syntax (name := grindLintInspect) "#grind_lint" ppSpace &"inspect" (ppSpace configItem)* ident+ : command
 
 /--
 `#grind_lint mute thm₁ …` marks the given theorem(s) as *muted* during linting.
@@ -67,7 +67,7 @@ Example:
 #grind_lint mute Array.zip_map Int.zero_shiftRight
 ```
 -/
-syntax "#grind_lint" ppSpace &"mute" ident+ : command
+syntax (name := grindLintMute) "#grind_lint" ppSpace &"mute" ident+ : command
 
 /--
 `#grind_lint skip thm₁ …` marks the given theorem(s) to be skipped entirely by `#grind_lint check`.
@@ -78,6 +78,6 @@ Example:
 #grind_lint skip Array.range_succ
 ```
 -/
-syntax "#grind_lint" ppSpace &"skip" ident+ : command
+syntax (name := grindLintSkip) "#grind_lint" ppSpace &"skip" ident+ : command
 
 end Lean.Grind

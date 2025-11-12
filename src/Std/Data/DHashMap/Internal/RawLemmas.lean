@@ -292,10 +292,6 @@ theorem containsThenInsertIfNew_snd {k : α} {v : β k} :
 theorem get?_emptyWithCapacity [LawfulBEq α] {a : α} {c} : (emptyWithCapacity c : Raw₀ α β).get? a = none := by
   simp [get?]
 
-@[simp]
-theorem getEntry?_emptyWithCapacity [LawfulBEq α] {a : α} {c} : (emptyWithCapacity c : Raw₀ α β).getEntry? a = none := by
-  simp [getEntry?]
-
 theorem get?_of_isEmpty [LawfulBEq α] (h : m.1.WF) {a : α} :
     m.1.isEmpty = true → m.get? a = none := by
   simp_to_model [isEmpty, get?]; empty
@@ -383,22 +379,6 @@ theorem get_insert [LawfulBEq α] (h : m.1.WF) {k a : α} {v : β k} {h₁} :
       else
         m.get a (contains_of_contains_insert _ h h₁ (Bool.eq_false_iff.2 h₂)) := by
   simp_to_model [insert, get] using List.getValueCast_insertEntry
-
-theorem getEntry_insert [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k a : α} {v : β k} {h₁} :
-    (m.insert k v).getEntry a h₁ =
-      if h₂ : k == a then
-        ⟨k, v⟩
-      else
-        m.getEntry a (contains_of_contains_insert _ h h₁ (Bool.eq_false_iff.2 h₂)) := by
-  simp_to_model [insert, getEntry] using List.getEntry_insertEntry
-
-theorem beq_of_getEntry_eq [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {p : ((a : α) × β a)} {k : α} {h₁} :
-    (w : m.getEntry k h₁ = p) → p.fst == k := by
-  simp_to_model [getEntry, contains] using List.beq_of_getEntry_eq
-
-theorem getEntry_congr [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a b : α} (hab : a == b) {h₁ h₂} :
-    getEntry m a h₁ = getEntry m b h₂ := by
-  simp_to_model [getEntry, contains] using List.getEntry_congr
 
 theorem get_insert_self [LawfulBEq α] (h : m.1.WF) {k : α} {v : β k} :
     (m.insert k v).get k (contains_insert_self _ h) = v := by

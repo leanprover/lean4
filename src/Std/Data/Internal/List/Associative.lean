@@ -684,7 +684,6 @@ def getValueCast [BEq α] [LawfulBEq α] (a : α) (l : List ((a : α) × β a)) 
     β a :=
   (getValueCast? a l).get <| containsKey_eq_isSome_getValueCast?.symm.trans h
 
-
 theorem getValueCast?_eq_some_getValueCast [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {a : α}
     (h : containsKey a l) : getValueCast? a l = some (getValueCast a l h) := by
   simp [getValueCast]

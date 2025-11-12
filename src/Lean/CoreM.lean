@@ -269,6 +269,12 @@ instance : MonadEnv CoreM where
   getEnv := return (← get).env
   modifyEnv f := modify fun s => { s with env := f s.env, cache := {} }
 
+instance : MonadOnlyEnv CoreM where
+  monadEnv := {
+    getEnv := return (← get).env
+    modifyEnv f := modify fun s => { s with env := f s.env }
+  }
+
 instance : MonadOptions CoreM where
   getOptions := return (← read).options
 

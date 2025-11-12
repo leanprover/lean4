@@ -49,9 +49,10 @@ public def copyExtraModUses (src dest : Environment) : Environment := Id.run do
       env := extraModUses.addEntry env entry
   env
 
-variable [Monad m] [MonadEnv m] [MonadTrace m] [MonadOptions m] [MonadRef m] [AddMessageContext m]
+variable [Monad m] [i : MonadOnlyEnv m] [MonadTrace m] [MonadOptions m] [MonadRef m] [AddMessageContext m]
 
 def recordExtraModUseCore (mod : Name) (isMeta : Bool) (hint : Name := .anonymous) : m Unit := do
+  have := i.monadEnv
   let entry := { module := mod, isExported := (← getEnv).isExporting, isMeta }
   if !(extraModUses.getState (asyncMode := .local) (← getEnv)).contains entry then
     trace[extraModUses] "recording {if entry.isExported then "public" else "private"} \
@@ -64,6 +65,7 @@ Records an additional import dependency for the current module, using `Environme
 the visibility level.
 -/
 public def recordExtraModUse (modName : Name) (isMeta : Bool) : m Unit := do
+  have := i.monadEnv
   if modName != (← getEnv).mainModule then
     recordExtraModUseCore modName isMeta
 
@@ -73,6 +75,7 @@ module, using `Environment.isExporting` as the visibility level. If the declarat
 already `meta`, the module dependency is recorded as a non-`meta` dependency.
 -/
 public def recordExtraModUseFromDecl (declName : Name) (isMeta : Bool) : m Unit := do
+  have := i.monadEnv
   let env ← getEnv
   if let some mod := env.getModuleIdxFor? declName |>.bind (env.header.modules[·]?) then
     -- If the declaration itself is already `meta`, no need to mark the import.

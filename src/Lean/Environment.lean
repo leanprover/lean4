@@ -2698,8 +2698,8 @@ Sets `Environment.isExporting` to the given value while executing `x`. No-op if
 -/
 def withExporting [Monad m] [i : MonadOnlyEnv m] [MonadFinally m] [MonadOptions m] (x : m α)
     (isExporting := true) : m α := do
-  let old := (← getEnv).isExporting
   have := i.monadEnv
+  let old := (← getEnv).isExporting
   modifyEnv (·.setExporting isExporting)
   try
     x

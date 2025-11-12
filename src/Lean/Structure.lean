@@ -449,8 +449,9 @@ mutual
 Computes and caches the C3 linearization. Assumes parents have already been set with `setStructureParents`.
 If `relaxed` is false, then if the linearization cannot be computed, conflicts are recorded in the return value.
 -/
-partial def computeStructureResolutionOrder [Monad m] [MonadOnlyEnv m]
+partial def computeStructureResolutionOrder [Monad m] [i : MonadOnlyEnv m]
     (structName : Name) (relaxed : Bool) : m StructureResolutionOrderResult := do
+  have := i.monadEnv
   let env ← getEnv
   if let some resOrder := getStructureResolutionOrder? env structName then
     return { resolutionOrder := resOrder }

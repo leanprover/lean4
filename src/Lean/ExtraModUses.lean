@@ -95,6 +95,7 @@ public def isExtraRevModUse (env : Environment) (modIdx : ModuleIdx) : Bool :=
 
 /-- Records this module to be preserved as an import by `shake`. -/
 public def recordExtraRevUseOfCurrentModule : m Unit := do
+  have := i.monadEnv
   if isExtraRevModUseExt.getEntries (asyncMode := .local) (← getEnv) |>.isEmpty then
     modifyEnv (isExtraRevModUseExt.addEntry · ())
 

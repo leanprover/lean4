@@ -30,6 +30,43 @@ example (p : Nat → Prop) (x y z w : Int) :
     (z = 1 ∨ z = 0) → x + y ≤ 6 := by
   grind => finish?
 
+/-- error: tactic is not applicable -/
+#guard_msgs in
+example (a b c : Int) : a + b ≤ 2 → b = c → 2*b - c + a ≤ 3 := by
+  grind => cases_next
+
+example (p : Nat → Prop) (x y z w : Int) :
+    (x = 1 ∨ x = 2) →
+    (w = 1 ∨ w = 4) →
+    (y = 1 ∨ (∃ x : Nat, y = 3 - x ∧ p x)) →
+    (z = 1 ∨ z = 0) → x + y ≤ 6 := by
+  grind =>
+    cases_next <;> cases_next <;> cases_next <;> cases_next <;> lia
+
+example (p : Nat → Prop) (x y z w : Int) :
+    (x = 1 ∨ x = 2) →
+    (w = 1 ∨ w = 4) →
+    (y = 1 ∨ (∃ x : Nat, y = 3 - x ∧ p x)) →
+    (z = 1 ∨ z = 0) → x + y ≤ 6 := by
+  grind =>
+    repeat (first (lia) (cases_next))
+
+example (p : Nat → Prop) (x y z w : Int) :
+    (x = 1 ∨ x = 2) →
+    (w = 1 ∨ w = 4) →
+    (y = 1 ∨ (∃ x : Nat, y = 3 - x ∧ p x)) →
+    (z = 1 ∨ z = 0) → x + y ≤ 6 := by
+  grind =>
+    repeat (first (cases_next) (lia))
+
+example (p : Nat → Prop) (x y z w : Int) :
+    (x = 1 ∨ x = 2) →
+    (w = 1 ∨ w = 4) →
+    (y = 1 ∨ (∃ x : Nat, y = 3 - x ∧ p x)) →
+    (z = 1 ∨ z = 0) → x + y ≤ 6 := by
+  grind =>
+    repeat (first (ring) (cases_next) (lia))
+
 /--
 info: Try these:
   [apply] cases #5c4b <;> cases #896f <;> ac

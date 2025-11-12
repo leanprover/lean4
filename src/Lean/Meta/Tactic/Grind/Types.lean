@@ -23,6 +23,38 @@ namespace Lean.Meta.Grind
 /-- We use this auxiliary constant to mark delayed congruence proofs. -/
 def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
 
+/--
+We use this auxiliary constant to mark delayed symmetric congruence proofs.
+**Example:** `a = b` is symmetrically congruent to `c = d` if `a = d` and `b = c`.
+
+**Note:** We previously used `congrPlaceholderProof` for this case, but it
+caused non-termination during proof term construction when `a = b = c = d`.
+The issue was that we did not have enough information to determine how
+`a = b` and `c = d` became congruent. The new marker resolves this issue.
+
+If `congrPlaceholderProof` is used, then `a = b` became congruent to `c = d`
+because `a = c` and `b = d`.
+If `eqCongrSymmPlaceholderProof` is used, then it was because `a = d` and `b = c`.
+
+**Example:** suppose we have the following equivalence class:
+```
+{p, q, p = q, q = p, True}
+```
+Recall that `True` is always the root of its equivalence class.
+Assume we also have the following two paths in the class:
+```
+1. p -> p = q -> q = p -> True
+2. q -> True
+```
+Now suppose we try to build a proof for `p = True`.
+We must construct a proof for `(p = q) = (q = p)`.
+These equalities are congruent, but if we try to prove `p = q` and `q = p`
+using the facts `p = True` and `q = True`, we end up trying to prove `p = True` again.
+In other words, we are missing the information that `p = q` became congruent to `q = p`
+because of the symmetric case. By using `eqCongrSymmPlaceholderProof`, we retain this information.
+-/
+def eqCongrSymmPlaceholderProof := mkConst (Name.mkSimple "[eq_congr_symm]")
+
 /-- Similar to `isDefEq`, but ensures default transparency is used. -/
 def isDefEqD (t s : Expr) : MetaM Bool :=
   withDefault <| isDefEq t s
@@ -56,6 +88,15 @@ register_builtin_option grind.warning : Bool := {
   group    := "debug"
   descr    := "generate a warning whenever `grind` is used"
 }
+
+/--
+Anchors are used to reference terms, local theorems, and case-splits in the `grind` state.
+We also use anchors to prune the search space when they are provided as `grind` parameters
+and the `finish` tactic.
+-/
+structure AnchorRef where
+  numDigits : Nat
+  anchorPrefix : UInt64
 
 /-- Opaque solver extension state. -/
 opaque SolverExtensionStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩⟩
@@ -100,6 +141,11 @@ structure Context where
   simp         : Simp.Context
   simpMethods  : Simp.Methods
   config       : Grind.Config
+  /--
+  If `anchorRefs? := some anchorRefs`, then only local instances and case-splits in `anchorRefs`
+  are considered.
+  -/
+  anchorRefs?  : Option (Array AnchorRef)
   /--
   If `cheapCases` is `true`, `grind` only applies `cases` to types that contain
   at most one minor premise.
@@ -152,6 +198,9 @@ E-match theorems and case-splits performed by `grind`.
 Note that it may contain elements that are not needed by the final proof.
 For example, `grind` instantiated the theorem, but theorem instance was not actually used
 in the proof.
+
+**Note**: Consider removing this, we are using a new approach for implementing
+`grind?`
 -/
 structure Trace where
   thms       : PHashSet EMatchTheoremTrace := {}
@@ -297,6 +346,10 @@ def getOrderingEqExpr : GrindM Expr := do
 /-- Returns the internalized `Int`.  -/
 def getIntExpr : GrindM Expr := do
   return (← readThe Context).intExpr
+
+/-- Returns the anchor references (if any) being used to restrict the search. -/
+def getAnchorRefs : GrindM (Option (Array AnchorRef)) := do
+  return (← readThe Context).anchorRefs?
 
 def resetAnchors : GrindM Unit := do
   modify fun s => { s with anchors := {} }
@@ -838,8 +891,15 @@ structure UnitLike.State where
   deriving Inhabited
 
 structure InjectiveInfo where
-  inv : Expr
-  heq : Expr
+  us   : List Level
+  α    : Expr
+  β    : Expr
+  h    : Expr
+  /--
+  Inverse function and a proof that `∀ a, inv (f a) = a`
+  **Note**: The following two fields are `none` if no `f`-application has been found yet.
+  -/
+  inv?  : Option (Expr × Expr) := none
   deriving Inhabited
 
 /-- State for injective theorem support. -/
@@ -1094,7 +1154,7 @@ def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
       throwError "`grind` internal error, lhs of new equality has not been internalized{indentExpr lhs}"
     unless (← alreadyInternalized rhs) do
       throwError "`grind` internal error, rhs of new equality has not been internalized{indentExpr rhs}"
-    unless proof == congrPlaceholderProof do
+    if proof != congrPlaceholderProof && proof != eqCongrSymmPlaceholderProof then
       let expectedType ← if isHEq then mkHEq lhs rhs else mkEq lhs rhs
       unless (← withReducible <| isDefEq (← inferType proof) expectedType) do
         throwError "`grind` internal error, trying to assert equality{indentExpr expectedType}\n\
@@ -1364,6 +1424,18 @@ def getExprs : GoalM (PArray Expr) := do
     f n
     if isSameExpr n.next e then return ()
     curr := n.next
+
+/--
+Executes `f` to each term in the equivalence class containing `e`, and stops as soon as `f` returns `true`.
+-/
+@[inline] def findEqc (e : Expr) (f : ENode → GoalM Bool) : GoalM Bool := do
+  let mut curr := e
+  repeat
+    let n ← getENode curr
+    if (← f n) then return true
+    if isSameExpr n.next e then break
+    curr := n.next
+  return false
 
 /-- Folds using `f` and `init` over the equivalence class containing `e` -/
 @[inline] def foldEqc (e : Expr) (init : α) (f : ENode → α → GoalM α) : GoalM α := do
@@ -1873,10 +1945,16 @@ def anchorPrefixToString (numDigits : Nat) (anchorPrefix : UInt64) : String :=
   let n := cs.length
   let zs := List.replicate (numDigits - n) '0'
   let cs := zs ++ cs
-  cs.asString
+  String.ofList cs
 
 def anchorToString (numDigits : Nat) (anchor : UInt64) : String :=
   anchorPrefixToString numDigits (anchor >>> (64 - 4*numDigits.toUInt64))
+
+def AnchorRef.toString (anchorRef : AnchorRef) : String :=
+  anchorPrefixToString anchorRef.numDigits anchorRef.anchorPrefix
+
+instance : ToString AnchorRef where
+  toString := AnchorRef.toString
 
 /--
 Returns activated `match`-declaration equations.

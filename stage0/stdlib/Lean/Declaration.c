@@ -78,7 +78,6 @@ LEAN_EXPORT lean_object* l_Lean_mkRecursorValEx___boxed(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_Declaration_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_instReprDefinitionSafety_repr___closed__1;
 LEAN_EXPORT uint8_t l_List_beq___at___00Lean_instBEqDeclaration_beq_spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ConstantInfo_isTheorem___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedTheoremVal;
 LEAN_EXPORT lean_object* l_Lean_ConstantInfo_value_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ConstantInfo_axiomInfo_elim(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -165,7 +164,6 @@ LEAN_EXPORT lean_object* l_Lean_QuotKind_ctorElim___boxed(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lean_instBEqTheoremVal_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_QuotKind_ctor_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqDefinitionSafety_beq___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_ConstantInfo_isTheorem(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ReducibilityHints_regular_elim___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqAxiomVal;
 LEAN_EXPORT lean_object* l_Lean_Declaration_foldExprM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6186,33 +6184,6 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_ConstantInfo_isTheorem(lean_object* x_1) {
-_start:
-{
-if (lean_obj_tag(x_1) == 2)
-{
-uint8_t x_2; 
-x_2 = 1;
-return x_2;
-}
-else
-{
-uint8_t x_3; 
-x_3 = 0;
-return x_3;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ConstantInfo_isTheorem___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lean_ConstantInfo_isTheorem(x_1);
-lean_dec_ref(x_1);
-x_3 = lean_box(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_panic___at___00Lean_ConstantInfo_inductiveVal_x21_spec__0(lean_object* x_1) {
 _start:
 {
@@ -6244,7 +6215,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_ConstantInfo_inductiveVal_x21___closed__1;
 x_2 = lean_unsigned_to_nat(9u);
-x_3 = lean_unsigned_to_nat(518u);
+x_3 = lean_unsigned_to_nat(513u);
 x_4 = l_Lean_ConstantInfo_inductiveVal_x21___closed__0;
 x_5 = l_Lean_Declaration_definitionVal_x21___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

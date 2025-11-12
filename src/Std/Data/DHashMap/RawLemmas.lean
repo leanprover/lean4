@@ -1865,11 +1865,37 @@ theorem mem_of_mem_union_of_not_mem_left [EquivBEq α]
   simp_to_raw using Raw₀.contains_of_contains_union_of_contains_eq_false_left
 
 /- Equiv -/
-theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
+theorem union_equiv_congr_left {m₃ : Raw α β} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF)
+    (equiv : m₁ ~m m₂) :
+    (m₁ ∪ m₃) ~m (m₂ ∪ m₃) := by
+  revert equiv
+  simp only [Union.union]
+  simp_to_raw
+  intro hyp
+  apply Raw₀.union_equiv_congr_left
+  all_goals wf_trivial
+
+theorem union_equiv_congr_right {m₃ : Raw α β} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF)
+    (equiv : m₂ ~m m₃) :
+    (m₁ ∪ m₂) ~m (m₁ ∪ m₃) := by
+  revert equiv
+  simp only [Union.union]
+  simp_to_raw
+  intro hyp
+  apply Raw₀.union_equiv_congr_right
+  all_goals wf_trivial
+
+theorem union_insert_right_equiv_insert_union [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
     (h₁ : m₁.WF) (h₂ : m₂.WF) :
     (m₁ ∪ (m₂.insert p.fst p.snd)).Equiv ((m₁ ∪ m₂).insert p.fst p.snd) := by
   simp only [Union.union]
   simp_to_raw using Raw₀.union_insert_right_equiv_insert_union
+
+@[deprecated union_insert_right_equiv_insert_union (since := "2025-11-03")]
+theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
+    (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁ ∪ (m₂.insert p.fst p.snd)).Equiv ((m₁ ∪ m₂).insert p.fst p.snd) :=
+  union_insert_right_equiv_insert_union h₁ h₂
 
 /- get? -/
 theorem get?_union [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)

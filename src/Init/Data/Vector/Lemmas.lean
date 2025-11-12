@@ -1188,17 +1188,22 @@ theorem contains_eq_true_of_mem [BEq α] [LawfulBEq α] {a : α} {as : Vector α
   simp only [mem_mk] at h
   simp [h]
 
+@[grind =]
+theorem contains_iff_mem [BEq α] [LawfulBEq α] {a : α} {as : Vector α n} :
+    as.contains a ↔ a ∈ as := ⟨mem_of_contains_eq_true, contains_eq_true_of_mem⟩
+
+@[deprecated contains_iff_mem (since := "2025-10-26")]
 theorem contains_iff [BEq α] [LawfulBEq α] {a : α} {as : Vector α n} :
     as.contains a = true ↔ a ∈ as := ⟨mem_of_contains_eq_true, contains_eq_true_of_mem⟩
 
 instance [BEq α] [LawfulBEq α] (a : α) (as : Vector α n) : Decidable (a ∈ as) :=
-  decidable_of_decidable_of_iff contains_iff
+  decidable_of_decidable_of_iff contains_iff_mem
 
 @[grind =] theorem contains_empty [BEq α] : (#v[] : Vector α 0).contains a = false := by simp
 
 @[simp, grind =] theorem contains_eq_mem [BEq α] [LawfulBEq α] {a : α} {as : Vector α n} :
     as.contains a = decide (a ∈ as) := by
-  rw [Bool.eq_iff_iff, contains_iff, decide_eq_true_iff]
+  rw [Bool.eq_iff_iff, contains_iff_mem, decide_eq_true_iff]
 
 @[simp] theorem any_push {as : Vector α n} {a : α} {p : α → Bool} :
     (as.push a).any p = (as.any p || p a) := by
@@ -2373,6 +2378,18 @@ theorem foldr_filterMap {f : α → Option β} {g : β → γ → γ} {xs : Vect
   cases xs; simp [Array.foldr_filterMap']
   rfl
 
+theorem foldl_flatMap {f : α → Vector β m} {g : γ → β → γ} {xs : Vector α n} {init : γ} :
+    (xs.flatMap f).foldl g init = xs.foldl (fun acc x => (f x).foldl g acc) init := by
+  rcases xs with ⟨xs, rfl⟩
+  simp only [foldl, flatMap]
+  rw [Array.foldl_flatMap]
+
+theorem foldr_flatMap {f : α → Vector β m} {g : β → γ → γ} {xs : Vector α n} {init : γ} :
+    (xs.flatMap f).foldr g init = xs.foldr (fun x acc => (f x).foldr g acc) init := by
+  rcases xs with ⟨xs, rfl⟩
+  simp only [foldr, flatMap]
+  rw [Array.foldr_flatMap]
+
 theorem foldl_map_hom {g : α → β} {f : α → α → α} {f' : β → β → β} {a : α} {xs : Vector α n}
     (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
     (xs.map g).foldl f' (g a) = g (xs.foldl f a) := by
@@ -2587,11 +2604,6 @@ theorem contains_iff_exists_mem_beq [BEq α] {xs : Vector α n} {a : α} :
 -- We add this as a `grind` lemma because it is useful without `LawfulBEq α`.
 -- With `LawfulBEq α`, it would be better to use `contains_iff_mem` directly.
 grind_pattern contains_iff_exists_mem_beq => xs.contains a
-
-@[grind =]
-theorem contains_iff_mem [BEq α] [LawfulBEq α] {xs : Vector α n} {a : α} :
-    xs.contains a ↔ a ∈ xs := by
-  simp
 
 @[simp, grind =]
 theorem contains_toList [BEq α] {xs : Vector α n} {x : α} :

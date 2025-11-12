@@ -17,19 +17,16 @@ abbrev test1 (a b c d e : Int) :=
   a ≤ 100
 
 /--
-trace: [grind.cutsat.model] a := 101
-[grind.cutsat.model] b := 0
-[grind.cutsat.model] c := 5335
-[grind.cutsat.model] d := 0
-[grind.cutsat.model] e := 0
+trace: [grind.lia.model] a := 101
+[grind.lia.model] b := 0
+[grind.lia.model] c := 5335
+[grind.lia.model] d := 0
+[grind.lia.model] e := 0
 -/
 #guard_msgs (trace) in
-set_option trace.grind.cutsat.model true in
+set_option trace.grind.lia.model true in
 example (a b c d e : Int) : test1 a b c d e  := by
   (fail_if_success cutsat); sorry
-
--- TODO: this should not be necessary (compare to 20 before)
-set_option synthInstance.maxSize 400 in
 
 /-- info: false -/
 #guard_msgs (info) in

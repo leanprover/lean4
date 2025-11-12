@@ -1319,7 +1319,7 @@ theorem pfilter_congr {α : Type u} {o o' : Option α} (ho : o = o')
 
 @[simp, grind =] theorem pfilter_some {α : Type _} {x : α} {p : (a : α) → some x = some a → Bool} :
     (some x).pfilter p = if p x rfl then some x else none := by
-  simp only [pfilter, cond_eq_if]
+  simp only [pfilter, cond_eq_ite]
 
 theorem isSome_pfilter_iff {α : Type _} {o : Option α} {p : (a : α) → o = some a → Bool} :
     (o.pfilter p).isSome ↔ ∃ (a : α) (ha : o = some a), p a ha := by

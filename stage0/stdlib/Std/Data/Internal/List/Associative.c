@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Internal.List.Associative
-// Imports: public import Init.Data.Option.Attach public import Init.Data.List.Perm public import Std.Data.Internal.List.Defs import all Std.Data.Internal.List.Defs public import Init.Data.Order.Ord import Init.Data.Subtype.Order
+// Imports: public import Init.Data.Option.Attach public import Init.Data.List.Perm public import Init.Data.List.Monadic public import Std.Data.Internal.List.Defs import all Std.Data.Internal.List.Defs public import Init.Data.Order.Ord import Init.Data.Subtype.Order
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2587,6 +2587,7 @@ return x_6;
 }
 lean_object* initialize_Init_Data_Option_Attach(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Perm(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Monadic(uint8_t builtin);
 lean_object* initialize_Std_Data_Internal_List_Defs(uint8_t builtin);
 lean_object* initialize_Std_Data_Internal_List_Defs(uint8_t builtin);
 lean_object* initialize_Init_Data_Order_Ord(uint8_t builtin);
@@ -2600,6 +2601,9 @@ res = initialize_Init_Data_Option_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Perm(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Monadic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_Internal_List_Defs(builtin);

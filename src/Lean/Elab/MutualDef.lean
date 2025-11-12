@@ -1322,6 +1322,9 @@ where
           if !(← isProp header.type) then
             return false
         return true))) do
+    -- Never export private decls from theorem bodies to make sure they stay irrelevant for rebuilds
+    withOptions (fun opts =>
+      if headers.any (·.kind.isTheorem) then ResolveName.backward.privateInPublic.set opts false else opts) do
     let headers := headers.map fun header =>
       { header with modifiers.attrs := header.modifiers.attrs.filter (!·.name ∈ [`expose, `no_expose]) }
     let values ← try

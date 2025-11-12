@@ -488,7 +488,7 @@ only those mappings where the function returns `some` value.
   m.fold (fun acc k _ => acc.push k) (.emptyWithCapacity m.size)
 
 /--
-Computes the union of the given hash maps. If a key appears in both maps, the entry contains in
+Computes the union of the given hash maps. If a key appears in both maps, the entry contained in
 the second argument will appear in the result.
 
 This function always merges the smaller map into the larger map, so the expected runtime is

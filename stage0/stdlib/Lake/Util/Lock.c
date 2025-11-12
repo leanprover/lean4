@@ -109,6 +109,7 @@ LEAN_EXPORT lean_object* l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_
 _start:
 {
 lean_object* x_4; lean_object* x_10; lean_object* x_21; 
+lean_inc_ref(x_1);
 x_21 = l_System_FilePath_parent(x_1);
 if (lean_obj_tag(x_21) == 0)
 {
@@ -125,7 +126,6 @@ x_24 = lean_ctor_get(x_21, 0);
 lean_inc(x_24);
 lean_dec_ref(x_21);
 x_25 = l_IO_FS_createDirAll(x_24);
-lean_dec(x_24);
 if (lean_obj_tag(x_25) == 0)
 {
 lean_object* x_26; lean_object* x_27; 
@@ -155,6 +155,7 @@ block_20:
 {
 if (lean_obj_tag(x_10) == 0)
 {
+lean_dec_ref(x_1);
 return x_10;
 }
 else
@@ -195,18 +196,21 @@ goto block_9;
 }
 else
 {
+lean_dec_ref(x_1);
 return x_19;
 }
 }
 else
 {
 lean_dec_ref(x_12);
+lean_dec_ref(x_1);
 return x_17;
 }
 }
 }
 else
 {
+lean_dec_ref(x_1);
 return x_10;
 }
 }
@@ -228,7 +232,6 @@ _start:
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_2);
 x_5 = l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop(x_1, x_4);
-lean_dec_ref(x_1);
 return x_5;
 }
 }
@@ -246,7 +249,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_busyAcquireLockFile(x_1);
-lean_dec_ref(x_1);
 return x_3;
 }
 }

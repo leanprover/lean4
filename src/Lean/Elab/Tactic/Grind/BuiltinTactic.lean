@@ -14,6 +14,7 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
 import Lean.Meta.Tactic.Grind.AC.Eq
 import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.PP
+import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.Anchor
@@ -24,8 +25,10 @@ import Lean.Meta.Tactic.ExposeNames
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.RenameInaccessibles
 import Lean.Elab.Tactic.Grind.Filter
+import Lean.Elab.Tactic.Grind.Anchor
 import Lean.Elab.Tactic.Grind.ShowState
 import Lean.Elab.Tactic.Grind.Config
+import Lean.Elab.Tactic.Grind.Param
 import Lean.Elab.SetOption
 namespace Lean.Elab.Tactic.Grind
 
@@ -82,14 +85,18 @@ def evalGrindSeq : GrindTactic := fun stx =>
 
 open Meta Grind
 
-@[builtin_grind_tactic finish] def evalFinish : GrindTactic := fun _ => do
-  let goal ← getMainGoal
-  if let some goal ← liftGrindM <| solve goal then
-    let params := (← read).params
-    let result ← liftGrindM do mkResult params (some goal)
-    throwError "`finish` failed\n{← result.toMessageData}"
-  else
-    replaceMainGoal []
+@[builtin_grind_tactic finish] def evalFinish : GrindTactic := fun stx => withMainContext do
+  let `(grind| finish $[$configItems]* $[only%$only]? $[[$params?,*]]?) := stx | throwUnsupportedSyntax
+  withConfigItems configItems do
+  let params := params?.getD {}
+  withParams (← read).params params only.isSome do
+    let goal ← getMainGoal
+    if let some goal ← liftGrindM <| solve goal then
+      let params := (← read).params
+      let result ← liftGrindM do mkResult params (some goal)
+      throwError "`finish` failed\n{← result.toMessageData}"
+    else
+      replaceMainGoal []
 
 /--
 Helper function to executing "check" tactics that return a flag indicating
@@ -99,15 +106,15 @@ If the goal is not inconsistent and progress has been made,
 -/
 def evalCheck (tacticName : Name) (k : GoalM Bool)
     (pp? : Goal → MetaM (Option MessageData)) : GrindTacticM Unit := do
+  let recover := (← read).recover
   liftGoalM do
     let progress ← k
     unless progress do
       throwError "`{tacticName}` failed"
     processNewFacts
-    unless (← Grind.getConfig).verbose do
-      return ()
-    if (← get).inconsistent then
-      return ()
+    unless (← Grind.getConfig).verbose do return ()
+    unless recover do return ()
+    if (← get).inconsistent then return ()
     let some msg ← pp? (← get) | return ()
     logInfo msg
 
@@ -128,7 +135,9 @@ def logTheoremAnchor (proof : Expr) : TermElabM Unit := do
   Term.addTermInfo' stx proof
 
 def ematchThms (only : Bool) (thms : Array EMatchTheorem) : GrindTacticM Unit := do
-  let progress ← liftGoalM <| if only then ematchOnly thms else ematch thms
+  let progress ← liftGoalM do
+    let thms ← thms.mapM (preprocessTheorem · 0)
+    if only then ematchOnly thms else ematch thms
   unless progress do
     throwError "`instantiate` tactic failed to instantiate new facts, use `show_patterns` to see active theorems and their patterns."
   let goal ← getMainGoal
@@ -136,14 +145,6 @@ def ematchThms (only : Bool) (thms : Array EMatchTheorem) : GrindTacticM Unit :=
     discard <| assertAll
     getGoal
   replaceMainGoal [goal]
-
-def elabAnchor (anchor : TSyntax `hexnum) : CoreM (Nat × UInt64) := do
-  let numDigits := anchor.getHexNumSize
-  let val := anchor.getHexNumVal
-  if val >= UInt64.size then
-    throwError "invalid anchor, value is too big"
-  let val := val.toUInt64
-  return (numDigits, val)
 
 @[builtin_grind_tactic instantiate] def evalInstantiate : GrindTactic := fun stx => withMainContext do
   let `(grind| instantiate $[ only%$only ]? $[ approx ]? $[ [ $[$thmRefs?:thm],* ] ]?) := stx | throwUnsupportedSyntax
@@ -160,14 +161,14 @@ def elabAnchor (anchor : TSyntax `hexnum) : CoreM (Nat × UInt64) := do
       | _ => throwErrorAt thmRef "unexpected theorem reference"
   ematchThms only thms
 where
-  collectThms (numDigits : Nat) (anchorPrefix : UInt64) (thms : PArray EMatchTheorem) : StateT (Array EMatchTheorem) GrindTacticM Unit := do
+  collectThms (anchorRef : AnchorRef) (thms : PArray EMatchTheorem) : StateT (Array EMatchTheorem) GrindTacticM Unit := do
     let mut found : Std.HashSet Expr := {}
     for thm in thms do
       -- **Note**: `anchors` are cached using pointer addresses, if this is a performance issue, we should
       -- cache the theorem types.
       let type ← inferType thm.proof
       let anchor ← liftGrindM <| getAnchor type
-      if isAnchorPrefix numDigits anchorPrefix anchor then
+      if anchorRef.matches anchor then
         -- **Note**: We display the anchor term at most once.
         unless found.contains type do
           logTheoremAnchor thm.proof
@@ -175,11 +176,11 @@ where
         modify (·.push thm)
 
   elabLocalEMatchTheorem (anchor : TSyntax `hexnum) : GrindTacticM (Array EMatchTheorem) := withRef anchor do
-    let (numDigits, anchorPrefix) ← elabAnchor anchor
+    let anchorRef ← elabAnchorRef anchor
     let goal ← getMainGoal
     let thms ← StateT.run' (s := #[]) do
-      collectThms numDigits anchorPrefix goal.ematch.thms
-      collectThms numDigits anchorPrefix goal.ematch.newThms
+      collectThms anchorRef goal.ematch.thms
+      collectThms anchorRef goal.ematch.newThms
       get
     if thms.isEmpty then
       throwError "no local theorems"
@@ -244,7 +245,8 @@ where
     | .cases _ | .intro | .inj | .ext | .symbol _ =>
       throwError "invalid modifier"
 
-def logAnchor (e : Expr) : TermElabM Unit := do
+def logAnchor (c : SplitInfo) : TermElabM Unit := do
+  let e := c.getExpr
   let stx ← getRef
   if e.isFVar || e.isConst then
     /-
@@ -268,19 +270,18 @@ def logAnchor (e : Expr) : TermElabM Unit := do
 
 @[builtin_grind_tactic cases] def evalCases : GrindTactic := fun stx => do
   let `(grind| cases #$anchor:hexnum) := stx | throwUnsupportedSyntax
-  let (numDigits, val) ← elabAnchor anchor
+  let anchorRef ← elabAnchorRef anchor
   let goal ← getMainGoal
   let candidates := goal.split.candidates
-  let (e, goals, genNew) ← liftSearchM do
+  let (c, goals, genNew) ← liftSearchM do
     for c in candidates do
-      let e := c.getExpr
-      let anchor ← getAnchor c.getExpr
-      if isAnchorPrefix numDigits val anchor then
+      let anchor ← c.getAnchor
+      if anchorRef.matches anchor then
         let some result ← split? c
           | throwError "`cases` tactic failed, case-split is not ready{indentExpr c.getExpr}"
-        return (e, result)
+        return (c, result)
     throwError "`cases` tactic failed, invalid anchor"
-  goal.withContext <| withRef anchor <| logAnchor e
+  goal.withContext <| withRef anchor <| logAnchor c
   let goals ← goals.filterMapM fun goal => do
     let goal := { goal with ematch.num := 0 }
     let (goal, _) ← liftGrindM <| SearchM.run goal do
@@ -309,6 +310,9 @@ def mkCasesSuggestions (candidates : Array SplitCandidateWithAnchor) (numDigits 
   let suggestions ← mkCasesSuggestions candidates numDigits
   Tactic.TryThis.addSuggestions stx suggestions
   return ()
+
+@[builtin_grind_tactic casesNext] def evalCasesNext : GrindTactic := fun _ => do
+  liftAction (Action.splitNext (stopAtFirstFailure := false))
 
 @[builtin_grind_tactic Parser.Tactic.Grind.focus] def evalFocus : GrindTactic := fun stx => do
   let mkInfo ← mkInitialTacticInfo stx[0]
@@ -426,30 +430,13 @@ where
   liftGrindM <| resetAnchors
   replaceMainGoal [{ goal with mvarId }]
 
-def isGrindConfigField? (stx : Syntax) : CoreM (Option Name) := do
-  unless stx.isIdent do return none
-  let id := stx.getId
-  let env ← getEnv
-  let info := getStructureInfo env ``Grind.Config
-  unless info.fieldNames.contains id do return none
-  return some id
-
 @[builtin_grind_tactic setOption] def elabSetOption : GrindTactic := fun stx => do
-  if let some fieldName ← isGrindConfigField? stx[1] then
-    let val := stx[3]
-    let val ← match val.isNatLit? with
-      | some num => pure <| DataValue.ofNat num
-      | none     => match val with
-        | Syntax.atom _ "true"  => pure <| DataValue.ofBool true
-        | Syntax.atom _ "false" => pure <| DataValue.ofBool false
-        | _ => throwErrorAt val "`grind` configuration option must be a Boolean or a numeral"
-    let config := (← read).ctx.config
-    let config ← setConfigField config fieldName val
-    withReader (fun c => { c with ctx.config := config }) do
-      evalGrindTactic stx[5]
-  else
-    let options ← Elab.elabSetOption stx[1] stx[3]
-    withOptions (fun _ => options) do evalGrindTactic stx[5]
+  let options ← Elab.elabSetOption stx[1] stx[3]
+  withOptions (fun _ => options) do evalGrindTactic stx[5]
+
+@[builtin_grind_tactic setConfig] def elabSetConfig : GrindTactic := fun stx => do
+  let `(grind| set_config $[$items:configItem]* in $seq:grindSeq) := stx | throwUnsupportedSyntax
+  withConfigItems items do evalGrindTactic seq
 
 @[builtin_grind_tactic mbtc] def elabMBTC : GrindTactic := fun _ => do
   liftGoalM do

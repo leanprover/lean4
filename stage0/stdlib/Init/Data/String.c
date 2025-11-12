@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String
-// Imports: public import Init.Data.String.Basic public import Init.Data.String.Bootstrap public import Init.Data.String.Decode public import Init.Data.String.Defs public import Init.Data.String.Extra public import Init.Data.String.Lemmas public import Init.Data.String.Repr public import Init.Data.String.Bootstrap public import Init.Data.String.Slice public import Init.Data.String.Pattern public import Init.Data.String.Stream public import Init.Data.String.PosRaw public import Init.Data.String.Substring public import Init.Data.String.TakeDrop public import Init.Data.String.Modify
+// Imports: public import Init.Data.String.Basic public import Init.Data.String.Bootstrap public import Init.Data.String.Decode public import Init.Data.String.Defs public import Init.Data.String.Extra public import Init.Data.String.Iterator public import Init.Data.String.Lemmas public import Init.Data.String.Repr public import Init.Data.String.Bootstrap public import Init.Data.String.Slice public import Init.Data.String.Pattern public import Init.Data.String.Stream public import Init.Data.String.PosRaw public import Init.Data.String.Substring public import Init.Data.String.TakeDrop public import Init.Data.String.Modify public import Init.Data.String.Termination public import Init.Data.String.ToSlice public import Init.Data.String.Search
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,7 @@ lean_object* initialize_Init_Data_String_Bootstrap(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Decode(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Defs(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Extra(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Iterator(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Repr(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Bootstrap(uint8_t builtin);
@@ -28,6 +29,9 @@ lean_object* initialize_Init_Data_String_PosRaw(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Substring(uint8_t builtin);
 lean_object* initialize_Init_Data_String_TakeDrop(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Modify(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Termination(uint8_t builtin);
+lean_object* initialize_Init_Data_String_ToSlice(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Search(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String(uint8_t builtin) {
 lean_object * res;
@@ -46,6 +50,9 @@ res = initialize_Init_Data_String_Defs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Extra(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Iterator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Lemmas(builtin);
@@ -76,6 +83,15 @@ res = initialize_Init_Data_String_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Modify(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Termination(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_ToSlice(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Search(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

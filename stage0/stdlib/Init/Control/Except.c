@@ -18,6 +18,7 @@ LEAN_EXPORT lean_object* l_ExceptT_instMonad___redArg___lam__0(lean_object*, lea
 LEAN_EXPORT lean_object* l_Except_orElseLazy___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_instMonad___redArg___lam__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadExceptOfExcept(lean_object*);
+LEAN_EXPORT lean_object* l_ExceptT_runCatch___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Except_instMonad___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_tryFinally___redArg___lam__1(lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_run___redArg___boxed(lean_object*);
@@ -26,6 +27,7 @@ LEAN_EXPORT lean_object* l_instInhabitedExceptTOfMonad(lean_object*, lean_object
 static lean_object* l_instMonadControlExceptTOfMonad___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Except_pure(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadExceptOfExceptTOfMonad(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ExceptT_runK___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Except_toBool___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_finally___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Id_finally___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -45,6 +47,7 @@ LEAN_EXPORT lean_object* l_ExceptT_lift(lean_object*, lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_ExceptT_run___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Except_bind___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadExceptOfExceptT(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ExceptT_runK(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadExceptOfExcept___lam__0(lean_object*, lean_object*);
 static lean_object* l_Except_instMonad___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Control_Except_0__Except_map_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
@@ -61,6 +64,7 @@ LEAN_EXPORT lean_object* l_instMonadControlExceptTOfMonad___redArg___lam__2(lean
 LEAN_EXPORT lean_object* l_ExceptT_run___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadExceptOfExceptTOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftExcept___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ExceptT_runCatch(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Except_mapError___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_tryFinally___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_instMonadFunctor(lean_object*, lean_object*);
@@ -110,6 +114,7 @@ LEAN_EXPORT uint8_t l_Except_isOk___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Except_isOk___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Except_tryCatch___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_instMonadLift___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_ExceptT_runK___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_mk(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_instMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_instMonad___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -125,6 +130,7 @@ LEAN_EXPORT lean_object* l_ExceptT_finally___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadExcept_orelse_x27___redArg___lam__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_instMonadLiftExcept___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Except_toOption(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ExceptT_runCatch___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadExcept_orelse_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_ExceptT_tryCatch___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Except_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1033,6 +1039,106 @@ lean_object* x_5;
 x_5 = l_ExceptT_run(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_ExceptT_runK___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; lean_object* x_5; 
+lean_dec(x_2);
+x_4 = lean_ctor_get(x_3, 0);
+lean_inc(x_4);
+lean_dec_ref(x_3);
+x_5 = lean_apply_1(x_1, x_4);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; 
+lean_dec(x_1);
+x_6 = lean_ctor_get(x_3, 0);
+lean_inc(x_6);
+lean_dec_ref(x_3);
+x_7 = lean_apply_1(x_2, x_6);
+return x_7;
+}
+}
+}
+LEAN_EXPORT lean_object* l_ExceptT_runK___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_5 = lean_ctor_get(x_1, 1);
+lean_inc(x_5);
+lean_dec_ref(x_1);
+x_6 = lean_alloc_closure((void*)(l_ExceptT_runK___redArg___lam__0), 3, 2);
+lean_closure_set(x_6, 0, x_4);
+lean_closure_set(x_6, 1, x_3);
+x_7 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_2, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_ExceptT_runK(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_9 = lean_ctor_get(x_5, 1);
+lean_inc(x_9);
+lean_dec_ref(x_5);
+x_10 = lean_alloc_closure((void*)(l_ExceptT_runK___redArg___lam__0), 3, 2);
+lean_closure_set(x_10, 0, x_8);
+lean_closure_set(x_10, 1, x_7);
+x_11 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_6, x_10);
+return x_11;
+}
+}
+LEAN_EXPORT lean_object* l_ExceptT_runCatch___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+lean_dec_ref(x_2);
+x_4 = lean_apply_2(x_1, lean_box(0), x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_ExceptT_runCatch___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec_ref(x_1);
+x_5 = lean_ctor_get(x_3, 1);
+lean_inc(x_5);
+lean_dec_ref(x_3);
+x_6 = lean_alloc_closure((void*)(l_ExceptT_runCatch___redArg___lam__0), 2, 1);
+lean_closure_set(x_6, 0, x_5);
+x_7 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_2, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_ExceptT_runCatch(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_5 = lean_ctor_get(x_3, 0);
+lean_inc_ref(x_5);
+x_6 = lean_ctor_get(x_3, 1);
+lean_inc(x_6);
+lean_dec_ref(x_3);
+x_7 = lean_ctor_get(x_5, 1);
+lean_inc(x_7);
+lean_dec_ref(x_5);
+x_8 = lean_alloc_closure((void*)(l_ExceptT_runCatch___redArg___lam__0), 2, 1);
+lean_closure_set(x_8, 0, x_7);
+x_9 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_4, x_8);
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_ExceptT_pure___redArg(lean_object* x_1, lean_object* x_2) {

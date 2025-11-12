@@ -321,7 +321,7 @@ This function ensures that the value is used linearly.
   m.1.keysArray
 
 /--
-Computes the union of the given hash maps. If a key appears in both maps, the entry contains in
+Computes the union of the given hash maps. If a key appears in both maps, the entry contained in
 the second argument will appear in the result.
 
 This function always merges the smaller map into the larger map, so the expected runtime is

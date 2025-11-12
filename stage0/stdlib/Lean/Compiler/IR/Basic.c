@@ -7210,7 +7210,7 @@ lean_ctor_set(x_16, 0, x_13);
 lean_ctor_set(x_16, 1, x_1);
 x_17 = l_Lean_IR_reshapeAux___closed__0;
 x_18 = l_Lean_IR_reshapeAux___closed__1;
-x_19 = lean_unsigned_to_nat(433u);
+x_19 = lean_unsigned_to_nat(419u);
 x_20 = lean_unsigned_to_nat(4u);
 x_21 = l_Lean_IR_reshapeAux___closed__2;
 lean_inc(x_7);

@@ -1312,7 +1312,7 @@ x_2 = 1;
 x_3 = 0;
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l___private_Lean_Meta_Tactic_Acyclic_0__Lean_MVarId_acyclic_go___closed__10;
-x_6 = lean_alloc_ctor(0, 2, 26);
+x_6 = lean_alloc_ctor(0, 2, 27);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_4);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2, x_3);
@@ -1341,6 +1341,7 @@ lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 22, x_2);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 23, x_2);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 24, x_2);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 25, x_2);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 26, x_3);
 return x_6;
 }
 }
@@ -2630,7 +2631,7 @@ lean_dec(x_17);
 if (x_18 == 0)
 {
 lean_object* x_19; 
-lean_dec_ref(x_10);
+lean_dec_ref(x_11);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
@@ -2644,7 +2645,7 @@ else
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
 lean_free_object(x_15);
 x_20 = l___private_Lean_Meta_Tactic_Acyclic_0__Lean_MVarId_acyclic_go___closed__5;
-x_21 = l_Lean_Exception_toMessageData(x_10);
+x_21 = l_Lean_Exception_toMessageData(x_11);
 x_22 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_21);
@@ -2685,7 +2686,7 @@ lean_dec(x_29);
 if (x_30 == 0)
 {
 lean_object* x_31; lean_object* x_32; 
-lean_dec_ref(x_10);
+lean_dec_ref(x_11);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
@@ -2699,7 +2700,7 @@ else
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
 x_33 = l___private_Lean_Meta_Tactic_Acyclic_0__Lean_MVarId_acyclic_go___closed__5;
-x_34 = l_Lean_Exception_toMessageData(x_10);
+x_34 = l_Lean_Exception_toMessageData(x_11);
 x_35 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_35, 0, x_33);
 lean_ctor_set(x_35, 1, x_34);
@@ -2728,7 +2729,7 @@ return x_39;
 }
 else
 {
-lean_dec_ref(x_10);
+lean_dec_ref(x_11);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
@@ -2744,16 +2745,16 @@ if (x_44 == 0)
 {
 uint8_t x_45; 
 x_45 = l_Lean_Exception_isRuntime(x_42);
-x_10 = x_42;
-x_11 = lean_box(0);
+x_10 = lean_box(0);
+x_11 = x_42;
 x_12 = x_41;
 x_13 = x_45;
 goto block_40;
 }
 else
 {
-x_10 = x_42;
-x_11 = lean_box(0);
+x_10 = lean_box(0);
+x_11 = x_42;
 x_12 = x_41;
 x_13 = x_44;
 goto block_40;

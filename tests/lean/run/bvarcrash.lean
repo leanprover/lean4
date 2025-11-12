@@ -629,17 +629,16 @@ def decl_9 : Lean.Declaration :=
     type := expr_443
     value := expr_0
   }
-run_meta Lean.addDecl decl_0
-run_meta Lean.addDecl decl_1
-run_meta Lean.addDecl decl_2
-run_meta Lean.addDecl decl_3
-run_meta Lean.addDecl decl_4
-run_meta Lean.addDecl decl_5
-run_meta Lean.addDecl decl_6
-run_meta Lean.addDecl decl_7
-run_meta Lean.addDecl decl_8
+
+open Lean
+
+-- We avoid `Lean.addDecl` as it may be doing additional checks that hide the expected error.
+run_meta do
+  for decl in [decl_0, decl_1, decl_2, decl_3, decl_4, decl_5, decl_6, decl_7, decl_8] do
+    setEnv (← ofExceptKernelException <| (← getEnv).addDeclCore 0 decl none)
 /--
 error: (kernel) type checker does not support loose bound variables, replace them with free variables before invoking it
 -/
 #guard_msgs in
-run_meta Lean.addDecl decl_9
+run_meta
+    setEnv (← ofExceptKernelException <| (← getEnv).addDeclCore 0 decl_9 none)

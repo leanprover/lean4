@@ -1935,7 +1935,7 @@ static lean_object* _init_l_Lake_BuildType_leancArgs___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("-Og", 3, 3);
+x_1 = lean_mk_string_unchecked("-O0", 3, 3);
 return x_1;
 }
 }

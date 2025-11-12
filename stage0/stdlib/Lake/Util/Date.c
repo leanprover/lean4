@@ -74,7 +74,6 @@ static lean_object* l_Lake_instReprDate_repr___redArg___closed__10;
 lean_object* l_List_reverse___redArg(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Date_ofString_x3f(lean_object*);
-uint8_t l_instDecidableNot___redArg(uint8_t);
 static lean_object* l_Lake_instReprDate_repr___redArg___closed__14;
 static lean_object* l_Lake_instReprDate_repr___redArg___closed__19;
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
@@ -758,51 +757,61 @@ return x_12;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
+lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_22; 
 x_13 = lean_unsigned_to_nat(4u);
 x_14 = lean_nat_mod(x_1, x_13);
 x_15 = lean_unsigned_to_nat(0u);
-x_16 = lean_nat_dec_eq(x_14, x_15);
+x_22 = lean_nat_dec_eq(x_14, x_15);
 lean_dec(x_14);
-if (x_16 == 0)
+if (x_22 == 0)
 {
-lean_object* x_17; 
-x_17 = lean_unsigned_to_nat(28u);
-return x_17;
+lean_object* x_23; 
+x_23 = lean_unsigned_to_nat(28u);
+return x_23;
 }
 else
 {
-lean_object* x_18; lean_object* x_19; uint8_t x_20; uint8_t x_21; 
-x_18 = lean_unsigned_to_nat(100u);
-x_19 = lean_nat_mod(x_1, x_18);
-x_20 = lean_nat_dec_eq(x_19, x_15);
-lean_dec(x_19);
-x_21 = l_instDecidableNot___redArg(x_20);
-if (x_21 == 0)
+lean_object* x_24; lean_object* x_25; uint8_t x_26; 
+x_24 = lean_unsigned_to_nat(100u);
+x_25 = lean_nat_mod(x_1, x_24);
+x_26 = lean_nat_dec_eq(x_25, x_15);
+lean_dec(x_25);
+if (x_26 == 0)
 {
-lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-x_22 = lean_unsigned_to_nat(400u);
-x_23 = lean_nat_mod(x_1, x_22);
-x_24 = lean_nat_dec_eq(x_23, x_15);
-lean_dec(x_23);
-if (x_24 == 0)
+if (x_22 == 0)
 {
-lean_object* x_25; 
-x_25 = lean_unsigned_to_nat(28u);
-return x_25;
-}
-else
-{
-lean_object* x_26; 
-x_26 = lean_unsigned_to_nat(29u);
-return x_26;
-}
+goto block_21;
 }
 else
 {
 lean_object* x_27; 
 x_27 = lean_unsigned_to_nat(29u);
 return x_27;
+}
+}
+else
+{
+goto block_21;
+}
+}
+block_21:
+{
+lean_object* x_16; lean_object* x_17; uint8_t x_18; 
+x_16 = lean_unsigned_to_nat(400u);
+x_17 = lean_nat_mod(x_1, x_16);
+x_18 = lean_nat_dec_eq(x_17, x_15);
+lean_dec(x_17);
+if (x_18 == 0)
+{
+lean_object* x_19; 
+x_19 = lean_unsigned_to_nat(28u);
+return x_19;
+}
+else
+{
+lean_object* x_20; 
+x_20 = lean_unsigned_to_nat(29u);
+return x_20;
 }
 }
 }

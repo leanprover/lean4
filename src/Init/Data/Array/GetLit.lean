@@ -50,6 +50,6 @@ where
   getLit_eq (xs : Array α) (i : Nat) (h₁ : xs.size = n) (h₂ : i < n) : xs.getLit i h₁ h₂ = getElem xs.toList i ((id (α := xs.toList.length = n) h₁) ▸ h₂) :=
     rfl
   go (i : Nat) (hi : i ≤ xs.size) : toListLitAux xs n hsz i hi (xs.toList.drop i) = xs.toList := by
-    induction i <;> simp only [List.drop, toListLitAux, getLit_eq, List.getElem_cons_drop_succ_eq_drop, *]
+    induction i <;> simp only [List.drop, toListLitAux, getLit_eq, List.getElem_cons_drop, *]
 
 end Array

@@ -24736,6 +24736,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Environment_0__Lean_findOLeanParts(lea
 _start:
 {
 lean_object* x_3; 
+lean_inc(x_1);
 x_3 = l_Lean_findOLean(x_1);
 if (lean_obj_tag(x_3) == 0)
 {
@@ -25020,6 +25021,8 @@ _start:
 {
 lean_object* x_4; lean_object* x_8; lean_object* x_9; lean_object* x_21; lean_object* x_22; 
 x_21 = lean_ctor_get(x_2, 0);
+lean_inc(x_21);
+lean_dec_ref(x_2);
 x_22 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(x_1, x_21);
 if (lean_obj_tag(x_22) == 0)
 {
@@ -25070,6 +25073,7 @@ return x_30;
 else
 {
 lean_object* x_31; lean_object* x_32; 
+lean_dec(x_21);
 x_31 = lean_ctor_get(x_22, 0);
 lean_inc(x_31);
 lean_dec_ref(x_22);
@@ -25164,7 +25168,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l___private_Lean_Environment_0__Lean_importModulesCore_loadIR_x3f___redArg(x_1, x_2);
-lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_4;
 }
@@ -25175,7 +25178,6 @@ _start:
 lean_object* x_5; 
 x_5 = l___private_Lean_Environment_0__Lean_importModulesCore_loadIR_x3f(x_1, x_2, x_3);
 lean_dec(x_3);
-lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_5;
 }
@@ -25425,6 +25427,7 @@ goto block_259;
 else
 {
 lean_object* x_271; 
+lean_inc_ref(x_216);
 x_271 = l___private_Lean_Environment_0__Lean_importModulesCore_loadIR_x3f___redArg(x_3, x_216);
 if (lean_obj_tag(x_271) == 0)
 {
@@ -25502,7 +25505,6 @@ if (lean_obj_tag(x_278) == 0)
 {
 lean_object* x_295; 
 x_295 = l___private_Lean_Environment_0__Lean_importModulesCore_loadIR_x3f___redArg(x_3, x_216);
-lean_dec_ref(x_216);
 if (lean_obj_tag(x_295) == 0)
 {
 lean_object* x_296; 

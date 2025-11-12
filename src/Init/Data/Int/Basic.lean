@@ -80,7 +80,10 @@ protected theorem zero_ne_one : (0 : Int) ≠ 1 := nofun
 
 /-! ## Coercions -/
 
-@[simp] theorem ofNat_eq_coe : Int.ofNat n = Nat.cast n := rfl
+@[simp] theorem ofNat_eq_natCast (n : Nat) : Int.ofNat n = n := rfl
+
+@[deprecated ofNat_eq_natCast (since := "2025-10-29")]
+theorem ofNat_eq_coe : Int.ofNat n = Nat.cast n := rfl
 
 @[simp] theorem ofNat_zero : ((0 : Nat) : Int) = 0 := rfl
 

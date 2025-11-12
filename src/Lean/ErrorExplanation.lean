@@ -12,6 +12,7 @@ public import Lean.EnvExtension
 public import Lean.DocString.Links
 import Init.Data.String.TakeDrop
 import Init.Data.String.Extra
+import Init.Data.String.Search
 
 public section
 
@@ -86,18 +87,18 @@ where
   stringContents : Parser String := attempt do
     let escaped := pchar '\\' *> pchar '"'
     let cs ← many (notFollowedBy (pchar '"') *> (escaped <|> any))
-    return String.mk cs.toList
+    return String.ofList cs.toList
 
   /--
   Parses all input up to the next whitespace. If `nonempty` is `true`, fails if there is no input
   prior to the next whitespace.
   -/
   upToWs (nonempty : Bool) : Parser String := fun it =>
-    let it' := it.find fun c => c.isWhitespace
-    if nonempty && it'.pos == it.pos then
-      .error it' (.other "Expected a nonempty string")
+    let it' := (it.2.find? fun (c : Char) => c.isWhitespace).getD it.1.endValidPos
+    if nonempty && it' == it.2 then
+      .error ⟨_, it'⟩ (.other "Expected a nonempty string")
     else
-      .success it' (it.extract it')
+      .success ⟨_, it'⟩ (it.1.replaceStartEnd! it.2 it').copy
 
   /-- Parses a named attribute, and returns its name and value. -/
   namedAttr : Parser (String × String) := attempt do

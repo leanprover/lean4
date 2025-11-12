@@ -433,7 +433,7 @@ def emitFullApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
   emitLhs z
   let decl ← getDecl f
   match decl with
-  | .fdecl (xs := ps) .. | .extern (xs := ps) (ext := { entries := [.opaque _], .. }) .. =>
+  | .fdecl (xs := ps) .. | .extern (xs := ps) (ext := { entries := [.opaque], .. }) .. =>
     emitCName f
     if ys.size > 0 then
       let (ys, _) := ys.zip ps |>.filter (fun (_, p) => !p.ty.isVoid) |>.unzip

@@ -1231,8 +1231,8 @@ theorem USize.shiftLeft_add {a b c : USize} (hb : b < USize.ofNat System.Platfor
     (-1) <<< b ||| a <<< b = (-1) <<< b := by simp [← UInt16.shiftLeft_or]
 @[simp] theorem UInt32.neg_one_shiftLeft_or_shiftLeft {a b : UInt32} :
     (-1) <<< b ||| a <<< b = (-1) <<< b := by simp [← UInt32.shiftLeft_or]
-@[simp] theorem UInt64.neg_one_shiftLeft_or_shiftLeft {a b : UInt8} :
-    (-1) <<< b ||| a <<< b = (-1) <<< b := by simp
+@[simp] theorem UInt64.neg_one_shiftLeft_or_shiftLeft {a b : UInt64} :
+    (-1) <<< b ||| a <<< b = (-1) <<< b := by simp [← UInt64.shiftLeft_or]
 @[simp] theorem USize.neg_one_shiftLeft_or_shiftLeft {a b : USize} :
     (-1) <<< b ||| a <<< b = (-1) <<< b := by simp [← USize.shiftLeft_or]
 

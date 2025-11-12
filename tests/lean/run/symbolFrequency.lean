@@ -1,10 +1,10 @@
 import Lean.Meta.Basic
-import Lean.PremiseSelection.SymbolFrequency
+import Lean.LibrarySuggestions.SymbolFrequency
 
-open Lean PremiseSelection
+open Lean LibrarySuggestions
 
 /-- info: true -/
 #guard_msgs in
 run_meta do
   let f ← symbolFrequency `Nat
-  logInfo m!"{decide (10000 < f)}"
+  logInfo m!"{decide (5000 < f)}"

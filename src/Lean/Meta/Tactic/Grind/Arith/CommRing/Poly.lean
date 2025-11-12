@@ -200,6 +200,10 @@ def Poly.isZero : Poly → Bool
   | .num 0 => true
   | _ => false
 
+def Poly.getConst : Poly → Int
+  | .num k => k
+  | .add _ _ p => p.getConst
+
 def Poly.checkCoeffs : Poly → Bool
   | .num _ => true
   | .add k _ p => k != 0 && checkCoeffs p

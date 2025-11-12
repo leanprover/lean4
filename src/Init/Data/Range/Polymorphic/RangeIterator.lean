@@ -1025,7 +1025,10 @@ partial instance Iterator.instIteratorLoop [UpwardEnumerable α] [LT α] [Decida
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     {n : Type u → Type w} [Monad n] :
     IteratorLoop (Rxo.Iterator α) Id n where
-  forIn l γ Pl wf it init f := loop' γ Pl wf it.internalState.next it.internalState.upperBound init f
+  forIn l γ Pl wf it init f := --loop' γ Pl wf it.internalState.next it.internalState.upperBound init f
+    match it with
+    | ⟨⟨some next, upperBound⟩⟩ => loop γ Pl wf next upperBound init f
+    | ⟨⟨none, _⟩⟩ => return init
     -- match it with
     -- | ⟨⟨some next, upperBound⟩⟩ =>
     --   if hu : next < upperBound then
@@ -1034,17 +1037,29 @@ partial instance Iterator.instIteratorLoop [UpwardEnumerable α] [LT α] [Decida
     --     return init
     -- | ⟨⟨none, _⟩⟩ => return init
   where
+    -- @[specialize]
+    -- loop' γ Pl wf (next? : Option α) (upperBound : α) (init : γ) (f : (b : α) → (IterM.mk (Rxo.Iterator.mk next? upperBound)).IsPlausibleIndirectOutput b → (c : γ) → n (Subtype (Pl b c))) := do
+    --   match next? with
+    --   | some next =>
+    --     if hu : next < upperBound then
+    --       match ← f next sorry init with
+    --       | ⟨.yield acc, _⟩ => loop' γ Pl wf (UpwardEnumerable.succ? next) upperBound acc (fun b _ acc => f b sorry acc)
+    --       | ⟨.done acc, _⟩ => return acc
+    --     else
+    --       return init
+    --   | none => return init
     @[specialize]
-    loop' γ Pl wf (next? : Option α) (upperBound : α) (init : γ) (f : (b : α) → (IterM.mk (Rxo.Iterator.mk next? upperBound)).IsPlausibleIndirectOutput b → (c : γ) → n (Subtype (Pl b c))) := do
-      match next? with
-      | some next =>
+    loop γ (Pl : α → γ → ForInStep γ → Prop) wf (next : α) (upperBound : α) (init : γ) (f : (b : α) → (IterM.mk (Rxo.Iterator.mk (some next) upperBound)).IsPlausibleIndirectOutput b → (c : γ) → n (Subtype (Pl b c))) := do
         if hu : next < upperBound then
           match ← f next sorry init with
-          | ⟨.yield acc, _⟩ => loop' γ Pl wf (UpwardEnumerable.succ? next) upperBound acc (fun b _ acc => f b sorry acc)
+          | ⟨.yield acc, _⟩ =>
+            match UpwardEnumerable.succ? next with
+            | some next =>
+              loop γ Pl wf next upperBound acc (fun b _ acc => f b sorry acc)
+            | none => return acc
           | ⟨.done acc, _⟩ => return acc
         else
           return init
-      | none => return init
   finally
     case hf =>
       rw [Monadic.isPlausibleIndirectOutput_iff]

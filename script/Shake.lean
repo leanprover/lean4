@@ -416,7 +416,7 @@ def visitModule (srcSearchPath : SearchPath)
     else
       let k := NeedsKind.ofImport imp
       -- A private import should also be removed if the public version is needed
-      if !deps.has k j || !k.isExported && deps.has { k with isExported := true } j then
+      if !deps.has k j && (!args.addPublic || !deps.has { k with isExported := false } j) || !k.isExported && deps.has { k with isExported := true } j then
         toRemove := toRemove.push imp
       else
         newDeps := addTransitiveImps newDeps imp j s.transDeps[j]!

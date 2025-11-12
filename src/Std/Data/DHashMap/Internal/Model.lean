@@ -472,7 +472,7 @@ theorem getEntry_eq_getEntryₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : �
     getEntry m a h = getEntryₘ m a (by exact h) := (rfl)
 
 theorem getEntry?_eq_getEntry?ₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
-    getEntry? m a = getEntry?ₘ m a  := (rfl)
+    getEntry? m a = getEntry?ₘ m a := (rfl)
 
 theorem getEntryD_eq_getEntryDₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : (a : α) × β a) :
     getEntryD m a fallback = getEntryDₘ m a fallback := (rfl)

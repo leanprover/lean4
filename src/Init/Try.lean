@@ -67,6 +67,6 @@ An optional priority can be specified with `register_try?_tactic (priority := 50
 Higher priority generators are tried first. The default priority is 1000.
 -/
 syntax (name := registerTryTactic) (docComment)?
-  "register_try?_tactic" ("(" "priority" ":=" num ")")? tacticSeq : command
+  "register_try?_tactic" ("(" &"priority" ":=" num ")")? tacticSeq : command
 
 end Lean.Parser.Command

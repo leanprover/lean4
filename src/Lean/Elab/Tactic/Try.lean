@@ -904,7 +904,7 @@ private unsafe def mkTryEvalSuggestStxUnsafe (goal : MVarId) (info : Try.Info) :
 
   -- Build final tactic: built-ins first, then user suggestions as fallback
   if userTactics.isEmpty then
-    `(tactic| first | $atomic:tactic | $funInds:tactic | $extra:tactic)
+    `(tactic| first | $atomic:tactic | $atomicSuggestions:tactic | $funInds:tactic | $inds:tactic | $extra:tactic)
   else
     let userAttemptAll ← `(tactic| attempt_all $[| $userTactics:tactic]*)
     `(tactic| first | $atomic:tactic | $atomicSuggestions:tactic | $funInds:tactic | $inds:tactic | $extra:tactic | $userAttemptAll:tactic)

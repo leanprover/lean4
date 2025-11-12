@@ -28,6 +28,16 @@ Options can include any valid `grind` configuration option, and `min` and `detai
 - `min`:      minimum number of instantiations to print a summary (default: 10)
 - `detailed`: minimum number of instantiations to print detailed breakdown (default: 50)
 If the option `trace.grind.*` is enabled, additional details are printed.
+
+By default, `#grind_lint` uses the following `grind` configuration:
+```
+  splits       := 0
+  lookahead    := false
+  mbtc         := false
+  ematch       := 20
+  instances    := 100
+  gen          := 10
+```
 -/
 syntax "#grind_lint" ppSpace &"check" (ppSpace configItem)* (ppSpace "in" ident+)? : command
 

@@ -16,7 +16,7 @@ namespace Lean.Parser
 abbrev mkAtom (info : SourceInfo) (val : String) : Syntax :=
   Syntax.atom info val
 
-abbrev mkIdent (info : SourceInfo) (rawVal : Substring) (val : Name) : Syntax :=
+abbrev mkIdent (info : SourceInfo) (rawVal : Substring.Raw) (val : Name) : Syntax :=
   Syntax.ident info rawVal val []
 
 /-- Return character after position `pos` -/
@@ -151,7 +151,7 @@ def extract (c : InputContext) : String.Pos.Raw → String.Pos.Raw → String :=
 Extracts a substring of the input string, bounded by `startPos` and `stopPos`.
 -/
 @[inline]
-def substring (c : InputContext) (startPos stopPos : String.Pos.Raw) : Substring :=
+def substring (c : InputContext) (startPos stopPos : String.Pos.Raw) : Substring.Raw :=
   { str := c.inputString, startPos, stopPos := min stopPos c.endPos }
 
 /-- Return character after position `pos` -/

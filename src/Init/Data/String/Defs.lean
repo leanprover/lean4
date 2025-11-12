@@ -396,10 +396,11 @@ A region or slice of some underlying string.
 
 A slice consists of a string together with the start and end byte positions of a region of
 interest. Actually extracting a substring requires copying and memory allocation, while many
-slices of the same underlying string may exist with very little overhead. While this could be achieved by tracking the bounds by hand, the slice API is much more convenient.
+slices of the same underlying string may exist with very little overhead. While this could be
+achieved by tracking the bounds by hand, the slice API is much more convenient.
 
 `String.Slice` bundles proofs to ensure that the start and end positions always delineate a valid
-string. For this reason, it should be preferred over `Substring`.
+string. For this reason, it should be preferred over `Substring.Raw`.
 -/
 structure Slice where
   /-- The underlying strings. -/

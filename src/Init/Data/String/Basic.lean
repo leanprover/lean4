@@ -2882,7 +2882,7 @@ theorem next'_eq (s : String) (p : Pos.Raw) (h) : p.next' s h = p.next s := rfl
 
 -- `toSubstring'` is just a synonym for `toSubstring` without the `@[inline]` attribute
 -- so for proving can be unfolded.
-attribute [simp] toSubstring'
+attribute [simp] toRawSubstring'
 
 end String
 

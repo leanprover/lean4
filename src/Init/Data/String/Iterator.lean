@@ -266,17 +266,16 @@ end Iterator
 
 end String.Legacy
 
-namespace Substring
+namespace Substring.Raw
 
 /--
 Returns an iterator into the underlying string, at the substring's starting position. The ending
 position is discarded, so the iterator alone cannot be used to determine whether its current
 position is within the original substring.
 -/
-@[inline] def toLegacyIterator : Substring → String.Legacy.Iterator
-  | ⟨s, b, _⟩ => ⟨s, b⟩
+@[inline] def toLegacyIterator : Substring.Raw → String.Legacy.Iterator
 
-end Substring
+end Substring.Raw
 
 instance : Repr String.Legacy.Iterator where
   reprPrec | ⟨s, pos⟩, prec => Repr.addAppParen ("String.Iterator.mk " ++ reprArg s ++ " " ++ reprArg pos) prec

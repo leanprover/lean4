@@ -60,9 +60,6 @@ with
     | .concat a b => .merge (· + ·) (maxNewlineCount? a) (maxNewlineCount? b)
 deriving Inhabited, Repr
 
-def Doc.ptr (d : Doc) : USize :=
-  unsafe ptrAddrUnsafe d
-
 structure PreprocessingCacheKey where
   docPtr : USize
   isFlattened : Bool
@@ -75,7 +72,7 @@ def Doc.preprocess (d : Doc) : Doc :=
   goMemoized d false |>.run' {}
 where
   goMemoized (d : Doc) (isFlattened : Bool) : StateM PreprocessingState Doc := do
-    let cacheKey := { docPtr := d.ptr, isFlattened }
+    let cacheKey := { docPtr := unsafe ptrAddrUnsafe d, isFlattened }
     if let some d' := (← get).cache.get? cacheKey then
       return d'
     let d' ← go d isFlattened
@@ -210,9 +207,6 @@ inductive TaintedMeasure (τ : Type) where
   | concatTainted (m1 : Measure τ) (tm2 : TaintedMeasure τ) (maxNewlineCount? : Option Nat)
   | resolveTainted (d : Doc) (columnPos : Nat) (indentation : Nat) (fullness : FullnessState) (maxNewlineCount? : Option Nat)
 
-def TaintedMeasure.ptr (tm : TaintedMeasure τ) : USize :=
-  unsafe ptrAddrUnsafe tm
-
 def TaintedMeasure.maxNewlineCount? : TaintedMeasure τ → Option Nat
   | .mergeTainted (maxNewlineCount? := n) .. => n
   | .taintedConcat (maxNewlineCount? := n) .. => n
@@ -310,7 +304,7 @@ def ResolverM.run (f : ResolverM τ α) : α :=
 def getCachedSet? (d : Doc) (columnPos indentation : Nat) (fullness : FullnessState) :
     ResolverM τ (Option (MeasureSet τ)) := do
   return (← get).setCache.get? {
-    docPtr := d.ptr
+    docPtr := unsafe ptrAddrUnsafe d
     columnPos
     indentation
     fullness
@@ -320,7 +314,7 @@ def setCachedSet (d : Doc) (columnPos indentation : Nat) (fullness : FullnessSta
     (set : MeasureSet τ) : ResolverM τ Unit :=
   modify fun state => { state with
     setCache := state.setCache.insert {
-        docPtr := d.ptr
+        docPtr := unsafe ptrAddrUnsafe d
         columnPos
         indentation
         fullness
@@ -333,19 +327,19 @@ inductive CacheResult (α : Type)
 
 def getCachedResolvedTainted? (tm : TaintedMeasure τ) :
     ResolverM τ (CacheResult (Option (Measure τ))) := do
-  match (← get).resolvedTaintedCache.get? tm.ptr with
+  match (← get).resolvedTaintedCache.get? (unsafe ptrAddrUnsafe tm) with
   | none => return .miss
   | some cached? => return .hit cached?
 
 def setCachedResolvedTainted (tm : TaintedMeasure τ) (m? : Option (Measure τ)) :
     ResolverM τ Unit :=
   modify fun state => { state with
-    resolvedTaintedCache := state.resolvedTaintedCache.insert tm.ptr m?
+    resolvedTaintedCache := state.resolvedTaintedCache.insert (unsafe ptrAddrUnsafe tm) m?
   }
 
 def isFailing (d : Doc) (fullness : FullnessState) : ResolverM τ Bool := do
   let isCachedFailure := (← get).failureCache.contains {
-    docPtr := d.ptr
+    docPtr := unsafe ptrAddrUnsafe d
     fullness
   }
   return isCachedFailure || d.isFailure fullness
@@ -353,7 +347,7 @@ def isFailing (d : Doc) (fullness : FullnessState) : ResolverM τ Bool := do
 def setCachedFailing (d : Doc) (fullness : FullnessState) : ResolverM τ Unit :=
   modify fun state => { state with
     failureCache := state.failureCache.insert {
-      docPtr := d.ptr
+      docPtr := unsafe ptrAddrUnsafe d
       fullness
     }
   }

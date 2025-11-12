@@ -98,3 +98,28 @@ info: Try these:
 example : CustomProp := by
   try?
 end DoubleSuggestion
+
+section RegisterCommand
+-- Test the register_try?_tactic convenience command
+register_try?_tactic (priority := 500) constructor
+
+/--
+info: Try this:
+  [apply] constructor
+-/
+#guard_msgs in
+example : CustomProp := by
+  try?
+
+-- Test without explicit priority (should default to 1000, so appear before constructor at 500)
+register_try?_tactic apply CustomProp.mk
+
+/--
+info: Try these:
+  [apply] apply CustomProp.mk
+  [apply] constructor
+-/
+#guard_msgs in
+example : CustomProp := by
+  try?
+end RegisterCommand

@@ -11,6 +11,7 @@ public import Lean.Meta.Tactic.Try
 public import Lean.Elab.Tactic.SimpTrace
 public import Lean.Elab.Tactic.LibrarySearch
 public import Lean.Elab.Tactic.Grind
+meta import Lean.Elab.Command
 
 public section
 
@@ -253,7 +254,7 @@ abbrev TrySuggestionGenerator := MVarId → Try.Info → MetaM (Array (TSyntax `
 /-- Entry in the try suggestion registry -/
 structure TrySuggestionEntry where
   name : Name
-  priority : Nat
+  prio : Nat
   deriving Inhabited
 
 /-- Environment extension for user try suggestion generators (supports local scoping) -/
@@ -261,7 +262,7 @@ builtin_initialize trySuggestionExtension : SimpleScopedEnvExtension TrySuggesti
   registerSimpleScopedEnvExtension {
     addEntry := fun entries entry =>
       -- Insert new entry and maintain sorted order by priority (higher = runs first)
-      (entries.push entry).qsort (·.priority > ·.priority)
+      (entries.push entry).qsort (·.prio > ·.prio)
     initial := #[]
   }
 
@@ -270,16 +271,47 @@ builtin_initialize registerBuiltinAttribute {
   name := `try_suggestion
   descr := "Register a tactic suggestion generator for try? (runs after built-in tactics)"
   add := fun declName stx kind => do
-    let priority ← match stx with
+    let prio ← match stx with
       | `(attr| try_suggestion $n:num) => pure n.getNat
       | `(attr| try_suggestion) => pure 1000  -- Default priority
       | _ => throwError "invalid 'try_suggestion' attribute syntax"
     let attrKind := if kind == AttributeKind.local then AttributeKind.local else AttributeKind.global
     trySuggestionExtension.add {
       name := declName,
-      priority := priority
+      prio := prio
     } attrKind
 }
+
+/-- Elaborate `register_try?_tactic` command -/
+@[builtin_command_elab registerTryTactic]
+meta def elabRegisterTryTactic : Command.CommandElab := fun stx => do
+  if `Lean.Elab.Tactic.Try ∉ (← getEnv).header.moduleNames then
+    logWarning "Add `import Lean.Elab.Tactic.Try` before using the `register_try?_tactic` command."
+    return
+  let doc? := stx[0]
+  let prio := if stx[2].isNone then 1000 else stx[2][0][3].isNatLit?.getD 1000
+  let tacStx := stx[3]
+
+  -- Generate a unique name based on a hash of the tactic syntax
+  let tacHash := hash tacStx.prettyPrint.pretty
+  let name := Name.mkSimple s!"auxTryTactic{tacHash}"
+
+  -- Generate code that parses the tactic at runtime
+  let prioStx := Syntax.mkNumLit (toString prio)
+  let nameId := mkIdent name
+  let tacText := Syntax.mkStrLit tacStx.prettyPrint.pretty
+
+  let cmd ← `(command|
+    open Lean Meta Elab Tactic Try in
+    @[try_suggestion $prioStx] meta def $nameId
+      (_goal : MVarId) (_info : Try.Info) : MetaM (Array (TSyntax `tactic)) := do
+      let env ← getEnv
+      match Parser.runParserCategory env `tactic $tacText with
+      | Except.ok stx => return #[⟨stx⟩]
+      | Except.error _ => return #[])
+
+  let finalCmd := if doc?.isNone then cmd else ⟨doc?.setArg 1 cmd.raw⟩
+  Command.elabCommand finalCmd
 
 /--
 Evaluates a user-generated tactic and captures any "Try this" suggestions it produces

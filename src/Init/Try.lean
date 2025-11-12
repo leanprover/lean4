@@ -57,3 +57,16 @@ syntax (name := attemptAll) "attempt_all " withPosition((ppDedent(ppLine) colGe 
 syntax (name := tryResult) "try_suggestions " tactic* : tactic
 
 end Lean.Parser.Tactic
+
+namespace Lean.Parser.Command
+
+/--
+`register_try?_tactic tac` registers a tactic `tac` as a suggestion generator for the `try?` tactic.
+
+An optional priority can be specified with `register_try?_tactic (priority := 500) tac`.
+Higher priority generators are tried first. The default priority is 1000.
+-/
+syntax (name := registerTryTactic) (docComment)?
+  "register_try?_tactic" ("(" "priority" ":=" num ")")? tacticSeq : command
+
+end Lean.Parser.Command

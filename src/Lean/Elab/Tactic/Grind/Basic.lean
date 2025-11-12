@@ -310,6 +310,12 @@ def liftSearchM (k : SearchM α) : GrindTacticM α := do
   replaceMainGoal [state.goal]
   return a
 
+def liftAction (a : Action) : GrindTacticM Unit := do
+  let goal ← getMainGoal
+  match (← liftGrindM <| a.run goal) with
+  | .closed _ => replaceMainGoal []
+  | .stuck gs => replaceMainGoal gs
+
 def done : GrindTacticM Unit := do
   pruneSolvedGoals
   let goals ← getGoals

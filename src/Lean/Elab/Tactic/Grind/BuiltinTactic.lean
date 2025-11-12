@@ -311,6 +311,9 @@ def mkCasesSuggestions (candidates : Array SplitCandidateWithAnchor) (numDigits 
   Tactic.TryThis.addSuggestions stx suggestions
   return ()
 
+@[builtin_grind_tactic casesNext] def evalCasesNext : GrindTactic := fun _ => do
+  liftAction (Action.splitNext (stopAtFirstFailure := false))
+
 @[builtin_grind_tactic Parser.Tactic.Grind.focus] def evalFocus : GrindTactic := fun stx => do
   let mkInfo ← mkInitialTacticInfo stx[0]
   focus do

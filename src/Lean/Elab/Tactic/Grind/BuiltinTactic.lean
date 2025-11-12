@@ -106,15 +106,15 @@ If the goal is not inconsistent and progress has been made,
 -/
 def evalCheck (tacticName : Name) (k : GoalM Bool)
     (pp? : Goal → MetaM (Option MessageData)) : GrindTacticM Unit := do
+  let recover := (← read).recover
   liftGoalM do
     let progress ← k
     unless progress do
       throwError "`{tacticName}` failed"
     processNewFacts
-    unless (← Grind.getConfig).verbose do
-      return ()
-    if (← get).inconsistent then
-      return ()
+    unless (← Grind.getConfig).verbose do return ()
+    unless recover do return ()
+    if (← get).inconsistent then return ()
     let some msg ← pp? (← get) | return ()
     logInfo msg
 

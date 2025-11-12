@@ -6326,7 +6326,7 @@ theorem List.length_filter_containsKey_of_length_right [BEq α] [EquivBEq α]
         case w.inr =>
           exact inr
 
-theorem List.size_insertList_filter_containsKey_eq_size [BEq α] [EquivBEq α]
+theorem List.size_add_size_eq_size_insertList_add_size_filter_containsKey [BEq α] [EquivBEq α]
     {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
     l₁.length + l₂.length =
     (insertList l₁ l₂).length +

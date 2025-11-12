@@ -2979,10 +2979,10 @@ theorem size_inter_eq_size_right [EquivBEq α] [LawfulHashable α]
   revert h
   simp_to_model [inter, size, contains] using List.length_filter_containsKey_of_length_right
 
-theorem size_union_inter_eq_size [EquivBEq α] [LawfulHashable α]
+theorem size_add_size_eq_size_union_add_size_inter [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
     m₁.1.size + m₂.1.size = (m₁.union m₂).1.size + (m₁.inter m₂).1.size := by
-  simp_to_model [union, inter, size] using List.size_insertList_filter_containsKey_eq_size
+  simp_to_model [union, inter, size] using List.size_add_size_eq_size_insertList_add_size_filter_containsKey
 
 /- isEmpty -/
 @[simp]

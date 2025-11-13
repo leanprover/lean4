@@ -2880,7 +2880,7 @@ theorem get'_eq (s : String) (p : Pos.Raw) (h) : p.get' s h = p.get s := rfl
 @[deprecated Pos.Raw.next'_eq (since := "2025-10-14")]
 theorem next'_eq (s : String) (p : Pos.Raw) (h) : p.next' s h = p.next s := rfl
 
--- `toSubstring'` is just a synonym for `toSubstring` without the `@[inline]` attribute
+-- `toRawSubstring'` is just a synonym for `toRawSubstring` without the `@[inline]` attribute
 -- so for proving can be unfolded.
 attribute [simp] toRawSubstring'
 

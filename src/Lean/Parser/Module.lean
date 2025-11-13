@@ -118,7 +118,7 @@ def parseHeader (inputCtx : InputContext) : IO (TSyntax ``Module.header × Modul
   pure (⟨stx⟩, {pos := s.pos, recovering := s.hasError}, messages)
 
 private def mkEOI (pos : String.Pos.Raw) : Syntax :=
-  let atom := mkAtom (SourceInfo.original "".toSubstring pos "".toSubstring pos) ""
+  let atom := mkAtom (SourceInfo.original "".toRawSubstring pos "".toRawSubstring pos) ""
   mkNode ``Command.eoi #[atom]
 
 def isTerminalCommand (s : Syntax) : Bool :=

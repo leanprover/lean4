@@ -229,7 +229,7 @@ def splitOn (s : Substring.Raw) (sep : String := " ") : List Substring.Raw :=
           loop b (s.next i) 0 r
       else
         let r := if j.atEnd sep then
-          "".toSubstring :: s.extract b (i.unoffsetBy j) :: r
+          "".toRawSubstring :: s.extract b (i.unoffsetBy j) :: r
         else
           s.extract b i :: r
         r.reverse
@@ -372,10 +372,10 @@ to its end position.
 “Whitespace” is defined as characters for which `Char.isWhitespace` returns `true`.
 
 Examples:
- * `" red green blue ".toSubstring.trim.toString = "red green blue"`
- * `" red green blue ".toSubstring.trim.startPos = ⟨1⟩`
- * `" red green blue ".toSubstring.trim.stopPos = ⟨15⟩`
- * `"     ".toSubstring.trim.startPos = ⟨5⟩`
+ * `" red green blue ".toRawSubstring.trim.toString = "red green blue"`
+ * `" red green blue ".toRawSubstring.trim.startPos = ⟨1⟩`
+ * `" red green blue ".toRawSubstring.trim.stopPos = ⟨15⟩`
+ * `"     ".toRawSubstring.trim.startPos = ⟨5⟩`
 -/
 @[inline] def trim : Substring.Raw → Substring.Raw
   | ⟨s, b, e⟩ =>

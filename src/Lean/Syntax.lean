@@ -335,18 +335,18 @@ def identComponents (stx : Syntax) (nFields? : Option Nat := none) : List Syntax
       if nameComps.length == rawComps.length then
         return nameComps.zip rawComps |>.map fun (id, ss) =>
           let off := ss.startPos.unoffsetBy rawStr.startPos
-          let lead := if off == 0 then lead else "".toSubstring
-          let trail := if ss.stopPos == rawStr.stopPos then trail else "".toSubstring
+          let lead := if off == 0 then lead else "".toRawSubstring
+          let trail := if ss.stopPos == rawStr.stopPos then trail else "".toRawSubstring
           let info := original lead (pos.offsetBy off) trail (pos.offsetBy off |>.offsetBy ⟨ss.bsize⟩)
           ident info ss id []
     -- if re-parsing failed, just give them all the same span
-    nameComps.map fun n => ident si n.toString.toSubstring n []
+    nameComps.map fun n => ident si n.toString.toRawSubstring n []
   | ident si _ val _ =>
     let val := val.eraseMacroScopes
     /- With non-original info:
      - `rawStr` can take all kinds of forms so we only use `val`.
      - there is no source extent to offset, so we pass it as-is. -/
-    nameComps val nFields? |>.map fun n => ident si n.toString.toSubstring n []
+    nameComps val nFields? |>.map fun n => ident si n.toString.toRawSubstring n []
   | _ => unreachable!
   where
     nameComps (n : Name) (nFields? : Option Nat) : List Name :=

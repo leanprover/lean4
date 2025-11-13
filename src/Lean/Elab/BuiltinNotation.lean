@@ -577,8 +577,8 @@ def elabUnsafe : TermElab := fun stx expectedType? =>
 @[builtin_term_elab byElab] def elabRunElab : TermElab := fun stx expectedType? =>
   match stx with
   | `(by_elab $cmds:doSeq) => do
-    if let `(Lean.Parser.Term.doSeq| $e:term) := cmds then
-      if e matches `(Lean.Parser.Term.doSeq| fun $[$_args]* => $_) then
+    if let `(doSeq| $e:term) := cmds then
+      if e matches `(doSeq| fun $[$_args]* => $_) then
         let tac ← unsafe evalTerm
           (Option Expr → TermElabM Expr)
           (Lean.mkForall `x .default

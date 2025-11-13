@@ -57,7 +57,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (isCoi
         let some range := modifiersStx[2].getRangeWithTrailing? | pure .nil
         -- Drop the doc comment from both the `declModifiers` and outer `ctor`, as well as
         -- everything after the constructor name (yielding invalid syntax with the desired range)
-        let previewSpan? := ctor.modifyArgs (·[2...4].toArray.modify 0 (·.modifyArgs (·[1...*])))
+        let previewSpan? := ctor.modifyArgs (·[2...4].toArray.modify 0 (·.modifyArgs (·[1...*].copy)))
         MessageData.hint "Remove `private` modifier from constructor" #[{
           suggestion := ""
           span? := Syntax.ofRange range
@@ -186,7 +186,7 @@ private def reorderCtorArgs (ctorType : Expr) : MetaM Expr := do
        -/
       let C := type.getAppFn
       let binderNames := getArrowBinderNames (← instantiateMVars (← inferType C))
-      return replaceArrowBinderNames r binderNames[*...bsPrefix.size]
+      return replaceArrowBinderNames r binderNames[*...bsPrefix.size].copy
 
 /--
   Elaborate constructor types.

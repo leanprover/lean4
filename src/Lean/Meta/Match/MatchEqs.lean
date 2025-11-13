@@ -628,7 +628,7 @@ where
       argsNew := argsNew.set! 2 motiveNew
       -- Construct the new minor premise for the `Eq.ndrec` application.
       -- First, we use `eqRecNewPrefix` to infer the new minor premise binders for `Eq.ndrec`
-      let eqRecNewPrefix := mkAppN f argsNew[*...3] -- `Eq.ndrec` minor premise is the fourth argument.
+      let eqRecNewPrefix := mkAppN f argsNew[*...3].copy -- `Eq.ndrec` minor premise is the fourth argument.
       let .forallE _ minorTypeNew .. ← whnf (← inferType eqRecNewPrefix) | unreachable!
       trace[Meta.Match.matchEqs] "new minor type: {minorTypeNew}"
       let minor := args[3]!
@@ -755,11 +755,11 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
   let numDiscrEqs := getNumEqsFromDiscrInfos matchInfo.discrInfos
   forallTelescopeReducing constInfo.type fun xs matchResultType => do
     let mut eqnNames := #[]
-    let params := xs[*...matchInfo.numParams]
+    let params := xs[*...matchInfo.numParams].copy
     let motive := xs[matchInfo.getMotivePos]!
-    let alts   := xs[(xs.size - matchInfo.numAlts)...*]
+    let alts   := xs[(xs.size - matchInfo.numAlts)...*].copy
     let firstDiscrIdx := matchInfo.numParams + 1
-    let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
+    let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)].copy
     let mut notAlts := #[]
     let mut idx := 1
     let mut splitterAltTypes := #[]
@@ -784,7 +784,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
         let splitterAltNumParam := hs.size + ys.size
         -- Create a proposition for representing terms that do not match `patterns`
         let mut notAlt := mkConst ``False
-        for discr in discrs.toArray.reverse, pattern in patterns.reverse do
+        for discr in discrs.reverse, pattern in patterns.reverse do
           notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
         notAlt ← mkForallFVars (discrs ++ ys) notAlt
         /- Recall that when we use the `h : discr`, the alternative type depends on the discriminant.
@@ -813,7 +813,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
       idx := idx + 1
     -- Define splitter with conditional/refined alternatives
     withSplitterAlts splitterAltTypes fun altsNew => do
-      let splitterParams := params.toArray ++ #[motive] ++ discrs.toArray ++ altsNew
+      let splitterParams := params ++ #[motive] ++ discrs ++ altsNew
       let splitterType ← mkForallFVars splitterParams matchResultType
       trace[Meta.Match.matchEqs] "splitterType: {splitterType}"
       let template := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
@@ -871,11 +871,11 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
   let numDiscrEqs := matchInfo.getNumDiscrEqs
   forallTelescopeReducing constInfo.type fun xs _matchResultType => do
     let mut eqnNames := #[]
-    let params := xs[*...matchInfo.numParams]
+    let params := xs[*...matchInfo.numParams].copy
     let motive := xs[matchInfo.getMotivePos]!
-    let alts   := xs[(xs.size - matchInfo.numAlts)...*]
+    let alts   := xs[(xs.size - matchInfo.numAlts)...*].copy
     let firstDiscrIdx := matchInfo.numParams + 1
-    let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
+    let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)].copy
     let mut notAlts := #[]
     let mut idx := 1
     for i in *...alts.size do
@@ -900,7 +900,7 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
               hs := hs.push h
           trace[Meta.Match.matchEqs] "hs: {hs}"
           let mut notAlt := mkConst ``False
-          for discr in discrs.toArray.reverse, pattern in patterns.reverse do
+          for discr in discrs.reverse, pattern in patterns.reverse do
             notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
           notAlt ← mkForallFVars (discrs ++ altVars) notAlt
           let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)

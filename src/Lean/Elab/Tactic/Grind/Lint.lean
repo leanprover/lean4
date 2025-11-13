@@ -66,7 +66,7 @@ def defaultConfig : Grind.Config := {
   detailed     := 50
 }
 
-def mkConfig (items : Array (TSyntax `Lean.Parser.Tactic.configItem)) : CoreM Grind.Config := do
+def mkConfig (items : Array (TSyntax `Lean.Parser.Tactic.configItem)) : TermElabM Grind.Config := do
   elabConfigItems defaultConfig items
 
 def mkParams (config : Grind.Config) : MetaM Params := do

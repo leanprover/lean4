@@ -164,10 +164,10 @@ def expandOptDocComment? [Monad m] [MonadError m] (optDocComment : Syntax) : m (
 
 section Methods
 
-variable [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadFinally m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadInfoTree m] [MonadLiftT IO m]
+variable [Monad m] [MonadResolveName m] [MonadError m] [MonadFinally m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadInfoTree m] [MonadLiftT IO m]
 
 /-- Elaborate declaration modifiers (i.e., attributes, `partial`, `private`, `protected`, `unsafe`, `meta`, `noncomputable`, doc string)-/
-def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers := do
+def elabModifiers [MonadOnlyEnv m] (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers := do
   let docCommentStx := stx.raw[0]
   let attrsStx      := stx.raw[1]
   let visibilityStx := stx.raw[2]
@@ -203,6 +203,8 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
     stx, docString?, visibility, isProtected, computeKind, recKind, attrs,
     isUnsafe        := !unsafeStx.isNone
   }
+
+variable [MonadEnv m]
 
 /--
 Ensure the function has not already been declared, and apply the given visibility setting to `declName`.

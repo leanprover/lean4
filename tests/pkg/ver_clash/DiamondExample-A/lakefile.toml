@@ -1,0 +1,6 @@
+name = "DiamondExample-A"
+defaultTargets = ["DiamondExampleA"]
+
+[[lean_lib]]
+name = "DiamondExampleA"
+leanOptions.experimental.module = true

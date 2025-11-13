@@ -45,7 +45,7 @@ private def mkIdentFrom' (src : Syntax) (val : Name) : Ident :=
 structure Data.Const where
   /-- The constant's name. -/
   name : Name
-deriving TypeName
+deriving TypeName, Repr
 
 /-- The code represents a local variable. -/
 structure Data.Local where
@@ -64,25 +64,25 @@ deriving TypeName
 structure Data.Tactic where
   /-- The name of the tactic's syntax kind. -/
   name : Name
-deriving TypeName
+deriving TypeName, Repr
 
 /-- The code represents a conv tactic. -/
 structure Data.ConvTactic where
   /-- The name of the tactic's syntax kind. -/
   name : Name
-deriving TypeName
+deriving TypeName, Repr
 
 /-- The code represents an attribute application `@[...]`. -/
 structure Data.Attributes where
   /-- The attribute syntax. -/
   stx : Syntax
-deriving TypeName
+deriving TypeName, Repr
 
 /-- The code represents a single attribute. -/
 structure Data.Attribute where
   /-- The attribute syntax. -/
   stx : Syntax
-deriving TypeName
+deriving TypeName, Repr
 
 /-- The code represents an option. -/
 structure Data.Option where
@@ -90,14 +90,14 @@ structure Data.Option where
   name : Name
   /-- The option's declaration name. -/
   declName : Name
-deriving TypeName
+deriving TypeName, Repr
 
 
 /-- The code represents a syntax category name. -/
 structure Data.SyntaxCat where
   /-- The syntax category. -/
   name : Name
-deriving TypeName
+deriving TypeName, Repr
 
 /-- The code represents syntax in a given category. -/
 structure Data.Syntax where
@@ -105,13 +105,13 @@ structure Data.Syntax where
   category : Name
   /-- The parsed syntax. -/
   stx : Lean.Syntax
-deriving TypeName
+deriving TypeName, Repr
 
 /-- The code represents a module name. -/
 structure Data.ModuleName where
   /-- The module. -/
   «module» : Name
-deriving TypeName
+deriving TypeName, Repr
 
 
 private def onlyCode [Monad m] [MonadError m] (xs : TSyntaxArray `inline) : m StrLit := do
@@ -627,153 +627,6 @@ private builtin_initialize
   leanOutputExt : EnvExtension (NameMap (Array (MessageSeverity × String))) ←
     registerEnvExtension (asyncMode := .local) (pure {})
 
-/--
-Elaborates a sequence of Lean commands as examples.
-
-To make examples self-contained, elaboration ignores the surrouncing section scopes. Modifications
-to the environment are preserved during a single documentation comment, and discarded afterwards.
-
-The named argument `name` allows a name to be assigned to the code block; any messages created by
-elaboration are saved under this name.
-
-The flags `error` and `warning` indicate that an error or warning is expected in the code.
--/
-@[builtin_doc_code_block]
-def lean (name : Option Ident := none) (error warning «show» : flag false) (code : StrLit) :
-    DocM (Block ElabInline ElabBlock) := do
-  let text ← getFileMap
-  let env ← getEnv
-  let p := andthenFn whitespace (categoryParserFnImpl `command)
-  -- TODO fallback for non-original syntax
-  let pos := code.raw.getPos? true |>.get!
-  let endPos := code.raw.getTailPos? true |>.get!
-  let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
-  let ictx :=
-    mkInputContext text.source (← getFileName)
-      (endPos := endPos) (endPos_valid := by simp only [endPos]; split <;> simp [*])
-  let cctx : Command.Context := {fileName := ← getFileName, fileMap := text, snap? := none, cancelTk? := none}
-  let scopes := (← get).scopes
-  let mut cmdState : Command.State := { env, maxRecDepth := ← MonadRecDepth.getMaxRecDepth, scopes }
-  let mut pstate : Parser.ModuleParserState := {pos := pos, recovering := false}
-  let mut cmds := #[]
-  repeat
-    let scope := cmdState.scopes.head!
-    let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
-    let (cmd, ps', messages) := Parser.parseCommand ictx pmctx pstate cmdState.messages
-    cmds := cmds.push cmd
-    pstate := ps'
-    cmdState := { cmdState with messages := messages }
-    cmdState ← runCommand (Command.elabCommand cmd) cmd cctx cmdState
-    if Parser.isTerminalCommand cmd then break
-  setEnv cmdState.env
-  modify fun st => { st with scopes := cmdState.scopes }
-  for t in cmdState.infoState.trees do
-    pushInfoTree t
-  -- TODO Nice highlighted code
-  let mut output := #[]
-  for msg in cmdState.messages.toArray do
-    let b := text.ofPosition msg.pos
-    let e := msg.endPos |>.map text.ofPosition |>.getD (b.next text.source)
-    let msgStr := String.Pos.Raw.extract text.source b e
-    let msgStx := Syntax.mkStrLit msgStr (info := .synthetic b e (canonical := true))
-    unless msg.isSilent do
-      if name.isSome then output := output.push (msg.severity, ← msg.data.toString)
-      if msg.severity == .error && !error then
-        let hint ← flagHint m!"The `+error` flag indicates that errors are expected:" #[" +error"]
-        logErrorAt msgStx m!"Unexpected error:{indentD msg.data}{hint.getD m!""}"
-      if msg.severity == .warning && !warning then
-        let hint ← flagHint m!"The `+error` flag indicates that warnings are expected:" #[" +warning"]
-        logErrorAt msgStx m!"Unexpected warning:{indentD msg.data}{hint.getD m!""}"
-      else
-        withRef msgStx <| log msg.data (severity := .information) (isSilent := true)
-    if let some x := name then
-      modifyEnv (leanOutputExt.modifyState · (·.insert x.getId output))
-  if «show» then
-    pure <| .code code.getString
-  else pure .empty
-where
-  runCommand (act : Command.CommandElabM Unit) (stx : Syntax)
-      (cctx : Command.Context) (cmdState : Command.State) :
-      DocM Command.State := do
-    let (output, cmdState) ←
-      match (← liftM <| IO.FS.withIsolatedStreams <| EIO.toIO' <| (act.run cctx).run cmdState) with
-      | (output, .error e) => Lean.logError e.toMessageData; pure (output, cmdState)
-      | (output, .ok ((), cmdState)) => pure (output, cmdState)
-
-    if output.trim.isEmpty then return cmdState
-
-    let log : MessageData → Command.CommandElabM Unit :=
-      if let some tok := firstToken? stx then logInfoAt tok
-      else logInfo
-
-    match (← liftM <| EIO.toIO' <| ((log output).run cctx).run cmdState) with
-    | .error _ => pure cmdState
-    | .ok ((), cmdState) => pure cmdState
-
-  flagHint (hintText) (suggestions : Array String) : DocM (Option MessageData) := do
-    let range? :=
-      match ← getRef with
-      | `(block|```$name $args* | $s ```) =>
-        (mkNullNode (#[name] ++ args)).getRange?
-      | `(inline|role{$name $args*}[$_]) =>
-        (mkNullNode (#[name] ++ args)).getRange?
-      | _ => none
-    if let some ⟨b, e⟩ := range? then
-      let str := String.Pos.Raw.extract (← getFileMap).source b e
-      let str := if str.startsWith "kw?" then "kw" ++ str.drop 3 else str
-      let stx := Syntax.mkStrLit str (info := .synthetic b e (canonical := true))
-      let suggs := suggestions.map (fun (s : String) => {suggestion := str ++ s})
-      some <$> MessageData.hint hintText suggs (ref? := some stx)
-    else pure none
-
-/--
-Displays output from a named Lean code block.
--/
-@[builtin_doc_code_block]
-def output (name : Ident) (severity : Option (WithSyntax MessageSeverity) := none) (code : StrLit) : DocM (Block ElabInline ElabBlock) := do
-  let allOut := leanOutputExt.getState (← getEnv)
-  let some outs := allOut.find? name.getId
-    | let possible := allOut.keysArray.map ({suggestion := ·.toString})
-      let h ← MessageData.hint m!"Use one of the named blocks:" possible
-      logErrorAt name m!"Output from block `{name.getId}` not found{h}"
-      return .code code.getString
-  let codeStr := code.getString
-  for (sev, out) in outs do
-    if out.trim == codeStr.trim then
-      if let some s := severity then
-        if s.val != sev then
-          let sevName :=
-            match sev with
-            | .error => ``MessageSeverity.error
-            | .warning => ``MessageSeverity.warning
-            | .information => ``MessageSeverity.information
-          let sevName ← unresolveNameGlobalAvoidingLocals sevName
-          let h ← MessageData.hint m!"Update severity:" #[{suggestion := sevName.toString}] (ref? := some s.stx)
-          logErrorAt s.stx m!"Mismatched severity. Message has severity `{sev}`.{h}"
-      return .code codeStr
-  let outs := sortByDistance codeStr outs
-  let h ← m!"Use one of the outputs:".hint (outs.map (withNl ·.2)) (ref? := code)
-  logErrorAt code m!"Output not found.{h}"
-  return .code codeStr
-where
-  withNl (s : String) :=
-    if s.endsWith "\n" then s else s ++ "\n"
-
-  sortByDistance {α} (target : String) (strings : Array (α × String)) : Array (α × String) :=
-    let withDistance := strings.map fun (x, s) =>
-      let d := levenshtein target s target.length
-      (x, s, d.getD target.length)
-    withDistance.qsort (fun (_, _, d1) (_, _, d2) => d1 < d2) |>.map fun (x, s, _) => (x, s)
-
-/--
-Indicates that a code element is intended as just a literal string, with no further meaning.
-
-This is equivalent to a bare code element, except suggestions will not be provided for it.
--/
-@[builtin_doc_role]
-def lit (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
-  let s ← onlyCode xs
-  pure (.code s.getString)
 
 /--
 Semantic highlighting included on syntax from elaborated terms in documentation.
@@ -831,25 +684,10 @@ instance : Append DocCode where
   append
     | ⟨c1⟩, ⟨c2⟩ => ⟨c1 ++ c2⟩
 
-/--
-The code represents an elaborated Lean term.
--/
-structure Data.LeanTerm where
-  /--
-  The highlighted code to be displayed.
-  -/
-  term : DocCode := {}
-deriving TypeName
-
-/-- The code represents syntax to set an option. -/
-structure Data.SetOption where
-  /-- The `set_option ...` syntax. -/
-  term : DocCode := {}
-deriving TypeName
 
 private partial def highlightSyntax
     [Monad m] [MonadLiftT IO m]
-    (tree : InfoTree) (stx : Syntax) : m DocCode := do
+    (trees : PersistentArray InfoTree) (stx : Syntax) : m DocCode := do
   (go stx).run {} <&> (·.2)
 where
   go (stx : Syntax) : StateT DocCode m Unit := do
@@ -860,7 +698,7 @@ where
         match args with
         | #[.atom info' str] =>
           emitLeading info'
-          let ty? ← typeFromInfo <| tree.deepestNodes fun ci i _ =>
+          let ty? ← typeFromInfo <| deepestNodes trees fun ci i _ =>
             if i.stx == stx then some (ci, i) else none
           emit str (some <| .literal kind ty?)
           emitTrailing info'
@@ -872,7 +710,7 @@ where
     | .ident info _x str _pre =>
       -- TODO: find projections in the info tree as well as syntactically (see comment on
       -- `identProjKind`)
-      let docInfo? ← toDocInfo <| tree.deepestNodes fun ci i _ =>
+      let docInfo? ← toDocInfo <| deepestNodes trees fun ci i _ =>
         if i.stx == stx then some (ci, i) else none
       emitLeading info
       emit str.toString docInfo?
@@ -900,6 +738,11 @@ where
         (← i.type?).mapM (PrettyPrinter.ppExpr)
       then return some ty
     return none
+
+  deepestNodes
+      (trees : PersistentArray InfoTree)
+      (f : ContextInfo → Info → PersistentArray InfoTree → Option (ContextInfo × Info)) :=
+    trees.foldl (init := []) fun xs t => xs ++ (t.deepestNodes f)
 
   toDocInfo (infos : List (ContextInfo × Info)) : m (Option DocHighlight) := do
     let mut best := none
@@ -934,6 +777,194 @@ where
       | _ => continue
     return best
 
+private structure NoInfo deriving TypeName
+
+/--
+The code represents an elaborated Lean command sequence.
+-/
+structure Data.LeanBlock where
+  /--
+  The highlighted code to be displayed.
+  -/
+  commands : DocCode := {}
+deriving TypeName
+
+
+/--
+Elaborates a sequence of Lean commands as examples.
+
+To make examples self-contained, elaboration ignores the surrouncing section scopes. Modifications
+to the environment are preserved during a single documentation comment, and discarded afterwards.
+
+The named argument `name` allows a name to be assigned to the code block; any messages created by
+elaboration are saved under this name.
+
+The flags `error` and `warning` indicate that an error or warning is expected in the code.
+-/
+@[builtin_doc_code_block]
+def lean (name : Option Ident := none) (error warning : flag false) («show» : flag true) (code : StrLit) :
+    DocM (Block ElabInline ElabBlock) := do
+  let text ← getFileMap
+  let env ← getEnv
+  let p := andthenFn whitespace (categoryParserFnImpl `command)
+  -- TODO fallback for non-original syntax
+  let pos := code.raw.getPos? true |>.get!
+  let endPos := code.raw.getTailPos? true |>.get!
+  let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
+  let ictx :=
+    mkInputContext text.source (← getFileName)
+      (endPos := endPos) (endPos_valid := by simp only [endPos]; split <;> simp [*])
+  let cctx : Command.Context := {fileName := ← getFileName, fileMap := text, snap? := none, cancelTk? := none}
+  let scopes := (← get).scopes
+  let mut cmdState : Command.State := { env, maxRecDepth := ← MonadRecDepth.getMaxRecDepth, scopes }
+  let mut pstate : Parser.ModuleParserState := {pos := pos, recovering := false}
+  let mut cmds := #[]
+  repeat
+    let scope := cmdState.scopes.head!
+    let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
+    let (cmd, ps', messages) := Parser.parseCommand ictx pmctx pstate cmdState.messages
+    cmds := cmds.push cmd
+    pstate := ps'
+    cmdState := { cmdState with messages := messages }
+    cmdState ← runCommand (Command.elabCommand cmd) cmd cctx cmdState
+    if Parser.isTerminalCommand cmd then break
+  setEnv cmdState.env
+  modify fun st => { st with scopes := cmdState.scopes }
+
+  for t in cmdState.infoState.trees do
+    pushInfoTree t
+
+  let mut output := #[]
+  for msg in cmdState.messages.toArray do
+    let b := text.ofPosition msg.pos
+    let e := msg.endPos |>.map text.ofPosition |>.getD (b.next text.source)
+    let msgStr := b.extract text.source e
+    let msgStx := Syntax.mkStrLit msgStr (info := .synthetic b e (canonical := true))
+    unless msg.isSilent do
+      if name.isSome then output := output.push (msg.severity, ← msg.data.toString)
+      if msg.severity == .error && !error then
+        let hint ← flagHint m!"The `+error` flag indicates that errors are expected:" #[" +error"]
+        logErrorAt msgStx m!"Unexpected error:{indentD msg.data}{hint.getD m!""}"
+      if msg.severity == .warning && !warning then
+        let hint ← flagHint m!"The `+error` flag indicates that warnings are expected:" #[" +warning"]
+        logErrorAt msgStx m!"Unexpected warning:{indentD msg.data}{hint.getD m!""}"
+      else
+        withRef msgStx <| log msg.data (severity := .information) (isSilent := true)
+    if let some x := name then
+      modifyEnv (leanOutputExt.modifyState · (·.insert x.getId output))
+  if «show» then
+    let trees := (← getInfoTrees)
+    if h : trees.size > 0 then
+      let hl := Data.LeanBlock.mk (← highlightSyntax trees (mkNullNode cmds))
+      return .other {name := ``Data.LeanBlock, val := .mk hl} #[.code code.getString]
+    else
+      return .code code.getString
+  else
+    return .empty
+where
+  runCommand (act : Command.CommandElabM Unit) (stx : Syntax)
+      (cctx : Command.Context) (cmdState : Command.State) :
+      DocM Command.State := do
+    let (output, cmdState) ←
+      match (← liftM <| IO.FS.withIsolatedStreams <| EIO.toIO' <| (act.run cctx).run cmdState) with
+      | (output, .error e) => Lean.logError e.toMessageData; pure (output, cmdState)
+      | (output, .ok ((), cmdState)) => pure (output, cmdState)
+
+    if output.trim.isEmpty then return cmdState
+
+    let log : MessageData → Command.CommandElabM Unit :=
+      if let some tok := firstToken? stx then logInfoAt tok
+      else logInfo
+
+    match (← liftM <| EIO.toIO' <| ((log output).run cctx).run cmdState) with
+    | .error _ => pure cmdState
+    | .ok ((), cmdState) => pure cmdState
+
+  flagHint (hintText) (suggestions : Array String) : DocM (Option MessageData) := do
+    let range? :=
+      match ← getRef with
+      | `(block|```$name $args* | $s ```) =>
+        (mkNullNode (#[name] ++ args)).getRange?
+      | `(inline|role{$name $args*}[$_]) =>
+        (mkNullNode (#[name] ++ args)).getRange?
+      | _ => none
+    if let some ⟨b, e⟩ := range? then
+      let str := b.extract (← getFileMap).source e
+      let str := if str.startsWith "kw?" then "kw" ++ str.drop 3 else str
+      let stx := Syntax.mkStrLit str (info := .synthetic b e (canonical := true))
+      let suggs := suggestions.map (fun (s : String) => {suggestion := str ++ s})
+      some <$> MessageData.hint hintText suggs (ref? := some stx)
+    else pure none
+
+/--
+Displays output from a named Lean code block.
+-/
+@[builtin_doc_code_block]
+def output (name : Ident) (severity : Option (WithSyntax MessageSeverity) := none) (code : StrLit) : DocM (Block ElabInline ElabBlock) := do
+  let allOut := leanOutputExt.getState (← getEnv)
+  let some outs := allOut.find? name.getId
+    | let possible := allOut.keysArray.map ({suggestion := ·.toString, diffGranularity := .word})
+      let plurality := if possible.size > 1 then m!"one of the named blocks" else m!"the named block"
+      let h ← MessageData.hint m!"Use {plurality}:" possible (ref? := some name)
+      logErrorAt name m!"Output from block `{name.getId}` not found{h}"
+      return .code code.getString
+  let codeStr := code.getString
+  for (sev, out) in outs do
+    if out.trim == codeStr.trim then
+      if let some s := severity then
+        if s.val != sev then
+          let sevName :=
+            match sev with
+            | .error => ``MessageSeverity.error
+            | .warning => ``MessageSeverity.warning
+            | .information => ``MessageSeverity.information
+          let sevName ← unresolveNameGlobalAvoidingLocals sevName
+          let h ← MessageData.hint m!"Update severity:" #[{suggestion := sevName.toString}] (ref? := some s.stx)
+          logErrorAt s.stx m!"Mismatched severity. Message has severity `{sev}`.{h}"
+      return .code codeStr
+  let outs := sortByDistance codeStr outs
+  let msg := if outs.size > 1 then m!"Use one of the outputs:" else m!"Use the output:"
+  let h ← msg.hint (outs.map (withNl ·.2)) (ref? := code)
+  logErrorAt code m!"Output not found.{h}"
+  return .code codeStr
+where
+  withNl (s : String) :=
+    if s.endsWith "\n" then s else s ++ "\n"
+
+  sortByDistance {α} (target : String) (strings : Array (α × String)) : Array (α × String) :=
+    let withDistance := strings.map fun (x, s) =>
+      let d := levenshtein target s target.length
+      (x, s, d.getD target.length)
+    withDistance.qsort (fun (_, _, d1) (_, _, d2) => d1 < d2) |>.map fun (x, s, _) => (x, s)
+
+/--
+Indicates that a code element is intended as just a literal string, with no further meaning.
+
+This is equivalent to a bare code element, except suggestions will not be provided for it.
+-/
+@[builtin_doc_role]
+def lit (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+  let s ← onlyCode xs
+  pure (.code s.getString)
+
+
+/--
+The code represents an elaborated Lean term.
+-/
+structure Data.LeanTerm where
+  /--
+  The highlighted code to be displayed.
+  -/
+  term : DocCode := {}
+deriving TypeName
+
+/-- The code represents syntax to set an option. -/
+structure Data.SetOption where
+  /-- The `set_option ...` syntax. -/
+  term : DocCode := {}
+deriving TypeName
+
+
 private def leanTermContents : ParserFn :=
   whitespace >>
   (node nullKind (termParser >> optional (symbol ":" >> termParser))).fn
@@ -960,8 +991,7 @@ def leanRole (type : Option StrLit := none) (xs : TSyntaxArray `inline) : DocM (
     withoutErrToSorry <| discard <| elabExtraTerm stx[0] ty?
   let trees := (← getInfoTrees)
   if h : trees.size > 0 then
-    let tree := trees[trees.size - 1]
-    let tm := Data.LeanTerm.mk (← highlightSyntax tree stx)
+    let tm := Data.LeanTerm.mk (← highlightSyntax trees stx)
     return .other {name := ``Data.LeanTerm, val := .mk tm} #[.code s.getString]
   else
     -- No info
@@ -981,11 +1011,9 @@ def leanTerm (code : StrLit) : DocM (Block ElabInline ElabBlock) := do
       else -- type after colon
         some <$> elabType stx[1][1]
     withoutErrToSorry <| discard <| elabExtraTerm stx[0] ty?
-  -- The last info tree is the one we want
   let trees := (← getInfoTrees)
   if h : trees.size > 0 then
-    let tree := trees[trees.size - 1]
-    let tm := Data.LeanTerm.mk (← highlightSyntax tree stx)
+    let tm := Data.LeanTerm.mk (← highlightSyntax trees stx)
     return .other {name := ``Data.LeanTerm, val := .mk tm} #[.code code.getString]
   else
     -- No info
@@ -1260,6 +1288,23 @@ def suggestTactic (code : StrLit) : DocM (Array CodeSuggestion) := do
       discard <| parseStrLit p code
       return #[.mk ``tactic none none]
     catch | _ => return #[]
+
+/--
+Suggests the `conv` role, if applicable.
+-/
+@[builtin_doc_code_suggestions]
+def suggestConvTactic (code : StrLit) : DocM (Array CodeSuggestion) := do
+  try
+    _ ← getConvTactic code
+    return #[.mk ``conv none none]
+  catch
+  | _ =>
+    try
+      let p := whitespace >> categoryParserFn `conv
+      _ ← parseStrLit p code
+      return #[.mk ``conv none none]
+    catch
+    | _ => return #[]
 
 open Lean.Parser.Term in
 /--

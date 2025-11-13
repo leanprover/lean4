@@ -151,8 +151,8 @@ section Elab
   -- Placed here instead of Lean.Server.Utils because of an import loop
   private def mkIleanInfoNotification (method : String) (m : DocumentMeta)
       (trees : Array Elab.InfoTree) : BaseIO (JsonRpc.Notification Lsp.LeanIleanInfoParams) := do
-    let references ← findModuleRefs m.text trees (localVars := true) |>.toLspModuleRefs
-    let param := { version := m.version, references }
+    let (references, decls) ← findModuleRefs m.text trees (localVars := true) |>.toLspModuleRefs
+    let param := { version := m.version, references, decls }
     return { method, param }
 
   private def mkInitialIleanInfoUpdateNotification (m : DocumentMeta)
@@ -410,13 +410,7 @@ def setupImports
   chanOut.sync.send <| .ofMsg <| mkPublishDiagnosticsNotification doc #[]
   match fileSetupResult.kind with
   | .importsOutOfDate =>
-    return .error {
-      diagnostics := (← Language.diagnosticsOfHeaderError
-        "Imports are out of date and must be rebuilt; \
-          use the \"Restart File\" command in your editor.")
-      result? := none
-      metaSnap := default
-    }
+    pure ()
   | .error msg =>
     return .error {
       diagnostics := (← diagnosticsOfHeaderError msg)

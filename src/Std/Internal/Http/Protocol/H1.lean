@@ -148,8 +148,7 @@ private def resetForNextMessage (machine : Machine ty) : Machine ty :=
         sentMessage := false
       },
       events := machine.events.push .next,
-      error := none,
-      instant := none
+      error := none
     }
   else
     machine.addEvent .close
@@ -238,13 +237,6 @@ def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : M
       else
         messageHead.headers
 
-  let headers :=
-    if let some date := machine.instant then
-      let date := date.format "EEE, dd MMM yyyy HH:mm:ss 'GMT'"
-      headers.insert "Date" (.ofString! date)
-    else
-      headers
-
   let headers := match dir, messageHead with
     | .receiving, messageHead => by
       exact if ¬machine.keepAlive ∧ ¬headers.hasEntry "Connection" "close" then
@@ -257,10 +249,14 @@ def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : M
       else
         headers
 
-  let headers := match size with
-    | .fixed 0 => headers
-    | .fixed n => headers.insert "Content-Length" (.ofString! <| toString n)
-    | .chunked => headers.insert "Transfer-Encoding" (.new "chunked")
+  let headers :=
+    if ¬(headers.contains "Content-Length" ∨ headers.contains "Transfer-Encoding") then
+      match size with
+      | .fixed 0 => headers
+      | .fixed n => headers.insert "Content-Length" (.ofString! <| toString n)
+      | .chunked => headers.insert "Transfer-Encoding" (.new "chunked")
+    else
+      headers
 
   let state := Writer.State.writingBody size
 
@@ -305,13 +301,6 @@ Put some data inside the input of the machine.
 @[inline]
 def feed (machine : Machine ty) (data : ByteArray) : Machine ty :=
   { machine with reader := machine.reader.feed data }
-
-/--
-Set the current timestamp.
--/
-@[inline]
-def setNow (machine : Machine ty) : IO (Machine ty) := do
-  return { machine with instant := some (← Std.Time.DateTime.now) }
 
 /--
 This functions signals that reader is not going to receive any more messages, so it signals that the
@@ -361,6 +350,20 @@ def isWaitingMessage (machine : Machine dir) : Bool :=
   machine.writer.state == .waitingHeaders ∧
   ¬machine.writer.sentMessage
 
+private def extractBodyLengthFromHeaders (headers : Headers) : Option Body.Length :=
+  match (headers.get "Content-Length", headers.hasEntry "Transfer-Encoding" "chunked") with
+  | (some cl, false) => cl.value.toNat? >>= (some ∘ Body.Length.fixed)
+  | (none, true) => some Body.Length.chunked
+  | (some _, true) => some Body.Length.chunked
+  | _ => none
+
+/--
+Set a known size for the message body.
+-/
+@[inline]
+def setKnownSize (machine : Machine dir) (size : Body.Length) : Machine dir :=
+  machine.modifyWriter (fun w => { w with knownSize := w.knownSize.or (some size) })
+
 /--
 Sends the head of an answer to the machine.
 -/
@@ -369,6 +372,16 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
   if machine.isWaitingMessage then
     let machine := machine.modifyWriter ({ · with messageHead := message, sentMessage := true })
     let machine := machine.updateKeepAlive (shouldKeepAlive message)
+
+    -- Extract body length from headers if knownSize is not already set
+    let machine :=
+      if machine.writer.knownSize.isNone then
+        match extractBodyLengthFromHeaders message.headers with
+        | some size => machine.setKnownSize size
+        | none => machine
+      else
+        machine
+
     machine.setWriterState .waitingForFlush
   else
     machine
@@ -409,14 +422,6 @@ def startNextCycle (machine : Machine dir) : Machine dir :=
     resetForNextMessage machine
   else
     machine
-
-/--
-Set a known size for the message body.
--/
-@[inline]
-def setKnownSize (machine : Machine dir) (size : Body.Length) : Machine dir :=
-  machine.modifyWriter ({ · with knownSize := some size })
-
 /--
 This function processes the writer part of the machine.
 -/
@@ -501,6 +506,7 @@ private def handleReaderFailed (machine : Machine dir) (error : H1.Error) : Mach
   |>.addEvent (.failed error)
   |>.setError error
   |>.disableKeepAlive
+
 
 /--
 Complete the processRead function's failed case.

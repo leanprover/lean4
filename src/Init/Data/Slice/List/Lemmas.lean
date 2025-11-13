@@ -19,7 +19,7 @@ open Std.Iterators Std.PRange
 
 namespace Std.Slice.List
 
-theorem internalIter_rco_eq {α : Type u} {s : ListSlice α} :
+theorem internalIter_eq {α : Type u} {s : ListSlice α} :
     Internal.iter s = match s.internalRepresentation.stop with
         | some stop => s.internalRepresentation.list.iter.take stop
         | none => s.internalRepresentation.list.iter.toTake := by
@@ -29,7 +29,7 @@ theorem toList_internalIter {α : Type u} {s : ListSlice α} :
     (Internal.iter s).toList = match s.internalRepresentation.stop with
         | some stop => s.internalRepresentation.list.take stop
         | none => s.internalRepresentation.list := by
-  simp only [internalIter_rco_eq]
+  simp only [internalIter_eq]
   split <;> simp
 
 theorem internalIter_eq_toIteratorIter {α : Type u} {s : ListSlice α} :

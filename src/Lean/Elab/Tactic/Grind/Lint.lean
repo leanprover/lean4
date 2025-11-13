@@ -110,7 +110,10 @@ def analyzeEMatchTheorem (declName : Name) (params : Params) : MetaM Unit := do
   let thms := result.counters.thm
   let s := sum thms
   if s > params.config.min then
-    logInfo m!"{declName} : {s}"
+    if s >= params.config.instances then
+      logInfo m!"instantiating `{declName}` triggers more than {s} additional `grind` theorem instantiations"
+    else
+      logInfo m!"instantiating `{declName}` triggers {s} additional `grind` theorem instantiations"
   if s > params.config.detailed then
     logInfo m!"{declName}\n{← thmsToMessageData thms}"
 

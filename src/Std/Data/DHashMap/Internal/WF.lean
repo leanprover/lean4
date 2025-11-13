@@ -1290,6 +1290,11 @@ theorem wfImp_insertMany [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α
     Raw.WFImp (m.insertMany l).1.1 :=
   Raw.WF.out ((m.insertMany l).2 _ Raw.WF.insert₀ (.wf m.2 h))
 
+theorem WF.eraseMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {m : Raw α β}
+    {l : ρ} (h : m.WF) : (m.eraseMany l).WF := by
+  simpa [Raw.eraseMany, h.size_buckets_pos] using
+    (Raw₀.eraseMany ⟨m, h.size_buckets_pos⟩ l).2 _ Raw.WF.erase₀ h
+
 theorem wf_insertMany₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w}
     [ForIn Id ρ ((a : α) × β a)] {m : Raw α β} {h : 0 < m.buckets.size} {l : ρ} (h' : m.WF) :
     (Raw₀.insertMany ⟨m, h⟩ l).1.1.WF :=

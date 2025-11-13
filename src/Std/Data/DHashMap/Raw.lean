@@ -538,6 +538,18 @@ appearance.
     (Raw₀.insertMany ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
 
+/--
+Erases multiple keys from the hash map by iterating over the given collection and calling
+`erase` on each key. The values in the collection are ignored; only the keys are used for erasure.
+If the same key appears multiple times in the collection, subsequent erasures have no effect after
+the first one removes the key.
+-/
+@[inline] def eraseMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
+    (m : Raw α β) (l : ρ) : Raw α β :=
+  if h : 0 < m.buckets.size then
+    (Raw₀.eraseMany ⟨m, h⟩ l).1
+  else m -- will never happen for well-formed inputs
+
 @[inline, inherit_doc Raw.insertMany] def Const.insertMany {β : Type v} [BEq α] [Hashable α]
     {ρ : Type w} [ForIn Id ρ (α × β)] (m : Raw α (fun _ => β)) (l : ρ) : Raw α (fun _ => β) :=
   if h : 0 < m.buckets.size then

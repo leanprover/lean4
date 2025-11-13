@@ -229,7 +229,12 @@ instance {m : Type w → Type w'} : ForIn m (Raw α β) (α × β) where
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
   ⟨DHashMap.Raw.union m₁.inner m₂.inner⟩
 
+@[inherit_doc DHashMap.Raw.inter, inline] def inter [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
+  ⟨DHashMap.Raw.inter m₁.inner m₂.inner⟩
+
 instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
+
+instance [BEq α] [Hashable α] : Inter (Raw α β) := ⟨inter⟩
 
 section Unverified
 

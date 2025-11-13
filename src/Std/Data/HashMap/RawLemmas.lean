@@ -1428,6 +1428,42 @@ theorem isEmpty_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ :
 
 end Union
 
+section Inter
+
+variable {m₁ m₂ : Raw α β}
+
+@[simp]
+theorem inter_eq : m₁.inter m₂ = m₁ ∩ m₂ := by
+  simp only [Inter.inter]
+
+/- contains -/
+
+@[simp]
+theorem contains_inter [EquivBEq α] [LawfulHashable α] {k : α} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁ ∩ m₂).contains k = (m₁.contains k && m₂.contains k) :=
+  @DHashMap.Raw.contains_inter α (fun _ => β) _ _  m₁.inner m₂.inner _ _ k h₁.out h₂.out
+
+/- mem -/
+
+theorem mem_inter_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} :
+    k ∈ m₁ ∩ m₂ ↔ k ∈ m₁ ∧ k ∈ m₂ :=
+  @DHashMap.Raw.mem_inter_iff α (fun _ => β) _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k
+
+theorem not_mem_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α}
+    (not_mem : k ∉ m₁) :
+    k ∉ m₁ ∩ m₂ :=
+  @DHashMap.Raw.not_mem_inter_of_not_mem_left α (fun _ => β) _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k not_mem
+
+theorem not_mem_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α}
+    (not_mem : k ∉ m₂) :
+    k ∉ m₁ ∩ m₂ :=
+  @DHashMap.Raw.not_mem_inter_of_not_mem_right α (fun _ => β) _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k not_mem
+
+end Inter
+
 theorem getElem?_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {l : List (α × β)} {k : α}
     (contains_eq_false : (l.map Prod.fst).contains k = false) :

@@ -2673,6 +2673,7 @@ theorem size_union_le_size_add_size [EquivBEq α] [LawfulHashable α]
 theorem isEmpty_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
     (m₁.union m₂).1.isEmpty = (m₁.1.isEmpty && m₂.1.isEmpty) := by
   simp_to_model [isEmpty, union] using List.isEmpty_insertList
+
 end Union
 
 namespace Const

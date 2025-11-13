@@ -124,10 +124,13 @@ def elabGrindLintInspect : CommandElab := fun stx => liftTermElabM <| withTheRea
     analyzeEMatchTheorem declName params
 
 def getTheorems (prefixes? : Option (Array Name)) : CoreM (List Name) := do
+  let skip := skipExt.getState (← getEnv)
   let origins := (← getEMatchTheorems).getOrigins
   return origins.filterMap fun
     | .decl declName =>
-      if let some prefixes := prefixes? then
+      if skip.contains declName then
+        none
+      else if let some prefixes := prefixes? then
         let keep := prefixes.any fun pre =>
           if pre == `_root_ then
             declName.components.length == 1

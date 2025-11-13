@@ -28,7 +28,7 @@ error: `Array.swap_swap` is not marked with the `@[grind]` attribute for theorem
 
 #grind_lint inspect (min := 100) Array.range_succ
 
-#grind_lint mute Array.append_assoc -- Reduces the number of instantiations in the following command
+#grind_lint mute Array.append_assoc -- It is not used during E-matching by `#grind_lint check` and `#grind_lint inspect`
 
 /-- info: Array.range_succ : 22 -/
 #guard_msgs in
@@ -45,6 +45,16 @@ info: Array.range'_succ : 17
 /--
 info: Array.extract_empty : 100
 ---
+info: Array.filterMap_some : 100
+---
+info: Array.range_succ : 22
+-/
+#guard_msgs in
+#grind_lint check (min := 20) (detailed := 200) in Array
+
+#grind_lint skip Array.extract_empty -- `#grind_lint check` skips it from now on
+
+/--
 info: Array.filterMap_some : 100
 ---
 info: Array.range_succ : 22

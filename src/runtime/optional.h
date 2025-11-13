@@ -62,43 +62,60 @@ public:
 
     template<typename... Args>
     void emplace(Args&&... args) {
-        if (m_some)
+        if (m_some) {
             m_value.~T();
-        m_some = true;
+            m_some = false;
+        }
         new (&m_value) T(args...);
+        m_some = true;
     }
 
     optional& operator=(optional const & other) {
-        if (this == &other)
-            return *this;
-        if (m_some)
+        if (other.m_some) {
+            if (m_some) {
+                m_value = other.m_value;
+            } else {
+                new (&m_value) T(other.m_value);
+                m_some = true;
+            }
+        } else if (m_some) {
             m_value.~T();
-        m_some = other.m_some;
-        if (m_some)
-            new (&m_value) T(other.m_value);
+            m_some = false;
+        }
         return *this;
     }
-    optional& operator=(optional && other) noexcept {
-        lean_assert(this != &other);
-        if (m_some)
+    optional& operator=(optional && other)
+            noexcept(std::is_nothrow_move_assignable<T>::value &&
+                     std::is_nothrow_move_constructible<T>::value) {
+        if (other.m_some) {
+            if (m_some) {
+                m_value = std::move(other.m_value);
+            } else {
+                new (&m_value) T(std::move(other.m_value));
+                m_some = true;
+            }
+        } else if (m_some) {
             m_value.~T();
-        m_some = other.m_some;
-        if (m_some)
-            new (&m_value) T(std::move(other.m_value));
+            m_some = false;
+        }
         return *this;
     }
     optional& operator=(T const & other) {
-        if (m_some)
-            m_value.~T();
-        m_some = true;
-        new (&m_value) T(other);
+        if (m_some) {
+            m_value = other;
+        } else {
+            new (&m_value) T(other);
+            m_some = true;
+        }
         return *this;
     }
-    optional& operator=(T && other) noexcept {
-        if (m_some)
-            m_value.~T();
-        m_some = true;
-        new (&m_value) T(std::move(other));
+    optional& operator=(T && other) {
+        if (m_some) {
+            m_value = std::move(other);
+        } else {
+            new (&m_value) T(std::move(other));
+            m_some = true;
+        }
         return *this;
     }
 

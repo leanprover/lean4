@@ -1201,6 +1201,7 @@ where
       -- encoded name in e.g. kernel errors where it's hard to replace it)
       views.any (fun view => view.kind != .example || view.modifiers.isPublic) &&
       expandedDeclIds.any (!isPrivateName ·.declName)) do
+    withSaveInfoContext do  -- save adjusted env in info tree
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
     let headers ← levelMVarToParamHeaders views headers
     if let (#[view], #[declId]) := (views, expandedDeclIds) then
@@ -1325,6 +1326,7 @@ where
     -- Never export private decls from theorem bodies to make sure they stay irrelevant for rebuilds
     withOptions (fun opts =>
       if headers.any (·.kind.isTheorem) then ResolveName.backward.privateInPublic.set opts false else opts) do
+    withSaveInfoContext do  -- save adjusted env in info tree
     let headers := headers.map fun header =>
       { header with modifiers.attrs := header.modifiers.attrs.filter (!·.name ∈ [`expose, `no_expose]) }
     let values ← try

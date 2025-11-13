@@ -1,5 +1,7 @@
+module
 --^ waitForILeans
-#check Lean.Server.Test.Refs.test1
+
+#check Lean.Server.Test.Refs.Test1
                                 --^ codeAction
 
 example : LeanServerTestRefsTest0
@@ -48,3 +50,13 @@ example (f : Foobar) : Nat := f.veryLongAndHopefullyVeryUniqueBar
 
 example : Foobar := .veryLongAndHopefullyVeryUniqueFoobar
                                                        --^ codeAction
+
+public def pub : Lean.Server.Test.Refs.Test1
+                                          --^ codeAction
+  := Lean.Server.Test.Refs.Test1
+                              --^ codeAction
+
+public meta def pubMeta : Lean.Server.Test.Refs.Test1
+                                                   --^ codeAction
+  := Lean.Server.Test.Refs.Test1
+                              --^ codeAction

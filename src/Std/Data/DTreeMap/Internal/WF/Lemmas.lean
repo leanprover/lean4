@@ -2178,7 +2178,7 @@ theorem WF.inter_ {_ : Ord α} [TransOrd α]
     (inter m₁ m₂ wh₁.balanced).WF := by
   rw [Impl.inter]
   split
-  case isTrue =>  apply WF.filter wh₁
+  case isTrue => apply WF.filter wh₁
   case isFalse  =>
     rw [interSmaller]
     rw [foldl_eq_foldl]

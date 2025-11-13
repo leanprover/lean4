@@ -410,7 +410,13 @@ def setupImports
   chanOut.sync.send <| .ofMsg <| mkPublishDiagnosticsNotification doc #[]
   match fileSetupResult.kind with
   | .importsOutOfDate =>
-    pure ()
+    return .error {
+      diagnostics := (← Language.diagnosticsOfHeaderError
+        "Imports are out of date and must be rebuilt; \
+          use the \"Restart File\" command in your editor.")
+      result? := none
+      metaSnap := default
+    }
   | .error msg =>
     return .error {
       diagnostics := (← diagnosticsOfHeaderError msg)

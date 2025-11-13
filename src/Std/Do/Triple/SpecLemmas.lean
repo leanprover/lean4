@@ -345,18 +345,18 @@ theorem Spec.liftWith_refl [WP m ps] [Pure m]
 
 @[spec]
 theorem Spec.restoreM_trans [WP o ps] [MonadControl n o] [MonadControlT m n]
-  (x : stM m o α) :
+  (x : m (stM m o α)) :
     Triple (m:=o)
       (MonadControlT.restoreM (m:=m) x)
       (wp⟦MonadControl.restoreM (m:=n) (MonadControlT.restoreM (m:=m) x) : o α⟧ Q)
       Q := .rfl
 
 @[spec]
-theorem Spec.restoreM_refl [WP m ps] [Pure m]
-  (x : stM m m α) :
+theorem Spec.restoreM_refl [WP m ps]
+  (x : m (stM m m α)) :
     Triple (m:=m)
       (MonadControlT.restoreM (m:=m) x)
-      (wp⟦Pure.pure x : m α⟧ Q)
+      (wp⟦x : m α⟧ Q)
       Q := .rfl
 
 attribute [spec] controlAt control

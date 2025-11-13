@@ -1375,45 +1375,6 @@ theorem foldl_perm_cong  [BEq α] {init₁ init₂ : List ((a : α) × β a)} {l
     · exact (h₂ h init₁ init₂ h₃ h₁).1
     · exact (h₂ h init₁ init₂ h₃ h₁).2
 
-/-- Internal implementation detail of the hash map -/
-def List.interSmallerFn [BEq α] (l sofar : List ((a : α) × β a)) (k : α) : List ((a : α) × β a) :=
-  match List.getEntry? k l with
-  | some kv' => List.insertEntry kv'.1 kv'.2 sofar
-  | none => sofar
-
-theorem List.distinctKeys_interSmallerFn [BEq α] [PartialEquivBEq α]
-    (l sofar : List ((a : α) × β a)) (k : α) (hs : DistinctKeys sofar) :
-    DistinctKeys (interSmallerFn l sofar k) := by
-  rw [interSmallerFn]
-  split
-  · exact hs.insertEntry
-  · exact hs
-
-theorem List.getEntry?_interSmallerFn [BEq α] [PartialEquivBEq α] (l sofar : List ((a : α) × β a)) (k k' : α) :
-    List.getEntry? k' (interSmallerFn l sofar k) =
-      ((List.getEntry? k' l).filter (fun kv => k == kv.1)).or (sofar.getEntry? k') := by
-  rw [interSmallerFn]
-  split
-  · rename_i kv hkv
-    rw [getEntry?_insertEntry]
-    split <;> rename_i hk
-    · have hk' : k == k' := (BEq.trans (BEq.symm (List.beq_of_getEntry?_eq_some hkv)) hk)
-      simp [← List.getEntry?_congr hk', hkv, Option.filter_some, BEq.trans hk' (BEq.symm hk)]
-    · rw [Option.or_eq_right_of_none]
-      apply Option.filter_eq_none_iff.2
-      intro p hp
-      have hp' := List.beq_of_getEntry?_eq_some hp
-      have hkv' := List.beq_of_getEntry?_eq_some hkv
-      exact fun h => hk (BEq.trans hkv' (BEq.trans h hp'))
-  · rename_i hk
-    rw [Option.or_eq_right_of_none]
-    apply Option.filter_eq_none_iff.2
-    intro p hp
-    have := List.beq_of_getEntry?_eq_some hp
-    intro hkp
-    have := BEq.trans hkp this
-    simp [List.getEntry?_congr this, hp] at hk
-
 theorem toListModel_interSmallerFnₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] (m sofar : Raw₀ α β)
     (l : List ((a : α) × β a))
     (hm : Raw.WFImp m.1) (hs : Raw.WFImp sofar.1) (k : α) (hml : toListModel sofar.1.buckets ~ l) :
@@ -1423,58 +1384,6 @@ theorem toListModel_interSmallerFnₘ [BEq α] [EquivBEq α] [Hashable α] [Lawf
   split
   · simpa [*] using (toListModel_insertₘ hs).trans (List.insertEntry_of_perm hs.distinct hml)
   · simp [*]
-
-/-- Internal implementation detail of the hash map -/
-def List.interSmaller [BEq α] (l₁ l₂ : List ((a : α) × β a)) : List ((a : α) × β a) :=
-  l₂.foldl (fun sofar kv => List.interSmallerFn l₁ sofar kv.1) []
-
-@[simp]
-theorem Option.filter_false {o : Option α} : o.filter (fun _ => false) = none := by
-  cases o <;> simp
-
-theorem Option.filter_or {o : Option α} {p q : α → Bool} : o.filter (fun a => p a || q a) =
-    (o.filter p).or (o.filter q) := by
-  cases o with
-  | none => simp
-  | some a =>
-    simp [Option.filter_some]
-    cases p a <;> cases q a <;> simp
-
-theorem List.getEntry?_interSmaller [BEq α] [PartialEquivBEq α] (l₁ l₂ : List ((a : α) × β a)) (k : α) :
-    List.getEntry? k (interSmaller l₁ l₂) = (List.getEntry? k l₁).filter (fun kv  => containsKey kv.1 l₂) := by
-  rw [interSmaller]
-  suffices ∀ l₃,
-      List.getEntry? k (foldl (fun sofar kv => interSmallerFn l₁ sofar kv.fst) l₃ l₂) =
-       (Option.filter (fun kv => containsKey kv.fst l₂) (List.getEntry? k l₁)).or (List.getEntry? k l₃) by
-    simpa using this []
-  intro l₃
-  induction l₂ using assoc_induction generalizing l₃ with
-  | nil => simp
-  | cons k v tl ih =>
-    rw [List.foldl_cons, ih]
-    simp only [List.containsKey_cons, Bool.or_comm (k == _), Option.filter_or, Option.or_assoc,
-      List.getEntry?_interSmallerFn]
-
-theorem List.distinctKeys_interSmaller [BEq α] [PartialEquivBEq α] {l₁ l₂ : List ((a : α) × β a)} :
-    DistinctKeys (interSmaller l₁ l₂) := by
-  rw [interSmaller]
-  suffices ∀ l, DistinctKeys l → DistinctKeys (l₂.foldl (fun sofar kv => List.interSmallerFn l₁ sofar kv.1) l) by
-    simpa using this [] (by simp)
-  intro l hl
-  induction l₂ generalizing l with
-  | nil => simpa
-  | cons ht tl ih =>
-    rw [List.foldl_cons]
-    apply ih
-    exact distinctKeys_interSmallerFn _ _ _ hl
-
-theorem List.interSmaller_perm_filter [BEq α] [EquivBEq α] (l₁ l₂ : List ((a : α) × β a)) (h₁ : DistinctKeys l₁) :
-    List.interSmaller l₁ l₂ ~ l₁.filter (fun kv => containsKey kv.1 l₂) := by
-  apply List.getEntry?_ext
-  · exact List.distinctKeys_interSmaller
-  · exact h₁.filter (f := fun k v => containsKey k l₂)
-  · intro k'
-    rw [List.getEntry?_filter h₁, List.getEntry?_interSmaller]
 
 theorem toListModel_interSmallerₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α]
     (m₁ : Raw₀ α β) (m₂ : Raw α β) (hm₁ : Raw.WFImp m₁.1) :

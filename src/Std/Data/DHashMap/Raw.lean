@@ -452,13 +452,13 @@ only those mappings where the function returns `some` value.
 @[inline] def keysArray (m : Raw α β) : Array α :=
   m.fold (fun acc k _ => acc.push k) (.emptyWithCapacity m.size)
 
-/-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
+/-- Checks if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
 @[inline] def all (m : Raw α β) (p : (a : α) → β a → Bool) : Bool := Id.run do
   for a in m do
     if ¬ p a.1 a.2 then return false
   return true
 
-/-- Check if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
+/-- Checks if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
 @[inline] def any (m : Raw α β) (p : (a : α) → β a → Bool) : Bool := Id.run do
   for a in m do
     if p a.1 a.2 then return true

@@ -1383,8 +1383,8 @@ end Const
 end monadic
 
 omit [Hashable α] [BEq α] in
-theorem any_eq_toList_any {p : (a : α) → β a → Bool} :
-    m.1.any p = m.1.toList.any (fun x => p x.1 x.2) := by
+theorem any_toList {p : (a : α) → β a → Bool} :
+    m.1.toList.any (fun x => p x.1 x.2) = m.1.any p := by
   simp only [Raw.any, ForIn.forIn, bind_pure_comp, map_pure, Id.run_bind]
   rw [forIn_eq_forIn_toList, forIn_eq_forIn']
   induction m.val.toList with
@@ -1393,12 +1393,12 @@ theorem any_eq_toList_any {p : (a : α) → β a → Bool} :
     simp only [List.forIn'_cons, Id.run_bind, List.any_cons]
     by_cases h : p hd.fst hd.snd = true
     · simp [h]
-    · simp at ih
+    · simp only [forIn'_eq_forIn] at ih
       simp [h, ih]
 
 theorem any_eq_true [LawfulBEq α] {p : (a : α) → β a → Bool} (h : m.1.WF) :
     m.1.any p = true ↔ ∃ (a : α) (h : m.contains a), p a (m.get a h) := by
-  simp only [any_eq_toList_any, List.any_eq_true, mem_toList_iff_get?_eq_some _ h,
+  simp only [← any_toList, List.any_eq_true, mem_toList_iff_get?_eq_some _ h,
     get?_eq_some_iff _ h]
   constructor
   · intro h'
@@ -1414,11 +1414,11 @@ theorem any_eq_true [LawfulBEq α] {p : (a : α) → β a → Bool} (h : m.1.WF)
 
 theorem any_eq_false [LawfulBEq α] {p : (a : α) → β a → Bool} (h : m.1.WF) :
     m.1.any p = false ↔ ∀ (a : α) (h : m.contains a), p a (m.get a h) = false := by
-  simp only [any_eq_toList_any, List.any_eq_false, Bool.not_eq_true]
+  simp only [← any_toList, List.any_eq_false, Bool.not_eq_true]
   constructor
   · intro h' k hk
     specialize h' ⟨k, m.get k hk⟩
-    simp [mem_toList_iff_get?_eq_some, h, ] at h'
+    simp only [h, mem_toList_iff_get?_eq_some] at h'
     apply h'
     rw [get?_eq_some_iff _ h]
     exists hk
@@ -1429,8 +1429,8 @@ theorem any_eq_false [LawfulBEq α] {p : (a : α) → β a → Bool} (h : m.1.WF
     exact h' x.1 h₂
 
 omit [Hashable α] [BEq α] in
-theorem all_eq_toList_all {p : (a : α) → β a → Bool} :
-    m.1.all p = m.1.toList.all (fun x => p x.1 x.2) := by
+theorem all_toList {p : (a : α) → β a → Bool} :
+    m.1.toList.all (fun x => p x.1 x.2) = m.1.all p := by
   simp only [Raw.all, ForIn.forIn, Bool.not_eq_true, bind_pure_comp, map_pure, Id.run_bind]
   rw [forIn_eq_forIn_toList, forIn_eq_forIn']
   induction m.val.toList with
@@ -1443,30 +1443,30 @@ theorem all_eq_toList_all {p : (a : α) → β a → Bool} :
       simp [h, ih]
 
 omit [Hashable α] [BEq α] in
-theorem all_eq_neg_any_neg {p : (a : α) → β a → Bool} :
+theorem all_eq_not_any_not {p : (a : α) → β a → Bool} :
     m.1.all p = ! m.1.any (fun a b => ! p a b) := by
-  rw [all_eq_toList_all, any_eq_toList_any, List.all_eq_not_any_not]
+  rw [← all_toList, ← any_toList, List.all_eq_not_any_not]
 
 omit [Hashable α] [BEq α] in
-theorem any_eq_neg_all_neg {p : (a : α) → β a → Bool} :
+theorem any_eq_not_all_not {p : (a : α) → β a → Bool} :
     m.1.any p = ! m.1.all (fun a b => ! p a b) := by
-  rw [all_eq_toList_all, any_eq_toList_any, List.any_eq_not_all_not]
+  rw [← all_toList, ← any_toList, List.any_eq_not_all_not]
 
 theorem all_eq_true [LawfulBEq α] {p : (a : α) → β a → Bool} (h : m.1.WF) :
     m.1.all p = true ↔ ∀ (a : α) (h : m.contains a), p a (m.get a h) := by
-  simp [all_eq_neg_any_neg, any_eq_false _ h]
+  simp [all_eq_not_any_not, any_eq_false _ h]
 
 theorem all_eq_false [LawfulBEq α] {p : (a : α) → β a → Bool} (h : m.1.WF) :
     m.1.all p = false ↔ ∃ (a : α) (h : m.contains a), p a (m.get a h) = false := by
-  simp [all_eq_neg_any_neg, any_eq_true _ h]
+  simp [all_eq_not_any_not, any_eq_true _ h]
 
 namespace Const
 
 variable {β : Type v} (m : Raw₀ α (fun _ => β))
 
 omit [Hashable α] [BEq α] in
-theorem any_eq_toList_any {p : (_ : α) → β → Bool} :
-    m.1.any p = (Raw.Const.toList m.1).any (fun x => p x.1 x.2) := by
+theorem any_toList {p : (_ : α) → β → Bool} :
+    (Raw.Const.toList m.1).any (fun x => p x.1 x.2) = m.1.any p := by
   simp only [Raw.any, ForIn.forIn, bind_pure_comp, map_pure, Id.run_bind]
   rw [forIn_eq_forIn_toList, forIn_eq_forIn']
   induction Raw.Const.toList m.1 with
@@ -1480,7 +1480,7 @@ theorem any_eq_toList_any {p : (_ : α) → β → Bool} :
 
 theorem any_eq_true [LawfulHashable α] [EquivBEq α] {p : (_ : α) → β → Bool} (h : m.1.WF) :
     m.1.any p = true ↔ ∃ (a : α) (h : m.contains a), p (m.getKey a h) (Const.get m a h) := by
-  simp only [any_eq_toList_any, List.any_eq_true, Prod.exists,
+  simp only [← any_toList, List.any_eq_true, Prod.exists,
     mem_toList_iff_getKey?_eq_some_and_get?_eq_some _ h, get?_eq_some_iff _ h,
     getKey?_eq_some_iff _ h]
   constructor
@@ -1509,7 +1509,7 @@ theorem any_eq_true' [LawfulBEq α] {p : (_ : α) → β → Bool} (h : m.1.WF) 
 theorem any_eq_false [LawfulHashable α] [EquivBEq α] {p : (_ : α) → β → Bool} (h : m.1.WF) :
     m.1.any p = false ↔
       ∀ (a : α) (h : m.contains a), p (m.getKey a h) (Const.get m a h) = false := by
-  simp only [any_eq_toList_any, List.any_eq_false,
+  simp only [← any_toList, List.any_eq_false,
     mem_toList_iff_getKey?_eq_some_and_get?_eq_some _ h, getKey?_eq_some_iff _ h,
     get?_eq_some_iff _ h, Bool.not_eq_true, and_imp, forall_exists_index, Prod.forall]
   constructor
@@ -1530,8 +1530,8 @@ theorem any_eq_false' [LawfulBEq α] {p : (_ : α) → β → Bool} (h : m.1.WF)
   simp [any_eq_false _ h, getKey_eq _ h]
 
 omit [BEq α] [Hashable α] in
-theorem all_eq_toList_all {p : (_ : α) → β → Bool} :
-    m.1.all p = (Raw.Const.toList m.1).all (fun x => p x.1 x.2) := by
+theorem all_toList {p : (_ : α) → β → Bool} :
+    (Raw.Const.toList m.1).all (fun x => p x.1 x.2) = m.1.all p := by
   simp only [Raw.all, ForIn.forIn, Bool.not_eq_true, bind_pure_comp, map_pure, Id.run_bind]
   rw [forIn_eq_forIn_toList, forIn_eq_forIn']
   induction Raw.Const.toList m.1 with
@@ -1545,7 +1545,7 @@ theorem all_eq_toList_all {p : (_ : α) → β → Bool} :
 
 theorem all_eq_true [EquivBEq α] [LawfulHashable α] {p : (a : α) → β → Bool} (h : m.1.WF) :
     m.1.all p = true ↔ ∀ (a : α) (h : m.contains a), p (m.getKey a h) (Const.get m a h) := by
-  simp [all_eq_neg_any_neg, any_eq_false _ h]
+  simp [all_eq_not_any_not, any_eq_false _ h]
 
 theorem all_eq_true' [LawfulBEq α] {p : (_ : α) → β → Bool} (h : m.1.WF) :
     m.1.all p = true ↔ ∀ (a : α) (h : m.contains a), p a (Const.get m a h) := by
@@ -1553,22 +1553,22 @@ theorem all_eq_true' [LawfulBEq α] {p : (_ : α) → β → Bool} (h : m.1.WF) 
 
 theorem all_eq_false [EquivBEq α] [LawfulHashable α] {p : (a : α) → β → Bool} (h : m.1.WF) :
     m.1.all p = false ↔ ∃ (a : α) (h : m.contains a), p (m.getKey a h) (Const.get m a h) = false := by
-  simp [all_eq_neg_any_neg, any_eq_true _ h]
+  simp [all_eq_not_any_not, any_eq_true _ h]
 
 theorem all_eq_false' [LawfulBEq α] {p : (_ : α) → β → Bool} (h : m.1.WF) :
     m.1.all p = false ↔ ∃ (a : α) (h : m.contains a), p a (Const.get m a h) = false := by
   simp [all_eq_false _ h, getKey_eq _ h]
 
-theorem any_keys_eq_keys_any [LawfulHashable α] [EquivBEq α] {p : α → Bool} :
-    m.1.any (fun a _ => p a) = m.1.keys.any p := by
-  simp only [any_eq_toList_any, ← map_fst_toList_eq_keys, List.any_map]
+theorem any_keys [LawfulHashable α] [EquivBEq α] {p : α → Bool} :
+    m.1.keys.any p = m.1.any (fun a _ => p a) := by
+  simp only [← any_toList, ← map_fst_toList_eq_keys, List.any_map]
   induction (Raw.Const.toList m.1) with
   | nil => simp
   | cons hd tl ih => simp [ih]
 
-theorem all_keys_eq_keys_all [LawfulHashable α] [EquivBEq α] {p : α → Bool} :
-    m.1.all (fun a _ => p a) = m.1.keys.all p := by
-  simp only [all_eq_toList_all, ← map_fst_toList_eq_keys, List.all_map]
+theorem all_keys [LawfulHashable α] [EquivBEq α] {p : α → Bool} :
+    m.1.keys.all p = m.1.all (fun a _ => p a) := by
+  simp only [← all_toList, ← map_fst_toList_eq_keys, List.all_map]
   induction (Raw.Const.toList m.1) with
   | nil => simp
   | cons hd tl ih => simp [ih]

@@ -22,7 +22,13 @@ error: `Array.swap_swap` is not marked with the `@[grind]` attribute for theorem
 #guard_msgs in
 #grind_lint skip Array.getElem_swap
 
-/-- info: instantiating `Array.range_succ` triggers 47 additional `grind` theorem instantiations -/
+/--
+info: instantiating `Array.range_succ` triggers 47 additional `grind` theorem instantiations
+---
+info: Try this to display the actual theorem instances:
+  [apply] set_option trace.grind.ematch.instance true in
+  #grind_lint inspect Array.range_succ
+-/
 #guard_msgs in
 #grind_lint inspect Array.range_succ
 
@@ -30,7 +36,13 @@ error: `Array.swap_swap` is not marked with the `@[grind]` attribute for theorem
 
 #grind_lint mute Array.append_assoc -- It is not used during E-matching by `#grind_lint check` and `#grind_lint inspect`
 
-/-- info: instantiating `Array.range_succ` triggers 22 additional `grind` theorem instantiations -/
+/--
+info: instantiating `Array.range_succ` triggers 22 additional `grind` theorem instantiations
+---
+info: Try this to display the actual theorem instances:
+  [apply] set_option trace.grind.ematch.instance true in
+  #grind_lint inspect Array.range_succ
+-/
 #guard_msgs in
 #grind_lint inspect Array.range_succ
 
@@ -38,6 +50,10 @@ error: `Array.swap_swap` is not marked with the `@[grind]` attribute for theorem
 info: instantiating `Array.range_succ` triggers 22 additional `grind` theorem instantiations
 ---
 info: instantiating `Array.range'_succ` triggers 17 additional `grind` theorem instantiations
+---
+info: Try this to display the actual theorem instances:
+  [apply] set_option trace.grind.ematch.instance true in
+  #grind_lint inspect Array.range_succ Array.range'_succ
 -/
 #guard_msgs in
 #grind_lint inspect Array.range_succ Array.range'_succ
@@ -70,6 +86,10 @@ info: Array.filterMap_some
   [thm] Array.filterMap_filterMap ↦ 94
   [thm] Array.size_filterMap_le ↦ 5
   [thm] Array.filterMap_some ↦ 1
+---
+info: Try this to display the actual theorem instances:
+  [apply] set_option trace.grind.ematch.instance true in
+  #grind_lint inspect Array.filterMap_some
 -/
 #guard_msgs in
 #grind_lint inspect Array.filterMap_some

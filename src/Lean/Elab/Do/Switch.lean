@@ -27,16 +27,16 @@ private def toDoElem (newKind : SyntaxNodeKind) : Macro := fun stx => do
   withRef stx `(do $(⟨stx⟩):doElem)
 
 @[builtin_macro Lean.Parser.Term.termFor]
-def expandTermFor : Macro := toDoElem ``Parser.Term.doFor
+def expandTermFor : Macro := toDoElem ``Parser.Do.doFor
 
 @[builtin_macro Lean.Parser.Term.termTry]
-def expandTermTry : Macro := toDoElem ``Parser.Term.doTry
+def expandTermTry : Macro := toDoElem ``Parser.Do.doTry
 
 @[builtin_macro Lean.Parser.Term.termUnless]
-def expandTermUnless : Macro := toDoElem ``Parser.Term.doUnless
+def expandTermUnless : Macro := toDoElem ``Parser.Do.doUnless
 
 @[builtin_macro Lean.Parser.Term.termReturn]
-def expandTermReturn : Macro := toDoElem ``Parser.Term.doReturn
+def expandTermReturn : Macro := toDoElem ``Parser.Do.doReturn
 
 @[builtin_term_elab «do»]
 def elabDo : TermElab := fun stx expectedType? => do

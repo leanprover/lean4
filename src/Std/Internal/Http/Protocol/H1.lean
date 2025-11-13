@@ -144,7 +144,6 @@ private def resetForNextMessage (machine : Machine ty) : Machine ty :=
         knownSize := none,
         messageHead := {},
         userClosedBody := false,
-        transferMode := none,
         canSendData := true,
         sentMessage := false
       },
@@ -174,7 +173,7 @@ private def parseWith (machine : Machine dir) (parser : Parser α) (limit : Opti
 
 @[inline]
 def shouldKeepAlive (message : Message.Head dir) : Bool :=
-  ¬message.headers.hasEntry "Connection" "close"
+  ¬message.headers.hasEntry "Connection" "close" ∧ message.version = .v11
 
 def getMessageSize (req : Message.Head dir) : Option Body.Length := do
   match dir with
@@ -283,7 +282,6 @@ def failed (machine : Machine dir) : Bool :=
 def shouldFlush (machine : Machine dir) : Bool :=
   machine.failed ∨
   machine.reader.state == .closed ∨
-  machine.writer.userData.size > 0 ∧
   machine.writer.isReadyToSend ∨
   machine.writer.knownSize.isSome
 
@@ -416,7 +414,7 @@ def startNextCycle (machine : Machine dir) : Machine dir :=
 Set a known size for the message body.
 -/
 @[inline]
-def setKnownSize (machine : Machine dir) (size : Nat) : Machine dir :=
+def setKnownSize (machine : Machine dir) (size : Body.Length) : Machine dir :=
   machine.modifyWriter ({ · with knownSize := some size })
 
 /--
@@ -441,13 +439,15 @@ partial def processWrite (machine : Machine dir) : Machine dir :=
     machine.setWriterState (.writingBody (Writer.determineTransferMode machine.writer))
     |> processWrite
 
-  | .writingBody (.fixed _) =>
+  | .writingBody (.fixed n) =>
     if machine.writer.userData.size > 0 ∨ machine.writer.isReadyToSend then
-      let machine := machine.modifyWriter Writer.writeFixedBody
-      if machine.writer.isReadyToSend then
+      let (writer, remaining) := Writer.writeFixedBody machine.writer n
+      let machine := { machine with writer }
+
+      if machine.writer.isReadyToSend ∨ remaining = 0 then
         machine.setWriterState .complete |> processWrite
       else
-        machine
+        machine.setWriterState (.writingBody (.fixed remaining))
     else
       machine
 

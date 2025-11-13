@@ -97,7 +97,7 @@ private def handle
 
   let mut waitingResponse := false
 
-  while ¬machine.halted ∧ machine.writer.outputData.isEmpty do
+  while ¬machine.halted do
     let (newMachine, step) := machine.step
     machine := newMachine
 
@@ -108,7 +108,8 @@ private def handle
       match event with
       | .needMoreData expect => do
         match ← processNeedMoreData config socket expect requestTimer connectionTimer with
-        | .ok (some bs) => machine := machine.feed bs
+        | .ok (some bs) =>
+          machine := machine.feed bs
         | .ok none => do
           machine := machine.noMoreInput
         | .error _ =>
@@ -123,8 +124,9 @@ private def handle
 
       | .endHeaders head =>
         waitingResponse := true
-        if let some (.fixed n) := Protocol.H1.Machine.getMessageSize head then
-          requestStream.setKnownSize (some n)
+
+        if let some length := Protocol.H1.Machine.getMessageSize head then
+          requestStream.setKnownSize length
 
         let newResponse := handler { head, body := (.stream requestStream) }
         let task ← newResponse.asTask
@@ -155,14 +157,14 @@ private def handle
       if ¬machine.writer.isClosed then
         if machine.isReaderComplete then
           if let some data ← stream.recv
-            then machine := machine.sendData data
+            then machine := machine.sendData #[data]
             else machine := machine.userClosedBody
         else
           if ← stream.isClosed then
             pure ()
           else
             if let some res ← stream.tryRecv then
-              machine := machine.sendData res
+              machine := machine.sendData #[res]
             else if ← stream.isClosed then
                machine := machine.userClosedBody
 
@@ -175,11 +177,11 @@ private def handle
       match res.body with
       | some (.bytes data) => machine := machine.sendData #[Chunk.mk data #[]] |>.userClosedBody
       | some ( .zero) | none => machine := machine.userClosedBody
-      | some (.stream res) => do
-        if let some size ← res.getKnownSize then
-        machine := machine.setKnownSize size
+      | some (.stream stream) => do
+        let size ← stream.getKnownSize
+        machine := machine.setKnownSize (size.getD .chunked)
 
-        respStream := some res
+        respStream := some stream
 
     if ← errored.isResolved then
       let _ ← await errored.result!
@@ -192,6 +194,10 @@ private def handle
 
     if step.output.size > 0 then
       Transport.sendAll socket step.output.data
+
+  let (_, output) := machine.takeOutput
+  if output.size > 0 then
+    Transport.sendAll socket output.data
 
   if let some res := respStream then
     res.close

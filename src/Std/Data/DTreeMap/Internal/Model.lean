@@ -549,6 +549,42 @@ theorem getKey?_eq_getKey?ₘ [Ord α] (k : α) (l : Impl α β) :
     split <;> simp_all [Cell.getKey?, Cell.ofEq]
   · simp [getKey?, applyCell]
 
+theorem getEntry?_eq_getEntry?ₘ [Ord α] (k : α) (l : Impl α β) :
+    l.getEntry? k = l.getEntry?ₘ k := by
+  simp only [getEntry?ₘ]
+  induction l
+  · simp only [applyCell, getEntry?]
+    split <;> simp_all [Cell.getEntry?, Cell.ofEq]
+  · simp only [getEntry?, applyCell]; rfl
+
+theorem getEntry_eq_getEntry? [Ord α] (k : α) (l : Impl α β) {h} :
+    some (l.getEntry k h) = l.getEntry? k := by
+  induction l
+  · simp only [getEntry, getEntry?]
+    split <;> simp_all
+  · contradiction
+
+theorem getEntry_eq_getEntryₘ [Ord α] (k : α) (l : Impl α β) {h} (h') :
+    l.getEntry k h = l.getEntryₘ k h' := by
+  apply Option.some.inj
+  simp [getEntry_eq_getEntry?, getEntry?_eq_getEntry?ₘ, getEntryₘ]
+
+theorem getEntry!_eq_getEntry!ₘ [Ord α] [Inhabited ((a : α) × (β a))] (k : α) (l : Impl α β) :
+    l.getEntry! k = l.getEntry!ₘ k := by
+  simp only [getEntry!ₘ, getEntry?ₘ]
+  induction l
+  · simp only [applyCell, getEntry!]
+    split <;> simp_all [Cell.getEntry?, Cell.ofEq]
+  · simp only [getEntry!, applyCell]; rfl
+
+theorem getEntryD_eq_getEntryDₘ [Ord α] (k : α) (l : Impl α β)
+    (fallback : (a : α) × β a) : l.getEntryD k fallback = l.getEntryDₘ k fallback := by
+  simp only [getEntryDₘ, getEntry?ₘ]
+  induction l
+  · simp only [applyCell, getEntryD]
+    split <;> simp_all [Cell.getEntry?, Cell.ofEq]
+  · simp only [getEntryD, applyCell]; rfl
+
 theorem getKey_eq_getKey? [Ord α] (k : α) (l : Impl α β) {h} :
     some (l.getKey k h) = l.getKey? k := by
   induction l

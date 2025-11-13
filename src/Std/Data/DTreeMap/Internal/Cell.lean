@@ -112,6 +112,11 @@ def getKey? [Ord α] {k : α} (c : Cell α β (compare k)) : Option α :=
   | some p => some p.1
 
 @[simp]
+theorem getEntry?_empty [Ord α] [OrientedOrd α] [LawfulEqOrd α] {k : α} :
+    (Cell.empty : Cell α β (compare k)).getEntry? = none :=
+  rfl
+
+@[simp]
 theorem getKey?_empty [Ord α] {k : α} : (Cell.empty : Cell α β (compare k)).getKey? = none :=
   rfl
 

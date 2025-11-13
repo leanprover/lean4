@@ -127,7 +127,7 @@ def getEntry? [Ord α] (t : Impl α β) (k : α) : Option ((a : α) × β a) :=
     | .eq => some ⟨k', v'⟩
 
 /-- Returns the entry (key-value pair) for the key `k`. -/
-def getEntry [Ord α] [LawfulEqOrd α] (t : Impl α β) (k : α) (hlk : k ∈ t) : (a : α) × β a :=
+def getEntry [Ord α] (t : Impl α β) (k : α) (hlk : k ∈ t) : (a : α) × β a :=
   match t with
   | .inner _ k' v' l r =>
     match h : compare k k' with

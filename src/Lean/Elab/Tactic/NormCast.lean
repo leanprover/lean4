@@ -43,7 +43,7 @@ def proveEqUsingDown (a b : Expr) : MetaM (Option Simp.Result) := do
 
 /-- Constructs the expression `(e : ty)`. -/
 def mkCoe (e : Expr) (ty : Expr) : MetaM Expr := do
-  let .some e' ← coerce? e ty | failure
+  let .some (e', _) ← coerce? e ty | failure
   return e'
 
 /--

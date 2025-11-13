@@ -772,6 +772,26 @@ def filter! [Ord α] (f : (a : α) → β a → Bool) (t : Impl α β) : Impl α
     | false => link2! (filter! f l) (filter! f r)
     | true => link! k v (filter! f l) (filter! f r)
 
+/-- Internal implementation detail of the tree map -/
+@[inline]
+def interSmallerFn [Ord α] (m : Impl α β) (sofar : { t : Impl α β // t.Balanced } ) (k : α) : { res : Impl α β // res.Balanced }:=
+   match m.getEntry? k with
+  | some kv' => let ⟨val, prop, _, _⟩ := (sofar.val.insert kv'.1 kv'.2 sofar.2); ⟨val, prop⟩
+  | none => sofar
+
+/-- Internal implementation detail of the tree map -/
+def interSmaller [Ord α] (m₁ : Impl α β) (m₂ : Impl α β) : Impl α β :=
+  (m₂.foldl (fun sofar k _ => interSmallerFn m₁ sofar k) ⟨empty, balanced_empty⟩).1
+
+/-- Internal implementation detail of the hash map -/
+def inter [Ord α] (m₁ m₂ : Impl α β) (h₁ : Balanced m₁) : Impl α β :=
+  if m₁.size ≤ m₂.size then (m₁.filter (fun k _ => m₂.contains k) h₁).impl else interSmaller m₁ m₂
+
+/-- Slower version of `inter!` which can be used in the absence of balance
+information but still assumes the preconditions of `filter`, otherwise might panic. -/
+def inter! [Ord α] (m₁ m₂ : Impl α β): Impl α β :=
+  if m₁.size ≤ m₂.size then m₁.filter! (fun k _ => m₂.contains k) else interSmaller m₁ m₂
+
 /--
 Changes the mapping of the key `k` by applying the function `f` to the current mapped value
 (if any). This function can be used to insert a new mapping, modify an existing one or delete it.

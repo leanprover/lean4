@@ -2129,6 +2129,108 @@ theorem isEmpty_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ :
 
 end Union
 
+namespace Const
+
+variable {β : Type v} {m₁ m₂ : Raw α (fun _ => β)}
+
+theorem get?_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
+    Const.get? (m₁ ∪ m₂) k = (Const.get? m₂ k).or (Const.get? m₁ k) := by
+  simp only [Union.union]
+  simp_to_raw using Raw₀.Const.get?_union
+
+theorem get?_union_of_not_mem_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (not_mem : ¬k ∈ m₁) :
+    Const.get? (m₁ ∪ m₂) k = Const.get? m₂ k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  revert not_mem
+  simp only [Union.union]
+  simp_to_raw using Raw₀.Const.get?_union_of_contains_eq_false_left
+
+theorem get?_union_of_not_mem_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (not_mem : ¬k ∈ m₂) :
+    Const.get? (m₁ ∪ m₂) k = Const.get? m₁ k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  revert not_mem
+  simp only [Union.union]
+  simp_to_raw using Raw₀.Const.get?_union_of_contains_eq_false_right
+
+/- get -/
+theorem get_union_of_mem_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (mem : k ∈ m₂) :
+    Const.get (m₁ ∪ m₂) k (mem_union_of_right h₁ h₂ mem) = Const.get m₂ k mem := by
+  rw [mem_iff_contains] at mem
+  revert mem
+  simp only [Union.union]
+  simp_to_raw using Raw₀.Const.get_union_of_contains_right
+
+theorem get_union_of_not_mem_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (not_mem : ¬k ∈ m₁) {h'} :
+    Const.get (m₁ ∪ m₂) k h' = Const.get m₂ k (mem_of_mem_union_of_not_mem_left h₁ h₂ h' not_mem) := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  revert not_mem
+  simp only [Union.union]
+  simp_to_raw
+  intro not_mem
+  apply Raw₀.Const.get_union_of_contains_eq_false_left
+  all_goals wf_trivial
+
+theorem get_union_of_not_mem_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (not_mem : ¬k ∈ m₂) {h'} :
+    Const.get (m₁ ∪ m₂) k h' = Const.get m₁ k (mem_of_mem_union_of_not_mem_right h₁ h₂ h' not_mem) := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  revert not_mem
+  simp only [Union.union]
+  simp_to_raw
+  intro not_mem
+  apply Raw₀.Const.get_union_of_contains_eq_false_right
+  all_goals wf_trivial
+
+/- getD -/
+theorem getD_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} {fallback : β} :
+    Const.getD (m₁ ∪ m₂) k fallback = Const.getD m₂ k (Const.getD m₁ k fallback) := by
+  simp only [Union.union]
+  simp_to_raw using Raw₀.Const.getD_union
+
+theorem getD_union_of_not_mem_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β} (not_mem : ¬k ∈ m₁) :
+    Const.getD (m₁ ∪ m₂) k fallback = Const.getD m₂ k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  revert not_mem
+  simp only [Union.union]
+  simp_to_raw using Raw₀.Const.getD_union_of_contains_eq_false_left
+
+theorem getD_union_of_not_mem_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β} (not_mem : ¬k ∈ m₂) :
+    Const.getD (m₁ ∪ m₂) k fallback = Const.getD m₁ k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  revert not_mem
+  simp only [Union.union]
+  simp_to_raw using Raw₀.Const.getD_union_of_contains_eq_false_right
+
+/- get! -/
+theorem get!_union [EquivBEq α] [LawfulHashable α] [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
+    Const.get! (m₁ ∪ m₂) k = Const.getD m₂ k (Const.get! m₁ k) := by
+  simp only [Union.union]
+  simp_to_raw using Raw₀.Const.get!_union
+
+theorem get!_union_of_not_mem_left [EquivBEq α] [LawfulHashable α] [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (not_mem : ¬k ∈ m₁) :
+    Const.get! (m₁ ∪ m₂) k = Const.get! m₂ k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  revert not_mem
+  simp only [Union.union]
+  simp_to_raw using Raw₀.Const.get!_union_of_contains_eq_false_left
+
+theorem get!_union_of_not_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (not_mem : ¬k ∈ m₂) :
+    Const.get! (m₁ ∪ m₂) k = Const.get! m₁ k := by
+  rw [← contains_eq_false_iff_not_mem ] at not_mem
+  revert not_mem
+  simp only [Union.union]
+  simp_to_raw using Raw₀.Const.get!_union_of_contains_eq_false_right
+
+end Const
+
 section Inter
 
 variable {m₁ m₂ : Raw α β}
@@ -2453,108 +2555,6 @@ theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h�
   simp_to_raw using @Raw₀.isEmpty_inter_iff _ _ _ _ ⟨m₁, _⟩ ⟨m₂, _⟩ _ _
 
 end Inter
-
-namespace Const
-
-variable {β : Type v} {m₁ m₂ : Raw α (fun _ => β)}
-
-theorem get?_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
-    Const.get? (m₁ ∪ m₂) k = (Const.get? m₂ k).or (Const.get? m₁ k) := by
-  simp only [Union.union]
-  simp_to_raw using Raw₀.Const.get?_union
-
-theorem get?_union_of_not_mem_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (not_mem : ¬k ∈ m₁) :
-    Const.get? (m₁ ∪ m₂) k = Const.get? m₂ k := by
-  rw [← contains_eq_false_iff_not_mem] at not_mem
-  revert not_mem
-  simp only [Union.union]
-  simp_to_raw using Raw₀.Const.get?_union_of_contains_eq_false_left
-
-theorem get?_union_of_not_mem_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (not_mem : ¬k ∈ m₂) :
-    Const.get? (m₁ ∪ m₂) k = Const.get? m₁ k := by
-  rw [← contains_eq_false_iff_not_mem] at not_mem
-  revert not_mem
-  simp only [Union.union]
-  simp_to_raw using Raw₀.Const.get?_union_of_contains_eq_false_right
-
-/- get -/
-theorem get_union_of_mem_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (mem : k ∈ m₂) :
-    Const.get (m₁ ∪ m₂) k (mem_union_of_right h₁ h₂ mem) = Const.get m₂ k mem := by
-  rw [mem_iff_contains] at mem
-  revert mem
-  simp only [Union.union]
-  simp_to_raw using Raw₀.Const.get_union_of_contains_right
-
-theorem get_union_of_not_mem_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (not_mem : ¬k ∈ m₁) {h'} :
-    Const.get (m₁ ∪ m₂) k h' = Const.get m₂ k (mem_of_mem_union_of_not_mem_left h₁ h₂ h' not_mem) := by
-  rw [← contains_eq_false_iff_not_mem] at not_mem
-  revert not_mem
-  simp only [Union.union]
-  simp_to_raw
-  intro not_mem
-  apply Raw₀.Const.get_union_of_contains_eq_false_left
-  all_goals wf_trivial
-
-theorem get_union_of_not_mem_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (not_mem : ¬k ∈ m₂) {h'} :
-    Const.get (m₁ ∪ m₂) k h' = Const.get m₁ k (mem_of_mem_union_of_not_mem_right h₁ h₂ h' not_mem) := by
-  rw [← contains_eq_false_iff_not_mem] at not_mem
-  revert not_mem
-  simp only [Union.union]
-  simp_to_raw
-  intro not_mem
-  apply Raw₀.Const.get_union_of_contains_eq_false_right
-  all_goals wf_trivial
-
-/- getD -/
-theorem getD_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} {fallback : β} :
-    Const.getD (m₁ ∪ m₂) k fallback = Const.getD m₂ k (Const.getD m₁ k fallback) := by
-  simp only [Union.union]
-  simp_to_raw using Raw₀.Const.getD_union
-
-theorem getD_union_of_not_mem_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} {fallback : β} (not_mem : ¬k ∈ m₁) :
-    Const.getD (m₁ ∪ m₂) k fallback = Const.getD m₂ k fallback := by
-  rw [← contains_eq_false_iff_not_mem] at not_mem
-  revert not_mem
-  simp only [Union.union]
-  simp_to_raw using Raw₀.Const.getD_union_of_contains_eq_false_left
-
-theorem getD_union_of_not_mem_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} {fallback : β} (not_mem : ¬k ∈ m₂) :
-    Const.getD (m₁ ∪ m₂) k fallback = Const.getD m₁ k fallback := by
-  rw [← contains_eq_false_iff_not_mem] at not_mem
-  revert not_mem
-  simp only [Union.union]
-  simp_to_raw using Raw₀.Const.getD_union_of_contains_eq_false_right
-
-/- get! -/
-theorem get!_union [EquivBEq α] [LawfulHashable α] [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
-    Const.get! (m₁ ∪ m₂) k = Const.getD m₂ k (Const.get! m₁ k) := by
-  simp only [Union.union]
-  simp_to_raw using Raw₀.Const.get!_union
-
-theorem get!_union_of_not_mem_left [EquivBEq α] [LawfulHashable α] [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (not_mem : ¬k ∈ m₁) :
-    Const.get! (m₁ ∪ m₂) k = Const.get! m₂ k := by
-  rw [← contains_eq_false_iff_not_mem] at not_mem
-  revert not_mem
-  simp only [Union.union]
-  simp_to_raw using Raw₀.Const.get!_union_of_contains_eq_false_left
-
-theorem get!_union_of_not_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (not_mem : ¬k ∈ m₂) :
-    Const.get! (m₁ ∪ m₂) k = Const.get! m₁ k := by
-  rw [← contains_eq_false_iff_not_mem ] at not_mem
-  revert not_mem
-  simp only [Union.union]
-  simp_to_raw using Raw₀.Const.get!_union_of_contains_eq_false_right
-
-end Const
 
 namespace Const
 

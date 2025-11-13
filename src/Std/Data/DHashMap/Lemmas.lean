@@ -1932,11 +1932,84 @@ theorem isEmpty_union [EquivBEq α] [LawfulHashable α] :
 
 end Union
 
+namespace Const
+
+variable {β : Type v} {m₁ m₂ : DHashMap α (fun _ => β)}
+
+/- get? -/
+theorem get?_union [EquivBEq α] [LawfulHashable α] {k : α} :
+    Const.get? (m₁.union m₂) k = (Const.get? m₂ k).or (Const.get? m₁ k) :=
+  @Raw₀.Const.get?_union _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _ m₁.2 m₂.2 k
+
+theorem get?_union_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : ¬k ∈ m₁) :
+    Const.get? (m₁.union m₂) k = Const.get? m₂ k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.Const.get?_union_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _ m₁.2 m₂.2 k not_mem
+
+theorem get?_union_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : ¬k ∈ m₂) :
+    Const.get? (m₁.union m₂) k = Const.get? m₁ k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.Const.get?_union_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _ m₁.2 m₂.2 k not_mem
+
+/- get -/
+theorem get_union_of_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (mem : m₂.contains k) :
+    Const.get (m₁.union m₂) k (mem_union_of_right mem) = Const.get m₂ k mem :=
+  @Raw₀.Const.get_union_of_contains_right _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _  m₁.2 m₂.2 k mem
+
+theorem get_union_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : ¬k ∈ m₁) {h'} :
+    Const.get (m₁.union m₂) k h' = Const.get m₂ k (mem_of_mem_union_of_not_mem_left h' not_mem) := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.Const.get_union_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _  m₁.2 m₂.2 k not_mem h'
+
+theorem get_union_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : ¬k ∈ m₂) {h'} :
+    Const.get (m₁.union m₂) k h' = Const.get m₁ k (mem_of_mem_union_of_not_mem_right h' not_mem) := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.Const.get_union_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _  m₁.2 m₂.2 k not_mem h'
+
+/- getD -/
+theorem getD_union [EquivBEq α] [LawfulHashable α] {k : α} {fallback : β} :
+    Const.getD (m₁.union m₂) k fallback = Const.getD m₂ k (Const.getD m₁ k fallback) :=
+  @Raw₀.Const.getD_union _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _  m₁.2 m₂.2 k fallback
+
+theorem getD_union_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} {fallback : β} (not_mem : ¬k ∈ m₁) :
+    Const.getD (m₁.union m₂) k fallback = Const.getD m₂ k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.Const.getD_union_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _  m₁.2 m₂.2 k fallback not_mem
+
+theorem getD_union_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} {fallback : β} (not_mem : ¬k ∈ m₂) :
+    Const.getD (m₁.union m₂) k fallback = Const.getD m₁ k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.Const.getD_union_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _  m₁.2 m₂.2 k fallback not_mem
+
+/- get! -/
+theorem get!_union [EquivBEq α] [LawfulHashable α] [Inhabited β] {k : α} :
+    Const.get! (m₁.union m₂) k = Const.getD m₂ k (Const.get! m₁ k) :=
+  @Raw₀.Const.get!_union _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 k
+
+theorem get!_union_of_not_mem_left [EquivBEq α] [LawfulHashable α] [Inhabited β]
+    {k : α} (not_mem : ¬k ∈ m₁) :
+    Const.get! (m₁.union m₂) k = Const.get! m₂ k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.Const.get!_union_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _  m₁.2 m₂.2 k not_mem
+
+theorem get!_union_of_not_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited β]
+    {k : α} (not_mem : ¬k ∈ m₂) :
+    Const.get! (m₁.union m₂) k = Const.get! m₁ k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.Const.get!_union_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _  m₁.2 m₂.2 k not_mem
+
+end Const
+
 section Inter
 
-variable (m₁ m₂ : DHashMap α β)
-
-variable {m₁ m₂}
+variable {m₁ m₂ : DHashMap α β}
 
 @[simp]
 theorem inter_eq : m₁.inter m₂ = m₁ ∩ m₂ := by
@@ -2172,81 +2245,6 @@ theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] :
   exact @Raw₀.isEmpty_inter_iff _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.wf m₂.wf
 
 end Inter
-
-namespace Const
-
-variable {β : Type v} {m₁ m₂ : DHashMap α (fun _ => β)}
-
-/- get? -/
-theorem get?_union [EquivBEq α] [LawfulHashable α] {k : α} :
-    Const.get? (m₁.union m₂) k = (Const.get? m₂ k).or (Const.get? m₁ k) :=
-  @Raw₀.Const.get?_union _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _ m₁.2 m₂.2 k
-
-theorem get?_union_of_not_mem_left [EquivBEq α] [LawfulHashable α]
-    {k : α} (not_mem : ¬k ∈ m₁) :
-    Const.get? (m₁.union m₂) k = Const.get? m₂ k := by
-  rw [← contains_eq_false_iff_not_mem] at not_mem
-  exact @Raw₀.Const.get?_union_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _ m₁.2 m₂.2 k not_mem
-
-theorem get?_union_of_not_mem_right [EquivBEq α] [LawfulHashable α]
-    {k : α} (not_mem : ¬k ∈ m₂) :
-    Const.get? (m₁.union m₂) k = Const.get? m₁ k := by
-  rw [← contains_eq_false_iff_not_mem] at not_mem
-  exact @Raw₀.Const.get?_union_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _ m₁.2 m₂.2 k not_mem
-
-/- get -/
-theorem get_union_of_mem_right [EquivBEq α] [LawfulHashable α]
-    {k : α} (mem : m₂.contains k) :
-    Const.get (m₁.union m₂) k (mem_union_of_right mem) = Const.get m₂ k mem :=
-  @Raw₀.Const.get_union_of_contains_right _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _  m₁.2 m₂.2 k mem
-
-theorem get_union_of_not_mem_left [EquivBEq α] [LawfulHashable α]
-    {k : α} (not_mem : ¬k ∈ m₁) {h'} :
-    Const.get (m₁.union m₂) k h' = Const.get m₂ k (mem_of_mem_union_of_not_mem_left h' not_mem) := by
-  rw [← contains_eq_false_iff_not_mem] at not_mem
-  exact @Raw₀.Const.get_union_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _  m₁.2 m₂.2 k not_mem h'
-
-theorem get_union_of_not_mem_right [EquivBEq α] [LawfulHashable α]
-    {k : α} (not_mem : ¬k ∈ m₂) {h'} :
-    Const.get (m₁.union m₂) k h' = Const.get m₁ k (mem_of_mem_union_of_not_mem_right h' not_mem) := by
-  rw [← contains_eq_false_iff_not_mem] at not_mem
-  exact @Raw₀.Const.get_union_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _  m₁.2 m₂.2 k not_mem h'
-
-/- getD -/
-theorem getD_union [EquivBEq α] [LawfulHashable α] {k : α} {fallback : β} :
-    Const.getD (m₁.union m₂) k fallback = Const.getD m₂ k (Const.getD m₁ k fallback) :=
-  @Raw₀.Const.getD_union _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _  m₁.2 m₂.2 k fallback
-
-theorem getD_union_of_not_mem_left [EquivBEq α] [LawfulHashable α]
-    {k : α} {fallback : β} (not_mem : ¬k ∈ m₁) :
-    Const.getD (m₁.union m₂) k fallback = Const.getD m₂ k fallback := by
-  rw [← contains_eq_false_iff_not_mem] at not_mem
-  exact @Raw₀.Const.getD_union_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _  m₁.2 m₂.2 k fallback not_mem
-
-theorem getD_union_of_not_mem_right [EquivBEq α] [LawfulHashable α]
-    {k : α} {fallback : β} (not_mem : ¬k ∈ m₂) :
-    Const.getD (m₁.union m₂) k fallback = Const.getD m₁ k fallback := by
-  rw [← contains_eq_false_iff_not_mem] at not_mem
-  exact @Raw₀.Const.getD_union_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _  m₁.2 m₂.2 k fallback not_mem
-
-/- get! -/
-theorem get!_union [EquivBEq α] [LawfulHashable α] [Inhabited β] {k : α} :
-    Const.get! (m₁.union m₂) k = Const.getD m₂ k (Const.get! m₁ k) :=
-  @Raw₀.Const.get!_union _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 k
-
-theorem get!_union_of_not_mem_left [EquivBEq α] [LawfulHashable α] [Inhabited β]
-    {k : α} (not_mem : ¬k ∈ m₁) :
-    Const.get! (m₁.union m₂) k = Const.get! m₂ k := by
-  rw [← contains_eq_false_iff_not_mem] at not_mem
-  exact @Raw₀.Const.get!_union_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _  m₁.2 m₂.2 k not_mem
-
-theorem get!_union_of_not_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited β]
-    {k : α} (not_mem : ¬k ∈ m₂) :
-    Const.get! (m₁.union m₂) k = Const.get! m₁ k := by
-  rw [← contains_eq_false_iff_not_mem] at not_mem
-  exact @Raw₀.Const.get!_union_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _  m₁.2 m₂.2 k not_mem
-
-end Const
 
 namespace Const
 

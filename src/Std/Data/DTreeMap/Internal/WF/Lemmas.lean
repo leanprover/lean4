@@ -2030,10 +2030,6 @@ theorem WF.filter! {_ : Ord α} {t : Impl α β} {f : (a : α) → β a → Bool
   rw [← filter_eq_filter! (h := h.balanced)]
   exact h.filter
 
-/-!
-### TODO: move to List
--/
-
 /-- Internal implementation detail of the hash map -/
 def List.interSmallerFn [BEq α] (l sofar : List ((a : α) × β a)) (k : α) : List ((a : α) × β a) :=
   match List.getEntry? k l with

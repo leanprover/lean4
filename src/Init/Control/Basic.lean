@@ -347,7 +347,7 @@ class MonadControlT (m : Type u → Type v) (n : Type u → Type w) where
   outer monad. The extra state information is used to restore the results of effects from the
   reverse lift passed to `liftWith`'s parameter.
   -/
-  restoreM {α : Type u} : stM α → n α
+  restoreM {α : Type u} : m (stM α) → n α
 
 export MonadControlT (stM liftWith restoreM)
 
@@ -357,10 +357,15 @@ instance (m n o) [MonadControl n o] [MonadControlT m n] : MonadControlT m o wher
   liftWith f := MonadControl.liftWith fun x₂ => liftWith fun x₁ => f (x₁ ∘ x₂)
   restoreM := MonadControl.restoreM ∘ restoreM
 
-instance (m : Type u → Type v) [Pure m] : MonadControlT m m where
+instance (m : Type u → Type v) : MonadControlT m m where
   stM α := α
   liftWith f := f fun x => x
-  restoreM x := pure x
+  restoreM x := x
+
+def MonadControlT.toMonadControl (inst : MonadControlT m n) : MonadControl m n where
+  stM := inst.stM
+  liftWith := inst.liftWith
+  restoreM := inst.restoreM
 
 /--
 Lifts an operation from an inner monad to an outer monad, providing it with a reverse lifting
@@ -371,9 +376,9 @@ effects in the outer monad; this extra information is determined by `stM`.
 This function takes the inner monad as an explicit parameter. Use `control` to infer the monad.
 -/
 @[always_inline, inline]
-def controlAt (m : Type u → Type v) {n : Type u → Type w} [MonadControlT m n] [Bind n] {α : Type u}
+def controlAt (m : Type u → Type v) {n : Type u → Type w} [MonadControlT m n] [Bind n] [Pure m] {α : Type u}
     (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
-  liftWith f >>= restoreM
+  liftWith f >>= restoreM ∘ pure
 
 /--
 Lifts an operation from an inner monad to an outer monad, providing it with a reverse lifting
@@ -385,7 +390,7 @@ This function takes the inner monad as an implicit parameter. Use `controlAt` to
 explicitly.
 -/
 @[always_inline, inline]
-def control {m : Type u → Type v} {n : Type u → Type w} [MonadControlT m n] [Bind n] {α : Type u}
+def control {m : Type u → Type v} {n : Type u → Type w} [MonadControlT m n] [Bind n] [Pure m] {α : Type u}
     (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
   controlAt m f
 

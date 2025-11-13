@@ -342,6 +342,7 @@ This function always merges the smaller map into the larger map, so the expected
   wf :=  Std.DHashMap.Raw.WF.inter₀ m₁.2 m₂.2
 
 instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
+instance [BEq α] [Hashable α] : Inter (DHashMap α β) := ⟨inter⟩
 
 section Unverified
 

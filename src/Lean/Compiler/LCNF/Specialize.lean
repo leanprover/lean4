@@ -305,7 +305,7 @@ def getRemainingArgs (paramsInfo : Array SpecParamInfo) (args : Array Arg) : Arr
   for info in paramsInfo, arg in args do
     if info matches .other then
       result := result.push arg
-  return result ++ args[paramsInfo.size...*]
+  return result ++ args[paramsInfo.size...*].copy
 
 def paramsToGroundVars (params : Array Param) : CompilerM FVarIdSet :=
   params.foldlM (init := {}) fun r p => do

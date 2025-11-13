@@ -72,12 +72,12 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name :=
   let (value : Expr) ← forallTelescope casesOnInfo.type fun xs _ => do
     unless xs.size = indInfo.numParams + 1 + indInfo.numIndices + 1 + indInfo.ctors.length do
       throwError "mkSparseCasesOn: unexpected number of parameters in type of `{.ofConstName casesOnName}`"
-    let params := xs[:indInfo.numParams]
+    let params := xs[*...indInfo.numParams].copy
     let motive := xs[indInfo.numParams]!
-    let indices := xs[indInfo.numParams+1:indInfo.numParams+1+indInfo.numIndices]
+    let indices := xs[(indInfo.numParams+1)...(indInfo.numParams+1+indInfo.numIndices)].copy
     let major := xs[indInfo.numParams+1+indInfo.numIndices]!
     let ism := indices ++ #[major]
-    let minors := xs[indInfo.numParams+1+indInfo.numIndices+1:]
+    let minors := xs[(indInfo.numParams+1+indInfo.numIndices+1)...*]
 
     let minors' ← ctors.mapM fun ctor => do
       let ctorInfo ← getConstInfoCtor ctor

@@ -49,8 +49,8 @@ partial def mRefineCore (goal : MGoal) (pat : MRefinePat) (k : MGoal → TSyntax
     let args := T.getAppArgs
     trace[Meta.debug] "f: {f}, args: {args}"
     if f.isConstOf ``SPred.and && args.size >= 3 then
-      let T₁ := args[1]!.beta args[3...*]
-      let T₂ := args[2]!.beta args[3...*]
+      let T₁ := args[1]!.beta args[3...*].copy
+      let T₂ := args[2]!.beta args[3...*].copy
       let prf₁ ← mRefineCore { goal with target := T₁ } p k
       let prf₂ ← mRefineCore { goal with target := T₂ } (.tuple ps) k
       return mkApp6 (mkConst ``SPred.and_intro [goal.u]) goal.σs goal.hyps T₁ T₂ prf₁ prf₂
@@ -58,7 +58,7 @@ partial def mRefineCore (goal : MGoal) (pat : MRefinePat) (k : MGoal → TSyntax
       let α := args[0]!
       let ψ := args[2]!
       let some witness ← patAsTerm p (some α) | throwError "pattern does not elaborate to a term to instantiate ψ"
-      let prf ← mRefineCore { goal with target := ψ.beta (#[witness] ++ args[3...*]) } (.tuple ps) k
+      let prf ← mRefineCore { goal with target := ψ.beta (#[witness] ++ args[3...*].copy) } (.tuple ps) k
       let u ← getLevel α
       return mkApp6 (mkConst ``SPred.exists_intro' [u, goal.u]) α goal.σs goal.hyps ψ witness prf
     else throwError "Neither a conjunction nor an existential quantifier {T}"

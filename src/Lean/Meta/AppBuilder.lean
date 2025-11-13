@@ -498,10 +498,10 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
 
           let noConfusionName := ctorA.name.str "noConfusion"
           if (← hasConst noConfusionName) then
-            let xs := α.getAppArgs[:ctorA.numParams]
+            let xs := α.getAppArgs[:ctorA.numParams].copy
             let noConfusion := mkAppN (mkConst noConfusionName (u :: us)) xs
-            let fields1 : Array Expr := ys1[ctorA.numParams:]
-            let fields2 : Array Expr := ys2[ctorA.numParams:]
+            let fields1 : Array Expr := ys1[ctorA.numParams:].copy
+            let fields2 : Array Expr := ys2[ctorA.numParams:].copy
             let mask ← occursInCtorTypeMask ctorA.name
             assert! mask.size = ctorA.numFields
             let mut ok := true

@@ -44,12 +44,12 @@ public def mkCasesOnSameCtorHet (declName : Name) (indName : Name) : MetaM Unit 
         forallTelescope ctorType fun zs1 ctorRet1 => do
           let ctorApp1 := mkAppN ctor zs1
           let ctorRet1 ← whnf ctorRet1
-          let is1 : Array Expr := ctorRet1.getAppArgs[info.numParams:]
+          let is1 := ctorRet1.getAppArgs[info.numParams...*].copy
           let ism1 := is1.push ctorApp1
           forallTelescope ctorType fun zs2 ctorRet2 => do
             let ctorApp2 := mkAppN ctor zs2
             let ctorRet2 ← whnf ctorRet2
-            let is2 : Array Expr := ctorRet2.getAppArgs[info.numParams:]
+            let is2 := ctorRet2.getAppArgs[info.numParams...*].copy
             let ism2 := is2.push ctorApp2
             let e := mkAppN motive (ism1 ++ ism2)
             let e ← mkForallFVars (zs1 ++ zs2) e
@@ -75,7 +75,7 @@ public def mkCasesOnSameCtorHet (declName : Name) (indName : Name) : MetaM Unit 
           forallTelescope ctorType fun zs1 ctorRet1 => do
             let ctorApp1 := mkAppN ctor zs1
             let ctorRet1 ← whnf ctorRet1
-            let is1 : Array Expr := ctorRet1.getAppArgs[info.numParams:]
+            let is1 := ctorRet1.getAppArgs[info.numParams...*].copy
             let ism1 := is1.push ctorApp1
             -- Here we let the typecheker reduce the `ctorIdx` application
             let heq := mkApp3 (mkConst ``Eq [1]) (mkConst ``Nat) ctorApp2 (mkRawNatLit i)

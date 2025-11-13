@@ -192,7 +192,7 @@ where
       (children.take blockSize).toArray.push <|
         .trace { collapsed := true, cls }
           f!"{children.size - blockSize} more entries..." more
-    else children
+    else children.copy
 
 partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent : Nat := 0) : IO InteractiveMessage := do
   if !hasWidgets then

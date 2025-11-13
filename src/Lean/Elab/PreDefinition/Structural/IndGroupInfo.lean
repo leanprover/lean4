@@ -107,7 +107,7 @@ def IndGroupInst.nestedTypeFormers (igi : IndGroupInst) : MetaM (Array Expr) := 
     else levelZero :: igi.levels
   let aux := mkAppN (.const recName lvls) igi.params
   let motives ← inferArgumentTypesN recInfo.numMotives aux
-  let auxMotives : Array Expr := motives[igi.all.size...*]
+  let auxMotives := motives[igi.all.size...*].copy
   auxMotives.mapM fun motive =>
     forallTelescopeReducing motive fun xs _ => do
       assert! xs.size > 0

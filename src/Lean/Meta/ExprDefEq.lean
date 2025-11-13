@@ -1152,7 +1152,7 @@ private partial def processConstApprox (mvar : Expr) (args : Array Expr) (patter
   else if patternVarPrefix == 0 then
     defaultCase
   else
-    let argsPrefix : Array Expr := args[*...patternVarPrefix]
+    let argsPrefix := args[*...patternVarPrefix].copy
     let type ← instantiateForall mvarDecl.type argsPrefix
     let suffixSize := numArgs - argsPrefix.size
     forallBoundedTelescope type suffixSize fun xs _ => do

@@ -74,8 +74,8 @@ def getRecArgInfo (fnName : Name) (fixedParamPerm : FixedParamPerm) (xs : Array 
     let xType ← whnfD localDecl.type
     matchConstInduct xType.getAppFn (fun _ => throwError "its type is not an inductive") fun indInfo us => do
     let indArgs    : Array Expr := xType.getAppArgs
-    let indParams  : Array Expr := indArgs[*...indInfo.numParams]
-    let indIndices : Array Expr := indArgs[indInfo.numParams...*]
+    let indParams  : Array Expr := indArgs[*...indInfo.numParams].copy
+    let indIndices : Array Expr := indArgs[indInfo.numParams...*].copy
     if !indIndices.all Expr.isFVar then
       throwError "its type {indInfo.name} is an inductive family and indices are not variables{indentExpr xType}"
     else if !indIndices.allDiff then

@@ -41,9 +41,9 @@ def matchMatcherApp? [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (alsoCases
         matcherLevels := declLevels.toArray
         params        := args.extract 0 info.numParams
         motive        := args[info.getMotivePos]!
-        discrs        := args[(info.numParams + 1)...(info.numParams + 1 + info.numDiscrs)]
-        alts          := args[(info.numParams + 1 + info.numDiscrs)...(info.numParams + 1 + info.numDiscrs + info.numAlts)]
-        remaining     := args[(info.numParams + 1 + info.numDiscrs + info.numAlts)...args.size]
+        discrs        := args[(info.numParams + 1)...(info.numParams + 1 + info.numDiscrs)].copy
+        alts          := args[(info.numParams + 1 + info.numDiscrs)...(info.numParams + 1 + info.numDiscrs + info.numAlts)].copy
+        remaining     := args[(info.numParams + 1 + info.numDiscrs + info.numAlts)...args.size].copy
       }
 
     if alsoCasesOn && isCasesOnRecursor (← getEnv) declName then
@@ -51,12 +51,12 @@ def matchMatcherApp? [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (alsoCases
       let .inductInfo info ← getConstInfo indName | return none
       let args := e.getAppArgs
       unless args.size >= info.numParams + 1 /- motive -/ + info.numIndices + 1 /- major -/ + info.numCtors do return none
-      let params     := args[*...info.numParams]
+      let params     := args[*...info.numParams].copy
       let motive     := args[info.numParams]!
-      let discrs     := args[(info.numParams + 1)...(info.numParams + 1 + info.numIndices + 1)]
+      let discrs     := args[(info.numParams + 1)...(info.numParams + 1 + info.numIndices + 1)].copy
       let discrInfos := .replicate (info.numIndices + 1) {}
-      let alts       := args[(info.numParams + 1 + info.numIndices + 1)...(info.numParams + 1 + info.numIndices + 1 + info.numCtors)]
-      let remaining  := args[(info.numParams + 1 + info.numIndices + 1 + info.numCtors)...*]
+      let alts       := args[(info.numParams + 1 + info.numIndices + 1)...(info.numParams + 1 + info.numIndices + 1 + info.numCtors)].copy
+      let remaining  := args[(info.numParams + 1 + info.numIndices + 1 + info.numCtors)...*].copy
       let uElimPos?  := if info.levelParams.length == declLevels.length then none else some 0
       let altInfos   ← info.ctors.toArray.mapM fun ctor => do
         let .ctorInfo ctorInfo ← getConstInfo ctor | panic! "expected constructor"

@@ -14,7 +14,9 @@ namespace Int
 
 /-! # pow -/
 
-@[simp, norm_cast] theorem natCast_pow (m n : Nat) : (m ^ n : Nat) = (m : Int) ^ n := rfl
+@[simp, norm_cast]
+theorem natCast_pow (m n : Nat) : (m ^ n : Nat) = (m : Int) ^ n := rfl
+
 theorem negSucc_pow (m n : Nat) : (-[m+1] : Int) ^ n = if n % 2 = 0 then Int.ofNat (m.succ ^ n) else Int.negOfNat (m.succ ^ n) := rfl
 
 @[simp] theorem pow_zero (m : Int) : m ^ 0 = 1 := by cases m <;> simp [← natCast_pow, negSucc_pow]
@@ -79,13 +81,6 @@ protected theorem pow_ne_zero {n : Int} {m : Nat} : n ≠ 0 → n ^ m ≠ 0 := b
     exact fun h => Int.mul_ne_zero (ih h) h
 
 instance {n : Int} {m : Nat} [NeZero n] : NeZero (n ^ m) := ⟨Int.pow_ne_zero (NeZero.ne _)⟩
-
-@[simp, norm_cast]
-protected theorem natCast_pow (b n : Nat) : ((b^n : Nat) : Int) = (b : Int) ^ n := by
-  match n with
-  | 0 => rfl
-  | n + 1 =>
-    simp only [Nat.pow_succ, Int.pow_succ, Int.natCast_mul, Int.natCast_pow _ n]
 
 @[simp]
 protected theorem two_pow_pred_sub_two_pow {w : Nat} (h : 0 < w) :

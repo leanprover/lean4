@@ -2571,30 +2571,30 @@ return x_4;
 }
 else
 {
-if (lean_obj_tag(x_2) == 0)
+if (lean_obj_tag(x_2) == 1)
 {
-uint8_t x_5; 
-x_5 = 0;
-return x_5;
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_5 = lean_ctor_get(x_1, 0);
+x_6 = lean_ctor_get(x_1, 1);
+x_7 = lean_ctor_get(x_2, 0);
+x_8 = lean_ctor_get(x_2, 1);
+x_9 = lean_level_eq(x_5, x_7);
+if (x_9 == 0)
+{
+return x_9;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-x_6 = lean_ctor_get(x_1, 0);
-x_7 = lean_ctor_get(x_1, 1);
-x_8 = lean_ctor_get(x_2, 0);
-x_9 = lean_ctor_get(x_2, 1);
-x_10 = lean_level_eq(x_6, x_8);
-if (x_10 == 0)
-{
-return x_10;
-}
-else
-{
-x_1 = x_7;
-x_2 = x_9;
+x_1 = x_6;
+x_2 = x_8;
 goto _start;
 }
+}
+else
+{
+uint8_t x_11; 
+x_11 = 0;
+return x_11;
 }
 }
 }
@@ -3628,25 +3628,25 @@ static lean_object* _init_l_Lean_Compiler_CSimp_add___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid 'csimp' theorem, only constant replacement theorems (e.g., `@f = @g`) are currently supported.", 102, 102);
+x_1 = l_Lean_Compiler_CSimp_ext;
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Compiler_CSimp_add___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Compiler_CSimp_add___closed__0;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("invalid 'csimp' theorem, only constant replacement theorems (e.g., `@f = @g`) are currently supported.", 102, 102);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Compiler_CSimp_add___closed__2() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_Compiler_CSimp_ext;
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Compiler_CSimp_add___closed__1;
+x_2 = l_Lean_stringToMessageData(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Compiler_CSimp_add(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
@@ -3661,22 +3661,23 @@ lean_object* x_7;
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 lean_dec_ref(x_6);
-if (lean_obj_tag(x_7) == 0)
+if (lean_obj_tag(x_7) == 1)
 {
-lean_object* x_8; lean_object* x_9; 
-x_8 = l_Lean_Compiler_CSimp_add___closed__1;
-x_9 = l_Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00__private_Lean_Compiler_CSimpAttr_0__Lean_Compiler_CSimp_isConstantReplacement_x3f_spec__0_spec__0_spec__0_spec__0_spec__2_spec__2___redArg(x_8, x_3, x_4);
-lean_dec_ref(x_3);
-return x_9;
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_ctor_get(x_7, 0);
+lean_inc(x_8);
+lean_dec_ref(x_7);
+x_9 = l_Lean_Compiler_CSimp_add___closed__0;
+x_10 = l_Lean_ScopedEnvExtension_add___at___00Lean_Compiler_CSimp_add_spec__0___redArg(x_9, x_8, x_2, x_3, x_4);
+return x_10;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_10 = lean_ctor_get(x_7, 0);
-lean_inc(x_10);
-lean_dec_ref(x_7);
+lean_object* x_11; lean_object* x_12; 
+lean_dec(x_7);
 x_11 = l_Lean_Compiler_CSimp_add___closed__2;
-x_12 = l_Lean_ScopedEnvExtension_add___at___00Lean_Compiler_CSimp_add_spec__0___redArg(x_11, x_10, x_2, x_3, x_4);
+x_12 = l_Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00__private_Lean_Compiler_CSimpAttr_0__Lean_Compiler_CSimp_isConstantReplacement_x3f_spec__0_spec__0_spec__0_spec__0_spec__2_spec__2___redArg(x_11, x_3, x_4);
+lean_dec_ref(x_3);
 return x_12;
 }
 }
@@ -4473,7 +4474,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_CSimp_replaceConstants(lean_object* x_1
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_3 = l_Lean_Compiler_CSimp_add___closed__2;
+x_3 = l_Lean_Compiler_CSimp_add___closed__0;
 x_4 = lean_ctor_get(x_3, 1);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_4, 0);
@@ -4842,7 +4843,7 @@ LEAN_EXPORT uint8_t l_Lean_Compiler_hasCSimpAttribute(lean_object* x_1, lean_obj
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-x_3 = l_Lean_Compiler_CSimp_add___closed__2;
+x_3 = l_Lean_Compiler_CSimp_add___closed__0;
 x_4 = lean_ctor_get(x_3, 1);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_4, 0);

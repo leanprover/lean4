@@ -914,33 +914,9 @@ if (lean_is_exclusive(x_29)) {
  lean_dec_ref(x_29);
  x_31 = lean_box(0);
 }
-if (lean_obj_tag(x_27) == 0)
+if (lean_obj_tag(x_27) == 1)
 {
-lean_dec(x_30);
-lean_free_object(x_25);
-lean_dec(x_6);
-lean_dec_ref(x_5);
-lean_dec(x_4);
-lean_dec_ref(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-goto block_119;
-}
-else
-{
-if (lean_obj_tag(x_30) == 0)
-{
-lean_free_object(x_25);
-lean_dec_ref(x_27);
-lean_dec(x_6);
-lean_dec_ref(x_5);
-lean_dec(x_4);
-lean_dec_ref(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-goto block_119;
-}
-else
+if (lean_obj_tag(x_30) == 1)
 {
 lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; uint8_t x_126; 
 lean_dec(x_31);
@@ -992,6 +968,32 @@ lean_free_object(x_25);
 goto block_116;
 }
 }
+else
+{
+lean_dec(x_30);
+lean_free_object(x_25);
+lean_dec_ref(x_27);
+lean_dec(x_6);
+lean_dec_ref(x_5);
+lean_dec(x_4);
+lean_dec_ref(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+goto block_119;
+}
+}
+else
+{
+lean_dec(x_30);
+lean_free_object(x_25);
+lean_dec(x_27);
+lean_dec(x_6);
+lean_dec_ref(x_5);
+lean_dec(x_4);
+lean_dec_ref(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+goto block_119;
 }
 block_116:
 {
@@ -1583,31 +1585,9 @@ if (lean_is_exclusive(x_133)) {
  lean_dec_ref(x_133);
  x_135 = lean_box(0);
 }
-if (lean_obj_tag(x_131) == 0)
+if (lean_obj_tag(x_131) == 1)
 {
-lean_dec(x_134);
-lean_dec(x_6);
-lean_dec_ref(x_5);
-lean_dec(x_4);
-lean_dec_ref(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-goto block_187;
-}
-else
-{
-if (lean_obj_tag(x_134) == 0)
-{
-lean_dec_ref(x_131);
-lean_dec(x_6);
-lean_dec_ref(x_5);
-lean_dec(x_4);
-lean_dec_ref(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-goto block_187;
-}
-else
+if (lean_obj_tag(x_134) == 1)
 {
 lean_object* x_188; lean_object* x_189; lean_object* x_190; lean_object* x_191; lean_object* x_192; lean_object* x_193; uint8_t x_194; 
 lean_dec(x_135);
@@ -1658,6 +1638,30 @@ else
 goto block_184;
 }
 }
+else
+{
+lean_dec(x_134);
+lean_dec_ref(x_131);
+lean_dec(x_6);
+lean_dec_ref(x_5);
+lean_dec(x_4);
+lean_dec_ref(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+goto block_187;
+}
+}
+else
+{
+lean_dec(x_134);
+lean_dec(x_131);
+lean_dec(x_6);
+lean_dec_ref(x_5);
+lean_dec(x_4);
+lean_dec_ref(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+goto block_187;
 }
 block_184:
 {

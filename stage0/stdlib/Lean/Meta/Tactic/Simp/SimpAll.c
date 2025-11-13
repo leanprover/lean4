@@ -7007,16 +7007,7 @@ if (lean_is_exclusive(x_10)) {
 }
 x_13 = lean_st_ref_get(x_9);
 lean_dec(x_9);
-if (lean_obj_tag(x_11) == 0)
-{
-lean_dec(x_7);
-lean_dec_ref(x_6);
-lean_dec(x_5);
-lean_dec_ref(x_4);
-x_14 = lean_box(0);
-goto block_20;
-}
-else
+if (lean_obj_tag(x_11) == 1)
 {
 lean_object* x_21; uint8_t x_22; 
 x_21 = lean_ctor_get(x_2, 0);
@@ -7073,6 +7064,15 @@ return x_29;
 }
 }
 }
+}
+else
+{
+lean_dec(x_7);
+lean_dec_ref(x_6);
+lean_dec(x_5);
+lean_dec_ref(x_4);
+x_14 = lean_box(0);
+goto block_20;
 }
 block_20:
 {

@@ -39,21 +39,22 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_System_FilePath_parent(x_1);
-if (lean_obj_tag(x_3) == 0)
+if (lean_obj_tag(x_3) == 1)
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_box(0);
-x_5 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_5, 0, x_4);
+x_4 = lean_ctor_get(x_3, 0);
+lean_inc(x_4);
+lean_dec_ref(x_3);
+x_5 = l_IO_FS_createDirAll(x_4);
 return x_5;
 }
 else
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = lean_ctor_get(x_3, 0);
-lean_inc(x_6);
-lean_dec_ref(x_3);
-x_7 = l_IO_FS_createDirAll(x_6);
+lean_dec(x_3);
+x_6 = lean_box(0);
+x_7 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_7, 0, x_6);
 return x_7;
 }
 }

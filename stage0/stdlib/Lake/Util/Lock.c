@@ -111,36 +111,37 @@ _start:
 lean_object* x_4; lean_object* x_10; lean_object* x_21; 
 lean_inc_ref(x_1);
 x_21 = l_System_FilePath_parent(x_1);
-if (lean_obj_tag(x_21) == 0)
+if (lean_obj_tag(x_21) == 1)
 {
 lean_object* x_22; lean_object* x_23; 
-x_22 = lean_box(0);
-x_23 = l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___lam__0(x_1, x_22);
-x_10 = x_23;
-goto block_20;
-}
-else
+x_22 = lean_ctor_get(x_21, 0);
+lean_inc(x_22);
+lean_dec_ref(x_21);
+x_23 = l_IO_FS_createDirAll(x_22);
+if (lean_obj_tag(x_23) == 0)
 {
 lean_object* x_24; lean_object* x_25; 
-x_24 = lean_ctor_get(x_21, 0);
+x_24 = lean_ctor_get(x_23, 0);
 lean_inc(x_24);
-lean_dec_ref(x_21);
-x_25 = l_IO_FS_createDirAll(x_24);
-if (lean_obj_tag(x_25) == 0)
-{
-lean_object* x_26; lean_object* x_27; 
-x_26 = lean_ctor_get(x_25, 0);
-lean_inc(x_26);
-lean_dec_ref(x_25);
-x_27 = l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___lam__0(x_1, x_26);
-x_10 = x_27;
-goto block_20;
-}
-else
-{
+lean_dec_ref(x_23);
+x_25 = l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___lam__0(x_1, x_24);
 x_10 = x_25;
 goto block_20;
 }
+else
+{
+x_10 = x_23;
+goto block_20;
+}
+}
+else
+{
+lean_object* x_26; lean_object* x_27; 
+lean_dec(x_21);
+x_26 = lean_box(0);
+x_27 = l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___lam__0(x_1, x_26);
+x_10 = x_27;
+goto block_20;
 }
 block_9:
 {

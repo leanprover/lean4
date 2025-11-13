@@ -3285,15 +3285,15 @@ return x_88;
 block_105:
 {
 uint8_t x_96; 
-x_96 = lean_nat_dec_lt(x_92, x_4);
+x_96 = lean_nat_dec_lt(x_93, x_4);
 if (x_96 == 0)
 {
-lean_dec(x_92);
+lean_dec(x_93);
 lean_dec(x_8);
 lean_dec_ref(x_5);
-x_20 = x_90;
+x_20 = x_91;
 x_21 = x_94;
-x_22 = x_91;
+x_22 = x_92;
 x_23 = lean_box(0);
 goto block_89;
 }
@@ -3302,12 +3302,12 @@ else
 lean_object* x_97; lean_object* x_98; 
 x_97 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_97, 0, x_94);
-lean_ctor_set(x_97, 1, x_91);
+lean_ctor_set(x_97, 1, x_92);
 lean_inc(x_18);
 lean_inc_ref(x_17);
 lean_inc(x_16);
 lean_inc_ref(x_15);
-x_98 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__14___redArg(x_93, x_5, x_11, x_6, x_7, x_8, x_4, x_97, x_92, x_13, x_14, x_15, x_16, x_17, x_18);
+x_98 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__14___redArg(x_90, x_5, x_11, x_6, x_7, x_8, x_4, x_97, x_93, x_13, x_14, x_15, x_16, x_17, x_18);
 if (lean_obj_tag(x_98) == 0)
 {
 lean_object* x_99; lean_object* x_100; lean_object* x_101; 
@@ -3319,7 +3319,7 @@ lean_inc(x_100);
 x_101 = lean_ctor_get(x_99, 1);
 lean_inc(x_101);
 lean_dec(x_99);
-x_20 = x_90;
+x_20 = x_91;
 x_21 = x_100;
 x_22 = x_101;
 x_23 = lean_box(0);
@@ -3328,7 +3328,7 @@ goto block_89;
 else
 {
 uint8_t x_102; 
-lean_dec_ref(x_90);
+lean_dec_ref(x_91);
 lean_dec(x_18);
 lean_dec_ref(x_17);
 lean_dec(x_16);
@@ -3365,10 +3365,10 @@ x_113 = l_Lean_Syntax_mkNumLit(x_111, x_112);
 x_114 = lean_nat_dec_lt(x_110, x_106);
 if (x_114 == 0)
 {
-x_90 = x_108;
-x_91 = x_113;
-x_92 = x_110;
-x_93 = x_106;
+x_90 = x_106;
+x_91 = x_108;
+x_92 = x_113;
+x_93 = x_110;
 x_94 = x_10;
 x_95 = lean_box(0);
 goto block_105;
@@ -3380,10 +3380,10 @@ x_115 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Elab_De
 x_116 = lean_ctor_get(x_115, 0);
 lean_inc(x_116);
 lean_dec_ref(x_115);
-x_90 = x_108;
-x_91 = x_113;
-x_92 = x_110;
-x_93 = x_106;
+x_90 = x_106;
+x_91 = x_108;
+x_92 = x_113;
+x_93 = x_110;
 x_94 = x_116;
 x_95 = lean_box(0);
 goto block_105;
@@ -3885,13 +3885,13 @@ return x_88;
 block_105:
 {
 uint8_t x_96; 
-x_96 = lean_nat_dec_lt(x_91, x_4);
+x_96 = lean_nat_dec_lt(x_90, x_4);
 if (x_96 == 0)
 {
-lean_dec(x_91);
+lean_dec(x_90);
 lean_dec(x_8);
 lean_dec_ref(x_5);
-x_20 = x_92;
+x_20 = x_91;
 x_21 = x_94;
 x_22 = x_93;
 x_23 = lean_box(0);
@@ -3907,7 +3907,7 @@ lean_inc(x_18);
 lean_inc_ref(x_17);
 lean_inc(x_16);
 lean_inc_ref(x_15);
-x_98 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__14___redArg(x_90, x_5, x_11, x_6, x_7, x_8, x_4, x_97, x_91, x_13, x_14, x_15, x_16, x_17, x_18);
+x_98 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__14___redArg(x_92, x_5, x_11, x_6, x_7, x_8, x_4, x_97, x_90, x_13, x_14, x_15, x_16, x_17, x_18);
 if (lean_obj_tag(x_98) == 0)
 {
 lean_object* x_99; lean_object* x_100; lean_object* x_101; 
@@ -3919,7 +3919,7 @@ lean_inc(x_100);
 x_101 = lean_ctor_get(x_99, 1);
 lean_inc(x_101);
 lean_dec(x_99);
-x_20 = x_92;
+x_20 = x_91;
 x_21 = x_100;
 x_22 = x_101;
 x_23 = lean_box(0);
@@ -3928,7 +3928,7 @@ goto block_89;
 else
 {
 uint8_t x_102; 
-lean_dec_ref(x_92);
+lean_dec_ref(x_91);
 lean_dec(x_18);
 lean_dec_ref(x_17);
 lean_dec(x_16);
@@ -3965,9 +3965,9 @@ x_113 = l_Lean_Syntax_mkNumLit(x_111, x_112);
 x_114 = lean_nat_dec_lt(x_110, x_106);
 if (x_114 == 0)
 {
-x_90 = x_106;
-x_91 = x_110;
-x_92 = x_108;
+x_90 = x_110;
+x_91 = x_108;
+x_92 = x_106;
 x_93 = x_113;
 x_94 = x_10;
 x_95 = lean_box(0);
@@ -3980,9 +3980,9 @@ x_115 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Elab_De
 x_116 = lean_ctor_get(x_115, 0);
 lean_inc(x_116);
 lean_dec_ref(x_115);
-x_90 = x_106;
-x_91 = x_110;
-x_92 = x_108;
+x_90 = x_110;
+x_91 = x_108;
+x_92 = x_106;
 x_93 = x_113;
 x_94 = x_116;
 x_95 = lean_box(0);

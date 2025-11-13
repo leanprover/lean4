@@ -3107,73 +3107,74 @@ return x_9;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_AC_Seq_0__Lean_Grind_AC_Seq_superposeAC_x3f_mkResult(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+if (lean_obj_tag(x_1) == 1)
 {
-lean_object* x_4; 
-lean_dec(x_3);
-x_4 = lean_box(0);
-return x_4;
-}
-else
+if (lean_obj_tag(x_2) == 1)
 {
-if (lean_obj_tag(x_2) == 0)
+if (lean_obj_tag(x_3) == 1)
 {
-lean_object* x_5; 
-lean_dec(x_3);
-x_5 = lean_box(0);
-return x_5;
-}
-else
+uint8_t x_4; 
+x_4 = !lean_is_exclusive(x_3);
+if (x_4 == 0)
 {
-if (lean_obj_tag(x_3) == 0)
-{
-lean_object* x_6; 
-x_6 = lean_box(0);
-return x_6;
-}
-else
-{
-uint8_t x_7; 
-x_7 = !lean_is_exclusive(x_3);
-if (x_7 == 0)
-{
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_8 = lean_ctor_get(x_1, 0);
-x_9 = lean_ctor_get(x_2, 0);
-x_10 = lean_ctor_get(x_3, 0);
-lean_inc(x_9);
-x_11 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_11, 0, x_9);
-lean_ctor_set(x_11, 1, x_10);
-lean_inc(x_8);
-x_12 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_12, 0, x_8);
-lean_ctor_set(x_12, 1, x_11);
-lean_ctor_set(x_3, 0, x_12);
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_5 = lean_ctor_get(x_1, 0);
+x_6 = lean_ctor_get(x_2, 0);
+x_7 = lean_ctor_get(x_3, 0);
+lean_inc(x_6);
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_6);
+lean_ctor_set(x_8, 1, x_7);
+lean_inc(x_5);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_5);
+lean_ctor_set(x_9, 1, x_8);
+lean_ctor_set(x_3, 0, x_9);
 return x_3;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_13 = lean_ctor_get(x_1, 0);
-x_14 = lean_ctor_get(x_2, 0);
-x_15 = lean_ctor_get(x_3, 0);
-lean_inc(x_15);
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_10 = lean_ctor_get(x_1, 0);
+x_11 = lean_ctor_get(x_2, 0);
+x_12 = lean_ctor_get(x_3, 0);
+lean_inc(x_12);
 lean_dec(x_3);
-lean_inc(x_14);
-x_16 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_16, 0, x_14);
-lean_ctor_set(x_16, 1, x_15);
-lean_inc(x_13);
-x_17 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_17, 0, x_13);
-lean_ctor_set(x_17, 1, x_16);
-x_18 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_18, 0, x_17);
+lean_inc(x_11);
+x_13 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_13, 0, x_11);
+lean_ctor_set(x_13, 1, x_12);
+lean_inc(x_10);
+x_14 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_14, 0, x_10);
+lean_ctor_set(x_14, 1, x_13);
+x_15 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_15, 0, x_14);
+return x_15;
+}
+}
+else
+{
+lean_object* x_16; 
+lean_dec(x_3);
+x_16 = lean_box(0);
+return x_16;
+}
+}
+else
+{
+lean_object* x_17; 
+lean_dec(x_3);
+x_17 = lean_box(0);
+return x_17;
+}
+}
+else
+{
+lean_object* x_18; 
+lean_dec(x_3);
+x_18 = lean_box(0);
 return x_18;
-}
-}
-}
 }
 }
 }

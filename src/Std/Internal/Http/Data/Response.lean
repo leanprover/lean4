@@ -110,6 +110,12 @@ def version (builder : Builder) (version : Version) : Builder :=
 /--
 Adds a single header to the response being built
 -/
+def headers (builder : Builder) (headers : Headers) : Builder :=
+  { builder with head := { builder.head with headers } }
+
+/--
+Adds a single header to the response being built
+-/
 def header (builder : Builder) (key : String) (value : HeaderValue) : Builder :=
   { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
 
@@ -162,8 +168,10 @@ end Builder
 /--
 Creates a new HTTP Response with OK status and the provided string body
 -/
-def ok (body : t) : Response t :=
-  new.body body
+def ok (body : t) (headers : Headers := Headers.empty) : Response t :=
+  new
+  |>.headers headers
+  |>.body body
 
 /--
 Creates a new HTTP Response with the specified status and string body

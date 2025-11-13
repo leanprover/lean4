@@ -161,4 +161,8 @@ theorem union [TransCmp cmp] {t₁ t₂ : Raw α β cmp} (h₁ : t₁.WF) (h₂ 
     (t₁.union t₂).WF :=
   ⟨Impl.WF.union! h₁.out h₂.out⟩
 
+theorem inter [TransCmp cmp] [BEq α] {t₁ t₂ : Raw α β cmp} (h₁ : t₁.WF) :
+    (t₁.inter t₂).WF :=
+  ⟨Impl.WF.inter! h₁.out⟩
+
 end Std.DTreeMap.Raw.WF.Const

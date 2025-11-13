@@ -2173,7 +2173,7 @@ theorem toListModel_inter {_ : Ord α} [TransOrd α] [BEq α] [LawfulBEqOrd α]
       rw [@contains_eq_containsKey α β _ _ _ _ e.fst m₂ hm₂.ordered]
   · apply List.Perm.trans (toListModel_interSmaller _ _ hm₁) (List.interSmaller_perm_filter _ _ hm₁.ordered.distinctKeys)
 
-theorem WF.inter {_ : Ord α} [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem WF.inter_ {_ : Ord α} [TransOrd α]
     {m₁ m₂ : Impl α β} (wh₁ : m₁.WF) :
     (inter m₁ m₂ wh₁.balanced).WF := by
   rw [Impl.inter]
@@ -2214,11 +2214,11 @@ theorem toListModel_inter! {_ : Ord α} [TransOrd α] [BEq α] [LawfulBEqOrd α]
   rw [← @inter_eq_inter! _ _ _ _ _ hm₁.balanced]
   exact toListModel_inter _ _ hm₁ hm₂
 
-theorem WF.inter! {_ : Ord α} [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem WF.inter! {_ : Ord α} [TransOrd α]
     {m₁ m₂ : Impl α β} (wh₁ : m₁.WF) :
     (inter! m₁ m₂).WF := by
   rw [← @inter_eq_inter! _ _ _ _ _ wh₁.balanced]
-  exact WF.inter wh₁
+  exact WF.inter_ wh₁
 
 /-!
 ### map

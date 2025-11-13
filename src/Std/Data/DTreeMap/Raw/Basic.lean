@@ -722,6 +722,16 @@ def union (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
 
 instance : Union (Raw α β cmp) := ⟨union⟩
 
+/--
+Computes the intersection of the given hash maps. The result will only contain entries from the first map.
+
+This function always merges the smaller map into the larger map.
+-/
+def inter (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.inter! t₂.inner⟩
+
+instance : Inter (Raw α β cmp) := ⟨inter⟩
+
 @[inline, inherit_doc DTreeMap.eraseMany]
 def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseMany! l⟩

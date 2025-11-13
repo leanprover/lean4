@@ -17,7 +17,6 @@ public section
 namespace Lean.PrettyPrinter.Delaborator
 open Lean.Meta
 open Lean.Parser.Term
-open Lean.Parser.Do
 open SubExpr
 open TSyntax.Compat
 

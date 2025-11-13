@@ -817,7 +817,7 @@ def initializeKeyword := leading_parser
   "initialize " <|> "builtin_initialize "
 @[builtin_command_parser] def «initialize» := leading_parser
   declModifiers false >> initializeKeyword >>
-  optional (atomic (ident >> Term.typeSpec >> ppSpace >> Term.leftArrow)) >> Do.doSeq
+  optional (atomic (ident >> Term.typeSpec >> ppSpace >> Term.leftArrow)) >> Term.doSeq
 
 @[builtin_command_parser] def «in»  := trailing_parser
   withOpen (ppDedent (" in" >> ppLine >> commandParser))

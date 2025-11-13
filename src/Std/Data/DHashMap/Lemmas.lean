@@ -2248,6 +2248,89 @@ end Inter
 
 namespace Const
 
+variable {β : Type v} {m₁ m₂ : DHashMap α (fun _ => β)}
+
+/- get? -/
+theorem get?_inter [EquivBEq α] [LawfulHashable α] {k : α} :
+    Const.get? (m₁.inter m₂) k =
+    if k ∈ m₂ then Const.get? m₁ k else none :=
+  @Raw₀.Const.get?_inter _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k
+
+theorem get?_inter_of_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (mem : k ∈ m₂) :
+    Const.get? (m₁.inter m₂) k = Const.get? m₁ k :=
+  @Raw₀.Const.get?_inter_of_contains_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k mem
+
+theorem get?_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : ¬k ∈ m₁) :
+    Const.get? (m₁.inter m₂) k = none := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.Const.get?_inter_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k not_mem
+
+theorem get?_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : ¬k ∈ m₂) :
+    Const.get? (m₁.inter m₂) k = none := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.Const.get?_inter_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k not_mem
+
+/- get -/
+theorem get_inter [EquivBEq α] [LawfulHashable α]
+    {k : α} {h_mem : k ∈ m₁ ∩ m₂} :
+    Const.get (m₁.inter m₂) k h_mem =
+    Const.get m₁ k ((mem_inter_iff.1 h_mem).1) := by
+  rw [mem_iff_contains] at h_mem
+  exact @Raw₀.Const.get_inter _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _ m₁.2 m₂.2 k h_mem
+
+/- getD -/
+theorem getD_inter [EquivBEq α] [LawfulHashable α] {k : α} {fallback : β} :
+    Const.getD (m₁.inter m₂) k fallback =
+    if k ∈ m₂ then Const.getD m₁ k fallback else fallback :=
+  @Raw₀.Const.getD_inter _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k fallback
+
+theorem getD_inter_of_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} {fallback : β} (mem : k ∈ m₂) :
+    Const.getD (m₁.inter m₂) k fallback = Const.getD m₁ k fallback :=
+  @Raw₀.Const.getD_inter_of_contains_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k fallback mem
+
+theorem getD_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} {fallback : β} (not_mem : ¬k ∈ m₂) :
+    Const.getD (m₁.inter m₂) k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.Const.getD_inter_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k fallback not_mem
+
+theorem getD_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} {fallback : β} (not_mem : ¬k ∈ m₁) :
+    Const.getD (m₁.inter m₂) k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.Const.getD_inter_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k fallback not_mem
+
+/- get! -/
+theorem get!_inter [EquivBEq α] [LawfulHashable α] [Inhabited β] {k : α} :
+    Const.get! (m₁.inter m₂) k =
+    if k ∈ m₂ then Const.get! m₁ k else default :=
+  @Raw₀.Const.get!_inter _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 k
+
+theorem get!_inter_of_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited β]
+    {k : α} (mem : k ∈ m₂) :
+    Const.get! (m₁.inter m₂) k = Const.get! m₁ k :=
+  @Raw₀.Const.get!_inter_of_contains_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 k mem
+
+theorem get!_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited β]
+    {k : α} (not_mem : ¬k ∈ m₂) :
+    Const.get! (m₁.inter m₂) k = default := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.Const.get!_inter_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 k not_mem
+
+theorem get!_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α] [Inhabited β]
+    {k : α} (not_mem : ¬k ∈ m₁) :
+    Const.get! (m₁.inter m₂) k = default := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.Const.get!_inter_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 k not_mem
+
+end Const
+
+namespace Const
+
 variable {β : Type v} {m : DHashMap α (fun _ => β)}
 variable {ρ : Type w} [ForIn Id ρ (α × β)]
 

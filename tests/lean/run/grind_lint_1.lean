@@ -33,3 +33,21 @@ error: `Array.swap_swap` is not marked with the `@[grind]` attribute for theorem
 /-- info: Array.range_succ : 22 -/
 #guard_msgs in
 #grind_lint inspect Array.range_succ
+
+/--
+info: Array.range_succ : 22
+---
+info: Array.range'_succ : 17
+-/
+#guard_msgs in
+#grind_lint inspect Array.range_succ Array.range'_succ
+
+/--
+info: Array.extract_empty : 100
+---
+info: Array.filterMap_some : 100
+---
+info: Array.range_succ : 22
+-/
+#guard_msgs in
+#grind_lint check (min := 20) (detailed := 200) in Array

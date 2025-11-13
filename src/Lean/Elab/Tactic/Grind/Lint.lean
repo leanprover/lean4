@@ -123,4 +123,36 @@ def elabGrindLintInspect : CommandElab := fun stx => liftTermElabM <| withTheRea
     let declName ← realizeGlobalConstNoOverloadWithInfo id
     analyzeEMatchTheorem declName params
 
+def getTheorems (prefixes? : Option (Array Name)) : CoreM (List Name) := do
+  let origins := (← getEMatchTheorems).getOrigins
+  return origins.filterMap fun
+    | .decl declName =>
+      if let some prefixes := prefixes? then
+        let keep := prefixes.any fun pre =>
+          if pre == `_root_ then
+            declName.components.length == 1
+          else
+            pre.isPrefixOf declName
+        if keep then
+          some declName
+        else
+          none
+      else
+        some declName
+    | _ => none
+
+@[builtin_command_elab Lean.Grind.grindLintCheck]
+def elabGrindLintCheck : CommandElab := fun stx => liftTermElabM <| withTheReader Core.Context (fun c => { c with maxHeartbeats := 0 }) do
+  let `(#grind_lint check $[$items:configItem]* $[in $ids?:ident*]?) := stx | throwUnsupportedSyntax
+  let config ← mkConfig items
+  let params ← mkParams config
+  let prefixes? := ids?.map (·.map (·.getId))
+  let decls ← getTheorems prefixes?
+  let decls := decls.toArray.qsort Name.lt
+  for declName in decls do
+    try
+      analyzeEMatchTheorem declName params
+    catch e =>
+      logError m!"{declName} failed with {e.toMessageData}"
+
 end Lean.Elab.Tactic.Grind

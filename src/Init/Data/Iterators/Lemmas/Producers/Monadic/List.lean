@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic
 public import Init.Data.Iterators.Producers.Monadic.List
-public import Std.Data.Iterators.Lemmas.Equivalence.Basic
 
 @[expose] public section
 
@@ -68,30 +67,5 @@ theorem _root_.List.toList_iterM [LawfulMonad m] {l : List β} :
 theorem _root_.List.toListRev_iterM [LawfulMonad m] {l : List β} :
     (l.iterM m).toListRev = pure l.reverse := by
   simp [IterM.toListRev_eq, List.toList_iterM]
-
-section Equivalence
-
--- We don't want to pollute `List` with this rarely used lemma.
-theorem ListIterator.stepAsHetT_iterM [LawfulMonad m] {l : List β} :
-    (l.iterM m).stepAsHetT = (match l with
-      | [] => pure .done
-      | x :: xs => pure (.yield (xs.iterM m) x)) := by
-  simp only [List.iterM, toIterM, HetT.ext_iff, Equivalence.property_step, IterM.IsPlausibleStep,
-    Iterator.IsPlausibleStep, Equivalence.prun_step]
-  refine ⟨?_, ?_⟩
-  · ext step
-    cases step
-    · cases l
-      · simp [Pure.pure]
-      · simp only [List.cons.injEq, pure, HetT.property_pure, IterStep.yield.injEq, IterM.ext_iff,
-        ListIterator.ext_iff]
-        exact And.comm
-    · cases l <;> simp [Pure.pure]
-    · cases l <;> simp [Pure.pure]
-  · intro β f
-    simp only [IterM.step, Iterator.step, pure_bind]
-    cases l <;> simp [Pure.pure, toIterM]
-
-end Equivalence
 
 end Std.Iterators

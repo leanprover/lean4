@@ -279,13 +279,4 @@ where
       mkAuxDefinition auxName type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
     return val
 
-@[export lean_grind]
-def simpImpl (mvarId : MVarId) : MetaM Bool := do
-  withProtectedMCtx (abstractProof := false) mvarId fun mvarId => do
-    GrindM.runAtGoal mvarId (← mkParams {}) fun goal => do
-    -- GrindM.runAtGoal mvarId (← mkParams ({({} : Grind.NoopConfig) with })) fun goal => do
-      let failure? ← solve goal
-      return failure?.isNone
-
-
 end Lean.Meta.Grind

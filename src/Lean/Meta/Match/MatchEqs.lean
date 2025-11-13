@@ -336,9 +336,6 @@ partial def go : M Bool := do
 
 end SimpH
 
-@[extern "lean_grind"]
-private opaque grindMain (mvarId : MVarId) : MetaM Bool
-
 /--
   Auxiliary method for simplifying equational theorem hypotheses.
 
@@ -708,12 +705,7 @@ where
     trace[Meta.Match.matchEqs] "subgoal {mkMVar mvarId}, {repr (← mvarId.getDecl).kind}, {← mvarId.isAssigned}\n{MessageData.ofGoal mvarId}"
     let (_, mvarId) ← mvarId.intros
     let mvarId ← mvarId.tryClearMany (alts.map (·.fvarId!))
-    try
-      unless (← grindMain mvarId) do
-        throwError "grindMain returned false"
-    catch ex =>
-      trace[Meta.Match.matchEqs] "grind did not do it: {ex.toMessageData}"
-      proveSubgoalLoop mvarId {}
+    proveSubgoalLoop mvarId {}
 
 /--
   Create new alternatives (aka minor premises) by replacing `discrs` with `patterns` at `alts`.

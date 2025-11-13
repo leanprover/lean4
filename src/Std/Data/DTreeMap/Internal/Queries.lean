@@ -116,6 +116,45 @@ def getD [Ord α] [LawfulEqOrd α] (t : Impl α β) (k : α) (fallback : β k) :
     | .gt => getD r k fallback
     | .eq => cast (congrArg β (compare_eq_iff_eq.mp h).symm) v'
 
+/-- Returns the entry (key-value pair) for the key `k`, or `none` if such a key does not exist. -/
+def getEntry? [Ord α] (t : Impl α β) (k : α) : Option ((a : α) × β a) :=
+  match t with
+  | .leaf => none
+  | .inner _ k' v' l r =>
+    match compare k k' with
+    | .lt => getEntry? l k
+    | .gt => getEntry? r k
+    | .eq => some ⟨k', v'⟩
+
+/-- Returns the entry (key-value pair) for the key `k`. -/
+def getEntry [Ord α] [LawfulEqOrd α] (t : Impl α β) (k : α) (hlk : k ∈ t) : (a : α) × β a :=
+  match t with
+  | .inner _ k' v' l r =>
+    match h : compare k k' with
+    | .lt => getEntry l k (by simpa [mem_iff_contains, contains, h] using hlk)
+    | .gt => getEntry r k (by simpa [mem_iff_contains, contains, h] using hlk)
+    | .eq => ⟨k', v'⟩
+
+/-- Returns the entry (key-value pair) for the key `k`, or panics if such a key does not exist. -/
+def getEntry! [Ord α] [Inhabited ((a : α) × β a)] (t : Impl α β) (k : α) : (a : α) × β a :=
+  match t with
+  | .leaf => panic! "Key is not present in map"
+  | .inner _ k' v' l r =>
+    match compare k k' with
+    | .lt => getEntry! l k
+    | .gt => getEntry! r k
+    | .eq => ⟨k', v'⟩
+
+/-- Returns the entry (key-value pair) for the key `k`, or `fallback` if such a key does not exist. -/
+def getEntryD [Ord α] (t : Impl α β) (k : α) (fallback : (a : α) × β a) : (a : α) × β a :=
+  match t with
+  | .leaf => fallback
+  | .inner _ k' v' l r =>
+    match compare k k' with
+    | .lt => getEntryD l k fallback
+    | .gt => getEntryD r k fallback
+    | .eq => ⟨k', v'⟩
+
 /-- Implementation detail of the tree map -/
 def getKey? [Ord α] (t : Impl α β) (k : α) : Option α :=
   match t with

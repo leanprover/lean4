@@ -107,8 +107,8 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (ExceptT ε m) where
 
 /-! Note that the `MonadControl` instance for `ExceptT` is not monad-generic. -/
 
-@[simp] theorem run_restoreM [Monad m] (x : stM m (ExceptT ε m) α) :
-    ExceptT.run (restoreM x) = pure x := rfl
+@[simp] theorem run_restoreM [Monad m] (x : m (stM m (ExceptT ε m) α)) :
+    ExceptT.run (restoreM x) = x := rfl
 
 @[simp] theorem run_liftWith [Monad m] (f : ({β : Type u} → ExceptT ε m β → m (stM m (ExceptT ε m) β)) → m α) :
     ExceptT.run (liftWith f) = Except.ok <$> (f fun x => x.run) :=
@@ -240,8 +240,8 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (OptionT m) where
 
 /-! Note that the `MonadControl` instance for `OptionT` is not monad-generic. -/
 
-@[simp] theorem run_restoreM [Monad m] (x : stM m (OptionT m) α) :
-    OptionT.run (restoreM x) = pure x := rfl
+@[simp] theorem run_restoreM [Monad m] (x : m (stM m (OptionT m) α)) :
+    OptionT.run (restoreM x) = x := rfl
 
 @[simp] theorem run_liftWith [Monad m] [LawfulMonad m] (f : ({β : Type u} → OptionT m β → m (stM m (OptionT m) β)) → m α) :
     OptionT.run (liftWith f) = Option.some <$> (f fun x => x.run) := by
@@ -329,8 +329,8 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (ReaderT ρ m) where
 
 /-! Note that the `MonadControl` instance for `ReaderT` is not monad-generic. -/
 
-@[simp] theorem run_restoreM [Monad m] (x : stM m (ReaderT ρ m) α) (ctx : ρ) :
-    ReaderT.run (restoreM x) ctx = pure x := rfl
+@[simp] theorem run_restoreM [Monad m] (x : m (stM m (ReaderT ρ m) α)) (ctx : ρ) :
+    ReaderT.run (restoreM x) ctx = x := rfl
 
 @[simp] theorem run_liftWith [Monad m] (f : ({β : Type u} → ReaderT ρ m β → m (stM m (ReaderT ρ m) β)) → m α) (ctx : ρ) :
     ReaderT.run (liftWith f) ctx = (f fun x => x.run ctx) :=
@@ -427,10 +427,9 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (StateT σ m) where
 
 /-! Note that the `MonadControl` instance for `StateT` is not monad-generic. -/
 
-@[simp] theorem run_restoreM [Monad m] [LawfulMonad m] (x : stM m (StateT σ m) α) (s : σ) :
-    StateT.run (restoreM x) s = pure x := by
+@[simp] theorem run_restoreM [Monad m] [LawfulMonad m] (x : m (stM m (StateT σ m) α)) (s : σ) :
+    StateT.run (restoreM x) s = x := by
   simp [restoreM, MonadControl.restoreM]
-  rfl
 
 @[simp] theorem run_liftWith [Monad m] [LawfulMonad m] (f : ({β : Type u} → StateT σ m β → m (stM m (StateT σ m) β)) → m α) (s : σ) :
     StateT.run (liftWith f) s = ((·, s) <$> f fun x => x.run s) := by

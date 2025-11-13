@@ -552,7 +552,7 @@ theorem pow_def (q : Rat) (n : Nat) :
 @[simp] theorem den_pow (q : Rat) (n : Nat) : (q ^ n).den = q.den ^ n := rfl
 
 @[simp] protected theorem pow_zero (q : Rat) : q ^ 0 = 1 := by
-  simp? [Rat.pow_def]
+  simp only [pow_def, Int.pow_zero, Nat.pow_zero, mk_den_one]
   rfl
 
 protected theorem pow_succ (q : Rat) (n : Nat) : q ^ (n + 1) = q ^ n * q := by

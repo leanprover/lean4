@@ -331,6 +331,35 @@ def getDₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β)
   get?ₘ l k |>.getD fallback
 
 /--
+Model implementation of the `getEntry?` function.
+Internal implementation detail of the tree map
+-/
+def getEntry?ₘ [Ord α] (l : Impl α β) (k : α) : Option ((a : α) × β a) :=
+  applyCell k l fun c _ => c.getEntry?
+
+/--
+Model implementation of the `getEntry` function.
+Internal implementation detail of the tree map
+-/
+def getEntryₘ [Ord α] (l : Impl α β) (k : α) (h : (getEntry?ₘ l k).isSome) :
+    (a : α) × β a :=
+  getEntry?ₘ l k |>.get h
+
+/--
+Model implementation of the `getEntry!` function.
+Internal implementation detail of the tree map
+-/
+def getEntry!ₘ [Ord α] [Inhabited ((a : α) × β a)] (l : Impl α β) (k : α) : (a : α) × β a :=
+  getEntry?ₘ l k |>.get!
+
+/--
+Model implementation of the `getEntryD` function.
+Internal implementation detail of the tree map
+-/
+def getEntryDₘ [Ord α] (k : α) (l : Impl α β) (fallback : (a : α) × β a) : (a : α) × β a :=
+  getEntry?ₘ l k |>.getD fallback
+
+/--
 Model implementation of the `getKey?` function.
 Internal implementation detail of the tree map
 -/

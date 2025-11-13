@@ -10,6 +10,7 @@ import Init.Grind.Lint
 import Lean.Meta.Tactic.Grind.EMatchTheorem
 import Lean.EnvExtension
 import Lean.Elab.Tactic.Grind.Config
+import Lean.Meta.Tactic.TryThis
 namespace Lean.Elab.Tactic.Grind
 
 builtin_initialize skipExt : SimplePersistentEnvExtension Name NameSet ←
@@ -66,7 +67,7 @@ def defaultConfig : Grind.Config := {
   detailed     := 50
 }
 
-def mkConfig (items : Array (TSyntax `Lean.Parser.Tactic.configItem)) : CoreM Grind.Config := do
+def mkConfig (items : Array (TSyntax `Lean.Parser.Tactic.configItem)) : TermElabM Grind.Config := do
   elabConfigItems defaultConfig items
 
 def mkParams (config : Grind.Config) : MetaM Params := do
@@ -100,8 +101,9 @@ def thmsToMessageData (thms : PHashMap Grind.Origin Nat) : MetaM MessageData := 
 /--
 Analyzes theorem `declName`. That is, creates the artificial goal based on `declName` type,
 and invokes `grind` on it.
+Returns `true` if the number of instances is above the minimal threshold.
 -/
-def analyzeEMatchTheorem (declName : Name) (params : Params) : MetaM Unit := do
+def analyzeEMatchTheorem (declName : Name) (params : Params) : MetaM Bool := do
   let info ← getConstInfo declName
   let mvarId ← forallTelescope info.type fun _ type => do
     withLocalDeclD `h type fun _ => do
@@ -110,18 +112,31 @@ def analyzeEMatchTheorem (declName : Name) (params : Params) : MetaM Unit := do
   let thms := result.counters.thm
   let s := sum thms
   if s > params.config.min then
-    logInfo m!"{declName} : {s}"
+    if s >= params.config.instances then
+      logInfo m!"instantiating `{declName}` triggers more than {s} additional `grind` theorem instantiations"
+    else
+      logInfo m!"instantiating `{declName}` triggers {s} additional `grind` theorem instantiations"
   if s > params.config.detailed then
     logInfo m!"{declName}\n{← thmsToMessageData thms}"
+  return s > params.config.min
 
+set_option hygiene false in -- **Note**: to avoid inaccessible name in code-action option name.
 @[builtin_command_elab Lean.Grind.grindLintInspect]
 def elabGrindLintInspect : CommandElab := fun stx => liftTermElabM <| withTheReader Core.Context (fun c => { c with maxHeartbeats := 0 }) do
   let `(#grind_lint inspect $[$items:configItem]* $ids:ident*) := stx | throwUnsupportedSyntax
   let config ← mkConfig items
   let params ← mkParams config
+  let mut addCodeAction := false
   for id in ids do
     let declName ← realizeGlobalConstNoOverloadWithInfo id
-    analyzeEMatchTheorem declName params
+    if (← analyzeEMatchTheorem declName params) then
+      addCodeAction := true
+  if addCodeAction then
+    unless (← getOptions).getBool `trace.grind.ematch.instance do
+      let s ← `(command|
+        set_option trace.grind.ematch.instance true in
+        $(⟨stx⟩):command)
+      Tactic.TryThis.addSuggestion (header := "Try this to display the actual theorem instances:") stx { suggestion := .tsyntax s }
 
 def getTheorems (prefixes? : Option (Array Name)) : CoreM (List Name) := do
   let skip := skipExt.getState (← getEnv)
@@ -154,7 +169,7 @@ def elabGrindLintCheck : CommandElab := fun stx => liftTermElabM <| withTheReade
   let decls := decls.toArray.qsort Name.lt
   for declName in decls do
     try
-      analyzeEMatchTheorem declName params
+      discard <| analyzeEMatchTheorem declName params
     catch e =>
       logError m!"{declName} failed with {e.toMessageData}"
 

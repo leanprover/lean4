@@ -1996,7 +1996,7 @@ theorem WF.filter! {_ : Ord α} {t : Impl α β} {f : (a : α) → β a → Bool
   exact h.filter
 
 /-!
-### interSmaller
+### interSmallerFn
 -/
 
 theorem WF.interSmallerFn {_ : Ord α} [TransOrd α] [BEq α] (m₁ : Impl α β) (m₂ : Impl α β)
@@ -2083,6 +2083,10 @@ theorem toListModel_interSmallerFn {_ : Ord α} [TransOrd α] [BEq α] [LawfulBE
     simp only [heq, hml]
     exact h₁.ordered
 
+/-!
+### interSmaller
+-/
+
 /-- Internal implementation detail of the hash map -/
 def List.interSmaller [BEq α] (l₁ l₂ : List ((a : α) × β a)) : List ((a : α) × β a) :=
   l₂.foldl (fun sofar kv => List.interSmallerFn l₁ sofar kv.1) []
@@ -2152,6 +2156,10 @@ theorem toListModel_interSmaller {_ : Ord α} [TransOrd α] [BEq α] [LawfulBEqO
     rw [List.foldl_cons, List.foldl_cons]
     exact ih _ _ (by apply WF.interSmallerFn _ _ hm) (toListModel_interSmallerFn _ _ hm₁ hm _ _ hml')
 
+/-!
+### inter
+-/
+
 theorem toListModel_inter {_ : Ord α} [TransOrd α] [BEq α] [LawfulBEqOrd α]
     (m₁ : Impl α β) (m₂ : Impl α β) (hm₁ : m₁.WF) (hm₂ : m₂.WF) :
     List.Perm (toListModel (m₁.inter m₂ hm₁.balanced)) ((toListModel m₁).filter fun p => containsKey p.1 (toListModel m₂)) := by
@@ -2165,6 +2173,34 @@ theorem toListModel_inter {_ : Ord α} [TransOrd α] [BEq α] [LawfulBEqOrd α]
       rw [@contains_eq_containsKey α β _ _ _ _ e.fst m₂ hm₂.ordered]
   · apply List.Perm.trans (toListModel_interSmaller _ _ hm₁) (List.interSmaller_perm_filter _ _ hm₁.ordered.distinctKeys)
 
+theorem WF.inter {_ : Ord α} [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {m₁ m₂ : Impl α β} (wh₁ : m₁.WF) :
+    (inter m₁ m₂ wh₁.balanced).WF := by
+  rw [Impl.inter]
+  split
+  case isTrue =>  apply WF.filter wh₁
+  case isFalse  =>
+    rw [interSmaller]
+    rw [foldl_eq_foldl]
+    generalize m₂.toListModel = l
+    suffices ∀ {start}, start.1.WF → (List.foldl (fun acc p => m₁.interSmallerFn acc p.fst) start l).val.WF by
+      apply this
+      simp [WF.empty]
+    intro s swf
+    induction l generalizing s
+    case nil => simp [swf]
+    case cons h t ih =>
+      simp only [List.foldl_cons]
+      apply ih
+      simp only [Impl.interSmallerFn]
+      split
+      · apply WF.insert swf
+      · exact swf
+
+/-!
+### inter!
+-/
+
 theorem inter_eq_inter! [Ord α] {l₁ l₂: Impl α β} {h} :
     (inter l₁ l₂ h) = inter! l₁ l₂ := by
   rw [inter, inter!]
@@ -2177,6 +2213,12 @@ theorem toListModel_inter! {_ : Ord α} [TransOrd α] [BEq α] [LawfulBEqOrd α]
     List.Perm (toListModel (m₁.inter! m₂)) ((toListModel m₁).filter fun p => containsKey p.1 (toListModel m₂)) := by
   rw [← @inter_eq_inter! _ _ _ _ _ hm₁.balanced]
   exact toListModel_inter _ _ hm₁ hm₂
+
+theorem WF.inter! {_ : Ord α} [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {m₁ m₂ : Impl α β} (wh₁ : m₁.WF) :
+    (inter! m₁ m₂).WF := by
+  rw [← @inter_eq_inter! _ _ _ _ _ wh₁.balanced]
+  exact WF.inter wh₁
 
 /-!
 ### map

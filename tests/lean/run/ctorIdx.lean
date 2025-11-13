@@ -3,7 +3,13 @@ deriving DecidableEq
 
 /--
 info: @[reducible] protected def Enum.ctorIdx : Enum → Nat :=
-fun x => Enum.casesOn x 0 1 2 3 4
+fun x =>
+  match x with
+  | Enum.a1 => 0
+  | Enum.a2 => 1
+  | Enum.a3 => 2
+  | Enum.a4 => 3
+  | Enum.a5 => 4
 -/
 #guard_msgs in
 #print Enum.ctorIdx
@@ -12,7 +18,13 @@ inductive NonRec where | a1 (u : Unit) | a2 (i : Int) | a3 (n : Nat) (f : Fin n)
 
 /--
 info: @[reducible] protected def NonRec.ctorIdx : NonRec → Nat :=
-fun x => NonRec.casesOn x (fun u => 0) (fun i => 1) (fun n f => 2) (fun s b => 3) 4
+fun x =>
+  match x with
+  | NonRec.a1 u => 0
+  | NonRec.a2 i => 1
+  | NonRec.a3 n f => 2
+  | NonRec.a4 s b => 3
+  | NonRec.a5 => 4
 -/
 #guard_msgs in
 #print NonRec.ctorIdx
@@ -25,7 +37,11 @@ inductive Nested (α : Type) where
 
 /--
 info: @[reducible] protected def Nested.ctorIdx : {α : Type} → Nested α → Nat :=
-fun {α} x => x.casesOn (fun x => 0) (fun y => 1) fun z => 2
+fun {α} x =>
+  match x with
+  | Nested.a1 x => 0
+  | y.a2 => 1
+  | Nested.a3 z => 2
 -/
 #guard_msgs in
 #print Nested.ctorIdx
@@ -43,13 +59,21 @@ end
 
 /--
 info: @[reducible] protected def A.ctorIdx : {m a : Nat} → A m a → Nat :=
-fun {m a} x => x.casesOn (fun {n} a => 0) (fun {n} a => 1) 2
+fun {m a} x =>
+  match a, x with
+  | n + m, a.self => 0
+  | n + m, A.other a => 1
+  | 0, A.empty => 2
 -/
 #guard_msgs in
 #print A.ctorIdx
 /--
 info: @[reducible] protected def B.ctorIdx : {m a : Nat} → B m a → Nat :=
-fun {m a} x => x.casesOn (fun {n} a => 0) (fun {n} a => 1) 2
+fun {m a} x =>
+  match a, x with
+  | n + m, a.self => 0
+  | n + m, B.other a => 1
+  | 0, B.empty => 2
 -/
 #guard_msgs in
 #print B.ctorIdx

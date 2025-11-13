@@ -33,7 +33,8 @@ info: foo.eq_def (x✝ x✝¹ : Nat) :
 /--
 info: foo._unary.eq_def (_x : (_ : Nat) ×' Nat) :
   foo._unary _x =
-    PSigma.casesOn _x fun a a_1 =>
+    match _x with
+    | ⟨a, a_1⟩ =>
       match a, a_1 with
       | 0, m =>
         match m with

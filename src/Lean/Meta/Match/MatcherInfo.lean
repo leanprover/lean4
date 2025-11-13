@@ -46,6 +46,9 @@ def MatcherInfo.arity (info : MatcherInfo) : Nat :=
 def MatcherInfo.getFirstDiscrPos (info : MatcherInfo) : Nat :=
   info.numParams + 1
 
+def MatcherInfo.getLastDiscrPos (info : MatcherInfo) : Nat :=
+  info.numParams + 1 + info.numDiscrs - 1
+
 def MatcherInfo.getDiscrRange (info : MatcherInfo) : Std.Rco Nat :=
   info.getFirstDiscrPos...(info.getFirstDiscrPos + info.numDiscrs)
 
@@ -89,7 +92,7 @@ builtin_initialize extension : SimplePersistentEnvExtension Entry State ←
     asyncMode     := .async .mainEnv
     exportEntriesFnEx? := some fun env _ entries _ =>
       -- Do not export info for private defs
-      entries.filter (env.contains (skipRealize := false) ·.name) |>.toArray
+      entries.filter (env.contains (skipRealize := true) ·.name) |>.toArray
   }
 
 def addMatcherInfo (env : Environment) (matcherName : Name) (info : MatcherInfo) : Environment :=
@@ -111,33 +114,53 @@ end Match
 
 export Match (MatcherInfo)
 
-def getMatcherInfoCore? (env : Environment) (declName : Name) : Option MatcherInfo :=
-  Match.Extension.getMatcherInfo? env declName
+def getMatcherInfoForCasesOn (env : Environment) (declName : Name) : Option MatcherInfo := do
+  let indName := declName.getPrefix
+  let cinfo ← env.findConstVal? declName
+  let .inductInfo info ← env.find? indName | none
+  let discrInfos := .replicate (info.numIndices + 1) {}
+  let uElimPos?  := if info.levelParams.length == cinfo.levelParams.length then none else some 0
+  let mut altNumParams := #[]
+  for ctor in info.ctors do
+    let .ctorInfo ctorInfo ← env.find? ctor | none
+    altNumParams := altNumParams.push ctorInfo.numFields
+  return {
+    numParams := info.numParams
+    numDiscrs := info.numIndices + 1
+    uElimPos?, discrInfos,
+    altNumParams
+  }
 
-def getMatcherInfo? [Monad m] [MonadEnv m] (declName : Name) : m (Option MatcherInfo) :=
-  return getMatcherInfoCore? (← getEnv) declName
+def getMatcherInfoCore? (env : Environment) (declName : Name) (alsoCasesOn : Bool := true) : Option MatcherInfo :=
+  if alsoCasesOn && isCasesOnRecursor env declName then
+      getMatcherInfoForCasesOn env declName
+  else
+    Match.Extension.getMatcherInfo? env declName
+
+def getMatcherInfo? [Monad m] [MonadEnv m] (declName : Name) (alsoCasesOn := true) : m (Option MatcherInfo) :=
+  return getMatcherInfoCore? (← getEnv) declName (alsoCasesOn := alsoCasesOn)
 
 @[export lean_is_matcher]
-def isMatcherCore (env : Environment) (declName : Name) : Bool :=
-  getMatcherInfoCore? env declName |>.isSome
+def isMatcherCore (env : Environment) (declName : Name) (alsoCasesOn := true) : Bool :=
+  getMatcherInfoCore? env declName (alsoCasesOn := alsoCasesOn) |>.isSome
 
-def isMatcher [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
-  return isMatcherCore (← getEnv) declName
+def isMatcher [Monad m] [MonadEnv m] (declName : Name) (alsoCasesOn := true) : m Bool :=
+  return isMatcherCore (← getEnv) declName (alsoCasesOn := alsoCasesOn)
 
-def isMatcherAppCore? (env : Environment) (e : Expr) : Option MatcherInfo :=
+def isMatcherAppCore? (env : Environment) (e : Expr) (alsoCasesOn := true) : Option MatcherInfo :=
   let fn := e.getAppFn
   if fn.isConst then
-    if let some matcherInfo := getMatcherInfoCore? env fn.constName! then
+    if let some matcherInfo := getMatcherInfoCore? env fn.constName! (alsoCasesOn := alsoCasesOn) then
       if e.getAppNumArgs ≥ matcherInfo.arity then some matcherInfo else none
     else
       none
   else
     none
 
-def isMatcherAppCore (env : Environment) (e : Expr) : Bool :=
-  isMatcherAppCore? env e |>.isSome
+def isMatcherAppCore (env : Environment) (e : Expr) (alsoCasesOn := true) : Bool :=
+  isMatcherAppCore? env e (alsoCasesOn := alsoCasesOn) |>.isSome
 
-def isMatcherApp [Monad m] [MonadEnv m] (e : Expr) : m Bool :=
-  return isMatcherAppCore (← getEnv) e
+def isMatcherApp [Monad m] [MonadEnv m] (e : Expr) (alsoCasesOn := true) : m Bool :=
+  return isMatcherAppCore (← getEnv) e (alsoCasesOn := alsoCasesOn)
 
 end Lean.Meta

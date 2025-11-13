@@ -48,7 +48,7 @@ private def isCandidate? (env : Environment) (ctx : Context) (e : Expr) : Option
       if numArgs >= 5 && !(e.getArg! 1 5).hasLooseBVars then
         return ret (e.getBoundedAppFn (numArgs - 5))
   if ctx.kind.considerMatch then
-    if let some info := isMatcherAppCore? env e then
+    if let some info := isMatcherAppCore? env e (alsoCasesOn := true) then
       let args := e.getAppArgs
       for i in info.getFirstDiscrPos...(info.getFirstDiscrPos + info.numDiscrs) do
         if args[i]!.hasLooseBVars then

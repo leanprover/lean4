@@ -19,9 +19,9 @@ theorem natCast_pow (m n : Nat) : (m ^ n : Nat) = (m : Int) ^ n := rfl
 
 theorem negSucc_pow (m n : Nat) : (-[m+1] : Int) ^ n = if n % 2 = 0 then Int.ofNat (m.succ ^ n) else Int.negOfNat (m.succ ^ n) := rfl
 
-@[simp] theorem pow_zero (m : Int) : m ^ 0 = 1 := by cases m <;> simp [← natCast_pow, negSucc_pow]
+@[simp] protected theorem pow_zero (m : Int) : m ^ 0 = 1 := by cases m <;> simp [← natCast_pow, negSucc_pow]
 
-theorem pow_succ (m : Int) (n : Nat) : m ^ n.succ = m ^ n * m := by
+protected theorem pow_succ (m : Int) (n : Nat) : m ^ n.succ = m ^ n * m := by
   rcases m with _ | a
   · rfl
   · simp only [negSucc_pow, Nat.succ_mod_succ_eq_zero_iff, Nat.reduceAdd, ← Nat.mod_two_ne_zero,

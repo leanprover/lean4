@@ -16,6 +16,7 @@ public section
 namespace Lean.Elab.Do
 
 open Lean Meta
+open Lean.Parser.Do
 
 builtin_initialize registerTraceClass `Elab.do
 
@@ -718,8 +719,8 @@ def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont) : DoEla
   let r ← mkFreshUserName `r
   doElems.pop.foldr (init := elabDoElem back cont) fun el k => elabDoElem el (.mk r unit k)
 
-def elabDoSeq (doSeq : TSyntax ``Lean.Parser.Term.doSeq) (cont : DoElemCont) : DoElabM Expr :=
-  elabDoElems1 (Lean.Parser.Term.getDoElems doSeq) cont
+def elabDoSeq (doSeq : TSyntax ``doSeq) (cont : DoElemCont) : DoElabM Expr :=
+  elabDoElems1 (getDoElems doSeq) cont
 
 syntax:arg (name := dooBlock) "doo" doSeq : term
 
@@ -728,7 +729,7 @@ syntax:arg (name := dooBlock) "doo" doSeq : term
   Term.tryPostponeIfNoneOrMVar expectedType?
   let ctx ← mkContext expectedType?
   let cont ← DoElemCont.mkPure ctx.doBlockResultType
-  let res ← elabDoSeq doSeq cont |>.run ctx |>.run' {}
+  let res ← elabDoSeq ⟨doSeq.raw⟩ cont |>.run ctx |>.run' {}
   trace[Elab.do] "{res}"
   pure res
 
@@ -738,6 +739,6 @@ def elabDo : Term.TermElab := fun e expectedType? => do
   Term.tryPostponeIfNoneOrMVar expectedType?
   let ctx ← mkContext expectedType?
   let cont ← DoElemCont.mkPure ctx.doBlockResultType
-  let res ← elabDoSeq doSeq cont |>.run ctx |>.run' {}
+  let res ← elabDoSeq ⟨doSeq.raw⟩ cont |>.run ctx |>.run' {}
   trace[Elab.do] "{res}"
   pure res

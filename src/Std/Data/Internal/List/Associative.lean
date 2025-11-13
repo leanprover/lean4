@@ -2815,6 +2815,12 @@ def insertList [BEq α] (l toInsert : List ((a : α) × β a)) : List ((a : α) 
   | .nil => l
   | .cons ⟨k, v⟩ toInsert => insertList (insertEntry k v l) toInsert
 
+/-- Internal implementation detail of the hash map -/
+def eraseList [BEq α] (l toErase : List ((a : α) × β a)) : List ((a : α) × β a) :=
+  match toErase with
+  | .nil => l
+  | .cons ⟨k, _⟩ toErase => eraseList (eraseKey k l) toErase
+
 theorem DistinctKeys.insertList [BEq α] [PartialEquivBEq α] {l₁ l₂ : List ((a : α) × β a)}
     (h : DistinctKeys l₁) :
     DistinctKeys (insertList l₁ l₂) := by
@@ -2832,6 +2838,15 @@ theorem insertList_perm_of_perm_first [BEq α] [EquivBEq α] {l1 l2 toInsert : L
   | cons hd tl ih =>
     simp only [insertList]
     apply ih (insertEntry_of_perm distinct h) (DistinctKeys.insertEntry distinct)
+
+theorem eraseList_perm_of_perm_first [BEq α] [EquivBEq α] {l1 l2 toErase : List ((a : α) × β a)}
+    (h : Perm l1 l2) (distinct : DistinctKeys l1) :
+    Perm (eraseList l1 toErase) (eraseList l2 toErase) := by
+  induction toErase generalizing l1 l2 with
+  | nil => simp [eraseList, h]
+  | cons hd tl ih =>
+    simp only [eraseList]
+    apply ih (eraseKey_of_perm distinct h) (DistinctKeys.eraseKey distinct)
 
 theorem insertList_cons_perm [BEq α] [EquivBEq α] {l₁ l₂ : List ((a : α) × β a)}
     {p : (a : α) × β a} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys (p :: l₂)) :

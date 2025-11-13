@@ -1082,6 +1082,18 @@ theorem toListModel_insertListₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHa
     apply Perm.trans (ih (wfImp_insert h))
     apply List.insertList_perm_of_perm_first (toListModel_insert h) (wfImp_insert h).distinct
 
+theorem toListModel_eraseListₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
+    {m : Raw₀ α β} {l : List ((a : α) × β a)} (h : Raw.WFImp m.1) :
+    Perm (toListModel (eraseListₘ m l).1.buckets)
+      (List.eraseList (toListModel m.1.buckets) l) := by
+  induction l generalizing m with
+  | nil =>
+    simp [eraseListₘ, List.eraseList]
+  | cons hd tl ih =>
+    simp only [eraseListₘ, List.eraseList]
+    apply Perm.trans (ih (wfImp_erase h))
+    apply List.eraseList_perm_of_perm_first (toListModel_erase h) (wfImp_erase h).distinct
+
 /-! # `insertListₘ` -/
 
 theorem toListModel_insertListIfNewₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]

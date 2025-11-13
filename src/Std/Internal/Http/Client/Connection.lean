@@ -181,8 +181,8 @@ private def handle [Transport α] (connection : Connection α) (config : Client.
         | .bytes data => machine := machine.sendData #[Chunk.mk data #[]] |>.userClosedBody
         | .zero => machine := machine.userClosedBody
         | .stream stream =>
-          if let some size ← stream.getKnownSize then
-            machine := machine.setKnownSize size
+          let size ← stream.getKnownSize
+          machine := machine.setKnownSize (size.getD .chunked)
 
           reqStream := some stream
 
@@ -216,8 +216,8 @@ private def handle [Transport α] (connection : Connection α) (config : Client.
             packet.onError e
 
       | .endHeaders head => do
-        if let some (.fixed n) := Protocol.H1.Machine.getMessageSize head then
-          responseStream.setKnownSize (some n)
+        if let some length := Protocol.H1.Machine.getMessageSize head then
+          responseStream.setKnownSize length
 
         if let some packet := currentRequest then
           let response := { head := machine.reader.messageHead, body := some (.stream responseStream) }
@@ -250,7 +250,7 @@ private def handle [Transport α] (connection : Connection α) (config : Client.
       if ¬machine.writer.isClosed then
         if machine.isReaderComplete then
           if let some data ← stream.recv then
-            machine := machine.sendData data
+            machine := machine.sendData #[data]
           else
             machine := machine.userClosedBody
         else
@@ -258,7 +258,7 @@ private def handle [Transport α] (connection : Connection α) (config : Client.
             pure ()
           else
             match ← stream.tryRecv with
-            | some res => machine := machine.sendData res
+            | some res => machine := machine.sendData #[res]
             | none => machine := machine.userClosedBody
 
   responseStream.close

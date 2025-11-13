@@ -605,6 +605,7 @@ private def altsNegation (vars : List Expr) (alt : List Alt) : MetaM (Array Expr
 
 private def updateFallthrough (p : Problem) (altsMask : Array Bool) : MetaM Problem := withGoalOf p do
   let some fallthrough := p.fallthrough | return p
+  /-
   let negs ← altsNegation p.vars p.alts
   let negs := negs.mapIdx fun i t => ((`h).appendIndexAfter (i+1), t)
   let fallthrough' ← withLocalDeclsDND negs fun hyps => do
@@ -621,6 +622,19 @@ private def updateFallthrough (p : Problem) (altsMask : Array Bool) : MetaM Prob
       else
         oldHyp.mvarId!.admit (synthetic := false)
     mkLambdaFVars hyps (mkAppN fallthrough oldHyps)
+  -/
+  let fallthrough' ← forallTelescope ( ← inferType fallthrough) fun oldHyps _ => do
+    assert! oldHyps.size == altsMask.size
+    let mut e := fallthrough
+    for oldHyp in oldHyps, m in altsMask do
+      if m then
+        e := e.app oldHyp
+      else
+        let a ← mkFreshExprSyntheticOpaqueMVar (← inferType oldHyp)
+        a.mvarId!.admit (synthetic := false)
+        e := e.app a
+    e := e.headBeta
+    mkLambdaFVars (usedOnly := true) oldHyps e
   return { p with fallthrough := some fallthrough' }
 
 

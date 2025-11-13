@@ -1050,7 +1050,7 @@ Computes the intersection of the given hash maps. The result will only contain e
 This function always merges the smaller map into the larger map.
 -/
 def inter (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
-    letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.inter t₂.inner t₁.wf.balanced, sorry⟩
+    letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.inter t₂.inner t₁.wf.balanced,  @Impl.WF.inter _ _ _ _ t₂.inner t₁.wf.balanced t₁.wf⟩
 
 instance : Union (DTreeMap α β cmp) := ⟨union⟩
 /--

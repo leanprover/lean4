@@ -1530,6 +1530,40 @@ theorem toArray_eq_toArray_map {t : Impl α β} :
 end Const
 
 /-!
+### interSmallerFn
+-/
+
+theorem WF.interSmallerFn {_ : Ord α} [TransOrd α] [BEq α] (m₁ : Impl α β) (m₂ : Impl α β)
+    (hm₂ :m₂.WF) (k : α) : (m₁.interSmallerFn ⟨m₂,hm₂.balanced⟩ k).1.WF := by
+  rw [Impl.interSmallerFn]
+  split
+  · exact WF.insert hm₂
+  · exact hm₂
+
+theorem ordered_inter [Ord α] [TransOrd α] {l₁ l₂ : Impl α β} (hlb : l₁.Balanced)
+    (hlo : l₁.Ordered) : (l₁.inter l₂ hlb).Ordered := by
+  rw [inter]
+  split
+  · exact ordered_filter hlo
+  · rw [interSmaller]
+    rw [foldl_eq_foldl]
+    generalize l₂.toListModel = l₂
+    suffices ∀ {start}, start.val.Ordered → (List.foldl (fun acc p => interSmallerFn l₁ acc p.fst) start l₂).val.Ordered by
+      apply this
+      apply ordered_empty
+    intro s swf
+    induction l₂ generalizing s
+    case nil => simp [swf]
+    case cons h t ih =>
+      simp only [List.foldl_cons]
+      apply ih
+      simp only [Impl.interSmallerFn]
+      split
+      · apply ordered_insert
+        · exact swf
+      · exact swf
+
+/-!
 ## Deducing that well-formed trees are ordered
 -/
 
@@ -1549,6 +1583,7 @@ theorem WF.ordered [Ord α] [TransOrd α] {l : Impl α β} (h : WF l) : l.Ordere
   · exact ordered_filter ‹_›
   · exact ordered_mergeWith ‹_› ‹_›
   · exact Const.ordered_mergeWith ‹_› ‹_›
+  · exact ordered_inter ‹_› ‹_›
 
 /-!
 ## Deducing that additional operations are well-formed
@@ -1996,15 +2031,8 @@ theorem WF.filter! {_ : Ord α} {t : Impl α β} {f : (a : α) → β a → Bool
   exact h.filter
 
 /-!
-### interSmallerFn
+### TODO: move to List
 -/
-
-theorem WF.interSmallerFn {_ : Ord α} [TransOrd α] [BEq α] (m₁ : Impl α β) (m₂ : Impl α β)
-    (hm₂ :m₂.WF) (k : α) : (m₁.interSmallerFn ⟨m₂,hm₂.balanced⟩ k).1.WF := by
-  rw [Impl.interSmallerFn]
-  split
-  · exact WF.insert hm₂
-  · exact hm₂
 
 /-- Internal implementation detail of the hash map -/
 def List.interSmallerFn [BEq α] (l sofar : List ((a : α) × β a)) (k : α) : List ((a : α) × β a) :=
@@ -2173,30 +2201,6 @@ theorem toListModel_inter {_ : Ord α} [TransOrd α] [BEq α] [LawfulBEqOrd α]
       rw [@contains_eq_containsKey α β _ _ _ _ e.fst m₂ hm₂.ordered]
   · apply List.Perm.trans (toListModel_interSmaller _ _ hm₁) (List.interSmaller_perm_filter _ _ hm₁.ordered.distinctKeys)
 
-theorem WF.inter_ {_ : Ord α} [TransOrd α]
-    {m₁ m₂ : Impl α β} (wh₁ : m₁.WF) :
-    (inter m₁ m₂ wh₁.balanced).WF := by
-  rw [Impl.inter]
-  split
-  case isTrue => apply WF.filter wh₁
-  case isFalse  =>
-    rw [interSmaller]
-    rw [foldl_eq_foldl]
-    generalize m₂.toListModel = l
-    suffices ∀ {start}, start.1.WF → (List.foldl (fun acc p => m₁.interSmallerFn acc p.fst) start l).val.WF by
-      apply this
-      simp [WF.empty]
-    intro s swf
-    induction l generalizing s
-    case nil => simp [swf]
-    case cons h t ih =>
-      simp only [List.foldl_cons]
-      apply ih
-      simp only [Impl.interSmallerFn]
-      split
-      · apply WF.insert swf
-      · exact swf
-
 /-!
 ### inter!
 -/
@@ -2218,7 +2222,7 @@ theorem WF.inter! {_ : Ord α} [TransOrd α]
     {m₁ m₂ : Impl α β} (wh₁ : m₁.WF) :
     (inter! m₁ m₂).WF := by
   rw [← @inter_eq_inter! _ _ _ _ _ wh₁.balanced]
-  exact WF.inter_ wh₁
+  exact WF.inter wh₁
 
 /-!
 ### map

@@ -868,6 +868,16 @@ theorem balanced_modify [Ord α] [LawfulEqOrd α] {k f} {t : Impl α β} (ht : t
     have ihr := ihr ht.right
     tree_tac
 
+theorem balanced_inter [Ord α] {t₁ t₂ : Impl α β} (ht : t₁.Balanced) : (t₁.inter t₂ ht).Balanced := by
+  rw [inter]
+  split
+  · generalize (filter (fun k x => contains k t₂) t₁ ht) = m
+    exact m.balanced_impl
+  · rw [interSmaller]
+    generalize (foldl (fun sofar k x => t₁.interSmallerFn sofar k) ⟨empty, _⟩ t₂) = m
+    exact m.2
+
+
 /--
 Returns a map that contains all mappings of `t₁` and `t₂`. In case that both maps contain the
 same key `k` with respect to `cmp`, the provided function is used to determine the new value from

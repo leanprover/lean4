@@ -615,6 +615,7 @@ theorem any_eq_false_iff_forall_mem [LawfulBEq α] {p : α → Bool} (h : m.WF) 
       ∀ (a : α), a ∈ m → p a = false := by
   simpa using @HashMap.Raw.any_eq_false_iff_forall_mem_getElem _ _ _ _ _ _ (fun a b => p a) h.out
 
+@[simp]
 theorem all_toList [LawfulHashable α] [EquivBEq α] {p : α → Bool} (h : m.WF) :
     m.toList.all p = m.all p :=
   HashMap.Raw.all_keys h.out

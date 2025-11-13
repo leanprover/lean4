@@ -50,11 +50,11 @@ instance : Transport Socket.Client where
 
 open Internal.IO.Async in
 
-private inductive MockClient.Consumer where
+private inductive MockLink.Consumer where
   | normal (promise : IO.Promise (Option ByteArray))
   | select (waiter : Waiter (Option ByteArray))
 
-private def MockClient.Consumer.resolve (c : MockClient.Consumer) (data : Option ByteArray) : BaseIO Bool := do
+private def MockLink.Consumer.resolve (c : MockLink.Consumer) (data : Option ByteArray) : BaseIO Bool := do
   match c with
   | .normal promise =>
     promise.resolve data
@@ -66,7 +66,7 @@ private def MockClient.Consumer.resolve (c : MockClient.Consumer) (data : Option
       return true
     waiter.race lose win
 
-private structure MockClient.State where
+private structure MockLink.State where
   /--
   Queue of data to be received by the client.
   -/
@@ -75,7 +75,7 @@ private structure MockClient.State where
   /--
   Consumers that are blocked waiting for data.
   -/
-  consumers : Std.Queue MockClient.Consumer := .empty
+  consumers : Std.Queue MockLink.Consumer := .empty
 
   /--
   Buffer containing all data sent through this client.
@@ -90,15 +90,15 @@ private structure MockClient.State where
 /--
 Mock client socket for testing HTTP interactions.
 -/
-structure Mock.Client where
-  private state : Std.Mutex MockClient.State
+structure Mock.Link where
+  private state : Std.Mutex MockLink.State
 
-namespace Mock.Client
+namespace Mock.Link
 
 /--
 Create a new mock client with empty buffers.
 -/
-def new : BaseIO Mock.Client := do
+def new : BaseIO Mock.Link := do
   let state ← Std.Mutex.new {
     receiveQueue := .empty,
     consumers := .empty,
@@ -110,7 +110,7 @@ def new : BaseIO Mock.Client := do
 /--
 Add data to the receive queue for testing and notify any waiting receivers.
 -/
-def enqueueReceive (client : Mock.Client) (data : ByteArray) : BaseIO Unit := do
+def enqueueReceive (client : Mock.Link) (data : ByteArray) : BaseIO Unit := do
   client.state.atomically do
     let st ← get
     if st.closed then
@@ -136,7 +136,7 @@ def enqueueReceive (client : Mock.Client) (data : ByteArray) : BaseIO Unit := do
 /--
 Close the mock connection and notify all waiters.
 -/
-def close (client : Mock.Client) : BaseIO Unit := do
+def close (client : Mock.Link) : BaseIO Unit := do
   client.state.atomically do
     let st ← get
     for consumer in st.consumers.toArray do
@@ -150,7 +150,7 @@ def close (client : Mock.Client) : BaseIO Unit := do
 /--
 Get all data that was sent through this client.
 -/
-def getSentData (client : Mock.Client) : BaseIO ByteArray :=
+def getSentData (client : Mock.Link) : BaseIO ByteArray :=
   client.state.atomically do
     let st ← get
     return st.sentData
@@ -158,14 +158,14 @@ def getSentData (client : Mock.Client) : BaseIO ByteArray :=
 /--
 Clear the sent data buffer.
 -/
-def clearSentData (client : Mock.Client) : BaseIO Unit :=
+def clearSentData (client : Mock.Link) : BaseIO Unit :=
   client.state.atomically do
     modify fun st => { st with sentData := .empty }
 
 /--
 Check if the connection is closed.
 -/
-def isClosed (client : Mock.Client) : BaseIO Bool :=
+def isClosed (client : Mock.Link) : BaseIO Bool :=
   client.state.atomically do
     let st ← get
     return st.closed
@@ -173,7 +173,7 @@ def isClosed (client : Mock.Client) : BaseIO Bool :=
 /--
 Try to receive data immediately without blocking.
 -/
-private def tryRecv' (size : UInt64) : AtomicT MockClient.State Async (Option ByteArray) := do
+private def tryRecv' (size : UInt64) : AtomicT MockLink.State Async (Option ByteArray) := do
   let st ← get
   if st.closed then
     return none
@@ -190,7 +190,7 @@ private def tryRecv' (size : UInt64) : AtomicT MockClient.State Async (Option By
 /--
 Try to receive data immediately without blocking.
 -/
-def tryRecv (client : Mock.Client) (size : UInt64) : Async (Option ByteArray) :=
+def tryRecv (client : Mock.Link) (size : UInt64) : Async (Option ByteArray) :=
   client.state.atomically do
     tryRecv' size
 
@@ -198,14 +198,14 @@ def tryRecv (client : Mock.Client) (size : UInt64) : Async (Option ByteArray) :=
 Check if data is ready to be received.
 -/
 @[inline]
-private def recvReady' : AtomicT MockClient.State Async Bool := do
+private def recvReady' : AtomicT MockLink.State Async Bool := do
   let st ← get
   return !st.receiveQueue.isEmpty || st.closed
 
 /--
 Receive data from the mock client, simulating network behavior.
 -/
-def recv? (client : Mock.Client) (size : UInt64) : Async (Option ByteArray) := do
+def recv? (client : Mock.Link) (size : UInt64) : Async (Option ByteArray) := do
   client.state.atomically do
     if let some data ← tryRecv' size then
       return (some data)
@@ -219,7 +219,7 @@ def recv? (client : Mock.Client) (size : UInt64) : Async (Option ByteArray) := d
 /--
 Send all data through the mock client by appending to the sent data buffer.
 -/
-def sendAll (client : Mock.Client) (data : Array ByteArray) : Async Unit := do
+def sendAll (client : Mock.Link) (data : Array ByteArray) : Async Unit := do
   let closed ← client.state.atomically do
     let st ← get
     if st.closed then
@@ -236,7 +236,7 @@ def sendAll (client : Mock.Client) (data : Array ByteArray) : Async Unit := do
 /--
 Create a selector for receiving data asynchronously.
 -/
-def recvSelector (client : Mock.Client) (size : UInt64) : Selector (Option ByteArray) :=
+def recvSelector (client : Mock.Link) (size : UInt64) : Selector (Option ByteArray) :=
   {
     tryFn := do
       client.state.atomically do
@@ -261,9 +261,9 @@ def recvSelector (client : Mock.Client) (size : UInt64) : Selector (Option ByteA
         set { st with consumers }
   }
 
-instance : Transport Mock.Client where
-  recv := Mock.Client.recv?
-  sendAll := Mock.Client.sendAll
-  recvSelector := Mock.Client.recvSelector
+instance : Transport Mock.Link where
+  recv := Mock.Link.recv?
+  sendAll := Mock.Link.sendAll
+  recvSelector := Mock.Link.recvSelector
 
-end Std.Http.Mock.Client
+end Std.Http.Mock.Link

@@ -82,7 +82,7 @@ structure Writer (dir : Direction) where
   When the user specifies the exact size upfront, we can use Content-Length
   instead of chunked transfer encoding for streaming
   -/
-  knownSize : Option Nat := none
+  knownSize : Option Body.Length := none
 
   /--
   The outgoing message that will be written to the output
@@ -98,11 +98,6 @@ structure Writer (dir : Direction) where
   This flags that the writer is closed so if we start to write the body we know exactly the size.
   -/
   userClosedBody : Bool := false
-
-  /--
-  ?
-  -/
-  transferMode : Option Body.Length := none
 
   /--
   Can send data to the output, it's used when the connection is closed and cannot send more data.
@@ -157,17 +152,10 @@ def closeBody (writer : Writer dir) : Writer dir :=
   { writer with userClosedBody := true }
 
 /--
-Explicitly sets the transfer mode (fixed, chunked, or none) for the message body
--/
-@[inline]
-def setTransferMode (mode : Body.Length) (writer : Writer dir) : Writer dir :=
-  { writer with transferMode := some mode }
-
-/--
 Determines the transfer encoding mode based on explicit setting, body closure state, or defaults to chunked
 -/
 def determineTransferMode (writer : Writer dir) : Body.Length :=
-  if let some mode := writer.transferMode then
+  if let some mode := writer.knownSize then
     mode
   else if writer.userClosedBody then
     let size := writer.userData.foldl (fun x y => x + y.size) 0
@@ -188,12 +176,23 @@ def addUserData (data : Array Chunk) (writer : Writer dir) : Writer dir :=
 /--
 Writes accumulated user data to output using fixed-size encoding
 -/
-def writeFixedBody (writer : Writer dir) : Writer dir :=
+def writeFixedBody (writer : Writer dir) (limitSize : Nat) : Writer dir × Nat :=
   if writer.userData.size = 0 then
-    writer
+    (writer, limitSize)
   else
-    let outputData := writer.outputData.append (writer.userData.map Chunk.data)
-    { writer with userData := #[], outputData }
+    let data := writer.userData.map Chunk.data
+    let (chunks, totalSize) := data.foldl (fun (acc, size) ba =>
+      if size >= limitSize then
+        (acc, size)
+      else
+        let remaining := limitSize - size
+        let takeSize := min ba.size remaining
+        let chunk := ba.extract 0 takeSize
+        (acc.push chunk, size + takeSize)
+    ) (#[], 0)
+    let outputData := writer.outputData.append (ChunkedBuffer.mk chunks totalSize)
+    let remaining := limitSize - totalSize
+    ({ writer with userData := #[], outputData }, remaining)
 
 /--
 Writes accumulated user data to output using chunked transfer encoding

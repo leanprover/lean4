@@ -14,7 +14,7 @@ public section
 namespace Std.PRange.Int
 
 @[simp]
-theorem size_rco {a b : Int}:
+theorem size_rco {a b : Int} :
     (a...b).size = (b - a).toNat := by
   simp only [Rco.size, Rxo.HasSize.size, Rxc.HasSize.size]
   omega

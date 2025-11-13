@@ -120,13 +120,13 @@ structure DeclInfo where
 
 /-- Converts a set of `DeclarationRanges` to a `DeclInfo`. -/
 def DeclInfo.ofDeclarationRanges (r : DeclarationRanges) : DeclInfo where
-  rangeStartPosLine := r.range.pos.line
+  rangeStartPosLine := r.range.pos.line - 1
   rangeStartPosCharacter := r.range.charUtf16
-  rangeEndPosLine := r.range.endPos.line
+  rangeEndPosLine := r.range.endPos.line - 1
   rangeEndPosCharacter := r.range.endCharUtf16
-  selectionRangeStartPosLine := r.selectionRange.pos.line
+  selectionRangeStartPosLine := r.selectionRange.pos.line - 1
   selectionRangeStartPosCharacter := r.selectionRange.charUtf16
-  selectionRangeEndPosLine := r.selectionRange.endPos.line
+  selectionRangeEndPosLine := r.selectionRange.endPos.line - 1
   selectionRangeEndPosCharacter := r.selectionRange.endCharUtf16
 
 /-- Range of this parent decl. -/

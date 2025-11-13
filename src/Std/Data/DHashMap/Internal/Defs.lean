@@ -452,6 +452,16 @@ def insertMany {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [BEq α] [Hashable
   return r
 
 /-- Internal implementation detail of the hash map -/
+def eraseMany {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [BEq α] [Hashable α]
+    (m : Raw₀ α β) (l : ρ) : { m' : Raw₀ α β // ∀ (P : Raw₀ α β → Prop),
+      (∀ {m'' a}, P m'' → P (m''.erase a)) → P m → P m' } := Id.run do
+  let mut r : { m' : Raw₀ α β // ∀ (P : Raw₀ α β → Prop),
+      (∀ {m'' a}, P m'' → P (m''.erase a)) → P m → P m' } := ⟨m, fun _ _ => id⟩
+  for ⟨a, _⟩ in l do
+    r := ⟨r.1.erase a, fun _ h hm => h (r.2 _ h hm)⟩
+  return r
+
+/-- Internal implementation detail of the hash map -/
 @[inline] def insertManyIfNew {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [BEq α] [Hashable α]
     (m : Raw₀ α β) (l : ρ) : { m' : Raw₀ α β // ∀ (P : Raw₀ α β → Prop),
       (∀ {m'' a b}, P m'' → P (m''.insertIfNew a b)) → P m → P m' } := Id.run do

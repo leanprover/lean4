@@ -1295,6 +1295,11 @@ theorem wf_insertMany₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α
     (Raw₀.insertMany ⟨m, h⟩ l).1.1.WF :=
   (Raw₀.insertMany ⟨m, h⟩ l).2 _ Raw.WF.insert₀ h'
 
+theorem wf_eraseMany₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w}
+    [ForIn Id ρ ((a : α) × β a)] {m : Raw α β} {h : 0 < m.buckets.size} {l : ρ} (h' : m.WF) :
+    (Raw₀.eraseMany ⟨m, h⟩ l).1.1.WF :=
+  (Raw₀.eraseMany ⟨m, h⟩ l).2 _ Raw.WF.erase₀ h'
+
 theorem toListModel_insertMany_list [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
     {m : Raw₀ α β} {l : List ((a : α) × (β a))} (h : Raw.WFImp m.1) :
     Perm (toListModel (insertMany m l).1.1.buckets)

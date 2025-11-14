@@ -208,6 +208,78 @@ private def synthesizeUsingDefault : TermElabM Bool := do
       return true
   return false
 
+/-- Translate zero-based indexes (0, 1, 2, ...) to ordinals ("first", "second", "third", ...)-/
+def toOrdinalString : Nat -> String
+  | 0 => "first"
+  | 1 => "second"
+  | 2 => "third"
+  | 3 => "fourth"
+  | 4 => "fifth"
+  | n => s!"{n}th"
+
+/-- Make oxford-comma-separated list of strings-/
+def toOxford : List String -> String
+  | [] => ""
+  | [a] => a
+  | [a, b] => a ++ " and " ++ b
+  | [a, b, c] => a ++ ", " ++ b  ++ ", and " ++ c
+  | a :: as => a ++ ", " ++ toOxford as
+
+def explainStuckTypeclassProblem (typeclassProblem : Expr) : TermElabM (Option MessageData) := do
+
+  -- Gather the type arguments and locate the root of the typeclass
+  let mut args := []
+  let mut ty := typeclassProblem
+  while ty.isApp do
+    match ty with
+    | .app fn arg =>
+      ty := fn
+      args := arg :: args
+    | _ => return .none -- Precluded by loop guard
+
+  -- Find the typeclass construstor and look up it's classifying sort
+  let .const name _ := ty
+    | return .none -- Typeclass problem has unexpected structure; fall back to default error
+  let .some defn := (← getEnv).findConstVal? name
+    | return .none
+  let mut kind := defn.type
+
+  /-
+  Simultaneously traverse the typeclass arguments (e.g. `#[_?, Nat, _?]` if
+  our stuck typeclass problem is `HAdd _?, Nat, _?`) and the classifier (e.g.
+  `Type → Type → outParam Type → Type`) and come up with the input positions
+  that are stuck.
+  -/
+  let mut ord := 0
+  let mut stuckArguments := #[]
+  let mut simpleMVars := true
+  for arg in args do
+    match kind with
+    | .forallE _ argType rest _ =>
+      kind := rest
+      if !(argType.isOutParam || argType.isSemiOutParam) then
+        let arg ← instantiateExprMVars arg
+        if let .mvar _ := arg then
+          stuckArguments := stuckArguments.push ord
+        else if (arg.collectMVars {}).result.size > 0 then
+          stuckArguments := stuckArguments.push ord
+          simpleMVars := false
+    | _ => return .none -- Unexpected type structure; fall back to default error
+    ord := ord + 1
+
+  let .sort _ := kind
+    | return .none -- Unexpected type structure; fall back to default error
+  let nStuck := stuckArguments.size
+  if nStuck = 0 then
+    return .none -- This is not a simple inputs-have-metavariables issue
+
+  let phrase := if simpleMVars then
+    (if nStuck = 1 then "is a metavariable. This argument is an input, and so it" else "are metavariables. These arguments are inputs, and so they")
+  else
+    (if nStuck = 1 then "contains metavariables. This argument is an input, and so it" else "contain metavariables. These arguments are inputs, and so they")
+
+  return .some <| .note m!"Lean will not try to resolve this typeclass instance problem because the {toOxford (stuckArguments.toList.map toOrdinalString)} type argument{if nStuck > 1 then "s" else ""} to {.ofConstName name} {phrase} must be fully determined before Lean will try to resolve the typeclass."
+
 /--
 We use this method to report typeclass (and coercion) resolution problems that are "stuck".
 That is, there is nothing else to do, and we don't have enough information to synthesize them using TC resolution.
@@ -222,7 +294,9 @@ def reportStuckSyntheticMVar (mvarId : MVarId) (ignoreStuckTC := false) : TermEl
         mvarId.withContext do
           let mvarDecl ← getMVarDecl mvarId
           unless (← MonadLog.hasErrors) do
-            throwError "typeclass instance problem is stuck, it is often due to metavariables{indentExpr mvarDecl.type}{extraErrorMsg}"
+            let .some note ← explainStuckTypeclassProblem mvarDecl.type
+              | throwError "typeclass instance problem is stuck, it is often due to metavariables{indentExpr mvarDecl.type}{extraErrorMsg}"
+            throwError m!"typeclass instance problem is stuck{indentExpr mvarDecl.type}{note}{extraErrorMsg}"
     | .coe header expectedType e f? mkErrorMsg? =>
       mvarId.withContext do
         if let some mkErrorMsg := mkErrorMsg? then

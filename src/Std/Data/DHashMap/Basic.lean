@@ -334,7 +334,7 @@ This function always merges the smaller map into the larger map, so the expected
 /--
 Computes the intersection of the given hash maps. The result will only contain entries from the first map.
 
-This function always merges the smaller map into the larger map, so the expected runtime is
+This function always iterates through the smaller map, so the expected runtime is
 `O(min(m₁.size, m₂.size))`.
 -/
 @[inline] def inter [BEq α] [Hashable α] (m₁ m₂ : DHashMap α β) : DHashMap α β where

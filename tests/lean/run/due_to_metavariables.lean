@@ -20,7 +20,7 @@ def f2 x := "huh" * x
 error: typeclass instance problem is stuck
   HMul (Option ?m.4) ?m.9 (?m.3 x)
 
-Note: Lean will not try to resolve this typeclass instance problem because the first and second type arguments to HMul contain metavariables. These areguments are inputs, and so they must be fully determined before Lean will try to resolve the typeclass.
+Note: Lean will not try to resolve this typeclass instance problem because the first and second type arguments to HMul contain metavariables. These arguments are inputs, and so they must be fully determined before Lean will try to resolve the typeclass.
 -/
 #guard_msgs in
 def f3 x := Option.none * x

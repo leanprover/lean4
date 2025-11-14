@@ -1,2 +1,5 @@
-353.lean:13:26-13:50: error: typeclass instance problem is stuck, it is often due to metavariables
+353.lean:13:26-13:50: error: typeclass instance problem is stuck
   Arr.{?u, ?u + 1} (@?m a₁ a₂) (Sort ?u)
+
+Note: Lean will not try to resolve this typeclass instance problem because the first type argument to Arr.{u1,
+  u2} contains metavariables. This argument is an input, and so it must be fully determined before Lean will try to resolve the typeclass.

@@ -244,7 +244,7 @@ def explainStuckTypeclassProblem (typeclassProblem : Expr) : TermElabM (Option M
       args := arg :: args
     | _ => return .none -- Precluded by loop guard
 
-  -- Find the typeclass's type constructor (e.g. `HAdd`) and look up its classifying sort
+  -- Find the typeclass's type constructor (e.g. `HAdd`) and look up its classifying type
   let .const name _ := ty
     | return .none -- Typeclass problem has unexpected structure; fall back to default error
   let .some defn := (← getEnv).findConstVal? name

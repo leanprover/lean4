@@ -536,6 +536,9 @@ def sepByNoAntiquot.parenthesizer (p pSep : Parenthesizer) : Parenthesizer := do
 @[combinator_parenthesizer withPositionAfterLinebreak, expose] def withPositionAfterLinebreak.parenthesizer (p : Parenthesizer) : Parenthesizer :=
   -- TODO: improve?
   withPosition.parenthesizer p
+@[combinator_parenthesizer withPositionFromLineStart] def withPositionFromLineStart.parenthesizer (p : Parenthesizer) : Parenthesizer :=
+  -- TODO: improve?
+  withPosition.parenthesizer p
 
 @[combinator_parenthesizer withoutInfo, expose] def withoutInfo.parenthesizer (p : Parenthesizer) : Parenthesizer := p
 

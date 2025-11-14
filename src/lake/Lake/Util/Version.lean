@@ -31,7 +31,7 @@ Components are composed of alphanumerics or a `*`.
 @[inline] def parseVerComponents
   (s : String)
 : EStateM String s.ValidPos (Array String.Slice) :=
-  fun p => go #[] p p (Nat.le_refl _)
+  fun p => go #[] p p (String.ValidPos.le_refl _)
 where
   go cs iniPos p (iniPos_le : iniPos ≤ p) :=
     if h : p = s.endValidPos then

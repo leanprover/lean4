@@ -1379,6 +1379,15 @@ theorem toListModel_diff [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α
   rw [diff_eq_diffₘ]
   exact toListModel_diffₘ h₁ h₂
 
+theorem wf_diff₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
+    {m₁ m₂ : Raw α β} {h₁ : 0 < m₁.buckets.size} {h₂ : 0 < m₂.buckets.size} (h'₁ : m₁.WF) :
+    (Raw₀.diff ⟨m₁, h₁⟩ ⟨m₂, h₂⟩).1.WF := by
+  rw [diff]
+  split
+  · apply Raw.WF.filter₀ h'₁
+  · exact wf_eraseMany₀ ‹_›
+
+
 /-! # `insertManyIfNew` -/
 
 theorem wfImp_insertManyIfNew [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w}

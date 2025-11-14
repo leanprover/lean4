@@ -18,11 +18,10 @@ open Lean (Name)
 public inductive BuildKey
 | module (module : Name)
 | package (package : Name)
+| packageModule (package module : Name)
 | packageTarget (package target : Name)
 | facet (target : BuildKey) (facet : Name)
 deriving Inhabited, Repr, DecidableEq, Hashable
-
-public def PartialBuildKey.moduleTargetIndicator := `«_+»
 
 /--
 A build key with some missing info.
@@ -30,8 +29,6 @@ A build key with some missing info.
 * Package names may be elided (replaced by `Name.anonymous`).
 * Facet names are unqualified (they do not include the input target kind)
   and may also be ellided.
-* Module package targets are supported via a fake `packageTarget` with
-  a target name ending in `moduleTargetIndicator`.
 -/
 @[expose]  -- for codegen
 public def PartialBuildKey := BuildKey
@@ -95,8 +92,7 @@ where
       throw s!"ill-formed target: default package targets are not supported in partial build keys"
     else if target.startsWith "+" then
       let target := target.drop 1 |> stringToLegalOrSimpleName
-      let target := target ++ moduleTargetIndicator
-      return .packageTarget pkg target
+      return .packageModule pkg target
     else
       let target := stringToLegalOrSimpleName target
       return .packageTarget pkg target
@@ -104,12 +100,8 @@ where
 public def toString : (self : PartialBuildKey) → String
 | .module m => s!"+{m}"
 | .package p => if p.isAnonymous then "" else s!"@{p}"
-| .packageTarget p t =>
-  let t :=
-    if let some t := t.eraseSuffix? moduleTargetIndicator then
-      s!"+{t}"
-    else t.toString
-  if p.isAnonymous then t else s!"{p}/{t}"
+| .packageModule p m => if p.isAnonymous then s!"+{m}" else s!"{p}/+{m}"
+| .packageTarget p t => if p.isAnonymous then t.toString else s!"{p}/{t}"
 | .facet t f => if f.isAnonymous then toString t else s!"{toString t}:{f}"
 
 public instance : ToString PartialBuildKey := ⟨PartialBuildKey.toString⟩
@@ -124,6 +116,11 @@ namespace BuildKey
 @[match_pattern] public abbrev packageFacet (package facet : Name) : BuildKey :=
   .facet (.package package) facet
 
+@[match_pattern] public abbrev packageModuleFacet (package module facet : Name) : BuildKey :=
+  .facet (.packageModule package module) facet
+
+attribute [deprecated packageModuleFacet (since := "2025-11-13")] moduleFacet
+
 @[match_pattern] public abbrev targetFacet (package target facet : Name) : BuildKey :=
   .facet (.packageTarget package target) facet
 
@@ -133,6 +130,7 @@ namespace BuildKey
 public def toString : (self : BuildKey) → String
 | module m => s!"+{m}"
 | package p => s!"@{p}"
+| packageModule p m => s!"{p}/+{m}"
 | packageTarget p t => s!"{p}/{t}"
 | facet t f => s!"{toString t}:{Name.eraseHead f}"
 
@@ -140,6 +138,7 @@ public def toString : (self : BuildKey) → String
 public def toSimpleString : (self : BuildKey) → String
 | module m => s!"{m}"
 | package p => s!"{p}"
+| packageModule p m => s!"{p}/{m}"
 | packageTarget p t => s!"{p}/{t}"
 | facet t f => s!"{toSimpleString t}:{Name.eraseHead f}"
 
@@ -156,6 +155,15 @@ public def quickCmp (k k' : BuildKey) : Ordering :=
     | module .. => .gt
     | package p' => p.quickCmp p'
     | _ => .lt
+  | packageModule p m =>
+    match k' with
+    | facet .. => .lt
+    | packageTarget .. => .lt
+    | packageModule p' m' =>
+      match p.quickCmp p' with
+      | .eq => m.quickCmp m'
+      | ord => ord
+    | _ => .gt
   | packageTarget p t =>
     match k' with
     | facet .. => .lt
@@ -187,6 +195,14 @@ public theorem eq_of_quickCmp :
     intro k'; cases k'
     case package p' => simp
     all_goals (intro; contradiction)
+  | packageModule p m =>
+    unfold quickCmp
+    intro k'; cases k'
+    case packageModule p' m' =>
+      dsimp only; split
+      next p_eq => intro t_eq; rw [Std.LawfulEqCmp.eq_of_compare p_eq, Std.LawfulEqCmp.eq_of_compare t_eq]
+      next => intro; contradiction
+    all_goals (intro; contradiction)
   | packageTarget p t =>
     unfold quickCmp
     intro k'; cases k'
@@ -212,4 +228,8 @@ public instance : Std.LawfulEqCmp quickCmp where
     · simp [quickCmp]
     · simp only [quickCmp]
       split <;> simp_all
+    · simp only [quickCmp]
+      split <;> simp_all
     · simp_all [quickCmp]
+
+attribute [deprecated packageModule (since := "2025-11-13")] module

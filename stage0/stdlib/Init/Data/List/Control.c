@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Control
-// Imports: public import Init.Control.Basic public import Init.Control.Id public import Init.Control.Lawful
+// Imports: public import Init.Control.Lawful
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -393,29 +393,9 @@ x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
-if (lean_obj_tag(x_3) == 0)
+if (lean_obj_tag(x_3) == 1)
 {
-lean_inc(x_8);
-lean_dec(x_7);
-lean_dec(x_4);
-lean_dec(x_2);
-lean_dec_ref(x_1);
-x_9 = x_5;
-goto block_12;
-}
-else
-{
-if (lean_obj_tag(x_4) == 0)
-{
-lean_inc(x_8);
-lean_dec(x_7);
-lean_dec_ref(x_3);
-lean_dec(x_2);
-lean_dec_ref(x_1);
-x_9 = x_5;
-goto block_12;
-}
-else
+if (lean_obj_tag(x_4) == 1)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_13 = lean_ctor_get(x_3, 0);
@@ -439,6 +419,28 @@ x_18 = lean_apply_2(x_2, x_13, x_15);
 x_19 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_18, x_17);
 return x_19;
 }
+else
+{
+lean_inc(x_8);
+lean_dec(x_7);
+lean_dec(x_4);
+lean_dec_ref(x_3);
+lean_dec(x_2);
+lean_dec_ref(x_1);
+x_9 = x_5;
+goto block_12;
+}
+}
+else
+{
+lean_inc(x_8);
+lean_dec(x_7);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec_ref(x_1);
+x_9 = x_5;
+goto block_12;
 }
 block_12:
 {
@@ -1789,21 +1791,13 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* initialize_Init_Control_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_Id(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_Lawful(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Control_Lawful(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_List_Control(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_List_Control(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_Id(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_Lawful(builtin, lean_io_mk_world());
+res = initialize_Init_Control_Lawful(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_List_zipWithM___redArg___closed__0 = _init_l_List_zipWithM___redArg___closed__0();

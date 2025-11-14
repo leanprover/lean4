@@ -264,26 +264,27 @@ lean_object* x_5;
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
 lean_dec_ref(x_1);
-if (lean_obj_tag(x_5) == 0)
+if (lean_obj_tag(x_5) == 1)
 {
 lean_object* x_6; 
-lean_dec(x_3);
-x_6 = lean_apply_2(x_4, x_5, lean_box(0));
-return x_6;
+x_6 = lean_ctor_get(x_5, 1);
+if (lean_obj_tag(x_6) == 0)
+{
+lean_object* x_7; lean_object* x_8; 
+lean_dec(x_4);
+x_7 = lean_ctor_get(x_5, 0);
+lean_inc(x_7);
+lean_dec_ref(x_5);
+x_8 = lean_apply_3(x_3, x_7, lean_box(0), lean_box(0));
+return x_8;
 }
 else
 {
-lean_object* x_7; 
-x_7 = lean_ctor_get(x_5, 1);
-if (lean_obj_tag(x_7) == 0)
-{
-lean_object* x_8; lean_object* x_9; 
-lean_dec(x_4);
-x_8 = lean_ctor_get(x_5, 0);
-lean_inc(x_8);
-lean_dec_ref(x_5);
-x_9 = lean_apply_3(x_3, x_8, lean_box(0), lean_box(0));
+lean_object* x_9; 
+lean_dec(x_3);
+x_9 = lean_apply_2(x_4, x_5, lean_box(0));
 return x_9;
+}
 }
 else
 {
@@ -291,7 +292,6 @@ lean_object* x_10;
 lean_dec(x_3);
 x_10 = lean_apply_2(x_4, x_5, lean_box(0));
 return x_10;
-}
 }
 }
 }
@@ -323,17 +323,17 @@ lean_dec(x_1);
 return x_7;
 }
 }
-lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_Implementation(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_CNF(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_Implementation(uint8_t builtin);
+lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_CNF(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_Lemmas(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_Implementation(builtin, lean_io_mk_world());
+res = initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_Implementation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Tactic_BVDecide_LRAT_Internal_CNF(builtin, lean_io_mk_world());
+res = initialize_Std_Tactic_BVDecide_LRAT_Internal_CNF(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

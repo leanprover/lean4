@@ -5,9 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Ring.CommSemiringAdapter
-public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
@@ -20,7 +17,10 @@ variable [Monad M] [MonadError M] [MonadLiftT MetaM M] [MonadCanon M] [MonadRing
 def denoteNum (k : Int) : M Expr := do
   let ring ← getRing
   let n := mkRawNatLit k.natAbs
-  let ofNatInst := mkApp3 (mkConst ``Grind.Semiring.ofNat [ring.u]) ring.type ring.semiringInst n
+  let ofNatInst ← if let some inst ← synthInstance? (mkApp2 (mkConst ``OfNat [ring.u]) ring.type n) then
+    pure inst
+  else
+    pure <| mkApp3 (mkConst ``Grind.Semiring.ofNat [ring.u]) ring.type ring.semiringInst n
   let n := mkApp3 (mkConst ``OfNat.ofNat [ring.u]) ring.type n ofNatInst
   if k < 0 then
     return mkApp (← getNegFn) n
@@ -61,19 +61,27 @@ where
     | .num k => return mkApp2 (← getAddFn) acc (← denoteNum k)
     | .add k m p => go p (mkApp2 (← getAddFn) acc (← denoteTerm k m))
 
-def _root_.Lean.Grind.CommRing.Expr.denoteExpr (e : RingExpr) : M Expr := do
+@[specialize]
+private def denoteExprCore (getVar : Nat → Expr) (e : RingExpr) : M Expr := do
   go e
 where
   go : RingExpr → M Expr
   | .num k => denoteNum k
   | .natCast k => return mkApp (← getNatCastFn) (mkNatLit k)
   | .intCast k => return mkApp (← getIntCastFn) (mkIntLit k)
-  | .var x => return (← getRing).vars[x]!
+  | .var x => return getVar x
   | .add a b => return mkApp2 (← getAddFn) (← go a) (← go b)
   | .sub a b => return mkApp2 (← getSubFn) (← go a) (← go b)
   | .mul a b => return mkApp2 (← getMulFn) (← go a) (← go b)
   | .pow a k => return mkApp2 (← getPowFn) (← go a) (toExpr k)
   | .neg a => return mkApp (← getNegFn) (← go a)
+
+def _root_.Lean.Grind.CommRing.Expr.denoteExpr (e : RingExpr) : M Expr := do
+  let ring ← getRing
+  denoteExprCore (fun x => ring.vars[x]!) e
+
+def _root_.Lean.Grind.CommRing.Expr.denoteExpr' (vars : Array Expr) (e : RingExpr) : M Expr := do
+  denoteExprCore (fun x => vars[x]!) e
 
 private def mkEq (a b : Expr) : M Expr := do
   let r ← getRing

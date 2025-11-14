@@ -10,11 +10,11 @@ prelude
 public import Init.Data.Range
 public import Init.Data.OfScientific
 public import Init.Data.Hashable
-public import Init.Data.ToString.Macro
 public import Std.Data.TreeMap.Raw.Basic
 public import Init.Data.Ord.String
 import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic.Nat
+import Init.Data.String.TakeDrop
 
 public section
 

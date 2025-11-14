@@ -68,9 +68,6 @@ capacity.
 @[inline] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) : HashSet α :=
   ⟨HashMap.emptyWithCapacity capacity⟩
 
-@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
-abbrev empty := @emptyWithCapacity
-
 instance [BEq α] [Hashable α] : EmptyCollection (HashSet α) where
   emptyCollection := emptyWithCapacity
 
@@ -235,6 +232,17 @@ appearance.
 @[inline] def toArray (m : HashSet α) : Array α :=
   m.inner.keysArray
 
+/--
+Computes the union of the given hash sets.
+
+This function always merges the smaller set into the larger set, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashSet α) : HashSet α :=
+  ⟨HashMap.union m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : Union (HashSet α) := ⟨union⟩
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -263,12 +271,6 @@ in the collection will be present in the returned hash set.
 -/
 @[inline] def ofArray [BEq α] [Hashable α] (l : Array α) : HashSet α :=
   ⟨HashMap.unitOfArray l⟩
-
-/-- Computes the union of the given hash sets, by traversing `m₂` and inserting its elements into `m₁`. -/
-@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashSet α) : HashSet α :=
-  m₂.fold (init := m₁) fun acc x => acc.insert x
-
-instance [BEq α] [Hashable α] : Union (HashSet α) := ⟨union⟩
 
 /--
 Returns the number of buckets in the internal representation of the hash set. This function may

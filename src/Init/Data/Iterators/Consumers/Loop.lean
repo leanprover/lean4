@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Iterators.Consumers.Collect
 public import Init.Data.Iterators.Consumers.Monadic.Loop
-public import Init.Data.Iterators.Consumers.Partial
 
 public section
 
@@ -203,28 +202,105 @@ def Iter.all {α β : Type w}
     (p : β → Bool) (it : Iter (α := α) β) : Bool :=
   (it.allM (fun x => pure (f := Id) (p x))).run
 
-@[always_inline, inline, expose, inherit_doc IterM.size]
-def Iter.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorSize α Id]
-    (it : Iter (α := α) β) : Nat :=
-  (IteratorSize.size it.toIterM).run.down
+@[inline]
+def Iter.findSomeM? {α β : Type w} {γ : Type x} {m : Type x → Type w'} [Monad m] [Iterator α Id β]
+    [IteratorLoop α Id m] [Finite α Id] (it : Iter (α := α) β) (f : β → m (Option γ)) :
+    m (Option γ) :=
+  ForIn.forIn it none (fun x _ => do
+    match ← f x with
+    | none => return .yield none
+    | some fx => return .done (some fx))
 
-@[always_inline, inline, inherit_doc IterM.Partial.size]
-def Iter.Partial.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorSizePartial α Id]
-    (it : Iter (α := α) β) : Nat :=
-  (IteratorSizePartial.size it.toIterM).run.down
+@[inline]
+def Iter.Partial.findSomeM? {α β : Type w} {γ : Type x} {m : Type x → Type w'} [Monad m]
+    [Iterator α Id β] [IteratorLoopPartial α Id m] (it : Iter.Partial (α := α) β)
+    (f : β → m (Option γ)) :
+    m (Option γ) :=
+  ForIn.forIn it none (fun x _ => do
+    match ← f x with
+    | none => return .yield none
+    | some fx => return .done (some fx))
+
+@[inline]
+def Iter.findSome? {α β : Type w} {γ : Type x} [Iterator α Id β]
+    [IteratorLoop α Id Id] [Finite α Id] (it : Iter (α := α) β) (f : β → Option γ) :
+    Option γ :=
+  Id.run (it.findSomeM? (pure <| f ·))
+
+@[inline]
+def Iter.Partial.findSome? {α β : Type w} {γ : Type x} [Iterator α Id β]
+    [IteratorLoopPartial α Id Id] (it : Iter.Partial (α := α) β) (f : β → Option γ) :
+    Option γ :=
+  Id.run (it.findSomeM? (pure <| f ·))
+
+@[inline]
+def Iter.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α Id β]
+    [IteratorLoop α Id m] [Finite α Id] (it : Iter (α := α) β) (f : β → m (ULift Bool)) :
+    m (Option β) :=
+  it.findSomeM? (fun x => return if (← f x).down then some x else none)
+
+@[inline]
+def Iter.Partial.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α Id β]
+    [IteratorLoopPartial α Id m] (it : Iter.Partial (α := α) β) (f : β → m (ULift Bool)) :
+    m (Option β) :=
+  it.findSomeM? (fun x => return if (← f x).down then some x else none)
+
+@[inline]
+def Iter.find? {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
+    [Finite α Id] (it : Iter (α := α) β) (f : β → Bool) : Option β :=
+  Id.run (it.findM? (pure <| .up <| f ·))
+
+@[inline]
+def Iter.Partial.find? {α β : Type w} [Iterator α Id β] [IteratorLoopPartial α Id Id]
+    (it : Iter.Partial (α := α) β) (f : β → Bool) : Option β :=
+  Id.run (it.findM? (pure <| .up <| f ·))
 
 /--
-`LawfulIteratorSize α m` ensures that the `size` function of an iterator behaves as if it
-iterated over the whole iterator, counting its elements and causing all the monadic side effects
-of the iterations. This is a fairly strong condition for monadic iterators and it will be false
-for many efficient implementations of `size` that compute the size without actually iterating.
+Steps through the whole iterator, counting the number of outputs emitted.
 
-This class is experimental and users of the iterator API should not explicitly depend on it.
+**Performance**:
+
+This function's runtime is linear in the number of steps taken by the iterator.
 -/
-class LawfulIteratorSize (α : Type w) {β : Type w} [Iterator α Id β] [Finite α Id]
-    [IteratorSize α Id] where
-    size_eq_size_toArray {it : Iter (α := α) β} : it.size =
-      haveI : IteratorCollect α Id Id := .defaultImplementation
-      it.toArray.size
+@[always_inline, inline, expose]
+def Iter.count {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id Id]
+    (it : Iter (α := α) β) : Nat :=
+  it.toIterM.count.run.down
+
+/--
+Steps through the whole iterator, counting the number of outputs emitted.
+
+**Performance**:
+
+This function's runtime is linear in the number of steps taken by the iterator.
+-/
+@[always_inline, inline, expose, deprecated Iter.count (since := "2025-10-29")]
+def Iter.size {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id Id]
+    (it : Iter (α := α) β) : Nat :=
+   it.count
+
+/--
+Steps through the whole iterator, counting the number of outputs emitted.
+
+**Performance**:
+
+This function's runtime is linear in the number of steps taken by the iterator.
+-/
+@[always_inline, inline, expose]
+def Iter.Partial.count {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoopPartial α Id Id]
+    (it : Iter.Partial (α := α) β) : Nat :=
+  it.it.toIterM.allowNontermination.count.run.down
+
+/--
+Steps through the whole iterator, counting the number of outputs emitted.
+
+**Performance**:
+
+This function's runtime is linear in the number of steps taken by the iterator.
+-/
+@[always_inline, inline, expose, deprecated Iter.Partial.count (since := "2025-10-29")]
+def Iter.Partial.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoopPartial α Id Id]
+    (it : Iter.Partial (α := α) β) : Nat :=
+  it.count
 
 end Std.Iterators

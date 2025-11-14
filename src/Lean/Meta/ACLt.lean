@@ -6,8 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Basic
-public import Lean.Meta.FunInfo
 public import Lean.Meta.DiscrTree
 
 public section

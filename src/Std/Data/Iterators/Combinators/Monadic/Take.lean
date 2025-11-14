@@ -7,8 +7,6 @@ module
 
 prelude
 public import Init.Data.Nat.Lemmas
-public import Init.RCases
-public import Init.Data.Iterators.Basic
 public import Init.Data.Iterators.Consumers.Monadic.Collect
 public import Init.Data.Iterators.Consumers.Monadic.Loop
 public import Init.Data.Iterators.Internal.Termination
@@ -80,12 +78,12 @@ instance Take.instIterator [Monad m] [Iterator α m β] : Iterator (Take α m β
   IsPlausibleStep := Take.PlausibleStep
   step it :=
     match h : it.internalState.remaining with
-    | 0 => pure <| .done (.depleted h)
+    | 0 => pure <| .deflate <| .done (.depleted h)
     | k + 1 => do
-      match ← it.internalState.inner.step with
-      | .yield it' out h' => pure <| .yield (it'.take k) out (.yield h' h)
-      | .skip it' h' => pure <| .skip (it'.take (k + 1)) (.skip h' h)
-      | .done h' => pure <| .done (.done h')
+      match (← it.internalState.inner.step).inflate with
+      | .yield it' out h' => pure <| .deflate <| .yield (it'.take k) out (.yield h' h)
+      | .skip it' h' => pure <| .deflate <| .skip (it'.take (k + 1)) (.skip h' h)
+      | .done h' => pure <| .deflate <| .done (.done h')
 
 def Take.Rel (m : Type w → Type w') [Monad m] [Iterator α m β] [Productive α m] :
     IterM (α := Take α m β) m β → IterM (α := Take α m β) m β → Prop :=
@@ -149,14 +147,6 @@ instance Take.instIteratorLoop {n : Type x → Type x'} [Monad m] [Monad n] [Ite
 instance Take.instIteratorLoopPartial [Monad m] [Monad n] [Iterator α m β]
     [MonadLiftT m n] :
     IteratorLoopPartial (Take α m β) m n :=
-  .defaultImplementation
-
-instance {α : Type w} [Monad m] [Iterator α m β] [Finite α m] [IteratorLoop α m m] :
-    IteratorSize (Take α m β) m :=
-  .defaultImplementation
-
-instance {α : Type w} [Monad m] [Iterator α m β] [IteratorLoopPartial α m m] :
-    IteratorSizePartial (Take α m β) m :=
   .defaultImplementation
 
 end Std.Iterators

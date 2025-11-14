@@ -184,10 +184,6 @@ def getKeyD [TransCmp cmp] (t : ExtTreeMap α β cmp) (a : α) (fallback : α) :
 def minEntry? [TransCmp cmp] (t : ExtTreeMap α β cmp) : Option (α × β) :=
   ExtDTreeMap.Const.minEntry? t.inner
 
-@[inline, inherit_doc minEntry?, deprecated minEntry? (since := "2025-03-13")]
-def min? [TransCmp cmp] (t : ExtTreeMap α β cmp) : Option (α × β) :=
-  t.minEntry?
-
 @[inline, inherit_doc ExtDTreeMap.Const.minEntry]
 def minEntry [TransCmp cmp] (t : ExtTreeMap α β cmp) (h : t ≠ ∅) : α × β :=
   ExtDTreeMap.Const.minEntry t.inner (fun _ => nomatch t)
@@ -533,6 +529,12 @@ def insertMany [TransCmp cmp] {ρ} [ForIn Id ρ (α × β)] (t : ExtTreeMap α �
 @[inline, inherit_doc ExtDTreeMap.Const.insertManyIfNewUnit]
 def insertManyIfNewUnit [TransCmp cmp] {ρ} [ForIn Id ρ α] (t : ExtTreeMap α Unit cmp) (l : ρ) : ExtTreeMap α Unit cmp :=
   ⟨ExtDTreeMap.Const.insertManyIfNewUnit t.inner l⟩
+
+@[inline, inherit_doc ExtDTreeMap.union]
+def union [TransCmp cmp] (t₁ t₂ : ExtTreeMap α β cmp) : ExtTreeMap α β cmp := ⟨ExtDTreeMap.union t₁.inner t₂.inner⟩
+
+instance [TransCmp cmp] : Union (ExtTreeMap α β cmp) := ⟨union⟩
+
 
 @[inline, inherit_doc ExtDTreeMap.eraseMany]
 def eraseMany [TransCmp cmp] {ρ} [ForIn Id ρ α] (t : ExtTreeMap α β cmp) (l : ρ) : ExtTreeMap α β cmp :=

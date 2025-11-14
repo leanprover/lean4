@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
 public import Lean.Meta.Tactic.Grind.Arith.Linear.OfNatModule
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.Util
@@ -92,6 +91,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   let some type := getType? e | return ()
   if isForbiddenParent parent? then return ()
   if let some structId ← getStructId? type then LinearM.run structId do
+    trace[grind.linarith.internalize] "{e}"
     setTermStructId e
     linearExt.markTerm e
     markVars e

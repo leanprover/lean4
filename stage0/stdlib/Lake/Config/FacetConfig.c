@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.FacetConfig
-// Imports: public import Lake.Build.Fetch public import Lake.Config.OutFormat
+// Imports: public import Lake.Build.Fetch
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -35,7 +35,7 @@ static lean_object* l_Lake_instInhabitedFacetConfig_default___lam__0___closed__4
 LEAN_EXPORT lean_object* l_Lake_instInhabitedFacetConfig_default___lam__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_FacetConfig_toKind_x3f___redArg(lean_object*, lean_object*);
 lean_object* lean_task_pure(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_KFacetConfig_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_KFacetConfig_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_FacetConfig_toKind___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkFacetJobConfig___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t);
 static lean_object* l_Lake_instTypeNameModuleFacetDecl_unsafe__1___closed__2;
@@ -47,7 +47,7 @@ LEAN_EXPORT lean_object* l_Lake_FacetConfig_toKind___redArg___boxed(lean_object*
 LEAN_EXPORT lean_object* l_Lake_FacetConfig_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_KFacetConfig_run___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedFacetConfig_default___lam__1(uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_KFacetConfig_run___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_KFacetConfig_run___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_KFacetConfig_kind__eq___autoParam___closed__15;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedFacetConfig_default(lean_object*);
@@ -58,10 +58,11 @@ LEAN_EXPORT lean_object* l_Lake_instInhabitedFacetConfig_default___boxed(lean_ob
 LEAN_EXPORT lean_object* l_Lake_instTypeNameModuleFacetDecl_unsafe__1;
 static lean_object* l_Lake_KFacetConfig_kind__eq___autoParam___closed__2;
 LEAN_EXPORT lean_object* l_Lake_KFacetConfig_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_KFacetConfig_run___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_KFacetConfig_kind__eq___autoParam___closed__4;
 static lean_object* l_Lake_instTypeNameModuleFacetDecl_unsafe__1___closed__1;
 LEAN_EXPORT lean_object* l_Lake_FacetConfig_name(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instInhabitedFacetConfig_default___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instInhabitedFacetConfig_default___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_instInhabitedJobState_default;
 static lean_object* l_Lake_KFacetConfig_kind__eq___autoParam___closed__11;
 static lean_object* l_Lake_KFacetConfig_kind__eq___autoParam___closed__3;
@@ -178,18 +179,15 @@ lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_1);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instInhabitedFacetConfig_default___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l_Lake_instInhabitedFacetConfig_default___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_9; lean_object* x_10; 
 x_9 = l_Lake_instInhabitedFacetConfig_default___lam__0___closed__5;
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_7);
-x_11 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_11, 0, x_10);
-lean_ctor_set(x_11, 1, x_8);
-return x_11;
+return x_10;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instInhabitedFacetConfig_default___lam__1(uint8_t x_1, lean_object* x_2) {
@@ -222,7 +220,7 @@ LEAN_EXPORT lean_object* l_Lake_instInhabitedFacetConfig_default___lam__0___boxe
 _start:
 {
 lean_object* x_9; 
-x_9 = l_Lake_instInhabitedFacetConfig_default___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+x_9 = l_Lake_instInhabitedFacetConfig_default___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -633,33 +631,41 @@ lean_dec(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_KFacetConfig_run___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l_Lake_KFacetConfig_run___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_10);
 lean_dec_ref(x_1);
-x_11 = lean_apply_8(x_10, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+x_11 = lean_apply_8(x_10, x_2, x_3, x_4, x_5, x_6, x_7, x_8, lean_box(0));
 return x_11;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_KFacetConfig_run(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15) {
+LEAN_EXPORT lean_object* l_Lake_KFacetConfig_run(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14) {
 _start:
 {
 lean_object* x_16; lean_object* x_17; 
 x_16 = lean_ctor_get(x_7, 1);
 lean_inc_ref(x_16);
 lean_dec_ref(x_7);
-x_17 = lean_apply_8(x_16, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
+x_17 = lean_apply_8(x_16, x_8, x_9, x_10, x_11, x_12, x_13, x_14, lean_box(0));
 return x_17;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_KFacetConfig_run___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+_start:
+{
+lean_object* x_10; 
+x_10 = l_Lake_KFacetConfig_run___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+return x_10;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_KFacetConfig_run___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15) {
 _start:
 {
 lean_object* x_16; 
-x_16 = l_Lake_KFacetConfig_run(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
+x_16 = l_Lake_KFacetConfig_run(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_3);
 lean_dec(x_1);
 return x_16;
@@ -847,17 +853,13 @@ x_1 = l_Lake_instTypeNameLibraryFacetDecl_unsafe__1;
 return x_1;
 }
 }
-lean_object* initialize_Lake_Build_Fetch(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_OutFormat(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Build_Fetch(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Config_FacetConfig(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Config_FacetConfig(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Build_Fetch(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Config_OutFormat(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Fetch(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instInhabitedFacetConfig_default___lam__0___closed__0 = _init_l_Lake_instInhabitedFacetConfig_default___lam__0___closed__0();

@@ -6,10 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.WFTactics
-public import Init.Data.Nat.Basic
-public import Init.Data.Fin.Basic
-public import Init.Data.UInt.BasicAux
 public import Init.GetElem
 public import Init.Data.List.ToArrayImpl
 import all Init.Data.List.ToArrayImpl
@@ -214,20 +210,6 @@ def replicate {α : Type u} (n : Nat) (v : α) : Array α where
   toList := List.replicate n v
 
 /--
-Creates an array that contains `n` repetitions of `v`.
-
-The corresponding `List` function is `List.replicate`.
-
-Examples:
- * `Array.mkArray 2 true = #[true, true]`
- * `Array.mkArray 3 () = #[(), (), ()]`
- * `Array.mkArray 0 "anything" = #[]`
--/
-@[extern "lean_mk_array", deprecated replicate (since := "2025-03-18")]
-def mkArray {α : Type u} (n : Nat) (v : α) : Array α where
-  toList := List.replicate n v
-
-/--
 Swaps two elements of an array. The modification is performed in-place when the reference to the
 array is unique.
 
@@ -244,7 +226,7 @@ def swap (xs : Array α) (i j : @& Nat) (hi : i < xs.size := by get_elem_tactic)
   let xs'  := xs.set i v₂
   xs'.set j v₁ (Nat.lt_of_lt_of_eq hj (size_set _).symm)
 
-@[simp] theorem size_swap {xs : Array α} {i j : Nat} {hi hj} : (xs.swap i j hi hj).size = xs.size := by
+@[simp, grind =] theorem size_swap {xs : Array α} {i j : Nat} {hi hj} : (xs.swap i j hi hj).size = xs.size := by
   change ((xs.set i xs[j]).set j xs[i]
     (Nat.lt_of_lt_of_eq hj (size_set _).symm)).size = xs.size
   rw [size_set, size_set]
@@ -466,7 +448,7 @@ Examples:
 -/
 abbrev take (xs : Array α) (i : Nat) : Array α := extract xs 0 i
 
-@[simp] theorem take_eq_extract {xs : Array α} {i : Nat} : xs.take i = xs.extract 0 i := rfl
+@[simp, grind =] theorem take_eq_extract {xs : Array α} {i : Nat} : xs.take i = xs.extract 0 i := rfl
 
 /--
 Removes the first `i` elements of `xs`. If `xs` has fewer than `i` elements, the new array is empty.
@@ -480,7 +462,7 @@ Examples:
 -/
 abbrev drop (xs : Array α) (i : Nat) : Array α := extract xs i xs.size
 
-@[simp] theorem drop_eq_extract {xs : Array α} {i : Nat} : xs.drop i = xs.extract i xs.size := rfl
+@[simp, grind =] theorem drop_eq_extract {xs : Array α} {i : Nat} : xs.drop i = xs.extract i xs.size := rfl
 
 @[inline]
 unsafe def modifyMUnsafe [Monad m] (xs : Array α) (i : Nat) (f : α → m α) : m (Array α) := do
@@ -1313,7 +1295,7 @@ decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 
 /--
-Returns the index of the first element equal to `a`, or the size of the array if no element is equal
+Returns the index of the first element equal to `a`, or `none` if no element is equal
 to `a`. The index is returned as a `Fin`, which guarantees that it is in bounds.
 
 Examples:
@@ -1722,7 +1704,7 @@ def popWhile (p : α → Bool) (as : Array α) : Array α :=
     as
 decreasing_by simp_wf; decreasing_trivial_pre_omega
 
-@[simp] theorem popWhile_empty {p : α → Bool} :
+@[simp, grind =] theorem popWhile_empty {p : α → Bool} :
     popWhile p #[] = #[] := by
   simp [popWhile]
 
@@ -1769,7 +1751,8 @@ termination_by xs.size - i
 decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ h
 
 -- This is required in `Lean.Data.PersistentHashMap`.
-@[simp] theorem size_eraseIdx {xs : Array α} (i : Nat) (h) : (xs.eraseIdx i h).size = xs.size - 1 := by
+@[simp, grind =]
+theorem size_eraseIdx {xs : Array α} (i : Nat) (h) : (xs.eraseIdx i h).size = xs.size - 1 := by
   induction xs, i, h using Array.eraseIdx.induct with
   | @case1 xs i h h' xs' ih =>
     unfold eraseIdx
@@ -2151,5 +2134,3 @@ instance [ToString α] : ToString (Array α) where
   toString xs := String.Internal.append "#" (toString xs.toList)
 
 end Array
-
-export Array (mkArray)

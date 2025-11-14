@@ -6,12 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.ImplementedByAttr
-public import Lean.Compiler.LCNF.ElimDead
-public import Lean.Compiler.LCNF.AlphaEqv
-public import Lean.Compiler.LCNF.PrettyPrinter
-public import Lean.Compiler.LCNF.Bind
-public import Lean.Compiler.LCNF.Simp.FunDeclInfo
 public import Lean.Compiler.LCNF.Simp.InlineCandidate
 public import Lean.Compiler.LCNF.Simp.InlineProj
 public import Lean.Compiler.LCNF.Simp.Used

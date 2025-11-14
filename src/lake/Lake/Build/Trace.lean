@@ -6,11 +6,11 @@ Authors: Mac Malone
 module
 
 prelude
-public import Init.System.IO
 public import Lean.Data.Json
 import Init.Data.Nat.Fold
 import Lake.Util.String
 import Lake.Util.IO
+public import Init.Data.String.Extra
 
 /-! # Lake Traces
 
@@ -139,7 +139,7 @@ public def ofHex? (s : String) : Option Hash :=
 
 /-- Returns the hash as 16-digit lowercase hex string. -/
 public def hex (self : Hash) : String :=
-  lpad (Nat.toDigits 16 self.val.toNat).asString '0' 16
+  lpad (String.ofList <| Nat.toDigits 16 self.val.toNat) '0' 16
 
 public def ofDecimal? (s : String) : Option Hash :=
   (inline s.toNat?).map ofNat

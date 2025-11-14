@@ -105,7 +105,7 @@ example {α β : Sort u} (bar : α → β) (op : α → α → α) [Std.Associat
   grind only
 
 example (a b c : Nat) : min a (max b c) = min (max c b) a := by
-  grind -cutsat only
+  grind -lia only
 
 example (a b c : Nat) : min a (max b (max c 0)) = min (max c b) a := by
-  grind -cutsat only
+  grind -lia only

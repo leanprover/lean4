@@ -83,6 +83,38 @@ theorem get_eq {β : Type v} [BEq α] {l : AssocList α (fun _ => β)} {a : α} 
   next k v t ih => simp only [get, toList_cons, List.getValue_cons, ih]
 
 @[simp]
+theorem getEntry_eq [BEq α] {l : AssocList α β} {a : α} {h} :
+    l.getEntry a h = List.getEntry a l.toList (contains_eq.symm.trans h) := by
+  induction l
+  · simp [contains] at h
+  next k v t ih =>
+    simp only [getEntry, toList_cons, List.getEntry_cons, ih]
+
+@[simp]
+theorem getEntry?_eq [BEq α] {l : AssocList α β} {a : α} :
+    l.getEntry? a = List.getEntry? a l.toList  := by
+  induction l
+  · simp only [getEntry?, toList_nil, getEntry?_nil]
+  next k v t ih =>
+    simp only [getEntry?, ih, toList_cons, getEntry?_cons, Bool.ite_eq_cond_iff]
+
+@[simp]
+theorem getEntryD_eq [BEq α] {l : AssocList α β} {a : α} {fallback : (a : α) × β a} :
+    l.getEntryD a fallback = List.getEntryD a fallback l.toList := by
+  induction l
+  · simp only [getEntryD, toList_nil, getEntryD_nil]
+  next k v t ih =>
+    simp only [getEntryD, ih, toList_cons, getEntryD_cons, Bool.ite_eq_cond_iff]
+
+@[simp]
+theorem getEntry!_eq [BEq α] {l : AssocList α β} {a : α} [Inhabited ((a : α) × β a)] :
+    l.getEntry! a = List.getEntry! a l.toList := by
+  induction l
+  · simp only [getEntry!, toList_nil, getEntry!_nil]
+  next k v t ih =>
+    simp only [getEntry!, ih, toList_cons, List.getEntry!_cons, Bool.ite_eq_cond_iff]
+
+@[simp]
 theorem getCastD_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} {fallback : β a} :
     l.getCastD a fallback = getValueCastD a l.toList fallback := by
   induction l
@@ -200,7 +232,7 @@ theorem toList_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
   induction l' generalizing l
   · simp [filter.go]
   next k v t ih =>
-    simp only [filter.go, toList_cons, List.filter_cons, cond_eq_if]
+    simp only [filter.go, toList_cons, List.filter_cons, cond_eq_ite]
     split
     · exact (ih _).trans (by simpa using perm_middle.symm)
     · exact ih _
@@ -220,7 +252,7 @@ theorem filterMap_eq_filter {f : (a : α) → β a → Bool} {l : AssocList α �
   induction l generalizing l' with
   | nil => rfl
   | cons k v t ih =>
-    simp only [filterMap.go, filter.go, ih, Option.guard, cond_eq_if]
+    simp only [filterMap.go, filter.go, ih, Option.guard, cond_eq_ite]
     symm; split <;> rfl
 
 theorem toList_alter [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}

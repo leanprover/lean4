@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.Internal.WF.Lemmas
-// Imports: public import Init.Data.Option.List public import Init.Data.Array.Bootstrap public import Std.Data.DTreeMap.Internal.Model public import Std.Data.Internal.Cut import all Std.Data.Internal.List.Associative
+// Imports: public import Std.Data.DTreeMap.Internal.Model import all Std.Data.Internal.List.Associative
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1687,29 +1687,17 @@ lean_dec(x_3);
 return x_6;
 }
 }
-lean_object* initialize_Init_Data_Option_List(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Bootstrap(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DTreeMap_Internal_Model(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_Internal_Cut(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_Internal_List_Associative(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_DTreeMap_Internal_Model(uint8_t builtin);
+lean_object* initialize_Std_Data_Internal_List_Associative(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Data_DTreeMap_Internal_WF_Lemmas(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Data_DTreeMap_Internal_WF_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Option_List(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DTreeMap_Internal_Model(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Bootstrap(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Data_DTreeMap_Internal_Model(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Data_Internal_Cut(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Data_Internal_List_Associative(builtin, lean_io_mk_world());
+res = initialize_Std_Data_Internal_List_Associative(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

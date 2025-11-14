@@ -80,7 +80,10 @@ protected theorem zero_ne_one : (0 : Int) ≠ 1 := nofun
 
 /-! ## Coercions -/
 
-@[simp] theorem ofNat_eq_coe : Int.ofNat n = Nat.cast n := rfl
+@[simp] theorem ofNat_eq_natCast (n : Nat) : Int.ofNat n = n := rfl
+
+@[deprecated ofNat_eq_natCast (since := "2025-10-29")]
+theorem ofNat_eq_coe : Int.ofNat n = Nat.cast n := rfl
 
 @[simp] theorem ofNat_zero : ((0 : Nat) : Int) = 0 := rfl
 
@@ -313,7 +316,7 @@ the logical model.
 Examples:
  * `(7 : Int).natAbs = 7`
  * `(0 : Int).natAbs = 0`
- * `((-11 : Int).natAbs = 11`
+ * `(-11 : Int).natAbs = 11`
 -/
 @[extern "lean_nat_abs", expose]
 def natAbs (m : @& Int) : Nat :=
@@ -368,9 +371,6 @@ Examples:
 def toNat? : Int → Option Nat
   | (n : Nat) => some n
   | -[_+1] => none
-
-@[deprecated toNat? (since := "2025-03-11"), inherit_doc toNat?]
-abbrev toNat' := toNat?
 
 /-! ## divisibility -/
 

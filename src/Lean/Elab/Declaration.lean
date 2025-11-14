@@ -6,13 +6,8 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Util.CollectLevelParams
-public import Lean.Elab.DeclUtil
-public import Lean.Elab.DefView
 public import Lean.Elab.MutualDef
 public import Lean.Elab.MutualInductive
-public import Lean.Elab.DeclarationRange
-public import Lean.Parser.Command
 import Lean.Parser.Command
 
 public section
@@ -335,11 +330,6 @@ def elabMutual : CommandElab := fun stx => do
     Term.applyAttributes declName attrs
     for attrName in toErase do
       Attribute.erase declName attrName
-    if (← getEnv).isImportedConst declName && attrs.any (·.kind == .global) then
-      -- If an imported declaration is marked with a global attribute, there is no good way to track
-      -- its use generally and so Shake should conservatively preserve imports of the current
-      -- module.
-      recordExtraRevUseOfCurrentModule
 
 @[builtin_command_elab Lean.Parser.Command.«initialize»] def elabInitialize : CommandElab
   | stx@`($declModifiers:declModifiers $kw:initializeKeyword $[$id? : $type? ←]? $doSeq) => do

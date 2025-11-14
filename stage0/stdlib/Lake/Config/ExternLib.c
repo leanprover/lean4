@@ -401,13 +401,13 @@ x_4 = l_Lean_Name_str___override(x_2, x_3);
 return x_4;
 }
 }
-lean_object* initialize_Lake_Config_ConfigTarget(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Config_ConfigTarget(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Config_ExternLib(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Config_ExternLib(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Config_ConfigTarget(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_ConfigTarget(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_Package_externLibs___closed__0 = _init_l_Lake_Package_externLibs___closed__0();

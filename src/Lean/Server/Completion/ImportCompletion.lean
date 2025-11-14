@@ -6,7 +6,6 @@ Authors: Marc Huisinga
 module
 
 prelude
-public import Lean.Data.NameTrie
 public import Lean.Util.LakePath
 public import Lean.Data.Lsp
 public import Lean.Parser.Module

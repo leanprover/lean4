@@ -7,10 +7,7 @@ module
 
 prelude
 public import Lean.Elab.App
-public import Lean.Elab.Command
-public import Lean.Elab.DeclarationRange
 public import Lean.Elab.DeclNameGen
-public meta import Lean.Parser.Command
 
 public section
 

@@ -6,16 +6,10 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Core
 public import Init.Data.Slice.Array.Basic
 import Init.Data.Iterators.Combinators.Attach
-import Init.Data.Iterators.Combinators.FilterMap
 public import Init.Data.Iterators.Combinators.ULift
-public import Init.Data.Iterators.Consumers.Collect
-public import Init.Data.Iterators.Consumers.Loop
-public import Init.Data.Range.Polymorphic.Basic
 import all Init.Data.Range.Polymorphic.Basic
-public import Init.Data.Range.Polymorphic.Nat
 public import Init.Data.Range.Polymorphic.Iterators
 public import Init.Data.Slice.Operations
 import Init.Omega
@@ -54,10 +48,9 @@ universe v w
     IteratorLoop (ToIterator.State s Id) Id m := inferInstance
 @[no_expose] instance {s : Subarray α} {m : Type v → Type w} [Monad m] :
     IteratorLoopPartial (ToIterator.State s Id) Id m := inferInstance
-@[no_expose] instance {s : Subarray α} :
-    IteratorSize (ToIterator.State s Id) Id := inferInstance
-@[no_expose] instance {s : Subarray α} :
-    IteratorSizePartial (ToIterator.State s Id) Id := inferInstance
+
+instance : SliceSize (Internal.SubarrayData α) where
+  size s := s.internalRepresentation.stop - s.internalRepresentation.start
 
 @[no_expose]
 instance {α : Type u} {m : Type v → Type w} :

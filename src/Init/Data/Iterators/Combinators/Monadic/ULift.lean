@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Basic
 public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Monadic
 
@@ -75,7 +74,7 @@ variable {α : Type u} {m : Type u → Type u'} {n : Type max u v → Type v'}
 /--
 Transforms a step of the base iterator into a step of the `uLift` iterator.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def Types.ULiftIterator.Monadic.modifyStep (step : IterStep (IterM (α := α) m β) β) :
     IterStep (IterM (α := ULiftIterator.{v} α m n β lift) n (ULift.{v} β)) (ULift.{v} β) :=
   match step with
@@ -90,9 +89,9 @@ instance Types.ULiftIterator.instIterator [Iterator α m β] [Monad n] :
       step = ULiftIterator.Monadic.modifyStep step'
   step it := do
     let step := (← (lift it.internalState.inner.step).run).down
-    return ⟨Monadic.modifyStep step.val, ?hp⟩
+    return .deflate ⟨Monadic.modifyStep step.inflate.val, ?hp⟩
   where finally
-    case hp => exact ⟨step.val, step.property, rfl⟩
+    case hp => exact ⟨step.inflate.val, step.inflate.property, rfl⟩
 
 def Types.ULiftIterator.instFinitenessRelation [Iterator α m β] [Finite α m] [Monad n] :
     FinitenessRelation (ULiftIterator α m n β lift) n where
@@ -139,15 +138,6 @@ instance Types.ULiftIterator.instIteratorCollect [Monad n] [Monad o] [Iterator �
 
 instance Types.ULiftIterator.instIteratorCollectPartial {o} [Monad n] [Monad o] [Iterator α m β] :
     IteratorCollectPartial (ULiftIterator α m n β lift) n o :=
-  .defaultImplementation
-
-instance Types.ULiftIterator.instIteratorSize [Monad n] [Iterator α m β] [IteratorSize α m]
-    [Finite (ULiftIterator α m n β lift) n] :
-    IteratorSize (ULiftIterator α m n β lift) n :=
-  .defaultImplementation
-
-instance Types.ULiftIterator.instIteratorSizePartial [Monad n] [Iterator α m β] [IteratorSize α m] :
-    IteratorSizePartial (ULiftIterator α m n β lift) n :=
   .defaultImplementation
 
 /--

@@ -6,12 +6,12 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.ByteArray.Basic
 import all Init.Data.ByteArray.Basic
 public import Init.Data.String.Basic
 import all Init.Data.String.Basic
-import Init.Data.UInt.Lemmas
-import Init.Data.UInt.Bitwise
+public import Init.Data.String.Substring
+public import Init.Data.String.Modify
+import Init.Data.String.Search
 
 public section
 
@@ -49,79 +49,40 @@ Checks whether an array of bytes is a valid UTF-8 encoding of a string.
 abbrev validateUTF8 (a : ByteArray) : Bool :=
   a.validateUTF8
 
-theorem Iterator.sizeOf_next_lt_of_hasNext (i : String.Iterator) (h : i.hasNext) : sizeOf i.next < sizeOf i := by
-  cases i; rename_i s pos; simp [Iterator.next, Iterator.sizeOf_eq]; simp [Iterator.hasNext] at h
-  exact Nat.sub_lt_sub_left h (String.lt_next s pos)
-
-macro_rules
-| `(tactic| decreasing_trivial) =>
-  `(tactic| with_reducible apply String.Iterator.sizeOf_next_lt_of_hasNext; assumption)
-
-theorem Iterator.sizeOf_next_lt_of_atEnd (i : String.Iterator) (h : ¬ i.atEnd = true) : sizeOf i.next < sizeOf i :=
-  have h : i.hasNext := decide_eq_true <| Nat.gt_of_not_le <| mt decide_eq_true h
-  sizeOf_next_lt_of_hasNext i h
-
-macro_rules
-| `(tactic| decreasing_trivial) =>
-  `(tactic| with_reducible apply String.Iterator.sizeOf_next_lt_of_atEnd; assumption)
-
-namespace Iterator
-
-/--
-Moves the iterator forward until the Boolean predicate `p` returns `true` for the iterator's current
-character or until the end of the string is reached. Does nothing if the current character already
-satisfies `p`.
--/
-@[specialize] def find (it : Iterator) (p : Char → Bool) : Iterator :=
-  if it.atEnd then it
-  else if p it.curr then it
-  else find it.next p
-
-/--
-Iterates over a string, updating a state at each character using the provided function `f`, until
-`f` returns `none`. Begins with the state `init`. Returns the state and character for which `f`
-returns `none`.
--/
-@[specialize] def foldUntil (it : Iterator) (init : α) (f : α → Char → Option α) : α × Iterator :=
-  if it.atEnd then
-    (init, it)
-  else if let some a := f init it.curr then
-    foldUntil it.next a f
-  else
-    (init, it)
-
-end Iterator
-
 private def findLeadingSpacesSize (s : String) : Nat :=
-  let it := s.iter
-  let it := it.find (· == '\n') |>.next
-  consumeSpaces it 0 s.length
+  let it := s.startValidPos
+  let it := it.find? (· == '\n') |>.bind String.ValidPos.next?
+  match it with
+  | some it => consumeSpaces it 0 s.length
+  | none => 0
 where
-  consumeSpaces (it : String.Iterator) (curr min : Nat) : Nat :=
-    if it.atEnd then min
-    else if it.curr == ' ' || it.curr == '\t' then consumeSpaces it.next (curr + 1) min
-    else if it.curr == '\n' then findNextLine it.next min
-    else findNextLine it.next (Nat.min curr min)
-  findNextLine (it : String.Iterator) (min : Nat) : Nat :=
-    if it.atEnd then min
-    else if it.curr == '\n' then consumeSpaces it.next 0 min
-    else findNextLine it.next min
+  consumeSpaces {s : String} (it : s.ValidPos) (curr min : Nat) : Nat :=
+    if h : it.IsAtEnd then min
+    else if it.get h == ' ' || it.get h == '\t' then consumeSpaces (it.next h) (curr + 1) min
+    else if it.get h == '\n' then findNextLine (it.next h) min
+    else findNextLine (it.next h) (Nat.min curr min)
+  termination_by it
+  findNextLine {s : String} (it : s.ValidPos) (min : Nat) : Nat :=
+    if h : it.IsAtEnd then min
+    else if it.get h == '\n' then consumeSpaces (it.next h) 0 min
+    else findNextLine (it.next h) min
+  termination_by it
 
 private def removeNumLeadingSpaces (n : Nat) (s : String) : String :=
-  consumeSpaces n s.iter ""
+  consumeSpaces n s.startValidPos ""
 where
-  consumeSpaces (n : Nat) (it : String.Iterator) (r : String) : String :=
+  consumeSpaces (n : Nat) {s : String} (it : s.ValidPos) (r : String) : String :=
      match n with
      | 0 => saveLine it r
      | n+1 =>
-       if it.atEnd then r
-       else if it.curr == ' ' || it.curr == '\t' then consumeSpaces n it.next r
+       if h : it.IsAtEnd then r
+       else if it.get h == ' ' || it.get h == '\t' then consumeSpaces n (it.next h) r
        else saveLine it r
   termination_by (it, 1)
-  saveLine (it : String.Iterator) (r : String) : String :=
-    if it.atEnd then r
-    else if it.curr == '\n' then consumeSpaces n it.next (r.push '\n')
-    else saveLine it.next (r.push it.curr)
+  saveLine {s : String} (it : s.ValidPos) (r : String) : String :=
+    if h : it.IsAtEnd then r
+    else if it.get h  == '\n' then consumeSpaces n (it.next h) (r.push '\n')
+    else saveLine (it.next h) (r.push (it.get h))
   termination_by (it, 0)
 
 /--
@@ -156,26 +117,26 @@ def crlfToLf (text : String) : String :=
   go "" 0 0
 where
   go (acc : String) (accStop pos : String.Pos.Raw) : String :=
-    if h : text.atEnd pos then
+    if h : pos.atEnd text then
       -- note: if accStop = 0 then acc is empty
-      if accStop = 0 then text else acc ++ text.extract accStop pos
+      if accStop = 0 then text else acc ++ accStop.extract text pos
     else
-      let c := text.get' pos h
-      let pos' := text.next' pos h
-      if h' : ¬ text.atEnd pos' ∧ c == '\r' ∧ text.get pos' == '\n' then
-        let acc := acc ++ text.extract accStop pos
-        go acc pos' (text.next' pos' h'.1)
+      let c := pos.get' text h
+      let pos' := pos.next' text h
+      if h' : ¬ pos'.atEnd text ∧ c == '\r' ∧ pos'.get text == '\n' then
+        let acc := acc ++ accStop.extract text pos
+        go acc pos' (pos'.next' text h'.1)
       else
         go acc accStop pos'
   termination_by text.utf8ByteSize - pos.byteIdx
   decreasing_by
     decreasing_with
-      change text.utf8ByteSize - (text.next (text.next pos)).byteIdx < text.utf8ByteSize - pos.byteIdx
+      change text.utf8ByteSize - ((pos.next text).next text).byteIdx < text.utf8ByteSize - pos.byteIdx
       have k := Nat.gt_of_not_le <| mt decide_eq_true h
-      exact Nat.sub_lt_sub_left k (Nat.lt_trans (String.lt_next text pos) (String.lt_next _ _))
+      exact Nat.sub_lt_sub_left k (Nat.lt_trans (String.Pos.Raw.lt_next text pos) (String.Pos.Raw.lt_next _ _))
     decreasing_with
-      change text.utf8ByteSize - (text.next pos).byteIdx < text.utf8ByteSize - pos.byteIdx
+      change text.utf8ByteSize - (pos.next text).byteIdx < text.utf8ByteSize - pos.byteIdx
       have k := Nat.gt_of_not_le <| mt decide_eq_true h
-      exact Nat.sub_lt_sub_left k (String.lt_next _ _)
+      exact Nat.sub_lt_sub_left k (String.Pos.Raw.lt_next _ _)
 
 end String

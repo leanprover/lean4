@@ -27,7 +27,7 @@ static lean_object* l_Std_Time_TimeZone_instReprOffset_repr___redArg___closed__1
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Offset_ofHoursAndMinutes(lean_object*, lean_object*);
 static lean_object* l_Std_Time_TimeZone_Offset_toIsoString___closed__1;
 lean_object* l_Std_Time_Internal_instOrdUnitVal___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_TimeZone_instReprOffset_repr_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_TimeZone_instReprOffset_repr_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Offset_toIsoString(lean_object*, uint8_t);
 lean_object* lean_string_length(lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
@@ -39,7 +39,7 @@ lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_Std_Time_TimeZone_Offset_toIsoString___closed__0;
 static lean_object* l_Std_Time_TimeZone_instReprOffset_repr___redArg___closed__12;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_instDecidableEqOffset_decEq___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_cast___at___Std_Time_TimeZone_Offset_toIsoString_spec__1(lean_object*);
+LEAN_EXPORT lean_object* l_Int_cast___at___00Std_Time_TimeZone_Offset_toIsoString_spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_instOrdOffset___lam__0___boxed(lean_object*);
 static lean_object* l_Std_Time_TimeZone_instReprOffset_repr___redArg___closed__5;
 lean_object* lean_nat_to_int(lean_object*);
@@ -82,7 +82,7 @@ static lean_object* l_Std_Time_TimeZone_instReprOffset_repr___redArg___closed__8
 lean_object* l_Rat_ofInt(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Std_Time_TimeZone_instReprOffset_repr___redArg___closed__4;
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_TimeZone_Offset_toIsoString_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_TimeZone_Offset_toIsoString_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Offset_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -100,7 +100,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_TimeZone_instReprOffset_repr_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_TimeZone_instReprOffset_repr_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -403,7 +403,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_TimeZone_Offset_toIsoString_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_TimeZone_Offset_toIsoString_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -412,7 +412,7 @@ x_3 = l_Rat_ofInt(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Int_cast___at___Std_Time_TimeZone_Offset_toIsoString_spec__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Int_cast___at___00Std_Time_TimeZone_Offset_toIsoString_spec__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -529,9 +529,9 @@ return x_11;
 block_18:
 {
 lean_object* x_17; 
-x_17 = lean_string_append(x_15, x_16);
+x_17 = lean_string_append(x_13, x_16);
 lean_dec_ref(x_16);
-x_3 = x_13;
+x_3 = x_15;
 x_4 = x_14;
 x_5 = x_17;
 goto block_12;
@@ -586,9 +586,9 @@ lean_object* x_37; lean_object* x_38;
 x_37 = lean_nat_abs(x_20);
 lean_dec(x_20);
 x_38 = l_Nat_reprFast(x_37);
-x_13 = x_22;
+x_13 = x_34;
 x_14 = x_21;
-x_15 = x_34;
+x_15 = x_22;
 x_16 = x_38;
 goto block_18;
 }
@@ -606,9 +606,9 @@ lean_dec(x_41);
 x_44 = l_Nat_reprFast(x_43);
 x_45 = lean_string_append(x_42, x_44);
 lean_dec_ref(x_44);
-x_13 = x_22;
+x_13 = x_34;
 x_14 = x_21;
-x_15 = x_34;
+x_15 = x_22;
 x_16 = x_45;
 goto block_18;
 }
@@ -778,13 +778,13 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* initialize_Std_Time_Time(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Time_Time(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Time_Zoned_Offset(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Time_Zoned_Offset(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Time_Time(builtin, lean_io_mk_world());
+res = initialize_Std_Time_Time(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Time_TimeZone_instReprOffset_repr___redArg___closed__0 = _init_l_Std_Time_TimeZone_instReprOffset_repr___redArg___closed__0();

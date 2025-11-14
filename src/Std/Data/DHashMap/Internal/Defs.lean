@@ -178,9 +178,6 @@ namespace Raw₀
   ⟨⟨0, Array.replicate (numBucketsForCapacity capacity).nextPowerOfTwo AssocList.nil⟩,
     by simpa using Nat.pos_of_isPowerOfTwo (Nat.isPowerOfTwo_nextPowerOfTwo _)⟩
 
-@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
-abbrev empty := @emptyWithCapacity
-
 -- Take `hash` as a function instead of `Hashable α` as per
 -- https://github.com/leanprover/lean4/issues/4191
 /-- Internal implementation detail of the hash map -/
@@ -372,6 +369,34 @@ def get [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (hma :
   buckets[idx.1].getCast a hma
 
 /-- Internal implementation detail of the hash map -/
+def getEntry [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (hma : m.contains a) :
+    (a : α) × β a :=
+  let ⟨⟨_, buckets⟩, h⟩ := m
+  let idx := mkIdx buckets.size h (hash a)
+  buckets[idx.1].getEntry a hma
+
+/-- Internal implementation detail of the hash map -/
+def getEntry? [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
+    Option ((a : α) × β a) :=
+  let ⟨⟨_, buckets⟩, h⟩ := m
+  let idx := mkIdx buckets.size h (hash a)
+  buckets[idx.1].getEntry? a
+
+/-- Internal implementation detail of the hash map -/
+def getEntryD [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : (a : α) × β a) :
+    (a : α) × β a :=
+  let ⟨⟨_, buckets⟩, h⟩ := m
+  let idx := mkIdx buckets.size h (hash a)
+  buckets[idx.1].getEntryD a fallback
+
+/-- Internal implementation detail of the hash map -/
+def getEntry! [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) [Inhabited ((a : α) × β a)] :
+    (a : α) × β a :=
+  let ⟨⟨_, buckets⟩, h⟩ := m
+  let idx := mkIdx buckets.size h (hash a)
+  buckets[idx.1].getEntry! a
+
+/-- Internal implementation detail of the hash map -/
 def getD [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : β a) :
     β a :=
   let ⟨⟨_, buckets⟩, h⟩ := m
@@ -425,6 +450,20 @@ def insertMany {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [BEq α] [Hashable
   for ⟨a, b⟩ in l do
     r := ⟨r.1.insert a b, fun _ h hm => h (r.2 _ h hm)⟩
   return r
+
+/-- Internal implementation detail of the hash map -/
+@[inline] def insertManyIfNew {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [BEq α] [Hashable α]
+    (m : Raw₀ α β) (l : ρ) : { m' : Raw₀ α β // ∀ (P : Raw₀ α β → Prop),
+      (∀ {m'' a b}, P m'' → P (m''.insertIfNew a b)) → P m → P m' } := Id.run do
+  let mut r : { m' : Raw₀ α β // ∀ (P : Raw₀ α β → Prop),
+    (∀ {m'' a b}, P m'' → P (m''.insertIfNew a b)) → P m → P m' } := ⟨m, fun _ _ => id⟩
+  for ⟨a, b⟩ in l do
+    r := ⟨r.1.insertIfNew a b, fun _ h hm => h (r.2 _ h hm)⟩
+  return r
+
+/-- Internal implementation detail of the hash map -/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
+  if m₁.1.size ≤ m₂.1.size then (m₂.insertManyIfNew m₁.1).1 else (m₁.insertMany m₂.1).1
 
 section
 

@@ -213,6 +213,10 @@ namespace Package
 @[inline] public def platformIndependent (self : Package) : Option Bool :=
   self.config.platformIndependent
 
+/-- Whether the package's  has been configured with `platformIndependent = true`. -/
+@[inline] public def isPlatformIndependent (self : Package) : Bool :=
+  self.config.platformIndependent == some true
+
 /-- The package's `releaseRepo`/`releaseRepo?` configuration. -/
 @[inline] public def releaseRepo? (self : Package) : Option String :=
   self.config.releaseRepo
@@ -325,11 +329,6 @@ Where shared libraries for the package are located.
 The package's `buildDir` joined with its `nativeLibDir` configuration.
 -/
 @[inline] public def sharedLibDir (self : Package) : FilePath :=
-  self.buildDir / self.config.nativeLibDir.normalize
-
-/-- The package's `buildDir` joined with its `nativeLibDir` configuration. -/
-@[inline, deprecated "Use staticLibDir or sharedLibDir instead." (since := "2025-03-29")]
-public def nativeLibDir (self : Package) : FilePath :=
   self.buildDir / self.config.nativeLibDir.normalize
 
 /-- The package's `buildDir` joined with its `binDir` configuration. -/

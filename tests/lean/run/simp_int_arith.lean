@@ -161,17 +161,14 @@ theorem ex₂ (x y z : Int) (f : Int → Int) : x + f y + 2 + f y + z + z ≤ f 
 info: theorem ex₂ : ∀ (x y z : Int) (f : Int → Int), x + f y + 2 + f y + z + z ≤ f y + 3 * z + 1 + 1 + x + f y - z :=
 fun x y z f =>
   of_eq_true
-    ((fun x_1 =>
-        id
-          (le_eq_true
-            (Lean.RArray.branch 1 (Lean.RArray.leaf x_1)
-              (Lean.RArray.branch 2 (Lean.RArray.leaf z) (Lean.RArray.leaf x)))
-            ((((((Expr.var 2).add (Expr.var 0)).add (Expr.num 2)).add (Expr.var 0)).add (Expr.var 1)).add (Expr.var 1))
-            (((((((Expr.var 0).add (Expr.mulL 3 (Expr.var 1))).add (Expr.num 1)).add (Expr.num 1)).add (Expr.var 2)).add
-                  (Expr.var 0)).sub
-              (Expr.var 1))
-            (eagerReduce (Eq.refl true))))
-      (f y))
+    (id
+      (le_eq_true
+        (Lean.RArray.branch 1 (Lean.RArray.leaf (f y)) (Lean.RArray.branch 2 (Lean.RArray.leaf z) (Lean.RArray.leaf x)))
+        ((((((Expr.var 2).add (Expr.var 0)).add (Expr.num 2)).add (Expr.var 0)).add (Expr.var 1)).add (Expr.var 1))
+        (((((((Expr.var 0).add (Expr.mulL 3 (Expr.var 1))).add (Expr.num 1)).add (Expr.num 1)).add (Expr.var 2)).add
+              (Expr.var 0)).sub
+          (Expr.var 1))
+        (eagerReduce (Eq.refl true))))
 -/
 #guard_msgs (info) in
 open Int.Linear in

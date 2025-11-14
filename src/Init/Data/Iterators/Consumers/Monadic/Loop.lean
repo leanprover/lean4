@@ -6,8 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.RCases
-public import Init.Data.Iterators.Basic
 public import Init.Data.Iterators.Consumers.Monadic.Partial
 public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 
@@ -90,27 +88,6 @@ class IteratorLoopPartial (α : Type w) (m : Type w → Type w') {β : Type w} [
       (it : IterM (α := α) m β) → γ →
       ((b : β) → it.IsPlausibleIndirectOutput b → (c : γ) → n (ForInStep γ)) → n γ
 
-/--
-`IteratorSize α m` provides an implementation of the `IterM.size` function.
-
-This class is experimental and users of the iterator API should not explicitly depend on it.
-They can, however, assume that consumers that require an instance will work for all iterators
-provided by the standard library.
--/
-class IteratorSize (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
-  size : IterM (α := α) m β → m (ULift Nat)
-
-/--
-`IteratorSizePartial α m` provides an implementation of the `IterM.Partial.size` function that
-can be used as `it.allowTermination.size`.
-
-This class is experimental and users of the iterator API should not explicitly depend on it.
-They can, however, assume that consumers that require an instance will work for all iterators
-provided by the standard library.
--/
-class IteratorSizePartial (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
-  size : IterM (α := α) m β → m (ULift Nat)
-
 end Typeclasses
 
 /-- Internal implementation detail of the iterator library. -/
@@ -142,7 +119,8 @@ def IterM.DefaultConsumers.forIn' {m : Type w → Type w'} {α : Type w} {β : T
     (P : β → Prop) (hP : ∀ b, it.IsPlausibleIndirectOutput b → P b)
     (f : (b : β) → P b → (c : γ) → n (Subtype (plausible_forInStep b c))) : n γ :=
   haveI : WellFounded _ := wf
-  (lift _ _ · it.step) fun
+  (lift _ _ · it.step) fun s =>
+    match s.inflate with
     | .yield it' out h => do
       match ← f out (hP _ <| .direct ⟨_, h⟩) init with
       | ⟨.yield c, _⟩ =>
@@ -220,7 +198,8 @@ partial def IterM.DefaultConsumers.forInPartial {m : Type w → Type w'} {α : T
     (lift : ∀ γ δ, (γ → n δ) → m γ → n δ) (γ : Type x)
     (it : IterM (α := α) m β) (init : γ)
     (f : (b : β) → it.IsPlausibleIndirectOutput b → (c : γ) → n (ForInStep γ)) : n γ :=
-  (lift _ _ · it.step) fun
+  (lift _ _ · it.step) fun s =>
+      match s.inflate with
       | .yield it' out h => do
         match ← f out (.direct ⟨_, h⟩) init with
         | .yield c =>
@@ -315,7 +294,7 @@ instance {m : Type w → Type w'} {n : Type w → Type w''}
   forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
 
 instance {m : Type w → Type w'} {n : Type w → Type w''}
-    {α : Type w} {β : Type w} [Iterator α m β] [Finite α m] [IteratorLoopPartial α m n]
+    {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoopPartial α m n]
     [MonadLiftT m n] :
     ForM n (IterM.Partial (α := α) m β) β where
   forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
@@ -579,86 +558,112 @@ def IterM.Partial.all {α β : Type w} {m : Type w → Type w'} [Monad m]
     (p : β → Bool) (it : IterM.Partial (α := α) m β) : m (ULift Bool) := do
   it.allM (fun x => pure (.up (p x)))
 
-section Size
+@[inline]
+def IterM.findSomeM? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] [Finite α m] (it : IterM (α := α) m β) (f : β → m (Option γ)) :
+    m (Option γ) :=
+  ForIn.forIn it none (fun x _ => do
+    match ← f x with
+    | none => return .yield none
+    | some fx => return .done (some fx))
+
+@[inline]
+def IterM.Partial.findSomeM? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoopPartial α m m] (it : IterM.Partial (α := α) m β) (f : β → m (Option γ)) :
+    m (Option γ) :=
+  ForIn.forIn it none (fun x _ => do
+    match ← f x with
+    | none => return .yield none
+    | some fx => return .done (some fx))
+
+@[inline]
+def IterM.findSome? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] [Finite α m] (it : IterM (α := α) m β) (f : β → Option γ) :
+    m (Option γ) :=
+  it.findSomeM? (pure <| f ·)
+
+@[inline]
+def IterM.Partial.findSome? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoopPartial α m m] (it : IterM.Partial (α := α) m β) (f : β → Option γ) :
+    m (Option γ) :=
+  it.findSomeM? (pure <| f ·)
+
+@[inline]
+def IterM.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] [Finite α m] (it : IterM (α := α) m β) (f : β → m (ULift Bool)) :
+    m (Option β) :=
+  it.findSomeM? (fun x => return if (← f x).down then some x else none)
+
+@[inline]
+def IterM.Partial.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoopPartial α m m] (it : IterM.Partial (α := α) m β) (f : β → m (ULift Bool)) :
+    m (Option β) :=
+  it.findSomeM? (fun x => return if (← f x).down then some x else none)
+
+@[inline]
+def IterM.find? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] [Finite α m] (it : IterM (α := α) m β) (f : β → Bool) :
+    m (Option β) :=
+  it.findM? (pure <| .up <| f ·)
+
+@[inline]
+def IterM.Partial.find? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoopPartial α m m] (it : IterM.Partial (α := α) m β) (f : β → Bool) :
+    m (Option β) :=
+  it.findM? (pure <| .up <| f ·)
+
+section Count
 
 /--
-This is the implementation of the default instance `IteratorSize.defaultImplementation`.
+Steps through the whole iterator, counting the number of outputs emitted.
+
+**Performance**:
+
+This function's runtime is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline]
-def IterM.DefaultConsumers.size {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
-    [Iterator α m β] [IteratorLoop α m m] [Finite α m] (it : IterM (α := α) m β) :
-    m (ULift Nat) :=
+def IterM.count {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β] [Finite α m]
+    [IteratorLoop α m m]
+    [Monad m] (it : IterM (α := α) m β) : m (ULift Nat) :=
   it.fold (init := .up 0) fun acc _ => .up (acc.down + 1)
 
 /--
-This is the implementation of the default instance `IteratorSizePartial.defaultImplementation`.
--/
-@[always_inline, inline]
-def IterM.DefaultConsumers.sizePartial {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
-    [Iterator α m β] [IteratorLoopPartial α m m] (it : IterM (α := α) m β) :
-    m (ULift Nat) :=
-  it.allowNontermination.fold (init := .up 0) fun acc _ => .up (acc.down + 1)
-
-/--
-This is the default implementation of the `IteratorSize` class.
-It simply iterates using `IteratorLoop` and counts the elements.
-For certain iterators, more efficient implementations are possible and should be used instead.
--/
-@[always_inline, inline]
-def IteratorSize.defaultImplementation {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α m β] [Finite α m] [IteratorLoop α m m] :
-    IteratorSize α m where
-  size := IterM.DefaultConsumers.size
-
-
-/--
-This is the default implementation of the `IteratorSizePartial` class.
-It simply iterates using `IteratorLoopPartial` and counts the elements.
-For certain iterators, more efficient implementations are possible and should be used instead.
--/
-@[always_inline, inline]
-instance IteratorSizePartial.defaultImplementation {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α m β] [IteratorLoopPartial α m m] :
-    IteratorSizePartial α m where
-  size := IterM.DefaultConsumers.sizePartial
-
-/--
-Computes how many elements the iterator returns. In monadic situations, it is unclear which effects
-are caused by calling `size`, and if the monad is nondeterministic, it is also unclear what the
-returned value should be. The reference implementation, `IteratorSize.defaultImplementation`,
-simply iterates over the whole iterator monadically, counting the number of emitted values.
-An `IteratorSize` instance is considered lawful if it is equal to the reference implementation.
+Steps through the whole iterator, counting the number of outputs emitted.
 
 **Performance**:
 
-Default performance is linear in the number of steps taken by the iterator.
+This function's runtime is linear in the number of steps taken by the iterator.
 -/
-@[always_inline, inline]
-def IterM.size {α : Type} {m : Type → Type w'} {β : Type} [Iterator α m β] [Monad m]
-    (it : IterM (α := α) m β) [IteratorSize α m] : m Nat :=
-  ULift.down <$> IteratorSize.size it
+@[always_inline, inline, deprecated IterM.count (since := "2025-10-29")]
+def IterM.size {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β] [Finite α m]
+    [IteratorLoop α m m]
+    [Monad m] (it : IterM (α := α) m β) : m (ULift Nat) :=
+  it.count
 
 /--
-Computes how many elements the iterator emits.
-
-With monadic iterators (`IterM`), it is unclear which effects
-are caused by calling `size`, and if the monad is nondeterministic, it is also unclear what the
-returned value should be. The reference implementation, `IteratorSize.defaultImplementation`,
-simply iterates over the whole iterator monadically, counting the number of emitted values.
-An `IteratorSize` instance is considered lawful if it is equal to the reference implementation.
-
-This is the partial version of `size`. It does not require a proof of finiteness and might loop
-forever. It is not possible to verify the behavior in Lean because it uses `partial`.
+Steps through the whole iterator, counting the number of outputs emitted.
 
 **Performance**:
 
-Default performance is linear in the number of steps taken by the iterator.
+This function's runtime is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline]
-def IterM.Partial.size {α : Type} {m : Type → Type w'} {β : Type} [Iterator α m β] [Monad m]
-    (it : IterM.Partial (α := α) m β) [IteratorSizePartial α m] : m Nat :=
-  ULift.down <$> IteratorSizePartial.size it.it
+def IterM.Partial.count {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    [IteratorLoopPartial α m m] [Monad m] (it : IterM.Partial (α := α) m β) : m (ULift Nat) :=
+  it.fold (init := .up 0) fun acc _ => .up (acc.down + 1)
 
-end Size
+/--
+Steps through the whole iterator, counting the number of outputs emitted.
+
+**Performance**:
+
+This function's runtime is linear in the number of steps taken by the iterator.
+-/
+@[always_inline, inline, deprecated IterM.Partial.count (since := "2025-10-29")]
+def IterM.Partial.size {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    [IteratorLoopPartial α m m] [Monad m] (it : IterM.Partial (α := α) m β) : m (ULift Nat) :=
+  it.count
+
+end Count
 
 end Std.Iterators

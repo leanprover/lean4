@@ -6,20 +6,21 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Elab.PreDefinition.Eqns
 public import Lean.Elab.PreDefinition.FixedParams
+import Lean.Elab.PreDefinition.EqnsUtils
 import Lean.Meta.ArgsPacker.Basic
-import Init.Data.Array.Basic
 import Init.Internal.Order.Basic
 import Lean.Elab.Tactic.Conv
-import Lean.Meta.Tactic.Rewrite
-import Lean.Meta.Tactic.Split
 
 namespace Lean.Elab.PartialFixpoint
 open Meta
 open Eqns
 
-public structure EqnInfo extends EqnInfoCore where
+public structure EqnInfo where
+  declName    : Name
+  levelParams : List Name
+  type        : Expr
+  value       : Expr
   declNames       : Array Name
   declNameNonRec  : Name
   fixedParamPerms : FixedParamPerms
@@ -118,14 +119,7 @@ def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
   let some info := eqnInfoExt.find? env declName | return none
   return some (← mkUnfoldEq declName info)
 
-def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
-  if let some info := eqnInfoExt.find? (← getEnv) declName then
-    mkEqns declName info.declNames (tryRefl := false)
-  else
-    return none
-
 builtin_initialize
-  registerGetEqnsFn getEqnsFor?
   registerGetUnfoldEqnFn getUnfoldFor?
 
 end Lean.Elab.PartialFixpoint

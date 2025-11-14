@@ -80,64 +80,78 @@ LEAN_EXPORT uint8_t l_Lean_Meta_TransparencyMode_lt(uint8_t x_1, uint8_t x_2) {
 _start:
 {
 switch (x_1) {
-case 0:
+case 2:
 {
-uint8_t x_3; 
-x_3 = 0;
-return x_3;
-}
+switch (x_2) {
 case 1:
 {
-if (x_2 == 0)
+uint8_t x_3; 
+x_3 = 1;
+return x_3;
+}
+case 0:
 {
 uint8_t x_4; 
 x_4 = 1;
 return x_4;
 }
-else
+case 3:
 {
 uint8_t x_5; 
-x_5 = 0;
+x_5 = 1;
 return x_5;
 }
-}
-case 2:
-{
-if (x_2 == 2)
+default: 
 {
 uint8_t x_6; 
 x_6 = 0;
 return x_6;
 }
-else
+}
+}
+case 3:
+{
+switch (x_2) {
+case 1:
 {
 uint8_t x_7; 
 x_7 = 1;
 return x_7;
 }
-}
-default: 
-{
-switch (x_2) {
-case 2:
+case 0:
 {
 uint8_t x_8; 
-x_8 = 0;
+x_8 = 1;
 return x_8;
 }
-case 3:
+default: 
 {
 uint8_t x_9; 
 x_9 = 0;
 return x_9;
 }
-default: 
+}
+}
+case 1:
+{
+if (x_2 == 0)
 {
 uint8_t x_10; 
 x_10 = 1;
 return x_10;
 }
+else
+{
+uint8_t x_11; 
+x_11 = 0;
+return x_11;
 }
+}
+default: 
+{
+uint8_t x_12; 
+x_12 = 0;
+return x_12;
 }
 }
 }
@@ -153,13 +167,13 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Meta_TransparencyMode(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Meta_TransparencyMode(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_UInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_TransparencyMode_instHashable__lean___closed__0 = _init_l_Lean_Meta_TransparencyMode_instHashable__lean___closed__0();

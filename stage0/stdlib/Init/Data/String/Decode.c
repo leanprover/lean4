@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Decode
-// Imports: public import Init.Data.List.Lemmas import Init.Data.List.Lemmas public import Init.Data.UInt.Bitwise import Init.Data.Char.Lemmas public import Init.Data.ByteArray.Basic import Init.Data.ByteArray.Lemmas
+// Imports: public import Init.Data.UInt.Bitwise import Init.Data.Char.Lemmas public import Init.Data.ByteArray.Basic import Init.Data.ByteArray.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2486,9 +2486,50 @@ return x_16;
 LEAN_EXPORT lean_object* l_UInt8_utf8ByteSize(uint8_t x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_UInt8_utf8ByteSize___redArg(x_1);
-return x_3;
+uint8_t x_3; uint8_t x_4; uint8_t x_5; uint8_t x_6; 
+x_3 = 128;
+x_4 = lean_uint8_land(x_1, x_3);
+x_5 = 0;
+x_6 = lean_uint8_dec_eq(x_4, x_5);
+if (x_6 == 0)
+{
+uint8_t x_7; uint8_t x_8; uint8_t x_9; uint8_t x_10; 
+x_7 = 224;
+x_8 = lean_uint8_land(x_1, x_7);
+x_9 = 192;
+x_10 = lean_uint8_dec_eq(x_8, x_9);
+if (x_10 == 0)
+{
+uint8_t x_11; uint8_t x_12; uint8_t x_13; 
+x_11 = 240;
+x_12 = lean_uint8_land(x_1, x_11);
+x_13 = lean_uint8_dec_eq(x_12, x_7);
+if (x_13 == 0)
+{
+lean_object* x_14; 
+x_14 = lean_unsigned_to_nat(4u);
+return x_14;
+}
+else
+{
+lean_object* x_15; 
+x_15 = lean_unsigned_to_nat(3u);
+return x_15;
+}
+}
+else
+{
+lean_object* x_16; 
+x_16 = lean_unsigned_to_nat(2u);
+return x_16;
+}
+}
+else
+{
+lean_object* x_17; 
+x_17 = lean_unsigned_to_nat(1u);
+return x_17;
+}
 }
 }
 LEAN_EXPORT lean_object* l_UInt8_utf8ByteSize___redArg___boxed(lean_object* x_1) {
@@ -2647,33 +2688,25 @@ lean_dec(x_3);
 return x_9;
 }
 }
-lean_object* initialize_Init_Data_List_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_UInt_Bitwise(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Char_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_ByteArray_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_ByteArray_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_UInt_Bitwise(uint8_t builtin);
+lean_object* initialize_Init_Data_Char_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_ByteArray_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_ByteArray_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_String_Decode(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_String_Decode(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_UInt_Bitwise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Char_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_UInt_Bitwise(builtin, lean_io_mk_world());
+res = initialize_Init_Data_ByteArray_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Char_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_ByteArray_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_ByteArray_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_ByteArray_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -8,13 +8,10 @@ module
 prelude
 public import Init.Data.Iterators.Lemmas.Consumers.Loop
 import Init.Data.Iterators.Lemmas.Consumers.Collect
-public import Init.Data.Range.Polymorphic.Basic
 import all Init.Data.Range.Polymorphic.Basic
-public import Init.Data.Range.Polymorphic.RangeIterator
 import all Init.Data.Range.Polymorphic.RangeIterator
 public import Init.Data.Range.Polymorphic.Iterators
 import all Init.Data.Range.Polymorphic.Iterators
-public import Init.Data.Iterators.Consumers.Loop
 import all Init.Data.Iterators.Consumers.Loop
 import Init.Data.Array.Monadic
 
@@ -560,90 +557,38 @@ public theorem Rxi.Iterator.pairwise_toList_upwardEnumerableLt
   · apply ihy (out := a)
     simp_all [Rxi.Iterator.isPlausibleStep_iff, Rxi.Iterator.step]
 
-public instance [LE α] [DecidableLE α] [UpwardEnumerable α] [Rxc.HasSize α] [Rxc.LawfulHasSize α]
-    [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
-    LawfulIteratorSize (Rxc.Iterator α) where
-  size_eq_size_toArray {it} := by
-    simp only [Iter.size, IteratorSize.size, Iter.toIterM]
-    split <;> rename_i heq
-    · simp [Iter.toArray_eq_match_step (it := it), Rxc.Iterator.step_eq_step, Rxc.Iterator.step, heq]
-    · rename_i next
-      simp only [Id.run_pure]
-      induction h : Rxc.HasSize.size _ it.internalState.upperBound generalizing it next
-      · simp only [Rxc.size_eq_zero_iff_not_le] at h
-        simp [Iter.toArray_eq_match_step (it := it), Rxc.Iterator.step_eq_step, Rxc.Iterator.step, heq, h]
-      · rename_i ih
-        have h' : next ≤ it.internalState.upperBound := Rxc.size_pos_iff_le.mp (by omega)
-        simp only [Iter.toArray_eq_match_step (it := it), Rxc.Iterator.step_eq_step,
-            Rxc.Iterator.step, heq, h', ↓reduceIte]
-        cases hn : UpwardEnumerable.succ? next
-        · rw [Iter.toArray_eq_match_step, Rxc.Iterator.step_eq_step]
-          simp_all [Rxc.Iterator.step, Rxc.LawfulHasSize.size_eq_one_of_succ?_eq_none _ _ h' hn]
-        · have := Rxc.LawfulHasSize.size_eq_succ_of_succ?_eq_some _ _ _ h' hn
-          simp only [Array.size_append, List.size_toArray, List.length_cons, List.length_nil,
-            Nat.zero_add]
-          rw [← ih _ rfl] <;> (try simp) <;> omega
-
-public instance [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.HasSize α]
-    [Rxo.LawfulHasSize α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] :
-    LawfulIteratorSize (Rxo.Iterator α) where
-  size_eq_size_toArray {it} := by
-    simp only [Iter.size, IteratorSize.size, Iter.toIterM]
-    split <;> rename_i heq
-    · simp [Iter.toArray_eq_match_step (it := it), Rxo.Iterator.step_eq_step, Rxo.Iterator.step, heq]
-    · rename_i next
-      simp only [Id.run_pure]
-      induction h : Rxo.HasSize.size _ it.internalState.upperBound generalizing it next
-      · simp only [Rxo.size_eq_zero_iff_not_le] at h
-        simp [Iter.toArray_eq_match_step (it := it), Rxo.Iterator.step_eq_step, Rxo.Iterator.step, heq, h]
-      · rename_i ih
-        have h' : next < it.internalState.upperBound := Rxo.size_pos_iff_lt.mp (by omega)
-        simp only [Iter.toArray_eq_match_step (it := it), Rxo.Iterator.step_eq_step,
-            Rxo.Iterator.step, heq, h', ↓reduceIte]
-        cases hn : UpwardEnumerable.succ? next
-        · rw [Iter.toArray_eq_match_step, Rxo.Iterator.step_eq_step]
-          simp_all [Rxo.Iterator.step, Rxo.LawfulHasSize.size_eq_one_of_succ?_eq_none _ _ h' hn]
-        · have := Rxo.LawfulHasSize.size_eq_succ_of_succ?_eq_some _ _ _ h' hn
-          simp only [Array.size_append, List.size_toArray, List.length_cons, List.length_nil,
-            Nat.zero_add]
-          rw [← ih _ rfl] <;> (try simp) <;> omega
-
-public instance [UpwardEnumerable α] [Rxi.HasSize α] [Rxi.LawfulHasSize α] [Rxi.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] :
-    LawfulIteratorSize (Rxi.Iterator α) where
-  size_eq_size_toArray {it} := by
-    simp only [Iter.size, IteratorSize.size, Iter.toIterM]
-    split <;> rename_i heq
-    · simp [Iter.toArray_eq_match_step (it := it), Rxi.Iterator.step_eq_step, Rxi.Iterator.step, heq]
-    · rename_i next
-      simp only [Id.run_pure]
-      induction h : Rxi.HasSize.size next generalizing it next
-      · nomatch h ▸ Rxi.size_pos
-      · rename_i ih
-        simp only [Iter.toArray_eq_match_step (it := it), Rxi.Iterator.step_eq_step,
-          Rxi.Iterator.step, heq]
-        cases hn : UpwardEnumerable.succ? next
-        · rw [Iter.toArray_eq_match_step, Rxi.Iterator.step_eq_step, ← h]
-          simp [Rxi.Iterator.step, Rxi.LawfulHasSize.size_eq_one_of_succ?_eq_none _ hn]
-        · have := Rxi.LawfulHasSize.size_eq_succ_of_succ?_eq_some (α := α) _ _ hn
-          simp only [this, Nat.add_right_cancel_iff] at h
-          simp [← h, ← ih, Nat.add_comm]
-
 namespace Rcc
 
 variable {r : Rcc α}
 
-public theorem toList_eq_match [LE α] [DecidableLE α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] :
+public theorem toList_eq_if_roo [UpwardEnumerable α] [LE α] [DecidableLE α]
+    [LawfulUpwardEnumerable α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerableLE α] :
+    r.toList = if r.lower ≤ r.upper then r.lower :: (r.lower<...=r.upper).toList else [] := by
+  rw [Internal.toList_eq_toList_iter, Rxc.Iterator.toList_eq_match]; rfl
+
+@[deprecated toList_eq_if_roo (since := "2025-10-29")]
+def toList_eq_if_Roo := @toList_eq_if_roo
+
+public theorem toArray_eq_if_roo [UpwardEnumerable α] [LE α] [DecidableLE α]
+    [LawfulUpwardEnumerable α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerableLE α] :
+    r.toArray = if r.lower ≤ r.upper then #[r.lower] ++ (r.lower<...=r.upper).toArray else #[] := by
+  rw [Internal.toArray_eq_toArray_iter, Rxc.Iterator.toArray_eq_match]; rfl
+
+@[deprecated toArray_eq_if_roo (since := "2025-10-29")]
+def toArray_eq_if_Roo := @toArray_eq_if_roo
+
+public theorem toList_eq_if_roc [LE α] [DecidableLE α] [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] :
     r.toList = if r.lower ≤ r.upper then
         r.lower :: (r.lower<...=r.upper).toList
       else
         [] := by
   rw [Internal.toList_eq_toList_iter, Rxc.Iterator.toList_eq_match]; rfl
 
-public theorem toArray_eq_match [LE α] [DecidableLE α] [UpwardEnumerable α]
+@[deprecated toList_eq_if_roc (since := "2025-10-29")]
+def toList_eq_match := @toList_eq_if_roc
+
+public theorem toArray_eq_if_roc [LE α] [DecidableLE α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] :
     r.toArray = if r.lower ≤ r.upper then
@@ -651,6 +596,9 @@ public theorem toArray_eq_match [LE α] [DecidableLE α] [UpwardEnumerable α]
       else
         #[] := by
   rw [Internal.toArray_eq_toArray_iter, Rxc.Iterator.toArray_eq_match]; rfl
+
+@[deprecated toArray_eq_if_roc (since := "2025-10-29")]
+def toArray_eq_match := @toArray_eq_if_roc
 
 @[simp]
 public theorem toArray_toList [LE α] [DecidableLE α] [UpwardEnumerable α]
@@ -796,7 +744,7 @@ public theorem forIn'_toArray_eq_forIn' [LE α] [DecidableLE α] [UpwardEnumerab
       ForIn'.forIn' r init (fun a ha acc => f a (mem_toArray_iff_mem.mpr ha) acc) := by
   simp [forIn'_eq_forIn'_toArray]
 
-public theorem mem_of_mem_Roc [LE α] [LT α] [UpwardEnumerable α]
+public theorem mem_of_mem_roc [LE α] [LT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α] [Rxc.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] {a b : α}
     (hrb : r.lower ≤ b)
@@ -806,6 +754,9 @@ public theorem mem_of_mem_Roc [LE α] [LT α] [UpwardEnumerable α]
   refine ⟨le_trans hrb ?_, hmem.2⟩
   simp only [Membership.mem, LawfulUpwardEnumerableLE.le_iff, LawfulUpwardEnumerableLT.lt_iff] at hmem ⊢
   exact UpwardEnumerable.le_of_lt hmem.1
+
+@[deprecated mem_of_mem_roc (since := "2025-10-29")]
+def mem_of_mem_Roc := @mem_of_mem_roc
 
 public theorem forIn'_eq_if [LE α] [DecidableLE α] [LT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLE α]
@@ -818,7 +769,7 @@ public theorem forIn'_eq_if [LE α] [DecidableLE α] [LT α]
         match ← f r.lower ⟨hle, hu⟩ init with
         | .yield c =>
           ForIn'.forIn' (α := α) (β := γ) (r.lower<...=r.upper) c
-            (fun a ha acc => f a (mem_of_mem_Roc hle ha) acc)
+            (fun a ha acc => f a (mem_of_mem_roc hle ha) acc)
         | .done c => return c
       else
         return init := by
@@ -849,23 +800,44 @@ namespace Rco
 
 variable {r : Rco α}
 
-public theorem toList_eq_if [LT α] [DecidableLT α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] :
+public theorem toList_eq_if_roo [UpwardEnumerable α] [LT α] [DecidableLT α]
+    [LawfulUpwardEnumerable α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerableLT α] :
     r.toList = if r.lower < r.upper then
-        r.lower :: (r.lower<...<r.upper).toList
+        r.lower :: (r.lower<...r.upper).toList
       else
         [] := by
   rw [Internal.toList_eq_toList_iter, Rxo.Iterator.toList_eq_match]; rfl
 
-public theorem toArray_eq_if [LE α] [LT α] [DecidableLT α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] :
+@[deprecated toList_eq_if_roo (since := "2025-10-29")]
+def toList_eq_if := @toList_eq_if_roo
+
+public theorem toArray_eq_if_roo [UpwardEnumerable α] [LT α] [DecidableLT α]
+    [LawfulUpwardEnumerable α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerableLT α] :
     r.toArray = if r.lower < r.upper then
-        #[r.lower] ++ (r.lower<...<r.upper).toArray
+        #[r.lower] ++ (r.lower<...r.upper).toArray
       else
         #[] := by
   rw [Internal.toArray_eq_toArray_iter, Rxo.Iterator.toArray_eq_match]; rfl
+
+public theorem toArray_eq_if_rco [UpwardEnumerable α] [LT α] [DecidableLT α]
+    [LawfulUpwardEnumerable α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerableLT α] :
+    r.toArray = if r.lower < r.upper then
+        match UpwardEnumerable.succ? r.lower with
+        | none => #[r.lower]
+        | some next => #[r.lower] ++ (next...r.upper).toArray
+      else
+        #[] := by
+  rw [Internal.toArray_eq_toArray_iter, Rxo.Iterator.toArray_eq_match]
+  simp only [Internal.iter]
+  split
+  · split
+    · simp [Rxo.Iterator.toArray_eq_match, *]
+    · simp only [*]
+      rfl
+  · rfl
+
+@[deprecated toArray_eq_if_roo (since := "2025-10-29")]
+def toArray_eq_if := @toArray_eq_if_roo
 
 @[simp]
 public theorem toArray_toList [LT α] [DecidableLT α] [UpwardEnumerable α]
@@ -1011,7 +983,7 @@ public theorem forIn'_toArray_eq_forIn' [LE α] [LT α] [DecidableLT α]
       ForIn'.forIn' r init (fun a ha acc => f a (mem_toArray_iff_mem.mpr ha) acc) := by
   simp [forIn'_eq_forIn'_toArray]
 
-public theorem mem_of_mem_Roo [LE α] [LT α] [UpwardEnumerable α]
+public theorem mem_of_mem_roo [LE α] [LT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] {a b : α} (hrb : r.lower ≤ b) (hmem : a ∈ b<...r.upper) :
     a ∈ r := by
@@ -1019,6 +991,9 @@ public theorem mem_of_mem_Roo [LE α] [LT α] [UpwardEnumerable α]
   refine ⟨le_trans hrb ?_, hmem.2⟩
   simp only [Membership.mem, LawfulUpwardEnumerableLE.le_iff, LawfulUpwardEnumerableLT.lt_iff] at hmem ⊢
   exact UpwardEnumerable.le_of_lt hmem.1
+
+@[deprecated mem_of_mem_roo (since := "2025-10-29")]
+def mem_of_mem_Roo := @mem_of_mem_roo
 
 public theorem forIn'_eq_if [LE α] [DecidableLE α] [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLE α]
@@ -1031,7 +1006,7 @@ public theorem forIn'_eq_if [LE α] [DecidableLE α] [LT α] [DecidableLT α]
         match ← f r.lower ⟨hle, hu⟩ init with
         | .yield c =>
           ForIn'.forIn' (α := α) (β := γ) (r.lower<...r.upper) c
-            (fun a ha acc => f a (mem_of_mem_Roo hle ha) acc)
+            (fun a ha acc => f a (mem_of_mem_roo hle ha) acc)
         | .done c => return c
       else
         return init := by
@@ -1063,15 +1038,21 @@ namespace Rci
 
 variable {r : Rci α}
 
-public theorem toList_eq_toList_Roi [UpwardEnumerable α]
+public theorem toList_eq_toList_roi [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
     r.toList = r.lower :: (r.lower<...*).toList := by
   rw [Internal.toList_eq_toList_iter, Rxi.Iterator.toList_eq_match]; rfl
 
-public theorem toArray_eq_toArray_Roi [UpwardEnumerable α]
+@[deprecated toList_eq_toList_roi (since := "2025-10-29")]
+def toList_eq_toList_Roi := @toList_eq_toList_roi
+
+public theorem toArray_eq_toArray_roi [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
     r.toArray = #[r.lower] ++ (r.lower<...*).toArray := by
   rw [Internal.toArray_eq_toArray_iter, Rxi.Iterator.toArray_eq_match]; rfl
+
+@[deprecated toArray_eq_toArray_roi (since := "2025-10-29")]
+def toArray_eq_toArray_Roi := @toArray_eq_toArray_roi
 
 @[simp]
 public theorem toArray_toList [UpwardEnumerable α] [LawfulUpwardEnumerable α]
@@ -1212,7 +1193,7 @@ public theorem forIn'_toArray_eq_forIn' [LE α]
       ForIn'.forIn' r init (fun a ha acc => f a (mem_toArray_iff_mem.mpr ha) acc) := by
   simp [forIn'_eq_forIn'_toArray]
 
-public theorem mem_of_mem_Roi [LE α] [LT α] [UpwardEnumerable α]
+public theorem mem_of_mem_roi [LE α] [LT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α] [Rxi.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] {a b : α} (hrb : r.lower ≤ b) (hmem : a ∈ b<...*) :
     a ∈ r := by
@@ -1220,6 +1201,9 @@ public theorem mem_of_mem_Roi [LE α] [LT α] [UpwardEnumerable α]
   refine le_trans hrb ?_
   simp only [Membership.mem, LawfulUpwardEnumerableLE.le_iff, LawfulUpwardEnumerableLT.lt_iff] at hmem ⊢
   exact UpwardEnumerable.le_of_lt hmem
+
+@[deprecated mem_of_mem_roi (since := "2025-10-29")]
+def mem_of_mem_Roi := @mem_of_mem_roi
 
 public theorem forIn'_eq_match [LE α] [DecidableLE α] [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLE α]
@@ -1232,7 +1216,7 @@ public theorem forIn'_eq_match [LE α] [DecidableLE α] [LT α] [DecidableLT α]
       match ← f r.lower hle init with
       | .yield c =>
         ForIn'.forIn' (α := α) (β := γ) (r.lower<...*) c
-          (fun a ha acc => f a (mem_of_mem_Roi hle ha) acc)
+          (fun a ha acc => f a (mem_of_mem_roi hle ha) acc)
       | .done c => return c := by
   apply Eq.symm
   rw [Internal.forIn'_eq_forIn'_iter, Iter.forIn'_eq_match_step]
@@ -1254,8 +1238,7 @@ namespace Roc
 variable {r : Roc α}
 
 public theorem toList_eq_match [LE α] [DecidableLE α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] :
     r.toList = match UpwardEnumerable.succ? r.lower with
       | none => []
       | some next =>
@@ -1267,8 +1250,7 @@ public theorem toList_eq_match [LE α] [DecidableLE α] [UpwardEnumerable α]
   simp [Internal.iter, Internal.toList_eq_toList_iter]
 
 public theorem toArray_eq_match [LE α] [DecidableLE α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] :
     r.toArray = match UpwardEnumerable.succ? r.lower with
       | none => #[]
       | some next =>
@@ -1278,6 +1260,24 @@ public theorem toArray_eq_match [LE α] [DecidableLE α] [UpwardEnumerable α]
           #[] := by
   rw [Internal.toArray_eq_toArray_iter, Rxc.Iterator.toArray_eq_match (it := Internal.iter r)]
   simp [Internal.iter, Internal.toArray_eq_toArray_iter]
+
+public theorem toList_eq_match_rcc [LE α] [DecidableLE α] [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] :
+    r.toList = match UpwardEnumerable.succ? r.lower with
+      | none => []
+      | some next => (next...=r.upper).toList := by
+  simp only [Internal.toList_eq_toList_iter, Internal.iter, Rcc.Internal.toList_eq_toList_iter,
+    Rcc.Internal.iter]
+  simp +singlePass only [Rxc.Iterator.toList_eq_match]
+
+public theorem toArray_eq_match_rcc [LE α] [DecidableLE α] [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] :
+    r.toArray = match UpwardEnumerable.succ? r.lower with
+      | none => #[]
+      | some next => (next...=r.upper).toArray := by
+  simp only [Internal.toArray_eq_toArray_iter, ← Iter.toArray_toList]
+  simp only [← Internal.toList_eq_toList_iter, toList_eq_match_rcc]
+  split <;> simp
 
 @[simp]
 public theorem toArray_toList [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
@@ -1489,6 +1489,28 @@ public theorem toArray_eq_match [LE α] [LT α] [DecidableLT α] [UpwardEnumerab
           #[] := by
   rw [Internal.toArray_eq_toArray_iter, Rxo.Iterator.toArray_eq_match]; rfl
 
+public theorem toList_eq_match_rco [UpwardEnumerable α] [LT α] [DecidableLT α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α] :
+    r.toList = match UpwardEnumerable.succ? r.lower with
+      | none => []
+      | some next => (next...r.upper).toList := by
+  rw [Internal.toList_eq_toList_iter, Rxo.Iterator.toList_eq_match]
+  simp only [Internal.iter]
+  split
+  · rfl
+  · simp [Rco.toList_eq_if_roo, Roo.toList, Internal.iter]
+
+public theorem toArray_eq_match_rco [UpwardEnumerable α] [LT α] [DecidableLT α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α] :
+    r.toArray = match UpwardEnumerable.succ? r.lower with
+      | none => #[]
+      | some next => (next...r.upper).toArray := by
+  rw [Internal.toArray_eq_toArray_iter, Rxo.Iterator.toArray_eq_match]
+  simp only [Internal.iter]
+  split
+  · rfl
+  · simp [Rco.toArray_eq_if_roo, Roo.toArray, Internal.iter]
+
 @[simp]
 public theorem toArray_toList [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxo.IsAlwaysFinite α] :
@@ -1694,6 +1716,18 @@ namespace Roi
 
 variable {r : Roi α}
 
+@[simp]
+public theorem toArray_toList [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [Rxi.IsAlwaysFinite α] :
+    r.toList.toArray = r.toArray := by
+  simp [Internal.toList_eq_toList_iter, Internal.toArray_eq_toArray_iter]
+
+@[simp]
+public theorem toList_toArray [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [Rxi.IsAlwaysFinite α] :
+    r.toArray.toList = r.toList := by
+  simp [Internal.toList_eq_toList_iter, Internal.toArray_eq_toArray_iter]
+
 public theorem toList_eq_match [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
     r.toList = match UpwardEnumerable.succ? r.lower with
@@ -1708,17 +1742,24 @@ public theorem toArray_eq_match [UpwardEnumerable α]
       | some next => #[next] ++ (next<...*).toArray := by
   rw [Internal.toArray_eq_toArray_iter, Rxi.Iterator.toArray_eq_match]; rfl
 
-@[simp]
-public theorem toArray_toList [UpwardEnumerable α] [LawfulUpwardEnumerable α]
-    [Rxi.IsAlwaysFinite α] :
-    r.toList.toArray = r.toArray := by
-  simp [Internal.toList_eq_toList_iter, Internal.toArray_eq_toArray_iter]
+public theorem toArray_eq_match_rci [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] :
+    r.toArray = match UpwardEnumerable.succ? r.lower with
+      | none => #[]
+      | some next => (next...*).toArray := by
+  rw [Internal.toArray_eq_toArray_iter, Rxi.Iterator.toArray_eq_match]
+  simp only [Internal.iter]
+  split
+  · rfl
+  · simp [Rci.toArray_eq_toArray_roi, Roi.toArray, Internal.iter]
 
-@[simp]
-public theorem toList_toArray [UpwardEnumerable α] [LawfulUpwardEnumerable α]
-    [Rxi.IsAlwaysFinite α] :
-    r.toArray.toList = r.toList := by
-  simp [Internal.toList_eq_toList_iter, Internal.toArray_eq_toArray_iter]
+public theorem toList_eq_match_rci [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] :
+    r.toList = match UpwardEnumerable.succ? r.lower with
+      | none => []
+      | some next => (next...*).toList := by
+  rw [← toList_toArray, toArray_eq_match_rci]
+  split <;> simp
 
 public theorem toList_eq_nil_iff [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
@@ -1905,22 +1946,36 @@ public theorem toList_toArray [Least? α] [LE α] [DecidableLE α] [UpwardEnumer
     r.toArray.toList = r.toList := by
   simp [Internal.toList_eq_toList_iter, Internal.toArray_eq_toArray_iter]
 
-public theorem toList_eq_toList_Rcc [LE α] [DecidableLE α] [Least? α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
+public theorem toList_eq_match_rcc [LE α] [DecidableLE α] [Least? α] [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxc.IsAlwaysFinite α] :
-    r.toList = ((UpwardEnumerable.least (hn := ⟨r.upper⟩))...=r.upper).toList := by
+    r.toList = match Least?.least? (α := α) with
+      | none => []
+      | some least => (least...=r.upper).toList := by
   simp only [Internal.toList_eq_toList_iter, Rcc.Internal.toList_eq_toList_iter,
     Rxc.Iterator.toList_eq_match (it := Internal.iter r),
     Rxc.Iterator.toList_eq_match (it := Rcc.Internal.iter _)]
-  simp [Internal.iter, Rcc.Internal.iter, UpwardEnumerable.least?_eq_some (hn := ⟨r.upper⟩)]
+  simp [Internal.iter, Rcc.Internal.iter]
 
-public theorem toArray_eq_toArray_Rcc [LE α] [DecidableLE α] [Least? α] [UpwardEnumerable α]
+public theorem toList_eq_toList_rcc [LE α] [DecidableLE α] [Least? α] [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
+    [Rxc.IsAlwaysFinite α] :
+    r.toList = ((UpwardEnumerable.least (hn := ⟨r.upper⟩))...=r.upper).toList := by
+  simp [toList_eq_match_rcc, UpwardEnumerable.least?_eq_some (hn := ⟨r.upper⟩)]
+
+@[deprecated toList_eq_toList_rcc (since := "2025-10-29")]
+def toList_eq_toList_Rcc := @toList_eq_toList_rcc
+
+public theorem toArray_eq_toArray_rcc [LE α] [DecidableLE α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
     [Rxc.IsAlwaysFinite α] :
     r.toArray = ((UpwardEnumerable.least (hn := ⟨r.upper⟩))...=r.upper).toArray := by
-  simp [← toArray_toList, toList_eq_toList_Rcc]
+  simp [← toArray_toList, toList_eq_toList_rcc]
 
-public theorem toList_eq_if [LE α] [DecidableLE α] [Least? α] [UpwardEnumerable α]
+@[deprecated toArray_eq_toArray_rcc (since := "2025-10-29")]
+def toArray_eq_toArray_Rcc := @toArray_eq_toArray_rcc
+
+public theorem toList_eq_if_roc [LE α] [DecidableLE α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
     [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
     r.toList = let init : α := UpwardEnumerable.least (hn := ⟨r.upper⟩)
@@ -1928,9 +1983,12 @@ public theorem toList_eq_if [LE α] [DecidableLE α] [Least? α] [UpwardEnumerab
         init :: (init<...=r.upper).toList
       else
         [] := by
-  simp [toList_eq_toList_Rcc, Rcc.toList_eq_match]
+  simp [toList_eq_toList_rcc, Rcc.toList_eq_if_roc]
 
-public theorem toArray_eq_if [LE α] [DecidableLE α] [Least? α] [UpwardEnumerable α]
+@[deprecated toList_eq_if_roc (since := "2025-10-29")]
+def toList_eq_if := @toList_eq_if_roc
+
+public theorem toArray_eq_if_roc [LE α] [DecidableLE α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
     [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
     r.toArray = let init : α := UpwardEnumerable.least (hn := ⟨r.upper⟩)
@@ -1938,43 +1996,49 @@ public theorem toArray_eq_if [LE α] [DecidableLE α] [Least? α] [UpwardEnumera
         #[init] ++ (init<...=r.upper).toArray
       else
         #[] := by
-  simp [toArray_eq_toArray_Rcc, Rcc.toArray_eq_match]
+  simp [toArray_eq_toArray_rcc, Rcc.toArray_eq_if_roc]
+
+@[deprecated toArray_eq_if_roc (since := "2025-10-29")]
+def toArray_eq_if := @toArray_eq_if_roc
 
 public theorem toList_ne_nil [LE α] [DecidableLE α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [LawfulUpwardEnumerableLeast? α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
     r.toList ≠ [] := by
-  simp [toList_eq_toList_Rcc, Rcc.toList_eq_nil_iff, UpwardEnumerable.le_iff,
+  simp [toList_eq_toList_rcc, Rcc.toList_eq_nil_iff, UpwardEnumerable.le_iff,
     UpwardEnumerable.least_le]
 
 public theorem toArray_ne_empty [LE α] [DecidableLE α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [LawfulUpwardEnumerableLeast? α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
     r.toArray ≠ #[] := by
-  simp [toArray_eq_toArray_Rcc, Rcc.toArray_eq_empty_iff, UpwardEnumerable.le_iff,
+  simp [toArray_eq_toArray_rcc, Rcc.toArray_eq_empty_iff, UpwardEnumerable.le_iff,
     UpwardEnumerable.least_le]
 
-public theorem mem_iff_mem_Rcc [LE α] [Least? α] [UpwardEnumerable α]
+public theorem mem_iff_mem_rcc [LE α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
     [Rxc.IsAlwaysFinite α] {a : α} :
     a ∈ r ↔ a ∈ ((UpwardEnumerable.least (hn := ⟨r.upper⟩))...=r.upper) := by
   simp [Membership.mem, UpwardEnumerable.le_iff, UpwardEnumerable.least_le]
 
+@[deprecated mem_iff_mem_rcc (since := "2025-10-29")]
+def mem_iff_mem_Rcc := @mem_iff_mem_rcc
+
 public theorem mem_toList_iff_mem [LE α] [DecidableLE α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
     [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toList ↔ a ∈ r := by
-  simp [toList_eq_toList_Rcc, mem_iff_mem_Rcc, Rcc.mem_toList_iff_mem]
+  simp [toList_eq_toList_rcc, mem_iff_mem_rcc, Rcc.mem_toList_iff_mem]
 
 public theorem mem_toArray_iff_mem [LE α] [DecidableLE α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
     [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toArray ↔ a ∈ r := by
-  simp [toArray_eq_toArray_Rcc, mem_iff_mem_Rcc, Rcc.mem_toArray_iff_mem]
+  simp [toArray_eq_toArray_rcc, mem_iff_mem_rcc, Rcc.mem_toArray_iff_mem]
 
 public theorem pairwise_toList_upwardEnumerableLt [LE α] [DecidableLE α] [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [LawfulUpwardEnumerableLeast? α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
     r.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
-  simp [toList_eq_toList_Rcc, Rcc.pairwise_toList_upwardEnumerableLt]
+  simp [toList_eq_toList_rcc, Rcc.pairwise_toList_upwardEnumerableLt]
 
 public theorem pairwise_toList_ne [LE α] [DecidableLE α] [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
@@ -2101,27 +2165,36 @@ public theorem forIn'_toArray_eq_forIn' [LE α] [DecidableLE α] [Least? α] [Up
       ForIn'.forIn' r init (fun a ha acc => f a (mem_toArray_iff_mem.mpr ha) acc) := by
   simp [forIn'_eq_forIn'_toArray]
 
-public theorem mem_of_mem_Rcc [LE α] {lo hi a : α} (hmem : a ∈ lo...=hi) :
+public theorem mem_of_mem_rcc [LE α] {lo hi a : α} (hmem : a ∈ lo...=hi) :
     a ∈ *...=hi := by
   exact hmem.2
 
-public theorem mem_of_mem_Roc [LE α] [LT α] {lo hi a : α} (hmem : a ∈ lo<...=hi) :
+@[deprecated mem_of_mem_rcc (since := "2025-10-29")]
+def mem_of_mem_Rcc := @mem_of_mem_rcc
+
+public theorem mem_of_mem_roc [LE α] [LT α] {lo hi a : α} (hmem : a ∈ lo<...=hi) :
     a ∈ *...=hi := by
   exact hmem.2
 
-public theorem forIn'_eq_forIn'_Rcc [LE α] [DecidableLE α] [Least? α]
+@[deprecated mem_of_mem_roc (since := "2025-10-29")]
+def mem_of_mem_Roc := @mem_of_mem_roc
+
+public theorem forIn'_eq_forIn'_rcc [LE α] [DecidableLE α] [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
     [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {m : Type u → Type w} [Monad m]
     [LawfulMonad m] {γ : Type u} {init : γ} {f : (a : α) → _ → γ → m (ForInStep γ)} :
     haveI : Nonempty α := ⟨r.upper⟩
     ForIn'.forIn' r init f =
       ForIn'.forIn' (UpwardEnumerable.least...=r.upper) init
-        (fun a ha acc => f a (mem_of_mem_Rcc ha) acc) := by
+        (fun a ha acc => f a (mem_of_mem_rcc ha) acc) := by
   haveI : Nonempty α := ⟨r.upper⟩
   simp only [Internal.forIn'_eq_forIn'_iter, Rcc.Internal.forIn'_eq_forIn'_iter,
     Internal.iter, Rcc.Internal.iter, UpwardEnumerable.least?_eq_some]
 
-public theorem forIn'_eq_if [LE α] [DecidableLE α] [LT α] [Least? α]
+@[deprecated forIn'_eq_forIn'_rcc (since := "2025-10-29")]
+def forIn'_eq_forIn'_Rcc := @forIn'_eq_forIn'_rcc
+
+public theorem forIn'_eq_if_roc [LE α] [DecidableLE α] [LT α] [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
     [LawfulUpwardEnumerableLeast? α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
     {m : Type u → Type w} [Monad m] [LawfulMonad m]
@@ -2132,12 +2205,15 @@ public theorem forIn'_eq_if [LE α] [DecidableLE α] [LT α] [Least? α]
           match ← f UpwardEnumerable.least hu init with
           | .yield c =>
             ForIn'.forIn' (α := α) (β := γ) (UpwardEnumerable.least<...=r.upper) c
-              (fun a ha acc => f a (mem_of_mem_Roc ha) acc)
+              (fun a ha acc => f a (mem_of_mem_roc ha) acc)
           | .done c => return c
       else
         return init := by
-  simp [forIn'_eq_forIn'_Rcc, Rcc.forIn'_eq_if,
+  simp [forIn'_eq_forIn'_rcc, Rcc.forIn'_eq_if,
     UpwardEnumerable.le_iff.mpr UpwardEnumerable.least_le]
+
+@[deprecated forIn'_eq_if_roc (since := "2025-10-29")]
+def forIn'_eq_if := @forIn'_eq_if_roc
 
 public theorem isEmpty_iff_forall_not_mem [LE α] [UpwardEnumerable α]
     [Rxc.HasSize α] [Rxc.LawfulHasSize α] [LawfulUpwardEnumerableLE α]
@@ -2164,22 +2240,47 @@ public theorem toList_toArray [Least? α] [LT α] [DecidableLT α] [UpwardEnumer
     r.toArray.toList = r.toList := by
   simp [Internal.toList_eq_toList_iter, Internal.toArray_eq_toArray_iter]
 
-public theorem toList_eq_toList_Rco [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLeast? α]
+public theorem toList_eq_match_rco [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] :
-    r.toList = ((UpwardEnumerable.least (hn := ⟨r.upper⟩))...r.upper).toList := by
+    r.toList = match Least?.least? (α := α) with
+      | none => []
+      | some least => (least...r.upper).toList := by
   simp only [Internal.toList_eq_toList_iter, Rco.Internal.toList_eq_toList_iter,
     Rxo.Iterator.toList_eq_match (it := Internal.iter r),
     Rxo.Iterator.toList_eq_match (it := Rco.Internal.iter _)]
-  simp [Internal.iter, Rco.Internal.iter, UpwardEnumerable.least?_eq_some (hn := ⟨r.upper⟩)]
+  simp [Internal.iter, Rco.Internal.iter]
 
-public theorem toArray_eq_toArray_Rco [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
+public theorem toArray_eq_match_rco [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    [Rxo.IsAlwaysFinite α] :
+    r.toArray = match Least?.least? (α := α) with
+      | none => #[]
+      | some least => (least...r.upper).toArray := by
+  simp only [Internal.toArray_eq_toArray_iter, Rco.Internal.toArray_eq_toArray_iter,
+    Rxo.Iterator.toArray_eq_match (it := Internal.iter r),
+    Rxo.Iterator.toArray_eq_match (it := Rco.Internal.iter _)]
+  simp [Internal.iter, Rco.Internal.iter]
+
+public theorem toList_eq_toList_rco [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLeast? α]
+    [Rxo.IsAlwaysFinite α] :
+    r.toList = ((UpwardEnumerable.least (hn := ⟨r.upper⟩))...r.upper).toList := by
+  simp [toList_eq_match_rco, UpwardEnumerable.least?_eq_some (hn := ⟨r.upper⟩)]
+
+@[deprecated toList_eq_toList_rco (since := "2025-10-29")]
+def toList_eq_toList_Rco := @toList_eq_toList_rco
+
+public theorem toArray_eq_toArray_rco [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLeast? α]
     [Rxo.IsAlwaysFinite α] :
     r.toArray = ((UpwardEnumerable.least (hn := ⟨r.upper⟩))...r.upper).toArray := by
-  simp [← toArray_toList, toList_eq_toList_Rco]
+  simp [← toArray_toList, toList_eq_toList_rco]
 
-public theorem toList_eq_if [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
+@[deprecated toArray_eq_toArray_rco (since := "2025-10-29")]
+def toArray_eq_toArray_Rco := @toArray_eq_toArray_rco
+
+public theorem toList_eq_if_roo [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLeast? α]
     [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
     r.toList = let init : α := UpwardEnumerable.least (hn := ⟨r.upper⟩)
@@ -2188,9 +2289,12 @@ public theorem toList_eq_if [LT α] [DecidableLT α] [Least? α] [UpwardEnumerab
       else
         [] := by
   haveI : LE α := ⟨UpwardEnumerable.LT⟩
-  simp [toList_eq_toList_Rco, Rco.toList_eq_if]
+  simp [toList_eq_toList_rco, Rco.toList_eq_if_roo]
 
-public theorem toArray_eq_if [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
+@[deprecated toList_eq_if_roo (since := "2025-10-29")]
+def toList_eq_if := @toList_eq_if_roo
+
+public theorem toArray_eq_if_roo [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLeast? α]
     [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
     r.toArray = let init : α := UpwardEnumerable.least (hn := ⟨r.upper⟩)
@@ -2199,30 +2303,36 @@ public theorem toArray_eq_if [LT α] [DecidableLT α] [Least? α] [UpwardEnumera
       else
         #[] := by
   haveI : LE α := ⟨UpwardEnumerable.LT⟩
-  simp [toArray_eq_toArray_Rco, Rco.toArray_eq_if]
+  simp [toArray_eq_toArray_rco, Rco.toArray_eq_if_roo]
+
+@[deprecated toArray_eq_if_roo (since := "2025-10-29")]
+def toArray_eq_if := @toArray_eq_if_roo
 
 public theorem toList_eq_nil_iff [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [LawfulUpwardEnumerableLeast? α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
     r.toList = [] ↔ ¬ UpwardEnumerable.least (hn := ⟨r.upper⟩) < r.upper := by
-  simp [toList_eq_if]
+  simp [toList_eq_if_roo]
 
 public theorem toArray_eq_nil_iff [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [LawfulUpwardEnumerableLeast? α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
     r.toArray = #[] ↔ ¬ UpwardEnumerable.least (hn := ⟨r.upper⟩) < r.upper := by
-  simp [toArray_eq_if]
+  simp [toArray_eq_if_roo]
 
-public theorem mem_iff_mem_Rco [LE α] [LT α] [Least? α] [UpwardEnumerable α]
+public theorem mem_iff_mem_rco [LE α] [LT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
     [Rxo.IsAlwaysFinite α] {a : α} :
     a ∈ r ↔ a ∈ ((UpwardEnumerable.least (hn := ⟨r.upper⟩))...r.upper) := by
   simp [Membership.mem, UpwardEnumerable.le_iff, UpwardEnumerable.least_le]
 
+@[deprecated mem_iff_mem_rco (since := "2025-10-29")]
+def mem_iff_mem_Rco := @mem_iff_mem_rco
+
 public theorem mem_toList_iff_mem [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLeast? α]
     [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toList ↔ a ∈ r := by
-  simp only [toList_eq_if, List.mem_ite_nil_right, List.mem_cons, Roo.mem_toList_iff_mem]
+  simp only [toList_eq_if_roo, List.mem_ite_nil_right, List.mem_cons, Roo.mem_toList_iff_mem]
   simp only [Membership.mem]
   constructor
   · rintro ⟨h₁, h₂⟩
@@ -2245,7 +2355,7 @@ public theorem pairwise_toList_upwardEnumerableLt [LT α] [DecidableLT α] [Leas
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [LawfulUpwardEnumerableLeast? α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
     r.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
-  simp only [toList_eq_if]
+  simp only [toList_eq_if_roo]
   split
   · refine List.Pairwise.cons ?_ ?_
     · simp only [Roo.mem_toList_iff_mem]
@@ -2368,15 +2478,21 @@ public theorem forIn'_toArray_eq_forIn' [LT α] [DecidableLT α] [Least? α] [Up
       ForIn'.forIn' r init (fun a ha acc => f a (mem_toArray_iff_mem.mpr ha) acc) := by
   simp [forIn'_eq_forIn'_toArray]
 
-public theorem mem_of_mem_Rco [LE α] [LT α] {lo hi a : α} (hmem : a ∈ lo...<hi) :
+public theorem mem_of_mem_rco [LE α] [LT α] {lo hi a : α} (hmem : a ∈ lo...<hi) :
     a ∈ *...hi := by
   exact hmem.2
 
-public theorem mem_of_mem_Roo [LT α] {lo hi a : α} (hmem : a ∈ lo<...hi) :
+@[deprecated mem_of_mem_rco (since := "2025-10-29")]
+def mem_of_mem_Rco := @mem_of_mem_rco
+
+public theorem mem_of_mem_roo [LT α] {lo hi a : α} (hmem : a ∈ lo<...hi) :
     a ∈ *...hi := by
   exact hmem.2
 
-public theorem forIn'_eq_if [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
+@[deprecated mem_of_mem_roo (since := "2025-10-29")]
+def mem_of_mem_Roo := @mem_of_mem_roo
+
+public theorem forIn'_eq_if_roo [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLeast? α]
     [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {m : Type u → Type w} [Monad m]
     [LawfulMonad m] {γ : Type u} {init : γ} {f : (a : α) → _ → γ → m (ForInStep γ)} :
@@ -2386,26 +2502,32 @@ public theorem forIn'_eq_if [LT α] [DecidableLT α] [Least? α] [UpwardEnumerab
         match ← f UpwardEnumerable.least hu init with
         | .yield c =>
           ForIn'.forIn' (UpwardEnumerable.least<...r.upper) c
-            (fun a ha acc => f a (mem_of_mem_Roo ha) acc)
+            (fun a ha acc => f a (mem_of_mem_roo ha) acc)
         | .done c => return c
       else
         return init := by
   haveI : Nonempty α := ⟨r.upper⟩
-  simp [forIn'_eq_forIn'_toList, toList_eq_if]
+  simp [forIn'_eq_forIn'_toList, toList_eq_if_roo]
   split
   · simp only [List.forIn'_cons, Roo.forIn'_eq_forIn'_toList]
     apply bind_congr; intro step
     split <;> simp
   · simp
 
-public theorem forIn'_eq_forIn'_Rco [LE α] [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
+@[deprecated forIn'_eq_if_roo (since := "2025-10-29")]
+def forIn'_eq_if := @forIn'_eq_if_roo
+
+public theorem forIn'_eq_forIn'_rco [LE α] [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
     [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {m : Type u → Type w} [Monad m]
     [LawfulMonad m] {γ : Type u} {init : γ} {f : (a : α) → _ → γ → m (ForInStep γ)} :
     haveI : Nonempty α := ⟨r.upper⟩
     ForIn'.forIn' r init f = ForIn'.forIn' (UpwardEnumerable.least...r.upper) init
-        (fun a ha acc => f a (mem_of_mem_Rco ha) acc) := by
-  simp [forIn'_eq_forIn'_toList, toList_eq_toList_Rco, Rco.forIn'_toList_eq_forIn']
+        (fun a ha acc => f a (mem_of_mem_rco ha) acc) := by
+  simp [forIn'_eq_forIn'_toList, toList_eq_toList_rco, Rco.forIn'_toList_eq_forIn']
+
+@[deprecated forIn'_eq_forIn'_rco (since := "2025-10-29")]
+def forIn'_eq_forIn'_Rco := @forIn'_eq_forIn'_rco
 
 public theorem isEmpty_iff_forall_not_mem [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLeast? α] [LawfulUpwardEnumerable α] :
@@ -2437,9 +2559,8 @@ public theorem toList_toArray [Least? α] [UpwardEnumerable α]
     r.toArray.toList = r.toList := by
   simp [Internal.toList_eq_toList_iter, Internal.toArray_eq_toArray_iter]
 
-public theorem toList_eq_match_toList_Rci [Least? α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
-    [Rxi.IsAlwaysFinite α] :
+public theorem toList_eq_match_rci [Least? α] [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] :
     r.toList = match Least?.least? (α := α) with
       | none => []
       | some init => (init...*).toList := by
@@ -2448,38 +2569,49 @@ public theorem toList_eq_match_toList_Rci [Least? α] [UpwardEnumerable α]
     Rxi.Iterator.toList_eq_match (it := Rci.Internal.iter _)]
   simp [Internal.iter, Rci.Internal.iter]
 
-public theorem toArray_eq_match_toArray_Rci [Least? α] [UpwardEnumerable α]
+@[deprecated toList_eq_match_rci (since := "2025-10-29")]
+def toList_eq_match_toList_Rci := @toList_eq_match_rci
+
+public theorem toArray_eq_match_rci [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
     [Rxi.IsAlwaysFinite α] :
     r.toArray = match Least?.least? (α := α) with
       | none => #[]
       | some init => (init...*).toArray := by
   cases h : least? (α := α)
-  all_goals simp [← toArray_toList, toList_eq_match_toList_Rci, h]
+  all_goals simp [← toArray_toList, toList_eq_match_rci, h]
 
-public theorem toList_eq_match_toList_Roi [Least? α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
-    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+@[deprecated toArray_eq_match_rci (since := "2025-10-29")]
+def toArray_eq_match_toArray_Rci := @toArray_eq_match_rci
+
+public theorem toList_eq_match_roi [Least? α] [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
     r.toList = match Least?.least? (α := α) with
       | none => []
       | some init => init :: (init<...*).toList := by
   haveI : LE α := ⟨UpwardEnumerable.LE⟩
-  simp [toList_eq_match_toList_Rci, Rci.toList_eq_toList_Roi]
+  simp [toList_eq_match_rci, Rci.toList_eq_toList_roi]
 
-public theorem toArray_eq_toArray_Roi [Least? α] [UpwardEnumerable α]
+@[deprecated toList_eq_match_roi (since := "2025-10-29")]
+def toList_eq_match_toList_Roi := @toList_eq_match_roi
+
+public theorem toArray_eq_match_roi [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
     [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
     r.toArray = match Least?.least? (α := α) with
       | none => #[]
       | some init => #[init] ++ (init<...*).toArray := by
   haveI : LE α := ⟨UpwardEnumerable.LE⟩
-  simp [toArray_eq_match_toArray_Rci, Rci.toArray_eq_toArray_Roi]
+  simp [toArray_eq_match_rci, Rci.toArray_eq_toArray_roi]
+
+@[deprecated toArray_eq_match_roi (since := "2025-10-29")]
+def toArray_eq_match_Roi := @toArray_eq_match_roi
 
 public theorem toList_eq_nil_iff [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [LawfulUpwardEnumerableLeast? α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
     r.toList = [] ↔ ¬ Nonempty α := by
-  simp only [toList_eq_match_toList_Roi]
+  simp only [toList_eq_match_roi]
   split
   · simp_all [UpwardEnumerable.least?_eq_none_iff]
   · simp only [reduceCtorEq, false_iff, Classical.not_not]
@@ -2491,18 +2623,21 @@ public theorem toArray_eq_empty_iff [LT α] [DecidableLT α] [Least? α] [Upward
     r.toArray = #[] ↔ ¬ Nonempty α := by
   simp [← toArray_toList, toList_eq_nil_iff]
 
-public theorem mem_iff_mem_Rci [LE α] [Least? α] [UpwardEnumerable α]
+public theorem mem_iff_mem_rci [LE α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
     [Rxi.IsAlwaysFinite α] {a : α} :
     a ∈ r ↔ a ∈ ((UpwardEnumerable.least (hn := ⟨a⟩))...*) := by
   simp [Membership.mem, UpwardEnumerable.le_iff, UpwardEnumerable.least_le]
+
+@[deprecated mem_iff_mem_rci (since := "2025-10-29")]
+def mem_iff_mem_Rci := @mem_iff_mem_rci
 
 public theorem mem_toList [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
     [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toList := by
   letI : LE α := ⟨UpwardEnumerable.LE⟩
   haveI : LawfulUpwardEnumerableLE α := ⟨fun _ _ => Iff.rfl⟩
-  simp only [toList_eq_match_toList_Rci, UpwardEnumerable.least?_eq_some (hn := ⟨a⟩),
+  simp only [toList_eq_match_rci, UpwardEnumerable.least?_eq_some (hn := ⟨a⟩),
     Rci.mem_toList_iff_mem]
   simp [Membership.mem, UpwardEnumerable.le_iff, UpwardEnumerable.least_le]
 
@@ -2517,7 +2652,7 @@ public theorem pairwise_toList_upwardEnumerableLt [Least? α]
     r.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
   letI : LE α := ⟨UpwardEnumerable.LE⟩
   haveI : LawfulUpwardEnumerableLE α := ⟨fun _ _ => Iff.rfl⟩
-  simp only [toList_eq_match_toList_Rci]
+  simp only [toList_eq_match_rci]
   split
   · simp
   · exact Rci.pairwise_toList_upwardEnumerableLt
@@ -2572,7 +2707,7 @@ public theorem forIn'_toArray_eq_forIn' [LT α] [Least? α] [UpwardEnumerable α
     ForIn'.forIn' r.toArray init f = ForIn'.forIn' r init (fun a _ acc => f a mem_toArray acc) := by
   simp only [forIn'_eq_forIn'_toArray]
 
-public theorem forIn'_eq_match_forIn'_Rci [LE α] [Least? α] [UpwardEnumerable α]
+public theorem forIn'_eq_match_rci [LE α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
     [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {m : Type u → Type w} [Monad m]
     [LawfulMonad m] {γ : Type u} {init : γ} {f : (a : α) → _ → γ → m (ForInStep γ)} :
@@ -2580,10 +2715,13 @@ public theorem forIn'_eq_match_forIn'_Rci [LE α] [Least? α] [UpwardEnumerable 
       | none => return init
       | some next =>
         ForIn'.forIn' (next...*) init (fun a _ acc => f a mem acc) := by
-  simp only [forIn'_eq_forIn'_toList, toList_eq_match_toList_Rci, Rci.forIn'_eq_forIn'_toList]
+  simp only [forIn'_eq_forIn'_toList, toList_eq_match_rci, Rci.forIn'_eq_forIn'_toList]
   split <;> simp
 
-public theorem forIn'_eq_match_forIn'_Roi [LT α] [Least? α] [UpwardEnumerable α]
+@[deprecated forIn'_eq_match_rci (since := "2025-10-29")]
+def forIn'_eq_match_forIn'_Rci := @forIn'_eq_match_rci
+
+public theorem forIn'_eq_match_roi [LT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLeast? α]
     [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {m : Type u → Type w} [Monad m]
     [LawfulMonad m] {γ : Type u} {init : γ} {f : (a : α) → _ → γ → m (ForInStep γ)} :
@@ -2595,12 +2733,15 @@ public theorem forIn'_eq_match_forIn'_Roi [LT α] [Least? α] [UpwardEnumerable 
             ForIn'.forIn' (next<...*) c
               (fun a _ acc => f a mem acc)
           | .done c => return c := by
-  simp only [forIn'_eq_forIn'_toList, Roi.forIn'_eq_forIn'_toList, toList_eq_match_toList_Roi]
+  simp only [forIn'_eq_forIn'_toList, Roi.forIn'_eq_forIn'_toList, toList_eq_match_roi]
   split
   · simp
   · simp only [List.forIn'_cons]
     apply bind_congr; intro step
     split <;> simp
+
+@[deprecated forIn'_eq_match_roi (since := "2025-10-29")]
+def forIn'_eq_match_forIn'_Roi := @forIn'_eq_match_roi
 
 public theorem isEmpty_iff [Least? α] [UpwardEnumerable α] [LawfulUpwardEnumerableLeast? α] :
     r.isEmpty ↔ ¬ Nonempty α := by
@@ -2616,30 +2757,33 @@ public theorem isEmpty_iff_forall_not_mem [LT α] [DecidableLT α] [Least? α] [
 
 end Rii
 
-private theorem Internal.iter_Roc_eq_iter_Rcc_of_isSome_succ?
+private theorem Internal.iter_roc_eq_iter_rcc_of_isSome_succ?
     [LE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α] {lo hi : α}
     (h : (UpwardEnumerable.succ? lo).isSome) :
     Roc.Internal.iter (lo<...=hi) =
       Rcc.Internal.iter ((UpwardEnumerable.succ? lo |>.get h)...=hi) := by
   simp [Roc.Internal.iter, Rcc.Internal.iter]
 
-public theorem toList_Roc_eq_toList_Rcc_of_isSome_succ? [LE α] [DecidableLE α] [UpwardEnumerable α]
+public theorem toList_roc_eq_toList_rcc_of_isSome_succ? [LE α] [DecidableLE α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α]
     {lo hi : α} (h : (UpwardEnumerable.succ? lo).isSome) :
     (lo<...=hi).toList =
       ((UpwardEnumerable.succ? lo |>.get h)...=hi).toList := by
   simp [Rcc.Internal.toList_eq_toList_iter, Roc.Internal.toList_eq_toList_iter,
-    Internal.iter_Roc_eq_iter_Rcc_of_isSome_succ?, h]
+    Internal.iter_roc_eq_iter_rcc_of_isSome_succ?, h]
 
-private theorem Internal.iter_Roo_eq_iter_Rco_of_isSome_succ?
+@[deprecated toList_roc_eq_toList_rcc_of_isSome_succ? (since := "2025-10-29")]
+def toList_Roc_eq_toList_Rcc_of_isSome_succ? := @toList_roc_eq_toList_rcc_of_isSome_succ?
+
+private theorem Internal.iter_roo_eq_iter_rco_of_isSome_succ?
     [LT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α] {lo hi : α}
     (h : (UpwardEnumerable.succ? lo).isSome) :
     Roo.Internal.iter (lo<...hi) =
       Rco.Internal.iter ((UpwardEnumerable.succ? lo |>.get h)...hi) := by
   simp [Roo.Internal.iter, Rco.Internal.iter]
 
-public theorem toList_Roo_eq_toList_Rco_of_isSome_succ?
+public theorem toList_roo_eq_toList_rco_of_isSome_succ?
     [LT α] [DecidableLT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
@@ -2647,56 +2791,114 @@ public theorem toList_Roo_eq_toList_Rco_of_isSome_succ?
     (lo<...hi).toList =
       ((UpwardEnumerable.succ? lo |>.get h)...hi).toList := by
   simp [Rco.Internal.toList_eq_toList_iter, Roo.Internal.toList_eq_toList_iter,
-    Internal.iter_Roo_eq_iter_Rco_of_isSome_succ?, h]
+    Internal.iter_roo_eq_iter_rco_of_isSome_succ?, h]
 
-private theorem Internal.iter_Roi_eq_iter_Rci_of_isSome_succ?
+@[deprecated toList_roo_eq_toList_rco_of_isSome_succ? (since := "2025-10-29")]
+def toList_Roo_eq_toList_Rco_of_isSome_succ? := @toList_roo_eq_toList_rco_of_isSome_succ?
+
+private theorem Internal.iter_roi_eq_iter_rci_of_isSome_succ?
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] {lo : α}
     (h : (UpwardEnumerable.succ? lo).isSome) :
     Roi.Internal.iter (lo<...*) =
       Rci.Internal.iter ((UpwardEnumerable.succ? lo |>.get h)...*) := by
   simp [Roi.Internal.iter, Rci.Internal.iter]
 
-public theorem toList_Roi_eq_toList_Rci_of_isSome_succ?
+public theorem toList_roi_eq_toList_rci_of_isSome_succ?
     [UpwardEnumerable α]
     [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
     {lo : α} (h : (UpwardEnumerable.succ? lo).isSome) :
     (lo<...*).toList = ((UpwardEnumerable.succ? lo |>.get h)...*).toList := by
   simp [Rci.Internal.toList_eq_toList_iter, Roi.Internal.toList_eq_toList_iter,
-    Internal.iter_Roi_eq_iter_Rci_of_isSome_succ?, h]
+    Internal.iter_roi_eq_iter_rci_of_isSome_succ?, h]
+
+@[deprecated toList_roc_eq_toList_rcc_of_isSome_succ? (since := "2025-10-29")]
+def toList_Roi_eq_toList_Rci_of_isSome_succ? := @toList_roi_eq_toList_rci_of_isSome_succ?
 
 namespace Rcc
 
 variable {α : Type u} {r : Rcc α}
 
+public theorem size_eq_if_roc [LE α] [DecidableLE α] [UpwardEnumerable α]
+    [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
+    r.size = if r.lower ≤ r.upper then (r.lower<...=r.upper).size + 1 else 0 := by
+  rw [Rcc.size]
+  obtain ⟨l, u⟩ := r
+  induction h : Rxc.HasSize.size l u generalizing l
+  · simpa [Rxc.size_eq_zero_iff_not_le] using h
+  · rename_i n ih
+    split <;> rename_i hle
+    · match hl' : succ? l with
+      | none =>
+        rw [← h, Rxc.LawfulHasSize.size_eq_one_of_succ?_eq_none _ _ hle hl', Roc.size]
+        simp [hl']
+      | some l' =>
+        rw [Rxc.LawfulHasSize.size_eq_succ_of_succ?_eq_some _ _ _ hle hl',
+          Nat.add_right_cancel_iff] at h
+        rw [Roc.size, ih _ h, Nat.add_right_cancel_iff]
+        simp only [hl', h, ih l' h]
+    · simp [← Rxc.size_pos_iff_le, h] at hle
+
+@[deprecated size_eq_if_roc (since := "2025-10-29")]
+def size_eq_if := @size_eq_if_roc
+
+public theorem size_eq_if_rcc [LE α] [DecidableLE α] [UpwardEnumerable α]
+    [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
+    r.size =
+      if r.lower ≤ r.upper then
+        match succ? r.lower with
+        | none => 1
+        | some next => (next...=r.upper).size + 1
+      else
+        0 := by
+  rw [size_eq_if_roc, Roc.size]
+  simp only [Rcc.size]
+  split
+  · split <;> simp [*]
+  · rfl
+
 public theorem length_toList [LE α] [DecidableLE α] [UpwardEnumerable α]
     [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
     r.toList.length = r.size := by
-  simp [Rcc.toList, Rcc.size]
+  obtain ⟨l, u⟩ := r
+  induction h : (l...=u).size generalizing l
+  · simpa [toList_eq_nil_iff, size_eq_if_roc] using h
+  · rename_i n ih
+    rw [size_eq_if_rcc] at h
+    simp only [toList_eq_if_roo, ← h]
+    simp only [Roc.toList_eq_match_rcc]
+    split
+    · split
+      · simp
+      · simp only [*, ↓reduceIte, Nat.add_right_cancel_iff] at h
+        simp [h, ← ih _ h]
+    · simp
 
 public theorem size_toArray [LE α] [DecidableLE α] [UpwardEnumerable α]
     [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
     r.toArray.size = r.size := by
-  simp [Rcc.toArray, Rcc.size]
+  simp [← toArray_toList, length_toList]
 
 theorem getElem?_toList_eq [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α]
     {r : Rcc α} {i} :
     r.toList[i]? = (UpwardEnumerable.succMany? i r.lower).filter (· ≤ r.upper) := by
   induction i generalizing r
-  · rw [toList_eq_match, UpwardEnumerable.succMany?_zero]
+  · rw [toList_eq_if_roc, UpwardEnumerable.succMany?_zero]
     simp only [Option.filter_some, decide_eq_true_eq]
     split <;> simp
   · rename_i n ih
-    rw [toList_eq_match]
+    rw [toList_eq_if_roc]
     split
     · simp only [List.getElem?_cons_succ, succMany?_add_one_eq_succ?_bind_succMany?]
       cases hs : UpwardEnumerable.succ? r.lower
       · rw [Roc.toList_eq_match]
         simp [hs]
-      · rw [toList_Roc_eq_toList_Rcc_of_isSome_succ? (by simp [hs])]
+      · rw [toList_roc_eq_toList_rcc_of_isSome_succ? (by simp [hs])]
         rw [ih]
         simp [hs]
     · simp only [List.length_nil, Nat.not_lt_zero, not_false_eq_true, getElem?_neg]
@@ -2767,17 +2969,50 @@ namespace Roc
 
 variable {α : Type u} {r : Roc α}
 
+public theorem size_eq_match_rcc [LE α] [DecidableLE α] [UpwardEnumerable α]
+    [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
+    r.size =
+        match succ? r.lower with
+        | none => 0
+        | some next => (next...=r.upper).size := by
+  rw [Roc.size]
+  obtain ⟨l, u⟩ := r
+  induction h : Rxc.HasSize.size l u generalizing l
+  · simp only
+    split <;> simp [Rcc.size, *]
+  · rename_i n ih
+    simp only
+    split <;> rename_i hs
+    · simp [hs]
+    · simp [hs, Rcc.size]
+
+public theorem size_eq_match_roc [LE α] [DecidableLE α] [UpwardEnumerable α]
+    [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
+    r.size =
+      match succ? r.lower with
+      | none => 0
+      | some next =>
+        if next ≤ r.upper then
+          (next<...=r.upper).size + 1
+        else
+          0 := by
+  rw [size_eq_match_rcc]
+  simp [Rcc.size_eq_if_roc]
+
 public theorem length_toList [LE α] [DecidableLE α] [UpwardEnumerable α]
     [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
     r.toList.length = r.size := by
-  simp [Roc.toList, Roc.size]
+  simp only [toList_eq_match_rcc, size_eq_match_rcc]
+  split <;> simp [Rcc.length_toList]
 
 public theorem size_toArray [LE α] [DecidableLE α] [UpwardEnumerable α]
     [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
     r.toArray.size = r.size := by
-  simp [Roc.toArray, Roc.size]
+  simp [← toArray_toList, length_toList]
 
 theorem getElem?_toList_eq [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] {i} :
@@ -2786,7 +3021,7 @@ theorem getElem?_toList_eq [LE α] [DecidableLE α] [UpwardEnumerable α] [Lawfu
   | none =>
     simp [toList_eq_match, h, UpwardEnumerable.succMany?_add_one_eq_succ?_bind_succMany?]
   | some next =>
-    rw [toList_Roc_eq_toList_Rcc_of_isSome_succ? (by simp [h]), Rcc.getElem?_toList_eq]
+    rw [toList_roc_eq_toList_rcc_of_isSome_succ? (by simp [h]), Rcc.getElem?_toList_eq]
     simp [succMany?_add_one_eq_succ?_bind_succMany?, h]
 
 theorem getElem?_toArray_eq [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
@@ -2848,24 +3083,49 @@ namespace Ric
 
 variable {α : Type u} {r : Ric α}
 
+public theorem size_eq_match_rcc [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α]
+    [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
+    r.size =
+        match Least?.least? (α := α) with
+        | none => 0
+        | some next => (next...=r.upper).size := by
+  simp only [Ric.size, Rcc.size]
+  split <;> simp [*]
+
+public theorem size_eq_match_roc [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α]
+    [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
+    r.size =
+      match Least?.least? (α := α) with
+      | none => 0
+      | some next =>
+        if next ≤ r.upper then
+          (next<...=r.upper).size + 1
+        else
+          0 := by
+  rw [size_eq_match_rcc]
+  simp [Rcc.size_eq_if_roc]
+
 public theorem length_toList [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α]
     [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
     r.toList.length = r.size := by
-  simp [Ric.toList, Ric.size]
+  rw [toList_eq_match_rcc, size_eq_match_rcc]
+  split <;> simp [Rcc.length_toList]
 
 public theorem size_toArray [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α]
     [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
     r.toArray.size = r.size := by
-  simp [Ric.toArray, Ric.size]
+  simp [← toArray_toList, length_toList]
 
 theorem getElem?_toList_eq [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
     [Rxc.IsAlwaysFinite α] {i} :
     haveI : Nonempty α := ⟨r.upper⟩
     r.toList[i]? = ((UpwardEnumerable.succMany? i UpwardEnumerable.least)).filter (· ≤ r.upper) := by
-  rw [toList_eq_toList_Rcc, Rcc.getElem?_toList_eq]
+  rw [toList_eq_toList_rcc, Rcc.getElem?_toList_eq]
 
 theorem getElem?_toArray_eq [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
@@ -2936,17 +3196,69 @@ namespace Rco
 
 variable {α : Type u} {r : Rco α}
 
+public theorem size_eq_if_roo [LT α] [DecidableLT α] [UpwardEnumerable α]
+    [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
+    r.size = if r.lower < r.upper then (r.lower<...r.upper).size + 1 else 0 := by
+  rw [Rco.size]
+  obtain ⟨l, u⟩ := r
+  induction h : Rxo.HasSize.size l u generalizing l
+  · simpa [Rxo.size_eq_zero_iff_not_le] using h
+  · rename_i n ih
+    split <;> rename_i hle
+    · match hl' : succ? l with
+      | none =>
+        rw [← h, Rxo.LawfulHasSize.size_eq_one_of_succ?_eq_none _ _ hle hl', Roo.size]
+        simp [hl']
+      | some l' =>
+        rw [Rxo.LawfulHasSize.size_eq_succ_of_succ?_eq_some _ _ _ hle hl',
+          Nat.add_right_cancel_iff] at h
+        rw [Roo.size, ih _ h, Nat.add_right_cancel_iff]
+        simp only [hl', h, ih l' h]
+    · simp [← Rxo.size_pos_iff_lt, h] at hle
+
+@[deprecated size_eq_if_roo (since := "2025-10-29")]
+def size_eq_if := @size_eq_if_roo
+
+public theorem size_eq_if_rcc [LT α] [DecidableLT α] [UpwardEnumerable α]
+    [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
+    r.size =
+      if r.lower < r.upper then
+        match succ? r.lower with
+        | none => 1
+        | some next => (next...r.upper).size + 1
+      else
+        0 := by
+  rw [size_eq_if_roo, Roo.size]
+  simp only [Rco.size]
+  split
+  · split <;> simp [*]
+  · rfl
+
 public theorem length_toList [LT α] [DecidableLT α] [UpwardEnumerable α]
     [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
     r.toList.length = r.size := by
-  simp [Rco.toList, Rco.size]
+  obtain ⟨l, u⟩ := r
+  induction h : (l...u).size generalizing l
+  · simpa [toList_eq_nil_iff, size_eq_if_roo] using h
+  · rename_i n ih
+    rw [size_eq_if_rcc] at h
+    simp only [toList_eq_if_roo, ← h]
+    simp only [Roo.toList_eq_match_rco]
+    split
+    · split
+      · simp
+      · simp only [*, ↓reduceIte, Nat.add_right_cancel_iff] at h
+        simp [h, ← ih _ h]
+    · simp
 
 public theorem size_toArray [LT α] [DecidableLT α] [UpwardEnumerable α]
     [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
     r.toArray.size = r.size := by
-  simp [Rco.toArray, Rco.size]
+  simp [← toArray_toList, length_toList]
 
 theorem getElem?_toList_eq [LT α] [DecidableLT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
@@ -2954,17 +3266,17 @@ theorem getElem?_toList_eq [LT α] [DecidableLT α] [UpwardEnumerable α]
     {r : Rco α} {i} :
     r.toList[i]? = (UpwardEnumerable.succMany? i r.lower).filter (· < r.upper) := by
   induction i generalizing r
-  · rw [toList_eq_if, UpwardEnumerable.succMany?_zero]
+  · rw [toList_eq_if_roo, UpwardEnumerable.succMany?_zero]
     simp only [Option.filter_some, decide_eq_true_eq]
     split <;> simp
   · rename_i n ih
-    rw [toList_eq_if]
+    rw [toList_eq_if_roo]
     split
     · simp only [List.getElem?_cons_succ, succMany?_add_one_eq_succ?_bind_succMany?]
       cases hs : UpwardEnumerable.succ? r.lower
       · rw [Roo.toList_eq_match]
         simp [hs]
-      · rw [toList_Roo_eq_toList_Rco_of_isSome_succ? (by simp [hs])]
+      · rw [toList_roo_eq_toList_rco_of_isSome_succ? (by simp [hs])]
         rw [ih]
         simp [hs]
     · simp only [List.length_nil, Nat.not_lt_zero, not_false_eq_true, getElem?_neg]
@@ -3035,17 +3347,50 @@ namespace Roo
 
 variable {α : Type u} {r : Roo α}
 
+public theorem size_eq_match_rcc [LT α] [DecidableLT α] [UpwardEnumerable α]
+    [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
+    r.size =
+        match succ? r.lower with
+        | none => 0
+        | some next => (next...r.upper).size := by
+  rw [Roo.size]
+  obtain ⟨l, u⟩ := r
+  induction h : Rxo.HasSize.size l u generalizing l
+  · simp only
+    split <;> simp [Rco.size, *]
+  · rename_i n ih
+    simp only
+    split <;> rename_i hs
+    · simp [hs]
+    · simp [hs, Rco.size]
+
+public theorem size_eq_match_roc [LT α] [DecidableLT α] [UpwardEnumerable α]
+    [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
+    r.size =
+      match succ? r.lower with
+      | none => 0
+      | some next =>
+        if next < r.upper then
+          (next<...r.upper).size + 1
+        else
+          0 := by
+  rw [size_eq_match_rcc]
+  simp [Rco.size_eq_if_roo]
+
 public theorem length_toList [LT α] [DecidableLT α] [UpwardEnumerable α]
     [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
     r.toList.length = r.size := by
-  simp [Roo.toList, Roo.size]
+  simp only [toList_eq_match_rco, size_eq_match_rcc]
+  split <;> simp [Rco.length_toList]
 
 public theorem size_toArray [LT α] [DecidableLT α] [UpwardEnumerable α]
     [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
     r.toArray.size = r.size := by
-  simp [Roo.toArray, Roo.size]
+  simp [← toArray_toList, length_toList]
 
 theorem getElem?_toList_eq [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α] {i} :
@@ -3054,7 +3399,7 @@ theorem getElem?_toList_eq [LT α] [DecidableLT α] [UpwardEnumerable α] [Lawfu
   | none =>
     simp [toList_eq_match, h, UpwardEnumerable.succMany?_add_one_eq_succ?_bind_succMany?]
   | some next =>
-    rw [toList_Roo_eq_toList_Rco_of_isSome_succ? (by simp [h]), Rco.getElem?_toList_eq]
+    rw [toList_roo_eq_toList_rco_of_isSome_succ? (by simp [h]), Rco.getElem?_toList_eq]
     simp [succMany?_add_one_eq_succ?_bind_succMany?, h]
 
 theorem getElem?_toArray_eq [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
@@ -3116,24 +3461,49 @@ namespace Rio
 
 variable {α : Type u} {r : Rio α}
 
+public theorem size_eq_match_rcc [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α]
+    [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
+    r.size =
+        match Least?.least? (α := α) with
+        | none => 0
+        | some next => (next...r.upper).size := by
+  simp only [Rio.size, Rco.size]
+  split <;> simp [*]
+
+public theorem size_eq_match_roc [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α]
+    [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
+    r.size =
+      match Least?.least? (α := α) with
+      | none => 0
+      | some next =>
+        if next < r.upper then
+          (next<...r.upper).size + 1
+        else
+          0 := by
+  rw [size_eq_match_rcc]
+  simp [Rco.size_eq_if_roo]
+
 public theorem length_toList [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α]
     [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
     r.toList.length = r.size := by
-  simp [Rio.toList, Rio.size]
+  rw [toList_eq_match_rco, size_eq_match_rcc]
+  split <;> simp [Rco.length_toList]
 
 public theorem size_toArray [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α]
     [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
     r.toArray.size = r.size := by
-  simp [Rio.toArray, Rio.size]
+  simp [← toArray_toList, length_toList]
 
 theorem getElem?_toList_eq [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLeast? α]
     [Rxo.IsAlwaysFinite α] {i} :
     haveI : Nonempty α := ⟨r.upper⟩
     r.toList[i]? = ((UpwardEnumerable.succMany? i UpwardEnumerable.least)).filter (· < r.upper) := by
-  rw [toList_eq_toList_Rco, Rco.getElem?_toList_eq]
+  rw [toList_eq_toList_rco, Rco.getElem?_toList_eq]
 
 theorem getElem?_toArray_eq [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLeast? α]
@@ -3204,31 +3574,68 @@ namespace Rci
 
 variable {α : Type u} {r : Rci α}
 
+public theorem size_eq_size_roi [UpwardEnumerable α] [Rxi.HasSize α] [LawfulUpwardEnumerable α]
+    [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
+    r.size = (r.lower<...*).size + 1 := by
+  rw [Rci.size]
+  obtain ⟨l⟩ := r
+  induction h : Rxi.HasSize.size l generalizing l
+  · have := Rxi.size_pos (lo := l)
+    omega
+  · rename_i n ih
+    · match hl' : succ? l with
+      | none =>
+        rw [← h, Rxi.LawfulHasSize.size_eq_one_of_succ?_eq_none _ hl', Roi.size]
+        simp [hl']
+      | some l' =>
+        rw [Rxi.LawfulHasSize.size_eq_succ_of_succ?_eq_some _ _ hl',
+          Nat.add_right_cancel_iff] at h
+        rw [Roi.size, ih _ h, Nat.add_right_cancel_iff]
+        simp only [hl', h, ih l' h]
+
+public theorem size_eq_match_rci [UpwardEnumerable α] [Rxi.HasSize α] [LawfulUpwardEnumerable α]
+    [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
+    r.size =
+      match succ? r.lower with
+      | none => 1
+      | some next => (next...*).size + 1 := by
+  rw [size_eq_size_roi, Roi.size]
+  simp only [Rci.size]
+  split <;> simp [*]
+
 public theorem length_toList [UpwardEnumerable α] [Rxi.HasSize α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
     r.toList.length = r.size := by
-  simp [Rci.toList, Rci.size]
+  obtain ⟨l⟩ := r
+  induction h : (l...*).size generalizing l
+  · simp [size_eq_size_roi] at h
+  · rename_i n ih
+    rw [size_eq_match_rci] at h
+    simp only [toList_eq_toList_roi, ← h]
+    simp only [Roi.toList_eq_match_rci]
+    split
+    · simp
+    · simp only [Nat.add_right_cancel_iff, *] at h
+      simp [ih _ h, h]
 
-public theorem size_toArray [UpwardEnumerable α]
-    [Rxi.HasSize α] [LawfulUpwardEnumerable α]
+public theorem size_toArray [UpwardEnumerable α] [Rxi.HasSize α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
     r.toArray.size = r.size := by
-  simp [Rci.toArray, Rci.size]
+  simp [← toArray_toList, length_toList]
 
-theorem getElem?_toList_eq [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α]
+theorem getElem?_toList_eq [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α]
     {r : Rci α} {i} :
     r.toList[i]? = UpwardEnumerable.succMany? i r.lower := by
   induction i generalizing r
-  · simp [toList_eq_toList_Roi, UpwardEnumerable.succMany?_zero]
+  · simp [toList_eq_toList_roi, UpwardEnumerable.succMany?_zero]
   · rename_i n ih
-    rw [toList_eq_toList_Roi]
+    rw [toList_eq_toList_roi]
     simp only [List.getElem?_cons_succ, succMany?_add_one_eq_succ?_bind_succMany?]
     cases hs : UpwardEnumerable.succ? r.lower
     · rw [Roi.toList_eq_match]
       simp [hs]
-    · rw [toList_Roi_eq_toList_Rci_of_isSome_succ? (by simp [hs])]
+    · rw [toList_roi_eq_toList_rci_of_isSome_succ? (by simp [hs])]
       rw [ih]
       simp [hs]
 
@@ -3291,17 +3698,42 @@ namespace Roi
 
 variable {α : Type u} {r : Roi α}
 
-public theorem length_toList [LT α] [DecidableLT α] [UpwardEnumerable α]
-    [Rxi.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+public theorem size_eq_match_rci [UpwardEnumerable α] [Rxi.HasSize α] [LawfulUpwardEnumerable α]
+    [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
+    r.size =
+        match succ? r.lower with
+        | none => 0
+        | some next => (next...*).size := by
+  rw [Roi.size]
+  obtain ⟨l⟩ := r
+  induction h : Rxi.HasSize.size l generalizing l
+  · simp only
+    split <;> simp [Rci.size, *]
+  · rename_i n ih
+    simp only
+    split <;> rename_i hs
+    · simp [hs]
+    · simp [hs, Rci.size]
+
+public theorem size_eq_match_roi [UpwardEnumerable α] [Rxi.HasSize α] [LawfulUpwardEnumerable α]
+    [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
+    r.size =
+      match succ? r.lower with
+      | none => 0
+      | some next => (next<...*).size + 1:= by
+  rw [size_eq_match_rci]
+  simp [Rci.size_eq_size_roi]
+
+public theorem length_toList [UpwardEnumerable α] [Rxi.HasSize α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
     r.toList.length = r.size := by
-  simp [Roi.toList, Roi.size]
+  simp only [toList_eq_match_rci, size_eq_match_rci]
+  split <;> simp [Rci.length_toList]
 
-public theorem size_toArray [LT α] [DecidableLT α] [UpwardEnumerable α]
-    [Rxi.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+public theorem size_toArray [UpwardEnumerable α] [Rxi.HasSize α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
     r.toArray.size = r.size := by
-  simp [Roi.toArray, Roi.size]
+  simp [← toArray_toList, length_toList]
 
 theorem getElem?_toList_eq [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLT α] [Rxi.IsAlwaysFinite α] {i} :
@@ -3310,7 +3742,7 @@ theorem getElem?_toList_eq [LT α] [DecidableLT α] [UpwardEnumerable α] [Lawfu
   | none =>
     simp [toList_eq_match, h, UpwardEnumerable.succMany?_add_one_eq_succ?_bind_succMany?]
   | some next =>
-    rw [toList_Roi_eq_toList_Rci_of_isSome_succ? (by simp [h]), Rci.getElem?_toList_eq]
+    rw [toList_roi_eq_toList_rci_of_isSome_succ? (by simp [h]), Rci.getElem?_toList_eq]
     simp [succMany?_add_one_eq_succ?_bind_succMany?, h]
 
 theorem getElem?_toArray_eq [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
@@ -3372,23 +3804,42 @@ namespace Rii
 
 variable {α : Type u} {r : Rii α}
 
+public theorem size_eq_match_rci [Least? α] [UpwardEnumerable α] [Rxi.HasSize α]
+    [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
+    r.size =
+        match Least?.least? (α := α) with
+        | none => 0
+        | some next => (next...*).size := by
+  simp only [Rii.size, Rci.size]
+  split <;> simp [*]
+
+public theorem size_eq_match_roi [Least? α] [UpwardEnumerable α] [Rxi.HasSize α]
+    [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
+    r.size =
+      match Least?.least? (α := α) with
+      | none => 0
+      | some next => (next<...*).size + 1 := by
+  rw [size_eq_match_rci]
+  simp [Rci.size_eq_size_roi]
+
 public theorem length_toList [Least? α] [UpwardEnumerable α]
     [Rxi.HasSize α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
     r.toList.length = r.size := by
-  simp [Rii.toList, Rii.size]
+  rw [toList_eq_match_rci, size_eq_match_rci]
+  split <;> simp [Rci.length_toList]
 
 public theorem size_toArray [Least? α] [UpwardEnumerable α]
     [Rxi.HasSize α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
     r.toArray.size = r.size := by
-  simp [Rii.toArray, Rii.size]
+  simp [← toArray_toList, length_toList]
 
 theorem getElem?_toList_eq [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
     [Rxi.IsAlwaysFinite α] {i} :
     r.toList[i]? = Least?.least?.bind (UpwardEnumerable.succMany? i) := by
-  rw [toList_eq_match_toList_Rci]
+  rw [toList_eq_match_rci]
   split <;> rename_i heq <;> simp [heq, Rci.getElem?_toList_eq]
 
 theorem getElem?_toArray_eq [Least? α] [UpwardEnumerable α]

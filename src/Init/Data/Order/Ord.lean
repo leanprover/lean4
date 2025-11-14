@@ -6,12 +6,6 @@ Authors: Markus Himmel, Paul Reichert, Robin Arnez
 module
 
 prelude
-public import Init.Data.Ord.Basic
-import Init.RCases
-import Init.Data.Bool
-import Init.ByCases
-import Init.Data.Int.Order
-import Init.Data.Option.Lemmas
 import Init.Data.List.Lemmas
 import Init.Data.Array.DecidableEq
 public import Init.Data.Ord.Array
@@ -276,6 +270,7 @@ theorem TransCmp.gt_of_gt_of_isGE [TransCmp cmp] {a b c : α} (hab : cmp a b = .
   rw [OrientedCmp.gt_iff_lt, OrientedCmp.isGE_iff_isLE] at *
   exact TransCmp.lt_of_isLE_of_lt hbc hab
 
+@[deprecated TransCmp.gt_trans (since := "2025-10-26")]
 theorem TransCmp.gt_of_gt_of_gt [TransCmp cmp] {a b c : α} (hab : cmp a b = .gt)
     (hbc : cmp b c = .gt) : cmp a c = .gt := by
   apply gt_of_gt_of_isGE hab (Ordering.isGE_of_eq_gt hbc)

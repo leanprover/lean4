@@ -45,9 +45,6 @@ instance (priority := 500) instForInOfForIn' [ForIn' m ρ α d] : ForIn m ρ α 
     forIn x b f = forIn' x b (fun x h => binderNameHint x f <| binderNameHint h () <| f x) := by
   rfl
 
-@[deprecated forIn_eq_forIn' (since := "2025-04-04")]
-abbrev forIn_eq_forin' := @forIn_eq_forIn'
-
 /--
 Extracts the value from a `ForInStep`, ignoring whether it is `ForInStep.done` or `ForInStep.yield`.
 -/

@@ -6,9 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Control.Basic
-public import Init.Control.Lawful.Basic
-public import Init.NotationExtra
 public import Init.Control.Lawful.MonadLift
 
 public section
@@ -58,7 +55,7 @@ theorem LawfulMonadLiftFunction.lift_map [LawfulMonad m] [LawfulMonad n]
 theorem LawfulMonadLiftFunction.lift_seq [LawfulMonad m] [LawfulMonad n]
     [LawfulMonadLiftFunction lift] (mf : m (α → β)) (ma : m α) :
     lift (mf <*> ma) = lift mf <*> (lift ma : n α) := by
-  simp only [seq_eq_bind, lift_map, lift_bind]
+  simp only [seq_eq_bind_map, lift_map, lift_bind]
 
 theorem LawfulMonadLiftFunction.lift_seqLeft [LawfulMonad m] [LawfulMonad n]
     [LawfulMonadLiftFunction lift] (x : m α) (y : m β) :

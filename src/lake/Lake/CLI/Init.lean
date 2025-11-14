@@ -127,7 +127,7 @@ defaultTargets = [{repr libRoot}]
 name = {repr libRoot}
 "
 
-def mathLaxLeanConfigFileContents (pkgName libRoot : String) :=
+def mathLaxLeanConfigFileContents (pkgName libRoot rev : String) :=
 s!"import Lake
 open Lake DSL
 
@@ -138,14 +138,14 @@ package {repr pkgName} where
     ⟨`pp.unicode.fun, true⟩ -- pretty-prints `fun a ↦ b`
   ]
 
-require \"leanprover-community\" / \"mathlib\"
+require \"leanprover-community\" / \"mathlib\" @ git {repr rev}
 
 @[default_target]
 lean_lib {libRoot} where
   -- add any library configuration options here
 "
 
-def mathLaxTomlConfigFileContents (pkgName libRoot : String) :=
+def mathLaxTomlConfigFileContents (pkgName libRoot rev : String) :=
 s!"name = {repr pkgName}
 version = \"0.1.0\"
 keywords = [\"math\"]
@@ -157,12 +157,13 @@ pp.unicode.fun = true # pretty-prints `fun a ↦ b`
 [[require]]
 name = \"mathlib\"
 scope = \"leanprover-community\"
+rev = {repr rev}
 
 [[lean_lib]]
 name = {repr libRoot}
 "
 
-def mathLeanConfigFileContents (pkgName libRoot : String) :=
+def mathLeanConfigFileContents (pkgName libRoot rev : String) :=
 s!"import Lake
 open Lake DSL
 
@@ -171,20 +172,19 @@ package {repr pkgName} where
   keywords := #[\"math\"]
   leanOptions := #[
     ⟨`pp.unicode.fun, true⟩, -- pretty-prints `fun a ↦ b`
-    ⟨`autoImplicit, false⟩,
     ⟨`relaxedAutoImplicit, false⟩,
     ⟨`maxSynthPendingDepth, .ofNat 3⟩,
     ⟨`weak.linter.mathlibStandardSet, true⟩,
   ]
 
-require \"leanprover-community\" / \"mathlib\"
+require \"leanprover-community\" / \"mathlib\" @ git {repr rev}
 
 @[default_target]
 lean_lib {libRoot} where
   -- add any library configuration options here
 "
 
-def mathTomlConfigFileContents (pkgName libRoot : String) :=
+def mathTomlConfigFileContents (pkgName libRoot rev : String) :=
 s!"name = {repr pkgName}
 version = \"0.1.0\"
 keywords = [\"math\"]
@@ -192,7 +192,6 @@ defaultTargets = [{repr libRoot}]
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
-autoImplicit = false
 relaxedAutoImplicit = false
 weak.linter.mathlibStandardSet = true
 maxSynthPendingDepth = 3
@@ -200,6 +199,7 @@ maxSynthPendingDepth = 3
 [[require]]
 name = \"mathlib\"
 scope = \"leanprover-community\"
+rev = {repr rev}
 
 [[lean_lib]]
 name = {repr libRoot}
@@ -222,12 +222,6 @@ To set up your new GitHub repository, follow these steps:
 After following the steps above, you can remove this section from the README file.
 "
 
-def mathToolchainBlobUrl : String :=
-  "https://raw.githubusercontent.com/leanprover-community/mathlib4/master/lean-toolchain"
-
-def mathToolchainUrl : String :=
-  "https://github.com/leanprover-community/mathlib4/blob/master/lean-toolchain"
-
 def leanActionWorkflowContents :=
 "name: Lean Action CI
 
@@ -241,7 +235,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: leanprover/lean-action@v1
 "
 
@@ -264,7 +258,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: leanprover/lean-action@v1
       - uses: leanprover-community/docgen-action@v1
 "
@@ -365,8 +359,12 @@ def escapeName! : Name → String
 def dotlessName (name : Name) :=
   name.toString false |>.map fun chr => if chr == '.' then '-' else chr
 
-def InitTemplate.configFileContents  (tmp : InitTemplate) (lang : ConfigLang) (pkgName : Name) (root : Name) : String :=
+def InitTemplate.configFileContents
+  (tmp : InitTemplate) (lang : ConfigLang) (pkgName : Name) (root : Name)
+  (leanVer? : Option LeanVer)
+: String :=
   let pkgNameStr := dotlessName pkgName
+  let mathRev := leanVer?.elim "master" (s!"v{·.toString}")
   match tmp, lang with
   | .std, .lean => stdLeanConfigFileContents pkgNameStr (escapeName! root) pkgNameStr.toLower
   | .std, .toml => stdTomlConfigFileContents pkgNameStr root.toString pkgNameStr.toLower
@@ -374,10 +372,10 @@ def InitTemplate.configFileContents  (tmp : InitTemplate) (lang : ConfigLang) (p
   | .lib, .toml => libTomlConfigFileContents pkgNameStr root.toString
   | .exe, .lean => exeLeanConfigFileContents pkgNameStr pkgNameStr.toLower
   | .exe, .toml => exeTomlConfigFileContents pkgNameStr pkgNameStr.toLower
-  | .mathLax, .lean => mathLaxLeanConfigFileContents pkgNameStr (escapeName! root)
-  | .mathLax, .toml => mathLaxTomlConfigFileContents pkgNameStr root.toString
-  | .math, .lean => mathLeanConfigFileContents pkgNameStr (escapeName! root)
-  | .math, .toml => mathTomlConfigFileContents pkgNameStr root.toString
+  | .mathLax, .lean => mathLaxLeanConfigFileContents pkgNameStr (escapeName! root) mathRev
+  | .mathLax, .toml => mathLaxTomlConfigFileContents pkgNameStr root.toString mathRev
+  | .math, .lean => mathLeanConfigFileContents pkgNameStr (escapeName! root) mathRev
+  | .math, .toml => mathTomlConfigFileContents pkgNameStr root.toString mathRev
 
 def createLeanActionWorkflow (dir : FilePath) (tmp : InitTemplate) : LogIO PUnit := do
   logVerbose "creating lean-action CI workflow"
@@ -435,8 +433,13 @@ def initPkg
       else
         return (root, rootFile)
 
+  -- Compute the Lean version from the environment toolchain
+  let leanVer? := match ToolchainVer.ofString env.toolchain with
+    | .release ver => some ver
+    | _ => none
+
   -- write template configuration file
-  IO.FS.writeFile configFile <| tmp.configFileContents lang name root
+  IO.FS.writeFile configFile <| tmp.configFileContents lang name root leanVer?
 
   -- write example code if the files do not already exist
   if let some rootFile := rootFile? then
@@ -488,26 +491,21 @@ def initPkg
   [1]: https://github.com/leanprover/lean4/issues/2518
   -/
   let toolchainFile := dir / toolchainFileName
-  if !offline && (tmp matches .mathLax | .math) then
-    logInfo "downloading mathlib `lean-toolchain` file"
-    try
-      download mathToolchainBlobUrl toolchainFile
-    catch errPos =>
-      logError s!"failed to download mathlib 'lean-toolchain' file; \
-        you can manually copy it from:\n  {mathToolchainUrl}"
-      throw errPos
-    -- Create a manifest file based on the dependencies.
-    updateManifest { lakeEnv := env, wsDir := dir }
-  else
-    if env.toolchain.isEmpty then
+  if env.toolchain.isEmpty then
       -- Empty githash implies dev build
       unless env.lean.githash.isEmpty do
         unless (← toolchainFile.pathExists) do
-          logWarning <|
-            "could not create a `lean-toolchain` file for the new package; "  ++
-            "no known toolchain name for the current Elan/Lean/Lake"
+          logWarning "could not create a `lean-toolchain` file for the new package; \
+            no known toolchain name for the current Elan/Lean/Lake"
     else
       IO.FS.writeFile toolchainFile <| env.toolchain ++ "\n"
+  if tmp matches .mathLax | .math then
+    if leanVer?.isNone then
+      logWarning "creating a new math package with a non-release Lean toolchain; \
+        Mathlib may not work properly"
+    unless offline do
+      -- Checkout mathlib and pin the version in the manifest
+      updateManifest { lakeEnv := env, wsDir := dir, updateToolchain := false }
 
 def validatePkgName (pkgName : String) : LogIO PUnit := do
   if pkgName.isEmpty || pkgName.all (· == '.') || pkgName.any (· ∈ ['/', '\\']) then

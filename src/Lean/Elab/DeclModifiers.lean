@@ -6,10 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Structure
-public import Lean.Elab.Attributes
 public import Lean.DocString.Add
-public import Lean.Parser.Command
 meta import Lean.Parser.Command
 
 public section
@@ -162,7 +159,7 @@ def expandOptDocComment? [Monad m] [MonadError m] (optDocComment : Syntax) : m (
   match optDocComment.getOptional? with
   | none   => return none
   | some s => match s[1] with
-    | .atom _ val => return some (val.extract 0 (val.endPos.unoffsetBy ⟨2⟩))
+    | .atom _ val => return some (String.Pos.Raw.extract val 0 (val.rawEndPos.unoffsetBy ⟨2⟩))
     | _           => throwErrorAt s "unexpected doc string{indentD s[1]}"
 
 section Methods

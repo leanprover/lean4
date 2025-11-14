@@ -847,6 +847,17 @@ class task_manager {
         }
     }
 
+    object * wait_any_check(object * task_list) {
+        object * it = task_list;
+        while (!is_scalar(it)) {
+            object * head = lean_ctor_get(it, 0);
+            if (lean_to_task(head)->m_value)
+                return head;
+            it = cnstr_get(it, 1);
+        }
+        return nullptr;
+    }
+
 public:
     task_manager(unsigned max_std_workers):
         m_max_std_workers(max_std_workers) {
@@ -926,6 +937,17 @@ public:
         m_task_finished_cv.wait(lock, [&]() { return t->m_value != nullptr; });
         if (in_pool) {
             m_max_std_workers--;
+        }
+    }
+
+    object * wait_any(object * task_list) {
+        if (object * t = wait_any_check(task_list))
+            return t;
+        unique_lock<mutex> lock(m_mutex);
+        while (true) {
+            if (object * t = wait_any_check(task_list))
+                return t;
+            m_task_finished_cv.wait(lock);
         }
     }
 
@@ -1065,7 +1087,7 @@ extern "C" LEAN_EXPORT obj_res lean_task_pure(obj_arg a) {
     return (lean_object*)alloc_task(a);
 }
 
-static obj_res task_map_fn(obj_arg f, obj_arg t, obj_arg) {
+static obj_res task_map_fn(obj_arg f, obj_arg t, obj_arg w) {
     b_obj_res v = lean_to_task(t)->m_value;
     lean_assert(v != nullptr);
     lean_inc(v);
@@ -1166,6 +1188,10 @@ extern "C" LEAN_EXPORT uint8_t lean_io_get_task_state_core(b_obj_arg t) {
     return g_task_manager->get_task_state(o);
 }
 
+extern "C" LEAN_EXPORT b_obj_res lean_io_wait_any_core(b_obj_arg task_list) {
+    return g_task_manager->wait_any(task_list);
+}
+
 obj_res lean_promise_new() {
     lean_always_assert(g_task_manager);
 
@@ -1188,14 +1214,14 @@ void lean_promise_resolve(obj_arg value, b_obj_arg promise) {
     g_task_manager->resolve(lean_to_promise(promise)->m_result, mk_option_some(value));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_promise_new(obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_promise_new() {
     lean_object * o = lean_promise_new();
-    return io_result_mk_ok(o);
+    return o;
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise) {
     lean_promise_resolve(value, promise);
-    return io_result_mk_ok(box(0));
+    return box(0);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_promise_result_opt(b_obj_arg promise) {
@@ -2636,9 +2662,9 @@ extern "C" LEAN_EXPORT object * lean_max_small_nat(object *) {
 // =======================================
 // Debugging helper functions
 
-extern "C" obj_res lean_io_eprintln(obj_arg s, obj_arg w);
+extern "C" obj_res lean_io_eprintln(obj_arg s);
 void io_eprintln(obj_arg s) {
-    object * r = lean_io_eprintln(s, lean_io_mk_world());
+    object * r = lean_io_eprintln(s);
     lean_assert(lean_io_result_is_ok(r));
     lean_dec(r);
 }

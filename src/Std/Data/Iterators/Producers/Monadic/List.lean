@@ -6,8 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Nat.Lemmas
-public import Init.RCases
 public import Init.Data.Iterators.Consumers
 public import Init.Data.Iterators.Internal.Termination
 
@@ -34,6 +32,13 @@ structure ListIterator (α : Type w) where
 /--
 Returns a finite iterator for the given list.
 The iterator yields the elements of the list in order and then terminates.
+
+The non-monadic version of this iterator is `List.iter`.
+
+**Termination properties:**
+
+* `Finite` instance: always
+* `Productive` instance: always
 -/
 @[always_inline, inline]
 def _root_.List.iterM {α : Type w} (l : List α) (m : Type w → Type w') [Pure m] :
@@ -47,8 +52,8 @@ instance {α : Type w} [Pure m] : Iterator (ListIterator α) m α where
     | .skip _ => False
     | .done => it.internalState.list = []
   step it := pure (match it with
-        | ⟨⟨[]⟩⟩ => ⟨.done, rfl⟩
-        | ⟨⟨x :: xs⟩⟩ => ⟨.yield (toIterM ⟨xs⟩ m α) x, rfl⟩)
+        | ⟨⟨[]⟩⟩ => .deflate ⟨.done, rfl⟩
+        | ⟨⟨x :: xs⟩⟩ => .deflate ⟨.yield (toIterM ⟨xs⟩ m α) x, rfl⟩)
 
 private def ListIterator.finitenessRelation [Pure m] :
     FinitenessRelation (ListIterator α) m where
@@ -80,14 +85,6 @@ instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
 @[always_inline, inline]
 instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
     IteratorLoopPartial (ListIterator α) m n :=
-  .defaultImplementation
-
-@[always_inline, inline]
-instance {α : Type w} [Monad m] : IteratorSize (ListIterator α) m :=
-  .defaultImplementation
-
-@[always_inline, inline]
-instance {α : Type w} [Monad m] : IteratorSizePartial (ListIterator α) m :=
   .defaultImplementation
 
 end Std.Iterators

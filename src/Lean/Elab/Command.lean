@@ -6,14 +6,10 @@ Authors: Leonardo de Moura, Gabriel Ebner
 module
 
 prelude
-public import Init.Data.Range.Polymorphic.Stream
 public import Lean.Meta.Diagnostics
 public import Lean.Elab.Binders
 public import Lean.Elab.Command.Scope
-public import Lean.Elab.SyntheticMVars
 public import Lean.Elab.SetOption
-public import Lean.Language.Basic
-public import Lean.Meta.ForEachExpr
 public meta import Lean.Parser.Command
 import Lean.ExtraModUses
 
@@ -602,37 +598,30 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
   -- initialize quotation context using hash of input string
   let ss? := stx.getSubstring? (withLeading := false) (withTrailing := false)
   withInitQuotContext (ss?.map (hash ·.toString.trim)) do
-  let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
-  let initInfoTrees ← getResetInfoTrees
+  -- Reset messages and info state, which are both per-command
+  modify fun st => { st with messages := {}, infoState := { enabled := st.infoState.enabled } }
   try
-    try
-      -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error
-      -- recovery more coarse. In particular, if `c` in `set_option ... in $c` fails, the remaining
-      -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
-      elabCommand stx
-    finally
-      -- This call could be placed at a prior point in this function except that it
-      -- would then record uses of `#guard_msgs` before that elaborator is run, which
-      -- would increase noise in related tests. Thus all other things being equal, we
-      -- place it here.
-      recordUsedSyntaxKinds stx
-      -- Make sure `snap?` is definitely resolved; we do not use it for reporting as `#guard_msgs` may
-      -- be the caller of this function and add new messages and info trees
-      if let some snap := (← read).snap? then
-        snap.new.resolve default
-
-    -- Run the linters, unless `#guard_msgs` is present, which is special and runs `elabCommandTopLevel` itself,
-    -- so it is a "super-top-level" command. This is the only command that does this, so we just special case it here
-    -- rather than engineer a general solution.
-    unless (stx.find? (·.isOfKind ``Lean.guardMsgsCmd)).isSome do
-      withLogging do
-        runLintersAsync stx
+    -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error
+    -- recovery more coarse. In particular, if `c` in `set_option ... in $c` fails, the remaining
+    -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
+    elabCommand stx
   finally
-    let msgs := (← get).messages
-    modify fun st => { st with
-      messages := initMsgs ++ msgs
-      infoState := { st.infoState with trees := initInfoTrees ++ st.infoState.trees }
-    }
+    -- This call could be placed at a prior point in this function except that it
+    -- would then record uses of `#guard_msgs` before that elaborator is run, which
+    -- would increase noise in related tests. Thus all other things being equal, we
+    -- place it here.
+    recordUsedSyntaxKinds stx
+    -- Make sure `snap?` is definitely resolved; we do not use it for reporting as `#guard_msgs` may
+    -- be the caller of this function and add new messages and info trees
+    if let some snap := (← read).snap? then
+      snap.new.resolve default
+
+  -- Run the linters, unless `#guard_msgs` is present, which is special and runs `elabCommandTopLevel` itself,
+  -- so it is a "super-top-level" command. This is the only command that does this, so we just special case it here
+  -- rather than engineer a general solution.
+  unless (stx.find? (·.isOfKind ``Lean.guardMsgsCmd)).isSome do
+    withLogging do
+      runLintersAsync stx
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
 def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab := fun stx => do

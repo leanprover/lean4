@@ -8,7 +8,6 @@ module
 
 prelude
 public import Init.Data.List.TakeDrop
-public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
 
 public section
@@ -32,7 +31,7 @@ theorem foldlM_toList.aux [Monad m]
   · cases Nat.not_le_of_gt ‹_› (Nat.zero_add _ ▸ H)
   · rename_i i; rw [Nat.succ_add] at H
     simp [foldlM_toList.aux (j := j+1) H]
-    rw (occs := [2]) [← List.getElem_cons_drop_succ_eq_drop ‹_›]
+    rw (occs := [2]) [← List.getElem_cons_drop ‹_›]
     simp
   · rw [List.drop_of_length_le (Nat.ge_of_not_lt ‹_›)]; simp
 

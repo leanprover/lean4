@@ -6,7 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lake.Toml.Grammar
 public import Lake.Toml.Elab.Value
 meta import all Lake.Toml.Grammar
 

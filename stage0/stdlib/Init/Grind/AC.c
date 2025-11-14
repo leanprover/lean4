@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.AC
-// Imports: public import Init.Core public import Init.Data.Nat.Lemmas public import Init.Data.RArray public import Init.Data.Bool import Init.LawfulBEqTactics
+// Imports: public import Init.Data.Nat.Lemmas public import Init.Data.Bool import Init.LawfulBEqTactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -492,30 +492,30 @@ return x_6;
 }
 else
 {
-if (lean_obj_tag(x_2) == 0)
+if (lean_obj_tag(x_2) == 1)
 {
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+x_7 = lean_ctor_get(x_1, 0);
+x_8 = lean_ctor_get(x_1, 1);
+x_9 = lean_ctor_get(x_2, 0);
+x_10 = lean_ctor_get(x_2, 1);
+x_11 = l_Lean_Grind_AC_instBEqExpr_beq(x_7, x_9);
+if (x_11 == 0)
+{
+return x_11;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-x_8 = lean_ctor_get(x_1, 0);
-x_9 = lean_ctor_get(x_1, 1);
-x_10 = lean_ctor_get(x_2, 0);
-x_11 = lean_ctor_get(x_2, 1);
-x_12 = l_Lean_Grind_AC_instBEqExpr_beq(x_8, x_10);
-if (x_12 == 0)
-{
-return x_12;
-}
-else
-{
-x_1 = x_9;
-x_2 = x_11;
+x_1 = x_8;
+x_2 = x_10;
 goto _start;
 }
+}
+else
+{
+uint8_t x_13; 
+x_13 = 0;
+return x_13;
 }
 }
 }
@@ -904,30 +904,30 @@ return x_6;
 }
 else
 {
-if (lean_obj_tag(x_2) == 0)
+if (lean_obj_tag(x_2) == 1)
 {
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+x_7 = lean_ctor_get(x_1, 0);
+x_8 = lean_ctor_get(x_1, 1);
+x_9 = lean_ctor_get(x_2, 0);
+x_10 = lean_ctor_get(x_2, 1);
+x_11 = lean_nat_dec_eq(x_7, x_9);
+if (x_11 == 0)
+{
+return x_11;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-x_8 = lean_ctor_get(x_1, 0);
-x_9 = lean_ctor_get(x_1, 1);
-x_10 = lean_ctor_get(x_2, 0);
-x_11 = lean_ctor_get(x_2, 1);
-x_12 = lean_nat_dec_eq(x_8, x_10);
-if (x_12 == 0)
-{
-return x_12;
-}
-else
-{
-x_1 = x_9;
-x_2 = x_11;
+x_1 = x_8;
+x_2 = x_10;
 goto _start;
 }
+}
+else
+{
+uint8_t x_13; 
+x_13 = 0;
+return x_13;
 }
 }
 }
@@ -989,28 +989,28 @@ return x_9;
 else
 {
 lean_dec(x_3);
-if (lean_obj_tag(x_2) == 0)
+if (lean_obj_tag(x_2) == 1)
 {
-lean_object* x_10; 
-lean_dec(x_4);
-x_10 = lean_apply_4(x_5, x_1, x_2, lean_box(0), lean_box(0));
-return x_10;
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_dec(x_5);
+x_10 = lean_ctor_get(x_1, 0);
+lean_inc(x_10);
+x_11 = lean_ctor_get(x_1, 1);
+lean_inc_ref(x_11);
+lean_dec_ref(x_1);
+x_12 = lean_ctor_get(x_2, 0);
+lean_inc(x_12);
+x_13 = lean_ctor_get(x_2, 1);
+lean_inc_ref(x_13);
+lean_dec_ref(x_2);
+x_14 = lean_apply_4(x_4, x_10, x_11, x_12, x_13);
+return x_14;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_dec(x_5);
-x_11 = lean_ctor_get(x_1, 0);
-lean_inc(x_11);
-x_12 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_12);
-lean_dec_ref(x_1);
-x_13 = lean_ctor_get(x_2, 0);
-lean_inc(x_13);
-x_14 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_14);
-lean_dec_ref(x_2);
-x_15 = lean_apply_4(x_4, x_11, x_12, x_13, x_14);
+lean_object* x_15; 
+lean_dec(x_4);
+x_15 = lean_apply_4(x_5, x_1, x_2, lean_box(0), lean_box(0));
 return x_15;
 }
 }
@@ -1873,29 +1873,21 @@ x_4 = l_Lean_Grind_AC_Seq_unionFuel(x_3, x_1, x_2);
 return x_4;
 }
 }
-lean_object* initialize_Init_Core(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_RArray(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Bool(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_LawfulBEqTactics(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Bool(uint8_t builtin);
+lean_object* initialize_Init_LawfulBEqTactics(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Grind_AC(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Grind_AC(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Core(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Bool(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_RArray(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Bool(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_LawfulBEqTactics(builtin, lean_io_mk_world());
+res = initialize_Init_LawfulBEqTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Grind_AC_instInhabitedExpr_default___closed__0 = _init_l_Lean_Grind_AC_instInhabitedExpr_default___closed__0();

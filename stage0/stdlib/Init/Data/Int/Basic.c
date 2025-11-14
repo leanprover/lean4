@@ -77,7 +77,6 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Int___aux__Init__Data__Int__Basic______unexpand__Int__negSucc__1___closed__1;
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instOfNat(lean_object*);
-LEAN_EXPORT lean_object* l_Int_toNat_x27(lean_object*);
 static lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__5;
 lean_object* lean_int_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_instMax___lam__0___boxed(lean_object*, lean_object*);
@@ -96,7 +95,6 @@ LEAN_EXPORT lean_object* l_Int_negSucc_elim(lean_object*, lean_object*, lean_obj
 lean_object* lean_int_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_ofNat_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_instDecidableEq___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_toNat_x27___boxed(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_instAdd;
 static lean_object* l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1___closed__14;
@@ -1202,23 +1200,6 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Int_toNat_x27(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Int_toNat_x3f(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Int_toNat_x27___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Int_toNat_x27(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Int_instDvd() {
 _start:
 {
@@ -1445,17 +1426,17 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Data_Cast(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Nat_Div_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Cast(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Div_Basic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Int_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Int_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Cast(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Cast(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Div_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Nat_Div_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_instNatCastInt = _init_l_instNatCastInt();

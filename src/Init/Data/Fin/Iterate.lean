@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.PropLemmas
-public import Init.Data.Fin.Basic
 
 public section
 

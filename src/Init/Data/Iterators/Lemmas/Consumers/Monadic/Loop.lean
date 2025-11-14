@@ -23,7 +23,8 @@ theorem IterM.DefaultConsumers.forIn'_eq_match_step {α β : Type w} {m : Type w
     {it : IterM (α := α) m β} {init : γ}
     {P hP} {f : (b : β) → P b → (c : γ) → n (Subtype (plausible_forInStep b c))} :
     IterM.DefaultConsumers.forIn' lift γ plausible_forInStep wf it init P hP f =
-      (lift _ _ · it.step) (fun
+      (lift _ _ · it.step) (fun s =>
+          match s.inflate with
           | .yield it' out h => do
             match ← f out (hP _ <| .direct ⟨_, h⟩) init with
             | ⟨.yield c, _⟩ =>
@@ -36,7 +37,7 @@ theorem IterM.DefaultConsumers.forIn'_eq_match_step {α β : Type w} {m : Type w
           | .done _ => return init) := by
   rw [forIn']
   congr; ext step
-  cases step using PlausibleIterStep.casesOn <;> rfl
+  cases step.inflate using PlausibleIterStep.casesOn <;> rfl
 
 theorem IterM.forIn'_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m β] [Finite α m]
     {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n] [IteratorLoop α m n]
@@ -95,7 +96,7 @@ theorem IterM.forIn'_eq_match_step {α β : Type w} {m : Type w → Type w'} [It
     {f : (out : β) → _ → γ → n (ForInStep γ)} :
     letI : ForIn' n (IterM (α := α) m β) β _ := IterM.instForIn'
     ForIn'.forIn' it init f = (do
-      match ← it.step with
+      match (← it.step).inflate with
       | .yield it' out h =>
         match ← f out (.direct ⟨_, h⟩) init with
         | .yield c =>
@@ -109,7 +110,7 @@ theorem IterM.forIn'_eq_match_step {α β : Type w} {m : Type w → Type w'} [It
   rw [IterM.forIn'_eq, DefaultConsumers.forIn'_eq_match_step]
   apply bind_congr
   intro step
-  cases step using PlausibleIterStep.casesOn
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp only [map_eq_pure_bind, bind_assoc]
     apply bind_congr
     intro forInStep
@@ -129,7 +130,7 @@ theorem IterM.forIn_eq_match_step {α β : Type w} {m : Type w → Type w'} [Ite
     [MonadLiftT m n] [LawfulMonadLiftT m n] {γ : Type w} {it : IterM (α := α) m β} {init : γ}
     {f : β → γ → n (ForInStep γ)} :
     ForIn.forIn it init f = (do
-      match ← it.step with
+      match (← it.step).inflate with
       | .yield it' out _ =>
         match ← f out init with
         | .yield c => ForIn.forIn it' c f
@@ -153,7 +154,7 @@ theorem IterM.forM_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iter
     [MonadLiftT m n] [LawfulMonadLiftT m n] {it : IterM (α := α) m β}
     {f : β → n PUnit} :
     ForM.forM it f = (do
-      match ← it.step with
+      match (← it.step).inflate with
       | .yield it' out _ =>
         f out
         ForM.forM it' f
@@ -162,7 +163,7 @@ theorem IterM.forM_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iter
   rw [forM_eq_forIn, forIn_eq_match_step]
   apply bind_congr
   intro step
-  cases step using PlausibleIterStep.casesOn <;> simp [forM_eq_forIn]
+  cases step.inflate using PlausibleIterStep.casesOn <;> simp [forM_eq_forIn]
 
 theorem IterM.foldM_eq_forIn {α β γ : Type w} {m : Type w → Type w'} [Iterator α m β] [Finite α m]
     {n : Type w → Type w''} [Monad n] [IteratorLoop α m n] [MonadLiftT m n] {f : γ → β → n γ}
@@ -183,14 +184,14 @@ theorem IterM.foldM_eq_match_step {α β γ : Type w} {m : Type w → Type w'} [
     [LawfulIteratorLoop α m n] [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : γ → β → n γ} {init : γ} {it : IterM (α := α) m β} :
     it.foldM (init := init) f = (do
-      match ← it.step with
+      match (← it.step).inflate with
       | .yield it' out _ => it'.foldM (init := ← f init out) f
       | .skip it' _ => it'.foldM (init := init) f
       | .done _ => return init) := by
   rw [IterM.foldM_eq_forIn, IterM.forIn_eq_match_step]
   apply bind_congr
   intro step
-  cases step using PlausibleIterStep.casesOn <;> simp [foldM_eq_forIn]
+  cases step.inflate using PlausibleIterStep.casesOn <;> simp [foldM_eq_forIn]
 
 theorem IterM.fold_eq_forIn {α β γ : Type w} {m : Type w → Type w'} [Iterator α m β]
     [Finite α m] [Monad m]
@@ -218,7 +219,7 @@ theorem IterM.fold_eq_match_step {α β γ : Type w} {m : Type w → Type w'} [I
     [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {f : γ → β → γ} {init : γ} {it : IterM (α := α) m β} :
     it.fold (init := init) f = (do
-      match ← it.step with
+      match (← it.step).inflate with
       | .yield it' out _ => it'.fold (init := f init out) f
       | .skip it' _ => it'.fold (init := init) f
       | .done _ => return init) := by
@@ -226,7 +227,7 @@ theorem IterM.fold_eq_match_step {α β γ : Type w} {m : Type w → Type w'} [I
   simp only [fold_eq_foldM]
   apply bind_congr
   intro step
-  cases step using PlausibleIterStep.casesOn <;> simp
+  cases step.inflate using PlausibleIterStep.casesOn <;> simp
 
 -- The argument `f : γ₁ → γ₂` is intentionally explicit, as it is sometimes not found by unification.
 theorem IterM.fold_hom {m : Type w → Type w'} [Iterator α m β] [Finite α m]
@@ -260,7 +261,7 @@ theorem IterM.toList_eq_fold {α β : Type w} {m : Type w → Type w'} [Iterator
   simp only [map_eq_pure_bind, bind_assoc]
   apply bind_congr
   intro step
-  cases step using PlausibleIterStep.casesOn
+  cases step.inflate using PlausibleIterStep.casesOn
   · rename_i it' out h
     specialize ihy h (l' ++ [out])
     simpa using ihy
@@ -296,7 +297,7 @@ theorem IterM.drain_eq_match_step {α β : Type w} {m : Type w → Type w'} [Ite
     [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {it : IterM (α := α) m β} :
     it.drain = (do
-      match ← it.step with
+      match (← it.step).inflate with
       | .yield it' _ _ => it'.drain
       | .skip it' _ => it'.drain
       | .done _ => return .unit) := by
@@ -313,7 +314,7 @@ theorem IterM.drain_eq_map_toList {α β : Type w} {m : Type w → Type w'} [Ite
   simp only [map_eq_pure_bind, bind_assoc]
   apply bind_congr
   intro step
-  cases step using PlausibleIterStep.casesOn
+  cases step.inflate using PlausibleIterStep.casesOn
   · rename_i it' out h
     simp [ihy h]
   · rename_i it' h
@@ -334,6 +335,73 @@ theorem IterM.drain_eq_map_toArray {α β : Type w} {m : Type w → Type w'} [It
     it.drain = (fun _ => .unit) <$> it.toList := by
   simp [IterM.drain_eq_map_toList]
 
+theorem IterM.count_eq_fold {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m]
+    {it : IterM (α := α) m β} :
+    it.count = it.fold (init := .up 0) (fun acc _ => .up <| acc.down + 1) :=
+  (rfl)
+
+theorem IterM.count_eq_forIn {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m]
+    {it : IterM (α := α) m β} :
+    it.count = ForIn.forIn it (.up 0) (fun _ acc => return .yield (.up (acc.down + 1))) :=
+  (rfl)
+
+theorem IterM.count_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} :
+    it.count = (do
+      match (← it.step).inflate.val with
+      | .yield it' _ => return .up ((← it'.count).down + 1)
+      | .skip it' => return .up (← it'.count).down
+      | .done => return .up 0) := by
+  simp only [count_eq_fold]
+  have (acc : Nat) (it' : IterM (α := α) m β) :
+      it'.fold (init := ULift.up acc) (fun acc _ => .up (acc.down + 1)) =
+        (ULift.up <| ·.down + acc) <$>
+          it'.fold (init := ULift.up 0) (fun acc _ => .up (acc.down + 1)) := by
+    rw [← fold_hom]
+    · simp only [Nat.zero_add]; rfl
+    · simp only [ULift.up.injEq]; omega
+  rw [fold_eq_match_step]
+  apply bind_congr; intro step
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simp only [Nat.zero_add, bind_pure_comp]
+    rw [this 1]
+  · simp
+  · simp
+
+@[simp]
+theorem IterM.up_size_toArray_eq_count {α β : Type w} [Iterator α m β] [Finite α m]
+    [Monad m] [LawfulMonad m]
+    [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} :
+    (.up <| ·.size) <$> it.toArray = it.count := by
+  rw [toArray_eq_fold, count_eq_fold, ← fold_hom]
+  · simp only [List.size_toArray, List.length_nil]; rfl
+  · simp
+
+@[simp]
+theorem IterM.up_length_toList_eq_count {α β : Type w} [Iterator α m β] [Finite α m]
+    [Monad m] [LawfulMonad m]
+    [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} :
+    (.up <| ·.length) <$> it.toList = it.count := by
+  rw [toList_eq_fold, count_eq_fold, ← fold_hom]
+  · simp only [List.length_nil]; rfl
+  · simp
+
+@[simp]
+theorem IterM.up_length_toListRev_eq_count {α β : Type w} [Iterator α m β] [Finite α m]
+    [Monad m] [LawfulMonad m]
+    [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} :
+    (.up <| ·.length) <$> it.toListRev = it.count := by
+  simp only [toListRev_eq, Functor.map_map, List.length_reverse, up_length_toList_eq_count]
+
 theorem IterM.anyM_eq_forIn {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
     [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {it : IterM (α := α) m β} {p : β → m (ULift Bool)} :
@@ -348,7 +416,7 @@ theorem IterM.anyM_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iter
     [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {it : IterM (α := α) m β} {p : β → m (ULift Bool)} :
     it.anyM p = (do
-      match (← it.step).val with
+      match (← it.step).inflate.val with
       | .yield it' x =>
         if (← p x).down then
           return .up true
@@ -359,7 +427,7 @@ theorem IterM.anyM_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iter
   rw [anyM_eq_forIn, forIn_eq_match_step]
   simp only [monadLift_self, bind_assoc]
   apply bind_congr; intro step
-  split
+  cases step.inflate using PlausibleIterStep.casesOn
   · apply bind_congr; intro px
     split
     · simp
@@ -383,7 +451,7 @@ theorem IterM.any_eq_match_step {α β : Type w} {m : Type w → Type w'} [Itera
     [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {it : IterM (α := α) m β} {p : β → Bool} :
     it.any p = (do
-      match (← it.step).val with
+      match (← it.step).inflate.val with
       | .yield it' x =>
         if p x then
           return .up true
@@ -422,7 +490,7 @@ theorem IterM.allM_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iter
     [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {it : IterM (α := α) m β} {p : β → m (ULift Bool)} :
     it.allM p = (do
-      match (← it.step).val with
+      match (← it.step).inflate.val with
       | .yield it' x =>
         if (← p x).down then
           it'.allM p
@@ -433,7 +501,7 @@ theorem IterM.allM_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iter
   rw [allM_eq_forIn, forIn_eq_match_step]
   simp only [monadLift_self, bind_assoc]
   apply bind_congr; intro step
-  split
+  cases step.inflate using PlausibleIterStep.casesOn
   · apply bind_congr; intro px
     split
     · simp [allM_eq_forIn]
@@ -457,7 +525,7 @@ theorem IterM.all_eq_match_step {α β : Type w} {m : Type w → Type w'} [Itera
     [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {it : IterM (α := α) m β} {p : β → Bool} :
     it.all p = (do
-      match (← it.step).val with
+      match (← it.step).inflate.val with
       | .yield it' x =>
         if p x then
           it'.all p
@@ -489,7 +557,7 @@ theorem IterM.allM_eq_not_anyM_not {α β : Type w} {m : Type w → Type w'} [It
   induction it using IterM.inductSteps with | step it ihy ihs =>
   rw [allM_eq_match_step, anyM_eq_match_step, map_eq_pure_bind, bind_assoc]
   apply bind_congr; intro step
-  cases step using PlausibleIterStep.casesOn
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp only [map_eq_pure_bind, bind_assoc, pure_bind]
     apply bind_congr; intro px
     split
@@ -505,11 +573,133 @@ theorem IterM.all_eq_not_any_not {α β : Type w} {m : Type w → Type w'} [Iter
   induction it using IterM.inductSteps with | step it ihy ihs =>
   rw [all_eq_match_step, any_eq_match_step, map_eq_pure_bind, bind_assoc]
   apply bind_congr; intro step
-  cases step using PlausibleIterStep.casesOn
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp only
     split
     · simp [*, ihy ‹_›]
     · simp [*]
+  · simp [ihs ‹_›]
+  · simp
+
+theorem IterM.findSomeM?_eq_match_step {α β γ : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [LawfulMonad m] [Finite α m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → m (Option γ)} :
+    it.findSomeM? f = (do
+      match (← it.step).inflate.val with
+      | .yield it' out =>
+        match ← f out with
+        | none => it'.findSomeM? f
+        | some fx => return (some fx)
+      | .skip it' => it'.findSomeM? f
+      | .done => return none) := by
+  rw [findSomeM?, forIn_eq_match_step]
+  apply bind_congr; intro step
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simp only [bind_assoc]
+    apply bind_congr; intro fx
+    split <;> simp [findSomeM?]
+  · simp [findSomeM?]
+  · simp
+
+theorem IterM.findSome?_eq_findSomeM? {α β γ : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [Finite α m]
+    {it : IterM (α := α) m β} {f : β → Option γ} :
+    it.findSome? f = it.findSomeM? (pure <| f ·) :=
+  (rfl)
+
+theorem IterM.findSome?_eq_match_step {α β γ : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [LawfulMonad m] [Finite α m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → Option γ} :
+    it.findSome? f = (do
+      match (← it.step).inflate.val with
+      | .yield it' out =>
+        match f out with
+        | none => it'.findSome? f
+        | some fx => return (some fx)
+      | .skip it' => it'.findSome? f
+      | .done => return none) := by
+  rw [findSome?_eq_findSomeM?, findSomeM?_eq_match_step]
+  apply bind_congr; intro step
+  split <;> simp [findSome?_eq_findSomeM?]
+
+theorem IterM.findSomeM?_pure {α β γ : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m]
+    [LawfulMonad m] [Finite α m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → Option γ} :
+    it.findSomeM? (pure <| f ·) = it.findSome? f := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [findSomeM?_eq_match_step, findSome?_eq_match_step]
+  apply bind_congr; intro step
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simp only [pure_bind]
+    split <;> simp [ihy ‹_›]
+  · simp [ihs ‹_›]
+  · simp
+
+theorem IterM.findM?_eq_findSomeM? {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [Finite α m]
+    {it : IterM (α := α) m β} {f : β → m (ULift Bool)} :
+    it.findM? f = it.findSomeM? (fun x => return if (← f x).down then some x else none) :=
+  (rfl)
+
+theorem IterM.findM?_eq_match_step {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [LawfulMonad m] [Finite α m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → m (ULift Bool)} :
+    it.findM? f = (do
+      match (← it.step).inflate.val with
+      | .yield it' out =>
+        if (← f out).down then return (some out) else it'.findM? f
+      | .skip it' => it'.findM? f
+      | .done => return none) := by
+  rw [findM?_eq_findSomeM?, findSomeM?_eq_match_step]
+  apply bind_congr; intro step
+  split
+  · simp only [bind_assoc]
+    apply bind_congr; intro fx
+    split <;> simp [findM?_eq_findSomeM?]
+  · simp [findM?_eq_findSomeM?]
+  · simp
+
+theorem IterM.find?_eq_findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] [Finite α m] {it : IterM (α := α) m β} {f : β → Bool} :
+    it.find? f = it.findM? (pure <| .up <| f ·) :=
+  (rfl)
+
+theorem IterM.find?_eq_findSome? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] [LawfulMonad m] [Finite α m] {it : IterM (α := α) m β} {f : β → Bool} :
+    it.find? f = it.findSome? (fun x => if f x then some x else none) := by
+  simp [find?_eq_findM?, findSome?_eq_findSomeM?, findM?_eq_findSomeM?]
+
+theorem IterM.find?_eq_match_step {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [LawfulMonad m] [Finite α m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → Bool} :
+    it.find? f = (do
+      match (← it.step).inflate.val with
+      | .yield it' out =>
+        if f out then return (some out) else it'.find? f
+      | .skip it' => it'.find? f
+      | .done => return none) := by
+  rw [find?_eq_findM?, findM?_eq_match_step]
+  apply bind_congr; intro step
+  split
+  · simp only [pure_bind]
+    split <;> simp [find?_eq_findM?]
+  · simp [find?_eq_findM?]
+  · simp
+
+theorem IterM.findM?_pure {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m]
+    [LawfulMonad m] [Finite α m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → ULift Bool} :
+    it.findM? (pure (f := m) <| f ·) = it.find? (ULift.down <| f ·) := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [findM?_eq_match_step, find?_eq_match_step]
+  apply bind_congr; intro step
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simp only [pure_bind]
+    split
+    · simp
+    · simp [ihy ‹_›]
   · simp [ihs ‹_›]
   · simp
 

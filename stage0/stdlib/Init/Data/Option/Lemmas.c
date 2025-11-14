@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Option.Lemmas
-// Imports: public import Init.Data.Option.BasicAux import all Init.Data.Option.BasicAux public import Init.Data.Option.Instances import all Init.Data.Option.Instances public import Init.Data.BEq public import Init.Classical public import Init.Ext public import Init.Grind.Tactics
+// Imports: import all Init.Data.Option.BasicAux public import Init.Data.Option.Instances import all Init.Data.Option.Instances public import Init.Data.BEq public import Init.Classical public import Init.Ext
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -285,45 +285,45 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_dec(x_4);
-if (lean_obj_tag(x_2) == 0)
+if (lean_obj_tag(x_2) == 1)
 {
-lean_object* x_6; 
-lean_dec(x_3);
-x_6 = lean_apply_4(x_5, x_1, x_2, lean_box(0), lean_box(0));
-return x_6;
+lean_object* x_6; lean_object* x_7; 
+lean_dec(x_5);
+x_6 = lean_ctor_get(x_2, 0);
+lean_inc(x_6);
+lean_dec_ref(x_2);
+x_7 = lean_apply_1(x_3, x_6);
+return x_7;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; 
-lean_dec(x_5);
-x_7 = lean_ctor_get(x_2, 0);
-lean_inc(x_7);
-lean_dec_ref(x_2);
-x_8 = lean_apply_1(x_3, x_7);
+lean_object* x_8; 
+lean_dec(x_3);
+x_8 = lean_apply_4(x_5, x_1, x_2, lean_box(0), lean_box(0));
 return x_8;
 }
 }
 else
 {
 lean_dec(x_3);
-if (lean_obj_tag(x_2) == 0)
+if (lean_obj_tag(x_2) == 1)
 {
-lean_object* x_9; 
-lean_dec(x_4);
-x_9 = lean_apply_4(x_5, x_1, x_2, lean_box(0), lean_box(0));
-return x_9;
+lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_dec(x_5);
+x_9 = lean_ctor_get(x_1, 0);
+lean_inc(x_9);
+lean_dec_ref(x_1);
+x_10 = lean_ctor_get(x_2, 0);
+lean_inc(x_10);
+lean_dec_ref(x_2);
+x_11 = lean_apply_2(x_4, x_9, x_10);
+return x_11;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-lean_dec(x_5);
-x_10 = lean_ctor_get(x_1, 0);
-lean_inc(x_10);
-lean_dec_ref(x_1);
-x_11 = lean_ctor_get(x_2, 0);
-lean_inc(x_11);
-lean_dec_ref(x_2);
-x_12 = lean_apply_2(x_4, x_10, x_11);
+lean_object* x_12; 
+lean_dec(x_4);
+x_12 = lean_apply_4(x_5, x_1, x_2, lean_box(0), lean_box(0));
 return x_12;
 }
 }
@@ -415,41 +415,33 @@ lean_dec(x_7);
 return x_10;
 }
 }
-lean_object* initialize_Init_Data_Option_BasicAux(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Option_BasicAux(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Option_Instances(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Option_Instances(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BEq(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Classical(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Ext(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Tactics(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Option_BasicAux(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Instances(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Instances(uint8_t builtin);
+lean_object* initialize_Init_Data_BEq(uint8_t builtin);
+lean_object* initialize_Init_Classical(uint8_t builtin);
+lean_object* initialize_Init_Ext(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Option_BasicAux(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Option_BasicAux(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option_BasicAux(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Option_Instances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option_Instances(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Option_Instances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option_Instances(builtin, lean_io_mk_world());
+res = initialize_Init_Data_BEq(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BEq(builtin, lean_io_mk_world());
+res = initialize_Init_Classical(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Classical(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Ext(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Grind_Tactics(builtin, lean_io_mk_world());
+res = initialize_Init_Ext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

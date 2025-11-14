@@ -6,8 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.LCNF.CompilerM
-public import Lean.Compiler.LCNF.Types
 public import Lean.Compiler.LCNF.InferType
 public import Lean.Compiler.LCNF.Simp.Basic
 
@@ -63,8 +61,7 @@ def findCtor? (fvarId : FVarId) : DiscrM (Option CtorInfo) := do
   | some { value := .const declName _ args, .. } =>
     let some (.ctorInfo val) := (← getEnv).find? declName | return none
     return some <| .ctor val args
-  | some _ => return none
-  | none => return (← read).discrCtorMap.get? fvarId
+  | _ => return (← read).discrCtorMap.get? fvarId
 
 def findCtorName? (fvarId : FVarId) : DiscrM (Option Name) := do
   let some ctorInfo ← findCtor? fvarId | return none

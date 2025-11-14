@@ -8,7 +8,6 @@ module
 prelude
 public import Std.Data.DTreeMap.Raw.WF
 public import Std.Data.TreeMap.Raw.AdditionalOperations
-public import Std.Data.TreeMap.Raw.Basic
 
 @[expose] public section
 
@@ -115,5 +114,9 @@ theorem unitOfArray [TransCmp cmp] {a : Array α} :
 theorem mergeWith {mergeFn} {t₁ t₂ : Raw α β cmp} (h : t₁.WF) :
     (t₁.mergeWith mergeFn t₂).WF :=
   ⟨InnerWF.constMergeWith h⟩
+
+theorem union [TransCmp cmp] {t₁ t₂ : Raw α β cmp} (h₁ : t₁.WF) (h₂ : t₂.WF) :
+  (t₁.union t₂).WF :=
+  ⟨InnerWF.union h₁ h₂⟩
 
 end Std.TreeMap.Raw.WF

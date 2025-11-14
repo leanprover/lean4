@@ -8,7 +8,6 @@ module
 prelude
 public import Std.Data.DTreeMap.Internal.WF.Defs
 public import Std.Data.DTreeMap.Internal.Cell
-public import Std.Data.Internal.Cut
 
 @[expose] public section
 

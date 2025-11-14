@@ -23,6 +23,16 @@ use `PUnit` in the desugaring of `do` notation, or in the pattern match compiler
 
 universe u v w
 
+/-- Marker for information that has been erased by the code generator. -/
+unsafe axiom lcErased : Type
+
+/-- Marker for type dependency that has been erased by the code generator. -/
+unsafe axiom lcAny : Type
+
+/-- Internal representation of `Void` in the compiler. -/
+unsafe axiom lcVoid : Type
+
+
 /--
 The identity function. `id` takes an implicit argument `α : Sort u`
 (a type in any universe), and an argument `a : α`, and returns `a`.
@@ -134,15 +144,6 @@ The only element of the unit type.
 It can be written as an empty tuple: `()`.
 -/
 @[match_pattern] abbrev Unit.unit : Unit := PUnit.unit
-
-/-- Marker for information that has been erased by the code generator. -/
-unsafe axiom lcErased : Type
-
-/-- Marker for type dependency that has been erased by the code generator. -/
-unsafe axiom lcAny : Type
-
-/-- Internal representation of `IO.RealWorld` in the compiler. -/
-unsafe axiom lcRealWorld : Type
 
 /--
 Auxiliary unsafe constant used by the Compiler when erasing proofs from code.
@@ -1098,6 +1099,7 @@ until `c` is known.
         | Or.inl h => hp h
         | Or.inr h => hq h
 
+@[inline]
 instance [dp : Decidable p] : Decidable (Not p) :=
   match dp with
   | isTrue hp  => isFalse (absurd hp)
@@ -1553,7 +1555,7 @@ class HomogeneousPow (α : Type u) where
 
 /-- Typeclass for types with a scalar multiplication operation, denoted `•` (`\bu`) -/
 class SMul (M : Type u) (α : Type v) where
-  /-- `a • b` computes the product of `a` and `b`. The meaning of this notation is type-dependent,
+  /-- `m • a : α` denotes the product of `m : M` and `a : α`. The meaning of this notation is type-dependent,
   but it is intended to be used for left actions. -/
   smul : M → α → α
 
@@ -1829,8 +1831,7 @@ Examples:
 -/
 @[extern "lean_nat_dec_le"]
 def Nat.ble : @& Nat → @& Nat → Bool
-  | zero,   zero   => true
-  | zero,   succ _ => true
+  | zero,   _      => true
   | succ _, zero   => false
   | succ n, succ m => ble n m
 
@@ -1875,7 +1876,7 @@ theorem Nat.succ_le_succ : LE.le n m → LE.le (succ n) (succ m)
 theorem Nat.zero_lt_succ (n : Nat) : LT.lt 0 (succ n) :=
   succ_le_succ (zero_le n)
 
-theorem Nat.le_step (h : LE.le n m) : LE.le n (succ m) :=
+theorem Nat.le_succ_of_le (h : LE.le n m) : LE.le n (succ m) :=
   Nat.le.step h
 
 protected theorem Nat.le_trans {n m k : Nat} : LE.le n m → LE.le m k → LE.le n k
@@ -1886,13 +1887,10 @@ protected theorem Nat.lt_of_lt_of_le {n m k : Nat} : LT.lt n m → LE.le m k →
   Nat.le_trans
 
 protected theorem Nat.lt_trans {n m k : Nat} (h₁ : LT.lt n m) : LT.lt m k → LT.lt n k :=
-  Nat.le_trans (le_step h₁)
+  Nat.le_trans (le_succ_of_le h₁)
 
 theorem Nat.le_succ (n : Nat) : LE.le n (succ n) :=
   Nat.le.step Nat.le.refl
-
-theorem Nat.le_succ_of_le {n m : Nat} (h : LE.le n m) : LE.le n (succ m) :=
-  Nat.le_trans h (le_succ m)
 
 protected theorem Nat.le_refl (n : Nat) : LE.le n n :=
   Nat.le.refl
@@ -2217,6 +2215,7 @@ theorem Nat.mod_lt : (x : Nat) →  {y : Nat} → (hy : LT.lt 0 y) → LT.lt (HM
       | .isFalse h => Nat.lt_of_not_le h
 
 attribute [gen_constructor_elims] Nat
+attribute [gen_constructor_elims] Bool
 
 /--
 Gets the word size of the current platform. The word size may be 64 or 32 bits.
@@ -2811,7 +2810,7 @@ def Char.ofNat (n : Nat) : Char :=
     (fun h => Char.ofNatAux n h)
     (fun _ => { val := ⟨BitVec.ofNatLT 0 (of_decide_eq_true rfl)⟩, valid := Or.inl (of_decide_eq_true rfl) })
 
-theorem Char.eq_of_val_eq : ∀ {c d : Char}, Eq c.val d.val → Eq c d
+theorem Char.ext : ∀ {c d : Char}, Eq c.val d.val → Eq c d
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
 theorem Char.val_eq_of_eq : ∀ {c d : Char}, Eq c d → Eq c.val d.val
@@ -2821,12 +2820,12 @@ theorem Char.ne_of_val_ne {c d : Char} (h : Not (Eq c.val d.val)) : Not (Eq c d)
   fun h' => absurd (val_eq_of_eq h') h
 
 theorem Char.val_ne_of_ne {c d : Char} (h : Not (Eq c d)) : Not (Eq c.val d.val) :=
-  fun h' => absurd (eq_of_val_eq h') h
+  fun h' => absurd (ext h') h
 
 instance : DecidableEq Char :=
   fun c d =>
     match decEq c.val d.val with
-    | isTrue h  => isTrue (Char.eq_of_val_eq h)
+    | isTrue h  => isTrue (Char.ext h)
     | isFalse h => isFalse (Char.ne_of_val_ne h)
 
 /-- Returns the number of bytes required to encode this `Char` in UTF-8. -/
@@ -3396,7 +3395,10 @@ Note that in order for this definition to be well-behaved it is necessary to kno
 is unique. To show this, one defines UTF-8 decoding and shows that encoding and decoding are
 mutually inverse. -/
 inductive ByteArray.IsValidUTF8 (b : ByteArray) : Prop
-  /-- Show that a byte -/
+  /--
+  Show that a byte array is valid UTF-8 by exhibiting it as `List.utf8Encode m` for some list `m`
+  of characters.
+   -/
   | intro (m : List Char) (hm : Eq b (List.utf8Encode m))
 
 /--
@@ -3441,7 +3443,7 @@ Character positions (counting the Unicode code points rather than bytes) are rep
 `Nat`s. Indexing a `String` by a `String.Pos.Raw` takes constant time, while character positions need to
 be translated internally to byte positions, which takes linear time.
 
-A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.endPos` and `p` lies on a UTF-8
+A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.rawEndPos` and `p` lies on a UTF-8
 character boundary, see `String.Pos.IsValid`.
 
 There is another type, `String.ValidPos`, which bundles the validity predicate. Using `String.ValidPos`
@@ -3501,10 +3503,10 @@ def String.utf8ByteSize (s : @& String) : Nat :=
 /--
 A UTF-8 byte position that points at the end of a string, just after the last character.
 
-* `"abc".endPos = ⟨3⟩`
-* `"L∃∀N".endPos = ⟨8⟩`
+* `"abc".rawEndPos = ⟨3⟩`
+* `"L∃∀N".rawEndPos = ⟨8⟩`
 -/
-@[inline] def String.endPos (s : String) : String.Pos.Raw where
+@[inline] def String.rawEndPos (s : String) : String.Pos.Raw where
   byteIdx := utf8ByteSize s
 
 /--
@@ -3513,7 +3515,7 @@ Converts a `String` into a `Substring` that denotes the entire string.
 @[inline] def String.toSubstring (s : String) : Substring where
   str      := s
   startPos := {}
-  stopPos  := s.endPos
+  stopPos  := s.rawEndPos
 
 /--
 Converts a `String` into a `Substring` that denotes the entire string.
@@ -3703,7 +3705,7 @@ When thinking about `f` as potential side effects, `*>` evaluates first the left
 argument for their side effects, discarding the value of the left argument and returning the value
 of the right argument.
 
-For most applications, `Applicative` or `Monad` should be used rather than `SeqLeft` itself.
+For most applications, `Applicative` or `Monad` should be used rather than `SeqRight` itself.
 -/
 class SeqRight (f : Type u → Type v) : Type (max (u+1) v) where
   /--

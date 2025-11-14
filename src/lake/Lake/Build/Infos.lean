@@ -10,7 +10,6 @@ public import Lake.Build.Info
 public import Lake.Config.LeanExe
 public import Lake.Config.ExternLib
 public import Lake.Config.InputFile
-public import Lake.Build.Facets
 meta import all Lake.Build.Data
 
 /-!
@@ -29,24 +28,8 @@ namespace Lake
 public abbrev Module.key (self : Module) : BuildKey :=
   .module self.keyName
 
-@[deprecated Module.key (since := "2025-03-28")]
-public abbrev Module.buildKey (self : Module) : BuildKey :=
-  .module self.keyName
-
-@[deprecated BuildKey.facet (since := "2025-03-28")]
-public abbrev Module.facetBuildKey (facet : Name) (self : Module) : BuildKey :=
-  self.key.facet facet
-
 public abbrev ConfigTarget.key (self : ConfigTarget kind) : BuildKey :=
   .packageTarget self.pkg.name self.name
-
-@[deprecated ConfigTarget.key (since := "2025-03-28")]
-public abbrev ConfigTarget.buildKey (self : ConfigTarget kind) : BuildKey :=
-  .packageTarget self.pkg.name self.name
-
-@[deprecated BuildKey.facet (since := "2025-03-28")]
-public abbrev ConfigTarget.facetBuildKey (self : ConfigTarget kind) (facet : Name) : BuildKey :=
-  self.key.facet facet
 
 public abbrev LeanExe.exeBuildKey (self : LeanExe) : BuildKey :=
   self.key.facet exeFacet
@@ -133,10 +116,6 @@ public abbrev Module.facetCore (facet : Name) (self : Module) : BuildInfo :=
 /-- Build info for a module facet. -/
 public abbrev Module.facet (facet : Name) (self : Module) : BuildInfo :=
   self.facetCore (Module.facetKind ++ facet)
-
-@[deprecated Module.facetCore (since := "2025-03-04")]
-public abbrev BuildInfo.moduleFacet (module : Module) (facet : Name) : BuildInfo :=
-  module.facetCore facet
 
 namespace Module
 
@@ -243,10 +222,6 @@ public abbrev Package.facetCore (facet : Name) (self : Package) : BuildInfo :=
 public abbrev Package.facet (facet : Name) (self : Package) : BuildInfo :=
   self.facetCore (Package.facetKind ++ facet)
 
-@[deprecated Package.facetCore (since := "2025-03-04")]
-public abbrev BuildInfo.packageFacet (package : Package) (facet : Name) : BuildInfo :=
-  package.facetCore facet
-
 namespace Package
 
 @[inherit_doc buildCacheFacet]
@@ -300,10 +275,6 @@ public abbrev LeanLib.facetCore (facet : Name) (self : LeanLib) : BuildInfo :=
 public abbrev LeanLib.facet (facet : Name) (self : LeanLib) : BuildInfo :=
   self.facetCore (LeanLib.facetKind ++ facet)
 
-@[deprecated LeanLib.facetCore (since := "2025-03-04")]
-abbrev BuildInfo.libraryFacet (lib : LeanLib) (facet : Name) : BuildInfo :=
-  lib.facetCore facet
-
 namespace LeanLib
 
 @[inherit_doc modulesFacet]
@@ -345,10 +316,6 @@ public abbrev LeanExe.facetCore (facet : Name) (self : LeanExe) : BuildInfo :=
 public abbrev LeanExe.exe (self : LeanExe) : BuildInfo :=
   self.facetCore LeanExe.exeFacet
 
-@[deprecated LeanExe.exe (since := "2025-03-04")]
-public abbrev BuildInfo.leanExe (exe : LeanExe) : BuildInfo :=
-  exe.exe
-
 /-! #### External Library Infos -/
 
 /-
@@ -362,25 +329,13 @@ public abbrev ExternLib.facetCore (facet : Name) (self : ExternLib) : BuildInfo 
 public abbrev ExternLib.static (self : ExternLib) : BuildInfo :=
   self.facetCore ExternLib.staticFacet
 
-@[deprecated ExternLib.static (since := "2025-03-04")]
-public abbrev BuildInfo.staticExternLib (lib : ExternLib) : BuildInfo :=
-  lib.facetCore ExternLib.staticFacet
-
 /-- Build info of the external library's shared binary. -/
 public abbrev ExternLib.shared (self : ExternLib) : BuildInfo :=
   self.facetCore ExternLib.sharedFacet
 
-@[deprecated ExternLib.shared (since := "2025-03-04")]
-public abbrev BuildInfo.sharedExternLib (lib : ExternLib) : BuildInfo :=
-  lib.facetCore  ExternLib.sharedFacet
-
 /-- Build info of the external library's dynlib. -/
 public abbrev ExternLib.dynlib (self : ExternLib) : BuildInfo :=
   self.facetCore ExternLib.dynlibFacet
-
-@[deprecated ExternLib.dynlib (since := "2025-03-04")]
-public abbrev BuildInfo.dynlibExternLib (lib : ExternLib) : BuildInfo :=
-  lib.facetCore ExternLib.dynlibFacet
 
 /-! #### Input File & Directory Infos -/
 

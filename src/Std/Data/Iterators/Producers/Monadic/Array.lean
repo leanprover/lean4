@@ -6,8 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Nat.Lemmas
-public import Init.RCases
 public import Init.Data.Iterators.Consumers
 public import Init.Data.Iterators.Internal.Termination
 
@@ -85,7 +83,7 @@ instance {α : Type w} [Pure m] : Iterator (ArrayIterator α) m α where
       it.internalState.array[it.internalState.pos] = out
     | .skip _ => False
     | .done => it.internalState.pos ≥ it.internalState.array.size
-  step it := pure <| if h : it.internalState.pos < it.internalState.array.size then
+  step it := pure <| .deflate <| if h : it.internalState.pos < it.internalState.array.size then
         .yield
           ⟨⟨it.internalState.array, it.internalState.pos + 1⟩⟩
           it.internalState.array[it.internalState.pos]
@@ -131,14 +129,6 @@ instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
 @[always_inline, inline]
 instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
     IteratorLoopPartial (ArrayIterator α) m n :=
-  .defaultImplementation
-
-@[always_inline, inline]
-instance {α : Type w} [Monad m] : IteratorSize (ArrayIterator α) m :=
-  .defaultImplementation
-
-@[always_inline, inline]
-instance {α : Type w} [Monad m] : IteratorSizePartial (ArrayIterator α) m :=
   .defaultImplementation
 
 end Std.Iterators

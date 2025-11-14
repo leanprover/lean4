@@ -6,13 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Transform
 public import Lean.Meta.Tactic.Replace
-public import Lean.Meta.Tactic.UnifyEq
 public import Lean.Meta.Tactic.Simp.Rewrite
 public import Lean.Meta.Tactic.Simp.Diagnostics
 public import Lean.Meta.Match.Value
-public import Lean.Meta.LetToHave
 public import Lean.Util.CollectLooseBVars
 import Lean.PrettyPrinter
 
@@ -1147,10 +1144,6 @@ def applySimpResult (mvarId : MVarId) (val : Expr) (type : Expr) (r : Simp.Resul
         return some ((← mkExpectedTypeHint val r.expr), r.expr)
       else
         return some (val, r.expr)
-
-@[deprecated applySimpResult (since := "2025-03-26")]
-def applySimpResultToProp (mvarId : MVarId) (proof : Expr) (prop : Expr) (r : Simp.Result) (mayCloseGoal := true) : MetaM (Option (Expr × Expr)) :=
-  applySimpResult mvarId proof prop r mayCloseGoal
 
 def applySimpResultToFVarId (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result) (mayCloseGoal : Bool) : MetaM (Option (Expr × Expr)) := do
   let localDecl ← fvarId.getDecl

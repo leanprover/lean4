@@ -6,14 +6,11 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Vector.Basic
 import all Init.Data.Vector.Basic
 public import Init.Data.Vector.Lemmas
-public import Init.Data.Array.Lex.Basic
 import all Init.Data.Array.Lex.Basic
 public import Init.Data.Array.Lex.Lemmas
 import Init.Data.Range.Polymorphic.Lemmas
-import Init.Data.Order.Lemmas
 
 public section
 
@@ -35,7 +32,18 @@ grind_pattern le_toArray => xs.toArray ≤ ys.toArray
 @[simp] theorem lt_toList [LT α] {xs ys : Vector α n} : xs.toList < ys.toList ↔ xs < ys := Iff.rfl
 @[simp] theorem le_toList [LT α] {xs ys : Vector α n} : xs.toList ≤ ys.toList ↔ xs ≤ ys := Iff.rfl
 
+@[simp]
+protected theorem not_lt [LT α] {xs ys : Vector α n} : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl
+
+@[deprecated Vector.not_lt (since := "2025-10-26")]
 protected theorem not_lt_iff_ge [LT α] {xs ys : Vector α n} : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl
+
+@[simp]
+protected theorem not_le [LT α] {xs ys : Vector α n} :
+    ¬ xs ≤ ys ↔ ys < xs :=
+  Classical.not_not
+
+@[deprecated Vector.not_le (since := "2025-10-26")]
 protected theorem not_le_iff_gt [LT α] {xs ys : Vector α n} :
     ¬ xs ≤ ys ↔ ys < xs :=
   Classical.not_not
@@ -159,12 +167,6 @@ instance [LT α] [LE α] [IsLinearOrder α] [LawfulOrderLT α] :
   case le_antisymm => constructor; apply Vector.le_antisymm
   case le_total => constructor; apply Vector.le_total
   case le_trans => constructor; apply Vector.le_trans
-
-@[simp] protected theorem not_lt [LT α]
-    {xs ys : Vector α n} : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl
-
-@[simp] protected theorem not_le [LT α]
-    {xs ys : Vector α n} : ¬ ys ≤ xs ↔ xs < ys := Classical.not_not
 
 instance [LT α] [Std.Asymm (· < · : α → α → Prop)] : LawfulOrderLT (Vector α n) where
   lt_iff _ _ := by

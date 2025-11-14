@@ -209,7 +209,7 @@ private def synthesizeUsingDefault : TermElabM Bool := do
   return false
 
 /-- Translate zero-based indexes (0, 1, 2, ...) to ordinals ("first", "second", "third", ...)-/
-def toOrdinalString : Nat -> String
+private def toOrdinalString : Nat -> String
   | 0 => "first"
   | 1 => "second"
   | 2 => "third"
@@ -218,7 +218,7 @@ def toOrdinalString : Nat -> String
   | n => s!"{n+1}th"
 
 /-- Make an oxford-comma-separated list of strings. -/
-def toOxford : List String -> String
+private def toOxford : List String -> String
   | [] => ""
   | [a] => a
   | [a, b] => a ++ " and " ++ b
@@ -226,7 +226,7 @@ def toOxford : List String -> String
   | a :: as => a ++ ", " ++ toOxford as
 
 /- Give alternative forms of a string if the `count` is 1 or not. -/
-def _root_.Nat.plural (count : Nat) (singular : String) (plural : String) :=
+private def _root_.Nat.plural (count : Nat) (singular : String) (plural : String) :=
   if count = 1 then
     singular
   else

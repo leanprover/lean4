@@ -1,3 +1,5 @@
+def square x := x * x
+
 /--
 error: typeclass instance problem is stuck
   HMul ?m.9 ?m.9 String

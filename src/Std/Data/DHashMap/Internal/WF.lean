@@ -1410,7 +1410,7 @@ theorem toListModel_inter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable �
     exact toListModel_filterₘ
   · rw [interSmaller_eq_interSmallerₘ]
     exact Perm.trans (toListModel_interSmallerₘ _ _ hm₁)
-      (List.interSmaller_perm_filter _ _ hm₁.distinct)
+      (interSmaller_perm_filter _ _ hm₁.distinct)
 
 /-! # `Const.insertListₘ` -/
 

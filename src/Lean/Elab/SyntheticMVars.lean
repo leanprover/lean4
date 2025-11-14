@@ -296,8 +296,6 @@ def explainStuckTypeclassProblem (typeclassProblem : Expr) : TermElabM (Option M
   return .some (.note m!"Lean will not try to resolve this typeclass instance problem because {theTypeArguments} to `{.ofConstName name}` {containMVars}. {nStuck.plural "This argument" "These arguments"} must be fully determined before Lean will try to resolve the typeclass."
     ++ .hint' m!"Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `{MessageData.ofConstName ``Nat}`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.")
 
-#check HAdd
-
 /--
 We use this method to report typeclass (and coercion) resolution problems that are "stuck".
 That is, there is nothing else to do, and we don't have enough information to synthesize them using TC resolution.

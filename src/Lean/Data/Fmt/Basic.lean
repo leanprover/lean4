@@ -275,48 +275,21 @@ def TaintedMeasure.merge (tm1 tm2 : TaintedMeasure τ) (prunable : Bool) : Taint
     -- TODO: Is this a good newline approximation?
     .mergeTainted tm1 tm2 tm1.maxNewlineCount?
 
-abbrev MeasureSet.Set (τ : Type) := Array (Measure τ)
+abbrev MeasureSet.Set (τ : Type) := List (Measure τ)
 
-def MeasureSet.Set.merge (ms1 ms2 : MeasureSet.Set τ) : MeasureSet.Set τ := Id.run do
-  let mut i1 := 0
-  let mut i2 := 0
-  let mut r := #[]
-  while h : i1 < ms1.size ∧ i2 < ms2.size do
-    let m1 := ms1[i1]
-    let m2 := ms2[i2]
+partial def MeasureSet.Set.merge (ms1 ms2 : MeasureSet.Set τ) : MeasureSet.Set τ :=
+  match ms1, ms2 with
+  | [], _ => ms2
+  | _, [] => ms1
+  | m1 :: ms1', m2 :: ms2' =>
     if m1.dominates m2 then
-      i2 := i2 + 1
+      merge ms1 ms2'
     else if m2.dominates m1 then
-      i1 := i1 + 1
+      merge ms1' ms2
     else if m1.lastLineLength > m2.lastLineLength then
-      r := r.push m1
-      i1 := i1 + 1
+      m1 :: merge ms1' ms2
     else
-      r := r.push m2
-      i2 := i2 + 1
-  while h : i1 < ms1.size do
-    r := r.push ms1[i1]
-    i1 := i1 + 1
-  while h : i2 < ms2.size do
-    r := r.push ms2[i2]
-    i2 := i2 + 1
-  return r
-
-def MeasureSet.Set.dedup (ms : MeasureSet.Set τ) : MeasureSet.Set τ := Id.run do
-  let mut deduped := #[]
-  let mut i := 0
-  while h : i < ms.size - 1 do
-    let previous := ms[i]
-    let current := ms[i+1]
-    -- TODO: Why was this sound again?
-    if current.cost <= previous.cost then
-      i := i + 1
-      continue
-    deduped := deduped.push previous
-    i := i + 1
-  if let some last := ms[ms.size - 1]? then
-    deduped := deduped.push last
-  return deduped
+      m2 :: merge ms1 ms2'
 
 inductive MeasureSet (τ : Type) where
   | tainted (tm : TaintedMeasure τ)
@@ -325,9 +298,9 @@ inductive MeasureSet (τ : Type) where
 
 def MeasureSet.merge (ms1 ms2 : MeasureSet τ) (prunable : Bool) : MeasureSet τ :=
   match ms1, ms2 with
-  | _, .set #[] =>
+  | _, .set [] =>
     ms1
-  | .set #[], _ =>
+  | .set [], _ =>
     ms2
   | .tainted tm1, .tainted tm2 =>
     .tainted (tm1.merge tm2 prunable)
@@ -436,7 +409,7 @@ def setCachedFailing (d : Doc) (fullness : FullnessState) : ResolverM σ τ Unit
 def Resolver.memoize (f : Resolver σ τ) : Resolver σ τ := fun d columnPos indentation fullness => do
   if ← isFailing d fullness then
     -- TODO: Set failing, unlike Racket impl?
-    return .set #[]
+    return .set []
   if columnPos > Cost.optimalityCutoffWidth τ || indentation > Cost.optimalityCutoffWidth τ
       || ! d.shouldMemoize then
     return ← f d columnPos indentation fullness
@@ -451,16 +424,16 @@ mutual
 partial def MeasureSet.resolveCore : Resolver σ τ := fun d columnPos indentation fullness => do
   match d with
   | .failure =>
-    return .set #[]
+    return .set []
   | .newline .. =>
-    return .set #[{
+    return .set [{
       lastLineLength := indentation
       cost := Cost.newlineCost indentation
       output := modify fun out =>
          out ++ "\n" |>.pushn ' ' indentation
     }]
   | .text s =>
-    return .set #[{
+    return .set [{
       lastLineLength := columnPos + s.length
       cost := Cost.textCost columnPos s.length
       output := modify fun out =>
@@ -497,17 +470,27 @@ where
     | .tainted tm1 =>
       return .tainted (.taintedConcat tm1 d2 indentation fullness2 d.maxNewlineCount?)
     | .set ms1 =>
-      let mut result := .set #[]
-      for m1 in ms1 do
+      ms1.foldrM (init := MeasureSet.set []) fun m1 acc => do
         let set2 ← resolve d2 m1.lastLineLength indentation fullness2
-        match set2 with
-        | .tainted tm2 =>
-          return .tainted (.concatTainted m1 tm2 d.maxNewlineCount?)
-        | .set ms2 =>
-          let m1Result : MeasureSet.Set τ := ms2.map m1.concat
-          let m1Result := m1Result.dedup
-          result := MeasureSet.merge result (.set m1Result) (prunable := true)
-      return result
+        let m1Result : MeasureSet τ :=
+          match set2 with
+          | .tainted tm2 =>
+            .tainted (.concatTainted m1 tm2 d.maxNewlineCount?)
+          | .set [] =>
+            .set []
+          | .set (m2 :: ms2) => .set <| Id.run do
+            let mut currentBest := m1.concat m2
+            let mut deduped := []
+            for m2 in ms2 do
+              let current := m1.concat m2
+              -- TODO: Why was this sound again?
+              if current.cost <= currentBest.cost then
+                currentBest := current
+                continue
+              deduped := currentBest :: deduped
+              currentBest := current
+            return currentBest :: deduped |>.reverse
+        return m1Result.merge acc (prunable := true)
 
 partial def MeasureSet.resolve : Resolver σ τ := Resolver.memoize fun d columnPos indentation fullness => do
   let columnPos' :=
@@ -565,7 +548,7 @@ partial def MeasureSet.extractAtMostOne? (ms : MeasureSet τ) : ResolverM σ τ 
   | .tainted tm =>
     tm.resolve?
   | .set ms =>
-    return ms[0]?
+    return ms.head?
 
 end
 

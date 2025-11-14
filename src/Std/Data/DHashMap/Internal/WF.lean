@@ -1302,6 +1302,16 @@ theorem wfImp_insertMany [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α
     Raw.WFImp (m.insertMany l).1.1 :=
   Raw.WF.out ((m.insertMany l).2 _ Raw.WF.insert₀ (.wf m.2 h))
 
+theorem toListModel_insertMany_list [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
+    {m : Raw₀ α β} {l : List ((a : α) × (β a))} (h : Raw.WFImp m.1) :
+    Perm (toListModel (insertMany m l).1.1.buckets)
+      (List.insertList (toListModel m.1.buckets) l) := by
+  rw [insertMany_eq_insertListₘ]
+  apply toListModel_insertListₘ
+  exact h
+
+/-! # `eraseMany` -/
+
 theorem WF.eraseMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {m : Raw α β}
     {l : ρ} (h : m.WF) : (m.eraseMany l).WF := by
   simpa [Raw.eraseMany, h.size_buckets_pos] using
@@ -1317,13 +1327,22 @@ theorem wf_eraseMany₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
     (Raw₀.eraseMany ⟨m, h⟩ l).1.1.WF :=
   (Raw₀.eraseMany ⟨m, h⟩ l).2 _ Raw.WF.erase₀ h'
 
-theorem toListModel_insertMany_list [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
-    {m : Raw₀ α β} {l : List ((a : α) × (β a))} (h : Raw.WFImp m.1) :
-    Perm (toListModel (insertMany m l).1.1.buckets)
-      (List.insertList (toListModel m.1.buckets) l) := by
-  rw [insertMany_eq_insertListₘ]
-  apply toListModel_insertListₘ
-  exact h
+theorem eraseMany_eq_eraseListₘ_toListModel [BEq α] [Hashable α] (m m₂ : Raw₀ α β) :
+    eraseMany m m₂.1 = eraseListₘ m (toListModel m₂.1.buckets) := by
+  simp only [eraseMany, bind_pure_comp, map_pure, bind_pure]
+  simp only [ForIn.forIn]
+  simp only [Raw.forIn_eq_forIn_toListModel, forIn_pure_yield_eq_foldl, Id.run_pure]
+  generalize toListModel m₂.val.buckets = l
+  suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
+      (∀ {m'' : Raw₀ α β} {a : α}, P m'' → P (m''.erase a)) → P m → P m' }),
+        (List.foldl (fun m' p => ⟨m'.val.erase p.1, fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =
+      t.val.eraseListₘ l from this _
+  intro t
+  induction l generalizing m with
+  | nil => simp [eraseListₘ]
+  | cons hd tl ih =>
+    simp only [List.foldl_cons, eraseListₘ]
+    apply ih
 
 /-! # `insertManyIfNew` -/
 

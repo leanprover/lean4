@@ -2815,12 +2815,6 @@ def insertList [BEq α] (l toInsert : List ((a : α) × β a)) : List ((a : α) 
   | .nil => l
   | .cons ⟨k, v⟩ toInsert => insertList (insertEntry k v l) toInsert
 
-/-- Internal implementation detail of the hash map -/
-def eraseList [BEq α] (l toErase : List ((a : α) × β a)) : List ((a : α) × β a) :=
-  match toErase with
-  | .nil => l
-  | .cons ⟨k, _⟩ toErase => eraseList (eraseKey k l) toErase
-
 theorem DistinctKeys.insertList [BEq α] [PartialEquivBEq α] {l₁ l₂ : List ((a : α) × β a)}
     (h : DistinctKeys l₁) :
     DistinctKeys (insertList l₁ l₂) := by
@@ -2838,15 +2832,6 @@ theorem insertList_perm_of_perm_first [BEq α] [EquivBEq α] {l1 l2 toInsert : L
   | cons hd tl ih =>
     simp only [insertList]
     apply ih (insertEntry_of_perm distinct h) (DistinctKeys.insertEntry distinct)
-
-theorem eraseList_perm_of_perm_first [BEq α] [EquivBEq α] {l1 l2 toErase : List ((a : α) × β a)}
-    (h : Perm l1 l2) (distinct : DistinctKeys l1) :
-    Perm (eraseList l1 toErase) (eraseList l2 toErase) := by
-  induction toErase generalizing l1 l2 with
-  | nil => simp [eraseList, h]
-  | cons hd tl ih =>
-    simp only [eraseList]
-    apply ih (eraseKey_of_perm distinct h) (DistinctKeys.eraseKey distinct)
 
 theorem insertList_cons_perm [BEq α] [EquivBEq α] {l₁ l₂ : List ((a : α) × β a)}
     {p : (a : α) × β a} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys (p :: l₂)) :
@@ -5291,6 +5276,84 @@ theorem List.getKey?_filter_containsKey_of_containsKey_right [BEq α] [EquivBEq 
   rw [List.getKey?_filter_containsKey, h]
   · simp only [↓reduceIte]
   · exact dl₁
+
+
+/-- Internal implementation detail of the hash map -/
+def eraseList [BEq α] (l toErase : List ((a : α) × β a)) : List ((a : α) × β a) :=
+  match toErase with
+  | .nil => l
+  | .cons ⟨k, _⟩ toErase => eraseList (eraseKey k l) toErase
+
+theorem eraseList_perm_filter_containsKey [BEq α] [EquivBEq α] (l toErase : List ((a : α) × β a)) (hl : DistinctKeys l):
+    List.Perm (eraseList l toErase) (l.filter (fun p => !containsKey p.fst toErase)) := by
+  induction toErase generalizing l with
+  | nil =>
+    simp [eraseList, containsKey]
+    clear hl
+    induction l
+    case nil => simp
+    case cons h t t_ih =>
+      simp only [List.filter_cons_of_pos, List.perm_cons]
+      apply t_ih
+  | cons kv tl ih =>
+    simp only [eraseList]
+    apply Perm.trans
+    · apply ih
+      · apply DistinctKeys.eraseKey hl
+    · apply getEntry?_ext
+      · apply @DistinctKeys.filter α β _ (eraseKey kv.fst l) (fun p _ => !containsKey p tl)
+        · apply DistinctKeys.eraseKey hl
+      · apply @DistinctKeys.filter α β _ l (fun p _ => !containsKey p (kv :: tl)) hl
+      · intro a
+        rw [getEntry?_filter, getEntry?_filter]
+        rw [getEntry?_eraseKey]
+        split
+        · rename_i heq
+          conv =>
+            rhs
+            lhs
+            ext p
+            congr
+            rw [containsKey_cons]
+          simp only [Option.filter_none, Bool.not_or]
+          generalize heq2 : getEntry? a l = x
+          cases x
+          · simp
+          · rename_i val
+            rw [getEntry?_eq_some_iff] at heq2
+            · simp [Option.filter]
+              intro hyp
+              rw [PartialEquivBEq.trans heq heq2.1] at hyp
+              contradiction
+            · exact hl
+        · rename_i heq
+          simp only [Bool.not_eq_true] at heq
+          generalize heq2 : getEntry? a l = x
+          cases x
+          · simp
+          · rename_i val
+            simp only [Option.filter, Bool.not_eq_eq_eq_not, Bool.not_true]
+            rw [containsKey_cons]
+            rw [getEntry?_eq_some_iff] at heq2
+            · suffices (kv.fst == val.fst) = false by simp [this]
+              apply Classical.byContradiction
+              intro hyp
+              simp only [Bool.not_eq_false] at hyp
+              rw [BEq.trans hyp (BEq.symm heq2.1)] at heq
+              contradiction
+            · exact hl
+        · exact hl
+        · exact hl
+        · apply DistinctKeys.eraseKey hl
+
+theorem eraseList_perm_of_perm_first [BEq α] [EquivBEq α] {l1 l2 toErase : List ((a : α) × β a)}
+    (h : Perm l1 l2) (distinct : DistinctKeys l1) :
+    Perm (eraseList l1 toErase) (eraseList l2 toErase) := by
+  induction toErase generalizing l1 l2 with
+  | nil => simp [eraseList, h]
+  | cons hd tl ih =>
+    simp only [eraseList]
+    apply ih (eraseKey_of_perm distinct h) (DistinctKeys.eraseKey distinct)
 
 theorem List.getKey?_filter_containsKey_of_containsKey_eq_false_left [BEq α] [EquivBEq α]
     {l₁ l₂ : List ((a : α) × β a)} {k : α}

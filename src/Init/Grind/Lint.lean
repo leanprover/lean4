@@ -22,6 +22,7 @@ Usage examples:
 #grind_lint check
 #grind_lint check (min:=10) (detailed:=50)
 #grind_lint check in Foo Bar -- restrict analysis to these namespaces
+#grind_lint check in module Foo -- restrict analysis to theorems defined in module `Foo` or any of its submodules
 ```
 
 Options can include any valid `grind` configuration option, and `min` and `detailed`.
@@ -40,7 +41,7 @@ By default, `#grind_lint` uses the following `grind` configuration:
 ```
 Consider using `#grind_lint inspect <thm>` to focus on specific theorems.
 -/
-syntax (name := grindLintCheck) "#grind_lint" ppSpace &"check" (ppSpace configItem)* (ppSpace "in" ident+)? : command
+syntax (name := grindLintCheck) "#grind_lint" ppSpace &"check" (ppSpace configItem)* (ppSpace "in" (ppSpace "module")? ident+)? : command
 
 /--
 `#grind_lint inspect thm₁ …` analyzes the specified theorem(s) individually.

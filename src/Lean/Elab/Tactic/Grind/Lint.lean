@@ -138,34 +138,38 @@ def elabGrindLintInspect : CommandElab := fun stx => liftTermElabM <| withTheRea
         $(⟨stx⟩):command)
       Tactic.TryThis.addSuggestion (header := "Try this to display the actual theorem instances:") stx { suggestion := .tsyntax s }
 
-def getTheorems (prefixes? : Option (Array Name)) : CoreM (List Name) := do
+def getTheorems (prefixes? : Option (Array Name)) (inModule : Bool) : CoreM (List Name) := do
   let skip := skipExt.getState (← getEnv)
   let origins := (← getEMatchTheorems).getOrigins
-  return origins.filterMap fun
-    | .decl declName =>
-      if skip.contains declName then
-        none
-      else if let some prefixes := prefixes? then
-        let keep := prefixes.any fun pre =>
-          if pre == `_root_ then
-            declName.components.length == 1
-          else
-            pre.isPrefixOf declName
-        if keep then
-          some declName
-        else
-          none
+  let env ← getEnv
+  return origins.filterMap fun origin => Id.run do
+    let .decl declName := origin | return none
+    if skip.contains declName then return none
+    let some prefixes := prefixes? | return some declName
+    if inModule then
+      let some modIdx := env.getModuleIdxFor? declName | return none
+      let modName := env.header.moduleNames[modIdx]!
+      if prefixes.any fun pre => pre.isPrefixOf modName then
+        return some declName
       else
-        some declName
-    | _ => none
+        return none
+    else
+      let keep := prefixes.any fun pre =>
+        if pre == `_root_ then
+          declName.components.length == 1
+        else
+          pre.isPrefixOf declName
+      unless keep do return none
+      return some declName
 
 @[builtin_command_elab Lean.Grind.grindLintCheck]
 def elabGrindLintCheck : CommandElab := fun stx => liftTermElabM <| withTheReader Core.Context (fun c => { c with maxHeartbeats := 0 }) do
-  let `(#grind_lint check $[$items:configItem]* $[in $ids?:ident*]?) := stx | throwUnsupportedSyntax
+  let `(#grind_lint check $[$items:configItem]* $[in $[module%$m?]? $ids?:ident*]?) := stx | throwUnsupportedSyntax
   let config ← mkConfig items
   let params ← mkParams config
   let prefixes? := ids?.map (·.map (·.getId))
-  let decls ← getTheorems prefixes?
+  let inModule := m? matches some (some _)
+  let decls ← getTheorems prefixes? inModule
   let decls := decls.toArray.qsort Name.lt
   for declName in decls do
     try

@@ -93,3 +93,17 @@ info: Try this to display the actual theorem instances:
 -/
 #guard_msgs in
 #grind_lint inspect Array.filterMap_some
+
+/--
+info: instantiating `Array.filterMap_some` triggers more than 100 additional `grind` theorem instantiations
+---
+info: Array.filterMap_some
+[thm] instances
+  [thm] Array.filterMap_filterMap ↦ 94
+  [thm] Array.size_filterMap_le ↦ 5
+  [thm] Array.filterMap_some ↦ 1
+---
+info: instantiating `Array.range_succ` triggers 22 additional `grind` theorem instantiations
+-/
+#guard_msgs in
+#grind_lint check (min := 20) in module Init.Data.Array

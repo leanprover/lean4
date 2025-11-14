@@ -52,14 +52,7 @@ def PartialContextInfo.mergeIntoOuter?
   | .autoImplicitCtx _, none =>
     panic! "Unexpected incomplete InfoTree context info."
   | .commandCtx innerInfo, some outer =>
-    -- There is no reasonable way to merge the two environments in general, so we only do it for
-    -- relevant extensions:
-    -- * `declRangeExt` is queried by e.g. the call hierarchy handler to get the range of the
-    --   current declaration, but that one is set only at the very end of the `def` elaborator, so
-    --   we must merge it into inner environments saved when e.g. finishing elaboration of the body.
-    let env := declRangeExt.modifyState (asyncMode := .local)
-      innerInfo.env (·.union (declRangeExt.getState (asyncMode := .local) outer.env))
-    some { outer with toCommandContextInfo := { innerInfo with env } }
+    some { outer with toCommandContextInfo := innerInfo }
   | .parentDeclCtx innerParentDecl, some outer =>
     some { outer with parentDecl? := innerParentDecl }
   | .autoImplicitCtx innerAutoImplicits, some outer =>

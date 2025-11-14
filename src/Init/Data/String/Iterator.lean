@@ -274,6 +274,8 @@ position is discarded, so the iterator alone cannot be used to determine whether
 position is within the original substring.
 -/
 @[inline] def toLegacyIterator : Substring.Raw → String.Legacy.Iterator
+  | ⟨s, b, _⟩ => ⟨s, b⟩
+
 
 end Substring.Raw
 

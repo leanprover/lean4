@@ -18,7 +18,7 @@ namespace Lean.Fmt
 
 open Std
 
-def memoHeightLimit : Nat := 0
+def memoHeightLimit : Nat := 6
 
 def nextMemoHeight (memoHeight : Nat) : Nat :=
   if memoHeight = 0 then
@@ -26,10 +26,33 @@ def nextMemoHeight (memoHeight : Nat) : Nat :=
   else
     memoHeight - 1
 
-structure FullnessState where
-  isFullBefore : Bool
-  isFullAfter : Bool
+@[expose]
+def FullnessState := UInt8
   deriving BEq, Hashable
+
+@[inline]
+def FullnessState.mk (isFullBefore : Bool) (isFullAfter : Bool) : FullnessState :=
+  (isFullBefore.toUInt8 <<< 1) ||| isFullAfter.toUInt8
+
+@[inline]
+def FullnessState.isFullBefore (s : FullnessState) : Bool :=
+  let s : UInt8 := s
+  (s &&& 0b10) == 1
+
+@[inline]
+def FullnessState.isFullAfter (s : FullnessState) : Bool :=
+  let s : UInt8 := s
+  (s &&& 0b1) == 1
+
+@[inline]
+def FullnessState.setFullBefore (s : FullnessState) (isFullBefore : Bool) : FullnessState :=
+  let s : UInt8 := s
+  (s &&& (0b11111101 : UInt8)) ||| (isFullBefore.toUInt8 <<< 1)
+
+@[inline]
+def FullnessState.setFullAfter (s : FullnessState) (isFullAfter : Bool) : FullnessState :=
+  let s : UInt8 := s
+  (s &&& (0b11111110 : UInt8)) ||| isFullAfter.toUInt8
 
 abbrev FailureCond := FullnessState → Bool
 
@@ -48,11 +71,12 @@ with
   @[computed_field] isFailure : Doc → FailureCond
     | .failure => fun _ => true
     | .newline .. => (·.isFullAfter)
-    | .text s => fun
-      | { isFullBefore := false, isFullAfter := false } => false
-      | { isFullBefore := true, isFullAfter := false } => true
-      | { isFullBefore := false, isFullAfter := true } => true
-      | { isFullBefore := true, isFullAfter := true } => ! s.isEmpty
+    | .text s => fun state =>
+      match state.isFullBefore, state.isFullAfter with
+      | false, false => false
+      | true, false => true
+      | false, true => true
+      | true, true => ! s.isEmpty
     | .full _ => (! ·.isFullAfter)
     | _ => fun _ => false
   @[computed_field] maxNewlineCount? : Doc → Option Nat
@@ -329,15 +353,17 @@ structure FailureCacheKey where
 structure ResolutionState (τ : Type) where
   setCache : HashMap SetCacheKey (MeasureSet τ) := {}
   resolvedTaintedCache : HashMap USize (Option (Measure τ)) := {}
+  isFailureCacheEnabled : Bool := false
   failureCache : HashSet FailureCacheKey := {}
 
-abbrev ResolverM (τ : Type) := StateM (ResolutionState τ)
+abbrev ResolverM (σ τ : Type) := StateRefT (ResolutionState τ) (ST σ)
 
-def ResolverM.run (f : ResolverM τ α) : α :=
-  StateT.run' f {}
+def ResolverM.run (f : ResolverM σ τ α) : ST σ α :=
+  f.run' {}
 
+@[inline]
 def getCachedSet? (d : Doc) (columnPos indentation : Nat) (fullness : FullnessState) :
-    ResolverM τ (Option (MeasureSet τ)) := do
+    ResolverM σ τ (Option (MeasureSet τ)) := do
   return (← get).setCache.get? {
     docPtr := unsafe ptrAddrUnsafe d
     columnPos
@@ -345,8 +371,9 @@ def getCachedSet? (d : Doc) (columnPos indentation : Nat) (fullness : FullnessSt
     fullness
   }
 
+@[inline]
 def setCachedSet (d : Doc) (columnPos indentation : Nat) (fullness : FullnessState)
-    (set : MeasureSet τ) : ResolverM τ Unit :=
+    (set : MeasureSet τ) : ResolverM σ τ Unit :=
   modify fun state => { state with
     setCache := state.setCache.insert {
         docPtr := unsafe ptrAddrUnsafe d
@@ -360,26 +387,40 @@ inductive CacheResult (α : Type)
   | miss
   | hit (cached : α)
 
+@[inline]
 def getCachedResolvedTainted? (tm : TaintedMeasure τ) :
-    ResolverM τ (CacheResult (Option (Measure τ))) := do
+    ResolverM σ τ (CacheResult (Option (Measure τ))) := do
   match (← get).resolvedTaintedCache.get? (unsafe ptrAddrUnsafe tm) with
   | none => return .miss
   | some cached? => return .hit cached?
 
+@[inline]
 def setCachedResolvedTainted (tm : TaintedMeasure τ) (m? : Option (Measure τ)) :
-    ResolverM τ Unit :=
+    ResolverM σ τ Unit :=
   modify fun state => { state with
     resolvedTaintedCache := state.resolvedTaintedCache.insert (unsafe ptrAddrUnsafe tm) m?
   }
 
-def isFailing (d : Doc) (fullness : FullnessState) : ResolverM τ Bool := do
-  let isCachedFailure := (← get).failureCache.contains {
-    docPtr := unsafe ptrAddrUnsafe d
-    fullness
+def enableFailureCache : ResolverM σ τ Unit :=
+  modify fun state => { state with
+    isFailureCacheEnabled := true
   }
-  return isCachedFailure || d.isFailure fullness
 
-def setCachedFailing (d : Doc) (fullness : FullnessState) : ResolverM τ Unit :=
+def isFailing (d : Doc) (fullness : FullnessState) : ResolverM σ τ Bool := do
+  let s ← get
+  let isDocFailure := d.isFailure fullness
+  if isDocFailure then
+    return true
+  else if s.isFailureCacheEnabled then
+    let isCachedFailure := (← get).failureCache.contains {
+      docPtr := unsafe ptrAddrUnsafe d
+      fullness
+    }
+    return isCachedFailure
+  else
+    return false
+
+def setCachedFailing (d : Doc) (fullness : FullnessState) : ResolverM σ τ Unit :=
   modify fun state => { state with
     failureCache := state.failureCache.insert {
       docPtr := unsafe ptrAddrUnsafe d
@@ -387,12 +428,12 @@ def setCachedFailing (d : Doc) (fullness : FullnessState) : ResolverM τ Unit :=
     }
   }
 
-@[expose] def Resolver (τ : Type) :=
+@[expose] def Resolver (σ τ : Type) :=
   (d : Doc) → (columnPos indentation : Nat) → (fullness : FullnessState) →
-    ResolverM τ (MeasureSet τ)
+    ResolverM σ τ (MeasureSet τ)
 
 @[specialize]
-def Resolver.memoize (f : Resolver τ) : Resolver τ := fun d columnPos indentation fullness => do
+def Resolver.memoize (f : Resolver σ τ) : Resolver σ τ := fun d columnPos indentation fullness => do
   if ← isFailing d fullness then
     -- TODO: Set failing, unlike Racket impl?
     return .set #[]
@@ -407,7 +448,7 @@ def Resolver.memoize (f : Resolver τ) : Resolver τ := fun d columnPos indentat
 
 mutual
 
-partial def MeasureSet.resolveCore : Resolver τ := fun d columnPos indentation fullness => do
+partial def MeasureSet.resolveCore : Resolver σ τ := fun d columnPos indentation fullness => do
   match d with
   | .failure =>
     return .set #[]
@@ -435,8 +476,8 @@ partial def MeasureSet.resolveCore : Resolver τ := fun d columnPos indentation 
   | .reset d =>
     resolve d columnPos 0 fullness
   | .full d =>
-    let set1 ← resolve d columnPos indentation { fullness with isFullAfter := false }
-    let set2 ← resolve d columnPos indentation { fullness with isFullAfter := true }
+    let set1 ← resolve d columnPos indentation (fullness.setFullAfter false)
+    let set2 ← resolve d columnPos indentation (fullness.setFullAfter true)
     return .merge set1 set2 (prunable := false)
   | .either d1 d2 =>
     let set1 ← resolve d1 columnPos indentation fullness
@@ -448,9 +489,9 @@ partial def MeasureSet.resolveCore : Resolver τ := fun d columnPos indentation 
     return .merge set1 set2 (prunable := false)
 where
   analyzeConcat (d d1 d2 : Doc) (columnPos indentation : Nat) (fullness : FullnessState)
-      (isMidFull : Bool) : ResolverM τ (MeasureSet τ) := do
-    let fullness1 := { fullness with isFullAfter := isMidFull }
-    let fullness2 := { fullness with isFullBefore := isMidFull }
+      (isMidFull : Bool) : ResolverM σ τ (MeasureSet τ) := do
+    let fullness1 := fullness.setFullAfter isMidFull
+    let fullness2 := fullness.setFullBefore isMidFull
     let set1 ← resolve d1 columnPos indentation fullness1
     match set1 with
     | .tainted tm1 =>
@@ -468,7 +509,7 @@ where
           result := MeasureSet.merge result (.set m1Result) (prunable := true)
       return result
 
-partial def MeasureSet.resolve : Resolver τ := Resolver.memoize fun d columnPos indentation fullness => do
+partial def MeasureSet.resolve : Resolver σ τ := Resolver.memoize fun d columnPos indentation fullness => do
   let columnPos' :=
     if let .text s := d then
       columnPos + s.length
@@ -480,11 +521,11 @@ partial def MeasureSet.resolve : Resolver τ := Resolver.memoize fun d columnPos
 
 end
 
-@[expose] def TaintedResolver (τ : Type) :=
-    (tm : TaintedMeasure τ) → ResolverM τ (Option (Measure τ))
+@[expose] def TaintedResolver (σ τ : Type) :=
+    (tm : TaintedMeasure τ) → ResolverM σ τ (Option (Measure τ))
 
 @[specialize]
-def TaintedResolver.memoize (f : TaintedResolver τ) : TaintedResolver τ := fun tm => do
+def TaintedResolver.memoize (f : TaintedResolver σ τ) : TaintedResolver σ τ := fun tm => do
   let cachedResolvedTainted? ← getCachedResolvedTainted? tm
   if let .hit m := cachedResolvedTainted? then
     return m
@@ -493,7 +534,7 @@ def TaintedResolver.memoize (f : TaintedResolver τ) : TaintedResolver τ := fun
 
 mutual
 
-partial def TaintedMeasure.resolve? : TaintedResolver τ := TaintedResolver.memoize fun tm => do
+partial def TaintedMeasure.resolve? : TaintedResolver σ τ := TaintedResolver.memoize fun tm => do
   match tm with
   | .mergeTainted tm1 tm2 _ =>
     let some m1 ← tm1.resolve?
@@ -519,7 +560,7 @@ partial def TaintedMeasure.resolve? : TaintedResolver τ := TaintedResolver.memo
       setCachedFailing d fullness
     return m?
 
-partial def MeasureSet.extractAtMostOne? (ms : MeasureSet τ) : ResolverM τ (Option (Measure τ)) := do
+partial def MeasureSet.extractAtMostOne? (ms : MeasureSet τ) : ResolverM σ τ (Option (Measure τ)) := do
   match ms with
   | .tainted tm =>
     tm.resolve?
@@ -528,16 +569,11 @@ partial def MeasureSet.extractAtMostOne? (ms : MeasureSet τ) : ResolverM τ (Op
 
 end
 
-def resolve? (d : Doc) (offset : Nat) : Option (Measure τ) := ResolverM.run do
-  let ms1 ← MeasureSet.resolve d offset 0 {
-    isFullBefore := false
-    isFullAfter := false
-  }
-  let ms2 ← MeasureSet.resolve d offset 0 {
-    isFullBefore := false
-    isFullAfter := true
-  }
+def resolve? (d : Doc) (offset : Nat) : Option (Measure τ) := runST fun _ => ResolverM.run do
+  let ms1 ← MeasureSet.resolve d offset 0 (.mk false false)
+  let ms2 ← MeasureSet.resolve d offset 0 (.mk false true)
   let ms := ms1.merge ms2 (prunable := false)
+  enableFailureCache
   ms.extractAtMostOne?
 
 def formatWithCost? (τ : Type) [Add τ] [LE τ] [DecidableLE τ] [Cost τ]

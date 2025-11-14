@@ -360,16 +360,16 @@ abbrev focus (x : TryTacticM α) : TryTacticM α := fun ctx => Tactic.focus (x c
 
 def observing (x : TryTacticM α) : TryTacticM (TacticResult α) := do
   let s ← saveState
-  tryCatchRuntimeEx
-    (do
-      let e ← x
+  try
+    let e ← x
+    let sNew ← saveState
+    s.restore (restoreInfo := true)
+    return EStateM.Result.ok e sNew
+  catch
+    | ex =>
       let sNew ← saveState
       s.restore (restoreInfo := true)
-      return EStateM.Result.ok e sNew)
-    (fun ex => do
-      let sNew ← saveState
-      s.restore (restoreInfo := true)
-      return .error ex sNew)
+      return .error ex sNew
 
 /--
 Executes a tactic with heartbeat management:
@@ -792,15 +792,12 @@ private def addSuggestions (tk : Syntax) (s : Array Tactic.TryThis.Suggestion) :
   else
     Tactic.TryThis.addSuggestions tk (s.map fun stx => stx) (origSpan? := (← getRef))
 
-def evalAndSuggest (tk : Syntax) (tac : TSyntax `tactic) (config : Try.Config := {}) : TacticM Unit := do
+def evalAndSuggest (tk : Syntax) (tac : TSyntax `tactic) (originalMaxHeartbeats : Nat) (config : Try.Config := {}) : TacticM Unit := do
   let initialLog ← Core.getMessageLog
-  -- Record current maxHeartbeats to pass to individual tactic evaluations
-  let originalMaxHeartbeats ← getMaxHeartbeats
-  -- Run try? infrastructure with unlimited heartbeats
-  let tac' ← tryCatchRuntimeEx
-    (withUnlimitedHeartbeats do
-      evalSuggest tac |>.run { terminal := true, root := tac, config, originalMaxHeartbeats })
-    (fun _ => throwEvalAndSuggestFailed config)
+  let tac' ← try
+    evalSuggest tac |>.run { terminal := true, root := tac, config, originalMaxHeartbeats }
+  catch _ =>
+    throwEvalAndSuggestFailed config
   -- Restore message log to suppress "Try this" messages from intermediate tactic executions
   Core.setMessageLog initialLog
   let s := (getSuggestions tac')[*...config.max].toArray
@@ -949,10 +946,12 @@ private opaque mkTryEvalSuggestStx (goal : MVarId) (info : Try.Info) : MetaM (TS
   match stx with
   | `(tactic| try?%$tk $config:optConfig) => Tactic.focus do withMainContext do
     let config ← elabTryConfig config
-    let goal ← getMainGoal
-    let info ← Try.collect goal config
-    let stx ← mkTryEvalSuggestStx goal info
-    evalAndSuggest tk stx config
+    let originalMaxHeartbeats ← getMaxHeartbeats
+    withUnlimitedHeartbeats do
+      let goal ← getMainGoal
+      let info ← Try.collect goal config
+      let stx ← mkTryEvalSuggestStx goal info
+      evalAndSuggest tk stx originalMaxHeartbeats config
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Try

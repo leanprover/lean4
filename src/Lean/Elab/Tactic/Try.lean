@@ -912,14 +912,45 @@ private unsafe def mkTryEvalSuggestStxUnsafe (goal : MVarId) (info : Try.Info) :
 @[implemented_by mkTryEvalSuggestStxUnsafe]
 private opaque mkTryEvalSuggestStx (goal : MVarId) (info : Try.Info) : MetaM (TSyntax `tactic)
 
+/-- Wraps a tactic suggestion as a term suggestion by prefixing with `by `. -/
+private def wrapSuggestionWithBy (sugg : Tactic.TryThis.Suggestion) : TacticM Tactic.TryThis.Suggestion := do
+  match sugg.suggestion with
+  | .tsyntax (kind := `tactic) tac =>
+    let termStx ← `(by $(⟨tac⟩):tactic)
+    return { sugg with suggestion := .tsyntax termStx }
+  | _ => return sugg
+
+/-- Version of `evalAndSuggest` that wraps tactic suggestions with `by` for term mode. -/
+private def evalAndSuggestWithBy (tk : Syntax) (tac : TSyntax `tactic) (config : Try.Config) : TacticM Unit := do
+  let initialLog ← Core.getMessageLog
+  let tac' ← try
+    evalSuggest tac |>.run { terminal := true, root := tac, config }
+  catch _ =>
+    throwEvalAndSuggestFailed config
+  -- Restore message log to suppress "Try this" messages from intermediate tactic executions
+  Core.setMessageLog initialLog
+  let suggestions := (getSuggestions tac')[*...config.max].toArray
+  if suggestions.isEmpty then
+    throwEvalAndSuggestFailed config
+  else
+    -- Wrap each suggestion with `by `
+    let termSuggestions ← suggestions.mapM wrapSuggestionWithBy
+    if termSuggestions.size == 1 then
+      Tactic.TryThis.addSuggestion tk termSuggestions[0]! (origSpan? := (← getRef))
+    else
+      Tactic.TryThis.addSuggestions tk termSuggestions (origSpan? := (← getRef))
+
 @[builtin_tactic Lean.Parser.Tactic.tryTrace] def evalTryTrace : Tactic := fun stx => do
   match stx with
   | `(tactic| try?%$tk $config:optConfig) => Tactic.focus do withMainContext do
     let config ← elabTryConfig config
     let goal ← getMainGoal
     let info ← Try.collect goal config
-    let stx ← mkTryEvalSuggestStx goal info
-    evalAndSuggest tk stx config
+    let tacStx ← mkTryEvalSuggestStx goal info
+    if config.wrapWithBy then
+      evalAndSuggestWithBy tk tacStx config
+    else
+      evalAndSuggest tk tacStx config
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Try

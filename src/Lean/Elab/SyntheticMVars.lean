@@ -208,7 +208,11 @@ private def synthesizeUsingDefault : TermElabM Bool := do
       return true
   return false
 
-/-- Translate zero-based indexes (0, 1, 2, ...) to ordinals ("first", "second", "third", ...)-/
+/--
+Translate zero-based indexes (0, 1, 2, ...) to ordinals ("first", "second",
+"third", ...). Not appropriate for numbers that could conceivably be larger
+than 19 in real examples.
+-/
 private def toOrdinalString : Nat -> String
   | 0 => "first"
   | 1 => "second"

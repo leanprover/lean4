@@ -215,15 +215,22 @@ def toOrdinalString : Nat -> String
   | 2 => "third"
   | 3 => "fourth"
   | 4 => "fifth"
-  | n => s!"{n}th"
+  | n => s!"{n+1}th"
 
-/-- Make oxford-comma-separated list of strings-/
+/-- Make an oxford-comma-separated list of strings. -/
 def toOxford : List String -> String
   | [] => ""
   | [a] => a
   | [a, b] => a ++ " and " ++ b
   | [a, b, c] => a ++ ", " ++ b  ++ ", and " ++ c
   | a :: as => a ++ ", " ++ toOxford as
+
+/- Give alternative forms of a string if the `count` is 1 or not. -/
+def _root_.Nat.plural (count : Nat) (singular : String) (plural : String) :=
+  if count = 1 then
+    singular
+  else
+    plural
 
 def explainStuckTypeclassProblem (typeclassProblem : Expr) : TermElabM (Option MessageData) := do
 
@@ -248,7 +255,7 @@ def explainStuckTypeclassProblem (typeclassProblem : Expr) : TermElabM (Option M
   Simultaneously traverse the typeclass arguments (e.g. `#[_?, Nat, _?]` if
   our stuck typeclass problem is `HAdd _?, Nat, _?`) and the classifier (e.g.
   `Type → Type → outParam Type → Type`) and come up with the input positions
-  that are stuck.
+  that are stuck (e.g. `[0]` if only the first type argument is stuck).
   -/
   let mut ord := 0
   let mut stuckArguments := #[]
@@ -273,12 +280,21 @@ def explainStuckTypeclassProblem (typeclassProblem : Expr) : TermElabM (Option M
   if nStuck = 0 then
     return .none -- This is not a simple inputs-have-metavariables issue
 
-  let phrase := if simpleMVars then
-    (if nStuck = 1 then "is a metavariable. This argument is an input, and so it" else "are metavariables. These arguments are inputs, and so they")
-  else
-    (if nStuck = 1 then "contains metavariables. This argument is an input, and so it" else "contain metavariables. These arguments are inputs, and so they")
+  -- Formulate error message
+  let containMVars :=
+    if simpleMVars then
+      nStuck.plural "is a metavariable" "are metavariables"
+    else
+      nStuck.plural "contains metavariables" "contain metavariables"
 
-  return .some <| .note m!"Lean will not try to resolve this typeclass instance problem because the {toOxford (stuckArguments.toList.map toOrdinalString)} type argument{if nStuck > 1 then "s" else ""} to {.ofConstName name} {phrase} must be fully determined before Lean will try to resolve the typeclass."
+  let theTypeArguments :=
+    if args.length = 1 then
+      "the type argument"
+    else
+      s!"the {toOxford (stuckArguments.toList.map toOrdinalString)} type {nStuck.plural "argument" "arguments"}"
+
+  return .some (.note m!"Lean will not try to resolve this typeclass instance problem because {theTypeArguments} to `{.ofConstName name}` {containMVars}. {nStuck.plural "This argument" "These arguments"} must be fully determined before Lean will try to resolve the typeclass."
+    ++ .hint' m!"Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `{MessageData.ofConstName ``Nat}`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.")
 
 /--
 We use this method to report typeclass (and coercion) resolution problems that are "stuck".

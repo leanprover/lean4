@@ -747,8 +747,8 @@ def mkOptionalNode (arg : Option Syntax) : Syntax :=
   | some arg => mkNullNode #[arg]
   | none     => mkNullNode #[]
 
-def mkHole (ref : Syntax) (canonical := false) : Syntax :=
-  mkNode `Lean.Parser.Term.hole #[mkAtomFrom ref "_" canonical]
+def mkHole (ref : Syntax) (canonical := false) : Term :=
+  ⟨mkNode `Lean.Parser.Term.hole #[mkAtomFrom ref "_" canonical]⟩
 
 namespace Syntax
 

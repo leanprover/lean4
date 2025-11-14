@@ -338,7 +338,10 @@ def reportStuckSyntheticMVar (mvarId : MVarId) (mvarDecl : SyntheticMVarDecl) (i
 private def reportStuckSyntheticMVars (ignoreStuckTC := false) : TermElabM Unit := do
   let pendingMVars ← modifyGet fun s => (s.pendingMVars, { s with pendingMVars := [] })
   /-
-  We're only going to report one MVar issue; what's the best one to return?
+  Calling the singular reportStuckSyntheticMVar function will usually raise
+  an exception, meaning that we only expect to report one issue with
+  synthetic MVars. Given that, what's the best one to return?
+
   If we have stuck typeclass instances associated with overlapping syntactic
   ranges, we want to report a problem whose syntactic range *does not include
   other unsolved typeclass problem ranges*. Here's a case where we want to

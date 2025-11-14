@@ -414,6 +414,13 @@ def eraseListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) �
   | .cons hd tl => eraseListₘ (m.erase hd.1) tl
 
 /-- Internal implementation detail of the hash map -/
+def diffₘ [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
+  if m₁.1.size ≤ m₂.1.size then
+    filterₘ m₁ (fun k _ => !containsₘ m₂ k)
+  else
+    eraseMany m₁ (toListModel m₂.1.buckets)
+
+/-- Internal implementation detail of the hash map -/
 def insertListIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) : Raw₀ α β :=
   match l with
   | .nil => m

@@ -490,6 +490,11 @@ def interSmaller [BEq α] [Hashable α] (m₁ : Raw₀ α β) (m₂ : Raw α β)
 def inter [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
   if m₁.1.size ≤ m₂.1.size then m₁.filter fun k _ => m₂.contains k else interSmaller m₁ m₂
 
+/-- Internal implementation detail of the hash map -/
+@[inline] def diff [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
+  if m₁.1.size ≤ m₂.1.size then m₁.filter (fun k _ => !m₂.contains k) else (eraseMany m₁ m₂.1).1
+
+
 section
 
 variable {β : Type v}

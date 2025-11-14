@@ -244,7 +244,7 @@ def explainStuckTypeclassProblem (typeclassProblem : Expr) : TermElabM (Option M
       args := arg :: args
     | _ => return .none -- Precluded by loop guard
 
-  -- Find the typeclass constructor and look up its classifying sort
+  -- Find the typeclass's type constructor (e.g. `HAdd`) and look up its classifying sort
   let .const name _ := ty
     | return .none -- Typeclass problem has unexpected structure; fall back to default error
   let .some defn := (← getEnv).findConstVal? name
@@ -295,6 +295,8 @@ def explainStuckTypeclassProblem (typeclassProblem : Expr) : TermElabM (Option M
 
   return .some (.note m!"Lean will not try to resolve this typeclass instance problem because {theTypeArguments} to `{.ofConstName name}` {containMVars}. {nStuck.plural "This argument" "These arguments"} must be fully determined before Lean will try to resolve the typeclass."
     ++ .hint' m!"Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `{MessageData.ofConstName ``Nat}`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.")
+
+#check HAdd
 
 /--
 We use this method to report typeclass (and coercion) resolution problems that are "stuck".

@@ -5285,7 +5285,7 @@ theorem getValueCast?_diff_of_containsKey_eq_false_left [BEq α] [LawfulBEq α]
 theorem List.getValueCast?_diff_of_containsKey_right [BEq α] [LawfulBEq α]
     {l₁ l₂ : List ((a : α) × β a)} {k : α}
     (dl₁ : DistinctKeys l₁) :
-    containsKey k l₂→ getValueCast? k (List.filter (fun p => !containsKey p.fst l₂) l₁) =
+    containsKey k l₂ → getValueCast? k (List.filter (fun p => !containsKey p.fst l₂) l₁) =
       none := by
   intro h₁
   rw [List.getValueCast?_diff]
@@ -5591,6 +5591,17 @@ theorem List.containsKey_diff_eq_false_iff [BEq α] [EquivBEq α] {l₁ l₂ : L
   rw [List.containsKey_diff_eq_false]
   . simp
   . exact hl₁
+
+theorem List.getValueCast_diff [BEq α] [LawfulBEq α]
+    {l₁ l₂ : List ((a : α) × β a)} {k : α}
+    (dl₁ : DistinctKeys l₁) {h₁ h₂} :
+    getValueCast k (List.filter (fun p => !containsKey p.fst l₂) l₁) h₁ = getValueCast k l₁ h₂ := by
+  suffices some (getValueCast k (List.filter (fun p => !containsKey p.fst l₂) l₁) h₁) = some (getValueCast k l₁ h₂) by injections
+  simp only [← getValueCast?_eq_some_getValueCast]
+  rw [List.getValueCast?_diff dl₁]
+  rw [List.containsKey_diff_eq_false_iff] at h₁
+  simp [h₁.2]
+  exact dl₁
 
 theorem List.getValueCast_filter_containsKey [BEq α] [LawfulBEq α]
     {l₁ l₂ : List ((a : α) × β a)} {k : α}

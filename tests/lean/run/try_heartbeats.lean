@@ -76,7 +76,7 @@ info: Try this:
 example : CustomGoal := by
   try?
 
--- With 500 heartbeast, both should appear.
+-- With 500 heartbeats, both should appear.
 /--
 info: Try these:
   [apply] expensive_meta_tactic

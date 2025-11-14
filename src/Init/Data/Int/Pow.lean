@@ -62,6 +62,8 @@ protected theorem pow_ne_zero {n : Int} {m : Nat} : n ≠ 0 → n ^ m ≠ 0 := b
 
 instance {n : Int} {m : Nat} [NeZero n] : NeZero (n ^ m) := ⟨Int.pow_ne_zero (NeZero.ne _)⟩
 
+instance {n : Int} : NeZero (n^0) := ⟨Int.one_ne_zero⟩
+
 @[simp, norm_cast]
 protected theorem natCast_pow (b n : Nat) : ((b^n : Nat) : Int) = (b : Int) ^ n := by
   match n with

@@ -228,6 +228,7 @@ structure Ctx where
   root : TSyntax `tactic
   terminal : Bool
   config : Try.Config
+  originalMaxHeartbeats : Nat
 
 abbrev TryTacticM := ReaderT Ctx TacticM
 abbrev TryTactic := TSyntax `tactic → TryTacticM (TSyntax `tactic)
@@ -327,28 +328,28 @@ private def expandUserTactic (tac : TSyntax `tactic) (goal : MVarId) : MetaM (Ar
     let initialLog ← Core.getMessageLog
     let initialMsgCount := initialLog.toList.length
 
-    let result ← try
-      -- Run the tactic to capture its "Try this" messages
-      discard <| Tactic.run goal do
-        evalTactic tac
+    let result ← tryCatchRuntimeEx
+      (do
+        -- Run the tactic to capture its "Try this" messages
+        discard <| Tactic.run goal do
+          evalTactic tac
 
-      -- Extract tactic suggestions from new messages
-      -- This parses the format produced by TryThis.addSuggestions: "Try this:\n  [apply] tactic"
-      let newMsgs := (← Core.getMessageLog).toList.drop initialMsgCount
-      let mut suggestions : Array (TSyntax `tactic) := #[]
-      for msg in newMsgs do
-        if msg.severity == MessageSeverity.information then
-          let msgText ← msg.data.toString
-          for line in msgText.splitOn "\n" do
-            if line.startsWith "  [apply] " then
-              let tacticText := line.drop "  [apply] ".length
-              let env ← getEnv
-              if let .ok stx := Parser.runParserCategory env `tactic tacticText then
-                suggestions := suggestions.push ⟨stx⟩
+        -- Extract tactic suggestions from new messages
+        -- This parses the format produced by TryThis.addSuggestions: "Try this:\n  [apply] tactic"
+        let newMsgs := (← Core.getMessageLog).toList.drop initialMsgCount
+        let mut suggestions : Array (TSyntax `tactic) := #[]
+        for msg in newMsgs do
+          if msg.severity == MessageSeverity.information then
+            let msgText ← msg.data.toString
+            for line in msgText.splitOn "\n" do
+              if line.startsWith "  [apply] " then
+                let tacticText := line.drop "  [apply] ".length
+                let env ← getEnv
+                if let .ok stx := Parser.runParserCategory env `tactic tacticText then
+                  suggestions := suggestions.push ⟨stx⟩
 
-      pure (some suggestions)
-    catch _ =>
-      pure none
+        pure (some suggestions))
+      (fun _ => pure none)
 
     initialState.restore
     Core.setMessageLog initialLog
@@ -359,16 +360,41 @@ abbrev focus (x : TryTacticM α) : TryTacticM α := fun ctx => Tactic.focus (x c
 
 def observing (x : TryTacticM α) : TryTacticM (TacticResult α) := do
   let s ← saveState
-  try
-    let e ← x
-    let sNew ← saveState
-    s.restore (restoreInfo := true)
-    return EStateM.Result.ok e sNew
-  catch
-    | ex =>
+  tryCatchRuntimeEx
+    (do
+      let e ← x
       let sNew ← saveState
       s.restore (restoreInfo := true)
-      return .error ex sNew
+      return EStateM.Result.ok e sNew)
+    (fun ex => do
+      let sNew ← saveState
+      s.restore (restoreInfo := true)
+      return .error ex sNew)
+
+/--
+Executes a tactic with heartbeat management:
+- Restores the original maxHeartbeats limit (recorded at try? start)
+- Gives the tactic a fresh heartbeat budget via withCurrHeartbeats
+- Catches heartbeat exceptions and converts them to regular errors
+-/
+def withOriginalHeartbeats (x : TryTacticM α) : TryTacticM α := do
+  let originalMaxHeartbeats := (← read).originalMaxHeartbeats
+  tryCatchRuntimeEx
+    (withTheReader Core.Context (fun c => { c with maxHeartbeats := originalMaxHeartbeats }) do
+      withCurrHeartbeats x)
+    (fun ex => do
+      if Exception.isMaxHeartbeat ex then
+        throwError "tactic exceeded heartbeat limit"
+      else
+        throw ex)
+
+/--
+Executes code with unlimited heartbeats (maxHeartbeats set to 0).
+Used by try? infrastructure itself so it doesn't timeout while testing tactics.
+-/
+def withUnlimitedHeartbeats {m : Type → Type} [Monad m] [MonadWithReaderOf Core.Context m] [MonadControlT CoreM m] (x : m α) : m α :=
+  withTheReader Core.Context (fun c => { c with maxHeartbeats := 0 }) do
+    withCurrHeartbeats x
 
 private def mergeParams (ps1 ps2 : Array Syntax) : Array Syntax := Id.run do
   let mut r := ps1
@@ -504,89 +530,92 @@ where
 private def evalSuggestGrindTrace : TryTactic := fun tac => do
   match tac with
   | `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?) =>
-    let config ← elabGrindConfig configStx
-    let config := { config with trace := (← read).config.only, verbose := false }
-    let tac ← grindTraceToGrind tac
-    let trace ← evalGrindCore tac config only params none
-    trace[try.debug] "`grind` succeeded"
-    if (← read).config.only then
-      let tac' ← mkGrindOnly configStx trace
-      -- If config has +suggestions, only return the 'only' version, not the original
-      if configHasSuggestions configStx then
-        mkTrySuggestions #[tac']
+    withOriginalHeartbeats do
+      let config ← elabGrindConfig configStx
+      let config := { config with trace := (← read).config.only, verbose := false }
+      let tac ← grindTraceToGrind tac
+      let trace ← evalGrindCore tac config only params none
+      trace[try.debug] "`grind` succeeded"
+      if (← read).config.only then
+        let tac' ← mkGrindOnly configStx trace
+        -- If config has +suggestions, only return the 'only' version, not the original
+        if configHasSuggestions configStx then
+          mkTrySuggestions #[tac']
+        else
+          mkTrySuggestions #[tac, tac']
       else
-        mkTrySuggestions #[tac, tac']
-    else
-      return tac
+        return tac
   | _ => throwUnsupportedSyntax
 
 private def evalSuggestSimpTrace : TryTactic := fun tac => do (← getMainGoal).withContext do
   match tac with
   | `(tactic| simp? $configStx:optConfig $[only%$only]? $[[$args,*]]? $(loc)?) =>
-    let tac ← simpTraceToSimp tac
-    let { ctx, simprocs, .. } ← mkSimpContext tac (eraseLocal := false)
-    let stats ← simpLocation ctx (simprocs := simprocs) none <| (loc.map expandLocation).getD (.targets #[] true)
-    trace[try.debug] "`simp` succeeded"
-    if (← read).config.only then
-      let tac' ← mkSimpCallStx tac stats.usedTheorems
-      -- If config has +suggestions, only return the 'only' version, not the original
-      if configHasSuggestions configStx then
-        mkTrySuggestions #[tac']
+    withOriginalHeartbeats do
+      let tac ← simpTraceToSimp tac
+      let { ctx, simprocs, .. } ← mkSimpContext tac (eraseLocal := false)
+      let stats ← simpLocation ctx (simprocs := simprocs) none <| (loc.map expandLocation).getD (.targets #[] true)
+      trace[try.debug] "`simp` succeeded"
+      if (← read).config.only then
+        let tac' ← mkSimpCallStx tac stats.usedTheorems
+        -- If config has +suggestions, only return the 'only' version, not the original
+        if configHasSuggestions configStx then
+          mkTrySuggestions #[tac']
+        else
+          mkTrySuggestions #[tac, tac']
       else
-        mkTrySuggestions #[tac, tac']
-    else
-      return tac
+        return tac
   | _ => throwUnsupportedSyntax
 
 private def evalSuggestSimpAllTrace : TryTactic := fun tac => do
   match tac with
   | `(tactic| simp_all? $[!%$_bang]? $configStx:optConfig $(_discharger)? $[only%$_only]? $[[$_args,*]]?) =>
     (← getMainGoal).withContext do
-      let hasSuggestions := configHasSuggestions configStx
+      withOriginalHeartbeats do
+        let hasSuggestions := configHasSuggestions configStx
 
-      -- Get library suggestions if +suggestions is present
-      let config ← elabSimpConfig configStx (kind := .simpAll)
-      let mut argsArray : TSyntaxArray [`Lean.Parser.Tactic.simpErase, `Lean.Parser.Tactic.simpLemma] := #[]
-      if config.suggestions then
-        let suggestions ← Lean.LibrarySuggestions.select (← getMainGoal)
-        for sugg in suggestions do
-          let ident := mkIdent sugg.name
-          let candidates ← resolveGlobalConst ident
-          for candidate in candidates do
-            let arg ← `(Parser.Tactic.simpLemma| $(mkCIdentFrom ident candidate (canonical := true)):term)
-            argsArray := argsArray.push arg
+        -- Get library suggestions if +suggestions is present
+        let config ← elabSimpConfig configStx (kind := .simpAll)
+        let mut argsArray : TSyntaxArray [`Lean.Parser.Tactic.simpErase, `Lean.Parser.Tactic.simpLemma] := #[]
+        if config.suggestions then
+          let suggestions ← Lean.LibrarySuggestions.select (← getMainGoal)
+          for sugg in suggestions do
+            let ident := mkIdent sugg.name
+            let candidates ← resolveGlobalConst ident
+            for candidate in candidates do
+              let arg ← `(Parser.Tactic.simpLemma| $(mkCIdentFrom ident candidate (canonical := true)):term)
+              argsArray := argsArray.push arg
 
-      -- Build tactic with resolved suggestions for execution
-      -- If +suggestions was present, we need to create a tactic without +suggestions,
-      -- either with the resolved suggestions or without arguments if none were found
-      -- Note: We use simp_all (without ?) for execution, not simp_all?
-      let tacForExec ← if config.suggestions then
-        if argsArray.isEmpty then
-          `(tactic| simp_all)
+        -- Build tactic with resolved suggestions for execution
+        -- If +suggestions was present, we need to create a tactic without +suggestions,
+        -- either with the resolved suggestions or without arguments if none were found
+        -- Note: We use simp_all (without ?) for execution, not simp_all?
+        let tacForExec ← if config.suggestions then
+          if argsArray.isEmpty then
+            `(tactic| simp_all)
+          else
+            `(tactic| simp_all [$argsArray,*])
         else
-          `(tactic| simp_all [$argsArray,*])
-      else
-        pure tac
+          pure tac
 
-      let { ctx, simprocs, .. } ← mkSimpContext tacForExec (eraseLocal := true) (kind := .simpAll) (ignoreStarArg := true)
-      let (result?, stats) ← simpAll (← getMainGoal) ctx (simprocs := simprocs)
-      match result? with
-      | none => replaceMainGoal []
-      | some mvarId => replaceMainGoal [mvarId]
-      trace[try.debug] "`simp_all` succeeded"
-      if (← read).config.only then
-        -- Remove +suggestions from config for the output (similar to SimpTrace.lean)
-        let filteredCfg ← filterSuggestionsFromSimpConfig configStx
-        -- Convert simp_all? to simp_all for mkSimpCallStx (similar to simpTraceToSimp)
-        let tacWithoutTrace ← `(tactic| simp_all $filteredCfg:optConfig $[only%$_only]? $[[$_args,*]]?)
-        let tac' ← mkSimpCallStx tacWithoutTrace stats.usedTheorems
-        -- If config has +suggestions, only return the 'only' version, not the original
-        if hasSuggestions then
-          mkTrySuggestions #[tac']
+        let { ctx, simprocs, .. } ← mkSimpContext tacForExec (eraseLocal := true) (kind := .simpAll) (ignoreStarArg := true)
+        let (result?, stats) ← simpAll (← getMainGoal) ctx (simprocs := simprocs)
+        match result? with
+        | none => replaceMainGoal []
+        | some mvarId => replaceMainGoal [mvarId]
+        trace[try.debug] "`simp_all` succeeded"
+        if (← read).config.only then
+          -- Remove +suggestions from config for the output (similar to SimpTrace.lean)
+          let filteredCfg ← filterSuggestionsFromSimpConfig configStx
+          -- Convert simp_all? to simp_all for mkSimpCallStx (similar to simpTraceToSimp)
+          let tacWithoutTrace ← `(tactic| simp_all $filteredCfg:optConfig $[only%$_only]? $[[$_args,*]]?)
+          let tac' ← mkSimpCallStx tacWithoutTrace stats.usedTheorems
+          -- If config has +suggestions, only return the 'only' version, not the original
+          if hasSuggestions then
+            mkTrySuggestions #[tac']
+          else
+            mkTrySuggestions #[tac, tac']
         else
-          mkTrySuggestions #[tac, tac']
-      else
-        return tac
+          return tac
   | _ => throwUnsupportedSyntax
 
 
@@ -678,7 +707,8 @@ where
 private partial def evalSuggestDefault (tac : TSyntax `tactic) : TryTacticM (TSyntax `tactic) := do
   let kind := tac.raw.getKind
   match (← getEvalFns kind) with
-  | [] => evalSuggestAtomic tac -- lift regular tactic
+  | [] =>
+    withOriginalHeartbeats (evalSuggestAtomic tac)
   | evalFns => eval (← Tactic.saveState) evalFns #[]
 where
   throwExs (failures : Array EvalTacticFailure) : TryTacticM (TSyntax `tactic) := do
@@ -732,7 +762,7 @@ private partial def evalSuggestImpl : TryTactic := fun tac => do
       else if k == ``Parser.Tactic.simpAllTrace then
         evalSuggestSimpAllTrace tac
       else if k == ``Parser.Tactic.exact? then
-        evalSuggestExact
+        withOriginalHeartbeats evalSuggestExact
       else
         evalSuggestDefault tac
       if (← read).terminal then
@@ -764,10 +794,13 @@ private def addSuggestions (tk : Syntax) (s : Array Tactic.TryThis.Suggestion) :
 
 def evalAndSuggest (tk : Syntax) (tac : TSyntax `tactic) (config : Try.Config := {}) : TacticM Unit := do
   let initialLog ← Core.getMessageLog
-  let tac' ← try
-    evalSuggest tac |>.run { terminal := true, root := tac, config }
-  catch _ =>
-    throwEvalAndSuggestFailed config
+  -- Record current maxHeartbeats to pass to individual tactic evaluations
+  let originalMaxHeartbeats ← getMaxHeartbeats
+  -- Run try? infrastructure with unlimited heartbeats
+  let tac' ← tryCatchRuntimeEx
+    (withUnlimitedHeartbeats do
+      evalSuggest tac |>.run { terminal := true, root := tac, config, originalMaxHeartbeats })
+    (fun _ => throwEvalAndSuggestFailed config)
   -- Restore message log to suppress "Try this" messages from intermediate tactic executions
   Core.setMessageLog initialLog
   let s := (getSuggestions tac')[*...config.max].toArray

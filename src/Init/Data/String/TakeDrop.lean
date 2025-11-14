@@ -1,19 +1,19 @@
 /-
 Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Author: Leonardo de Moura, Mario Carneiro
+Author: Leonardo de Moura, Mario Carneiro, Markus Himmel
 -/
 module
 
 prelude
-public import Init.Data.String.Substring
+public import Init.Data.String.Slice
+
+set_option doc.verso true
 
 /-!
 # `String.take` and variants
 
-This file contains the implementations of `String.take` and its variants. Currently, they are
-implemented in terms of `Substring`; soon, they will be implemented in terms of `String.Slice`
-instead.
+This file contains the implementations of `String.take` and its variants.
 -/
 
 public section
@@ -21,95 +21,135 @@ public section
 namespace String
 
 /--
-Removes the specified number of characters (Unicode code points) from the start of the string.
+Returns a {name}`String.Slice` obtained by removing the specified number of characters (Unicode code
+points) from the start of the string.
 
-If `n` is greater than `s.length`, returns `""`.
+If {name}`n` is greater than {lean}`s.length`, returns an empty slice.
+
+This is a cheap operation because it does not allocate a new string to hold the result.
+To convert the result into a string, use {name}`String.Slice.copy`.
 
 Examples:
- * `"red green blue".drop 4 = "green blue"`
- * `"red green blue".drop 10 = "blue"`
- * `"red green blue".drop 50 = ""`
+ * {lean}`"red green blue".drop 4 == "green blue".toSlice`
+ * {lean}`"red green blue".drop 10 == "blue".toSlice`
+ * {lean}`"red green blue".drop 50 == "".toSlice`
+ * {lean}`"مرحبا بالعالم".drop 3 == "با بالعالم".toSlice`
 -/
-@[inline] def drop (s : String) (n : Nat) : String :=
-  (s.toRawSubstring.drop n).toString
+@[inline] def drop (s : String) (n : Nat) : Slice :=
+  s.toSlice.drop n
 
 @[export lean_string_drop]
 def Internal.dropImpl (s : String) (n : Nat) : String :=
-  String.drop s n
+  (String.drop s n).copy
 
 /--
-Removes the specified number of characters (Unicode code points) from the end of the string.
+Returns a {name}`String.Slice` obtained by removing the specified number of characters (Unicode code
+points) from the end of the string.
 
-If `n` is greater than `s.length`, returns `""`.
+If {name}`n` is greater than {lean}`s.length`, returns an empty slice.
+
+This is a cheap operation because it does not allocate a new string to hold the result.
+To convert the result into a string, use {name}`String.Slice.copy`.
 
 Examples:
- * `"red green blue".dropRight 5 = "red green"`
- * `"red green blue".dropRight 11 = "red"`
- * `"red green blue".dropRight 50 = ""`
+ * {lean}`"red green blue".dropEnd 5 == "red green".toSlice`
+ * {lean}`"red green blue".dropEnd 11 == "red".toSlice`
+ * {lean}`"red green blue".dropEnd 50 == "".toSlice`
+ * {lean}`"مرحبا بالعالم".dropEnd 3 == "مرحبا بالع".toSlice`
 -/
-@[inline] def dropRight (s : String) (n : Nat) : String :=
-  (s.toRawSubstring.dropRight n).toString
+@[inline] def dropEnd (s : String) (n : Nat) : Slice :=
+  s.toSlice.dropEnd n
+
+@[deprecated String.dropEnd (since := "2025-11-14")]
+def dropRight (s : String) (n : Nat) : String :=
+  (s.dropEnd n).copy
 
 @[export lean_string_dropright]
 def Internal.dropRightImpl (s : String) (n : Nat) : String :=
-  String.dropRight s n
+  (String.dropEnd s n).copy
 
 /--
-Creates a new string that contains the first `n` characters (Unicode code points) of `s`.
+Returns a {name}`String.Slice` that contains the first {name}`n` characters (Unicode code points) of
+{name}`s`.
 
-If `n` is greater than `s.length`, returns `s`.
+If {name}`n` is greater than {lean}`s.length`, returns {lean}`s.toSlice`.
+
+This is a cheap operation because it does not allocate a new string to hold the result.
+To convert the result into a string, use {name}`String.Slice.copy`.
 
 Examples:
-* `"red green blue".take 3 = "red"`
-* `"red green blue".take 1 = "r"`
-* `"red green blue".take 0 = ""`
-* `"red green blue".take 100 = "red green blue"`
+* {lean}`"red green blue".take 3 == "red".toSlice`
+* {lean}`"red green blue".take 1 == "r".toSlice`
+* {lean}`"red green blue".take 0 == "".toSlice`
+* {lean}`"red green blue".take 100 == "red green blue".toSlice`
+* {lean}`"مرحبا بالعالم".take 5 == "مرحبا".toSlice`
 -/
-@[inline] def take (s : String) (n : Nat) : String :=
-  (s.toRawSubstring.take n).toString
+@[inline] def take (s : String) (n : Nat) : String.Slice :=
+  s.toSlice.take n
 
 /--
-Creates a new string that contains the last `n` characters (Unicode code points) of `s`.
+Returns a {name}`String.Slice` that contains the last {name}`n` characters (Unicode code points) of
+{name}`s`.
 
-If `n` is greater than `s.length`, returns `s`.
+If {name}`n` is greater than {lean}`s.length`, returns {lean}`s.toSlice`.
+
+This is a cheap operation because it does not allocate a new string to hold the result.
+To convert the result into a string, use {name}`String.Slice.copy`.
 
 Examples:
-* `"red green blue".takeRight 4 = "blue"`
-* `"red green blue".takeRight 1 = "e"`
-* `"red green blue".takeRight 0 = ""`
-* `"red green blue".takeRight 100 = "red green blue"`
+* {lean}`"red green blue".takeEnd 4 == "blue".toSlice`
+* {lean}`"red green blue".takeEnd 1 == "e".toSlice`
+* {lean}`"red green blue".takeEnd 0 == "".toSlice`
+* {lean}`"red green blue".takeEnd 100 == "red green blue".toSlice`
+* {lean}`"مرحبا بالعالم".takeEnd 5 == "لعالم".toSlice`
 -/
-@[inline] def takeRight (s : String) (n : Nat) : String :=
-  (s.toRawSubstring.takeRight n).toString
+@[inline] def takeEnd (s : String) (n : Nat) : String.Slice :=
+  s.toSlice.takeEnd n
+
+@[deprecated String.takeEnd (since := "2025-11-14")]
+def takeRight (s : String) (n : Nat) : String :=
+  (s.takeEnd n).toString
 
 /--
-Creates a new string that contains the longest prefix of `s` in which `p` returns `true` for all
-characters.
+Creates a new slice that contains the longest prefix of {name}`s` in which {name}`pat` matched
+(potentially repeatedly).
+
+This is a cheap operation because it does not allocate a new string to hold the result.
+To convert the result into a string, use {name}`String.Slice.copy`.
+
+This function is generic over all currently supported patterns.
 
 Examples:
-* `"red green blue".takeWhile (·.isLetter) = "red"`
-* `"red green blue".takeWhile (· == 'r') = "r"`
-* `"red green blue".takeWhile (· != 'n') = "red gree"`
-* `"red green blue".takeWhile (fun _ => true) = "red green blue"`
+ * {lean}`"red green blue".takeWhile Char.isLower == "red".toSlice`
+ * {lean}`"red green blue".takeWhile 'r' == "r".toSlice`
+ * {lean}`"red red green blue".takeWhile "red " == "red red ".toSlice`
+ * {lean}`"red green blue".takeWhile (fun (_ : Char) => true) == "red green blue".toSlice`
 -/
-@[inline] def takeWhile (s : String) (p : Char → Bool) : String :=
-  (s.toRawSubstring.takeWhile p).toString
+@[inline] def takeWhile {ρ : Type} [Slice.Pattern.ForwardPattern ρ] (s : String) (pat : ρ) :
+    String.Slice :=
+  s.toSlice.takeWhile pat
 
 /--
-Creates a new string by removing the longest prefix from `s` in which `p` returns `true` for all
-characters.
+Creates a new slice by removing the longest prefix from {name}`s` in which {name}`pat` matched
+(potentially repeatedly).
+
+This is a cheap operation because it does not allocate a new string to hold the result.
+To convert the result into a string, use {name}`String.Slice.copy`.
+
+This function is generic over all currently supported patterns.
 
 Examples:
-* `"red green blue".dropWhile (·.isLetter) = " green blue"`
-* `"red green blue".dropWhile (· == 'r') = "ed green blue"`
-* `"red green blue".dropWhile (· != 'n') = "n blue"`
-* `"red green blue".dropWhile (fun _ => true) = ""`
+ * {lean}`"red green blue".dropWhile Char.isLower == " green blue".toSlice`
+ * {lean}`"red green blue".dropWhile 'r' == "ed green blue".toSlice`
+ * {lean}`"red red green blue".dropWhile "red " == "green blue".toSlice`
+ * {lean}`"red green blue".dropWhile (fun (_ : Char) => true) == "".toSlice`
 -/
-@[inline] def dropWhile (s : String) (p : Char → Bool) : String :=
-  (s.toRawSubstring.dropWhile p).toString
+@[inline] def dropWhile {ρ : Type} [Slice.Pattern.ForwardPattern ρ] (s : String) (pat : ρ) :
+    String.Slice :=
+  s.toSlice.takeWhile pat
 
 /--
-Creates a new string that contains the longest suffix of `s` in which `p` returns `true` for all
+Creates a new string that contains the longest suffix of {name}`s` in which `p` returns `true` for all
 characters.
 
 Examples:

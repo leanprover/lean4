@@ -82,7 +82,7 @@ protected theorem pow_ne_zero {n : Int} {m : Nat} : n ≠ 0 → n ^ m ≠ 0 := b
 
 instance {n : Int} {m : Nat} [NeZero n] : NeZero (n ^ m) := ⟨Int.pow_ne_zero (NeZero.ne _)⟩
 
-instance {n : Int} : NeZero (n^0) := ⟨Int.one_ne_zero⟩
+instance {n : Int} : NeZero (n^0) := ⟨by simp⟩
 
 @[simp]
 protected theorem two_pow_pred_sub_two_pow {w : Nat} (h : 0 < w) :

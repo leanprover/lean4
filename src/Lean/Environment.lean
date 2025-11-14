@@ -2685,12 +2685,20 @@ instance (m n) [MonadLift m n] [MonadEnv m] : MonadEnv n where
   getEnv    := liftM (getEnv : m Environment)
   modifyEnv := fun f => liftM (modifyEnv f : m Unit)
 
+class MonadOnlyEnv (m : Type → Type) where
+  monadEnv : MonadEnv m
+
+@[always_inline]
+instance (m n) [MonadLift m n] [i : MonadOnlyEnv m] : MonadOnlyEnv n where
+  monadEnv := have := i.monadEnv; inferInstance
+
 /--
 Sets `Environment.isExporting` to the given value while executing `x`. No-op if
 `EnvironmentHeader.isModule` is false.
 -/
-def withExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : m α)
+def withExporting [Monad m] [i : MonadOnlyEnv m] [MonadFinally m] [MonadOptions m] (x : m α)
     (isExporting := true) : m α := do
+  have := i.monadEnv
   let old := (← getEnv).isExporting
   modifyEnv (·.setExporting isExporting)
   try
@@ -2699,7 +2707,7 @@ def withExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : 
     modifyEnv (·.setExporting old)
 
 /-- If `when` is true, sets `Environment.isExporting` to false while executing `x`. -/
-def withoutExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : m α)
+def withoutExporting [Monad m] [MonadOnlyEnv m] [MonadFinally m] [MonadOptions m] (x : m α)
     (when : Bool := true) : m α :=
   if when then
     withExporting (isExporting := false) x

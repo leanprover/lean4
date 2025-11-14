@@ -15,7 +15,7 @@ public section
 namespace Lean.Meta
 
 /-- Abstracts the given proof into an auxiliary theorem, suitably pre-processing its type. -/
-def abstractProof [Monad m] [MonadLiftT MetaM m] [MonadEnv m] [MonadOptions m] [MonadFinally m]
+def abstractProof [Monad m] [MonadLiftT MetaM m] [MonadOnlyEnv m] [MonadOptions m] [MonadFinally m]
     (proof : Expr) (cache := true) (postprocessType : Expr → m Expr := pure) : m Expr := do
   let type ← withoutExporting do inferType proof
   let type ← (Core.betaReduce type : MetaM _)

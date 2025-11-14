@@ -425,7 +425,8 @@ private def getStructureResolutionOrder? (env : Environment) (structName : Name)
   (structureResolutionExt.getState env).resolutions.find? structName
 
 /-- Caches a structure's resolution order. -/
-private def setStructureResolutionOrder [MonadEnv m] (structName : Name) (resolutionOrder : Array Name) : m Unit :=
+private def setStructureResolutionOrder [i : MonadOnlyEnv m] (structName : Name) (resolutionOrder : Array Name) : m Unit :=
+  have := i.monadEnv
   modifyEnv fun env => structureResolutionExt.modifyState env fun s =>
     { s with resolutions := s.resolutions.insert structName resolutionOrder }
 
@@ -448,8 +449,9 @@ mutual
 Computes and caches the C3 linearization. Assumes parents have already been set with `setStructureParents`.
 If `relaxed` is false, then if the linearization cannot be computed, conflicts are recorded in the return value.
 -/
-partial def computeStructureResolutionOrder [Monad m] [MonadEnv m]
+partial def computeStructureResolutionOrder [Monad m] [i : MonadOnlyEnv m]
     (structName : Name) (relaxed : Bool) : m StructureResolutionOrderResult := do
+  have := i.monadEnv
   let env ← getEnv
   if let some resOrder := getStructureResolutionOrder? env structName then
     return { resolutionOrder := resOrder }
@@ -458,7 +460,7 @@ partial def computeStructureResolutionOrder [Monad m] [MonadEnv m]
   setStructureResolutionOrder structName result.resolutionOrder
   return result
 
-partial def mergeStructureResolutionOrders [Monad m] [MonadEnv m]
+partial def mergeStructureResolutionOrders [Monad m] [MonadOnlyEnv m]
     (structName : Name) (parentNames : Array Name) (relaxed : Bool) : m StructureResolutionOrderResult := do
   -- Don't be strict about parents: if they were supposed to be checked, they were already checked.
   let parentResOrders ← parentNames.mapM fun parentName => return (← computeStructureResolutionOrder parentName true).resolutionOrder
@@ -508,7 +510,7 @@ end
 /--
 Gets the resolution order for a structure.
 -/
-def getStructureResolutionOrder [Monad m] [MonadEnv m]
+def getStructureResolutionOrder [Monad m] [MonadOnlyEnv m]
     (structName : Name) : m (Array Name) :=
   (·.resolutionOrder) <$> computeStructureResolutionOrder structName (relaxed := true)
 
@@ -516,7 +518,7 @@ def getStructureResolutionOrder [Monad m] [MonadEnv m]
 Returns the transitive closure of all parent structures of the structure.
 This is the same as `Lean.getStructureResolutionOrder` but without including `structName`.
 -/
-partial def getAllParentStructures [Monad m] [MonadEnv m] (structName : Name) : m (Array Name) :=
+partial def getAllParentStructures [Monad m] [MonadOnlyEnv m] (structName : Name) : m (Array Name) :=
   (·.erase structName) <$> getStructureResolutionOrder structName
 
 end Lean

@@ -209,13 +209,22 @@ def addTransitiveImps (transImps : Needs) (imp : Import) (j : Nat) (impTransImps
 
   transImps
 
+def isDeclMeta' (env : Environment) (declName : Name) : Bool :=
+  -- Matchers are not compiled by themselves but inlined by the compiler, so there is no IR decl
+  -- to be tagged as `meta`.
+  -- TODO: It might be better to base the entire `meta` inference on the IR only and consider module
+  -- references from any other context as compatible with both phases.
+  let inferFor :=
+    if declName.isStr && (declName.getString!.startsWith "match_" || declName.getString! == "_unsafe_rec") then declName.getPrefix else declName
+  isDeclMeta env inferFor
+
 /-- Calculates the needs for a given module `mod` from constants and recorded extra uses. -/
 def calcNeeds (env : Environment) (i : ModuleIdx) : Needs := Id.run do
   let mut needs := default
   for ci in env.header.moduleData[i]!.constants do
     -- Added guard for cases like `structure` that are still exported even if private
     let pubCI? := guard (!isPrivateName ci.name) *> (env.setExporting true).find? ci.name
-    let k := { isExported := pubCI?.isSome, isMeta := isDeclMeta env ci.name }
+    let k := { isExported := pubCI?.isSome, isMeta := isDeclMeta' env ci.name }
     needs := visitExpr k ci.type needs
     if let some e := ci.value? (allowOpaque := true) then
       -- type and value has identical visibility under `meta`
@@ -235,7 +244,7 @@ where
       let mut deps := deps
       if !isReservedName env c then
         if let some j := env.getModuleIdxFor? c then
-          let k := { k with isMeta := k.isMeta && !isDeclMeta env c }
+          let k := { k with isMeta := k.isMeta && !isDeclMeta' env c }
           if j != i then
             deps := deps.union k {j}
       return deps
@@ -250,7 +259,7 @@ def getExplanations (env : Environment) (i : ModuleIdx) :
   for ci in env.header.moduleData[i]!.constants do
     -- Added guard for cases like `structure` that are still exported even if private
     let pubCI? := guard (!isPrivateName ci.name) *> (env.setExporting true).find? ci.name
-    let k := { isExported := pubCI?.isSome, isMeta := isDeclMeta env ci.name }
+    let k := { isExported := pubCI?.isSome, isMeta := isDeclMeta' env ci.name }
     deps := visitExpr k ci.name ci.type deps
     if let some e := ci.value? (allowOpaque := true) then
       let k := if k.isMeta then k else
@@ -270,7 +279,7 @@ where
       let mut deps := deps
       if !isReservedName env c then
         if let some j := env.getModuleIdxFor? c then
-          let k := { k with isMeta := k.isMeta && !isDeclMeta env c }
+          let k := { k with isMeta := k.isMeta && !isDeclMeta' env c }
           if
             if let some (some (name', _)) := deps[(j, k)]? then
               decide (name.toString.length < name'.toString.length)

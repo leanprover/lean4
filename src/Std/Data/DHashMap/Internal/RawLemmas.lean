@@ -91,7 +91,7 @@ macro_rules
       | apply Raw₀.wf_insertMany₀ | apply Raw₀.Const.wf_insertMany₀
       | apply Raw₀.Const.wf_insertManyIfNewUnit₀ | apply Raw₀.wf_union₀
       | apply Raw.WF.filter₀ | apply Raw₀.wf_map₀ | apply Raw₀.wf_filterMap₀
-      | apply Raw.WF.emptyWithCapacity₀ | apply Raw₀.wf_inter₀) <;> wf_trivial)
+      | apply Raw.WF.emptyWithCapacity₀ | apply Raw.WF.inter₀) <;> wf_trivial)
 
 /-- Internal implementation detail of the hash map -/
 scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff] } )

@@ -7,7 +7,6 @@ module
 
 prelude
 public import Std.Data.Iterators.Combinators.Monadic
-public import Std.Data.Iterators.Combinators.Take
 public import Std.Data.Iterators.Combinators.TakeWhile
 public import Std.Data.Iterators.Combinators.Drop
 public import Std.Data.Iterators.Combinators.DropWhile

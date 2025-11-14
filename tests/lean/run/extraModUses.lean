@@ -174,7 +174,7 @@ attribute [grind =] List.append
 
 /--
 info: Entries: [import Init.Grind.Attr, public import Init.Prelude]
-Is rev mod use: false
+Is rev mod use: true
 -/
 #guard_msgs in #eval showExtraModUses
 

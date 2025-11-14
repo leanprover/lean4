@@ -65,3 +65,4 @@ public import Lean.Elab.ErrorExplanation
 public import Lean.Elab.DocString
 public import Lean.Elab.DocString.Builtin
 public import Lean.Elab.Parallel
+public import Lean.Elab.BuiltinDo

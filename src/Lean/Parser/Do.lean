@@ -103,6 +103,9 @@ def letIdDeclNoBinders := node ``letIdDecl <|
 
 @[builtin_doElem_parser] def doReassign      := leading_parser
   notFollowedByRedefinedTermToken >> (letIdDeclNoBinders <|> letPatDecl)
+@[builtin_doElem_parser] def doReassignElse      := leading_parser
+  notFollowedByRedefinedTermToken >> (termParser >> " := " >> termParser >> checkColGt >> " | " >> doSeq)
+
 @[builtin_doElem_parser] def doReassignArrow := leading_parser
   notFollowedByRedefinedTermToken >> (doIdDecl <|> doPatDecl)
 @[builtin_doElem_parser] def doHave     := leading_parser

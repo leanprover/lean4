@@ -362,7 +362,7 @@ instance (m : Type u → Type v) : MonadControlT m m where
   liftWith f := f fun x => x
   restoreM x := x
 
-def MonadControlT.toMonadControl (inst : MonadControlT m n) : MonadControl m n where
+def MonadControl.ofMonadControlT [inst : MonadControlT m n] : MonadControl m n where
   stM := inst.stM
   liftWith := inst.liftWith
   restoreM := inst.restoreM

@@ -124,7 +124,7 @@ def mkGrindParams
   let casesTypes ← Grind.getCasesTypes
   let params := { params with ematch, casesTypes, inj }
   let suggestions ← if config.suggestions then
-    LibrarySuggestions.select mvarId
+    LibrarySuggestions.select mvarId { caller := some "grind" }
   else
     pure #[]
   let mut params ← elabGrindParamsAndSuggestions params ps suggestions (only := only) (lax := config.lax)

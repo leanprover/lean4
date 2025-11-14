@@ -128,10 +128,10 @@ partial def reduce (code : Code) : ReduceM Code := do
   | .let decl k =>
     let .const declName _ args := decl.value | do return code.updateLet! decl (← reduce k)
     unless declName == (← read).declName do return code.updateLet! decl (← reduce k)
-    let mut argsNew := #[]
-    for used in (← read).paramMask, arg in args do
-      if used then
-        argsNew := argsNew.push arg
+    let mask := (← read).paramMask
+    for h : i in *...args.size do
+      if mask.getD i true then
+        argsNew := argsNew.push args[i]
     let decl ← decl.updateValue (.const (← read).auxDeclName [] argsNew)
     return code.updateLet! decl (← reduce k)
   | .fun decl k | .jp decl k =>

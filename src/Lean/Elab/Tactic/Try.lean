@@ -817,9 +817,14 @@ private def mkSimpStx : CoreM (TSyntax `tactic) :=
   `(tactic| first | simp? | simp? [*] | simp? +arith | simp? +arith [*])
 
 set_option hygiene false in -- Avoid tagger at `+suggestions`
-/-- Atomic tactics with library suggestions -/
+/--
+Atomic tactics with library suggestions.
+
+Note: We previously included `simp_all? +suggestions` here, but removed it due to performance issues.
+We would like to restore it in the future once `simp_all? +suggestions` is faster for general use.
+-/
 private def mkAtomicWithSuggestionsStx : CoreM (TSyntax `tactic) :=
-  `(tactic| attempt_all | grind? +suggestions | simp_all? +suggestions)
+  `(tactic| grind? +suggestions)
 
 /-- `simple` tactics -/
 private def mkSimpleTacStx : CoreM (TSyntax `tactic) :=

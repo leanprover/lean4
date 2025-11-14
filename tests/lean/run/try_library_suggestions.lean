@@ -1,6 +1,6 @@
 import Lean.LibrarySuggestions
 
--- Test that try? can find solutions using grind? +suggestions and simp_all? +suggestions
+-- Test that try? can find solutions using grind? +suggestions
 
 -- Test 1: Regular tactics should be tried first (rfl should win)
 /--
@@ -26,11 +26,10 @@ axiom special_7 : SpecialProperty 7
 -- Set up a premise selector that suggests special_7
 set_library_suggestions (fun _ _ => pure #[{ name := `special_7, score := 1.0 }])
 
--- Expected: try? should find grind only [special_7] and simp_all only [special_7]
+-- Expected: try? should find grind only [special_7]
 /--
-info: Try these:
+info: Try this:
   [apply] grind only [special_7]
-  [apply] simp_all only [special_7]
 -/
 #guard_msgs in
 example : SpecialProperty 7 := by
@@ -45,11 +44,10 @@ axiom custom_comm : ∀ x y, CustomOp x y = CustomOp y x
 -- Set up a premise selector that suggests custom_comm
 set_library_suggestions (fun _ _ => pure #[{ name := `custom_comm, score := 1.0 }])
 
--- Expected: try? should find grind only [custom_comm] and simp_all only [custom_comm]
+-- Expected: try? should find grind only [custom_comm]
 /--
-info: Try these:
+info: Try this:
   [apply] grind only [custom_comm]
-  [apply] simp_all only [custom_comm]
 -/
 #guard_msgs in
 example (a b : Nat) : CustomOp a b = CustomOp b a := by
@@ -57,9 +55,8 @@ example (a b : Nat) : CustomOp a b = CustomOp b a := by
 
 -- Test 4: With a hypothesis that needs library suggestions
 /--
-info: Try these:
+info: Try this:
   [apply] grind only [custom_comm]
-  [apply] simp_all only [custom_comm]
 -/
 #guard_msgs in
 example (a b c : Nat) (h : CustomOp a b = c) : CustomOp b a = c := by
@@ -80,9 +77,8 @@ set_library_suggestions (fun _ _ => pure #[
 
 -- Expected: try? should use the best applicable one
 /--
-info: Try these:
+info: Try this:
   [apply] grind only [prop1_5]
-  [apply] simp_all only [prop1_5]
 -/
 #guard_msgs in
 example : Property1 5 := by

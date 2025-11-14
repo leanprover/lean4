@@ -896,7 +896,7 @@ def withoutPostponing (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with mayPostpone := false }) x
 
 /-- Creates syntax for `(` <ident> `:` <type> `)` -/
-def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
+def mkExplicitBinder (ident : TSyntax [`ident, ``Parser.Term.hole]) (type : Term) : Syntax :=
   mkNode ``Lean.Parser.Term.explicitBinder #[mkAtom "(", mkNullNode #[ident], mkNullNode #[mkAtom ":", type], mkNullNode, mkAtom ")"]
 
 /--
@@ -2030,9 +2030,10 @@ def TermElabM.toIO (x : TermElabM α)
   Execute `x` and then tries to solve pending universe constraints.
   Note that, stuck constraints will not be discarded.
 -/
-def universeConstraintsCheckpoint (x : TermElabM α) : TermElabM α := do
+@[specialize]
+def universeConstraintsCheckpoint [Monad m] [MonadLiftT TermElabM m] (x : m α) : m α := do
   let a ← x
-  discard <| processPostponed (mayPostpone := true) (exceptionOnFailure := true)
+  discard <| liftM (m:=TermElabM) (processPostponed (mayPostpone := true) (exceptionOnFailure := true))
   return a
 
 /--

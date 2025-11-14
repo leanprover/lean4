@@ -67,6 +67,43 @@ Note: Lean will not try to resolve this typeclass instance problem because the f
 Hint: Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `Nat`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.
 -/
 #guard_msgs in
-
-
 def f x := test x 3 x x x
+
+/-
+From Joseph's lean4-error-messages#41, this generates two stuck typeclass
+problems, `Decidable (x < y)` (unhelpfully the metavariables aren't even
+visible!) with a span of the entire ite, and `LT _?` with the span of just the
+scrutinee. The error message associated with the smaller range is better.
+-/
+/--
+error: typeclass instance problem is stuck
+  LT ?m.13
+
+Note: Lean will not try to resolve this typeclass instance problem because the type argument to `LT` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
+
+Hint: Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `Nat`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.
+-/
+#guard_msgs in
+def min x y := if x < y then x else y
+
+instance : Functor (Vector · n) where
+  map f v := v.map f
+
+/-
+From Joseph's lean4-error-messages#56, this is a case where we *might* want to
+tweak prioritization in the future. This creates a typeclass resolution
+problem over the whole expression `Functor ?m.2`, and higher-order unification
+can't solve that `?m.2 = Vector · 3`. 
+-/
+/--
+error: Application type mismatch: The argument
+  #v[1, 2, 3]
+has type
+  Vector Nat 3
+but is expected to have type
+  ?m.2 ?m.6
+in the application
+  id <$> #v[1, 2, 3]
+-/
+#guard_msgs in
+#eval Functor.map id #v[1, 2, 3]

@@ -10,6 +10,7 @@ public import Lean.Meta.Structure
 public import Lean.Elab.MutualInductive
 import Lean.Linter.Basic
 import Lean.DocString
+import Lean.DocString.Extension
 
 public section
 
@@ -661,8 +662,8 @@ private partial def withStructField (view : StructView) (sourceStructNames : Lis
     let mut declName := view.declName ++ fieldName
     if inSubobject?.isNone then
       declName ← applyVisibility (← toModifiers fieldInfo) declName
-      -- No need to validate links because this docstring was already added to the environment previously
-      addDocStringCore' declName (← findDocString? (← getEnv) fieldInfo.projFn)
+      -- Create a link to the parent field's docstring
+      addInheritedDocString declName fieldInfo.projFn
       addDeclarationRangesFromSyntax declName (← getRef)
     checkNotAlreadyDeclared declName
     withLocalDecl fieldName fieldInfo.binderInfo (← reduceFieldProjs fieldType) fun fieldFVar => do

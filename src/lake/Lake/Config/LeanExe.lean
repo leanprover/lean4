@@ -110,6 +110,14 @@ That is, the package's `weakLinkArgs` plus the executable's  `weakLinkArgs`.
 @[inline] public def weakLinkArgs (self : LeanExe) : Array String :=
   self.pkg.weakLinkArgs ++ self.config.weakLinkArgs
 
+/-- Additional objects (e.g., `.o` files, static libraries) to link to the executable. -/
+@[inline] public def moreLinkObjs (self : LeanExe) : TargetArray FilePath :=
+  self.config.moreLinkObjs
+
+/-- Additional shared libraries to link to the executable. -/
+@[inline] public def moreLinkLibs (self : LeanExe) : TargetArray Dynlib :=
+  self.config.moreLinkLibs
+
 end LeanExe
 
 /-- Locate the named, buildable, but not necessarily importable, module in the package. -/

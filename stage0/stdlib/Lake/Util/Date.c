@@ -957,60 +957,55 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_box(0);
 x_4 = l_String_splitAux___at___00Lake_Date_ofString_x3f_spec__0(x_1, x_2, x_2, x_3);
-if (lean_obj_tag(x_4) == 0)
+if (lean_obj_tag(x_4) == 1)
 {
 lean_object* x_5; 
-x_5 = lean_box(0);
-return x_5;
-}
-else
+x_5 = lean_ctor_get(x_4, 1);
+lean_inc(x_5);
+if (lean_obj_tag(x_5) == 1)
 {
 lean_object* x_6; 
-x_6 = lean_ctor_get(x_4, 1);
+x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
-if (lean_obj_tag(x_6) == 0)
+if (lean_obj_tag(x_6) == 1)
 {
 lean_object* x_7; 
-lean_dec_ref(x_4);
-x_7 = lean_box(0);
-return x_7;
-}
-else
+x_7 = lean_ctor_get(x_6, 1);
+if (lean_obj_tag(x_7) == 0)
 {
-lean_object* x_8; 
-x_8 = lean_ctor_get(x_6, 1);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_8 = lean_ctor_get(x_4, 0);
 lean_inc(x_8);
-if (lean_obj_tag(x_8) == 0)
-{
-lean_object* x_9; 
-lean_dec_ref(x_6);
 lean_dec_ref(x_4);
-x_9 = lean_box(0);
-return x_9;
+x_9 = lean_ctor_get(x_5, 0);
+lean_inc(x_9);
+lean_dec_ref(x_5);
+x_10 = lean_ctor_get(x_6, 0);
+lean_inc(x_10);
+lean_dec_ref(x_6);
+x_11 = l_String_toNat_x3f(x_8);
+lean_dec(x_8);
+if (lean_obj_tag(x_11) == 0)
+{
+lean_object* x_12; 
+lean_dec(x_10);
+lean_dec(x_9);
+x_12 = lean_box(0);
+return x_12;
 }
 else
 {
-lean_object* x_10; 
-x_10 = lean_ctor_get(x_8, 1);
-if (lean_obj_tag(x_10) == 0)
-{
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_11 = lean_ctor_get(x_4, 0);
-lean_inc(x_11);
-lean_dec_ref(x_4);
-x_12 = lean_ctor_get(x_6, 0);
-lean_inc(x_12);
-lean_dec_ref(x_6);
-x_13 = lean_ctor_get(x_8, 0);
+lean_object* x_13; lean_object* x_14; 
+x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
-lean_dec_ref(x_8);
-x_14 = l_String_toNat_x3f(x_11);
-lean_dec(x_11);
+lean_dec_ref(x_11);
+x_14 = l_String_toNat_x3f(x_9);
+lean_dec(x_9);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; 
 lean_dec(x_13);
-lean_dec(x_12);
+lean_dec(x_10);
 x_15 = lean_box(0);
 return x_15;
 }
@@ -1020,8 +1015,8 @@ lean_object* x_16; lean_object* x_17;
 x_16 = lean_ctor_get(x_14, 0);
 lean_inc(x_16);
 lean_dec_ref(x_14);
-x_17 = l_String_toNat_x3f(x_12);
-lean_dec(x_12);
+x_17 = l_String_toNat_x3f(x_10);
+lean_dec(x_10);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; 
@@ -1036,39 +1031,47 @@ lean_object* x_19; lean_object* x_20;
 x_19 = lean_ctor_get(x_17, 0);
 lean_inc(x_19);
 lean_dec_ref(x_17);
-x_20 = l_String_toNat_x3f(x_13);
-lean_dec(x_13);
-if (lean_obj_tag(x_20) == 0)
-{
-lean_object* x_21; 
-lean_dec(x_19);
-lean_dec(x_16);
-x_21 = lean_box(0);
-return x_21;
+x_20 = l_Lake_Date_ofValid_x3f(x_13, x_16, x_19);
+return x_20;
+}
+}
+}
 }
 else
 {
-lean_object* x_22; lean_object* x_23; 
-x_22 = lean_ctor_get(x_20, 0);
-lean_inc(x_22);
-lean_dec_ref(x_20);
-x_23 = l_Lake_Date_ofValid_x3f(x_16, x_19, x_22);
+lean_object* x_21; 
+lean_dec_ref(x_6);
+lean_dec_ref(x_5);
+lean_dec_ref(x_4);
+x_21 = lean_box(0);
+return x_21;
+}
+}
+else
+{
+lean_object* x_22; 
+lean_dec(x_6);
+lean_dec_ref(x_5);
+lean_dec_ref(x_4);
+x_22 = lean_box(0);
+return x_22;
+}
+}
+else
+{
+lean_object* x_23; 
+lean_dec(x_5);
+lean_dec_ref(x_4);
+x_23 = lean_box(0);
 return x_23;
-}
-}
 }
 }
 else
 {
 lean_object* x_24; 
-lean_dec_ref(x_8);
-lean_dec_ref(x_6);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_24 = lean_box(0);
 return x_24;
-}
-}
-}
 }
 }
 }

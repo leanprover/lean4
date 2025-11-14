@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Internal.List.Associative
-// Imports: public import Init.Data.Option.Attach public import Init.Data.List.Perm public import Std.Data.Internal.List.Defs import all Std.Data.Internal.List.Defs public import Init.Data.Order.Ord import Init.Data.Subtype.Order
+// Imports: public import Init.Data.Option.Attach public import Init.Data.List.Perm public import Init.Data.List.Monadic public import Std.Data.Internal.List.Defs import all Std.Data.Internal.List.Defs public import Init.Data.Order.Ord import Init.Data.Subtype.Order
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -26,6 +26,8 @@ LEAN_EXPORT lean_object* l_Std_Internal_List_getKey_x3f___redArg(lean_object*, l
 LEAN_EXPORT lean_object* l_Std_Internal_List_maxKey(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_Const_alterKey__cons__perm_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_insertListIfNew(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Internal_List_getEntry_x21___redArg___closed__2;
+static lean_object* l_Std_Internal_List_getEntry_x21___redArg___closed__3;
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_Const_alterKey__cons__perm_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_getKey___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_alterKey__cons__perm_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -109,6 +111,8 @@ LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_I
 LEAN_EXPORT uint8_t l_Std_Internal_List_containsKey(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_leSigmaOfOrd(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_maxKey_x21(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_List_getEntryD___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_List_getEntry_x21(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_insertListIfNewUnit_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_instDecidableLESigma__std(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_insertListIfNewUnit_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -137,11 +141,14 @@ LEAN_EXPORT lean_object* l_Std_Internal_List_getKeyD___redArg___boxed(lean_objec
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_alterKey_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_minEntry_x3f__insertEntry_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_minEntry_x3f__insertEntry_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_List_getEntry_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_Const_alterKey___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_minKey(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__List_getLast_x3f_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_getKey_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_maxKey___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_List_getEntryD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_List_getEntryD___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__List_forIn_x27__cons_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_Option_dmap(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_insertListIfNewUnit___redArg(lean_object*, lean_object*, lean_object*);
@@ -149,6 +156,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_List_maxKeyD___redArg___boxed(lean_objec
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_insertListIfNewUnit_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_alterKey_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_getValueCast_x3f_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Internal_List_getEntry_x21___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_List_getEntry(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_alterKey___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_Prod_toSigma___redArg(lean_object*);
@@ -168,7 +176,9 @@ LEAN_EXPORT lean_object* l_Std_Internal_List_insertListIfNewUnit(lean_object*, l
 LEAN_EXPORT lean_object* l_Std_Internal_List_getValueCastD___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_getValueD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Internal_List_getEntry_x21___redArg___closed__1;
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_Option_dmap___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_List_getEntryD___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_Const_alterKey_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Option_getD_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_containsKey___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -234,6 +244,160 @@ _start:
 lean_object* x_6; 
 x_6 = l_Std_Internal_List_getEntry_x3f___redArg(x_3, x_4, x_5);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_List_getEntryD___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+if (lean_obj_tag(x_4) == 0)
+{
+lean_dec(x_2);
+lean_dec_ref(x_1);
+lean_inc_ref(x_3);
+return x_3;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_5 = lean_ctor_get(x_4, 0);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_4, 1);
+lean_inc(x_6);
+lean_dec_ref(x_4);
+x_7 = lean_ctor_get(x_5, 0);
+lean_inc_ref(x_1);
+lean_inc(x_2);
+lean_inc(x_7);
+x_8 = lean_apply_2(x_1, x_7, x_2);
+x_9 = lean_unbox(x_8);
+if (x_9 == 0)
+{
+lean_dec(x_5);
+x_4 = x_6;
+goto _start;
+}
+else
+{
+lean_dec(x_6);
+lean_dec(x_2);
+lean_dec_ref(x_1);
+return x_5;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_List_getEntryD(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Std_Internal_List_getEntryD___redArg(x_3, x_4, x_5, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_List_getEntryD___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_Internal_List_getEntryD___redArg(x_1, x_2, x_3, x_4);
+lean_dec_ref(x_3);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_List_getEntryD___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Std_Internal_List_getEntryD(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec_ref(x_5);
+return x_7;
+}
+}
+static lean_object* _init_l_Std_Internal_List_getEntry_x21___redArg___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Std.Data.Internal.List.Associative", 34, 34);
+return x_1;
+}
+}
+static lean_object* _init_l_Std_Internal_List_getEntry_x21___redArg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Std.Internal.List.getEntry!", 27, 27);
+return x_1;
+}
+}
+static lean_object* _init_l_Std_Internal_List_getEntry_x21___redArg___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("key is not present in associative list", 38, 38);
+return x_1;
+}
+}
+static lean_object* _init_l_Std_Internal_List_getEntry_x21___redArg___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_1 = l_Std_Internal_List_getEntry_x21___redArg___closed__2;
+x_2 = lean_unsigned_to_nat(10u);
+x_3 = lean_unsigned_to_nat(59u);
+x_4 = l_Std_Internal_List_getEntry_x21___redArg___closed__1;
+x_5 = l_Std_Internal_List_getEntry_x21___redArg___closed__0;
+x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_List_getEntry_x21___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; lean_object* x_6; 
+lean_dec(x_2);
+lean_dec_ref(x_1);
+x_5 = l_Std_Internal_List_getEntry_x21___redArg___closed__3;
+x_6 = l_panic___redArg(x_3, x_5);
+return x_6;
+}
+else
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+x_7 = lean_ctor_get(x_4, 0);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_4, 1);
+lean_inc(x_8);
+lean_dec_ref(x_4);
+x_9 = lean_ctor_get(x_7, 0);
+lean_inc_ref(x_1);
+lean_inc(x_2);
+lean_inc(x_9);
+x_10 = lean_apply_2(x_1, x_9, x_2);
+x_11 = lean_unbox(x_10);
+if (x_11 == 0)
+{
+lean_dec(x_7);
+x_4 = x_8;
+goto _start;
+}
+else
+{
+lean_dec(x_8);
+lean_dec_ref(x_3);
+lean_dec(x_2);
+lean_dec_ref(x_1);
+return x_7;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_List_getEntry_x21(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Std_Internal_List_getEntry_x21___redArg(x_3, x_4, x_5, x_6);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_getEntry_x3f_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2587,6 +2751,7 @@ return x_6;
 }
 lean_object* initialize_Init_Data_Option_Attach(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Perm(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Monadic(uint8_t builtin);
 lean_object* initialize_Std_Data_Internal_List_Defs(uint8_t builtin);
 lean_object* initialize_Std_Data_Internal_List_Defs(uint8_t builtin);
 lean_object* initialize_Init_Data_Order_Ord(uint8_t builtin);
@@ -2602,6 +2767,9 @@ lean_dec_ref(res);
 res = initialize_Init_Data_List_Perm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_List_Monadic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Std_Data_Internal_List_Defs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -2614,6 +2782,14 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Subtype_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Std_Internal_List_getEntry_x21___redArg___closed__0 = _init_l_Std_Internal_List_getEntry_x21___redArg___closed__0();
+lean_mark_persistent(l_Std_Internal_List_getEntry_x21___redArg___closed__0);
+l_Std_Internal_List_getEntry_x21___redArg___closed__1 = _init_l_Std_Internal_List_getEntry_x21___redArg___closed__1();
+lean_mark_persistent(l_Std_Internal_List_getEntry_x21___redArg___closed__1);
+l_Std_Internal_List_getEntry_x21___redArg___closed__2 = _init_l_Std_Internal_List_getEntry_x21___redArg___closed__2();
+lean_mark_persistent(l_Std_Internal_List_getEntry_x21___redArg___closed__2);
+l_Std_Internal_List_getEntry_x21___redArg___closed__3 = _init_l_Std_Internal_List_getEntry_x21___redArg___closed__3();
+lean_mark_persistent(l_Std_Internal_List_getEntry_x21___redArg___closed__3);
 l_Std_Internal_List_getValueCast_x21___redArg___closed__0 = _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__0();
 lean_mark_persistent(l_Std_Internal_List_getValueCast_x21___redArg___closed__0);
 l_Std_Internal_List_getValueCast_x21___redArg___closed__1 = _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__1();

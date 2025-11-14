@@ -4011,19 +4011,19 @@ lean_ctor_set(x_59, 1, x_58);
 lean_inc(x_5);
 lean_inc(x_20);
 x_60 = l_Lean_Syntax_node3(x_20, x_5, x_56, x_57, x_59);
-if (lean_obj_tag(x_7) == 0)
+if (lean_obj_tag(x_7) == 1)
 {
-lean_object* x_76; 
-x_76 = l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___closed__14;
-x_61 = x_76;
+lean_object* x_76; lean_object* x_77; 
+x_76 = lean_ctor_get(x_7, 0);
+lean_inc(x_76);
+x_77 = l_Array_mkArray1___redArg(x_76);
+x_61 = x_77;
 goto block_75;
 }
 else
 {
-lean_object* x_77; lean_object* x_78; 
-x_77 = lean_ctor_get(x_7, 0);
-lean_inc(x_77);
-x_78 = l_Array_mkArray1___redArg(x_77);
+lean_object* x_78; 
+x_78 = l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___closed__14;
 x_61 = x_78;
 goto block_75;
 }

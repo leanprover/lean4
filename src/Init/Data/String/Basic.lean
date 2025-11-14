@@ -1117,7 +1117,7 @@ theorem Pos.Raw.isValidForSlice_replaceEnd {s : Slice} {p : s.Pos} {off : Pos.Ra
   · simpa using h₁
   · simpa using h₃
 
-@[extern "lean_string_utf8_get", expose]
+@[extern "lean_string_utf8_get_fast", expose]
 def decodeChar (s : @& String) (byteIdx : @& Nat) (h : (s.bytes.utf8DecodeChar? byteIdx).isSome) : Char :=
   s.bytes.utf8DecodeChar byteIdx h
 
@@ -1595,9 +1595,9 @@ def Slice.pos! (s : Slice) (off : String.Pos.Raw) : s.Pos :=
 
 /-- Advances a valid position on a string to the next valid position, given a proof that the
 position is not the past-the-end position, which guarantees that such a position exists. -/
-@[inline, expose]
+@[expose, extern "lean_string_utf8_next_fast"]
 def ValidPos.next {s : String} (pos : s.ValidPos) (h : pos ≠ s.endValidPos) : s.ValidPos :=
-  (pos.toSlice.next (ne_of_apply_ne Slice.Pos.ofSlice (by simpa))).ofSlice
+  ((inline (Slice.Pos.next pos.toSlice (ne_of_apply_ne Slice.Pos.ofSlice (by simpa)))).ofSlice)
 
 /-- Advances a valid position on a string to the next valid position, or returns `none` if the
 given position is the past-the-end position. -/
@@ -1756,7 +1756,11 @@ theorem Slice.Pos.prev_lt {s : Slice} {p : s.Pos} {h} : p.prev h < p :=
 theorem ValidPos.prev_lt {s : String} {p : s.ValidPos} {h} : p.prev h < p := by
   simp [← toSlice_lt, toSlice_prev]
 
-/-- Advances the position `p` `n` times, saturating at `s.endPos` if necessary. -/
+/--
+Advances the position `p` `n` times.
+
+If this would move `p` past the end of `s`, the result is `s.endPos`.
+-/
 def Slice.Pos.nextn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
   match n with
   | 0 => p
@@ -1766,7 +1770,11 @@ def Slice.Pos.nextn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
     else
       p
 
-/-- Iterates `p.prev` `n` times, saturating at `s.startPos` if necessary. -/
+/--
+Iterates `p.prev` `n` times.
+
+If this would move `p` past the start of `s`, the result is `s.endPos`.
+-/
 def Slice.Pos.prevn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
   match n with
   | 0 => p
@@ -1775,6 +1783,24 @@ def Slice.Pos.prevn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
       prevn (p.prev h) n
     else
       p
+
+/--
+Advances the position `p` `n` times.
+
+If this would move `p` past the end of `s`, the result is `s.endValidPos`.
+-/
+@[inline]
+def ValidPos.nextn {s : String} (p : s.ValidPos) (n : Nat) : s.ValidPos :=
+  (p.toSlice.nextn n).ofSlice
+
+/--
+Iterates `p.prev` `n` times.
+
+If this would move `p` past the start of `s`, the result is `s.startValidPos`.
+-/
+@[inline]
+def ValidPos.prevn {s : String} (p : s.ValidPos) (n : Nat) : s.ValidPos :=
+  (p.toSlice.prevn n).ofSlice
 
 @[expose]
 def Pos.Raw.utf8GetAux : List Char → Pos.Raw → Pos.Raw → Char
@@ -1905,6 +1931,16 @@ theorem ValidPos.byteIdx_lt_utf8ByteSize {s : String} (p : s.ValidPos) (h : p �
 theorem ValidPos.lt_next {s : String} (p : s.ValidPos) {h} : p < p.next h := by
   simp [← ValidPos.toSlice_lt, toSlice_next]
 
+theorem ValidPos.ne_startPos_of_lt {s : String} {p q : s.ValidPos} :
+    p < q → q ≠ s.startValidPos := by
+  simp only [lt_iff, Pos.Raw.lt_iff, ne_eq, ValidPos.ext_iff, offset_startValidPos, Pos.Raw.ext_iff,
+    Pos.Raw.byteIdx_zero]
+  omega
+
+theorem ValidPos.next_ne_startValidPos {s : String} {p : s.ValidPos} {h} :
+    p.next h ≠ s.startValidPos :=
+  ne_startPos_of_lt p.lt_next
+
 @[simp]
 theorem ValidPos.str_toSlice {s : String} {p : s.ValidPos} : p.toSlice.str = p := by
   ext
@@ -1955,10 +1991,31 @@ theorem endExclusive_replaceStart {s : String} {p : s.ValidPos} :
     (s.replaceStart p).endExclusive = s.endValidPos := by
   simp [replaceStart]
 
+@[simp]
+theorem utf8ByteSize_toSlice {s : String} : s.toSlice.utf8ByteSize = s.utf8ByteSize := by
+  simp [Slice.utf8ByteSize_eq]
+
+@[simp]
+theorem utf8ByteSize_replaceStart {s : String} {p : s.ValidPos} :
+    (s.replaceStart p).utf8ByteSize = s.utf8ByteSize - p.offset.byteIdx := by
+  simp [replaceStart]
+
+@[simp]
+theorem utf8ByteSize_replaceEnd {s : String} {p : s.ValidPos} :
+    (s.replaceEnd p).utf8ByteSize = p.offset.byteIdx := by
+  simp [replaceEnd]
+
 theorem Pos.Raw.isValidForSlice_stringReplaceStart {s : String} {p : s.ValidPos} {q : Pos.Raw} :
     q.IsValidForSlice (s.replaceStart p) ↔ (q.offsetBy p.offset).IsValid s := by
   rw [replaceStart, isValidForSlice_replaceStart, isValidForSlice_toSlice_iff,
     ValidPos.offset_toSlice]
+
+/-
+Given a string  and two valid positions within the string, obtain a slice on the string formed by
+the new bounds, or panic if the given end is strictly less than the given start.
+-/
+def replaceStartEnd! (s : String) (p₁ p₂ : s.ValidPos) : Slice :=
+  s.toSlice.replaceStartEnd! p₁.toSlice p₂.toSlice
 
 theorem ValidPos.utf8Encode_get_eq_extract {s : String} (pos : s.ValidPos) (h : pos ≠ s.endValidPos) :
     List.utf8Encode [pos.get h] = s.bytes.extract pos.offset.byteIdx (pos.offset.byteIdx + (pos.get h).utf8Size) := by
@@ -1969,6 +2026,96 @@ theorem ValidPos.eq_copy_replaceEnd_append_get {s : String} {pos : s.ValidPos} (
     s = (s.replaceEnd pos).copy ++ singleton (pos.get h) ++ (s.replaceStart (pos.next h)).copy := by
   simp [← bytes_inj, utf8Encode_get_eq_extract pos h, Slice.bytes_copy, ← size_bytes]
 
+/-- Given a position in `s.replaceStart p₀`, obtain the corresponding position in `s`. -/
+@[inline]
+def ValidPos.ofReplaceStart {s : String} {p₀ : s.ValidPos} (pos : (s.replaceStart p₀).Pos) :
+    s.ValidPos where
+  offset := pos.offset.offsetBy p₀.offset
+  isValid := Pos.Raw.isValidForSlice_stringReplaceStart.1 pos.isValidForSlice
+
+@[simp]
+theorem ValidPos.offset_ofReplaceStart {s : String} {p₀ : s.ValidPos}
+    {pos : (s.replaceStart p₀).Pos} : (ofReplaceStart pos).offset = pos.offset.offsetBy p₀.offset :=
+  (rfl)
+
+/-- Given a position in `s` that is at least `p₀`, obtain the corresponding position in
+`s.replaceStart p₀`. -/
+@[inline]
+def ValidPos.toReplaceStart {s : String} (p₀ : s.ValidPos) (pos : s.ValidPos) (h : p₀ ≤ pos) :
+    (s.replaceStart p₀).Pos where
+  offset := pos.offset.unoffsetBy p₀.offset
+  isValidForSlice := Pos.Raw.isValidForSlice_stringReplaceStart.2 (by
+    simpa [Pos.Raw.offsetBy_unoffsetBy_of_le (Pos.Raw.le_iff.1 h)] using pos.isValid)
+
+@[simp]
+theorem ValidPos.offset_toReplaceStart {s : String} {p₀ : s.ValidPos} {pos : s.ValidPos} {h} :
+    (toReplaceStart p₀ pos h).offset = pos.offset.unoffsetBy p₀.offset := (rfl)
+
+@[simp]
+theorem ValidPos.ofReplaceStart_startPos {s : String} {pos : s.ValidPos} :
+    ofReplaceStart (s.replaceStart pos).startPos = pos :=
+  ValidPos.ext (by simp)
+
+@[simp]
+theorem ValidPos.ofReplaceStart_endPos {s : String} {pos : s.ValidPos} :
+    ofReplaceStart (s.replaceStart pos).endPos = s.endValidPos := by
+  have := pos.isValid.le_rawEndPos
+  simp_all [ValidPos.ext_iff, String.Pos.Raw.ext_iff, Pos.Raw.le_iff]
+
+theorem ValidPos.ofReplaceStart_inj {s : String} {p₀ : s.ValidPos}
+    {pos pos' : (s.replaceStart p₀).Pos} :
+    ofReplaceStart pos = ofReplaceStart pos' ↔ pos = pos' := by
+  simp [ValidPos.ext_iff, String.Pos.Raw.ext_iff, Slice.Pos.ext_iff]
+
+theorem ValidPos.get_eq_get_ofReplaceStart {s : String} {p₀ : s.ValidPos}
+    {pos : (s.replaceStart p₀).Pos} {h} :
+    pos.get h = (ofReplaceStart pos).get (by rwa [← ofReplaceStart_endPos, ne_eq, ofReplaceStart_inj]) := by
+  simp [ValidPos.get, Slice.Pos.get]
+
+/-- Given a position in `s.replaceEnd p₀`, obtain the corresponding position in `s`. -/
+@[inline]
+def ValidPos.ofReplaceEnd {s : String} {p₀ : s.ValidPos} (pos : (s.replaceEnd p₀).Pos) : s.ValidPos where
+  offset := pos.offset
+  isValid := (Pos.Raw.isValidForSlice_stringReplaceEnd.1 pos.isValidForSlice).2
+
+@[simp]
+theorem ValidPos.offset_ofReplaceEnd {s : String} {p₀ : s.ValidPos} {pos : (s.replaceEnd p₀).Pos} :
+    (ofReplaceEnd pos).offset = pos.offset := (rfl)
+
+/-- Given a position in `s` that is at most `p₀`, obtain the corresponding position in `s.replaceEnd p₀`. -/
+@[inline]
+def ValidPos.toReplaceEnd {s : String} (p₀ : s.ValidPos) (pos : s.ValidPos) (h : pos ≤ p₀) :
+    (s.replaceEnd p₀).Pos where
+  offset := pos.offset
+  isValidForSlice := Pos.Raw.isValidForSlice_stringReplaceEnd.2 ⟨h, pos.isValid⟩
+
+@[simp]
+theorem ValidPos.offset_toReplaceEnd {s : String} {p₀ : s.ValidPos} {pos : s.ValidPos} {h : pos ≤ p₀} :
+    (toReplaceEnd p₀ pos h).offset = pos.offset := (rfl)
+
+theorem Slice.Pos.le_nextn {s : Slice} {p : s.Pos} {n : Nat} : p ≤ p.nextn n := by
+  fun_induction nextn with
+  | case1 => simp [Slice.Pos.le_iff]
+  | case2 p n h ih =>
+    simp only [Pos.le_iff] at *
+    exact Pos.Raw.le_of_lt (Pos.Raw.lt_of_lt_of_le lt_next ih)
+  | case3 => simp [Slice.Pos.le_iff]
+
+theorem ValidPos.le_nextn {s : String} {p : s.ValidPos} {n : Nat} :
+    p ≤ p.nextn n := by
+  simpa [nextn, ValidPos.le_iff, ← offset_toSlice] using Slice.Pos.le_nextn
+
+theorem Slice.Pos.prevn_le {s : Slice} {p : s.Pos} {n : Nat} : p.prevn n ≤ p := by
+  fun_induction prevn with
+  | case1 => simp [le_iff]
+  | case2 p n h ih =>
+    simp only [Pos.le_iff] at *
+    exact Pos.Raw.le_of_lt (Pos.Raw.lt_of_le_of_lt ih prev_lt)
+  | case3 => simp [le_iff]
+
+theorem ValidPos.prevn_le {s : String} {p : s.ValidPos} {n : Nat} :
+    p.prevn n ≤ p := by
+  simpa [nextn, ValidPos.le_iff, ← offset_toSlice] using Slice.Pos.prevn_le
 /--
 Returns the next position in a string after position `p`. If `p` is not a valid position or
 `p = s.endPos`, returns the position one byte after `p`.

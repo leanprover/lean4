@@ -464,7 +464,7 @@ return x_10;
 else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint32_t x_17; lean_object* x_18; 
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_11 = lean_ctor_get(x_2, 0);
 lean_inc(x_11);
 lean_dec_ref(x_2);

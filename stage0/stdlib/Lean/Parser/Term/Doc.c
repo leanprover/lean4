@@ -1142,12 +1142,7 @@ lean_ctor_set(x_20, 1, x_2);
 x_21 = l_Array_binSearchAux___at___00Lean_Parser_Term_Doc_getRecommendedSpellingsForName_spec__0___redArg(x_13, x_20, x_14, x_18);
 lean_dec_ref(x_20);
 lean_dec_ref(x_13);
-if (lean_obj_tag(x_21) == 0)
-{
-x_7 = x_6;
-goto block_11;
-}
-else
+if (lean_obj_tag(x_21) == 1)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_22 = lean_ctor_get(x_21, 0);
@@ -1159,6 +1154,12 @@ lean_dec(x_22);
 x_24 = l_Array_append___redArg(x_6, x_23);
 lean_dec(x_23);
 x_7 = x_24;
+goto block_11;
+}
+else
+{
+lean_dec(x_21);
+x_7 = x_6;
 goto block_11;
 }
 }
@@ -1225,12 +1226,7 @@ lean_ctor_set(x_20, 1, x_2);
 x_21 = l_Array_binSearchAux___at___00Lean_Parser_Term_Doc_getRecommendedSpellingsForName_spec__0___redArg(x_13, x_20, x_14, x_18);
 lean_dec_ref(x_20);
 lean_dec_ref(x_13);
-if (lean_obj_tag(x_21) == 0)
-{
-x_7 = x_6;
-goto block_11;
-}
-else
+if (lean_obj_tag(x_21) == 1)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_22 = lean_ctor_get(x_21, 0);
@@ -1242,6 +1238,12 @@ lean_dec(x_22);
 x_24 = l_Array_append___redArg(x_6, x_23);
 lean_dec(x_23);
 x_7 = x_24;
+goto block_11;
+}
+else
+{
+lean_dec(x_21);
+x_7 = x_6;
 goto block_11;
 }
 }
@@ -1295,11 +1297,7 @@ lean_dec(x_5);
 x_16 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(x_15, x_2);
 lean_dec(x_2);
 lean_dec(x_15);
-if (lean_obj_tag(x_16) == 0)
-{
-return x_14;
-}
-else
+if (lean_obj_tag(x_16) == 1)
 {
 lean_object* x_17; lean_object* x_18; 
 x_17 = lean_ctor_get(x_16, 0);
@@ -1308,6 +1306,11 @@ lean_dec_ref(x_16);
 x_18 = l_Array_append___redArg(x_14, x_17);
 lean_dec(x_17);
 return x_18;
+}
+else
+{
+lean_dec(x_16);
+return x_14;
 }
 }
 }
@@ -1756,7 +1759,7 @@ return x_29;
 else
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
-lean_dec_ref(x_20);
+lean_dec(x_20);
 x_30 = l___private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet___closed__6;
 x_31 = l___private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet___closed__3;
 x_32 = lean_string_append(x_11, x_31);

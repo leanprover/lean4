@@ -1369,7 +1369,12 @@ if (x_5 == 0)
 uint8_t x_6; lean_object* x_7; 
 x_6 = 1;
 x_7 = lean_array_uget(x_2, x_3);
-if (lean_obj_tag(x_7) == 0)
+if (lean_obj_tag(x_7) == 1)
+{
+lean_dec_ref(x_7);
+return x_6;
+}
+else
 {
 lean_dec_ref(x_7);
 if (x_1 == 0)
@@ -1384,11 +1389,6 @@ else
 {
 return x_6;
 }
-}
-else
-{
-lean_dec_ref(x_7);
-return x_6;
 }
 }
 else

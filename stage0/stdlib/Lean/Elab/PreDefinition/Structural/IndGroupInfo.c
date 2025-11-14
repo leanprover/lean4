@@ -595,7 +595,7 @@ return x_6;
 else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 lean_dec_ref(x_1);
@@ -1350,7 +1350,7 @@ return x_6;
 else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 lean_dec_ref(x_1);
@@ -1599,7 +1599,7 @@ return x_6;
 else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 lean_dec_ref(x_1);
@@ -3779,8 +3779,8 @@ x_37 = lean_array_get_size(x_35);
 x_38 = lean_nat_dec_le(x_36, x_12);
 if (x_38 == 0)
 {
-x_13 = lean_box(0);
-x_14 = x_35;
+x_13 = x_35;
+x_14 = lean_box(0);
 x_15 = x_36;
 x_16 = x_37;
 goto block_22;
@@ -3788,8 +3788,8 @@ goto block_22;
 else
 {
 lean_dec(x_36);
-x_13 = lean_box(0);
-x_14 = x_35;
+x_13 = x_35;
+x_14 = lean_box(0);
 x_15 = x_12;
 x_16 = x_37;
 goto block_22;
@@ -3854,7 +3854,7 @@ return x_65;
 block_22:
 {
 lean_object* x_17; lean_object* x_18; size_t x_19; size_t x_20; lean_object* x_21; 
-x_17 = l_Array_toSubarray___redArg(x_14, x_15, x_16);
+x_17 = l_Array_toSubarray___redArg(x_13, x_15, x_16);
 x_18 = l_Array_ofSubarray___redArg(x_17);
 lean_dec_ref(x_17);
 x_19 = lean_array_size(x_18);

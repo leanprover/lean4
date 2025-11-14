@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.DivMod
-// Imports: public import Init.Data.Int.DivMod.Basic public import Init.Data.Int.DivMod.Bootstrap public import Init.Data.Int.DivMod.Lemmas
+// Imports: public import Init.Data.Int.DivMod.Basic public import Init.Data.Int.DivMod.Bootstrap public import Init.Data.Int.DivMod.Lemmas public import Init.Data.Int.DivMod.Pow
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 lean_object* initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_DivMod_Bootstrap(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_DivMod_Pow(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Int_DivMod(uint8_t builtin) {
 lean_object * res;
@@ -28,6 +29,9 @@ res = initialize_Init_Data_Int_DivMod_Bootstrap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Int_DivMod_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_DivMod_Pow(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

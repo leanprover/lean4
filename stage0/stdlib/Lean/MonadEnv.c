@@ -331,11 +331,7 @@ _start:
 uint8_t x_3; lean_object* x_4; 
 x_3 = 0;
 x_4 = l_Lean_Environment_findAsync_x3f(x_1, x_2, x_3);
-if (lean_obj_tag(x_4) == 0)
-{
-return x_3;
-}
-else
+if (lean_obj_tag(x_4) == 1)
 {
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_ctor_get(x_4, 0);
@@ -353,6 +349,11 @@ else
 {
 return x_3;
 }
+}
+else
+{
+lean_dec(x_4);
+return x_3;
 }
 }
 }
@@ -411,11 +412,7 @@ _start:
 uint8_t x_3; lean_object* x_4; 
 x_3 = 0;
 x_4 = l_Lean_Environment_findAsync_x3f(x_1, x_2, x_3);
-if (lean_obj_tag(x_4) == 0)
-{
-return x_3;
-}
-else
+if (lean_obj_tag(x_4) == 1)
 {
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_ctor_get(x_4, 0);
@@ -433,6 +430,11 @@ else
 {
 return x_3;
 }
+}
+else
+{
+lean_dec(x_4);
+return x_3;
 }
 }
 }
@@ -1475,12 +1477,7 @@ _start:
 uint8_t x_8; lean_object* x_9; 
 x_8 = 0;
 x_9 = l_Lean_Environment_findAsync_x3f(x_4, x_2, x_8);
-if (lean_obj_tag(x_9) == 0)
-{
-lean_dec(x_3);
-goto block_7;
-}
-else
+if (lean_obj_tag(x_9) == 1)
 {
 uint8_t x_10; 
 x_10 = !lean_is_exclusive(x_9);
@@ -1563,6 +1560,12 @@ lean_dec(x_3);
 goto block_7;
 }
 }
+}
+else
+{
+lean_dec(x_9);
+lean_dec(x_3);
+goto block_7;
 }
 block_7:
 {
@@ -2055,18 +2058,7 @@ x_18 = lean_ctor_get(x_17, 0);
 lean_inc_ref(x_18);
 lean_dec_ref(x_17);
 x_19 = lean_ctor_get(x_18, 4);
-if (lean_obj_tag(x_19) == 0)
-{
-lean_dec_ref(x_18);
-lean_dec(x_8);
-lean_dec_ref(x_7);
-lean_dec_ref(x_6);
-lean_dec_ref(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-goto block_12;
-}
-else
+if (lean_obj_tag(x_19) == 1)
 {
 lean_object* x_20; 
 x_20 = lean_ctor_get(x_19, 1);
@@ -2095,6 +2087,17 @@ lean_dec(x_4);
 lean_dec(x_3);
 goto block_12;
 }
+}
+else
+{
+lean_dec_ref(x_18);
+lean_dec(x_8);
+lean_dec_ref(x_7);
+lean_dec_ref(x_6);
+lean_dec_ref(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+goto block_12;
 }
 }
 else
@@ -2257,18 +2260,7 @@ goto block_12;
 }
 else
 {
-if (lean_obj_tag(x_24) == 0)
-{
-lean_dec_ref(x_21);
-lean_dec(x_8);
-lean_dec_ref(x_7);
-lean_dec_ref(x_6);
-lean_dec_ref(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-goto block_15;
-}
-else
+if (lean_obj_tag(x_24) == 1)
 {
 lean_object* x_27; 
 x_27 = lean_ctor_get(x_24, 1);
@@ -2297,6 +2289,17 @@ lean_dec(x_4);
 lean_dec(x_3);
 goto block_15;
 }
+}
+else
+{
+lean_dec_ref(x_21);
+lean_dec(x_8);
+lean_dec_ref(x_7);
+lean_dec_ref(x_6);
+lean_dec_ref(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+goto block_15;
 }
 }
 }

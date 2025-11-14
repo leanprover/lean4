@@ -2,6 +2,8 @@ module
 
 meta import Init.Dynamic
 meta import Init.System.IO
+public import Lean.PrettyPrinter.Delaborator.Basic
+public meta import Lean.PrettyPrinter.Delaborator.Basic
 
 public axiom testSorry : α
 
@@ -504,3 +506,10 @@ noncomputable section
 #guard_msgs in
 meta def m := S.s
 end
+
+-- setup for `Imported`
+public meta def delab : Lean.PrettyPrinter.Delaborator.Delab :=
+  default
+
+public def noMetaDelab : Lean.PrettyPrinter.Delaborator.Delab :=
+  default

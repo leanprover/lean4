@@ -2327,12 +2327,7 @@ lean_inc_ref(x_16);
 x_17 = lean_ctor_get(x_14, 1);
 lean_inc(x_17);
 lean_dec(x_14);
-if (lean_obj_tag(x_17) == 0)
-{
-x_54 = x_2;
-goto block_65;
-}
-else
+if (lean_obj_tag(x_17) == 1)
 {
 lean_object* x_66; lean_object* x_67; lean_object* x_68; 
 x_66 = lean_ctor_get(x_17, 0);
@@ -2343,6 +2338,12 @@ lean_inc_ref(x_16);
 lean_inc_ref(x_1);
 x_68 = l_Lean_mkApp4(x_67, x_1, x_16, x_66, x_2);
 x_54 = x_68;
+goto block_65;
+}
+else
+{
+lean_dec(x_17);
+x_54 = x_2;
 goto block_65;
 }
 block_53:

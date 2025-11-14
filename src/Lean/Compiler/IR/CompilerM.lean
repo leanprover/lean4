@@ -159,21 +159,23 @@ private def exportIREntries (env : Environment) : Array (Name × Array EnvExtens
   #[(declMapExt.name, irEntries),
     (Lean.regularInitAttr.ext.name, initDecls)]
 
-@[export lean_ir_find_env_decl]
-def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
+def findEnvDecl (env : Environment) (declName : Name) (includeServer := false): Option Decl :=
   match env.getModuleIdxFor? declName with
   | some modIdx =>
-    -- `meta import/import all` and server `#eval`
-    -- This case is important even for codegen because it needs to see IR via `import all` (because
-    -- it can also see the LCNF)
+    -- `meta import/import all` and, optionally, additional server-mode IR
+    guard (includeServer || env.header.modules[modIdx]?.any (·.irPhases != .runtime)) *>
     findAtSorted? (declMapExt.getModuleIREntries env modIdx) declName <|>
     -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
     findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
   | none => declMapExt.getState env |>.find? declName
 
-/-- Like ``findEnvDecl env (declName ++ `_boxed)`` but with optimized negative lookup. -/
+@[export lean_ir_find_env_decl]
+private def findInterpDecl (env : Environment) (declName : Name) : Option Decl :=
+  findEnvDecl (includeServer := true) env declName
+
+/-- Like ``findInterpDecl env (declName ++ `_boxed)`` but with optimized negative lookup. -/
 @[export lean_ir_find_env_decl_boxed]
-private def findEnvDeclBoxed (env : Environment) (declName : Name) : Option Decl :=
+private def findInterpDeclBoxed (env : Environment) (declName : Name) : Option Decl :=
   let boxed := declName ++ `_boxed
   -- Important: get module index of base name, not boxed version. Usually the interpreter never
   -- does negative lookups except in the case of `call_boxed` which must check whether a boxed

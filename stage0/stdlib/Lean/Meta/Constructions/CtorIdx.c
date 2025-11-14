@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Constructions.CtorIdx
-// Imports: public import Lean.Meta.Basic import Lean.AddDecl import Lean.Meta.AppBuilder import Lean.Meta.CompletionName import Lean.Meta.Injective import Lean.Linter.Deprecated
+// Imports: public import Lean.Meta.Basic import Lean.AddDecl import Lean.Meta.AppBuilder import Lean.Meta.CompletionName import Lean.Linter.Deprecated
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6938,7 +6938,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_mkCtorIdx___lam__3___closed__3;
 x_2 = lean_unsigned_to_nat(62u);
-x_3 = lean_unsigned_to_nat(42u);
+x_3 = lean_unsigned_to_nat(41u);
 x_4 = l_mkCtorIdx___lam__3___closed__2;
 x_5 = l_mkCtorIdx___lam__3___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -8748,7 +8748,6 @@ lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
 lean_object* initialize_Lean_AddDecl(uint8_t builtin);
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin);
 lean_object* initialize_Lean_Meta_CompletionName(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Injective(uint8_t builtin);
 lean_object* initialize_Lean_Linter_Deprecated(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Constructions_CtorIdx(uint8_t builtin) {
@@ -8765,9 +8764,6 @@ res = initialize_Lean_Meta_AppBuilder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_CompletionName(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Injective(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Linter_Deprecated(builtin);

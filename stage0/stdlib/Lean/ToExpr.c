@@ -2983,7 +2983,7 @@ default:
 lean_object* x_20; lean_object* x_21; 
 lean_dec_ref(x_3);
 lean_dec(x_2);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 x_20 = l___private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr___closed__7;
 x_21 = l_panic___at___00__private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr_spec__0(x_20);
 return x_21;

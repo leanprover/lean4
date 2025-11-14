@@ -889,68 +889,69 @@ lean_inc(x_6);
 lean_dec(x_5);
 x_7 = 0;
 x_8 = l_Lean_Environment_find_x3f(x_1, x_6, x_7);
-if (lean_obj_tag(x_8) == 0)
+if (lean_obj_tag(x_8) == 1)
 {
-lean_object* x_9; 
-x_9 = lean_box(0);
-return x_9;
-}
-else
+uint8_t x_9; 
+x_9 = !lean_is_exclusive(x_8);
+if (x_9 == 0)
 {
-uint8_t x_10; 
-x_10 = !lean_is_exclusive(x_8);
-if (x_10 == 0)
+lean_object* x_10; 
+x_10 = lean_ctor_get(x_8, 0);
+if (lean_obj_tag(x_10) == 6)
 {
-lean_object* x_11; 
-x_11 = lean_ctor_get(x_8, 0);
-if (lean_obj_tag(x_11) == 6)
-{
-lean_object* x_12; lean_object* x_13; 
-x_12 = lean_ctor_get(x_11, 0);
-lean_inc_ref(x_12);
+lean_object* x_11; lean_object* x_12; 
+x_11 = lean_ctor_get(x_10, 0);
+lean_inc_ref(x_11);
+lean_dec_ref(x_10);
+x_12 = lean_ctor_get(x_11, 1);
+lean_inc(x_12);
 lean_dec_ref(x_11);
-x_13 = lean_ctor_get(x_12, 1);
-lean_inc(x_13);
-lean_dec_ref(x_12);
-lean_ctor_set(x_8, 0, x_13);
+lean_ctor_set(x_8, 0, x_12);
 return x_8;
 }
 else
 {
-lean_object* x_14; 
+lean_object* x_13; 
 lean_free_object(x_8);
-lean_dec(x_11);
-x_14 = lean_box(0);
-return x_14;
+lean_dec(x_10);
+x_13 = lean_box(0);
+return x_13;
 }
 }
 else
 {
-lean_object* x_15; 
-x_15 = lean_ctor_get(x_8, 0);
-lean_inc(x_15);
+lean_object* x_14; 
+x_14 = lean_ctor_get(x_8, 0);
+lean_inc(x_14);
 lean_dec(x_8);
-if (lean_obj_tag(x_15) == 6)
+if (lean_obj_tag(x_14) == 6)
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_16 = lean_ctor_get(x_15, 0);
-lean_inc_ref(x_16);
+lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_15 = lean_ctor_get(x_14, 0);
+lean_inc_ref(x_15);
+lean_dec_ref(x_14);
+x_16 = lean_ctor_get(x_15, 1);
+lean_inc(x_16);
 lean_dec_ref(x_15);
-x_17 = lean_ctor_get(x_16, 1);
-lean_inc(x_17);
-lean_dec_ref(x_16);
-x_18 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_18, 0, x_17);
+x_17 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_17, 0, x_16);
+return x_17;
+}
+else
+{
+lean_object* x_18; 
+lean_dec(x_14);
+x_18 = lean_box(0);
 return x_18;
+}
+}
 }
 else
 {
 lean_object* x_19; 
-lean_dec(x_15);
+lean_dec(x_8);
 x_19 = lean_box(0);
 return x_19;
-}
-}
 }
 }
 }

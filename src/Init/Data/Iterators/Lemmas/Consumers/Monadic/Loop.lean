@@ -335,6 +335,73 @@ theorem IterM.drain_eq_map_toArray {α β : Type w} {m : Type w → Type w'} [It
     it.drain = (fun _ => .unit) <$> it.toList := by
   simp [IterM.drain_eq_map_toList]
 
+theorem IterM.count_eq_fold {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m]
+    {it : IterM (α := α) m β} :
+    it.count = it.fold (init := .up 0) (fun acc _ => .up <| acc.down + 1) :=
+  (rfl)
+
+theorem IterM.count_eq_forIn {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m]
+    {it : IterM (α := α) m β} :
+    it.count = ForIn.forIn it (.up 0) (fun _ acc => return .yield (.up (acc.down + 1))) :=
+  (rfl)
+
+theorem IterM.count_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} :
+    it.count = (do
+      match (← it.step).inflate.val with
+      | .yield it' _ => return .up ((← it'.count).down + 1)
+      | .skip it' => return .up (← it'.count).down
+      | .done => return .up 0) := by
+  simp only [count_eq_fold]
+  have (acc : Nat) (it' : IterM (α := α) m β) :
+      it'.fold (init := ULift.up acc) (fun acc _ => .up (acc.down + 1)) =
+        (ULift.up <| ·.down + acc) <$>
+          it'.fold (init := ULift.up 0) (fun acc _ => .up (acc.down + 1)) := by
+    rw [← fold_hom]
+    · simp only [Nat.zero_add]; rfl
+    · simp only [ULift.up.injEq]; omega
+  rw [fold_eq_match_step]
+  apply bind_congr; intro step
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simp only [Nat.zero_add, bind_pure_comp]
+    rw [this 1]
+  · simp
+  · simp
+
+@[simp]
+theorem IterM.up_size_toArray_eq_count {α β : Type w} [Iterator α m β] [Finite α m]
+    [Monad m] [LawfulMonad m]
+    [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} :
+    (.up <| ·.size) <$> it.toArray = it.count := by
+  rw [toArray_eq_fold, count_eq_fold, ← fold_hom]
+  · simp only [List.size_toArray, List.length_nil]; rfl
+  · simp
+
+@[simp]
+theorem IterM.up_length_toList_eq_count {α β : Type w} [Iterator α m β] [Finite α m]
+    [Monad m] [LawfulMonad m]
+    [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} :
+    (.up <| ·.length) <$> it.toList = it.count := by
+  rw [toList_eq_fold, count_eq_fold, ← fold_hom]
+  · simp only [List.length_nil]; rfl
+  · simp
+
+@[simp]
+theorem IterM.up_length_toListRev_eq_count {α β : Type w} [Iterator α m β] [Finite α m]
+    [Monad m] [LawfulMonad m]
+    [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} :
+    (.up <| ·.length) <$> it.toListRev = it.count := by
+  simp only [toListRev_eq, Functor.map_map, List.length_reverse, up_length_toList_eq_count]
+
 theorem IterM.anyM_eq_forIn {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
     [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {it : IterM (α := α) m β} {p : β → m (ULift Bool)} :

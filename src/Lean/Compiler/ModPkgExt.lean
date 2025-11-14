@@ -52,10 +52,18 @@ public def Environment.getModulePackageByIdx? (env : Environment) (idx : ModuleI
 @[inline] public def Environment.setModulePackage (pkg? : Option PkgId) (env : Environment) : Environment :=
   modPkgExt.setState env pkg?
 
+/--
+Returns the standard base of the native symbol for the compiled constant {lean}`declName`.
+
+For many constants, this is the full symbol. However, initializers have an additional prefix
+(i.e., {lit}`_init_`) and boxed functions have an additional suffix (i.e., {lit}`___boxed`).
+Furthermore, some constants do not use this stem at all (e.g., {lit}`main` and definitions
+with {lit}`@[export]`).
+-/
 @[export lean_get_symbol_stem]
-public def getSymbolStem (env : Environment) (fn : Name) : String :=
+public def getSymbolStem (env : Environment) (declName : Name) : String :=
   let pkg? :=
-    match env.getModuleIdxFor? fn with
+    match env.getModuleIdxFor? declName with
     | some idx => env.getModulePackageByIdx? idx
     | none => env.getModulePackage?
-  fn.mangle (mkPackageSymbolPrefix pkg?)
+  declName.mangle (mkPackageSymbolPrefix pkg?)

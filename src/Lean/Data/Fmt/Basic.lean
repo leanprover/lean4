@@ -485,7 +485,7 @@ partial def MeasureSet.resolveCore : Resolver σ τ := fun d columnPos indentati
     return .merge set1 set2 (prunable := false)
   | .concat d1 d2 =>
     let set1 ← analyzeConcat d d1 d2 columnPos indentation fullness false
-    let set2 ← analyzeConcat d d1 d2 columnPos indentation fullness false
+    let set2 ← analyzeConcat d d1 d2 columnPos indentation fullness true
     return .merge set1 set2 (prunable := false)
 where
   analyzeConcat (d d1 d2 : Doc) (columnPos indentation : Nat) (fullness : FullnessState)

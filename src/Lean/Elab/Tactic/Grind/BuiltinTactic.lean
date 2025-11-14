@@ -106,15 +106,15 @@ If the goal is not inconsistent and progress has been made,
 -/
 def evalCheck (tacticName : Name) (k : GoalM Bool)
     (pp? : Goal → MetaM (Option MessageData)) : GrindTacticM Unit := do
+  let recover := (← read).recover
   liftGoalM do
     let progress ← k
     unless progress do
       throwError "`{tacticName}` failed"
     processNewFacts
-    unless (← Grind.getConfig).verbose do
-      return ()
-    if (← get).inconsistent then
-      return ()
+    unless (← Grind.getConfig).verbose do return ()
+    unless recover do return ()
+    if (← get).inconsistent then return ()
     let some msg ← pp? (← get) | return ()
     logInfo msg
 
@@ -310,6 +310,9 @@ def mkCasesSuggestions (candidates : Array SplitCandidateWithAnchor) (numDigits 
   let suggestions ← mkCasesSuggestions candidates numDigits
   Tactic.TryThis.addSuggestions stx suggestions
   return ()
+
+@[builtin_grind_tactic casesNext] def evalCasesNext : GrindTactic := fun _ => do
+  liftAction (Action.splitNext (stopAtFirstFailure := false))
 
 @[builtin_grind_tactic Parser.Tactic.Grind.focus] def evalFocus : GrindTactic := fun stx => do
   let mkInfo ← mkInitialTacticInfo stx[0]

@@ -3350,12 +3350,7 @@ _start:
 lean_object* x_10; 
 lean_inc(x_1);
 x_10 = l_Lean_Json_getNat_x3f(x_1);
-if (lean_obj_tag(x_10) == 0)
-{
-lean_dec_ref(x_10);
-goto block_9;
-}
-else
+if (lean_obj_tag(x_10) == 1)
 {
 lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_11 = lean_ctor_get(x_10, 0);
@@ -3389,6 +3384,11 @@ lean_dec(x_1);
 x_17 = l_Lean_Lsp_instFromJsonLeanFileProgressKind___lam__0___closed__3;
 return x_17;
 }
+}
+else
+{
+lean_dec_ref(x_10);
+goto block_9;
 }
 block_9:
 {
@@ -3519,12 +3519,7 @@ lean_object* x_3; lean_object* x_12;
 x_3 = l_Lean_Json_getObjValD(x_1, x_2);
 lean_inc(x_3);
 x_12 = l_Lean_Json_getNat_x3f(x_3);
-if (lean_obj_tag(x_12) == 0)
-{
-lean_dec_ref(x_12);
-goto block_11;
-}
-else
+if (lean_obj_tag(x_12) == 1)
 {
 lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 x_13 = lean_ctor_get(x_12, 0);
@@ -3558,6 +3553,11 @@ lean_dec(x_3);
 x_19 = l_Lean_Lsp_instFromJsonLeanFileProgressKind___lam__0___closed__3;
 return x_19;
 }
+}
+else
+{
+lean_dec_ref(x_12);
+goto block_11;
 }
 block_11:
 {

@@ -615,66 +615,66 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 switch (lean_obj_tag(x_1)) {
-case 1:
+case 11:
 {
 lean_object* x_9; lean_object* x_10; 
-x_9 = lean_ctor_get(x_1, 0);
-lean_inc(x_9);
+x_9 = lean_ctor_get(x_1, 2);
+lean_inc_ref(x_9);
 lean_dec_ref(x_1);
-x_10 = l_Lean_CollectFVars_State_add(x_2, x_9);
+x_10 = l_Lean_CollectFVars_visit(x_9, x_2);
 return x_10;
-}
-case 5:
-{
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_11 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_11);
-x_12 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_12);
-lean_dec_ref(x_1);
-x_13 = l_Lean_CollectFVars_visit(x_11, x_2);
-x_14 = l_Lean_CollectFVars_visit(x_12, x_13);
-return x_14;
-}
-case 6:
-{
-lean_object* x_15; lean_object* x_16; 
-x_15 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_15);
-x_16 = lean_ctor_get(x_1, 2);
-lean_inc_ref(x_16);
-lean_dec_ref(x_1);
-x_3 = x_15;
-x_4 = x_16;
-x_5 = x_2;
-goto block_8;
 }
 case 7:
 {
-lean_object* x_17; lean_object* x_18; 
-x_17 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_17);
-x_18 = lean_ctor_get(x_1, 2);
-lean_inc_ref(x_18);
+lean_object* x_11; lean_object* x_12; 
+x_11 = lean_ctor_get(x_1, 1);
+lean_inc_ref(x_11);
+x_12 = lean_ctor_get(x_1, 2);
+lean_inc_ref(x_12);
 lean_dec_ref(x_1);
-x_3 = x_17;
-x_4 = x_18;
+x_3 = x_11;
+x_4 = x_12;
+x_5 = x_2;
+goto block_8;
+}
+case 6:
+{
+lean_object* x_13; lean_object* x_14; 
+x_13 = lean_ctor_get(x_1, 1);
+lean_inc_ref(x_13);
+x_14 = lean_ctor_get(x_1, 2);
+lean_inc_ref(x_14);
+lean_dec_ref(x_1);
+x_3 = x_13;
+x_4 = x_14;
 x_5 = x_2;
 goto block_8;
 }
 case 8:
 {
-lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_19 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_19);
-x_20 = lean_ctor_get(x_1, 2);
-lean_inc_ref(x_20);
-x_21 = lean_ctor_get(x_1, 3);
-lean_inc_ref(x_21);
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+x_15 = lean_ctor_get(x_1, 1);
+lean_inc_ref(x_15);
+x_16 = lean_ctor_get(x_1, 2);
+lean_inc_ref(x_16);
+x_17 = lean_ctor_get(x_1, 3);
+lean_inc_ref(x_17);
 lean_dec_ref(x_1);
-x_22 = l_Lean_CollectFVars_visit(x_19, x_2);
-x_23 = l_Lean_CollectFVars_visit(x_20, x_22);
-x_24 = l_Lean_CollectFVars_visit(x_21, x_23);
+x_18 = l_Lean_CollectFVars_visit(x_15, x_2);
+x_19 = l_Lean_CollectFVars_visit(x_16, x_18);
+x_20 = l_Lean_CollectFVars_visit(x_17, x_19);
+return x_20;
+}
+case 5:
+{
+lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+x_21 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_21);
+x_22 = lean_ctor_get(x_1, 1);
+lean_inc_ref(x_22);
+lean_dec_ref(x_1);
+x_23 = l_Lean_CollectFVars_visit(x_21, x_2);
+x_24 = l_Lean_CollectFVars_visit(x_22, x_23);
 return x_24;
 }
 case 10:
@@ -686,13 +686,13 @@ lean_dec_ref(x_1);
 x_26 = l_Lean_CollectFVars_visit(x_25, x_2);
 return x_26;
 }
-case 11:
+case 1:
 {
 lean_object* x_27; lean_object* x_28; 
-x_27 = lean_ctor_get(x_1, 2);
-lean_inc_ref(x_27);
+x_27 = lean_ctor_get(x_1, 0);
+lean_inc(x_27);
 lean_dec_ref(x_1);
-x_28 = l_Lean_CollectFVars_visit(x_27, x_2);
+x_28 = l_Lean_CollectFVars_State_add(x_2, x_27);
 return x_28;
 }
 default: 

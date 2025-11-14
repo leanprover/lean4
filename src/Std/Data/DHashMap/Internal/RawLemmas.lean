@@ -140,6 +140,10 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
      ⟨`getKey, (``getKey_eq_getKey, #[`(getKey_of_perm _)])⟩,
      ⟨`getKeyD, (``getKeyD_eq_getKeyD, #[`(getKeyD_of_perm _)])⟩,
      ⟨`getKey!, (``getKey!_eq_getKey!, #[`(getKey!_of_perm _)])⟩,
+     ⟨`getEntry, (``getEntry_eq_getEntry, #[`(getEntry_of_perm _)])⟩,
+     ⟨`getEntry?, (``getEntry?_eq_getEntry?, #[`(getEntry?_of_perm _)])⟩,
+     ⟨`getEntryD, (``getEntryD_eq_getEntryD, #[`(getEntryD_of_perm _)])⟩,
+     ⟨`getEntry!, (``getEntry!_eq_getEntry!, #[`(getEntry!_of_perm _)])⟩,
      ⟨`toList, (``Raw.toList_eq_toListModel, #[])⟩,
      ⟨`keys, (``Raw.keys_eq_keys_toListModel, #[`(perm_keys_congr_left)])⟩,
      ⟨`Const.toList, (``Raw.Const.toList_eq_toListModel_map, #[`(perm_map_congr_left)])⟩,
@@ -2424,7 +2428,7 @@ theorem union_equiv_congr_left {m₃ : Raw₀ α β} [EquivBEq α] [LawfulHashab
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (equiv : m₁.1.Equiv m₂.1) :
     (m₁.union m₃).1.Equiv (m₂.union m₃).1 := by
   revert equiv
-  simp_to_model [union]
+  simp_to_model [Equiv, union]
   intro equiv
   apply List.insertList_perm_of_perm_first equiv
   wf_trivial
@@ -2433,7 +2437,7 @@ theorem union_equiv_congr_right {m₃ : Raw₀ α β} [EquivBEq α] [LawfulHasha
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (equiv : m₂.1.Equiv m₃.1) :
     (m₁.union m₂).1.Equiv (m₁.union m₃).1 := by
   revert equiv
-  simp_to_model [union]
+  simp_to_model [Equiv, union]
   intro equiv
   apply @List.insertList_perm_of_perm_second _ _ _ _ (toListModel m₂.val.buckets) (toListModel m₃.val.buckets) (toListModel m₁.val.buckets) equiv
   all_goals wf_trivial
@@ -2441,10 +2445,10 @@ theorem union_equiv_congr_right {m₃ : Raw₀ α β} [EquivBEq α] [LawfulHasha
 theorem union_insert_right_equiv_insert_union [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
     (m₁.union (m₂.insert p.fst p.snd)).1.Equiv ((m₁.union m₂).insert p.fst p.snd).1 := by
-  simp_to_model [union, insert]
+  simp_to_model [Equiv, union, insert]
   apply List.Perm.trans
   . apply insertList_perm_of_perm_second
-    simp_to_model [insert]
+    simp_to_model [Equiv, insert]
     . apply insertEntry_of_perm
       . wf_trivial
       . apply List.Perm.refl

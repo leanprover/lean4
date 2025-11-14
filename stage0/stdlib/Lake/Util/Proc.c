@@ -614,12 +614,7 @@ goto block_11;
 }
 block_11:
 {
-if (lean_obj_tag(x_6) == 0)
-{
-lean_dec(x_5);
-return x_6;
-}
-else
+if (lean_obj_tag(x_6) == 1)
 {
 uint8_t x_7; 
 x_7 = !lean_is_exclusive(x_6);
@@ -642,6 +637,11 @@ lean_ctor_set(x_10, 0, x_5);
 lean_ctor_set(x_10, 1, x_9);
 return x_10;
 }
+}
+else
+{
+lean_dec(x_5);
+return x_6;
 }
 }
 }

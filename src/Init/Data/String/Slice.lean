@@ -478,7 +478,7 @@ where
       s.replaceEnd curr
 
 /--
-Finds the position of the first match of the pattern {name}`pat` in a slice {name}`true`. If there
+Finds the position of the first match of the pattern {name}`pat` in a slice {name}`s`. If there
 is no match {name}`none` is returned.
 
 This function is generic over all currently supported patterns.

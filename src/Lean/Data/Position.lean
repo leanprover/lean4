@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Data.Json.FromToJson.Basic
 public import Lean.ToExpr
-import Init.Data.String.Iterator
 
 public section
 
@@ -106,7 +105,7 @@ def ofPosition (text : FileMap) (pos : Position) : String.Pos.Raw :=
       0
     else
       text.positions.back!
-  String.Iterator.nextn ⟨text.source, colPos⟩ pos.column |>.pos
+  (text.source.pos! colPos).nextn pos.column |>.offset
 
 /--
 Returns the position of the start of (1-based) line `line`.

@@ -323,19 +323,19 @@ x_9 = lean_ctor_get(x_2, 2);
 x_2 = x_9;
 goto _start;
 }
-case 8:
-{
-lean_object* x_11; uint8_t x_12; 
-x_11 = l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Code_containsConst_goExpr___closed__3;
-x_12 = l_panic___at___00__private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Code_containsConst_goExpr_spec__0(x_11);
-return x_12;
-}
 case 11:
 {
-lean_object* x_13; 
-x_13 = lean_ctor_get(x_2, 2);
-x_2 = x_13;
+lean_object* x_11; 
+x_11 = lean_ctor_get(x_2, 2);
+x_2 = x_11;
 goto _start;
+}
+case 8:
+{
+lean_object* x_13; uint8_t x_14; 
+x_13 = l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Code_containsConst_goExpr___closed__3;
+x_14 = l_panic___at___00__private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Code_containsConst_goExpr_spec__0(x_13);
+return x_14;
 }
 default: 
 {

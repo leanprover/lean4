@@ -1211,16 +1211,6 @@ LEAN_EXPORT lean_object* l___private_Lake_Config_ConfigDecl_0__Lake_ConfigType_m
 _start:
 {
 switch (lean_obj_tag(x_1)) {
-case 0:
-{
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_inc(x_5);
-return x_5;
-}
 case 1:
 {
 lean_object* x_9; 
@@ -1325,6 +1315,16 @@ lean_dec(x_3);
 x_26 = lean_apply_7(x_8, x_1, lean_box(0), lean_box(0), lean_box(0), lean_box(0), lean_box(0), lean_box(0));
 return x_26;
 }
+}
+case 0:
+{
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_inc(x_5);
+return x_5;
 }
 default: 
 {

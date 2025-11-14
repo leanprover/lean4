@@ -76,30 +76,30 @@ builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
 def getExternAttrData? (env : Environment) (n : Name) : Option ExternAttrData :=
   externAttr.getParam? env n
 
-private def parseOptNum : Nat → String.Iterator → Nat → String.Iterator × Nat
-  | 0,   it, r => (it, r)
-  | n+1, it, r =>
-    if !it.hasNext then (it, r)
+private def parseOptNum : Nat → (pattern : String) → (it : pattern.ValidPos) → Nat → pattern.ValidPos × Nat
+  | 0,   _      , it, r => (it, r)
+  | n+1, pattern, it, r =>
+    if h : it.IsAtEnd then (it, r)
     else
-      let c := it.curr
+      let c := it.get h
       if '0' <= c && c <= '9'
-      then parseOptNum n it.next (r*10 + (c.toNat - '0'.toNat))
+      then parseOptNum n pattern (it.next h) (r*10 + (c.toNat - '0'.toNat))
       else (it, r)
 
-def expandExternPatternAux (args : List String) : Nat → String.Iterator → String → String
-  | 0,   _,  r => r
-  | i+1, it, r =>
-    if ¬ it.hasNext then r
-    else let c := it.curr
-      if c ≠ '#' then expandExternPatternAux args i it.next (r.push c)
+def expandExternPatternAux (args : List String) : Nat → (pattern : String) → (it : pattern.ValidPos) → String → String
+  | 0,   _,       _,  r => r
+  | i+1, pattern, it, r =>
+    if h : it.IsAtEnd then r
+    else let c := it.get h
+      if c ≠ '#' then expandExternPatternAux args i pattern (it.next h) (r.push c)
       else
-        let it      := it.next
-        let (it, j) := parseOptNum it.remainingBytes it 0
+        let it      := it.next h
+        let (it, j) := parseOptNum it.remainingBytes pattern it 0
         let j       := j-1
-        expandExternPatternAux args i it (r ++ args.getD j "")
+        expandExternPatternAux args i pattern it (r ++ args.getD j "")
 
 def expandExternPattern (pattern : String) (args : List String) : String :=
-  expandExternPatternAux args pattern.length pattern.mkIterator ""
+  expandExternPatternAux args pattern.length pattern pattern.startValidPos ""
 
 def mkSimpleFnCall (fn : String) (args : List String) : String :=
   fn ++ "(" ++ ((args.intersperse ", ").foldl (·++·) "") ++ ")"

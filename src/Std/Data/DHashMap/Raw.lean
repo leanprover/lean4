@@ -301,6 +301,41 @@ If no panic occurs the result is guaranteed to be pointer equal to the key in th
   else default -- will never happen for well-formed inputs
 
 /--
+Checks if a mapping for the given key exists and returns the key-value pair if it does, otherwise `none`.
+The key in the returned pair will be `BEq` to the input `a`.
+-/
+@[inline] def getEntry? [BEq α] [Hashable α] (m : Raw α β) (a : α) : Option ((a : α) × β a) :=
+  if h : 0 < m.buckets.size then
+    Raw₀.getEntry? ⟨m, h⟩ a
+  else none -- will never  happen for well-formed inputs
+
+/--
+Retrieves the key-value pair, whose key matches `a`. Ensures that such a mapping exists by
+requiring a proof of `a ∈ m`. The key in the returned pair will be `BEq` to the input `a`.
+-/
+@[inline] def getEntry [BEq α] [Hashable α] (m : Raw α β) (a : α) (h : a ∈ m) : (a : α) × β a :=
+  Raw₀.getEntry ⟨m, by change dite .. = true at h; split at h <;> simp_all⟩ a
+    (by change dite .. = true at h; split at h <;> simp_all)
+
+/--
+Checks if a mapping for the given key exists and returns the key-value pair if it does, otherwise `fallback`.
+The key in the returned pair will be `BEq` to the input `a`.
+-/
+@[inline] def getEntryD [BEq α] [Hashable α] (m : Raw α β) (a : α) (fallback : (a : α) × β a) : (a : α) × β a :=
+  if h : 0 < m.buckets.size then
+    Raw₀.getEntryD ⟨m, h⟩ a fallback
+  else fallback -- will never happen for well-formed inputs
+
+/--
+Checks if a mapping for the given key exists and returns the key-value pair if it does, otherwise panics.
+The key in the returned pair will be `BEq` to the input `a`.
+-/
+@[inline] def getEntry! [BEq α] [Hashable α] [Inhabited ((a : α) × β a)] (m : Raw α β) (a : α) : (a : α) × β a :=
+  if h : 0 < m.buckets.size then
+    Raw₀.getEntry! ⟨m, h⟩ a
+  else default -- will never happen for well-formed inputs
+
+/--
 Returns `true` if the hash map contains no mappings.
 
 Note that if your `BEq` instance is not reflexive or your `Hashable` instance is not

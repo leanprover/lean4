@@ -7744,7 +7744,7 @@ return x_31;
 else
 {
 lean_object* x_32; 
-lean_dec_ref(x_21);
+lean_dec(x_21);
 lean_dec(x_18);
 lean_dec(x_11);
 lean_dec_ref(x_10);
@@ -7826,7 +7826,7 @@ return x_46;
 else
 {
 lean_object* x_47; lean_object* x_48; 
-lean_dec_ref(x_36);
+lean_dec(x_36);
 lean_dec(x_33);
 lean_dec(x_11);
 lean_dec_ref(x_10);

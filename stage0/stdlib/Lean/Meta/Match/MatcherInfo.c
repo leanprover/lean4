@@ -2937,11 +2937,7 @@ lean_object* x_6; lean_object* x_7;
 x_6 = l_Lean_Expr_constName_x21(x_3);
 lean_dec_ref(x_3);
 x_7 = l_Lean_Meta_Match_Extension_getMatcherInfo_x3f(x_1, x_6);
-if (lean_obj_tag(x_7) == 0)
-{
-return x_7;
-}
-else
+if (lean_obj_tag(x_7) == 1)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_8 = lean_ctor_get(x_7, 0);
@@ -2963,6 +2959,13 @@ else
 {
 return x_7;
 }
+}
+else
+{
+lean_object* x_13; 
+lean_dec(x_7);
+x_13 = lean_box(0);
+return x_13;
 }
 }
 }

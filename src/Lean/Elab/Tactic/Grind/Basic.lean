@@ -310,6 +310,14 @@ def liftSearchM (k : SearchM α) : GrindTacticM α := do
   replaceMainGoal [state.goal]
   return a
 
+def liftAction (a : Action) : GrindTacticM Unit := do
+  let goal ← getMainGoal
+  let ka := fun _ => throwError "tactic is not applicable"
+  let kp := fun goal => return .stuck [goal]
+  match (← liftGrindM <| a goal ka kp) with
+  | .closed _ => replaceMainGoal []
+  | .stuck gs => replaceMainGoal gs
+
 def done : GrindTacticM Unit := do
   pruneSolvedGoals
   let goals ← getGoals

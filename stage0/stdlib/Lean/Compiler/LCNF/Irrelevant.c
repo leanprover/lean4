@@ -2675,16 +2675,7 @@ if (x_19 == 0)
 lean_object* x_20; 
 lean_dec(x_13);
 x_20 = lean_ctor_get(x_17, 4);
-if (lean_obj_tag(x_20) == 0)
-{
-lean_dec_ref(x_17);
-lean_dec(x_4);
-lean_dec_ref(x_3);
-lean_dec_ref(x_1);
-x_6 = lean_box(0);
-goto block_9;
-}
-else
+if (lean_obj_tag(x_20) == 1)
 {
 lean_object* x_21; 
 x_21 = lean_ctor_get(x_20, 1);
@@ -3077,6 +3068,15 @@ lean_dec_ref(x_1);
 x_6 = lean_box(0);
 goto block_9;
 }
+}
+else
+{
+lean_dec_ref(x_17);
+lean_dec(x_4);
+lean_dec_ref(x_3);
+lean_dec_ref(x_1);
+x_6 = lean_box(0);
+goto block_9;
 }
 }
 else

@@ -393,29 +393,9 @@ x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
-if (lean_obj_tag(x_3) == 0)
+if (lean_obj_tag(x_3) == 1)
 {
-lean_inc(x_8);
-lean_dec(x_7);
-lean_dec(x_4);
-lean_dec(x_2);
-lean_dec_ref(x_1);
-x_9 = x_5;
-goto block_12;
-}
-else
-{
-if (lean_obj_tag(x_4) == 0)
-{
-lean_inc(x_8);
-lean_dec(x_7);
-lean_dec_ref(x_3);
-lean_dec(x_2);
-lean_dec_ref(x_1);
-x_9 = x_5;
-goto block_12;
-}
-else
+if (lean_obj_tag(x_4) == 1)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_13 = lean_ctor_get(x_3, 0);
@@ -439,6 +419,28 @@ x_18 = lean_apply_2(x_2, x_13, x_15);
 x_19 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_18, x_17);
 return x_19;
 }
+else
+{
+lean_inc(x_8);
+lean_dec(x_7);
+lean_dec(x_4);
+lean_dec_ref(x_3);
+lean_dec(x_2);
+lean_dec_ref(x_1);
+x_9 = x_5;
+goto block_12;
+}
+}
+else
+{
+lean_inc(x_8);
+lean_dec(x_7);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec_ref(x_1);
+x_9 = x_5;
+goto block_12;
 }
 block_12:
 {

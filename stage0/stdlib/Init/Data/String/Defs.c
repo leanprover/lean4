@@ -62,7 +62,9 @@ LEAN_EXPORT uint8_t l_String_Slice_instDecidableEqPos(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_String_Slice_Pos_ctorIdx(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_utf8ByteSize(lean_object*);
+LEAN_EXPORT lean_object* l_String_instDecidableIsAtEnd___boxed(lean_object*, lean_object*);
 lean_object* l_List_foldl___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_String_instDecidableIsAtEnd__1(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_Slice_instDecidableEqPos___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_instDecidableEqValidPos___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_startPos(lean_object*);
@@ -104,6 +106,7 @@ LEAN_EXPORT lean_object* l_String_Internal_isEmptyImpl___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pos_byte___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00String_Internal_pushnImpl_spec__0(uint32_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_pushn___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_instDecidableIsAtEnd__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_instLEPos(lean_object*);
 LEAN_EXPORT uint8_t l_String_instDecidableLeValidPos(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_to_utf8(lean_object*);
@@ -133,6 +136,7 @@ LEAN_EXPORT lean_object* l_String_instHSubRawSlice___lam__0___boxed(lean_object*
 LEAN_EXPORT lean_object* l_String_Slice_Pos_byte___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_instDecidableEqValidPos___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_instDecidableLtPos___redArg(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_String_instDecidableIsAtEnd(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_instInhabitedValidPos(lean_object*);
 LEAN_EXPORT uint8_t l_String_instDecidableEqValidPos___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_instDecidableEqPos___redArg___boxed(lean_object*, lean_object*);
@@ -1307,6 +1311,48 @@ lean_dec(x_2);
 lean_dec_ref(x_1);
 x_5 = lean_box(x_4);
 return x_5;
+}
+}
+LEAN_EXPORT uint8_t l_String_instDecidableIsAtEnd(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; uint8_t x_4; 
+x_3 = lean_string_utf8_byte_size(x_1);
+x_4 = lean_nat_dec_eq(x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_String_instDecidableIsAtEnd___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_String_instDecidableIsAtEnd(x_1, x_2);
+lean_dec(x_2);
+lean_dec_ref(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT uint8_t l_String_instDecidableIsAtEnd__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; uint8_t x_4; 
+x_3 = l_String_Slice_utf8ByteSize(x_1);
+x_4 = lean_nat_dec_eq(x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_String_instDecidableIsAtEnd__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_String_instDecidableIsAtEnd__1(x_1, x_2);
+lean_dec(x_2);
+lean_dec_ref(x_1);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT uint8_t l_String_Slice_Pos_byte___redArg(lean_object* x_1, lean_object* x_2) {

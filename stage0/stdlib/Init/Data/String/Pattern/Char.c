@@ -33,7 +33,7 @@ static lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatter
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_iter___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instToForwardSearcherChar;
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar;
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharSearcher_default(lean_object*);
 static lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instIteratorLoopIdSearchStep___closed__4;
@@ -220,7 +220,7 @@ x_10 = l_String_Slice_Pos_next___redArg(x_1, x_4);
 lean_inc(x_10);
 lean_ctor_set(x_2, 0, x_10);
 x_11 = lean_nat_add(x_9, x_4);
-x_12 = lean_string_utf8_get(x_8, x_11);
+x_12 = lean_string_utf8_get_fast(x_8, x_11);
 lean_dec(x_11);
 x_13 = lean_uint32_dec_eq(x_12, x_5);
 if (x_13 == 0)
@@ -276,7 +276,7 @@ x_26 = lean_alloc_ctor(0, 1, 4);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set_uint32(x_26, sizeof(void*)*1, x_20);
 x_27 = lean_nat_add(x_24, x_19);
-x_28 = lean_string_utf8_get(x_23, x_27);
+x_28 = lean_string_utf8_get_fast(x_23, x_27);
 lean_dec(x_27);
 x_29 = lean_uint32_dec_eq(x_28, x_20);
 if (x_29 == 0)
@@ -647,7 +647,7 @@ x_12 = l_String_Slice_Pos_prevAux_go___redArg(x_1, x_11);
 lean_inc(x_12);
 lean_ctor_set(x_2, 0, x_12);
 x_13 = lean_nat_add(x_9, x_12);
-x_14 = lean_string_utf8_get(x_8, x_13);
+x_14 = lean_string_utf8_get_fast(x_8, x_13);
 lean_dec(x_13);
 x_15 = lean_uint32_dec_eq(x_14, x_5);
 if (x_15 == 0)
@@ -704,7 +704,7 @@ x_30 = lean_alloc_ctor(0, 1, 4);
 lean_ctor_set(x_30, 0, x_29);
 lean_ctor_set_uint32(x_30, sizeof(void*)*1, x_22);
 x_31 = lean_nat_add(x_26, x_29);
-x_32 = lean_string_utf8_get(x_25, x_31);
+x_32 = lean_string_utf8_get_fast(x_25, x_31);
 lean_dec(x_31);
 x_33 = lean_uint32_dec_eq(x_32, x_22);
 if (x_33 == 0)

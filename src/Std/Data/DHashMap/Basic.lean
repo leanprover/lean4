@@ -339,7 +339,7 @@ This function always merges the smaller map into the larger map, so the expected
 -/
 @[inline] def inter [BEq α] [Hashable α] (m₁ m₂ : DHashMap α β) : DHashMap α β where
   inner := Raw₀.inter ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩
-  wf :=  Std.DHashMap.Raw.WF.inter₀ m₁.2 m₂.2
+  wf := Std.DHashMap.Raw.WF.inter₀ m₁.2 m₂.2
 
 instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
 instance [BEq α] [Hashable α] : Inter (DHashMap α β) := ⟨inter⟩

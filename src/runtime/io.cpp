@@ -1130,7 +1130,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_symlink_metadata(b_obj_arg filename) {
         return mk_embedded_nul_error(filename);
     }
     struct stat st;
-    if (lstat(string_cstr(filename), &st) != 0) {
+    if (lstat(fname, &st) != 0) {
         return io_result_mk_error(decode_io_error(errno, filename));
     }
     return metadata_core(st);

@@ -47,7 +47,7 @@ public instance Antisymm.trichotomous_of_antisymm_not {r : α → α → Prop} [
 public theorem Trichotomous.antisymm_not {r : α → α → Prop} [i : Trichotomous r] :
     Antisymm (¬ r · ·) where antisymm := i.trichotomous
 
-public theorem Total.of_not_swap {r : α → α → Prop} [Total r] {a b} (h : ¬ r a b) : r b a :=
+public theorem Total.rel_of_not_rel_swap {r : α → α → Prop} [Total r] {a b} (h : ¬ r a b) : r b a :=
   (Total.total a b).elim (fun h' => (h h').elim) (·)
 
 public theorem total_of_not_rel_swap_imp_rel {r : α → α → Prop} (h : ∀ {a b}, ¬ r a b → r b a) :
@@ -110,7 +110,7 @@ public theorem le_total {α : Type u} [LE α] [Std.Total (α := α) (· ≤ ·)]
   Std.Total.total a b
 
 public theorem le_of_not_ge {α : Type u} [LE α] [Std.Total (α := α) (· ≤ ·)] {a b : α} :
-    ¬ b ≤ a → a ≤ b := Total.of_not_swap
+    ¬ b ≤ a → a ≤ b := Total.rel_of_not_rel_swap
 
 end LE
 

@@ -142,6 +142,15 @@ def Subarray.toArray (s : Subarray α) : Array α :=
 def Subarray.copy (s : Subarray α) : Array α :=
   Slice.toArray s
 
+@[simp]
+theorem Subarray.copy_eq_toArray {s : Subarray α} :
+    s.copy = s.toArray :=
+  (rfl)
+
+theorem Subarray.sliceToArray_eq_toArray {s : Subarray α} :
+    Slice.toArray s = s.toArray :=
+  (rfl)
+
 namespace Array
 
 @[inherit_doc Subarray.toArray]

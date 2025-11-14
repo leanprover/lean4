@@ -86,14 +86,42 @@ Hint: Adding type annotations and supplying implicit arguments to functions can 
 #guard_msgs in
 def min x y := if x < y then x else y
 
-instance : Functor (Vector · n) where
+def isDigitEven? [Monad m] [Alternative m] (n : Nat) : m Bool := do
+  guard (n < 10)
+  return n % 2 == 0
+
+/-
+From Joseph's lean4-error-messages#81, this is similar to the previous example
+and is addressed by preferring any synthetic MVar problem that isn't a
+stuck typeclass resolution instance. Preferring smaller ranges generically
+would also work here.
+-/
+/--
+error: Application type mismatch: The argument
+  isDigitEven? n
+has type
+  ?m.9 Bool
+but is expected to have type
+  Prop
+in the application
+  @ite (Option Nat) (isDigitEven? n)
+-/
+#guard_msgs in
+def myOption (s : String) : Option Nat := do
+  let n ← s.toNat?
+  if isDigitEven? n then
+    return n
+  else
+    return 2 * n
+
+instance {n} : Functor (Vector · n) where
   map f v := v.map f
 
 /-
 From Joseph's lean4-error-messages#56, this is a case where we *might* want to
 tweak prioritization in the future. This creates a typeclass resolution
 problem over the whole expression `Functor ?m.2`, and higher-order unification
-can't solve that `?m.2 = Vector · 3`. 
+can't solve that `?m.2 = Vector · 3`.
 -/
 /--
 error: Application type mismatch: The argument

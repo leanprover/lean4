@@ -6517,8 +6517,6 @@ theorem nil_of_containsKey_eq_false [BEq α] [EquivBEq α] {l : List ((a : α) �
     intro hyp k
     simp [hyp]
 
-
-
 theorem isEmpty_filter_containsKey_left [BEq α] [EquivBEq α]
     {l₁ l₂ : List ((a : α) × β a)} :
     l₁.isEmpty → (List.filter (fun p => containsKey p.fst l₂) l₁).isEmpty := by

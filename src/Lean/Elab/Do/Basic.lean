@@ -46,6 +46,8 @@ structure Context where
   monadInfo : MonadInfo
   /-- The mutable variables in declaration order. -/
   mutVars : Array Name := #[]
+  /-- The mutable variables as a set. -/
+  mutVarsSet : Std.HashSet Name := {}
   /--
   The expected type of the current `do` block.
   This can be different from `earlyReturnType` in `for` loop `do` blocks, for example.
@@ -232,22 +234,44 @@ def mkBindApp (α β e k : Expr) : DoElabM Expr := do
   return mkApp4 cachedBind α β e k
 
 /-- Register the given name as that of a `mut` variable. -/
-def declareMutVar (x : Name) : DoElabM α → DoElabM α :=
-  withReader fun ctx => { ctx with mutVars := ctx.mutVars.push x }
+def declareMutVar (x : Ident) : DoElabM α → DoElabM α :=
+  withReader fun ctx => { ctx with
+    mutVars := ctx.mutVars.push x.getId,
+    mutVarsSet := ctx.mutVarsSet.insert x.getId
+  }
+
+/-- Register the given names as that of `mut` variables. -/
+def declareMutVars (xs : Array Ident) : DoElabM α → DoElabM α :=
+  withReader fun ctx => { ctx with
+    mutVars := ctx.mutVars ++ xs.map (·.getId),
+    mutVarsSet := ctx.mutVarsSet.insertMany (xs.map (·.getId))
+  }
 
 /-- Register the given name as that of a `mut` variable if the syntax token `mut` is present. -/
-def declareMutVar? (mutTk? : Option Syntax) (x : Name) (k : DoElabM α) : DoElabM α :=
+def declareMutVar? (mutTk? : Option Syntax) (x : Ident) (k : DoElabM α) : DoElabM α :=
   if mutTk?.isSome then declareMutVar x k else k
 
+/-- Register the given names as that of `mut` variables if the syntax token `mut` is present. -/
+def declareMutVars? (mutTk? : Option Syntax) (xs : Array Ident) (k : DoElabM α) : DoElabM α :=
+  if mutTk?.isSome then declareMutVars xs k else k
+
 /-- Throw an error if the given name is not a declared `mut` variable. -/
-def throwUnlessMutVarDeclared (x : Name) : DoElabM Unit := do
-  unless (← read).mutVars.contains x do
-    throwError "undeclared mutable variable `{x}`"
+def throwUnlessMutVarDeclared (x : Ident) : DoElabM Unit := do
+  unless (← read).mutVarsSet.contains x.getId do
+    throwErrorAt x "undeclared mutable variable `{x.getId.simpMacroScopes}`"
+
+/-- Throw an error if the given names are not declared `mut` variables. -/
+def throwUnlessMutVarsDeclared (xs : Array Ident) : DoElabM Unit := do
+  for x in xs do throwUnlessMutVarDeclared x
 
 /-- Throw an error if a declaration of the given name would shadow a `mut` variable. -/
-def checkMutVarsForShadowing (x : Name) : DoElabM Unit := do
-  if (← read).mutVars.contains x then
-    throwError "mutable variable `{x.simpMacroScopes}` cannot be shadowed"
+def checkMutVarsForShadowingOne (x : Ident) : DoElabM Unit := do
+  if (← read).mutVarsSet.contains x.getId then
+    throwErrorAt x "mutable variable `{x.getId.simpMacroScopes}` cannot be shadowed"
+
+/-- Throw an error if a declaration of the given name would shadow a `mut` variable. -/
+def checkMutVarsForShadowing (xs : Array Ident) : DoElabM Unit := do
+  for x in xs do checkMutVarsForShadowingOne x
 
 /-- Create a fresh `α` that would fit in `m α`. -/
 def mkFreshResultType (userName := `α) : DoElabM Expr := do
@@ -419,9 +443,14 @@ Note that the continuation of the `let z ← ...` bind, roughly
 needs to elaborated in a local context that contains the reassignment of `x`, but not the shadowing
 mut var definition of `y`.
 -/
-def withLCtxKeepingMutVarDefs (oldCtx : LocalContext) (oldMutVars : Array Name) (resultName : Name) (k : DoElabM α) : DoElabM α := do
-  let newCtx := addReachingDefsAsNonDep oldCtx (← getLCtx) (.ofArray <| oldMutVars.push resultName)
-  withLCtx' newCtx <| withReader (fun ctx => { ctx with mutVars := oldMutVars }) k
+def withLCtxKeepingMutVarDefs (oldLCtx : LocalContext) (oldCtx : Context) (resultName : Name) (k : DoElabM α) : DoElabM α := do
+  let oldMutVars := oldCtx.mutVars
+  let oldMutVarsSet := oldCtx.mutVarsSet
+  let newCtx := addReachingDefsAsNonDep oldLCtx (← getLCtx) (oldMutVarsSet.insert resultName)
+  withLCtx' newCtx <| withReader (fun ctx => { ctx with
+    mutVars := oldMutVars,
+    mutVarsSet := oldMutVarsSet
+  }) k
 
 /--
 Return `$e >>= fun ($dec.resultName : $dec.resultType) => $(← dec.k)`, cancelling
@@ -503,6 +532,19 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
         return mkApp jump (← Term.ensureHasType resTy r "Mismatched result type for match arm. It")
 
       mkLetFVars #[jp] (generalizeNondepLet := false) (← Term.ensureHasType mα e)
+
+/--
+Create syntax standing in for an unelaborated metavariable.
+After the syntax has been elaborated, the `DoElabM MVarId` can be used to get the metavariable.
+-/
+def mkSyntheticHole (ref : Syntax) : MetaM (Term × MetaM MVarId) := withFreshMacroScope do
+  let name ← Term.mkFreshIdent ref
+  let result ← `(?$name)
+  let getMVar : MetaM MVarId := do
+    let some mvar := (← getMCtx).findUserName? name.getId
+      | throwError "Internal error: could not find metavariable {`m}. Has the syntax {result} been elaborated yet?"
+    return mvar
+  return (result, getMVar)
 
 /--
 Given a list of mut vars `vars` and an FVar `tupleVar` binding a tuple, bind the mut vars to the
@@ -729,6 +771,7 @@ syntax:arg (name := dooBlock) "doo" doSeq : term
   let ctx ← mkContext expectedType?
   let cont ← DoElemCont.mkPure ctx.doBlockResultType
   let res ← elabDoSeq doSeq cont |>.run ctx |>.run' {}
+  let res ← instantiateMVars res
   trace[Elab.do] "{res}"
   pure res
 
@@ -739,5 +782,6 @@ def elabDo : Term.TermElab := fun e expectedType? => do
   let ctx ← mkContext expectedType?
   let cont ← DoElemCont.mkPure ctx.doBlockResultType
   let res ← elabDoSeq doSeq cont |>.run ctx |>.run' {}
+  let res ← instantiateMVars res
   trace[Elab.do] "{res}"
   pure res

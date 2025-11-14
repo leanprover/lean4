@@ -228,7 +228,6 @@ def ControlLifter.synthesizeConts (l : ControlLifter)
     let tys ← reassignedMutVars.mapM fun v => return (← getLocalDeclFromUserName v).type
     let σ ← mkProdN tys
     controlStack := ControlStack.stateT reassignedMutVars σ controlStack
-  logInfo m!"Result type: {l.resultType}"
   if breakT then
     controlStack.synthesizeBreak l.breakKVar
     controlStack := ControlStack.breakT controlStack
@@ -236,7 +235,6 @@ def ControlLifter.synthesizeConts (l : ControlLifter)
     controlStack.synthesizeContinue l.continueKVar
     controlStack := ControlStack.continueT controlStack
   synthUsingDefEq "result type" l.resultType (controlStack.stM l.successCont.resultType)
-  logInfo m!"Result type: {l.resultType}"
   controlStack.synthesizePure l.successCont.resultName l.pureKVar
   return controlStack
 

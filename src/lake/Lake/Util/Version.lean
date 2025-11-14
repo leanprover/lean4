@@ -31,9 +31,9 @@ Components are composed of alphanumerics or a `*`.
 @[inline] def parseVerComponents
   (s : String)
 : EStateM String s.ValidPos (Array String.Slice) :=
-  fun p => go #[] p p (Nat.le_refl _)
+  fun p => go #[] p p (String.ValidPos.le_refl _)
 where
-  go cs iniPos p (iniPos_le : iniPos.offset.byteIdx ≤ p.offset.byteIdx) :=
+  go cs iniPos p (iniPos_le : iniPos ≤ p) :=
     if h : p = s.endValidPos then
       let c := String.Slice.mk s iniPos p iniPos_le
       .ok (cs.push c) p
@@ -43,20 +43,12 @@ where
         let c := String.Slice.mk s iniPos p iniPos_le
         go (cs.push c) (p.next h) (p.next h) (Nat.le_refl _)
       else if c.isAlphanum || c == '*' then
-        go cs iniPos (p.next h) <| by
-          apply Nat.le_trans iniPos_le
-          rw [String.ValidPos.byteIdx_offset_next]
-          exact Nat.le_add_right ..
+        go cs iniPos (p.next h)
+          (String.ValidPos.le_trans iniPos_le (String.ValidPos.le_of_lt p.lt_next))
       else
         let c := String.Slice.mk s iniPos p iniPos_le
         .ok (cs.push c) p
-  termination_by s.utf8ByteSize - p.offset.byteIdx
-  decreasing_by
-    all_goals
-    rw [p.byteIdx_offset_next]
-    have := (p.get h).utf8Size_pos
-    have := p.byteIdx_lt_utf8ByteSize h
-    omega
+  termination_by p
 
 /-- Returns whether a version component is a wildcard. -/
 private def isWildVer (s : String.Slice) : Bool :=
@@ -107,12 +99,7 @@ where
       p
     else
       nextUntilWhitespace (p.next h)
-  termination_by s.utf8ByteSize - p.offset.byteIdx
-  decreasing_by
-    rw [p.byteIdx_offset_next]
-    have := (p.get h).utf8Size_pos
-    have := p.byteIdx_lt_utf8ByteSize h
-    omega
+  termination_by p
 
 private def parseSpecialDescr (s : String) : EStateM String s.ValidPos String := do
   let some specialDescr ← parseSpecialDescr? s
@@ -363,8 +350,8 @@ def parseM
 : EStateM String s.ValidPos ComparatorOp := fun p =>
   if let some (tk, op) := trie.matchPrefix s p.offset then
     let p' := p.offset + tk
-    if h : p'.isValid s then
-      .ok op (.mk p' (String.Pos.Raw.isValid_eq_true_iff.mp h))
+    if h : p'.IsValid s then
+      .ok op (.mk p' h)
     else
       .error "(internal) comparison operator parse produced invalid position" p
   else

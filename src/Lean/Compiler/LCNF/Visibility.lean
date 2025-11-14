@@ -91,9 +91,11 @@ where go (isMeta isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit 
       match getIRPhases env ref, isMeta with
       | .runtime, true =>
         if let some modIdx := env.getModuleIdxFor? ref then
+          -- We use `public` here as a conservative default (and most common case) as necessary
+          -- visibility is only clear at the end of the file.
           throwError "Invalid `meta` definition `{.ofConstName origDecl.name}`, \
             `{.ofConstName ref}` is not accessible here; consider adding \
-            `meta import {env.header.moduleNames[modIdx]!}`"
+            `public meta import {env.header.moduleNames[modIdx]!}`"
         else
           throwError "Invalid `meta` definition `{.ofConstName origDecl.name}`, \
             `{.ofConstName ref}` not marked `meta`"

@@ -87,6 +87,10 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
      ⟨`get, (``get_eq_getValueCast, #[``(getValueCast_of_perm _)])⟩,
      ⟨`get!, (``get!_eq_getValueCast!, #[``(getValueCast!_of_perm _)])⟩,
      ⟨`getD, (``getD_eq_getValueCastD, #[``(getValueCastD_of_perm _)])⟩,
+     ⟨`getEntry?, (``getEntry?_eq_getEntry?, #[``(List.getEntry?_of_perm _)])⟩,
+     ⟨`getEntry, (``getEntry_eq_getEntry, #[``(List.getEntry_of_perm _)])⟩,
+     ⟨`getEntry!, (``getEntry!_eq_getEntry!, #[``(List.getEntry!_of_perm _)])⟩,
+     ⟨`getEntryD, (``getEntryD_eq_getEntryD, #[``(List.getEntryD_of_perm _)])⟩,
      ⟨`Const.get!, (``Const.get!_eq_getValue!, #[``(getValue!_of_perm _)])⟩,
      ⟨`Const.getD, (``Const.getD_eq_getValueD, #[``(getValueD_of_perm _)])⟩,
      ⟨`getKey?, (``getKey?_eq_getKey?, #[``(getKey?_of_perm _)])⟩,
@@ -3352,10 +3356,10 @@ theorem contains_of_contains_union!_of_contains_eq_false_left [TransOrd α]
 theorem union_insert_right_equiv_insert_union [TransOrd α] {p : (a : α) × β a}
     (h₁ : m₁.WF) (h₂ : m₂.WF) :
     Equiv (m₁.union (m₂.insert p.fst p.snd h₂.balanced).impl h₁.balanced h₂.insert.balanced) ((m₁.union m₂ h₁.balanced h₂.balanced).insert p.fst p.snd (@WF.union _ _ _ m₁ h₁ m₂ h₂).balanced).1 := by
-  simp_to_model [union, insert]
+  simp_to_model [Equiv, union, insert]
   apply List.Perm.trans
   . apply insertList_perm_of_perm_second
-    simp_to_model [insert]
+    simp_to_model [Equiv, insert]
     . apply insertEntry_of_perm
       . wf_trivial
       . apply List.Perm.refl
@@ -3400,7 +3404,7 @@ theorem union_equiv_congr_left {m₃ : Impl α β} [TransOrd α]
     (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₁.Equiv m₂) :
     (m₁.union m₃ h₁.balanced h₃.balanced).Equiv (m₂.union m₃ h₂.balanced h₃.balanced) := by
   revert equiv
-  simp_to_model [union]
+  simp_to_model [Equiv, union]
   intro equiv
   apply List.insertList_perm_of_perm_first equiv
   wf_trivial
@@ -3416,7 +3420,7 @@ theorem union_equiv_congr_right {m₃ : Impl α β} [TransOrd α]
     (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₂.Equiv m₃) :
     (m₁.union m₂ h₁.balanced h₂.balanced).Equiv (m₁.union m₃ h₁.balanced h₃.balanced) := by
   revert equiv
-  simp_to_model [union]
+  simp_to_model [Equiv, union]
   intro equiv
   apply List.insertList_perm_of_perm_second equiv
   all_goals wf_trivial

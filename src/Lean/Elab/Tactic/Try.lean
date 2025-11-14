@@ -847,9 +847,14 @@ private def mkSimpStx : CoreM (TSyntax `tactic) :=
   `(tactic| first | simp? | simp? [*] | simp? +arith | simp? +arith [*])
 
 set_option hygiene false in -- Avoid tagger at `+suggestions`
-/-- Atomic tactics with library suggestions -/
+/--
+Atomic tactics with library suggestions.
+
+Note: We previously included `simp_all? +suggestions` here, but removed it due to performance issues.
+We would like to restore it in the future once `simp_all? +suggestions` is faster for general use.
+-/
 private def mkAtomicWithSuggestionsStx : CoreM (TSyntax `tactic) :=
-  `(tactic| attempt_all | grind? +suggestions | simp_all? +suggestions)
+  `(tactic| grind? +suggestions)
 
 /-- `simple` tactics -/
 private def mkSimpleTacStx : CoreM (TSyntax `tactic) :=
@@ -942,6 +947,34 @@ private unsafe def mkTryEvalSuggestStxUnsafe (goal : MVarId) (info : Try.Info) :
 @[implemented_by mkTryEvalSuggestStxUnsafe]
 private opaque mkTryEvalSuggestStx (goal : MVarId) (info : Try.Info) : MetaM (TSyntax `tactic)
 
+/-- Wraps a tactic suggestion as a term suggestion by prefixing with `by `. -/
+private def wrapSuggestionWithBy (sugg : Tactic.TryThis.Suggestion) : TacticM Tactic.TryThis.Suggestion := do
+  match sugg.suggestion with
+  | .tsyntax (kind := `tactic) tac =>
+    let termStx ← `(by $(⟨tac⟩):tactic)
+    return { sugg with suggestion := .tsyntax termStx }
+  | _ => return sugg
+
+/-- Version of `evalAndSuggest` that wraps tactic suggestions with `by` for term mode. -/
+private def evalAndSuggestWithBy (tk : Syntax) (tac : TSyntax `tactic) (config : Try.Config) : TacticM Unit := do
+  let initialLog ← Core.getMessageLog
+  let tac' ← try
+    evalSuggest tac |>.run { terminal := true, root := tac, config }
+  catch _ =>
+    throwEvalAndSuggestFailed config
+  -- Restore message log to suppress "Try this" messages from intermediate tactic executions
+  Core.setMessageLog initialLog
+  let suggestions := (getSuggestions tac')[*...config.max].toArray
+  if suggestions.isEmpty then
+    throwEvalAndSuggestFailed config
+  else
+    -- Wrap each suggestion with `by `
+    let termSuggestions ← suggestions.mapM wrapSuggestionWithBy
+    if termSuggestions.size == 1 then
+      Tactic.TryThis.addSuggestion tk termSuggestions[0]! (origSpan? := (← getRef))
+    else
+      Tactic.TryThis.addSuggestions tk termSuggestions (origSpan? := (← getRef))
+
 @[builtin_tactic Lean.Parser.Tactic.tryTrace] def evalTryTrace : Tactic := fun stx => do
   match stx with
   | `(tactic| try?%$tk $config:optConfig) => Tactic.focus do withMainContext do
@@ -951,7 +984,10 @@ private opaque mkTryEvalSuggestStx (goal : MVarId) (info : Try.Info) : MetaM (TS
       let goal ← getMainGoal
       let info ← Try.collect goal config
       let stx ← mkTryEvalSuggestStx goal info
-      evalAndSuggest tk stx originalMaxHeartbeats config
+      if config.wrapWithBy then
+        evalAndSuggestWithBy tk stx originalMaxHeartbeats config
+      else
+        evalAndSuggest tk stx originalMaxHeartbeats config
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Try

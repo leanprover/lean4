@@ -2817,7 +2817,7 @@ theorem get?_inter_of_contains_eq_false_right [LawfulBEq α] (h₁ : m₁.val.WF
   simp_to_model [inter, get?, contains] using List.getValueCast?_filter_containsKey_of_containsKey_eq_false_right
 
 /- get -/
-theorem get_inter [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+@[simp] theorem get_inter [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} {h_contains : (m₁.inter m₂).contains k} :
     (m₁.inter m₂).get k h_contains =
     m₁.get k ((contains_inter_iff h₁ h₂).1 h_contains).1 := by
@@ -2899,7 +2899,7 @@ theorem getKey?_inter_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α
   simp_to_model [contains, getKey?, inter] using List.getKey?_filter_containsKey_of_containsKey_eq_false_left
 
 /- getKey -/
-theorem getKey_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+@[simp] theorem getKey_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} {h_contains : (m₁.inter m₂).contains k} :
     (m₁.inter m₂).getKey k h_contains =
     m₁.getKey k (by simp [contains_inter_iff h₁ h₂] at h_contains; exact h_contains.1) := by
@@ -3033,7 +3033,7 @@ theorem get?_inter_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α] 
   revert h
   simp_to_model [inter, Const.get?, contains] using List.getValue?_filter_of_containsKey_eq_false_right
 
-theorem get_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+@[simp] theorem get_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} {h_contains : (m₁.inter m₂).contains k} :
     Const.get (m₁.inter m₂) k h_contains =
     Const.get m₁ k ((contains_inter_iff h₁ h₂).1 h_contains).1 := by

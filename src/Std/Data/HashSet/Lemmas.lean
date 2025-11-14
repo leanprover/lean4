@@ -901,7 +901,7 @@ theorem get?_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α]
   @HashMap.getKey?_inter_of_not_mem_right _ _ _ _ m₁.inner m₂.inner _ _ k not_mem
 
 /- get -/
-theorem get_inter [EquivBEq α] [LawfulHashable α]
+@[simp] theorem get_inter [EquivBEq α] [LawfulHashable α]
     {k : α} {h_mem : k ∈ m₁ ∩ m₂} :
     (m₁ ∩ m₂).get k h_mem =
     m₁.get k ((mem_inter_iff.1 h_mem).1) :=

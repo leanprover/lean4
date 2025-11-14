@@ -2305,7 +2305,7 @@ theorem get?_inter_of_not_mem_right [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂
   simp_to_raw using Raw₀.get?_inter_of_contains_eq_false_right
 
 /- get -/
-theorem get_inter [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+@[simp] theorem get_inter [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
     {k : α} {h_mem: k ∈ m₁ ∩ m₂} :
     (m₁ ∩ m₂).get k h_mem =
     m₁.get k ((mem_inter_iff h₁ h₂).1 h_mem).1 := by
@@ -2411,7 +2411,7 @@ theorem getKey?_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α]
   simp_to_raw using Raw₀.getKey?_inter_of_contains_eq_false_left
 
 /- getKey -/
-theorem getKey_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+@[simp] theorem getKey_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
     {k : α} {h_mem : k ∈ m₁ ∩ m₂} :
     (m₁ ∩ m₂).getKey k h_mem =
     m₁.getKey k ((mem_inter_iff h₁ h₂).1 h_mem).1 := by
@@ -2592,7 +2592,7 @@ theorem get?_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α] (h₁ : m�
   simp_to_raw using Raw₀.Const.get?_inter_of_contains_eq_false_right
 
 /- get -/
-theorem get_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+@[simp] theorem get_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
     {k : α} {h_mem : k ∈ m₁ ∩ m₂} :
     Const.get (m₁ ∩ m₂) k h_mem =
     Const.get m₁ k ((mem_inter_iff h₁ h₂).1 h_mem).1 := by

@@ -299,7 +299,7 @@ abbrev String.Iterator.curr := String.Legacy.Iterator.curr
 abbrev String.Iterator.next := String.Legacy.Iterator.next
 @[deprecated String.Legacy.Iterator.hasNext (since := "2025-11-12")]
 abbrev String.Iterator.hasNext := String.Legacy.Iterator.hasNext
-@[deprecated Substring.toLegacyIterator (since := "2025-11-12")]
-abbrev Substring.toIterator := Substring.toLegacyIterator
+@[deprecated Substring.Raw.toLegacyIterator (since := "2025-11-12")]
+abbrev Substring.toIterator := Substring.Raw.toLegacyIterator
 
 end Deprecations

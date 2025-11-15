@@ -92,7 +92,7 @@ structure Insertion where
   edit     : TextEdit
 
 structure Query extends LeanModuleQuery where
-  env                : Environment
+  ctx                : Elab.ContextInfo
   determineInsertion : Name → Insertion
 
 partial def collectOpenNamespaces (currentNamespace : Name) (openDecls : List OpenDecl)
@@ -121,7 +121,7 @@ def computeIdQuery?
   return {
     identifier := id.toString
     openNamespaces := collectOpenNamespaces ctx.currNamespace ctx.openDecls
-    env := ctx.env
+    ctx
     determineInsertion decl :=
       let minimizedId := minimizeGlobalIdentifierInContext ctx.currNamespace ctx.openDecls decl
       {
@@ -155,7 +155,7 @@ def computeDotQuery?
   return some {
     identifier := String.Pos.Raw.extract text.source pos tailPos
     openNamespaces := typeNames.map (.allExcept · #[])
-    env := ctx.env
+    ctx
     determineInsertion decl :=
       {
         fullName := decl
@@ -186,7 +186,7 @@ def computeDotIdQuery?
   return some {
     identifier := id.toString
     openNamespaces := typeNames.map (.allExcept · #[])
-    env := ctx.env
+    ctx
     determineInsertion decl :=
       {
         fullName := decl
@@ -237,6 +237,22 @@ def importAllUnknownIdentifiersCodeAction (params : CodeActionParams) (kind : St
   }
 }
 
+private def mkImportText (ctx : Elab.ContextInfo) (mod : Name) :
+    String := Id.run do
+  let mut text := s!"import {mod}\n"
+  if let some parentDecl := ctx.parentDecl? then
+    if isMeta ctx.env parentDecl then
+      text := s!"meta {text}"
+      if !isPrivateName parentDecl then
+        -- As `meta` declarations go through a second, stricter visibility check in the compiler,
+        -- we should add `public` anywhere in a public definition (technically even private defs
+        -- could require public imports but that is not something we can check for here).
+        text := s!"public {text}"
+    else if ctx.env.isExporting then
+      -- Outside `meta`, add `public` only from public scope
+      text := s!"public {text}"
+  text
+
 def handleUnknownIdentifierCodeAction
     (id             : JsonRpc.RequestID)
     (params         : CodeActionParams)
@@ -276,8 +292,8 @@ def handleUnknownIdentifierCodeAction
     | return #[]
   for query in queries, result in response.queryResults do
     for ⟨mod, decl, isExactMatch⟩ in result do
-      let isDeclInEnv := query.env.contains decl
-      if ! isDeclInEnv && mod == query.env.mainModule then
+      let isDeclInEnv := query.ctx.env.contains decl
+      if ! isDeclInEnv && mod == query.ctx.env.mainModule then
         -- Don't offer any code actions for identifiers defined further down in the same file
         continue
       let insertion := query.determineInsertion decl
@@ -290,7 +306,7 @@ def handleUnknownIdentifierCodeAction
             edits := #[
               {
                 range := importInsertionRange
-                newText := s!"import {mod}\n"
+                newText := mkImportText query.ctx mod
               },
               insertion.edit
             ]
@@ -344,15 +360,15 @@ def handleResolveImportAllUnknownIdentifiersCodeAction?
   let mut imports : Std.HashSet Name := ∅
   for q in queries, result in response.queryResults do
     let some ⟨mod, decl, _⟩ := result.find? fun id =>
-        id.isExactMatch && ! q.env.contains id.decl
+        id.isExactMatch && ! q.ctx.env.contains id.decl
       | continue
-    if mod == q.env.mainModule then
+    if mod == q.ctx.env.mainModule then
       continue
     let insertion := q.determineInsertion decl
     if ! imports.contains mod then
       edits := edits.push {
         range := importInsertionRange
-        newText := s!"import {mod}\n"
+        newText := mkImportText q.ctx mod
       }
     edits := edits.push insertion.edit
     imports := imports.insert mod

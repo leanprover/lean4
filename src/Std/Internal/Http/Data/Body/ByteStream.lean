@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Sync
-public import Init.Data
+public import Init.Data.Vector
 public import Std.Internal.Async
 public import Std.Internal.Async.IO
 public import Std.Internal.Http.Internal
@@ -43,8 +43,8 @@ namespace ByteStream
 /--
 Creates a new ByteStream with a specified capacity.
 -/
-def emptyWithCapacity (capacity : Nat := 1024) : Async ByteStream := do
-  let channel ← CloseableChannel.new capacity
+def emptyWithCapacity (capacity : Nat := 128) : Async ByteStream := do
+  let channel ← CloseableChannel.new (some capacity)
   let knownSize ← Std.Mutex.new none
   return { channel, knownSize }
 

@@ -217,7 +217,7 @@ private def handle [Transport α] (connection : Connection α) (config : Client.
 
       | .endHeaders head => do
         if let some length := Protocol.H1.Machine.getMessageSize head then
-          responseStream.setKnownSize length
+          responseStream.setKnownSize (some length)
 
         if let some packet := currentRequest then
           let response := { head := machine.reader.messageHead, body := some (.stream responseStream) }

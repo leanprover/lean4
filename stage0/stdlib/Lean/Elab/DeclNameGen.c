@@ -6392,7 +6392,7 @@ x_36 = lean_nat_dec_lt(x_8, x_35);
 if (x_36 == 0)
 {
 lean_dec(x_35);
-lean_dec_ref(x_33);
+lean_dec_ref(x_34);
 x_29 = lean_box(0);
 goto block_32;
 }
@@ -6401,7 +6401,7 @@ else
 if (x_36 == 0)
 {
 lean_dec(x_35);
-lean_dec_ref(x_33);
+lean_dec_ref(x_34);
 x_29 = lean_box(0);
 goto block_32;
 }
@@ -6412,8 +6412,8 @@ x_37 = 0;
 x_38 = lean_usize_of_nat(x_35);
 lean_dec(x_35);
 lean_inc(x_28);
-x_39 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__11(x_28, x_33, x_37, x_38);
-lean_dec_ref(x_33);
+x_39 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__11(x_28, x_34, x_37, x_38);
+lean_dec_ref(x_34);
 if (x_39 == 0)
 {
 x_29 = lean_box(0);
@@ -6448,8 +6448,8 @@ x_45 = lean_array_get_size(x_44);
 x_46 = lean_nat_dec_lt(x_8, x_45);
 if (x_46 == 0)
 {
-x_33 = x_44;
-x_34 = lean_box(0);
+x_33 = lean_box(0);
+x_34 = x_44;
 x_35 = x_45;
 goto block_40;
 }
@@ -6457,8 +6457,8 @@ else
 {
 if (x_46 == 0)
 {
-x_33 = x_44;
-x_34 = lean_box(0);
+x_33 = lean_box(0);
+x_34 = x_44;
 x_35 = x_45;
 goto block_40;
 }
@@ -6470,8 +6470,8 @@ x_48 = lean_usize_of_nat(x_45);
 x_49 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__12(x_44, x_47, x_48);
 if (x_49 == 0)
 {
-x_33 = x_44;
-x_34 = lean_box(0);
+x_33 = lean_box(0);
+x_34 = x_44;
 x_35 = x_45;
 goto block_40;
 }

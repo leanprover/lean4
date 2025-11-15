@@ -344,6 +344,15 @@ private def EMatchTheoremKind.explainFailure : EMatchTheoremKind → String
   | .default _ => "failed to find patterns"
   | .user      => unreachable!
 
+/--
+Grind patterns may have constraints of the form `lhs =/= rhs` associated with them.
+The `lhs` is one of the bound variables, and the `rhs` an abstract term that must not be definitionally
+equal to a term `t` assigned to `lhs`.
+-/
+structure EMatchTheoremConstraint where
+  bvarIdx : Nat
+  rhs     : AbstractMVarsResult
+
 /-- A theorem for heuristic instantiation based on E-matching. -/
 structure EMatchTheorem where
   /--
@@ -362,6 +371,7 @@ structure EMatchTheorem where
   kind         : EMatchTheoremKind
   /-- Stores whether patterns were inferred using the minimal indexable subexpression condition. -/
   minIndexable : Bool
+  cnstrs       : List EMatchTheoremConstraint := []
   deriving Inhabited
 
 instance : TheoremLike EMatchTheorem where

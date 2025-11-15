@@ -110,7 +110,7 @@ private def BuildKey.fetchCore
   | packageModule pkgName modName =>
     let some pkg ← findPackage? pkgName
       | error s!"invalid target '{root}': package '{pkgName}' not found in workspace"
-    let some mod := pkg.findModule? modName
+    let some mod := pkg.findTargetModule? modName
       | error s!"invalid target '{root}': module '{modName}' not found in package '{pkg.name}'"
     return cast (by simp) <| Job.pure mod
   | packageTarget pkgName target =>
@@ -144,7 +144,7 @@ public protected def Target.fetchIn
     return cast h job
   else
     let actual := if job.kind.name.isAnonymous then "unknown" else s!"'{job.kind.name}'"
-    error s!"type mismtach in target '{self.key}': expected '{kind}', got {actual}"
+    error s!"type mismatch in target '{self.key}': expected '{kind}', got {actual}"
 
 public protected def TargetArray.fetchIn
   [DataKind α] (defaultPkg : Package) (self : TargetArray α) (traceCaption := "<targets>")

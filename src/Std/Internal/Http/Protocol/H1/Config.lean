@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time
 public import Std.Internal.Http.Data
 public import Std.Internal.Http.Internal
 

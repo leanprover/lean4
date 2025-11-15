@@ -28,7 +28,8 @@ Attempt to parse a `RequestTarget` from the given string.
 -/
 @[inline]
 def parse? (string : String) : Option RequestTarget :=
-  Parser.parseRequestTarget.run string.toUTF8 |>.toOption
+  (Parser.parseRequestTarget <* Std.Internal.Parsec.eof).run string.toUTF8 |>.toOption
+
 
 /--
 Parse a `RequestTarget` from the given string. Panics if parsing fails. Use `parse?`
@@ -36,4 +37,6 @@ if you need a safe option-returning version.
 -/
 @[inline]
 def parse! (string : String) : RequestTarget :=
-  parse? string |>.get!
+  match parse? string with
+  | some res => res
+  | none => panic! "invalid request target"

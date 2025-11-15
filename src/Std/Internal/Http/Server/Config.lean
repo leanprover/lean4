@@ -37,11 +37,6 @@ structure Config where
   maxHeaders : Nat := 50
 
   /--
-  Maximum size of a single header value.
-  -/
-  maxHeaderSize : Nat := 8192
-
-  /--
   Maximum waiting time for more data.
   -/
   lingeringTimeout : Time.Millisecond.Offset := 5000
@@ -76,6 +71,50 @@ structure Config where
   -/
   serverName : Option HeaderValue := some (.new "LeanHTTP/1.1")
 
+  /--
+  Maximum length of HTTP method token (default: 16 bytes)
+  -/
+  maxMethodLength : Nat := 16
+
+  /--
+  Maximum length of request URI (default: 8192 bytes)
+  -/
+  maxUriLength : Nat := 8192
+
+  /--
+  Maximum length of header field name (default: 256 bytes)
+  -/
+  maxHeaderNameLength : Nat := 256
+
+  /--
+  Maximum length of header field value (default: 8192 bytes)
+  -/
+  maxHeaderValueLength : Nat := 8192
+
+  /--
+  Maximum number of spaces in delimiter sequences (default: 256)
+  -/
+  maxSpaceSequence : Nat := 256
+
+  /--
+  Maximum length of chunk extension name (default: 256 bytes)
+  -/
+  maxChunkExtNameLength : Nat := 256
+
+  /--
+  Maximum length of chunk extension value (default: 256 bytes)
+  -/
+  maxChunkExtValueLength : Nat := 256
+
+  /--
+  Maximum length of reason phrase (default: 512 bytes)
+  -/
+  maxReasonPhraseLength : Nat := 512
+
+  /--
+  Maximum number of trailer headers (default: 100)
+  -/
+  maxTrailerHeaders : Nat := 100
 namespace Config
 
 /--
@@ -84,7 +123,15 @@ Converts to HTTP 1.1 config
 def toH1Config (config : Config) : Protocol.H1.Config where
   maxMessages := config.maxRequests
   maxHeaders := config.maxHeaders
-  maxHeaderSize := config.maxHeaderSize
+  maxMethodLength := config.maxMethodLength
+  maxUriLength := config.maxUriLength
+  maxHeaderNameLength := config.maxHeaderNameLength
+  maxHeaderValueLength := config.maxHeaderValueLength
+  maxSpaceSequence := config.maxSpaceSequence
+  maxChunkExtNameLength := config.maxChunkExtNameLength
+  maxChunkExtValueLength := config.maxChunkExtValueLength
+  maxReasonPhraseLength := config.maxReasonPhraseLength
+  maxTrailerHeaders := config.maxTrailerHeaders
   enableKeepAlive := config.enableKeepAlive
   identityHeader := config.serverName
 

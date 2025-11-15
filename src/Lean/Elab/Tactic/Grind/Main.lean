@@ -23,7 +23,6 @@ meta import Lean.Meta.Tactic.Grind.Parser
 public section
 namespace Lean.Elab.Tactic
 open Meta
-
 declare_config_elab elabGrindConfig Grind.Config
 declare_config_elab elabGrindConfigInteractive Grind.ConfigInteractive
 declare_config_elab elabCutsatConfig Grind.CutsatConfig
@@ -33,12 +32,50 @@ open Command Term in
 @[builtin_command_elab Lean.Parser.Command.grindPattern]
 def elabGrindPattern : CommandElab := fun stx => do
   match stx with
-  | `(grind_pattern $thmName:ident => $terms,*) => go thmName terms .global
-  | `(scoped grind_pattern $thmName:ident => $terms,*) => go thmName terms .scoped
-  | `(local grind_pattern $thmName:ident => $terms,*) => go thmName terms .local
+  | `(grind_pattern $thmName:ident => $terms,* $[$cnstrs?:grindPatternCnstrs]?) => go thmName terms cnstrs? .global
+  | `(scoped grind_pattern $thmName:ident => $terms,* $[$cnstrs?:grindPatternCnstrs]?) => go thmName terms cnstrs? .scoped
+  | `(local grind_pattern $thmName:ident => $terms,* $[$cnstrs?:grindPatternCnstrs]?) => go thmName terms cnstrs? .local
   | _ => throwUnsupportedSyntax
 where
-  go (thmName : TSyntax `ident) (terms : Syntax.TSepArray `term ",") (kind : AttributeKind) : CommandElabM Unit := liftTermElabM do
+  elabCnstrs (xs : Array Expr) (cnstrs? : Option (TSyntax ``Parser.Command.grindPatternCnstrs))
+      : TermElabM (List (Grind.EMatchTheoremConstraint)) := do
+    let some cnstrs := cnstrs? | return []
+    let cnstrs := cnstrs.raw[1].getArgs
+    cnstrs.toList.mapM fun cnstr => do
+      -- **Note**: Hack because syntax matching is not working. Fix after another update stage0
+      let lhs := cnstr[0]
+      let rhs := cnstr[2]
+      let lhsId := lhs.getId
+      let mut i := 0
+      for x in xs do
+        let xDecl ← x.fvarId!.getDecl
+        if xDecl.userName == lhsId then
+          let bvarIdx := xs.size - i - 1
+          /-
+          **Note**: We need better sanity checking here.
+          We must check whether the type of `rhs` is type correct with respect to
+          an arbitrary instantiation of `xs`. That is, we should use meta-variables
+          in the check. It is incorrect to use `xDecl.type`. For example, suppose the
+          type of `xDecl` is `α → β` where `α` and `β` are variables in `xs` occurring before
+          `xDecl`, and `rhsExpr` is `some : ?m → ?m`. The types `α → β =?= ?m → ?m` are
+          not definitionally equal, but `?α → ?β =?= ?m → ?m` are.
+          -/
+          let rhsExpr ← Term.elabTerm rhs xDecl.type
+          Term.synthesizeSyntheticMVars (postpone := .no) (ignoreStuckTC := true)
+          let rhsExpr ← instantiateMVars rhsExpr
+          if rhsExpr.hasSyntheticSorry then
+            throwErrorAt rhs "invalid constraint, rhs contains a synthetic `sorry`"
+          let rhsExpr := rhsExpr.eta
+          let { paramNames := levelNames, mvars, expr := rhs } ← abstractMVars rhsExpr
+          let numMVars := mvars.size
+          let rhs := rhs.abstract xs
+          return { bvarIdx, levelNames, numMVars, rhs }
+        i := i + 1
+      throwErrorAt lhs "invalid constraint, `{lhsId}` is not local variable of the theorem"
+
+  go (thmName : TSyntax `ident) (terms : Syntax.TSepArray `term ",")
+      (cnstrs? : Option (TSyntax ``Parser.Command.grindPatternCnstrs))
+      (kind : AttributeKind) : CommandElabM Unit := liftTermElabM do
     let declName ← realizeGlobalConstNoOverloadWithInfo thmName
     let info ← getConstVal declName
     forallTelescope info.type fun xs _ => do
@@ -48,7 +85,8 @@ where
         let pattern ← instantiateMVars pattern
         let pattern ← Grind.preprocessPattern pattern
         return pattern.abstract xs
-      Grind.addEMatchTheorem declName xs.size patterns.toList .user kind (minIndexable := false)
+      let cnstrs ← elabCnstrs xs cnstrs?
+      Grind.addEMatchTheorem declName xs.size patterns.toList .user kind cnstrs (minIndexable := false)
 
 open Command in
 @[builtin_command_elab Lean.Parser.resetGrindAttrs]
@@ -124,7 +162,7 @@ def mkGrindParams
   let casesTypes ← Grind.getCasesTypes
   let params := { params with ematch, casesTypes, inj }
   let suggestions ← if config.suggestions then
-    LibrarySuggestions.select mvarId { caller := some "grind" }
+    LibrarySuggestions.select mvarId
   else
     pure #[]
   let mut params ← elabGrindParamsAndSuggestions params ps suggestions (only := only) (lax := config.lax)

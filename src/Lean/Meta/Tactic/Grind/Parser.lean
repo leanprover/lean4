@@ -9,9 +9,9 @@ public import Lean.Parser.Command
 public section
 namespace Lean.Parser.Command
 
-def grindPatternCnstr : Parser := leading_parser withPosition (ident >> " =/= " >> checkColGe "right-hand-side to start in a column greater than or equal to the corresponding to the constraint" >> termParser)
+def grindPatternCnstr : Parser := leading_parser ident >> " =/= " >> checkColGe "irrelevant" >> termParser >> optional ";"
 
-def grindPatternCnstrs : Parser := leading_parser "where " >> many1Indent (ppLine >> grindPatternCnstr >> optional ";")
+def grindPatternCnstrs : Parser := leading_parser "where " >> many1Indent (ppLine >> grindPatternCnstr)
 
 /-!
 Builtin parsers for `grind` related commands

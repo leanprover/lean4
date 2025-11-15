@@ -92,6 +92,7 @@ matcherArgPusher params motive {α} {β} (f : ∀ (x : α), β x) rel alt1 .. x1
 def mkMatchArgPusher (matcherName : Name) (matcherInfo : MatcherInfo) : MetaM Name := do
   let name := (mkPrivateName (← getEnv) matcherName) ++ `_arg_pusher
   realizeConst matcherName name do
+    withTraceNode `Elab.definition.wf.eqns (msg := (return m!"{exceptEmoji ·} mkMatchArgPusher for {.ofConstName matcherName}")) do
     let matcherVal ← getConstVal matcherName
     forallBoundedTelescope matcherVal.type (some (matcherInfo.numParams + 1)) fun xs _ => do
       let params := xs[*...matcherInfo.numParams]

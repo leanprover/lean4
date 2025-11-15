@@ -749,6 +749,7 @@ def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
   realizeConst matchDeclName splitterName (go baseName splitterName)
   return matchEqnsExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := splitterName) (← getEnv) |>.map.find! matchDeclName
 where go baseName splitterName := withConfig (fun c => { c with etaStruct := .none }) do
+  trace[Meta.Match.matchEqs] "generating match equations for {.ofConstName matchDeclName}"
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
   let some matchInfo ← getMatcherInfo? matchDeclName | throwError "`{matchDeclName}` is not a matcher function"

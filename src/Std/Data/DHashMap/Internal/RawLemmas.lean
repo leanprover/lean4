@@ -3121,12 +3121,6 @@ theorem contains_diff_eq_false_of_contains_right [EquivBEq α] [LawfulHashable �
   revert h
   simp_to_model [diff, contains] using List.containsKey_diff_of_containsKey_eq_false_right
 
-/- Equiv -/
-theorem diff_erase_right_equiv_erase_diff [EquivBEq α] [LawfulHashable α] {k : α}
-    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
-    (m₁.diff (m₂.erase k)).1.Equiv ((m₁.diff m₂).erase k).1 := by
-  sorry
-
 /- get? -/
 theorem get?_diff [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
     (m₁.diff m₂).get? k = if m₂.contains k then none else m₁.get? k := by

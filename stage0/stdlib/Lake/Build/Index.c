@@ -1275,7 +1275,7 @@ lean_dec(x_16);
 x_26 = lean_st_ref_get(x_5);
 x_27 = lean_ctor_get(x_9, 0);
 lean_inc(x_27);
-lean_ctor_set_tag(x_1, 2);
+lean_ctor_set_tag(x_1, 3);
 lean_ctor_set(x_1, 0, x_27);
 x_28 = l_Std_DTreeMap_Internal_Impl_get_x3f___at___00__private_Lake_Build_Index_0__Lake_recBuildWithIndex_spec__0___redArg(x_26, x_1);
 lean_dec(x_26);
@@ -1378,7 +1378,7 @@ lean_dec(x_38);
 x_49 = lean_st_ref_get(x_5);
 x_50 = lean_ctor_get(x_9, 0);
 lean_inc(x_50);
-x_51 = lean_alloc_ctor(2, 2, 0);
+x_51 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_51, 0, x_50);
 lean_ctor_set(x_51, 1, x_10);
 x_52 = l_Std_DTreeMap_Internal_Impl_get_x3f___at___00__private_Lake_Build_Index_0__Lake_recBuildWithIndex_spec__0___redArg(x_49, x_51);
@@ -1540,7 +1540,7 @@ else
 {
 lean_object* x_104; lean_object* x_105; lean_object* x_106; 
 x_104 = lean_st_ref_get(x_5);
-x_105 = lean_alloc_ctor(3, 2, 0);
+x_105 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_105, 0, x_72);
 lean_ctor_set(x_105, 1, x_75);
 x_106 = l_Std_DTreeMap_Internal_Impl_get_x3f___at___00__private_Lake_Build_Index_0__Lake_recBuildWithIndex_spec__0___redArg(x_104, x_105);

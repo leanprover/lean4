@@ -75,6 +75,14 @@ def toListRev (s : Slice γ) [ToIterator s Id β] [Iterator (ToIterator.State s 
     [Finite (ToIterator.State s Id) Id] : List β :=
   Internal.iter s |>.toListRev
 
+instance {γ : Type u} {β : Type v} [∀ s : Slice γ, ToIterator s Id β]
+    [∀ s : Slice γ, Iterator (ToIterator.State s Id) Id β]
+    [∀ s : Slice γ, IteratorLoop (ToIterator.State s Id) Id m]
+    [∀ s : Slice γ, Finite (ToIterator.State s Id) Id] :
+    ForIn m (Slice γ) β where
+  forIn s init f :=
+    forIn (Internal.iter s) init f
+
 /--
 Folds a monadic operation from left to right over the elements in a slice.
 An accumulator of type `β` is constructed by starting with `init` and monadically combining each

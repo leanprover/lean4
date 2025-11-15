@@ -126,7 +126,7 @@ private def handle
         waitingResponse := true
 
         if let some length := Protocol.H1.Machine.getMessageSize head then
-          requestStream.setKnownSize length
+          requestStream.setKnownSize (some length)
 
         let newResponse := handler { head, body := (.stream requestStream) }
         let task ← newResponse.asTask

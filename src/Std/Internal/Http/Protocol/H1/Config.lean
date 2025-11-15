@@ -9,7 +9,6 @@ prelude
 public import Std.Time
 public import Std.Internal.Http.Data
 public import Std.Internal.Http.Internal
-public import Std.Internal.Http.Protocol.H1.Parser
 
 public section
 
@@ -33,11 +32,6 @@ structure Config where
   maxHeaders : Nat
 
   /--
-  Maximum size of a single header value.
-  -/
-  maxHeaderSize : Nat
-
-  /--
   Whether to enable keep-alive connections by default.
   -/
   enableKeepAlive : Bool
@@ -46,3 +40,48 @@ structure Config where
   The server name (for sending responses) or user agent (for sending requests)
   -/
   identityHeader : Option HeaderValue
+
+  /--
+  Maximum length of HTTP method token (default: 16 bytes)
+  -/
+  maxMethodLength : Nat := 16
+
+  /--
+  Maximum length of request URI (default: 8192 bytes)
+  -/
+  maxUriLength : Nat := 8192
+
+  /--
+  Maximum length of header field name (default: 256 bytes)
+  -/
+  maxHeaderNameLength : Nat := 256
+
+  /--
+  Maximum length of header field value (default: 8192 bytes)
+  -/
+  maxHeaderValueLength : Nat := 8192
+
+  /--
+  Maximum number of spaces in delimiter sequences (default: 256)
+  -/
+  maxSpaceSequence : Nat := 256
+
+  /--
+  Maximum length of chunk extension name (default: 256 bytes)
+  -/
+  maxChunkExtNameLength : Nat := 256
+
+  /--
+  Maximum length of chunk extension value (default: 256 bytes)
+  -/
+  maxChunkExtValueLength : Nat := 256
+
+  /--
+  Maximum length of reason phrase (default: 512 bytes)
+  -/
+  maxReasonPhraseLength : Nat := 512
+
+  /--
+  Maximum number of trailer headers (default: 100)
+  -/
+  maxTrailerHeaders : Nat := 100

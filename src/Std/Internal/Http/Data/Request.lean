@@ -122,8 +122,10 @@ def uri (builder : Builder) (uri : RequestTarget) : Builder :=
 /--
 Sets the request target/URI for the request being built
 -/
+@[inline]
 def uri! (builder : Builder) (uri : String) : Builder :=
-  { builder with head := { builder.head with uri := RequestTarget.parse! uri } }
+  let uri := RequestTarget.parse! uri
+  { builder with head := { builder.head with uri } }
 
 /--
 Adds a single header to the request being built

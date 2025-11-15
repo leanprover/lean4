@@ -49,7 +49,6 @@ namespace LeanExe
 @[inline] public def root (self : LeanExe) : Module where
   lib := self.toLeanLib
   name := self.config.root
-  keyName := self.pkg.name ++ self.config.root
 
 /-- Return the root module if the name matches; otherwise, return `none`. -/
 public def isRoot? (name : Name) (self : LeanExe) : Option Module :=

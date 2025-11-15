@@ -24,22 +24,22 @@ structure Config where
   /--
   Maximum number of messages per connection.
   -/
-  maxMessages : Nat
+  maxMessages : Nat := 100
 
   /--
   Maximum number of headers allowed per message.
   -/
-  maxHeaders : Nat
+  maxHeaders : Nat := 100
 
   /--
   Whether to enable keep-alive connections by default.
   -/
-  enableKeepAlive : Bool
+  enableKeepAlive : Bool := true
 
   /--
   The server name (for sending responses) or user agent (for sending requests)
   -/
-  identityHeader : Option HeaderValue
+  identityHeader : Option HeaderValue := some (.new "LeanServer")
 
   /--
   Maximum length of HTTP method token (default: 16 bytes)

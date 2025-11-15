@@ -477,7 +477,7 @@ private def injectionAny (mvarId : MVarId) (forbidden : FVarIdSet := {}) : MetaM
                 | InjectionResult.solved  => return InjectionAnyResult.solved
                 | InjectionResult.subgoal mvarId .. => return InjectionAnyResult.subgoal localDecl.fvarId mvarId
               catch ex =>
-                trace[Meta.Match.matchEqs] "injectionAnyFailed at {localDecl.userName}, error\n{ex.toMessageData}"
+                trace[Meta.Match.matchEqs] "injectionAnyFailed at {mkFVar localDecl.fvarId}, error\n{ex.toMessageData}"
                 pure ()
     return InjectionAnyResult.failed
 

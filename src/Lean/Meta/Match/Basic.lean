@@ -244,6 +244,7 @@ structure Problem where
   mvarId        : MVarId
   vars          : List Expr
   alts          : List Alt
+  fallthrough   : Option Expr
   examples      : List Example
   deriving Inhabited
 
@@ -254,7 +255,8 @@ def Problem.toMessageData (p : Problem) : MetaM MessageData :=
   withGoalOf p do
     let alts ← p.alts.mapM Alt.toMessageData
     let vars ← p.vars.mapM fun x => do let xType ← inferType x; pure m!"{x}:({xType})"
-    return m!"remaining variables: {vars}\nalternatives:{indentD (MessageData.joinSep alts Format.line)}\nexamples:{examplesToMessageData p.examples}\n"
+    let fallthrough ← p.fallthrough.mapM (inferType ·)
+    return m!"remaining variables: {vars}\nalternatives:{indentD (MessageData.joinSep alts Format.line)}\nexamples:{examplesToMessageData p.examples}\nfallthrough: {fallthrough}\n"
 
 abbrev CounterExample := List Example
 

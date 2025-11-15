@@ -1486,7 +1486,7 @@ theorem get?_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α] (h₁ : m�
   @DHashMap.Raw.Const.get?_inter_of_not_mem_right _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k not_mem
 
 /- get -/
-theorem get_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+@[simp] theorem get_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
     {k : α} {h_mem : k ∈ m₁ ∩ m₂} :
     get (m₁ ∩ m₂) k h_mem =
     get m₁ k ((mem_inter_iff h₁ h₂).1 h_mem).1 :=
@@ -1558,7 +1558,7 @@ theorem getKey?_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α]
   @DHashMap.Raw.getKey?_inter_of_not_mem_left _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k not_mem
 
 /- getKey -/
-theorem getKey_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+@[simp] theorem getKey_inter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
     {k : α} {h_mem : k ∈ m₁ ∩ m₂} :
     (m₁ ∩ m₂).getKey k h_mem =
     m₁.getKey k ((mem_inter_iff h₁ h₂).1 h_mem).1 :=

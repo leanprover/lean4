@@ -1161,7 +1161,7 @@ theorem toListModel_unionₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashabl
   · exact toListModel_insertListIfNewₘ ‹_›
   · exact toListModel_insertListₘ ‹_›
 
-theorem wfimp_inter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α]
+theorem wfImp_inter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α]
     {m₁ m₂ : Raw α β} {h₁ : 0 < m₁.buckets.size} {h₂ : 0 < m₂.buckets.size} (wh₁ : Raw.WFImp m₁) :
     Raw.WFImp (Raw₀.inter ⟨m₁, h₁⟩ ⟨m₂, h₂⟩).val := by
   rw [inter]
@@ -1196,7 +1196,7 @@ theorem WF.out [BEq α] [Hashable α] [i₁ : EquivBEq α] [i₂ : LawfulHashabl
   | constModify₀ _ h => exact Raw₀.Const.wfImp_modify (by apply h)
   | alter₀ _ h => exact Raw₀.wfImp_alter (by apply h)
   | constAlter₀ _ h => exact Raw₀.Const.wfImp_alter (by apply h)
-  | inter₀ _ _ h _  => exact Raw₀.wfimp_inter (by apply h)
+  | inter₀ _ _ h _  => exact Raw₀.wfImp_inter (by apply h)
 
 end Raw
 
@@ -1495,21 +1495,7 @@ theorem toListModel_inter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable �
     exact toListModel_filterₘ
   · rw [interSmaller_eq_interSmallerₘ]
     exact Perm.trans (toListModel_interSmallerₘ _ _ hm₁)
-      (List.interSmaller_perm_filter _ _ hm₁.distinct)
-
-theorem wf_inter₀ [BEq α] [Hashable α] [LawfulHashable α]
-    {m₁ m₂ : Raw α β} {h₁ : 0 < m₁.buckets.size} {h₂ : 0 < m₂.buckets.size} (wh₁ : m₁.WF) :
-    (Raw₀.inter ⟨m₁, h₁⟩ ⟨m₂, h₂⟩).1.WF := by
-  rw [inter]
-  split
-  · apply Raw.WF.filter₀ wh₁
-  · rw [interSmaller]
-    apply @Raw.fold_induction _ _ _ (fun sofar k x => interSmallerFn ⟨m₁, h₁⟩ sofar k) _ _ (·.val.WF) Raw.WF.emptyWithCapacity₀
-    intro acc a b wf
-    rw [interSmallerFn]
-    split
-    · apply Raw.WF.insert₀ wf
-    · apply wf
+      (interSmaller_perm_filter _ _ hm₁.distinct)
 
 /-! # `Const.insertListₘ` -/
 

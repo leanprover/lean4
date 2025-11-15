@@ -160,6 +160,9 @@ public def quickCmp (k k' : BuildKey) : Ordering :=
     | facet .. => .lt
     | packageTarget .. => .lt
     | packageModule p' m' =>
+      -- Remark: Comparing by module then package instead of vice-versa
+      -- provides a significant performance improvement in the common case.
+      -- https://github.com/leanprover/lean4/pull/11169#issuecomment-3535316226
       match m.quickCmp m' with
       | .eq => p.quickCmp p'
       | ord => ord

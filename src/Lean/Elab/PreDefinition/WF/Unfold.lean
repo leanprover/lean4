@@ -192,7 +192,9 @@ builtin_simproc_decl matcherPushArg (_) := fun e => do
   return .continue (some step)
 
 def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := withTransparency .all do
-  let ctx ← Simp.mkContext (config := { dsimp := false, etaStruct := .none, letToHave := false, singlePass := true })
+  let ctx ← Simp.mkContext (config :=
+    { dsimp := false, etaStruct := .none, letToHave := false,
+      singlePass := true, iota := false })
   let simprocs := ({} : Simp.SimprocsArray)
   let simprocs ← simprocs.add ``matcherPushArg (post := false)
   match (← simpTarget mvarId ctx (simprocs := simprocs)).1 with

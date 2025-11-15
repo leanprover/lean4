@@ -68,9 +68,12 @@ theorem getElem?_modifyHead {l : List α} {f : α → α} {i} :
 @[simp, grind =] theorem tail_modifyHead {f : α → α} {l : List α} :
     (l.modifyHead f).tail = l.tail := by cases l <;> simp
 
-@[simp, grind =] theorem take_modifyHead {f : α → α} {l : List α} {i} :
+@[simp] theorem take_modifyHead {f : α → α} {l : List α} {i} :
     (l.modifyHead f).take i = (l.take i).modifyHead f := by
   cases l <;> cases i <;> simp
+
+grind_pattern take_modifyHead => (l.modifyHead f).take i where
+  i =/= 0
 
 @[simp] theorem drop_modifyHead_of_pos {f : α → α} {l : List α} {i} (h : 0 < i) :
     (l.modifyHead f).drop i = l.drop i := by

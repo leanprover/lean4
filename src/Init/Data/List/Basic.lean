@@ -622,10 +622,15 @@ instance : Std.LawfulIdentity (α := List α) (· ++ ·) [] where
   | nil => simp
   | cons _ as ih => simp [ih, Nat.succ_add]
 
-@[simp, grind _=_] theorem append_assoc (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs) := by
+@[simp] theorem append_assoc (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs) := by
   induction as with
   | nil => rfl
   | cons a as ih => simp [ih]
+
+grind_pattern append_assoc => (as ++ bs) ++ cs where
+  as =/= []
+  bs =/= []
+  cs =/= []
 
 instance : Std.Associative (α := List α) (· ++ ·) := ⟨append_assoc⟩
 

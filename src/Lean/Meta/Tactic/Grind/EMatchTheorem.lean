@@ -358,7 +358,7 @@ structure EMatchTheoremConstraint where
   numMVars   : Nat
   /-- The actual `rhs`. -/
   rhs        : Expr
-  deriving Inhabited, Repr
+  deriving Inhabited, Repr, BEq
 
 /-- A theorem for heuristic instantiation based on E-matching. -/
 structure EMatchTheorem where
@@ -391,10 +391,13 @@ instance : TheoremLike EMatchTheorem where
 /-- Set of E-matching theorems. -/
 abbrev EMatchTheorems := Theorems EMatchTheorem
 
-/-- Returns `true` if there is a theorem with exactly the same pattern is already in `s` -/
-def EMatchTheorems.containsWithSamePatterns (s : EMatchTheorems) (origin : Origin) (patterns : List Expr) : Bool :=
+/--
+Returns `true` if there is a theorem with exactly the same pattern and constraints is already in `s`
+-/
+def EMatchTheorems.containsWithSamePatterns (s : EMatchTheorems) (origin : Origin)
+    (patterns : List Expr) (cnstrs : List EMatchTheoremConstraint) : Bool :=
   let thms := s.find origin
-  thms.any fun thm => thm.patterns == patterns
+  thms.any fun thm => thm.patterns == patterns && thm.cnstrs == cnstrs
 
 def EMatchTheorems.getKindsFor (s : EMatchTheorems) (origin : Origin) : List EMatchTheoremKind :=
   let thms := s.find origin

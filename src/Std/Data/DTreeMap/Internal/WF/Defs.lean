@@ -61,6 +61,8 @@ inductive WF [Ord α] : {β : α → Type v} → Impl α β → Prop where
   | mergeWith {t₁ t₂ f h} [LawfulEqOrd α] : WF t₁ → WF (t₁.mergeWith f t₂ h).impl
   /-- `mergeWith` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
   | constMergeWith {t₁ t₂ f h} : WF t₁ → WF (Impl.Const.mergeWith f t₁ t₂ h).impl
+  /-- `inter` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
+  | inter {t₁ t₂ h} : WF t₁ → WF (t₁.inter t₂ h)
 
 /--
 A well-formed tree is balanced. This is needed here already because we need to know that the
@@ -72,6 +74,7 @@ theorem WF.balanced [Ord α] {t : Impl α β} (h : WF t) : t.Balanced := by
   case empty => exact balanced_empty
   case modify ih => exact balanced_modify ih
   case constModify ih => exact Const.balanced_modify ih
+  case inter ih => exact balanced_inter ih
 
 theorem WF.eraseMany [Ord α] {ρ} [ForIn Id ρ α] {t : Impl α β} {l : ρ} {h} (hwf : WF t) :
     WF (t.eraseMany l h).val :=

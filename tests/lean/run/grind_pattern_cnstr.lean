@@ -33,3 +33,11 @@ grind_pattern extract_extract => (as.extract i j).extract k l where
 set_option trace.grind.ematch.instance true in
 example (as : Array Nat) (h : #[].extract i j = as) : False := by
   grind only [= extract_empty, usr extract_extract]
+
+#guard_msgs (warning, drop error) in
+example (as bs : List Nat) (h : as.filterMap some = bs) : False := by
+  grind (instances := 50) [= List.filterMap_filterMap] -- No warning because stdlib version has a constraint
+
+#guard_msgs (warning, drop error) in
+example (as bs : List Nat) (h : as.filterMap some = bs) : False := by
+  grind (instances := 50) [List.filterMap_filterMap] -- No warning because stdlib version has a constraint

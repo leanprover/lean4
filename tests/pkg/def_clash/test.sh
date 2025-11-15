@@ -1,18 +1,22 @@
 #!/usr/bin/env bash
 
-# Tests the behavior of transitively importing multiple modules
-# that define the same symbol.
+# The test covers the behavior of transitively importing multiple modules
+# that have a definition with the same name.
 
-# Currently, if two packages define the same Lean symbol (e.g., `foo`)
-# they cannot be in the same transitive import graph, even if the no module
-# can see both instances of the symbol.
+# The native symbols Lean emits are prefixed with a package identifier
+# received from Lake. Thus, symbol clashes should not occur between packages.
+# However, they can still occur within them.
 
-# In the example in this directory, `fooA` and `fooB` both define `foo`.
+# Related Issues:
+# https://github.com/leanprover/lean4/issues/222
+
+# In the example in this directory, packages `fooA` and `fooB` both define `foo`.
 # `useA` privately imports and uses `fooA`, and `useB` private imports and uses
-# `fooB`. When `TestUse` imports `useA` and `useB`, the linker will complain
-# even though the Lean file does not see both `foo` definitions.
+# `fooB`. The executable `TestUse` then imports and uses `useA` and `useB`.
 
-# See also https://github.com/leanprover/lean4/issues/222
+# Similarly, modules `Test.BarA` and `Test.BarB` both define `bar`.
+# Modules `UseBarA` and `UseBarB` use them (privately), and `TestLocalUse`
+# imports both.
 
 source ../../lake/tests/common.sh
 
@@ -23,5 +27,9 @@ source ../../lake/tests/common.sh
 test_err "environment already contains 'foo'" build TestFoo
 
 # Test the behavior when multiple copies of the same definition (`foo`) exist
-# but are not visible to any one module: a symbol clash between the two `foo`s.
-test_err "l_foo" build TestUse
+# in different packages but are not visible to any one module.
+test_out "fooA; fooB" exe TestUse
+
+# Test the behavior when multiple copies of the same definition (`foo`) exist
+# in the same package but are not visible to any one module.
+test_err "lp_test_bar" build TestLocalUse

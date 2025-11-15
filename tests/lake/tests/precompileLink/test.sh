@@ -3,6 +3,7 @@ source ../common.sh
 
 ./clean.sh
 
+
 # Test that precompilation works with a Lake import
 # https://github.com/leanprover/lean4/issues/7388
 test_run -v build LakeTest
@@ -22,12 +23,13 @@ test_maybe_err "-lBogus" build -KlinkArgs=-lBogus
 ./clean.sh
 
 # Test that dynlibs are part of the module trace unless `platformIndependent` is set
+PKG=precompileArgs
 test_run build -R
-echo foo > .lake/build/lib/lean/Foo_Bar.$SHARED_LIB_EXT
+echo foo > .lake/build/lib/lean/${PKG}_Foo_Bar.$SHARED_LIB_EXT
 test_err "Building Foo" build --rehash
-test_cmd rm .lake/build/lib/lean/Foo_Bar.$SHARED_LIB_EXT
+test_cmd rm .lake/build/lib/lean/${PKG}_Foo_Bar.$SHARED_LIB_EXT
 test_run build -R -KplatformIndependent=true
-echo foo > .lake/build/lib/lean/Foo_Bar.$SHARED_LIB_EXT
+echo foo > .lake/build/lib/lean/${PKG}_Foo_Bar.$SHARED_LIB_EXT
 test_run build --rehash --no-build
 
 # cleanup

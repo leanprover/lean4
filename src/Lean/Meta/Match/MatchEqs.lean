@@ -895,9 +895,10 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
         withLocalDeclsDND heqsTypes fun heqs => do
           let rhs ← Match.mkAppDiscrEqs (mkAppN alt args) heqs numDiscrEqs
           let mut hs := #[]
-          for notAlt in notAlts do
+          for overlappedBy in matchInfo.overlaps.overlapping i do
+            let notAlt := notAlts[overlappedBy]!
             let h ← instantiateForall notAlt patterns
-            if let some h ← Match.simpH? h patterns.size then
+            if let some h ← simpH? h patterns.size then
               hs := hs.push h
           trace[Meta.Match.matchEqs] "hs: {hs}"
           let mut notAlt := mkConst ``False

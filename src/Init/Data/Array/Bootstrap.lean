@@ -103,10 +103,11 @@ abbrev push_toList := @toList_push
 @[simp] theorem append_assoc {xs ys zs : Array α} : xs ++ ys ++ zs = xs ++ (ys ++ zs) := by
   apply ext'; simp only [toList_append, List.append_assoc]
 
-grind_pattern append_assoc => xs ++ ys ++ zs where
-  xs =/= #[]
-  ys =/= #[]
-  zs =/= #[]
+grind_pattern append_assoc => (xs ++ ys) ++ zs where
+  xs =/= #[]; ys =/= #[]; zs =/= #[]
+
+grind_pattern append_assoc => xs ++ (ys ++ zs) where
+  xs =/= #[]; ys =/= #[]; zs =/= #[]
 
 @[simp] theorem appendList_eq_append {xs : Array α} {l : List α} : xs.appendList l = xs ++ l := rfl
 

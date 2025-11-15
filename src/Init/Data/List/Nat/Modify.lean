@@ -216,7 +216,6 @@ theorem modify_eq_self {f : α → α} {i} {l : List α} (h : l.length ≤ i) :
     intro h
     omega
 
-@[grind =]
 theorem modify_modify_eq (f g : α → α) (i) (l : List α) :
     (l.modify i f).modify i g = l.modify i (g ∘ f) := by
   apply ext_getElem
@@ -224,6 +223,9 @@ theorem modify_modify_eq (f g : α → α) (i) (l : List α) :
   · intro m h₁ h₂
     simp only [getElem_modify, Function.comp_apply]
     split <;> simp
+
+grind_pattern modify_modify_eq => (l.modify i f).modify i g where
+  l =/= []
 
 theorem modify_modify_ne (f g : α → α) {i j} (l : List α) (h : i ≠ j) :
     (l.modify i f).modify j g = (l.modify j g).modify i f := by

@@ -628,9 +628,10 @@ instance : Std.LawfulIdentity (α := List α) (· ++ ·) [] where
   | cons a as ih => simp [ih]
 
 grind_pattern append_assoc => (as ++ bs) ++ cs where
-  as =/= []
-  bs =/= []
-  cs =/= []
+  as =/= []; bs =/= []; cs =/= []
+
+grind_pattern append_assoc => as ++ (bs ++ cs) where
+  as =/= []; bs =/= []; cs =/= []
 
 instance : Std.Associative (α := List α) (· ++ ·) := ⟨append_assoc⟩
 

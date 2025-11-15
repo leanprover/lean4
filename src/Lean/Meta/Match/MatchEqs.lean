@@ -774,7 +774,8 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
           fun ys eqs rhsArgs argMask altResultType => do
         let patterns := altResultType.getAppArgs
         let mut hs := #[]
-        for notAlt in notAlts do
+        for overlappedBy in matchInfo.overlaps.overlapping i do
+          let notAlt := notAlts[overlappedBy]!
           let h ← instantiateForall notAlt patterns
           if let some h ← simpH? h patterns.size then
             hs := hs.push h

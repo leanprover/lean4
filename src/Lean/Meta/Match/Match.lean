@@ -119,7 +119,14 @@ where
         loop lhss alts minors
 
 structure State where
+  /-- Used alternatives -/
   used            : Std.HashSet Nat := {} -- used alternatives
+  /--
+  Overlapped alternatives.
+  Stored as ordered pairs `(overlapping,overlapped) ∈ overlaps`.
+  Used during splitter generation to avoid going through all pairs of patterns.
+  -/
+  overlaps        : Overlaps := {}
   counterExamples : List (List Example) := []
 
 /-- Return true if the given (sub-)problem has been solved. -/
@@ -328,8 +335,8 @@ where
       return (p, (lhs, rhs) :: cnstrs)
 
 /--
-Solve pending alternative constraints. If all constraints can be solved perform assignment
-`mvarId := alt.rhs`, and return true.
+Solve pending alternative constraints.
+If all constraints can be solved perform assignment `mvarId := alt.rhs`, else throw error.
 -/
 private partial def solveCnstrs (mvarId : MVarId) (alt : Alt) : StateRefT State MetaM Unit := do
   go (reorientCnstrs alt)
@@ -399,8 +406,10 @@ where
       unless (← contradiction mvarId) do
         trace[Meta.Match.match] "contradiction failed, missing alternative"
         modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
-    | alt :: _ =>
+    | alt :: overlapped =>
       solveCnstrs p.mvarId alt
+      for otherAlt in overlapped do
+        modify fun s => { s with overlaps := s.overlaps.insert alt.idx otherAlt.idx }
 
 private def processAsPattern (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: _ := p.vars | unreachable!
@@ -916,10 +925,12 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
         process (moveToFront p i)
         return
     | none =>
-      if 1 < p.alts.length then
+      if let alt::(overlapped@(_::_)) := p.alts then
         traceStep ("drop all but first alt")
-        -- all patterns are irrefutable, we can drop all other alts
-        let p := { p with alts := p.alts.take 1 }
+        -- all patterns in first alternative are irrefutable, we can drop all other alts
+        let p := { p with alts := [alt] }
+        for otherAlt in overlapped do
+          modify fun s => { s with overlaps := s.overlaps.insert alt.idx otherAlt.idx }
         process p
         return
 
@@ -1119,6 +1130,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
           discrInfos
           numDiscrs
           uElimPos?
+          overlaps := s.overlaps
           }
       | none => pure ()
 

@@ -1,14 +1,10 @@
-/-
-Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Sofia Rodrigues
--/
 module
 
 prelude
 public import Std.Internal.Parsec
 public import Std.Internal.Http.Data
 public import Std.Internal.Parsec.ByteArray
+public import Std.Internal.Http.Protocol.H1.Config
 
 /-!
 This module defines a parser for HTTP/1.1 requests. The reference used is https://httpwg.org/specs/rfc9112.html.
@@ -81,12 +77,12 @@ def crlf : Parser Unit :=
   skipBytes "\r\n".toUTF8
 
 @[inline]
-def rsp : Parser Unit :=
-  discard <| takeWhileUpTo1 (· == ' '.toUInt8) 256
+def rsp (limits : H1.Config) : Parser Unit :=
+  discard <| takeWhileUpTo1 (· == ' '.toUInt8) limits.maxSpaceSequence
 
 @[inline]
-def osp : Parser Unit :=
-  discard <| takeWhileUpTo (· == ' '.toUInt8) 256
+def osp (limits : H1.Config) : Parser Unit :=
+  discard <| takeWhileUpTo (· == ' '.toUInt8) limits.maxSpaceSequence
 
 @[inline]
 def uint8 : Parser UInt8 := do
@@ -117,37 +113,42 @@ def parseHttpVersion : Parser Version := do
   opt <| Version.fromNumber? (major - 48 |>.toNat) (minor - 48 |>.toNat)
 
 --   method         = token
-def parseMethod : Parser Method := do
-  let method ← token 16
+def parseMethod (limits : H1.Config) : Parser Method := do
+  let method ← token limits.maxMethodLength
   opt <| Method.fromString? (String.fromUTF8! method.toByteArray)
 
-def parseURI : Parser String := do
-  let uri ← takeUntil (· == ' '.toUInt8)
-  return String.fromUTF8! uri.toByteArray
+def parseURI (limits : H1.Config) : Parser ByteArray := do
+  let uri ← takeUntilUpTo (· == ' '.toUInt8) limits.maxUriLength
+  return uri.toByteArray
 
 /--
 Parses a request line
 
 request-line   = method SP request-target SP HTTP-version
 -/
-public def parseRequestLine : Parser Request.Head := do
-  let method ← parseMethod <* rsp
-  let uri ← Std.Http.Parser.parseRequestTarget <* rsp
+public def parseRequestLine (limits : H1.Config) : Parser Request.Head := do
+  let method ← parseMethod limits <* rsp limits
+  let uri ← parseURI limits <* rsp limits
+
+  let uri ← match (Std.Http.Parser.parseRequestTarget <* eof).run uri with
+  | .ok res => pure res
+  | .error res => fail res
+
   let version ← parseHttpVersion <* crlf
   return ⟨method, version, uri, .empty⟩
 
 -- field-line   = field-name ":" OWS field-value OWS
-def parseFieldLine (headerLimit : Nat) : Parser (String × String) := do
+def parseFieldLine (limits : H1.Config) : Parser (String × String) := do
   (String.fromUTF8! ·.toByteArray, String.fromUTF8! ·.toByteArray) <$>
-  token 256 <*> (skipByte ':'.toUInt8 *> osp *> takeWhileUpTo1 isFieldVChar headerLimit <* osp)
+  token limits.maxHeaderNameLength <*> (skipByte ':'.toUInt8 *> osp limits *> takeWhileUpTo1 isFieldVChar limits.maxHeaderValueLength <* osp limits)
 
 /--
 Parses a single header.
 
 field-line CRLF / CRLF
 -/
-public def parseSingleHeader (headerLimit : Nat) : Parser (Option (String × String)) :=
-  optional (attempt <| parseFieldLine headerLimit) <* crlf
+public def parseSingleHeader (limits : H1.Config) : Parser (Option (String × String)) :=
+  optional (attempt <| parseFieldLine limits) <* crlf
 
 -- quoted-pair = "\" ( HTAB / SP / VCHAR / obs-text )
 def parseQuotedPair : Parser UInt8 := do
@@ -181,13 +182,13 @@ partial def parseQuotedString : Parser String := do
   return String.fromUTF8! (← loop .empty)
 
 -- chunk-ext = *( BWS ";" BWS chunk-ext-name [ BWS "=" BWS chunk-ext-val] )
-def parseChunkExt : Parser (String × Option String) := do
-  osp *> skipByte ';'.toUInt8 *> osp
-  let name ← (String.fromUTF8! <$> ByteSlice.toByteArray <$> token 256) <* osp
+def parseChunkExt (limits : H1.Config) : Parser (String × Option String) := do
+  osp limits *> skipByte ';'.toUInt8 *> osp limits
+  let name ← (String.fromUTF8! <$> ByteSlice.toByteArray <$> token limits.maxChunkExtNameLength) <* osp limits
 
   if (← peekWhen? (· == '='.toUInt8)) |>.isSome then
-    osp *> skipByte '='.toUInt8 *> osp
-    let value ← osp *> (parseQuotedString <|> String.fromUTF8! <$> ByteSlice.toByteArray <$> token 256)
+    osp limits *> skipByte '='.toUInt8 *> osp limits
+    let value ← osp limits *> (parseQuotedString <|> String.fromUTF8! <$> ByteSlice.toByteArray <$> token limits.maxChunkExtValueLength)
     return (name, some value)
 
   return (name, none)
@@ -195,9 +196,9 @@ def parseChunkExt : Parser (String × Option String) := do
 /--
 This function parses the size and extension of a chunk
 -/
-public def parseChunkSize : Parser (Nat × Array (String × Option String)) := do
+public def parseChunkSize (limits : H1.Config) : Parser (Nat × Array (String × Option String)) := do
   let size ← hex
-  let ext ← many parseChunkExt
+  let ext ← many (parseChunkExt limits)
   crlf
   return (size, ext)
 
@@ -230,23 +231,24 @@ public def parseChunkedSizedData (size : Nat) : Parser TakeResult := do
 /--
 This function parses a single chunk in chunked transfer encoding
 -/
-public def parseChunk : Parser (Option (Nat × Array (String × Option String) × ByteSlice)) := do
-  let (size, ext) ← parseChunkSize
+public def parseChunk (limits : H1.Config) : Parser (Option (Nat × Array (String × Option String) × ByteSlice)) := do
+  let (size, ext) ← parseChunkSize limits
   if size == 0 then
     return none
   else
     let data ← take size
     return some ⟨size, ext, data⟩
+
 /--
 This function parses a trailer header (used after chunked body)
 -/
-def parseTrailerHeader (headerLimit : Nat) : Parser (Option (String × String)) := parseSingleHeader headerLimit
+def parseTrailerHeader (limits : H1.Config) : Parser (Option (String × String)) := parseSingleHeader limits
 
 /--
 This function parses trailer headers after chunked body
 -/
-public def parseTrailers (headerLimit : Nat) : Parser (Array  (String × String)) := do
-  let trailers ← manyItems (parseTrailerHeader headerLimit) 100
+public def parseTrailers (limits : H1.Config) : Parser (Array (String × String)) := do
+  let trailers ← manyItems (parseTrailerHeader limits) limits.maxTrailerHeaders
   crlf
   return trailers
 
@@ -264,8 +266,8 @@ def parseStatusCode : Parser Status := do
 /--
 Parses reason phrase (text after status code)
 -/
-def parseReasonPhrase : Parser String := do
-  let bytes ← takeWhileUpTo (fun c => c != '\r'.toUInt8) 512
+def parseReasonPhrase (limits : H1.Config) : Parser String := do
+  let bytes ← takeWhileUpTo (fun c => c != '\r'.toUInt8) limits.maxReasonPhraseLength
   return String.fromUTF8! bytes.toByteArray
 
 /--
@@ -273,10 +275,10 @@ Parses a status line
 
 status-line = HTTP-version SP status-code SP [ reason-phrase ]
 -/
-public def parseStatusLine : Parser Response.Head := do
-  let version ← parseHttpVersion <* rsp
-  let status ← parseStatusCode <* rsp
-  discard <| parseReasonPhrase <* crlf
+public def parseStatusLine (limits : H1.Config) : Parser Response.Head := do
+  let version ← parseHttpVersion <* rsp limits
+  let status ← parseStatusCode <* rsp limits
+  discard <| parseReasonPhrase limits <* crlf
   return ⟨status, version, .empty⟩
 
 end H1

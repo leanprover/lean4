@@ -151,8 +151,8 @@ section Elab
   -- Placed here instead of Lean.Server.Utils because of an import loop
   private def mkIleanInfoNotification (method : String) (m : DocumentMeta)
       (trees : Array Elab.InfoTree) : BaseIO (JsonRpc.Notification Lsp.LeanIleanInfoParams) := do
-    let references ← findModuleRefs m.text trees (localVars := true) |>.toLspModuleRefs
-    let param := { version := m.version, references }
+    let (references, decls) ← findModuleRefs m.text trees (localVars := true) |>.toLspModuleRefs
+    let param := { version := m.version, references, decls }
     return { method, param }
 
   private def mkInitialIleanInfoUpdateNotification (m : DocumentMeta)

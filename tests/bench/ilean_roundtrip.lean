@@ -1,14 +1,8 @@
 import Lean.Data.Lsp
 
 def genModuleRefs (n : Nat) : IO Lean.Lsp.ModuleRefs := do
-  let someLoc : Lean.Lsp.RefInfo.Location := {
-    range := ⟨⟨333, 444⟩, ⟨444, 555⟩⟩
-    parentDecl? := some {
-      name := "A.Reasonably.Long.ParentDecl.Name.barfoo",
-      range := ⟨⟨1111, 2222⟩, ⟨3333, 4444⟩⟩
-      selectionRange := ⟨⟨5555, 6666⟩, ⟨7777, 8888⟩⟩
-    }
-  }
+  let someLoc : Lean.Lsp.RefInfo.Location :=
+    .mk ⟨⟨333, 444⟩, ⟨444, 555⟩⟩ <| some "A.Reasonably.Long.ParentDecl.Name.barfoo"
 
   let mut someUsages : Array Lean.Lsp.RefInfo.Location := #[]
   for _ in [0, 200] do

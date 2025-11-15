@@ -10,6 +10,7 @@ public import Init.Data.String.Pattern
 public import Init.Data.Ord.Basic
 public import Init.Data.Iterators.Combinators.FilterMap
 public import Init.Data.String.ToSlice
+public import Init.Data.String.Termination
 
 set_option doc.verso true
 
@@ -403,19 +404,19 @@ Examples:
  * {lean}`"red green blue".toSlice.dropWhile (fun (_ : Char) => true) == "".toSlice`
 -/
 @[inline]
-partial def dropWhile [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
-  go s
+def dropWhile [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+  go s.startPos
 where
   @[specialize pat]
-  go (s : Slice) : Slice :=
-    if let some nextS := dropPrefix? s pat then
-      -- TODO: need lawful patterns to show this terminates
-      if s.startInclusive.offset < nextS.startInclusive.offset then
-        go nextS
+  go (curr : s.Pos) : Slice :=
+    if let some nextCurr := ForwardPattern.dropPrefix? (s.replaceStart curr) pat then
+      if curr < Pos.ofReplaceStart nextCurr then
+        go (Pos.ofReplaceStart nextCurr)
       else
-        s
+        s.replaceStart curr
     else
-      s
+      s.replaceStart curr
+  termination_by curr
 
 /--
 Removes leading whitespace from a slice by moving its start position to the first non-whitespace
@@ -463,19 +464,19 @@ Examples:
  * {lean}`"red green blue".toSlice.takeWhile (fun (_ : Char) => true) == "red green blue".toSlice`
 -/
 @[inline]
-partial def takeWhile [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+def takeWhile [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
   go s.startPos
 where
   @[specialize pat]
   go (curr : s.Pos) : Slice :=
     if let some nextCurr := ForwardPattern.dropPrefix? (s.replaceStart curr) pat then
-      if (s.replaceStart curr).startPos < nextCurr then
-        -- TODO: need lawful patterns to show this terminates
+      if curr < Pos.ofReplaceStart nextCurr then
         go (Pos.ofReplaceStart nextCurr)
       else
         s.replaceEnd curr
     else
       s.replaceEnd curr
+  termination_by curr
 
 /--
 Finds the position of the first match of the pattern {name}`pat` in a slice {name}`s`. If there
@@ -712,19 +713,19 @@ Examples:
  * {lean}`"red green blue".toSlice.dropEndWhile (fun (_ : Char) => true) == "".toSlice`
 -/
 @[inline]
-partial def dropEndWhile [BackwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
-  go s
+def dropEndWhile [BackwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+  go s.endPos
 where
   @[specialize pat]
-  go (s : Slice) : Slice :=
-    if let some nextS := dropSuffix? s pat then
-      -- TODO: need lawful patterns to show this terminates
-      if nextS.endExclusive.offset < s.endExclusive.offset then
-        go nextS
+  go (curr : s.Pos) : Slice :=
+    if let some nextCurr := BackwardPattern.dropSuffix? (s.replaceEnd curr) pat then
+      if Pos.ofReplaceEnd nextCurr < curr then
+        go (Pos.ofReplaceEnd nextCurr)
       else
-        s
+        s.replaceEnd curr
     else
-      s
+      s.replaceEnd curr
+  termination_by curr.down
 
 /--
 Removes trailing whitespace from a slice by moving its start position to the first non-whitespace
@@ -771,19 +772,19 @@ Examples:
  * {lean}`"red green blue".toSlice.takeEndWhile (fun (_ : Char) => true) == "red green blue".toSlice`
 -/
 @[inline]
-partial def takeEndWhile [BackwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+def takeEndWhile [BackwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
   go s.endPos
 where
   @[specialize pat]
   go (curr : s.Pos) : Slice :=
     if let some nextCurr := BackwardPattern.dropSuffix? (s.replaceEnd curr) pat then
-      if nextCurr < (s.replaceEnd curr).endPos then
-        -- TODO: need lawful patterns to show this terminates
+      if Pos.ofReplaceEnd nextCurr < curr then
         go (Pos.ofReplaceEnd nextCurr)
       else
         s.replaceStart curr
     else
       s.replaceStart curr
+  termination_by curr.down
 
 /--
 Finds the position of the first match of the pattern {name}`pat` in a slice {name}`true`, starting
@@ -1337,5 +1338,9 @@ Examples:
 @[inline]
 def back (s : Slice) : Char :=
   s.back?.getD default
+
+@[inherit_doc Slice.copy]
+def toString (s : Slice) : String :=
+  s.copy
 
 end String.Slice

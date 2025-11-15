@@ -261,14 +261,14 @@ instance : LawfulOrderLT (Fin n) where
 
 @[simp, grind =] theorem val_rev (i : Fin n) : (rev i).val = n - (i + 1) := rfl
 
-@[simp] theorem rev_rev (i : Fin n) : rev (rev i) = i := Fin.ext <| by
+@[simp, grind =] theorem rev_rev (i : Fin n) : rev (rev i) = i := Fin.ext <| by
   rw [val_rev, val_rev, ← Nat.sub_sub, Nat.sub_sub_self (by exact i.2), Nat.add_sub_cancel]
 
-@[simp] theorem rev_le_rev {i j : Fin n} : rev i ≤ rev j ↔ j ≤ i := by
+@[simp, grind =] theorem rev_le_rev {i j : Fin n} : rev i ≤ rev j ↔ j ≤ i := by
   simp only [le_def, val_rev, Nat.sub_le_sub_iff_left (Nat.succ_le_iff.2 j.is_lt)]
   exact Nat.succ_le_succ_iff
 
-@[simp] theorem rev_inj {i j : Fin n} : rev i = rev j ↔ i = j :=
+@[simp, grind =] theorem rev_inj {i j : Fin n} : rev i = rev j ↔ i = j :=
   ⟨fun h => by simpa using congrArg rev h, congrArg _⟩
 
 theorem rev_eq {n a : Nat} (i : Fin (n + 1)) (h : n = a + i) :
@@ -277,7 +277,7 @@ theorem rev_eq {n a : Nat} (i : Fin (n + 1)) (h : n = a + i) :
   conv => lhs; congr; rw [h]
   rw [Nat.add_assoc, Nat.add_sub_cancel]
 
-@[simp] theorem rev_lt_rev {i j : Fin n} : rev i < rev j ↔ j < i := by
+@[simp, grind =] theorem rev_lt_rev {i j : Fin n} : rev i < rev j ↔ j < i := by
   rw [← Fin.not_le, ← Fin.not_le, rev_le_rev]
 
 /-! ### last -/

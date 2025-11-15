@@ -232,6 +232,17 @@ This function always merges the smaller set into the larger set, so the expected
 
 instance [BEq α] [Hashable α] : Union (Raw α) := ⟨union⟩
 
+/--
+Computes the intersection of the given hash sets. The result will only contain entries from the first map.
+
+This function always merges the smaller set into the larger set, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def inter [BEq α] [Hashable α] (m₁ m₂ : Raw α) : Raw α :=
+  ⟨HashMap.Raw.inter m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : Inter (Raw α) := ⟨inter⟩
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/

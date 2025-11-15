@@ -264,6 +264,11 @@ This function always merges the smaller map into the larger map, so the expected
 
 instance [BEq α] [Hashable α] : Union (HashMap α β) := ⟨union⟩
 
+@[inherit_doc DHashMap.inter, inline] def inter [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=
+  ⟨DHashMap.inter m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : Inter (HashMap α β) := ⟨inter⟩
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/

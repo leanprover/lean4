@@ -160,8 +160,8 @@ public def quickCmp (k k' : BuildKey) : Ordering :=
     | facet .. => .lt
     | packageTarget .. => .lt
     | packageModule p' m' =>
-      match p.quickCmp p' with
-      | .eq => m.quickCmp m'
+      match m.quickCmp m' with
+      | .eq => p.quickCmp p'
       | ord => ord
     | _ => .gt
   | packageTarget p t =>

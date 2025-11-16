@@ -130,7 +130,6 @@ structure Result where
   failure?   : Option Goal
   issues     : List MessageData
   config     : Grind.Config
-  trace      : Trace
   counters   : Counters
   simp       : Simp.Stats
   splitDiags : PArray SplitDiagInfo
@@ -216,7 +215,6 @@ private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
 
 def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
   let issues     := (← get).issues
-  let trace      := (← get).trace
   let counters   := (← get).counters
   let splitDiags := (← get).splitDiags
   let simp       := { (← get).simp with }
@@ -225,7 +223,7 @@ def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
     if (← isDiagnosticsEnabled) then
       if let some msg ← mkGlobalDiag counters simp splitDiags then
         logInfo msg
-  return { failure?, issues, config := params.config, trace, counters, simp, splitDiags }
+  return { failure?, issues, config := params.config, counters, simp, splitDiags }
 
 def GrindM.runAtGoal (mvarId : MVarId) (params : Params) (k : Goal → GrindM α) (evalTactic? : Option EvalTactic := none) : MetaM α := do
   let go : GrindM α := withReducible do

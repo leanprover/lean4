@@ -55,6 +55,7 @@ but it is expected to have type
 example : Nat.land 1 (Nat.shiftRight 8 ([x].ctorIdx)) = 0 := by
   eagerrefl0
 
+-- A variant that uses the expected (unreduced) type as the first argument to eagerReduce
 elab "eagerrefl0'" : tactic =>
   Lean.Elab.Tactic.closeMainGoalUsing `refl0 fun goal _ => do
     let u ← getLevel goal
@@ -104,6 +105,7 @@ elab "reflTrue" : tactic =>
   Lean.Elab.Tactic.closeMainGoalUsing `refl0 fun _ _ =>
     Lean.Meta.mkEqRefl (Lean.mkConst ``Bool.true)
 
+-- This works! (But why?)
 example : Nat.land 1 (Nat.shiftRight 8 ([x].ctorIdx)) = 0 :=
   Nat.eq_of_beq_eq_true (by reflTrue)
 
@@ -119,4 +121,5 @@ but is expected to have type
 #guard_msgs in
 example : Nat.beq (Nat.land 1 (Nat.shiftRight 8 ([x].ctorIdx))) 0 := Eq.refl true
 
+-- This also works (But why?)
 example : Nat.beq (Nat.land 1 (Nat.shiftRight 8 ([x].ctorIdx))) 0 := by reflTrue

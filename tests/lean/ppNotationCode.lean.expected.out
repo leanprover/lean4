@@ -18,7 +18,7 @@
             {
                 raw :=
                   Lean.Syntax.node2 info `Lean.Parser.Term.app
-                    (Lean.Syntax.ident info "Nat.add".toSubstring' (Lean.addMacroScope quotCtx `Nat.add scp)
+                    (Lean.Syntax.ident info "Nat.add".toRawSubstring' (Lean.addMacroScope quotCtx `Nat.add scp)
                       [Lean.Syntax.Preresolved.decl `Nat.add [], Lean.Syntax.Preresolved.namespace `Nat.add])
                     (Lean.Syntax.node2 info `null lhs.raw rhs.raw) }.raw
       else

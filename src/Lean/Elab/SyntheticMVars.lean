@@ -11,6 +11,7 @@ public import Lean.Util.ForEachExpr
 public import Lean.Util.OccursCheck
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.AbstractNestedProofs
+public import Init.Data.List.Sort.Basic
 
 public section
 
@@ -304,10 +305,9 @@ def explainStuckTypeclassProblem (typeclassProblem : Expr) : TermElabM (Option M
 We use this method to report typeclass (and coercion) resolution problems that are "stuck".
 That is, there is nothing else to do, and we don't have enough information to synthesize them using TC resolution.
 -/
-def reportStuckSyntheticMVar (mvarId : MVarId) (ignoreStuckTC := false) : TermElabM Unit := do
-  let some mvarSyntheticDecl ← getSyntheticMVarDecl? mvarId | return ()
-  withRef mvarSyntheticDecl.stx do
-    match mvarSyntheticDecl.kind with
+def reportStuckSyntheticMVar (mvarId : MVarId) (mvarDecl : SyntheticMVarDecl) (ignoreStuckTC := false) : TermElabM Unit := do
+  withRef mvarDecl.stx do
+    match mvarDecl.kind with
     | .typeClass extraErrorMsg? =>
       let extraErrorMsg := extraMsgToMsg extraErrorMsg?
       unless ignoreStuckTC do
@@ -337,8 +337,45 @@ def reportStuckSyntheticMVar (mvarId : MVarId) (ignoreStuckTC := false) : TermEl
 -/
 private def reportStuckSyntheticMVars (ignoreStuckTC := false) : TermElabM Unit := do
   let pendingMVars ← modifyGet fun s => (s.pendingMVars, { s with pendingMVars := [] })
-  for mvarId in pendingMVars do
-    reportStuckSyntheticMVar mvarId ignoreStuckTC
+  /-
+  Calling the singular reportStuckSyntheticMVar function will usually raise
+  an exception, meaning that we only expect to report one issue with
+  synthetic MVars. Given that, what's the best one to return?
+
+  If we have stuck typeclass instances associated with overlapping syntactic
+  ranges, we want to report a problem whose syntactic range *does not include
+  other unsolved typeclass problem ranges*. Here's a case where we want to
+  include the innermost range, if `x` has unknown type:
+
+      |--------------------| <- stuck typeclass problem is Decidable (x < x)
+      if x < x then 1 else 2
+         |---| <- stuck typeclass problem is LT _?
+
+  Reporting the `LT _` typeclass is more informative to the user.
+
+  A simple way to achieve this is prioritizing typeclass error messages with
+  smaller syntactic ranges.
+  -/
+  let pendingMVarsWithDecls ← pendingMVars.filterMapM (fun mvarId => do
+    let some decl ← getSyntheticMVarDecl? mvarId | return .none
+    return .some (mvarId, decl)
+  )
+  let prioritizedProblems := pendingMVarsWithDecls.mergeSort (fun (_, decl1) (_, decl2) =>
+    match (decl1.kind, decl2.kind) with
+     | (.typeClass _, .typeClass _) =>
+       match (decl1.stx.getRange?, decl2.stx.getRange?) with
+        | (.some r1, .some r2) => if r1.bsize != r2.bsize then
+            r1.bsize <= r2.bsize
+          else
+            r1.start <= r2.start
+        | (.none, _) => false
+        | _ => true
+     -- All non-typeclass problems are equivalent and come before typeclass problems
+     | (.typeClass _, _) => false
+     | _ => true
+  )
+  for (mvarId, mvarDecl) in prioritizedProblems do
+    reportStuckSyntheticMVar mvarId mvarDecl ignoreStuckTC
 
 private def getSomeSyntheticMVarsRef : TermElabM Syntax := do
   for mvarId in (← get).pendingMVars do

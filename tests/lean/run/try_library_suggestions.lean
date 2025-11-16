@@ -28,8 +28,9 @@ set_library_suggestions (fun _ _ => pure #[{ name := `special_7, score := 1.0 }]
 
 -- Expected: try? should find grind only [special_7]
 /--
-info: Try this:
+info: Try these:
   [apply] grind only [special_7]
+  [apply] grind => instantiate only [special_7]
 -/
 #guard_msgs in
 example : SpecialProperty 7 := by
@@ -46,8 +47,9 @@ set_library_suggestions (fun _ _ => pure #[{ name := `custom_comm, score := 1.0 
 
 -- Expected: try? should find grind only [custom_comm]
 /--
-info: Try this:
+info: Try these:
   [apply] grind only [custom_comm]
+  [apply] grind => instantiate only [custom_comm]
 -/
 #guard_msgs in
 example (a b : Nat) : CustomOp a b = CustomOp b a := by
@@ -55,8 +57,9 @@ example (a b : Nat) : CustomOp a b = CustomOp b a := by
 
 -- Test 4: With a hypothesis that needs library suggestions
 /--
-info: Try this:
+info: Try these:
   [apply] grind only [custom_comm]
+  [apply] grind => instantiate only [custom_comm]
 -/
 #guard_msgs in
 example (a b c : Nat) (h : CustomOp a b = c) : CustomOp b a = c := by
@@ -77,8 +80,9 @@ set_library_suggestions (fun _ _ => pure #[
 
 -- Expected: try? should use the best applicable one
 /--
-info: Try this:
+info: Try these:
   [apply] grind only [prop1_5]
+  [apply] grind => instantiate only [prop1_5]
 -/
 #guard_msgs in
 example : Property1 5 := by

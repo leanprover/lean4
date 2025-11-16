@@ -256,7 +256,7 @@ private def mkCasesMajor (c : Expr) : GoalM Expr := do
 private def casesWithTrace (mvarId : MVarId) (major : Expr) : GoalM (List MVarId) := do
   if (← getConfig).trace then
     if let .const declName _ := (← whnfD (← inferType major)).getAppFn then
-      saveCases declName false
+      saveCases declName
   cases mvarId major
 
 structure SplitCandidateWithAnchor where

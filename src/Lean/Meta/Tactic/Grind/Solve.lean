@@ -68,7 +68,7 @@ where
           intros gen
         else
           break
-      if (← assertAll <||> checkSolvers <||> ematchStep <||> lookaheadStep <||> splitNext
+      if (← assertAll <||> checkSolvers <||> ematchStep /- <||> lookaheadStep -/ <||> splitNext
            <||> mbtcStep) then
         continue
       return some (← getGoal) -- failed

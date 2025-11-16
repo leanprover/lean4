@@ -355,7 +355,7 @@ where
           msg := msg ++ m!"\n  {lhs} ≋ {rhs}"
         throwErrorAt alt.ref msg
 
-private def isCtorIdxhasNotBit? (e : Expr) : Option FVarId := do
+private def isCtorIdxHasNotBit? (e : Expr) : Option FVarId := do
   let ctorIdxApp ← isHasNotBit? e
   guard ctorIdxApp.isApp
   guard ctorIdxApp.getAppFn.isConst
@@ -373,7 +373,7 @@ private partial def contradiction (mvarId : MVarId) : MetaM Bool := do
     else
       -- Try harder by splitting `ctorIdx x ≠ 23` assumptions
       for localDecl in (← getLCtx) do
-        if let some fvarId := isCtorIdxhasNotBit? localDecl.type then
+        if let some fvarId := isCtorIdxHasNotBit? localDecl.type then
           trace[Meta.Match.match] "splitting ctorIdx assumption {localDecl.type}"
           let subgoals ← mvarId.cases fvarId
           return ← subgoals.allM (contradiction ·.mvarId)

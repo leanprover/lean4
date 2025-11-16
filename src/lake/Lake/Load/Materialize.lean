@@ -121,7 +121,7 @@ def pkgNotIndexed (scope name : String) (ver : InputVer) : String :=
   let (leanVer, tomlVer) :=
     match ver with
     | .none => ("", "")
-    | .git rev => (s!" @ git {repr rev}", s!"\n    rev = {repr rev}")
+    | .git rev => (s!" @ {repr rev}", s!"\n    rev = {repr rev}")
     | .ver ver => (s!" @ {repr ver.toString}", s!"\n    version = {repr ver.toString}")
 s!"{scope}/{name}: package not found on Reservoir.
 

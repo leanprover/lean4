@@ -292,7 +292,7 @@ private def elabGrindConfig' (config : TSyntax ``Lean.Parser.Tactic.optConfig) (
   let config ← elabGrindConfig' config interactive
   discard <| evalGrindCore stx config only params seq
 
-@[builtin_tactic Lean.Parser.Tactic.grindTrace] def evalGrindTrace : Tactic := fun stx => withMainContext do
+def evalGrindTraceCore (stx : Syntax) : TacticM (Array (TSyntax `tactic)) := do
   let `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params?:grindParam,*] ]?) := stx
     | throwUnsupportedSyntax
   let config ← elabGrindConfig configStx
@@ -301,27 +301,35 @@ private def elabGrindConfig' (config : TSyntax ``Lean.Parser.Tactic.optConfig) (
   let params := if let some params := params? then params.getElems else #[]
   let mvarId ← getMainGoal
   let params ← mkGrindParams config only params mvarId
-  Grind.withProtectedMCtx config.abstractProof mvarId fun mvarId' =>
-    discard <| Grind.GrindTacticM.runAtGoal mvarId' params do
-    let finish ← Grind.mkFinishAction
-    let goal :: _ ← Grind.getGoals
-      | let tac ← `(tactic| grind only)
-        Tactic.TryThis.addSuggestion stx { suggestion := .tsyntax tac }
-    Grind.liftGrindM do
-      -- **Note**: If we get failures when using the first suggestion, we should test is using `saved`
-      -- let saved ← saveState
-      match (← finish.run goal) with
-      | .closed seq =>
-        let configCtx' := filterSuggestionsFromGrindConfig configStx
-        let tacs ← Grind.mkGrindOnlyTactics configCtx' seq
-        let seq := Grind.Action.mkGrindSeq seq
-        let tac ← `(tactic| grind => $seq:grindSeq)
-        let tacs := tacs.push tac
-        Tactic.TryThis.addSuggestions stx <| tacs.map fun tac => { suggestion := .tsyntax tac }
-      | .stuck gs =>
-        let goal :: _ := gs | throwError "`grind?` failed, but resulting goal is not available"
-        let result ← Grind.mkResult params (some goal)
-        throwError "`grind?` failed\n{← result.toMessageData}"
+  Grind.withProtectedMCtx config.abstractProof mvarId fun mvarId' => do
+    let (tacs, _) ← Grind.GrindTacticM.runAtGoal mvarId' params do
+      let finish ← Grind.mkFinishAction
+      let goal :: _ ← Grind.getGoals
+        | let tac ← `(tactic| grind only)
+          return #[tac]
+      Grind.liftGrindM do
+        -- **Note**: If we get failures when using the first suggestion, we should test is using `saved`
+        -- let saved ← saveState
+        match (← finish.run goal) with
+        | .closed seq =>
+          let configCtx' := filterSuggestionsFromGrindConfig configStx
+          let tacs ← Grind.mkGrindOnlyTactics configCtx' seq
+          let seq := Grind.Action.mkGrindSeq seq
+          let tac ← `(tactic| grind => $seq:grindSeq)
+          let tacs := tacs.push tac
+          return tacs
+        | .stuck gs =>
+          let goal :: _ := gs | throwError "`grind?` failed, but resulting goal is not available"
+          let result ← Grind.mkResult params (some goal)
+          throwError "`grind?` failed\n{← result.toMessageData}"
+    return tacs
+
+@[builtin_tactic Lean.Parser.Tactic.grindTrace] def evalGrindTrace : Tactic := fun stx => withMainContext do
+  let tacs ← evalGrindTraceCore stx
+  if tacs.size == 1 then
+    Tactic.TryThis.addSuggestion stx { suggestion := .tsyntax tacs[0]! }
+  else
+    Tactic.TryThis.addSuggestions stx <| tacs.map fun tac => { suggestion := .tsyntax tac }
 
 @[builtin_tactic Lean.Parser.Tactic.cutsat] def evalCutsat : Tactic := fun stx => do
   let `(tactic| cutsat $config:optConfig) := stx | throwUnsupportedSyntax

@@ -16,15 +16,14 @@ extern "C" {
 LEAN_EXPORT lean_object* l_String_anyAux___at___00String_isInt_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___00String_toInt_x21_spec__0(lean_object*);
 extern lean_object* l_Int_instInhabited;
-lean_object* l_Substring_toNat_x3f(lean_object*);
 lean_object* l_String_toNat_x3f(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_String_toInt_x3f(lean_object*);
 static lean_object* l_String_toInt_x21___closed__0;
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 lean_object* lean_nat_to_int(lean_object*);
+lean_object* l_Substring_Raw_toNat_x3f(lean_object*);
 LEAN_EXPORT uint8_t l_String_anyAux___at___00String_isInt_spec__0(uint8_t, lean_object*, lean_object*, lean_object*);
-lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -36,6 +35,7 @@ LEAN_EXPORT lean_object* l_String_toInt_x21(lean_object*);
 LEAN_EXPORT uint8_t l_String_isInt(lean_object*);
 LEAN_EXPORT lean_object* l_String_isInt___boxed(lean_object*);
 lean_object* lean_int_neg(lean_object*);
+lean_object* l_Substring_Raw_nextn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_toInt_x3f(lean_object* x_1) {
 _start:
 {
@@ -91,13 +91,13 @@ lean_ctor_set(x_15, 0, x_1);
 lean_ctor_set(x_15, 1, x_2);
 lean_ctor_set(x_15, 2, x_14);
 x_16 = lean_unsigned_to_nat(1u);
-x_17 = l_Substring_nextn(x_15, x_16, x_2);
+x_17 = l_Substring_Raw_nextn(x_15, x_16, x_2);
 lean_dec_ref(x_15);
 x_18 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_18, 0, x_1);
 lean_ctor_set(x_18, 1, x_17);
 lean_ctor_set(x_18, 2, x_14);
-x_19 = l_Substring_toNat_x3f(x_18);
+x_19 = l_Substring_Raw_toNat_x3f(x_18);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; 
@@ -239,7 +239,7 @@ lean_ctor_set(x_11, 0, x_1);
 lean_ctor_set(x_11, 1, x_2);
 lean_ctor_set(x_11, 2, x_10);
 x_12 = lean_unsigned_to_nat(1u);
-x_13 = l_Substring_nextn(x_11, x_12, x_2);
+x_13 = l_Substring_Raw_nextn(x_11, x_12, x_2);
 lean_dec_ref(x_11);
 x_14 = lean_nat_sub(x_10, x_13);
 x_15 = lean_nat_dec_eq(x_14, x_2);

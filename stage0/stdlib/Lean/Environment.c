@@ -1007,6 +1007,7 @@ lean_object* l___private_Init_Data_List_Impl_0__List_takeTR_go(lean_object*, lea
 static lean_object* l_Lean_Environment_evalConstCheck___redArg___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_finalizeImport_spec__20___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentEnvExtensionDescrCore_name___autoParam;
+uint8_t l_Substring_Raw_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_setStateImpl___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_OLeanLevel_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withImportModules(lean_object*, lean_object*, lean_object*, lean_object*, uint32_t);
@@ -1093,7 +1094,6 @@ LEAN_EXPORT lean_object* l_Lean_OLeanLevel_noConfusion___boxed(lean_object*, lea
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 static lean_object* l_Lean_writeModule___closed__0;
 LEAN_EXPORT lean_object* l_Lean_ConstantKind_ctorIdx___boxed(lean_object*);
-lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_println___at___00Lean_Environment_displayStats_spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_foldlMAux_traverse___at___00Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_PersistentHashMap_foldl___at___00Lean_PersistentHashMap_toList___at___00Lean_Environment_dbgFormatAsyncState_spec__7_spec__7_spec__7_spec__7_spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentEnvExtensionDescr_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1476,7 +1476,6 @@ LEAN_EXPORT lean_object* l_Lean_Environment_findAsync_x3f(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lean_EnvExtension_setState___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AsyncBranch_ctorElim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_importModulesCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Substring_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ModuleIdx_toNat(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Environment_0__Lean_AsyncConsts_add_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Environment_0__Lean_Visibility_noConfusion___redArg___boxed(lean_object*, lean_object*);
@@ -1744,6 +1743,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_ensur
 static lean_object* l_Lean_EnvExtension_modifyState___redArg___closed__10;
 static lean_object* l_Lean_writeModule___closed__1;
 LEAN_EXPORT lean_object* l_Lean_AsyncBranch_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Substring_Raw_nextn(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkModuleData___closed__0;
 LEAN_EXPORT lean_object* l_Lean_ConstantKind_defn_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___00Lean_Environment_realizeValue___at___00Lean_Environment_realizeConst_spec__2_spec__2___redArg(lean_object*, lean_object*);
@@ -20899,19 +20899,19 @@ lean_ctor_set(x_15, 0, x_2);
 lean_ctor_set(x_15, 1, x_13);
 lean_ctor_set(x_15, 2, x_14);
 x_16 = lean_unsigned_to_nat(7u);
-x_17 = l_Substring_nextn(x_15, x_16, x_13);
+x_17 = l_Substring_Raw_nextn(x_15, x_16, x_13);
 lean_inc_ref(x_2);
 x_18 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_18, 0, x_2);
 lean_ctor_set(x_18, 1, x_13);
 lean_ctor_set(x_18, 2, x_17);
 x_19 = l___private_Lean_Environment_0__Lean_looksLikeOldCodegenName___closed__5;
-x_20 = l_Substring_beq(x_18, x_19);
+x_20 = l_Substring_Raw_beq(x_18, x_19);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
 x_21 = lean_unsigned_to_nat(6u);
-x_22 = l_Substring_nextn(x_15, x_21, x_13);
+x_22 = l_Substring_Raw_nextn(x_15, x_21, x_13);
 lean_dec_ref(x_15);
 lean_inc_ref(x_2);
 x_23 = lean_alloc_ctor(0, 3, 0);
@@ -20919,7 +20919,7 @@ lean_ctor_set(x_23, 0, x_2);
 lean_ctor_set(x_23, 1, x_13);
 lean_ctor_set(x_23, 2, x_22);
 x_24 = l___private_Lean_Environment_0__Lean_looksLikeOldCodegenName___closed__8;
-x_25 = l_Substring_beq(x_23, x_24);
+x_25 = l_Substring_Raw_beq(x_23, x_24);
 x_3 = x_25;
 goto block_12;
 }
@@ -20942,7 +20942,7 @@ lean_ctor_set(x_6, 0, x_2);
 lean_ctor_set(x_6, 1, x_4);
 lean_ctor_set(x_6, 2, x_5);
 x_7 = lean_unsigned_to_nat(8u);
-x_8 = l_Substring_nextn(x_6, x_7, x_4);
+x_8 = l_Substring_Raw_nextn(x_6, x_7, x_4);
 lean_dec_ref(x_6);
 lean_inc_ref(x_2);
 x_9 = lean_alloc_ctor(0, 3, 0);
@@ -20950,7 +20950,7 @@ lean_ctor_set(x_9, 0, x_2);
 lean_ctor_set(x_9, 1, x_4);
 lean_ctor_set(x_9, 2, x_8);
 x_10 = l___private_Lean_Environment_0__Lean_looksLikeOldCodegenName___closed__2;
-x_11 = l_Substring_beq(x_9, x_10);
+x_11 = l_Substring_Raw_beq(x_9, x_10);
 return x_11;
 }
 else

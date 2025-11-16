@@ -2658,7 +2658,7 @@ static lean_object* _init_l_Lean_Elab_Term_quoteAutoTactic___closed__22() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("toSubstring", 11, 11);
+x_1 = lean_mk_string_unchecked("toRawSubstring", 14, 14);
 return x_1;
 }
 }

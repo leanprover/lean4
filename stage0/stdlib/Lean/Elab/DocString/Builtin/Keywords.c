@@ -113,7 +113,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lea
 LEAN_EXPORT lean_object* l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_parserDescrStartsWithAtoms___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_unresolveNameGlobal___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_ofSuggestions_spec__0_spec__18_spec__20___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_kw_x21___regBuiltin_Lean_Doc_kw_x21_getArgs_docString__5___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_kw_x21___closed__8;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_unresolveNameGlobal___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00Lean_Doc_kw_x21_spec__3_spec__10_spec__12___boxed(lean_object**);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
@@ -307,6 +306,7 @@ extern lean_object* l_Lean_Elab_abortCommandExceptionId;
 lean_object* l_Lean_Parser_SyntaxStack_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_isAtoms(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logErrorAt___at___00Lean_Doc_kw_x21_spec__0(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_Data_instTypeNameAtom;
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_spec__1_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -330,6 +330,7 @@ LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobalAvoidingLocals___at___00__pri
 LEAN_EXPORT lean_object* l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_ofSuggestions_spec__24_spec__24___closed__0;
 LEAN_EXPORT lean_object* l_Lean_resolveLocalName___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_ofSuggestions_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt___closed__2;
 static lean_object* l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_onlyCode___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Elab_addConstInfo___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_spec__7_spec__7_spec__7_spec__7_spec__7___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -345,7 +346,6 @@ LEAN_EXPORT lean_object* l_Lean_Doc_kw_getArgs(lean_object*, lean_object*, uint8
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_realizeGlobalConstNoOverload(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkPrivateName(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Basic_0__Std_Range_forIn_x27_loop___at___00Lean_Doc_getNamed___at___00Lean_Doc_kw_x21_getArgs_spec__3_spec__3___redArg___boxed(lean_object**);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwAbortCommand___at___00Lean_evalConstCheck___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_namedParserHasAtomPrefixUnsafe_spec__0_spec__6___redArg();
@@ -364,6 +364,7 @@ LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___00__private_Lean_Elab_DocStr
 LEAN_EXPORT lean_object* l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_Data_Atom_ctorIdx(lean_object*);
 static lean_object* l_Lean_logAt___at___00Lean_log___at___00Lean_logWarning___at___00Lean_checkPrivateInPublic___at___00Lean_resolveGlobalName___at___00__private_Lean_ResolveName_0__Lean_resolveLocalName_loop___at___00Lean_resolveLocalName___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_ofSuggestions_spec__0_spec__0_spec__9_spec__9_spec__9_spec__10_spec__10_spec__10___redArg___lam__0___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Option_getM___at___00Lean_checkPrivateInPublic___at___00Lean_resolveGlobalName___at___00__private_Lean_ResolveName_0__Lean_resolveLocalName_loop___at___00Lean_resolveLocalName___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00Lean_Doc_kw_x21_spec__3_spec__3_spec__3_spec__3_spec__3_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_PersistentHashMap_forIn___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_withAtoms_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_mkStrLit(lean_object*, lean_object*);
 lean_object* l_Lean_getRevAliases(lean_object*, lean_object*);
@@ -377,7 +378,6 @@ static lean_object* l_Lean_throwUnknownConstantAt___at___00Lean_throwUnknownCons
 lean_object* l_Lean_throwError___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Doc_addBuiltinCodeSuggestion(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_kw_x21___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_parserHasAtomPrefix___redArg___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_parserHasAtomPrefix___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl___closed__1;
@@ -565,6 +565,7 @@ lean_object* lean_mk_syntax_ident(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___00Lean_PersistentArray_findSomeRevM_x3f___at___00Lean_resolveLocalName___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_ofSuggestions_spec__0_spec__0_spec__5_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00__private_Lean_ResolveName_0__Lean_unresolveNameGlobal_unresolveNameCore___at___00Lean_unresolveNameGlobal___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_ofSuggestions_spec__0_spec__18_spec__18_spec__18___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Substring_Raw_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Basic_0__Std_Range_forIn_x27_loop___at___00Lean_Doc_getNamed___at___00Lean_Doc_kw_x21_getArgs_spec__0_spec__1___redArg___boxed(lean_object**);
 static lean_object* l_Lean_Doc_kw___regBuiltin_Lean_Doc_kw__3___closed__0;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_spec__20___closed__0;
@@ -627,7 +628,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Lean_mkConstWithLevelParams___at___00Lean_Elab_addConstInfo___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_spec__7_spec__7_spec__14(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_onlyCode___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldl___at___00Lean_PersistentHashMap_toArray___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_spec__22_spec__22___redArg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_kw_x3f(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_PersistentHashMap_forIn___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_withAtoms_spec__0_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterTR_loop___at___00__private_Lean_ResolveName_0__Lean_resolveLocalName_loop___at___00Lean_resolveLocalName___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_ofSuggestions_spec__0_spec__0_spec__9_spec__15(lean_object*, lean_object*);
@@ -746,7 +746,6 @@ lean_object* l___private_Init_Dynamic_0__Dynamic_get_x3fImpl___redArg(lean_objec
 LEAN_EXPORT lean_object* l_Lean_Doc_kw_x21_getArgs(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_getNamed___at___00Lean_Doc_kw_x21_getArgs_spec__3(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_checkPrivateInPublic___at___00Lean_resolveGlobalName___at___00__private_Lean_ResolveName_0__Lean_resolveLocalName_loop___at___00Lean_resolveLocalName___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00Lean_Doc_kw_x21_spec__3_spec__3_spec__3_spec__3_spec__3___closed__0;
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_spec__4(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_getM___at___00Lean_checkPrivateInPublic___at___00Lean_resolveGlobalName___at___00__private_Lean_ResolveName_0__Lean_resolveLocalName_loop___at___00Lean_resolveLocalName___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00Lean_Doc_kw_x21_spec__3_spec__3_spec__3_spec__3_spec__3_spec__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -803,7 +802,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Basic_0__Std_Range_forIn_x27_loop___at___00Lean_Doc_getNamed___at___00Lean_Doc_kw_x21_getArgs_spec__3_spec__3___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_parserDescrCanEps___closed__2;
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
-uint8_t l_Substring_beq(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_PersistentHashMap_foldl___at___00Lean_PersistentHashMap_toArray___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_spec__22_spec__22_spec__22_spec__22___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Doc_suggestKw_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -896,6 +894,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lea
 extern lean_object* l_Lean_ResolveName_backward_privateInPublic_warn;
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Basic_0__Std_Range_forIn_x27_loop___at___00Lean_Doc_getNamed___at___00Lean_Doc_kw_x21_getArgs_spec__3_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___at___00Lean_logErrorAt___at___00Lean_Doc_kw_x21_spec__0_spec__0___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_Data_instImpl___closed__11_00___x40_Lean_Elab_DocString_Builtin_Keywords_1640796728____hygCtx___hyg_23_;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_parserDescrNameHasAtomsUnsafe___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -923,6 +922,7 @@ LEAN_EXPORT lean_object* l___private_Lean_ResolveName_0__Lean_unresolveNameGloba
 static lean_object* l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_Data_instImpl___closed__13_00___x40_Lean_Elab_DocString_Builtin_Keywords_1640796728____hygCtx___hyg_23_;
 static lean_object* l_Lean_Doc_kw_x21___regBuiltin_Lean_Doc_kw_x21_getArgs_declRange__7___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Doc_instFromDocArgOption___private__1___at___00Lean_Doc_getNamed___at___00Lean_Doc_kw_x21_getArgs_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Substring_Raw_nextn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_parserDescrStartsWithAtom___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAtAux___at___00Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_spec__1_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_unresolveNameGlobal___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_ofSuggestions_spec__0_spec__18___closed__0;
@@ -1281,7 +1281,7 @@ lean_dec_ref(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_7; uint8_t x_9; 
@@ -1357,7 +1357,7 @@ goto block_6;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -2521,8 +2521,8 @@ block_34:
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; lean_object* x_32; lean_object* x_33; 
 x_26 = lean_unsigned_to_nat(0u);
 x_27 = lean_string_utf8_byte_size(x_24);
-x_28 = l_Substring_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_24, x_27, x_26);
-x_29 = l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_24, x_28, x_27);
+x_28 = l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_24, x_27, x_26);
+x_29 = l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_24, x_28, x_27);
 x_30 = lean_string_utf8_extract(x_24, x_28, x_29);
 lean_dec(x_29);
 lean_dec(x_28);
@@ -2539,8 +2539,8 @@ block_45:
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; uint8_t x_42; lean_object* x_43; lean_object* x_44; 
 x_37 = lean_unsigned_to_nat(0u);
 x_38 = lean_string_utf8_byte_size(x_35);
-x_39 = l_Substring_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_35, x_38, x_37);
-x_40 = l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_35, x_39, x_38);
+x_39 = l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_35, x_38, x_37);
+x_40 = l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_35, x_39, x_38);
 x_41 = lean_string_utf8_extract(x_35, x_39, x_40);
 lean_dec(x_40);
 lean_dec(x_39);
@@ -2563,21 +2563,21 @@ x_9 = l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Substring_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_1, x_2, x_3);
+x_4 = l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_1, x_2, x_3);
+x_4 = l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_4;
@@ -3877,8 +3877,8 @@ block_36:
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; 
 x_26 = lean_unsigned_to_nat(0u);
 x_27 = lean_string_utf8_byte_size(x_24);
-x_28 = l_Substring_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_24, x_27, x_26);
-x_29 = l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_24, x_28, x_27);
+x_28 = l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_24, x_27, x_26);
+x_29 = l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_24, x_28, x_27);
 x_30 = lean_string_utf8_extract(x_24, x_28, x_29);
 lean_dec(x_29);
 lean_dec(x_28);
@@ -3907,8 +3907,8 @@ block_49:
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; 
 x_39 = lean_unsigned_to_nat(0u);
 x_40 = lean_string_utf8_byte_size(x_37);
-x_41 = l_Substring_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_37, x_40, x_39);
-x_42 = l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_37, x_41, x_40);
+x_41 = l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_37, x_40, x_39);
+x_42 = l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_37, x_41, x_40);
 x_43 = lean_string_utf8_extract(x_37, x_41, x_42);
 lean_dec(x_42);
 lean_dec(x_41);
@@ -6390,8 +6390,8 @@ block_36:
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; 
 x_26 = lean_unsigned_to_nat(0u);
 x_27 = lean_string_utf8_byte_size(x_24);
-x_28 = l_Substring_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_24, x_27, x_26);
-x_29 = l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_24, x_28, x_27);
+x_28 = l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_24, x_27, x_26);
+x_29 = l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_24, x_28, x_27);
 x_30 = lean_string_utf8_extract(x_24, x_28, x_29);
 lean_dec(x_29);
 lean_dec(x_28);
@@ -6420,8 +6420,8 @@ block_49:
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; 
 x_39 = lean_unsigned_to_nat(0u);
 x_40 = lean_string_utf8_byte_size(x_37);
-x_41 = l_Substring_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_37, x_40, x_39);
-x_42 = l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_37, x_41, x_40);
+x_41 = l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_37, x_40, x_39);
+x_42 = l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_37, x_41, x_40);
 x_43 = lean_string_utf8_extract(x_37, x_41, x_42);
 lean_dec(x_42);
 lean_dec(x_41);
@@ -8540,14 +8540,14 @@ x_22 = lean_ctor_get(x_9, 0);
 lean_dec(x_22);
 x_23 = lean_unsigned_to_nat(0u);
 x_24 = lean_string_utf8_byte_size(x_17);
-x_25 = l_Substring_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_17, x_24, x_23);
-x_26 = l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_17, x_25, x_24);
+x_25 = l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_17, x_24, x_23);
+x_26 = l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_17, x_25, x_24);
 x_27 = lean_string_utf8_extract(x_17, x_25, x_26);
 lean_dec(x_26);
 lean_dec(x_25);
 x_28 = lean_string_utf8_byte_size(x_21);
-x_29 = l_Substring_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_21, x_28, x_23);
-x_30 = l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_21, x_29, x_28);
+x_29 = l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_21, x_28, x_23);
+x_30 = l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_21, x_29, x_28);
 x_31 = lean_string_utf8_extract(x_21, x_29, x_30);
 lean_dec(x_30);
 lean_dec(x_29);
@@ -8583,14 +8583,14 @@ lean_inc(x_35);
 lean_dec(x_9);
 x_36 = lean_unsigned_to_nat(0u);
 x_37 = lean_string_utf8_byte_size(x_17);
-x_38 = l_Substring_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_17, x_37, x_36);
-x_39 = l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_17, x_38, x_37);
+x_38 = l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_17, x_37, x_36);
+x_39 = l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_17, x_38, x_37);
 x_40 = lean_string_utf8_extract(x_17, x_38, x_39);
 lean_dec(x_39);
 lean_dec(x_38);
 x_41 = lean_string_utf8_byte_size(x_35);
-x_42 = l_Substring_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_35, x_41, x_36);
-x_43 = l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_35, x_42, x_41);
+x_42 = l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_35, x_41, x_36);
+x_43 = l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_35, x_42, x_41);
 x_44 = lean_string_utf8_extract(x_35, x_42, x_43);
 lean_dec(x_43);
 lean_dec(x_42);
@@ -10039,8 +10039,8 @@ lean_inc_ref(x_14);
 lean_dec_ref(x_2);
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_string_utf8_byte_size(x_14);
-x_17 = l_Substring_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_14, x_16, x_15);
-x_18 = l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_14, x_17, x_16);
+x_17 = l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_14, x_16, x_15);
+x_18 = l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_14, x_17, x_16);
 x_19 = lean_string_utf8_extract(x_14, x_17, x_18);
 lean_dec(x_18);
 lean_dec(x_17);
@@ -10072,8 +10072,8 @@ lean_inc_ref(x_25);
 lean_dec_ref(x_2);
 x_26 = lean_unsigned_to_nat(0u);
 x_27 = lean_string_utf8_byte_size(x_25);
-x_28 = l_Substring_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_25, x_27, x_26);
-x_29 = l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_25, x_28, x_27);
+x_28 = l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_25, x_27, x_26);
+x_29 = l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_25, x_28, x_27);
 x_30 = lean_string_utf8_extract(x_25, x_28, x_29);
 lean_dec(x_29);
 lean_dec(x_28);
@@ -10699,8 +10699,8 @@ lean_inc_ref(x_14);
 lean_dec_ref(x_2);
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_string_utf8_byte_size(x_14);
-x_17 = l_Substring_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_14, x_16, x_15);
-x_18 = l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_14, x_17, x_16);
+x_17 = l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_14, x_16, x_15);
+x_18 = l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_14, x_17, x_16);
 x_19 = lean_string_utf8_extract(x_14, x_17, x_18);
 lean_dec(x_18);
 lean_dec(x_17);
@@ -10732,8 +10732,8 @@ lean_inc_ref(x_25);
 lean_dec_ref(x_2);
 x_26 = lean_unsigned_to_nat(0u);
 x_27 = lean_string_utf8_byte_size(x_25);
-x_28 = l_Substring_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_25, x_27, x_26);
-x_29 = l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_25, x_28, x_27);
+x_28 = l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__0(x_25, x_27, x_26);
+x_29 = l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_containsAtom_attempt_spec__1(x_25, x_28, x_27);
 x_30 = lean_string_utf8_extract(x_25, x_28, x_29);
 lean_dec(x_29);
 lean_dec(x_28);
@@ -17491,7 +17491,7 @@ lean_ctor_set(x_56, 0, x_53);
 lean_ctor_set(x_56, 1, x_54);
 lean_ctor_set(x_56, 2, x_55);
 x_57 = lean_unsigned_to_nat(3u);
-x_58 = l_Substring_nextn(x_56, x_57, x_54);
+x_58 = l_Substring_Raw_nextn(x_56, x_57, x_54);
 lean_dec_ref(x_56);
 lean_inc(x_58);
 lean_inc_ref(x_53);
@@ -17500,7 +17500,7 @@ lean_ctor_set(x_59, 0, x_53);
 lean_ctor_set(x_59, 1, x_54);
 lean_ctor_set(x_59, 2, x_58);
 x_60 = l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_makeHint___redArg___closed__5;
-x_61 = l_Substring_beq(x_59, x_60);
+x_61 = l_Substring_Raw_beq(x_59, x_60);
 if (x_61 == 0)
 {
 lean_dec(x_58);

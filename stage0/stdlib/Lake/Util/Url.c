@@ -26,6 +26,7 @@ static lean_object* l_Lake_foldlUtf8___redArg___closed__1;
 uint8_t lean_uint8_lor(uint8_t, uint8_t);
 static lean_object* l_Lake_getUrl_x3f___closed__6;
 LEAN_EXPORT lean_object* l_Lake_foldlUtf8M___redArg___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00Lake_getUrl_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_getUrl_x3f___closed__4;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_getUrl_x3f_spec__3___closed__1;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_getUrl_x3f_spec__3___closed__0;
@@ -50,7 +51,6 @@ static lean_object* l_Lake_getUrl_x3f___closed__3;
 static lean_object* l_Lake_getUrl_x3f___closed__10;
 static lean_object* l_Lake_foldlUtf8___redArg___closed__9;
 static lean_object* l_Lake_getUrl_x3f___closed__20;
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00Lake_getUrl_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_getUrl_x3f___closed__24;
 static lean_object* l_Lake_getUrl_x3f___closed__0;
 static lean_object* l_Lake_getUrl___closed__3;
@@ -61,7 +61,6 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_Lake_foldlUtf8M___redArg___lam__5(uint32_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_getUrl_x3f___closed__13;
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00Lake_getUrl_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Lake_getUrl_x3f___closed__1;
 size_t lean_usize_of_nat(lean_object*);
@@ -80,7 +79,6 @@ LEAN_EXPORT lean_object* l_Lake_foldlUtf8M___at___00Lake_uriEscapeChar_spec__0(u
 static lean_object* l_Lake_getUrl_x3f___closed__23;
 LEAN_EXPORT lean_object* l_Lake_foldlUtf8M___redArg___lam__2(uint32_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00Lake_getUrl_x3f_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Option_fromJson_x3f___at___00Lake_getUrl_x3f_spec__2___closed__0;
 static lean_object* l_Lake_getUrl_x3f___closed__14;
 LEAN_EXPORT lean_object* l_Lake_foldlUtf8M___redArg(lean_object*, uint32_t, lean_object*, lean_object*);
@@ -91,6 +89,7 @@ LEAN_EXPORT lean_object* l_String_foldlAux___at___00Lake_uriEncode_spec__0(lean_
 static lean_object* l_Lake_getUrl_x3f___closed__5;
 static lean_object* l_Lake_getUrl___closed__2;
 lean_object* l_Lake_captureProc_x27(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00Lake_getUrl_x3f_spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_getUrl_x3f___closed__8;
 LEAN_EXPORT lean_object* l_Option_fromJson_x3f___at___00Lake_getUrl_x3f_spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_foldlUtf8___redArg(uint32_t, lean_object*, lean_object*);
@@ -98,6 +97,8 @@ static lean_object* l_Lake_getUrl_x3f___closed__22;
 LEAN_EXPORT lean_object* l_Lake_getUrl___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_foldlUtf8M___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_foldlUtf8___redArg___closed__4;
+LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00Lake_getUrl_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00Lake_getUrl_x3f_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_foldlUtf8___redArg___closed__6;
 static lean_object* l_Lake_getUrl_x3f___closed__17;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_getUrl_x3f_spec__3(lean_object*, size_t, size_t, lean_object*);
@@ -111,7 +112,6 @@ LEAN_EXPORT lean_object* l_Lake_foldlUtf8___redArg___lam__0___boxed(lean_object*
 LEAN_EXPORT lean_object* l_Lake_getUrl(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_getUrl_x3f___closed__11;
 LEAN_EXPORT lean_object* l_Lake_uriEncode(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00Lake_getUrl_x3f_spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_isUriUnreservedMark___boxed(lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_foldlUtf8M___redArg___lam__6(uint32_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1209,7 +1209,7 @@ lean_dec_ref(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00Lake_getUrl_x3f_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00Lake_getUrl_x3f_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_7; uint8_t x_9; 
@@ -1285,7 +1285,7 @@ goto block_6;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00Lake_getUrl_x3f_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00Lake_getUrl_x3f_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -1863,8 +1863,8 @@ x_60 = lean_ctor_get(x_37, 0);
 lean_inc_ref(x_60);
 lean_dec_ref(x_37);
 x_61 = lean_string_utf8_byte_size(x_60);
-x_62 = l_Substring_takeWhileAux___at___00Lake_getUrl_x3f_spec__0(x_60, x_61, x_36);
-x_63 = l_Substring_takeRightWhileAux___at___00Lake_getUrl_x3f_spec__1(x_60, x_62, x_61);
+x_62 = l_Substring_Raw_takeWhileAux___at___00Lake_getUrl_x3f_spec__0(x_60, x_61, x_36);
+x_63 = l_Substring_Raw_takeRightWhileAux___at___00Lake_getUrl_x3f_spec__1(x_60, x_62, x_61);
 x_64 = lean_string_utf8_extract(x_60, x_62, x_63);
 lean_dec(x_63);
 lean_dec(x_62);
@@ -1936,8 +1936,8 @@ x_83 = lean_ctor_get(x_37, 0);
 lean_inc_ref(x_83);
 lean_dec_ref(x_37);
 x_84 = lean_string_utf8_byte_size(x_83);
-x_85 = l_Substring_takeWhileAux___at___00Lake_getUrl_x3f_spec__0(x_83, x_84, x_36);
-x_86 = l_Substring_takeRightWhileAux___at___00Lake_getUrl_x3f_spec__1(x_83, x_85, x_84);
+x_85 = l_Substring_Raw_takeWhileAux___at___00Lake_getUrl_x3f_spec__0(x_83, x_84, x_36);
+x_86 = l_Substring_Raw_takeRightWhileAux___at___00Lake_getUrl_x3f_spec__1(x_83, x_85, x_84);
 x_87 = lean_string_utf8_extract(x_83, x_85, x_86);
 lean_dec(x_86);
 lean_dec(x_85);
@@ -2173,21 +2173,21 @@ goto block_9;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00Lake_getUrl_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00Lake_getUrl_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Substring_takeWhileAux___at___00Lake_getUrl_x3f_spec__0(x_1, x_2, x_3);
+x_4 = l_Substring_Raw_takeWhileAux___at___00Lake_getUrl_x3f_spec__0(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00Lake_getUrl_x3f_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00Lake_getUrl_x3f_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Substring_takeRightWhileAux___at___00Lake_getUrl_x3f_spec__1(x_1, x_2, x_3);
+x_4 = l_Substring_Raw_takeRightWhileAux___at___00Lake_getUrl_x3f_spec__1(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_4;
@@ -2331,8 +2331,8 @@ x_18 = lean_ctor_get(x_17, 0);
 lean_inc_ref(x_18);
 lean_dec(x_17);
 x_19 = lean_string_utf8_byte_size(x_18);
-x_20 = l_Substring_takeWhileAux___at___00Lake_getUrl_x3f_spec__0(x_18, x_19, x_10);
-x_21 = l_Substring_takeRightWhileAux___at___00Lake_getUrl_x3f_spec__1(x_18, x_20, x_19);
+x_20 = l_Substring_Raw_takeWhileAux___at___00Lake_getUrl_x3f_spec__0(x_18, x_19, x_10);
+x_21 = l_Substring_Raw_takeRightWhileAux___at___00Lake_getUrl_x3f_spec__1(x_18, x_20, x_19);
 x_22 = lean_string_utf8_extract(x_18, x_20, x_21);
 lean_dec(x_21);
 lean_dec(x_20);
@@ -2352,8 +2352,8 @@ x_25 = lean_ctor_get(x_23, 0);
 lean_inc_ref(x_25);
 lean_dec(x_23);
 x_26 = lean_string_utf8_byte_size(x_25);
-x_27 = l_Substring_takeWhileAux___at___00Lake_getUrl_x3f_spec__0(x_25, x_26, x_10);
-x_28 = l_Substring_takeRightWhileAux___at___00Lake_getUrl_x3f_spec__1(x_25, x_27, x_26);
+x_27 = l_Substring_Raw_takeWhileAux___at___00Lake_getUrl_x3f_spec__0(x_25, x_26, x_10);
+x_28 = l_Substring_Raw_takeRightWhileAux___at___00Lake_getUrl_x3f_spec__1(x_25, x_27, x_26);
 x_29 = lean_string_utf8_extract(x_25, x_27, x_28);
 lean_dec(x_28);
 lean_dec(x_27);

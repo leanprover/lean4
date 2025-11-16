@@ -48,7 +48,6 @@ static uint8_t l_Lake_version_specialDesc___closed__8;
 static lean_object* l_Lake_versionString___closed__0;
 LEAN_EXPORT lean_object* l_Lake_version_patch;
 static lean_object* l_Lake_version_specialDesc___closed__6;
-lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_version_minor;
 LEAN_EXPORT uint8_t l_Lake_version_isRelease;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -61,6 +60,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lake_version_specialDesc___closed__0;
 LEAN_EXPORT lean_object* l_Lake_uiVersionString;
 static lean_object* l_Lake_uiVersionString___closed__6;
+lean_object* l_Substring_Raw_nextn(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lake_version_major() {
 _start:
 {
@@ -155,7 +155,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_unsigned_to_nat(7u);
 x_3 = l_Lake_version_specialDesc___closed__4;
-x_4 = l_Substring_nextn(x_3, x_2, x_1);
+x_4 = l_Substring_Raw_nextn(x_3, x_2, x_1);
 return x_4;
 }
 }

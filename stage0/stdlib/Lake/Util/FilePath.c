@@ -33,7 +33,6 @@ lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___00Lake_modOfFilePath_spec__0(lean_object*, lean_object*);
 extern uint32_t l_System_FilePath_pathSeparator;
-lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToJsonFilePath__lake___lam__0(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
@@ -53,6 +52,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lake_instDivFilePath__lake___closed__0;
 extern uint8_t l_System_Platform_isWindows;
 static lean_object* l_Lake_modOfFilePath___closed__1;
+lean_object* l_Substring_Raw_nextn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_relPathFrom(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -74,7 +74,7 @@ x_7 = lean_ctor_get(x_4, 2);
 lean_inc(x_7);
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_unsigned_to_nat(0u);
-x_10 = l_Substring_nextn(x_4, x_8, x_9);
+x_10 = l_Substring_Raw_nextn(x_4, x_8, x_9);
 lean_dec(x_4);
 x_11 = lean_nat_add(x_6, x_10);
 lean_dec(x_10);

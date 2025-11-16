@@ -131,6 +131,7 @@ partial def reduce (code : Code) : ReduceM Code := do
     let mask := (← read).paramMask
     let mut argsNew := #[]
     for h : i in *...args.size do
+      -- keep over-application
       if mask.getD i true then
         argsNew := argsNew.push args[i]
     let decl ← decl.updateValue (.const (← read).auxDeclName [] argsNew)

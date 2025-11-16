@@ -25,11 +25,13 @@ Examples:
  * `false ^^ true = true`
  * `true ^^ true = false`
 -/
-abbrev xor : Bool → Bool → Bool := bne
+abbrev xor (x y : Bool) : Bool := bne x y
 
-@[inherit_doc] infixl:33 " ^^ " => xor
+@[inherit_doc] infixl:33 " ^^ " => Bool.xor
 
-recommended_spelling "xor" for "^^" in [xor, «term_^^_»]
+recommended_spelling "xor" for "^^" in [Bool.xor, «term_^^_»]
+
+theorem xor_eq_bne (x y : Bool) : (x ^^ y) = (x != y) := rfl
 
 instance (p : Bool → Prop) [inst : DecidablePred p] : Decidable (∀ x, p x) :=
   match inst true, inst false with
@@ -48,7 +50,9 @@ instance (p : Bool → Prop) [inst : DecidablePred p] : Decidable (∃ x, p x) :
 instance : LE Bool := ⟨(. → .)⟩
 instance : LT Bool := ⟨(!. && .)⟩
 
+@[extern "lean_bool_dec_le"]
 instance (x y : Bool) : Decidable (x ≤ y) := inferInstanceAs (Decidable (x → y))
+@[extern "lean_bool_dec_lt"]
 instance (x y : Bool) : Decidable (x < y) := inferInstanceAs (Decidable (!x && y))
 
 instance : Max Bool := ⟨or⟩
@@ -385,7 +389,8 @@ theorem and_or_inj_left_iff :
 /--
 Converts `true` to `1` and `false` to `0`.
 -/
-@[expose] def toNat (b : Bool) : Nat := cond b 1 0
+@[expose, extern "lean_bool_to_nat"]
+def toNat (b : Bool) : Nat := cond b 1 0
 
 @[simp, bitvec_to_nat, grind =] theorem toNat_false : false.toNat = 0 := rfl
 
@@ -408,7 +413,7 @@ theorem toNat_lt (b : Bool) : b.toNat < 2 :=
 /--
 Converts `true` to `1` and `false` to `0`.
 -/
-@[expose] def toInt (b : Bool) : Int := cond b 1 0
+@[expose] def toInt (b : Bool) : Int := ↑b.toNat
 
 @[simp, grind =] theorem toInt_false : false.toInt = 0 := rfl
 
@@ -610,6 +615,12 @@ theorem or_eq_decide (p q : Bool) : (p || q) = decide (p ∨ q) := by simp
 theorem decide_beq_decide (p q : Prop) [dpq : Decidable (p ↔ q)] [dp : Decidable p] [dq : Decidable q] :
     (decide p == decide q) = decide (p ↔ q) := by
   cases dp with | _ p => simp [p]
+
+@[simp] theorem strictAnd_eq_and (a b : Bool) : strictAnd a b = (a && b) := rfl
+
+@[simp] theorem strictOr_eq_or (a b : Bool) : strictOr a b = (a || b) := rfl
+
+@[simp] theorem strictXor_eq_xor (a b : Bool) : strictXor a b = (a ^^ b) := rfl
 
 end Bool
 

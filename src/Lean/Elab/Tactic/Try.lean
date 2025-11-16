@@ -4,17 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.ExposeNames
 public import Lean.Meta.Tactic.Try
 public import Lean.Elab.Tactic.SimpTrace
 public import Lean.Elab.Tactic.LibrarySearch
-public import Lean.Elab.Tactic.Grind
+public import Lean.Elab.Tactic.Grind.Main
 meta import Lean.Elab.Command
-
 public section
-
 namespace Lean.Elab.Tactic
 open Meta
 /-!
@@ -500,25 +497,22 @@ where
                     $tacs2*)
       modify (·.push tac)
 
--- **TODO**: Use `finish?` infrastructure
 private def evalSuggestGrindTrace : TryTactic := fun tac => do
-  match tac with
-  | `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?) =>
-    let config ← elabGrindConfig configStx
-    let config := { config with trace := (← read).config.only, verbose := false }
-    let tac ← grindTraceToGrind tac
-    let trace ← evalGrindCore tac config only params none
-    trace[try.debug] "`grind` succeeded"
-    if (← read).config.only then
-      let tac' ← mkGrindOnly configStx trace
-      -- If config has +suggestions, only return the 'only' version, not the original
-      if configHasSuggestions configStx then
-        mkTrySuggestions #[tac']
-      else
-        mkTrySuggestions #[tac, tac']
+  let `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?) := tac | throwUnsupportedSyntax
+  let tacs ← evalGrindTraceCore tac (trace := (← read).config.only) (verbose := false) (useSorry := false)
+  let tac ← grindTraceToGrind tac
+  trace[try.debug] "`grind` succeeded"
+  replaceMainGoal []
+  for tac1 in tacs do
+    trace[try.debug] ">> {tac1}"
+  if (← read).config.only then
+    -- If config has +suggestions, only return the 'only' version, not the original
+    if configHasSuggestions configStx then
+      mkTrySuggestions tacs
     else
-      return tac
-  | _ => throwUnsupportedSyntax
+      mkTrySuggestions (#[tac] ++ tacs)
+  else
+    return tac
 
 private def evalSuggestSimpTrace : TryTactic := fun tac => do (← getMainGoal).withContext do
   match tac with

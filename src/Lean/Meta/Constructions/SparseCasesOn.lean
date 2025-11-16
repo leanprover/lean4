@@ -35,7 +35,7 @@ offering a catch-all.
 
 The minor arguments come in the order of the given `ctors` array.
 
-The catch-all provides a `(1 <<< x.ctorIdx) &&& mask = 0` hypothesis to express that these constructors
+The catch-all provides a `Nat.hasNotBit mask x.ctorIdx` hypothesis to express that these constructors
 were not matched. Using a single hypothesis like this, rather than many hypotheses of the form
 `x.ctorIdx ≠ i`, is important to avoid quadratic overhead in code like match splitter generation.
 

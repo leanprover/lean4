@@ -172,6 +172,12 @@ def _root_.Lean.MVarId.contradictionCore (mvarId : MVarId) (config : Contradicti
           if (← isDefEq lhs rhs) then
             mvarId.assign (← mkAbsurd (←  mvarId.getType) (← mkEqRefl lhs) localDecl.toExpr)
             return true
+        if let some (lhs, rhs) ← matchHasNotBit? localDecl.type then
+          if (← isDefEq lhs rhs) then
+            mvarId.assign (← mkAbsurd (←  mvarId.getType)
+              (mkApp3 (mkConst ``Nat.eq_of_beq_eq_true) lhs rhs (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Bool) (mkConst ``Bool.true)))
+              localDecl.toExpr)
+            return true
         let mut isEq := false
         -- (h : ctor₁ ... = ctor₂ ...)
         if let some (_, lhs, rhs) ← matchEq? localDecl.type then

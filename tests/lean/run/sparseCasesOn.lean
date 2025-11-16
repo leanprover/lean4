@@ -1,6 +1,5 @@
 import Lean
 
-
 /-- info: test._sparseCasesOn_1 -/
 #guard_msgs in
 run_meta
@@ -11,7 +10,7 @@ run_meta
 /--
 info: test._sparseCasesOn_1.{u} {motive : Lean.Expr → Sort u} (t : Lean.Expr)
   (fvar : (fvarId : Lean.FVarId) → motive (Lean.Expr.fvar fvarId))
-  (sort : (u : Lean.Level) → motive (Lean.Expr.sort u)) : (t.ctorIdx ≠ 1 → t.ctorIdx ≠ 3 → motive t) → motive t
+  (sort : (u : Lean.Level) → motive (Lean.Expr.sort u)) : (Nat.hasNotBit 10 t.ctorIdx → motive t) → motive t
 -/
 #guard_msgs in
 #check test._sparseCasesOn_1
@@ -39,7 +38,7 @@ trace: [Compiler.saveBase] size: 7
         let _x.3 := sort u;
         return _x.3
       | _ =>
-        let _x.4 := x.1 _ _;
+        let _x.4 := x.1 _;
         return _x.4
 -/
 #guard_msgs in

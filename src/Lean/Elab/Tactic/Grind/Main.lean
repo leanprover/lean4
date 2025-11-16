@@ -292,11 +292,11 @@ private def elabGrindConfig' (config : TSyntax ``Lean.Parser.Tactic.optConfig) (
   let config ← elabGrindConfig' config interactive
   discard <| evalGrindCore stx config only params seq
 
-def evalGrindTraceCore (stx : Syntax) : TacticM (Array (TSyntax `tactic)) := do
+def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorry := true) : TacticM (Array (TSyntax `tactic)) := withMainContext do
   let `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params?:grindParam,*] ]?) := stx
     | throwUnsupportedSyntax
   let config ← elabGrindConfig configStx
-  let config := { config with trace := true, clean := false }
+  let config := { config with clean := false, trace, verbose, useSorry }
   let only := only.isSome
   let params := if let some params := params? then params.getElems else #[]
   let mvarId ← getMainGoal
@@ -324,7 +324,7 @@ def evalGrindTraceCore (stx : Syntax) : TacticM (Array (TSyntax `tactic)) := do
           throwError "`grind?` failed\n{← result.toMessageData}"
     return tacs
 
-@[builtin_tactic Lean.Parser.Tactic.grindTrace] def evalGrindTrace : Tactic := fun stx => withMainContext do
+@[builtin_tactic Lean.Parser.Tactic.grindTrace] def evalGrindTrace : Tactic := fun stx => do
   let tacs ← evalGrindTraceCore stx
   if tacs.size == 1 then
     Tactic.TryThis.addSuggestion stx { suggestion := .tsyntax tacs[0]! }

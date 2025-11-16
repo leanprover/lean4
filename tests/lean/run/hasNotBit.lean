@@ -106,3 +106,17 @@ elab "reflTrue" : tactic =>
 
 example : Nat.land 1 (Nat.shiftRight 8 ([x].ctorIdx)) = 0 :=
   Nat.eq_of_beq_eq_true (by reflTrue)
+
+
+/--
+error: Type mismatch
+  Eq.refl true
+has type
+  true = true
+but is expected to have type
+  (Nat.land 1 (Nat.shiftRight 8 [x].ctorIdx)).beq 0 = true
+-/
+#guard_msgs in
+example : Nat.beq (Nat.land 1 (Nat.shiftRight 8 ([x].ctorIdx))) 0 := Eq.refl true
+
+example : Nat.beq (Nat.land 1 (Nat.shiftRight 8 ([x].ctorIdx))) 0 := by reflTrue

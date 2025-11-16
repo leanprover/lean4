@@ -68,15 +68,4 @@ def matchNe? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) := do
 def matchConstructorApp? (e : Expr) : MetaM (Option ConstructorVal) := do
   matchHelper? e isConstructorApp?
 
-def matchHasNotBit? (e : Expr) : MetaM (Option (Expr × Expr)) := do
-  match_expr e with
-  | Nat.hasNotBit mask bit =>
-    let bit' ← whnf bit -- reduce ctorIdxApp, to get close terms
-    let e' := mkApp2 (mkConst `Nat.hasNotBit) mask bit'
-    let some (_, lhs, rhs) := (← whnf e').bindingDomain!.eq? | unreachable!
-    return some (lhs, rhs)
-  | _ => return none
-
-
-
 end Lean.Meta

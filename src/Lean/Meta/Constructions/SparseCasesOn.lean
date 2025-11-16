@@ -11,6 +11,7 @@ public import Lean.Meta.Basic
 import Lean.AddDecl
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.AppBuilder
+import Lean.Meta.HasNotBit
 
 /-!  See `mkSparseCasesOn` below.  -/
 
@@ -27,25 +28,6 @@ deriving BEq, Hashable
 
 private builtin_initialize sparseCasesOnCacheExt : EnvExtension (PHashMap SparseCasesOnKey Name) ←
   registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache, keep it local
-
-def mkNatNotIn (e : Expr) (ns : Array Nat) : Expr := Id.run do
-  let mut mask := 0
-  for n in ns do
-    mask := mask ||| (1 <<< n)
-  return mkApp2 (mkConst `Nat.hasNotBit) (mkRawNatLit mask) e
-
-def mkNatNotInProof (e : Expr) (ns : Array Nat) : MetaM Expr := do
-  /-
-  In theory, it should suffice to write
-     mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Nat) (mkNatLit 0)
-  (which would be nice and simple) but somehow that does not trigger the kernels `reduce_nat` code
-  path, even with `eagerReduce`.
-
-  But the following does:
-  -/
-  let some (_, lhs, rhs) := (← whnf (mkNatNotIn e ns)).bindingDomain!.eq? | unreachable!
-  return mkApp3 (mkConst ``Nat.ne_of_beq_eq_false)
-    lhs rhs (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Bool) (mkConst ``Bool.false))
 
 /--
 This module creates sparse variants of `casesOn` that have arms only for some of the constructors,
@@ -105,7 +87,7 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name :=
     let overlappingIdxs ← ctors.mapM fun ctor => return (← getConstInfoCtor ctor).cidx
     let catchAllType ← id do
       let ctorIdxApp := mkAppN (mkConst ctorIdxName us) (params ++ indices ++ #[major])
-      let hyp := mkNatNotIn ctorIdxApp overlappingIdxs
+      let hyp := mkHasNotBit ctorIdxApp overlappingIdxs
       withLocalDeclD `h hyp fun h =>
         mkForallFVars #[h] (mkAppN motive ism)
 
@@ -126,7 +108,7 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name :=
         else
           let ctorInfo ← getConstInfoCtor ctor
           let idx := ctorInfo.cidx
-          mkLambdaFVars ys (mkApp elseMinor (← mkNatNotInProof (mkRawNatLit idx) overlappingIdxs))
+          mkLambdaFVars ys (mkApp elseMinor (← mkHasNotBitProof (mkRawNatLit idx) overlappingIdxs))
     -- Unfold the `casesOn` to `rec` for faster reduction
     let e ← Core.betaReduce e
     mkLambdaFVars (params ++ #[motive] ++ indices ++ #[major] ++ minors') e

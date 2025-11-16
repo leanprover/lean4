@@ -12,6 +12,7 @@ public import Lean.Meta.GeneralizeTelescope
 public import Lean.Meta.Match.Basic
 public import Lean.Meta.Match.MatcherApp.Basic
 public import Lean.Meta.Match.MVarRenaming
+import Lean.Meta.HasNotBit
 
 public section
 
@@ -354,19 +355,13 @@ where
           msg := msg ++ m!"\n  {lhs} ≋ {rhs}"
         throwErrorAt alt.ref msg
 
-private def isCtorIdxIneq? (e : Expr) : Option FVarId :=
-  match_expr e with
-  | Nat.hasNotBit _mask e' =>
-    if
-      e'.isApp &&
-      e'.getAppFn.isConst &&
-      (`ctorIdx).isSuffixOf e'.getAppFn.constName! && -- This should be an env extension maybe
-      e'.appArg!.isFVar
-    then
-      some e'.appArg!.fvarId!
-    else
-      none
-  | _ => none
+private def isCtorIdxhasNotBit? (e : Expr) : Option FVarId := do
+  let ctorIdxApp ← isHasNotBit? e
+  guard ctorIdxApp.isApp
+  guard ctorIdxApp.getAppFn.isConst
+  guard <| (`ctorIdx).isSuffixOf ctorIdxApp.getAppFn.constName! -- This should be an env extension maybe
+  guard ctorIdxApp.appArg!.isFVar
+  return ctorIdxApp.appArg!.fvarId!
 
 private partial def contradiction (mvarId : MVarId) : MetaM Bool := do
   mvarId.withContext do
@@ -378,7 +373,7 @@ private partial def contradiction (mvarId : MVarId) : MetaM Bool := do
     else
       -- Try harder by splitting `ctorIdx x ≠ 23` assumptions
       for localDecl in (← getLCtx) do
-        if let some fvarId := isCtorIdxIneq? localDecl.type then
+        if let some fvarId := isCtorIdxhasNotBit? localDecl.type then
           trace[Meta.Match.match] "splitting ctorIdx assumption {localDecl.type}"
           let subgoals ← mvarId.cases fvarId
           return ← subgoals.allM (contradiction ·.mvarId)

@@ -225,6 +225,7 @@ def _root_.Lean.MVarId.contradictionCore (mvarId : MVarId) (config : Contradicti
 Try to close the goal using "contradictions" such as
 - Contradictory hypotheses `h₁ : p` and `h₂ : ¬ p`.
 - Contradictory disequality `h : x ≠ x`.
+- Contradictroy bit mask test: `h : Nat.hasNotBit mask i` where that bit is set
 - Contradictory equality between different constructors, e.g., `h : List.nil = List.cons x xs`.
 - Empty inductive types, e.g., `x : Fin 0`.
 - Decidable propositions that evaluate to false, i.e., a hypothesis `h : p` s.t. `decide p` reduces to `false`.

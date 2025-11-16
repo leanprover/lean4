@@ -53,13 +53,13 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l___private_Lean_AuxRecursor_0__Lean_initFn___closed__1_00___x40_Lean_AuxRecursor_2879463644____hygCtx___hyg_2_;
 static lean_object* l_Lean_initFn___closed__1_00___x40_Lean_AuxRecursor_4182987117____hygCtx___hyg_2_;
+uint8_t l_Substring_Raw_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_belowSuffix;
 static lean_object* l_Lean_isAuxRecursor___closed__2;
 LEAN_EXPORT lean_object* l_Lean_recOnSuffix;
 static lean_object* l_Lean_isAuxRecursor___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_AuxRecursor_0__Lean_initFn_00___x40_Lean_AuxRecursor_2879463644____hygCtx___hyg_2_();
 static lean_object* l_Lean_isAuxRecursorWithSuffix___closed__0;
-lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_AuxRecursor_0__Lean_initFn___closed__3_00___x40_Lean_AuxRecursor_2879463644____hygCtx___hyg_2_;
 static lean_object* l_Lean_isAuxRecursor___closed__1;
 static lean_object* l_Lean_initFn___closed__1_00___x40_Lean_AuxRecursor_3622182683____hygCtx___hyg_2_;
@@ -79,7 +79,6 @@ static lean_object* l_Lean_isAuxRecursor___closed__4;
 LEAN_EXPORT lean_object* l_Lean_isSparseCasesOn___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_noConfusionExt;
 static lean_object* l___private_Lean_AuxRecursor_0__Lean_initFn___closed__5_00___x40_Lean_AuxRecursor_2879463644____hygCtx___hyg_2_;
-uint8_t l_Substring_beq(lean_object*, lean_object*);
 static lean_object* l_Lean_markSparseCasesOn___closed__0;
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_isAuxRecursorWithSuffix(lean_object*, lean_object*, lean_object*);
@@ -88,6 +87,7 @@ static lean_object* l___private_Lean_AuxRecursor_0__Lean_initFn___closed__8_00__
 lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_isCasesOnRecursor(lean_object*, lean_object*);
 static lean_object* l_Lean_belowSuffix___closed__0;
+lean_object* l_Substring_Raw_nextn(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_markAuxRecursor___closed__0;
 static lean_object* _init_l_Lean_casesOnSuffix___closed__0() {
 _start:
@@ -377,7 +377,7 @@ lean_ctor_set(x_13, 0, x_7);
 lean_ctor_set(x_13, 1, x_11);
 lean_ctor_set(x_13, 2, x_12);
 x_14 = lean_string_length(x_10);
-x_15 = l_Substring_nextn(x_13, x_14, x_11);
+x_15 = l_Substring_Raw_nextn(x_13, x_14, x_11);
 lean_dec_ref(x_13);
 lean_inc_ref(x_7);
 x_16 = lean_alloc_ctor(0, 3, 0);
@@ -389,7 +389,7 @@ x_18 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_18, 0, x_10);
 lean_ctor_set(x_18, 1, x_11);
 lean_ctor_set(x_18, 2, x_17);
-x_19 = l_Substring_beq(x_16, x_18);
+x_19 = l_Substring_Raw_beq(x_16, x_18);
 x_4 = x_19;
 goto block_6;
 }

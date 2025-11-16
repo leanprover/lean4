@@ -154,39 +154,39 @@ Examples:
 def List.asString (s : List Char) : String :=
   String.ofList s
 
-namespace Substring.Internal
+namespace Substring.Raw.Internal
 
 @[extern "lean_substring_tostring"]
-opaque toString : Substring → String
+opaque toString : Substring.Raw → String
 
 @[extern "lean_substring_drop"]
-opaque drop : Substring → Nat → Substring
+opaque drop : Substring.Raw → Nat → Substring.Raw
 
 @[extern "lean_substring_front"]
-opaque front (s : Substring) : Char
+opaque front (s : Substring.Raw) : Char
 
 @[extern "lean_substring_takewhile"]
-opaque takeWhile : Substring → (Char → Bool) → Substring
+opaque takeWhile : Substring.Raw → (Char → Bool) → Substring.Raw
 
 @[extern "lean_substring_extract"]
-opaque extract : Substring → String.Pos.Raw → String.Pos.Raw → Substring
+opaque extract : Substring.Raw → String.Pos.Raw → String.Pos.Raw → Substring.Raw
 
 @[extern "lean_substring_all"]
-opaque all (s : Substring) (p : Char → Bool) : Bool
+opaque all (s : Substring.Raw) (p : Char → Bool) : Bool
 
 @[extern "lean_substring_beq"]
-opaque beq (ss1 ss2 : Substring) : Bool
+opaque beq (ss1 ss2 : Substring.Raw) : Bool
 
 @[extern "lean_substring_isempty"]
-opaque isEmpty (ss : Substring) : Bool
+opaque isEmpty (ss : Substring.Raw) : Bool
 
 @[extern "lean_substring_get"]
-opaque get : Substring → String.Pos.Raw → Char
+opaque get : Substring.Raw → String.Pos.Raw → Char
 
 @[extern "lean_substring_prev"]
-opaque prev : Substring → String.Pos.Raw → String.Pos.Raw
+opaque prev : Substring.Raw → String.Pos.Raw → String.Pos.Raw
 
-end Substring.Internal
+end Substring.Raw.Internal
 
 namespace String.Pos.Raw.Internal
 

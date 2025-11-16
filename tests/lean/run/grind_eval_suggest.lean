@@ -19,6 +19,7 @@ info: Try these:
   [apply] simp +arith only [Nat.reduceAdd, fthm]
   [apply] grind
   [apply] grind only [= fthm]
+  [apply] grind => instantiate only [= fthm]
 -/
 #guard_msgs (info) in
 example (x : Nat) : 1 + 1 + f x = x + 2 := by

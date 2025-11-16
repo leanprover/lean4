@@ -204,7 +204,7 @@ x_11 = lean_ctor_get(x_9, 0);
 x_12 = l_Lake_LeanExe_exeFacet;
 lean_inc(x_10);
 lean_inc(x_11);
-x_13 = lean_alloc_ctor(2, 2, 0);
+x_13 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_13, 0, x_11);
 lean_ctor_set(x_13, 1, x_10);
 x_14 = l_Lake_LeanExe_keyword;
@@ -1152,7 +1152,7 @@ _start:
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = l_Lake_LeanExe_exeFacet;
-x_13 = lean_alloc_ctor(2, 2, 0);
+x_13 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_13, 0, x_1);
 lean_ctor_set(x_13, 1, x_2);
 x_14 = lean_alloc_ctor(1, 4, 0);

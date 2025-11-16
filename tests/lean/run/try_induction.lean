@@ -26,6 +26,10 @@ axiom MyListProp : MyList α → Prop
 info: Try these:
   [apply] (induction xs) <;> grind
   [apply] (induction xs) <;> grind only [mylist_nil, mylist_cons]
+  [apply] ·
+    induction xs
+    · grind => instantiate only [mylist_nil]
+    · grind => instantiate only [mylist_cons]
 -/
 #guard_msgs (info) in
 example (xs : MyList α) : MyListProp xs := by
@@ -47,6 +51,11 @@ axiom ExprProp : Expr → Prop
 info: Try these:
   [apply] (induction e) <;> grind
   [apply] (induction e) <;> grind only [expr_const, expr_add, expr_mul]
+  [apply] ·
+    induction e
+    · grind => instantiate only [expr_const]
+    · grind => instantiate only [expr_add]
+    · grind => instantiate only [expr_mul]
 -/
 #guard_msgs (info) in
 example (e : Expr) : ExprProp e := by
@@ -68,6 +77,7 @@ def add : MyNat → MyNat → MyNat
 info: Try these:
   [apply] (induction n) <;> grind [= add]
   [apply] (induction n) <;> grind only [add]
+  [apply] (induction n) <;> grind => instantiate only [add]
 -/
 #guard_msgs in
 @[grind =]
@@ -78,6 +88,7 @@ theorem add_zero (n : ℕ) : add n .zero = n := by
 info: Try these:
   [apply] (fun_induction add) <;> grind [= add]
   [apply] (fun_induction add) <;> grind only [add]
+  [apply] (fun_induction add) <;> grind => instantiate only [add]
 -/
 #guard_msgs in
 @[grind =]
@@ -97,6 +108,7 @@ attribute [local grind] hyperoperation add
 info: Try these:
   [apply] grind
   [apply] grind only [hyperoperation]
+  [apply] grind => instantiate only [hyperoperation]
 -/
 #guard_msgs in
 @[grind =]
@@ -107,6 +119,7 @@ theorem hyperoperation_zero (m k : ℕ) : hyperoperation .zero m k = .succ k := 
 info: Try these:
   [apply] grind
   [apply] grind only [hyperoperation]
+  [apply] grind => instantiate only [hyperoperation]
 -/
 #guard_msgs in
 @[grind =]
@@ -117,8 +130,14 @@ theorem hyperoperation_recursion (n m k : ℕ) :
 /--
 info: Try these:
   [apply] (induction k) <;> grind
-  [apply] (induction k) <;>
-    grind only [hyperoperation, = add_zero, = hyperoperation_zero, = hyperoperation_recursion, = add_succ]
+  [apply] (induction k) <;> grind only [hyperoperation, = add_zero, = add_succ, = hyperoperation_zero]
+  [apply] ·
+    induction k
+    · grind => instantiate only [hyperoperation, = add_zero]
+    ·
+      grind =>
+        instantiate only [hyperoperation, = add_succ]
+        instantiate only [= hyperoperation_zero]
 -/
 #guard_msgs in
 @[grind =]

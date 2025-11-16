@@ -1217,8 +1217,12 @@ theorem tailD_map {f : α → β} {l l' : List α} :
 theorem getLastD_map {f : α → β} {l : List α} {a : α} : (map f l).getLastD (f a) = f (l.getLastD a) := by
   simp
 
-@[simp, grind _=_] theorem map_map {g : β → γ} {f : α → β} {l : List α} :
+@[simp] theorem map_map {g : β → γ} {f : α → β} {l : List α} :
     map g (map f l) = map (g ∘ f) l := by induction l <;> simp_all
+
+grind_pattern map_map => map g (map f l) where
+  g =/= List.reverse
+  f =/= List.reverse
 
 /-! ### filter -/
 
@@ -1428,12 +1432,15 @@ theorem filterMap_eq_filter {p : α → Bool} :
   | nil => rfl
   | cons a l IH => by_cases pa : p a <;> simp [Option.guard, pa, ← IH]
 
-@[grind =]
 theorem filterMap_filterMap {f : α → Option β} {g : β → Option γ} {l : List α} :
     filterMap g (filterMap f l) = filterMap (fun x => (f x).bind g) l := by
   induction l with
   | nil => rfl
   | cons a l IH => cases h : f a <;> simp [filterMap_cons, *]
+
+grind_pattern filterMap_filterMap => filterMap g (filterMap f l) where
+  f =/= some
+  g =/= some
 
 @[grind =]
 theorem map_filterMap {f : α → Option β} {g : β → γ} {l : List α} :

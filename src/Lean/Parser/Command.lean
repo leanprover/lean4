@@ -781,7 +781,7 @@ def initializeKeyword := leading_parser
   optional (atomic (ident >> Term.typeSpec >> ppSpace >> Term.leftArrow)) >> Term.doSeq
 
 @[builtin_command_parser] def «in»  := trailing_parser
-  withOpen (ppDedent (" in " >> commandParser))
+  withOpen (ppDedent (" in" >> ppLine >> commandParser))
 
 /--
 Adds a docstring to an existing declaration, replacing any existing docstring.

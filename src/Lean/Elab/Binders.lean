@@ -66,7 +66,7 @@ partial def quoteAutoTactic : Syntax → CoreM Expr
   | .ident _ _ val preresolved =>
     return mkApp4 (.const ``Syntax.ident [])
       (.const ``SourceInfo.none [])
-      (.app (.const ``String.toSubstring []) (mkStrLit (toString val)))
+      (.app (.const ``String.toRawSubstring []) (mkStrLit (toString val)))
       (toExpr val)
       (toExpr preresolved)
   | stx@(.node _ k args) => do

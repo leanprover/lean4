@@ -2657,7 +2657,10 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
 where
   -- similar to `wrapAsyncAsSnapshot` but not sufficiently so to share code
   realizeAndReport (coreCtx : Core.Context) env opts := do
-    let coreCtx := { coreCtx with options := opts }
+    let coreCtx := { coreCtx with
+      options := opts
+      maxHeartbeats := Core.getMaxHeartbeats opts
+    }
     let act :=
       IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get opts) (do
         -- catch all exceptions

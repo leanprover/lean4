@@ -828,14 +828,15 @@ private def checkNextPatternTypes (p : Problem) : MetaM Unit := do
   | x::_ => withGoalOf p do
     for alt in p.alts do
       withRef alt.ref do
-        match alt.patterns with
-        | []   => return ()
-        | p::_ =>
-          let e ← p.toExpr
-          let xType ← inferType x
-          let eType ← inferType e
-          unless (← isDefEq xType eType) do
-            throwError "Type mismatch in pattern: Pattern{indentExpr e}\n{← mkHasTypeButIsExpectedMsg eType xType}"
+        withExistingLocalDecls alt.fvarDecls do
+          match alt.patterns with
+          | []   => return ()
+          | p::_ =>
+            let e ← p.toExpr
+            let xType ← inferType x
+            let eType ← inferType e
+            unless (← isDefEq xType eType) do
+              throwError "Type mismatch in pattern: Pattern{indentExpr e}\n{← mkHasTypeButIsExpectedMsg eType xType}"
 
 private def List.moveToFront [Inhabited α] (as : List α) (i : Nat) : List α :=
   let rec loop : (as : List α) → (i : Nat) → α × List α

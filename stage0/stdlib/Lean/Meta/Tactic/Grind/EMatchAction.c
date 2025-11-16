@@ -2112,7 +2112,7 @@ x_24 = lean_ctor_get(x_22, 5);
 lean_inc_ref(x_24);
 x_25 = lean_ctor_get(x_22, 6);
 lean_inc(x_25);
-x_26 = lean_ctor_get_uint8(x_22, sizeof(void*)*7);
+x_26 = lean_ctor_get_uint8(x_22, sizeof(void*)*8);
 lean_dec_ref(x_22);
 x_27 = l_Lean_Meta_Grind_Origin_key(x_24);
 x_28 = l_Lean_Meta_Grind_isMatchEqLikeDeclName(x_27, x_11, x_12);

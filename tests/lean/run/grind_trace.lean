@@ -137,7 +137,7 @@ reset_grind_attrs%
 set_option warn.sorry false
 
 /--
-info: Try these:
+info: Try this:
   [apply] grind => sorry
 -/
 #guard_msgs in

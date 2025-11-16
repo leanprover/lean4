@@ -126,7 +126,7 @@ def run (goal : Goal) (a : Action) : GrindM ActionResult := do
   let k := fun goal => do
     if goal.inconsistent then
       return .closed []
-    else if (← getConfig).trace then
+    else if (← getConfig).trace && (← getConfig).useSorry then
       goal.mvarId.admit
       let sorryTac ← `(grind| sorry)
       return .closed [sorryTac]

@@ -266,17 +266,18 @@ end Iterator
 
 end String.Legacy
 
-namespace Substring
+namespace Substring.Raw
 
 /--
 Returns an iterator into the underlying string, at the substring's starting position. The ending
 position is discarded, so the iterator alone cannot be used to determine whether its current
 position is within the original substring.
 -/
-@[inline] def toLegacyIterator : Substring → String.Legacy.Iterator
+@[inline] def toLegacyIterator : Substring.Raw → String.Legacy.Iterator
   | ⟨s, b, _⟩ => ⟨s, b⟩
 
-end Substring
+
+end Substring.Raw
 
 instance : Repr String.Legacy.Iterator where
   reprPrec | ⟨s, pos⟩, prec => Repr.addAppParen ("String.Iterator.mk " ++ reprArg s ++ " " ++ reprArg pos) prec
@@ -298,7 +299,7 @@ abbrev String.Iterator.curr := String.Legacy.Iterator.curr
 abbrev String.Iterator.next := String.Legacy.Iterator.next
 @[deprecated String.Legacy.Iterator.hasNext (since := "2025-11-12")]
 abbrev String.Iterator.hasNext := String.Legacy.Iterator.hasNext
-@[deprecated Substring.toLegacyIterator (since := "2025-11-12")]
-abbrev Substring.toIterator := Substring.toLegacyIterator
+@[deprecated Substring.Raw.toLegacyIterator (since := "2025-11-12")]
+abbrev Substring.toIterator := Substring.Raw.toLegacyIterator
 
 end Deprecations

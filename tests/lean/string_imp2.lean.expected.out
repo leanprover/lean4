@@ -37,11 +37,11 @@ true
 false
 "βγ"
 "γ"
-"αβγδ".toSubstring
-"abcd".toSubstring
-"abcd".toSubstring
-["abc".toSubstring, "αβγ".toSubstring, "123".toSubstring, "".toSubstring]
-["abc".toSubstring, "αβγ".toSubstring, "123".toSubstring, "".toSubstring]
+"αβγδ".toRawSubstring
+"abcd".toRawSubstring
+"abcd".toRawSubstring
+["abc".toRawSubstring, "αβγ".toRawSubstring, "123".toRawSubstring, "".toRawSubstring]
+["abc".toRawSubstring, "αβγ".toRawSubstring, "123".toRawSubstring, "".toRawSubstring]
 'α'
 'β'
 { byteIdx := 4 }

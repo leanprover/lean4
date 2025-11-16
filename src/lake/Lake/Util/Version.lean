@@ -268,7 +268,7 @@ public def ofString (ver : String) : ToolchainVer := Id.run do
       if noOrigin then
         return .nightly date
       else if let some suffix := origin.dropPrefix? defaultOrigin then
-        if suffix.isEmpty || suffix == "-nightly".toSubstring then
+        if suffix.isEmpty || suffix == "-nightly".toRawSubstring then
           return .nightly date
   else if let some n := tag.dropPrefix?  "pr-release-" then
     if let some n := n.toNat? then

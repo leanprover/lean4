@@ -9,7 +9,7 @@ prelude
 public import Init.Data.String.Basic
 public import Init.Data.Stream
 
-public instance : Std.Stream Substring Char where
+public instance : Std.Stream Substring.Raw Char where
   next? s :=
     if s.startPos < s.stopPos then
       some (s.startPos.get s.str, { s with startPos := s.startPos.next s.str })

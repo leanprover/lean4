@@ -77,7 +77,7 @@ def applyEditToHint? (hintMod : Name) (ihi : Elab.InlayHintInfo) (range : Lean.S
       isLabelLocAffectedByEdit
   if isInlayHintInvalidatedByEdit then
     none
-  let byteOffset : Int := (newText.toSubstring.bsize : Int) - (range.bsize : Int)
+  let byteOffset : Int := (newText.toRawSubstring.bsize : Int) - (range.bsize : Int)
   let shift (p : String.Pos.Raw) : String.Pos.Raw :=
     if range.stop < p then
       ⟨p.byteIdx + byteOffset |>.toNat⟩

@@ -79,8 +79,8 @@ instance : ToStream (Array α) (Subarray α) where
 instance : ToStream (Subarray α) (Subarray α) where
   toStream a := a
 
-instance : ToStream String Substring where
-  toStream s := s.toSubstring
+instance : ToStream String Substring.Raw where
+  toStream s := s.toRawSubstring
 
 instance : ToStream Std.Range Std.Range where
   toStream r := r

@@ -124,7 +124,7 @@ def elabDateTime (x : TSyntax ``dateTime) : CoreM DateTime := do
 def elabLiteralString (x : TSyntax ``literalString) : CoreM String := do
   return (← elabLit x "literalString").drop 1 |>.dropRight 1
 
-def decodeHexDigits (s : Substring) : Nat :=
+def decodeHexDigits (s : Substring.Raw) : Nat :=
   s.foldl (init := 0) fun n c => n*16 + decodeHexDigit c
 
 partial def elabBasicStringCore (lit : String) (i : String.Pos.Raw := 0) (out := "") : CoreM String := do
@@ -154,10 +154,10 @@ partial def elabBasicStringCore (lit : String) (i : String.Pos.Raw := 0) (out :=
         | 'r'  => elabBasicStringCore lit next (out.push '\r')
         | '\"' => elabBasicStringCore lit next (out.push '"')
         | '\\' => elabBasicStringCore lit next (out.push '\\')
-        | 'u'  => elabUnicodeEscape (Substring.mk lit next lit.rawEndPos |>.take 4)
-        | 'U'  => elabUnicodeEscape (Substring.mk lit next lit.rawEndPos |>.take 8)
+        | 'u'  => elabUnicodeEscape (Substring.Raw.mk lit next lit.rawEndPos |>.take 4)
+        | 'U'  => elabUnicodeEscape (Substring.Raw.mk lit next lit.rawEndPos |>.take 8)
         | _ =>
-          let i := Substring.mk lit i lit.rawEndPos |>.trimLeft |>.startPos
+          let i := Substring.Raw.mk lit i lit.rawEndPos |>.trimLeft |>.startPos
           elabBasicStringCore lit i out
     else
       elabBasicStringCore lit i (out.push curr)

@@ -128,7 +128,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
     markSimplified
     simp (.fun funDecl k)
   else
-    let code ← betaReduce info.params info.value info.args[*...info.arity]
+    let code ← betaReduce info.params info.value info.args[*...info.arity].copy
     if k.isReturnOf fvarId && numArgs == info.arity then
       /- Easy case, the continuation `k` is just returning the result of the application. -/
       markSimplified
@@ -138,7 +138,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
       let simpK (result : FVarId) : SimpM Code := do
         /- `result` contains the result of the inlined code -/
         if numArgs > info.arity then
-          let decl ← mkAuxLetDecl (.fvar result info.args[info.arity...*])
+          let decl ← mkAuxLetDecl (.fvar result info.args[info.arity...*].copy)
           addFVarSubst fvarId decl.fvarId
           simp (.let decl k)
         else
@@ -151,7 +151,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
           markUsedFVar fvarId'
           simpK fvarId'
       else
-        let expectedType ← inferAppType info.fType info.args[*...info.arity]
+        let expectedType ← inferAppType info.fType info.args[*...info.arity].copy
         if expectedType.headBeta.isForall then
           /-
           If `code` returns a function, we create an auxiliary local function declaration (and eta-expand it)

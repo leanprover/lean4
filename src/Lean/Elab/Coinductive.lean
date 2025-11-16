@@ -149,8 +149,8 @@ private def generateEqLemmas (infos : Array InductiveVal) : MetaM Unit := do
   let levels := infos[0]!.levelParams.map mkLevelParam
   for info in infos do
     let res ← forallTelescopeReducing info.type fun args _ => do
-      let params := args[:info.numParams - infos.size]
-      let args := args[info.numParams:]
+      let params := args[*...(info.numParams - infos.size)].copy
+      let args := args[info.numParams...*].copy
 
       let lhs := mkConst (removeFunctorPostfix info.name) levels
       let lhs := mkAppN lhs params
@@ -214,7 +214,7 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyn
       while the remaining ones are free variables that correspond to recursive calls.
     -/
     let params := args.take numParams
-    let predFVars := args[numParams:]
+    let predFVars := args[numParams...*].copy
     /-
       We will fill recursive calls in the body with the just defined (co)inductive predicates.
     -/
@@ -229,7 +229,7 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyn
       /-
         First, we look at conclusion and pick out all arguments that are non-parameters.
       -/
-      let bodyAppArgs := bodyExpr.getAppArgs[numParams + infos.size:]
+      let bodyAppArgs := bodyExpr.getAppArgs[(numParams + infos.size)...*].copy
       /-
         The goal (i.e. right hands side of a constructor) that we are trying to make is just
         the coinductive predicate with parameters and non-parameter arguments applied.
@@ -313,12 +313,12 @@ private def mkCasesOnCoinductive (infos : Array InductiveVal) : MetaM Unit := do
     -/
     let goalTypeWithParamsApplied := goalTypeWithParamsApplied.replace (fun e =>
       if e.isApp then
-        let bodyArgs := e.getAppArgs[info.numParams:]
+        let bodyArgs := e.getAppArgs[info.numParams...*].copy
         if e.isAppOf info.name then
           mkAppN (mkConst (removeFunctorPostfix info.name) levels) <| params ++ bodyArgs
         else
           if allCtors.any e.isAppOf then
-            let bodyArgs := e.getAppArgs[info.numParams:]
+            let bodyArgs := e.getAppArgs[info.numParams...*].copy
             mkAppN (mkConst (removeFunctorPostfixInCtor (e.getAppFn.constName)) levels)
               <| params ++ bodyArgs
           else none
@@ -439,7 +439,7 @@ public def elabCoinductive (coinductiveElabData : Array CoinductiveElabData) : T
   let originalNumParams := infos[0]!.numParams - infos.size
   let namesAndTypes : Array (Name × Expr) ← infos.mapM fun info => do
     let type ← forallTelescope info.type fun args body => do
-      mkForallFVars (args[:originalNumParams] ++ args[info.numParams:]) body
+      mkForallFVars (args[*...originalNumParams].copy ++ args[info.numParams...*].copy) body
     return (removeFunctorPostfix (info.name), type)
   /-
     We make dummy constants that are used in populating PreDefinitions

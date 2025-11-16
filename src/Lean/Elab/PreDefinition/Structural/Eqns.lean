@@ -48,8 +48,8 @@ where
       if isBRecOnRecursor (← getEnv) name then
         let arity ← forallTelescope (← inferType f) fun xs _ => return xs.size
         if arity ≤ xs.size then
-          let brecOnApp := mkAppN f xs[:arity]
-          let extraArgs := xs[arity:]
+          let brecOnApp := mkAppN f xs[*...arity].copy
+          let extraArgs := xs[arity...*].copy
           return ← withLocalDeclD `x (← inferType brecOnApp) fun x =>
             k brecOnApp x (mkAppN x extraArgs)
     throwError "could not find `.brecOn` application in{indentExpr e}"

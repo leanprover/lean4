@@ -205,7 +205,7 @@ private partial def splitMutualPreamble (elems : Array Syntax) : Option (Array S
       else if i == 0 then
         none -- `mutual` block does not contain any preamble commands
       else
-        some (elems[*...i], elems[i...elems.size])
+        some (elems[*...i].copy, elems[i...elems.size].copy)
     else
       none -- a `mutual` block containing only preamble commands is not a valid `mutual` block
   loop 0

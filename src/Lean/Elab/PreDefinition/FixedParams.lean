@@ -431,7 +431,7 @@ where
           else
             panic! "FixedParams.buildArgs: too few varying args"
     else
-      xs ++ varyingArgs[j...*] -- (Possibly) over-application
+      xs ++ varyingArgs[j...*].copy -- (Possibly) over-application
 
 /--
 Are all fixed parameters a non-reordered prefix?

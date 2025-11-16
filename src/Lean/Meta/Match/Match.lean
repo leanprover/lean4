@@ -354,16 +354,19 @@ where
           msg := msg ++ m!"\n  {lhs} ≋ {rhs}"
         throwErrorAt alt.ref msg
 
-private abbrev isCtorIdxIneq? (e : Expr) : Option FVarId := do
-  if let some (_, lhs, _rhs) := e.ne? then
+private def isCtorIdxIneq? (e : Expr) : Option FVarId :=
+  match_expr e with
+  | Nat.hasNotBit _mask e' =>
     if
-      lhs.isApp &&
-      lhs.getAppFn.isConst &&
-      (`ctorIdx).isSuffixOf lhs.getAppFn.constName! && -- This should be an env extension maybe
-      lhs.appArg!.isFVar
+      e'.isApp &&
+      e'.getAppFn.isConst &&
+      (`ctorIdx).isSuffixOf e'.getAppFn.constName! && -- This should be an env extension maybe
+      e'.appArg!.isFVar
     then
-      return lhs.appArg!.fvarId!
-  none
+      some e'.appArg!.fvarId!
+    else
+      none
+  | _ => none
 
 private partial def contradiction (mvarId : MVarId) : MetaM Bool := do
   mvarId.withContext do

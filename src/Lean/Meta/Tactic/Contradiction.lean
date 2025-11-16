@@ -168,14 +168,15 @@ def _root_.Lean.MVarId.contradictionCore (mvarId : MVarId) (config : Contradicti
             -- We use `False.elim` because `p`'s type may be Type
             mvarId.assign (← mkFalseElim (← mvarId.getType) (mkApp localDecl.toExpr (mkFVar pFVarId)))
             return true
+        -- (h : Nat.hasNotBit mask i) where that bit is set
+        if let some prf ← refutableHasNotBit? localDecl.type then
+          mvarId.assign (← mkAbsurd (← mvarId.getType) prf localDecl.toExpr)
+          return true
         -- (h : x ≠ x)
         if let some (_, lhs, rhs) ← matchNe? localDecl.type then
           if (← isDefEq lhs rhs) then
             mvarId.assign (← mkAbsurd (←  mvarId.getType) (← mkEqRefl lhs) localDecl.toExpr)
             return true
-        if let some prf ← refutableHasNotBit? localDecl.type then
-          mvarId.assign (← mkAbsurd (← mvarId.getType) prf localDecl.toExpr)
-          return true
         let mut isEq := false
         -- (h : ctor₁ ... = ctor₂ ...)
         if let some (_, lhs, rhs) ← matchEq? localDecl.type then

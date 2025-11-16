@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Elab.Util
+public import Lean.Compiler.InitAttr
 import Lean.Parser.Term
 
 public section
@@ -56,6 +57,9 @@ def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMa
     | _ => throwErrorAt attr  "Unknown attribute"
   let .ok _impl := getAttributeImpl (← getEnv) attrName
     | throwError "Unknown attribute `[{attrName}]`"
+  if let .ok impl := getAttributeImpl (← getEnv) attrName then
+    if isIOUnitRegularInitFn (← getEnv) impl.ref then  -- skip `builtin_initialize` attributes
+      recordExtraModUseFromDecl (isMeta := true) impl.ref
   /- The `AttrM` does not have sufficient information for expanding macros in `args`.
      So, we expand them before here before we invoke the attributer handlers implemented using `AttrM`. -/
   return { kind := attrKind, name := attrName, stx := attr }

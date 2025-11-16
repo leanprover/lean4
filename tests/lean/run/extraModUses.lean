@@ -201,7 +201,7 @@ Simp theorems (especially defeq ones) are tracked (here `Nat.pow_succ` from Init
 def test7 : 2 ^ 8 = 256 := by simp [Nat.pow_succ]
 
 /--
-info: Entries: [import Init.Tactics, import Init.Data.Nat.Basic, import Init.Notation]
+info: Entries: [import Init.Tactics, import Init.Data.Nat.Basic, import Init.SimpLemmas, import Init.Notation]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses

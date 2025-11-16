@@ -519,3 +519,31 @@ def dropSuffix? (s : Substring.Raw) (suff : Substring.Raw) : Option Substring.Ra
   | n+1 => by simp [prevn, prevn_zero s n]
 
 end Substring.Raw
+
+section Deprecations
+
+@[deprecated Substring.Raw (since := "2025-11-16")]
+abbrev Substring := Substring.Raw
+
+@[deprecated Substring.Raw.bsize (since := "2025-11-16")]
+abbrev Substring.bsize := Substring.Raw.bsize
+
+@[deprecated Substring.Raw.toString (since := "2025-11-16")]
+abbrev Substring.toString := Substring.Raw.toString
+
+@[deprecated Substring.Raw.isEmpty (since := "2025-11-16")]
+abbrev Substring.isEmpty := Substring.Raw.isEmpty
+
+@[deprecated Substring.Raw.next (since := "2025-11-16")]
+abbrev Substring.next := Substring.Raw.next
+
+@[deprecated Substring.Raw.prev (since := "2025-11-16")]
+abbrev Substring.prev := Substring.Raw.prev
+
+@[deprecated Substring.Raw.atEnd (since := "2025-11-16")]
+abbrev Substring.atEnd := Substring.Raw.atEnd
+
+@[deprecated Substring.Raw.beq (since := "2025-11-16")]
+abbrev Substring.beq := Substring.Raw.beq
+
+end Deprecations

@@ -422,7 +422,11 @@ def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
     else
       pure 0
     return (mvarIds, numDigits)
-  let subgoals := mvarIds.map fun mvarId => { goal with mvarId }
+  let numSubgoals := mvarIds.length
+  let subgoals := mvarIds.mapIdx fun i mvarId => { goal with
+    mvarId
+    split.trace := { expr := cExpr, i, num := numSubgoals, source := c.source } :: goal.split.trace
+  }
   let mut seqNew : Array (List (TSyntax `grind)) := #[]
   let mut stuckNew : Array Goal := #[]
   for subgoal in subgoals do

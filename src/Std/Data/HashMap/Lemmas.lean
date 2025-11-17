@@ -1057,6 +1057,68 @@ theorem forIn_eq_forIn_keysArray [Monad m'] [LawfulMonad m']
 
 end monadic
 
+theorem all_eq_not_any_not {p : (a : α) → β → Bool} :
+    m.all p = ! m.any (fun a b => ! p a b) := DHashMap.all_eq_not_any_not
+
+theorem any_eq_not_all_not {p : (a : α) → β → Bool} :
+    m.any p = ! m.all (fun a b => ! p a b) := DHashMap.any_eq_not_all_not
+
+@[simp]
+theorem any_toList {p : α → β → Bool} :
+    m.toList.any (fun x => p x.1 x.2) = m.any p :=
+  DHashMap.Const.any_toList
+
+theorem any_eq_true_iff_exists_mem_getKey_getElem [LawfulHashable α] [EquivBEq α]
+    {p : α → β → Bool} :
+    m.any p = true ↔ ∃ (a : α) (h : a ∈ m), p (m.getKey a h) (m[a]'h) :=
+  DHashMap.Const.any_eq_true_iff_exists_mem_getKey_get
+
+theorem any_eq_true_iff_exists_mem_getElem [LawfulBEq α] {p : α → β → Bool} :
+    m.any p = true ↔ ∃ (a : α) (h : a ∈ m), p a (m[a]'h) :=
+  DHashMap.Const.any_eq_true_iff_exists_mem_get
+
+theorem any_eq_false_iff_forall_mem_getKey_getElem [LawfulHashable α] [EquivBEq α]
+    {p : α → β → Bool} :
+    m.any p = false ↔
+      ∀ (a : α) (h : a ∈ m), p (m.getKey a h) (m[a]'h) = false :=
+  DHashMap.Const.any_eq_false_iff_forall_mem_getKey_get
+
+theorem any_eq_false_iff_forall_mem_getElem [LawfulBEq α] {p : α → β → Bool} :
+    m.any p = false ↔
+      ∀ (a : α) (h : a ∈ m), p a (m[a]'h) = false :=
+  DHashMap.Const.any_eq_false_iff_forall_mem_get
+
+@[simp]
+theorem all_toList {p : α → β → Bool} :
+    m.toList.all (fun x => p x.1 x.2) = m.all p :=
+  DHashMap.Const.all_toList
+
+theorem all_eq_true_iff_forall_mem_getKey_getElem [EquivBEq α] [LawfulHashable α]
+    {p : (a : α) → β → Bool} :
+    m.all p = true ↔ ∀ (a : α) (h : a ∈ m), p (m.getKey a h) (m[a]'h) :=
+  DHashMap.Const.all_eq_true_iff_forall_mem_getKey_get
+
+theorem all_eq_true_iff_forall_mem_getElem [LawfulBEq α] {p : α → β → Bool} :
+    m.all p = true ↔ ∀ (a : α) (h : a ∈ m), p a (m[a]'h) :=
+  DHashMap.Const.all_eq_true_iff_forall_mem_get
+
+theorem all_eq_false_iff_exists_mem_getKey_getElem [EquivBEq α] [LawfulHashable α]
+    {p : (a : α) → β → Bool} :
+    m.all p = false ↔ ∃ (a : α) (h : a ∈ m), p (m.getKey a h) (m[a]'h) = false :=
+  DHashMap.Const.all_eq_false_iff_exists_mem_getKey_get
+
+theorem all_eq_false_iff_exists_mem_getElem [LawfulBEq α] {p : α → β → Bool} :
+    m.all p = false ↔ ∃ (a : α) (h : a ∈ m), p a (m[a]'h) = false :=
+  DHashMap.Const.all_eq_false_iff_exists_mem_get
+
+theorem any_keys [LawfulHashable α] [EquivBEq α] {p : α → Bool} :
+    m.keys.any p = m.any (fun a _ => p a) :=
+  DHashMap.Const.any_keys
+
+theorem all_keys [LawfulHashable α] [EquivBEq α] {p : α → Bool} :
+    m.keys.all p = m.all (fun a _ => p a) :=
+  DHashMap.Const.all_keys
+
 variable {ρ : Type w} [ForIn Id ρ (α × β)]
 
 @[simp, grind =]
@@ -1303,9 +1365,24 @@ theorem mem_of_mem_union_of_not_mem_left [EquivBEq α]
   @DHashMap.mem_of_mem_union_of_not_mem_left _ _ _ _ m₁.inner m₂.inner _ _  k
 
 /- Equiv -/
+theorem union_equiv_congr_left {m₃ : HashMap α β} [EquivBEq α] [LawfulHashable α]
+    (equiv : m₁ ~m m₂) :
+    (m₁ ∪ m₃) ~m (m₂ ∪ m₃) :=
+  ⟨DHashMap.union_equiv_congr_left equiv.1⟩
+
+theorem union_equiv_congr_right {m₃ : HashMap α β} [EquivBEq α] [LawfulHashable α]
+    (equiv : m₂ ~m m₃) :
+    (m₁ ∪ m₂) ~m (m₁ ∪ m₃) :=
+  ⟨DHashMap.union_equiv_congr_right equiv.1⟩
+
+theorem union_insert_right_equiv_insert_union [EquivBEq α] [LawfulHashable α] {p : α × β} :
+    (m₁ ∪ (m₂.insert p.fst p.snd)) ~m ((m₁ ∪ m₂).insert p.fst p.snd) :=
+  ⟨@DHashMap.union_insert_right_equiv_insert_union _ _ _ _ m₁.inner m₂.inner _ _ ⟨p.fst, p.snd⟩⟩
+
+@[deprecated union_insert_right_equiv_insert_union (since := "2025-11-03")]
 theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : α × β} :
     (m₁ ∪ (m₂.insert p.fst p.snd)) ~m ((m₁ ∪ m₂).insert p.fst p.snd) :=
-  ⟨@DHashMap.union_insert_right_equiv_union_insert _ _ _ _ m₁.inner m₂.inner _ _ ⟨p.fst, p.snd⟩⟩
+  union_insert_right_equiv_insert_union
 
 /- get? -/
 theorem get?_union [EquivBEq α] [LawfulHashable α] {k : α} :

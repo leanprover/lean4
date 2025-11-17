@@ -14,26 +14,28 @@ namespace Lean.Meta.Simp.Arith.Nat
 def simpCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   let some (c, atoms) ← toLinearCnstr? e
     | return none
-  withAbstractAtoms atoms ``Nat fun atoms => do
-    let lhs ← c.toArith atoms
-    let c₁ := c.toPoly
-    let c₂ := c₁.norm
-    if c₂.isUnsat then
-      let r := mkConst ``False
-      let p := mkApp3 (mkConst ``Nat.Linear.ExprCnstr.eq_false_of_isUnsat) (← toContextExpr atoms) (toExpr c) eagerReflBoolTrue
-      return some (r, mkExpectedPropHint p (mkPropEq lhs r))
-    else if c₂.isValid then
-      let r := mkConst ``True
-      let p := mkApp3 (mkConst ``Nat.Linear.ExprCnstr.eq_true_of_isValid) (← toContextExpr atoms) (toExpr c) eagerReflBoolTrue
-      return some (r, mkExpectedPropHint p (mkPropEq lhs r))
+  let lhs ← c.toArith atoms
+  let c₁ := c.toPoly
+  let c₂ := c₁.norm
+  if c₂.isUnsat then
+    let r := mkConst ``False
+    let p := mkApp3 (mkConst ``Nat.Linear.ExprCnstr.eq_false_of_isUnsat) (← toContextExpr atoms) (toExpr c) eagerReflBoolTrue
+    let h := mkExpectedPropHint p (mkPropEq lhs r)
+    return some (r, h)
+  else if c₂.isValid then
+    let r := mkConst ``True
+    let p := mkApp3 (mkConst ``Nat.Linear.ExprCnstr.eq_true_of_isValid) (← toContextExpr atoms) (toExpr c) eagerReflBoolTrue
+    let h := mkExpectedPropHint p (mkPropEq lhs r)
+    return some (r, h)
+  else
+    let c₂ : LinearCnstr := c₂.toExpr
+    let r ← c₂.toArith atoms
+    if r != lhs then
+      let p := mkApp4 (mkConst ``Nat.Linear.ExprCnstr.eq_of_toNormPoly_eq) (← toContextExpr atoms) (toExpr c) (toExpr c₂) eagerReflBoolTrue
+      let h := mkExpectedPropHint p (mkPropEq lhs r)
+      return some (r, h)
     else
-      let c₂ : LinearCnstr := c₂.toExpr
-      let r ← c₂.toArith atoms
-      if r != lhs then
-        let p := mkApp4 (mkConst ``Nat.Linear.ExprCnstr.eq_of_toNormPoly_eq) (← toContextExpr atoms) (toExpr c) (toExpr c₂) eagerReflBoolTrue
-        return some (r, mkExpectedPropHint p (mkPropEq lhs r))
-      else
-        return none
+      return none
 
 def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   if let some arg := e.not? then
@@ -66,15 +68,15 @@ def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
 
 def simpExpr? (input : Expr) : MetaM (Option (Expr × Expr)) := do
   let (e, ctx) ← toLinearExpr input
-  withAbstractAtoms ctx ``Nat fun ctx => do
-    let p  := e.toPoly
-    let p' := p.norm
-    let e' : LinearExpr := p'.toExpr
-    if e' == e then
-      return none
-    let p := mkApp4 (mkConst ``Nat.Linear.Expr.eq_of_toNormPoly_eq) (← toContextExpr ctx) (toExpr e) (toExpr e') eagerReflBoolTrue
-    let l ← e.toArith ctx
-    let r ← e'.toArith ctx
-    return some (r, mkExpectedPropHint p (mkNatEq l r))
+  let p  := e.toPoly
+  let p' := p.norm
+  let e' : LinearExpr := p'.toExpr
+  if e' == e then
+    return none
+  let p := mkApp4 (mkConst ``Nat.Linear.Expr.eq_of_toNormPoly_eq) (← toContextExpr ctx) (toExpr e) (toExpr e') eagerReflBoolTrue
+  let l ← e.toArith ctx
+  let r ← e'.toArith ctx
+  let h := mkExpectedPropHint p (mkNatEq l r)
+  return some (r, h)
 
 end Lean.Meta.Simp.Arith.Nat

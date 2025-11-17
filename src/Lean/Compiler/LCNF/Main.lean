@@ -36,7 +36,7 @@ def shouldGenerateCode (declName : Name) : CoreM Bool := do
   if hasMacroInlineAttribute env declName then return false
   if (getImplementedBy? env declName).isSome then return false
   if (← Meta.isMatcher declName) then return false
-  if isCasesOnRecursor env declName then return false
+  if isCasesOnLike env declName then return false
   -- TODO: check if type class instance
   return true
 where

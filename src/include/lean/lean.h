@@ -1225,6 +1225,8 @@ LEAN_EXPORT bool lean_io_check_canceled_core(void);
 LEAN_EXPORT void lean_io_cancel_core(b_lean_obj_arg t);
 /* primitive for implementing `IO.getTaskState : Task a -> IO TaskState` */
 LEAN_EXPORT uint8_t lean_io_get_task_state_core(b_lean_obj_arg t);
+/* primitive for implementing `IO.waitAny : List (Task a) -> IO (Task a)` */
+LEAN_EXPORT b_lean_obj_res lean_io_wait_any_core(b_lean_obj_arg task_list);
 
 /* External objects */
 

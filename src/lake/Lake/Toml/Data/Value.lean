@@ -65,7 +65,7 @@ public def ppString (s : String) : String :=
     | '\\' => s ++ "\\\\"
     | _ =>
       if c.val < 0x20 || c.val == 0x7F then
-        s ++ "\\u" ++ lpad (String.mk <| Nat.toDigits 16 c.val.toNat) '0' 4
+        s ++ "\\u" ++ lpad (String.ofList <| Nat.toDigits 16 c.val.toNat) '0' 4
       else
         s.push c
   s.push '\"'

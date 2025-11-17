@@ -1500,16 +1500,16 @@ _start:
 {
 if (x_1 == 0)
 {
-if (x_2 == 0)
+if (x_2 == 1)
 {
 uint8_t x_3; 
-x_3 = 1;
+x_3 = 0;
 return x_3;
 }
 else
 {
 uint8_t x_4; 
-x_4 = 0;
+x_4 = 1;
 return x_4;
 }
 }
@@ -1760,7 +1760,7 @@ return x_4;
 else
 {
 uint8_t x_5; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_5 = 0;
 return x_5;
 }

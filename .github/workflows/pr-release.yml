@@ -71,7 +71,7 @@ jobs:
           GH_TOKEN: ${{ secrets.PR_RELEASES_TOKEN }}
       - name: Release (short format)
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836
+        uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090
         with:
           name: Release for PR ${{ steps.workflow-info.outputs.pullRequestNumber }}
           # There are coredumps files here as well, but all in deeper subdirectories.
@@ -86,7 +86,7 @@ jobs:
 
       - name: Release (SHA-suffixed format)
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836
+        uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090
         with:
           name: Release for PR ${{ steps.workflow-info.outputs.pullRequestNumber }} (${{ steps.workflow-info.outputs.sourceHeadSha }})
           # There are coredumps files here as well, but all in deeper subdirectories.
@@ -426,7 +426,7 @@ jobs:
             git switch -c lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }} "$BASE"
             echo "leanprover/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-${{ env.SHORT_SHA }}" > lean-toolchain
             git add lean-toolchain
-            git commit -m "Update lean-toolchain for testing https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
+            git commit --allow-empty -m "Update lean-toolchain for testing https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
           else
             echo "Branch already exists, updating lean-toolchain."
             git switch lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}
@@ -435,7 +435,7 @@ jobs:
             git merge "$BASE" --strategy-option ours --no-commit --allow-unrelated-histories
             echo "leanprover/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-${{ env.SHORT_SHA }}" > lean-toolchain
             git add lean-toolchain
-            git commit -m "Update lean-toolchain for https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
+            git commit --allow-empty -m "Update lean-toolchain for https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
           fi
 
       - name: Push changes
@@ -496,7 +496,7 @@ jobs:
             sed -i 's,require "leanprover-community" / "batteries" @ git ".\+",require "leanprover-community" / "batteries" @ git "lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}",' lakefile.lean
             lake update batteries
             git add lakefile.lean lake-manifest.json
-            git commit -m "Update lean-toolchain for testing https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
+            git commit --allow-empty -m "Update lean-toolchain for testing https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
           else
             echo "Branch already exists, updating lean-toolchain and bumping Batteries."
             git switch lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}
@@ -507,7 +507,7 @@ jobs:
             git add lean-toolchain
             lake update batteries
             git add lake-manifest.json
-            git commit -m "Update lean-toolchain for https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
+            git commit --allow-empty -m "Update lean-toolchain for https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
           fi
 
       - name: Push changes
@@ -558,7 +558,7 @@ jobs:
             echo "leanprover/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-${{ env.SHORT_SHA }}" > lean-toolchain
             git add lean-toolchain
             git add lakefile.lean lake-manifest.json
-            git commit -m "Update lean-toolchain for testing https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
+            git commit --allow-empty -m "Update lean-toolchain for testing https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
           else
             echo "Branch already exists, updating lean-toolchain."
             git switch lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}
@@ -568,7 +568,7 @@ jobs:
             echo "leanprover/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-${{ env.SHORT_SHA }}" > lean-toolchain
             git add lean-toolchain
             git add lake-manifest.json
-            git commit -m "Update lean-toolchain for https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
+            git commit --allow-empty -m "Update lean-toolchain for https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
           fi
 
       - name: Push changes

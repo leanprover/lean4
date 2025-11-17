@@ -72,6 +72,7 @@ h_2 : ¬f (f x) = g x x
     [eqc] {z, g y z}
     [eqc] {0, f x + -1 * f (f x) + -1, f (f x) + -1 * f (f (f x)) + -1, f (f (f x)) + -1 * f (f (f (f x))) + -1}
     [eqc] {g z y, g y x}
+    [eqc] {f x + -1 * f (f x), f (f x) + -1 * f (f (f x)), f (f (f x)) + -1 * f (f (f (f x)))}
   [ematch] E-matching patterns
     [thm] feq: [@f #4 #3 #0]
     [thm] geq: [@g #2 #1 #0 #0]

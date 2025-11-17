@@ -158,11 +158,19 @@ namespace Job
   (f : JobTask α → m (JobTask β)) (self : Job α)
 : m (Job β) := return {self with task := ← f self.task, kind := inferInstance}
 
+/-- Returns a job that has synchronously performed `act`. -/
+@[nospecialize] public protected def sync
+  [OptDataKind α] (act : JobM α) (caption := "")
+: SpawnM (Job α) := .ofFn fun fetch pkg? stack store ctx _ =>
+  .ofTask (caption := caption) <$> Task.pure <$>
+    (withLoggedIO act).toFn fetch pkg? stack store ctx {}
+
 /-- Spawn a job that asynchronously performs `act`. -/
-@[inline] public protected def async
+@[nospecialize] public protected def async
   [OptDataKind α] (act : JobM α) (prio := Task.Priority.default) (caption := "")
-: SpawnM (Job α) := .ofFn fun fetch pkg? stack store ctx _ => .ofTask (caption := caption) <$> do
-  BaseIO.asTask (prio := prio) do (withLoggedIO act).toFn fetch pkg? stack store ctx {}
+: SpawnM (Job α) := .ofFn fun fetch pkg? stack store ctx _ =>
+  .ofTask (caption := caption) <$> BaseIO.asTask (prio := prio) do
+    (withLoggedIO act).toFn fetch pkg? stack store ctx {}
 
 /-- Wait for a job to complete and return the result. -/
 @[inline] public protected def wait (self : Job α) : BaseIO (JobResult α) := do
@@ -179,13 +187,13 @@ If an error occurred, return `none` and discarded any logs produced.
 Wait for a job to complete and return the produced value.
 Logs the job's log and throws if there was an error.
 -/
-@[inline] public protected def await (self : Job α) : LogIO α := do
+public protected def await (self : Job α) : LogIO α := do
   match (← self.wait) with
   | .error n {log, ..} => log.replay; throw n
   | .ok a {log, ..} => log.replay; pure a
 
 /-- Apply `f` asynchronously to the job's output. -/
-public protected def mapM
+@[nospecialize] public protected def mapM
   [kind : OptDataKind β] (self : Job α) (f : α → JobM β)
   (prio := Task.Priority.default) (sync := false)
 : SpawnM (Job β) := .ofFn fun fetch pkg? stack store ctx trace => do
@@ -200,7 +208,7 @@ public protected def mapM
 Apply `f` asynchronously to the job's output
 and asynchronously await the resulting job.
 -/
-public def bindM
+@[nospecialize] public def bindM
   [kind : OptDataKind β] (self : Job α) (f : α → JobM (Job β))
   (prio := Task.Priority.default) (sync := false)
 : SpawnM (Job β) := .ofFn fun fetch pkg? stack store ctx trace => do

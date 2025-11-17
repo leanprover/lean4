@@ -280,7 +280,7 @@ instance : ToInt USize (.uint System.Platform.numBits) where
   toInt x := (x.toNat : Int)
   toInt_inj x y w := USize.toNat_inj.mp (Int.ofNat_inj.mp w)
   toInt_mem x := by
-    simp only [IntInterval.mem_co, Int.ofNat_zero_le, true_and]
+    simp only [IntInterval.mem_co, Int.natCast_nonneg, true_and]
     rw [show (2 : Int) ^ System.Platform.numBits = (2 ^ System.Platform.numBits : Nat) by simp,
       Int.ofNat_lt]
     exact USize.toNat_lt_two_pow_numBits x

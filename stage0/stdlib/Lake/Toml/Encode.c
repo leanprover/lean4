@@ -828,12 +828,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = lean_apply_1(x_1, x_3);
-if (lean_obj_tag(x_5) == 0)
-{
-lean_dec(x_2);
-return x_4;
-}
-else
+if (lean_obj_tag(x_5) == 1)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = lean_ctor_get(x_5, 0);
@@ -842,6 +837,12 @@ lean_dec_ref(x_5);
 x_7 = l_Lake_Toml_instSmartInsertOfToToml_x3f___redArg___lam__0___closed__0;
 x_8 = l_Lake_Toml_RBDict_insert___redArg(x_7, x_2, x_6, x_4);
 return x_8;
+}
+else
+{
+lean_dec(x_5);
+lean_dec(x_2);
+return x_4;
 }
 }
 }

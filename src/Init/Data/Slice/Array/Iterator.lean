@@ -17,8 +17,7 @@ import Init.Omega
 public section
 
 /-!
-This module provides slice notation for array slices (a.k.a. `Subarray`) and implements an iterator
-for those slices.
+This module implements an iterator for array slices (`Subarray`).
 -/
 
 open Std Slice PRange Iterators
@@ -48,10 +47,9 @@ universe v w
     IteratorLoop (ToIterator.State s Id) Id m := inferInstance
 @[no_expose] instance {s : Subarray α} {m : Type v → Type w} [Monad m] :
     IteratorLoopPartial (ToIterator.State s Id) Id m := inferInstance
-@[no_expose] instance {s : Subarray α} :
-    IteratorSize (ToIterator.State s Id) Id := inferInstance
-@[no_expose] instance {s : Subarray α} :
-    IteratorSizePartial (ToIterator.State s Id) Id := inferInstance
+
+instance : SliceSize (Internal.SubarrayData α) where
+  size s := s.internalRepresentation.stop - s.internalRepresentation.start
 
 @[no_expose]
 instance {α : Type u} {m : Type v → Type w} :

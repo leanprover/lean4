@@ -151,7 +151,7 @@ example [LE α] [IsPreorder α]
   grind
 
 example (a b : Int) (h : a + b > 5) : (if a + b ≤ 0 then b else a) = a := by
-  grind -linarith -cutsat (splits := 0)
+  grind -linarith -lia (splits := 0)
 
 example [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [Ring α] [OrderedRing α]
     (a b : α) : a ≤ 5 → b ≤ 8 → a > 6 ∨ b > 10 → False := by

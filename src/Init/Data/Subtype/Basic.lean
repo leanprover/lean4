@@ -15,10 +15,6 @@ namespace Subtype
 universe u
 variable {α : Sort u} {p q : α → Prop}
 
-@[ext]
-protected theorem ext : ∀ {a1 a2 : { x // p x }}, (a1 : α) = (a2 : α) → a1 = a2
-  | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
-
 @[simp]
 protected theorem «forall» {q : { a // p a } → Prop} : (∀ x, q x) ↔ ∀ a b, q ⟨a, b⟩ :=
   ⟨fun h a b ↦ h ⟨a, b⟩, fun h ⟨a, b⟩ ↦ h a b⟩

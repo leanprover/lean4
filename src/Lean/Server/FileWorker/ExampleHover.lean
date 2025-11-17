@@ -30,11 +30,11 @@ line comment marker.
 -/
 private def addCommentAt (indent : Nat) (line : String) : String := Id.run do
   let s := "".pushn ' ' indent ++ "-- "
-  let mut iter := line.iter
+  let mut iter := line.startValidPos
   for _i in *...indent do
-    if h : iter.hasNext then
-      if iter.curr' h == ' ' then
-        iter := iter.next' h
+    if h : ¬iter.IsAtEnd then
+      if iter.get h == ' ' then
+        iter := iter.next h
       else
         -- Non-whitespace found *before* the indentation level. This output should be indented
         -- as if it were exactly at the indentation level.
@@ -42,7 +42,7 @@ private def addCommentAt (indent : Nat) (line : String) : String := Id.run do
     else
       -- The line was entirely ' ', and was shorter than the indentation level. No `--` added.
       return line
-  let remaining := iter.remainingToString
+  let remaining := line.replaceStart iter
   if remaining.all (· == ' ') then
     return line
   else
@@ -53,11 +53,11 @@ Splits a string into lines, preserving newline characters.
 -/
 private def lines (s : String) : Array String := Id.run do
   let mut result := #[]
-  let mut lineStart := s.iter
+  let mut lineStart := s.startValidPos
   let mut iter := lineStart
-  while h : iter.hasNext do
-    let c := iter.curr' h
-    iter := iter.next' h
+  while h : ¬iter.IsAtEnd do
+    let c := iter.get h
+    iter := iter.next h
     if c == '\n' then
       result := result.push <| lineStart.extract iter
       lineStart := iter

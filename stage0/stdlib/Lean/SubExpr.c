@@ -1710,12 +1710,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12;
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = lean_box(0);
 x_12 = l_String_splitOnAux(x_1, x_8, x_10, x_10, x_10, x_11);
-if (lean_obj_tag(x_12) == 0)
-{
-x_2 = x_12;
-goto block_7;
-}
-else
+if (lean_obj_tag(x_12) == 1)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
 x_13 = lean_ctor_get(x_12, 0);
@@ -1785,6 +1780,11 @@ return x_29;
 }
 }
 }
+}
+else
+{
+x_2 = x_12;
+goto block_7;
 }
 }
 else
@@ -2228,7 +2228,7 @@ if (lean_is_exclusive(x_1)) {
  x_4 = lean_box(0);
 }
 switch (lean_obj_tag(x_2)) {
-case 6:
+case 7:
 {
 lean_object* x_9; 
 x_9 = lean_ctor_get(x_2, 2);
@@ -2237,7 +2237,7 @@ lean_dec_ref(x_2);
 x_5 = x_9;
 goto block_8;
 }
-case 7:
+case 6:
 {
 lean_object* x_10; 
 x_10 = lean_ctor_get(x_2, 2);
@@ -2311,7 +2311,7 @@ if (lean_is_exclusive(x_1)) {
  x_4 = lean_box(0);
 }
 switch (lean_obj_tag(x_2)) {
-case 6:
+case 7:
 {
 lean_object* x_9; 
 x_9 = lean_ctor_get(x_2, 1);
@@ -2320,7 +2320,7 @@ lean_dec_ref(x_2);
 x_5 = x_9;
 goto block_8;
 }
-case 7:
+case 6:
 {
 lean_object* x_10; 
 x_10 = lean_ctor_get(x_2, 1);

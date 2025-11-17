@@ -7,7 +7,8 @@ module
 
 prelude
 public import Std.Internal.Parsec.Basic
-public import Init.Data.String.Iterator
+public import Init.Data.String.Slice
+public import Init.Data.String.Termination
 
 public section
 
@@ -15,34 +16,33 @@ namespace Std.Internal
 namespace Parsec
 namespace String
 
-instance : Input String.Iterator Char String.Pos.Raw where
-  pos it := it.pos
-  next it := it.next
-  curr it := it.curr
-  hasNext it := it.hasNext
-  next' it := it.next'
-  curr' it := it.curr'
+instance : Input (Sigma String.ValidPos) Char String.Pos.Raw where
+  pos it := it.2.offset
+  next it := ⟨it.1, it.2.next!⟩
+  curr it := it.2.get!
+  hasNext it := ¬it.2.IsAtEnd
+  next' it h := ⟨it.1, it.2.next (by simpa using h)⟩
+  curr' it h := it.2.get (by simpa using h)
 
 /--
-`Parser α` is a parser that consumes a `String` input using a `String.Iterator` and returns a result of type `α`.
+`Parser α` is a parser that consumes a `String` input using a `Sigma String.ValidPos` and returns a result of type `α`.
 -/
-abbrev Parser (α : Type) : Type := Parsec String.Iterator α
+abbrev Parser (α : Type) : Type := Parsec (Sigma String.ValidPos) α
 
 /--
 Run a `Parser` on a `String`, returns either the result or an error string with offset.
 -/
 protected def Parser.run (p : Parser α) (s : String) : Except String α :=
-  match p s.mkIterator with
+  match p ⟨s, s.startValidPos⟩ with
   | .success _ res => Except.ok res
-  | .error it err => Except.error s!"offset {repr it.pos.byteIdx}: {err}"
+  | .error it err => Except.error s!"offset {repr it.2.offset.byteIdx}: {err}"
 
 /--
 Parses the given string.
 -/
 def pstring (s : String) : Parser String := fun it =>
-  let substr := it.extract (it.forward s.length)
-  if substr = s then
-    .success (it.forward s.length) substr
+  if (it.1.replaceStart it.2).startsWith s then
+    .success ⟨_, it.2.nextn s.length⟩ s
   else
     .error it (.other s!"expected: {s}")
 
@@ -80,25 +80,26 @@ Convert a byte representing `'0'..'9'` to a `Nat`.
 private def digitToNat (b : Char) : Nat := b.toNat - '0'.toNat
 
 @[inline]
-private partial def digitsCore (acc : Nat) : Parser Nat := fun it =>
+private def digitsCore (acc : Nat) : Parser Nat := fun it =>
   /-
   With this design instead of combinators we can avoid allocating and branching over .success values
   all of the time.
   -/
-  let ⟨res, it⟩ := go it acc
-  .success it res
+  let ⟨res, it⟩ := go it.2 acc
+  .success ⟨_, it⟩ res
 where
-  go (it : String.Iterator) (acc : Nat) : (Nat × String.Iterator) :=
-    if h : it.hasNext then
-      let candidate := it.curr
+  go {s : String} (it : s.ValidPos) (acc : Nat) : (Nat × s.ValidPos) :=
+    if h : ¬it.IsAtEnd then
+      let candidate := it.get h
       if '0' ≤ candidate ∧ candidate ≤ '9' then
         let digit := digitToNat candidate
         let acc := acc * 10 + digit
-        go (it.next' h) acc
+        go (it.next h) acc
       else
         (acc, it)
     else
       (acc, it)
+  termination_by it
 
 /--
 Parse one or more ASCII digits into a `Nat`.
@@ -126,32 +127,34 @@ def asciiLetter : Parser Char := attempt do
   let c ← any
   if ('A' ≤ c ∧ c ≤ 'Z') ∨ ('a' ≤ c ∧ c ≤ 'z') then return c else fail s!"ASCII letter expected"
 
-private partial def skipWs (it : String.Iterator) : String.Iterator :=
-  if h : it.hasNext then
-    let c := it.curr' h
+private def skipWs {s : String} (it : s.ValidPos) : s.ValidPos :=
+  if h : ¬it.IsAtEnd then
+    let c := it.get h
     if c = '\u0009' ∨ c = '\u000a' ∨ c = '\u000d' ∨ c = '\u0020' then
-      skipWs (it.next' h)
+      skipWs (it.next h)
     else
       it
   else
    it
+termination_by it
 
 /--
 Skip whitespace: tabs, newlines, carriage returns, and spaces.
 -/
 @[inline]
 def ws : Parser Unit := fun it =>
-  .success (skipWs it) ()
+  .success ⟨_, skipWs it.2⟩ ()
 
 /--
 Takes a fixed amount of chars from the iterator.
 -/
 def take (n : Nat) : Parser String := fun it =>
-  let substr := it.extract (it.forward n)
+  let right := it.2.nextn n
+  let substr := String.Slice.mk it.1 it.2 right String.ValidPos.le_nextn |>.copy
   if substr.length != n then
     .error it .eof
   else
-    .success (it.forward n) substr
+    .success ⟨_, right⟩ substr
 
 end String
 end Parsec

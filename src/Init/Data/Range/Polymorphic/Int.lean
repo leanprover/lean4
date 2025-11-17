@@ -37,7 +37,6 @@ instance : LawfulUpwardEnumerableLE Int where
       Int.sub_eq_iff_eq_add', eq_comm (a := y)]
 
 instance : LawfulUpwardEnumerableLT Int := inferInstance
-instance : LawfulUpwardEnumerableLT Int := inferInstance
 
 instance : Rxc.HasSize Int where
   size lo hi := (hi + 1 - lo).toNat

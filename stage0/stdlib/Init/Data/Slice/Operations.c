@@ -18,6 +18,7 @@ LEAN_EXPORT lean_object* l_Std_Slice_instToIteratorMk___redArg(lean_object*);
 static lean_object* l_Std_Slice_toListRev___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Std_Slice_toArray___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_toArray___redArg___lam__1(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Slice_SliceSize_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_toArray(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_instToIteratorMk(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_foldlM___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -33,7 +34,7 @@ lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Std_Slice_toListRev___redArg___closed__8;
 LEAN_EXPORT lean_object* l_Std_Slice_Internal_iter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_foldl___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Slice_size___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Slice_SliceSize_ctorIdx___boxed(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Slice_toListRev___redArg___closed__7;
 LEAN_EXPORT lean_object* l_Std_Slice_foldlM___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -49,7 +50,7 @@ lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Std_Slice_Internal_iter(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_foldl___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_foldlM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Slice_size(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Slice_size(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Iterators_IterM_toListRev_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Slice_toListRev___redArg___closed__9;
 LEAN_EXPORT lean_object* l_Std_Slice_toArray___redArg___lam__0___boxed(lean_object*, lean_object*);
@@ -137,6 +138,23 @@ lean_dec(x_3);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Slice_SliceSize_ctorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Slice_SliceSize_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Slice_SliceSize_ctorIdx(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Slice_size___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -145,22 +163,12 @@ x_3 = lean_apply_1(x_2, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Slice_size(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Std_Slice_size(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_7; 
-x_7 = lean_apply_1(x_6, x_4);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Slice_size___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l_Std_Slice_size(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_5);
-lean_dec(x_3);
-return x_7;
+lean_object* x_4; 
+x_4 = lean_apply_1(x_3, x_2);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Slice_toArray___redArg___lam__0(lean_object* x_1, lean_object* x_2) {

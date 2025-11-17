@@ -744,11 +744,7 @@ else
 {
 lean_object* x_78; 
 x_78 = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_HasConstCache_containsUnsafe_spec__2___redArg(x_3, x_2);
-if (lean_obj_tag(x_78) == 0)
-{
-goto block_73;
-}
-else
+if (lean_obj_tag(x_78) == 1)
 {
 lean_object* x_79; lean_object* x_80; 
 lean_dec_ref(x_2);
@@ -759,6 +755,11 @@ x_80 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_80, 0, x_79);
 lean_ctor_set(x_80, 1, x_3);
 return x_80;
+}
+else
+{
+lean_dec(x_78);
+goto block_73;
 }
 }
 block_9:

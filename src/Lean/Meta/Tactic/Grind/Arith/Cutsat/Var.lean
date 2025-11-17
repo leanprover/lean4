@@ -63,7 +63,7 @@ def mkVarImpl (expr : Expr) : GoalM Var := do
   if let some var := (← get').varMap.find? { expr } then
     return var
   let var : Var := (← get').vars.size
-  trace[grind.debug.cutsat.internalize] "{expr} ↦ #{var}"
+  trace[grind.debug.lia.internalize] "{expr} ↦ #{var}"
   modify' fun s => { s with
     vars      := s.vars.push expr
     varMap    := s.varMap.insert { expr } var

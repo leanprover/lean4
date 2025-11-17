@@ -219,7 +219,7 @@ private def applyCases? (goal : Goal) (fvarId : FVarId) (kp : ActionCont) : Grin
   if (← cheapCasesOnly) then
     unless (← isCheapInductive type) do return none
   if let .const declName _ := type.getAppFn then
-    saveCases declName true
+    saveCases declName
   let mvarIds ← cases goal.mvarId (mkFVar fvarId)
   let subgoals := mvarIds.map fun mvarId => { goal with mvarId }
   let mut seqNew : Array (TSyntax `grind) := #[]
@@ -319,7 +319,7 @@ private def applyCases? (fvarId : FVarId) (generation : Nat) : SearchM Bool := w
       unless (← isCheapInductive type) do
         return false
     if let .const declName _ := type.getAppFn then
-      saveCases declName true
+      saveCases declName
     let goal ← getGoal
     let mvarId ← goal.mkAuxMVar
     let mvarIds ← cases mvarId (mkFVar fvarId)

@@ -45,7 +45,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Lemmas_0__Array_foldl__fil
 LEAN_EXPORT lean_object* l_Vector_instDecidableForallVectorZero___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Lemmas_0__Vector_foldl__filterMap_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instDecidableExistsVectorZero___redArg___boxed(lean_object*);
-uint8_t l_instDecidableNot___redArg(uint8_t);
 LEAN_EXPORT lean_object* l_Vector_instDecidableExistsAndMemOfDecidablePred___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Lemmas_0__Vector_foldl__filterMap_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Vector_instDecidableExistsVectorZero(lean_object*, lean_object*, uint8_t);
@@ -375,18 +374,13 @@ return x_7;
 LEAN_EXPORT uint8_t l_Vector_instDecidableExistsVectorZero___redArg(uint8_t x_1) {
 _start:
 {
-uint8_t x_2; uint8_t x_3; 
-x_2 = l_instDecidableNot___redArg(x_1);
-x_3 = l_instDecidableNot___redArg(x_2);
-return x_3;
+return x_1;
 }
 }
 LEAN_EXPORT uint8_t l_Vector_instDecidableExistsVectorZero(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
 {
-uint8_t x_4; 
-x_4 = l_Vector_instDecidableExistsVectorZero___redArg(x_3);
-return x_4;
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Vector_instDecidableExistsVectorZero___redArg___boxed(lean_object* x_1) {
@@ -412,16 +406,25 @@ return x_6;
 LEAN_EXPORT uint8_t l_Vector_instDecidableExistsVectorSucc___redArg(uint8_t x_1) {
 _start:
 {
+if (x_1 == 0)
+{
 uint8_t x_2; 
-x_2 = l_instDecidableNot___redArg(x_1);
+x_2 = 1;
 return x_2;
+}
+else
+{
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
+}
 }
 }
 LEAN_EXPORT uint8_t l_Vector_instDecidableExistsVectorSucc(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4) {
 _start:
 {
 uint8_t x_5; 
-x_5 = l_instDecidableNot___redArg(x_4);
+x_5 = l_Vector_instDecidableExistsVectorSucc___redArg(x_4);
 return x_5;
 }
 }

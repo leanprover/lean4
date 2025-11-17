@@ -1558,18 +1558,18 @@ return x_6;
 LEAN_EXPORT uint8_t l_Lean_Exception_isInterrupt(lean_object* x_1) {
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+if (lean_obj_tag(x_1) == 1)
 {
-uint8_t x_2; 
-x_2 = 0;
-return x_2;
+lean_object* x_2; lean_object* x_3; uint8_t x_4; 
+x_2 = lean_ctor_get(x_1, 0);
+x_3 = l_Lean_throwInterruptException___redArg___closed__0;
+x_4 = l_Lean_instBEqInternalExceptionId_beq(x_2, x_3);
+return x_4;
 }
 else
 {
-lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-x_4 = l_Lean_throwInterruptException___redArg___closed__0;
-x_5 = l_Lean_instBEqInternalExceptionId_beq(x_3, x_4);
+uint8_t x_5; 
+x_5 = 0;
 return x_5;
 }
 }

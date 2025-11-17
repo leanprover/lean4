@@ -1201,7 +1201,7 @@ void initialize_type_checker() {
     g_nat_xor      = new_persistent_expr_const({"Nat", "xor"});
     g_nat_shiftLeft  = new_persistent_expr_const({"Nat", "shiftLeft"});
     g_nat_shiftRight = new_persistent_expr_const({"Nat", "shiftRight"});
-    g_string_mk    = new_persistent_expr_const({"String", "mk"});
+    g_string_mk    = new_persistent_expr_const({"String", "ofList"});
     g_lean_reduce_bool = new_persistent_expr_const({"Lean", "reduceBool"});
     g_lean_reduce_nat  = new_persistent_expr_const({"Lean", "reduceNat"});
     register_name_generator_prefix(*g_kernel_fresh);

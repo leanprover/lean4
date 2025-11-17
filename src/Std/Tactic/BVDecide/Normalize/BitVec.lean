@@ -454,7 +454,7 @@ theorem BitVec.append_const_right {a : BitVec w1} :
 theorem BitVec.signExtend_elim {v : Nat} {x : BitVec v} {w : Nat} (h : v ≤ w) :
     BitVec.signExtend w x = ((bif x.msb then -1#(w - v) else 0#(w - v)) ++ x).cast (by omega) := by
   rw [BitVec.signExtend_eq_append_of_le]
-  simp [BitVec.neg_one_eq_allOnes, cond_eq_if]
+  simp [BitVec.neg_one_eq_allOnes, cond_eq_ite]
   assumption
 
 theorem BitVec.signExtend_elim' {v : Nat} {x : BitVec v} {w : Nat} (h : w ≤ v) :

@@ -730,9 +730,11 @@ def withPushMacroExpansionStack (beforeStx afterStx : Syntax) (x : TermElabM α)
   withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 /-- Elaborate `x` with `stx` on the macro stack and produce macro expansion info -/
-def withMacroExpansion (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
-  withMacroExpansionInfo beforeStx afterStx do
-    withPushMacroExpansionStack beforeStx afterStx x
+@[specialize]
+def withMacroExpansion [Monad n] [MonadControlT TermElabM n] (beforeStx afterStx : Syntax) (x : n α) : n α :=
+  controlAt TermElabM fun runInBase => do
+    withMacroExpansionInfo beforeStx afterStx do
+    withPushMacroExpansionStack beforeStx afterStx <| runInBase x
 
 /--
   Add the given metavariable to the list of pending synthetic metavariables.

@@ -385,6 +385,12 @@ return x_6;
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
+if (lean_obj_tag(x_1) == 0)
+{
+return x_2;
+}
+else
+{
 lean_object* x_3; 
 x_3 = lean_ctor_get(x_2, 1);
 if (lean_obj_tag(x_3) == 0)
@@ -415,18 +421,12 @@ return x_8;
 }
 else
 {
-if (lean_obj_tag(x_1) == 0)
-{
-return x_2;
-}
-else
-{
 lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_9 = lean_ctor_get(x_2, 0);
 x_10 = lean_ctor_get_uint8(x_2, sizeof(void*)*2);
-x_11 = lean_ctor_get(x_3, 0);
-x_12 = lean_ctor_get(x_1, 0);
-x_13 = lean_nat_dec_lt(x_11, x_12);
+x_11 = lean_ctor_get(x_1, 0);
+x_12 = lean_ctor_get(x_3, 0);
+x_13 = lean_nat_dec_lt(x_12, x_11);
 if (x_13 == 0)
 {
 uint8_t x_14; 

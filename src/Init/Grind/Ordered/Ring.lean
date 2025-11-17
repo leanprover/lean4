@@ -189,6 +189,13 @@ theorem pos_intCast_of_pos (a : Int) : 0 < a → 0 < (a : R) := by
     assumption
   next => omega
 
+theorem neg_intCast_of_neg (a : Int) : a < 0 → (a : R) < 0 := by
+  intro h
+  have h : 0 < -a := by omega
+  replace h := pos_intCast_of_pos (R := R) _ h
+  simp [Ring.intCast_neg, OrderedAdd.neg_pos_iff] at h
+  assumption
+
 theorem nonneg_intCast_of_nonneg (a : Int) : 0 ≤ a → 0 ≤ (a : R) := by
   cases a
   next n =>
@@ -197,6 +204,13 @@ theorem nonneg_intCast_of_nonneg (a : Int) : 0 ≤ a → 0 ≤ (a : R) := by
     rw [Semiring.ofNat_eq_natCast] at this
     assumption
   next => omega
+
+theorem nonpos_intCast_of_nonpos (a : Int) : a ≤ 0 → (a : R) ≤ 0 := by
+  intro h
+  have h : 0 ≤ -a := by omega
+  replace h := nonneg_intCast_of_nonneg (R := R) _ h
+  simp [Ring.intCast_neg, OrderedAdd.neg_nonneg_iff] at h
+  assumption
 
 instance [Ring R] [LE R] [LT R] [LawfulOrderLT R] [IsPreorder R] [OrderedRing R] :
     IsCharP R 0 := IsCharP.mk' _ _ <| by

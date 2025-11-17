@@ -163,8 +163,6 @@ theorem and_right_comm : (P ∧ Q) ∧ R ⊣⊢ₛ (P ∧ R) ∧ Q := and_assoc.
 
 /-! # Working with entailment -/
 
-theorem entails_pure_intro (P Q : Prop) (h : P → Q) : entails ⌜P⌝ (σs := σs) ⌜Q⌝ := pure_elim' fun hp => pure_intro (h hp)
-
 -- NB: We cannot currently make the following lemma @[grind =]; we are blocked on #9623.
 theorem entails_pure_elim_cons {σ : Type u} [Inhabited σ] (P Q : Prop) : entails ⌜P⌝ (σs := σ::σs) ⌜Q⌝ ↔ entails ⌜P⌝ (σs := σs) ⌜Q⌝ := by simp [entails]
 @[simp] theorem entails_true_intro (P Q : SPred σs) : (⊢ₛ P → Q) = (P ⊢ₛ Q) := propext <| Iff.intro (fun h => (and_intro true_intro .rfl).trans (imp_elim h)) (fun h => imp_intro (and_elim_r.trans h))
@@ -268,7 +266,7 @@ class HasFrame (P : SPred σs) (P' : outParam (SPred σs)) (φ : outParam Prop) 
   reassoc : P ⊣⊢ₛ P' ∧ ⌜φ⌝
 instance (σs) (P P' Q QP : SPred σs) [HasFrame P Q φ] [SimpAnd Q P' QP]: HasFrame (σs:=σs) spred(P ∧ P') QP φ where reassoc := ((and_congr_l HasFrame.reassoc).trans and_right_comm).trans (and_congr_l SimpAnd.simp_and)
 instance (σs) (P P' Q' PQ : SPred σs) [HasFrame P' Q' φ] [SimpAnd P Q' PQ]: HasFrame (σs:=σs) spred(P ∧ P') PQ φ where reassoc := ((and_congr_r HasFrame.reassoc).trans and_assoc.symm).trans (and_congr_l SimpAnd.simp_and)
-instance (σs) (P P' : Prop) (Q : SPred σs) [HasFrame spred(⌜P⌝ ∧ ⌜P'⌝) Q φ] : HasFrame (σs:=σs) ⌜P ∧ P'⌝ Q φ where reassoc := and_pure.symm.trans HasFrame.reassoc
+instance (σs) (P P' : Prop) (Q : SPred σs) [HasFrame spred(⌜P⌝ ∧ ⌜P'⌝) Q φ] : HasFrame (σs:=σs) ⌜P ∧ P'⌝ Q φ where reassoc := pure_and.symm.trans HasFrame.reassoc
 instance (σs) (P P' : SVal.StateTuple σs → Prop) (Q : SPred σs) [HasFrame spred(SVal.curry (fun t => ⟨P t⟩) ∧ SVal.curry (fun t => ⟨P' t⟩)) Q φ] : HasFrame (σs:=σs) (SVal.curry fun t => ⟨P t ∧ P' t⟩) Q φ where reassoc := and_curry.symm.trans HasFrame.reassoc
 instance (σs) (P : SPred σs) : HasFrame (σs:=σs) spred(⌜φ⌝ ∧ P) P φ where reassoc := and_comm
 instance (σs) (P : SPred σs) : HasFrame (σs:=σs) spred(P ∧ ⌜φ⌝) P φ where reassoc := .rfl

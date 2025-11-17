@@ -1512,6 +1512,98 @@ end Const
 
 end monadic
 
+@[simp]
+theorem any_toList {p : (a : α) → β a → Bool} :
+    m.toList.any (fun x => p x.1 x.2) = m.any p := Raw₀.any_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem any_eq_true_iff_exists_mem_get [LawfulBEq α] {p : (a : α) → β a → Bool} :
+    m.any p = true ↔ ∃ (a : α) (h : a ∈ m), p a (m.get a h) :=
+  Raw₀.any_eq_true ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem any_eq_false_iff_forall_mem_get [LawfulBEq α] {p : (a : α) → β a → Bool} :
+    m.any p = false ↔ ∀ (a : α) (h : a ∈ m), p a (m.get a h) = false :=
+  Raw₀.any_eq_false ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem all_toList {p : (a : α) → β a → Bool} :
+    m.toList.all (fun x => p x.1 x.2) = m.all p := Raw₀.all_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem all_eq_not_any_not {p : (a : α) → β a → Bool} :
+    m.all p = ! m.any (fun a b => ! p a b) := Raw₀.all_eq_not_any_not ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem any_eq_not_all_not {p : (a : α) → β a → Bool} :
+    m.any p = ! m.all (fun a b => ! p a b) := Raw₀.any_eq_not_all_not ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem all_eq_true_iff_forall_mem_get [LawfulBEq α] {p : (a : α) → β a → Bool} :
+    m.all p = true ↔ ∀ (a : α) (h : a ∈ m), p a (m.get a h) := by
+  apply Raw₀.all_eq_true ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem all_eq_false_iff_exists_mem_get [LawfulBEq α] {p : (a : α) → β a → Bool} :
+    m.all p = false ↔ ∃ (a : α) (h : a ∈ m), p a (m.get a h) = false := by
+  apply Raw₀.all_eq_false ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+namespace Const
+
+variable {β : Type v} {m : DHashMap α (fun _ => β)}
+
+@[simp]
+theorem any_toList {p : (_ : α) → β → Bool} :
+    (Const.toList m).any (fun x => p x.1 x.2) = m.any p :=
+  Raw₀.Const.any_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem any_eq_true_iff_exists_mem_getKey_get [LawfulHashable α] [EquivBEq α]
+    {p : (_ : α) → β → Bool} :
+    m.any p = true ↔ ∃ (a : α) (h : a ∈ m), p (m.getKey a h) (Const.get m a h) :=
+  Raw₀.Const.any_eq_true ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem any_eq_true_iff_exists_mem_get [LawfulBEq α] {p : (_ : α) → β → Bool} :
+    m.any p = true ↔ ∃ (a : α) (h : a ∈ m), p a (Const.get m a h) :=
+  Raw₀.Const.any_eq_true' ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem any_eq_false_iff_forall_mem_getKey_get [LawfulHashable α] [EquivBEq α]
+    {p : (_ : α) → β → Bool} :
+    m.any p = false ↔
+      ∀ (a : α) (h : a ∈ m), p (m.getKey a h) (Const.get m a h) = false :=
+  Raw₀.Const.any_eq_false ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem any_eq_false_iff_forall_mem_get [LawfulBEq α] {p : (_ : α) → β → Bool} :
+    m.any p = false ↔
+      ∀ (a : α) (h : a ∈ m), p a (Const.get m a h) = false :=
+  Raw₀.Const.any_eq_false' ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem all_toList {p : (_ : α) → β → Bool} :
+    (Const.toList m).all (fun x => p x.1 x.2) = m.all p :=
+  Raw₀.Const.all_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem all_eq_true_iff_forall_mem_getKey_get [EquivBEq α] [LawfulHashable α]
+    {p : (a : α) → β → Bool} :
+    m.all p = true ↔ ∀ (a : α) (h : a ∈ m), p (m.getKey a h) (Const.get m a h) :=
+  Raw₀.Const.all_eq_true ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem all_eq_true_iff_forall_mem_get [LawfulBEq α] {p : (_ : α) → β → Bool} :
+    m.all p = true ↔ ∀ (a : α) (h : a ∈ m), p a (Const.get m a h) :=
+  Raw₀.Const.all_eq_true' ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem all_eq_false_iff_exists_mem_getKey_get [EquivBEq α] [LawfulHashable α]
+    {p : (a : α) → β → Bool} :
+    m.all p = false ↔ ∃ (a : α) (h : a ∈ m), p (m.getKey a h) (Const.get m a h) = false :=
+  Raw₀.Const.all_eq_false ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem all_eq_false_iff_exists_mem_get [LawfulBEq α] {p : (_ : α) → β → Bool} :
+    m.all p = false ↔ ∃ (a : α) (h : a ∈ m), p a (Const.get m a h) = false :=
+  Raw₀.Const.all_eq_false' ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem any_keys [LawfulHashable α] [EquivBEq α] {p : α → Bool} :
+    m.keys.any p = m.any (fun a _ => p a) :=
+  Raw₀.Const.any_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem all_keys [LawfulHashable α] [EquivBEq α] {p : α → Bool} :
+    m.keys.all p = m.all (fun a _ => p a) :=
+  Raw₀.Const.all_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+end Const
+
 variable {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
 
 @[simp, grind =]
@@ -1760,9 +1852,24 @@ theorem mem_of_mem_union_of_not_mem_left [EquivBEq α]
   exact @Raw₀.contains_of_contains_union_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _ m₁.2 m₂.2 k h₁ h₂
 
 /- Equiv -/
-theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a} :
+theorem union_equiv_congr_left {m₃ : DHashMap α β} [EquivBEq α] [LawfulHashable α]
+    (equiv : m₁ ~m m₂) :
+    (m₁ ∪ m₃) ~m (m₂ ∪ m₃) :=
+  ⟨@Raw₀.union_equiv_congr_left α β _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ ⟨m₃.1, m₃.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 m₃.2 equiv.1⟩
+
+theorem union_equiv_congr_right {m₃ : DHashMap α β} [EquivBEq α] [LawfulHashable α]
+    (equiv : m₂ ~m m₃) :
+    (m₁ ∪ m₂) ~m (m₁ ∪ m₃) :=
+  ⟨@Raw₀.union_equiv_congr_right α β _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ ⟨m₃.1, m₃.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 m₃.2 equiv.1⟩
+
+theorem union_insert_right_equiv_insert_union [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a} :
     (m₁ ∪ (m₂.insert p.fst p.snd)) ~m ((m₁ ∪ m₂).insert p.fst p.snd) :=
   ⟨@Raw₀.union_insert_right_equiv_insert_union _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ p m₁.2 m₂.2⟩
+
+@[deprecated union_insert_right_equiv_insert_union (since := "2025-11-03")]
+theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a} :
+    (m₁ ∪ (m₂.insert p.fst p.snd)) ~m ((m₁ ∪ m₂).insert p.fst p.snd) :=
+  union_insert_right_equiv_insert_union
 
 /- get? -/
 theorem get?_union [LawfulBEq α] {k : α} :

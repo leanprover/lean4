@@ -182,6 +182,22 @@ def get! [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) [Inhabited (β a)]  : β
 def getD [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (fallback : β a) : β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.getD a fallback
 
+@[inline, inherit_doc DTreeMap.getEntry?]
+def getEntry? (t : Raw α β cmp) (a : α) : Option ((a : α) × β a) :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getEntry? a
+
+@[inline, inherit_doc DTreeMap.getEntry]
+def getEntry [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (h : a ∈ t) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getEntry a h
+
+@[inline, inherit_doc DTreeMap.getEntry!]
+def getEntry! [Inhabited ((a : α) × β a)](t : Raw α β cmp) (a : α) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getEntry! a
+
+@[inline, inherit_doc DTreeMap.getEntryD]
+def getEntryD (t : Raw α β cmp) (a : α) (fallback : (a : α) × β a) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getEntryD a fallback
+
 @[inline, inherit_doc DTreeMap.getKey?]
 def getKey? (t : Raw α β cmp) (a : α) : Option α :=
   letI : Ord α := ⟨cmp⟩; t.inner.getKey? a
@@ -696,6 +712,16 @@ end Const
 def insertMany {ρ} [ForIn Id ρ ((a : α) × β a)] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertMany! l⟩
 
+/--
+Computes the union of the given tree maps. If a key appears in both maps, the entry contained in the second argument will appear in the result.
+
+This function always merges the smaller map into the larger map.
+-/
+def union (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.union! t₂.inner⟩
+
+instance : Union (Raw α β cmp) := ⟨union⟩
+
 @[inline, inherit_doc DTreeMap.eraseMany]
 def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseMany! l⟩
@@ -711,7 +737,6 @@ def insertMany {ρ} [ForIn Id ρ (α × β)] (t : Raw α β cmp) (l : ρ) : Raw 
 @[inline, inherit_doc DTreeMap.Const.insertManyIfNewUnit]
 def insertManyIfNewUnit {ρ} [ForIn Id ρ α] (t : Raw α Unit cmp) (l : ρ) : Raw α Unit cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.insertManyIfNewUnit! t.inner l⟩
-
 end Const
 
 instance [Repr α] [(a : α) → Repr (β a)] : Repr (Raw α β cmp) where

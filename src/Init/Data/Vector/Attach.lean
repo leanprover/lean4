@@ -556,12 +556,12 @@ and simplifies these to the function directly taking the value.
   simp
   rw [Array.findSome?_subtype hf]
 
-@[simp] theorem find?_subtype {p : α → Prop} {xs : Array { x // p x }}
+@[simp] theorem find?_subtype {p : α → Prop} {xs : Vector { x // p x } n}
     {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     (xs.find? f).map Subtype.val = xs.unattach.find? g := by
-  rcases xs with ⟨l, rfl⟩
+  rcases xs with ⟨xs, rfl⟩
+  rw [find?_mk, Array.find?_subtype hf]
   simp
-  rw [Array.find?_subtype hf]
 
 @[simp] theorem all_subtype {p : α → Prop} {xs : Vector { x // p x } n} {f : { x // p x } → Bool} {g : α → Bool}
     (hf : ∀ x h, f ⟨x, h⟩ = g x) :

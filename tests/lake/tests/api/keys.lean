@@ -5,13 +5,13 @@ package test
 
 /-! ## Test Key Literal Representations -/
 
-/-- info: Lake.BuildKey.module `mod -/
+/-- info: Lake.BuildKey.packageModule Lean.Name.anonymous `mod -/
 #guard_msgs in #eval `+mod
 
-/-- info: Lake.BuildKey.facet (Lake.BuildKey.module `mod) `facet -/
+/-- info: Lake.BuildKey.facet (Lake.BuildKey.packageModule Lean.Name.anonymous `mod) `facet -/
 #guard_msgs in #eval `+mod:facet
 
-/-- info: Lake.BuildKey.facet (Lake.BuildKey.facet (Lake.BuildKey.module `mod) `f1) `f2 -/
+/-- info: Lake.BuildKey.facet (Lake.BuildKey.facet (Lake.BuildKey.packageModule Lean.Name.anonymous `mod) `f1) `f2 -/
 #guard_msgs in #eval `+mod:f1:f2
 
 /-- info: Lake.BuildKey.package Lean.Name.anonymous -/
@@ -29,11 +29,11 @@ package test
 /-- info: Lake.BuildKey.facet (Lake.BuildKey.packageTarget `pkg `tgt) `facet -/
 #guard_msgs in #eval `@pkg/tgt:facet
 
-/-- info: Lake.BuildKey.packageTarget `pkg `tgt.«_+» -/
-#guard_msgs in #eval `@pkg/+tgt
+/-- info: Lake.BuildKey.packageModule `pkg `mod -/
+#guard_msgs in #eval `@pkg/+mod
 
-/-- info: Lake.BuildKey.facet (Lake.BuildKey.packageTarget `pkg `tgt.«_+») `facet -/
-#guard_msgs in #eval `@pkg/+tgt:facet
+/-- info: Lake.BuildKey.facet (Lake.BuildKey.packageModule `pkg `mod) `facet -/
+#guard_msgs in #eval `@pkg/+mod:facet
 
 /-- info: Lake.BuildKey.packageTarget Lean.Name.anonymous `tgt -/
 #guard_msgs in #eval `@/tgt
@@ -41,10 +41,10 @@ package test
 /-- info: Lake.BuildKey.facet (Lake.BuildKey.packageTarget Lean.Name.anonymous `tgt) `facet -/
 #guard_msgs in #eval `@/tgt:facet
 
-/-- info: Lake.BuildKey.packageTarget Lean.Name.anonymous `mod.«_+» -/
+/-- info: Lake.BuildKey.packageModule Lean.Name.anonymous `mod -/
 #guard_msgs in #eval `@/+mod
 
-/-- info: Lake.BuildKey.facet (Lake.BuildKey.packageTarget Lean.Name.anonymous `mod.«_+») `facet -/
+/-- info: Lake.BuildKey.facet (Lake.BuildKey.packageModule Lean.Name.anonymous `mod) `facet -/
 #guard_msgs in #eval `@/+mod:facet
 
 /-! ## Other Tests -/

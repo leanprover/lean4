@@ -123,61 +123,61 @@ LEAN_EXPORT uint8_t l___private_Lean_Meta_CompletionName_0__Lean_Meta_isInternal
 _start:
 {
 switch (lean_obj_tag(x_1)) {
-case 0:
-{
-uint8_t x_2; 
-x_2 = 0;
-return x_2;
-}
 case 1:
 {
-lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_8; uint32_t x_9; uint32_t x_10; uint8_t x_11; 
-x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_ctor_get(x_1, 1);
-x_8 = lean_unsigned_to_nat(0u);
-x_9 = lean_string_utf8_get(x_4, x_8);
-x_10 = 95;
-x_11 = lean_uint32_dec_eq(x_9, x_10);
-if (x_11 == 0)
+lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_7; uint32_t x_8; uint32_t x_9; uint8_t x_10; 
+x_2 = lean_ctor_get(x_1, 0);
+x_3 = lean_ctor_get(x_1, 1);
+x_7 = lean_unsigned_to_nat(0u);
+x_8 = lean_string_utf8_get(x_3, x_7);
+x_9 = 95;
+x_10 = lean_uint32_dec_eq(x_8, x_9);
+if (x_10 == 0)
 {
-x_5 = x_11;
-goto block_7;
+x_4 = x_10;
+goto block_6;
 }
 else
 {
-lean_object* x_12; uint8_t x_13; 
-x_12 = l___private_Lean_Meta_CompletionName_0__Lean_Meta_isInternalNameModuloPrivate___closed__0;
-x_13 = lean_name_eq(x_1, x_12);
-if (x_13 == 0)
+lean_object* x_11; uint8_t x_12; 
+x_11 = l___private_Lean_Meta_CompletionName_0__Lean_Meta_isInternalNameModuloPrivate___closed__0;
+x_12 = lean_name_eq(x_1, x_11);
+if (x_12 == 0)
 {
-x_5 = x_11;
-goto block_7;
+x_4 = x_10;
+goto block_6;
 }
 else
 {
-x_1 = x_3;
+x_1 = x_2;
 goto _start;
 }
 }
-block_7:
+block_6:
 {
-if (x_5 == 0)
+if (x_4 == 0)
 {
-x_1 = x_3;
+x_1 = x_2;
 goto _start;
 }
 else
 {
-return x_5;
+return x_4;
 }
 }
+}
+case 2:
+{
+lean_object* x_14; 
+x_14 = lean_ctor_get(x_1, 0);
+x_1 = x_14;
+goto _start;
 }
 default: 
 {
-lean_object* x_15; 
-x_15 = lean_ctor_get(x_1, 0);
-x_1 = x_15;
-goto _start;
+uint8_t x_16; 
+x_16 = 0;
+return x_16;
 }
 }
 }

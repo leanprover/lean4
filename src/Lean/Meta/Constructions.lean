@@ -11,3 +11,4 @@ public import Lean.Meta.Constructions.NoConfusion
 public import Lean.Meta.Constructions.RecOn
 public import Lean.Meta.Constructions.BRecOn
 public import Lean.Meta.Constructions.CasesOnSameCtor
+public import Lean.Meta.Constructions.SparseCasesOn

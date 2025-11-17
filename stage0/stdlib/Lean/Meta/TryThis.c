@@ -143,7 +143,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_instCoeHeadTSyntaxConsSyntax
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_success___closed__1;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_asInaccessible___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t l_instDecidableNot___redArg(uint8_t);
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__0;
 uint8_t lean_float_decLe(double, double);
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_TryThisInfo_ctorIdx___boxed(lean_object*);
@@ -1123,12 +1122,12 @@ lean_ctor_set(x_9, 0, x_3);
 lean_ctor_set(x_9, 1, x_8);
 x_10 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set(x_10, 1, x_4);
+lean_ctor_set(x_10, 1, x_6);
 x_11 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_11, 0, x_6);
+lean_ctor_set(x_11, 0, x_5);
 lean_ctor_set(x_11, 1, x_10);
 x_12 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_12, 0, x_5);
+lean_ctor_set(x_12, 0, x_4);
 lean_ctor_set(x_12, 1, x_11);
 x_13 = l_Lean_Json_mkObj(x_12);
 return x_13;
@@ -1182,9 +1181,9 @@ if (x_2 == 0)
 lean_object* x_49; 
 x_49 = l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__8;
 x_3 = x_48;
-x_4 = x_44;
-x_5 = x_17;
-x_6 = x_47;
+x_4 = x_17;
+x_5 = x_47;
+x_6 = x_44;
 x_7 = x_49;
 goto block_14;
 }
@@ -1198,9 +1197,9 @@ lean_dec_ref(x_51);
 x_53 = l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__10;
 x_54 = lean_string_append(x_52, x_53);
 x_3 = x_48;
-x_4 = x_44;
-x_5 = x_17;
-x_6 = x_47;
+x_4 = x_17;
+x_5 = x_47;
+x_6 = x_44;
 x_7 = x_54;
 goto block_14;
 }
@@ -1462,11 +1461,21 @@ return x_1;
 LEAN_EXPORT uint8_t l_Lean_Meta_Tactic_TryThis_getIndentAndColumn___lam__0(uint32_t x_1) {
 _start:
 {
-uint32_t x_2; uint8_t x_3; uint8_t x_4; 
+uint32_t x_2; uint8_t x_3; 
 x_2 = 32;
 x_3 = lean_uint32_dec_eq(x_1, x_2);
-x_4 = l_instDecidableNot___redArg(x_3);
+if (x_3 == 0)
+{
+uint8_t x_4; 
+x_4 = 1;
 return x_4;
+}
+else
+{
+uint8_t x_5; 
+x_5 = 0;
+return x_5;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_getIndentAndColumn(lean_object* x_1, lean_object* x_2) {

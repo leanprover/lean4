@@ -489,6 +489,12 @@ def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : TreeMap α β cmp
 def insertMany {ρ} [ForIn Id ρ (α × β)] (t : TreeMap α β cmp) (l : ρ) : TreeMap α β cmp :=
   ⟨DTreeMap.Const.insertMany t.inner l⟩
 
+@[inline, inherit_doc DTreeMap.union]
+def union (t₁ t₂ : TreeMap α β cmp) : TreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨DTreeMap.union t₁.inner t₂.inner⟩
+
+instance : Union (TreeMap α β cmp) := ⟨union⟩
+
 @[inline, inherit_doc DTreeMap.Const.insertManyIfNewUnit]
 def insertManyIfNewUnit {ρ} [ForIn Id ρ α] (t : TreeMap α Unit cmp) (l : ρ) : TreeMap α Unit cmp :=
   ⟨DTreeMap.Const.insertManyIfNewUnit t.inner l⟩

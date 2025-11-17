@@ -6048,7 +6048,7 @@ goto block_18;
 }
 else
 {
-lean_dec_ref(x_42);
+lean_dec(x_42);
 lean_dec(x_12);
 lean_dec(x_11);
 lean_ctor_set(x_39, 0, x_32);
@@ -6072,7 +6072,7 @@ goto block_18;
 else
 {
 lean_object* x_45; 
-lean_dec_ref(x_44);
+lean_dec(x_44);
 lean_dec(x_12);
 lean_dec(x_11);
 x_45 = lean_alloc_ctor(0, 1, 0);

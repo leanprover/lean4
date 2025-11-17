@@ -114,7 +114,7 @@ protected def toString : JsonNumber → String
       s!"{sign}{left}"
     else
       let right := e' + m % e'
-        |>.repr.toSubstring.drop 1
+        |>.repr.toRawSubstring.drop 1
         |>.dropRightWhile (fun c => c = '0')
         |>.toString
       let exp := if exp = 0 then "" else "e" ++ exp.repr

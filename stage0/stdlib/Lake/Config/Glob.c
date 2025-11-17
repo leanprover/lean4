@@ -1513,7 +1513,6 @@ lean_closure_set(x_9, 0, x_8);
 lean_closure_set(x_9, 1, x_4);
 x_10 = l_Lake_Glob_forEachModuleIn___redArg___lam__2___closed__0;
 x_11 = l_Lean_modToFilePath(x_3, x_8, x_10);
-lean_dec(x_8);
 lean_dec_ref(x_3);
 x_12 = l_Lean_forEachModuleInDir___redArg(x_1, x_2, x_11, x_9);
 return x_12;
@@ -1574,7 +1573,6 @@ lean_closure_set(x_10, 0, x_9);
 lean_closure_set(x_10, 1, x_5);
 x_11 = l_Lake_Glob_forEachModuleIn___redArg___lam__2___closed__0;
 x_12 = l_Lean_modToFilePath(x_4, x_9, x_11);
-lean_dec(x_9);
 lean_dec_ref(x_4);
 x_13 = l_Lean_forEachModuleInDir___redArg(x_2, x_3, x_12, x_10);
 return x_13;
@@ -1612,7 +1610,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Lake_Glob_forEachModuleIn___redArg___lam__2(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_7;
 }

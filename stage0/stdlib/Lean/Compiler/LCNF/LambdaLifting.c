@@ -84,9 +84,9 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_DeclValue_mapCodeM___at___00Lean_C
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LambdaLifting_shouldLift___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_eagerLambdaLifting;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LambdaLifting_Context_ctorIdx___boxed(lean_object*);
-uint8_t l_Lean_Compiler_LCNF_Decl_inlineAttr(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Decl_lambdaLifting(lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Compiler_LCNF_Decl_inlineable(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LambdaLifting_visitCode___lam__0___boxed(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
@@ -4074,7 +4074,7 @@ lean_object* x_22; uint8_t x_23; uint8_t x_32;
 x_22 = lean_ctor_get(x_21, 0);
 lean_inc(x_22);
 lean_dec_ref(x_21);
-x_32 = l_Lean_Compiler_LCNF_Decl_inlineAttr(x_19);
+x_32 = l_Lean_Compiler_LCNF_Decl_inlineable(x_19);
 if (x_32 == 0)
 {
 uint8_t x_33; 

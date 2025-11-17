@@ -44,7 +44,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_m
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___00Lean_IR_pushProjs_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__24_00___x40_Lean_Compiler_IR_PushProj_2323117793____hygCtx___hyg_2_;
 lean_object* l_Lean_IR_FnBody_freeIndices(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_pushProjs___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__22_00___x40_Lean_Compiler_IR_PushProj_2323117793____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__6_00___x40_Lean_Compiler_IR_PushProj_2323117793____hygCtx___hyg_2_;
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___00Lean_IR_pushProjs_spec__0___redArg(lean_object*, lean_object*);
@@ -457,17 +456,6 @@ return x_14;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_IR_pushProjs___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-lean_inc(x_2);
-x_8 = lean_array_push(x_1, x_2);
-x_9 = l_Lean_IR_FnBody_collectFreeIndices(x_2, x_3);
-x_10 = l_Lean_IR_pushProjs(x_4, x_5, x_6, x_8, x_9);
-return x_10;
-}
-}
 static lean_object* _init_l_Lean_IR_pushProjs___closed__0() {
 _start:
 {
@@ -489,67 +477,61 @@ x_8 = l_Array_back_x21___redArg(x_7, x_1);
 x_9 = lean_array_pop(x_1);
 if (lean_obj_tag(x_8) == 0)
 {
-lean_object* x_25; lean_object* x_26; 
-x_25 = lean_ctor_get(x_8, 0);
-lean_inc(x_25);
-x_26 = lean_ctor_get(x_8, 2);
-lean_inc_ref(x_26);
-switch (lean_obj_tag(x_26)) {
+lean_object* x_29; lean_object* x_30; 
+x_29 = lean_ctor_get(x_8, 0);
+lean_inc(x_29);
+x_30 = lean_ctor_get(x_8, 2);
+lean_inc_ref(x_30);
+switch (lean_obj_tag(x_30)) {
 case 3:
 {
-lean_dec_ref(x_26);
-goto block_30;
+lean_dec_ref(x_30);
+goto block_32;
 }
 case 4:
 {
-lean_dec_ref(x_26);
-goto block_30;
+lean_dec_ref(x_30);
+goto block_32;
 }
 case 5:
 {
-lean_dec_ref(x_26);
-goto block_30;
+lean_dec_ref(x_30);
+goto block_32;
 }
 case 12:
 {
-lean_object* x_31; lean_object* x_32; 
-lean_dec_ref(x_26);
-lean_dec(x_25);
-x_31 = lean_box(0);
-x_32 = l_Lean_IR_pushProjs___lam__0(x_4, x_8, x_5, x_9, x_2, x_3, x_31);
-return x_32;
+lean_dec_ref(x_30);
+lean_dec(x_29);
+goto block_28;
 }
 default: 
 {
-lean_dec_ref(x_26);
-lean_dec(x_25);
+lean_dec_ref(x_30);
+lean_dec(x_29);
 lean_dec(x_5);
 lean_dec_ref(x_3);
 goto block_14;
 }
 }
-block_30:
+block_32:
 {
-uint8_t x_27; 
-x_27 = l_Std_DTreeMap_Internal_Impl_contains___at___00Lean_IR_pushProjs_spec__0___redArg(x_25, x_5);
-if (x_27 == 0)
+uint8_t x_31; 
+x_31 = l_Std_DTreeMap_Internal_Impl_contains___at___00Lean_IR_pushProjs_spec__0___redArg(x_29, x_5);
+if (x_31 == 0)
 {
-x_15 = x_25;
+x_15 = x_29;
 goto block_24;
 }
 else
 {
 if (x_6 == 0)
 {
-lean_object* x_28; lean_object* x_29; 
-lean_dec(x_25);
-x_28 = lean_box(0);
-x_29 = l_Lean_IR_pushProjs___lam__0(x_4, x_8, x_5, x_9, x_2, x_3, x_28);
-return x_29;
+lean_dec(x_29);
+goto block_28;
 }
 else
 {
-x_15 = x_25;
+x_15 = x_29;
 goto block_24;
 }
 }
@@ -590,6 +572,17 @@ lean_dec(x_15);
 x_1 = x_9;
 x_2 = x_19;
 x_3 = x_22;
+goto _start;
+}
+block_28:
+{
+lean_object* x_25; lean_object* x_26; 
+lean_inc(x_8);
+x_25 = lean_array_push(x_4, x_8);
+x_26 = l_Lean_IR_FnBody_collectFreeIndices(x_8, x_5);
+x_1 = x_9;
+x_4 = x_25;
+x_5 = x_26;
 goto _start;
 }
 }

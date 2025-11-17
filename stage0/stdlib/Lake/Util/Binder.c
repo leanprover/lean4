@@ -2613,20 +2613,21 @@ lean_ctor_set(x_15, 1, x_14);
 lean_inc(x_8);
 x_16 = l_Lean_Syntax_node2(x_8, x_12, x_15, x_5);
 x_17 = l_Lake_BinderSyntaxView_mkBinder___closed__4;
-if (lean_obj_tag(x_6) == 0)
+if (lean_obj_tag(x_6) == 1)
 {
-lean_object* x_25; 
-x_25 = l_Lake_BinderSyntaxView_mkBinder___closed__6;
-x_18 = x_25;
+lean_object* x_25; lean_object* x_26; 
+x_25 = lean_ctor_get(x_6, 0);
+lean_inc(x_25);
+lean_dec_ref(x_6);
+x_26 = l_Array_mkArray1___redArg(x_25);
+x_18 = x_26;
 goto block_24;
 }
 else
 {
-lean_object* x_26; lean_object* x_27; 
-x_26 = lean_ctor_get(x_6, 0);
-lean_inc(x_26);
-lean_dec_ref(x_6);
-x_27 = l_Array_mkArray1___redArg(x_26);
+lean_object* x_27; 
+lean_dec(x_6);
+x_27 = l_Lake_BinderSyntaxView_mkBinder___closed__6;
 x_18 = x_27;
 goto block_24;
 }

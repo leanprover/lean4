@@ -52,8 +52,8 @@ instance : NoNatZeroDivisors Dyadic where
 
 instance : OrderedRing Dyadic where
   zero_lt_one := by decide
-  add_le_left_iff _ := by simp [le_iff_toRat, Rat.add_le_add_right]
-  mul_lt_mul_of_pos_left {_ _ _} := by simpa [lt_iff_toRat] using Rat.mul_lt_mul_of_pos_left
-  mul_lt_mul_of_pos_right {_ _ _} := by simpa [lt_iff_toRat] using Rat.mul_lt_mul_of_pos_right
+  add_le_left_iff _ := by simp [← toRat_le_toRat_iff, Rat.add_le_add_right]
+  mul_lt_mul_of_pos_left {_ _ _} := by simpa [← toRat_lt_toRat_iff] using Rat.mul_lt_mul_of_pos_left
+  mul_lt_mul_of_pos_right {_ _ _} := by simpa [← toRat_lt_toRat_iff] using Rat.mul_lt_mul_of_pos_right
 
 end Dyadic

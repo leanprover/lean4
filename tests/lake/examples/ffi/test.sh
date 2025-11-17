@@ -10,6 +10,7 @@ $LAKE -d lib build -v
 
 $LAKE exe -d app app
 $LAKE exe -d lib test
+$LAKE exe -d lib standalone
 
 # Tests that a non-precompiled build does not load anything as a dynlib/plugin
 # https://github.com/leanprover/lean4/issues/4565

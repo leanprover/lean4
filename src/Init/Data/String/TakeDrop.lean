@@ -31,7 +31,7 @@ Examples:
  * `"red green blue".drop 50 = ""`
 -/
 @[inline] def drop (s : String) (n : Nat) : String :=
-  (s.toSubstring.drop n).toString
+  (s.toRawSubstring.drop n).toString
 
 @[export lean_string_drop]
 def Internal.dropImpl (s : String) (n : Nat) : String :=
@@ -48,7 +48,7 @@ Examples:
  * `"red green blue".dropRight 50 = ""`
 -/
 @[inline] def dropRight (s : String) (n : Nat) : String :=
-  (s.toSubstring.dropRight n).toString
+  (s.toRawSubstring.dropRight n).toString
 
 @[export lean_string_dropright]
 def Internal.dropRightImpl (s : String) (n : Nat) : String :=
@@ -66,7 +66,7 @@ Examples:
 * `"red green blue".take 100 = "red green blue"`
 -/
 @[inline] def take (s : String) (n : Nat) : String :=
-  (s.toSubstring.take n).toString
+  (s.toRawSubstring.take n).toString
 
 /--
 Creates a new string that contains the last `n` characters (Unicode code points) of `s`.
@@ -80,7 +80,7 @@ Examples:
 * `"red green blue".takeRight 100 = "red green blue"`
 -/
 @[inline] def takeRight (s : String) (n : Nat) : String :=
-  (s.toSubstring.takeRight n).toString
+  (s.toRawSubstring.takeRight n).toString
 
 /--
 Creates a new string that contains the longest prefix of `s` in which `p` returns `true` for all
@@ -93,7 +93,7 @@ Examples:
 * `"red green blue".takeWhile (fun _ => true) = "red green blue"`
 -/
 @[inline] def takeWhile (s : String) (p : Char → Bool) : String :=
-  (s.toSubstring.takeWhile p).toString
+  (s.toRawSubstring.takeWhile p).toString
 
 /--
 Creates a new string by removing the longest prefix from `s` in which `p` returns `true` for all
@@ -106,7 +106,7 @@ Examples:
 * `"red green blue".dropWhile (fun _ => true) = ""`
 -/
 @[inline] def dropWhile (s : String) (p : Char → Bool) : String :=
-  (s.toSubstring.dropWhile p).toString
+  (s.toRawSubstring.dropWhile p).toString
 
 /--
 Creates a new string that contains the longest suffix of `s` in which `p` returns `true` for all
@@ -119,7 +119,7 @@ Examples:
 * `"red green blue".takeRightWhile (fun _ => true) = "red green blue"`
 -/
 @[inline] def takeRightWhile (s : String) (p : Char → Bool) : String :=
-  (s.toSubstring.takeRightWhile p).toString
+  (s.toRawSubstring.takeRightWhile p).toString
 
 /--
 Creates a new string by removing the longest suffix from `s` in which `p` returns `true` for all
@@ -132,7 +132,7 @@ Examples:
 * `"red green blue".dropRightWhile (fun _ => true) = ""`
 -/
 @[inline] def dropRightWhile (s : String) (p : Char → Bool) : String :=
-  (s.toSubstring.dropRightWhile p).toString
+  (s.toRawSubstring.dropRightWhile p).toString
 
 /--
 Checks whether the first string (`s`) begins with the second (`pre`).
@@ -146,7 +146,7 @@ Examples:
  * `"red".startsWith "red" = true`
 -/
 @[inline] def startsWith (s pre : String) : Bool :=
-  s.toSubstring.take pre.length == pre.toSubstring
+  s.toRawSubstring.take pre.length == pre.toRawSubstring
 
 /--
 Checks whether the first string (`s`) ends with the second (`post`).
@@ -158,7 +158,7 @@ Examples:
  * `"red".endsWith "red" = true`
 -/
 @[inline] def endsWith (s post : String) : Bool :=
-  s.toSubstring.takeRight post.length == post.toSubstring
+  s.toRawSubstring.takeRight post.length == post.toRawSubstring
 
 /--
 Removes trailing whitespace from a string.
@@ -173,7 +173,7 @@ Examples:
 * `"abc\ndef\n".trimRight = "abc\ndef"`
 -/
 @[inline] def trimRight (s : String) : String :=
-  s.toSubstring.trimRight.toString
+  s.toRawSubstring.trimRight.toString
 
 /--
 Removes leading whitespace from a string.
@@ -188,7 +188,7 @@ Examples:
 * `"abc\ndef\n".trimLeft = "abc\ndef\n"`
 -/
 @[inline] def trimLeft (s : String) : String :=
-  s.toSubstring.trimLeft.toString
+  s.toRawSubstring.trimLeft.toString
 
 /--
 Removes leading and trailing whitespace from a string.
@@ -203,7 +203,7 @@ Examples:
 * `"abc\ndef\n".trim = "abc\ndef"`
 -/
 @[inline] def trim (s : String) : String :=
-  s.toSubstring.trim.toString
+  s.toRawSubstring.trim.toString
 
 @[export lean_string_trim]
 def Internal.trimImpl (s : String) : String :=
@@ -220,7 +220,7 @@ Examples:
 * `let s := "ba  "; s.get (s.nextWhile Char.isWhitespace 0) = 'b'`
 -/
 @[inline] def Pos.Raw.nextWhile (s : String) (p : Char → Bool) (i : String.Pos.Raw) : String.Pos.Raw :=
-  Substring.takeWhileAux s s.rawEndPos p i
+  Substring.Raw.takeWhileAux s s.rawEndPos p i
 
 @[deprecated Pos.Raw.nextWhile (since := "2025-10-10")]
 abbrev nextWhile (s : String) (p : Char → Bool) (i : String.Pos.Raw) : String.Pos.Raw :=
@@ -260,8 +260,8 @@ Examples:
  * `"red green blue".dropPrefix? "reed " = none`
  * `"red green blue".dropPrefix? "" = some "red green blue"`
 -/
-def dropPrefix? (s : String) (pre : String) : Option Substring :=
-  s.toSubstring.dropPrefix? pre.toSubstring
+def dropPrefix? (s : String) (pre : String) : Option Substring.Raw :=
+  s.toRawSubstring.dropPrefix? pre.toRawSubstring
 
 /--
 If `suff` is a suffix of `s`, returns the remainder. Returns `none` otherwise.
@@ -276,8 +276,8 @@ Examples:
  * `"red green blue".dropSuffix? " blu " = none`
  * `"red green blue".dropSuffix? "" = some "red green blue"`
 -/
-def dropSuffix? (s : String) (suff : String) : Option Substring :=
-  s.toSubstring.dropSuffix? suff.toSubstring
+def dropSuffix? (s : String) (suff : String) : Option Substring.Raw :=
+  s.toRawSubstring.dropSuffix? suff.toRawSubstring
 
 /--
 If `pre` is a prefix of `s`, returns the remainder. Returns `s` unmodified otherwise.
@@ -293,7 +293,7 @@ Examples:
  * `"red green blue".stripPrefix "" = "red green blue"`
 -/
 def stripPrefix (s : String) (pre : String) : String :=
-  s.dropPrefix? pre |>.map Substring.toString |>.getD s
+  s.dropPrefix? pre |>.map Substring.Raw.toString |>.getD s
 
 /--
 If `suff` is a suffix of `s`, returns the remainder. Returns `s` unmodified otherwise.
@@ -309,6 +309,6 @@ Examples:
  * `"red green blue".stripSuffix "" = "red green blue"`
 -/
 def stripSuffix (s : String) (suff : String) : String :=
-  s.dropSuffix? suff |>.map Substring.toString |>.getD s
+  s.dropSuffix? suff |>.map Substring.Raw.toString |>.getD s
 
 end String

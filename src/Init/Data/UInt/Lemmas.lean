@@ -1445,7 +1445,7 @@ theorem UInt64.toUSize_div_of_toNat_lt (a b : UInt64) (ha : a.toNat < USize.size
   USize.toNat.inj (by simpa using Nat.div_mod_eq_mod_div_mod ha hb)
 
 @[simp] protected theorem UInt8.toFin_mod (a b : UInt8) : (a % b).toFin = a.toFin % b.toFin := (rfl)
-@[simp] protected theorem UInt16.toFin_mod (a b : UInt8) : (a % b).toFin = a.toFin % b.toFin := (rfl)
+@[simp] protected theorem UInt16.toFin_mod (a b : UInt16) : (a % b).toFin = a.toFin % b.toFin := (rfl)
 @[simp] protected theorem UInt32.toFin_mod (a b : UInt32) : (a % b).toFin = a.toFin % b.toFin := (rfl)
 @[simp] protected theorem UInt64.toFin_mod (a b : UInt64) : (a % b).toFin = a.toFin % b.toFin := (rfl)
 @[simp] protected theorem USize.toFin_mod (a b : USize) : (a % b).toFin = a.toFin % b.toFin := (rfl)

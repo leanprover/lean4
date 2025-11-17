@@ -277,6 +277,19 @@ Resolution of format.indent:
    {"replace":
     {"start": {"line": 7, "character": 11},
      "end": {"line": 7, "character": 23}},
+    "newText": "trace.PrettyPrinter.parenthesize.backtrack",
+    "insert":
+    {"start": {"line": 7, "character": 11},
+     "end": {"line": 7, "character": 23}}},
+   "label": "trace.PrettyPrinter.parenthesize.backtrack",
+   "kind": 10,
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules",
+   "data": ["«external:file:///completionOption.lean»", 7, 23, 0]},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 7, "character": 11},
+     "end": {"line": 7, "character": 23}},
     "newText": "trace.pp.analyze",
     "insert":
     {"start": {"line": 7, "character": 11},
@@ -333,6 +346,18 @@ Resolution of trace.pp.analyze.error:
   "insert":
   {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 23}}},
  "label": "trace.pp.analyze.error",
+ "kind": 10,
+ "detail":
+ "(false), enable/disable tracing for the given module and submodules",
+ "data": ["«external:file:///completionOption.lean»", 7, 23, 0]}
+Resolution of trace.PrettyPrinter.parenthesize.backtrack:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 23}},
+  "newText": "trace.PrettyPrinter.parenthesize.backtrack",
+  "insert":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 23}}},
+ "label": "trace.PrettyPrinter.parenthesize.backtrack",
  "kind": 10,
  "detail":
  "(false), enable/disable tracing for the given module and submodules",

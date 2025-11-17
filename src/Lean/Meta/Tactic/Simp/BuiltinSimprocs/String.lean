@@ -31,8 +31,8 @@ private partial def reduceListChar (e : Expr) (s : String) : SimpM DStep := do
   else
     return .continue
 
-builtin_dsimproc [simp, seval] reduceMk (String.mk _) := fun e => do
-  unless e.isAppOfArity ``String.mk 1 do return .continue
+builtin_dsimproc [simp, seval] reduceOfList (String.ofList _) := fun e => do
+  unless e.isAppOfArity ``String.ofList 1 do return .continue
   reduceListChar e.appArg! ""
 
 @[inline] def reduceBinPred (declName : Name) (arity : Nat) (op : String → String → Bool) (e : Expr) : SimpM Step := do

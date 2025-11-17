@@ -115,14 +115,14 @@ end MaterializedDep
 inductive InputVer
 | none
 | git (rev : String)
-| std (ver : StdVer)
+| ver (ver : VerRange)
 
 def pkgNotIndexed (scope name : String) (ver : InputVer) : String :=
   let (leanVer, tomlVer) :=
     match ver with
     | .none => ("", "")
     | .git rev => (s!" @ git {repr rev}", s!"\n    rev = {repr rev}")
-    | .std ver => (s!" @ {repr ver.toString}", s!"\n    version = {repr ver.toString}")
+    | .ver ver => (s!" @ {repr ver.toString}", s!"\n    version = {repr ver.toString}")
 s!"{scope}/{name}: package not found on Reservoir.
 
   If the package is on GitHub, you can add a Git source. For example:
@@ -163,10 +163,10 @@ public def Dependency.materialize
         | return .none
       if let some ver := ver.dropPrefix? "git#" then
         return .git ver.toString
-      else if let .ok ver := StdVer.parse ver then
-        return .std ver
       else
-        error s!"{dep.name}: unsupported dependency version format '{ver}'"
+        match VerRange.parse ver with
+        | .ok ver => return .ver ver
+        | .error e =>  error s!"{dep.name}: invalid dependency version range: {e}"
     let depName := dep.name.toString (escape := false)
     let pkg ←
       match (← Reservoir.fetchPkg? lakeEnv dep.scope depName |>.toLogT) with
@@ -182,10 +182,10 @@ public def Dependency.materialize
         match ver with
         | .none => defaultBranch?
         | .git rev => some rev
-        | .std ver =>
-            match (← Reservoir.fetchPkgVersions lakeEnv dep.scope depName |>.toLogT) with
+        | .ver ver =>
+          match (← Reservoir.fetchPkgVersions lakeEnv dep.scope depName |>.toLogT) with
           | .ok vers =>
-              if let some ver := vers.find? (·.version == ver) then
+              if let some ver := vers.find? (ver.test ·.version) then
                 logInfo s!"{dep.scope}/{depName}: using version `{ver.version}` at revision `{ver.revision}`"
                 pure ver.revision
               else

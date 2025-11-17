@@ -1120,12 +1120,7 @@ else
 lean_object* x_16; 
 lean_inc(x_1);
 x_16 = l_Lean_Json_getNat_x3f(x_1);
-if (lean_obj_tag(x_16) == 0)
-{
-lean_dec_ref(x_16);
-goto block_9;
-}
-else
+if (lean_obj_tag(x_16) == 1)
 {
 lean_object* x_17; lean_object* x_18; uint8_t x_19; 
 x_17 = lean_ctor_get(x_16, 0);
@@ -1191,6 +1186,11 @@ x_29 = 0;
 x_10 = x_29;
 goto block_14;
 }
+}
+else
+{
+lean_dec_ref(x_16);
+goto block_9;
 }
 }
 block_9:
@@ -1540,13 +1540,7 @@ else
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_array_uget(x_3, x_2);
 x_9 = l_Lean_Json_getNat_x3f(x_8);
-if (lean_obj_tag(x_9) == 0)
-{
-lean_dec_ref(x_9);
-lean_dec_ref(x_3);
-goto block_5;
-}
-else
+if (lean_obj_tag(x_9) == 1)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_20; uint8_t x_21; 
 x_10 = lean_ctor_get(x_9, 0);
@@ -1594,6 +1588,12 @@ x_2 = x_15;
 x_3 = x_17;
 goto _start;
 }
+}
+else
+{
+lean_dec_ref(x_9);
+lean_dec_ref(x_3);
+goto block_5;
 }
 }
 block_5:
@@ -1757,13 +1757,7 @@ else
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_array_uget(x_3, x_2);
 x_9 = l_Lean_Json_getNat_x3f(x_8);
-if (lean_obj_tag(x_9) == 0)
-{
-lean_dec_ref(x_9);
-lean_dec_ref(x_3);
-goto block_5;
-}
-else
+if (lean_obj_tag(x_9) == 1)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_20; uint8_t x_21; 
 x_10 = lean_ctor_get(x_9, 0);
@@ -1811,6 +1805,12 @@ x_2 = x_15;
 x_3 = x_17;
 goto _start;
 }
+}
+else
+{
+lean_dec_ref(x_9);
+lean_dec_ref(x_3);
+goto block_5;
 }
 }
 block_5:

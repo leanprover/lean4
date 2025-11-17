@@ -11,7 +11,6 @@ public import Lean.Meta.Basic
 import Lean.AddDecl
 import Lean.Meta.AppBuilder
 import Lean.Meta.CompletionName
-import Lean.Meta.Injective
 import Lean.Linter.Deprecated
 
 open Lean Meta

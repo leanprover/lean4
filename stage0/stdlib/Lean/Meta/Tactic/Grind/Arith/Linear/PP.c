@@ -756,12 +756,7 @@ lean_object* x_15; lean_object* x_16;
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 lean_dec_ref(x_14);
-if (lean_obj_tag(x_15) == 0)
-{
-x_16 = x_5;
-goto block_20;
-}
-else
+if (lean_obj_tag(x_15) == 1)
 {
 lean_object* x_21; lean_object* x_22; 
 x_21 = lean_ctor_get(x_15, 0);
@@ -769,6 +764,12 @@ lean_inc(x_21);
 lean_dec_ref(x_15);
 x_22 = lean_array_push(x_5, x_21);
 x_16 = x_22;
+goto block_20;
+}
+else
+{
+lean_dec(x_15);
+x_16 = x_5;
 goto block_20;
 }
 block_20:

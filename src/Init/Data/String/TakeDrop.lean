@@ -149,7 +149,7 @@ Examples:
  * {lean}`"red green blue".dropWhile (fun (_ : Char) => true) == "".toSlice`
 -/
 @[inline] def dropWhile [ForwardPattern ρ] (s : String) (pat : ρ) : String.Slice :=
-  s.toSlice.takeWhile pat
+  s.toSlice.dropWhile pat
 
 /--
 Creates a string slice that contains the longest suffix of {name}`s` in which {name}`pat` matched

@@ -375,7 +375,7 @@ def elabInvariants (stx : Syntax) (invariants : Array MVarId) (suggestInvariant 
         let n? : Option Nat := do
             let `(binderIdent| $tag:ident) := tag | some n -- fall back to ordinal
             let .str .anonymous s := tag.getId | none
-            s.dropPrefix? "inv" >>= Substring.toNat?
+            s.dropPrefix? "inv" >>= Substring.Raw.toNat?
         let some mv := do invariants[(← n?) - 1]? | do
           logErrorAt alt m!"No invariant with label {tag} {repr tag}."
           continue

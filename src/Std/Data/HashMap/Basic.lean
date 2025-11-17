@@ -252,6 +252,11 @@ instance [BEq α] [Hashable α] {m : Type w → Type w'} : ForIn m (HashMap α �
     Array α :=
   m.inner.keysArray
 
+@[inline, inherit_doc DHashMap.all] def all (m : HashMap α β) (p : α → β → Bool) : Bool :=
+  m.inner.all p
+
+@[inline, inherit_doc DHashMap.any] def any (m : HashMap α β) (p : α → β → Bool) : Bool :=
+  m.inner.any p
 /--
 Computes the union of the given hash maps. If a key appears in both maps, the entry contained in
 the second argument will appear in the result.

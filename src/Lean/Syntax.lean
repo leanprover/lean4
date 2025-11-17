@@ -68,7 +68,7 @@ def String.Range.bsize (r : Lean.Syntax.Range) : Nat :=
 
 namespace Lean
 
-def SourceInfo.updateTrailing (trailing : Substring) : SourceInfo → SourceInfo
+def SourceInfo.updateTrailing (trailing : Substring.Raw) : SourceInfo → SourceInfo
   | SourceInfo.original leading pos _ endPos => SourceInfo.original leading pos trailing endPos
   | info                                     => info
 
@@ -262,7 +262,7 @@ private def updateInfo : SourceInfo → String.Pos.Raw → String.Pos.Raw → So
     SourceInfo.original { lead with startPos := leadStart } pos { trail with stopPos := trailStop } endPos
   | info, _, _ => info
 
-private def chooseNiceTrailStop (trail : Substring) : String.Pos.Raw :=
+private def chooseNiceTrailStop (trail : Substring.Raw) : String.Pos.Raw :=
   (trail.posOf '\n').offsetBy trail.startPos
 
 /-- Remark: the State `String.Pos` is the `SourceInfo.trailing.stopPos` of the previous token,
@@ -299,7 +299,7 @@ private def updateLeadingAux : Syntax → StateM String.Pos.Raw (Option Syntax)
 def updateLeading : Syntax → Syntax :=
   fun stx => (replaceM updateLeadingAux stx).run' 0
 
-partial def updateTrailing (trailing : Substring) : Syntax → Syntax
+partial def updateTrailing (trailing : Substring.Raw) : Syntax → Syntax
   | Syntax.atom info val               => Syntax.atom (info.updateTrailing trailing) val
   | Syntax.ident info rawVal val pre   => Syntax.ident (info.updateTrailing trailing) rawVal val pre
   | n@(Syntax.node info k args)        =>
@@ -327,7 +327,7 @@ def identComponents (stx : Syntax) (nFields? : Option Nat := none) : List Syntax
       let rawComps :=
         if let some nFields := nFields? then
           let nPrefix := rawComps.length - nFields
-          let prefixSz := rawComps.take nPrefix |>.foldl (init := 0) fun acc (ss : Substring) => acc + ss.bsize + 1
+          let prefixSz := rawComps.take nPrefix |>.foldl (init := 0) fun acc (ss : Substring.Raw) => acc + ss.bsize + 1
           let prefixSz := prefixSz - 1 -- The last component has no dot
           rawStr.extract 0 ⟨prefixSz⟩ :: rawComps.drop nPrefix
         else
@@ -335,18 +335,18 @@ def identComponents (stx : Syntax) (nFields? : Option Nat := none) : List Syntax
       if nameComps.length == rawComps.length then
         return nameComps.zip rawComps |>.map fun (id, ss) =>
           let off := ss.startPos.unoffsetBy rawStr.startPos
-          let lead := if off == 0 then lead else "".toSubstring
-          let trail := if ss.stopPos == rawStr.stopPos then trail else "".toSubstring
+          let lead := if off == 0 then lead else "".toRawSubstring
+          let trail := if ss.stopPos == rawStr.stopPos then trail else "".toRawSubstring
           let info := original lead (pos.offsetBy off) trail (pos.offsetBy off |>.offsetBy ⟨ss.bsize⟩)
           ident info ss id []
     -- if re-parsing failed, just give them all the same span
-    nameComps.map fun n => ident si n.toString.toSubstring n []
+    nameComps.map fun n => ident si n.toString.toRawSubstring n []
   | ident si _ val _ =>
     let val := val.eraseMacroScopes
     /- With non-original info:
      - `rawStr` can take all kinds of forms so we only use `val`.
      - there is no source extent to offset, so we pass it as-is. -/
-    nameComps val nFields? |>.map fun n => ident si n.toString.toSubstring n []
+    nameComps val nFields? |>.map fun n => ident si n.toString.toRawSubstring n []
   | _ => unreachable!
   where
     nameComps (n : Name) (nFields? : Option Nat) : List Name :=

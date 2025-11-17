@@ -181,7 +181,7 @@ private partial def needsNoEscapeAsciiRest (s : String) (i : Nat) : Bool :=
 
 -- If you change this, also change the corresponding function in `Init.Data.ToString.Name`.
 @[inline] private def needsNoEscape (s : String) (h : s.utf8ByteSize > 0) : Bool :=
-  needsNoEscapeAscii s h || isIdFirst (String.Internal.get s 0) && Substring.Internal.all (Substring.Internal.drop s.toSubstring 1) isIdRest
+  needsNoEscapeAscii s h || isIdFirst (String.Internal.get s 0) && Substring.Raw.Internal.all (Substring.Raw.Internal.drop s.toRawSubstring 1) isIdRest
 
 -- If you change this, also change the corresponding function in `Init.Data.ToString.Name`.
 @[inline] private def escape (s : String) : String :=
@@ -509,7 +509,7 @@ partial def structEq : Syntax → Syntax → Bool
   | Syntax.missing, Syntax.missing => true
   | Syntax.node _ k args, Syntax.node _ k' args' => k == k' && args.isEqv args' structEq
   | Syntax.atom _ val, Syntax.atom _ val' => val == val'
-  | Syntax.ident _ rawVal val preresolved, Syntax.ident _ rawVal' val' preresolved' => Substring.Internal.beq rawVal rawVal' && val == val' && preresolved == preresolved'
+  | Syntax.ident _ rawVal val preresolved, Syntax.ident _ rawVal' val' preresolved' => Substring.Raw.Internal.beq rawVal rawVal' && val == val' && preresolved == preresolved'
   | _, _ => false
 
 instance : BEq Lean.Syntax := ⟨structEq⟩
@@ -548,7 +548,7 @@ Finds the trailing whitespace substring of the first `SourceInfo` from the back 
 If no `SourceInfo` can be found or the first `SourceInfo` from the back of `stx` contains
 no trailing whitespace, the result is `none`.
 -/
-def getTrailing? (stx : Syntax) : Option Substring :=
+def getTrailing? (stx : Syntax) : Option Substring.Raw :=
   stx.getTailInfo.getTrailing?
 
 /--
@@ -562,7 +562,7 @@ def getTrailingTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.
 /--
   Return substring of original input covering `stx`.
   Result is meaningful only if all involved `SourceInfo.original`s refer to the same string (as is the case after parsing). -/
-def getSubstring? (stx : Syntax) (withLeading := true) (withTrailing := true) : Option Substring :=
+def getSubstring? (stx : Syntax) (withLeading := true) (withTrailing := true) : Option Substring.Raw :=
   match stx.getHeadInfo, stx.getTailInfo with
   | SourceInfo.original lead startPos _ _, SourceInfo.original _ _ trail stopPos =>
     some {
@@ -704,7 +704,7 @@ partial def expandMacros (stx : Syntax) (p : SyntaxNodeKind → Bool := fun k =>
   Create an identifier copying the position from `src`.
   To refer to a specific constant, use `mkCIdentFrom` instead. -/
 def mkIdentFrom (src : Syntax) (val : Name) (canonical := false) : Ident :=
-  ⟨Syntax.ident (SourceInfo.fromRef src canonical) (Name.Internal.Meta.toString val).toSubstring val []⟩
+  ⟨Syntax.ident (SourceInfo.fromRef src canonical) (Name.Internal.Meta.toString val).toRawSubstring val []⟩
 
 def mkIdentFromRef [Monad m] [MonadRef m] (val : Name) (canonical := false) : m Ident := do
   return mkIdentFrom (← getRef) val canonical
@@ -716,7 +716,7 @@ def mkIdentFromRef [Monad m] [MonadRef m] (val : Name) (canonical := false) : m 
 def mkCIdentFrom (src : Syntax) (c : Name) (canonical := false) : Ident :=
   -- Remark: We use the reserved macro scope to make sure there are no accidental collision with our frontend
   let id   := addMacroScope `_internal c reservedMacroScope
-  ⟨Syntax.ident (SourceInfo.fromRef src canonical) (Name.Internal.Meta.toString id).toSubstring id [.decl c []]⟩
+  ⟨Syntax.ident (SourceInfo.fromRef src canonical) (Name.Internal.Meta.toString id).toRawSubstring id [.decl c []]⟩
 
 def mkCIdentFromRef [Monad m] [MonadRef m] (c : Name) (canonical := false) : m Syntax := do
   return mkCIdentFrom (← getRef) c canonical
@@ -726,7 +726,7 @@ def mkCIdent (c : Name) : Ident :=
 
 @[export lean_mk_syntax_ident]
 def mkIdent (val : Name) : Ident :=
-  ⟨Syntax.ident SourceInfo.none (Name.Internal.Meta.toString val).toSubstring val []⟩
+  ⟨Syntax.ident SourceInfo.none (Name.Internal.Meta.toString val).toRawSubstring val []⟩
 
 @[inline] def mkGroupNode (args : Array Syntax := #[]) : Syntax :=
   mkNode groupKind args
@@ -971,7 +971,7 @@ def isScientificLit? (stx : Syntax) : Option (Nat × Bool × Nat) :=
 
 def isIdOrAtom? : Syntax → Option String
   | Syntax.atom _ val           => some val
-  | Syntax.ident _ rawVal _ _   => some (Substring.Internal.toString rawVal)
+  | Syntax.ident _ rawVal _ _   => some (Substring.Raw.Internal.toString rawVal)
   | _ => none
 
 def toNat (stx : Syntax) : Nat :=
@@ -1080,49 +1080,50 @@ def isCharLit? (stx : Syntax) : Option Char :=
   | some val => decodeCharLit val
   | _        => none
 
-private partial def splitNameLitAux (ss : Substring) (acc : List Substring) : List Substring :=
-  let splitRest (ss : Substring) (acc : List Substring) : List Substring :=
-    if Substring.Internal.front ss == '.' then
-      splitNameLitAux (Substring.Internal.drop ss 1) acc
-    else if Substring.Internal.isEmpty ss then
+private partial def splitNameLitAux (ss : Substring.Raw) (acc : List Substring.Raw) : List Substring.Raw :=
+  let splitRest (ss : Substring.Raw) (acc : List Substring.Raw) : List Substring.Raw :=
+    if Substring.Raw.Internal.front ss == '.' then
+      splitNameLitAux (Substring.Raw.Internal.drop ss 1) acc
+    else if Substring.Raw.Internal.isEmpty ss then
       acc
     else
       []
-  if Substring.Internal.isEmpty ss then []
+  if Substring.Raw.Internal.isEmpty ss then []
   else
-    let curr := Substring.Internal.front ss
+    let curr := Substring.Raw.Internal.front ss
     if isIdBeginEscape curr then
-      let escapedPart := Substring.Internal.takeWhile ss (!isIdEndEscape ·)
+      let escapedPart := Substring.Raw.Internal.takeWhile ss (!isIdEndEscape ·)
       let escapedPart := { escapedPart with stopPos := String.Pos.Raw.Internal.min ss.stopPos (String.Internal.next escapedPart.str escapedPart.stopPos) }
-      if !isIdEndEscape (Substring.Internal.get escapedPart <| Substring.Internal.prev escapedPart ⟨escapedPart.bsize⟩) then []
-      else splitRest (Substring.Internal.extract ss ⟨escapedPart.bsize⟩ ⟨ss.bsize⟩) (escapedPart :: acc)
+      if !isIdEndEscape (Substring.Raw.Internal.get escapedPart <| Substring.Raw.Internal.prev escapedPart ⟨escapedPart.bsize⟩) then []
+      else splitRest (Substring.Raw.Internal.extract ss ⟨escapedPart.bsize⟩ ⟨ss.bsize⟩) (escapedPart :: acc)
     else if isIdFirst curr then
-      let idPart := Substring.Internal.takeWhile ss isIdRest
-      splitRest (Substring.Internal.extract ss ⟨idPart.bsize⟩ ⟨ss.bsize⟩) (idPart :: acc)
+      let idPart := Substring.Raw.Internal.takeWhile ss isIdRest
+      splitRest (Substring.Raw.Internal.extract ss ⟨idPart.bsize⟩ ⟨ss.bsize⟩) (idPart :: acc)
     else if curr.isDigit then
-      let idPart := Substring.Internal.takeWhile ss Char.isDigit
-      splitRest (Substring.Internal.extract ss ⟨idPart.bsize⟩ ⟨ss.bsize⟩) (idPart :: acc)
+      let idPart := Substring.Raw.Internal.takeWhile ss Char.isDigit
+      splitRest (Substring.Raw.Internal.extract ss ⟨idPart.bsize⟩ ⟨ss.bsize⟩) (idPart :: acc)
     else
       []
 
 /-- Split a name literal (without the backtick) into its dot-separated components. For example,
 `foo.bla.«bo.o»` ↦ `["foo", "bla", "«bo.o»"]`. If the literal cannot be parsed, return `[]`. -/
-def splitNameLit (ss : Substring) : List Substring :=
+def splitNameLit (ss : Substring.Raw) : List Substring.Raw :=
   splitNameLitAux ss [] |>.reverse
 
 /--
 Converts a substring to the Lean compiler's representation of names. The resulting name is
 hierarchical, and the string is split at the dots (`'.'`).
 
-`"a.b".toSubstring.toName` is the name `a.b`, not `«a.b»`. For the latter, use
-`Name.mkSimple ∘ Substring.toString`.
+`"a.b".toRawSubstring.toName` is the name `a.b`, not `«a.b»`. For the latter, use
+`Name.mkSimple ∘ Substring.Raw.toString`.
+-- TODO: deprecate old name
 -/
-def _root_.Substring.toName (s : Substring) : Name :=
+def _root_.Substring.Raw.toName (s : Substring.Raw) : Name :=
   match splitNameLitAux s [] with
   | [] => .anonymous
   | comps => comps.foldr (init := Name.anonymous)
     fun comp n =>
-      let comp := Substring.Internal.toString comp
+      let comp := Substring.Raw.Internal.toString comp
       if isIdBeginEscape (String.Internal.front comp) then
         Name.mkStr n (String.Internal.dropRight (String.Internal.drop comp 1) 1)
       else if (String.Internal.front comp).isDigit then
@@ -1140,11 +1141,11 @@ hierarchical, and the string is split at the dots (`'.'`).
 `"a.b".toName` is the name `a.b`, not `«a.b»`. For the latter, use `Name.mkSimple`.
 -/
 def _root_.String.toName (s : String) : Name :=
-  s.toSubstring.toName
+  s.toRawSubstring.toName
 
 def decodeNameLit (s : String) : Option Name :=
   if String.Internal.get s 0 == '`' then
-    match (Substring.Internal.drop s.toSubstring 1).toName with
+    match (Substring.Raw.Internal.drop s.toRawSubstring 1).toName with
     | .anonymous => none
     | name => some name
   else
@@ -1283,7 +1284,7 @@ end TSyntax
 def HygieneInfo.mkIdent (s : HygieneInfo) (val : Name) (canonical := false) : Ident :=
   let src := s.raw[0]
   let id := { extractMacroScopes src.getId with name := val.eraseMacroScopes }.review
-  ⟨Syntax.ident (SourceInfo.fromRef src canonical) (Name.Internal.Meta.toString val).toSubstring id []⟩
+  ⟨Syntax.ident (SourceInfo.fromRef src canonical) (Name.Internal.Meta.toString val).toRawSubstring id []⟩
 
 /-- Reflect a runtime datum back to surface syntax (best-effort). -/
 class Quote (α : Type) (k : SyntaxNodeKind := `term) where
@@ -1299,7 +1300,7 @@ instance : Quote Bool := ⟨fun | true => mkCIdent ``Bool.true | false => mkCIde
 instance : Quote Char charLitKind := ⟨Syntax.mkCharLit⟩
 instance : Quote String strLitKind := ⟨Syntax.mkStrLit⟩
 instance : Quote Nat numLitKind := ⟨fun n => Syntax.mkNumLit <| toString n⟩
-instance : Quote Substring := ⟨fun s => Syntax.mkCApp ``String.toSubstring' #[quote (Substring.Internal.toString s)]⟩
+instance : Quote Substring.Raw := ⟨fun s => Syntax.mkCApp ``String.toRawSubstring' #[quote (Substring.Raw.Internal.toString s)]⟩
 
 -- in contrast to `Name.toString`, we can, and want to be, precise here
 private def getEscapedNameParts? (acc : List String) : Name → Option (List String)

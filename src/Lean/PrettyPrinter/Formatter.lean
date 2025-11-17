@@ -366,8 +366,8 @@ def pushToken (info : SourceInfo) (tk : String) (ident : Bool) : FormatterM Unit
     -- preserve non-whitespace content (comments)
     let ss' := ss.trim
     unless ss'.isEmpty do
-      let preNL := Substring.contains { ss with stopPos := ss'.startPos } '\n'
-      let postNL := Substring.contains { ss with startPos := ss'.stopPos } '\n'
+      let preNL := Substring.Raw.contains { ss with stopPos := ss'.startPos } '\n'
+      let postNL := Substring.Raw.contains { ss with startPos := ss'.stopPos } '\n'
       if postNL then
         pushWhitespace "\n"
       else if !(← get).leadWord.isEmpty then
@@ -418,8 +418,8 @@ def pushToken (info : SourceInfo) (tk : String) (ident : Bool) : FormatterM Unit
     -- preserve non-whitespace content (comments)
     let ss' := ss.trim
     unless ss'.isEmpty do
-      let preNL := Substring.contains { ss with stopPos := ss'.startPos } '\n'
-      let postNL := Substring.contains { ss with startPos := ss'.stopPos } '\n'
+      let preNL := Substring.Raw.contains { ss with stopPos := ss'.startPos } '\n'
+      let postNL := Substring.Raw.contains { ss with startPos := ss'.stopPos } '\n'
       -- Indentation is automatically increased when entering a category, but comments should be aligned
       -- with the actual token, so dedent
       indent (indent := some (-Std.Format.getIndent (← getOptions))) do

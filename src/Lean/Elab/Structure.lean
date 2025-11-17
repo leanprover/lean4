@@ -242,7 +242,7 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
     let ref := structStx[1].mkSynthetic
     addDeclarationRangesFromSyntax declName ref
     if structModifiers.isMeta then
-      modifyEnv (addMeta · declName)
+      modifyEnv (markMeta · declName)
     pure { ref, declId := ref, modifiers, declName }
   if structStx[4].isNone then
     useDefault
@@ -284,7 +284,7 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
       let binders := ctor[2]
       addDeclarationRangesFromSyntax declName ctor[1]
       if structModifiers.isMeta then
-        modifyEnv (addMeta · declName)
+        modifyEnv (markMeta · declName)
       pure { ref := ctor[1], declId := ctor[1], modifiers := ctorModifiers, declName, binders }
 
 /--
@@ -418,7 +418,7 @@ def structureSyntaxToView (modifiers : Modifiers) (stx : Syntax) : TermElabM Str
   let declId    := stx[1]
   let ⟨name, declName, levelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
   if modifiers.isMeta then
-    modifyEnv (addMeta · declName)
+    modifyEnv (markMeta · declName)
   addDeclarationRangesForBuiltin declName modifiers.stx stx
   let (binders, type?) := expandOptDeclSig stx[2]
   let exts := stx[3]

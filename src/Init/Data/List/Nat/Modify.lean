@@ -68,9 +68,12 @@ theorem getElem?_modifyHead {l : List α} {f : α → α} {i} :
 @[simp, grind =] theorem tail_modifyHead {f : α → α} {l : List α} :
     (l.modifyHead f).tail = l.tail := by cases l <;> simp
 
-@[simp, grind =] theorem take_modifyHead {f : α → α} {l : List α} {i} :
+@[simp] theorem take_modifyHead {f : α → α} {l : List α} {i} :
     (l.modifyHead f).take i = (l.take i).modifyHead f := by
   cases l <;> cases i <;> simp
+
+grind_pattern take_modifyHead => (l.modifyHead f).take i where
+  i =/= 0
 
 @[simp] theorem drop_modifyHead_of_pos {f : α → α} {l : List α} {i} (h : 0 < i) :
     (l.modifyHead f).drop i = l.drop i := by
@@ -213,7 +216,6 @@ theorem modify_eq_self {f : α → α} {i} {l : List α} (h : l.length ≤ i) :
     intro h
     omega
 
-@[grind =]
 theorem modify_modify_eq (f g : α → α) (i) (l : List α) :
     (l.modify i f).modify i g = l.modify i (g ∘ f) := by
   apply ext_getElem
@@ -221,6 +223,9 @@ theorem modify_modify_eq (f g : α → α) (i) (l : List α) :
   · intro m h₁ h₂
     simp only [getElem_modify, Function.comp_apply]
     split <;> simp
+
+grind_pattern modify_modify_eq => (l.modify i f).modify i g where
+  l =/= []
 
 theorem modify_modify_ne (f g : α → α) {i j} (l : List α) (h : i ≠ j) :
     (l.modify i f).modify j g = (l.modify j g).modify i f := by

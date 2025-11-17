@@ -187,27 +187,6 @@ instance : BEq CongrTheoremCacheKey where
 instance : Hashable CongrTheoremCacheKey where
   hash a := mixHash (hashPtrExpr a.f) (hash a.numArgs)
 
-structure EMatchTheoremTrace where
-  origin       : Origin
-  kind         : EMatchTheoremKind
-  minIndexable : Bool
-  deriving BEq, Hashable
-
-/--
-E-match theorems and case-splits performed by `grind`.
-Note that it may contain elements that are not needed by the final proof.
-For example, `grind` instantiated the theorem, but theorem instance was not actually used
-in the proof.
-
-**Note**: Consider removing this, we are using a new approach for implementing
-`grind?`
--/
-structure Trace where
-  thms       : PHashSet EMatchTheoremTrace := {}
-  eagerCases : PHashSet Name := {}
-  cases      : PHashSet Name := {}
-  deriving Inhabited
-
 structure Counters where
   /-- Number of times E-match theorem has been instantiated. -/
   thm  : PHashMap Origin Nat := {}
@@ -248,8 +227,6 @@ structure State where
   users when `grind` fails.
   -/
   issues     : List MessageData := []
-  /-- `trace` for `grind?` -/
-  trace      : Trace := {}
   /-- Performance counters -/
   counters   : Counters := {}
   /-- Split diagnostic information. This information is only collected when `set_option diagnostics true` -/
@@ -380,21 +357,9 @@ private def incCounter [Hashable α] [BEq α] (s : PHashMap α Nat) (k : α) : P
       s.insert k 1
 
 private def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
-  if (← getConfig).trace then
-    unless (← isMatchEqLikeDeclName thm.origin.key) do
-      modify fun s => { s with trace.thms := s.trace.thms.insert {
-          origin := thm.origin
-          kind := thm.kind
-          minIndexable := thm.minIndexable
-      } }
   modify fun s => { s with counters.thm := incCounter s.counters.thm thm.origin }
 
-def saveCases (declName : Name) (eager : Bool) : GrindM Unit := do
-  if (← getConfig).trace then
-    if eager then
-      modify fun s => { s with trace.eagerCases := s.trace.eagerCases.insert declName }
-    else
-      modify fun s => { s with trace.cases := s.trace.cases.insert declName }
+def saveCases (declName : Name) : GrindM Unit := do
   modify fun s => { s with counters.case := incCounter s.counters.case declName }
 
 def saveAppOf (h : HeadIndex) : GrindM Unit := do

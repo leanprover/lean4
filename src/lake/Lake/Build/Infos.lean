@@ -26,7 +26,7 @@ namespace Lake
 /-! ### Build Key Helper Constructors -/
 
 public abbrev Module.key (self : Module) : BuildKey :=
-  .module self.keyName
+  .packageModule self.pkg.name self.name
 
 public abbrev ConfigTarget.key (self : ConfigTarget kind) : BuildKey :=
   .packageTarget self.pkg.name self.name

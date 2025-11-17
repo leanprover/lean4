@@ -84,9 +84,8 @@ theorem keys_emptyWithCapacity {c} : (emptyWithCapacity c : Raw₀ α β).1.keys
   rw [Raw.keys_eq_keys_toListModel, toListModel_buckets_emptyWithCapacity, List.keys_nil]
 
 @[simp]
-theorem Const.values_emptyWithCapacity {c} {β} : (emptyWithCapacity c : Raw₀ α (fun _ => β)).1.values = [] := by
+theorem Const.values_emptyWithCapacity {c} {β : Type v} : (emptyWithCapacity c : Raw₀ α (fun _ => β)).1.values = [] := by
   rw [Raw.values_eq_values_toListModel, toListModel_buckets_emptyWithCapacity, List.values_nil]
-
 
 variable [BEq α] [Hashable α]
 

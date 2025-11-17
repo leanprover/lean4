@@ -162,7 +162,7 @@ theorem keys_eq_map {l : List ((a : α) × β a)} :
   | nil => rfl
   | cons => simp [keys, *]
 
-theorem values_eq_map {β} {l : List ((_ : α) × β)} :
+theorem values_eq_map {β : Type v} {l : List ((_ : α) × β)} :
     values l = l.map (·.2) := by
   induction l with
   | nil => rfl
@@ -399,7 +399,7 @@ theorem containsKey_eq_contains_map_fst [BEq α] [PartialEquivBEq α] {l : List 
     rw [BEq.comm]
 
 @[simp] theorem keys_nil : keys ([] : List ((a : α) × β a)) = [] := (rfl)
-@[simp] theorem values_nil {β} : values ([] : List ((_ : α) × β )) = [] := (rfl)
+@[simp] theorem values_nil {β : Type v} : values ([] : List ((_ : α) × β )) = [] := (rfl)
 @[simp] theorem keys_cons {l : List ((a : α) × β a)} {k : α} {v : β k} :
     keys (⟨k, v⟩ :: l) = k :: keys l := (rfl)
 

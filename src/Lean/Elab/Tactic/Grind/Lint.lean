@@ -189,3 +189,11 @@ def elabGrindLintCheck : CommandElab := fun stx => liftTermElabM <| withTheReade
     Tactic.TryThis.addSuggestion stx { suggestion := .string suggestion }
 
 end Lean.Elab.Tactic.Grind
+
+-- We allow these as grind lemmas even though they triggers >20 further instantiations.
+-- See tests/lean/run/grind_lint.lean for more details.
+#grind_lint skip BitVec.msb_replicate
+#grind_lint skip BitVec.msb_signExtend
+#grind_lint skip List.replicate_sublist_iff
+#grind_lint skip List.Sublist.append
+#grind_lint skip List.Sublist.middle

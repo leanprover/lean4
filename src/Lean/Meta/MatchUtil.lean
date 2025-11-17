@@ -56,7 +56,7 @@ def matchNot? (e : Expr) : MetaM (Option Expr) :=
     else
       return none
 
-def matchNe? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) := do
+def matchNe? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) :=
   matchHelper? e fun e => do
     if let some r := e.ne? then
       return r

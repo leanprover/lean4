@@ -151,6 +151,14 @@ theorem size_empty : (∅ : HashSet α).size = 0 :=
 theorem isEmpty_eq_size_eq_zero : m.isEmpty = (m.size == 0) :=
   HashMap.isEmpty_eq_size_eq_zero
 
+@[simp]
+theorem toList_emptyWithCapacity {c} : (emptyWithCapacity c : HashSet α).toList = [] :=
+  HashMap.keys_emptyWithCapacity
+
+@[simp]
+theorem toList_empty : (∅ : HashSet α).toList = [] :=
+  toList_emptyWithCapacity
+
 @[grind =] theorem size_insert [EquivBEq α] [LawfulHashable α] {k : α} :
     (m.insert k).size = if k ∈ m then m.size else m.size + 1 :=
   HashMap.size_insertIfNew

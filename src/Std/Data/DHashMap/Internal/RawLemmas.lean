@@ -80,6 +80,10 @@ theorem toList_emptyWithCapacity {c} : (emptyWithCapacity c : Raw₀ α β).1.to
   rw [Raw.toList_eq_toListModel, toListModel_buckets_emptyWithCapacity]
 
 @[simp]
+theorem Const.toList_emptyWithCapacity {c} {β : Type v} : Raw.Const.toList (emptyWithCapacity c : Raw₀ α (fun _ => β)).1 = [] := by
+  rw [Raw.Const.toList_eq_toListModel_map, toListModel_buckets_emptyWithCapacity, List.map_nil]
+
+@[simp]
 theorem keys_emptyWithCapacity {c} : (emptyWithCapacity c : Raw₀ α β).1.keys = [] := by
   rw [Raw.keys_eq_keys_toListModel, toListModel_buckets_emptyWithCapacity, List.keys_nil]
 

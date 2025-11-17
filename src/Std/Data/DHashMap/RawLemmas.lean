@@ -86,8 +86,16 @@ theorem toList_emptyWithCapacity {c} : (emptyWithCapacity c : Raw α β).toList 
   simp_to_raw using Raw₀.toList_emptyWithCapacity
 
 @[simp]
+theorem Const.toList_emptyWithCapacity {β : Type v} {c} : Const.toList (emptyWithCapacity c : Raw α (fun _ => β)) = [] := by
+  simp_to_raw using Raw₀.Const.toList_emptyWithCapacity
+
+@[simp]
 theorem toList_empty : (∅ : Raw α β).toList = [] :=
   toList_emptyWithCapacity
+
+@[simp]
+theorem Const.toList_empty {β : Type v} : Const.toList (∅ : Raw α (fun _ => β)) = [] :=
+  Const.toList_emptyWithCapacity
 
 @[simp]
 theorem keys_emptyWithCapacity {c} : (emptyWithCapacity c : Raw α β).keys = [] := by

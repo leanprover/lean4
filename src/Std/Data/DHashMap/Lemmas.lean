@@ -157,6 +157,14 @@ theorem toList_empty : (∅ : DHashMap α β).toList = [] :=
   toList_emptyWithCapacity
 
 @[simp]
+theorem Const.toList_emptyWithCapacity {c} {β : Type v}: Const.toList (emptyWithCapacity c : DHashMap α (fun _ => β)) = [] :=
+  Raw₀.Const.toList_emptyWithCapacity
+
+@[simp]
+theorem Const.toList_empty {β : Type v} : Const.toList (∅ : DHashMap α (fun _ => β)) = [] :=
+  Const.toList_emptyWithCapacity
+
+@[simp]
 theorem keys_emptyWithCapacity {c} : (emptyWithCapacity c : DHashMap α β).keys = [] :=
   Raw₀.keys_emptyWithCapacity
 

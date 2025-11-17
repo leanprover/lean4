@@ -194,6 +194,8 @@ partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
       match ctorInfo with
       | .ctor ctorVal ctorArgs =>
         let fields := ctorArgs[ctorVal.numParams...*]
+        if params.size != fields.size then
+          throwInternalError m!"Parameter vs field size mismatch during cases on ctor"
         for param in params, field in fields do
           addSubst param.fvarId field
         let k ← simp k

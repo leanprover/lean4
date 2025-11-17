@@ -43,6 +43,9 @@ structure CompilerM.Context where
 
 abbrev CompilerM := ReaderT CompilerM.Context $ StateRefT CompilerM.State CoreM
 
+def throwInternalError (m : MessageData) : CompilerM Unit := do
+  throwError m!"Internal compiler error, this is a bug: {m}"
+
 @[always_inline]
 instance : Monad CompilerM := let i := inferInstanceAs (Monad CompilerM); { pure := i.pure, bind := i.bind }
 

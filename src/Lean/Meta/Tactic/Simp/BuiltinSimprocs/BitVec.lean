@@ -167,6 +167,9 @@ builtin_dsimproc [simp, seval] reduceGetMsb (getMsbD _ _) := reduceGetBit ``getM
 /-- Simplification procedure for `clz` (count leading zeros) on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceClz (clz _) := reduceUnary ``BitVec.clz 2 BitVec.clz
 
+/-- Simplification procedure for `popCount` (population count) on `BitVec`. -/
+builtin_dsimproc [simp, seval] reducePopCount (popCount _) := reduceUnary ``BitVec.popCount 2 BitVec.popCount
+
 /-- Simplification procedure for `getElem`  on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceGetElem ((_ : BitVec _)[_]) := fun e => do
   let_expr getElem _coll _idx _elem _valid _inst v i _h  := e | return .continue

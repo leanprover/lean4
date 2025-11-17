@@ -7148,6 +7148,21 @@ theorem minKeyD_eq_getD_minKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α
     minKeyD l fallback = (minKey? l).getD fallback :=
   (rfl)
 
+theorem minKey_insertEntry_of_isEmpty [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α} {v : β k}
+    {l : List ((a : α) × β a)} (hl : DistinctKeys l) (he : l.isEmpty) :
+    List.minKey (insertEntry k v l) isEmpty_insertEntry = k := by
+  simp [minKey, minKey?_insertEntry hl, minKey?_of_isEmpty he]
+
+theorem minKey?_insertEntry_of_isEmpty [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α} {v : β k}
+    {l : List ((a : α) × β a)} (hl : DistinctKeys l) (he : l.isEmpty) :
+    minKey? (insertEntry k v l) = some k := by
+  simp [minKey?_insertEntry hl, minKey?_of_isEmpty he]
+
+theorem minKeyD_insertEntry_of_isEmpty [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α} {v : β k}
+    {l : List ((a : α) × β a)} (hl : DistinctKeys l) (he : l.isEmpty) {fallback : α} :
+    minKeyD (insertEntry k v l) fallback = k := by
+  simp [minKeyD, minKey?_insertEntry hl, minKey?_of_isEmpty he]
+
 theorem minKey_eq_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} {he fallback} :
     minKey l he = minKeyD l fallback := by
@@ -7162,6 +7177,12 @@ theorem minKey!_eq_minKeyD_default [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd
     {l : List ((a : α) × β a)} :
     minKey! l = minKeyD l default := by
   simp [minKey!_eq_get!_minKey?, minKeyD_eq_getD_minKey?, Option.get!_eq_getD]
+
+theorem minKey!_insertEntry_of_isEmpty [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited α] {k : α} {v : β k}
+    {l : List ((a : α) × β a)} (hl : DistinctKeys l) (he : l.isEmpty) :
+    minKey! (insertEntry k v l) = k := by
+  simp [minKey!_eq_minKeyD_default]
+  apply minKeyD_insertEntry_of_isEmpty hl he
 
 theorem minKeyD_eq_fallback [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} {fallback} (h : l.isEmpty) :

@@ -647,7 +647,8 @@ private def Module.computeArtifacts (mod : Module) (isModule : Bool) : FetchM Mo
   }
 where
   @[inline] compute file ext := do
-    computeArtifact file ext
+    -- Note: Lean produces LF-only line endings for `.c` and `.ilean`, so no normalization.
+    computeArtifact file ext (text := false)
   computeIf c file ext := do
      if c then return some (← compute file ext) else return none
 

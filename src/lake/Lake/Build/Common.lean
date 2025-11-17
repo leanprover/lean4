@@ -604,7 +604,7 @@ public def buildArtifactUnlessUpToDate
           else
             computeArtifact file ext text
       else if (← savedTrace.replayIfUpToDate file depTrace) then
-        computeArtifact file ext
+        computeArtifact file ext text
       else if let some art ← fetchArt? (restore := true) then
         return art
       else
@@ -627,7 +627,7 @@ where
       build
       clearFileHash file
       removeFileIfExists traceFile
-      computeArtifact file ext
+      computeArtifact file ext text
 
 /--
 Build `file` using `build` after `dep` completes if the dependency's

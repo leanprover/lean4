@@ -1,4 +1,5 @@
 import Std
+import Lean.Elab.Tactic.Grind.Lint
 
 /-! `BitVec` exceptions -/
 

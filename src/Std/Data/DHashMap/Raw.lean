@@ -555,10 +555,10 @@ Erases multiple keys from the hash map by iterating over the given collection an
 If the same key appears multiple times in the collection, subsequent erasures have no effect after
 the first one removes the key.
 -/
-@[inline] def eraseMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
+@[inline] def eraseManyEntries [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
     (m : Raw α β) (l : ρ) : Raw α β :=
   if h : 0 < m.buckets.size then
-    (Raw₀.eraseMany ⟨m, h⟩ l).1
+    (Raw₀.eraseManyEntries ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
 
 @[inline, inherit_doc Raw.insertMany] def Const.insertMany {β : Type v} [BEq α] [Hashable α]

@@ -418,7 +418,7 @@ def diffₘ [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
   if m₁.1.size ≤ m₂.1.size then
     filterₘ m₁ (fun k _ => !containsₘ m₂ k)
   else
-    eraseMany m₁ (toListModel m₂.1.buckets)
+    eraseManyEntries m₁ (toListModel m₂.1.buckets)
 
 /-- Internal implementation detail of the hash map -/
 def insertListIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) : Raw₀ α β :=
@@ -669,9 +669,9 @@ theorem insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l
     simp only [List.foldl_cons, insertListₘ]
     apply ih
 
-theorem eraseMany_eq_eraseListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) :
-    eraseMany m l = eraseListₘ m l := by
-  simp only [eraseMany, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
+theorem eraseManyEntries_eq_eraseListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) :
+    eraseManyEntries m l = eraseListₘ m l := by
+  simp only [eraseManyEntries, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
       (∀ {m'' : Raw₀ α β} {a : α}, P m'' → P (m''.erase a)) → P m → P m' }),
         (List.foldl (fun m' p => ⟨m'.val.erase p.1, fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =

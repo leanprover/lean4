@@ -1312,10 +1312,10 @@ theorem toListModel_insertMany_list [BEq α] [Hashable α] [EquivBEq α] [Lawful
 
 /-! # `eraseMany` -/
 
-theorem WF.eraseMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {m : Raw α β}
-    {l : ρ} (h : m.WF) : (m.eraseMany l).WF := by
-  simpa [Raw.eraseMany, h.size_buckets_pos] using
-    (Raw₀.eraseMany ⟨m, h.size_buckets_pos⟩ l).2 _ Raw.WF.erase₀ h
+theorem WF.eraseManyEntries [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {m : Raw α β}
+    {l : ρ} (h : m.WF) : (m.eraseManyEntries l).WF := by
+  simpa [Raw.eraseManyEntries, h.size_buckets_pos] using
+    (Raw₀.eraseManyEntries ⟨m, h.size_buckets_pos⟩ l).2 _ Raw.WF.erase₀ h
 
 theorem wf_insertMany₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w}
     [ForIn Id ρ ((a : α) × β a)] {m : Raw α β} {h : 0 < m.buckets.size} {l : ρ} (h' : m.WF) :
@@ -1324,12 +1324,12 @@ theorem wf_insertMany₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α
 
 theorem wf_eraseMany₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w}
     [ForIn Id ρ ((a : α) × β a)] {m : Raw α β} {h : 0 < m.buckets.size} {l : ρ} (h' : m.WF) :
-    (Raw₀.eraseMany ⟨m, h⟩ l).1.1.WF :=
-  (Raw₀.eraseMany ⟨m, h⟩ l).2 _ Raw.WF.erase₀ h'
+    (eraseManyEntries ⟨m, h⟩ l).1.1.WF :=
+  (eraseManyEntries ⟨m, h⟩ l).2 _ Raw.WF.erase₀ h'
 
 theorem eraseMany_eq_eraseListₘ_toListModel [BEq α] [Hashable α] (m m₂ : Raw₀ α β) :
-    eraseMany m m₂.1 = eraseListₘ m (toListModel m₂.1.buckets) := by
-  simp only [eraseMany, bind_pure_comp, map_pure, bind_pure]
+    eraseManyEntries m m₂.1 = eraseListₘ m (toListModel m₂.1.buckets) := by
+  simp only [eraseManyEntries, bind_pure_comp, map_pure, bind_pure]
   simp only [ForIn.forIn]
   simp only [Raw.forIn_eq_forIn_toListModel, forIn_pure_yield_eq_foldl, Id.run_pure]
   generalize toListModel m₂.val.buckets = l
@@ -1358,7 +1358,7 @@ theorem toListModel_diffₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable
         ext p
         congr
         rw [containsₘ_eq_containsKey h₂]
-  · rw [eraseMany_eq_eraseListₘ]
+  · rw [eraseManyEntries_eq_eraseListₘ]
     apply Perm.trans (toListModel_eraseListₘ h₁)
     · apply eraseList_perm_filter_containsKey
       · exact h₁.distinct
@@ -1370,7 +1370,7 @@ theorem diff_eq_diffₘ [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) :
   · rw [filter_eq_filterₘ]
     congr
   · rw [eraseMany_eq_eraseListₘ_toListModel]
-    rw [eraseMany_eq_eraseListₘ]
+    rw [eraseManyEntries_eq_eraseListₘ]
 
 theorem toListModel_diff [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m₁ m₂ : Raw₀ α β}
     (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1) :

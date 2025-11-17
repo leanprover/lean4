@@ -36,6 +36,10 @@ structure MatcherInfo where
     `discrInfos[i] = { hName? := some h }` if the i-th discriminant was annotated with `h :`.
   -/
   discrInfos   : Array DiscrInfo
+  /--
+  False if the alternatives are not overlapping, and the matcher can be its own splitter.
+  -/
+  needsSplitter : Bool
 
 @[expose] def MatcherInfo.numAlts (info : MatcherInfo) : Nat :=
   info.altNumParams.size

@@ -92,6 +92,7 @@ matcherArgPusher params motive {α} {β} (f : ∀ (x : α), β x) rel alt1 .. x1
 def mkMatchArgPusher (matcherName : Name) (matcherInfo : MatcherInfo) : MetaM Name := do
   let name := (mkPrivateName (← getEnv) matcherName) ++ `_arg_pusher
   realizeConst matcherName name do
+    prependError m!"Cannot create match arg pusher for {matcherName}" do
     let matcherVal ← getConstVal matcherName
     forallBoundedTelescope matcherVal.type (some (matcherInfo.numParams + 1)) fun xs _ => do
       let params := xs[*...matcherInfo.numParams]
@@ -148,8 +149,10 @@ def mkMatchArgPusher (matcherName : Name) (matcherInfo : MatcherInfo) : MetaM Na
 
       let value ← mkFreshExprSyntheticOpaqueMVar goal
       let mvarId := value.mvarId!
+      trace[Elab.definition.wf] "mkMatchArgPusher for {.ofConstName name} goal:{indentD mvarId}"
       let mvarIds ← splitMatchOrCasesOn mvarId rhs matcherInfo
       for mvarId in mvarIds do
+        trace[Elab.definition.wf] "mkMatchArgPusher subgoal:{indentD mvarId}"
         mvarId.refl
       let value ← instantiateMVars value
       let type ← mkForallFVars (params ++ #[motive', alpha, beta, f, rel] ++ discrs ++ alts) goal

@@ -81,6 +81,7 @@ def MatcherApp.toMatcherInfo (matcherApp : MatcherApp) : MatcherInfo where
   numParams     := matcherApp.params.size
   numDiscrs     := matcherApp.discrs.size
   altNumParams  := matcherApp.altNumParams
+  needsSplitter := true -- TODO?
 
 def MatcherApp.toExpr (matcherApp : MatcherApp) : Expr :=
   let result := mkAppN (mkConst matcherApp.matcherName matcherApp.matcherLevels.toList) matcherApp.params

@@ -11,6 +11,7 @@ public import Lean.Meta.Match.MatchEqsExt
 public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.SplitIf
+import Lean.Meta.Match.SimpH
 
 public section
 
@@ -215,152 +216,6 @@ where
     else
       return e
 
-namespace SimpH
-
-/--
-  State for the equational theorem hypothesis simplifier.
-
-  Recall that each equation contains additional hypotheses to ensure the associated case does not taken by previous cases.
-  We have one hypothesis for each previous case.
-
-  Each hypothesis is of the form `forall xs, eqs → False`
-
-  We use tactics to minimize code duplication.
--/
-structure State where
-  mvarId : MVarId            -- Goal representing the hypothesis
-  xs  : List FVarId          -- Pattern variables for a previous case
-  eqs : List FVarId          -- Equations to be processed
-  eqsNew : List FVarId := [] -- Simplified (already processed) equations
-
-abbrev M := StateRefT State MetaM
-
-/--
-  Apply the given substitution to `fvarIds`.
-  This is an auxiliary method for `substRHS`.
--/
-private def applySubst (s : FVarSubst) (fvarIds : List FVarId) : List FVarId :=
-  fvarIds.filterMap fun fvarId => match s.apply (mkFVar fvarId) with
-    | Expr.fvar fvarId .. => some fvarId
-    | _ => none
-
-/--
-  Given an equation of the form `lhs = rhs` where `rhs` is variable in `xs`,
-  replace it everywhere with `lhs`.
--/
-private def substRHS (eq : FVarId) (rhs : FVarId) : M Unit := do
-  assert! (← get).xs.contains rhs
-  let (subst, mvarId) ← substCore (← get).mvarId eq (symm := true)
-  modify fun s => { s with
-    mvarId,
-    xs  := applySubst subst (s.xs.erase rhs)
-    eqs := applySubst subst s.eqs
-    eqsNew := applySubst subst s.eqsNew
-  }
-
-private def isDone : M Bool :=
-  return (← get).eqs.isEmpty
-
-/-- Customized `contradiction` tactic for `simpH?` -/
-private def contradiction (mvarId : MVarId) : MetaM Bool :=
-   mvarId.contradictionCore { genDiseq := false, emptyType := false }
-
-/--
-  Auxiliary tactic that tries to replace as many variables as possible and then apply `contradiction`.
-  We use it to discard redundant hypotheses.
--/
-partial def trySubstVarsAndContradiction (mvarId : MVarId) (forbidden : FVarIdSet := {}) : MetaM Bool :=
-  commitWhen do
-    let mvarId ← substVars mvarId
-    match (← injections mvarId (forbidden := forbidden)) with
-    | .solved => return true -- closed goal
-    | .subgoal mvarId' _ forbidden =>
-      if mvarId' == mvarId then
-        contradiction mvarId
-      else
-        trySubstVarsAndContradiction mvarId' forbidden
-
-private def processNextEq : M Bool := do
-  let s ← get
-  s.mvarId.withContext do
-    if let eq :: eqs := s.eqs then
-      modify fun s => { s with eqs }
-      let eqType ← inferType (mkFVar eq)
-      -- See `substRHS`. Recall that if `rhs` is a variable then if must be in `s.xs`
-      if let some (_, lhs, rhs) ← matchEq? eqType then
-        -- Common case: Different constructors
-        match (← isConstructorApp? lhs), (← isConstructorApp? rhs) with
-        | some lhsCtor, some rhsCtor =>
-          if lhsCtor.name != rhsCtor.name then
-            return false -- If the constructors are different, we can discard the hypothesis even if it a heterogeneous equality
-        | _,_ => pure ()
-        if (← isDefEq lhs rhs) then
-          return true
-        if rhs.isFVar && s.xs.contains rhs.fvarId! then
-          substRHS eq rhs.fvarId!
-          return true
-      if let some (α, lhs, β, rhs) ← matchHEq? eqType then
-        -- Try to convert `HEq` into `Eq`
-        if (← isDefEq α β) then
-          let (eqNew, mvarId) ← heqToEq s.mvarId eq (tryToClear := true)
-          modify fun s => { s with mvarId, eqs := eqNew :: s.eqs }
-          return true
-        -- If it is not possible, we try to show the hypothesis is redundant by substituting even variables that are not at `s.xs`, and then use contradiction.
-        else
-          match (← isConstructorApp? lhs), (← isConstructorApp? rhs) with
-          | some lhsCtor, some rhsCtor =>
-            if lhsCtor.name != rhsCtor.name then
-              return false -- If the constructors are different, we can discard the hypothesis even if it a heterogeneous equality
-            else if (← trySubstVarsAndContradiction s.mvarId) then
-              return false
-          | _, _ =>
-            if (← trySubstVarsAndContradiction s.mvarId) then
-              return false
-      try
-        -- Try to simplify equation using `injection` tactic.
-        match (← injection s.mvarId eq) with
-        | InjectionResult.solved => return false
-        | InjectionResult.subgoal mvarId eqNews .. =>
-          modify fun s => { s with mvarId, eqs := eqNews.toList ++ s.eqs }
-      catch _ =>
-        modify fun s => { s with eqsNew := eq :: s.eqsNew }
-    return true
-
-partial def go : M Bool := do
-  if (← isDone) then
-    return true
-  else if (← processNextEq) then
-    go
-  else
-    return false
-
-end SimpH
-
-/--
-  Auxiliary method for simplifying equational theorem hypotheses.
-
-  Recall that each equation contains additional hypotheses to ensure the associated case was not taken by previous cases.
-  We have one hypothesis for each previous case.
--/
-private partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := withDefault do
-  let numVars ← forallTelescope h fun ys _ => pure (ys.size - numEqs)
-  let mvarId := (← mkFreshExprSyntheticOpaqueMVar h).mvarId!
-  let (xs, mvarId) ← mvarId.introN numVars
-  let (eqs, mvarId) ← mvarId.introN numEqs
-  let (r, s) ← SimpH.go |>.run { mvarId, xs := xs.toList, eqs := eqs.toList }
-  if r then
-    s.mvarId.withContext do
-      let eqs := s.eqsNew.reverse.toArray.map mkFVar
-      let mut r ← mkForallFVars eqs (mkConst ``False)
-      /- We only include variables in `xs` if there is a dependency. -/
-      for x in s.xs.reverse do
-        if (← dependsOn r x) then
-          r ← mkForallFVars #[mkFVar x] r
-      trace[Meta.Match.matchEqs] "simplified hypothesis{indentExpr r}"
-      check r
-      return some r
-  else
-    return none
 
 private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.withContext do
   for localDecl in (← getLCtx) do
@@ -747,7 +602,9 @@ def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
   -- `realizeConst` as well as for looking up the resultant environment extension state via
   -- `getState`.
   realizeConst matchDeclName splitterName (go baseName splitterName)
-  return matchEqnsExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := splitterName) (← getEnv) |>.map.find! matchDeclName
+  match matchEqnsExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := splitterName) (← getEnv) |>.map.find? matchDeclName with
+  | some eqns => return eqns
+  | none      => throwError "failed to retrieve match equations for `{matchDeclName}` after realization"
 where go baseName splitterName := withConfig (fun c => { c with etaStruct := .none }) do
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
@@ -811,30 +668,54 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
       altArgMasks := altArgMasks.push argMask
       trace[Meta.Match.matchEqs] "splitterAltType: {splitterAltType}"
       idx := idx + 1
-    -- Define splitter with conditional/refined alternatives
-    withSplitterAlts splitterAltTypes fun altsNew => do
-      let splitterParams := params.toArray ++ #[motive] ++ discrs.toArray ++ altsNew
-      let splitterType ← mkForallFVars splitterParams matchResultType
-      trace[Meta.Match.matchEqs] "splitterType: {splitterType}"
-      let template := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
-      let template ← deltaExpand template (· == constInfo.name)
-      let template := template.headBeta
-      let splitterVal ←
-        if (← isDefEq splitterType constInfo.type) then
-          pure <| mkConst constInfo.name us
-        else
-          mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew splitterAltNumParams altArgMasks)
+
+    if !matchInfo.needsSplitter then
+      -- This match statement does not need a splitter, we can use itself for that.
+      -- (We still have to generate a declaration to satisfy the realizable constant)
       addAndCompile <| Declaration.defnDecl {
         name        := splitterName
         levelParams := constInfo.levelParams
-        type        := splitterType
-        value       := splitterVal
+        type        := constInfo.type
+        value       := mkConst matchDeclName us
         hints       := .abbrev
         safety      := .safe
       }
       setInlineAttribute splitterName
-      let result := { eqnNames, splitterName, splitterAltNumParams }
-      registerMatchEqns matchDeclName result
+    else
+      -- Define splitter with conditional/refined alternatives
+      withSplitterAlts splitterAltTypes fun altsNew => do
+        let splitterParams := params.toArray ++ #[motive] ++ discrs.toArray ++ altsNew
+        let splitterType ← mkForallFVars splitterParams matchResultType
+        trace[Meta.Match.matchEqs] "splitterType: {splitterType}"
+
+        withMkMatcherInput matchDeclName (unfoldNamed := true) fun matcherInput => do
+          let matcherInput := { matcherInput with
+            matcherName := splitterName
+            isSplitter := true
+          }
+          let res ← Match.mkMatcher matcherInput
+          res.addMatcher -- TODO: Do not set matcherinfo for the splitter!
+        /-
+        let template := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
+        let template ← deltaExpand template (· == constInfo.name)
+        let template := template.headBeta
+        let splitterVal ←
+          if (← isDefEq splitterType constInfo.type) then
+            pure <| mkConst constInfo.name us
+          else
+            mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew splitterAltNumParams altArgMasks)
+        addAndCompile <| Declaration.defnDecl {
+          name        := splitterName
+          levelParams := constInfo.levelParams
+          type        := splitterType
+          value       := splitterVal
+          hints       := .abbrev
+          safety      := .safe
+        }
+        setInlineAttribute splitterName
+        -/
+    let result := { eqnNames, splitterName, splitterAltNumParams }
+    registerMatchEqns matchDeclName result
 
 /- We generate the equations and splitter on demand, and do not save them on .olean files. -/
 builtin_initialize matchCongrEqnsExt : EnvExtension (PHashMap Name (Array Name)) ←
@@ -896,7 +777,7 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
           let mut hs := #[]
           for notAlt in notAlts do
             let h ← instantiateForall notAlt patterns
-            if let some h ← Match.simpH? h patterns.size then
+            if let some h ← simpH? h patterns.size then
               hs := hs.push h
           trace[Meta.Match.matchEqs] "hs: {hs}"
           let mut notAlt := mkConst ``False

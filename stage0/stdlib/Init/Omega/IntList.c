@@ -475,9 +475,18 @@ return x_1;
 LEAN_EXPORT lean_object* l_List_zipWith___at___00Lean_Omega_IntList_mul_spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-if (lean_obj_tag(x_1) == 1)
+if (lean_obj_tag(x_1) == 0)
 {
-if (lean_obj_tag(x_2) == 1)
+lean_dec(x_2);
+return x_1;
+}
+else
+{
+if (lean_obj_tag(x_2) == 0)
+{
+return x_2;
+}
+else
 {
 uint8_t x_3; 
 x_3 = !lean_is_exclusive(x_2);
@@ -514,20 +523,6 @@ lean_ctor_set(x_16, 1, x_15);
 return x_16;
 }
 }
-else
-{
-lean_object* x_17; 
-lean_dec(x_2);
-x_17 = lean_box(0);
-return x_17;
-}
-}
-else
-{
-lean_object* x_18; 
-lean_dec(x_2);
-x_18 = lean_box(0);
-return x_18;
 }
 }
 }

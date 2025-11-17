@@ -402,25 +402,6 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
           }
           let res ← Match.mkMatcher matcherInput
           res.addMatcher -- TODO: Do not set matcherinfo for the splitter!
-        /-
-        let template := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
-        let template ← deltaExpand template (· == constInfo.name)
-        let template := template.headBeta
-        let splitterVal ←
-          if (← isDefEq splitterType constInfo.type) then
-            pure <| mkConst constInfo.name us
-          else
-            mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew splitterAltNumParams altArgMasks)
-        addAndCompile <| Declaration.defnDecl {
-          name        := splitterName
-          levelParams := constInfo.levelParams
-          type        := splitterType
-          value       := splitterVal
-          hints       := .abbrev
-          safety      := .safe
-        }
-        setInlineAttribute splitterName
-        -/
     let result := { eqnNames, splitterName, splitterAltNumParams }
     registerMatchEqns matchDeclName result
 

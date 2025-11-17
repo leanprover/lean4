@@ -2490,7 +2490,10 @@ theorem flatten_reverse {L : List (List α)} :
 @[grind =] theorem reverse_flatMap {β} {l : List α} {f : α → List β} : (l.flatMap f).reverse = l.reverse.flatMap (reverse ∘ f) := by
   induction l <;> simp_all
 
-@[grind =] theorem flatMap_reverse {β} {l : List α} {f : α → List β} : (l.reverse.flatMap f) = (l.flatMap (reverse ∘ f)).reverse := by
+grind_pattern reverse_flatMap => (l.flatMap f).reverse where
+  f =/= List.reverse ∘ _
+
+@[grind =] theorem flatMap_reverse {β} {l : List α} {f : α → List β} : l.reverse.flatMap f = (l.flatMap (reverse ∘ f)).reverse := by
   induction l <;> simp_all
 
 @[simp] theorem reverseAux_eq {as bs : List α} : reverseAux as bs = reverse as ++ bs :=

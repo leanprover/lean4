@@ -132,9 +132,7 @@ public theorem Array.stop_toSubarray {xs : Array α} {lo hi : Nat} :
     (xs.toSubarray lo hi).stop = min hi xs.size := by
   simp [toSubarray_eq_min, Subarray.stop]
 
-namespace Subarray
-
-theorem toList_eq {xs : Subarray α} :
+theorem Subarray.toList_eq {xs : Subarray α} :
     xs.toList = (xs.array.extract xs.start xs.stop).toList := by
   let aslice := xs
   obtain ⟨⟨array, start, stop, h₁, h₂⟩⟩ := xs
@@ -150,16 +148,6 @@ theorem toList_eq {xs : Subarray α} :
     · intros
       simp [Subarray.array, Subarray.start, Subarray.stop, Std.Rco.getElem_toList_eq, succMany?]
   simp [this, ListSlice.toList_eq, lslice]
-
-theorem mkSlice_rcc_eq {xs : Subarray α} {lo hi : Nat} :
-    xs[lo...=hi] = xs.array[(xs.start + lo)...(xs.start + min (hi + 1) xs.size)] := by
-  simp only [Std.Rcc.Sliceable.mkSlice, Std.Rcc.HasRcoIntersection.intersection, Nat.zero_le,
-    Nat.max_eq_left, Nat.add_comm lo, Std.Rco.Sliceable.mkSlice,
-    Std.Rco.HasRcoIntersection.intersection]
-  apply Array.toSubarray_eq_toSubarray_of_min_eq_min
-  omega
-
-end Subarray
 
 namespace Array
 

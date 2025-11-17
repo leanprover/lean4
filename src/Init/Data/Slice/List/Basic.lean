@@ -49,7 +49,7 @@ Additionally, the starting index is clamped to the ending index.
 This function is linear in `start` because it stores `as.drop start` in the slice.
 -/
 public def List.toSlice (as : List α) (start : Nat) (stop : Nat) : ListSlice α :=
-  if start ≤ stop then
+  if start < stop then
     ⟨{ list := as.drop start, stop := some (stop - start) }⟩
   else
     ⟨{ list := [], stop := some 0 }⟩

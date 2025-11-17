@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Grind.Main
-public import Lean.Meta.Tactic.Grind.SearchM
 import Lean.CoreM
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.PP

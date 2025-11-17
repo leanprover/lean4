@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Grind.Lemmas
-public import Lean.Meta.Tactic.Grind.SearchM
 public import Lean.Meta.Tactic.Grind.Action
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Grind.Simp

@@ -333,6 +333,12 @@ public theorem toList_mkSlice_rci {xs : Subarray α} {lo : Nat} :
   rw [mkSlice_rci_eq_mkSlice_rco, toList_mkSlice_rco, ← Subarray.length_toList, List.take_length]
 
 @[simp]
+public theorem mkSlice_roc_eq_mkSlice_roo {xs : Subarray α} {lo hi : Nat} :
+    xs[lo<...=hi] = xs[lo<...(hi + 1)] := by
+  simp [Std.Roc.Sliceable.mkSlice, Std.Roo.Sliceable.mkSlice,
+    Std.Roc.HasRcoIntersection.intersection, Std.Roo.HasRcoIntersection.intersection]
+
+@[simp]
 public theorem mkSlice_roo_eq_mkSlice_rco {xs : Subarray α} {lo hi : Nat} :
     xs[lo<...hi] = xs[(lo + 1)...hi] := by
   simp [Std.Roo.Sliceable.mkSlice, Std.Rco.Sliceable.mkSlice,
@@ -364,6 +370,12 @@ public theorem mkSlice_roi_eq_mkSlice_rci {xs : Subarray α} {lo : Nat} :
 public theorem toList_mkSlice_roi {xs : Subarray α} {lo : Nat} :
     xs[lo<...*].toList = xs.toList.drop (lo + 1) := by
   rw [mkSlice_roi_eq_mkSlice_rci, toList_mkSlice_rci]
+
+@[simp]
+public theorem mkSlice_ric_eq_mkSlice_rio {xs : Subarray α} {hi : Nat} :
+    xs[*...=hi] = xs[*...(hi + 1)] := by
+  simp [Std.Ric.Sliceable.mkSlice, Std.Rio.Sliceable.mkSlice,
+    Std.Ric.HasRcoIntersection.intersection, Std.Rio.HasRcoIntersection.intersection]
 
 @[simp]
 public theorem mkSlice_rio_eq_mkSlice_rco {xs : Subarray α} {hi : Nat} :

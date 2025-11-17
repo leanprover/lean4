@@ -50,7 +50,7 @@ def Array.findPrefix : Array String → String → Array String := fun a s =>
 /-- The intended semanics of `Trie.matchPrefix`: Longest prefix found in trie -/
 def Array.matchPrefix : Array String → String → Option String := fun a s => Id.run do
   for i in List.reverse (List.range (s.length + 1)) do
-    let pfix := s.take i
+    let pfix := s.take i |>.copy
     if let some _ := a.find? (· == pfix) then
       return some  pfix
   return none

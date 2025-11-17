@@ -17,6 +17,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Mul
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Umod
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Reverse
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Clz
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.PopCount
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
 import Init.ByCases
 import Init.Data.Nat.Linear
@@ -433,7 +434,18 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       intro idx hidx
       rw [goCache_denote_eq]
       exact hinv
+<<<<<<< HEAD
   next h =>
+=======
+    · rw [← hres]
+      simp only [eval_un, BVUnOp.eval_popCount]
+      sorry
+      -- rw [blastPopCount.denote_blastPopCount]
+      -- intros idx hidx
+      -- rw [goCache_denote_eq]
+      -- exact hinv
+  · next h =>
+>>>>>>> 93d7159630 (local build fixed)
     subst h
     rw [← hres]
     simp only [denote_blastAppend, RefVec.get_cast, Ref.cast_eq, eval_append, BitVec.getLsbD_append]

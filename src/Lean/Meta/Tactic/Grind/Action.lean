@@ -114,12 +114,19 @@ instance : OrElse Action where
 /--
 Repeats `x` up to `n` times while it remains applicable.
 -/
-def loop (n : Nat) (x : Action) : Action := fun goal _ kp => withIncRecDepth do
-  match n with
-  | 0 => kp goal
-  | n+1 => x goal kp (fun goal' => loop n x goal' kp kp)
+def loop (n : Nat) (x : Action) : Action := fun goal _ kp =>
+  tryCatchRuntimeEx
+    (match n with
+     | 0 => kp goal
+     | n+1 => x goal kp (fun goal' => loop n x goal' kp kp))
+    (fun ex => do
+      if ex.isMaxHeartbeat || ex.isMaxRecDepth then
+        reportIssue! ex.toMessageData
+        return .stuck [goal]
+      else
+        throw ex)
 
-/-- `loop` reference implementation without `withIncRecDepth` for proving sanity checking lemmas. -/
+/-- `loop` reference implementation without `tryCatchRuntimeEx` for proving sanity checking lemmas. -/
 def loopRef (n : Nat) (x : Action) : Action := fun goal _ kp =>
   match n with
   | 0 => kp goal

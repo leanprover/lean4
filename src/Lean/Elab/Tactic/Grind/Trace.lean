@@ -10,8 +10,7 @@ import Lean.Elab.Tactic.Grind.Config
 import Lean.Elab.Tactic.Grind.Param
 import Init.Grind.Interactive
 import Lean.Meta.Tactic.TryThis
-import Lean.Meta.Tactic.Grind.Action
-import Lean.Meta.Tactic.Grind.EMatchAction
+import Lean.Meta.Tactic.Grind.Finish
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.CollectParams
 namespace Lean.Elab.Tactic.Grind
@@ -21,19 +20,12 @@ open Meta.Grind
 def withTracing (x : GrindTacticM α) : GrindTacticM α := do
   withReader (fun ctx => { ctx with ctx.config.trace := true }) x
 
-public abbrev maxIterationsDefault := 10000 -- **TODO**: Add option
-
-public def mkFinishAction (maxIterations : Nat := maxIterationsDefault) : IO Action := do
-  let solvers ← Solvers.mkAction
-  let step : Action := Action.done <|> solvers <|> Action.instantiate <|> Action.splitNext <|> Action.mbtc
-  return Action.checkTactic (warnOnly := true) >> step.loop maxIterations
-
 @[builtin_grind_tactic finishTrace] def evalFinishTrace : GrindTactic := fun stx => do
   let `(grind| finish? $[$configItems]* $[only%$only]? $[[$params?,*]]?) := stx | throwUnsupportedSyntax
   withConfigItems configItems do
   let params := params?.getD {}
   withParams (← read).params params only.isSome do
-    let a ← mkFinishAction
+    let a ← Action.mkFinish
     let goal ← getMainGoal
     let params := (← read).params
     withTracing do

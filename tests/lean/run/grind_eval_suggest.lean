@@ -5,7 +5,7 @@ public import Std.Tactic.BVDecide
 
 open Lean Elab Tactic Try
 elab tk:"eval_suggest" tac:tactic : tactic => do
-  evalAndSuggest tk tac
+  evalAndSuggest tk tac (originalMaxHeartbeats := 10^8)
 
 set_option hygiene false in
 macro "try_simple?" : tactic => `(tactic| eval_suggest (intros; attempt_all | rfl | (first | simp?; done | simp? +arith; done | simp_all) | grind?))

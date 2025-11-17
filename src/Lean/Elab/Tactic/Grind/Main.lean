@@ -17,6 +17,7 @@ import Lean.Elab.Tactic.Grind.Basic
 import Lean.Elab.Tactic.Grind.Param
 import Lean.Meta.Tactic.Grind.Action
 import Lean.Elab.Tactic.Grind.Trace
+import Lean.Meta.Tactic.Grind.Finish
 import Lean.Meta.Tactic.Grind.CollectParams
 import Lean.Elab.MutualDef
 meta import Lean.Meta.Tactic.Grind.Parser
@@ -280,7 +281,7 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
   let params ← mkGrindParams config only params mvarId
   Grind.withProtectedMCtx config.abstractProof mvarId fun mvarId' => do
     let (tacs, _) ← Grind.GrindTacticM.runAtGoal mvarId' params do
-      let finish ← Grind.mkFinishAction
+      let finish ← Grind.Action.mkFinish
       let goal :: _ ← Grind.getGoals
         | let tac ← `(tactic| grind only)
           return #[tac]

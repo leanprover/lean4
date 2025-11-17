@@ -1491,6 +1491,7 @@ private def elabModSnippet'
           logErrorAt b m!"Incorrect header nesting: expected at most `{"#".pushn '#' maxLevel}` \
             but got `{"#".pushn '#' n}`"
         else
+          maxLevel := n + 1
           let title ←
             liftM <| withInfoContext (mkInfo := pure <| .ofDocInfo {elaborator := `no_elab, stx := b}) <|
               name.mapM elabInline

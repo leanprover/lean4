@@ -168,33 +168,58 @@ def LetOrReassign.checkMutVars (letOrReassign : LetOrReassign) (vars : Array Ide
   | .let _    => checkMutVarsForShadowing vars
   | .reassign => throwUnlessMutVarsDeclared vars
 
-def withSyntaxForCont (ref : Syntax) (letOrReassign : LetOrReassign) (vars : Array Ident) (dec : DoElemCont) (k : Term → Expr → DoElabM α) : DoElabM α := do
-  let (body, getMVar) ← mkSyntheticHole ref
-  let mγ ← mkMonadicType (← read).doBlockResultType
-  let e ← k body mγ
-  let mvar ← getMVar
-  mvar.withContext do
-    if ← mvar.isAssigned then
-      throwError "Synthetic hole {mvar} has already been assigned: {mkMVar mvar}"
-    let body ← declareMutVars? letOrReassign.getLetMutTk? vars dec.continueWithUnit
-    mvar.assign body
-  return e
+def controlAtTermElabM (k : (runInBase : ∀ {α}, DoElabM α → TermElabM α) → TermElabM β) : DoElabM β := do
+  let ctx ← read
+  let ref ← IO.mkRef (← get)
+  let runInBase {α} (m : DoElabM α) : TermElabM α := do
+    let state ← ref.get
+    let (a, state) ← m.run ctx |>.run state
+    ref.set state
+    return a
+  let b ← k runInBase
+  set (← ref.get)
+  return b
+
+@[inline]
+def LetOrReassign.ensureReassignsPreserveType (letOrReassign : LetOrReassign) (vars : Array Ident) : MetaM (TermElabM Unit) := do
+  match letOrReassign with
+  | .let _    => return pure ()
+  | .reassign => do
+    let decls := (← getLCtx).findFromUserNames (.ofArray <| vars.map (·.getId))
+    return do
+      for var in vars do
+        let fvar ← getFVarFromUserName var.getId
+        let some decl := decls.find? (fun (decl : LocalDecl) => decl.userName == var.getId)
+          | continue
+        discard <| Term.ensureHasType decl.type fvar
 
 def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl)
     (dec : DoElemCont) : DoElabM Expr := do
   let vars ← getLetDeclVars decl
   letOrReassign.checkMutVars vars
-  withSyntaxForCont decl letOrReassign vars dec fun body mγ => do
-    Term.elabLetDecl (← `(let $decl:letDecl; $body)) mγ
+  let ensure ← letOrReassign.ensureReassignsPreserveType vars
+  let mγ ← mkMonadicType (← read).doBlockResultType
+  controlAtTermElabM fun runInBase => do
+    let elabCont : TermElabM Expr := do
+      ensure
+      runInBase <| declareMutVars? letOrReassign.getLetMutTk? vars dec.continueWithUnit
+    Term.elabToSyntax (fun _ty? => elabCont) fun body => do
+      Term.elabLetDecl (← `(let $decl:letDecl; $body)) mγ
 
 def elabDoLetOrReassignElse (letOrReassign : LetOrReassign) (pattern rhs : Term)
     (otherwise : TSyntax ``doSeq) (dec : DoElemCont) : DoElabM Expr := do
   let vars ← getPatternVarsEx pattern
   letOrReassign.checkMutVars vars
-  withSyntaxForCont rhs letOrReassign vars dec fun body mγ => do
-    let otherwise ← elabDoSeq otherwise (← DoElemCont.mkPure mγ)
-    let otherwise ← Term.exprToSyntax otherwise
-    Term.elabMatch (← `(match $rhs:term with | $pattern => $body | _ => $otherwise)) mγ
+  let ensure ← letOrReassign.ensureReassignsPreserveType vars
+  let mγ ← mkMonadicType (← read).doBlockResultType
+  let otherwise ← elabDoSeq otherwise (← DoElemCont.mkPure mγ)
+  let otherwise ← Term.exprToSyntax otherwise
+  controlAtTermElabM fun runInBase => do
+    let elabCont : TermElabM Expr := do
+      ensure
+      runInBase <| declareMutVars? letOrReassign.getLetMutTk? vars dec.continueWithUnit
+    Term.elabToSyntax (fun _ty? => elabCont) fun body => do
+      Term.elabMatch (← `(match $rhs:term with | $pattern => $body | _ => $otherwise)) mγ
 
 def elabDoIdDecl (x : Ident) (xType? : Option Term) (rhs : TSyntax `doElem) (k : DoElabM Expr) : DoElabM Expr := do
   let xType ← elabType xType?

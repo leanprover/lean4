@@ -50,12 +50,21 @@ public theorem ListSlice.toList_eq {xs : ListSlice α} :
   rw [Std.Slice.List.toList_internalIter]
   rfl
 
+public theorem ListSlice.toArray_toList {xs : ListSlice α} :
+    xs.toList.toArray = xs.toArray := by
+  simp [ListSlice.toList, Std.Slice.toArray, List.ofSlice, Std.Slice.toList]
+
 @[simp]
 public theorem ListSlice.length_toList {xs : ListSlice α} :
     xs.toList.length = xs.size := by
   simp [ListSlice.toList_eq, Std.Slice.size, Std.Slice.SliceSize.size, ← Iter.length_toList_eq_count]
   rw [Std.Slice.List.toList_internalIter]
   rfl
+
+@[simp]
+public theorem ListSlice.size_toArray {xs : ListSlice α} :
+    xs.toArray.size = xs.size := by
+  simp [← ListSlice.toArray_toList]
 
 namespace List
 
@@ -69,6 +78,20 @@ public theorem toList_mkSlice_rco {xs : List α} {lo hi : Nat} :
     simp [h, List.take_drop, Nat.add_sub_cancel' ‹_›, ← List.take_eq_take_min]
   · have : min hi xs.length ≤ lo := by omega
     simp [h, Nat.min_eq_right this]
+
+@[simp]
+public theorem toArray_mkSlice_rco {xs : List α} {lo hi : Nat} :
+    xs[lo...hi].toArray = xs.toArray.extract lo hi := by
+  simp only [← ListSlice.toArray_toList, toList_mkSlice_rco, extract_toArray, take_drop,
+    Array.mk.injEq]
+  by_cases h : lo ≤ hi
+  · congr 1
+    rw [List.take_eq_take_iff, Nat.add_sub_cancel' h]
+  · rw [List.drop_eq_nil_of_le, List.drop_eq_nil_of_le]
+    · simp
+      omega
+    · simp
+      omega
 
 @[simp]
 public theorem size_mkSlice_rco {xs : List α} {lo hi : Nat} :
@@ -86,6 +109,11 @@ public theorem toList_mkSlice_rcc {xs : List α} {lo hi : Nat} :
   rw [mkSlice_rcc_eq_mkSlice_rco, toList_mkSlice_rco]
 
 @[simp]
+public theorem toArray_mkSlice_rcc {xs : List α} {lo hi : Nat} :
+    xs[lo...=hi].toArray = xs.toArray.extract lo (hi + 1) := by
+  rw [mkSlice_rcc_eq_mkSlice_rco, toArray_mkSlice_rco]
+
+@[simp]
 public theorem size_mkSlice_rcc {xs : List α} {lo hi : Nat} :
     xs[lo...=hi].size = min (hi + 1) xs.length - lo := by
   simp [← ListSlice.length_toList]
@@ -95,6 +123,11 @@ public theorem toList_mkSlice_rci {xs : List α} {lo : Nat} :
     xs[lo...*].toList = xs.drop lo := by
   rw [List.drop_eq_drop_min]
   simp [ListSlice.toList_eq, Std.Rci.Sliceable.mkSlice, List.toUnboundedSlice]
+
+@[simp]
+public theorem toArray_mkSlice_rci {xs : List α} {lo : Nat} :
+    xs[lo...*].toArray = xs.toArray.extract lo := by -- TODO: This is not the simp normal form
+  simp
 
 @[simp]
 public theorem size_mkSlice_rci {xs : List α} {lo : Nat} :

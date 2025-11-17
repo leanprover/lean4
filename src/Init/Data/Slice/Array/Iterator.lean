@@ -143,6 +143,7 @@ instance [ToString α] : ToString (Subarray α) where
 
 end Array
 
+-- TODO: remove?
 @[inherit_doc Array.ofSubarray]
 def Subarray.toArray (s : Subarray α) : Array α :=
   Array.ofSubarray s

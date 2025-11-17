@@ -15,6 +15,12 @@
 #grind_lint inspect List.getLast?_pmap
 #grind_lint skip List.getLast?_pmap
 
+-- TODO: We should try to remove these attributes; if that's okay we can remove these mutes.
+attribute [-grind] List.Sublist.getLast_mem List.Sublist.head_mem
+-- #grind_lint inspect List.getLast_filter
+-- #grind_lint inspect List.head_filter
+#grind_lint mute List.getLast_filter
+#grind_lint mute List.head_filter
 
 -- TODO: `List.Sublist.eq_of_length` should probably only fire when we've already proved the hypotheses.
 

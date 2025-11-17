@@ -4,8 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 
-import Std.Tactic.Do
-import Std.Tactic.Do.Syntax
 import Std
 import Lean.Elab.Tactic.Do.VCGen
 
@@ -794,6 +792,23 @@ theorem mem_mergeWithAll [LawfulEqCmp cmp] {m₁ m₂ : ExtTreeMap α β cmp} {f
 
 end KimsUnivPolyUseCase
 
+namespace Slices
+
+def subarraySum (xs : Subarray Nat) : Nat := Id.run do
+  let mut sum := 0
+  for x in xs do
+    sum := sum + x
+  return sum
+
+theorem subarraySum_correct {xs : Subarray Nat} : subarraySum xs = xs.toList.sum := by
+  generalize h : subarraySum xs = r
+  apply Id.of_wp_run_eq h
+  mvcgen
+  case inv1 => exact ⇓⟨cursor, prefixSum⟩ => ⌜prefixSum = cursor.prefix.sum⌝
+  all_goals simp_all
+
+end Slices
+
 namespace PatricksFastExp
 
 def naive_expo (x n : Nat) : Nat := Id.run do
@@ -816,8 +831,6 @@ def fast_expo (x n : Nat) : Nat := Id.run do
       e := e/2
 
   return y
-
-open Std.Do
 
 theorem naive_expo_correct (x n : Nat) : naive_expo x n = x^n := by
   generalize h : naive_expo x n = r

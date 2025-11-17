@@ -253,8 +253,6 @@ section Unverified
 /-- Check if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
 @[inline] def any (m : Raw α) (p : α → Bool) : Bool := m.inner.any (fun x _ => p x)
 
-section Unverified
-
 /-! We currently do not provide lemmas for the functions below. -/
 
 /--

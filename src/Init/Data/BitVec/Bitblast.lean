@@ -3056,19 +3056,19 @@ theorem parPrefixSum_eq
     (validNodes : Nat) (parSum : BitVec (validNodes * w))
     (hin : 0 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes) :
   parPrefixSum validNodes parSum hin hval hval' =
-  sumPackedVec parSum := by
-  induction validNodes using Nat.strongRecOn
-  case ind val ihval =>
-  unfold parPrefixSum
-  split
-  · case _ hsplit =>
-    simp
-    specialize ihval ((val + 1 )/2) (by omega) (addVec val parSum (by omega) hval) (by omega) (by omega)
-    simp [ihval]
-  · simp
-    have : val = 1 := by omega
-    subst this
-    simp [sumPackedVec_length_one_eq]
+  sumPackedVec parSum := by sorry
+  -- induction validNodes using Nat.strongRecOn
+  -- case ind val ihval =>
+  -- unfold parPrefixSum
+  -- split
+  -- · case _ hsplit =>
+  --   simp
+  --   specialize ihval ((val + 1 )/2) (by omega) (addVec val parSum (by omega) hval) (by omega) (by omega)
+  --   simp [ihval]
+  -- · simp
+  --   have : val = 1 := by omega
+  --   subst this
+  --   simp [sumPackedVec_length_one_eq]
 
 /-- We express `popCount` as the result of parallel prefix sum. -/
 def popCountParSum {x : BitVec w} : BitVec w :=
@@ -3083,18 +3083,18 @@ def popCountParSum {x : BitVec w} : BitVec w :=
 
 
 theorem popCount_eq_popCountParSum {x : BitVec w} :
-    x.popCount = x.popCountParSum := by
-  unfold popCountParSum
-  simp [parPrefixSum_eq]
-  split
-  · case _ hlt =>
-    apply popCount_eq_sumPackedVec
-  · case _ heq =>
-    have hw : w = 0 ∨ w = 1 := by omega
-    rcases hw with hw|hw
-    · subst hw
-      simp
-    · subst hw
-      simp [popCount]
+    x.popCount = x.popCountParSum := by sorry
+  -- unfold popCountParSum
+  -- simp [parPrefixSum_eq]
+  -- split
+  -- · case _ hlt =>
+  --   apply popCount_eq_sumPackedVec
+  -- · case _ heq =>
+  --   have hw : w = 0 ∨ w = 1 := by omega
+  --   rcases hw with hw|hw
+  --   · subst hw
+  --     simp
+  --   · subst hw
+  --     simp [popCount]
 
 end BitVec

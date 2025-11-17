@@ -8,11 +8,6 @@ module
 prelude
 public import Init.Data.Nat.Bitwise.Lemmas
 public import Init.Data.Int.Bitwise.Basic
-<<<<<<< HEAD
-=======
-public import Init.Data.BitVec.BasicAux
--- public import Init.Data.Vector
->>>>>>> c9fb70b312 (chroe: all bitvec defs)
 
 @[expose] public section
 

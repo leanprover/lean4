@@ -24,7 +24,7 @@ example (h : False) : False := by
 elab stx:"my_try?" : tactic => do
   -- Things to try
   let toTry ← `(tactic| attempt_all | assumption | apply True | rfl)
-  evalAndSuggest stx toTry
+  evalAndSuggest stx toTry (originalMaxHeartbeats := 10^8)
 
 /--
 info: Try these:

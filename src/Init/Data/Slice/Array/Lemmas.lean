@@ -69,11 +69,71 @@ public theorem forIn_toArray {α : Type u} {s : Subarray α}
     ForIn.forIn s.toArray init f = ForIn.forIn s init f :=
   Slice.forIn_toArray
 
-public theorem rccSlice_eq {xs : Subarray α} {lo hi : Nat} :
-    xs[lo...=hi] = xs.array[(xs.start + lo)...=(xs.start + min (hi + 1) xs.size)] := by
-  simp [Std.Rcc.Sliceable.mkSlice, Std.Rcc.HasRcoIntersection.intersection,
-    ]
+end Subarray
 
+public theorem Array.toSubarray_eq_toSubarray_of_min_eq_min {xs : Array α}
+    {start stop stop' : Nat} (h : min stop xs.size = min stop' xs.size) :
+    xs.toSubarray start stop = xs.toSubarray start stop' := by
+  simp only [Array.toSubarray]
+  split
+  · split
+    · have h₁ : start ≤ xs.size := by omega
+      have h₂ : start ≤ stop' := by omega
+      simp only [dif_pos h₁, dif_pos h₂]
+      split
+      · simp_all
+      · simp_all [Nat.min_eq_right (Nat.le_of_lt _)]
+    · simp only [Nat.min_eq_left, *] at h
+      split
+      · simp only [Nat.min_eq_left, *] at h
+        simp [h]
+        omega
+      · simp [Nat.min_eq_right (Nat.le_of_not_ge _), *] at h
+        simp [h]
+        omega
+  · split
+    · split
+      · simp [Nat.min_eq_right (Nat.le_of_not_ge _), *] at h
+        simp_all
+        omega
+      · simp
+    · simp [Nat.min_eq_right (Nat.le_of_not_ge _), *] at h
+      split
+      · simp [*] at h
+        simp_all
+        omega
+      · simp
+
+@[simp]
+public theorem Array.array_rccSlice {xs : Array α} {lo hi : Nat} :
+    xs[lo...=hi].array = xs := by
+  simp [Std.Rcc.Sliceable.mkSlice, Array.toSubarray, apply_dite]
+  simp [Subarray.array]
+
+namespace Subarray
+
+theorem toList_eq {xs : Subarray α} :
+    xs.toList = (xs.array.extract xs.start xs.stop).toList := by
+  simp only [Std.Slice.toList]
+  rw [Iter.toList_eq_match_step]
+
+public theorem rccSlice_eq {xs : Subarray α} {lo hi : Nat} :
+    xs[lo...=hi] = xs.array[(xs.start + lo)...(xs.start + min (hi + 1) xs.size)] := by
+  simp [Std.Rcc.Sliceable.mkSlice, Std.Rcc.HasRcoIntersection.intersection,
+    Std.Rco.Sliceable.mkSlice, Std.Rco.HasRcoIntersection.intersection,
+    Nat.add_comm lo]
+  apply Array.toSubarray_eq_toSubarray_of_min_eq_min
+  omega
+
+-- this is false!
 public theorem rccSlice_rccSlice_array {xs : Array α} :
+    xs[lo...=hi][lo'...=hi'] = xs[(lo + lo')...(lo + min (hi' + 1) (hi + 1 - lo))] := by
+  simp [rccSlice_eq]
+  simp [Std.Rcc.Sliceable.mkSlice]
+  simp [Std.Rcc.HasRcoIntersection.intersection]
+  simp [Array.toSubarray, Nat.min_le_right, Subarray.start, Subarray.stop, Subarray.size]
+  split
+  · simp
+  · simp
 
 end Subarray

@@ -2447,6 +2447,7 @@ def extractAndExtendPopulateAux (k len : Nat) (x : BitVec w) (acc : BitVec (k * 
     ⟨res, proof⟩
 
 
+
 theorem extractAndExtendPopulateAux_zero_eq (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (heq : k = w)
     (hacc : ∀ i (_ : i < k), acc.extractLsb' (i * len) len = (x.extractLsb' i 1).setWidth len) :
     (extractAndExtendPopulateAux k len x acc (by omega) hacc).val = acc.cast (by simp [heq]):= by

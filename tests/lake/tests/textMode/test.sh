@@ -80,7 +80,9 @@ if [ -f "$hash_file" ]; then
   echo "Old hash (CRLF): $old_hash"
   rm -f "$hash_file"
 else
-  echo "No hash file found at $hash_file"
+  echo "ERROR: No hash file found at $hash_file"
+  popd
+  exit 1
 fi
 echo ""
 
@@ -93,52 +95,39 @@ echo ""
 $LAKE build -v jsBundle 2>&1 | tee /tmp/build_output.txt
 
 # Check the new hash
-if [ -f "$hash_file" ]; then
-  new_hash=$(cat "$hash_file")
-  echo ""
-  echo "New hash (after LF conversion): $new_hash"
-  echo ""
-
-  # With text mode, hashes should be equal (normalizes CRLF to LF)
-  # With binary mode, hashes will be different
-
-  if [ "$new_hash" = "$old_hash" ]; then
-    echo "✓ PASS - Hashes match!"
-    echo "Old hash (CRLF): $old_hash"
-    echo "New hash (LF):   $new_hash"
-    echo "Text mode correctly normalized line endings"
-  else
-    echo "✗ FAIL - BUG DETECTED!"
-    echo ""
-    echo "Old hash (CRLF): $old_hash"
-    echo "New hash (LF):   $new_hash"
-    echo ""
-    echo "The hashes are DIFFERENT, which proves binary mode was used."
-    echo "With text mode, CRLF and LF should produce the SAME hash."
-    echo ""
-    echo "This demonstrates issue #11209"
-    popd
-    exit 1
-  fi
+if [ ! -f "$hash_file" ]; then
+  echo "ERROR: Hash file was not created after rebuild"
+  popd
+  exit 1
 fi
 
-popd
-
+new_hash=$(cat "$hash_file")
 echo ""
-echo "====== Test Summary ======"
-echo "This test detects issue #11209: text mode parameter not propagated"
-echo ""
-echo "Test setup:"
-echo "  - Package builds an artifact with text := true"
-echo "  - Artifact built with CRLF line endings"
-echo ""
-echo "Test verification:"
-echo "  - Normalize line endings from CRLF to LF"
-echo "  - Force hash recomputation by deleting .hash file"
-echo "  - Compare old hash (CRLF) vs new hash (LF)"
-echo "  - Expected: hashes should match (text mode normalizes line endings)"
-echo "  - Actual (bug): hashes differ (binary mode used instead)"
+echo "New hash (after LF conversion): $new_hash"
 echo ""
 
-# Cleanup
-rm -f produced.out /tmp/build_output.txt
+# With text mode, hashes should be equal (normalizes CRLF to LF)
+# With binary mode, hashes will be different
+
+if [ "$new_hash" = "$old_hash" ]; then
+  echo "✓ PASS - Hashes match!"
+  echo "Old hash (CRLF): $old_hash"
+  echo "New hash (LF):   $new_hash"
+  echo "Text mode correctly normalized line endings"
+  popd
+  rm -f produced.out /tmp/build_output.txt
+  exit 0
+else
+  echo "✗ FAIL - BUG DETECTED!"
+  echo ""
+  echo "Old hash (CRLF): $old_hash"
+  echo "New hash (LF):   $new_hash"
+  echo ""
+  echo "The hashes are DIFFERENT, which proves binary mode was used."
+  echo "With text mode, CRLF and LF should produce the SAME hash."
+  echo ""
+  echo "This demonstrates issue #11209"
+  popd
+  rm -f produced.out /tmp/build_output.txt
+  exit 1
+fi

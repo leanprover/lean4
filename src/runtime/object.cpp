@@ -185,6 +185,7 @@ extern "C" LEAN_EXPORT size_t lean_object_byte_size(lean_object * o) {
         case LeanArray:       return lean_array_byte_size(o);
         case LeanScalarArray: return lean_sarray_byte_size(o);
         case LeanString:      return lean_string_byte_size(o);
+        case LeanClosure:     return lean_closure_byte_size(o);
         default:              return lean_small_object_size(o);
         }
     } else {
@@ -193,6 +194,7 @@ extern "C" LEAN_EXPORT size_t lean_object_byte_size(lean_object * o) {
         case LeanArray:       return lean_array_byte_size(o);
         case LeanScalarArray: return lean_sarray_byte_size(o);
         case LeanString:      return lean_string_byte_size(o);
+        case LeanClosure:     return lean_closure_byte_size(o);
         default:              return o->m_cs_sz;
         }
     }
@@ -207,6 +209,7 @@ extern "C" LEAN_EXPORT size_t lean_object_data_byte_size(lean_object * o) {
         case LeanArray:       return lean_array_data_byte_size(o);
         case LeanScalarArray: return lean_sarray_data_byte_size(o);
         case LeanString:      return lean_string_data_byte_size(o);
+        case LeanClosure:     return lean_closure_data_byte_size(o);
         default:              return lean_small_object_size(o);
         }
     } else {
@@ -215,6 +218,7 @@ extern "C" LEAN_EXPORT size_t lean_object_data_byte_size(lean_object * o) {
         case LeanArray:       return lean_array_data_byte_size(o);
         case LeanScalarArray: return lean_sarray_data_byte_size(o);
         case LeanString:      return lean_string_data_byte_size(o);
+        case LeanClosure:     return lean_closure_data_byte_size(o);
         default:              return o->m_cs_sz;
         }
     }
@@ -235,6 +239,7 @@ extern "C" LEAN_EXPORT void lean_free_object(lean_object * o) {
     case LeanArray:       return lean_dealloc(o, lean_array_byte_size(o));
     case LeanScalarArray: return lean_dealloc(o, lean_sarray_byte_size(o));
     case LeanString:      return lean_dealloc(o, lean_string_byte_size(o));
+    case LeanClosure:     return lean_dealloc(o, lean_closure_byte_size(o));
     case LeanMPZ:         to_mpz(o)->m_value.~mpz(); return lean_free_small_object(o);
     default:              return lean_free_small_object(o);
     }
@@ -335,7 +340,7 @@ static void lean_del_core(object * o, object * & todo) {
             object ** it  = lean_closure_arg_cptr(o);
             object ** end = it + lean_closure_num_fixed(o);
             for (; it != end; ++it) dec(*it, todo);
-            lean_free_small_object(o);
+            lean_dealloc(o, lean_closure_byte_size(o));
             break;
         }
         case LeanArray: {

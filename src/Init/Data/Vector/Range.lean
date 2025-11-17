@@ -74,11 +74,15 @@ theorem map_add_range' {a} (s n step) : map (a + ·) (range' s n step) = range' 
 theorem range'_succ_left : range' (s + 1) n step = (range' s n step).map (· + 1) := by
   ext <;> simp <;> omega
 
-@[grind _=_]
 theorem range'_append {s m n step : Nat} :
     range' s m step ++ range' (s + step * m) n step = range' s (m + n) step := by
   rw [← toArray_inj]
   simp [Array.range'_append]
+
+grind_pattern range'_append => range' s m step ++ range' (s + step * m) n step
+
+grind_pattern range'_append => range' s (m + n) step where
+  s =/= _ + _ * _ -- This cuts off an infinite chain of instantiations.
 
 @[simp] theorem range'_append_1 {s m n : Nat} :
     range' s m ++ range' (s + m) n = range' s (m + n) := by simpa using range'_append (step := 1)

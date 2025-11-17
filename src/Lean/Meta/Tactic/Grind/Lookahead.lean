@@ -7,8 +7,10 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Intro
+import Lean.Meta.Tactic.Grind.Action
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.EMatch
+import Lean.Meta.Tactic.Grind.EMatchAction
 public section
 namespace Lean.Meta.Grind
 
@@ -22,7 +24,8 @@ private partial def solve (generation : Nat) : SearchM Bool := withIncRecDepth d
   else
     return false
 
-private def tryLookahead (e : Expr) : GoalM Bool :=
+-- **TODO**: use `_action` instead of `solve`
+private def tryLookahead (e : Expr) (_action : Action) : GoalM Bool :=
   withTheReader Grind.Context
     (fun ctx => { ctx with config.qlia := true, cheapCases := true }) do
   -- TODO: if `e` is an arithmetic expression, we can avoid creating an auxiliary goal.
@@ -49,6 +52,13 @@ private def tryLookahead (e : Expr) : GoalM Bool :=
   else
     return false
 
+public abbrev maxIterations := 1000 -- **TODO**: Add option
+
+private def mkLookaheadAction : IO Action := do
+  let solvers ← Solvers.mkAction
+  let step : Action := Action.done <|> solvers <|> Action.splitNext <|> Action.instantiate
+  return step.loop maxIterations
+
 def lookahead : GoalM Bool := do
   unless (← getConfig).lookahead do
     return false
@@ -57,6 +67,7 @@ def lookahead : GoalM Bool := do
   let mut postponed := []
   let mut progress := false
   let infos := (← get).split.lookaheads
+  let action ← mkLookaheadAction
   modify fun s => { s with split.lookaheads := [] }
   for info in infos do
     if (← isInconsistent) then
@@ -66,7 +77,7 @@ def lookahead : GoalM Bool := do
     | .ready _ _ true
     | .notReady => postponed := info :: postponed
     | .ready _ _ false =>
-      if (← tryLookahead info.getExpr) then
+      if (← tryLookahead info.getExpr action) then
         progress := true
       else
         postponed := info :: postponed

@@ -115,9 +115,23 @@ instance : OrElse Action where
 Repeats `x` up to `n` times while it remains applicable.
 -/
 def loop (n : Nat) (x : Action) : Action := fun goal _ kp =>
+  tryCatchRuntimeEx
+    (match n with
+     | 0 => kp goal
+     | n+1 => x goal kp (fun goal' => loop n x goal' kp kp))
+    (fun ex => do
+      if ex.isMaxHeartbeat || ex.isMaxRecDepth then
+        reportIssue! ex.toMessageData
+        return .stuck [goal]
+      else
+        throw ex)
+
+/-- `loop` reference implementation without `tryCatchRuntimeEx` for proving sanity checking lemmas. -/
+def loopRef (n : Nat) (x : Action) : Action := fun goal _ kp =>
   match n with
   | 0 => kp goal
-  | n+1 => x goal kp (fun goal' => loop n x goal' kp kp)
+  | n+1 => x goal kp (fun goal' => loopRef n x goal' kp kp)
+
 
 /--
 Runs action `a` on the given `goal`.
@@ -382,28 +396,28 @@ example (a : Action) : (skip <|> a) = skip := by
 example (a b : Action) : (a.skipIfNA <|> b) = a.skipIfNA := by
   funext; simp
 
-example : notApplicable.loop n = skip := by
-  funext; cases n <;> simp [loop]
+example : notApplicable.loopRef n = skip := by
+  funext; cases n <;> simp [loopRef]
 
-example (a : Action) : a.loop 0 = skip := by
-  funext; simp [loop]
+example (a : Action) : a.loopRef 0 = skip := by
+  funext; simp [loopRef]
 
-theorem loop_skipIfNA (a : Action) : (a.loop n).skipIfNA = a.loop n := by
-  funext; cases n <;> simp [loop]
+theorem loop_skipIfNA (a : Action) : (a.loopRef n).skipIfNA = a.loopRef n := by
+  funext; cases n <;> simp [loopRef]
 
-example : skip.loop n = skip := by
+example : skip.loopRef n = skip := by
   induction n
-  next => funext; simp [loop]
+  next => funext; simp [loopRef]
   next ih =>
     rw [← loop_skipIfNA] at ih
     rw [← loop_skipIfNA]
-    funext goal kna kp; simp [loop]
+    funext goal kna kp; simp [loopRef]
     replace ih := congrFun (congrFun (congrFun ih goal) kp) kp
     simp at ih
     assumption
 
-example (a : Action) : a.loop (n+1) = (a >> a.loop n).skipIfNA := by
-  funext goal kna kp; simp [loop]
+example (a : Action) : a.loopRef (n+1) = (a >> a.loopRef n).skipIfNA := by
+  funext goal kna kp; simp [loopRef]
 end
 
 end Action

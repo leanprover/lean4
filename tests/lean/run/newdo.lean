@@ -6,22 +6,11 @@ import Init.Control.OptionCps
 import Init.Control.StateCps
 import Lean.Elab.Do.Control
 import Lean.Elab.BuiltinDo
+import Lean.Parser.Term
 
 open Lean Parser Meta Elab Do
 
 set_option linter.unusedVariables false
-
-/-
-We need a mechanism to turn `m : Option Expr → TermElabM Expr` into `s : Syntax` such that
-`elabTerm s = m`, in order to keep expanding to `let pat := rhs; body` and dito `match`. Reasons
-why the workaround `mkSyntheticHole`, which introduces a synthetic opaque mvar, is insufficient:
-
-1. In some cases the mvar is not instantiated (investigate why; perhaps we are swallowing errors).
-   So we'll just see `let x := 42; ?x†` in the output of `trace.Elab.do`.
-2. Furthermore, it seems to interact badly with type checking; some reassignments such as
-   `x := x + y` do yield type errors. (investiage?)
-3. I'm doubtful that it works with `let +zeta`, should we ever want to have that.
--/
 
 set_option pp.all true in
 @[inline]
@@ -107,25 +96,16 @@ set_option trace.Elab.do true in
       pure e
   return e
 
-set_option trace.compiler.ir.result true in
-example (x : DoResultPRBC α PEmpty σ) : Nat :=
-  match x with
-  | .pure _ _ => 0
-  | .break _ => 1
-  | .continue _ => 2
-
-set_option trace.Compiler.saveBase true in
-example (x : Option PEmpty) : Nat :=
-  match x with
-  | none => 0
-
-set_option trace.Elab.do true in
-set_option backward.do.legacy false in
-#check Id.run do
-  let mut x := 42
-  for i in [1,2,3] do
-    x := x + i
-  return x
+set_option trace.Meta.isDefEq true in
+#check fun e => Id.run doo
+  let mut x := 0
+  let y := 3
+  let z ← do
+    let mut y ← e
+    x := y + 1
+    pure y
+  let y := y + 3
+  pure (x + y + z)
 
 set_option trace.Compiler.saveBase true in
 set_option trace.Compiler.specialize.step true in
@@ -193,11 +173,11 @@ info: (let x := 42;
     (fun i kcontinue s =>
       let x := s.fst;
       let z := s.snd;
-      let x := x + i;
+      let x_1 := x + i;
       have __do_jp := fun z r =>
         let z := z + i;
-        kcontinue (x, z);
-      if x > 10 then
+        kcontinue (x_1, z);
+      if x_1 > 10 then
         let z := z + i;
         __do_jp z PUnit.unit
       else __do_jp z PUnit.unit)
@@ -803,6 +783,7 @@ open Std.Do in
       z := z + i
   return x + y + z
 
+
 example : (Id.run doo pure 42)
         = (Id.run  do pure 42) := by rfl
 example : (Id.run doo return 42)
@@ -1323,26 +1304,42 @@ Postponing Monad instance resolution appropriately
 -/
 
 /--
-error: typeclass instance problem is stuck, it is often due to metavariables
+error: typeclass instance problem is stuck
   Pure ?m.9
+
+Note: Lean will not try to resolve this typeclass instance problem because the type argument to `Pure` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
+
+Hint: Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `Nat`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.
 -/
 #guard_msgs (error) in
 example := doo return 42
 /--
-error: typeclass instance problem is stuck, it is often due to metavariables
+error: typeclass instance problem is stuck
   Bind ?m.14
+
+Note: Lean will not try to resolve this typeclass instance problem because the type argument to `Bind` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
+
+Hint: Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `Nat`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.
 -/
 #guard_msgs (error) in
 example := doo let x <- ?z; ?y
 /--
-error: typeclass instance problem is stuck, it is often due to metavariables
+error: typeclass instance problem is stuck
   Pure ?m.12
+
+Note: Lean will not try to resolve this typeclass instance problem because the type argument to `Pure` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
+
+Hint: Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `Nat`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.
 -/
 #guard_msgs (error) in
 example := do return 42
 /--
-error: typeclass instance problem is stuck, it is often due to metavariables
+error: typeclass instance problem is stuck
   Bind ?m.16
+
+Note: Lean will not try to resolve this typeclass instance problem because the type argument to `Bind` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
+
+Hint: Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `Nat`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.
 -/
 #guard_msgs (error) in
 example := do let x <- ?z; ?y

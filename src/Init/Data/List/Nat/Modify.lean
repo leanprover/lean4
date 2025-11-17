@@ -106,7 +106,9 @@ theorem eraseIdx_eq_modifyTailIdx : ∀ i (l : List α), eraseIdx l i = l.modify
   | _+1, [] => rfl
   | _+1, _ :: _ => congrArg (cons _) (eraseIdx_eq_modifyTailIdx _ _)
 
-@[simp, grind =] theorem length_modifyTailIdx (f : List α → List α) (H : ∀ l, (f l).length = l.length) :
+-- This is not suitable as a `@[grind =]` lemma:
+-- as soon as it is instantiated the hypothesis `H` causes an infinite chain of instantiations.
+@[simp] theorem length_modifyTailIdx (f : List α → List α) (H : ∀ l, (f l).length = l.length) :
     ∀ (l : List α) i, (l.modifyTailIdx i f).length = l.length
   | _, 0 => H _
   | [], _+1 => rfl

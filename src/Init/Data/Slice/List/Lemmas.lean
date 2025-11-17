@@ -42,12 +42,13 @@ public instance : LawfulSliceSize (Internal.ListSliceData α) where
 
 end Std.Slice.List
 
-theorem ListSlice.toList_eq {xs : ListSlice α} :
+public theorem ListSlice.toList_eq {xs : ListSlice α} :
     xs.toList = match xs.internalRepresentation.stop with
       | some stop => xs.internalRepresentation.list.take stop
       | none => xs.internalRepresentation.list := by
   simp only [toList, List.ofSlice, Std.Slice.toList, ToIterator.state_eq]
   rw [Std.Slice.List.toList_internalIter]
+  rfl
 
 public theorem List.rccSlice.toList_eq {xs : List α} {lo hi : Nat} :
   xs[lo...=hi].toList = (xs.take (hi + 1)).drop lo := by

@@ -17,6 +17,8 @@ public import Init.Data.Range.Polymorphic.Lemmas
 import all Init.Data.Range.Polymorphic.Lemmas
 public import Init.Data.Slice.Lemmas
 public import Init.Data.Iterators.Lemmas
+import Init.Data.Slice.List.Lemmas
+import Init.Data.Range.Polymorphic.NatLemmas
 
 open Std Std.Iterators Std.PRange Std.Slice
 
@@ -107,33 +109,147 @@ public theorem Array.toSubarray_eq_toSubarray_of_min_eq_min {xs : Array α}
 @[simp]
 public theorem Array.array_rccSlice {xs : Array α} {lo hi : Nat} :
     xs[lo...=hi].array = xs := by
-  simp [Std.Rcc.Sliceable.mkSlice, Array.toSubarray, apply_dite]
-  simp [Subarray.array]
+  simp [Std.Rcc.Sliceable.mkSlice, Array.toSubarray, apply_dite, Subarray.array]
+
+public theorem Array.toSubarray_eq_min {xs : Array α} {lo hi : Nat} :
+    xs.toSubarray lo hi = ⟨⟨xs, min lo (min hi xs.size), min hi xs.size, Nat.min_le_right _ _,
+      Nat.min_le_right _ _⟩⟩ := by
+  simp only [Array.toSubarray]
+  split <;> split <;> simp [Nat.min_eq_right (Nat.le_of_not_ge _), *]
+
+@[simp]
+public theorem Array.array_toSubarray {xs : Array α} {lo hi : Nat} :
+    (xs.toSubarray lo hi).array = xs := by
+  simp [toSubarray_eq_min, Subarray.array]
+
+@[simp]
+public theorem Array.start_toSubarray {xs : Array α} {lo hi : Nat} :
+    (xs.toSubarray lo hi).start = min lo (min hi xs.size) := by
+  simp [toSubarray_eq_min, Subarray.start]
+
+@[simp]
+public theorem Array.stop_toSubarray {xs : Array α} {lo hi : Nat} :
+    (xs.toSubarray lo hi).stop = min hi xs.size := by
+  simp [toSubarray_eq_min, Subarray.stop]
 
 namespace Subarray
 
 theorem toList_eq {xs : Subarray α} :
     xs.toList = (xs.array.extract xs.start xs.stop).toList := by
-  simp only [Std.Slice.toList]
-  rw [Iter.toList_eq_match_step]
+  let aslice := xs
+  obtain ⟨⟨array, start, stop, h₁, h₂⟩⟩ := xs
+  let lslice : ListSlice α := ⟨array.toList.drop start, some (stop - start)⟩
+  simp only [Subarray.start, Subarray.stop, Subarray.array]
+  change aslice.toList = _
+  have : aslice.toList = lslice.toList := by
+    simp [ListSlice.toList_eq, lslice, aslice]
+    simp only [Std.Slice.toList, Std.Slice.Array.toList_internalIter]
+    apply List.ext_getElem
+    · have : stop - start ≤ array.size - start := by omega
+      simp [Subarray.start, Subarray.stop, Std.PRange.Nat.size_rco, *]
+    · intros
+      simp [Subarray.array, Subarray.start, Subarray.stop, Std.Rco.getElem_toList_eq, succMany?]
+  simp [this, ListSlice.toList_eq, lslice]
 
-public theorem rccSlice_eq {xs : Subarray α} {lo hi : Nat} :
+theorem mkSlice_rcc_eq {xs : Subarray α} {lo hi : Nat} :
     xs[lo...=hi] = xs.array[(xs.start + lo)...(xs.start + min (hi + 1) xs.size)] := by
-  simp [Std.Rcc.Sliceable.mkSlice, Std.Rcc.HasRcoIntersection.intersection,
-    Std.Rco.Sliceable.mkSlice, Std.Rco.HasRcoIntersection.intersection,
-    Nat.add_comm lo]
+  simp only [Std.Rcc.Sliceable.mkSlice, Std.Rcc.HasRcoIntersection.intersection, Nat.zero_le,
+    Nat.max_eq_left, Nat.add_comm lo, Std.Rco.Sliceable.mkSlice,
+    Std.Rco.HasRcoIntersection.intersection]
   apply Array.toSubarray_eq_toSubarray_of_min_eq_min
   omega
 
--- this is false!
-public theorem rccSlice_rccSlice_array {xs : Array α} :
-    xs[lo...=hi][lo'...=hi'] = xs[(lo + lo')...(lo + min (hi' + 1) (hi + 1 - lo))] := by
-  simp [rccSlice_eq]
-  simp [Std.Rcc.Sliceable.mkSlice]
-  simp [Std.Rcc.HasRcoIntersection.intersection]
-  simp [Array.toSubarray, Nat.min_le_right, Subarray.start, Subarray.stop, Subarray.size]
-  split
-  · simp
-  · simp
-
 end Subarray
+
+namespace Array
+
+public theorem mkSlice_rco_eq_mkSlice_rco_min {xs : Array α} {lo hi : Nat} :
+    xs[lo...hi] = xs[(min lo (min hi xs.size))...(min hi xs.size)] := by
+  simp [Std.Rco.Sliceable.mkSlice, Array.toSubarray_eq_min, Std.Rco.HasRcoIntersection.intersection,
+    Std.Rco.HasRcoIntersection.intersection]
+
+@[simp]
+public theorem toList_mkSlice_rco {xs : Array α} {lo hi : Nat} :
+    xs[lo...hi].toList = (xs.toList.take hi).drop lo := by
+  rw [List.take_eq_take_min, List.drop_eq_drop_min]
+  simp [Std.Rco.Sliceable.mkSlice, Subarray.toList_eq, Std.Rco.HasRcoIntersection.intersection, List.take_drop,
+    Nat.add_sub_of_le (Nat.min_le_right _ _)]
+
+@[simp]
+public theorem mkSlice_rcc_eq_mkSlice_rco {xs : Array α} {lo hi : Nat} :
+    xs[lo...=hi] = xs[lo...(hi + 1)] := by
+  simp [Std.Rcc.Sliceable.mkSlice, Std.Rco.Sliceable.mkSlice, Std.Rcc.HasRcoIntersection.intersection, Std.Rco.HasRcoIntersection.intersection]
+
+public theorem mkSlice_rcc_eq_mkSlice_rco_min {xs : Array α} {lo hi : Nat} :
+    xs[lo...=hi] = xs[(min lo (min (hi + 1) xs.size))...(min (hi + 1) xs.size)] := by
+  simp [mkSlice_rco_eq_mkSlice_rco_min]
+
+@[simp]
+public theorem toList_mkSlice_rcc {xs : Array α} {lo hi : Nat} :
+    xs[lo...=hi].toList = (xs.toList.take (hi + 1)).drop lo := by
+  rw [mkSlice_rcc_eq_mkSlice_rco, toList_mkSlice_rco]
+
+@[simp]
+public theorem mkSlice_rci_eq_mkSlice_rco {xs : Array α} {lo : Nat} :
+    xs[lo...*] = xs[lo...xs.size] := by
+  simp [Std.Rci.Sliceable.mkSlice, Std.Rco.Sliceable.mkSlice, Std.Rci.HasRcoIntersection.intersection, Std.Rco.HasRcoIntersection.intersection]
+
+public theorem mkSlice_rci_eq_mkSlice_rco_min {xs : Array α} {lo : Nat} :
+    xs[lo...*] = xs[(min lo xs.size)...xs.size] := by
+  simp [mkSlice_rco_eq_mkSlice_rco_min]
+
+@[simp]
+public theorem toList_mkSlice_rci {xs : Array α} {lo : Nat} :
+    xs[lo...*].toList = xs.toList.drop lo := by
+  rw [mkSlice_rci_eq_mkSlice_rco, toList_mkSlice_rco, ← Array.length_toList, List.take_length]
+  -- TODO: nonconfluence of `Array.length_toList` and `List.take_length`
+
+@[simp]
+public theorem mkSlice_roo_eq_mkSlice_rco {xs : Array α} {lo hi : Nat} :
+    xs[lo<...hi] = xs[(lo + 1)...hi] := by
+  simp [Std.Roo.Sliceable.mkSlice, Std.Roo.HasRcoIntersection.intersection,
+    Std.Rco.Sliceable.mkSlice, Std.Rco.HasRcoIntersection.intersection]
+
+public theorem mkSlice_roo_eq_mkSlice_roo_min {xs : Array α} {lo hi : Nat} :
+    xs[lo<...hi] = xs[(min (lo + 1) (min hi xs.size))...(min hi xs.size)] := by
+  simp [mkSlice_rco_eq_mkSlice_rco_min]
+
+@[simp]
+public theorem toList_mkSlice_roo {xs : Array α} {lo hi : Nat} :
+    xs[lo<...hi].toList = (xs.toList.take hi).drop (lo + 1) := by
+  rw [mkSlice_roo_eq_mkSlice_rco, toList_mkSlice_rco]
+
+@[simp]
+public theorem mkSlice_roc_eq_mkSlice_roo {xs : Array α} {lo hi : Nat} :
+    xs[lo<...=hi] = xs[lo<...(hi + 1)] := by
+  simp [Std.Roc.Sliceable.mkSlice, Std.Roo.Sliceable.mkSlice, Std.Roc.HasRcoIntersection.intersection, Std.Roo.HasRcoIntersection.intersection]
+
+public theorem mkSlice_roc_eq_mkSlice_roo_min {xs : Array α} {lo hi : Nat} :
+    xs[lo<...=hi] = xs[(min (lo + 1) (min (hi + 1) xs.size))...(min (hi + 1) xs.size)] := by
+  simp [mkSlice_rco_eq_mkSlice_rco_min]
+
+@[simp]
+public theorem toList_mkSlice_roc {xs : Array α} {lo hi : Nat} :
+    xs[lo<...=hi].toList = (xs.toList.take (hi + 1)).drop (lo + 1) := by
+  rw [mkSlice_roc_eq_mkSlice_roo, toList_mkSlice_roo]
+
+@[simp]
+public theorem mkSlice_roi_eq_mkSlice_rci {xs : Array α} {lo : Nat} :
+    xs[lo<...*] = xs[(lo + 1)...*] := by
+  simp [Std.Roi.Sliceable.mkSlice, Std.Roi.HasRcoIntersection.intersection,
+    Std.Rci.Sliceable.mkSlice, Std.Rci.HasRcoIntersection.intersection]
+
+public theorem mkSlice_roi_eq_mkSlice_roo {xs : Array α} {lo : Nat} :
+    xs[lo<...*] = xs[lo<...xs.size] := by
+  simp [mkSlice_rci_eq_mkSlice_rco]
+
+public theorem mkSlice_roi_eq_mkSlice_roo_min {xs : Array α} {lo : Nat} :
+    xs[lo<...*] = xs[(min (lo + 1) xs.size)...xs.size] := by
+  simp [mkSlice_rco_eq_mkSlice_rco_min]
+
+@[simp]
+public theorem toList_mkSlice_roi {xs : Array α} {lo : Nat} :
+    xs[lo<...*].toList = xs.toList.drop (lo + 1) := by
+  rw [mkSlice_roi_eq_mkSlice_rci, toList_mkSlice_rci]
+
+end Array

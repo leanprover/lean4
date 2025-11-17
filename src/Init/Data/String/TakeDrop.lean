@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.String.Slice
+public import Init.Data.String.Substring
 
 set_option doc.verso true
 
@@ -19,6 +20,10 @@ This file contains the implementations of `String.take` and its variants.
 public section
 
 namespace String
+
+variable {ρ : Type}
+
+open Slice.Pattern
 
 /--
 Returns a {name}`String.Slice` obtained by removing the specified number of characters (Unicode code
@@ -111,7 +116,7 @@ def takeRight (s : String) (n : Nat) : String :=
   (s.takeEnd n).toString
 
 /--
-Creates a new slice that contains the longest prefix of {name}`s` in which {name}`pat` matched
+Creates a string slice that contains the longest prefix of {name}`s` in which {name}`pat` matched
 (potentially repeatedly).
 
 This is a cheap operation because it does not allocate a new string to hold the result.
@@ -125,12 +130,11 @@ Examples:
  * {lean}`"red red green blue".takeWhile "red " == "red red ".toSlice`
  * {lean}`"red green blue".takeWhile (fun (_ : Char) => true) == "red green blue".toSlice`
 -/
-@[inline] def takeWhile {ρ : Type} [Slice.Pattern.ForwardPattern ρ] (s : String) (pat : ρ) :
-    String.Slice :=
+@[inline] def takeWhile [ForwardPattern ρ] (s : String) (pat : ρ) : String.Slice :=
   s.toSlice.takeWhile pat
 
 /--
-Creates a new slice by removing the longest prefix from {name}`s` in which {name}`pat` matched
+Creates a string slice by removing the longest prefix from {name}`s` in which {name}`pat` matched
 (potentially repeatedly).
 
 This is a cheap operation because it does not allocate a new string to hold the result.
@@ -144,120 +148,173 @@ Examples:
  * {lean}`"red red green blue".dropWhile "red " == "green blue".toSlice`
  * {lean}`"red green blue".dropWhile (fun (_ : Char) => true) == "".toSlice`
 -/
-@[inline] def dropWhile {ρ : Type} [Slice.Pattern.ForwardPattern ρ] (s : String) (pat : ρ) :
-    String.Slice :=
+@[inline] def dropWhile [ForwardPattern ρ] (s : String) (pat : ρ) : String.Slice :=
   s.toSlice.takeWhile pat
 
 /--
-Creates a new string that contains the longest suffix of {name}`s` in which `p` returns `true` for all
-characters.
+Creates a string slice that contains the longest suffix of {name}`s` in which {name}`pat` matched
+(potentially repeatedly).
+
+This is a cheap operation because it does not allocate a new string to hold the result.
+To convert the result into a string, use {name}`String.Slice.copy`.
+
+This function is generic over all currently supported patterns.
 
 Examples:
-* `"red green blue".takeRightWhile (·.isLetter) = "blue"`
-* `"red green blue".takeRightWhile (· == 'e') = "e"`
-* `"red green blue".takeRightWhile (· != 'n') = " blue"`
-* `"red green blue".takeRightWhile (fun _ => true) = "red green blue"`
+ * {lean}`"red green blue".takeEndWhile Char.isLower == "blue".toSlice`
+ * {lean}`"red green blue".takeEndWhile 'e' == "e".toSlice`
+ * {lean}`"red green blue".takeEndWhile (fun (_ : Char) => true) == "red green blue".toSlice`
 -/
-@[inline] def takeRightWhile (s : String) (p : Char → Bool) : String :=
-  (s.toRawSubstring.takeRightWhile p).toString
+@[inline] def takeEndWhile [BackwardPattern ρ] (s : String) (pat : ρ) : String.Slice :=
+  s.toSlice.takeEndWhile pat
+
+@[deprecated String.takeEndWhile (since := "2025-11-17")]
+def takeRightWhile (s : String) (p : Char → Bool) : String :=
+  (s.takeEndWhile p).toString
 
 /--
-Creates a new string by removing the longest suffix from `s` in which `p` returns `true` for all
-characters.
+Creates a new string by removing the longest suffix from {name}`s` in which {name}`pat` matches
+(potentially repeatedly).
+
+This is a cheap operation because it does not allocate a new string to hold the result.
+To convert the result into a string, use {name}`String.Slice.copy`.
+
+This function is generic over all currently supported patterns.
 
 Examples:
-* `"red green blue".dropRightWhile (·.isLetter) = "red green "`
-* `"red green blue".dropRightWhile (· == 'e') = "red green blu"`
-* `"red green blue".dropRightWhile (· != 'n') = "red green"`
-* `"red green blue".dropRightWhile (fun _ => true) = ""`
+ * {lean}`"red green blue".dropEndWhile Char.isLower == "red green ".toSlice`
+ * {lean}`"red green blue".dropEndWhile 'e' == "red green blu".toSlice`
+ * {lean}`"red green blue".dropEndWhile (fun (_ : Char) => true) == "".toSlice`
 -/
-@[inline] def dropRightWhile (s : String) (p : Char → Bool) : String :=
-  (s.toRawSubstring.dropRightWhile p).toString
+@[inline] def dropEndWhile [BackwardPattern ρ] (s : String) (pat : ρ) : String.Slice :=
+  s.toSlice.dropEndWhile pat
+
+@[deprecated String.dropEndWhile (since := "2025-11-17")]
+def dropRightWhile (s : String) (p : Char → Bool) : String :=
+  (s.dropEndWhile p).toString
 
 /--
-Checks whether the first string (`s`) begins with the second (`pre`).
+Checks whether the first string ({name}`s`) begins with the pattern ({name}`pat`).
 
-`String.isPrefix` is a version that takes the potential prefix before the string.
+{name (scope := "Init.Data.String.TakeDrop")}`String.isPrefixOf` is a version that takes the
+potential prefix before the string.
 
 Examples:
- * `"red green blue".startsWith "red" = true`
- * `"red green blue".startsWith "green" = false`
- * `"red green blue".startsWith "" = true`
- * `"red".startsWith "red" = true`
+ * {lean}`"red green blue".startsWith "red" = true`
+ * {lean}`"red green blue".startsWith "green" = false`
+ * {lean}`"red green blue".startsWith "" = true`
+ * {lean}`"red green blue".startsWith 'r' = true`
+ * {lean}`"red green blue".startsWith Char.isLower = true`
 -/
-@[inline] def startsWith (s pre : String) : Bool :=
-  s.toRawSubstring.take pre.length == pre.toRawSubstring
+@[inline] def startsWith [ForwardPattern ρ] (s : String) (pat : ρ) : Bool :=
+  s.toSlice.startsWith pat
 
 /--
-Checks whether the first string (`s`) ends with the second (`post`).
+Checks whether the second string ({name}`s`) begins with a prefix ({name}`p`).
+
+This function is generic over all currently supported patterns.
+
+{name}`String.startsWith` is a version that takes the potential prefix after the string.
 
 Examples:
- * `"red green blue".endsWith "blue" = true`
- * `"red green blue".endsWith "green" = false`
- * `"red green blue".endsWith "" = true`
- * `"red".endsWith "red" = true`
+ * {lean}`"red".isPrefixOf "red green blue" = true`
+ * {lean}`"green".isPrefixOf "red green blue" = false`
+ * {lean}`"".isPrefixOf "red green blue" = true`
 -/
-@[inline] def endsWith (s post : String) : Bool :=
-  s.toRawSubstring.takeRight post.length == post.toRawSubstring
+@[inline] def isPrefixOf (p : String) (s : String) : Bool :=
+  s.startsWith p
+
+@[export lean_string_isprefixof]
+def Internal.isPrefixOfImpl (p : String) (s : String) : Bool :=
+  String.isPrefixOf p s
 
 /--
-Removes trailing whitespace from a string.
+Checks whether the string ({name}`s`) ends with the pattern ({name}`pat`).
 
-“Whitespace” is defined as characters for which `Char.isWhitespace` returns `true`.
+This function is generic over all currently supported patterns.
 
 Examples:
-* `"abc".trimRight = "abc"`
-* `"   abc".trimRight = "   abc"`
-* `"abc \t  ".trimRight = "abc"`
-* `"  abc   ".trimRight = "  abc"`
-* `"abc\ndef\n".trimRight = "abc\ndef"`
+ * {lean}`"red green blue".endsWith "blue" = true`
+ * {lean}`"red green blue".endsWith "green" = false`
+ * {lean}`"red green blue".endsWith "" = true`
+ * {lean}`"red green blue".endsWith 'e' = true`
+ * {lean}`"red green blue".endsWith Char.isLower = true`
 -/
-@[inline] def trimRight (s : String) : String :=
-  s.toRawSubstring.trimRight.toString
+@[inline] def endsWith [BackwardPattern ρ] (s : String) (pat : ρ) : Bool :=
+  s.toSlice.endsWith pat
 
 /--
-Removes leading whitespace from a string.
+Removes trailing whitespace from a string by returning a slice whose end position is the last
+non-whitespace character, or the start position if there is no non-whitespace character.
 
-“Whitespace” is defined as characters for which `Char.isWhitespace` returns `true`.
+“Whitespace” is defined as characters for which {name}`Char.isWhitespace` returns {name}`true`.
 
 Examples:
-* `"abc".trimLeft = "abc"`
-* `"   abc".trimLeft = "   abc"`
-* `"abc \t  ".trimLeft = "abc \t  "`
-* `"  abc   ".trimLeft = "abc   "`
-* `"abc\ndef\n".trimLeft = "abc\ndef\n"`
+ * {lean}`"abc".trimAsciiEnd == "abc".toSlice`
+ * {lean}`"   abc".trimAsciiEnd == "   abc".toSlice`
+ * {lean}`"abc \t  ".trimAsciiEnd == "abc".toSlice`
+ * {lean}`"  abc   ".trimAsciiEnd == "  abc".toSlice`
+ * {lean}`"abc\ndef\n".trimAsciiEnd == "abc\ndef".toSlice`
 -/
-@[inline] def trimLeft (s : String) : String :=
-  s.toRawSubstring.trimLeft.toString
+@[inline] def trimAsciiEnd (s : String) : String.Slice :=
+  s.toSlice.trimAsciiEnd
+
+@[deprecated String.trimAsciiEnd (since := "2025-11-17")]
+def trimRight (s : String) : String :=
+  s.trimAsciiEnd.copy
+
+/--
+Removes leading whitespace from a string by returning a slice whose start position is the first
+non-whitespace character, or the end position if there is no non-whitespace character.
+
+“Whitespace” is defined as characters for which {name}`Char.isWhitespace` returns {name}`true`.
+
+Examples:
+ * {lean}`"abc".trimAsciiStart == "abc".toSlice`
+ * {lean}`"   abc".trimAsciiStart == "abc".toSlice`
+ * {lean}`"abc \t  ".trimAsciiStart == "abc \t  ".toSlice`
+ * {lean}`"  abc   ".trimAsciiStart == "abc   ".toSlice`
+ * {lean}`"abc\ndef\n".trimAsciiStart == "abc\ndef\n".toSlice`
+-/
+@[inline] def trimAsciiStart (s : String) : String.Slice :=
+  s.toSlice.trimAsciiStart
+
+@[deprecated String.trimAsciiStart (since := "2025-11-17")]
+def trimLeft (s : String) : String :=
+  s.trimAsciiStart.copy
 
 /--
 Removes leading and trailing whitespace from a string.
 
-“Whitespace” is defined as characters for which `Char.isWhitespace` returns `true`.
+“Whitespace” is defined as characters for which {name}`Char.isWhitespace` returns {name}`true`.
 
 Examples:
-* `"abc".trim = "abc"`
-* `"   abc".trim = "abc"`
-* `"abc \t  ".trim = "abc"`
-* `"  abc   ".trim = "abc"`
-* `"abc\ndef\n".trim = "abc\ndef"`
+ * {lean}`"abc".trimAscii == "abc".toSlice`
+ * {lean}`"   abc".trimAscii == "abc".toSlice`
+ * {lean}`"abc \t  ".trimAscii == "abc".toSlice`
+ * {lean}`"  abc   ".trimAscii == "abc".toSlice`
+ * {lean}`"abc\ndef\n".trimAscii == "abc\ndef".toSlice`
 -/
-@[inline] def trim (s : String) : String :=
-  s.toRawSubstring.trim.toString
+@[inline] def trimAscii (s : String) : String.Slice :=
+  s.toSlice.trimAscii
+
+@[deprecated String.trimAscii (since := "2025-11-17")]
+def trim (s : String) : String :=
+  s.trimAscii.copy
 
 @[export lean_string_trim]
 def Internal.trimImpl (s : String) : String :=
-  String.trim s
+  (String.trimAscii s).copy
 
 /--
-Repeatedly increments a position in a string, as if by `String.next`, while the predicate `p`
-returns `true` for the character at the position. Stops incrementing at the end of the string or
-when `p` returns `false` for the current character.
+Repeatedly increments a position in a string, as if by {name}`String.Pos.Raw.next`, while the
+predicate {name}`p` returns {lean}`true` for the character at the position. Stops incrementing at
+the end of the string or when {name}`p` returns {lean}`false` for the current character.
 
 Examples:
-* `let s := "   a  "; s.get (s.nextWhile Char.isWhitespace 0) = 'a'`
-* `let s := "a  "; s.get (s.nextWhile Char.isWhitespace 0) = 'a'`
-* `let s := "ba  "; s.get (s.nextWhile Char.isWhitespace 0) = 'b'`
+* {lean}`let s := "   a  "; ((0 : Pos.Raw).nextWhile s Char.isWhitespace).get s = 'a'`
+* {lean}`let s := "a  "; ((0 : Pos.Raw).nextWhile s Char.isWhitespace).get s = 'a'`
+* {lean}`let s := "ba  "; (Pos.Raw.nextWhile s Char.isWhitespace 0).get s = 'b'`
 -/
 @[inline] def Pos.Raw.nextWhile (s : String) (p : Char → Bool) (i : String.Pos.Raw) : String.Pos.Raw :=
   Substring.Raw.takeWhileAux s s.rawEndPos p i
@@ -271,14 +328,14 @@ def Internal.nextWhileImpl (s : String) (p : Char → Bool) (i : String.Pos.Raw)
   i.nextWhile s p
 
 /--
-Repeatedly increments a position in a string, as if by `String.next`, while the predicate `p`
-returns `false` for the character at the position. Stops incrementing at the end of the string or
-when `p` returns `true` for the current character.
+Repeatedly increments a position in a string, as if by {name}`String.Pos.Raw.next`, while the predicate
+{name}`p` returns {lean}`false` for the character at the position. Stops incrementing at the end of
+the string or when {name}`p` returns {lean}`true` for the current character.
 
 Examples:
-* `let s := "   a  "; s.get (s.nextUntil Char.isWhitespace 0) = ' '`
-* `let s := "   a  "; s.get (s.nextUntil Char.isLetter 0) = 'a'`
-* `let s := "a  "; s.get (s.nextUntil Char.isWhitespace 0) = ' '`
+* {lean}`let s := "   a  "; (Pos.Raw.nextUntil s Char.isWhitespace 0).get s = ' '`
+* {lean}`let s := "   a  "; (Pos.Raw.nextUntil s Char.isAlpha 0).get s = 'a'`
+* {lean}`let s := "a  "; (Pos.Raw.nextUntil s Char.isWhitespace 0).get s = ' '`
 -/
 @[inline] def Pos.Raw.nextUntil (s : String) (p : Char → Bool) (i : String.Pos.Raw) : String.Pos.Raw :=
   nextWhile s (fun c => !p c) i
@@ -288,67 +345,91 @@ def nextUntil (s : String) (p : Char → Bool) (i : String.Pos.Raw) : String.Pos
   i.nextUntil s p
 
 /--
-If `pre` is a prefix of `s`, returns the remainder. Returns `none` otherwise.
+If {name}`pat` matches a prefix of {name}`s`, returns the remainder. Returns {name}`none` otherwise.
 
-The string `pre` is a prefix of `s` if there exists a `t : String` such that `s = pre ++ t`. If so,
-the result is `some t`.
+Use {name (scope := "Init.Data.String.Slice")}`String.dropPrefix` to return the slice
+unchanged when {name}`pat` does not match a prefix.
 
-Use `String.stripPrefix` to return the string unchanged when `pre` is not a prefix.
+This is a cheap operation because it does not allocate a new string to hold the result.
+To convert the result into a string, use {name}`String.Slice.copy`.
+
+This function is generic over all currently supported patterns.
 
 Examples:
- * `"red green blue".dropPrefix? "red " = some "green blue"`
- * `"red green blue".dropPrefix? "reed " = none`
- * `"red green blue".dropPrefix? "" = some "red green blue"`
+ * {lean}`"red green blue".dropPrefix? "red " == some "green blue".toSlice`
+ * {lean}`"red green blue".dropPrefix? "reed " == none`
+ * {lean}`"red green blue".dropPrefix? 'r' == some "ed green blue".toSlice`
+ * {lean}`"red green blue".dropPrefix? Char.isLower == some "ed green blue".toSlice`
 -/
-def dropPrefix? (s : String) (pre : String) : Option Substring.Raw :=
-  s.toRawSubstring.dropPrefix? pre.toRawSubstring
+def dropPrefix? [ForwardPattern ρ] (s : String) (pat : ρ) : Option String.Slice :=
+  s.toSlice.dropPrefix? pat
 
 /--
-If `suff` is a suffix of `s`, returns the remainder. Returns `none` otherwise.
+If {name}`pat` matches a suffix of {name}`s`, returns the remainder. Returns {name}`none` otherwise.
 
-The string `suff` is a suffix of `s` if there exists a `t : String` such that `s = t ++ suff`. If so,
-the result is `some t`.
+Use {name (scope := "Init.Data.String.TakeDrop")}`String.dropSuffix` to return the slice
+unchanged when {name}`pat` does not match a prefix.
 
-Use `String.stripSuffix` to return the string unchanged when `suff` is not a suffix.
+This is a cheap operation because it does not allocate a new string to hold the result.
+To convert the result into a string, use {name}`String.Slice.copy`.
+
+This function is generic over all currently supported patterns.
 
 Examples:
- * `"red green blue".dropSuffix? " blue" = some "red green"`
- * `"red green blue".dropSuffix? " blu " = none`
- * `"red green blue".dropSuffix? "" = some "red green blue"`
+ * {lean}`"red green blue".dropSuffix? " blue" == some "red green".toSlice`
+ * {lean}`"red green blue".dropSuffix? "bluu " == none`
+ * {lean}`"red green blue".dropSuffix? 'e' == some "red green blu".toSlice`
+ * {lean}`"red green blue".dropSuffix? Char.isLower == some "red green blu".toSlice`
 -/
-def dropSuffix? (s : String) (suff : String) : Option Substring.Raw :=
-  s.toRawSubstring.dropSuffix? suff.toRawSubstring
+def dropSuffix? [BackwardPattern ρ] (s : String) (pat : ρ) : Option String.Slice :=
+  s.toSlice.dropSuffix? pat
 
 /--
-If `pre` is a prefix of `s`, returns the remainder. Returns `s` unmodified otherwise.
+If {name}`pat` matches a prefix of {name}`s`, returns the remainder. Returns {name}`s` unmodified
+otherwise.
 
-The string `pre` is a prefix of `s` if there exists a `t : String` such that `s = pre ++ t`. If so,
-the result is `t`. Otherwise, it is `s`.
+Use {name}`String.dropPrefix?` to return {name}`none` when {name}`pat` does not match a prefix.
 
-Use `String.dropPrefix?` to return `none` when `pre` is not a prefix.
+This is a cheap operation because it does not allocate a new string to hold the result.
+To convert the result into a string, use {name}`String.Slice.copy`.
+
+This function is generic over all currently supported patterns.
 
 Examples:
- * `"red green blue".stripPrefix "red " = "green blue"`
- * `"red green blue".stripPrefix "reed " = "red green blue"`
- * `"red green blue".stripPrefix "" = "red green blue"`
+ * {lean}`"red green blue".dropPrefix "red " == "green blue".toSlice`
+ * {lean}`"red green blue".dropPrefix "reed " == "red green blue".toSlice`
+ * {lean}`"red green blue".dropPrefix 'r' == "ed green blue".toSlice`
+ * {lean}`"red green blue".dropPrefix Char.isLower == "ed green blue".toSlice`
 -/
-def stripPrefix (s : String) (pre : String) : String :=
-  s.dropPrefix? pre |>.map Substring.Raw.toString |>.getD s
+def dropPrefix [ForwardPattern ρ] (s : String) (pat : ρ) : String.Slice :=
+  s.toSlice.dropPrefix pat
+
+@[deprecated String.dropPrefix (since := "2025-11-17")]
+def stripPrefix (s pre : String) : String :=
+  (s.dropPrefix pre).toString
 
 /--
-If `suff` is a suffix of `s`, returns the remainder. Returns `s` unmodified otherwise.
+If {name}`pat` matches a suffix of {name}`s`, returns the remainder. Returns {name}`s` unmodified
+otherwise.
 
-The string `suff` is a suffix of `s` if there exists a `t : String` such that `s = t ++ suff`. If so,
-the result is `t`. Otherwise, it is `s`.
+Use {name}`String.dropSuffix?` to return {name}`none` when {name}`pat` does not match a prefix.
 
-Use `String.dropSuffix?` to return `none` when `suff` is not a suffix.
+This is a cheap operation because it does not allocate a new string to hold the result.
+To convert the result into a string, use {name}`String.Slice.copy`.
+
+This function is generic over all currently supported patterns.
 
 Examples:
- * `"red green blue".stripSuffix " blue" = "red green"`
- * `"red green blue".stripSuffix " blu " = "red green blue"`
- * `"red green blue".stripSuffix "" = "red green blue"`
+ * {lean}`"red green blue".dropSuffix " blue" == "red green".toSlice`
+ * {lean}`"red green blue".dropSuffix "bluu " == "red green blue".toSlice`
+ * {lean}`"red green blue".dropSuffix 'e' == "red green blu".toSlice`
+ * {lean}`"red green blue".dropSuffix Char.isLower == "red green blu".toSlice`
 -/
+def dropSuffix [BackwardPattern ρ] (s : String) (pat : ρ) : String.Slice :=
+  s.toSlice.dropSuffix pat
+
+@[deprecated String.dropSuffix (since := "2025-11-17")]
 def stripSuffix (s : String) (suff : String) : String :=
-  s.dropSuffix? suff |>.map Substring.Raw.toString |>.getD s
+  (s.dropSuffix suff).toString
 
 end String

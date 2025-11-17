@@ -728,8 +728,8 @@ where
   termination_by curr.down
 
 /--
-Removes trailing whitespace from a slice by moving its start position to the first non-whitespace
-character, or to its end position if there is no non-whitespace character.
+Removes trailing whitespace from a slice by moving its end position to the last non-whitespace
+character, or to its start position if there is no non-whitespace character.
 
 “Whitespace” is defined as characters for which {name}`Char.isWhitespace` returns {name}`true`.
 

@@ -5252,10 +5252,19 @@ theorem minKey_insert_of_isEmpty [TransOrd α] (h : t.WF) {k v} (he : t.isEmpty)
   revert he
   simp_to_model [isEmpty, insert, minKey] using List.minKey_insertEntry_of_isEmpty
 
+theorem minKey_insert!_of_isEmpty [TransOrd α] (h : t.WF) {k v} (he : t.isEmpty) :
+    (t.insert! k v).minKey (isEmpty_insert! h) = k := by
+  simpa only [insert_eq_insert!] using minKey_insert_of_isEmpty h he
+
 theorem minKey?_insert_of_isEmpty [TransOrd α] (h : t.WF) {k v} (he : t.isEmpty) :
     (t.insert k v h.balanced).impl.minKey? = some k := by
   revert he
   simp_to_model [isEmpty, insert, minKey?] using List.minKey?_insertEntry_of_isEmpty
+
+theorem minKey?_insert!_of_isEmpty [TransOrd α] (h : t.WF) {k v} (he : t.isEmpty) :
+    (t.insert! k v).minKey? = some k := by
+  simpa only [insert_eq_insert!] using minKey?_insert_of_isEmpty h he
+
 
 theorem minKey!_insert_of_isEmpty [TransOrd α] [Inhabited α] (h : t.WF) {k v} (he : t.isEmpty) :
     (t.insert k v h.balanced).impl.minKey! = k := by
@@ -5266,6 +5275,10 @@ theorem minKey!_insert_of_isEmpty [TransOrd α] [Inhabited α] (h : t.WF) {k v} 
   · wf_trivial
   · exact he
 
+theorem minKey!_insert!_of_isEmpty [TransOrd α] [Inhabited α] (h : t.WF) {k v} (he : t.isEmpty) :
+    (t.insert! k v).minKey! = k := by
+  simpa only [insert_eq_insert!] using minKey!_insert_of_isEmpty h he
+
 theorem minKeyD_insert_of_isEmpty [TransOrd α] (h : t.WF) {k v} (he : t.isEmpty) {fallback : α} :
     (t.insert k v h.balanced).impl.minKeyD fallback = k := by
   revert he
@@ -5275,6 +5288,9 @@ theorem minKeyD_insert_of_isEmpty [TransOrd α] (h : t.WF) {k v} (he : t.isEmpty
   · wf_trivial
   · exact he
 
+theorem minKeyD_insert!_of_isEmpty [TransOrd α] (h : t.WF) {k v} (he : t.isEmpty) {fallback : α} :
+    (t.insert! k v).minKeyD fallback = k := by
+  simpa only [insert_eq_insert!] using minKeyD_insert_of_isEmpty h he
 
 theorem minKey?_insert_le_minKey? [TransOrd α] (h : t.WF) {k v km kmi} :
     (hkm : t.minKey? = some km) →

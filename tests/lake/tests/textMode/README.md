@@ -29,42 +29,19 @@ With text mode hashing working correctly:
 - CRLF and LF versions of the same file should produce the **same hash**
 - Changing only line endings should **not** trigger a rebuild
 
-## Bug Location
+## How the Test Works
 
-The bug is in `Lake/Build/Common.lean` in the `buildArtifactUnlessUpToDate` function, where `computeArtifact` is called without propagating the `text` parameter.
-
-## Test Successfully Detects the Bug!
-
-The test **FAILS** (as expected), confirming the bug exists:
-
-```
-✗ FAIL - BUG DETECTED!
-
-Old hash (CRLF): 4f971083309e5800
-New hash (LF):   c671e9e54bab1647
-
-The hashes are DIFFERENT, which proves binary mode was used.
-```
-
-**How the test works:**
 1. Builds an artifact with CRLF line endings using `buildArtifactUnlessUpToDate` with `text := true`
-2. The artifact is hashed in **binary mode**: `4f971083309e5800`
-3. Manually changes the artifact to have LF line endings
-4. Deletes the `.hash` file to force recomputation
-5. Rebuilds, triggering hash recomputation
-6. Computes new hash in **binary mode**: `c671e9e54bab1647`
-7. The hashes DIFFER, proving binary mode was used instead of text mode
+2. Manually changes the artifact to have LF line endings
+3. Deletes the `.hash` file to force recomputation
+4. Rebuilds and compares the old hash (CRLF) vs new hash (LF)
 
-**Expected behavior after fix:**
-With `text` parameter correctly propagated:
-- Both CRLF and LF versions would normalize to the same hash
-- Test would PASS
-- No unnecessary rebuilds would occur when only line endings change
+The test verifies that both CRLF and LF versions produce the same hash when text mode is enabled. If the hashes differ, it indicates the `text` parameter is not being properly propagated.
 
 ## Running the Test
 
 ```bash
-cd tests/lake/tests/textModeTransitive
+cd tests/lake/tests/textMode
 ./test.sh
 ```
 

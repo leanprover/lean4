@@ -113,9 +113,10 @@ where
     withExistingLocalDecls lhs.fvarDecls do
       let args ← lhs.patterns.toArray.mapM (Pattern.toExpr · (annotate := true))
       let minorType := mkAppN motive args
-      let minorType ← mkArrowN notAltHs minorType
       withEqs discrs args discrInfos fun eqs => do
-        mkForallFVars (xs ++ eqs) minorType
+        let minorType ← mkForallFVars eqs minorType
+        let minorType ← mkArrowN notAltHs minorType
+        mkForallFVars xs minorType
 
   mkNotAlt (xs : Array Expr) (lhs : AltLHS) : MetaM Expr := do
     withExistingLocalDecls lhs.fvarDecls do
@@ -361,7 +362,7 @@ where
 Solve pending alternative constraints. If all constraints can be solved perform assignment
 `mvarId := alt.rhs`, and return true.
 -/
-private partial def solveCnstrs (mvarId : MVarId) (alt : Alt) (numEqs : Nat) : StateRefT State MetaM Unit := do
+private partial def solveCnstrs (mvarId : MVarId) (alt : Alt) : StateRefT State MetaM Unit := do
   go (reorientCnstrs alt)
 where
   go (alt : Alt) : StateRefT State MetaM Unit := do
@@ -370,20 +371,18 @@ where
     | none =>
       let alt ← filterTrivialCnstrs alt
       if alt.cnstrs.isEmpty then
-        let (eqHs, mvarId) ← mvarId.introN numEqs
         mvarId.withContext do
-          let rhs := mkAppN alt.rhs (eqHs.map mkFVar)
-          let eType ← inferType rhs
-          unless eType.getNumHeadForalls == alt.notAltIdxs.size do
-            throwErrorAt alt.ref "Incorrect number of overlap hypotheses in the right-hand-side, expected {alt.notAltIdxs.size}:{indentExpr eType}"
+          let eType ← inferType alt.rhs
           let (notAltsMVarIds, _, eType) ← forallMetaBoundedTelescope eType alt.notAltIdxs.size
+          unless notAltsMVarIds.size = alt.notAltIdxs.size do
+            throwErrorAt alt.ref "Incorrect number of overlap hypotheses in the right-hand-side, expected {alt.notAltIdxs.size}:{indentExpr eType}"
           let targetType ← mvarId.getType
           unless (← isDefEqGuarded targetType eType) do
             trace[Meta.Match.match] "assignGoalOf failed {eType} =?= {targetType}"
             throwErrorAt alt.ref "Dependent elimination failed: Type mismatch when solving this alternative: it {← mkHasTypeButIsExpectedMsg eType targetType}"
           for notAltMVarId in notAltsMVarIds do
             solveOverlap notAltMVarId.mvarId!
-          mvarId.assign (mkAppN rhs notAltsMVarIds)
+          mvarId.assign (mkAppN alt.rhs notAltsMVarIds)
           modify fun s => { s with used := s.used.insert alt.idx }
       else
         trace[Meta.Match.match] "alt has unsolved cnstrs:\n{← alt.toMessageData}"
@@ -438,7 +437,7 @@ where
         trace[Meta.Match.match] "contradiction failed, missing alternative"
         modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
     | alt :: _ =>
-      solveCnstrs p.mvarId alt p.numEqs
+      solveCnstrs p.mvarId alt
 
 private def processAsPattern (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: _ := p.vars | unreachable!
@@ -1190,7 +1189,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
       let mvar ← mkFreshExprMVar mvarType
       trace[Meta.Match.debug] "goal\n{mvar.mvarId!}"
       let examples := discrs'.toList.map fun discr => Example.var discr.fvarId!
-      let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs'.toList, alts := alts, examples := examples, numEqs }).run {}
+      let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs'.toList, alts := alts, examples := examples }).run {}
       let val ← mkLambdaFVars discrs' mvar
       trace[Meta.Match.debug] "matcher\nvalue: {val}\ntype: {← inferType val}"
       let mut rfls := #[]
@@ -1213,7 +1212,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
     withAlts motive discrs discrInfos lhss isSplitter fun alts minors => do
       let mvar ← mkFreshExprMVar mvarType
       let examples := discrs.toList.map fun discr => Example.var discr.fvarId!
-      let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs.toList, alts := alts, examples := examples, numEqs }).run {}
+      let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs.toList, alts := alts, examples := examples }).run {}
       let args := #[motive] ++ discrs ++ minors.map Prod.fst
       let type ← mkForallFVars args mvarType
       let val  ← mkLambdaFVars args mvar

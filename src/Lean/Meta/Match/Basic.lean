@@ -250,7 +250,6 @@ structure Problem where
   vars          : List Expr
   alts          : List Alt
   examples      : List Example
-  numEqs        : Nat
   deriving Inhabited
 
 def withGoalOf {α} (p : Problem) (x : MetaM α) : MetaM α :=

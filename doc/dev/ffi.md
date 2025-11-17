@@ -129,8 +129,7 @@ For all other modules imported by `lean`, the initializer is run without `builti
 Thus `[init]` functions are run iff their module is imported, regardless of whether they have native code available or not, while `[builtin_init]` functions are only run for native executable or plugins, regardless of whether their module is imported or not.
 `lean` uses built-in initializers for e.g. registering basic parsers that should be available even without importing their module (which is necessary for bootstrapping).
 
-The initializer for module `A.B` is called `initialize_A_B` and will automatically initialize any imported modules.
-Module initializers are idempotent (when run with the same `builtin` flag), but not thread-safe.
+The initializer for module `A.B` in a package `foo` is called `initialize_foo_A_B`. For modules in the Lean core (e.g., `Init.Prelude`), the initializer is called `initialize_Init_Prelude`. Module initializers will automatically initialize any imported modules. They are also idempotent (when run with the same `builtin` flag), but not thread-safe.
 
 **Important for process-related functionality**: If your application needs to use process-related functions from libuv, such as `Std.Internal.IO.Process.getProcessTitle` and `Std.Internal.IO.Process.setProcessTitle`, you must call `lean_setup_args(argc, argv)` (which returns a potentially modified `argv` that must be used in place of the original) **before** calling `lean_initialize()` or `lean_initialize_runtime_module()`. This sets up process handling capabilities correctly, which is essential for certain system-level operations that Lean's runtime may depend on.
 

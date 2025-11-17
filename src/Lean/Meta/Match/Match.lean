@@ -14,6 +14,7 @@ public import Lean.Meta.Match.MatcherApp.Basic
 public import Lean.Meta.Match.MVarRenaming
 public import Lean.Meta.Match.MVarRenaming
 import Lean.Meta.Match.SimpH
+import Lean.Meta.Match.SolveOverlap
 
 public section
 
@@ -354,6 +355,8 @@ where
       let (p, cnstrs) ← go cnstrs
       return (p, (lhs, rhs) :: cnstrs)
 
+
+
 /--
 Solve pending alternative constraints. If all constraints can be solved perform assignment
 `mvarId := alt.rhs`, and return true.
@@ -379,7 +382,7 @@ where
             trace[Meta.Match.match] "assignGoalOf failed {eType} =?= {targetType}"
             throwErrorAt alt.ref "Dependent elimination failed: Type mismatch when solving this alternative: it {← mkHasTypeButIsExpectedMsg eType targetType}"
           for notAltMVarId in notAltsMVarIds do
-            notAltMVarId.mvarId!.admit
+            solveOverlap notAltMVarId.mvarId!
           mvarId.assign (mkAppN rhs notAltsMVarIds)
           modify fun s => { s with used := s.used.insert alt.idx }
       else

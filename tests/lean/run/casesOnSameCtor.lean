@@ -38,8 +38,8 @@ info: Vec.match_on_same_ctor.{u_1, u} {α : Type u}
 /--
 info: Vec.match_on_same_ctor.splitter.{u_1, u} {α : Type u}
   {motive : {a : Nat} → (t t_1 : Vec α a) → t.ctorIdx = t_1.ctorIdx → Sort u_1} {a✝ : Nat} (t t✝ : Vec α a✝)
-  (h : t.ctorIdx = t✝.ctorIdx) (h_1 : motive nil nil ⋯)
-  (h_2 : (a : α) → (n : Nat) → (a_1 : Vec α n) → (a' : α) → (a'_1 : Vec α n) → motive (cons a a_1) (cons a' a'_1) ⋯) :
+  (h : t.ctorIdx = t✝.ctorIdx) (nil : motive nil nil ⋯)
+  (cons : (a : α) → {n : Nat} → (a_1 : Vec α n) → (a' : α) → (a'_1 : Vec α n) → motive (cons a a_1) (cons a' a'_1) ⋯) :
   motive t t✝ h
 -/
 #guard_msgs in

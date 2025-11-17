@@ -22,9 +22,9 @@ public def mkCmdLog (args : IO.Process.SpawnArgs) : String :=
   [Monad m] (out : IO.Process.Output) (log : String → m PUnit)
 : m Unit := do
   unless out.stdout.isEmpty do
-    log s!"stdout:\n{out.stdout.trim}"
+    log s!"stdout:\n{out.stdout.trimAscii}"
   unless out.stderr.isEmpty do
-    log s!"stderr:\n{out.stderr.trim}"
+    log s!"stderr:\n{out.stderr.trimAscii}"
 
 @[inline] public def rawProc (args : IO.Process.SpawnArgs) (quiet := false) : LogIO IO.Process.Output := do
   withLogErrorPos do
@@ -50,13 +50,13 @@ public def captureProc' (args : IO.Process.SpawnArgs) : LogIO (IO.Process.Output
     logError s!"external command '{args.cmd}' exited with code {out.exitCode}"
 
 @[inline] public def captureProc (args : IO.Process.SpawnArgs) : LogIO String := do
-  return (← captureProc' args).stdout.trim -- remove, e.g., newline at end
+  return (← captureProc' args).stdout.trimAscii.copy -- remove, e.g., newline at end
 
 public def captureProc? (args : IO.Process.SpawnArgs) : BaseIO (Option String) := do
   EIO.catchExceptions (h := fun _ => pure none) do
     let out ← IO.Process.output args
     if out.exitCode = 0 then
-      return some out.stdout.trim -- remove, e.g., newline at end
+      return some out.stdout.trimAscii.copy -- remove, e.g., newline at end
     else
       return none
 

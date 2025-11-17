@@ -1339,8 +1339,36 @@ Examples:
 def back (s : Slice) : Char :=
   s.back?.getD default
 
+/--
+Appends the slices in a list of slices, placing the separator {name}`s` between each pair.
+
+Examples:
+ * {lean}`", ".toSlice.intercalate ["red".toSlice, "green".toSlice, "blue".toSlice] = "red, green, blue"`
+ * {lean}`" and ".toSlice.intercalate ["tea".toSlice, "coffee".toSlice] = "tea and coffee"`
+ * {lean}`" | ".toSlice.intercalate ["M".toSlice, "".toSlice, "N".toSlice] = "M |  | N"`
+-/
+def intercalate (s : Slice) : List Slice → String
+  | []      => ""
+  | a :: as => go a.copy s as
+where go (acc : String) (s : Slice) : List Slice → String
+  | a :: as => go (acc ++ s ++ a) s as
+  | []      => acc
+
 @[inherit_doc Slice.copy]
 def toString (s : Slice) : String :=
   s.copy
+
+instance : ToString String.Slice where
+  toString := toString
+
+/--
+Converts a string to the Lean compiler's representation of names. The resulting name is
+hierarchical, and the string is split at the dots ({lean}`'.'`).
+
+{lean}`"a.b".toSlice.toName` is the name {lit}`a.b`, not {lit}`«a.b»`. For the latter, use
+`Name.mkSimple`.
+-/
+def toName (s : Slice) : Lean.Name :=
+  s.toString.toName
 
 end String.Slice

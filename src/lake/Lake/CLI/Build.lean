@@ -210,7 +210,7 @@ private def resolveTargetBaseSpec
 : EIO CliError (Array BuildSpec) := do
   if spec.startsWith "@" then
     let spec := spec.drop 1
-    resolveTargetLikeSpec ws spec facet (explicit := true)
+    resolveTargetLikeSpec ws spec.copy facet (explicit := true)
   else if spec.startsWith "+" then
     let mod := spec.drop 1 |>.toName
     if let some mod := ws.findTargetModule? mod then
@@ -237,7 +237,7 @@ public def parseExeTargetSpec
     | some exe => return exe
     | none => throw <| CliError.unknownExe spec
   | [pkgSpec, targetSpec] =>
-    let pkgSpec := if pkgSpec.startsWith "@" then pkgSpec.drop 1 else pkgSpec
+    let pkgSpec := if pkgSpec.startsWith "@" then pkgSpec.drop 1 |>.copy else pkgSpec
     let pkg ← parsePackageSpec ws pkgSpec
     let targetName := stringToLegalOrSimpleName targetSpec
     match pkg.findLeanExe? targetName with

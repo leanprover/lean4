@@ -21,14 +21,14 @@ open Lean.JsonRpc
 
 section
   private def parseHeaderField (s : String) : Option (String × String) := do
-    guard $ s ≠ "" ∧ s.takeRight 2 = "\r\n"
-    let xs := (s.dropRight 2).splitOn ": "
+    guard $ s ≠ "" ∧ s.takeEnd 2 == "\r\n".toSlice
+    let xs := (s.dropEnd 2).split ": " |>.toList
     match xs with
     | []  => none
     | [_] => none
     | name :: value :: rest =>
-      let value := ": ".intercalate (value :: rest)
-      some ⟨name, value⟩
+      let value := ": ".toSlice.intercalate (value :: rest)
+      some ⟨name.copy, value⟩
 
   /-- Returns true when the string is a Lean 3 request.
   This means that the user is running a Lean 3 language client that

@@ -342,7 +342,7 @@ private def expandUserTactic (tac : TSyntax `tactic) (goal : MVarId) : MetaM (Ar
               if line.startsWith "  [apply] " then
                 let tacticText := line.drop "  [apply] ".length
                 let env ← getEnv
-                if let .ok stx := Parser.runParserCategory env `tactic tacticText then
+                if let .ok stx := Parser.runParserCategory env `tactic tacticText.copy then
                   suggestions := suggestions.push ⟨stx⟩
 
         pure (some suggestions))

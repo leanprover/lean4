@@ -105,7 +105,7 @@ public def ofString? (dt : String) : Option DateTime := do
   | [d,t] =>
     let d ← Date.ofString? d
     if t.back == 'Z' || t.back == 'z' then
-      return offsetDateTime d (← Time.ofString? <| t.dropRight 1)
+      return offsetDateTime d (← Time.ofString? <| t.dropEnd 1 |>.copy)
     else if let [t,o] := t.splitToList (· == '+') then
       return offsetDateTime d (← Time.ofString? t) <| some (false, ← Time.ofString? o)
     else if let [t,o] := t.splitToList (· == '-') then

@@ -74,13 +74,13 @@ where
         if pkg.isEmpty then
           return .package .anonymous
         else
-          return .package (stringToLegalOrSimpleName pkg)
+          return .package (stringToLegalOrSimpleName pkg.copy)
       else if target.startsWith "+" then
-        return .module (stringToLegalOrSimpleName (target.drop 1))
+        return .module (stringToLegalOrSimpleName (target.drop 1).copy)
       else
         parsePackageTarget .anonymous target
     | [pkg, target] =>
-      let pkg := if pkg.startsWith "@" then pkg.drop 1 else pkg
+      let pkg := if pkg.startsWith "@" then pkg.drop 1 |>.copy else pkg
       if pkg.isEmpty then
         parsePackageTarget .anonymous target
       else
@@ -91,7 +91,7 @@ where
     if target.isEmpty then
       throw s!"ill-formed target: default package targets are not supported in partial build keys"
     else if target.startsWith "+" then
-      let target := target.drop 1 |> stringToLegalOrSimpleName
+      let target := target.drop 1 |>.copy |> stringToLegalOrSimpleName
       return .packageModule pkg target
     else
       let target := stringToLegalOrSimpleName target

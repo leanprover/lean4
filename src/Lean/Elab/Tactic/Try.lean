@@ -950,10 +950,10 @@ private def wrapSuggestionWithBy (sugg : Tactic.TryThis.Suggestion) : TacticM Ta
   | _ => return sugg
 
 /-- Version of `evalAndSuggest` that wraps tactic suggestions with `by` for term mode. -/
-private def evalAndSuggestWithBy (tk : Syntax) (tac : TSyntax `tactic) (config : Try.Config) : TacticM Unit := do
+private def evalAndSuggestWithBy (tk : Syntax) (tac : TSyntax `tactic) (originalMaxHeartbeats : Nat) (config : Try.Config) : TacticM Unit := do
   let initialLog ← Core.getMessageLog
   let tac' ← try
-    evalSuggest tac |>.run { terminal := true, root := tac, config }
+    evalSuggest tac |>.run { terminal := true, root := tac, config, originalMaxHeartbeats }
   catch _ =>
     throwEvalAndSuggestFailed config
   -- Restore message log to suppress "Try this" messages from intermediate tactic executions

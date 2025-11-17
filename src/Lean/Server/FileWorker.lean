@@ -1040,8 +1040,6 @@ where
     return false
 
 def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO Unit := do
-  let i ← maybeTee "fwIn.txt" false i
-  let o ← maybeTee "fwOut.txt" true o
   let initParams ← i.readLspRequestAs "initialize" InitializeParams
   let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" LeanDidOpenTextDocumentParams
   let doc := param.textDocument
@@ -1090,5 +1088,7 @@ def workerMain (opts : Options) : IO UInt32 := do
   catch err =>
     e.putStrLn err.toString
     IO.Process.forceExit 1 -- Terminate all tasks of this process
+  finally
+    IO.Process.forceExit (α := UInt32) 1
 
 end Lean.Server.FileWorker

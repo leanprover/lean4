@@ -35,12 +35,10 @@ LEAN_EXPORT lean_object* l_ByteArray_set_x21___boxed(lean_object*, lean_object*,
 lean_object* lean_byte_array_fset(lean_object*, lean_object*, uint8_t);
 static lean_object* l___auto___closed__13_00___x40_Init_Data_ByteArray_Basic_3380001797____hygCtx___hyg_8_;
 LEAN_EXPORT lean_object* l_ByteArray_mkIterator(lean_object*);
-LEAN_EXPORT lean_object* l_ByteArray_mkEmpty___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_ByteArray_instGetElemUSizeUInt8LtNatValToFinSize___lam__0(lean_object*, size_t, lean_object*);
 uint64_t lean_byte_array_hash(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_next_x27(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_instSizeOfIterator___lam__0___boxed(lean_object*);
-lean_object* lean_mk_empty_byte_array(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_instDecidableEq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_findFinIdx_x3f_loop(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_toList_loop(lean_object*, lean_object*, lean_object*);
@@ -141,7 +139,6 @@ LEAN_EXPORT lean_object* l_ByteArray_instGetElemUSizeUInt8LtNatValToFinSize___la
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_nextn___boxed(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_uset___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ByteArray_mkEmpty(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_forIn_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_toEnd(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -362,23 +359,6 @@ uint8_t x_3; lean_object* x_4;
 x_3 = l_ByteArray_instDecidableEq(x_1, x_2);
 x_4 = lean_box(x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_ByteArray_mkEmpty(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_mk_empty_byte_array(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_ByteArray_mkEmpty___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_ByteArray_mkEmpty(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_ByteArray_instInhabited() {

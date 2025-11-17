@@ -558,6 +558,13 @@ Waits for the task to finish, then returns its result.
   return t.get
 
 /--
+Waits until any of the tasks in the list has finished, then return its result.
+-/
+@[extern "lean_io_wait_any"] opaque waitAny (tasks : @& List (Task α))
+    (h : tasks.length > 0 := by exact Nat.zero_lt_succ _) : BaseIO α :=
+  return tasks[0].get
+
+/--
 Returns the number of _heartbeats_ that have occurred during the current thread's execution. The
 heartbeat count is the number of “small” memory allocations performed in a thread.
 

@@ -74,7 +74,7 @@ variable {α : Type u} {m : Type u → Type u'} {n : Type max u v → Type v'}
 /--
 Transforms a step of the base iterator into a step of the `uLift` iterator.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def Types.ULiftIterator.Monadic.modifyStep (step : IterStep (IterM (α := α) m β) β) :
     IterStep (IterM (α := ULiftIterator.{v} α m n β lift) n (ULift.{v} β)) (ULift.{v} β) :=
   match step with
@@ -138,15 +138,6 @@ instance Types.ULiftIterator.instIteratorCollect [Monad n] [Monad o] [Iterator �
 
 instance Types.ULiftIterator.instIteratorCollectPartial {o} [Monad n] [Monad o] [Iterator α m β] :
     IteratorCollectPartial (ULiftIterator α m n β lift) n o :=
-  .defaultImplementation
-
-instance Types.ULiftIterator.instIteratorSize [Monad n] [Iterator α m β] [IteratorSize α m]
-    [Finite (ULiftIterator α m n β lift) n] :
-    IteratorSize (ULiftIterator α m n β lift) n :=
-  .defaultImplementation
-
-instance Types.ULiftIterator.instIteratorSizePartial [Monad n] [Iterator α m β] [IteratorSize α m] :
-    IteratorSizePartial (ULiftIterator α m n β lift) n :=
   .defaultImplementation
 
 /--

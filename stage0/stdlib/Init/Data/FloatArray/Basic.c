@@ -67,7 +67,6 @@ LEAN_EXPORT lean_object* l_FloatArray_usize___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldl___redArg___lam__0(lean_object*, lean_object*, double);
 LEAN_EXPORT lean_object* l_FloatArray_foldl___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_empty(lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_mkEmpty___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_get_x3f(lean_object*, lean_object*);
 static lean_object* l_FloatArray_foldl___redArg___closed__8;
 LEAN_EXPORT lean_object* l_FloatArray_instForInFloat(lean_object*);
@@ -88,7 +87,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_fo
 LEAN_EXPORT lean_object* l_FloatArray_data___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_float_array_uset(lean_object*, size_t, double);
-LEAN_EXPORT lean_object* l_FloatArray_mkEmpty(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instGetElemNatFloatLtSize___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_mk___boxed(lean_object*);
@@ -330,23 +328,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_mk_empty_float_array(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_FloatArray_mkEmpty(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_mk_empty_float_array(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_FloatArray_mkEmpty___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_FloatArray_mkEmpty(x_1);
 lean_dec(x_1);
 return x_2;
 }

@@ -197,20 +197,6 @@ private def ppActiveTheoremPatterns : M Unit := do
   unless m.isEmpty do
     pushMsg <| .trace { cls := `ematch } "E-matching patterns" m
 
-private def ppOffset : M Unit := do
-  unless grind.debug.get (← getOptions) do
-    return ()
-  let goal ← read
-  let s ← Arith.Offset.offsetExt.getStateCore goal
-  let nodes := s.nodes
-  if nodes.isEmpty then return ()
-  let model ← Arith.Offset.mkModel goal
-  if model.isEmpty then return ()
-  let mut ms := #[]
-  for (e, val) in model do
-    ms := ms.push <| .trace { cls := `assign } m!"{Arith.quoteIfArithTerm e} := {val}" #[]
-  pushMsg <| .trace { cls := `offset } "Assignment satisfying offset constraints" ms
-
 def Arith.Cutsat.pp? (goal : Goal) : MetaM (Option MessageData) := do
   let s ← Arith.Cutsat.cutsatExt.getStateCore goal
   let nodes := s.varMap
@@ -279,7 +265,6 @@ where
     ppEqcs (collapsedProps := collapsedMain)
     ppCasesTrace
     ppActiveTheoremPatterns
-    ppOffset
     ppCutsat
     ppLinarith
     ppCommRing

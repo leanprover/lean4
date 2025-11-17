@@ -8,4 +8,4 @@ theorem Int.coe_leastOfBdd_eq {P : Int → Prop} [DecidablePred P] {b b' : Int} 
   grind
 
 example (f : Int → Int) (x y : Int) : x ≤ y → y ≤ x → f x = f y := by
-  grind -cutsat -linarith
+  grind -lia -linarith

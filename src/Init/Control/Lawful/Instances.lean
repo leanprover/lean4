@@ -189,12 +189,12 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (OptionT m) where
 
 @[simp] theorem run_seq [Monad m] [LawfulMonad m] (f : OptionT m (α → β)) (x : OptionT m α) :
     (f <*> x).run = Option.elimM f.run (pure none) (fun f => Option.map f <$> x.run) := by
-  simp [seq_eq_bind, Option.elimM, Option.elim]
+  simp [seq_eq_bind_map, Option.elimM, Option.elim]
 
 @[simp] theorem run_seqLeft [Monad m] [LawfulMonad m] (x : OptionT m α) (y : OptionT m β) :
     (x <* y).run = Option.elimM x.run (pure none)
       (fun x => Option.map (Function.const β x) <$> y.run) := by
-  simp [seqLeft_eq, seq_eq_bind, Option.elimM, OptionT.run_bind]
+  simp [seqLeft_eq, seq_eq_bind_map, Option.elimM, OptionT.run_bind]
 
 @[simp] theorem run_seqRight [Monad m] [LawfulMonad m] (x : OptionT m α) (y : OptionT m β) :
     (x *> y).run = Option.elimM x.run (pure none) (Function.const α y.run) := by
@@ -219,7 +219,7 @@ instance : LawfulMonad Option := LawfulMonad.mk'
   (id_map := fun x => by cases x <;> rfl)
   (pure_bind := fun _ _ => by rfl)
   (bind_assoc := fun a _ _ => by cases a <;> rfl)
-  (bind_pure_comp := bind_pure_comp)
+  (bind_pure_comp := fun _ x => by cases x <;> rfl)
 
 instance : LawfulApplicative Option := inferInstance
 instance : LawfulFunctor Option := inferInstance

@@ -1209,7 +1209,6 @@ static lean_object* l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___auto
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__23;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__82;
 static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__47;
-uint8_t l_instDecidableNot___redArg(uint8_t);
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__32;
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__39;
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__29;
@@ -1720,11 +1719,21 @@ return x_6;
 }
 else
 {
-lean_object* x_7; uint8_t x_8; uint8_t x_9; 
+lean_object* x_7; uint8_t x_8; 
 x_7 = lean_apply_2(x_1, x_3, x_2);
 x_8 = lean_unbox(x_7);
-x_9 = l_instDecidableNot___redArg(x_8);
+if (x_8 == 0)
+{
+uint8_t x_9; 
+x_9 = lean_unbox(x_4);
 return x_9;
+}
+else
+{
+uint8_t x_10; 
+x_10 = 0;
+return x_10;
+}
 }
 }
 }

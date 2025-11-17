@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.CommRing
-// Imports: public import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId public import Lean.Meta.Tactic.Grind.Arith.CommRing.Internalize public import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM public import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM public import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions public import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify public import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr public import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr public import Lean.Meta.Tactic.Grind.Arith.CommRing.Inv public import Lean.Meta.Tactic.Grind.Arith.CommRing.PP public import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadCanon public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadSemiring public import Lean.Meta.Tactic.Grind.Arith.CommRing.Action
+// Imports: public import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId public import Lean.Meta.Tactic.Grind.Arith.CommRing.Internalize public import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM public import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM public import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions public import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify public import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr public import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr public import Lean.Meta.Tactic.Grind.Arith.CommRing.Inv public import Lean.Meta.Tactic.Grind.Arith.CommRing.PP public import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadCanon public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadSemiring public import Lean.Meta.Tactic.Grind.Arith.CommRing.Action public import Lean.Meta.Tactic.Grind.Arith.CommRing.Power
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2049,6 +2049,7 @@ lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_MonadCanon(uint8_t
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_MonadRing(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_MonadSemiring(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Action(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Power(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing(uint8_t builtin) {
 lean_object * res;
@@ -2115,6 +2116,9 @@ res = initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_MonadSemiring(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Action(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Power(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_0__Lean_Meta_Grind_Arith_CommRing_initFn___closed__0_00___x40_Lean_Meta_Tactic_Grind_Arith_CommRing_3846929371____hygCtx___hyg_2_ = _init_l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_0__Lean_Meta_Grind_Arith_CommRing_initFn___closed__0_00___x40_Lean_Meta_Tactic_Grind_Arith_CommRing_3846929371____hygCtx___hyg_2_();

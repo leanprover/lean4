@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
+import Lean.Meta.Tactic.Grind.Arith.EvalNum
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 /-!
@@ -61,7 +62,7 @@ private def pow (p : Poly) (k : Nat) : RingM Poly := withIncRecDepth do
   | 2 => mul p p
   | k+3 => mul p (← pow p (k+2))
 
-private def toPoly (e : RingExpr) : RingM Poly := do
+private def toPoly (e : RingExpr) : OptionT RingM Poly := do
   match e with
   | .intCast n | .natCast n
   | .num n   => return .num (← applyChar n)
@@ -74,7 +75,9 @@ private def toPoly (e : RingExpr) : RingM Poly := do
     if k == 0 then
       return .num 1
     else match a with
-    | .num n => return .num (← applyChar (n^k))
+    | .num n =>
+      guard (← checkExp k |>.run).isSome
+      return .num (← applyChar (n^k))
     | .var x => return .ofMon (.mult {x, k} .unit)
     | _ => pow (← toPoly a) k
 
@@ -82,7 +85,7 @@ private def toPoly (e : RingExpr) : RingM Poly := do
 Converts the given ring expression into a multivariate polynomial.
 If the ring has a nonzero characteristic, it is used during normalization.
 -/
-@[inline] def _root_.Lean.Grind.CommRing.Expr.toPolyM (e : RingExpr) : RingM Poly := do
+@[inline] def _root_.Lean.Grind.CommRing.Expr.toPolyM? (e : RingExpr) : RingM (Option Poly) := do
   toPoly e
 
 @[inline] def _root_.Lean.Grind.CommRing.Poly.mulConstM (p : Poly) (k : Int) : RingM Poly :=

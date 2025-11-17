@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.TreeSet.Raw
-// Imports: public import Std.Data.TreeSet.Raw.Basic public import Std.Data.TreeSet.Raw.Lemmas public import Std.Data.TreeSet.Raw.WF
+// Imports: public import Std.Data.TreeSet.Raw.Basic public import Std.Data.TreeSet.Raw.Lemmas public import Std.Data.TreeSet.Raw.WF public import Std.Data.TreeSet.Raw.Iterator public import Std.Data.TreeSet.Raw.Slice
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,8 @@ extern "C" {
 lean_object* initialize_Std_Data_TreeSet_Raw_Basic(uint8_t builtin);
 lean_object* initialize_Std_Data_TreeSet_Raw_Lemmas(uint8_t builtin);
 lean_object* initialize_Std_Data_TreeSet_Raw_WF(uint8_t builtin);
+lean_object* initialize_Std_Data_TreeSet_Raw_Iterator(uint8_t builtin);
+lean_object* initialize_Std_Data_TreeSet_Raw_Slice(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_TreeSet_Raw(uint8_t builtin) {
 lean_object * res;
@@ -28,6 +30,12 @@ res = initialize_Std_Data_TreeSet_Raw_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_TreeSet_Raw_WF(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_TreeSet_Raw_Iterator(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_TreeSet_Raw_Slice(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

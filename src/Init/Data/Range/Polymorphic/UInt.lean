@@ -61,7 +61,6 @@ instance : LawfulUpwardEnumerableLE UInt8 where
       LawfulUpwardEnumerableLE.le_iff _ _
 
 instance : LawfulUpwardEnumerableLT UInt8 := inferInstance
-instance : LawfulUpwardEnumerableLT UInt8 := inferInstance
 
 instance : Rxc.HasSize UInt8 where
   size lo hi := hi.toNat + 1 - lo.toNat
@@ -156,7 +155,6 @@ instance : LawfulUpwardEnumerableLE UInt16 where
     simpa [upwardEnumerableLE_ofBitVec, UInt16.le_iff_toBitVec_le] using
       LawfulUpwardEnumerableLE.le_iff _ _
 
-instance : LawfulUpwardEnumerableLT UInt16 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt16 := inferInstance
 
 instance : Rxc.HasSize UInt16 where
@@ -253,7 +251,6 @@ instance : LawfulUpwardEnumerableLE UInt32 where
       LawfulUpwardEnumerableLE.le_iff _ _
 
 instance : LawfulUpwardEnumerableLT UInt32 := inferInstance
-instance : LawfulUpwardEnumerableLT UInt32 := inferInstance
 
 instance : Rxc.HasSize UInt32 where
   size lo hi := hi.toNat + 1 - lo.toNat
@@ -349,7 +346,6 @@ instance : LawfulUpwardEnumerableLE UInt64 where
       LawfulUpwardEnumerableLE.le_iff _ _
 
 instance : LawfulUpwardEnumerableLT UInt64 := inferInstance
-instance : LawfulUpwardEnumerableLT UInt64 := inferInstance
 
 instance : Rxc.HasSize UInt64 where
   size lo hi := hi.toNat + 1 - lo.toNat
@@ -444,7 +440,6 @@ instance : LawfulUpwardEnumerableLE USize where
     simpa [upwardEnumerableLE_ofBitVec, USize.le_iff_toBitVec_le] using
       LawfulUpwardEnumerableLE.le_iff _ _
 
-instance : LawfulUpwardEnumerableLT USize := inferInstance
 instance : LawfulUpwardEnumerableLT USize := inferInstance
 
 instance : Rxc.HasSize USize where

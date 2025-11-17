@@ -45,7 +45,7 @@ example [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [Or
   grind -linarith
 
 example (a b c : Int) : a - b ≤ 5 → -c + b ≤ -3 → c < a - 2 → False := by
-  grind -linarith -cutsat
+  grind -linarith -lia
 
 example (a b : Int) (h : a + b > 5) : (if a + b ≤ 0 then b else a) = a := by
-  grind -linarith -cutsat (splits := 0)
+  grind -linarith -lia (splits := 0)

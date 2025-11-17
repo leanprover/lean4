@@ -37,7 +37,7 @@ example (a b c d e f : Nat) :
     max a b = max c d →
     max b e = max d (max e f) →
     max c (max d e) = max (max a d) f := by
-  grind -cutsat only
+  grind -lia only
 
 /--
 error: `grind` failed

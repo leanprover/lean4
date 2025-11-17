@@ -847,6 +847,17 @@ class task_manager {
         }
     }
 
+    object * wait_any_check(object * task_list) {
+        object * it = task_list;
+        while (!is_scalar(it)) {
+            object * head = lean_ctor_get(it, 0);
+            if (lean_to_task(head)->m_value)
+                return head;
+            it = cnstr_get(it, 1);
+        }
+        return nullptr;
+    }
+
 public:
     task_manager(unsigned max_std_workers):
         m_max_std_workers(max_std_workers) {
@@ -926,6 +937,17 @@ public:
         m_task_finished_cv.wait(lock, [&]() { return t->m_value != nullptr; });
         if (in_pool) {
             m_max_std_workers--;
+        }
+    }
+
+    object * wait_any(object * task_list) {
+        if (object * t = wait_any_check(task_list))
+            return t;
+        unique_lock<mutex> lock(m_mutex);
+        while (true) {
+            if (object * t = wait_any_check(task_list))
+                return t;
+            m_task_finished_cv.wait(lock);
         }
     }
 
@@ -1164,6 +1186,10 @@ extern "C" LEAN_EXPORT uint8_t lean_io_get_task_state_core(b_obj_arg t) {
     if (!o->m_imp)
         return 2; // finished
     return g_task_manager->get_task_state(o);
+}
+
+extern "C" LEAN_EXPORT b_obj_res lean_io_wait_any_core(b_obj_arg task_list) {
+    return g_task_manager->wait_any(task_list);
 }
 
 obj_res lean_promise_new() {

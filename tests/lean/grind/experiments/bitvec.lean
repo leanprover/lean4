@@ -396,7 +396,7 @@ theorem getElem?_zero_ofNat_one : (BitVec.ofNat (w+1) 1)[0]? = some true := by
 
 -- This does not need to be a `@[simp]` theorem as it is already handled by `getElem?_eq_getElem`.
 theorem getElem?_zero_ofBool (b : Bool) : (ofBool b)[0]? = some b := by
-  simp only [ofBool, ofNat_eq_ofNat, cond_eq_if]
+  simp only [ofBool, ofNat_eq_ofNat, cond_eq_ite]
   split <;> simp_all
 
 @[simp] theorem getElem_zero_ofBool (b : Bool) : (ofBool b)[0] = b := by
@@ -2687,7 +2687,7 @@ theorem setWidth_append {x : BitVec w} {y : BitVec v} :
 
 @[simp] theorem not_append {x : BitVec w} {y : BitVec v} : ~~~ (x ++ y) = (~~~ x) ++ (~~~ y) := by
   ext i
-  simp only [getElem_not, getElem_append, cond_eq_if]
+  simp only [getElem_not, getElem_append, cond_eq_ite]
   split
   · simp_all
   · simp_all

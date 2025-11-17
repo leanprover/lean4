@@ -73,7 +73,7 @@ theorem ValidPos.offset_toSetOfLE {s : String} {q p : s.ValidPos} {c : Char} {hp
 
 theorem Pos.Raw.isValid_add_char_set {s : String} {p : s.ValidPos} {c : Char} {hp} :
     (p.offset + c).IsValid (p.set c hp) :=
-  ValidPos.set_eq_append ▸ IsValid.append_right (isValid_of_eq_rawEndPos (by simp [Pos.Raw.ext_iff])) _
+  ValidPos.set_eq_append ▸ IsValid.append_right (isValid_of_eq_rawEndPos (by simp)) _
 
 /-- The position just after the position that changed in a `ValidPos.set` call. -/
 @[inline]
@@ -93,7 +93,7 @@ def ValidPos.appendRight {s : String} (p : s.ValidPos) (t : String) : (s ++ t).V
 theorem ValidPos.splits_pastSet {s : String} {p : s.ValidPos} {c : Char} {hp} :
     (p.pastSet c hp).Splits ((s.replaceEnd p).copy ++ singleton c) (s.replaceStart (p.next hp)).copy where
   eq_append := set_eq_append
-  offset_eq_rawEndPos := by simp [Pos.Raw.ext_iff]
+  offset_eq_rawEndPos := by simp
 
 theorem remainingBytes_pastSet {s : String} {p : s.ValidPos} {c : Char} {hp} :
     (p.pastSet c hp).remainingBytes = (p.next hp).remainingBytes := by
@@ -160,11 +160,11 @@ Examples:
 -/
 @[extern "lean_string_utf8_set", expose]
 def Pos.Raw.set : String → (@& Pos.Raw) → Char → String
-  | s, i, c => (Pos.Raw.utf8SetAux c s.data 0 i).asString
+  | s, i, c => ofList (Pos.Raw.utf8SetAux c s.toList 0 i)
 
 @[extern "lean_string_utf8_set", expose, deprecated Pos.Raw.set (since := "2025-10-14")]
 def set : String → (@& Pos.Raw) → Char → String
-  | s, i, c => (Pos.Raw.utf8SetAux c s.data 0 i).asString
+  | s, i, c => ofList (Pos.Raw.utf8SetAux c s.toList 0 i)
 
 /--
 Replaces the character at position `p` in the string `s` with the result of applying `f` to that
@@ -207,32 +207,6 @@ Examples:
 -/
 @[inline] def map (f : Char → Char) (s : String) : String :=
   mapAux f s s.startValidPos
-
-/--
-In the string `s`, replaces all occurrences of `pattern` with `replacement`.
-
-Examples:
-* `"red green blue".replace "e" "" = "rd grn blu"`
-* `"red green blue".replace "ee" "E" = "red grEn blue"`
-* `"red green blue".replace "e" "E" = "rEd grEEn bluE"`
--/
-def replace (s pattern replacement : String) : String :=
-  if h : pattern.rawEndPos.1 = 0 then s
-  else
-    have hPatt := Nat.zero_lt_of_ne_zero h
-    let rec loop (acc : String) (accStop pos : String.Pos.Raw) :=
-      if h : pos.byteIdx + pattern.rawEndPos.byteIdx > s.rawEndPos.byteIdx then
-        acc ++ accStop.extract s s.rawEndPos
-      else
-        have := Nat.lt_of_lt_of_le (Nat.add_lt_add_left hPatt _) (Nat.ge_of_not_lt h)
-        if Pos.Raw.substrEq s pos pattern 0 pattern.rawEndPos.byteIdx then
-          have := Nat.sub_lt_sub_left this (Nat.add_lt_add_left hPatt _)
-          loop (acc ++ accStop.extract s pos ++ replacement) (pos + pattern) (pos + pattern)
-        else
-          have := Nat.sub_lt_sub_left this (Pos.Raw.lt_next s pos)
-          loop acc accStop (pos.next s)
-      termination_by s.rawEndPos.1 - pos.1
-    loop "" 0 0
 
 /--
 Replaces each character in `s` with the result of applying `Char.toUpper` to it.

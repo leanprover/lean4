@@ -91,20 +91,6 @@ end
 
 def g (i : Nat) (j : Nat) (_ : i > j := by omega) := i + j
 
-/--
-trace: [grind.offset.model] i := 1
-[grind.offset.model] j := 0
-[grind.offset.model] 「0」 := 0
-[grind.offset.model] 「i + j」 := 0
-[grind.offset.model] 「i + 1」 := 2
-[grind.offset.model] 「i + j + 1」 := 1
--/
-#guard_msgs (trace) in
-set_option trace.grind.offset.model true in
-example (i j : Nat) (h : i + 1 > j + 1) : g (i+1) j = f ((fun x => x) i) + f j + 1 := by
-  fail_if_success grind
-  sorry
-
 structure Point where
   x : Nat
   y : Int

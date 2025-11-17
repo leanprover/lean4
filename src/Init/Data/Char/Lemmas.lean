@@ -13,12 +13,16 @@ public section
 
 namespace Char
 
-@[ext] protected theorem ext : {a b : Char} → a.val = b.val → a = b
+@[deprecated Char.ext (since := "2025-10-26")]
+protected theorem eq_of_val_eq : {a b : Char} → a.val = b.val → a = b
   | ⟨_,_⟩, ⟨_,_⟩, rfl => rfl
 
 theorem le_def {a b : Char} : a ≤ b ↔ a.1 ≤ b.1 := .rfl
 theorem lt_def {a b : Char} : a < b ↔ a.1 < b.1 := .rfl
+
+@[deprecated lt_def (since := "2025-10-26")]
 theorem lt_iff_val_lt_val {a b : Char} : a < b ↔ a.val < b.val := Iff.rfl
+
 @[simp] protected theorem not_le {a b : Char} : ¬ a ≤ b ↔ b < a := UInt32.not_le
 @[simp] protected theorem not_lt {a b : Char} : ¬ a < b ↔ b ≤ a := UInt32.not_lt
 @[simp] protected theorem le_refl (a : Char) : a ≤ a := by simp [le_def]

@@ -1312,7 +1312,7 @@ x_2 = 1;
 x_3 = 0;
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l___private_Lean_Meta_Tactic_Acyclic_0__Lean_MVarId_acyclic_go___closed__10;
-x_6 = lean_alloc_ctor(0, 2, 26);
+x_6 = lean_alloc_ctor(0, 2, 27);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_4);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2, x_3);
@@ -1341,6 +1341,7 @@ lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 22, x_2);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 23, x_2);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 24, x_2);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 25, x_2);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 26, x_3);
 return x_6;
 }
 }
@@ -2617,7 +2618,7 @@ block_40:
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-lean_dec_ref(x_12);
+lean_dec_ref(x_11);
 x_14 = l___private_Lean_Meta_Tactic_Acyclic_0__Lean_MVarId_acyclic_go___closed__3;
 x_15 = l_Lean_isTracingEnabledFor___at___00__private_Lean_Meta_Tactic_Acyclic_0__Lean_MVarId_acyclic_go_spec__0___redArg(x_14, x_7);
 x_16 = !lean_is_exclusive(x_15);
@@ -2733,7 +2734,7 @@ lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);
-return x_12;
+return x_11;
 }
 }
 block_46:
@@ -2745,16 +2746,16 @@ if (x_44 == 0)
 uint8_t x_45; 
 x_45 = l_Lean_Exception_isRuntime(x_42);
 x_10 = x_42;
-x_11 = lean_box(0);
-x_12 = x_41;
+x_11 = x_41;
+x_12 = lean_box(0);
 x_13 = x_45;
 goto block_40;
 }
 else
 {
 x_10 = x_42;
-x_11 = lean_box(0);
-x_12 = x_41;
+x_11 = x_41;
+x_12 = lean_box(0);
 x_13 = x_44;
 goto block_40;
 }

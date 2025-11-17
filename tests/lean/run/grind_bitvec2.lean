@@ -312,7 +312,7 @@ theorem getElem?_zero_ofNat_one : (BitVec.ofNat (w+1) 1)[0]? = some true := by g
 -- This does not need to be a `@[simp]` or `@[grind]` theorem as it is already handled by
 -- `getElem_zero_ofBool` and `getElem?_eq_getElem`.
 theorem getElem?_zero_ofBool (b : Bool) : (ofBool b)[0]? = some b := by
-  simp only [ofBool, ofNat_eq_ofNat, cond_eq_if]
+  simp only [ofBool, ofNat_eq_ofNat, cond_eq_ite]
   split <;>
     -- FIXME: `grind` gives a kernel type mismatch here:
     -- (kernel) application type mismatch

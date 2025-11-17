@@ -11,6 +11,7 @@ public import Lean.Util.ForEachExpr
 public import Lean.Util.OccursCheck
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.AbstractNestedProofs
+public import Init.Data.List.Sort.Basic
 
 public section
 
@@ -209,20 +210,113 @@ private def synthesizeUsingDefault : TermElabM Bool := do
   return false
 
 /--
+Translate zero-based indexes (0, 1, 2, ...) to ordinals ("first", "second",
+"third", ...). Not appropriate for numbers that could conceivably be larger
+than 19 in real examples.
+-/
+private def toOrdinalString : Nat -> String
+  | 0 => "first"
+  | 1 => "second"
+  | 2 => "third"
+  | 3 => "fourth"
+  | 4 => "fifth"
+  | n => s!"{n+1}th"
+
+/-- Make an oxford-comma-separated list of strings. -/
+private def toOxford : List String -> String
+  | [] => ""
+  | [a] => a
+  | [a, b] => a ++ " and " ++ b
+  | [a, b, c] => a ++ ", " ++ b  ++ ", and " ++ c
+  | a :: as => a ++ ", " ++ toOxford as
+
+/- Give alternative forms of a string if the `count` is 1 or not. -/
+private def _root_.Nat.plural (count : Nat) (singular : String) (plural : String) :=
+  if count = 1 then
+    singular
+  else
+    plural
+
+def explainStuckTypeclassProblem (typeclassProblem : Expr) : TermElabM (Option MessageData) := do
+
+  -- Gather the type arguments and locate the root of the typeclass
+  let mut args := []
+  let mut ty := typeclassProblem
+  while ty.isApp do
+    match ty with
+    | .app fn arg =>
+      ty := fn
+      args := arg :: args
+    | _ => return .none -- Precluded by loop guard
+
+  -- Find the typeclass's type constructor (e.g. `HAdd`) and look up its classifying type
+  let .const name _ := ty
+    | return .none -- Typeclass problem has unexpected structure; fall back to default error
+  let .some defn := (← getEnv).findConstVal? name
+    | return .none
+  let mut kind := defn.type
+
+  /-
+  Simultaneously traverse the typeclass arguments (e.g. `#[_?, Nat, _?]` if
+  our stuck typeclass problem is `HAdd _?, Nat, _?`) and the classifier (e.g.
+  `Type → Type → outParam Type → Type`) and come up with the input positions
+  that are stuck (e.g. `[0]` if only the first type argument is stuck).
+  -/
+  let mut ord := 0
+  let mut stuckArguments := #[]
+  let mut simpleMVars := true
+  for arg in args do
+    match kind with
+    | .forallE _ argType rest _ =>
+      kind := rest
+      if !(argType.isOutParam || argType.isSemiOutParam) then
+        let arg ← instantiateExprMVars arg
+        if let .mvar _ := arg then
+          stuckArguments := stuckArguments.push ord
+        else if (arg.collectMVars {}).result.size > 0 then
+          stuckArguments := stuckArguments.push ord
+          simpleMVars := false
+    | _ => return .none -- Unexpected type structure; fall back to default error
+    ord := ord + 1
+
+  let .sort _ := kind
+    | return .none -- Unexpected type structure; fall back to default error
+  let nStuck := stuckArguments.size
+  if nStuck = 0 then
+    return .none -- This is not a simple inputs-have-metavariables issue
+
+  -- Formulate error message
+  let containMVars :=
+    if simpleMVars then
+      nStuck.plural "is a metavariable" "are metavariables"
+    else
+      nStuck.plural "contains metavariables" "contain metavariables"
+
+  let theTypeArguments :=
+    if args.length = 1 then
+      "the type argument"
+    else
+      s!"the {toOxford (stuckArguments.toList.map toOrdinalString)} type {nStuck.plural "argument" "arguments"}"
+
+  return .some (.note m!"Lean will not try to resolve this typeclass instance problem because {theTypeArguments} to `{.ofConstName name}` {containMVars}. {nStuck.plural "This argument" "These arguments"} must be fully determined before Lean will try to resolve the typeclass."
+    ++ .hint' m!"Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `{MessageData.ofConstName ``Nat}`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.")
+
+/--
 We use this method to report typeclass (and coercion) resolution problems that are "stuck".
 That is, there is nothing else to do, and we don't have enough information to synthesize them using TC resolution.
 -/
-def reportStuckSyntheticMVar (mvarId : MVarId) (ignoreStuckTC := false) : TermElabM Unit := do
-  let some mvarSyntheticDecl ← getSyntheticMVarDecl? mvarId | return ()
-  withRef mvarSyntheticDecl.stx do
-    match mvarSyntheticDecl.kind with
+def reportStuckSyntheticMVar (mvarId : MVarId) (mvarDecl : SyntheticMVarDecl) (ignoreStuckTC := false) : TermElabM Unit := do
+  withRef mvarDecl.stx do
+    match mvarDecl.kind with
     | .typeClass extraErrorMsg? =>
       let extraErrorMsg := extraMsgToMsg extraErrorMsg?
       unless ignoreStuckTC do
         mvarId.withContext do
           let mvarDecl ← getMVarDecl mvarId
           unless (← MonadLog.hasErrors) do
-            throwError "typeclass instance problem is stuck, it is often due to metavariables{indentExpr mvarDecl.type}{extraErrorMsg}"
+            let .some note ← explainStuckTypeclassProblem mvarDecl.type
+              | throwError "typeclass instance problem is stuck, it is often due to metavariables{indentExpr mvarDecl.type}{extraErrorMsg}"
+            throwError m!"typeclass instance problem is stuck{indentExpr mvarDecl.type}{note}{extraErrorMsg}"
     | .coe header expectedType e f? mkErrorMsg? =>
       mvarId.withContext do
         if let some mkErrorMsg := mkErrorMsg? then
@@ -243,8 +337,45 @@ def reportStuckSyntheticMVar (mvarId : MVarId) (ignoreStuckTC := false) : TermEl
 -/
 private def reportStuckSyntheticMVars (ignoreStuckTC := false) : TermElabM Unit := do
   let pendingMVars ← modifyGet fun s => (s.pendingMVars, { s with pendingMVars := [] })
-  for mvarId in pendingMVars do
-    reportStuckSyntheticMVar mvarId ignoreStuckTC
+  /-
+  Calling the singular reportStuckSyntheticMVar function will usually raise
+  an exception, meaning that we only expect to report one issue with
+  synthetic MVars. Given that, what's the best one to return?
+
+  If we have stuck typeclass instances associated with overlapping syntactic
+  ranges, we want to report a problem whose syntactic range *does not include
+  other unsolved typeclass problem ranges*. Here's a case where we want to
+  include the innermost range, if `x` has unknown type:
+
+      |--------------------| <- stuck typeclass problem is Decidable (x < x)
+      if x < x then 1 else 2
+         |---| <- stuck typeclass problem is LT _?
+
+  Reporting the `LT _` typeclass is more informative to the user.
+
+  A simple way to achieve this is prioritizing typeclass error messages with
+  smaller syntactic ranges.
+  -/
+  let pendingMVarsWithDecls ← pendingMVars.filterMapM (fun mvarId => do
+    let some decl ← getSyntheticMVarDecl? mvarId | return .none
+    return .some (mvarId, decl)
+  )
+  let prioritizedProblems := pendingMVarsWithDecls.mergeSort (fun (_, decl1) (_, decl2) =>
+    match (decl1.kind, decl2.kind) with
+     | (.typeClass _, .typeClass _) =>
+       match (decl1.stx.getRange?, decl2.stx.getRange?) with
+        | (.some r1, .some r2) => if r1.bsize != r2.bsize then
+            r1.bsize <= r2.bsize
+          else
+            r1.start <= r2.start
+        | (.none, _) => false
+        | _ => true
+     -- All non-typeclass problems are equivalent and come before typeclass problems
+     | (.typeClass _, _) => false
+     | _ => true
+  )
+  for (mvarId, mvarDecl) in prioritizedProblems do
+    reportStuckSyntheticMVar mvarId mvarDecl ignoreStuckTC
 
 private def getSomeSyntheticMVarsRef : TermElabM Syntax := do
   for mvarId in (← get).pendingMVars do

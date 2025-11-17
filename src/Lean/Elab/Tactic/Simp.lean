@@ -657,6 +657,8 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
 -/
 @[builtin_tactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => withMainContext do withSimpDiagnostics do
   let r@{ ctx, simprocs, dischargeWrapper, simpArgs } ← mkSimpContext stx (eraseLocal := false)
+  if ctx.config.suggestions then
+    throwError "+suggestions requires using simp? instead of simp"
   let stats ← dischargeWrapper.with fun discharge? =>
     withLoopChecking r do
       simpLocation ctx simprocs discharge? (expandOptLocation stx[5])
@@ -669,6 +671,8 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
 
 @[builtin_tactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => withMainContext do withSimpDiagnostics do
   let r@{ ctx, simprocs, dischargeWrapper := _, simpArgs } ← mkSimpContext stx (eraseLocal := true) (kind := .simpAll) (ignoreStarArg := true)
+  if ctx.config.suggestions then
+    throwError "+suggestions requires using simp_all? instead of simp_all"
   let (result?, stats) ←
     withLoopChecking r do
       simpAll (← getMainGoal) ctx (simprocs := simprocs)

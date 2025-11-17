@@ -77,40 +77,6 @@ private abbrev findAtSorted? (decls : Array Decl) (declName : Name) : Option Dec
   let tmpDecl := Decl.extern declName #[] default default
   decls.binSearch tmpDecl declLt
 
-/-- Meta status of local declarations, not persisted. -/
-private builtin_initialize declMetaExt : EnvExtension (List Name × NameSet) ←
-  registerEnvExtension
-    (mkInitial := pure ([], {}))
-    (asyncMode := .sync)
-    (replay? := some <| fun oldState newState _ s =>
-      let newEntries := newState.1.take (newState.1.length - oldState.1.length)
-      newEntries.foldl (init := s) fun s n =>
-        if s.1.contains n then
-          s
-        else
-          (n :: s.1, s.2.insert n))
-
-/-- Whether a declaration should be exported for interpretation. -/
-def isDeclMeta (env : Environment) (declName : Name) : Bool :=
-  if !env.header.isModule then
-    true
-  else
-    -- The interpreter may call the boxed variant even if the IR does not directly reference it, so
-    -- use same visibility as base decl.
-    -- Note that boxed decls are created after the `inferVisibility` pass.
-    let inferFor := match declName with
-      | .str n "_boxed" => n
-      | n               => n
-    declMetaExt.getState env |>.2.contains inferFor
-
-/-- Marks a declaration to be exported for interpretation. -/
-def setDeclMeta (env : Environment) (declName : Name) : Environment :=
-  if isDeclMeta env declName then
-    env
-  else
-    declMetaExt.modifyState env fun s =>
-      (declName :: s.1, s.2.insert declName)
-
 builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
   registerSimplePersistentEnvExtension {
     addImportedFn := fun _ => {}
@@ -132,7 +98,7 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
             if let some (.str _ s) := getExportNameFor? env f then
               return .extern f xs ty { entries := [.standard `all s] }
             else
-              return .extern f xs ty { entries := [.opaque f] }
+              return .extern f xs ty { entries := [.opaque] }
           | d => some d
       else entries
     -- Written to on codegen environment branch but accessed from other elaboration branches when
@@ -159,21 +125,23 @@ private def exportIREntries (env : Environment) : Array (Name × Array EnvExtens
   #[(declMapExt.name, irEntries),
     (Lean.regularInitAttr.ext.name, initDecls)]
 
-@[export lean_ir_find_env_decl]
-def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
+def findEnvDecl (env : Environment) (declName : Name) (includeServer := false): Option Decl :=
   match env.getModuleIdxFor? declName with
   | some modIdx =>
-    -- `meta import/import all` and server `#eval`
-    -- This case is important even for codegen because it needs to see IR via `import all` (because
-    -- it can also see the LCNF)
+    -- `meta import/import all` and, optionally, additional server-mode IR
+    guard (includeServer || env.header.modules[modIdx]?.any (·.irPhases != .runtime)) *>
     findAtSorted? (declMapExt.getModuleIREntries env modIdx) declName <|>
     -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
     findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
   | none => declMapExt.getState env |>.find? declName
 
-/-- Like ``findEnvDecl env (declName ++ `_boxed)`` but with optimized negative lookup. -/
+@[export lean_ir_find_env_decl]
+private def findInterpDecl (env : Environment) (declName : Name) : Option Decl :=
+  findEnvDecl (includeServer := true) env declName
+
+/-- Like ``findInterpDecl env (declName ++ `_boxed)`` but with optimized negative lookup. -/
 @[export lean_ir_find_env_decl_boxed]
-private def findEnvDeclBoxed (env : Environment) (declName : Name) : Option Decl :=
+private def findInterpDeclBoxed (env : Environment) (declName : Name) : Option Decl :=
   let boxed := declName ++ `_boxed
   -- Important: get module index of base name, not boxed version. Usually the interpreter never
   -- does negative lookups except in the case of `call_boxed` which must check whether a boxed

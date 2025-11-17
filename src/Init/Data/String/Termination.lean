@@ -206,6 +206,12 @@ theorem le_refl {s : String} (p : s.ValidPos) : p ≤ p := by
 theorem lt_trans {s : String} {p q r : s.ValidPos} : p < q → q < r → p < r := by
   simpa [ValidPos.lt_iff, Pos.Raw.lt_iff] using Nat.lt_trans
 
+theorem le_trans {s : String} {p q r : s.ValidPos} : p ≤ q → q ≤ r → p ≤ r := by
+  simpa [ValidPos.le_iff, Pos.Raw.le_iff] using Nat.le_trans
+
+theorem le_of_lt {s : String} {p q : s.ValidPos} : p < q → p ≤ q := by
+  simpa [ValidPos.le_iff, ValidPos.lt_iff, Pos.Raw.le_iff, Pos.Raw.lt_iff] using Nat.le_of_lt
+
 @[simp]
 theorem lt_next_next {s : String} {p : s.ValidPos} {h h'} : p < (p.next h).next h' :=
   lt_trans p.lt_next (p.next h).lt_next

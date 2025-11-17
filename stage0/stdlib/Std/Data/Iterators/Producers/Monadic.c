@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Producers.Monadic
-// Imports: public import Std.Data.Iterators.Producers.Monadic.Array public import Std.Data.Iterators.Producers.Monadic.Empty public import Std.Data.Iterators.Producers.Monadic.List
+// Imports: public import Std.Data.Iterators.Producers.Monadic.Array public import Std.Data.Iterators.Producers.Monadic.Empty
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* initialize_Std_Data_Iterators_Producers_Monadic_Array(uint8_t builtin);
 lean_object* initialize_Std_Data_Iterators_Producers_Monadic_Empty(uint8_t builtin);
-lean_object* initialize_Std_Data_Iterators_Producers_Monadic_List(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Producers_Monadic(uint8_t builtin) {
 lean_object * res;
@@ -25,9 +24,6 @@ res = initialize_Std_Data_Iterators_Producers_Monadic_Array(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Producers_Monadic_Empty(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Producers_Monadic_List(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

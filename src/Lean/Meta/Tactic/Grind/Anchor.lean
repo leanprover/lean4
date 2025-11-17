@@ -86,11 +86,11 @@ public partial def getAnchor (e : Expr) : GrindM UInt64 := do
   return a
 
 /--
-Example: `isAnchorPrefix 4 0x0c88 0x0c88ab10ef20206a` returns `true`
+Example: `{ numDigits := 4, anchorPrefix := 0x0c88 }.matches 0x0c88ab10ef20206a` returns `true`
 -/
-public def isAnchorPrefix (numHexDigits : Nat) (anchorPrefix : UInt64) (anchor : UInt64) : Bool :=
-  let shift := 64 - numHexDigits.toUInt64*4
-  anchorPrefix == anchor >>> shift
+public def AnchorRef.matches (anchorRef : AnchorRef) (anchor : UInt64) : Bool :=
+  let shift := 64 - anchorRef.numDigits.toUInt64*4
+  anchorRef.anchorPrefix == anchor >>> shift
 
 public class HasAnchor (α : Type u) where
   getAnchor : α → UInt64
@@ -124,12 +124,15 @@ public structure ExprWithAnchor where
 public instance : HasAnchor ExprWithAnchor where
   getAnchor e := e.anchor
 
-public def mkAnchorSyntaxFromPrefix (numDigits : Nat) (anchorPrefix : UInt64) : CoreM (TSyntax ``Parser.Tactic.Grind.anchor) := do
+public def mkAnchorSyntaxFromPrefix (numDigits : Nat) (anchorPrefix : UInt64) : CoreM (TSyntax ``Parser.Tactic.anchor) := do
   let hexnum := mkNode `hexnum #[mkAtom (anchorPrefixToString numDigits anchorPrefix)]
-  `(Parser.Tactic.Grind.anchor| #$hexnum)
+  `(Parser.Tactic.anchor| #$hexnum)
 
-public def mkAnchorSyntax (numDigits : Nat) (anchor : UInt64) : CoreM (TSyntax ``Parser.Tactic.Grind.anchor) := do
+public def mkAnchorSyntax (numDigits : Nat) (anchor : UInt64) : CoreM (TSyntax ``Parser.Tactic.anchor) := do
   let anchorPrefix := anchor >>> (64 - 4*numDigits.toUInt64)
   mkAnchorSyntaxFromPrefix numDigits anchorPrefix
+
+public def SplitInfo.getAnchor (s : SplitInfo) : GrindM UInt64 := do
+  Grind.getAnchor s.getExpr
 
 end Lean.Meta.Grind

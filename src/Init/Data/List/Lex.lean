@@ -28,7 +28,18 @@ instance [LT α] [Std.Asymm (α := List α) (· < ·)] : LawfulOrderLT (List α)
 @[simp] theorem lex_lt [LT α] {l₁ l₂ : List α} : Lex (· < ·) l₁ l₂ ↔ l₁ < l₂ := Iff.rfl
 @[simp] theorem not_lex_lt [LT α] {l₁ l₂ : List α} : ¬ Lex (· < ·) l₁ l₂ ↔ l₂ ≤ l₁ := Iff.rfl
 
+@[simp]
+protected theorem not_lt [LT α] {l₁ l₂ : List α} : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
+
+@[deprecated List.not_lt (since := "2025-10-26")]
 protected theorem not_lt_iff_ge [LT α] {l₁ l₂ : List α} : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
+
+@[simp]
+protected theorem not_le [LT α] {l₁ l₂ : List α} :
+    ¬ l₁ ≤ l₂ ↔ l₂ < l₁ :=
+  Classical.not_not
+
+@[deprecated List.not_le (since := "2025-10-26")]
 protected theorem not_le_iff_gt [LT α] {l₁ l₂ : List α} :
     ¬ l₁ ≤ l₂ ↔ l₂ < l₁ :=
   Classical.not_not
@@ -276,12 +287,6 @@ instance [LT α] [Std.Asymm (· < · : α → α → Prop)] :
 @[no_expose]
 instance instIsLinearOrder [LT α] [LE α] [IsLinearOrder α] [LawfulOrderLT α] :
     IsLinearOrder (List α) := IsLinearOrder.of_le
-
-@[simp] protected theorem not_lt [LT α]
-    {l₁ l₂ : List α} : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
-
-@[simp] protected theorem not_le [LT α]
-    {l₁ l₂ : List α} : ¬ l₂ ≤ l₁ ↔ l₁ < l₂ := Classical.not_not
 
 protected theorem le_of_lt [LT α]
     [i : Std.Asymm (· < · : α → α → Prop)]

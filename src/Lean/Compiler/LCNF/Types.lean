@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Compiler.BorrowedAnnotation
 public import Lean.Meta.InferType
+import Lean.AddDecl
 
 public section
 
@@ -138,10 +139,27 @@ partial def toLCNFType (type : Expr) : MetaM Expr := do
     let res'? ← observing <| withExporting <| go type
     if let .ok res' := res'? then
       if res != res' then
-        throwError "Compilation failed, locally inferred compilation type{indentD res}\n\
+        let mut reason := m!"locally inferred compilation type{indentD res}\n\
           differs from type{indentD res'}\n\
           that would be inferred in other modules. This usually means that a type `def` involved \
-          with the mentioned declarations needs to be `@[expose]`d. This is a current compiler \
+          with the mentioned declarations needs to be `@[expose]`d. "
+        -- The above error message is terrible to read, so we'll try to condense it to the essential
+        -- list of non-exposed definitions.
+        let origDiag := (← get).diag
+        try
+          let _ ← observing <| withOptions (diagnostics.set · true)  <| withExporting <| go type
+          let env ← getEnv
+          let blocked := (← get).diag.unfoldAxiomCounter.toList.filterMap fun (n, count) => do
+            let count := count - origDiag.unfoldAxiomCounter.findD n 0
+            guard <| count > 0 && getOriginalConstKind? env n matches some .defn
+            return m!"{.ofConstName n} ↦ {count}"
+          if !blocked.isEmpty then
+            reason := m!"locally inferred compilation type differs from type that would be \
+              inferred in other modules. Some of the following definitions may need to be \
+              `@[expose]`d to fix this mismatch: {indentD <| .joinSep blocked Format.line}\n"
+        finally
+          modify ({ · with diag := origDiag })
+        throwError "Compilation failed, {reason}This is a current compiler \
           limitation for `module`s that may be lifted in the future."
   return res
 where

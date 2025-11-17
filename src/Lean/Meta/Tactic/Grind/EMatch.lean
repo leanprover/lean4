@@ -528,6 +528,22 @@ private def assignGeneralizedPatternProof (mvarId : MVarId) (eqProof : Expr) (or
     reportEMatchIssue! "invalid generalized pattern at `{origin.pp}`\nfailed to assign {mkMVar mvarId}\nwith{indentExpr eqProof}"
     failure
 
+/--
+At `processDelayed`, `lhs` is extracted using `instantiateMVars`. We know it is structurally equal to a term in `assignment`, but
+it is not necessarily pointer equal. This can happen when the type of `lhs` depends on previous parameters, and we have a
+metavariable application.
+If the `lhs` has already been internalized, nothing needs to be done. Otherwise, we traverse the assignment looking for
+a term that is structurally equal.
+**Note**: If this solution is not robust enough, we should store the original `lhs` when we perform an delayed assignment.
+-/
+private def findOriginalGeneralizedPatternLhs (lhs : Expr) : OptionT (StateT Choice M) Expr := do
+  if (← alreadyInternalized lhs) then return lhs
+  for val in (← get).assignment do
+    if val == lhs then
+      return val
+  reportEMatchIssue! "invalid generalized pattern at `{(← read).thm.origin.pp}`\nwhen processing argument{indentExpr lhs}"
+  failure
+
 /-- Helper function for `applyAssignment. -/
 private def processDelayed (mvars : Array Expr) (i : Nat) (h : i < mvars.size) : OptionT (StateT Choice M) Unit := do
   let thm := (← read).thm
@@ -535,9 +551,11 @@ private def processDelayed (mvars : Array Expr) (i : Nat) (h : i < mvars.size) :
   let mvarIdType ← instantiateMVars (← mvarId.getType)
   match_expr mvarIdType with
   | Eq α lhs rhs =>
+    let lhs ← findOriginalGeneralizedPatternLhs lhs
     let rhs ← preprocessGeneralizedPatternRHS lhs rhs thm.origin mvarIdType
     assignGeneralizedPatternProof mvarId (← mkEqProof lhs rhs) thm.origin
   | HEq α lhs β rhs =>
+    let lhs ← findOriginalGeneralizedPatternLhs lhs
     let rhs ← preprocessGeneralizedPatternRHS lhs rhs thm.origin mvarIdType
     assignGeneralizedPatternProof mvarId (← mkHEqProof lhs rhs) thm.origin
   | _ =>
@@ -620,6 +638,43 @@ private abbrev withFreshNGen (x : M α) : M α := do
     setNGen ngen
 
 /--
+Checks whether `vars` satisfies the `grind_pattern` constraints attached at `thm`.
+Example:
+```
+grind_pattern map_map => map g (map f xs) where
+  f =/= some
+  g =/= some
+```
+In the example above, a `map_map` instance should be added to the logical context only if
+`f` and `g` are not definitionally equal to `some`
+
+Remark: `proof` is used to extract the universe parameters in the proof.
+-/
+private def checkConstraints (thm : EMatchTheorem) (proof : Expr) (args : Array Expr) : MetaM Bool := do
+  if thm.cnstrs.isEmpty then return true
+  /- **Note**: Only top-level theorems have constraints. -/
+  let .const declName us := proof | return true
+  let info ← getConstInfo declName
+  thm.cnstrs.allM fun cnstr => do
+    unless cnstr.bvarIdx < args.size do
+      throwError "`grind` internal error, invalid variable in `grind_pattern` constraint"
+    let lhs := args[args.size - cnstr.bvarIdx - 1]!
+    /- **Note**: We first instantiate the theorem variables and universes occurring in `rhs`. -/
+    let rhs := cnstr.rhs.instantiateRev args
+    let rhs := rhs.instantiateLevelParams info.levelParams us
+    withNewMCtxDepth do
+      /-
+      **Note**: Recall that we have abstracted metavariables occurring in `rhs` after we elaborated it.
+      So, we must "recreate" them.
+      -/
+      let us ← cnstr.levelNames.mapM fun _ => mkFreshLevelMVar
+      let rhs := rhs.instantiateLevelParamsArray cnstr.levelNames us
+      let (_, _, rhs) ← lambdaMetaTelescope rhs (some cnstr.numMVars)
+      /- **Note**: We used the guarded version to ensure type errors will not interrupt `grind`. -/
+      let defEq ← isDefEqGuarded lhs rhs
+      return !defEq
+
+/--
 After processing a (multi-)pattern, use the choice assignment to instantiate the proof.
 Missing parameters are synthesized using type inference and type class synthesis."
 -/
@@ -637,15 +692,16 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
     return ()
   let (some _, c) ← applyAssignment mvars |>.run c | return ()
   let some _ ← synthesizeInsts mvars bis | return ()
-  let proof := mkAppN proof mvars
-  if (← mvars.allM (·.mvarId!.isAssigned)) then
-    addNewInstance thm proof c.gen
-  else
-    let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
-    if let some mvarBad ← mvars.findM? fun mvar => return !(← isProof mvar) then
-      reportEMatchIssue! "failed to instantiate {thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
-    let proof ← mkLambdaFVars (binderInfoForMVars := .default) mvars (← instantiateMVars proof)
-    addNewInstance thm proof c.gen
+  if (← checkConstraints thm proof mvars) then
+    let proof := mkAppN proof mvars
+    if (← mvars.allM (·.mvarId!.isAssigned)) then
+      addNewInstance thm proof c.gen
+    else
+      let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
+      if let some mvarBad ← mvars.findM? fun mvar => return !(← isProof mvar) then
+        reportEMatchIssue! "failed to instantiate {thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
+      let proof ← mkLambdaFVars (binderInfoForMVars := .default) mvars (← instantiateMVars proof)
+      addNewInstance thm proof c.gen
 
 /-- Process choice stack until we don't have more choices to be processed. -/
 private def processChoices : M Unit := do

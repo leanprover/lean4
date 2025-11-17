@@ -104,7 +104,7 @@ grind_pattern Perm.append => xs ~ ys, as ~ bs, ys ++ bs
 
 theorem Perm.push (x : α) {xs ys : Array α} (p : xs ~ ys) :
     xs.push x ~ ys.push x := by
-  rw [push_eq_append_singleton]
+  rw [push_eq_append]
   exact p.append .rfl
 
 grind_pattern Perm.push => xs ~ ys, xs.push x

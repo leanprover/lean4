@@ -697,8 +697,8 @@ partial def main (args : List String) : IO Unit := do
   -- We want `dbg_trace` tactics to write directly to stderr instead of being caught in reuse
   Ipc.runWith ipcCmd ipcArgs do
     let initializationOptions? := some {
-      editDelay? := none
       hasWidgets? := some true
+      logCfg? := none
     }
     let capabilities := {
       textDocument? := some {

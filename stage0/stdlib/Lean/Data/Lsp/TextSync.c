@@ -593,12 +593,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Json_getNat_x3f(x_1);
-if (lean_obj_tag(x_4) == 0)
-{
-lean_dec_ref(x_4);
-goto block_3;
-}
-else
+if (lean_obj_tag(x_4) == 1)
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = lean_ctor_get(x_4, 0);
@@ -643,6 +638,11 @@ lean_dec(x_5);
 x_14 = l_Lean_Lsp_instFromJsonTextDocumentSyncKind___lam__0___closed__4;
 return x_14;
 }
+}
+else
+{
+lean_dec_ref(x_4);
+goto block_3;
 }
 block_3:
 {
@@ -1281,12 +1281,7 @@ _start:
 lean_object* x_5; lean_object* x_6; 
 x_5 = l_Lean_Json_getObjValD(x_1, x_2);
 x_6 = l_Lean_Json_getNat_x3f(x_5);
-if (lean_obj_tag(x_6) == 0)
-{
-lean_dec_ref(x_6);
-goto block_4;
-}
-else
+if (lean_obj_tag(x_6) == 1)
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_7 = lean_ctor_get(x_6, 0);
@@ -1331,6 +1326,11 @@ lean_dec(x_7);
 x_16 = l_Lean_Lsp_instFromJsonTextDocumentSyncKind___lam__0___closed__4;
 return x_16;
 }
+}
+else
+{
+lean_dec_ref(x_6);
+goto block_4;
 }
 block_4:
 {

@@ -290,6 +290,11 @@ structure Config where
   When `true` (default: `true`), the `^` simprocs generate an warning it the exponents are too big.
   -/
   warnExponents : Bool := true
+  /--
+  If `suggestions` is `true`, `simp?` will invoke the currently configured library suggestion engine on the current goal,
+  and attempt to use the resulting suggestions as parameters to the `simp` tactic.
+  -/
+  suggestions : Bool := false
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`

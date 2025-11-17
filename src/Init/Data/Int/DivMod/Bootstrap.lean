@@ -38,7 +38,7 @@ protected theorem dvd_trans : ∀ {a b c : Int}, a ∣ b → b ∣ c → a ∣ c
   refine ⟨fun ⟨a, ae⟩ => ?_, fun ⟨k, e⟩ => ⟨k, by rw [e, Int.natCast_mul]⟩⟩
   match Int.le_total a 0 with
   | .inl h =>
-    have := ae.symm ▸ Int.mul_nonpos_of_nonneg_of_nonpos (ofNat_zero_le _) h
+    have := ae.symm ▸ Int.mul_nonpos_of_nonneg_of_nonpos (natCast_nonneg _) h
     rw [Nat.le_antisymm (ofNat_le.1 this) (Nat.zero_le _)]
     apply Nat.dvd_zero
   | .inr h => match a, eq_ofNat_of_zero_le h with
@@ -206,7 +206,7 @@ theorem ediv_nonneg_iff_of_pos {a b : Int} (h : 0 < b) : 0 ≤ a / b ↔ 0 ≤ a
 /-! ### emod -/
 
 theorem emod_nonneg : ∀ (a : Int) {b : Int}, b ≠ 0 → 0 ≤ a % b
-  | ofNat _, _, _ => ofNat_zero_le _
+  | ofNat _, _, _ => natCast_nonneg _
   | -[_+1], _, H => Int.sub_nonneg_of_le <| ofNat_le.2 <| Nat.mod_lt _ (natAbs_pos.2 H)
 
 theorem emod_lt_of_pos (a : Int) {b : Int} (H : 0 < b) : a % b < b :=

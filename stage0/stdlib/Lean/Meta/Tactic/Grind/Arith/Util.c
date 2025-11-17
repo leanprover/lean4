@@ -44,12 +44,10 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_Meta_Grind_Arith_gcdExt_spec__0(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isNonnegIntNum___closed__1;
-LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_isSupportedType(lean_object*);
 lean_object* lean_int_emod(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CollectDecVars_markAsFound___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CollectDecVars_CollectDecVarsM_run___closed__4;
-LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_isRelevantPred(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00Lean_Meta_Grind_Arith_CollectDecVars_alreadyVisited_spec__2(lean_object*, lean_object*, uint64_t, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__17;
 static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__19;
@@ -65,7 +63,6 @@ static lean_object* l_Lean_Meta_Grind_Arith_getIntModuleVirtualParent___closed__
 static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__6;
 static lean_object* l_Lean_Meta_Grind_Arith_getIntModuleVirtualParent___closed__15;
 static lean_object* l_Lean_Meta_Grind_Arith_isInstAddNat___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isSupportedType___boxed(lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__23;
 static lean_object* l_Lean_Meta_Grind_Arith_CollectDecVars_CollectDecVarsM_run___closed__2;
@@ -110,7 +107,6 @@ lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isNatNum___closed__3;
 static lean_object* l_Lean_Meta_Grind_Arith_getIntModuleVirtualParent___closed__2;
 static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__15;
-static lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___closed__8;
 static lean_object* l_Lean_Meta_Grind_Arith_isNatNum___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CollectDecVars_alreadyVisited___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isInstLENat___closed__0;
@@ -127,7 +123,6 @@ static lean_object* l_Lean_Meta_Grind_Arith_isNatNum___closed__0;
 static lean_object* l_Lean_Meta_Grind_Arith_getIntModuleVirtualParent___closed__17;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isNatType___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isIntNum___closed__3;
-static lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_resize(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__3;
@@ -139,7 +134,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Util_0__Lean_M
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_contains___at___00Lean_Meta_Grind_Arith_CollectDecVars_alreadyVisited_spec__0(lean_object*, lean_object*, uint64_t);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_isNum(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__11;
-static lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isNatNum___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_shrink(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isNonnegIntNum___boxed(lean_object*);
@@ -155,10 +149,7 @@ LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHas
 static lean_object* l_Lean_Meta_Grind_Arith_CollectDecVars_CollectDecVarsM_run___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isInstLENat___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_isArithTerm(lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___closed__6;
-static lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___closed__0;
 lean_object* l_Lean_FVarIdSet_insert(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___closed__3;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_split___redArg___closed__13;
@@ -170,7 +161,6 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isIntNum___closed__0;
 static lean_object* l_Lean_Meta_Grind_Arith_isIntType___closed__0;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___closed__4;
 LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Grind_Arith_Util_0__Lean_Meta_Grind_Arith_________intModuleMarker________;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_split___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_getIntModuleVirtualParent___closed__3;
@@ -184,11 +174,9 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___00Std
 static lean_object* l_Lean_Meta_Grind_Arith_split___redArg___closed__9;
 static lean_object* l_Lean_Meta_Grind_Arith_getIntModuleVirtualParent___closed__0;
 lean_object* lean_nat_mul(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___closed__7;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00Lean_Meta_Grind_Arith_CollectDecVars_alreadyVisited_spec__2_spec__2(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isNatAdd_x3f___closed__2;
 lean_object* l_Nat_nextPowerOfTwo(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__7;
 static lean_object* l_Lean_Meta_Grind_Arith_getIntModuleVirtualParent___closed__19;
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_isIntModuleVirtualParent(lean_object*);
@@ -203,7 +191,6 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_isNatAdd(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isIntNum___closed__5;
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_gcdExt___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___closed__5;
 static lean_object* l_Lean_Meta_Grind_Arith_split___redArg___closed__1;
 static lean_object* l_Lean_Meta_Grind_Arith_getIntModuleVirtualParent___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isNatAdd___boxed(lean_object*);
@@ -212,7 +199,6 @@ static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isNatNum_x3f(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___closed__9;
 static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__13;
 static lean_object* l_Lean_Meta_Grind_Arith_getIntModuleVirtualParent___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_getIntModuleVirtualParent;
@@ -1269,247 +1255,6 @@ return x_29;
 }
 }
 }
-}
-}
-LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_isSupportedType(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; 
-x_2 = l_Lean_Meta_Grind_Arith_isNatType(x_1);
-if (x_2 == 0)
-{
-uint8_t x_3; 
-x_3 = l_Lean_Meta_Grind_Arith_isIntType(x_1);
-return x_3;
-}
-else
-{
-return x_2;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isSupportedType___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lean_Meta_Grind_Arith_isSupportedType(x_1);
-lean_dec_ref(x_1);
-x_3 = lean_box(x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_isRelevantPred___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Not", 3, 3);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_isRelevantPred___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_Grind_Arith_isRelevantPred___closed__0;
-x_2 = l_Lean_Name_mkStr1(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_isRelevantPred___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Eq", 2, 2);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_isRelevantPred___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_Grind_Arith_isRelevantPred___closed__2;
-x_2 = l_Lean_Name_mkStr1(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_isRelevantPred___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Dvd", 3, 3);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_isRelevantPred___closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("dvd", 3, 3);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_isRelevantPred___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_Grind_Arith_isRelevantPred___closed__5;
-x_2 = l_Lean_Meta_Grind_Arith_isRelevantPred___closed__4;
-x_3 = l_Lean_Name_mkStr2(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_isRelevantPred___closed__7() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("LE", 2, 2);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_isRelevantPred___closed__8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("le", 2, 2);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_isRelevantPred___closed__9() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_Grind_Arith_isRelevantPred___closed__8;
-x_2 = l_Lean_Meta_Grind_Arith_isRelevantPred___closed__7;
-x_3 = l_Lean_Name_mkStr2(x_2, x_1);
-return x_3;
-}
-}
-LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_isRelevantPred(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; uint8_t x_3; 
-x_2 = l_Lean_Expr_cleanupAnnotations(x_1);
-x_3 = l_Lean_Expr_isApp(x_2);
-if (x_3 == 0)
-{
-lean_dec_ref(x_2);
-return x_3;
-}
-else
-{
-lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-lean_inc_ref(x_2);
-x_4 = l_Lean_Expr_appFnCleanup___redArg(x_2);
-x_5 = l_Lean_Meta_Grind_Arith_isRelevantPred___closed__1;
-x_6 = l_Lean_Expr_isConstOf(x_4, x_5);
-if (x_6 == 0)
-{
-uint8_t x_7; 
-lean_dec_ref(x_2);
-x_7 = l_Lean_Expr_isApp(x_4);
-if (x_7 == 0)
-{
-lean_dec_ref(x_4);
-return x_7;
-}
-else
-{
-lean_object* x_8; uint8_t x_9; 
-x_8 = l_Lean_Expr_appFnCleanup___redArg(x_4);
-x_9 = l_Lean_Expr_isApp(x_8);
-if (x_9 == 0)
-{
-lean_dec_ref(x_8);
-return x_9;
-}
-else
-{
-lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-lean_inc_ref(x_8);
-x_10 = l_Lean_Expr_appFnCleanup___redArg(x_8);
-x_11 = l_Lean_Meta_Grind_Arith_isRelevantPred___closed__3;
-x_12 = l_Lean_Expr_isConstOf(x_10, x_11);
-if (x_12 == 0)
-{
-uint8_t x_13; 
-lean_dec_ref(x_8);
-x_13 = l_Lean_Expr_isApp(x_10);
-if (x_13 == 0)
-{
-lean_dec_ref(x_10);
-return x_13;
-}
-else
-{
-lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
-x_14 = lean_ctor_get(x_10, 1);
-lean_inc_ref(x_14);
-x_15 = l_Lean_Expr_appFnCleanup___redArg(x_10);
-x_16 = l_Lean_Meta_Grind_Arith_isRelevantPred___closed__6;
-x_17 = l_Lean_Expr_isConstOf(x_15, x_16);
-if (x_17 == 0)
-{
-lean_object* x_18; uint8_t x_19; 
-x_18 = l_Lean_Meta_Grind_Arith_isRelevantPred___closed__9;
-x_19 = l_Lean_Expr_isConstOf(x_15, x_18);
-lean_dec_ref(x_15);
-if (x_19 == 0)
-{
-lean_dec_ref(x_14);
-return x_19;
-}
-else
-{
-uint8_t x_20; 
-x_20 = l_Lean_Meta_Grind_Arith_isSupportedType(x_14);
-lean_dec_ref(x_14);
-return x_20;
-}
-}
-else
-{
-uint8_t x_21; 
-lean_dec_ref(x_15);
-x_21 = l_Lean_Meta_Grind_Arith_isSupportedType(x_14);
-lean_dec_ref(x_14);
-return x_21;
-}
-}
-}
-else
-{
-lean_object* x_22; uint8_t x_23; 
-lean_dec_ref(x_10);
-x_22 = lean_ctor_get(x_8, 1);
-lean_inc_ref(x_22);
-lean_dec_ref(x_8);
-x_23 = l_Lean_Meta_Grind_Arith_isSupportedType(x_22);
-lean_dec_ref(x_22);
-return x_23;
-}
-}
-}
-}
-else
-{
-lean_object* x_24; 
-lean_dec_ref(x_4);
-x_24 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_24);
-lean_dec_ref(x_2);
-x_1 = x_24;
-goto _start;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lean_Meta_Grind_Arith_isRelevantPred(x_1);
-x_3 = lean_box(x_2);
-return x_3;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_Arith_isArithTerm___closed__0() {
@@ -3452,26 +3197,6 @@ l_Lean_Meta_Grind_Arith_isNatAdd_x3f___closed__1 = _init_l_Lean_Meta_Grind_Arith
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_isNatAdd_x3f___closed__1);
 l_Lean_Meta_Grind_Arith_isNatAdd_x3f___closed__2 = _init_l_Lean_Meta_Grind_Arith_isNatAdd_x3f___closed__2();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_isNatAdd_x3f___closed__2);
-l_Lean_Meta_Grind_Arith_isRelevantPred___closed__0 = _init_l_Lean_Meta_Grind_Arith_isRelevantPred___closed__0();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_isRelevantPred___closed__0);
-l_Lean_Meta_Grind_Arith_isRelevantPred___closed__1 = _init_l_Lean_Meta_Grind_Arith_isRelevantPred___closed__1();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_isRelevantPred___closed__1);
-l_Lean_Meta_Grind_Arith_isRelevantPred___closed__2 = _init_l_Lean_Meta_Grind_Arith_isRelevantPred___closed__2();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_isRelevantPred___closed__2);
-l_Lean_Meta_Grind_Arith_isRelevantPred___closed__3 = _init_l_Lean_Meta_Grind_Arith_isRelevantPred___closed__3();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_isRelevantPred___closed__3);
-l_Lean_Meta_Grind_Arith_isRelevantPred___closed__4 = _init_l_Lean_Meta_Grind_Arith_isRelevantPred___closed__4();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_isRelevantPred___closed__4);
-l_Lean_Meta_Grind_Arith_isRelevantPred___closed__5 = _init_l_Lean_Meta_Grind_Arith_isRelevantPred___closed__5();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_isRelevantPred___closed__5);
-l_Lean_Meta_Grind_Arith_isRelevantPred___closed__6 = _init_l_Lean_Meta_Grind_Arith_isRelevantPred___closed__6();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_isRelevantPred___closed__6);
-l_Lean_Meta_Grind_Arith_isRelevantPred___closed__7 = _init_l_Lean_Meta_Grind_Arith_isRelevantPred___closed__7();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_isRelevantPred___closed__7);
-l_Lean_Meta_Grind_Arith_isRelevantPred___closed__8 = _init_l_Lean_Meta_Grind_Arith_isRelevantPred___closed__8();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_isRelevantPred___closed__8);
-l_Lean_Meta_Grind_Arith_isRelevantPred___closed__9 = _init_l_Lean_Meta_Grind_Arith_isRelevantPred___closed__9();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_isRelevantPred___closed__9);
 l_Lean_Meta_Grind_Arith_isArithTerm___closed__0 = _init_l_Lean_Meta_Grind_Arith_isArithTerm___closed__0();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_isArithTerm___closed__0);
 l_Lean_Meta_Grind_Arith_isArithTerm___closed__1 = _init_l_Lean_Meta_Grind_Arith_isArithTerm___closed__1();

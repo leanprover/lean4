@@ -212,9 +212,12 @@ theorem bind_comm {f : α → β → Option γ} (a : Option α) (b : Option β) 
     (a.bind fun x => b.bind (f x)) = b.bind fun y => a.bind fun x => f x y := by
   cases a <;> cases b <;> rfl
 
-@[grind =]
 theorem bind_assoc (x : Option α) (f : α → Option β) (g : β → Option γ) :
     (x.bind f).bind g = x.bind fun y => (f y).bind g := by cases x <;> rfl
+
+grind_pattern bind_assoc => (x.bind f).bind g where
+  f =/= some
+  g =/= some
 
 theorem bind_congr {α β} {o : Option α} {f g : α → Option β} :
     (h : ∀ a, o = some a → f a = g a) → o.bind f = o.bind g := by
@@ -1319,7 +1322,7 @@ theorem pfilter_congr {α : Type u} {o o' : Option α} (ho : o = o')
 
 @[simp, grind =] theorem pfilter_some {α : Type _} {x : α} {p : (a : α) → some x = some a → Bool} :
     (some x).pfilter p = if p x rfl then some x else none := by
-  simp only [pfilter, cond_eq_if]
+  simp only [pfilter, cond_eq_ite]
 
 theorem isSome_pfilter_iff {α : Type _} {o : Option α} {p : (a : α) → o = some a → Bool} :
     (o.pfilter p).isSome ↔ ∃ (a : α) (ha : o = some a), p a ha := by

@@ -15,9 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_key___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Package_targetBuildKey___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_targetKey(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Package_buildKey(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_key(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_targetKey___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_ctorIdx___boxed(lean_object*);
@@ -25,15 +23,11 @@ LEAN_EXPORT lean_object* l_Lake_BuildInfo_ctorElim(lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_facet_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_target_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Package_buildKey___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToStringBuildInfo___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_target_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_BuildKey_toString(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Package_targetBuildKey(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToStringBuildInfo;
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_facet_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Package_facetBuildKey___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Package_facetBuildKey(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_key(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_ctorIdx(lean_object* x_1) {
@@ -162,56 +156,13 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Package_buildKey(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Package_buildKey___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Package_buildKey(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Package_facetBuildKey(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
-x_4 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_4, 0, x_3);
-x_5 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_5, 0, x_4);
-lean_ctor_set(x_5, 1, x_1);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Package_facetBuildKey___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_Package_facetBuildKey(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_Package_targetKey(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
-x_4 = lean_alloc_ctor(2, 2, 0);
+x_4 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_1);
 return x_4;
@@ -222,27 +173,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_Package_targetKey(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Package_targetBuildKey(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
-x_4 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_1);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Package_targetBuildKey___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_Package_targetBuildKey(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }
@@ -261,7 +191,7 @@ x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 lean_dec_ref(x_3);
-lean_ctor_set_tag(x_1, 2);
+lean_ctor_set_tag(x_1, 3);
 lean_ctor_set(x_1, 0, x_4);
 return x_1;
 }
@@ -276,7 +206,7 @@ lean_dec(x_1);
 x_7 = lean_ctor_get(x_5, 0);
 lean_inc(x_7);
 lean_dec_ref(x_5);
-x_8 = lean_alloc_ctor(2, 2, 0);
+x_8 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
 lean_ctor_set(x_8, 1, x_6);
 return x_8;
@@ -290,7 +220,7 @@ lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_1, 3);
 lean_inc(x_10);
 lean_dec_ref(x_1);
-x_11 = lean_alloc_ctor(3, 2, 0);
+x_11 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
 return x_11;

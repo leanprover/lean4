@@ -39,10 +39,10 @@ inductive Expr where
 
 abbrev Context (α : Type u) := RArray α
 
-def Var.denote {α} (ctx : Context α) (v : Var) : α :=
+abbrev Var.denote {α} (ctx : Context α) (v : Var) : α :=
   ctx.get v
 
-def Expr.denote {α} [IntModule α] (ctx : Context α) : Expr → α
+abbrev Expr.denote {α} [IntModule α] (ctx : Context α) : Expr → α
   | zero      => 0
   | .var v    => v.denote ctx
   | .add a b  => denote ctx a + denote ctx b
@@ -56,25 +56,25 @@ inductive Poly where
   | add (k : Int) (v : Var) (p : Poly)
   deriving BEq, ReflBEq, LawfulBEq, Repr
 
-def Poly.denote {α} [IntModule α] (ctx : Context α) (p : Poly) : α :=
+abbrev Poly.denote {α} [IntModule α] (ctx : Context α) (p : Poly) : α :=
   match p with
   | .nil => 0
   | .add k v p => k • v.denote ctx + denote ctx p
 
+abbrev Poly.denote'.go {α} [IntModule α] (ctx : Context α) (r : α) (p : Poly) : α :=
+    match p with
+    | .nil => r
+    | .add 1 v p => go ctx (r + v.denote ctx) p
+    | .add k v p => go ctx (r + k • v.denote ctx) p
+
 /--
 Similar to `Poly.denote`, but produces a denotation better for normalization.
 -/
-def Poly.denote' {α} [IntModule α] (ctx : Context α) (p : Poly) : α :=
+abbrev Poly.denote' {α} [IntModule α] (ctx : Context α) (p : Poly) : α :=
   match p with
   | .nil => 0
-  | .add 1 v p => go (v.denote ctx) p
-  | .add k v p => go (k • v.denote ctx) p
-where
-  go (r : α)  (p : Poly) : α :=
-    match p with
-    | .nil => r
-    | .add 1 v p => go (r + v.denote ctx) p
-    | .add k v p => go (r + k • v.denote ctx) p
+  | .add 1 v p => denote'.go ctx (v.denote ctx) p
+  | .add k v p => denote'.go ctx (k • v.denote ctx) p
 
 -- Helper instance for `ac_rfl`
 local instance {α} [IntModule α] : Std.Associative (· + · : α → α → α) where
@@ -83,6 +83,8 @@ local instance {α} [IntModule α] : Std.Associative (· + · : α → α → α
 local instance {α} [IntModule α] : Std.Commutative (· + · : α → α → α) where
   comm := AddCommMonoid.add_comm
 
+set_option allowUnsafeReducibility true in
+attribute [semireducible] Poly.denote' Poly.denote'.go in
 private theorem Poly.denote'_go_eq_denote {α} [IntModule α] (ctx : Context α) (p : Poly) (r : α) : denote'.go ctx r p = p.denote ctx + r := by
   induction r, p using denote'.go.induct ctx <;> simp [denote'.go, denote]
   next ih => rw [ih]; ac_rfl

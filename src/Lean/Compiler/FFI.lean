@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.System.FilePath
-import Init.Data.String.Modify
+import Init.Data.String.Search
 
 public section
 

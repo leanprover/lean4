@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Std.Data.Iterators.Combinators.Monadic.Take
 public import Std.Data.Iterators.Combinators.Monadic.TakeWhile
 public import Std.Data.Iterators.Combinators.Monadic.Drop
 public import Std.Data.Iterators.Combinators.Monadic.DropWhile

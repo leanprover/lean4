@@ -110,7 +110,6 @@ LEAN_EXPORT lean_object* l_Std_Roo_isEmpty___boxed(lean_object*, lean_object*, l
 static lean_object* l_Std___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__54;
 static lean_object* l_Std___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__28;
 static lean_object* l_Std___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__44;
-uint8_t l_instDecidableNot___redArg(uint8_t);
 static lean_object* l_Std___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__11;
 LEAN_EXPORT lean_object* l_Std_Roo_isEmpty___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Rcc_isEmpty___redArg(lean_object*, lean_object*);
@@ -197,7 +196,7 @@ return x_3;
 LEAN_EXPORT uint8_t l_Std_Rcc_isEmpty___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
@@ -205,14 +204,24 @@ lean_inc(x_4);
 lean_dec_ref(x_2);
 x_5 = lean_apply_2(x_1, x_3, x_4);
 x_6 = lean_unbox(x_5);
-x_7 = l_instDecidableNot___redArg(x_6);
+if (x_6 == 0)
+{
+uint8_t x_7; 
+x_7 = 1;
 return x_7;
+}
+else
+{
+uint8_t x_8; 
+x_8 = 0;
+return x_8;
+}
 }
 }
 LEAN_EXPORT uint8_t l_Std_Rcc_isEmpty(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; uint8_t x_10; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
@@ -220,8 +229,18 @@ lean_inc(x_7);
 lean_dec_ref(x_5);
 x_8 = lean_apply_2(x_3, x_6, x_7);
 x_9 = lean_unbox(x_8);
-x_10 = l_instDecidableNot___redArg(x_9);
+if (x_9 == 0)
+{
+uint8_t x_10; 
+x_10 = 1;
 return x_10;
+}
+else
+{
+uint8_t x_11; 
+x_11 = 0;
+return x_11;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Std_Rcc_isEmpty___redArg___boxed(lean_object* x_1, lean_object* x_2) {
@@ -246,7 +265,7 @@ return x_7;
 LEAN_EXPORT uint8_t l_Std_Rco_isEmpty___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
@@ -254,14 +273,24 @@ lean_inc(x_4);
 lean_dec_ref(x_2);
 x_5 = lean_apply_2(x_1, x_3, x_4);
 x_6 = lean_unbox(x_5);
-x_7 = l_instDecidableNot___redArg(x_6);
+if (x_6 == 0)
+{
+uint8_t x_7; 
+x_7 = 1;
 return x_7;
+}
+else
+{
+uint8_t x_8; 
+x_8 = 0;
+return x_8;
+}
 }
 }
 LEAN_EXPORT uint8_t l_Std_Rco_isEmpty(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; uint8_t x_10; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
@@ -269,8 +298,18 @@ lean_inc(x_7);
 lean_dec_ref(x_5);
 x_8 = lean_apply_2(x_3, x_6, x_7);
 x_9 = lean_unbox(x_8);
-x_10 = l_instDecidableNot___redArg(x_9);
+if (x_9 == 0)
+{
+uint8_t x_10; 
+x_10 = 1;
 return x_10;
+}
+else
+{
+uint8_t x_11; 
+x_11 = 0;
+return x_11;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Std_Rco_isEmpty___redArg___boxed(lean_object* x_1, lean_object* x_2) {
@@ -314,7 +353,7 @@ return x_5;
 LEAN_EXPORT uint8_t l_Std_Roc_isEmpty___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
@@ -322,14 +361,24 @@ lean_inc(x_4);
 lean_dec_ref(x_2);
 x_5 = lean_apply_2(x_1, x_3, x_4);
 x_6 = lean_unbox(x_5);
-x_7 = l_instDecidableNot___redArg(x_6);
+if (x_6 == 0)
+{
+uint8_t x_7; 
+x_7 = 1;
 return x_7;
+}
+else
+{
+uint8_t x_8; 
+x_8 = 0;
+return x_8;
+}
 }
 }
 LEAN_EXPORT uint8_t l_Std_Roc_isEmpty(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; uint8_t x_10; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
@@ -337,8 +386,18 @@ lean_inc(x_7);
 lean_dec_ref(x_5);
 x_8 = lean_apply_2(x_3, x_6, x_7);
 x_9 = lean_unbox(x_8);
-x_10 = l_instDecidableNot___redArg(x_9);
+if (x_9 == 0)
+{
+uint8_t x_10; 
+x_10 = 1;
 return x_10;
+}
+else
+{
+uint8_t x_11; 
+x_11 = 0;
+return x_11;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Std_Roc_isEmpty___redArg___boxed(lean_object* x_1, lean_object* x_2) {
@@ -363,11 +422,21 @@ return x_7;
 LEAN_EXPORT uint8_t l_Std_Roo_isEmpty___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; uint8_t x_5; uint8_t x_6; 
+lean_object* x_4; uint8_t x_5; 
 x_4 = lean_apply_2(x_1, x_3, x_2);
 x_5 = lean_unbox(x_4);
-x_6 = l_instDecidableNot___redArg(x_5);
+if (x_5 == 0)
+{
+uint8_t x_6; 
+x_6 = 1;
 return x_6;
+}
+else
+{
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
+}
 }
 }
 LEAN_EXPORT uint8_t l_Std_Roo_isEmpty___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -523,11 +592,21 @@ return x_5;
 LEAN_EXPORT uint8_t l_Std_Rio_isEmpty___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; uint8_t x_5; uint8_t x_6; 
+lean_object* x_4; uint8_t x_5; 
 x_4 = lean_apply_2(x_1, x_3, x_2);
 x_5 = lean_unbox(x_4);
-x_6 = l_instDecidableNot___redArg(x_5);
+if (x_5 == 0)
+{
+uint8_t x_6; 
+x_6 = 1;
 return x_6;
+}
+else
+{
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
+}
 }
 }
 LEAN_EXPORT uint8_t l_Std_Rio_isEmpty___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

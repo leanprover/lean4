@@ -3293,10 +3293,10 @@ theorem size_diff_eq_size_left [EquivBEq α] [LawfulHashable α]
   revert h
   simp_to_model [diff, size, contains] using List.length_diff_eq_length_left
 
--- theorem size_diff_add_size_inter_eq_size_left [EquivBEq α] [LawfulHashable α]
---     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
---     (m₁.diff m₂).1.size + (m₁.inter m₂).1.size = m₁.1.size := by
---   simp_to_model [diff, inter, size] using List.size_diff_add_size_inter_eq_size_left
+theorem size_diff_add_size_inter_eq_size_left [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
+    (m₁.diff m₂).1.size + (m₁.inter m₂).1.size = m₁.1.size := by
+  simp_to_model [diff, inter, size] using List.size_diff_add_size_inter_eq_size_left
 
 /- isEmpty -/
 @[simp]

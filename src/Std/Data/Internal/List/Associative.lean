@@ -5837,6 +5837,26 @@ theorem length_diff_eq_length_left [BEq α] [EquivBEq α]
       apply w
       rw [containsKey_cons, BEq.rfl, Bool.true_or]
 
+theorem size_diff_add_size_inter_eq_size_left [BEq α] [EquivBEq α]
+    {l₁ l₂ : List ((a : α) × β a)} (dl₁ : DistinctKeys l₁) :
+    (List.filter (fun p => !containsKey p.fst l₂) l₁).length +
+    (List.filter (fun p => containsKey p.fst l₂) l₁).length = l₁.length := by
+  induction l₁ with
+  | nil => simp
+  | cons h t ih =>
+    rw [List.distinctKeys_cons_iff] at dl₁
+    specialize ih dl₁.1
+    simp only [List.filter_cons]
+    split
+    case isTrue hc =>
+      simp only [Bool.not_eq_eq_eq_not, Bool.not_true] at hc
+      simp only [List.length_cons, hc, Bool.false_eq_true, ↓reduceIte]
+      omega
+    case isFalse hc =>
+      simp only [Bool.not_eq_eq_eq_not, Bool.not_true, Bool.not_eq_false] at hc
+      simp only [hc, ↓reduceIte, List.length_cons]
+      omega
+
 theorem isEmpty_diff_left [BEq α] [EquivBEq α]
     {l₁ l₂ : List ((a : α) × β a)} :
     l₁.isEmpty → (List.filter (fun p => !containsKey p.fst l₂) l₁).isEmpty := by

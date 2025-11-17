@@ -3293,6 +3293,22 @@ theorem isSome_minKey?_iff_isEmpty_eq_false [TransCmp cmp] :
     (t.insert k v).minKey?.isSome :=
   Impl.isSome_minKey?_insert t.wf
 
+theorem minKey_insert_of_isEmpty [TransCmp cmp] {k v} (he : t.isEmpty) :
+    (t.insert k v).minKey isEmpty_insert = k :=
+  Impl.minKey_insert_of_isEmpty t.wf he
+
+theorem minKey?_insert_of_isEmpty [TransCmp cmp] {k v} (he : t.isEmpty) :
+    (t.insert k v).minKey? = some k :=
+  Impl.minKey?_insert_of_isEmpty t.wf he
+
+theorem minKey!_insert_of_isEmpty [TransCmp cmp] [Inhabited α] {k v} (he : t.isEmpty) :
+    (t.insert k v).minKey! = k :=
+  Impl.minKey!_insert_of_isEmpty t.wf he
+
+theorem minKeyD_insert_of_isEmpty [TransCmp cmp] {k v} (he : t.isEmpty) {fallback : α} :
+    (t.insert k v).minKeyD fallback = k :=
+  Impl.minKeyD_insert_of_isEmpty t.wf he
+
 theorem minKey?_insert_le_minKey? [TransCmp cmp] {k v km kmi} :
     (hkm : t.minKey? = some km) →
     (hkmi : (t.insert k v |>.minKey? |>.get isSome_minKey?_insert) = kmi) →

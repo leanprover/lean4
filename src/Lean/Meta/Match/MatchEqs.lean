@@ -313,7 +313,6 @@ def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
   | some eqns => return eqns
   | none      => throwError "failed to retrieve match equations for `{matchDeclName}` after realization"
 where go baseName splitterName := withConfig (fun c => { c with etaStruct := .none }) do
-  withDeclNameForAuxNaming splitterName do -- TODO: should realizeConst do that?
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
   let some matchInfo ← getMatcherInfo? matchDeclName | throwError "`{matchDeclName}` is not a matcher function"

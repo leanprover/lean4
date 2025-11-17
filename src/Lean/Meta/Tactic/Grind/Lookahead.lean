@@ -14,6 +14,7 @@ import Lean.Meta.Tactic.Grind.EMatchAction
 public section
 namespace Lean.Meta.Grind
 
+#exit
 private partial def solve (generation : Nat) : SearchM Bool := withIncRecDepth do
   unless (← get).choiceStack.isEmpty do
     return false -- `splitNext` should have been configured to not create choice points

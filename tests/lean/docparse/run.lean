@@ -106,7 +106,7 @@ def main : List String → IO UInt32
       | IO.eprintln "Expected file in current directory"
         return 4
     let kind := file.takeWhile (· != '_')
-    let some p := testConfigs.lookup kind
+    let some p := testConfigs.lookup kind.copy
       | IO.eprintln s!"Not found in test configs: {kind}"
         return 5
     IO.print <| ← test p (← IO.FS.readFile inputFile)

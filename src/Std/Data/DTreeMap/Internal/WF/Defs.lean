@@ -77,6 +77,10 @@ theorem WF.eraseMany [Ord α] {ρ} [ForIn Id ρ α] {t : Impl α β} {l : ρ} {h
     WF (t.eraseMany l h).val :=
   (t.eraseMany l h).2 hwf fun _ _ _ hwf' => hwf'.erase
 
+theorem WF.eraseManyEntries [Ord α] {ρ} [ForIn Id ρ ((a : α) × β a)] {t : Impl α β} {l : ρ} {h} (hwf : WF t) :
+    WF (t.eraseManyEntries l h).val :=
+  (t.eraseManyEntries l h).2 hwf fun _ _ _ hwf' => hwf'.erase
+
 theorem WF.insertMany [Ord α] {ρ} [ForIn Id ρ ((a : α) × β a)] {t : Impl α β} {l : ρ} {h} (hwf : WF t) :
     WF (t.insertMany l h).val :=
   (t.insertMany l h).2 hwf fun _ _ _ _ hwf' => hwf'.insert

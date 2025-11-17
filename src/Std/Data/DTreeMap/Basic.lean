@@ -1052,6 +1052,14 @@ Erases multiple mappings from the tree map by iterating over the given collectio
 def eraseMany {ρ} [ForIn Id ρ α] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseMany l t.wf.balanced, t.wf.eraseMany⟩
 
+/--
+Erases multiple mappings from the tree map by iterating over the given collection of entries and calling
+`erase` on the keys from the collection.
+-/
+@[inline]
+def eraseManyEntries {ρ} [ForIn Id ρ ((a : α) × β a)] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseManyEntries l t.wf.balanced, t.wf.eraseManyEntries⟩
+
 namespace Const
 
 variable {β : Type v}

@@ -89,6 +89,10 @@ theorem eraseMany [TransCmp cmp] {ρ} [ForIn Id ρ α] {l : ρ} {t : Raw α β c
     (h : t.WF) : WF (t.eraseMany l) :=
   ⟨h.out.eraseMany!⟩
 
+theorem eraseManyEntries [TransCmp cmp] {ρ} [ForIn Id ρ ((a : α) × β a)] {l : ρ} {t : Raw α β cmp}
+    (h : t.WF) : WF (t.eraseManyEntries l) :=
+  ⟨h.out.eraseManyEntries!⟩
+
 theorem insertMany [TransCmp cmp] {ρ} [ForIn Id ρ ((a : α) × β a)] {l : ρ} {t : Raw α β cmp}
     (h : t.WF) : WF (t.insertMany l) :=
   ⟨h.out.insertMany!⟩

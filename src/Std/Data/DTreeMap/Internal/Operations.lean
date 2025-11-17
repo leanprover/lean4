@@ -466,6 +466,20 @@ def eraseMany [Ord α] {ρ : Type w} [ForIn Id ρ α] (t : Impl α β) (l : ρ) 
   return r
 
 /-- A tree map obtained by erasing elements from `t`, bundled with an inductive principle. -/
+abbrev IteratedEntryErasureFrom [Ord α] (t) :=
+  { t' // ∀ {P : Impl α β → Prop}, P t → (∀ t'' a h, P t'' → P (t''.erase a h).impl) → P t' }
+
+/-- Iterate over `l` and erase all of its elements from `t`. -/
+@[inline]
+def eraseManyEntries [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) (h : t.Balanced) :
+    IteratedEntryErasureFrom t := Id.run do
+  let mut r := ⟨t, fun h _ => h⟩
+  for ⟨a, _⟩ in l do
+    let hr := r.2 h (fun t'' a h _ => (t''.erase a h).balanced_impl)
+    r := ⟨r.val.erase a hr |>.impl, fun h₀ h₁ => h₁ _ _ _ (r.2 h₀ h₁)⟩
+  return r
+
+/-- A tree map obtained by erasing elements from `t`, bundled with an inductive principle. -/
 abbrev IteratedSlowErasureFrom [Ord α] (t) :=
   { t' // ∀ {P : Impl α β → Prop}, P t → (∀ t'' a, P t'' → P (t''.erase! a)) → P t' }
 
@@ -478,6 +492,22 @@ def eraseMany! [Ord α] {ρ : Type w} [ForIn Id ρ α] (t : Impl α β) (l : ρ)
     IteratedSlowErasureFrom t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for a in l do
+    r := ⟨r.val.erase! a, fun h₀ h₁ => h₁ _ _ (r.2 h₀ h₁)⟩
+  return r
+
+/-- A tree map obtained by erasing elements from `t`, bundled with an inductive principle. -/
+abbrev IteratedSlowEntryErasureFrom [Ord α] (t) :=
+  { t' // ∀ {P : Impl α β → Prop}, P t → (∀ t'' a, P t'' → P (t''.erase! a)) → P t' }
+
+/--
+Slower version of `eraseManyEntries` which can be used in absence of balance information but still
+assumes the preconditions of `eraseManyEntries`, otherwise might panic.
+-/
+@[inline]
+def eraseManyEntries! [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) :
+    IteratedSlowErasureFrom t := Id.run do
+  let mut r := ⟨t, fun h _ => h⟩
+  for ⟨a, _⟩ in l do
     r := ⟨r.val.erase! a, fun h₀ h₁ => h₁ _ _ (r.2 h₀ h₁)⟩
   return r
 

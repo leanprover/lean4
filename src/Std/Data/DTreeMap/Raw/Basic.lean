@@ -726,6 +726,10 @@ instance : Union (Raw α β cmp) := ⟨union⟩
 def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseMany! l⟩
 
+@[inline, inherit_doc DTreeMap.eraseManyEntries]
+def eraseManyEntries {ρ} [ForIn Id ρ ((a : α) × β a)] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseManyEntries! l⟩
+
 namespace Const
 
 variable {β : Type v}

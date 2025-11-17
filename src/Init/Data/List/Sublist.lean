@@ -98,14 +98,18 @@ theorem eq_nil_of_subset_nil {l : List α} : l ⊆ [] → l = [] := subset_nil.m
 theorem map_subset {l₁ l₂ : List α} (f : α → β) (h : l₁ ⊆ l₂) : map f l₁ ⊆ map f l₂ :=
   fun x => by simp only [mem_map]; exact .imp fun a => .imp_left (@h _)
 
-grind_pattern map_subset => l₁ ⊆ l₂, map f l₁
-grind_pattern map_subset => l₁ ⊆ l₂, map f l₂
+grind_pattern map_subset => l₁ ⊆ l₂, map f l₁ where
+  l₂ =/= List.map _ _
+grind_pattern map_subset => l₁ ⊆ l₂, map f l₂ where
+  l₁ =/= List.map _ _
 
 theorem filter_subset {l₁ l₂ : List α} (p : α → Bool) (H : l₁ ⊆ l₂) : filter p l₁ ⊆ filter p l₂ :=
   fun x => by simp_all [mem_filter, subset_def.1 H]
 
-grind_pattern filter_subset => l₁ ⊆ l₂, filter p l₁
-grind_pattern filter_subset => l₁ ⊆ l₂, filter p l₂
+grind_pattern filter_subset => l₁ ⊆ l₂, filter p l₁ where
+  l₂ =/= List.filter _ _
+grind_pattern filter_subset => l₁ ⊆ l₂, filter p l₂ where
+  l₁ =/= List.filter _ _
 
 theorem filterMap_subset {l₁ l₂ : List α} (f : α → Option β) (H : l₁ ⊆ l₂) :
     filterMap f l₁ ⊆ filterMap f l₂ := by
@@ -114,8 +118,10 @@ theorem filterMap_subset {l₁ l₂ : List α} (f : α → Option β) (H : l₁ 
   rintro ⟨a, h, w⟩
   exact ⟨a, H h, w⟩
 
-grind_pattern filterMap_subset => l₁ ⊆ l₂, filterMap f l₁
-grind_pattern filterMap_subset => l₁ ⊆ l₂, filterMap f l₂
+grind_pattern filterMap_subset => l₁ ⊆ l₂, filterMap f l₁ where
+  l₂ =/= List.filterMap _ _
+grind_pattern filterMap_subset => l₁ ⊆ l₂, filterMap f l₂ where
+  l₁ =/= List.filterMap _ _
 
 theorem subset_append_left (l₁ l₂ : List α) : l₁ ⊆ l₁ ++ l₂ := fun _ => mem_append_left _
 
@@ -282,20 +288,28 @@ protected theorem Sublist.map (f : α → β) {l₁ l₂} (s : l₁ <+ l₂) : m
 grind_pattern Sublist.map => l₁ <+ l₂, map f l₁
 grind_pattern Sublist.map => l₁ <+ l₂, map f l₂
 
-@[grind ←]
 protected theorem Sublist.filterMap (f : α → Option β) (s : l₁ <+ l₂) :
     filterMap f l₁ <+ filterMap f l₂ := by
   induction s <;> simp [filterMap_cons] <;> split <;> simp [*, cons]
 
-grind_pattern Sublist.filterMap => l₁ <+ l₂, filterMap f l₁
-grind_pattern Sublist.filterMap => l₁ <+ l₂, filterMap f l₂
+grind_pattern Sublist.filterMap => filterMap f l₁ <+ filterMap f l₂ where
+  l₁ =/= List.filterMap _ _
+  l₂ =/= List.filterMap _ _
+grind_pattern Sublist.filterMap => l₁ <+ l₂, filterMap f l₁ where
+  l₂ =/= List.filterMap _ _
+grind_pattern Sublist.filterMap => l₁ <+ l₂, filterMap f l₂ where
+  l₁ =/= List.filterMap _ _
 
-@[grind ←]
 protected theorem Sublist.filter (p : α → Bool) {l₁ l₂} (s : l₁ <+ l₂) : filter p l₁ <+ filter p l₂ := by
   rw [← filterMap_eq_filter]; apply s.filterMap
 
-grind_pattern Sublist.filter => l₁ <+ l₂, l₁.filter p
-grind_pattern Sublist.filter => l₁ <+ l₂, l₂.filter p
+grind_pattern Sublist.filter => filter p l₁ <+ filter p l₂ where
+  l₁ =/= List.filter _ _
+  l₂ =/= List.filter _ _
+grind_pattern Sublist.filter => l₁ <+ l₂, l₁.filter p where
+  l₂ =/= List.filter _ _
+grind_pattern Sublist.filter => l₁ <+ l₂, l₂.filter p where
+  l₁ =/= List.filter _ _
 
 theorem head_filter_mem (xs : List α) (p : α → Bool) (h) : (xs.filter p).head h ∈ xs :=
   filter_sublist.head_mem h

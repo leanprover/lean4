@@ -240,4 +240,53 @@ public theorem toList_mkSlice_roi {xs : Array α} {lo : Nat} :
     xs[lo<...*].toList = xs.toList.drop (lo + 1) := by
   rw [mkSlice_roi_eq_mkSlice_rci, toList_mkSlice_rci]
 
+@[simp]
+public theorem mkSlice_rio_eq_mkSlice_rco {xs : Array α} {hi : Nat} :
+    xs[*...hi] = xs[0...hi] := by
+  simp [Std.Rio.Sliceable.mkSlice, Std.Rio.HasRcoIntersection.intersection,
+    Std.Rco.Sliceable.mkSlice, Std.Rco.HasRcoIntersection.intersection]
+
+public theorem mkSlice_rio_eq_mkSlice_rio_min {xs : Array α} {hi : Nat} :
+    xs[*...hi] = xs[*...(min hi xs.size)] := by
+  simp [mkSlice_rco_eq_mkSlice_rco_min]
+
+@[simp]
+public theorem toList_mkSlice_rio {xs : Array α} {hi : Nat} :
+    xs[*...hi].toList = xs.toList.take hi := by
+  rw [mkSlice_rio_eq_mkSlice_rco, toList_mkSlice_rco, List.drop_zero]
+
+@[simp]
+public theorem mkSlice_ric_eq_mkSlice_rio {xs : Array α} {hi : Nat} :
+    xs[*...=hi] = xs[*...(hi + 1)] := by
+  simp [Std.Ric.Sliceable.mkSlice, Std.Rio.Sliceable.mkSlice,
+    Std.Ric.HasRcoIntersection.intersection, Std.Rio.HasRcoIntersection.intersection]
+
+public theorem mkSlice_ric_eq_mkSlice_rio_min {xs : Array α} {hi : Nat} :
+    xs[*...=hi] = xs[*...(min (hi + 1) xs.size)] := by
+  simp [mkSlice_rco_eq_mkSlice_rco_min]
+
+@[simp]
+public theorem toList_mkSlice_ric {xs : Array α} {hi : Nat} :
+    xs[*...=hi].toList = xs.toList.take (hi + 1) := by
+  rw [mkSlice_ric_eq_mkSlice_rio, toList_mkSlice_rio]
+
+@[simp]
+public theorem mkSlice_rii_eq_mkSlice_rci {xs : Array α} :
+    xs[*...*] = xs[0...*] := by
+  simp [Std.Rii.Sliceable.mkSlice, Std.Rci.Sliceable.mkSlice,
+    Std.Rci.HasRcoIntersection.intersection]
+
+public theorem mkSlice_rii_eq_mkSlice_rio {xs : Array α} :
+    xs[*...*] = xs[*...xs.size] := by
+  simp [mkSlice_rci_eq_mkSlice_rco]
+
+public theorem mkSlice_rii_eq_mkSlice_rio_min {xs : Array α} :
+    xs[*...*] = xs[*...xs.size] := by
+  simp [mkSlice_rco_eq_mkSlice_rco_min]
+
+@[simp]
+public theorem toList_mkSlice_rii {xs : Array α} :
+    xs[*...*].toList = xs.toList := by
+  rw [mkSlice_rii_eq_mkSlice_rci, toList_mkSlice_rci, List.drop_zero]
+
 end Array

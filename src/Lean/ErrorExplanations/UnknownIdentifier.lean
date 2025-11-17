@@ -42,7 +42,7 @@ def inventory :=
   Std.HashSet.ofList [("apples", 3), ("bananas", 4)]
 ```
 ```output
-Unknown constant `Std.HashSet.ofList`
+Unknown identifier `Std.HashSet.ofList`
 ```
 ```lean fixed
 public import Std.Data.HashSet.Basic
@@ -163,7 +163,7 @@ def disjoinToNat (b₁ b₂ : Bool) : Nat :=
   .toNat (b₁ || b₂)
 ```
 ```output
-Unknown identifier `Nat.toNat`
+Unknown constant `Nat.toNat`
 
 Note: Inferred this name from the expected resulting type of `.toNat`:
   Nat

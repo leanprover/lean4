@@ -803,6 +803,21 @@ def filter! [Ord α] (f : (a : α) → β a → Bool) (t : Impl α β) : Impl α
     | true => link! k v (filter! f l) (filter! f r)
 
 /--
+Computes the difference of the given tree maps.
+
+This function always iterates through the smaller map.
+-/
+def diff [Ord α] (t₁ t₂ : Impl α β) (h₁ : t₁.Balanced) : Impl α β :=
+  if t₁.size ≤ t₂.size then (t₁.filter (fun p _ => !t₂.contains p) h₁).impl else (t₁.eraseManyEntries t₂ h₁)
+
+/--
+Slower version of `diff` which can be used in the absence of balance
+information but still assumes the preconditions of `diff`, otherwise might panic.
+-/
+def diff! [Ord α] (t₁ t₂ : Impl α β) : Impl α β :=
+  if t₁.size ≤ t₂.size then t₁.filter! (fun p _ => !t₂.contains p) else t₁.eraseManyEntries! t₂
+
+/--
 Changes the mapping of the key `k` by applying the function `f` to the current mapped value
 (if any). This function can be used to insert a new mapping, modify an existing one or delete it.
 This version of the function requires `LawfulEqOrd α`. There is an alternative non-dependent version

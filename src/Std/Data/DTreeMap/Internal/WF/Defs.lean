@@ -111,6 +111,12 @@ theorem WF.union [Ord α] {t₁ : Impl α β} {h₁ : t₁.WF} {t₂ : Impl α �
   . apply WF.insertManyIfNew h₂
   . apply WF.insertMany h₁
 
+theorem WF.diff [Ord α] {t₁ : Impl α β} {h₁ : t₁.WF} {t₂ : Impl α β} :
+    (t₁.diff t₂ h₁.balanced).WF := by
+  simp [Impl.diff]
+  split
+  · apply WF.filter h₁
+  · apply WF.eraseManyEntries h₁
 section Const
 
 variable {β : Type v}

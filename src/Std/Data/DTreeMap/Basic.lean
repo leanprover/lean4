@@ -1045,6 +1045,16 @@ def union (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
 instance : Union (DTreeMap α β cmp) := ⟨union⟩
 
 /--
+Computes the difference of the given tree maps.
+
+This function always iterates through the smaller map.
+-/
+def diff (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
+    letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.diff t₂.inner t₁.wf.balanced, @Impl.WF.diff α β _ t₁.inner t₁.wf t₂.inner t₂.wf⟩
+
+instance : SDiff (DTreeMap α β cmp) := ⟨diff⟩
+
+/--
 Erases multiple mappings from the tree map by iterating over the given collection and calling
 `erase`.
 -/

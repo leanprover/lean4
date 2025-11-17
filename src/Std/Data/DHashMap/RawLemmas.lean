@@ -2425,13 +2425,19 @@ theorem insertMany_list_singleton (h : m.WF)
   simp_to_raw
   rw [Raw₀.Const.insertMany_cons]
 
-@[grind _=_]
 theorem insertMany_append (h : m.WF) {l₁ l₂ : List (α × β)} :
     insertMany m (l₁ ++ l₂) = insertMany (insertMany m l₁) l₂ := by
   induction l₁ generalizing m with
   | nil => simp [h]
   | cons hd tl ih =>
     rw [List.cons_append, insertMany_cons h, insertMany_cons h, ih h.insert]
+
+grind_pattern insertMany_append => insertMany m (l₁ ++ l₂) where
+  l₁ =/= []
+  l₂ =/= []
+grind_pattern insertMany_append => insertMany (insertMany m l₁) l₂ where
+  l₁ =/= []
+  l₂ =/= []
 
 @[elab_as_elim]
 theorem insertMany_ind {motive : Raw α (fun _ => β) → Prop} (m : Raw α fun _ => β) (l : ρ)

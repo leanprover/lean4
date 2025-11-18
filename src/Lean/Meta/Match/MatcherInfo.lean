@@ -18,6 +18,18 @@ structure DiscrInfo where
   hName? : Option Name := none
   deriving Inhabited
 
+
+structure Overlaps where
+  map : Std.HashMap Nat (Std.TreeSet Nat) := {}
+
+def Overlaps.insert (o : Overlaps) (overlapping overlapped : Nat) : Overlaps where
+  map := o.map.alter overlapped fun s? => some ((s?.getD {}).insert overlapping)
+
+def Overlaps.overlapping (o : Overlaps) (overlapped : Nat) : Array Nat :=
+  match o.map[overlapped]? with
+  | some s => s.toArray
+  | none   => #[]
+
 /--
 A "matcher" auxiliary declaration has the following structure:
 - `numParams` parameters
@@ -26,7 +38,9 @@ A "matcher" auxiliary declaration has the following structure:
 - `altNumParams.size` alternatives (aka minor premises) where alternative `i` has `altNumParams[i]` parameters
 - `uElimPos?` is `some pos` when the matcher can eliminate in different universe levels, and
    `pos` is the position of the universe level parameter that specifies the elimination universe.
-   It is `none` if the matcher only eliminates into `Prop`. -/
+   It is `none` if the matcher only eliminates into `Prop`.
+- `overlaps` indicates which alternatives may overlap another
+-/
 structure MatcherInfo where
   numParams    : Nat
   numDiscrs    : Nat
@@ -36,6 +50,7 @@ structure MatcherInfo where
     `discrInfos[i] = { hName? := some h }` if the i-th discriminant was annotated with `h :`.
   -/
   discrInfos   : Array DiscrInfo
+  overlaps     : Overlaps := {}
 
 @[expose] def MatcherInfo.numAlts (info : MatcherInfo) : Nat :=
   info.altNumParams.size

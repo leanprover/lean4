@@ -131,6 +131,11 @@ theorem foldRev_cons_key {l : Raw α β} {acc : List α} :
       List.keys (toListModel l.buckets) ++ acc := by
   rw [foldRev_cons_apply, keys_eq_map]
 
+theorem foldRev_cons_value {β : Type v} {l : Raw α (fun _ => β)} {acc : List β} :
+    Raw.Internal.foldRev (fun acc _ v => v :: acc) acc l =
+      List.values (toListModel l.buckets) ++ acc := by
+  rw [foldRev_cons_apply, values_eq_map]
+
 theorem fold_push {l : Raw α β} {acc : Array ((a : α) × β a)} :
     Raw.fold (fun acc k v => acc.push ⟨k, v⟩) acc l = acc ++ (toListModel l.buckets).toArray := by
   simp [fold_push_apply]
@@ -223,6 +228,10 @@ theorem Const.toArray_eq_toArray_map_toListModel {β : Type v} {m : Raw α (fun 
 theorem keys_eq_keys_toListModel {m : Raw α β} :
     m.keys = List.keys (toListModel m.buckets) := by
   simp [Raw.keys, foldRev_cons_key, keys_eq_map]
+
+theorem values_eq_values_toListModel {β : Type v}  {m : Raw α (fun _ => β)} :
+    m.values = List.values (toListModel m.buckets) := by
+  simp [Raw.values, foldRev_cons_value, values_eq_map]
 
 theorem keysArray_eq_toArray_keys_toListModel {m : Raw α β} :
     m.keysArray = (List.keys (toListModel m.buckets)).toArray := by

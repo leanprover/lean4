@@ -411,6 +411,7 @@ static lean_object* l___auto___closed__29_00___x40_Init_Data_Vector_Basic_149979
 LEAN_EXPORT lean_object* l_Vector_zipWith___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_range_x27(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Vector_instBEq___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Vector_findM_x3f___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instBEq(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_any___redArg___boxed(lean_object*, lean_object*);
@@ -631,7 +632,6 @@ LEAN_EXPORT lean_object* l_Vector_range(lean_object*);
 static lean_object* l___auto___closed__5_00___x40_Init_Data_Vector_Basic_3103831426____hygCtx___hyg_12_;
 static lean_object* l___auto___closed__5_00___x40_Init_Data_Vector_Basic_1499792475____hygCtx___hyg_20_;
 static lean_object* l_Vector_term_x23v_x5b___x2c_x5d___closed__17;
-lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Vector_lex___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_allM___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_mapFinIdxM_map___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1369,7 +1369,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Vector___aux__Init__Data__Vector__Basic______macroRules__Vector__term_x23v_x5b___x2c_x5d__1___closed__5;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1495,7 +1495,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Vector___aux__Init__Data__Vector__Basic______macroRules__Vector__term_x23v_x5b___x2c_x5d__1___closed__18;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1570,7 +1570,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Vector___aux__Init__Data__Vector__Basic______macroRules__Vector__term_x23v_x5b___x2c_x5d__1___closed__27;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

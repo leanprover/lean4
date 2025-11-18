@@ -79,6 +79,7 @@ static lean_object* l_Lean_Elab_Command_expandMixfix___lam__0___closed__28;
 static lean_object* l_Lean_Elab_Command_expandMixfix___lam__0___closed__52;
 static lean_object* l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__1;
 static lean_object* l_Lean_Elab_Command_expandMixfix___lam__0___closed__14;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMixfix___lam__0___closed__20;
 static lean_object* l_Lean_Elab_Command_expandMixfix___lam__0___closed__16;
 static lean_object* l_Lean_Elab_Command_expandMixfix___lam__0___closed__26;
@@ -114,7 +115,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__0;
 static lean_object* l_Lean_Elab_Command_expandMixfix___lam__0___closed__29;
 static lean_object* l_Lean_Elab_Command_expandMixfix___lam__0___closed__5;
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMixfix___lam__0___closed__46;
 lean_object* l_Lean_Syntax_mkNumLit(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix_declRange__3___closed__0;
@@ -249,7 +249,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Command_expandMixfix___lam__0___closed__5;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -465,7 +465,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Command_expandMixfix___lam__0___closed__30;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -491,7 +491,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Command_expandMixfix___lam__0___closed__33;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

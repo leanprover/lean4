@@ -300,8 +300,10 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
         Term.elabTerm (← `(match $x:term with | $pat => $thenStx | _ => $resStx)) mγ
     | `(doIfCond|let $pat := $d) => withThenStx fun thenStx => do
       Term.elabMatch (← `(match $d:term with | $pat => $thenStx | _ => $resStx)) mγ
-    | `(doIfCond|$cond:term) => withThenStx fun thenStx => do
+    | `(doIfCond|$cond) => withThenStx fun thenStx => do
       Term.elabTerm (← `(if $cond then $thenStx else $resStx)) mγ
+    | `(doIfCond|$h : $cond) => withThenStx fun thenStx => do
+      Term.elabTerm (← `(if $h:ident : $cond then $thenStx else $resStx)) mγ
     | _ => throwUnsupportedSyntax
   return res
 
@@ -372,6 +374,15 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
   let x ← Term.mkFreshIdent pattern
   elabDoIdDecl x none (← `(doElem| instantiateMVars $rhs)) do
     elabDoLetExpr (← `(doElem| let_expr $pattern:matchExprPat := $x | $otherwise)) dec
+
+@[builtin_doElem_elab Lean.Parser.Term.doUnless] def elabDoUnless : DoElab := fun stx dec => do
+  let `(doUnless| unless $cond do $body) := stx | throwUnsupportedSyntax
+  let mγ ← mkMonadicType (← read).doBlockResultType
+  let else_ ← elabDoSeq body (← DoElemCont.mkPure mγ)
+  let then_ ← dec.continueWithUnit
+  let else_ ← Term.exprToSyntax else_
+  let then_ ← Term.exprToSyntax then_
+  Term.elabTerm (← `(if $cond then $then_ else $else_)) mγ
 
 -- TODO remaining cases
 @[builtin_doElem_elab Lean.Parser.Term.doFor] def elabDoFor : DoElab := fun stx dec => do
@@ -497,8 +508,6 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
 
 /-
 TODO:
-* doMatchExpr
-* doLetExpr
 * doUnless
 * doDbgTrace
 * doAssert

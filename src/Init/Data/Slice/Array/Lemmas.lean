@@ -516,6 +516,26 @@ public theorem toArray_mkSlice_rii {xs : Array α} :
     xs[*...*].toArray = xs := by
   simp
 
+@[simp]
+public theorem size_mkSlice_rii {xs : Array α} :
+    xs[*...*].size = xs.size := by
+  simp [← Subarray.length_toList]
+
+@[simp]
+public theorem array_mkSlice_rii {xs : Array α} :
+    xs[*...*].array = xs := by
+  simp
+
+@[simp]
+public theorem start_mkSlice_rii {xs : Array α} :
+    xs[*...*].start = 0 := by
+  simp
+
+@[simp]
+public theorem stop_mkSlice_rii {xs : Array α} :
+    xs[*...*].stop = xs.size := by
+  simp [Std.Rii.Sliceable.mkSlice]
+
 end Array
 
 section SubarraySlices
@@ -674,26 +694,6 @@ public theorem toList_mkSlice_rii {xs : Subarray α} :
 public theorem toArray_mkSlice_rii {xs : Subarray α} :
     xs[*...*].toArray = xs.toArray := by
   rw [mkSlice_rii]
-
-@[simp]
-public theorem size_mkSlice_rii {xs : Array α} :
-    xs[*...*].size = xs.size := by
-  simp [← Subarray.length_toList]
-
-@[simp]
-public theorem array_mkSlice_rii {xs : Array α} :
-    xs[*...*].array = xs := by
-  simp
-
-@[simp]
-public theorem start_mkSlice_rii {xs : Array α} :
-    xs[*...*].start = 0 := by
-  simp
-
-@[simp]
-public theorem stop_mkSlice_rco {xs : Array α} :
-    xs[*...*].stop = xs.size := by
-  simp [Std.Rii.Sliceable.mkSlice]
 
 end Subarray
 

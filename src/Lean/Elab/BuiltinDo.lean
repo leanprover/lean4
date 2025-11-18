@@ -42,6 +42,12 @@ def getPatternsVarsEx (patterns : Array Term) : TermElabM (Array Ident) :=
   Term.getPatternsVars patterns <|>
   Term.Quotation.getPatternsVars patterns
 
+def getExprPatternVarsEx (exprPattern : TSyntax ``matchExprPat) : TermElabM (Array Ident) := do
+  let `(matchExprPat| $[$var? @]? $_funName:ident $pvars*) := exprPattern | throwUnsupportedSyntax
+  match var? with
+  | some var => return #[var] ++ pvars.filter (·.raw.isIdent) |>.map (⟨·⟩)
+  | none => return pvars.filter (·.raw.isIdent) |>.map (⟨·⟩)
+
 def getLetPatDeclVars (letPatDecl : TSyntax ``letPatDecl) : TermElabM (Array Ident) := do
   -- def letPatDecl := leading_parser termParser >> pushNone >> optType >> " := " >> termParser
   getPatternVarsEx ⟨letPatDecl.raw[0]⟩
@@ -239,7 +245,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
         elabDoElem (← `(doElem| $pattern:term := $x)) dec
       | .reassign, some otherwise =>
         throwError (Function.const _ "doReassignElse needs a stage0 update for quotation syntax" otherwise)
-        -- elabDoElem (← `(doElem| $pattern:term := $x | $otherwise)) dec
+        elabDoElem ⟨← `(doReassignElse| $pattern:term := $x | $otherwise)⟩ dec
   | _ => throwUnsupportedSyntax
 
 @[builtin_doElem_elab Lean.Parser.Term.doLet] def elabDoLet : DoElab := fun stx dec => do
@@ -316,13 +322,56 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
         match alts[i] with
         | `(matchAltExpr| | $patterns,* => $seq) =>
           let vars ← getPatternsVarsEx patterns
-          runInBase <| checkMutVarsForShadowing vars -- TODO: Need to relax this for reassignments?!
+          runInBase <| checkMutVarsForShadowing vars
           Term.elabToSyntax (fun _ => runInBase <| elabDoSeq ⟨seq⟩ dec) fun rhs => do
             elabMatch (i + 1) (alts.set i (← `(matchAltExpr| | $patterns,* => $rhs)))
         | _ => throwUnsupportedSyntax
       else
         Term.elabMatch (← `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)) mγ
     elabMatch 0 alts
+
+@[builtin_doElem_elab Lean.Parser.Term.doMatchExpr] def elabDoMatchExpr : DoElab := fun stx dec => do
+  let `(doMatchExpr| match_expr $[(meta := false)%$metaFalseTk?]? $discr:term with $alts) := stx | throwUnsupportedSyntax
+  if metaFalseTk?.isNone then -- i.e., implicitly (meta := true)
+    let x ← Term.mkFreshIdent discr
+    elabDoIdDecl x none (← `(doElem| instantiateMVars $discr)) do
+      elabDoMatchExprNoMeta x alts dec
+  else
+    elabDoMatchExprNoMeta discr alts dec
+where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts) (dec : DoElemCont) : DoElabM Expr := do
+  let mγ ← mkMonadicType (← read).doBlockResultType
+  dec.withDuplicableCont fun dec => do
+  controlAtTermElabM fun runInBase => do
+    let rec elabMatch i (altsArr : Array (TSyntax ``Term.matchExprAlt)) := do
+      if h : i < altsArr.size then
+        match altsArr[i] with
+        | `(matchExprAltExpr| | $pattern => $seq) =>
+          let vars ← getExprPatternVarsEx pattern
+          runInBase <| checkMutVarsForShadowing vars
+          Term.elabToSyntax (fun _ => runInBase <| elabDoSeq ⟨seq⟩ dec) fun rhs => do
+            elabMatch (i + 1) (altsArr.set i (← `(matchExprAltExpr| | $pattern => $rhs)))
+        | _ => throwUnsupportedSyntax
+      else
+        let alts : TSyntax ``Term.matchExprAlts := ⟨alts.raw.modifyArg 0 fun node => node.setArgs altsArr⟩
+        Term.elabTerm (← `(match_expr $discr with $alts)) mγ
+    elabMatch 0 (alts.raw[0].getArgs.map (⟨·⟩))
+
+@[builtin_doElem_elab Lean.Parser.Term.doLetExpr] def elabDoLetExpr : DoElab := fun stx dec => do
+  let `(doLetExpr| let_expr $pattern:matchExprPat := $rhs:term | $otherwise) := stx | throwUnsupportedSyntax
+  let mγ ← mkMonadicType (← read).doBlockResultType
+  let otherwise ← elabDoSeq otherwise (← DoElemCont.mkPure mγ)
+  let otherwise ← Term.exprToSyntax otherwise
+  controlAtTermElabM fun runInBase => do
+    let vars ← getExprPatternVarsEx pattern
+    runInBase <| checkMutVarsForShadowing vars
+    Term.elabToSyntax (fun _ => runInBase <| dec.continueWithUnit) fun body => do
+      Term.elabTerm (← `(match_expr $rhs with | $pattern => $body | _ => $otherwise)) mγ
+
+@[builtin_doElem_elab Lean.Parser.Term.doLetMetaExpr] def elabDoLetMetaExpr : DoElab := fun stx dec => do
+  let `(doLetMetaExpr| let_expr $pattern:matchExprPat ← $rhs:term | $otherwise) := stx | throwUnsupportedSyntax
+  let x ← Term.mkFreshIdent pattern
+  elabDoIdDecl x none (← `(doElem| instantiateMVars $rhs)) do
+    elabDoLetExpr (← `(doElem| let_expr $pattern:matchExprPat := $x | $otherwise)) dec
 
 -- TODO remaining cases
 @[builtin_doElem_elab Lean.Parser.Term.doFor] def elabDoFor : DoElab := fun stx dec => do
@@ -445,3 +494,14 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
       pure <| mkApp7 (mkConst ``tryFinally [mi.u, mi.v])
         mi.m lifter.resultType β instMonadFinally instFunctor body fin
   (← lifter.restoreCont).mkBindUnlessPure body
+
+/-
+TODO:
+* doMatchExpr
+* doLetExpr
+* doUnless
+* doDbgTrace
+* doAssert
+* doDebugAssert
+
+-/

@@ -408,10 +408,10 @@ def insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) 
   | .cons hd tl => insertListₘ (m.insert hd.1 hd.2) tl
 
 /-- Internal implementation detail of the hash map -/
-def eraseListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) : Raw₀ α β :=
+def eraseListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List α) : Raw₀ α β :=
   match l with
   | .nil => m
-  | .cons hd tl => eraseListₘ (m.erase hd.1) tl
+  | .cons hd tl => eraseListₘ (m.erase hd) tl
 
 /-- Internal implementation detail of the hash map -/
 def diffₘ [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
@@ -670,17 +670,17 @@ theorem insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l
     apply ih
 
 theorem eraseManyEntries_eq_eraseListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) :
-    eraseManyEntries m l = eraseListₘ m l := by
+    eraseManyEntries m l = eraseListₘ m (l.map (·.1)) := by
   simp only [eraseManyEntries, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
       (∀ {m'' : Raw₀ α β} {a : α}, P m'' → P (m''.erase a)) → P m → P m' }),
         (List.foldl (fun m' p => ⟨m'.val.erase p.1, fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =
-      t.val.eraseListₘ l from this _
+      t.val.eraseListₘ (l.map (·.1)) from this _
   intro t
   induction l generalizing m with
   | nil => simp [eraseListₘ]
   | cons hd tl ih =>
-    simp only [List.foldl_cons, eraseListₘ]
+    simp only [List.foldl_cons]
     apply ih
 
 theorem insertManyIfNew_eq_insertListIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) :

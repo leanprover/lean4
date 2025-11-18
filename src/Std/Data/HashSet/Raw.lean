@@ -243,6 +243,17 @@ This function always merges the smaller set into the larger set, so the expected
 
 instance [BEq α] [Hashable α] : Inter (Raw α) := ⟨inter⟩
 
+/--
+Computes the difference of the given hash sets.
+
+This function always iterates through the smaller, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def diff [BEq α] [Hashable α] (m₁ m₂ : Raw α) : Raw α :=
+  ⟨HashMap.Raw.diff m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : SDiff (Raw α) := ⟨diff⟩
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -327,6 +338,12 @@ theorem WF.ofList [BEq α] [Hashable α] {l : List α} :
 
 theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.union m₂).WF :=
   ⟨HashMap.Raw.WF.union h₁.out h₂.out⟩
+
+theorem WF.inter [BEq α] [Hashable α] {m₁ m₂ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.inter m₂).WF :=
+  ⟨HashMap.Raw.WF.inter h₁.out h₂.out⟩
+
+theorem WF.diff [BEq α] [Hashable α] {m₁ m₂ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.diff m₂).WF :=
+  ⟨HashMap.Raw.WF.diff h₁.out h₂.out⟩
 
 end Raw
 

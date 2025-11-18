@@ -760,30 +760,30 @@ return x_4;
 }
 else
 {
-if (lean_obj_tag(x_2) == 1)
+if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_5 = lean_ctor_get(x_1, 0);
-x_6 = lean_ctor_get(x_1, 1);
-x_7 = lean_ctor_get(x_2, 0);
-x_8 = lean_ctor_get(x_2, 1);
-x_9 = l_Lean_IR_UnreachableBranches_instBEqValue_beq(x_5, x_7);
-if (x_9 == 0)
-{
-return x_9;
+uint8_t x_5; 
+x_5 = 0;
+return x_5;
 }
 else
 {
-x_1 = x_6;
-x_2 = x_8;
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_6 = lean_ctor_get(x_1, 0);
+x_7 = lean_ctor_get(x_1, 1);
+x_8 = lean_ctor_get(x_2, 0);
+x_9 = lean_ctor_get(x_2, 1);
+x_10 = l_Lean_IR_UnreachableBranches_instBEqValue_beq(x_6, x_8);
+if (x_10 == 0)
+{
+return x_10;
+}
+else
+{
+x_1 = x_7;
+x_2 = x_9;
 goto _start;
 }
-}
-else
-{
-uint8_t x_11; 
-x_11 = 0;
-return x_11;
 }
 }
 }
@@ -8555,7 +8555,7 @@ block_47:
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; 
 lean_inc(x_36);
-x_41 = l_Lean_IR_UnreachableBranches_interpFnBody(x_36, x_39, x_40);
+x_41 = l_Lean_IR_UnreachableBranches_interpFnBody(x_36, x_38, x_40);
 x_42 = lean_ctor_get(x_41, 1);
 lean_inc(x_42);
 lean_dec_ref(x_41);
@@ -8567,8 +8567,8 @@ lean_object* x_45;
 lean_dec(x_33);
 lean_inc(x_1);
 x_45 = l_outOfBounds___redArg(x_1);
-x_14 = x_38;
-x_15 = x_42;
+x_14 = x_42;
+x_15 = x_39;
 x_16 = x_45;
 goto block_22;
 }
@@ -8579,8 +8579,8 @@ lean_inc_ref(x_43);
 lean_inc(x_1);
 x_46 = l_Lean_PersistentArray_get_x21___redArg(x_1, x_43, x_33);
 lean_dec(x_33);
-x_14 = x_38;
-x_15 = x_42;
+x_14 = x_42;
+x_15 = x_39;
 x_16 = x_46;
 goto block_22;
 }
@@ -8605,8 +8605,8 @@ x_54 = lean_nat_dec_lt(x_8, x_52);
 if (x_54 == 0)
 {
 lean_dec(x_52);
-x_38 = x_48;
-x_39 = x_53;
+x_38 = x_53;
+x_39 = x_48;
 x_40 = x_7;
 goto block_47;
 }
@@ -8617,8 +8617,8 @@ x_55 = lean_nat_dec_le(x_52, x_52);
 if (x_55 == 0)
 {
 lean_dec(x_52);
-x_38 = x_48;
-x_39 = x_53;
+x_38 = x_53;
+x_39 = x_48;
 x_40 = x_7;
 goto block_47;
 }
@@ -8633,8 +8633,8 @@ x_59 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lea
 x_60 = lean_ctor_get(x_59, 1);
 lean_inc(x_60);
 lean_dec_ref(x_59);
-x_38 = x_48;
-x_39 = x_53;
+x_38 = x_53;
+x_39 = x_48;
 x_40 = x_60;
 goto block_47;
 }
@@ -8704,31 +8704,31 @@ block_22:
 if (x_5 == 0)
 {
 uint8_t x_17; 
-x_17 = l_Lean_IR_UnreachableBranches_instBEqValue_beq(x_14, x_16);
+x_17 = l_Lean_IR_UnreachableBranches_instBEqValue_beq(x_15, x_16);
 lean_dec(x_16);
-lean_dec(x_14);
+lean_dec(x_15);
 if (x_17 == 0)
 {
 uint8_t x_18; 
 x_18 = 1;
 x_4 = x_13;
 x_5 = x_18;
-x_7 = x_15;
+x_7 = x_14;
 goto _start;
 }
 else
 {
 x_4 = x_13;
-x_7 = x_15;
+x_7 = x_14;
 goto _start;
 }
 }
 else
 {
 lean_dec(x_16);
-lean_dec(x_14);
+lean_dec(x_15);
 x_4 = x_13;
-x_7 = x_15;
+x_7 = x_14;
 goto _start;
 }
 }

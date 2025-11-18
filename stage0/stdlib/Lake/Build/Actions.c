@@ -960,7 +960,12 @@ return x_14;
 }
 block_19:
 {
-if (lean_obj_tag(x_17) == 1)
+if (lean_obj_tag(x_17) == 0)
+{
+lean_dec(x_16);
+return x_17;
+}
+else
 {
 lean_object* x_18; 
 x_18 = lean_ctor_get(x_17, 1);
@@ -970,11 +975,6 @@ x_11 = x_16;
 x_12 = x_18;
 x_13 = lean_box(0);
 goto block_15;
-}
-else
-{
-lean_dec(x_16);
-return x_17;
 }
 }
 block_159:

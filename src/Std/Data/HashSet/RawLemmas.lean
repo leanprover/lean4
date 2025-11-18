@@ -1002,6 +1002,17 @@ theorem not_mem_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α]
     k ∉ m₁ ∩ m₂ :=
   @HashMap.Raw.not_mem_inter_of_not_mem_right _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k not_mem
 
+/- Equiv -/
+theorem inter_equiv_congr_left {m₃ : Raw α} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF)
+    (equiv : m₁ ~m m₂) :
+    (m₁ ∩ m₃) ~m (m₂ ∩ m₃) :=
+  ⟨@HashMap.Raw.inter_equiv_congr_left _ _ _ _ m₁.inner m₂.inner m₃.inner _ _ h₁.out h₂.out h₃.out equiv.1⟩
+
+theorem inter_equiv_congr_right {m₃ : Raw α} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF)
+    (equiv : m₂ ~m m₃) :
+    (m₁ ∩ m₂) ~m (m₁ ∩ m₃) :=
+  ⟨@HashMap.Raw.inter_equiv_congr_right _ _ _ _ m₁.inner m₂.inner m₃.inner _ _ h₁.out h₂.out h₃.out equiv.1⟩
+
 /- get? -/
 theorem get?_inter [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.WF) (h₂ : m₂.WF)

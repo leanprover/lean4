@@ -2475,6 +2475,27 @@ theorem not_mem_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α]
   revert not_mem
   simp_to_raw using Raw₀.contains_inter_eq_false_of_contains_eq_false_right
 
+/- Equiv -/
+theorem inter_equiv_congr_left {m₃ : Raw α β} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF)
+    (equiv : m₁ ~m m₂) :
+    (m₁ ∩ m₃) ~m (m₂ ∩ m₃) := by
+  revert equiv
+  simp only [Inter.inter]
+  simp_to_raw
+  intro hyp
+  apply Raw₀.inter_equiv_congr_left
+  all_goals wf_trivial
+
+theorem inter_equiv_congr_right {m₃ : Raw α β} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF)
+    (equiv : m₂ ~m m₃) :
+    (m₁ ∩ m₂) ~m (m₁ ∩ m₃) := by
+  revert equiv
+  simp only [Inter.inter]
+  simp_to_raw
+  intro hyp
+  apply Raw₀.inter_equiv_congr_right
+  all_goals wf_trivial
+
 /- get? -/
 theorem get?_inter [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
     (m₁ ∩ m₂).get? k =

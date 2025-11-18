@@ -2178,6 +2178,17 @@ theorem not_mem_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α] {k : α
   rw [← contains_eq_false_iff_not_mem] at not_mem ⊢
   exact @Raw₀.contains_inter_eq_false_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k not_mem
 
+/- Equiv -/
+theorem inter_equiv_congr_left {m₃ : DHashMap α β} [EquivBEq α] [LawfulHashable α]
+    (equiv : m₁ ~m m₂) :
+    (m₁ ∩ m₃) ~m (m₂ ∩ m₃) :=
+  ⟨@Raw₀.inter_equiv_congr_left α β _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ ⟨m₃.1, m₃.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 m₃.2 equiv.1⟩
+
+theorem inter_equiv_congr_right {m₃ : DHashMap α β} [EquivBEq α] [LawfulHashable α]
+    (equiv : m₂ ~m m₃) :
+    (m₁ ∩ m₂) ~m (m₁ ∩ m₃) :=
+  ⟨@Raw₀.inter_equiv_congr_right α β _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ ⟨m₃.1, m₃.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 m₃.2 equiv.1⟩
+
 /- get? -/
 theorem get?_inter [LawfulBEq α] {k : α} :
     (m₁ ∩ m₂).get? k =

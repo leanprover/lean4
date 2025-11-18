@@ -460,7 +460,6 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
     `(doElem| do $doElems*)
   | _ => Macro.throwUnsupported
 
--- TODO remaining cases
 @[builtin_doElem_elab Lean.Parser.Term.doFor] def elabDoFor : DoElab := fun stx dec => do
   let `(doFor| for $[$h? : ]? $x:ident in $xs do $body) := stx | throwUnsupportedSyntax
   let uα ← mkFreshLevelMVar
@@ -474,8 +473,23 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
   let β ← mkArrow σ (← mkMonadicType γ)
   let mutVars := (← read).mutVars
   let breakRhs ← mkFreshExprMVar β
+  let (app, p?) ← match h? with
+    | none =>
+      let instForIn ← Term.mkInstMVar <| mkApp3 (mkConst ``ForInNew [uρ, uα, mi.u, mi.v]) mi.m ρ α
+      let app := mkConst ``ForInNew.forIn [uρ, uα, mi.u, mi.v]
+      let app := mkApp7 app mi.m ρ α instForIn σ γ xs -- 3 args remaining: preS, kcons, knil
+      pure (app, none)
+    | some _ =>
+      let p ← mkFreshExprMVar (← mkArrowN #[ρ, α] (mkSort .zero)) (userName := `p)
+      let instForIn ← Term.mkInstMVar <| mkApp4 (mkConst ``ForInNew' [uρ, uα, mi.u, mi.v]) mi.m ρ α p
+      let app := mkConst ``ForInNew'.forIn' [uρ, uα, mi.u, mi.v]
+      let app := mkApp8 app mi.m ρ α p instForIn σ γ xs -- 3 args remaining: preS, kcons, knil
+      pure (app, some p)
   withLetDecl (← mkFreshUserName `kbreak) β breakRhs (kind := .implDetail) (nondep := true) fun kbreak => do
-  withLocalDeclD x.getId α fun x => do
+  let xh : Array (Name × (Array Expr → DoElabM Expr)) := match h?, p? with
+    | some h, some p => #[(x.getId, fun _ => pure α), (h.getId, fun x => pure (mkApp2 p xs x[0]!))]
+    | _, _ => #[(x.getId, fun _ => pure α)]
+  withLocalDeclsD xh fun xh => do
   withLocalDecl (← mkFreshUserName `kcontinue) .default β (kind := .implDetail) fun kcontinue => do
   withLocalDecl (← mkFreshUserName `s) .default σ (kind := .implDetail) fun loopS => do
   withProxyMutVarDefs fun elimProxyDefs => do
@@ -526,11 +540,9 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
       elimProxyDefs body
 
     let hadBreak := (← breakKVar.jumpCount) > 0
-    let kcons ← mkLambdaFVars #[x, kcontinue, loopS] body
+    let kcons ← mkLambdaFVars (xh ++ #[kcontinue, loopS]) body
     let knil := if hadBreak then kbreak else breakRhs
-    let instForIn ← Term.mkInstMVar <| mkApp3 (mkConst ``ForInNew [uρ, uα, mi.u, mi.v]) mi.m ρ α
-    let app := mkConst ``ForInNew.forIn [uρ, uα, mi.u, mi.v]
-    let app := mkApp10 app mi.m ρ α instForIn σ γ xs preS kcons knil
+    let app := mkApp3 app preS kcons knil
     if hadBreak then
       mkLetFVars (generalizeNondepLet := false) #[kbreak] app
     else

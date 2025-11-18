@@ -28,7 +28,6 @@ lean_object* l_Lean_Environment_header(lean_object*);
 lean_object* l_Lean_IR_findEnvDecl(lean_object*, lean_object*, uint8_t);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_IR_inferMeta_spec__0_spec__0___closed__1;
 static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___00Std_DTreeMap_Internal_Impl_forInStep___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__3_spec__3___closed__1;
-uint8_t l_Lean_isMeta(lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_IR_inferMeta_spec__0_spec__0___closed__0;
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -58,6 +57,7 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___00Std_DTr
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___00Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go_spec__0_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___00Std_DTreeMap_Internal_Impl_forInStep___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__3_spec__3___closed__10;
+uint8_t l_Lean_isMarkedMeta(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_collectUsedFDecls_collectFnBody_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___00Std_DTreeMap_Internal_Impl_forInStep___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__3_spec__3___closed__4;
@@ -123,7 +123,6 @@ uint64_t l_Lean_Name_hash___override(lean_object*);
 lean_object* l_Lean_IR_Alt_body(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_Meta_0__Lean_IR_initFn___closed__8_00___x40_Lean_Compiler_IR_Meta_3167601923____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go_spec__0___redArg(lean_object*, lean_object*);
-uint8_t l_Lean_IR_isDeclMeta(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_Meta_0__Lean_IR_initFn___closed__22_00___x40_Lean_Compiler_IR_Meta_3167601923____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_Meta_0__Lean_IR_initFn_00___x40_Lean_Compiler_IR_Meta_3167601923____hygCtx___hyg_2____boxed(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
@@ -142,6 +141,7 @@ static lean_object* l___private_Lean_Compiler_IR_Meta_0__Lean_IR_initFn___closed
 static lean_object* l___private_Lean_Compiler_IR_Meta_0__Lean_IR_initFn___closed__16_00___x40_Lean_Compiler_IR_Meta_3167601923____hygCtx___hyg_2_;
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
 size_t lean_usize_shift_left(size_t, size_t);
+lean_object* l_Lean_setDeclMeta(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_Meta_0__Lean_IR_initFn___closed__1_00___x40_Lean_Compiler_IR_Meta_3167601923____hygCtx___hyg_2_;
@@ -154,7 +154,7 @@ static lean_object* l_Lean_addMessageContextPartial___at___00Lean_addTrace___at_
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_Meta_0__Lean_IR_collectUsedFDecls_collectFnBody(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_Meta_0__Lean_IR_initFn___closed__24_00___x40_Lean_Compiler_IR_Meta_3167601923____hygCtx___hyg_2_;
-lean_object* l_Lean_IR_setDeclMeta(lean_object*, lean_object*);
+uint8_t l_Lean_isDeclMeta(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__4;
 static lean_object* l_Lean_addMessageContextPartial___at___00Lean_addTrace___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__1_spec__1___closed__4;
@@ -961,7 +961,7 @@ x_12 = lean_st_ref_get(x_5);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc_ref(x_13);
 lean_dec_ref(x_12);
-x_14 = l_Lean_IR_isDeclMeta(x_13, x_7);
+x_14 = l_Lean_isDeclMeta(x_13, x_7);
 if (x_14 == 0)
 {
 lean_object* x_15; 
@@ -1023,7 +1023,7 @@ lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean
 x_23 = lean_ctor_get(x_21, 0);
 x_24 = lean_ctor_get(x_21, 5);
 lean_dec(x_24);
-x_25 = l_Lean_IR_setDeclMeta(x_23, x_7);
+x_25 = l_Lean_setDeclMeta(x_23, x_7);
 x_26 = l_Std_DTreeMap_Internal_Impl_forInStep___at___00Std_DTreeMap_Internal_Impl_forInStep___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__3_spec__3___closed__2;
 lean_ctor_set(x_21, 5, x_26);
 lean_ctor_set(x_21, 0, x_25);
@@ -1081,7 +1081,7 @@ lean_inc(x_35);
 lean_inc(x_34);
 lean_inc(x_33);
 lean_dec(x_21);
-x_41 = l_Lean_IR_setDeclMeta(x_33, x_7);
+x_41 = l_Lean_setDeclMeta(x_33, x_7);
 x_42 = l_Std_DTreeMap_Internal_Impl_forInStep___at___00Std_DTreeMap_Internal_Impl_forInStep___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__3_spec__3___closed__2;
 x_43 = lean_alloc_ctor(0, 9, 0);
 lean_ctor_set(x_43, 0, x_41);
@@ -1231,7 +1231,7 @@ x_12 = lean_st_ref_get(x_5);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc_ref(x_13);
 lean_dec_ref(x_12);
-x_14 = l_Lean_IR_isDeclMeta(x_13, x_7);
+x_14 = l_Lean_isDeclMeta(x_13, x_7);
 if (x_14 == 0)
 {
 lean_object* x_15; 
@@ -1293,7 +1293,7 @@ lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean
 x_23 = lean_ctor_get(x_21, 0);
 x_24 = lean_ctor_get(x_21, 5);
 lean_dec(x_24);
-x_25 = l_Lean_IR_setDeclMeta(x_23, x_7);
+x_25 = l_Lean_setDeclMeta(x_23, x_7);
 x_26 = l_Std_DTreeMap_Internal_Impl_forInStep___at___00Std_DTreeMap_Internal_Impl_forInStep___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__3_spec__3___closed__2;
 lean_ctor_set(x_21, 5, x_26);
 lean_ctor_set(x_21, 0, x_25);
@@ -1347,7 +1347,7 @@ lean_inc(x_35);
 lean_inc(x_34);
 lean_inc(x_33);
 lean_dec(x_21);
-x_41 = l_Lean_IR_setDeclMeta(x_33, x_7);
+x_41 = l_Lean_setDeclMeta(x_33, x_7);
 x_42 = l_Std_DTreeMap_Internal_Impl_forInStep___at___00Std_DTreeMap_Internal_Impl_forInStep___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__3_spec__3___closed__2;
 x_43 = lean_alloc_ctor(0, 9, 0);
 lean_ctor_set(x_43, 0, x_41);
@@ -1607,7 +1607,7 @@ lean_dec_ref(x_17);
 x_19 = lean_array_uget(x_2, x_4);
 x_20 = l_Lean_IR_Decl_name(x_19);
 lean_inc(x_20);
-x_46 = l_Lean_isMeta(x_18, x_20);
+x_46 = l_Lean_isMarkedMeta(x_18, x_20);
 if (x_46 == 0)
 {
 lean_dec(x_20);
@@ -1665,7 +1665,7 @@ lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean
 x_26 = lean_ctor_get(x_24, 0);
 x_27 = lean_ctor_get(x_24, 5);
 lean_dec(x_27);
-x_28 = l_Lean_IR_setDeclMeta(x_26, x_20);
+x_28 = l_Lean_setDeclMeta(x_26, x_20);
 x_29 = l_Std_DTreeMap_Internal_Impl_forInStep___at___00Std_DTreeMap_Internal_Impl_forInStep___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__3_spec__3___closed__2;
 lean_ctor_set(x_24, 5, x_29);
 lean_ctor_set(x_24, 0, x_28);
@@ -1703,7 +1703,7 @@ lean_inc(x_34);
 lean_inc(x_33);
 lean_inc(x_32);
 lean_dec(x_24);
-x_40 = l_Lean_IR_setDeclMeta(x_32, x_20);
+x_40 = l_Lean_setDeclMeta(x_32, x_20);
 x_41 = l_Std_DTreeMap_Internal_Impl_forInStep___at___00Std_DTreeMap_Internal_Impl_forInStep___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__3_spec__3___closed__2;
 x_42 = lean_alloc_ctor(0, 9, 0);
 lean_ctor_set(x_42, 0, x_40);
@@ -1764,7 +1764,7 @@ lean_dec_ref(x_17);
 x_19 = lean_array_uget(x_2, x_4);
 x_20 = l_Lean_IR_Decl_name(x_19);
 lean_inc(x_20);
-x_46 = l_Lean_isMeta(x_18, x_20);
+x_46 = l_Lean_isMarkedMeta(x_18, x_20);
 if (x_46 == 0)
 {
 lean_dec(x_20);
@@ -1822,7 +1822,7 @@ lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean
 x_26 = lean_ctor_get(x_24, 0);
 x_27 = lean_ctor_get(x_24, 5);
 lean_dec(x_27);
-x_28 = l_Lean_IR_setDeclMeta(x_26, x_20);
+x_28 = l_Lean_setDeclMeta(x_26, x_20);
 x_29 = l_Std_DTreeMap_Internal_Impl_forInStep___at___00Std_DTreeMap_Internal_Impl_forInStep___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__3_spec__3___closed__2;
 lean_ctor_set(x_24, 5, x_29);
 lean_ctor_set(x_24, 0, x_28);
@@ -1860,7 +1860,7 @@ lean_inc(x_34);
 lean_inc(x_33);
 lean_inc(x_32);
 lean_dec(x_24);
-x_40 = l_Lean_IR_setDeclMeta(x_32, x_20);
+x_40 = l_Lean_setDeclMeta(x_32, x_20);
 x_41 = l_Std_DTreeMap_Internal_Impl_forInStep___at___00Std_DTreeMap_Internal_Impl_forInStep___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__3_spec__3___closed__2;
 x_42 = lean_alloc_ctor(0, 9, 0);
 lean_ctor_set(x_42, 0, x_40);

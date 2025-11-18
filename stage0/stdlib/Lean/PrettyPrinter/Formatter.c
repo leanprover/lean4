@@ -99,7 +99,6 @@ LEAN_EXPORT lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUse
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Formatter_pushToken___closed__0;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_parseToken___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_isMeta(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___00Lean_PrettyPrinter_format_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___00Lean_PrettyPrinter_Formatter_categoryFormatterCore_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Format_fill(lean_object*);
@@ -307,6 +306,7 @@ static lean_object* l_Lean_PrettyPrinter_Formatter_charLitNoAntiquot_formatter__
 static lean_object* l_Lean_PrettyPrinter_format___closed__4;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_formatCommand(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PrettyPrinter_Formatter_interpolatedStr_formatter_spec__0___closed__0;
+uint8_t l_Lean_isMarkedMeta(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_instCoeForallForallFormatterAliasValue___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_getStack___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_anyAux___at___00Lean_PrettyPrinter_Formatter_pushToken_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2189,7 +2189,7 @@ else
 {
 uint8_t x_25; 
 lean_inc(x_1);
-x_25 = l_Lean_isMeta(x_18, x_1);
+x_25 = l_Lean_isMarkedMeta(x_18, x_1);
 if (x_25 == 0)
 {
 x_20 = x_2;

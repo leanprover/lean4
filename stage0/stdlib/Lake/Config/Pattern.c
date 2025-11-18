@@ -171,6 +171,7 @@ static lean_object* l_Lake___aux__Lake__Config__Pattern______macroRules__Lake__t
 static lean_object* l_Lake_term___x3d_x7e___00__closed__11;
 static lean_object* l_Lake_PatternDescr_empty___closed__0;
 LEAN_EXPORT lean_object* l_Lake_PathPatDescr_eq(lean_object*);
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l_Lake_PatternDescr_matches___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lake_Pattern_any___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instIsPatternPattern___lam__0___boxed(lean_object*, lean_object*);
@@ -272,7 +273,6 @@ LEAN_EXPORT lean_object* l_Lake_Pattern_any(lean_object*, lean_object*, lean_obj
 static lean_object* l_Lake_defaultVersionTags___closed__1;
 static lean_object* l_Lake_Pattern_empty___closed__1;
 static lean_object* l_Lake_Pattern_star___closed__1;
-lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Pattern_matches___redArg(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_instCoePatternDescrPatternOfIsPattern___redArg___lam__0(lean_object*, lean_object*, lean_object*);
@@ -485,7 +485,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake___aux__Lake__Config__Pattern______macroRules__Lake__term___x3d_x7e____1___closed__5;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

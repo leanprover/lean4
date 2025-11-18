@@ -133,6 +133,7 @@ LEAN_EXPORT lean_object* l_Std_Slice_Internal_SubarrayData_ctorIdx___boxed(lean_
 static lean_object* l_Array_term_____x5b___x3a___x5d___closed__12;
 LEAN_EXPORT lean_object* l_Subarray_forM___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Subarray______macroRules__Array__term_____x5b___x3a_x5d__1___closed__4;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l_Array_term_____x5b___x3a___x5d___closed__16;
 LEAN_EXPORT lean_object* l_Subarray_popFront___redArg(lean_object*);
 static lean_object* l_Array_term_____x5b___x3a___x5d___closed__11;
@@ -223,7 +224,6 @@ static lean_object* l_Array___aux__Init__Data__Array__Subarray______macroRules__
 static lean_object* l_Array___aux__Init__Data__Array__Subarray______macroRules__Array__term_____x5b_x3a___x5d__1___closed__2;
 static lean_object* l_Subarray_instEmptyCollection___closed__0;
 LEAN_EXPORT lean_object* l_Subarray_array(lean_object*, lean_object*);
-lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT uint8_t l_Subarray_any(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Subarray_foldr___redArg___closed__7;
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3024,7 +3024,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Array___aux__Init__Data__Array__Subarray______macroRules__Array__term_____x5b___x3a___x5d__1___closed__5;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -3359,7 +3359,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Array___aux__Init__Data__Array__Subarray______macroRules__Array__term_____x5b___x3a_x5d__1___closed__11;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -3425,7 +3425,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Array___aux__Init__Data__Array__Subarray______macroRules__Array__term_____x5b___x3a_x5d__1___closed__18;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

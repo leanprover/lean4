@@ -46,6 +46,14 @@ theorem size_empty : (∅ : Raw α).size = 0 :=
 theorem isEmpty_eq_size_eq_zero : m.isEmpty = (m.size == 0) :=
   HashMap.Raw.isEmpty_eq_size_eq_zero
 
+@[simp]
+theorem toList_emptyWithCapacity {c} : (emptyWithCapacity c : Raw α).toList = [] :=
+  HashMap.Raw.keys_emptyWithCapacity
+
+@[simp]
+theorem toList_empty : (∅ : Raw α).toList = [] :=
+  toList_emptyWithCapacity
+
 variable [BEq α] [Hashable α]
 
 @[simp, grind =]

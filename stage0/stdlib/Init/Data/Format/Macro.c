@@ -42,6 +42,7 @@ static lean_object* l_Std___aux__Init__Data__Format__Macro______macroRules__Std_
 static lean_object* l_Std_termF_x21___00__closed__6;
 static lean_object* l_Std_termF_x21___00__closed__0;
 static lean_object* l_Std___aux__Init__Data__Format__Macro______macroRules__Std__termF_x21____1___closed__11;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l_Std_termF_x21___00__closed__1;
 static lean_object* l_Std___aux__Init__Data__Format__Macro______macroRules__Std__termF_x21____1___closed__2;
 static lean_object* l_Std___aux__Init__Data__Format__Macro______macroRules__Std__termF_x21____1___closed__1;
@@ -53,7 +54,6 @@ static lean_object* l_Std_termF_x21___00__closed__2;
 static lean_object* l_Std_termF_x21___00__closed__10;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 LEAN_EXPORT lean_object* l_Std_termF_x21__;
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Std___aux__Init__Data__Format__Macro______macroRules__Std__termF_x21____1___closed__10;
 static lean_object* _init_l_Std_termF_x21___00__closed__0() {
 _start:
@@ -223,7 +223,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std___aux__Init__Data__Format__Macro______macroRules__Std__termF_x21____1___closed__0;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -305,7 +305,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std___aux__Init__Data__Format__Macro______macroRules__Std__termF_x21____1___closed__8;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

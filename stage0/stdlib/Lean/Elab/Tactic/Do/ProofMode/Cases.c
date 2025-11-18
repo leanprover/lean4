@@ -53,7 +53,6 @@ static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_synthIsAnd___closed__1;
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 lean_object* l_Lean_mkApp8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_isMeta(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mPureCore___at___00Lean_Elab_Tactic_Do_ProofMode_mCasesCore_spec__1___redArg___lam__0___closed__1;
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_liftMacroM___at___00Lean_Elab_Tactic_Do_ProofMode_elabMCases_spec__1_spec__4_spec__4___closed__19;
 size_t lean_uint64_to_usize(uint64_t);
@@ -154,6 +153,7 @@ static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_elabMCases___regBuiltin_Lean
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mCasesCore___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_Do_ProofMode_mCasesCore_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ResolveName_resolveNamespace(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_isMarkedMeta(lean_object*, lean_object*);
 static lean_object* l_Lean_throwMaxRecDepthAt___at___00Lean_Elab_liftMacroM___at___00Lean_Elab_Tactic_Do_ProofMode_elabMCases_spec__1_spec__13___redArg___closed__3;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mCasesCore___redArg___lam__0___closed__1;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mCasesCore___redArg___closed__2;
@@ -9937,7 +9937,7 @@ else
 {
 uint8_t x_31; 
 lean_inc(x_1);
-x_31 = l_Lean_isMeta(x_24, x_1);
+x_31 = l_Lean_isMarkedMeta(x_24, x_1);
 if (x_31 == 0)
 {
 x_26 = x_2;

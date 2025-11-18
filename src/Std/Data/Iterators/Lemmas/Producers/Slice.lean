@@ -43,21 +43,44 @@ theorem count_iter_eq_size [∀ s : Slice γ, ToIterator s Id β]
     s.iter.count = s.size :=
   size_eq_count_iter.symm
 
+@[simp]
+theorem toArray_iter {s : Slice γ} [ToIterator s Id β]
+    [Iterator (ToIterator.State s Id) Id β] [IteratorCollect (ToIterator.State s Id) Id Id]
+    [Finite (ToIterator.State s Id) Id] :
+    s.iter.toArray = s.toArray := by
+  simp [Internal.iter_eq_iter, Internal.toArray_eq_toArray_iter]
+
+@[deprecated toArray_iter (since := "2025-11-13")]
 theorem toArray_eq_toArray_iter {s : Slice γ} [ToIterator s Id β]
     [Iterator (ToIterator.State s Id) Id β] [IteratorCollect (ToIterator.State s Id) Id Id]
     [Finite (ToIterator.State s Id) Id] :
     s.toArray = s.iter.toArray := by
-  simp [Internal.iter_eq_iter, Internal.toArray_eq_toArray_iter]
+  simp
 
+@[simp]
+theorem toList_iter {s : Slice γ} [ToIterator s Id β]
+    [Iterator (ToIterator.State s Id) Id β] [IteratorCollect (ToIterator.State s Id) Id Id]
+    [Finite (ToIterator.State s Id) Id] :
+    s.iter.toList = s.toList := by
+  simp [Internal.iter_eq_iter, Internal.toList_eq_toList_iter]
+
+@[deprecated toList_iter (since := "2025-11-13")]
 theorem toList_eq_toList_iter {s : Slice γ} [ToIterator s Id β]
     [Iterator (ToIterator.State s Id) Id β] [IteratorCollect (ToIterator.State s Id) Id Id]
     [Finite (ToIterator.State s Id) Id] :
     s.toList = s.iter.toList := by
-  simp [Internal.iter_eq_iter, Internal.toList_eq_toList_iter]
+  simp
 
+@[simp]
+theorem toListRev_iter {s : Slice γ} [ToIterator s Id β]
+    [Iterator (ToIterator.State s Id) Id β] [Finite (ToIterator.State s Id) Id] :
+    s.iter.toListRev = s.toListRev := by
+  simp [Internal.iter_eq_iter, Internal.toListRev_eq_toListRev_iter]
+
+@[deprecated toListRev_iter (since := "2025-11-13")]
 theorem toListRev_eq_toListRev_iter {s : Slice γ} [ToIterator s Id β]
     [Iterator (ToIterator.State s Id) Id β] [Finite (ToIterator.State s Id) Id] :
     s.toListRev = s.iter.toListRev := by
-  simp [Internal.iter_eq_iter, Internal.toListRev_eq_toListRev_iter]
+  simp
 
 end Std.Slice

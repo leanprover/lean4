@@ -5572,17 +5572,9 @@ lean_inc(x_9);
 x_10 = lean_apply_2(x_1, x_9, x_4);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
-if (lean_obj_tag(x_11) == 1)
-{
-lean_dec_ref(x_11);
-lean_dec(x_3);
-lean_dec_ref(x_1);
-return x_10;
-}
-else
+if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-lean_dec(x_11);
 x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec_ref(x_10);
@@ -5592,6 +5584,13 @@ lean_dec(x_3);
 x_3 = x_14;
 x_4 = x_12;
 goto _start;
+}
+else
+{
+lean_dec_ref(x_11);
+lean_dec(x_3);
+lean_dec_ref(x_1);
+return x_10;
 }
 }
 }
@@ -5724,23 +5723,22 @@ x_15 = l___private_Init_Data_Array_Basic_0__Array_firstM_go___at___00__private_L
 lean_dec_ref(x_12);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
-if (lean_obj_tag(x_16) == 1)
-{
-lean_dec_ref(x_16);
-lean_dec_ref(x_13);
-lean_dec_ref(x_7);
-return x_15;
-}
-else
+if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; 
-lean_dec(x_16);
 x_17 = lean_ctor_get(x_15, 1);
 lean_inc(x_17);
 lean_dec_ref(x_15);
 x_18 = l___private_Init_Data_Array_Basic_0__Array_firstM_go___at___00__private_Lean_Structure_0__Lean_getPathToBaseStructure_x3f_go_spec__0___redArg(x_7, x_13, x_14, x_17);
 lean_dec_ref(x_13);
 return x_18;
+}
+else
+{
+lean_dec_ref(x_16);
+lean_dec_ref(x_13);
+lean_dec_ref(x_7);
+return x_15;
 }
 }
 else

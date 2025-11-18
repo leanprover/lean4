@@ -234,6 +234,7 @@ LEAN_EXPORT lean_object* l_Lake_DSL_elabConfig(lean_object*, lean_object*, lean_
 static lean_object* l_Lake_DSL_identOrStr___closed__0;
 LEAN_EXPORT lean_object* l_Lake_DSL_structVal;
 static lean_object* l_Lake_DSL_expandOptSimpleBinder___closed__23;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lake_DSL_DeclUtil_0__Lake_DSL_mkConfigFields_spec__0_spec__0_spec__1___redArg___closed__0;
 static lean_object* l_Lake_DSL_structVal___closed__10;
 static lean_object* l_Lake_DSL_structVal___closed__8;
@@ -372,7 +373,6 @@ static lean_object* l_Lake_DSL_bracketedSimpleBinder___closed__6;
 static lean_object* l_Lake_DSL_structVal___closed__3;
 static lean_object* l_Lake_DSL_expandOptSimpleBinder___closed__7;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___00__private_Lake_DSL_DeclUtil_0__Lake_DSL_mkConfigFields_spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Lean_Elab_pushInfoLeaf___at___00Lean_Elab_addCompletionInfo___at___00__private_Lake_DSL_DeclUtil_0__Lake_DSL_mkConfigFields_spec__6_spec__6___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lake_DSL_DeclUtil_0__Lake_DSL_mkConfigFields_spec__0_spec__0_spec__1_spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_bracketedSimpleBinder___closed__5;
@@ -1860,7 +1860,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake_DSL_expandOptSimpleBinder___closed__9;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

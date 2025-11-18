@@ -64,6 +64,7 @@ LEAN_EXPORT lean_object* l___aux__Init__ByCases______macroRules__tacticBy__cases
 static lean_object* l_tacticBy__cases___x3a___00__closed__15;
 static lean_object* l___aux__Init__ByCases______macroRules__tacticBy__cases___x3a____2___closed__4;
 static lean_object* l___aux__Init__ByCases______macroRules__tacticBy__cases___x3a____2___closed__30;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l___aux__Init__ByCases______macroRules__tacticBy__cases___x3a____2___closed__21;
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__ByCases______macroRules__tacticBy__cases___x3a____1___closed__4;
@@ -94,7 +95,6 @@ static lean_object* l___aux__Init__ByCases______macroRules__tacticBy__cases___x3
 static lean_object* l___aux__Init__ByCases______macroRules__tacticBy__cases___x3a____2___closed__18;
 static lean_object* l_tacticBy__cases___x3a___00__closed__11;
 static lean_object* l_tacticBy__cases___x3a___00__closed__10;
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l___aux__Init__ByCases______macroRules__tacticBy__cases___x3a____1___closed__2;
 static lean_object* l___aux__Init__ByCases______macroRules__tacticBy__cases___x3a____2___closed__7;
 static lean_object* l___aux__Init__ByCases______macroRules__tacticBy__cases___x3a____1___closed__3;
@@ -386,7 +386,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___aux__Init__ByCases______macroRules__tacticBy__cases___x3a____1___closed__3;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -576,7 +576,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___aux__Init__ByCases______macroRules__tacticBy__cases___x3a____2___closed__8;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -779,7 +779,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___aux__Init__ByCases______macroRules__tacticBy__cases___x3a____2___closed__30;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -813,7 +813,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___aux__Init__ByCases______macroRules__tacticBy__cases___x3a____2___closed__34;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

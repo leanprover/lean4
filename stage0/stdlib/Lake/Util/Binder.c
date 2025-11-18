@@ -157,6 +157,7 @@ static lean_object* l_Lake_expandBinderCore___closed__2;
 static lean_object* l_Lake_instReprBinderSyntaxView_repr___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Lake_expandBinderType(lean_object*, lean_object*);
 static lean_object* l_Lake_expandBinderCore___closed__3;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_mkDepArrow_spec__0(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lake_expandBinderCore___closed__4;
 static lean_object* l_Lake_BinderSyntaxView_mkFunBinder___closed__8;
@@ -230,7 +231,6 @@ static lean_object* l_Lake_BinderSyntaxView_mkFunBinder___closed__7;
 LEAN_EXPORT lean_object* l_Lake_mkDepArrow(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_expandBinderCore_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_BinderSyntaxView_mkFunBinder___closed__16;
-lean_object* l_String_toSubstring_x27(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BinderSyntaxView_mkBinder(lean_object*);
 static lean_object* l_Lake_expandBinderCore___closed__7;
@@ -1327,7 +1327,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake_expandBinderIdent___closed__0;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -2980,7 +2980,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake_BinderSyntaxView_mkFunBinder___closed__9;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

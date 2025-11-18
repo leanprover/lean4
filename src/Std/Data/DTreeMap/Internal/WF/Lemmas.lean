@@ -1669,13 +1669,13 @@ theorem eraseManyEntries_eq_eraseManyEntries!_impl {_ : Ord α}
 
 theorem eraseManyEntries_impl_perm_eraseList {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
     {t₁ : Impl α β} (h₁ : t₁.WF) {t₂ : Impl α β} :
-    List.Perm (t₁.eraseManyEntries t₂ h₁.balanced).val.toListModel (t₁.toListModel.eraseList t₂.toListModel) := by
+    List.Perm (t₁.eraseManyEntries t₂ h₁.balanced).val.toListModel (t₁.toListModel.eraseList (t₂.toListModel.map (·.1))) := by
   rw [eraseManyEntries_eq_foldl_impl]
   rw [foldl_eq_foldl]
   induction t₂.toListModel generalizing t₁ with
   | nil => rfl
   | cons e es ih =>
-    simp only [eraseList, List.foldl_cons]
+    simp only [List.foldl_cons]
     apply List.Perm.trans (@ih (t₁.erase! e.1) (h₁.erase!))
     apply eraseList_perm_of_perm_first
     · apply toListModel_erase!

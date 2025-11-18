@@ -6785,7 +6785,7 @@ goto block_42;
 block_195:
 {
 uint8_t x_163; lean_object* x_164; lean_object* x_165; lean_object* x_166; lean_object* x_167; lean_object* x_168; lean_object* x_169; lean_object* x_170; lean_object* x_171; lean_object* x_172; lean_object* x_173; lean_object* x_174; lean_object* x_175; lean_object* x_176; lean_object* x_177; lean_object* x_178; lean_object* x_179; lean_object* x_180; lean_object* x_181; lean_object* x_182; 
-x_163 = lean_ctor_get_uint8(x_161, sizeof(void*)*7 + 1);
+x_163 = lean_ctor_get_uint8(x_161, sizeof(void*)*8 + 1);
 x_164 = l_Lean_Elab_Term_elabAnonymousCtor___closed__15;
 lean_inc(x_157);
 x_165 = l_Lean_MessageData_ofName(x_157);

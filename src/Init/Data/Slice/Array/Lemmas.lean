@@ -415,6 +415,11 @@ public theorem toList_mkSlice_rco {xs : Subarray α} {lo hi : Nat} :
   simp [Subarray.size, ← Array.length_toList, ← List.take_eq_take_min, Nat.add_comm xs.start]
 
 @[simp]
+public theorem toArray_mkSlice_rco {xs : Subarray α} {lo hi : Nat} :
+    xs[lo...hi].toArray = xs.toArray.extract lo hi := by
+  simp [← Subarray.toArray_toList, List.drop_take]
+
+@[simp]
 public theorem mkSlice_rcc_eq_mkSlice_rco {xs : Subarray α} {lo hi : Nat} :
     xs[lo...=hi] = xs[lo...(hi + 1)] := by
   simp [Std.Rcc.Sliceable.mkSlice, Std.Rco.Sliceable.mkSlice,
@@ -426,6 +431,11 @@ public theorem toList_mkSlice_rcc {xs : Subarray α} {lo hi : Nat} :
   rw [mkSlice_rcc_eq_mkSlice_rco, toList_mkSlice_rco]
 
 @[simp]
+public theorem toArray_mkSlice_rcc {xs : Subarray α} {lo hi : Nat} :
+    xs[lo...=hi].toArray = xs.toArray.extract lo (hi + 1) := by
+  simp
+
+@[simp]
 public theorem mkSlice_rci_eq_mkSlice_rco {xs : Subarray α} {lo : Nat} :
     xs[lo...*] = xs[lo...xs.size] := by
   simp [Std.Rci.Sliceable.mkSlice, Std.Rco.Sliceable.mkSlice,
@@ -435,6 +445,11 @@ public theorem mkSlice_rci_eq_mkSlice_rco {xs : Subarray α} {lo : Nat} :
 public theorem toList_mkSlice_rci {xs : Subarray α} {lo : Nat} :
     xs[lo...*].toList = xs.toList.drop lo := by
   rw [mkSlice_rci_eq_mkSlice_rco, toList_mkSlice_rco, ← Subarray.length_toList, List.take_length]
+
+@[simp]
+public theorem toArray_mkSlice_rci {xs : Subarray α} {lo : Nat} :
+    xs[lo...*].toArray = xs.toArray.extract lo := by
+  simp
 
 @[simp]
 public theorem mkSlice_roc_eq_mkSlice_roo {xs : Subarray α} {lo hi : Nat} :
@@ -454,6 +469,11 @@ public theorem toList_mkSlice_roo {xs : Subarray α} {lo hi : Nat} :
   rw [mkSlice_roo_eq_mkSlice_rco, toList_mkSlice_rco]
 
 @[simp]
+public theorem toArray_mkSlice_roo {xs : Subarray α} {lo hi : Nat} :
+    xs[lo<...hi].toArray = xs.toArray.extract (lo + 1) hi := by
+  simp
+
+@[simp]
 public theorem mkSlice_roc_eq_mkSlice_rcc {xs : Subarray α} {lo hi : Nat} :
     xs[lo<...=hi] = xs[(lo + 1)...=hi] := by
   simp [Std.Roc.Sliceable.mkSlice, Std.Rco.Sliceable.mkSlice,
@@ -465,6 +485,11 @@ public theorem toList_mkSlice_roc {xs : Subarray α} {lo hi : Nat} :
   rw [mkSlice_roc_eq_mkSlice_rcc, toList_mkSlice_rcc]
 
 @[simp]
+public theorem toArray_mkSlice_roc {xs : Subarray α} {lo hi : Nat} :
+    xs[lo<...=hi].toArray = xs.toArray.extract (lo + 1) (hi + 1) := by
+  simp
+
+@[simp]
 public theorem mkSlice_roi_eq_mkSlice_rci {xs : Subarray α} {lo : Nat} :
     xs[lo<...*] = xs[(lo + 1)...*] := by
   simp [Std.Roi.Sliceable.mkSlice, Std.Rci.Sliceable.mkSlice,
@@ -474,6 +499,11 @@ public theorem mkSlice_roi_eq_mkSlice_rci {xs : Subarray α} {lo : Nat} :
 public theorem toList_mkSlice_roi {xs : Subarray α} {lo : Nat} :
     xs[lo<...*].toList = xs.toList.drop (lo + 1) := by
   rw [mkSlice_roi_eq_mkSlice_rci, toList_mkSlice_rci]
+
+@[simp]
+public theorem toArray_mkSlice_roi {xs : Subarray α} {lo : Nat} :
+    xs[lo<...*].toArray = xs.toArray.extract (lo + 1) := by
+  simp
 
 @[simp]
 public theorem mkSlice_ric_eq_mkSlice_rio {xs : Subarray α} {hi : Nat} :
@@ -493,6 +523,11 @@ public theorem toList_mkSlice_rio {xs : Subarray α} {hi : Nat} :
   rw [mkSlice_rio_eq_mkSlice_rco, toList_mkSlice_rco, List.drop_zero]
 
 @[simp]
+public theorem toArray_mkSlice_rio {xs : Subarray α} {hi : Nat} :
+    xs[*...hi].toArray = xs.toArray.extract 0 hi := by
+  simp
+
+@[simp]
 public theorem mkSlice_ric_eq_mkSlice_rcc {xs : Subarray α} {hi : Nat} :
     xs[*...=hi] = xs[0...=hi] := by
   simp [Std.Ric.Sliceable.mkSlice, Std.Rco.Sliceable.mkSlice,
@@ -504,6 +539,11 @@ public theorem toList_mkSlice_ric {xs : Subarray α} {hi : Nat} :
   rw [mkSlice_ric_eq_mkSlice_rcc, toList_mkSlice_rcc, List.drop_zero]
 
 @[simp]
+public theorem toArray_mkSlice_ric {xs : Subarray α} {hi : Nat} :
+    xs[*...=hi].toArray = xs.toArray.extract 0 (hi + 1) := by
+  simp
+
+@[simp]
 public theorem mkSlice_rii {xs : Subarray α} :
     xs[*...*] = xs := by
   simp [Std.Rii.Sliceable.mkSlice]
@@ -511,6 +551,11 @@ public theorem mkSlice_rii {xs : Subarray α} :
 @[simp]
 public theorem toList_mkSlice_rii {xs : Subarray α} :
     xs[*...*].toList = xs.toList := by
+  rw [mkSlice_rii]
+
+@[simp]
+public theorem toArray_mkSlice_rii {xs : Subarray α} :
+    xs[*...*].toArray = xs.toArray := by
   rw [mkSlice_rii]
 
 @[simp]

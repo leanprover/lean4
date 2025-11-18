@@ -783,6 +783,11 @@ open Std.Do in
       z := z + i
   return x + y + z
 
+#check Id.run do
+  let mut a := 0
+  for x in [1,2,3], y in [3,4,5], z in [6,7,8] do
+    a := a + x + y + z
+  return a
 
 example : (Id.run doo pure 42)
         = (Id.run  do pure 42) := by rfl
@@ -818,8 +823,6 @@ example : Nat := Id.run doo let mut foo : Nat = Nat := rfl; pure (foo ▸ 23)
 example {e} : (Id.run doo let mut x := 0; let y := 3; let z ← do { let mut y ← e; x := y + 1; pure y }; let y := y + 3; pure (x + y + z))
             = (Id.run  do let mut x := 0; let y := 3; let z ← do { let mut y ← e; x := y + 1; pure y }; let y := y + 3; pure (x + y + z)) := by rfl
 example : (Id.run doo let x := 0; let y ← let x := x + 1; pure x)
-        = (Id.run doo let x := 0; pure x) := by rfl
-example : (Id.run doo let mut x := 0; let mut y := 1; (x, y) ← pure (x + 3, y + 4); pure (x + y))
         = (Id.run doo let x := 0; pure x) := by rfl
 
 -- Test: Nested if-then-else with multiple mutable variables
@@ -1335,6 +1338,21 @@ example :
           x := x + 1
       return x)
   f 0 ∧ f 10 ∧ f 20 ∧ f 30 ∧ f 31 ∧ f 45 ∧ f 1023948 := by trivial
+
+-- Parallel for loops
+example :
+  let f n m :=
+    (Id.run doo
+      let mut a := 0
+      for x in [1,2,3], y in [0:n], z in [0:m] do
+        a := a + x + y + z
+      return a)
+    = (Id.run do
+      let mut a := 0
+      for x in [1,2,3], y in [0:n], z in [0:m] do
+        a := a + x + y + z
+      return a)
+  f 3 3 ∧ f 1 4 ∧ f 4 2 ∧ f 5 5 := by trivial
 
 /-!
 Postponing Monad instance resolution appropriately

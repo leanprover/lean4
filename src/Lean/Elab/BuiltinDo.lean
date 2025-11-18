@@ -405,9 +405,64 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
   let body ← Term.exprToSyntax body
   Term.elabTerm (← `(debug_assert! $cond; $body)) mγ
 
+@[builtin_macro Lean.Parser.Term.doFor] def expandDoFor : Macro := fun stx => do
+  match stx with
+  | `(doFor| for $[$_ : ]? $_:ident in $_ do $_) =>
+    -- This is the target form of the expander, handled by `elabDoFor` below.
+    Macro.throwUnsupported
+  | `(doFor| for $decls:doForDecl,* do $body) =>
+    let decls := decls.getElems
+    let `(doForDecl| $[$h? : ]? $pattern in $xs) := decls[0]! | Macro.throwUnsupported
+    let mut doElems := #[]
+    let mut body := body
+    -- Expand `pattern` into an `Ident` `x`:
+    let x ←
+      if pattern.raw.isIdent then
+        pure ⟨pattern⟩
+      else
+        let x ← Term.mkFreshIdent pattern
+        body ← `(doSeq| match $x:term with | $pattern => $body)
+        pure x
+    -- Expand the remaining `doForDecl`s:
+    for doForDecl in decls[1...*] do
+      /-
+        Expand
+        ```
+        for x in xs, y in ys do
+          body
+        ```
+        into
+        ```
+        let mut s := Std.toStream ys
+        for x in xs do
+          match Std.Stream.next? s with
+          | none => break
+          | some (y, s') =>
+            s := s'
+            body
+        ```
+      -/
+      let `(doForDecl| $[$h? : ]? $y in $ys) := doForDecl | Macro.throwUnsupported
+      if let some h := h? then
+        Macro.throwErrorAt h "The proof annotation here has not been implemented yet."
+      /- Recall that `@` (explicit) disables `coeAtOutParam`.
+         We used `@` at `Stream` functions to make sure `resultIsOutParamSupport` is not used. -/
+      let toStreamApp ← withRef ys `(@Std.toStream _ _ _ $ys)
+      let s ← Term.mkFreshIdent ys
+      doElems := doElems.push (← `(doSeqItem| let mut $s := $toStreamApp:term))
+      body ← `(doSeq|
+        match @Std.Stream.next? _ _ _ $s with
+          | none => break
+          | some ($y, s') =>
+            $s:ident := s'
+            do $body)
+    doElems := doElems.push (← `(doSeqItem| for $[$h? : ]? $x:ident in $xs do $body))
+    `(doElem| do $doElems*)
+  | _ => Macro.throwUnsupported
+
 -- TODO remaining cases
 @[builtin_doElem_elab Lean.Parser.Term.doFor] def elabDoFor : DoElab := fun stx dec => do
-  let `(doFor| for $x:ident in $xs do $doSeq) := stx | throwUnsupportedSyntax
+  let `(doFor| for $[$h? : ]? $x:ident in $xs do $body) := stx | throwUnsupportedSyntax
   let uα ← mkFreshLevelMVar
   let uρ ← mkFreshLevelMVar
   let α ← mkFreshExprMVar (mkSort (mkLevelSucc uα)) (userName := `α)
@@ -430,7 +485,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
 
     -- Elaborate the loop body, which must have result type `PUnit`.
     let body ← enterLoopBody γ (← getReturnCont) breakKVar.mkJump continueKVar.mkJump do
-      elabDoSeq doSeq { dec with k := continueKVar.mkJump }
+      elabDoSeq body { dec with k := continueKVar.mkJump }
 
     -- Compute the set of mut vars that were reassigned on the path to a back jump (`continue`).
     -- Take care to preserve the declaration order that is manifest in the array `mutVars`.
@@ -480,6 +535,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
       mkLetFVars (generalizeNondepLet := false) #[kbreak] app
     else
       return (← elimMVarDeps #[kbreak] app).replaceFVar kbreak breakRhs
+
 
 @[builtin_doElem_elab Lean.Parser.Term.doTry] def elabDoTry : DoElab := fun stx dec => do
   let `(doTry| try $trySeq:doSeq $[$catches]* $[finally $finSeq?]?) := stx | throwUnsupportedSyntax

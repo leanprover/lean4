@@ -2963,14 +2963,53 @@ theorem sumPackedVec_setWidth {x : BitVec ((k + 1) * w)} :
         rw [BitVec.add_comm]
         rw [BitVec.add_sub_cancel]
 
-theorem sumPackedVec_eq_add_head {x : BitVec ((k + 1) * w)} :
-    x.sumPackedVec = extractLsb' 0 w x + (extractLsb' w (k * w) x).sumPackedVec := by
-  simp [sumPackedVec]
-  sorry
+theorem append_extractAndExtendPopulate_eq (x : BitVec w) :
+    (0#1 ++ x).extractAndExtendPopulate w =
+    (0#w ++ (x.extractAndExtendPopulate w)).cast (by simp [Nat.add_mul]) := by
+  conv =>
+    lhs
+    unfold extractAndExtendPopulate extractAndExtendPopulateAux
+  split
+  · omega
+  · case _ n heq =>
+    simp
+    unfold extractAndExtendPopulate
+    simp
 
-theorem extractAndExtendPopulate_sumPackedVec_extractLsb' (x : BitVec (w + 1)):
-  ((extractLsb' 1 w x).extractAndExtendPopulate w).sumPackedVec =
-  (((extractLsb' 1 w x).zeroExtend (w + 1)).extractAndExtendPopulate w).sumPackedVec := by sorry
+
+    sorry
+
+theorem append_sumPackedVec (x : BitVec w) :
+  ((0#w ++ extractAndExtendPopulate w x).cast (by simp [Nat.add_mul, Nat.add_comm])).sumPackedVec (n := (1 + w)) (w := w) =
+  0#w + (x.extractAndExtendPopulate w).sumPackedVec := by sorry
+
+-- ((y.zeroExtend (w + 1)).extractAndExtendPopulate w).sumPackedVec
+-- = ((0#1 ++ y).extractAndExtendPopulate w).sumPackedVec
+theorem append_extractAndExtendPopulate_sumPackedVec (x : BitVec w) :
+    ((0#1 ++ x).extractAndExtendPopulate w).sumPackedVec =
+    0#w + (x.extractAndExtendPopulate w).sumPackedVec := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · simp
+    rw [append_extractAndExtendPopulate_eq]
+    rw [append_sumPackedVec (x := x) (w := w + 1)]
+    simp
+
+-- = (0#w ++ y.extractAndExtendPopulate w).sumPackedVec
+--
+-- = (0#w +  (y.extractAndExtendPopulate w).sumPackedVec
+-- = (y.extractAndExtendPopulate w).sumPackedVec
+
+theorem extractAndExtendPopulate_sumPackedVec_extractLsb' (y : BitVec w):
+    (y.extractAndExtendPopulate w).sumPackedVec =
+    ((y.zeroExtend (w + 1)).extractAndExtendPopulate w).sumPackedVec := by
+  induction w
+  · case zero =>
+    simp [extractAndExtendPopulate, extractAndExtendPopulateAux]
+    simp [of_length_zero]
+  · case _ w' ihw' =>
+
+    sorry
 
 
 theorem extractAndExtendPopulate_sumPackedVec_eq_add (x : BitVec (w + 1)):

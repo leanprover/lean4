@@ -1065,6 +1065,12 @@ end Inter
 section
 
 @[simp, grind =]
+theorem ofArray_eq_ofList (a : Array α) :
+    ofArray a = ofList a.toList := by
+  apply ext
+  apply HashMap.unitOfArray_eq_unitOfList
+
+@[simp, grind =]
 theorem ofList_nil :
     ofList ([] : List α) = ∅ :=
   ext HashMap.unitOfList_nil

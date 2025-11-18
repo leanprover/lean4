@@ -1130,6 +1130,12 @@ theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h�
 end Inter
 
 @[simp, grind =]
+theorem ofArray_eq_ofList (a : Array α) :
+    ofArray a = ofList a.toList := by
+  apply ext
+  apply HashMap.Raw.unitOfArray_eq_unitOfList
+
+@[simp, grind =]
 theorem ofList_nil :
     ofList ([] : List α) = ∅ :=
   ext HashMap.Raw.unitOfList_nil

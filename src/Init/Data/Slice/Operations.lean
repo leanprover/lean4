@@ -16,16 +16,16 @@ open Std.Iterators
 
 namespace Std.Slice
 
-instance {x : γ} [ToIterator x m β] : ToIterator (Slice.mk x) m β where
-  State := ToIterator.State x m
-  iterMInternal := ToIterator.iterMInternal
+instance [ToIterator γ m β] : ToIterator (Slice γ) m β where
+  State := ToIterator.State γ m
+  iterMInternal x := ToIterator.iterMInternal x.internalRepresentation
 
 /--
 Internal function to obtain an iterator from a slice. Users should import `Std.Data.Iterators`
 and use `Std.Slice.iter` instead.
 -/
 @[always_inline, inline]
-def Internal.iter (s : Slice γ) [ToIterator s Id β] :=
+def Internal.iter [ToIterator (Slice γ) Id β] (s : Slice γ) :=
   ToIterator.iter s
 
 /--
@@ -39,14 +39,14 @@ class SliceSize (α : Type u) where
 This type class states that the slice's iterator emits exactly `Slice.size` elements before
 terminating.
 -/
-class LawfulSliceSize (α : Type u) [SliceSize α] [∀ s : Slice α, ToIterator s Id β]
-    [∀ s : Slice α, Iterator (ToIterator.State s Id) Id β] where
+class LawfulSliceSize (α : Type u) [SliceSize α] [ToIterator (Slice α) Id β]
+    [Iterator (ToIterator.State (Slice α) Id) Id β] where
   /-- The iterator for every `Slice α` is finite. -/
-  [finite : ∀ s : Slice α, Finite (ToIterator.State s Id) Id]
+  [finite : Finite (ToIterator.State (Slice α) Id) Id]
   /-- The iterator of a slice `s` of type `Slice α` emits exactly `SliceSize.size s` elements. -/
   lawful :
-      letI (s : Slice α) : IteratorLoop (ToIterator.State s Id) Id Id := .defaultImplementation
-      ∀ s : Slice α, SliceSize.size s = (ToIterator.iter s).count
+      letI : IteratorLoop (ToIterator.State (Slice α) Id) Id Id := .defaultImplementation
+      ∀ s : Slice α, SliceSize.size s = (ToIterator.iter (γ := Slice α) s).count
 
 /--
 Returns the number of elements with distinct indices in the given slice.
@@ -59,26 +59,27 @@ def size (s : Slice γ) [SliceSize γ] :=
 
 /-- Allocates a new array that contains the elements of the slice. -/
 @[always_inline, inline]
-def toArray (s : Slice γ) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
-    [IteratorCollect (ToIterator.State s Id) Id Id] [Finite (ToIterator.State s Id) Id] : Array β :=
+def toArray [ToIterator (Slice γ) Id β] [Iterator (ToIterator.State (Slice γ) Id) Id β]
+    [IteratorCollect (ToIterator.State (Slice γ) Id) Id Id] [Finite (ToIterator.State (Slice γ) Id) Id] (s : Slice γ) : Array β :=
   Internal.iter s |>.toArray
 
 /-- Allocates a new list that contains the elements of the slice. -/
 @[always_inline, inline]
-def toList (s : Slice γ) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
-    [IteratorCollect (ToIterator.State s Id) Id Id] [Finite (ToIterator.State s Id) Id] : List β :=
+def toList [ToIterator (Slice γ) Id β] [Iterator (ToIterator.State (Slice γ) Id) Id β]
+    [IteratorCollect (ToIterator.State (Slice γ) Id) Id Id] [Finite (ToIterator.State (Slice γ) Id) Id]
+    (s : Slice γ) : List β :=
   Internal.iter s |>.toList
 
 /-- Allocates a new list that contains the elements of the slice in reverse order. -/
 @[always_inline, inline]
-def toListRev (s : Slice γ) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
-    [Finite (ToIterator.State s Id) Id] : List β :=
+def toListRev [ToIterator (Slice γ) Id β] [Iterator (ToIterator.State (Slice γ) Id) Id β]
+    [Finite (ToIterator.State (Slice γ) Id) Id] (s : Slice γ) : List β :=
   Internal.iter s |>.toListRev
 
-instance {γ : Type u} {β : Type v} [∀ s : Slice γ, ToIterator s Id β]
-    [∀ s : Slice γ, Iterator (ToIterator.State s Id) Id β]
-    [∀ s : Slice γ, IteratorLoop (ToIterator.State s Id) Id m]
-    [∀ s : Slice γ, Finite (ToIterator.State s Id) Id] :
+instance {γ : Type u} {β : Type v} [ToIterator (Slice γ) Id β]
+    [Iterator (ToIterator.State (Slice γ) Id) Id β]
+    [IteratorLoop (ToIterator.State (Slice γ) Id) Id m]
+    [Finite (ToIterator.State (Slice γ) Id) Id] :
     ForIn m (Slice γ) β where
   forIn s init f :=
     forIn (Internal.iter s) init f
@@ -110,8 +111,9 @@ none
 @[always_inline, inline]
 def foldlM {γ : Type u} {β : Type v}
     {δ : Type w} {m : Type w → Type w'} [Monad m] (f : δ → β → m δ) (init : δ)
-    (s : Slice γ) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
-    [IteratorLoop (ToIterator.State s Id) Id m] [Finite (ToIterator.State s Id) Id] : m δ :=
+    [ToIterator (Slice γ) Id β] [Iterator (ToIterator.State (Slice γ) Id) Id β]
+    [IteratorLoop (ToIterator.State (Slice γ) Id) Id m] [Finite (ToIterator.State (Slice γ) Id) Id]
+    (s : Slice γ) : m δ :=
   Internal.iter s |>.foldM f init
 
 /--
@@ -125,8 +127,9 @@ Examples for the special case of subarrays:
 @[always_inline, inline]
 def foldl {γ : Type u} {β : Type v}
     {δ : Type w} (f : δ → β → δ) (init : δ)
-    (s : Slice γ) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
-    [IteratorLoop (ToIterator.State s Id) Id Id] [Finite (ToIterator.State s Id) Id] : δ :=
+    [ToIterator (Slice γ) Id β] [Iterator (ToIterator.State (Slice γ) Id) Id β]
+    [IteratorLoop (ToIterator.State (Slice γ) Id) Id Id] [Finite (ToIterator.State (Slice γ) Id) Id]
+    (s : Slice γ) : δ :=
   Internal.iter s |>.fold f init
 
 end Std.Slice

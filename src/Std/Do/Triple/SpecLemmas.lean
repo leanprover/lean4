@@ -1095,13 +1095,13 @@ theorem Spec.forIn_slice {m : Type w → Type x} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     {γ : Type u} {β : Type w}
     [LawfulMonad m] {δ : Type w}
-    [∀ s : Slice γ, ToIterator s Id β]
-    [∀ s : Slice γ, Iterator (ToIterator.State s Id) Id β]
-    [∀ s : Slice γ, IteratorLoop (ToIterator.State s Id) Id m]
-    [∀ s : Slice γ, LawfulIteratorLoop (ToIterator.State s Id) Id m]
-    [∀ s : Slice γ, IteratorCollect (ToIterator.State s Id) Id Id]
-    [∀ s : Slice γ, LawfulIteratorCollect (ToIterator.State s Id) Id Id]
-    [∀ s : Slice γ, Finite (ToIterator.State s Id) Id]
+    [ToIterator (Slice γ) Id β]
+    [Iterator (ToIterator.State (Slice γ) Id) Id β]
+    [IteratorLoop (ToIterator.State (Slice γ) Id) Id m]
+    [LawfulIteratorLoop (ToIterator.State (Slice γ) Id) Id m]
+    [IteratorCollect (ToIterator.State (Slice γ) Id) Id Id]
+    [LawfulIteratorCollect (ToIterator.State (Slice γ) Id) Id Id]
+    [Finite (ToIterator.State (Slice γ) Id) Id]
     {init : δ} {f : β → δ → m (ForInStep δ)}
     {xs : Slice γ}
     (inv : Invariant xs.toList δ ps)

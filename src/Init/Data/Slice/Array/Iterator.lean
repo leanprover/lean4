@@ -15,6 +15,7 @@ public import Init.Data.Range.Polymorphic.Iterators
 public import Init.Data.Slice.Operations
 import Init.Omega
 import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
+public import Init.Data.Iterators.Combinators.Sigma
 
 public section
 
@@ -26,12 +27,13 @@ open Std Slice PRange Iterators
 
 variable {shape : RangeShape} {α : Type u}
 
-instance {s : Slice (Internal.SubarrayData α)} : ToIterator s Id α :=
+instance : ToIterator (Slice (Internal.SubarrayData α)) Id α :=
   .of _
-    (Rco.Internal.iter (s.internalRepresentation.start...<s.internalRepresentation.stop)
+    (fun s => Rco.Internal.iter (s.internalRepresentation.start...<s.internalRepresentation.stop)
       |>.attachWith (· < s.internalRepresentation.array.size) ?h
       |>.uLift
-      |>.map fun | .up i => s.internalRepresentation.array[i.1])
+      |>.map (fun | .up i => s.internalRepresentation.array[i.1])
+      |>.sigma (param := s))
 where finally
   case h =>
     simp only [Rco.Internal.isPlausibleIndirectOutput_iter_iff, Membership.mem, and_imp]
@@ -41,17 +43,22 @@ where finally
 
 universe v w
 
-@[no_expose] instance {s : Slice (Internal.SubarrayData α)} : Iterator (ToIterator.State s Id) Id α := inferInstance
-@[no_expose] instance {s : Slice (Internal.SubarrayData α)} : Finite (ToIterator.State s Id) Id := inferInstance
-@[no_expose] instance {s : Slice (Internal.SubarrayData α)} : IteratorCollect (ToIterator.State s Id) Id Id := inferInstance
-@[no_expose] instance {s : Slice (Internal.SubarrayData α)} : LawfulIteratorCollect (ToIterator.State s Id) Id Id := inferInstance
-@[no_expose] instance {s : Slice (Internal.SubarrayData α)} : IteratorCollectPartial (ToIterator.State s Id) Id Id := inferInstance
-@[no_expose] instance {s : Slice (Internal.SubarrayData α)} {m : Type v → Type w} [Monad m] :
-    IteratorLoop (ToIterator.State s Id) Id m := inferInstance
-@[no_expose] instance {s : Slice (Internal.SubarrayData α)} {m : Type v → Type w} [Monad m] :
-    LawfulIteratorLoop (ToIterator.State s Id) Id m := inferInstance
-@[no_expose] instance {s : Slice (Internal.SubarrayData α)} {m : Type v → Type w} [Monad m] :
-    IteratorLoopPartial (ToIterator.State s Id) Id m := inferInstance
+@[no_expose] instance :
+    Iterator (ToIterator.State (Slice (Internal.SubarrayData α)) Id) Id α := inferInstance
+@[no_expose] instance :
+    Finite (ToIterator.State (Slice (Internal.SubarrayData α)) Id) Id := inferInstance
+@[no_expose] instance :
+    IteratorCollect (ToIterator.State (Slice (Internal.SubarrayData α)) Id) Id Id := inferInstance
+@[no_expose] instance :
+    LawfulIteratorCollect (ToIterator.State (Slice (Internal.SubarrayData α)) Id) Id Id := inferInstance
+@[no_expose] instance :
+    IteratorCollectPartial (ToIterator.State (Slice (Internal.SubarrayData α)) Id) Id Id := inferInstance
+@[no_expose] instance {m : Type v → Type w} [Monad m] :
+    IteratorLoop (ToIterator.State (Slice (Internal.SubarrayData α)) Id) Id m := inferInstance
+@[no_expose] instance {m : Type v → Type w} [Monad m] :
+    LawfulIteratorLoop (ToIterator.State (Slice (Internal.SubarrayData α)) Id) Id m := inferInstance
+@[no_expose] instance {m : Type v → Type w} [Monad m] :
+    IteratorLoopPartial (ToIterator.State (Slice (Internal.SubarrayData α)) Id) Id m := inferInstance
 
 instance : SliceSize (Internal.SubarrayData α) where
   size s := s.internalRepresentation.stop - s.internalRepresentation.start

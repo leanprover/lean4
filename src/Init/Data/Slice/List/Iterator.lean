@@ -24,21 +24,21 @@ open Std Slice PRange Iterators
 
 variable {shape : RangeShape} {α : Type u}
 
-instance {s : ListSlice α} : ToIterator s Id α :=
-  .of _ (match s.internalRepresentation.stop with
+instance : ToIterator (Slice (Internal.ListSliceData α)) Id α :=
+  .of _ (fun s => match s.internalRepresentation.stop with
       | some n => s.internalRepresentation.list.iter.take n
       | none => s.internalRepresentation.list.iter.toTake)
 
 universe v w
 
-@[no_expose] instance {s : ListSlice α} : Iterator (ToIterator.State s Id) Id α := inferInstance
-@[no_expose] instance {s : ListSlice α} : Finite (ToIterator.State s Id) Id := inferInstance
-@[no_expose] instance {s : ListSlice α} : IteratorCollect (ToIterator.State s Id) Id Id := inferInstance
-@[no_expose] instance {s : ListSlice α} : IteratorCollectPartial (ToIterator.State s Id) Id Id := inferInstance
+@[no_expose] instance : Iterator (ToIterator.State (Slice (Internal.ListSliceData α)) Id) Id α := inferInstance
+@[no_expose] instance : Finite (ToIterator.State (Slice (Internal.ListSliceData α)) Id) Id := inferInstance
+@[no_expose] instance : IteratorCollect (ToIterator.State (Slice (Internal.ListSliceData α)) Id) Id Id := inferInstance
+@[no_expose] instance : IteratorCollectPartial (ToIterator.State (Slice (Internal.ListSliceData α)) Id) Id Id := inferInstance
+@[no_expose] instance {m : Type v → Type w} [Monad m] :
+    IteratorLoop (ToIterator.State (Slice (Internal.ListSliceData α)) Id) Id m := inferInstance
 @[no_expose] instance {s : ListSlice α} {m : Type v → Type w} [Monad m] :
-    IteratorLoop (ToIterator.State s Id) Id m := inferInstance
-@[no_expose] instance {s : ListSlice α} {m : Type v → Type w} [Monad m] :
-    IteratorLoopPartial (ToIterator.State s Id) Id m := inferInstance
+    IteratorLoopPartial (ToIterator.State (Slice (Internal.ListSliceData α)) Id) Id m := inferInstance
 
 instance : SliceSize (Internal.ListSliceData α) where
   size s := (Internal.iter s).count

@@ -101,7 +101,7 @@ public theorem mkSlice_rcc_eq_mkSlice_rco {xs : List α} {lo hi : Nat} :
 @[simp]
 public theorem toList_mkSlice_rcc {xs : List α} {lo hi : Nat} :
     xs[lo...=hi].toList = (xs.take (hi + 1)).drop lo := by
-  rw [mkSlice_rcc_eq_mkSlice_rco, toList_mkSlice_rco]
+  simp
 
 @[simp]
 public theorem toArray_mkSlice_rcc {xs : List α} {lo hi : Nat} :
@@ -137,7 +137,7 @@ public theorem mkSlice_roo_eq_mkSlice_rco {xs : List α} {lo hi : Nat} :
 @[simp]
 public theorem toList_mkSlice_roo {xs : List α} {lo hi : Nat} :
     xs[lo<...hi].toList = (xs.take hi).drop (lo + 1) := by
-  rw [mkSlice_roo_eq_mkSlice_rco, toList_mkSlice_rco]
+  simp
 
 @[simp]
 public theorem toArray_mkSlice_roo {xs : List α} {lo hi : Nat} :
@@ -157,7 +157,7 @@ public theorem mkSlice_roc_eq_mkSlice_roo {xs : List α} {lo hi : Nat} :
 @[simp]
 public theorem toList_mkSlice_roc {xs : List α} {lo hi : Nat} :
     xs[lo<...=hi].toList = (xs.take (hi + 1)).drop (lo + 1) := by
-  rw [mkSlice_roc_eq_mkSlice_roo, toList_mkSlice_roo]
+  simp
 
 @[simp]
 public theorem toArray_mkSlice_roc {xs : List α} {lo hi : Nat} :
@@ -177,7 +177,7 @@ public theorem mkSlice_roi_eq_mkSlice_rci {xs : List α} {lo : Nat} :
 @[simp]
 public theorem toList_mkSlice_roi {xs : List α} {lo : Nat} :
     xs[lo<...*].toList = xs.drop (lo + 1) := by
-  rw [mkSlice_roi_eq_mkSlice_rci, toList_mkSlice_rci]
+  simp
 
 @[simp]
 public theorem toArray_mkSlice_roi {xs : List α} {lo : Nat} :
@@ -197,7 +197,7 @@ public theorem mkSlice_rio_eq_mkSlice_rco {xs : List α} {hi : Nat} :
 @[simp]
 public theorem toList_mkSlice_rio {xs : List α} {hi : Nat} :
     xs[*...hi].toList = xs.take hi := by
-  rw [mkSlice_rio_eq_mkSlice_rco, toList_mkSlice_rco, List.drop_zero]
+  simp
 
 @[simp]
 public theorem toArray_mkSlice_rio {xs : List α} {hi : Nat} :
@@ -217,7 +217,7 @@ public theorem mkSlice_ric_eq_mkSlice_rio {xs : List α} {hi : Nat} :
 @[simp]
 public theorem toList_mkSlice_ric {xs : List α} {hi : Nat} :
     xs[*...=hi].toList = xs.take (hi + 1) := by
-  rw [mkSlice_ric_eq_mkSlice_rio, toList_mkSlice_rio]
+  simp
 
 @[simp]
 public theorem toArray_mkSlice_ric {xs : List α} {hi : Nat} :
@@ -237,7 +237,7 @@ public theorem mkSlice_rii_eq_mkSlice_rci {xs : List α} :
 @[simp]
 public theorem toList_mkSlice_rii {xs : List α} :
     xs[*...*].toList = xs := by
-  rw [mkSlice_rii_eq_mkSlice_rci, toList_mkSlice_rci, List.drop_zero]
+  simp
 
 @[simp]
 public theorem toArray_mkSlice_rii {xs : List α} :
@@ -277,7 +277,7 @@ public theorem mkSlice_rcc_eq_mkSlice_rco {xs : ListSlice α} {lo hi : Nat} :
 @[simp]
 public theorem toList_mkSlice_rcc {xs : ListSlice α} {lo hi : Nat} :
     xs[lo...=hi].toList = (xs.toList.take (hi + 1)).drop lo := by
-  rw [mkSlice_rcc_eq_mkSlice_rco, toList_mkSlice_rco]
+  simp
 
 @[simp]
 public theorem toArray_mkSlice_rcc {xs : ListSlice α} {lo hi : Nat} :
@@ -307,7 +307,7 @@ public theorem mkSlice_roo_eq_mkSlice_rco {xs : ListSlice α} {lo hi : Nat} :
 @[simp]
 public theorem toList_mkSlice_roo {xs : ListSlice α} {lo hi : Nat} :
     xs[lo<...hi].toList = (xs.toList.take hi).drop (lo + 1) := by
-  rw [mkSlice_roo_eq_mkSlice_rco, toList_mkSlice_rco]
+  simp
 
 @[simp]
 public theorem toArray_mkSlice_roo {xs : ListSlice α} {lo hi : Nat} :
@@ -327,7 +327,7 @@ public theorem mkSlice_roc_eq_mkSlice_rcc {xs : ListSlice α} {lo hi : Nat} :
 @[simp]
 public theorem toList_mkSlice_roc {xs : ListSlice α} {lo hi : Nat} :
     xs[lo<...=hi].toList = (xs.toList.take (hi + 1)).drop (lo + 1) := by
-  rw [mkSlice_roc_eq_mkSlice_rcc, toList_mkSlice_rcc]
+  simp
 
 @[simp]
 public theorem toArray_mkSlice_roc {xs : ListSlice α} {lo hi : Nat} :
@@ -342,7 +342,7 @@ public theorem mkSlice_roi_eq_mkSlice_rci {xs : ListSlice α} {lo : Nat} :
 @[simp]
 public theorem toList_mkSlice_roi {xs : ListSlice α} {lo : Nat} :
     xs[lo<...*].toList = xs.toList.drop (lo + 1) := by
-  rw [mkSlice_roi_eq_mkSlice_rci, toList_mkSlice_rci]
+  simp
 
 @[simp]
 public theorem toArray_mkSlice_roi {xs : ListSlice α} {lo : Nat} :
@@ -359,7 +359,7 @@ public theorem mkSlice_rio_eq_mkSlice_rco {xs : ListSlice α} {hi : Nat} :
 @[simp]
 public theorem toList_mkSlice_rio {xs : ListSlice α} {hi : Nat} :
     xs[*...hi].toList = xs.toList.take hi := by
-  rw [mkSlice_rio_eq_mkSlice_rco, toList_mkSlice_rco, List.drop_zero]
+  simp
 
 @[simp]
 public theorem toArray_mkSlice_rio {xs : ListSlice α} {hi : Nat} :
@@ -379,7 +379,7 @@ public theorem mkSlice_ric_eq_mkSlice_rcc {xs : ListSlice α} {hi : Nat} :
 @[simp]
 public theorem toList_mkSlice_ric {xs : ListSlice α} {hi : Nat} :
     xs[*...=hi].toList = xs.toList.take (hi + 1) := by
-  rw [mkSlice_ric_eq_mkSlice_rcc, toList_mkSlice_rcc, List.drop_zero]
+  simp
 
 @[simp]
 public theorem toArray_mkSlice_ric {xs : ListSlice α} {hi : Nat} :
@@ -390,16 +390,6 @@ public theorem toArray_mkSlice_ric {xs : ListSlice α} {hi : Nat} :
 public theorem mkSlice_rii {xs : ListSlice α} :
     xs[*...*] = xs := by
   simp [Std.Rii.Sliceable.mkSlice]
-
-@[simp]
-public theorem toList_mkSlice_rii {xs : ListSlice α} :
-    xs[*...*].toList = xs.toList := by
-  rw [mkSlice_rii]
-
-@[simp]
-public theorem toArray_mkSlice_rii {xs : ListSlice α} :
-    xs[*...*].toArray = xs.toArray := by
-  rw [mkSlice_rii]
 
 end ListSlice
 

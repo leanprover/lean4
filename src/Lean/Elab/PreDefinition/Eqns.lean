@@ -142,7 +142,6 @@ where
     let go (e : Expr) (ω) : ST ω FVarIdSet := do
       let ref ← ST.mkRef {}
       e.forEachWhere Match.isNamedPattern fun e => do
-        let some e := Match.isNamedPattern? e | unreachable!
         let arg := e.appArg!.consumeMData
         if arg.isFVar then
           ST.Prim.Ref.modify ref (·.insert arg.fvarId!)

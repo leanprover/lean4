@@ -499,7 +499,7 @@ partial def normalize (e : Expr) : M Expr := do
     match e.arrayLit? with
     | some (α, lits) => mkArrayLit α (← lits.mapM normalize)
     | none =>
-      if let some e := Match.isNamedPattern? e then
+      if Match.isNamedPattern e then
         let x := e.getArg! 1
         let p := e.getArg! 2
         let h := e.getArg! 3

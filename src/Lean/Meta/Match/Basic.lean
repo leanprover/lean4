@@ -16,16 +16,17 @@ namespace Lean.Meta.Match
 def mkNamedPattern (x h p : Expr) : MetaM Expr :=
   mkAppM ``namedPattern #[x, p, h]
 
+/-- True if `e` is `namedPattern x p h`.  -/
 def isNamedPattern (e : Expr) : Bool :=
   let e := e.consumeMData
   e.getAppNumArgs == 4 && e.getAppFn.consumeMData.isConstOf ``namedPattern
 
+/-- If `e` is `namedPattern x p h`, then return `some p`.  -/
 def isNamedPattern? (e : Expr) : Option Expr :=
   let e := e.consumeMData
-  if e.getAppNumArgs == 4 && e.getAppFn.consumeMData.isConstOf ``namedPattern then
-    some e
-  else
-    none
+  match_expr e with
+  | namedPattern _ _ p _ => some p
+  | _ => none
 
 inductive Pattern : Type where
   | inaccessible (e : Expr) : Pattern
@@ -288,7 +289,7 @@ partial def toPattern (e : Expr) : MetaM Pattern := do
     | some (α, lits) =>
       return Pattern.arrayLit α (← lits.mapM toPattern)
     | none =>
-      if let some e := isNamedPattern? e then
+      if isNamedPattern e then
         let p ← toPattern <| e.getArg! 2
         match e.getArg! 1, e.getArg! 3 with
         | Expr.fvar x, Expr.fvar h => return Pattern.as x p h

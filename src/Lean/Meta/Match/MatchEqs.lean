@@ -85,13 +85,13 @@ def casesOnStuckLHS? (mvarId : MVarId) : MetaM (Option (Array MVarId)) := do
 
 namespace Match
 
-def unfoldNamedPattern (e : Expr) : MetaM Expr := do
-  let visit (e : Expr) : MetaM TransformStep := do
+def unfoldNamedPattern (e : Expr) : CoreM Expr :=
+  let visit (e : Expr) : CoreM TransformStep :=
     if let some e := isNamedPattern? e then
-      if let some eNew ← unfoldDefinition? e then
-        return TransformStep.visit eNew
-    return .continue
-  Meta.transform e (pre := visit)
+      return .visit e
+    else
+      return .continue
+  Core.transform e (pre := visit)
 
 /--
   Similar to `forallTelescopeReducing`, but
@@ -148,7 +148,7 @@ where
 
   isNamedPatternProof (type : Expr) (h : Expr) : Bool :=
     Option.isSome <| type.find? fun e =>
-      if let some e := Match.isNamedPattern? e then
+      if Match.isNamedPattern e then
         e.appArg! == h
       else
         false

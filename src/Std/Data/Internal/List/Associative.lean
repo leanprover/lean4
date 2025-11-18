@@ -5487,6 +5487,22 @@ theorem containsKey_filter_containsKey_eq_false_of_containsKey_eq_false_right [B
   . simp [h]
   . exact hl₁
 
+theorem perm_filter_containsKey_of_perm {l₁ l₂ l₃ : List ((a : α) × β a)}
+    [BEq α] [EquivBEq α]
+    (h : l₂.Perm l₃)
+    (wf₁ : DistinctKeys l₁) :
+    (l₁.filter (fun p => containsKey p.fst l₂)).Perm (l₁.filter (fun p => containsKey p.1 l₃)) := by
+  induction l₁
+  case nil => simp
+  case cons hd tl ih =>
+    rw [List.distinctKeys_cons_iff] at wf₁
+    rw [List.filter_cons, List.filter_cons]
+    rw [List.containsKey_of_perm h]
+    specialize ih wf₁.1
+    split
+    · simp only [List.perm_cons, ih]
+    · simp [ih]
+
 theorem List.getValue?_filter_containsKey {β : Type v} [BEq α] [EquivBEq α]
     {l₁ l₂ : List ((_ : α) × β)} {k : α}
     (dl₁ : DistinctKeys l₁) :

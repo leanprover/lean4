@@ -8086,25 +8086,25 @@ return x_35;
 block_44:
 {
 uint8_t x_43; 
-x_43 = lean_nat_dec_le(x_39, x_38);
+x_43 = lean_nat_dec_le(x_37, x_41);
 if (x_43 == 0)
 {
-lean_dec(x_39);
-x_21 = x_37;
-x_22 = x_40;
+lean_dec(x_37);
+x_21 = x_38;
+x_22 = x_39;
 x_23 = lean_box(0);
 x_24 = x_42;
-x_25 = x_38;
+x_25 = x_41;
 goto block_36;
 }
 else
 {
-lean_dec(x_38);
-x_21 = x_37;
-x_22 = x_40;
+lean_dec(x_41);
+x_21 = x_38;
+x_22 = x_39;
 x_23 = lean_box(0);
 x_24 = x_42;
-x_25 = x_39;
+x_25 = x_37;
 goto block_36;
 }
 }
@@ -8222,22 +8222,22 @@ x_77 = lean_array_get_size(x_73);
 x_78 = lean_nat_dec_le(x_74, x_76);
 if (x_78 == 0)
 {
-x_37 = x_55;
-x_38 = x_77;
-x_39 = x_75;
-x_40 = x_73;
-x_41 = lean_box(0);
+x_37 = x_75;
+x_38 = x_55;
+x_39 = x_73;
+x_40 = lean_box(0);
+x_41 = x_77;
 x_42 = x_74;
 goto block_44;
 }
 else
 {
 lean_dec(x_74);
-x_37 = x_55;
-x_38 = x_77;
-x_39 = x_75;
-x_40 = x_73;
-x_41 = lean_box(0);
+x_37 = x_75;
+x_38 = x_55;
+x_39 = x_73;
+x_40 = lean_box(0);
+x_41 = x_77;
 x_42 = x_76;
 goto block_44;
 }

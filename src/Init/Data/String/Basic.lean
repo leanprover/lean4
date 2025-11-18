@@ -1599,6 +1599,10 @@ position is not the past-the-end position, which guarantees that such a position
 def ValidPos.next {s : String} (pos : s.ValidPos) (h : pos ≠ s.endValidPos) : s.ValidPos :=
   ((inline (Slice.Pos.next pos.toSlice (ne_of_apply_ne Slice.Pos.ofSlice (by simpa)))).ofSlice)
 
+@[expose, extern "lean_string_utf8_next_fast"]
+def Pos.next {s : String} (pos : s.ValidPos) (h : pos ≠ s.endValidPos) : s.ValidPos :=
+  ((inline (Slice.Pos.next pos.toSlice (ne_of_apply_ne Slice.Pos.ofSlice (by simpa)))).ofSlice)
+
 /-- Advances a valid position on a string to the next valid position, or returns `none` if the
 given position is the past-the-end position. -/
 @[inline, expose]
@@ -2564,7 +2568,7 @@ Examples:
   if sep == "" then [s] else splitOnAux s sep 0 0 0 []
 
 
-def offsetOfPosAux (s : String) (pos : Pos.Raw) (i : Pos.Raw) (offset : Nat) : Nat :=
+def Pos.Raw.offsetOfPosAux (s : String) (pos : Pos.Raw) (i : Pos.Raw) (offset : Nat) : Nat :=
   if i >= pos then offset
   else if h : i.atEnd s then
     offset
@@ -2589,12 +2593,16 @@ Examples:
 * `"L∃∀N".offsetOfPos ⟨5⟩ = 3`
 * `"L∃∀N".offsetOfPos ⟨50⟩ = 4`
 -/
-@[inline] def offsetOfPos (s : String) (pos : Pos.Raw) : Nat :=
+@[inline] def Pos.Raw.offsetOfPos (s : String) (pos : Pos.Raw) : Nat :=
   offsetOfPosAux s pos 0 0
+
+@[deprecated String.Pos.Raw.offsetOfPos (since := "2025-11-17")]
+def offsetOfPos (s : String) (pos : Pos.Raw) : Nat :=
+  pos.offsetOfPos s
 
 @[export lean_string_offsetofpos]
 def Internal.offsetOfPosImpl (s : String) (pos : Pos.Raw) : Nat :=
-  String.offsetOfPos s pos
+  String.Pos.Raw.offsetOfPos s pos
 
 @[specialize] def foldlAux {α : Type u} (f : α → Char → α) (s : String) (stopPos : Pos.Raw) (i : Pos.Raw) (a : α) : α :=
   if h : i < stopPos then
@@ -2778,23 +2786,6 @@ def substrEq (s1 : String) (pos1 : String.Pos.Raw) (s2 : String) (pos2 : String.
   Pos.Raw.substrEq s1 pos1 s2 pos2 sz
 
 /--
-Checks whether the first string (`p`) is a prefix of the second (`s`).
-
-`String.startsWith` is a version that takes the potential prefix after the string.
-
-Examples:
- * `"red".isPrefixOf "red green blue" = true`
- * `"green".isPrefixOf "red green blue" = false`
- * `"".isPrefixOf "red green blue" = true`
--/
-def isPrefixOf (p : String) (s : String) : Bool :=
-  Pos.Raw.substrEq p 0 s 0 p.rawEndPos.byteIdx
-
-@[export lean_string_isprefixof]
-def Internal.isPrefixOfImpl (p : String) (s : String) : Bool :=
-  String.isPrefixOf p s
-
-/--
 Returns the position of the beginning of the line that contains the position `pos`.
 
 Lines are ended by `'\n'`, and the returned position is either `0 : String.Pos` or immediately after
@@ -2880,9 +2871,9 @@ theorem get'_eq (s : String) (p : Pos.Raw) (h) : p.get' s h = p.get s := rfl
 @[deprecated Pos.Raw.next'_eq (since := "2025-10-14")]
 theorem next'_eq (s : String) (p : Pos.Raw) (h) : p.next' s h = p.next s := rfl
 
--- `toSubstring'` is just a synonym for `toSubstring` without the `@[inline]` attribute
+-- `toRawSubstring'` is just a synonym for `toRawSubstring` without the `@[inline]` attribute
 -- so for proving can be unfolded.
-attribute [simp] toSubstring'
+attribute [simp] toRawSubstring'
 
 end String
 

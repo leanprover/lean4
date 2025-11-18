@@ -39,10 +39,8 @@ where
   let goal ← getMainGoal
   let mvarId ← goal.mvarId.assert n t v
   let goal := { goal with mvarId }
-  let (goal, _) ← liftGrindM <| withCheapCasesOnly <| SearchM.run goal do
-    intros 0
-    getGoal
   replaceMainGoal [goal]
+  liftAction <| Action.intros 0
 
 @[builtin_grind_tactic Parser.Tactic.Grind.haveSilent] def evalHaveSilent : GrindTactic := fun stx => withMainContext do
   let `(grind| have $[$id?:ident]? : $prop:term) := stx | throwUnsupportedSyntax
@@ -61,9 +59,7 @@ where
   let v ← instantiateMVars mvar
   let mvarId ← goal.mvarId.assert id prop v
   let goal := { goal with mvarId }
-  let (goal, _) ← liftGrindM <| withCheapCasesOnly <| SearchM.run goal do
-    intros 0
-    getGoal
   setGoals (goal :: goals)
+  liftAction <| Action.intros 0
 
 end Lean.Elab.Tactic.Grind

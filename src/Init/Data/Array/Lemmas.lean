@@ -1628,11 +1628,14 @@ theorem filterMap_eq_filter {p : α → Bool} (w : stop = as.size) :
   cases as
   simp
 
-@[grind =]
 theorem filterMap_filterMap {f : α → Option β} {g : β → Option γ} {xs : Array α} :
     filterMap g (filterMap f xs) = filterMap (fun x => (f x).bind g) xs := by
   cases xs
   simp [List.filterMap_filterMap]
+
+grind_pattern filterMap_filterMap => filterMap g (filterMap f xs) where
+  f =/= some
+  g =/= some
 
 @[grind =]
 theorem map_filterMap {f : α → Option β} {g : β → γ} {xs : Array α} :
@@ -2228,8 +2231,8 @@ theorem push_eq_flatten_iff {xss : Array (Array α)} {ys : Array α} {y : α} :
 --           zs = cs ++ ds.flatten := by sorry
 
 
-/-- Two arrays of subarrays are equal iff their flattens coincide, as well as the sizes of the
-subarrays. -/
+/-- Two arrays of arrays are equal iff their flattens coincide, as well as the sizes of the
+arrays. -/
 theorem eq_iff_flatten_eq {xss₁ xss₂ : Array (Array α)} :
     xss₁ = xss₂ ↔ xss₁.flatten = xss₂.flatten ∧ map size xss₁ = map size xss₂ := by
   cases xss₁ using array₂_induction with

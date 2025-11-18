@@ -173,7 +173,7 @@ public def chAtom.parenthesizer (_ : Char) (_  : List String) (_ : ParserFn) : P
 
 /-- Parse the trimmed string as an atom (but use the full string for formatting). -/
 public def strAtom (s : String) (expected := [s!"'{s}'"]) (trailingFn := skipFn) : Parser :=
-  atom (strFn s.trim expected) trailingFn
+  atom (strFn s.trimAscii.copy expected) trailingFn
 
 @[combinator_formatter strAtom]
 public def strAtom.formatter (s : String) (_ : List String) (_ : ParserFn) : Formatter :=

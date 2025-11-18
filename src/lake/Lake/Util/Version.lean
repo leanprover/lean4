@@ -260,7 +260,7 @@ public def ofString (ver : String) : ToolchainVer := Id.run do
       ("", ver)
   let noOrigin := origin.isEmpty
   if tag.startsWith "v" then
-    if let .ok ver := StdVer.parse (tag.drop 1) then
+    if let .ok ver := StdVer.parse (tag.drop 1).copy then
       if noOrigin|| origin == defaultOrigin then
         return .release ver
   else if let some date := tag.dropPrefix? "nightly-" then
@@ -268,7 +268,7 @@ public def ofString (ver : String) : ToolchainVer := Id.run do
       if noOrigin then
         return .nightly date
       else if let some suffix := origin.dropPrefix? defaultOrigin then
-        if suffix.isEmpty || suffix == "-nightly".toSubstring then
+        if suffix.isEmpty || suffix == "-nightly".toSlice then
           return .nightly date
   else if let some n := tag.dropPrefix?  "pr-release-" then
     if let some n := n.toNat? then
@@ -283,7 +283,7 @@ public def ofString (ver : String) : ToolchainVer := Id.run do
 public def ofFile? (toolchainFile : FilePath) : IO (Option ToolchainVer) := do
   try
     let toolchainString ← IO.FS.readFile toolchainFile
-    return some <| ToolchainVer.ofString toolchainString.trim
+    return some <| ToolchainVer.ofString toolchainString.trimAscii.copy
   catch
     | .noFileOrDirectory .. =>
       return none

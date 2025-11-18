@@ -320,6 +320,11 @@ This function ensures that the value is used linearly.
     Array α :=
   m.1.keysArray
 
+@[inline, inherit_doc Raw.all] def all (m : DHashMap α β) (p : (a : α) → β a → Bool) : Bool :=
+  m.1.all p
+
+@[inline, inherit_doc Raw.any] def any (m : DHashMap α β) (p : (a : α) → β a → Bool) : Bool :=
+  m.1.any p
 /--
 Computes the union of the given hash maps. If a key appears in both maps, the entry contained in
 the second argument will appear in the result.
@@ -331,7 +336,18 @@ This function always merges the smaller map into the larger map, so the expected
   inner := Raw₀.union ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩
   wf := Std.DHashMap.Raw.WF.union₀ m₁.2 m₂.2
 
+/--
+Computes the intersection of the given hash maps. The result will only contain entries from the first map.
+
+This function always iterates through the smaller map, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def inter [BEq α] [Hashable α] (m₁ m₂ : DHashMap α β) : DHashMap α β where
+  inner := Raw₀.inter ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩
+  wf := Std.DHashMap.Raw.WF.inter₀ m₁.2 m₂.2
+
 instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
+instance [BEq α] [Hashable α] : Inter (DHashMap α β) := ⟨inter⟩
 
 section Unverified
 

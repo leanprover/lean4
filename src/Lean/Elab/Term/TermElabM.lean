@@ -26,15 +26,31 @@ namespace Lean.Elab
 
 namespace Term
 
+-- Same pattern as for `Methods`/`MethodsRef` in `SimpM`. See `FixedTermElabRef`.
+private opaque FixedTermElabRefPointed : NonemptyType.{0}
+
+/--
+This type is an abbreviation for `Option Expr → TermElabM Expr`, but avoids a circular dependency
+with `TermElabM`.
+
+We store `FixedTermElabRef` in the `Context` of the `TermElabM` monad, inducing the circular
+dependency. This mechanism allows us to register semantic term elaborators in
+`el : Option Expr → TermElabM Expr` as scoped `s : Syntax`, such that `elabTerm s = el`.
+-/
+def FixedTermElabRef : Type := FixedTermElabRefPointed.type
+
+instance : Nonempty FixedTermElabRef :=
+  by exact FixedTermElabRefPointed.property
 
 /-- Saved context for postponed terms and tactics to be executed. -/
 structure SavedContext where
-  declName?  : Option Name
-  options    : Options
-  openDecls  : List OpenDecl
-  macroStack : MacroStack
-  errToSorry : Bool
-  levelNames : List Name
+  declName?      : Option Name
+  options        : Options
+  openDecls      : List OpenDecl
+  macroStack     : MacroStack
+  errToSorry     : Bool
+  levelNames     : List Name
+  fixedTermElabs : Array FixedTermElabRef
 
 /-- The kind of a tactic metavariable, used for additional error reporting. -/
 inductive TacticMVarKind
@@ -317,6 +333,10 @@ structure Context where
   If `checkDeprecated := true`, then `Linter.checkDeprecated` when creating constants.
   -/
   checkDeprecated : Bool := true
+  /--
+  Fixed term elaborators for supporting `elabToSyntax`.
+  -/
+  fixedTermElabs : Array FixedTermElabRef := #[]
 
 abbrev TermElabM := ReaderT Context $ StateRefT State MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
@@ -326,6 +346,20 @@ def Context.autoBoundImplicit (ctx : Context) : Bool :=
   match ctx.autoBoundImplicitContext with
     | .none => false
     | .some subCtx => subCtx.autoImplicitEnabled
+
+abbrev FixedTermElab := Option Expr → TermElabM Expr
+
+unsafe def FixedTermElab.toFixedTermElabRefImpl (m : FixedTermElab) : FixedTermElabRef :=
+  unsafeCast m
+
+@[implemented_by FixedTermElab.toFixedTermElabRefImpl]
+opaque FixedTermElab.toFixedTermElabRef (m : FixedTermElab) : FixedTermElabRef
+
+unsafe def FixedTermElabRef.toFixedTermElabImpl (m : FixedTermElabRef) : FixedTermElab :=
+  unsafeCast m
+
+@[implemented_by FixedTermElabRef.toFixedTermElabImpl]
+opaque FixedTermElabRef.toFixedTermElab (m : FixedTermElabRef) : FixedTermElab
 
 /-
 Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
@@ -757,6 +791,26 @@ def withMacroExpansion [Monad n] [MonadControlT TermElabM n] (beforeStx afterStx
   controlAt TermElabM fun runInBase => do
     withMacroExpansionInfo beforeStx afterStx do
     withPushMacroExpansionStack beforeStx afterStx <| runInBase x
+
+/--
+Node kind for the `Lean.Elab.Term.elabToSyntax` functionality.
+It is an implementation detail of `Lean.Elab.Term.elabToSyntax`.
+-/
+protected def _root_.Lean.Parser.Term.elabToSyntax : Unit := ()
+
+builtin_initialize Lean.Parser.registerBuiltinNodeKind ``Lean.Parser.Term.elabToSyntax
+
+/-- Refer to the given term elaborator by a scoped `Syntax` object. -/
+def elabToSyntax (fixedTermElab : FixedTermElab) (k : Term → TermElabM α) : TermElabM α := do
+  let ctx ← read
+  withReader (fun ctx => { ctx with fixedTermElabs := ctx.fixedTermElabs.push fixedTermElab.toFixedTermElabRef }) do
+    k ⟨mkNode ``Lean.Parser.Term.elabToSyntax #[Syntax.mkNatLit ctx.fixedTermElabs.size]⟩
+
+@[builtin_term_elab Lean.Parser.Term.elabToSyntax] def elabFixedTermElab : TermElab := fun stx expectedType? => do
+  let some idx := stx[0].isNatLit? | throwUnsupportedSyntax
+  let some fixedTermElab := (← read).fixedTermElabs[idx]?
+    | throwError "Fixed term elaborator {idx} not found. There were only {(← read).fixedTermElabs.size} fixed term elaborators registered."
+  fixedTermElab.toFixedTermElab expectedType?
 
 /--
   Add the given metavariable to the list of pending synthetic metavariables.
@@ -1248,6 +1302,7 @@ def saveContext : TermElabM SavedContext :=
     openDecls  := (← getOpenDecls)
     errToSorry := (← read).errToSorry
     levelNames := (← get).levelNames
+    fixedTermElabs := (← read).fixedTermElabs
   }
 
 /--

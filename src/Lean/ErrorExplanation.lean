@@ -154,7 +154,7 @@ deriving Repr, Inhabited
 private def ValidationState.ofSource (input : String) : ValidationState where
   lines := input.splitOn "\n"
     |>.zipIdx
-    |>.filter (!·.1.trim.isEmpty)
+    |>.filter (!·.1.trimAscii.isEmpty)
     |>.toArray
 
 -- Workaround to account for the fact that `Input` expects "EOF" to be a valid position
@@ -258,9 +258,9 @@ where
     let (_, closing) ← fence numTicks
       <|> fail s!"Missing closing code fence for block with header '{infoString}'"
     -- Validate code block:
-    unless closing.trim.isEmpty do
+    unless closing.trimAscii.isEmpty do
       fail s!"Expected a closing code fence, but found the nonempty info string `{closing}`"
-    let info ← match ErrorExplanation.CodeInfo.parse infoString with
+    let info ← match ErrorExplanation.CodeInfo.parse infoString.copy with
       | .ok i => pure i
       | .error s =>
         fail s
@@ -277,7 +277,7 @@ where
   fence (ticksToClose : Option Nat := none) := attempt do
     let line ← any
     if line.startsWith "```" then
-      let numTicks := line.takeWhile (· == '`') |>.length
+      let numTicks := line.takeWhile (· == '`') |>.copy |>.length
       match ticksToClose with
       | none => return (numTicks, line.drop numTicks)
       | some n =>
@@ -305,7 +305,7 @@ where
     guard (octsEndPos.byteIdx == level)
     guard (octsEndPos.get line == ' ')
     let titleStartPos := octsEndPos.next line
-    let title := Substring.mk line titleStartPos line.rawEndPos |>.toString
+    let title := Substring.Raw.mk line titleStartPos line.rawEndPos |>.toString
     let titleMatches : Bool := match title? with
       | some expectedTitle => title == expectedTitle
       | none => true

@@ -132,6 +132,7 @@ LEAN_EXPORT lean_object* l_Lean_Option_get___at___00Lean_Elab_addMacroStack___at
 lean_object* lean_mk_syntax_ident(lean_object*);
 static lean_object* l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00__private_Lake_DSL_Config_0__Lake_DSL_elabNameConst_spec__4_spec__5___redArg___closed__2;
 static lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabNameConst___regBuiltin___private_Lake_DSL_Config_0__Lake_DSL_elabNameConst__1___closed__8;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__61;
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
 static lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__7;
@@ -221,7 +222,6 @@ static lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___clos
 static lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__6;
 static lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__3;
 extern lean_object* l_Lake_nameExt;
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__29;
 static lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__25;
 LEAN_EXPORT lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___regBuiltin___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig__1();
@@ -2180,7 +2180,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__8;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -2330,7 +2330,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__24;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -2483,7 +2483,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__39;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -2543,7 +2543,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__11;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -2647,7 +2647,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__55;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

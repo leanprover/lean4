@@ -105,8 +105,10 @@ static lean_object* l_Lean_initFn___closed__5_00___x40_Lean_DocString_Links_3730
 static lean_object* l___private_Lean_DocString_Links_0__Lean_domainMap___closed__9;
 static lean_object* l_Lean_errorExplanationManualDomain___closed__0;
 static lean_object* l___private_Lean_DocString_Links_0__Lean_fallbackManualRoot___closed__0;
+lean_object* l_Substring_Raw_prevn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Lean_validateBuiltinDocString_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_manualLink___closed__0;
+uint8_t l_Substring_Raw_beq(lean_object*, lean_object*);
 extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_DHashMap_Internal_Raw_u2080_Const_insertMany___at___00__private_Lean_DocString_Links_0__Lean_domainMap_spec__0_spec__0_spec__1___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldrM___at___00Lean_manualLink_spec__3___boxed(lean_object*, lean_object*);
@@ -135,7 +137,6 @@ static lean_object* l_List_toString___at___00__private_Lean_DocString_Links_0__L
 LEAN_EXPORT lean_object* l_List_foldl___at___00Lean_rewriteManualLinks_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_DHashMap_Internal_Raw_u2080_Const_insertMany___at___00__private_Lean_DocString_Links_0__Lean_domainMap_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_rewriteManualLinksCore_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Substring_prevn(lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Lean_validateBuiltinDocString_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
@@ -157,7 +158,6 @@ static lean_object* l___private_Lean_DocString_Links_0__Lean_rw___closed__5;
 size_t lean_usize_sub(size_t, size_t);
 static lean_object* l_Lean_rewriteManualLinksCore___closed__2;
 static lean_object* l_List_mapTR_loop___at___00Lean_rewriteManualLinks_spec__0___closed__1;
-uint8_t l_Substring_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Links_0__Lean_domainMap;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00Lean_manualLink_spec__4(lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -324,7 +324,7 @@ lean_ctor_set(x_8, 1, x_6);
 lean_ctor_set(x_8, 2, x_7);
 x_9 = lean_unsigned_to_nat(1u);
 lean_inc(x_7);
-x_10 = l_Substring_prevn(x_8, x_9, x_7);
+x_10 = l_Substring_Raw_prevn(x_8, x_9, x_7);
 lean_dec_ref(x_8);
 lean_inc_ref(x_4);
 x_11 = lean_alloc_ctor(0, 3, 0);
@@ -332,7 +332,7 @@ lean_ctor_set(x_11, 0, x_4);
 lean_ctor_set(x_11, 1, x_10);
 lean_ctor_set(x_11, 2, x_7);
 x_12 = l_Lean_initFn___closed__3_00___x40_Lean_DocString_Links_3730308748____hygCtx___hyg_2_;
-x_13 = l_Substring_beq(x_11, x_12);
+x_13 = l_Substring_Raw_beq(x_11, x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 

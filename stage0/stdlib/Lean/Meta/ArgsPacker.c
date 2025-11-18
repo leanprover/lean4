@@ -6235,7 +6235,7 @@ lean_inc_ref(x_2);
 x_9 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Meta_ArgsPacker_Mutual_uncurryType_spec__0(x_7, x_8, x_1, x_2, x_3, x_4, x_5);
 if (lean_obj_tag(x_9) == 0)
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; size_t x_14; lean_object* x_15; lean_object* x_22; lean_object* x_37; uint8_t x_38; 
+lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_22; lean_object* x_37; uint8_t x_38; 
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec_ref(x_9);
@@ -6301,7 +6301,7 @@ return x_45;
 block_21:
 {
 lean_object* x_16; lean_object* x_17; 
-x_16 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Meta_ArgsPacker_Mutual_uncurryType_spec__1(x_14, x_8, x_10);
+x_16 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Meta_ArgsPacker_Mutual_uncurryType_spec__1(x_13, x_8, x_10);
 lean_inc(x_5);
 lean_inc_ref(x_4);
 x_17 = l_Lean_Meta_ArgsPacker_Mutual_packType(x_16, x_2, x_3, x_4, x_5);
@@ -6311,14 +6311,14 @@ lean_object* x_18; lean_object* x_19; lean_object* x_20;
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
 lean_dec_ref(x_17);
-x_19 = lean_array_get(x_11, x_13, x_12);
-lean_dec_ref(x_13);
+x_19 = lean_array_get(x_11, x_14, x_12);
+lean_dec_ref(x_14);
 x_20 = l_Lean_mkArrow(x_18, x_19, x_4, x_5);
 return x_20;
 }
 else
 {
-lean_dec_ref(x_13);
+lean_dec_ref(x_14);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 return x_17;
@@ -6338,8 +6338,8 @@ if (x_27 == 0)
 {
 lean_dec(x_26);
 lean_dec_ref(x_25);
-x_13 = x_24;
-x_14 = x_23;
+x_13 = x_23;
+x_14 = x_24;
 x_15 = lean_box(0);
 goto block_21;
 }
@@ -6351,8 +6351,8 @@ if (x_28 == 0)
 {
 lean_dec(x_26);
 lean_dec_ref(x_25);
-x_13 = x_24;
-x_14 = x_23;
+x_13 = x_23;
+x_14 = x_24;
 x_15 = lean_box(0);
 goto block_21;
 }
@@ -6372,8 +6372,8 @@ lean_dec_ref(x_25);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_dec_ref(x_32);
-x_13 = x_24;
-x_14 = x_23;
+x_13 = x_23;
+x_14 = x_24;
 x_15 = lean_box(0);
 goto block_21;
 }

@@ -74,7 +74,7 @@ private partial def mkErrorMessage (c : InputContext) (pos : String.Pos.Raw) (st
     data := toString e }
 where
   -- Error recovery might lead to there being some "junk" on the stack
-  lastTrailing (s : SyntaxStack) : Option Substring :=
+  lastTrailing (s : SyntaxStack) : Option Substring.Raw :=
     Id.run <| s.toSubarray.findSomeRevM? fun stx =>
       if let .original (trailing := trailing) .. := stx.getTailInfo then pure (some trailing)
         else none
@@ -118,7 +118,7 @@ def parseHeader (inputCtx : InputContext) : IO (TSyntax ``Module.header × Modul
   pure (⟨stx⟩, {pos := s.pos, recovering := s.hasError}, messages)
 
 private def mkEOI (pos : String.Pos.Raw) : Syntax :=
-  let atom := mkAtom (SourceInfo.original "".toSubstring pos "".toSubstring pos) ""
+  let atom := mkAtom (SourceInfo.original "".toRawSubstring pos "".toRawSubstring pos) ""
   mkNode ``Command.eoi #[atom]
 
 def isTerminalCommand (s : Syntax) : Bool :=

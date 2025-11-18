@@ -35,7 +35,7 @@ or `x`) or has an arbitrary postfix sequence of numbers, subscripts, and undersc
 both `αᵣₒₛₑ₂₁₁'''` and `X123_45` can be auto-bound even with `relaxedAutoBound` set to `false`.
 -/
 private def isValidAutoBoundSuffix (s : String) : Bool :=
-  s.toSubstring.drop 1 |>.all fun c => c.isDigit || isSubScriptAlnum c || c == '_' || c == '\''
+  s.toRawSubstring.drop 1 |>.all fun c => c.isDigit || isSubScriptAlnum c || c == '_' || c == '\''
 
 /-!
 Remark: Issue #255 exposed a nasty interaction between macro scopes and auto-bound-implicit names.

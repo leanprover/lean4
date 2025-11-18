@@ -163,6 +163,10 @@ structure Config where
   Remark: this option is only relevant for the `#grind_lint` command.
   -/
   detailed : Nat := 50
+  /--
+  When `trace := true`, uses `sorry` to close unsolved branches.
+  -/
+  useSorry := true
   deriving Inhabited, BEq
 
 /--

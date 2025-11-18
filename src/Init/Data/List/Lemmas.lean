@@ -1217,8 +1217,12 @@ theorem tailD_map {f : α → β} {l l' : List α} :
 theorem getLastD_map {f : α → β} {l : List α} {a : α} : (map f l).getLastD (f a) = f (l.getLastD a) := by
   simp
 
-@[simp, grind _=_] theorem map_map {g : β → γ} {f : α → β} {l : List α} :
+@[simp] theorem map_map {g : β → γ} {f : α → β} {l : List α} :
     map g (map f l) = map (g ∘ f) l := by induction l <;> simp_all
+
+grind_pattern map_map => map g (map f l) where
+  g =/= List.reverse
+  f =/= List.reverse
 
 /-! ### filter -/
 
@@ -1428,12 +1432,15 @@ theorem filterMap_eq_filter {p : α → Bool} :
   | nil => rfl
   | cons a l IH => by_cases pa : p a <;> simp [Option.guard, pa, ← IH]
 
-@[grind =]
 theorem filterMap_filterMap {f : α → Option β} {g : β → Option γ} {l : List α} :
     filterMap g (filterMap f l) = filterMap (fun x => (f x).bind g) l := by
   induction l with
   | nil => rfl
   | cons a l IH => cases h : f a <;> simp [filterMap_cons, *]
+
+grind_pattern filterMap_filterMap => filterMap g (filterMap f l) where
+  f =/= some
+  g =/= some
 
 @[grind =]
 theorem map_filterMap {f : α → Option β} {g : β → γ} {l : List α} :
@@ -2456,15 +2463,27 @@ theorem getLast_of_mem_getLast? {l : List α} (hx : x ∈ l.getLast?) :
     simp only [reverse_cons, filterMap_append, filterMap_cons, ih]
     split <;> simp_all
 
-@[simp, grind _=_] theorem reverse_append {as bs : List α} : (as ++ bs).reverse = bs.reverse ++ as.reverse := by
+@[simp] theorem reverse_append {as bs : List α} : (as ++ bs).reverse = bs.reverse ++ as.reverse := by
   induction as <;> simp_all
+
+grind_pattern reverse_append => (as ++ bs).reverse where
+  as =/= []
+  bs =/= []
+grind_pattern reverse_append => bs.reverse ++ as.reverse where
+  as =/= []
+  bs =/= []
 
 @[simp] theorem reverse_eq_append_iff {xs ys zs : List α} :
     xs.reverse = ys ++ zs ↔ xs = zs.reverse ++ ys.reverse := by
   rw [reverse_eq_iff, reverse_append]
 
-@[grind _=_] theorem reverse_concat {l : List α} {a : α} : (l ++ [a]).reverse = a :: l.reverse := by
+theorem reverse_concat {l : List α} {a : α} : (l ++ [a]).reverse = a :: l.reverse := by
   rw [reverse_append]; rfl
+
+grind_pattern reverse_concat => (l ++ [a]).reverse where
+  l =/= []
+grind_pattern reverse_concat => a :: l.reverse where
+  l =/= []
 
 theorem reverse_eq_concat {xs ys : List α} {a : α} :
     xs.reverse = ys ++ [a] ↔ xs = a :: ys.reverse := by
@@ -2483,8 +2502,14 @@ theorem flatten_reverse {L : List (List α)} :
 @[grind =] theorem reverse_flatMap {β} {l : List α} {f : α → List β} : (l.flatMap f).reverse = l.reverse.flatMap (reverse ∘ f) := by
   induction l <;> simp_all
 
-@[grind =] theorem flatMap_reverse {β} {l : List α} {f : α → List β} : (l.reverse.flatMap f) = (l.flatMap (reverse ∘ f)).reverse := by
+grind_pattern reverse_flatMap => (l.flatMap f).reverse where
+  f =/= List.reverse ∘ _
+
+theorem flatMap_reverse {β} {l : List α} {f : α → List β} : l.reverse.flatMap f = (l.flatMap (reverse ∘ f)).reverse := by
   induction l <;> simp_all
+
+grind_pattern flatMap_reverse => l.reverse.flatMap f where
+  f =/= List.reverse ∘ _
 
 @[simp] theorem reverseAux_eq {as bs : List α} : reverseAux as bs = reverse as ++ bs :=
   reverseAux_eq_append ..

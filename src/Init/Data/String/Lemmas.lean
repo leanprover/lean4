@@ -32,7 +32,7 @@ protected theorem ne_of_data_ne {a b : String} (h : a.toList ≠ b.toList) : a �
 @[simp] protected theorem le_refl (a : String) : a ≤ a := List.le_refl _
 @[simp] protected theorem lt_irrefl (a : String) : ¬ a < a := List.lt_irrefl _
 
-attribute [local instance] Char.notLTTrans Char.notLTAntisymm Char.notLTTotal
+attribute [local instance] Char.notLTTrans Char.ltTrichotomous Char.ltAsymm
 
 protected theorem le_trans {a b c : String} : a ≤ b → b ≤ c → a ≤ c := List.le_trans
 protected theorem lt_trans {a b c : String} : a < b → b < c → a < c := List.lt_trans

@@ -45,6 +45,7 @@ static lean_object* l_Lake_instInhabitedLakeInstall_default___closed__0;
 static lean_object* l_Lake_instReprLeanInstall_repr___redArg___closed__36;
 static lean_object* l_Lake_instReprLeanInstall_repr___redArg___closed__14;
 lean_object* l_Std_Format_fill(lean_object*);
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00Lake_findElanInstall_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanInstall_sharedLibPath(lean_object*);
 static lean_object* l_Lake_instReprLeanInstall_repr___redArg___closed__31;
 lean_object* l_String_quote(lean_object*);
@@ -63,7 +64,6 @@ static lean_object* l_Lake_getLakeInstall_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lake_instReprLakeInstall_repr___redArg(lean_object*);
 static lean_object* l_Lake_instReprLeanInstall_repr___redArg___closed__0;
 static lean_object* l_Lake_instReprLeanInstall_repr___redArg___closed__5;
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00Lake_findElanInstall_x3f_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instReprLakeInstall;
 static lean_object* l_Array_Array_repr___at___00Lake_instReprLeanInstall_repr_spec__0___closed__1;
 extern lean_object* l_System_FilePath_exeExtension;
@@ -123,7 +123,6 @@ static lean_object* l_Array_Array_repr___at___00Lake_instReprLeanInstall_repr_sp
 static lean_object* l_Lake_instReprLeanInstall_repr___redArg___closed__24;
 static lean_object* l_Lake_instReprLeanInstall_repr___redArg___closed__18;
 static lean_object* l_Lake_instReprLeanInstall_repr___redArg___closed__35;
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00Lake_findElanInstall_x3f_spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_leanSharedLib___closed__2;
 lean_object* l_Lean_Compiler_FFI_getLinkerFlags_x27(uint8_t);
 static lean_object* l_Lake_envToBool_x3f___closed__15;
@@ -157,6 +156,7 @@ static lean_object* l_Lake_LakeInstall_ofLean___closed__1;
 static lean_object* l_Lake_leanSharedLib___closed__1;
 static lean_object* l_Lake_instReprLeanInstall_repr___redArg___closed__45;
 static lean_object* l___private_Lake_Config_InstallPath_0__Lake_toolchain2Dir_go___closed__0;
+LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00Lake_findElanInstall_x3f_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_envToBool_x3f___closed__20;
 static lean_object* l_Lake_envToBool_x3f___closed__21;
 static lean_object* l_Lake_instReprElanInstall_repr___redArg___closed__24;
@@ -190,6 +190,7 @@ static lean_object* l_Lake_envToBool_x3f___closed__4;
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___00Array_Array_repr___at___00Lake_instReprLeanInstall_repr_spec__0_spec__0___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_initSharedLib;
 static uint8_t l_Lake_leanSharedLibDir___closed__0;
+LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00Lake_findElanInstall_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instReprElanInstall_repr___redArg___closed__6;
 static lean_object* l_Lake_findElanInstall_x3f___closed__1;
 LEAN_EXPORT lean_object* l___private_Lake_Config_InstallPath_0__Lake_LeanInstall_get_getGithash___boxed(lean_object*, lean_object*);
@@ -227,6 +228,7 @@ static lean_object* l_Lake_envToBool_x3f___closed__3;
 static lean_object* l_Lake_instReprElanInstall_repr___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Lake_leancExe(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___00Std_Format_joinSep___at___00Array_Array_repr___at___00Lake_instReprLeanInstall_repr_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00Lake_findElanInstall_x3f_spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instReprElanInstall___closed__0;
 static lean_object* l_Lake_initSharedLib___closed__1;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -275,7 +277,6 @@ static lean_object* l_Lake_instReprLeanInstall_repr___redArg___closed__43;
 LEAN_EXPORT uint8_t l_List_elem___at___00Lake_envToBool_x3f_spec__1(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanInstall_get___closed__6;
 LEAN_EXPORT lean_object* l_Lake_LeanInstall_ctorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00Lake_findElanInstall_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 static lean_object* l_Lake_instReprLeanInstall_repr___redArg___closed__29;
 static lean_object* l_Lake_instReprElanInstall_repr___redArg___closed__23;
@@ -312,7 +313,6 @@ static lean_object* l_Lake_instReprLakeInstall___closed__0;
 static lean_object* l_Lake_instReprLeanInstall_repr___redArg___closed__26;
 LEAN_EXPORT lean_object* l_Lake_LeanInstall_sharedLibPath___boxed(lean_object*);
 static lean_object* l_Lake_instReprLakeInstall_repr___redArg___closed__0;
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00Lake_findElanInstall_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 extern uint8_t l_System_Platform_isWindows;
 static lean_object* l_Lake_LeanInstall_get___closed__5;
 static lean_object* l_Lake_instReprElanInstall_repr___redArg___closed__3;
@@ -3468,7 +3468,7 @@ return x_15;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00Lake_findElanInstall_x3f_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00Lake_findElanInstall_x3f_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_7; uint8_t x_9; 
@@ -3544,7 +3544,7 @@ goto block_6;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00Lake_findElanInstall_x3f_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00Lake_findElanInstall_x3f_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -3683,8 +3683,8 @@ block_23:
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = lean_string_utf8_byte_size(x_8);
-x_11 = l_Substring_takeWhileAux___at___00Lake_findElanInstall_x3f_spec__0(x_8, x_10, x_9);
-x_12 = l_Substring_takeRightWhileAux___at___00Lake_findElanInstall_x3f_spec__1(x_8, x_11, x_10);
+x_11 = l_Substring_Raw_takeWhileAux___at___00Lake_findElanInstall_x3f_spec__0(x_8, x_10, x_9);
+x_12 = l_Substring_Raw_takeRightWhileAux___at___00Lake_findElanInstall_x3f_spec__1(x_8, x_11, x_10);
 x_13 = lean_string_utf8_extract(x_8, x_11, x_12);
 lean_dec(x_12);
 lean_dec(x_11);
@@ -3734,21 +3734,21 @@ return x_26;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00Lake_findElanInstall_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00Lake_findElanInstall_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Substring_takeWhileAux___at___00Lake_findElanInstall_x3f_spec__0(x_1, x_2, x_3);
+x_4 = l_Substring_Raw_takeWhileAux___at___00Lake_findElanInstall_x3f_spec__0(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00Lake_findElanInstall_x3f_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00Lake_findElanInstall_x3f_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Substring_takeRightWhileAux___at___00Lake_findElanInstall_x3f_spec__1(x_1, x_2, x_3);
+x_4 = l_Substring_Raw_takeRightWhileAux___at___00Lake_findElanInstall_x3f_spec__1(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_4;
@@ -3854,8 +3854,8 @@ else
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_18 = lean_string_utf8_byte_size(x_15);
-x_19 = l_Substring_takeWhileAux___at___00Lake_findElanInstall_x3f_spec__0(x_15, x_18, x_6);
-x_20 = l_Substring_takeRightWhileAux___at___00Lake_findElanInstall_x3f_spec__1(x_15, x_19, x_18);
+x_19 = l_Substring_Raw_takeWhileAux___at___00Lake_findElanInstall_x3f_spec__0(x_15, x_18, x_6);
+x_20 = l_Substring_Raw_takeRightWhileAux___at___00Lake_findElanInstall_x3f_spec__1(x_15, x_19, x_18);
 x_21 = lean_string_utf8_extract(x_15, x_19, x_20);
 lean_dec(x_20);
 lean_dec(x_19);
@@ -3886,8 +3886,8 @@ else
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_27 = lean_string_utf8_byte_size(x_24);
-x_28 = l_Substring_takeWhileAux___at___00Lake_findElanInstall_x3f_spec__0(x_24, x_27, x_6);
-x_29 = l_Substring_takeRightWhileAux___at___00Lake_findElanInstall_x3f_spec__1(x_24, x_28, x_27);
+x_28 = l_Substring_Raw_takeWhileAux___at___00Lake_findElanInstall_x3f_spec__0(x_24, x_27, x_6);
+x_29 = l_Substring_Raw_takeRightWhileAux___at___00Lake_findElanInstall_x3f_spec__1(x_24, x_28, x_27);
 x_30 = lean_string_utf8_extract(x_24, x_28, x_29);
 lean_dec(x_29);
 lean_dec(x_28);
@@ -3962,8 +3962,8 @@ x_14 = lean_ctor_get(x_13, 0);
 lean_inc_ref(x_14);
 lean_dec(x_13);
 x_15 = lean_string_utf8_byte_size(x_14);
-x_16 = l_Substring_takeWhileAux___at___00Lake_findElanInstall_x3f_spec__0(x_14, x_15, x_7);
-x_17 = l_Substring_takeRightWhileAux___at___00Lake_findElanInstall_x3f_spec__1(x_14, x_16, x_15);
+x_16 = l_Substring_Raw_takeWhileAux___at___00Lake_findElanInstall_x3f_spec__0(x_14, x_15, x_7);
+x_17 = l_Substring_Raw_takeRightWhileAux___at___00Lake_findElanInstall_x3f_spec__1(x_14, x_16, x_15);
 x_18 = lean_string_utf8_extract(x_14, x_16, x_17);
 lean_dec(x_17);
 lean_dec(x_16);
@@ -5056,8 +5056,8 @@ lean_inc(x_26);
 lean_dec_ref(x_13);
 x_27 = lean_unsigned_to_nat(0u);
 x_28 = lean_string_utf8_byte_size(x_26);
-x_29 = l_Substring_takeWhileAux___at___00Lake_findElanInstall_x3f_spec__0(x_26, x_28, x_27);
-x_30 = l_Substring_takeRightWhileAux___at___00Lake_findElanInstall_x3f_spec__1(x_26, x_29, x_28);
+x_29 = l_Substring_Raw_takeWhileAux___at___00Lake_findElanInstall_x3f_spec__0(x_26, x_28, x_27);
+x_30 = l_Substring_Raw_takeRightWhileAux___at___00Lake_findElanInstall_x3f_spec__1(x_26, x_29, x_28);
 x_31 = lean_string_utf8_extract(x_26, x_29, x_30);
 lean_dec(x_30);
 lean_dec(x_29);

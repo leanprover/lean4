@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+static lean_object* l_Lean_Grind_grindLintCheck___closed__40;
 static lean_object* l_Lean_Grind_grindLintInspect___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Grind_grindLintMute;
 LEAN_EXPORT lean_object* l_Lean_Grind_grindLintInspect;
@@ -21,6 +22,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_grindLintSkip;
 static lean_object* l_Lean_Grind_grindLintSkip___closed__5;
 static lean_object* l_Lean_Grind_grindLintCheck___closed__12;
 static lean_object* l_Lean_Grind_grindLintCheck___closed__15;
+static lean_object* l_Lean_Grind_grindLintCheck___closed__37;
 static lean_object* l_Lean_Grind_grindLintCheck___closed__35;
 static lean_object* l_Lean_Grind_grindLintSkip___closed__0;
 static lean_object* l_Lean_Grind_grindLintInspect___closed__1;
@@ -46,6 +48,7 @@ static lean_object* l_Lean_Grind_grindLintCheck___closed__32;
 static lean_object* l_Lean_Grind_grindLintCheck___closed__21;
 static lean_object* l_Lean_Grind_grindLintCheck___closed__6;
 static lean_object* l_Lean_Grind_grindLintInspect___closed__3;
+static lean_object* l_Lean_Grind_grindLintCheck___closed__36;
 static lean_object* l_Lean_Grind_grindLintCheck___closed__17;
 extern lean_object* l_Lean_Parser_Tactic_configItem;
 static lean_object* l_Lean_Grind_grindLintCheck___closed__29;
@@ -61,9 +64,11 @@ static lean_object* l_Lean_Grind_grindLintSkip___closed__2;
 static lean_object* l_Lean_Grind_grindLintInspect___closed__0;
 static lean_object* l_Lean_Grind_grindLintMute___closed__4;
 static lean_object* l_Lean_Grind_grindLintCheck___closed__33;
+static lean_object* l_Lean_Grind_grindLintCheck___closed__38;
 static lean_object* l_Lean_Grind_grindLintMute___closed__5;
 static lean_object* l_Lean_Grind_grindLintSkip___closed__4;
 static lean_object* l_Lean_Grind_grindLintInspect___closed__5;
+static lean_object* l_Lean_Grind_grindLintCheck___closed__39;
 static lean_object* l_Lean_Grind_grindLintCheck___closed__2;
 static lean_object* l_Lean_Grind_grindLintSkip___closed__3;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
@@ -341,63 +346,53 @@ static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__26() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("many1", 5, 5);
+x_1 = lean_mk_string_unchecked("module", 6, 6);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__27() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Grind_grindLintCheck___closed__26;
-x_2 = l_Lean_Name_mkStr1(x_1);
-return x_2;
+uint8_t x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = 0;
+x_2 = l_Lean_Grind_grindLintCheck___closed__26;
+x_3 = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__28() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("ident", 5, 5);
-return x_1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Grind_grindLintCheck___closed__27;
+x_2 = l_Lean_Grind_grindLintCheck___closed__10;
+x_3 = l_Lean_Grind_grindLintCheck___closed__5;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__29() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Grind_grindLintCheck___closed__28;
-x_2 = l_Lean_Name_mkStr1(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__30() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Grind_grindLintCheck___closed__29;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__31() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Grind_grindLintCheck___closed__30;
-x_2 = l_Lean_Grind_grindLintCheck___closed__27;
+x_1 = l_Lean_Grind_grindLintCheck___closed__28;
+x_2 = l_Lean_Grind_grindLintCheck___closed__22;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__32() {
+static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__30() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Grind_grindLintCheck___closed__31;
+x_1 = l_Lean_Grind_grindLintCheck___closed__29;
 x_2 = l_Lean_Grind_grindLintCheck___closed__25;
 x_3 = l_Lean_Grind_grindLintCheck___closed__5;
 x_4 = lean_alloc_ctor(2, 3, 0);
@@ -407,11 +402,81 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
+static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__31() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("many1", 5, 5);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__32() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Grind_grindLintCheck___closed__31;
+x_2 = l_Lean_Name_mkStr1(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__33() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__34() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Grind_grindLintCheck___closed__33;
+x_2 = l_Lean_Name_mkStr1(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__35() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Grind_grindLintCheck___closed__34;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__36() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Grind_grindLintCheck___closed__32;
+x_1 = l_Lean_Grind_grindLintCheck___closed__35;
+x_2 = l_Lean_Grind_grindLintCheck___closed__32;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__37() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Grind_grindLintCheck___closed__36;
+x_2 = l_Lean_Grind_grindLintCheck___closed__30;
+x_3 = l_Lean_Grind_grindLintCheck___closed__5;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_1);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__38() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Grind_grindLintCheck___closed__37;
 x_2 = l_Lean_Grind_grindLintCheck___closed__22;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -419,11 +484,11 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__34() {
+static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__39() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Grind_grindLintCheck___closed__33;
+x_1 = l_Lean_Grind_grindLintCheck___closed__38;
 x_2 = l_Lean_Grind_grindLintCheck___closed__20;
 x_3 = l_Lean_Grind_grindLintCheck___closed__5;
 x_4 = lean_alloc_ctor(2, 3, 0);
@@ -433,11 +498,11 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__35() {
+static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__40() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Grind_grindLintCheck___closed__34;
+x_1 = l_Lean_Grind_grindLintCheck___closed__39;
 x_2 = lean_unsigned_to_nat(1022u);
 x_3 = l_Lean_Grind_grindLintCheck___closed__3;
 x_4 = lean_alloc_ctor(3, 3, 0);
@@ -451,7 +516,7 @@ static lean_object* _init_l_Lean_Grind_grindLintCheck() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Grind_grindLintCheck___closed__35;
+x_1 = l_Lean_Grind_grindLintCheck___closed__40;
 return x_1;
 }
 }
@@ -526,7 +591,7 @@ static lean_object* _init_l_Lean_Grind_grindLintInspect___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Grind_grindLintCheck___closed__31;
+x_1 = l_Lean_Grind_grindLintCheck___closed__36;
 x_2 = l_Lean_Grind_grindLintInspect___closed__5;
 x_3 = l_Lean_Grind_grindLintCheck___closed__5;
 x_4 = lean_alloc_ctor(2, 3, 0);
@@ -615,7 +680,7 @@ static lean_object* _init_l_Lean_Grind_grindLintMute___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Grind_grindLintCheck___closed__31;
+x_1 = l_Lean_Grind_grindLintCheck___closed__36;
 x_2 = l_Lean_Grind_grindLintMute___closed__4;
 x_3 = l_Lean_Grind_grindLintCheck___closed__5;
 x_4 = lean_alloc_ctor(2, 3, 0);
@@ -704,7 +769,7 @@ static lean_object* _init_l_Lean_Grind_grindLintSkip___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Grind_grindLintCheck___closed__31;
+x_1 = l_Lean_Grind_grindLintCheck___closed__36;
 x_2 = l_Lean_Grind_grindLintSkip___closed__4;
 x_3 = l_Lean_Grind_grindLintCheck___closed__5;
 x_4 = lean_alloc_ctor(2, 3, 0);
@@ -821,6 +886,16 @@ l_Lean_Grind_grindLintCheck___closed__34 = _init_l_Lean_Grind_grindLintCheck___c
 lean_mark_persistent(l_Lean_Grind_grindLintCheck___closed__34);
 l_Lean_Grind_grindLintCheck___closed__35 = _init_l_Lean_Grind_grindLintCheck___closed__35();
 lean_mark_persistent(l_Lean_Grind_grindLintCheck___closed__35);
+l_Lean_Grind_grindLintCheck___closed__36 = _init_l_Lean_Grind_grindLintCheck___closed__36();
+lean_mark_persistent(l_Lean_Grind_grindLintCheck___closed__36);
+l_Lean_Grind_grindLintCheck___closed__37 = _init_l_Lean_Grind_grindLintCheck___closed__37();
+lean_mark_persistent(l_Lean_Grind_grindLintCheck___closed__37);
+l_Lean_Grind_grindLintCheck___closed__38 = _init_l_Lean_Grind_grindLintCheck___closed__38();
+lean_mark_persistent(l_Lean_Grind_grindLintCheck___closed__38);
+l_Lean_Grind_grindLintCheck___closed__39 = _init_l_Lean_Grind_grindLintCheck___closed__39();
+lean_mark_persistent(l_Lean_Grind_grindLintCheck___closed__39);
+l_Lean_Grind_grindLintCheck___closed__40 = _init_l_Lean_Grind_grindLintCheck___closed__40();
+lean_mark_persistent(l_Lean_Grind_grindLintCheck___closed__40);
 l_Lean_Grind_grindLintCheck = _init_l_Lean_Grind_grindLintCheck();
 lean_mark_persistent(l_Lean_Grind_grindLintCheck);
 l_Lean_Grind_grindLintInspect___closed__0 = _init_l_Lean_Grind_grindLintInspect___closed__0();

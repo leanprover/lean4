@@ -5872,7 +5872,7 @@ lean_inc(x_30);
 x_31 = lean_ctor_get(x_1, 3);
 lean_inc(x_31);
 lean_dec_ref(x_1);
-x_32 = lean_apply_8(x_8, x_28, x_29, x_30, x_31, x_2, lean_box(0), lean_box(0), lean_box(0));
+x_32 = lean_apply_7(x_8, x_28, x_29, x_30, x_31, x_2, lean_box(0), lean_box(0));
 return x_32;
 }
 else

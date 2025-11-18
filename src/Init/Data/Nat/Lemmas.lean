@@ -1719,10 +1719,15 @@ theorem shiftRight_succ_inside : ∀m n, m >>> (n+1) = (m/2) >>> n
   | 0 => by simp
   | n + 1 => by simp [zero_shiftRight n, shiftRight_succ]
 
-@[grind _=_]
 theorem shiftLeft_add (m n : Nat) : ∀ k, m <<< (n + k) = (m <<< n) <<< k
   | 0 => rfl
   | k + 1 => by simp [← Nat.add_assoc, shiftLeft_add _ _ k, shiftLeft_succ]
+
+grind_pattern shiftLeft_add => m <<< (n + k) where
+  m =/= 0
+
+grind_pattern shiftLeft_add => (m <<< n) <<< k where
+  m =/= 0
 
 @[simp] theorem shiftLeft_shiftRight (x n : Nat) : x <<< n >>> n = x := by
   rw [Nat.shiftLeft_eq, Nat.shiftRight_eq_div_pow, Nat.mul_div_cancel _ (Nat.two_pow_pos _)]

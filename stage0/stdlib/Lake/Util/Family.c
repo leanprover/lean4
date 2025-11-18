@@ -86,6 +86,7 @@ static lean_object* l_Lake_familyDef___closed__12;
 static lean_object* l_Lake_familyDef___closed__30;
 static lean_object* l_Lake_familyDef___closed__7;
 static lean_object* l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__41;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__24;
 static lean_object* l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__26;
 LEAN_EXPORT lean_object* l_Lake_familyDef;
@@ -123,7 +124,6 @@ static lean_object* l_Lake___aux__Lake__Util__Family______macroRules__Lake__fami
 static lean_object* l_Lake_familyDef___closed__15;
 static lean_object* l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__30;
 static lean_object* l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__9;
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Lake_familyDef___closed__19;
 static lean_object* l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__31;
 static lean_object* l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__48;
@@ -641,7 +641,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__21;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

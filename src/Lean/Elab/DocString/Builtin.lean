@@ -39,7 +39,7 @@ private def elabExtraTerm (stx : Syntax) (expectedType? : Option Expr := none) :
 
 /-- Create an identifier while directly copying info -/
 private def mkIdentFrom' (src : Syntax) (val : Name) : Ident :=
-  ⟨Syntax.ident src.getHeadInfo (toString val).toSubstring val []⟩
+  ⟨Syntax.ident src.getHeadInfo (toString val).toRawSubstring val []⟩
 
 /-- The code represents a global constant. -/
 structure Data.Const where
@@ -156,7 +156,7 @@ def name (full : Option Ident := none) (scope : DocScope := .local)
   let x := s.getString.toName
   if x.isAnonymous then
     let h ←
-      if s.getString != s.getString.trim && !s.getString.trim.isEmpty then
+      if s.getString.toSlice != s.getString.trimAscii && !s.getString.trimAscii.isEmpty then
         -- Like Markdown, Verso code elements that start and end with a space will strip the space,
         -- to allow code with leading or trailing backticks. But our suggestions shouldn't prefer
         -- that form here. Thus, the suggestion uses the delimiter positions instead of the string
@@ -170,7 +170,7 @@ def name (full : Option Ident := none) (scope : DocScope := .local)
           let ⟨tailPos, _⟩ ← tk2.getRange?
           pure <| Syntax.mkStrLit (String.Pos.Raw.extract text.source pos tailPos) (info := .synthetic pos tailPos)
         if let some ref := ref? then
-            m!"Remove surrounding whitespace:".hint #[s.getString.trim] (ref? := some ref)
+            m!"Remove surrounding whitespace:".hint #[s.getString.trimAscii.copy] (ref? := some ref)
         else pure m!""
       else pure m!""
     throwErrorAt s "Not a valid name.{h}"
@@ -870,7 +870,7 @@ where
       | (output, .error e) => Lean.logError e.toMessageData; pure (output, cmdState)
       | (output, .ok ((), cmdState)) => pure (output, cmdState)
 
-    if output.trim.isEmpty then return cmdState
+    if output.trimAscii.isEmpty then return cmdState
 
     let log : MessageData → Command.CommandElabM Unit :=
       if let some tok := firstToken? stx then logInfoAt tok
@@ -910,7 +910,7 @@ def output (name : Ident) (severity : Option (WithSyntax MessageSeverity) := non
       return .code code.getString
   let codeStr := code.getString
   for (sev, out) in outs do
-    if out.trim == codeStr.trim then
+    if out.trimAscii == codeStr.trimAscii then
       if let some s := severity then
         if s.val != sev then
           let sevName :=

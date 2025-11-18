@@ -30,7 +30,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (isCoi
   let declId           := decl[1]
   let ⟨name, declName, levelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
   if modifiers.isMeta then
-    modifyEnv (addMeta · declName)
+    modifyEnv (markMeta · declName)
   addDeclarationRangesForBuiltin declName modifiers.stx decl
   /-
     Relates to issue
@@ -74,7 +74,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (isCoi
     let (binders, type?) := expandOptDeclSig ctor[4]
     addDeclarationRangesFromSyntax ctorName ctor ctor[3]
     if modifiers.isMeta then
-      modifyEnv (addMeta · ctorName)
+      modifyEnv (markMeta · ctorName)
     return { ref := ctor, declId := ctor[3], modifiers := ctorModifiers, declName := ctorName, binders := binders, type? := type? : CtorView }
   let computedFields ← (decl[5].getOptional?.map (·[1].getArgs) |>.getD #[]).mapM fun cf => withRef cf do
     return { ref := cf, modifiers := cf[0], fieldId := cf[1].getId, type := ⟨cf[3]⟩, matchAlts := ⟨cf[4]⟩ }

@@ -54,6 +54,10 @@ public theorem ListSlice.toArray_toList {xs : ListSlice α} :
     xs.toList.toArray = xs.toArray := by
   simp [ListSlice.toList, Std.Slice.toArray, List.ofSlice, Std.Slice.toList]
 
+public theorem ListSlice.toList_toArray {xs : ListSlice α} :
+    xs.toArray.toList = xs.toList := by
+  simp [ListSlice.toList, Std.Slice.toArray, List.ofSlice, Std.Slice.toList]
+
 @[simp]
 public theorem ListSlice.length_toList {xs : ListSlice α} :
     xs.toList.length = xs.size := by
@@ -81,17 +85,13 @@ public theorem toList_mkSlice_rco {xs : List α} {lo hi : Nat} :
 
 @[simp]
 public theorem toArray_mkSlice_rco {xs : List α} {lo hi : Nat} :
+    xs[lo...hi].toArray = ((xs.take hi).drop lo).toArray := by
+  simp [← ListSlice.toArray_toList]
+
+-- TODO: Keep these non-normal-form lemmas?
+public theorem toArray_mkSlice_rco' {xs : List α} {lo hi : Nat} :
     xs[lo...hi].toArray = xs.toArray.extract lo hi := by
-  simp only [← ListSlice.toArray_toList, toList_mkSlice_rco, extract_toArray, take_drop,
-    Array.mk.injEq]
-  by_cases h : lo ≤ hi
-  · congr 1
-    rw [List.take_eq_take_iff, Nat.add_sub_cancel' h]
-  · rw [List.drop_eq_nil_of_le, List.drop_eq_nil_of_le]
-    · simp
-      omega
-    · simp
-      omega
+  simp [List.drop_take]
 
 @[simp]
 public theorem size_mkSlice_rco {xs : List α} {lo hi : Nat} :
@@ -110,8 +110,12 @@ public theorem toList_mkSlice_rcc {xs : List α} {lo hi : Nat} :
 
 @[simp]
 public theorem toArray_mkSlice_rcc {xs : List α} {lo hi : Nat} :
+    xs[lo...=hi].toArray = ((xs.take (hi + 1)).drop lo).toArray := by
+  simp [← ListSlice.toArray_toList]
+
+public theorem toArray_mkSlice_rcc' {xs : List α} {lo hi : Nat} :
     xs[lo...=hi].toArray = xs.toArray.extract lo (hi + 1) := by
-  rw [mkSlice_rcc_eq_mkSlice_rco, toArray_mkSlice_rco]
+  simp [List.drop_take]
 
 @[simp]
 public theorem size_mkSlice_rcc {xs : List α} {lo hi : Nat} :
@@ -126,7 +130,14 @@ public theorem toList_mkSlice_rci {xs : List α} {lo : Nat} :
 
 @[simp]
 public theorem toArray_mkSlice_rci {xs : List α} {lo : Nat} :
-    xs[lo...*].toArray = xs.toArray.extract lo := by -- TODO: This is not the simp normal form
+    xs[lo...*].toArray = (xs.drop lo).toArray := by
+  simp [← ListSlice.toArray_toList]
+
+public theorem toArray_mkSlice_rci' {xs : List α} {lo : Nat} :
+    xs[lo...*].toArray = xs.toArray.extract lo := by
+  rw [toArray_mkSlice_rci]
+  -- non-confluence between `take_length` and `drop_take`
+  rw (occs := [1]) [← List.take_length (l := drop lo xs)]
   simp
 
 @[simp]
@@ -145,6 +156,15 @@ public theorem toList_mkSlice_roo {xs : List α} {lo hi : Nat} :
   rw [mkSlice_roo_eq_mkSlice_rco, toList_mkSlice_rco]
 
 @[simp]
+public theorem toArray_mkSlice_roo {xs : List α} {lo hi : Nat} :
+    xs[lo<...hi].toArray = ((xs.take hi).drop (lo + 1)).toArray := by
+  simp [← ListSlice.toArray_toList]
+
+public theorem toArray_mkSlice_roo' {xs : List α} {lo hi : Nat} :
+    xs[lo<...hi].toArray = xs.toArray.extract (lo + 1) hi := by
+  simp [List.drop_take]
+
+@[simp]
 public theorem size_mkSlice_roo {xs : List α} {lo hi : Nat} :
     xs[lo<...hi].size = min hi xs.length - (lo + 1) := by
   simp [← ListSlice.length_toList]
@@ -160,6 +180,15 @@ public theorem toList_mkSlice_roc {xs : List α} {lo hi : Nat} :
   rw [mkSlice_roc_eq_mkSlice_roo, toList_mkSlice_roo]
 
 @[simp]
+public theorem toArray_mkSlice_roc {xs : List α} {lo hi : Nat} :
+    xs[lo<...=hi].toArray = ((xs.take (hi + 1)).drop (lo + 1)).toArray := by
+  simp [← ListSlice.toArray_toList]
+
+public theorem toArray_mkSlice_roc' {xs : List α} {lo hi : Nat} :
+    xs[lo<...=hi].toArray = xs.toArray.extract (lo + 1) (hi + 1) := by
+  simp [List.drop_take]
+
+@[simp]
 public theorem size_mkSlice_roc {xs : List α} {lo hi : Nat} :
     xs[lo<...=hi].size = min (hi + 1) xs.length - (lo + 1) := by
   simp [← ListSlice.length_toList]
@@ -173,6 +202,17 @@ public theorem mkSlice_roi_eq_mkSlice_rci {xs : List α} {lo : Nat} :
 public theorem toList_mkSlice_roi {xs : List α} {lo : Nat} :
     xs[lo<...*].toList = xs.drop (lo + 1) := by
   rw [mkSlice_roi_eq_mkSlice_rci, toList_mkSlice_rci]
+
+@[simp]
+public theorem toArray_mkSlice_roi {xs : List α} {lo : Nat} :
+    xs[lo<...*].toArray = (xs.drop (lo + 1)).toArray := by
+  simp [← ListSlice.toArray_toList]
+
+public theorem toArray_mkSlice_roi' {xs : List α} {lo : Nat} :
+    xs[lo<...*].toArray = xs.toArray.extract (lo + 1) := by
+  rw [toArray_mkSlice_roi]
+  rw (occs := [1]) [← List.take_length (l := drop (lo + 1) xs)]
+  simp
 
 @[simp]
 public theorem size_mkSlice_roi {xs : List α} {lo : Nat} :
@@ -191,6 +231,15 @@ public theorem toList_mkSlice_rio {xs : List α} {hi : Nat} :
   rw [mkSlice_rio_eq_mkSlice_rco, toList_mkSlice_rco, List.drop_zero]
 
 @[simp]
+public theorem toArray_mkSlice_rio {xs : List α} {hi : Nat} :
+    xs[*...hi].toArray = (xs.take hi).toArray := by
+  simp [← ListSlice.toArray_toList]
+
+public theorem toArray_mkSlice_rio' {xs : List α} {hi : Nat} :
+    xs[*...hi].toArray = xs.toArray.extract 0 hi := by
+  simp
+
+@[simp]
 public theorem size_mkSlice_rio {xs : List α} {hi : Nat} :
     xs[*...hi].size = min hi xs.length := by
   simp [← ListSlice.length_toList]
@@ -206,6 +255,15 @@ public theorem toList_mkSlice_ric {xs : List α} {hi : Nat} :
   rw [mkSlice_ric_eq_mkSlice_rio, toList_mkSlice_rio]
 
 @[simp]
+public theorem toArray_mkSlice_ric {xs : List α} {hi : Nat} :
+    xs[*...=hi].toArray = (xs.take (hi + 1)).toArray := by
+  simp [← ListSlice.toArray_toList]
+
+public theorem toArray_mkSlice_ric' {xs : List α} {hi : Nat} :
+    xs[*...=hi].toArray = xs.toArray.extract 0 (hi + 1) := by
+  simp
+
+@[simp]
 public theorem size_mkSlice_ric {xs : List α} {hi : Nat} :
     xs[*...=hi].size = min (hi + 1) xs.length := by
   simp [← ListSlice.length_toList]
@@ -219,6 +277,11 @@ public theorem mkSlice_rii_eq_mkSlice_rci {xs : List α} :
 public theorem toList_mkSlice_rii {xs : List α} :
     xs[*...*].toList = xs := by
   rw [mkSlice_rii_eq_mkSlice_rci, toList_mkSlice_rci, List.drop_zero]
+
+@[simp]
+public theorem toArray_mkSlice_rii {xs : List α} :
+    xs[*...*].toArray = xs.toArray := by
+  simp [← ListSlice.toArray_toList]
 
 @[simp]
 public theorem size_mkSlice_rii {xs : List α} :

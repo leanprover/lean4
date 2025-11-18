@@ -348,6 +348,9 @@ theorem WF.unitOfList [BEq α] [Hashable α] {l : List α} : (unitOfList l).WF :
 theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.union m₂).WF :=
   ⟨DHashMap.Raw.WF.union h₁.out h₂.out⟩
 
+theorem WF.inter [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.inter m₂).WF :=
+  ⟨DHashMap.Raw.WF.inter h₁.out h₂.out⟩
+
 end Raw
 
 end HashMap

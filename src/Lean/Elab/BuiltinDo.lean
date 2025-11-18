@@ -156,22 +156,26 @@ def getDoReassignArrowVars (doReassignArrow : TSyntax ``doReassignArrow) : TermE
 
 inductive LetOrReassign
   | let (mutTk? : Option Syntax)
+  | have
   | reassign
 
 def LetOrReassign.getLetMutTk? (letOrReassign : LetOrReassign) : Option Syntax :=
   match letOrReassign with
   | .let mutTk? => mutTk?
+  | .have => none
   | .reassign => none
 
 def LetOrReassign.checkMutVars (letOrReassign : LetOrReassign) (vars : Array Ident) : DoElabM Unit :=
   match letOrReassign with
   | .let _    => checkMutVarsForShadowing vars
+  | .have => checkMutVarsForShadowing vars
   | .reassign => throwUnlessMutVarsDeclared vars
 
 @[inline]
 def LetOrReassign.ensureReassignsPreserveType (letOrReassign : LetOrReassign) (vars : Array Ident) : MetaM (TermElabM Unit) := do
   match letOrReassign with
   | .let _    => return pure ()
+  | .have => return pure ()
   | .reassign => do
     let decls := (← getLCtx).findFromUserNames (.ofArray <| vars.map (·.getId))
     return do
@@ -227,6 +231,10 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
         elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x)) dec
       | .let mutTk?, some otherwise =>
         elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x | $otherwise)) dec
+      | .have, none =>
+        elabDoElem (← `(doElem| have $pattern:term := $x)) dec
+      | .have, some _otherwise =>
+        throwUnsupportedSyntax
       | .reassign, none =>
         elabDoElem (← `(doElem| $pattern:term := $x)) dec
       | .reassign, some otherwise =>
@@ -237,6 +245,10 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
 @[builtin_doElem_elab Lean.Parser.Term.doLet] def elabDoLet : DoElab := fun stx dec => do
   let `(doLet| let $[mut%$mutTk?]? $decl:letDecl) := stx | throwUnsupportedSyntax
   elabDoLetOrReassign (.let mutTk?) decl dec
+
+@[builtin_doElem_elab Lean.Parser.Term.doHave] def elabDoHave : DoElab := fun stx dec => do
+  let `(doHave| have $decl:letDecl) := stx | throwUnsupportedSyntax
+  elabDoLetOrReassign .have decl dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doReassign] def elabDoReassign : DoElab := fun stx dec => do
   -- def doReassign := letIdDeclNoBinders <|> letPatDecl

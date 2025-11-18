@@ -108,7 +108,7 @@ instance : ToInt (Fin n) (.co 0 n) where
   toInt_inj x y w := Fin.eq_of_val_eq (Int.ofNat_inj.mp w)
   toInt_mem := by simp
 
-@[simp] theorem toInt_fin (x : Fin n) : ToInt.toInt x = (x.val : Int) := rfl
+@[simp, grind =] theorem toInt_fin (x : Fin n) : ToInt.toInt x = (x.val : Int) := rfl
 
 instance [NeZero n] : ToInt.Zero (Fin n) (.co 0 n) where
   toInt_zero := rfl

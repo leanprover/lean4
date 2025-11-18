@@ -255,6 +255,7 @@ instance instIsLinearOrder : IsLinearOrder (Fin n) := by
   case le_total => constructor; apply Fin.le_total
   case le_trans => constructor; apply Fin.le_trans
 
+
 instance : LawfulOrderLT (Fin n) where
   lt_iff := by
     simp [← Fin.not_le, Decidable.imp_iff_not_or, Std.Total.total]
@@ -264,11 +265,11 @@ instance : LawfulOrderLT (Fin n) where
 @[simp, grind =] theorem rev_rev (i : Fin n) : rev (rev i) = i := Fin.ext <| by
   rw [val_rev, val_rev, ← Nat.sub_sub, Nat.sub_sub_self (by exact i.2), Nat.add_sub_cancel]
 
-@[simp, grind =] theorem rev_le_rev {i j : Fin n} : rev i ≤ rev j ↔ j ≤ i := by
+@[simp] theorem rev_le_rev {i j : Fin n} : rev i ≤ rev j ↔ j ≤ i := by
   simp only [le_def, val_rev, Nat.sub_le_sub_iff_left (Nat.succ_le_iff.2 j.is_lt)]
   exact Nat.succ_le_succ_iff
 
-@[simp, grind =] theorem rev_inj {i j : Fin n} : rev i = rev j ↔ i = j :=
+@[simp] theorem rev_inj {i j : Fin n} : rev i = rev j ↔ i = j :=
   ⟨fun h => by simpa using congrArg rev h, congrArg _⟩
 
 theorem rev_eq {n a : Nat} (i : Fin (n + 1)) (h : n = a + i) :

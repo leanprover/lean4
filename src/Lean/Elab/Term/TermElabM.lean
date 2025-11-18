@@ -1354,7 +1354,7 @@ def saveContext : TermElabM SavedContext :=
   Execute `x` with the context saved using `saveContext`.
 -/
 def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α := do
-  withReader (fun ctx => { ctx with declName? := savedCtx.declName?, macroStack := savedCtx.macroStack, errToSorry := savedCtx.errToSorry }) <|
+  withReader (fun ctx => { ctx with declName? := savedCtx.declName?, macroStack := savedCtx.macroStack, errToSorry := savedCtx.errToSorry, fixedTermElabs := savedCtx.fixedTermElabs }) <|
     withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls }) <|
       withLevelNames savedCtx.levelNames x
 

@@ -1092,7 +1092,7 @@ theorem toListModel_insertListₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHa
     apply List.insertList_perm_of_perm_first (toListModel_insert h) (wfImp_insert h).distinct
 
 theorem toListModel_eraseListₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
-    {m : Raw₀ α β} {l : List ((a : α) × β a)} (h : Raw.WFImp m.1) :
+    {m : Raw₀ α β} {l : List α} (h : Raw.WFImp m.1) :
     Perm (toListModel (eraseListₘ m l).1.buckets)
       (List.eraseList (toListModel m.1.buckets) l) := by
   induction l generalizing m with
@@ -1337,7 +1337,7 @@ theorem wf_eraseMany₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
   (eraseManyEntries ⟨m, h⟩ l).2 _ Raw.WF.erase₀ h'
 
 theorem eraseMany_eq_eraseListₘ_toListModel [BEq α] [Hashable α] (m m₂ : Raw₀ α β) :
-    eraseManyEntries m m₂.1 = eraseListₘ m (toListModel m₂.1.buckets) := by
+    eraseManyEntries m m₂.1 = eraseListₘ m ((toListModel m₂.1.buckets).map (·.1)) := by
   simp only [eraseManyEntries, bind_pure_comp, map_pure, bind_pure]
   simp only [ForIn.forIn]
   simp only [Raw.forIn_eq_forIn_toListModel, forIn_pure_yield_eq_foldl, Id.run_pure]
@@ -1345,12 +1345,12 @@ theorem eraseMany_eq_eraseListₘ_toListModel [BEq α] [Hashable α] (m m₂ : R
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
       (∀ {m'' : Raw₀ α β} {a : α}, P m'' → P (m''.erase a)) → P m → P m' }),
         (List.foldl (fun m' p => ⟨m'.val.erase p.1, fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =
-      t.val.eraseListₘ l from this _
+      t.val.eraseListₘ (l.map (·.1)) from this _
   intro t
   induction l generalizing m with
   | nil => simp [eraseListₘ]
   | cons hd tl ih =>
-    simp only [List.foldl_cons, eraseListₘ]
+    simp only [List.foldl_cons]
     apply ih
 
 theorem toListModel_diffₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]

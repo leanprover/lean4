@@ -771,20 +771,20 @@ def withMacroExpansion [Monad n] [MonadControlT TermElabM n] (beforeStx afterStx
     withPushMacroExpansionStack beforeStx afterStx <| runInBase x
 
 /--
-Reference a fixed term elaborator by index.
-This syntax should never be constructed directly; rather it is an implementation detail of
-`Lean.Elab.Term.elabToSyntax`.
+Node kind for the `Lean.Elab.Term.elabToSyntax` functionality.
+It is an implementation detail of `Lean.Elab.Term.elabToSyntax`.
 -/
-protected def _root_.Lean.Parser.Term.fixedTermElab := leading_parser
-  Lean.Parser.Term.num
+protected def _root_.Lean.Parser.Term.elabToSyntax : Unit := ()
+
+builtin_initialize Lean.Parser.registerBuiltinNodeKind ``Lean.Parser.Term.elabToSyntax
 
 /-- Refer to the given term elaborator by a scoped `Syntax` object. -/
 def elabToSyntax (fixedTermElab : FixedTermElab) (k : Term → TermElabM α) : TermElabM α := do
   let ctx ← read
   withReader (fun ctx => { ctx with fixedTermElabs := ctx.fixedTermElabs.push fixedTermElab.toFixedTermElabRef }) do
-    k ⟨mkNode ``Lean.Parser.Term.fixedTermElab #[Syntax.mkNatLit ctx.fixedTermElabs.size]⟩
+    k ⟨mkNode ``Lean.Parser.Term.elabToSyntax #[Syntax.mkNatLit ctx.fixedTermElabs.size]⟩
 
-@[builtin_term_elab Lean.Parser.Term.fixedTermElab] def elabFixedTermElab : TermElab := fun stx expectedType? => do
+@[builtin_term_elab Lean.Parser.Term.elabToSyntax] def elabFixedTermElab : TermElab := fun stx expectedType? => do
   let some idx := stx[0].isNatLit? | throwUnsupportedSyntax
   let some fixedTermElab := (← read).fixedTermElabs[idx]?
     | throwError "Fixed term elaborator {idx} not found. There were only {(← read).fixedTermElabs.size} fixed term elaborators registered."

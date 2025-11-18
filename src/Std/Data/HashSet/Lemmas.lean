@@ -1062,6 +1062,132 @@ theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] :
 
 end Inter
 
+section Diff
+
+variable {m₁ m₂ : HashSet α}
+
+@[simp]
+theorem diff_eq : m₁.diff m₂ = m₁ \ m₂ := by
+  simp only [SDiff.sdiff]
+
+/- contains -/
+@[simp]
+theorem contains_diff [EquivBEq α] [LawfulHashable α] {k : α} :
+    (m₁ \ m₂).contains k = (m₁.contains k && !m₂.contains k) :=
+  @HashMap.contains_diff _ _ _ _ m₁.inner m₂.inner _ _ k
+
+/- mem -/
+@[simp]
+theorem mem_diff_iff [EquivBEq α] [LawfulHashable α] {k : α} :
+    k ∈ m₁ \ m₂ ↔ k ∈ m₁ ∧ k ∉ m₂ :=
+  @HashMap.mem_diff_iff _ _ _ _ m₁.inner m₂.inner _ _ k
+
+theorem not_mem_diff_of_not_mem_left [EquivBEq α] [LawfulHashable α] {k : α}
+    (not_mem : k ∉ m₁) :
+    k ∉ m₁ \ m₂ :=
+  @HashMap.not_mem_diff_of_not_mem_left _ _ _ _ m₁.inner m₂.inner _ _ k not_mem
+
+theorem not_mem_diff_of_mem_right [EquivBEq α] [LawfulHashable α] {k : α}
+    (mem : k ∈ m₂) :
+    k ∉ m₁ \ m₂ :=
+  @HashMap.not_mem_diff_of_mem_right _ _ _ _ m₁.inner m₂.inner _ _ k mem
+
+/- get? -/
+theorem get?_diff [EquivBEq α] [LawfulHashable α] {k : α} :
+    (m₁ \ m₂).get? k =
+    if k ∈ m₂ then none else m₁.get? k :=
+  @HashMap.getKey?_diff _ _ _ _ m₁.inner m₂.inner _ _ k
+
+theorem get?_diff_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : k ∉ m₂) :
+    (m₁ \ m₂).get? k = m₁.get? k :=
+  @HashMap.getKey?_diff_of_not_mem_right _ _ _ _ m₁.inner m₂.inner _ _ k not_mem
+
+theorem get?_diff_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : k ∉ m₁) :
+    (m₁ \ m₂).get? k = none :=
+  @HashMap.getKey?_diff_of_not_mem_left _ _ _ _ m₁.inner m₂.inner _ _ k not_mem
+
+theorem get?_diff_of_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (mem : k ∈ m₂) :
+    (m₁ \ m₂).get? k = none :=
+  @HashMap.getKey?_diff_of_mem_right _ _ _ _ m₁.inner m₂.inner _ _ k mem
+
+/- get -/
+@[simp] theorem get_diff [EquivBEq α] [LawfulHashable α]
+    {k : α} {h_mem : k ∈ m₁ \ m₂} :
+    (m₁ \ m₂).get k h_mem =
+    m₁.get k ((mem_diff_iff.1 h_mem).1) :=
+  @HashMap.getKey_diff _ _ _ _ m₁.inner m₂.inner _ _ k h_mem
+
+/- getD -/
+theorem getD_diff [EquivBEq α] [LawfulHashable α] {k fallback : α} :
+    (m₁ \ m₂).getD k fallback =
+    if k ∈ m₂ then fallback else m₁.getD k fallback :=
+  @HashMap.getKeyD_diff _ _ _ _ m₁.inner m₂.inner _ _ k fallback
+
+theorem getD_diff_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k fallback : α} (not_mem : k ∉ m₂) :
+    (m₁ \ m₂).getD k fallback = m₁.getD k fallback :=
+  @HashMap.getKeyD_diff_of_not_mem_right _ _ _ _ m₁.inner m₂.inner _ _ k fallback not_mem
+
+theorem getD_diff_of_mem_right [EquivBEq α] [LawfulHashable α]
+    {k fallback : α} (mem : k ∈ m₂) :
+    (m₁ \ m₂).getD k fallback = fallback :=
+  @HashMap.getKeyD_diff_of_mem_right _ _ _ _ m₁.inner m₂.inner _ _ k fallback mem
+
+theorem getD_diff_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k fallback : α} (not_mem : k ∉ m₁) :
+    (m₁ \ m₂).getD k fallback = fallback :=
+  @HashMap.getKeyD_diff_of_not_mem_left _ _ _ _ m₁.inner m₂.inner _ _ k fallback not_mem
+
+/- get! -/
+theorem get!_diff [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α} :
+    (m₁ \ m₂).get! k =
+    if k ∈ m₂ then default else m₁.get! k :=
+  @HashMap.getKey!_diff _ _ _ _ m₁.inner m₂.inner _ _ _ k
+
+theorem get!_diff_of_not_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {k : α} (not_mem : k ∉ m₂) :
+    (m₁ \ m₂).get! k = m₁.get! k :=
+  @HashMap.getKey!_diff_of_not_mem_right _ _ _ _ m₁.inner m₂.inner _ _ _ k not_mem
+
+theorem get!_diff_of_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {k : α} (mem : k ∈ m₂) :
+    (m₁ \ m₂).get! k = default :=
+  @HashMap.getKey!_diff_of_mem_right _ _ _ _ m₁.inner m₂.inner _ _ _ k mem
+
+theorem get!_diff_of_not_mem_left [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {k : α} (not_mem : k ∉ m₁) :
+    (m₁ \ m₂).get! k = default :=
+  @HashMap.getKey!_diff_of_not_mem_left _ _ _ _ m₁.inner m₂.inner _ _ _ k not_mem
+
+/- size -/
+theorem size_diff_le_size_left [EquivBEq α] [LawfulHashable α] :
+    (m₁ \ m₂).size ≤ m₁.size :=
+  @HashMap.size_diff_le_size_left _ _ _ _ m₁.inner m₂.inner _ _
+
+theorem size_diff_eq_size_left [EquivBEq α] [LawfulHashable α]
+    (h : ∀ (a : α), a ∈ m₁ → a ∉ m₂) :
+    (m₁ \ m₂).size = m₁.size :=
+  @HashMap.size_diff_eq_size_left _ _ _ _ m₁.inner m₂.inner _ _ h
+
+theorem size_diff_add_size_inter_eq_size_left [EquivBEq α] [LawfulHashable α] :
+    (m₁ \ m₂).size + (m₁ ∩ m₂).size = m₁.size :=
+  @HashMap.size_diff_add_size_inter_eq_size_left _ _ _ _ m₁.inner m₂.inner _ _
+
+/- isEmpty -/
+@[simp]
+theorem isEmpty_diff_left [EquivBEq α] [LawfulHashable α] (h : m₁.isEmpty) :
+    (m₁ \ m₂).isEmpty = true :=
+  @HashMap.isEmpty_diff_left α _ _ _ m₁.inner m₂.inner _ _ h
+
+theorem isEmpty_diff_iff [EquivBEq α] [LawfulHashable α] :
+    (m₁ \ m₂).isEmpty ↔ ∀ k, k ∈ m₁ → k ∈ m₂ :=
+  @HashMap.isEmpty_diff_iff α _ _ _ m₁.inner m₂.inner _ _
+
+end Diff
+
 section
 
 @[simp, grind =]

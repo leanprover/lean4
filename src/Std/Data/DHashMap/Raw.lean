@@ -807,6 +807,10 @@ theorem WF.diff₀ [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.W
   . exact @WF.filter₀ α β _ _ m₁ h₁.size_buckets_pos (fun k x => !Raw₀.contains ⟨m₂, h₂.size_buckets_pos⟩ k) h₁
   . exact (Raw₀.eraseManyEntries ⟨m₁, h₁.size_buckets_pos⟩ m₂).2 _ WF.erase₀ h₁
 
+theorem WF.diff [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.diff m₂ : Raw α β).WF := by
+  simp [Std.DHashMap.Raw.diff, h₁.size_buckets_pos, h₂.size_buckets_pos]
+  exact WF.diff₀ h₁ h₂
+
 end WF
 
 end Raw

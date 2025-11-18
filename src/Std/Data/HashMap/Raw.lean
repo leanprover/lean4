@@ -237,9 +237,14 @@ instance {m : Type w → Type w'} : ForIn m (Raw α β) (α × β) where
 @[inherit_doc DHashMap.Raw.inter, inline] def inter [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
   ⟨DHashMap.Raw.inter m₁.inner m₂.inner⟩
 
+@[inherit_doc DHashMap.Raw.inter, inline] def diff [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
+  ⟨DHashMap.Raw.diff m₁.inner m₂.inner⟩
+
 instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
 
 instance [BEq α] [Hashable α] : Inter (Raw α β) := ⟨inter⟩
+
+instance [BEq α] [Hashable α] : SDiff (Raw α β) := ⟨diff⟩
 
 section Unverified
 
@@ -350,6 +355,9 @@ theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF)
 
 theorem WF.inter [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.inter m₂).WF :=
   ⟨DHashMap.Raw.WF.inter h₁.out h₂.out⟩
+
+theorem WF.diff [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.diff m₂).WF :=
+  ⟨DHashMap.Raw.WF.diff h₁.out h₂.out⟩
 
 end Raw
 

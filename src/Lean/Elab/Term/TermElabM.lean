@@ -1114,9 +1114,7 @@ def containsPendingMVar (e : Expr) : MetaM Bool := do
   | none   => return true
 
 /--
-If the `diagnostics` option is not already set, gives a message explaining this option.
-Begins with a `\n\n`, so an error message can look like `m!"some error occurred{useDiagnosticMsg}"`.
-The double newline gives better visual separation from the main error message
+If the `trace.Meta.synthInstance` option is not already set, gives a hint explaining this option.
 -/
 def useTraceSynthMsg : MessageData :=
   MessageData.lazy fun ctx =>

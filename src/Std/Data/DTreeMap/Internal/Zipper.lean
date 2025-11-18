@@ -689,7 +689,7 @@ public instance [Ord α] {s : RicSlice α β} : ToIterator s Id ((a : α) × β 
 
 public theorem toList_ric {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t : Impl α β)
     (ordered : t.Ordered) (bound : α) : t[*...=bound].toList = t.toList.filter (fun e => (compare e.fst bound).isLE) := by
-  simp only [Ric.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Ric.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [RxcIterator.toList_rxcIter, RxcIterator.takeWhile_eq_filter]
@@ -717,7 +717,7 @@ public instance [Ord α] {s : Unit.RicSlice α} : ToIterator s Id α := by
 
 public theorem toList_ric {α : Type u} [Ord α] [TransOrd α] (t : Impl α (fun _ => Unit))
     (ordered : t.Ordered) (bound : α) : (t : Impl α (fun _ => Unit))[*...=bound].toList = (Internal.Impl.keys t).filter (fun e => (compare e bound).isLE) := by
-  simp only [Ric.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Ric.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [Iter.toList_map]
@@ -749,7 +749,7 @@ public instance [Ord α] {s : RicSlice α β} : ToIterator s Id (α × β) := by
 
 public theorem toList_ric {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t : Impl α (fun _ => β))
     (ordered : t.Ordered) (bound : α) : t[*...=bound].toList = (Internal.Impl.Const.toList t).filter (fun e => (compare e.fst bound).isLE) := by
-  simp only [Ric.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Ric.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [Iter.toList_map]
@@ -780,7 +780,7 @@ public instance [Ord α] {s : RioSlice α β} : ToIterator s Id ((a : α) × β 
 
 public theorem toList_rio {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t : Impl α β)
     (ordered : t.Ordered) (bound : α) : t[*...bound].toList = t.toList.filter (fun e => (compare e.fst bound).isLT) := by
-  simp only [Rio.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Rio.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [RxoIterator.toList_rxoIter, RxoIterator.takeWhile_eq_filter]
@@ -808,7 +808,7 @@ public instance [Ord α] {s : Unit.RioSlice α} : ToIterator s Id α := by
 
 public theorem toList_rio {α : Type u} [Ord α] [TransOrd α] (t : Impl α (fun _ => Unit))
     (ordered : t.Ordered) (bound : α) : (t : Impl α (fun _ => Unit))[*...<bound].toList = (Internal.Impl.keys t).filter (fun e => (compare e bound).isLT) := by
-  simp only [Rio.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Rio.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [Iter.toList_map]
@@ -840,7 +840,7 @@ public instance [Ord α] {s : RioSlice α β} : ToIterator s Id (α × β) := by
 
 public theorem toList_rio {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t : Impl α (fun _ => β))
     (ordered : t.Ordered) (bound : α) : t[*...<bound].toList = (Internal.Impl.Const.toList t).filter (fun e => (compare e.fst bound).isLT) := by
-  simp only [Rio.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Rio.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [Iter.toList_map]
@@ -904,7 +904,7 @@ public instance [Ord α] {s : RccSlice α β} : ToIterator s Id ((a : α) × β 
 
 public theorem toList_rcc {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t : Impl α β)
     (ordered : t.Ordered) (lowerBound upperBound : α) : t[lowerBound...=upperBound].toList = t.toList.filter (fun e => (compare e.fst lowerBound).isGE ∧ (compare e.fst upperBound).isLE) := by
-  simp only [Rcc.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Rcc.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [toList_rccIter]
@@ -929,7 +929,7 @@ public instance [Ord α] {s : Unit.RccSlice α} : ToIterator s Id α := by
 
 public theorem toList_rcc {α : Type u} [Ord α] [TransOrd α] (t : Impl α (fun _ => Unit))
     (ordered : t.Ordered) (lowerBound upperBound: α) : (t : Impl α (fun _ => Unit))[lowerBound...=upperBound].toList = (Internal.Impl.keys t).filter (fun e => (compare e lowerBound).isGE ∧ (compare e upperBound).isLE) := by
-  simp only [Rcc.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Rcc.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [Iter.toList_map]
@@ -963,7 +963,7 @@ public instance [Ord α] {s : RccSlice α β} : ToIterator s Id (α × β) := by
 
 public theorem toList_rcc {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t : Impl α (fun _ => β))
     (ordered : t.Ordered) (lowerBound upperBound : α) : t[lowerBound...=upperBound].toList = (Internal.Impl.Const.toList t).filter (fun e => (compare e.fst lowerBound).isGE ∧ (compare e.fst upperBound).isLE) := by
-  simp only [Rcc.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Rcc.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [Iter.toList_map]
@@ -1031,7 +1031,7 @@ public instance [Ord α] {s : RcoSlice α β} : ToIterator s Id ((a : α) × β 
 
 public theorem toList_rco {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t : Impl α β)
     (ordered : t.Ordered) (lowerBound upperBound : α) : t[lowerBound...<upperBound].toList = t.toList.filter (fun e => (compare e.fst lowerBound).isGE ∧ (compare e.fst upperBound).isLT) := by
-  simp only [Rco.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Rco.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [toList_rcoIter]
@@ -1056,7 +1056,7 @@ public instance [Ord α] {s : Unit.RcoSlice α} : ToIterator s Id α := by
 
 public theorem toList_rco {α : Type u} [Ord α] [TransOrd α] (t : Impl α (fun _ => Unit))
     (ordered : t.Ordered) (lowerBound upperBound: α) : (t : Impl α (fun _ => Unit))[lowerBound...<upperBound].toList = (Internal.Impl.keys t).filter (fun e => (compare e lowerBound).isGE ∧ (compare e upperBound).isLT) := by
-  simp only [Rco.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Rco.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [Iter.toList_map]
@@ -1090,7 +1090,7 @@ public instance [Ord α] {s : RcoSlice α β} : ToIterator s Id (α × β) := by
 
 public theorem toList_rco {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t : Impl α (fun _ => β))
     (ordered : t.Ordered) (lowerBound upperBound : α) : t[lowerBound...<upperBound].toList = (Internal.Impl.Const.toList t).filter (fun e => (compare e.fst lowerBound).isGE ∧ (compare e.fst upperBound).isLT) := by
-  simp only [Rco.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Rco.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [Iter.toList_map]
@@ -1157,7 +1157,7 @@ public instance [Ord α] {s : RooSlice α β} : ToIterator s Id ((a : α) × β 
 
 public theorem toList_roo {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t : Impl α β)
     (ordered : t.Ordered) (lowerBound upperBound : α) : t[lowerBound<...<upperBound].toList = t.toList.filter (fun e => (compare e.fst lowerBound).isGT ∧ (compare e.fst upperBound).isLT) := by
-  simp only [Roo.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Roo.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [toList_rooIter]
@@ -1182,7 +1182,7 @@ public instance [Ord α] {s : Unit.RooSlice α} : ToIterator s Id α := by
 
 public theorem toList_roo {α : Type u} [Ord α] [TransOrd α] (t : Impl α (fun _ => Unit))
     (ordered : t.Ordered) (lowerBound upperBound: α) : (t : Impl α (fun _ => Unit))[lowerBound<...<upperBound].toList = (Internal.Impl.keys t).filter (fun e => (compare e lowerBound).isGT ∧ (compare e upperBound).isLT) := by
-  simp only [Roo.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Roo.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [Iter.toList_map]
@@ -1216,7 +1216,7 @@ public instance [Ord α] {s : RooSlice α β} : ToIterator s Id (α × β) := by
 
 public theorem toList_roo {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t : Impl α (fun _ => β))
     (ordered : t.Ordered) (lowerBound upperBound : α) : t[lowerBound<...<upperBound].toList = (Internal.Impl.Const.toList t).filter (fun e => (compare e.fst lowerBound).isGT ∧ (compare e.fst upperBound).isLT) := by
-  simp only [Roo.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Roo.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [Iter.toList_map]
@@ -1284,7 +1284,7 @@ public instance [Ord α] {s : RocSlice α β} : ToIterator s Id ((a : α) × β 
 
 public theorem toList_roc {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t : Impl α β)
     (ordered : t.Ordered) (lowerBound upperBound : α) : t[lowerBound<...=upperBound].toList = t.toList.filter (fun e => (compare e.fst lowerBound).isGT ∧ (compare e.fst upperBound).isLE) := by
-  simp only [Roc.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Roc.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [toList_rocIter]
@@ -1309,7 +1309,7 @@ public instance [Ord α] {s : Unit.RocSlice α} : ToIterator s Id α := by
 
 public theorem toList_roc {α : Type u} [Ord α] [TransOrd α] (t : Impl α (fun _ => Unit))
     (ordered : t.Ordered) (lowerBound upperBound: α) : (t : Impl α (fun _ => Unit))[lowerBound<...=upperBound].toList = (Internal.Impl.keys t).filter (fun e => (compare e lowerBound).isGT ∧ (compare e upperBound).isLE) := by
-  simp only [Roc.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Roc.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [Iter.toList_map]
@@ -1343,7 +1343,7 @@ public instance [Ord α] {s : RocSlice α β} : ToIterator s Id (α × β) := by
 
 public theorem toList_roc {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t : Impl α (fun _ => β))
     (ordered : t.Ordered) (lowerBound upperBound : α) : t[lowerBound<...=upperBound].toList = (Internal.Impl.Const.toList t).filter (fun e => (compare e.fst lowerBound).isGT ∧ (compare e.fst upperBound).isLE) := by
-  simp only [Roc.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Roc.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [Iter.toList_map]
@@ -1396,7 +1396,7 @@ public instance [Ord α] {s : RciSlice α β} : ToIterator s Id ((a : α) × β 
 
 public theorem toList_rci {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t : Impl α β)
     (ordered : t.Ordered) (lowerBound : α) : t[lowerBound...*].toList = t.toList.filter (fun e => (compare e.fst lowerBound).isGE) := by
-  simp only [Rci.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Rci.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [toList_rciIter]
@@ -1421,7 +1421,7 @@ public instance [Ord α] {s : Unit.RciSlice α} : ToIterator s Id α := by
 
 public theorem toList_rci {α : Type u} [Ord α] [TransOrd α] (t : Impl α (fun _ => Unit))
     (ordered : t.Ordered) (lowerBound : α) : (t : Impl α (fun _ => Unit))[lowerBound...*].toList = (Internal.Impl.keys t).filter (fun e => (compare e lowerBound).isGE) := by
-  simp only [Rci.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Rci.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [Iter.toList_map]
@@ -1458,7 +1458,7 @@ public instance [Ord α] {s : RciSlice α β} : ToIterator s Id (α × β) := by
 
 public theorem toList_rci {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t : Impl α (fun _ => β))
     (ordered : t.Ordered) (lowerBound : α) : t[lowerBound...*].toList = (Internal.Impl.Const.toList t).filter (fun e => (compare e.fst lowerBound).isGE) := by
-  simp only [Rci.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Rci.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [Iter.toList_map]
@@ -1512,7 +1512,7 @@ public instance [Ord α] {s : RoiSlice α β} : ToIterator s Id ((a : α) × β 
 
 public theorem toList_roi {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t : Impl α β)
     (ordered : t.Ordered) (lowerBound : α) : t[lowerBound<...*].toList = t.toList.filter (fun e => (compare e.fst lowerBound).isGT) := by
-  simp only [Roi.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Roi.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [toList_roiIter]
@@ -1537,7 +1537,7 @@ public instance [Ord α] {s : Unit.RoiSlice α} : ToIterator s Id α := by
 
 public theorem toList_roi {α : Type u} [Ord α] [TransOrd α] (t : Impl α (fun _ => Unit))
     (ordered : t.Ordered) (lowerBound : α) : (t : Impl α (fun _ => Unit))[lowerBound<...*].toList = (Internal.Impl.keys t).filter (fun e => (compare e lowerBound).isGT) := by
-  simp only [Roi.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Roi.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [Iter.toList_map]
@@ -1574,7 +1574,7 @@ public instance [Ord α] {s : RoiSlice α β} : ToIterator s Id (α × β) := by
 
 public theorem toList_roi {α : Type u} {β : Type v} [Ord α] [TransOrd α] (t : Impl α (fun _ => β))
     (ordered : t.Ordered) (lowerBound : α) : t[lowerBound<...*].toList = (Internal.Impl.Const.toList t).filter (fun e => (compare e.fst lowerBound).isGT) := by
-  simp only [Roi.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Roi.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [Iter.toList_map]
@@ -1621,7 +1621,7 @@ public instance {s : RiiSlice α β} : ToIterator s Id ((a : α) × β a) :=
   ToIterator.of (Zipper α β) (riiIterator s.1.treeMap)
 
 public theorem toList_rii {α : Type u} {β : α → Type v} (t : Impl α β) : t[*...*].toList = t.toList := by
-  simp only [Rii.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Rii.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [toList_riiIter]
@@ -1645,7 +1645,7 @@ public instance {s : Unit.RiiSlice α} : ToIterator s Id α := by
 
 public theorem toList_rii {α : Type u} (t : Impl α (fun _ => Unit)) :
     (t : Impl α fun _ => Unit)[*...*].toList = Internal.Impl.keys t := by
-  simp only [Rii.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Rii.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [Iter.toList_map]
@@ -1675,7 +1675,7 @@ public instance {s : Const.RiiSlice α β} : ToIterator s Id (α × β) := by
 
 public theorem toList_rii {α : Type u} {β : Type v} (t : Impl α (fun _ => β)) :
     (t : Impl α fun _ => β)[*...*].toList = Internal.Impl.Const.toList t := by
-  simp only [Rii.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+  simp only [Rii.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
   rw [Iter.toList_map]

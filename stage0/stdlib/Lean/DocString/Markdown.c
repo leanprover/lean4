@@ -4712,11 +4712,11 @@ lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean
 x_17 = lean_unsigned_to_nat(1u);
 x_18 = lean_nat_add(x_16, x_17);
 lean_dec(x_16);
-x_19 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_quoteCode_spec__1(x_14, x_18, x_15);
+x_19 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_quoteCode_spec__1(x_14, x_18, x_13);
 lean_inc_ref(x_19);
 x_20 = lean_string_append(x_19, x_12);
-x_21 = lean_string_append(x_20, x_13);
-lean_dec_ref(x_13);
+x_21 = lean_string_append(x_20, x_15);
+lean_dec_ref(x_15);
 x_22 = lean_string_append(x_21, x_19);
 lean_dec_ref(x_19);
 x_23 = lean_string_append(x_22, x_12);
@@ -4732,18 +4732,18 @@ x_29 = lean_nat_dec_le(x_10, x_9);
 if (x_29 == 0)
 {
 lean_dec(x_9);
-x_13 = x_25;
+x_13 = x_27;
 x_14 = x_28;
-x_15 = x_27;
+x_15 = x_25;
 x_16 = x_10;
 goto block_24;
 }
 else
 {
 lean_dec(x_10);
-x_13 = x_25;
+x_13 = x_27;
 x_14 = x_28;
-x_15 = x_27;
+x_15 = x_25;
 x_16 = x_9;
 goto block_24;
 }

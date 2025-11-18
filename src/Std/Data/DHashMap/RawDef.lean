@@ -56,6 +56,17 @@ namespace Raw
 
 variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w'}
 
+/--
+Monadically computes a value by folding the given function over the mappings in the hash
+map in some order.
+-/
+@[inline] def foldM [Monad m] (f : δ → (a : α) → β a → m δ) (init : δ) (b : Raw α β) : m δ :=
+  b.buckets.foldlM (fun acc l => l.foldlM f acc) init
+
+/-- Folds the given function over the mappings in the hash map in some order. -/
+@[inline] def fold (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
+  Id.run (b.foldM (pure <| f · · ·) init)
+
 /-- Carries out a monadic action on each mapping in the hash map in some order. -/
 @[inline] def forM [Monad m] (f : (a : α) → β a → m PUnit) (b : Raw α β) : m PUnit :=
   b.buckets.forM (AssocList.forM f)

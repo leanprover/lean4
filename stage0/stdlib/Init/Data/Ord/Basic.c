@@ -1883,7 +1883,7 @@ if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_8; 
 lean_dec(x_6);
-x_8 = lean_apply_3(x_5, x_1, lean_box(0), lean_box(0));
+x_8 = lean_apply_2(x_5, x_1, lean_box(0));
 return x_8;
 }
 else

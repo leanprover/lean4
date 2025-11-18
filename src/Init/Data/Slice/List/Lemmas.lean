@@ -258,7 +258,7 @@ namespace ListSlice
 @[simp]
 public theorem toList_mkSlice_rco {xs : ListSlice α} {lo hi : Nat} :
     xs[lo...hi].toList = (xs.toList.take hi).drop lo := by
-  simp [instSliceableListSliceNat_1, ListSlice.toList_eq (xs := xs)]
+  simp only [instSliceableListSliceNat_1, List.toList_mkSlice_rco, ListSlice.toList_eq (xs := xs)]
   obtain ⟨⟨xs, stop⟩⟩ := xs
   cases stop
   · simp

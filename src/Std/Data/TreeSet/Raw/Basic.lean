@@ -343,6 +343,17 @@ def union (t₁ t₂ : Raw α cmp) : Raw α cmp :=
 
 instance : Union (Raw α cmp) := ⟨union⟩
 
+/--
+Computes the intersection of the given tree sets.
+
+This function always iterates through the smaller set.
+-/
+def inter (t₁ t₂ : Raw α cmp) : Raw α cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨TreeMap.Raw.inter t₁.inner t₂.inner⟩
+
+instance : Inter (Raw α cmp) := ⟨inter⟩
+
+
 @[inline, inherit_doc TreeSet.empty]
 def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α cmp) (l : ρ) : Raw α cmp :=
   ⟨t.inner.eraseMany l⟩

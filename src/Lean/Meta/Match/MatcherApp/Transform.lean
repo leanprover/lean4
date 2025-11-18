@@ -311,9 +311,14 @@ def transform
         altType in altTypes do
       let alt' ← forallAltTelescope' origAltType (numParams - numDiscrEqs) 0 fun ys args => do
         let altType ← instantiateForall altType ys
+        -- Look passt the thunking unit parameter, if present
+        let altType ← if splitterNumParams + numDiscrEqs = 0 then
+            instantiateForall altType #[mkConst ``Unit.unit]
+          else
+            pure altType
         -- The splitter inserts its extra parameters after the first ys.size parameters, before
         -- the parameters for the numDiscrEqs
-        forallBoundedTelescope altType (splitterNumParams - ys.size) fun ys2 altType => do
+        let alt' ← forallBoundedTelescope altType (splitterNumParams - ys.size) fun ys2 altType => do
           forallBoundedTelescope altType numDiscrEqs fun ys3 altType => do
             forallBoundedTelescope altType extraEqualities fun ys4 altType => do
               let altParams := args ++ ys3
@@ -321,6 +326,12 @@ def transform
                         catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
               let alt' ← onAlt altIdx altType altParams alt
               mkLambdaFVars (ys ++ ys2 ++ ys3 ++ ys4) alt'
+        let alt' ← if splitterNumParams + numDiscrEqs = 0 then
+          -- The splitter expects a thunked alternative, but we don't want that to be
+          -- in the context, so use Function.const rather than a lambda
+          mkAppM ``Function.const #[mkConst ``Unit, alt']
+        else
+          pure alt'
       alts' := alts'.push alt'
 
     remaining' := remaining' ++ (← onRemaining matcherApp.remaining)

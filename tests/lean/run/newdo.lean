@@ -1344,12 +1344,14 @@ example :
   let f n m :=
     (Id.run doo
       let mut a := 0
-      for x in [1,2,3], y in [0:n], z in [0:m] do
+      for h : x in [1,2,3], y in [0:n], z in [0:m] do
+        have : x < 5 := by grind
         a := a + x + y + z
       return a)
     = (Id.run do
       let mut a := 0
-      for x in [1,2,3], y in [0:n], z in [0:m] do
+      for h : x in [1,2,3], y in [0:n], z in [0:m] do
+        have : x < 5 := by grind
         a := a + x + y + z
       return a)
   f 3 3 ∧ f 1 4 ∧ f 4 2 ∧ f 5 5 := by trivial

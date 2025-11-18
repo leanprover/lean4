@@ -23,7 +23,7 @@ constructor if the inductive type being defined has no indices.
 ## Typo in resulting type
 ```lean broken
 inductive Tree (α : Type) where
-  | leaf : Tree α
+  | leaf : Tree α#eval "A" + "3"
   | node : α → Tree α → Treee α
 ```
 ```output

@@ -66,39 +66,39 @@ public def List.toUnboundedSlice (as : List α) (start : Nat) : ListSlice α :=
 
 public instance : Rcc.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    (xs.toSlice range.lower (range.upper + 1))
+    xs.toSlice range.lower (range.upper + 1)
 
 public instance : Rco.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    (xs.toSlice range.lower range.upper)
+    xs.toSlice range.lower range.upper
 
 public instance : Rci.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    (xs.toUnboundedSlice range.lower)
+    xs.toUnboundedSlice range.lower
 
 public instance : Roc.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    (xs.toSlice (range.lower + 1) (range.upper + 1))
+    xs.toSlice (range.lower + 1) (range.upper + 1)
 
 public instance : Roo.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    (xs.toSlice (range.lower + 1) range.upper)
+    xs.toSlice (range.lower + 1) range.upper
 
 public instance : Roi.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    (xs.toUnboundedSlice (range.lower + 1))
+    xs.toUnboundedSlice (range.lower + 1)
 
 public instance : Ric.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    (xs.toSlice 0 (range.upper + 1))
+    xs.toSlice 0 (range.upper + 1)
 
 public instance : Rio.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    (xs.toSlice 0 range.upper)
+    xs.toSlice 0 range.upper
 
 public instance : Rii.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs _ :=
-    (xs.toUnboundedSlice 0)
+    xs.toUnboundedSlice 0
 
 public instance : Rcc.Sliceable (ListSlice α) Nat (ListSlice α) where
   mkSlice xs range :=

@@ -23,29 +23,29 @@ variable {α : Type u}
 
 instance : Rcc.Sliceable (Array α) Nat (Subarray α) where
   mkSlice xs range :=
-    (xs.toSubarray range.lower (range.upper + 1))
+    xs.toSubarray range.lower (range.upper + 1)
 
 instance : Rco.Sliceable (Array α) Nat (Subarray α) where
   mkSlice xs range :=
-    (xs.toSubarray range.lower range.upper)
+    xs.toSubarray range.lower range.upper
 
 instance : Rci.Sliceable (Array α) Nat (Subarray α) where
   mkSlice xs range :=
     let halfOpenRange := Rci.HasRcoIntersection.intersection range 0...<xs.size
-    (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)
+    xs.toSubarray halfOpenRange.lower halfOpenRange.upper
 
 instance : Roc.Sliceable (Array α) Nat (Subarray α) where
   mkSlice xs range :=
-    (xs.toSubarray (range.lower + 1) (range.upper + 1))
+    xs.toSubarray (range.lower + 1) (range.upper + 1)
 
 instance : Roo.Sliceable (Array α) Nat (Subarray α) where
   mkSlice xs range :=
-    (xs.toSubarray (range.lower + 1) range.upper)
+    xs.toSubarray (range.lower + 1) range.upper
 
 instance : Roi.Sliceable (Array α) Nat (Subarray α) where
   mkSlice xs range :=
     let halfOpenRange := Roi.HasRcoIntersection.intersection range 0...<xs.size
-    (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)
+    xs.toSubarray halfOpenRange.lower halfOpenRange.upper
 
 instance : Ric.Sliceable (Array α) Nat (Subarray α) where
   mkSlice xs range :=

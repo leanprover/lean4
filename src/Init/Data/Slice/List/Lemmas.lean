@@ -76,7 +76,7 @@ namespace List
 public theorem toList_mkSlice_rco {xs : List α} {lo hi : Nat} :
     xs[lo...hi].toList = (xs.take hi).drop lo := by
   rw [List.take_eq_take_min, List.drop_eq_drop_min]
-  simp [ListSlice.toList_eq, Std.Rco.Sliceable.mkSlice, List.toSlice]
+  simp only [Std.Rco.Sliceable.mkSlice, toSlice, ListSlice.toList_eq]
   by_cases h : lo < hi
   · have : lo ≤ hi := by omega
     simp [h, List.take_drop, Nat.add_sub_cancel' ‹_›, ← List.take_eq_take_min]

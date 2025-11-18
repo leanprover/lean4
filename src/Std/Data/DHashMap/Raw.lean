@@ -769,6 +769,18 @@ theorem WF.Const.unitOfList [BEq α] [Hashable α] {l : List α} :
     (Const.unitOfList l : Raw α (fun _ => Unit)).WF :=
   Const.insertManyIfNewUnit WF.empty
 
+theorem WF.ofArray [BEq α] [Hashable α] {a : Array ((a : α) × β a)} :
+    (ofArray a : Raw α β).WF :=
+  .insertMany WF.empty
+
+theorem WF.Const.ofArray {β : Type v} [BEq α] [Hashable α] {a : Array (α × β)} :
+    (Const.ofArray a : Raw α (fun _ => β)).WF :=
+  Const.insertMany WF.empty
+
+theorem WF.Const.unitOfArray [BEq α] [Hashable α] {a : Array α} :
+    (Const.unitOfArray a : Raw α (fun _ => Unit)).WF :=
+  Const.insertManyIfNewUnit WF.empty
+
 theorem WF.union₀ [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (Raw₀.union ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩).val.WF := by
   simp only [Raw₀.union]
   split

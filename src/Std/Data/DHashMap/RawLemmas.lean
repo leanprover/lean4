@@ -81,6 +81,38 @@ theorem size_empty : (∅ : Raw α β).size = 0 :=
 theorem isEmpty_eq_size_eq_zero : m.isEmpty = (m.size == 0) := by
   simp [isEmpty]
 
+@[simp]
+theorem toList_emptyWithCapacity {c} : (emptyWithCapacity c : Raw α β).toList = [] := by
+  simp_to_raw using Raw₀.toList_emptyWithCapacity
+
+@[simp]
+theorem Const.toList_emptyWithCapacity {β : Type v} {c} : Const.toList (emptyWithCapacity c : Raw α (fun _ => β)) = [] := by
+  simp_to_raw using Raw₀.Const.toList_emptyWithCapacity
+
+@[simp]
+theorem toList_empty : (∅ : Raw α β).toList = [] :=
+  toList_emptyWithCapacity
+
+@[simp]
+theorem Const.toList_empty {β : Type v} : Const.toList (∅ : Raw α (fun _ => β)) = [] :=
+  Const.toList_emptyWithCapacity
+
+@[simp]
+theorem keys_emptyWithCapacity {c} : (emptyWithCapacity c : Raw α β).keys = [] := by
+    simp_to_raw using Raw₀.keys_emptyWithCapacity
+
+@[simp]
+theorem keys_empty : (∅ : Raw α β).keys = [] :=
+  keys_emptyWithCapacity
+
+@[simp]
+theorem Const.values_emptyWithCapacity {c} {β : Type v} : (emptyWithCapacity c : Raw α (fun _ => β)).values = [] := by
+  simp_to_raw using Raw₀.Const.values_emptyWithCapacity
+
+@[simp]
+theorem Const.values_empty {β : Type v} : (∅ : Raw α (fun _ => β)).values = [] :=
+  Const.values_emptyWithCapacity
+
 variable [BEq α] [Hashable α]
 
 @[simp, grind =]

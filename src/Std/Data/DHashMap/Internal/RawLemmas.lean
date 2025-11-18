@@ -75,6 +75,22 @@ theorem size_emptyWithCapacity {c} : (emptyWithCapacity c : Raw₀ α β).1.size
 theorem isEmpty_eq_size_eq_zero : m.1.isEmpty = (m.1.size == 0) := by
   simp [Raw.isEmpty]
 
+@[simp]
+theorem toList_emptyWithCapacity {c} : (emptyWithCapacity c : Raw₀ α β).1.toList = [] := by
+  rw [Raw.toList_eq_toListModel, toListModel_buckets_emptyWithCapacity]
+
+@[simp]
+theorem Const.toList_emptyWithCapacity {c} {β : Type v} : Raw.Const.toList (emptyWithCapacity c : Raw₀ α (fun _ => β)).1 = [] := by
+  rw [Raw.Const.toList_eq_toListModel_map, toListModel_buckets_emptyWithCapacity, List.map_nil]
+
+@[simp]
+theorem keys_emptyWithCapacity {c} : (emptyWithCapacity c : Raw₀ α β).1.keys = [] := by
+  rw [Raw.keys_eq_keys_toListModel, toListModel_buckets_emptyWithCapacity, List.keys_nil]
+
+@[simp]
+theorem Const.values_emptyWithCapacity {c} {β : Type v} : (emptyWithCapacity c : Raw₀ α (fun _ => β)).1.values = [] := by
+  rw [Raw.values_eq_values_toListModel, toListModel_buckets_emptyWithCapacity, List.values_nil]
+
 variable [BEq α] [Hashable α]
 
 /-- Internal implementation detail of the hash map -/

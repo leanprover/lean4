@@ -44,6 +44,30 @@ theorem size_empty : (∅ : Raw α β).size = 0 :=
 theorem isEmpty_eq_size_eq_zero : m.isEmpty = (m.size == 0) :=
   DHashMap.Raw.isEmpty_eq_size_eq_zero
 
+@[simp]
+theorem toList_emptyWithCapacity {c} : (emptyWithCapacity c : Raw α β).toList = [] :=
+  DHashMap.Raw.Const.toList_emptyWithCapacity
+
+@[simp]
+theorem toList_empty : (∅ : Raw α β).toList = [] :=
+  toList_emptyWithCapacity
+
+@[simp]
+theorem keys_emptyWithCapacity {c} : (emptyWithCapacity c : Raw α β).keys = [] :=
+  DHashMap.Raw.keys_emptyWithCapacity
+
+@[simp]
+theorem keys_empty : (∅ : Raw α β).keys = [] :=
+  keys_emptyWithCapacity
+
+@[simp]
+theorem values_emptyWithCapacity {c} {β : Type v} : (emptyWithCapacity c : Raw α β).values = [] :=
+  DHashMap.Raw.Const.values_emptyWithCapacity
+
+@[simp]
+theorem values_empty {β : Type v} : (∅ : Raw α β).values = [] :=
+  values_emptyWithCapacity
+
 private theorem ext {m m' : Raw α β} : m.inner = m'.inner → m = m' := by
   cases m; cases m'; rintro rfl; rfl
 

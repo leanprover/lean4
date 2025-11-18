@@ -147,6 +147,30 @@ theorem size_empty : (∅ : HashMap α β).size = 0 :=
 theorem isEmpty_eq_size_eq_zero : m.isEmpty = (m.size == 0) :=
   DHashMap.isEmpty_eq_size_eq_zero
 
+@[simp]
+theorem toList_emptyWithCapacity {c} : (emptyWithCapacity c : HashMap α β).toList = [] :=
+  DHashMap.Const.toList_emptyWithCapacity
+
+@[simp]
+theorem toList_empty : (∅ : HashMap α β).toList = [] :=
+  toList_emptyWithCapacity
+
+@[simp]
+theorem keys_emptyWithCapacity {c} : (emptyWithCapacity c : HashMap α β).keys = [] :=
+  DHashMap.keys_emptyWithCapacity
+
+@[simp]
+theorem keys_empty : (∅ : HashMap α β).keys = [] :=
+  keys_emptyWithCapacity
+
+@[simp]
+theorem values_emptyWithCapacity {c} {β : Type v} : (emptyWithCapacity c : HashMap α β).values = [] :=
+  DHashMap.Const.values_emptyWithCapacity
+
+@[simp]
+theorem values_empty {β : Type v} : (∅ : HashMap α β).values = [] :=
+  values_emptyWithCapacity
+
 @[grind =] theorem size_insert [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
     (m.insert k v).size = if k ∈ m then m.size else m.size + 1 :=
   DHashMap.size_insert

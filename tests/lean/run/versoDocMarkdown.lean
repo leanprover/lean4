@@ -8,6 +8,9 @@ set_option doc.verso true
 This module tests the Markdown rendering of all the builtin Verso docstring operators.
 
 Each section begins with a command that will fail when a new, untested operator is added.
+
+## Helpers
+
 -/
 
 section

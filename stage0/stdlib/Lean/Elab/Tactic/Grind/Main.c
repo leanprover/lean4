@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Grind.Main
-// Imports: public import Lean.Meta.Tactic.Grind.Main public import Lean.Meta.Tactic.TryThis public import Lean.Elab.Command public import Lean.Elab.Tactic.Config public import Lean.LibrarySuggestions.Basic import Lean.Meta.Tactic.Grind.SimpUtil import Lean.Meta.Tactic.Grind.Util import Lean.Meta.Tactic.Grind.EMatchTheoremParam import Lean.Elab.Tactic.Grind.Basic import Lean.Elab.Tactic.Grind.Param import Lean.Meta.Tactic.Grind.Action import Lean.Elab.Tactic.Grind.Trace import Lean.Meta.Tactic.Grind.CollectParams import Lean.Elab.MutualDef meta import Lean.Meta.Tactic.Grind.Parser
+// Imports: public import Lean.Meta.Tactic.Grind.Main public import Lean.Meta.Tactic.TryThis public import Lean.Elab.Command public import Lean.Elab.Tactic.Config public import Lean.LibrarySuggestions.Basic import Lean.Meta.Tactic.Grind.SimpUtil import Lean.Meta.Tactic.Grind.Util import Lean.Meta.Tactic.Grind.EMatchTheoremParam import Lean.Elab.Tactic.Grind.Basic import Lean.Elab.Tactic.Grind.Param import Lean.Meta.Tactic.Grind.Action import Lean.Elab.Tactic.Grind.Trace import Lean.Meta.Tactic.Grind.Finish import Lean.Meta.Tactic.Grind.CollectParams import Lean.Elab.MutualDef meta import Lean.Meta.Tactic.Grind.Parser
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -77,7 +77,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_T
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUse___at___00Lean_Elab_Tactic_evalGrind_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 lean_object* l_Lean_Elab_Term_synthesizeSyntheticMVars(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_isMeta(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_elabGrindConfig_spec__0_spec__0___closed__13;
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00__private_Lean_Elab_Tactic_Grind_Main_0__Lean_Elab_Tactic_elabGrindPattern_go_spec__1_spec__1_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -284,6 +283,7 @@ extern lean_object* l_Lean_Meta_Grind_grind_warning;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalCutsat___regBuiltin_Lean_Elab_Tactic_evalCutsat__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Grind_Main_0__Lean_Elab_Tactic_elabGrindConfig_x27___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___00List_mapM_loop___at___00__private_Lean_Elab_Tactic_Grind_Main_0__Lean_Elab_Tactic_elabGrindPattern_elabCnstrs_spec__4_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_isMarkedMeta(lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalGrobner___regBuiltin_Lean_Elab_Tactic_evalGrobner__1();
@@ -340,6 +340,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalCutsat___boxed(lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_elabGrindParamsAndSuggestions___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___00Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_elabGrindConfig_spec__0_spec__0_spec__4_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalGrindTrace___regBuiltin_Lean_Elab_Tactic_evalGrindTrace__1();
+lean_object* l_Lean_Meta_Grind_Action_mkFinish(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_elabGrindPattern___closed__9;
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_elabGrindConfig_spec__0_spec__0___closed__1;
 lean_object* l_Lean_MVarId_clearImplDetails(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -397,7 +398,6 @@ static lean_object* l_Lean_Elab_Tactic_grind___lam__1___closed__1;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_elabGrindPattern___closed__0;
 static lean_object* l_Lean_Elab_Tactic_evalGrind___closed__1;
-lean_object* l_Lean_Elab_Tactic_Grind_mkFinishAction(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_elabGrindPattern___closed__6;
 LEAN_EXPORT lean_object* l_Lean_MVarId_assign___at___00__private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_withProtectedMCtx_main___at___00Lean_Meta_Grind_withProtectedMCtx___at___00Lean_Elab_Tactic_grind_spec__1_spec__1_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalGrind___regBuiltin_Lean_Elab_Tactic_evalGrind__1___closed__1;
@@ -1856,7 +1856,7 @@ else
 {
 uint8_t x_29; 
 lean_inc(x_1);
-x_29 = l_Lean_isMeta(x_22, x_1);
+x_29 = l_Lean_isMarkedMeta(x_22, x_1);
 if (x_29 == 0)
 {
 x_24 = x_2;
@@ -17666,7 +17666,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalGrindTraceCore___lam__1(lean_obj
 _start:
 {
 lean_object* x_19; 
-x_19 = l_Lean_Elab_Tactic_Grind_mkFinishAction(x_1);
+x_19 = l_Lean_Meta_Grind_Action_mkFinish(x_1);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; lean_object* x_21; 
@@ -19310,6 +19310,7 @@ lean_object* initialize_Lean_Elab_Tactic_Grind_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Grind_Param(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Action(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Grind_Trace(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Grind_Finish(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_CollectParams(uint8_t builtin);
 lean_object* initialize_Lean_Elab_MutualDef(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Parser(uint8_t builtin);
@@ -19352,6 +19353,9 @@ res = initialize_Lean_Meta_Tactic_Grind_Action(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Grind_Trace(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_Finish(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_CollectParams(builtin);

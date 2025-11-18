@@ -502,6 +502,7 @@ static lean_object* l_Lean_MessageData_formatAux___closed__13;
 LEAN_EXPORT lean_object* l_Lean_inlineExprTrailing___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Kernel_Exception_toMessageData___closed__25;
 LEAN_EXPORT lean_object* l_Lean_MessageData_initFn_00___x40_Lean_Message_1084813479____hygCtx___hyg_4_();
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Message_errorName_x3f(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Lean___aux__Lean__Message______macroRules__Lean__termM_x21____1(lean_object*, lean_object*, lean_object*);
@@ -816,7 +817,6 @@ static lean_object* l_Lean_Kernel_Exception_toMessageData___closed__18;
 static lean_object* l_Lean_Kernel_Exception_toMessageData___closed__10;
 static lean_object* l_Lean_MessageData_andList___closed__1;
 static lean_object* l_Lean_Kernel_Exception_toMessageData___closed__37;
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Lean_Kernel_Exception_toMessageData___closed__48;
 LEAN_EXPORT lean_object* l_Lean_MessageLog_markAllReported(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter___at___00Lean_MessageLog_append_spec__0___redArg(lean_object*, lean_object*, lean_object*);
@@ -12860,7 +12860,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_instImpl___closed__1_00___x40_Lean_Message_4238524789____hygCtx___hyg_257_;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -12932,7 +12932,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean___aux__Lean__Message______macroRules__Lean__termM_x21____1___closed__6;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

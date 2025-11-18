@@ -156,7 +156,6 @@ uint8_t l_Option_instDecidableEq_decEq___redArg(lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_cloneGitPkg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__5;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-static lean_object* l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__9;
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_InputVer_ver_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_Dependency_materialize_materializeGit___at___00Lake_Dependency_materialize_spec__0(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3172,7 +3171,7 @@ static lean_object* _init_l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" @ git ", 7, 7);
+x_1 = lean_mk_string_unchecked(" @ ", 3, 3);
 return x_1;
 }
 }
@@ -3193,14 +3192,6 @@ return x_1;
 }
 }
 static lean_object* _init_l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" @ ", 3, 3);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -3277,7 +3268,7 @@ x_49 = lean_ctor_get(x_3, 0);
 x_50 = lean_ctor_get(x_49, 0);
 lean_inc_ref(x_50);
 lean_dec_ref(x_49);
-x_51 = l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__8;
+x_51 = l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__5;
 x_52 = l_String_quote(x_50);
 lean_ctor_set_tag(x_3, 3);
 lean_ctor_set(x_3, 0, x_52);
@@ -3285,7 +3276,7 @@ x_53 = l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__6;
 x_54 = lean_unsigned_to_nat(0u);
 x_55 = l_Std_Format_pretty(x_3, x_53, x_54, x_54);
 x_56 = lean_string_append(x_51, x_55);
-x_57 = l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__9;
+x_57 = l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__8;
 x_58 = lean_string_append(x_57, x_55);
 lean_dec_ref(x_55);
 x_4 = x_56;
@@ -3301,7 +3292,7 @@ lean_dec(x_3);
 x_60 = lean_ctor_get(x_59, 0);
 lean_inc_ref(x_60);
 lean_dec_ref(x_59);
-x_61 = l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__8;
+x_61 = l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__5;
 x_62 = l_String_quote(x_60);
 x_63 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_63, 0, x_62);
@@ -3309,7 +3300,7 @@ x_64 = l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__6;
 x_65 = lean_unsigned_to_nat(0u);
 x_66 = l_Std_Format_pretty(x_63, x_64, x_65, x_65);
 x_67 = lean_string_append(x_61, x_66);
-x_68 = l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__9;
+x_68 = l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__8;
 x_69 = lean_string_append(x_68, x_66);
 lean_dec_ref(x_66);
 x_4 = x_67;
@@ -6651,8 +6642,6 @@ l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__7 = _init_l___
 lean_mark_persistent(l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__7);
 l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__8 = _init_l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__8();
 lean_mark_persistent(l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__8);
-l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__9 = _init_l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__9();
-lean_mark_persistent(l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__9);
 l___private_Lake_Load_Materialize_0__Lake_Dependency_materialize_mkDep___closed__0 = _init_l___private_Lake_Load_Materialize_0__Lake_Dependency_materialize_mkDep___closed__0();
 lean_mark_persistent(l___private_Lake_Load_Materialize_0__Lake_Dependency_materialize_mkDep___closed__0);
 l_Lake_Dependency_materialize___closed__0 = _init_l_Lake_Dependency_materialize___closed__0();

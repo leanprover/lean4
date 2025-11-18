@@ -68,11 +68,12 @@ def findCtorName? (fvarId : FVarId) : DiscrM (Option Name) := do
   return ctorInfo.getName
 
 /--
-If `type` is an inductive datatype, return its universe levels and parameters.
+If `type` is an application of the inductive type `ind`, return its universe levels and parameters.
 -/
-def getIndInfo? (type : Expr) : CoreM (Option (List Level × Array Arg)) := do
+def getIndInfo? (type : Expr) (ind : Name) : CoreM (Option (List Level × Array Arg)) := do
   let type := type.headBeta
   let .const declName us := type.getAppFn | return none
+  unless declName == ind do return none
   let .inductInfo info ← getConstInfo declName | return none
   unless type.getAppNumArgs >= info.numParams do return none
   let args := type.getAppArgs[*...info.numParams].toArray.map fun
@@ -92,7 +93,7 @@ where
     let ctorVal ← getConstInfoCtor ctorName
     let fieldArgs := ctorFields.map (Arg.fvar ·.fvarId)
     let ctx ← read
-    if let some (us, params) ← getIndInfo? (← getType discr) then
+    if let some (us, params) ← getIndInfo? (← getType discr) ctorVal.induct then
       let ctorArgs := params ++ fieldArgs
       let ctorInfo := .ctor ctorVal ctorArgs
       let ctor := LetValue.const ctorVal.name us ctorArgs

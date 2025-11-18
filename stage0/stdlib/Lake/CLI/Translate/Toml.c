@@ -466,6 +466,7 @@ uint8_t l_Lake_instDecidableEqGlob_decEq(lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_LeanConfig_toToml___closed__37;
 extern lean_object* l_Lake_WorkspaceConfig_instConfigInfo;
 static lean_object* l_Lake_PathPatDescr_toToml_x3f___closed__3;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 lean_object* l_Lake_BuildType_toString(uint8_t);
 LEAN_EXPORT lean_object* l_Lake_instToTomlArrayLeanOption___lam__0___boxed(lean_object*);
 lean_object* l_EStateM_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -724,7 +725,6 @@ lean_object* l_Lake_PackageConfig_bootstrap___proj(lean_object*, lean_object*);
 extern lean_object* l_Lake_LeanConfig_platformIndependent___proj;
 static lean_object* l_Lake_Pattern_toToml_x3f___redArg___closed__6;
 lean_object* l_Lake_LeanLibConfig_globs___proj(lean_object*);
-lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instSmartInsertBackend;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_instEncodeFieldOfToToml___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3332,7 +3332,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___lam__1___closed__6;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -3375,7 +3375,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___lam__1___closed__11;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -3813,7 +3813,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___closed__34;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -3839,7 +3839,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___closed__37;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -4224,7 +4224,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___closed__77;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -4383,7 +4383,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake_Dependency_toToml___closed__10;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -4525,7 +4525,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___closed__13;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -4658,7 +4658,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___closed__121;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

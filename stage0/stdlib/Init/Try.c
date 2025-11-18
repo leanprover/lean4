@@ -99,6 +99,7 @@ static lean_object* l_Lean_Parser_Command_registerTryTactic___closed__0;
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__7;
 static lean_object* l___aux__Init__Try______macroRules__term_u220e__1___closed__4;
 static lean_object* l_Lean_Parser_Command_registerTryTactic___closed__16;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__11;
 LEAN_EXPORT lean_object* l___aux__Init__Try______macroRules__tactic_u220e__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_tryResult___closed__7;
@@ -155,7 +156,6 @@ static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__30;
 static lean_object* l_Lean_Parser_Tactic_tryTrace___closed__3;
 static lean_object* l___aux__Init__Try______macroRules__term_u220e__1___closed__18;
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__12;
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__18;
 LEAN_EXPORT lean_object* l_tactic_u220e;
 static lean_object* l___aux__Init__Try______macroRules__term_u220e__1___closed__5;
@@ -1468,7 +1468,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___aux__Init__Try______macroRules__term_u220e__1___closed__11;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1494,7 +1494,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___aux__Init__Try______macroRules__term_u220e__1___closed__14;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

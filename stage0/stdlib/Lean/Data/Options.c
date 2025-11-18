@@ -160,6 +160,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_Options_0__Lean_initFn_00___x40_L
 LEAN_EXPORT lean_object* l_Lean_withInPattern(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_setBool(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__30;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 extern lean_object* l_Lean_KVMap_instToString;
 LEAN_EXPORT lean_object* l_Lean_withInPattern___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__7;
@@ -260,7 +261,6 @@ static lean_object* l_Lean_OptionDecl_declName___autoParam___closed__2;
 LEAN_EXPORT lean_object* l_Lean_getOptionDescr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getBoolOption___redArg___lam__0(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_OptionDecl_declName___autoParam___closed__25;
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Lean_Option_registerOption___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Options_empty;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_getOptionDeclsArray_spec__0_spec__0___boxed(lean_object*, lean_object*);
@@ -2399,7 +2399,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__5;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -2504,7 +2504,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__16;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

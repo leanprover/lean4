@@ -997,6 +997,7 @@ static lean_object* l_Lean_Elab_Command_elabWithExporting___closed__0;
 static lean_object* l_Lean_Elab_Command_elabVariable___regBuiltin_Lean_Elab_Command_elabVariable_declRange__3___closed__4;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Command_elabInclude_spec__0_spec__0___closed__0;
 static lean_object* l_Lean_Elab_Command_elabVersion___redArg___closed__5;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00List_forIn_x27_loop___at___00Lean_Elab_OpenDecl_elabOpenDecl___at___00Lean_Elab_Command_elabOpen_spec__0_spec__30_spec__30___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_expandInCmd___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_setDelimitsLocal___at___00Lean_Elab_Command_elabEndLocalScope_spec__0_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
@@ -1628,7 +1629,6 @@ static lean_object* l_Lean_Elab_logException___at___00Lean_Elab_Command_failIfSu
 lean_object* l_instMonadLiftTOfMonadLift___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabExit___regBuiltin_Lean_Elab_Command_elabExit_declRange__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_resolveNamespace___at___00Lean_resolveUniqueNamespace___at___00Lean_Elab_OpenDecl_elabOpenDecl___at___00Lean_Elab_Command_elabOpen_spec__0_spec__4_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabOpen___regBuiltin_Lean_Elab_Command_elabOpen_declRange__3___boxed(lean_object*);
 extern lean_object* l_Lean_ResolveName_backward_privateInPublic_warn;
 static lean_object* l_Lean_Elab_Command_elabVersion___redArg___closed__2;
@@ -5448,7 +5448,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Command_elabSection___closed__15;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

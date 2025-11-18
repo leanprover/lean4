@@ -1590,7 +1590,7 @@ gen_injective_theorems% PSum
 gen_injective_theorems% Sigma
 gen_injective_theorems% String
 gen_injective_theorems% String.Pos.Raw
-gen_injective_theorems% Substring
+gen_injective_theorems% Substring.Raw
 gen_injective_theorems% Subtype
 gen_injective_theorems% Sum
 gen_injective_theorems% Task

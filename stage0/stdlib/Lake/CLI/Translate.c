@@ -37,10 +37,10 @@ lean_object* l_Lake_importModulesUsingCache(lean_object*, lean_object*, uint32_t
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_Kernel_enableDiag(lean_object*, uint8_t);
 uint8_t l_Lean_Kernel_isDiagnosticsEnabled(lean_object*);
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00Lake_Package_mkConfigString_spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__13;
 LEAN_EXPORT lean_object* l_Lake_Package_mkConfigString(lean_object*, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00Lake_Package_mkConfigString_spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_0__Lake_descopeTSyntax___redArg(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___00Lake_Package_mkConfigString_spec__1(lean_object*, lean_object*);
@@ -50,7 +50,6 @@ LEAN_EXPORT uint8_t l_Lean_Option_get___at___00Lake_Package_mkConfigString_spec_
 static lean_object* l_Lake_Package_mkConfigString___closed__14;
 static lean_object* l_Lake_Package_mkConfigString___closed__32;
 static lean_object* l_Lake_Package_mkConfigString___closed__33;
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00Lake_Package_mkConfigString_spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__16;
 lean_object* lean_st_mk_ref(lean_object*);
@@ -59,9 +58,7 @@ static lean_object* l_Lake_Package_mkConfigString___closed__6;
 static lean_object* l_Lake_Package_mkConfigString___closed__7;
 lean_object* lean_mk_io_user_error(lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__28;
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00Lake_Package_mkConfigString_spec__3___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__9;
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00Lake_Package_mkConfigString_spec__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__0;
 extern lean_object* l_Lean_diagnostics;
 static lean_object* l_Lake_Package_mkConfigString___closed__8;
@@ -105,11 +102,14 @@ static lean_object* l_Lake_Package_mkConfigString___closed__5;
 static lean_object* l_Lake_Package_mkConfigString___closed__17;
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
+LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00Lake_Package_mkConfigString_spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00Lake_Package_mkConfigString_spec__3___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__19;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_0__Lake_descopeSyntax(lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__18;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00Lake_Package_mkConfigString_spec__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_0__Lake_descopeTSyntax___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lake_CLI_Translate_0__Lake_descopeSyntax_spec__0(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
@@ -322,7 +322,7 @@ return x_4;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00Lake_Package_mkConfigString_spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00Lake_Package_mkConfigString_spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_7; uint8_t x_9; 
@@ -398,7 +398,7 @@ goto block_6;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00Lake_Package_mkConfigString_spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00Lake_Package_mkConfigString_spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -917,8 +917,8 @@ lean_dec_ref(x_56);
 x_57 = l_Lake_Package_mkConfigString___closed__29;
 x_58 = l_Std_Format_pretty(x_55, x_57, x_23, x_23);
 x_59 = lean_string_utf8_byte_size(x_58);
-x_60 = l_Substring_takeWhileAux___at___00Lake_Package_mkConfigString_spec__2(x_58, x_59, x_23);
-x_61 = l_Substring_takeRightWhileAux___at___00Lake_Package_mkConfigString_spec__3(x_58, x_60, x_59);
+x_60 = l_Substring_Raw_takeWhileAux___at___00Lake_Package_mkConfigString_spec__2(x_58, x_59, x_23);
+x_61 = l_Substring_Raw_takeRightWhileAux___at___00Lake_Package_mkConfigString_spec__3(x_58, x_60, x_59);
 x_62 = lean_string_utf8_extract(x_58, x_60, x_61);
 lean_dec(x_61);
 lean_dec(x_60);
@@ -1108,21 +1108,21 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00Lake_Package_mkConfigString_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00Lake_Package_mkConfigString_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Substring_takeWhileAux___at___00Lake_Package_mkConfigString_spec__2(x_1, x_2, x_3);
+x_4 = l_Substring_Raw_takeWhileAux___at___00Lake_Package_mkConfigString_spec__2(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00Lake_Package_mkConfigString_spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00Lake_Package_mkConfigString_spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Substring_takeRightWhileAux___at___00Lake_Package_mkConfigString_spec__3(x_1, x_2, x_3);
+x_4 = l_Substring_Raw_takeRightWhileAux___at___00Lake_Package_mkConfigString_spec__3(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_4;

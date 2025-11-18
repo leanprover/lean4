@@ -35,7 +35,6 @@ LEAN_EXPORT lean_object* l_String_Legacy_Iterator_remainingBytes(lean_object*);
 static lean_object* l_String_Legacy_Iterator___aux__Init__Data__String__Iterator______macroRules__tacticDecreasing__trivial__1___closed__26;
 static lean_object* l_String_Legacy_Iterator___aux__Init__Data__String__Iterator______macroRules__tacticDecreasing__trivial__1___closed__14;
 LEAN_EXPORT lean_object* l_String_Iterator_next(lean_object*);
-LEAN_EXPORT lean_object* l_Substring_toLegacyIterator(lean_object*);
 static lean_object* l_String_Legacy_Iterator___aux__Init__Data__String__Iterator______macroRules__tacticDecreasing__trivial__1___closed__17;
 LEAN_EXPORT uint8_t l_String_Legacy_Iterator_hasNext(lean_object*);
 static lean_object* l_String_Legacy_Iterator___aux__Init__Data__String__Iterator______macroRules__tacticDecreasing__trivial__1___closed__19;
@@ -117,7 +116,6 @@ lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_String_Legacy_Iterator___aux__Init__Data__String__Iterator______macroRules__tacticDecreasing__trivial__1___closed__10;
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Substring_toLegacyIterator___boxed(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
 static lean_object* l_String_Legacy_Iterator___aux__Init__Data__String__Iterator______macroRules__tacticDecreasing__trivial__1___closed__22;
@@ -128,6 +126,7 @@ lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Legacy_instSizeOfIterator___lam__0___boxed(lean_object*);
 static lean_object* l_String_Legacy_Iterator___aux__Init__Data__String__Iterator______macroRules__tacticDecreasing__trivial__1___closed__1;
 static lean_object* l_String_Legacy_Iterator___aux__Init__Data__String__Iterator______macroRules__tacticDecreasing__trivial__1___closed__27;
+LEAN_EXPORT lean_object* l_Substring_Raw_toLegacyIterator(lean_object*);
 LEAN_EXPORT lean_object* l_String_Legacy_Iterator_nextn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Legacy_Iterator_ctorIdx___boxed(lean_object*);
 static lean_object* l_String_Legacy_Iterator___aux__Init__Data__String__Iterator______macroRules__tacticDecreasing__trivial__1___closed__2;
@@ -144,6 +143,7 @@ static lean_object* l_String_Legacy_Iterator___aux__Init__Data__String__Iterator
 LEAN_EXPORT lean_object* l_Substring_toIterator___boxed(lean_object*);
 static lean_object* l_String_Legacy_Iterator___aux__Init__Data__String__Iterator______macroRules__tacticDecreasing__trivial__1___closed__18;
 LEAN_EXPORT lean_object* l_String_Legacy_Iterator_setCurr___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Substring_Raw_toLegacyIterator___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Legacy_Iterator_hasNext___boxed(lean_object*);
 lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Iterator_0__String_Legacy_Iterator_foldUntil_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
@@ -1610,7 +1610,7 @@ x_6 = l___private_Init_Data_String_Iterator_0__String_Legacy_Iterator_foldUntil_
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Substring_toLegacyIterator(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Substring_Raw_toLegacyIterator(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -1624,11 +1624,11 @@ lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Substring_toLegacyIterator___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Substring_Raw_toLegacyIterator___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Substring_toLegacyIterator(x_1);
+x_2 = l_Substring_Raw_toLegacyIterator(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

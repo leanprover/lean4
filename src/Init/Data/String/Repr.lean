@@ -34,7 +34,7 @@ Examples:
 -/
 def String.toInt? (s : String) : Option Int := do
   if s.front = '-' then do
-    let v ← (s.toSubstring.drop 1).toNat?;
+    let v ← (s.toRawSubstring.drop 1).toNat?;
     pure <| - Int.ofNat v
   else
    Int.ofNat <$> s.toNat?
@@ -62,7 +62,7 @@ Examples:
 -/
 def String.isInt (s : String) : Bool :=
   if s.front = '-' then
-    (s.toSubstring.drop 1).isNat
+    (s.toRawSubstring.drop 1).isNat
   else
     s.isNat
 

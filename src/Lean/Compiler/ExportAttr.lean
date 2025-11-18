@@ -14,7 +14,7 @@ namespace Lean
 
 private def isValidCppId (id : String) : Bool :=
   let first := id.front;
-  first.isAlpha  && (id.toSubstring.drop 1).all (fun c => c.isAlpha || c.isDigit || c == '_')
+  first.isAlpha  && (id.toRawSubstring.drop 1).all (fun c => c.isAlpha || c.isDigit || c == '_')
 
 private def isValidCppName : Name → Bool
   | .str .anonymous s => isValidCppId s

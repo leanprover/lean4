@@ -69,7 +69,6 @@ LEAN_EXPORT lean_object* l_List_foldl___at___00Lean_Syntax_identComponents_spec_
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDown_loop___redArg___lam__3(lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_mkAntiquotNode___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_goDown___redArg___lam__0(lean_object*, lean_object*);
-lean_object* lean_substring_tostring(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Syntax_0__Lean_Syntax_reprint_reprintLeaf___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_getAntiquotSuffixSpliceInner(lean_object*);
@@ -270,6 +269,7 @@ LEAN_EXPORT lean_object* l_Array_isEqvAux___at___00Lean_Syntax_eqWithInfo_spec__
 LEAN_EXPORT lean_object* l_Lean_Syntax_rewriteBottomUp___lam__0(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_List_Impl_0__List_takeTR_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instBEqRange_beq___boxed(lean_object*, lean_object*);
+uint8_t l_Substring_Raw_beq(lean_object*, lean_object*);
 static lean_object* l_Lean_isLitKind___closed__1;
 LEAN_EXPORT lean_object* l_Array_filterMapM___at___00Lean_Syntax_antiquotKinds_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Lean_Syntax_identComponents_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -303,6 +303,7 @@ static lean_object* l_Lean_Syntax_isTokenAntiquot___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instBEqRange;
 LEAN_EXPORT lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateLeadingAux(lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_structRangeEqWithTraceReuse___closed__3;
+lean_object* lean_substring_tostring(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDown_loop___at___00Lean_Syntax_instForInTopDown_loop___at___00Lean_Syntax_reprint_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instHashableRange_hash___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at___00Lean_Syntax_eqWithInfo_spec__0___redArg(lean_object*, lean_object*, lean_object*);
@@ -401,7 +402,6 @@ static lean_object* l_Lean_Syntax_mkAntiquotSpliceNode___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_setCur___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Syntax_hasMissing(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_Range_includes___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Substring_beq(lean_object*, lean_object*);
 static lean_object* l_Lean_isLitKind___closed__8;
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1542,7 +1542,7 @@ lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_2, 3);
 lean_inc(x_10);
 lean_dec_ref(x_2);
-x_11 = l_Substring_beq(x_3, x_7);
+x_11 = l_Substring_Raw_beq(x_3, x_7);
 if (x_11 == 0)
 {
 lean_dec(x_10);
@@ -1570,7 +1570,7 @@ return x_12;
 else
 {
 uint8_t x_13; 
-x_13 = l_Substring_beq(x_5, x_9);
+x_13 = l_Substring_Raw_beq(x_5, x_9);
 if (x_13 == 0)
 {
 lean_dec(x_10);
@@ -2346,7 +2346,7 @@ goto block_44;
 else
 {
 uint8_t x_49; 
-x_49 = l_Substring_beq(x_34, x_38);
+x_49 = l_Substring_Raw_beq(x_34, x_38);
 x_41 = x_49;
 goto block_44;
 }
@@ -2800,7 +2800,7 @@ goto block_38;
 else
 {
 uint8_t x_40; 
-x_40 = l_Substring_beq(x_28, x_32);
+x_40 = l_Substring_Raw_beq(x_28, x_32);
 x_35 = x_40;
 goto block_38;
 }

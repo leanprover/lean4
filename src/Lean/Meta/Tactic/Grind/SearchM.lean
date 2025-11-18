@@ -9,21 +9,6 @@ public import Lean.Meta.Tactic.Grind.Types
 import Lean.Util.ForEachExpr
 public section
 namespace Lean.Meta.Grind
-
-/-- Helper type for implementing `finish?` and `grind?` -/
-inductive ProofStep where
-  | solver (id : Nat)
-  | lookahead | mbtc
-  | instantiate (thms : List EMatchTheorem) (usedThms : List EMatchTheorem)
-  deriving Inhabited
-
-/-- Helper type for implementing `finish?` and `grind?` -/
-inductive ProofTrace where
-  | done
-  | sep (s : ProofStep) (k : ProofTrace)
-  | cases (info : SplitInfo) (alts : List ProofTrace)
-  deriving Inhabited
-
 /--
 A `choice` (aka backtracking) point in the search tree.
 -/
@@ -44,14 +29,11 @@ structure Choice where
   Subgoals that still need to be processed.
   -/
   todo       : List Goal
-  traces     : Array ProofTrace := #[]
   generation : Nat
   deriving Inhabited
 
 structure SearchM.State where
   goal        : Goal
-  steps       : Array ProofStep := #[]
-  trace?      : Option ProofTrace := none
   choiceStack : List Choice := []
 
 abbrev SearchM := StateRefT SearchM.State GrindM

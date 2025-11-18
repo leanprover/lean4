@@ -442,6 +442,12 @@
     <<: *time
     cmd: lean big_match.lean
 - attributes:
+    description: big_match_partial
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean big_match_partial.lean
+- attributes:
     description: big_beq
     tags: [other]
   run_config:

@@ -36,11 +36,9 @@ static lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at___00__
 static lean_object* l_Lean_Elab_Command_elabSyntax___closed__0;
 static lean_object* l_Lean_Elab_Command_checkRuleKind___closed__1;
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__42;
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__56;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00Lean_Elab_liftMacroM___at___00Lean_Elab_Command_elabSyntax_spec__2_spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabSyntaxAbbrev___regBuiltin_Lean_Elab_Command_elabSyntaxAbbrev_declRange__3___closed__4;
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_liftMacroM___at___00Lean_Elab_Term_checkLeftRec_spec__0_spec__4_spec__4___closed__17;
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_processAlias___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_liftMacroM___at___00Lean_Elab_Term_checkLeftRec_spec__0_spec__14(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -194,6 +192,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 static lean_object* l_Lean_addTrace___at___00Lean_Elab_liftMacroM___at___00Lean_Elab_Term_checkLeftRec_spec__0_spec__1___redArg___closed__2;
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__80;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00Lean_Elab_liftMacroM___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_process_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_mkParserSeq_spec__1___redArg___boxed(lean_object*);
 lean_object* l_Array_eraseIdxIfInBounds___redArg(lean_object*, lean_object*);
@@ -241,6 +240,7 @@ static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr
 static lean_object* l_Lean_Elab_Term_ensureUnaryOutput___closed__9;
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_liftMacroM___at___00Lean_Elab_Term_checkLeftRec_spec__0_spec__4_spec__4___closed__3;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_Elab_liftMacroM___at___00Lean_Elab_Term_checkLeftRec_spec__0_spec__11_spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabSyntax___lam__0(lean_object*, lean_object*);
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at___00Lean_Elab_Term_checkLeftRec_spec__0___redArg___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -326,7 +326,6 @@ LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___00Lean_Elab_liftMacro
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_process___closed__4;
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__84;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_ensureUnaryOutput(lean_object*);
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_ensureUnaryOutput___closed__4;
 lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_ensureNoPrec___closed__1;
@@ -363,6 +362,7 @@ LEAN_EXPORT lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUse
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__64;
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__77;
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__1;
+LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_zipWithMAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_processAlias_spec__5___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00Lean_Elab_liftMacroM___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_process_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__40;
@@ -458,7 +458,6 @@ static lean_object* l_Lean_Elab_Command_elabDeclareSyntaxCat___regBuiltin_Lean_E
 LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_checkSyntaxNodeKind___at___00Lean_Elab_checkSyntaxNodeKindAtNamespaces___at___00Lean_Elab_Command_resolveSyntaxKind_spec__0_spec__0_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_processAlias___closed__14;
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_processAtom___closed__5;
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_processUnicode___closed__6;
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_processAtom___closed__0;
@@ -1012,6 +1011,7 @@ lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_processNullaryOrCat___closed__2;
 extern lean_object* l_Lean_Parser_leadPrec;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_process___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forM___at___00Lean_Elab_liftMacroM___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_process_spec__0_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7630,7 +7630,7 @@ x_11 = l_Lean_Elab_Term_elabParserName(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_11;
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_7; uint8_t x_9; 
@@ -7706,7 +7706,7 @@ goto block_6;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -7869,8 +7869,8 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; uint8_t x_9; uint8_t x_13; uint32_t x_14; uint8_t x_15; uint8_t x_16; uint8_t x_22; uint32_t x_23; uint32_t x_24; uint8_t x_25; uint8_t x_26; uint8_t x_31; uint32_t x_32; uint32_t x_33; uint32_t x_34; uint8_t x_35; uint8_t x_36; uint8_t x_37; uint8_t x_42; uint32_t x_43; uint32_t x_44; uint32_t x_45; uint8_t x_46; uint8_t x_47; uint8_t x_48; lean_object* x_54; uint8_t x_55; uint8_t x_56; 
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_string_utf8_byte_size(x_1);
-x_4 = l_Substring_takeWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__0(x_1, x_3, x_2);
-x_5 = l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__1(x_1, x_4, x_3);
+x_4 = l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__0(x_1, x_3, x_2);
+x_5 = l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__1(x_1, x_4, x_3);
 x_6 = lean_string_utf8_extract(x_1, x_4, x_5);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -8153,21 +8153,21 @@ return x_55;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Substring_takeWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__0(x_1, x_2, x_3);
+x_4 = l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__0(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__1(x_1, x_2, x_3);
+x_4 = l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__1(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_4;
@@ -19218,8 +19218,8 @@ lean_inc(x_28);
 lean_dec_ref(x_3);
 x_29 = lean_unsigned_to_nat(0u);
 x_30 = lean_string_utf8_byte_size(x_28);
-x_31 = l_Substring_takeWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__0(x_28, x_30, x_29);
-x_32 = l_Substring_takeRightWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__1(x_28, x_31, x_30);
+x_31 = l_Substring_Raw_takeWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__0(x_28, x_30, x_29);
+x_32 = l_Substring_Raw_takeRightWhileAux___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__1(x_28, x_31, x_30);
 x_33 = lean_string_utf8_extract(x_28, x_31, x_32);
 lean_dec(x_32);
 lean_dec(x_31);

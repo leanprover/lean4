@@ -3474,7 +3474,7 @@ the positions is invalid for the string. Many operations will return unexpected 
 if the start and stop positions are not valid. For this reason, `Substring` will be deprecated in
 favor of `String.Slice`, which always represents a valid substring.
 -/
-structure Substring where
+structure Substring.Raw where
   /-- The underlying string. -/
   str      : String
   /-- The byte position of the start of the string slice. -/
@@ -3482,13 +3482,13 @@ structure Substring where
   /-- The byte position of the end of the string slice. -/
   stopPos  : String.Pos.Raw
 
-instance : Inhabited Substring where
+instance : Inhabited Substring.Raw where
   default := ⟨"", {}, {}⟩
 
 /--
 The number of bytes used by the string's UTF-8 encoding.
 -/
-@[inline, expose] def Substring.bsize : Substring → Nat
+@[inline, expose] def Substring.Raw.bsize : Substring.Raw → Nat
   | ⟨_, b, e⟩ => e.byteIdx.sub b.byteIdx
 
 /--
@@ -3512,7 +3512,15 @@ A UTF-8 byte position that points at the end of a string, just after the last ch
 /--
 Converts a `String` into a `Substring` that denotes the entire string.
 -/
-@[inline] def String.toSubstring (s : String) : Substring where
+@[inline] def String.toRawSubstring (s : String) : Substring.Raw where
+  str      := s
+  startPos := {}
+  stopPos  := s.rawEndPos
+
+/--
+Converts a `String` into a `Substring` that denotes the entire string.
+-/
+@[inline] def String.toSubstring (s : String) : Substring.Raw where
   str      := s
   startPos := {}
   stopPos  := s.rawEndPos
@@ -3520,10 +3528,18 @@ Converts a `String` into a `Substring` that denotes the entire string.
 /--
 Converts a `String` into a `Substring` that denotes the entire string.
 
-This is a version of `String.toSubstring` that doesn't have an `@[inline]` annotation.
+This is a version of `String.toRawSubstring` that doesn't have an `@[inline]` annotation.
 -/
-def String.toSubstring' (s : String) : Substring :=
-  s.toSubstring
+def String.toRawSubstring' (s : String) : Substring.Raw :=
+  s.toRawSubstring
+
+/--
+Converts a `String` into a `Substring` that denotes the entire string.
+
+This is a version of `String.toRawSubstring` that doesn't have an `@[inline]` annotation.
+-/
+def String.toSubstring' (s : String) : Substring.Raw :=
+  s.toRawSubstring
 
 /--
 This function will cast a value of type `α` to type `β`, and is a no-op in the
@@ -4720,7 +4736,7 @@ inductive SourceInfo where
   The `leading` whitespace is inferred after parsing by `Syntax.updateLeading`. This is because the
   “preceding token” is not well-defined during parsing, especially in the presence of backtracking.
   -/
-  | original (leading : Substring) (pos : String.Pos.Raw) (trailing : Substring) (endPos : String.Pos.Raw)
+  | original (leading : Substring.Raw) (pos : String.Pos.Raw) (trailing : Substring.Raw) (endPos : String.Pos.Raw)
   /--
   Synthetic syntax is syntax that was produced by a metaprogram or by Lean itself (e.g. by a
   quotation). Synthetic syntax is annotated with a source span from the original syntax, which
@@ -4779,7 +4795,7 @@ def getTailPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos
 /--
 Gets the substring representing the trailing whitespace of a `SourceInfo`, if available.
 -/
-def getTrailing? (info : SourceInfo) : Option Substring :=
+def getTrailing? (info : SourceInfo) : Option Substring.Raw :=
   match info with
   | original (trailing := trailing) .. => some trailing
   | _                                  => none
@@ -4874,7 +4890,7 @@ inductive Syntax where
   * `preresolved` is the list of possible declarations this could refer to, populated by
     [quotations](lean-manual://section/quasiquotation).
   -/
-  | ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List Syntax.Preresolved) : Syntax
+  | ident  (info : SourceInfo) (rawVal : Substring.Raw) (val : Name) (preresolved : List Syntax.Preresolved) : Syntax
 
 /-- Create syntax node with 1 child -/
 def Syntax.node1 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ : Syntax) : Syntax :=

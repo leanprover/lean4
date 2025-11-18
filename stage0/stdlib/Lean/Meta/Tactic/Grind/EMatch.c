@@ -16064,7 +16064,7 @@ block_30:
 lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 x_27 = lean_unsigned_to_nat(1u);
 x_28 = lean_nat_add(x_2, x_27);
-x_29 = l_Lean_Meta_Grind_addTheoremInstance(x_1, x_16, x_17, x_28, x_18, x_19, x_20, x_21, x_22, x_23, x_24, x_25);
+x_29 = l_Lean_Meta_Grind_addTheoremInstance(x_1, x_17, x_16, x_28, x_18, x_19, x_20, x_21, x_22, x_23, x_24, x_25);
 lean_dec(x_21);
 lean_dec_ref(x_20);
 lean_dec(x_19);
@@ -16086,8 +16086,8 @@ lean_dec(x_47);
 if (x_48 == 0)
 {
 lean_dec_ref(x_31);
-x_16 = x_32;
-x_17 = x_33;
+x_16 = x_33;
+x_17 = x_32;
 x_18 = x_36;
 x_19 = x_37;
 x_20 = x_38;
@@ -16119,8 +16119,8 @@ lean_ctor_set(x_54, 0, x_52);
 lean_ctor_set(x_54, 1, x_53);
 x_55 = l_Lean_addTrace___at___00__private_Lean_Meta_Tactic_Grind_EMatch_0__Lean_Meta_Grind_EMatch_addNewInstance_go_spec__1___redArg(x_45, x_54, x_40, x_41, x_42, x_43);
 lean_dec_ref(x_55);
-x_16 = x_32;
-x_17 = x_33;
+x_16 = x_33;
+x_17 = x_32;
 x_18 = x_36;
 x_19 = x_37;
 x_20 = x_38;

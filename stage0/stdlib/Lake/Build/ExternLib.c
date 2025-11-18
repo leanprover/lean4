@@ -90,13 +90,13 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_ExternLib_0__Lake_ExternLib_recBuildShared___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Job_renew___redArg(lean_object*);
 lean_object* l_Lake_BuildTrace_nil(lean_object*);
+uint8_t l_Substring_Raw_beq(lean_object*, lean_object*);
 static lean_object* l_Lake_buildLeanSharedLibOfStatic___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_List_toString___at___00Lake_buildLeanSharedLibOfStatic_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_ExternLib_0__Lake_ExternLib_recBuildShared(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_buildLeanSharedLibOfStatic___lam__1___closed__0;
 static lean_object* l___private_Lake_Build_ExternLib_0__Lake_ExternLib_recBuildShared___lam__0___closed__2;
 LEAN_EXPORT uint64_t l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_buildLeanSharedLibOfStatic_spec__2(lean_object*, size_t, size_t, uint64_t);
-lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ExternLib_dynlibFacetConfig;
 LEAN_EXPORT lean_object* l_Lake_buildLeanSharedLibOfStatic___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Build_ExternLib_0__Lake_computeDynlibOfShared___lam__0___closed__7;
@@ -125,7 +125,6 @@ LEAN_EXPORT lean_object* l___private_Lake_Build_ExternLib_0__Lake_computeDynlibO
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ExternLib_dynlibFacetConfig___lam__0___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lake_ExternLib_staticFacet;
-uint8_t l_Substring_beq(lean_object*, lean_object*);
 static lean_object* l_Lake_ExternLib_defaultFacetConfig___closed__1;
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lake_Build_ExternLib_0__Lake_ExternLib_recComputeDynlib___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -153,6 +152,7 @@ extern uint8_t l_System_Platform_isWindows;
 extern lean_object* l_Lake_ExternLib_keyword;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_buildLeanSharedLibOfStatic_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_buildLeanSharedLibOfStatic___lam__1___closed__4;
+lean_object* l_Substring_Raw_nextn(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_ExternLib_sharedFacetConfig___closed__1;
 LEAN_EXPORT lean_object* l___private_Lake_Build_ExternLib_0__Lake_ExternLib_recBuildStatic___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
@@ -1531,7 +1531,7 @@ lean_ctor_set(x_14, 0, x_10);
 lean_ctor_set(x_14, 1, x_12);
 lean_ctor_set(x_14, 2, x_13);
 x_15 = lean_unsigned_to_nat(3u);
-x_16 = l_Substring_nextn(x_14, x_15, x_12);
+x_16 = l_Substring_Raw_nextn(x_14, x_15, x_12);
 lean_dec_ref(x_14);
 lean_inc(x_16);
 lean_inc(x_10);
@@ -1540,7 +1540,7 @@ lean_ctor_set(x_17, 0, x_10);
 lean_ctor_set(x_17, 1, x_12);
 lean_ctor_set(x_17, 2, x_16);
 x_18 = l___private_Lake_Build_ExternLib_0__Lake_computeDynlibOfShared___lam__0___closed__3;
-x_19 = l_Substring_beq(x_17, x_18);
+x_19 = l_Substring_Raw_beq(x_17, x_18);
 if (x_19 == 0)
 {
 uint8_t x_20; 

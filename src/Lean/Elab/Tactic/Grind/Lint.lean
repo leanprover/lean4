@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Grind.EMatchTheorem
 import Lean.EnvExtension
 import Lean.Elab.Tactic.Grind.Config
 import Lean.Meta.Tactic.TryThis
+import Lean.PrettyPrinter
 namespace Lean.Elab.Tactic.Grind
 
 builtin_initialize skipExt : SimplePersistentEnvExtension Name NameSet ←
@@ -171,10 +172,20 @@ def elabGrindLintCheck : CommandElab := fun stx => liftTermElabM <| withTheReade
   let inModule := m? matches some (some _)
   let decls ← getTheorems prefixes? inModule
   let decls := decls.toArray.qsort Name.lt
+  let mut problematicTheorems := #[]
   for declName in decls do
     try
-      discard <| analyzeEMatchTheorem declName params
+      if (← analyzeEMatchTheorem declName params) then
+        problematicTheorems := problematicTheorems.push declName
     catch e =>
       logError m!"{declName} failed with {e.toMessageData}"
+  if !problematicTheorems.isEmpty then
+    -- Build the "Try this:" suggestion
+    let checkCmd ← PrettyPrinter.ppCategory `command stx
+    let mut suggestion := Format.pretty checkCmd
+    suggestion := suggestion ++ "\n"
+    for declName in problematicTheorems do
+      suggestion := suggestion ++ s!"#grind_lint inspect {declName}\n"
+    Tactic.TryThis.addSuggestion stx { suggestion := .string suggestion }
 
 end Lean.Elab.Tactic.Grind

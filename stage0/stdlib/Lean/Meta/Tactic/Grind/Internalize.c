@@ -3545,17 +3545,17 @@ block_249:
 if (lean_obj_tag(x_248) == 0)
 {
 lean_dec_ref(x_248);
-x_53 = x_246;
-x_54 = x_244;
-x_55 = x_245;
-x_56 = x_247;
+x_53 = x_244;
+x_54 = x_246;
+x_55 = x_247;
+x_56 = x_245;
 x_57 = lean_box(0);
 goto block_243;
 }
 else
 {
-lean_dec(x_247);
-lean_dec_ref(x_245);
+lean_dec_ref(x_247);
+lean_dec(x_245);
 lean_dec(x_51);
 lean_dec_ref(x_1);
 return x_248;
@@ -3566,17 +3566,17 @@ block_255:
 if (lean_obj_tag(x_254) == 0)
 {
 lean_dec_ref(x_254);
-x_53 = x_252;
-x_54 = x_250;
-x_55 = x_251;
-x_56 = x_253;
+x_53 = x_250;
+x_54 = x_252;
+x_55 = x_253;
+x_56 = x_251;
 x_57 = lean_box(0);
 goto block_243;
 }
 else
 {
-lean_dec(x_253);
-lean_dec_ref(x_251);
+lean_dec_ref(x_253);
+lean_dec(x_251);
 lean_dec(x_51);
 lean_dec_ref(x_1);
 return x_254;
@@ -3621,10 +3621,10 @@ lean_inc_ref(x_260);
 lean_inc(x_51);
 lean_inc_ref(x_1);
 x_271 = l_Lean_Meta_Grind_pushEqCore___redArg(x_1, x_51, x_268, x_270, x_256, x_258, x_259, x_260, x_261);
-x_250 = x_257;
-x_251 = x_260;
-x_252 = x_256;
-x_253 = x_261;
+x_250 = x_256;
+x_251 = x_261;
+x_252 = x_257;
+x_253 = x_260;
 x_254 = x_271;
 goto block_255;
 }
@@ -3638,10 +3638,10 @@ lean_inc_ref(x_260);
 lean_inc(x_51);
 lean_inc_ref(x_1);
 x_273 = l_Lean_Meta_Grind_pushEqCore___redArg(x_1, x_51, x_268, x_272, x_256, x_258, x_259, x_260, x_261);
-x_250 = x_257;
-x_251 = x_260;
-x_252 = x_256;
-x_253 = x_261;
+x_250 = x_256;
+x_251 = x_261;
+x_252 = x_257;
+x_253 = x_260;
 x_254 = x_273;
 goto block_255;
 }
@@ -3702,10 +3702,10 @@ lean_inc_ref(x_260);
 lean_inc(x_51);
 lean_inc_ref(x_1);
 x_282 = l_Lean_Meta_Grind_pushEqCore___redArg(x_1, x_51, x_279, x_281, x_256, x_258, x_259, x_260, x_261);
-x_244 = x_257;
-x_245 = x_260;
-x_246 = x_256;
-x_247 = x_261;
+x_244 = x_256;
+x_245 = x_261;
+x_246 = x_257;
+x_247 = x_260;
 x_248 = x_282;
 goto block_249;
 }
@@ -3719,10 +3719,10 @@ lean_inc_ref(x_260);
 lean_inc(x_51);
 lean_inc_ref(x_1);
 x_284 = l_Lean_Meta_Grind_pushEqCore___redArg(x_1, x_51, x_279, x_283, x_256, x_258, x_259, x_260, x_261);
-x_244 = x_257;
-x_245 = x_260;
-x_246 = x_256;
-x_247 = x_261;
+x_244 = x_256;
+x_245 = x_261;
+x_246 = x_257;
+x_247 = x_260;
 x_248 = x_284;
 goto block_249;
 }

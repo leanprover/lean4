@@ -1003,11 +1003,11 @@ def Goal.getENode? (goal : Goal) (e : Expr) : Option ENode :=
 def getENode? (e : Expr) : GoalM (Option ENode) :=
   return (← get).getENode? e
 
-def throwNonInternalizedExpr (e : Expr) : CoreM α :=
+def throwNonInternalizedExpr (e : Expr) : MetaM α :=
   throwError "internal `grind` error, term has not been internalized{indentExpr e}"
 
 /-- Returns node associated with `e`. It assumes `e` has already been internalized. -/
-def Goal.getENode (goal : Goal) (e : Expr) : CoreM ENode := do
+def Goal.getENode (goal : Goal) (e : Expr) : MetaM ENode := do
   let some n := goal.enodeMap.find? { expr := e }
     | throwNonInternalizedExpr e
   return n
@@ -1066,7 +1066,7 @@ def getRoot? (e : Expr) : GoalM (Option Expr) := do
   return (← get).getRoot? e
 
 /-- Returns the root element in the equivalence class of `e`. -/
-def Goal.getRoot (goal : Goal) (e : Expr) : CoreM Expr :=
+def Goal.getRoot (goal : Goal) (e : Expr) : MetaM Expr :=
   return (← goal.getENode e).root
 
 @[inline, inherit_doc Goal.getRoot]
@@ -1091,7 +1091,7 @@ def Goal.getNext? (goal : Goal) (e : Expr) : Option Expr := Id.run do
   return some n.next
 
 /-- Returns the next element in the equivalence class of `e`. -/
-def Goal.getNext (goal : Goal) (e : Expr) : CoreM Expr :=
+def Goal.getNext (goal : Goal) (e : Expr) : MetaM Expr :=
   return (← goal.getENode e).next
 
 @[inline, inherit_doc Goal.getRoot]

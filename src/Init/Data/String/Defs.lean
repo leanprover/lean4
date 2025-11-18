@@ -632,11 +632,11 @@ theorem push_eq_append (c : Char) : String.push s c = s ++ singleton c := by
   simp
 
 @[deprecated String.toRawSubstring (since := "2025-11-18")]
-def String.toSubstring (s : String) : Substring.Raw :=
+def toSubstring (s : String) : Substring.Raw :=
   s.toRawSubstring
 
 @[deprecated String.toRawSubstring' (since := "2025-11-18")]
-def String.toSubstring' (s : String) : Substring.Raw :=
+def toSubstring' (s : String) : Substring.Raw :=
   s.toRawSubstring'
 
 end String

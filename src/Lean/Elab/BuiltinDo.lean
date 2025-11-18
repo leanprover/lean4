@@ -384,6 +384,27 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
   let then_ ← Term.exprToSyntax then_
   Term.elabTerm (← `(if $cond then $then_ else $else_)) mγ
 
+@[builtin_doElem_elab Lean.Parser.Term.doDbgTrace] def elabDoDbgTrace : DoElab := fun stx dec => do
+  let `(doDbgTrace| dbg_trace $msg:term) := stx | throwUnsupportedSyntax
+  let mγ ← mkMonadicType (← read).doBlockResultType
+  let body ← dec.continueWithUnit
+  let body ← Term.exprToSyntax body
+  Term.elabTerm (← `(dbg_trace $msg; $body)) mγ
+
+@[builtin_doElem_elab Lean.Parser.Term.doAssert] def elabDoAssert : DoElab := fun stx dec => do
+  let `(doAssert| assert! $cond) := stx | throwUnsupportedSyntax
+  let mγ ← mkMonadicType (← read).doBlockResultType
+  let body ← dec.continueWithUnit
+  let body ← Term.exprToSyntax body
+  Term.elabTerm (← `(assert! $cond; $body)) mγ
+
+@[builtin_doElem_elab Lean.Parser.Term.doDebugAssert] def elabDoDebugAssert : DoElab := fun stx dec => do
+  let `(doDebugAssert| debug_assert! $cond) := stx | throwUnsupportedSyntax
+  let mγ ← mkMonadicType (← read).doBlockResultType
+  let body ← dec.continueWithUnit
+  let body ← Term.exprToSyntax body
+  Term.elabTerm (← `(debug_assert! $cond; $body)) mγ
+
 -- TODO remaining cases
 @[builtin_doElem_elab Lean.Parser.Term.doFor] def elabDoFor : DoElab := fun stx dec => do
   let `(doFor| for $x:ident in $xs do $doSeq) := stx | throwUnsupportedSyntax
@@ -505,12 +526,3 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
       pure <| mkApp7 (mkConst ``tryFinally [mi.u, mi.v])
         mi.m lifter.resultType β instMonadFinally instFunctor body fin
   (← lifter.restoreCont).mkBindUnlessPure body
-
-/-
-TODO:
-* doUnless
-* doDbgTrace
-* doAssert
-* doDebugAssert
-
--/

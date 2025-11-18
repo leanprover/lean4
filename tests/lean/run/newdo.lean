@@ -1048,6 +1048,41 @@ example : (Id.run doo
       return 13
   return x + y) := by rfl
 
+-- Test: ifCondLet and else if
+example : (Id.run doo
+  let mut x := 0
+  if let false := not true then
+    x := 10
+  else if let 0 ← pure 42 then
+    return 42
+  else
+    x := 3
+  x := x + 13
+  return x)
+= (Id.run do
+  let mut x := 0
+  if let false := not true then
+    x := 10
+  else if let 0 ← pure 42 then
+    return 42
+  else
+    x := 3
+  x := x + 13
+  return x) := by rfl
+
+-- Test: elabToSyntax and postponement
+/--
+error: Invalid match expression: The type of pattern variable 'y' contains metavariables:
+  ?m.26
+-/
+#guard_msgs (error) in
+example := Id.run doo
+  let mut x := 0 -- We should not get an error that fixed elaborator 0 was not registered
+  if let some y := none then
+    pure 1
+  else
+    pure 2
+
 -- Test: For loops with break, continue and return
 example :
   (Id.run doo
@@ -1372,15 +1407,6 @@ example := (Id.run doo pure true; pure ())
 
 /--
 error: Application type mismatch: The argument
-  true
-has type
-  Bool
-but is expected to have type
-  PUnit
-in the application
-  pure true
----
-error: Application type mismatch: The argument
   false
 has type
   Bool
@@ -1388,6 +1414,15 @@ but is expected to have type
   PUnit
 in the application
   pure false
+---
+error: Application type mismatch: The argument
+  true
+has type
+  Bool
+but is expected to have type
+  PUnit
+in the application
+  pure true
 -/
 #guard_msgs (error) in
 example := (Id.run doo if true then {pure true} else {pure false}; pure ())

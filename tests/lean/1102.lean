@@ -20,4 +20,3 @@ instance [c : CommRing n] : CommRing n.succ := { ucr := c.u12 }
 instance [Field n] : DVR n.succ := ⟨()⟩
 
 example [CommRing 0] : DVR 1 := by infer_instance -- should fail fast, instead hits maxHeartbeats
-2

@@ -9,16 +9,16 @@ def f (s : String) [Foo s] := ()
 #eval f "one"
 
 /--
-error: failed to synthesize typeclass instance
+error: failed to synthesize instance of type class
   Foo "two"
 
-Hint: Type class instance resolution failures can be inspected with using the `set_option trace.Meta.synthInstance true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs in
 #eval f "two"
 
 /--
-error: failed to synthesize typeclass instance
+error: failed to synthesize instance of type class
   Foo "two"
 ---
 trace: [Meta.synthInstance] ❌️ Foo "two"
@@ -37,7 +37,7 @@ set_option trace.Meta.synthInstance true in
 #eval f "two"
 
 /--
-error: failed to synthesize typeclass instance
+error: failed to synthesize instance of type class
   Foo "three"
 ---
 trace: [Meta.synthInstance] ❌️ Foo "three"

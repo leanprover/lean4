@@ -32,10 +32,10 @@ Many simple type class resolution errors are the result of using the wrong binar
 #eval "A" + "3"
 ```
 ```output
-failed to synthesize
+failed to synthesize instance of type class
   HAdd String String ?m.4
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ```
 ```lean fixed
 #eval "A" ++ "3"
@@ -52,10 +52,10 @@ def x : Int := 3
 #eval x ++ "meters"
 ```
 ```output
-failed to synthesize
+failed to synthesize instance of type class
   HAppend Int String ?m.4
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ```
 ```lean fixed
 def x : Int := 3
@@ -67,6 +67,6 @@ type class overloading to convert values to strings; by successfully searching f
 `ToString Int`, the second example will succeed.
 -/
 register_error_explanation lean.failedToSynthesizeTypeclassInstance {
-  summary := "Failed to synthesize typeclass instance"
+  summary := "Failed to synthesize instance of type class"
   sinceVersion := "4.26.0"
 }

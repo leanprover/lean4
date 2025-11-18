@@ -1123,7 +1123,7 @@ def useTraceSynthMsg : MessageData :=
     if trace.Meta.synthInstance.get ctx.opts then
       pure ""
     else
-      pure <| .hint' s!"Type class instance resolution failures can be inspected with using the `set_option {trace.Meta.synthInstance.name} true` command."
+      pure <| .hint' s!"Type class instance resolution failures can be inspected with the `set_option {trace.Meta.synthInstance.name} true` command."
 
 /--
   Try to synthesize metavariable using type class resolution.
@@ -1183,7 +1183,7 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
     if (← read).ignoreTCFailures then
       return false
     else
-      throwNamedError lean.failedToSynthesizeTypeclassInstance "failed to synthesize typeclass instance{indentExpr type}{extraErrorMsg}{useTraceSynthMsg}"
+      throwNamedError lean.failedToSynthesizeTypeclassInstance "failed to synthesize instance of type class{indentExpr type}{extraErrorMsg}{useTraceSynthMsg}"
 
 def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none)
     (mkErrorMsg? : Option (MVarId → (expectedType e : Expr) → MetaM MessageData) := none)

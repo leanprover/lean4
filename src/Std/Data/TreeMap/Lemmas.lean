@@ -2134,6 +2134,22 @@ theorem minKeyD_insert_of_isEmpty [TransCmp cmp] {k v} (he : t.isEmpty) {fallbac
     (t.insert k v).minKeyD fallback = k :=
   DTreeMap.minKeyD_insert_of_isEmpty he
 
+theorem minKey_insertIfNew_of_isEmpty [TransCmp cmp] {k v} (he : t.isEmpty) :
+    (t.insertIfNew k v).minKey isEmpty_insertIfNew = k :=
+  DTreeMap.minKey_insertIfNew_of_isEmpty he
+
+theorem minKey?_insertIfNew_of_isEmpty [TransCmp cmp] {k v} (he : t.isEmpty) :
+    (t.insertIfNew k v).minKey? = some k :=
+  DTreeMap.minKey?_insertIfNew_of_isEmpty he
+
+theorem minKey!_insertIfNew_of_isEmpty [TransCmp cmp] [Inhabited α] {k v} (he : t.isEmpty) :
+    (t.insertIfNew k v).minKey! = k :=
+  DTreeMap.minKey!_insertIfNew_of_isEmpty he
+
+theorem minKeyD_insertIfNew_of_isEmpty [TransCmp cmp] {k v} (he : t.isEmpty) {fallback : α} :
+    (t.insertIfNew k v).minKeyD fallback = k :=
+  DTreeMap.minKeyD_insertIfNew_of_isEmpty he
+
 @[grind =] theorem isSome_minKey?_insert [TransCmp cmp] {k v} :
     (t.insert k v).minKey?.isSome :=
   DTreeMap.isSome_minKey?_insert

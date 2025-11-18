@@ -7184,6 +7184,27 @@ theorem minKey!_insertEntry_of_isEmpty [Ord α] [TransOrd α] [BEq α] [LawfulBE
   simp [minKey!_eq_minKeyD_default]
   apply minKeyD_insertEntry_of_isEmpty hl he
 
+theorem minKey_insertEntryIfNew_of_isEmpty [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α} {v : β k}
+    {l : List ((a : α) × β a)} (hl : DistinctKeys l) (he : l.isEmpty) :
+    List.minKey (insertEntryIfNew k v l) isEmpty_insertEntryIfNew = k := by
+  simp [minKey, minKey?_insertEntryIfNew hl, minKey?_of_isEmpty he]
+
+theorem minKey?_insertEntryIfNew_of_isEmpty [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α} {v : β k}
+    {l : List ((a : α) × β a)} (hl : DistinctKeys l) (he : l.isEmpty) :
+    minKey? (insertEntryIfNew k v l) = some k := by
+  simp [minKey?_insertEntryIfNew hl, minKey?_of_isEmpty he]
+
+theorem minKeyD_insertEntryIfNew_of_isEmpty [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α} {v : β k}
+    {l : List ((a : α) × β a)} (hl : DistinctKeys l) (he : l.isEmpty) {fallback : α} :
+    minKeyD (insertEntryIfNew k v l) fallback = k := by
+  simp [minKeyD, minKey?_insertEntryIfNew hl, minKey?_of_isEmpty he]
+
+theorem minKey!_insertEntryIfNew_of_isEmpty [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited α] {k : α} {v : β k}
+    {l : List ((a : α) × β a)} (hl : DistinctKeys l) (he : l.isEmpty) :
+    minKey! (insertEntryIfNew k v l) = k := by
+  simp [minKey!_eq_minKeyD_default]
+  apply minKeyD_insertEntryIfNew_of_isEmpty hl he
+
 theorem minKeyD_eq_fallback [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} {fallback} (h : l.isEmpty) :
     minKeyD l fallback = fallback := by

@@ -5291,6 +5291,50 @@ theorem minKeyD_insert!_of_isEmpty [TransOrd α] (h : t.WF) {k v} (he : t.isEmpt
     (t.insert! k v).minKeyD fallback = k := by
   simpa only [insert_eq_insert!] using minKeyD_insert_of_isEmpty h he
 
+theorem minKey_insertIfNew_of_isEmpty [TransOrd α] (h : t.WF) {k v} (he : t.isEmpty) :
+    (t.insertIfNew k v h.balanced).impl.minKey (isEmpty_insertIfNew h) = k := by
+  revert he
+  simp_to_model [isEmpty, insertIfNew, minKey] using List.minKey_insertEntryIfNew_of_isEmpty
+
+theorem minKey_insertIfNew!_of_isEmpty [TransOrd α] (h : t.WF) {k v} (he : t.isEmpty) :
+    (t.insertIfNew! k v).minKey (isEmpty_insertIfNew! h) = k := by
+  simpa only [insertIfNew_eq_insertIfNew!] using minKey_insertIfNew_of_isEmpty h he
+
+theorem minKey?_insertIfNew_of_isEmpty [TransOrd α] (h : t.WF) {k v} (he : t.isEmpty) :
+    (t.insertIfNew k v h.balanced).impl.minKey? = some k := by
+  revert he
+  simp_to_model [isEmpty, insertIfNew, minKey?] using List.minKey?_insertEntryIfNew_of_isEmpty
+
+theorem minKey?_insertIfNew!_of_isEmpty [TransOrd α] (h : t.WF) {k v} (he : t.isEmpty) :
+    (t.insertIfNew! k v).minKey? = some k := by
+  simpa only [insertIfNew_eq_insertIfNew!] using minKey?_insertIfNew_of_isEmpty h he
+
+theorem minKey!_insertIfNew_of_isEmpty [TransOrd α] [Inhabited α] (h : t.WF) {k v} (he : t.isEmpty) :
+    (t.insertIfNew k v h.balanced).impl.minKey! = k := by
+  revert he
+  simp_to_model [isEmpty, insertIfNew, minKey!]
+  intro he
+  apply List.minKey!_insertEntryIfNew_of_isEmpty
+  · wf_trivial
+  · exact he
+
+theorem minKey!_insertIfNew!_of_isEmpty [TransOrd α] [Inhabited α] (h : t.WF) {k v} (he : t.isEmpty) :
+    (t.insertIfNew! k v).minKey! = k := by
+  simpa only [insertIfNew_eq_insertIfNew!] using minKey!_insertIfNew_of_isEmpty h he
+
+theorem minKeyD_insertIfNew_of_isEmpty [TransOrd α] (h : t.WF) {k v} (he : t.isEmpty) {fallback : α} :
+    (t.insertIfNew k v h.balanced).impl.minKeyD fallback = k := by
+  revert he
+  simp_to_model [isEmpty, insertIfNew, minKeyD]
+  intro he
+  apply List.minKeyD_insertEntryIfNew_of_isEmpty
+  · wf_trivial
+  · exact he
+
+theorem minKeyD_insertIfNew!_of_isEmpty [TransOrd α] (h : t.WF) {k v} (he : t.isEmpty) {fallback : α} :
+    (t.insertIfNew! k v).minKeyD fallback = k := by
+  simpa only [insertIfNew_eq_insertIfNew!] using minKeyD_insertIfNew_of_isEmpty h he
+
 theorem minKey?_insert_le_minKey? [TransOrd α] (h : t.WF) {k v km kmi} :
     (hkm : t.minKey? = some km) →
     (hkmi : (t.insert k v h.balanced |>.impl.minKey? |>.get <| isSome_minKey?_insert h) = kmi) →

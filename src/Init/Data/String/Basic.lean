@@ -1599,6 +1599,10 @@ position is not the past-the-end position, which guarantees that such a position
 def ValidPos.next {s : String} (pos : s.ValidPos) (h : pos ≠ s.endValidPos) : s.ValidPos :=
   ((inline (Slice.Pos.next pos.toSlice (ne_of_apply_ne Slice.Pos.ofSlice (by simpa)))).ofSlice)
 
+@[expose, extern "lean_string_utf8_next_fast"]
+def Pos.next {s : String} (pos : s.ValidPos) (h : pos ≠ s.endValidPos) : s.ValidPos :=
+  ((inline (Slice.Pos.next pos.toSlice (ne_of_apply_ne Slice.Pos.ofSlice (by simpa)))).ofSlice)
+
 /-- Advances a valid position on a string to the next valid position, or returns `none` if the
 given position is the past-the-end position. -/
 @[inline, expose]

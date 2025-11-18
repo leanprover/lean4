@@ -631,4 +631,12 @@ def Slice.Pos.byte {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : UInt8 :=
 theorem push_eq_append (c : Char) : String.push s c = s ++ singleton c := by
   simp
 
+@[deprecated String.toRawSubstring (since := "2025-11-18")]
+def toSubstring (s : String) : Substring.Raw :=
+  s.toRawSubstring
+
+@[deprecated String.toRawSubstring' (since := "2025-11-18")]
+def toSubstring' (s : String) : Substring.Raw :=
+  s.toRawSubstring'
+
 end String

@@ -12,6 +12,7 @@ public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.SplitIf
 import Lean.Meta.Match.SimpH
+import Lean.Meta.Match.SolveOverlap
 
 public section
 

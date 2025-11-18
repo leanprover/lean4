@@ -607,8 +607,17 @@ occurrence takes precedence. -/
 @[inline] def ofList [BEq α] [Hashable α] (l : List ((a : α) × β a)) : Raw α β :=
   insertMany ∅ l
 
+/-- Creates a hash map from an array of mappings. If the same key appears multiple times, the last
+occurrence takes precedence. -/
+@[inline] def ofArray [BEq α] [Hashable α] (l : Array ((a : α) × β a)) : Raw α β :=
+  insertMany ∅ l
+
 @[inline, inherit_doc Raw.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
     (l : List (α × β)) : Raw α (fun _ => β) :=
+  Const.insertMany ∅ l
+
+@[inline, inherit_doc Raw.ofList] def Const.ofArray {β : Type v} [BEq α] [Hashable α]
+    (l : Array (α × β)) : Raw α (fun _ => β) :=
   Const.insertMany ∅ l
 
 /-- Creates a hash map from a list of keys, associating the value `()` with each key.

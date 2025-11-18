@@ -2191,6 +2191,11 @@ theorem getD_insertManyIfNewUnit_list
 
 end Const
 
+@[simp, grind =]
+theorem insertMany_eq_insertMany_ofList (a : Array ((a : α) × (β a))) :
+    insertMany emptyWithCapacity a = insertMany emptyWithCapacity a.toList := by
+  rw [Internal.Raw₀.insertMany_eq_insertMany_toList]
+
 @[simp]
 theorem insertMany_emptyWithCapacity_list_nil :
     (insertMany emptyWithCapacity ([] : List ((a : α) × (β a)))).1 = emptyWithCapacity := by
@@ -2477,6 +2482,11 @@ theorem isEmpty_insertMany_emptyWithCapacity_list [EquivBEq α] [LawfulHashable 
     {l : List (α × β)} :
     (insertMany (emptyWithCapacity : Raw₀ α (fun _ => β)) l).1.1.isEmpty = l.isEmpty := by
   simp [isEmpty_insertMany_list _ Raw.WF.emptyWithCapacity₀]
+
+@[simp, grind =]
+theorem insertManyIfNewUnit_eq_insertManyIfNewUnit_ofList (a : Array α):
+    insertManyIfNewUnit emptyWithCapacity a = insertManyIfNewUnit emptyWithCapacity a.toList := by
+  rw [Internal.Raw₀.Const.insertManyIfNewUnit_eq_insertManyIfNewUnit_toList]
 
 @[simp]
 theorem insertManyIfNewUnit_emptyWithCapacity_list_nil :
@@ -4017,6 +4027,12 @@ theorem equiv_of_forall_get?_eq [LawfulBEq α] (h₁ : m₁.1.WF) (h₂ : m₂.1
 namespace Const
 
 variable {β : Type v} (m₁ m₂ : Raw₀ α fun _ => β)
+@[simp, grind =]
+
+theorem insertMany_eq_insertMany_ofList (a : Array (α × β)) :
+    insertMany emptyWithCapacity a = insertMany emptyWithCapacity a.toList := by
+  rw [Internal.Raw₀.Const.insertMany_eq_insertMany_toList]
+
 variable [EquivBEq α] [LawfulHashable α]
 
 theorem get?_eq_of_equiv (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ~m m₂.1) {k : α} :

@@ -1124,6 +1124,18 @@ theorem insertMany_eq_insertListₘ_toListModel [BEq α] [Hashable α] (m m₂ :
     simp only [List.foldl_cons, insertListₘ]
     apply ih
 
+theorem insertMany_eq_insertMany_toList [BEq α] [Hashable α] (m : Raw₀ α β) (a : Array ((k : α) × (β k))) :
+    insertMany m a = insertMany m a.toList := by
+  simp only [insertMany, bind_pure_comp, map_pure, bind_pure, ← Array.forIn_toList, forIn_pure_yield_eq_foldl, Array.foldl_toList, Id.run_pure]
+
+theorem Const.insertMany_eq_insertMany_toList [BEq α] [Hashable α] {β : Type v} (m : Raw₀ α fun _ => β) (a : Array (α × β)) :
+    Const.insertMany m a = Const.insertMany m a.toList := by
+  simp only [insertMany, bind_pure_comp, map_pure, bind_pure, ← Array.forIn_toList, forIn_pure_yield_eq_foldl, Array.foldl_toList, Id.run_pure]
+
+theorem Const.insertManyIfNewUnit_eq_insertManyIfNewUnit_toList [BEq α] [Hashable α] (m : Raw₀ α fun _ => Unit) (a : Array α) :
+    Const.insertManyIfNewUnit m a = Const.insertManyIfNewUnit m a.toList := by
+  simp only [insertManyIfNewUnit, bind_pure_comp, map_pure, bind_pure, ← Array.forIn_toList, forIn_pure_yield_eq_foldl, Array.foldl_toList, Id.run_pure]
+
 theorem insertManyIfNew_eq_insertListIfNewₘ_toListModel [BEq α] [Hashable α] (m m₂ : Raw₀ α β) :
     insertManyIfNew m m₂.1 = insertListIfNewₘ m (toListModel m₂.1.buckets) := by
   simp only [insertManyIfNew, bind_pure_comp, map_pure, bind_pure]

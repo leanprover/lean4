@@ -46,8 +46,8 @@ private meta def baseNames : Array Name :=
     ``get?_eq, ``get_eq, ``get!_eq, ``getD_eq,
     ``Const.get?_eq, ``Const.get_eq, ``Const.getD_eq, ``Const.get!_eq,
     ``getKey?_eq, ``getKey_eq, ``getKey!_eq, ``getKeyD_eq,
-    ``insertMany_eq, ``Const.insertMany_eq, ``Const.insertManyIfNewUnit_eq,
-    ``ofList_eq, ``Const.ofList_eq, ``Const.unitOfList_eq,
+    ``insertMany_eq, ``Const.insertMany_eq, ``Const.insertManyIfNewUnit_eq, ``ofArray_eq, ``Const.ofArray_eq,
+    ``ofList_eq, ``Const.ofList_eq, ``Const.unitOfList_eq, ``Const.unitOfArray_eq,
     ``alter_eq, ``Const.alter_eq, ``modify_eq, ``Const.modify_eq, ``union_eq, ``inter_eq]
 
 /-- Internal implementation detail of the hash map -/
@@ -3300,6 +3300,12 @@ variable [BEq α] [Hashable α]
 open Internal.Raw Internal.Raw₀
 
 @[simp, grind =]
+theorem ofArray_eq_ofList (a : Array ((a : α) × (β a))) :
+    ofArray a = ofList a.toList := by
+  simp_to_raw
+  rw [insertMany_eq_insertMany_ofList]
+
+@[simp, grind =]
 theorem ofList_nil :
     ofList ([] : List ((a : α) × (β a))) = ∅ := by
   simp_to_raw
@@ -3452,6 +3458,12 @@ namespace Const
 variable {β : Type v}
 
 @[simp, grind =]
+theorem ofArray_eq_ofList (a : Array (α × β)) :
+    ofArray a = ofList a.toList := by
+  simp_to_raw
+  rw [Const.insertMany_eq_insertMany_ofList]
+
+@[simp, grind =]
 theorem ofList_nil :
     ofList ([] : List (α × β)) = ∅ := by
   simp_to_raw
@@ -3598,6 +3610,12 @@ theorem isEmpty_ofList [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} :
     (ofList l).isEmpty = l.isEmpty := by
   simp_to_raw using Raw₀.Const.isEmpty_insertMany_emptyWithCapacity_list
+
+@[simp, grind =]
+theorem unitOfArray_eq_unitOfList (a : Array α) :
+    unitOfArray a = unitOfList a.toList := by
+  simp_to_raw
+  rw [Raw₀.Const.insertManyIfNewUnit_eq_insertManyIfNewUnit_ofList]
 
 @[simp]
 theorem unitOfList_nil :

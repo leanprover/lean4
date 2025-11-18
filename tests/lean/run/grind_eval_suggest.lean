@@ -5,7 +5,7 @@ public import Std.Tactic.BVDecide
 
 open Lean Elab Tactic Try
 elab tk:"eval_suggest" tac:tactic : tactic => do
-  evalAndSuggest tk tac
+  evalAndSuggest tk tac (originalMaxHeartbeats := 10^8)
 
 set_option hygiene false in
 macro "try_simple?" : tactic => `(tactic| eval_suggest (intros; attempt_all | rfl | (first | simp?; done | simp? +arith; done | simp_all) | grind?))
@@ -19,6 +19,7 @@ info: Try these:
   [apply] simp +arith only [Nat.reduceAdd, fthm]
   [apply] grind
   [apply] grind only [= fthm]
+  [apply] grind => instantiate only [= fthm]
 -/
 #guard_msgs (info) in
 example (x : Nat) : 1 + 1 + f x = x + 2 := by

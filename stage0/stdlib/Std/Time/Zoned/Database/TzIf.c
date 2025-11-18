@@ -227,6 +227,7 @@ static lean_object* l_Std_Time_TimeZone_TZif_instReprHeader_repr___redArg___clos
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_TZif_TZif_ctorIdx___boxed(lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_Array_repr___at___00Std_Time_TimeZone_TZif_instReprTZifV1_repr_spec__16(lean_object*);
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Time_Zoned_Database_TzIf_0__Std_Time_TimeZone_TZif___aux__Std__Time__Zoned__Database__TzIf______unexpand__Int__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___00Array_Array_repr___at___00Std_Time_TimeZone_TZif_instReprTZifV1_repr_spec__0_spec__0___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_TZif_instReprLocalTimeType_repr___redArg(lean_object*);
@@ -359,7 +360,6 @@ lean_object* l_Int_negOfNat(lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l___private_Std_Time_Zoned_Database_TzIf_0__Std_Time_TimeZone_TZif___aux__Std__Time__Zoned__Database__TzIf______unexpand__Int__1(lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint8_of_nat(lean_object*);
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Std_Time_TimeZone_TZif_instReprLocalTimeType_repr___redArg___closed__3;
 static lean_object* l_Std_Time_TimeZone_TZif_instReprTZif_repr___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Std_Time_Zoned_Database_TzIf_0__Std_Time_TimeZone_TZif_parseAbbreviations_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -624,7 +624,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Std_Time_Zoned_Database_TzIf_0__Std_Time_TimeZone_TZif___aux__Std__Time__Zoned__Database__TzIf______macroRules____private__Std__Time__Zoned__Database__TzIf__0__Std__Time__TimeZone__TZif__termInt32__1___closed__0;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

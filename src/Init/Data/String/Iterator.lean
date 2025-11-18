@@ -18,11 +18,16 @@ a future release.
 
 public section
 
-namespace String
+namespace String.Legacy
 
 /--
 An iterator over the characters (Unicode code points) in a `String`. Typically created by
 `String.iter`.
+
+This is a no-longer-supported legacy API that will be removed in a future release. You should use
+`String.ValidPos` instead, which is similar, but safer. To iterate over a string `s`, start with
+`p : s.startValidPos`, advance it using `p.next`, access the current character using `p.get` and
+check if the position is at the end using `p = s.endValidPos` or `p.IsAtEnd`.
 
 String iterators pair a string with a valid byte index. This allows efficient character-by-character
 processing of strings while avoiding the need to manually ensure that byte indices are used with the
@@ -49,7 +54,13 @@ structure Iterator where
   i : Pos.Raw
   deriving DecidableEq, Inhabited
 
-/-- Creates an iterator at the beginning of the string. -/
+/-- Creates an iterator at the beginning of the string.
+
+This is a no-longer-supported legacy API that will be removed in a future release. You should use
+`String.ValidPos` instead, which is similar, but safer. To iterate over a string `s`, start with
+`p : s.startValidPos`, advance it using `p.next`, access the current character using `p.get` and
+check if the position is at the end using `p = s.endValidPos` or `p.IsAtEnd`.
+-/
 @[inline] def mkIterator (s : String) : Iterator :=
   ⟨s, 0⟩
 
@@ -61,10 +72,10 @@ The size of a string iterator is the number of bytes remaining.
 
 Recursive functions that iterate towards the end of a string will typically decrease this measure.
 -/
-instance : SizeOf String.Iterator where
+instance : SizeOf String.Legacy.Iterator where
   sizeOf i := i.1.utf8ByteSize - i.2.byteIdx
 
-theorem Iterator.sizeOf_eq (i : String.Iterator) : sizeOf i = i.1.utf8ByteSize - i.2.byteIdx :=
+theorem Iterator.sizeOf_eq (i : String.Legacy.Iterator) : sizeOf i = i.1.utf8ByteSize - i.2.byteIdx :=
   rfl
 
 namespace Iterator
@@ -83,6 +94,11 @@ def pos := Iterator.i
 /--
 Gets the character at the iterator's current position.
 
+This is a no-longer-supported legacy API that will be removed in a future release. You should use
+`String.ValidPos` instead, which is similar, but safer. To iterate over a string `s`, start with
+`p : s.startValidPos`, advance it using `p.next`, access the current character using `p.get` and
+check if the position is at the end using `p = s.endValidPos` or `p.IsAtEnd`.
+
 A run-time bounds check is performed. Use `String.Iterator.curr'` to avoid redundant bounds checks.
 
 If the position is invalid, returns `(default : Char)`.
@@ -92,6 +108,11 @@ If the position is invalid, returns `(default : Char)`.
 
 /--
 Moves the iterator's position forward by one character, unconditionally.
+
+This is a no-longer-supported legacy API that will be removed in a future release. You should use
+`String.ValidPos` instead, which is similar, but safer. To iterate over a string `s`, start with
+`p : s.startValidPos`, advance it using `p.next`, access the current character using `p.get` and
+check if the position is at the end using `p = s.endValidPos` or `p.IsAtEnd`.
 
 It is only valid to call this function if the iterator is not at the end of the string (i.e.
 if `Iterator.atEnd` is `false`); otherwise, the resulting iterator will be invalid.
@@ -192,21 +213,21 @@ def prevn : Iterator → Nat → Iterator
   | it, 0   => it
   | it, i+1 => prevn it.prev i
 
-theorem sizeOf_next_lt_of_hasNext (i : String.Iterator) (h : i.hasNext) : sizeOf i.next < sizeOf i := by
+theorem sizeOf_next_lt_of_hasNext (i : String.Legacy.Iterator) (h : i.hasNext) : sizeOf i.next < sizeOf i := by
   cases i; rename_i s pos; simp [Iterator.next, Iterator.sizeOf_eq]; simp [Iterator.hasNext] at h
   exact Nat.sub_lt_sub_left h (String.Pos.Raw.lt_next s pos)
 
 macro_rules
 | `(tactic| decreasing_trivial) =>
-  `(tactic| with_reducible apply String.Iterator.sizeOf_next_lt_of_hasNext; assumption)
+  `(tactic| with_reducible apply String.Legacy.Iterator.sizeOf_next_lt_of_hasNext; assumption)
 
-theorem sizeOf_next_lt_of_atEnd (i : String.Iterator) (h : ¬ i.atEnd = true) : sizeOf i.next < sizeOf i :=
+theorem sizeOf_next_lt_of_atEnd (i : String.Legacy.Iterator) (h : ¬ i.atEnd = true) : sizeOf i.next < sizeOf i :=
   have h : i.hasNext := decide_eq_true <| Nat.gt_of_not_le <| mt decide_eq_true h
   sizeOf_next_lt_of_hasNext i h
 
 macro_rules
 | `(tactic| decreasing_trivial) =>
-  `(tactic| with_reducible apply String.Iterator.sizeOf_next_lt_of_atEnd; assumption)
+  `(tactic| with_reducible apply String.Legacy.Iterator.sizeOf_next_lt_of_atEnd; assumption)
 
 /--
 Replaces the current character in the string.
@@ -243,22 +264,42 @@ returns `none`.
 
 end Iterator
 
-end String
+end String.Legacy
 
-namespace Substring
+namespace Substring.Raw
 
 /--
 Returns an iterator into the underlying string, at the substring's starting position. The ending
 position is discarded, so the iterator alone cannot be used to determine whether its current
 position is within the original substring.
 -/
-@[inline] def toIterator : Substring → String.Iterator
+@[inline] def toLegacyIterator : Substring.Raw → String.Legacy.Iterator
   | ⟨s, b, _⟩ => ⟨s, b⟩
 
-end Substring
 
-instance : Repr String.Iterator where
+end Substring.Raw
+
+instance : Repr String.Legacy.Iterator where
   reprPrec | ⟨s, pos⟩, prec => Repr.addAppParen ("String.Iterator.mk " ++ reprArg s ++ " " ++ reprArg pos) prec
 
-instance : ToString String.Iterator :=
+instance : ToString String.Legacy.Iterator :=
   ⟨fun it => it.remainingToString⟩
+
+section Deprecations
+
+@[deprecated String.Legacy.Iterator (since := "2025-11-12")]
+abbrev String.Iterator := String.Legacy.Iterator
+@[deprecated String.Legacy.iter (since := "2025-11-12")]
+abbrev String.iter := String.Legacy.iter
+@[deprecated String.Legacy.mkIterator (since := "2025-11-12")]
+abbrev String.mkIterator := String.Legacy.mkIterator
+@[deprecated String.Legacy.Iterator.curr (since := "2025-11-12")]
+abbrev String.Iterator.curr := String.Legacy.Iterator.curr
+@[deprecated String.Legacy.Iterator.next (since := "2025-11-12")]
+abbrev String.Iterator.next := String.Legacy.Iterator.next
+@[deprecated String.Legacy.Iterator.hasNext (since := "2025-11-12")]
+abbrev String.Iterator.hasNext := String.Legacy.Iterator.hasNext
+@[deprecated Substring.Raw.toLegacyIterator (since := "2025-11-12")]
+abbrev Substring.toIterator := Substring.Raw.toLegacyIterator
+
+end Deprecations

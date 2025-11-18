@@ -147,7 +147,7 @@ structure Config where
   The tactic that is calling the premise selection, e.g. `simp`, `grind`, or `aesop`.
   This may be used to adjust the score of the suggestions
   -/
-  caller : Option Name := none
+  caller : Option String := none
   /--
   A filter on suggestions; only suggestions returning `true` should be returned.
   (It can be better to filter on the premise selection side, to ensure that enough suggestions are returned.)

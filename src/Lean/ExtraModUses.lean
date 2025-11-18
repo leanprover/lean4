@@ -76,7 +76,7 @@ public def recordExtraModUseFromDecl (declName : Name) (isMeta : Bool) : m Unit 
   let env ← getEnv
   if let some mod := env.getModuleIdxFor? declName |>.bind (env.header.modules[·]?) then
     -- If the declaration itself is already `meta`, no need to mark the import.
-    let isMeta := isMeta && !Lean.isMeta (← getEnv) declName
+    let isMeta := isMeta && !isMarkedMeta (← getEnv) declName
     recordExtraModUseCore mod.module isMeta (hint := declName)
 
 builtin_initialize isExtraRevModUseExt : SimplePersistentEnvExtension Unit Unit ←

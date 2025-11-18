@@ -350,6 +350,7 @@ LEAN_EXPORT lean_object* l_Lean_setTraceState___redArg___lam__0___boxed(lean_obj
 static lean_object* l_Lean_initFn___closed__4_00___x40_Lean_Util_Trace_3842689300____hygCtx___hyg_2_;
 static lean_object* l_Lean_addTraceAsMessages___redArg___lam__10___closed__0;
 LEAN_EXPORT lean_object* l_Lean_exceptOptionEmoji___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ExceptToEmoji_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_exceptBoolEmoji___redArg___boxed(lean_object*);
 extern lean_object* l_Lean_KVMap_instValueBool;
@@ -576,7 +577,6 @@ LEAN_EXPORT lean_object* l_Lean_addTrace(lean_object*, lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lean_withTraceNode_x27___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_Trace_0__Lean_expandTraceMacro___closed__38;
 static lean_object* l_Lean_initFn___closed__3_00___x40_Lean_Util_Trace_3842689300____hygCtx___hyg_2_;
-lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode_x27___redArg___lam__0(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l___private_Lean_Util_Trace_0__Lean_expandTraceMacro___closed__68;
@@ -5387,7 +5387,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Util_Trace_0__Lean_expandTraceMacro___closed__17;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -5526,7 +5526,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_addTrace___redArg___lam__0___closed__1;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -5622,7 +5622,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Util_Trace_0__Lean_expandTraceMacro___closed__42;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -5717,7 +5717,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Util_Trace_0__Lean_expandTraceMacro___closed__52;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -5821,7 +5821,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Util_Trace_0__Lean_expandTraceMacro___closed__63;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -7830,7 +7830,7 @@ return x_19;
 block_27:
 {
 lean_object* x_26; 
-x_26 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort(lean_box(0), x_7, x_24, x_23, x_22, x_25, lean_box(0), lean_box(0), lean_box(0));
+x_26 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort(lean_box(0), x_7, x_24, x_22, x_23, x_25, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_25);
 lean_dec(x_24);
 x_10 = x_21;
@@ -7840,14 +7840,14 @@ goto block_20;
 block_34:
 {
 uint8_t x_33; 
-x_33 = lean_nat_dec_le(x_32, x_29);
+x_33 = lean_nat_dec_le(x_32, x_31);
 if (x_33 == 0)
 {
-lean_dec(x_29);
+lean_dec(x_31);
 lean_inc(x_32);
 x_21 = x_28;
-x_22 = x_32;
-x_23 = x_31;
+x_22 = x_29;
+x_23 = x_32;
 x_24 = x_30;
 x_25 = x_32;
 goto block_27;
@@ -7855,10 +7855,10 @@ goto block_27;
 else
 {
 x_21 = x_28;
-x_22 = x_32;
-x_23 = x_31;
+x_22 = x_29;
+x_23 = x_32;
 x_24 = x_30;
-x_25 = x_29;
+x_25 = x_31;
 goto block_27;
 }
 }
@@ -7878,18 +7878,18 @@ if (x_41 == 0)
 {
 lean_inc(x_40);
 x_28 = x_36;
-x_29 = x_40;
+x_29 = x_35;
 x_30 = x_37;
-x_31 = x_35;
+x_31 = x_40;
 x_32 = x_40;
 goto block_34;
 }
 else
 {
 x_28 = x_36;
-x_29 = x_40;
+x_29 = x_35;
 x_30 = x_37;
-x_31 = x_35;
+x_31 = x_40;
 x_32 = x_36;
 goto block_34;
 }

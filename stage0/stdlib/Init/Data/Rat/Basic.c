@@ -112,6 +112,7 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 static lean_object* l_Rat_den__nz___autoParam___closed__1;
 static lean_object* l_Rat_den__nz___autoParam___closed__6;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringRat___lam__0(lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
 static lean_object* l_Rat_instDiv___closed__0;
@@ -193,7 +194,6 @@ LEAN_EXPORT lean_object* l_Rat_normalize___redArg(lean_object*, lean_object*);
 static lean_object* l_Rat_instIntCast___closed__0;
 lean_object* lean_nat_div_exact(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Rat_instNatCast;
-lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Rat_instNeg;
 static lean_object* l_Rat_term___x2f_x2e___00__closed__6;
 LEAN_EXPORT lean_object* l___auto_00___x40_Init_Data_Rat_Basic_277644297____hygCtx___hyg_6_;
@@ -1451,7 +1451,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Rat___aux__Init__Data__Rat__Basic______macroRules__Rat__term___x2f_x2e____1___closed__3;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

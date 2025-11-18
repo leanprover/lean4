@@ -53,7 +53,7 @@ info: def test3.match_1.{u_1} : (motive : List Nat → Bool → Sort u_1) →
       ((x : List Nat) → motive x true) →
         ((x : Bool) → motive [] x) → ((x : List Nat) → (x_1 : Bool) → motive x x_1) → motive a b :=
 fun motive a b h_1 h_2 h_3 =>
-  test3._sparseCasesOn_1 b (h_1 a) fun h_0 => test3._sparseCasesOn_2 a (h_2 b) fun h_0 => h_3 a b
+  test3._sparseCasesOn_1 b (h_1 a) fun h => test3._sparseCasesOn_2 a (h_2 b) fun h => h_3 a b
 -/
 #guard_msgs in #print test3.match_1
 
@@ -80,11 +80,11 @@ info: def test4.match_1.{u_1} : (motive : Bool → Bool → Bool → Bool → Bo
             ((x x_5 x_6 x_7 : Bool) → motive true x x_5 x_6 x_7) →
               ((x x_5 x_6 x_7 x_8 : Bool) → motive x x_5 x_6 x_7 x_8) → motive x x_1 x_2 x_3 x_4 :=
 fun motive x x_1 x_2 x_3 x_4 h_1 h_2 h_3 h_4 h_5 h_6 =>
-  test3._sparseCasesOn_1 x_4 (h_1 x x_1 x_2 x_3) fun h_0 =>
-    test3._sparseCasesOn_1 x_3 (h_2 x x_1 x_2 x_4) fun h_0 =>
-      test3._sparseCasesOn_1 x_2 (h_3 x x_1 x_3 x_4) fun h_0 =>
-        test3._sparseCasesOn_1 x_1 (h_4 x x_2 x_3 x_4) fun h_0 =>
-          test3._sparseCasesOn_1 x (h_5 x_1 x_2 x_3 x_4) fun h_0 => h_6 x x_1 x_2 x_3 x_4
+  test3._sparseCasesOn_1 x_4 (h_1 x x_1 x_2 x_3) fun h =>
+    test3._sparseCasesOn_1 x_3 (h_2 x x_1 x_2 x_4) fun h =>
+      test3._sparseCasesOn_1 x_2 (h_3 x x_1 x_3 x_4) fun h =>
+        test3._sparseCasesOn_1 x_1 (h_4 x x_2 x_3 x_4) fun h =>
+          test3._sparseCasesOn_1 x (h_5 x_1 x_2 x_3 x_4) fun h => h_6 x x_1 x_2 x_3 x_4
 -/
 #guard_msgs in
 #print test4.match_1
@@ -132,7 +132,7 @@ def testOld (a : List Nat) : Nat :=
 /--
 info: def testOld.match_1.{u_1} : (motive : List Nat → Sort u_1) →
   (a : List Nat) → ((x : List Nat) → motive x) → (Unit → motive []) → motive a :=
-fun motive a h_1 h_2 => test3._sparseCasesOn_2 a (h_1 []) fun h_0 => h_1 a
+fun motive a h_1 h_2 => test3._sparseCasesOn_2 a (h_1 []) fun h => h_1 a
 -/
 #guard_msgs in
 #print testOld.match_1

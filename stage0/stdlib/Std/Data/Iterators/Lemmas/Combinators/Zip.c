@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Lemmas.Combinators.Zip
-// Imports: public import Std.Data.Iterators.Combinators.Zip public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Zip public import Std.Data.Iterators.Lemmas.Combinators.Take
+// Imports: public import Std.Data.Iterators.Combinators.Zip public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Zip public import Init.Data.Iterators.Lemmas.Combinators.Take
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -407,7 +407,7 @@ return x_5;
 }
 lean_object* initialize_Std_Data_Iterators_Combinators_Zip(uint8_t builtin);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_Monadic_Zip(uint8_t builtin);
-lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_Take(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_Take(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_Zip(uint8_t builtin) {
 lean_object * res;
@@ -419,7 +419,7 @@ lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Lemmas_Combinators_Monadic_Zip(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Lemmas_Combinators_Take(builtin);
+res = initialize_Init_Data_Iterators_Lemmas_Combinators_Take(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

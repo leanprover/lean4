@@ -104,6 +104,7 @@ LEAN_EXPORT lean_object* l_String_ValidPos_instWellFoundedRelationDown___boxed(l
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__75;
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__13;
 LEAN_EXPORT lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__2(lean_object*, lean_object*, lean_object*);
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__77;
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__30;
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__4;
@@ -157,7 +158,6 @@ static lean_object* l_String___aux__Init__Data__String__Termination______macroRu
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__2___closed__5;
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__11;
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__58;
-lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pos_down___redArg___boxed(lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__21;
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__6;
@@ -668,7 +668,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__30;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -780,7 +780,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__42;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -972,7 +972,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__62;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1392,7 +1392,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__2___closed__0;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1708,7 +1708,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__0;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1789,7 +1789,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__8;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -2095,7 +2095,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__4___closed__0;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

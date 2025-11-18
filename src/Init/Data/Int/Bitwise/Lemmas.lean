@@ -24,11 +24,16 @@ theorem natCast_shiftRight (n s : Nat) : n >>> s = (n : Int) >>> s := rfl
 theorem negSucc_shiftRight (m n : Nat) :
     -[m+1] >>> n = -[m >>>n +1] := rfl
 
-@[grind _=_]
 theorem shiftRight_add (i : Int) (m n : Nat) :
     i >>> (m + n) = i >>> m >>> n := by
   simp only [shiftRight_eq, Int.shiftRight]
   cases i <;> simp [Nat.shiftRight_add]
+
+grind_pattern shiftRight_add => i >>> (m + n) where
+  i =/= 0
+
+grind_pattern shiftRight_add => i >>> m >>> n where
+  i =/= 0
 
 theorem shiftRight_eq_div_pow (m : Int) (n : Nat) :
     m >>> n = m / ((2 ^ n) : Nat) := by

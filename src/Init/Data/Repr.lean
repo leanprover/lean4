@@ -414,8 +414,8 @@ instance : Repr String where
 instance : Repr String.Pos.Raw where
   reprPrec p _ := "{ byteIdx := " ++ repr p.byteIdx ++ " }"
 
-instance : Repr Substring where
-  reprPrec s _ := Format.text <| String.Internal.append (String.quote (Substring.Internal.toString s)) ".toSubstring"
+instance : Repr Substring.Raw where
+  reprPrec s _ := Format.text <| String.Internal.append (String.quote (Substring.Raw.Internal.toString s)) ".toRawSubstring"
 
 instance (n : Nat) : Repr (Fin n) where
   reprPrec f _ := repr f.val

@@ -86,6 +86,7 @@ static lean_object* l_Std___aux__Init__Data__Range__Polymorphic__Basic______macr
 static lean_object* l_Std___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__53;
 LEAN_EXPORT uint8_t l_Std_Rci_isEmpty(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__23;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l_Std___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__9;
 static lean_object* l_Std___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__45;
 static lean_object* l_Std___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__36;
@@ -137,7 +138,6 @@ LEAN_EXPORT lean_object* l_Std_Rcc_isEmpty___boxed(lean_object*, lean_object*, l
 static lean_object* l_Std___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__66;
 static lean_object* l_Std___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__43;
 LEAN_EXPORT lean_object* l_Std_Roi_isEmpty___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Ric_isEmpty(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__65;
 static lean_object* l_Std___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__63;
@@ -917,7 +917,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__21;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1128,7 +1128,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__44;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1280,7 +1280,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__60;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1341,7 +1341,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__66;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

@@ -57,12 +57,6 @@ namespace Std.HashMap
     let v := xs[k]!
     xs.erase k |>.insert k (f v)
 
-  def any (xs : HashMap α β) (p : α → β → Bool) : Bool := Id.run <| do
-    for (k, v) in xs do
-      if p k v then
-        return true
-    return false
-
   def mapValsM [Monad m] (f : β → m γ) (xs : HashMap α β) : m (HashMap α γ) :=
     HashMap.emptyWithCapacity (capacity := xs.size) |> xs.foldM fun acc k v => return acc.insert k (←f v)
 

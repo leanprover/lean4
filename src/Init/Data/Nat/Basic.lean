@@ -817,6 +817,8 @@ protected theorem two_pow_pos (w : Nat) : 0 < 2^w := Nat.pow_pos (by decide)
 instance {n m : Nat} [NeZero n] : NeZero (n^m) :=
   ⟨Nat.ne_zero_iff_zero_lt.mpr (Nat.pow_pos (pos_of_neZero _))⟩
 
+instance {n : Nat} : NeZero (n^0) := ⟨Nat.one_ne_zero⟩
+
 protected theorem mul_pow (a b n : Nat) : (a * b) ^ n = a ^ n * b ^ n := by
   induction n with
   | zero => simp [Nat.pow_zero]

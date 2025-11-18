@@ -369,7 +369,7 @@ case 0:
 lean_object* x_11; 
 lean_dec(x_9);
 lean_dec(x_8);
-x_11 = lean_apply_3(x_5, x_1, lean_box(0), lean_box(0));
+x_11 = lean_apply_2(x_5, x_1, lean_box(0));
 return x_11;
 }
 case 1:
@@ -421,7 +421,7 @@ case 0:
 lean_object* x_22; 
 lean_dec(x_7);
 lean_dec(x_6);
-x_22 = lean_apply_3(x_5, x_1, lean_box(0), lean_box(0));
+x_22 = lean_apply_2(x_5, x_1, lean_box(0));
 return x_22;
 }
 case 1:

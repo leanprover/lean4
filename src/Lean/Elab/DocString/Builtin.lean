@@ -39,7 +39,7 @@ private def elabExtraTerm (stx : Syntax) (expectedType? : Option Expr := none) :
 
 /-- Create an identifier while directly copying info -/
 private def mkIdentFrom' (src : Syntax) (val : Name) : Ident :=
-  ⟨Syntax.ident src.getHeadInfo (toString val).toSubstring val []⟩
+  ⟨Syntax.ident src.getHeadInfo (toString val).toRawSubstring val []⟩
 
 /-- The code represents a global constant. -/
 structure Data.Const where

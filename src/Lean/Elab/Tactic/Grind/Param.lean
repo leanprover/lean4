@@ -52,8 +52,8 @@ public def addEMatchTheorem (params : Grind.Params) (id : Ident) (declName : Nam
       let thm₁ ← Grind.mkEMatchTheoremForDecl declName (.eqLhs gen) params.symPrios
       let thm₂ ← Grind.mkEMatchTheoremForDecl declName (.eqRhs gen) params.symPrios
       if warn &&
-          params.ematch.containsWithSamePatterns thm₁.origin thm₁.patterns &&
-          params.ematch.containsWithSamePatterns thm₂.origin thm₂.patterns then
+          params.ematch.containsWithSamePatterns thm₁.origin thm₁.patterns thm₁.cnstrs &&
+          params.ematch.containsWithSamePatterns thm₂.origin thm₂.patterns thm₂.cnstrs then
         warnRedundantEMatchArg params.ematch declName
       return { params with extra := params.extra.push thm₁ |>.push thm₂ }
     | _ =>
@@ -63,7 +63,7 @@ public def addEMatchTheorem (params : Grind.Params) (id : Ident) (declName : Nam
         Grind.mkEMatchTheoremAndSuggest id declName params.symPrios minIndexable (isParam := true)
       else
         Grind.mkEMatchTheoremForDecl declName kind params.symPrios (minIndexable := minIndexable)
-      if warn && params.ematch.containsWithSamePatterns thm.origin thm.patterns then
+      if warn && params.ematch.containsWithSamePatterns thm.origin thm.patterns thm.cnstrs then
         warnRedundantEMatchArg params.ematch declName
       return { params with extra := params.extra.push thm }
   | .defn =>

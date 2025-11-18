@@ -75,6 +75,7 @@ static lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___c
 lean_object* l_Lake_DSL_expandIdentOrStrAsIdent(lean_object*);
 static lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__1;
 static lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__44;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__29;
 static lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__43;
 LEAN_EXPORT lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl(lean_object*, lean_object*, lean_object*);
@@ -115,7 +116,6 @@ static lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___c
 static lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__6;
 lean_object* l_Lake_DSL_expandOptSimpleBinder(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__21;
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__20;
 static lean_object* _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__0() {
 _start:
@@ -343,7 +343,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__26;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -455,7 +455,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__39;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

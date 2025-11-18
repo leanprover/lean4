@@ -200,13 +200,16 @@ theorem getElem?_extract_of_succ {as : Array α} {j : Nat} :
   simp [getElem?_extract]
   omega
 
-@[simp, grind =] theorem extract_extract {as : Array α} {i j k l : Nat} :
+@[simp] theorem extract_extract {as : Array α} {i j k l : Nat} :
     (as.extract i j).extract k l = as.extract (i + k) (min (i + l) j) := by
   ext m h₁ h₂
   · simp
     omega
   · simp only [size_extract] at h₁ h₂
     simp [Nat.add_assoc]
+
+grind_pattern extract_extract => (as.extract i j).extract k l where
+  as =/= #[]
 
 theorem extract_eq_empty_of_eq_empty {as : Array α} {i j : Nat} (h : as = #[]) :
     as.extract i j = #[] := by

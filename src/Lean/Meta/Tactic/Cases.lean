@@ -256,7 +256,7 @@ private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenName
 
   if let some interestingCtors := interestingCtors? then
     -- Avoid Init.Prelude complications
-    let hasNE := (← getEnv).contains ``Ne
+    let hasNE := (← getEnv).contains ``Nat.hasNotBit
     -- We can only create a sparse casesOn if we have `ctorIdx` (in particular, if it is a type)
     let hasCtorIdx := (← getEnv).contains (mkCtorIdxName ctx.inductiveVal.name)
     if hasNE && hasCtorIdx && !interestingCtors.isEmpty &&

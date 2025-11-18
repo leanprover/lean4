@@ -14,9 +14,20 @@ namespace Int
 
 /-! # pow -/
 
-@[simp] protected theorem pow_zero (b : Int) : b^0 = 1 := rfl
+@[simp, norm_cast]
+theorem natCast_pow (m n : Nat) : (m ^ n : Nat) = (m : Int) ^ n := rfl
 
-protected theorem pow_succ (b : Int) (e : Nat) : b ^ (e+1) = (b ^ e) * b := rfl
+theorem negSucc_pow (m n : Nat) : (-[m+1] : Int) ^ n = if n % 2 = 0 then Int.ofNat (m.succ ^ n) else Int.negOfNat (m.succ ^ n) := rfl
+
+@[simp] protected theorem pow_zero (m : Int) : m ^ 0 = 1 := by cases m <;> simp [← natCast_pow, negSucc_pow]
+
+protected theorem pow_succ (m : Int) (n : Nat) : m ^ n.succ = m ^ n * m := by
+  rcases m with _ | a
+  · rfl
+  · simp only [negSucc_pow, Nat.succ_mod_succ_eq_zero_iff, Nat.reduceAdd, ← Nat.mod_two_ne_zero,
+      Nat.pow_succ, ofNat_eq_natCast, @negOfNat_eq (_ * _), ite_not, apply_ite (· * -[a+1]),
+      ofNat_mul_negSucc, negOfNat_mul_negSucc]
+
 protected theorem pow_succ' (b : Int) (e : Nat) : b ^ (e+1) = b * (b ^ e) := by
   rw [Int.mul_comm, Int.pow_succ]
 
@@ -39,6 +50,9 @@ protected theorem mul_pow {a b : Int} {n : Nat} : (a * b) ^ n = a ^ n * b ^ n :=
     rw [Int.pow_succ, Int.pow_succ, Int.pow_succ, ih, Int.mul_assoc, Int.mul_assoc,
       Int.mul_left_comm (b^n)]
 
+protected theorem pow_one (a : Int) : a ^ 1 = a := by
+  rw [Int.pow_succ, Int.pow_zero, Int.one_mul]
+
 protected theorem pow_mul {a : Int} {n m : Nat} : a ^ (n * m) = (a ^ n) ^ m := by
   induction m with
   | zero => simp
@@ -48,26 +62,27 @@ protected theorem pow_mul {a : Int} {n m : Nat} : a ^ (n * m) = (a ^ n) ^ m := b
 protected theorem pow_pos {n : Int} {m : Nat} : 0 < n → 0 < n ^ m := by
   induction m with
   | zero => simp
-  | succ m ih => exact fun h => Int.mul_pos (ih h) h
+  | succ m ih =>
+    simp only [Int.pow_succ]
+    exact fun h => Int.mul_pos (ih h) h
 
 protected theorem pow_nonneg {n : Int} {m : Nat} : 0 ≤ n → 0 ≤ n ^ m := by
   induction m with
   | zero => simp
-  | succ m ih => exact fun h => Int.mul_nonneg (ih h) h
+  | succ m ih =>
+    simp only [Int.pow_succ]
+    exact fun h => Int.mul_nonneg (ih h) h
 
 protected theorem pow_ne_zero {n : Int} {m : Nat} : n ≠ 0 → n ^ m ≠ 0 := by
   induction m with
   | zero => simp
-  | succ m ih => exact fun h => Int.mul_ne_zero (ih h) h
+  | succ m ih =>
+    simp only [Int.pow_succ]
+    exact fun h => Int.mul_ne_zero (ih h) h
 
 instance {n : Int} {m : Nat} [NeZero n] : NeZero (n ^ m) := ⟨Int.pow_ne_zero (NeZero.ne _)⟩
 
-@[simp, norm_cast]
-protected theorem natCast_pow (b n : Nat) : ((b^n : Nat) : Int) = (b : Int) ^ n := by
-  match n with
-  | 0 => rfl
-  | n + 1 =>
-    simp only [Nat.pow_succ, Int.pow_succ, Int.natCast_mul, Int.natCast_pow _ n]
+instance {n : Int} : NeZero (n^0) := ⟨by simp⟩
 
 @[simp]
 protected theorem two_pow_pred_sub_two_pow {w : Nat} (h : 0 < w) :
@@ -90,7 +105,7 @@ theorem pow_lt_pow_of_lt {a : Int} {b c : Nat} (ha : 1 < a) (hbc : b < c):
   omega
 
 @[simp] theorem natAbs_pow (n : Int) : (k : Nat) → (n ^ k).natAbs = n.natAbs ^ k
-  | 0 => rfl
+  | 0 => by simp
   | k + 1 => by rw [Int.pow_succ, natAbs_mul, natAbs_pow, Nat.pow_succ]
 
 theorem toNat_pow_of_nonneg {x : Int} (h : 0 ≤ x) (k : Nat) : (x ^ k).toNat = x.toNat ^ k := by
@@ -100,8 +115,7 @@ theorem toNat_pow_of_nonneg {x : Int} (h : 0 ≤ x) (k : Nat) : (x ^ k).toNat = 
     rw [Int.pow_succ, Int.toNat_mul (Int.pow_nonneg h) h, ih, Nat.pow_succ]
 
 protected theorem sq_nonnneg (m : Int) : 0 ≤ m ^ 2 := by
-  change 0 ≤ 1 * m * m
-  rw [Int.one_mul]
+  rw [Int.pow_succ, Int.pow_one]
   cases m
   · apply Int.mul_nonneg <;> simp
   · apply Int.mul_nonneg_of_nonpos_of_nonpos <;> exact negSucc_le_zero _
@@ -116,26 +130,5 @@ protected theorem neg_pow {m : Int} {n : Nat} : (-m)^n = (-1)^(n % 2) * m^n := b
   rw (occs := [1]) [← Nat.mod_add_div n 2]
   rw [Int.pow_add, Int.pow_mul]
   simp [Int.one_pow]
-
-/-- The runtime behaviour of `Int.pow` is slow, so we replace it via a `@[csimp]` lemma. -/
-def powImp (m : Int) (n : Nat) : Int :=
-  if m ≥ 0 ∨ n % 2 = 0 then
-    Int.ofNat <| m.natAbs ^ n
-  else
-    - (Int.ofNat <| m.natAbs ^ n)
-
-@[csimp]
-theorem pow_eq_powImp : @Int.pow = @powImp := by
-  funext m n
-  change m^n = _
-  dsimp [powImp]
-  split <;> rename_i h
-  · rcases h with (h | h)
-    · simp [ofNat_natAbs_of_nonneg h]
-    · rw [← natAbs_pow, ofNat_natAbs_of_nonneg (Int.pow_nonneg_of_even h)]
-  · simp at h
-    obtain ⟨h₁, h₂⟩ := h
-    rw [Int.natCast_pow, ofNat_natAbs_of_nonpos (by omega), Int.neg_pow, h₂]
-    simp
 
 end Int

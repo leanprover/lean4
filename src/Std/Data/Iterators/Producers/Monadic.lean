@@ -8,4 +8,3 @@ module
 prelude
 public import Std.Data.Iterators.Producers.Monadic.Array
 public import Std.Data.Iterators.Producers.Monadic.Empty
-public import Std.Data.Iterators.Producers.Monadic.List

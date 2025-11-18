@@ -527,6 +527,7 @@ LEAN_EXPORT lean_object* l_IO_Process_run___boxed(lean_object*, lean_object*, le
 lean_object* lean_io_prim_handle_mk(lean_object*, uint8_t);
 lean_object* lean_io_create_tempfile();
 LEAN_EXPORT lean_object* l_unsafeIO___redArg(lean_object*);
+lean_object* l_Substring_Raw_prevn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_readToEnd(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_readBinToEnd___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_instReprMetadata_repr___boxed(lean_object*, lean_object*);
@@ -564,6 +565,7 @@ LEAN_EXPORT lean_object* l_IO_getRandomBytes___boxed(lean_object*, lean_object*)
 LEAN_EXPORT lean_object* l_IO_asTask___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Process_Stdio_inherit_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_FileType_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 LEAN_EXPORT uint8_t l_IO_TaskState_ofNat(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_BaseIO_map(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -708,7 +710,6 @@ lean_object* lean_string_to_utf8(lean_object*);
 lean_object* lean_io_exit(uint8_t);
 LEAN_EXPORT lean_object* l_IO_iterate___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Mode_noConfusion___redArg___boxed(lean_object*, lean_object*);
-lean_object* l_Substring_prevn(lean_object*, lean_object*, lean_object*);
 static lean_object* l_termPrintln_x21_____00__closed__10;
 LEAN_EXPORT lean_object* l_IO_FS_FileType_other_elim___redArg___boxed(lean_object*);
 static lean_object* l___auto___closed__16_00___x40_Init_System_IO_2118130630____hygCtx___hyg_14_;
@@ -914,7 +915,6 @@ lean_object* lean_byte_array_size(lean_object*);
 static lean_object* l___auto___closed__13_00___x40_Init_System_IO_2118130630____hygCtx___hyg_14_;
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__36;
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
-lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Process_run(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_instReprTaskState_repr___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_instInhabitedStream_default___lam__0___boxed(lean_object*);
@@ -6147,7 +6147,7 @@ x_21 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_21, 0, x_6);
 lean_ctor_set(x_21, 1, x_12);
 lean_ctor_set(x_21, 2, x_14);
-x_22 = l_Substring_prevn(x_21, x_20, x_14);
+x_22 = l_Substring_Raw_prevn(x_21, x_20, x_14);
 lean_dec_ref(x_21);
 x_23 = lean_string_utf8_extract(x_6, x_12, x_22);
 lean_dec(x_22);
@@ -6173,7 +6173,7 @@ x_29 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_29, 0, x_23);
 lean_ctor_set(x_29, 1, x_12);
 lean_ctor_set(x_29, 2, x_24);
-x_30 = l_Substring_prevn(x_29, x_20, x_24);
+x_30 = l_Substring_Raw_prevn(x_29, x_20, x_24);
 lean_dec_ref(x_29);
 x_31 = lean_string_utf8_extract(x_23, x_12, x_30);
 lean_dec(x_30);
@@ -6235,7 +6235,7 @@ x_48 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_48, 0, x_32);
 lean_ctor_set(x_48, 1, x_38);
 lean_ctor_set(x_48, 2, x_40);
-x_49 = l_Substring_prevn(x_48, x_47, x_40);
+x_49 = l_Substring_Raw_prevn(x_48, x_47, x_40);
 lean_dec_ref(x_48);
 x_50 = lean_string_utf8_extract(x_32, x_38, x_49);
 lean_dec(x_49);
@@ -6261,7 +6261,7 @@ x_56 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_56, 0, x_50);
 lean_ctor_set(x_56, 1, x_38);
 lean_ctor_set(x_56, 2, x_51);
-x_57 = l_Substring_prevn(x_56, x_47, x_51);
+x_57 = l_Substring_Raw_prevn(x_56, x_47, x_51);
 lean_dec_ref(x_56);
 x_58 = lean_string_utf8_extract(x_50, x_38, x_57);
 lean_dec(x_57);
@@ -12330,7 +12330,7 @@ x_22 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_22, 0, x_7);
 lean_ctor_set(x_22, 1, x_13);
 lean_ctor_set(x_22, 2, x_15);
-x_23 = l_Substring_prevn(x_22, x_21, x_15);
+x_23 = l_Substring_Raw_prevn(x_22, x_21, x_15);
 lean_dec_ref(x_22);
 x_24 = lean_string_utf8_extract(x_7, x_13, x_23);
 lean_dec(x_23);
@@ -12356,7 +12356,7 @@ x_30 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_30, 0, x_24);
 lean_ctor_set(x_30, 1, x_13);
 lean_ctor_set(x_30, 2, x_25);
-x_31 = l_Substring_prevn(x_30, x_21, x_25);
+x_31 = l_Substring_Raw_prevn(x_30, x_21, x_25);
 lean_dec_ref(x_30);
 x_32 = lean_string_utf8_extract(x_24, x_13, x_31);
 lean_dec(x_31);
@@ -12420,7 +12420,7 @@ x_49 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_49, 0, x_33);
 lean_ctor_set(x_49, 1, x_39);
 lean_ctor_set(x_49, 2, x_41);
-x_50 = l_Substring_prevn(x_49, x_48, x_41);
+x_50 = l_Substring_Raw_prevn(x_49, x_48, x_41);
 lean_dec_ref(x_49);
 x_51 = lean_string_utf8_extract(x_33, x_39, x_50);
 lean_dec(x_50);
@@ -12446,7 +12446,7 @@ x_57 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_57, 0, x_51);
 lean_ctor_set(x_57, 1, x_39);
 lean_ctor_set(x_57, 2, x_52);
-x_58 = l_Substring_prevn(x_57, x_48, x_52);
+x_58 = l_Substring_Raw_prevn(x_57, x_48, x_52);
 lean_dec_ref(x_57);
 x_59 = lean_string_utf8_extract(x_51, x_39, x_58);
 lean_dec(x_58);
@@ -13056,7 +13056,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_IO_FS_withIsolatedStreams___redArg___lam__1___closed__0;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -13134,7 +13134,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__16;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -13201,7 +13201,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__18;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -13273,7 +13273,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__30;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

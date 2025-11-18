@@ -225,18 +225,18 @@ return x_4;
 }
 else
 {
-if (lean_obj_tag(x_2) == 1)
+if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = lean_ctor_get(x_1, 0);
-x_6 = lean_ctor_get(x_2, 0);
-x_7 = l_Lean_Syntax_instBEqRange_beq(x_5, x_6);
-return x_7;
+uint8_t x_5; 
+x_5 = 0;
+return x_5;
 }
 else
 {
-uint8_t x_8; 
-x_8 = 0;
+lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+x_6 = lean_ctor_get(x_1, 0);
+x_7 = lean_ctor_get(x_2, 0);
+x_8 = l_Lean_Syntax_instBEqRange_beq(x_6, x_7);
 return x_8;
 }
 }
@@ -2210,15 +2210,15 @@ lean_dec(x_106);
 lean_dec(x_104);
 if (x_107 == 0)
 {
-x_92 = x_101;
-x_93 = x_102;
+x_92 = x_102;
+x_93 = x_101;
 x_94 = x_97;
 goto block_96;
 }
 else
 {
-x_92 = x_101;
-x_93 = x_102;
+x_92 = x_102;
+x_93 = x_101;
 x_94 = x_100;
 goto block_96;
 }
@@ -2607,9 +2607,9 @@ goto block_10;
 }
 block_96:
 {
-if (x_92 == 0)
-{
 if (x_93 == 0)
+{
+if (x_92 == 0)
 {
 if (x_94 == 0)
 {

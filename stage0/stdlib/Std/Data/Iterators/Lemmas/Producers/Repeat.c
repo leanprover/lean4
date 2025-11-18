@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Lemmas.Producers.Repeat
-// Imports: public import Std.Data.Iterators.Producers.Repeat public import Std.Data.Iterators.Lemmas.Combinators.Take
+// Imports: public import Std.Data.Iterators.Producers.Repeat public import Init.Data.Iterators.Lemmas.Combinators.Take
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -70,7 +70,7 @@ return x_7;
 }
 }
 lean_object* initialize_Std_Data_Iterators_Producers_Repeat(uint8_t builtin);
-lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_Take(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_Take(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Lemmas_Producers_Repeat(uint8_t builtin) {
 lean_object * res;
@@ -79,7 +79,7 @@ _G_initialized = true;
 res = initialize_Std_Data_Iterators_Producers_Repeat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Lemmas_Combinators_Take(builtin);
+res = initialize_Init_Data_Iterators_Lemmas_Combinators_Take(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

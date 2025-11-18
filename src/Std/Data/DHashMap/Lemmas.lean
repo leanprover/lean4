@@ -148,6 +148,38 @@ theorem size_empty : (∅ : DHashMap α β).size = 0 :=
 
 theorem isEmpty_eq_size_eq_zero : m.isEmpty = (m.size == 0) := (rfl)
 
+@[simp]
+theorem toList_emptyWithCapacity {c} : (emptyWithCapacity c : DHashMap α β).toList = [] :=
+  Raw₀.toList_emptyWithCapacity
+
+@[simp]
+theorem toList_empty : (∅ : DHashMap α β).toList = [] :=
+  toList_emptyWithCapacity
+
+@[simp]
+theorem Const.toList_emptyWithCapacity {c} {β : Type v}: Const.toList (emptyWithCapacity c : DHashMap α (fun _ => β)) = [] :=
+  Raw₀.Const.toList_emptyWithCapacity
+
+@[simp]
+theorem Const.toList_empty {β : Type v} : Const.toList (∅ : DHashMap α (fun _ => β)) = [] :=
+  Const.toList_emptyWithCapacity
+
+@[simp]
+theorem keys_emptyWithCapacity {c} : (emptyWithCapacity c : DHashMap α β).keys = [] :=
+  Raw₀.keys_emptyWithCapacity
+
+@[simp]
+theorem keys_empty : (∅ : DHashMap α β).keys = [] :=
+  keys_emptyWithCapacity
+
+@[simp]
+theorem Const.values_emptyWithCapacity {c} {β : Type v} : (emptyWithCapacity c : DHashMap α (fun _ => β)).values = [] :=
+  Raw₀.Const.values_emptyWithCapacity
+
+@[simp]
+theorem Const.values_empty {β : Type v} : (∅ : DHashMap α (fun _ => β)).values = [] :=
+  Const.values_emptyWithCapacity
+
 @[grind =] theorem size_insert [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
     (m.insert k v).size = if k ∈ m then m.size else m.size + 1 :=
   Raw₀.size_insert ⟨m.1, _⟩ m.2
@@ -1512,6 +1544,98 @@ end Const
 
 end monadic
 
+@[simp]
+theorem any_toList {p : (a : α) → β a → Bool} :
+    m.toList.any (fun x => p x.1 x.2) = m.any p := Raw₀.any_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem any_eq_true_iff_exists_mem_get [LawfulBEq α] {p : (a : α) → β a → Bool} :
+    m.any p = true ↔ ∃ (a : α) (h : a ∈ m), p a (m.get a h) :=
+  Raw₀.any_eq_true ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem any_eq_false_iff_forall_mem_get [LawfulBEq α] {p : (a : α) → β a → Bool} :
+    m.any p = false ↔ ∀ (a : α) (h : a ∈ m), p a (m.get a h) = false :=
+  Raw₀.any_eq_false ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem all_toList {p : (a : α) → β a → Bool} :
+    m.toList.all (fun x => p x.1 x.2) = m.all p := Raw₀.all_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem all_eq_not_any_not {p : (a : α) → β a → Bool} :
+    m.all p = ! m.any (fun a b => ! p a b) := Raw₀.all_eq_not_any_not ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem any_eq_not_all_not {p : (a : α) → β a → Bool} :
+    m.any p = ! m.all (fun a b => ! p a b) := Raw₀.any_eq_not_all_not ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem all_eq_true_iff_forall_mem_get [LawfulBEq α] {p : (a : α) → β a → Bool} :
+    m.all p = true ↔ ∀ (a : α) (h : a ∈ m), p a (m.get a h) := by
+  apply Raw₀.all_eq_true ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem all_eq_false_iff_exists_mem_get [LawfulBEq α] {p : (a : α) → β a → Bool} :
+    m.all p = false ↔ ∃ (a : α) (h : a ∈ m), p a (m.get a h) = false := by
+  apply Raw₀.all_eq_false ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+namespace Const
+
+variable {β : Type v} {m : DHashMap α (fun _ => β)}
+
+@[simp]
+theorem any_toList {p : (_ : α) → β → Bool} :
+    (Const.toList m).any (fun x => p x.1 x.2) = m.any p :=
+  Raw₀.Const.any_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem any_eq_true_iff_exists_mem_getKey_get [LawfulHashable α] [EquivBEq α]
+    {p : (_ : α) → β → Bool} :
+    m.any p = true ↔ ∃ (a : α) (h : a ∈ m), p (m.getKey a h) (Const.get m a h) :=
+  Raw₀.Const.any_eq_true ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem any_eq_true_iff_exists_mem_get [LawfulBEq α] {p : (_ : α) → β → Bool} :
+    m.any p = true ↔ ∃ (a : α) (h : a ∈ m), p a (Const.get m a h) :=
+  Raw₀.Const.any_eq_true' ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem any_eq_false_iff_forall_mem_getKey_get [LawfulHashable α] [EquivBEq α]
+    {p : (_ : α) → β → Bool} :
+    m.any p = false ↔
+      ∀ (a : α) (h : a ∈ m), p (m.getKey a h) (Const.get m a h) = false :=
+  Raw₀.Const.any_eq_false ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem any_eq_false_iff_forall_mem_get [LawfulBEq α] {p : (_ : α) → β → Bool} :
+    m.any p = false ↔
+      ∀ (a : α) (h : a ∈ m), p a (Const.get m a h) = false :=
+  Raw₀.Const.any_eq_false' ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem all_toList {p : (_ : α) → β → Bool} :
+    (Const.toList m).all (fun x => p x.1 x.2) = m.all p :=
+  Raw₀.Const.all_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem all_eq_true_iff_forall_mem_getKey_get [EquivBEq α] [LawfulHashable α]
+    {p : (a : α) → β → Bool} :
+    m.all p = true ↔ ∀ (a : α) (h : a ∈ m), p (m.getKey a h) (Const.get m a h) :=
+  Raw₀.Const.all_eq_true ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem all_eq_true_iff_forall_mem_get [LawfulBEq α] {p : (_ : α) → β → Bool} :
+    m.all p = true ↔ ∀ (a : α) (h : a ∈ m), p a (Const.get m a h) :=
+  Raw₀.Const.all_eq_true' ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem all_eq_false_iff_exists_mem_getKey_get [EquivBEq α] [LawfulHashable α]
+    {p : (a : α) → β → Bool} :
+    m.all p = false ↔ ∃ (a : α) (h : a ∈ m), p (m.getKey a h) (Const.get m a h) = false :=
+  Raw₀.Const.all_eq_false ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem all_eq_false_iff_exists_mem_get [LawfulBEq α] {p : (_ : α) → β → Bool} :
+    m.all p = false ↔ ∃ (a : α) (h : a ∈ m), p a (Const.get m a h) = false :=
+  Raw₀.Const.all_eq_false' ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem any_keys [LawfulHashable α] [EquivBEq α] {p : α → Bool} :
+    m.keys.any p = m.any (fun a _ => p a) :=
+  Raw₀.Const.any_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem all_keys [LawfulHashable α] [EquivBEq α] {p : α → Bool} :
+    m.keys.all p = m.all (fun a _ => p a) :=
+  Raw₀.Const.all_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+end Const
+
 variable {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
 
 @[simp, grind =]
@@ -2019,6 +2143,324 @@ theorem get!_union_of_not_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited
     Const.get! (m₁.union m₂) k = Const.get! m₁ k := by
   rw [← contains_eq_false_iff_not_mem] at not_mem
   exact @Raw₀.Const.get!_union_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _  m₁.2 m₂.2 k not_mem
+
+end Const
+
+section Inter
+
+variable {m₁ m₂ : DHashMap α β}
+
+@[simp]
+theorem inter_eq : m₁.inter m₂ = m₁ ∩ m₂ := by
+  simp only [Inter.inter]
+
+/- contains -/
+@[simp]
+theorem contains_inter [EquivBEq α] [LawfulHashable α] {k : α} :
+    (m₁ ∩ m₂).contains k = (m₁.contains k && m₂.contains k) :=
+  @Raw₀.contains_inter _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k
+
+/- mem -/
+@[simp]
+theorem mem_inter_iff [EquivBEq α] [LawfulHashable α] {k : α} :
+    k ∈ m₁ ∩ m₂ ↔ k ∈ m₁ ∧ k ∈ m₂ :=
+  @Raw₀.contains_inter_iff _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _ m₁.2 m₂.2 k
+
+theorem not_mem_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α] {k : α}
+    (not_mem : k ∉ m₁) :
+    k ∉ m₁ ∩ m₂ := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem ⊢
+  exact @Raw₀.contains_inter_eq_false_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k not_mem
+
+theorem not_mem_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α] {k : α}
+    (not_mem : k ∉ m₂) :
+    k ∉ m₁ ∩ m₂ := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem ⊢
+  exact @Raw₀.contains_inter_eq_false_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k not_mem
+
+/- get? -/
+theorem get?_inter [LawfulBEq α] {k : α} :
+    (m₁ ∩ m₂).get? k =
+    if k ∈ m₂ then m₁.get? k else none :=
+  @Raw₀.get?_inter _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ m₁.2 m₂.2 k
+
+theorem get?_inter_of_mem_right [LawfulBEq α]
+    {k : α} (mem : k ∈ m₂) :
+    (m₁ ∩ m₂).get? k = m₁.get? k :=
+  @Raw₀.get?_inter_of_contains_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ m₁.2 m₂.2 k mem
+
+theorem get?_inter_of_not_mem_left [LawfulBEq α]
+    {k : α} (not_mem : k ∉ m₁) :
+    (m₁ ∩ m₂).get? k = none := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.get?_inter_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ m₁.2 m₂.2 k not_mem
+
+theorem get?_inter_of_not_mem_right [LawfulBEq α]
+    {k : α} (not_mem : k ∉ m₂) :
+    (m₁ ∩ m₂).get? k = none := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.get?_inter_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ m₁.2 m₂.2 k not_mem
+
+/- get -/
+@[simp] theorem get_inter [LawfulBEq α]
+    {k : α} {h_mem : k ∈ m₁ ∩ m₂} :
+    (m₁ ∩ m₂).get k h_mem =
+    m₁.get k ((mem_inter_iff.1 h_mem).1) := by
+  rw [mem_iff_contains] at h_mem
+  exact @Raw₀.get_inter _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ m₁.2 m₂.2 k h_mem
+
+/- getD -/
+theorem getD_inter [LawfulBEq α] {k : α} {fallback : β k} :
+    (m₁ ∩ m₂).getD k fallback =
+    if k ∈ m₂ then m₁.getD k fallback else fallback :=
+  @Raw₀.getD_inter _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ m₁.2 m₂.2 k fallback
+
+theorem getD_inter_of_mem_right [LawfulBEq α]
+    {k : α} {fallback : β k} (mem : k ∈ m₂) :
+    (m₁ ∩ m₂).getD k fallback = m₁.getD k fallback :=
+  @Raw₀.getD_inter_of_contains_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ m₁.2 m₂.2 k fallback mem
+
+theorem getD_inter_of_not_mem_right [LawfulBEq α]
+    {k : α} {fallback : β k} (not_mem : k ∉ m₂) :
+    (m₁ ∩ m₂).getD k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.getD_inter_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ m₁.2 m₂.2 k fallback not_mem
+
+theorem getD_inter_of_not_mem_left [LawfulBEq α]
+    {k : α} {fallback : β k} (not_mem : k ∉ m₁) :
+    (m₁ ∩ m₂).getD k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.getD_inter_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ m₁.2 m₂.2 k fallback not_mem
+
+/- get! -/
+theorem get!_inter [LawfulBEq α] {k : α} [Inhabited (β k)] :
+    (m₁ ∩ m₂).get! k =
+    if k ∈ m₂ then m₁.get! k else default :=
+  @Raw₀.get!_inter _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ m₁.2 m₂.2 k _
+
+theorem get!_inter_of_mem_right [LawfulBEq α]
+    {k : α} [Inhabited (β k)] (mem : k ∈ m₂) :
+    (m₁ ∩ m₂).get! k = m₁.get! k :=
+  @Raw₀.get!_inter_of_contains_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ m₁.2 m₂.2 k _ mem
+
+theorem get!_inter_of_not_mem_right [LawfulBEq α]
+    {k : α} [Inhabited (β k)] (not_mem : k ∉ m₂) :
+    (m₁ ∩ m₂).get! k = default := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.get!_inter_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ m₁.2 m₂.2 k _ not_mem
+
+theorem get!_inter_of_not_mem_left [LawfulBEq α]
+    {k : α} [Inhabited (β k)] (not_mem : k ∉ m₁) :
+    (m₁ ∩ m₂).get! k = default := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.get!_inter_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ m₁.2 m₂.2 k _ not_mem
+
+/- getKey? -/
+theorem getKey?_inter [EquivBEq α] [LawfulHashable α] {k : α} :
+    (m₁ ∩ m₂).getKey? k =
+    if k ∈ m₂ then m₁.getKey? k else none :=
+  @Raw₀.getKey?_inter _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k
+
+theorem getKey?_inter_of_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (mem : k ∈ m₂) :
+    (m₁ ∩ m₂).getKey? k = m₁.getKey? k :=
+  @Raw₀.getKey?_inter_of_contains_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k mem
+
+theorem getKey?_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : k ∉ m₂) :
+    (m₁ ∩ m₂).getKey? k = none := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.getKey?_inter_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k not_mem
+
+theorem getKey?_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : k ∉ m₁) :
+    (m₁ ∩ m₂).getKey? k = none := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.getKey?_inter_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k not_mem
+
+/- getKey -/
+@[simp] theorem getKey_inter [EquivBEq α] [LawfulHashable α]
+    {k : α} {h_mem : k ∈ m₁ ∩ m₂} :
+    (m₁ ∩ m₂).getKey k h_mem =
+    m₁.getKey k ((mem_inter_iff.1 h_mem).1) := by
+  rw [mem_iff_contains] at h_mem
+  exact @Raw₀.getKey_inter _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _ m₁.2 m₂.2 k h_mem
+
+/- getKeyD -/
+theorem getKeyD_inter [EquivBEq α] [LawfulHashable α] {k fallback : α} :
+    (m₁ ∩ m₂).getKeyD k fallback =
+    if k ∈ m₂ then m₁.getKeyD k fallback else fallback :=
+  @Raw₀.getKeyD_inter _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k fallback
+
+theorem getKeyD_inter_of_mem_right [EquivBEq α] [LawfulHashable α]
+    {k fallback : α} (mem : k ∈ m₂) :
+    (m₁ ∩ m₂).getKeyD k fallback = m₁.getKeyD k fallback :=
+  @Raw₀.getKeyD_inter_of_contains_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k fallback mem
+
+theorem getKeyD_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k fallback : α} (not_mem : k ∉ m₂) :
+    (m₁ ∩ m₂).getKeyD k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.getKeyD_inter_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k fallback not_mem
+
+theorem getKeyD_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k fallback : α} (not_mem : k ∉ m₁) :
+    (m₁ ∩ m₂).getKeyD k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.getKeyD_inter_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k fallback not_mem
+
+/- getKey! -/
+theorem getKey!_inter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α} :
+    (m₁ ∩ m₂).getKey! k =
+    if k ∈ m₂ then m₁.getKey! k else default :=
+  @Raw₀.getKey!_inter _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 k _
+
+theorem getKey!_inter_of_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {k : α} (mem : k ∈ m₂) :
+    (m₁ ∩ m₂).getKey! k = m₁.getKey! k :=
+  @Raw₀.getKey!_inter_of_contains_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 k mem
+
+theorem getKey!_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {k : α} (not_mem : k ∉ m₂) :
+    (m₁ ∩ m₂).getKey! k = default := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.getKey!_inter_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 k not_mem
+
+theorem getKey!_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {k : α} (not_mem : k ∉ m₁) :
+    (m₁ ∩ m₂).getKey! k = default := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.getKey!_inter_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 k not_mem
+
+/- size -/
+theorem size_inter_le_size_left [EquivBEq α] [LawfulHashable α] :
+    (m₁ ∩ m₂).size ≤ m₁.size :=
+  @Raw₀.size_inter_le_size_left _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2
+
+theorem size_inter_le_size_right [EquivBEq α] [LawfulHashable α] :
+    (m₁ ∩ m₂).size ≤ m₂.size :=
+  @Raw₀.size_inter_le_size_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2
+
+theorem size_inter_eq_size_left [EquivBEq α] [LawfulHashable α]
+    (h : ∀ (a : α), a ∈ m₁ → a ∈ m₂) :
+    (m₁ ∩ m₂).size = m₁.size := by
+  have : ∀ (a : α), m₁.contains a → m₂.contains a := by
+    intro a ha
+    rw [contains_iff_mem] at ha ⊢
+    exact h a ha
+  exact @Raw₀.size_inter_eq_size_left _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 this
+
+theorem size_inter_eq_size_right [EquivBEq α] [LawfulHashable α]
+    (h : ∀ (a : α), a ∈ m₂ → a ∈ m₁) :
+    (m₁ ∩ m₂).size = m₂.size := by
+  have : ∀ (a : α), m₂.contains a → m₁.contains a := by
+    intro a ha
+    rw [contains_iff_mem] at ha ⊢
+    exact h a ha
+  exact @Raw₀.size_inter_eq_size_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 this
+
+theorem size_add_size_eq_size_union_add_size_inter [EquivBEq α] [LawfulHashable α] :
+    m₁.size + m₂.size = (m₁ ∪ m₂).size + (m₁ ∩ m₂).size :=
+  @Raw₀.size_add_size_eq_size_union_add_size_inter _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2
+
+/- isEmpty -/
+@[simp]
+theorem isEmpty_inter_left [EquivBEq α] [LawfulHashable α] (h : m₁.isEmpty) :
+    (m₁ ∩ m₂).isEmpty = true :=
+  @Raw₀.isEmpty_inter_left _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 h
+
+@[simp]
+theorem isEmpty_inter_right [EquivBEq α] [LawfulHashable α] (h : m₂.isEmpty) :
+    (m₁ ∩ m₂).isEmpty = true :=
+  @Raw₀.isEmpty_inter_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 h
+
+theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] :
+    (m₁ ∩ m₂).isEmpty ↔ ∀ k, k ∈ m₁ → k ∉ m₂ := by
+  simpa only [mem_iff_contains, Bool.not_eq_true] using
+    @Raw₀.isEmpty_inter_iff _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.wf m₂.wf
+
+end Inter
+
+namespace Const
+
+variable {β : Type v} {m₁ m₂ : DHashMap α (fun _ => β)}
+
+/- get? -/
+theorem get?_inter [EquivBEq α] [LawfulHashable α] {k : α} :
+    Const.get? (m₁.inter m₂) k =
+    if k ∈ m₂ then Const.get? m₁ k else none :=
+  @Raw₀.Const.get?_inter _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k
+
+theorem get?_inter_of_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (mem : k ∈ m₂) :
+    Const.get? (m₁.inter m₂) k = Const.get? m₁ k :=
+  @Raw₀.Const.get?_inter_of_contains_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k mem
+
+theorem get?_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : ¬k ∈ m₁) :
+    Const.get? (m₁.inter m₂) k = none := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.Const.get?_inter_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k not_mem
+
+theorem get?_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : ¬k ∈ m₂) :
+    Const.get? (m₁.inter m₂) k = none := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.Const.get?_inter_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k not_mem
+
+/- get -/
+@[simp] theorem get_inter [EquivBEq α] [LawfulHashable α]
+    {k : α} {h_mem : k ∈ m₁ ∩ m₂} :
+    Const.get (m₁.inter m₂) k h_mem =
+    Const.get m₁ k ((mem_inter_iff.1 h_mem).1) := by
+  rw [mem_iff_contains] at h_mem
+  exact @Raw₀.Const.get_inter _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _ m₁.2 m₂.2 k h_mem
+
+/- getD -/
+theorem getD_inter [EquivBEq α] [LawfulHashable α] {k : α} {fallback : β} :
+    Const.getD (m₁.inter m₂) k fallback =
+    if k ∈ m₂ then Const.getD m₁ k fallback else fallback :=
+  @Raw₀.Const.getD_inter _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k fallback
+
+theorem getD_inter_of_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} {fallback : β} (mem : k ∈ m₂) :
+    Const.getD (m₁.inter m₂) k fallback = Const.getD m₁ k fallback :=
+  @Raw₀.Const.getD_inter_of_contains_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k fallback mem
+
+theorem getD_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} {fallback : β} (not_mem : ¬k ∈ m₂) :
+    Const.getD (m₁.inter m₂) k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.Const.getD_inter_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k fallback not_mem
+
+theorem getD_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} {fallback : β} (not_mem : ¬k ∈ m₁) :
+    Const.getD (m₁.inter m₂) k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.Const.getD_inter_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k fallback not_mem
+
+/- get! -/
+theorem get!_inter [EquivBEq α] [LawfulHashable α] [Inhabited β] {k : α} :
+    Const.get! (m₁.inter m₂) k =
+    if k ∈ m₂ then Const.get! m₁ k else default :=
+  @Raw₀.Const.get!_inter _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 k
+
+theorem get!_inter_of_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited β]
+    {k : α} (mem : k ∈ m₂) :
+    Const.get! (m₁.inter m₂) k = Const.get! m₁ k :=
+  @Raw₀.Const.get!_inter_of_contains_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 k mem
+
+theorem get!_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited β]
+    {k : α} (not_mem : ¬k ∈ m₂) :
+    Const.get! (m₁.inter m₂) k = default := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.Const.get!_inter_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 k not_mem
+
+theorem get!_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α] [Inhabited β]
+    {k : α} (not_mem : ¬k ∈ m₁) :
+    Const.get! (m₁.inter m₂) k = default := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact @Raw₀.Const.get!_inter_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 k not_mem
 
 end Const
 

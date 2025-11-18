@@ -145,6 +145,10 @@ theorem union_eq [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF)
     m₁.union m₂ = Raw₀.union ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩ := by
   simp [Raw.union, h₁.size_buckets_pos, h₂.size_buckets_pos]
 
+theorem inter_eq [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    m₁.inter m₂ = Raw₀.inter ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩ := by
+  simp [Raw.inter, h₁.size_buckets_pos, h₂.size_buckets_pos]
+
 section
 
 variable {β : Type v}

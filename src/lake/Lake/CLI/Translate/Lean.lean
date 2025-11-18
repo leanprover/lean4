@@ -221,6 +221,7 @@ protected def PathPatDescr.toLean? (p : PathPatDescr) : Option Term :=
 
 instance : ToLean? PathPatDescr := ⟨PathPatDescr.toLean?⟩
 
+set_option linter.deprecated false in
 @[inline] protected def PartialBuildKey.toLean (k : PartialBuildKey) : Term :=
   go k []
 where
@@ -233,12 +234,13 @@ where
         `(`@$(mkSuffixes fs):facetSuffix*)
       else
         `(`@$(mkIdent n)$(mkSuffixes fs)*)
+    | .packageModule p m =>
+      if p.isAnonymous then
+        `(`+$(mkIdent m)$(mkSuffixes fs)*)
+      else
+        `(`@$(mkIdent p)/+$(mkIdent m)$(mkSuffixes fs)*)
     | .packageTarget p t =>
-      let t ←
-        if let some t := t.eraseSuffix? moduleTargetIndicator then
-          `(packageTargetLit|+$(mkIdent t))
-        else
-          `(packageTargetLit|$(mkIdent t):ident)
+      let t ← `(packageTargetLit|$(mkIdent t):ident)
       if p.isAnonymous then
         `(`@/$t$(mkSuffixes fs)*)
       else

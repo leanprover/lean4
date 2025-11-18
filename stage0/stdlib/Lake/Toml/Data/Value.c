@@ -18,6 +18,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_Value_float_elim___redArg(lean_object*, lea
 LEAN_EXPORT lean_object* l_Lake_Toml_ppTable___boxed(lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 LEAN_EXPORT lean_object* l___private_Lake_Toml_Data_Value_0__Lake_Toml_ppTable_appendKeyval(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00Lake_Toml_ppTable_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_ppSimpleKey(lean_object*);
 uint8_t l_Array_isEmpty___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake_Toml_ppInlineTable_spec__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -51,6 +52,7 @@ LEAN_EXPORT lean_object* l___private_Lake_Toml_Data_Value_0__Lake_Toml_ppTable_a
 static lean_object* l___private_Lake_Toml_Data_Value_0__Lake_Toml_ppTable_appendKeyval___closed__0;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00Lake_Toml_ppTable_spec__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Toml_ppTable_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lake_Toml_instDecidableEqDateTime_decEq(lean_object*, lean_object*);
@@ -79,7 +81,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at___00Lake_Toml_RBDict_beq___at___00Lake_Toml_instBEqValue_beq_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_array_elim___redArg(lean_object*, lean_object*);
 lean_object* l_Lake_Toml_DateTime_toString(lean_object*);
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00Lake_Toml_ppTable_spec__0(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_ppTable___closed__0;
@@ -92,7 +93,6 @@ LEAN_EXPORT lean_object* l_Lake_Toml_Value_table(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_ppKey___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_dateTime_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00Lake_Toml_ppTable_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_ppString___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instBEqValue_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lake_Toml_RBDict_mkEmpty___redArg(lean_object*);
@@ -1905,7 +1905,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00Lake_Toml_ppTable_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00Lake_Toml_ppTable_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -3002,7 +3002,7 @@ x_6 = lean_string_append(x_5, x_3);
 lean_dec_ref(x_3);
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_string_utf8_byte_size(x_6);
-x_9 = l_Substring_takeRightWhileAux___at___00Lake_Toml_ppTable_spec__0(x_6, x_7, x_8);
+x_9 = l_Substring_Raw_takeRightWhileAux___at___00Lake_Toml_ppTable_spec__0(x_6, x_7, x_8);
 x_10 = lean_string_utf8_extract(x_6, x_7, x_9);
 lean_dec(x_9);
 lean_dec_ref(x_6);
@@ -3011,11 +3011,11 @@ return x_11;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00Lake_Toml_ppTable_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00Lake_Toml_ppTable_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Substring_takeRightWhileAux___at___00Lake_Toml_ppTable_spec__0(x_1, x_2, x_3);
+x_4 = l_Substring_Raw_takeRightWhileAux___at___00Lake_Toml_ppTable_spec__0(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_4;

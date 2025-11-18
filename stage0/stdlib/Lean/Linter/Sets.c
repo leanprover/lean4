@@ -95,6 +95,7 @@ static lean_object* l_Lean_Linter___aux__Lean__Linter__Sets______elabRules__Lean
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_command__Register__linter__set___x3a_x3d__;
 static lean_object* l_Lean_Linter_command__Register__linter__set___x3a_x3d___00__closed__18;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter___aux__Lean__Linter__Sets______elabRules__Lean__Linter__command__Register__linter__set___x3a_x3d____1___closed__23;
 static lean_object* l_Lean_Linter_command__Register__linter__set___x3a_x3d___00__closed__10;
@@ -171,7 +172,6 @@ static lean_object* l_Lean_Linter___aux__Lean__Linter__Sets______elabRules__Lean
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Linter___aux__Lean__Linter__Sets______elabRules__Lean__Linter__command__Register__linter__set___x3a_x3d____1_spec__0___redArg___boxed(lean_object*);
 static lean_object* l_Lean_Linter_command__Register__linter__set___x3a_x3d___00__closed__19;
 static lean_object* l___auto___closed__3_00___x40_Lean_Linter_Sets_3317840728____hygCtx___hyg_3_;
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l___auto___closed__23_00___x40_Lean_Linter_Sets_3317840728____hygCtx___hyg_3_;
 LEAN_EXPORT lean_object* l_Lean_Linter_insertLinterSet___at___00Lean_Linter___aux__Lean__Linter__Sets______elabRules__Lean__Linter__command__Register__linter__set___x3a_x3d____1_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter___aux__Lean__Linter__Sets______elabRules__Lean__Linter__command__Register__linter__set___x3a_x3d____1___closed__27;
@@ -1135,7 +1135,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Linter___aux__Lean__Linter__Sets______elabRules__Lean__Linter__command__Register__linter__set___x3a_x3d____1___closed__5;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1216,7 +1216,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Linter___aux__Lean__Linter__Sets______elabRules__Lean__Linter__command__Register__linter__set___x3a_x3d____1___closed__13;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1320,7 +1320,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Linter___aux__Lean__Linter__Sets______elabRules__Lean__Linter__command__Register__linter__set___x3a_x3d____1___closed__24;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

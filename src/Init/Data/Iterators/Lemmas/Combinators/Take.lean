@@ -6,8 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Std.Data.Iterators.Combinators.Take
-public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Take
+public import Init.Data.Iterators.Combinators.Take
+public import Init.Data.Iterators.Lemmas.Combinators.Monadic.Take
 public import Init.Data.Iterators.Lemmas.Consumers
 
 @[expose] public section
@@ -19,14 +19,19 @@ theorem Iter.take_eq_toIter_take_toIterM {α β} [Iterator α Id β] {n : Nat}
     it.take n = (it.toIterM.take n).toIter :=
   rfl
 
+theorem Iter.toTake_eq_toIter_toTake_toIterM {α β} [Iterator α Id β] [Finite α Id]
+    {it : Iter (α := α) β} :
+    it.toTake = it.toIterM.toTake.toIter :=
+  rfl
+
 theorem Iter.step_take {α β} [Iterator α Id β] {n : Nat}
     {it : Iter (α := α) β} :
     (it.take n).step = (match n with
       | 0 => .done (.depleted rfl)
       | k + 1 =>
         match it.step with
-        | .yield it' out h => .yield (it'.take k) out (.yield h rfl)
-        | .skip it' h => .skip (it'.take (k + 1)) (.skip h rfl)
+        | .yield it' out h => .yield (it'.take k) out (Take.isPlausibleStep_take_yield h)
+        | .skip it' h => .skip (it'.take (k + 1)) (Take.isPlausibleStep_take_skip h)
         | .done h => .done (.done h)) := by
   simp only [Iter.step, Iter.step, Iter.take_eq_toIter_take_toIterM, IterM.step_take, toIterM_toIter]
   cases n
@@ -88,11 +93,29 @@ theorem Iter.toArray_take_of_finite {α β} [Iterator α Id β] {n : Nat}
 
 @[simp]
 theorem Iter.toList_take_zero {α β} [Iterator α Id β]
-    [Finite (Take α Id β) Id]
-    [IteratorCollect (Take α Id β) Id Id] [LawfulIteratorCollect (Take α Id β) Id Id]
+    [Finite (Take α Id) Id]
+    [IteratorCollect (Take α Id) Id Id] [LawfulIteratorCollect (Take α Id) Id Id]
     {it : Iter (α := α) β} :
     (it.take 0).toList = [] := by
   rw [toList_eq_match_step]
   simp [step_take]
+
+theorem Iter.step_toTake {α β} [Iterator α Id β] [Finite α Id]
+    {it : Iter (α := α) β} :
+    it.toTake.step = (
+        match it.step with
+        | .yield it' out h => .yield it'.toTake out (.yield h Nat.zero_ne_one)
+        | .skip it' h => .skip it'.toTake (.skip h Nat.zero_ne_one)
+        | .done h => .done (.done h)) := by
+  simp only [toTake_eq_toIter_toTake_toIterM, Iter.step, toIterM_toIter, IterM.step_toTake,
+    Id.run_bind]
+  cases it.toIterM.step.run.inflate using PlausibleIterStep.casesOn <;> simp
+
+@[simp]
+theorem Iter.toList_toTake {α β} [Iterator α Id β] [Finite α Id]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {it : Iter (α := α) β} :
+    it.toTake.toList = it.toList := by
+  simp [toTake_eq_toIter_toTake_toIterM, toList_eq_toList_toIterM]
 
 end Std.Iterators

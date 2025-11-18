@@ -22,7 +22,13 @@ error: `Array.swap_swap` is not marked with the `@[grind]` attribute for theorem
 #guard_msgs in
 #grind_lint skip Array.getElem_swap
 
-/-- info: Array.range_succ : 47 -/
+/--
+info: instantiating `Array.range_succ` triggers 19 additional `grind` theorem instantiations
+---
+info: Try this to display the actual theorem instances:
+  [apply] set_option trace.grind.ematch.instance true in
+  #grind_lint inspect Array.range_succ
+-/
 #guard_msgs in
 #grind_lint inspect Array.range_succ
 
@@ -30,34 +36,38 @@ error: `Array.swap_swap` is not marked with the `@[grind]` attribute for theorem
 
 #grind_lint mute Array.append_assoc -- It is not used during E-matching by `#grind_lint check` and `#grind_lint inspect`
 
-/-- info: Array.range_succ : 22 -/
+/--
+info: instantiating `Array.range_succ` triggers 19 additional `grind` theorem instantiations
+---
+info: Try this to display the actual theorem instances:
+  [apply] set_option trace.grind.ematch.instance true in
+  #grind_lint inspect Array.range_succ
+-/
 #guard_msgs in
 #grind_lint inspect Array.range_succ
 
 /--
-info: Array.range_succ : 22
+info: instantiating `Array.range_succ` triggers 19 additional `grind` theorem instantiations
 ---
-info: Array.range'_succ : 17
+info: instantiating `Array.range'_succ` triggers 14 additional `grind` theorem instantiations
+---
+info: Try this to display the actual theorem instances:
+  [apply] set_option trace.grind.ematch.instance true in
+  #grind_lint inspect Array.range_succ Array.range'_succ
 -/
 #guard_msgs in
 #grind_lint inspect Array.range_succ Array.range'_succ
 
-/--
-info: Array.extract_empty : 100
----
-info: Array.filterMap_some : 100
----
-info: Array.range_succ : 22
--/
 #guard_msgs in
-#grind_lint check (min := 20) (detailed := 200) in Array
+#grind_lint check (min := 20) in Array
 
 #grind_lint skip Array.extract_empty -- `#grind_lint check` skips it from now on
 
-/--
-info: Array.filterMap_some : 100
----
-info: Array.range_succ : 22
--/
 #guard_msgs in
-#grind_lint check (min := 20) (detailed := 200) in Array
+#grind_lint check (min := 20) in Array
+
+#guard_msgs in
+#grind_lint inspect Array.filterMap_some
+
+#guard_msgs in
+#grind_lint check (min := 20) in module Init.Data.Array

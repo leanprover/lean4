@@ -9,7 +9,6 @@ prelude
 public import Std.Data.Iterators.Lemmas.Producers.Monadic
 public import Std.Data.Iterators.Lemmas.Producers.Array
 public import Std.Data.Iterators.Lemmas.Producers.Empty
-public import Std.Data.Iterators.Lemmas.Producers.List
 public import Std.Data.Iterators.Lemmas.Producers.Repeat
 public import Std.Data.Iterators.Lemmas.Producers.Range
 public import Std.Data.Iterators.Lemmas.Producers.Slice

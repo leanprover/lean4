@@ -590,15 +590,15 @@ trace: [Elab.do] let x := 42;
       (fun i kcontinue s =>
         let x := s.fst;
         let z := s.snd;
-        let x_1 := x + i;
+        let x := x + i;
         ForInNew.forIn [i:10].toList z
-          (fun j kcontinue_1 s_1 =>
-            let z_1 := s_1;
-            let z := z_1 + x_1 + j;
-            kcontinue_1 z)
+          (fun j kcontinue s =>
+            let z := s;
+            let z := z + x + j;
+            kcontinue z)
           fun s =>
           let z := s;
-          kcontinue (x_1, z))
+          kcontinue (x, z))
       fun s =>
       let x := s.fst;
       let z := s.snd;

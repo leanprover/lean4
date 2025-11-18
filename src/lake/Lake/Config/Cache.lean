@@ -48,7 +48,7 @@ public partial def parse (inputName : String) (contents : String) : LoggerIO Cac
   let rec loop (i : Nat) (cache : CacheMap) (stopPos pos : String.Pos.Raw) := do
     let lfPos := contents.posOfAux '\n' stopPos pos
     let line := String.Pos.Raw.extract contents pos lfPos
-    if line.trim.isEmpty then
+    if line.trimAscii.isEmpty then
       return cache
     let cache ← id do
       match Json.parse line >>= fromJson? with
@@ -63,7 +63,7 @@ public partial def parse (inputName : String) (contents : String) : LoggerIO Cac
       loop (i+1) cache stopPos (lfPos.next' contents h)
   let lfPos := contents.posOfAux '\n' contents.rawEndPos 0
   let line := String.Pos.Raw.extract contents 0 lfPos
-  checkSchemaVersion inputName line.trim
+  checkSchemaVersion inputName line.trimAscii.copy
   if h : lfPos.atEnd contents then
     return {}
   else

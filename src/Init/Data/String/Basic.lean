@@ -2786,23 +2786,6 @@ def substrEq (s1 : String) (pos1 : String.Pos.Raw) (s2 : String) (pos2 : String.
   Pos.Raw.substrEq s1 pos1 s2 pos2 sz
 
 /--
-Checks whether the first string (`p`) is a prefix of the second (`s`).
-
-`String.startsWith` is a version that takes the potential prefix after the string.
-
-Examples:
- * `"red".isPrefixOf "red green blue" = true`
- * `"green".isPrefixOf "red green blue" = false`
- * `"".isPrefixOf "red green blue" = true`
--/
-def isPrefixOf (p : String) (s : String) : Bool :=
-  Pos.Raw.substrEq p 0 s 0 p.rawEndPos.byteIdx
-
-@[export lean_string_isprefixof]
-def Internal.isPrefixOfImpl (p : String) (s : String) : Bool :=
-  String.isPrefixOf p s
-
-/--
 Returns the position of the beginning of the line that contains the position `pos`.
 
 Lines are ended by `'\n'`, and the returned position is either `0 : String.Pos` or immediately after

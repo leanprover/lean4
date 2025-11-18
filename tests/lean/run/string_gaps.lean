@@ -151,7 +151,7 @@ def String.dedent (s : String) : Option String :=
     if !parts.all (·.startsWith "|") then
       none
     else
-      p₀ ++ "\n" ++ String.intercalate "\n" (parts.map fun p => p.drop 1)
+      p₀ ++ "\n" ++ String.intercalate "\n" (parts.map fun p => p.drop 1 |>.copy)
 
 elab "d!" s:str : term => do
   let some s := s.raw.isStrLit? | Lean.Elab.throwIllFormedSyntax

@@ -30,7 +30,7 @@ public def filterUrl? (url : String) : Option String :=
   if url.startsWith "git" then
     none
   else if url.endsWith ".git" then
-    some <| url.dropRight 4
+    some <| url.dropEnd 4 |>.copy
   else
     some url
 

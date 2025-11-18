@@ -39,7 +39,7 @@ def deletions (n : Nat) (s : String) : Array String :=
     for s' in deletions n' s do
       if s'.isEmpty then break
       for i in [0:s'.length] do
-        let d := s'.take i ++ s'.drop (i + 1)
+        let d := (s'.take i).copy ++ s'.drop (i + 1)
         if !out.contains d then out := out.push d
     return out.reverse
 
@@ -92,7 +92,7 @@ def insertions (toInsert : String) (s : String) : Array String := Id.run do
     let mut next := #[]
     for s' in out do
       for i in [0:s'.length + 1] do
-        next := next.push ((s'.take i).push c ++ s'.drop i)
+        next := next.push ((s'.take i |>.copy).push c ++ s'.drop i)
     out := next
   return out
 

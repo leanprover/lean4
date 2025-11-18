@@ -18,6 +18,7 @@ namespace Lean.Elab.Do
 open Lean Meta
 
 builtin_initialize registerTraceClass `Elab.do
+builtin_initialize registerTraceClass `Elab.do.step
 
 structure MonadInfo where
   /-- The inferred type of the monad of type `Type u → Type v`. -/
@@ -675,6 +676,22 @@ def mkContext (expectedType? : Option Expr) : TermElabM Context := do
   return { monadInfo := mi, doBlockResultType := resultType, contInfo }
 
 /--
+Like `controlAt TermElabM`, but it maintains the state in an `IO.Ref` rather than returning it
+in the `TermElabM` result. This makes it possible to run multiple `DoElabM` computations in a row.
+-/
+def controlAtTermElabM (k : (runInBase : ∀ {β}, DoElabM β → TermElabM β) → TermElabM α) : DoElabM α := do
+  let ctx ← read
+  let ref ← IO.mkRef (← get)
+  let runInBase {α} (m : DoElabM α) : TermElabM α := do
+    let state ← ref.get
+    let (a, state) ← m.run ctx |>.run state
+    ref.set state
+    return a
+  let b ← k runInBase
+  set (← ref.get)
+  return b
+
+/--
   Backtrackable state for the `TermElabM` monad.
 -/
 structure SavedState where
@@ -733,9 +750,8 @@ private def elabDoElemFns (stx : TSyntax `doElem) (cont : DoElemCont)
       | _ => throw ex
 
 partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) : DoElabM Expr := do
-  -- withTraceNode `Elab.step (fun _ => return m!"expected type: {expectedType?}, term\n{stx}")
-  --   (tag := stx.getKind.toString) do
   let k := stx.raw.getKind
+  trace[Elab.do.step] "do element: {stx}"
   checkSystem "do element elaborator"
   profileitM Exception "do element elaborator" (decl := k) (← getOptions) <|
   withRef stx <| withIncRecDepth <| withFreshMacroScope <| do
@@ -745,7 +761,7 @@ partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) : DoElabM Exp
     let stxNew ← liftMacroM <| liftExcept stxNew?
     -- withTermInfoContext' decl stx (expectedType? := expectedType?) <|
     Term.withMacroExpansion stx stxNew <|
-      withRef stxNew <| elabDoElem stx cont
+      withRef stxNew <| elabDoElem ⟨stxNew⟩ cont
   | none =>
     match doElemElabAttribute.getEntries (← getEnv) k with
     | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"

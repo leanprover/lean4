@@ -88,11 +88,6 @@ public theorem toArray_mkSlice_rco {xs : List α} {lo hi : Nat} :
     xs[lo...hi].toArray = ((xs.take hi).drop lo).toArray := by
   simp [← ListSlice.toArray_toList]
 
--- TODO: Keep these non-normal-form lemmas?
-public theorem toArray_mkSlice_rco' {xs : List α} {lo hi : Nat} :
-    xs[lo...hi].toArray = xs.toArray.extract lo hi := by
-  simp [List.drop_take]
-
 @[simp]
 public theorem size_mkSlice_rco {xs : List α} {lo hi : Nat} :
     xs[lo...hi].size = min hi xs.length - lo := by
@@ -113,10 +108,6 @@ public theorem toArray_mkSlice_rcc {xs : List α} {lo hi : Nat} :
     xs[lo...=hi].toArray = ((xs.take (hi + 1)).drop lo).toArray := by
   simp [← ListSlice.toArray_toList]
 
-public theorem toArray_mkSlice_rcc' {xs : List α} {lo hi : Nat} :
-    xs[lo...=hi].toArray = xs.toArray.extract lo (hi + 1) := by
-  simp [List.drop_take]
-
 @[simp]
 public theorem size_mkSlice_rcc {xs : List α} {lo hi : Nat} :
     xs[lo...=hi].size = min (hi + 1) xs.length - lo := by
@@ -132,13 +123,6 @@ public theorem toList_mkSlice_rci {xs : List α} {lo : Nat} :
 public theorem toArray_mkSlice_rci {xs : List α} {lo : Nat} :
     xs[lo...*].toArray = (xs.drop lo).toArray := by
   simp [← ListSlice.toArray_toList]
-
-public theorem toArray_mkSlice_rci' {xs : List α} {lo : Nat} :
-    xs[lo...*].toArray = xs.toArray.extract lo := by
-  rw [toArray_mkSlice_rci]
-  -- non-confluence between `take_length` and `drop_take`
-  rw (occs := [1]) [← List.take_length (l := drop lo xs)]
-  simp
 
 @[simp]
 public theorem size_mkSlice_rci {xs : List α} {lo : Nat} :
@@ -160,10 +144,6 @@ public theorem toArray_mkSlice_roo {xs : List α} {lo hi : Nat} :
     xs[lo<...hi].toArray = ((xs.take hi).drop (lo + 1)).toArray := by
   simp [← ListSlice.toArray_toList]
 
-public theorem toArray_mkSlice_roo' {xs : List α} {lo hi : Nat} :
-    xs[lo<...hi].toArray = xs.toArray.extract (lo + 1) hi := by
-  simp [List.drop_take]
-
 @[simp]
 public theorem size_mkSlice_roo {xs : List α} {lo hi : Nat} :
     xs[lo<...hi].size = min hi xs.length - (lo + 1) := by
@@ -183,10 +163,6 @@ public theorem toList_mkSlice_roc {xs : List α} {lo hi : Nat} :
 public theorem toArray_mkSlice_roc {xs : List α} {lo hi : Nat} :
     xs[lo<...=hi].toArray = ((xs.take (hi + 1)).drop (lo + 1)).toArray := by
   simp [← ListSlice.toArray_toList]
-
-public theorem toArray_mkSlice_roc' {xs : List α} {lo hi : Nat} :
-    xs[lo<...=hi].toArray = xs.toArray.extract (lo + 1) (hi + 1) := by
-  simp [List.drop_take]
 
 @[simp]
 public theorem size_mkSlice_roc {xs : List α} {lo hi : Nat} :
@@ -208,12 +184,6 @@ public theorem toArray_mkSlice_roi {xs : List α} {lo : Nat} :
     xs[lo<...*].toArray = (xs.drop (lo + 1)).toArray := by
   simp [← ListSlice.toArray_toList]
 
-public theorem toArray_mkSlice_roi' {xs : List α} {lo : Nat} :
-    xs[lo<...*].toArray = xs.toArray.extract (lo + 1) := by
-  rw [toArray_mkSlice_roi]
-  rw (occs := [1]) [← List.take_length (l := drop (lo + 1) xs)]
-  simp
-
 @[simp]
 public theorem size_mkSlice_roi {xs : List α} {lo : Nat} :
     xs[lo<...*].size = xs.length - (lo + 1) := by
@@ -222,8 +192,7 @@ public theorem size_mkSlice_roi {xs : List α} {lo : Nat} :
 @[simp]
 public theorem mkSlice_rio_eq_mkSlice_rco {xs : List α} {hi : Nat} :
     xs[*...hi] = xs[0...hi] := by
-  simp [Std.Rio.Sliceable.mkSlice,
-    Std.Rco.Sliceable.mkSlice]
+  simp [Std.Rio.Sliceable.mkSlice, Std.Rco.Sliceable.mkSlice]
 
 @[simp]
 public theorem toList_mkSlice_rio {xs : List α} {hi : Nat} :
@@ -234,10 +203,6 @@ public theorem toList_mkSlice_rio {xs : List α} {hi : Nat} :
 public theorem toArray_mkSlice_rio {xs : List α} {hi : Nat} :
     xs[*...hi].toArray = (xs.take hi).toArray := by
   simp [← ListSlice.toArray_toList]
-
-public theorem toArray_mkSlice_rio' {xs : List α} {hi : Nat} :
-    xs[*...hi].toArray = xs.toArray.extract 0 hi := by
-  simp
 
 @[simp]
 public theorem size_mkSlice_rio {xs : List α} {hi : Nat} :
@@ -258,10 +223,6 @@ public theorem toList_mkSlice_ric {xs : List α} {hi : Nat} :
 public theorem toArray_mkSlice_ric {xs : List α} {hi : Nat} :
     xs[*...=hi].toArray = (xs.take (hi + 1)).toArray := by
   simp [← ListSlice.toArray_toList]
-
-public theorem toArray_mkSlice_ric' {xs : List α} {hi : Nat} :
-    xs[*...=hi].toArray = xs.toArray.extract 0 (hi + 1) := by
-  simp
 
 @[simp]
 public theorem size_mkSlice_ric {xs : List α} {hi : Nat} :

@@ -819,6 +819,8 @@ example {e} : (Id.run doo let mut x := 0; let y := 3; let z ← do { let mut y �
             = (Id.run  do let mut x := 0; let y := 3; let z ← do { let mut y ← e; x := y + 1; pure y }; let y := y + 3; pure (x + y + z)) := by rfl
 example : (Id.run doo let x := 0; let y ← let x := x + 1; pure x)
         = (Id.run doo let x := 0; pure x) := by rfl
+example : (Id.run doo let mut x := 0; let mut y := 1; (x, y) ← pure (x + 3, y + 4); pure (x + y))
+        = (Id.run doo let x := 0; pure x) := by rfl
 
 -- Test: Nested if-then-else with multiple mutable variables
 example : (Id.run doo
@@ -1032,7 +1034,7 @@ example : (Id.run doo
 example : (Id.run doo
   let mut x := 10
   let y ← do
-    if true then
+    if h : true then
       x := x + 3
       pure 42
     else
@@ -1041,7 +1043,7 @@ example : (Id.run doo
 = (Id.run do
   let mut x := 10
   let y ← do
-    if true then
+    if h : true then
       x := x + 3
       pure 42
     else

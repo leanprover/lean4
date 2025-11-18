@@ -57,7 +57,7 @@ def test (p : ParserFn) (input : String) : IO String := do
         s!"    {repr <| input.extract p input.rawEndPos}\n"
     return s!"{s'.allErrors.size} failures:\n{errors}\nFinal stack:\n{stk.pretty 50}"
 where
-  errLt (x y : String.Pos × SyntaxStack × Error) : Bool :=
+  errLt (x y : String.Pos.Raw × SyntaxStack × Error) : Bool :=
     let (p1, _, e1) := x
     let (p2, _, e2) := y
     p1 < p2 || p1 == p2 && toString e1 < toString e2

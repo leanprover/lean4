@@ -21,6 +21,7 @@ structure DiscrInfo where
 
 structure Overlaps where
   map : Std.HashMap Nat (Std.TreeSet Nat) := {}
+deriving Inhabited
 
 def Overlaps.insert (o : Overlaps) (overlapping overlapped : Nat) : Overlaps where
   map := o.map.alter overlapped fun s? => some ((s?.getD {}).insert overlapping)

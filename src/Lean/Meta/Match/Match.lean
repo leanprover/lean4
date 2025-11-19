@@ -95,19 +95,21 @@ where
 
 /-- Given a list of `AltLHS`, create a minor premise for each one, convert them into `Alt`, and then execute `k` -/
 private def withAlts {α} (motive : Expr) (discrs : Array Expr) (discrInfos : Array DiscrInfo)
-    (lhss : List AltLHS) (isSplitter : Bool) (k : List Alt → Array (Expr × Nat) → MetaM α) : MetaM α :=
+    (lhss : List AltLHS) (isSplitter : Option Overlaps) (k : List Alt → Array (Expr × Nat) → MetaM α) : MetaM α :=
   loop lhss [] #[] #[]
 where
-  mkSplitterHyps (lhs : AltLHS) (notAlts : Array Expr) : MetaM (Array Expr × Array Nat) := do
+  mkSplitterHyps (idx : Nat) (lhs : AltLHS) (notAlts : Array Expr) : MetaM (Array Expr × Array Nat) := do
     withExistingLocalDecls lhs.fvarDecls do
       let patterns ← lhs.patterns.toArray.mapM (Pattern.toExpr · (annotate := true))
       let mut hs := #[]
       let mut notAltIdxs := #[]
-      for altIdx in [:notAlts.size], notAlt in notAlts do
+      for overlappingIdx in isSplitter.get!.overlapping idx do
+        let notAlt := notAlts[overlappingIdx]!
         let h ← instantiateForall notAlt patterns
         if let some h ← simpH? h patterns.size then
-          notAltIdxs := notAltIdxs.push altIdx
+          notAltIdxs := notAltIdxs.push overlappingIdx
           hs := hs.push h
+      trace[Meta.Match.debug] "hs for {lhs.ref}: {hs}"
       return (hs, notAltIdxs)
 
   mkMinorType (xs : Array Expr) (lhs : AltLHS) (notAltHs : Array Expr): MetaM Expr :=
@@ -131,17 +133,17 @@ where
     match lhss with
     | [] => k alts.reverse minors
     | lhs::lhss =>
+      let idx       := alts.length
       let xs := lhs.fvarDecls.toArray.map LocalDecl.toExpr
-      let (notAltHs, notAltIdxs) ← if isSplitter then mkSplitterHyps lhs notAlts else pure (#[], #[])
+      let (notAltHs, notAltIdxs) ← if isSplitter.isSome then mkSplitterHyps idx lhs notAlts else pure (#[], #[])
       let minorType ← mkMinorType xs lhs notAltHs
       let notAlt ← mkNotAlt xs lhs
       let hasParams := !xs.isEmpty || discrInfos.any fun info => info.hName?.isSome
-      let (minorType, minorNumParams) := if hasParams || isSplitter then (minorType, xs.size) else (mkSimpleThunkType minorType, 1)
-      let idx       := alts.length
+      let (minorType, minorNumParams) := if hasParams || isSplitter.isSome then (minorType, xs.size) else (mkSimpleThunkType minorType, 1)
       let minorName := (`h).appendIndexAfter (idx+1)
       trace[Meta.Match.debug] "minor premise {minorName} : {minorType}"
       withLocalDeclD minorName minorType fun minor => do
-        let rhs    := if hasParams || isSplitter then mkAppN minor xs else mkApp minor (mkConst `Unit.unit)
+        let rhs    := if hasParams || isSplitter.isSome then mkAppN minor xs else mkApp minor (mkConst `Unit.unit)
         let minors := minors.push (minor, minorNumParams)
         let fvarDecls ← lhs.fvarDecls.mapM instantiateLocalDeclMVars
         let alt    := { ref := lhs.ref, idx := idx, rhs := rhs, fvarDecls := fvarDecls, patterns := lhs.patterns, cnstrs := [], notAltIdxs := notAltIdxs }
@@ -1092,7 +1094,7 @@ structure MkMatcherInput where
   matchType   : Expr
   discrInfos  : Array DiscrInfo
   lhss        : List AltLHS
-  isSplitter  : Bool := false
+  isSplitter  : Option Overlaps := none
 
 def MkMatcherInput.numDiscrs (m : MkMatcherInput) :=
   m.discrInfos.size
@@ -1158,7 +1160,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
        | negSucc n => succ n
        ```
        which is defined **before** `Int.decLt` -/
-    let (matcher, addMatcher) ← mkMatcherAuxDefinition matcherName type val (isSplitter := input.isSplitter)
+    let (matcher, addMatcher) ← mkMatcherAuxDefinition matcherName type val (isSplitter := input.isSplitter.isSome)
     trace[Meta.Match.debug] "matcher levels: {matcher.getAppFn.constLevels!}, uElim: {uElimGen}"
     let uElimPos? ← getUElimPos? matcher.getAppFn.constLevels! uElimGen
     discard <| isLevelDefEq uElimGen uElim

@@ -400,7 +400,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
         withMkMatcherInput matchDeclName (unfoldNamed := true) fun matcherInput => do
           let matcherInput := { matcherInput with
             matcherName := splitterName
-            isSplitter := true
+            isSplitter := some matchInfo.overlaps
           }
           let res ← Match.mkMatcher matcherInput
           res.addMatcher -- TODO: Do not set matcherinfo for the splitter!

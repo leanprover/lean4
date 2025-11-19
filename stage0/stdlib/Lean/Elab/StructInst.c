@@ -44999,7 +44999,6 @@ x_67 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Init_Wh
 x_68 = l_Lean_Elab_Term_StructInst_expandStructInstFields___closed__0;
 x_69 = l_String_intercalate(x_68, x_66);
 x_70 = l_Lean_stringToMessageData(x_69);
-lean_dec_ref(x_69);
 x_71 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_71, 0, x_67);
 lean_ctor_set(x_71, 1, x_70);
@@ -46128,7 +46127,6 @@ x_67 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Init_Wh
 x_68 = l_Lean_Elab_Term_StructInst_expandStructInstFields___closed__0;
 x_69 = l_String_intercalate(x_68, x_66);
 x_70 = l_Lean_stringToMessageData(x_69);
-lean_dec_ref(x_69);
 x_71 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_71, 0, x_67);
 lean_ctor_set(x_71, 1, x_70);
@@ -66765,6 +66763,7 @@ else
 {
 lean_object* x_22; 
 lean_dec(x_11);
+lean_dec_ref(x_2);
 x_22 = l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getStructName_throwUnknownExpectedType(x_3, x_4, x_5, x_6, x_7, x_8);
 return x_22;
 }
@@ -66803,7 +66802,6 @@ lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
-lean_dec_ref(x_2);
 return x_10;
 }
 }
@@ -67685,7 +67683,6 @@ block_105:
 {
 lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; 
 x_99 = l_Lean_stringToMessageData(x_98);
-lean_dec_ref(x_98);
 x_100 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_100, 0, x_97);
 lean_ctor_set(x_100, 1, x_99);
@@ -67728,7 +67725,6 @@ block_95:
 {
 lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; uint8_t x_90; 
 x_84 = l_Lean_stringToMessageData(x_83);
-lean_dec_ref(x_83);
 x_85 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_85, 0, x_82);
 lean_ctor_set(x_85, 1, x_84);

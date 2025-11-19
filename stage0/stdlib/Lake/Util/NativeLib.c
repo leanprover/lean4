@@ -309,7 +309,6 @@ x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_5);
 lean_dec_ref(x_3);
 x_6 = l_System_SearchPath_parse(x_5);
-lean_dec(x_5);
 return x_6;
 }
 }

@@ -77,7 +77,6 @@ LEAN_EXPORT lean_object* l_Lean_NameMap_toJson___at___00Lake_Env_baseVars_spec__
 static lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___00Lean_NameMap_fromJson_x3f___at___00__private_Lake_Config_Env_0__Lake_Env_compute_computePkgUrlMap_spec__0_spec__0___closed__2;
 extern lean_object* l_Lake_instInhabitedLeanInstall_default;
 LEAN_EXPORT lean_object* l___private_Lake_Config_Env_0__Lake_Env_compute_computePkgUrlMap___boxed(lean_object*);
-lean_object* l_String_Slice_utf8ByteSize(lean_object*);
 static lean_object* l_Lake_Env_noToolchainVars___closed__11;
 LEAN_EXPORT lean_object* l___private_Lake_Config_Env_0__Lake_Env_compute_computePkgUrlMap();
 lean_object* l_String_Slice_Pos_prevn(lean_object*, lean_object*, lean_object*);
@@ -1941,21 +1940,21 @@ return x_1;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_unsigned_to_nat(0u);
+lean_inc(x_2);
 lean_inc_ref(x_1);
 x_9 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_9, 0, x_1);
 lean_ctor_set(x_9, 1, x_8);
 lean_ctor_set(x_9, 2, x_2);
-x_10 = l_String_Slice_utf8ByteSize(x_9);
-x_11 = l_String_Slice_Pos_prevn(x_9, x_10, x_7);
+x_10 = l_String_Slice_Pos_prevn(x_9, x_2, x_7);
 lean_dec_ref(x_9);
-x_12 = lean_string_utf8_extract(x_1, x_8, x_11);
-lean_dec(x_11);
+x_11 = lean_string_utf8_extract(x_1, x_8, x_10);
+lean_dec(x_10);
 lean_dec_ref(x_1);
-return x_12;
+return x_11;
 }
 }
 }

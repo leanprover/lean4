@@ -8150,7 +8150,6 @@ x_11 = lean_ctor_get(x_3, 0);
 lean_inc(x_11);
 lean_dec_ref(x_3);
 x_12 = l_Lean_stringToMessageData(x_11);
-lean_dec(x_11);
 x_13 = l_Lean_throwError___at___00Lean_ofExcept___at___00Lean_evalConst___at___00Lean_Elab_Command_elabEvalCoreUnsafe___elam__0_spec__3_spec__3_spec__3___redArg(x_1, x_2, x_12, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
 }
@@ -15187,7 +15186,6 @@ x_9 = lean_ctor_get(x_1, 0);
 lean_inc(x_9);
 lean_dec_ref(x_1);
 x_10 = l_Lean_stringToMessageData(x_9);
-lean_dec(x_9);
 x_11 = l_Lean_throwError___at___00__private_Lean_Elab_BuiltinEvalCommand_0__Lean_Elab_Command_elabTermForEval_spec__3___redArg(x_10, x_2, x_3, x_4, x_5, x_6, x_7);
 return x_11;
 }

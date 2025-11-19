@@ -1258,7 +1258,6 @@ x_9 = lean_ctor_get(x_1, 0);
 lean_inc(x_9);
 lean_dec_ref(x_1);
 x_10 = l_Lean_stringToMessageData(x_9);
-lean_dec(x_9);
 x_11 = l_Lean_throwError___at___00Lean_ofExcept___at___00Lean_evalConstCheck___at___00__private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_getHandlerUnsafe_spec__0_spec__0_spec__0___redArg(x_10, x_2, x_3, x_4, x_5, x_6, x_7);
 return x_11;
 }

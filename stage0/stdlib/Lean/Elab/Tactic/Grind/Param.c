@@ -1099,7 +1099,6 @@ x_8 = l_List_mapTR_loop___at___00__private_Lean_Elab_Tactic_Grind_Param_0__Lean_
 x_9 = l_Lean_Meta_Grind_EMatchTheoremKind_toAttribute(x_6, x_1);
 lean_dec(x_6);
 x_10 = l_Lean_stringToMessageData(x_9);
-lean_dec_ref(x_9);
 x_11 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_11, 0, x_8);
 lean_ctor_set(x_11, 1, x_10);
@@ -1125,7 +1124,6 @@ x_15 = l_List_mapTR_loop___at___00__private_Lean_Elab_Tactic_Grind_Param_0__Lean
 x_16 = l_Lean_Meta_Grind_EMatchTheoremKind_toAttribute(x_13, x_1);
 lean_dec(x_13);
 x_17 = l_Lean_stringToMessageData(x_16);
-lean_dec_ref(x_16);
 x_18 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_18, 0, x_15);
 lean_ctor_set(x_18, 1, x_17);
@@ -1276,7 +1274,6 @@ x_57 = l_List_mapTR_loop___at___00__private_Lean_Elab_Tactic_Grind_Param_0__Lean
 x_58 = l_Lean_Meta_Grind_EMatchTheoremKind_toAttribute(x_28, x_30);
 lean_dec(x_28);
 x_59 = l_Lean_stringToMessageData(x_58);
-lean_dec_ref(x_58);
 lean_ctor_set_tag(x_25, 7);
 lean_ctor_set(x_25, 1, x_59);
 lean_ctor_set(x_25, 0, x_57);
@@ -1296,7 +1293,6 @@ x_60 = l_List_mapTR_loop___at___00__private_Lean_Elab_Tactic_Grind_Param_0__Lean
 x_61 = l_Lean_Meta_Grind_EMatchTheoremKind_toAttribute(x_28, x_30);
 lean_dec(x_28);
 x_62 = l_Lean_stringToMessageData(x_61);
-lean_dec_ref(x_61);
 x_63 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_63, 0, x_60);
 lean_ctor_set(x_63, 1, x_62);
@@ -1446,7 +1442,6 @@ lean_ctor_set_uint8(x_49, 0, x_42);
 x_50 = l_Lean_Meta_Grind_EMatchTheoremKind_toAttribute(x_49, x_30);
 lean_dec_ref(x_49);
 x_51 = l_Lean_stringToMessageData(x_50);
-lean_dec_ref(x_50);
 x_52 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_52, 0, x_48);
 lean_ctor_set(x_52, 1, x_51);
@@ -1828,7 +1823,6 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15;
 lean_dec_ref(x_9);
 x_12 = l___private_Lean_Elab_Tactic_Grind_Param_0__Lean_Elab_Tactic_parseModifier___closed__7;
 x_13 = l_Lean_stringToMessageData(x_1);
-lean_dec_ref(x_1);
 x_14 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);

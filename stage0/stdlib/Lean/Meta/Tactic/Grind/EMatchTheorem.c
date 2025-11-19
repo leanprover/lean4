@@ -13297,7 +13297,6 @@ block_105:
 {
 lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; 
 x_99 = l_Lean_stringToMessageData(x_98);
-lean_dec_ref(x_98);
 x_100 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_100, 0, x_97);
 lean_ctor_set(x_100, 1, x_99);
@@ -13340,7 +13339,6 @@ block_95:
 {
 lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; uint8_t x_90; 
 x_84 = l_Lean_stringToMessageData(x_83);
-lean_dec_ref(x_83);
 x_85 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_85, 0, x_82);
 lean_ctor_set(x_85, 1, x_84);
@@ -51859,7 +51857,6 @@ lean_dec(x_18);
 x_20 = l_Lean_Meta_Grind_mkEMatchTheoremForDecl___closed__1;
 x_21 = l_Lean_Meta_Grind_EMatchTheoremKind_toAttribute(x_2, x_5);
 x_22 = l_Lean_stringToMessageData(x_21);
-lean_dec_ref(x_21);
 x_23 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_23, 0, x_20);
 lean_ctor_set(x_23, 1, x_22);
@@ -51879,7 +51876,6 @@ lean_ctor_set(x_30, 1, x_29);
 x_31 = l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_EMatchTheoremKind_explainFailure(x_2);
 lean_dec(x_2);
 x_32 = l_Lean_stringToMessageData(x_31);
-lean_dec_ref(x_31);
 x_33 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_33, 0, x_30);
 lean_ctor_set(x_33, 1, x_32);
@@ -51924,7 +51920,6 @@ lean_dec(x_37);
 x_40 = l_Lean_Meta_Grind_mkEMatchTheoremForDecl___closed__1;
 x_41 = l_Lean_Meta_Grind_EMatchTheoremKind_toAttribute(x_2, x_5);
 x_42 = l_Lean_stringToMessageData(x_41);
-lean_dec_ref(x_41);
 x_43 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_43, 0, x_40);
 lean_ctor_set(x_43, 1, x_42);
@@ -51944,7 +51939,6 @@ lean_ctor_set(x_50, 1, x_49);
 x_51 = l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_EMatchTheoremKind_explainFailure(x_2);
 lean_dec(x_2);
 x_52 = l_Lean_stringToMessageData(x_51);
-lean_dec_ref(x_51);
 x_53 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_53, 0, x_50);
 lean_ctor_set(x_53, 1, x_52);

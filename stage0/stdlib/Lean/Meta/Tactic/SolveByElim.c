@@ -2541,7 +2541,6 @@ _start:
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_8 = l_Lean_exceptEmoji___redArg(x_2);
 x_9 = l_Lean_stringToMessageData(x_8);
-lean_dec_ref(x_8);
 x_10 = l_Lean_Meta_SolveByElim_applyTactics___redArg___lam__0___closed__1;
 x_11 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_11, 0, x_9);

@@ -1838,7 +1838,6 @@ block_41:
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
 x_37 = l_Lean_Elab_LibrarySearch_exact_x3f___lam__3___closed__1;
 x_38 = l_Lean_stringToMessageData(x_36);
-lean_dec_ref(x_36);
 x_39 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_39, 0, x_37);
 lean_ctor_set(x_39, 1, x_38);

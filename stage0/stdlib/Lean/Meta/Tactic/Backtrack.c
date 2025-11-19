@@ -2708,7 +2708,6 @@ _start:
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = l_Lean_exceptEmoji___redArg(x_1);
 x_8 = l_Lean_stringToMessageData(x_7);
-lean_dec_ref(x_7);
 x_9 = l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Tactic_Backtrack_Backtrack_run___lam__3___closed__1;
 x_10 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_10, 0, x_8);
@@ -2775,7 +2774,6 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean
 x_11 = lean_ctor_get(x_9, 0);
 x_12 = l_Lean_exceptEmoji___redArg(x_2);
 x_13 = l_Lean_stringToMessageData(x_12);
-lean_dec_ref(x_12);
 x_14 = l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Tactic_Backtrack_Backtrack_run___lam__6___closed__1;
 x_15 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
@@ -2794,7 +2792,6 @@ lean_inc(x_17);
 lean_dec(x_9);
 x_18 = l_Lean_exceptEmoji___redArg(x_2);
 x_19 = l_Lean_stringToMessageData(x_18);
-lean_dec_ref(x_18);
 x_20 = l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Tactic_Backtrack_Backtrack_run___lam__6___closed__1;
 x_21 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_21, 0, x_19);
@@ -3092,7 +3089,6 @@ _start:
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_8 = l_Lean_exceptEmoji___redArg(x_2);
 x_9 = l_Lean_stringToMessageData(x_8);
-lean_dec_ref(x_8);
 x_10 = l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Tactic_Backtrack_Backtrack_run___lam__8___closed__1;
 x_11 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
@@ -3130,7 +3126,6 @@ _start:
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_8 = l_Lean_exceptEmoji___redArg(x_2);
 x_9 = l_Lean_stringToMessageData(x_8);
-lean_dec_ref(x_8);
 x_10 = l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Tactic_Backtrack_Backtrack_run___lam__9___closed__1;
 x_11 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_11, 0, x_9);

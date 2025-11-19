@@ -2441,7 +2441,6 @@ x_11 = lean_unbox(x_6);
 x_12 = l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHeader(x_1, x_2, x_3, x_4, x_10, x_11, x_7, x_8);
 lean_dec(x_8);
 lean_dec_ref(x_7);
-lean_dec_ref(x_1);
 return x_12;
 }
 }
@@ -3231,7 +3230,6 @@ uint8_t x_9; lean_object* x_10;
 x_9 = lean_unbox(x_5);
 x_10 = l___private_Lean_Elab_Print_0__Lean_Elab_Command_printAxiomLike(x_1, x_2, x_3, x_4, x_9, x_6, x_7);
 lean_dec(x_7);
-lean_dec_ref(x_1);
 return x_10;
 }
 }
@@ -3305,7 +3303,6 @@ x_11 = lean_unbox(x_1);
 x_12 = lean_unbox(x_7);
 x_13 = l___private_Lean_Elab_Print_0__Lean_Elab_Command_printDefLike(x_11, x_2, x_3, x_4, x_5, x_6, x_12, x_8, x_9);
 lean_dec(x_9);
-lean_dec_ref(x_2);
 return x_13;
 }
 }
@@ -5813,7 +5810,6 @@ x_9 = lean_ctor_get(x_1, 0);
 lean_inc(x_9);
 lean_dec_ref(x_1);
 x_10 = l_Lean_stringToMessageData(x_9);
-lean_dec(x_9);
 x_11 = l_Lean_throwError___at___00Lean_ofExcept___at___00__private_Lean_Elab_Print_0__Lean_Elab_Command_printStructure_spec__0_spec__0___redArg(x_10, x_2, x_3, x_4, x_5, x_6, x_7);
 return x_11;
 }
@@ -15686,7 +15682,6 @@ block_50:
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; 
 x_38 = l_Lean_stringToMessageData(x_34);
-lean_dec_ref(x_34);
 x_39 = l_Lean_MessageData_ofConstName(x_32, x_4);
 x_40 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_40, 0, x_38);
@@ -16191,7 +16186,6 @@ block_50:
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; 
 x_38 = l_Lean_stringToMessageData(x_34);
-lean_dec_ref(x_34);
 x_39 = l_Lean_MessageData_ofConstName(x_32, x_4);
 x_40 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_40, 0, x_38);
@@ -18176,7 +18170,6 @@ x_17 = 0;
 lean_inc(x_2);
 lean_inc(x_1);
 x_18 = l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHeader(x_15, x_1, x_2, x_4, x_16, x_17, x_7, x_8);
-lean_dec_ref(x_15);
 x_19 = lean_ctor_get(x_18, 0);
 lean_inc(x_19);
 lean_dec_ref(x_18);

@@ -10043,7 +10043,6 @@ x_121 = l_Lean_Server_FileWorker_OutputMessage_ofMsg(x_120);
 lean_inc_ref(x_3);
 x_122 = l_Std_Channel_Sync_send___redArg(x_3, x_121);
 lean_inc_ref(x_45);
-lean_inc_ref(x_1);
 x_123 = l_Lean_Server_FileWorker_setupFile(x_1, x_45, x_43);
 if (lean_obj_tag(x_123) == 0)
 {
@@ -29653,7 +29652,6 @@ lean_inc(x_40);
 x_41 = lean_ctor_get(x_37, 3);
 lean_inc_ref(x_41);
 lean_dec_ref(x_37);
-lean_inc_ref(x_39);
 x_42 = l_Lean_Server_moduleFromDocumentUri(x_39);
 if (lean_obj_tag(x_42) == 0)
 {

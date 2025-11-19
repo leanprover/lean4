@@ -4588,7 +4588,6 @@ lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 return x_10;
 }
 }
@@ -24171,7 +24170,6 @@ x_6 = l_Lean_Elab_shareCommonPreDefs___lam__0(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 return x_6;
 }
 }

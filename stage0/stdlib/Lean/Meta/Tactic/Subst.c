@@ -5014,7 +5014,6 @@ block_34:
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 x_23 = l_Lean_Meta_substCore___lam__2___closed__3;
 x_24 = l_Lean_stringToMessageData(x_22);
-lean_dec_ref(x_22);
 x_25 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_25, 0, x_23);
 lean_ctor_set(x_25, 1, x_24);

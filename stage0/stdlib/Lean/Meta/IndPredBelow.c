@@ -14475,7 +14475,6 @@ lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean
 x_13 = lean_ctor_get(x_11, 0);
 x_14 = l_Lean_exceptEmoji___redArg(x_3);
 x_15 = l_Lean_stringToMessageData(x_14);
-lean_dec_ref(x_14);
 x_16 = l___private_Lean_Meta_IndPredBelow_0__Lean_Meta_IndPredBelow_mkBelowMatcher_convertToBelow___lam__0___closed__1;
 x_17 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
@@ -14503,7 +14502,6 @@ lean_inc(x_24);
 lean_dec(x_11);
 x_25 = l_Lean_exceptEmoji___redArg(x_3);
 x_26 = l_Lean_stringToMessageData(x_25);
-lean_dec_ref(x_25);
 x_27 = l___private_Lean_Meta_IndPredBelow_0__Lean_Meta_IndPredBelow_mkBelowMatcher_convertToBelow___lam__0___closed__1;
 x_28 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
@@ -20522,7 +20520,6 @@ _start:
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_9 = l_Lean_exceptEmoji___redArg(x_3);
 x_10 = l_Lean_stringToMessageData(x_9);
-lean_dec_ref(x_9);
 x_11 = l___private_Lean_Meta_IndPredBelow_0__Lean_Meta_IndPredBelow_mkBelowMatcher_convertToBelow___lam__2___closed__3;
 x_12 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_12, 0, x_10);

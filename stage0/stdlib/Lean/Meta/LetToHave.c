@@ -13174,7 +13174,6 @@ block_28:
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
 x_22 = l_Lean_stringToMessageData(x_21);
-lean_dec_ref(x_21);
 x_23 = l___private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_visit___lam__0___closed__3;
 x_24 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_24, 0, x_22);

@@ -10741,7 +10741,6 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_
 x_9 = l_Lean_Core_throwMaxHeartbeat___redArg___closed__1;
 x_10 = l_Lean_Core_throwMaxHeartbeat___redArg___closed__3;
 x_11 = l_Lean_stringToMessageData(x_8);
-lean_dec_ref(x_8);
 x_12 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);

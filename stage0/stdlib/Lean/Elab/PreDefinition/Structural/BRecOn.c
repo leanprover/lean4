@@ -8626,7 +8626,6 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean
 x_11 = lean_ctor_get(x_9, 0);
 x_12 = l_Lean_exceptEmoji___redArg(x_3);
 x_13 = l_Lean_stringToMessageData(x_12);
-lean_dec_ref(x_12);
 x_14 = l_Lean_Elab_Structural_toBelow___lam__0___closed__1;
 x_15 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
@@ -8654,7 +8653,6 @@ lean_inc(x_22);
 lean_dec(x_9);
 x_23 = l_Lean_exceptEmoji___redArg(x_3);
 x_24 = l_Lean_stringToMessageData(x_23);
-lean_dec_ref(x_23);
 x_25 = l_Lean_Elab_Structural_toBelow___lam__0___closed__1;
 x_26 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_26, 0, x_24);

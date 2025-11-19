@@ -82,13 +82,4 @@ where
         removeExts s i' e
   termination_by i.1
 
--- sanity check
-example :
-  modOfFilePath "Foo/Bar" = `Foo.Bar
-  ∧ modOfFilePath "Foo/Bar/" = `Foo.Bar
-  ∧ modOfFilePath "Foo/Bar.lean" = `Foo.Bar
-  ∧ modOfFilePath "Foo/Bar.tar.gz" = `Foo.Bar
-  ∧ modOfFilePath "Foo/Bar.lean/" = `Foo.«Bar.lean»
-:= by native_decide
-
 attribute [deprecated "Deprecated without replacement." (since := "2025-08-01")] modOfFilePath

@@ -774,8 +774,8 @@ def filter! [Ord α] (f : (a : α) → β a → Bool) (t : Impl α β) : Impl α
 
 /-- Internal implementation detail of the tree map -/
 @[inline]
-def interSmallerFn [Ord α] (m : Impl α β) (sofar : { t : Impl α β // t.Balanced } ) (k : α) : { res : Impl α β // res.Balanced }:=
-   match m.getEntry? k with
+def interSmallerFn [Ord α] (m : Impl α β) (sofar : { t : Impl α β // t.Balanced } ) (k : α) : { res : Impl α β // res.Balanced } :=
+  match m.getEntry? k with
   | some kv' => let ⟨val, prop, _, _⟩ := (sofar.val.insert kv'.1 kv'.2 sofar.2); ⟨val, prop⟩
   | none => sofar
 
@@ -876,7 +876,6 @@ theorem balanced_inter [Ord α] {t₁ t₂ : Impl α β} (ht : t₁.Balanced) : 
   · rw [interSmaller]
     generalize (foldl (fun sofar k x => t₁.interSmallerFn sofar k) ⟨empty, _⟩ t₂) = m
     exact m.2
-
 
 /--
 Returns a map that contains all mappings of `t₁` and `t₂`. In case that both maps contain the

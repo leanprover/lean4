@@ -723,7 +723,7 @@ def union (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
 instance : Union (Raw α β cmp) := ⟨union⟩
 
 /--
-Computes the intersection of the given hash maps. The result will only contain entries from the first map.
+Computes the intersection of the given tree maps. The result will only contain entries from the first map.
 
 This function always merges the smaller map into the larger map.
 -/

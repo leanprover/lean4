@@ -84,7 +84,7 @@ theorem union [TransCmp cmp] {t₁ t₂ : Raw α cmp} (h₁ : t₁.WF) (h₂ : t
   ⟨InnerWF.union h₁ h₂⟩
 
 theorem inter [TransCmp cmp] {t₁ t₂ : Raw α cmp} (h₁ : t₁.WF) :
-  (t₁.inter t₂).WF :=
+    (t₁ ∩ t₂).WF :=
   ⟨InnerWF.inter h₁⟩
 
 end Std.TreeSet.Raw.WF

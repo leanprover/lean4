@@ -17,7 +17,7 @@ numerals are polymorphic in Lean, but the numeral `0` cannot be used in a contex
   Bool
 due to the absence of the instance above
 
-Hint: Type class instance resolution failures can be inspected with using the `set_option trace.Meta.synthInstance true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs in
 def x : Bool := 0
@@ -31,7 +31,7 @@ numerals are polymorphic in Lean, but the numeral `0` cannot be used in a contex
   Bool
 due to the absence of the instance above
 
-Hint: Type class instance resolution failures can be inspected with using the `set_option trace.Meta.synthInstance true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs in
 theorem result4 : False := by -- Does not generate a `sorry` warning because there is an error

@@ -12,10 +12,10 @@ import Prv.Foo
 
 /--
 error: overloaded, errors ⏎
-  failed to synthesize
+  failed to synthesize instance of type class
     EmptyCollection (Name "hello")
   ⏎
-  Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+  Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
   ⏎
   invalid {...} notation, constructor for `Name` is marked as private
 -/

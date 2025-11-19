@@ -160,6 +160,7 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
           let ctorApp2 := mkAppN ctor fields2
           let e := mkAppN motive (is ++ #[ctorApp1, ctorApp2, (← mkEqRefl (mkNatLit i))])
           let e ← mkForallFVars zs12 e
+          let e ← if zs12.isEmpty then mkArrow (mkConst ``Unit) e else pure e
           let name := match ctorName with
             | Name.str _ s => Name.mkSimple s
             | _ => Name.mkSimple s!"alt{i+1}"
@@ -190,8 +191,10 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
             let goal := alt.mvarId!
             let some (goal, _) ← Cases.unifyEqs? newRefls.size goal {}
                 | throwError "unifyEqns? unexpectedly closed goal"
-            let [] ← goal.apply alts[i]!
-              | throwError "could not apply {alts[i]!} to close\n{goal}"
+            let hyp := alts[i]!
+            let hyp := if zs1.isEmpty && zs2.isEmpty then mkApp hyp (mkConst ``Unit.unit) else hyp
+            let [] ← goal.apply hyp
+              | throwError "could not apply {hyp} to close\n{goal}"
             mkLambdaFVars (zs1 ++ zs2) (← instantiateMVars alt)
         let casesOn2 := mkAppN casesOn2 alts'
         let casesOn2 := mkAppN casesOn2 newRefls

@@ -27,7 +27,7 @@ open List
 error: `grind` failed
 case grind.1.1.1.1.1.1.1.1.1
 α : Type
-inst : (a b : α) → Decidable (a = b)
+inst : DecidableEq α
 l₁ l₂ : List α
 hl : l₂.Subperm l₁
 p : α → Bool

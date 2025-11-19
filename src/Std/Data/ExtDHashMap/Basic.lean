@@ -366,7 +366,7 @@ def union [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtDHashMap α β) : Ex
 instance [EquivBEq α] [LawfulHashable α] : Union (ExtDHashMap α β) := ⟨union⟩
 
 theorem inter_congr [EquivBEq α] [LawfulHashable α] (a b c d : DHashMap α β) (h₁ : a ~m c) (h₂ : b ~m d) : a ∩ b ~m c ∩ d :=
-  DHashMap.Equiv.trans (DHashMap.inter_equiv_congr_left h₁) (DHashMap.inter_equiv_congr_right h₂)
+  DHashMap.Equiv.trans (DHashMap.Equiv.inter_left h₁) (DHashMap.Equiv.inter_right h₂)
 
 @[inline, inherit_doc DHashMap.inter]
 def inter [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtDHashMap α β) : ExtDHashMap α β := lift₂ (fun x y : DHashMap α β => mk (x.inter y))

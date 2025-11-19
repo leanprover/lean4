@@ -3021,13 +3021,13 @@ theorem contains_inter_eq_false_of_contains_eq_false_right [EquivBEq α] [Lawful
 
 /- Equiv -/
 
-theorem inter_equiv_congr_left {m₃ : Raw₀ α β} [EquivBEq α] [LawfulHashable α]
+theorem Equiv.inter_left {m₃ : Raw₀ α β} [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (equiv : m₁.1.Equiv m₂.1) :
     (m₁.inter m₃).1.Equiv (m₂.inter m₃).1 := by
   revert equiv
   simp_to_model [Equiv, inter] using List.Perm.filter
 
-theorem inter_equiv_congr_right {m₃ : Raw₀ α β} [EquivBEq α] [LawfulHashable α]
+theorem Equiv.inter_right {m₃ : Raw₀ α β} [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (equiv : m₂.1.Equiv m₃.1) :
     (m₁.inter m₂).1.Equiv (m₁.inter m₃).1 := by
   revert equiv

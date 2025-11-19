@@ -38,7 +38,7 @@ Similar to `Grind.preprocess`, but does not simplify `e` if
 We added this feature because it may be coming from external sources
 (e.g., manually applying an function induction principle before invoking `grind`).
 -/
-private def preprocessHypothesis (e : Expr) : GoalM Simp.Result := do
+def preprocessHypothesis (e : Expr) : GoalM Simp.Result := do
   if isMatchCondCandidate e then
     preprocess (markAsPreMatchCond e)
   else if let some c := isAlreadyNorm? e then

@@ -822,6 +822,11 @@ def ValidPos.extract {s : @& String} (b e : @& s.ValidPos) : String where
   bytes := s.bytes.extract b.offset.byteIdx e.offset.byteIdx
   isValidUTF8 := b.isValidUTF8_extract e
 
+@[extern "lean_string_utf8_extract"]
+def Pos.extract {s : @& String} (b e : @& s.ValidPos) : String where
+  bytes := s.bytes.extract b.offset.byteIdx e.offset.byteIdx
+  isValidUTF8 := b.isValidUTF8_extract e
+
 /-- Creates a `String` from a `String.Slice` by copying the bytes. -/
 @[inline]
 def Slice.copy (s : Slice) : String :=

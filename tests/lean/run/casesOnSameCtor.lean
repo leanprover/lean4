@@ -38,16 +38,18 @@ info: Vec.match_on_same_ctor.{u_1, u} {α : Type u}
 /--
 info: Vec.match_on_same_ctor.splitter.{u_1, u} {α : Type u}
   {motive : {a : Nat} → (t t_1 : Vec α a) → t.ctorIdx = t_1.ctorIdx → Sort u_1} {a✝ : Nat} (t t✝ : Vec α a✝)
-  (h : t.ctorIdx = t✝.ctorIdx) (h_1 : motive nil nil ⋯)
+  (h : t.ctorIdx = t✝.ctorIdx) (h_1 : Unit → motive nil nil ⋯)
   (h_2 : (a : α) → (n : Nat) → (a_1 : Vec α n) → (a' : α) → (a'_1 : Vec α n) → motive (cons a a_1) (cons a' a'_1) ⋯) :
   motive t t✝ h
 -/
 #guard_msgs in
 #check Vec.match_on_same_ctor.splitter
 
--- Since there is no overlap, the splitter is equal to the matcher
--- (I wonder if we should use this in general in MatchEq)
-example : @Vec.match_on_same_ctor = @Vec.match_on_same_ctor.splitter := by rfl
+-- After #11211 this is no longer true. Should we thunk the same-ctor-construction?
+
+-- -- Since there is no overlap, the splitter is equal to the matcher
+-- -- (I wonder if we should use this in general in MatchEq)
+-- example : @Vec.match_on_same_ctor = @Vec.match_on_same_ctor.splitter := by rfl
 
 /--
 info: Vec.match_on_same_ctor.eq_2.{u_1, u} {α : Type u}

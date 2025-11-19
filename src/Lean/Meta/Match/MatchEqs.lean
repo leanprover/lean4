@@ -279,8 +279,7 @@ private abbrev ConvertM := ReaderT (FVarIdMap (Expr × Nat × Array Bool)) $ Sta
   - `altNews` are the new free variables which contains additional hypotheses that ensure they are only used
      when the previous overlapping alternatives are not applicable. -/
 private partial def mkSplitterProof (matchDeclName : Name) (template : Expr) (alts altsNew : Array Expr)
-    (altsNewNumParams : Array Nat)
-    (altArgMasks : Array (Array Bool)) : MetaM Expr := do
+    (altsNewNumParams : Array Nat) (altArgMasks : Array (Array Bool)) (numDiscrEqs : Nat) : MetaM Expr := do
   trace[Meta.Match.matchEqs] "proof template: {template}"
   let map := mkMap
   let (proof, mvarIds) ← convertTemplate template |>.run map |>.run #[]
@@ -454,7 +453,10 @@ where
       else
         let Expr.fvar fvarId .. := e.getAppFn | return .continue
         let some (altNew, numParams, argMask) := (← read).get? fvarId | return .continue
-        trace[Meta.Match.matchEqs] ">> argMask: {argMask}, e: {e}, {altNew}"
+        trace[Meta.Match.matchEqs] ">> argMask: {argMask}, numParams: {numParams}, e: {e}, alsNew: {altNew}, "
+        if numParams + numDiscrEqs = 0 then
+          let eNew := mkApp altNew (mkConst ``Unit.unit)
+          return TransformStep.done eNew
         let mut newArgs := #[]
         let argMask := trimFalseTrail argMask
         unless e.getAppNumArgs ≥ argMask.size do
@@ -463,7 +465,7 @@ where
           if includeArg then
             newArgs := newArgs.push arg
         let eNew := mkAppN altNew newArgs
-        /- Recall that `numParams` does not include the equalities associated with discriminants of the form `h : discr`. -/
+        /- Recall that `numParams` does not include the `numDiscrEqs` equalities associated with discriminants of the form `h : discr`. -/
         let (mvars, _, _) ← forallMetaBoundedTelescope (← inferType eNew) (numParams - newArgs.size) (kind := MetavarKind.syntheticOpaque)
         modify fun s => s ++ (mvars.map (·.mvarId!))
         let eNew := mkAppN eNew mvars
@@ -543,7 +545,13 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
           if let some h ← simpH? h patterns.size then
             hs := hs.push h
         trace[Meta.Match.matchEqs] "hs: {hs}"
-        let splitterAltType ← mkForallFVars ys (← hs.foldrM (init := (← mkForallFVars eqs altResultType)) (mkArrow · ·))
+        let splitterAltType ← mkForallFVars eqs altResultType
+        let splitterAltType ← mkArrowN hs splitterAltType
+        let splitterAltType ← mkForallFVars ys splitterAltType
+        let splitterAltType ← if splitterAltType == altResultType then
+          mkArrow (mkConst ``Unit) splitterAltType
+        else
+          pure splitterAltType
         let splitterAltType ← unfoldNamedPattern splitterAltType
         let splitterAltNumParam := hs.size + ys.size
         -- Create a proposition for representing terms that do not match `patterns`
@@ -580,14 +588,14 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
       let splitterParams := params.toArray ++ #[motive] ++ discrs.toArray ++ altsNew
       let splitterType ← mkForallFVars splitterParams matchResultType
       trace[Meta.Match.matchEqs] "splitterType: {splitterType}"
-      let template := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
-      let template ← deltaExpand template (· == constInfo.name)
-      let template := template.headBeta
       let splitterVal ←
         if (← isDefEq splitterType constInfo.type) then
           pure <| mkConst constInfo.name us
         else
-          mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew splitterAltNumParams altArgMasks)
+          let template := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
+          let template ← deltaExpand template (· == constInfo.name)
+          let template := template.headBeta
+          mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew splitterAltNumParams altArgMasks numDiscrEqs)
       addAndCompile <| Declaration.defnDecl {
         name        := splitterName
         levelParams := constInfo.levelParams

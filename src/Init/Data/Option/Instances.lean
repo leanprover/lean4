@@ -35,26 +35,6 @@ instance [DecidableEq α] (j : α) (o : Option α) : Decidable (j ∈ o) :=
 
 theorem some_inj {a b : α} : some a = some b ↔ a = b := by simp; rfl
 
-/--
-Equality with `none` is decidable even if the wrapped type does not have decidable equality.
--/
-instance decidableEqNone (o : Option α) : Decidable (o = none) :=
-  /- We use a `match` instead of transferring from `isNone_iff_eq_none` for
-    compatibility with the `DecidableEq` instance. -/
-  match o with
-  | none => .isTrue rfl
-  | some _ => .isFalse Option.noConfusion
-
-/--
-Equality with `none` is decidable even if the wrapped type does not have decidable equality.
--/
-instance decidableNoneEq (o : Option α) : Decidable (none = o) :=
-  /- We use a `match` instead of transferring from `isNone_iff_eq_none` for
-    compatibility with the `DecidableEq` instance. -/
-  match o with
-  | none => .isTrue rfl
-  | some _ => .isFalse Option.noConfusion
-
 instance decidableForallMem {p : α → Prop} [DecidablePred p] :
     ∀ o : Option α, Decidable (∀ a, a ∈ o → p a)
   | none => isTrue nofun

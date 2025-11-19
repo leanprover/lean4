@@ -258,7 +258,7 @@ where
       | some matcherApp =>
         if let some altParams ← matcherApp.refineThrough? param then
           matcherApp.discrs.forM (loop param)
-          (Array.zip matcherApp.alts (Array.zip matcherApp.altNumParams altParams)).forM
+          (Array.zip matcherApp.alts (Array.zip matcherApp.toMatcherInfo.altNumParams altParams)).forM
             fun (alt, altNumParam, altParam) =>
               lambdaBoundedTelescope altParam altNumParam fun xs altParam => do
                 unless altNumParam = xs.size do

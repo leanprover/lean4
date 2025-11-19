@@ -137,7 +137,7 @@ theorem Subarray.toList_eq {xs : Subarray α} :
   change aslice.toList = _
   have : aslice.toList = lslice.toList := by
     simp [ListSlice.toList_eq, lslice, aslice]
-    simp only [Std.Slice.toList, Std.Slice.Array.toList_internalIter]
+    simp only [Std.Slice.toList, toList_internalIter]
     apply List.ext_getElem
     · have : stop - start ≤ array.size - start := by omega
       simp [Subarray.start, Subarray.stop, Std.PRange.Nat.size_rco, *]
@@ -166,7 +166,7 @@ public theorem Subarray.length_toList {xs : Subarray α} :
 @[simp]
 public theorem Subarray.size_toArray {xs : Subarray α} :
     xs.toArray.size = xs.size := by
-  simp [← Subarray.toArray_toList]
+  rw [← Subarray.toArray_toList, List.size_toArray, length_toList]
 
 namespace Array
 

@@ -196,6 +196,7 @@ static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__72;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__12;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instGetElemFinVal___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instGetElemFinVal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_LawfulGetElem_getElem_x21__def___autoParam___closed__6;
@@ -320,7 +321,6 @@ static lean_object* l_LawfulGetElem_getElem_x21__def___autoParam___closed__10;
 LEAN_EXPORT lean_object* l_Fin_instGetElem_x3fFinVal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__49;
 static lean_object* l_LawfulGetElem_getElem_x21__def___autoParam___closed__14;
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__extensible__1___closed__5;
 LEAN_EXPORT lean_object* l_Array_instGetElem_x3fNatLtSize___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__44;
@@ -679,7 +679,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__5;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -829,7 +829,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__21;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1486,7 +1486,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___aux__Init__GetElem______macroRules__term_____x5b___x5d___x3f__1___closed__0;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1685,7 +1685,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___aux__Init__GetElem______macroRules__term_____x5b___x5d___x21__1___closed__0;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -3345,7 +3345,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__extensible__1___closed__10;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

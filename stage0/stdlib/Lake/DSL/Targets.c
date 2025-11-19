@@ -312,6 +312,7 @@ lean_object* l_Lake_DSL_elabConfig(lean_object*, lean_object*, lean_object*, lea
 static lean_object* l___private_Lake_DSL_Targets_0__Lake_DSL_expandLibraryFacetDecl___regBuiltin___private_Lake_DSL_Targets_0__Lake_DSL_expandLibraryFacetDecl__1___closed__1;
 static lean_object* l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lake_DSL_Targets_0__Lake_DSL_elabLeanLibCommand_spec__0_spec__0_spec__1___redArg___closed__2;
 LEAN_EXPORT lean_object* l___private_Lake_DSL_Targets_0__Lake_DSL_mkConfigDeclDef___lam__0(lean_object*, lean_object*);
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l___private_Lake_DSL_Targets_0__Lake_DSL_expandPackageFacetDecl___closed__9;
 static lean_object* l___private_Lake_DSL_Targets_0__Lake_DSL_expandModuleFacetDecl___closed__59;
 static lean_object* l___private_Lake_DSL_Targets_0__Lake_DSL_expandTargetCommand___closed__11;
@@ -483,7 +484,6 @@ LEAN_EXPORT lean_object* l___private_Lake_DSL_Targets_0__Lake_DSL_mkConfigDeclDe
 static lean_object* l___private_Lake_DSL_Targets_0__Lake_DSL_elabLeanExeCommand___closed__3;
 LEAN_EXPORT lean_object* l_Lake_DSL_mkLibraryFacetDecl___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_DSL_Targets_0__Lake_DSL_expandModuleFacetDecl___closed__10;
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l___private_Lake_DSL_Targets_0__Lake_DSL_expandTargetCommand___closed__35;
 extern lean_object* l_Lake_ExternLib_keyword;
 static lean_object* l_Lake_DSL_mkLibraryFacetDecl___redArg___lam__0___closed__1;
@@ -987,7 +987,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_expandModuleFacetDecl___closed__16;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1076,7 +1076,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_expandModuleFacetDecl___closed__26;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1268,7 +1268,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_expandModuleFacetDecl___closed__49;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -3121,7 +3121,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_expandPackageFacetDecl___closed__3;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -3195,7 +3195,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_expandPackageFacetDecl___closed__11;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -4847,7 +4847,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_expandLibraryFacetDecl___closed__3;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -4895,7 +4895,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_expandLibraryFacetDecl___closed__8;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -4969,7 +4969,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_expandLibraryFacetDecl___closed__16;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -6491,7 +6491,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_expandTargetCommand___closed__2;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -6517,7 +6517,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_expandTargetCommand___closed__5;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -6579,7 +6579,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_expandTargetCommand___closed__12;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -6632,7 +6632,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_expandTargetCommand___closed__18;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -6668,7 +6668,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_expandTargetCommand___closed__22;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -6728,7 +6728,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_expandTargetCommand___closed__29;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -8472,7 +8472,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_mkConfigDeclDef___closed__0;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -8509,7 +8509,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_mkConfigDeclDef___closed__4;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -8636,7 +8636,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_mkConfigDeclDef___closed__17;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -22593,7 +22593,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_expandExternLibCommand___closed__3;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -22629,7 +22629,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_expandExternLibCommand___closed__7;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -22665,7 +22665,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_expandExternLibCommand___closed__11;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -22721,7 +22721,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lake_DSL_Targets_0__Lake_DSL_expandExternLibCommand___closed__17;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

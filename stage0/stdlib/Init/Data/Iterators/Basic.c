@@ -121,6 +121,7 @@ static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______mac
 LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Basic_0__Std_Internal_idOpaque___lam__0___boxed(lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__3___closed__3;
 LEAN_EXPORT lean_object* l_Std_Shrink_inflate___redArg___boxed(lean_object*);
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__31;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__41;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__6;
@@ -181,7 +182,6 @@ static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______mac
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_finitelyManySkips___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__2___closed__11;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_mapIterator(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_done_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__3___closed__5;
 LEAN_EXPORT lean_object* l_Std_Iterators_PlausibleIterStep_casesOn___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1579,7 +1579,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__21;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1755,7 +1755,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__40;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -2047,7 +2047,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__2___closed__0;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -2122,7 +2122,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__2___closed__7;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -2413,7 +2413,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__3___closed__0;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -2650,7 +2650,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__4___closed__0;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

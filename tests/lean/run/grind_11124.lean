@@ -113,7 +113,7 @@ error: `grind` failed
 case grind.1.1.2.2.1.1.1
 α : Type
 β : α → Type
-inst : (a b : α) → Decidable (a = b)
+inst : DecidableEq α
 s₁ s₂ : AList β
 h : s₁.Disjoint s₂
 x : α

@@ -1222,21 +1222,9 @@ if (lean_obj_tag(x_9) == 0)
 lean_object* x_10; 
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
-if (lean_obj_tag(x_10) == 1)
-{
-lean_dec_ref(x_10);
-lean_dec(x_7);
-lean_dec_ref(x_6);
-lean_dec(x_5);
-lean_dec_ref(x_4);
-lean_dec_ref(x_3);
-lean_dec(x_1);
-return x_9;
-}
-else
+if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; 
-lean_dec(x_10);
 lean_dec_ref(x_9);
 x_11 = l_Lean_Compiler_LCNF_Simp_simpAppApp_x3f___redArg(x_1, x_5);
 if (lean_obj_tag(x_11) == 0)
@@ -1244,7 +1232,42 @@ if (lean_obj_tag(x_11) == 0)
 lean_object* x_12; 
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
-if (lean_obj_tag(x_12) == 1)
+if (lean_obj_tag(x_12) == 0)
+{
+lean_object* x_13; 
+lean_dec_ref(x_11);
+lean_inc(x_7);
+lean_inc(x_1);
+x_13 = l_Lean_Compiler_LCNF_Simp_simpCtorDiscr_x3f___redArg(x_1, x_3, x_4, x_5, x_6, x_7);
+if (lean_obj_tag(x_13) == 0)
+{
+lean_object* x_14; 
+x_14 = lean_ctor_get(x_13, 0);
+lean_inc(x_14);
+if (lean_obj_tag(x_14) == 0)
+{
+lean_object* x_15; 
+lean_dec_ref(x_13);
+x_15 = l_Lean_Compiler_LCNF_Simp_applyImplementedBy_x3f___redArg(x_1, x_2, x_7);
+lean_dec(x_7);
+return x_15;
+}
+else
+{
+lean_dec_ref(x_14);
+lean_dec(x_7);
+lean_dec(x_1);
+return x_13;
+}
+}
+else
+{
+lean_dec(x_7);
+lean_dec(x_1);
+return x_13;
+}
+}
+else
 {
 lean_dec_ref(x_12);
 lean_dec(x_7);
@@ -1255,43 +1278,6 @@ lean_dec_ref(x_3);
 lean_dec(x_1);
 return x_11;
 }
-else
-{
-lean_object* x_13; 
-lean_dec(x_12);
-lean_dec_ref(x_11);
-lean_inc(x_7);
-lean_inc(x_1);
-x_13 = l_Lean_Compiler_LCNF_Simp_simpCtorDiscr_x3f___redArg(x_1, x_3, x_4, x_5, x_6, x_7);
-if (lean_obj_tag(x_13) == 0)
-{
-lean_object* x_14; 
-x_14 = lean_ctor_get(x_13, 0);
-lean_inc(x_14);
-if (lean_obj_tag(x_14) == 1)
-{
-lean_dec_ref(x_14);
-lean_dec(x_7);
-lean_dec(x_1);
-return x_13;
-}
-else
-{
-lean_object* x_15; 
-lean_dec(x_14);
-lean_dec_ref(x_13);
-x_15 = l_Lean_Compiler_LCNF_Simp_applyImplementedBy_x3f___redArg(x_1, x_2, x_7);
-lean_dec(x_7);
-return x_15;
-}
-}
-else
-{
-lean_dec(x_7);
-lean_dec(x_1);
-return x_13;
-}
-}
 }
 else
 {
@@ -1303,6 +1289,17 @@ lean_dec_ref(x_3);
 lean_dec(x_1);
 return x_11;
 }
+}
+else
+{
+lean_dec_ref(x_10);
+lean_dec(x_7);
+lean_dec_ref(x_6);
+lean_dec(x_5);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
+lean_dec(x_1);
+return x_9;
 }
 }
 else

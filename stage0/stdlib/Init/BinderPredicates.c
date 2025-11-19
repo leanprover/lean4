@@ -157,6 +157,7 @@ static lean_object* l_Lean_binderPred_u2260___00__closed__0;
 static lean_object* l_Lean_termSatisfies__binder__pred_x25_____00__closed__7;
 static lean_object* l_Lean_binderPred_u2260___00__closed__3;
 static lean_object* l_Lean_binderPred_u2287___00__closed__0;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l_Lean_term_u2200_____x2c___00__closed__4;
 static lean_object* l_Lean_term_u2200_____x2c___00__closed__7;
 static lean_object* l_Lean_binderPred_u2282___00__closed__4;
@@ -235,7 +236,6 @@ LEAN_EXPORT lean_object* l_Lean_term_u2203_____x2c__;
 static lean_object* l_Lean___aux__Init__BinderPredicates______macroRules__Lean__term_u2203_____x2c____1___closed__5;
 static lean_object* l_Lean_term_u2200_____x2c___00__closed__3;
 static lean_object* l_Lean___aux__Init__BinderPredicates______macroRules__Lean__termSatisfies__binder__pred_x25______6___closed__1;
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Lean___aux__Init__BinderPredicates______macroRules__Lean__term_u2200_____x2c____1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_binderPred_u2265__;
 static lean_object* l_Lean_binderPred_quot___closed__16;
@@ -983,7 +983,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean___aux__Init__BinderPredicates______macroRules__Lean__term_u2203_____x2c____1___closed__15;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

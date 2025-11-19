@@ -20,7 +20,7 @@ static lean_object* l_Lean_addTrace___at___00Lean_Meta_Grind_propagateProjEq_spe
 LEAN_EXPORT lean_object* l_Lean_getProjectionFnInfo_x3f___at___00Lean_Meta_Grind_propagateProjEq_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_sort___override(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_getRootENode___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_getRootENode___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___00Lean_Meta_Grind_propagateProjEq_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -30,7 +30,7 @@ lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateProjEq___closed__0;
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___00Lean_Meta_Grind_propagateProjEq_spec__1___redArg(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_isCongrRoot___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_isCongrRoot___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateProjEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_addTrace___at___00Lean_Meta_Grind_propagateProjEq_spec__2___redArg___closed__1;
 static lean_object* l_Lean_Meta_Grind_propagateProjEq___closed__3;
@@ -538,7 +538,7 @@ else
 lean_object* x_25; 
 lean_free_object(x_13);
 lean_inc_ref(x_1);
-x_25 = l_Lean_Meta_Grind_isCongrRoot___redArg(x_1, x_2, x_8, x_9);
+x_25 = l_Lean_Meta_Grind_isCongrRoot___redArg(x_1, x_2, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_25) == 0)
 {
 uint8_t x_26; 
@@ -574,7 +574,7 @@ else
 lean_object* x_30; lean_object* x_31; 
 x_30 = l_Lean_Expr_appArg_x21(x_1);
 lean_inc_ref(x_30);
-x_31 = l_Lean_Meta_Grind_getRootENode___redArg(x_30, x_2, x_8, x_9);
+x_31 = l_Lean_Meta_Grind_getRootENode___redArg(x_30, x_2, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; uint8_t x_95; 
@@ -1079,7 +1079,7 @@ else
 lean_object* x_127; lean_object* x_128; 
 x_127 = l_Lean_Expr_appArg_x21(x_1);
 lean_inc_ref(x_127);
-x_128 = l_Lean_Meta_Grind_getRootENode___redArg(x_127, x_2, x_8, x_9);
+x_128 = l_Lean_Meta_Grind_getRootENode___redArg(x_127, x_2, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_128) == 0)
 {
 lean_object* x_129; lean_object* x_130; lean_object* x_131; uint8_t x_132; lean_object* x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_156; lean_object* x_157; lean_object* x_158; lean_object* x_159; lean_object* x_160; lean_object* x_161; lean_object* x_162; lean_object* x_163; lean_object* x_164; lean_object* x_165; lean_object* x_174; lean_object* x_175; lean_object* x_176; lean_object* x_177; lean_object* x_178; lean_object* x_179; lean_object* x_180; lean_object* x_181; lean_object* x_182; lean_object* x_183; uint8_t x_192; 
@@ -1658,7 +1658,7 @@ else
 {
 lean_object* x_236; 
 lean_inc_ref(x_1);
-x_236 = l_Lean_Meta_Grind_isCongrRoot___redArg(x_1, x_2, x_8, x_9);
+x_236 = l_Lean_Meta_Grind_isCongrRoot___redArg(x_1, x_2, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_236) == 0)
 {
 lean_object* x_237; lean_object* x_238; uint8_t x_239; 
@@ -1703,7 +1703,7 @@ else
 lean_object* x_242; lean_object* x_243; 
 x_242 = l_Lean_Expr_appArg_x21(x_1);
 lean_inc_ref(x_242);
-x_243 = l_Lean_Meta_Grind_getRootENode___redArg(x_242, x_2, x_8, x_9);
+x_243 = l_Lean_Meta_Grind_getRootENode___redArg(x_242, x_2, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_243) == 0)
 {
 lean_object* x_244; lean_object* x_245; lean_object* x_246; uint8_t x_247; lean_object* x_248; lean_object* x_249; lean_object* x_250; lean_object* x_251; lean_object* x_252; lean_object* x_253; lean_object* x_254; lean_object* x_271; lean_object* x_272; lean_object* x_273; lean_object* x_274; lean_object* x_275; lean_object* x_276; lean_object* x_277; lean_object* x_278; lean_object* x_279; lean_object* x_280; lean_object* x_289; lean_object* x_290; lean_object* x_291; lean_object* x_292; lean_object* x_293; lean_object* x_294; lean_object* x_295; lean_object* x_296; lean_object* x_297; lean_object* x_298; uint8_t x_307; 

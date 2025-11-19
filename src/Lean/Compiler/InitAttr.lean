@@ -9,6 +9,8 @@ prelude
 public import Lean.AddDecl
 public import Lean.Elab.InfoTree.Main
 import Init.Data.Range.Polymorphic.Stream
+import Lean.Compiler.NameMangling
+import Lean.Compiler.ModPkgExt
 
 public section
 
@@ -27,12 +29,16 @@ private def isIOUnit (type : Expr) : Bool :=
   | some type => isUnitType type
   | _ => false
 
+@[extern "lean_run_mod_init_core"]
+private unsafe opaque runModInitCore (sym : @& String) : IO Bool
+
 /--
-  Run the initializer of the given module (without `builtin_initialize` commands).
-  Return `false` if the initializer is not available as native code.
-  Initializers do not have corresponding Lean definitions, so they cannot be interpreted in this case. -/
-@[extern "lean_run_mod_init"]
-unsafe opaque runModInit (mod : Name) : IO Bool
+Run the initializer of the given module (without `builtin_initialize` commands).
+Return `false` if the initializer is not available as native code.
+Initializers do not have corresponding Lean definitions, so they cannot be interpreted in this case.
+-/
+@[inline] private unsafe def runModInit (mod : Name) (pkg? : Option String) : IO Bool :=
+  runModInitCore (mkModuleInitializationFunctionName mod pkg?)
 
 /-- Run the initializer for `decl` and store its value for global access. Should only be used while importing. -/
 @[extern "lean_run_init"]
@@ -159,7 +165,8 @@ private unsafe def runInitAttrs (env : Environment) (opts : Options) : IO Unit :
       -- any native Lean code reachable by the interpreter (i.e. from shared
       -- libraries with their corresponding module in the Environment) must
       -- first be initialized
-      if (← runModInit mod) then
+      let pkg? := env.getModulePackageByIdx? modIdx
+      if (← runModInit mod pkg?) then
         continue
       -- As `[init]` decls can have global side effects, ensure we run them at most once,
       -- just like the compiled code does.

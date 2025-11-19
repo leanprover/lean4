@@ -260,7 +260,7 @@ def getTacticExtensions (env : Environment) (tactic : Name) : Array String := Id
 def getTacticExtensionString (env : Environment) (tactic : Name) : String := Id.run do
   let exts := getTacticExtensions env tactic
   if exts.size == 0 then ""
-  else "\n\nExtensions:\n\n" ++ String.join (exts.toList.map bullet) |>.trimRight
+  else "\n\nExtensions:\n\n" ++ String.join (exts.toList.map bullet) |>.trimAsciiEnd |>.copy
 where
   indentLine (str: String) : String :=
     (if str.all (·.isWhitespace) then str else "   " ++ str) ++ "\n"

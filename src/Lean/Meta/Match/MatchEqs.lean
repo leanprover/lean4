@@ -11,39 +11,12 @@ public import Lean.Meta.Match.MatchEqsExt
 public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.SplitIf
+import Lean.Meta.Match.SimpH
+import Lean.Meta.Match.SolveOverlap
 
 public section
 
 namespace Lean.Meta
-
-/--
-A custom, approximated, and quick `contradiction` tactic.
-It only finds contradictions of the form `(h₁ : p)` and `(h₂ : ¬ p)` where
-`p`s are structurally equal. The procedure is not quadratic like `contradiction`.
-
-We use it to improve the performance of `proveSubgoalLoop` at `mkSplitterProof`.
-We will eventually have to write more efficient proof automation for this module.
-The new proof automation should exploit the structure of the generated goals and avoid general purpose tactics
-such as `contradiction`.
--/
-private def _root_.Lean.MVarId.contradictionQuick (mvarId : MVarId) : MetaM Bool := do
-  mvarId.withContext do
-    let mut posMap : Std.HashMap Expr FVarId := {}
-    let mut negMap : Std.HashMap Expr FVarId := {}
-    for localDecl in (← getLCtx) do
-      unless localDecl.isImplementationDetail do
-        if let some p ← matchNot? localDecl.type then
-          if let some pFVarId := posMap[p]? then
-            mvarId.assign (← mkAbsurd (← mvarId.getType) (mkFVar pFVarId) localDecl.toExpr)
-            return true
-          negMap := negMap.insert p localDecl.fvarId
-        if (← isProp localDecl.type) then
-          if let some nFVarId := negMap[localDecl.type]? then
-            mvarId.assign (← mkAbsurd (← mvarId.getType) localDecl.toExpr (mkFVar nFVarId))
-            return true
-          posMap := posMap.insert localDecl.type localDecl.fvarId
-      pure ()
-    return false
 
 /--
   Helper method for `proveCondEqThm`. Given a goal of the form `C.rec ... xMajor = rhs`,
@@ -215,152 +188,6 @@ where
     else
       return e
 
-namespace SimpH
-
-/--
-  State for the equational theorem hypothesis simplifier.
-
-  Recall that each equation contains additional hypotheses to ensure the associated case does not taken by previous cases.
-  We have one hypothesis for each previous case.
-
-  Each hypothesis is of the form `forall xs, eqs → False`
-
-  We use tactics to minimize code duplication.
--/
-structure State where
-  mvarId : MVarId            -- Goal representing the hypothesis
-  xs  : List FVarId          -- Pattern variables for a previous case
-  eqs : List FVarId          -- Equations to be processed
-  eqsNew : List FVarId := [] -- Simplified (already processed) equations
-
-abbrev M := StateRefT State MetaM
-
-/--
-  Apply the given substitution to `fvarIds`.
-  This is an auxiliary method for `substRHS`.
--/
-private def applySubst (s : FVarSubst) (fvarIds : List FVarId) : List FVarId :=
-  fvarIds.filterMap fun fvarId => match s.apply (mkFVar fvarId) with
-    | Expr.fvar fvarId .. => some fvarId
-    | _ => none
-
-/--
-  Given an equation of the form `lhs = rhs` where `rhs` is variable in `xs`,
-  replace it everywhere with `lhs`.
--/
-private def substRHS (eq : FVarId) (rhs : FVarId) : M Unit := do
-  assert! (← get).xs.contains rhs
-  let (subst, mvarId) ← substCore (← get).mvarId eq (symm := true)
-  modify fun s => { s with
-    mvarId,
-    xs  := applySubst subst (s.xs.erase rhs)
-    eqs := applySubst subst s.eqs
-    eqsNew := applySubst subst s.eqsNew
-  }
-
-private def isDone : M Bool :=
-  return (← get).eqs.isEmpty
-
-/-- Customized `contradiction` tactic for `simpH?` -/
-private def contradiction (mvarId : MVarId) : MetaM Bool :=
-   mvarId.contradictionCore { genDiseq := false, emptyType := false }
-
-/--
-  Auxiliary tactic that tries to replace as many variables as possible and then apply `contradiction`.
-  We use it to discard redundant hypotheses.
--/
-partial def trySubstVarsAndContradiction (mvarId : MVarId) (forbidden : FVarIdSet := {}) : MetaM Bool :=
-  commitWhen do
-    let mvarId ← substVars mvarId
-    match (← injections mvarId (forbidden := forbidden)) with
-    | .solved => return true -- closed goal
-    | .subgoal mvarId' _ forbidden =>
-      if mvarId' == mvarId then
-        contradiction mvarId
-      else
-        trySubstVarsAndContradiction mvarId' forbidden
-
-private def processNextEq : M Bool := do
-  let s ← get
-  s.mvarId.withContext do
-    if let eq :: eqs := s.eqs then
-      modify fun s => { s with eqs }
-      let eqType ← inferType (mkFVar eq)
-      -- See `substRHS`. Recall that if `rhs` is a variable then if must be in `s.xs`
-      if let some (_, lhs, rhs) ← matchEq? eqType then
-        -- Common case: Different constructors
-        match (← isConstructorApp? lhs), (← isConstructorApp? rhs) with
-        | some lhsCtor, some rhsCtor =>
-          if lhsCtor.name != rhsCtor.name then
-            return false -- If the constructors are different, we can discard the hypothesis even if it a heterogeneous equality
-        | _,_ => pure ()
-        if (← isDefEq lhs rhs) then
-          return true
-        if rhs.isFVar && s.xs.contains rhs.fvarId! then
-          substRHS eq rhs.fvarId!
-          return true
-      if let some (α, lhs, β, rhs) ← matchHEq? eqType then
-        -- Try to convert `HEq` into `Eq`
-        if (← isDefEq α β) then
-          let (eqNew, mvarId) ← heqToEq s.mvarId eq (tryToClear := true)
-          modify fun s => { s with mvarId, eqs := eqNew :: s.eqs }
-          return true
-        -- If it is not possible, we try to show the hypothesis is redundant by substituting even variables that are not at `s.xs`, and then use contradiction.
-        else
-          match (← isConstructorApp? lhs), (← isConstructorApp? rhs) with
-          | some lhsCtor, some rhsCtor =>
-            if lhsCtor.name != rhsCtor.name then
-              return false -- If the constructors are different, we can discard the hypothesis even if it a heterogeneous equality
-            else if (← trySubstVarsAndContradiction s.mvarId) then
-              return false
-          | _, _ =>
-            if (← trySubstVarsAndContradiction s.mvarId) then
-              return false
-      try
-        -- Try to simplify equation using `injection` tactic.
-        match (← injection s.mvarId eq) with
-        | InjectionResult.solved => return false
-        | InjectionResult.subgoal mvarId eqNews .. =>
-          modify fun s => { s with mvarId, eqs := eqNews.toList ++ s.eqs }
-      catch _ =>
-        modify fun s => { s with eqsNew := eq :: s.eqsNew }
-    return true
-
-partial def go : M Bool := do
-  if (← isDone) then
-    return true
-  else if (← processNextEq) then
-    go
-  else
-    return false
-
-end SimpH
-
-/--
-  Auxiliary method for simplifying equational theorem hypotheses.
-
-  Recall that each equation contains additional hypotheses to ensure the associated case was not taken by previous cases.
-  We have one hypothesis for each previous case.
--/
-private partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := withDefault do
-  let numVars ← forallTelescope h fun ys _ => pure (ys.size - numEqs)
-  let mvarId := (← mkFreshExprSyntheticOpaqueMVar h).mvarId!
-  let (xs, mvarId) ← mvarId.introN numVars
-  let (eqs, mvarId) ← mvarId.introN numEqs
-  let (r, s) ← SimpH.go |>.run { mvarId, xs := xs.toList, eqs := eqs.toList }
-  if r then
-    s.mvarId.withContext do
-      let eqs := s.eqsNew.reverse.toArray.map mkFVar
-      let mut r ← mkForallFVars eqs (mkConst ``False)
-      /- We only include variables in `xs` if there is a dependency. -/
-      for x in s.xs.reverse do
-        if (← dependsOn r x) then
-          r ← mkForallFVars #[mkFVar x] r
-      trace[Meta.Match.matchEqs] "simplified hypothesis{indentExpr r}"
-      check r
-      return some r
-  else
-    return none
 
 private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.withContext do
   for localDecl in (← getLCtx) do
@@ -443,45 +270,6 @@ private partial def withSplitterAlts (altTypes : Array Expr) (f : Array Expr →
       f xs
   go 0 #[]
 
-inductive InjectionAnyResult where
-  | solved
-  | failed
-  /-- `fvarId` refers to the local declaration selected for the application of the `injection` tactic. -/
-  | subgoal (fvarId : FVarId) (mvarId : MVarId)
-
-private def injectionAnyCandidate? (type : Expr) : MetaM (Option (Expr × Expr)) := do
-  if let some (_, lhs, rhs) ← matchEq? type then
-    return some (lhs, rhs)
-  else if let some (α, lhs, β, rhs) ← matchHEq? type then
-    if (← isDefEq α β) then
-      return some (lhs, rhs)
-  return none
-
-/--
-Try applying `injection` to a local declaration that is not in `forbidden`.
-
-We use `forbidden` because the `injection` tactic might fail to clear the variable if there are forward dependencies.
-See `proveSubgoalLoop` for additional details.
--/
-private def injectionAny (mvarId : MVarId) (forbidden : FVarIdSet := {}) : MetaM InjectionAnyResult := do
-  mvarId.withContext do
-    for localDecl in (← getLCtx) do
-      unless forbidden.contains localDecl.fvarId do
-        if let some (lhs, rhs) ← injectionAnyCandidate? localDecl.type then
-          unless (← isDefEq lhs rhs) do
-            let lhs ← whnf lhs
-            let rhs ← whnf rhs
-            unless lhs.isRawNatLit && rhs.isRawNatLit do
-              try
-                match (← injection mvarId localDecl.fvarId) with
-                | InjectionResult.solved  => return InjectionAnyResult.solved
-                | InjectionResult.subgoal mvarId .. => return InjectionAnyResult.subgoal localDecl.fvarId mvarId
-              catch ex =>
-                trace[Meta.Match.matchEqs] "injectionAnyFailed at {localDecl.userName}, error\n{ex.toMessageData}"
-                pure ()
-    return InjectionAnyResult.failed
-
-
 private abbrev ConvertM := ReaderT (FVarIdMap (Expr × Nat × Array Bool)) $ StateRefT (Array MVarId) MetaM
 
 /--
@@ -497,7 +285,8 @@ private partial def mkSplitterProof (matchDeclName : Name) (template : Expr) (al
   let (proof, mvarIds) ← convertTemplate template |>.run map |>.run #[]
   trace[Meta.Match.matchEqs] "splitter proof: {proof}"
   for mvarId in mvarIds do
-    proveSubgoal mvarId
+    let mvarId ← mvarId.tryClearMany (alts.map (·.fvarId!))
+    solveOverlap mvarId
   instantiateMVars proof
 where
   mkMap : FVarIdMap (Expr × Nat × Array Bool) := Id.run do
@@ -682,32 +471,6 @@ where
         let eNew := mkAppN eNew mvars
         return TransformStep.done eNew
 
-  /-
-  `forbidden` tracks variables that we have already applied `injection`.
-  Recall that the `injection` tactic may not be able to eliminate them when
-  they have forward dependencies.
-  -/
-  proveSubgoalLoop (mvarId : MVarId) (forbidden : FVarIdSet) : MetaM Unit := do
-    trace[Meta.Match.matchEqs] "proveSubgoalLoop\n{mvarId}"
-    if (← mvarId.contradictionQuick) then
-      return ()
-    match (← injectionAny mvarId forbidden) with
-    | .solved => return ()
-    | .failed =>
-      let mvarId' ← substVars mvarId
-      if mvarId' == mvarId then
-        if (← mvarId.contradictionCore {}) then
-          return ()
-        throwError "failed to generate splitter for match auxiliary declaration `{matchDeclName}`, unsolved subgoal:\n{MessageData.ofGoal mvarId}"
-      else
-        proveSubgoalLoop mvarId' forbidden
-    | .subgoal fvarId mvarId => proveSubgoalLoop mvarId (forbidden.insert fvarId)
-
-  proveSubgoal (mvarId : MVarId) : MetaM Unit := do
-    trace[Meta.Match.matchEqs] "subgoal {mkMVar mvarId}, {repr (← mvarId.getDecl).kind}, {← mvarId.isAssigned}\n{MessageData.ofGoal mvarId}"
-    let (_, mvarId) ← mvarId.intros
-    let mvarId ← mvarId.tryClearMany (alts.map (·.fvarId!))
-    proveSubgoalLoop mvarId {}
 
 /--
   Create new alternatives (aka minor premises) by replacing `discrs` with `patterns` at `alts`.
@@ -776,7 +539,8 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
           fun ys eqs rhsArgs argMask altResultType => do
         let patterns := altResultType.getAppArgs
         let mut hs := #[]
-        for notAlt in notAlts do
+        for overlappedBy in matchInfo.overlaps.overlapping i do
+          let notAlt := notAlts[overlappedBy]!
           let h ← instantiateForall notAlt patterns
           if let some h ← simpH? h patterns.size then
             hs := hs.push h
@@ -902,9 +666,10 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
         withLocalDeclsDND heqsTypes fun heqs => do
           let rhs ← Match.mkAppDiscrEqs (mkAppN alt args) heqs numDiscrEqs
           let mut hs := #[]
-          for notAlt in notAlts do
+          for overlappedBy in matchInfo.overlaps.overlapping i do
+            let notAlt := notAlts[overlappedBy]!
             let h ← instantiateForall notAlt patterns
-            if let some h ← Match.simpH? h patterns.size then
+            if let some h ← simpH? h patterns.size then
               hs := hs.push h
           trace[Meta.Match.matchEqs] "hs: {hs}"
           let mut notAlt := mkConst ``False

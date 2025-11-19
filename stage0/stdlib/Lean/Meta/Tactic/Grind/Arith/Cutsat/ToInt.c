@@ -30705,7 +30705,7 @@ return x_61;
 block_25:
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_22 = l_Lean_mkApp6(x_17, x_3, x_4, x_15, x_16, x_19, x_18);
+x_22 = l_Lean_mkApp6(x_20, x_3, x_4, x_19, x_15, x_17, x_16);
 x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_21);
 lean_ctor_set(x_23, 1, x_22);
@@ -30763,12 +30763,12 @@ lean_dec(x_43);
 lean_inc(x_44);
 lean_inc(x_40);
 x_46 = l_Lean_mkIntMod(x_40, x_44);
-x_15 = x_40;
-x_16 = x_44;
-x_17 = x_37;
-x_18 = x_45;
-x_19 = x_41;
-x_20 = lean_box(0);
+x_15 = x_44;
+x_16 = x_45;
+x_17 = x_41;
+x_18 = lean_box(0);
+x_19 = x_40;
+x_20 = x_37;
 x_21 = x_46;
 goto block_25;
 }
@@ -30783,12 +30783,12 @@ lean_dec(x_43);
 lean_inc(x_47);
 lean_inc(x_40);
 x_49 = l_Lean_mkIntDiv(x_40, x_47);
-x_15 = x_40;
-x_16 = x_47;
-x_17 = x_37;
-x_18 = x_48;
-x_19 = x_41;
-x_20 = lean_box(0);
+x_15 = x_47;
+x_16 = x_48;
+x_17 = x_41;
+x_18 = lean_box(0);
+x_19 = x_40;
+x_20 = x_37;
 x_21 = x_49;
 goto block_25;
 }

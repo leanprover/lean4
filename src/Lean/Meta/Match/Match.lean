@@ -12,6 +12,7 @@ public import Lean.Meta.GeneralizeTelescope
 public import Lean.Meta.Match.Basic
 public import Lean.Meta.Match.MatcherApp.Basic
 public import Lean.Meta.Match.MVarRenaming
+import Lean.Meta.HasNotBit
 
 public section
 
@@ -119,7 +120,14 @@ where
         loop lhss alts minors
 
 structure State where
+  /-- Used alternatives -/
   used            : Std.HashSet Nat := {} -- used alternatives
+  /--
+  Overlapped alternatives.
+  Stored as ordered pairs `(overlapping,overlapped) ∈ overlaps`.
+  Used during splitter generation to avoid going through all pairs of patterns.
+  -/
+  overlaps        : Overlaps := {}
   counterExamples : List (List Example) := []
 
 /-- Return true if the given (sub-)problem has been solved. -/
@@ -328,8 +336,8 @@ where
       return (p, (lhs, rhs) :: cnstrs)
 
 /--
-Solve pending alternative constraints. If all constraints can be solved perform assignment
-`mvarId := alt.rhs`, and return true.
+Solve pending alternative constraints.
+If all constraints can be solved perform assignment `mvarId := alt.rhs`, else throw error.
 -/
 private partial def solveCnstrs (mvarId : MVarId) (alt : Alt) : StateRefT State MetaM Unit := do
   go (reorientCnstrs alt)
@@ -354,16 +362,13 @@ where
           msg := msg ++ m!"\n  {lhs} ≋ {rhs}"
         throwErrorAt alt.ref msg
 
-private abbrev isCtorIdxIneq? (e : Expr) : Option FVarId := do
-  if let some (_, lhs, _rhs) := e.ne? then
-    if
-      lhs.isApp &&
-      lhs.getAppFn.isConst &&
-      (`ctorIdx).isSuffixOf lhs.getAppFn.constName! && -- This should be an env extension maybe
-      lhs.appArg!.isFVar
-    then
-      return lhs.appArg!.fvarId!
-  none
+private def isCtorIdxHasNotBit? (e : Expr) : Option FVarId := do
+  let ctorIdxApp ← isHasNotBit? e
+  guard ctorIdxApp.isApp
+  guard ctorIdxApp.getAppFn.isConst
+  guard <| (`ctorIdx).isSuffixOf ctorIdxApp.getAppFn.constName! -- This should be an env extension maybe
+  guard ctorIdxApp.appArg!.isFVar
+  return ctorIdxApp.appArg!.fvarId!
 
 private partial def contradiction (mvarId : MVarId) : MetaM Bool := do
   mvarId.withContext do
@@ -375,7 +380,7 @@ private partial def contradiction (mvarId : MVarId) : MetaM Bool := do
     else
       -- Try harder by splitting `ctorIdx x ≠ 23` assumptions
       for localDecl in (← getLCtx) do
-        if let some fvarId := isCtorIdxIneq? localDecl.type then
+        if let some fvarId := isCtorIdxHasNotBit? localDecl.type then
           trace[Meta.Match.match] "splitting ctorIdx assumption {localDecl.type}"
           let subgoals ← mvarId.cases fvarId
           return ← subgoals.allM (contradiction ·.mvarId)
@@ -399,8 +404,10 @@ where
       unless (← contradiction mvarId) do
         trace[Meta.Match.match] "contradiction failed, missing alternative"
         modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
-    | alt :: _ =>
+    | alt :: overlapped =>
       solveCnstrs p.mvarId alt
+      for otherAlt in overlapped do
+        modify fun s => { s with overlaps := s.overlaps.insert alt.idx otherAlt.idx }
 
 private def processAsPattern (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: _ := p.vars | unreachable!
@@ -917,10 +924,12 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
         process (moveToFront p i)
         return
     | none =>
-      if 1 < p.alts.length then
+      if let alt::(overlapped@(_::_)) := p.alts then
         traceStep ("drop all but first alt")
-        -- all patterns are irrefutable, we can drop all other alts
-        let p := { p with alts := p.alts.take 1 }
+        -- all patterns in first alternative are irrefutable, we can drop all other alts
+        let p := { p with alts := [alt] }
+        for otherAlt in overlapped do
+          modify fun s => { s with overlaps := s.overlaps.insert alt.idx otherAlt.idx }
         process p
         return
 
@@ -1120,6 +1129,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
           discrInfos
           numDiscrs
           uElimPos?
+          overlaps := s.overlaps
           }
       | none => pure ()
 

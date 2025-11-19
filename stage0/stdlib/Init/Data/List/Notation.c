@@ -58,6 +58,7 @@ static lean_object* l_Lean___aux__Init__Data__List__Notation______macroRules__te
 static lean_object* l_term_x5b___x5d___closed__8;
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1___closed__9;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l_term_x5b___x5d___closed__19;
 LEAN_EXPORT lean_object* l_term_x5b___x5d;
 LEAN_EXPORT lean_object* l_term_x25_x5b___x7c___x5d;
@@ -93,7 +94,6 @@ static lean_object* l___private_Init_Data_List_Notation_0__Lean___aux__Init__Dat
 static lean_object* l_Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1___closed__0;
 static lean_object* l_Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1___closed__5;
 static lean_object* l_term_x5b___x5d___closed__0;
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_term_x5b___x5d___closed__10;
 static lean_object* l___private_Init_Data_List_Notation_0__Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1_expandListLit___closed__2;
 static lean_object* _init_l_term_x5b___x5d___closed__0() {
@@ -516,7 +516,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Init_Data_List_Notation_0__Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1_expandListLit___closed__5;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -712,7 +712,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1___closed__2;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

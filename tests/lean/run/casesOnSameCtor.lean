@@ -45,9 +45,11 @@ info: Vec.match_on_same_ctor.splitter.{u_1, u} {α : Type u}
 #guard_msgs in
 #check Vec.match_on_same_ctor.splitter
 
--- Since there is no overlap, the splitter is equal to the matcher
--- (I wonder if we should use this in general in MatchEq)
-example : @Vec.match_on_same_ctor = @Vec.match_on_same_ctor.splitter := by rfl
+-- After #11211 this is no longer true. Should we thunk the same-ctor-construction?
+
+-- -- Since there is no overlap, the splitter is equal to the matcher
+-- -- (I wonder if we should use this in general in MatchEq)
+-- example : @Vec.match_on_same_ctor = @Vec.match_on_same_ctor.splitter := by rfl
 
 /--
 info: Vec.match_on_same_ctor.eq_2.{u_1, u} {α : Type u}

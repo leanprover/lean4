@@ -8473,17 +8473,18 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Ne", 2, 2);
+x_1 = lean_mk_string_unchecked("hasNotBit", 9, 9);
 return x_1;
 }
 }
 static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_inductionCasesOn___lam__0___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_inductionCasesOn___lam__0___closed__4;
-x_2 = l_Lean_Name_mkStr1(x_1);
-return x_2;
+x_2 = l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_inductionCasesOn___lam__0___closed__0;
+x_3 = l_Lean_Name_mkStr2(x_2, x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_inductionCasesOn___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, uint8_t x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
@@ -8718,7 +8719,7 @@ block_40:
 {
 lean_object* x_25; 
 lean_inc(x_3);
-x_25 = l_Lean_MVarId_induction(x_2, x_3, x_24, x_4, x_20, x_19, x_23, x_22);
+x_25 = l_Lean_MVarId_induction(x_2, x_3, x_24, x_4, x_23, x_22, x_20, x_21);
 if (lean_obj_tag(x_25) == 0)
 {
 lean_object* x_26; uint8_t x_27; 
@@ -8792,10 +8793,10 @@ x_47 = lean_ctor_get(x_46, 0);
 x_48 = lean_ctor_get(x_47, 0);
 lean_inc(x_48);
 x_49 = l_Lean_mkCasesOnName(x_48);
-x_19 = x_41;
+x_19 = lean_box(0);
 x_20 = x_42;
-x_21 = lean_box(0);
-x_22 = x_44;
+x_21 = x_44;
+x_22 = x_43;
 x_23 = x_45;
 x_24 = x_49;
 goto block_40;
@@ -8807,11 +8808,11 @@ x_56 = lean_st_ref_get(x_54);
 if (x_6 == 0)
 {
 lean_dec_ref(x_56);
-x_41 = x_52;
-x_42 = x_51;
-x_43 = lean_box(0);
+x_41 = lean_box(0);
+x_42 = x_53;
+x_43 = x_52;
 x_44 = x_54;
-x_45 = x_53;
+x_45 = x_51;
 goto block_50;
 }
 else
@@ -8828,11 +8829,11 @@ x_62 = lean_name_eq(x_60, x_61);
 if (x_62 == 0)
 {
 lean_dec_ref(x_59);
-x_41 = x_52;
-x_42 = x_51;
-x_43 = lean_box(0);
+x_41 = lean_box(0);
+x_42 = x_53;
+x_43 = x_52;
 x_44 = x_54;
-x_45 = x_53;
+x_45 = x_51;
 goto block_50;
 }
 else
@@ -8842,20 +8843,20 @@ x_63 = l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_inductionCasesOn___
 x_64 = l_Lean_Environment_contains(x_59, x_63, x_62);
 if (x_64 == 0)
 {
-x_41 = x_52;
-x_42 = x_51;
-x_43 = lean_box(0);
+x_41 = lean_box(0);
+x_42 = x_53;
+x_43 = x_52;
 x_44 = x_54;
-x_45 = x_53;
+x_45 = x_51;
 goto block_50;
 }
 else
 {
-x_19 = x_52;
-x_20 = x_51;
-x_21 = lean_box(0);
-x_22 = x_54;
-x_23 = x_53;
+x_19 = lean_box(0);
+x_20 = x_53;
+x_21 = x_54;
+x_22 = x_52;
+x_23 = x_51;
 x_24 = x_63;
 goto block_40;
 }

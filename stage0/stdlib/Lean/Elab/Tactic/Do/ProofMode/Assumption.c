@@ -893,23 +893,7 @@ if (lean_obj_tag(x_73) == 0)
 {
 lean_object* x_74; 
 x_74 = lean_ctor_get(x_73, 0);
-if (lean_obj_tag(x_74) == 1)
-{
-lean_dec_ref(x_66);
-lean_dec(x_71);
-lean_dec(x_70);
-lean_dec(x_68);
-lean_dec(x_11);
-lean_dec_ref(x_10);
-lean_dec_ref(x_8);
-lean_dec(x_7);
-lean_dec(x_5);
-lean_dec_ref(x_4);
-lean_dec(x_3);
-lean_dec_ref(x_2);
-return x_73;
-}
-else
+if (lean_obj_tag(x_74) == 0)
 {
 lean_object* x_75; lean_object* x_76; 
 lean_dec_ref(x_73);
@@ -1011,6 +995,22 @@ lean_dec(x_68);
 lean_dec_ref(x_10);
 return x_76;
 }
+}
+else
+{
+lean_dec_ref(x_66);
+lean_dec(x_71);
+lean_dec(x_70);
+lean_dec(x_68);
+lean_dec(x_11);
+lean_dec_ref(x_10);
+lean_dec_ref(x_8);
+lean_dec(x_7);
+lean_dec(x_5);
+lean_dec_ref(x_4);
+lean_dec(x_3);
+lean_dec_ref(x_2);
+return x_73;
 }
 }
 else
@@ -1122,23 +1122,7 @@ if (lean_obj_tag(x_124) == 0)
 {
 lean_object* x_125; 
 x_125 = lean_ctor_get(x_124, 0);
-if (lean_obj_tag(x_125) == 1)
-{
-lean_dec_ref(x_123);
-lean_dec(x_121);
-lean_dec(x_120);
-lean_dec(x_68);
-lean_dec(x_11);
-lean_dec_ref(x_10);
-lean_dec_ref(x_8);
-lean_dec(x_7);
-lean_dec(x_5);
-lean_dec_ref(x_4);
-lean_dec(x_3);
-lean_dec_ref(x_2);
-return x_124;
-}
-else
+if (lean_obj_tag(x_125) == 0)
 {
 lean_object* x_126; lean_object* x_127; 
 lean_dec_ref(x_124);
@@ -1214,6 +1198,22 @@ lean_dec(x_68);
 lean_dec_ref(x_10);
 return x_127;
 }
+}
+else
+{
+lean_dec_ref(x_123);
+lean_dec(x_121);
+lean_dec(x_120);
+lean_dec(x_68);
+lean_dec(x_11);
+lean_dec_ref(x_10);
+lean_dec_ref(x_8);
+lean_dec(x_7);
+lean_dec(x_5);
+lean_dec_ref(x_4);
+lean_dec(x_3);
+lean_dec_ref(x_2);
+return x_124;
 }
 }
 else
@@ -2550,17 +2550,9 @@ if (lean_obj_tag(x_29) == 0)
 lean_object* x_30; 
 x_30 = lean_ctor_get(x_29, 0);
 lean_inc(x_30);
-if (lean_obj_tag(x_30) == 1)
-{
-lean_dec_ref(x_30);
-lean_dec(x_28);
-x_11 = x_29;
-goto block_22;
-}
-else
+if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; 
-lean_dec(x_30);
 lean_dec_ref(x_29);
 lean_inc(x_9);
 lean_inc_ref(x_8);
@@ -2568,6 +2560,13 @@ lean_inc(x_7);
 lean_inc_ref(x_6);
 x_31 = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_assumptionPure(x_28, x_6, x_7, x_8, x_9);
 x_11 = x_31;
+goto block_22;
+}
+else
+{
+lean_dec_ref(x_30);
+lean_dec(x_28);
+x_11 = x_29;
 goto block_22;
 }
 }

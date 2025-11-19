@@ -29,7 +29,7 @@ def mkFromJsonHeader (indVal : InductiveVal) : TermElabM Header := do
 
 def mkJsonField (n : Name) : CoreM (Bool × Term) := do
   let .str .anonymous s := n | throwError "invalid json field name {n}"
-  let s₁ := s.dropRightWhile (· == '?')
+  let s₁ := s.dropEndWhile (· == '?') |>.copy
   return (s != s₁, Syntax.mkStrLit s₁)
 
 def mkToJsonBodyForStruct (header : Header) (indName : Name) : TermElabM Term := do

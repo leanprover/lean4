@@ -34,6 +34,7 @@ static lean_object* l_termS_x21___00__closed__7;
 static lean_object* l_termS_x21___00__closed__9;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__8;
 LEAN_EXPORT lean_object* l_termS_x21__;
 static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__10;
@@ -48,7 +49,6 @@ static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 static lean_object* l_termS_x21___00__closed__2;
 static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__9;
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__0;
 static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__13;
 static lean_object* _init_l_termS_x21___00__closed__0() {
@@ -210,7 +210,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__0;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -282,7 +282,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__7;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

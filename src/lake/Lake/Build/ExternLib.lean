@@ -68,7 +68,7 @@ def computeDynlibOfShared (sharedLibTarget : Job FilePath) : SpawnM (Job Dynlib)
       if Platform.isWindows then
         return {path := sharedLib, name := stem}
       else if stem.startsWith "lib" then
-        return {path := sharedLib, name := stem.drop 3}
+        return {path := sharedLib, name := stem.drop 3 |>.copy}
       else
         error s!"shared library `{sharedLib}` does not start with `lib`; this is not supported on Unix"
     else

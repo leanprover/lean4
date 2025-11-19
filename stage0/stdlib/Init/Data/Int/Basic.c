@@ -77,6 +77,7 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Int___aux__Init__Data__Int__Basic______unexpand__Int__negSucc__1___closed__1;
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instOfNat(lean_object*);
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__5;
 lean_object* lean_int_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_instMax___lam__0___boxed(lean_object*, lean_object*);
@@ -146,7 +147,6 @@ LEAN_EXPORT lean_object* l_Int_ctorElim___redArg___boxed(lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Int_instLEInt;
 LEAN_EXPORT lean_object* l_Int_instMin___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_negOfNat(lean_object*);
-lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_IntCast_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_ofNat_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_pow___boxed(lean_object*, lean_object*);
@@ -408,7 +408,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1___closed__5;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

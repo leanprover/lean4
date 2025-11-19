@@ -18,6 +18,7 @@ LEAN_EXPORT lean_object* l_String_instHSubRawSlice___lam__0(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_String_join(lean_object*);
 LEAN_EXPORT lean_object* l_String_rawStartPos___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instAppendString___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_toSubstring(lean_object*);
 LEAN_EXPORT lean_object* l_String_pushn___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_endPos___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_instDecidableEqValidPos_decEq___boxed(lean_object*, lean_object*, lean_object*);
@@ -88,6 +89,7 @@ LEAN_EXPORT lean_object* l_String_pushn___lam__0(uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_String_instInhabitedValidPos___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_String_instDecidableLtValidPos(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_fromUTF8(lean_object*, lean_object*);
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_String_instDecidableLeValidPos___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_startPos___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_instLTPos(lean_object*);
@@ -152,6 +154,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_instHSubRawSlice;
 LEAN_EXPORT lean_object* l_String_instDecidableLtPos___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Defs_0__String_intercalate_go(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_String_instLTValidPos(lean_object*);
 LEAN_EXPORT lean_object* l_String_join___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_instLTValidPos___boxed(lean_object*);
@@ -1397,6 +1400,27 @@ lean_dec(x_2);
 lean_dec_ref(x_1);
 x_5 = lean_box(x_4);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_String_toSubstring(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_string_utf8_byte_size(x_1);
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_String_toSubstring_x27(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_String_toRawSubstring_x27(x_1);
+return x_2;
 }
 }
 lean_object* initialize_Init_Data_ByteArray_Basic(uint8_t builtin);

@@ -120,7 +120,7 @@ public def getUrl?
       | .ok none => error s!"curl's JSON output did not contain a response code"
       | .error e => error s!"curl's JSON output contained an invalid JSON response code: {e}"
     if code == 200 then
-      return some out.stdout.trim
+      return some out.stdout.trimAscii.copy
     else if code == 404 then
       return none
     else

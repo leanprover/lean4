@@ -88,11 +88,11 @@ def rewriteExamples (docstring : String) : String := Id.run do
   -- The current state, which tracks the context of the line being processed
   let mut inOutput : RWState := .normal
   for l in lines do
-    let indent := l.takeWhile (· == ' ') |>.length
-    let mut l' := l.trimLeft
+    let indent := l.takeWhile (· == ' ') |>.copy |>.length
+    let mut l' := l.trimAsciiStart
     -- Is this a code block fence?
     if l'.startsWith "```" then
-      let count := l'.takeWhile (· == '`') |>.length
+      let count := l'.takeWhile (· == '`') |>.copy |>.length
       l' := l'.dropWhile (· == '`')
       l' := l'.dropWhile (· == ' ')
       match inOutput with

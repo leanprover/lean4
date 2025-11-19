@@ -26,8 +26,8 @@ export ToText (toText)
 public instance (priority := 0) [ToString α] : ToText α := ⟨toString⟩
 
 public instance : ToText Json := ⟨Json.compress⟩
-public instance [ToText α] : ToText (List α) := ⟨(·.foldl (s!"{·}{toText ·}\n") "" |>.dropRight 1)⟩
-public instance [ToText α] : ToText (Array α) := ⟨(·.foldl (s!"{·}{toText ·}\n") "" |>.dropRight 1)⟩
+public instance [ToText α] : ToText (List α) := ⟨(·.foldl (s!"{·}{toText ·}\n") "" |>.dropEnd 1 |>.copy)⟩
+public instance [ToText α] : ToText (Array α) := ⟨(·.foldl (s!"{·}{toText ·}\n") "" |>.dropEnd 1 |>.copy)⟩
 
 /-- Class used to format target output as text for `lake query`. -/
 public class QueryText (α : Type u) where

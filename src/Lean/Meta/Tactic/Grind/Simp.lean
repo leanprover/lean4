@@ -95,6 +95,7 @@ A lighter version of `preprocess` which produces a definitionally equal term,
 but ensures assumptions made by `grind` are satisfied.
 -/
 def preprocessLight (e : Expr) : GoalM Expr := do
+  let e ← instantiateMVars e
   shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedSubsingletons (← unfoldReducible e))))))
 
 end Lean.Meta.Grind

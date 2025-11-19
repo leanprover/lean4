@@ -9,6 +9,7 @@ prelude
 public import Lake.Util.Date
 import Lake.Util.String
 import Init.Data.String.TakeDrop
+import Init.Data.String.Search
 
 /-!
 # TOML Date-Time
@@ -63,12 +64,12 @@ public def ofValid? (hour minute second : Nat) : Option Time := do
   return {hour, minute, second}
 
 public def ofString? (t : String) : Option Time := do
-  match t.splitToList (· == ':') with
+  match t.split ':' |>.toList with
   | [h,m,s] =>
-    match s.splitToList (· == '.') with
+    match s.split '.' |>.toList with
     | [s,f] =>
       let time ← ofValid? (← h.toNat?) (← m.toNat?) (← s.toNat?)
-      return {time with fracExponent := f.length-1, fracMantissa := ← f.toNat?}
+      return {time with fracExponent := f.copy.length-1, fracMantissa := ← f.toNat?}
     | [s] =>
       ofValid? (← h.toNat?) (← m.toNat?) (← s.toNat?)
     | _ => none
@@ -101,22 +102,22 @@ public instance : Coe Time DateTime := ⟨DateTime.localTime⟩
 namespace DateTime
 
 public def ofString? (dt : String) : Option DateTime := do
-  match dt.splitToList (fun c => c == 'T' || c == 't' || c == ' ') with
+  match dt.split (fun c => c == 'T' || c == 't' || c == ' ') |>.toList with
   | [d,t] =>
-    let d ← Date.ofString? d
+    let d ← Date.ofString? d.copy
     if t.back == 'Z' || t.back == 'z' then
       return offsetDateTime d (← Time.ofString? <| t.dropEnd 1 |>.copy)
-    else if let [t,o] := t.splitToList (· == '+') then
+    else if let [t,o] := t.split '+' |>.toStringList then
       return offsetDateTime d (← Time.ofString? t) <| some (false, ← Time.ofString? o)
-    else if let [t,o] := t.splitToList (· == '-') then
+    else if let [t,o] := t.split '-' |>.toStringList then
       return offsetDateTime d (← Time.ofString? t) <| some (true, ← Time.ofString? o)
     else
-      return localDateTime d (← Time.ofString? t)
+      return localDateTime d (← Time.ofString? t.copy)
   | [x] =>
-    if x.any (· == ':') then
-      return localTime (← Time.ofString? x)
+    if x.contains ':' then
+      return localTime (← Time.ofString? x.copy)
     else
-      return localDate (← Date.ofString? x)
+      return localDate (← Date.ofString? x.copy)
   | _ => none
 
 public protected def toString (dt : DateTime) : String :=

@@ -10,6 +10,7 @@ public import Init.Data.Order
 import Lake.Util.Name
 import Lake.Config.Kinds
 import Init.Data.String.TakeDrop
+import Init.Data.String.Search
 
 namespace Lake
 open Lean (Name)
@@ -52,7 +53,7 @@ Uses the same syntax as the `lake build` / `lake query` CLI.
 public def parse (s : String) : Except String PartialBuildKey := do
   if s.isEmpty then
     throw "ill-formed target: empty string"
-  match s.splitOn ":" with
+  match s.split ':' |>.toStringList with
   | target :: facets =>
     let target ← parseTarget target
     facets.foldlM (init := target) fun target facet => do
@@ -65,7 +66,7 @@ public def parse (s : String) : Except String PartialBuildKey := do
     unreachable!
 where
   parseTarget s := do
-    match s.splitOn "/" with
+    match s.split '/' |>.toList with
     | [target] =>
       if target.isEmpty then
         return .package .anonymous
@@ -80,11 +81,11 @@ where
       else
         parsePackageTarget .anonymous target
     | [pkg, target] =>
-      let pkg := if pkg.startsWith "@" then pkg.drop 1 |>.copy else pkg
+      let pkg := if pkg.startsWith "@" then pkg.drop 1 else pkg
       if pkg.isEmpty then
         parsePackageTarget .anonymous target
       else
-        parsePackageTarget (stringToLegalOrSimpleName pkg) target
+        parsePackageTarget (stringToLegalOrSimpleName pkg.copy) target
     | _ =>
       throw "ill-formed target: too many '/'"
   parsePackageTarget pkg target :=
@@ -94,7 +95,7 @@ where
       let target := target.drop 1 |>.copy |> stringToLegalOrSimpleName
       return .packageModule pkg target
     else
-      let target := stringToLegalOrSimpleName target
+      let target := stringToLegalOrSimpleName target.copy
       return .packageTarget pkg target
 
 public def toString : (self : PartialBuildKey) → String

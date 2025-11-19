@@ -96,6 +96,25 @@ Examples:
 def find? [ToForwardSearcher ρ σ] (s : String) (pattern : ρ) : Option s.ValidPos :=
   s.startValidPos.find? pattern
 
+/--
+Splits a string at each subslice that matches the pattern {name}`pat`.
+
+The subslices that matched the pattern are not included in any of the resulting subslices. If
+multiple subslices in a row match the pattern, the resulting list will contain empty strings.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * {lean}`("coffee tea water".split Char.isWhitespace).toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]`
+ * {lean}`("coffee tea water".split ' ').toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]`
+ * {lean}`("coffee tea water".split " tea ").toList == ["coffee".toSlice, "water".toSlice]`
+ * {lean}`("ababababa".split "aba").toList == ["coffee".toSlice, "water".toSlice]`
+ * {lean}`("baaab".split "aa").toList == ["b".toSlice, "ab".toSlice]`
+-/
+@[inline]
+def split [ToForwardSearcher ρ σ] (s : String) (pat : ρ) :=
+  (s.toSlice.split pat : Std.Iter String.Slice)
+
 end
 
 end String

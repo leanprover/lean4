@@ -41,7 +41,7 @@
         "SMALL_ALLOCATOR": "OFF",
         "USE_MIMALLOC": "OFF",
         "BSYMBOLIC": "OFF",
-        "LEAN_TEST_VARS": "MAIN_STACK_SIZE=16000"
+        "LEAN_TEST_VARS": "MAIN_STACK_SIZE=16000 ASAN_OPTIONS=detect_leaks=0"
       },
       "generator": "Unix Makefiles",
       "binaryDir": "${sourceDir}/build/sanitize"

@@ -71,7 +71,7 @@ def manualLink (kind name : String) : Except String String :=
     throw s!"Unknown documentation type `{kind}`. Expected one of the following: {acceptableKinds}"
 
 private def rw (path : String) : Except String String := do
-  match path.split "/" |>.toStringList with
+  match path.split '/' |>.toStringList with
   | [] | [""] =>
     throw "Missing documentation type"
   | kind :: args =>

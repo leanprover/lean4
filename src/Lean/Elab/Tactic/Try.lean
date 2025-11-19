@@ -338,7 +338,7 @@ private def expandUserTactic (tac : TSyntax `tactic) (goal : MVarId) : MetaM (Ar
         for msg in newMsgs do
           if msg.severity == MessageSeverity.information then
             let msgText ← msg.data.toString
-            for line in msgText.split "\n" do
+            for line in msgText.split '\n' do
               if let some tacticText := line.dropPrefix? "  [apply] " then
                 let env ← getEnv
                 if let .ok stx := Parser.runParserCategory env `tactic tacticText.copy then

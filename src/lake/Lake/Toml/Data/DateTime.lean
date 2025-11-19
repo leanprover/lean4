@@ -66,7 +66,7 @@ public def ofValid? (hour minute second : Nat) : Option Time := do
 public def ofString? (t : String) : Option Time := do
   match t.split ':' |>.toList with
   | [h,m,s] =>
-    match s.split (· == '.') |>.toList with
+    match s.split '.' |>.toList with
     | [s,f] =>
       let time ← ofValid? (← h.toNat?) (← m.toNat?) (← s.toNat?)
       return {time with fracExponent := f.copy.length-1, fracMantissa := ← f.toNat?}
@@ -107,9 +107,9 @@ public def ofString? (dt : String) : Option DateTime := do
     let d ← Date.ofString? d.copy
     if t.back == 'Z' || t.back == 'z' then
       return offsetDateTime d (← Time.ofString? <| t.dropEnd 1 |>.copy)
-    else if let [t,o] := t.split (· == '+') |>.toStringList then
+    else if let [t,o] := t.split '+' |>.toStringList then
       return offsetDateTime d (← Time.ofString? t) <| some (false, ← Time.ofString? o)
-    else if let [t,o] := t.split (· == '-') |>.toStringList then
+    else if let [t,o] := t.split '-' |>.toStringList then
       return offsetDateTime d (← Time.ofString? t) <| some (true, ← Time.ofString? o)
     else
       return localDateTime d (← Time.ofString? t.copy)

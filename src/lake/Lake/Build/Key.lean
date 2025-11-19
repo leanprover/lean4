@@ -53,7 +53,7 @@ Uses the same syntax as the `lake build` / `lake query` CLI.
 public def parse (s : String) : Except String PartialBuildKey := do
   if s.isEmpty then
     throw "ill-formed target: empty string"
-  match s.split ":" |>.toStringList with
+  match s.split ':' |>.toStringList with
   | target :: facets =>
     let target ← parseTarget target
     facets.foldlM (init := target) fun target facet => do
@@ -66,7 +66,7 @@ public def parse (s : String) : Except String PartialBuildKey := do
     unreachable!
 where
   parseTarget s := do
-    match s.split "/" |>.toList with
+    match s.split '/' |>.toList with
     | [target] =>
       if target.isEmpty then
         return .package .anonymous

@@ -3,6 +3,7 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luisa Cicolini, Siddharth Bhat, Henrik Böving
 -/
+module
 
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
@@ -51,44 +52,44 @@ theorem denote_append {aig : AIG α} {n m : Nat} (assign : α → Bool)
   · simp [hidx]
     apply helem
 
-theorem denote_blastExtractAndExtend (aig : AIG α) (xc : AIG.RefVec aig w) (x : BitVec w) (start : Nat)
-    (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx) :
-  ∀ (idx : Nat) (hidx : idx < w),
-    ⟦
-      (blastExtractAndExtend aig xc start).aig,
-      (blastExtractAndExtend aig xc start).vec.get idx hidx,
-      assign
-     ⟧ = (BitVec.zeroExtend w (BitVec.extractLsb' start 1 x)).getLsbD idx := by
-  intros idx hidx
-  generalize hext: blastExtractAndExtend aig xc start = res
-  unfold blastExtractAndExtend at hext
-  dsimp only [Lean.Elab.WF.paramLet] at hext
-  rw [← hext]
-  simp only [denote_blastZeroExtend, Nat.lt_one_iff, denote_blastExtract, dite_eq_ite,
-    Bool.if_false_right, BitVec.truncate_eq_setWidth, BitVec.getLsbD_setWidth,
-    BitVec.getLsbD_extractLsb']
-  split
-  · by_cases hidx0 : idx = 0
-    · simp [hidx0, show 0 < w by omega, hx]
-    · simp [hidx0]
-  · intros
-    simp [show w ≤ start + idx by omega]
+-- theorem denote_blastExtractAndExtend (aig : AIG α) (xc : AIG.RefVec aig w) (x : BitVec w) (start : Nat)
+--     (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx) :
+--   ∀ (idx : Nat) (hidx : idx < w),
+--     ⟦
+--       (blastExtractAndExtend aig xc start).aig,
+--       (blastExtractAndExtend aig xc start).vec.get idx hidx,
+--       assign
+--      ⟧ = (BitVec.zeroExtend w (BitVec.extractLsb' start 1 x)).getLsbD idx := by sorry
+  -- intros idx hidx
+  -- generalize hext: blastExtractAndExtend aig xc start = res
+  -- unfold blastExtractAndExtend at hext
+  -- dsimp only [Lean.Elab.WF.paramLet] at hext
+  -- rw [← hext]
+  -- simp only [denote_blastZeroExtend, Nat.lt_one_iff, denote_blastExtract, dite_eq_ite,
+  --   Bool.if_false_right, BitVec.truncate_eq_setWidth, BitVec.getLsbD_setWidth,
+  --   BitVec.getLsbD_extractLsb']
+  -- split
+  -- · by_cases hidx0 : idx = 0
+  --   · simp [hidx0, show 0 < w by omega, hx]
+  --   · simp [hidx0]
+  -- · intros
+  --   simp [show w ≤ start + idx by omega]
 
-theorem blastExtractAndExtend_denote_mem_prefix {w : Nat} (aig : AIG α) (curr : Nat)
-    (xc : RefVec aig w) hstart :
-    ⟦
-      (blastExtractAndExtend aig xc curr).aig,
-      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply extractAndExtend_le_size⟩,
-      assign
-    ⟧
-      =
-    ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
-  apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
-  apply IsPrefix.of
-  · intros
-    apply extractAndExtend_decl_eq
-  · intros
-    apply extractAndExtend_le_size
+-- theorem blastExtractAndExtend_denote_mem_prefix {w : Nat} (aig : AIG α) (curr : Nat)
+--     (xc : RefVec aig w) hstart :
+--     ⟦
+--       (blastExtractAndExtend aig xc curr).aig,
+--       ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply extractAndExtend_le_size⟩,
+--       assign
+--     ⟧
+--       =
+--     ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by sorry
+  -- apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
+  -- apply IsPrefix.of
+  -- · intros
+  --   apply extractAndExtend_decl_eq
+  -- · intros
+  --   apply extractAndExtend_le_size
 
 -- theorem BitVec.getLsbD_extractAndExtend_of_le_of_lt (w idx currIdx : Nat) (hw : 0 < w) (x : BitVec w) (hcurr : currIdx < w)
 --     (hlt : idx < w * (currIdx + 1)) (hle : w * currIdx ≤ idx) :

@@ -870,19 +870,13 @@ def clz (x : BitVec w) : BitVec w := clzAuxRec x (w - 1)
 /-- Count the number of trailing zeros. -/
 def ctz (x : BitVec w) : BitVec w := (x.reverse).clz
 
+/-- Count the number of bits with value `1` downward from the `n`-th bit to the `0`-th bit of `x`. -/
 def popCountAuxRec (x : BitVec w) (n : Nat) :=
   match n with
   | 0 => 0
   | n' + 1 => (if x.getLsbD n' then 1 else 0) + x.popCountAuxRec n'
 
+/-- Count the number of bits with value `1` in `x`.-/
 def popCount {w : Nat} (x : BitVec w) : Nat := popCountAuxRec x w
-
-
-def popCountAuxRec'(x : BitVec w) : Nat :=
-  match w with
-  | 0 => 0
-  | n' + 1 => (if x.msb then 1 else 0) + (x.extractLsb' 0 n').popCountAuxRec'
-
-def popCount' {w : Nat} (x : BitVec w) : Nat := BitVec.popCountAuxRec' x
 
 end BitVec

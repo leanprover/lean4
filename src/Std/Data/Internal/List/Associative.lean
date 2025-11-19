@@ -3581,7 +3581,35 @@ theorem length_le_of_keys_subset [BEq α] [EquivBEq α]
   | nil => simp
   | cons hd tl ih =>
     have hc := h hd.1 (by rw [containsKey_cons_self])
-    sorry
+    suffices tl.length ≤ (eraseKey hd.1 l₂).length by
+      rw [List.length_eraseKey, hc] at this
+      simp at this
+      simp
+      have : l₂.length > 0 := by
+        cases l₂
+        case nil => simp at hc
+        case cons => simp
+      omega
+    apply ih
+    · rw [List.distinctKeys_cons_iff] at dl₁
+      exact dl₁.1
+    · exact DistinctKeys.eraseKey dl₂
+    · intro a mem
+      rw [containsKey_eraseKey]
+      · simp only [Bool.and_eq_true, Bool.not_eq_eq_eq_not, Bool.not_true]
+        apply And.intro
+        · rw [List.distinctKeys_cons_iff] at dl₁
+          apply Classical.byContradiction
+          intro hyp
+          simp only [Bool.not_eq_false] at hyp
+          rw [containsKey_congr hyp] at dl₁
+          rw [dl₁.2] at mem
+          contradiction
+        · specialize h a
+          rw [containsKey_cons] at h
+          apply h
+          simp [mem]
+      · exact dl₂
 
 theorem containsKey_lemma [BEq α] [EquivBEq α] {l₁ l₂ : List ((a : α) × β a)} (dl₁ : DistinctKeys l₁) (dl₂ : DistinctKeys l₂) (hl : l₂.length = l₁.length) (hs : ∀ (a : α), containsKey a l₁ → containsKey a l₂)  : ∀ (a : α), containsKey a l₂ → containsKey a l₁ := by
   intro a ha

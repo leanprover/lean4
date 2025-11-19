@@ -1078,7 +1078,7 @@ example : (Id.run doo
 -- Test: elabToSyntax and postponement
 /--
 error: Invalid match expression: The type of pattern variable 'y' contains metavariables:
-  ?m.26
+  ?m.25
 -/
 #guard_msgs (error) in
 example := Id.run doo

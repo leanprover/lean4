@@ -1356,6 +1356,21 @@ example :
       return a)
   f 3 3 ∧ f 1 4 ∧ f 4 2 ∧ f 5 5 := by trivial
 
+set_option backward.do.legacy false in
+example {f : Nat → Nat → Id Unit} :
+  (Id.run do f (← e₁) (← e₂); es)
+  =
+  (Id.run do let x ← e₁; let y ← e₂; f x y; es)
+  := by rfl
+
+set_option backward.do.legacy false in
+example {g : Nat → Id Unit} {h : Nat → Id Nat} :
+  (Id.run do let x := g (← h (← e₁)); es)
+  =
+  (Id.run do let x ← e₁; let y ← h x; g y; es)
+  := by rfl
+
+
 /-!
 Postponing Monad instance resolution appropriately
 -/

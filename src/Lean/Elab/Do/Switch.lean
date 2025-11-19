@@ -49,4 +49,7 @@ def elabDo : TermElab := fun stx expectedType? => do
   if backward.do.legacy.get (← getOptions) then
     Term.elabLiftMethod stx ty
   else
-    throwError "Not implemented yet"
+    if let some liftMethodElab := (← read).liftMethodElab then
+      liftMethodElab.toTermElab stx ty
+    else
+      throwError "Nested action `{stx}` must be nested inside a `do` expression."

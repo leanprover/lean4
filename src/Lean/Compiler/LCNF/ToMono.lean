@@ -106,9 +106,9 @@ partial def LetValue.toMono (e : LetValue) (resultFVar : FVarId) : ToMonoM LetVa
       -- Decidable.decide is the identity function since Decidable
       -- and Bool have the same runtime representation.
       return args[1]!.toLetValue
-    else if declName == ``Quot.mk then
-      return args[2]!.toLetValue
-    else if declName == ``Quot.lcInv then
+    else if declName == ``Quot.mk || declName == ``Quot.lcInv then
+      -- At this stage, all original `Quot α` are now `α`. In particuler, `Quot.mk` and `Quot.lcInv`
+      -- are both morally identity functions, and can return (overapplied) functions to which `extraArgs` need to be passed.
       match args[2]! with
       | .fvar fvarId =>
         let mut extraArgs : Array Arg := .emptyWithCapacity (args.size - 3)

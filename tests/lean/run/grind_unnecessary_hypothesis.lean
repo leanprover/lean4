@@ -50,6 +50,7 @@ info: idxToCount''.go.{u_1} {α : Type u_1} [BEq α] (xs : List α) (i : Nat) (h
 #guard_msgs in
 #check idxToCount''.go
 
+set_option linter.unusedVariables true
 -- Another example from the Zulip thread
 /--
 warning: unused variable `hi`

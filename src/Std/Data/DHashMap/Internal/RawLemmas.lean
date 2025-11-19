@@ -2659,7 +2659,6 @@ theorem Equiv_of_checkBEq_eq_true {m₁ m₂ : Raw₀ α β} (h₁ : m₁.val.WF
         rw [getValueCast?_eq_some_getValueCast hc]
     · wf_trivial
 
-
 end BEq
 
 section Union

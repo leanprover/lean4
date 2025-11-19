@@ -6298,10 +6298,7 @@ theorem two_pow_ctz_le_toNat_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
 theorem exctractLsb'_extractLsb'_eq_extractLsb'_of_le {m n w : Nat} {x : BitVec w} (h : m ≤ n) :
     BitVec.extractLsb' 0 m (BitVec.extractLsb' 0 n x) = BitVec.extractLsb' 0 m x := by
   ext i hi
-  simp only [getElem_extractLsb', Nat.zero_add, getLsbD_extractLsb', Bool.and_eq_right_iff_imp,
-    decide_eq_true_eq]
-  intros
-  omega
+  simp [getElem_extractLsb', Nat.zero_add, show i < n by omega]
 
 @[simp]
 theorem extractLsb'_cons (x : BitVec w) :

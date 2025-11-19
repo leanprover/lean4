@@ -705,23 +705,18 @@ theorem getValueCast_cons [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} 
   rw [getValueCast, Option.get_congr getValueCast?_cons]
   split <;> simp [getValueCast]
 
-theorem getValueCast_mem [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {a : α}
-    (h : containsKey a l) :
+theorem getValueCast_mem [BEq α] [LawfulBEq α]
+    {l : List ((a : α) × β a)} {a : α} (h : containsKey a l = true) :
     ⟨a, getValueCast a l h⟩ ∈ l := by
   induction l with
   | nil => simp at h
   | cons hd tl ih =>
-    simp only [List.mem_cons]
-    by_cases hd_a: hd.1 == a
-    · simp only [beq_iff_eq] at hd_a
-      rw [Sigma.ext_iff]
-      simp only [hd_a, getValueCast, getValueCast?, beq_self_eq_true, ↓reduceDIte, Option.get_some,
-        cast_heq, and_self, true_or]
-    · rw [getValueCast_cons]
-      simp only [hd_a, Bool.false_eq_true, ↓reduceDIte]
-      rw [containsKey_cons] at h
+    by_cases hd_a : hd.1 == a
+    · simp [getValueCast, getValueCast?, Sigma.ext_iff, LawfulBEq.eq_of_beq hd_a]
+    · rw [containsKey_cons] at h
       simp only [hd_a, Bool.false_or] at h
-      simp [ih h]
+      simp only [getValueCast, getValueCast?, hd_a, Bool.false_eq_true, ↓reduceDIte, List.mem_cons]
+      exact Or.inr (ih h)
 
 theorem getValueCast_of_mem [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {x : (a : α) × β a}
     (h : x ∈ l) (distinct : DistinctKeys l) :
@@ -1567,10 +1562,6 @@ theorem getValue?_insertEntry_of_beq [BEq α] [PartialEquivBEq α] {l : List ((_
   cases h' : containsKey k l
   · rw [insertEntry_of_containsKey_eq_false h', getValue?_cons_of_true h]
   · rw [insertEntry_of_containsKey h', getValue?_replaceEntry_of_true h' h]
-
-theorem getValue?_insertEntry_of_self [BEq α] [EquivBEq α] {l : List ((_ : α) × β)} {k : α}
-    {v : β} : getValue? k (insertEntry k v l) = some v :=
-  getValue?_insertEntry_of_beq BEq.rfl
 
 theorem getValue?_insertEntry_of_false [BEq α] [PartialEquivBEq α] {l : List ((_ : α) × β)}
     {k a : α} {v : β} (h : (k == a) = false) : getValue? a (insertEntry k v l) = getValue? a l := by
@@ -5680,19 +5671,6 @@ theorem length_filterMap_eq_length_iff [BEq α] [LawfulBEq α] {f : (a : α) →
     rw [getValueCast_of_mem hx distinct] at h
     exact h
 
-theorem key_getValueCast_mem [BEq α] [LawfulBEq α]
-    {l : List ((a : α) × β a)} {a : α} (h : containsKey a l = true) :
-    ⟨a, getValueCast a l h⟩ ∈ l := by
-  induction l with
-  | nil => simp at h
-  | cons hd tl ih =>
-    by_cases hd_a : hd.1 == a
-    · simp [getValueCast, getValueCast?, Sigma.ext_iff, LawfulBEq.eq_of_beq hd_a]
-    · rw [containsKey_cons] at h
-      simp only [hd_a, Bool.false_or] at h
-      simp only [getValueCast, getValueCast?, hd_a, Bool.false_eq_true, ↓reduceDIte, List.mem_cons]
-      exact Or.inr (ih h)
-
 theorem forall_mem_iff_forall_contains_getValueCast [BEq α] [LawfulBEq α]
     {l : List ((a : α) × β a)} {p : (a : α) → β a → Prop} (distinct : DistinctKeys l) :
     (∀ (x : (a : α) × β a), x ∈ l → p x.1 x.2) ↔
@@ -5700,7 +5678,7 @@ theorem forall_mem_iff_forall_contains_getValueCast [BEq α] [LawfulBEq α]
   constructor
   · intro h a ha
     specialize h ⟨a, getValueCast a l ha⟩
-    apply h (key_getValueCast_mem ha)
+    apply h (getValueCast_mem ha)
   · intro h x hx
     rw [← getValueCast_of_mem hx distinct]
     apply h
@@ -7036,12 +7014,6 @@ theorem getKeyD_minKey! [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhab
     getKeyD (minKey! l) l fallback = minKey! l := by
   simpa [minKey_eq_minKey!] using getKeyD_minKey hd (he := he)
 
-theorem minKey!_eraseKey_eq_iff_beq_minKey_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
-    [Inhabited α] {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k}
-    (he : (eraseKey k l).isEmpty = false) :
-    (eraseKey k l |> minKey!) = minKey! l ↔ (k == (minKey! l)) = false := by
-  simpa [minKey_eq_minKey!] using minKey_eraseKey_eq_iff_beq_minKey_eq_false hd (he := he)
-
 theorem minKey!_eraseKey_eq_iff_beq_minKey!_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     [Inhabited α] {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k}
     (he : (eraseKey k l).isEmpty = false) :
@@ -7240,19 +7212,12 @@ theorem getKeyD_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     getKeyD (minKeyD l fallback) l fallback' = minKeyD l fallback := by
   simpa [minKey_eq_minKeyD (fallback := fallback)] using getKeyD_minKey hd (he := he)
 
-theorem minKeyD_eraseKey_eq_iff_beq_minKey_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
-    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k fallback}
-    (he : (eraseKey k l).isEmpty = false) :
-    (eraseKey k l |> minKeyD <| fallback) = minKeyD l fallback ↔
-      (k == (minKeyD l fallback)) = false := by
-  simpa [minKey_eq_minKeyD (fallback := fallback)] using
-    minKey_eraseKey_eq_iff_beq_minKey_eq_false hd (he := he)
-
 theorem minKeyD_eraseKey_eq_iff_beq_minKeyD_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k fallback}
     (he : (eraseKey k l).isEmpty = false) :
     (eraseKey k l |> minKeyD <| fallback) = minKeyD l fallback ↔
       (k == (minKeyD l fallback)) = false := by
+
   simpa [minKey_eq_minKeyD (fallback := fallback)] using
     minKey_eraseKey_eq_iff_beq_minKey_eq_false hd (he := he)
 
@@ -7919,13 +7884,6 @@ theorem getKeyD_maxKey! [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhab
   letI : Ord α := .opposite inferInstance
   getKeyD_minKey! hd he
 
-theorem maxKey!_eraseKey_eq_iff_beq_maxKey_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
-    [Inhabited α] {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k}
-    (he : (eraseKey k l).isEmpty = false) :
-    (eraseKey k l |> maxKey!) = maxKey! l ↔ (k == (maxKey! l)) = false :=
-  letI : Ord α := .opposite inferInstance
-  minKey!_eraseKey_eq_iff_beq_minKey_eq_false hd he
-
 theorem maxKey!_eraseKey_eq_iff_beq_maxKey!_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     [Inhabited α] {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k}
     (he : (eraseKey k l).isEmpty = false) :
@@ -8137,14 +8095,6 @@ theorem getKeyD_maxKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     getKeyD (maxKeyD l fallback) l fallback' = maxKeyD l fallback :=
   letI : Ord α := .opposite inferInstance
   getKeyD_minKeyD hd he
-
-theorem maxKeyD_eraseKey_eq_iff_beq_maxKey_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
-    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k fallback}
-    (he : (eraseKey k l).isEmpty = false) :
-    (eraseKey k l |> maxKeyD <| fallback) = maxKeyD l fallback ↔
-      (k == (maxKeyD l fallback)) = false :=
-  letI : Ord α := .opposite inferInstance
-  minKeyD_eraseKey_eq_iff_beq_minKey_eq_false hd he
 
 theorem maxKeyD_eraseKey_eq_iff_beq_maxKeyD_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k fallback}

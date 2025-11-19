@@ -2665,18 +2665,6 @@ theorem getKey_insertManyIfNewUnit!_list_of_not_mem_of_mem [TransOrd α]
       getKey (insertManyIfNewUnit! t l).1 k' h' = k := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using getKey_insertManyIfNewUnit_list_of_not_mem_of_mem h
 
-theorem getKey_insertManyIfNewUnit_list_mem_of_mem [TransOrd α]
-    (h : t.WF) {l : List α} {k : α} (contains : k ∈ t) {h'} :
-    getKey (insertManyIfNewUnit t l h.balanced).1 k h' = getKey t k contains := by
-  simp_to_model [Const.insertManyIfNewUnit, getKey] using List.getKey_insertListIfNewUnit_of_contains
-
-theorem getKey_insertManyIfNewUnit!_list_mem_of_mem [TransOrd α]
-    (h : t.WF) {l : List α} {k : α} (contains : k ∈ t) {h'} :
-    getKey (insertManyIfNewUnit! t l).1 k h' = getKey t k contains := by
-  simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using
-    getKey_insertManyIfNewUnit_list_mem_of_mem h contains
-      (h' := by simpa [insertManyIfNewUnit_eq_insertManyIfNewUnit!])
-
 theorem getKey!_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false [BEq α] [LawfulBEqOrd α]
     [TransOrd α] [Inhabited α] (h : t.WF) {l : List α} {k : α} :
     ¬ k ∈ t → l.contains k = false →

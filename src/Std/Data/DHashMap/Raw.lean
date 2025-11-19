@@ -793,12 +793,12 @@ theorem WF.union₀ [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.
   . exact (Raw₀.insertManyIfNew ⟨m₂, h₂.size_buckets_pos⟩ m₁).2 _ WF.insertIfNew₀ h₂
   . exact (Raw₀.insertMany ⟨m₁, h₁.size_buckets_pos⟩ m₂).2 _ WF.insert₀ h₁
 
-theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.union m₂ : Raw α β).WF := by
-  simp [Std.DHashMap.Raw.union, h₁.size_buckets_pos, h₂.size_buckets_pos]
+theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ ∪ m₂ : Raw α β).WF := by
+  simp [Union.union, Std.DHashMap.Raw.union, h₁.size_buckets_pos, h₂.size_buckets_pos]
   exact WF.union₀ h₁ h₂
 
-theorem WF.inter [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.inter m₂ : Raw α β).WF := by
-  simp [Std.DHashMap.Raw.inter, h₁.size_buckets_pos, h₂.size_buckets_pos]
+theorem WF.inter [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ ∩ m₂ : Raw α β).WF := by
+  simp [Inter.inter, Std.DHashMap.Raw.inter, h₁.size_buckets_pos, h₂.size_buckets_pos]
   exact WF.inter₀ h₁ h₂
 
 theorem WF.diff₀ [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (Raw₀.diff ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩).val.WF := by
@@ -807,8 +807,8 @@ theorem WF.diff₀ [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.W
   . exact @WF.filter₀ α β _ _ m₁ h₁.size_buckets_pos (fun k x => !Raw₀.contains ⟨m₂, h₂.size_buckets_pos⟩ k) h₁
   . exact (Raw₀.eraseManyEntries ⟨m₁, h₁.size_buckets_pos⟩ m₂).2 _ WF.erase₀ h₁
 
-theorem WF.diff [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.diff m₂ : Raw α β).WF := by
-  simp [Std.DHashMap.Raw.diff, h₁.size_buckets_pos, h₂.size_buckets_pos]
+theorem WF.diff [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ \ m₂ : Raw α β).WF := by
+  simp [SDiff.sdiff, Std.DHashMap.Raw.diff, h₁.size_buckets_pos, h₂.size_buckets_pos]
   exact WF.diff₀ h₁ h₂
 
 end WF

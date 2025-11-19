@@ -80,7 +80,7 @@ where
   termination_by structural fuel
 
 @[expose, extern "lean_string_validate_utf8"]
-def ByteArray.validateUTF8 (b : ByteArray) : Bool :=
+def ByteArray.validateUTF8 (b : @& ByteArray) : Bool :=
   go (b.size + 1) 0 (by simp) (by simp)
 where
   go (fuel : Nat) (i : Nat) (hi : i ≤ b.size) (hf : b.size - i < fuel) : Bool :=
@@ -1601,11 +1601,11 @@ def Slice.pos! (s : Slice) (off : String.Pos.Raw) : s.Pos :=
 /-- Advances a valid position on a string to the next valid position, given a proof that the
 position is not the past-the-end position, which guarantees that such a position exists. -/
 @[expose, extern "lean_string_utf8_next_fast"]
-def ValidPos.next {s : String} (pos : s.ValidPos) (h : pos ≠ s.endValidPos) : s.ValidPos :=
+def ValidPos.next {s : @& String} (pos : @& s.ValidPos) (h : pos ≠ s.endValidPos) : s.ValidPos :=
   ((inline (Slice.Pos.next pos.toSlice (ne_of_apply_ne Slice.Pos.ofSlice (by simpa)))).ofSlice)
 
 @[expose, extern "lean_string_utf8_next_fast"]
-def Pos.next {s : String} (pos : s.ValidPos) (h : pos ≠ s.endValidPos) : s.ValidPos :=
+def Pos.next {s : @& String} (pos : @& s.ValidPos) (h : pos ≠ s.endValidPos) : s.ValidPos :=
   ((inline (Slice.Pos.next pos.toSlice (ne_of_apply_ne Slice.Pos.ofSlice (by simpa)))).ofSlice)
 
 /-- Advances a valid position on a string to the next valid position, or returns `none` if the

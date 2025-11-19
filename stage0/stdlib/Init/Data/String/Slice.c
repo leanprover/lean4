@@ -105,7 +105,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_RevP
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_ByteIterator_finitenessRelation___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_instInhabitedByteIterator;
 LEAN_EXPORT lean_object* l_String_Slice_SplitIterator_instIteratorCollectPartialIdOfMonad(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_SplitIterator_toOption_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_SplitIterator_instIteratorLoopPartialIdOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_Slice_eqIgnoreAsciiCase(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_RevSplitIterator_operating_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -208,7 +207,6 @@ LEAN_EXPORT lean_object* l_String_Slice_takeEnd(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_RevByteIterator_instIteratorLoopPartialUInt8OfMonad(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_startsWith___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_RevSplitIterator_toOption_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators_Iter_toStringArray___redArg___closed__0;
 LEAN_EXPORT lean_object* l_String_Slice_RevSplitIterator_operating_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_foldl___redArg___lam__1___boxed(lean_object*, lean_object*);
@@ -269,7 +267,6 @@ LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardPattern_defaultDropPrefix
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_RevByteIterator_finitenessRelation___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardPattern_defaultDropPrefix_x3f___at___00__private_Init_Data_String_Slice_0__String_Slice_dropWhile_go___at___00String_Slice_toNat_x3f_spec__0_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_SplitInclusiveIterator_operating_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_RevSplitIterator_instIteratorOfPure_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_revBytes(lean_object*);
 static lean_object* l_String_Slice_instHashable___closed__0;
 LEAN_EXPORT uint8_t l_String_Slice_all___redArg(lean_object*, lean_object*, lean_object*);
@@ -393,7 +390,6 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_RevPosIterator_instIteratorCollectPartialSubtypePosNeEndPosOfMonad(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_SplitIterator_operating_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_RevByteIterator_instIteratorCollectUInt8OfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_SplitInclusiveIterator_instIteratorId_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_trimAsciiStart(lean_object*);
 uint8_t lean_uint8_dec_le(uint8_t, uint8_t);
@@ -463,7 +459,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_take
 LEAN_EXPORT lean_object* l_String_Slice_SplitIterator_instIteratorLoopPartialIdOfMonad___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_RevSplitIterator_instIteratorOfPure_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_SplitIterator_instIteratorId_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Iterators_IterM_DefaultConsumers_forInPartial___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_foldl___redArg___lam__3(lean_object*, uint32_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_dropEndWhile_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -507,7 +502,6 @@ LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardPattern_defaultDropPrefix
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at___00String_Slice_toNat_x3f_spec__2___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_RevPosIterator_instIteratorLoopPartialSubtypePosNeEndPosOfMonad___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_RevPosIterator_finitenessRelation(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_SplitInclusiveIterator_toOption_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_positions___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_toNat_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_PosIterator_instIteratorLoopSubtypePosNeEndPosOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1350,6 +1344,7 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
+lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 switch (lean_obj_tag(x_2)) {
@@ -1464,6 +1459,7 @@ switch (lean_obj_tag(x_2)) {
 case 0:
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; 
+lean_dec(x_10);
 lean_dec(x_9);
 x_34 = lean_ctor_get(x_2, 0);
 lean_inc(x_34);
@@ -1476,6 +1472,7 @@ return x_36;
 case 1:
 {
 lean_object* x_37; lean_object* x_38; 
+lean_dec(x_10);
 lean_dec(x_8);
 x_37 = lean_ctor_get(x_2, 0);
 lean_inc(x_37);
@@ -1485,10 +1482,12 @@ return x_38;
 }
 default: 
 {
+lean_object* x_39; lean_object* x_40; 
 lean_dec(x_9);
 lean_dec(x_8);
-lean_inc(x_10);
-return x_10;
+x_39 = lean_box(0);
+x_40 = lean_apply_1(x_10, x_39);
+return x_40;
 }
 }
 }
@@ -1502,21 +1501,11 @@ x_16 = l___private_Init_Data_String_Slice_0__String_Slice_SplitIterator_instIter
 return x_16;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_SplitIterator_instIteratorId_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
-_start:
-{
-lean_object* x_11; 
-x_11 = l___private_Init_Data_String_Slice_0__String_Slice_SplitIterator_instIteratorId_match__1_splitter___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_10);
-return x_11;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_SplitIterator_instIteratorId_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15) {
 _start:
 {
 lean_object* x_16; 
 x_16 = l___private_Init_Data_String_Slice_0__String_Slice_SplitIterator_instIteratorId_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
-lean_dec(x_15);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 return x_16;
@@ -1528,6 +1517,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_dec(x_3);
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
@@ -1538,9 +1528,11 @@ return x_6;
 }
 else
 {
+lean_object* x_7; lean_object* x_8; 
 lean_dec(x_2);
-lean_inc(x_3);
-return x_3;
+x_7 = lean_box(0);
+x_8 = lean_apply_1(x_3, x_7);
+return x_8;
 }
 }
 }
@@ -1552,21 +1544,11 @@ x_9 = l___private_Init_Data_String_Slice_0__String_Slice_SplitIterator_toOption_
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_SplitIterator_toOption_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l___private_Init_Data_String_Slice_0__String_Slice_SplitIterator_toOption_match__1_splitter___redArg(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_SplitIterator_toOption_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
 x_9 = l___private_Init_Data_String_Slice_0__String_Slice_SplitIterator_toOption_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_8);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 return x_9;
@@ -2354,6 +2336,7 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
+lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 switch (lean_obj_tag(x_2)) {
@@ -2468,6 +2451,7 @@ switch (lean_obj_tag(x_2)) {
 case 0:
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; 
+lean_dec(x_10);
 lean_dec(x_9);
 x_34 = lean_ctor_get(x_2, 0);
 lean_inc(x_34);
@@ -2480,6 +2464,7 @@ return x_36;
 case 1:
 {
 lean_object* x_37; lean_object* x_38; 
+lean_dec(x_10);
 lean_dec(x_8);
 x_37 = lean_ctor_get(x_2, 0);
 lean_inc(x_37);
@@ -2489,10 +2474,12 @@ return x_38;
 }
 default: 
 {
+lean_object* x_39; lean_object* x_40; 
 lean_dec(x_9);
 lean_dec(x_8);
-lean_inc(x_10);
-return x_10;
+x_39 = lean_box(0);
+x_40 = lean_apply_1(x_10, x_39);
+return x_40;
 }
 }
 }
@@ -2506,21 +2493,11 @@ x_16 = l___private_Init_Data_String_Slice_0__String_Slice_SplitInclusiveIterator
 return x_16;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_SplitInclusiveIterator_instIteratorId_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
-_start:
-{
-lean_object* x_11; 
-x_11 = l___private_Init_Data_String_Slice_0__String_Slice_SplitInclusiveIterator_instIteratorId_match__1_splitter___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_10);
-return x_11;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_SplitInclusiveIterator_instIteratorId_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15) {
 _start:
 {
 lean_object* x_16; 
 x_16 = l___private_Init_Data_String_Slice_0__String_Slice_SplitInclusiveIterator_instIteratorId_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
-lean_dec(x_15);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 return x_16;
@@ -2532,6 +2509,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_dec(x_3);
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
@@ -2542,9 +2520,11 @@ return x_6;
 }
 else
 {
+lean_object* x_7; lean_object* x_8; 
 lean_dec(x_2);
-lean_inc(x_3);
-return x_3;
+x_7 = lean_box(0);
+x_8 = lean_apply_1(x_3, x_7);
+return x_8;
 }
 }
 }
@@ -2556,21 +2536,11 @@ x_9 = l___private_Init_Data_String_Slice_0__String_Slice_SplitInclusiveIterator_
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_SplitInclusiveIterator_toOption_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l___private_Init_Data_String_Slice_0__String_Slice_SplitInclusiveIterator_toOption_match__1_splitter___redArg(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_SplitInclusiveIterator_toOption_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
 x_9 = l___private_Init_Data_String_Slice_0__String_Slice_SplitInclusiveIterator_toOption_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_8);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 return x_9;
@@ -4439,6 +4409,7 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
+lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 switch (lean_obj_tag(x_2)) {
@@ -4553,6 +4524,7 @@ switch (lean_obj_tag(x_2)) {
 case 0:
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; 
+lean_dec(x_10);
 lean_dec(x_9);
 x_34 = lean_ctor_get(x_2, 0);
 lean_inc(x_34);
@@ -4565,6 +4537,7 @@ return x_36;
 case 1:
 {
 lean_object* x_37; lean_object* x_38; 
+lean_dec(x_10);
 lean_dec(x_8);
 x_37 = lean_ctor_get(x_2, 0);
 lean_inc(x_37);
@@ -4574,10 +4547,12 @@ return x_38;
 }
 default: 
 {
+lean_object* x_39; lean_object* x_40; 
 lean_dec(x_9);
 lean_dec(x_8);
-lean_inc(x_10);
-return x_10;
+x_39 = lean_box(0);
+x_40 = lean_apply_1(x_10, x_39);
+return x_40;
 }
 }
 }
@@ -4591,21 +4566,11 @@ x_17 = l___private_Init_Data_String_Slice_0__String_Slice_RevSplitIterator_instI
 return x_17;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_RevSplitIterator_instIteratorOfPure_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
-_start:
-{
-lean_object* x_11; 
-x_11 = l___private_Init_Data_String_Slice_0__String_Slice_RevSplitIterator_instIteratorOfPure_match__1_splitter___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_10);
-return x_11;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_RevSplitIterator_instIteratorOfPure_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15, lean_object* x_16) {
 _start:
 {
 lean_object* x_17; 
 x_17 = l___private_Init_Data_String_Slice_0__String_Slice_RevSplitIterator_instIteratorOfPure_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
-lean_dec(x_16);
 lean_dec_ref(x_5);
 lean_dec(x_3);
 return x_17;
@@ -4617,6 +4582,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_dec(x_3);
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
@@ -4627,9 +4593,11 @@ return x_6;
 }
 else
 {
+lean_object* x_7; lean_object* x_8; 
 lean_dec(x_2);
-lean_inc(x_3);
-return x_3;
+x_7 = lean_box(0);
+x_8 = lean_apply_1(x_3, x_7);
+return x_8;
 }
 }
 }
@@ -4641,21 +4609,11 @@ x_9 = l___private_Init_Data_String_Slice_0__String_Slice_RevSplitIterator_toOpti
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_RevSplitIterator_toOption_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l___private_Init_Data_String_Slice_0__String_Slice_RevSplitIterator_toOption_match__1_splitter___redArg(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_RevSplitIterator_toOption_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
 x_9 = l___private_Init_Data_String_Slice_0__String_Slice_RevSplitIterator_toOption_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_8);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 return x_9;
@@ -5953,8 +5911,8 @@ x_36 = 65;
 x_37 = lean_uint8_dec_le(x_36, x_35);
 if (x_37 == 0)
 {
-x_13 = x_33;
-x_14 = x_35;
+x_13 = x_35;
+x_14 = x_33;
 x_15 = x_37;
 goto block_18;
 }
@@ -5963,8 +5921,8 @@ else
 uint8_t x_38; uint8_t x_39; 
 x_38 = 90;
 x_39 = lean_uint8_dec_le(x_35, x_38);
-x_13 = x_33;
-x_14 = x_35;
+x_13 = x_35;
+x_14 = x_33;
 x_15 = x_39;
 goto block_18;
 }
@@ -5997,16 +5955,16 @@ block_18:
 {
 if (x_15 == 0)
 {
-x_5 = x_13;
-x_6 = x_14;
+x_5 = x_14;
+x_6 = x_13;
 goto block_12;
 }
 else
 {
 uint8_t x_16; uint8_t x_17; 
 x_16 = 32;
-x_17 = lean_uint8_add(x_14, x_16);
-x_5 = x_13;
+x_17 = lean_uint8_add(x_13, x_16);
+x_5 = x_14;
 x_6 = x_17;
 goto block_12;
 }

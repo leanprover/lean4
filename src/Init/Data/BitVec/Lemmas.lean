@@ -6340,15 +6340,7 @@ theorem reverse_eq_msb_cons_reverse {x : BitVec (w + 1)}:
 theorem reverse_reverse (x : BitVec w) :
    x.reverse.reverse = x := by
   ext i hi
-  rw [← BitVec.getLsbD_eq_getElem]
-  rw [BitVec.getLsbD_reverse]
-  rw [BitVec.getMsbD_eq_getLsbD]
-  rw [BitVec.getLsbD_reverse]
-  rw [BitVec.getMsbD_eq_getLsbD]
-  simp [hi]
-  rw [← BitVec.getLsbD_eq_getElem]
-  simp [show w - 1 - i < w by omega]
-  simp [show w - 1 - (w - 1 - i) = i by omega]
+  simp [← BitVec.getLsbD_eq_getElem]
 
 theorem extractLsb'_concat (x : BitVec (w+1)) (y : Bool):
     BitVec.extractLsb' 0 (t+1) (x.concat y) = (BitVec.extractLsb' 0 t x).concat y := by
@@ -6365,7 +6357,6 @@ theorem extractLsb'_concat (x : BitVec (w+1)) (y : Bool):
     simp [show i - 1 < t by omega]
 
 /-! ### with width change -/
-
 
 theorem popCount'_cons (x : BitVec w) :
     (x.cons y).popCount' = x.popCount' + if y then 1 else 0 := by
@@ -6396,8 +6387,6 @@ theorem cons_popcount'_eq_concat_popcount' {w : Nat} (x : BitVec w) :
     (x.cons y).popCount' = (x.concat y).popCount' := by
   rw [popCount'_cons, concat_popcount']
 
-
-
 theorem setWidth_popCount'_add_eq (x : BitVec (w' + 1)) :
     ((BitVec.setWidth w' x).popCount' + if x.msb = true then 1 else 0) = x.popCount' := by
   have rrt := @BitVec.cons_msb_setWidth w' x
@@ -6405,7 +6394,6 @@ theorem setWidth_popCount'_add_eq (x : BitVec (w' + 1)) :
     rhs
     rw [← rrt]
   rw [popCount'_cons]
-
 
 theorem reverse_popcount' {w : Nat} (x : BitVec w) :
     x.reverse.popCount' = x.popCount' := by
@@ -6475,7 +6463,6 @@ theorem concat_popCount {x : BitVec w} {b : Bool} :
     rw [Nat.add_comm, BitVec.getLsbD_eq_getElem]
   · simp [show w = 0 by omega, popCount]
 
-
 @[simp]
 theorem cons_popcount_eq_concat_popcount {w : Nat} (x : BitVec w) :
     (x.cons y).popCount = (x.concat y).popCount := by
@@ -6501,7 +6488,4 @@ theorem reverse_popCount {w : Nat} (x : BitVec w) :
     rw [popCount_cons]
     rw [ih]
     rw [setWidth_popCount_add_eq]
-
-
-
 end BitVec

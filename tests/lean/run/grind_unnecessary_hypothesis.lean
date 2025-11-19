@@ -49,3 +49,17 @@ info: idxToCount''.go.{u_1} {α : Type u_1} [BEq α] (xs : List α) (i : Nat) (h
 -/
 #guard_msgs in
 #check idxToCount''.go
+
+-- Another example from the Zulip thread
+/--
+warning: unused variable `hi`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+-/
+#guard_msgs in
+def oops (oh_no : List Nat) (hi : 0 < oh_no.length) : True := go where
+  go : True := by grind
+
+/-- info: oops.go : True -/
+#guard_msgs in
+#check oops.go

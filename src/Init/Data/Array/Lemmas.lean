@@ -3555,11 +3555,6 @@ theorem mem_of_back? {xs : Array α} {a : α} (h : xs.back? = some a) : a ∈ xs
   rcases ys with ⟨ys⟩
   simp only [List.append_toArray, List.back_toArray, List.getLast_append, List.isEmpty_iff,
     List.isEmpty_toArray]
-  split
-  · rw [dif_pos]
-    simpa only [List.isEmpty_toArray]
-  · rw [dif_neg]
-    simpa only [List.isEmpty_toArray]
 
 theorem back_append_right {xs ys : Array α} (h : 0 < ys.size) :
     (xs ++ ys).back (by simp; omega) = ys.back h := by

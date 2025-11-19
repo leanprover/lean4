@@ -3,6 +3,7 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luisa Cicolini, Siddharth Bhat, Henrik Böving
 -/
+module
 
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
@@ -11,6 +12,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Eq
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ZeroExtend
 public import Std.Sat.AIG.If
+
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec.popCount`.

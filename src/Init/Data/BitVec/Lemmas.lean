@@ -6308,12 +6308,12 @@ theorem extractLsb'_cons (x : BitVec w) :
 theorem concat_eq_cons_reverse {x : BitVec w} {b : Bool} :
     concat x b = ((x.reverse).cons b).reverse := by
   ext i hi
-  simp only [getElem_concat, getElem_reverse, getMsbD_eq_getLsbD, hi, decide_true,
-    Nat.add_one_sub_one, getLsbD_cons, getLsbD_reverse, Bool.true_and]
+  simp only [← getLsbD_eq_getElem, getLsbD_concat, getLsbD_reverse, getMsbD_eq_getLsbD, hi,
+    decide_true, Nat.add_one_sub_one, getLsbD_cons, Bool.true_and]
   by_cases hzero : i = 0
   · simp [hzero]
   · simp [hzero, show ¬ w - i = w by omega, show w - i < w by omega,
-          show w - 1 - (w - i) = i - 1 by omega, ← getLsbD_eq_getElem]
+          show w - 1 - (w - i) = i - 1 by omega]
 
 theorem reverse_eq_msb_concat_reverse {x : BitVec (w + 1)}:
     x.reverse = concat ((x.setWidth w).reverse) x.msb := by
@@ -6331,7 +6331,8 @@ theorem reverse_eq_msb_cons_reverse {x : BitVec (w + 1)}:
     getLsbD_eq_getElem, getElem_cons, getLsbD_extractLsb', dite_eq_ite]
   by_cases hiw : i = w
   · simp [hiw]
-  · simp [hiw, hi, show i < w by omega, show w - 1 - i < w by omega, show 1 + (w - 1 - i) = w - i by omega]
+  · simp [hiw, hi, show i < w by omega, show w - 1 - i < w by omega,
+      show 1 + (w - 1 - i) = w - i by omega]
 
 @[simp]
 theorem reverse_reverse (x : BitVec w) :
@@ -6342,16 +6343,11 @@ theorem reverse_reverse (x : BitVec w) :
 theorem extractLsb'_concat (x : BitVec (w+1)) (y : Bool):
     BitVec.extractLsb' 0 (t+1) (x.concat y) = (BitVec.extractLsb' 0 t x).concat y := by
   ext i hi
-  simp
-  rw [← BitVec.getLsbD_eq_getElem]
-  rw [BitVec.getLsbD_concat]
-  rw [BitVec.getLsbD_concat, BitVec.getLsbD_extractLsb']
-  simp
+  simp only [← getLsbD_eq_getElem, getLsbD_extractLsb', hi, decide_true, Nat.zero_add,
+    getLsbD_concat, Bool.true_and]
   split
-  case _ hzero =>
-    simp
-  case _ hsucc =>
-    simp [show i - 1 < t by omega]
+  · simp
+  · simp [show i - 1 < t by omega]
 
 /-! ### with width change -/
 
@@ -6403,6 +6399,33 @@ theorem reverse_popcount' {w : Nat} (x : BitVec w) :
     rw [popCount'_cons]
     rw [ih]
     rw [setWidth_popCount'_add_eq]
+
+theorem popCountAuxRec'_le_extractLsbD_popCountAuxRec' {w : Nat} {x : BitVec w} (hv : v ≤ w) :
+    x.popCountAuxRec' ≤ (x.extractLsb' 0 v).popCountAuxRec' := by
+  sorry
+
+
+theorem popCountAuxRec'_le {w : Nat} {x : BitVec w} :
+    (BitVec.extractLsb' 0 w x).popCountAuxRec' ≤ w := by
+  induction w
+  · simp [popCountAuxRec']
+  · case _ w ihn =>
+    unfold popCountAuxRec'
+    split
+    · rw [exctractLsb'_extractLsb'_eq_extractLsb'_of_le (by omega)]
+      rw [Nat.add_comm]
+      refine Nat.add_le_add_iff_right.mpr ?_
+
+
+      sorry
+
+    ·
+      sorry
+
+theorem popCount'_le {w : Nat} {x : BitVec w} :
+    x.popCount' ≤ w := by
+  simp [popCount', popCountAuxRec'_le]
+  sorry
 
 /-! ### with extra induction variable `n` -/
 
@@ -6485,4 +6508,17 @@ theorem reverse_popCount {w : Nat} (x : BitVec w) :
     rw [popCount_cons]
     rw [ih]
     rw [setWidth_popCount_add_eq]
+
+theorem popCountAuxRec_le {w : Nat} {x : BitVec w} :
+    x.popCountAuxRec n ≤ n := by
+  induction n
+  · simp
+  · case _ n ihn =>
+    simp only [popCountAuxRec_succ]
+    split <;> omega
+
+theorem popCount_le {w : Nat} {x : BitVec w} :
+    x.popCount ≤ w := by
+  simp [popCount, popCountAuxRec_le]
+
 end BitVec

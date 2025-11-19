@@ -668,20 +668,19 @@ where
         if numParams + numDiscrEqs = 0 then
           let eNew := mkApp altNew (mkConst ``Unit.unit)
           return TransformStep.done eNew
-        else
-          let mut newArgs := #[]
-          let argMask := trimFalseTrail argMask
-          unless e.getAppNumArgs ≥ argMask.size do
-            throwError "unexpected occurrence of `match`-expression alternative (aka minor premise) while creating splitter/eliminator theorem for `{matchDeclName}`, minor premise is partially applied{indentExpr e}\npossible solution if you are matching on inductive families: add its indices as additional discriminants"
-          for arg in e.getAppArgs, includeArg in argMask do
-            if includeArg then
-              newArgs := newArgs.push arg
-          let eNew := mkAppN altNew newArgs
-          /- Recall that `numParams` does not include the `numDiscrEqs` equalities associated with discriminants of the form `h : discr`. -/
-          let (mvars, _, _) ← forallMetaBoundedTelescope (← inferType eNew) (numParams - newArgs.size) (kind := MetavarKind.syntheticOpaque)
-          modify fun s => s ++ (mvars.map (·.mvarId!))
-          let eNew := mkAppN eNew mvars
-          return TransformStep.done eNew
+        let mut newArgs := #[]
+        let argMask := trimFalseTrail argMask
+        unless e.getAppNumArgs ≥ argMask.size do
+          throwError "unexpected occurrence of `match`-expression alternative (aka minor premise) while creating splitter/eliminator theorem for `{matchDeclName}`, minor premise is partially applied{indentExpr e}\npossible solution if you are matching on inductive families: add its indices as additional discriminants"
+        for arg in e.getAppArgs, includeArg in argMask do
+          if includeArg then
+            newArgs := newArgs.push arg
+        let eNew := mkAppN altNew newArgs
+        /- Recall that `numParams` does not include the `numDiscrEqs` equalities associated with discriminants of the form `h : discr`. -/
+        let (mvars, _, _) ← forallMetaBoundedTelescope (← inferType eNew) (numParams - newArgs.size) (kind := MetavarKind.syntheticOpaque)
+        modify fun s => s ++ (mvars.map (·.mvarId!))
+        let eNew := mkAppN eNew mvars
+        return TransformStep.done eNew
 
   /-
   `forbidden` tracks variables that we have already applied `injection`.

@@ -311,7 +311,7 @@ def transform
         altType in altTypes do
       let alt' ← forallAltTelescope' origAltType (numParams - numDiscrEqs) 0 fun ys args => do
         let altType ← instantiateForall altType ys
-        -- Look passt the thunking unit parameter, if present
+        -- Look past the thunking unit parameter, if present
         let altType ← if splitterNumParams + numDiscrEqs = 0 then
             instantiateForall altType #[mkConst ``Unit.unit]
           else
@@ -327,8 +327,8 @@ def transform
               let alt' ← onAlt altIdx altType altParams alt
               mkLambdaFVars (ys ++ ys2 ++ ys3 ++ ys4) alt'
         let alt' ← if splitterNumParams + numDiscrEqs = 0 then
-          -- The splitter expects a thunked alternative, but we don't want that to be
-          -- in the context, so use Function.const rather than a lambda
+          -- The splitter expects a thunked alternative, but we don't want the `x : Unit` to be in
+          -- the context (e.g. in functional induction), so use Function.const rather than a lambda
           mkAppM ``Function.const #[mkConst ``Unit, alt']
         else
           pure alt'

@@ -147,7 +147,7 @@ public def dynlibSuffix := "-1"
     name used for the module's initialization function, thus enabling it
     to be loaded as a plugin.
   -/
-  self.name.mangle ""
+  mkModuleInitializationStem self.name self.pkg.id?
 
 @[inline] public def dynlibFile (self : Module) : FilePath :=
   self.pkg.leanLibDir / s!"{self.dynlibName}.{sharedLibExt}"

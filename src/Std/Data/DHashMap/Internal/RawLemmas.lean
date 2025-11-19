@@ -11,6 +11,7 @@ import all Std.Data.DHashMap.Internal.Defs
 public import Std.Data.DHashMap.Internal.WF
 import all Std.Data.DHashMap.Raw
 import all Std.Data.DHashMap.Basic
+import all Std.Data.DHashMap.RawDef
 meta import Std.Data.DHashMap.Basic
 
 public section
@@ -2594,6 +2595,70 @@ theorem getD_insertManyIfNewUnit_emptyWithCapacity_list
 end Const
 
 end insertMany
+
+section BEq
+variable {m₁ m₂ : Raw₀ α β}
+
+theorem checkBEq_eq_true_of_Equiv {m₁ m₂ : Raw₀ α β} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] : m₁.1.Equiv m₂.1 → checkBEq m₁ m₂ := by
+  rw [checkBEq]
+  intro hyp
+  split
+  case isTrue hs =>
+    revert hyp hs
+    simp_to_model [Equiv, size]
+    intro hp hne
+    have := List.Perm.length_eq hp
+    contradiction
+  case isFalse hs =>
+    rw [all_eq_true]
+    · simp only [ne_eq, Decidable.not_not] at hs
+      revert hyp hs
+      simp_to_model [Equiv, size, get?, get]
+      intro hp _ a h
+      rw [contains_eq_containsKey] at h
+      · apply beq_of_eq
+        rw [← getValueCast?_eq_some_getValueCast]
+        exact getValueCast?_of_perm (by wf_trivial) (List.Perm.symm hp)
+      · wf_trivial
+    · wf_trivial
+
+theorem Equiv_of_checkBEq_eq_true {m₁ m₂ : Raw₀ α β} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] : checkBEq m₁ m₂ → m₁.1.Equiv m₂.1 := by
+  intro hyp
+  rw [checkBEq] at hyp
+  split at hyp
+  case isTrue => contradiction
+  case isFalse hs =>
+    simp at hs
+    rw [all_eq_true] at hyp
+    · revert hyp hs
+      simp_to_model [contains, get?, get, Equiv, size]
+      intro hyp hs
+      apply getValueCast?_ext (by wf_trivial) (by wf_trivial)
+      intro a
+      by_cases hc : containsKey a (toListModel m₁.val.buckets)
+      case neg =>
+        have sub : ∀ a : α, containsKey a (toListModel m₁.val.buckets) → containsKey a (toListModel m₂.val.buckets) := by
+          intro a mem
+          specialize hyp a mem
+          replace hyp := eq_of_beq hyp
+          apply List.containsKey_of_getValueCast?_eq_some hyp
+        simp only [Bool.not_eq_true] at hc
+        rw [getValueCast?_eq_none hc]
+        symm
+        sorry
+      case pos =>
+        specialize hyp a hc
+        replace hyp := eq_of_beq hyp
+        rw [hyp]
+        rw [getValueCast?_eq_some_getValueCast hc]
+
+
+
+
+    · wf_trivial
+
+
+end BEq
 
 section Union
 

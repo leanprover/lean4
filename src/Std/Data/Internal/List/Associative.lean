@@ -3571,6 +3571,36 @@ theorem insertList_insertEntry_right_equiv_insertEntry_insertList [BEq α] [Equi
   . simp only [Option.some_or]
   . rw [@getEntry?_insertList α β _ _ l toInsert distinct_l (DistinctKeys_impl_Pairwise_distinct distinct_toInsert) a]
 
+theorem length_le_of_keys_subset [BEq α] [EquivBEq α]
+    {l₁ l₂ : List ((a : α) × β a)}
+    (dl₁ : DistinctKeys l₁)
+    (dl₂ : DistinctKeys l₂)
+    (h : ∀ a, containsKey a l₁ → containsKey a l₂) :
+    l₁.length ≤ l₂.length := by
+  induction l₁ generalizing l₂ with
+  | nil => simp
+  | cons hd tl ih =>
+    have hc := h hd.1 (by rw [containsKey_cons_self])
+    sorry
+
+theorem containsKey_lemma [BEq α] [EquivBEq α] {l₁ l₂ : List ((a : α) × β a)} (dl₁ : DistinctKeys l₁) (dl₂ : DistinctKeys l₂) (hl : l₂.length = l₁.length) (hs : ∀ (a : α), containsKey a l₁ → containsKey a l₂)  : ∀ (a : α), containsKey a l₂ → containsKey a l₁ := by
+  intro a ha
+  apply Classical.byContradiction
+  intro hb
+  simp at hb
+  suffices l₁.length < l₂.length by omega
+  suffices l₁.length ≤ (eraseKey a l₂).length ∧ 1 + (eraseKey a l₂).length = l₂.length by omega
+  apply And.intro
+  · apply length_le_of_keys_subset dl₁ (DistinctKeys.eraseKey dl₂)
+    intro a₂ mem₂
+    sorry
+  · simp only [length_eraseKey, ha, ↓reduceIte]
+    have : l₂.length > 0 := by
+      cases l₂
+      · simp at ha
+      · simp
+    omega
+
 section
 
 variable {β : Type v}

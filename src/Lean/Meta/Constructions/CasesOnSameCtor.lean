@@ -153,7 +153,7 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
       let motiveType ← mkForallFVars (is ++ #[x1,x2,heq]) (mkSort v)
       withLocalDecl `motive .implicit motiveType fun motive => do
 
-      let altTypes ← info.ctors.toArray.mapIdxM fun i ctorName => do
+      let (altTypes, altInfos) ← Array.unzip <$> info.ctors.toArray.mapIdxM fun i ctorName => do
         let ctor := mkAppN (mkConst ctorName us) params
         withSharedCtorIndices ctor fun zs12 is fields1 fields2 => do
           let ctorApp1 := mkAppN ctor fields1
@@ -164,7 +164,8 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
           let name := match ctorName with
             | Name.str _ s => Name.mkSimple s
             | _ => Name.mkSimple s!"alt{i+1}"
-          return (name, e)
+          let altInfo := { numFields := zs12.size, numOverlaps := 0, hasUnitThunk := zs12.isEmpty : Match.AltParamInfo}
+          return ((name, e), altInfo)
       withLocalDeclsDND altTypes fun alts => do
         forallBoundedTelescope t0 (some (info.numIndices + 1)) fun ism1' _ =>
         forallBoundedTelescope t0 (some (info.numIndices + 1)) fun ism2' _ => do
@@ -210,7 +211,7 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
         let matcherInfo : MatcherInfo := {
           numParams := info.numParams
           numDiscrs := info.numIndices + 3
-          altNumParams := altTypes.map (·.2.getNumHeadForalls)
+          altInfos
           uElimPos? := some 0
           discrInfos := #[{}, {}, {}]}
 

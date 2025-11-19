@@ -15,7 +15,7 @@ public section
 namespace Lean.Meta.MatcherApp
 
 /-- Auxiliary function for MatcherApp.addArg -/
-private partial def updateAlts (unrefinedArgType : Expr) (typeNew : Expr) (altNumParams : Array Nat) (alts : Array Expr) (refined : Bool) (i : Nat) : MetaM (Array Nat × Array Expr) := do
+private partial def updateAlts (unrefinedArgType : Expr) (typeNew : Expr) (altNumParams : Array Nat) (alts : Array Expr) (refined : Bool) (i : Nat) : MetaM (Array Expr) := do
   if h : i < alts.size then
     let alt       := alts[i]
     let numParams := altNumParams[i]!
@@ -33,11 +33,11 @@ private partial def updateAlts (unrefinedArgType : Expr) (typeNew : Expr) (altNu
           else
             pure <| !(← isDefEq unrefinedArgType (← inferType x[0]!))
           return (← mkLambdaFVars xs alt, refined)
-      updateAlts unrefinedArgType (b.instantiate1 alt) (altNumParams.set! i (numParams+1)) (alts.set i alt) refined (i+1)
+      updateAlts unrefinedArgType (b.instantiate1 alt) altNumParams (alts.set i alt) refined (i+1)
     | _ => throwError "unexpected type at MatcherApp.addArg"
   else
     if refined then
-      return (altNumParams, alts)
+      return alts
     else
       throwError "failed to add argument to matcher application, argument type was not refined by `casesOn`"
 
@@ -91,12 +91,11 @@ def addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
     unless (← isTypeCorrect aux) do
       throwError "failed to add argument to matcher application, type error when constructing the new motive"
     let auxType ← inferType aux
-    let (altNumParams, alts) ← updateAlts eType auxType matcherApp.altNumParams matcherApp.alts false 0
+    let alts ← updateAlts eType auxType matcherApp.altNumParams matcherApp.alts false 0
     return { matcherApp with
       matcherLevels := matcherLevels,
       motive        := motive,
       alts          := alts,
-      altNumParams  := altNumParams,
       remaining     := #[e] ++ matcherApp.remaining
     }
 
@@ -245,7 +244,7 @@ def transform
   let params' ← matcherApp.params.mapM onParams
   let discrs' ← matcherApp.discrs.mapM onParams
 
-  let (motive', uElim, addHEqualities) ← lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
+  let (motive', uElim, addHEqualities, discrInfos') ← lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
     unless motiveArgs.size == matcherApp.discrs.size do
       throwError "unexpected matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
     let mut motiveBody' ← onMotive motiveArgs motiveBody
@@ -253,18 +252,22 @@ def transform
     -- Prepend `(x = e) →` or `(x ≍ e) → ` to the motive when an equality is requested
     -- and not already present, and remember whether we added an Eq or a HEq
     let mut addHEqualities : Array (Option Bool) := #[]
+    let mut discrInfos' := #[]
     for arg in motiveArgs, discr in discrs', di in matcherApp.discrInfos do
       if addEqualities && di.hName?.isNone then
         if ← isProof arg then
           addHEqualities := addHEqualities.push none
+          discrInfos' := discrInfos'.push di
         else
           let heq ← mkEqHEq discr arg
           motiveBody' ← liftMetaM <| mkArrow heq motiveBody'
           addHEqualities := addHEqualities.push heq.isHEq
+          discrInfos' := discrInfos'.push { hName? := some .anonymous }
       else
         addHEqualities := addHEqualities.push none
+        discrInfos' := discrInfos'.push di
 
-    return (← mkLambdaFVars motiveArgs motiveBody', ← getLevel motiveBody', addHEqualities)
+    return (← mkLambdaFVars motiveArgs motiveBody', ← getLevel motiveBody', addHEqualities, discrInfos')
 
   let matcherLevels ← match matcherApp.uElimPos? with
     | none     => pure matcherApp.matcherLevels
@@ -342,7 +345,7 @@ def transform
       params        := params'
       motive        := motive'
       discrs        := discrs'
-      altNumParams  := matchEqns.splitterAltNumParams.map (· + extraEqualities)
+      discrInfos    := discrInfos'
       alts          := alts'
       remaining     := remaining'
     }
@@ -377,7 +380,7 @@ def transform
       params        := params'
       motive        := motive'
       discrs        := discrs'
-      altNumParams  := matcherApp.altNumParams.map (· + extraEqualities)
+      discrInfos    := discrInfos'
       alts          := alts'
       remaining     := remaining'
     }

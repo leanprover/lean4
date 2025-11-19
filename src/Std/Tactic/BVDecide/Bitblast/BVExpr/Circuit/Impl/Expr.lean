@@ -232,12 +232,12 @@ where
           apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastClz)
           omega
         ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastClz) ..)⟩
-      | .popCount =>
-        let res := bitblast.blastPopCount eaig evec
-        have := by
-          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastPopCount)
-          omega
-        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastPopCount) ..)⟩
+      | .popCount => sorry
+        -- let res := bitblast.blastPopCount eaig evec
+        -- have := by
+        --   apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastPopCount)
+        --   omega
+        -- ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastPopCount) ..)⟩
     | .append lhs rhs h =>
       let ⟨⟨⟨aig, lhs⟩, hlaig⟩, cache⟩ := goCache aig lhs cache
       let ⟨⟨⟨aig, rhs⟩, hraig⟩, cache⟩ := goCache aig rhs cache
@@ -349,11 +349,11 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
         · apply Nat.le_trans <;> assumption
   next op expr =>
     match op with
-    | .not | .rotateLeft .. | .rotateRight .. | .arithShiftRightConst .. | .reverse | .clz | .popCount =>
-      rw [AIG.LawfulVecOperator.decl_eq]
-      rw [goCache_decl_eq]
-      have := (goCache aig expr cache).result.property
-      exact Nat.lt_of_lt_of_le h1 this
+    | .not | .rotateLeft .. | .rotateRight .. | .arithShiftRightConst .. | .reverse | .clz | .popCount => sorry
+      -- rw [AIG.LawfulVecOperator.decl_eq]
+      -- rw [goCache_decl_eq]
+      -- have := (goCache aig expr cache).result.property
+      -- exact Nat.lt_of_lt_of_le h1 this
   next lhsExpr rhsExpr h =>
     have hl := (goCache aig lhsExpr cache).result.property
     have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property

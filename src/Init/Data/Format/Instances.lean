@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Array.Basic
-import Init.Data.String.Basic
+import Init.Data.String.Search
 
 public section
 
@@ -47,7 +47,7 @@ Converts a string to a pretty-printer document, replacing newlines in the string
 `Std.Format.line`.
 -/
 def String.toFormat (s : String) : Std.Format :=
-  Std.Format.joinSep (s.splitOn "\n") Std.Format.line
+  Std.Format.joinSep (s.split "\n").toList Std.Format.line
 
 instance : ToFormat String.Pos.Raw where
   format p := format p.byteIdx

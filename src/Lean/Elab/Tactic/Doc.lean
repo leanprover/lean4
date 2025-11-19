@@ -108,7 +108,7 @@ Displays all available tactic tags, with documentation.
 
   let showDocs : Option String → MessageData
     | none => .nil
-    | some d => Format.line ++ MessageData.joinSep ((d.splitOn "\n").map toMessageData) Format.line
+    | some d => Format.line ++ MessageData.joinSep ((d.split '\n').map (toMessageData ∘ String.Slice.copy)).toList Format.line
 
   let showTactics (tag : Name) : MetaM MessageData := do
     match mapping.find? tag with

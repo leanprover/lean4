@@ -1049,7 +1049,7 @@ mutual
     deIndent (n : Nat) (str : String) : String := Id.run do
       let str := if str != "" && str.back == '\n' then str.dropEnd 1 |>.copy else str
       let mut out := ""
-      for line in str.splitOn "\n" do
+      for line in str.split '\n' do
         out := out ++ line.drop n ++ "\n"
       out
 

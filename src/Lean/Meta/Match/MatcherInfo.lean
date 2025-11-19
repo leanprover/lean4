@@ -16,11 +16,12 @@ namespace Match
 structure DiscrInfo where
   /-- `some h` if the discriminant is annotated with `h:` -/
   hName? : Option Name := none
-  deriving Inhabited
+deriving Inhabited, Repr
 
 
 structure Overlaps where
   map : Std.HashMap Nat (Std.TreeSet Nat) := {}
+deriving Inhabited, Repr
 
 def Overlaps.insert (o : Overlaps) (overlapping overlapped : Nat) : Overlaps where
   map := o.map.alter overlapped fun s? => some ((s?.getD {}).insert overlapping)
@@ -40,7 +41,7 @@ structure AltParamInfo where
   numOverlaps : Nat
   /-- Whether this alternatie has an artifcial `Unit` parameter -/
   hasUnitThunk : Bool
-deriving Inhabited
+deriving Inhabited, Repr
 
 /--
 A "matcher" auxiliary declaration has the following structure:
@@ -63,6 +64,7 @@ structure MatcherInfo where
   -/
   discrInfos   : Array DiscrInfo
   overlaps     : Overlaps := {}
+deriving Inhabited, Repr
 
 @[expose] def MatcherInfo.numAlts (info : MatcherInfo) : Nat :=
   info.altInfos.size

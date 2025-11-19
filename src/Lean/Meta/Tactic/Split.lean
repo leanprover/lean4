@@ -284,14 +284,14 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
     trace[split.debug] "after check splitter"
     let mvarIds ← mvarId.applyN splitter matchEqns.size
     let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
-      let numParams := matchEqns.splitterAltNumParams[i]!
+      let altInfo := matchEqns.splitterMatchInfo.altInfos[i]!
       let mvarId ←
-        if numParams + info.getNumDiscrEqs = 0 then
+        if altInfo.hasUnitThunk then
           trace[split.debug] "introducing unit param for alt {(i : Nat)}"
           let (unitFvarId, mvarId) ← mvarId.intro1
           mvarId.tryClear unitFvarId
         else
-          let (_, mvarId) ← mvarId.introN numParams
+          let (_, mvarId) ← mvarId.introN (altInfo.numFields + altInfo.numOverlaps)
           pure mvarId
       trace[split.debug] "before unifyEqs\n{mvarId}"
       match (← Cases.unifyEqs? (info.getNumDiscrEqs + numEqs) mvarId {}) with

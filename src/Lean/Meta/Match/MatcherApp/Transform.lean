@@ -190,10 +190,10 @@ def withUserNames {n} [MonadControlT MetaM n] [Monad n]
 -/
 private def forallAltTelescope'
     {n} [Monad n] [MonadControlT MetaM n]
-    {α} (origAltType : Expr) (numParams numDiscrEqs : Nat)
+    {α} (origAltType : Expr) (altInfo : Match.AltParamInfo)
     (k : Array Expr → Array Expr → n α) : n α := do
   map2MetaM (fun k =>
-    Match.forallAltVarsTelescope origAltType numParams numDiscrEqs
+    Match.forallAltVarsTelescope origAltType altInfo
       fun ys args _mask _bodyType => k ys args
   ) k
 
@@ -308,20 +308,22 @@ def transform
     let mut alts' := #[]
     for altIdx in *...matcherApp.alts.size,
         alt in matcherApp.alts,
-        numParams in matcherApp.altNumParams,
-        splitterNumParams in matchEqns.splitterAltNumParams,
+        altInfo in matcherApp.altInfos,
+        splitterAltInfo in matchEqns.splitterMatchInfo.altInfos,
         origAltType in origAltTypes,
         altType in altTypes do
-      let alt' ← forallAltTelescope' origAltType (numParams - numDiscrEqs) 0 fun ys args => do
+      assert! altInfo.numOverlaps = 0
+      let alt' ← forallAltTelescope' origAltType altInfo fun ys args => do
+        assert! ys.size == splitterAltInfo.numFields
         let altType ← instantiateForall altType ys
         -- Look past the thunking unit parameter, if present
-        let altType ← if splitterNumParams + numDiscrEqs = 0 then
+        let altType ← if altInfo.hasUnitThunk then
             instantiateForall altType #[mkConst ``Unit.unit]
           else
             pure altType
         -- The splitter inserts its extra parameters after the first ys.size parameters, before
         -- the parameters for the numDiscrEqs
-        let alt' ← forallBoundedTelescope altType (splitterNumParams - ys.size) fun ys2 altType => do
+        let alt' ← forallBoundedTelescope altType splitterAltInfo.numOverlaps fun ys2 altType => do
           forallBoundedTelescope altType numDiscrEqs fun ys3 altType => do
             forallBoundedTelescope altType extraEqualities fun ys4 altType => do
               let altParams := args ++ ys3
@@ -329,7 +331,7 @@ def transform
                         catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
               let alt' ← onAlt altIdx altType altParams alt
               mkLambdaFVars (ys ++ ys2 ++ ys3 ++ ys4) alt'
-        let alt' ← if splitterNumParams + numDiscrEqs = 0 then
+        let alt' ← if splitterAltInfo.hasUnitThunk then
           -- The splitter expects a thunked alternative, but we don't want the `x : Unit` to be in
           -- the context (e.g. in functional induction), so use Function.const rather than a lambda
           mkAppM ``Function.const #[mkConst ``Unit, alt']

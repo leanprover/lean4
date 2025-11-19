@@ -42,6 +42,9 @@ def FixedTermElabRef : Type := FixedTermElabRefPointed.type
 instance : Nonempty FixedTermElabRef :=
   by exact FixedTermElabRefPointed.property
 
+/-- A dependency-circuit-breaking abbreviation for `TermElab`. -/
+abbrev TermElabRef := Syntax → FixedTermElabRef
+
 /-- Saved context for postponed terms and tactics to be executed. -/
 structure SavedContext where
   declName?      : Option Name
@@ -51,6 +54,7 @@ structure SavedContext where
   errToSorry     : Bool
   levelNames     : List Name
   fixedTermElabs : Array FixedTermElabRef
+  liftMethodElab : Option TermElabRef
 
 /-- The kind of a tactic metavariable, used for additional error reporting. -/
 inductive TacticMVarKind
@@ -337,6 +341,10 @@ structure Context where
   Fixed term elaborators for supporting `elabToSyntax`.
   -/
   fixedTermElabs : Array FixedTermElabRef := #[]
+  /--
+  The term elaborator for `(← foo)` syntax. It is present iff there is a surrounding `do` block.
+  -/
+  liftMethodElab : Option TermElabRef := none
 
 abbrev TermElabM := ReaderT Context $ StateRefT State MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
@@ -360,6 +368,12 @@ unsafe def FixedTermElabRef.toFixedTermElabImpl (m : FixedTermElabRef) : FixedTe
 
 @[implemented_by FixedTermElabRef.toFixedTermElabImpl]
 opaque FixedTermElabRef.toFixedTermElab (m : FixedTermElabRef) : FixedTermElab
+
+abbrev TermElabRef.toTermElab (m : TermElabRef) : TermElab := fun stx =>
+  (m stx).toFixedTermElab
+
+abbrev TermElab.toTermElabRef (m : TermElab) : TermElabRef := fun stx =>
+  FixedTermElab.toFixedTermElabRef (m stx)
 
 /-
 Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
@@ -1341,20 +1355,27 @@ def withExpectedType (expectedType? : Option Expr) (x : Expr → TermElabM Expr)
 -/
 def saveContext : TermElabM SavedContext :=
   return {
-    macroStack := (← read).macroStack
-    declName?  := (← read).declName?
-    options    := (← getOptions)
-    openDecls  := (← getOpenDecls)
-    errToSorry := (← read).errToSorry
-    levelNames := (← get).levelNames
+    macroStack     := (← read).macroStack
+    declName?      := (← read).declName?
+    options        := (← getOptions)
+    openDecls      := (← getOpenDecls)
+    errToSorry     := (← read).errToSorry
+    levelNames     := (← get).levelNames
     fixedTermElabs := (← read).fixedTermElabs
+    liftMethodElab := (← read).liftMethodElab
   }
 
 /--
   Execute `x` with the context saved using `saveContext`.
 -/
 def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α := do
-  withReader (fun ctx => { ctx with declName? := savedCtx.declName?, macroStack := savedCtx.macroStack, errToSorry := savedCtx.errToSorry, fixedTermElabs := savedCtx.fixedTermElabs }) <|
+  withReader (fun ctx => { ctx with
+        declName? := savedCtx.declName?,
+        macroStack := savedCtx.macroStack,
+        errToSorry := savedCtx.errToSorry,
+        fixedTermElabs := savedCtx.fixedTermElabs,
+        liftMethodElab := savedCtx.liftMethodElab
+      }) <|
     withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls }) <|
       withLevelNames savedCtx.levelNames x
 

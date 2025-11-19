@@ -297,6 +297,13 @@ def mkBindCancellingPure (x : Name) (eResultTy e : Expr) (k : Expr → DoElabM E
     mkBindApp eResultTy kResultTy e k
 
 /--
+Like `controlAt TermElabM`, but it maintains the state using the `DoElabM`'s ref cell instead of returning it
+in the `TermElabM` result. This makes it possible to run multiple `DoElabM` computations in a row.
+-/
+def controlAtTermElabM (k : (runInBase : ∀ {β}, DoElabM β → TermElabM β) → TermElabM α) : DoElabM α := fun ctx ref => do
+  k (· ctx ref)
+
+/--
 A variant of `Term.elabType` that takes the universe of the monad into account, unless
 `freshLevel` is set.
 -/
@@ -317,15 +324,52 @@ private partial def withPendingMVars (k : TermElabM α) : TermElabM (α × List 
   finally
     modify fun s => { s with pendingMVars := s.pendingMVars ++ pendingMVarsSaved }
 
-def elabTerm (stx : Syntax) (expectedType? : Option Expr) : DoElabM Expr := do
-  let (e, _pendingMVars) ← withPendingMVars <| Term.elabTerm stx expectedType?
-  -- for mvarId in pendingMVars.reverse do
-  --   let some mvarDecl ← Term.getSyntheticMVarDecl? mvarId | continue
-  --   let .postponed _ := mvarDecl.kind | continue
-  --   match mvarDecl.stx with
-  --   | `(<== $e) => logInfo m!"Elaborate {e}"
-  --   | _ => continue
-  return e
+def withNestedAction (k : DoElabM Expr) : DoElabM Expr := do
+  let lctx ← getLCtx
+  let newBinds ← IO.mkRef #[]
+  let mi := (← read).monadInfo
+  let e ← controlAtTermElabM fun runInBase =>
+    let elabLiftMethod : Term.TermElab := fun stx expectedType? => do
+      let newLCtx := (← getLCtx)
+      let allowed := Id.run <| ExceptT.runCatch do
+        newLCtx.foldlM (start := lctx.numIndices) (init := ()) fun _ decl => do
+          if decl matches .cdecl .. then
+            throw false
+          else
+            pure ()
+        return true
+      unless allowed do
+        throwError "Nested action is not allowed. A lambda binder is between it and the `do` sequence."
+      let `(← $e) := stx | throwUnsupportedSyntax
+      let e ← do
+        withLCtx' lctx <| Term.elabTerm e (mkApp mi.m <$> expectedType?)
+      let mvar ← mkFreshExprMVar expectedType?
+      newBinds.modify fun bs => bs.push (e, mvar)
+      return mvar
+    withReader (fun ctx => { ctx with liftMethodElab := some elabLiftMethod.toTermElabRef }) (runInBase k)
+  let binds ← newBinds.get
+  let β ← inferType e
+  let rec wrapNestedActions (i : Nat) (e : Expr) : DoElabM Expr := do
+    if h : i < binds.size then
+      let (rhs, mvar) := binds[i]
+      let α ← inferType mvar
+      let k ← withLocalDeclD (← mkFreshUserName `x) (← inferType mvar) fun x => do
+        -- Abstraction (`mkLambdaFVars`, `mkLetFVars`) may have instantiated the original mvar since
+        -- we created it. So we instantiate `mvar` and take the app head, which is the unassigned
+        -- mvar.
+        let mvarId := (← instantiateMVars mvar).getAppFn.mvarId!
+        -- NB: `x` is not in the local context of `mvarId`, but the assignment below does the Right
+        -- Thing for us. After the next instantiation of the mvar, nobody will notice our deception.
+        mvarId.assign x
+        let e ← wrapNestedActions (i + 1) e
+        mkLambdaFVars #[x] e
+      mkBindApp α β rhs k
+    else
+      return e
+  wrapNestedActions 0 e
+
+partial def elabTerm (stx : Syntax) (expectedType? : Option Expr) : DoElabM Expr := do
+  Term.elabTerm stx expectedType?
 
 def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) : DoElabM Expr := do
   let e ← Term.elabTermEnsuringType stx expectedType?
@@ -676,22 +720,6 @@ def mkContext (expectedType? : Option Expr) : TermElabM Context := do
   return { monadInfo := mi, doBlockResultType := resultType, contInfo }
 
 /--
-Like `controlAt TermElabM`, but it maintains the state in an `IO.Ref` rather than returning it
-in the `TermElabM` result. This makes it possible to run multiple `DoElabM` computations in a row.
--/
-def controlAtTermElabM (k : (runInBase : ∀ {β}, DoElabM β → TermElabM β) → TermElabM α) : DoElabM α := do
-  let ctx ← read
-  let ref ← IO.mkRef (← get)
-  let runInBase {α} (m : DoElabM α) : TermElabM α := do
-    let state ← ref.get
-    let (a, state) ← m.run ctx |>.run state
-    ref.set state
-    return a
-  let b ← k runInBase
-  set (← ref.get)
-  return b
-
-/--
   Backtrackable state for the `TermElabM` monad.
 -/
 structure SavedState where
@@ -739,7 +767,7 @@ private def elabDoElemFns (stx : TSyntax `doElem) (cont : DoElemCont)
   | [] => throwError "unexpected `do` element syntax{indentD stx}"
   | elabFn :: elabFns =>
     try
-      elabFn.value stx cont
+      withNestedAction <| elabFn.value stx cont
     catch ex => match ex with
       | .internal id _ =>
         if id == unsupportedSyntaxExceptionId then

@@ -6969,7 +6969,7 @@ _start:
 {
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_st_ref_get(x_4);
-x_7 = lean_ctor_get_uint8(x_2, sizeof(void*)*8 + 5);
+x_7 = lean_ctor_get_uint8(x_2, sizeof(void*)*8 + 4);
 if (x_7 == 0)
 {
 uint8_t x_8; lean_object* x_9; 

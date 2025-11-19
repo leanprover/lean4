@@ -22,6 +22,7 @@ lean_object* lean_get_set_stdout(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_registerJob___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lake_ensureJob___redArg___closed__7;
 lean_object* lean_array_push(lean_object*, lean_object*);
+lean_object* l_String_Slice_trimAscii(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_withRegisterJob___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_registerJob(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
@@ -42,11 +43,9 @@ LEAN_EXPORT lean_object* l_Lake_withRegisterJob___redArg___boxed(lean_object*, l
 lean_object* lean_st_ref_get(lean_object*);
 static lean_object* l_Lake_ensureJob___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lake_maybeRegisterJob(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Char_isWhitespace___boxed(lean_object*);
 static lean_object* l_Lake_ensureJob___redArg___closed__6;
 lean_object* lean_st_mk_ref(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ensureJob___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_modifyUnsafe___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_ofBuffer(lean_object*);
 static lean_object* l_Lake_ensureJob___redArg___closed__8;
@@ -56,9 +55,7 @@ lean_object* l_Lake_BuildTrace_nil(lean_object*);
 lean_object* lean_get_set_stderr(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ensureJob___redArg___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_registerJob___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Substring_Raw_takeWhileAux(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ensureJob___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Substring_Raw_takeRightWhileAux(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ensureJob___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JobState_renew(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_withRegisterJob(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -66,11 +63,11 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lake_ensureJob___redArg___closed__4;
 uint8_t lean_string_validate_utf8(lean_object*);
+lean_object* l_String_Slice_toString(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ensureJob___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lake_Job_toOpaque___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_registerJob___redArg___lam__0(lean_object*, lean_object*);
-static lean_object* l_Lake_ensureJob___redArg___closed__9;
 LEAN_EXPORT lean_object* l_Lake_Job_renew(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_renew___redArg___lam__0(lean_object*);
@@ -833,7 +830,7 @@ static lean_object* _init_l_Lake_ensureJob___redArg___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Char_isWhitespace___boxed), 1, 0);
+x_1 = lean_mk_string_unchecked("Init.Data.String.Basic", 22, 22);
 return x_1;
 }
 }
@@ -841,7 +838,7 @@ static lean_object* _init_l_Lake_ensureJob___redArg___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Init.Data.String.Basic", 22, 22);
+x_1 = lean_mk_string_unchecked("String.fromUTF8!", 16, 16);
 return x_1;
 }
 }
@@ -849,27 +846,19 @@ static lean_object* _init_l_Lake_ensureJob___redArg___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("String.fromUTF8!", 16, 16);
+x_1 = lean_mk_string_unchecked("invalid UTF-8 string", 20, 20);
 return x_1;
 }
 }
 static lean_object* _init_l_Lake_ensureJob___redArg___closed__8() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid UTF-8 string", 20, 20);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_ensureJob___redArg___closed__9() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lake_ensureJob___redArg___closed__8;
+x_1 = l_Lake_ensureJob___redArg___closed__7;
 x_2 = lean_unsigned_to_nat(46u);
 x_3 = lean_unsigned_to_nat(212u);
-x_4 = l_Lake_ensureJob___redArg___closed__7;
-x_5 = l_Lake_ensureJob___redArg___closed__6;
+x_4 = l_Lake_ensureJob___redArg___closed__6;
+x_5 = l_Lake_ensureJob___redArg___closed__5;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -897,7 +886,7 @@ x_17 = lean_array_get_size(x_8);
 lean_dec_ref(x_8);
 if (lean_obj_tag(x_16) == 0)
 {
-lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; uint8_t x_91; 
+lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; uint8_t x_90; 
 x_67 = lean_ctor_get(x_16, 0);
 lean_inc(x_67);
 x_68 = lean_ctor_get(x_16, 1);
@@ -917,92 +906,93 @@ x_73 = lean_ctor_get(x_72, 0);
 lean_inc_ref(x_73);
 lean_dec_ref(x_72);
 lean_inc_ref(x_73);
-x_91 = lean_string_validate_utf8(x_73);
-if (x_91 == 0)
+x_90 = lean_string_validate_utf8(x_73);
+if (x_90 == 0)
 {
-lean_object* x_92; lean_object* x_93; lean_object* x_94; 
+lean_object* x_91; lean_object* x_92; lean_object* x_93; 
 lean_dec_ref(x_73);
-x_92 = l_Lake_ensureJob___redArg___closed__1;
-x_93 = l_Lake_ensureJob___redArg___closed__9;
-x_94 = l_panic___redArg(x_92, x_93);
-x_74 = x_94;
-goto block_90;
+x_91 = l_Lake_ensureJob___redArg___closed__1;
+x_92 = l_Lake_ensureJob___redArg___closed__8;
+x_93 = l_panic___redArg(x_91, x_92);
+x_74 = x_93;
+goto block_89;
 }
 else
 {
-lean_object* x_95; 
-x_95 = lean_string_from_utf8_unchecked(x_73);
-x_74 = x_95;
-goto block_90;
+lean_object* x_94; 
+x_94 = lean_string_from_utf8_unchecked(x_73);
+x_74 = x_94;
+goto block_89;
 }
-block_90:
+block_89:
 {
 lean_object* x_75; uint8_t x_76; 
 x_75 = lean_string_utf8_byte_size(x_74);
 x_76 = lean_nat_dec_eq(x_75, x_10);
 if (x_76 == 0)
 {
-lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; uint8_t x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; 
+lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; uint8_t x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; 
 x_77 = l_Lake_ensureJob___redArg___closed__4;
-x_78 = l_Lake_ensureJob___redArg___closed__5;
-x_79 = l_Substring_Raw_takeWhileAux(x_74, x_75, x_78, x_10);
-x_80 = l_Substring_Raw_takeRightWhileAux(x_74, x_79, x_78, x_75);
-x_81 = lean_string_utf8_extract(x_74, x_79, x_80);
-lean_dec(x_80);
-lean_dec(x_79);
-lean_dec_ref(x_74);
-x_82 = lean_string_append(x_77, x_81);
-lean_dec_ref(x_81);
-x_83 = 1;
-x_84 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_84, 0, x_82);
-lean_ctor_set_uint8(x_84, sizeof(void*)*1, x_83);
-x_85 = lean_box(0);
-x_86 = lean_array_push(x_71, x_84);
-x_87 = l_Lake_ensureJob___redArg___lam__2(x_67, x_85, x_3, x_4, x_5, x_6, x_7, x_86);
+x_78 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_78, 0, x_74);
+lean_ctor_set(x_78, 1, x_10);
+lean_ctor_set(x_78, 2, x_75);
+x_79 = l_String_Slice_trimAscii(x_78);
+lean_dec_ref(x_78);
+x_80 = l_String_Slice_toString(x_79);
+lean_dec_ref(x_79);
+x_81 = lean_string_append(x_77, x_80);
+lean_dec_ref(x_80);
+x_82 = 1;
+x_83 = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(x_83, 0, x_81);
+lean_ctor_set_uint8(x_83, sizeof(void*)*1, x_82);
+x_84 = lean_box(0);
+x_85 = lean_array_push(x_71, x_83);
+x_86 = l_Lake_ensureJob___redArg___lam__2(x_67, x_84, x_3, x_4, x_5, x_6, x_7, x_85);
 lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
-x_33 = x_87;
+x_33 = x_86;
 goto block_66;
 }
 else
 {
-lean_object* x_88; lean_object* x_89; 
+lean_object* x_87; lean_object* x_88; 
 lean_dec(x_75);
 lean_dec_ref(x_74);
-x_88 = lean_box(0);
-x_89 = l_Lake_ensureJob___redArg___lam__2(x_67, x_88, x_3, x_4, x_5, x_6, x_7, x_71);
+x_87 = lean_box(0);
+x_88 = l_Lake_ensureJob___redArg___lam__2(x_67, x_87, x_3, x_4, x_5, x_6, x_7, x_71);
 lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
-x_33 = x_89;
+x_33 = x_88;
 goto block_66;
 }
 }
 }
 else
 {
-lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; 
+lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; 
 lean_dec(x_12);
 lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
-x_96 = lean_ctor_get(x_16, 1);
-lean_inc(x_96);
+x_95 = lean_ctor_get(x_16, 1);
+lean_inc(x_95);
 lean_dec_ref(x_16);
-x_97 = lean_box(0);
-x_98 = l_Lake_ensureJob___redArg___lam__0(x_14, x_15, x_97, x_96);
-x_99 = lean_ctor_get(x_98, 1);
-lean_inc(x_99);
-lean_dec_ref(x_98);
-x_18 = x_99;
+x_96 = lean_box(0);
+x_97 = l_Lake_ensureJob___redArg___lam__0(x_14, x_15, x_96, x_95);
+x_98 = lean_ctor_get(x_97, 1);
+lean_inc(x_98);
+lean_dec_ref(x_97);
+x_18 = x_98;
 x_19 = lean_box(0);
 goto block_32;
 }
@@ -1630,8 +1620,6 @@ l_Lake_ensureJob___redArg___closed__7 = _init_l_Lake_ensureJob___redArg___closed
 lean_mark_persistent(l_Lake_ensureJob___redArg___closed__7);
 l_Lake_ensureJob___redArg___closed__8 = _init_l_Lake_ensureJob___redArg___closed__8();
 lean_mark_persistent(l_Lake_ensureJob___redArg___closed__8);
-l_Lake_ensureJob___redArg___closed__9 = _init_l_Lake_ensureJob___redArg___closed__9();
-lean_mark_persistent(l_Lake_ensureJob___redArg___closed__9);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

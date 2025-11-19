@@ -42,9 +42,8 @@ extern lean_object* l_Lean_versionString;
 static lean_object* l_Lake_versionStringCore___closed__0;
 static lean_object* l_Lake_versionStringCore___closed__4;
 static lean_object* l_Lake_uiVersionString___closed__0;
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_versionStringCore___closed__3;
-static uint8_t l_Lake_version_specialDesc___closed__8;
+static lean_object* l_Lake_version_specialDesc___closed__8;
 static lean_object* l_Lake_versionString___closed__0;
 LEAN_EXPORT lean_object* l_Lake_version_patch;
 static lean_object* l_Lake_version_specialDesc___closed__6;
@@ -53,14 +52,16 @@ LEAN_EXPORT uint8_t l_Lake_version_isRelease;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lake_versionStringCore___closed__2;
 static lean_object* l_Lake_versionString___closed__3;
+lean_object* l_String_Slice_toString(lean_object*);
+lean_object* l_String_Slice_Pos_nextn(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_uiVersionString___closed__2;
 LEAN_EXPORT lean_object* l_Lake_version_major;
 static lean_object* l_Lake_versionString___closed__2;
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lake_version_specialDesc___closed__0;
+static uint8_t l_Lake_version_specialDesc___closed__9;
 LEAN_EXPORT lean_object* l_Lake_uiVersionString;
 static lean_object* l_Lake_uiVersionString___closed__6;
-lean_object* l_Substring_Raw_nextn(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lake_version_major() {
 _start:
 {
@@ -152,10 +153,10 @@ static lean_object* _init_l_Lake_version_specialDesc___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_unsigned_to_nat(7u);
+x_1 = lean_unsigned_to_nat(7u);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lake_version_specialDesc___closed__4;
-x_4 = l_Substring_Raw_nextn(x_3, x_2, x_1);
+x_4 = l_String_Slice_Pos_nextn(x_3, x_2, x_1);
 return x_4;
 }
 }
@@ -166,21 +167,33 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_1 = l_Lake_version_specialDesc___closed__5;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lake_version_specialDesc___closed__2;
-x_4 = lean_string_utf8_extract(x_3, x_2, x_1);
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
 static lean_object* _init_l_Lake_version_specialDesc___closed__7() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake_version_specialDesc___closed__6;
+x_2 = l_String_Slice_toString(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lake_version_specialDesc___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lake_version_specialDesc___closed__7;
 x_2 = l_Lake_version_specialDesc___closed__1;
 x_3 = lean_string_append(x_2, x_1);
 return x_3;
 }
 }
-static uint8_t _init_l_Lake_version_specialDesc___closed__8() {
+static uint8_t _init_l_Lake_version_specialDesc___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; 
@@ -203,7 +216,7 @@ goto block_4;
 else
 {
 uint8_t x_6; 
-x_6 = l_Lake_version_specialDesc___closed__8;
+x_6 = l_Lake_version_specialDesc___closed__9;
 if (x_6 == 0)
 {
 x_1 = x_5;
@@ -227,7 +240,7 @@ return x_2;
 else
 {
 lean_object* x_3; 
-x_3 = l_Lake_version_specialDesc___closed__7;
+x_3 = l_Lake_version_specialDesc___closed__8;
 return x_3;
 }
 }
@@ -494,6 +507,8 @@ lean_mark_persistent(l_Lake_version_specialDesc___closed__6);
 l_Lake_version_specialDesc___closed__7 = _init_l_Lake_version_specialDesc___closed__7();
 lean_mark_persistent(l_Lake_version_specialDesc___closed__7);
 l_Lake_version_specialDesc___closed__8 = _init_l_Lake_version_specialDesc___closed__8();
+lean_mark_persistent(l_Lake_version_specialDesc___closed__8);
+l_Lake_version_specialDesc___closed__9 = _init_l_Lake_version_specialDesc___closed__9();
 l_Lake_version_specialDesc = _init_l_Lake_version_specialDesc();
 lean_mark_persistent(l_Lake_version_specialDesc);
 l_Lake_versionStringCore___closed__0 = _init_l_Lake_versionStringCore___closed__0();

@@ -85,7 +85,6 @@ static lean_object* l_Lean_interpolatedStrLitKind___closed__0;
 LEAN_EXPORT uint8_t l_Lean_Syntax_matchesIdent(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_USize_ctorIdx(size_t);
 LEAN_EXPORT lean_object* l_List_set___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_toSubstring(lean_object*);
 LEAN_EXPORT lean_object* l_minOfLe___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserDescr_nodeWithAntiquot_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_UInt16_ctorIdx(uint16_t);
@@ -1273,7 +1272,6 @@ LEAN_EXPORT lean_object* l_Lean_MonadRef_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_nonBacktrackable(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_getInfo_x3f(lean_object*);
 static lean_object* l_Lean_scientificLitKind___closed__1;
-LEAN_EXPORT lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_List_flatten(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableEqChar(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Lean_instMonadQuotationOfMonadFunctorOfMonadLift(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7441,33 +7439,7 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_String_toSubstring(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_string_utf8_byte_size(x_1);
-x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_String_toRawSubstring_x27(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_string_utf8_byte_size(x_1);
-x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_String_toSubstring_x27(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 

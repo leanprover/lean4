@@ -68,7 +68,7 @@ def beq (s1 s2 : Slice) : Bool :=
   if h : s1.utf8ByteSize = s2.utf8ByteSize then
     have h1 := by simp [h, String.Pos.Raw.le_iff]
     have h2 := by simp [h, String.Pos.Raw.le_iff]
-    Internal.memcmp s1 s2 s1.startPos.offset s2.startPos.offset s1.rawEndPos h1 h2
+    Internal.memcmpSlice s1 s2 s1.startPos.offset s2.startPos.offset s1.rawEndPos h1 h2
   else
     false
 

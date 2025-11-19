@@ -270,7 +270,7 @@ def startsWith (s : Slice) (pat : Slice) : Bool :=
       omega
     have hp := by
       simp [Pos.Raw.le_iff]
-    Internal.memcmp s pat s.startPos.offset pat.startPos.offset pat.rawEndPos hs hp
+    Internal.memcmpSlice s pat s.startPos.offset pat.startPos.offset pat.rawEndPos hs hp
   else
     false
 
@@ -306,7 +306,7 @@ def endsWith (s : Slice) (pat : Slice) : Bool :=
       omega
     have hp := by
       simp [patStart, Pos.Raw.le_iff] at h ⊢
-    Internal.memcmp s pat sStart patStart pat.rawEndPos hs hp
+    Internal.memcmpSlice s pat sStart patStart pat.rawEndPos hs hp
   else
     false
 

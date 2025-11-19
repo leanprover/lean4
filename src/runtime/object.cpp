@@ -2362,6 +2362,17 @@ extern "C" LEAN_EXPORT obj_res lean_string_of_usize(size_t n) {
     return mk_ascii_string_unchecked(std::to_string(n));
 }
 
+extern "C" LEAN_EXPORT uint8_t lean_string_memcmp(b_obj_arg s1, b_obj_arg s2, b_obj_arg lstart, b_obj_arg rstart, b_obj_arg len) {
+    // Thanks to the proof arguments we know that lstart, rstart and len are all scalars.
+    lean_assert(lean_is_scalar(lstart));
+    lean_assert(lean_is_scalar(rstart));
+    lean_assert(lean_is_scalar(len));
+
+    char const * lbase = lean_string_cstr(s1) + lean_unbox(lstart);
+    char const * rbase = lean_string_cstr(s2) + lean_unbox(rstart);
+    return std::memcmp(lbase, rbase, lean_unbox(len)) == 0;
+}
+
 size_t lean_slice_size(b_obj_arg slice) {
    b_obj_res start = lean_ctor_get(slice, 1);
    lean_assert(lean_is_scalar(start));
@@ -2375,17 +2386,6 @@ char const * lean_slice_base(b_obj_arg slice) {
    b_obj_res offset = lean_ctor_get(slice, 1);
    lean_assert(lean_is_scalar(offset));
    return lean_string_cstr(string) + lean_unbox(offset);
-}
-
-extern "C" LEAN_EXPORT uint8_t lean_slice_memcmp(b_obj_arg s1, b_obj_arg s2, b_obj_arg lstart, b_obj_arg rstart, b_obj_arg len) {
-    // Thanks to the proof arguments we know that lstart, rstart and len are all scalars.
-    lean_assert(lean_is_scalar(lstart));
-    lean_assert(lean_is_scalar(rstart));
-    lean_assert(lean_is_scalar(len));
-
-    char const * lbase = lean_slice_base(s1) + lean_unbox(lstart);
-    char const * rbase = lean_slice_base(s2) + lean_unbox(rstart);
-    return std::memcmp(lbase, rbase, lean_unbox(len)) == 0;
 }
 
 extern "C" LEAN_EXPORT uint64_t lean_slice_hash(b_obj_arg s) {

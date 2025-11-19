@@ -2637,24 +2637,26 @@ theorem Equiv_of_checkBEq_eq_true {m₁ m₂ : Raw₀ α β} (h₁ : m₁.val.WF
       intro a
       by_cases hc : containsKey a (toListModel m₁.val.buckets)
       case neg =>
-        have sub : ∀ a : α, containsKey a (toListModel m₁.val.buckets) → containsKey a (toListModel m₂.val.buckets) := by
-          intro a mem
-          specialize hyp a mem
-          replace hyp := eq_of_beq hyp
-          apply List.containsKey_of_getValueCast?_eq_some hyp
-        simp only [Bool.not_eq_true] at hc
-        rw [getValueCast?_eq_none hc]
-        symm
-        sorry
+        by_cases heq : containsKey a (toListModel m₂.val.buckets)
+        case pos =>
+          have sub : ∀ a : α, containsKey a (toListModel m₁.val.buckets) → containsKey a (toListModel m₂.val.buckets) := by
+            intro a mem
+            specialize hyp a mem
+            replace hyp := eq_of_beq hyp
+            apply List.containsKey_of_getValueCast?_eq_some hyp
+          simp only [Bool.not_eq_true] at hc
+          rw [getValueCast?_eq_none hc]
+          symm
+          rw [@containsKey_of_subset_of_length_eq _ _ _ _ _ _ (by wf_trivial) (by wf_trivial) hs.symm sub a heq] at hc
+          contradiction
+        case neg =>
+          simp only [Bool.not_eq_true] at heq hc
+          rw [getValueCast?_eq_none heq, getValueCast?_eq_none hc]
       case pos =>
         specialize hyp a hc
         replace hyp := eq_of_beq hyp
         rw [hyp]
         rw [getValueCast?_eq_some_getValueCast hc]
-
-
-
-
     · wf_trivial
 
 

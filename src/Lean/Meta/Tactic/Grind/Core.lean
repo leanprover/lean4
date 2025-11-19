@@ -335,8 +335,7 @@ private def processNewFactsImpl : GoalM Unit := do
       resetNewFacts
       return ()
     checkSystem "grind"
-    let some next := (← popNextFact?)
-      | return ()
+    let some next ← popNextFact? | return ()
     match next with
     | .eq lhs rhs proof isHEq => addEqStep lhs rhs proof isHEq
     | .fact prop proof gen => addFactStep prop proof gen

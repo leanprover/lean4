@@ -15,6 +15,7 @@ import Lake.Util.Proc
 import Lake.Util.Reservoir
 import Lake.Util.IO
 import Init.Data.String.Search
+import Init.Data.String.Lemmas.Basic
 
 open Lean System
 
@@ -46,29 +47,29 @@ def checkSchemaVersion (inputName : String) (line : String) : LogIO Unit := do
 
 /-- Parse a `Cache` from a JSON Lines string. -/
 public partial def parse (inputName : String) (contents : String) : LoggerIO CacheMap := do
-  let rec loop (i : Nat) (cache : CacheMap) (stopPos pos : String.Pos.Raw) := do
-    let lfPos := contents.posOfAux '\n' stopPos pos
-    let line := String.Pos.Raw.extract contents pos lfPos
+  let rec loop (i : Nat) (cache : CacheMap) {contents : String} (pos : contents.ValidPos) := do
+    let lfPos := pos.find '\n'
+    let line := contents.slice! pos lfPos
     if line.trimAscii.isEmpty then
       return cache
     let cache ← id do
-      match Json.parse line >>= fromJson? with
+      match Json.parse line.copy >>= fromJson? with
       | .ok (inputHash, arts) =>
         return cache.insert inputHash arts
       | .error e =>
         logWarning s!"{inputName}: invalid JSON on line {i}: {e}"
         return cache
-    if h : lfPos.atEnd contents then
+    if h : lfPos.IsAtEnd then
       return cache
     else
-      loop (i+1) cache stopPos (lfPos.next' contents h)
-  let lfPos := contents.posOfAux '\n' contents.rawEndPos 0
-  let line := String.Pos.Raw.extract contents 0 lfPos
+      loop (i+1) cache (lfPos.next h)
+  let lfPos := contents.find '\n'
+  let line := contents.sliceTo lfPos
   checkSchemaVersion inputName line.trimAscii.copy
-  if h : lfPos.atEnd contents then
+  if h : lfPos.IsAtEnd then
     return {}
   else
-    loop 2 {} contents.rawEndPos (lfPos.next' contents h)
+    loop 2 {} (lfPos.next h)
 
 @[inline] private partial def loadCore
   (h : IO.FS.Handle) (fileName : String)

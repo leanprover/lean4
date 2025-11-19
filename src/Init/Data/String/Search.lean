@@ -68,6 +68,21 @@ def Slice.Pos.find? {s : Slice} (pos : s.Pos) (pattern : ρ) [ToForwardSearcher 
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in after the position
+{name}`pos`. If there is no match {lean}`s.endPos` is returned.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * {lean}`("coffee tea water".toSlice.startPos.find Char.isWhitespace).get! == ' '`
+ * {lean}`("tea".toSlice.pos ⟨1⟩ (by decide)).find (fun (c : Char) => c == 't') == "tea".toSlice.endPos`
+-/
+@[inline]
+def Slice.Pos.find {s : Slice} (pos : s.Pos) (pattern : ρ) [ToForwardSearcher pattern σ] :
+    s.Pos :=
+  ofSliceFrom ((s.sliceFrom pos).find pattern)
+
+/--
+Finds the position of the first match of the pattern {name}`pattern` in after the position
 {name}`pos`. If there is no match {name}`none` is returned.
 
 This function is generic over all currently supported patterns.
@@ -80,6 +95,21 @@ Examples:
 def ValidPos.find?  {s : String} (pos : s.ValidPos) (pattern : ρ)
     [ToForwardSearcher pattern σ] : Option s.ValidPos :=
   (pos.toSlice.find? pattern).map (·.ofSlice)
+
+/--
+Finds the position of the first match of the pattern {name}`pattern` in after the position
+{name}`pos`. If there is no match {lean}`s.endValidPos` is returned.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * {lean}`("coffee tea water".startValidPos.find Char.isWhitespace).get! == ' '`
+ * {lean}`("tea".pos ⟨1⟩ (by decide)).find (fun (c : Char) => c == 't') == "tea".endValidPos`
+-/
+@[inline]
+def ValidPos.find {s : String} (pos : s.ValidPos) (pattern : ρ) [ToForwardSearcher pattern σ] :
+    s.ValidPos :=
+  (pos.toSlice.find pattern).ofSlice
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in a string {name}`s`. If
@@ -95,6 +125,118 @@ Examples:
 @[inline]
 def find? (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : Option s.ValidPos :=
   s.startValidPos.find? pattern
+
+/--
+Finds the position of the first match of the pattern {name}`pattern` in a slice {name}`s`. If there
+is no match {lean}`s.endValidPos` is returned.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * {lean}`("coffee tea water".find Char.isWhitespace).get! == ' '`
+ * {lean}`"tea".find (fun (c : Char) => c == 'X') == "tea".endValidPos`
+ * {lean}`("coffee tea water".find "tea").get! == 't'`
+-/
+@[inline]
+def find (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : s.ValidPos :=
+  s.startValidPos.find pattern
+
+/--
+Finds the position of the first match of the pattern {name}`pattern` in a slice {name}`s` that is
+strictly before {name}`pos`. If there is no such match {lean}`none` is returned.
+
+This function is generic over all currently supported patterns except
+{name}`String`/{name}`String.Slice`.
+
+Examples:
+* {lean}`(("abc".toSlice.endPos.prev (by decide)).revFind? Char.isAlpha).map (·.get!) == some 'b'`
+* {lean}`"abc".toSlice.startPos.revFind? Char.isAlpha == none`
+
+-/
+@[inline]
+def Slice.Pos.revFind? {s : Slice} (pos : s.Pos) (pattern : ρ) [ToBackwardSearcher pattern σ] :
+    Option s.Pos :=
+  ((s.sliceTo pos).revFind? pattern).map ofSliceTo
+
+/--
+Finds the position of the first match of the pattern {name}`pattern` in a slice {name}`s` that is
+strictly before {name}`pos`. If there is no such match {lean}`none` is returned.
+
+This function is generic over all currently supported patterns except
+{name}`String`/{name}`String.Slice`.
+
+Examples:
+* {lean}`(("ab1c".endValidPos.prev (by decide)).revFind? Char.isAlpha).map (·.get!) == some 'b'`
+* {lean}`"abc".startValidPos.revFind? Char.isAlpha == none`
+-/
+@[inline]
+def ValidPos.revFind? {s : String} (pos : s.ValidPos) (pattern : ρ) [ToBackwardSearcher pattern σ] :
+    Option s.ValidPos :=
+  (pos.toSlice.revFind? pattern).map (·.ofSlice)
+
+/--
+Finds the position of the first match of the pattern {name}`pattern` in a string, starting
+from the end of the slice and traversing towards the start. If there is no match {name}`none` is
+returned.
+
+This function is generic over all currently supported patterns except
+{name}`String`/{name}`String.Slice`.
+
+Examples:
+ * {lean}`("coffee tea water".toSlice.revFind? Char.isWhitespace).map (·.get!) == some ' '`
+ * {lean}`"tea".toSlice.revFind? (fun (c : Char) => c == 'X') == none`
+-/
+@[inline]
+def revFind? (s : String) (pattern : ρ) [ToBackwardSearcher pattern σ] : Option s.ValidPos :=
+  s.endValidPos.revFind? pattern
+
+@[export lean_string_posof]
+def Internal.posOfImpl (s : String) (c : Char) : Pos.Raw :=
+  (s.find c).offset
+
+@[deprecated String.ValidPos.find (since := "2025-11-19")]
+def findAux (s : String) (p : Char → Bool) (stopPos : Pos.Raw) (pos : Pos.Raw) : Pos.Raw :=
+  if h : pos ≤ stopPos ∧ pos.IsValid s ∧ stopPos.IsValid s then
+    (String.Slice.mk s (s.pos pos h.2.1) (s.pos stopPos h.2.2)
+      (by simp [ValidPos.le_iff, h.1])).find p |>.str.offset
+  else stopPos
+
+@[deprecated String.ValidPos.find (since := "2025-11-19")]
+def posOfAux (s : String) (c : Char) (stopPos : Pos.Raw) (pos : Pos.Raw) : Pos.Raw :=
+  if h : pos ≤ stopPos ∧ pos.IsValid s ∧ stopPos.IsValid s then
+    (String.Slice.mk s (s.pos pos h.2.1) (s.pos stopPos h.2.2)
+      (by simp [ValidPos.le_iff, h.1])).find c |>.str.offset
+  else stopPos
+
+@[deprecated String.find (since := "2025-11-19")]
+def posOf (s : String) (c : Char) : Pos.Raw :=
+  (s.find c).offset
+
+@[deprecated String.ValidPos.revFind? (since := "2025-11-19")]
+def revPosOfAux (s : String) (c : Char) (pos : Pos.Raw) : Option Pos.Raw :=
+  s.pos? pos |>.bind (·.revFind? c) |>.map (·.offset)
+
+@[deprecated String.revFind? (since := "2025-11-19")]
+def revPosOf (s : String) (c : Char) : Option Pos.Raw :=
+  s.revFind? c |>.map (·.offset)
+
+@[deprecated String.ValidPos.revFind? (since := "2025-11-19")]
+def revFindAux (s : String) (p : Char → Bool) (pos : Pos.Raw) : Option Pos.Raw :=
+  s.pos? pos |>.bind (·.revFind? p) |>.map (·.offset)
+
+@[deprecated String.revFind? (since := "2025-11-19")]
+def revFind (s : String) (p : Char → Bool) : Option Pos.Raw :=
+  s.revFind? p |>.map (·.offset)
+
+/--
+Returns the position of the beginning of the line that contains the position {name}`pos`.
+
+Lines are ended by {lean}`'\n'`, and the returned position is either {lean}`0 : String.Pos.Raw` or
+immediately after a {lean}`'\n'` character.
+-/
+@[deprecated String.ValidPos.revFind? (since := "2025-11-19")]
+def findLineStart (s : String) (pos : String.Pos.Raw) : String.Pos.Raw :=
+  s.pos? pos |>.bind (·.revFind? '\n') |>.map (·.offset) |>.getD s.startValidPos.offset
 
 /--
 Splits a string at each subslice that matches the pattern {name}`pat`.

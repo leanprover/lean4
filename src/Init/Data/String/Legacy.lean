@@ -15,6 +15,8 @@ This file contains `String` functions which have since been replaced by differen
 will be deprecated in the future.
 -/
 
+public section
+
 namespace String
 
 @[specialize] def splitAux (s : String) (p : Char → Bool) (b : Pos.Raw) (i : Pos.Raw) (r : List String) : List String :=

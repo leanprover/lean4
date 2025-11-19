@@ -3621,7 +3621,17 @@ theorem containsKey_lemma [BEq α] [EquivBEq α] {l₁ l₂ : List ((a : α) × 
   apply And.intro
   · apply length_le_of_keys_subset dl₁ (DistinctKeys.eraseKey dl₂)
     intro a₂ mem₂
-    sorry
+    rw [containsKey_eraseKey dl₂]
+    simp only [Bool.and_eq_true, Bool.not_eq_eq_eq_not, Bool.not_true]
+    apply And.intro
+    · apply Classical.byContradiction
+      intro hyp
+      simp only [Bool.not_eq_false] at hyp
+      rw [containsKey_congr hyp] at hb
+      rw [hb] at mem₂
+      contradiction
+    · apply hs
+      exact mem₂
   · simp only [length_eraseKey, ha, ↓reduceIte]
     have : l₂.length > 0 := by
       cases l₂

@@ -3400,7 +3400,7 @@ theorem union!_insert_right_equiv_insert_union! [TransOrd α] {p : (a : α) × �
   . wf_trivial
   . exact h₂.balanced
 
-theorem union_equiv_congr_left {m₃ : Impl α β} [TransOrd α]
+theorem Equiv.union_left {m₃ : Impl α β} [TransOrd α]
     (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₁.Equiv m₂) :
     (m₁.union m₃ h₁.balanced h₃.balanced).Equiv (m₂.union m₃ h₂.balanced h₃.balanced) := by
   revert equiv
@@ -3413,10 +3413,10 @@ theorem union!_equiv_congr_left {m₃ : Impl α β} [TransOrd α]
     (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₁.Equiv m₂) :
     (m₁.union! m₃).Equiv (m₂.union! m₃) := by
   rw [← union_eq_union!, ← union_eq_union!]
-  apply union_equiv_congr_left
+  apply Equiv.union_left
   all_goals wf_trivial
 
-theorem union_equiv_congr_right {m₃ : Impl α β} [TransOrd α]
+theorem Equiv.union_right {m₃ : Impl α β} [TransOrd α]
     (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₂.Equiv m₃) :
     (m₁.union m₂ h₁.balanced h₂.balanced).Equiv (m₁.union m₃ h₁.balanced h₃.balanced) := by
   revert equiv
@@ -3429,7 +3429,7 @@ theorem union!_equiv_congr_right {m₃ : Impl α β} [TransOrd α]
     (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₂.Equiv m₃) :
     (m₁.union! m₂).Equiv (m₁.union! m₃) := by
   rw [← union_eq_union!, ← union_eq_union!]
-  apply union_equiv_congr_right
+  apply Equiv.union_right
   all_goals wf_trivial
 
 /- get? -/

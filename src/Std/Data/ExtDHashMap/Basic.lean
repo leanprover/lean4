@@ -352,7 +352,7 @@ def Const.insertManyIfNewUnit [EquivBEq α] [LawfulHashable α] {ρ : Type w}
   return m.1
 
 theorem union_congr [EquivBEq α] [LawfulHashable α] (a b c d : DHashMap α β) (h₁ : a ~m c) (h₂ : b ~m d) : a ∪ b ~m c ∪ d :=
-  DHashMap.Equiv.trans (DHashMap.union_equiv_congr_left h₁) (DHashMap.union_equiv_congr_right h₂)
+  DHashMap.Equiv.trans (DHashMap.Equiv.union_left h₁) (DHashMap.Equiv.union_right h₂)
 
 @[inline, inherit_doc DHashMap.union]
 def union [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtDHashMap α β) : ExtDHashMap α β := lift₂ (fun x y : DHashMap α β => mk (x.union y))

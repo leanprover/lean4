@@ -513,13 +513,13 @@ theorem mem_of_mem_union_of_not_mem_left [TransCmp cmp]
     k ∈ t₁ ∪ t₂ → ¬k ∈ t₁ → k ∈ t₂ :=
   TreeMap.mem_of_mem_union_of_not_mem_left
 
-theorem union_equiv_congr_left {t₃ : TreeSet α cmp} [TransCmp cmp] (equiv : t₁.Equiv t₂) :
+theorem Equiv.union_left {t₃ : TreeSet α cmp} [TransCmp cmp] (equiv : t₁.Equiv t₂) :
     (t₁ ∪ t₃).Equiv (t₂ ∪ t₃) :=
-  ⟨TreeMap.union_equiv_congr_left equiv.1⟩
+  ⟨TreeMap.Equiv.union_left equiv.1⟩
 
-theorem union_equiv_congr_right {t₃ : TreeSet α cmp} [TransCmp cmp] (equiv : t₂.Equiv t₃) :
+theorem Equiv.union_right {t₃ : TreeSet α cmp} [TransCmp cmp] (equiv : t₂.Equiv t₃) :
     (t₁ ∪ t₂).Equiv (t₁ ∪ t₃) :=
-  ⟨TreeMap.union_equiv_congr_right equiv.1⟩
+  ⟨TreeMap.Equiv.union_right equiv.1⟩
 
 /- get? -/
 theorem get?_union [TransCmp cmp]

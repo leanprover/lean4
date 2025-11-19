@@ -12,7 +12,7 @@ def simple : Lean.Expr → Bool
 /--
 info: def simple.match_1.{u_1} : (motive : Expr → Sort u_1) →
   (x : Expr) → ((u : Level) → motive (sort u)) → ((x : Expr) → motive x) → motive x :=
-fun motive x h_1 h_2 => simple._sparseCasesOn_1 x (fun u => h_1 u) fun h_0 => h_2 x
+fun motive x h_1 h_2 => simple._sparseCasesOn_1 x (fun u => h_1 u) fun h => h_2 x
 -/
 #guard_msgs in
 #print simple.match_1
@@ -23,7 +23,7 @@ fun motive x h_1 h_2 => simple._sparseCasesOn_1 x (fun u => h_1 u) fun h_0 => h_
 info: private def simple.match_1.splitter.{u_1} : (motive : Expr → Sort u_1) →
   (x : Expr) →
     ((u : Level) → motive (sort u)) → ((x : Expr) → (∀ (u : Level), x = sort u → False) → motive x) → motive x :=
-fun motive x h_1 h_2 => simple._sparseCasesOn_1 x (fun u => h_1 u) fun h_0 => h_2 x ⋯
+fun motive x h_1 h_2 => simple._sparseCasesOn_1 x (fun u => h_1 u) fun h => h_2 x ⋯
 -/
 #guard_msgs in
 #print simple.match_1.splitter

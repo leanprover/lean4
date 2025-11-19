@@ -622,10 +622,16 @@ instance : Std.LawfulIdentity (α := List α) (· ++ ·) [] where
   | nil => simp
   | cons _ as ih => simp [ih, Nat.succ_add]
 
-@[simp, grind _=_] theorem append_assoc (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs) := by
+@[simp] theorem append_assoc (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs) := by
   induction as with
   | nil => rfl
   | cons a as ih => simp [ih]
+
+grind_pattern append_assoc => (as ++ bs) ++ cs where
+  as =/= []; bs =/= []; cs =/= []
+
+grind_pattern append_assoc => as ++ (bs ++ cs) where
+  as =/= []; bs =/= []; cs =/= []
 
 instance : Std.Associative (α := List α) (· ++ ·) := ⟨append_assoc⟩
 
@@ -2086,6 +2092,18 @@ def min? [Min α] : List α → Option α
   | []    => none
   | a::as => some <| as.foldl min a
 
+/-! ### min -/
+
+/--
+Returns the smallest element of a non-empty list.
+
+Examples:
+* `[4].min (by decide) = 4`
+* `[1, 4, 2, 10, 6].min (by decide) = 1`
+-/
+protected def min [Min α] : (l : List α) → (h : l ≠ []) → α
+  | a::as, _ => as.foldl min a
+
 /-! ### max? -/
 
 /--
@@ -2099,6 +2117,18 @@ Examples:
 def max? [Max α] : List α → Option α
   | []    => none
   | a::as => some <| as.foldl max a
+
+/-! ### max -/
+
+/--
+Returns the largest element of a non-empty list.
+
+Examples:
+* `[4].max (by decide) = 4`
+* `[1, 4, 2, 10, 6].max (by decide) = 10`
+-/
+protected def max [Max α] : (l : List α) → (h : l ≠ []) → α
+  | a::as, _ => as.foldl max a
 
 /-! ## Other list operations
 

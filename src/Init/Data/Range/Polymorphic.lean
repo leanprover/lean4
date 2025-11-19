@@ -18,6 +18,7 @@ public import Init.Data.Range.Polymorphic.UInt
 public import Init.Data.Range.Polymorphic.SInt
 
 public import Init.Data.Range.Polymorphic.NatLemmas
+public import Init.Data.Range.Polymorphic.IntLemmas
 public import Init.Data.Range.Polymorphic.GetElemTactic
 
 public section

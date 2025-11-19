@@ -1468,6 +1468,8 @@ def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ 
 
 @[simp] theorem Prod.map_apply (f : α → β) (g : γ → δ) (x) (y) :
     Prod.map f g (x, y) = (f x, g y) := rfl
+
+-- We add `@[grind =]` to these in `Init.Data.Prod`.
 @[simp] theorem Prod.map_fst (f : α → β) (g : γ → δ) (x) : (Prod.map f g x).1 = f x.1 := rfl
 @[simp] theorem Prod.map_snd (f : α → β) (g : γ → δ) (x) : (Prod.map f g x).2 = g x.2 := rfl
 
@@ -1588,7 +1590,7 @@ gen_injective_theorems% PSum
 gen_injective_theorems% Sigma
 gen_injective_theorems% String
 gen_injective_theorems% String.Pos.Raw
-gen_injective_theorems% Substring
+gen_injective_theorems% Substring.Raw
 gen_injective_theorems% Subtype
 gen_injective_theorems% Sum
 gen_injective_theorems% Task
@@ -2505,8 +2507,7 @@ class Antisymm (r : α → α → Prop) : Prop where
   /-- An antisymmetric relation `r` satisfies `r a b → r b a → a = b`. -/
   antisymm (a b : α) : r a b → r b a → a = b
 
-/-- `Asymm r` means that the binary relation `r` is asymmetric, that is,
-`r a b → ¬ r b a`. -/
+/-- `Asymm r` means that the binary relation `r` is asymmetric, that is, `r a b → ¬ r b a`. -/
 class Asymm (r : α → α → Prop) : Prop where
   /-- An asymmetric relation satisfies `r a b → ¬ r b a`. -/
   asymm : ∀ a b, r a b → ¬r b a
@@ -2516,16 +2517,19 @@ class Symm (r : α → α → Prop) : Prop where
   /-- A symmetric relation satisfies `r a b → r b a`. -/
   symm : ∀ a b, r a b → r b a
 
-/-- `Total X r` means that the binary relation `r` on `X` is total, that is, that for any
-`x y : X` we have `r x y` or `r y x`. -/
+/-- `Total X r` means that the binary relation `r` on `X` is total, that is, `r a b` or `r b a`. -/
 class Total (r : α → α → Prop) : Prop where
-  /-- A total relation satisfies `r a b ∨ r b a`. -/
+  /-- A total relation satisfies `r a b` or `r b a`. -/
   total : ∀ a b, r a b ∨ r b a
 
-/-- `Irrefl r` means the binary relation `r` is irreflexive, that is, `r x x` never
-holds. -/
+/-- `Irrefl r` means the binary relation `r` is irreflexive, that is, `r x x` never holds. -/
 class Irrefl (r : α → α → Prop) : Prop where
   /-- An irreflexive relation satisfies `¬ r a a`. -/
   irrefl : ∀ a, ¬r a a
+
+/-- `Trichotomous r` says that `r` is trichotomous, that is, `¬ r a b → ¬ r b a → a = b`. -/
+class Trichotomous (r : α → α → Prop) : Prop where
+  /-- An trichotomous relation `r` satisfies `¬ r a b → ¬ r b a → a = b`. -/
+  trichotomous (a b : α) : ¬ r a b → ¬ r b a → a = b
 
 end Std

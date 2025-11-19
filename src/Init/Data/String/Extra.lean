@@ -9,24 +9,11 @@ prelude
 import all Init.Data.ByteArray.Basic
 public import Init.Data.String.Basic
 import all Init.Data.String.Basic
-public import Init.Data.String.Iterator
-import all Init.Data.String.Iterator
 public import Init.Data.String.Substring
 public import Init.Data.String.Modify
+import Init.Data.String.Search
 
 public section
-
-namespace Substring
-
-/--
-Returns an iterator into the underlying string, at the substring's starting position. The ending
-position is discarded, so the iterator alone cannot be used to determine whether its current
-position is within the original substring.
--/
-@[inline] def toIterator : Substring → String.Iterator
-  | ⟨s, b, _⟩ => ⟨s, b⟩
-
-end Substring
 
 namespace String
 
@@ -62,89 +49,40 @@ Checks whether an array of bytes is a valid UTF-8 encoding of a string.
 abbrev validateUTF8 (a : ByteArray) : Bool :=
   a.validateUTF8
 
-theorem Iterator.sizeOf_next_lt_of_hasNext (i : String.Iterator) (h : i.hasNext) : sizeOf i.next < sizeOf i := by
-  cases i; rename_i s pos; simp [Iterator.next, Iterator.sizeOf_eq]; simp [Iterator.hasNext] at h
-  exact Nat.sub_lt_sub_left h (String.Pos.Raw.lt_next s pos)
-
-macro_rules
-| `(tactic| decreasing_trivial) =>
-  `(tactic| with_reducible apply String.Iterator.sizeOf_next_lt_of_hasNext; assumption)
-
-theorem Iterator.sizeOf_next_lt_of_atEnd (i : String.Iterator) (h : ¬ i.atEnd = true) : sizeOf i.next < sizeOf i :=
-  have h : i.hasNext := decide_eq_true <| Nat.gt_of_not_le <| mt decide_eq_true h
-  sizeOf_next_lt_of_hasNext i h
-
-macro_rules
-| `(tactic| decreasing_trivial) =>
-  `(tactic| with_reducible apply String.Iterator.sizeOf_next_lt_of_atEnd; assumption)
-
-namespace Iterator
-
-/--
-Replaces the current character in the string.
-
-Does nothing if the iterator is at the end of the string. If both the replacement character and the
-replaced character are 7-bit ASCII characters and the string is not shared, then it is updated
-in-place and not copied.
--/
-@[inline] def setCurr : Iterator → Char → Iterator
-  | ⟨s, i⟩, c => ⟨i.set s c, i⟩
-
-/--
-Moves the iterator forward until the Boolean predicate `p` returns `true` for the iterator's current
-character or until the end of the string is reached. Does nothing if the current character already
-satisfies `p`.
--/
-@[specialize] def find (it : Iterator) (p : Char → Bool) : Iterator :=
-  if it.atEnd then it
-  else if p it.curr then it
-  else find it.next p
-
-/--
-Iterates over a string, updating a state at each character using the provided function `f`, until
-`f` returns `none`. Begins with the state `init`. Returns the state and character for which `f`
-returns `none`.
--/
-@[specialize] def foldUntil (it : Iterator) (init : α) (f : α → Char → Option α) : α × Iterator :=
-  if it.atEnd then
-    (init, it)
-  else if let some a := f init it.curr then
-    foldUntil it.next a f
-  else
-    (init, it)
-
-end Iterator
-
 private def findLeadingSpacesSize (s : String) : Nat :=
-  let it := s.iter
-  let it := it.find (· == '\n') |>.next
-  consumeSpaces it 0 s.length
+  let it := s.startValidPos
+  let it := it.find? (· == '\n') |>.bind String.ValidPos.next?
+  match it with
+  | some it => consumeSpaces it 0 s.length
+  | none => 0
 where
-  consumeSpaces (it : String.Iterator) (curr min : Nat) : Nat :=
-    if it.atEnd then min
-    else if it.curr == ' ' || it.curr == '\t' then consumeSpaces it.next (curr + 1) min
-    else if it.curr == '\n' then findNextLine it.next min
-    else findNextLine it.next (Nat.min curr min)
-  findNextLine (it : String.Iterator) (min : Nat) : Nat :=
-    if it.atEnd then min
-    else if it.curr == '\n' then consumeSpaces it.next 0 min
-    else findNextLine it.next min
+  consumeSpaces {s : String} (it : s.ValidPos) (curr min : Nat) : Nat :=
+    if h : it.IsAtEnd then min
+    else if it.get h == ' ' || it.get h == '\t' then consumeSpaces (it.next h) (curr + 1) min
+    else if it.get h == '\n' then findNextLine (it.next h) min
+    else findNextLine (it.next h) (Nat.min curr min)
+  termination_by it
+  findNextLine {s : String} (it : s.ValidPos) (min : Nat) : Nat :=
+    if h : it.IsAtEnd then min
+    else if it.get h == '\n' then consumeSpaces (it.next h) 0 min
+    else findNextLine (it.next h) min
+  termination_by it
 
 private def removeNumLeadingSpaces (n : Nat) (s : String) : String :=
-  consumeSpaces n s.iter ""
+  consumeSpaces n s.startValidPos ""
 where
-  consumeSpaces (n : Nat) (it : String.Iterator) (r : String) : String :=
+  consumeSpaces (n : Nat) {s : String} (it : s.ValidPos) (r : String) : String :=
      match n with
      | 0 => saveLine it r
      | n+1 =>
-       if it.atEnd then r
-       else if it.curr == ' ' || it.curr == '\t' then consumeSpaces n it.next r
+       if h : it.IsAtEnd then r
+       else if it.get h == ' ' || it.get h == '\t' then consumeSpaces n (it.next h) r
        else saveLine it r
   termination_by (it, 1)
-  saveLine (it : String.Iterator) (r : String) : String :=
-    if it.atEnd then r
-    else if it.curr == '\n' then consumeSpaces n it.next (r.push '\n')
-    else saveLine it.next (r.push it.curr)
+  saveLine {s : String} (it : s.ValidPos) (r : String) : String :=
+    if h : it.IsAtEnd then r
+    else if it.get h  == '\n' then consumeSpaces n (it.next h) (r.push '\n')
+    else saveLine (it.next h) (r.push (it.get h))
   termination_by (it, 0)
 
 /--

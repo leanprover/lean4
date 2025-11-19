@@ -440,11 +440,11 @@ theorem toDyadic_mkRat (a : Int) (b : Nat) (prec : Int) :
   cases prec
   · simp only [Rat.toDyadic, Int.ofNat_eq_natCast, Int.toNat_natCast, Int.toNat_neg_natCast,
       shiftLeft_zero, Int.natCast_mul]
-    rw [Int.mul_comm d, ← Int.ediv_ediv (by simp), ← Int.shiftLeft_mul,
+    rw [Int.mul_comm d, ← Int.ediv_ediv_of_nonneg (by simp), ← Int.shiftLeft_mul,
       Int.mul_ediv_cancel _ (by simpa using hm)]
   · simp only [Rat.toDyadic, Int.natCast_shiftLeft, Int.negSucc_eq, ← Int.natCast_add_one,
       Int.toNat_neg_natCast, Int.shiftLeft_zero, Int.neg_neg, Int.toNat_natCast, Int.natCast_mul]
-    rw [Int.mul_comm d, ← Int.mul_shiftLeft, ← Int.ediv_ediv (by simp),
+    rw [Int.mul_comm d, ← Int.mul_shiftLeft, ← Int.ediv_ediv_of_nonneg (by simp),
       Int.mul_ediv_cancel _ (by simpa using hm)]
 
 theorem toDyadic_eq_ofIntWithPrec (x : Rat) (prec : Int) :
@@ -472,7 +472,7 @@ theorem toRat_toDyadic (x : Rat) (prec : Int) :
       Rat.den_ofNat, Nat.one_pow, Nat.mul_one]
     split
     · simp_all
-    · rw [Int.ediv_ediv (Int.natCast_nonneg _)]
+    · rw [Int.ediv_ediv_of_nonneg (Int.natCast_nonneg _)]
       congr 1
       rw [Int.natCast_ediv, Int.mul_ediv_cancel']
       rw [Int.natCast_dvd_natCast]
@@ -495,7 +495,7 @@ theorem toRat_toDyadic (x : Rat) (prec : Int) :
     simp only [this, Int.mul_one]
     split
     · simp_all
-    · rw [Int.ediv_ediv (Int.natCast_nonneg _)]
+    · rw [Int.ediv_ediv_of_nonneg (Int.natCast_nonneg _)]
       congr 1
       rw [Int.natCast_ediv, Int.mul_ediv_cancel']
       · simp

@@ -587,12 +587,10 @@ LEAN_EXPORT lean_object* l_Lean_Meta_traverseChildrenWithPos___redArg(lean_objec
 _start:
 {
 switch (lean_obj_tag(x_6)) {
-case 5:
+case 7:
 {
 lean_object* x_7; 
-lean_dec_ref(x_3);
-lean_dec(x_2);
-x_7 = l_Lean_Expr_traverseAppWithPos___redArg(x_1, x_4, x_5, x_6);
+x_7 = l_Lean_Meta_traverseForallWithPos___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
 return x_7;
 }
 case 6:
@@ -601,16 +599,18 @@ lean_object* x_8;
 x_8 = l_Lean_Meta_traverseLambdaWithPos___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
 return x_8;
 }
-case 7:
-{
-lean_object* x_9; 
-x_9 = l_Lean_Meta_traverseForallWithPos___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
-return x_9;
-}
 case 8:
 {
+lean_object* x_9; 
+x_9 = l_Lean_Meta_traverseLetWithPos___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
+return x_9;
+}
+case 5:
+{
 lean_object* x_10; 
-x_10 = l_Lean_Meta_traverseLetWithPos___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec_ref(x_3);
+lean_dec(x_2);
+x_10 = l_Lean_Expr_traverseAppWithPos___redArg(x_1, x_4, x_5, x_6);
 return x_10;
 }
 case 10:

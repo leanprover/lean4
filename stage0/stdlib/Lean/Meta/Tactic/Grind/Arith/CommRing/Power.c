@@ -480,17 +480,7 @@ lean_object* x_93;
 x_93 = lean_ctor_get(x_92, 0);
 lean_inc(x_93);
 lean_dec_ref(x_92);
-if (lean_obj_tag(x_93) == 0)
-{
-lean_dec_ref(x_88);
-lean_dec(x_85);
-lean_dec_ref(x_70);
-lean_dec_ref(x_69);
-lean_dec_ref(x_23);
-x_25 = lean_box(0);
-goto block_32;
-}
-else
+if (lean_obj_tag(x_93) == 1)
 {
 lean_object* x_94; lean_object* x_95; 
 x_94 = lean_ctor_get(x_93, 0);
@@ -620,6 +610,17 @@ lean_ctor_set(x_107, 0, x_106);
 return x_107;
 }
 }
+}
+else
+{
+lean_dec(x_93);
+lean_dec_ref(x_88);
+lean_dec(x_85);
+lean_dec_ref(x_70);
+lean_dec_ref(x_69);
+lean_dec_ref(x_23);
+x_25 = lean_box(0);
+goto block_32;
 }
 }
 else

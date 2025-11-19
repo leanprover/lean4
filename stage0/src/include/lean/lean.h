@@ -730,6 +730,14 @@ static inline void lean_closure_set(u_lean_obj_arg o, unsigned i, lean_obj_arg a
     assert(i < lean_closure_num_fixed(o));
     lean_to_closure(o)->m_objs[i] = a;
 }
+static inline size_t lean_closure_byte_size(lean_object * o) {
+    return sizeof(lean_closure_object) + sizeof(void*)*lean_closure_num_fixed(o);
+}
+
+static inline size_t lean_closure_data_byte_size(lean_object * o) {
+    // Matches for closures.
+    return lean_closure_byte_size(o);
+}
 
 LEAN_EXPORT lean_object* lean_apply_1(lean_object* f, lean_object* a1);
 LEAN_EXPORT lean_object* lean_apply_2(lean_object* f, lean_object* a1, lean_object* a2);

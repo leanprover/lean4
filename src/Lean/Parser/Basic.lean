@@ -586,7 +586,7 @@ partial def whitespace : ParserFn := fun c s =>
       else s
     else s
 
-def ParserContext.mkEmptySubstringAt (c : ParserContext) (p : String.Pos.Raw) : Substring :=
+def ParserContext.mkEmptySubstringAt (c : ParserContext) (p : String.Pos.Raw) : Substring.Raw :=
   c.substring p p
 
 private def rawAux (startPos : String.Pos.Raw) (trailingWs : Bool) : ParserFn := fun c s =>

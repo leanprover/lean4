@@ -1562,6 +1562,14 @@ theorem mem_of_mem_union_of_not_mem_left [TransCmp cmp]
   DTreeMap.mem_of_mem_union_of_not_mem_left
 
 /- Equiv -/
+theorem union_equiv_congr_left {t₃ : TreeMap α β cmp} [TransCmp cmp] (equiv : t₁.Equiv t₂) :
+    (t₁ ∪ t₃).Equiv (t₂ ∪ t₃) :=
+  ⟨DTreeMap.union_equiv_congr_left equiv.1⟩
+
+theorem union_equiv_congr_right {t₃ : TreeMap α β cmp} [TransCmp cmp] (equiv : t₂.Equiv t₃) :
+    (t₁ ∪ t₂).Equiv (t₁ ∪ t₃) :=
+  ⟨DTreeMap.union_equiv_congr_right equiv.1⟩
+
 theorem union_insert_right_equiv_insert_union [TransCmp cmp] {p : (_ : α) × β} :
     (t₁ ∪ (t₂.insert p.fst p.snd)).Equiv ((t₁ ∪ t₂).insert p.fst p.snd) :=
   ⟨DTreeMap.union_insert_right_equiv_insert_union⟩

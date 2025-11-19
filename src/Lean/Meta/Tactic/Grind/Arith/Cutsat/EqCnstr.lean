@@ -15,6 +15,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
+import Lean.Meta.Tactic.Grind.Arith.EvalNum
 import Lean.Meta.NatInstTesters
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
@@ -269,6 +270,7 @@ private def propagateNonlinearPow (x : Var) : GoalM Bool := do
       pure (kb.toNat, some cb)
     else
       return false
+  if (← checkExp kb |>.run).isNone then return false
   let c' ← pure { p := .add 1 x (.num (-(ka^kb))), h := .pow ka ca? kb cb? : EqCnstr }
   c'.assert
   return true

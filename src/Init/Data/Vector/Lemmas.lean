@@ -2378,6 +2378,18 @@ theorem foldr_filterMap {f : α → Option β} {g : β → γ → γ} {xs : Vect
   cases xs; simp [Array.foldr_filterMap']
   rfl
 
+theorem foldl_flatMap {f : α → Vector β m} {g : γ → β → γ} {xs : Vector α n} {init : γ} :
+    (xs.flatMap f).foldl g init = xs.foldl (fun acc x => (f x).foldl g acc) init := by
+  rcases xs with ⟨xs, rfl⟩
+  simp only [foldl, flatMap]
+  rw [Array.foldl_flatMap]
+
+theorem foldr_flatMap {f : α → Vector β m} {g : β → γ → γ} {xs : Vector α n} {init : γ} :
+    (xs.flatMap f).foldr g init = xs.foldr (fun x acc => (f x).foldr g acc) init := by
+  rcases xs with ⟨xs, rfl⟩
+  simp only [foldr, flatMap]
+  rw [Array.foldr_flatMap]
+
 theorem foldl_map_hom {g : α → β} {f : α → α → α} {f' : β → β → β} {a : α} {xs : Vector α n}
     (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
     (xs.map g).foldl f' (g a) = g (xs.foldl f a) := by

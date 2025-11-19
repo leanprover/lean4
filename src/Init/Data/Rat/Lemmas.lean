@@ -551,7 +551,9 @@ theorem pow_def (q : Rat) (n : Nat) :
 @[simp] theorem num_pow (q : Rat) (n : Nat) : (q ^ n).num = q.num ^ n := rfl
 @[simp] theorem den_pow (q : Rat) (n : Nat) : (q ^ n).den = q.den ^ n := rfl
 
-@[simp] protected theorem pow_zero (q : Rat) : q ^ 0 = 1 := rfl
+@[simp] protected theorem pow_zero (q : Rat) : q ^ 0 = 1 := by
+  simp only [pow_def, Int.pow_zero, Nat.pow_zero, mk_den_one]
+  rfl
 
 protected theorem pow_succ (q : Rat) (n : Nat) : q ^ (n + 1) = q ^ n * q := by
   rcases q with ⟨n, d, hn, r⟩
@@ -567,7 +569,8 @@ protected theorem zpow_natCast (q : Rat) (n : Nat) : q ^ (n : Int) = q ^ n := rf
 
 protected theorem zpow_neg (q : Rat) (n : Int) : q ^ (-n : Int) = (q ^ n)⁻¹ := by
   rcases n with (_ | n) | n
-  · with_unfolding_all rfl
+  · simp only [Int.ofNat_eq_natCast, Int.cast_ofNat_Int, Int.neg_zero, Rat.zpow_zero]
+    with_unfolding_all rfl
   · rfl
   · exact (Rat.inv_inv _).symm
 

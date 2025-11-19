@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Grind.Main
-public import Lean.Meta.Tactic.Grind.SearchM
 import Lean.CoreM
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.PP
@@ -301,14 +300,13 @@ def liftGoalM (k : GoalM α) : GrindTacticM α := do
   replaceMainGoal [goal]
   return a
 
-def liftSearchM (k : SearchM α) : GrindTacticM α := do
+def liftAction (a : Action) : GrindTacticM Unit := do
   let goal ← getMainGoal
-  let (a, state) ← liftGrindM <| SearchM.run goal k
-  unless state.choiceStack.isEmpty do
-    -- **TODO**: Convert pending goals into new subgoals.
-    throwError "`grind` internal error, `SearchM` action has pending choices, this is not supported yet."
-  replaceMainGoal [state.goal]
-  return a
+  let ka := fun _ => throwError "tactic is not applicable"
+  let kp := fun goal => return .stuck [goal]
+  match (← liftGrindM <| a goal ka kp) with
+  | .closed _ => replaceMainGoal []
+  | .stuck gs => replaceMainGoal gs
 
 def done : GrindTacticM Unit := do
   pruneSolvedGoals
@@ -374,17 +372,22 @@ def mkEvalTactic (params : Params) : TacticM (Goal → TSyntax `grind → GrindM
 
 def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM α) : TacticM (α × State) := do
   let evalTactic ← mkEvalTactic params
-  let (methods, ctx, state) ← liftMetaM <| GrindM.runAtGoal mvarId params (evalTactic? := some evalTactic) fun goal => do
-    let methods ← getMethods
-    -- **Note**: We use `withCheapCasesOnly` to ensure multiple goals are not created.
-    -- We will add support for this case in the future.
-    let (goal, _) ← withCheapCasesOnly <| SearchM.run goal do
-      intros 0; discard <| assertAll
-      getGoal
-    let goals := if goal.inconsistent then [] else [goal]
-    let ctx ← readThe Meta.Grind.Context
-    let state ← get
-    pure (methods, ctx, { state, goals })
+  /-
+  **Note**: We don't want to close branches using `sorry` after applying `intros + assertAll`.
+  Reconsider the option `useSorry`.
+  -/
+  let params' := { params with config.useSorry := false }
+  let (methods, ctx, state) ← liftMetaM <| GrindM.runAtGoal mvarId params' (evalTactic? := some evalTactic) fun goal => do
+      let a : Action := Action.intros 0 >> Action.assertAll
+      let goals ← match (← a.run goal) with
+        | .closed _ => pure []
+        | .stuck gs => pure gs
+      let methods ← getMethods
+      let ctx ← readThe Meta.Grind.Context
+      /- Restore original config -/
+      let ctx := { ctx with config := params.config }
+      let state ← get
+      pure (methods, ctx, { state, goals })
   let tctx ← read
   k { tctx with methods, ctx, params } |>.run state
 

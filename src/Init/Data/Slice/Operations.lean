@@ -29,14 +29,33 @@ def Internal.iter (s : Slice γ) [ToIterator s Id β] :=
   ToIterator.iter s
 
 /--
+This type class provides support for the `Slice.size` function.
+-/
+class SliceSize (α : Type u) where
+  /-- Computes the slice of a `Slice`. Use `Slice.size` instead. -/
+  size (slice : Slice α) : Nat
+
+/--
+This type class states that the slice's iterator emits exactly `Slice.size` elements before
+terminating.
+-/
+class LawfulSliceSize (α : Type u) [SliceSize α] [∀ s : Slice α, ToIterator s Id β]
+    [∀ s : Slice α, Iterator (ToIterator.State s Id) Id β] where
+  /-- The iterator for every `Slice α` is finite. -/
+  [finite : ∀ s : Slice α, Finite (ToIterator.State s Id) Id]
+  /-- The iterator of a slice `s` of type `Slice α` emits exactly `SliceSize.size s` elements. -/
+  lawful :
+      letI (s : Slice α) : IteratorLoop (ToIterator.State s Id) Id Id := .defaultImplementation
+      ∀ s : Slice α, SliceSize.size s = (ToIterator.iter s).count
+
+/--
 Returns the number of elements with distinct indices in the given slice.
 
 Example: `#[1, 1, 1][0...2].size = 2`.
 -/
 @[always_inline, inline]
-def size (s : Slice γ) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
-    [IteratorSize (ToIterator.State s Id) Id] :=
-  Internal.iter s |>.size
+def size (s : Slice γ) [SliceSize γ] :=
+  SliceSize.size s
 
 /-- Allocates a new array that contains the elements of the slice. -/
 @[always_inline, inline]
@@ -55,6 +74,14 @@ def toList (s : Slice γ) [ToIterator s Id β] [Iterator (ToIterator.State s Id)
 def toListRev (s : Slice γ) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
     [Finite (ToIterator.State s Id) Id] : List β :=
   Internal.iter s |>.toListRev
+
+instance {γ : Type u} {β : Type v} [∀ s : Slice γ, ToIterator s Id β]
+    [∀ s : Slice γ, Iterator (ToIterator.State s Id) Id β]
+    [∀ s : Slice γ, IteratorLoop (ToIterator.State s Id) Id m]
+    [∀ s : Slice γ, Finite (ToIterator.State s Id) Id] :
+    ForIn m (Slice γ) β where
+  forIn s init f :=
+    forIn (Internal.iter s) init f
 
 /--
 Folds a monadic operation from left to right over the elements in a slice.

@@ -106,15 +106,15 @@ If the goal is not inconsistent and progress has been made,
 -/
 def evalCheck (tacticName : Name) (k : GoalM Bool)
     (pp? : Goal → MetaM (Option MessageData)) : GrindTacticM Unit := do
+  let recover := (← read).recover
   liftGoalM do
     let progress ← k
     unless progress do
       throwError "`{tacticName}` failed"
     processNewFacts
-    unless (← Grind.getConfig).verbose do
-      return ()
-    if (← get).inconsistent then
-      return ()
+    unless (← Grind.getConfig).verbose do return ()
+    unless recover do return ()
+    if (← get).inconsistent then return ()
     let some msg ← pp? (← get) | return ()
     logInfo msg
 
@@ -135,16 +135,13 @@ def logTheoremAnchor (proof : Expr) : TermElabM Unit := do
   Term.addTermInfo' stx proof
 
 def ematchThms (only : Bool) (thms : Array EMatchTheorem) : GrindTacticM Unit := do
+  -- **TODO**: add `instantiate` action that takes `thms`
   let progress ← liftGoalM do
     let thms ← thms.mapM (preprocessTheorem · 0)
     if only then ematchOnly thms else ematch thms
   unless progress do
     throwError "`instantiate` tactic failed to instantiate new facts, use `show_patterns` to see active theorems and their patterns."
-  let goal ← getMainGoal
-  let (goal, _) ← liftGrindM <| withCheapCasesOnly <| SearchM.run goal do
-    discard <| assertAll
-    getGoal
-  replaceMainGoal [goal]
+  liftAction Action.assertAll
 
 @[builtin_grind_tactic instantiate] def evalInstantiate : GrindTactic := fun stx => withMainContext do
   let `(grind| instantiate $[ only%$only ]? $[ approx ]? $[ [ $[$thmRefs?:thm],* ] ]?) := stx | throwUnsupportedSyntax
@@ -268,30 +265,28 @@ def logAnchor (c : SplitInfo) : TermElabM Unit := do
     -/
     Term.addTermInfo' stx e (isDisplayableTerm := True)
 
+def split? (c : SplitInfo) : Action := fun goal kna kp => do
+  let (.ready numCases isRec _, goal) ← GoalM.run goal (checkSplitStatus c)
+    | throwError "`cases` tactic failed, case-split is not ready{indentExpr c.getExpr}"
+  let gen := goal.getGeneration c.getExpr
+  let genNew := if numCases > 1 || isRec then gen+1 else gen
+  let a : Action :=
+    Action.splitCore c numCases isRec (stopAtFirstFailure := false) (compress := false) >> Action.intros genNew >> Action.assertAll
+  a goal kna kp
+
 @[builtin_grind_tactic cases] def evalCases : GrindTactic := fun stx => do
   let `(grind| cases #$anchor:hexnum) := stx | throwUnsupportedSyntax
   let anchorRef ← elabAnchorRef anchor
   let goal ← getMainGoal
   let candidates := goal.split.candidates
-  let (c, goals, genNew) ← liftSearchM do
+  let c ← liftGrindM <| goal.withContext do
     for c in candidates do
       let anchor ← c.getAnchor
       if anchorRef.matches anchor then
-        let some result ← split? c
-          | throwError "`cases` tactic failed, case-split is not ready{indentExpr c.getExpr}"
-        return (c, result)
+        return c
     throwError "`cases` tactic failed, invalid anchor"
   goal.withContext <| withRef anchor <| logAnchor c
-  let goals ← goals.filterMapM fun goal => do
-    let goal := { goal with ematch.num := 0 }
-    let (goal, _) ← liftGrindM <| SearchM.run goal do
-      intros genNew; discard <| assertAll
-      getGoal
-    if goal.inconsistent then
-      return none
-    else
-      return some goal
-  replaceMainGoal goals
+  liftAction <| split? c
 
 def mkCasesSuggestions (candidates : Array SplitCandidateWithAnchor) (numDigits : Nat) : MetaM (Array Tactic.TryThis.Suggestion) := do
   candidates.mapM fun { anchor, e, .. } => do
@@ -310,6 +305,9 @@ def mkCasesSuggestions (candidates : Array SplitCandidateWithAnchor) (numDigits 
   let suggestions ← mkCasesSuggestions candidates numDigits
   Tactic.TryThis.addSuggestions stx suggestions
   return ()
+
+@[builtin_grind_tactic casesNext] def evalCasesNext : GrindTactic := fun _ => do
+  liftAction (Action.splitNext (stopAtFirstFailure := false))
 
 @[builtin_grind_tactic Parser.Tactic.Grind.focus] def evalFocus : GrindTactic := fun stx => do
   let mkInfo ← mkInitialTacticInfo stx[0]

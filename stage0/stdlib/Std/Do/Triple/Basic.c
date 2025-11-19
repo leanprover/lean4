@@ -77,6 +77,7 @@ static lean_object* l_Std_Do_SPred_Notation_unpack___at___00Std_Do_unexpandTripl
 static lean_object* l_Std_Do_SPred_Notation_unpack___at___00Std_Do_unexpandTriple_spec__0___closed__20;
 static lean_object* l_Std_Do_triple___closed__15;
 static lean_object* l_Std_Do_SPred_Notation_unpack___at___00Std_Do_unexpandTriple_spec__0___closed__8;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l_Std_Do_SPred_Notation_unpack___at___00Std_Do_unexpandTriple_spec__0___closed__28;
 static lean_object* l_Std_Do_triple___closed__23;
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -113,7 +114,6 @@ static lean_object* l_Std_Do_SPred_Notation_unpack___at___00Std_Do_unexpandTripl
 static lean_object* l_Std_Do_SPred_Notation_unpack___at___00Std_Do_unexpandTriple_spec__0___closed__34;
 static lean_object* l_Std_Do_triple___closed__13;
 static lean_object* l_Std_Do_SPred_Notation_unpack___at___00Std_Do_unexpandTriple_spec__0___closed__31;
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Std_Do_unexpandTriple___closed__0;
 static lean_object* l_Std_Do_SPred_Notation_unpack___at___00Std_Do_unexpandTriple_spec__0___closed__14;
 static lean_object* l_Std_Do_SPred_Notation_unpack___at___00Std_Do_unexpandTriple_spec__0___closed__19;
@@ -585,7 +585,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Do_SPred_Notation_unpack___at___00Std_Do_unexpandTriple_spec__0___closed__20;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

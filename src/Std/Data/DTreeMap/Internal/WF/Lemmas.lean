@@ -613,6 +613,7 @@ theorem get?_eq_getValueCast? [instBEq : BEq α] [Ord α] [i : LawfulBEqOrd α] 
     (hto : t.Ordered) : t.get? k = getValueCast? k t.toListModel := by
   rw [get?_eq_get?ₘ, get?ₘ_eq_getValueCast? hto]
 
+
 /-!
 ### `get`
 -/
@@ -723,6 +724,70 @@ theorem getKeyD_eq_getKeyD [Ord α] [TransOrd α] [instBEq : BEq α] [LawfulBEqO
     {t : Impl α β} {fallback : α} (hto : t.Ordered) :
     t.getKeyD k fallback = List.getKeyD k t.toListModel fallback := by
   rw [getKeyD_eq_getKeyDₘ, getKeyDₘ_eq_getKeyD hto]
+
+/-!
+### `getEntry?`
+-/
+
+theorem getEntry?ₘ_eq_getEntry? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α} {t : Impl α β}
+    (hto : t.Ordered) : t.getEntry?ₘ k = List.getEntry? k t.toListModel := by
+  rw [getEntry?ₘ, applyCell_eq_apply_toListModel hto (fun l _ => List.getEntry? k l)]
+  · rintro ⟨(_|p), hp⟩ -
+    · simp [Cell.getEntry?]
+    · simp only [Cell.getEntry?, Option.toList_some, List.getEntry?]
+      simp [BEq.symm <| compare_eq_iff_beq.mp (hp p rfl)]
+  · exact fun l₁ l₂ h => List.getEntry?_of_perm
+  · exact fun l₁ l₂ h => List.getEntry?_append_of_containsKey_eq_false
+
+theorem getEntry?_eq_getEntry? [Ord α] [TransOrd α] [instBEq : BEq α] [LawfulBEqOrd α] {k : α} {t : Impl α β}
+    (hto : t.Ordered) : t.getEntry? k = List.getEntry? k t.toListModel := by
+  rw [getEntry?_eq_getEntry?ₘ, getEntry?ₘ_eq_getEntry? hto]
+
+/-!
+### `getEntry`
+-/
+
+theorem contains_eq_isSome_getEntry?ₘ [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α}
+    {t : Impl α β} (hto : t.Ordered) : contains k t = (t.getEntry?ₘ k).isSome := by
+  rw [getEntry?ₘ_eq_getEntry? hto, contains_eq_containsKey hto, containsKey_eq_isSome_getEntry?]
+
+theorem getEntryₘ_eq_getEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α} {t : Impl α β} (h)
+    {h'} (hto : t.Ordered) : t.getEntryₘ k h' = List.getEntry k t.toListModel h := by
+  simp only [getEntryₘ]
+  revert h'
+  rw [getEntry?ₘ_eq_getEntry? hto]
+  simp [getEntry?_eq_some_getEntry ‹_›]
+
+theorem getEntry_eq_getEntry [Ord α] [TransOrd α] [instBEq : BEq α] [LawfulBEqOrd α] {k : α} {t : Impl α β} {h}
+    (hto : t.Ordered): t.getEntry k h = List.getEntry k t.toListModel (contains_eq_containsKey hto ▸ h) := by
+  rw [getEntry_eq_getEntryₘ, getEntryₘ_eq_getEntry _ hto]
+  exact contains_eq_isSome_getEntry?ₘ hto ▸ h
+
+/-!
+### `getEntry!`
+-/
+
+theorem getEntry!ₘ_eq_getEntry! [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited ((a : α) × β a)] {k : α}
+    {t : Impl α β} (hto : t.Ordered) : t.getEntry!ₘ k = List.getEntry! k t.toListModel := by
+  simp [getEntry!ₘ, getEntry?ₘ_eq_getEntry? hto, getEntry!_eq_getEntry?]
+
+theorem getEntry!_eq_getEntry! [Ord α] [TransOrd α] [instBEq : BEq α] [LawfulBEqOrd α] [Inhabited ((a : α) × β a)] {k : α}
+    {t : Impl α β} (hto : t.Ordered) : t.getEntry! k = List.getEntry! k t.toListModel := by
+  rw [getEntry!_eq_getEntry!ₘ, getEntry!ₘ_eq_getEntry! hto]
+
+/-!
+### `getEntryD`
+-/
+
+theorem getEntryDₘ_eq_getEntryD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α}
+    {t : Impl α β} {fallback : (a : α) × β a} (hto : t.Ordered) :
+    t.getEntryDₘ k fallback = List.getEntryD k fallback t.toListModel := by
+  simp [getEntryDₘ, getEntry?ₘ_eq_getEntry? hto, getEntryD_eq_getEntry?]
+
+theorem getEntryD_eq_getEntryD [Ord α] [TransOrd α] [instBEq : BEq α] [LawfulBEqOrd α] {k : α}
+    {t : Impl α β} {fallback : (a : α) × β a} (hto : t.Ordered) :
+    t.getEntryD k fallback = List.getEntryD k fallback t.toListModel := by
+  rw [getEntryD_eq_getEntryDₘ, getEntryDₘ_eq_getEntryD hto]
 
 namespace Const
 

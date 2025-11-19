@@ -252,8 +252,13 @@ instance [BEq α] [Hashable α] {m : Type w → Type w'} : ForIn m (HashMap α �
     Array α :=
   m.inner.keysArray
 
+@[inline, inherit_doc DHashMap.all] def all (m : HashMap α β) (p : α → β → Bool) : Bool :=
+  m.inner.all p
+
+@[inline, inherit_doc DHashMap.any] def any (m : HashMap α β) (p : α → β → Bool) : Bool :=
+  m.inner.any p
 /--
-Computes the union of the given hash maps. If a key appears in both maps, the entry contains in
+Computes the union of the given hash maps. If a key appears in both maps, the entry contained in
 the second argument will appear in the result.
 
 This function always merges the smaller map into the larger map, so the expected runtime is
@@ -263,6 +268,11 @@ This function always merges the smaller map into the larger map, so the expected
   ⟨DHashMap.union m₁.inner m₂.inner⟩
 
 instance [BEq α] [Hashable α] : Union (HashMap α β) := ⟨union⟩
+
+@[inherit_doc DHashMap.inter, inline] def inter [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=
+  ⟨DHashMap.inter m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : Inter (HashMap α β) := ⟨inter⟩
 
 section Unverified
 

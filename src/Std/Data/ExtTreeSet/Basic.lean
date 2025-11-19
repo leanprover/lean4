@@ -513,6 +513,17 @@ def insertMany [TransCmp cmp] {ρ} [ForIn Id ρ α] (t : ExtTreeSet α cmp) (l :
   ⟨ExtTreeMap.insertManyIfNewUnit t.inner l⟩
 
 /--
+Computes the union of the given tree sets. If both maps contain elements that are equal according
+to the comparison function, the element contained in the second argument will appear in the result.
+
+This function always merges the smaller set into the larger set.
+-/
+@[inline]
+def union [TransCmp cmp] (t₁ t₂ : ExtTreeSet α cmp) : ExtTreeSet α cmp := ⟨ExtTreeMap.union t₁.inner t₂.inner⟩
+
+instance [TransCmp cmp] : Union (ExtTreeSet α cmp) := ⟨union⟩
+
+/--
 Erases multiple items from the tree set by iterating over the given collection and calling erase.
 -/
 @[inline]

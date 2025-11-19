@@ -59,3 +59,28 @@ error: +suggestions requires using simp_all? instead of simp_all
 example (a b : Nat) (h : myCustomAdd a b = myCustomAdd b a) : myCustomAdd a b = myCustomAdd b a := by
   simp_all +suggestions
   sorry
+
+-- Test ambiguous lemmas with DIFFERENT statements that are both needed
+-- Root version: left identity
+theorem myCustomAdd_id (x : Nat) : myCustomAdd 0 x = x := by
+  simp [myCustomAdd]
+
+-- Foo version: right identity
+theorem Foo.myCustomAdd_id (x : Nat) : myCustomAdd x 0 = x := by
+  simp [myCustomAdd]
+
+-- Set up premise selector that suggests the ambiguous name
+set_library_suggestions (fun _ _ => pure #[{ name := `myCustomAdd_id, score := 1.0 }])
+
+open Foo
+
+-- This goal needs BOTH lemmas to solve:
+-- myCustomAdd 0 a simplifies to a (using root version)
+-- myCustomAdd b 0 simplifies to b (using Foo version)
+/--
+info: Try this:
+  [apply] simp_all only [_root_.myCustomAdd_id, Foo.myCustomAdd_id]
+-/
+#guard_msgs in
+example (a b : Nat) (h : myCustomAdd 0 a = myCustomAdd b 0) : a = b := by
+  simp_all? +suggestions

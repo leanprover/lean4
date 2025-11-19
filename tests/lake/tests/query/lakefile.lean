@@ -13,5 +13,5 @@ lean_exe a where
 lean_exe b where
   root := `exe
 
-target foo : String :=
-  return .pure "foo"
+target foo : String := Job.sync do
+  return "foo"

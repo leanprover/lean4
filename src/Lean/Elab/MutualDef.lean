@@ -1192,7 +1192,7 @@ where
     for view in views, declId in expandedDeclIds do
       -- Add tags early so elaboration can access them
       match view.modifiers.computeKind with
-      | .meta          => modifyEnv (addMeta · declId.declName)
+      | .meta          => modifyEnv (markMeta · declId.declName)
       | .noncomputable => modifyEnv (addNoncomputable · declId.declName)
       | .regular       => pure ()
     withExporting (isExporting :=
@@ -1322,6 +1322,9 @@ where
           if !(← isProp header.type) then
             return false
         return true))) do
+    -- Never export private decls from theorem bodies to make sure they stay irrelevant for rebuilds
+    withOptions (fun opts =>
+      if headers.any (·.kind.isTheorem) then ResolveName.backward.privateInPublic.set opts false else opts) do
     let headers := headers.map fun header =>
       { header with modifiers.attrs := header.modifiers.attrs.filter (!·.name ∈ [`expose, `no_expose]) }
     let values ← try

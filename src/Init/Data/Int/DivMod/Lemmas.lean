@@ -145,6 +145,12 @@ theorem dvd_of_mul_dvd_mul_left {a m n : Int} (ha : a ≠ 0) (h : a * m ∣ a * 
 theorem dvd_of_mul_dvd_mul_right {a m n : Int} (ha : a ≠ 0) (h : m * a ∣ n * a) : m ∣ n :=
   dvd_of_mul_dvd_mul_left ha (by simpa [Int.mul_comm] using h)
 
+theorem dvd_mul_of_dvd_right {a b c : Int} (h : a ∣ c) : a ∣ b * c :=
+  Int.dvd_trans h (Int.dvd_mul_left b c)
+
+theorem dvd_mul_of_dvd_left {a b c : Int} (h : a ∣ b) : a ∣ b * c :=
+  Int.dvd_trans h (Int.dvd_mul_right b c)
+
 @[norm_cast] theorem natCast_dvd_natCast {m n : Nat} : (↑m : Int) ∣ ↑n ↔ m ∣ n where
   mp := by
     rintro ⟨a, h⟩
@@ -1229,7 +1235,7 @@ private theorem ediv_ediv_of_pos {x y z : Int} (hy : 0 < y) (hz : 0 < z) :
   · rw [Int.mul_comm y, ← Int.mul_assoc, ← Int.add_mul, Int.mul_comm _ z]
     exact Int.lt_mul_of_ediv_lt hy (Int.lt_mul_ediv_self_add hz)
 
-theorem ediv_ediv {x y z : Int} (hy : 0 ≤ y) : x / y / z = x / (y * z) := by
+theorem ediv_ediv_of_nonneg {x y z : Int} (hy : 0 ≤ y) : x / y / z = x / (y * z) := by
   rcases y with (_ | a) | a
   · simp
   · rcases z with (_ | b) | b
@@ -1237,6 +1243,21 @@ theorem ediv_ediv {x y z : Int} (hy : 0 ≤ y) : x / y / z = x / (y * z) := by
     · simp [ediv_ediv_of_pos]
     · simp [Int.negSucc_eq, Int.mul_neg, ediv_ediv_of_pos]
   · simp at hy
+
+theorem ediv_ediv {x y z : Int} : x / y / z = x / (y * z) - if y < 0 ∧ ¬ z ∣ x / y then z.sign else 0 := by
+  rcases y with y | y
+  · rw [ediv_ediv_of_nonneg (by simp), if_neg (by simp; omega)]
+    simp
+  · rw [Int.negSucc_eq, Int.ediv_neg, Int.neg_mul, Int.ediv_neg, Int.neg_ediv, ediv_ediv_of_nonneg (by omega)]
+    simp
+
+theorem ediv_mul {x y z : Int} : x / (y * z) = x / y / z + if y < 0 ∧ ¬ z ∣ x / y then z.sign else 0 := by
+  have := ediv_ediv (x := x) (y := y) (z := z)
+  omega
+
+theorem ediv_mul_of_nonneg {x y z : Int} (hy : 0 ≤ y) : x / (y * z) = x / y / z := by
+  have := ediv_ediv_of_nonneg (x := x) (y := y) (z := z) hy
+  omega
 
 /-! ### tdiv -/
 

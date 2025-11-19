@@ -36,8 +36,53 @@ example : P 7 := by
 
 set_library_suggestions (fun _ _ => pure #[{ name := `p, score := 1.0 }])
 
+/--
+info: Library suggestions:
+  p
+-/
+#guard_msgs in
 example : P 7 := by
+  suggestions
   grind +suggestions
+
+set_library_suggestions (fun _ _ => pure #[{ name := `p, score := 0.5 }])
+
+/--
+info: Library suggestions:
+  p (score: 0.500000)
+-/
+#guard_msgs in
+example : P 7 := by
+  suggestions
+  grind +suggestions
+
+set_library_suggestions (fun _ _ => pure #[{ name := `p, score := 1.0, flag := some "←" }])
+
+/--
+info: Library suggestions:
+  p [←]
+---
+error: unexpected modifier ←
+-/
+#guard_msgs in
+example : P 7 := by
+  suggestions
+  grind +suggestions
+
+set_library_suggestions (fun _ _ => pure #[
+  { name := `p, score := 0.9 },
+  { name := `f, score := 0.7 }
+])
+
+/--
+info: Library suggestions:
+  p (score: 0.900000)
+  f (score: 0.700000)
+-/
+#guard_msgs in
+example : P 7 := by
+  suggestions
+  grind [p]
 
 set_library_suggestions (fun _ _ => pure #[{ name := `List.append_assoc, score := 1.0 }])
 

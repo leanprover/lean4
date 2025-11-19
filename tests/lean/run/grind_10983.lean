@@ -10,5 +10,4 @@ def sumEquivSigmaBool (α β) : Equiv (α ⊕ β) (Σ b, bif b then β else α) 
     | ⟨false, a⟩ => .inl a
     | ⟨true, b⟩ => .inr b
   left_inv := fun s => by
-    fail_if_success grind
-    sorry
+    grind

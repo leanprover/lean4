@@ -11,7 +11,6 @@ prelude
 import Init.Data.Ord
 public import Lean.DocString.Types
 public import Init.Data.String.TakeDrop
-import Init.Data.String.Iterator
 public import Init.Data.String.Search
 
 set_option linter.missingDocs true
@@ -66,6 +65,9 @@ private def State.render (state : State) : String :=
 private def State.push (state : State) (txt : String) : State :=
   { state with currentBlock := state.currentBlock ++ txt }
 
+private def State.endsWith (state : State) (txt : String) : Bool :=
+  state.currentBlock.endsWith txt || (state.currentBlock.isEmpty && state.priorBlocks.endsWith txt)
+
 end MarkdownM
 
 open MarkdownM in
@@ -91,6 +93,12 @@ public def MarkdownM.run' (act : MarkdownM Unit) (context : Context := {}) (stat
 Adds a string to the current Markdown output.
 -/
 public def MarkdownM.push (txt : String) : MarkdownM Unit := modify (·.push txt)
+
+/--
+Checks whether the current output ends with the given string.
+-/
+public def MarkdownM.endsWith (txt : String) : MarkdownM Bool := do
+  return (← get).endsWith txt
 
 /--
 Terminates the current block.
@@ -143,10 +151,10 @@ public instance : MarkdownBlock i Empty where
 
 private def escape (s : String) : String := Id.run do
   let mut s' := ""
-  let mut iter := s.iter
-  while h : iter.hasNext do
-    let c := iter.curr' h
-    iter := iter.next' h
+  let mut iter := s.startValidPos
+  while h : ¬iter.IsAtEnd do
+    let c := iter.get h
+    iter := iter.next h
     if isSpecial c then
       s' := s'.push '\\'
     s' := s'.push c
@@ -157,10 +165,10 @@ where
 private def quoteCode (str : String) : String := Id.run do
   let mut longest := 0
   let mut current := 0
-  let mut iter := str.iter
-  while h : iter.hasNext do
-    let c := iter.curr' h
-    iter := iter.next' h
+  let mut iter := str.startValidPos
+  while h : ¬iter.IsAtEnd do
+    let c := iter.get h
+    iter := iter.next h
     if c == '`' then
       current := current + 1
     else
@@ -248,7 +256,11 @@ private partial def inlineMarkdown [MarkdownInline i] : Inline i → MarkdownM U
     push s!"[ˆ^{name}]"
     let footnoteContent := (content.forM inlineMarkdown) {} {} |>.2.render
     modify fun st => { st with footnotes := st.footnotes.push (name, footnoteContent) }
-  | .code str =>
+  | .code str => do
+    if (← endsWith "`") then
+      -- Markdown has no reasonable way to put one code element after another. This is a zero-width
+      -- space to work around this syntactic limitation:
+      push "​"
     push (quoteCode str)
   | .math .display m => push s!"$${m}$$"
   | .math .inline m => push s!"${m}$"
@@ -261,11 +273,11 @@ public instance [MarkdownInline i] : ToMarkdown (Inline i) where
 private def quoteCodeBlock (indent : Nat) (str : String) : String := Id.run do
   let mut longest := 2
   let mut current := 0
-  let mut iter := str.iter
+  let mut iter := str.startValidPos
   let mut out := ""
-  while h : iter.hasNext do
-    let c := iter.curr' h
-    iter := iter.next' h
+  while h : ¬iter.IsAtEnd do
+    let c := iter.get h
+    iter := iter.next h
     if c == '`' then
       current := current + 1
     else
@@ -274,8 +286,9 @@ private def quoteCodeBlock (indent : Nat) (str : String) : String := Id.run do
     out := out.push c
     if c == '\n' then
       out := out.pushn ' ' indent
+  out := if out.endsWith "\n" then out else out.push '\n'
   let backticks := "" |>.pushn ' ' indent |>.pushn '`' (max longest current + 1)
-  backticks ++ "\n" ++ out ++ "\n" ++ backticks ++ "\n"
+  backticks ++ "\n" ++ out ++ backticks ++ "\n"
 
 open MarkdownM in
 private partial def blockMarkdown [MarkdownInline i] [MarkdownBlock i b] : Block i b → MarkdownM Unit

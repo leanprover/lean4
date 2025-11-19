@@ -123,6 +123,11 @@ available in the `grind` state.
 -/
 syntax (name := casesTrace) "cases?" grindFilter : grind
 
+/--
+Performs the next case-split. The case-split is selected using the same heuristic used by `finish`.
+-/
+syntax (name := casesNext) "cases_next" : grind
+
 /-- `done` succeeds iff there are no remaining goals. -/
 syntax (name := done) "done" : grind
 

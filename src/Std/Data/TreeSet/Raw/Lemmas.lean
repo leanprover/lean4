@@ -521,6 +521,16 @@ theorem mem_of_mem_union_of_not_mem_left [TransCmp cmp]
     k ∈ t₁ ∪ t₂ → ¬k ∈ t₁ → k ∈ t₂ :=
   DTreeMap.Raw.mem_of_mem_union_of_not_mem_left h₁ h₂
 
+theorem union_equiv_congr_left {t₃ : Raw α cmp} [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (equiv : t₁.Equiv t₂) :
+    (t₁ ∪ t₃).Equiv (t₂ ∪ t₃) :=
+  ⟨TreeMap.Raw.union_equiv_congr_left h₁ h₂ h₃ equiv.1⟩
+
+theorem union_equiv_congr_right {t₃ : Raw α cmp} [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (equiv : t₂.Equiv t₃) :
+    (t₁ ∪ t₂).Equiv (t₁ ∪ t₃) :=
+  ⟨TreeMap.Raw.union_equiv_congr_right h₁ h₂ h₃ equiv.1⟩
+
 /- get? -/
 theorem get?_union [TransCmp cmp]
     (h₁ : t₁.WF) (h₂ : t₂.WF)

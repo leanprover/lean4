@@ -244,6 +244,11 @@ def insertManyIfNewUnit [EquivBEq α] [LawfulHashable α]
     {ρ : Type w} [ForIn Id ρ α] (m : ExtHashMap α Unit) (l : ρ) : ExtHashMap α Unit :=
   ⟨ExtDHashMap.Const.insertManyIfNewUnit m.inner l⟩
 
+@[inline, inherit_doc ExtDHashMap.union]
+def union [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashMap α β) : ExtHashMap α β := ⟨ExtDHashMap.union m₁.inner m₂.inner⟩
+
+instance [EquivBEq α] [LawfulHashable α] : Union (ExtHashMap α β) := ⟨union⟩
+
 @[inline, inherit_doc ExtDHashMap.Const.unitOfArray]
 def unitOfArray [BEq α] [Hashable α] (l : Array α) :
     ExtHashMap α Unit :=

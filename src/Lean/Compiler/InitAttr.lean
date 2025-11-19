@@ -69,7 +69,7 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref
       -- TODO: The interpreter currently depends on `[builtin_init]` to be exported for
       -- `prefer_native` handling but this is incorrect with private imports anyway and should be
       -- replaced by consulting a builtin list.
-      !runAfterImport || isMeta env declName
+      !runAfterImport || isMarkedMeta env declName
   }
 
 @[implemented_by registerInitAttrUnsafe]

@@ -2,6 +2,8 @@ module
 
 meta import Init.Dynamic
 meta import Init.System.IO
+public import Lean.PrettyPrinter.Delaborator.Basic
+public meta import Lean.PrettyPrinter.Delaborator.Basic
 
 public axiom testSorry : α
 
@@ -43,11 +45,9 @@ public def Fun := Nat → Nat
 /-! The compiler should check it has sufficient information about types available. -/
 
 /--
-error: Compilation failed, locally inferred compilation type
-  (Nat → Nat) → Nat → Nat
-differs from type
-  (Nat → Nat) → lcAny
-that would be inferred in other modules. This usually means that a type `def` involved with the mentioned declarations needs to be `@[expose]`d. This is a current compiler limitation for `module`s that may be lifted in the future.
+error: Compilation failed, locally inferred compilation type differs from type that would be inferred in other modules. Some of the following definitions may need to be `@[expose]`d to fix this mismatch: ⏎
+  Fun ↦ 1
+This is a current compiler limitation for `module`s that may be lifted in the future.
 -/
 #guard_msgs in
 public def Fun.mk (f : Nat → Nat) : Fun := f
@@ -504,3 +504,10 @@ noncomputable section
 #guard_msgs in
 meta def m := S.s
 end
+
+-- setup for `Imported`
+public meta def delab : Lean.PrettyPrinter.Delaborator.Delab :=
+  default
+
+public def noMetaDelab : Lean.PrettyPrinter.Delaborator.Delab :=
+  default

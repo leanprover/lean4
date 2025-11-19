@@ -51,6 +51,7 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 static lean_object* l_Array_term___x7e___00__closed__10;
 static lean_object* l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__17;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Array_term___x7e__;
 static lean_object* l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__15;
 LEAN_EXPORT lean_object* l_Array___aux__Init__Data__Array__Perm______unexpand__Array__Perm__1(lean_object*, lean_object*, lean_object*);
@@ -61,7 +62,6 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__12;
 LEAN_EXPORT lean_object* l_Array_instTransPerm(lean_object*);
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__10;
 static lean_object* _init_l_Array_term___x7e___00__closed__0() {
 _start:
@@ -247,7 +247,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__5;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

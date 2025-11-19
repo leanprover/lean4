@@ -48,6 +48,7 @@ static lean_object* l_Vector___aux__Init__Data__Vector__Perm______macroRules__Ve
 LEAN_EXPORT lean_object* l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Vector_term___x7e___00__closed__3;
 static lean_object* l_Vector___aux__Init__Data__Vector__Perm______unexpand__Vector__Perm__1___closed__0;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__0;
 static lean_object* l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__9;
 LEAN_EXPORT lean_object* l_Vector___aux__Init__Data__Vector__Perm______unexpand__Vector__Perm__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -65,7 +66,6 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector___aux__Init__Data__Vector__Perm______unexpand__Vector__Perm__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Vector_term___x7e___00__closed__10;
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__7;
 static lean_object* l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__14;
 static lean_object* _init_l_Vector_term___x7e___00__closed__0() {
@@ -252,7 +252,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__5;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

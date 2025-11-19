@@ -123,14 +123,14 @@ private def withInfoSyntaxFn (p : ParserFn) (infoP : SourceInfo → ParserFn) : 
 
 private def unescapeStr (str : String) : String := Id.run do
   let mut out := ""
-  let mut iter := str.iter
-  while !iter.atEnd do
-    let c := iter.curr
-    iter := iter.next
+  let mut iter := str.startValidPos
+  while h : ¬iter.IsAtEnd do
+    let c := iter.get h
+    iter := iter.next h
     if c == '\\' then
-      if !iter.atEnd then
-        out := out.push iter.curr
-        iter := iter.next
+      if h : ¬iter.IsAtEnd then
+        out := out.push (iter.get h)
+        iter := iter.next h
     else
       out := out.push c
   out
@@ -201,18 +201,19 @@ private def onlyBlockOpeners : ParserFn := fun c s =>
   let position := c.fileMap.toPosition s.pos
   let lineStart := c.fileMap.lineStart position.line
   let ok : Bool := Id.run do
-    let mut iter := {c.inputString.iter with i := lineStart}
-    while iter.i < s.pos && iter.hasNext && iter.i < c.endPos do
-      if iter.curr.isDigit then
-        while iter.curr.isDigit && iter.i < s.pos && iter.hasNext do
-          iter := iter.next
-        if !iter.hasNext then return false
-        else if iter.curr == '.' || iter.curr == ')' then iter := iter.next
-      else if iter.curr == ' ' then iter := iter.next
-      else if iter.curr == '>' then iter := iter.next
-      else if iter.curr == '*' then iter := iter.next
-      else if iter.curr == '+' then iter := iter.next
-      else if iter.curr == '-' then iter := iter.next
+    let mut iter := c.inputString.pos! lineStart
+    while h : iter.offset < s.pos && ¬iter.IsAtEnd && iter.offset < c.endPos do
+      have h : ¬iter.IsAtEnd := by simp at h; exact h.1.2
+      if (iter.get h).isDigit then
+        while h : ¬iter.IsAtEnd && iter.get!.isDigit && iter.offset < s.pos do
+          iter := iter.next (by simp at h; exact h.1.1)
+        if h : iter.IsAtEnd then return false
+        else if iter.get h == '.' || iter.get h == ')' then iter := iter.next h
+      else if iter.get h == ' ' then iter := iter.next h
+      else if iter.get h == '>' then iter := iter.next h
+      else if iter.get h == '*' then iter := iter.next h
+      else if iter.get h == '+' then iter := iter.next h
+      else if iter.get h == '-' then iter := iter.next h
       else return false
     true
 
@@ -245,14 +246,15 @@ private def pushMissing : ParserFn := fun _c s =>
   s.pushSyntax .missing
 
 private def strFn (str : String) : ParserFn := asStringFn <| fun c s =>
-  let rec go (iter : String.Iterator) (s : ParserState) :=
-    if iter.atEnd then s
+  let rec go (iter : str.ValidPos) (s : ParserState) :=
+    if h : iter.IsAtEnd then s
     else
-      let ch := iter.curr
-      go iter.next <| satisfyFn (· == ch) ch.toString c s
+      let ch := iter.get h
+      go (iter.next h) <| satisfyFn (· == ch) ch.toString c s
+  termination_by iter
   let iniPos := s.pos
   let iniSz := s.stxStack.size
-  let s := go str.iter s
+  let s := go str.startValidPos s
   if s.hasError then s.mkErrorAt s!"'{str}'" iniPos (some iniSz) else s
 
 /--

@@ -516,7 +516,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_2 = lean_ctor_get(x_1, 1);
 x_3 = lean_box(0);
 lean_inc(x_2);
-x_4 = lean_alloc_ctor(2, 2, 0);
+x_4 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
 return x_4;
@@ -538,7 +538,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_2 = lean_ctor_get(x_1, 1);
 x_3 = lean_box(0);
 lean_inc(x_2);
-x_4 = lean_alloc_ctor(2, 2, 0);
+x_4 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
 return x_4;
@@ -1211,16 +1211,6 @@ LEAN_EXPORT lean_object* l___private_Lake_Config_ConfigDecl_0__Lake_ConfigType_m
 _start:
 {
 switch (lean_obj_tag(x_1)) {
-case 0:
-{
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_inc(x_5);
-return x_5;
-}
 case 1:
 {
 lean_object* x_9; 
@@ -1239,77 +1229,59 @@ x_14 = lean_string_dec_eq(x_10, x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; uint8_t x_16; 
-lean_dec(x_3);
 x_15 = l___private_Lake_Config_ConfigDecl_0__Lake_ConfigType_match__1_splitter___redArg___closed__2;
 x_16 = lean_string_dec_eq(x_10, x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; uint8_t x_18; 
-lean_dec(x_4);
 x_17 = l___private_Lake_Config_ConfigDecl_0__Lake_ConfigType_match__1_splitter___redArg___closed__3;
 x_18 = lean_string_dec_eq(x_10, x_17);
 if (x_18 == 0)
 {
 lean_object* x_19; uint8_t x_20; 
-lean_dec(x_6);
 x_19 = l___private_Lake_Config_ConfigDecl_0__Lake_ConfigType_match__1_splitter___redArg___closed__4;
 x_20 = lean_string_dec_eq(x_10, x_19);
 if (x_20 == 0)
 {
 lean_object* x_21; 
-lean_dec(x_7);
 x_21 = lean_apply_7(x_8, x_1, lean_box(0), lean_box(0), lean_box(0), lean_box(0), lean_box(0), lean_box(0));
 return x_21;
 }
 else
 {
-lean_object* x_22; 
 lean_dec(x_8);
 lean_dec_ref(x_1);
-x_22 = lean_apply_4(x_7, lean_box(0), lean_box(0), lean_box(0), lean_box(0));
-return x_22;
-}
-}
-else
-{
-lean_object* x_23; 
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec_ref(x_1);
-x_23 = lean_apply_3(x_6, lean_box(0), lean_box(0), lean_box(0));
-return x_23;
-}
-}
-else
-{
-lean_object* x_24; 
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec_ref(x_1);
-x_24 = lean_apply_2(x_4, lean_box(0), lean_box(0));
-return x_24;
-}
-}
-else
-{
-lean_object* x_25; 
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_4);
-lean_dec_ref(x_1);
-x_25 = lean_apply_1(x_3, lean_box(0));
-return x_25;
+lean_inc(x_7);
+return x_7;
 }
 }
 else
 {
 lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_1);
+lean_inc(x_6);
+return x_6;
+}
+}
+else
+{
+lean_dec(x_8);
+lean_dec_ref(x_1);
+lean_inc(x_4);
+return x_4;
+}
+}
+else
+{
+lean_dec(x_8);
+lean_dec_ref(x_1);
+lean_inc(x_3);
+return x_3;
+}
+}
+else
+{
+lean_dec(x_8);
 lean_dec_ref(x_1);
 lean_inc(x_2);
 return x_2;
@@ -1317,24 +1289,22 @@ return x_2;
 }
 else
 {
-lean_object* x_26; 
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_4);
-lean_dec(x_3);
-x_26 = lean_apply_7(x_8, x_1, lean_box(0), lean_box(0), lean_box(0), lean_box(0), lean_box(0), lean_box(0));
-return x_26;
+lean_object* x_22; 
+x_22 = lean_apply_7(x_8, x_1, lean_box(0), lean_box(0), lean_box(0), lean_box(0), lean_box(0), lean_box(0));
+return x_22;
 }
+}
+case 0:
+{
+lean_dec(x_8);
+lean_inc(x_5);
+return x_5;
 }
 default: 
 {
-lean_object* x_27; 
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_4);
-lean_dec(x_3);
-x_27 = lean_apply_7(x_8, x_1, lean_box(0), lean_box(0), lean_box(0), lean_box(0), lean_box(0), lean_box(0));
-return x_27;
+lean_object* x_23; 
+x_23 = lean_apply_7(x_8, x_1, lean_box(0), lean_box(0), lean_box(0), lean_box(0), lean_box(0), lean_box(0));
+return x_23;
 }
 }
 }
@@ -1352,7 +1322,11 @@ _start:
 {
 lean_object* x_9; 
 x_9 = l___private_Lake_Config_ConfigDecl_0__Lake_ConfigType_match__1_splitter___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_2);
 return x_9;
 }
@@ -1362,7 +1336,11 @@ _start:
 {
 lean_object* x_10; 
 x_10 = l___private_Lake_Config_ConfigDecl_0__Lake_ConfigType_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+lean_dec(x_8);
+lean_dec(x_7);
 lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_3);
 return x_10;
 }

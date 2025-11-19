@@ -1500,16 +1500,16 @@ _start:
 {
 if (x_1 == 0)
 {
-if (x_2 == 0)
+if (x_2 == 1)
 {
 uint8_t x_3; 
-x_3 = 1;
+x_3 = 0;
 return x_3;
 }
 else
 {
 uint8_t x_4; 
-x_4 = 0;
+x_4 = 1;
 return x_4;
 }
 }
@@ -1760,7 +1760,7 @@ return x_4;
 else
 {
 uint8_t x_5; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_5 = 0;
 return x_5;
 }
@@ -1883,7 +1883,7 @@ if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_8; 
 lean_dec(x_6);
-x_8 = lean_apply_3(x_5, x_1, lean_box(0), lean_box(0));
+x_8 = lean_apply_2(x_5, x_1, lean_box(0));
 return x_8;
 }
 else

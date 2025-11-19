@@ -1857,28 +1857,18 @@ _start:
 lean_object* x_10; uint8_t x_11; 
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = lean_nat_dec_eq(x_1, x_10);
-if (x_11 == 1)
-{
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec_ref(x_3);
-return x_2;
-}
-else
+if (x_11 == 0)
 {
 if (lean_obj_tag(x_9) == 5)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_12 = lean_unsigned_to_nat(1u);
 x_13 = lean_nat_sub(x_1, x_12);
-lean_inc(x_5);
 lean_inc(x_4);
-lean_inc_ref(x_3);
-x_14 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withBoundedAppFnArgs___redArg(x_3, x_4, x_5, x_13, x_2, x_6);
-x_15 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withAppFn___redArg(x_3, x_4, x_5, x_14);
+lean_inc(x_3);
+lean_inc_ref(x_2);
+x_14 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withBoundedAppFnArgs___redArg(x_2, x_3, x_4, x_13, x_5, x_6);
+x_15 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withAppFn___redArg(x_2, x_3, x_4, x_14);
 x_16 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_15, x_8);
 return x_16;
 }
@@ -1887,11 +1877,21 @@ else
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 lean_dec(x_4);
-lean_dec_ref(x_3);
-return x_2;
+lean_dec(x_3);
+lean_dec_ref(x_2);
+return x_5;
 }
+}
+else
+{
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec_ref(x_2);
+return x_5;
 }
 }
 }
@@ -1915,10 +1915,10 @@ lean_inc(x_2);
 lean_inc_ref(x_1);
 x_9 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_SubExpr_withBoundedAppFnArgs___redArg___lam__1___boxed), 9, 8);
 lean_closure_set(x_9, 0, x_4);
-lean_closure_set(x_9, 1, x_5);
-lean_closure_set(x_9, 2, x_1);
-lean_closure_set(x_9, 3, x_2);
-lean_closure_set(x_9, 4, x_3);
+lean_closure_set(x_9, 1, x_1);
+lean_closure_set(x_9, 2, x_2);
+lean_closure_set(x_9, 3, x_3);
+lean_closure_set(x_9, 4, x_5);
 lean_closure_set(x_9, 5, x_6);
 lean_closure_set(x_9, 6, x_7);
 lean_closure_set(x_9, 7, x_8);

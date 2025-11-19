@@ -16,7 +16,8 @@ set_library_suggestions Lean.LibrarySuggestions.currentFile
 -- First test: should show only myLocalTheorem
 -- (not myLocalDef since it's a def, not Lean.shouldBeFiltered since it's in Lean namespace)
 /--
-info: Library suggestions: [myLocalTheorem]
+info: Library suggestions:
+  myLocalTheorem
 -/
 #guard_msgs in
 example : True := by
@@ -30,7 +31,9 @@ def myFunction (x : Nat) : Nat := x + 1
 
 -- Second test: should show only the two theorems (not myFunction)
 /--
-info: Library suggestions: [anotherTheorem, myLocalTheorem]
+info: Library suggestions:
+  anotherTheorem
+  myLocalTheorem
 -/
 #guard_msgs in
 example : False → True := by

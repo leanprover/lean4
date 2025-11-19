@@ -481,10 +481,8 @@ lean_inc_ref(x_7);
 lean_dec(x_4);
 x_8 = l_System_FilePath_normalize(x_6);
 x_9 = l_Lake_joinRelative(x_5, x_8);
-lean_dec_ref(x_8);
 x_10 = l_System_FilePath_normalize(x_7);
 x_11 = l_Lake_joinRelative(x_9, x_10);
-lean_dec_ref(x_10);
 return x_11;
 }
 }
@@ -510,10 +508,8 @@ lean_inc_ref(x_7);
 lean_dec(x_4);
 x_8 = l_System_FilePath_normalize(x_6);
 x_9 = l_Lake_joinRelative(x_5, x_8);
-lean_dec_ref(x_8);
 x_10 = l_System_FilePath_normalize(x_7);
 x_11 = l_Lake_joinRelative(x_9, x_10);
-lean_dec_ref(x_10);
 return x_11;
 }
 }
@@ -709,17 +705,14 @@ lean_inc_ref(x_5);
 x_7 = l_System_FilePath_normalize(x_5);
 lean_inc_ref(x_4);
 x_8 = l_Lake_joinRelative(x_4, x_7);
-lean_dec_ref(x_7);
 lean_inc_ref(x_6);
 x_9 = l_System_FilePath_normalize(x_6);
 x_10 = l_Lake_joinRelative(x_8, x_9);
-lean_dec_ref(x_9);
 x_11 = l_Lake_LeanLib_libName(x_1);
 lean_dec_ref(x_1);
 x_12 = 0;
 x_13 = l_Lake_nameToStaticLib(x_11, x_12);
 x_14 = l_Lake_joinRelative(x_10, x_13);
-lean_dec_ref(x_13);
 return x_14;
 }
 }
@@ -744,11 +737,9 @@ lean_inc_ref(x_5);
 x_7 = l_System_FilePath_normalize(x_5);
 lean_inc_ref(x_4);
 x_8 = l_Lake_joinRelative(x_4, x_7);
-lean_dec_ref(x_7);
 lean_inc_ref(x_6);
 x_9 = l_System_FilePath_normalize(x_6);
 x_10 = l_Lake_joinRelative(x_8, x_9);
-lean_dec_ref(x_9);
 x_11 = l_Lake_LeanLib_libName(x_1);
 lean_dec_ref(x_1);
 x_12 = 0;
@@ -756,7 +747,6 @@ x_13 = l_Lake_nameToStaticLib(x_11, x_12);
 x_14 = l_Lake_LeanLib_staticExportLibFile___closed__0;
 x_15 = l_System_FilePath_addExtension(x_13, x_14);
 x_16 = l_Lake_joinRelative(x_10, x_15);
-lean_dec_ref(x_15);
 return x_16;
 }
 }
@@ -793,18 +783,15 @@ lean_inc_ref(x_5);
 x_7 = l_System_FilePath_normalize(x_5);
 lean_inc_ref(x_4);
 x_8 = l_Lake_joinRelative(x_4, x_7);
-lean_dec_ref(x_7);
 lean_inc_ref(x_6);
 x_9 = l_System_FilePath_normalize(x_6);
 x_10 = l_Lake_joinRelative(x_8, x_9);
-lean_dec_ref(x_9);
 x_11 = l_Lake_LeanLib_libName(x_1);
 lean_dec_ref(x_1);
 x_12 = 0;
 x_13 = l_Lake_nameToSharedLib(x_11, x_12);
 lean_dec_ref(x_11);
 x_14 = l_Lake_joinRelative(x_10, x_13);
-lean_dec_ref(x_13);
 return x_14;
 }
 }

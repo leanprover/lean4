@@ -63611,7 +63611,6 @@ lean_dec(x_16);
 x_24 = lean_ctor_get(x_23, 0);
 lean_inc_ref(x_24);
 lean_dec_ref(x_23);
-lean_inc_ref(x_24);
 x_25 = lean_string_validate_utf8(x_24);
 if (x_25 == 0)
 {

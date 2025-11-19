@@ -1331,6 +1331,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_string_validate_utf8(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -1463,6 +1464,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_instDecidableIsValidUTF8(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -1471,7 +1473,6 @@ LEAN_EXPORT lean_object* l_String_fromUTF8_x3f(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-lean_inc_ref(x_1);
 x_2 = lean_string_validate_utf8(x_1);
 if (x_2 == 0)
 {
@@ -1539,7 +1540,6 @@ LEAN_EXPORT lean_object* l_String_fromUTF8_x21(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-lean_inc_ref(x_1);
 x_2 = lean_string_validate_utf8(x_1);
 if (x_2 == 0)
 {
@@ -3286,6 +3286,8 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_string_utf8_next_fast(x_1, x_2);
+lean_dec(x_2);
+lean_dec_ref(x_1);
 return x_4;
 }
 }
@@ -3294,6 +3296,8 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_string_utf8_next_fast(x_1, x_2);
+lean_dec(x_2);
+lean_dec_ref(x_1);
 return x_4;
 }
 }

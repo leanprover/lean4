@@ -7749,7 +7749,6 @@ lean_object* x_8; lean_object* x_24; uint8_t x_25;
 x_24 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_24);
 lean_dec_ref(x_7);
-lean_inc_ref(x_24);
 x_25 = lean_string_validate_utf8(x_24);
 if (x_25 == 0)
 {

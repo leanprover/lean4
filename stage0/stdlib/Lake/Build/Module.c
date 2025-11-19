@@ -32793,6 +32793,7 @@ x_38 = lean_ctor_get(x_7, 8);
 x_39 = lean_ctor_get(x_7, 9);
 x_40 = l_Lake_Package_id_x3f(x_4);
 x_41 = l_Lean_mkModuleInitializationStem(x_5, x_40);
+lean_dec(x_40);
 x_42 = l_System_FilePath_normalize(x_34);
 x_43 = l_Lake_joinRelative(x_27, x_42);
 x_44 = l_System_FilePath_normalize(x_35);

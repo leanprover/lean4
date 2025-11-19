@@ -2670,6 +2670,7 @@ lean_inc_ref(x_4);
 lean_dec_ref(x_2);
 x_5 = l_Lake_Package_id_x3f(x_4);
 x_6 = l_Lean_mkModuleInitializationStem(x_3, x_5);
+lean_dec(x_5);
 return x_6;
 }
 }
@@ -2712,6 +2713,7 @@ x_11 = l_System_FilePath_normalize(x_8);
 x_12 = l_Lake_joinRelative(x_10, x_11);
 x_13 = l_Lake_Package_id_x3f(x_3);
 x_14 = l_Lean_mkModuleInitializationStem(x_5, x_13);
+lean_dec(x_13);
 x_15 = l_Lake_Module_dynlibFile___closed__0;
 x_16 = lean_string_append(x_14, x_15);
 x_17 = l_Lake_Module_dynlibFile___closed__1;

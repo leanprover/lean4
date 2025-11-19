@@ -3340,7 +3340,6 @@ lean_dec(x_12);
 x_19 = lean_ctor_get(x_18, 0);
 lean_inc_ref(x_19);
 lean_dec_ref(x_18);
-lean_inc_ref(x_19);
 x_20 = lean_string_validate_utf8(x_19);
 if (x_20 == 0)
 {

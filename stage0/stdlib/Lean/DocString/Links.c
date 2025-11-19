@@ -2579,8 +2579,6 @@ if (x_16 == 0)
 {
 uint32_t x_17; lean_object* x_18; uint8_t x_38; uint8_t x_44; 
 x_17 = lean_string_utf8_get_fast(x_1, x_12);
-lean_inc(x_12);
-lean_inc_ref(x_1);
 x_18 = lean_string_utf8_next_fast(x_1, x_12);
 x_44 = l___private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_urlChar(x_17);
 if (x_44 == 0)
@@ -2608,7 +2606,6 @@ block_37:
 {
 lean_object* x_19; lean_object* x_20; 
 x_19 = lean_string_utf8_extract(x_1, x_2, x_12);
-lean_dec_ref(x_1);
 x_20 = l___private_Lean_DocString_Links_0__Lean_rw(x_19);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -2718,7 +2715,6 @@ else
 lean_object* x_46; lean_object* x_47; lean_object* x_48; 
 lean_dec(x_15);
 lean_dec(x_3);
-lean_dec_ref(x_1);
 if (lean_is_scalar(x_14)) {
  x_46 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -2766,8 +2762,6 @@ if (x_11 == 0)
 {
 uint32_t x_12; lean_object* x_13; uint8_t x_14; 
 x_12 = lean_string_utf8_get_fast(x_1, x_8);
-lean_inc(x_8);
-lean_inc_ref(x_1);
 x_13 = lean_string_utf8_next_fast(x_1, x_8);
 lean_inc(x_8);
 x_14 = l___private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_lookingAt(x_2, x_1, x_8);
@@ -2800,7 +2794,6 @@ lean_ctor_set(x_3, 0, x_13);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_7);
 lean_ctor_set(x_21, 1, x_3);
-lean_inc_ref(x_1);
 x_22 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_rewriteManualLinksCore_spec__0(x_1, x_20, x_8, x_12, x_21);
 lean_dec(x_20);
 x_23 = lean_ctor_get(x_22, 1);
@@ -2896,8 +2889,6 @@ if (x_45 == 0)
 {
 uint32_t x_46; lean_object* x_47; uint8_t x_48; 
 x_46 = lean_string_utf8_get_fast(x_1, x_42);
-lean_inc(x_42);
-lean_inc_ref(x_1);
 x_47 = lean_string_utf8_next_fast(x_1, x_42);
 lean_inc(x_42);
 x_48 = l___private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_lookingAt(x_2, x_1, x_42);
@@ -2935,7 +2926,6 @@ lean_ctor_set(x_3, 0, x_47);
 x_57 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_57, 0, x_41);
 lean_ctor_set(x_57, 1, x_3);
-lean_inc_ref(x_1);
 x_58 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_rewriteManualLinksCore_spec__0(x_1, x_55, x_42, x_46, x_57);
 lean_dec(x_55);
 x_59 = lean_ctor_get(x_58, 1);
@@ -3022,8 +3012,6 @@ if (x_76 == 0)
 {
 uint32_t x_77; lean_object* x_78; uint8_t x_79; 
 x_77 = lean_string_utf8_get_fast(x_1, x_72);
-lean_inc(x_72);
-lean_inc_ref(x_1);
 x_78 = lean_string_utf8_next_fast(x_1, x_72);
 lean_inc(x_72);
 x_79 = l___private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_lookingAt(x_2, x_1, x_72);
@@ -3073,7 +3061,6 @@ lean_ctor_set(x_89, 1, x_88);
 x_90 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_90, 0, x_71);
 lean_ctor_set(x_90, 1, x_89);
-lean_inc_ref(x_1);
 x_91 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_rewriteManualLinksCore_spec__0(x_1, x_87, x_72, x_77, x_90);
 lean_dec(x_87);
 x_92 = lean_ctor_get(x_91, 1);
@@ -3163,8 +3150,6 @@ if (x_11 == 0)
 {
 uint32_t x_12; lean_object* x_13; uint8_t x_14; 
 x_12 = lean_string_utf8_get_fast(x_1, x_8);
-lean_inc(x_8);
-lean_inc_ref(x_1);
 x_13 = lean_string_utf8_next_fast(x_1, x_8);
 lean_inc(x_8);
 x_14 = l___private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_lookingAt(x_2, x_1, x_8);
@@ -3198,7 +3183,6 @@ lean_ctor_set(x_3, 0, x_13);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_7);
 lean_ctor_set(x_21, 1, x_3);
-lean_inc_ref(x_1);
 x_22 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_rewriteManualLinksCore_spec__0(x_1, x_20, x_8, x_12, x_21);
 lean_dec(x_20);
 x_23 = lean_ctor_get(x_22, 1);
@@ -3294,8 +3278,6 @@ if (x_45 == 0)
 {
 uint32_t x_46; lean_object* x_47; uint8_t x_48; 
 x_46 = lean_string_utf8_get_fast(x_1, x_42);
-lean_inc(x_42);
-lean_inc_ref(x_1);
 x_47 = lean_string_utf8_next_fast(x_1, x_42);
 lean_inc(x_42);
 x_48 = l___private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_lookingAt(x_2, x_1, x_42);
@@ -3334,7 +3316,6 @@ lean_ctor_set(x_3, 0, x_47);
 x_57 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_57, 0, x_41);
 lean_ctor_set(x_57, 1, x_3);
-lean_inc_ref(x_1);
 x_58 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_rewriteManualLinksCore_spec__0(x_1, x_55, x_42, x_46, x_57);
 lean_dec(x_55);
 x_59 = lean_ctor_get(x_58, 1);
@@ -3421,8 +3402,6 @@ if (x_76 == 0)
 {
 uint32_t x_77; lean_object* x_78; uint8_t x_79; 
 x_77 = lean_string_utf8_get_fast(x_1, x_72);
-lean_inc(x_72);
-lean_inc_ref(x_1);
 x_78 = lean_string_utf8_next_fast(x_1, x_72);
 lean_inc(x_72);
 x_79 = l___private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_lookingAt(x_2, x_1, x_72);
@@ -3472,7 +3451,6 @@ lean_ctor_set(x_89, 1, x_88);
 x_90 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_90, 0, x_71);
 lean_ctor_set(x_90, 1, x_89);
-lean_inc_ref(x_1);
 x_91 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_rewriteManualLinksCore_spec__0(x_1, x_87, x_72, x_77, x_90);
 lean_dec(x_87);
 x_92 = lean_ctor_get(x_91, 1);
@@ -3623,6 +3601,7 @@ x_6 = lean_unbox_uint32(x_4);
 lean_dec(x_4);
 x_7 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_rewriteManualLinksCore_spec__0(x_1, x_2, x_3, x_6, x_5);
 lean_dec(x_2);
+lean_dec_ref(x_1);
 return x_7;
 }
 }

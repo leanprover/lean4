@@ -39463,6 +39463,7 @@ x_13 = lean_unbox_usize(x_6);
 lean_dec(x_6);
 x_14 = l_Lean_IR_EmitLLVM_callModInitFn___redArg(x_10, x_11, x_3, x_4, x_12, x_13, x_7, x_8);
 lean_dec_ref(x_8);
+lean_dec(x_4);
 return x_14;
 }
 }
@@ -39481,6 +39482,7 @@ lean_dec(x_6);
 x_15 = l_Lean_IR_EmitLLVM_callModInitFn(x_11, x_12, x_3, x_4, x_13, x_14, x_7, x_8, x_9);
 lean_dec_ref(x_9);
 lean_dec(x_8);
+lean_dec(x_4);
 return x_15;
 }
 }
@@ -39629,6 +39631,7 @@ x_34 = lean_string_append(x_32, x_33);
 x_35 = lean_unbox_usize(x_26);
 lean_dec(x_26);
 x_36 = l_Lean_IR_EmitLLVM_callModInitFn___redArg(x_1, x_3, x_28, x_31, x_22, x_35, x_34, x_11);
+lean_dec(x_31);
 x_37 = lean_ctor_get(x_36, 0);
 lean_inc(x_37);
 lean_dec_ref(x_36);
@@ -39734,6 +39737,7 @@ x_64 = lean_string_append(x_62, x_63);
 x_65 = lean_unbox_usize(x_56);
 lean_dec(x_56);
 x_66 = l_Lean_IR_EmitLLVM_callModInitFn___redArg(x_1, x_3, x_58, x_61, x_22, x_65, x_64, x_11);
+lean_dec(x_61);
 x_67 = lean_ctor_get(x_66, 0);
 lean_inc(x_67);
 lean_dec_ref(x_66);
@@ -40010,6 +40014,7 @@ x_28 = l_Lean_PersistentEnvExtension_getState___redArg(x_26, x_23, x_9, x_25, x_
 lean_dec(x_25);
 lean_inc(x_12);
 x_29 = l_Lean_mkModuleInitializationFunctionName(x_12, x_28);
+lean_dec(x_28);
 x_30 = l_Lean_IR_LLVM_getOrAddFunction(x_1, x_2, x_29, x_22);
 lean_dec_ref(x_29);
 x_31 = l_Lean_IR_EmitLLVM_emitFnDeclAux___closed__0;
@@ -43208,6 +43213,7 @@ lean_dec(x_89);
 x_103 = lean_unbox_usize(x_83);
 lean_dec(x_83);
 x_104 = l_Lean_IR_EmitLLVM_callModInitFn___redArg(x_1, x_3, x_86, x_98, x_102, x_103, x_101, x_77);
+lean_dec(x_98);
 x_105 = lean_ctor_get(x_104, 0);
 lean_inc(x_105);
 lean_dec_ref(x_104);

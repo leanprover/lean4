@@ -642,6 +642,7 @@ lean_dec_ref(x_10);
 lean_inc_ref(x_8);
 x_19 = l_Lake_Package_id_x3f(x_8);
 x_20 = l_Lean_mkModuleInitializationStem(x_9, x_19);
+lean_dec(x_19);
 x_12 = x_20;
 goto block_15;
 }
@@ -821,6 +822,7 @@ x_10 = lean_array_fget(x_4, x_9);
 lean_dec_ref(x_4);
 x_11 = l_Lake_Package_id_x3f(x_3);
 x_12 = l_Lean_mkModuleInitializationStem(x_10, x_11);
+lean_dec(x_11);
 x_13 = lean_string_dec_eq(x_8, x_12);
 lean_dec_ref(x_12);
 lean_dec_ref(x_8);

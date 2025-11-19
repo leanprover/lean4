@@ -6026,7 +6026,6 @@ if (x_4 == 0)
 {
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_ctor_get(x_3, 0);
-lean_inc(x_5);
 x_6 = lean_string_validate_utf8(x_5);
 if (x_6 == 0)
 {
@@ -6051,7 +6050,6 @@ lean_object* x_9; uint8_t x_10;
 x_9 = lean_ctor_get(x_3, 0);
 lean_inc(x_9);
 lean_dec(x_3);
-lean_inc(x_9);
 x_10 = lean_string_validate_utf8(x_9);
 if (x_10 == 0)
 {
@@ -8980,7 +8978,6 @@ if (x_4 == 0)
 {
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_ctor_get(x_3, 0);
-lean_inc(x_5);
 x_6 = lean_string_validate_utf8(x_5);
 if (x_6 == 0)
 {
@@ -9010,7 +9007,6 @@ lean_object* x_13; uint8_t x_14;
 x_13 = lean_ctor_get(x_3, 0);
 lean_inc(x_13);
 lean_dec(x_3);
-lean_inc(x_13);
 x_14 = lean_string_validate_utf8(x_13);
 if (x_14 == 0)
 {
@@ -11924,7 +11920,6 @@ x_9 = lean_st_ref_set(x_1, x_8);
 x_10 = l_ByteArray_extract(x_4, x_5, x_7);
 lean_dec(x_7);
 lean_dec_ref(x_4);
-lean_inc_ref(x_10);
 x_11 = lean_string_validate_utf8(x_10);
 if (x_11 == 0)
 {
@@ -12207,7 +12202,6 @@ if (x_4 == 0)
 {
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_ctor_get(x_3, 0);
-lean_inc(x_5);
 x_6 = lean_string_validate_utf8(x_5);
 if (x_6 == 0)
 {
@@ -12232,7 +12226,6 @@ lean_object* x_9; uint8_t x_10;
 x_9 = lean_ctor_get(x_3, 0);
 lean_inc(x_9);
 lean_dec(x_3);
-lean_inc(x_9);
 x_10 = lean_string_validate_utf8(x_9);
 if (x_10 == 0)
 {
@@ -12582,7 +12575,6 @@ lean_object* x_4; lean_object* x_8; uint8_t x_9;
 x_8 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_8);
 lean_dec_ref(x_3);
-lean_inc_ref(x_8);
 x_9 = lean_string_validate_utf8(x_8);
 if (x_9 == 0)
 {

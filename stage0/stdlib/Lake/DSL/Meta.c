@@ -2507,7 +2507,6 @@ lean_dec(x_18);
 x_26 = lean_ctor_get(x_25, 0);
 lean_inc_ref(x_26);
 lean_dec_ref(x_25);
-lean_inc_ref(x_26);
 x_27 = lean_string_validate_utf8(x_26);
 if (x_27 == 0)
 {

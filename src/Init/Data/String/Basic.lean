@@ -2499,7 +2499,7 @@ Examples:
 * `"L∃∀N".offsetOfPos ⟨2⟩ = 2`
 * `"L∃∀N".offsetOfPos ⟨4⟩ = 2`
 * `"L∃∀N".offsetOfPos ⟨5⟩ = 3`
-* `"L∃∀N".offsetOfPos ⟨50⟩ = 4`h
+* `"L∃∀N".offsetOfPos ⟨50⟩ = 4`
 -/
 @[inline] def Pos.Raw.offsetOfPos (s : String) (pos : Pos.Raw) : Nat :=
   offsetOfPosAux s pos 0 0

@@ -55,9 +55,9 @@ where
     | .align d =>
       let d ← goMemoized d isFlattened
       return .align d
-    | .reset d =>
+    | .unindent d =>
       let d ← goMemoized d isFlattened
-      return .reset d
+      return .unindent d
     | .full d =>
       let d ← goMemoized d isFlattened
       return .full d
@@ -65,10 +65,10 @@ where
       let d1 ← goMemoized d1 isFlattened
       let d2 ← goMemoized d2 isFlattened
       return .either d1 d2
-    | .concat d1 d2 =>
+    | .append d1 d2 =>
       let d1 ← goMemoized d1 isFlattened
       let d2 ← goMemoized d2 isFlattened
-      return .concat d1 d2
+      return .append d1 d2
 
 public class Cost (τ : Type) [Add τ] [LE τ] where
   textCost : (columnPos length : Nat) → τ
@@ -291,7 +291,7 @@ partial def MeasureSet.resolveCore : Resolver σ τ := fun d columnPos indentati
     resolve d columnPos (indentation + n) fullness
   | .align d =>
     resolve d columnPos columnPos fullness
-  | .reset d =>
+  | .unindent d =>
     resolve d columnPos 0 fullness
   | .full d =>
     let set1 ← resolve d columnPos indentation (fullness.setFullAfter false)
@@ -301,12 +301,12 @@ partial def MeasureSet.resolveCore : Resolver σ τ := fun d columnPos indentati
     let set1 ← resolve d1 columnPos indentation fullness
     let set2 ← resolve d2 columnPos indentation fullness
     return .merge set1 set2 (prunable := false)
-  | .concat d1 d2 =>
-    let set1 ← analyzeConcat d d1 d2 columnPos indentation fullness false
-    let set2 ← analyzeConcat d d1 d2 columnPos indentation fullness true
+  | .append d1 d2 =>
+    let set1 ← analyzeAppend d d1 d2 columnPos indentation fullness false
+    let set2 ← analyzeAppend d d1 d2 columnPos indentation fullness true
     return .merge set1 set2 (prunable := false)
 where
-  analyzeConcat (d d1 d2 : Doc) (columnPos indentation : Nat) (fullness : FullnessState)
+  analyzeAppend (d d1 d2 : Doc) (columnPos indentation : Nat) (fullness : FullnessState)
       (isMidFull : Bool) : ResolverM σ τ (MeasureSet τ) := do
     let fullness1 := fullness.setFullAfter isMidFull
     let fullness2 := fullness.setFullBefore isMidFull

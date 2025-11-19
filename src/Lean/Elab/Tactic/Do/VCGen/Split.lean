@@ -45,7 +45,7 @@ number of parameters of the alternative and `alt` is the alternative.
 def altInfos (info : SplitInfo) : Array (Nat × Expr) := match info with
   | ite e => #[(0, e.getArg! 3), (0, e.getArg! 4)]
   | dite e => #[(1, e.getArg! 3), (1, e.getArg! 4)]
-  | matcher matcherApp => matcherApp.toMatcherInfo.altNumParams.mapIdx fun idx numParams =>
+  | matcher matcherApp => matcherApp.altNumParams.mapIdx fun idx numParams =>
       (numParams, matcherApp.alts[idx]!)
 
 def splitWithConstantMotive

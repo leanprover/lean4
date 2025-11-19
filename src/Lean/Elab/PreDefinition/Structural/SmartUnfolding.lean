@@ -50,7 +50,7 @@ where
           processApp e
         else
           let mut altsNew := #[]
-          for alt in matcherApp.alts, numParams in matcherApp.toMatcherInfo.altNumParams do
+          for alt in matcherApp.alts, numParams in matcherApp.altNumParams do
             let altNew ← lambdaBoundedTelescope alt numParams fun xs altBody => do
               unless xs.size = numParams do
                 throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"

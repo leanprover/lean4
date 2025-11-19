@@ -100,7 +100,7 @@ where
       match (← matchMatcherApp? (alsoCasesOn := true) e) with
       | some matcherApp =>
         if let some matcherApp ← matcherApp.addArg? F then
-          let altsNew ← matcherApp.alts.zipWithM (bs := matcherApp.toMatcherInfo.altNumParams) fun alt numParams =>
+          let altsNew ← matcherApp.alts.zipWithM (bs := matcherApp.altNumParams) fun alt numParams =>
             lambdaBoundedTelescope alt (numParams + 1) fun xs altBody => do
               unless xs.size = (numParams + 1) do
                 throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"

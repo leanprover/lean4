@@ -91,7 +91,7 @@ def addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
     unless (← isTypeCorrect aux) do
       throwError "failed to add argument to matcher application, type error when constructing the new motive"
     let auxType ← inferType aux
-    let alts ← updateAlts eType auxType matcherApp.toMatcherInfo.altNumParams matcherApp.alts false 0
+    let alts ← updateAlts eType auxType matcherApp.altNumParams matcherApp.alts false 0
     return { matcherApp with
       matcherLevels := matcherLevels,
       motive        := motive,
@@ -152,7 +152,7 @@ def refineThrough (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Expr) :=
     let auxType ← inferType aux
     forallTelescope auxType fun altAuxs _ => do
       let altAuxTys ← altAuxs.mapM (inferType ·)
-      matcherApp.toMatcherInfo.altNumParams.zipWithM (bs := altAuxTys) fun altNumParams altAuxTy => do
+      matcherApp.altNumParams.zipWithM (bs := altAuxTys) fun altNumParams altAuxTy => do
         forallBoundedTelescope altAuxTy (some altNumParams) fun fvs body => do
           unless fvs.size = altNumParams do
             throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
@@ -308,7 +308,7 @@ def transform
     let mut alts' := #[]
     for altIdx in *...matcherApp.alts.size,
         alt in matcherApp.alts,
-        numParams in matcherApp.toMatcherInfo.altNumParams,
+        numParams in matcherApp.altNumParams,
         splitterNumParams in matchEqns.splitterAltNumParams,
         origAltType in origAltTypes,
         altType in altTypes do
@@ -361,7 +361,7 @@ def transform
     let mut alts' := #[]
     for altIdx in *...matcherApp.alts.size,
         alt in matcherApp.alts,
-        numParams in matcherApp.toMatcherInfo.altNumParams,
+        numParams in matcherApp.altNumParams,
         altType in altTypes do
       let alt' ← forallBoundedTelescope altType numParams fun xs altType => do
         forallBoundedTelescope altType extraEqualities fun ys4 altType => do

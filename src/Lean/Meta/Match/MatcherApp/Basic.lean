@@ -12,15 +12,12 @@ public section
 
 namespace Lean.Meta
 
-structure MatcherApp where
+structure MatcherApp extends Match.MatcherInfo where
   matcherName   : Name
   matcherLevels : Array Level
-  uElimPos?     : Option Nat
-  discrInfos    : Array Match.DiscrInfo
   params        : Array Expr
   motive        : Expr
   discrs        : Array Expr
-  altInfos      : Array Match.AltParamInfo
   alts          : Array Expr
   remaining     : Array Expr
 
@@ -39,14 +36,12 @@ def matchMatcherApp? [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (alsoCases
       if args.size < info.arity then
         return none
       return some {
+        info with
         matcherName   := declName
         matcherLevels := declLevels.toArray
-        uElimPos?     := info.uElimPos?
-        discrInfos    := info.discrInfos
         params        := args.extract 0 info.numParams
         motive        := args[info.getMotivePos]!
         discrs        := args[(info.numParams + 1)...(info.numParams + 1 + info.numDiscrs)]
-        altInfos      := info.altInfos
         alts          := args[(info.numParams + 1 + info.numDiscrs)...(info.numParams + 1 + info.numDiscrs + info.numAlts)]
         remaining     := args[(info.numParams + 1 + info.numDiscrs + info.numAlts)...args.size]
       }
@@ -67,6 +62,8 @@ def matchMatcherApp? [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (alsoCases
         let .ctorInfo ctorInfo ← getConstInfo ctor | panic! "expected constructor"
         return { numFields := ctorInfo.numFields, numOverlaps := 0, hasUnitThunk := false  : Match.AltParamInfo}
       return some {
+        numParams := params.size
+        numDiscrs := discrs.size
         matcherName   := declName
         matcherLevels := declLevels.toArray
         uElimPos?, discrInfos, params, motive, discrs, alts, remaining, altInfos
@@ -74,12 +71,7 @@ def matchMatcherApp? [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (alsoCases
 
   return none
 
-def MatcherApp.toMatcherInfo (matcherApp : MatcherApp) : MatcherInfo where
-  uElimPos?     := matcherApp.uElimPos?
-  discrInfos    := matcherApp.discrInfos
-  numParams     := matcherApp.params.size
-  numDiscrs     := matcherApp.discrs.size
-  altInfos      := matcherApp.altInfos
+def MatcherApp.altNumParams (matcherApp : MatcherApp) := matcherApp.toMatcherInfo.altNumParams
 
 def MatcherApp.toExpr (matcherApp : MatcherApp) : Expr :=
   let result := mkAppN (mkConst matcherApp.matcherName matcherApp.matcherLevels.toList) matcherApp.params

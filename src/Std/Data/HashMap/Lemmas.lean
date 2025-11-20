@@ -1589,6 +1589,22 @@ theorem not_mem_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α] {k : α
     k ∉ m₁ ∩ m₂ :=
   @DHashMap.not_mem_inter_of_not_mem_right _ _ _ _ m₁.inner m₂.inner _ _ k not_mem
 
+/- Equiv -/
+theorem Equiv.inter_left {m₃ : HashMap α β} [EquivBEq α] [LawfulHashable α]
+    (equiv : m₁ ~m m₂) :
+    (m₁ ∩ m₃) ~m (m₂ ∩ m₃) :=
+  ⟨DHashMap.Equiv.inter_left equiv.1⟩
+
+theorem Equiv.inter_right {m₃ : HashMap α β} [EquivBEq α] [LawfulHashable α]
+    (equiv : m₂ ~m m₃) :
+    (m₁ ∩ m₂) ~m (m₁ ∩ m₃) :=
+  ⟨DHashMap.Equiv.inter_right equiv.1⟩
+
+theorem Equiv.inter_congr {m₃ m₄ : HashMap α β} [EquivBEq α] [LawfulHashable α]
+    (equiv₁ : m₁ ~m m₃) (equiv₂ : m₂ ~m m₄) :
+    (m₁ ∩ m₂) ~m (m₃ ∩ m₄) :=
+  ⟨DHashMap.Equiv.inter_congr equiv₁.1 equiv₂.1⟩
+
 /- get? -/
 theorem get?_inter [EquivBEq α] [LawfulHashable α] {k : α} :
     (m₁ ∩ m₂).get? k =

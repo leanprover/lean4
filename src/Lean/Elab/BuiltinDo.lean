@@ -211,8 +211,9 @@ def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDec
 def elabDoLetOrReassignElse (letOrReassign : LetOrReassign) (pattern rhs : Term)
     (otherwise : TSyntax ``doSeq) (dec : DoElemCont) : DoElabM Expr := do
   let vars ← getPatternVarsEx pattern
-  let mγ ← mkMonadicType (← read).doBlockResultType
-  let otherwise ← elabDoSeq otherwise (← DoElemCont.mkPure mγ)
+  let γ := (← read).doBlockResultType
+  let mγ ← mkMonadicType γ
+  let otherwise ← elabDoSeq otherwise (← DoElemCont.mkPure γ)
   let otherwise ← Term.exprToSyntax otherwise
   elabDoLetOrReassignWith letOrReassign vars dec fun body => do
     Term.elabMatch (← `(match $rhs:term with | $pattern => $body | _ => $otherwise)) mγ
@@ -360,8 +361,9 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetExpr] def elabDoLetExpr : DoElab := fun stx dec => do
   let `(doLetExpr| let_expr $pattern:matchExprPat := $rhs:term | $otherwise) := stx | throwUnsupportedSyntax
-  let mγ ← mkMonadicType (← read).doBlockResultType
-  let otherwise ← elabDoSeq otherwise (← DoElemCont.mkPure mγ)
+  let γ := (← read).doBlockResultType
+  let mγ ← mkMonadicType γ
+  let otherwise ← elabDoSeq otherwise (← DoElemCont.mkPure γ)
   let otherwise ← Term.exprToSyntax otherwise
   controlAtTermElabM fun runInBase => do
     let vars ← getExprPatternVarsEx pattern
@@ -377,8 +379,9 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
 
 @[builtin_doElem_elab Lean.Parser.Term.doUnless] def elabDoUnless : DoElab := fun stx dec => do
   let `(doUnless| unless $cond do $body) := stx | throwUnsupportedSyntax
-  let mγ ← mkMonadicType (← read).doBlockResultType
-  let else_ ← elabDoSeq body (← DoElemCont.mkPure mγ)
+  let γ := (← read).doBlockResultType
+  let mγ ← mkMonadicType γ
+  let else_ ← elabDoSeq body (← DoElemCont.mkPure γ)
   let then_ ← dec.continueWithUnit
   let else_ ← Term.exprToSyntax else_
   let then_ ← Term.exprToSyntax then_

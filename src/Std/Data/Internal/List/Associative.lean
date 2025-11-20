@@ -6730,16 +6730,20 @@ theorem perm_of_beqModel [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k
     intro hyp
     apply getValueCast?_ext hl₁ hl₂
     intro a
-    have hyp2 : ∀ (a : α), (getValueCast? a l₂ == getValueCast? a l₁) = true := by
-      intro k
-      by_cases hc : containsKey k l₁
-      case pos =>
-        sorry
+    have hyp2 : ∀ (a : α) (h : containsKey a l₁), (getValueCast? a l₂ == getValueCast? a l₁) = true := by
+      intro a mem
+      rw [getValueCast?_eq_some_getValueCast mem]
+      apply beq_of_eq
+      specialize hyp ⟨a, getValueCast a l₁ mem⟩
+      specialize hyp (by apply List.getValueCast_mem)
+      simp only at hyp
+      rw [hyp]
     by_cases hc₁ : containsKey a l₁
     case pos =>
       apply eq_of_beq
       apply BEq.symm
       apply hyp2
+      exact hc₁
     case neg =>
       rw [Bool.not_eq_true] at hc₁
       by_cases hc₂ : containsKey a l₂
@@ -6748,7 +6752,7 @@ theorem perm_of_beqModel [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k
           rw [@containsKey_of_subset_of_length_eq α β _ _ l₁ l₂ hl₁ hl₂ he.symm this a hc₂] at hc₁
           contradiction
         intro k' mem
-        have := eq_of_beq <| hyp2 k'
+        have := eq_of_beq <| hyp2 k' mem
         rw [getValueCast?_eq_some_getValueCast mem] at this
         apply List.containsKey_of_getValueCast?_eq_some
         exact this

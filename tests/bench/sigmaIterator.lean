@@ -1,13 +1,14 @@
-/-
-Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Paul Reichert
--/
 module
 
-prelude
-public import Init.Data.Iterators.Internal.Termination
-public import Init.Data.Iterators.Consumers.Loop
+public import Std
+
+/-!
+This benchmark implements an iterator with a `Sigma` state, where the types of the second component
+are themselves iterators with a state type dependent on the first component.
+
+As of writing, the compiler generates forbiddingly bad code for it, so this is a benchmark
+for the specializer.
+-/
 
 public section
 
@@ -143,3 +144,45 @@ def IterM.sigma {γ : Type w} {α : γ → Type w}
   toIterM ⟨param, it.internalState⟩ m β
 
 end Std.Iterators
+
+open Std.Iterators Std.Iterators.Types
+
+@[always_inline, inline, expose]
+def Std.Iterators.Iter.sigma {γ : Type w} {α : γ → Type w}
+    [∀ x : γ, Iterator (α x) Id β] {param : γ} (it : Iter (α := α param) β):
+    Iter (α := SigmaIterator γ α) β :=
+  ⟨param, it.internalState⟩
+
+partial def f [Iterator α Id Nat] (it : Iter (α := α) Nat) (acc : Nat) : Id Nat := do
+  match it.step.val with
+  | .yield it' out => f it' (acc + out)
+  | .skip it' => f it' acc
+  | .done => return acc
+
+/--
+This generates bad code such as:
+
+```text
+def f._at_.g.spec_0._redArg _x.1 _x.2 _x.3 it : Nat :=
+  cases _x.3 : Nat
+  | Monad.mk toApplicative toBind =>
+    cases toApplicative : Nat
+    | Applicative.mk toFunctor toPure toSeq toSeqLeft toSeqRight =>
+      cases it : Nat
+      | Sigma.mk fst snd =>
+        cases toFunctor : Nat
+        | Functor.mk map mapConst =>
+          cases snd : Nat
+          | Std.Rxo.Iterator.mk next upperBound =>
+            let _f.4 := f._at_.g.spec_0._redArg._lam_0 it;
+            let _f.5 := f._at_.g.spec_0._redArg._lam_2 toPure _x.2 toBind;
+...
+```
+-/
+def g : Nat := Id.run do
+  (*...2000000).iter.filter (fun _ => True)
+    |>.sigma (α := fun _ => _) (param := 0)
+    |> f (acc := 0)
+
+def main : IO Unit :=
+  IO.println g

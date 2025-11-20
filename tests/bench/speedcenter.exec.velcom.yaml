@@ -594,6 +594,14 @@
     <<: *time
     cmd: lean iterators.lean
 - attributes:
+    description: sigma iterator
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: ./sigmaIterator.lean.out
+  build_config:
+    cmd: ./compile.sh sigmaIterator.lean
+- attributes:
     description: workspaceSymbols with new ranges
     tags: [other]
   run_config:

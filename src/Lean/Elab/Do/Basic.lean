@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Term.TermElabM
 public import Lean.Elab.Binders
 import Lean.Meta.ProdN
+public import Lean.Parser
 meta import Lean.Parser.Do
 
 public section
@@ -324,39 +325,32 @@ private partial def withPendingMVars (k : TermElabM α) : TermElabM (α × List 
   finally
     modify fun s => { s with pendingMVars := s.pendingMVars ++ pendingMVarsSaved }
 
-def withNestedAction (k : DoElabM Expr) : DoElabM Expr := do
+/-
+def captureNestedActionHoles (k : DoElabM α) : DoElabM (α × Array Term.NestedActionHole) := do
   let lctx ← getLCtx
-  let newBinds ← IO.mkRef #[]
-  let mi := (← read).monadInfo
-  let e ← controlAtTermElabM fun runInBase =>
-    let elabLiftMethod : Term.TermElab := fun stx expectedType? => do
-      let newLCtx := (← getLCtx)
-      let allowed := Id.run <| ExceptT.runCatch do
-        newLCtx.foldlM (start := lctx.numIndices) (init := ()) fun _ decl => do
-          if decl matches .cdecl .. then
-            throw false
-          else
-            pure ()
-        return true
-      unless allowed do
-        throwError "Nested action is not allowed. A lambda binder is between it and the `do` sequence."
-      let `(← $e) := stx | throwUnsupportedSyntax
-      let e ← do
-        withLCtx' lctx <| Term.elabTerm e (mkApp mi.m <$> expectedType?)
-      let mvar ← mkFreshExprMVar expectedType?
-      newBinds.modify fun bs => bs.push (e, mvar)
-      return mvar
-    withReader (fun ctx => { ctx with liftMethodElab := some elabLiftMethod.toTermElabRef }) (runInBase k)
-  let binds ← newBinds.get
-  let β ← inferType e
+  let monad := (← read).monadInfo.m
+  let liftActionCtx := { lctx, monad : Term.LiftNestedActionContext }
+  controlAtTermElabM fun runInBase => do
+    let oldNestedActionHoles := (← get).nestedActionHoles
+    let a ← withReader (fun ctx => { ctx with liftActionCtx }) (runInBase k)
+    let newNestedActionHoles := (← get).nestedActionHoles
+    modify fun s => { s with nestedActionHoles := oldNestedActionHoles }
+    return (a, newNestedActionHoles)
+
+def withNestedAction (k : DoElabM Expr) : DoElabM Expr := do
+  let (e, nestedActionHoles) ← captureNestedActionHoles k
+  trace[Elab.do] "nestedActionHoles: {nestedActionHoles.map fun { rhs, mvar } => (rhs, mvar)}"
+  let β ← mkFreshResultType `β
+  discard <| Term.ensureHasType (← mkMonadicType β) e
   let rec wrapNestedActions (i : Nat) (e : Expr) : DoElabM Expr := do
-    if h : i < binds.size then
-      let (rhs, mvar) := binds[i]
+    if h : i < nestedActionHoles.size then
+      let { rhs, mvar } := nestedActionHoles[i]
       let α ← inferType mvar
       let k ← withLocalDeclD (← mkFreshUserName `x) (← inferType mvar) fun x => do
         -- Abstraction (`mkLambdaFVars`, `mkLetFVars`) may have instantiated the original mvar since
         -- we created it. So we instantiate `mvar` and take the app head, which is the unassigned
         -- mvar.
+        trace[Elab.do] "instantiating mvar: {mvar}"
         let mvarId := (← instantiateMVars mvar).getAppFn.mvarId!
         -- NB: `x` is not in the local context of `mvarId`, but the assignment below does the Right
         -- Thing for us. After the next instantiation of the mvar, nobody will notice our deception.
@@ -367,7 +361,7 @@ def withNestedAction (k : DoElabM Expr) : DoElabM Expr := do
     else
       return e
   wrapNestedActions 0 e
-
+-/
 partial def elabTerm (stx : Syntax) (expectedType? : Option Expr) : DoElabM Expr := do
   Term.elabTerm stx expectedType?
 
@@ -784,6 +778,131 @@ directly.
 @[builtin_doc]
 builtin_initialize doElemElabAttribute : KeyedDeclsAttribute DoElab ← mkDoElemElabAttribute decl_name%
 
+/--
+An auxiliary syntax node expressing that a `doElem` has no nested actions to lift.
+This purely to make lifting nested actions more efficient.
+-/
+def doElemNoNestedAction : Lean.Parser.Parser := leading_parser
+  Lean.Parser.doElemParser
+
+builtin_initialize Lean.Parser.registerBuiltinNodeKind ``doElemNoNestedAction
+
+/-- Return true if we should not lift nested action `(← …)` out of syntax nodes with the given kind. -/
+private def liftNestedActionDelimiter (k : SyntaxNodeKind) : Bool :=
+  k == ``Parser.Term.do ||
+  k == ``Parser.Term.doSeqIndent ||
+  k == ``Parser.Term.doSeqBracketed ||
+  k == ``Parser.Term.termReturn ||
+  k == ``Parser.Term.termUnless ||
+  k == ``Parser.Term.termTry ||
+  k == ``Parser.Term.termFor
+
+private def letDeclArgHasBinders (letDeclArg : Syntax) : Bool :=
+  let k := letDeclArg.getKind
+  if k == ``Parser.Term.letPatDecl then
+    false
+  else if k == ``Parser.Term.letEqnsDecl then
+    true
+  else if k == ``Parser.Term.letIdDecl then
+    -- letIdLhs := binderIdent >> checkWsBefore "expected space before binders" >> many (ppSpace >> letIdBinder)) >> optType
+    let binders := letDeclArg[1]
+    binders.getNumArgs > 0
+  else
+    false
+
+/-- Return `true` if the given `letDecl` contains binders. -/
+private def letDeclHasBinders (letDecl : Syntax) : Bool :=
+  letDeclArgHasBinders letDecl[0]
+
+/-- Return true if we should generate an error message when lifting a method over this kind of syntax. -/
+private def liftMethodForbiddenBinder (stx : Syntax) : Bool :=
+  let k := stx.getKind
+  -- TODO: make this extensible in the future.
+  if k == ``Parser.Term.fun || k == ``Parser.Term.matchAlts ||
+     k == ``Parser.Term.doLetRec || k == ``Parser.Term.letrec then
+     -- It is never ok to lift over this kind of binder
+    true
+  -- The following kinds of `let`-expressions require extra checks to decide whether they contain binders or not
+  else if k == ``Parser.Term.let then
+    letDeclHasBinders stx[1]
+  else if k == ``Parser.Term.doLet then
+    letDeclHasBinders stx[2]
+  else if k == ``Parser.Term.doLetArrow then
+    letDeclArgHasBinders stx[2]
+  else
+    false
+
+-- TODO: we must track whether we are inside a quotation or not.
+private partial def hasNestedActionsToLift : Syntax → Bool
+  | Syntax.node _ k args =>
+    if liftNestedActionDelimiter k then false
+    -- NOTE: We don't check for lifts in quotations here, which doesn't break anything but merely makes this rare case a
+    -- bit slower
+    else if k == ``Parser.Term.liftMethod then true
+    -- For `pure` if-then-else, we only lift `(<- ...)` occurring in the condition.
+    else if k == ``termDepIfThenElse || k == ``termIfThenElse then args.size >= 2 && hasNestedActionsToLift args[1]!
+    else args.any hasNestedActionsToLift
+  | _ => false
+
+variable (baseId : Name) in
+private partial def expandNestedActionsAux (inQuot : Bool) (inBinder : Bool) : Syntax → StateT (Array (TSyntax `doElem)) DoElabM Syntax
+  | stx@(Syntax.node i k args) =>
+    if k == choiceKind then do
+      -- choice node: check that lifts are consistent
+      let alts ← stx.getArgs.mapM (expandNestedActionsAux inQuot inBinder · |>.run #[])
+      let (_, lifts) := alts[0]!
+      unless alts.all (·.2 == lifts) do
+        throwErrorAt stx "cannot lift `(<- ...)` over inconsistent syntax variants, consider lifting out the binding manually"
+      modify (· ++ lifts)
+      return .node i k (alts.map (·.1))
+    else if liftNestedActionDelimiter k then
+      return stx
+    -- For `pure` if-then-else, we only lift `(<- ...)` occurring in the condition.
+    else if h : args.size >= 2 ∧ (k == ``termDepIfThenElse || k == ``termIfThenElse) then do
+      let inAntiquot := stx.isAntiquot && !stx.isEscapedAntiquot
+      let arg1 ← expandNestedActionsAux (inQuot && !inAntiquot || stx.isQuot) inBinder args[1]
+      let args := args.set! 1 arg1
+      return Syntax.node i k args
+    else if k == ``Parser.Term.liftMethod && !inQuot then withFreshMacroScope do
+      if inBinder then
+        throwErrorAt stx "cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`"
+      let term := args[1]!
+      let term ← expandNestedActionsAux inQuot inBinder term
+      -- keep name deterministic across choice branches
+      let id ← mkIdentFromRef (.num baseId (← get).size)
+      let auxDoElem ← `(doElem| let $id:ident ← $(⟨term⟩):term)
+      modify fun s => s.push auxDoElem
+      return id
+    else do
+      let inAntiquot := stx.isAntiquot && !stx.isEscapedAntiquot
+      let inBinder   := inBinder || (!inQuot && liftMethodForbiddenBinder stx)
+      let args ← args.mapM (expandNestedActionsAux (inQuot && !inAntiquot || stx.isQuot) inBinder)
+      return Syntax.node i k args
+  | stx => return stx
+
+def expandNestedActions (doElem : TSyntax `doElem) : DoElabM (Array (TSyntax `doElem) × TSyntax `doElem) := do
+  if !hasNestedActionsToLift doElem.raw then
+    return (#[], doElem)
+  else
+    let baseId ← withFreshMacroScope (MonadQuotation.addMacroScope `__do_lift)
+    let (doElem, doElemsNew) ← (expandNestedActionsAux baseId false false doElem).run #[]
+    return (doElemsNew, ⟨doElem⟩)
+
+/-
+def expandNestedActionsAux (stx : Syntax) : StateRefT (Array (TSyntax `doElem)) DoElabM Syntax := do
+  match stx.raw with
+  | .node i k args => do
+    let args ← args.mapM expandNestedActionsAux
+    return Syntax.node i k args
+  | _ => return stx
+
+def expandNestedActions (stx : TSyntax `doElem) : DoElabM (Array (TSyntax `doElem)) := do
+  match stx.raw with
+  | .node i k args => do
+    let (args, lifted) ← args.mapM expandNestedActionsAux |>.run #[]
+    return lifted.push ⟨Syntax.node i k args⟩
+  | _ => return #[stx]
+-/
 private def elabDoElemFns (stx : TSyntax `doElem) (cont : DoElemCont)
     (fns : List (KeyedDeclsAttribute.AttributeEntry DoElab)) : DoElabM Expr := do
   let s ← saveState
@@ -791,16 +910,20 @@ private def elabDoElemFns (stx : TSyntax `doElem) (cont : DoElemCont)
   | [] => throwError "unexpected `do` element syntax{indentD stx}"
   | elabFn :: elabFns =>
     try
-      withNestedAction <| elabFn.value stx cont
+      elabFn.value stx cont
     catch ex => match ex with
       | .internal id _ =>
         if id == unsupportedSyntaxExceptionId then
           s.restore
           elabDoElemFns stx cont elabFns
+        else if id == postponeExceptionId then
+          -- s.restore -- TODO: figure out if this is the right thing to do
+          throw ex
         else
           throw ex
       | _ => throw ex
 
+mutual
 partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) : DoElabM Expr := do
   let k := stx.raw.getKind
   trace[Elab.do.step] "do element: {stx}"
@@ -815,11 +938,15 @@ partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) : DoElabM Exp
     Term.withMacroExpansion stx stxNew <|
       withRef stxNew <| elabDoElem ⟨stxNew⟩ cont
   | none =>
-    match doElemElabAttribute.getEntries (← getEnv) k with
-    | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
-    | elabFns => elabDoElemFns stx cont elabFns
+    let (liftedElems, doElem) ← expandNestedActions stx
+    if liftedElems.isEmpty then
+      match doElemElabAttribute.getEntries (← getEnv) k with
+      | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
+      | elabFns => elabDoElemFns stx cont elabFns
+    else
+      elabDoElems1 (liftedElems.push doElem) cont
 
-def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont) : DoElabM Expr := do
+partial def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont) : DoElabM Expr := do
   if h : doElems.size = 0 then
     throwError "Empty array of `do` elements passed to `elabDoElems1`."
   else
@@ -827,9 +954,14 @@ def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont) : DoEla
   let unit ← mkPUnit
   let r ← mkFreshUserName `r
   doElems.pop.foldr (init := elabDoElem back cont) fun el k => elabDoElem el (.mk r unit k)
+end
 
 def elabDoSeq (doSeq : TSyntax ``Lean.Parser.Term.doSeq) (cont : DoElemCont) : DoElabM Expr :=
   elabDoElems1 (Lean.Parser.Term.getDoElems doSeq) cont
+
+@[builtin_doElem_elab doElemNoNestedAction] def elabDoElemNoNestedAction : DoElab := fun stx cont => do
+  let `(doElemNoNestedAction| $e:doElem) := stx | throwUnsupportedSyntax
+  elabDoElem e cont
 
 syntax:arg (name := dooBlock) "doo" doSeq : term
 
@@ -853,3 +985,19 @@ def elabDo : Term.TermElab := fun e expectedType? => do
   let res ← instantiateMVars res
   trace[Elab.do] "{res}"
   pure res
+
+def elabNestedAction (stx : Syntax) (_expectedType? : Option Expr) : TermElabM Expr := do
+  let `(← $_rhs) := stx | throwUnsupportedSyntax
+  let some ctx := (← read).liftActionCtx
+    | throwError "Nested action `{stx}` must be nested inside a `do` expression."
+  let newLCtx := (← getLCtx)
+  let allowed := Id.run <| ExceptT.runCatch do
+    newLCtx.foldlM (start := ctx.numIndices) (init := ()) fun _ decl => do
+      if decl matches .cdecl .. then
+        throw false
+      else
+        pure ()
+    return true
+  unless allowed do
+    throwError "Nested action is not allowed. A lambda binder is between it and the `do` sequence."
+  throwError "Should be unreachable"

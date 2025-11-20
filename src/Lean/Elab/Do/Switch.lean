@@ -18,7 +18,7 @@ public section
 namespace Lean.Elab.Term
 
 register_builtin_option backward.do.legacy : Bool := {
-  defValue := true
+  defValue := false
   descr    := "Use the legacy `do` elaborator instead of the new, extensible implementation."
 }
 
@@ -49,7 +49,4 @@ def elabDo : TermElab := fun stx expectedType? => do
   if backward.do.legacy.get (← getOptions) then
     Term.elabLiftMethod stx ty
   else
-    if let some liftMethodElab := (← read).liftMethodElab then
-      liftMethodElab.toTermElab stx ty
-    else
-      throwError "Nested action `{stx}` must be nested inside a `do` expression."
+    Elab.Do.elabNestedAction stx ty

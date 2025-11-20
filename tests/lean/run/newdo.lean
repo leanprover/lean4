@@ -26,6 +26,15 @@ syntax (name := doForInvariant) "for " Term.doForDecl ppSpace doInvariant "do " 
 
 namespace Do
 
+set_option trace.Meta.synthInstance true in
+set_option trace.Elab.do true in
+set_option trace.Elab.postpone true in
+set_option backward.do.legacy false in
+#check ((do
+  let cfg := (← read).config
+  return cfg.beta) : MetaM Bool)
+
+
 elab_rules : doElem <= dec
   | `(doElem| for $x:ident in $xs invariant $cursorBinder $stateBinders* => $body do $doSeq) => do
     --trace[Elab.do] "cursorBinder: {cursorBinder}"
@@ -57,6 +66,29 @@ elab_rules : doElem <= dec
     let success ← Term.elabFun (← `(fun ($cursorBinder, $mutVarsTuple) $stateBinders* => $body)) (← mkArrow cursorσ assertion)
     let inv := mkApp3 (mkConst ``Std.Do.PostCond.noThrow [mkLevelMax v mi.u]) ps cursorσ success
     return mkApp5 app instMonad instForIn ps instWP inv
+
+set_option trace.Elab.do true in
+partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (_ : Loop) (init : β) (f : Unit → β → m (ForInStep β)) : m β :=
+  let rec @[specialize] loop (b : β) : m β := do
+    let x ← f () b
+    match x with
+      | ForInStep.done b  => pure b
+      | ForInStep.yield b => pure b
+  loop init
+
+set_option trace.Elab.do true in
+example (elems : Syntax.TSepArray `term ",") : MacroM Syntax := doo
+  -- NOTE: we do not have `TSepArray.getElems` yet at this point
+  let rec expandListLit (i : Nat) (skip : Bool) (result : TSyntax `term) : MacroM Syntax := doo
+    match i, skip with
+    | 0,   _     => pure result
+    | i+1, true  => expandListLit i false result
+    | i+1, false => expandListLit i true  (← ``(List.cons $(⟨elems.elemsAndSeps.get!Internal i⟩) $result))
+  let size := elems.elemsAndSeps.size
+  if size < 64 then
+    expandListLit size (size % 2 == 0) (← ``(List.nil))
+  else
+    `(%[ $elems,* | List.nil ])
 
 #check doo return 42
 set_option trace.Elab.do true in
@@ -783,6 +815,9 @@ open Std.Do in
       z := z + i
   return x + y + z
 
+set_option trace.Elab.do true in
+set_option pp.universes true in
+set_option trace.Meta.isDefEq.assign true in
 #check Id.run do
   let mut a := 0
   for x in [1,2,3], y in [3,4,5] do

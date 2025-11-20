@@ -257,6 +257,13 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   let `(doHave| have $decl:letDecl) := stx | throwUnsupportedSyntax
   elabDoLetOrReassign .have decl dec
 
+@[builtin_doElem_elab Lean.Parser.Term.doLetRec] def elabDoLetRec : DoElab := fun stx dec => do
+  let `(doLetRec| let rec $decls:letRecDecls) := stx | throwUnsupportedSyntax
+  let vars ← getLetRecDeclsVars decls
+  let mγ ← mkMonadicType (← read).doBlockResultType
+  elabDoLetOrReassignWith (.let none) vars dec fun body => do
+    Term.elabTerm (← `(let rec $decls:letRecDecls; $body)) mγ
+
 @[builtin_doElem_elab Lean.Parser.Term.doReassign] def elabDoReassign : DoElab := fun stx dec => do
   -- def doReassign := letIdDeclNoBinders <|> letPatDecl
   -- And `letIdDeclNoBinders` is a `letIdDecl`. We wrap a `letDecl` node manually.

@@ -67,23 +67,6 @@ def printEveryNth (xs : List Nat) (n : Nat) : IO Unit := do
     if i % n = 0 then
       IO.println s!"xs[{i}] = {x}"
 
-
-
-set_option trace.Compiler.result true in
-set_option compiler.small 1000 in
-example (xs : List Nat) (n : Nat) : Nat := Id.run do
-  let mut sum := 0
-  let it := (xs.iter.filter fun x => x > 0).sigma (α := fun _ => _) (param := n)
-  for x in it do
-    sum := sum + x
-  return sum
-
-set_option trace.Compiler.result true in
-def test (xs : Array Nat) : IO Unit := do
-  for x in xs[*...*] do
-    IO.println s!"{x}"
-
-set_option trace.Compiler.result true in
 def printEveryNthSliceBased (xs : Array Nat) (n : Nat) : IO Unit := do
   for x in xs[*...*], i in (*...* : Std.Rii Nat) do
     if i % n = 0 then

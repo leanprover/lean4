@@ -81,6 +81,8 @@ builtin_facet importInfo : Module => ModuleImportInfo
 
 /-- Information useful to importers of a module. -/
 public structure ModuleExportInfo where
+  /-- The trace of the module's source file. Used for disambiguation. -/
+  srcTrace : BuildTrace
   /-- Artifacts directly needed for an `import` of the module with the module system enabled. -/
   arts : ImportArtifacts
   /-- The trace of the module's public olean. -/

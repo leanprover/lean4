@@ -30,11 +30,12 @@ Build function definitions for a module's builtin facets.
 private def Module.recFetchInput (mod : Module) : FetchM (Job ModuleInput) := Job.async do
   let path := mod.leanFile
   let contents ← IO.FS.readFile path
-  setTrace {caption := path.toString, mtime := ← getMTime path, hash := .ofText contents}
+  let trace := {caption := path.toString, mtime := ← getMTime path, hash := .ofText contents}
+  setTrace trace
   let header ← Lean.parseImports' contents path.toString
   let imports ← header.imports.mapM fun imp => do
     return ⟨imp, (← findModule? imp.module)⟩
-  return {path, header, imports}
+  return {path, header, imports, trace}
 
 /-- The `ModuleFacetConfig` for the builtin `inputFacet`. -/
 public def Module.inputFacetConfig : ModuleFacetConfig inputFacet :=
@@ -392,14 +393,14 @@ private def fetchImportInfo
       s.bindM (sync := true) fun impInfo => do
       expInfosJob.mapM (sync := true) fun expInfos => do
         let expInfo := expInfos[0]
-        let impHash := expInfo.disambiguationHash nonModule imp
+        let impHash := expInfo.srcTrace.hash -- expInfo.disambiguationHash nonModule imp
         let allEquiv := expInfos.toArray.all (start := 1) fun expInfo =>
-          impHash == expInfo.disambiguationHash nonModule imp
+          impHash == expInfo.srcTrace.hash -- expInfo.disambiguationHash nonModule imp
         unless allEquiv do
           let msg := s!"{fileName}: could not disambiguate the module `{imp.module}`; \
             multiple packages provide distinct definitions:"
           let msg := n.fold (init := msg) fun i h s =>
-            let hash := expInfos[i].disambiguationHash nonModule imp
+            let hash := expInfos[i].srcTrace.hash -- expInfos[i].disambiguationHash nonModule imp
             s!"{s}\n  {mods[i].pkg.discriminant} (hash: {hash})"
           error msg
         return impInfo.addImport nonModule imp expInfo
@@ -422,13 +423,13 @@ private def noIRError :=
 /-- Computes the import artifacts and transitive import trace of a module's imports. -/
 private def Module.computeExportInfo (mod : Module) : FetchM (Job ModuleExportInfo) := do
   (← mod.leanArts.fetch).mapM (sync := true) fun arts => do
-    let header ← (← mod.header.fetch).await
+    let input ← (← mod.input.fetch).await
     let importInfo ← (← mod.importInfo.fetch).await
     let artsTrace := BuildTrace.nil s!"{mod.name}:importArts"
     let metaArtsTrace := BuildTrace.nil s!"{mod.name}:importArts (meta)"
     let allArtsTrace := BuildTrace.nil s!"{mod.name}:importAllArts"
     let olean := arts.olean
-    if header.isModule then
+    if input.header.isModule then
       let some oleanServer := arts.oleanServer?
         | error noServerOLeanError
       let some ir := arts.ir?
@@ -436,6 +437,7 @@ private def Module.computeExportInfo (mod : Module) : FetchM (Job ModuleExportIn
       let some oleanPrivate := arts.oleanPrivate?
         | error noPrivateOLeanError
       return {
+        srcTrace := input.trace.hash
         arts := .ofArray #[olean.path, ir.path, oleanServer.path]
         artsTrace := artsTrace.mix olean.trace
         metaArtsTrace := metaArtsTrace.mix olean.trace |>.mix ir.trace
@@ -449,6 +451,7 @@ private def Module.computeExportInfo (mod : Module) : FetchM (Job ModuleExportIn
       }
     else
       return {
+        srcTrace := input.trace.hash
         arts := ⟨#[olean.path]⟩
         artsTrace := artsTrace.mix olean.trace
         metaArtsTrace := metaArtsTrace.mix olean.trace

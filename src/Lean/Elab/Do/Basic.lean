@@ -963,18 +963,6 @@ def elabDoSeq (doSeq : TSyntax ``Lean.Parser.Term.doSeq) (cont : DoElemCont) : D
   let `(doElemNoNestedAction| $e:doElem) := stx | throwUnsupportedSyntax
   elabDoElem e cont
 
-syntax:arg (name := dooBlock) "doo" doSeq : term
-
-@[builtin_term_elab «dooBlock»] def elabDooBlock : Term.TermElab := fun e expectedType? => do
-  let `(doo $doSeq) := e | throwError "unexpected `do` block syntax{indentD e}"
-  Term.tryPostponeIfNoneOrMVar expectedType?
-  let ctx ← mkContext expectedType?
-  let cont ← DoElemCont.mkPure ctx.doBlockResultType
-  let res ← elabDoSeq doSeq cont |>.run ctx |>.run' {}
-  let res ← instantiateMVars res
-  trace[Elab.do] "{res}"
-  pure res
-
 -- @[builtin_term_elab «do»]
 def elabDo : Term.TermElab := fun e expectedType? => do
   let `(do $doSeq) := e | throwError "unexpected `do` block syntax{indentD e}"
@@ -985,6 +973,13 @@ def elabDo : Term.TermElab := fun e expectedType? => do
   let res ← instantiateMVars res
   trace[Elab.do] "{res}"
   pure res
+
+syntax:arg (name := dooBlock) "doo" doSeq : term
+
+@[builtin_term_elab «dooBlock»]
+def elabDooBlock : Term.TermElab := fun e expectedType? => do
+  let `(doo $doSeq) := e | throwError "unexpected `do` block syntax{indentD e}"
+  elabDo (← `(do $doSeq)) expectedType?
 
 def elabNestedAction (stx : Syntax) (_expectedType? : Option Expr) : TermElabM Expr := do
   let `(← $_rhs) := stx | throwUnsupportedSyntax

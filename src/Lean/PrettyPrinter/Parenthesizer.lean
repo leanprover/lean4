@@ -551,6 +551,7 @@ def sepByNoAntiquot.parenthesizer (p pSep : Parenthesizer) : Parenthesizer := do
 @[combinator_parenthesizer eoi, expose] def eoi.parenthesizer : Parenthesizer := pure ()
 @[combinator_parenthesizer checkNoImmediateColon, expose] def checkNoImmediateColon.parenthesizer : Parenthesizer := pure ()
 @[combinator_parenthesizer skip, expose] def skip.parenthesizer : Parenthesizer := pure ()
+@[combinator_parenthesizer pushQuotDepthNum, expose] def pushQuotDepthNum.parenthesizer : Parenthesizer := pure ()
 
 @[combinator_parenthesizer pushNone, expose] def pushNone.parenthesizer : Parenthesizer := goLeft
 @[combinator_parenthesizer hygieneInfoNoAntiquot, expose] def hygieneInfoNoAntiquot.parenthesizer : Parenthesizer := goLeft

@@ -145,7 +145,7 @@ instance : Std.Iterators.Iterator (SplitIterator pat s) Id Slice where
     | ⟨.operating currPos searcher⟩ =>
       match h : searcher.step with
       | ⟨.yield searcher' (.matched startPos endPos), hps⟩ =>
-        let slice := s.replaceStartEnd! currPos startPos
+        let slice := s.slice! currPos startPos
         let nextIt := ⟨.operating endPos searcher'⟩
         pure (.deflate ⟨.yield nextIt slice, by simp [nextIt, hps.isPlausibleSuccessor_of_yield]⟩)
       | ⟨.yield searcher' (.rejected ..), hps⟩ =>
@@ -155,7 +155,7 @@ instance : Std.Iterators.Iterator (SplitIterator pat s) Id Slice where
         pure (.deflate ⟨.skip ⟨.operating currPos searcher'⟩,
           by simp [hps.isPlausibleSuccessor_of_skip]⟩)
       | ⟨.done, _⟩ =>
-        let slice := s.replaceStart currPos
+        let slice := s.sliceFrom currPos
         pure (.deflate ⟨.yield ⟨.atEnd⟩ slice, by simp⟩)
     | ⟨.atEnd⟩ => pure (.deflate ⟨.done, by simp⟩)
 
@@ -241,7 +241,7 @@ instance : Std.Iterators.Iterator (SplitInclusiveIterator pat s) Id Slice where
     | ⟨.operating currPos searcher⟩ =>
       match h : searcher.step with
       | ⟨.yield searcher' (.matched _ endPos), hps⟩ =>
-        let slice := s.replaceStartEnd! currPos endPos
+        let slice := s.slice! currPos endPos
         let nextIt := ⟨.operating endPos searcher'⟩
         pure (.deflate ⟨.yield nextIt slice,
           by simp [nextIt, hps.isPlausibleSuccessor_of_yield]⟩)
@@ -253,7 +253,7 @@ instance : Std.Iterators.Iterator (SplitInclusiveIterator pat s) Id Slice where
           by simp [hps.isPlausibleSuccessor_of_skip]⟩)
       | ⟨.done, _⟩ =>
         if currPos != s.endPos then
-          let slice := s.replaceStart currPos
+          let slice := s.sliceFrom currPos
           pure (.deflate ⟨.yield ⟨.atEnd⟩ slice, by simp⟩)
         else
           pure (.deflate ⟨.done, by simp⟩)
@@ -337,7 +337,7 @@ Examples:
 -/
 @[inline]
 def dropPrefix? (s : Slice) (pat : ρ) [ForwardPattern pat] : Option Slice :=
-  (ForwardPattern.dropPrefix? pat s).map s.replaceStart
+  (ForwardPattern.dropPrefix? pat s).map s.sliceFrom
 
 /--
 If {name}`pat` matches a prefix of {name}`s`, returns the remainder. Returns {name}`s` unmodified
@@ -377,7 +377,7 @@ def replace [ToSlice α] (s : Slice) (pattern : ρ) [ToForwardSearcher pattern �
     String :=
   (ToForwardSearcher.toSearcher pattern s).fold (init := "") (fun
     | sofar, .matched .. => sofar ++ ToSlice.toSlice replacement
-    | sofar, .rejected start stop => sofar ++ s.replaceStartEnd! start stop)
+    | sofar, .rejected start stop => sofar ++ s.slice! start stop)
 
 /--
 Removes the specified number of characters (Unicode code points) from the start of the slice.
@@ -391,7 +391,7 @@ Examples:
 -/
 @[inline]
 def drop (s : Slice) (n : Nat) : Slice :=
-  s.replaceStart (s.startPos.nextn n)
+  s.sliceFrom (s.startPos.nextn n)
 
 /--
 Creates a new slice that contains the longest prefix of {name}`s` for which {name}`pat` matched
@@ -409,13 +409,13 @@ def dropWhile (s : Slice) (pat : ρ) [ForwardPattern pat] : Slice :=
 where
   @[specialize pat]
   go (curr : s.Pos) : Slice :=
-    if let some nextCurr := ForwardPattern.dropPrefix? pat (s.replaceStart curr) then
-      if curr < Pos.ofReplaceStart nextCurr then
-        go (Pos.ofReplaceStart nextCurr)
+    if let some nextCurr := ForwardPattern.dropPrefix? pat (s.sliceFrom curr) then
+      if curr < Pos.ofSliceFrom nextCurr then
+        go (Pos.ofSliceFrom nextCurr)
       else
-        s.replaceStart curr
+        s.sliceFrom curr
     else
-      s.replaceStart curr
+      s.sliceFrom curr
   termination_by curr
 
 /--
@@ -449,7 +449,7 @@ Examples:
 -/
 @[inline]
 def take (s : Slice) (n : Nat) : Slice :=
-  s.replaceEnd (s.startPos.nextn n)
+  s.sliceTo (s.startPos.nextn n)
 
 /--
 Creates a new slice that contains the longest prefix of {name}`s` for which {name}`pat` matched
@@ -469,13 +469,13 @@ def takeWhile (s : Slice) (pat : ρ) [ForwardPattern pat] : Slice :=
 where
   @[specialize pat]
   go (curr : s.Pos) : Slice :=
-    if let some nextCurr := ForwardPattern.dropPrefix? pat (s.replaceStart curr) then
-      if curr < Pos.ofReplaceStart nextCurr then
-        go (Pos.ofReplaceStart nextCurr)
+    if let some nextCurr := ForwardPattern.dropPrefix? pat (s.sliceFrom curr) then
+      if curr < Pos.ofSliceFrom nextCurr then
+        go (Pos.ofSliceFrom nextCurr)
       else
-        s.replaceEnd curr
+        s.sliceTo curr
     else
-      s.replaceEnd curr
+      s.sliceTo curr
   termination_by curr
 
 /--
@@ -579,7 +579,7 @@ instance [Pure m] : Std.Iterators.Iterator (RevSplitIterator ρ s) m Slice where
     | ⟨.operating currPos searcher⟩ =>
       match h : searcher.step with
       | ⟨.yield searcher' (.matched startPos endPos), hps⟩ =>
-        let slice := s.replaceStartEnd! endPos currPos
+        let slice := s.slice! endPos currPos
         let nextIt := ⟨.operating startPos searcher'⟩
         pure (.deflate ⟨.yield nextIt slice, by simp [nextIt, hps.isPlausibleSuccessor_of_yield]⟩)
       | ⟨.yield searcher' (.rejected ..), hps⟩ =>
@@ -590,7 +590,7 @@ instance [Pure m] : Std.Iterators.Iterator (RevSplitIterator ρ s) m Slice where
           by simp [hps.isPlausibleSuccessor_of_skip]⟩)
       | ⟨.done, _⟩ =>
         if currPos ≠ s.startPos then
-          let slice := s.replaceEnd currPos
+          let slice := s.sliceTo currPos
           pure (.deflate ⟨.yield ⟨.atEnd⟩ slice, by simp⟩)
         else
           pure (.deflate ⟨.done, by simp⟩)
@@ -672,7 +672,7 @@ Examples:
 -/
 @[inline]
 def dropSuffix? (s : Slice) (pat : ρ) [BackwardPattern pat] : Option Slice :=
-  (BackwardPattern.dropSuffix? pat s).map s.replaceEnd
+  (BackwardPattern.dropSuffix? pat s).map s.sliceTo
 
 /--
 If {name}`pat` matches a suffix of {name}`s`, returns the remainder. Returns {name}`s` unmodified
@@ -705,7 +705,7 @@ Examples:
 -/
 @[inline]
 def dropEnd (s : Slice) (n : Nat) : Slice :=
-  s.replaceEnd (s.endPos.prevn n)
+  s.sliceTo (s.endPos.prevn n)
 
 /--
 Creates a new slice that contains the longest suffix of {name}`s` for which {name}`pat` matched
@@ -722,13 +722,13 @@ def dropEndWhile (s : Slice) (pat : ρ) [BackwardPattern pat] : Slice :=
 where
   @[specialize pat]
   go (curr : s.Pos) : Slice :=
-    if let some nextCurr := BackwardPattern.dropSuffix? pat (s.replaceEnd curr) then
-      if Pos.ofReplaceEnd nextCurr < curr then
-        go (Pos.ofReplaceEnd nextCurr)
+    if let some nextCurr := BackwardPattern.dropSuffix? pat (s.sliceTo curr) then
+      if Pos.ofSliceTo nextCurr < curr then
+        go (Pos.ofSliceTo nextCurr)
       else
-        s.replaceEnd curr
+        s.sliceTo curr
     else
-      s.replaceEnd curr
+      s.sliceTo curr
   termination_by curr.down
 
 /--
@@ -762,7 +762,7 @@ Examples:
 -/
 @[inline]
 def takeEnd (s : Slice) (n : Nat) : Slice :=
-  s.replaceStart (s.endPos.prevn n)
+  s.sliceFrom (s.endPos.prevn n)
 
 /--
 Creates a new slice that contains the suffix prefix of {name}`s` for which {name}`pat` matched
@@ -781,13 +781,13 @@ def takeEndWhile (s : Slice) (pat : ρ) [BackwardPattern pat] : Slice :=
 where
   @[specialize pat]
   go (curr : s.Pos) : Slice :=
-    if let some nextCurr := BackwardPattern.dropSuffix? pat (s.replaceEnd curr) then
-      if Pos.ofReplaceEnd nextCurr < curr then
-        go (Pos.ofReplaceEnd nextCurr)
+    if let some nextCurr := BackwardPattern.dropSuffix? pat (s.sliceTo curr) then
+      if Pos.ofSliceTo nextCurr < curr then
+        go (Pos.ofSliceTo nextCurr)
       else
-        s.replaceStart curr
+        s.sliceFrom curr
     else
-      s.replaceStart curr
+      s.sliceFrom curr
   termination_by curr.down
 
 /--

@@ -98,7 +98,7 @@ where
     if nonempty && it' == it.2 then
       .error ⟨_, it'⟩ (.other "Expected a nonempty string")
     else
-      .success ⟨_, it'⟩ (it.1.replaceStartEnd! it.2 it').copy
+      .success ⟨_, it'⟩ (it.1.slice! it.2 it').copy
 
   /-- Parses a named attribute, and returns its name and value. -/
   namedAttr : Parser (String × String) := attempt do

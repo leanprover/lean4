@@ -42,7 +42,7 @@ private def addCommentAt (indent : Nat) (line : String) : String := Id.run do
     else
       -- The line was entirely ' ', and was shorter than the indentation level. No `--` added.
       return line
-  let remaining := line.replaceStart iter
+  let remaining := line.sliceFrom iter
   if remaining.all (· == ' ') then
     return line
   else

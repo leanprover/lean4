@@ -27,19 +27,45 @@ open Std Slice PRange Iterators
 
 variable {shape : RangeShape} {α : Type u}
 
+@[unbox]
+structure SubarrayIterator (α : Type u) where
+  xs : Subarray α
+
+@[inline, expose]
+def SubarrayIterator.step : IterM (α := SubarrayIterator α) Id α → IterStep (IterM (α := SubarrayIterator α) m α) α
+  | ⟨⟨xs, start, stop, h₁, h₂⟩⟩ =>
+      if h : start < stop then
+        .yield ⟨⟨xs, start + 1, stop, by omega, h₂⟩⟩ xs[start]
+      else
+        .done
+
+instance : Iterator (SubarrayIterator α) Id α where
+  IsPlausibleStep it step := step = SubarrayIterator.step it
+  step it := pure <| .deflate ⟨SubarrayIterator.step it, rfl⟩
+
+private def SubarrayIterator.instFinitelessRelation : FinitenessRelation (SubarrayIterator α) Id where
+  rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.xs.stop - it.internalState.xs.start)
+  wf := InvImage.wf _ WellFoundedRelation.wf
+  subrelation {it it'} h := by
+    simp [IterM.IsPlausibleSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, step] at h
+    split at h
+    · cases h
+      simp [InvImage, Subarray.start, Subarray.stop]
+      simp [WellFoundedRelation.rel, InvImage, Nat.lt_wfRel]
+      apply Nat.sub_succ_lt_self
+      assumption
+    · cases h
+
+instance SubarrayIterator.instFinite : Finite (SubarrayIterator α) Id :=
+  .of_finitenessRelation instFinitelessRelation
+
+instance [Monad m] : IteratorCollect (SubarrayIterator α) Id m := .defaultImplementation
+instance [Monad m] : IteratorCollectPartial (SubarrayIterator α) Id m := .defaultImplementation
+instance [Monad m] : IteratorLoop (SubarrayIterator α) Id m := .defaultImplementation
+instance [Monad m] : IteratorLoopPartial (SubarrayIterator α) Id m := .defaultImplementation
+
 instance : ToIterator (Slice (Internal.SubarrayData α)) Id α :=
-  .of _
-    (fun s => Rco.Internal.iter (s.internalRepresentation.start...<s.internalRepresentation.stop)
-      |>.attachWith (· < s.internalRepresentation.array.size) ?h
-      |>.uLift
-      |>.map (fun | .up i => s.internalRepresentation.array[i.1])
-      |>.sigma (param := s))
-where finally
-  case h =>
-    simp only [Rco.Internal.isPlausibleIndirectOutput_iter_iff, Membership.mem, and_imp]
-    intro out _ h
-    have := s.internalRepresentation.stop_le_array_size
-    omega
+  .of (SubarrayIterator α) (⟨⟨·⟩⟩)
 
 universe v w
 

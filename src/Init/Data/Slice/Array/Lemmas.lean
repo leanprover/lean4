@@ -25,28 +25,67 @@ open Std Std.Iterators Std.PRange Std.Slice
 namespace Subarray
 
 theorem internalIter_eq {α : Type u} {s : Subarray α} :
-    Internal.iter s = (Rco.Internal.iter (s.start...<s.stop)
-      |>.attachWith (· < s.array.size)
-        (fun out h => h
-            |> Rco.Internal.isPlausibleIndirectOutput_iter_iff.mp
-            |> Rco.lt_upper_of_mem
-            |> (Nat.lt_of_lt_of_le · s.stop_le_array_size))
-      |>.uLift
-      |>.map (fun | .up i => s.array[i.1])
-      |>.sigma (param := s)) := by
-  simp [Internal.iter, ToIterator.iter_eq, Subarray.start, Subarray.stop, Subarray.array]
+    Internal.iter s = ⟨⟨s⟩⟩ :=
+  rfl
+
+theorem SubarrayIterator.step_eq {it : Iter (α := SubarrayIterator α) α} :
+    it.step = if h : it.internalState.xs.start < it.internalState.xs.stop then
+        haveI := it.internalState.xs.start_le_stop
+        haveI := it.internalState.xs.stop_le_array_size
+        ⟨.yield ⟨⟨it.internalState.xs.array, it.internalState.xs.start + 1, it.internalState.xs.stop, by omega, by assumption⟩⟩ (it.internalState.xs.array[it.internalState.xs.start]'(by omega)),
+          (by simp_all [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, SubarrayIterator.step, Iter.toIterM, Subarray.start, Subarray.stop]; rw [dif_pos]; rotate_left; exact h; rfl)⟩
+      else
+        ⟨.done, (by simpa [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, SubarrayIterator.step] using h)⟩ := by
+  simp [Iter.step, IterM.step, Iterator.step, SubarrayIterator.step, IterM.Step.toPure, IterStep.mapIterator]
+  by_cases h : it.internalState.xs.start < it.internalState.xs.stop
+  · simp only [h, ↓reduceDIte]
+    split
+    · rfl
+    · rename_i h'
+      exact h'.elim h
+  · simp only [h, ↓reduceDIte]
+    split
+    · rename_i h'
+      exact h.elim h'
+    · rfl
+
+theorem SubarrayIterator.val_step_eq {it : Iter (α := SubarrayIterator α) α} :
+    it.step.val = if h : it.internalState.xs.start < it.internalState.xs.stop then
+        haveI := it.internalState.xs.start_le_stop
+        haveI := it.internalState.xs.stop_le_array_size
+        .yield ⟨⟨it.internalState.xs.array, it.internalState.xs.start + 1, it.internalState.xs.stop, by omega, by assumption⟩⟩ (it.internalState.xs.array[it.internalState.xs.start]'(by omega))
+      else
+        .done := by
+  simp [step_eq]
+  split <;> simp
+
+theorem SubarrayIterator.toList_eq {α : Type u} {it : Iter (α := SubarrayIterator α) α} :
+    it.toList =
+      (it.internalState.xs.array.toList.take it.internalState.xs.stop).drop it.internalState.xs.start := by
+  induction it using Iter.inductSteps with | step it ihy ihs
+  rw [Iter.toList_eq_match_step, SubarrayIterator.val_step_eq]
+  by_cases h : it.internalState.xs.start < it.internalState.xs.stop
+  · simp [h]
+    rw [ihy (out := it.internalState.xs.array[it.internalState.xs.start]'sorry)]
+    · simp [start]
+      rw (occs := [2]) [List.drop_eq_getElem_cons]
+      simp
+      rw [List.getElem_take]
+      simp [stop, array]
+      rw [List.length_take]
+      simp [it.internalState.xs.stop_le_array_size]
+      exact h
+    · simp [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, SubarrayIterator.step]
+      rw [dif_pos]; rotate_left; exact h
+      rfl
+  · rw [dif_neg]; rotate_left; exact h
+    simp at h
+    simp [it.internalState.xs.stop_le_array_size, h]
 
 theorem toList_internalIter {α : Type u} {s : Subarray α} :
     (Internal.iter s).toList =
-      ((s.start...s.stop).toList
-        |>.attach
-        |>.map fun i => s.array[i.1]'(i.property
-            |> Rco.mem_toList_iff_mem.mp
-            |> Rco.lt_upper_of_mem
-            |> (Nat.lt_of_lt_of_le · s.stop_le_array_size))) := by
-  sorry
-  -- rw [internalIter_eq, Iter.toList_map, Iter.toList_uLift, Iter.toList_attachWith]
-  -- simp [Rco.toList]
+      (s.array.toList.take s.stop).drop s.start := by
+  simp [SubarrayIterator.toList_eq, Internal.iter_eq_toIteratorIter, ToIterator.iter_eq]
 
 public instance : LawfulSliceSize (Internal.SubarrayData α) where
   lawful s := by
@@ -142,7 +181,7 @@ theorem Subarray.toList_eq {xs : Subarray α} :
     simp only [Std.Slice.toList, toList_internalIter]
     apply List.ext_getElem
     · have : stop - start ≤ array.size - start := by omega
-      simp [Subarray.start, Subarray.stop, Std.PRange.Nat.size_rco, *]
+      simp [Subarray.start, Subarray.stop, Std.PRange.Nat.size_rco, *, Subarray.array]
     · intros
       simp [Subarray.array, Subarray.start, Subarray.stop, Std.Rco.getElem_toList_eq, succMany?]
   simp [this, ListSlice.toList_eq, lslice]

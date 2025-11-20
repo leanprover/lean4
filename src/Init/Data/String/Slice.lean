@@ -930,6 +930,10 @@ Examples:
 def chars (s : Slice) :=
   Std.Iterators.Iter.map (fun ⟨pos, h⟩ => pos.get h) (positions s)
 
+@[deprecated "There is no constant-time length function on slices. Use `s.positions.count` instead, or `isEmpty` if you only need to know whether the slice is empty." (since := "2025-11-20")]
+def length (s : Slice) : Nat :=
+  s.positions.count
+
 structure RevPosIterator (s : Slice) where
   currPos : s.Pos
 deriving Inhabited

@@ -89,7 +89,7 @@ theorem isEqv_self_beq [BEq α] [ReflBEq α] (xs : Array α) : Array.isEqv xs xs
 theorem isEqv_self [DecidableEq α] (xs : Array α) : Array.isEqv xs xs (· = ·) = true := by
   simp [isEqv, isEqvAux_self]
 
-def instDecidableEq_impl [DecidableEq α] : DecidableEq (Array α) := fun xs ys =>
+def instDecidableEqImpl [DecidableEq α] : DecidableEq (Array α) := fun xs ys =>
   match h:isEqv xs ys (fun a b => a = b) with
   | true  => isTrue (eq_of_isEqv xs ys h)
   | false => isFalse (by subst ·; rw [isEqv_self] at h; contradiction)
@@ -103,22 +103,23 @@ instance instDecidableEq [DecidableEq α] : DecidableEq (Array α) := fun xs ys 
   | ⟨a :: as⟩ =>
     match ys with
     | ⟨[]⟩ => isFalse (Array.noConfusion · (List.noConfusion ·))
-    | ⟨b :: bs⟩ => instDecidableEq_impl ⟨a :: as⟩ ⟨b :: bs⟩
+    | ⟨b :: bs⟩ => instDecidableEqImpl ⟨a :: as⟩ ⟨b :: bs⟩
 
 @[csimp]
-theorem instDecidableEq_csimp : @instDecidableEq = @instDecidableEq_impl :=
-  funext fun α => funext fun inst => funext fun xs => funext fun ys => by
-  unfold instDecidableEq
-  unfold instDecidableEq_impl
-  cases xs with | mk as =>
-  cases ys with | mk bs =>
-  cases as with cases bs with rfl
-
+theorem instDecidableEq_csimp : @instDecidableEq = @instDecidableEqImpl :=
+  Subsingleton.allEq _ _
+  
+/--
+Equality with `#[]` is decidable even if the underlying type does not have decidable equality.
+-/
 instance instDecidableEqEmp (xs : Array α) : Decidable (xs = #[]) :=
   match xs with
   | ⟨[]⟩ => isTrue rfl
   | ⟨_ :: _⟩ => isFalse (Array.noConfusion · (List.noConfusion ·))
 
+/--
+Equality with `#[]` is decidable even if the underlying type does not have decidable equality.
+-/
 instance instDecidableEmpEq (ys : Array α) : Decidable (#[] = ys) :=
   match ys with
   | ⟨[]⟩ => isTrue rfl

@@ -2939,11 +2939,17 @@ instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := fun xs ys =>
         | isFalse nabs => isFalse (List.noConfusion · (fun _ habs => absurd habs nabs))
       | isFalse nab => isFalse (List.noConfusion · (fun hab _ => absurd hab nab))
 
+/--
+Equality with `List.nil` is decidable even if the underlying type does not have decidable equality.
+-/
 instance List.instDecidableNilEq (a : List α) : Decidable (Eq List.nil a) :=
   match a with
   | .nil => isTrue rfl
   | .cons _ _ => isFalse List.noConfusion
 
+/--
+Equality with `List.nil` is decidable even if the underlying type does not have decidable equality.
+-/
 instance List.instDecidableEqNil (a : List α) : Decidable (Eq a List.nil) :=
   match a with
   | .nil => isTrue rfl

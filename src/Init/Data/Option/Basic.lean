@@ -15,18 +15,19 @@ public section
 
 namespace Option
 
-/- We write the instance manually so that it is coherent with `decidableEqNone` and
-`decidableNoneEq`.
-
-TODO: adjust the `deriving instance DecidableEq` handler to generate something coherent. -/
-instance instDecidableEq {α} [DecidableEq α] : DecidableEq (Option α) := fun a b =>
+instance instDecidableEq {α} [inst : DecidableEq α] : DecidableEq (Option α) := fun a b =>
+  /-
+  Structured for compatibility with the decidable-equality-with-none instances.
+  -/
   match a with
   | none => match b with
     | none => .isTrue rfl
     | some _ => .isFalse Option.noConfusion
   | some a => match b with
     | none => .isFalse Option.noConfusion
-    | some b => decidable_of_decidable_of_eq (Option.some.injEq a b).symm
+    | some b => match inst a b with
+      | .isTrue h => .isTrue (h ▸ rfl)
+      | .isFalse n => .isFalse (Option.noConfusion · n)
 
 /--
 Equality with `none` is decidable even if the wrapped type does not have decidable equality.

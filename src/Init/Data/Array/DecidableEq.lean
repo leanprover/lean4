@@ -89,33 +89,40 @@ theorem isEqv_self_beq [BEq α] [ReflBEq α] (xs : Array α) : Array.isEqv xs xs
 theorem isEqv_self [DecidableEq α] (xs : Array α) : Array.isEqv xs xs (· = ·) = true := by
   simp [isEqv, isEqvAux_self]
 
-instance [DecidableEq α] : DecidableEq (Array α) :=
-  fun xs ys =>
-    if h₁ : xs.size = 0 then
-      if h₂ : ys.size = 0 then
-        isTrue (Array.ext (Eq.trans h₁ (Eq.symm h₂)) (fun _ => by simp_all only [Nat.not_lt_zero, forall_false]))
-      else
-        isFalse (fun h => by rw [h] at h₁; rw [h₁] at h₂; simp at h₂)
-    else
-      if h₂ : ys.size = 0 then
-        isFalse (fun h => by rw [← h] at h₂; rw [h₂] at h₁; simp at h₁)
-      else
-        match h:isEqv xs ys (fun a b => a = b) with
-        | true  => isTrue (eq_of_isEqv xs ys h)
-        | false => isFalse fun h' => by subst h'; rw [isEqv_self] at h; contradiction
+def instDecidableEq_impl [DecidableEq α] : DecidableEq (Array α) := fun xs ys =>
+  match h:isEqv xs ys (fun a b => a = b) with
+  | true  => isTrue (eq_of_isEqv xs ys h)
+  | false => isFalse (by subst ·; rw [isEqv_self] at h; contradiction)
+
+instance instDecidableEq [DecidableEq α] : DecidableEq (Array α) := fun xs ys =>
+  match xs with
+  | ⟨[]⟩ =>
+    match ys with
+    | ⟨[]⟩ => isTrue rfl
+    | ⟨_ :: _⟩ => isFalse (Array.noConfusion · (List.noConfusion ·))
+  | ⟨a :: as⟩ =>
+    match ys with
+    | ⟨[]⟩ => isFalse (Array.noConfusion · (List.noConfusion ·))
+    | ⟨b :: bs⟩ => instDecidableEq_impl ⟨a :: as⟩ ⟨b :: bs⟩
+
+@[csimp]
+theorem instDecidableEq_csimp : @instDecidableEq = @instDecidableEq_impl :=
+  funext fun α => funext fun inst => funext fun xs => funext fun ys => by
+  unfold instDecidableEq
+  unfold instDecidableEq_impl
+  cases xs with | mk as =>
+  cases ys with | mk bs =>
+  cases as with cases bs with rfl
 
 instance instDecidableEqEmp (xs : Array α) : Decidable (xs = #[]) :=
-  if h₁ : xs.size = 0 then
-    isTrue (Array.ext (Eq.trans h₁ (by simp only [List.size_toArray, List.length_nil])) (fun _ => by simp_all only [Nat.not_lt_zero, forall_false]))
-  else
-    isFalse (fun h => by rw [h] at h₁; simp only [List.size_toArray, List.length_nil, not_true_eq_false] at h₁)
+  match xs with
+  | ⟨[]⟩ => isTrue rfl
+  | ⟨_ :: _⟩ => isFalse (Array.noConfusion · (List.noConfusion ·))
 
 instance instDecidableEmpEq (ys : Array α) : Decidable (#[] = ys) :=
-  if h₂ : ys.size = 0 then
-    isTrue (Array.ext (Eq.trans (by
-      simp only [List.size_toArray, List.length_nil]) (Eq.symm h₂)) (fun _ => by simp_all only [List.size_toArray,  List.length_nil, Nat.not_lt_zero, List.getElem_toArray, forall_false]))
-  else
-    isFalse (fun h => by rw [← h] at h₂; simp only [List.size_toArray, List.length_nil, not_true_eq_false] at h₂)
+  match ys with
+  | ⟨[]⟩ => isTrue rfl
+  | ⟨_ :: _⟩ => isFalse (Array.noConfusion · (List.noConfusion ·))
 
 theorem beq_eq_decide [BEq α] (xs ys : Array α) :
     (xs == ys) = if h : xs.size = ys.size then

@@ -10,19 +10,23 @@ def listR (a : List α) := if [] = a then 1 else 2
 /-- info: 2 -/
 #guard_msgs in #eval listL [()]
 
+
+-- test instance diamonds
+example :
+    @List.instDecidableEqNil α [] = @List.instDecidableNilEq α [] := by
+  with_reducible_and_instances rfl
+
 section
 variable {α : Type u} [DecidableEq α]
-
--- test for instance diamonds
-
 example (x : List α) :
-    instDecidableEqList x [] = instDecidableEqNil x := by
+    instDecidableEqList x [] = List.instDecidableEqNil x := by
   with_reducible_and_instances rfl
 
 example (x : List α) :
-    instDecidableEqList [] x = instDecidableNilEq x := by
+    instDecidableEqList [] x = List.instDecidableNilEq x := by
   with_reducible_and_instances rfl
 end
+
 
 -- List decidable equality using `withPtrEqDecEq`
 def listDecEqAux {α} [s : DecidableEq α] : ∀ (as bs : List α), Decidable (as = bs)

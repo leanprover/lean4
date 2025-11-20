@@ -10,11 +10,14 @@ def optR (a : Option α) := if .none = a then 1 else 2
 /-- info: 2 -/
 #guard_msgs in #eval optR (some 1.5)
 
+
+-- test instance diamonds
+example :
+    @Option.decidableEqNone α none = @Option.decidableNoneEq α none := by
+  with_reducible_and_instances rfl
+
 section
 variable {α : Type u} [DecidableEq α]
-
--- test for instance diamonds
-
 example (x : Option α) :
     Option.instDecidableEq x none = Option.decidableEqNone x := by
   with_reducible_and_instances rfl

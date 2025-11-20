@@ -2697,11 +2697,11 @@ theorem get_inter [EquivBEq α] [LawfulHashable α]
     {k : α} {h_mem : k ∈ m₁ ∩ m₂} :
     Const.get (m₁.inter m₂) k h_mem =
     Const.get m₁ k (mem_inter_iff.1 h_mem).1 := by
-    induction m₁
-    case mk a =>
-      induction m₂
-      case mk b =>
-        apply DHashMap.Const.get_inter
+  induction m₁
+  case mk a =>
+    induction m₂
+    case mk b =>
+      apply DHashMap.Const.get_inter
 
 /- getD -/
 theorem getD_inter [EquivBEq α] [LawfulHashable α] {k : α} {fallback : β} :

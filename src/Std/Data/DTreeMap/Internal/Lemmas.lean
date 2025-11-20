@@ -3432,6 +3432,22 @@ theorem union!_equiv_congr_right {m₃ : Impl α β} [TransOrd α]
   apply Equiv.union_right
   all_goals wf_trivial
 
+theorem Equiv.union_congr {m₃ m₄: Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) (equiv₁ : m₁.Equiv m₃)(equiv₂ : m₂.Equiv m₄) :
+    (m₁.union m₂ h₁.balanced h₂.balanced).Equiv (m₃.union m₄ h₃.balanced h₄.balanced) := by
+  revert equiv₁ equiv₂
+  simp_to_model [Equiv, union]
+  intro equiv₁ equiv₂
+  apply List.insertList_congr equiv₁ equiv₂
+  all_goals wf_trivial
+
+theorem union!_equiv_congr {m₃ m₄: Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) (equiv₁ : m₁.Equiv m₃) (equiv₂ : m₂.Equiv m₄) :
+    (m₁.union! m₂).Equiv (m₃.union! m₄) := by
+  rw [← union_eq_union!, ← union_eq_union!]
+  apply Equiv.union_congr
+  all_goals wf_trivial
+
 /- get? -/
 theorem get?_union [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
     {k : α} :

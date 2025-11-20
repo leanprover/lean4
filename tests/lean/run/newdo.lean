@@ -26,6 +26,70 @@ syntax (name := doForInvariant) "for " Term.doForDecl ppSpace doInvariant "do " 
 
 namespace Do
 
+section Backtrack
+
+/--
+Execute `x?`, but backtrack state if result is `none` or an exception was thrown.
+-/
+def commitWhenSome? [Monad m] [MonadBacktrack s m] [MonadExcept ε m] (x? : m (Option α)) : m (Option α) := do
+  let s ← saveState
+  try
+    match (← x?) with
+    | some a => return some a
+    | none   =>
+      restoreState s
+      return none
+  catch ex =>
+    restoreState s
+    throw ex
+
+set_option pp.all true in
+set_option trace.Elab.do true in
+/--
+Execute `x?`, but backtrack state if result is `none` or an exception was thrown.
+If an exception is thrown, `none` is returned.
+That is, this function is similar to `commitWhenSome?`, but swallows the exception and returns `none`.
+-/
+def commitWhenSomeNoEx? {m s α ε} [Monad m] [MonadBacktrack s m] [MonadExcept ε m] (x? : m (Option α)) : m (Option α) := do
+  let mut a := 0
+  try
+    a := 1
+    commitWhenSome? x?
+  catch _ =>
+    return none
+
+end Backtrack
+
+section Array
+
+@[inline, expose]
+def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m (Option β)) (as : Array α) : m (Option β) := do
+  for a in as do
+    match (← f a) with
+    | some b => return some b
+    | _      => pure ⟨⟩
+  return none
+
+/--
+Applies the monadic action `f` to every element in the array, left-to-right, and returns the array
+of results. Furthermore, the resulting array's type guarantees that it contains the same number of
+elements as the input array.
+-/
+def Array.mapM' [Monad m] (f : α → m β) (as : Array α) : m { bs : Array β // bs.size = as.size } :=
+  go 0 ⟨Array.mkEmpty as.size, rfl⟩ (by simp)
+where
+  go (i : Nat) (acc : { bs : Array β // bs.size = i }) (hle : i ≤ as.size) : m { bs : Array β // bs.size = as.size } := do
+    if h : i = as.size then
+      return h ▸ acc
+    else
+      have hlt : i < as.size := Nat.lt_of_le_of_ne hle h
+      let b ← f as[i]
+      go (i+1) ⟨acc.val.push b, by simp [acc.property]⟩ hlt
+  termination_by as.size - i
+  decreasing_by decreasing_trivial_pre_omega
+
+end Array
+
 set_option trace.Meta.synthInstance true in
 set_option trace.Elab.do true in
 set_option trace.Elab.postpone true in
@@ -1113,7 +1177,7 @@ example : (Id.run doo
 -- Test: elabToSyntax and postponement
 /--
 error: Invalid match expression: The type of pattern variable 'y' contains metavariables:
-  ?m.14
+  ?m.12
 -/
 #guard_msgs (error) in
 example := Id.run do
@@ -1479,15 +1543,6 @@ example := (Id.run doo pure true; pure ())
 
 /--
 error: Application type mismatch: The argument
-  false
-has type
-  Bool
-but is expected to have type
-  PUnit
-in the application
-  pure false
----
-error: Application type mismatch: The argument
   true
 has type
   Bool
@@ -1495,6 +1550,15 @@ but is expected to have type
   PUnit
 in the application
   pure true
+---
+error: Application type mismatch: The argument
+  false
+has type
+  Bool
+but is expected to have type
+  PUnit
+in the application
+  pure false
 -/
 #guard_msgs (error) in
 example := (Id.run doo if true then {pure true} else {pure false}; pure ())

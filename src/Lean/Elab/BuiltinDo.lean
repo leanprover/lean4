@@ -227,9 +227,9 @@ def elabDoIdDecl (x : Ident) (xType? : Option Term) (rhs : TSyntax `doElem) (k :
 
 def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``doPatDecl]) (dec : DoElemCont) : DoElabM Expr := do
   match stx with
-  | `(doIdDecl| $x:ident ← $rhs) =>
+  | `(doIdDecl| $x:ident $[: $xType?]? ← $rhs) =>
     letOrReassign.checkMutVars #[x]
-    elabDoIdDecl x none rhs (declareMutVar? letOrReassign.getLetMutTk? x dec.continueWithUnit)
+    elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x dec.continueWithUnit)
   | `(doPatDecl| $pattern:term ← $rhs $[| $otherwise?]?) =>
     let x ← Term.mkFreshIdent pattern
     elabDoIdDecl x none rhs do
@@ -294,26 +294,32 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   let `(doIf|if $cond:doIfCond then $thenSeq $[else if $conds:doIfCond then $thenSeqs]* $[else $elseSeq?]?) := stx | throwUnsupportedSyntax
   let mγ ← mkMonadicType (← read).doBlockResultType
   dec.withDuplicableCont fun dec => do
-  let mut (res : Expr) ← match elseSeq? with
-    | some elseSeq => elabDoSeq elseSeq dec
-    | none         => dec.continueWithUnit
-  for (cond, thenSeq) in Array.zip (conds.reverse.push cond) (thenSeqs.reverse.push thenSeq) do
-    let resStx ← Term.exprToSyntax res
-    let withThenStx k := controlAtTermElabM fun runInBase =>
-      Term.elabToSyntax (fun _ => runInBase <| elabDoSeq thenSeq dec) k
-    res ← match cond with
-    | `(doIfCond|let $pat ← $rhs) => do
-      let x ← Term.mkFreshIdent pat
-      elabDoIdDecl x none (← `(doElem| $rhs:term)) do withThenStx fun thenStx => do
-        Term.elabTerm (← `(match $x:term with | $pat => $thenStx | _ => $resStx)) mγ
-    | `(doIfCond|let $pat := $d) => withThenStx fun thenStx => do
-      Term.elabMatch (← `(match $d:term with | $pat => $thenStx | _ => $resStx)) mγ
-    | `(doIfCond|$cond) => withThenStx fun thenStx => do
-      Term.elabTerm (← `(if $cond then $thenStx else $resStx)) mγ
-    | `(doIfCond|$h : $cond) => withThenStx fun thenStx => do
-      Term.elabTerm (← `(if $h:ident : $cond then $thenStx else $resStx)) mγ
-    | _ => throwUnsupportedSyntax
-  return res
+  controlAtTermElabM fun runInBase => do
+  let elabToTerm termElab := Term.elabToSyntax (fun _ => termElab)
+  let doElemToTerm doElem := elabToTerm (runInBase <| elabDoSeq doElem dec)
+  let condsThens := #[(cond, thenSeq)] ++ Array.zip conds thenSeqs
+  let rec loop (i : Nat) : TermElabM Expr := do
+    if h : i < condsThens.size then
+      let (cond, thenSeq) := condsThens[i]
+      doElemToTerm thenSeq fun then_ => do
+      elabToTerm (loop (i + 1)) fun else_ => do
+      match cond with
+      | `(doIfCond|$cond) =>
+        Term.elabTerm (← `(if $cond then $then_ else $else_)) mγ
+      | `(doIfCond|$h : $cond) =>
+        Term.elabTerm (← `(if $h:ident : $cond then $then_ else $else_)) mγ
+      | `(doIfCond|let $pat := $d) =>
+        Term.elabMatch (← `(match $d:term with | $pat => $then_ | _ => $else_)) mγ
+      | `(doIfCond|let $pat ← $rhs) =>
+        let x ← Term.mkFreshIdent pat
+        runInBase <| elabDoIdDecl x none (← `(doElem| $rhs:term)) do
+          Term.elabTerm (← `(match $x:term with | $pat => $then_ | _ => $else_)) mγ
+      | _ => throwUnsupportedSyntax
+    else
+      runInBase <| match elseSeq? with
+      | some elseSeq => elabDoSeq elseSeq dec
+      | none         => dec.continueWithUnit
+  loop 0
 
 @[builtin_doElem_elab Lean.Parser.Term.doMatch] def elabDoMatch : DoElab := fun stx dec => do
   let `(doMatch| match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*) := stx | throwUnsupportedSyntax
@@ -337,7 +343,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
             elabMatch (i + 1) (alts.set i (← `(matchAltExpr| | $patterns,* => $rhs)))
         | _ => throwUnsupportedSyntax
       else
-        Term.elabMatch (← `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)) mγ
+        Term.elabTerm (← `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)) mγ
     elabMatch 0 alts
 
 @[builtin_doElem_elab Lean.Parser.Term.doMatchExpr] def elabDoMatchExpr : DoElab := fun stx dec => do

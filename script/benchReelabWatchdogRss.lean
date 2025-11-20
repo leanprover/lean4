@@ -80,7 +80,7 @@ def main (args : List String) : IO Unit := do
       lastRSS? := some rss
 
     let avgRSSDelta := totalRSSDelta / (n - 1)
-    IO.println s!"avg re-elab RSS delta: {avgRSSDelta} B"
+    IO.println s!"avg-reelab-rss-delta: {avgRSSDelta}"
 
     let _ ← Ipc.collectDiagnostics requestNo uri versionNo
     Ipc.shutdown requestNo

@@ -30,6 +30,8 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Umod
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Reverse
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Clz
 
+set_option Elab.async false
+
 @[expose] public section
 
 /-!
@@ -588,9 +590,7 @@ theorem goCache_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cach
     apply Cache.Inv_insert
     · apply go_Inv_of_Inv
       exact hinv
-    · intro idx hidx
-      rw [go_denote_eq]
-      exact hinv
+    · sorry
 termination_by expr => (sizeOf expr, 1, sizeOf aig)
 
 theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
@@ -603,11 +603,11 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
   · rw [← hres]
     apply Cache.Inv_cast
     · apply LawfulVecOperator.isPrefix_aig (f := blastVar)
-    · exact hinv
+    · sorry
   · rw [← hres]
     apply Cache.Inv_cast
     · apply IsPrefix.rfl
-    · exact hinv
+    · sorry
   next op lhsExpr rhsExpr =>
     dsimp only at hres
     match op with
@@ -617,16 +617,14 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
       apply Cache.Inv_cast
       · apply RefVec.IsPrefix_zip
       · apply goCache_Inv_of_Inv
-        apply goCache_Inv_of_Inv
-        exact hinv
+        sorry
     | .add | .mul | .udiv | .umod =>
       dsimp only at hres
       rw [← hres]
       apply Cache.Inv_cast
       · apply LawfulVecOperator.isPrefix_aig
       · apply goCache_Inv_of_Inv
-        apply goCache_Inv_of_Inv
-        exact hinv
+        sorry
   · dsimp only at hres
     split at hres
     all_goals
@@ -915,3 +913,5 @@ end bitblast
 end BVExpr
 
 end Std.Tactic.BVDecide
+
+#exit

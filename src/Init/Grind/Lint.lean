@@ -77,11 +77,16 @@ syntax (name := grindLintMute) "#grind_lint" ppSpace &"mute" ident+ : command
 `#grind_lint skip thm₁ …` marks the given theorem(s) to be skipped entirely by `#grind_lint check`.
 Skipped theorems are neither analyzed nor reported, but may still be used for
 instantiation when analyzing other theorems.
-Example:
+
+`#grind_lint skip suffix name₁ …` marks all theorems with the given suffix(es) to be skipped.
+For example, `#grind_lint skip suffix foo` will skip `bar.foo`, `qux.foo`, etc.
+
+Examples:
 ```
 #grind_lint skip Array.range_succ
+#grind_lint skip suffix append
 ```
 -/
-syntax (name := grindLintSkip) "#grind_lint" ppSpace &"skip" ident+ : command
+syntax (name := grindLintSkip) "#grind_lint" ppSpace &"skip" (ppSpace &"suffix")? ident+ : command
 
 end Lean.Grind

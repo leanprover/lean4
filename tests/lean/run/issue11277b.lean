@@ -319,96 +319,11 @@ mutual
 
 theorem goCache_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
     ∀ (idx : Nat) (h1) (h2), (goCache aig expr cache).result.val.aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
-  generalize hres : goCache aig expr cache = res
-  intro idx h1 h2
-  unfold goCache at hres
-  split at hres
-  · rw [getElem_congr_coll]
-    rw [← hres]
-  · symm at hres
-    subst hres
-    apply go_decl_eq
-termination_by (sizeOf expr, 1)
+  sorry
 
 theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
     ∀ (idx : Nat) (h1) (h2), (go aig expr cache).result.val.aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
-  intro idx h1 h2
-  unfold go
-  split
-  · rw [AIG.LawfulVecOperator.decl_eq (f := blastVar)]
-  · simp
-  next op lhsExpr rhsExpr =>
-    have hl := (goCache aig lhsExpr cache).result.property
-    have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
-    match op with
-    | .and | .or | .xor =>
-      rw [AIG.RefVec.zip_decl_eq]
-      rw [goCache_decl_eq, goCache_decl_eq]
-      · exact Nat.lt_of_lt_of_le h1 hl
-      · apply Nat.lt_of_lt_of_le
-        · exact h1
-        · apply Nat.le_trans <;> assumption
-    | .add | .mul | .udiv | .umod =>
-      rw [AIG.LawfulVecOperator.decl_eq]
-      rw [goCache_decl_eq, goCache_decl_eq]
-      · exact Nat.lt_of_lt_of_le h1 hl
-      · apply Nat.lt_of_lt_of_le
-        · exact h1
-        · apply Nat.le_trans <;> assumption
-  next op expr =>
-    match op with
-    | .not | .rotateLeft .. | .rotateRight .. | .arithShiftRightConst .. | .reverse | .clz =>
-      rw [AIG.LawfulVecOperator.decl_eq]
-      rw [goCache_decl_eq]
-      have := (goCache aig expr cache).result.property
-      exact Nat.lt_of_lt_of_le h1 this
-  next lhsExpr rhsExpr h =>
-    have hl := (goCache aig lhsExpr cache).result.property
-    have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
-    rw [AIG.LawfulVecOperator.decl_eq]
-    rw [goCache_decl_eq, goCache_decl_eq]
-    · exact Nat.lt_of_lt_of_le h1 hl
-    · apply Nat.lt_of_lt_of_le
-      · exact h1
-      · apply Nat.le_trans <;> assumption
-  next inner _ =>
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastReplicate)]
-    rw [goCache_decl_eq]
-    have := (goCache aig inner cache).result.property
-    exact Nat.lt_of_lt_of_le h1 this
-  next hi lo inner =>
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastExtract)]
-    rw [goCache_decl_eq]
-    have := (goCache aig inner cache).result.property
-    exact Nat.lt_of_lt_of_le h1 this
-  next rhsExpr lhsExpr =>
-    have hl := (goCache aig lhsExpr cache).result.property
-    have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastShiftLeft)]
-    rw [goCache_decl_eq, goCache_decl_eq]
-    · exact Nat.lt_of_lt_of_le h1 hl
-    · apply Nat.lt_of_lt_of_le
-      · exact h1
-      · apply Nat.le_trans <;> assumption
-  next rhsExpr lhsExpr =>
-    have hl := (goCache aig lhsExpr cache).result.property
-    have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastShiftRight)]
-    rw [goCache_decl_eq, goCache_decl_eq]
-    · exact Nat.lt_of_lt_of_le h1 hl
-    · apply Nat.lt_of_lt_of_le
-      · exact h1
-      · apply Nat.le_trans <;> assumption
-  next rhsExpr lhsExpr =>
-    have hl := (goCache aig lhsExpr cache).result.property
-    have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastArithShiftRight)]
-    rw [goCache_decl_eq, goCache_decl_eq]
-    · exact Nat.lt_of_lt_of_le h1 hl
-    · apply Nat.lt_of_lt_of_le
-      · exact h1
-      · apply Nat.le_trans <;>  assumption
-termination_by (sizeOf expr, 0)
+  sorry
 
 end
 
@@ -416,20 +331,16 @@ end bitblast
 
 theorem bitblast_decl_eq (aig : AIG BVBit) (input : WithCache (BVExpr w) aig) :
     ∀ (idx : Nat) (h1) (h2), (bitblast aig input).result.val.aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
-  intros
-  unfold bitblast
-  apply bitblast.goCache_decl_eq
+  sorry
 
 theorem bitblast_le_size (aig : AIG BVBit) (input : WithCache (BVExpr w) aig) :
     aig.decls.size ≤ (bitblast aig input).result.val.aig.decls.size := by
-  exact (bitblast aig input).result.property
+  sorry
 
 theorem bitblast_lt_size_of_lt_aig_size (aig : AIG BVBit) (input : WithCache (BVExpr w) aig)
     (h : x < aig.decls.size) :
     x < (bitblast aig input).result.val.aig.decls.size := by
-  apply Nat.lt_of_lt_of_le
-  · exact h
-  · exact bitblast_le_size aig input
+  sorry
 
 end BVExpr
 

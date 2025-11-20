@@ -5845,22 +5845,6 @@ theorem concat_setWidth_reverse_msb_eq_reverse {x : BitVec (w + 1)}:
   · simp [hzero]
   · simp [hzero, show i - 1 + (w + 1) - w = i by omega]
 
-theorem reverse_eq_msb_cons_reverse {x : BitVec (w + 1)}:
-    x.reverse = cons (x.getLsbD 0) ((x.extractLsb' 1 w).reverse) := by
-  ext i hi
-  simp only [getElem_reverse, getMsbD_eq_getLsbD, Nat.add_one_sub_one, Nat.zero_lt_succ,
-    getLsbD_eq_getElem, getElem_cons, getLsbD_extractLsb', dite_eq_ite]
-  by_cases hiw : i = w
-  · simp [hiw]
-  · simp [hiw, hi, show i < w by omega, show w - 1 - i < w by omega,
-      show 1 + (w - 1 - i) = w - i by omega]
-
-@[simp]
-theorem reverse_reverse (x : BitVec w) :
-   x.reverse.reverse = x := by
-  ext i hi
-  simp [← BitVec.getLsbD_eq_getElem]
-
 /-! ### Inequalities (le / lt) -/
 
 theorem ule_eq_not_ult (x y : BitVec w) : x.ule y = !y.ult x := by

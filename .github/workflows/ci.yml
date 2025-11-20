@@ -210,7 +210,6 @@ jobs:
                 "test": true,
                 "CMAKE_PRESET": "reldebug",
               },
-              // TODO: suddenly started failing in CI
               {
                 "name": "Linux fsanitize",
                 "os": "ubuntu-latest",

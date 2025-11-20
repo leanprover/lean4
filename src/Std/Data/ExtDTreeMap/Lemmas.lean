@@ -3407,6 +3407,42 @@ theorem isSome_minKey?_iff_ne_empty [TransCmp cmp] :
     (t.insert k v).minKey?.isSome :=
   t.inductionOn fun _ => DTreeMap.isSome_minKey?_insert
 
+theorem minKey_insert_of_isEmpty [TransCmp cmp] {k v} (he : t.isEmpty) :
+    (t.insert k v).minKey insert_ne_empty = k := by
+  induction t
+  case mk a =>
+    exact DTreeMap.minKey_insert_of_isEmpty he
+
+theorem minKey?_insert_of_isEmpty [TransCmp cmp] {k v} (he : t.isEmpty) :
+    (t.insert k v).minKey? = some k :=
+  t.inductionOn (fun _ he => DTreeMap.minKey?_insert_of_isEmpty he) he
+
+theorem minKey!_insert_of_isEmpty [TransCmp cmp] [Inhabited α] {k v} (he : t.isEmpty) :
+    (t.insert k v).minKey! = k :=
+  t.inductionOn (fun _ he => DTreeMap.minKey!_insert_of_isEmpty he) he
+
+theorem minKeyD_insert_of_isEmpty [TransCmp cmp] {k v} (he : t.isEmpty) {fallback : α} :
+    (t.insert k v).minKeyD fallback = k :=
+  t.inductionOn (fun _ he => DTreeMap.minKeyD_insert_of_isEmpty he) he
+
+theorem minKey_insertIfNew_of_isEmpty [TransCmp cmp] {k v} (he : t.isEmpty) :
+    (t.insertIfNew k v).minKey insertIfNew_ne_empty = k := by
+  induction t
+  case mk a =>
+    exact DTreeMap.minKey_insertIfNew_of_isEmpty he
+
+theorem minKey?_insertIfNew_of_isEmpty [TransCmp cmp] {k v} (he : t.isEmpty) :
+    (t.insertIfNew k v).minKey? = some k :=
+  t.inductionOn (fun _ he => DTreeMap.minKey?_insertIfNew_of_isEmpty he) he
+
+theorem minKey!_insertIfNew_of_isEmpty [TransCmp cmp] [Inhabited α] {k v} (he : t.isEmpty) :
+    (t.insertIfNew k v).minKey! = k :=
+  t.inductionOn (fun _ he => DTreeMap.minKey!_insertIfNew_of_isEmpty he) he
+
+theorem minKeyD_insertIfNew_of_isEmpty [TransCmp cmp] {k v} (he : t.isEmpty) {fallback : α} :
+    (t.insertIfNew k v).minKeyD fallback = k := t.inductionOn
+    (fun _ he => DTreeMap.minKeyD_insertIfNew_of_isEmpty he) he
+
 theorem minKey?_insert_le_minKey? [TransCmp cmp] {k v km kmi} :
     (hkm : t.minKey? = some km) →
     (hkmi : (t.insert k v |>.minKey? |>.get isSome_minKey?_insert) = kmi) →

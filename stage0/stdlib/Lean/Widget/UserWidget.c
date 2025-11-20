@@ -633,7 +633,6 @@ size_t lean_usize_land(size_t, size_t);
 static lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_evalModuleUnsafe___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Server_wrapRpcProcedure___at___00Lean_Server_registerBuiltinRpcProcedure___at___00__private_Lean_Widget_UserWidget_0__Lean_Widget_initFn_00___x40_Lean_Widget_UserWidget_2369312278____hygCtx___hyg_2__spec__0_spec__3___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at___00Lean_PersistentHashMap_insertAtCollisionNode___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Server_registerBuiltinRpcProcedure___at___00__private_Lean_Widget_UserWidget_0__Lean_Widget_initFn_00___x40_Lean_Widget_UserWidget_2369312278____hygCtx___hyg_2__spec__0_spec__5_spec__5_spec__5_spec__5___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_stringToMessageData___boxed(lean_object*);
 static lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_evalWidgetInstanceUnsafe___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Widget_addBuiltinModule___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_evalModuleUnsafe___closed__0() {
@@ -9370,7 +9369,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_eval
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_stringToMessageData___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_stringToMessageData), 1, 0);
 return x_1;
 }
 }
@@ -10963,7 +10962,6 @@ x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 lean_dec_ref(x_1);
 x_8 = l_Lean_stringToMessageData(x_7);
-lean_dec(x_7);
 x_9 = l_Lean_throwError___at___00Lean_throwAttrMustBeGlobal___at___00Lean_Widget_initFn_00___x40_Lean_Widget_UserWidget_3570059497____hygCtx___hyg_2__spec__9_spec__9___redArg(x_8, x_2, x_3, x_4, x_5);
 return x_9;
 }

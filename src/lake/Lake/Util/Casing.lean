@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.String.Basic
 import Init.Data.String.Modify
+import Init.Data.String.Search
 
 namespace Lake
 
@@ -15,8 +16,8 @@ open Lean (Name)
 
 /-- Converts a snake case, kebab case, or lower camel case `String` to upper camel case. -/
 public def toUpperCamelCaseString (str : String) : String :=
-  let parts := str.splitToList fun chr => chr == '_' || chr == '-'
-  String.join <| parts.map (·.capitalize)
+  let parts := str.split fun chr => chr == '_' || chr == '-'
+  String.join <| parts.map (·.copy.capitalize) |>.toList
 
 /-- Converts a snake case, kebab case, or lower camel case `Name` to upper camel case. -/
 public def toUpperCamelCase (name : Name) : Name :=

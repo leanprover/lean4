@@ -525,7 +525,7 @@ public def init
       | none => error s!"illegal package name: could not derive one from '{path}'"
     else
       return name
-  let name := name.trim
+  let name := name.trimAscii.copy
   validatePkgName name
   IO.FS.createDirAll cwd
   initPkg cwd (stringToLegalOrSimpleName name) tmp lang env offline
@@ -534,7 +534,7 @@ public def new
   (name : String) (tmp : InitTemplate) (lang : ConfigLang)
   (env : Lake.Env) (cwd : FilePath := ".") (offline := false)
 : LoggerIO PUnit := do
-  let name := name.trim
+  let name := name.trimAscii.copy
   validatePkgName name
   let name := stringToLegalOrSimpleName name
   let dirName := dotlessName name

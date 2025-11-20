@@ -683,7 +683,7 @@ mutual
       let str := s.stxStack.back
       if let .atom info str := str then
         if str.startsWith "\" " && str.endsWith " \"" then
-          let core := str.drop 2 |>.dropRight 2
+          let core := str.drop 2 |>.dropEnd 2 |>.copy
           if core.any (· != ' ') then
             let str := "\"" ++ core ++ "\""
             let info : SourceInfo :=
@@ -1047,9 +1047,9 @@ mutual
       | other => s.mkError s!"Internal error - not a column node {other}"
 
     deIndent (n : Nat) (str : String) : String := Id.run do
-      let str := if str != "" && str.back == '\n' then str.dropRight 1 else str
+      let str := if str != "" && str.back == '\n' then str.dropEnd 1 |>.copy else str
       let mut out := ""
-      for line in str.splitOn "\n" do
+      for line in str.split '\n' do
         out := out ++ line.drop n ++ "\n"
       out
 

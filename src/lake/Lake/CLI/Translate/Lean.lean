@@ -265,7 +265,7 @@ def Dependency.mkRequire (cfg : Dependency) : RequireDecl := Unhygienic.run do
   let ver? ←
     if let some ver := cfg.version? then
       if ver.startsWith "git#" then
-        some <$> `(verSpec|git $(toLean <| ver.drop 4))
+        some <$> `(verSpec|git $(toLean <| ver.drop 4 |>.copy))
       else
         some <$> `(verSpec|$(toLean ver):term)
     else

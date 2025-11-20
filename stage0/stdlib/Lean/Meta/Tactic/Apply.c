@@ -970,7 +970,6 @@ lean_inc(x_34);
 lean_dec_ref(x_33);
 x_35 = l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_throwApplyError___redArg___lam__0___closed__3;
 x_36 = l_Lean_stringToMessageData(x_32);
-lean_dec_ref(x_32);
 x_37 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_37, 0, x_35);
 lean_ctor_set(x_37, 1, x_36);

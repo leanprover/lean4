@@ -628,6 +628,167 @@ theorem isEmpty_union [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
 
 end Union
 
+section Inter
+
+variable {t₁ t₂ : Raw α cmp}
+
+@[simp]
+theorem inter_eq : t₁.inter t₂ = t₁ ∩ t₂ := by
+  simp only [Inter.inter]
+
+/- contains -/
+@[simp]
+theorem contains_inter [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k : α} :
+    (t₁ ∩ t₂).contains k = (t₁.contains k && t₂.contains k) :=
+  TreeMap.Raw.contains_inter h₁ h₂
+
+/- mem -/
+@[simp]
+theorem mem_inter_iff [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k : α} :
+    k ∈ t₁ ∩ t₂ ↔ k ∈ t₁ ∧ k ∈ t₂ :=
+  TreeMap.Raw.mem_inter_iff h₁ h₂
+
+theorem not_mem_inter_of_not_mem_left [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α}
+    (not_mem : k ∉ t₁) :
+    k ∉ t₁ ∩ t₂ :=
+  TreeMap.Raw.not_mem_inter_of_not_mem_left h₁ h₂ not_mem
+
+theorem not_mem_inter_of_not_mem_right [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α}
+    (not_mem : k ∉ t₂) :
+    k ∉ t₁ ∩ t₂ :=
+  TreeMap.Raw.not_mem_inter_of_not_mem_right h₁ h₂ not_mem
+
+/- get? -/
+theorem get?_inter [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} :
+    (t₁ ∩ t₂).get? k =
+    if k ∈ t₂ then t₁.get? k else none :=
+  TreeMap.Raw.getKey?_inter h₁ h₂
+
+theorem get?_inter_of_mem_right [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} (mem : k ∈ t₂) :
+    (t₁ ∩ t₂).get? k = t₁.get? k :=
+  TreeMap.Raw.getKey?_inter_of_mem_right h₁ h₂ mem
+
+theorem get?_inter_of_not_mem_left [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} (not_mem : k ∉ t₁) :
+    (t₁ ∩ t₂).get? k = none :=
+  TreeMap.Raw.getKey?_inter_of_not_mem_left h₁ h₂ not_mem
+
+theorem get?_inter_of_not_mem_right [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} (not_mem : k ∉ t₂) :
+    (t₁ ∩ t₂).get? k = none :=
+  TreeMap.Raw.getKey?_inter_of_not_mem_right h₁ h₂ not_mem
+
+/- get -/
+@[simp]
+theorem get_inter [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} {h_mem : k ∈ t₁ ∩ t₂} :
+    (t₁ ∩ t₂).get k h_mem =
+    t₁.get k ((mem_inter_iff h₁ h₂).1 h_mem).1 :=
+  TreeMap.Raw.getKey_inter h₁ h₂
+
+/- getD -/
+theorem getD_inter [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k fallback : α} :
+    (t₁ ∩ t₂).getD k fallback =
+    if k ∈ t₂ then t₁.getD k fallback else fallback :=
+  TreeMap.Raw.getKeyD_inter h₁ h₂
+
+theorem getD_inter_of_mem_right [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k fallback : α} (mem : k ∈ t₂) :
+    (t₁ ∩ t₂).getD k fallback = t₁.getD k fallback :=
+  TreeMap.Raw.getKeyD_inter_of_mem_right h₁ h₂ mem
+
+theorem getD_inter_of_not_mem_right [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k fallback : α} (not_mem : k ∉ t₂) :
+    (t₁ ∩ t₂).getD k fallback = fallback :=
+  TreeMap.Raw.getKeyD_inter_of_not_mem_right h₁ h₂ not_mem
+
+theorem getD_inter_of_not_mem_left [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k fallback : α} (not_mem : k ∉ t₁) :
+    (t₁ ∩ t₂).getD k fallback = fallback :=
+  TreeMap.Raw.getKeyD_inter_of_not_mem_left h₁ h₂ not_mem
+
+/- get! -/
+theorem get!_inter [TransCmp cmp] [Inhabited α]
+    (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k : α} :
+    (t₁ ∩ t₂).get! k =
+    if k ∈ t₂ then t₁.get! k else default :=
+  TreeMap.Raw.getKey!_inter h₁ h₂
+
+theorem get!_inter_of_mem_right [Inhabited α]
+    [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α}
+    (mem : k ∈ t₂) :
+    (t₁ ∩ t₂).get! k = t₁.get! k :=
+  TreeMap.Raw.getKey!_inter_of_mem_right h₁ h₂ mem
+
+theorem get!_inter_of_not_mem_right [Inhabited α]
+    [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α}
+    (not_mem : k ∉ t₂) :
+    (t₁ ∩ t₂).get! k = default :=
+  TreeMap.Raw.getKey!_inter_of_not_mem_right h₁ h₂ not_mem
+
+theorem get!_inter_of_not_mem_left [Inhabited α]
+    [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α}
+    (not_mem : k ∉ t₁) :
+    (t₁ ∩ t₂).get! k = default :=
+  TreeMap.Raw.getKey!_inter_of_not_mem_left h₁ h₂ not_mem
+
+/- size -/
+theorem size_inter_le_size_left [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) :
+    (t₁ ∩ t₂).size ≤ t₁.size :=
+  TreeMap.Raw.size_inter_le_size_left h₁ h₂
+
+theorem size_inter_le_size_right [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) :
+    (t₁ ∩ t₂).size ≤ t₂.size :=
+  TreeMap.Raw.size_inter_le_size_right h₁ h₂
+
+theorem size_inter_eq_size_left [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF)
+    (h : ∀ (a : α), a ∈ t₁ → a ∈ t₂) :
+    (t₁ ∩ t₂).size = t₁.size :=
+  TreeMap.Raw.size_inter_eq_size_left h₁ h₂ h
+
+theorem size_inter_eq_size_right [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF)
+    (h : ∀ (a : α), a ∈ t₂ → a ∈ t₁) :
+    (t₁ ∩ t₂).size = t₂.size :=
+  TreeMap.Raw.size_inter_eq_size_right h₁ h₂ h
+
+theorem size_add_size_eq_size_union_add_size_inter [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    t₁.size + t₂.size = (t₁ ∪ t₂).size + (t₁ ∩ t₂).size :=
+  TreeMap.Raw.size_add_size_eq_size_union_add_size_inter h₁ h₂
+
+/- isEmpty -/
+@[simp]
+theorem isEmpty_inter_left [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁.isEmpty) :
+    (t₁ ∩ t₂).isEmpty = true :=
+  TreeMap.Raw.isEmpty_inter_left h₁ h₂ h
+
+@[simp]
+theorem isEmpty_inter_right [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₂.isEmpty) :
+    (t₁ ∩ t₂).isEmpty = true :=
+  TreeMap.Raw.isEmpty_inter_right h₁ h₂ h
+
+theorem isEmpty_inter_iff [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (t₁ ∩ t₂).isEmpty ↔ ∀ k, k ∈ t₁ → k ∉ t₂ :=
+  TreeMap.Raw.isEmpty_inter_iff h₁ h₂
+
+end Inter
+
 section monadic
 
 variable {δ : Type w} {m : Type w → Type w'}
@@ -934,6 +1095,18 @@ theorem min?_insert [TransCmp cmp] (h : t.WF) {k} :
 theorem isSome_min?_insert [TransCmp cmp] (h : t.WF) {k} :
     (t.insert k).min?.isSome :=
   TreeMap.Raw.isSome_minKey?_insertIfNew h
+
+theorem min?_insert_of_isEmpty [TransCmp cmp] (h : t.WF) {k} (he : t.isEmpty) :
+    (t.insert k).min? = some k :=
+  TreeMap.Raw.minKey?_insertIfNew_of_isEmpty h he
+
+theorem min!_insert_of_isEmpty [TransCmp cmp] [Inhabited α] (h : t.WF) {k} (he : t.isEmpty) :
+    (t.insert k).min! = k :=
+  TreeMap.Raw.minKey!_insertIfNew_of_isEmpty h he
+
+theorem minD_insert_of_isEmpty [TransCmp cmp] (h : t.WF) {k} (he : t.isEmpty) {fallback : α} :
+    (t.insert k).minD fallback = k :=
+  TreeMap.Raw.minKeyD_insertIfNew_of_isEmpty h he
 
 theorem min?_insert_le_min? [TransCmp cmp] (h : t.WF) {k km kmi} :
     (hkm : t.min? = some km) →

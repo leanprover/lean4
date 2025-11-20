@@ -3552,26 +3552,10 @@ Converts a `String` into a `Substring` that denotes the entire string.
 
 /--
 Converts a `String` into a `Substring` that denotes the entire string.
--/
-@[inline] def String.toSubstring (s : String) : Substring.Raw where
-  str      := s
-  startPos := {}
-  stopPos  := s.rawEndPos
-
-/--
-Converts a `String` into a `Substring` that denotes the entire string.
 
 This is a version of `String.toRawSubstring` that doesn't have an `@[inline]` annotation.
 -/
 def String.toRawSubstring' (s : String) : Substring.Raw :=
-  s.toRawSubstring
-
-/--
-Converts a `String` into a `Substring` that denotes the entire string.
-
-This is a version of `String.toRawSubstring` that doesn't have an `@[inline]` annotation.
--/
-def String.toSubstring' (s : String) : Substring.Raw :=
   s.toRawSubstring
 
 /--

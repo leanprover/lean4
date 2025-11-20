@@ -200,7 +200,6 @@ option_ref<decl> find_ir_decl_boxed(elab_environment const & env, name const & n
 extern "C" double lean_float_of_nat(lean_obj_arg a);
 extern "C" float lean_float32_of_nat(lean_obj_arg a);
 
-static string_ref * g_mangle_prefix = nullptr;
 static string_ref * g_boxed_mangled_suffix = nullptr;
 static name * g_interpreter_prefer_native = nullptr;
 
@@ -209,9 +208,10 @@ static name * g_interpreter_prefer_native = nullptr;
 static name_hash_map<object *> * g_init_globals;
 
 // reuse the compiler's name mangling to compute native symbol names
-extern "C" object * lean_name_mangle(object * n, object * pre);
-string_ref name_mangle(name const & n, string_ref const & pre) {
-    return string_ref(lean_name_mangle(n.to_obj_arg(), pre.to_obj_arg()));
+/* getSymbolStem (env : Environment) (fn : Name) :  String */
+extern "C" obj_res lean_get_symbol_stem(obj_arg env, obj_arg fn);
+string_ref get_symbol_stem(elab_environment const & env, name const & fn) {
+    return string_ref(lean_get_symbol_stem(env.to_obj_arg(), fn.to_obj_arg()));
 }
 
 extern "C" object * lean_ir_format_fn_body_head(object * b);
@@ -839,7 +839,7 @@ private:
         }
         symbol_cache_entry e_new { get_decl(fn), {nullptr, false} };
         if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || has_init_attribute(m_env, fn)) {
-            string_ref mangled = name_mangle(fn, *g_mangle_prefix);
+            string_ref mangled = get_symbol_stem(m_env, fn);
             string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
             // check for boxed version first
             if (void *p_boxed = lookup_symbol_in_cur_exe(boxed_mangled.data())) {
@@ -961,7 +961,7 @@ private:
             }
         } else {
             if (decl_tag(e.m_decl) == decl_kind::Extern) {
-                string_ref mangled = name_mangle(fn, *g_mangle_prefix);
+                string_ref mangled = get_symbol_stem(m_env, fn);
                 string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
                 throw exception(sstream() << "Could not find native implementation of external declaration '" << fn
                                           << "' (symbols '" << boxed_mangled.data() << "' or '" << mangled.data() << "').\n"
@@ -1184,12 +1184,9 @@ extern "C" LEAN_EXPORT object * lean_eval_const(object * env, object * opts, obj
     }
 }
 
-/* mkModuleInitializationFunctionName (moduleName : Name) : String */
-extern "C" obj_res lean_mk_module_initialization_function_name(obj_arg);
-
-extern "C" LEAN_EXPORT object * lean_run_mod_init(object * mod, object *) {
-    string_ref mangled = string_ref(lean_mk_module_initialization_function_name(mod));
-    if (void * init = lookup_symbol_in_cur_exe(mangled.data())) {
+/* runModInitCore (sym : @& String) : IO Bool */
+extern "C" LEAN_EXPORT obj_res lean_run_mod_init_core(b_obj_arg  sym) {
+    if (void * init = lookup_symbol_in_cur_exe(string_cstr(sym))) {
         auto init_fn = reinterpret_cast<object *(*)(uint8_t)>(init);
         uint8_t builtin = 0;
         object * r = init_fn(builtin);
@@ -1212,8 +1209,6 @@ extern "C" LEAN_EXPORT object * lean_run_init(object * env, object * opts, objec
 }
 
 void initialize_ir_interpreter() {
-    ir::g_mangle_prefix = new string_ref("l_");
-    mark_persistent(ir::g_mangle_prefix->raw());
     ir::g_boxed_mangled_suffix = new string_ref("___boxed");
     mark_persistent(ir::g_boxed_mangled_suffix->raw());
     ir::g_interpreter_prefer_native = new name({"interpreter", "prefer_native"});
@@ -1234,6 +1229,5 @@ void finalize_ir_interpreter() {
     delete ir::g_init_globals;
     delete ir::g_interpreter_prefer_native;
     delete ir::g_boxed_mangled_suffix;
-    delete ir::g_mangle_prefix;
 }
 }

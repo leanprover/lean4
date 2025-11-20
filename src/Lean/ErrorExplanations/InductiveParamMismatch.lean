@@ -41,7 +41,7 @@ The provided argument
 is not definitionally equal to the expected parameter
   n
 
-Note: The value of parameter 'n' must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
+Note: The value of parameter `n` must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
 ```
 ```lean fixed
 inductive Vec (α : Type) : Nat → Type where

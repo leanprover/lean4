@@ -232,13 +232,26 @@ This function always merges the smaller set into the larger set, so the expected
 
 instance [BEq α] [Hashable α] : Union (Raw α) := ⟨union⟩
 
+/--
+Computes the intersection of the given hash sets. The result will only contain entries from the first map.
+
+This function always merges the smaller set into the larger set, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def inter [BEq α] [Hashable α] (m₁ m₂ : Raw α) : Raw α :=
+  ⟨HashMap.Raw.inter m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : Inter (Raw α) := ⟨inter⟩
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
+
 /-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
 @[inline] def all (m : Raw α) (p : α → Bool) : Bool := m.inner.all (fun x _ => p x)
 
 /-- Check if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
 @[inline] def any (m : Raw α) (p : α → Bool) : Bool := m.inner.any (fun x _ => p x)
-
-section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
 
@@ -312,8 +325,11 @@ theorem WF.ofList [BEq α] [Hashable α] {l : List α} :
     (ofList l : Raw α).WF :=
   ⟨HashMap.Raw.WF.unitOfList⟩
 
-theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.union m₂).WF :=
+theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ ∪ m₂).WF :=
   ⟨HashMap.Raw.WF.union h₁.out h₂.out⟩
+
+theorem WF.inter [BEq α] [Hashable α] {m₁ m₂ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ ∩ m₂).WF :=
+  ⟨HashMap.Raw.WF.inter h₁.out h₂.out⟩
 
 end Raw
 

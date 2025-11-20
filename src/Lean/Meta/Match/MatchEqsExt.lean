@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Basic
+public import Lean.Meta.Match.Basic
 import Lean.Meta.Eqns
 
 public section
@@ -16,8 +17,8 @@ namespace Lean.Meta.Match
 structure MatchEqns where
   eqnNames             : Array Name
   splitterName         : Name
-  splitterAltNumParams : Array Nat
-  deriving Inhabited, Repr
+  splitterMatchInfo    : MatcherInfo
+deriving Inhabited, Repr
 
 def MatchEqns.size (e : MatchEqns) : Nat :=
   e.eqnNames.size

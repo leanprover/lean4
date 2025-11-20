@@ -435,7 +435,7 @@ theorem endExclusive_toSlice {s : String} : s.toSlice.endExclusive = s.endValidP
 theorem str_toSlice {s : String} : s.toSlice.str = s := rfl
 
 /-- The number of bytes of the UTF-8 encoding of the string slice. -/
-@[expose]
+@[expose, inline]
 def Slice.utf8ByteSize (s : Slice) : Nat :=
   s.startInclusive.offset.byteDistance s.endExclusive.offset
 
@@ -464,7 +464,7 @@ theorem Pos.Raw.byteIdx_sub_slice {p : Pos.Raw} {s : Slice} :
     (p - s).byteIdx = p.byteIdx - s.utf8ByteSize := rfl
 
 /-- The end position of a slice, as a `Pos.Raw`. -/
-@[expose]
+@[expose, inline]
 def Slice.rawEndPos (s : Slice) : Pos.Raw where
   byteIdx := s.utf8ByteSize
 
@@ -630,5 +630,13 @@ def Slice.Pos.byte {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : UInt8 :=
 
 theorem push_eq_append (c : Char) : String.push s c = s ++ singleton c := by
   simp
+
+@[deprecated String.toRawSubstring (since := "2025-11-18")]
+def toSubstring (s : String) : Substring.Raw :=
+  s.toRawSubstring
+
+@[deprecated String.toRawSubstring' (since := "2025-11-18")]
+def toSubstring' (s : String) : Substring.Raw :=
+  s.toRawSubstring'
 
 end String

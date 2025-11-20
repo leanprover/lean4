@@ -51,7 +51,7 @@ partial def runLakeSetupFile
       processStderr (acc ++ line)
   let stderr ← ServerTask.IO.asTask (processStderr "")
 
-  let stdout := String.trim (← lakeProc.stdout.readToEnd)
+  let stdout := String.trimAscii (← lakeProc.stdout.readToEnd) |>.copy
   let stderr ← IO.ofExcept stderr.get
   let exitCode ← lakeProc.wait
   return ⟨spawnArgs, exitCode, stdout, stderr⟩

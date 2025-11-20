@@ -12,6 +12,7 @@ public import Lean.Meta.Eqns
 public import Lean.Meta.Tactic.Simp.SimpTheorems
 public import Lean.Meta.Tactic.Simp.SimpCongrTheorems
 import Lean.Meta.Tactic.Replace
+import Lean.ExtraModUses
 
 public section
 
@@ -880,6 +881,11 @@ def SimpM.run (ctx : Context) (s : State := {}) (methods : Methods := {}) (k : S
     trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
     let stats ← updateUsedSimpsWithZetaDelta ctx { s with }
     let s := { s with diag := stats.diag, usedTheorems := stats.usedTheorems }
+    for (thm, _) in s.usedTheorems.map do
+      if let .decl declName .. := thm then
+        -- for `rfl` theorems and simprocs, there might not be an explicit reference in the proof
+        -- term
+        recordExtraModUseFromDecl (isMeta := false) declName
     return (r, s)
 
 end Simp

@@ -1045,6 +1045,15 @@ def union (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
 instance : Union (DTreeMap α β cmp) := ⟨union⟩
 
 /--
+Computes the intersection of the given tree maps. The result will only contain entries from the first map.
+
+This function always merges the smaller map into the larger map.
+-/
+def inter (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.inter t₂.inner t₁.wf.balanced,  @Impl.WF.inter _ _ _ _ t₂.inner t₁.wf.balanced t₁.wf⟩
+
+instance : Inter (DTreeMap α β cmp) := ⟨inter⟩
+/--
 Erases multiple mappings from the tree map by iterating over the given collection and calling
 `erase`.
 -/

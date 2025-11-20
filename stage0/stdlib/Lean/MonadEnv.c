@@ -177,7 +177,6 @@ lean_object* l_Lean_mkLevelParam(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findModuleOf_x3f___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_evalConst___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_getConstVal___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_stringToMessageData___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_hasConst___redArg___lam__0(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkConstWithLevelParams___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_setEnv___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
@@ -2509,7 +2508,7 @@ static lean_object* _init_l_Lean_evalConst___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_stringToMessageData___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_stringToMessageData), 1, 0);
 return x_1;
 }
 }

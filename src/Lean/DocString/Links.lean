@@ -9,6 +9,7 @@ module
 prelude
 public import Lean.Syntax
 import Init.Data.String.TakeDrop
+import Init.Data.String.Search
 
 public section
 
@@ -70,7 +71,7 @@ def manualLink (kind name : String) : Except String String :=
     throw s!"Unknown documentation type `{kind}`. Expected one of the following: {acceptableKinds}"
 
 private def rw (path : String) : Except String String := do
-  match path.splitOn "/" with
+  match path.split '/' |>.toStringList with
   | [] | [""] =>
     throw "Missing documentation type"
   | kind :: args =>

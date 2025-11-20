@@ -157,7 +157,7 @@ def bitVecWidths (t : InfoTree) : List (Syntax × Name) :=
 
 /-- Strip optional suffixes from a binder name. -/
 def stripBinderName (s : String) : String :=
-  s.stripSuffix "'" |>.stripSuffix "₁" |>.stripSuffix "₂" |>.stripSuffix "₃" |>.stripSuffix "₄"
+  s.dropSuffix "'" |>.dropSuffix "₁" |>.dropSuffix "₂" |>.dropSuffix "₃" |>.dropSuffix "₄" |>.copy
 
 /-- Allowed names for index variables. -/
 def allowedIndices : List String := ["i", "j", "k", "start", "stop", "step"]

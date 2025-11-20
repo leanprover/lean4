@@ -2396,7 +2396,6 @@ x_21 = lean_ctor_get(x_12, 0);
 lean_inc_ref(x_21);
 lean_dec_ref(x_12);
 x_22 = l_Lean_stringToMessageData(x_21);
-lean_dec_ref(x_21);
 lean_ctor_set(x_6, 0, x_22);
 return x_6;
 }
@@ -2785,7 +2784,6 @@ x_103 = lean_ctor_get(x_96, 0);
 lean_inc_ref(x_103);
 lean_dec_ref(x_96);
 x_104 = l_Lean_stringToMessageData(x_103);
-lean_dec_ref(x_103);
 x_105 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_105, 0, x_104);
 return x_105;

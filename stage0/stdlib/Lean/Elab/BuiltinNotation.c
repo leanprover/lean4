@@ -6785,7 +6785,7 @@ goto block_42;
 block_195:
 {
 uint8_t x_163; lean_object* x_164; lean_object* x_165; lean_object* x_166; lean_object* x_167; lean_object* x_168; lean_object* x_169; lean_object* x_170; lean_object* x_171; lean_object* x_172; lean_object* x_173; lean_object* x_174; lean_object* x_175; lean_object* x_176; lean_object* x_177; lean_object* x_178; lean_object* x_179; lean_object* x_180; lean_object* x_181; lean_object* x_182; 
-x_163 = lean_ctor_get_uint8(x_161, sizeof(void*)*7 + 1);
+x_163 = lean_ctor_get_uint8(x_161, sizeof(void*)*8 + 1);
 x_164 = l_Lean_Elab_Term_elabAnonymousCtor___closed__15;
 lean_inc(x_157);
 x_165 = l_Lean_MessageData_ofName(x_157);
@@ -6809,7 +6809,6 @@ x_174 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_174, 0, x_172);
 lean_ctor_set(x_174, 1, x_173);
 x_175 = l_Lean_stringToMessageData(x_152);
-lean_dec_ref(x_152);
 x_176 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_176, 0, x_174);
 lean_ctor_set(x_176, 1, x_175);
@@ -6818,7 +6817,6 @@ x_178 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_178, 0, x_176);
 lean_ctor_set(x_178, 1, x_177);
 x_179 = l_Lean_stringToMessageData(x_162);
-lean_dec_ref(x_162);
 x_180 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_180, 0, x_178);
 lean_ctor_set(x_180, 1, x_179);
@@ -7720,7 +7718,6 @@ block_27:
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
 x_19 = l_Lean_stringToMessageData(x_18);
-lean_dec_ref(x_18);
 x_20 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_20, 0, x_14);
 lean_ctor_set(x_20, 1, x_19);
@@ -18539,7 +18536,6 @@ block_107:
 {
 lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; 
 x_101 = l_Lean_stringToMessageData(x_100);
-lean_dec_ref(x_100);
 x_102 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_102, 0, x_99);
 lean_ctor_set(x_102, 1, x_101);
@@ -18582,7 +18578,6 @@ block_97:
 {
 lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; uint8_t x_92; 
 x_86 = l_Lean_stringToMessageData(x_85);
-lean_dec_ref(x_85);
 x_87 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_87, 0, x_84);
 lean_ctor_set(x_87, 1, x_86);

@@ -8,6 +8,7 @@ module
 prelude
 import Init.Data.Array.Basic
 public import Init.Data.String.TakeDrop
+import Init.Data.String.Slice
 
 namespace Lake
 
@@ -69,15 +70,15 @@ variable [Monad m] [MonadStateOf ArgList m]
 
 /-- Process a short option of the form `-x=arg`. -/
 @[inline] public def shortOptionWithEq (handle : Char → m α) (opt : String) : m α := do
-  consArg (opt.drop 3); handle (String.Pos.Raw.get opt ⟨1⟩)
+  consArg (opt.drop 3).copy; handle (String.Pos.Raw.get opt ⟨1⟩)
 
 /-- Process a short option of the form `"-x arg"`. -/
 @[inline] public def shortOptionWithSpace (handle : Char → m α) (opt : String) : m α := do
-  consArg <| opt.drop 2 |>.trimLeft; handle (String.Pos.Raw.get opt ⟨1⟩)
+  consArg <| opt.drop 2 |>.trimAsciiStart |>.copy; handle (String.Pos.Raw.get opt ⟨1⟩)
 
 /-- Process a short option of the form `-xarg`. -/
 @[inline] public def shortOptionWithArg (handle : Char → m α) (opt : String) : m α := do
-  consArg (opt.drop 2); handle (String.Pos.Raw.get opt ⟨1⟩)
+  consArg (opt.drop 2).copy; handle (String.Pos.Raw.get opt ⟨1⟩)
 
 /-- Process a multiple short options grouped together (ex. `-xyz` as `x`, `y`, `z`). -/
 @[inline] public def multiShortOption (handle : Char → m PUnit) (opt : String) : m PUnit := do

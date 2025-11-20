@@ -384,17 +384,6 @@ This function ensures that the value is used linearly.
   else
     ∅
 
-/--
-Monadically computes a value by folding the given function over the mappings in the hash
-map in some order.
--/
-@[inline] def foldM (f : δ → (a : α) → β a → m δ) (init : δ) (b : Raw α β) : m δ :=
-  b.buckets.foldlM (fun acc l => l.foldlM f acc) init
-
-/-- Folds the given function over the mappings in the hash map in some order. -/
-@[inline] def fold (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
-  Id.run (b.foldM (pure <| f · · ·) init)
-
 namespace Internal
 
 /--
@@ -515,6 +504,23 @@ This function always merges the smaller map into the larger map, so the expected
     m₂
 
 instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
+
+/--
+Computes the intersection of the given hash maps. The result will only contain entries from the first map.
+
+This function always merges the smaller map into the larger map, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def inter [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
+  if h₁ : 0 < m₁.buckets.size then
+    if h₂ : 0 < m₂.buckets.size then
+      Raw₀.inter ⟨m₁, h₁⟩ ⟨m₂, h₂⟩
+    else
+      m₁
+  else
+    m₂
+
+instance [BEq α] [Hashable α] : Inter (Raw α β) := ⟨inter⟩
 
 
 section Unverified
@@ -664,6 +670,8 @@ inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable
   /-- Internal implementation detail of the hash map -/
   | constAlter₀ {α} {β : Type v} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a}
       {f : Option β → Option β} : WF m → WF (Raw₀.Const.alter ⟨m, h⟩ a f).1
+  /-- Internal implementation detail of the hash map -/
+  | inter₀ {α β} [BEq α] [Hashable α] {m₁ m₂ : Raw α β} {h₁ h₂} : WF m₁ → WF m₂ → WF (Raw₀.inter ⟨m₁, h₁⟩ ⟨m₂, h₂⟩).1
 
 -- TODO: this needs to be deprecated, but there is a bootstrapping issue.
 -- @[deprecated WF.emptyWithCapacity₀ (since := "2025-03-12")]
@@ -686,6 +694,7 @@ theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 
   | constModify₀ _ => (Raw₀.Const.modify _ _ _).2
   | alter₀ _ => (Raw₀.alter _ _ _).2
   | constAlter₀ _ => (Raw₀.Const.alter _ _ _).2
+  | inter₀ _ _ => (Raw₀.inter _ _).2
 
 @[simp] theorem WF.emptyWithCapacity [BEq α] [Hashable α] {c : Nat} : (Raw.emptyWithCapacity c : Raw α β).WF :=
   .emptyWithCapacity₀
@@ -757,9 +766,15 @@ theorem WF.union₀ [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.
   . exact (Raw₀.insertManyIfNew ⟨m₂, h₂.size_buckets_pos⟩ m₁).2 _ WF.insertIfNew₀ h₂
   . exact (Raw₀.insertMany ⟨m₁, h₁.size_buckets_pos⟩ m₂).2 _ WF.insert₀ h₁
 
-theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.union m₂ : Raw α β).WF := by
+theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ ∪ m₂ : Raw α β).WF := by
+  simp only [Union.union]
   simp [Std.DHashMap.Raw.union, h₁.size_buckets_pos, h₂.size_buckets_pos]
   exact WF.union₀ h₁ h₂
+
+theorem WF.inter [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ ∩ m₂ : Raw α β).WF := by
+  simp only [Inter.inter]
+  simp [Std.DHashMap.Raw.inter, h₁.size_buckets_pos, h₂.size_buckets_pos]
+  exact WF.inter₀ h₁ h₂
 
 end WF
 

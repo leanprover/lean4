@@ -490,7 +490,7 @@ public theorem Rxi.Iterator.toArray_eq_match
 
 public theorem Rxc.Iterator.pairwise_toList_upwardEnumerableLt [LE α] [DecidableLE α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    [Rxc.IsAlwaysFinite α]
     (it : Iter (α := Rxc.Iterator α) α) :
     it.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
   induction it using Iter.inductSteps with | step it ihy ihs
@@ -513,7 +513,7 @@ public theorem Rxc.Iterator.pairwise_toList_upwardEnumerableLt [LE α] [Decidabl
 
 public theorem Rxo.Iterator.pairwise_toList_upwardEnumerableLt [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    [Rxo.IsAlwaysFinite α]
     (it : Iter (α := Rxo.Iterator α) α) :
     it.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
   induction it using Iter.inductSteps with | step it ihy ihs
@@ -536,7 +536,7 @@ public theorem Rxo.Iterator.pairwise_toList_upwardEnumerableLt [LT α] [Decidabl
 
 public theorem Rxi.Iterator.pairwise_toList_upwardEnumerableLt
     [UpwardEnumerable α] [LawfulUpwardEnumerable α]
-    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    [Rxi.IsAlwaysFinite α]
     (it : Iter (α := Rxi.Iterator α) α) :
     it.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
   induction it using Iter.inductSteps with | step it ihy ihs
@@ -589,8 +589,7 @@ public theorem toList_eq_if_roc [LE α] [DecidableLE α] [UpwardEnumerable α]
 def toList_eq_match := @toList_eq_if_roc
 
 public theorem toArray_eq_if_roc [LE α] [DecidableLE α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] :
     r.toArray = if r.lower ≤ r.upper then
         #[r.lower] ++ (r.lower<...=r.upper).toArray
       else
@@ -613,53 +612,51 @@ public theorem toList_toArray [LE α] [DecidableLE α] [UpwardEnumerable α]
   simp [Internal.toList_eq_toList_iter, Internal.toArray_eq_toArray_iter]
 
 public theorem toList_eq_nil_iff [LE α] [DecidableLE α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] :
     r.toList = [] ↔ ¬ (r.lower ≤ r.upper) := by
   rw [Internal.toList_eq_toList_iter, Rxc.Iterator.toList_eq_match, Internal.iter]
   simp only
   split <;> rename_i heq <;> simp [heq]
 
 public theorem toArray_eq_empty_iff [LE α] [DecidableLE α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] :
     r.toArray = #[] ↔ ¬ (r.lower ≤ r.upper) := by
   simp [← toArray_toList, toList_eq_nil_iff]
 
 public theorem mem_toList_iff_mem [LE α] [DecidableLE α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toList ↔ a ∈ r := by
+    {a : α} : a ∈ r.toList ↔ a ∈ r := by
   rw [Internal.toList_eq_toList_iter, Iter.mem_toList_iff_isPlausibleIndirectOutput,
     Internal.isPlausibleIndirectOutput_iter_iff]
 
 public theorem mem_toArray_iff_mem [LE α] [DecidableLE α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toArray ↔ a ∈ r := by
+    {a : α} : a ∈ r.toArray ↔ a ∈ r := by
   simp [← toArray_toList, mem_toList_iff_mem]
 
 public theorem pairwise_toList_upwardEnumerableLt [LE α] [DecidableLE α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxc.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
   rw [Internal.toList_eq_toList_iter]
   apply Rxc.Iterator.pairwise_toList_upwardEnumerableLt
 
 public theorem pairwise_toList_ne [LE α] [DecidableLE α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxc.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a ≠ b) :=
   List.Pairwise.imp (fun hlt => UpwardEnumerable.ne_of_lt hlt) pairwise_toList_upwardEnumerableLt
 
 public theorem pairwise_toList_lt [LE α] [DecidableLE α] [LT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [LawfulUpwardEnumerableLT α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerableLT α] [Rxc.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a < b) :=
   List.Pairwise.imp
     (fun hlt => (LawfulUpwardEnumerableLT.lt_iff ..).mpr hlt) pairwise_toList_upwardEnumerableLt
 
 public theorem pairwise_toList_le [LE α] [DecidableLE α] [LT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxc.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a ≤ b) :=
   pairwise_toList_upwardEnumerableLt
     |> List.Pairwise.imp UpwardEnumerable.le_of_lt
@@ -852,54 +849,52 @@ public theorem toList_toArray [LT α] [DecidableLT α] [UpwardEnumerable α]
   simp [Internal.toList_eq_toList_iter, Internal.toArray_eq_toArray_iter]
 
 public theorem toList_eq_nil_iff [LT α] [DecidableLT α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α] :
     r.toList = [] ↔ ¬ (r.lower < r.upper) := by
   rw [Internal.toList_eq_toList_iter, Rxo.Iterator.toList_eq_match, Internal.iter]
   simp only
   split <;> rename_i heq <;> simp [heq]
 
 public theorem toArray_eq_empty_iff [LT α] [DecidableLT α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α] :
     r.toArray = #[] ↔ ¬ (r.lower < r.upper) := by
   simp [← toArray_toList, toList_eq_nil_iff]
 
 public theorem mem_toList_iff_mem [LE α] [LT α] [DecidableLT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLE α]
-    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toList ↔ a ∈ r := by
+    [Rxo.IsAlwaysFinite α] {a : α} : a ∈ r.toList ↔ a ∈ r := by
   rw [Internal.toList_eq_toList_iter, Iter.mem_toList_iff_isPlausibleIndirectOutput,
     Internal.isPlausibleIndirectOutput_iter_iff]
 
 public theorem mem_toArray_iff_mem [LE α] [LT α] [DecidableLT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLE α]
-    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toArray ↔ a ∈ r := by
+    [Rxo.IsAlwaysFinite α] {a : α} : a ∈ r.toArray ↔ a ∈ r := by
   rw [Internal.toArray_eq_toArray_iter, Iter.mem_toArray_iff_isPlausibleIndirectOutput,
     Internal.isPlausibleIndirectOutput_iter_iff]
 
 public theorem pairwise_toList_upwardEnumerableLt [LE α] [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxo.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
   rw [Internal.toList_eq_toList_iter]
   apply Rxo.Iterator.pairwise_toList_upwardEnumerableLt
 
 public theorem pairwise_toList_ne [LE α] [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxo.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a ≠ b) :=
   List.Pairwise.imp (fun hlt => UpwardEnumerable.ne_of_lt hlt) pairwise_toList_upwardEnumerableLt
 
 public theorem pairwise_toList_lt [LE α] [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxo.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a < b) :=
   List.Pairwise.imp
     (fun hlt => (LawfulUpwardEnumerableLT.lt_iff ..).mpr hlt) pairwise_toList_upwardEnumerableLt
 
 public theorem pairwise_toList_le [LE α] [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [LawfulUpwardEnumerableLE α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerableLE α] [Rxo.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a ≤ b) :=
   pairwise_toList_upwardEnumerableLt
     |> List.Pairwise.imp UpwardEnumerable.le_of_lt
@@ -1039,7 +1034,7 @@ namespace Rci
 variable {r : Rci α}
 
 public theorem toList_eq_toList_roi [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] :
     r.toList = r.lower :: (r.lower<...*).toList := by
   rw [Internal.toList_eq_toList_iter, Rxi.Iterator.toList_eq_match]; rfl
 
@@ -1047,7 +1042,7 @@ public theorem toList_eq_toList_roi [UpwardEnumerable α]
 def toList_eq_toList_Roi := @toList_eq_toList_roi
 
 public theorem toArray_eq_toArray_roi [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] :
     r.toArray = #[r.lower] ++ (r.lower<...*).toArray := by
   rw [Internal.toArray_eq_toArray_iter, Rxi.Iterator.toArray_eq_match]; rfl
 
@@ -1067,51 +1062,49 @@ public theorem toList_toArray [UpwardEnumerable α] [LawfulUpwardEnumerable α]
   simp [Internal.toList_eq_toList_iter, Internal.toArray_eq_toArray_iter]
 
 public theorem toList_ne_nil [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] :
     r.toList ≠ [] := by
   rw [Internal.toList_eq_toList_iter, Rxi.Iterator.toList_eq_match, Internal.iter]
   simp
 
 public theorem toArray_ne_nil [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] :
     r.toArray ≠ #[] := by
   simp [← toArray_toList, toList_ne_nil]
 
 public theorem mem_toList_iff_mem [LE α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toList ↔ a ∈ r := by
+    [Rxi.IsAlwaysFinite α] {a : α} : a ∈ r.toList ↔ a ∈ r := by
   rw [Internal.toList_eq_toList_iter, Iter.mem_toList_iff_isPlausibleIndirectOutput,
     Internal.isPlausibleIndirectOutput_iter_iff]
 
 public theorem mem_toArray_iff_mem [LE α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toArray ↔ a ∈ r := by
+    [Rxi.IsAlwaysFinite α] {a : α} : a ∈ r.toArray ↔ a ∈ r := by
   rw [Internal.toArray_eq_toArray_iter, Iter.mem_toArray_iff_isPlausibleIndirectOutput,
     Internal.isPlausibleIndirectOutput_iter_iff]
 
 public theorem pairwise_toList_upwardEnumerableLt [LE α]
-    [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
   rw [Internal.toList_eq_toList_iter]
   apply Rxi.Iterator.pairwise_toList_upwardEnumerableLt
 
 public theorem pairwise_toList_ne [LE α]
-    [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a ≠ b) :=
   List.Pairwise.imp (fun hlt => UpwardEnumerable.ne_of_lt hlt) pairwise_toList_upwardEnumerableLt
 
 public theorem pairwise_toList_lt [LE α] [LT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α]
-    [LawfulUpwardEnumerableLT α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerableLT α] [Rxi.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a < b) :=
   List.Pairwise.imp
     (fun hlt => (LawfulUpwardEnumerableLT.lt_iff ..).mpr hlt) pairwise_toList_upwardEnumerableLt
 
 public theorem pairwise_toList_le [LE α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxi.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a ≤ b) :=
   pairwise_toList_upwardEnumerableLt
     |> List.Pairwise.imp UpwardEnumerable.le_of_lt
@@ -1293,7 +1286,7 @@ public theorem toList_toArray [LE α] [DecidableLE α] [UpwardEnumerable α] [La
 
 public theorem toList_eq_nil_iff [LE α] [DecidableLE α] [LT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
-    [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxc.IsAlwaysFinite α] :
     r.toList = [] ↔ ¬ (r.lower < r.upper) := by
   rw [Internal.toList_eq_toList_iter, Rxc.Iterator.toList_eq_match, Internal.iter]
   simp only
@@ -1304,45 +1297,45 @@ public theorem toList_eq_nil_iff [LE α] [DecidableLE α] [LT α] [UpwardEnumera
 
 public theorem toArray_eq_empty_iff [LE α] [DecidableLE α] [LT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
-    [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxc.IsAlwaysFinite α] :
     r.toArray = #[] ↔ ¬ (r.lower < r.upper) := by
   simp [← toArray_toList, toList_eq_nil_iff]
 
 public theorem mem_toList_iff_mem [LE α] [DecidableLE α] [LT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
-    [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toList ↔ a ∈ r := by
+    [Rxc.IsAlwaysFinite α] {a : α} : a ∈ r.toList ↔ a ∈ r := by
   rw [Internal.toList_eq_toList_iter, Iter.mem_toList_iff_isPlausibleIndirectOutput,
     Internal.isPlausibleIndirectOutput_iter_iff]
 
 public theorem mem_toArray_iff_mem [LE α] [DecidableLE α] [LT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
-    [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toArray ↔ a ∈ r := by
+    [Rxc.IsAlwaysFinite α] {a : α} : a ∈ r.toArray ↔ a ∈ r := by
   rw [Internal.toArray_eq_toArray_iter, Iter.mem_toArray_iff_isPlausibleIndirectOutput,
     Internal.isPlausibleIndirectOutput_iter_iff]
 
 public theorem pairwise_toList_upwardEnumerableLt [LE α] [DecidableLE α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxc.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
   rw [Internal.toList_eq_toList_iter]
   apply Rxc.Iterator.pairwise_toList_upwardEnumerableLt
 
 public theorem pairwise_toList_ne [LE α] [DecidableLE α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxc.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a ≠ b) :=
   List.Pairwise.imp (fun hlt => UpwardEnumerable.ne_of_lt hlt) pairwise_toList_upwardEnumerableLt
 
 public theorem pairwise_toList_lt [LE α] [DecidableLE α] [LT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [LawfulUpwardEnumerableLT α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerableLT α] [Rxc.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a < b) :=
   List.Pairwise.imp
     (fun hlt => (LawfulUpwardEnumerableLT.lt_iff ..).mpr hlt) pairwise_toList_upwardEnumerableLt
 
 public theorem pairwise_toList_le [LE α] [DecidableLE α] [LT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxc.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a ≤ b) :=
   pairwise_toList_upwardEnumerableLt
     |> List.Pairwise.imp UpwardEnumerable.le_of_lt
@@ -1466,8 +1459,7 @@ namespace Roo
 variable {r : Roo α}
 
 public theorem toList_eq_match [LT α] [DecidableLT α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α] :
     r.toList = match UpwardEnumerable.succ? r.lower with
       | none => []
       | some next =>
@@ -1478,8 +1470,7 @@ public theorem toList_eq_match [LT α] [DecidableLT α] [UpwardEnumerable α]
   rw [Internal.toList_eq_toList_iter, Rxo.Iterator.toList_eq_match]; rfl
 
 public theorem toArray_eq_match [LE α] [LT α] [DecidableLT α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α] :
     r.toArray = match UpwardEnumerable.succ? r.lower with
       | none => #[]
       | some next =>
@@ -1524,54 +1515,52 @@ public theorem toList_toArray [LT α] [DecidableLT α] [UpwardEnumerable α] [La
   simp [Internal.toList_eq_toList_iter, Internal.toArray_eq_toArray_iter]
 
 public theorem toList_eq_nil_iff [LE α] [LT α] [DecidableLT α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α] :
     r.toList = [] ↔ ∀ a, UpwardEnumerable.succ? r.lower = some a → ¬ (a < r.upper) := by
   rw [Internal.toList_eq_toList_iter, Rxo.Iterator.toList_eq_match, Internal.iter]
   simp only
   split <;> rename_i heq <;> simp [heq]
 
 public theorem toArray_eq_empty_iff [LE α] [LT α] [DecidableLT α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α] :
     r.toArray = #[] ↔ ∀ a, UpwardEnumerable.succ? r.lower = some a → ¬ (a < r.upper) := by
   simp [← toArray_toList, toList_eq_nil_iff]
 
 public theorem mem_toList_iff_mem [LT α] [DecidableLT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toList ↔ a ∈ r := by
+    [Rxo.IsAlwaysFinite α] {a : α} : a ∈ r.toList ↔ a ∈ r := by
   rw [Internal.toList_eq_toList_iter, Iter.mem_toList_iff_isPlausibleIndirectOutput,
     Internal.isPlausibleIndirectOutput_iter_iff]
 
 public theorem mem_toArray_iff_mem [LT α] [DecidableLT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toArray ↔ a ∈ r := by
+    [Rxo.IsAlwaysFinite α] {a : α} : a ∈ r.toArray ↔ a ∈ r := by
   rw [Internal.toArray_eq_toArray_iter, Iter.mem_toArray_iff_isPlausibleIndirectOutput,
     Internal.isPlausibleIndirectOutput_iter_iff]
 
 public theorem pairwise_toList_upwardEnumerableLt [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxo.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
   rw [Internal.toList_eq_toList_iter]
   apply Rxo.Iterator.pairwise_toList_upwardEnumerableLt
 
 public theorem pairwise_toList_ne [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxo.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a ≠ b) :=
   List.Pairwise.imp (fun hlt => UpwardEnumerable.ne_of_lt hlt) pairwise_toList_upwardEnumerableLt
 
 public theorem pairwise_toList_lt [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxo.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a < b) :=
   List.Pairwise.imp
     (fun hlt => (LawfulUpwardEnumerableLT.lt_iff ..).mpr hlt) pairwise_toList_upwardEnumerableLt
 
 public theorem pairwise_toList_le [LE α] [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [LawfulUpwardEnumerableLE α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerableLE α] [Rxo.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a ≤ b) :=
   pairwise_toList_upwardEnumerableLt
     |> List.Pairwise.imp UpwardEnumerable.le_of_lt
@@ -1762,25 +1751,25 @@ public theorem toList_eq_match_rci [UpwardEnumerable α]
   split <;> simp
 
 public theorem toList_eq_nil_iff [UpwardEnumerable α] [LawfulUpwardEnumerable α]
-    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxi.IsAlwaysFinite α] :
     r.toList = [] ↔ (UpwardEnumerable.succ? r.lower).isNone := by
   rw [Internal.toList_eq_toList_iter, Rxi.Iterator.toList_eq_match, Internal.iter]
   simp only
   split <;> rename_i heq <;> simp [heq]
 
 public theorem toArray_eq_empty_iff [UpwardEnumerable α] [LawfulUpwardEnumerable α]
-    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxi.IsAlwaysFinite α] :
     r.toArray = #[] ↔ (UpwardEnumerable.succ? r.lower).isNone := by
   simp [← toArray_toList, toList_eq_nil_iff]
 
 public theorem mem_toList_iff_mem [LT α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
-    [LawfulUpwardEnumerableLT α] {a : α} : a ∈ r.toList ↔ a ∈ r := by
+    [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerableLT α]
+    {a : α} : a ∈ r.toList ↔ a ∈ r := by
   rw [Internal.toList_eq_toList_iter, Iter.mem_toList_iff_isPlausibleIndirectOutput,
     Internal.isPlausibleIndirectOutput_iter_iff]
 
 public theorem mem_toArray_iff_mem [LT α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α]
     [LawfulUpwardEnumerableLT α] {a : α} : a ∈ r.toArray ↔ a ∈ r := by
   rw [Internal.toArray_eq_toArray_iter, Iter.mem_toArray_iff_isPlausibleIndirectOutput,
     Internal.isPlausibleIndirectOutput_iter_iff]
@@ -1977,7 +1966,7 @@ def toArray_eq_toArray_Rcc := @toArray_eq_toArray_rcc
 
 public theorem toList_eq_if_roc [LE α] [DecidableLE α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
-    [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxc.IsAlwaysFinite α] :
     r.toList = let init : α := UpwardEnumerable.least (hn := ⟨r.upper⟩)
       if init ≤ r.upper then
         init :: (init<...=r.upper).toList
@@ -1990,7 +1979,7 @@ def toList_eq_if := @toList_eq_if_roc
 
 public theorem toArray_eq_if_roc [LE α] [DecidableLE α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
-    [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxc.IsAlwaysFinite α] :
     r.toArray = let init : α := UpwardEnumerable.least (hn := ⟨r.upper⟩)
       if init ≤ r.upper then
         #[init] ++ (init<...=r.upper).toArray
@@ -2003,14 +1992,14 @@ def toArray_eq_if := @toArray_eq_if_roc
 
 public theorem toList_ne_nil [LE α] [DecidableLE α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [LawfulUpwardEnumerableLeast? α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerableLeast? α] [Rxc.IsAlwaysFinite α] :
     r.toList ≠ [] := by
   simp [toList_eq_toList_rcc, Rcc.toList_eq_nil_iff, UpwardEnumerable.le_iff,
     UpwardEnumerable.least_le]
 
 public theorem toArray_ne_empty [LE α] [DecidableLE α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [LawfulUpwardEnumerableLeast? α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerableLeast? α] [Rxc.IsAlwaysFinite α] :
     r.toArray ≠ #[] := by
   simp [toArray_eq_toArray_rcc, Rcc.toArray_eq_empty_iff, UpwardEnumerable.le_iff,
     UpwardEnumerable.least_le]
@@ -2026,29 +2015,29 @@ def mem_iff_mem_Rcc := @mem_iff_mem_rcc
 
 public theorem mem_toList_iff_mem [LE α] [DecidableLE α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
-    [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toList ↔ a ∈ r := by
+    [Rxc.IsAlwaysFinite α] {a : α} : a ∈ r.toList ↔ a ∈ r := by
   simp [toList_eq_toList_rcc, mem_iff_mem_rcc, Rcc.mem_toList_iff_mem]
 
 public theorem mem_toArray_iff_mem [LE α] [DecidableLE α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
-    [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toArray ↔ a ∈ r := by
+    [Rxc.IsAlwaysFinite α] {a : α} : a ∈ r.toArray ↔ a ∈ r := by
   simp [toArray_eq_toArray_rcc, mem_iff_mem_rcc, Rcc.mem_toArray_iff_mem]
 
 public theorem pairwise_toList_upwardEnumerableLt [LE α] [DecidableLE α] [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [LawfulUpwardEnumerableLeast? α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerableLeast? α] [Rxc.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
   simp [toList_eq_toList_rcc, Rcc.pairwise_toList_upwardEnumerableLt]
 
 public theorem pairwise_toList_ne [LE α] [DecidableLE α] [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [LawfulUpwardEnumerableLeast? α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerableLeast? α] [Rxc.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a ≠ b) :=
   List.Pairwise.imp (fun hlt => UpwardEnumerable.ne_of_lt hlt) pairwise_toList_upwardEnumerableLt
 
 public theorem pairwise_toList_lt [LE α] [DecidableLE α] [LT α] [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [LawfulUpwardEnumerableLT α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    [LawfulUpwardEnumerableLT α] [Rxc.IsAlwaysFinite α]
     [LawfulUpwardEnumerableLeast? α] :
     r.toList.Pairwise (fun a b => a < b) :=
   List.Pairwise.imp
@@ -2056,7 +2045,7 @@ public theorem pairwise_toList_lt [LE α] [DecidableLE α] [LT α] [Least? α]
 
 public theorem pairwise_toList_le [LE α] [DecidableLE α] [LT α] [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [LawfulUpwardEnumerableLeast? α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerableLeast? α] [Rxc.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a ≤ b) :=
   pairwise_toList_upwardEnumerableLt
     |> List.Pairwise.imp UpwardEnumerable.le_of_lt
@@ -2282,7 +2271,7 @@ def toArray_eq_toArray_Rco := @toArray_eq_toArray_rco
 
 public theorem toList_eq_if_roo [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLeast? α]
-    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxo.IsAlwaysFinite α] :
     r.toList = let init : α := UpwardEnumerable.least (hn := ⟨r.upper⟩)
       if init < r.upper then
         init :: (init<...r.upper).toList
@@ -2296,7 +2285,7 @@ def toList_eq_if := @toList_eq_if_roo
 
 public theorem toArray_eq_if_roo [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLeast? α]
-    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxo.IsAlwaysFinite α] :
     r.toArray = let init : α := UpwardEnumerable.least (hn := ⟨r.upper⟩)
       if init < r.upper then
         #[init] ++ (init<...r.upper).toArray
@@ -2310,13 +2299,13 @@ def toArray_eq_if := @toArray_eq_if_roo
 
 public theorem toList_eq_nil_iff [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [LawfulUpwardEnumerableLeast? α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerableLeast? α] [Rxo.IsAlwaysFinite α] :
     r.toList = [] ↔ ¬ UpwardEnumerable.least (hn := ⟨r.upper⟩) < r.upper := by
   simp [toList_eq_if_roo]
 
 public theorem toArray_eq_nil_iff [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [LawfulUpwardEnumerableLeast? α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerableLeast? α] [Rxo.IsAlwaysFinite α] :
     r.toArray = #[] ↔ ¬ UpwardEnumerable.least (hn := ⟨r.upper⟩) < r.upper := by
   simp [toArray_eq_if_roo]
 
@@ -2331,7 +2320,7 @@ def mem_iff_mem_Rco := @mem_iff_mem_rco
 
 public theorem mem_toList_iff_mem [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLeast? α]
-    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toList ↔ a ∈ r := by
+    [Rxo.IsAlwaysFinite α] {a : α} : a ∈ r.toList ↔ a ∈ r := by
   simp only [toList_eq_if_roo, List.mem_ite_nil_right, List.mem_cons, Roo.mem_toList_iff_mem]
   simp only [Membership.mem]
   constructor
@@ -2348,12 +2337,12 @@ public theorem mem_toList_iff_mem [LT α] [DecidableLT α] [Least? α] [UpwardEn
 
 public theorem mem_toArray_iff_mem [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLeast? α]
-    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toArray ↔ a ∈ r := by
+    [Rxo.IsAlwaysFinite α] {a : α} : a ∈ r.toArray ↔ a ∈ r := by
   simp [← toArray_toList, mem_toList_iff_mem]
 
 public theorem pairwise_toList_upwardEnumerableLt [LT α] [DecidableLT α] [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [LawfulUpwardEnumerableLeast? α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerableLeast? α] [Rxo.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
   simp only [toList_eq_if_roo]
   split
@@ -2365,13 +2354,13 @@ public theorem pairwise_toList_upwardEnumerableLt [LT α] [DecidableLT α] [Leas
 
 public theorem pairwise_toList_ne [LT α] [DecidableLT α] [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [LawfulUpwardEnumerableLeast? α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerableLeast? α] [Rxo.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a ≠ b) :=
   List.Pairwise.imp (fun hlt => UpwardEnumerable.ne_of_lt hlt) pairwise_toList_upwardEnumerableLt
 
 public theorem pairwise_toList_lt [LT α] [DecidableLT α] [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α]
     [LawfulUpwardEnumerableLeast? α] :
     r.toList.Pairwise (fun a b => a < b) :=
   List.Pairwise.imp
@@ -2379,8 +2368,7 @@ public theorem pairwise_toList_lt [LT α] [DecidableLT α] [Least? α]
 
 public theorem pairwise_toList_le [LE α] [LT α] [DecidableLT α] [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α] [Rxo.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α] [Rxo.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a ≤ b) :=
   pairwise_toList_upwardEnumerableLt
     |> List.Pairwise.imp UpwardEnumerable.le_of_lt
@@ -2585,7 +2573,7 @@ public theorem toArray_eq_match_rci [Least? α] [UpwardEnumerable α]
 def toArray_eq_match_toArray_Rci := @toArray_eq_match_rci
 
 public theorem toList_eq_match_roi [Least? α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] :
     r.toList = match Least?.least? (α := α) with
       | none => []
       | some init => init :: (init<...*).toList := by
@@ -2597,7 +2585,7 @@ def toList_eq_match_toList_Roi := @toList_eq_match_roi
 
 public theorem toArray_eq_match_roi [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
-    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [Rxi.IsAlwaysFinite α] :
     r.toArray = match Least?.least? (α := α) with
       | none => #[]
       | some init => #[init] ++ (init<...*).toArray := by
@@ -2609,7 +2597,7 @@ def toArray_eq_match_Roi := @toArray_eq_match_roi
 
 public theorem toList_eq_nil_iff [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [LawfulUpwardEnumerableLeast? α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerableLeast? α] [Rxi.IsAlwaysFinite α] :
     r.toList = [] ↔ ¬ Nonempty α := by
   simp only [toList_eq_match_roi]
   split
@@ -2619,7 +2607,7 @@ public theorem toList_eq_nil_iff [LT α] [DecidableLT α] [Least? α] [UpwardEnu
 
 public theorem toArray_eq_empty_iff [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [LawfulUpwardEnumerableLeast? α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerableLeast? α] [Rxi.IsAlwaysFinite α] :
     r.toArray = #[] ↔ ¬ Nonempty α := by
   simp [← toArray_toList, toList_eq_nil_iff]
 
@@ -2634,7 +2622,7 @@ def mem_iff_mem_Rci := @mem_iff_mem_rci
 
 public theorem mem_toList [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
-    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toList := by
+    [Rxi.IsAlwaysFinite α] {a : α} : a ∈ r.toList := by
   letI : LE α := ⟨UpwardEnumerable.LE⟩
   haveI : LawfulUpwardEnumerableLE α := ⟨fun _ _ => Iff.rfl⟩
   simp only [toList_eq_match_rci, UpwardEnumerable.least?_eq_some (hn := ⟨a⟩),
@@ -2643,12 +2631,12 @@ public theorem mem_toList [Least? α] [UpwardEnumerable α]
 
 public theorem mem_toArray [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
-    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toArray := by
+    [Rxi.IsAlwaysFinite α] {a : α} : a ∈ r.toArray := by
   simp [← toArray_toList, mem_toList]
 
 public theorem pairwise_toList_upwardEnumerableLt [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α]
-    [LawfulUpwardEnumerableLeast? α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerableLeast? α] [Rxi.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
   letI : LE α := ⟨UpwardEnumerable.LE⟩
   haveI : LawfulUpwardEnumerableLE α := ⟨fun _ _ => Iff.rfl⟩
@@ -2659,19 +2647,19 @@ public theorem pairwise_toList_upwardEnumerableLt [Least? α]
 
 public theorem pairwise_toList_ne [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α]
-    [LawfulUpwardEnumerableLeast? α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerableLeast? α] [Rxi.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a ≠ b) :=
   List.Pairwise.imp (fun hlt => UpwardEnumerable.ne_of_lt hlt) pairwise_toList_upwardEnumerableLt
 
 public theorem pairwise_toList_lt [LT α] [Least? α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
-    [LawfulUpwardEnumerableLT α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    [LawfulUpwardEnumerableLT α] [Rxi.IsAlwaysFinite α]
     [LawfulUpwardEnumerableLeast? α] : r.toList.Pairwise (fun a b => a < b) :=
   List.Pairwise.imp
     (fun hlt => (LawfulUpwardEnumerableLT.lt_iff ..).mpr hlt) pairwise_toList_upwardEnumerableLt
 
 public theorem pairwise_toList_le [LE α] [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [LawfulUpwardEnumerableLeast? α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] :
+    [LawfulUpwardEnumerableLeast? α] [Rxi.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => a ≤ b) :=
   pairwise_toList_upwardEnumerableLt
     |> List.Pairwise.imp UpwardEnumerable.le_of_lt
@@ -2766,7 +2754,6 @@ private theorem Internal.iter_roc_eq_iter_rcc_of_isSome_succ?
 
 public theorem toList_roc_eq_toList_rcc_of_isSome_succ? [LE α] [DecidableLE α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α]
     {lo hi : α} (h : (UpwardEnumerable.succ? lo).isSome) :
     (lo<...=hi).toList =
       ((UpwardEnumerable.succ? lo |>.get h)...=hi).toList := by
@@ -2786,7 +2773,7 @@ private theorem Internal.iter_roo_eq_iter_rco_of_isSome_succ?
 public theorem toList_roo_eq_toList_rco_of_isSome_succ?
     [LT α] [DecidableLT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    [Rxo.IsAlwaysFinite α]
     {lo hi : α} (h : (UpwardEnumerable.succ? lo).isSome) :
     (lo<...hi).toList =
       ((UpwardEnumerable.succ? lo |>.get h)...hi).toList := by
@@ -2806,7 +2793,7 @@ private theorem Internal.iter_roi_eq_iter_rci_of_isSome_succ?
 public theorem toList_roi_eq_toList_rci_of_isSome_succ?
     [UpwardEnumerable α]
     [LawfulUpwardEnumerable α]
-    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    [Rxi.IsAlwaysFinite α]
     {lo : α} (h : (UpwardEnumerable.succ? lo).isSome) :
     (lo<...*).toList = ((UpwardEnumerable.succ? lo |>.get h)...*).toList := by
   simp [Rci.Internal.toList_eq_toList_iter, Roi.Internal.toList_eq_toList_iter,
@@ -2859,6 +2846,7 @@ public theorem size_eq_if_rcc [LE α] [DecidableLE α] [UpwardEnumerable α]
   · split <;> simp [*]
   · rfl
 
+@[simp]
 public theorem length_toList [LE α] [DecidableLE α] [UpwardEnumerable α]
     [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
@@ -2877,6 +2865,7 @@ public theorem length_toList [LE α] [DecidableLE α] [UpwardEnumerable α]
         simp [h, ← ih _ h]
     · simp
 
+@[simp]
 public theorem size_toArray [LE α] [DecidableLE α] [UpwardEnumerable α]
     [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
@@ -3001,6 +2990,7 @@ public theorem size_eq_match_roc [LE α] [DecidableLE α] [UpwardEnumerable α]
   rw [size_eq_match_rcc]
   simp [Rcc.size_eq_if_roc]
 
+@[simp]
 public theorem length_toList [LE α] [DecidableLE α] [UpwardEnumerable α]
     [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
@@ -3008,6 +2998,7 @@ public theorem length_toList [LE α] [DecidableLE α] [UpwardEnumerable α]
   simp only [toList_eq_match_rcc, size_eq_match_rcc]
   split <;> simp [Rcc.length_toList]
 
+@[simp]
 public theorem size_toArray [LE α] [DecidableLE α] [UpwardEnumerable α]
     [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
@@ -3107,6 +3098,7 @@ public theorem size_eq_match_roc [Least? α] [LE α] [DecidableLE α] [UpwardEnu
   rw [size_eq_match_rcc]
   simp [Rcc.size_eq_if_roc]
 
+@[simp]
 public theorem length_toList [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α]
     [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
@@ -3114,6 +3106,7 @@ public theorem length_toList [Least? α] [LE α] [DecidableLE α] [UpwardEnumera
   rw [toList_eq_match_rcc, size_eq_match_rcc]
   split <;> simp [Rcc.length_toList]
 
+@[simp]
 public theorem size_toArray [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α]
     [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
@@ -3236,6 +3229,7 @@ public theorem size_eq_if_rcc [LT α] [DecidableLT α] [UpwardEnumerable α]
   · split <;> simp [*]
   · rfl
 
+@[simp]
 public theorem length_toList [LT α] [DecidableLT α] [UpwardEnumerable α]
     [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
@@ -3254,6 +3248,7 @@ public theorem length_toList [LT α] [DecidableLT α] [UpwardEnumerable α]
         simp [h, ← ih _ h]
     · simp
 
+@[simp]
 public theorem size_toArray [LT α] [DecidableLT α] [UpwardEnumerable α]
     [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
@@ -3379,6 +3374,7 @@ public theorem size_eq_match_roc [LT α] [DecidableLT α] [UpwardEnumerable α]
   rw [size_eq_match_rcc]
   simp [Rco.size_eq_if_roo]
 
+@[simp]
 public theorem length_toList [LT α] [DecidableLT α] [UpwardEnumerable α]
     [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
@@ -3386,6 +3382,7 @@ public theorem length_toList [LT α] [DecidableLT α] [UpwardEnumerable α]
   simp only [toList_eq_match_rco, size_eq_match_rcc]
   split <;> simp [Rco.length_toList]
 
+@[simp]
 public theorem size_toArray [LT α] [DecidableLT α] [UpwardEnumerable α]
     [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
@@ -3485,6 +3482,7 @@ public theorem size_eq_match_roc [Least? α] [LT α] [DecidableLT α] [UpwardEnu
   rw [size_eq_match_rcc]
   simp [Rco.size_eq_if_roo]
 
+@[simp]
 public theorem length_toList [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α]
     [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
@@ -3492,6 +3490,7 @@ public theorem length_toList [Least? α] [LT α] [DecidableLT α] [UpwardEnumera
   rw [toList_eq_match_rco, size_eq_match_rcc]
   split <;> simp [Rco.length_toList]
 
+@[simp]
 public theorem size_toArray [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α]
     [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
@@ -3603,6 +3602,7 @@ public theorem size_eq_match_rci [UpwardEnumerable α] [Rxi.HasSize α] [LawfulU
   simp only [Rci.size]
   split <;> simp [*]
 
+@[simp]
 public theorem length_toList [UpwardEnumerable α] [Rxi.HasSize α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
     r.toList.length = r.size := by
@@ -3618,6 +3618,7 @@ public theorem length_toList [UpwardEnumerable α] [Rxi.HasSize α] [LawfulUpwar
     · simp only [Nat.add_right_cancel_iff, *] at h
       simp [ih _ h, h]
 
+@[simp]
 public theorem size_toArray [UpwardEnumerable α] [Rxi.HasSize α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
     r.toArray.size = r.size := by
@@ -3724,12 +3725,14 @@ public theorem size_eq_match_roi [UpwardEnumerable α] [Rxi.HasSize α] [LawfulU
   rw [size_eq_match_rci]
   simp [Rci.size_eq_size_roi]
 
+@[simp]
 public theorem length_toList [UpwardEnumerable α] [Rxi.HasSize α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
     r.toList.length = r.size := by
   simp only [toList_eq_match_rci, size_eq_match_rci]
   split <;> simp [Rci.length_toList]
 
+@[simp]
 public theorem size_toArray [UpwardEnumerable α] [Rxi.HasSize α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
     r.toArray.size = r.size := by
@@ -3822,6 +3825,7 @@ public theorem size_eq_match_roi [Least? α] [UpwardEnumerable α] [Rxi.HasSize 
   rw [size_eq_match_rci]
   simp [Rci.size_eq_size_roi]
 
+@[simp]
 public theorem length_toList [Least? α] [UpwardEnumerable α]
     [Rxi.HasSize α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
@@ -3829,6 +3833,7 @@ public theorem length_toList [Least? α] [UpwardEnumerable α]
   rw [toList_eq_match_rci, size_eq_match_rci]
   split <;> simp [Rci.length_toList]
 
+@[simp]
 public theorem size_toArray [Least? α] [UpwardEnumerable α]
     [Rxi.HasSize α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :

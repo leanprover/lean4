@@ -597,7 +597,7 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
     stx.hasMissing && !showPartialSyntaxErrors.get (← getOptions) }) do
   -- initialize quotation context using hash of input string
   let ss? := stx.getSubstring? (withLeading := false) (withTrailing := false)
-  withInitQuotContext (ss?.map (hash ·.toString.trim)) do
+  withInitQuotContext (ss?.map (hash ·.toString.trimAscii.copy)) do
   -- Reset messages and info state, which are both per-command
   modify fun st => { st with messages := {}, infoState := { enabled := st.infoState.enabled } }
   try

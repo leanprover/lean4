@@ -167,6 +167,7 @@ lean_object* l_List_getD___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkSimpleFnCall___closed__2;
 LEAN_EXPORT lean_object* l_Lean_ExternEntry_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instHashableExternEntry;
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_parseOptNum___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__2_00___x40_Lean_Compiler_ExternAttr_4197872175____hygCtx___hyg_2____boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ExternEntry_ctorIdx(lean_object* x_1) {
 _start:
@@ -1569,7 +1570,6 @@ x_6 = lean_nat_dec_eq(x_1, x_5);
 if (x_6 == 1)
 {
 lean_object* x_7; 
-lean_dec_ref(x_2);
 lean_dec(x_1);
 x_7 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_7, 0, x_3);
@@ -1610,7 +1610,6 @@ if (x_13 == 0)
 {
 lean_object* x_14; 
 lean_dec(x_11);
-lean_dec_ref(x_2);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_3);
 lean_ctor_set(x_14, 1, x_4);
@@ -1619,8 +1618,8 @@ return x_14;
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-lean_inc_ref(x_2);
 x_15 = lean_string_utf8_next_fast(x_2, x_3);
+lean_dec(x_3);
 x_16 = lean_unsigned_to_nat(10u);
 x_17 = lean_nat_mul(x_4, x_16);
 lean_dec(x_4);
@@ -1641,7 +1640,6 @@ goto _start;
 else
 {
 lean_object* x_28; 
-lean_dec_ref(x_2);
 lean_dec(x_1);
 x_28 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_28, 0, x_3);
@@ -1649,6 +1647,15 @@ lean_ctor_set(x_28, 1, x_4);
 return x_28;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_parseOptNum___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l___private_Lean_Compiler_ExternAttr_0__Lean_parseOptNum(x_1, x_2, x_3, x_4);
+lean_dec_ref(x_2);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_expandExternPatternAux___closed__0() {
@@ -1696,11 +1703,10 @@ else
 if (x_9 == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
-lean_inc_ref(x_3);
 x_19 = lean_string_utf8_next_fast(x_3, x_4);
+lean_dec(x_4);
 lean_inc_ref(x_3);
 x_20 = l_String_ValidPos_remainingBytes(x_3, x_19);
-lean_inc_ref(x_3);
 x_21 = l___private_Lean_Compiler_ExternAttr_0__Lean_parseOptNum(x_20, x_3, x_19, x_6);
 x_22 = lean_ctor_get(x_21, 0);
 lean_inc(x_22);
@@ -1726,8 +1732,8 @@ goto block_16;
 block_16:
 {
 lean_object* x_13; lean_object* x_14; 
-lean_inc_ref(x_3);
 x_13 = lean_string_utf8_next_fast(x_3, x_4);
+lean_dec(x_4);
 x_14 = lean_string_push(x_5, x_12);
 x_2 = x_11;
 x_4 = x_13;

@@ -234,7 +234,12 @@ instance {m : Type w → Type w'} : ForIn m (Raw α β) (α × β) where
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
   ⟨DHashMap.Raw.union m₁.inner m₂.inner⟩
 
+@[inherit_doc DHashMap.Raw.inter, inline] def inter [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
+  ⟨DHashMap.Raw.inter m₁.inner m₂.inner⟩
+
 instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
+
+instance [BEq α] [Hashable α] : Inter (Raw α β) := ⟨inter⟩
 
 section Unverified
 
@@ -340,9 +345,11 @@ theorem WF.ofList [BEq α] [Hashable α] {l : List (α × β)} : (ofList l).WF :
 theorem WF.unitOfList [BEq α] [Hashable α] {l : List α} : (unitOfList l).WF :=
   ⟨DHashMap.Raw.WF.Const.unitOfList⟩
 
-theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.union m₂).WF :=
+theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ ∪ m₂).WF :=
   ⟨DHashMap.Raw.WF.union h₁.out h₂.out⟩
 
+theorem WF.inter [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ ∩ m₂).WF :=
+  ⟨DHashMap.Raw.WF.inter h₁.out h₂.out⟩
 end Raw
 
 end HashMap

@@ -14,6 +14,7 @@ import Lake.Util.Url
 import Lake.Util.Proc
 import Lake.Util.Reservoir
 import Lake.Util.IO
+import Init.Data.String.Search
 
 open Lean System
 
@@ -48,7 +49,7 @@ public partial def parse (inputName : String) (contents : String) : LoggerIO Cac
   let rec loop (i : Nat) (cache : CacheMap) (stopPos pos : String.Pos.Raw) := do
     let lfPos := contents.posOfAux '\n' stopPos pos
     let line := String.Pos.Raw.extract contents pos lfPos
-    if line.trim.isEmpty then
+    if line.trimAscii.isEmpty then
       return cache
     let cache ← id do
       match Json.parse line >>= fromJson? with
@@ -63,7 +64,7 @@ public partial def parse (inputName : String) (contents : String) : LoggerIO Cac
       loop (i+1) cache stopPos (lfPos.next' contents h)
   let lfPos := contents.posOfAux '\n' contents.rawEndPos 0
   let line := String.Pos.Raw.extract contents 0 lfPos
-  checkSchemaVersion inputName line.trim
+  checkSchemaVersion inputName line.trimAscii.copy
   if h : lfPos.atEnd contents then
     return {}
   else
@@ -369,8 +370,8 @@ toolchain and platform information in a manner similar to Reservoir.
 public def artifactContentType : String := "application/vnd.reservoir.artifact"
 
 private def appendScope (endpoint : String) (scope : String) : String :=
-  scope.splitToList (· == '/') |>.foldl (init := endpoint) fun s component =>
-    uriEncode component s |>.push '/'
+  scope.split '/' |>.fold (init := endpoint) fun s component =>
+    uriEncode component.copy s |>.push '/'
 
 private def s3ArtifactUrl (contentHash : Hash) (service : CacheService) (scope : String)  : String :=
   appendScope s!"{service.artifactEndpoint}/" scope ++ s!"{contentHash.hex}.art"

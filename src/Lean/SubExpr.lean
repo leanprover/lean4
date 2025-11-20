@@ -131,7 +131,7 @@ open Except in
 protected def fromString? : String → Except String Pos
   | "/" => Except.ok Pos.root
   | s =>
-    match String.splitOn s "/" with
+    match String.split s '/' |>.toStringList with
     | "" :: tail => Pos.ofArray <$> tail.toArray.mapM ofStringCoord
     | ss => error s!"malformed {ss}"
 

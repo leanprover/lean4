@@ -167,6 +167,11 @@ structure Config where
   When `trace := true`, uses `sorry` to close unsolved branches.
   -/
   useSorry := true
+  /--
+  When `true`, it reverts all hypotheses during the preprocessing step,
+  and then reintroduces them while simplifying and applying eager `cases`.
+  -/
+  revert := false
   deriving Inhabited, BEq
 
 /--

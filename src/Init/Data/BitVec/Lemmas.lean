@@ -1261,11 +1261,6 @@ theorem setWidth_extractLsb'_of_le {c : BitVec w} (h : len₁ ≤ len₂) :
   ext i hi
   simp [show i < len₂ by omega]
 
-theorem exctractLsb'_extractLsb'_eq_extractLsb'_of_le {m n w : Nat} {x : BitVec w} (h : m ≤ n) :
-    BitVec.extractLsb' 0 m (BitVec.extractLsb' 0 n x) = BitVec.extractLsb' 0 m x := by
-  ext i hi
-  simp [getElem_extractLsb', Nat.zero_add, show i < n by omega]
-
 /-! ### allOnes -/
 
 @[simp, grind =] theorem toNat_allOnes : (allOnes v).toNat = 2^v - 1 := by

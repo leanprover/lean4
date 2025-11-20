@@ -117,30 +117,30 @@
 - attributes:
     description: Init.Data.List.Sublist re-elab -j4
     tags: [other]
-    parse_output: true
   run_config:
     <<: *time
     cwd: ../../src
     cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/List/Sublist.lean 10 -j4 -Dexperimental.module=true
     max_runs: 2
+    parse_output: true
 - attributes:
     description: Init.Data.BitVec.Lemmas re-elab
     tags: [other]
-    parse_output: true
   run_config:
     <<: *time
     cwd: ../../src
     cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/BitVec/Lemmas.lean 2 -j4 -Dexperimental.module=true
     max_runs: 2
+    parse_output: true
 - attributes:
     description: Init.Data.List.Sublist re-elab -j4 (watchdog rss)
     tags: [other]
-    parse_output: true
   run_config:
     <<: *time
     cwd: ../../src
     cmd: lean --run ../script/benchReelabWatchdogRss.lean lean Init/Data/List/Sublist.lean 10 -j4 -Dexperimental.module=true
     max_runs: 2
+    parse_output: true
 - attributes:
     description: import Lean
     tags: [other]

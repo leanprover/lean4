@@ -18,8 +18,7 @@ def determineRSS (pid : UInt32) : IO Nat := do
   let rssLine := rssLine.dropWhile Char.isWhitespace
   let some rssInKB := rssLine.takeWhile Char.isDigit |>.toNat?
     | throw <| IO.userError "Cannot parse RSS"
-  let rss := 1024*rssInKB
-  return rss
+  return rssInKB
 
 def main (args : List String) : IO Unit := do
   let leanCmd :: file :: iters :: args := args | panic! "usage: script <lean> <file> <#iterations> <server-args>..."

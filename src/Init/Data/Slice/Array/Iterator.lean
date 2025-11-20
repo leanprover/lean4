@@ -31,12 +31,14 @@ structure SubarrayIterator (α : Type u) where
   xs : Subarray α
 
 @[inline, expose]
-def SubarrayIterator.step : IterM (α := SubarrayIterator α) Id α → IterStep (IterM (α := SubarrayIterator α) m α) α
-  | ⟨⟨xs, start, stop, h₁, h₂⟩⟩ =>
-      if h : start < stop then
-        .yield ⟨⟨xs, start + 1, stop, by omega, h₂⟩⟩ xs[start]
-      else
-        .done
+def SubarrayIterator.step :
+    IterM (α := SubarrayIterator α) Id α → IterStep (IterM (α := SubarrayIterator α) m α) α
+  | ⟨⟨xs⟩⟩ =>
+    if h : xs.start < xs.stop then
+      have := xs.start_le_stop; have := xs.stop_le_array_size
+      .yield ⟨⟨xs.array, xs.start + 1, xs.stop, by omega, xs.stop_le_array_size⟩⟩ xs.array[xs.start]
+    else
+      .done
 
 instance : Iterator (SubarrayIterator α) Id α where
   IsPlausibleStep it step := step = SubarrayIterator.step it
@@ -49,10 +51,9 @@ private def SubarrayIterator.instFinitelessRelation : FinitenessRelation (Subarr
     simp [IterM.IsPlausibleSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, step] at h
     split at h
     · cases h
-      simp [InvImage, Subarray.start, Subarray.stop]
-      simp [WellFoundedRelation.rel, InvImage, Nat.lt_wfRel]
-      apply Nat.sub_succ_lt_self
-      assumption
+      simp only [InvImage, Subarray.stop, Subarray.start, WellFoundedRelation.rel, InvImage,
+        Nat.lt_wfRel, sizeOf_nat]
+      exact Nat.sub_succ_lt_self _ _ ‹_›
     · cases h
 
 instance SubarrayIterator.instFinite : Finite (SubarrayIterator α) Id :=
@@ -73,8 +74,7 @@ universe v w
 instance : SliceSize (Internal.SubarrayData α) where
   size s := s.internalRepresentation.stop - s.internalRepresentation.start
 
-instance {α : Type u} {m : Type v → Type w} [Monad m] :
-    ForIn m (Subarray α) α :=
+instance {α : Type u} {m : Type v → Type w} [Monad m] : ForIn m (Subarray α) α :=
   inferInstance
 
 /-!

@@ -46,24 +46,23 @@ public theorem ListSlice.toList_eq {xs : ListSlice α} :
     xs.toList = match xs.internalRepresentation.stop with
       | some stop => xs.internalRepresentation.list.take stop
       | none => xs.internalRepresentation.list := by
-  simp only [toList, List.ofSlice, Std.Slice.toList]
+  simp only [Std.Slice.toList]
   rw [Std.Slice.List.toList_internalIter]
   rfl
 
 public theorem ListSlice.toArray_toList {xs : ListSlice α} :
     xs.toList.toArray = xs.toArray := by
-  simp [ListSlice.toList, Std.Slice.toArray, List.ofSlice, Std.Slice.toList]
+  simp [Std.Slice.toArray, Std.Slice.toList]
 
 public theorem ListSlice.toList_toArray {xs : ListSlice α} :
     xs.toArray.toList = xs.toList := by
-  simp [ListSlice.toList, Std.Slice.toArray, List.ofSlice, Std.Slice.toList]
+  simp [Std.Slice.toArray, Std.Slice.toList]
 
 @[simp]
 public theorem ListSlice.length_toList {xs : ListSlice α} :
     xs.toList.length = xs.size := by
-  simp [ListSlice.toList_eq, Std.Slice.size, Std.Slice.SliceSize.size, ← Iter.length_toList_eq_count]
-  rw [Std.Slice.List.toList_internalIter]
-  rfl
+  simp [ListSlice.toList_eq, Std.Slice.size, Std.Slice.SliceSize.size, ← Iter.length_toList_eq_count,
+    Std.Slice.List.toList_internalIter]; rfl
 
 @[simp]
 public theorem ListSlice.size_toArray {xs : ListSlice α} :

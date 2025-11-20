@@ -29,14 +29,20 @@ theorem internalIter_eq {α : Type u} {s : Subarray α} :
   rfl
 
 theorem SubarrayIterator.step_eq {it : Iter (α := SubarrayIterator α) α} :
-    it.step = if h : it.internalState.xs.start < it.internalState.xs.stop then
-        haveI := it.internalState.xs.start_le_stop
-        haveI := it.internalState.xs.stop_le_array_size
-        ⟨.yield ⟨⟨it.internalState.xs.array, it.internalState.xs.start + 1, it.internalState.xs.stop, by omega, by assumption⟩⟩ (it.internalState.xs.array[it.internalState.xs.start]'(by omega)),
-          (by simp_all [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, SubarrayIterator.step, Iter.toIterM, Subarray.start, Subarray.stop]; rw [dif_pos]; rotate_left; exact h; rfl)⟩
+    it.step = if h : it.1.xs.start < it.1.xs.stop then
+        haveI := it.1.xs.start_le_stop
+        haveI := it.1.xs.stop_le_array_size
+        ⟨.yield ⟨⟨it.1.xs.array, it.1.xs.start + 1, it.1.xs.stop, by omega, by assumption⟩⟩
+            (it.1.xs.array[it.1.xs.start]'(by omega)),
+          (by
+            simp_all [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep,
+              SubarrayIterator.step, Iter.toIterM])⟩
       else
-        ⟨.done, (by simpa [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, SubarrayIterator.step] using h)⟩ := by
-  simp [Iter.step, IterM.step, Iterator.step, SubarrayIterator.step, IterM.Step.toPure, IterStep.mapIterator]
+        ⟨.done, (by
+            simpa [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep,
+              SubarrayIterator.step] using h)⟩ := by
+  simp only [Iter.step, IterM.Step.toPure, Iter.toIter_toIterM, IterStep.mapIterator, IterM.step,
+    Iterator.step, SubarrayIterator.step, Id.run_pure, Shrink.inflate_deflate]
   by_cases h : it.internalState.xs.start < it.internalState.xs.stop
   · simp only [h, ↓reduceDIte]
     split
@@ -50,13 +56,14 @@ theorem SubarrayIterator.step_eq {it : Iter (α := SubarrayIterator α) α} :
     · rfl
 
 theorem SubarrayIterator.val_step_eq {it : Iter (α := SubarrayIterator α) α} :
-    it.step.val = if h : it.internalState.xs.start < it.internalState.xs.stop then
-        haveI := it.internalState.xs.start_le_stop
-        haveI := it.internalState.xs.stop_le_array_size
-        .yield ⟨⟨it.internalState.xs.array, it.internalState.xs.start + 1, it.internalState.xs.stop, by omega, by assumption⟩⟩ (it.internalState.xs.array[it.internalState.xs.start]'(by omega))
+    it.step.val = if h : it.1.xs.start < it.1.xs.stop then
+        haveI := it.1.xs.start_le_stop
+        haveI := it.1.xs.stop_le_array_size
+        .yield ⟨⟨it.1.xs.array, it.1.xs.start + 1, it.1.xs.stop, by omega, by assumption⟩⟩
+          it.1.xs.array[it.1.xs.start]
       else
         .done := by
-  simp [step_eq]
+  simp only [step_eq]
   split <;> simp
 
 theorem SubarrayIterator.toList_eq {α : Type u} {it : Iter (α := SubarrayIterator α) α} :
@@ -66,21 +73,21 @@ theorem SubarrayIterator.toList_eq {α : Type u} {it : Iter (α := SubarrayItera
   rw [Iter.toList_eq_match_step, SubarrayIterator.val_step_eq]
   by_cases h : it.internalState.xs.start < it.internalState.xs.stop
   · simp [h]
-    rw [ihy (out := it.internalState.xs.array[it.internalState.xs.start]'sorry)]
-    · simp [start]
-      rw (occs := [2]) [List.drop_eq_getElem_cons]
-      simp
-      rw [List.getElem_take]
-      simp [stop, array]
-      rw [List.length_take]
-      simp [it.internalState.xs.stop_le_array_size]
-      exact h
-    · simp [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, SubarrayIterator.step]
+    have := it.1.xs.start_le_stop
+    have := it.1.xs.stop_le_array_size
+    rw [ihy (out := it.internalState.xs.array[it.internalState.xs.start])]
+    · simp only [start]
+      rw (occs := [2]) [List.drop_eq_getElem_cons]; rotate_left
+      · rw [List.length_take]
+        simp [it.internalState.xs.stop_le_array_size]
+        exact h
+      · simp [array, stop]
+    · simp only [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep,
+      IterStep.mapIterator_yield, SubarrayIterator.step]
       rw [dif_pos]; rotate_left; exact h
       rfl
   · rw [dif_neg]; rotate_left; exact h
-    simp at h
-    simp [it.internalState.xs.stop_le_array_size, h]
+    simp_all [it.internalState.xs.stop_le_array_size]
 
 theorem toList_internalIter {α : Type u} {s : Subarray α} :
     (Internal.iter s).toList =
@@ -90,9 +97,8 @@ theorem toList_internalIter {α : Type u} {s : Subarray α} :
 public instance : LawfulSliceSize (Internal.SubarrayData α) where
   lawful s := by
     simp [SliceSize.size, ToIterator.iter_eq, Iter.toIter_toIterM,
-      ← Iter.size_toArray_eq_count, ← Rco.Internal.toArray_eq_toArray_iter,
-      Rco.size_toArray, Rco.size, Rxo.HasSize.size, Rxc.HasSize.size]
-    sorry -- omega
+      ← Iter.length_toList_eq_count, SubarrayIterator.toList_eq,
+      s.internalRepresentation.stop_le_array_size, start, stop, array]
 
 public theorem toArray_eq_sliceToArray {α : Type u} {s : Subarray α} :
     s.toArray = Slice.toArray s := by
@@ -129,23 +135,22 @@ public theorem Array.toSubarray_eq_toSubarray_of_min_eq_min {xs : Array α}
     · simp only [Nat.min_eq_left, *] at h
       split
       · simp only [Nat.min_eq_left, *] at h
-        simp [h]
+        simp only [h, right_eq_dite_iff, Slice.mk.injEq, Internal.SubarrayData.mk.injEq, and_true,
+          true_and]
         omega
       · simp only [ge_iff_le, not_false_eq_true, Nat.min_eq_right (Nat.le_of_not_ge _), *] at h
         simp [h]
         omega
   · split
     · split
-      · simp only [ge_iff_le, not_false_eq_true, Nat.min_eq_right (Nat.le_of_not_ge _),
-        Nat.min_eq_left, *] at h
-        simp_all
-        omega
+      · simp only [not_false_eq_true, Nat.min_eq_right (Nat.le_of_not_ge _),
+        Nat.min_eq_left, Nat.not_le, *] at *
+        simp [*]; omega
       · simp
     · simp [Nat.min_eq_right (Nat.le_of_not_ge _), *] at h
       split
       · simp only [Nat.min_eq_left, *] at h
-        simp_all
-        omega
+        simp [*]; omega
       · simp
 
 public theorem Array.toSubarray_eq_min {xs : Array α} {lo hi : Nat} :
@@ -177,13 +182,12 @@ theorem Subarray.toList_eq {xs : Subarray α} :
   simp only [Subarray.start, Subarray.stop, Subarray.array]
   change aslice.toList = _
   have : aslice.toList = lslice.toList := by
-    simp [ListSlice.toList_eq, lslice, aslice]
-    simp only [Std.Slice.toList, toList_internalIter]
+    simp only [ListSlice.toList_eq, aslice, lslice, Std.Slice.toList, toList_internalIter]
     apply List.ext_getElem
     · have : stop - start ≤ array.size - start := by omega
-      simp [Subarray.start, Subarray.stop, Std.PRange.Nat.size_rco, *, Subarray.array]
+      simp [Subarray.start, Subarray.stop, *, Subarray.array]
     · intros
-      simp [Subarray.array, Subarray.start, Subarray.stop, Std.Rco.getElem_toList_eq, succMany?]
+      simp [Subarray.array, Subarray.start, Subarray.stop]
   simp [this, ListSlice.toList_eq, lslice]
 
 @[simp]
@@ -199,16 +203,14 @@ public theorem Subarray.toList_toArray {xs : Subarray α} :
 @[simp]
 public theorem Subarray.length_toList {xs : Subarray α} :
     xs.toList.length = xs.size := by
-  simp [Subarray.toList_eq, Subarray.size]
   have : xs.start ≤ xs.stop := xs.internalRepresentation.start_le_stop
   have : xs.stop ≤ xs.array.size := xs.internalRepresentation.stop_le_array_size
-  omega
+  simp [Subarray.toList_eq, Subarray.size]; omega
 
 @[simp]
 public theorem Subarray.size_toArray {xs : Subarray α} :
     xs.toArray.size = xs.size := by
-  simp [← Subarray.toArray_toList]
-  sorry
+  simp [← Subarray.toArray_toList, Subarray.size, Slice.size, SliceSize.size, start, stop]
 
 namespace Array
 
@@ -322,7 +324,6 @@ public theorem mkSlice_rci_eq_mkSlice_rco_min {xs : Array α} {lo : Nat} :
 @[simp]
 public theorem toList_mkSlice_rci {xs : Array α} {lo : Nat} :
     xs[lo...*].toList = xs.toList.drop lo := by
-  -- cannot use simp: `length_toList` and `take_length` lead to non-confluence
   rw [mkSlice_rci_eq_mkSlice_rco, toList_mkSlice_rco, ← Array.length_toList, List.take_length]
 
 @[simp]

@@ -251,6 +251,10 @@ theorem getElem_eq_getElem?_get {l : List α} {i : Nat} (h : i < l.length) :
     l[i] = l[i]?.get (by simp [h]) := by
   simp
 
+theorem getElem_eq_getD {l : List α} {i : Nat} {h : i < l.length} (fallback : α) :
+    l[i] = l.getD i fallback := by
+  rw [getElem_eq_getElem?_get, List.getD, Option.get_eq_getD]
+
 theorem getD_getElem? {l : List α} {i : Nat} {d : α} :
     l[i]?.getD d = if p : i < l.length then l[i]'p else d := by
   if h : i < l.length then

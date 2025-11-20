@@ -22,9 +22,8 @@ This module implements an iterator for list slices.
 
 open Std Slice PRange Iterators
 
-variable {shape : RangeShape} {α : Type u}
+variable {α : Type u}
 
--- TODO: This isn't very nice
 @[inline, expose]
 def ListSlice.instToIterator :=
   ToIterator.of (γ := Slice (Internal.ListSliceData α)) _ (fun s => match s.internalRepresentation.stop with
@@ -44,12 +43,6 @@ instance {α : Type u} {m : Type v → Type w} :
 
 namespace List
 
-/-- Allocates a new list that contains the contents of the slice. -/
-def ofSlice (s : ListSlice α) : List α :=
-  s.toList
-
-docs_to_verso ofSlice
-
 instance : Append (ListSlice α) where
   append x y :=
    let a := x.toList ++ y.toList
@@ -67,7 +60,3 @@ instance [ToString α] : ToString (ListSlice α) where
   toString s := toString s.toArray
 
 end List
-
-@[inherit_doc List.ofSlice]
-def ListSlice.toList (s : ListSlice α) : List α :=
-  List.ofSlice s

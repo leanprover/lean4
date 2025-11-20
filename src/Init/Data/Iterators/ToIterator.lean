@@ -19,10 +19,7 @@ open Std.Iterators
 
 namespace Std.Iterators
 
-/--
-This typeclass provides an iterator for the given element `x : γ`. Usually, instances are provided
-for all elements of a type `γ`.
--/
+/-- This typeclass provides an iterator for elements of type `γ`. -/
 class ToIterator (γ : Type u) (m : Type w → Type w') (α β : outParam (Type w)) where
   iterMInternal (x : γ) : IterM (α := α) m β
 
@@ -50,12 +47,14 @@ def ToIterator.of (α : Type w)
     ToIterator γ Id α β where
   iterMInternal x := iter x |>.toIterM
 
+/-- Replaces `ToIterator.iterM` with its definition. -/
 theorem ToIterator.iterM_eq {γ : Type u} {α β : Type v}
     {it : γ → IterM (α := α) Id β} {x} :
     letI : ToIterator γ Id α β := .ofM α it
     ToIterator.iterM x = it x :=
   rfl
 
+/-- Replaces `ToIterator.iter` with its definition. -/
 theorem ToIterator.iter_eq {γ : Type u} {x : γ} {α β : Type v} {it} :
     letI : ToIterator γ Id α β := .ofM α it
     ToIterator.iter x = (it x).toIter :=

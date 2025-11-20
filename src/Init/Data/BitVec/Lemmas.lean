@@ -5835,18 +5835,9 @@ theorem reverse_reverse_eq {x : BitVec w} :
   ext k hk
   rw [getElem_reverse, getMsbD_reverse, getLsbD_eq_getElem]
 
-theorem concat_eq_cons_reverse {x : BitVec w} {b : Bool} :
-    concat x b = ((x.reverse).cons b).reverse := by
-  ext i hi
-  simp only [← getLsbD_eq_getElem, getLsbD_concat, getLsbD_reverse, getMsbD_eq_getLsbD, hi,
-    decide_true, Nat.add_one_sub_one, getLsbD_cons, Bool.true_and]
-  by_cases hzero : i = 0
-  · simp [hzero]
-  · simp [hzero, show ¬ w - i = w by omega, show w - i < w by omega,
-          show w - 1 - (w - i) = i - 1 by omega]
-
-theorem reverse_eq_msb_concat_reverse {x : BitVec (w + 1)}:
-    x.reverse = concat ((x.setWidth w).reverse) x.msb := by
+@[simp]
+theorem concat_setWidth_reverse_msb_eq_reverse {x : BitVec (w + 1)}:
+    concat ((x.setWidth w).reverse) x.msb = x.reverse := by
   ext i hi
   simp only [getElem_reverse, BitVec.msb, getElem_concat, getMsbD_setWidth, Nat.le_add_right,
     Nat.sub_eq_zero_of_le, Nat.zero_le, decide_true, Bool.true_and, dite_eq_ite]
@@ -6501,7 +6492,7 @@ theorem reverse_cpop {w : Nat} (x : BitVec w) :
   case zero =>
     simp [BitVec.cpop, BitVec.cpopAuxRec]
   case succ w' ih =>
-    rw [reverse_eq_msb_concat_reverse, ← cons_cpop_eq_concat_cpop, cpop_cons, ih, setWidth_cpop_add_eq]
+    rw [← concat_setWidth_reverse_msb_eq_reverse, ← cons_cpop_eq_concat_cpop, cpop_cons, ih, setWidth_cpop_add_eq]
 
 theorem cast_cpopAuxRec_eq_cpopAuxRec_of_eq {x : BitVec w}  (p : w = v) :
     (x.cast p).cpopAuxRec n = x.cpopAuxRec n := by

@@ -110,8 +110,8 @@ where
 
   go {w : Nat} (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) : Return aig w :=
     match expr with
-    -- | x@(.var a) =>
-    | (.var a) =>
+    | x@(.var a) => -- Works
+    -- | (.var a) => -- Doesn't work
       let res := bitblast.blastVar aig ⟨a⟩
       have := AIG.LawfulVecOperator.le_size (f := bitblast.blastVar) ..
       let cache := cache.cast this
@@ -221,7 +221,6 @@ set_option maxHeartbeats 400000
 
 mutual
 
-
 theorem goCache_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
     ∀ (expr : BVExpr w),
         Cache.Inv assign (goCache aig expr cache).result.val.aig (goCache aig expr cache).cache := by
@@ -237,6 +236,7 @@ theorem goCache_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cach
       sorry
     · sorry
 termination_by expr => (sizeOf expr, 1, sizeOf aig)
+decreasing_by all_goals decreasing_tactic
 
 theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
     ∀ (expr : BVExpr w),
@@ -249,74 +249,22 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
   · sorry
   next op lhsExpr rhsExpr =>
     dsimp only at hres
-    match op with
-    | .add =>
+    match (generalizing := false) op, hres with
+    | .add, hres =>
       dsimp only at hres
       rw [← hres]
       apply Cache.Inv_cast
       · sorry
       · apply goCache_Inv_of_Inv
         sorry
-    | _ =>
+    | _, hres =>
       sorry
-  · sorry
-  · sorry
-  · sorry
-  · sorry
-  · sorry
-  · sorry
-  · sorry
+  all_goals sorry
 termination_by expr => (sizeOf expr, 0, 0)
-
-theorem goCache_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
-    (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
-    ∀ (idx : Nat) (hidx : idx < w),
-        ⟦(goCache aig expr cache).result.val.aig, (goCache aig expr cache).result.val.vec.get idx hidx, assign.toAIGAssignment⟧
-          =
-        (expr.eval assign).getLsbD idx := by
-  intro idx hidx
-  generalize hres : goCache aig expr cache = res
-  unfold goCache at hres
-  split at hres
-  · sorry
-  · sorry
-
-
-theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
-    (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
-    ∀ (idx : Nat) (hidx : idx < w),
-        ⟦(go aig expr cache).result.val.aig, (go aig expr cache).result.val.vec.get idx hidx, assign.toAIGAssignment⟧
-          =
-        (expr.eval assign).getLsbD idx := by
-  intro idx hidx
-  generalize hres : go aig expr cache = res
-  unfold go at hres
-  split at hres
-  · sorry
-  · sorry
-  · dsimp only at hres
-    split at hres
-    · sorry
-    · sorry
-    · sorry
-    · sorry
-    · sorry
-    · sorry
-    · sorry
-  · sorry
-  · sorry
-  · sorry
-  · sorry
-  · sorry
-  · sorry
-  · sorry
+decreasing_by
+  skip
+  decreasing_tactic
 
 end
-
-end bitblast
-
-end BVExpr
-
-end Std.Tactic.BVDecide
 
 #exit

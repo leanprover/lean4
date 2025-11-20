@@ -399,8 +399,9 @@ def visitModule (srcSearchPath : SearchPath)
       deps := deps.union k {j}
   for j in [0:s.mods.size] do
     for k in NeedsKind.all do
-      if s.transDepsOrig[i]!.has k j && preserve.has k j then
-        deps := deps.union k {j}
+      -- remove `meta` while preserving, no use-case for preserving `meta` so far
+      if s.transDepsOrig[i]!.has k j && preserve.has { k with isMeta := false } j then
+        deps := deps.union { k with isMeta := false } {j}
 
   -- Do transitive reduction of `needs` in `deps`.
   if !addOnly then

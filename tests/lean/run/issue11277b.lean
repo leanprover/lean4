@@ -612,12 +612,7 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
     dsimp only at hres
     match op with
     | .and | .or | .xor =>
-      dsimp only at hres
-      rw [← hres]
-      apply Cache.Inv_cast
-      · sorry
-      · apply goCache_Inv_of_Inv
-        sorry
+      sorry
     | .add | .mul | .udiv | .umod =>
       dsimp only at hres
       rw [← hres]
@@ -625,51 +620,13 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
       · sorry
       · apply goCache_Inv_of_Inv
         sorry
-  · dsimp only at hres
-    split at hres
-    all_goals
-      rw [← hres]
-      dsimp only
-      apply Cache.Inv_cast
-      · sorry
-      · apply goCache_Inv_of_Inv
-        sorry
-  · rw [← hres]
-    dsimp only
-    apply Cache.Inv_cast
-    · sorry
-    · apply goCache_Inv_of_Inv
-      sorry
-  · rw [← hres]
-    dsimp only
-    apply Cache.Inv_cast
-    · sorry
-    · apply goCache_Inv_of_Inv
-      sorry
-  · rw [← hres]
-    dsimp only
-    apply Cache.Inv_cast
-    · sorry
-    · apply goCache_Inv_of_Inv
-      sorry
-  · rw [← hres]
-    dsimp only
-    apply Cache.Inv_cast
-    · sorry
-    · apply goCache_Inv_of_Inv
-      sorry
-  · rw [← hres]
-    dsimp only
-    apply Cache.Inv_cast
-    · sorry
-    · apply goCache_Inv_of_Inv
-      sorry
-  · rw [← hres]
-    dsimp only
-    apply Cache.Inv_cast
-    · sorry
-    · apply goCache_Inv_of_Inv
-      sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
 termination_by expr => (sizeOf expr, 0, 0)
 
 theorem goCache_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
@@ -683,9 +640,7 @@ theorem goCache_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignme
   unfold goCache at hres
   split at hres
   · sorry
-  · rw [← hres]
-    rw [go_denote_eq]
-    exact hinv
+  · sorry
 
 
 theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
@@ -709,8 +664,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
     · sorry
     · sorry
     · sorry
-  · dsimp only at hres
-    split at hres <;> sorry
+  · sorry
   · sorry
   · sorry
   · sorry

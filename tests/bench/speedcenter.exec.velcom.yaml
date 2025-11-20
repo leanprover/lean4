@@ -129,7 +129,7 @@
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/BitVec/Lemmas.lean 2 -j4 -Dexperimental.module=true
+    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/BitVec/Lemmas.lean 3 -j4 -Dexperimental.module=true
     max_runs: 2
     parse_output: true
 - attributes:

@@ -11,10 +11,10 @@ NOTE: only works on Linux for now.
 -/
 
 def determineRSS (pid : UInt32) : IO Nat := do
-  let status ← IO.FS.readFile s!"/proc/{pid}/status"
-  let some rssLine := status.splitOn "\n" |>.find? (·.startsWith "RssAnon:")
+  let status ← IO.FS.readFile s!"/proc/{pid}/smaps_rollup"
+  let some rssLine := status.splitOn "\n" |>.find? (·.startsWith "Rss:")
     | throw <| IO.userError "No RSS in proc status"
-  let rssLine := rssLine.dropPrefix "RssAnon:"
+  let rssLine := rssLine.dropPrefix "Rss:"
   let rssLine := rssLine.dropWhile Char.isWhitespace
   let some rssInKB := rssLine.takeWhile Char.isDigit |>.toNat?
     | throw <| IO.userError "Cannot parse RSS"
@@ -76,11 +76,14 @@ def main (args : List String) : IO Unit := do
       requestNo := requestNo + 1
 
       let rss ← determineRSS (← read).pid
-      if let some lastRSS := lastRSS? then
-        totalRSSDelta := totalRSSDelta + ((rss : Int) - (lastRSS : Int))
+      -- The first `didChange` usually results in a significantly higher RSS increase than
+      -- the others, so we ignore it.
+      if i > 1 then
+        if let some lastRSS := lastRSS? then
+          totalRSSDelta := totalRSSDelta + ((rss : Int) - (lastRSS : Int))
       lastRSS? := some rss
 
-    let avgRSSDelta := totalRSSDelta / (n - 1)
+    let avgRSSDelta := totalRSSDelta / (n - 2)
     IO.println s!"avg-reelab-rss-delta: {avgRSSDelta}"
 
     let _ ← Ipc.collectDiagnostics requestNo uri versionNo

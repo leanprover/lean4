@@ -138,7 +138,7 @@ Examples:
  * {lean}`"red red green blue".takeWhile "red " == "red red ".toSlice`
  * {lean}`"red green blue".takeWhile (fun (_ : Char) => true) == "red green blue".toSlice`
 -/
-@[inline] def takeWhile [ForwardPattern ρ] (s : String) (pat : ρ) : String.Slice :=
+@[inline] def takeWhile (s : String) (pat : ρ) [ForwardPattern pat] : String.Slice :=
   s.toSlice.takeWhile pat
 
 /--
@@ -156,7 +156,7 @@ Examples:
  * {lean}`"red red green blue".dropWhile "red " == "green blue".toSlice`
  * {lean}`"red green blue".dropWhile (fun (_ : Char) => true) == "".toSlice`
 -/
-@[inline] def dropWhile [ForwardPattern ρ] (s : String) (pat : ρ) : String.Slice :=
+@[inline] def dropWhile (s : String) (pat : ρ) [ForwardPattern pat] : String.Slice :=
   s.toSlice.dropWhile pat
 
 /--
@@ -173,7 +173,7 @@ Examples:
  * {lean}`"red green blue".takeEndWhile 'e' == "e".toSlice`
  * {lean}`"red green blue".takeEndWhile (fun (_ : Char) => true) == "red green blue".toSlice`
 -/
-@[inline] def takeEndWhile [BackwardPattern ρ] (s : String) (pat : ρ) : String.Slice :=
+@[inline] def takeEndWhile (s : String) (pat : ρ) [BackwardPattern pat] : String.Slice :=
   s.toSlice.takeEndWhile pat
 
 @[deprecated String.takeEndWhile (since := "2025-11-17")]
@@ -198,7 +198,7 @@ Examples:
  * {lean}`"red green blue".dropEndWhile 'e' == "red green blu".toSlice`
  * {lean}`"red green blue".dropEndWhile (fun (_ : Char) => true) == "".toSlice`
 -/
-@[inline] def dropEndWhile [BackwardPattern ρ] (s : String) (pat : ρ) : String.Slice :=
+@[inline] def dropEndWhile (s : String) (pat : ρ) [BackwardPattern pat] : String.Slice :=
   s.toSlice.dropEndWhile pat
 
 @[deprecated String.dropEndWhile (since := "2025-11-17")]
@@ -222,7 +222,7 @@ Examples:
  * {lean}`"red green blue".startsWith 'r' = true`
  * {lean}`"red green blue".startsWith Char.isLower = true`
 -/
-@[inline] def startsWith [ForwardPattern ρ] (s : String) (pat : ρ) : Bool :=
+@[inline] def startsWith (s : String) (pat : ρ) [ForwardPattern pat] : Bool :=
   s.toSlice.startsWith pat
 
 /--
@@ -256,7 +256,7 @@ Examples:
  * {lean}`"red green blue".endsWith 'e' = true`
  * {lean}`"red green blue".endsWith Char.isLower = true`
 -/
-@[inline] def endsWith [BackwardPattern ρ] (s : String) (pat : ρ) : Bool :=
+@[inline] def endsWith (s : String) (pat : ρ) [BackwardPattern pat] : Bool :=
   s.toSlice.endsWith pat
 
 /--
@@ -389,7 +389,7 @@ Examples:
  * {lean}`"red green blue".dropPrefix? 'r' == some "ed green blue".toSlice`
  * {lean}`"red green blue".dropPrefix? Char.isLower == some "ed green blue".toSlice`
 -/
-def dropPrefix? [ForwardPattern ρ] (s : String) (pat : ρ) : Option String.Slice :=
+def dropPrefix? (s : String) (pat : ρ) [ForwardPattern pat] : Option String.Slice :=
   s.toSlice.dropPrefix? pat
 
 /--
@@ -409,7 +409,7 @@ Examples:
  * {lean}`"red green blue".dropSuffix? 'e' == some "red green blu".toSlice`
  * {lean}`"red green blue".dropSuffix? Char.isLower == some "red green blu".toSlice`
 -/
-def dropSuffix? [BackwardPattern ρ] (s : String) (pat : ρ) : Option String.Slice :=
+def dropSuffix? (s : String) (pat : ρ) [BackwardPattern pat] : Option String.Slice :=
   s.toSlice.dropSuffix? pat
 
 /--
@@ -429,7 +429,7 @@ Examples:
  * {lean}`"red green blue".dropPrefix 'r' == "ed green blue".toSlice`
  * {lean}`"red green blue".dropPrefix Char.isLower == "ed green blue".toSlice`
 -/
-def dropPrefix [ForwardPattern ρ] (s : String) (pat : ρ) : String.Slice :=
+def dropPrefix (s : String) (pat : ρ) [ForwardPattern pat] : String.Slice :=
   s.toSlice.dropPrefix pat
 
 @[deprecated String.dropPrefix (since := "2025-11-17")]
@@ -457,7 +457,7 @@ Examples:
  * {lean}`"red green blue".dropSuffix 'e' == "red green blu".toSlice`
  * {lean}`"red green blue".dropSuffix Char.isLower == "red green blu".toSlice`
 -/
-def dropSuffix [BackwardPattern ρ] (s : String) (pat : ρ) : String.Slice :=
+def dropSuffix (s : String) (pat : ρ) [BackwardPattern pat] : String.Slice :=
   s.toSlice.dropSuffix pat
 
 @[deprecated String.dropSuffix (since := "2025-11-17")]

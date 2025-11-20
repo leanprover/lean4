@@ -444,14 +444,34 @@ def ContVarId.synthesizeJumps (contVarId : ContVarId) (k : DoElabM Expr) : DoEla
   for jump in info.jumps do
     jump.mvar.mvarId!.withContext do withRef jump.ref do
       let res ← k
-      fullApproxDefEq <| synthUsingDefEq "jump site" jump.mvar res
+      synthUsingDefEq "jump site" jump.mvar res
+
+/--
+Adds the given local declaration to the local context of the metavariable of each jump site.
+This is useful for adding, e.g. join point declarations post-hoc to the local context of the jump
+sites.
+-/
+def ContVarId.addDeclToJumpSites! (contVarId : ContVarId) (decl : LocalDecl) : DoElabM Unit := do
+  let info ← contVarId.find
+  for jump in info.jumps do
+    let mut mvarId := jump.mvar.mvarId!
+    repeat
+      let found ← mvarId.withContext do return (← getLCtx).find? decl.fvarId |>.isSome
+      unless found do
+        mvarId.modifyLCtx fun lctx => lctx.addDecl decl
+      -- A simple `instantiateMVars` is not enough here because of functions like
+      -- `MkBinding.elimApp` which go through one layer of assignment at a time.
+      if let some assignment ← getExprMVarAssignment? mvarId then
+        mvarId := assignment.getAppFn.mvarId!
+      else
+        break
 
 def ContVarId.erase (contVarId : ContVarId) : DoElabM Unit := do
   modify fun s => { s with contVars := s.contVars.erase contVarId }
 
 /--
 The subset of `(← read).mutVars` that were reassigned at any of the jump sites of the continuation
-variable. The result array has the same order as `(← read).mutVars`.
+variable relative to `rootCtx`. The result array has the same order as `(← read).mutVars`.
 -/
 def ContVarId.getReassignedMutVars (contVarId : ContVarId) (rootCtx : LocalContext) : DoElabM (Std.HashSet Name) := do
   let info ← contVarId.find
@@ -522,51 +542,53 @@ This is useful for control-flow constructs like `if` and `match`, where multiple
 branches share the continuation.
 -/
 def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont → DoElabM Expr) : DoElabM Expr := do
-  let α := (← read).doBlockResultType
-  let mα ← mkMonadicType α
-  let joinTy ← mkFreshExprMVar (mkSort (mkLevelSucc (← read).monadInfo.v)) (userName := `joinTy)
-  let joinRhs ← mkFreshExprMVar joinTy (userName := `joinRhs)
-  withLetDecl (← mkFreshUserName `__do_jp) joinTy joinRhs (kind := .implDetail) (nondep := true) fun jp => do
-    let mutVars := (← read).mutVars
-    let contVarId ← mkFreshContVar α (mutVars.push nondupDec.resultName)
-    let duplicableDec := { nondupDec with k := contVarId.mkJump }
-    let e ← caller duplicableDec
+  let γ := (← read).doBlockResultType
+  let mγ ← mkMonadicType γ
+  let rootCtx ← getLCtx
+  let mutVars := (← read).mutVars
+  let contVarId ← mkFreshContVar γ (mutVars.push nondupDec.resultName)
+  let duplicableDec := { nondupDec with k := contVarId.mkJump }
+  let e ← caller duplicableDec
 
-    -- Now determine whether we need to realize the join point.
-    let jumpCount ← contVarId.jumpCount
-    if jumpCount = 0 then
-      -- Do nothing. No MVar needs to be assigned.
-      Term.ensureHasType mα e
-    else if jumpCount = 1 then
-      -- Linear use of the continuation. Do not introduce a join point; just emit the continuation
-      -- directly.
-      contVarId.synthesizeJumps nondupDec.k
-      let e ← Term.ensureHasType mα e
-      -- Now zeta-reduce `jp`. Should be a semantic no-op.
-      let e ← elimMVarDeps #[jp] e
-      return e.replaceFVar jp joinRhs
-    else -- jumps.size > 1
-      -- Non-linear use of the continuation. Introduce a join point and synthesize jumps to it.
+  -- Now determine whether we need to realize the join point.
+  let jumpCount ← contVarId.jumpCount
+  if jumpCount = 0 then
+    -- Do nothing. No MVar needs to be assigned.
+    Term.ensureHasType mγ e
+  else if jumpCount = 1 then
+    -- Linear use of the continuation. Do not introduce a join point; just emit the continuation
+    -- directly.
+    contVarId.synthesizeJumps do
 
-      -- Compute the union of all reassigned mut vars. These + `r` constitute the parameters
-      -- of the join point. We take a little care to preserve the declaration order that is manifest
-      -- in the array `(← read).mutVars`.
-      let reassignedMutVars ← contVarId.getReassignedMutVars (← joinRhs.mvarId!.getDecl).lctx
-      let reassignedMutVars := mutVars.filter reassignedMutVars.contains
+      let r ← nondupDec.k
+      return r
+    let e ← Term.ensureHasType mγ e
+    return e
+  else -- jumps.size > 1
+    -- Non-linear use of the continuation. Introduce a join point and synthesize jumps to it.
 
-      -- Assign the `joinTy` based on the types of the reassigned mut vars and the result type.
-      let reassignedDecls ← reassignedMutVars.mapM (getLocalDeclFromUserName ·)
-      let reassignedTys := reassignedDecls.map (·.type)
-      let resTy ← mkFreshResultType
-      let joinTy' ← mkArrowN (reassignedTys.push resTy) mα
-      synthUsingDefEq "join point type" joinTy joinTy'
+    -- Compute the union of all reassigned mut vars. These + `r` constitute the parameters
+    -- of the join point. We take a little care to preserve the declaration order that is manifest
+    -- in the array `(← read).mutVars`.
+    let reassignedMutVars ← contVarId.getReassignedMutVars rootCtx
+    let reassignedMutVars := mutVars.filter reassignedMutVars.contains
 
-      -- Assign the `joinRhs` with the result of the continuation.
-      let rhs ← joinRhs.mvarId!.withContext do
-        withLocalDeclsDND (reassignedDecls.map (fun d => (d.userName, d.type)) |>.push (nondupDec.resultName, resTy)) fun xs => do
-          mkLambdaFVars xs (← nondupDec.k)
-      synthUsingDefEq "join point RHS" joinRhs rhs
+    -- Assign the `joinTy` based on the types of the reassigned mut vars and the result type.
+    let reassignedDecls ← reassignedMutVars.mapM (getLocalDeclFromUserName ·)
+    let reassignedTys := reassignedDecls.map (·.type)
+    let resTy ← mkFreshResultType
+    let joinTy ← mkArrowN (reassignedTys.push resTy) mγ
 
+    -- Assign the `joinRhs` with the result of the continuation.
+    let joinRhs ← withLCtx' rootCtx do
+      withLocalDeclsDND (reassignedDecls.map (fun d => (d.userName, d.type)) |>.push (nondupDec.resultName, resTy)) fun xs => do
+        mkLambdaFVars xs (← nondupDec.k)
+
+    withLetDecl (← mkFreshUserName `__do_jp) joinTy joinRhs (kind := .implDetail) (nondep := true) fun jp => do
+      let decl ← jp.fvarId!.getDecl
+      -- Add the join point decl to every jump site metavariable, so that we can assign the jump
+      -- sites in the next step.
+      contVarId.addDeclToJumpSites! decl
       -- Finally, assign the MVars with the jump to `jp`.
       contVarId.synthesizeJumps do
         let r ← getFVarFromUserName nondupDec.resultName
@@ -575,8 +597,10 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
           let newDefn ← getLocalDeclFromUserName name
           jump := mkApp jump newDefn.toExpr
         return mkApp jump (← Term.ensureHasType resTy r "Mismatched result type for match arm. It")
-
-      mkLetFVars #[jp] (generalizeNondepLet := false) (← Term.ensureHasType mα e)
+      -- Now instantiate the metavariables in `e` to ensure that `abstract` sees all FVar
+      -- occurrences of `jp`, rather than trusting, e.g. `Expr.hasFVar` or some cache.
+      let e ← instantiateMVars e
+      mkLetFVars #[jp] (generalizeNondepLet := false) (← Term.ensureHasType mγ e)
 
 /--
 Create syntax standing in for an unelaborated metavariable.

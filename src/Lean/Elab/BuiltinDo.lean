@@ -494,7 +494,9 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
   withLocalDecl (← mkFreshUserName `s) .default σ (kind := .implDetail) fun loopS => do
   withProxyMutVarDefs fun elimProxyDefs => do
     let rootCtx ← getLCtx
-    let continueKVar ← mkFreshContVar γ mutVars
+    -- We will use `continueKVar` to stand in for the `DoElemCont` `dec` below.
+    -- Adding `dec.resultName` to the list of tunneled vars helps with some MVar assignment issues.
+    let continueKVar ← mkFreshContVar γ (mutVars.push dec.resultName)
     let breakKVar ← mkFreshContVar γ mutVars
 
     -- Elaborate the loop body, which must have result type `PUnit`.

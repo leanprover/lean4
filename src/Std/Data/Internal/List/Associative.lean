@@ -257,6 +257,10 @@ end
   | ⟨k, v⟩ :: l => if h : k == a then some (cast (congrArg β (eq_of_beq h)) v)
       else getValueCast? a l
 
+/-- Internal implementation detail of the hash map -/
+def beqModel [BEq α] [LawfulBEq α] [Hashable α] [∀ k, BEq (β k)] (l₁ l₂ : List ((a : α) × β a)) :=
+  if l₁.length ≠ l₂.length then false else (l₁.all fun x => getValueCast? x.fst l₂ == some x.snd)
+
 @[simp] theorem getValueCast?_nil [BEq α] [LawfulBEq α] {a : α} :
     getValueCast? a ([] : List ((a : α) × β a)) = none := rfl
 theorem getValueCast?_cons [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} :

@@ -350,7 +350,7 @@ instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
 instance [BEq α] [Hashable α] : Inter (DHashMap α β) := ⟨inter⟩
 
 instance [LawfulBEq α] [∀ k, BEq (β k)] : BEq (DHashMap α β) where
-  beq a b := Raw₀.checkBEq ⟨a.1, a.2.size_buckets_pos⟩ ⟨b.1, b.2.size_buckets_pos⟩
+  beq a b := Raw₀.beq ⟨a.1, a.2.size_buckets_pos⟩ ⟨b.1, b.2.size_buckets_pos⟩
 
 section Unverified
 

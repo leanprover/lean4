@@ -163,6 +163,7 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
      ⟨`getEntryD, (``getEntryD_eq_getEntryD, #[`(getEntryD_of_perm _)])⟩,
      ⟨`getEntry!, (``getEntry!_eq_getEntry!, #[`(getEntry!_of_perm _)])⟩,
      ⟨`toList, (``Raw.toList_eq_toListModel, #[])⟩,
+     ⟨`beq, (``toListModel_beq, #[])⟩,
      ⟨`keys, (``Raw.keys_eq_keys_toListModel, #[`(perm_keys_congr_left)])⟩,
      ⟨`Const.toList, (``Raw.Const.toList_eq_toListModel_map, #[`(perm_map_congr_left)])⟩,
      ⟨`foldM, (``Raw.foldM_eq_foldlM_toListModel, #[])⟩,
@@ -1452,17 +1453,8 @@ theorem any_eq_false [LawfulBEq α] {p : (a : α) → β a → Bool} (h : m.1.WF
 
 omit [Hashable α] [BEq α] in
 theorem all_toList {p : (a : α) → β a → Bool} :
-    m.1.toList.all (fun x => p x.1 x.2) = m.1.all p := by
-  simp only [Raw.all, ForIn.forIn, Bool.not_eq_true, bind_pure_comp, map_pure, Id.run_bind]
-  rw [forIn_eq_forIn_toList, forIn_eq_forIn']
-  induction m.val.toList with
-  | nil => simp
-  | cons hd tl ih =>
-    simp only [forIn'_eq_forIn, List.all_cons]
-    by_cases h : p hd.fst hd.snd = false
-    · simp [h]
-    · simp only [forIn'_eq_forIn] at ih
-      simp [h, ih]
+    m.1.toList.all (fun x => p x.1 x.2) = m.1.all p :=
+  DHashMap.Internal.Raw.all_toList
 
 omit [Hashable α] [BEq α] in
 theorem all_eq_not_any_not {p : (a : α) → β a → Bool} :
@@ -2599,8 +2591,8 @@ end insertMany
 section BEq
 variable {m₁ m₂ : Raw₀ α β}
 
-theorem checkBEq_eq_true_of_Equiv {m₁ m₂ : Raw₀ α β} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] : m₁.1.Equiv m₂.1 → checkBEq m₁ m₂ := by
-  rw [checkBEq]
+theorem checkBEq_eq_true_of_Equiv {m₁ m₂ : Raw₀ α β} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] : m₁.1.Equiv m₂.1 → beq m₁ m₂ := by
+  rw [beq]
   intro hyp
   split
   case isTrue hs =>
@@ -2622,9 +2614,9 @@ theorem checkBEq_eq_true_of_Equiv {m₁ m₂ : Raw₀ α β} (h₁ : m₁.val.WF
       · wf_trivial
     · wf_trivial
 
-theorem Equiv_of_checkBEq_eq_true {m₁ m₂ : Raw₀ α β} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] : checkBEq m₁ m₂ → m₁.1.Equiv m₂.1 := by
+theorem Equiv_of_checkBEq_eq_true {m₁ m₂ : Raw₀ α β} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] : beq m₁ m₂ → m₁.1.Equiv m₂.1 := by
   intro hyp
-  rw [checkBEq] at hyp
+  rw [beq] at hyp
   split at hyp
   case isTrue => contradiction
   case isFalse hs =>

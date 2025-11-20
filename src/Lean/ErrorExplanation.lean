@@ -277,7 +277,7 @@ where
   fence (ticksToClose : Option Nat := none) := attempt do
     let line ← any
     if line.startsWith "```" then
-      let numTicks := line.takeWhile (· == '`') |>.copy |>.length
+      let numTicks := line.takeWhile (· == '`') |>.utf8ByteSize -- this makes sense because we know the slice consists only of ticks
       match ticksToClose with
       | none => return (numTicks, line.drop numTicks)
       | some n =>

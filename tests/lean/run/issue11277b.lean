@@ -143,9 +143,7 @@ where
       have := AIG.LawfulVecOperator.le_size (f := bitblast.blastVar) ..
       let cache := cache.cast this
       ⟨⟨res, this⟩, cache⟩
-    | .const val =>
-      let res := bitblast.blastConst aig val
-      ⟨⟨⟨aig, res⟩, by simp⟩, cache⟩
+    | .const val => sorry
     | .bin lhsExpr op rhsExpr =>
       let ⟨⟨⟨aig, lhs⟩, hlaig⟩, cache⟩ := goCache aig lhsExpr cache
       let ⟨⟨⟨aig, rhs⟩, hraig⟩, cache⟩ := goCache aig rhsExpr cache
@@ -153,27 +151,9 @@ where
         dsimp only at hlaig hraig
         omega
       match op with
-      | .and =>
-         let res := AIG.RefVec.zip aig ⟨lhs, rhs⟩ AIG.mkAndCached
-         have := by
-           apply AIG.RefVec.zip_le_size_of_le_aig_size
-           dsimp only at hlaig hraig
-           omega
-         ⟨⟨res, this⟩, cache.cast (AIG.RefVec.zip_le_size ..)⟩
-      | .or =>
-         let res := AIG.RefVec.zip aig ⟨lhs, rhs⟩ AIG.mkOrCached
-         have := by
-           apply AIG.RefVec.zip_le_size_of_le_aig_size
-           dsimp only at hlaig hraig
-           omega
-         ⟨⟨res, this⟩, cache.cast (AIG.RefVec.zip_le_size ..)⟩
-      | .xor =>
-         let res := AIG.RefVec.zip aig ⟨lhs, rhs⟩ AIG.mkXorCached
-         have := by
-           apply AIG.RefVec.zip_le_size_of_le_aig_size
-           dsimp only at hlaig hraig
-           omega
-         ⟨⟨res, this⟩, cache.cast (AIG.RefVec.zip_le_size ..)⟩
+      | .and => sorry
+      | .or => sorry
+      | .xor => sorry
       | .add =>
         let res := bitblast.blastAdd aig ⟨lhs, rhs⟩
         have := by
@@ -181,135 +161,24 @@ where
           dsimp only at hlaig hraig
           omega
         ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastAdd) ..)⟩
-      | .mul =>
-        let res := bitblast.blastMul aig ⟨lhs, rhs⟩
-        have := by
-          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastMul)
-          dsimp only at hlaig hraig
-          omega
-        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastMul) ..)⟩
-      | .udiv =>
-        let res := bitblast.blastUdiv aig ⟨lhs, rhs⟩
-        have := by
-          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastUdiv)
-          dsimp only at hlaig hraig
-          omega
-        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastUdiv) ..)⟩
-      | .umod =>
-        let res := bitblast.blastUmod aig ⟨lhs, rhs⟩
-        have := by
-          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastUmod)
-          dsimp only at hlaig hraig
-          omega
-        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastUmod) ..)⟩
+      | .mul => sorry
+      | .udiv => sorry
+      | .umod => sorry
     | .un op expr =>
       let ⟨⟨⟨eaig, evec⟩, heaig⟩, cache⟩ := goCache aig expr cache
       match op with
-      | .not =>
-        let res := bitblast.blastNot eaig evec
-        have := by
-          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastNot)
-          dsimp only at heaig
-          omega
-        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastNot) ..)⟩
-      | .rotateLeft distance =>
-        let res := bitblast.blastRotateLeft eaig ⟨evec, distance⟩
-        have := by
-          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastRotateLeft)
-          dsimp only at heaig
-          assumption
-        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastRotateLeft) ..)⟩
-      | .rotateRight distance =>
-        let res := bitblast.blastRotateRight eaig ⟨evec, distance⟩
-        have := by
-          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastRotateRight)
-          dsimp only at heaig
-          assumption
-        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastRotateRight) ..)⟩
-      | .arithShiftRightConst distance =>
-        let res := bitblast.blastArithShiftRightConst eaig ⟨evec, distance⟩
-        have := by
-          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastArithShiftRightConst)
-          dsimp only at heaig
-          assumption
-        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastArithShiftRightConst) ..)⟩
-      | .reverse =>
-        let res := bitblast.blastReverse eaig evec
-        have := by
-          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastReverse)
-          dsimp only at heaig
-          omega
-        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastReverse) ..)⟩
-      | .clz =>
-        let res := bitblast.blastClz eaig evec
-        have := by
-          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastClz)
-          omega
-        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastClz) ..)⟩
-    | .append lhs rhs h =>
-      let ⟨⟨⟨aig, lhs⟩, hlaig⟩, cache⟩ := goCache aig lhs cache
-      let ⟨⟨⟨aig, rhs⟩, hraig⟩, cache⟩ := goCache aig rhs cache
-      let lhs := lhs.cast <| by
-        dsimp only at hlaig hraig
-        omega
-      let res := bitblast.blastAppend aig ⟨lhs, rhs, by rw [Nat.add_comm, h]⟩
-      have := by
-        apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastAppend)
-        dsimp only at hlaig hraig
-        omega
-      ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastAppend) ..)⟩
-    | .replicate n expr h =>
-      let ⟨⟨⟨aig, expr⟩, haig⟩, cache⟩ := goCache aig expr cache
-      let res := bitblast.blastReplicate aig ⟨n, expr, h⟩
-      have := by
-        apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastReplicate)
-        dsimp only at haig
-        assumption
-      ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastReplicate) ..)⟩
-    | .extract start len expr =>
-      let ⟨⟨⟨eaig, evec⟩, heaig⟩, cache⟩ := goCache aig expr cache
-      let res := bitblast.blastExtract eaig ⟨evec, start⟩
-      have := by
-        apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastExtract)
-        dsimp only at heaig
-        exact heaig
-      ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastExtract) ..)⟩
-    | .shiftLeft lhs rhs =>
-      let ⟨⟨⟨aig, lhs⟩, hlaig⟩, cache⟩ := goCache aig lhs cache
-      let ⟨⟨⟨aig, rhs⟩, hraig⟩, cache⟩ := goCache aig rhs cache
-      let lhs := lhs.cast <| by
-        dsimp only at hlaig hraig
-        omega
-      let res := bitblast.blastShiftLeft aig ⟨_, lhs, rhs⟩
-      have := by
-        apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastShiftLeft)
-        dsimp only at hlaig hraig
-        omega
-      ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastShiftLeft) ..)⟩
-    | .shiftRight lhs rhs =>
-      let ⟨⟨⟨aig, lhs⟩, hlaig⟩, cache⟩ := goCache aig lhs cache
-      let ⟨⟨⟨aig, rhs⟩, hraig⟩, cache⟩ := goCache aig rhs cache
-      let lhs := lhs.cast <| by
-        dsimp only at hlaig hraig
-        omega
-      let res := bitblast.blastShiftRight aig ⟨_, lhs, rhs⟩
-      have := by
-        apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastShiftRight)
-        dsimp only at hlaig hraig
-        omega
-      ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastShiftRight) ..)⟩
-    | .arithShiftRight lhs rhs =>
-      let ⟨⟨⟨aig, lhs⟩, hlaig⟩, cache⟩ := goCache aig lhs cache
-      let ⟨⟨⟨aig, rhs⟩, hraig⟩, cache⟩ := goCache aig rhs cache
-      let lhs := lhs.cast <| by
-        dsimp only at hlaig hraig
-        omega
-      let res := bitblast.blastArithShiftRight aig ⟨_, lhs, rhs⟩
-      have := by
-        apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastArithShiftRight)
-        dsimp only at hlaig hraig
-        omega
-      ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastArithShiftRight) ..)⟩
+      | .not => sorry
+      | .rotateLeft distance => sorry
+      | .rotateRight distance => sorry
+      | .arithShiftRightConst distance => sorry
+      | .reverse => sorry
+      | .clz => sorry
+    | .append lhs rhs h => sorry
+    | .replicate n expr h => sorry
+    | .extract start len expr => sorry
+    | .shiftLeft lhs rhs => sorry
+    | .shiftRight lhs rhs => sorry
+    | .arithShiftRight lhs rhs => sorry
   termination_by (sizeOf expr, 0)
 
 

@@ -509,6 +509,10 @@ def contains [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Bool :=
   let searcher := ToForwardSearcher.toSearcher s pat
   searcher.any (· matches .matched ..)
 
+@[inline, inherit_doc contains]
+def any [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Bool :=
+  s.contains pat
+
 /--
 Checks whether a slice only consists of matches of the pattern {name}`pat` anywhere.
 

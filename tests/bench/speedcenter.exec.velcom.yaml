@@ -117,6 +117,7 @@
 - attributes:
     description: Init.Data.List.Sublist re-elab -j4
     tags: [other]
+    parse_output: true
   run_config:
     <<: *time
     cwd: ../../src
@@ -125,6 +126,7 @@
 - attributes:
     description: Init.Data.BitVec.Lemmas re-elab
     tags: [other]
+    parse_output: true
   run_config:
     <<: *time
     cwd: ../../src
@@ -133,6 +135,7 @@
 - attributes:
     description: Init.Data.List.Sublist re-elab -j4 (watchdog rss)
     tags: [other]
+    parse_output: true
   run_config:
     <<: *time
     cwd: ../../src

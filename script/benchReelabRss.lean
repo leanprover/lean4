@@ -10,6 +10,17 @@ Tests language server memory use by repeatedly re-elaborate a given file.
 NOTE: only works on Linux for now.
 -/
 
+def determineRSS (pid : UInt32) : IO Nat := do
+  let status ← IO.FS.readFile s!"/proc/{pid}/status"
+  let some rssLine := status.splitOn "\n" |>.find? (·.startsWith "RssAnon:")
+    | throw <| IO.userError "No RSS in proc status"
+  let rssLine := rssLine.dropPrefix "RssAnon:"
+  let rssLine := rssLine.dropWhile Char.isWhitespace
+  let some rssInKB := rssLine.takeWhile Char.isDigit |>.toNat?
+    | throw <| IO.userError "Cannot parse RSS"
+  let rss := 1024*rssInKB
+  return rss
+
 def main (args : List String) : IO Unit := do
   let leanCmd :: file :: iters :: args := args | panic! "usage: script <lean> <file> <#iterations> <server-args>..."
   let file ← IO.FS.realPath file
@@ -34,11 +45,14 @@ def main (args : List String) : IO Unit := do
     let text ← IO.FS.readFile file
     let (_, headerEndPos, _) ← Elab.parseImports text
     let headerEndPos := FileMap.ofString text |>.leanPosToLspPos headerEndPos
+    let n := iters.toNat!
+    let mut lastRSS? : Option Nat := none
+    let mut totalRSSDelta : Int := 0
     let mut requestNo : Nat := 1
     let mut versionNo : Nat := 1
     Ipc.writeNotification ⟨"textDocument/didOpen", {
       textDocument := { uri := uri, languageId := "lean", version := 1, text := text } : DidOpenTextDocumentParams }⟩
-    for i in [0:iters.toNat!] do
+    for i in [0:n] do
       if i > 0 then
         versionNo := versionNo + 1
         let params : DidChangeTextDocumentParams := {
@@ -61,9 +75,13 @@ def main (args : List String) : IO Unit := do
           IO.eprintln diag.message
       requestNo := requestNo + 1
 
-      let status ← IO.FS.readFile s!"/proc/{(← read).pid}/status"
-      for line in status.splitOn "\n" |>.filter (·.startsWith "RssAnon") do
-        IO.eprintln line
+      let rss ← determineRSS (← read).pid
+      if let some lastRSS := lastRSS? then
+        totalRSSDelta := totalRSSDelta + ((rss : Int) - (lastRSS : Int))
+      lastRSS? := some rss
+
+    let avgRSSDelta := totalRSSDelta / (n - 1)
+    IO.println s!"avg re-elab RSS delta: {avgRSSDelta} B"
 
     let _ ← Ipc.collectDiagnostics requestNo uri versionNo
     (← Ipc.stdin).writeLspMessage (Message.notification "exit" none)

@@ -6451,6 +6451,7 @@ theorem setWidth_cpop_add_eq (x : BitVec (w + 1)) :
     rw [← BitVec.cons_msb_setWidth (x := x)]
   rw [cpop_cons]
 
+@[simp]
 theorem reverse_cpop {w : Nat} (x : BitVec w) :
     x.reverse.cpop = x.cpop := by
   induction w

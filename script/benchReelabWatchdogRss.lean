@@ -5,7 +5,7 @@ open Lean.Lsp
 open Lean.JsonRpc
 
 /-!
-Tests language server memory use by repeatedly re-elaborate a given file.
+Tests watchdog memory use by repeatedly re-elaborate a given file.
 
 NOTE: only works on Linux for now.
 -/
@@ -24,12 +24,7 @@ def main (args : List String) : IO Unit := do
   let leanCmd :: file :: iters :: args := args | panic! "usage: script <lean> <file> <#iterations> <server-args>..."
   let file ← IO.FS.realPath file
   let uri := s!"file://{file}"
-  Ipc.runWith leanCmd (#["--worker", "-DstderrAsMessages=false"] ++ args ++ #[uri]) do
-  -- for use with heaptrack:
-  --Ipc.runWith "heaptrack" (#[leanCmd, "--worker", "-DstderrAsMessages=false"] ++ args ++ #[uri]) do
-  --  -- heaptrack has no quiet mode??
-  --  let _ ← (← Ipc.stdout).getLine
-  --  let _ ← (← Ipc.stdout).getLine
+  Ipc.runWith leanCmd (#["--server", "-DstderrAsMessages=false"] ++ args ++ #[uri]) do
     let capabilities := {
       textDocument? := some {
         completion? := some {
@@ -40,6 +35,8 @@ def main (args : List String) : IO Unit := do
       }
     }
     Ipc.writeRequest ⟨0, "initialize", { capabilities : InitializeParams }⟩
+    discard <| Ipc.readResponseAs 0 InitializeResult
+    Ipc.writeNotification ⟨"initialized", InitializedParams.mk⟩
 
     let text ← IO.FS.readFile file
     let (_, headerEndPos, _) ← Elab.parseImports text
@@ -51,7 +48,7 @@ def main (args : List String) : IO Unit := do
     let mut versionNo : Nat := 1
     Ipc.writeNotification ⟨"textDocument/didOpen", {
       textDocument := { uri := uri, languageId := "lean", version := 1, text := text } : DidOpenTextDocumentParams }⟩
-    for i in [0:n] do
+    for i in [0:iters.toNat!] do
       if i > 0 then
         versionNo := versionNo + 1
         let params : DidChangeTextDocumentParams := {
@@ -74,6 +71,8 @@ def main (args : List String) : IO Unit := do
           IO.eprintln diag.message
       requestNo := requestNo + 1
 
+      Ipc.waitForILeans requestNo uri versionNo
+
       let rss ← determineRSS (← read).pid
       -- The first `didChange` usually results in a significantly higher RSS increase than
       -- the others, so we ignore it.
@@ -86,5 +85,5 @@ def main (args : List String) : IO Unit := do
     IO.println s!"avg-reelab-rss-delta: {avgRSSDelta}"
 
     let _ ← Ipc.collectDiagnostics requestNo uri versionNo
-    (← Ipc.stdin).writeLspMessage (Message.notification "exit" none)
+    Ipc.shutdown requestNo
     discard <| Ipc.waitForExit

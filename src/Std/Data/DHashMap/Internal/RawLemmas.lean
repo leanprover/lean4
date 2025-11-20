@@ -2592,27 +2592,7 @@ section BEq
 variable {m₁ m₂ : Raw₀ α β}
 
 theorem checkBEq_eq_true_of_Equiv {m₁ m₂ : Raw₀ α β} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] : m₁.1.Equiv m₂.1 → beq m₁ m₂ := by
-  rw [beq]
-  intro hyp
-  split
-  case isTrue hs =>
-    revert hyp hs
-    simp_to_model [Equiv, size]
-    intro hp hne
-    have := List.Perm.length_eq hp
-    contradiction
-  case isFalse hs =>
-    rw [all_eq_true]
-    · simp only [ne_eq, Decidable.not_not] at hs
-      revert hyp hs
-      simp_to_model [Equiv, size, get?, get]
-      intro hp _ a h
-      rw [contains_eq_containsKey] at h
-      · apply beq_of_eq
-        rw [← getValueCast?_eq_some_getValueCast]
-        exact getValueCast?_of_perm (by wf_trivial) (List.Perm.symm hp)
-      · wf_trivial
-    · wf_trivial
+  simp_to_model using List.beqModel_eq_true_of_perm
 
 theorem Equiv_of_checkBEq_eq_true {m₁ m₂ : Raw₀ α β} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] : beq m₁ m₂ → m₁.1.Equiv m₂.1 := by
   intro hyp

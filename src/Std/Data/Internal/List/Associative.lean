@@ -6699,6 +6699,63 @@ theorem isEmpty_filter_key_iff [BEq α] [EquivBEq α] {f : α → Bool}
     simp only [getKey, getKey?_eq_getEntry?, this] at h
     exact h
 
+theorem beqModel_eq_true_of_perm [BEq α] [Hashable α] [LawfulBEq α]  [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] {l₁ l₂ : List ((a : α) × β a)}  (hl₁ : DistinctKeys l₁) : l₁.Perm l₂ → beqModel l₁ l₂ := by
+  intro hyp
+  rw [beqModel]
+  split
+  case isTrue hlen =>
+    rw [ne_eq] at hlen
+    apply Classical.byContradiction
+    intro _
+    exact hlen <| List.Perm.length_eq hyp
+  case isFalse hlen =>
+    simp only [List.all_eq_true]
+    intro ⟨k,v⟩ mem
+    have hv := getValueCast_of_mem mem hl₁
+    have hc := containsKey_of_mem mem
+    apply beq_of_eq
+    simp only at |- hc hv
+    rw [← hv, ← getValueCast?_eq_some_getValueCast]
+    symm
+    apply getValueCast?_of_perm hl₁ hyp
+
+theorem perm_of_beqModel [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
+    beqModel l₁ l₂ → l₁.Perm l₂ := by
+  rw [beqModel]
+  split
+  case isTrue => intro; contradiction
+  case isFalse he =>
+    simp only [ne_eq, Decidable.not_not] at he
+    simp only [List.all_eq_true, beq_iff_eq]
+    intro hyp
+    apply getValueCast?_ext hl₁ hl₂
+    intro a
+    have hyp2 : ∀ (a : α), (getValueCast? a l₂ == getValueCast? a l₁) = true := by
+      intro k
+      by_cases hc : containsKey k l₁
+      case pos =>
+        sorry
+    by_cases hc₁ : containsKey a l₁
+    case pos =>
+      apply eq_of_beq
+      apply BEq.symm
+      apply hyp2
+    case neg =>
+      rw [Bool.not_eq_true] at hc₁
+      by_cases hc₂ : containsKey a l₂
+      case pos =>
+        suffices (∀ (a : α), containsKey a l₁ = true → containsKey a l₂ = true) by
+          rw [@containsKey_of_subset_of_length_eq α β _ _ l₁ l₂ hl₁ hl₂ he.symm this a hc₂] at hc₁
+          contradiction
+        intro k' mem
+        have := eq_of_beq <| hyp2 k'
+        rw [getValueCast?_eq_some_getValueCast mem] at this
+        apply List.containsKey_of_getValueCast?_eq_some
+        exact this
+      case neg =>
+        rw [Bool.not_eq_true] at hc₂
+        rw [getValueCast?_eq_none hc₁, getValueCast?_eq_none hc₂]
+
 namespace Const
 
 theorem getKey_getValue_mem [BEq α] [EquivBEq α] {β : Type v} {l : List ((_ : α) × β)} {k : α} {h} :

@@ -602,11 +602,11 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
   split at hres
   · rw [← hres]
     apply Cache.Inv_cast
-    · apply LawfulVecOperator.isPrefix_aig (f := blastVar)
+    · sorry
     · sorry
   · rw [← hres]
     apply Cache.Inv_cast
-    · apply IsPrefix.rfl
+    · sorry
     · sorry
   next op lhsExpr rhsExpr =>
     dsimp only at hres
@@ -615,14 +615,14 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
       dsimp only at hres
       rw [← hres]
       apply Cache.Inv_cast
-      · apply RefVec.IsPrefix_zip
+      · sorry
       · apply goCache_Inv_of_Inv
         sorry
     | .add | .mul | .udiv | .umod =>
       dsimp only at hres
       rw [← hres]
       apply Cache.Inv_cast
-      · apply LawfulVecOperator.isPrefix_aig
+      · sorry
       · apply goCache_Inv_of_Inv
         sorry
   · dsimp only at hres
@@ -631,49 +631,45 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
       rw [← hres]
       dsimp only
       apply Cache.Inv_cast
-      · apply LawfulVecOperator.isPrefix_aig
+      · sorry
       · apply goCache_Inv_of_Inv
-        exact hinv
+        sorry
   · rw [← hres]
     dsimp only
     apply Cache.Inv_cast
-    · apply LawfulVecOperator.isPrefix_aig
+    · sorry
     · apply goCache_Inv_of_Inv
-      apply goCache_Inv_of_Inv
-      exact hinv
+      sorry
   · rw [← hres]
     dsimp only
     apply Cache.Inv_cast
-    · apply LawfulVecOperator.isPrefix_aig
+    · sorry
     · apply goCache_Inv_of_Inv
-      exact hinv
+      sorry
   · rw [← hres]
     dsimp only
     apply Cache.Inv_cast
-    · apply LawfulVecOperator.isPrefix_aig
+    · sorry
     · apply goCache_Inv_of_Inv
-      exact hinv
+      sorry
   · rw [← hres]
     dsimp only
     apply Cache.Inv_cast
-    · apply LawfulVecOperator.isPrefix_aig
+    · sorry
     · apply goCache_Inv_of_Inv
-      apply goCache_Inv_of_Inv
-      exact hinv
+      sorry
   · rw [← hres]
     dsimp only
     apply Cache.Inv_cast
-    · apply LawfulVecOperator.isPrefix_aig
+    · sorry
     · apply goCache_Inv_of_Inv
-      apply goCache_Inv_of_Inv
-      exact hinv
+      sorry
   · rw [← hres]
     dsimp only
     apply Cache.Inv_cast
-    · apply LawfulVecOperator.isPrefix_aig
+    · sorry
     · apply goCache_Inv_of_Inv
-      apply goCache_Inv_of_Inv
-      exact hinv
+      sorry
 termination_by expr => (sizeOf expr, 0, 0)
 
 theorem goCache_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)

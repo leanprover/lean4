@@ -17,7 +17,9 @@ public import Init.Data.Iterators.Lemmas
 
 open Std.Iterators Std.PRange
 
-namespace Std.Slice.List
+namespace ListSlice
+
+open Std.Slice
 
 theorem internalIter_eq {α : Type u} {s : ListSlice α} :
     Internal.iter s = match s.internalRepresentation.stop with
@@ -40,34 +42,33 @@ public instance : LawfulSliceSize (Internal.ListSliceData α) where
   lawful s := by
     simp [← internalIter_eq_toIteratorIter, SliceSize.size]
 
-end Std.Slice.List
-
-public theorem ListSlice.toList_eq {xs : ListSlice α} :
+public theorem toList_eq {xs : ListSlice α} :
     xs.toList = match xs.internalRepresentation.stop with
       | some stop => xs.internalRepresentation.list.take stop
       | none => xs.internalRepresentation.list := by
-  simp only [Std.Slice.toList]
-  rw [Std.Slice.List.toList_internalIter]
+  simp only [Std.Slice.toList, toList_internalIter]
   rfl
 
-public theorem ListSlice.toArray_toList {xs : ListSlice α} :
+public theorem toArray_toList {xs : ListSlice α} :
     xs.toList.toArray = xs.toArray := by
   simp [Std.Slice.toArray, Std.Slice.toList]
 
-public theorem ListSlice.toList_toArray {xs : ListSlice α} :
+public theorem toList_toArray {xs : ListSlice α} :
     xs.toArray.toList = xs.toList := by
   simp [Std.Slice.toArray, Std.Slice.toList]
 
 @[simp]
-public theorem ListSlice.length_toList {xs : ListSlice α} :
+public theorem length_toList {xs : ListSlice α} :
     xs.toList.length = xs.size := by
   simp [ListSlice.toList_eq, Std.Slice.size, Std.Slice.SliceSize.size, ← Iter.length_toList_eq_count,
-    Std.Slice.List.toList_internalIter]; rfl
+    toList_internalIter]; rfl
 
 @[simp]
-public theorem ListSlice.size_toArray {xs : ListSlice α} :
+public theorem size_toArray {xs : ListSlice α} :
     xs.toArray.size = xs.size := by
   simp [← ListSlice.toArray_toList]
+
+end ListSlice
 
 namespace List
 

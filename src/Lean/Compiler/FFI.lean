@@ -19,7 +19,7 @@ namespace Lean.Compiler.FFI
 private opaque getLeancExtraFlags : Unit → String
 
 private def flagsStringToArray (s : String) : Array String :=
-  s.splitOn.toArray |>.filter (· ≠ "")
+  s.split ' ' |>.filter (!·.isEmpty) |>.toStringArray
 
 /--
 Return C compiler flags for including Lean's headers.

@@ -7946,7 +7946,6 @@ lean_inc(x_156);
 lean_dec_ref(x_155);
 x_157 = lean_expr_dbg_to_string(x_152);
 x_158 = l_Lean_stringToMessageData(x_157);
-lean_dec_ref(x_157);
 x_159 = l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizeUsingDefaultPrio_synthesizeUsingDefaultInstance___lam__0___closed__9;
 x_160 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_160, 0, x_158);
@@ -12251,7 +12250,6 @@ block_75:
 lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; 
 x_50 = l_Lean_Elab_Term_explainStuckTypeclassProblem___closed__4;
 x_51 = l_Lean_stringToMessageData(x_49);
-lean_dec_ref(x_49);
 if (lean_is_scalar(x_46)) {
  x_52 = lean_alloc_ctor(7, 2, 0);
 } else {
@@ -12288,7 +12286,6 @@ if (lean_is_scalar(x_41)) {
 lean_ctor_set(x_58, 0, x_56);
 lean_ctor_set(x_58, 1, x_57);
 x_59 = l_Lean_stringToMessageData(x_48);
-lean_dec_ref(x_48);
 x_60 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_60, 0, x_58);
 lean_ctor_set(x_60, 1, x_59);
@@ -12301,7 +12298,6 @@ x_64 = l_Lean_Elab_Term_explainStuckTypeclassProblem___closed__12;
 x_65 = l___private_Lean_Elab_SyntheticMVars_0__Nat_plural(x_47, x_63, x_64);
 lean_dec(x_47);
 x_66 = l_Lean_stringToMessageData(x_65);
-lean_dec_ref(x_65);
 x_67 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_67, 0, x_62);
 lean_ctor_set(x_67, 1, x_66);
@@ -12572,7 +12568,6 @@ block_158:
 lean_object* x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; lean_object* x_151; lean_object* x_152; lean_object* x_153; lean_object* x_154; lean_object* x_155; lean_object* x_156; lean_object* x_157; 
 x_133 = l_Lean_Elab_Term_explainStuckTypeclassProblem___closed__4;
 x_134 = l_Lean_stringToMessageData(x_132);
-lean_dec_ref(x_132);
 if (lean_is_scalar(x_129)) {
  x_135 = lean_alloc_ctor(7, 2, 0);
 } else {
@@ -12609,7 +12604,6 @@ if (lean_is_scalar(x_124)) {
 lean_ctor_set(x_141, 0, x_139);
 lean_ctor_set(x_141, 1, x_140);
 x_142 = l_Lean_stringToMessageData(x_131);
-lean_dec_ref(x_131);
 x_143 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_143, 0, x_141);
 lean_ctor_set(x_143, 1, x_142);
@@ -12622,7 +12616,6 @@ x_147 = l_Lean_Elab_Term_explainStuckTypeclassProblem___closed__12;
 x_148 = l___private_Lean_Elab_SyntheticMVars_0__Nat_plural(x_130, x_146, x_147);
 lean_dec(x_130);
 x_149 = l_Lean_stringToMessageData(x_148);
-lean_dec_ref(x_148);
 x_150 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_150, 0, x_145);
 lean_ctor_set(x_150, 1, x_149);
@@ -12940,7 +12933,6 @@ block_248:
 lean_object* x_223; lean_object* x_224; lean_object* x_225; lean_object* x_226; lean_object* x_227; lean_object* x_228; lean_object* x_229; lean_object* x_230; lean_object* x_231; lean_object* x_232; lean_object* x_233; lean_object* x_234; lean_object* x_235; lean_object* x_236; lean_object* x_237; lean_object* x_238; lean_object* x_239; lean_object* x_240; lean_object* x_241; lean_object* x_242; lean_object* x_243; lean_object* x_244; lean_object* x_245; lean_object* x_246; lean_object* x_247; 
 x_223 = l_Lean_Elab_Term_explainStuckTypeclassProblem___closed__4;
 x_224 = l_Lean_stringToMessageData(x_222);
-lean_dec_ref(x_222);
 if (lean_is_scalar(x_219)) {
  x_225 = lean_alloc_ctor(7, 2, 0);
 } else {
@@ -12977,7 +12969,6 @@ if (lean_is_scalar(x_214)) {
 lean_ctor_set(x_231, 0, x_229);
 lean_ctor_set(x_231, 1, x_230);
 x_232 = l_Lean_stringToMessageData(x_221);
-lean_dec_ref(x_221);
 x_233 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_233, 0, x_231);
 lean_ctor_set(x_233, 1, x_232);
@@ -12990,7 +12981,6 @@ x_237 = l_Lean_Elab_Term_explainStuckTypeclassProblem___closed__12;
 x_238 = l___private_Lean_Elab_SyntheticMVars_0__Nat_plural(x_220, x_236, x_237);
 lean_dec(x_220);
 x_239 = l_Lean_stringToMessageData(x_238);
-lean_dec_ref(x_238);
 x_240 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_240, 0, x_235);
 lean_ctor_set(x_240, 1, x_239);
@@ -13320,7 +13310,6 @@ block_339:
 lean_object* x_314; lean_object* x_315; lean_object* x_316; lean_object* x_317; lean_object* x_318; lean_object* x_319; lean_object* x_320; lean_object* x_321; lean_object* x_322; lean_object* x_323; lean_object* x_324; lean_object* x_325; lean_object* x_326; lean_object* x_327; lean_object* x_328; lean_object* x_329; lean_object* x_330; lean_object* x_331; lean_object* x_332; lean_object* x_333; lean_object* x_334; lean_object* x_335; lean_object* x_336; lean_object* x_337; lean_object* x_338; 
 x_314 = l_Lean_Elab_Term_explainStuckTypeclassProblem___closed__4;
 x_315 = l_Lean_stringToMessageData(x_313);
-lean_dec_ref(x_313);
 if (lean_is_scalar(x_310)) {
  x_316 = lean_alloc_ctor(7, 2, 0);
 } else {
@@ -13357,7 +13346,6 @@ if (lean_is_scalar(x_305)) {
 lean_ctor_set(x_322, 0, x_320);
 lean_ctor_set(x_322, 1, x_321);
 x_323 = l_Lean_stringToMessageData(x_312);
-lean_dec_ref(x_312);
 x_324 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_324, 0, x_322);
 lean_ctor_set(x_324, 1, x_323);
@@ -13370,7 +13358,6 @@ x_328 = l_Lean_Elab_Term_explainStuckTypeclassProblem___closed__12;
 x_329 = l___private_Lean_Elab_SyntheticMVars_0__Nat_plural(x_311, x_327, x_328);
 lean_dec(x_311);
 x_330 = l_Lean_stringToMessageData(x_329);
-lean_dec_ref(x_329);
 x_331 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_331, 0, x_326);
 lean_ctor_set(x_331, 1, x_330);

@@ -582,7 +582,6 @@ static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_l
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Term_Quotation_match__syntax_expand_spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation___aux__Lean__Elab__Quotation______macroRules__Lean__Elab__Term__Quotation__commandElab__stx__quot____1___closed__6;
 static lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_compileStxMatch___closed__7;
-lean_object* l_String_Slice_utf8ByteSize(lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation___aux__Lean__Elab__Quotation______macroRules__Lean__Elab__Term__Quotation__commandElab__stx__quot____1___closed__11;
 static lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__18___closed__14;
 static lean_object* l_Lean_Elab_Term_Quotation_instReprMatchResult___lam__0___closed__1;
@@ -2321,33 +2320,33 @@ lean_object* x_2;
 x_2 = l_Lean_Syntax_getAntiquotSpliceSuffix(x_1);
 if (lean_obj_tag(x_2) == 2)
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_3 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_3);
 lean_dec_ref(x_2);
 x_4 = lean_unsigned_to_nat(1u);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_string_utf8_byte_size(x_3);
+lean_inc(x_6);
 lean_inc_ref(x_3);
 x_7 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_7, 0, x_3);
 lean_ctor_set(x_7, 1, x_5);
 lean_ctor_set(x_7, 2, x_6);
-x_8 = l_String_Slice_utf8ByteSize(x_7);
-x_9 = l_String_Slice_Pos_prevn(x_7, x_8, x_4);
+x_8 = l_String_Slice_Pos_prevn(x_7, x_6, x_4);
 lean_dec_ref(x_7);
-x_10 = lean_string_utf8_extract(x_3, x_5, x_9);
-lean_dec(x_9);
+x_9 = lean_string_utf8_extract(x_3, x_5, x_8);
+lean_dec(x_8);
 lean_dec_ref(x_3);
-return x_10;
+return x_9;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; 
+lean_object* x_10; lean_object* x_11; 
 lean_dec(x_2);
-x_11 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getSepFromSplice___closed__3;
-x_12 = l_panic___at___00__private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getSepFromSplice_spec__0(x_11);
-return x_12;
+x_10 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getSepFromSplice___closed__3;
+x_11 = l_panic___at___00__private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getSepFromSplice_spec__0(x_10);
+return x_11;
 }
 }
 }

@@ -45884,7 +45884,6 @@ x_34 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_34, 0, x_30);
 lean_ctor_set(x_34, 1, x_33);
 x_35 = l_Lean_stringToMessageData(x_16);
-lean_dec_ref(x_16);
 x_36 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_36, 0, x_34);
 lean_ctor_set(x_36, 1, x_35);
@@ -45893,7 +45892,6 @@ x_38 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_38, 0, x_36);
 lean_ctor_set(x_38, 1, x_37);
 x_39 = l_Lean_stringToMessageData(x_22);
-lean_dec_ref(x_22);
 x_40 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_40, 0, x_38);
 lean_ctor_set(x_40, 1, x_39);
@@ -49242,7 +49240,6 @@ lean_dec_ref(x_3);
 x_411 = l___private_Lean_Elab_App_0__Lean_Elab_Term_resolveLValAux___closed__39;
 x_412 = l___private_Lean_Elab_App_0__Lean_Elab_Term_resolveLValAux___closed__41;
 x_413 = l_Lean_stringToMessageData(x_410);
-lean_dec_ref(x_410);
 x_414 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_414, 0, x_412);
 lean_ctor_set(x_414, 1, x_413);
@@ -49338,7 +49335,6 @@ x_430 = l___private_Lean_Elab_App_0__Lean_Elab_Term_resolveLValAux___lam__0(x_1,
 lean_dec(x_9);
 lean_dec(x_7);
 lean_dec_ref(x_6);
-lean_dec_ref(x_423);
 lean_dec(x_422);
 x_431 = !lean_is_exclusive(x_430);
 if (x_431 == 0)
@@ -49646,7 +49642,6 @@ x_118 = l___private_Lean_Elab_App_0__Lean_Elab_Term_resolveLValAux___lam__0(x_1,
 lean_dec(x_93);
 lean_dec(x_91);
 lean_dec_ref(x_90);
-lean_dec_ref(x_86);
 lean_dec(x_84);
 return x_118;
 }
@@ -49700,7 +49695,6 @@ x_126 = l___private_Lean_Elab_App_0__Lean_Elab_Term_resolveLValAux___lam__0(x_1,
 lean_dec(x_93);
 lean_dec(x_91);
 lean_dec_ref(x_90);
-lean_dec_ref(x_86);
 lean_dec(x_84);
 return x_126;
 }
@@ -49843,7 +49837,6 @@ x_144 = l___private_Lean_Elab_App_0__Lean_Elab_Term_resolveLValAux___lam__0(x_1,
 lean_dec(x_93);
 lean_dec(x_91);
 lean_dec_ref(x_90);
-lean_dec_ref(x_86);
 lean_dec(x_84);
 return x_144;
 }
@@ -50005,7 +49998,6 @@ x_171 = l___private_Lean_Elab_App_0__Lean_Elab_Term_resolveLValAux___lam__0(x_1,
 lean_dec(x_93);
 lean_dec(x_91);
 lean_dec_ref(x_90);
-lean_dec_ref(x_86);
 lean_dec(x_84);
 return x_171;
 }
@@ -51706,7 +51698,6 @@ lean_dec(x_13);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
-lean_dec_ref(x_5);
 lean_dec(x_4);
 return x_15;
 }

@@ -1959,7 +1959,6 @@ block_79:
 {
 lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 x_73 = l_Lean_stringToMessageData(x_72);
-lean_dec_ref(x_72);
 x_74 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_74, 0, x_71);
 lean_ctor_set(x_74, 1, x_73);
@@ -2001,7 +2000,6 @@ block_69:
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; uint8_t x_64; 
 x_58 = l_Lean_stringToMessageData(x_57);
-lean_dec_ref(x_57);
 x_59 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_59, 0, x_56);
 lean_ctor_set(x_59, 1, x_58);
@@ -4487,6 +4485,7 @@ if (lean_obj_tag(x_1) == 1)
 lean_object* x_134; lean_object* x_135; lean_object* x_136; lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; 
 x_134 = lean_ctor_get(x_1, 1);
 x_135 = l_Lean_Linter_checkDeprecated___closed__27;
+lean_inc_ref(x_134);
 x_136 = l_Lean_stringToMessageData(x_134);
 x_137 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_137, 0, x_135);
@@ -4912,6 +4911,7 @@ if (lean_obj_tag(x_1) == 1)
 lean_object* x_253; lean_object* x_254; lean_object* x_255; lean_object* x_256; lean_object* x_257; lean_object* x_258; lean_object* x_259; lean_object* x_260; lean_object* x_261; lean_object* x_262; 
 x_253 = lean_ctor_get(x_1, 1);
 x_254 = l_Lean_Linter_checkDeprecated___closed__27;
+lean_inc_ref(x_253);
 x_255 = l_Lean_stringToMessageData(x_253);
 x_256 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_256, 0, x_254);
@@ -5078,7 +5078,6 @@ lean_inc(x_286);
 lean_dec_ref(x_49);
 x_287 = l_Lean_Linter_checkDeprecated___closed__38;
 x_288 = l_Lean_stringToMessageData(x_286);
-lean_dec(x_286);
 x_289 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_289, 0, x_287);
 lean_ctor_set(x_289, 1, x_288);
@@ -5559,6 +5558,7 @@ if (lean_obj_tag(x_1) == 1)
 lean_object* x_436; lean_object* x_437; lean_object* x_438; lean_object* x_439; lean_object* x_440; lean_object* x_441; lean_object* x_442; lean_object* x_443; lean_object* x_444; lean_object* x_445; 
 x_436 = lean_ctor_get(x_1, 1);
 x_437 = l_Lean_Linter_checkDeprecated___closed__27;
+lean_inc_ref(x_436);
 x_438 = l_Lean_stringToMessageData(x_436);
 x_439 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_439, 0, x_437);
@@ -5724,7 +5724,6 @@ lean_inc(x_469);
 lean_dec_ref(x_332);
 x_470 = l_Lean_Linter_checkDeprecated___closed__38;
 x_471 = l_Lean_stringToMessageData(x_469);
-lean_dec(x_469);
 x_472 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_472, 0, x_470);
 lean_ctor_set(x_472, 1, x_471);

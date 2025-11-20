@@ -42497,18 +42497,10 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec_ref(x_1);
 x_6 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_4, 2);
-lean_inc(x_7);
 x_8 = lean_ctor_get(x_4, 3);
-lean_inc_ref(x_8);
-lean_dec_ref(x_4);
-lean_inc_ref(x_6);
 x_9 = l_Lean_Server_moduleFromDocumentUri(x_6);
 if (lean_obj_tag(x_9) == 0)
 {
@@ -42517,7 +42509,6 @@ x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec_ref(x_9);
 x_11 = l_String_crlfToLf(x_8);
-lean_dec_ref(x_8);
 x_12 = l_String_toFileMap(x_11);
 if (lean_obj_tag(x_5) == 0)
 {
@@ -42530,16 +42521,15 @@ else
 {
 lean_object* x_18; uint8_t x_19; 
 x_18 = lean_ctor_get(x_5, 0);
-lean_inc(x_18);
-lean_dec_ref(x_5);
 x_19 = lean_unbox(x_18);
-lean_dec(x_18);
 x_13 = x_19;
 goto block_16;
 }
 block_16:
 {
 lean_object* x_14; lean_object* x_15; 
+lean_inc(x_7);
+lean_inc_ref(x_6);
 x_14 = lean_alloc_ctor(0, 4, 1);
 lean_ctor_set(x_14, 0, x_6);
 lean_ctor_set(x_14, 1, x_10);
@@ -42553,10 +42543,6 @@ return x_15;
 else
 {
 uint8_t x_20; 
-lean_dec_ref(x_8);
-lean_dec(x_7);
-lean_dec_ref(x_6);
-lean_dec(x_5);
 lean_dec_ref(x_2);
 x_20 = !lean_is_exclusive(x_9);
 if (x_20 == 0)
@@ -42581,6 +42567,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Server_Watchdog_handleDidOpen(x_1, x_2);
+lean_dec_ref(x_1);
 return x_4;
 }
 }
@@ -43275,6 +43262,7 @@ x_11 = lean_array_uget(x_1, x_2);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc_ref(x_12);
 x_13 = l_System_Uri_fileUriToPath_x3f(x_12);
+lean_dec_ref(x_12);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_dec_ref(x_11);

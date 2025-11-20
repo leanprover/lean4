@@ -14,6 +14,7 @@ import Lake.Util.Url
 import Lake.Util.Proc
 import Lake.Util.Reservoir
 import Lake.Util.IO
+import Init.Data.String.Search
 
 open Lean System
 
@@ -369,8 +370,8 @@ toolchain and platform information in a manner similar to Reservoir.
 public def artifactContentType : String := "application/vnd.reservoir.artifact"
 
 private def appendScope (endpoint : String) (scope : String) : String :=
-  scope.splitToList (· == '/') |>.foldl (init := endpoint) fun s component =>
-    uriEncode component s |>.push '/'
+  scope.split '/' |>.fold (init := endpoint) fun s component =>
+    uriEncode component.copy s |>.push '/'
 
 private def s3ArtifactUrl (contentHash : Hash) (service : CacheService) (scope : String)  : String :=
   appendScope s!"{service.artifactEndpoint}/" scope ++ s!"{contentHash.hex}.art"

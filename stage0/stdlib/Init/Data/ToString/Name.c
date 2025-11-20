@@ -30,7 +30,6 @@ LEAN_EXPORT lean_object* l_Lean_Name_toStringWithSep___at___00Lean_Name_toString
 LEAN_EXPORT lean_object* l_Lean_Name_escapePart___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_toStringWithSep___at___00Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0_spec__0(lean_object*, uint8_t, lean_object*);
 static lean_object* l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__0;
-static lean_object* l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__9;
 extern uint32_t l_Lean_idBeginEscape;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
@@ -43,7 +42,6 @@ LEAN_EXPORT uint8_t l_Lean_Name_toStringWithSep___lam__0(lean_object*);
 uint8_t l_String_anyAux(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
-lean_object* l_String_Slice_utf8ByteSize(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_escapePart___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_toStringWithSep___lam__0___boxed(lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax(lean_object*);
@@ -64,7 +62,6 @@ static lean_object* l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWit
 LEAN_EXPORT lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Name_instToString;
 uint8_t l_Lean_isLetterLike(uint32_t);
-static lean_object* l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__7;
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
 extern uint32_t l_Lean_idEndEscape;
 LEAN_EXPORT lean_object* l_Lean_Name_instToString___lam__0(lean_object*);
@@ -86,24 +83,22 @@ LEAN_EXPORT lean_object* l_Lean_Name_toStringWithToken___boxed(lean_object*, lea
 LEAN_EXPORT lean_object* l___private_Init_Data_ToString_Name_0__Lean_Name_escape(lean_object*);
 uint8_t lean_uint8_dec_le(uint8_t, uint8_t);
 LEAN_EXPORT uint8_t l_String_anyAux___at___00__private_Init_Data_ToString_Name_0__Lean_Name_toStringWithSep_maybeEscape_spec__1(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
+uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_ToString_Name_0__Lean_Name_needsNoEscapeAscii(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__2;
 uint8_t lean_is_inaccessible_user_name(lean_object*);
 static lean_object* l_Lean_Name_escapePart___closed__0;
 static uint8_t l___private_Init_Data_ToString_Name_0__Lean_Name_needsNoEscapeAsciiRest___closed__4;
-static lean_object* l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__8;
 static uint8_t l___private_Init_Data_ToString_Name_0__Lean_Name_needsNoEscapeAsciiRest___closed__7;
 static lean_object* l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__4;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
-static lean_object* l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__6;
 lean_object* lean_string_append(lean_object*, lean_object*);
 static uint8_t l___private_Init_Data_ToString_Name_0__Lean_Name_needsNoEscapeAsciiRest___closed__1;
 static uint8_t l___private_Init_Data_ToString_Name_0__Lean_Name_needsNoEscapeAsciiRest___closed__8;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_toStringWithSep(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-uint8_t lean_slice_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Name_toStringWithSep___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Substring_Raw_nextn(lean_object*, lean_object*, lean_object*);
@@ -2504,15 +2499,9 @@ return x_2;
 static lean_object* _init_l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__4() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__3;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__2;
-x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_1);
-return x_4;
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("#", 1, 1);
+return x_1;
 }
 }
 static lean_object* _init_l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__5() {
@@ -2520,47 +2509,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__4;
-x_2 = l_String_Slice_utf8ByteSize(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__6() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("#", 1, 1);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__6;
 x_2 = lean_string_utf8_byte_size(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__8() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__7;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__6;
-x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_1);
-return x_4;
-}
-}
-static lean_object* _init_l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__9() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__8;
-x_2 = l_String_Slice_utf8ByteSize(x_1);
 return x_2;
 }
 }
@@ -2577,35 +2526,27 @@ lean_object* x_5;
 x_5 = l_Lean_Name_getRoot(x_1);
 if (lean_obj_tag(x_5) == 1)
 {
-lean_object* x_6; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
+lean_object* x_6; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc_ref(x_6);
 lean_dec_ref(x_5);
-x_16 = lean_unsigned_to_nat(0u);
-x_17 = lean_string_utf8_byte_size(x_6);
-lean_inc_ref(x_6);
-x_18 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_18, 0, x_6);
-lean_ctor_set(x_18, 1, x_16);
-lean_ctor_set(x_18, 2, x_17);
-x_19 = l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__8;
-x_20 = l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__9;
-x_21 = l_String_Slice_utf8ByteSize(x_18);
-x_22 = lean_nat_dec_le(x_20, x_21);
-lean_dec(x_21);
-if (x_22 == 0)
+x_14 = l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__4;
+x_15 = lean_string_utf8_byte_size(x_6);
+x_16 = l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__5;
+x_17 = lean_nat_dec_le(x_16, x_15);
+lean_dec(x_15);
+if (x_17 == 0)
 {
-lean_dec_ref(x_18);
-goto block_15;
+goto block_13;
 }
 else
 {
-uint8_t x_23; 
-x_23 = lean_slice_memcmp(x_18, x_19, x_16, x_16, x_20);
-lean_dec_ref(x_18);
-if (x_23 == 0)
+lean_object* x_18; uint8_t x_19; 
+x_18 = lean_unsigned_to_nat(0u);
+x_19 = lean_string_memcmp(x_6, x_14, x_18, x_18, x_16);
+if (x_19 == 0)
 {
-goto block_15;
+goto block_13;
 }
 else
 {
@@ -2613,31 +2554,26 @@ lean_dec_ref(x_6);
 return x_4;
 }
 }
-block_15:
+block_13:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
-x_7 = lean_unsigned_to_nat(0u);
+lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_7 = l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__2;
 x_8 = lean_string_utf8_byte_size(x_6);
-x_9 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_9, 0, x_6);
-lean_ctor_set(x_9, 1, x_7);
-lean_ctor_set(x_9, 2, x_8);
-x_10 = l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__4;
-x_11 = l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__5;
-x_12 = l_String_Slice_utf8ByteSize(x_9);
-x_13 = lean_nat_dec_le(x_11, x_12);
-lean_dec(x_12);
-if (x_13 == 0)
+x_9 = l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__3;
+x_10 = lean_nat_dec_le(x_9, x_8);
+lean_dec(x_8);
+if (x_10 == 0)
 {
-lean_dec_ref(x_9);
+lean_dec_ref(x_6);
 return x_3;
 }
 else
 {
-uint8_t x_14; 
-x_14 = lean_slice_memcmp(x_9, x_10, x_7, x_7, x_11);
-lean_dec_ref(x_9);
-return x_14;
+lean_object* x_11; uint8_t x_12; 
+x_11 = lean_unsigned_to_nat(0u);
+x_12 = lean_string_memcmp(x_6, x_7, x_11, x_11, x_9);
+lean_dec_ref(x_6);
+return x_12;
 }
 }
 }
@@ -2959,14 +2895,6 @@ l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSy
 lean_mark_persistent(l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__4);
 l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__5 = _init_l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__5();
 lean_mark_persistent(l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__5);
-l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__6 = _init_l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__6();
-lean_mark_persistent(l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__6);
-l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__7 = _init_l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__7();
-lean_mark_persistent(l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__7);
-l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__8 = _init_l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__8();
-lean_mark_persistent(l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__8);
-l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__9 = _init_l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__9();
-lean_mark_persistent(l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithToken_maybePseudoSyntax___closed__9);
 l_Lean_Name_toStringWithToken___closed__0 = _init_l_Lean_Name_toStringWithToken___closed__0();
 lean_mark_persistent(l_Lean_Name_toStringWithToken___closed__0);
 l_Lean_Name_instToString = _init_l_Lean_Name_instToString();

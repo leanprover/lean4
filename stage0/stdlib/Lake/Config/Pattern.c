@@ -116,7 +116,6 @@ static lean_object* l_Lake_PatternDescr_matches___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Lake_term___x3d_x7e__;
 static lean_object* l_Lake_StrPat_beq___closed__0;
 static lean_object* l_Lake___aux__Lake__Config__Pattern______macroRules__Lake__term___x3d_x7e____1___closed__8;
-lean_object* l_String_Slice_utf8ByteSize(lean_object*);
 static lean_object* l_Lake___aux__Lake__Config__Pattern______macroRules__Lake__term___x3d_x7e____1___closed__6;
 LEAN_EXPORT lean_object* l_Lake_PatternDescr_any_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PatternDescr_not_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -223,6 +222,7 @@ LEAN_EXPORT lean_object* l_Lake_defaultVersionTags;
 LEAN_EXPORT lean_object* l_Lake_instCoePatternDescrPatternOfIsPattern___redArg(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_instIsPatternPattern___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_contains___at___00Lake_StrPatDescr_matches_spec__0___boxed(lean_object*, lean_object*);
+uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PathPat_path(lean_object*);
 static lean_object* l_Lake_term___x3d_x7e___00__closed__3;
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -268,7 +268,6 @@ LEAN_EXPORT lean_object* l_Lake_PathPatDescr_matches___boxed(lean_object*, lean_
 static lean_object* l_Lake_Pattern_empty___closed__4;
 static lean_object* l_Lake_Pattern_star___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instCoePatternDescr___lam__0(lean_object*);
-uint8_t lean_slice_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Pattern_any(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_defaultVersionTags___closed__1;
 static lean_object* l_Lake_Pattern_empty___closed__1;
@@ -2120,84 +2119,53 @@ case 0:
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = l_Array_contains___at___00Lake_StrPatDescr_matches_spec__0(x_3, x_1);
-lean_dec_ref(x_1);
 return x_4;
 }
 case 1:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_5 = lean_ctor_get(x_2, 0);
-x_6 = lean_unsigned_to_nat(0u);
-x_7 = lean_string_utf8_byte_size(x_1);
-x_8 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_8, 0, x_1);
-lean_ctor_set(x_8, 1, x_6);
-lean_ctor_set(x_8, 2, x_7);
-x_9 = lean_string_utf8_byte_size(x_5);
-lean_inc_ref(x_5);
-x_10 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_10, 0, x_5);
-lean_ctor_set(x_10, 1, x_6);
-lean_ctor_set(x_10, 2, x_9);
-x_11 = l_String_Slice_utf8ByteSize(x_10);
-x_12 = l_String_Slice_utf8ByteSize(x_8);
-x_13 = lean_nat_dec_le(x_11, x_12);
-lean_dec(x_12);
-if (x_13 == 0)
+x_6 = lean_string_utf8_byte_size(x_1);
+x_7 = lean_string_utf8_byte_size(x_5);
+x_8 = lean_nat_dec_le(x_7, x_6);
+lean_dec(x_6);
+if (x_8 == 0)
 {
-lean_dec(x_11);
-lean_dec_ref(x_10);
-lean_dec_ref(x_8);
-return x_13;
+lean_dec(x_7);
+return x_8;
 }
 else
 {
-uint8_t x_14; 
-x_14 = lean_slice_memcmp(x_8, x_10, x_6, x_6, x_11);
-lean_dec(x_11);
-lean_dec_ref(x_10);
-lean_dec_ref(x_8);
-return x_14;
+lean_object* x_9; uint8_t x_10; 
+x_9 = lean_unsigned_to_nat(0u);
+x_10 = lean_string_memcmp(x_1, x_5, x_9, x_9, x_7);
+lean_dec(x_7);
+return x_10;
 }
 }
 default: 
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
-x_15 = lean_ctor_get(x_2, 0);
-x_16 = lean_unsigned_to_nat(0u);
-x_17 = lean_string_utf8_byte_size(x_1);
-x_18 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_18, 0, x_1);
-lean_ctor_set(x_18, 1, x_16);
-lean_ctor_set(x_18, 2, x_17);
-x_19 = lean_string_utf8_byte_size(x_15);
-lean_inc_ref(x_15);
-x_20 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_20, 0, x_15);
-lean_ctor_set(x_20, 1, x_16);
-lean_ctor_set(x_20, 2, x_19);
-x_21 = l_String_Slice_utf8ByteSize(x_20);
-x_22 = l_String_Slice_utf8ByteSize(x_18);
-x_23 = lean_nat_dec_le(x_21, x_22);
-if (x_23 == 0)
+lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+x_11 = lean_ctor_get(x_2, 0);
+x_12 = lean_string_utf8_byte_size(x_1);
+x_13 = lean_string_utf8_byte_size(x_11);
+x_14 = lean_nat_dec_le(x_13, x_12);
+if (x_14 == 0)
 {
-lean_dec(x_22);
-lean_dec(x_21);
-lean_dec_ref(x_20);
-lean_dec_ref(x_18);
-return x_23;
+lean_dec(x_13);
+lean_dec(x_12);
+return x_14;
 }
 else
 {
-lean_object* x_24; uint8_t x_25; 
-x_24 = lean_nat_sub(x_22, x_21);
-lean_dec(x_22);
-x_25 = lean_slice_memcmp(x_18, x_20, x_24, x_16, x_21);
-lean_dec(x_21);
-lean_dec(x_24);
-lean_dec_ref(x_20);
-lean_dec_ref(x_18);
-return x_25;
+lean_object* x_15; lean_object* x_16; uint8_t x_17; 
+x_15 = lean_unsigned_to_nat(0u);
+x_16 = lean_nat_sub(x_12, x_13);
+lean_dec(x_12);
+x_17 = lean_string_memcmp(x_1, x_11, x_16, x_15, x_13);
+lean_dec(x_13);
+lean_dec(x_16);
+return x_17;
 }
 }
 }
@@ -2235,6 +2203,7 @@ _start:
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lake_StrPatDescr_matches(x_1, x_2);
 lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }

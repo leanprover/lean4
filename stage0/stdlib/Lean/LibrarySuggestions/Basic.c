@@ -12283,7 +12283,6 @@ lean_inc(x_19);
 lean_dec_ref(x_18);
 x_20 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_LibrarySuggestions_evalSuggestions_spec__0___redArg___closed__1;
 x_21 = l_Lean_stringToMessageData(x_19);
-lean_dec(x_19);
 x_22 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_21);

@@ -152,10 +152,10 @@ deriving Repr, Inhabited
 
 /-- Creates an iterator for validation from the raw contents of an error explanation. -/
 private def ValidationState.ofSource (input : String) : ValidationState where
-  lines := input.splitOn "\n"
+  lines := input.split '\n'
+    |>.filter (!·.trimAscii.isEmpty)
+    |>.toStringArray
     |>.zipIdx
-    |>.filter (!·.1.trimAscii.isEmpty)
-    |>.toArray
 
 -- Workaround to account for the fact that `Input` expects "EOF" to be a valid position
 private def ValidationState.get (s : ValidationState) :=

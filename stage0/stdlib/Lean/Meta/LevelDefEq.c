@@ -6023,7 +6023,6 @@ _start:
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_9 = l_Lean_exceptBoolEmoji___redArg(x_3);
 x_10 = l_Lean_stringToMessageData(x_9);
-lean_dec_ref(x_9);
 x_11 = l_Lean_Meta_isLevelDefEqAuxImpl___lam__0___closed__1;
 x_12 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_12, 0, x_10);

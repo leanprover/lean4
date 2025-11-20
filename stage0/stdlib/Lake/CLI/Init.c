@@ -4808,6 +4808,7 @@ if (x_457 == 0)
 {
 lean_object* x_458; lean_object* x_459; uint8_t x_460; lean_object* x_461; uint8_t x_462; 
 lean_dec_ref(x_454);
+lean_inc(x_2);
 x_458 = l_Lake_toUpperCamelCase(x_2);
 lean_inc(x_458);
 x_459 = l_Lean_modToFilePath(x_1, x_458, x_455);
@@ -7029,6 +7030,7 @@ if (x_457 == 0)
 {
 lean_object* x_458; lean_object* x_459; uint8_t x_460; lean_object* x_461; uint8_t x_462; 
 lean_dec_ref(x_456);
+lean_inc(x_3);
 x_458 = l_Lake_toUpperCamelCase(x_3);
 lean_inc(x_458);
 x_459 = l_Lean_modToFilePath(x_2, x_458, x_454);

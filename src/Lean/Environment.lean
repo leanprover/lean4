@@ -2002,7 +2002,7 @@ partial def importModulesCore
     for i in imports do
       if let some mod := (← get).moduleNameMap[i.module]?.bind (·.mainModule?) then
         if !mod.isModule then
-          throw <| IO.userError s!"cannot import non`-module` {i.module} from `module`"
+          throw <| IO.userError s!"cannot import non-`module` {i.module} from `module`"
 /-
 When the module system is disabled for the root, we import all transitively referenced modules and
 ignore any module system annotations on the way.

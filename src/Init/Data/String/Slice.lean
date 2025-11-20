@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Henrik Böving
+Authors: Henrik Böving, Markus Himmel
 -/
 module
 
@@ -68,7 +68,7 @@ def beq (s1 s2 : Slice) : Bool :=
   if h : s1.utf8ByteSize = s2.utf8ByteSize then
     have h1 := by simp [h, String.Pos.Raw.le_iff]
     have h2 := by simp [h, String.Pos.Raw.le_iff]
-    Internal.memcmp s1 s2 s1.startPos.offset s2.startPos.offset s1.rawEndPos h1 h2
+    Internal.memcmpSlice s1 s2 s1.startPos.offset s2.startPos.offset s1.rawEndPos h1 h2
   else
     false
 
@@ -795,9 +795,8 @@ This function is generic over all currently supported patterns except
 {name}`String`/{name}`String.Slice`.
 
 Examples:
- * {lean}`("coffee tea water".toSlice.find? Char.isWhitespace).map (·.get!) == some ' '`
- * {lean}`"tea".toSlice.find? (fun (c : Char) => c == 'X') == none`
- * {lean}`("coffee tea water".toSlice.find? "tea").map (·.get!) == some 't'`
+ * {lean}`("coffee tea water".toSlice.revFind? Char.isWhitespace).map (·.get!) == some ' '`
+ * {lean}`"tea".toSlice.revFind? (fun (c : Char) => c == 'X') == none`
 -/
 @[specialize pat]
 def revFind? [ToBackwardSearcher ρ σ] (s : Slice) (pat : ρ) : Option s.Pos :=
@@ -1371,4 +1370,20 @@ hierarchical, and the string is split at the dots ({lean}`'.'`).
 def toName (s : Slice) : Lean.Name :=
   s.toString.toName
 
+instance : Std.ToFormat String.Slice where
+  format s := Std.ToFormat.format s.copy
+
 end String.Slice
+
+/-- Converts a {lean}`Std.Iter String.Slice` to a {lean}`List String`. -/
+@[inline]
+def Std.Iterators.Iter.toStringList {α : Type} [Std.Iterators.Iterator α Id String.Slice]
+    [Std.Iterators.Finite α Id] [Std.Iterators.IteratorCollect α Id Id]
+    (i : Std.Iter (α := α) String.Slice) : List String :=
+  i.map String.Slice.copy |>.toList
+
+/-- Converts a {lean}`Std.Iter String.Slice` to an {lean}`Array String`. -/
+def Std.Iterators.Iter.toStringArray {α : Type} [Std.Iterators.Iterator α Id String.Slice]
+    [Std.Iterators.Finite α Id] [Std.Iterators.IteratorCollect α Id Id]
+    (i : Std.Iter (α := α) String.Slice) : Array String :=
+  i.map String.Slice.copy |>.toArray

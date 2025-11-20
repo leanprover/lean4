@@ -524,6 +524,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l___private_Lean_Compiler_InitAttr_0__Lean_runModInit(x_1, x_2);
+lean_dec(x_2);
 return x_4;
 }
 }
@@ -4639,6 +4640,7 @@ x_21 = lean_array_uget(x_5, x_7);
 x_22 = l_Lean_Environment_getModulePackageByIdx_x3f(x_1, x_20);
 lean_inc(x_21);
 x_23 = l_Lean_mkModuleInitializationFunctionName(x_21, x_22);
+lean_dec(x_22);
 x_24 = lean_run_mod_init_core(x_23);
 lean_dec_ref(x_23);
 if (lean_obj_tag(x_24) == 0)
@@ -4800,6 +4802,7 @@ x_62 = lean_array_uget(x_5, x_7);
 x_63 = l_Lean_Environment_getModulePackageByIdx_x3f(x_1, x_61);
 lean_inc(x_62);
 x_64 = l_Lean_mkModuleInitializationFunctionName(x_62, x_63);
+lean_dec(x_63);
 x_65 = lean_run_mod_init_core(x_64);
 lean_dec_ref(x_64);
 if (lean_obj_tag(x_65) == 0)
@@ -5001,6 +5004,7 @@ x_21 = lean_array_uget(x_5, x_7);
 x_22 = l_Lean_Environment_getModulePackageByIdx_x3f(x_1, x_20);
 lean_inc(x_21);
 x_23 = l_Lean_mkModuleInitializationFunctionName(x_21, x_22);
+lean_dec(x_22);
 x_24 = lean_run_mod_init_core(x_23);
 lean_dec_ref(x_23);
 if (lean_obj_tag(x_24) == 0)
@@ -5162,6 +5166,7 @@ x_62 = lean_array_uget(x_5, x_7);
 x_63 = l_Lean_Environment_getModulePackageByIdx_x3f(x_1, x_61);
 lean_inc(x_62);
 x_64 = l_Lean_mkModuleInitializationFunctionName(x_62, x_63);
+lean_dec(x_63);
 x_65 = lean_run_mod_init_core(x_64);
 lean_dec_ref(x_64);
 if (lean_obj_tag(x_65) == 0)

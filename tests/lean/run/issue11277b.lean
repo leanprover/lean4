@@ -682,15 +682,10 @@ theorem goCache_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignme
   generalize hres : goCache aig expr cache = res
   unfold goCache at hres
   split at hres
-  next heq =>
-    rw [← hres]
-    apply Cache.denote_eq_eval_of_get?_eq_some_of_Inv
-    · exact heq
-    · exact hinv
+  · sorry
   · rw [← hres]
     rw [go_denote_eq]
     exact hinv
-termination_by (sizeOf expr, 0, w)
 
 
 theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
@@ -703,204 +698,25 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
   generalize hres : go aig expr cache = res
   unfold go at hres
   split at hres
-  · rw [← hres]
-    simp
-  · rw [← hres]
-    simp
+  · sorry
+  · sorry
   · dsimp only at hres
     split at hres
-    · rw [← hres]
-      simp only [RefVec.denote_zip, RefVec.get_cast, Ref.cast_eq, denote_mkAndCached, eval_bin,
-        BVBinOp.eval_and, BitVec.getLsbD_and]
-      congr 1
-      · rw [goCache_denote_mem_prefix (hstart := Ref.hgate _)]
-        rw [goCache_denote_eq]
-        exact hinv
-      · rw [goCache_denote_eq]
-        apply goCache_Inv_of_Inv
-        exact hinv
-    · rw [← hres]
-      simp only [RefVec.denote_zip, RefVec.get_cast, Ref.cast_eq, denote_mkOrCached, eval_bin,
-        BVBinOp.eval_or, BitVec.getLsbD_or]
-      congr 1
-      · rw [goCache_denote_mem_prefix (hstart := Ref.hgate _)]
-        rw [goCache_denote_eq]
-        exact hinv
-      · rw [goCache_denote_eq]
-        apply goCache_Inv_of_Inv
-        exact hinv
-    · rw [← hres]
-      simp only [RefVec.denote_zip, RefVec.get_cast, Ref.cast_eq, denote_mkXorCached, eval_bin,
-        BVBinOp.eval_xor, BitVec.getLsbD_xor]
-      congr 1
-      · rw [goCache_denote_mem_prefix (hstart := Ref.hgate _)]
-        rw [goCache_denote_eq]
-        exact hinv
-      · rw [goCache_denote_eq]
-        apply goCache_Inv_of_Inv
-        exact hinv
-    · rw [← hres]
-      simp only [eval_bin, BVBinOp.eval_add]
-      rw [denote_blastAdd]
-      · intro idx hidx
-        rw [goCache_denote_mem_prefix]
-        simp only [RefVec.get_cast, Ref.cast_eq]
-        rw [goCache_denote_eq]
-        · exact hinv
-        · simp [Ref.hgate]
-      · intro idx hidx
-        rw [goCache_denote_eq]
-        apply goCache_Inv_of_Inv
-        exact hinv
-    · rw [← hres]
-      simp only [eval_bin, BVBinOp.eval_mul]
-      rw [denote_blastMul]
-      · intro idx hidx
-        rw [goCache_denote_mem_prefix]
-        simp only [RefVec.get_cast, Ref.cast_eq]
-        rw [goCache_denote_eq]
-        · exact hinv
-        · simp [Ref.hgate]
-      · intro idx hidx
-        rw [goCache_denote_eq]
-        apply goCache_Inv_of_Inv
-        exact hinv
-    · rw [← hres]
-      simp only [eval_bin, BVBinOp.eval_udiv]
-      rw [denote_blastUdiv]
-      · intro idx hidx
-        rw [goCache_denote_mem_prefix]
-        simp only [RefVec.get_cast, Ref.cast_eq]
-        rw [goCache_denote_eq]
-        · exact hinv
-        · simp [Ref.hgate]
-      · intro idx hidx
-        rw [goCache_denote_eq]
-        apply goCache_Inv_of_Inv
-        exact hinv
-    · rw [← hres]
-      simp only [eval_bin, BVBinOp.eval_umod]
-      rw [denote_blastUmod]
-      · intro idx hidx
-        rw [goCache_denote_mem_prefix]
-        simp only [RefVec.get_cast, Ref.cast_eq]
-        rw [goCache_denote_eq]
-        · exact hinv
-        · simp [Ref.hgate]
-      · intro idx hidx
-        rw [goCache_denote_eq]
-        apply goCache_Inv_of_Inv
-        exact hinv
+    · sorry
+    · sorry
+    · sorry
+    · sorry
+    · sorry
+    · sorry
+    · sorry
   · dsimp only at hres
-    split at hres
-    · rw [← hres]
-      simp only [denote_blastNot, eval_un, BVUnOp.eval_not, hidx, BitVec.getLsbD_eq_getElem,
-        BitVec.getElem_not, Bool.not_eq_eq_eq_not, Bool.not_not]
-      rw [goCache_denote_eq]
-      · apply BitVec.getLsbD_eq_getElem
-      · exact hinv
-    · rw [← hres]
-      simp only [denote_blastRotateLeft, eval_un, BVUnOp.eval_rotateLeft, hidx,
-        BitVec.getLsbD_eq_getElem, BitVec.getElem_rotateLeft]
-      split
-      all_goals
-        rw [goCache_denote_eq]
-        · apply BitVec.getLsbD_eq_getElem
-        · exact hinv
-    · rw [← hres]
-      simp only [denote_blastRotateRight, eval_un, BVUnOp.eval_rotateRight, hidx,
-        BitVec.getLsbD_eq_getElem, BitVec.getElem_rotateRight]
-      split
-      all_goals
-        rw [goCache_denote_eq]
-        · apply BitVec.getLsbD_eq_getElem
-        · exact hinv
-    · rw [← hres]
-      simp only [denote_blastArithShiftRightConst, eval_un, BVUnOp.eval_arithShiftRightConst, hidx,
-        BitVec.getLsbD_eq_getElem, BitVec.getElem_sshiftRight]
-      split
-      · rw [goCache_denote_eq]
-        · apply BitVec.getLsbD_eq_getElem
-        · exact hinv
-      · rw [goCache_denote_eq]
-        · simp [BitVec.msb_eq_getLsbD_last]
-        · exact hinv
-    · rw [← hres]
-      simp only [denote_blastReverse, eval_un, BVUnOp.eval_reverse, hidx, BitVec.getLsbD_eq_getElem,
-        BitVec.getElem_reverse, BitVec.getMsbD_eq_getLsbD, decide_true, Bool.true_and]
-      rw [goCache_denote_eq]
-      exact hinv
-    · rw [← hres]
-      simp only [eval_un, BVUnOp.eval_clz, BitVec.clz]
-      rw [denote_blastClz]
-      intro idx hidx
-      rw [goCache_denote_eq]
-      exact hinv
-  next h =>
-    subst h
-    rw [← hres]
-    simp only [denote_blastAppend, RefVec.get_cast, Ref.cast_eq, eval_append, BitVec.getLsbD_append]
-    split
-    · rw [goCache_denote_eq]
-      apply goCache_Inv_of_Inv
-      exact hinv
-    · rw [goCache_denote_mem_prefix (hstart := Ref.hgate _)]
-      rw [goCache_denote_eq]
-      exact hinv
-  next h =>
-    subst h
-    rw [← hres]
-    simp only [denote_blastReplicate, eval_replicate, hidx, BitVec.getLsbD_eq_getElem,
-      BitVec.getElem_replicate]
-    split
-    next h =>
-      simp only [h, Nat.zero_mul, Nat.not_lt_zero] at hidx
-    · rw [goCache_denote_eq]
-      · apply BitVec.getLsbD_eq_getElem
-      · exact hinv
-  · rw [← hres]
-    simp only [denote_blastExtract, eval_extract, hidx, BitVec.getLsbD_eq_getElem,
-      BitVec.getElem_extractLsb']
-    split
-    · rw [goCache_denote_eq]
-      exact hinv
-    · symm
-      apply BitVec.getLsbD_of_ge
-      omega
-  · rw [eval_shiftLeft, ← hres, denote_blastShiftLeft]
-    · intro idx hidx
-      rw [goCache_denote_mem_prefix]
-      · simp only [RefVec.get_cast, Ref.cast_eq]
-        rw [goCache_denote_eq]
-        exact hinv
-      · simp [Ref.hgate]
-    · intro idx hidx
-      rw [goCache_denote_eq]
-      apply goCache_Inv_of_Inv
-      exact hinv
-  · rw [eval_shiftRight, ← hres, denote_blastShiftRight]
-    · intro idx hidx
-      rw [goCache_denote_mem_prefix]
-      · simp only [RefVec.get_cast, Ref.cast_eq]
-        rw [goCache_denote_eq]
-        exact hinv
-      · simp [Ref.hgate]
-    · intro idx hidx
-      rw [goCache_denote_eq]
-      apply goCache_Inv_of_Inv
-      exact hinv
-  · rw [eval_arithShiftRight, ← hres, denote_blastArithShiftRight]
-    · intro idx hidx
-      rw [goCache_denote_mem_prefix]
-      · simp only [RefVec.get_cast, Ref.cast_eq]
-        rw [goCache_denote_eq]
-        exact hinv
-      · simp [Ref.hgate]
-    · intro idx hidx
-      rw [goCache_denote_eq]
-      apply goCache_Inv_of_Inv
-      exact hinv
-termination_by idx => (sizeOf expr, 0, idx)
+    split at hres <;> sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
 
 end
 

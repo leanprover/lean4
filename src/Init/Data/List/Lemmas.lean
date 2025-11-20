@@ -298,6 +298,12 @@ theorem ext_getElem {l₁ l₂ : List α} (hl : length l₁ = length l₂)
       have h₁ := Nat.le_of_not_lt h₁
       rw [getElem?_eq_none h₁, getElem?_eq_none]; rwa [← hl]
 
+theorem ext_getElem_iff {l₁ l₂ : List α} :
+    l₁ = l₂ ↔ l₁.length = l₂.length ∧ ∀ (i : Nat) (h₁ : i < l₁.length) (h₂ : i < l₂.length), l₁[i]'h₁ = l₂[i]'h₂ := by
+  constructor
+  · simp +contextual
+  · exact fun h => ext_getElem h.1 h.2
+
 @[simp] theorem getElem_concat_length {l : List α} {a : α} {i : Nat} (h : i = l.length) (w) :
     (l ++ [a])[i]'w = a := by
   subst h; simp

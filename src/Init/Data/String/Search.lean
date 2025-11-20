@@ -64,7 +64,7 @@ Examples:
 @[inline]
 def Slice.Pos.find? {s : Slice} (pos : s.Pos) (pattern : ρ) [ToForwardSearcher pattern σ]  :
     Option s.Pos :=
-  ((s.replaceStart pos).find? pattern).map ofReplaceStart
+  ((s.sliceFrom pos).find? pattern).map ofSliceFrom
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in after the position

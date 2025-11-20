@@ -1002,107 +1002,131 @@ theorem Slice.Pos.offset_le_offset_endExclusive {s : Slice} {pos : s.Pos} :
 
 /-- Given a slice and a valid position within the slice, obtain a new slice on the same underlying
 string by replacing the start of the slice with the given position. -/
-@[inline, expose] -- for the defeq `(s.replaceStart pos).str = s.str`
-def Slice.replaceStart (s : Slice) (pos : s.Pos) : Slice where
+@[inline, expose] -- for the defeq `(s.sliceFrom pos).str = s.str`
+def Slice.sliceFrom (s : Slice) (pos : s.Pos) : Slice where
   str := s.str
   startInclusive := pos.str
   endExclusive := s.endExclusive
   startInclusive_le_endExclusive := Pos.offset_str_le_offset_endExclusive
 
-@[simp]
-theorem Slice.str_replaceStart {s : Slice} {pos : s.Pos} :
-    (s.replaceStart pos).str = s.str := rfl
+@[deprecated Slice.sliceFrom (since := "2025-11-20")]
+def Slice.replaceStart (s : Slice) (pos : s.Pos) : Slice :=
+  s.sliceFrom pos
 
 @[simp]
-theorem Slice.startInclusive_replaceStart {s : Slice} {pos : s.Pos} :
-    (s.replaceStart pos).startInclusive = pos.str := rfl
+theorem Slice.str_sliceFrom {s : Slice} {pos : s.Pos} :
+    (s.sliceFrom pos).str = s.str := rfl
 
 @[simp]
-theorem Slice.endExclusive_replaceStart {s : Slice} {pos : s.Pos} :
-    (s.replaceStart pos).endExclusive = s.endExclusive := rfl
+theorem Slice.startInclusive_sliceFrom {s : Slice} {pos : s.Pos} :
+    (s.sliceFrom pos).startInclusive = pos.str := rfl
+
+@[simp]
+theorem Slice.endExclusive_sliceFrom {s : Slice} {pos : s.Pos} :
+    (s.sliceFrom pos).endExclusive = s.endExclusive := rfl
 
 /-- Given a slice and a valid position within the slice, obtain a new slice on the same underlying
 string by replacing the end of the slice with the given position. -/
-@[inline, expose] -- for the defeq `(s.replaceEnd pos).str = s.str`
-def Slice.replaceEnd (s : Slice) (pos : s.Pos) : Slice where
+@[inline, expose] -- for the defeq `(s.sliceTo pos).str = s.str`
+def Slice.sliceTo (s : Slice) (pos : s.Pos) : Slice where
   str := s.str
   startInclusive := s.startInclusive
   endExclusive := pos.str
   startInclusive_le_endExclusive := by simp [ValidPos.le_iff, String.Pos.Raw.le_iff]
 
-@[simp]
-theorem Slice.str_replaceEnd {s : Slice} {pos : s.Pos} :
-    (s.replaceEnd pos).str = s.str := rfl
+@[deprecated Slice.sliceTo (since := "2025-11-20")]
+def Slice.replaceEnd (s : Slice) (pos : s.Pos) : Slice :=
+  s.sliceTo pos
 
 @[simp]
-theorem Slice.startInclusive_replaceEnd {s : Slice} {pos : s.Pos} :
-    (s.replaceEnd pos).startInclusive = s.startInclusive := rfl
+theorem Slice.str_sliceTo {s : Slice} {pos : s.Pos} :
+    (s.sliceTo pos).str = s.str := rfl
 
 @[simp]
-theorem Slice.endExclusive_replaceEnd {s : Slice} {pos : s.Pos} :
-    (s.replaceEnd pos).endExclusive = pos.str := rfl
+theorem Slice.startInclusive_sliceTo {s : Slice} {pos : s.Pos} :
+    (s.sliceTo pos).startInclusive = s.startInclusive := rfl
+
+@[simp]
+theorem Slice.endExclusive_sliceTo {s : Slice} {pos : s.Pos} :
+    (s.sliceTo pos).endExclusive = pos.str := rfl
 
 /-- Given a slice and two valid positions within the slice, obtain a new slice on the same underlying
 string formed by the new bounds. -/
-@[inline, expose] -- for the defeq `(s.replaceStartEnd newStart newEnd).str = s.str`
-def Slice.replaceStartEnd (s : Slice) (newStart newEnd : s.Pos)
-    (h : newStart.offset ≤ newEnd.offset) : Slice where
+@[inline, expose] -- for the defeq `(s.slice newStart newEnd).str = s.str`
+def Slice.slice (s : Slice) (newStart newEnd : s.Pos)
+    (h : newStart ≤ newEnd) : Slice where
   str := s.str
   startInclusive := newStart.str
   endExclusive := newEnd.str
   startInclusive_le_endExclusive := by simpa [ValidPos.le_iff, Pos.Raw.le_iff] using h
 
-@[simp]
-theorem Slice.str_replaceStartEnd {s : Slice} {newStart newEnd : s.Pos} {h} :
-    (s.replaceStartEnd newStart newEnd h).str = s.str := rfl
+@[deprecated Slice.slice (since := "2025-11-20")]
+def Slice.replaceStartEnd (s : Slice) (newStart newEnd : s.Pos) (h : newStart ≤ newEnd) : Slice :=
+  s.slice newStart newEnd h
 
 @[simp]
-theorem Slice.startInclusive_replaceStartEnd {s : Slice} {newStart newEnd : s.Pos} {h} :
-    (s.replaceStartEnd newStart newEnd h).startInclusive = newStart.str := rfl
+theorem Slice.str_slice {s : Slice} {newStart newEnd : s.Pos} {h} :
+    (s.slice newStart newEnd h).str = s.str := rfl
 
 @[simp]
-theorem Slice.endExclusive_replaceStartEnd {s : Slice} {newStart newEnd : s.Pos} {h} :
-    (s.replaceStartEnd newStart newEnd h).endExclusive = newEnd.str := rfl
+theorem Slice.startInclusive_slice {s : Slice} {newStart newEnd : s.Pos} {h} :
+    (s.slice newStart newEnd h).startInclusive = newStart.str := rfl
+
+@[simp]
+theorem Slice.endExclusive_slice {s : Slice} {newStart newEnd : s.Pos} {h} :
+    (s.slice newStart newEnd h).endExclusive = newEnd.str := rfl
+
+/-- Given a slice and two valid positions within the slice, obtain a new slice on the same underlying
+string formed by the new bounds, or `none` if the given end is strictly less than the given start. -/
+def Slice.slice? (s : Slice) (newStart newEnd : s.Pos) : Option Slice :=
+  if h : newStart.offset ≤ newEnd.offset then
+    some (s.slice newStart newEnd h)
+  else
+    none
 
 /-- Given a slice and two valid positions within the slice, obtain a new slice on the same underlying
 string formed by the new bounds, or panic if the given end is strictly less than the given start. -/
-def Slice.replaceStartEnd! (s : Slice) (newStart newEnd : s.Pos) : Slice :=
+def Slice.slice! (s : Slice) (newStart newEnd : s.Pos) : Slice :=
   if h : newStart.offset ≤ newEnd.offset then
-    s.replaceStartEnd newStart newEnd h
+    s.slice newStart newEnd h
   else
     panic! "Starting position must be less than or equal to end position."
 
+@[deprecated Slice.slice! (since := "2025-11-20")]
+def Slice.replaceStartEnd! (s : Slice) (newStart newEnd : s.Pos) : Slice :=
+  s.slice! newStart newEnd
+
 @[simp]
-theorem Slice.utf8ByteSize_replaceStart {s : Slice} {pos : s.Pos} :
-    (s.replaceStart pos).utf8ByteSize = s.utf8ByteSize - pos.offset.byteIdx := by
-  simp only [utf8ByteSize_eq, str_replaceStart, endExclusive_replaceStart,
-    startInclusive_replaceStart, Pos.offset_str, Pos.Raw.byteIdx_offsetBy]
+theorem Slice.utf8ByteSize_sliceFrom {s : Slice} {pos : s.Pos} :
+    (s.sliceFrom pos).utf8ByteSize = s.utf8ByteSize - pos.offset.byteIdx := by
+  simp only [utf8ByteSize_eq, str_sliceFrom, endExclusive_sliceFrom,
+    startInclusive_sliceFrom, Pos.offset_str, Pos.Raw.byteIdx_offsetBy]
   omega
 
-theorem Slice.rawEndPos_replaceStart {s : Slice} {pos : s.Pos} :
-    (s.replaceStart pos).rawEndPos = s.rawEndPos.unoffsetBy pos.offset := by
+theorem Slice.rawEndPos_sliceFrom {s : Slice} {pos : s.Pos} :
+    (s.sliceFrom pos).rawEndPos = s.rawEndPos.unoffsetBy pos.offset := by
   ext
   simp
 
 @[simp]
-theorem Slice.utf8ByteSize_replaceEnd {s : Slice} {pos : s.Pos} :
-    (s.replaceEnd pos).utf8ByteSize = pos.offset.byteIdx := by
+theorem Slice.utf8ByteSize_sliceTo {s : Slice} {pos : s.Pos} :
+    (s.sliceTo pos).utf8ByteSize = pos.offset.byteIdx := by
   simp [utf8ByteSize_eq]
 
 @[simp]
-theorem Slice.rawEndPos_replaceEnd {s : Slice} {pos : s.Pos} :
-    (s.replaceEnd pos).rawEndPos = pos.offset := by
+theorem Slice.rawEndPos_sliceTo {s : Slice} {pos : s.Pos} :
+    (s.sliceTo pos).rawEndPos = pos.offset := by
   ext
   simp
 
 @[simp]
-theorem Slice.utf8ByteSize_replaceStartEnd {s : Slice} {newStart newEnd : s.Pos} {h} :
-    (s.replaceStartEnd newStart newEnd h).utf8ByteSize = newStart.offset.byteDistance newEnd.offset := by
+theorem Slice.utf8ByteSize_slice {s : Slice} {newStart newEnd : s.Pos} {h} :
+    (s.slice newStart newEnd h).utf8ByteSize = newStart.offset.byteDistance newEnd.offset := by
   simp [utf8ByteSize_eq, Pos.Raw.byteDistance_eq]
   omega
 
-theorem Pos.Raw.isValidForSlice_replaceStart {s : Slice} {p : s.Pos} {off : Pos.Raw} :
-    off.IsValidForSlice (s.replaceStart p) ↔ (off.offsetBy p.offset).IsValidForSlice s := by
+theorem Pos.Raw.isValidForSlice_sliceFrom {s : Slice} {p : s.Pos} {off : Pos.Raw} :
+    off.IsValidForSlice (s.sliceFrom p) ↔ (off.offsetBy p.offset).IsValidForSlice s := by
   refine ⟨fun ⟨h₁, h₂⟩ => ⟨?_, ?_⟩, fun ⟨h₁, h₂⟩ => ⟨?_, ?_⟩⟩
   · have := p.isValidForSlice.le_rawEndPos
     simp_all [le_iff]
@@ -1112,11 +1136,11 @@ theorem Pos.Raw.isValidForSlice_replaceStart {s : Slice} {p : s.Pos} {off : Pos.
     omega
   · simpa [Pos.Raw.offsetBy_assoc] using h₂
 
-theorem Pos.Raw.isValidForSlice_replaceEnd {s : Slice} {p : s.Pos} {off : Pos.Raw} :
-    off.IsValidForSlice (s.replaceEnd p) ↔ off ≤ p.offset ∧ off.IsValidForSlice s := by
+theorem Pos.Raw.isValidForSlice_sliceTo {s : Slice} {p : s.Pos} {off : Pos.Raw} :
+    off.IsValidForSlice (s.sliceTo p) ↔ off ≤ p.offset ∧ off.IsValidForSlice s := by
   refine ⟨fun ⟨h₁, h₂⟩ => ⟨?_, ?_, ?_⟩, fun ⟨h₁, ⟨h₂, h₃⟩⟩ => ⟨?_, ?_⟩⟩
   · simpa using h₁
-  · simp only [Slice.rawEndPos_replaceEnd] at h₁
+  · simp only [Slice.rawEndPos_sliceTo] at h₁
     exact Pos.Raw.le_trans h₁ p.isValidForSlice.le_rawEndPos
   · simpa using h₂
   · simpa using h₁
@@ -1318,12 +1342,12 @@ theorem eq_singleton_append {s : String} (h : s.startValidPos ≠ s.endValidPos)
     get_startValidPos]
   simp
 
-theorem Slice.copy_eq_copy_replaceEnd {s : Slice} {pos : s.Pos} :
-    s.copy = (s.replaceEnd pos).copy ++ (s.replaceStart pos).copy := by
+theorem Slice.copy_eq_copy_sliceTo {s : Slice} {pos : s.Pos} :
+    s.copy = (s.sliceTo pos).copy ++ (s.sliceFrom pos).copy := by
   rw [← String.bytes_inj, bytes_copy, bytes_append, bytes_copy, bytes_copy]
-  simp only [str_replaceEnd, startInclusive_replaceEnd, endExclusive_replaceEnd, Pos.offset_str,
-    Pos.Raw.byteIdx_offsetBy, str_replaceStart, startInclusive_replaceStart,
-    endExclusive_replaceStart, ByteArray.extract_append_extract, Nat.le_add_right, Nat.min_eq_left]
+  simp only [str_sliceTo, startInclusive_sliceTo, endExclusive_sliceTo, Pos.offset_str,
+    Pos.Raw.byteIdx_offsetBy, str_sliceFrom, startInclusive_sliceFrom,
+    endExclusive_sliceFrom, ByteArray.extract_append_extract, Nat.le_add_right, Nat.min_eq_left]
   rw [Nat.max_eq_right]
   exact pos.offset_str_le_offset_endExclusive
 
@@ -1387,75 +1411,93 @@ theorem Slice.Pos.byte_eq_byte_toCopy {s : Slice} {pos : s.Pos} {h} :
     pos.byte h = pos.toCopy.byte (ne_of_apply_ne ValidPos.ofCopy (by simp [h])) :=
   (byte_toCopy _).symm
 
-/-- Given a position in `s.replaceStart p₀`, obtain the corresponding position in `s`. -/
+/-- Given a position in `s.sliceFrom p₀`, obtain the corresponding position in `s`. -/
 @[inline]
-def Slice.Pos.ofReplaceStart {s : Slice} {p₀ : s.Pos} (pos : (s.replaceStart p₀).Pos) : s.Pos where
+def Slice.Pos.ofSliceFrom {s : Slice} {p₀ : s.Pos} (pos : (s.sliceFrom p₀).Pos) : s.Pos where
   offset := pos.offset.offsetBy p₀.offset
-  isValidForSlice := Pos.Raw.isValidForSlice_replaceStart.1 pos.isValidForSlice
+  isValidForSlice := Pos.Raw.isValidForSlice_sliceFrom.1 pos.isValidForSlice
+
+@[deprecated Slice.Pos.ofSliceFrom (since := "2025-11-20")]
+def Slice.Pos.ofReplaceStart {s : Slice} {p₀ : s.Pos} (pos : (s.sliceFrom p₀).Pos) : s.Pos :=
+  ofSliceFrom pos
 
 @[simp]
-theorem Slice.Pos.offset_ofReplaceStart {s : Slice} {p₀ : s.Pos} {pos : (s.replaceStart p₀).Pos} :
-    (ofReplaceStart pos).offset = pos.offset.offsetBy p₀.offset := (rfl)
+theorem Slice.Pos.offset_ofSliceFrom {s : Slice} {p₀ : s.Pos} {pos : (s.sliceFrom p₀).Pos} :
+    (ofSliceFrom pos).offset = pos.offset.offsetBy p₀.offset := (rfl)
 
 /-- Given a position in `s` that is at least `p₀`, obtain the corresponding position in
-`s.replaceStart p₀`. -/
+`s.sliceFrom p₀`. -/
 @[inline]
-def Slice.Pos.toReplaceStart {s : Slice} (p₀ : s.Pos) (pos : s.Pos) (h : p₀ ≤ pos) :
-    (s.replaceStart p₀).Pos where
+def Slice.Pos.sliceFrom {s : Slice} (p₀ : s.Pos) (pos : s.Pos) (h : p₀ ≤ pos) :
+    (s.sliceFrom p₀).Pos where
   offset := pos.offset.unoffsetBy p₀.offset
-  isValidForSlice := Pos.Raw.isValidForSlice_replaceStart.2 (by
+  isValidForSlice := Pos.Raw.isValidForSlice_sliceFrom.2 (by
     simpa [Pos.Raw.offsetBy_unoffsetBy_of_le (Pos.Raw.le_iff.1 h)] using pos.isValidForSlice)
 
-@[simp]
-theorem Slice.Pos.offset_toReplaceStart {s : Slice} {p₀ : s.Pos} {pos : s.Pos} {h} :
-    (toReplaceStart p₀ pos h).offset = pos.offset.unoffsetBy p₀.offset := (rfl)
+@[deprecated Slice.Pos.sliceFrom (since := "2025-11-20")]
+def Slice.Pos.toReplaceStart {s : Slice} (p₀ : s.Pos) (pos : s.Pos) (h : p₀ ≤ pos) :
+    (s.sliceFrom p₀).Pos :=
+  sliceFrom p₀ pos h
 
 @[simp]
-theorem Slice.Pos.ofReplaceStart_startPos {s : Slice} {pos : s.Pos} :
-    ofReplaceStart (s.replaceStart pos).startPos = pos :=
+theorem Slice.Pos.offset_sliceFrom {s : Slice} {p₀ : s.Pos} {pos : s.Pos} {h} :
+    (sliceFrom p₀ pos h).offset = pos.offset.unoffsetBy p₀.offset := (rfl)
+
+@[simp]
+theorem Slice.Pos.ofSliceFrom_startPos {s : Slice} {pos : s.Pos} :
+    ofSliceFrom (s.sliceFrom pos).startPos = pos :=
   Slice.Pos.ext (by simp)
 
 @[simp]
-theorem Slice.Pos.ofReplaceStart_endPos {s : Slice} {pos : s.Pos} :
-    ofReplaceStart (s.replaceStart pos).endPos = s.endPos := by
+theorem Slice.Pos.ofSliceFrom_endPos {s : Slice} {pos : s.Pos} :
+    ofSliceFrom (s.sliceFrom pos).endPos = s.endPos := by
   have := pos.isValidForSlice.le_rawEndPos
   simp_all [Pos.ext_iff, String.Pos.Raw.ext_iff, Pos.Raw.le_iff]
 
-theorem Slice.Pos.ofReplaceStart_inj {s : Slice} {p₀ : s.Pos} {pos pos' : (s.replaceStart p₀).Pos} :
-    ofReplaceStart pos = ofReplaceStart pos' ↔ pos = pos' := by
+theorem Slice.Pos.ofSliceFrom_inj {s : Slice} {p₀ : s.Pos} {pos pos' : (s.sliceFrom p₀).Pos} :
+    ofSliceFrom pos = ofSliceFrom pos' ↔ pos = pos' := by
   simp [Pos.ext_iff, String.Pos.Raw.ext_iff]
 
-theorem Slice.Pos.get_eq_get_ofReplaceStart {s : Slice} {p₀ : s.Pos} {pos : (s.replaceStart p₀).Pos} {h} :
-    pos.get h = (ofReplaceStart pos).get (by rwa [← ofReplaceStart_endPos, ne_eq, ofReplaceStart_inj]) := by
+theorem Slice.Pos.get_eq_get_ofSliceFrom {s : Slice} {p₀ : s.Pos} {pos : (s.sliceFrom p₀).Pos} {h} :
+    pos.get h = (ofSliceFrom pos).get (by rwa [← ofSliceFrom_endPos, ne_eq, ofSliceFrom_inj]) := by
   simp [Slice.Pos.get, Nat.add_assoc]
 
-/-- Given a position in `s.replaceEnd p₀`, obtain the corresponding position in `s`. -/
+/-- Given a position in `s.sliceTo p₀`, obtain the corresponding position in `s`. -/
 @[inline]
-def Slice.Pos.ofReplaceEnd {s : Slice} {p₀ : s.Pos} (pos : (s.replaceEnd p₀).Pos) : s.Pos where
+def Slice.Pos.ofSliceTo {s : Slice} {p₀ : s.Pos} (pos : (s.sliceTo p₀).Pos) : s.Pos where
   offset := pos.offset
-  isValidForSlice := (Pos.Raw.isValidForSlice_replaceEnd.1 pos.isValidForSlice).2
+  isValidForSlice := (Pos.Raw.isValidForSlice_sliceTo.1 pos.isValidForSlice).2
+
+@[deprecated Slice.Pos.ofSliceTo (since := "2025-11-20")]
+def Slice.Pos.ofReplaceEnd {s : Slice} {p₀ : s.Pos} (pos : (s.sliceTo p₀).Pos) : s.Pos :=
+  ofSliceTo pos
 
 @[simp]
-theorem Slice.Pos.offset_ofReplaceEnd {s : Slice} {p₀ : s.Pos} {pos : (s.replaceEnd p₀).Pos} :
-    (ofReplaceEnd pos).offset = pos.offset := (rfl)
+theorem Slice.Pos.offset_ofSliceTo {s : Slice} {p₀ : s.Pos} {pos : (s.sliceTo p₀).Pos} :
+    (ofSliceTo pos).offset = pos.offset := (rfl)
 
-/-- Given a position in `s` that is at most `p₀`, obtain the corresponding position in `s.replaceEnd p₀`. -/
+/-- Given a position in `s` that is at most `p₀`, obtain the corresponding position in `s.sliceTo p₀`. -/
 @[inline]
+def Slice.Pos.sliceTo {s : Slice} (p₀ : s.Pos) (pos : s.Pos) (h : pos ≤ p₀) :
+    (s.sliceTo p₀).Pos where
+  offset := pos.offset
+  isValidForSlice := Pos.Raw.isValidForSlice_sliceTo.2 ⟨h, pos.isValidForSlice⟩
+
+@[deprecated Slice.Pos.sliceTo (since := "2025-11-20")]
 def Slice.Pos.toReplaceEnd {s : Slice} (p₀ : s.Pos) (pos : s.Pos) (h : pos ≤ p₀) :
-    (s.replaceEnd p₀).Pos where
-  offset := pos.offset
-  isValidForSlice := Pos.Raw.isValidForSlice_replaceEnd.2 ⟨h, pos.isValidForSlice⟩
+    (s.sliceTo p₀).Pos :=
+  sliceTo p₀ pos h
 
 @[simp]
-theorem Slice.Pos.offset_toReplaceEnd {s : Slice} {p₀ : s.Pos} {pos : s.Pos} {h : pos ≤ p₀} :
-    (toReplaceEnd p₀ pos h).offset = pos.offset := (rfl)
+theorem Slice.Pos.offset_sliceTo {s : Slice} {p₀ : s.Pos} {pos : s.Pos} {h : pos ≤ p₀} :
+    (sliceTo p₀ pos h).offset = pos.offset := (rfl)
 
 theorem Slice.Pos.copy_eq_append_get {s : Slice} {pos : s.Pos} (h : pos ≠ s.endPos) :
     ∃ t₁ t₂ : String, s.copy = t₁ ++ singleton (pos.get h) ++ t₂ ∧ t₁.utf8ByteSize = pos.offset.byteIdx := by
-  obtain ⟨t₂, ht₂⟩ := (s.replaceStart pos).copy.eq_singleton_append (by simpa [← ValidPos.ofCopy_inj, ← ofReplaceStart_inj])
-  refine ⟨(s.replaceEnd pos).copy, t₂, ?_, by simp⟩
-  simp only [Slice.startValidPos_copy, get_toCopy, get_eq_get_ofReplaceStart, ofReplaceStart_startPos] at ht₂
-  rw [append_assoc, ← ht₂, ← copy_eq_copy_replaceEnd]
+  obtain ⟨t₂, ht₂⟩ := (s.sliceFrom pos).copy.eq_singleton_append (by simpa [← ValidPos.ofCopy_inj, ← ofSliceFrom_inj])
+  refine ⟨(s.sliceTo pos).copy, t₂, ?_, by simp⟩
+  simp only [Slice.startValidPos_copy, get_toCopy, get_eq_get_ofSliceFrom, ofSliceFrom_startPos] at ht₂
+  rw [append_assoc, ← ht₂, ← copy_eq_copy_sliceTo]
 
 theorem Slice.Pos.utf8ByteSize_byte {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos} :
     (pos.byte h).utf8ByteSize pos.isUTF8FirstByte_byte = (pos.get h).utf8Size := by
@@ -1506,8 +1548,8 @@ theorem Slice.Pos.lt_next {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos} :
     pos < pos.next h := by
   simp [Pos.lt_iff, Pos.Raw.lt_iff, Char.utf8Size_pos]
 
-theorem Slice.Pos.copy_eq_copy_replaceEnd_append_get {s : Slice} {pos : s.Pos} (h : pos ≠ s.endPos) :
-    s.copy = (s.replaceEnd pos).copy ++ singleton (pos.get h) ++ (s.replaceStart (pos.next h)).copy := by
+theorem Slice.Pos.copy_eq_copy_sliceTo_append_get {s : Slice} {pos : s.Pos} (h : pos ≠ s.endPos) :
+    s.copy = (s.sliceTo pos).copy ++ singleton (pos.get h) ++ (s.sliceFrom (pos.next h)).copy := by
   suffices (max (s.startInclusive.offset.byteIdx + (pos.offset.byteIdx + (pos.get h).utf8Size)) s.endExclusive.offset.byteIdx)
       = s.endExclusive.offset.byteIdx by
     simp [← bytes_inj, bytes_copy, utf8Encode_get_eq_extract, Nat.add_assoc, this]
@@ -1957,150 +1999,215 @@ theorem ValidPos.str_toSlice {s : String} {p : s.ValidPos} : p.toSlice.str = p :
 
 /-- The slice from the beginning of `s` up to `p` (exclusive). -/
 @[inline, expose]
+def sliceTo (s : String) (p : s.ValidPos) : Slice :=
+  s.toSlice.sliceTo p.toSlice
+
+@[deprecated sliceTo (since :="2025-11-20")]
 def replaceEnd (s : String) (p : s.ValidPos) : Slice :=
-  s.toSlice.replaceEnd p.toSlice
+  s.sliceTo p
 
 @[simp]
-theorem str_replaceEnd {s : String} {p : s.ValidPos} : (s.replaceEnd p).str = s := rfl
+theorem str_sliceTo {s : String} {p : s.ValidPos} : (s.sliceTo p).str = s := rfl
 
 @[simp]
-theorem startInclusive_replaceEnd {s : String} {p : s.ValidPos} :
-    (s.replaceEnd p).startInclusive = s.startValidPos := by
-  simp [replaceEnd]
+theorem startInclusive_sliceTo {s : String} {p : s.ValidPos} :
+    (s.sliceTo p).startInclusive = s.startValidPos := by
+  simp [sliceTo]
 
 @[simp]
-theorem endExclusive_replaceEnd {s : String} {p : s.ValidPos} :
-    (s.replaceEnd p).endExclusive = p := by
-  simp [replaceEnd]
+theorem endExclusive_sliceTo {s : String} {p : s.ValidPos} :
+    (s.sliceTo p).endExclusive = p := by
+  simp [sliceTo]
 
 @[simp]
-theorem rawEndPos_replaceEnd {s : String} {p : s.ValidPos} :
-    (s.replaceEnd p).rawEndPos = p.offset := by
-  simp [replaceEnd]
+theorem rawEndPos_sliceTo {s : String} {p : s.ValidPos} :
+    (s.sliceTo p).rawEndPos = p.offset := by
+  simp [sliceTo]
 
-theorem Pos.Raw.isValidForSlice_stringReplaceEnd {s : String} {p : s.ValidPos} {q : Pos.Raw} :
-    q.IsValidForSlice (s.replaceEnd p) ↔ q ≤ p.offset ∧ q.IsValid s := by
-  rw [replaceEnd, isValidForSlice_replaceEnd, ValidPos.offset_toSlice, isValidForSlice_toSlice_iff]
+theorem Pos.Raw.isValidForSlice_stringSliceTo {s : String} {p : s.ValidPos} {q : Pos.Raw} :
+    q.IsValidForSlice (s.sliceTo p) ↔ q ≤ p.offset ∧ q.IsValid s := by
+  rw [sliceTo, isValidForSlice_sliceTo, ValidPos.offset_toSlice, isValidForSlice_toSlice_iff]
 
 /-- The slice from `p` (inclusive) up to the end of `s`. -/
 @[inline, expose]
+def sliceFrom (s : String) (p : s.ValidPos) : Slice :=
+  s.toSlice.sliceFrom p.toSlice
+
+@[deprecated sliceFrom (since := "2025-11-20")]
 def replaceStart (s : String) (p : s.ValidPos) : Slice :=
-  s.toSlice.replaceStart p.toSlice
+  s.sliceFrom p
 
 @[simp]
-theorem str_replaceStart {s : String} {p : s.ValidPos} : (s.replaceStart p).str = s := rfl
+theorem str_sliceFrom {s : String} {p : s.ValidPos} : (s.sliceFrom p).str = s := rfl
 
 @[simp]
-theorem startInclusive_replaceStart {s : String} {p : s.ValidPos} :
-    (s.replaceStart p).startInclusive = p := by
-  simp [replaceStart]
+theorem startInclusive_sliceFrom {s : String} {p : s.ValidPos} :
+    (s.sliceFrom p).startInclusive = p := by
+  simp [sliceFrom]
 
 @[simp]
-theorem endExclusive_replaceStart {s : String} {p : s.ValidPos} :
-    (s.replaceStart p).endExclusive = s.endValidPos := by
-  simp [replaceStart]
+theorem endExclusive_sliceFrom {s : String} {p : s.ValidPos} :
+    (s.sliceFrom p).endExclusive = s.endValidPos := by
+  simp [sliceFrom]
 
 @[simp]
 theorem utf8ByteSize_toSlice {s : String} : s.toSlice.utf8ByteSize = s.utf8ByteSize := by
   simp [Slice.utf8ByteSize_eq]
 
 @[simp]
-theorem utf8ByteSize_replaceStart {s : String} {p : s.ValidPos} :
-    (s.replaceStart p).utf8ByteSize = s.utf8ByteSize - p.offset.byteIdx := by
-  simp [replaceStart]
+theorem utf8ByteSize_sliceFrom {s : String} {p : s.ValidPos} :
+    (s.sliceFrom p).utf8ByteSize = s.utf8ByteSize - p.offset.byteIdx := by
+  simp [sliceFrom]
 
 @[simp]
-theorem utf8ByteSize_replaceEnd {s : String} {p : s.ValidPos} :
-    (s.replaceEnd p).utf8ByteSize = p.offset.byteIdx := by
-  simp [replaceEnd]
+theorem utf8ByteSize_sliceTo {s : String} {p : s.ValidPos} :
+    (s.sliceTo p).utf8ByteSize = p.offset.byteIdx := by
+  simp [sliceTo]
 
-theorem Pos.Raw.isValidForSlice_stringReplaceStart {s : String} {p : s.ValidPos} {q : Pos.Raw} :
-    q.IsValidForSlice (s.replaceStart p) ↔ (q.offsetBy p.offset).IsValid s := by
-  rw [replaceStart, isValidForSlice_replaceStart, isValidForSlice_toSlice_iff,
+theorem Pos.Raw.isValidForSlice_stringSliceFrom {s : String} {p : s.ValidPos} {q : Pos.Raw} :
+    q.IsValidForSlice (s.sliceFrom p) ↔ (q.offsetBy p.offset).IsValid s := by
+  rw [sliceFrom, isValidForSlice_sliceFrom, isValidForSlice_toSlice_iff,
     ValidPos.offset_toSlice]
 
-/-
-Given a string  and two valid positions within the string, obtain a slice on the string formed by
+/--
+Given a string and two valid positions within the string, obtain a slice on the string formed by
+the two positions.
+
+This happens to be equivalent to the constructor of `String.Slice`.
+-/
+@[inline, expose] -- For the defeq `(s.slice p₁ p₂).str = s`
+def slice (s : String) (startInclusive endExclusive : s.ValidPos)
+    (h : startInclusive ≤ endExclusive) : String.Slice where
+  str := s
+  startInclusive
+  endExclusive
+  startInclusive_le_endExclusive := h
+
+@[simp]
+theorem str_slice {s : String} {startInclusive endExclusive h} :
+    (s.slice startInclusive endExclusive h).str = s := rfl
+
+@[simp]
+theorem startInclusive_slice {s : String} {startInclusive endExclusive h}  :
+    (s.slice startInclusive endExclusive h).startInclusive = startInclusive := rfl
+
+@[simp]
+theorem endExclusive_slice {s : String} {startInclusive endExclusive h}  :
+    (s.slice startInclusive endExclusive h).endExclusive = endExclusive := rfl
+
+/-- Given a string and two valid positions within the string, obtain a slice on the string formed
+by the new bounds, or return `none` if the given end is strictly less then the given start. -/
+def slice? (s : String) (startInclusive endExclusive : s.ValidPos) :=
+  if h : startInclusive ≤ endExclusive then
+    some (s.slice startInclusive endExclusive h)
+  else
+    none
+
+/--
+Given a string and two valid positions within the string, obtain a slice on the string formed by
 the new bounds, or panic if the given end is strictly less than the given start.
 -/
+def slice! (s : String) (p₁ p₂ : s.ValidPos) : Slice :=
+  s.toSlice.slice! p₁.toSlice p₂.toSlice
+
+@[deprecated slice! (since := "2025-11-20")]
 def replaceStartEnd! (s : String) (p₁ p₂ : s.ValidPos) : Slice :=
-  s.toSlice.replaceStartEnd! p₁.toSlice p₂.toSlice
+  s.slice! p₁ p₂
 
 theorem ValidPos.utf8Encode_get_eq_extract {s : String} (pos : s.ValidPos) (h : pos ≠ s.endValidPos) :
     List.utf8Encode [pos.get h] = s.bytes.extract pos.offset.byteIdx (pos.offset.byteIdx + (pos.get h).utf8Size) := by
   rw [get_eq_get_toSlice, Slice.Pos.utf8Encode_get_eq_extract]
   simp
 
-theorem ValidPos.eq_copy_replaceEnd_append_get {s : String} {pos : s.ValidPos} (h : pos ≠ s.endValidPos) :
-    s = (s.replaceEnd pos).copy ++ singleton (pos.get h) ++ (s.replaceStart (pos.next h)).copy := by
+theorem ValidPos.eq_copy_sliceTo_append_get {s : String} {pos : s.ValidPos} (h : pos ≠ s.endValidPos) :
+    s = (s.sliceTo pos).copy ++ singleton (pos.get h) ++ (s.sliceFrom (pos.next h)).copy := by
   simp [← bytes_inj, utf8Encode_get_eq_extract pos h, Slice.bytes_copy, ← size_bytes]
 
-/-- Given a position in `s.replaceStart p₀`, obtain the corresponding position in `s`. -/
+/-- Given a position in `s.sliceFrom p₀`, obtain the corresponding position in `s`. -/
 @[inline]
-def ValidPos.ofReplaceStart {s : String} {p₀ : s.ValidPos} (pos : (s.replaceStart p₀).Pos) :
+def ValidPos.ofSliceFrom {s : String} {p₀ : s.ValidPos} (pos : (s.sliceFrom p₀).Pos) :
     s.ValidPos where
   offset := pos.offset.offsetBy p₀.offset
-  isValid := Pos.Raw.isValidForSlice_stringReplaceStart.1 pos.isValidForSlice
+  isValid := Pos.Raw.isValidForSlice_stringSliceFrom.1 pos.isValidForSlice
+
+@[deprecated ValidPos.ofSliceFrom (since := "2025-11-20")]
+def ValidPos.ofReplaceStart {s : String} {p₀ : s.ValidPos} (pos : (s.sliceFrom p₀).Pos) :
+    s.ValidPos :=
+  ofSliceFrom pos
 
 @[simp]
-theorem ValidPos.offset_ofReplaceStart {s : String} {p₀ : s.ValidPos}
-    {pos : (s.replaceStart p₀).Pos} : (ofReplaceStart pos).offset = pos.offset.offsetBy p₀.offset :=
+theorem ValidPos.offset_ofSliceFrom {s : String} {p₀ : s.ValidPos}
+    {pos : (s.sliceFrom p₀).Pos} : (ofSliceFrom pos).offset = pos.offset.offsetBy p₀.offset :=
   (rfl)
 
 /-- Given a position in `s` that is at least `p₀`, obtain the corresponding position in
-`s.replaceStart p₀`. -/
+`s.sliceFrom p₀`. -/
 @[inline]
-def ValidPos.toReplaceStart {s : String} (p₀ : s.ValidPos) (pos : s.ValidPos) (h : p₀ ≤ pos) :
-    (s.replaceStart p₀).Pos where
+def ValidPos.sliceFrom {s : String} (p₀ : s.ValidPos) (pos : s.ValidPos) (h : p₀ ≤ pos) :
+    (s.sliceFrom p₀).Pos where
   offset := pos.offset.unoffsetBy p₀.offset
-  isValidForSlice := Pos.Raw.isValidForSlice_stringReplaceStart.2 (by
+  isValidForSlice := Pos.Raw.isValidForSlice_stringSliceFrom.2 (by
     simpa [Pos.Raw.offsetBy_unoffsetBy_of_le (Pos.Raw.le_iff.1 h)] using pos.isValid)
 
-@[simp]
-theorem ValidPos.offset_toReplaceStart {s : String} {p₀ : s.ValidPos} {pos : s.ValidPos} {h} :
-    (toReplaceStart p₀ pos h).offset = pos.offset.unoffsetBy p₀.offset := (rfl)
+@[deprecated ValidPos.sliceFrom (since := "2025-11-20")]
+def ValidPos.toReplaceStart {s : String} (p₀ : s.ValidPos) (pos : s.ValidPos) (h : p₀ ≤ pos) :
+    (s.sliceFrom p₀).Pos :=
+  sliceFrom p₀ pos h
 
 @[simp]
-theorem ValidPos.ofReplaceStart_startPos {s : String} {pos : s.ValidPos} :
-    ofReplaceStart (s.replaceStart pos).startPos = pos :=
+theorem ValidPos.offset_sliceFrom {s : String} {p₀ : s.ValidPos} {pos : s.ValidPos} {h} :
+    (sliceFrom p₀ pos h).offset = pos.offset.unoffsetBy p₀.offset := (rfl)
+
+@[simp]
+theorem ValidPos.ofSliceFrom_startPos {s : String} {pos : s.ValidPos} :
+    ofSliceFrom (s.sliceFrom pos).startPos = pos :=
   ValidPos.ext (by simp)
 
 @[simp]
-theorem ValidPos.ofReplaceStart_endPos {s : String} {pos : s.ValidPos} :
-    ofReplaceStart (s.replaceStart pos).endPos = s.endValidPos := by
+theorem ValidPos.ofSliceFrom_endPos {s : String} {pos : s.ValidPos} :
+    ofSliceFrom (s.sliceFrom pos).endPos = s.endValidPos := by
   have := pos.isValid.le_rawEndPos
   simp_all [ValidPos.ext_iff, String.Pos.Raw.ext_iff, Pos.Raw.le_iff]
 
-theorem ValidPos.ofReplaceStart_inj {s : String} {p₀ : s.ValidPos}
-    {pos pos' : (s.replaceStart p₀).Pos} :
-    ofReplaceStart pos = ofReplaceStart pos' ↔ pos = pos' := by
+theorem ValidPos.ofSliceFrom_inj {s : String} {p₀ : s.ValidPos}
+    {pos pos' : (s.sliceFrom p₀).Pos} :
+    ofSliceFrom pos = ofSliceFrom pos' ↔ pos = pos' := by
   simp [ValidPos.ext_iff, String.Pos.Raw.ext_iff, Slice.Pos.ext_iff]
 
-theorem ValidPos.get_eq_get_ofReplaceStart {s : String} {p₀ : s.ValidPos}
-    {pos : (s.replaceStart p₀).Pos} {h} :
-    pos.get h = (ofReplaceStart pos).get (by rwa [← ofReplaceStart_endPos, ne_eq, ofReplaceStart_inj]) := by
+theorem ValidPos.get_eq_get_ofSliceFrom {s : String} {p₀ : s.ValidPos}
+    {pos : (s.sliceFrom p₀).Pos} {h} :
+    pos.get h = (ofSliceFrom pos).get (by rwa [← ofSliceFrom_endPos, ne_eq, ofSliceFrom_inj]) := by
   simp [ValidPos.get, Slice.Pos.get]
 
-/-- Given a position in `s.replaceEnd p₀`, obtain the corresponding position in `s`. -/
+/-- Given a position in `s.sliceTo p₀`, obtain the corresponding position in `s`. -/
 @[inline]
-def ValidPos.ofReplaceEnd {s : String} {p₀ : s.ValidPos} (pos : (s.replaceEnd p₀).Pos) : s.ValidPos where
+def ValidPos.ofSliceTo {s : String} {p₀ : s.ValidPos} (pos : (s.sliceTo p₀).Pos) : s.ValidPos where
   offset := pos.offset
-  isValid := (Pos.Raw.isValidForSlice_stringReplaceEnd.1 pos.isValidForSlice).2
+  isValid := (Pos.Raw.isValidForSlice_stringSliceTo.1 pos.isValidForSlice).2
+
+@[deprecated ValidPos.ofSliceTo (since := "2025-11-20")]
+def ValidPos.ofReplaceEnd {s : String} {p₀ : s.ValidPos} (pos : (s.sliceTo p₀).Pos) : s.ValidPos :=
+  ofSliceTo pos
 
 @[simp]
-theorem ValidPos.offset_ofReplaceEnd {s : String} {p₀ : s.ValidPos} {pos : (s.replaceEnd p₀).Pos} :
-    (ofReplaceEnd pos).offset = pos.offset := (rfl)
+theorem ValidPos.offset_ofSliceTo {s : String} {p₀ : s.ValidPos} {pos : (s.sliceTo p₀).Pos} :
+    (ofSliceTo pos).offset = pos.offset := (rfl)
 
-/-- Given a position in `s` that is at most `p₀`, obtain the corresponding position in `s.replaceEnd p₀`. -/
+/-- Given a position in `s` that is at most `p₀`, obtain the corresponding position in `s.sliceTo p₀`. -/
 @[inline]
+def ValidPos.sliceTo {s : String} (p₀ : s.ValidPos) (pos : s.ValidPos) (h : pos ≤ p₀) :
+    (s.sliceTo p₀).Pos where
+  offset := pos.offset
+  isValidForSlice := Pos.Raw.isValidForSlice_stringSliceTo.2 ⟨h, pos.isValid⟩
+
+@[deprecated ValidPos.sliceTo (since := "2025-11-20")]
 def ValidPos.toReplaceEnd {s : String} (p₀ : s.ValidPos) (pos : s.ValidPos) (h : pos ≤ p₀) :
-    (s.replaceEnd p₀).Pos where
-  offset := pos.offset
-  isValidForSlice := Pos.Raw.isValidForSlice_stringReplaceEnd.2 ⟨h, pos.isValid⟩
+    (s.sliceTo p₀).Pos :=
+  sliceTo p₀ pos h
 
 @[simp]
-theorem ValidPos.offset_toReplaceEnd {s : String} {p₀ : s.ValidPos} {pos : s.ValidPos} {h : pos ≤ p₀} :
-    (toReplaceEnd p₀ pos h).offset = pos.offset := (rfl)
+theorem ValidPos.offset_sliceTo {s : String} {p₀ : s.ValidPos} {pos : s.ValidPos} {h : pos ≤ p₀} :
+    (sliceTo p₀ pos h).offset = pos.offset := (rfl)
 
 theorem Slice.Pos.le_nextn {s : Slice} {p : s.Pos} {n : Nat} : p ≤ p.nextn n := by
   fun_induction nextn with

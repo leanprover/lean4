@@ -42,8 +42,9 @@ def ControlStack.stateT (reassignedMutVars : Array Name) (σ : Expr) (m : Contro
   runInBase e := do
     -- `e : StateT σ m α`. Fetch the state tuple `s : σ` and apply it to `e`, `e.run s`.
     -- See also `StateT.monadControl.liftWith`.
-    let (tuple, _tupleTy) ← mkProdMkN (← reassignedMutVars.mapM (getFVarFromUserName ·))
-    let tuple ← Term.ensureHasType σ tuple
+    let (tuple, tupleTy) ← mkProdMkN (← reassignedMutVars.mapM (getFVarFromUserName ·))
+    synthUsingDefEq "state tuple type" σ tupleTy
+    discard <| Term.ensureHasType (mkSort (mkLevelSucc mi.u)) σ
     m.runInBase <| mkApp e tuple
   restoreCont dec := do
     -- Wrap `dec` such that the result type is `(dec.resultType × σ)` by unpacking the state tuple

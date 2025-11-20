@@ -11,8 +11,23 @@ public import Lean.Data.Fmt.Formatter
 public import Init.Grind.Module.Basic
 import Init
 
+/-!
+This file documents the properties that a cost function in the `Fmt` formatter must fulfill
+in order for formatting with the cost function to be correct and efficient.
+It also proves that the default cost function fulfills these properties.
+
+The properties in this file have been taken from 'A Pretty Expressive Printer' [1] by
+Sorawee Porncharoenwase, Justin Pombrio and Emina Torlak.
+
+[1] https://arxiv.org/pdf/2310.01530
+-/
+
 namespace Lean.Fmt
 
+/--
+`LawfulCost` documents the properties that a cost function in the `Fmt` formatter mus fulfill
+in order for formatting with the cost function to be correct and efficient.
+-/
 public class LawfulCost (τ : Type) [Add τ] [LE τ] extends Cost τ, Grind.AddCommMonoid τ, Std.IsLinearOrder τ where
   zero := textCost 0 0
 

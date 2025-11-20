@@ -10,19 +10,30 @@ prelude
 public import Init.Data.Hashable
 import Init.Data.Array
 
+/-!
+Document language of the `Fmt` formatter.
+
+This file implements the document language of 'A Pretty Expressive Printer' [1] by
+Sorawee Porncharoenwase, Justin Pombrio and Emina Torlak.
+This implementation is based on the Racket implementation of pretty-expressive [2].
+
+[1] https://arxiv.org/pdf/2310.01530
+[2] https://docs.racket-lang.org/pretty-expressive/
+-/
+
 public section
 
 namespace Lean.Fmt
 
 /--
-Document height at which the format document is memoized when formatting.
-Time-complexity-wise, this is sound because the format document is a binary tree, and so its height
-bounds the amount of nodes in the tree.
+Document height at which the formatting document is memoized when formatting.
+Time-complexity-wise, this is sound because the formatting document is a binary tree, and so its
+height bounds the amount of nodes in the tree.
 -/
 def memoHeightLimit : Nat := 6
 
 /--
-Computes the memoization height of a node in the format document with a child memoization height
+Computes the memoization height of a node in the formatting document with a child memoization height
 of `memoHeight`.
 -/
 def nextMemoHeight (memoHeight : Nat) : Nat :=
@@ -36,7 +47,7 @@ Bitmap that tracks whether there is a `Doc.full` node on the same line *before* 
 that is being resolved by the formatter or on the same line *after* the current document.
 
 In the formatter, we case split on the fullness state in several places and then prune subtrees
-of the search when we notice that they are inconsistent with the actual document current being
+of the search when we notice that they are inconsistent with the actual document currently being
 resolved.
 -/
 @[expose]
@@ -77,7 +88,7 @@ inductive Doc where
   of the document without `failure` nodes if one is available.
   This is sometimes useful when defining custom combinators on a pre-existing document.
 
-  Used when `flatten`ing a `newline none`.
+  Used when a `flattened` document contains a `newline none`.
 
   Example:
   ```
@@ -92,16 +103,16 @@ inductive Doc where
   /--
   Designates a newline in the document.
 
-  Within a `flatten` node, all `newline (some flattened)` nodes are replaced with `text flattened`
+  Within `flattened`, all `newline (some f)` nodes are replaced with `text f`
   and all `newline none` nodes are replaced with `failure`, i.e. `newline none` can never be
   flattened.
 
-  Any newline that is not flattened by an outer `flatten` node will yield `\n` followed by
+  Any newline that is not flattened by an outer `flattened` node will yield `\n` followed by
   an amount of spaces corresponding to the current level of indentation as set by
   `indent`, `align` and `reset` in the rendered document.
 
-  `flattened?` is irrelevant during formatting: before formatting, a preprocessing step eliminates
-  all `flatten` nodes by replacing all `newline flattened?` nodes within each `flatten` node.
+  `f?` is irrelevant during formatting: before formatting, a preprocessing step eliminates
+  all `flattened` nodes by replacing all `newline f?` nodes within each `flattened` node.
 
   Examples:
 
@@ -120,7 +131,7 @@ inductive Doc where
   ```
   ---
   ```
-  flatten
+  flattened
     (append
       (append
         (text "a")
@@ -133,7 +144,7 @@ inductive Doc where
   ```
   ---
   ```
-  flatten
+  flattened
     (append
       (append
         (text "a")
@@ -145,7 +156,7 @@ inductive Doc where
   <no output>
   ```
   -/
-  | newline (flattened? : Option String)
+  | newline (f? : Option String)
   /--
   Designates a piece of text without newlines in the document.
   `text` nodes are never broken apart by the formatter.
@@ -177,16 +188,16 @@ inductive Doc where
   -/
   | text (s : String)
   /--
-  Flattens an inner document by replacing all `newline (some flattened)` nodes in the inner
-  document with `text flattened` and all `newline none` nodes in the inner document with `failure`.
+  Flattens an inner document by replacing all `newline (some f)` nodes in the inner
+  document with `text f` and all `newline none` nodes in the inner document with `failure`.
 
-  `flatten` is eliminated before formatting by a preprocessing step that replaces all
-  `newline flattened?` nodes within each `flatten` node.
+  `flattened` is eliminated before formatting by a preprocessing step that replaces all
+  `newline f?` nodes within each `flattened` node.
 
   Examples:
 
   ```
-  flatten
+  flattened
     (append
       (append
         (text "a")
@@ -199,7 +210,7 @@ inductive Doc where
   ```
   ---
   ```
-  flatten
+  flattened
     (append
       (append
         (text "a")
@@ -211,7 +222,7 @@ inductive Doc where
   <no output>
   ```
   -/
-  | flatten (d : Doc)
+  | flattened (d : Doc)
   /--
   Adds `n` to the current level of indentation within an inner document.
 
@@ -221,10 +232,10 @@ inductive Doc where
   Example:
 
   ```
-  indent 2
+  indented 2
     (append
       (text "a")
-      (indent 2
+      (indented 2
         (append
           (append
             (text "b")
@@ -237,10 +248,10 @@ inductive Doc where
     c
   ```
   -/
-  | indent (n : Nat) (d : Doc)
+  | indented (n : Nat) (d : Doc)
   /--
   Sets the current level of indentation within an inner document to the current column position
-  at the position where the `align` is rendered.
+  at the position where the `aligned` is rendered.
 
   When rendering a newline, the formatter produces an amount of spaces corresponding to the
   current level of indentation after the newline.
@@ -250,7 +261,7 @@ inductive Doc where
   ```
   append
     (text "a")
-    (align
+    (aligned
       (append
         (newline (some " "))
         (text "b")))
@@ -261,7 +272,7 @@ inductive Doc where
    b
   ```
   -/
-  | align (d : Doc)
+  | aligned (d : Doc)
   /--
   Sets the current level of indentation within an inner document to 0.
 
@@ -271,9 +282,9 @@ inductive Doc where
   Example:
 
   ```
-  indent 2
+  indented 2
     (append
-      (unindent
+      (unindented
         (append
           (text "a")
           (newline (some " "))))
@@ -285,7 +296,7 @@ inductive Doc where
   b
   ```
   -/
-  | unindent (d : Doc)
+  | unindented (d : Doc)
   /--
   Enforces that no text can be placed on the same line after the inner document.
 
@@ -305,10 +316,15 @@ inductive Doc where
   -/
   | full (d : Doc)
   /--
-  Represents a document that can be rendered to one of two alternatives.
+  Designates a document that can be rendered to one of two alternatives.
 
   The formatter will always choose a non-failing alternative if one is available or fail otherwise.
   When both alternatives are not failing, it chooses an optimal rendering from both alternatives.
+
+  If the two subtrees of an `either` have the same structure, then this structure should be
+  referentially shared between the two subtrees instead of duplicating them. This ensures that
+  documents with lots of alternatives can still be formatted efficiently, as the formatter will be
+  able to re-use state across these alternatives.
 
   Examples:
 
@@ -361,37 +377,57 @@ with
   Determines whether resolving the document is guaranteed to fail in the given `FullnessState`.
   -/
   @[computed_field] isFailure : Doc → FailureCond
+    -- `failure` always fails. All resolutions that contain `failure` can be pruned.
     | .failure => fun _ => true
+    -- `newline` starts a new line, which can never be full at this point.
+    -- Hence, resolutions in which `isFullAfter` is true directly after `newline` can be pruned.
     | .newline .. => (·.isFullAfter)
     | .text s => fun state =>
       match state.isFullBefore, state.isFullAfter with
+      -- `text` nodes can be placed on non-full lines.
       | false, false => false
+      -- `text` nodes cannot turn a line from being full to non-full.
       | true, false => true
+      -- `text` nodes cannot turn a line from being non-full to full.
       | false, true => true
+      -- Empty text nodes can be inserted on a full line, while non-empty text nodes cannot.
       | true, true => ! s.isEmpty
+    -- `full` designates that the line is full.
+    -- Hence, resolutions in which `isFullAfter` is false directly after `full` can be pruned.
     | .full _ => (! ·.isFullAfter)
-    -- For all of the remaining inner nodes, whether resolving the document is guaranteed
-    -- to fail depends on the nodes below the inner nodes.
+    -- For all of the remaining inner nodes, whether resolving the document is guaranteed to fail
+    -- depends on the child nodes below the inner node.
     | _ => fun _ => false
+  /--
+  Designates an overapproximation for the amount of newlines in a document.
+  This is used by the formatter to choose renderings amongst multiple alternatives
+  that all exceed a maximum optimality cutoff width, which bounds the total search space.
+  -/
   @[computed_field] maxNewlineCount? : Doc → Option Nat
     | .failure => none
     | .newline .. => some 1
     | .text _
-    | .flatten _ => some 0
-    | .indent _ d
-    | .align d
-    | .unindent d
+    | .flattened _ => some 0
+    | .indented _ d
+    | .aligned d
+    | .unindented d
     | .full d => maxNewlineCount? d
     | .either a b => .merge (max · ·) (maxNewlineCount? a) (maxNewlineCount? b)
     | .append a b => .merge (· + ·) (maxNewlineCount? a) (maxNewlineCount? b)
+  /--
+  Memoization height of this document. Documents with a `memoHeight` of 0 are memoized when
+  formatting.
+  Time-complexity-wise, this is sound because the formatting document is a binary tree, and so its
+  height bounds the amount of nodes in the tree.
+  -/
   @[computed_field] memoHeight : Doc → Nat
     | .failure
     | .newline ..
     | .text _ => memoHeightLimit
-    | .flatten d
-    | .indent _ d
-    | .align d
-    | .unindent d
+    | .flattened d
+    | .indented _ d
+    | .aligned d
+    | .unindented d
     | .full d =>
       let n := memoHeight d
       nextMemoHeight n
@@ -401,18 +437,54 @@ with
       nextMemoHeight n
 deriving Inhabited, Repr
 
-def Doc.maybeFlattened (d : Doc) : Doc :=
-  .either d d.flatten
+/--
+Designates a document that either contains all newlines in an inner document or where all newlines
+have been flattened.
 
+The formatter will always choose a non-failing alternative if one is available or fail otherwise.
+When both alternatives are not failing, it chooses an optimal rendering from both alternatives.
+
+`maybeFlattened d` is equivalent to `either d (flattened d)`.
+
+This construct corresponds to `group` in most traditional formatting languages.
+-/
+def Doc.maybeFlattened (d : Doc) : Doc :=
+  .either d d.flattened
+
+/--
+Designates a newline that is flattened to a single space when placed inside of a `flattened` node.
+
+Equivalent to `newline (some " ")`.
+-/
 def Doc.nl : Doc :=
   .newline (some " ")
 
+/--
+Designates a newline that is flattened to an empty string when placed inside of a `flattened` node.
+
+Equivalent to `newline (some "")`.
+-/
 def Doc.break : Doc :=
   .newline (some "")
 
+/--
+Designates a newline that cannot be flattened and will produce a `failure` node when attempting
+to flatten it.
+
+Equivalent to `newline none`.
+-/
 def Doc.hardNl : Doc :=
   .newline none
 
+/--
+Designates a document that can be rendered to one of several alternatives.
+
+The formatter will always choose a non-failing alternative if one is available or fail otherwise.
+When more than one alternative is not failing, it chooses an optimal rendering from
+the non-failing alternatives.
+
+Equivalent to `failure` if the set of alternatives is empty.
+-/
 def Doc.oneOf (ds : Array Doc) : Doc :=
   match ds[0]? with
   | none =>
@@ -420,6 +492,9 @@ def Doc.oneOf (ds : Array Doc) : Doc :=
   | some d =>
     ds[1:].foldl (init := d) fun acc d => acc.either d
 
+/--
+Appends multiple documents. Each document is appended to the last line of the preceding document.
+-/
 def Doc.join (ds : Array Doc) : Doc :=
   match ds[0]? with
   | none =>
@@ -427,6 +502,9 @@ def Doc.join (ds : Array Doc) : Doc :=
   | some d =>
     ds[1:].foldl (init := d) fun acc d => acc.append d
 
+/--
+Appends multiple documents with a separator document between each pair of adjacent documents.
+-/
 def Doc.joinUsing (sep : Doc) (ds : Array Doc) : Doc :=
   match ds[0]? with
   | none =>
@@ -446,7 +524,7 @@ instance : ToDoc Doc where
 instance : ToDoc String where
   toDoc s := .text s
 
-syntax:max "f'!" interpolatedStr(term) : term
+syntax:max "fmt!" interpolatedStr(term) : term
 
 macro_rules
-  | `(f'! $interpStr) => do interpStr.expandInterpolatedStr (← `(Doc)) (← `(ToDoc.toDoc))
+  | `(fmt! $interpStr) => do interpStr.expandInterpolatedStr (← `(Doc)) (← `(ToDoc.toDoc))

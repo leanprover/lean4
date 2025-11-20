@@ -2080,12 +2080,6 @@ theorem getKey_insertManyIfNewUnit_list_of_contains_eq_false_of_mem [EquivBEq α
   simp_to_model [Const.insertManyIfNewUnit, getKey, contains]
     using List.getKey_insertListIfNewUnit_of_contains_eq_false_of_mem
 
-theorem getKey_insertManyIfNewUnit_list_mem_of_contains [EquivBEq α] [LawfulHashable α]
-    (h : m.1.WF) {l : List α} {k : α} (contains : m.contains k) {h'} :
-    getKey (insertManyIfNewUnit m l).1 k h' = getKey m k contains := by
-  simp_to_model [Const.insertManyIfNewUnit, getKey]
-    using List.getKey_insertListIfNewUnit_of_contains
-
 theorem getKey!_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
     [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.1.WF) {l : List α} {k : α} :
     m.contains k = false → l.contains k = false →

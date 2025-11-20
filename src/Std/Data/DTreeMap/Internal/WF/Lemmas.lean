@@ -1073,12 +1073,6 @@ theorem WF.containsThenInsertIfNew! {_ : Ord α} [TransOrd α] {k : α} {v : β 
     (h : l.WF) : (l.containsThenInsertIfNew! k v).2.WF := by
   simpa [containsThenInsertIfNew!_snd_eq_insertIfNew!] using WF.insertIfNew! (h := h)
 
-theorem toListModel_containsThenInsertIfNew! [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α}
-    {v : β k} {t : Impl α β} (htb : t.Balanced) (hto : t.Ordered) :
-    (t.containsThenInsertIfNew k v htb).2.impl.toListModel.Perm (insertEntryIfNew k v t.toListModel) := by
-  rw [containsThenInsertIfNew_snd_eq_insertIfNew]
-  exact toListModel_insertIfNew htb hto
-
 /-!
 ### filterMap
 -/

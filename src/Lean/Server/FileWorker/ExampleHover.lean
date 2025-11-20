@@ -92,7 +92,7 @@ def rewriteExamples (docstring : String) : String := Id.run do
     let mut l' := l.trimAsciiStart
     -- Is this a code block fence?
     if l'.startsWith "```" then
-      let count := l'.takeWhile (· == '`') |>.utf8ByteSize -- this makessense because we know the slice consists only of ticks
+      let count := l'.takeWhile (· == '`') |>.utf8ByteSize -- this makes sense because we know the slice consists only of ticks
       l' := l'.dropWhile (· == '`')
       l' := l'.dropWhile (· == ' ')
       match inOutput with

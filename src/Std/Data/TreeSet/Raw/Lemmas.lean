@@ -1096,6 +1096,18 @@ theorem isSome_min?_insert [TransCmp cmp] (h : t.WF) {k} :
     (t.insert k).min?.isSome :=
   TreeMap.Raw.isSome_minKey?_insertIfNew h
 
+theorem min?_insert_of_isEmpty [TransCmp cmp] (h : t.WF) {k} (he : t.isEmpty) :
+    (t.insert k).min? = some k :=
+  TreeMap.Raw.minKey?_insertIfNew_of_isEmpty h he
+
+theorem min!_insert_of_isEmpty [TransCmp cmp] [Inhabited α] (h : t.WF) {k} (he : t.isEmpty) :
+    (t.insert k).min! = k :=
+  TreeMap.Raw.minKey!_insertIfNew_of_isEmpty h he
+
+theorem minD_insert_of_isEmpty [TransCmp cmp] (h : t.WF) {k} (he : t.isEmpty) {fallback : α} :
+    (t.insert k).minD fallback = k :=
+  TreeMap.Raw.minKeyD_insertIfNew_of_isEmpty h he
+
 theorem min?_insert_le_min? [TransCmp cmp] (h : t.WF) {k km kmi} :
     (hkm : t.min? = some km) →
     (hkmi : (t.insert k |>.min? |>.get <| isSome_min?_insert h) = kmi) →

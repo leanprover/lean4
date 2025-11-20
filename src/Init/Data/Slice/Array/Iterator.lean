@@ -64,27 +64,12 @@ instance [Monad m] : IteratorCollectPartial (SubarrayIterator α) Id m := .defau
 instance [Monad m] : IteratorLoop (SubarrayIterator α) Id m := .defaultImplementation
 instance [Monad m] : IteratorLoopPartial (SubarrayIterator α) Id m := .defaultImplementation
 
-instance : ToIterator (Slice (Internal.SubarrayData α)) Id α :=
-  .of (SubarrayIterator α) (⟨⟨·⟩⟩)
+@[inline, expose]
+def Subarray.instToIterator :=
+  ToIterator.of (γ := Slice (Internal.SubarrayData α)) (β := α) (SubarrayIterator α) (⟨⟨·⟩⟩)
+attribute [instance] Subarray.instToIterator
 
 universe v w
-
-@[no_expose] instance :
-    Iterator (ToIterator.State (Slice (Internal.SubarrayData α)) Id) Id α := inferInstance
-@[no_expose] instance :
-    Finite (ToIterator.State (Slice (Internal.SubarrayData α)) Id) Id := inferInstance
-@[no_expose] instance :
-    IteratorCollect (ToIterator.State (Slice (Internal.SubarrayData α)) Id) Id Id := inferInstance
-@[no_expose] instance :
-    LawfulIteratorCollect (ToIterator.State (Slice (Internal.SubarrayData α)) Id) Id Id := inferInstance
-@[no_expose] instance :
-    IteratorCollectPartial (ToIterator.State (Slice (Internal.SubarrayData α)) Id) Id Id := inferInstance
-@[no_expose] instance {m : Type v → Type w} [Monad m] :
-    IteratorLoop (ToIterator.State (Slice (Internal.SubarrayData α)) Id) Id m := inferInstance
-@[no_expose] instance {m : Type v → Type w} [Monad m] :
-    LawfulIteratorLoop (ToIterator.State (Slice (Internal.SubarrayData α)) Id) Id m := inferInstance
-@[no_expose] instance {m : Type v → Type w} [Monad m] :
-    IteratorLoopPartial (ToIterator.State (Slice (Internal.SubarrayData α)) Id) Id m := inferInstance
 
 instance : SliceSize (Internal.SubarrayData α) where
   size s := s.internalRepresentation.stop - s.internalRepresentation.start

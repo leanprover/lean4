@@ -46,7 +46,7 @@ public theorem ListSlice.toList_eq {xs : ListSlice α} :
     xs.toList = match xs.internalRepresentation.stop with
       | some stop => xs.internalRepresentation.list.take stop
       | none => xs.internalRepresentation.list := by
-  simp only [toList, List.ofSlice, Std.Slice.toList, ToIterator.state_eq]
+  simp only [toList, List.ofSlice, Std.Slice.toList]
   rw [Std.Slice.List.toList_internalIter]
   rfl
 

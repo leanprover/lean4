@@ -1093,15 +1093,15 @@ open Std.Iterators in
 @[spec]
 theorem Spec.forIn_slice {m : Type w → Type x} {ps : PostShape}
     [Monad m] [WPMonad m ps]
-    {γ : Type u} {β : Type w}
+    {γ : Type u} {α β : Type w}
     [LawfulMonad m] {δ : Type w}
-    [ToIterator (Slice γ) Id β]
-    [Iterator (ToIterator.State (Slice γ) Id) Id β]
-    [IteratorLoop (ToIterator.State (Slice γ) Id) Id m]
-    [LawfulIteratorLoop (ToIterator.State (Slice γ) Id) Id m]
-    [IteratorCollect (ToIterator.State (Slice γ) Id) Id Id]
-    [LawfulIteratorCollect (ToIterator.State (Slice γ) Id) Id Id]
-    [Finite (ToIterator.State (Slice γ) Id) Id]
+    [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β]
+    [IteratorLoop α Id m]
+    [LawfulIteratorLoop α Id m]
+    [IteratorCollect α Id Id]
+    [LawfulIteratorCollect α Id Id]
+    [Finite α Id]
     {init : δ} {f : β → δ → m (ForInStep δ)}
     {xs : Slice γ}
     (inv : Invariant xs.toList δ ps)

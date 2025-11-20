@@ -1,7 +1,8 @@
 
 prelude
 
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Var
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Var
 
 set_option Elab.async false
 set_option warn.sorry false

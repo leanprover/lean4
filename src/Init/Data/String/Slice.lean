@@ -510,7 +510,7 @@ def contains (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
   searcher.any (· matches .matched ..)
 
 @[inline, inherit_doc contains]
-def any [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Bool :=
+def any (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
   s.contains pat
 
 /--

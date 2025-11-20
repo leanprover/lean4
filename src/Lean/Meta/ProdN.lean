@@ -36,7 +36,7 @@ def mkProdN (ts : Array Expr) : MetaM Expr := do
 
 /--
 Given expressions `eᵢ`, return the tuple `(e₁, e₂, …, eₙ)` and its type `t₁ × t₂ × … × tₙ`.
-For `n = 0`, return `PUnit.unit`.
+For `n = 0`, return `PUnit.unit` with a fresh level variable to be instantiated by the caller.
 -/
 def mkProdMkN (es : Array Expr) : MetaM (Expr × Expr) := do
   if h : es.size > 0 then

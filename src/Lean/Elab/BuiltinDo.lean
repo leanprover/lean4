@@ -526,14 +526,17 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
       let defs ← loopMutVars.mapM (getFVarFromUserName ·)
       let (tuple, tupleTy) ← mkProdMkN defs
       synthUsingDefEq "state tuple type" σ tupleTy
+      discard <| Term.ensureHasType (mkSort (mkLevelSucc mi.u)) σ
       pure tuple
 
     -- Synthesize the `continue` and `break` jumps.
     continueKVar.synthesizeJumps do
       let (tuple, _tupleTy) ← mkProdMkN (← loopMutVars.mapM (getFVarFromUserName ·))
+      discard <| Term.ensureHasType σ tuple -- instantiate `?u` in `PUnit.unit.{?u}`
       return mkApp kcontinue tuple
     breakKVar.synthesizeJumps do
       let (tuple, _tupleTy) ← mkProdMkN (← loopMutVars.mapM (getFVarFromUserName ·))
+      discard <| Term.ensureHasType σ tuple -- instantiate `?u` in `PUnit.unit.{?u}`
       return mkApp kbreak tuple
 
     -- Elaborate the continuation, now that `σ` is known. It will be the `break` handler.

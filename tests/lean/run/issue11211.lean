@@ -68,13 +68,10 @@ info: def Option_map.match_1.{u_1, u_2} : {α : Type u_1} →
 #guard_msgs in
 #print sig Option_map.match_1
 
-/--
-info: private def Option_map.match_1.splitter.{u_1, u_2} : {α : Type u_1} →
-  (motive : Option α → Sort u_2) → (x : Option α) → ((x : α) → motive (some x)) → (Unit → motive none) → motive x :=
-@Option_map.match_1
--/
+-- No splitter generated now, it is identical to the matcher
+/-- error: Unknown constant `Option_map.match_1.splitter` -/
 #guard_msgs in
-#print Option_map.match_1.splitter
+#print sig Option_map.match_1.splitter
 
 /--
 info: theorem Option_map.fun_cases.{u_1} : ∀ {α : Type u_1} (motive : Option α → Prop),

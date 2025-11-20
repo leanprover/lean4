@@ -6305,11 +6305,11 @@ theorem two_pow_ctz_le_toNat_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
 
 @[simp]
 theorem cpopAuxRec_zero {x : BitVec w} :
-  x.cpopAuxRec 0 = 0 := by simp [BitVec.cpopAuxRec]
+    x.cpopAuxRec 0 = 0 := by simp [BitVec.cpopAuxRec]
 
 @[simp]
 theorem cpopAuxRec_succ {w n' : Nat} {x : BitVec w} :
-  x.cpopAuxRec (n' + 1) = (if x.getLsbD n' then 1 else 0) + x.cpopAuxRec n' := by simp [BitVec.cpopAuxRec]
+    x.cpopAuxRec (n' + 1) = (if x.getLsbD n' then 1 else 0) + x.cpopAuxRec n' := by simp [BitVec.cpopAuxRec]
 
 theorem cpopAuxRec_le {w n : Nat} {x : BitVec w} (h : n ≤ w) :
     x.cpopAuxRec n ≤ n := by

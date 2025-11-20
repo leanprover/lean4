@@ -47,7 +47,7 @@ Examples:
 * {lean}`"abc".replace "" "k" = "kakbkck"`
 -/
 @[inline]
-def replace [ToForwardSearcher ρ σ] [ToSlice α] (s : String) (pattern : ρ)
+def replace [ToSlice α] (s : String) (pattern : ρ) [ToForwardSearcher pattern σ]
     (replacement : α) : String :=
   s.toSlice.replace pattern replacement
 
@@ -62,7 +62,7 @@ Examples:
  * {lean}`("tea".toSlice.pos ⟨1⟩ (by decide)).find? (fun (c : Char) => c == 't') == none`
 -/
 @[inline]
-def Slice.Pos.find? [ToForwardSearcher ρ σ] {s : Slice} (pos : s.Pos) (pattern : ρ) :
+def Slice.Pos.find? {s : Slice} (pos : s.Pos) (pattern : ρ) [ToForwardSearcher pattern σ]  :
     Option s.Pos :=
   ((s.replaceStart pos).find? pattern).map ofReplaceStart
 
@@ -77,8 +77,8 @@ Examples:
  * {lean}`("tea".pos ⟨1⟩ (by decide)).find? (fun (c : Char) => c == 't') == none`
 -/
 @[inline]
-def ValidPos.find? [ToForwardSearcher ρ σ] {s : String} (pos : s.ValidPos)
-    (pattern : ρ) : Option s.ValidPos :=
+def ValidPos.find?  {s : String} (pos : s.ValidPos) (pattern : ρ)
+    [ToForwardSearcher pattern σ] : Option s.ValidPos :=
   (pos.toSlice.find? pattern).map (·.ofSlice)
 
 /--
@@ -93,7 +93,7 @@ Examples:
  * {lean}`("coffee tea water".find? "tea").map (·.get!) == some 't'`
 -/
 @[inline]
-def find? [ToForwardSearcher ρ σ] (s : String) (pattern : ρ) : Option s.ValidPos :=
+def find? (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : Option s.ValidPos :=
   s.startValidPos.find? pattern
 
 /--
@@ -112,7 +112,7 @@ Examples:
  * {lean}`("baaab".split "aa").toList == ["b".toSlice, "ab".toSlice]`
 -/
 @[inline]
-def split [ToForwardSearcher ρ σ] (s : String) (pat : ρ) :=
+def split (s : String) (pat : ρ) [ToForwardSearcher pat σ]  :=
   (s.toSlice.split pat : Std.Iter String.Slice)
 
 end

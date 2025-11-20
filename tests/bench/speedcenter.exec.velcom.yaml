@@ -116,6 +116,7 @@
     cmd: lean -Dexperimental.module=true Init/Data/BitVec/Lemmas.lean
 - attributes:
     description: Init.Data.List.Sublist re-elab -j4
+    tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
@@ -123,10 +124,19 @@
     max_runs: 2
 - attributes:
     description: Init.Data.BitVec.Lemmas re-elab
+    tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
     cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/BitVec/Lemmas.lean 2 -j4 -Dexperimental.module=true
+    max_runs: 2
+- attributes:
+    description: Init.Data.List.Sublist re-elab -j4 (watchdog rss)
+    tags: [other]
+  run_config:
+    <<: *time
+    cwd: ../../src
+    cmd: lean --run ../script/benchReelabWatchdogRss.lean lean Init/Data/List/Sublist.lean 10 -j4 -Dexperimental.module=true
     max_runs: 2
 - attributes:
     description: import Lean

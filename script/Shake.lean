@@ -616,7 +616,7 @@ def main (args : List String) : IO UInt32 := do
       (edits, preserve) ← visitModule (addOnly := false)
         srcSearchPath i t.get preserve edits stx args
       if isExtraRevModUse s.env i then
-        preserve := preserve.union .priv {i}
+        preserve := preserve.union (if args.addPublic then .pub else .priv) {i}
     | .error e =>
       println! e.toString
 

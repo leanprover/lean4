@@ -1,34 +1,7 @@
-/-
-Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Henrik Böving
--/
-module
 
 prelude
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Var
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftRight
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Append
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Replicate
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateLeft
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateRight
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Umod
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Reverse
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Clz
 
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Var
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftRight
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Append
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Replicate
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Extract
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateLeft
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateRight
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Mul
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Umod
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Reverse
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Clz
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Var
 
 set_option Elab.async false
 set_option warn.sorry false
@@ -155,12 +128,9 @@ where
       | .or => sorry
       | .xor => sorry
       | .add =>
-        let res := bitblast.blastAdd aig ⟨lhs, rhs⟩
-        have := by
-          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastAdd)
-          dsimp only at hlaig hraig
-          omega
-        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastAdd) ..)⟩
+        let res := sorry
+        have := by sorry
+        ⟨⟨res, this⟩, cache.cast sorry⟩
       | .mul => sorry
       | .udiv => sorry
       | .umod => sorry

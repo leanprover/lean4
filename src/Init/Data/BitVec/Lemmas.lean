@@ -6514,32 +6514,27 @@ theorem cpopAuxRec_append_eq_add_cpopAuxRec {x : BitVec w} {y : BitVec v} :
     (x ++ y).cpopAuxRec (w + v) = x.cpopAuxRec w + y.cpopAuxRec v := by
   by_cases hv0 : v = 0
   · subst hv0; simp
-  induction w
-  · have := cpopAuxRec_le_width (x := x) (n := 0)
-    simp only [zero_width_append, show x.cpopAuxRec 0 = 0 by omega, Nat.zero_add]
-    congr
-    <;> simp
-  · case _ w ihw =>
-    rw [← cons_msb_setWidth (x := x), cons_append]
-    have p : w + v + 1 = w + 1 + v := by omega
-    rw [cast_cpopAuxRec_eq_cpopAuxRec_of_eq (x := cons x.msb (setWidth w x ++ y)) p]
-    by_cases hw0 : w = 0
-    · subst hw0
-      simp [BitVec.msb, BitVec.getMsbD_eq_getLsbD]
-      simp_all
-      rw [cons_cpopAuxRec_eq_cpopAuxRec_add (by omega) (by omega)]
-      split
-      <;> case _ htrue =>
-        rw [Nat.add_comm (n := 1) (m := v), cpopAuxRec_eq_of_le (k := 1) (by omega)]
-        simp [ihw, getElem_cons, htrue]
-    · rw [cons_cpopAuxRec_eq_cpopAuxRec_add (by omega) (by omega)]
-      rw [cons_cpopAuxRec_eq_cpopAuxRec_add (by omega) (by omega)]
-      specialize ihw (x := x.setWidth w)
-      rw [show w + 1 + v = (w + v) + 1 by omega, cpopAuxRec_succ]
-      rw [ihw]
-      simp
-      rw [show (if x.msb = true then 1 else 0) + ((x.setWidth w).cpopAuxRec w + y.cpopAuxRec v) =
-        (if x.msb = true then 1 else 0) + (x.setWidth w).cpopAuxRec w + y.cpopAuxRec v by omega]
+  · induction w
+    · simp [cast_cpopAuxRec_eq_cpopAuxRec_of_eq]
+    · case _ w ihw =>
+      rw [← cons_msb_setWidth (x := x), cons_append,
+        cast_cpopAuxRec_eq_cpopAuxRec_of_eq (x := cons x.msb (setWidth w x ++ y)) (by omega)]
+      by_cases hw0 : w = 0
+      · subst hw0
+        simp only [BitVec.msb, Nat.reduceAdd, getMsbD_eq_getLsbD, Nat.lt_add_one, decide_true,
+          Nat.sub_self, getLsbD_eq_getElem, Bool.true_and, zero_width_append, Nat.zero_add,
+          cpopAuxRec_succ, cpopAuxRec_zero, Nat.add_zero,
+          zero_width_append, Nat.zero_add, cpopAuxRec_zero]
+        rw [cons_cpopAuxRec_eq_cpopAuxRec_add (by omega) (by omega), cast_cpopAuxRec_eq_cpopAuxRec_of_eq]
+        simp only [getElem_cons, reduceDIte, Nat.add_left_cancel_iff]
+        rw [Nat.add_comm, ← cpopAuxRec_eq_of_le (x := y) (k := 1) (by omega)]
+      · specialize ihw (x := x.setWidth w)
+        rw [cons_cpopAuxRec_eq_cpopAuxRec_add (by omega) (by omega),
+          cons_cpopAuxRec_eq_cpopAuxRec_add (by omega) (by omega)]
+        simp only [show w + 1 + v = (w + v) + 1 by omega, cpopAuxRec_succ, ihw, Nat.le_refl,
+          getLsbD_of_ge, Bool.false_eq_true, reduceIte, Nat.zero_add,
+          show (if x.msb = true then 1 else 0) + ((x.setWidth w).cpopAuxRec w + y.cpopAuxRec v) =
+          (if x.msb = true then 1 else 0) + (x.setWidth w).cpopAuxRec w + y.cpopAuxRec v by omega]
 
 theorem cpop_append_eq_add_cpop {w : Nat} {x : BitVec w} {y : BitVec v} :
     (x ++ y).cpop = (x.cpop).zeroExtend (w + v) + (y.cpop).zeroExtend (w + v) := by

@@ -1312,9 +1312,7 @@ section Union
 
 variable {β : Type v}
 
-variable (m₁ m₂ : Raw α β)
-
-variable {m₁ m₂}
+variable {m₁ m₂ : Raw α β}
 
 @[simp]
 theorem union_eq : m₁.union m₂ = m₁ ∪ m₂ := by

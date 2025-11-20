@@ -10,10 +10,27 @@ prelude
 public import Lean.Data.Fmt.Basic
 public import Std.Data.HashSet.Basic
 
+/-!
+`Fmt` formatter.
+
+This file implements the formatter of 'A Pretty Expressive Printer' [1] by
+Sorawee Porncharoenwase, Justin Pombrio and Emina Torlak.
+This implementation is based on the Racket implementation of pretty-expressive [2].
+
+[1] https://arxiv.org/pdf/2310.01530
+[2] https://docs.racket-lang.org/pretty-expressive/
+-/
+
 namespace Lean.Fmt
 
 open Std
 
+/--
+Whether the formatter should memoize the given document.
+Since memoization in itself can be expensive, not all documents are memoized, only every n-th layer.
+Time-complexity-wise, this is sound because the formatting document is a binary tree, and so its
+height bounds the amount of nodes in the tree.
+-/
 def Doc.shouldMemoize (d : Doc) : Bool :=
   d.memoHeight = 0
 
@@ -25,11 +42,36 @@ structure PreprocessingCacheKey where
 structure PreprocessingState where
   cache : HashMap PreprocessingCacheKey Doc := {}
 
+/--
+Erases all `flattened` nodes from a document by flattening all newlines with each `flattened` node.
+
+The important property we require of `preprocess` is that it does not destroy the sharing in the
+input document: a document of shared size n must still be of shared size O(n) after preprocessing.
+This ensures that preprocessed documents can still be formatted asymptotically as quickly as the
+input document.
+
+Notably, preprocessing `flattened` nodes does not destroy the sharing of the input document, as
+each document occurs at most in its flattened or non-flattened form, and so each document is
+duplicated at most once.
+
+Eliminating `indented`, `aligned` and `unaligned` nodes by computing the indentation level of each
+leaf node and then reducing `newline` nodes to an unindented `newline` node and some text
+representing the current level of indentation is not possible for this reason,
+as each document can occur in arbitrarily many indentation contexts, and so the sharing of the
+input document would be destroyed.
+
+The Racket implementation skips this step by implementing a global preprocessing cache
+and implementing `flattened` as a function that flattens the newlines in the inner document.
+We instead implement this as a separate preprocessing step to circumvent the global
+preprocessing cache.
+-/
 def Doc.preprocess (d : Doc) : Doc :=
   goMemoized d false |>.run' {}
 where
   goMemoized (d : Doc) (isFlattened : Bool) : StateM PreprocessingState Doc := do
     let cacheKey := { docPtr := unsafe ptrAddrUnsafe d, isFlattened }
+    -- Re-using cached preprocessing results is essential for not destroying the
+    -- shared structure of the input document.
     if let some d' := (← get).cache.get? cacheKey then
       return d'
     let d' ← go d isFlattened
@@ -37,27 +79,27 @@ where
     return d'
   go (d : Doc) (isFlattened : Bool) : StateM PreprocessingState Doc := do
     match d with
-    | .newline flattened? =>
+    | .newline f? =>
       if isFlattened then
-        let some flattened := flattened?
+        let some f := f?
           | return .failure
-        return .text flattened
+        return .text f
       else
         return .newline none
-    | .flatten d =>
+    | .flattened d =>
       goMemoized d true
     | .failure
     | .text .. =>
       return d
-    | .indent n d =>
+    | .indented n d =>
       let d ← goMemoized d isFlattened
-      return .indent n d
-    | .align d =>
+      return .indented n d
+    | .aligned d =>
       let d ← goMemoized d isFlattened
-      return .align d
-    | .unindent d =>
+      return .aligned d
+    | .unindented d =>
       let d ← goMemoized d isFlattened
-      return .unindent d
+      return .unindented d
     | .full d =>
       let d ← goMemoized d isFlattened
       return .full d
@@ -70,11 +112,33 @@ where
       let d2 ← goMemoized d2 isFlattened
       return .append d1 d2
 
+/--
+Cost function that the formatter is invoked with.
+
+Must satisfy the laws documented in `LawfulCost`.
+-/
 public class Cost (τ : Type) [Add τ] [LE τ] where
+  /-- Cost of inserting a text of `length` at `columnPos`. -/
   textCost : (columnPos length : Nat) → τ
+  /-- Cost of inserting a newline with `indentationAfterNewline`. -/
   newlineCost : (indentationAfterNewline : Nat) → τ
+  /--
+  Maximum width after which the formatter stops trying to find an optimal rendering
+  according to the cost function and instead reverts to simpler heuristics to choose a rendering.
+  This value should be chosen to be larger than the actual column limit so that the formatter
+  can produce optimal renderings even when all renderings exceed the column limit.
+  -/
   optimalityCutoffWidth : Nat
 
+/--
+A measure is a tuple of the cost of a specific rendering and a writer monad to produce the
+rendering.
+
+The cost of a measure consists of both an arbitrary cost (as defined by a configurable cost
+function) and the current length of the last line of the rendering.
+
+TODO: Explain need for last line length
+-/
 structure Measure (τ : Type) where
   lastLineLength : Nat
   cost : τ
@@ -284,14 +348,14 @@ partial def MeasureSet.resolveCore : Resolver σ τ := fun d columnPos indentati
       output := modify fun out =>
         out ++ s
     }]
-  | .flatten _ =>
+  | .flattened _ =>
     -- Eliminated during pre-processing
     unreachable!
-  | .indent n d =>
+  | .indented n d =>
     resolve d columnPos (indentation + n) fullness
-  | .align d =>
+  | .aligned d =>
     resolve d columnPos columnPos fullness
-  | .unindent d =>
+  | .unindented d =>
     resolve d columnPos 0 fullness
   | .full d =>
     let set1 ← resolve d columnPos indentation (fullness.setFullAfter false)

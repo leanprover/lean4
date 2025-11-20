@@ -439,7 +439,7 @@ def visitModule (srcSearchPath : SearchPath)
   -- To minimize new imports we pick only new imports which are not transitively implied by
   -- another new import
   let mut toAdd : Array Import := #[]
-  for j in [0:s.mods.size] do
+  for j in (0...s.mods.size).toArray.reverse do
     for k in NeedsKind.all do
       if deps.has k j && !newDeps.has k j && !newDeps.has { k with isExported := true } j then
         let mut imp := { k with module := s.modNames[j]! }

@@ -6371,7 +6371,7 @@ theorem cons_cpopAuxRec_eq_cpopAuxRec_of_le {x : BitVec w} {b : Bool} (hn : n 鈮
       路 apply ihn (by omega)
     路 omega
 
-theorem cons_cpopAuxRec_eq_cpopAuxRec_add {x : BitVec w} {b : Bool} (hn : w < n) (hw : 0 < w):
+theorem cons_cpopAuxRec_eq_cpopAuxRec_add {x : BitVec w} {b : Bool} (hn : w < n) (hw : 0 < w) :
     (cons b x).cpopAuxRec n = (if b then 1 else 0) + x.cpopAuxRec n := by
   induction n
   路 omega
@@ -6405,7 +6405,7 @@ theorem concat_cpopAuxRec_eq_add_cpopAuxRec_of_lt {x : BitVec w} {b : Bool} (hn 
       simp [getLsbD_concat, show 卢 n = 0 by omega]
     路 simp [show n = 0 by omega] at *
 
-theorem cpop_cons {x : BitVec w} {b : Bool}:
+theorem cpop_cons {x : BitVec w} {b : Bool} :
     (x.cons b).cpop = (if b then 1#(w + 1) else 0#(w + 1)) + (x.cpop).zeroExtend (w + 1) := by
   simp only [cpop, cpopAuxRec_succ, Nat.lt_add_one, getLsbD_eq_getElem, truncate_eq_setWidth]
   rw [cons_cpopAuxRec_eq_cpopAuxRec_of_le (by omega)]

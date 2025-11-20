@@ -2061,6 +2061,16 @@ theorem Equiv.union_right {m₃ : Raw α β} [EquivBEq α] [LawfulHashable α] (
   apply Raw₀.Equiv.union_right
   all_goals wf_trivial
 
+theorem Equiv.union_congr {m₃ m₄ : Raw α β} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF)
+    (equiv₁ : m₁ ~m m₃)
+    (equiv₂ : m₂ ~m m₄) :
+    (m₁ ∪ m₂) ~m (m₃ ∪ m₄) := by
+  simp only [Union.union]
+  revert equiv₁ equiv₂
+  simp_to_raw
+  intro equiv₁ equiv₂
+  apply Raw₀.Equiv.union_congr h₁ h₂ h₃ h₄ equiv₁ equiv₂
+
 theorem union_insert_right_equiv_insert_union [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
     (h₁ : m₁.WF) (h₂ : m₂.WF) :
     (m₁ ∪ (m₂.insert p.fst p.snd)).Equiv ((m₁ ∪ m₂).insert p.fst p.snd) := by

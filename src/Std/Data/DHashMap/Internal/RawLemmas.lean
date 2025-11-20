@@ -2652,6 +2652,15 @@ theorem Equiv.union_right {m₃ : Raw₀ α β} [EquivBEq α] [LawfulHashable α
   apply @List.insertList_perm_of_perm_second _ _ _ _ (toListModel m₂.val.buckets) (toListModel m₃.val.buckets) (toListModel m₁.val.buckets) equiv
   all_goals wf_trivial
 
+theorem Equiv.union_congr {m₃ m₄ : Raw₀ α β} [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (h₄ : m₄.val.WF) (equiv₁ : m₁.1.Equiv m₃.1)  (equiv₂ : m₂.1.Equiv m₄.1) :
+    (m₁.union m₂).1.Equiv (m₃.union m₄).1 := by
+  revert equiv₁ equiv₂
+  simp_to_model [Equiv, union]
+  intro he₁ he₂
+  apply insertList_congr he₁ he₂
+  all_goals wf_trivial
+
 theorem union_insert_right_equiv_insert_union [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
     (m₁.union (m₂.insert p.fst p.snd)).1.Equiv ((m₁.union m₂).insert p.fst p.snd).1 := by

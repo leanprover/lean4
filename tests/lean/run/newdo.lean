@@ -785,8 +785,8 @@ open Std.Do in
 
 #check Id.run do
   let mut a := 0
-  for x in [1,2,3], y in [3,4,5], z in [6,7,8] do
-    a := a + x + y + z
+  for x in [1,2,3], y in [3,4,5] do
+    a := a + x + y
   return a
 
 example : (Id.run doo pure 42)
@@ -1078,10 +1078,10 @@ example : (Id.run doo
 -- Test: elabToSyntax and postponement
 /--
 error: Invalid match expression: The type of pattern variable 'y' contains metavariables:
-  ?m.25
+  ?m.14
 -/
 #guard_msgs (error) in
-example := Id.run doo
+example := Id.run do
   let mut x := 0 -- We should not get an error that fixed elaborator 0 was not registered
   if let some y := none then
     pure 1

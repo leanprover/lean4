@@ -5248,7 +5248,7 @@ theorem isSome_minKey?_insert! [TransOrd α] (h : t.WF) {k v} :
   simpa only [insert_eq_insert!] using isSome_minKey?_insert h
 
 theorem minKey_insert_of_isEmpty [TransOrd α] (h : t.WF) {k v} (he : t.isEmpty) :
-  (t.insert k v h.balanced).impl.minKey (isEmpty_insert h) = k := by
+    (t.insert k v h.balanced).impl.minKey (isEmpty_insert h) = k := by
   revert he
   simp_to_model [isEmpty, insert, minKey] using List.minKey_insertEntry_of_isEmpty
 

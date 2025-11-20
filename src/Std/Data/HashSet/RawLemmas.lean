@@ -869,6 +869,11 @@ theorem Equiv.union_right {m₃ : Raw α} [EquivBEq α] [LawfulHashable α] (h�
     (m₁ ∪ m₂) ~m (m₁ ∪ m₃) :=
   ⟨@HashMap.Raw.Equiv.union_right _ _ _ _ m₁.inner m₂.inner m₃.inner _ _ h₁.out h₂.out h₃.out equiv.1⟩
 
+theorem Equiv.union_congr {m₃ m₄ : Raw α} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF)
+    (equiv₁ : m₁ ~m m₃) (equiv₂ : m₂ ~m m₄) :
+    (m₁ ∪ m₂) ~m (m₃ ∪ m₄) :=
+  ⟨@HashMap.Raw.Equiv.union_congr _ _ _ _ m₁.inner m₂.inner m₃.inner m₄.inner _ _ h₁.out h₂.out h₃.out h₄.out equiv₁.1 equiv₂.1⟩
+
 /- get? -/
 theorem get?_union [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.WF) (h₂ : m₂.WF)

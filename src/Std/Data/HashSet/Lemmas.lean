@@ -834,6 +834,12 @@ theorem Equiv.union_right {m₃ : HashSet α} [EquivBEq α] [LawfulHashable α]
     (m₁ ∪ m₂) ~m (m₁ ∪ m₃) :=
   ⟨HashMap.Equiv.union_right equiv.1⟩
 
+theorem Equiv.union_congr {m₃ m₄ : HashSet α} [EquivBEq α] [LawfulHashable α]
+    (equiv₁ : m₁ ~m m₃)
+    (equiv₂ : m₂ ~m m₄) :
+    (m₁ ∪ m₂) ~m (m₃ ∪ m₄) :=
+  ⟨HashMap.Equiv.union_congr equiv₁.1 equiv₂.1⟩
+
 /- get? -/
 theorem get?_union [EquivBEq α] [LawfulHashable α] {k : α} :
     (m₁ ∪ m₂).get? k = (m₂.get? k).or (m₁.get? k) :=

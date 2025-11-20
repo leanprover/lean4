@@ -261,25 +261,37 @@ private def ModuleImportInfo.nil (modName : Name) : ModuleImportInfo where
   allTransTrace := .nil s!"{modName} transitive imports (all)"
   legacyTransTrace := .nil s!"{modName} transitive imports (legacy)"
 
+private def ModuleExportInfo.disambiguationHash
+  (self : ModuleExportInfo) (nonModule : Bool) (imp : Import)
+: Hash :=
+  if nonModule then
+    self.legacyTransTrace.hash |>.mix self.allArtsTrace.hash
+  else if imp.importAll then
+    self.allTransTrace.hash |>.mix self.allArtsTrace.hash
+  else
+    -- Note: Always use at least `meta` to disambiguate
+    -- because downstream modules may transitively `meta import` this module
+    self.metaTransTrace.hash |>.mix self.metaArtsTrace.hash
+
 private def ModuleImportInfo.addImport
   (info : ModuleImportInfo) (nonModule : Bool)
-  (mod : Module) (imp : Import) (expInfo : ModuleExportInfo)
+  (imp : Import) (expInfo : ModuleExportInfo)
 : ModuleImportInfo :=
   let info :=
     if nonModule then
       {info with
-        directArts := info.directArts.insert mod.name expInfo.allArts
+        directArts := info.directArts.insert imp.module expInfo.allArts
         trace := info.trace.mix expInfo.legacyTransTrace |>.mix expInfo.allArtsTrace.withoutInputs
       }
     else if imp.importAll then
       {info with
-        directArts := info.directArts.insert mod.name expInfo.allArts
+        directArts := info.directArts.insert imp.module expInfo.allArts
         trace := info.trace.mix expInfo.allTransTrace |>.mix expInfo.allArtsTrace.withoutInputs
       }
     else
       let info :=
-        if !info.directArts.contains mod.name then -- do not demote `import all`
-          {info with directArts := info.directArts.insert mod.name expInfo.arts}
+        if !info.directArts.contains imp.module  then -- do not demote `import all`
+          {info with directArts := info.directArts.insert imp.module expInfo.arts}
         else
           info
       if imp.isMeta then
@@ -338,6 +350,12 @@ private def ModuleImportInfo.addImport
   else
     info
 
+private def Package.discriminant (self : Package) :=
+  if self.version == {} then
+    self.name.toString
+  else
+    s!"{self.name} @ {self.version}"
+
 private def fetchImportInfo
   (fileName : String) (pkgName modName : Name) (header : ModuleHeader)
 : FetchM (Job ModuleImportInfo) := do
@@ -348,13 +366,43 @@ private def fetchImportInfo
     if modName = imp.module then
       logError s!"{fileName}: module imports itself"
       return .error
-    let some mod ← findModule? imp.module
-      | return s
-    if imp.importAll && !mod.allowImportAll && pkgName != mod.pkg.name then
-      logError s!"{fileName}: cannot 'import all' across packages"
-      return .error
-    let importJob ← mod.exportInfo.fetch
-    return s.zipWith (·.addImport nonModule mod imp ·) importJob
+    let mods ← findModules imp.module
+    let n := mods.size
+    if h : n = 0 then
+      return s
+    else
+      let isImportable (mod) :=
+        mod.allowImportAll || pkgName == mod.pkg.name
+      let allImportable :=
+        if imp.importAll then
+          mods.all isImportable
+        else true
+      unless allImportable do
+        let msg := s!"{fileName}: cannot `import all` the module `{imp.module}` \
+          from the following packages:"
+        let msg := mods.foldl (init := msg) fun msg mod =>
+          if isImportable mod then
+            msg
+          else
+            s!"{msg}\n  {mod.pkg.discriminant}"
+        logError msg
+        return .error
+      let mods : Vector Module n := .mk mods rfl
+      let expInfosJob ← Job.collectVector <$> mods.mapM (·.exportInfo.fetch)
+      s.bindM (sync := true) fun impInfo => do
+      expInfosJob.mapM (sync := true) fun expInfos => do
+        let expInfo := expInfos[0]
+        let impHash := expInfo.disambiguationHash nonModule imp
+        let allEquiv := expInfos.toArray.all (start := 1) fun expInfo =>
+          impHash == expInfo.disambiguationHash nonModule imp
+        unless allEquiv do
+          let msg := s!"{fileName}: could not disambiguate the module `{imp.module}`; \
+            multiple packages provide distinct definitions:"
+          let msg := n.fold (init := msg) fun i h s =>
+            let hash := expInfos[i].disambiguationHash nonModule imp
+            s!"{s}\n  {mods[i].pkg.discriminant} (hash: {hash})"
+          error msg
+        return impInfo.addImport nonModule imp expInfo
 
 /-- The `ModuleFacetConfig` for the builtin `importInfoFacet`. -/
 public def Module.importInfoFacetConfig : ModuleFacetConfig importInfoFacet :=

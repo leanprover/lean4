@@ -74,6 +74,7 @@ public structure ModuleImportInfo where
   allTransTrace : BuildTrace
   /-- Transitive import trace for an `import` of the module without the module system enabled. -/
   legacyTransTrace : BuildTrace
+  deriving Inhabited
 
 /-- **For internal use only.** Information about the imports of this module. -/
 builtin_facet importInfo : Module => ModuleImportInfo
@@ -101,6 +102,7 @@ public structure ModuleExportInfo where
   allTransTrace : BuildTrace
   /-- Transitive import trace for an `import` of the module without the module system enabled. -/
   legacyTransTrace : BuildTrace
+  deriving Inhabited
 
 /-- **For internal use only.** Information useful to importers of this module. -/
 builtin_facet exportInfo : Module => ModuleExportInfo

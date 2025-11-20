@@ -10,4 +10,4 @@ test_run resolve-deps
 test_run build Test.ImportSame
 
 # Test that importing a module with multiple distinct candidates fails
-test_err 'Unknown identifier `foo`' build Test.ImportDiff
+test_err 'could not disambiguate the module `Diff`' build Test.ImportDiff

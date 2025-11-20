@@ -102,8 +102,7 @@ def bitblast (aig : AIG BVBit) (input : WithCache (BVExpr w) aig) : Return aig w
 where
   goCache {w : Nat} (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) : Return aig w :=
     match cache.get? expr with
-    | some vec =>
-      ⟨⟨⟨aig, vec⟩, Nat.le_refl ..⟩, cache⟩
+    | some vec => sorry
     | none =>
       let ⟨result, cache⟩ := go aig expr cache
       ⟨result, cache.insert expr result.val.vec⟩
@@ -129,9 +128,7 @@ where
       | .or => sorry
       | .xor => sorry
       | .add =>
-        let res := sorry
-        have := by sorry
-        ⟨⟨res, this⟩, cache.cast sorry⟩
+        ⟨⟨sorry, sorry⟩, cache.cast sorry⟩
       | .mul => sorry
       | .udiv => sorry
       | .umod => sorry
@@ -232,13 +229,12 @@ theorem goCache_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cach
   generalize hres : goCache aig expr cache = res
   unfold goCache at hres
   split at hres
-  · rw [← hres]
-    exact hinv
+  · sorry
   · rw [← hres]
     dsimp only
     apply Cache.Inv_insert
     · apply go_Inv_of_Inv
-      exact hinv
+      sorry
     · sorry
 termination_by expr => (sizeOf expr, 1, sizeOf aig)
 

@@ -3214,11 +3214,6 @@ theorem cons_append_append (x : BitVec w₁) (y : BitVec w₂) (z : BitVec w₃)
     · simp [h₂]; omega
     · simp [h₂];  omega
 
-@[simp]
-theorem extractLsb'_cons (x : BitVec w) :
-    (x.cons y).extractLsb' 0 w = x := by
-  simp [BitVec.toNat_eq, Nat.or_mod_two_pow, Nat.shiftLeft_eq]
-
 /-! ### concat -/
 
 @[simp, grind =] theorem toNat_concat (x : BitVec w) (b : Bool) :

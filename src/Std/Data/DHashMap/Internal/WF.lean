@@ -1356,7 +1356,7 @@ theorem eraseMany_eq_eraseListₘ_toListModel [BEq α] [Hashable α] (m m₂ : R
 theorem toListModel_diffₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
     {m₁ m₂ : Raw₀ α β} (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1) :
     Perm (toListModel (diffₘ m₁ m₂).1.buckets)
-      (List.filter (fun k => !containsKey k.fst (toListModel m₂.1.buckets)) (toListModel m₁.1.buckets)) := by
+      (List.filter (fun k => !List.contains ((toListModel m₂.1.buckets).map Sigma.fst) k.fst) (toListModel m₁.1.buckets)) := by
   rw [diffₘ]
   split
   · apply Perm.trans
@@ -1367,9 +1367,10 @@ theorem toListModel_diffₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable
         ext p
         congr
         rw [containsₘ_eq_containsKey h₂]
+        rw [containsKey_eq_contains_map_fst]
   · rw [eraseManyEntries_eq_eraseListₘ]
     apply Perm.trans (toListModel_eraseListₘ h₁)
-    · apply eraseList_perm_filter_containsKey
+    · apply eraseList_perm_filter_contains_eq_false
       · exact h₁.distinct
 
 theorem diff_eq_diffₘ [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) :
@@ -1384,7 +1385,7 @@ theorem diff_eq_diffₘ [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) :
 theorem toListModel_diff [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m₁ m₂ : Raw₀ α β}
     (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1) :
     Perm (toListModel (m₁.diff m₂).1.buckets)
-     (List.filter (fun k => !containsKey k.fst (toListModel m₂.1.buckets)) (toListModel m₁.1.buckets)) := by
+     (List.filter (fun k => !List.contains ((toListModel m₂.1.buckets).map Sigma.fst) k.fst) (toListModel m₁.1.buckets)) := by
   rw [diff_eq_diffₘ]
   exact toListModel_diffₘ h₁ h₂
 
@@ -1395,7 +1396,6 @@ theorem wf_diff₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
   split
   · apply Raw.WF.filter₀ h'₁
   · exact wf_eraseMany₀ ‹_›
-
 
 /-! # `insertManyIfNew` -/
 

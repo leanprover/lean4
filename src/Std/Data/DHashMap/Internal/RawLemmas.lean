@@ -3326,19 +3326,19 @@ variable {m₁ m₂ : Raw₀ α β}
 theorem contains_diff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (h₂ : m₂.val.WF) {k : α} :
     (m₁.diff m₂).contains k = (m₁.contains k && !m₂.contains k) := by
-  simp_to_model [diff, contains] using List.containsKey_diff_eq_false
+  simp_to_model [diff, contains] using List.containsKey_filter_contains_map_fst_eq_false
 
 theorem contains_diff_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (h₂ : m₂.val.WF) {k : α} :
     (m₁.diff m₂).contains k ↔ m₁.contains k ∧ ¬m₂.contains k := by
-  simp_to_model [diff, contains] using List.containsKey_diff_eq_false_iff
+  simp_to_model [diff, contains] using List.containsKey_filter_contains_map_fst_eq_false_iff
 
 theorem contains_diff_eq_false_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α}
     (h : m₁.contains k = false) :
     (m₁.diff m₂).contains k = false := by
   revert h
-  simp_to_model [diff, contains] using List.containsKey_diff_eq_false_of_containsKey_eq_false_left
+  simp_to_model [diff, contains] using List.containsKey_filter_contains_map_fst_eq_false_eq_false_left
 
 theorem contains_diff_eq_false_of_contains_right [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α}

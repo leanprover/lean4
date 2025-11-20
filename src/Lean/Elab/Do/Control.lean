@@ -133,15 +133,21 @@ def ControlStack.continueT (m : ControlStack) : ControlStack :=
   let getCont := getContinueCont >>= (·.getDM (throwError "`continue` must be nested inside a loop"))
   optionT ``ContinueT ``Continue.runK getCont m
 
-def ControlStack.synthesizeBreak (m : ControlStack) (kvar : ContVarId) : DoElabM Unit := do
+def ControlStack.synthesizeBreak (m : ControlStack) (kvar : ContVarId) (monadicResultType : Expr) : DoElabM Unit := do
   let mi := m.monadInfo
+  let α ← mkFreshResultType `α
   kvar.synthesizeJumps do
-    m.runInBase <| mkApp3 (mkConst ``BreakT.break [mi.u, mi.v]) (← mkFreshResultType `α) mi.m m.instMonad
+    let m' := mkApp (mkConst ``BreakT [mi.u, mi.v]) mi.m
+    discard <| isDefEq (mkApp m' α) monadicResultType
+    m.runInBase <| mkApp3 (mkConst ``BreakT.break [mi.u, mi.v]) α mi.m m.instMonad
 
-def ControlStack.synthesizeContinue (m : ControlStack) (kvar : ContVarId) : DoElabM Unit := do
+def ControlStack.synthesizeContinue (m : ControlStack) (kvar : ContVarId) (monadicResultType : Expr) : DoElabM Unit := do
   let mi := m.monadInfo
+  let α ← mkFreshResultType `α
   kvar.synthesizeJumps do
-    m.runInBase <| mkApp3 (mkConst ``ContinueT.continue [mi.u, mi.v]) (← mkFreshResultType `α) mi.m m.instMonad
+    let m' := mkApp (mkConst ``ContinueT [mi.u, mi.v]) mi.m
+    discard <| isDefEq (mkApp m' α) monadicResultType
+    m.runInBase <| mkApp3 (mkConst ``ContinueT.continue [mi.u, mi.v]) α mi.m m.instMonad
 
 def ControlStack.synthesizePure (m : ControlStack) (resultName : Name) (pureKVar : ContVarId) : DoElabM Unit := do
   let mi := m.monadInfo
@@ -171,6 +177,7 @@ def ControlLifter.ofCont (dec : DoElemCont) : DoElabM ControlLifter := do
   -- γ is the result type of the `try` block. It is `stM m (t m)` for whatever `t` is necessary
   -- to restore reassigned mut vars, early `return`, `break` and `continue`.
   let γ ← mkFreshResultType `γ
+  let mγ ← mkMonadicType γ
   let mutVars := (← read).mutVars
   let pureKVar ← mkFreshContVar γ (mutVars.push dec.resultName)
   let returns ← IO.mkRef false
@@ -179,10 +186,13 @@ def ControlLifter.ofCont (dec : DoElemCont) : DoElabM ControlLifter := do
   let ρ := oldReturnCont.resultType
   let instMonad ← Term.mkInstMVar (mkApp (mkConst ``Monad [mi.u, mi.v]) mi.m)
   -- We can fill in `returnK` immediately because it does not influence reassigned mut vars
+  let δ ← mkFreshResultType `δ
   let returnCont := { oldReturnCont with k := do
     returns.set true
     let r ← getFVarFromUserName oldReturnCont.resultName
-    return mkApp5 (mkConst ``EarlyReturnT.return [mi.u, mi.v]) ρ mi.m (← mkFreshResultType `δ) instMonad r }
+    let m' := mkApp2 (mkConst ``EarlyReturnT [mi.u, mi.v]) ρ mi.m
+    discard <| isDefEq (mkApp m' δ) mγ
+    return mkApp5 (mkConst ``EarlyReturnT.return [mi.u, mi.v]) ρ mi.m δ instMonad r }
   return {
     mutVars,
     monadInfo := mi,
@@ -228,13 +238,15 @@ def ControlLifter.synthesizeConts (l : ControlLifter)
     let tys ← reassignedMutVars.mapM fun v => return (← getLocalDeclFromUserName v).type
     let σ ← mkProdN tys
     controlStack := ControlStack.stateT reassignedMutVars σ controlStack
+  let mγ ← mkMonadicType l.resultType
   if breakT then
-    controlStack.synthesizeBreak l.breakKVar
+    controlStack.synthesizeBreak l.breakKVar mγ
     controlStack := ControlStack.breakT controlStack
   if continueT then
-    controlStack.synthesizeContinue l.continueKVar
+    controlStack.synthesizeContinue l.continueKVar mγ
     controlStack := ControlStack.continueT controlStack
   synthUsingDefEq "result type" l.resultType (controlStack.stM l.successCont.resultType)
+
   controlStack.synthesizePure l.successCont.resultName l.pureKVar
   return controlStack
 

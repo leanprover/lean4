@@ -2276,6 +2276,13 @@ theorem Equiv.union_right {t₃ : DTreeMap α β cmp} [TransCmp cmp]
   have ⟨equiv⟩ := equiv
   apply Impl.Equiv.union_right t₁.wf t₂.wf t₃.wf equiv
 
+theorem Equiv.union_congr {t₃ t₄ : DTreeMap α β cmp} [TransCmp cmp]
+    (equiv₁ : t₁.Equiv t₃) (equiv₂ : t₂.Equiv t₄) :
+    (t₁ ∪ t₂).Equiv (t₃ ∪ t₄) := by
+  simp only [Union.union]
+  constructor
+  apply Impl.Equiv.union_congr t₁.wf t₂.wf t₃.wf t₄.wf equiv₁.1 equiv₂.1
+
 theorem union_insert_right_equiv_insert_union [TransCmp cmp] {p : (a : α) × β a} :
     (t₁ ∪ (t₂.insert p.fst p.snd)).Equiv ((t₁ ∪ t₂).insert p.fst p.snd) :=
   ⟨Impl.union_insert_right_equiv_insert_union t₁.wf t₂.wf⟩

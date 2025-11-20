@@ -1597,6 +1597,12 @@ theorem Equiv.union_right {t₃ : Raw α β cmp} [TransCmp cmp]
     (t₁ ∪ t₂).Equiv (t₁ ∪ t₃) :=
   ⟨DTreeMap.Raw.Equiv.union_right h₁ h₂ h₃ equiv.1⟩
 
+theorem Equiv.union_congr {t₃ t₄ : Raw α β cmp} [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (h₄ : t₄.WF)
+    (equiv₁ : t₁.Equiv t₃) (equiv₂ : t₂.Equiv t₄) :
+    (t₁ ∪ t₂).Equiv (t₃ ∪ t₄) :=
+  ⟨DTreeMap.Raw.Equiv.union_congr h₁ h₂ h₃ h₄ equiv₁.1 equiv₂.1⟩
+
 theorem union_insert_right_equiv_insert_union [TransCmp cmp] {p : (_ : α) × β}
     (h₁ : t₁.WF) (h₂ : t₂.WF) :
     (t₁ ∪ (t₂.insert p.fst p.snd)).Equiv ((t₁ ∪ t₂).insert p.fst p.snd) :=

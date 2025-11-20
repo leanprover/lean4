@@ -521,6 +521,11 @@ theorem Equiv.union_right {t₃ : TreeSet α cmp} [TransCmp cmp] (equiv : t₂.E
     (t₁ ∪ t₂).Equiv (t₁ ∪ t₃) :=
   ⟨TreeMap.Equiv.union_right equiv.1⟩
 
+theorem Equiv.union_congr {t₃ t₄ : TreeSet α cmp} [TransCmp cmp]
+    (equiv₁ : t₁.Equiv t₃) (equiv₂ : t₂.Equiv t₄) :
+    (t₁ ∪ t₂).Equiv (t₃ ∪ t₄) :=
+  ⟨TreeMap.Equiv.union_congr equiv₁.1 equiv₂.1⟩
+
 /- get? -/
 theorem get?_union [TransCmp cmp]
     {k : α} :

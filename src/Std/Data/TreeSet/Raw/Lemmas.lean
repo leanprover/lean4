@@ -531,6 +531,12 @@ theorem Equiv.union_right {t₃ : Raw α cmp} [TransCmp cmp]
     (t₁ ∪ t₂).Equiv (t₁ ∪ t₃) :=
   ⟨TreeMap.Raw.Equiv.union_right h₁ h₂ h₃ equiv.1⟩
 
+theorem Equiv.union_congr {t₃ t₄ : Raw α cmp} [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (h₄ : t₄.WF)
+    (equiv₁ : t₁.Equiv t₃) (equiv₂ : t₂.Equiv t₄) :
+    (t₁ ∪ t₂).Equiv (t₃ ∪ t₄) :=
+  ⟨TreeMap.Raw.Equiv.union_congr h₁ h₂ h₃ h₄ equiv₁.1 equiv₂.1⟩
+
 /- get? -/
 theorem get?_union [TransCmp cmp]
     (h₁ : t₁.WF) (h₂ : t₂.WF)

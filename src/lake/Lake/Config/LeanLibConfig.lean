@@ -49,7 +49,7 @@ public configuration LeanLibConfig (name : Name) extends LeanConfig where
   Used as a base for the file names of its static and dynamic binaries.
   Defaults to the mangled name of the target.
   -/
-  libName : String := name.mangle ""
+  libName : String := ""
 
   /--
   Whether static and shared binaries of this library should be prefixed with `lib` on Windows.

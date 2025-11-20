@@ -150,7 +150,7 @@ def moduleNameOfFileName (fname : FilePath) (rootDir : Option FilePath) : IO Nam
     throw $ IO.userError s!"input file '{fname}' must be contained in root directory ({rootDir})"
   -- NOTE: use `fname` instead of `fname.normalize` to preserve casing on all platforms
   let fnameSuffix := fname.toString.drop rootDir.toString.length
-  let modNameStr := FilePath.mk fnameSuffix |>.withExtension ""
+  let modNameStr := FilePath.mk fnameSuffix.copy |>.withExtension ""
   let modName    := modNameStr.components.foldl Name.mkStr Name.anonymous
   pure modName
 
@@ -179,6 +179,6 @@ def findSysroot (lean := "lean") : IO FilePath := do
     cmd := lean
     args := #["--print-prefix"]
   }
-  return out.trim
+  return out.trimAscii.copy
 
 end Lean

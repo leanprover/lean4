@@ -6192,7 +6192,6 @@ block_45:
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
 x_29 = l_Lean_Meta_throwLetTypeMismatchMessage___redArg___closed__5;
 x_30 = l_Lean_stringToMessageData(x_28);
-lean_dec_ref(x_28);
 if (lean_is_scalar(x_27)) {
  x_31 = lean_alloc_ctor(7, 2, 0);
 } else {
@@ -13302,7 +13301,6 @@ block_15:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_9 = l_Lean_stringToMessageData(x_8);
-lean_dec_ref(x_8);
 x_10 = l_Lean_Meta_check___lam__0___closed__1;
 x_11 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_11, 0, x_9);

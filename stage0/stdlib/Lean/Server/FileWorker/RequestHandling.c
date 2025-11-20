@@ -260,6 +260,7 @@ lean_object* l_Lean_Lsp_ModuleRefs_findAt(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at___00__private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_initFn_00___x40_Lean_Server_FileWorker_RequestHandling_1490364749____hygCtx___hyg_2__spec__0___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleDefinition___lam__3___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleHover___lam__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at___00__private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_initFn_00___x40_Lean_Server_FileWorker_RequestHandling_1490364749____hygCtx___hyg_2__spec__17___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handlePlainTermGoal(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_parseRequestParams___at___00Lean_Server_registerLspRequestHandler___at___00__private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_initFn_00___x40_Lean_Server_FileWorker_RequestHandling_1490364749____hygCtx___hyg_2__spec__36_spec__37(lean_object*, lean_object*);
@@ -3470,7 +3471,7 @@ lean_dec_ref(x_1);
 x_10 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_handleHover___lam__0___boxed), 4, 0);
 x_11 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_handleHover___lam__1___boxed), 1, 0);
 lean_inc_ref(x_8);
-x_12 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_handleHover___lam__2), 3, 1);
+x_12 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_handleHover___lam__2___boxed), 3, 1);
 lean_closure_set(x_12, 0, x_8);
 x_13 = l_Lean_FileMap_lspPosToUtf8Pos(x_8, x_9);
 lean_inc(x_13);
@@ -3585,6 +3586,15 @@ x_2 = l_Lean_Server_FileWorker_handleHover___lam__1(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleHover___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Server_FileWorker_handleHover___lam__2(x_1, x_2, x_3);
+lean_dec_ref(x_2);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleHover___lam__3___boxed(lean_object* x_1, lean_object* x_2) {

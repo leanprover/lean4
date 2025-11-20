@@ -1,0 +1,7 @@
+name = "depA"
+
+[[lean_lib]]
+name = "Same"
+
+[[lean_lib]]
+name = "Diff"

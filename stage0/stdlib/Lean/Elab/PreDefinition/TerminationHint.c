@@ -1646,6 +1646,7 @@ if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_19; lean_object* x_20; 
 lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 x_19 = lean_box(0);
 x_20 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_20, 0, x_19);
@@ -1934,7 +1935,6 @@ _start:
 lean_object* x_6; 
 x_6 = l_Lean_Elab_TerminationHints_ensureNone(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
-lean_dec_ref(x_2);
 return x_6;
 }
 }

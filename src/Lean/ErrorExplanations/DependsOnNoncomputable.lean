@@ -36,7 +36,7 @@ def transformIfZero : Nat → Nat
   | n => n
 ```
 ```output
-axiom 'transform' not supported by code generator; consider marking definition as 'noncomputable'
+`transform` not supported by code generator; consider marking definition as `noncomputable`
 ```
 ```lean fixed
 axiom transform : Nat → Nat
@@ -63,7 +63,7 @@ def endsOrDefault (ns : List Nat) : Nat × Nat :=
   (head, tail)
 ```
 ```output
-failed to compile definition, consider marking it as 'noncomputable' because it depends on 'getOrDefault', which is 'noncomputable'
+failed to compile definition, consider marking it as 'noncomputable' because it depends on 'propDecidable', which is 'noncomputable'
 ```
 ```lean fixed (title := "Fixed (computable)")
 def getOrDefault [Inhabited α] : Option α → α

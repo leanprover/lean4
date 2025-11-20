@@ -85,19 +85,23 @@ def unfoldNamedPattern (e : Expr) : MetaM Expr := do
 
   This can be used to use the alternative of a match expression in its splitter.
 -/
-partial def forallAltVarsTelescope (altType : Expr) (altNumParams numDiscrEqs : Nat)
+partial def forallAltVarsTelescope (altType : Expr) (altInfo : AltParamInfo)
   (k : (patVars : Array Expr) → (args : Array Expr) → (mask : Array Bool) → (type : Expr) → MetaM α) : MetaM α := do
-  go #[] #[] #[] 0 altType
+  assert! altInfo.numOverlaps = 0
+  if altInfo.hasUnitThunk then
+    let type ← whnfForall altType
+    let type ← Match.unfoldNamedPattern type
+    let type ← instantiateForall type #[mkConst ``Unit.unit]
+    k #[] #[mkConst ``Unit.unit] #[false] type
+  else
+    go #[] #[] #[] 0 altType
 where
   go (ys : Array Expr) (args : Array Expr) (mask : Array Bool) (i : Nat) (type : Expr) : MetaM α := do
     let type ← whnfForall type
-    if i < altNumParams - numDiscrEqs then
-      let Expr.forallE n d b .. := type
-        | throwError "expecting {altNumParams} parameters, excluding {numDiscrEqs} equalities, but found type{indentExpr altType}"
 
-      -- Handle the special case of `Unit` parameters.
-      if i = 0 && altNumParams - numDiscrEqs = 1 && d.isConstOf ``Unit && !b.hasLooseBVars then
-        return ← k #[] #[mkConst ``Unit.unit] #[false] b
+    if i < altInfo.numFields then
+      let Expr.forallE n d b .. := type
+        | throwError "expecting {altInfo.numFields} parameters, but found type{indentExpr altType}"
 
       let d ← Match.unfoldNamedPattern d
       withLocalDeclD n d fun y => do
@@ -145,17 +149,17 @@ where
 
   This can be used to use the alternative of a match expression in its splitter.
 -/
-partial def forallAltTelescope (altType : Expr) (altNumParams numDiscrEqs : Nat)
+partial def forallAltTelescope (altType : Expr) (altInfo : AltParamInfo) (numDiscrEqs : Nat)
     (k : (ys : Array Expr) → (eqs : Array Expr) → (args : Array Expr) → (mask : Array Bool) → (type : Expr) → MetaM α)
     : MetaM α := do
-  forallAltVarsTelescope altType altNumParams numDiscrEqs fun ys args mask altType => do
+  forallAltVarsTelescope altType altInfo fun ys args mask altType => do
     go ys #[] args mask 0 altType
 where
   go (ys : Array Expr) (eqs : Array Expr) (args : Array Expr) (mask : Array Bool) (i : Nat) (type : Expr) : MetaM α := do
     let type ← whnfForall type
     if i < numDiscrEqs then
       let Expr.forallE n d b .. := type
-        | throwError "expecting {altNumParams} parameters, including {numDiscrEqs} equalities, but found type{indentExpr altType}"
+        | throwError "expecting {numDiscrEqs} equalities, but found type{indentExpr altType}"
       let arg ← if let some (_, _, rhs) ← matchEq? d then
         mkEqRefl rhs
       else if let some (_, _, _, rhs) ← matchHEq? d then
@@ -328,14 +332,14 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
     let mut notAlts := #[]
     let mut idx := 1
     let mut splitterAltTypes := #[]
-    let mut splitterAltNumParams := #[]
+    let mut splitterAltInfos := #[]
     let mut altArgMasks := #[] -- masks produced by `forallAltTelescope`
     for i in *...alts.size do
-      let altNumParams := matchInfo.altNumParams[i]!
+      let altInfo := matchInfo.altInfos[i]!
       let thmName := Name.str baseName eqnThmSuffixBase |>.appendIndexAfter idx
       eqnNames := eqnNames.push thmName
-      let (notAlt, splitterAltType, splitterAltNumParam, argMask) ←
-          forallAltTelescope (← inferType alts[i]!) altNumParams numDiscrEqs
+      let (notAlt, splitterAltType, splitterAltInfo, argMask) ←
+          forallAltTelescope (← inferType alts[i]!) altInfo numDiscrEqs
           fun ys eqs rhsArgs argMask altResultType => do
         let patterns := altResultType.getAppArgs
         let mut hs := #[]
@@ -345,9 +349,16 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
           if let some h ← simpH? h patterns.size then
             hs := hs.push h
         trace[Meta.Match.matchEqs] "hs: {hs}"
-        let splitterAltType ← mkForallFVars ys (← hs.foldrM (init := (← mkForallFVars eqs altResultType)) (mkArrow · ·))
+        let splitterAltType ← mkForallFVars eqs altResultType
+        let splitterAltType ← mkArrowN hs splitterAltType
+        let splitterAltType ← mkForallFVars ys splitterAltType
+        let hasUnitThunk := splitterAltType == altResultType
+        let splitterAltType ← if hasUnitThunk then
+          mkArrow (mkConst ``Unit) splitterAltType
+        else
+          pure splitterAltType
         let splitterAltType ← unfoldNamedPattern splitterAltType
-        let splitterAltNumParam := hs.size + ys.size
+        let splitterAltInfo := { numFields := ys.size, numOverlaps := hs.size, hasUnitThunk }
         -- Create a proposition for representing terms that do not match `patterns`
         let mut notAlt := mkConst ``False
         for discr in discrs.toArray.reverse, pattern in patterns.reverse do
@@ -370,13 +381,14 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
             type        := thmType
             value       := thmVal
           }
-          return (notAlt, splitterAltType, splitterAltNumParam, argMask)
+          return (notAlt, splitterAltType, splitterAltInfo, argMask)
       notAlts := notAlts.push notAlt
       splitterAltTypes := splitterAltTypes.push splitterAltType
-      splitterAltNumParams := splitterAltNumParams.push splitterAltNumParam
+      splitterAltInfos := splitterAltInfos.push splitterAltInfo
       altArgMasks := altArgMasks.push argMask
       trace[Meta.Match.matchEqs] "splitterAltType: {splitterAltType}"
       idx := idx + 1
+    let splitterMatchInfo : MatcherInfo := { matchInfo with altInfos := splitterAltInfos }
 
     if !matchInfo.needsSplitter then
       -- This match statement does not need a splitter, we can use itself for that.
@@ -404,7 +416,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
           }
           let res ← Match.mkMatcher matcherInput
           res.addMatcher -- TODO: Do not set matcherinfo for the splitter!
-    let result := { eqnNames, splitterName, splitterAltNumParams }
+    let result := { eqnNames, splitterName, splitterMatchInfo }
     registerMatchEqns matchDeclName result
 
 /- We generate the equations and splitter on demand, and do not save them on .olean files. -/
@@ -450,12 +462,12 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
     let mut notAlts := #[]
     let mut idx := 1
     for i in *...alts.size do
-      let altNumParams := matchInfo.altNumParams[i]!
+      let altInfo := matchInfo.altInfos[i]!
       let thmName := (Name.str baseName congrEqnThmSuffixBase).appendIndexAfter idx
       eqnNames := eqnNames.push thmName
       let notAlt ← do
         let alt := alts[i]!
-        Match.forallAltVarsTelescope (← inferType alt) altNumParams numDiscrEqs fun altVars args _mask altResultType => do
+        Match.forallAltVarsTelescope (← inferType alt) altInfo fun altVars args _mask altResultType => do
         let patterns ← forallTelescope altResultType fun _ t => pure t.getAppArgs
         let mut heqsTypes := #[]
         assert! patterns.size == discrs.size

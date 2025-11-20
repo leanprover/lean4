@@ -88,7 +88,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___00Lean_Persis
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_contains___at___00__private_Lean_Meta_Tactic_Grind_Arith_ModelUtil_0__Lean_Meta_Grind_Arith_pickUnusedValue_go_spec__0___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isInterpretedTerm___closed__27;
 static lean_object* l_Lean_Meta_Grind_Arith_isInterpretedTerm___closed__10;
-lean_object* l_Lean_Meta_Grind_Goal_getENode(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_Goal_getENode(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00__private_Lean_Meta_Tactic_Grind_Arith_ModelUtil_0__Lean_Meta_Grind_Arith_assignUnassigned_spec__0_spec__0(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -3262,7 +3262,7 @@ lean_inc(x_22);
 lean_dec_ref(x_7);
 x_23 = lean_array_uget(x_4, x_6);
 lean_inc_ref(x_2);
-x_24 = l_Lean_Meta_Grind_Goal_getENode(x_2, x_23, x_10, x_11);
+x_24 = l_Lean_Meta_Grind_Goal_getENode(x_2, x_23, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; lean_object* x_26; uint8_t x_27; 
@@ -3765,7 +3765,7 @@ lean_inc(x_24);
 lean_dec_ref(x_9);
 x_25 = lean_array_uget(x_6, x_8);
 lean_inc_ref(x_1);
-x_26 = l_Lean_Meta_Grind_Goal_getENode(x_1, x_25, x_12, x_13);
+x_26 = l_Lean_Meta_Grind_Goal_getENode(x_1, x_25, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; lean_object* x_28; uint8_t x_29; 
@@ -4634,7 +4634,7 @@ lean_inc(x_22);
 lean_dec_ref(x_7);
 x_23 = lean_array_uget(x_4, x_6);
 lean_inc_ref(x_2);
-x_24 = l_Lean_Meta_Grind_Goal_getENode(x_2, x_23, x_10, x_11);
+x_24 = l_Lean_Meta_Grind_Goal_getENode(x_2, x_23, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; lean_object* x_26; uint8_t x_27; 
@@ -5137,7 +5137,7 @@ lean_inc(x_24);
 lean_dec_ref(x_9);
 x_25 = lean_array_uget(x_6, x_8);
 lean_inc_ref(x_1);
-x_26 = l_Lean_Meta_Grind_Goal_getENode(x_1, x_25, x_12, x_13);
+x_26 = l_Lean_Meta_Grind_Goal_getENode(x_1, x_25, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; lean_object* x_28; uint8_t x_29; 

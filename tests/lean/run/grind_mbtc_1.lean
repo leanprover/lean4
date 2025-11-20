@@ -45,7 +45,10 @@ example (f : Nat → Nat → Nat) (x y : Nat)
 
 
 -- `b` must not be `2`. Otherwise, `f (b+1)` and `f 3` must be equal.
-/-- trace: [grind.lia.model] b := 3 -/
+/--
+trace: [grind.lia.model] a := 5
+[grind.lia.model] b := 3
+-/
 #guard_msgs (trace) in
 set_option trace.grind.lia.model true in
 example (f : Int → α) (a b : Int) : b > 1 → f (b + 1) = x → f 3 = y → x = y := by
@@ -53,11 +56,12 @@ example (f : Int → α) (a b : Int) : b > 1 → f (b + 1) = x → f 3 = y → x
 
 -- `b` must not be `2`. Otherwise, `f (b+1)` and `f 3` must be equal.
 /--
-trace: [grind.lia.model] x := 7
-[grind.lia.model] y := 8
+trace: [grind.lia.model] x := 5
+[grind.lia.model] y := 6
+[grind.lia.model] a := 7
 [grind.lia.model] b := 3
-[grind.lia.model] f 3 := 8
-[grind.lia.model] f (b + 1) := 7
+[grind.lia.model] f 3 := 6
+[grind.lia.model] f (b + 1) := 5
 -/
 #guard_msgs (trace) in
 set_option trace.grind.lia.model true in

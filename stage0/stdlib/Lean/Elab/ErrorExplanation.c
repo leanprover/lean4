@@ -3541,7 +3541,6 @@ block_107:
 {
 lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; 
 x_101 = l_Lean_stringToMessageData(x_100);
-lean_dec_ref(x_100);
 x_102 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_102, 0, x_99);
 lean_ctor_set(x_102, 1, x_101);
@@ -3584,7 +3583,6 @@ block_97:
 {
 lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; uint8_t x_92; 
 x_86 = l_Lean_stringToMessageData(x_85);
-lean_dec_ref(x_85);
 x_87 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_87, 0, x_84);
 lean_ctor_set(x_87, 1, x_86);
@@ -6324,7 +6322,6 @@ x_59 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_59, 0, x_57);
 lean_ctor_set(x_59, 1, x_58);
 x_60 = l_Lean_stringToMessageData(x_54);
-lean_dec(x_54);
 x_61 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_61, 0, x_59);
 lean_ctor_set(x_61, 1, x_60);
@@ -6438,7 +6435,6 @@ x_87 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_87, 0, x_85);
 lean_ctor_set(x_87, 1, x_86);
 x_88 = l_Lean_stringToMessageData(x_82);
-lean_dec(x_82);
 x_89 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_89, 0, x_87);
 lean_ctor_set(x_89, 1, x_88);
@@ -8363,7 +8359,6 @@ block_79:
 {
 lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 x_73 = l_Lean_stringToMessageData(x_72);
-lean_dec_ref(x_72);
 x_74 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_74, 0, x_71);
 lean_ctor_set(x_74, 1, x_73);
@@ -8413,7 +8408,6 @@ block_69:
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; uint8_t x_64; 
 x_58 = l_Lean_stringToMessageData(x_57);
-lean_dec_ref(x_57);
 x_59 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_59, 0, x_56);
 lean_ctor_set(x_59, 1, x_58);
@@ -9711,6 +9705,7 @@ lean_dec(x_131);
 if (x_132 == 0)
 {
 lean_object* x_133; 
+lean_inc(x_123);
 x_133 = l_Lean_ErrorExplanation_processDoc(x_123);
 if (lean_obj_tag(x_133) == 0)
 {
@@ -10502,6 +10497,7 @@ lean_dec(x_335);
 if (x_336 == 0)
 {
 lean_object* x_337; 
+lean_inc(x_327);
 x_337 = l_Lean_ErrorExplanation_processDoc(x_327);
 if (lean_obj_tag(x_337) == 0)
 {

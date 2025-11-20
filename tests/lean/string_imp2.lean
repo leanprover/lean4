@@ -46,7 +46,7 @@ it₁.remainingToString ++ "-" ++ it₂.remainingToString
 #eval "αβ".mkIterator.next.prev.hasPrev
 #eval "abc" == "abc"
 #eval "abc" == "abd"
-#eval "αβγ".drop 1
+#eval "αβγ".drop 1 |>.copy
 #eval "αβγ".takeRight 1
 
 def ss : Substring.Raw := "0123abcdαβγδ".toRawSubstring

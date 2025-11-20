@@ -187,8 +187,8 @@ where
         let (pre, post) := go more
         (s ++ pre, post)
       else
-        let s1 := s.takeWhile (·.isWhitespace)
-        let s2 := s.drop s1.length
+        let s1 := s.takeWhile Char.isWhitespace |>.copy
+        let s2 := s.drop s1.length |>.copy
         (s1, .text s2 ++ .concat more.toArray)
     | .concat xs :: more => go (xs.toList ++ more)
     | here :: more => ("", here ++ .concat more.toArray)
@@ -202,8 +202,8 @@ where
         let (pre, post) := go more
         (pre, post ++ s)
       else
-        let s1 := s.takeRightWhile (·.isWhitespace)
-        let s2 := s.dropRight s1.length
+        let s1 := s.takeEndWhile Char.isWhitespace |>.copy
+        let s2 := s.dropEnd s1.length |>.copy
         (.concat more.toArray.reverse ++ .text s2, s1)
     | .concat xs :: more => go (xs.reverse.toList ++ more)
     | here :: more => (.concat more.toArray.reverse ++ here, "")

@@ -95,8 +95,9 @@ where
 
 /-- Given a list of `AltLHS`, create a minor premise for each one, convert them into `Alt`, and then execute `k` -/
 private def withAlts {α} (motive : Expr) (discrs : Array Expr) (discrInfos : Array DiscrInfo)
-    (lhss : List AltLHS) (isSplitter : Option Overlaps) (k : List Alt → Array (Expr × Nat) → MetaM α) : MetaM α :=
-  loop lhss [] #[] #[]
+    (lhss : List AltLHS) (isSplitter : Option Overlaps)
+    (k : List Alt → Array Expr → Array AltParamInfo → MetaM α) : MetaM α :=
+  loop lhss [] #[] #[] #[]
 where
   mkSplitterHyps (idx : Nat) (lhs : AltLHS) (notAlts : Array Expr) : MetaM (Array Expr × Array Nat) := do
     withExistingLocalDecls lhs.fvarDecls do
@@ -129,26 +130,27 @@ where
       notAlt ← mkForallFVars (discrs ++ xs) notAlt
       return notAlt
 
-  loop (lhss : List AltLHS) (alts : List Alt) (minors : Array (Expr × Nat)) (notAlts : Array Expr) : MetaM α := do
+  loop (lhss : List AltLHS) (alts : List Alt) (minors : Array Expr) (altInfos : Array AltParamInfo) (notAlts : Array Expr) : MetaM α := do
     match lhss with
-    | [] => k alts.reverse minors
+    | [] => k alts.reverse minors altInfos
     | lhs::lhss =>
       let idx       := alts.length
       let xs := lhs.fvarDecls.toArray.map LocalDecl.toExpr
       let (notAltHs, notAltIdxs) ← if isSplitter.isSome then mkSplitterHyps idx lhs notAlts else pure (#[], #[])
       let minorType ← mkMinorType xs lhs notAltHs
       let notAlt ← mkNotAlt xs lhs
-      let hasParams := !xs.isEmpty || discrInfos.any fun info => info.hName?.isSome
-      let (minorType, minorNumParams) := if hasParams || isSplitter.isSome then (minorType, xs.size) else (mkSimpleThunkType minorType, 1)
+      let hasParams := !xs.isEmpty || !notAltHs.isEmpty || discrInfos.any fun info => info.hName?.isSome
+      let minorType := if hasParams then minorType else mkSimpleThunkType minorType
       let minorName := (`h).appendIndexAfter (idx+1)
       trace[Meta.Match.debug] "minor premise {minorName} : {minorType}"
       withLocalDeclD minorName minorType fun minor => do
-        let rhs    := if hasParams || isSplitter.isSome then mkAppN minor xs else mkApp minor (mkConst `Unit.unit)
-        let minors := minors.push (minor, minorNumParams)
+        let rhs    := if hasParams then mkAppN minor xs else mkApp minor (mkConst `Unit.unit)
+        let minors := minors.push minor
+        let altInfos := altInfos.push { numFields := xs.size, numOverlaps := notAltHs.size, hasUnitThunk := !hasParams }
         let fvarDecls ← lhs.fvarDecls.mapM instantiateLocalDeclMVars
         let alt    := { ref := lhs.ref, idx := idx, rhs := rhs, fvarDecls := fvarDecls, patterns := lhs.patterns, cnstrs := [], notAltIdxs := notAltIdxs }
         let alts   := alt :: alts
-        loop lhss alts minors (notAlts.push notAlt)
+        loop lhss alts minors altInfos (notAlts.push notAlt)
 
 structure State where
   /-- Used alternatives -/
@@ -1137,7 +1139,6 @@ where `v` is a universe parameter or 0 if `B[a_1, ..., a_n]` is a proposition.
 def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor input do
   let {matcherName, matchType, discrInfos, lhss, isSplitter} := input
   let numDiscrs := discrInfos.size
-  let numEqs := getNumEqsFromDiscrInfos discrInfos
   checkNumPatterns numDiscrs lhss
   forallBoundedTelescope matchType numDiscrs fun discrs matchTypeBody => do
   /- We generate an matcher that can eliminate using different motives with different universe levels.
@@ -1146,9 +1147,8 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
      This is useful for implementing `MatcherApp.addArg` because it may have to change the universe level. -/
   let uElim ← getLevel matchTypeBody
   let uElimGen ← if uElim == levelZero then pure levelZero else mkFreshLevelMVar
-  let mkMatcher (type val : Expr) (minors : Array (Expr × Nat)) (s : State) : MetaM MatcherResult := do
+  let mkMatcher (type val : Expr) (altInfos : Array AltParamInfo) (s : State) : MetaM MatcherResult := do
     trace[Meta.Match.debug] "matcher value: {val}\ntype: {type}"
-    trace[Meta.Match.debug] "minors num params: {minors.map (·.2)}"
     /- The option `bootstrap.gen_matcher_code` is a helper hack. It is useful, for example,
        for compiling `src/Init/Data/Int`. It is needed because the compiler uses `Int.decLt`
        for generating code for `Int.casesOn` applications, but `Int.casesOn` is used to
@@ -1168,7 +1168,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
       match addMatcher with
       | some addMatcher => addMatcher <|
         { numParams := matcher.getAppNumArgs
-          altNumParams := minors.map fun minor => minor.2 + numEqs
+          altInfos
           discrInfos
           numDiscrs
           uElimPos?
@@ -1197,7 +1197,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
       let isEqMask ← eqs.mapM fun eq => return (← inferType eq).isEq
       return (mvarType, isEqMask)
     trace[Meta.Match.debug] "target: {mvarType}"
-    withAlts motive discrs discrInfos lhss isSplitter fun alts minors => do
+    withAlts motive discrs discrInfos lhss isSplitter fun alts minors altInfos => do
       let mvar ← mkFreshExprMVar mvarType
       trace[Meta.Match.debug] "goal\n{mvar.mvarId!}"
       let examples := discrs'.toList.map fun discr => Example.var discr.fvarId!
@@ -1214,21 +1214,21 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
             rfls := rfls.push (← mkHEqRefl discr)
           isEqMaskIdx := isEqMaskIdx + 1
       let val := mkAppN (mkAppN val discrs) rfls
-      let args := #[motive] ++ discrs ++ minors.map Prod.fst
+      let args := #[motive] ++ discrs ++ minors
       let val ← mkLambdaFVars args val
       let type ← mkForallFVars args (mkAppN motive discrs)
-      mkMatcher type val minors s
+      mkMatcher type val altInfos s
   else
     let mvarType  := mkAppN motive discrs
     trace[Meta.Match.debug] "target: {mvarType}"
-    withAlts motive discrs discrInfos lhss isSplitter fun alts minors => do
+    withAlts motive discrs discrInfos lhss isSplitter fun alts minors altInfos => do
       let mvar ← mkFreshExprMVar mvarType
       let examples := discrs.toList.map fun discr => Example.var discr.fvarId!
       let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs.toList, alts := alts, examples := examples }).run {}
-      let args := #[motive] ++ discrs ++ minors.map Prod.fst
+      let args := #[motive] ++ discrs ++ minors
       let type ← mkForallFVars args mvarType
       let val  ← mkLambdaFVars args mvar
-      mkMatcher type val minors s
+      mkMatcher type val altInfos s
 
 private def unfoldNamedPattern (e : Expr) : MetaM Expr := do
   let visit (e : Expr) : MetaM TransformStep := do

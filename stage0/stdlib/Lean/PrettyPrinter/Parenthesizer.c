@@ -1961,7 +1961,6 @@ block_79:
 {
 lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 x_73 = l_Lean_stringToMessageData(x_72);
-lean_dec_ref(x_72);
 x_74 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_74, 0, x_71);
 lean_ctor_set(x_74, 1, x_73);
@@ -2003,7 +2002,6 @@ block_69:
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; uint8_t x_64; 
 x_58 = l_Lean_stringToMessageData(x_57);
-lean_dec_ref(x_57);
 x_59 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_59, 0, x_56);
 lean_ctor_set(x_59, 1, x_58);
@@ -4637,7 +4635,6 @@ x_55 = l_Lean_PrettyPrinter_initFn___lam__1___closed__2_00___x40_Lean_PrettyPrin
 x_56 = 1;
 x_57 = l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(x_21, x_56);
 x_58 = l_Lean_stringToMessageData(x_57);
-lean_dec_ref(x_57);
 lean_ctor_set_tag(x_12, 7);
 lean_ctor_set(x_12, 1, x_58);
 lean_ctor_set(x_12, 0, x_55);
@@ -4775,7 +4772,6 @@ x_85 = l_Lean_PrettyPrinter_initFn___lam__1___closed__2_00___x40_Lean_PrettyPrin
 x_86 = 1;
 x_87 = l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(x_63, x_86);
 x_88 = l_Lean_stringToMessageData(x_87);
-lean_dec_ref(x_87);
 x_89 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_89, 0, x_85);
 lean_ctor_set(x_89, 1, x_88);
@@ -4939,7 +4935,6 @@ x_125 = l_Lean_PrettyPrinter_initFn___lam__1___closed__2_00___x40_Lean_PrettyPri
 x_126 = 1;
 x_127 = l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(x_102, x_126);
 x_128 = l_Lean_stringToMessageData(x_127);
-lean_dec_ref(x_127);
 if (lean_is_scalar(x_100)) {
  x_129 = lean_alloc_ctor(7, 2, 0);
 } else {
@@ -13572,7 +13567,6 @@ x_20 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
 x_21 = l_Lean_stringToMessageData(x_1);
-lean_dec_ref(x_1);
 x_22 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_21);
@@ -13744,7 +13738,6 @@ x_21 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_21, 0, x_19);
 lean_ctor_set(x_21, 1, x_20);
 x_22 = l_Lean_stringToMessageData(x_1);
-lean_dec_ref(x_1);
 x_23 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_23, 0, x_21);
 lean_ctor_set(x_23, 1, x_22);
@@ -13753,7 +13746,6 @@ x_25 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_25, 0, x_23);
 lean_ctor_set(x_25, 1, x_24);
 x_26 = l_Lean_stringToMessageData(x_2);
-lean_dec_ref(x_2);
 x_27 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_27, 0, x_25);
 lean_ctor_set(x_27, 1, x_26);

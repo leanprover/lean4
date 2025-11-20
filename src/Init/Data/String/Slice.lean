@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Henrik Böving
+Authors: Henrik Böving, Markus Himmel
 -/
 module
 
@@ -10,6 +10,7 @@ public import Init.Data.String.Pattern
 public import Init.Data.Ord.Basic
 public import Init.Data.Iterators.Combinators.FilterMap
 public import Init.Data.String.ToSlice
+public import Init.Data.String.Termination
 
 set_option doc.verso true
 
@@ -67,7 +68,7 @@ def beq (s1 s2 : Slice) : Bool :=
   if h : s1.utf8ByteSize = s2.utf8ByteSize then
     have h1 := by simp [h, String.Pos.Raw.le_iff]
     have h2 := by simp [h, String.Pos.Raw.le_iff]
-    Internal.memcmp s1 s2 s1.startPos.offset s2.startPos.offset s1.rawEndPos h1 h2
+    Internal.memcmpSlice s1 s2 s1.startPos.offset s2.startPos.offset s1.rawEndPos h1 h2
   else
     false
 
@@ -403,19 +404,19 @@ Examples:
  * {lean}`"red green blue".toSlice.dropWhile (fun (_ : Char) => true) == "".toSlice`
 -/
 @[inline]
-partial def dropWhile [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
-  go s
+def dropWhile [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+  go s.startPos
 where
   @[specialize pat]
-  go (s : Slice) : Slice :=
-    if let some nextS := dropPrefix? s pat then
-      -- TODO: need lawful patterns to show this terminates
-      if s.startInclusive.offset < nextS.startInclusive.offset then
-        go nextS
+  go (curr : s.Pos) : Slice :=
+    if let some nextCurr := ForwardPattern.dropPrefix? (s.replaceStart curr) pat then
+      if curr < Pos.ofReplaceStart nextCurr then
+        go (Pos.ofReplaceStart nextCurr)
       else
-        s
+        s.replaceStart curr
     else
-      s
+      s.replaceStart curr
+  termination_by curr
 
 /--
 Removes leading whitespace from a slice by moving its start position to the first non-whitespace
@@ -463,19 +464,19 @@ Examples:
  * {lean}`"red green blue".toSlice.takeWhile (fun (_ : Char) => true) == "red green blue".toSlice`
 -/
 @[inline]
-partial def takeWhile [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+def takeWhile [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
   go s.startPos
 where
   @[specialize pat]
   go (curr : s.Pos) : Slice :=
     if let some nextCurr := ForwardPattern.dropPrefix? (s.replaceStart curr) pat then
-      if (s.replaceStart curr).startPos < nextCurr then
-        -- TODO: need lawful patterns to show this terminates
+      if curr < Pos.ofReplaceStart nextCurr then
         go (Pos.ofReplaceStart nextCurr)
       else
         s.replaceEnd curr
     else
       s.replaceEnd curr
+  termination_by curr
 
 /--
 Finds the position of the first match of the pattern {name}`pat` in a slice {name}`s`. If there
@@ -712,23 +713,23 @@ Examples:
  * {lean}`"red green blue".toSlice.dropEndWhile (fun (_ : Char) => true) == "".toSlice`
 -/
 @[inline]
-partial def dropEndWhile [BackwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
-  go s
+def dropEndWhile [BackwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+  go s.endPos
 where
   @[specialize pat]
-  go (s : Slice) : Slice :=
-    if let some nextS := dropSuffix? s pat then
-      -- TODO: need lawful patterns to show this terminates
-      if nextS.endExclusive.offset < s.endExclusive.offset then
-        go nextS
+  go (curr : s.Pos) : Slice :=
+    if let some nextCurr := BackwardPattern.dropSuffix? (s.replaceEnd curr) pat then
+      if Pos.ofReplaceEnd nextCurr < curr then
+        go (Pos.ofReplaceEnd nextCurr)
       else
-        s
+        s.replaceEnd curr
     else
-      s
+      s.replaceEnd curr
+  termination_by curr.down
 
 /--
-Removes trailing whitespace from a slice by moving its start position to the first non-whitespace
-character, or to its end position if there is no non-whitespace character.
+Removes trailing whitespace from a slice by moving its end position to the last non-whitespace
+character, or to its start position if there is no non-whitespace character.
 
 “Whitespace” is defined as characters for which {name}`Char.isWhitespace` returns {name}`true`.
 
@@ -771,19 +772,19 @@ Examples:
  * {lean}`"red green blue".toSlice.takeEndWhile (fun (_ : Char) => true) == "red green blue".toSlice`
 -/
 @[inline]
-partial def takeEndWhile [BackwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+def takeEndWhile [BackwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
   go s.endPos
 where
   @[specialize pat]
   go (curr : s.Pos) : Slice :=
     if let some nextCurr := BackwardPattern.dropSuffix? (s.replaceEnd curr) pat then
-      if nextCurr < (s.replaceEnd curr).endPos then
-        -- TODO: need lawful patterns to show this terminates
+      if Pos.ofReplaceEnd nextCurr < curr then
         go (Pos.ofReplaceEnd nextCurr)
       else
         s.replaceStart curr
     else
       s.replaceStart curr
+  termination_by curr.down
 
 /--
 Finds the position of the first match of the pattern {name}`pat` in a slice {name}`true`, starting
@@ -794,9 +795,8 @@ This function is generic over all currently supported patterns except
 {name}`String`/{name}`String.Slice`.
 
 Examples:
- * {lean}`("coffee tea water".toSlice.find? Char.isWhitespace).map (·.get!) == some ' '`
- * {lean}`"tea".toSlice.find? (fun (c : Char) => c == 'X') == none`
- * {lean}`("coffee tea water".toSlice.find? "tea").map (·.get!) == some 't'`
+ * {lean}`("coffee tea water".toSlice.revFind? Char.isWhitespace).map (·.get!) == some ' '`
+ * {lean}`"tea".toSlice.revFind? (fun (c : Char) => c == 'X') == none`
 -/
 @[specialize pat]
 def revFind? [ToBackwardSearcher ρ σ] (s : Slice) (pat : ρ) : Option s.Pos :=
@@ -1338,4 +1338,52 @@ Examples:
 def back (s : Slice) : Char :=
   s.back?.getD default
 
+/--
+Appends the slices in a list of slices, placing the separator {name}`s` between each pair.
+
+Examples:
+ * {lean}`", ".toSlice.intercalate ["red".toSlice, "green".toSlice, "blue".toSlice] = "red, green, blue"`
+ * {lean}`" and ".toSlice.intercalate ["tea".toSlice, "coffee".toSlice] = "tea and coffee"`
+ * {lean}`" | ".toSlice.intercalate ["M".toSlice, "".toSlice, "N".toSlice] = "M |  | N"`
+-/
+def intercalate (s : Slice) : List Slice → String
+  | []      => ""
+  | a :: as => go a.copy s as
+where go (acc : String) (s : Slice) : List Slice → String
+  | a :: as => go (acc ++ s ++ a) s as
+  | []      => acc
+
+@[inherit_doc Slice.copy]
+def toString (s : Slice) : String :=
+  s.copy
+
+instance : ToString String.Slice where
+  toString := toString
+
+/--
+Converts a string to the Lean compiler's representation of names. The resulting name is
+hierarchical, and the string is split at the dots ({lean}`'.'`).
+
+{lean}`"a.b".toSlice.toName` is the name {lit}`a.b`, not {lit}`«a.b»`. For the latter, use
+`Name.mkSimple`.
+-/
+def toName (s : Slice) : Lean.Name :=
+  s.toString.toName
+
+instance : Std.ToFormat String.Slice where
+  format s := Std.ToFormat.format s.copy
+
 end String.Slice
+
+/-- Converts a {lean}`Std.Iter String.Slice` to a {lean}`List String`. -/
+@[inline]
+def Std.Iterators.Iter.toStringList {α : Type} [Std.Iterators.Iterator α Id String.Slice]
+    [Std.Iterators.Finite α Id] [Std.Iterators.IteratorCollect α Id Id]
+    (i : Std.Iter (α := α) String.Slice) : List String :=
+  i.map String.Slice.copy |>.toList
+
+/-- Converts a {lean}`Std.Iter String.Slice` to an {lean}`Array String`. -/
+def Std.Iterators.Iter.toStringArray {α : Type} [Std.Iterators.Iterator α Id String.Slice]
+    [Std.Iterators.Finite α Id] [Std.Iterators.IteratorCollect α Id Id]
+    (i : Std.Iter (α := α) String.Slice) : Array String :=
+  i.map String.Slice.copy |>.toArray

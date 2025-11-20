@@ -56,8 +56,9 @@ info: expensive.match_1.{u_1} (motive : Expr → Expr → Sort u_1) (x✝ x✝¹
 /--
 info: expensive.match_1.splitter.{u_1} (motive : Expr → Expr → Sort u_1) (x✝ x✝¹ : Expr)
   (h_1 :
-    motive (((sort zero.succ).app (sort zero.succ)).app (sort zero.succ))
-      (((sort zero.succ).app (sort zero.succ)).app (sort zero.succ)))
+    Unit →
+      motive (((sort zero.succ).app (sort zero.succ)).app (sort zero.succ))
+        (((sort zero.succ).app (sort zero.succ)).app (sort zero.succ)))
   (h_2 :
     (x x_1 : Expr) →
       (x = ((sort zero.succ).app (sort zero.succ)).app (sort zero.succ) →

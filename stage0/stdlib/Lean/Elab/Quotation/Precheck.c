@@ -2091,7 +2091,6 @@ block_108:
 {
 lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; 
 x_102 = l_Lean_stringToMessageData(x_101);
-lean_dec_ref(x_101);
 x_103 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_103, 0, x_100);
 lean_ctor_set(x_103, 1, x_102);
@@ -2134,7 +2133,6 @@ block_98:
 {
 lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; uint8_t x_93; 
 x_87 = l_Lean_stringToMessageData(x_86);
-lean_dec_ref(x_86);
 x_88 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_88, 0, x_85);
 lean_ctor_set(x_88, 1, x_87);

@@ -6808,7 +6808,6 @@ _start:
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 x_20 = lean_apply_1(x_1, x_2);
 x_21 = l_Lean_stringToMessageData(x_20);
-lean_dec_ref(x_20);
 x_22 = l_Lean_withTraceNodeBefore___redArg___lam__4___closed__1;
 x_23 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_23, 0, x_21);

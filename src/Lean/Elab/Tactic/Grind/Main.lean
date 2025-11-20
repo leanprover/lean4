@@ -146,13 +146,13 @@ def elabGrindParamsAndSuggestions
     (params : Grind.Params)
     (ps : TSyntaxArray ``Parser.Tactic.grindParam)
     (suggestions : Array Suggestion := #[])
-    (only : Bool) (lax : Bool := false) : MetaM Grind.Params := do
+    (only : Bool) (lax : Bool := false) : TermElabM Grind.Params := do
   let params ← elabGrindParams params ps (lax := lax) (only := only)
   elabGrindSuggestions params suggestions
 
 def mkGrindParams
     (config : Grind.Config) (only : Bool) (ps : TSyntaxArray ``Parser.Tactic.grindParam) (mvarId : MVarId) :
-    MetaM Grind.Params := do
+    TermElabM Grind.Params := do
   let params ← Grind.mkParams config
   let ematch ← if only then pure default else Grind.getEMatchTheorems
   let inj ← if only then pure default else Grind.getInjectiveTheorems

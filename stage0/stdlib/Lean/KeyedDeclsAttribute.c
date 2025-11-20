@@ -1352,7 +1352,6 @@ block_79:
 {
 lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 x_73 = l_Lean_stringToMessageData(x_72);
-lean_dec_ref(x_72);
 x_74 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_74, 0, x_71);
 lean_ctor_set(x_74, 1, x_73);
@@ -1394,7 +1393,6 @@ block_69:
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; uint8_t x_64; 
 x_58 = l_Lean_stringToMessageData(x_57);
-lean_dec_ref(x_57);
 x_59 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_59, 0, x_56);
 lean_ctor_set(x_59, 1, x_58);
@@ -7036,7 +7034,6 @@ x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
 lean_dec_ref(x_1);
 x_6 = l_Lean_stringToMessageData(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Elab_addConstInfo___at___00Lean_KeyedDeclsAttribute_Def___private__1_spec__8_spec__8_spec__8_spec__8_spec__8_spec__8_spec__10_spec__10___redArg(x_6, x_2, x_3);
 return x_7;
 }

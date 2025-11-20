@@ -241,7 +241,7 @@ private def mkImportText (ctx : Elab.ContextInfo) (mod : Name) :
     String := Id.run do
   let mut text := s!"import {mod}\n"
   if let some parentDecl := ctx.parentDecl? then
-    if isMeta ctx.env parentDecl then
+    if isMarkedMeta ctx.env parentDecl then
       text := s!"meta {text}"
       if !isPrivateName parentDecl then
         -- As `meta` declarations go through a second, stricter visibility check in the compiler,

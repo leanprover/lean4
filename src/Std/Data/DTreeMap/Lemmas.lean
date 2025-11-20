@@ -2560,6 +2560,22 @@ theorem not_mem_inter_of_not_mem_right [TransCmp cmp]
   rw [← contains_eq_false_iff_not_mem] at h ⊢
   exact Impl.contains_inter_eq_false_of_contains_eq_false_right t₁.wf t₂.wf h
 
+/- Equiv -/
+theorem Equiv.inter_left {t₃ : DTreeMap α β cmp} [TransCmp cmp]
+    (equiv : t₁ ~m t₂) :
+    (t₁ ∩ t₃).Equiv (t₂ ∩ t₃) :=
+  ⟨Impl.Equiv.inter_left t₁.wf t₂.wf t₃.wf equiv.1⟩
+
+theorem Equiv.inter_right {t₃ : DTreeMap α β cmp} [TransCmp cmp]
+    (equiv : t₂ ~m t₃) :
+    (t₁ ∩ t₂).Equiv (t₁ ∩ t₃) :=
+  ⟨Impl.Equiv.inter_right t₁.wf t₂.wf t₃.wf equiv.1⟩
+
+theorem Equiv.inter_congr {t₃ t₄ : DTreeMap α β cmp} [TransCmp cmp]
+    (equiv₁ : t₁ ~m t₃) (equiv₂ : t₂ ~m t₄) :
+    (t₁ ∩ t₂).Equiv (t₃ ∩ t₄) :=
+  ⟨Impl.Equiv.inter_congr t₁.wf t₂.wf t₃.wf t₄.wf equiv₁.1 equiv₂.1⟩
+
 /- get? -/
 theorem get?_inter [TransCmp cmp] [LawfulEqCmp cmp] {k : α} :
     (t₁ ∩ t₂).get? k =

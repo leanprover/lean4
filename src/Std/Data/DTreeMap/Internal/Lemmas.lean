@@ -4174,6 +4174,14 @@ theorem Equiv.inter_congr {m₃ m₄ : Impl α β} [TransOrd α]
   apply List.congr_filter_containsKey_of_perm
   all_goals wf_trivial
 
+theorem Equiv.inter!_congr {m₃ m₄ : Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF)
+    (equiv₁ : m₁.Equiv m₃) (equiv₂ : m₂.Equiv m₄) :
+    (m₁.inter! m₂).Equiv (m₃.inter! m₄) := by
+  rw [← inter_eq_inter!, ← inter_eq_inter!]
+  apply Equiv.inter_congr
+  all_goals wf_trivial
+
 /- get? -/
 theorem get?_inter [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
     (m₁.inter m₂ h₁.balanced).get? k =

@@ -58,7 +58,7 @@ def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMa
   let .ok _impl := getAttributeImpl (← getEnv) attrName
     | throwError "Unknown attribute `[{attrName}]`"
   if let .ok impl := getAttributeImpl (← getEnv) attrName then
-    if isIOUnitRegularInitFn (← getEnv) impl.ref then  -- skip `builtin_initialize` attributes
+    if regularInitAttr.getParam? (← getEnv) impl.ref |>.isSome then  -- skip `builtin_initialize` attributes
       recordExtraModUseFromDecl (isMeta := true) impl.ref
   /- The `AttrM` does not have sufficient information for expanding macros in `args`.
      So, we expand them before here before we invoke the attributer handlers implemented using `AttrM`. -/

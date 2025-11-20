@@ -383,7 +383,7 @@ private structure NormResult where
   vars : Array Expr
 
 private def norm (vars : PArray Expr) (lhs rhs lhs' rhs' : RingExpr) : NormResult :=
-  let usedVars     := lhs.collectVars >> lhs.collectVars >> lhs'.collectVars >> rhs'.collectVars <| {}
+  let usedVars     := lhs.collectVars >> rhs.collectVars >> lhs'.collectVars >> rhs'.collectVars <| {}
   let vars'        := usedVars.toArray
   let varRename    := mkVarRename vars'
   let vars         := vars'.map fun x => vars[x]!

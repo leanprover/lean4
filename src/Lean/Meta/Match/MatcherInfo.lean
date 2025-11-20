@@ -23,6 +23,9 @@ structure Overlaps where
   map : Std.HashMap Nat (Std.TreeSet Nat) := {}
 deriving Inhabited, Repr
 
+def Overlaps.isEmpty (o : Overlaps) : Bool :=
+  o.map.isEmpty
+
 def Overlaps.insert (o : Overlaps) (overlapping overlapped : Nat) : Overlaps where
   map := o.map.alter overlapped fun s? => some ((s?.getD {}).insert overlapping)
 
@@ -41,7 +44,7 @@ structure AltParamInfo where
   numOverlaps : Nat
   /-- Whether this alternatie has an artifcial `Unit` parameter -/
   hasUnitThunk : Bool
-deriving Inhabited, Repr
+deriving Inhabited, Repr, BEq
 
 /--
 A "matcher" auxiliary declaration has the following structure:
@@ -63,10 +66,6 @@ structure MatcherInfo where
     `discrInfos[i] = { hName? := some h }` if the i-th discriminant was annotated with `h :`.
   -/
   discrInfos   : Array DiscrInfo
-  /--
-  False if the alternatives are not overlapping, and the matcher can be its own splitter.
-  -/
-  needsSplitter : Bool
   overlaps      : Overlaps
 deriving Inhabited, Repr
 

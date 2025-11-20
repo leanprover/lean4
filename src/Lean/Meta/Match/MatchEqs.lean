@@ -390,7 +390,10 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
       idx := idx + 1
     let splitterMatchInfo : MatcherInfo := { matchInfo with altInfos := splitterAltInfos }
 
-    if !matchInfo.needsSplitter then
+    let needsSplitter := !matchInfo.overlaps.isEmpty || (constInfo.type.find? (isNamedPattern )).isSome
+
+    if !needsSplitter then
+      assert! matchInfo.altInfos == splitterAltInfos
       -- This match statement does not need a splitter, we can use itself for that.
       -- (We still have to generate a declaration to satisfy the realizable constant)
       addAndCompile <| Declaration.defnDecl {

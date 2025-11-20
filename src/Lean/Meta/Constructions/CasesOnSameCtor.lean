@@ -214,7 +214,6 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
           altInfos
           uElimPos? := some 0
           discrInfos := #[{}, {}, {}]
-          needsSplitter := false
           overlaps := {}
         }
 

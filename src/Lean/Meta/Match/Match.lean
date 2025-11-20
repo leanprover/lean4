@@ -1172,7 +1172,6 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
           discrInfos
           numDiscrs
           uElimPos?
-          needsSplitter := true
           overlaps := s.overlaps
           }
       | none => pure ()

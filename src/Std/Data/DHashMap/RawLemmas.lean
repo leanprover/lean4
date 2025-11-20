@@ -2496,6 +2496,16 @@ theorem Equiv.inter_right {m₃ : Raw α β} [EquivBEq α] [LawfulHashable α] (
   apply Raw₀.Equiv.inter_right
   all_goals wf_trivial
 
+theorem Equiv.inter_congr {m₃ m₄ : Raw α β} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF)
+    (equiv₁ : m₁ ~m m₃)  (equiv₂ : m₂ ~m m₄) :
+    (m₁ ∩ m₂) ~m (m₃ ∩ m₄) := by
+  revert equiv₁ equiv₂
+  simp only [Inter.inter]
+  simp_to_raw
+  intro equiv₁ equiv₂
+  apply Raw₀.Equiv.inter_congr
+  all_goals wf_trivial
+
 /- get? -/
 theorem get?_inter [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
     (m₁ ∩ m₂).get? k =

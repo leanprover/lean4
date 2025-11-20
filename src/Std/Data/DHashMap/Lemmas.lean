@@ -2189,6 +2189,11 @@ theorem Equiv.inter_right {m₃ : DHashMap α β} [EquivBEq α] [LawfulHashable 
     (m₁ ∩ m₂) ~m (m₁ ∩ m₃) :=
   ⟨@Raw₀.Equiv.inter_right α β _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ ⟨m₃.1, m₃.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 m₃.2 equiv.1⟩
 
+theorem Equiv.inter_congr {m₃ m₄ : DHashMap α β} [EquivBEq α] [LawfulHashable α]
+    (equiv₁ : m₁ ~m m₃) (equiv₂ : m₂ ~m m₄) :
+    (m₁ ∩ m₂) ~m (m₃ ∩ m₄) :=
+  ⟨@Raw₀.Equiv.inter_congr α β _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ ⟨m₃.1, m₃.2.size_buckets_pos⟩ ⟨m₄.1, m₄.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 m₃.2 m₄.2 equiv₁.1 equiv₂.1⟩
+
 /- get? -/
 theorem get?_inter [LawfulBEq α] {k : α} :
     (m₁ ∩ m₂).get? k =

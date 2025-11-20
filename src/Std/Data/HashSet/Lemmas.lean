@@ -963,6 +963,11 @@ theorem Equiv.inter_right {m₃ : HashSet α} [EquivBEq α] [LawfulHashable α]
     (m₁ ∩ m₂) ~m (m₁ ∩ m₃) :=
   ⟨HashMap.Equiv.inter_right equiv.1⟩
 
+theorem Equiv.inter_congr {m₃ m₄ : HashSet α} [EquivBEq α] [LawfulHashable α]
+    (equiv₁ : m₁ ~m m₃) (equiv₂ : m₂ ~m m₄) :
+    (m₁ ∩ m₂) ~m (m₃ ∩ m₄) :=
+  ⟨HashMap.Equiv.inter_congr equiv₁.1 equiv₂.1⟩
+
 /- get? -/
 theorem get?_inter [EquivBEq α] [LawfulHashable α] {k : α} :
     (m₁ ∩ m₂).get? k =

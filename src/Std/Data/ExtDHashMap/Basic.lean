@@ -365,15 +365,12 @@ def union [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtDHashMap α β) : Ex
 
 instance [EquivBEq α] [LawfulHashable α] : Union (ExtDHashMap α β) := ⟨union⟩
 
-theorem inter_congr [EquivBEq α] [LawfulHashable α] (a b c d : DHashMap α β) (h₁ : a ~m c) (h₂ : b ~m d) : a ∩ b ~m c ∩ d :=
-  DHashMap.Equiv.trans (DHashMap.Equiv.inter_left h₁) (DHashMap.Equiv.inter_right h₂)
-
 @[inline, inherit_doc DHashMap.inter]
 def inter [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtDHashMap α β) : ExtDHashMap α β := lift₂ (fun x y : DHashMap α β => mk (x.inter y))
   (fun a b c d equiv₁ equiv₂ => by
     simp only [DHashMap.inter_eq, mk'.injEq]
     apply Quotient.sound
-    apply inter_congr
+    apply DHashMap.Equiv.inter_congr
     · exact equiv₁
     · exact equiv₂) m₁ m₂
 

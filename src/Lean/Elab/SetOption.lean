@@ -45,7 +45,8 @@ where
 /--
 Elaborates `id` as an identifier representing an option name with value given by `val`.
 
-Validates that `val` has the correct type for values of the option `id`, and returns the updated `Options`. Does **not** update the options in the monad `m`.
+Validates that `val` has the correct type for values of the option `id`, and returns the updated
+`Options`. Does **not** update the options in the monad `m`.
 
 If `addInfo := true` (the default), adds completion info and elaboration info to the infotrees.
 -/

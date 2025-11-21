@@ -47,7 +47,7 @@ end recurse
 section infotree
 
 /-!
-These tests check that `withSetOptionIn` does not modify the infotrees.
+These tests check that `withSetOptionIn` does not modify the infotrees (#11313).
 
 Modifying the infotrees in `withSetOptionIn` in linters created context-free info nodes, which
 caused `visitM` and related means of searching the infotrees, such as `collectNodesBottomUp`, to

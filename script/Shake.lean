@@ -218,6 +218,19 @@ def isDeclMeta' (env : Environment) (declName : Name) : Bool :=
     if declName.isStr && (declName.getString!.startsWith "match_" || declName.getString! == "_unsafe_rec") then declName.getPrefix else declName
   isDeclMeta env inferFor
 
+/--
+Given an `Expr` reference, returns the declaration name that should be considered the reference, if
+any.
+-/
+def getDepConstName? (env : Environment) (ref : Name) : Option Name := do
+  -- Ignore references to reserved names, they can be re-generated in-place
+  guard <| !isReservedName env ref
+  -- `_simp_...` constants are similar, use base decl instead
+  return if ref.isStr && ref.getString!.startsWith "_simp_" then
+    ref.getPrefix
+  else
+    ref
+
 /-- Calculates the needs for a given module `mod` from constants and recorded extra uses. -/
 def calcNeeds (env : Environment) (i : ModuleIdx) : Needs := Id.run do
   let mut needs := default
@@ -242,7 +255,7 @@ where
   visitExpr (k : NeedsKind) (e : Expr) (deps : Needs) : Needs :=
     Lean.Expr.foldConsts e deps fun c deps => Id.run do
       let mut deps := deps
-      if !isReservedName env c then
+      if let some c := getDepConstName? env c then
         if let some j := env.getModuleIdxFor? c then
           let k := { k with isMeta := k.isMeta && !isDeclMeta' env c }
           if j != i then
@@ -277,7 +290,7 @@ where
   visitExpr (k : NeedsKind) name e deps :=
     Lean.Expr.foldConsts e deps fun c deps => Id.run do
       let mut deps := deps
-      if !isReservedName env c then
+      if let some c := getDepConstName? env c then
         if let some j := env.getModuleIdxFor? c then
           let k := { k with isMeta := k.isMeta && !isDeclMeta' env c }
           if

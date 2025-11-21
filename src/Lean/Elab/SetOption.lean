@@ -42,14 +42,21 @@ where
         {indentExpr defValType}"
     | _ => throwUnconfigurable optionName
 
-def elabSetOption (id : Syntax) (val : Syntax) : m Options := do
+/--
+Elaborates `id` as an identifier representing an option name with value given by `val`.
+
+Validates that `val` has the correct type for values of the option `id`, and returns the updated `Options`. Does **not** update the options in the monad `m`.
+
+If `addInfo := true` (the default), adds completion info and elaboration info to the infotrees.
+-/
+def elabSetOption (id : Syntax) (val : Syntax) (addInfo := true) : m Options := do
   let ref ← getRef
   -- For completion purposes, we discard `val` and any later arguments.
   -- We include the first argument (the keyword) for position information in case `id` is `missing`.
-  addCompletionInfo <| CompletionInfo.option (ref.setArgs (ref.getArgs[*...3]))
+  if addInfo then addCompletionInfo <| CompletionInfo.option (ref.setArgs (ref.getArgs[*...3]))
   let optionName := id.getId.eraseMacroScopes
   let decl ← IO.toEIO (fun (ex : IO.Error) => Exception.error ref ex.toString) (getOptionDecl optionName)
-  pushInfoLeaf <| .ofOptionInfo { stx := id, optionName, declName := decl.declName }
+  if addInfo then pushInfoLeaf <| .ofOptionInfo { stx := id, optionName, declName := decl.declName }
   let rec setOption (val : DataValue) : m Options := do
     validateOptionValue optionName decl val
     return (← getOptions).set optionName val

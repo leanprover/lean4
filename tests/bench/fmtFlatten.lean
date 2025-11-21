@@ -1,4 +1,4 @@
-import Lean.Data.Fmt.Basic
+import Lean.Data.Fmt.Formatter
 
 open Lean.Fmt
 

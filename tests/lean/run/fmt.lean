@@ -1,18 +1,18 @@
-import Lean.Data.Fmt.Basic
+import Lean.Data.Fmt.Formatter
 
 open Lean.Fmt
 
 def traditional : Doc :=
   .join #[
     .text "function append(first,second,third){",
-    .indent 4 (
+    .indented 4 (
       let f : Doc := .text "first +"
       let s : Doc := .text "second +"
       let t : Doc := .text "third"
       .join #[
         .nl,
         .text "return ",
-        .maybeFlattened (.indent 4 (.join #[f, .nl, s, .nl, t]))]
+        .maybeFlattened (.indented 4 (.join #[f, .nl, s, .nl, t]))]
     ),
     .nl,
     .text "}"
@@ -60,20 +60,20 @@ partial def SExpr.pretty (s : SExpr) : Doc :=
     .oneOf #[
       .join #[
         .text "(",
-        .align (.joinUsing .hardNl (#[fp] ++ argsp)),
+        .aligned (.joinUsing .hardNl (#[fp] ++ argsp)),
         .text ")"
       ],
       .join #[
         .text "(",
-        .align fp,
+        .aligned fp,
         .text " ",
-        .align (.joinUsing .hardNl argsp),
+        .aligned (.joinUsing .hardNl argsp),
         .text ")"
       ],
-      .flatten (
+      .flattened (
         .join #[
           .text "(",
-          .align (.joinUsing (.text " ") (#[fp] ++ argsp)),
+          .aligned (.joinUsing (.text " ") (#[fp] ++ argsp)),
           .text ")"
         ]
       )
@@ -89,19 +89,19 @@ partial def SExpr.pretty' (s : SExpr) : Doc :=
     .oneOf #[
       .join #[
         .text "(",
-        .align (.joinUsing .hardNl (#[fp] ++ argsp)),
+        .aligned (.joinUsing .hardNl (#[fp] ++ argsp)),
         .text ")"
       ],
       .join #[
         .text "(",
-        .align fp,
+        .aligned fp,
         .text " ",
-        .align (.joinUsing .hardNl argsp),
+        .aligned (.joinUsing .hardNl argsp),
         .text ")"
       ],
       .join #[
         .text "(",
-        .align (.joinUsing (.text " ") (#[fp] ++ argsp)),
+        .aligned (.joinUsing (.text " ") (#[fp] ++ argsp)),
         .text ")"
       ]
     ]
@@ -203,7 +203,7 @@ abc
 def
 -/
 #guard_msgs in
-#eval test (.indent 4 (.reset (.joinUsing .hardNl #[.text "abc", .text "def"]))) 80
+#eval test (.indented 4 (.unindented (.joinUsing .hardNl #[.text "abc", .text "def"]))) 80
 
 /--
 info:
@@ -211,7 +211,7 @@ abc
     def
 -/
 #guard_msgs in
-#eval test (.indent 4 (.joinUsing .hardNl #[.text "abc", .text "def"])) 80
+#eval test (.indented 4 (.joinUsing .hardNl #[.text "abc", .text "def"])) 80
 
 /--
 info:
@@ -228,7 +228,7 @@ def concated (n : Nat) : Doc :=
   if n = 0 then
     .text ""
   else
-    .concat (concated (n - 1)) (.text "line")
+    .append (concated (n - 1)) (.text "line")
 
 /--
 info:

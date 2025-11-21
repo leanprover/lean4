@@ -1,4 +1,4 @@
-import Lean.Data.Fmt.Basic
+import Lean.Data.Fmt.Formatter
 
 open Lean.Fmt
 
@@ -11,7 +11,7 @@ def asConcat (ds : List Doc) : Doc :=
   | [] => .failure
   | [d] => d
   | d :: ds =>
-    .joinUsing (.text " ") (#[d] ++ ds.toArray.map Doc.align)
+    .joinUsing (.text " ") (#[d] ++ ds.toArray.map Doc.aligned)
 
 def pp (s : SExpr) : Doc :=
   match s with
@@ -21,10 +21,10 @@ def pp (s : SExpr) : Doc :=
     let cs := cs.map pp
     .join #[
       .text "(",
-      .align (.either
+      .aligned (.either
         (.joinUsing .hardNl cs.toArray)
         (asConcat cs)),
-      .align (.text ")")
+      .aligned (.text ")")
     ]
 
 def testExpr (n c : Nat) : SExpr × Nat :=

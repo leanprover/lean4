@@ -1,4 +1,4 @@
-import Lean.Data.Fmt.Basic
+import Lean.Data.Fmt.Formatter
 
 open Lean.Fmt
 
@@ -8,7 +8,7 @@ def pp (n : Nat) : Doc :=
   if n = 0 then
     .text ""
   else
-    .concat (pp (n - 1)) (.text "line")
+    .append (pp (n - 1)) (.text "line")
 
 @[noinline]
 def doc (n : Nat) : IO Doc :=

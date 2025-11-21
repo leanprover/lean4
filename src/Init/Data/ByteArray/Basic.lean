@@ -210,7 +210,7 @@ The variant {name}`findFinIdx?` additionally returns a proof that the found inde
   loop start
 
 /--
-An efficient implementation of {name}`ForInNew.forIn` for {name}`ByteArray` that uses {name}`USize`
+An efficient implementation of {name}`ForInNew.forInNew` for {name}`ByteArray` that uses {name}`USize`
 rather than {name}`Nat` for indices.
 
 We claim this unsafe implementation is correct because an array cannot have more than
@@ -229,7 +229,7 @@ We claim this unsafe implementation is correct because an array cannot have more
   loop 0 s
 
 /--
-The reference implementation of {name}`ForInNew.forIn` for {name}`ByteArray`.
+The reference implementation of {name}`ForInNew.forInNew` for {name}`ByteArray`.
 
 In compiled code, this is replaced by the more efficient {name}`ByteArray.forInNewUnsafe`.
 -/
@@ -247,7 +247,7 @@ protected def forInNew {σ β : Type v} {m : Type v → Type w}
   loop as.size (Nat.le_refl _) s
 
 instance : ForInNew m ByteArray UInt8 where
-  forIn := ByteArray.forInNew
+  forInNew := ByteArray.forInNew
 
 /--
 An efficient implementation of {name}`ForIn.forIn` for {name}`ByteArray` that uses {name}`USize`

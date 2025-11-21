@@ -117,7 +117,7 @@ def split (s : String) (pat : ρ) [ToForwardSearcher pat σ]  :=
 
 @[deprecated String.Slice.foldl (since := "2025-11-20")]
 def foldlAux {α : Type u} (f : α → Char → α) (s : String) (stopPos : Pos.Raw) (i : Pos.Raw) (a : α) : α :=
-  s.replaceStartEnd! (s.pos! i) (s.pos! stopPos) |>.foldl f a
+  s.slice! (s.pos! i) (s.pos! stopPos) |>.foldl f a
 
 /--
 Folds a function over a string from the start, accumulating a value starting with {name}`init`. The

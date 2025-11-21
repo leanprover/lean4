@@ -41,15 +41,15 @@ inductive SpecParamInfo where
   -/
   | user
   /--
+  Parameter is not going to be specialized.
+  -/
+  | other
+  /--
   Like `.user` but also a fixed parameter. If we detect this kind of parameter to be a higher order
   one at the call site (for example because its passed as a generic type) we treat it like fixedHO.
   Notably this lifts the `.user` restriction of only specializing for ground arguments.
   -/
   | fixedUser
-  /--
-  Parameter is not going to be specialized.
-  -/
-  | other
   deriving Inhabited, Repr, DecidableEq
 
 instance : ToMessageData SpecParamInfo where

@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Joe Hendrix, Harun Khan
+Authors: Joe Hendrix, Harun Khan, Fady Adal
 -/
 module
 
@@ -9,6 +9,7 @@ prelude
 import all Init.Data.BitVec.Basic
 public import Init.Data.BitVec.Lemmas
 public import Init.Data.Fin.Iterate
+public import Init.Data.Nat.Fold
 
 public section
 
@@ -123,5 +124,109 @@ theorem iunfoldr_replace_snd
     (step : ∀(i : Fin w), f i (state i.val) = (state (i.val+1), value[i.val])) :
     (iunfoldr f a).snd = value := by
   simp [iunfoldr.eq_test state value a init step]
+
+
+/--
+Fold a function over the bits of a bitvector from least significant to most significant.
+
+`foldr (cons b x) f init = f b (foldr x f init)`
+-/
+def foldr (f : Bool → α → α) (init : α) (x : BitVec w) : α :=
+  w.fold (fun i h acc => f x[i] acc) init
+
+@[simp]
+theorem foldr_nil : foldr f a nil = a := by
+  simp [foldr]
+
+@[simp]
+theorem foldr_cons {x : BitVec w} : foldr f a (cons b x) = f b (foldr f a x) := by
+  simp only [foldr, getElem_cons, Nat.fold_succ, ↓reduceDIte]
+  congr
+  ext
+  rw [dif_neg (by omega)]
+
+/--
+Fold a function over the bits of a bitvector from least significant to most significant,
+accumulating from the left.
+
+`foldl (cons b x) f init = foldl x f (f init b)`
+-/
+def foldl (f : α → Bool → α) (init : α) (x : BitVec w) : α :=
+  w.foldRev (fun i h acc => f acc x[i]) init
+
+@[simp]
+theorem foldl_nil : foldl f a nil = a := by
+  simp [foldl]
+
+@[simp]
+theorem foldl_cons {x : BitVec w} : foldl f a (cons b x) = foldl f (f a b) x := by
+  simp [foldl, getElem_cons, Nat.foldRev_succ, ↓reduceDIte]
+  congr
+  ext
+  rw [dif_neg (by omega)]
+
+/-!
+## Indexed fold operations
+-/
+
+/--
+Right fold with index.
+Processes bits from LSB to MSB, providing the index to the function.
+-/
+def foldrIdx (f : Fin w → Bool → α → α) (init : α) (x : BitVec w) : α :=
+  w.fold (fun i h acc => f ⟨i, h⟩ x[i] acc) init
+
+/--
+Left fold with index.
+Processes bits from MSB to LSB, providing the index to the function.
+-/
+def foldlIdx (f : α → Fin w → Bool → α) (init : α) (x : BitVec w) : α :=
+  w.foldRev (fun i h acc => f acc ⟨i, h⟩ x[i]) init
+
+/-!
+## Aggregation operations
+
+These are specialized folds for common queries.
+-/
+
+/-- Check if all bits satisfy a predicate. -/
+def all (x : BitVec w) (p : Bool → Bool) : Bool :=
+  x.foldr (fun b acc => p b && acc) true
+
+/-- Check if any bit satisfies a predicate. -/
+def any (x : BitVec w) (p : Bool → Bool) : Bool :=
+  x.foldr (fun b acc => p b || acc) false
+
+@[simp]
+theorem all_nil (p : Bool → Bool) : all nil p = true := by
+  simp [all, -ofNat_eq_ofNat]
+
+@[simp]
+theorem any_nil (p : Bool → Bool) : any nil p = false := by
+  simp [any, -ofNat_eq_ofNat]
+
+@[simp]
+theorem all_cons {x : BitVec w} : all (cons b x) p = (p b && all x p) := by
+  simp [all]
+
+@[simp]
+theorem any_cons {x : BitVec w} : any (cons b x) p = (p b || any x p) := by
+  simp [any]
+
+/--
+Monadic right fold over the bits of a bitvector from least significant to most significant.
+-/
+def foldrM {m : Type u → Type v} [Monad m] (x : BitVec w) (f : α → Bool → m α) (init : α) : m α :=
+  w.fold (fun i h acc => do
+    let a ← acc
+    f a x[i]) (pure init)
+
+/--
+Monadic left fold over the bits of a bitvector from least significant to most significant.
+-/
+def foldlM {m : Type u → Type v} [Monad m] (x : BitVec w) (f : Bool → α → m α) (init : α) : m α :=
+  w.foldRev (fun i h acc => do
+    let a ← acc
+    f x[i] a) (pure init)
 
 end BitVec

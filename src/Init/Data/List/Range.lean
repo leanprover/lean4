@@ -37,7 +37,7 @@ open Nat
   rw [← length_eq_zero_iff, length_range']
 
 theorem range'_ne_nil_iff (s : Nat) {n step : Nat} : range' s n step ≠ [] ↔ n ≠ 0 := by
-  cases n <;> simp
+  simp
 
 theorem range'_eq_cons_iff : range' s n step = a :: xs ↔ s = a ∧ 0 < n ∧ xs = range' (a + step) (n - 1) step := by
   induction n generalizing s with

@@ -245,7 +245,6 @@ static lean_object* l_Lean_Kernel_Exception_toMessageData___closed__4;
 static lean_object* l_Lean_Kernel_Exception_toMessageData___closed__29;
 lean_object* l_Lean_Json_getStr_x3f(lean_object*);
 static lean_object* l_Lean_mkErrorStringWithPos___closed__3;
-lean_object* l_String_Slice_replaceStartEnd_x21(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MessageData_ctorElim___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_instFromJsonSerialMessage_fromJson___closed__5;
 static lean_object* l_Lean_MessageData_formatAux___closed__11;
@@ -533,6 +532,7 @@ LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyMAux___at___00Lean_PersistentArray
 static lean_object* l_String_Slice_split___at___00Lean_stringToMessageData_spec__0___closed__1;
 static lean_object* l_Lean_instFromJsonBaseMessage_fromJson___redArg___closed__34;
 static lean_object* l_Lean_instFromJsonMessageSeverity_fromJson___lam__1___closed__0;
+lean_object* l_String_Slice_slice_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(lean_object*, uint8_t);
 static lean_object* l_Lean_instToJsonBaseMessage_toJson___redArg___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00Lean_MessageLog_getInfoMessages_spec__0_spec__0_spec__0_spec__1(lean_object*, size_t, size_t, lean_object*);
@@ -12024,7 +12024,7 @@ else
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 lean_inc_ref(x_1);
-x_30 = l_String_Slice_replaceStartEnd_x21(x_1, x_17, x_18);
+x_30 = l_String_Slice_slice_x21(x_1, x_17, x_18);
 lean_dec(x_18);
 lean_dec(x_17);
 x_31 = lean_ctor_get(x_30, 0);
@@ -12097,7 +12097,7 @@ else
 {
 lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; 
 lean_inc_ref(x_1);
-x_50 = l_String_Slice_replaceStartEnd_x21(x_1, x_36, x_37);
+x_50 = l_String_Slice_slice_x21(x_1, x_36, x_37);
 lean_dec(x_37);
 lean_dec(x_36);
 x_51 = lean_ctor_get(x_50, 0);
@@ -12189,7 +12189,7 @@ else
 {
 lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; 
 lean_inc_ref(x_1);
-x_73 = l_String_Slice_replaceStartEnd_x21(x_1, x_57, x_58);
+x_73 = l_String_Slice_slice_x21(x_1, x_57, x_58);
 lean_dec(x_58);
 lean_dec(x_57);
 x_74 = lean_ctor_get(x_73, 0);

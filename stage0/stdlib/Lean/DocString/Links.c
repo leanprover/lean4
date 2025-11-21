@@ -60,7 +60,6 @@ static lean_object* l___private_Lean_DocString_Links_0__Lean_domainMap___closed_
 static lean_object* l_Lean_rewriteManualLinks___closed__0;
 LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_DocString_Links_3730308748____hygCtx___hyg_2____boxed(lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
-lean_object* l_String_Slice_replaceStartEnd_x21(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_DHashMap_Internal_Raw_u2080_Const_insertMany___at___00__private_Lean_DocString_Links_0__Lean_domainMap_spec__0_spec__0_spec__1_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_DHashMap_Internal_Raw_u2080_Const_insertMany___at___00__private_Lean_DocString_Links_0__Lean_domainMap_spec__0_spec__0_spec__4___redArg(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -117,6 +116,7 @@ LEAN_EXPORT lean_object* l___private_Lean_DocString_Links_0__Lean_rw(lean_object
 LEAN_EXPORT uint8_t l___private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_urlChar(uint32_t);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_urlChar___boxed(lean_object*);
 static lean_object* l___private_Lean_DocString_Links_0__Lean_rw___closed__7;
+lean_object* l_String_Slice_slice_x21(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_manualLink(lean_object*, lean_object*);
 lean_object* l_String_Slice_Pos_next___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00Lean_manualDomains_spec__1(lean_object*, size_t, size_t, lean_object*);
@@ -305,8 +305,8 @@ goto block_19;
 block_7:
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = lean_string_append(x_4, x_3);
-lean_dec_ref(x_3);
+x_5 = lean_string_append(x_3, x_4);
+lean_dec_ref(x_4);
 x_6 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 return x_6;
@@ -322,8 +322,8 @@ if (x_14 == 0)
 {
 lean_dec(x_12);
 x_2 = lean_box(0);
-x_3 = x_11;
-x_4 = x_10;
+x_3 = x_10;
+x_4 = x_11;
 goto block_7;
 }
 else
@@ -337,8 +337,8 @@ lean_dec(x_16);
 if (x_17 == 0)
 {
 x_2 = lean_box(0);
-x_3 = x_11;
-x_4 = x_10;
+x_3 = x_10;
+x_4 = x_11;
 goto block_7;
 }
 else
@@ -1662,7 +1662,7 @@ else
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 lean_inc_ref(x_1);
-x_28 = l_String_Slice_replaceStartEnd_x21(x_1, x_15, x_16);
+x_28 = l_String_Slice_slice_x21(x_1, x_15, x_16);
 lean_dec(x_16);
 lean_dec(x_15);
 x_29 = lean_ctor_get(x_28, 0);
@@ -1735,7 +1735,7 @@ else
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
 lean_inc_ref(x_1);
-x_48 = l_String_Slice_replaceStartEnd_x21(x_1, x_34, x_35);
+x_48 = l_String_Slice_slice_x21(x_1, x_34, x_35);
 lean_dec(x_35);
 lean_dec(x_34);
 x_49 = lean_ctor_get(x_48, 0);
@@ -1827,7 +1827,7 @@ else
 {
 lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; 
 lean_inc_ref(x_1);
-x_71 = l_String_Slice_replaceStartEnd_x21(x_1, x_55, x_56);
+x_71 = l_String_Slice_slice_x21(x_1, x_55, x_56);
 lean_dec(x_56);
 lean_dec(x_55);
 x_72 = lean_ctor_get(x_71, 0);
@@ -2133,8 +2133,8 @@ if (x_73 == 0)
 {
 lean_dec(x_72);
 lean_dec_ref(x_69);
-x_2 = x_70;
-x_3 = x_36;
+x_2 = x_36;
+x_3 = x_70;
 x_4 = x_71;
 goto block_14;
 }
@@ -2146,8 +2146,8 @@ lean_dec(x_72);
 x_75 = 0;
 x_76 = l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00Lean_manualLink_spec__4(x_69, x_74, x_75, x_71);
 lean_dec_ref(x_69);
-x_2 = x_70;
-x_3 = x_36;
+x_2 = x_36;
+x_3 = x_70;
 x_4 = x_76;
 goto block_14;
 }
@@ -2159,11 +2159,11 @@ block_14:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_5 = lean_box(0);
 x_6 = l_List_mapTR_loop___at___00Lean_manualLink_spec__2(x_4, x_5);
-x_7 = l_String_intercalate(x_2, x_6);
-lean_dec_ref(x_2);
-x_8 = l_Lean_manualLink___closed__4;
-x_9 = lean_string_append(x_8, x_3);
+x_7 = l_String_intercalate(x_3, x_6);
 lean_dec_ref(x_3);
+x_8 = l_Lean_manualLink___closed__4;
+x_9 = lean_string_append(x_8, x_2);
+lean_dec_ref(x_2);
 x_10 = l_Lean_manualLink___closed__5;
 x_11 = lean_string_append(x_9, x_10);
 x_12 = lean_string_append(x_11, x_7);

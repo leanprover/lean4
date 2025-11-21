@@ -10300,9 +10300,9 @@ if (x_24 == 0)
 {
 if (x_1 == 0)
 {
-lean_dec_ref(x_19);
+lean_dec_ref(x_22);
 x_11 = x_23;
-x_12 = x_22;
+x_12 = x_20;
 x_13 = lean_box(0);
 goto block_16;
 }
@@ -10312,10 +10312,10 @@ if (x_2 == 0)
 {
 lean_object* x_25; lean_object* x_26; uint8_t x_27; 
 lean_dec(x_23);
-lean_dec_ref(x_22);
+lean_dec_ref(x_20);
 x_25 = l_Lean_Meta_SolveByElim_mkAssumptionSet___closed__1;
-x_26 = l_Lean_throwError___at___00Lean_Meta_SolveByElim_SolveByElimConfig_testPartialSolutions_spec__3___redArg(x_25, x_21, x_17, x_19, x_18);
-lean_dec_ref(x_19);
+x_26 = l_Lean_throwError___at___00Lean_Meta_SolveByElim_SolveByElimConfig_testPartialSolutions_spec__3___redArg(x_25, x_19, x_17, x_22, x_21);
+lean_dec_ref(x_22);
 x_27 = !lean_is_exclusive(x_26);
 if (x_27 == 0)
 {
@@ -10334,9 +10334,9 @@ return x_29;
 }
 else
 {
-lean_dec_ref(x_19);
+lean_dec_ref(x_22);
 x_11 = x_23;
-x_12 = x_22;
+x_12 = x_20;
 x_13 = lean_box(0);
 goto block_16;
 }
@@ -10344,9 +10344,9 @@ goto block_16;
 }
 else
 {
-lean_dec_ref(x_19);
+lean_dec_ref(x_22);
 x_11 = x_23;
-x_12 = x_22;
+x_12 = x_20;
 x_13 = lean_box(0);
 goto block_16;
 }
@@ -10355,35 +10355,35 @@ block_49:
 {
 lean_object* x_42; lean_object* x_43; 
 x_42 = lean_array_to_list(x_41);
-lean_inc(x_35);
-x_43 = l_List_mapTR_loop___at___00Lean_Meta_SolveByElim_mkAssumptionSet_spec__5(x_42, x_35);
+lean_inc(x_37);
+x_43 = l_List_mapTR_loop___at___00Lean_Meta_SolveByElim_mkAssumptionSet_spec__5(x_42, x_37);
 if (x_1 == 0)
 {
 lean_object* x_44; lean_object* x_45; lean_object* x_46; 
-x_44 = l_List_mapTR_loop___at___00Lean_Meta_SolveByElim_mkAssumptionSet_spec__4(x_3, x_35);
+x_44 = l_List_mapTR_loop___at___00Lean_Meta_SolveByElim_mkAssumptionSet_spec__4(x_3, x_37);
 x_45 = l_List_appendTR___redArg(x_44, x_43);
-x_46 = l_List_appendTR___redArg(x_45, x_37);
+x_46 = l_List_appendTR___redArg(x_45, x_40);
 x_17 = x_34;
-x_18 = x_36;
-x_19 = x_38;
-x_20 = lean_box(0);
-x_21 = x_40;
-x_22 = x_33;
+x_18 = lean_box(0);
+x_19 = x_36;
+x_20 = x_33;
+x_21 = x_38;
+x_22 = x_39;
 x_23 = x_46;
 goto block_30;
 }
 else
 {
 lean_object* x_47; lean_object* x_48; 
-lean_dec(x_37);
-x_47 = l_List_mapTR_loop___at___00Lean_Meta_SolveByElim_mkAssumptionSet_spec__4(x_3, x_35);
+lean_dec(x_40);
+x_47 = l_List_mapTR_loop___at___00Lean_Meta_SolveByElim_mkAssumptionSet_spec__4(x_3, x_37);
 x_48 = l_List_appendTR___redArg(x_47, x_43);
 x_17 = x_34;
-x_18 = x_36;
-x_19 = x_38;
-x_20 = lean_box(0);
-x_21 = x_40;
-x_22 = x_33;
+x_18 = lean_box(0);
+x_19 = x_36;
+x_20 = x_33;
+x_21 = x_38;
+x_22 = x_39;
 x_23 = x_48;
 goto block_30;
 }
@@ -10484,12 +10484,12 @@ if (x_99 == 0)
 lean_dec(x_98);
 lean_dec(x_64);
 x_34 = x_51;
-x_35 = x_73;
-x_36 = x_53;
-x_37 = x_95;
-x_38 = x_52;
-x_39 = lean_box(0);
-x_40 = x_50;
+x_35 = lean_box(0);
+x_36 = x_50;
+x_37 = x_73;
+x_38 = x_53;
+x_39 = x_52;
+x_40 = x_95;
 x_41 = x_96;
 goto block_49;
 }
@@ -10502,12 +10502,12 @@ if (x_100 == 0)
 lean_dec(x_98);
 lean_dec(x_64);
 x_34 = x_51;
-x_35 = x_73;
-x_36 = x_53;
-x_37 = x_95;
-x_38 = x_52;
-x_39 = lean_box(0);
-x_40 = x_50;
+x_35 = lean_box(0);
+x_36 = x_50;
+x_37 = x_73;
+x_38 = x_53;
+x_39 = x_52;
+x_40 = x_95;
 x_41 = x_96;
 goto block_49;
 }
@@ -10519,12 +10519,12 @@ lean_dec(x_98);
 x_102 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Meta_SolveByElim_mkAssumptionSet_spec__6(x_64, x_62, x_101, x_96);
 lean_dec(x_64);
 x_34 = x_51;
-x_35 = x_73;
-x_36 = x_53;
-x_37 = x_95;
-x_38 = x_52;
-x_39 = lean_box(0);
-x_40 = x_50;
+x_35 = lean_box(0);
+x_36 = x_50;
+x_37 = x_73;
+x_38 = x_53;
+x_39 = x_52;
+x_40 = x_95;
 x_41 = x_102;
 goto block_49;
 }

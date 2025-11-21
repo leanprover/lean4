@@ -2231,7 +2231,7 @@ goto block_63;
 block_54:
 {
 lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; uint8_t x_51; 
-x_46 = l_Lean_PersistentArray_forIn___at___00__private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_collectVarInfo_go_spec__0(x_1, x_45, x_1, x_44, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
+x_46 = l_Lean_PersistentArray_forIn___at___00__private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_collectVarInfo_go_spec__0(x_1, x_45, x_1, x_43, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 x_47 = lean_ctor_get(x_46, 0);
 lean_inc(x_47);
 lean_dec_ref(x_46);
@@ -2276,8 +2276,8 @@ if (x_60 == 0)
 {
 lean_object* x_61; 
 x_61 = l_outOfBounds___redArg(x_55);
-x_43 = lean_box(0);
-x_44 = x_59;
+x_43 = x_59;
+x_44 = lean_box(0);
 x_45 = x_61;
 goto block_54;
 }
@@ -2286,8 +2286,8 @@ else
 lean_object* x_62; 
 lean_inc_ref(x_42);
 x_62 = l_Lean_PersistentArray_get_x21___redArg(x_55, x_42, x_5);
-x_43 = lean_box(0);
-x_44 = x_59;
+x_43 = x_59;
+x_44 = lean_box(0);
 x_45 = x_62;
 goto block_54;
 }

@@ -15,26 +15,27 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_finitenessRelation___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharSearcher(lean_object*);
+lean_object* l_String_Slice_Pattern_ToBackwardSearcher_defaultDropSuffix_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_finitenessRelation___boxed(lean_object*);
-static lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__2;
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instToBackwardSearcherChar;
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instToBackwardSearcherChar___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instToBackwardSearcherChar(uint32_t);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_iter___redArg(uint32_t);
-static lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instToBackwardSearcherChar___closed__0;
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_ctorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instIteratorLoopIdSearchStep___closed__7;
 static lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instIteratorLoopIdSearchStep___closed__5;
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instIteratorLoopIdSearchStep(lean_object*);
 static lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instIteratorLoopIdSearchStep___closed__0;
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_iter(lean_object*, uint32_t);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_iter(uint32_t, lean_object*);
+lean_object* l_String_Slice_Pattern_ForwardPattern_defaultDropPrefix_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Slice_Pattern_ToBackwardSearcher_defaultEndsWith___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedForwardCharSearcher_default___boxed(lean_object*);
 lean_object* l_String_Slice_Pos_prevAux_go___redArg(lean_object*, lean_object*);
-static lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__1;
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_iter___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instToForwardSearcherChar;
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instToForwardSearcherChar(uint32_t);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar;
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar(uint32_t);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharSearcher_default(lean_object*);
 static lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instIteratorLoopIdSearchStep___closed__4;
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instIteratorLoopIdSearchStep___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -45,10 +46,8 @@ LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instIterator
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedForwardCharSearcher___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instIteratorIdSearchStep___lam__0(lean_object*, lean_object*);
-static lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__1;
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar;
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar(uint32_t);
 static lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__0;
-static lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__3;
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_finitenessRelation(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedForwardCharSearcher(lean_object*);
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -58,32 +57,29 @@ lean_object* l_String_Slice_Pattern_ForwardPattern_defaultStartsWith___boxed(lea
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instIteratorIdSearchStep(lean_object*);
 static lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instIteratorLoopIdSearchStep___closed__2;
 lean_object* l_String_Slice_Pos_next___redArg(lean_object*, lean_object*);
-lean_object* l_String_Slice_Pattern_ToBackwardSearcher_defaultDropSuffix_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_iter___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instIteratorIdSearchStep___lam__0___boxed(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_iter(lean_object*, uint32_t);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_iter(uint32_t, lean_object*);
 static lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instIteratorLoopIdSearchStep___closed__9;
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-static lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__3;
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instIteratorIdSearchStep___lam__0(lean_object*, lean_object*);
 static lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharSearcher_default___closed__0;
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_ctorIdx(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-static lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instToForwardSearcherChar___closed__0;
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instIteratorIdSearchStep(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharSearcher___boxed(lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__2;
 lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__0;
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_ctorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instIteratorLoopIdSearchStep___closed__8;
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___boxed(lean_object*);
 static lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instIteratorLoopIdSearchStep___closed__3;
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instToForwardSearcherChar___boxed(lean_object*);
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedForwardCharSearcher_default(lean_object*);
-lean_object* l_String_Slice_Pattern_ForwardPattern_defaultDropPrefix_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_ctorIdx(lean_object*, lean_object*);
 static lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instIteratorLoopIdSearchStep___closed__6;
@@ -165,14 +161,14 @@ lean_ctor_set_uint32(x_3, sizeof(void*)*1, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_iter(lean_object* x_1, uint32_t x_2) {
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_iter(uint32_t x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_alloc_ctor(0, 1, 4);
 lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set_uint32(x_4, sizeof(void*)*1, x_2);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1, x_1);
 return x_4;
 }
 }
@@ -190,10 +186,10 @@ LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_iter___boxed
 _start:
 {
 uint32_t x_3; lean_object* x_4; 
-x_3 = lean_unbox_uint32(x_2);
-lean_dec(x_2);
-x_4 = l_String_Slice_Pattern_ForwardCharSearcher_iter(x_1, x_3);
-lean_dec_ref(x_1);
+x_3 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_4 = l_String_Slice_Pattern_ForwardCharSearcher_iter(x_3, x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -467,20 +463,24 @@ lean_closure_set(x_4, 1, x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_String_Slice_Pattern_ForwardCharSearcher_instToForwardSearcherChar___closed__0() {
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instToForwardSearcherChar(uint32_t x_1) {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_Slice_Pattern_ForwardCharSearcher_iter___boxed), 2, 0);
-return x_1;
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_box_uint32(x_1);
+x_3 = lean_alloc_closure((void*)(l_String_Slice_Pattern_ForwardCharSearcher_iter___boxed), 2, 1);
+lean_closure_set(x_3, 0, x_2);
+return x_3;
 }
 }
-static lean_object* _init_l_String_Slice_Pattern_ForwardCharSearcher_instToForwardSearcherChar() {
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instToForwardSearcherChar___boxed(lean_object* x_1) {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_String_Slice_Pattern_ForwardCharSearcher_instToForwardSearcherChar___closed__0;
-return x_1;
+uint32_t x_2; lean_object* x_3; 
+x_2 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_3 = l_String_Slice_Pattern_ForwardCharSearcher_instToForwardSearcherChar(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__0() {
@@ -491,52 +491,43 @@ x_1 = lean_alloc_closure((void*)(l_String_Slice_Pattern_ForwardCharSearcher_inst
 return x_1;
 }
 }
-static lean_object* _init_l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__1() {
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar(uint32_t x_1) {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_String_Slice_Pattern_ForwardCharSearcher_instToForwardSearcherChar___closed__0;
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_2 = l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__0;
-x_3 = lean_alloc_closure((void*)(l_String_Slice_Pattern_ForwardPattern_defaultStartsWith___boxed), 6, 4);
-lean_closure_set(x_3, 0, lean_box(0));
-lean_closure_set(x_3, 1, lean_box(0));
-lean_closure_set(x_3, 2, x_2);
-lean_closure_set(x_3, 3, x_1);
-return x_3;
+x_3 = lean_box_uint32(x_1);
+x_4 = lean_alloc_closure((void*)(l_String_Slice_Pattern_ForwardCharSearcher_iter___boxed), 2, 1);
+lean_closure_set(x_4, 0, x_3);
+x_5 = lean_box_uint32(x_1);
+lean_inc_ref(x_4);
+x_6 = lean_alloc_closure((void*)(l_String_Slice_Pattern_ForwardPattern_defaultStartsWith___boxed), 6, 5);
+lean_closure_set(x_6, 0, lean_box(0));
+lean_closure_set(x_6, 1, lean_box(0));
+lean_closure_set(x_6, 2, x_2);
+lean_closure_set(x_6, 3, x_5);
+lean_closure_set(x_6, 4, x_4);
+x_7 = lean_box_uint32(x_1);
+x_8 = lean_alloc_closure((void*)(l_String_Slice_Pattern_ForwardPattern_defaultDropPrefix_x3f___boxed), 6, 5);
+lean_closure_set(x_8, 0, lean_box(0));
+lean_closure_set(x_8, 1, lean_box(0));
+lean_closure_set(x_8, 2, x_2);
+lean_closure_set(x_8, 3, x_7);
+lean_closure_set(x_8, 4, x_4);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_6);
+lean_ctor_set(x_9, 1, x_8);
+return x_9;
 }
 }
-static lean_object* _init_l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__2() {
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___boxed(lean_object* x_1) {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_String_Slice_Pattern_ForwardCharSearcher_instToForwardSearcherChar___closed__0;
-x_2 = l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__0;
-x_3 = lean_alloc_closure((void*)(l_String_Slice_Pattern_ForwardPattern_defaultDropPrefix_x3f), 6, 4);
-lean_closure_set(x_3, 0, lean_box(0));
-lean_closure_set(x_3, 1, lean_box(0));
-lean_closure_set(x_3, 2, x_2);
-lean_closure_set(x_3, 3, x_1);
+uint32_t x_2; lean_object* x_3; 
+x_2 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_3 = l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar(x_2);
 return x_3;
-}
-}
-static lean_object* _init_l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__2;
-x_2 = l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__3;
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_ctorIdx(lean_object* x_1, lean_object* x_2) {
@@ -603,16 +594,16 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_iter(lean_object* x_1, uint32_t x_2) {
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_iter(uint32_t x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = lean_ctor_get(x_1, 1);
-x_4 = lean_ctor_get(x_1, 2);
+x_3 = lean_ctor_get(x_2, 1);
+x_4 = lean_ctor_get(x_2, 2);
 x_5 = lean_nat_sub(x_4, x_3);
 x_6 = lean_alloc_ctor(0, 1, 4);
 lean_ctor_set(x_6, 0, x_5);
-lean_ctor_set_uint32(x_6, sizeof(void*)*1, x_2);
+lean_ctor_set_uint32(x_6, sizeof(void*)*1, x_1);
 return x_6;
 }
 }
@@ -620,10 +611,10 @@ LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_iter___boxe
 _start:
 {
 uint32_t x_3; lean_object* x_4; 
-x_3 = lean_unbox_uint32(x_2);
-lean_dec(x_2);
-x_4 = l_String_Slice_Pattern_BackwardCharSearcher_iter(x_1, x_3);
-lean_dec_ref(x_1);
+x_3 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_4 = l_String_Slice_Pattern_BackwardCharSearcher_iter(x_3, x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -799,20 +790,24 @@ lean_closure_set(x_4, 1, x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_String_Slice_Pattern_BackwardCharSearcher_instToBackwardSearcherChar___closed__0() {
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instToBackwardSearcherChar(uint32_t x_1) {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_Slice_Pattern_BackwardCharSearcher_iter___boxed), 2, 0);
-return x_1;
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_box_uint32(x_1);
+x_3 = lean_alloc_closure((void*)(l_String_Slice_Pattern_BackwardCharSearcher_iter___boxed), 2, 1);
+lean_closure_set(x_3, 0, x_2);
+return x_3;
 }
 }
-static lean_object* _init_l_String_Slice_Pattern_BackwardCharSearcher_instToBackwardSearcherChar() {
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instToBackwardSearcherChar___boxed(lean_object* x_1) {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_String_Slice_Pattern_BackwardCharSearcher_instToBackwardSearcherChar___closed__0;
-return x_1;
+uint32_t x_2; lean_object* x_3; 
+x_2 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_3 = l_String_Slice_Pattern_BackwardCharSearcher_instToBackwardSearcherChar(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__0() {
@@ -823,52 +818,43 @@ x_1 = lean_alloc_closure((void*)(l_String_Slice_Pattern_BackwardCharSearcher_ins
 return x_1;
 }
 }
-static lean_object* _init_l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__1() {
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar(uint32_t x_1) {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_String_Slice_Pattern_BackwardCharSearcher_instToBackwardSearcherChar___closed__0;
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_2 = l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__0;
-x_3 = lean_alloc_closure((void*)(l_String_Slice_Pattern_ToBackwardSearcher_defaultEndsWith___boxed), 6, 4);
-lean_closure_set(x_3, 0, lean_box(0));
-lean_closure_set(x_3, 1, lean_box(0));
-lean_closure_set(x_3, 2, x_2);
-lean_closure_set(x_3, 3, x_1);
-return x_3;
+x_3 = lean_box_uint32(x_1);
+x_4 = lean_alloc_closure((void*)(l_String_Slice_Pattern_BackwardCharSearcher_iter___boxed), 2, 1);
+lean_closure_set(x_4, 0, x_3);
+x_5 = lean_box_uint32(x_1);
+lean_inc_ref(x_4);
+x_6 = lean_alloc_closure((void*)(l_String_Slice_Pattern_ToBackwardSearcher_defaultEndsWith___boxed), 6, 5);
+lean_closure_set(x_6, 0, lean_box(0));
+lean_closure_set(x_6, 1, lean_box(0));
+lean_closure_set(x_6, 2, x_2);
+lean_closure_set(x_6, 3, x_5);
+lean_closure_set(x_6, 4, x_4);
+x_7 = lean_box_uint32(x_1);
+x_8 = lean_alloc_closure((void*)(l_String_Slice_Pattern_ToBackwardSearcher_defaultDropSuffix_x3f___boxed), 6, 5);
+lean_closure_set(x_8, 0, lean_box(0));
+lean_closure_set(x_8, 1, lean_box(0));
+lean_closure_set(x_8, 2, x_2);
+lean_closure_set(x_8, 3, x_7);
+lean_closure_set(x_8, 4, x_4);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_6);
+lean_ctor_set(x_9, 1, x_8);
+return x_9;
 }
 }
-static lean_object* _init_l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__2() {
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___boxed(lean_object* x_1) {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_String_Slice_Pattern_BackwardCharSearcher_instToBackwardSearcherChar___closed__0;
-x_2 = l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__0;
-x_3 = lean_alloc_closure((void*)(l_String_Slice_Pattern_ToBackwardSearcher_defaultDropSuffix_x3f), 6, 4);
-lean_closure_set(x_3, 0, lean_box(0));
-lean_closure_set(x_3, 1, lean_box(0));
-lean_closure_set(x_3, 2, x_2);
-lean_closure_set(x_3, 3, x_1);
+uint32_t x_2; lean_object* x_3; 
+x_2 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_3 = l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar(x_2);
 return x_3;
-}
-}
-static lean_object* _init_l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__2;
-x_2 = l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__3;
-return x_1;
 }
 }
 lean_object* initialize_Init_Data_String_Pattern_Basic(uint8_t builtin);
@@ -914,36 +900,12 @@ l_String_Slice_Pattern_ForwardCharSearcher_instIteratorLoopIdSearchStep___closed
 lean_mark_persistent(l_String_Slice_Pattern_ForwardCharSearcher_instIteratorLoopIdSearchStep___closed__8);
 l_String_Slice_Pattern_ForwardCharSearcher_instIteratorLoopIdSearchStep___closed__9 = _init_l_String_Slice_Pattern_ForwardCharSearcher_instIteratorLoopIdSearchStep___closed__9();
 lean_mark_persistent(l_String_Slice_Pattern_ForwardCharSearcher_instIteratorLoopIdSearchStep___closed__9);
-l_String_Slice_Pattern_ForwardCharSearcher_instToForwardSearcherChar___closed__0 = _init_l_String_Slice_Pattern_ForwardCharSearcher_instToForwardSearcherChar___closed__0();
-lean_mark_persistent(l_String_Slice_Pattern_ForwardCharSearcher_instToForwardSearcherChar___closed__0);
-l_String_Slice_Pattern_ForwardCharSearcher_instToForwardSearcherChar = _init_l_String_Slice_Pattern_ForwardCharSearcher_instToForwardSearcherChar();
-lean_mark_persistent(l_String_Slice_Pattern_ForwardCharSearcher_instToForwardSearcherChar);
 l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__0 = _init_l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__0();
 lean_mark_persistent(l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__0);
-l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__1 = _init_l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__1();
-lean_mark_persistent(l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__1);
-l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__2 = _init_l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__2();
-lean_mark_persistent(l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__2);
-l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__3 = _init_l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__3();
-lean_mark_persistent(l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar___closed__3);
-l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar = _init_l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar();
-lean_mark_persistent(l_String_Slice_Pattern_ForwardCharSearcher_instForwardPatternChar);
 l_String_Slice_Pattern_instInhabitedBackwardCharSearcher_default___closed__0 = _init_l_String_Slice_Pattern_instInhabitedBackwardCharSearcher_default___closed__0();
 lean_mark_persistent(l_String_Slice_Pattern_instInhabitedBackwardCharSearcher_default___closed__0);
-l_String_Slice_Pattern_BackwardCharSearcher_instToBackwardSearcherChar___closed__0 = _init_l_String_Slice_Pattern_BackwardCharSearcher_instToBackwardSearcherChar___closed__0();
-lean_mark_persistent(l_String_Slice_Pattern_BackwardCharSearcher_instToBackwardSearcherChar___closed__0);
-l_String_Slice_Pattern_BackwardCharSearcher_instToBackwardSearcherChar = _init_l_String_Slice_Pattern_BackwardCharSearcher_instToBackwardSearcherChar();
-lean_mark_persistent(l_String_Slice_Pattern_BackwardCharSearcher_instToBackwardSearcherChar);
 l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__0 = _init_l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__0();
 lean_mark_persistent(l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__0);
-l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__1 = _init_l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__1();
-lean_mark_persistent(l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__1);
-l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__2 = _init_l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__2();
-lean_mark_persistent(l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__2);
-l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__3 = _init_l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__3();
-lean_mark_persistent(l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar___closed__3);
-l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar = _init_l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar();
-lean_mark_persistent(l_String_Slice_Pattern_BackwardCharSearcher_instBackwardPatternChar);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

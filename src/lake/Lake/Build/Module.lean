@@ -378,7 +378,7 @@ private def fetchImportInfo
           the module `{imp.module}` from {mod.pkg.discriminant}"
         return .error
       let importJob ← mod.exportInfo.fetch
-      return s.zipWith (·.addImport nonModule imp ·) importJob
+      return s.zipWith (sync := true) (·.addImport nonModule imp ·) importJob
     else
       let isImportable (mod) :=
         mod.allowImportAll || pkgName == mod.pkg.name

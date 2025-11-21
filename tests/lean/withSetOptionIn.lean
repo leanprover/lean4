@@ -72,6 +72,7 @@ partial def Lean.Elab.InfoTree.structEq : InfoTree → InfoTree → Bool
   | .hole _, .hole _ => true
   | _, _ => false
 
+/-- Collect the option names from all `OptionInfo` infos in the infotrees. -/
 def getOptionNames (ts : PersistentArray InfoTree) : List Name :=
   ts.foldl (init := []) fun acc t =>
     acc ++ t.collectNodesBottomUp fun
@@ -80,12 +81,12 @@ def getOptionNames (ts : PersistentArray InfoTree) : List Name :=
 
 def compareWithSetOptionIn : CommandElab := fun stx => do
   let originalTrees ← getInfoTrees
-  logInfo m!"without `withSetOption`:\n\
+  logInfo m!"without `withSetOptionIn`:\n\
     - `linter.all := {← getBoolOption `linter.all}`\n\
     - Found option names in trees: {getOptionNames (← getInfoTrees)}"
   let runWithSetOptionIn : CommandElab := withSetOptionIn fun _ => do
     logInfo m!"trees are structurally equal: {originalTrees.eqOf (← getInfoTrees) (·.structEq ·)}"
-    logInfo m!"with `withSetOption`:\n\
+    logInfo m!"with `withSetOptionIn`:\n\
       - `linter.all := {← getBoolOption `linter.all}`\n\
       - Found option names in trees: {getOptionNames (← getInfoTrees)}"
   runWithSetOptionIn stx
@@ -97,13 +98,13 @@ This ensures that we're looking at correct post-elaboration infotrees in this te
 -/
 
 /--
-info: without `withSetOption`:
+info: without `withSetOptionIn`:
 - `linter.all := false`
 - Found option names in trees: [linter.all]
 ---
 info: trees are structurally equal: true
 ---
-info: with `withSetOption`:
+info: with `withSetOptionIn`:
 - `linter.all := true`
 - Found option names in trees: [linter.all]
 -/
@@ -129,13 +130,13 @@ has type
 but the option `linter.all` expects a value of type
   Bool
 ---
-info: without `withSetOption`:
+info: without `withSetOptionIn`:
 - `linter.all := false`
 - Found option names in trees: [linter.all]
 ---
 info: trees are structurally equal: true
 ---
-info: with `withSetOption`:
+info: with `withSetOptionIn`:
 - `linter.all := false`
 - Found option names in trees: [linter.all]
 -/

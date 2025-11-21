@@ -3450,32 +3450,32 @@ theorem get!_diff_of_contains_eq_false_left [LawfulBEq α] (h₁ : m₁.val.WF) 
 theorem getKey?_diff [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
     (m₁.diff m₂).getKey? k = if m₂.contains k then none else m₁.getKey? k := by
-  simp_to_model [diff, contains, getKey?] using List.getKey?_diff
+  simp_to_model [diff, contains, getKey?] using List.getKey?_filter_contains_map_fst_eq_false
 
 theorem getKey?_diff_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} (h : m₂.contains k = false) :
     (m₁.diff m₂).getKey? k = m₁.getKey? k := by
   revert h
-  simp_to_model [contains, getKey?, diff] using List.getKey?_diff_of_containsKey_eq_false_right
+  simp_to_model [contains, getKey?, diff] using List.getKey?_filter_contains_map_fst_eq_false_of_containsKey_eq_false_right
 
 theorem getKey?_diff_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} (h : m₁.contains k = false) :
     (m₁.diff m₂).getKey? k = none := by
   revert h
-  simp_to_model [contains, getKey?, diff] using List.getKey?_diff_of_containsKey_eq_false_left
+  simp_to_model [contains, getKey?, diff] using List.getKey?_filter_contains_map_fst_eq_false_of_containsKey_eq_false_left
 
 theorem getKey?_diff_of_contains_right [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} (h : m₂.contains k) :
     (m₁.diff m₂).getKey? k = none := by
   revert h
-  simp_to_model [contains, getKey?, diff] using List.getKey?_diff_of_containsKey_right
+  simp_to_model [contains, getKey?, diff] using List.getKey?_filter_contains_map_fst_eq_false_of_containsKey_right
 
 /- getKey -/
 theorem getKey_diff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} {h_contains : (m₁.diff m₂).contains k} :
     (m₁.diff m₂).getKey k h_contains =
     m₁.getKey k ((contains_diff_iff h₁ h₂).1 h_contains).1 := by
-  simp_to_model [diff, contains, getKey] using List.getKey_diff
+  simp_to_model [diff, contains, getKey] using List.getKey_filter_contains_map_fst_eq_false
 
 /- getKeyD -/
 theorem getKeyD_diff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)

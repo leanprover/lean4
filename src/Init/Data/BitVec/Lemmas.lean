@@ -127,6 +127,11 @@ protected theorem toNat_lt_twoPow_of_le (h : m ≤ n) {x : BitVec m} :
   apply Nat.pow_le_pow_of_le
   <;> omega
 
+theorem toNat_ofNat_of_le {w n : Nat} (h : n ≤ w):
+    (BitVec.ofNat w n).toNat = n := by
+  have := Nat.lt_pow_self (a := 2) (n := w)
+  rw [toNat_ofNat, Nat.mod_eq_of_lt (by omega)]
+
 theorem two_pow_le_toNat_of_getElem_eq_true {i : Nat} {x : BitVec w}
     (hi : i < w) (hx : x[i] = true) : 2^i ≤ x.toNat := by
   apply Nat.ge_two_pow_of_testBit
@@ -6351,13 +6356,6 @@ theorem cpopAuxRec_allOnes_eq {w n : Nat} (h : n ≤ w) :
       omega
     · omega
 
-@[simp]
-theorem toNat_ofNat_cpopAuxRec {x : BitVec w} :
-    (BitVec.ofNat w (x.cpopAuxRec w)).toNat = x.cpopAuxRec w := by
-  have := cpopAuxRec_le_width (x := x) (n := w)
-  have := Nat.lt_pow_self (a := 2) (n := w)
-  rw [toNat_ofNat, Nat.mod_eq_of_lt (by omega)]
-
 theorem cpop_toNat_le (x : BitVec w) :
     x.cpop.toNat ≤ w := by
   have h := BitVec.cpopAuxRec_le (x := x) (n :=w) (by omega)
@@ -6503,17 +6501,15 @@ theorem cpop_append_eq_add_zeroExtend_cpop {x : BitVec w} {y : BitVec v} :
     by_cases hv0 : v = 0
     · subst hv0
       simp [cpop]
-    · simp only [cpop, truncate_eq_setWidth]
-      rw [cpopAuxRec_append_eq_add_cpopAuxRec]
-      apply eq_of_toNat_eq
-      simp only [toNat_ofNat, toNat_add, toNat_setWidth, Nat.add_mod_mod, Nat.mod_add_mod]
-      have := cpopAuxRec_le_width (x := x) (n := w)
+    · have := cpopAuxRec_le_width (x := x) (n := w)
       have := cpopAuxRec_le_width (x := y) (n := v)
-      have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
-      have := Nat.lt_pow_self (a := 2) (n := v) (by omega)
       have := Nat.lt_pow_self (a := 2) (n := w + v) (by omega)
-      rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (a := x.cpopAuxRec w) (by omega),
-        Nat.mod_eq_of_lt (a := y.cpopAuxRec v) (by omega), Nat.mod_eq_of_lt (by omega)]
+      simp only [cpop, truncate_eq_setWidth, cpopAuxRec_append_eq_add_cpopAuxRec]
+      apply eq_of_toNat_eq
+      simp only [toNat_add, toNat_setWidth, Nat.add_mod_mod, Nat.mod_add_mod]
+      rw [toNat_ofNat_of_le (by omega), toNat_ofNat_of_le (by omega), toNat_ofNat_of_le (by omega),
+        Nat.mod_eq_of_lt (by omega)]
+
 
 theorem toNat_cpop_append_eq_add_toNat_cpop {w : Nat} {x : BitVec w} {y : BitVec v} :
     ((x ++ y).cpop).toNat = (x.cpop).toNat + (y.cpop).toNat := by

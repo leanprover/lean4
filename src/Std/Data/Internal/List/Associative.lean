@@ -6344,17 +6344,21 @@ theorem getValueD_filter_contains_map_fst_eq_false_of_contains_map_fst_right {β
   · exact dl₁
   · exact hyp
 
-
 theorem getValueD_diff_of_containsKey_eq_false_left {β : Type v} [BEq α] [EquivBEq α]
+    {l₁ : List ((_ : α) × β)} {l₂ : List α} {k : α} {fallback : β}
+    (dl₁ : DistinctKeys l₁) :
+    containsKey k l₁ = false → getValueD k (List.filter (fun p => !List.contains l₂ p.fst) l₁) fallback = fallback := by
+  intro h
+  apply getValueD_eq_fallback
+  apply containsKey_filter_contains_eq_false_eq_false_left
+  · exact dl₁
+  · exact h
+
+theorem getValueD_filter_contains_map_fst_eq_false_of_containsKey_eq_false_left {β : Type v} [BEq α] [EquivBEq α]
     {l₁ l₂ : List ((_ : α) × β)} {k : α} {fallback : β}
     (dl₁ : DistinctKeys l₁) :
-    containsKey k l₁ = false → getValueD k (List.filter (fun p => !containsKey p.fst l₂) l₁) fallback = fallback := by
-  sorry
-  -- intro h
-  -- apply getValueD_eq_fallback
-  -- apply containsKey_diff_eq_false_of_containsKey_eq_false_left
-  -- · exact dl₁
-  -- · exact h
+    containsKey k l₁ = false → getValueD k (List.filter (fun p => !List.contains (l₂.map Sigma.fst) p.fst) l₁) fallback = fallback := by
+  apply getValueD_diff_of_containsKey_eq_false_left dl₁
 
 theorem getValueCastD_filter_contains_eq_false_of_contains_right {β : α → Type v} [BEq α] [LawfulBEq α]
     {l₁ : List ((a : α) × β a)} {l₂ : List α} {k : α} {fallback : β k}

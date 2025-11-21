@@ -393,3 +393,210 @@ theorem coe_natAdd (n : Nat) {m : Nat} (i : Fin m) : (natAdd n i : Nat) = n + i 
 theorem le_coe_natAdd (m : Nat) (i : Fin n) : m ≤ natAdd m i := by grind
 
 theorem last_le_iff {n : Nat} {k : Fin (n + 1)} : last n ≤ k ↔ k = last n := by grind
+
+-- From this point onwards we need `@[grind ext]` on `Fin.ext`.
+
+
+theorem rev_eq {n a : Nat} (i : Fin (n + 1)) (h : n = a + i) :
+    rev i = ⟨a, Nat.lt_succ_of_le (h ▸ Nat.le_add_right ..)⟩ := by grind
+
+theorem castLE_succ {m n : Nat} (h : m + 1 ≤ n + 1) (i : Fin m) :
+    castLE h i.succ = (castLE (Nat.succ_le_succ_iff.mp h) i).succ := by grind
+
+theorem cast_last {n' : Nat} {h : n + 1 = n' + 1} : (last n).cast h  = last n' := by grind
+
+theorem castAdd_zero : (castAdd 0 : Fin n → Fin (n + 0)) = Fin.cast rfl := by grind
+
+theorem castAdd_mk (m : Nat) (i : Nat) (h : i < n) :
+    castAdd m ⟨i, h⟩ = ⟨i, Nat.lt_add_right m h⟩ := by grind
+
+theorem castAdd_castLT (m : Nat) (i : Fin (n + m)) (hi : i.val < n) :
+    castAdd m (castLT i hi) = i := by grind
+
+theorem castAdd_cast {n n' : Nat} (m : Nat) (i : Fin n') (h : n' = n) :
+    castAdd m (Fin.cast h i) = Fin.cast (congrArg (. + m) h) (castAdd m i) := by grind
+
+theorem cast_castAdd_left {n n' m : Nat} (i : Fin n') (h : n' + m = n + m) :
+    (i.castAdd m).cast h = (i.cast (Nat.add_right_cancel h)).castAdd m := by grind
+
+theorem cast_castAdd_right {n m m' : Nat} (i : Fin n) (h : n + m' = n + m) :
+    (i.castAdd m').cast h = i.castAdd m := by grind
+
+theorem castAdd_castAdd {m n p : Nat} (i : Fin m) :
+    (i.castAdd n).castAdd p = (i.castAdd (n + p)).cast (Nat.add_assoc ..).symm := by grind
+
+theorem cast_succ_eq {n' : Nat} (i : Fin n) (h : n.succ = n'.succ) :
+    i.succ.cast h = (i.cast (Nat.succ.inj h)).succ := by grind
+
+theorem succ_cast_eq {n' : Nat} (i : Fin n) (h : n = n') :
+    (i.cast h).succ = i.succ.cast (by rw [h]) := by grind
+
+theorem castSucc_mk (n i : Nat) (h : i < n) : castSucc ⟨i, h⟩ = ⟨i, Nat.lt_succ_of_lt h⟩ := by grind
+
+theorem cast_castSucc {n' : Nat} {h : n + 1 = n' + 1} {i : Fin n} :
+    i.castSucc.cast h = (i.cast (Nat.succ.inj h)).castSucc := by grind
+
+theorem castSucc_castLT (i : Fin (n + 1)) (h : (i : Nat) < n) :
+    (castLT i h).castSucc = i := by grind
+
+theorem addNat_zero (n : Nat) (i : Fin n) : addNat i 0 = i := by grind
+
+theorem addNat_one {i : Fin n} : addNat i 1 = i.succ := by grind
+
+theorem addNat_mk (n i : Nat) (hi : i < m) :
+    addNat ⟨i, hi⟩ n = ⟨i + n, Nat.add_lt_add_right hi n⟩ := by grind
+
+theorem addNat_cast {n n' m : Nat} (i : Fin n') (h : n' = n) :
+    addNat (i.cast h) m = (addNat i m).cast (congrArg (. + m) h) := by grind
+
+theorem cast_addNat_left {n n' m : Nat} (i : Fin n') (h : n' + m = n + m) :
+    (addNat i m).cast h = addNat (i.cast (Nat.add_right_cancel h)) m := by grind
+
+theorem cast_addNat_right {n m m' : Nat} (i : Fin n) (h : n + m' = n + m) :
+    (addNat i m').cast h = addNat i m := by grind
+
+theorem natAdd_mk (n i : Nat) (hi : i < m) :
+    natAdd n ⟨i, hi⟩ = ⟨n + i, Nat.add_lt_add_left hi n⟩ := by grind
+
+theorem natAdd_zero {n : Nat} : natAdd 0 = Fin.cast (Nat.zero_add n).symm := by grind
+
+theorem natAdd_cast {n n' : Nat} (m : Nat) (i : Fin n') (h : n' = n) :
+    natAdd m (i.cast h) = (natAdd m i).cast (congrArg _ h) := by grind
+
+theorem cast_natAdd_right {n n' m : Nat} (i : Fin n') (h : m + n' = m + n) :
+    (natAdd m i).cast h  = natAdd m (i.cast (Nat.add_left_cancel h)) := by grind
+
+theorem cast_natAdd_left {n m m' : Nat} (i : Fin n) (h : m' + n = m + n) :
+    (natAdd m' i).cast h = natAdd m i := by grind
+
+theorem castAdd_natAdd (p m : Nat) {n : Nat} (i : Fin n) :
+    castAdd p (natAdd m i) = (natAdd m (castAdd p i)).cast (Nat.add_assoc ..).symm := by grind
+
+theorem natAdd_castAdd (p m : Nat) {n : Nat} (i : Fin n) :
+    natAdd m (castAdd p i) = (castAdd p (natAdd m i)).cast (Nat.add_assoc ..) := by grind
+
+theorem natAdd_natAdd (m n : Nat) {p : Nat} (i : Fin p) :
+    natAdd m (natAdd n i) = (natAdd (m + n) i).cast (Nat.add_assoc ..) := by grind
+
+theorem cast_natAdd (n : Nat) {m : Nat} (i : Fin m) :
+    (natAdd n i).cast (Nat.add_comm ..) = addNat i n := by grind
+
+theorem cast_addNat {n : Nat} (m : Nat) (i : Fin n) :
+    (addNat i m).cast (Nat.add_comm ..) = natAdd m i := by grind
+
+theorem natAdd_last {m n : Nat} : natAdd n (last m) = last (n + m) := by grind
+
+theorem addNat_last (n : Nat) :
+    addNat (last n) m = (last (n + m)).cast (by omega) := by grind
+
+theorem natAdd_eq_addNat (n : Nat) (i : Fin n) : Fin.natAdd n i = i.addNat n := by grind
+
+theorem rev_castAdd (k : Fin n) (m : Nat) : rev (castAdd m k) = addNat (rev k) m := by grind
+
+theorem rev_addNat (k : Fin n) (m : Nat) : rev (addNat k m) = castAdd m (rev k) := by grind
+
+theorem rev_succ (k : Fin n) : rev (succ k) = castSucc (rev k) := by grind
+
+theorem pred_mk_succ (i : Nat) (h : i < n + 1) :
+    Fin.pred ⟨i + 1, Nat.add_lt_add_right h 1⟩ (ne_of_val_ne (Nat.ne_of_gt (mk_succ_pos i h))) =
+      ⟨i, h⟩ := by grind
+
+theorem pred_mk_succ' (i : Nat) (h₁ : i + 1 < n + 1 + 1) (h₂) :
+    Fin.pred ⟨i + 1, h₁⟩ h₂ = ⟨i, Nat.lt_of_succ_lt_succ h₁⟩ := by grind
+theorem addNat_subNat {i : Fin (n + m)} (h : m ≤ i) : addNat (subNat m i h) m = i := by grind
+
+theorem natAdd_subNat_cast {i : Fin (n + m)} (h : n ≤ i) :
+    natAdd n (subNat n (i.cast (Nat.add_comm ..)) h) = i := by grind
+
+theorem sub_ofNat [NeZero n] (x : Fin n) (y : Nat) :
+    x - Fin.ofNat n y = Fin.ofNat n ((n - y % n) + x.val) := by grind
+
+theorem succ_mk (n i : Nat) (h : i < n) :
+    Fin.succ ⟨i, h⟩ = ⟨i + 1, Nat.succ_lt_succ h⟩ := by grind
+
+/-! These could work, but need additional help from `grind`, because these annotations are bad: -/
+attribute [grind =] Fin.val_zero Fin.val_one Fin.le_def Fin.lt_def
+
+theorem val_zero (n : Nat) [NeZero n] : ((0 : Fin n) : Nat) = 0 := by grind
+
+theorem mk_zero : (⟨0, Nat.succ_pos n⟩ : Fin (n + 1)) = 0 := by grind
+
+theorem zero_le [NeZero n] (a : Fin n) : 0 ≤ a := by grind
+
+theorem zero_lt_one : (0 : Fin (n + 2)) < 1 := by grind
+
+theorem not_lt_zero [NeZero n] (a : Fin n) : ¬a < 0 := by grind
+
+theorem pos_iff_ne_zero [NeZero n] {a : Fin n} : 0 < a ↔ a ≠ 0 := by grind
+
+theorem zero_eq_last_iff {n : Nat} : (0 : Fin (n + 1)) = last n ↔ n = 0 := by grind
+
+theorem last_eq_zero_iff {n : Nat} : Fin.last n = 0 ↔ n = 0 := by grind
+
+theorem last_pos : (0 : Fin (n + 2)) < last (n + 1) := by grind
+
+theorem rev_last (n : Nat) : rev (last n) = 0 := by grind
+
+theorem rev_zero (n : Nat) : rev 0 = last n := by grind
+
+theorem val_one (n : Nat) : (1 : Fin (n + 2)).val = 1 := by grind
+
+theorem mk_one : (⟨1, Nat.succ_lt_succ (Nat.succ_pos n)⟩ : Fin (n + 2)) = (1 : Fin _) := by grind
+
+theorem succ_pos (a : Fin n) : (0 : Fin (n + 1)) < a.succ := by grind
+
+theorem succ_ne_zero {n} : ∀ k : Fin n, Fin.succ k ≠ 0 := by grind
+
+theorem succ_zero_eq_one : Fin.succ (0 : Fin (n + 1)) = 1 := by grind
+
+theorem mk_succ_pos (i : Nat) (h : i < n) :
+    (0 : Fin (n + 1)) < ⟨i.succ, Nat.add_lt_add_right h 1⟩ := by grind
+
+theorem one_lt_succ_succ (a : Fin n) : (1 : Fin (n + 2)) < a.succ.succ := by grind
+
+theorem le_zero_iff {n : Nat} {k : Fin (n + 1)} : k ≤ 0 ↔ k = 0 := by grind
+
+theorem succ_succ_ne_one (a : Fin n) : Fin.succ (Fin.succ a) ≠ 1 := by grind
+
+theorem castLE_zero {n m : Nat} (h : n.succ ≤ m.succ) : castLE h 0 = 0 := by grind
+
+theorem castSucc_lt_succ {i : Fin n} : i.castSucc < i.succ := by grind
+
+theorem le_castSucc_iff {i : Fin (n + 1)} {j : Fin n} : i ≤ j.castSucc ↔ i < j.succ := by grind
+
+theorem castSucc_lt_iff_succ_le {n : Nat} {i : Fin n} {j : Fin (n + 1)} :
+    i.castSucc < j ↔ i.succ ≤ j := by grind
+
+theorem castSucc_lt_castSucc_iff {a b : Fin n} :
+    a.castSucc < b.castSucc ↔ a < b := by grind
+
+theorem castSucc_lt_last (a : Fin n) : a.castSucc < last n := by grind
+
+theorem castSucc_zero [NeZero n] : castSucc (0 : Fin n) = 0 := by grind
+
+theorem castSucc_one {n : Nat} : castSucc (1 : Fin (n + 2)) = 1 := by grind
+
+theorem castSucc_pos [NeZero n] {i : Fin n} (h : 0 < i) : 0 < i.castSucc := by grind
+
+theorem castSucc_succ (i : Fin n) : i.succ.castSucc = i.castSucc.succ := by grind
+
+theorem succ_pred : ∀ (i : Fin (n + 1)) (h : i ≠ 0), (i.pred h).succ = i := by grind
+
+theorem pred_eq_iff_eq_succ {n : Nat} {i : Fin (n + 1)} (hi : i ≠ 0) {j : Fin n} :
+    i.pred hi = j ↔ i = j.succ := by grind
+
+theorem pred_le_pred_iff {n : Nat} {a b : Fin n.succ} {ha : a ≠ 0} {hb : b ≠ 0} :
+    a.pred ha ≤ b.pred hb ↔ a ≤ b := by grind
+
+theorem pred_lt_pred_iff {n : Nat} {a b : Fin n.succ} {ha : a ≠ 0} {hb : b ≠ 0} :
+    a.pred ha < b.pred hb ↔ a < b := by grind
+
+theorem pred_inj :
+    ∀ {a b : Fin (n + 1)} {ha : a ≠ 0} {hb : b ≠ 0}, a.pred ha = b.pred hb ↔ a = b := by grind
+
+theorem pred_one {n : Nat} :
+    Fin.pred (1 : Fin (n + 2)) (Ne.symm (Fin.ne_of_lt zero_lt_one)) = 0 := by grind
+
+theorem val_eq_zero_iff [NeZero n] {a : Fin n} : a.val = 0 ↔ a = 0 := by grind
+
+theorem val_ne_zero_iff [NeZero n] {a : Fin n} : a.val ≠ 0 ↔ a ≠ 0 := by grind

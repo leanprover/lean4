@@ -285,7 +285,7 @@ def IteratorLoop.finiteForInNew' {m : Type w → Type w'} {n : Type x → Type x
     {α : Type w} {β : Type w} [Iterator α m β] [Finite α m] [IteratorLoop α m n]
     (lift : ∀ γ δ, (γ → n δ) → m γ → n δ) :
     ForInNew' n (IterM (α := α) m β) β (fun it out => it.IsPlausibleIndirectOutput out) where
-  forIn' {σ γ} it init kcons knil :=
+  forInNew' {σ γ} it init kcons knil :=
     IteratorLoopNew.forInNew (α := α) (m := m) lift σ γ (fun _ _ _ => True)
       wellFounded_of_finite
       it init (fun out h s₁ kcontinue => kcons out h (fun s₂ => kcontinue s₂ .intro) s₁) knil

@@ -23,12 +23,12 @@ instances are provided for the same type.
 -- We set the priority to 500 so it is below the default,
 -- but still above the low priority instance from `Stream`.
 instance (priority := 500) instForInNewOfForInNew' [ForInNew' m ρ α mem] : ForInNew m ρ α where
-  forIn x b f := ForInNew'.forIn' x b fun a _ => f a
+  forInNew x b f := ForInNew'.forInNew' x b fun a _ => f a
 
 @[simp] theorem forInNew'_eq_forInNew [ForInNew' m ρ α mem] {σ β} (xs : ρ) (s : σ)
     (f : (a : α) → mem xs a → (σ → m β) → (σ → m β)) (g : (a : α) → (σ → m β) → (σ → m β))
     (h : ∀ a m k, f a m k = g a k) :
-    ForInNew'.forIn' xs s f = ForInNew.forIn xs s g := by
+    ForInNew'.forInNew' xs s f = ForInNew.forInNew xs s g := by
   simp [instForInNewOfForInNew']
   congr
   apply funext
@@ -42,13 +42,8 @@ instance (priority := 500) instForInNewOfForInNew' [ForInNew' m ρ α mem] : For
 
 @[wf_preprocess] theorem forInNew'_eq_forInNew' [ForInNew' m ρ α mem] {σ β}
     (xs : ρ) (s : σ) (f : (a : α) → (σ → m β) → σ → m β) :
-    ForInNew.forIn xs s f = ForInNew'.forIn' xs s (fun a h => binderNameHint a f <| binderNameHint h () <| f a) := by
+    ForInNew.forInNew xs s f = ForInNew'.forInNew' xs s (fun a h => binderNameHint a f <| binderNameHint h () <| f a) := by
   rfl
-
--- We set the priority to 500 so it is below the default,
--- but still above the low priority instance from `Stream`.
-instance (priority := 500) instForInNew' [Membership α ρ] : ForInNew' m ρ α Membership.mem where
-  forIn' _xs s _kcons knil := knil s
 
 /--
 A `ForIn'` instance, which handles `for h : x in c do`,

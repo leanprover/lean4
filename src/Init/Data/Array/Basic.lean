@@ -569,12 +569,12 @@ protected def forInNew' {α : Type u} {σ β : Type v} {m : Type v → Type w}
   loop as.size (Nat.le_refl _) s
 
 instance : ForInNew' m (Array α) α Membership.mem where
-  forIn' := Array.forInNew'
+  forInNew' := Array.forInNew'
 
 -- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
 
 -- We simplify `Array.forIn'` to `forIn'`.
-@[simp] theorem forInNew'_eq_forInNew' : @Array.forInNew' α σ β m = ForInNew'.forIn' := rfl
+@[simp] theorem forInNew'_eq_forInNew' : @Array.forInNew' α σ β m = ForInNew'.forInNew' := rfl
 
 /--
   We claim this unsafe implementation is correct because an array cannot have more than `usizeSz` elements in our runtime.

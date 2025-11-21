@@ -338,16 +338,20 @@ inductive Exists {α : Sort u} (p : α → Prop) : Prop where
   | intro (w : α) (h : p w) : Exists p
 
 class ForInNew (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)) where
-  forIn {σ β : Type u₁} (xs : ρ) (s : σ)
+  forInNew {σ β : Type u₁} (xs : ρ) (s : σ)
     (body : (a : α) → (kcontinue : σ → m β) → σ → m β)
     (kbreak : σ → m β) : m β
+
+export ForInNew (forInNew)
 
 -- Note to myself (SG): we depend on `m` here because some collections (e.g., iterators) only have
 -- forIn' for specific monads
 class ForInNew' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)) (p : outParam (ρ → α → Prop)) where
-  forIn' {σ β : Type u₁} (xs : ρ) (s : σ)
+  forInNew' {σ β : Type u₁} (xs : ρ) (s : σ)
     (body : (a : α) → (h : p xs a) → (kcontinue : σ → m β) → σ → m β)
     (kbreak : σ → m β) : m β
+
+export ForInNew' (forInNew')
 
 /--
 An indication of whether a loop's body terminated early that's used to compile the `for x in xs`

@@ -38,8 +38,8 @@ or future library improvements will make it more comfortable.
 def Iter.instForInNew' {α : Type w} {β : Type w} {n : Type x → Type x'} [Monad n]
     [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] :
     ForInNew' n (Iter (α := α) β) β (fun it out => it.IsPlausibleIndirectOutput out) where
-  forIn' it init f :=
-    IteratorLoop.finiteForInNew' (fun _ _ f c => f c.run) |>.forIn' it.toIterM init
+  forInNew' it init f :=
+    IteratorLoop.finiteForInNew' (fun _ _ f c => f c.run) |>.forInNew' it.toIterM init
         fun out h acc =>
           f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc
 

@@ -652,9 +652,9 @@ instance {m} [UpwardEnumerable α]
     [LawfulUpwardEnumerableLeast? α]
     [Monad m] [Finite (Rxo.Iterator α) Id] :
     ForInNew' m (Rio α) α Membership.mem where
-  forIn' r init kcons knil := by
+  forInNew' r init kcons knil := by
     haveI := Iter.instForInNew' (α := Rxo.Iterator α) (β := α) (n := m)
-    refine ForInNew'.forIn' (α := α) (Internal.iter r) init (fun a ha kcontinue s => kcons a ?_ kcontinue s) knil
+    refine forInNew' (α := α) (Internal.iter r) init (fun a ha kcontinue s => kcons a ?_ kcontinue s) knil
     rwa [Internal.isPlausibleIndirectOutput_iter_iff] at ha
 
 @[no_expose]

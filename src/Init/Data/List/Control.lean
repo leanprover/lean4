@@ -444,37 +444,39 @@ theorem findM?_eq_findSomeM? [Monad m] [LawfulMonad m] {p : α → m Bool} {as :
     intro b
     cases b <;> simp
 
+/-
+default instance should be good enough
+
 @[specialize, expose]
-def forInNew {α} {m : Type u → Type v} {σ β}
+protected def forInNew {α} {m : Type u → Type v} {σ β}
     (l : List α) (s : σ) (kcons : α → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
   match l with
   | []     => knil s
   | a :: l => kcons a (l.forInNew · kcons knil) s
 
 instance : ForInNew m (List α) α where
-  forIn := forInNew
+  forInNew := List.forInNew
+-/
 
 @[specialize, expose]
-def forInNew' {α} {m : Type u → Type v} {σ β}
+protected def forInNew' {α} {m : Type u → Type v} {σ β}
     (l : List α) (s : σ) (kcons : (a : α) → a ∈ l → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
-  go l id s
-where
-  go (l' : List α) (inj : ∀ {a}, a ∈ l' → a ∈ l) (s : σ) : m β := match l' with
+  match l with
   | []     => knil s
-  | a :: l => kcons a (inj (.head l)) (go l (inj ∘ (.tail a))) s
+  | a :: l => kcons a (.head l) (List.forInNew' l · (fun a' h => kcons a' (.tail a h)) knil) s
 
 instance : ForInNew' m (List α) α Membership.mem where
-  forIn' := forInNew'
+  forInNew' := List.forInNew'
 
 -- No separate `ForInNew` instance is required because it can be derived from `ForInNew'`.
 
 -- We simplify `List.forInNew'` to `forInNew'`.
-@[simp, grind =] theorem forInNew'_eq_forInNew' : @List.forInNew' α m σ β = ForInNew'.forIn' := rfl
+@[simp, grind =] theorem forInNew'_eq_forInNew' : @List.forInNew' α m σ β = forInNew' := rfl
 
-@[simp, grind =] theorem forInNew'_nil : ForInNew'.forIn' [] b kcons knil = knil b :=
+@[simp, grind =] theorem forInNew'_nil : forInNew' [] b kcons knil = knil b :=
   rfl
 
-@[simp, grind =] theorem forInNew_nil : ForInNew.forIn [] b kcons knil = knil b :=
+@[simp, grind =] theorem forInNew_nil : forInNew [] b kcons knil = knil b :=
   rfl
 
 @[inline, expose] protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=

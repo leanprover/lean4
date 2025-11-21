@@ -1161,7 +1161,6 @@ If `true`, suggestions are provided for code elements.
 register_builtin_option doc.verso.suggestions : Bool := {
   defValue := true
   descr := "whether to provide suggestions for code elements"
-  group := "doc"
 }
 
 -- Normally, name suggestions should be provided relative to the current scope. But

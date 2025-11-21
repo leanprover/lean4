@@ -29,7 +29,6 @@ register_builtin_option synthInstance.maxSize : Nat := {
 
 register_builtin_option backward.synthInstance.canonInstances : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr := "use optimization that relies on 'morally canonical' instances during type class resolution"
 }
 

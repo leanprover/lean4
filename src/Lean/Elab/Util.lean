@@ -64,7 +64,6 @@ def getBetterRef (ref : Syntax) (macroStack : MacroStack) : Syntax :=
 
 register_builtin_option pp.macroStack : Bool := {
   defValue := false
-  group    := "pp"
   descr    := "display macro expansion stack"
 }
 

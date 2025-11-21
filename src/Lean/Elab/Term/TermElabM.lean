@@ -1329,7 +1329,6 @@ def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDec
 
 register_builtin_option debug.byAsSorry : Bool := {
   defValue := false
-  group    := "debug"
   descr    := "replace `by ..` blocks with `sorry` IF the expected type is a proposition"
 }
 

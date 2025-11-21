@@ -1087,13 +1087,11 @@ where
 
 register_builtin_option backward.grind.inferPattern : Bool := {
   defValue := false
-  group    := "backward compatibility"
   descr    := "use old E-matching pattern inference"
 }
 
 register_builtin_option backward.grind.checkInferPatternDiscrepancy : Bool := {
   defValue := false
-  group    := "backward compatibility"
   descr    := "check whether old and new pattern inference procedures infer the same pattern"
 }
 

@@ -10,6 +10,7 @@ public import Lean.Meta.Match.Match
 public import Lean.Meta.Match.MatchEqsExt
 public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.Delta
+import Lean.Meta.Tactic.CasesOnStuckLHS
 import Lean.Meta.Tactic.SplitIf
 import Lean.Meta.Match.SimpH
 import Lean.Meta.Match.SolveOverlap
@@ -18,53 +19,8 @@ public section
 
 namespace Lean.Meta
 
-/--
-  Helper method for `proveCondEqThm`. Given a goal of the form `C.rec ... xMajor = rhs`,
-  apply `cases xMajor`. -/
-partial def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
-  let target ← mvarId.getType
-  if let some (_, lhs, _) ← matchEq? target then
-    if let some fvarId ← findFVar? lhs then
-      return (←  mvarId.cases fvarId).map fun s => s.mvarId
-  throwError "'casesOnStuckLHS' failed"
-where
-  findFVar? (e : Expr) : MetaM (Option FVarId) := do
-    match e.getAppFn with
-    | Expr.proj _ _ e => findFVar? e
-    | f =>
-      if !f.isConst then
-        return none
-      else
-        let declName := f.constName!
-        let args := e.getAppArgs
-        match (← getProjectionFnInfo? declName) with
-        | some projInfo =>
-          if projInfo.numParams < args.size then
-            findFVar? args[projInfo.numParams]!
-          else
-            return none
-        | none =>
-          matchConstRec f (fun _ => return none) fun recVal _ => do
-            if recVal.getMajorIdx >= args.size then
-              return none
-            let major := args[recVal.getMajorIdx]!.consumeMData
-            if major.isFVar then
-              return some major.fvarId!
-            else
-              return none
-
-def casesOnStuckLHS? (mvarId : MVarId) : MetaM (Option (Array MVarId)) := do
-  try casesOnStuckLHS mvarId catch _ => return none
-
 namespace Match
 
-def unfoldNamedPattern (e : Expr) : MetaM Expr := do
-  let visit (e : Expr) : MetaM TransformStep := do
-    if let some e := isNamedPattern? e then
-      if let some eNew ← unfoldDefinition? e then
-        return TransformStep.visit eNew
-    return .continue
-  Meta.transform e (pre := visit)
 
 /--
   Similar to `forallTelescopeReducing`, but
@@ -132,7 +88,7 @@ where
 
 
 /--
-  Extension of `forallAltTelescope` that continues further:
+  Extension of `forallAltVarsTelescope` that continues further:
 
   Equality parameters associated with the `h : discr` notation are replaced with `rfl` proofs.
   Recall that this kind of parameter always occurs after the parameters corresponding to pattern
@@ -262,18 +218,6 @@ where
       (throwError "failed to generate equality theorems for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
     subgoals.forM (go · (depth+1))
 
-
-/-- Construct new local declarations `xs` with types `altTypes`, and then execute `f xs`  -/
-private partial def withSplitterAlts (altTypes : Array Expr) (f : Array Expr → MetaM α) : MetaM α := do
-  let rec go (i : Nat) (xs : Array Expr) : MetaM α := do
-    if h : i < altTypes.size then
-      let hName := (`h).appendIndexAfter (i+1)
-      withLocalDeclD hName altTypes[i] fun x =>
-        go (i+1) (xs.push x)
-    else
-      f xs
-  go 0 #[]
-
 /--
   Create new alternatives (aka minor premises) by replacing `discrs` with `patterns` at `alts`.
   Recall that `alts` depends on `discrs` when `numDiscrEqs > 0`, where `numDiscrEqs` is the number of discriminants
@@ -322,7 +266,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
   let us := constInfo.levelParams.map mkLevelParam
   let some matchInfo ← getMatcherInfo? matchDeclName | throwError "`{matchDeclName}` is not a matcher function"
   let numDiscrEqs := getNumEqsFromDiscrInfos matchInfo.discrInfos
-  forallTelescopeReducing constInfo.type fun xs matchResultType => do
+  forallTelescopeReducing constInfo.type fun xs _matchResultType => do
     let mut eqnNames := #[]
     let params := xs[*...matchInfo.numParams]
     let motive := xs[matchInfo.getMotivePos]!
@@ -331,16 +275,15 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
     let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
     let mut notAlts := #[]
     let mut idx := 1
-    let mut splitterAltTypes := #[]
     let mut splitterAltInfos := #[]
     let mut altArgMasks := #[] -- masks produced by `forallAltTelescope`
     for i in *...alts.size do
       let altInfo := matchInfo.altInfos[i]!
       let thmName := Name.str baseName eqnThmSuffixBase |>.appendIndexAfter idx
       eqnNames := eqnNames.push thmName
-      let (notAlt, splitterAltType, splitterAltInfo, argMask) ←
+      let (notAlt, splitterAltInfo, argMask) ←
           forallAltTelescope (← inferType alts[i]!) altInfo numDiscrEqs
-          fun ys eqs rhsArgs argMask altResultType => do
+          fun ys _eqs rhsArgs argMask altResultType => do
         let patterns := altResultType.getAppArgs
         let mut hs := #[]
         for overlappedBy in matchInfo.overlaps.overlapping i do
@@ -349,15 +292,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
           if let some h ← simpH? h patterns.size then
             hs := hs.push h
         trace[Meta.Match.matchEqs] "hs: {hs}"
-        let splitterAltType ← mkForallFVars eqs altResultType
-        let splitterAltType ← mkArrowN hs splitterAltType
-        let splitterAltType ← mkForallFVars ys splitterAltType
-        let hasUnitThunk := splitterAltType == altResultType
-        let splitterAltType ← if hasUnitThunk then
-          mkArrow (mkConst ``Unit) splitterAltType
-        else
-          pure splitterAltType
-        let splitterAltType ← unfoldNamedPattern splitterAltType
+        let hasUnitThunk := ys.isEmpty && hs.isEmpty && numDiscrEqs = 0
         let splitterAltInfo := { numFields := ys.size, numOverlaps := hs.size, hasUnitThunk }
         -- Create a proposition for representing terms that do not match `patterns`
         let mut notAlt := mkConst ``False
@@ -381,31 +316,23 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
             type        := thmType
             value       := thmVal
           }
-          return (notAlt, splitterAltType, splitterAltInfo, argMask)
+          return (notAlt, splitterAltInfo, argMask)
       notAlts := notAlts.push notAlt
-      splitterAltTypes := splitterAltTypes.push splitterAltType
       splitterAltInfos := splitterAltInfos.push splitterAltInfo
       altArgMasks := altArgMasks.push argMask
-      trace[Meta.Match.matchEqs] "splitterAltType: {splitterAltType}"
       idx := idx + 1
     let splitterMatchInfo : MatcherInfo := { matchInfo with altInfos := splitterAltInfos }
 
     let needsSplitter := !matchInfo.overlaps.isEmpty || (constInfo.type.find? (isNamedPattern )).isSome
 
     if needsSplitter then
-      -- Define splitter with conditional/refined alternatives
-      withSplitterAlts splitterAltTypes fun altsNew => do
-        let splitterParams := params.toArray ++ #[motive] ++ discrs.toArray ++ altsNew
-        let splitterType ← mkForallFVars splitterParams matchResultType
-        trace[Meta.Match.matchEqs] "splitterType: {splitterType}"
-
-        withMkMatcherInput matchDeclName (unfoldNamed := true) fun matcherInput => do
-          let matcherInput := { matcherInput with
-            matcherName := splitterName
-            isSplitter := some matchInfo.overlaps
-          }
-          let res ← Match.mkMatcher matcherInput
-          res.addMatcher -- TODO: Do not set matcherinfo for the splitter!
+      withMkMatcherInput matchDeclName (unfoldNamed := true) fun matcherInput => do
+        let matcherInput := { matcherInput with
+          matcherName := splitterName
+          isSplitter := some matchInfo.overlaps
+        }
+        let res ← Match.mkMatcher matcherInput
+        res.addMatcher -- TODO: Do not set matcherinfo for the splitter!
     else
       assert! matchInfo.altInfos == splitterAltInfos
       -- This match statement does not need a splitter, we can use itself for that.

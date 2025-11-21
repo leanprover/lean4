@@ -8,7 +8,8 @@ module
 prelude
 
 import Lean.Elab.PreDefinition.EqnsUtils
-import Lean.Meta.Match.MatchEqs
+import Lean.Meta.Match.NamedPatterns
+import Lean.Meta.Tactic.CasesOnStuckLHS
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Split
 

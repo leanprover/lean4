@@ -8,24 +8,11 @@ module
 prelude
 public import Lean.Meta.CollectFVars
 public import Lean.Meta.Match.CaseArraySizes
+public import Lean.Meta.Match.NamedPatterns
 
 public section
 
 namespace Lean.Meta.Match
-
-def mkNamedPattern (x h p : Expr) : MetaM Expr :=
-  mkAppM ``namedPattern #[x, p, h]
-
-def isNamedPattern (e : Expr) : Bool :=
-  let e := e.consumeMData
-  e.getAppNumArgs == 4 && e.getAppFn.consumeMData.isConstOf ``namedPattern
-
-def isNamedPattern? (e : Expr) : Option Expr :=
-  let e := e.consumeMData
-  if e.getAppNumArgs == 4 && e.getAppFn.consumeMData.isConstOf ``namedPattern then
-    some e
-  else
-    none
 
 inductive Pattern : Type where
   | inaccessible (e : Expr) : Pattern

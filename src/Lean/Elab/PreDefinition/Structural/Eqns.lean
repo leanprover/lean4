@@ -8,12 +8,10 @@ module
 prelude
 public import Lean.Elab.PreDefinition.FixedParams
 import Lean.Elab.PreDefinition.EqnsUtils
-import Lean.Meta.Tactic.Split
+import Lean.Meta.Tactic.CasesOnStuckLHS
+import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.Simp.Main
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Structural.Basic
-import Lean.Meta.Match.MatchEqs
-import Lean.Meta.Tactic.Rewrite
+import Lean.Meta.Tactic.Split
 
 namespace Lean.Elab
 open Meta

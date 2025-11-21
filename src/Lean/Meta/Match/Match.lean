@@ -1227,14 +1227,6 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
       let val  ← mkLambdaFVars args mvar
       mkMatcher type val altInfos s
 
-private def unfoldNamedPattern (e : Expr) : MetaM Expr := do
-  let visit (e : Expr) : MetaM TransformStep := do
-    if let some e := isNamedPattern? e then
-      if let some eNew ← unfoldDefinition? e then -- TODO: Why this?
-        return TransformStep.visit eNew
-    return .continue
-  Meta.transform e (pre := visit)
-
 def getMkMatcherInputInContext (matcherApp : MatcherApp) (unfoldNamed : Bool) : MetaM MkMatcherInput := do
   let matcherName := matcherApp.matcherName
   let some matcherInfo ← getMatcherInfo? matcherName

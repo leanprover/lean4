@@ -1080,8 +1080,8 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) (isSplitte
       -- matcher bodies should always be exported, if not private anyway
       withExporting do
         addDecl decl
-      modifyEnv fun env => matcherExt.modifyState env fun s => s.insert key name
       unless isSplitter do
+        modifyEnv fun env => matcherExt.modifyState env fun s => s.insert key name
         addMatcherInfo name mi
       setInlineAttribute name
       enableRealizationsForConst name

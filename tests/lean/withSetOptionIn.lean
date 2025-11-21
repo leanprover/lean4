@@ -2,7 +2,11 @@ import Lean
 
 /-!
 # `withSetOptionIn`
+-/
 
+section recurse
+
+/-!
 This test checks that `withSetOptionIn` recurses into the command syntax (`stx[2]`) in
 `set_option ... in <cmd>`.
 
@@ -37,3 +41,80 @@ Should trace `[debug] foo`, and not log the error "unexpected command 'in'".
 /-- info: [debug] foo -/
 #guard_msgs(trace) in
 #test set_option trace.debug true in #trace_debug_foo
+
+end recurse
+
+section infotree
+
+/-!
+These tests check that `withSetOptionIn` does not modify the infotrees.
+
+Modifying the infotrees in `withSetOptionIn` in linters created context-free info nodes, which
+caused `visitM` and related means of searching the infotrees, such as `collectNodesBottomUp`, to
+panic.
+
+We also check that we do not error inside linters due to malformed options.
+-/
+
+open Lean Elab Command
+
+/-- Two persistent arrays are equal if the corresponding elements are equal. -/
+def Lean.PersistentArray.eqOf [Inhabited α] (a b : PersistentArray α) (eq : α → α → Bool) : Bool :=
+  a.size == b.size && Id.run do
+    for i in 0...a.size do
+      unless eq a[i]! b[i]! do return false
+    return true
+
+/-- Compare the structure of an infotree. (Do not check that the infos are the same.) -/
+partial def Lean.Elab.InfoTree.structEq : InfoTree → InfoTree → Bool
+  | .context _ t, .context _ t' => t.structEq t'
+  | .node _ ts, .node _ ts' => ts.eqOf ts' structEq
+  | .hole _, .hole _ => true
+  | _, _ => false
+
+def compareWithSetOptionIn : CommandElab := fun stx => do
+  let originalTrees ← getInfoTrees
+  logInfo m!"without `withSetOption`: `linter.all := {← getBoolOption `linter.all}`"
+  for t in (← getInfoTrees) do
+    let optionNames := t.collectNodesBottomUp fun _ i _ n =>
+      match i with
+      | .ofOptionInfo i => i.optionName :: n
+      | _ => n
+    logInfo m!"without `withSetOption`: Found option names in trees: {optionNames}"
+  let runWithSetOptionIn : CommandElab := withSetOptionIn fun _ => do
+    logInfo m!"trees are structurally equal: {originalTrees.eqOf (← getInfoTrees) (·.structEq ·)}"
+    logInfo m!"with `withSetOptionIn`: `linter.all := {← getBoolOption `linter.all}`"
+    -- For good measure, make sure `collectNodesBottomUp` finds `linter.all` from the *original*
+    -- elaboration (i.e., the infotrees are as expected) and doesn't panic.
+    for t in ← getInfoTrees do
+      let optionNames := t.collectNodesBottomUp fun
+        | _, .ofOptionInfo i, _, ns => i.optionName :: ns
+        | _, _, _, ns => ns
+      logInfo m!"with `withSetOption`: Found option names in trees: {optionNames}"
+  runWithSetOptionIn stx
+
+/-
+Should show `linter.all := false` without `withSetOptionIn`, and `linter.all := true` with.
+Should find the option name `linter.all` exactly once **both** with and without `withSetOptionIn`.
+This ensures that we're looking at correct post-elaboration infotrees in this test.
+-/
+
+run_cmd do
+  let stx ← `(command| set_option linter.all true in example : True := trivial)
+  elabCommand stx
+  compareWithSetOptionIn stx
+
+/-
+Should have `linter.all := false` both times, since the value is malformed, but still find an
+`OptionInfo`.
+
+Should only log the `set_option` error **once** from `elabCommand`. `compareWithSetOption` should
+not produce an error.
+-/
+run_cmd do
+  let stx ← `(command| set_option linter.all 3 in example : True := trivial)
+  elabCommand stx
+  try compareWithSetOptionIn stx catch ex =>
+    throwError "comparison produced error:\n\n{ex.toMessageData}"
+
+end infotree

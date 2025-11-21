@@ -491,13 +491,13 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
   let (app, p?) ← match h? with
     | none =>
       let instForIn ← Term.mkInstMVar <| mkApp3 (mkConst ``ForInNew [uρ, uα, mi.u, mi.v]) mi.m ρ α
-      let app := mkConst ``ForInNew.forIn [uρ, uα, mi.u, mi.v]
+      let app := mkConst ``ForInNew.forInNew [uρ, uα, mi.u, mi.v]
       let app := mkApp7 app mi.m ρ α instForIn σ γ xs -- 3 args remaining: preS, kcons, knil
       pure (app, none)
     | some _ =>
       let p ← mkFreshExprMVar (← mkArrowN #[ρ, α] (mkSort .zero)) (userName := `p)
       let instForIn ← Term.mkInstMVar <| mkApp4 (mkConst ``ForInNew' [uρ, uα, mi.u, mi.v]) mi.m ρ α p
-      let app := mkConst ``ForInNew'.forIn' [uρ, uα, mi.u, mi.v]
+      let app := mkConst ``ForInNew'.forInNew' [uρ, uα, mi.u, mi.v]
       let app := mkApp8 app mi.m ρ α p instForIn σ γ xs -- 3 args remaining: preS, kcons, knil
       pure (app, some p)
   withLetDecl (← mkFreshUserName `kbreak) β breakRhs (kind := .implDetail) (nondep := true) fun kbreak => do

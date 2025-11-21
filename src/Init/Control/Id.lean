@@ -70,7 +70,7 @@ instance {m : Type u → Type v} [Pure m] : MonadLiftT Id m where
 end Id
 
 def ForInNew.toArray {ρ α} [ForInNew Id ρ α] (r : ρ) : Array α :=
-  Id.run (forIn r (Array.mkEmpty 0) (fun a k arr => k (arr.push a)) pure)
+  Id.run (forInNew r (Array.mkEmpty 0) (fun a k arr => k (arr.push a)) pure)
 
 def ForInNew.toList {ρ α} [ForInNew Id ρ α] (r : ρ) : List α :=
   toArray r |>.toList

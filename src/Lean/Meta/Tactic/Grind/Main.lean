@@ -279,6 +279,11 @@ See issue #11806 for a motivating example.
 def withProtectedMCtx [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
     [MonadExcept Exception m] [MonadRuntimeException m]
     (abstractProof : Bool) (mvarId : MVarId) (k : MVarId → m α) : m α := do
+  /-
+  **Note**: `instantiateMVars` here also instantiates mvars occurring in hypotheses.
+  This is particularly important when using `grind -revert`.
+  -/
+  let mvarId ← mvarId.instantiateMVars
   let mvarId ← mvarId.abstractMVars
   let mvarId ← mvarId.clearImplDetails
   tryCatchRuntimeEx (main mvarId) fun ex => do

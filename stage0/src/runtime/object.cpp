@@ -1952,8 +1952,10 @@ extern "C" LEAN_EXPORT obj_res lean_decode_lossy_utf8(b_obj_arg a) {
     return lean_mk_string_from_bytes(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_string_from_utf8_unchecked(b_obj_arg a) {
-    return lean_mk_string_from_bytes_unchecked(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
+extern "C" LEAN_EXPORT obj_res lean_string_from_utf8_unchecked(obj_arg a) {
+    obj_res ret = lean_mk_string_from_bytes_unchecked(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
+    lean_dec(a);
+    return ret;
 }
 
 extern "C" LEAN_EXPORT uint8 lean_string_validate_utf8(b_obj_arg a) {

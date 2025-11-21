@@ -3482,7 +3482,6 @@ x_40 = lean_ctor_get(x_35, 2);
 x_41 = lean_ctor_get(x_36, 0);
 lean_inc_ref(x_41);
 lean_dec_ref(x_36);
-lean_inc_ref(x_41);
 x_73 = lean_string_validate_utf8(x_41);
 if (x_73 == 0)
 {
@@ -3746,7 +3745,6 @@ x_35 = lean_ctor_get(x_30, 2);
 x_61 = lean_ctor_get(x_31, 0);
 lean_inc_ref(x_61);
 lean_dec_ref(x_31);
-lean_inc_ref(x_61);
 x_62 = lean_string_validate_utf8(x_61);
 if (x_62 == 0)
 {
@@ -4338,7 +4336,6 @@ x_41 = lean_ctor_get(x_36, 2);
 x_67 = lean_ctor_get(x_37, 0);
 lean_inc_ref(x_67);
 lean_dec_ref(x_37);
-lean_inc_ref(x_67);
 x_68 = lean_string_validate_utf8(x_67);
 if (x_68 == 0)
 {
@@ -4521,7 +4518,6 @@ x_99 = lean_ctor_get(x_94, 2);
 x_114 = lean_ctor_get(x_95, 0);
 lean_inc_ref(x_114);
 lean_dec_ref(x_95);
-lean_inc_ref(x_114);
 x_115 = lean_string_validate_utf8(x_114);
 if (x_115 == 0)
 {
@@ -5038,7 +5034,6 @@ x_46 = lean_ctor_get(x_41, 2);
 x_47 = lean_ctor_get(x_42, 0);
 lean_inc_ref(x_47);
 lean_dec_ref(x_42);
-lean_inc_ref(x_47);
 x_79 = lean_string_validate_utf8(x_47);
 if (x_79 == 0)
 {
@@ -5232,7 +5227,6 @@ x_105 = lean_ctor_get(x_100, 2);
 x_106 = lean_ctor_get(x_101, 0);
 lean_inc_ref(x_106);
 lean_dec_ref(x_101);
-lean_inc_ref(x_106);
 x_125 = lean_string_validate_utf8(x_106);
 if (x_125 == 0)
 {

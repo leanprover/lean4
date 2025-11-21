@@ -260,6 +260,7 @@ lean_object* l_Lean_Lsp_ModuleRefs_findAt(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at___00__private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_initFn_00___x40_Lean_Server_FileWorker_RequestHandling_1490364749____hygCtx___hyg_2__spec__0___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleDefinition___lam__3___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleHover___lam__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at___00__private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_initFn_00___x40_Lean_Server_FileWorker_RequestHandling_1490364749____hygCtx___hyg_2__spec__17___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handlePlainTermGoal(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_parseRequestParams___at___00Lean_Server_registerLspRequestHandler___at___00__private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_initFn_00___x40_Lean_Server_FileWorker_RequestHandling_1490364749____hygCtx___hyg_2__spec__36_spec__37(lean_object*, lean_object*);
@@ -3470,7 +3471,7 @@ lean_dec_ref(x_1);
 x_10 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_handleHover___lam__0___boxed), 4, 0);
 x_11 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_handleHover___lam__1___boxed), 1, 0);
 lean_inc_ref(x_8);
-x_12 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_handleHover___lam__2), 3, 1);
+x_12 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_handleHover___lam__2___boxed), 3, 1);
 lean_closure_set(x_12, 0, x_8);
 x_13 = l_Lean_FileMap_lspPosToUtf8Pos(x_8, x_9);
 lean_inc(x_13);
@@ -3585,6 +3586,15 @@ x_2 = l_Lean_Server_FileWorker_handleHover___lam__1(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleHover___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Server_FileWorker_handleHover___lam__2(x_1, x_2, x_3);
+lean_dec_ref(x_2);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleHover___lam__3___boxed(lean_object* x_1, lean_object* x_2) {
@@ -9733,7 +9743,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_NamespaceEntry_finish(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_20; lean_object* x_21; lean_object* x_29; lean_object* x_38; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_20; lean_object* x_21; lean_object* x_29; lean_object* x_38; 
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_4, 1);
@@ -9812,10 +9822,10 @@ lean_ctor_set(x_15, 0, x_2);
 x_16 = lean_alloc_ctor(0, 5, 1);
 lean_ctor_set(x_16, 0, x_10);
 lean_ctor_set(x_16, 1, x_12);
-lean_ctor_set(x_16, 2, x_9);
+lean_ctor_set(x_16, 2, x_11);
 lean_ctor_set(x_16, 3, x_14);
 lean_ctor_set(x_16, 4, x_15);
-lean_ctor_set_uint8(x_16, sizeof(void*)*5, x_11);
+lean_ctor_set_uint8(x_16, sizeof(void*)*5, x_9);
 x_17 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
 x_18 = lean_array_push(x_8, x_17);
@@ -9834,9 +9844,9 @@ x_26 = l_Lean_Syntax_getRange_x3f(x_7, x_25);
 lean_dec(x_7);
 if (lean_obj_tag(x_26) == 0)
 {
-x_9 = x_24;
+x_9 = x_23;
 x_10 = x_21;
-x_11 = x_23;
+x_11 = x_24;
 x_12 = x_22;
 x_13 = x_20;
 goto block_19;
@@ -9848,9 +9858,9 @@ lean_dec_ref(x_20);
 x_27 = lean_ctor_get(x_26, 0);
 lean_inc(x_27);
 lean_dec_ref(x_26);
-x_9 = x_24;
+x_9 = x_23;
 x_10 = x_21;
-x_11 = x_23;
+x_11 = x_24;
 x_12 = x_22;
 x_13 = x_27;
 goto block_19;

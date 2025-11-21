@@ -79,7 +79,6 @@ static lean_object* l___private_Lean_DocString_Formatter_0__Lean_Doc_Parser_vers
 static lean_object* l___private_Lean_DocString_Formatter_0__Lean_Doc_Parser_versoSyntaxToString_x27___closed__58;
 static lean_object* l___private_Lean_DocString_Formatter_0__Lean_Doc_Parser_versoSyntaxToString_x27___closed__72;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___00__private_Lean_DocString_Formatter_0__Lean_Doc_Parser_versoSyntaxToString_x27_spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_Slice_replaceStartEnd_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00__private_Lean_DocString_Formatter_0__Lean_Doc_Parser_rep_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -146,6 +145,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00__private_Lean_DocString_Formatter_0__Lean_Doc_Parser_rep_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_DocString_Formatter_0__Lean_Doc_Parser_versoSyntaxToString_x27_nl_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_DocString_Formatter_0__Lean_Doc_Parser_versoSyntaxToString_x27___closed__31;
+lean_object* l_String_Slice_slice_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_document_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Slice_Pos_next___redArg(lean_object*, lean_object*);
@@ -1326,7 +1326,7 @@ else
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 lean_inc_ref(x_1);
-x_33 = l_String_Slice_replaceStartEnd_x21(x_1, x_20, x_21);
+x_33 = l_String_Slice_slice_x21(x_1, x_20, x_21);
 lean_dec(x_21);
 lean_dec(x_20);
 x_34 = lean_ctor_get(x_33, 0);
@@ -1399,7 +1399,7 @@ else
 {
 lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; 
 lean_inc_ref(x_1);
-x_53 = l_String_Slice_replaceStartEnd_x21(x_1, x_39, x_40);
+x_53 = l_String_Slice_slice_x21(x_1, x_39, x_40);
 lean_dec(x_40);
 lean_dec(x_39);
 x_54 = lean_ctor_get(x_53, 0);
@@ -1491,7 +1491,7 @@ else
 {
 lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; 
 lean_inc_ref(x_1);
-x_76 = l_String_Slice_replaceStartEnd_x21(x_1, x_60, x_61);
+x_76 = l_String_Slice_slice_x21(x_1, x_60, x_61);
 lean_dec(x_61);
 lean_dec(x_60);
 x_77 = lean_ctor_get(x_76, 0);
@@ -1610,7 +1610,7 @@ else
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 lean_inc_ref(x_1);
-x_33 = l_String_Slice_replaceStartEnd_x21(x_1, x_20, x_21);
+x_33 = l_String_Slice_slice_x21(x_1, x_20, x_21);
 lean_dec(x_21);
 lean_dec(x_20);
 x_34 = lean_ctor_get(x_33, 0);
@@ -1685,7 +1685,7 @@ else
 {
 lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; 
 lean_inc_ref(x_1);
-x_53 = l_String_Slice_replaceStartEnd_x21(x_1, x_39, x_40);
+x_53 = l_String_Slice_slice_x21(x_1, x_39, x_40);
 lean_dec(x_40);
 lean_dec(x_39);
 x_54 = lean_ctor_get(x_53, 0);
@@ -1777,7 +1777,7 @@ else
 {
 lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; 
 lean_inc_ref(x_1);
-x_76 = l_String_Slice_replaceStartEnd_x21(x_1, x_60, x_61);
+x_76 = l_String_Slice_slice_x21(x_1, x_60, x_61);
 lean_dec(x_61);
 lean_dec(x_60);
 x_77 = lean_ctor_get(x_76, 0);

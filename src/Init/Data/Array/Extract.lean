@@ -409,8 +409,6 @@ theorem popWhile_append {xs ys : Array α} :
   rcases ys with ⟨ys⟩
   simp only [List.append_toArray, List.popWhile_toArray, List.reverse_append, List.dropWhile_append,
     List.isEmpty_iff, List.isEmpty_toArray, List.isEmpty_reverse]
-  -- Why do these not fire with `simp`?
-  rw [List.popWhile_toArray, List.isEmpty_toArray, List.isEmpty_reverse]
   split
   · rfl
   · simp

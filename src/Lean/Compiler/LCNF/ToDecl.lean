@@ -49,10 +49,9 @@ partial def inlineMatchers (e : Expr) : CoreM Expr :=
         return .visit (← Meta.mkLambdaFVars xs (mkAppN e xs))
     else
       let mut args := e.getAppArgs
-      let numAlts := info.numAlts
       let altNumParams := info.altNumParams
       let rec inlineMatcher (i : Nat) (args : Array Expr) (letFVars : Array Expr) : MetaM Expr := do
-        if h : i < numAlts then
+        if h : i < altNumParams.size then
           let altIdx := i + info.getFirstAltPos
           let numParams := altNumParams[i]
           let alt ← normalizeAlt args[altIdx]! numParams

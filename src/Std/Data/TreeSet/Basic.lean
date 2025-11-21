@@ -494,6 +494,16 @@ def union (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
 instance : Union (TreeSet α cmp) := ⟨union⟩
 
 /--
+Computes the intersection of the given tree sets.
+
+This function always iterates through the smaller set.
+-/
+def inter (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
+  ⟨TreeMap.inter t₁.inner t₂.inner⟩
+
+instance : Inter (TreeSet α cmp) := ⟨inter⟩
+
+/--
 Erases multiple items from the tree set by iterating over the given collection and calling erase.
 -/
 @[inline]

@@ -29,7 +29,6 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 static lean_object* l_Lake_instReprDate_repr___redArg___closed__16;
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 static lean_object* l_Lake_instReprDate_repr___redArg___closed__12;
-lean_object* l_String_Slice_replaceStartEnd_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Lake_instReprDate_repr___redArg___closed__6;
 LEAN_EXPORT uint8_t l_Lake_instOrdDate_ord(lean_object*, lean_object*);
@@ -66,6 +65,7 @@ LEAN_EXPORT lean_object* l_Lake_Date_instMax;
 static lean_object* l_Lake_Date_ofString_x3f___closed__0;
 static lean_object* l_Lake_instReprDate_repr___redArg___closed__1;
 static lean_object* l_String_Slice_split___at___00Lake_Date_ofString_x3f_spec__0___closed__0;
+lean_object* l_String_Slice_slice_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Slice_Pos_next___redArg(lean_object*, lean_object*);
 static lean_object* l_Lake_instReprDate_repr___redArg___closed__5;
 static lean_object* l_Lake_instReprDate_repr___redArg___closed__13;
@@ -983,7 +983,7 @@ else
 {
 lean_object* x_25; 
 lean_inc_ref(x_1);
-x_25 = l_String_Slice_replaceStartEnd_x21(x_1, x_12, x_13);
+x_25 = l_String_Slice_slice_x21(x_1, x_12, x_13);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_ctor_set(x_2, 0, x_20);
@@ -1049,7 +1049,7 @@ else
 {
 lean_object* x_43; 
 lean_inc_ref(x_1);
-x_43 = l_String_Slice_replaceStartEnd_x21(x_1, x_29, x_30);
+x_43 = l_String_Slice_slice_x21(x_1, x_29, x_30);
 lean_dec(x_30);
 lean_dec(x_29);
 lean_ctor_set(x_2, 1, x_38);
@@ -1134,7 +1134,7 @@ else
 {
 lean_object* x_64; lean_object* x_65; 
 lean_inc_ref(x_1);
-x_64 = l_String_Slice_replaceStartEnd_x21(x_1, x_48, x_49);
+x_64 = l_String_Slice_slice_x21(x_1, x_48, x_49);
 lean_dec(x_49);
 lean_dec(x_48);
 x_65 = lean_alloc_ctor(0, 2, 0);

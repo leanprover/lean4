@@ -42,7 +42,7 @@ private def addCommentAt (indent : Nat) (line : String) : String := Id.run do
     else
       -- The line was entirely ' ', and was shorter than the indentation level. No `--` added.
       return line
-  let remaining := line.replaceStart iter
+  let remaining := line.sliceFrom iter
   if remaining.all (· == ' ') then
     return line
   else
@@ -88,11 +88,11 @@ def rewriteExamples (docstring : String) : String := Id.run do
   -- The current state, which tracks the context of the line being processed
   let mut inOutput : RWState := .normal
   for l in lines do
-    let indent := l.takeWhile (· == ' ') |>.copy |>.length
+    let indent := l.takeWhile (· == ' ') |>.utf8ByteSize -- this makes sense because we know the slice consists only of spaces
     let mut l' := l.trimAsciiStart
     -- Is this a code block fence?
     if l'.startsWith "```" then
-      let count := l'.takeWhile (· == '`') |>.copy |>.length
+      let count := l'.takeWhile (· == '`') |>.utf8ByteSize -- this makes sense because we know the slice consists only of ticks
       l' := l'.dropWhile (· == '`')
       l' := l'.dropWhile (· == ' ')
       match inOutput with

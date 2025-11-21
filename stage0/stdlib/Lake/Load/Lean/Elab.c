@@ -5102,9 +5102,9 @@ goto block_190;
 block_182:
 {
 lean_object* x_179; lean_object* x_180; lean_object* x_181; 
-x_179 = lean_nat_add(x_177, x_178);
+x_179 = lean_nat_add(x_176, x_178);
 lean_dec(x_178);
-lean_dec(x_177);
+lean_dec(x_176);
 if (lean_is_scalar(x_172)) {
  x_180 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -5123,7 +5123,7 @@ if (lean_is_scalar(x_162)) {
 lean_ctor_set(x_181, 0, x_175);
 lean_ctor_set(x_181, 1, x_165);
 lean_ctor_set(x_181, 2, x_166);
-lean_ctor_set(x_181, 3, x_176);
+lean_ctor_set(x_181, 3, x_177);
 lean_ctor_set(x_181, 4, x_180);
 return x_181;
 }
@@ -5149,8 +5149,8 @@ if (lean_obj_tag(x_168) == 0)
 lean_object* x_188; 
 x_188 = lean_ctor_get(x_168, 0);
 lean_inc(x_188);
-x_176 = x_186;
-x_177 = x_187;
+x_176 = x_187;
+x_177 = x_186;
 x_178 = x_188;
 goto block_182;
 }
@@ -5158,8 +5158,8 @@ else
 {
 lean_object* x_189; 
 x_189 = lean_unsigned_to_nat(0u);
-x_176 = x_186;
-x_177 = x_187;
+x_176 = x_187;
+x_177 = x_186;
 x_178 = x_189;
 goto block_182;
 }
@@ -8186,8 +8186,8 @@ lean_dec_ref(x_20);
 lean_dec(x_19);
 lean_dec_ref(x_18);
 x_4 = x_209;
-x_5 = lean_box(0);
-x_6 = x_214;
+x_5 = x_214;
+x_6 = lean_box(0);
 goto block_12;
 }
 else
@@ -8212,8 +8212,8 @@ lean_dec_ref(x_20);
 lean_dec(x_19);
 lean_dec_ref(x_18);
 x_4 = x_209;
-x_5 = lean_box(0);
-x_6 = x_214;
+x_5 = x_214;
+x_6 = lean_box(0);
 goto block_12;
 }
 else
@@ -8237,8 +8237,8 @@ lean_dec_ref(x_20);
 lean_dec(x_19);
 lean_dec_ref(x_18);
 x_4 = x_209;
-x_5 = lean_box(0);
-x_6 = x_214;
+x_5 = x_214;
+x_6 = lean_box(0);
 goto block_12;
 }
 else
@@ -8257,8 +8257,8 @@ lean_dec_ref(x_20);
 lean_dec(x_19);
 lean_dec_ref(x_18);
 x_4 = x_209;
-x_5 = lean_box(0);
-x_6 = x_214;
+x_5 = x_214;
+x_6 = lean_box(0);
 goto block_12;
 }
 else
@@ -8629,7 +8629,7 @@ block_12:
 uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 3;
 x_8 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_8, 0, x_6);
+lean_ctor_set(x_8, 0, x_5);
 lean_ctor_set_uint8(x_8, sizeof(void*)*1, x_7);
 x_9 = lean_array_get_size(x_4);
 x_10 = lean_array_push(x_4, x_8);

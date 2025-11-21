@@ -2920,7 +2920,40 @@ protected def List.hasDecEq {α : Type u} [DecidableEq α] : (a b : List α) →
       | isFalse nabs => isFalse (fun h => List.noConfusion h (fun _ habs => absurd habs nabs))
     | isFalse nab => isFalse (fun h => List.noConfusion h (fun hab _ => absurd hab nab))
 
-instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := List.hasDecEq
+instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := fun xs ys =>
+  /-
+  The first match step is expanded to make this instance
+  maximally-definitionally-equivalent to the compare-with-empty-list cases.
+  -/
+  match xs with
+  | .nil => match ys with
+    | .nil => isTrue rfl
+    | .cons _ _ => isFalse List.noConfusion
+  | .cons a as => match ys with
+    | .nil => isFalse List.noConfusion
+    | .cons b bs =>
+      match decEq a b with
+      | isTrue hab =>
+        match List.hasDecEq as bs with
+        | isTrue habs  => isTrue (hab ▸ habs ▸ rfl)
+        | isFalse nabs => isFalse (List.noConfusion · (fun _ habs => absurd habs nabs))
+      | isFalse nab => isFalse (List.noConfusion · (fun hab _ => absurd hab nab))
+
+/--
+Equality with `List.nil` is decidable even if the underlying type does not have decidable equality.
+-/
+instance List.instDecidableNilEq (a : List α) : Decidable (Eq List.nil a) :=
+  match a with
+  | .nil => isTrue rfl
+  | .cons _ _ => isFalse List.noConfusion
+
+/--
+Equality with `List.nil` is decidable even if the underlying type does not have decidable equality.
+-/
+instance List.instDecidableEqNil (a : List α) : Decidable (Eq a List.nil) :=
+  match a with
+  | .nil => isTrue rfl
+  | .cons _ _ => isFalse List.noConfusion
 
 /--
 The length of a list.

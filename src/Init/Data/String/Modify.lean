@@ -41,10 +41,10 @@ def ValidPos.set {s : String} (p : s.ValidPos) (c : Char) (hp : p ≠ s.endValid
       refine ByteArray.IsValidUTF8.append ?_ (p.next hp).isValid.isValidUTF8_extract_utf8ByteSize
       exact p.isValid.isValidUTF8_extract_zero.push hc.1)
   else
-    (s.replaceEnd p).copy ++ singleton c ++ (s.replaceStart (p.next hp)).copy
+    (s.sliceTo p).copy ++ singleton c ++ (s.sliceFrom (p.next hp)).copy
 
 theorem ValidPos.set_eq_append {s : String} {p : s.ValidPos} {c : Char} {hp} :
-    p.set c hp = (s.replaceEnd p).copy ++ singleton c ++ (s.replaceStart (p.next hp)).copy := by
+    p.set c hp = (s.sliceTo p).copy ++ singleton c ++ (s.sliceFrom (p.next hp)).copy := by
   rw [set]
   split
   · rename_i h
@@ -56,7 +56,7 @@ theorem Pos.Raw.IsValid.set_of_le {s : String} {p : s.ValidPos} {c : Char} {hp :
     {q : Pos.Raw} (hq : q.IsValid s) (hpq : q ≤ p.offset) : q.IsValid (p.set c hp) := by
   rw [ValidPos.set_eq_append, String.append_assoc]
   apply append_right
-  rw [isValid_copy_iff, isValidForSlice_stringReplaceEnd]
+  rw [isValid_copy_iff, isValidForSlice_stringSliceTo]
   exact ⟨hpq, hq⟩
 
 /-- Given a valid position in a string, obtain the corresponding position after setting a character on
@@ -91,7 +91,7 @@ def ValidPos.appendRight {s : String} (p : s.ValidPos) (t : String) : (s ++ t).V
   isValid := p.isValid.append_right t
 
 theorem ValidPos.splits_pastSet {s : String} {p : s.ValidPos} {c : Char} {hp} :
-    (p.pastSet c hp).Splits ((s.replaceEnd p).copy ++ singleton c) (s.replaceStart (p.next hp)).copy where
+    (p.pastSet c hp).Splits ((s.sliceTo p).copy ++ singleton c) (s.sliceFrom (p.next hp)).copy where
   eq_append := set_eq_append
   offset_eq_rawEndPos := by simp
 

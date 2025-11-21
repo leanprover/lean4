@@ -59,7 +59,6 @@ static lean_object* l___private_Lake_Build_Key_0__Lake_PartialBuildKey_parse_par
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 static lean_object* l_Lake_instHashableBuildKey___closed__0;
 static lean_object* l_Lake_instInhabitedBuildKey_default___closed__0;
-lean_object* l_String_Slice_replaceStartEnd_x21(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_PartialBuildKey_parse___closed__3;
 LEAN_EXPORT lean_object* l___private_Lake_Build_Key_0__Lake_BuildKey_quickCmp_match__13_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instReprBuildKey_repr___closed__7;
@@ -110,6 +109,7 @@ LEAN_EXPORT lean_object* l_Lake_instInhabitedBuildKey;
 LEAN_EXPORT lean_object* l_panic___at___00Lake_PartialBuildKey_parse_spec__2(lean_object*);
 static lean_object* l_Lake_instReprBuildKey_repr___closed__4;
 LEAN_EXPORT lean_object* l_Lake_PartialBuildKey_parse(lean_object*);
+lean_object* l_String_Slice_slice_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(lean_object*, uint8_t);
 lean_object* l_String_Slice_Pos_next___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Key_0__Lake_BuildKey_quickCmp_match__7_splitter(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -1364,7 +1364,7 @@ else
 {
 lean_object* x_25; 
 lean_inc_ref(x_1);
-x_25 = l_String_Slice_replaceStartEnd_x21(x_1, x_12, x_13);
+x_25 = l_String_Slice_slice_x21(x_1, x_12, x_13);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_ctor_set(x_2, 0, x_20);
@@ -1430,7 +1430,7 @@ else
 {
 lean_object* x_43; 
 lean_inc_ref(x_1);
-x_43 = l_String_Slice_replaceStartEnd_x21(x_1, x_29, x_30);
+x_43 = l_String_Slice_slice_x21(x_1, x_29, x_30);
 lean_dec(x_30);
 lean_dec(x_29);
 lean_ctor_set(x_2, 1, x_38);
@@ -1515,7 +1515,7 @@ else
 {
 lean_object* x_64; lean_object* x_65; 
 lean_inc_ref(x_1);
-x_64 = l_String_Slice_replaceStartEnd_x21(x_1, x_48, x_49);
+x_64 = l_String_Slice_slice_x21(x_1, x_48, x_49);
 lean_dec(x_49);
 lean_dec(x_48);
 x_65 = lean_alloc_ctor(0, 2, 0);
@@ -1973,7 +1973,7 @@ else
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 lean_inc_ref(x_1);
-x_28 = l_String_Slice_replaceStartEnd_x21(x_1, x_15, x_16);
+x_28 = l_String_Slice_slice_x21(x_1, x_15, x_16);
 lean_dec(x_16);
 lean_dec(x_15);
 x_29 = lean_ctor_get(x_28, 0);
@@ -2046,7 +2046,7 @@ else
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
 lean_inc_ref(x_1);
-x_48 = l_String_Slice_replaceStartEnd_x21(x_1, x_34, x_35);
+x_48 = l_String_Slice_slice_x21(x_1, x_34, x_35);
 lean_dec(x_35);
 lean_dec(x_34);
 x_49 = lean_ctor_get(x_48, 0);
@@ -2138,7 +2138,7 @@ else
 {
 lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; 
 lean_inc_ref(x_1);
-x_71 = l_String_Slice_replaceStartEnd_x21(x_1, x_55, x_56);
+x_71 = l_String_Slice_slice_x21(x_1, x_55, x_56);
 lean_dec(x_56);
 lean_dec(x_55);
 x_72 = lean_ctor_get(x_71, 0);
@@ -3265,16 +3265,19 @@ _start:
 {
 if (x_1 == 1)
 {
+lean_object* x_4; lean_object* x_5; 
 lean_dec(x_3);
-lean_inc(x_2);
-return x_2;
+x_4 = lean_box(0);
+x_5 = lean_apply_1(x_2, x_4);
+return x_5;
 }
 else
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = lean_box(x_1);
-x_5 = lean_apply_2(x_3, x_4, lean_box(0));
-return x_5;
+lean_object* x_6; lean_object* x_7; 
+lean_dec(x_2);
+x_6 = lean_box(x_1);
+x_7 = lean_apply_2(x_3, x_6, lean_box(0));
+return x_7;
 }
 }
 }
@@ -3292,7 +3295,6 @@ _start:
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
 x_5 = l___private_Lake_Build_Key_0__Lake_BuildKey_quickCmp_match__7_splitter___redArg(x_4, x_2, x_3);
-lean_dec(x_2);
 return x_5;
 }
 }
@@ -3302,7 +3304,6 @@ _start:
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
 x_6 = l___private_Lake_Build_Key_0__Lake_BuildKey_quickCmp_match__7_splitter(x_1, x_5, x_3, x_4);
-lean_dec(x_3);
 return x_6;
 }
 }

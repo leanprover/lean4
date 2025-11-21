@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Slice.Array.Lemmas
-// Imports: import all Init.Data.Array.Subarray import all Init.Data.Slice.Array.Basic import Init.Data.Slice.Lemmas public import Init.Data.Slice.Array.Iterator import all Init.Data.Slice.Array.Iterator import all Init.Data.Slice.Operations import all Init.Data.Range.Polymorphic.Iterators import all Init.Data.Range.Polymorphic.Lemmas public import Init.Data.Slice.Lemmas public import Init.Data.Iterators.Lemmas
+// Imports: import all Init.Data.Array.Subarray import all Init.Data.Slice.Array.Basic import Init.Data.Slice.Lemmas public import Init.Data.Slice.Array.Iterator import all Init.Data.Slice.Array.Iterator import all Init.Data.Slice.Operations import all Init.Data.Range.Polymorphic.Iterators public import Init.Data.Range.Polymorphic.Lemmas import all Init.Data.Range.Polymorphic.Lemmas public import Init.Data.Slice.Lemmas public import Init.Data.Iterators.Lemmas import Init.Data.Slice.List.Lemmas import Init.Data.Range.Polymorphic.NatLemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -21,8 +21,11 @@ lean_object* initialize_Init_Data_Slice_Array_Iterator(uint8_t builtin);
 lean_object* initialize_Init_Data_Slice_Operations(uint8_t builtin);
 lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
 lean_object* initialize_Init_Data_Range_Polymorphic_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Slice_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Slice_List_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_NatLemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Slice_Array_Lemmas(uint8_t builtin) {
 lean_object * res;
@@ -52,10 +55,19 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Range_Polymorphic_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Slice_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Slice_List_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_NatLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

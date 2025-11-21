@@ -97,7 +97,6 @@ static lean_object* l_List_toString___at___00Lean_SubExpr_Pos_fromString_x3f_spe
 LEAN_EXPORT lean_object* l_Lean_SubExpr_ctorIdx(lean_object*);
 lean_object* l_List_foldl___at___00Array_appendList_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getStr_x3f(lean_object*);
-lean_object* l_String_Slice_replaceStartEnd_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_SubExpr_Pos_toArray___closed__1;
@@ -181,6 +180,7 @@ LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushAppFn___boxed(lean_object*);
 static lean_object* l_Lean_SubExpr_instFromJsonGoalsLocation_fromJson___closed__6;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_GoalLocation_hypValue_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_push(lean_object*, lean_object*);
+lean_object* l_String_Slice_slice_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(lean_object*, uint8_t);
 lean_object* l_String_Slice_Pos_next___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_asNat(lean_object*);
@@ -1713,7 +1713,7 @@ else
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 lean_inc_ref(x_1);
-x_28 = l_String_Slice_replaceStartEnd_x21(x_1, x_15, x_16);
+x_28 = l_String_Slice_slice_x21(x_1, x_15, x_16);
 lean_dec(x_16);
 lean_dec(x_15);
 x_29 = lean_ctor_get(x_28, 0);
@@ -1786,7 +1786,7 @@ else
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
 lean_inc_ref(x_1);
-x_48 = l_String_Slice_replaceStartEnd_x21(x_1, x_34, x_35);
+x_48 = l_String_Slice_slice_x21(x_1, x_34, x_35);
 lean_dec(x_35);
 lean_dec(x_34);
 x_49 = lean_ctor_get(x_48, 0);
@@ -1878,7 +1878,7 @@ else
 {
 lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; 
 lean_inc_ref(x_1);
-x_71 = l_String_Slice_replaceStartEnd_x21(x_1, x_55, x_56);
+x_71 = l_String_Slice_slice_x21(x_1, x_55, x_56);
 lean_dec(x_56);
 lean_dec(x_55);
 x_72 = lean_ctor_get(x_71, 0);

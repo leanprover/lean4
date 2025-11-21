@@ -337,7 +337,6 @@ theorem WF.ofList [BEq α] [Hashable α] {l : List α} :
   ⟨HashMap.Raw.WF.unitOfList⟩
 
 theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ ∪ m₂).WF :=
-theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ ∪ m₂).WF :=
   ⟨HashMap.Raw.WF.union h₁.out h₂.out⟩
 
 theorem WF.inter [BEq α] [Hashable α] {m₁ m₂ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ ∩ m₂).WF :=

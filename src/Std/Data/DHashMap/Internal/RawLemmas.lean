@@ -3365,86 +3365,86 @@ theorem contains_diff_eq_false_of_contains_right [EquivBEq α] [LawfulHashable �
     (h : m₂.contains k) :
     (m₁.diff m₂).contains k = false := by
   revert h
-  simp_to_model [diff, contains] using List.containsKey_diff_of_containsKey_eq_false_right
+  simp_to_model [diff, contains] using List.containsKey_filter_contains_map_fst_eq_false_of_contains_map_fst_right
 
 /- get? -/
 theorem get?_diff [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
     (m₁.diff m₂).get? k = if m₂.contains k then none else m₁.get? k := by
-  simp_to_model [diff, get?, contains] using getValueCast?_diff
+  simp_to_model [diff, get?, contains] using List.getValueCast?_filter_contains_map_fst_eq_false
 
 theorem get?_diff_of_contains_eq_false_right [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} (h : m₂.contains k = false) :
     (m₁.diff m₂).get? k = m₁.get? k := by
   revert h
-  simp_to_model [diff, contains, get?] using List.getValueCast?_diff_of_containsKey_eq_false_right
+  simp_to_model [diff, contains, get?] using List.getValueCast?_filter_contains_map_fst_eq_false_of_containsKey_eq_false_right
 
 theorem get?_diff_of_contains_eq_false_left [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} (h : m₁.contains k = false) :
     (m₁.diff m₂).get? k = none := by
   revert h
-  simp_to_model [diff, contains, get?] using List.getValueCast?_diff_of_containsKey_eq_false_left
+  simp_to_model [diff, contains, get?] using List.getValueCast?_filter_contains_map_fst_eq_false_of_containsKey_eq_false_left
 
 theorem get?_diff_of_contains_right [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} (h : m₂.contains k) :
     (m₁.diff m₂).get? k = none := by
   revert h
-  simp_to_model [diff, get?, contains] using List.getValueCast?_diff_of_containsKey_right
+  simp_to_model [diff, get?, contains] using List.getValueCast?_filter_contains_map_fst_eq_false_of_containsKey_right
 
 /- get -/
 theorem get_diff [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} {h_contains : (m₁.diff m₂).contains k} :
     (m₁.diff m₂).get k h_contains =
     m₁.get k ((contains_diff_iff h₁ h₂).1 h_contains).1 := by
-  simp_to_model [diff, get, contains] using List.getValueCast_diff
+  simp_to_model [diff, get, contains] using List.getValueCast_filter_contains_map_fst_eq_false
 
 /- getD -/
 theorem getD_diff [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} {fallback : β k} :
     (m₁.diff m₂).getD k fallback =
     if m₂.contains k then fallback else m₁.getD k fallback := by
-  simp_to_model [diff, getD, contains] using List.getValueCastD_diff
+  simp_to_model [diff, getD, contains] using List.getValueCastD_filter_contains_map_fst_eq_false
 
 theorem getD_diff_of_contains_eq_false_right [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} {fallback : β k} (h : m₂.contains k = false) :
     (m₁.diff m₂).getD k fallback = m₁.getD k fallback := by
   revert h
-  simp_to_model [diff, contains, getD] using getValueCastD_diff_of_containsKey_eq_false_right
+  simp_to_model [diff, contains, getD] using List.getValueCastD_filter_contains_map_fst_eq_false_of_containsKey_eq_false_right
 
 theorem getD_diff_of_contains_right [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} {fallback : β k} (h : m₂.contains k) :
     (m₁.diff m₂).getD k fallback = fallback := by
   revert h
-  simp_to_model [diff, getD, contains] using List.getValueCastD_diff_of_containsKey_right
+  simp_to_model [diff, getD, contains] using List.getValueCastD_filter_contains_map_fst_eq_false_of_contains_map_fst_right
 
 theorem getD_diff_of_contains_eq_false_left [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} {fallback : β k} (h : m₁.contains k = false) :
     (m₁.diff m₂).getD k fallback = fallback := by
   revert h
-  simp_to_model [diff, getD, contains] using List.getValueCastD_diff_of_containsKey_eq_false_left
+  simp_to_model [diff, getD, contains] using List.getValueCastD_filter_contains_map_fst_eq_false_of_containsKey_eq_false_left
 
 /- get! -/
 theorem get!_diff [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} [Inhabited (β k)] :
     (m₁.diff m₂).get! k = if m₂.contains k then default else m₁.get! k := by
-  simp_to_model [diff, get!, contains] using List.getValueCastD_diff
+  simp_to_model [diff, get!, contains] using List.getValueCastD_filter_contains_map_fst_eq_false
 
 theorem get!_diff_of_contains_eq_false_right [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} [Inhabited (β k)] (h : m₂.contains k = false) :
     (m₁.diff m₂).get! k = m₁.get! k := by
   revert h
-  simp_to_model [diff, contains, get!] using getValueCastD_diff_of_containsKey_eq_false_right
+  simp_to_model [diff, contains, get!] using List.getValueCastD_filter_contains_map_fst_eq_false_of_containsKey_eq_false_right
 
 theorem get!_diff_of_contains_right [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} [Inhabited (β k)] (h : m₂.contains k) :
     (m₁.diff m₂).get! k = default := by
   revert h
-  simp_to_model [diff, get!, contains] using List.getValueCastD_diff_of_containsKey_right
+  simp_to_model [diff, get!, contains] using List.getValueCastD_filter_contains_map_fst_eq_false_of_contains_map_fst_right
 
 theorem get!_diff_of_contains_eq_false_left [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} [Inhabited (β k)] (h : m₁.contains k = false) :
     (m₁.diff m₂).get! k = default := by
   revert h
-  simp_to_model [diff, get!, contains] using List.getValueCastD_diff_of_containsKey_eq_false_left
+  simp_to_model [diff, get!, contains] using List.getValueCastD_filter_contains_map_fst_eq_false_of_containsKey_eq_false_left
 
 /- getKey? -/
 theorem getKey?_diff [EquivBEq α] [LawfulHashable α]
@@ -3609,7 +3609,7 @@ theorem getD_diff_of_contains_right [EquivBEq α] [LawfulHashable α] (h₁ : m�
     {k : α} {fallback : β} (h : m₂.contains k) :
     Const.getD (m₁.diff m₂) k fallback = fallback := by
   revert h
-  simp_to_model [diff, Const.getD, contains] using List.getValueD_diff_of_containsKey_right
+  simp_to_model [diff, Const.getD, contains] using List.getValueD_filter_contains_map_fst_eq_false_of_contains_map_fst_right
 
 theorem getD_diff_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} {fallback : β} (h : m₁.contains k = false) :

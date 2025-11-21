@@ -1000,6 +1000,28 @@ theorem Slice.Pos.offset_le_offset_endExclusive {s : Slice} {pos : s.Pos} :
     pos.offset ≤ s.endExclusive.offset :=
   Pos.Raw.le_trans offset_le_offset_str offset_str_le_offset_endExclusive
 
+@[simp]
+theorem Slice.Pos.startInclusive_le_str {s : Slice} {pos : s.Pos} :
+    s.startInclusive ≤ pos.str := by
+  simp [ValidPos.le_iff, Pos.Raw.le_iff]
+
+/--
+Given a valid position on `s.str` which is within the bounds of the slice `s`, obtains the
+corresponding valid position on `s`.
+-/
+@[inline]
+def Slice.Pos.ofStr {s : Slice} (pos : s.str.ValidPos) (h₁ : s.startInclusive ≤ pos)
+    (h₂ : pos ≤ s.endExclusive) : s.Pos where
+  offset := pos.offset.unoffsetBy s.startInclusive.offset
+  isValidForSlice := by
+    refine ⟨?_, Pos.Raw.offsetBy_unoffsetBy_of_le h₁ |>.symm ▸ pos.isValid⟩
+    simp [ValidPos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq] at *
+    omega
+
+@[simp]
+theorem Slice.Pos.offset_ofStr {s : Slice} {pos : s.str.ValidPos} {h₁ h₂} :
+    (ofStr pos h₁ h₂).offset = pos.offset.unoffsetBy s.startInclusive.offset := (rfl)
+
 /-- Given a slice and a valid position within the slice, obtain a new slice on the same underlying
 string by replacing the start of the slice with the given position. -/
 @[inline, expose] -- for the defeq `(s.sliceFrom pos).str = s.str`
@@ -1644,11 +1666,15 @@ def Slice.pos! (s : Slice) (off : String.Pos.Raw) : s.Pos :=
 position is not the past-the-end position, which guarantees that such a position exists. -/
 @[expose, extern "lean_string_utf8_next_fast"]
 def ValidPos.next {s : @& String} (pos : @& s.ValidPos) (h : pos ≠ s.endValidPos) : s.ValidPos :=
-  ((inline (Slice.Pos.next pos.toSlice (ne_of_apply_ne Slice.Pos.ofSlice (by simpa)))).ofSlice)
+  (Slice.Pos.next pos.toSlice (ne_of_apply_ne Slice.Pos.ofSlice (by simpa))).ofSlice
+
+@[simp]
+theorem Slice.Pos.str_inj {s : Slice} (p₁ p₂ : s.Pos) : p₁.str = p₂.str ↔ p₁ = p₂ := by
+  simp [Slice.Pos.ext_iff, ValidPos.ext_iff, Pos.Raw.ext_iff]
 
 @[expose, extern "lean_string_utf8_next_fast"]
 def Pos.next {s : @& String} (pos : @& s.ValidPos) (h : pos ≠ s.endValidPos) : s.ValidPos :=
-  ((inline (Slice.Pos.next pos.toSlice (ne_of_apply_ne Slice.Pos.ofSlice (by simpa)))).ofSlice)
+  (Slice.Pos.next pos.toSlice (ne_of_apply_ne Slice.Pos.ofSlice (by simpa))).ofSlice
 
 /-- Advances a valid position on a string to the next valid position, or returns `none` if the
 given position is the past-the-end position. -/
@@ -1694,6 +1720,9 @@ def pos? (s : String) (off : Pos.Raw) : Option s.ValidPos :=
 @[inline, expose]
 def pos! (s : String) (off : Pos.Raw) : s.ValidPos :=
   (s.toSlice.pos! off).ofSlice
+
+@[simp]
+theorem offset_pos {s : String} {off : Pos.Raw} {h} : (s.pos off h).offset = off := rfl
 
 /-- Constructs a valid position on `t` from a valid position on `s` and a proof that `s = t`. -/
 @[inline]
@@ -1807,51 +1836,6 @@ theorem Slice.Pos.prev_lt {s : Slice} {p : s.Pos} {h} : p.prev h < p :=
 theorem ValidPos.prev_lt {s : String} {p : s.ValidPos} {h} : p.prev h < p := by
   simp [← toSlice_lt, toSlice_prev]
 
-/--
-Advances the position `p` `n` times.
-
-If this would move `p` past the end of `s`, the result is `s.endPos`.
--/
-def Slice.Pos.nextn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
-  match n with
-  | 0 => p
-  | n + 1 =>
-    if h : p ≠ s.endPos then
-      nextn (p.next h) n
-    else
-      p
-
-/--
-Iterates `p.prev` `n` times.
-
-If this would move `p` past the start of `s`, the result is `s.endPos`.
--/
-def Slice.Pos.prevn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
-  match n with
-  | 0 => p
-  | n + 1 =>
-    if h : p ≠ s.startPos then
-      prevn (p.prev h) n
-    else
-      p
-
-/--
-Advances the position `p` `n` times.
-
-If this would move `p` past the end of `s`, the result is `s.endValidPos`.
--/
-@[inline]
-def ValidPos.nextn {s : String} (p : s.ValidPos) (n : Nat) : s.ValidPos :=
-  (p.toSlice.nextn n).ofSlice
-
-/--
-Iterates `p.prev` `n` times.
-
-If this would move `p` past the start of `s`, the result is `s.startValidPos`.
--/
-@[inline]
-def ValidPos.prevn {s : String} (p : s.ValidPos) (n : Nat) : s.ValidPos :=
-  (p.toSlice.prevn n).ofSlice
 
 @[expose]
 def Pos.Raw.utf8GetAux : List Char → Pos.Raw → Pos.Raw → Char
@@ -1979,7 +1963,7 @@ theorem ValidPos.byteIdx_lt_utf8ByteSize {s : String} (p : s.ValidPos) (h : p �
   omega
 
 @[simp]
-theorem ValidPos.lt_next {s : String} (p : s.ValidPos) {h} : p < p.next h := by
+theorem ValidPos.lt_next {s : String} {p : s.ValidPos} {h} : p < p.next h := by
   simp [← ValidPos.toSlice_lt, toSlice_next]
 
 theorem ValidPos.ne_startPos_of_lt {s : String} {p q : s.ValidPos} :
@@ -1996,6 +1980,109 @@ theorem ValidPos.next_ne_startValidPos {s : String} {p : s.ValidPos} {h} :
 theorem ValidPos.str_toSlice {s : String} {p : s.ValidPos} : p.toSlice.str = p := by
   ext
   simp
+
+theorem Slice.Pos.str_le_endExclusive {s : Slice} (p : s.Pos) :
+    p.str ≤ s.endExclusive := by
+  have := p.isValidForSlice.le_utf8ByteSize
+  have := s.startInclusive_le_endExclusive
+  simp [ValidPos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq] at *
+  omega
+
+theorem ValidPos.lt_of_le_of_ne {s : String} {p q : s.ValidPos} :
+    p ≤ q → p ≠ q → p < q := by
+  simp [ValidPos.le_iff, ValidPos.lt_iff, ValidPos.ext_iff, Pos.Raw.le_iff, Pos.Raw.lt_iff,
+    Pos.Raw.ext_iff]
+  omega
+
+@[simp]
+theorem Slice.Pos.str_endPos {s : Slice} : s.endPos.str = s.endExclusive := by
+  simp [ValidPos.ext_iff]
+
+theorem Slice.Pos.str_lt_endExclusive {s : Slice} (p : s.Pos) (h : p ≠ s.endPos) :
+    p.str < s.endExclusive :=
+  ValidPos.lt_of_le_of_ne p.str_le_endExclusive (by rwa [← str_endPos, ne_eq, str_inj])
+
+theorem ValidPos.ne_of_lt {s : String} {p q : s.ValidPos} : p < q → p ≠ q := by
+  simpa [ValidPos.lt_iff, ValidPos.ext_iff] using Pos.Raw.ne_of_lt
+
+theorem ValidPos.lt_of_lt_of_le {s : String} {p q r : s.ValidPos} : p < q → q ≤ r → p < r := by
+  simpa [ValidPos.lt_iff, ValidPos.le_iff] using Pos.Raw.lt_of_lt_of_le
+
+theorem ValidPos.le_endValidPos {s : String} (p : s.ValidPos) : p ≤ s.endValidPos := by
+  simpa [ValidPos.le_iff] using p.isValid.le_rawEndPos
+
+theorem Slice.Pos.str_ne_endValidPos {s : Slice} (p : s.Pos) (h : p ≠ s.endPos) :
+    p.str ≠ s.str.endValidPos :=
+  ValidPos.ne_of_lt (ValidPos.lt_of_lt_of_le (p.str_lt_endExclusive h) (ValidPos.le_endValidPos _))
+
+theorem ValidPos.le_trans {s : String} {p q r : s.ValidPos} : p ≤ q → q ≤ r → p ≤ r := by
+  simpa [ValidPos.le_iff] using Pos.Raw.le_trans
+
+theorem ValidPos.le_of_lt {s : String} {p q : s.ValidPos} : p < q → p ≤ q := by
+  simpa [ValidPos.le_iff, ValidPos.lt_iff] using Pos.Raw.le_of_lt
+
+theorem Slice.Pos.le_of_not_lt {s : Slice} {p q : s.Pos} : ¬q < p → p ≤ q := by
+  simp [Slice.Pos.le_iff, Slice.Pos.lt_iff, Pos.Raw.le_iff, Pos.Raw.lt_iff]
+
+theorem Slice.Pos.ne_endPos_of_lt {s : Slice} {p q : s.Pos} : p < q → p ≠ s.endPos := by
+  have := q.isValidForSlice.le_utf8ByteSize
+  simp [lt_iff, Pos.ext_iff, Pos.Raw.lt_iff, Pos.Raw.ext_iff]
+  omega
+
+theorem Slice.Pos.next_le_of_lt {s : Slice} {p q : s.Pos} {h} : p < q → p.next h ≤ q := by
+  -- Things like this will become a lot simpler once we have the `Splits` machinery developed,
+  -- but this is `String.Basic`, so we have to suffer a little.
+  refine fun hpq => le_of_not_lt (fun hq => ?_)
+  have := q.isUTF8FirstByte_byte (h := ne_endPos_of_lt hq)
+  rw [byte, getUTF8Byte, String.getUTF8Byte] at this
+  simp only [Pos.Raw.byteIdx_offsetBy] at this
+  have h₁ : q.offset.byteIdx = p.offset.byteIdx + (q.offset.byteIdx - p.offset.byteIdx) := by
+    simp [lt_iff, Pos.Raw.lt_iff] at hpq
+    omega
+  have h₂ : q.offset.byteIdx - p.offset.byteIdx < (p.get h).utf8Size := by
+    simp [lt_iff, Pos.Raw.lt_iff] at hq
+    omega
+  conv at this => congr; arg 2; rw [h₁, ← Nat.add_assoc]
+  rw [← ByteArray.getElem_extract (start := s.startInclusive.offset.byteIdx + p.offset.byteIdx)
+    (stop := s.startInclusive.offset.byteIdx + p.offset.byteIdx + (p.get h).utf8Size)] at this
+  · simp only [← utf8Encode_get_eq_extract, List.utf8Encode_singleton] at this
+    have h₃ := List.getElem_toByteArray (l := utf8EncodeChar (p.get h))
+      (i := q.offset.byteIdx - p.offset.byteIdx) (h := by simpa)
+    rw [h₃, UInt8.isUTF8FirstByte_getElem_utf8EncodeChar] at this
+    simp only [lt_iff, Pos.Raw.lt_iff] at hpq
+    omega
+  · simp only [ByteArray.size_extract, size_bytes]
+    rw [Nat.min_eq_left]
+    · omega
+    · have := (p.next h).str.isValid.le_utf8ByteSize
+      simpa [Nat.add_assoc] using this
+
+theorem Slice.Pos.ofSlice_le_iff {s : String} {p : s.toSlice.Pos} {q : s.ValidPos} :
+    p.ofSlice ≤ q ↔ p ≤ q.toSlice := Iff.rfl
+
+@[simp]
+theorem ValidPos.toSlice_lt_toSlice_iff {s : String} {p q : s.ValidPos} :
+    p.toSlice < q.toSlice ↔ p < q := Iff.rfl
+
+theorem ValidPos.next_le_of_lt {s : String} {p q : s.ValidPos} {h} : p < q → p.next h ≤ q := by
+  rw [next, Slice.Pos.ofSlice_le_iff, ← ValidPos.toSlice_lt_toSlice_iff]
+  exact Slice.Pos.next_le_of_lt
+
+theorem Slice.Pos.get_eq_get_str {s : Slice} {p : s.Pos} {h} :
+    p.get h = p.str.get (str_ne_endValidPos _ h) := by
+  simp [ValidPos.get, Slice.Pos.get]
+
+@[inline]
+def Slice.Pos.nextFast {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : s.Pos :=
+  ofStr (pos.str.next (str_ne_endValidPos _ h))
+    (ValidPos.le_trans Slice.Pos.startInclusive_le_str (ValidPos.le_of_lt ValidPos.lt_next))
+    (ValidPos.next_le_of_lt (Slice.Pos.str_lt_endExclusive _ h))
+
+@[csimp]
+theorem Slice.Pos.next_eq_nextFast : @Slice.Pos.next = @Slice.Pos.nextFast := by
+  funext s pos h
+  simp [Slice.Pos.ext_iff, Slice.Pos.nextFast, Pos.Raw.ext_iff, Slice.Pos.get_eq_get_str]
+  omega
 
 /-- The slice from the beginning of `s` up to `p` (exclusive). -/
 @[inline, expose]
@@ -2208,6 +2295,52 @@ def ValidPos.toReplaceEnd {s : String} (p₀ : s.ValidPos) (pos : s.ValidPos) (h
 @[simp]
 theorem ValidPos.offset_sliceTo {s : String} {p₀ : s.ValidPos} {pos : s.ValidPos} {h : pos ≤ p₀} :
     (sliceTo p₀ pos h).offset = pos.offset := (rfl)
+
+/--
+Advances the position `p` `n` times.
+
+If this would move `p` past the end of `s`, the result is `s.endPos`.
+-/
+def Slice.Pos.nextn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
+  match n with
+  | 0 => p
+  | n + 1 =>
+    if h : p ≠ s.endPos then
+      nextn (p.next h) n
+    else
+      p
+
+/--
+Iterates `p.prev` `n` times.
+
+If this would move `p` past the start of `s`, the result is `s.endPos`.
+-/
+def Slice.Pos.prevn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
+  match n with
+  | 0 => p
+  | n + 1 =>
+    if h : p ≠ s.startPos then
+      prevn (p.prev h) n
+    else
+      p
+
+/--
+Advances the position `p` `n` times.
+
+If this would move `p` past the end of `s`, the result is `s.endValidPos`.
+-/
+@[inline]
+def ValidPos.nextn {s : String} (p : s.ValidPos) (n : Nat) : s.ValidPos :=
+  (p.toSlice.nextn n).ofSlice
+
+/--
+Iterates `p.prev` `n` times.
+
+If this would move `p` past the start of `s`, the result is `s.startValidPos`.
+-/
+@[inline]
+def ValidPos.prevn {s : String} (p : s.ValidPos) (n : Nat) : s.ValidPos :=
+  (p.toSlice.prevn n).ofSlice
 
 theorem Slice.Pos.le_nextn {s : Slice} {p : s.Pos} {n : Nat} : p ≤ p.nextn n := by
   fun_induction nextn with
@@ -2624,29 +2757,6 @@ def offsetOfPos (s : String) (pos : Pos.Raw) : Nat :=
 def Internal.offsetOfPosImpl (s : String) (pos : Pos.Raw) : Nat :=
   String.Pos.Raw.offsetOfPos s pos
 
-@[specialize] def foldlAux {α : Type u} (f : α → Char → α) (s : String) (stopPos : Pos.Raw) (i : Pos.Raw) (a : α) : α :=
-  if h : i < stopPos then
-    have := Nat.sub_lt_sub_left h (Pos.Raw.lt_next s i)
-    foldlAux f s stopPos (i.next s) (f a (i.get s))
-  else a
-termination_by stopPos.1 - i.1
-
-/--
-Folds a function over a string from the left, accumulating a value starting with `init`. The
-accumulated value is combined with each character in order, using `f`.
-
-Examples:
- * `"coffee tea water".foldl (fun n c => if c.isWhitespace then n + 1 else n) 0 = 2`
- * `"coffee tea and water".foldl (fun n c => if c.isWhitespace then n + 1 else n) 0 = 3`
- * `"coffee tea water".foldl (·.push ·) "" = "coffee tea water"`
--/
-@[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : String) : α :=
-  foldlAux f s s.rawEndPos 0 init
-
-@[export lean_string_foldl]
-def Internal.foldlImpl (f : String → Char → String) (init : String) (s : String) : String :=
-  String.foldl f init s
-
 @[specialize] def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (i begPos : Pos.Raw) : α :=
   if h : begPos < i then
     have := Pos.Raw.prev_lt_of_pos s i <| mt (congrArg String.Pos.Raw.byteIdx) <|
@@ -2729,55 +2839,6 @@ theorem Pos.Raw.utf8SetAux_of_gt (c' : Char) : ∀ (cs : List Char) {i p : Pos.R
   | c::cs, i, p, h => by
     rw [utf8SetAux, if_neg (mt (congrArg (·.1)) (Ne.symm <| Nat.ne_of_lt h)), utf8SetAux_of_gt c' cs]
     exact Nat.lt_of_lt_of_le h (Nat.le_add_right ..)
-
-
-/--
-Checks whether the string can be interpreted as the decimal representation of a natural number.
-
-A string can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits.
-
-Use `String.toNat?` or `String.toNat!` to convert such a string to a natural number.
-
-Examples:
- * `"".isNat = false`
- * `"0".isNat = true`
- * `"5".isNat = true`
- * `"05".isNat = true`
- * `"587".isNat = true`
- * `"-587".isNat = false`
- * `" 5".isNat = false`
- * `"2+3".isNat = false`
- * `"0xff".isNat = false`
--/
-@[inline] def isNat (s : String) : Bool :=
-  !s.isEmpty && s.all (·.isDigit)
-
-/--
-Interprets a string as the decimal representation of a natural number, returning it. Returns `none`
-if the string does not contain a decimal natural number.
-
-A string can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits.
-
-Use `String.isNat` to check whether `String.toNat?` would return `some`. `String.toNat!` is an
-alternative that panics instead of returning `none` when the string is not a natural number.
-
-Examples:
- * `"".toNat? = none`
- * `"0".toNat? = some 0`
- * `"5".toNat? = some 5`
- * `"587".toNat? = some 587`
- * `"-587".toNat? = none`
- * `" 5".toNat? = none`
- * `"2+3".toNat? = none`
- * `"0xff".toNat? = none`
--/
-def toNat? (s : String) : Option Nat :=
-  if s.isNat then
-    some <| s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
-  else
-    none
 
 /--
 Checks whether substrings of two strings are equal. Substrings are indicated by their starting
@@ -2903,5 +2964,3 @@ namespace Char
   simp [toString_eq_singleton]
 
 end Char
-
-open String

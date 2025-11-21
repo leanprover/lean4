@@ -17,27 +17,6 @@ public section
 
 namespace String
 
-/--
-Interprets a string as the decimal representation of a natural number, returning it. Panics if the
-string does not contain a decimal natural number.
-
-A string can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits.
-
-Use `String.isNat` to check whether `String.toNat!` would return a value. `String.toNat?` is a safer
-alternative that returns `none` instead of panicking when the string is not a natural number.
-
-Examples:
- * `"0".toNat! = 0`
- * `"5".toNat! = 5`
- * `"587".toNat! = 587`
--/
-def toNat! (s : String) : Nat :=
-  if s.isNat then
-    s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
-  else
-    panic! "Nat expected"
-
 @[deprecated ByteArray.utf8DecodeChar? (since := "2025-10-01")]
 abbrev utf8DecodeChar? (a : ByteArray) (i : Nat) : Option Char :=
   a.utf8DecodeChar? i

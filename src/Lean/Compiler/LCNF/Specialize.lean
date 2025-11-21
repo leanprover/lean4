@@ -189,7 +189,7 @@ def collect (paramsInfo : Array SpecParamInfo) (args : Array Arg) : SpecializeM 
       match paramInfo with
       | .other =>
         argMask := argMask.push none
-      | .fixedNeutral | .user | .fixedInst | .fixedHO =>
+      | .fixedNeutral | .user | .fixedUser | .fixedInst | .fixedHO =>
         argMask := argMask.push (some arg)
         Closure.collectArg arg
     return argMask
@@ -205,6 +205,14 @@ def shouldSpecialize (paramsInfo : Array SpecParamInfo) (args : Array Arg) : Spe
     | .other => pure ()
     | .fixedNeutral => pure () -- If we want to monomorphize types such as `Array`, we need to change here
     | .fixedInst | .user => if (← isGround arg) then return true
+    | .fixedUser =>
+      if ← isGround arg then
+        return true
+      else
+        let type ← arg.inferType
+        if type matches .forallE .. then
+          logWarning "Ahhh"
+          return true
     | .fixedHO => return true -- TODO: check whether this is too aggressive
   return false
 

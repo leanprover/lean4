@@ -36,14 +36,21 @@ inductive SpecParamInfo where
   /--
   An argument that has been specified in the `@[specialize]` attribute. Lean specializes it even if it is
   not fixed in recursive declarations. Non-termination can happen, and Lean interrupts it with an error message
-  based on the stack depth.
+  based on the stack depth. Note that this kind of parameter is only specialized if the argument
+  is ground.
   -/
   | user
+  /--
+  Like `.user` but also a fixed parameter. If we detect this kind of parameter to be a higher order
+  one at the call site (for example because its passed as a generic type) we treat it like fixedHO.
+  Notably this lifts the `.user` restriction of only specializing for ground arguments.
+  -/
+  | fixedUser
   /--
   Parameter is not going to be specialized.
   -/
   | other
-  deriving Inhabited, Repr
+  deriving Inhabited, Repr, DecidableEq
 
 instance : ToMessageData SpecParamInfo where
   toMessageData
@@ -51,6 +58,7 @@ instance : ToMessageData SpecParamInfo where
     | .fixedHO => "H"
     | .fixedNeutral => "N"
     | .user => "U"
+    | .fixedUser => "FU"
     | .other => "O"
 
 structure SpecState where
@@ -191,17 +199,17 @@ def saveSpecParamInfo (decls : Array Decl) : CompilerM Unit := do
       let decl := decls[i]
       let mut paramsInfo := declsInfo[i]!
       let some mask := m.find? decl.name | unreachable!
-      trace[Compiler.specialize.info] "{decl.name} {mask}"
+      trace[Compiler.specialize.info] "{decl.name}: preliminary: {declsInfo}, fixed mask: {mask}"
       paramsInfo := Array.zipWith (as := paramsInfo) (bs := mask) fun info fixed =>
-        if fixed || info matches .user then
-          info
-        else
-          .other
+        match info with
+        | .fixedInst | .fixedHO | .fixedNeutral => if fixed then info else .other
+        | .user => if fixed then .fixedUser else .user
+        | .fixedUser | .other => info
       for j in *...paramsInfo.size do
         let mut info := paramsInfo[j]!
         if info matches .fixedNeutral && !hasFwdDeps decl paramsInfo j then
           paramsInfo := paramsInfo.set! j .other
-      if paramsInfo.any fun info => info matches .fixedInst | .fixedHO | .user then
+      if paramsInfo.any fun info => info matches .fixedInst | .fixedHO | .user | .fixedUser then
         trace[Compiler.specialize.info] "{decl.name} {paramsInfo}"
         modifyEnv fun env => specExtension.addEntry env { declName := decl.name, paramsInfo }
 

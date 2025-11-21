@@ -26,7 +26,7 @@ Many simple type class resolution errors are the result of using the wrong binar
 
 # Examples
 
-## Using the wrong binary operation
+## Using the Wrong Binary Operation
 
 ```lean broken
 #eval "A" + "3"
@@ -45,7 +45,7 @@ The binary operation `+` is associated with the `HAdd` type class, and there's n
 strings. The binary operation `++`, associated with the `HAppend` type class, is the correct way to
 append strings.
 
-## Changing the type of an operation
+## Modifying the Type of an Argument
 
 ```lean broken
 def x : Int := 3

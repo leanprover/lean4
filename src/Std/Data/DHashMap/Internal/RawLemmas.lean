@@ -3615,7 +3615,7 @@ theorem getD_diff_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α] (h
     {k : α} {fallback : β} (h : m₁.contains k = false) :
     Const.getD (m₁.diff m₂) k fallback = fallback := by
   revert h
-  simp_to_model [diff, Const.getD, contains] using List.
+  simp_to_model [diff, Const.getD, contains] using List.getValueD_filter_contains_map_fst_eq_false_of_containsKey_eq_false_left
 
 /- get! -/
 theorem get!_diff [EquivBEq α] [LawfulHashable α] [Inhabited β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :

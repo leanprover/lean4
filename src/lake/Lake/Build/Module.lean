@@ -374,8 +374,8 @@ private def fetchImportInfo
     else if n = 1 then -- common fast path
       let mod := mods[0]
       if imp.importAll && !mod.allowImportAll && pkgName != mod.pkg.name then
-        logError s!"{fileName}: cannot 'import all' \
-          the module `{imp.module}` from {mod.pkg.discriminant}"
+        logError s!"{fileName}: cannot `import all` \
+          the module `{imp.module}` from the package `{mod.pkg.discriminant}`"
         return .error
       let importJob ← mod.exportInfo.fetch
       return s.zipWith (sync := true) (·.addImport nonModule imp ·) importJob

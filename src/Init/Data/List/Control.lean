@@ -445,23 +445,37 @@ theorem findM?_eq_findSomeM? [Monad m] [LawfulMonad m] {p : α → m Bool} {as :
     cases b <;> simp
 
 @[specialize, expose]
-def newForIn (l : List α) (b : β) (kcons : α → (β → γ) → β → γ) (knil : β → γ) : γ :=
+def forInNew {α} {m : Type u → Type v} {σ β}
+    (l : List α) (s : σ) (kcons : α → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
   match l with
-  | []     => knil b
-  | a :: l => kcons a (l.newForIn · kcons knil) b
+  | []     => knil s
+  | a :: l => kcons a (l.forInNew · kcons knil) s
 
 instance : ForInNew m (List α) α where
-  forIn := newForIn
+  forIn := forInNew
 
 @[specialize, expose]
-def newForIn' (l : List α) (b : β) (kcons : (a : α) → a ∈ l → (β → γ) → β → γ) (knil : β → γ) : γ := go l id b
+def forInNew' {α} {m : Type u → Type v} {σ β}
+    (l : List α) (s : σ) (kcons : (a : α) → a ∈ l → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
+  go l id s
 where
-  go (l' : List α) (inj : ∀ {a}, a ∈ l' → a ∈ l) (b : β) : γ := match l' with
-  | []     => knil b
-  | a :: l => kcons a (inj (.head l)) (go l (inj ∘ (.tail a))) b
+  go (l' : List α) (inj : ∀ {a}, a ∈ l' → a ∈ l) (s : σ) : m β := match l' with
+  | []     => knil s
+  | a :: l => kcons a (inj (.head l)) (go l (inj ∘ (.tail a))) s
 
 instance : ForInNew' m (List α) α Membership.mem where
-  forIn' := newForIn'
+  forIn' := forInNew'
+
+-- No separate `ForInNew` instance is required because it can be derived from `ForInNew'`.
+
+-- We simplify `List.forInNew'` to `forInNew'`.
+@[simp, grind =] theorem forInNew'_eq_forInNew' : @List.forInNew' α m σ β = ForInNew'.forIn' := rfl
+
+@[simp, grind =] theorem forInNew'_nil : ForInNew'.forIn' [] b kcons knil = knil b :=
+  rfl
+
+@[simp, grind =] theorem forInNew_nil : ForInNew.forIn [] b kcons knil = knil b :=
+  rfl
 
 @[inline, expose] protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
   let rec @[specialize] loop : (as' : List α) → (b : β) → Exists (fun bs => bs ++ as' = as) → m β

@@ -342,6 +342,8 @@ class ForInNew (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type 
     (body : (a : α) → (kcontinue : σ → m β) → σ → m β)
     (kbreak : σ → m β) : m β
 
+-- Note to myself (SG): we depend on `m` here because some collections (e.g., iterators) only have
+-- forIn' for specific monads
 class ForInNew' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)) (p : outParam (ρ → α → Prop)) where
   forIn' {σ β : Type u₁} (xs : ρ) (s : σ)
     (body : (a : α) → (h : p xs a) → (kcontinue : σ → m β) → σ → m β)

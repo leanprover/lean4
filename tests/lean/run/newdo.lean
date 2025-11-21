@@ -7,6 +7,8 @@ import Init.Control.StateCps
 import Lean.Elab.Do.Control
 import Lean.Elab.BuiltinDo
 import Lean.Parser.Term
+import Init.NotationExtra
+import Init.Control.Basic
 
 open Lean Parser Meta Elab Do
 
@@ -88,7 +90,61 @@ where
   termination_by as.size - i
   decreasing_by decreasing_trivial_pre_omega
 
+public def filterPairsM {m} [Monad m] {α} (a : Array α) (f : α → α → m (Bool × Bool)) :
+    m (Array α) := do
+  let mut removed := Array.replicate a.size false
+  let mut numRemoved := 0
+  for h1 : i in *...a.size do for h2 : j in (i+1)...a.size do
+    unless removed[i]! || removed[j]! do
+      let xi := a[i]
+      let xj := a[j]
+      let (keepi, keepj) ← f xi xj
+      unless keepi do
+        numRemoved := numRemoved + 1
+        removed := removed.set! i true
+      unless keepj do
+        numRemoved := numRemoved + 1
+        removed := removed.set! j true
+  let mut a' := Array.mkEmpty numRemoved
+  for h : i in *...a.size do
+    unless removed[i]! do
+      a' := a'.push a[i]
+  return a'
+
 end Array
+
+section Tactic
+
+-- set_option trace.Elab.do true in
+set_option trace.Elab.postpone true in
+set_option trace.Elab.step true in
+-- set_option pp.rawOnError true in
+-- set_option pp.mvars.delayed true in
+-- set_option trace.Meta.isDefEq.assign true in
+private meta def expandIfThenElse'
+    (ifTk thenTk elseTk pos neg : Syntax)
+    (mkIf : Term → Term → MacroM Term) : MacroM (TSyntax `term) := do
+  let mkCase tk holeOrTacticSeq mkName : MacroM (TSyntax `term) := do
+    let hole ← withFreshMacroScope mkName
+    if holeOrTacticSeq.isOfKind `Lean.Parser.Term.syntheticHole then
+      pure hole
+    else
+      pure hole
+  mkCase thenTk pos `(?pos)
+  -- `(tactic| ((open Classical in refine%$ifTk $(← mkIf posHole negHole)); $[$(posCase ++ negCase)]*))
+
+
+end Tactic
+
+section Blah
+
+@[simp, grind =] theorem run_bind (f : α → OptionT m β) [Monad m] :
+    (x >>= f).run = Option.elimM x.run (pure none) (fun x => (f x).run) := by
+  change x.run >>= _ = _
+  simp [Option.elimM]
+  exact bind_congr fun |some _ => rfl | none => rfl
+
+end Blah
 
 set_option trace.Meta.synthInstance true in
 set_option trace.Elab.do true in

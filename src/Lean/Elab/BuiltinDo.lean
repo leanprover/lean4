@@ -136,7 +136,7 @@ def getDoReassignArrowVars (doReassignArrow : TSyntax ``doReassignArrow) : TermE
 @[builtin_doElem_elab Lean.Parser.Term.doReturn] def elabDoReturn : DoElab := fun stx _dec => do
   let `(doReturn| return $e) := stx | throwUnsupportedSyntax
   let returnCont ← getReturnCont
-  let e ← elabTermEnsuringType e returnCont.resultType
+  let e ← Term.elabTermEnsuringType e returnCont.resultType
   mapLetDeclZeta returnCont.resultName returnCont.resultType e fun _ =>
     returnCont.k
 
@@ -153,7 +153,7 @@ def getDoReassignArrowVars (doReassignArrow : TSyntax ``doReassignArrow) : TermE
 @[builtin_doElem_elab Lean.Parser.Term.doExpr] def elabDoExpr : DoElab := fun stx dec => do
   let `(doExpr| $e:term) := stx | throwUnsupportedSyntax
   let mα ← mkMonadicType dec.resultType
-  let e ← elabTermEnsuringType e mα
+  let e ← Term.elabTermEnsuringType e mα
   dec.mkBindUnlessPure e
 
 @[builtin_doElem_elab Lean.Parser.Term.doNested] def elabDoNested : DoElab := fun stx dec => do
@@ -216,13 +216,13 @@ def elabDoLetOrReassignElse (letOrReassign : LetOrReassign) (pattern rhs : Term)
   let otherwise ← elabDoSeq otherwise (← DoElemCont.mkPure γ)
   let otherwise ← Term.exprToSyntax otherwise
   elabDoLetOrReassignWith letOrReassign vars dec fun body => do
-    Term.elabMatch (← `(match $rhs:term with | $pattern => $body | _ => $otherwise)) mγ
+    Term.elabTerm (← `(match $rhs:term with | $pattern => $body | _ => $otherwise)) mγ (catchExPostpone := false)
 
-def elabDoIdDecl (x : Ident) (xType? : Option Term) (rhs : TSyntax `doElem) (k : DoElabM Expr) : DoElabM Expr := do
+def elabDoIdDecl (x : Ident) (xType? : Option Term) (rhs : TSyntax `doElem) (k : DoElabM Expr) (kind : DoElemContKind := .nonDuplicable) : DoElabM Expr := do
   let xType ← elabType xType?
   let lctx ← getLCtx
   let ctx ← read
-  elabDoElem rhs <| .mk x.getId xType do
+  elabDoElem rhs <| .mk (kind := kind) x.getId xType do
     withLCtxKeepingMutVarDefs lctx ctx x.getId k
 
 def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``doPatDecl]) (dec : DoElemCont) : DoElabM Expr := do
@@ -230,6 +230,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   | `(doIdDecl| $x:ident $[: $xType?]? ← $rhs) =>
     letOrReassign.checkMutVars #[x]
     elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x dec.continueWithUnit)
+      (kind := dec.kind)
   | `(doPatDecl| $pattern:term ← $rhs $[| $otherwise?]?) =>
     let x ← Term.mkFreshIdent pattern
     elabDoIdDecl x none rhs do
@@ -262,7 +263,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   let vars ← getLetRecDeclsVars decls
   let mγ ← mkMonadicType (← read).doBlockResultType
   elabDoLetOrReassignWith (.let none) vars dec fun body => do
-    Term.elabTerm (← `(let rec $decls:letRecDecls; $body)) mγ
+    Term.elabTerm (← `(let rec $decls:letRecDecls; $body)) mγ (catchExPostpone := false)
 
 @[builtin_doElem_elab Lean.Parser.Term.doReassign] def elabDoReassign : DoElab := fun stx dec => do
   -- def doReassign := letIdDeclNoBinders <|> letPatDecl
@@ -305,15 +306,19 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
       elabToTerm (loop (i + 1)) fun else_ => do
       match cond with
       | `(doIfCond|$cond) =>
-        Term.elabTerm (← `(if $cond then $then_ else $else_)) mγ
+        try
+          Term.elabTerm (← `(if $cond then $then_ else $else_)) mγ (catchExPostpone := false)
+        catch ex =>
+          logException ex
+          throw ex
       | `(doIfCond|$h : $cond) =>
-        Term.elabTerm (← `(if $h:ident : $cond then $then_ else $else_)) mγ
+        Term.elabTerm (← `(if $h:ident : $cond then $then_ else $else_)) mγ (catchExPostpone := false)
       | `(doIfCond|let $pat := $d) =>
-        Term.elabMatch (← `(match $d:term with | $pat => $then_ | _ => $else_)) mγ
+        Term.elabTerm (← `(match $d:term with | $pat => $then_ | _ => $else_)) mγ (catchExPostpone := false)
       | `(doIfCond|let $pat ← $rhs) =>
         let x ← Term.mkFreshIdent pat
         runInBase <| elabDoIdDecl x none (← `(doElem| $rhs:term)) do
-          Term.elabTerm (← `(match $x:term with | $pat => $then_ | _ => $else_)) mγ
+          Term.elabTerm (← `(match $x:term with | $pat => $then_ | _ => $else_)) mγ (catchExPostpone := false)
       | _ => throwUnsupportedSyntax
     else
       runInBase <| match elseSeq? with
@@ -343,7 +348,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
             elabMatch (i + 1) (alts.set i (← `(matchAltExpr| | $patterns,* => $rhs)))
         | _ => throwUnsupportedSyntax
       else
-        Term.elabTerm (← `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)) mγ
+        Term.elabTerm (← `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)) mγ (catchExPostpone := false)
     elabMatch 0 alts
 
 @[builtin_doElem_elab Lean.Parser.Term.doMatchExpr] def elabDoMatchExpr : DoElab := fun stx dec => do
@@ -369,7 +374,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
         | _ => throwUnsupportedSyntax
       else
         let alts : TSyntax ``Term.matchExprAlts := ⟨alts.raw.modifyArg 0 fun node => node.setArgs altsArr⟩
-        Term.elabTerm (← `(match_expr $discr with $alts)) mγ
+        Term.elabTerm (← `(match_expr $discr with $alts)) mγ (catchExPostpone := false)
     elabMatch 0 (alts.raw[0].getArgs.map (⟨·⟩))
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetExpr] def elabDoLetExpr : DoElab := fun stx dec => do
@@ -382,7 +387,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
     let vars ← getExprPatternVarsEx pattern
     runInBase <| checkMutVarsForShadowing vars
     Term.elabToSyntax (fun _ => runInBase <| dec.continueWithUnit) fun body => do
-      Term.elabTerm (← `(match_expr $rhs with | $pattern => $body | _ => $otherwise)) mγ
+      Term.elabTerm (← `(match_expr $rhs with | $pattern => $body | _ => $otherwise)) mγ (catchExPostpone := false)
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetMetaExpr] def elabDoLetMetaExpr : DoElab := fun stx dec => do
   let `(doLetMetaExpr| let_expr $pattern:matchExprPat ← $rhs:term | $otherwise) := stx | throwUnsupportedSyntax
@@ -392,34 +397,28 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
 
 @[builtin_doElem_elab Lean.Parser.Term.doUnless] def elabDoUnless : DoElab := fun stx dec => do
   let `(doUnless| unless $cond do $body) := stx | throwUnsupportedSyntax
-  let γ := (← read).doBlockResultType
-  let mγ ← mkMonadicType γ
-  let else_ ← elabDoSeq body (← DoElemCont.mkPure γ)
-  let then_ ← dec.continueWithUnit
-  let else_ ← Term.exprToSyntax else_
-  let then_ ← Term.exprToSyntax then_
-  Term.elabTerm (← `(if $cond then $then_ else $else_)) mγ
+  elabDoIf (← `(doElem| if $cond then pure PUnit.unit else $body)) dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doDbgTrace] def elabDoDbgTrace : DoElab := fun stx dec => do
   let `(doDbgTrace| dbg_trace $msg:term) := stx | throwUnsupportedSyntax
   let mγ ← mkMonadicType (← read).doBlockResultType
   let body ← dec.continueWithUnit
   let body ← Term.exprToSyntax body
-  Term.elabTerm (← `(dbg_trace $msg; $body)) mγ
+  Term.elabTerm (← `(dbg_trace $msg; $body)) mγ (catchExPostpone := false)
 
 @[builtin_doElem_elab Lean.Parser.Term.doAssert] def elabDoAssert : DoElab := fun stx dec => do
   let `(doAssert| assert! $cond) := stx | throwUnsupportedSyntax
   let mγ ← mkMonadicType (← read).doBlockResultType
   let body ← dec.continueWithUnit
   let body ← Term.exprToSyntax body
-  Term.elabTerm (← `(assert! $cond; $body)) mγ
+  Term.elabTerm (← `(assert! $cond; $body)) mγ (catchExPostpone := false)
 
 @[builtin_doElem_elab Lean.Parser.Term.doDebugAssert] def elabDoDebugAssert : DoElab := fun stx dec => do
   let `(doDebugAssert| debug_assert! $cond) := stx | throwUnsupportedSyntax
   let mγ ← mkMonadicType (← read).doBlockResultType
   let body ← dec.continueWithUnit
   let body ← Term.exprToSyntax body
-  Term.elabTerm (← `(debug_assert! $cond; $body)) mγ
+  Term.elabTerm (← `(debug_assert! $cond; $body)) mγ (catchExPostpone := false)
 
 @[builtin_macro Lean.Parser.Term.doFor] def expandDoFor : Macro := fun stx => do
   match stx with
@@ -482,7 +481,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
   let uρ ← mkFreshLevelMVar
   let α ← mkFreshExprMVar (mkSort (mkLevelSucc uα)) (userName := `α)
   let ρ ← mkFreshExprMVar (mkSort (mkLevelSucc uρ)) (userName := `ρ)
-  let xs ← elabTermEnsuringType xs ρ
+  let xs ← Term.elabTermEnsuringType xs ρ
   let mi := (← read).monadInfo
   let σ ← mkFreshExprMVar (mkSort (mkLevelSucc mi.u)) (userName := `σ)
   let γ := (← read).doBlockResultType
@@ -517,7 +516,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
 
     -- Elaborate the loop body, which must have result type `PUnit`.
     let body ← enterLoopBody γ (← getReturnCont) breakKVar.mkJump continueKVar.mkJump do
-      elabDoSeq body { dec with k := continueKVar.mkJump }
+      elabDoSeq body { dec with k := continueKVar.mkJump, kind := .duplicable (pure := false) }
 
     -- Compute the set of mut vars that were reassigned on the path to a back jump (`continue`).
     -- Take care to preserve the declaration order that is manifest in the array `mutVars`.
@@ -546,7 +545,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
       return mkApp kbreak tuple
 
     -- Elaborate the continuation, now that `σ` is known. It will be the `break` handler.
-    -- If there is a `break`, the code will be shared in the `kbread` join point.
+    -- If there is a `break`, the code will be shared in the `kbreak` join point.
     breakRhs.mvarId!.withContext do
       let e ← withLocalDeclD (← mkFreshUserName `s) σ fun postS => do mkLambdaFVars #[postS] <| ← do
         bindMutVarsFromTuple loopMutVars.toList postS.fvarId! do
@@ -562,7 +561,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
 
     let hadBreak := (← breakKVar.jumpCount) > 0
     let kcons ← mkLambdaFVars (xh ++ #[kcontinue, loopS]) body
-    let knil := if hadBreak then kbreak else breakRhs
+    let knil := if hadBreak /- && dec.kind matches .nonDuplicable -/ then kbreak else breakRhs
     let app := mkApp3 app preS kcons knil
     if hadBreak then
       mkLetFVars (generalizeNondepLet := false) #[kbreak] app

@@ -22,6 +22,43 @@ instances are provided for the same type.
 -/
 -- We set the priority to 500 so it is below the default,
 -- but still above the low priority instance from `Stream`.
+instance (priority := 500) instForInNewOfForInNew' [ForInNew' m ρ α mem] : ForInNew m ρ α where
+  forIn x b f := ForInNew'.forIn' x b fun a _ => f a
+
+@[simp] theorem forInNew'_eq_forInNew [ForInNew' m ρ α mem] {σ β} (xs : ρ) (s : σ)
+    (f : (a : α) → mem xs a → (σ → m β) → (σ → m β)) (g : (a : α) → (σ → m β) → (σ → m β))
+    (h : ∀ a m k, f a m k = g a k) :
+    ForInNew'.forIn' xs s f = ForInNew.forIn xs s g := by
+  simp [instForInNewOfForInNew']
+  congr
+  apply funext
+  intro a
+  apply funext
+  intro m
+  apply funext
+  intro b
+  simp [h]
+  rfl
+
+@[wf_preprocess] theorem forInNew'_eq_forInNew' [ForInNew' m ρ α mem] {σ β}
+    (xs : ρ) (s : σ) (f : (a : α) → (σ → m β) → σ → m β) :
+    ForInNew.forIn xs s f = ForInNew'.forIn' xs s (fun a h => binderNameHint a f <| binderNameHint h () <| f a) := by
+  rfl
+
+-- We set the priority to 500 so it is below the default,
+-- but still above the low priority instance from `Stream`.
+instance (priority := 500) instForInNew' [Membership α ρ] : ForInNew' m ρ α Membership.mem where
+  forIn' _xs s _kcons knil := knil s
+
+/--
+A `ForIn'` instance, which handles `for h : x in c do`,
+can also handle `for x in x do` by ignoring `h`, and so provides a `ForIn` instance.
+
+Note that this instance will cause a potentially non-defeq duplication if both `ForIn` and `ForIn'`
+instances are provided for the same type.
+-/
+-- We set the priority to 500 so it is below the default,
+-- but still above the low priority instance from `Stream`.
 instance (priority := 500) instForInOfForIn' [ForIn' m ρ α d] : ForIn m ρ α where
   forIn x b f := forIn' x b fun a _ => f a
 

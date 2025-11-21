@@ -32,7 +32,11 @@ Options:
     Preserves all `public` imports to avoid breaking changes
 
   --add-public
-    Adds all new imports as `public`
+    Adds new imports as `public` if they have been in the original public closure of that module.
+    In other words, public imports will not be removed from a module unless they are unused even
+    in the private scope, and those that are removed will be re-added as `public` in downstream
+    modules even if only needed in the private scope there. Unlike `--keep-public`, this may
+    introduce breaking changes but will still limit the number of inserted imports.
 
   --explain
     Gives constants explaining why each module is needed
@@ -404,7 +408,6 @@ def visitModule (srcSearchPath : SearchPath)
     let j := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
     if addOnly ||
-        preserve.has k j ||
         args.keepPublic && imp.isExported ||
         -- keep foreign imports
         imp.module.getRoot != s.modNames[i]!.getRoot ||
@@ -429,24 +432,18 @@ def visitModule (srcSearchPath : SearchPath)
   if prelude?.isNone then
     deps := deps.union .pub {s.env.getModuleIdx? `Init |>.get!}
 
-  -- Any import which is not in `transDeps` was unused.
-  -- Also accumulate `newDeps` which is the transitive closure of the remaining imports
-  let mut toRemove : Array Import := #[]
+  -- Accumulate `newDeps` which is the transitive closure of the still-live imports
   let mut newDeps := Needs.empty
   for imp in s.mods[i]!.imports do
     let j := s.env.getModuleIdx? imp.module |>.get!
+    let k := NeedsKind.ofImport imp
     if
+        deps.has k j ||
         -- skip folder-nested imports
         s.modNames[i]!.isPrefixOf imp.module ||
         imp.importAll then
       newDeps := addTransitiveImps newDeps imp j s.transDeps[j]!
-    else
-      let k := NeedsKind.ofImport imp
-      -- A private import should also be removed if the public version is needed
-      if !deps.has k j && (!args.addPublic || !deps.has { k with isExported := false } j) || !k.isExported && deps.has { k with isExported := true } j then
-        toRemove := toRemove.push imp
-      else
-        newDeps := addTransitiveImps newDeps imp j s.transDeps[j]!
+      deps := deps.union k {j}
 
   -- If `newDeps` does not cover `deps`, then we have to add back some imports until it does.
   -- To minimize new imports we pick only new imports which are not transitively implied by
@@ -456,10 +453,22 @@ def visitModule (srcSearchPath : SearchPath)
     for k in NeedsKind.all do
       if deps.has k j && !newDeps.has k j && !newDeps.has { k with isExported := true } j then
         let mut imp := { k with module := s.modNames[j]! }
-        if args.addPublic then
+        if args.addPublic && !k.isExported &&
+            (s.transDepsOrig[i]!.has { k with isExported := true } j || s.transDepsOrig[i]!.has { k with isExported := true, isMeta := true } j) then
           imp := { imp with isExported := true }
-        toAdd := toAdd.push imp
+          deps := deps.union { k with isExported := true } {j}
+        if !s.mods[i]!.imports.contains imp then  -- can be false due to `addPublic`
+          toAdd := toAdd.push imp
         newDeps := addTransitiveImps newDeps imp j s.transDeps[j]!
+
+  -- Any import which is still not in `deps` was unused
+  let mut toRemove : Array Import := #[]
+  for imp in s.mods[i]!.imports do
+    let j := s.env.getModuleIdx? imp.module |>.get!
+    let k := NeedsKind.ofImport imp
+    -- A private import should also be removed if the public version has been added
+    if !deps.has k j || !k.isExported && deps.has { k with isExported := true } j then
+      toRemove := toRemove.push imp
 
   -- mark and report the removals
   let mut edits := toRemove.foldl (init := edits) fun edits imp =>

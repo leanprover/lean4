@@ -467,6 +467,24 @@ public theorem Rxo.Iterator.toArray_eq_match [LT α] [DecidableLT α]
   · rfl
   · split <;> simp
 
+public theorem Rxc.Iterator.toList_eq_toList_rxoIterator [LE α] [DecidableLE α] [LT α] [DecidableLT α]
+    [UpwardEnumerable α] [Rxc.IsAlwaysFinite α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
+    [InfinitelyUpwardEnumerable α] [LinearlyUpwardEnumerable α] {it : Iter (α := Rxc.Iterator α) α}:
+    it.toList = (⟨⟨it.internalState.next, succ it.internalState.upperBound⟩⟩ : Iter (α := Rxo.Iterator α) α).toList := by
+  induction it using Iter.inductSteps with | step it ihy ihs
+  rw [Rxc.Iterator.toList_eq_match, Rxo.Iterator.toList_eq_match]
+  split
+  · simp [*]
+  · simp [*, UpwardEnumerable.lt_iff, UpwardEnumerable.le_iff]
+    split <;> rename_i h
+    · rw [ihy]; rotate_left
+      · simp [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep,
+          Iterator.Monadic.step, Iter.toIterM, *]; rfl
+      simp only
+      simpa [UpwardEnumerable.lt_iff, UpwardEnumerable.le_iff, UpwardEnumerable.lt_succ_iff] using h
+    · simpa [UpwardEnumerable.lt_iff, UpwardEnumerable.le_iff, UpwardEnumerable.lt_succ_iff] using h
+
 public theorem Rxi.Iterator.toList_eq_match
     [UpwardEnumerable α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
     {it : Iter (α := Rxi.Iterator α) α} :
@@ -561,22 +579,6 @@ namespace Rcc
 
 variable {r : Rcc α}
 
-public theorem toList_eq_if_roo [UpwardEnumerable α] [LE α] [DecidableLE α]
-    [LawfulUpwardEnumerable α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerableLE α] :
-    r.toList = if r.lower ≤ r.upper then r.lower :: (r.lower<...=r.upper).toList else [] := by
-  rw [Internal.toList_eq_toList_iter, Rxc.Iterator.toList_eq_match]; rfl
-
-@[deprecated toList_eq_if_roo (since := "2025-10-29")]
-def toList_eq_if_Roo := @toList_eq_if_roo
-
-public theorem toArray_eq_if_roo [UpwardEnumerable α] [LE α] [DecidableLE α]
-    [LawfulUpwardEnumerable α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerableLE α] :
-    r.toArray = if r.lower ≤ r.upper then #[r.lower] ++ (r.lower<...=r.upper).toArray else #[] := by
-  rw [Internal.toArray_eq_toArray_iter, Rxc.Iterator.toArray_eq_match]; rfl
-
-@[deprecated toArray_eq_if_roo (since := "2025-10-29")]
-def toArray_eq_if_Roo := @toArray_eq_if_roo
-
 public theorem toList_eq_if_roc [LE α] [DecidableLE α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] :
     r.toList = if r.lower ≤ r.upper then
@@ -584,6 +586,16 @@ public theorem toList_eq_if_roc [LE α] [DecidableLE α] [UpwardEnumerable α]
       else
         [] := by
   rw [Internal.toList_eq_toList_iter, Rxc.Iterator.toList_eq_match]; rfl
+
+@[simp]
+public theorem toList_eq_toList_rco [LE α] [DecidableLE α] [LT α] [DecidableLT α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
+    [Rxc.IsAlwaysFinite α] [Rxo.IsAlwaysFinite α]
+    [InfinitelyUpwardEnumerable α] [LinearlyUpwardEnumerable α] :
+    r.toList = (r.lower...(succ r.upper)).toList := by
+  simp [Internal.toList_eq_toList_iter, Rco.Internal.toList_eq_toList_iter,
+    Internal.iter, Rco.Internal.iter, Rxc.Iterator.toList_eq_toList_rxoIterator]
 
 @[deprecated toList_eq_if_roc (since := "2025-10-29")]
 def toList_eq_match := @toList_eq_if_roc
@@ -1271,6 +1283,16 @@ public theorem toArray_eq_match_rcc [LE α] [DecidableLE α] [UpwardEnumerable �
   simp only [Internal.toArray_eq_toArray_iter, ← Iter.toArray_toList]
   simp only [← Internal.toList_eq_toList_iter, toList_eq_match_rcc]
   split <;> simp
+
+@[simp]
+public theorem toList_eq_toList_roo [LE α] [DecidableLE α] [LT α] [DecidableLT α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
+    [Rxc.IsAlwaysFinite α] [Rxo.IsAlwaysFinite α]
+    [InfinitelyUpwardEnumerable α] [LinearlyUpwardEnumerable α] :
+    r.toList = (r.lower<...(succ r.upper)).toList := by
+  simp [Internal.toList_eq_toList_iter, Roo.Internal.toList_eq_toList_iter,
+    Internal.iter, Roo.Internal.iter, Rxc.Iterator.toList_eq_toList_rxoIterator]
 
 @[simp]
 public theorem toArray_toList [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
@@ -2856,7 +2878,7 @@ public theorem length_toList [LE α] [DecidableLE α] [UpwardEnumerable α]
   · simpa [toList_eq_nil_iff, size_eq_if_roc] using h
   · rename_i n ih
     rw [size_eq_if_rcc] at h
-    simp only [toList_eq_if_roo, ← h]
+    simp only [toList_eq_if_roc, ← h]
     simp only [Roc.toList_eq_match_rcc]
     split
     · split

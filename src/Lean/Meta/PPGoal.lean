@@ -122,6 +122,7 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
             fmtElem := fmtElem ++ " :=" ++ Format.nest indent (Format.line ++ valFmt)
           else
             fmtElem := fmtElem ++ " := ⋯"
+          let fmt := fmt ++ fmtElem.group
           return ([], none, fmt)
       let (varNames, type?, fmt) ← lctx.foldlM (init := ([], none, Format.nil)) fun (varNames, prevType?, fmt) (localDecl : LocalDecl) =>
          if !ppAuxDecls && localDecl.isAuxDecl || !ppImplDetailHyps && localDecl.isImplementationDetail then

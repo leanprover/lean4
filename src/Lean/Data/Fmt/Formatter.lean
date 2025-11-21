@@ -145,42 +145,160 @@ as lines get longer, i.e. it increases as documents are appended to it.
 This means that we cannot simply prune measures using the configurable cost alone:
 a measure might have a lower configurable cost than another measure for the time being, but when we
 append to both measures, the second measure might suddenly become more expensive than the first one.
-With the default cost function, this occurs e.g. if both renderings presented by the measure
-have the same amount of lines
+
+With the default cost function, this occurs if e.g. both renderings have the same amount of lines,
+all of which are below the column limit, while the second rendering is close to the column limit on
+the last line. Appending lots of text to the last line of both renderings will then cause the cost
+of the second measure to balloon relative to that of the first one.
+
+Notably, this kind of future divergence in cost between the two measures is limited to the last line
+of the rendering, as we will always append the exact same documents to both of them and their column
+positions will be synced when a newline is inserted. Additionally, lawful cost functions have the
+property that inserting text at a smaller column position (i.e. at the end of a shorter last line)
+will always be cheaper than inserting text at a larger column position, and so a compound cost that
+is smaller both w.r.t. the configurable cost and the last line length than another compound cost
+will also remain smaller than the other cost in the future when we append documents to the last
+line, which means that we can safely prune the dominated measure.
+
+In summary, for a lawful cost function, it is both necessary and sufficient to include the length of
+the last line as a separate parameter in the compound cost and only prune measures that dominate
+other measures:
+- It is necessary because not including it can cause us to prune measures that will become cheaper
+  than other measures in the future
+- It is sufficient because the future divergence in cost for a lawful cost function is limited to
+  the last line of the rendering, and for lawful cost functions inserting text at a smaller
+  column position (i.e. at the end of a shorter last line) will always be cheaper than inserting
+  at a larger column position.
+
+Finally, the inclusion of the last line length in the compound cost bounds the time complexity of
+the formatter by bounding the maximum size of the sets of measures it processes:
+Each cost function comes with an optimality cutoff width `W`, after which the formatter will stop
+attempting to compute optimal measures according to the configurable cost and simply pick just one
+heuristically. Hence, all measures in a set of measures that do not exceed `W` have a
+last line length of at most `W`.
+When sets of measures are combined by the formatter, it prunes dominated measures to retain the
+invariant that sets of measures contain no dominated measures.
+Together, this means that each set of measures in the formatter can only contain at most `W`
+measures that don't dominate one another: if there were more than `W` measures, at least two
+measures `m₁` and `m₂` must have the same width, which, by the totality of `≤` of a lawful cost
+function, means that either `m₁` dominates `m₂`, or `m₂` dominates `m₁`.
 -/
 structure Measure (τ : Type) where
+  /-- Length of the last line of the rendering represented by this measure. -/
   lastLineLength : Nat
+  /--
+  Configurable cost (as definited by the cost function) of the rendering represented by this
+  measure.
+  -/
   cost : τ
+  /--
+  Writer monad that produces the rendering that this measure presents.
+  -/
   output : StateM String Unit
 
 variable {τ : Type} [Add τ] [LE τ] [DecidableLE τ] [Cost τ]
 
+/--
+Whether a measure subsumes another measure. See the documentation of `Measure` for details on
+what measure domination entails.
+-/
 def Measure.dominates (m1 m2 : Measure τ) : Bool :=
   m1.lastLineLength <= m2.lastLineLength && m1.cost <= m2.cost
 
-def Measure.concat (m1 m2 : Measure τ) : Measure τ where
+/-- Determines the measure that represents the concatenation of the renderings of two measures. -/
+def Measure.append (m1 m2 : Measure τ) : Measure τ where
   lastLineLength := m2.lastLineLength
   cost := m1.cost + m2.cost
   output := do
     m1.output
     m2.output
 
+/-- Runs the writer monad of a measure, printing its rendering to a string. -/
 def Measure.print (m : Measure τ) : String :=
   let (_, printed) := m.output.run ""
   printed
 
+/--
+A tainted measure is a measure for a rendering that exceeds the optimality cutoff width of the
+cost function passed to the formatter.
+
+Notably, it does not possess a compound cost that we maintain, but merely a series of steps that
+describe how to resolve the tainted measure to a single measure, as well as an approximation of the
+amount of newlines in the rendering of the tainted measure.
+
+The formatter will always prune non-tainted measures in favor of tainted measures.
+When the formatter has to choose amongst multiple tainted measures, instead of tracking all of them
+using a cost function like for non-tainted measures, it simply picks the tainted measure with the
+largest approximation for the amount of newlines, so as to attempt to heuristically produce
+renderings that are higher (in terms of amount of lines) instead of ones where all text is
+squished into the same line.
+
+Tainting measures instead of attempting to determine an optimal one amongst multiple tainted
+measures bounds the time complexity of the formatter, as described in the documentation
+of `Measure`.
+
+Compared to the Racket implementation of pretty-expressive, `TaintedMeasure` is a defunctionalized
+implementation of the tainted measures in the Racket implementation, which implements them using
+promises that lazily resolve a tainted measure to a regular measure after the measure resolution
+loop is complete. This implementation using promises violates the positivity constraints of
+inductive types, as the lazy measure resolution would itself maintain a memoization cache that
+can contain tainted measures. Defunctionalization ensures that we limit the set of potential
+lazy resolutions to a finite set of (sound) options, which makes the type satisfy the positivity
+constraint.
+-/
 inductive TaintedMeasure (τ : Type) where
+  /--
+  Merge two tainted measures. Resolving this tainted measure amounts to resolving the first measure
+  and only resolving the second measure if the resolution of the first tainted measure failed.
+
+  Since there are only four different fullness states in which each document can be resolved and
+  potentially fail, since the failure of resolution is independent of column position and
+  indentation, and since the resolver for tainted measures memoizes whether a resolution failed,
+  the resolver for tainted measures will only need to try resolving at most `4*amount of documents`
+  alternatives overall, so the time complexity of the formatter remains bounded.
+  -/
   | mergeTainted (tm1 tm2 : TaintedMeasure τ) (maxNewlineCount? : Option Nat)
-  | taintedConcat (tm1 : TaintedMeasure τ) (d2 : Doc) (indentation : Nat) (fullness : FullnessState) (maxNewlineCount? : Option Nat)
-  | concatTainted (m1 : Measure τ) (tm2 : TaintedMeasure τ) (maxNewlineCount? : Option Nat)
+  /--
+  Append a document to the rendering of a tainted measure. Resolving this tainted measure amounts to
+  resolving the tainted measure on the left, resolving the document on the right in the column
+  position after resolving the tainted measure on the left and with the given indentation and
+  fullness state, picking a measure from the set of measures of the resolution on the right
+  and then appending those.
+  -/
+  | taintedAppend (tm1 : TaintedMeasure τ) (d2 : Doc) (indentation : Nat) (fullness : FullnessState) (maxNewlineCount? : Option Nat)
+  /--
+  Append a tainted measure to a regular measure. Resolving this tainted measure amounts to simply
+  resolving the tainted measure on the right and appending it to the measure on the left.
+  -/
+  | appendTainted (m1 : Measure τ) (tm2 : TaintedMeasure τ) (maxNewlineCount? : Option Nat)
+  /--
+  Resolve a tainted measure for a given resolution context to a regular measure.
+  Amounts to resolving the given document in the given context, picking a measure from the set of
+  measures produced by the resolution and memoizing whether the resolution failed so that
+  no failed resolution of a tainted measure is tried twice in the same fullness state and the time
+  complexity for tainted measure resolution remains bounded by `4*amount of documents`.
+
+  Notably, the resolution of the document in the given context skips the taintedness-check for the
+  top level node, so this will process the top-level node of the document and then recurse with
+  potentially tainted child documents until eventually the full tainted measure is resolved.
+  -/
   | resolveTainted (d : Doc) (columnPos : Nat) (indentation : Nat) (fullness : FullnessState) (maxNewlineCount? : Option Nat)
 
+/-- Approximation for the maximum amount of newlines in the rendering of a tainted measure. -/
 def TaintedMeasure.maxNewlineCount? : TaintedMeasure τ → Option Nat
   | .mergeTainted (maxNewlineCount? := n) .. => n
-  | .taintedConcat (maxNewlineCount? := n) .. => n
-  | .concatTainted (maxNewlineCount? := n) .. => n
+  | .taintedAppend (maxNewlineCount? := n) .. => n
+  | .appendTainted (maxNewlineCount? := n) .. => n
   | .resolveTainted (maxNewlineCount? := n) .. => n
 
+/--
+Yields a `TaintedMeasure.mergeTainted` where the tainted measure with a larger newline approximation
+is resolved first.
+
+Yields just the measure with a larger newline approximation if `prunable` is set to `true`, which
+should only be set if it can be guaranteed that both tainted measures will always fail at the same
+time (in which case we do not need to try both).
+-/
 def TaintedMeasure.merge (tm1 tm2 : TaintedMeasure τ) (prunable : Bool) : TaintedMeasure τ :=
   let (tm1, tm2) :=
     if Option.le (· <= ·) tm2.maxNewlineCount? tm1.maxNewlineCount? then
@@ -190,7 +308,12 @@ def TaintedMeasure.merge (tm1 tm2 : TaintedMeasure τ) (prunable : Bool) : Taint
   if prunable then
     tm1
   else
-    -- TODO: Is this a good newline approximation?
+    -- There are two reasonable options for this newline approximation:
+    -- 1. The newline approximation of the first measure (as used by the Racket implementation)
+    -- 2. The maximum of both newline approximations
+    -- The first option is more accurate if resolving `tm1` does not fail, in which case the second
+    -- option is a worse approximation, while the second option is more accurate if resolving
+    -- `tm1` can fail.
     .mergeTainted tm1 tm2 tm1.maxNewlineCount?
 
 abbrev MeasureSet.Set (τ : Type) := List (Measure τ)
@@ -386,21 +509,21 @@ where
     let set1 ← resolve d1 columnPos indentation fullness1
     match set1 with
     | .tainted tm1 =>
-      return .tainted (.taintedConcat tm1 d2 indentation fullness2 d.maxNewlineCount?)
+      return .tainted (.taintedAppend tm1 d2 indentation fullness2 d.maxNewlineCount?)
     | .set ms1 =>
       ms1.foldrM (init := MeasureSet.set []) fun m1 acc => do
         let set2 ← resolve d2 m1.lastLineLength indentation fullness2
         let m1Result : MeasureSet τ :=
           match set2 with
           | .tainted tm2 =>
-            .tainted (.concatTainted m1 tm2 d.maxNewlineCount?)
+            .tainted (.appendTainted m1 tm2 d.maxNewlineCount?)
           | .set [] =>
             .set []
           | .set (m2 :: ms2) => .set <| Id.run do
-            let mut currentBest := m1.concat m2
+            let mut currentBest := m1.append m2
             let mut deduped := []
             for m2 in ms2 do
-              let current := m1.concat m2
+              let current := m1.append m2
               -- TODO: Why was this sound again?
               if current.cost <= currentBest.cost then
                 currentBest := current
@@ -442,19 +565,20 @@ partial def TaintedMeasure.resolve? : TaintedResolver σ τ := TaintedResolver.m
       | let m2? ← tm2.resolve?
         return m2?
     return some m1
-  | .taintedConcat tm d indentation fullness _ =>
+  | .taintedAppend tm d indentation fullness _ =>
     let some m1 ← tm.resolve?
       | return none
     let ms2 ← MeasureSet.resolve d m1.lastLineLength indentation fullness
     let some m2 ← ms2.extractAtMostOne?
       | return none
-    return some <| m1.concat m2
-  | .concatTainted m1 tm2 _ =>
+    return some <| m1.append m2
+  | .appendTainted m1 tm2 _ =>
     let some m2 ← tm2.resolve?
       | return none
-    return some <| m1.concat m2
+    return some <| m1.append m2
   | .resolveTainted d columnPos indentation fullness _ =>
     -- TODO: Why resolveCore instead of resolve?
+    -- Because it allows us to pop the top-level tainted node and replace it with something else
     let ms ← MeasureSet.resolveCore d columnPos indentation fullness
     let m? ← ms.extractAtMostOne?
     if m?.isNone then

@@ -1002,7 +1002,6 @@ private def getUElimPos? (matcherLevels : List Level) (uElim : Level) : MetaM (O
 /- See comment at `mkMatcher` before `mkAuxDefinition` -/
 register_builtin_option bootstrap.genMatcherCode : Bool := {
   defValue := true
-  group := "bootstrap"
   descr := "disable code generation for auxiliary matcher function"
 }
 

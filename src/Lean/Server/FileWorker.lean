@@ -188,7 +188,6 @@ section Elab
 
   register_builtin_option server.reportDelayMs : Nat := {
     defValue := 200
-    group := "server"
     descr := "(server) time in milliseconds to wait before reporting progress and diagnostics on \
       document edit in order to reduce flickering
 

@@ -590,7 +590,6 @@ open Formatter
 
 register_builtin_option pp.oneline : Bool := {
   defValue := false
-  group    := "pp"
   descr    := "(pretty printer) elide all but first line of pretty printer output"
 }
 

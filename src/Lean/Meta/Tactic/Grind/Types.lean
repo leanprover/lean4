@@ -73,19 +73,16 @@ def isInterpreted (e : Expr) : MetaM Bool := do
 
 register_builtin_option grind.debug : Bool := {
   defValue := false
-  group    := "debug"
   descr    := "check invariants after updates"
 }
 
 register_builtin_option grind.debug.proofs : Bool := {
   defValue := false
-  group    := "debug"
   descr    := "check proofs between the elements of all equivalence classes"
 }
 
 register_builtin_option grind.warning : Bool := {
   defValue := false
-  group    := "debug"
   descr    := "generate a warning whenever `grind` is used"
 }
 

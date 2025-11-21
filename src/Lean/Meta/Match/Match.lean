@@ -368,10 +368,8 @@ where
       let (p, cnstrs) ← go cnstrs
       return (p, (lhs, rhs) :: cnstrs)
 
-
-
 /--
-Solve pending alternative constraints.
+Solve pending alternative constraints and overlap assumptions.
 If all constraints can be solved perform assignment `mvarId := alt.rhs`, else throw error.
 -/
 private partial def solveCnstrs (mvarId : MVarId) (alt : Alt) : StateRefT State MetaM Unit := do
@@ -1237,7 +1235,7 @@ private def unfoldNamedPattern (e : Expr) : MetaM Expr := do
     return .continue
   Meta.transform e (pre := visit)
 
-def getMkMatcherInputInContext (matcherApp : MatcherApp) (unfoldNamed :Bool) : MetaM MkMatcherInput := do
+def getMkMatcherInputInContext (matcherApp : MatcherApp) (unfoldNamed : Bool) : MetaM MkMatcherInput := do
   let matcherName := matcherApp.matcherName
   let some matcherInfo ← getMatcherInfo? matcherName
     | throwError "Internal error during match expression elaboration: Could not find a matcher named `{matcherName}`"
@@ -1272,14 +1270,13 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) (unfoldNamed :Bool) : M
 
 def withMkMatcherInput (matcherName : Name) (unfoldNamed : Bool) (k : MkMatcherInput → MetaM α) : MetaM α := do
   let some matcherInfo ← getMatcherInfo? matcherName
-    | throwError "Internal error during match expression elaboration: Could not find a matcher named `{matcherName}`"
+    | throwError "withMkMatcherInput: {.ofConstName matcherName} is not a matcher"
   let matcherConst ← getConstInfo matcherName
   forallBoundedTelescope matcherConst.type matcherInfo.arity fun xs _ => do
-    -- let (xs, _, _) ← forallMetaBoundedTelescope matcherConst.type matcherInfo.arity
     let matcherApp ← mkConstWithLevelParams matcherConst.name
     let matcherApp := mkAppN matcherApp xs
     let some matcherApp ← matchMatcherApp? matcherApp
-      | throwError "Internal error during match expression elaboration: Could not find a matcher app named `{matcherApp}`"
+      | throwError "withMkMatcherInput: {.ofConstName matcherName} does not produce a matcher application"
     let mkMatcherInput ← getMkMatcherInputInContext matcherApp unfoldNamed
     k mkMatcherInput
 

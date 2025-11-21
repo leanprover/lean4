@@ -392,20 +392,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
 
     let needsSplitter := !matchInfo.overlaps.isEmpty || (constInfo.type.find? (isNamedPattern )).isSome
 
-    if !needsSplitter then
-      assert! matchInfo.altInfos == splitterAltInfos
-      -- This match statement does not need a splitter, we can use itself for that.
-      -- (We still have to generate a declaration to satisfy the realizable constant)
-      addAndCompile <| Declaration.defnDecl {
-        name        := splitterName
-        levelParams := constInfo.levelParams
-        type        := constInfo.type
-        value       := mkConst matchDeclName us
-        hints       := .abbrev
-        safety      := .safe
-      }
-      setInlineAttribute splitterName
-    else
+    if needsSplitter then
       -- Define splitter with conditional/refined alternatives
       withSplitterAlts splitterAltTypes fun altsNew => do
         let splitterParams := params.toArray ++ #[motive] ++ discrs.toArray ++ altsNew
@@ -419,6 +406,19 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
           }
           let res ← Match.mkMatcher matcherInput
           res.addMatcher -- TODO: Do not set matcherinfo for the splitter!
+    else
+      assert! matchInfo.altInfos == splitterAltInfos
+      -- This match statement does not need a splitter, we can use itself for that.
+      -- (We still have to generate a declaration to satisfy the realizable constant)
+      addAndCompile <| Declaration.defnDecl {
+        name        := splitterName
+        levelParams := constInfo.levelParams
+        type        := constInfo.type
+        value       := mkConst matchDeclName us
+        hints       := .abbrev
+        safety      := .safe
+      }
+      setInlineAttribute splitterName
     let result := { eqnNames, splitterName, splitterMatchInfo }
     registerMatchEqns matchDeclName result
 

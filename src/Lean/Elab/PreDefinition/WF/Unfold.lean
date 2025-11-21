@@ -149,10 +149,8 @@ def mkMatchArgPusher (matcherName : Name) (matcherInfo : MatcherInfo) : MetaM Na
 
       let value ← mkFreshExprSyntheticOpaqueMVar goal
       let mvarId := value.mvarId!
-      trace[Elab.definition.wf] "mkMatchArgPusher for {.ofConstName name} goal:{indentD mvarId}"
       let mvarIds ← splitMatchOrCasesOn mvarId rhs matcherInfo
       for mvarId in mvarIds do
-        trace[Elab.definition.wf] "mkMatchArgPusher subgoal:{indentD mvarId}"
         mvarId.refl
       let value ← instantiateMVars value
       let type ← mkForallFVars (params ++ #[motive', alpha, beta, f, rel] ++ discrs ++ alts) goal

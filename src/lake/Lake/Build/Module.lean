@@ -355,7 +355,7 @@ private def Package.discriminant (self : Package) :=
   if self.version == {} then
     self.name.toString
   else
-    s!"{self.name} @ {self.version}"
+    s!"{self.name}@{self.version}"
 
 private def fetchImportInfo
   (fileName : String) (pkgName modName : Name) (header : ModuleHeader)
@@ -371,6 +371,14 @@ private def fetchImportInfo
     let n := mods.size
     if h : n = 0 then
       return s
+    else if n = 1 then -- common fast path
+      let mod := mods[0]
+      if imp.importAll && !mod.allowImportAll && pkgName != mod.pkg.name then
+        logError s!"{fileName}: cannot 'import all' \
+          the module `{imp.module}` from {mod.pkg.discriminant}"
+        return .error
+      let importJob ← mod.exportInfo.fetch
+      return s.zipWith (·.addImport nonModule imp ·) importJob
     else
       let isImportable (mod) :=
         mod.allowImportAll || pkgName == mod.pkg.name

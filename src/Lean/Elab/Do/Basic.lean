@@ -124,6 +124,16 @@ structure State where
 abbrev DoElabM := ReaderT Context <| StateRefT State Term.TermElabM
 
 /--
+Whether the continuation of a `do` element is duplicable and if so whether it is just `pure r` for
+the result variable `r`. Saying `nonDuplicable` is always safe; the other variants allow for more
+optimizations.
+-/
+inductive DoElemContKind
+  | nonDuplicable
+  | duplicable (pure : Bool := false)
+  deriving Inhabited
+
+/--
 Elaboration of a `do` block `do $e; $rest`, results in a call
 ``elabTerm `(do $e; $rest) = elabElem e dec``, where `elabElem e ·` is the elaborator for `do`
 element `e`, and `dec` is the `DoElemCont` describing the elaboration of the rest of the block
@@ -146,12 +156,18 @@ Examples:
   type `PUnit`.
 -/
 structure DoElemCont where
+  mk ::
   /-- The name of the monadic result variable. -/
   resultName : Name
   /-- The type of the monadic result. -/
   resultType : Expr
   /-- The continuation to elaborate the `rest` of the block. -/
   k : DoElabM Expr
+  /--
+  Whether we are OK with generating the code of the continuation multiple times, e.g. in different
+  branches of a `match` or `if`.
+  -/
+  kind : DoElemContKind := .nonDuplicable
 deriving Inhabited
 
 /--
@@ -204,6 +220,7 @@ private def getCachedPure : DoElabM Expr := do
   let info := (← read).monadInfo
   let instPure ← Term.mkInstMVar (mkApp (mkConst ``Pure [info.u, info.v]) info.m)
   let cachedPure := mkApp2 (mkConst ``Pure.pure [info.u, info.v]) info.m instPure
+  let cachedPure ← instantiateMVars cachedPure -- try to get rid of metavariables eagerly
   set { s with monadInstanceCache := { s.monadInstanceCache with cachedPure := some cachedPure } : State}
   return cachedPure
 
@@ -215,7 +232,12 @@ def mkPureApp (α e : Expr) : DoElabM Expr := do
 /-- Create a `DoElemCont` returning the result using `pure`. -/
 def DoElemCont.mkPure (resultType : Expr) : TermElabM DoElemCont := do
   let r ← mkFreshUserName `r
-  return { resultName := r, resultType, k := do mkPureApp resultType (← getFVarFromUserName r) }
+  return {
+    resultName := r,
+    resultType,
+    k := do mkPureApp resultType (← getFVarFromUserName r),
+    kind := .duplicable true
+  }
 
 /-- The cached `@Bind.bind m instBind` expression. -/
 private def getCachedBind : DoElabM Expr := do
@@ -224,6 +246,7 @@ private def getCachedBind : DoElabM Expr := do
   let info := (← read).monadInfo
   let instBind ← Term.mkInstMVar (mkApp (mkConst ``Bind [info.u, info.v]) info.m)
   let cachedBind := mkApp2 (mkConst ``Bind.bind [info.u, info.v]) info.m instBind
+  let cachedBind ← instantiateMVars cachedBind -- try to get rid of metavariables eagerly
   set { s with monadInstanceCache := { s.monadInstanceCache with cachedBind := some cachedBind } : State}
   return cachedBind
 
@@ -282,6 +305,7 @@ def mkFreshResultType (userName := `α) : DoElabM Expr := do
 def synthUsingDefEq (msg : String) (expected : Expr) (actual : Expr) : DoElabM Unit := do
   unless ← isDefEq expected actual do
     throwError "Failed to synthesize {msg}. {expected} is not definitionally equal to {actual}."
+
 
 /--
 Has the effect of ``e >>= fun (x : eResultTy) => $(← k `(x))``.
@@ -362,16 +386,9 @@ def withNestedAction (k : DoElabM Expr) : DoElabM Expr := do
       return e
   wrapNestedActions 0 e
 -/
-partial def elabTerm (stx : Syntax) (expectedType? : Option Expr) : DoElabM Expr := do
-  Term.elabTerm stx expectedType?
-
-def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) : DoElabM Expr := do
-  let e ← Term.elabTermEnsuringType stx expectedType?
-  -- nandle nested actions
-  return e
 
 def elabBinder (binder : Syntax) (x : Expr → DoElabM α) : DoElabM α := do
-  controlAt TermElabM fun runInBase => Term.elabBinder binder (runInBase ∘ x)
+  controlAtTermElabM fun runInBase => Term.elabBinder binder (runInBase ∘ x)
 
 /--
 The subset of `mutVars` that were reassigned in any of the `childCtxs` relative to the given
@@ -516,7 +533,11 @@ Return `$e >>= fun ($dec.resultName : $dec.resultType) => $(← dec.k)`, cancell
 the bind if `$(← dec.k)` is `pure $dec.resultName`.
 -/
 def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := do
-  mkBindCancellingPure dec.resultName dec.resultType e (fun _ => dec.k)
+--  match dec.kind with
+--  | .duplicable (pure := true) =>
+--    return e
+--  | _ => -- might still resolve to `pure $dec.resultName` "dynamically".
+    mkBindCancellingPure dec.resultName dec.resultType e (fun _ => dec.k)
 
 /--
 Return `let $k.resultName : PUnit := PUnit.unit; $(← k.k)`, ensuring that the result type of `k.k`
@@ -525,7 +546,33 @@ is `PUnit` and then immediately zeta-reduce the `let`.
 def DoElemCont.continueWithUnit (dec : DoElemCont) : DoElabM Expr := do
   let unit ← mkPUnitUnit
   discard <| Term.ensureHasType dec.resultType unit
-  mapLetDeclZeta dec.resultName (← mkPUnit) unit (fun _ => dec.k)
+  mapLetDeclZeta dec.resultName (← mkPUnit) unit fun _ => dec.k
+
+private partial def withSynthesizeForDo (k : DoElabM α) : DoElabM α :=
+  controlAtTermElabM fun runInBase => do
+    let pendingMVarsSaved := (← get).pendingMVars
+    modify fun s => { s with pendingMVars := [] }
+    try
+      let a ← runInBase k
+      synth
+      return a
+    finally
+      modify fun s => { s with pendingMVars := s.pendingMVars ++ pendingMVarsSaved }
+where
+  getSomeSyntheticMVarsRef : TermElabM Syntax := do
+    for mvarId in (← get).pendingMVars do
+      if let some decl ← Term.getSyntheticMVarDecl? mvarId then
+        if decl.stx.getPos?.isSome then
+          return decl.stx
+    return .missing
+  synth : TermElabM Unit := do
+    let rec loop (_ : Unit) : TermElabM Unit := do
+      withRef (← getSomeSyntheticMVarsRef) <| withIncRecDepth do
+        unless (← get).pendingMVars.isEmpty do
+          if ← Term.synthesizeSyntheticMVarsStep (postponeOnError := true) (runTactics := false) then
+            loop ()
+          Term.tryPostpone
+    loop ()
 
 /--
 Call `caller` with a duplicable proxy of `dec`.
@@ -536,12 +583,15 @@ This is useful for control-flow constructs like `if` and `match`, where multiple
 branches share the continuation.
 -/
 def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont → DoElabM Expr) : DoElabM Expr := do
+  if nondupDec.kind matches .duplicable .. then
+    return (← caller nondupDec)
   let γ := (← read).doBlockResultType
   let mγ ← mkMonadicType γ
   let rootCtx ← getLCtx
   let mutVars := (← read).mutVars
   let contVarId ← mkFreshContVar γ (mutVars.push nondupDec.resultName)
-  let duplicableDec := { nondupDec with k := contVarId.mkJump }
+  let duplicableDec := { nondupDec with k := contVarId.mkJump, kind := .duplicable (pure := false) }
+--  let e ← withSynthesizeForDo (caller duplicableDec)
   let e ← caller duplicableDec
 
   -- Now determine whether we need to realize the join point.
@@ -701,8 +751,8 @@ private partial def extractMonadInfo (expectedType? : Option Expr) : Term.TermEl
   let extractStep? (type : Expr) : Term.TermElabM (Option (MonadInfo × Expr)) := do
     let .app m resultType := type.consumeMData | return none
     unless ← isType resultType do return none
-    let .succ u ← getLevel resultType | return none
-    let .succ v ← getLevel type | return none
+    let u ← getDecLevel resultType
+    let v ← getDecLevel type
     let u := u.normalize
     let v := v.normalize
     return some ({ m, u, v }, resultType)
@@ -953,7 +1003,7 @@ partial def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont)
   let back := doElems.back
   let unit ← mkPUnit
   let r ← mkFreshUserName `r
-  doElems.pop.foldr (init := elabDoElem back cont) fun el k => elabDoElem el (.mk r unit k)
+  doElems.pop.foldr (init := elabDoElem back cont) fun el k => elabDoElem el (.mk r unit k .nonDuplicable)
 end
 
 def elabDoSeq (doSeq : TSyntax ``Lean.Parser.Term.doSeq) (cont : DoElemCont) : DoElabM Expr :=
@@ -970,6 +1020,7 @@ def elabDo : Term.TermElab := fun e expectedType? => do
   let ctx ← mkContext expectedType?
   let cont ← DoElemCont.mkPure ctx.doBlockResultType
   let res ← elabDoSeq doSeq cont |>.run ctx |>.run' {}
+  Term.synthesizeSyntheticMVars
   let res ← instantiateMVars res
   trace[Elab.do] "{res}"
   pure res

@@ -571,7 +571,7 @@ mutual
   /--
     Try to synthesize the current list of pending synthetic metavariables.
     Return `true` if at least one of them was synthesized. -/
-  private partial def synthesizeSyntheticMVarsStep (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool := do
+  partial def synthesizeSyntheticMVarsStep (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool := do
     let ctx ← read
     traceAtCmdPos `Elab.resuming fun _ =>
       m!"resuming synthetic metavariables, mayPostpone: {ctx.mayPostpone}, postponeOnError: {postponeOnError}"

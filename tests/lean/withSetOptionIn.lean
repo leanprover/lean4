@@ -80,14 +80,14 @@ def getOptionNames (ts : PersistentArray InfoTree) : List Name :=
 
 def compareWithSetOptionIn : CommandElab := fun stx => do
   let originalTrees ← getInfoTrees
-  logInfo m!"without `withSetOption`: `linter.all := {← getBoolOption `linter.all}`"
-  logInfo m!"with `withSetOption`: Found option names in trees: {getOptionNames (← getInfoTrees)}"
+  logInfo m!"without `withSetOption`:\n\
+    - `linter.all := {← getBoolOption `linter.all}`\n\
+    - Found option names in trees: {getOptionNames (← getInfoTrees)}"
   let runWithSetOptionIn : CommandElab := withSetOptionIn fun _ => do
     logInfo m!"trees are structurally equal: {originalTrees.eqOf (← getInfoTrees) (·.structEq ·)}"
-    logInfo m!"with `withSetOptionIn`: `linter.all := {← getBoolOption `linter.all}`"
-    -- For good measure, make sure `collectNodesBottomUp` finds `linter.all` from the *original*
-    -- elaboration (i.e., the infotrees are as expected) and doesn't panic.
-    logInfo m!"with `withSetOption`: Found option names in trees: {getOptionNames (← getInfoTrees)}"
+    logInfo m!"with `withSetOption`:\n\
+      - `linter.all := {← getBoolOption `linter.all}`\n\
+      - Found option names in trees: {getOptionNames (← getInfoTrees)}"
   runWithSetOptionIn stx
 
 /-
@@ -97,15 +97,15 @@ This ensures that we're looking at correct post-elaboration infotrees in this te
 -/
 
 /--
-info: without `withSetOption`: `linter.all := false`
----
-info: with `withSetOption`: Found option names in trees: [linter.all]
+info: without `withSetOption`:
+- `linter.all := false`
+- Found option names in trees: [linter.all]
 ---
 info: trees are structurally equal: true
 ---
-info: with `withSetOptionIn`: `linter.all := true`
----
-info: with `withSetOption`: Found option names in trees: [linter.all]
+info: with `withSetOption`:
+- `linter.all := true`
+- Found option names in trees: [linter.all]
 -/
 #guard_msgs in
 run_cmd do
@@ -129,15 +129,15 @@ has type
 but the option `linter.all` expects a value of type
   Bool
 ---
-info: without `withSetOption`: `linter.all := false`
----
-info: with `withSetOption`: Found option names in trees: [linter.all]
+info: without `withSetOption`:
+- `linter.all := false`
+- Found option names in trees: [linter.all]
 ---
 info: trees are structurally equal: true
 ---
-info: with `withSetOptionIn`: `linter.all := false`
----
-info: with `withSetOption`: Found option names in trees: [linter.all]
+info: with `withSetOption`:
+- `linter.all := false`
+- Found option names in trees: [linter.all]
 -/
 #guard_msgs in
 run_cmd do

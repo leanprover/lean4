@@ -17,7 +17,7 @@ namespace OpenDecl
 
 variable [Monad m] [STWorld IO.RealWorld m] [MonadEnv m]
 variable [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m]
-variable [AddMessageContext m] [MonadLiftT (ST IO.RealWorld) m] [MonadLog m]
+variable [AddMessageContext m] [MonadLiftT (ST IO.RealWorld) m] [MonadLog m] [MonadTrace m]
 
 /--
 A local copy of name resolution state that allows us to immediately use new open decls

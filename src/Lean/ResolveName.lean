@@ -10,6 +10,7 @@ public import Lean.Modifiers
 public import Lean.Exception
 public import Lean.Namespace
 public import Lean.Log
+public import Lean.ExtraModUses
 
 public section
 
@@ -267,7 +268,7 @@ instance (m n) [MonadLift m n] [MonadResolveName m] : MonadResolveName n where
   getOpenDecls     := liftM (m:=m) getOpenDecls
 
 variable [Monad m] [MonadResolveName m] [MonadEnv m] [MonadOptions m] [MonadLog m] [AddMessageContext m]
-  [MonadError m]
+  [MonadError m] [MonadTrace m]
 
 def checkPrivateInPublic (id : Name) : m Unit := do
   if (← getEnv).isExporting && isPrivateName id && (← ResolveName.backward.privateInPublic.warn.getM) then
@@ -320,6 +321,8 @@ called incidentally or multiple times.
 -/
 def resolveGlobalName (id : Name) (enableLog := true) : m (List (Name × List String)) := do
   let res := ResolveName.resolveGlobalName (← getEnv) (← getOptions) (← getCurrNamespace) (← getOpenDecls) id
+  for (n, _) in res do
+    recordExtraModUseFromDecl (isMeta := false) n
   -- `isExporting` is already checked in `checkPrivateInPublic` but should be cheaper than `isPrivateName`
   if enableLog && (← getEnv).isExporting then
     if let some prv := res.find? (isPrivateName ·.1) then

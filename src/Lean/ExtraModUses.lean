@@ -6,7 +6,7 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Lean.CoreM
+public import Lean.Util.Trace
 public import Lean.Compiler.MetaAttr  -- TODO: public because of specializations
 
 /-!

@@ -1303,7 +1303,7 @@ def toNat! (s : Slice) : Nat :=
     panic! "Nat expected"
 
 /--
-Returns the first character in {name}`s`. If {name}`s` is empty, {name}`none`.
+Returns the first character in {name}`s`. If {name}`s` is empty, returns {name}`none`.
 
 Examples:
 * {lean}`"abc".toSlice.front? = some 'a'`

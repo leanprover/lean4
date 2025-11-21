@@ -96,6 +96,18 @@ Should find the option name `linter.all` exactly once **both** with and without 
 This ensures that we're looking at correct post-elaboration infotrees in this test.
 -/
 
+/--
+info: without `withSetOption`: `linter.all := false`
+---
+info: with `withSetOption`: Found option names in trees: [linter.all]
+---
+info: trees are structurally equal: true
+---
+info: with `withSetOptionIn`: `linter.all := true`
+---
+info: with `withSetOption`: Found option names in trees: [linter.all]
+-/
+#guard_msgs in
 run_cmd do
   let stx ← `(command| set_option linter.all true in example : True := trivial)
   elabCommand stx
@@ -109,6 +121,25 @@ Should only log the `set_option` error **once** from `elabCommand`. `compareWith
 not produce an error.
 -/
 
+/--
+error: set_option value type mismatch: The value
+  3
+has type
+  Nat
+but the option `linter.all` expects a value of type
+  Bool
+---
+info: without `withSetOption`: `linter.all := false`
+---
+info: with `withSetOption`: Found option names in trees: [linter.all]
+---
+info: trees are structurally equal: true
+---
+info: with `withSetOptionIn`: `linter.all := false`
+---
+info: with `withSetOption`: Found option names in trees: [linter.all]
+-/
+#guard_msgs in
 run_cmd do
   let stx ← `(command| set_option linter.all 3 in example : True := trivial)
   elabCommand stx

@@ -448,6 +448,7 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LE α] [DecidableLE α
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {n : Type u → Type w} [Monad n] :
     IteratorLoop (Rxc.Iterator α) Id n where
+  forInNew := IteratorLoop.defaultImplementation.forInNew -- TODO
   forIn _ γ Pl wf it init f :=
     match it with
     | ⟨⟨some next, upperBound⟩⟩ =>
@@ -1025,6 +1026,7 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LT α] [DecidableLT α
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     {n : Type u → Type w} [Monad n] :
     IteratorLoop (Rxo.Iterator α) Id n where
+  forInNew := IteratorLoop.defaultImplementation.forInNew -- TODO
   forIn _ γ Pl wf it init f :=
     match it with
     | ⟨⟨some next, upperBound⟩⟩ =>
@@ -1516,6 +1518,7 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α]
     [LawfulUpwardEnumerable α]
     {n : Type u → Type w} [Monad n] :
     IteratorLoop (Rxi.Iterator α) Id n where
+  forInNew := IteratorLoop.defaultImplementation.forInNew -- TODO
   forIn _ γ Pl wf it init f :=
     match it with
     | ⟨⟨some next⟩⟩ =>

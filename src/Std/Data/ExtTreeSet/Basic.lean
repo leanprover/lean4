@@ -524,6 +524,17 @@ def union [TransCmp cmp] (t₁ t₂ : ExtTreeSet α cmp) : ExtTreeSet α cmp := 
 instance [TransCmp cmp] : Union (ExtTreeSet α cmp) := ⟨union⟩
 
 /--
+Computes the intersection of the given tree sets.
+
+This function always iterates through the smaller set.
+-/
+@[inline]
+def inter [TransCmp cmp] (t₁ t₂ : ExtTreeSet α cmp) : ExtTreeSet α cmp := ⟨ExtTreeMap.inter t₁.inner t₂.inner⟩
+
+instance [TransCmp cmp] : Inter (ExtTreeSet α cmp) := ⟨inter⟩
+
+
+/--
 Erases multiple items from the tree set by iterating over the given collection and calling erase.
 -/
 @[inline]

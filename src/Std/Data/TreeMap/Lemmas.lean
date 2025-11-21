@@ -1760,6 +1760,25 @@ theorem not_mem_inter_of_not_mem_right [TransCmp cmp] {k : α}
     k ∉ t₁ ∩ t₂ :=
   DTreeMap.not_mem_inter_of_not_mem_right not_mem
 
+/- Equiv -/
+theorem Equiv.inter_left {t₃ : TreeMap α β cmp} [TransCmp cmp]
+    (equiv : t₁ ~m t₂) :
+    (t₁ ∩ t₃).Equiv (t₂ ∩ t₃) := by
+  constructor
+  apply DTreeMap.Equiv.inter_left equiv.1
+
+theorem Equiv.inter_right {t₃ : TreeMap α β cmp} [TransCmp cmp]
+    (equiv : t₂ ~m t₃) :
+    (t₁ ∩ t₂).Equiv (t₁ ∩ t₃) := by
+  constructor
+  apply DTreeMap.Equiv.inter_right equiv.1
+
+theorem Equiv.inter_congr {t₃ t₄ : TreeMap α β cmp} [TransCmp cmp]
+    (equiv₁ : t₁ ~m t₃) (equiv₂ : t₂ ~m t₄) :
+    (t₁ ∩ t₂).Equiv (t₃ ∩ t₄) := by
+  constructor
+  apply DTreeMap.Equiv.inter_congr equiv₁.1 equiv₂.1
+
 /- get? -/
 theorem get?_inter [TransCmp cmp] {k : α} :
     (t₁ ∩ t₂).get? k =

@@ -4147,6 +4147,57 @@ theorem contains_inter!_eq_false_of_contains_eq_false_right [TransOrd α]
   apply contains_inter_eq_false_of_contains_eq_false_right h₁ h₂
   all_goals wf_trivial
 
+/- Equiv -/
+theorem Equiv.inter_left {m₃ : Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₁.Equiv m₂) :
+    (m₁.inter m₃ h₁.balanced).Equiv (m₂.inter m₃ h₂.balanced) := by
+  revert equiv
+  simp_to_model [Equiv, inter]
+  intro equiv
+  apply List.Perm.filter
+  wf_trivial
+
+theorem Equiv.inter!_left {m₃ : Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₁.Equiv m₂) :
+    (m₁.inter! m₃).Equiv (m₂.inter! m₃) := by
+  rw [← inter_eq_inter!, ← inter_eq_inter!]
+  apply Equiv.inter_left
+  all_goals wf_trivial
+
+theorem Equiv.inter_right {m₃ : Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₂.Equiv m₃) :
+    (m₁.inter m₂ h₁.balanced).Equiv (m₁.inter m₃ h₁.balanced) := by
+  revert equiv
+  simp_to_model [Equiv, inter]
+  intro equiv
+  apply List.perm_filter_containsKey_of_perm equiv
+  all_goals wf_trivial
+
+theorem Equiv.inter!_right {m₃ : Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₂.Equiv m₃) :
+    (m₁.inter! m₂).Equiv (m₁.inter! m₃) := by
+  rw [← inter_eq_inter!, ← inter_eq_inter!]
+  apply Equiv.inter_right
+  all_goals wf_trivial
+
+theorem Equiv.inter_congr {m₃ m₄ : Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF)
+    (equiv₁ : m₁.Equiv m₃) (equiv₂ : m₂.Equiv m₄) :
+    (m₁.inter m₂ h₁.balanced).Equiv (m₃.inter m₄ h₃.balanced) := by
+  revert equiv₁ equiv₂
+  simp_to_model [Equiv, inter]
+  intro equiv₁ equiv₂
+  apply List.congr_filter_containsKey_of_perm
+  all_goals wf_trivial
+
+theorem Equiv.inter!_congr {m₃ m₄ : Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF)
+    (equiv₁ : m₁.Equiv m₃) (equiv₂ : m₂.Equiv m₄) :
+    (m₁.inter! m₂).Equiv (m₃.inter! m₄) := by
+  rw [← inter_eq_inter!, ← inter_eq_inter!]
+  apply Equiv.inter_congr
+  all_goals wf_trivial
+
 /- get? -/
 theorem get?_inter [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
     (m₁.inter m₂ h₁.balanced).get? k =

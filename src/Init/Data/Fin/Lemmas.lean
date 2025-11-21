@@ -23,9 +23,15 @@ namespace Fin
 theorem mod_def (a m : Fin n) : a % m = Fin.mk (a.val % m.val) (Nat.lt_of_le_of_lt (Nat.mod_le _ _) a.2) :=
   rfl
 
+theorem val_mod (a m : Fin n) : (a % m).val = a.val % m.val := rfl
+
 theorem mul_def (a b : Fin n) : a * b = Fin.mk ((a.val * b.val) % n) (Nat.mod_lt _ a.pos) := rfl
 
+theorem val_mul (a b : Fin n) : (a * b).val = (a.val * b.val) % n := rfl
+
 theorem sub_def (a b : Fin n) : a - b = Fin.mk (((n - b.val) + a.val) % n) (Nat.mod_lt _ a.pos) := rfl
+
+theorem val_sub (a b : Fin n) : (a - b).val = ((n - b.val) + a.val) % n := rfl
 
 theorem pos' : ∀ [Nonempty (Fin n)], 0 < n | ⟨i⟩ => i.pos
 
@@ -259,7 +265,9 @@ instance : LawfulOrderLT (Fin n) where
   lt_iff := by
     simp [← Fin.not_le, Decidable.imp_iff_not_or, Std.Total.total]
 
-@[simp, grind =] theorem val_rev (i : Fin n) : (rev i).val = n - (i + 1) := rfl
+@[simp] theorem val_rev (i : Fin n) : (rev i).val = n - (i + 1) := rfl
+
+grind_pattern val_rev => i.rev
 
 @[simp] theorem rev_rev (i : Fin n) : rev (rev i) = i := Fin.ext <| by
   rw [val_rev, val_rev, ← Nat.sub_sub, Nat.sub_sub_self (by exact i.2), Nat.add_sub_cancel]
@@ -1137,9 +1145,6 @@ theorem mul_ofNat [NeZero n] (x : Fin n) (y : Nat) :
   simp [Fin.ofNat, Fin.mul_def]
 
 @[deprecated mul_ofNat (since := "2025-05-28")] abbrev mul_ofNat' := @mul_ofNat
-
-theorem val_mul {n : Nat} : ∀ a b : Fin n, (a * b).val = a.val * b.val % n
-  | ⟨_, _⟩, ⟨_, _⟩ => rfl
 
 @[deprecated val_mul (since := "2025-10-26")]
 theorem coe_mul {n : Nat} : ∀ a b : Fin n, ((a * b : Fin n) : Nat) = a * b % n

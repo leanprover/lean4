@@ -440,12 +440,12 @@ def isLevelMVarAssignable [Monad m] [MonadMCtx m] (mvarId : LMVarId) : m Bool :=
   let mctx ← getMCtx
   match mctx.lDepth.find? mvarId with
   | some d => return d >= mctx.levelAssignDepth
-  | _      => panic! "unknown universe metavariable"
+  | _      => panic! s!"unknown universe metavariable {mvarId.name}"
 
 def MetavarContext.getDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarDecl :=
   match mctx.decls.find? mvarId with
   | some decl => decl
-  | none      => panic! "unknown metavariable"
+  | none      => panic! s!"unknown metavariable {mvarId.name}"
 
 def _root_.Lean.MVarId.isAssignable [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
   let mctx ← getMCtx

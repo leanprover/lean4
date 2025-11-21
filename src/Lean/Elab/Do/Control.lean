@@ -214,7 +214,7 @@ def ControlLifter.lift (l : ControlLifter) (elabElem : DoElemCont → DoElabM Ex
   let continueCont := Functor.mapConst l.continueKVar.mkJump oldContinueCont
   let returnCont := l.returnCont
   let contInfo := ContInfo.toContInfoRef { breakCont, continueCont, returnCont }
-  let pureCont := { l.successCont with k := l.pureKVar.mkJump }
+  let pureCont := { l.successCont with k := l.pureKVar.mkJump, kind := .duplicable (pure := false) }
   withReader (fun ctx => { ctx with contInfo, doBlockResultType := l.resultType }) <| elabElem pureCont
 
 def ControlLifter.synthesizeConts (l : ControlLifter)

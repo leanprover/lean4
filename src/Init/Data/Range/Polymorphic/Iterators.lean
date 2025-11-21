@@ -651,6 +651,18 @@ instance {m} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [LawfulUpwardEnumerableLeast? α]
     [Monad m] [Finite (Rxo.Iterator α) Id] :
+    ForInNew' m (Rio α) α Membership.mem where
+  forIn' r init kcons knil := by
+    haveI := Iter.instForInNew' (α := Rxo.Iterator α) (β := α) (n := m)
+    refine ForInNew'.forIn' (α := α) (Internal.iter r) init (fun a ha kcontinue s => kcons a ?_ kcontinue s) knil
+    rwa [Internal.isPlausibleIndirectOutput_iter_iff] at ha
+
+@[no_expose]
+instance {m} [UpwardEnumerable α]
+    [LT α] [DecidableLT α] [Least? α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    [LawfulUpwardEnumerableLeast? α]
+    [Monad m] [Finite (Rxo.Iterator α) Id] :
     ForIn' m (Rio α) α inferInstance where
   forIn' r init f := by
     haveI := Iter.instForIn' (α := Rxo.Iterator α) (β := α) (n := m)

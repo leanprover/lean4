@@ -2041,25 +2041,35 @@ theorem mem_of_mem_union_of_not_mem_left [EquivBEq α]
   simp_to_raw using Raw₀.contains_of_contains_union_of_contains_eq_false_left
 
 /- Equiv -/
-theorem union_equiv_congr_left {m₃ : Raw α β} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF)
+theorem Equiv.union_left {m₃ : Raw α β} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF)
     (equiv : m₁ ~m m₂) :
     (m₁ ∪ m₃) ~m (m₂ ∪ m₃) := by
   revert equiv
   simp only [Union.union]
   simp_to_raw
   intro hyp
-  apply Raw₀.union_equiv_congr_left
+  apply Raw₀.Equiv.union_left
   all_goals wf_trivial
 
-theorem union_equiv_congr_right {m₃ : Raw α β} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF)
+theorem Equiv.union_right {m₃ : Raw α β} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF)
     (equiv : m₂ ~m m₃) :
     (m₁ ∪ m₂) ~m (m₁ ∪ m₃) := by
   revert equiv
   simp only [Union.union]
   simp_to_raw
   intro hyp
-  apply Raw₀.union_equiv_congr_right
+  apply Raw₀.Equiv.union_right
   all_goals wf_trivial
+
+theorem Equiv.union_congr {m₃ m₄ : Raw α β} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF)
+    (equiv₁ : m₁ ~m m₃)
+    (equiv₂ : m₂ ~m m₄) :
+    (m₁ ∪ m₂) ~m (m₃ ∪ m₄) := by
+  simp only [Union.union]
+  revert equiv₁ equiv₂
+  simp_to_raw
+  intro equiv₁ equiv₂
+  apply Raw₀.Equiv.union_congr h₁ h₂ h₃ h₄ equiv₁ equiv₂
 
 theorem union_insert_right_equiv_insert_union [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
     (h₁ : m₁.WF) (h₂ : m₂.WF) :

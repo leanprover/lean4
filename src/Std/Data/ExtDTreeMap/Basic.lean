@@ -907,15 +907,12 @@ def insertManyIfNewUnit [TransCmp cmp] {ρ} [ForIn Id ρ α] (t : ExtDTreeMap α
 
 end Const
 
-theorem union_congr [TransCmp cmp] (a b c d : DTreeMap α β cmp) (h₁ : a ~m c) (h₂ : b ~m d) : a ∪ b ~m c ∪ d :=
-  DTreeMap.Equiv.trans (DTreeMap.union_equiv_congr_left h₁) (DTreeMap.union_equiv_congr_right h₂)
-
 @[inline, inherit_doc DTreeMap.union]
 def union [TransCmp cmp] (m₁ m₂ : ExtDTreeMap α β cmp) : ExtDTreeMap α β cmp := lift₂ (fun x y : DTreeMap α β cmp => mk (x.union y))
   (fun a b c d equiv₁ equiv₂ => by
     simp only [DTreeMap.union_eq, mk'.injEq]
     apply Quotient.sound
-    apply union_congr
+    apply DTreeMap.Equiv.union_congr
     . exact equiv₁
     . exact equiv₂) m₁ m₂
 

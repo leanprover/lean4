@@ -859,15 +859,20 @@ theorem mem_of_mem_union_of_not_mem_left [EquivBEq α]
   @HashMap.Raw.mem_of_mem_union_of_not_mem_left _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k
 
 /- Equiv -/
-theorem union_equiv_congr_left {m₃ : Raw α} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF)
+theorem Equiv.union_left {m₃ : Raw α} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF)
     (equiv : m₁ ~m m₂) :
     (m₁ ∪ m₃) ~m (m₂ ∪ m₃) :=
-  ⟨@HashMap.Raw.union_equiv_congr_left _ _ _ _ m₁.inner m₂.inner m₃.inner _ _ h₁.out h₂.out h₃.out equiv.1⟩
+  ⟨@HashMap.Raw.Equiv.union_left _ _ _ _ m₁.inner m₂.inner m₃.inner _ _ h₁.out h₂.out h₃.out equiv.1⟩
 
-theorem union_equiv_congr_right {m₃ : Raw α} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF)
+theorem Equiv.union_right {m₃ : Raw α} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF)
     (equiv : m₂ ~m m₃) :
     (m₁ ∪ m₂) ~m (m₁ ∪ m₃) :=
-  ⟨@HashMap.Raw.union_equiv_congr_right _ _ _ _ m₁.inner m₂.inner m₃.inner _ _ h₁.out h₂.out h₃.out equiv.1⟩
+  ⟨@HashMap.Raw.Equiv.union_right _ _ _ _ m₁.inner m₂.inner m₃.inner _ _ h₁.out h₂.out h₃.out equiv.1⟩
+
+theorem Equiv.union_congr {m₃ m₄ : Raw α} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF)
+    (equiv₁ : m₁ ~m m₃) (equiv₂ : m₂ ~m m₄) :
+    (m₁ ∪ m₂) ~m (m₃ ∪ m₄) :=
+  ⟨@HashMap.Raw.Equiv.union_congr _ _ _ _ m₁.inner m₂.inner m₃.inner m₄.inner _ _ h₁.out h₂.out h₃.out h₄.out equiv₁.1 equiv₂.1⟩
 
 /- get? -/
 theorem get?_union [EquivBEq α] [LawfulHashable α]

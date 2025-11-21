@@ -410,10 +410,6 @@ def rawStx.parenthesizer : CategoryParenthesizer | _ => do
 def error.parenthesizer (_msg : String) : Parenthesizer :=
   pure ()
 
-@[combinator_parenthesizer errorAtSavedPos, expose]
-def errorAtSavedPos.parenthesizer (_msg : String) (_delta : Bool) : Parenthesizer :=
-  pure ()
-
 @[combinator_parenthesizer atomic, expose]
 def atomic.parenthesizer (p : Parenthesizer) : Parenthesizer :=
   p

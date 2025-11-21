@@ -940,6 +940,10 @@ and the `targets` contains the implicit targets
 -/
 def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
     (toTag : Array (Ident × FVarId) := #[]) : TacticM Unit := do
+  if (← Lean.isTracingEnabledFor `Elab.let) then
+    logInfo m!"it's {stx}"
+    logInfo m!"it's[0] {stx[0]}"
+    logInfo m!"it's[1] {stx[1]}"
   let mvarId ← getMainGoal
   -- save initial info before main goal is reassigned
   let mkInitInfo ← mkInitialTacticInfoForInduction stx

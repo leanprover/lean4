@@ -142,19 +142,6 @@ def error (msg : String) : Parser := {
   fn   := errorFn msg
 }
 
-def errorAtSavedPosFn (msg : String) (delta : Bool) : ParserFn := fun c s =>
-  match c.savedPos? with
-  | none     => s
-  | some pos =>
-    let pos := if delta then c.next pos else pos
-    s.mkUnexpectedErrorAt msg pos
-
-/-- Generate an error at the position saved with the `withPosition` combinator.
-   If `delta == true`, then it reports at saved position+1.
-   This useful to make sure a parser consumed at least one character.  -/
-@[builtin_doc] def errorAtSavedPos (msg : String) (delta : Bool) : Parser := {
-  fn := errorAtSavedPosFn msg delta
-}
 
 /-- Succeeds if `c.prec <= prec` -/
 def checkPrecFn (prec : Nat) : ParserFn := fun c s =>

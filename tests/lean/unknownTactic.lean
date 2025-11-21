@@ -1,6 +1,8 @@
-theorem ex1 (x : Nat) : x = x → x = x := by
-  intro
-  aexact (rfl)
+theorem ex1 (x : Nat) : x = x → x = x :=
+  let q := by
+    intro
+    aexact (rfl)
+  q
 
 #print "---"
 

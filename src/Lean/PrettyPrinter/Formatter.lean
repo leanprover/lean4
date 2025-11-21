@@ -320,7 +320,6 @@ def parserOfStack.formatter (offset : Nat) (_prec : Nat := 0) : Formatter := do
 @[combinator_formatter error, expose]
 def error.formatter (_msg : String) : Formatter := pure ()
 @[combinator_formatter errorAtSavedPos, expose]
-def errorAtSavedPos.formatter (_msg : String) (_delta : Bool) : Formatter := pure ()
 @[combinator_formatter lookahead, expose]
 def lookahead.formatter (_ : Formatter) : Formatter := pure ()
 

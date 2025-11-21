@@ -255,6 +255,7 @@ static lean_object* l___private_Lake_Load_Resolve_0__Lake_Workspace_updateToolch
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Resolve_0__Lake_Workspace_resolveDepsCore_go___at___00__private_Lake_Load_Resolve_0__Lake_Workspace_updateAndMaterializeCore___elam__0_spec__0_spec__1___lam__0(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_instMonad___redArg___lam__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Workspace_materializeDeps___closed__2;
+uint8_t l_Option_instDecidableEq___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_process_spawn(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Workspace_updateAndMaterialize_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Resolve_0__Lake_Workspace_resolveDepsCore_go___redArg___lam__2(lean_object*, lean_object*, lean_object*);
@@ -533,7 +534,6 @@ LEAN_EXPORT lean_object* l___private_Lake_Load_Resolve_0__Lake_reuseManifest___e
 LEAN_EXPORT uint8_t l___private_Lake_Load_Resolve_0__Lake_Workspace_runResolveT___redArg___lam__2(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00__private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00__private_Lake_Load_Resolve_0__Lake_Workspace_resolveDepsCore_go___at___00__private_Lake_Load_Resolve_0__Lake_Workspace_updateAndMaterializeCore___elam__5___at___00__private_Lake_Load_Resolve_0__Lake_Workspace_updateAndMaterializeCore_spec__12_spec__12_spec__12_spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-uint8_t l_Option_instDecidableEq_decEq___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Resolve_0__Lake_Workspace_resolveDepsCore_go___at___00__private_Lake_Load_Resolve_0__Lake_Workspace_updateAndMaterializeCore___elam__0___at___00__private_Lake_Load_Resolve_0__Lake_Workspace_updateAndMaterializeCore___elam__5_spec__0_spec__0___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Resolve_0__Lake_Workspace_updateAndMaterializeCore___elam__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -19671,7 +19671,7 @@ block_37:
 {
 lean_object* x_31; uint8_t x_32; 
 x_31 = lean_alloc_closure((void*)(l_instDecidableEqString___boxed), 2, 0);
-x_32 = l_Option_instDecidableEq_decEq___redArg(x_31, x_26, x_28);
+x_32 = l_Option_instDecidableEq___redArg(x_31, x_26, x_28);
 if (x_32 == 0)
 {
 lean_object* x_33; lean_object* x_34; 
@@ -19823,7 +19823,7 @@ block_65:
 {
 lean_object* x_59; uint8_t x_60; 
 x_59 = lean_alloc_closure((void*)(l_instDecidableEqString___boxed), 2, 0);
-x_60 = l_Option_instDecidableEq_decEq___redArg(x_59, x_54, x_56);
+x_60 = l_Option_instDecidableEq___redArg(x_59, x_54, x_56);
 if (x_60 == 0)
 {
 lean_object* x_61; lean_object* x_62; 
@@ -20047,7 +20047,7 @@ block_37:
 {
 lean_object* x_31; uint8_t x_32; 
 x_31 = lean_alloc_closure((void*)(l_instDecidableEqString___boxed), 2, 0);
-x_32 = l_Option_instDecidableEq_decEq___redArg(x_31, x_26, x_28);
+x_32 = l_Option_instDecidableEq___redArg(x_31, x_26, x_28);
 if (x_32 == 0)
 {
 lean_object* x_33; lean_object* x_34; 
@@ -20199,7 +20199,7 @@ block_65:
 {
 lean_object* x_59; uint8_t x_60; 
 x_59 = lean_alloc_closure((void*)(l_instDecidableEqString___boxed), 2, 0);
-x_60 = l_Option_instDecidableEq_decEq___redArg(x_59, x_54, x_56);
+x_60 = l_Option_instDecidableEq___redArg(x_59, x_54, x_56);
 if (x_60 == 0)
 {
 lean_object* x_61; lean_object* x_62; 

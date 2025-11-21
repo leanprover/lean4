@@ -35,7 +35,6 @@ LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___00String_toFormat_spec__2(l
 LEAN_EXPORT lean_object* l_instToFormatArray___redArg___lam__0(lean_object*, lean_object*);
 lean_object* l_Function_comp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
-lean_object* l_String_Slice_replaceStartEnd_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_List_format___redArg___closed__1;
@@ -48,6 +47,7 @@ LEAN_EXPORT lean_object* l_Option_format(lean_object*, lean_object*, lean_object
 static lean_object* l_instToFormatProd___redArg___lam__0___closed__2;
 LEAN_EXPORT lean_object* l_List_format___redArg(lean_object*, lean_object*);
 static lean_object* l_instToFormatArray___redArg___lam__0___closed__0;
+lean_object* l_String_Slice_slice_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Slice_Pos_next___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_split___at___00String_toFormat_spec__0___boxed(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -646,7 +646,7 @@ else
 {
 lean_object* x_25; 
 lean_inc_ref(x_1);
-x_25 = l_String_Slice_replaceStartEnd_x21(x_1, x_12, x_13);
+x_25 = l_String_Slice_slice_x21(x_1, x_12, x_13);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_ctor_set(x_2, 0, x_20);
@@ -712,7 +712,7 @@ else
 {
 lean_object* x_43; 
 lean_inc_ref(x_1);
-x_43 = l_String_Slice_replaceStartEnd_x21(x_1, x_29, x_30);
+x_43 = l_String_Slice_slice_x21(x_1, x_29, x_30);
 lean_dec(x_30);
 lean_dec(x_29);
 lean_ctor_set(x_2, 1, x_38);
@@ -797,7 +797,7 @@ else
 {
 lean_object* x_64; lean_object* x_65; 
 lean_inc_ref(x_1);
-x_64 = l_String_Slice_replaceStartEnd_x21(x_1, x_48, x_49);
+x_64 = l_String_Slice_slice_x21(x_1, x_48, x_49);
 lean_dec(x_49);
 lean_dec(x_48);
 x_65 = lean_alloc_ctor(0, 2, 0);

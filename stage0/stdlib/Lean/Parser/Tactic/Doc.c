@@ -193,7 +193,6 @@ static lean_object* l_Lean_Parser_Tactic_Doc_isTactic___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_initFn___lam__3_00___x40_Lean_Parser_Tactic_Doc_2845012366____hygCtx___hyg_2_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_knownTacticTagExt;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___00Lean_Parser_Tactic_Doc_allTags___at___00__private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn_00___x40_Lean_Parser_Tactic_Doc_1804727373____hygCtx___hyg_2__spec__2_spec__4(lean_object*, lean_object*);
-lean_object* l_String_Slice_replaceStartEnd_x21(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn___closed__23_00___x40_Lean_Parser_Tactic_Doc_710499956____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Parser_Tactic_Doc_getTacticExtensions_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Parser_Tactic_Doc_initFn_00___x40_Lean_Parser_Tactic_Doc_3047250029____hygCtx___hyg_2__spec__2___redArg___lam__0(lean_object*, lean_object*);
@@ -377,6 +376,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_tacticTagExt;
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00__private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn_00___x40_Lean_Parser_Tactic_Doc_710499956____hygCtx___hyg_2__spec__9_spec__9___closed__20;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_initFn___lam__0_00___x40_Lean_Parser_Tactic_Doc_291731992____hygCtx___hyg_2_(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_Doc_initFn___closed__0_00___x40_Lean_Parser_Tactic_Doc_44007290____hygCtx___hyg_2_;
+lean_object* l_String_Slice_slice_x21(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwAttrMustBeGlobal___at___00__private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn_00___x40_Lean_Parser_Tactic_Doc_710499956____hygCtx___hyg_2__spec__18___redArg(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___00Lean_Parser_Tactic_Doc_isTactic_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Parser_Tactic_Doc_getTacticExtensions_spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -9766,7 +9766,7 @@ else
 {
 lean_object* x_25; 
 lean_inc_ref(x_1);
-x_25 = l_String_Slice_replaceStartEnd_x21(x_1, x_12, x_13);
+x_25 = l_String_Slice_slice_x21(x_1, x_12, x_13);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_ctor_set(x_2, 0, x_20);
@@ -9832,7 +9832,7 @@ else
 {
 lean_object* x_43; 
 lean_inc_ref(x_1);
-x_43 = l_String_Slice_replaceStartEnd_x21(x_1, x_29, x_30);
+x_43 = l_String_Slice_slice_x21(x_1, x_29, x_30);
 lean_dec(x_30);
 lean_dec(x_29);
 lean_ctor_set(x_2, 1, x_38);
@@ -9917,7 +9917,7 @@ else
 {
 lean_object* x_64; lean_object* x_65; 
 lean_inc_ref(x_1);
-x_64 = l_String_Slice_replaceStartEnd_x21(x_1, x_48, x_49);
+x_64 = l_String_Slice_slice_x21(x_1, x_48, x_49);
 lean_dec(x_49);
 lean_dec(x_48);
 x_65 = lean_alloc_ctor(0, 2, 0);
@@ -10472,24 +10472,24 @@ if (lean_obj_tag(x_44) == 0)
 lean_dec_ref(x_44);
 if (x_9 == 0)
 {
-x_10 = lean_box(0);
-x_11 = x_5;
-x_12 = x_6;
+x_10 = x_5;
+x_11 = x_6;
+x_12 = lean_box(0);
 goto block_19;
 }
 else
 {
-x_20 = lean_box(0);
-x_21 = x_5;
-x_22 = x_6;
+x_20 = x_5;
+x_21 = x_6;
+x_22 = lean_box(0);
 goto block_25;
 }
 }
 else
 {
-x_20 = lean_box(0);
-x_21 = x_5;
-x_22 = x_6;
+x_20 = x_5;
+x_21 = x_6;
+x_22 = lean_box(0);
 goto block_25;
 }
 }
@@ -10554,7 +10554,7 @@ x_16 = l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn___lam
 x_17 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
-x_18 = l_Lean_throwError___at___00__private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn_00___x40_Lean_Parser_Tactic_Doc_710499956____hygCtx___hyg_2__spec__0___redArg(x_17, x_11, x_12);
+x_18 = l_Lean_throwError___at___00__private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn_00___x40_Lean_Parser_Tactic_Doc_710499956____hygCtx___hyg_2__spec__0___redArg(x_17, x_10, x_11);
 return x_18;
 }
 block_25:
@@ -10570,9 +10570,9 @@ return x_24;
 }
 else
 {
-x_10 = lean_box(0);
+x_10 = x_20;
 x_11 = x_21;
-x_12 = x_22;
+x_12 = lean_box(0);
 goto block_19;
 }
 }

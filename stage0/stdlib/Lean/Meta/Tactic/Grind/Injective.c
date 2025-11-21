@@ -4755,21 +4755,21 @@ uint8_t x_63;
 x_63 = l_Array_isEmpty___redArg(x_2);
 if (x_63 == 0)
 {
-x_9 = x_6;
-x_10 = x_4;
-x_11 = x_7;
-x_12 = lean_box(0);
-x_13 = x_5;
+x_9 = lean_box(0);
+x_10 = x_6;
+x_11 = x_5;
+x_12 = x_7;
+x_13 = x_4;
 x_14 = x_63;
 goto block_52;
 }
 else
 {
-x_9 = x_6;
-x_10 = x_4;
-x_11 = x_7;
-x_12 = lean_box(0);
-x_13 = x_5;
+x_9 = lean_box(0);
+x_10 = x_6;
+x_11 = x_5;
+x_12 = x_7;
+x_13 = x_4;
 x_14 = x_1;
 goto block_52;
 }
@@ -4782,12 +4782,12 @@ lean_object* x_15; lean_object* x_16; lean_object* x_17;
 x_15 = l_Lean_Expr_appArg_x21(x_3);
 lean_dec_ref(x_3);
 x_16 = l_Lean_Expr_eta(x_15);
-lean_inc(x_11);
-lean_inc_ref(x_9);
-lean_inc(x_13);
+lean_inc(x_12);
 lean_inc_ref(x_10);
+lean_inc(x_11);
+lean_inc_ref(x_13);
 lean_inc_ref(x_16);
-x_17 = l___private_Lean_Meta_Tactic_Grind_Injective_0__Lean_Meta_Grind_getSymbols_collectFnNames(x_16, x_10, x_13, x_9, x_11);
+x_17 = l___private_Lean_Meta_Tactic_Grind_Injective_0__Lean_Meta_Grind_getSymbols_collectFnNames(x_16, x_13, x_11, x_10, x_12);
 if (lean_obj_tag(x_17) == 0)
 {
 uint8_t x_18; 
@@ -4800,10 +4800,10 @@ if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 lean_dec_ref(x_16);
-lean_dec(x_13);
+lean_dec_ref(x_13);
+lean_dec(x_12);
 lean_dec(x_11);
 lean_dec_ref(x_10);
-lean_dec_ref(x_9);
 x_20 = lean_box(0);
 x_21 = l_Std_DTreeMap_Internal_Impl_foldrM___at___00__private_Lean_Meta_Tactic_Grind_Injective_0__Lean_Meta_Grind_getSymbols_spec__0(x_20, x_19);
 lean_dec_ref(x_19);
@@ -4820,11 +4820,11 @@ x_24 = l_Lean_indentExpr(x_16);
 x_25 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_25, 0, x_23);
 lean_ctor_set(x_25, 1, x_24);
-x_26 = l_Lean_throwError___at___00__private_Lean_Meta_Tactic_Grind_Injective_0__Lean_Meta_Grind_getSymbols_spec__2___redArg(x_25, x_10, x_13, x_9, x_11);
-lean_dec(x_11);
-lean_dec_ref(x_9);
-lean_dec(x_13);
+x_26 = l_Lean_throwError___at___00__private_Lean_Meta_Tactic_Grind_Injective_0__Lean_Meta_Grind_getSymbols_spec__2___redArg(x_25, x_13, x_11, x_10, x_12);
+lean_dec(x_12);
 lean_dec_ref(x_10);
+lean_dec(x_11);
+lean_dec_ref(x_13);
 x_27 = !lean_is_exclusive(x_26);
 if (x_27 == 0)
 {
@@ -4852,10 +4852,10 @@ if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 lean_dec_ref(x_16);
-lean_dec(x_13);
+lean_dec_ref(x_13);
+lean_dec(x_12);
 lean_dec(x_11);
 lean_dec_ref(x_10);
-lean_dec_ref(x_9);
 x_31 = lean_box(0);
 x_32 = l_Std_DTreeMap_Internal_Impl_foldrM___at___00__private_Lean_Meta_Tactic_Grind_Injective_0__Lean_Meta_Grind_getSymbols_spec__0(x_31, x_30);
 lean_dec_ref(x_30);
@@ -4872,11 +4872,11 @@ x_36 = l_Lean_indentExpr(x_16);
 x_37 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_37, 0, x_35);
 lean_ctor_set(x_37, 1, x_36);
-x_38 = l_Lean_throwError___at___00__private_Lean_Meta_Tactic_Grind_Injective_0__Lean_Meta_Grind_getSymbols_spec__2___redArg(x_37, x_10, x_13, x_9, x_11);
-lean_dec(x_11);
-lean_dec_ref(x_9);
-lean_dec(x_13);
+x_38 = l_Lean_throwError___at___00__private_Lean_Meta_Tactic_Grind_Injective_0__Lean_Meta_Grind_getSymbols_spec__2___redArg(x_37, x_13, x_11, x_10, x_12);
+lean_dec(x_12);
 lean_dec_ref(x_10);
+lean_dec(x_11);
+lean_dec_ref(x_13);
 x_39 = lean_ctor_get(x_38, 0);
 lean_inc(x_39);
 if (lean_is_exclusive(x_38)) {
@@ -4900,10 +4900,10 @@ else
 {
 uint8_t x_42; 
 lean_dec_ref(x_16);
-lean_dec(x_13);
+lean_dec_ref(x_13);
+lean_dec(x_12);
 lean_dec(x_11);
 lean_dec_ref(x_10);
-lean_dec_ref(x_9);
 x_42 = !lean_is_exclusive(x_17);
 if (x_42 == 0)
 {
@@ -4929,11 +4929,11 @@ x_46 = l_Lean_indentExpr(x_3);
 x_47 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_47, 0, x_45);
 lean_ctor_set(x_47, 1, x_46);
-x_48 = l_Lean_throwError___at___00__private_Lean_Meta_Tactic_Grind_Injective_0__Lean_Meta_Grind_getSymbols_spec__2___redArg(x_47, x_10, x_13, x_9, x_11);
-lean_dec(x_11);
-lean_dec_ref(x_9);
-lean_dec(x_13);
+x_48 = l_Lean_throwError___at___00__private_Lean_Meta_Tactic_Grind_Injective_0__Lean_Meta_Grind_getSymbols_spec__2___redArg(x_47, x_13, x_11, x_10, x_12);
+lean_dec(x_12);
 lean_dec_ref(x_10);
+lean_dec(x_11);
+lean_dec_ref(x_13);
 x_49 = !lean_is_exclusive(x_48);
 if (x_49 == 0)
 {

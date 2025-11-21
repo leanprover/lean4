@@ -412,7 +412,6 @@ LEAN_EXPORT lean_object* l_Lean_Doc_Parser_ifVerso___lam__1___boxed(lean_object*
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_metadataBlock___lam__0(lean_object*, lean_object*);
 static lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_arg_potentiallyNamed___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_ifVerso_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_Slice_replaceStartEnd_x21(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_Parser_para___lam__3___closed__0;
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_text(lean_object*, lean_object*);
@@ -855,6 +854,7 @@ static lean_object* l_Lean_Doc_Parser_math___closed__2;
 static lean_object* l_Lean_Doc_Parser_blockquote___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_directive_withFencePos(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_OrderedListType_parenAfter_elim(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_String_Slice_slice_x21(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_role(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_unescapeStr(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_role_intro___lam__3(lean_object*, lean_object*, lean_object*);
@@ -16599,7 +16599,7 @@ else
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
 lean_inc_ref(x_1);
-x_35 = l_String_Slice_replaceStartEnd_x21(x_1, x_22, x_23);
+x_35 = l_String_Slice_slice_x21(x_1, x_22, x_23);
 lean_dec(x_23);
 lean_dec(x_22);
 x_36 = lean_ctor_get(x_35, 0);
@@ -16680,7 +16680,7 @@ else
 {
 lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; 
 lean_inc_ref(x_1);
-x_56 = l_String_Slice_replaceStartEnd_x21(x_1, x_42, x_43);
+x_56 = l_String_Slice_slice_x21(x_1, x_42, x_43);
 lean_dec(x_43);
 lean_dec(x_42);
 x_57 = lean_ctor_get(x_56, 0);
@@ -16780,7 +16780,7 @@ else
 {
 lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; 
 lean_inc_ref(x_1);
-x_80 = l_String_Slice_replaceStartEnd_x21(x_1, x_64, x_65);
+x_80 = l_String_Slice_slice_x21(x_1, x_64, x_65);
 lean_dec(x_65);
 lean_dec(x_64);
 x_81 = lean_ctor_get(x_80, 0);

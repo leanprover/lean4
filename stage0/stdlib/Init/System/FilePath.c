@@ -52,7 +52,6 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_String_mapAux___at___00String_mapAux___at___00System_FilePath_normalize_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
-lean_object* l_String_Slice_replaceStartEnd_x21(lean_object*, lean_object*, lean_object*);
 static lean_object* l_String_Slice_split___at___00System_FilePath_components_spec__0___closed__2;
 LEAN_EXPORT lean_object* l_System_instDecidableEqFilePath_decEq___boxed(lean_object*, lean_object*);
 static lean_object* l_System_FilePath_join___closed__0;
@@ -108,6 +107,7 @@ LEAN_EXPORT lean_object* l_System_instReprFilePath___lam__0___boxed(lean_object*
 LEAN_EXPORT lean_object* l_System_FilePath_isAbsolute___boxed(lean_object*);
 lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
 static lean_object* l_System_FilePath_isAbsolute___closed__0;
+lean_object* l_String_Slice_slice_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Slice_Pos_next___redArg(lean_object*, lean_object*);
 static lean_object* l_String_Slice_split___at___00System_FilePath_components_spec__0___closed__7;
 LEAN_EXPORT lean_object* l_System_mkFilePath(lean_object*);
@@ -2047,7 +2047,7 @@ block_27:
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 lean_inc_ref(x_1);
-x_22 = l_String_Slice_replaceStartEnd_x21(x_1, x_12, x_20);
+x_22 = l_String_Slice_slice_x21(x_1, x_12, x_20);
 lean_dec(x_20);
 lean_dec(x_12);
 x_23 = lean_ctor_get(x_22, 0);
@@ -2276,7 +2276,7 @@ else
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 lean_inc_ref(x_1);
-x_28 = l_String_Slice_replaceStartEnd_x21(x_1, x_15, x_16);
+x_28 = l_String_Slice_slice_x21(x_1, x_15, x_16);
 lean_dec(x_16);
 lean_dec(x_15);
 x_29 = lean_ctor_get(x_28, 0);
@@ -2349,7 +2349,7 @@ else
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
 lean_inc_ref(x_1);
-x_48 = l_String_Slice_replaceStartEnd_x21(x_1, x_34, x_35);
+x_48 = l_String_Slice_slice_x21(x_1, x_34, x_35);
 lean_dec(x_35);
 lean_dec(x_34);
 x_49 = lean_ctor_get(x_48, 0);
@@ -2441,7 +2441,7 @@ else
 {
 lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; 
 lean_inc_ref(x_1);
-x_71 = l_String_Slice_replaceStartEnd_x21(x_1, x_55, x_56);
+x_71 = l_String_Slice_slice_x21(x_1, x_55, x_56);
 lean_dec(x_56);
 lean_dec(x_55);
 x_72 = lean_ctor_get(x_71, 0);

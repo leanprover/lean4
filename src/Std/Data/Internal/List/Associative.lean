@@ -6169,105 +6169,160 @@ theorem isEmpty_filter_contains_map_fst_eq_false_iff [BEq α] [EquivBEq α]
     rw [containsKey_eq_contains_map_fst]
   apply isEmpty_filter_contains_eq_false_iff dl₁
 
-theorem getValue?_diff {β : Type v} [BEq α] [EquivBEq α]
-    {l₁ l₂ : List ((_ : α) × β)} {k : α}
+theorem getValue?_filter_contains_eq_false {β : Type v} [BEq α] [EquivBEq α]
+    {l₁ : List ((_ : α) × β)} {l₂ : List α} {k : α}
     (dl₁ : DistinctKeys l₁) :
-    getValue? k (List.filter (fun p => !containsKey p.fst l₂) l₁) =
-    if containsKey k l₂ = true then none else getValue? k l₁ := by
-  sorry
-  -- simp only [getValue?_eq_getEntry?]
-  -- split
-  -- case isTrue h =>
-  --   simp only [Option.map_eq_none_iff, getEntry?_eq_none]
-  --   apply containsKey_diff_of_containsKey_eq_false_right
-  --   · exact dl₁
-  --   · exact h
-  -- case isFalse h =>
-  --   congr 1
-  --   rw [getEntry?_filter]
-  --   · simp only [Option.filter]
-  --     split
-  --     case h_1 _ val heq =>
-  --       simp [heq]
-  --       have := PartialEquivBEq.symm <| @beq_of_getEntry?_eq_some α (fun _ => β) _ l₁ k val heq
-  --       rw [← containsKey_congr this]
-  --       simp at h
-  --       exact h
-  --     case h_2 _ heq =>
-  --       simp [heq]
-  --   · exact dl₁
+    getValue? k (List.filter (fun p => !List.contains l₂ p.fst) l₁) =
+    if List.contains l₂ k then none else getValue? k l₁ := by
+  simp only [getValue?_eq_getEntry?]
+  split
+  case isTrue h =>
+    simp only [Option.map_eq_none_iff, getEntry?_eq_none]
+    apply containsKey_filter_contains_eq_false_of_contains_right
+    · exact dl₁
+    · exact h
+  case isFalse h =>
+    congr 1
+    rw [getEntry?_filter]
+    · simp only [Option.filter]
+      split
+      case h_1 _ val heq =>
+        simp only [Bool.not_eq_eq_eq_not, Bool.not_true, heq, ite_eq_left_iff, Bool.not_eq_false,
+          reduceCtorEq, imp_false, Bool.not_eq_true]
+        have := @beq_of_getEntry?_eq_some α (fun _ => β) _ l₁ k val heq
+        rw [Bool.not_eq_true] at h
+        rw [List.contains_congr this, h]
+      case h_2 _ heq =>
+        simp [heq]
+    · exact dl₁
 
-theorem getValue?_diff_of_containsKey_eq_false_right {β : Type v} [BEq α] [EquivBEq α]
+theorem getValue?_filter_contains_map_fst_eq_false {β : Type v} [BEq α] [EquivBEq α]
     {l₁ l₂ : List ((_ : α) × β)} {k : α}
     (dl₁ : DistinctKeys l₁) :
-    containsKey k l₂ = false → getValue? k (List.filter (fun p => !containsKey p.fst l₂) l₁) =
+    getValue? k (List.filter (fun p => !List.contains (l₂.map Sigma.fst) p.fst) l₁) =
+if containsKey k l₂ then none else getValue? k l₁ := by
+  rw [getValue?_filter_contains_eq_false, ← List.containsKey_eq_contains_map_fst]
+  exact dl₁
+
+theorem getValue?_filter_contains_eq_false_of_contains_eq_false_right {β : Type v} [BEq α] [EquivBEq α]
+    {l₁ : List ((_ : α) × β)} {l₂ : List α} {k : α}
+    (dl₁ : DistinctKeys l₁) :
+    List.contains l₂ k = false → getValue? k (List.filter (fun p => !List.contains l₂ p.fst) l₁) =
       getValue? k l₁ := by
   intro h
-  rw [getValue?_diff, h]
+  rw [getValue?_filter_contains_eq_false, h]
   · simp only [Bool.false_eq_true, ↓reduceIte]
   · exact dl₁
 
-theorem getValue?_diff_of_containsKey_eq_false_left {β : Type v} [BEq α] [EquivBEq α]
+theorem getValue?_filter_contains_map_fst_eq_false_of_contains_eq_false_right {β : Type v} [BEq α] [EquivBEq α]
     {l₁ l₂ : List ((_ : α) × β)} {k : α}
     (dl₁ : DistinctKeys l₁) :
-    containsKey k l₁ = false → getValue? k (List.filter (fun p => !containsKey p.fst l₂) l₁) = none := by
+    containsKey k l₂ = false → getValue? k (List.filter (fun p => !List.contains (l₂.map Sigma.fst) p.fst) l₁) =
+      getValue? k l₁ := by
+    intro h
+    apply getValue?_filter_contains_eq_false_of_contains_eq_false_right dl₁
+    rwa [List.containsKey_eq_contains_map_fst] at h
+
+theorem getValue?_filter_contains_eq_false_of_containsKey_eq_false_left {β : Type v} [BEq α] [EquivBEq α]
+    {l₁ : List ((_ : α) × β)} {l₂ : List α} {k : α}
+    (dl₁ : DistinctKeys l₁) :
+    containsKey k l₁ = false → getValue? k (List.filter (fun p => !List.contains l₂ p.fst) l₁) = none := by
   intro h
-  rw [getValue?_diff]
+  rw [getValue?_filter_contains_eq_false]
   · split
     · rfl
     · rw [@getValue?_eq_none α β _ l₁ k]
       exact h
   · exact dl₁
 
-theorem getValue?_diff_of_containsKey_right {β : Type v} [BEq α] [EquivBEq α]
+theorem getValue?_filter_contains_map_fst_eq_false_of_containsKey_eq_false_left {β : Type v} [BEq α] [EquivBEq α]
     {l₁ l₂ : List ((_ : α) × β)} {k : α}
     (dl₁ : DistinctKeys l₁) :
-    containsKey k l₂ = true → getValue? k (List.filter (fun p => !containsKey p.fst l₂) l₁) = none := by
+    containsKey k l₁ = false → getValue? k (List.filter (fun p => !List.contains (l₂.map Sigma.fst) p.fst) l₁) = none := by
+  apply getValue?_filter_contains_eq_false_of_containsKey_eq_false_left dl₁
+
+theorem getValue?_filter_contains_eq_false_of_contains_right {β : Type v} [BEq α] [EquivBEq α]
+    {l₁ : List ((_ : α) × β)} {l₂ : List α} {k : α}
+    (dl₁ : DistinctKeys l₁) :
+    List.contains l₂ k → getValue? k (List.filter (fun p => !List.contains l₂ p.fst) l₁) = none := by
   intro h
-  rw [getValue?_diff, h]
+  rw [getValue?_filter_contains_eq_false, h]
   · simp only [↓reduceIte]
   · exact dl₁
 
-theorem getValue_diff {β : Type v} [BEq α] [EquivBEq α]
+theorem getValue?_filter_contains_map_fst_eq_false_of_contains_right {β : Type v} [BEq α] [EquivBEq α]
+    {l₁ l₂ : List ((_ : α) × β)} {k : α}
+    (dl₁ : DistinctKeys l₁) :
+    containsKey k l₂ → getValue? k (List.filter (fun p => !List.contains (l₂.map Sigma.fst) p.fst) l₁) = none := by
+  intro h
+  rw [getValue?_filter_contains_eq_false_of_contains_right dl₁]
+  rwa [List.containsKey_eq_contains_map_fst] at h
+
+theorem getValue_filter_contains_eq_false {β : Type v} [BEq α] [EquivBEq α]
+    {l₁ : List ((_ : α) × β)} {l₂ : List α} {k : α}
+    (dl₁ : DistinctKeys l₁) {h₁ h₂} :
+    getValue k (List.filter (fun p => !List.contains l₂ p.fst) l₁) h₁ = getValue k l₁ h₂ := by
+  suffices some (getValue k (List.filter (fun p => !List.contains l₂ p.fst) l₁) h₁) = some (getValue k l₁ h₂) by
+    injections
+  simp only [← getValue?_eq_some_getValue]
+  apply getValue?_filter_contains_eq_false_of_contains_eq_false_right
+  · rw [containsKey_filter_contains_eq_false_iff] at h₁
+    · exact dl₁
+    · exact dl₁
+  · rw [containsKey_filter_contains_eq_false_iff] at h₁
+    · replace h₁ := h₁.2
+      simp [h₁]
+    · exact dl₁
+
+theorem getValue_filter_contains_map_fst_eq_false {β : Type v} [BEq α] [EquivBEq α]
     {l₁ l₂ : List ((_ : α) × β)} {k : α}
     (dl₁ : DistinctKeys l₁) {h₁ h₂} :
-    getValue k (List.filter (fun p => !containsKey p.fst l₂) l₁) h₁ = getValue k l₁ h₂ := by sorry
-  -- suffices some (getValue k (List.filter (fun p => !containsKey p.fst l₂) l₁) h₁) = some (getValue k l₁ h₂) by
-  --   injections
-  -- simp only [← getValue?_eq_some_getValue]
-  -- apply getValue?_diff_of_containsKey_eq_false_right dl₁
-  -- · rw [containsKey_diff_eq_false_iff] at h₁
-  --   · simp at h₁
-  --     exact h₁.2
-  --   · exact dl₁
+    getValue k (List.filter (fun p => !List.contains (l₂.map Sigma.fst) p.fst) l₁) h₁ = getValue k l₁ h₂ := by
+  apply getValue_filter_contains_eq_false dl₁
 
-theorem getValueD_diff {β : Type v} [BEq α] [EquivBEq α]
+theorem getValueD_filter_contains_eq_false {β : Type v} [BEq α] [EquivBEq α]
+    {l₁ : List ((_ : α) × β)} {l₂ : List α} {k : α} {fallback : β}
+    (dl₁ : DistinctKeys l₁) :
+    getValueD k (List.filter (fun p => !List.contains l₂ p.fst) l₁) fallback =
+    if List.contains l₂ k then fallback else getValueD k l₁ fallback := by
+  split
+  case isTrue h =>
+    apply getValueD_eq_fallback
+    apply containsKey_filter_contains_eq_false_of_contains_right
+    · exact dl₁
+    · exact h
+  case isFalse h =>
+    rw [getValueD_eq_getValue?, getValueD_eq_getValue?]
+    congr 1
+    apply getValue?_filter_contains_eq_false_of_contains_eq_false_right dl₁
+    simp [h]
+
+theorem getValueD_filter_contains_map_fst_eq_false {β : Type v} [BEq α] [EquivBEq α]
     {l₁ l₂ : List ((_ : α) × β)} {k : α} {fallback : β}
     (dl₁ : DistinctKeys l₁) :
-    getValueD k (List.filter (fun p => !containsKey p.fst l₂) l₁) fallback =
-    if containsKey k l₂ = true then fallback else getValueD k l₁ fallback := by
-  sorry
-  -- split
-  -- case isTrue h =>
-  --   apply getValueD_eq_fallback
-  --   apply containsKey_diff_of_containsKey_eq_false_right
-  --   · exact dl₁
-  --   · exact h
-  -- case isFalse h =>
-  --   rw [getValueD_eq_getValue?, getValueD_eq_getValue?]
-  --   congr 1
-  --   apply getValue?_diff_of_containsKey_eq_false_right dl₁
-  --   simp only [h]
+    getValueD k (List.filter (fun p => !List.contains (l₂.map Sigma.fst) p.fst) l₁) fallback =
+    if containsKey k l₂ then fallback else getValueD k l₁ fallback := by
+  rw [containsKey_eq_contains_map_fst]
+  apply getValueD_filter_contains_eq_false dl₁
 
-theorem getValueD_diff_of_containsKey_eq_false_right {β : Type v} [BEq α] [EquivBEq α]
-    {l₁ l₂ : List ((_ : α) × β)} {k : α} {fallback : β}
+theorem getValueD_filter_contains_eq_false_of_containsKey_eq_false_right {β : Type v} [BEq α] [EquivBEq α]
+    {l₁ : List ((_ : α) × β)} {l₂ : List α} {k : α} {fallback : β}
     (dl₁ : DistinctKeys l₁) :
-    containsKey k l₂ = false → getValueD k (List.filter (fun p => !containsKey p.fst l₂) l₁) fallback =
+    List.contains l₂ k = false → getValueD k (List.filter (fun p => !List.contains l₂ p.fst) l₁) fallback =
       getValueD k l₁ fallback := by
   intro h
   rw [getValueD_eq_getValue?, getValueD_eq_getValue?]
   congr 1
-  apply getValue?_diff_of_containsKey_eq_false_right dl₁ h
+  apply getValue?_filter_contains_eq_false_of_contains_eq_false_right dl₁ h
+
+theorem getValueD_filter_contains_map_fst_eq_false_of_containsKey_eq_false_right {β : Type v} [BEq α] [EquivBEq α]
+    {l₁ l₂ : List ((_ : α) × β)} {k : α} {fallback : β}
+    (dl₁ : DistinctKeys l₁) :
+    containsKey k l₂ = false → getValueD k (List.filter (fun p => !List.contains (l₂.map Sigma.fst) p.fst) l₁) fallback =
+      getValueD k l₁ fallback := by
+  intro h
+  apply getValueD_filter_contains_eq_false_of_containsKey_eq_false_right dl₁
+  rwa [containsKey_eq_contains_map_fst] at h
 
 theorem getValueD_filter_contains_eq_false_of_contains_right {β : Type v} [BEq α] [EquivBEq α]
     {l₁ : List ((_ : α) × β)} {l₂ : List α} {k : α} {fallback : β}

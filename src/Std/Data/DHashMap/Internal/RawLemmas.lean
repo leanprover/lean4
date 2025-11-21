@@ -3565,13 +3565,13 @@ variable {β : Type v} {m₁ m₂ : Raw₀ α (fun _ => β)}
 /- get? -/
 theorem get?_diff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
     Const.get? (m₁.diff m₂) k = if m₂.contains k then none else Const.get? m₁ k := by
-  simp_to_model [diff, Const.get?, contains] using List.getValue?_diff
+  simp_to_model [diff, Const.get?, contains] using List.getValue?_filter_contains_map_fst_eq_false
 
 theorem get?_diff_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} (h : m₂.contains k = false) :
     Const.get? (m₁.diff m₂) k = Const.get? m₁ k := by
   revert h
-  simp_to_model [diff, contains, Const.get?] using List.getValue?_diff_of_containsKey_eq_false_right
+  simp_to_model [diff, contains, Const.get?] using List.getValue?_filter_contains_map_fst_eq_false_of_contains_eq_false_right
 
 theorem get?_diff_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} (h : m₁.contains k = false) :

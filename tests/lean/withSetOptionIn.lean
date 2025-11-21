@@ -72,25 +72,22 @@ partial def Lean.Elab.InfoTree.structEq : InfoTree → InfoTree → Bool
   | .hole _, .hole _ => true
   | _, _ => false
 
+def getOptionNames (ts : PersistentArray InfoTree) : List Name :=
+  ts.foldl (init := []) fun acc t =>
+    acc ++ t.collectNodesBottomUp fun
+      | _, .ofOptionInfo i, _, ns => i.optionName :: ns
+      | _, _, _, ns => ns
+
 def compareWithSetOptionIn : CommandElab := fun stx => do
   let originalTrees ← getInfoTrees
   logInfo m!"without `withSetOption`: `linter.all := {← getBoolOption `linter.all}`"
-  for t in (← getInfoTrees) do
-    let optionNames := t.collectNodesBottomUp fun _ i _ n =>
-      match i with
-      | .ofOptionInfo i => i.optionName :: n
-      | _ => n
-    logInfo m!"without `withSetOption`: Found option names in trees: {optionNames}"
+  logInfo m!"with `withSetOption`: Found option names in trees: {getOptionNames (← getInfoTrees)}"
   let runWithSetOptionIn : CommandElab := withSetOptionIn fun _ => do
     logInfo m!"trees are structurally equal: {originalTrees.eqOf (← getInfoTrees) (·.structEq ·)}"
     logInfo m!"with `withSetOptionIn`: `linter.all := {← getBoolOption `linter.all}`"
     -- For good measure, make sure `collectNodesBottomUp` finds `linter.all` from the *original*
     -- elaboration (i.e., the infotrees are as expected) and doesn't panic.
-    for t in ← getInfoTrees do
-      let optionNames := t.collectNodesBottomUp fun
-        | _, .ofOptionInfo i, _, ns => i.optionName :: ns
-        | _, _, _, ns => ns
-      logInfo m!"with `withSetOption`: Found option names in trees: {optionNames}"
+    logInfo m!"with `withSetOption`: Found option names in trees: {getOptionNames (← getInfoTrees)}"
   runWithSetOptionIn stx
 
 /-
@@ -111,6 +108,7 @@ Should have `linter.all := false` both times, since the value is malformed, but 
 Should only log the `set_option` error **once** from `elabCommand`. `compareWithSetOption` should
 not produce an error.
 -/
+
 run_cmd do
   let stx ← `(command| set_option linter.all 3 in example : True := trivial)
   elabCommand stx

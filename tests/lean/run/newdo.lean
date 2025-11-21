@@ -1213,7 +1213,7 @@ example : (Id.run doo
   let mut x := 0
   if let false := not true then
     x := 10
-  else if let 0 ← pure 42 then
+  else if let 0 ← pure 42 then -- TODO: introduces weird metavariables. investigate!
     return 42
   else
     x := 3

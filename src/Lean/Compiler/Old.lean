@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Environment
+import Init.Data.String.TakeDrop
 
 public section
 

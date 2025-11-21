@@ -47,7 +47,7 @@ Examples:
 * {lean}`"abc".replace "" "k" = "kakbkck"`
 -/
 @[inline]
-def replace [ToForwardSearcher ρ σ] [ToSlice α] (s : String) (pattern : ρ)
+def replace [ToSlice α] (s : String) (pattern : ρ) [ToForwardSearcher pattern σ]
     (replacement : α) : String :=
   s.toSlice.replace pattern replacement
 
@@ -62,9 +62,9 @@ Examples:
  * {lean}`("tea".toSlice.pos ⟨1⟩ (by decide)).find? (fun (c : Char) => c == 't') == none`
 -/
 @[inline]
-def Slice.Pos.find? [ToForwardSearcher ρ σ] {s : Slice} (pos : s.Pos) (pattern : ρ) :
+def Slice.Pos.find? {s : Slice} (pos : s.Pos) (pattern : ρ) [ToForwardSearcher pattern σ]  :
     Option s.Pos :=
-  ((s.replaceStart pos).find? pattern).map ofReplaceStart
+  ((s.sliceFrom pos).find? pattern).map ofSliceFrom
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in after the position
@@ -77,8 +77,8 @@ Examples:
  * {lean}`("tea".pos ⟨1⟩ (by decide)).find? (fun (c : Char) => c == 't') == none`
 -/
 @[inline]
-def ValidPos.find? [ToForwardSearcher ρ σ] {s : String} (pos : s.ValidPos)
-    (pattern : ρ) : Option s.ValidPos :=
+def ValidPos.find?  {s : String} (pos : s.ValidPos) (pattern : ρ)
+    [ToForwardSearcher pattern σ] : Option s.ValidPos :=
   (pos.toSlice.find? pattern).map (·.ofSlice)
 
 /--
@@ -93,8 +93,27 @@ Examples:
  * {lean}`("coffee tea water".find? "tea").map (·.get!) == some 't'`
 -/
 @[inline]
-def find? [ToForwardSearcher ρ σ] (s : String) (pattern : ρ) : Option s.ValidPos :=
+def find? (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : Option s.ValidPos :=
   s.startValidPos.find? pattern
+
+/--
+Splits a string at each subslice that matches the pattern {name}`pat`.
+
+The subslices that matched the pattern are not included in any of the resulting subslices. If
+multiple subslices in a row match the pattern, the resulting list will contain empty strings.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * {lean}`("coffee tea water".split Char.isWhitespace).toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]`
+ * {lean}`("coffee tea water".split ' ').toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]`
+ * {lean}`("coffee tea water".split " tea ").toList == ["coffee".toSlice, "water".toSlice]`
+ * {lean}`("ababababa".split "aba").toList == ["coffee".toSlice, "water".toSlice]`
+ * {lean}`("baaab".split "aa").toList == ["b".toSlice, "ab".toSlice]`
+-/
+@[inline]
+def split (s : String) (pat : ρ) [ToForwardSearcher pat σ]  :=
+  (s.toSlice.split pat : Std.Iter String.Slice)
 
 end
 

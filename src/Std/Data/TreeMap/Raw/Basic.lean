@@ -497,6 +497,12 @@ def union (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
 
 instance : Union (Raw α β cmp) := ⟨union⟩
 
+@[inline, inherit_doc DTreeMap.Raw.inter]
+def inter (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
+  ⟨DTreeMap.Raw.inter t₁.inner t₂.inner⟩
+
+instance : Inter (Raw α β cmp) := ⟨inter⟩
+
 @[inline, inherit_doc DTreeMap.Raw.Const.insertManyIfNewUnit]
 def insertManyIfNewUnit {ρ} [ForIn Id ρ α] (t : Raw α Unit cmp) (l : ρ) : Raw α Unit cmp :=
   ⟨DTreeMap.Raw.Const.insertManyIfNewUnit t.inner l⟩

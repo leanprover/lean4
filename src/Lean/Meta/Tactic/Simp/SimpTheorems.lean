@@ -382,8 +382,6 @@ Because some theorems lead to multiple `SimpTheorems` (in particular conjunction
 -/
 def mkSimpTheoremFromConst (declName : Name) (post := true) (inv := false)
     (prio : Nat := eval_prio default) : MetaM (Array SimpTheorem) := do
-  -- If the theorem is used definitionally, it will not be visible in the proof term.
-  recordExtraModUseFromDecl (isMeta := false) declName
   let cinfo ← getConstVal declName
   let us := cinfo.levelParams.map mkLevelParam
   let origin := .decl declName post inv

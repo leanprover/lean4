@@ -14369,7 +14369,6 @@ lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean
 x_13 = lean_ctor_get(x_11, 0);
 x_14 = l_Lean_exceptOptionEmoji___redArg(x_3);
 x_15 = l_Lean_stringToMessageData(x_14);
-lean_dec_ref(x_14);
 x_16 = l_Lean_Meta_SynthInstance_tryResolve___lam__1___closed__1;
 x_17 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
@@ -14397,7 +14396,6 @@ lean_inc(x_24);
 lean_dec(x_11);
 x_25 = l_Lean_exceptOptionEmoji___redArg(x_3);
 x_26 = l_Lean_stringToMessageData(x_25);
-lean_dec_ref(x_25);
 x_27 = l_Lean_Meta_SynthInstance_tryResolve___lam__1___closed__1;
 x_28 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
@@ -21633,7 +21631,6 @@ x_18 = lean_ctor_get(x_2, 1);
 lean_dec(x_18);
 x_19 = l_Lean_exceptOptionEmoji___redArg(x_3);
 x_20 = l_Lean_stringToMessageData(x_19);
-lean_dec_ref(x_19);
 x_21 = l_Lean_Meta_SynthInstance_generate___lam__1___closed__1;
 lean_ctor_set_tag(x_2, 7);
 lean_ctor_set(x_2, 1, x_21);
@@ -21662,7 +21659,6 @@ lean_inc(x_29);
 lean_dec(x_2);
 x_30 = l_Lean_exceptOptionEmoji___redArg(x_3);
 x_31 = l_Lean_stringToMessageData(x_30);
-lean_dec_ref(x_30);
 x_32 = l_Lean_Meta_SynthInstance_generate___lam__1___closed__1;
 x_33 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_33, 0, x_31);
@@ -21701,7 +21697,6 @@ if (lean_is_exclusive(x_2)) {
 }
 x_43 = l_Lean_exceptOptionEmoji___redArg(x_3);
 x_44 = l_Lean_stringToMessageData(x_43);
-lean_dec_ref(x_43);
 x_45 = l_Lean_Meta_SynthInstance_generate___lam__1___closed__1;
 if (lean_is_scalar(x_42)) {
  x_46 = lean_alloc_ctor(7, 2, 0);
@@ -27511,7 +27506,6 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = lean_ctor_get(x_8, 0);
 x_11 = l_Lean_exceptOptionEmoji___redArg(x_2);
 x_12 = l_Lean_stringToMessageData(x_11);
-lean_dec_ref(x_11);
 x_13 = l_Lean_Meta_SynthInstance_tryResolve___lam__1___closed__1;
 x_14 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
@@ -27531,7 +27525,6 @@ lean_inc(x_17);
 lean_dec(x_8);
 x_18 = l_Lean_exceptOptionEmoji___redArg(x_2);
 x_19 = l_Lean_stringToMessageData(x_18);
-lean_dec_ref(x_18);
 x_20 = l_Lean_Meta_SynthInstance_tryResolve___lam__1___closed__1;
 x_21 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_21, 0, x_19);

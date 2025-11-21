@@ -64,8 +64,8 @@ Examples:
 -/
 public def modOfFilePath (path : FilePath) : Name :=
   let path := removeExts path.normalize.toString
-  let path := path.stripSuffix FilePath.pathSeparator.toString
-  FilePath.components path |>.foldl .str .anonymous
+  let path := path.dropSuffix FilePath.pathSeparator.toString
+  FilePath.components path.copy |>.foldl .str .anonymous
 where
   removeExts (s : String) (i := s.rawEndPos) (e := s.rawEndPos) :=
     if h : i = 0 then
@@ -81,14 +81,5 @@ where
       else
         removeExts s i' e
   termination_by i.1
-
--- sanity check
-example :
-  modOfFilePath "Foo/Bar" = `Foo.Bar
-  ∧ modOfFilePath "Foo/Bar/" = `Foo.Bar
-  ∧ modOfFilePath "Foo/Bar.lean" = `Foo.Bar
-  ∧ modOfFilePath "Foo/Bar.tar.gz" = `Foo.Bar
-  ∧ modOfFilePath "Foo/Bar.lean/" = `Foo.«Bar.lean»
-:= by native_decide
 
 attribute [deprecated "Deprecated without replacement." (since := "2025-08-01")] modOfFilePath

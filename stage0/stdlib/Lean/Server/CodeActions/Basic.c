@@ -4167,7 +4167,6 @@ x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 lean_dec_ref(x_1);
 x_7 = l_Lean_stringToMessageData(x_6);
-lean_dec(x_6);
 x_8 = l_Lean_throwError___at___00Lean_ofExcept___at___00Lean_evalConstCheck___at___00__private_Lean_Server_CodeActions_Basic_0__Lean_Server_evalCodeActionProviderUnsafe___at___00Lean_Server_handleCodeAction_spec__3_spec__3_spec__3_spec__3___redArg(x_7, x_3, x_4);
 return x_8;
 }

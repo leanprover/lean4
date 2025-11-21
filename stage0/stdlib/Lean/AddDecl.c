@@ -7634,7 +7634,6 @@ _start:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_6 = l_Lean_exceptEmoji___redArg(x_2);
 x_7 = l_Lean_stringToMessageData(x_6);
-lean_dec_ref(x_6);
 x_8 = l___private_Lean_AddDecl_0__Lean_addDecl_doAdd___lam__0___closed__1;
 x_9 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_9, 0, x_7);

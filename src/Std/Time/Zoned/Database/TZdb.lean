@@ -66,8 +66,8 @@ def idFromPath (path : System.FilePath) : Option String := do
   let last₁ ← res[res.size - 2]?
 
   if last₁ = "zoneinfo"
-    then some <| last.trim
-    else some <| last₁.trim ++ "/" ++ last.trim
+    then some <| last.trimAscii.copy
+    else some <| last₁.trimAscii.copy ++ "/" ++ last.trimAscii
 
 /--
 Retrieves the timezone rules from the local timezone data file.

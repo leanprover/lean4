@@ -12,6 +12,7 @@ import Lake.Util.Proc
 import Lake.Util.NativeLib
 import Lake.Util.FilePath
 import Lake.Util.IO
+import Init.Data.String.Search
 
 /-! # Common Build Actions
 Low level actions to build common Lean artifacts via the Lean toolchain.
@@ -56,7 +57,8 @@ public def compileLeanModule
     ]
   }
   unless out.stdout.isEmpty do
-    let txt ← out.stdout.splitToList (· == '\n') |>.foldlM (init := "") fun txt ln => do
+    let txt ← out.stdout.split '\n' |>.foldM (init := "") fun (txt : String) ln => do
+      let ln := ln.copy
       if let .ok (msg : SerialMessage) := Json.parse ln >>= fromJson? then
         unless txt.isEmpty do
           logInfo s!"stdout:\n{txt}"
@@ -70,7 +72,7 @@ public def compileLeanModule
     unless txt.isEmpty do
       logInfo s!"stdout:\n{txt}"
   unless out.stderr.isEmpty do
-    logInfo s!"stderr:\n{out.stderr.trim}"
+    logInfo s!"stderr:\n{out.stderr.trimAscii}"
   if out.exitCode ≠ 0 then
     error s!"Lean exited with code {out.exitCode}"
 

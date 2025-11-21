@@ -40612,7 +40612,6 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = l_List_appendTR___redArg(x_6, x_9);
 x_11 = l_Lean_Elab_Command_elabVersion___redArg___closed__7;
 x_12 = l_Lean_stringToMessageData(x_5);
-lean_dec_ref(x_5);
 x_13 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_13, 0, x_11);
 lean_ctor_set(x_13, 1, x_12);
@@ -40620,7 +40619,6 @@ x_14 = l___private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Command_innermostScopeN
 x_15 = l_List_foldl___at___00Lean_Elab_Command_elabVersion_spec__0(x_14, x_10);
 lean_dec(x_10);
 x_16 = l_Lean_stringToMessageData(x_15);
-lean_dec_ref(x_15);
 x_17 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_17, 0, x_13);
 lean_ctor_set(x_17, 1, x_16);

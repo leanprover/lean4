@@ -302,9 +302,9 @@ example (f g : Int → Int)
   grind
 
 /--
-trace: [grind.ematch.instance] h✝³: f (f a) = f a
-[grind.ematch.instance] h✝³: f (f (f a)) = f (f a)
-[grind.ematch.instance] h✝³: f (f (f (f a))) = f (f (f a))
+trace: [grind.ematch.instance] x✝²: f (f a) = f a
+[grind.ematch.instance] x✝²: f (f (f a)) = f (f a)
+[grind.ematch.instance] x✝²: f (f (f (f a))) = f (f (f a))
 -/
 #guard_msgs in
 example (f g : Int → Int)
@@ -317,9 +317,9 @@ example (f g : Int → Int)
   grind only [#99cb]
 
 /--
-trace: [grind.ematch.instance] h✝³: f (f a) = f a
-[grind.ematch.instance] h✝³: f (f (f a)) = f (f a)
-[grind.ematch.instance] h✝³: f (f (f (f a))) = f (f (f a))
+trace: [grind.ematch.instance] x✝²: f (f a) = f a
+[grind.ematch.instance] x✝²: f (f (f a)) = f (f a)
+[grind.ematch.instance] x✝²: f (f (f (f a))) = f (f (f a))
 -/
 #guard_msgs in
 example (f g : Int → Int)

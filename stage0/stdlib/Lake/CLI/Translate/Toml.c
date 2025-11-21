@@ -16772,7 +16772,6 @@ goto block_403;
 block_436:
 {
 lean_object* x_426; lean_object* x_427; lean_object* x_428; lean_object* x_429; lean_object* x_430; uint8_t x_431; 
-lean_inc(x_1);
 x_426 = l_Lake_LeanLibConfig_libName___proj(x_1);
 x_427 = lean_ctor_get(x_426, 0);
 lean_inc(x_427);

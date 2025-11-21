@@ -2081,12 +2081,6 @@ theorem getKey_insertManyIfNewUnit_list_of_contains_eq_false_of_mem [EquivBEq α
   simp_to_model [Const.insertManyIfNewUnit, getKey, contains]
     using List.getKey_insertListIfNewUnit_of_contains_eq_false_of_mem
 
-theorem getKey_insertManyIfNewUnit_list_mem_of_contains [EquivBEq α] [LawfulHashable α]
-    (h : m.1.WF) {l : List α} {k : α} (contains : m.contains k) {h'} :
-    getKey (insertManyIfNewUnit m l).1 k h' = getKey m k contains := by
-  simp_to_model [Const.insertManyIfNewUnit, getKey]
-    using List.getKey_insertListIfNewUnit_of_contains
-
 theorem getKey!_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
     [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.1.WF) {l : List α} {k : α} :
     m.contains k = false → l.contains k = false →
@@ -3019,6 +3013,32 @@ theorem contains_inter_eq_false_of_contains_eq_false_right [EquivBEq α] [Lawful
     (m₁.inter m₂).contains k = false := by
   revert h
   simp_to_model [inter, contains] using containsKey_filter_containsKey_eq_false_of_containsKey_eq_false_right
+
+/- Equiv -/
+
+theorem Equiv.inter_left {m₃ : Raw₀ α β} [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (equiv : m₁.1.Equiv m₂.1) :
+    (m₁.inter m₃).1.Equiv (m₂.inter m₃).1 := by
+  revert equiv
+  simp_to_model [Equiv, inter] using List.Perm.filter
+
+theorem Equiv.inter_right {m₃ : Raw₀ α β} [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (equiv : m₂.1.Equiv m₃.1) :
+    (m₁.inter m₂).1.Equiv (m₁.inter m₃).1 := by
+  revert equiv
+  simp_to_model [Equiv, inter]
+  intro equiv
+  apply perm_filter_containsKey_of_perm equiv
+  all_goals wf_trivial
+
+theorem Equiv.inter_congr {m₃ m₄ : Raw₀ α β} [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (h₄ : m₄.val.WF) (equiv₁ : m₁.1.Equiv m₃.1) (equiv₂ :  m₂.1.Equiv m₄.1) :
+    (m₁.inter m₂).1.Equiv (m₃.inter m₄).1 := by
+  revert equiv₁ equiv₂
+  simp_to_model [Equiv, inter]
+  intro equiv₁ equiv₂
+  apply List.congr_filter_containsKey_of_perm
+  all_goals wf_trivial
 
 /- get? -/
 theorem get?_inter [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :

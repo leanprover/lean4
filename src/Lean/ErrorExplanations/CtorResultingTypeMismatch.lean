@@ -27,10 +27,10 @@ inductive Tree (α : Type) where
   | node : α → Tree α → Treee α
 ```
 ```output
-Unexpected resulting type for constructor 'Tree.node': Expected an application of
+Unexpected resulting type for constructor `Tree.node`: Expected an application of
   Tree
 but found
-  ?m.22
+  ?m.2
 ```
 ```lean fixed
 inductive Tree (α : Type) where
@@ -46,7 +46,7 @@ inductive Credential where
   | password : String
 ```
 ```output
-Unexpected resulting type for constructor 'Credential.pin': Expected
+Unexpected resulting type for constructor `Credential.pin`: Expected
   Credential
 but found
   Nat

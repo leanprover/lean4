@@ -1111,7 +1111,7 @@ def symbolFn (sym : String) : ParserFn :=
   symbolFnAux sym ("'" ++ sym ++ "'")
 
 def symbolNoAntiquot (sym : String) : Parser :=
-  let sym := sym.trim
+  let sym := sym.trimAscii.copy
   { info := symbolInfo sym
     fn   := symbolFn sym }
 
@@ -1154,7 +1154,7 @@ def nonReservedSymbolInfo (sym : String) (includeIdent : Bool) : ParserInfo := {
 }
 
 def nonReservedSymbolNoAntiquot (sym : String) (includeIdent := false) : Parser :=
-  let sym := sym.trim
+  let sym := sym.trimAscii.copy
   { info := nonReservedSymbolInfo sym includeIdent,
     fn   := nonReservedSymbolFn sym }
 
@@ -1236,8 +1236,8 @@ def unicodeSymbolFn (sym asciiSym : String) : ParserFn :=
 
 set_option linter.unusedVariables false in
 def unicodeSymbolNoAntiquot (sym asciiSym : String) (preserveForPP : Bool) : Parser :=
-  let sym := sym.trim
-  let asciiSym := asciiSym.trim
+  let sym := sym.trimAscii.copy
+  let asciiSym := asciiSym.trimAscii.copy
   { info := unicodeSymbolInfo sym asciiSym
     fn   := unicodeSymbolFn sym asciiSym }
 
@@ -1893,7 +1893,7 @@ def nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : Parser) (anony
 -- =========================
 
 def sepByElemParser (p : Parser) (sep : String) : Parser :=
-  withAntiquotSpliceAndSuffix `sepBy p (symbol (sep.trim ++ "*"))
+  withAntiquotSpliceAndSuffix `sepBy p (symbol (sep.trimAscii.copy ++ "*"))
 
 def sepBy (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
   sepByNoAntiquot (sepByElemParser p sep) psep allowTrailingSep

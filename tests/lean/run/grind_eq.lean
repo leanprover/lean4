@@ -66,13 +66,13 @@ theorem appV_assoc (a : Vector α n) (b : Vector α m) (c : Vector α n') :
         appV a (appV b c) ≍ appV (appV a b) c := sorry
 
 /--
-trace: [grind.assert] x1 = appV a_2 b
+trace: [grind.assert] x1 = appV a b
 [grind.assert] x2 = appV x1 c
 [grind.assert] x3 = appV b c
-[grind.assert] x4 = appV a_2 x3
+[grind.assert] x4 = appV a x3
 [grind.assert] ¬x2 ≍ x4
-[grind.ematch.instance] appV_assoc: appV a_2 (appV b c) ≍ appV (appV a_2 b) c
-[grind.assert] appV a_2 (appV b c) ≍ appV (appV a_2 b) c
+[grind.ematch.instance] appV_assoc: appV a (appV b c) ≍ appV (appV a b) c
+[grind.assert] appV a (appV b c) ≍ appV (appV a b) c
 -/
 #guard_msgs (trace) in
 example : x1 = appV a b → x2 = appV x1 c → x3 = appV b c → x4 = appV a x3 → x2 ≍ x4 := by

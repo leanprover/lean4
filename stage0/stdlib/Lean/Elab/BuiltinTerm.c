@@ -3951,11 +3951,11 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabHole(lean_object* x_1, lean_object
 _start:
 {
 uint8_t x_10; uint8_t x_25; 
-x_25 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 7);
+x_25 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 6);
 if (x_25 == 0)
 {
 uint8_t x_26; 
-x_26 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 9);
+x_26 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 8);
 if (x_26 == 0)
 {
 goto block_24;
@@ -5610,7 +5610,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabSyntheticHole___lam__0(lean_object
 _start:
 {
 uint8_t x_12; uint8_t x_24; 
-x_24 = lean_ctor_get_uint8(x_5, sizeof(void*)*8 + 7);
+x_24 = lean_ctor_get_uint8(x_5, sizeof(void*)*8 + 6);
 if (x_24 == 0)
 {
 uint8_t x_25; 
@@ -5782,7 +5782,7 @@ x_16 = l_Lean_Name_isAnonymous(x_14);
 if (x_16 == 0)
 {
 uint8_t x_17; 
-x_17 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 7);
+x_17 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 6);
 if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
@@ -13375,7 +13375,6 @@ block_107:
 {
 lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; 
 x_101 = l_Lean_stringToMessageData(x_100);
-lean_dec_ref(x_100);
 x_102 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_102, 0, x_99);
 lean_ctor_set(x_102, 1, x_101);
@@ -13418,7 +13417,6 @@ block_97:
 {
 lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; uint8_t x_92; 
 x_86 = l_Lean_stringToMessageData(x_85);
-lean_dec_ref(x_85);
 x_87 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_87, 0, x_84);
 lean_ctor_set(x_87, 1, x_86);
@@ -33075,7 +33073,7 @@ x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
 lean_dec_ref(x_12);
 x_14 = lean_st_ref_get(x_10);
-x_28 = lean_ctor_get_uint8(x_5, sizeof(void*)*8 + 5);
+x_28 = lean_ctor_get_uint8(x_5, sizeof(void*)*8 + 4);
 if (x_28 == 0)
 {
 lean_object* x_29; 

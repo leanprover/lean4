@@ -164,6 +164,9 @@ def mkMatchNew (header : Header) (indVal : InductiveVal) (auxFunName : Name) : T
               rhs_empty := false
             else
               rhs ← `($a:ident == $b:ident && $rhs)
+      if ctorArgs1.isEmpty then
+        -- Unit thunking argument
+        ctorArgs1 := ctorArgs1.push (← `(()))
       `(@fun $ctorArgs1.reverse:term* $ctorArgs2.reverse:term* =>$rhs:term)
   if indVal.numCtors == 1 then
     `( $(mkCIdent casesOnSameCtorName) $x1:term $x2:term rfl $alts:term* )

@@ -51366,6 +51366,7 @@ lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
+lean_dec_ref(x_4);
 return x_18;
 }
 }
@@ -51412,7 +51413,6 @@ x_10 = lean_ctor_get(x_2, 2);
 lean_inc(x_10);
 lean_dec_ref(x_2);
 x_11 = l_Lean_stringToMessageData(x_1);
-lean_dec_ref(x_1);
 x_12 = l_Lean_MessageData_ofLevel(x_9);
 x_13 = l___private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore___lam__2___closed__1;
 x_14 = lean_alloc_ctor(7, 2, 0);
@@ -51554,7 +51554,6 @@ _start:
 {
 lean_object* x_12; 
 x_12 = l___private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore___lam__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec_ref(x_4);
 return x_12;
 }
 }
@@ -63612,7 +63611,6 @@ lean_dec(x_16);
 x_24 = lean_ctor_get(x_23, 0);
 lean_inc_ref(x_24);
 lean_dec_ref(x_23);
-lean_inc_ref(x_24);
 x_25 = lean_string_validate_utf8(x_24);
 if (x_25 == 0)
 {

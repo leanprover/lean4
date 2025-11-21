@@ -6510,7 +6510,6 @@ theorem cpop_append_eq_add_zeroExtend_cpop {x : BitVec w} {y : BitVec v} :
       rw [toNat_ofNat_of_le (by omega), toNat_ofNat_of_le (by omega), toNat_ofNat_of_le (by omega),
         Nat.mod_eq_of_lt (by omega)]
 
-
 theorem toNat_cpop_append_eq_add_toNat_cpop {w : Nat} {x : BitVec w} {y : BitVec v} :
     ((x ++ y).cpop).toNat = (x.cpop).toNat + (y.cpop).toNat := by
   simp only [cpop_append_eq_add_zeroExtend_cpop, truncate_eq_setWidth, toNat_add, toNat_setWidth,

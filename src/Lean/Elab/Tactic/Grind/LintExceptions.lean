@@ -16,5 +16,4 @@ import Lean.Elab.Tactic.Grind.Lint
 #grind_lint skip List.Sublist.append
 #grind_lint skip List.Sublist.middle
 
--- TODO: restore this after an update-stage0
--- #grind_lint skip suffix sizeOf_spec
+#grind_lint skip suffix sizeOf_spec

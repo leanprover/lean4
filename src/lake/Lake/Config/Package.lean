@@ -131,7 +131,7 @@ namespace Package
 
 /-- The identifier passed to Lean to disambiguate the package's native symbols. -/
 public def id? (self : Package) : Option PkgId :=
-  if self.bootstrap then none else some <| self.name.toString (escape := false)
+  if self.bootstrap then none else some <| self.origName.toString (escape := false)
 
 /-- The package version. -/
 @[inline] public def version (self : Package) : LeanVer  :=

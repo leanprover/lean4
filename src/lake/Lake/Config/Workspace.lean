@@ -132,7 +132,7 @@ public def isBuildableModule (mod : Name) (self : Workspace) : Bool :=
 public protected def findModule? (mod : Name) (self : Workspace) : Option Module :=
   self.packages.findSome? (·.findModule? mod)
 
-/-- Locate the named, buildable, importable, local modules in the workspace. -/
+/-- For each package in the workspace, locate the named, buildable, importable, local module. -/
 public protected def findModules (mod : Name) (self : Workspace) : Array Module :=
   self.packages.filterMap (·.findModule? mod)
 

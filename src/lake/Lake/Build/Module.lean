@@ -266,13 +266,13 @@ private def ModuleExportInfo.disambiguationHash
   (self : ModuleExportInfo) (nonModule : Bool) (imp : Import)
 : Hash :=
   if nonModule then
-    self.legacyTransTrace.hash |>.mix self.allArtsTrace.hash
+    self.legacyTransTrace.hash.mix self.allArtsTrace.hash
   else if imp.importAll then
-    self.allTransTrace.hash |>.mix self.allArtsTrace.hash
+    self.allTransTrace.hash.mix self.allArtsTrace.hash
+  else if imp.isMeta then
+    self.metaTransTrace.hash.mix self.metaArtsTrace.hash
   else
-    -- Note: Always use at least `meta` to disambiguate
-    -- because downstream modules may transitively `meta import` this module
-    self.metaTransTrace.hash |>.mix self.metaArtsTrace.hash
+    self.transTrace.hash.mix self.artsTrace.hash
 
 private def ModuleImportInfo.addImport
   (info : ModuleImportInfo) (nonModule : Bool)
@@ -393,14 +393,14 @@ private def fetchImportInfo
       s.bindM (sync := true) fun impInfo => do
       expInfosJob.mapM (sync := true) fun expInfos => do
         let expInfo := expInfos[0]
-        let impHash := expInfo.srcTrace.hash -- expInfo.disambiguationHash nonModule imp
+        let impHash := expInfo.disambiguationHash nonModule imp
         let allEquiv := expInfos.toArray.all (start := 1) fun expInfo =>
-          impHash == expInfo.srcTrace.hash -- expInfo.disambiguationHash nonModule imp
+          impHash == expInfo.disambiguationHash nonModule imp
         unless allEquiv do
           let msg := s!"{fileName}: could not disambiguate the module `{imp.module}`; \
             multiple packages provide distinct definitions:"
           let msg := n.fold (init := msg) fun i h s =>
-            let hash := expInfos[i].srcTrace.hash -- expInfos[i].disambiguationHash nonModule imp
+            let hash := expInfos[i].disambiguationHash nonModule imp
             s!"{s}\n  {mods[i].pkg.discriminant} (hash: {hash})"
           error msg
         return impInfo.addImport nonModule imp expInfo
@@ -437,7 +437,7 @@ private def Module.computeExportInfo (mod : Module) : FetchM (Job ModuleExportIn
       let some oleanPrivate := arts.oleanPrivate?
         | error noPrivateOLeanError
       return {
-        srcTrace := input.trace.hash
+        srcTrace := input.trace
         arts := .ofArray #[olean.path, ir.path, oleanServer.path]
         artsTrace := artsTrace.mix olean.trace
         metaArtsTrace := metaArtsTrace.mix olean.trace |>.mix ir.trace
@@ -451,7 +451,7 @@ private def Module.computeExportInfo (mod : Module) : FetchM (Job ModuleExportIn
       }
     else
       return {
-        srcTrace := input.trace.hash
+        srcTrace := input.trace
         arts := ⟨#[olean.path]⟩
         artsTrace := artsTrace.mix olean.trace
         metaArtsTrace := metaArtsTrace.mix olean.trace

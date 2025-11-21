@@ -20,6 +20,7 @@ meta def insertLinterSet [MonadEnv m] (setName : Name) (linterNames : NameSet) :
 /-- `registerSet` wraps `registerOption` by setting relevant values. -/
 meta def registerSet (setName : Name) (ref : Name := by exact decl_name%) : IO (Lean.Option Bool) := do
   registerOption setName {
+    name := setName
     declName := ref
     defValue := false
     group := "linterSet"

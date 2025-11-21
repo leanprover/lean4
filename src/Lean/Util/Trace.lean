@@ -307,15 +307,16 @@ Calling ``registerTraceClass `foo.bar (inherited := true)`` enables this inherit
 on an opt-in basis.
 -/
 def registerTraceClass (traceClassName : Name) (inherited := false) (ref : Name := by exact decl_name%) : IO Unit := do
-  let optionName := `trace ++ traceClassName
-  registerOption optionName {
+  let name := `trace ++ traceClassName
+  registerOption name {
+    name
     declName := ref
     group := "trace"
     defValue := false
     descr := "enable/disable tracing for the given module and submodules"
   }
   if inherited then
-    inheritedTraceOptions.modify (·.insert optionName)
+    inheritedTraceOptions.modify (·.insert name)
 
 private meta def expandTraceMacro (id : Syntax) (s : Syntax) : MacroM (TSyntax `doElem) := do
   let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))

@@ -18,6 +18,31 @@ namespace Lean.Linter
 open Lean Elab Command
 open Lean.Linter (logLint)
 
+/-- robs linter -/
+register_builtin_option linter.robslinter : Bool := {
+  defValue := false,
+  descr := "enable the linter that warns when bound variable names are nullary constructor names"
+}
+
+def fxz (tree : InfoTree) :=
+        match tree with
+        | .context i t => m!"(context _ {fxz t})"
+        | .node i ch => m!"(node i {ch.size})"
+        | .hole m => m!"(hole {m})"
+
+/-- robs linter -/
+def robslinter : Linter where
+  run cmdStx := do
+    if linter.robslinter.get (← getOptions) then
+      logInfo cmdStx
+      logInfo m!"{(← get).infoState.trees.toArray.size}"
+      for tree in (← get).infoState.trees.toArray do
+        logInfo s!"{← tree.format}"
+        logInfo (fxz tree)
+
+builtin_initialize addLinter robslinter
+
+
 /--
 A linter that warns when bound variable names are the same as constructor names for their types,
 modulo namespaces.
@@ -26,6 +51,7 @@ register_builtin_option linter.constructorNameAsVariable : Bool := {
   defValue := true,
   descr := "enable the linter that warns when bound variable names are nullary constructor names"
 }
+
 
 /--
 Reports when bound variables' names overlap with constructor names for their type. This is to warn

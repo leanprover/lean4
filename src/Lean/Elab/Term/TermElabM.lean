@@ -1070,6 +1070,10 @@ def throwTypeMismatchError (header? : Option MessageData) (expectedType : Expr) 
     | none          => Format.nil
     | some extraMsg => Format.line ++ extraMsg;
   -/
+  println! "QQQ"
+  logInfo "~~QQQ~~"
+  trace[Elab.let.decl] "~~~~~ sad rob ~~~~~~~ {f?.isSome}"
+  println! "ZZZ"
   match f? with
   | none   => throwError "{← mkTypeMismatchError header? e eType expectedType}{extraMsg}"
   | some f => Meta.throwAppTypeMismatch f e

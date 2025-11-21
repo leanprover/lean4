@@ -679,7 +679,9 @@ def getPatternsVarsEx (patterns : Array Syntax) : TermElabM (Array Var) :=
 def getLetPatDeclVars (letPatDecl : Syntax) : TermElabM (Array Var) := do
   -- def letPatDecl := leading_parser termParser >> pushNone >> optType >> " := " >> termParser
   let pattern := letPatDecl[0]
-  getPatternVarsEx pattern
+  let gee ← getPatternVarsEx pattern
+  trace[Elab.let] "oh no {gee}"
+  return gee
 
 def getLetEqnsDeclVars (letEqnsDecl : Syntax) : Array Var :=
   assert! letEqnsDecl.isOfKind ``Parser.Term.letEqnsDecl

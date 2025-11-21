@@ -402,6 +402,7 @@ Elaborates the structure's flat constructor using the expected type, filling in 
 The `structureType?` is the expected type of the structure instance.
 -/
 private def mkCtorHeader (ctorVal : ConstructorVal) (structureType? : Option Expr) : TermElabM CtorHeaderResult := do
+  trace[Elab.struct] "======failure? {ctorVal.name} {ctorVal.induct} {ctorVal.type}"
   let flatCtorName := mkFlatCtorOfStructCtorName ctorVal.name
   let cinfo ← getConstInfo flatCtorName
   let us ← mkFreshLevelMVars ctorVal.levelParams.length
@@ -1193,13 +1194,25 @@ private def elabStructInstView (s : StructInstView) (structName : Name) (structT
   if (← isInaccessiblePrivateName ctorVal.name) then
     throwError "invalid \{...} notation, constructor for `{.ofConstName structName}` is marked as private"
   let { ctorFn, ctorFnType, structType, levels, params } ← mkCtorHeader ctorVal structType?
+  let mut s := s
+  if (← Lean.isTracingEnabledFor `Elab.let) then
+    s := { s with fields := s.fields.reverse }
+    trace[Elab.struct] "view swapped: {s}"
+
+  trace[Elab.struct] "fields???? {s.fields}"
   let (_, fields) ← expandFields structName s.fields (recover := (← read).errToSorry)
-  let fields ← addSourceFields structName s.sources.explicit fields
+  let mut fields ← addSourceFields structName s.sources.explicit fields
   trace[Elab.struct] "expanded fields:\n{MessageData.joinSep (fields.toList.map (fun (_, field) => m!"- {MessageData.nestD (toMessageData field)}")) "\n"}"
   let ellipsis := s.sources.implicit.isSome
+  logInfo m!"A"
+  trace[Elab.struct] "ctorFn{indentExpr ctorFn}"
+  trace[Elab.struct] "params: {params}"
+  trace[Elab.struct] "view: {s.fields}"
+
   let (val, _) ← main
     |>.run { view := s, structName, structType, levels, params, fieldViews := fields, val := ctorFn, ellipsis }
     |>.run { type := ctorFnType }
+  logInfo m!"B"
   return val
 
 /--
@@ -1307,6 +1320,7 @@ where
       throwError "invalid \{...} notation, {kind} type is not of the form (C ...){indentExpr type}"
 
 @[builtin_term_elab structInst] def elabStructInst : TermElab := fun stx expectedType? => do
+  trace[Elab.struct] "ROB ROB StructInstView enter"
   match (← expandNonAtomicExplicitSources stx) with
   | some stxNew => withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   | none =>

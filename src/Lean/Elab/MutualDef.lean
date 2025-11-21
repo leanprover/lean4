@@ -256,6 +256,7 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
             -- TODO: add forbidden predicate using `shortDeclName` from `views`
             let xs ← addAutoBoundImplicits xs (view.declId.getTailPos? (canonicalOnly := true))
             type ← mkForallFVars' xs type
+            trace[Elab.let] "quirkyfish {type}"
             type ← instantiateMVarsProfiling type
             let levelNames ← getLevelNames
             if view.type?.isSome then
@@ -495,7 +496,8 @@ private def useProofAsSorry (k : DefKind) : CoreM Bool := do
   return false
 
 private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr) (sc : Command.Scope) : TermElabM (Array Expr) :=
-  headers.mapM fun header => do
+  headers.mapM fun header =>
+    withTraceNode `Elab (fun _ => pure m!"elabFunValue for {header.declName}") do
     let mut reusableResult? := none
     if let some snap := header.bodySnap? then
       if let some old := snap.old? then
@@ -529,11 +531,13 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
           withInfoContext' valStx
             (mkInfo := (pure <| .inl <| mkBodyInfo valStx ·))
             (mkInfoOnError := (pure <| mkBodyInfo valStx none))
+          
             do
               -- synthesize mvars here to force the top-level tactic block (if any) to run
               let val ← elabTermEnsuringType valStx type <* synthesizeSyntheticMVarsNoPostponing
               -- NOTE: without this `instantiatedMVars`, `mkLambdaFVars` may leave around a redex that
               -- leads to more section variables being included than necessary
+              trace[Elab.let] "Metafish {val}"
               instantiateMVarsProfiling val
         let val ← mkLambdaFVars xs val
         if header.type?.isNone && (← getEnv).header.isModule && !(← getEnv).isExporting &&
@@ -599,10 +603,12 @@ private def isTheorem (views : Array DefView) : Bool :=
   views.any (·.kind.isTheorem)
 
 private def instantiateMVarsAtHeader (header : DefViewElabHeader) : TermElabM DefViewElabHeader := do
+  trace[Elab.let] "matgetterfisg {header.type}"
   let type ← instantiateMVarsProfiling header.type
   pure { header with type := type }
 
 private def instantiateMVarsAtLetRecToLift (toLift : LetRecToLift) : TermElabM LetRecToLift := do
+  trace[Elab.let] "so so {toLift.type} {toLift.val}"
   let type ← instantiateMVarsProfiling toLift.type
   let val ← instantiateMVarsProfiling toLift.val
   pure { toLift with type, val }
@@ -879,6 +885,7 @@ private def pickMaxFVar? (lctx : LocalContext) (fvarIds : Array FVarId) : Option
   fvarIds.getMax? fun fvarId₁ fvarId₂ => (lctx.get! fvarId₁).index < (lctx.get! fvarId₂).index
 
 private def preprocess (e : Expr) : TermElabM Expr := do
+  trace[Elab.let] "preprocess {e}"
   let e ← instantiateMVarsProfiling e
   -- which let-decls are dependent. We say a let-decl is dependent if its lambda abstraction is type incorrect.
   Meta.check e
@@ -991,6 +998,7 @@ private def mkLetRecClosures (sectionVars : Array Expr) (mainFVarIds : Array FVa
       -- This can happen when this particular let-rec has nested let-rec that have been resolved in previous iterations.
       -- This code relies on the fact that nested let-recs occur before the outer most let-recs at `letRecsToLift`.
       -- Unresolved nested let-recs appear as metavariables before they are resolved. See `assignExprMVar` at `mkLetRecClosureFor`
+      trace[Elab.let] "mkLetRecCloures {i} {letRecsToLift[i]!.val}"
       let valNew ← instantiateMVarsProfiling letRecsToLift[i]!.val
       letRecsToLift := letRecsToLift.modify i fun t => { t with val := valNew }
       -- We have to recompute the `freeVarMap` in this case. This overhead should not be an issue in practice.
@@ -1105,13 +1113,16 @@ def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mai
   let mainFVarIds := mainFVars.map Expr.fvarId!
   let recFVarIds  := (letRecsToLift.map fun toLift => toLift.fvarId) ++ mainFVarIds
   withTrackingZetaDelta do
+
     -- By checking `toLift.type` and `toLift.val` we populate `zetaFVarIds`. See comments at `src/Lean/Meta/Closure.lean`.
     let letRecsToLift ← letRecsToLift.mapM fun toLift => withLCtx toLift.lctx toLift.localInstances do
       Meta.check toLift.type
       Meta.check toLift.val
+      trace[Elab.let] "zetadelta {toLift.val} {toLift.type}"
       return { toLift with val := (← instantiateMVarsProfiling toLift.val), type := (← instantiateMVarsProfiling toLift.type) }
     let letRecClosures ← mkLetRecClosures sectionVars mainFVarIds recFVarIds letRecsToLift
     -- mkLetRecClosures assign metavariables that were placeholders for the lifted declarations.
+    trace[Elab.let] "zetadelta whatwhatwhat"
     let mainVals    ← mainVals.mapM (instantiateMVarsProfiling ·)
     let mainHeaders ← mainHeaders.mapM instantiateMVarsAtHeader
     let letRecClosures ← letRecClosures.mapM fun closure => do pure { closure with toLift := (← instantiateMVarsAtLetRecToLift closure.toLift) }
@@ -1147,7 +1158,10 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
         newHeaders := newHeaders.push header
     return newHeaders
   let newHeaders ← (process).run' 1
-  newHeaders.mapM fun header => return { header with type := (← instantiateMVarsProfiling header.type) }
+  trace[Elab.let] "Go fish fish fish fish {newHeaders.size}"
+  newHeaders.mapM fun header => do
+    trace[Elab.let] "Very sus fish {header.declId} {header.type} {header.binders}"
+    return { header with type := (← instantiateMVarsProfiling header.type) }
 
 /--
 Ensures that all declarations given by `preDefs` have distinct names.
@@ -1172,6 +1186,13 @@ register_builtin_option warn.exposeOnPrivate : Bool := {
   descr    := "warn about uses of `@[expose]` on private declarations"
 }
 
+private def toOxford : List String -> String
+  | [] => ""
+  | [a] => a
+  | [a, b] => a ++ " and " ++ b
+  | [a, b, c] => a ++ ", " ++ b  ++ ", and " ++ c
+  | a :: as => a ++ ", " ++ toOxford as
+
 def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefView) : TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv do
@@ -1184,7 +1205,8 @@ def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefVie
   else
     go
 where
-  go := do
+  go := withTraceNode `Elab
+      (fun _ => return m!"elaborating mutual {toOxford <| views.map (s!"{·.declId[0].getId}") |>.toList}") do
     let bodyPromises ← views.mapM fun _ => IO.Promise.new
     let tacPromises ← views.mapM fun _ => IO.Promise.new
     let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
@@ -1291,7 +1313,8 @@ where
     }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
-  finishElab headers := withFunLocalDecls headers fun funFVars => do
+  finishElab headers := withFunLocalDecls headers fun funFVars =>
+    withTraceNode `Elab (fun _ => return m!"finishElab") do
     let env ← getEnv
     if warn.exposeOnPrivate.get (← getOptions) then
       if env.header.isModule && !env.isExporting then
@@ -1327,12 +1350,16 @@ where
       if headers.any (·.kind.isTheorem) then ResolveName.backward.privateInPublic.set opts false else opts) do
     let headers := headers.map fun header =>
       { header with modifiers.attrs := header.modifiers.attrs.filter (!·.name ∈ [`expose, `no_expose]) }
-    let values ← try
+    let values ← withTraceNode `Elab (fun _ => return m!"elab values") try
       let values ← elabFunValues headers vars sc
       Term.synthesizeSyntheticMVarsNoPostponing
-      values.mapM (instantiateMVarsProfiling ·)
+      trace[Elab.let] "elaaab mutual deefff {vars} {headers.map (·.binders)} {values}"
+      values.mapM (fun qq => do
+        trace[Elab.let] "elaaab mutual deefff!!!! {qq}"
+        instantiateMVarsProfiling qq)
     catch ex =>
       logException ex
+      trace[Elab.let] "logged exception {ex.getRef}"
       headers.mapM fun header => withRef header.declId <| mkLabeledSorry header.type (synthetic := true) (unique := true)
     let headers ← headers.mapM instantiateMVarsAtHeader
     let letRecsToLift ← getLetRecsToLift

@@ -2491,7 +2491,9 @@ def instantiateMVarsIfMVarApp (e : Expr) : MetaM Expr := do
 
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
   profileitM Exception s!"instantiate metavars" (← getOptions) do
+  trace[Elab.let] "????"
   withTraceNode `Meta.instantiateMVars (fun _ => pure e) do
+    trace[Elab.let] "!!!!"
     instantiateMVars e
 
 private partial def setAllDiagRanges (snap : Language.SnapshotTree) (pos endPos : Position) :

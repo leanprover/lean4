@@ -890,6 +890,7 @@ def expandLetEqnsDecl (letDecl : Syntax) (useExplicit := true) : MacroM Syntax :
   return mkNode `Lean.Parser.Term.letIdDecl #[letDecl[0], letDecl[1], letDecl[2], mkAtomFrom ref " := ", val]
 
 def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (initConfig : LetConfig) : TermElabM Expr := do
+  trace[Elab.let.decl] "Hi rob"
   let (config, declIdx) ← if stx[1].isOfKind ``Parser.Term.letConfig then
     pure (← mkLetConfig stx[1] initConfig, 2)
   else

@@ -131,13 +131,22 @@ public class Cost (τ : Type) [Add τ] [LE τ] where
   optimalityCutoffWidth : Nat
 
 /--
-A measure is a tuple of the cost of a specific rendering and a writer monad to produce the
+A measure is a tuple of the compound cost of a specific rendering and a writer monad to produce the
 rendering.
 
-The cost of a measure consists of both an arbitrary cost (as defined by a configurable cost
-function) and the current length of the last line of the rendering.
+The compound cost of a measure consists of both a configurable cost (as defined by a configurable
+cost function) and the current length of the last line of the rendering.
+A measure is considered to be cheaper than (or to dominate) another measure if both the configurable
+cost as determined by the cost function and the last length of the line are smaller than that of
+the other measure. In the formatter, we prune measures if they are dominated by another measure.
 
-TODO: Explain need for last line length
+For a lawful cost function, the configurable cost of a measure increases with more lines and
+as lines get longer, i.e. it increases as documents are appended to it.
+This means that we cannot simply prune measures using the configurable cost alone:
+a measure might have a lower configurable cost than another measure for the time being, but when we
+append to both measures, the second measure might suddenly become more expensive than the first one.
+With the default cost function, this occurs e.g. if both renderings presented by the measure
+have the same amount of lines
 -/
 structure Measure (τ : Type) where
   lastLineLength : Nat

@@ -1,4 +1,4 @@
-import Lean.Data.Fmt.Basic
+import Lean.Data.Fmt.Formatter
 import Lean.Data.Json
 
 open Lean.Fmt
@@ -8,18 +8,18 @@ def hConcat (ds : List Doc) : Doc :=
   | [] => .failure
   | [d] => d
   | d :: ds =>
-    ds.foldl (init := d) fun acc d => (Doc.flatten acc).concat d
+    ds.foldl (init := d) fun acc d => (Doc.flattened acc).append d
 
 def encloseSep (left right sep : Doc) (ds : List Doc) : Doc :=
   match ds with
-  | [] => .concat left (.align right)
-  | [d] => .join #[left, .align d, .align right]
+  | [] => .append left (.aligned right)
+  | [d] => .join #[left, .aligned d, .aligned right]
   | d :: ds =>
-    .concat
+    .append
       (.either
         (hConcat (left :: (d :: ds).intersperse sep))
-        (Doc.joinUsing .hardNl (Doc.concat left (.align d) :: ds.map (fun d => Doc.concat sep (.align d))).toArray))
-      (.align right)
+        (Doc.joinUsing .hardNl (Doc.append left (.aligned d) :: ds.map (fun d => Doc.append sep (.aligned d))).toArray))
+      (.aligned right)
 
 partial def pp (j : Lean.Json) : Doc :=
   match j with
@@ -35,7 +35,7 @@ partial def pp (j : Lean.Json) : Doc :=
     let kvPairs := kvPairs.toList.map fun (k, v) =>
       let k := .text s!"\"{k}\": "
       let v := pp v
-      Doc.concat k (.align v)
+      Doc.append k (.aligned v)
     encloseSep (.text "{") (.text "}") (.text ",") kvPairs
 
 def readJson : IO Lean.Json := do

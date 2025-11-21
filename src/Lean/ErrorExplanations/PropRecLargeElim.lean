@@ -29,7 +29,7 @@ proved rather than the type of data-valued term.
 
 # Examples
 
-## Defining an intermediate data value within a proof
+## Defining an Intermediate Data Value Within a Proof
 
 ```lean broken
 example {α : Type} [inst : Nonempty α] (p : α → Prop) :
@@ -68,7 +68,7 @@ type `α : Type`. Thus, pattern-matching on the proof of `Nonempty α` (a propos
 `Prop`-valued proof of the existential claim stated in the example's header. This restructuring
 could also be done using a pattern-matching `let` binding.
 
-## Extracting the witness from an existential proof
+## Extracting the Witness from an Existential Proof
 
 ```lean broken
 def getWitness {α : Type u} {p : α → Prop} (h : ∃ x, p x) : α :=

@@ -26,7 +26,7 @@ parameters to indices.
 
 # Examples
 
-## Vector length index as a parameter
+## Vector Length Index as a Parameter
 
 ```lean broken
 inductive Vec (α : Type) (n : Nat) : Type where

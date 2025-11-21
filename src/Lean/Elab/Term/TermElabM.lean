@@ -1114,6 +1114,16 @@ def containsPendingMVar (e : Expr) : MetaM Bool := do
   | none   => return true
 
 /--
+If the `trace.Meta.synthInstance` option is not already set, gives a hint explaining this option.
+-/
+def useTraceSynthMsg : MessageData :=
+  MessageData.lazy fun ctx =>
+    if trace.Meta.synthInstance.get ctx.opts then
+      pure ""
+    else
+      pure <| .hint' s!"Type class instance resolution failures can be inspected with the `set_option {trace.Meta.synthInstance.name} true` command."
+
+/--
   Try to synthesize metavariable using type class resolution.
   This method assumes the local context and local instances of `instMVar` coincide
   with the current local context and local instances.
@@ -1171,7 +1181,7 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
     if (← read).ignoreTCFailures then
       return false
     else
-      throwError "failed to synthesize{indentExpr type}{extraErrorMsg}{useDiagnosticMsg}"
+      throwNamedError lean.synthInstanceFailed "failed to synthesize instance of type class{indentExpr type}{extraErrorMsg}{useTraceSynthMsg}"
 
 def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none)
     (mkErrorMsg? : Option (MVarId → (expectedType e : Expr) → MetaM MessageData) := none)

@@ -21,7 +21,7 @@
    "fullRange":
    {"start": {"line": 16, "character": 12},
     "end": {"line": 20, "character": 0}},
-   "code": "lean.failedToSynthesizeTypeclassInstance"},
+   "code": "lean.synthInstanceFailed"},
   {"source": "Lean 4",
    "severity": 1,
    "range":
@@ -42,7 +42,7 @@
    "fullRange":
    {"start": {"line": 22, "character": 17},
     "end": {"line": 22, "character": 20}},
-   "code": "lean.failedToSynthesizeTypeclassInstance"},
+   "code": "lean.synthInstanceFailed"},
   {"source": "Lean 4",
    "severity": 1,
    "range":

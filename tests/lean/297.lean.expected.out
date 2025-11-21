@@ -1,4 +1,4 @@
-297.lean:1:10-1:11: error(lean.failedToSynthesizeTypeclassInstance): failed to synthesize instance of type class
+297.lean:1:10-1:11: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   OfNat (Sort ?u) 0
 numerals are polymorphic in Lean, but the numeral `0` cannot be used in a context where the expected type is
   Sort ?u

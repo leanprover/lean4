@@ -1,4 +1,4 @@
-macroSwizzle.lean:4:7-4:23: error(lean.failedToSynthesizeTypeclassInstance): failed to synthesize instance of type class
+macroSwizzle.lean:4:7-4:23: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   HAdd Bool String ?m
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.

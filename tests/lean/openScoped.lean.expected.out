@@ -1,5 +1,5 @@
 openScoped.lean:1:7-1:14: error(lean.unknownIdentifier): Unknown identifier `epsilon`
-openScoped.lean:4:2-4:24: error(lean.failedToSynthesizeTypeclassInstance): failed to synthesize instance of type class
+openScoped.lean:4:2-4:24: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   Decidable (f = g)
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.

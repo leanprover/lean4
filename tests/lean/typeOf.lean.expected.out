@@ -1,8 +1,8 @@
-typeOf.lean:11:22-11:25: error(lean.failedToSynthesizeTypeclassInstance): failed to synthesize instance of type class
+typeOf.lean:11:22-11:25: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   HAdd Nat Nat Bool
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
-typeOf.lean:12:0-12:5: error(lean.failedToSynthesizeTypeclassInstance): failed to synthesize instance of type class
+typeOf.lean:12:0-12:5: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   HAdd Bool Nat Nat
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.

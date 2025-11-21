@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.ErrorExplanations.CtorResultingTypeMismatch
 public import Lean.ErrorExplanations.DependsOnNoncomputable
-public import Lean.ErrorExplanations.FailedToSynthesizeTypeclassInstance
 public import Lean.ErrorExplanations.InductiveParamMismatch
 public import Lean.ErrorExplanations.InductiveParamMissing
 public import Lean.ErrorExplanations.InferBinderTypeFailed
@@ -17,4 +16,5 @@ public import Lean.ErrorExplanations.InvalidDottedIdent
 public import Lean.ErrorExplanations.ProjNonPropFromProp
 public import Lean.ErrorExplanations.PropRecLargeElim
 public import Lean.ErrorExplanations.RedundantMatchAlt
+public import Lean.ErrorExplanations.SynthInstanceFailed
 public import Lean.ErrorExplanations.UnknownIdentifier

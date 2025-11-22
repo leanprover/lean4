@@ -22,7 +22,7 @@ def _root_.Lean.MVarId.ensureNoMVar (mvarId : MVarId) : MetaM Unit := do
 /--
 Instantiates metavariables occurring in the target and hypotheses.
 -/
-def _root_.Lean.MVarId.instantiateMVars (mvarId : MVarId) : MetaM MVarId := do
+def _root_.Lean.MVarId.instantiateGoalMVars (mvarId : MVarId) : MetaM MVarId := do
   mvarId.checkNotAssigned `grind
   let mvarDecl ← mvarId.getDecl
   let lctx ← instantiateLCtxMVars mvarDecl.lctx

@@ -241,7 +241,7 @@ Round-trip: `toList` and `ofBoolListLE` are inverses.
 theorem ofBoolListLE_toList (x : BitVec w) : ofBoolListLE x.toList = x.cast (by simp) := by
   induction x using BitVec.induction with
   | nil => rfl
-  | cons b x' ih =>
+  | cons _ b x' ih =>
     calc ofBoolListLE (cons b x').toList
       _ = (ofBoolListLE ((toList x').concat b)).cast (by rw [toList_cons b x']) := by
         apply ofBoolListLE_congr

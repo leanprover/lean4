@@ -62,7 +62,7 @@ structure Response (t : Type) where
   /--
   The content of the request.
   -/
-  body : Option t
+  body : t
 deriving Inhabited
 
 /--
@@ -123,7 +123,7 @@ def header (builder : Builder) (key : String) (value : HeaderValue) : Builder :=
 Builds and returns the final HTTP Response with the specified body
 -/
 def body (builder : Builder) (body : t) : Response t :=
-  { head := builder.head, body := some body }
+  { head := builder.head, body := body }
 
 /--
 Builds and returns the final HTTP Response with a stream builder
@@ -131,13 +131,13 @@ Builds and returns the final HTTP Response with a stream builder
 def stream (builder : Builder) (body : Body.ByteStream → Async Unit) : Async (Response Body) := do
   let stream ← Body.ByteStream.empty
   background (body stream)
-  return { head := builder.head, body := some stream }
+  return { head := builder.head, body := stream }
 
 /--
 Builds and returns the final HTTP Response.
 -/
-def build (builder : Builder) : Response t :=
-  { head := builder.head, body := none }
+def build [EmptyCollection t] (builder : Builder) : Response t :=
+  { head := builder.head, body := {} }
 
 /--
 Builds and returns the final HTTP Response with the specified body as binary data.

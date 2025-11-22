@@ -354,7 +354,6 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
     let machine := machine.modifyWriter ({ · with messageHead := message, sentMessage := true })
     let machine := machine.updateKeepAlive (shouldKeepAlive message)
 
-    -- Extract body length from headers if knownSize is not already set
     let machine :=
       if machine.writer.knownSize.isNone then
         match extractBodyLengthFromHeaders message.headers with

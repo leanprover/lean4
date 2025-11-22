@@ -13,12 +13,11 @@ public import Std.Internal.Http.Client.Config
 
 public section
 
-namespace Std
-namespace Http
-namespace Client
+namespace Std.Http.Client
 
-open Std Internal IO Async TCP
-open Time
+open Std Internal IO Async TCP Time
+
+set_option linter.all true
 
 /-!
 # Connection
@@ -44,7 +43,7 @@ public structure Connection (α : Type) where
   machine : Protocol.H1.Machine .sending
 
   /--
-  ?
+  The Host value for a client.
   -/
   host : HeaderValue
 
@@ -182,9 +181,9 @@ private def handle [Transport α] (connection : Connection α) (config : Client.
 
         let head := packet.request.head
         let head :=
-          if head.headers.contains "host"
+          if head.headers.contains (.new "host")
             then head
-            else { head with headers := head.headers.insert "Host" connection.host}
+            else { head with headers := head.headers.insert (.new "Host") connection.host}
 
         machine := machine.send head
 
@@ -310,6 +309,5 @@ def createPersistentConnection [Transport t] (client : t) (host : String) (confi
   background (Connection.handle connection config requestChannel)
 
   return conn
-
 
 end Std.Http.Client

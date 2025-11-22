@@ -631,6 +631,8 @@ structure Subtype {α : Sort u} (p : α → Prop) where
   -/
   property : p val
 
+grind_pattern Subtype.property => self.val
+
 set_option linter.unusedVariables.funArgs false in
 /--
 Gadget for optional parameter support.

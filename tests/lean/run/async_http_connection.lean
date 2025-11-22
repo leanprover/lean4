@@ -26,20 +26,23 @@ def toByteArray (req : Request (Array Chunk)) (chunked := false) : IO ByteArray 
   return data
 
 /-- Send multiple requests through a mock connection and return the response data. -/
-def sendRequests (client : Mock.Link) (reqs : Array (Request (Array Chunk)))
+def sendRequests (client : Mock.Client) (server : Mock.Server) (reqs : Array (Request (Array Chunk)))
     (onRequest : Request Body → Async (Response Body))
     (chunked : Bool := false) : IO ByteArray := Async.block do
   let mut data := .empty
   for req in reqs do data := data ++ (← toByteArray req chunked)
-  client.enqueueReceive data
-  Std.Http.Server.serveConnection client onRequest (config := { lingeringTimeout := 3000 })
-  client.getSentData
+
+  client.send data
+  Std.Http.Server.serveConnection server onRequest (config := { lingeringTimeout := 3000 })
+
+  let res ← client.recv?
+  pure <| res.getD .empty
 
 /-- Run a single test case, comparing actual response against expected response. -/
-def runTest (name : String) (client : Mock.Link) (req : Request (Array Chunk))
+def runTest (name : String) (client : Mock.Client) (server : Mock.Server) (req : Request (Array Chunk))
     (handler : Request Body → Async (Response Body)) (expected : String) (chunked : Bool := false) :
     IO Unit := do
-  let response ← sendRequests client #[req] handler chunked
+  let response ← sendRequests client server #[req] handler chunked
   let responseData := String.fromUTF8! response
 
   if responseData != expected then
@@ -49,8 +52,8 @@ def runTest (name : String) (client : Mock.Link) (req : Request (Array Chunk))
        Got:\n{responseData}"
 
 def runTestCase (tc : TestCase) : IO Unit := do
-  let client ← Mock.Link.new
-  runTest tc.name client tc.request tc.handler tc.expected tc.chunked
+  let (client, server) ← Mock.new
+  runTest tc.name client server tc.request tc.handler tc.expected tc.chunked
 
 -- Request Predicates
 
@@ -389,7 +392,9 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     background do
       for i in [0:3] do
         discard <| stream.write s!"data{i}".toUTF8
+
       stream.close
+
     return Response.ok stream .empty
 
   expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 15\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\ndata0data1data2"

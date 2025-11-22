@@ -43,6 +43,11 @@ public structure Connection (α : Type) where
   -/
   machine : Protocol.H1.Machine .sending
 
+  /--
+  ?
+  -/
+  host : HeaderValue
+
 /--
 A request packet to be sent through the persistent connection channel
 -/
@@ -175,7 +180,13 @@ private def handle [Transport α] (connection : Connection α) (config : Client.
         currentRequest := some packet
         waitingForRequest := false
 
-        machine := machine.send packet.request.head
+        let head := packet.request.head
+        let head :=
+          if head.headers.contains "host"
+            then head
+            else { head with headers := head.headers.insert "Host" connection.host}
+
+        machine := machine.send head
 
         match packet.request.body with
         | .bytes data => machine := machine.sendData #[Chunk.mk data #[]] |>.userClosedBody
@@ -220,7 +231,7 @@ private def handle [Transport α] (connection : Connection α) (config : Client.
           responseStream.setKnownSize (some length)
 
         if let some packet := currentRequest then
-          let response := { head := machine.reader.messageHead, body := some (.stream responseStream) }
+          let response := { head := machine.reader.messageHead, body := (.stream responseStream) }
           packet.onResponse response
 
       | .gotData final data =>
@@ -289,9 +300,9 @@ let res2 ← persistent.send req2
 persistent.close
 ```
 -/
-def createPersistentConnection [Transport t] (client : t) (config : Client.Config := {}) : Async (PersistentConnection t) := do
+def createPersistentConnection [Transport t] (client : t) (host : String) (config : Client.Config := {}) : Async (PersistentConnection t) := do
   let requestChannel ← CloseableChannel.new
-  let connection := Connection.mk client { config := config.toH1Config }
+  let connection := Connection.mk client { config := config.toH1Config } (HeaderValue.ofString? host |>.getD (.new ""))
   let shutdown ← IO.Promise.new
 
   let conn := { connection, requestChannel, shutdown }

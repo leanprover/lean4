@@ -427,7 +427,10 @@ where
   | `(($e : $type)), _ => do
     let type ← withSynthesize (postpone := .yes) <| elabType type
     let e ← elabTerm e type
-    ensureHasType type e
+    let e ← ensureHasType type e
+    let mvar ← mkFreshExprMVar type
+    mvar.mvarId!.assign e
+    return mvar
   | `(($e :)), expectedType? => do
     let e ← withSynthesize (postpone := .no) <| elabTerm e none
     ensureHasType expectedType? e

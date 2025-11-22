@@ -95,7 +95,7 @@ theorem popcount_eq_countP (x : BitVec w) : x.popcount = x.countP id := by
 
 theorem popcount_eq_foldr (x : BitVec w) :
     x.popcount = x.foldr (fun b acc => b.toNat + acc) 0 := by
-  simp [popcount, count, countP]
+  simp only [popcount, count, countP, beq_true]
   congr
   ext b
   cases b <;> simp [Nat.add_comm]
@@ -115,14 +115,11 @@ theorem zerocount_nil : zerocount nil = 0 := by
 @[simp]
 theorem zerocount_cons (b : Bool) (x : BitVec w) :
     zerocount (cons b x) = (!b).toNat + zerocount x := by
-  simp [zerocount, count]
-  cases b <;> simp
+  cases b <;> simp [zerocount, count]
 
 theorem popcount_add_zerocount (x : BitVec w) : x.popcount + x.zerocount = w := by
-  induction w with
-  | zero => simp [BitVec.eq_nil x, -ofNat_eq_ofNat]
-  | succ w' ih => 
-    rw [←BitVec.cons_msb_setWidth x]
-    cases x.msb <;> simp +arith [ih]
+  induction x using BitVec.induction with
+  | nil => simp [-ofNat_eq_ofNat]
+  | cons _ b => cases b <;> simp_all +arith
 
 end BitVec

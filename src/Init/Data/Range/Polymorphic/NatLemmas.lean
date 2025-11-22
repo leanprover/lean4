@@ -9,6 +9,8 @@ prelude
 public import Init.Data.Range.Polymorphic.Nat
 public import Init.Data.Range.Polymorphic.Lemmas
 
+set_option doc.verso true
+
 public section
 
 namespace Std.PRange.Nat
@@ -34,6 +36,11 @@ theorem size_rcc {a b : Nat} :
     (a...=b).size = b + 1 - a := by
   simp [Rcc.size, Rxc.HasSize.size]
 
+@[simp]
+theorem length_toList_rcc {a b : Nat} :
+    (a...=b).toList.length = b + 1 - a := by
+  simp only [Rcc.length_toList, size_rcc]
+
 @[deprecated size_rcc (since := "2025-10-30")]
 def size_Rcc := @size_rcc
 
@@ -43,6 +50,11 @@ theorem size_rco {a b : Nat} :
   simp only [Rco.size, Rxo.HasSize.size, Rxc.HasSize.size]
   omega
 
+@[simp]
+theorem length_toList_rco {a b : Nat} :
+    (a...b).toList.length = b - a := by
+  simp only [Rco.length_toList, size_rco]
+
 @[deprecated size_rco (since := "2025-10-30")]
 def size_Rco := @size_rco
 
@@ -50,6 +62,11 @@ def size_Rco := @size_rco
 theorem size_roc {a b : Nat} :
     (a<...=b).size = b - a := by
   simp [Roc.size, Rxc.HasSize.size]
+
+@[simp]
+theorem length_toList_roc {a b : Nat} :
+    (a<...=b).toList.length = b - a := by
+  simp only [Roc.length_toList, size_roc]
 
 @[deprecated size_roc (since := "2025-10-30")]
 def size_Roc := @size_roc
@@ -59,6 +76,11 @@ theorem size_roo {a b : Nat} :
     (a<...b).size = b - a - 1 := by
   simp [Roo.size, Rxo.HasSize.size, Rxc.HasSize.size]
 
+@[simp]
+theorem length_toList_roo {a b : Nat} :
+    (a<...b).toList.length = b - a - 1 := by
+  simp only [Roo.length_toList, size_roo]
+
 @[deprecated size_roo (since := "2025-10-30")]
 def size_Roo := @size_roo
 
@@ -67,6 +89,11 @@ theorem size_ric {b : Nat} :
     (*...=b).size = b + 1 := by
   simp [Ric.size, Rxc.HasSize.size]
 
+@[simp]
+theorem length_toList_ric {b : Nat} :
+    (*...=b).toList.length = b + 1 := by
+  simp only [Ric.length_toList, size_ric]
+
 @[deprecated size_ric (since := "2025-10-30")]
 def size_Ric := @size_ric
 
@@ -74,6 +101,11 @@ def size_Ric := @size_ric
 theorem size_rio {b : Nat} :
     (*...b).size = b := by
   simp [Rio.size, Rxo.HasSize.size, Rxc.HasSize.size]
+
+@[simp]
+theorem length_toList_rio {b : Nat} :
+    (*...b).toList.length = b := by
+  simp only [Rio.length_toList, size_rio]
 
 @[deprecated size_rio (since := "2025-10-30")]
 def size_Rio := @size_rio
@@ -259,6 +291,75 @@ theorem getD_toList_rco_eq_fallback {m n i fallback : Nat} (h : n ≤ i + m) :
     (m...n).toList.getD i fallback = fallback := by
   simp [h]
 
+/--
+Induction principle for proving properties of {name}`Nat`-based ranges of the form {lean}`a...b` by
+varying the lower bound.
+
+In the {name}`base` case, one proves that for any {given}`a : Nat` and {given}`b : Nat` with
+{lean}`b ≤ a`, the statement holds for the empty range {lean}`a...b`.
+
+In the {name}`step` case, one proves that for any {given}`a : Nat` and {given}`b : Nat`, the
+statement holds for nonempty ranges {lean}`a...b` if it holds for the smaller range
+{lean}`(a + 1)...b`.
+
+The following is an example reproving {name}`length_toList_rco`.
+
+```lean
+example (a b : Nat) : (a...b).toList.length = b - a := by
+  induction a, b using Std.PRange.Nat.induct_rco_left
+  case base =>
+    simp only [Std.PRange.Nat.toList_rco_eq_nil, List.length_nil, Nat.sub_eq_zero_of_le, *]
+  case step =>
+    simp only [Std.PRange.Nat.toList_rco_eq_cons, List.length_cons, *]; omega
+```
+-/
+theorem induct_rco_left (motive : Nat → Nat → Prop)
+    (base : ∀ a b, b ≤ a → motive a b)
+    (step : ∀ a b, a < b → motive (a + 1) b → motive a b)
+    (a b : Nat) : motive a b := by
+  induction h : b - a generalizing a b
+  · apply base; omega
+  · rename_i d ih
+    apply step
+    · omega
+    · apply ih; omega
+
+/--
+Induction principle for proving properties of {name}`Nat`-based ranges of the form {lean}`a...b` by
+varying the upper bound.
+
+In the {name}`base` case, one proves that for any {given}`a : Nat` and {given}`b : Nat` with
+{lean}`b ≤ a`, the statement holds for the empty range {lean}`a...b`.
+
+In the {name}`step` case, one proves that for any {given}`a : Nat` and {given}`b : Nat`, if the
+statement holds for {lean}`a...b`, it also holds for the larger range {lean}`a...(b + 1)`.
+
+The following is an example reproving {name}`length_toList_rco`.
+
+```lean
+example (a b : Nat) : (a...b).toList.length = b - a := by
+  induction a, b using Std.PRange.Nat.induct_rco_right
+  case base =>
+    simp only [Std.PRange.Nat.toList_rco_eq_nil, List.length_nil, Nat.sub_eq_zero_of_le, *]
+  case step a b hle ih =>
+    rw [Std.PRange.Nat.toList_rco_eq_append (by omega),
+      List.length_append, List.length_singleton, Nat.add_sub_cancel, ih]
+    omega
+```
+-/
+theorem induct_rco_right (motive : Nat → Nat → Prop)
+    (base : ∀ a b, b ≤ a → motive a b)
+    (step : ∀ a b, a ≤ b → motive a b → motive a (b + 1))
+    (a b : Nat) : motive a b := by
+  induction h : b - a generalizing a b
+  · apply base; omega
+  · rename_i d ih
+    obtain ⟨b, rfl⟩ := Nat.exists_eq_succ_of_ne_zero (show b ≠ 0 by omega)
+    apply step
+    · omega
+    · apply ih
+      omega
+
 @[simp]
 theorem toList_rcc_eq_toList_rco {m n : Nat} :
     (m...=n).toList = (m...(n + 1)).toList := by
@@ -314,6 +415,28 @@ theorem toList_rcc_add_right_eq_map {m n : Nat} :
   simp [show m + n + 1 = (m + 1) + n by omega, toList_rco_add_right_eq_map, toList_rco_succ_succ,
     show ∀ a, a + 1 + m = a + (m + 1) by omega]
   omega
+
+theorem toList_rcc_add_succ_right_eq_append {m n : Nat} :
+    (m...=(m + n + 1)).toList = (m...=(m + n)).toList ++ [m + n + 1] := by
+  simp only [Rcc.toList_eq_toList_rco, succ_eq]
+  rw [toList_rco_eq_append (by omega)]
+  simp
+
+theorem toList_rcc_eq_append {m n : Nat} (h : m ≤ n) (h' : 0 < n) :
+    (m...=n).toList = (m...=(n - 1)).toList ++ [n] := by
+  simp only [toList_rcc_eq_toList_rco]
+  rw [toList_rco_eq_append (by omega), Nat.sub_add_cancel (by omega)]
+  simp
+
+theorem toList_rcc_succ_right_eq_append {m n : Nat} (h : m ≤ n + 1) :
+    (m...=(n + 1)).toList = (m...=n).toList ++ [n + 1] := by
+  rw [toList_rcc_eq_append (by omega) (by omega)]
+  simp
+
+theorem toList_rcc_add_succ_right_eq_append' {m n : Nat} :
+    (m...=(m + (n + 1))).toList = (m...=(m + n)).toList ++ [m + n + 1] := by
+  rw [toList_rcc_eq_append (by omega) (by omega)]
+  simp; omega
 
 @[simp]
 theorem getElem_toList_rcc {m n i : Nat} (_h : i < (m...=n).toList.length) :
@@ -389,6 +512,77 @@ theorem getD_toList_rcc_eq_add {m n i fallback : Nat} (h : i < n + 1 - m) :
 theorem getD_toList_rcc_eq_fallback {m n i fallback : Nat} (h : n + 1 ≤ i + m) :
     (m...=n).toList.getD i fallback = fallback := by
   simp [h]
+
+/--
+Induction principle for proving properties of {name}`Nat`-based ranges of the form {lean}`a...=b` by
+varying the lower bound.
+
+In the {name}`base` case, one proves that for any {given}`a : Nat` and {given}`b : Nat` with
+{lean}`b < a`, the statement holds for the empty range {lean}`a...=b`.
+
+In the {name}`step` case, one proves that for any {given}`a : Nat` and {given}`b : Nat`, the
+statement holds for nonempty ranges {lean}`a...b` if it holds for the smaller range
+{lean}`(a + 1)...=b`.
+
+The following is an example reproving {name}`length_toList_rcc`.
+
+```lean
+example (a b : Nat) : (a...=b).toList.length = b + 1 - a := by
+  induction a, b using Std.PRange.Nat.induct_rcc_left
+  case base =>
+    simp only [Std.PRange.Nat.toList_rcc_eq_nil, List.length_nil, *]; omega
+  case step =>
+    simp only [Std.PRange.Nat.toList_rcc_eq_cons, List.length_cons, *]; omega
+```
+-/
+theorem induct_rcc_left (motive : Nat → Nat → Prop)
+    (base : ∀ a b, b < a → motive a b)
+    (step : ∀ a b, a ≤ b → motive (a + 1) b → motive a b)
+    (a b : Nat) : motive a b := by
+  induction h : b + 1 - a generalizing a b
+  · apply base; omega
+  · rename_i d ih
+    apply step
+    · omega
+    · apply ih; omega
+
+/--
+Induction principle for proving properties of {name}`Nat`-based ranges of the form {lean}`a...=b` by
+varying the upper bound.
+
+In the {name}`base` case, one proves that for any {given}`a : Nat` and {given}`b : Nat` with
+{lean}`b < a`, the statement holds for the empty range {lean}`a...=b`.
+
+In the {name}`step` case, one proves that for any {given}`a : Nat` and {given}`b : Nat`, if the
+statement holds for {lean}`a...=b`, it also holds for the larger range {lean}`a...=(b + 1)`.
+
+The following is an example reproving {name}`length_toList_rcc`.
+
+```lean
+example (a b : Nat) : (a...=b).toList.length = b + 1 - a := by
+  induction a, b using Std.PRange.Nat.induct_rcc_right
+  case base =>
+    simp only [Std.PRange.Nat.toList_rcc_eq_nil, List.length_nil, *]
+    omega
+  case step a b hle ih =>
+    rw [Std.PRange.Nat.toList_rcc_eq_append (by omega),
+      List.length_append, List.length_singleton, Nat.add_sub_cancel, ih] <;> omega
+```
+-/
+theorem induct_rcc_right (motive : Nat → Nat → Prop)
+    (base : ∀ a b, b < a → motive a b)
+    (step : ∀ a b, a ≤ b → motive a b → motive a (b + 1))
+    (a b : Nat) : motive a b := by
+  apply induct_rco_right (fun a b => motive a (b + 1))
+  induction h : b + 1 - a generalizing a b
+  · apply base; omega
+  · rename_i d ih
+
+    obtain ⟨b, rfl⟩ := Nat.exists_eq_succ_of_ne_zero (show b ≠ 0 by omega)
+    apply step
+    · omega
+    · apply ih
+      omega
 
 @[simp]
 theorem toList_roo_eq_toList_rco {m n : Nat} :

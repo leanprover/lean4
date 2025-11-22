@@ -6,8 +6,8 @@ Authors: Fady Adal
 module
 
 prelude
+public import Init.Data.BitVec.Basic
 public import Init.Data.BitVec.Folds
-import all Init.Data.BitVec.Folds
 public import Init.Data.List.Basic
 public import Init.Data.Array.Basic
 public import Init.Data.Array.Lemmas
@@ -15,6 +15,7 @@ public import Init.Data.Array.OfFn
 public import Init.Data.Function
 public import Init.Data.Vector.Basic
 public import Init.Data.Vector.Lemmas
+public import Init.Data.BitVec.Lemmas
 
 public section
 
@@ -49,14 +50,14 @@ def ofFn (f : Fin w → Bool) : BitVec w :=
 theorem ofFn_nil (f : Fin 0 → Bool) : ofFn f = nil := by
   ext
   contradiction
-  
+
 
 theorem getElem_ofFn (f : Fin w → Bool) (i : Nat) (h : i < w) :
     (ofFn f)[i] = f ⟨i, h⟩ := by
   unfold ofFn
   rw [←getLsbD_eq_getElem, iunfoldr_getLsbD (fun i => ()) ⟨i, h⟩]
   simp
-  
+
 
 @[simp]
 theorem getLsbD_ofFn (f : Fin w → Bool) (i : Nat) :
@@ -64,8 +65,7 @@ theorem getLsbD_ofFn (f : Fin w → Bool) (i : Nat) :
   by_cases h : i < w
   · simp [h, getElem_ofFn]
   · simp only [h, ↓reduceDIte]
-    apply getLsbD_of_ge
-    omega
+    exact getLsbD_of_ge _ _ (by omega)
 
 /--
 Convert a bitvector to a list of bools (LSB first).
@@ -99,37 +99,6 @@ theorem toList_injective : Function.Injective (toList (w := w)) := by
 theorem toList_inj {x y : BitVec w} : x.toList = y.toList ↔ x = y :=
   toList_injective.eq_iff
 
-/--
-Build a bitvector from a list of bools.
-
-Takes the first `w` elements from the list. If the list is shorter than `w`,
-the remaining bits are set to `false`.
-
-Examples:
-* `ofList 4 [false, true, false, true] = 0b1010#4`
-* `ofList 3 [true, true] = 0b011#3` (padded with false)
-* `ofList 2 [true, true, false, true] = 0b11#2` (truncated)
--/
-def ofList (w : Nat) (l : List Bool) : BitVec w :=
-  ofFn (fun i => l.getD i.val false)
-
-theorem getElem_ofList (w : Nat) (l : List Bool) (i : Nat) (h : i < w) :
-    (ofList w l)[i] = l.getD i false := by
-  simp [ofList, getElem_ofFn]
-
-@[simp]
-theorem ofList_toList (x : BitVec w) : ofList w x.toList = x := by
-  ext i
-  simp [ofList, getElem_ofFn, toList]
-
-@[simp]
-theorem toList_ofList (l : List Bool) : (ofList l.length l).toList = l := by
-  ext i
-  by_cases h : i < l.length
-  · simp [toList, ofList, getElem_ofFn, h]
-  · rw [List.getElem?_eq_none (by simp only [length_toList]; omega),
-        List.getElem?_eq_none (by omega)]
-
 @[simp]
 theorem toList_nil : toList nil = [] := by
   simp [toList]
@@ -145,10 +114,158 @@ theorem toList_cons (b : Bool) (x : BitVec w) :
     rw [getElem_toList, getElem_cons]
     by_cases h' : i = w
     · rwa [dif_pos, List.getElem_concat_length (by simpa)]
-    · rw [dif_neg h', List.getElem_append_left (by simp; omega),
+    · rw [dif_neg h', List.getElem_append_left (by simp only [length_toList]; omega),
           getElem_toList]
 
+  · repeat rw [List.getElem?_eq_none (by
+      simp only [List.length_append, length_toList,
+                 List.length_cons, List.length_nil, Nat.zero_add];
+      omega
+    )]
+
+@[simp]
+theorem toList_concat (x : BitVec w) (b : Bool) :
+    toList (concat x b) = b :: toList x := by
+  ext i
+  by_cases h : i < w + 1
+  · repeat rw [List.getElem?_eq_getElem (by simpa)]
+    simp only [Option.some.injEq, List.getElem_cons]
+    rw [getElem_toList, getElem_concat]
+    cases i <;> simp
+  · repeat rw [List.getElem?_eq_none (by simp only [List.length_cons, length_toList]; omega)]
+
+/--
+Convert a bitvector to a list of bools (MSB first).
+
+The resulting list has the most significant bit at index 0.
+
+Examples:
+* `(0b1010#4).toListBE = [true, false, true, false]`
+* `(0#3).toListBE = [false, false, false]`
+-/
+def toListBE (x : BitVec w) : List Bool :=
+  List.ofFn (n := w) (fun i => x[w - i - 1])
+
+
+@[simp, grind =]
+theorem length_toListBE (x : BitVec w) : x.toListBE.length = w := by
+  simp [toListBE]
+
+@[simp, grind =]
+theorem getElem_toListBE (x : BitVec w) (i : Nat) (h : i < x.toListBE.length) :
+    x.toListBE[i] = x[w - i - 1]'(by simp only [length_toListBE] at h; omega) := by
+  simp [toListBE]
+
+theorem toListBE_injective : Function.Injective (toListBE (w := w)) := by
+  intro x y h
+  ext i
+  have : x.toListBE[w - i - 1]'(by simp only [length_toListBE]; omega) = y.toListBE[w - i - 1]'(by simp only [length_toListBE]; omega) := by
+    simp [h]
+  have weq : w - (w - i - 1) - 1 = i := by omega
+  simpa [getElem_toListBE, weq] using this
+
+@[simp]
+theorem toListBE_inj {x y : BitVec w} : x.toListBE = y.toListBE ↔ x = y :=
+  toListBE_injective.eq_iff
+
+@[simp]
+theorem toListBE_nil : toListBE nil = [] := by
+  simp [toListBE]
+
+
+@[simp]
+theorem toListBE_cons (b : Bool) (x : BitVec w) :
+    toListBE (cons b x) = b :: toListBE x := by
+  ext i bi
+  by_cases h : i < w + 1
+  · repeat rw [List.getElem?_eq_getElem (by simpa)]
+    simp only [Option.some.injEq]
+    rw [getElem_toListBE, getElem_cons]
+    cases i with
+    | zero => simp
+    | succ i' =>
+      rw [dif_neg]
+      simp only [Nat.reduceSubDiff, List.getElem_cons_succ, getElem_toListBE]
+      omega
   · repeat rw [List.getElem?_eq_none (by simp; omega)]
+
+@[simp]
+theorem toListBE_concat (b : Bool) (x : BitVec w) :
+    toListBE (concat x b) = toListBE x ++ [b] := by
+  ext i bi
+  by_cases h : i < w + 1
+  · repeat rw [List.getElem?_eq_getElem (by simpa)]
+    simp only [getElem_toListBE, Option.some.injEq]
+    by_cases h' : i = w
+    · repeat rw [List.getElem?_eq_getElem (by simp)]
+      rw [getElem_concat, List.getElem_append_right (by simp only [length_toListBE]; omega), dif_pos (by omega)]
+      simp
+    · rw [getElem_concat, List.getElem_append_left (by simp; omega), dif_neg (by omega)]
+      simp [show w + 1 - i - 1 - 1 = w - i - 1 by omega]
+  · repeat rw [List.getElem?_eq_none (by simp; omega)]
+
+/--
+Round-trip: `ofBoolListLE` and `toList` are inverses.
+-/
+@[simp]
+theorem toList_ofBoolListLE (l : List Bool) : (ofBoolListLE l).toList = l := by
+  induction l with
+  | nil => simp [ofBoolListLE, ←ofNat_eq_ofNat]
+  | cons b bs ih => simp [ofBoolListLE, ih]
+
+@[simp]
+theorem toList_cast {w v : Nat} (h : w = v) (x : BitVec w) : (x.cast h).toList = x.toList := by
+  subst h
+  rfl
+
+@[simp]
+theorem cons_cast {w v : Nat} (h : w = v) (b : Bool) (x : BitVec w) :
+    cons b (x.cast h) = (cons b x).cast (by simp [h]) := by
+  subst h
+  rfl
+
+theorem ofBoolListLE_append_cons (l : List Bool) (b : Bool) :
+    ofBoolListLE (l ++ [b]) = (cons b (ofBoolListLE l)).cast (by simp) := by
+  apply toList_injective
+  simp [toList_ofBoolListLE, toList_cons]
+
+theorem ofBoolListLE_congr {l1 l2 : List Bool} (h : l1 = l2) :
+    ofBoolListLE l1 = (ofBoolListLE l2).cast (by rw [h]) := by
+  subst h
+  rfl
+
+/--
+Round-trip: `toList` and `ofBoolListLE` are inverses.
+-/
+@[simp]
+theorem ofBoolListLE_toList (x : BitVec w) : ofBoolListLE x.toList = x.cast (by simp) := by
+  induction x using BitVec.induction with
+  | nil => rfl
+  | cons b x' ih =>
+    calc ofBoolListLE (cons b x').toList
+      _ = (ofBoolListLE ((toList x').concat b)).cast (by rw [toList_cons b x']) := by
+        apply ofBoolListLE_congr
+        exact toList_cons b x'
+      _ = (cons b x').cast (by simp) := by
+        rw [ofBoolListLE_congr List.concat_eq_append,
+            ofBoolListLE_append_cons,
+            ih]
+        simp
+-- /--
+-- Round-trip: `ofBoolListBE` and `toListBE` are inverses.
+-- -/
+-- @[simp]
+-- theorem toListBE_ofBoolListBE (l : List Bool) : (ofBoolListBE l).toListBE = l := by
+--   induction l with
+--   | nil => simp [ofBoolListBE]
+--   | cons b bs ih => simp [ofBoolListBE, ih]
+--
+-- /--
+-- Round-trip: `toListBE` and `ofBoolListBE` are inverses.
+-- -/
+-- @[simp]
+-- theorem ofBoolListBE_toListBE (x : BitVec w) : ofBoolListBE x.toListBE = x.cast (by simp) := by
+--   sorry
 
 /--
 Convert a bitvector to an array of bools (LSB first).
@@ -222,6 +339,19 @@ theorem toArray_ofArray (a : Array Bool) : (ofArray a.size a).toArray = a := by
 @[simp]
 theorem toArray_nil : toArray nil = #[] := by
   simp [toArray]
+
+@[simp]
+theorem toArray_concat (x : BitVec w) (b : Bool) :
+    toArray (concat x b) = #[b] ++ toArray x := by
+  apply Array.ext
+  · simp; omega
+  · intro i h
+    simp only [size_toArray] at h
+    simp only [getElem_toArray, getElem_concat (h := h)]
+    split
+    · simp_all
+    · have : 1 <= i := by omega
+      simp_all
 
 theorem toArray_eq_toList_toArray (x : BitVec w) : x.toArray = x.toList.toArray := by
   ext i h₁ h₂ <;> simp
@@ -302,8 +432,15 @@ theorem toVector_ofVector (v : Vector Bool w) : (ofVector v).toVector = v := by
 
 @[simp]
 theorem toVector_nil : toVector nil = #v[] := by
-  ext 
+  ext
   contradiction
+
+@[simp]
+theorem toVector_concat (x : BitVec w) (b : Bool) :
+    toVector (concat x b) = Vector.mk (#[b] ++ x.toArray) (by simp +arith) := by
+  apply Vector.ext
+  intro i
+  simp [toVector, Vector.getElem_mk]
 
 theorem toList_toVector (x : BitVec w) : x.toVector.toList = x.toList := by
   simp [Vector.toList, toVector]

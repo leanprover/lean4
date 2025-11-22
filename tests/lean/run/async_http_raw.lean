@@ -8,29 +8,29 @@ structure Result where
   responseSent : Nat
   data : ByteArray
 
-def sendraw (client : Mock.Link) (reqs: Array ByteArray) (onRequest : Request Body → Async (Response Body)) : IO ByteArray := Async.block do
-  for req in reqs do
-    client.enqueueReceive req
+/-- Convert an HTTP request to a byte array, optionally using chunked encoding. -/
+def toByteArray (req : Request (Array Chunk)) (chunked := false) : IO ByteArray := Async.block do
+  let mut data := String.toUTF8 <| toString req.head
+  let toByteArray (part : Chunk) := Internal.Encode.encode .v11 .empty part |>.toByteArray
+  for part in req.body do data := data ++ (if chunked then toByteArray part else part.data)
+  if chunked then data := data ++ toByteArray (Chunk.mk .empty .empty)
+  return data
 
-  Std.Http.Server.serveConnection client onRequest (config := { lingeringTimeout := 3000 })
-
-  client.getSentData
-
-def sendRequests (client : Mock.Link) (reqs : Array (Request (Array String))) (onRequest : Request Body → Async (Response Body)) (maximum : Nat := 99999) : IO ByteArray := Async.block do
+/-- Send multiple requests through a mock connection and return the response data. -/
+def sendRequests (pair : Mock.Client × Mock.Server) (reqs : Array (Request (Array Chunk)))
+    (onRequest : Request Body → Async (Response Body))
+    (chunked : Bool := false) : IO ByteArray := Async.block do
+  let (client, server) := pair
   let mut data := .empty
+  for req in reqs do data := data ++ (← toByteArray req chunked)
 
-  for req in reqs do
-    data := data ++ (String.toUTF8 <| toString req.head)
-    for part in req.body do
-      data := data ++ part.toUTF8
+  client.send data
+  Std.Http.Server.serveConnection server onRequest (config := { lingeringTimeout := 3000 })
 
-  client.enqueueReceive (data.extract 0 maximum)
+  let res ← client.recv?
+  pure <| res.getD .empty
 
-  Std.Http.Server.serveConnection client onRequest (config := { lingeringTimeout := 3000 })
-
-  client.getSentData
-
-def testSizeLimit (client : Mock.Link) : IO Unit := do
+def testSizeLimit (pair : Mock.Client × Mock.Server) : IO Unit := do
   let handler := fun (req : Request Body) => do
     let mut size := 0
     for i in req.body do
@@ -45,23 +45,23 @@ def testSizeLimit (client : Mock.Link) : IO Unit := do
       |>.status .ok
       |>.body "hello robert"
 
-  let response ← sendRequests client #[
+  let response ← sendRequests pair #[
      Request.new
       |>.uri! "/ata/po"
       |>.header "Content-Length" (.new "4")
       |>.header "Host" (.new ".")
-      |>.body #["test"],
+      |>.body #[.mk "test".toUTF8 #[]],
     Request.new
       |>.uri! "/ata/po"
       |>.header "Content-Length" (.new "13")
       |>.header "Connection" (.new "close")
       |>.header "Host" (.new ".")
-      |>.body #["testtesttests"],
+      |>.body #[.mk "testtesttests".toUTF8 #[]],
      Request.new
       |>.uri! "/ata/po"
       |>.header "Content-Length" (.new "4")
       |>.header "Host" (.new ".")
-      |>.body #["test"],
+      |>.body #[.mk "test".toUTF8 #[]],
   ] handler
 
   let responseData := String.fromUTF8! response
@@ -71,10 +71,10 @@ def testSizeLimit (client : Mock.Link) : IO Unit := do
 info: "HTTP/1.1 200 OK\x0d\nContent-Length: 12\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nhello robertHTTP/1.1 413 Request Entity Too Large\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 -/
 #guard_msgs in
-#eval show IO _ from do testSizeLimit (← Mock.Link.new)
+#eval show IO _ from do testSizeLimit (← Mock.new)
 
 def testBasicRequest : IO Unit := do
-  let client ← Mock.Link.new
+  let pair ← Mock.new
 
   let handler := fun (_ : Request Body) => do
     return Response.new
@@ -83,7 +83,7 @@ def testBasicRequest : IO Unit := do
       |>.header "Connection" (.new "close")
       |>.body "Hello World"
 
-  let response ← sendRequests client #[
+  let response ← sendRequests pair #[
     Request.new
       |>.uri! "/hello"
       |>.header "Host" (.new "localhost")
@@ -91,7 +91,7 @@ def testBasicRequest : IO Unit := do
       |>.header "Connection" (.new "close")
       |>.header "Content-Length" (.new "0")
       |>.method .get
-      |>.body #[""]
+      |>.body #[.mk "".toUTF8 #[]]
   ] handler
 
   let responseData := String.fromUTF8! response
@@ -102,8 +102,9 @@ info: "HTTP/1.1 200 OK\x0d\nContent-Length: 11\x0d\nConnection: close\x0d\nCusto
 -/
 #guard_msgs in
 #eval show IO _ from do testBasicRequest
+
 def testPostRequest : IO Unit := do
-  let client ← Mock.Link.new
+  let pair ← Mock.new
 
   let handler := fun (req : Request Body) => do
     let mut body := ""
@@ -116,7 +117,7 @@ def testPostRequest : IO Unit := do
       |>.header "Connection" (.new "close")
       |>.body s!"Received: {body}"
 
-  let response ← sendRequests client #[
+  let response ← sendRequests pair #[
     Request.new
       |>.uri! "/api/data"
       |>.method .post
@@ -124,14 +125,14 @@ def testPostRequest : IO Unit := do
       |>.header "Content-Type" (.new "application/json")
       |>.header "Content-Length" (.new "25")
       |>.header "Connection" (.new "close")
-      |>.body #["{\"name\": \"test\", \"id\": 1}"]
+      |>.body #[.mk "{\"name\": \"test\", \"id\": 1}".toUTF8 #[]]
   ] handler
 
   let responseData := String.fromUTF8! response
   IO.println s!"{responseData.quote}"
 
 def test100Continue : IO Unit := do
-  let client ← Mock.Link.new
+  let pair ← Mock.new
 
   let handler := fun (req : Request Body) => do
     let expectHeader := req.head.headers.getLast? "Expect" |>.getD (.new "")
@@ -145,7 +146,7 @@ def test100Continue : IO Unit := do
         |>.status .ok
         |>.body "Request processed"
 
-  let response ← sendRequests client #[
+  let response ← sendRequests pair #[
     Request.new
       |>.uri! "/"
       |>.method .get
@@ -153,7 +154,7 @@ def test100Continue : IO Unit := do
       |>.header "Content-Length" (.new "1")
       |>.header "Expect" (.new "100-continue")
       |>.header "Connection" (.new "close")
-      |>.body #["a"]
+      |>.body #[.mk "a".toUTF8 #[]]
   ] handler
 
   let responseData := String.fromUTF8! response
@@ -166,7 +167,7 @@ info: "HTTP/1.1 100 Continue\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\n
 #eval show IO _ from do test100Continue
 
 def testMaxRequestSize : IO Unit := do
-  let client ← Mock.Link.new
+  let pair ← Mock.new
 
   let handler := fun (req : Request Body) => do
     let mut totalSize := 0
@@ -188,7 +189,7 @@ def testMaxRequestSize : IO Unit := do
     |> ByteArray.mk
     |> String.fromUTF8!
 
-  let response ← sendRequests client #[
+  let response ← sendRequests pair #[
     Request.new
       |>.uri! "/upload"
       |>.method .post
@@ -196,7 +197,7 @@ def testMaxRequestSize : IO Unit := do
       |>.header "Content-Type" (.new "text/plain")
       |>.header "Content-Length" (.ofString! s!"{largeData.length}")
       |>.header "Connection" (.new "close")
-      |>.body #[largeData]
+      |>.body #[.mk largeData.toUTF8 #[]]
   ] handler
 
   let responseData := String.fromUTF8! response
@@ -209,7 +210,7 @@ info: "HTTP/1.1 413 Request Entity Too Large\x0d\nContent-Length: 48\x0d\nConnec
 #eval show IO _ from do testMaxRequestSize
 
 def testCut : IO Unit := do
-  let client ← Mock.Link.new
+  let pair ← Mock.new
 
   let handler := fun (req : Request Body) => do
     if req.head.headers.hasEntry "Accept" "application/json" then
@@ -228,7 +229,7 @@ def testCut : IO Unit := do
         |>.header "Content-Type" (.new "text/plain")
         |>.body "Plain text response"
 
-  let response ← sendRequests (maximum := 140) client #[
+  let response ← sendRequests pair #[
     Request.new
       |>.uri! "/api/content"
       |>.method .post
@@ -236,14 +237,14 @@ def testCut : IO Unit := do
       |>.header "Accept" (.new "application/json")
       |>.header "Content-Type" (.new "application/json")
       |>.header "Content-Length" (.new "18")
-      |>.body #["{\"request\": \"data\"}"],
+      |>.body #[.mk "{\"request\": \"data\"}".toUTF8 #[]],
     Request.new
       |>.uri! "/api/content"
       |>.method .get
       |>.header "Host" (.new "localhost")
       |>.header "Accept" (.new "text/xml")
       |>.header "Content-Length" (.new "1")
-      |>.body #["a"]
+      |>.body #[.mk "a".toUTF8 #[]]
   ] handler
 
   let responseData := String.fromUTF8! response
@@ -261,9 +262,10 @@ info: "HTTP/1.1 200 OK\x0d\nContent-Length: 35\x0d\nConnection: close\x0d\nServe
 -/
 #guard_msgs in
 #eval show IO _ from do testPostRequest
+-/
 
 def testContentNegotiation : IO Unit := do
-  let client ← Mock.Link.new
+  let pair ← Mock.new
 
   let handler := fun (req : Request Body) => do
     if req.head.headers.hasEntry "Accept" "application/json" then
@@ -282,7 +284,7 @@ def testContentNegotiation : IO Unit := do
         |>.header "Content-Type" (.new "text/plain")
         |>.body "Plain text response"
 
-  let response ← sendRequests (maximum := 240) client #[
+  let response ← sendRequests pair #[
     Request.new
       |>.uri! "/api/content"
       |>.method .post
@@ -290,14 +292,14 @@ def testContentNegotiation : IO Unit := do
       |>.header "Accept" (.new "application/json")
       |>.header "Content-Type" (.new "application/json")
       |>.header "Content-Length" (.new "19")
-      |>.body #["{\"request\": \"data\"}"],
+      |>.body #[.mk "{\"request\": \"data\"}".toUTF8 #[]],
     Request.new
       |>.uri! "/api/content"
       |>.method .get
       |>.header "Host" (.new "localhost")
       |>.header "Accept" (.new "text/xml")
       |>.header "Content-Length" (.new "1")
-      |>.body #["a"]
+      |>.body #[.mk "a".toUTF8 #[]]
   ] handler
 
   let responseData := String.fromUTF8! response
@@ -310,7 +312,7 @@ info: "HTTP/1.1 202 Accepted\x0d\nContent-Length: 50\x0d\nServer: LeanHTTP/1.1\x
 #eval show IO _ from do testContentNegotiation
 
 def testContentNegotiationError : IO Unit := do
-  let client ← Mock.Link.new
+  let pair ← Mock.new
 
   let handler := fun (req : Request Body) => do
     if req.head.headers.hasEntry "Accept" "application/json" then
@@ -329,7 +331,7 @@ def testContentNegotiationError : IO Unit := do
         |>.header "Content-Type" (.new "text/plain")
         |>.body "Plain text response"
 
-  let response ← sendRequests (maximum := 140) client #[
+  let response ← sendRequests pair #[
     Request.new
       |>.uri! "/api/content"
       |>.method .post
@@ -337,22 +339,21 @@ def testContentNegotiationError : IO Unit := do
       |>.header "Accept" (.new "application/json")
       |>.header "Content-Type" (.new "application/json")
       |>.header "Content-Length" (.new "18")
-      |>.body #["{\"request\": \"data\"}"],
+      |>.body #[.mk "{\"request\": \"data\"}".toUTF8 #[]],
     Request.new
       |>.uri! "/api/content"
       |>.method .get
       |>.header "Host" (.new "localhost")
       |>.header "Accept" (.new "text/xml")
       |>.header "Content-Length" (.new "1")
-      |>.body #["a"]
+      |>.body #[.mk "a".toUTF8 #[]]
   ] handler
 
   let responseData := String.fromUTF8! response
   IO.println s!"{responseData.quote}"
 
 /--
-info: "HTTP/1.1 202 Accepted\x0d\nContent-Length: 50\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: application/json\x0d\n\x0d\n{\"message\": \"JSON response\", \"status\": \"accepted\"}HTTP/1.1 400 Bad Request\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+info: "HTTP/1.1 202 Accepted\x0d\nContent-Length: 50\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: application/json\x0d\n\x0d\n{\"message\": \"JSON response\", \"status\": \"accepted\"}HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 -/
 #guard_msgs in
 #eval show IO _ from do testContentNegotiationError
--/

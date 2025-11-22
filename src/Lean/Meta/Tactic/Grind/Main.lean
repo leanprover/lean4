@@ -215,16 +215,7 @@ private def addHypotheses (goal : Goal) : GrindM Goal := GoalM.run' goal do
       | none => add r.expr localDecl.toExpr
       | some h => add r.expr <| mkApp4 (mkConst ``Eq.mp [0]) type r.expr h localDecl.toExpr
     else
-      /-
-      **Note**: We must internalize local variables because their types may be empty, and may not be
-      referenced anywhere else. Example:
-      ```
-      example (a : { x : Int // x < 0 ∧ x > 0 }) : False := by grind
-      ```
-      -/
-      let e ← shareCommon localDecl.toExpr
-      internalize e 0
-  processNewFacts
+      internalizeLocalDecl localDecl
 
 private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
   /-

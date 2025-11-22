@@ -38,7 +38,7 @@ def testSizeLimit (pair : Mock.Client × Mock.Server) : IO Unit := do
       if size > 10 then
         return Response.new
         |>.status .payloadTooLarge
-        |>.header "Connection" (.new "close")
+        |>.header! "Connection" "close"
         |>.body Body.zero
 
     return Response.new
@@ -48,19 +48,19 @@ def testSizeLimit (pair : Mock.Client × Mock.Server) : IO Unit := do
   let response ← sendRequests pair #[
      Request.new
       |>.uri! "/ata/po"
-      |>.header "Content-Length" (.new "4")
-      |>.header "Host" (.new ".")
+      |>.header! "Content-Length" "4"
+      |>.header! "Host" "."
       |>.body #[.mk "test".toUTF8 #[]],
     Request.new
       |>.uri! "/ata/po"
-      |>.header "Content-Length" (.new "13")
-      |>.header "Connection" (.new "close")
-      |>.header "Host" (.new ".")
+      |>.header! "Content-Length" "13"
+      |>.header! "Connection" "close"
+      |>.header! "Host" "."
       |>.body #[.mk "testtesttests".toUTF8 #[]],
      Request.new
       |>.uri! "/ata/po"
-      |>.header "Content-Length" (.new "4")
-      |>.header "Host" (.new ".")
+      |>.header! "Content-Length" "4"
+      |>.header! "Host" "."
       |>.body #[.mk "test".toUTF8 #[]],
   ] handler
 
@@ -79,7 +79,7 @@ def testSizeLimit (pair : Mock.Client × Mock.Server) : IO Unit := do
         if size > 100 then
           return Response.new
           |>.status .payloadTooLarge
-          |>.header "Connection" (.new "close")
+          |>.header! "Connection" "close"
           |>.body Body.zero
 
 

@@ -150,7 +150,7 @@ def setMessageHead (messageHead : Message.Head dir) (reader : Reader dir) : Read
 Adds a header to the current message head.
 -/
 @[inline]
-def addHeader (name : String) (value : HeaderValue) (reader : Reader dir) : Reader dir :=
+def addHeader (name : HeaderName) (value : HeaderValue) (reader : Reader dir) : Reader dir :=
   match dir with
   | .sending => { reader with messageHead := { reader.messageHead with headers := reader.messageHead.headers.insert name value } }
   | .receiving => { reader with messageHead := { reader.messageHead with headers := reader.messageHead.headers.insert name value } }
@@ -252,7 +252,7 @@ def markNoMoreInput (reader : Reader dir) : Reader dir :=
 Checks if the connection should be kept alive for the next message.
 -/
 def shouldKeepAlive (reader : Reader dir) : Bool :=
-  match reader.messageHead.headers.get "connection" with
+  match reader.messageHead.headers.get (.new "connection") with
   | some val => let s := val.value.toLower; s == "keep-alive" || s == "keepalive"
   | none => true
 

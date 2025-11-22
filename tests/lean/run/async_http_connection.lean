@@ -62,19 +62,22 @@ def isBasicGetRequest (req : Request Body) (uri : String) (host : String) : Bool
   req.head.method == .get ∧
   req.head.version == .v11 ∧
   toString req.head.uri = uri ∧
-  req.head.headers.hasEntry "Host" host
+  req.head.headers.hasEntry (.new "Host") host
 
 /-- Check if request has a specific Content-Length header. -/
 def hasContentLength (req : Request Body) (length : String) : Bool :=
-  req.head.headers.hasEntry "Content-Length" length
+  req.head.headers.hasEntry (.new "Content-Length") length
 
 /-- Check if request uses chunked transfer encoding. -/
 def isChunkedRequest (req : Request Body) : Bool :=
-  req.head.headers.hasEntry "Transfer-Encoding" "chunked"
+  req.head.headers.hasEntry (.new "Transfer-Encoding") "chunked"
 
 /-- Check if request has a specific header with a specific value. -/
 def hasHeader (req : Request Body) (name : String) (value : String) : Bool :=
-  req.head.headers.hasEntry name value
+  if let some name := HeaderName.ofString? name then
+    req.head.headers.hasEntry name value
+  else
+    false
 
 /-- Check if request method matches the expected method. -/
 def hasMethod (req : Request Body) (method : Method) : Bool :=
@@ -92,8 +95,8 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .get
     |>.uri! "/"
-    |>.header "Host" (.new "example.com")
-    |>.header "Content-Length" (.new "7")
+    |>.header! "Host" "example.com"
+    |>.header! "Content-Length" "7"
     |>.body #[.mk "survive".toUTF8 #[]]
 
   handler := fun req => do
@@ -110,7 +113,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .get
     |>.uri! "/api/users"
-    |>.header "Host" (.new "api.example.com")
+    |>.header! "Host" "api.example.com"
     |>.body #[]
 
   handler := fun req => do
@@ -126,9 +129,9 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .post
     |>.uri! "/api/users"
-    |>.header "Host" (.new "api.example.com")
-    |>.header "Content-Type" (.new "application/json")
-    |>.header "Content-Length" (.new "20")
+    |>.header! "Host" "api.example.com"
+    |>.header! "Content-Type" "application/json"
+    |>.header! "Content-Length" "20"
     |>.body #[.mk "{\"name\":\"Alice\"}".toUTF8 #[]]
 
   handler := fun req => do
@@ -144,7 +147,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .delete
     |>.uri! "/api/users/123"
-    |>.header "Host" (.new "api.example.com")
+    |>.header! "Host" "api.example.com"
     |>.body #[]
 
   handler := fun req => do
@@ -161,7 +164,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .head
     |>.uri! "/api/users"
-    |>.header "Host" (.new "api.example.com")
+    |>.header! "Host" "api.example.com"
     |>.body #[]
 
   handler := fun req => do
@@ -178,14 +181,14 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .options
     |>.uri! "*"
-    |>.header "Host" (.new "api.example.com")
+    |>.header! "Host" "api.example.com"
     |>.body #[]
 
   handler := fun req => do
     if hasMethod req .options
     then return Response.new
       |>.status .ok
-      |>.header "Allow" (.new "GET, POST, PUT, DELETE, OPTIONS")
+      |>.header! "Allow" "GET, POST, PUT, DELETE, OPTIONS"
       |>.body ""
     else return Response.badRequest
 
@@ -198,10 +201,10 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .get
     |>.uri! "/api/data"
-    |>.header "Host" (.new "api.example.com")
-    |>.header "Accept" (.new "application/json")
-    |>.header "User-Agent" (.new "TestClient/1.0")
-    |>.header "Authorization" (.new "Bearer token123")
+    |>.header! "Host" "api.example.com"
+    |>.header! "Accept" "application/json"
+    |>.header! "User-Agent" "TestClient/1.0"
+    |>.header! "Authorization" "Bearer token123"
     |>.body #[]
 
   handler := fun req => do
@@ -218,7 +221,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .get
     |>.uri! "/api/search?q=test&limit=10"
-    |>.header "Host" (.new "api.example.com")
+    |>.header! "Host" "api.example.com"
     |>.body #[]
 
   handler := fun req => do
@@ -235,8 +238,8 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .post
     |>.uri! "/api/trigger"
-    |>.header "Host" (.new "api.example.com")
-    |>.header "Content-Length" (.new "0")
+    |>.header! "Host" "api.example.com"
+    |>.header! "Content-Length" "0"
     |>.body #[]
 
   handler := fun req => do
@@ -253,7 +256,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .get
     |>.uri! "/api/large"
-    |>.header "Host" (.new "api.example.com")
+    |>.header! "Host" "api.example.com"
     |>.body #[]
 
   handler := fun _ => do
@@ -269,7 +272,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .get
     |>.uri! "/api/teapot"
-    |>.header "Host" (.new "api.example.com")
+    |>.header! "Host" "api.example.com"
     |>.body #[]
 
   handler := fun _ => do
@@ -285,7 +288,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .get
     |>.uri! "/api/users/%C3%A9"
-    |>.header "Host" (.new "api.example.com")
+    |>.header! "Host" "api.example.com"
     |>.body #[]
   handler := fun req => do
     if hasUri req "/api/users/%C3%A9"
@@ -300,15 +303,15 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .get
     |>.uri! "/api/data"
-    |>.header "Host" (.new "api.example.com")
-      |>.header "Cache-Control" (.new "no-cache")
+    |>.header! "Host" "api.example.com"
+      |>.header! "Cache-Control" "no-cache"
     |>.body #[]
 
   handler := fun _ => do
     return Response.new
       |>.status .ok
-      |>.header "Cache-Control" (.new "no-cache")
-      |>.header "X-Custom-Header" (.new "custom-value")
+      |>.header! "Cache-Control" "no-cache"
+      |>.header! "X-Custom-Header" "custom-value"
       |>.body "data"
 
   expected := "HTTP/1.1 200 OK\x0d\nX-Custom-Header: custom-value\x0d\nContent-Length: 4\x0d\nServer: LeanHTTP/1.1\x0d\nCache-Control: no-cache\x0d\n\x0d\ndata"
@@ -320,9 +323,9 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .post
     |>.uri! "/api/xml"
-    |>.header "Host" (.new "api.example.com")
-    |>.header "Content-Type" (.new "application/xml")
-    |>.header "Content-Length" (.new "17")
+    |>.header! "Host" "api.example.com"
+    |>.header! "Content-Type" "application/xml"
+    |>.header! "Content-Length" "17"
     |>.body #[.mk "<data>test</data>".toUTF8 #[]]
 
   handler := fun req => do
@@ -339,9 +342,9 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .post
     |>.uri! "/api/xml"
-    |>.header "Host" (.new "api.example.com")
-    |>.header "Content-Type" (.new "application/xml")
-    |>.header "Content-Length" (.new "17")
+    |>.header! "Host" "api.example.com"
+    |>.header! "Content-Type" "application/xml"
+    |>.header! "Content-Length" "17"
     |>.body #[.mk "<data>test</data>".toUTF8 #[]]
 
   handler := fun req => do
@@ -358,7 +361,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .get
     |>.uri! "/stream"
-    |>.header "Host" (.new "example.com")
+    |>.header! "Host" "example.com"
     |>.body #[]
 
   handler := fun req => do
@@ -371,7 +374,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
         discard <| stream.write s!"chunk{i}\n".toUTF8
       stream.close
 
-    return Response.ok stream (.empty |>.insert "Content-Length" (.new "21"))
+    return Response.ok stream (.empty |>.insert (.new "Content-Length") (.new "21"))
 
   expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 21\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nchunk0\nchunk1\nchunk2\n"
 }
@@ -382,7 +385,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .get
     |>.uri! "/stream-sized"
-    |>.header "Host" (.new "example.com")
+    |>.header! "Host" "example.com"
     |>.body #[]
 
   handler := fun req => do
@@ -406,7 +409,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .get
     |>.uri! "/stream-chunked"
-    |>.header "Host" (.new "example.com")
+    |>.header! "Host" "example.com"
     |>.body #[]
 
   handler := fun req => do
@@ -427,8 +430,8 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .post
     |>.uri! "/"
-    |>.header "Host" (.new "example.com")
-    |>.header "Transfer-Encoding" (.new "chunked")
+    |>.header! "Host" "example.com"
+    |>.header! "Transfer-Encoding" "chunked"
     |>.body #[
       .mk "data1".toUTF8 #[],
       .mk "data2".toUTF8 #[]
@@ -442,7 +445,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
         for i in [0:2] do
           discard <| stream.write s!"response{i}".toUTF8
         stream.close
-      return Response.ok stream (.empty |>.insert "Content-Length" (.new "18"))
+      return Response.ok stream (.empty |>.insert "Content-Length" "18")
     else
       return Response.badRequest "not chunked"
 
@@ -456,8 +459,8 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .post
     |>.uri! "/"
-    |>.header "Host" (.new "example.com")
-    |>.header "Transfer-Encoding" (.new "chunked")
+    |>.header! "Host" "example.com"
+    |>.header! "Transfer-Encoding" "chunked"
     |>.body #[
       .mk "data1".toUTF8 #[],
       .mk "data2".toUTF8 #[]
@@ -471,7 +474,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
         for i in [0:2] do
           discard <| stream.write s!"response{i}".toUTF8
         stream.close
-      return Response.ok stream (.empty |>.insert "Content-Length" (.new "18"))
+      return Response.ok stream (.empty |>.insert "Content-Length" "18")
     else
       return Response.badRequest "not chunked"
 
@@ -491,13 +494,13 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .head
     |>.uri! "/api/users"
-    |>.header "Host" (.new "api.example.com")
-    |>.header bigString (.new "a")
+    |>.header! "Host" "api.example.com"
+    |>.header! bigString "a"
     |>.body #[]
 
   handler := fun req => do
     if hasMethod req .head
-    then return Response.ok "" (Headers.empty |>.insert bigString (.new "ata"))
+    then return Response.ok "" (Headers.empty |>.insert bigString "ata")
     else return Response.notFound
   expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }
@@ -509,7 +512,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     Request.new
     |>.method .get
     |>.uri (.originForm (.mk #[String.mk (List.replicate 2000 'a')] true) none none)
-    |>.header "Host" (.new "api.example.com")
+    |>.header! "Host" "api.example.com"
     |>.body #[]
 
   handler := fun req => do
@@ -526,7 +529,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     Request.new
     |>.method .get
     |>.uri (.originForm (.mk #[String.mk (List.replicate 200 'a')] true) none none)
-    |>.header "Host" (.ofString! (String.mk (List.replicate 8230 'a')))
+    |>.header! "Host" (.ofString! (String.mk (List.replicate 8230 'a')))
     |>.body #[]
 
   handler := fun req => do
@@ -542,10 +545,10 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     let mut req := Request.new
       |>.method .get
       |>.uri! "/api/data"
-      |>.header "Host" (.new "api.example.com")
+      |>.header! "Host" "api.example.com"
 
     for i in [0:101] do
-      req := req |>.header s!"X-Header-{i}" (.ofString! s!"value{i}")
+      req := req |>.header! s!"X-Header-{i}" (.ofString! s!"value{i}")
 
     return req |>.body #[]
 
@@ -561,8 +564,8 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request := Request.new
     |>.method .get
     |>.uri! "/api/test"
-    |>.header "Host" (.new "api.example.com")
-    |>.header "X-Long-Value" (.ofString! (String.mk (List.replicate 9000 'x')))
+    |>.header! "Host" "api.example.com"
+    |>.header! "X-Long-Value" (.ofString! (String.mk (List.replicate 9000 'x')))
     |>.body #[]
 
   handler := fun _ => do
@@ -578,10 +581,10 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     let mut req := Request.new
       |>.method .get
       |>.uri! "/api/data"
-      |>.header "Host" (.new "api.example.com")
+      |>.header! "Host" "api.example.com"
 
     for i in [0:200] do
-      req := req |>.header s!"X-Header-{i}" (.ofString! (String.mk (List.replicate 200 'a')))
+      req := req |>.header! s!"X-Header-{i}" (.ofString! (String.mk (List.replicate 200 'a')))
     return req |>.body #[]
 
   handler := fun _ => do

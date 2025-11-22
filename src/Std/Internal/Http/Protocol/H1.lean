@@ -85,10 +85,6 @@ structure Machine (dir : Direction) where
 
 namespace Machine
 
--- =============================================================================
--- Basic Modifiers
--- =============================================================================
-
 @[inline]
 private def modifyWriter (machine : Machine dir) (fn : Writer dir → Writer dir) : Machine dir :=
   { machine with writer := fn machine.writer }
@@ -138,14 +134,14 @@ private def updateKeepAlive (machine : Machine dir) (should : Bool) : Machine di
 
 @[inline]
 private def hasConnectionClose (headers : Headers) : Bool :=
-  headers.getLast? "Connection" |>.map (·.is "close") |>.getD false
+  headers.getLast? (.new "Connection") |>.map (·.is "close") |>.getD false
 
 @[inline]
 def shouldKeepAlive (message : Message.Head dir) : Bool :=
-  ¬message.headers.hasEntry "Connection" "close" ∧ message.version = .v11
+  ¬message.headers.hasEntry (.new "Connection") "close" ∧ message.version = .v11
 
 private def extractBodyLengthFromHeaders (headers : Headers) : Option Body.Length :=
-  match (headers.get "Content-Length", headers.hasEntry "Transfer-Encoding" "chunked") with
+  match (headers.get (.new "Content-Length"), headers.hasEntry (.new "Transfer-Encoding") "chunked") with
   | (some cl, false) => cl.value.toNat? >>= (some ∘ Body.Length.fixed)
   | (none, true) => some Body.Length.chunked
   | (some _, true) => some Body.Length.chunked
@@ -153,14 +149,14 @@ private def extractBodyLengthFromHeaders (headers : Headers) : Option Body.Lengt
 
 def getMessageSize (req : Message.Head dir) : Option Body.Length := do
   match dir with
-  | .receiving => guard (req.headers.get "host" |>.isSome)
+  | .receiving => guard (req.headers.get (.new "host") |>.isSome)
   | .sending => pure ()
 
   if let .receiving := dir then
     if req.method == .head ∨ req.method == .connect then
       return .fixed 0
 
-  match (req.headers.get "Content-Length", req.headers.hasEntry "Transfer-Encoding" "chunked") with
+  match (req.headers.get (.new "Content-Length"), req.headers.hasEntry (.new "Transfer-Encoding") "chunked") with
   | (some cl, false) => do
     let num ← cl.value.toNat?
     some (.fixed num)
@@ -206,8 +202,6 @@ def halted (machine : Machine dir) : Bool :=
   | .closed, .closed => machine.writer.outputData.isEmpty
   | _, _ => false
 
--- Parsing
-
 private def parseWith (machine : Machine dir) (parser : Parser α) (limit : Option Nat)
     (expect : Option Nat := none) : Machine dir × Option α :=
   let remaining := machine.reader.input.remainingBytes
@@ -216,8 +210,6 @@ private def parseWith (machine : Machine dir) (parser : Parser α) (limit : Opti
       ({ machine with reader := machine.reader.setInput buffer }, some result)
   | .error it .eof =>
       let usedBytesUntilFailure := remaining - it.remainingBytes
-
-      -- If connection is closed by peer, trigger connectionClosed error instead of needMoreData
       if machine.reader.noMoreInput then
         (machine.setFailure .connectionClosed, none)
       else if let some limit := limit then
@@ -284,23 +276,23 @@ def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : M
   let headers :=
     let identityOpt := machine.config.identityHeader
     match dir, identityOpt with
-    | .receiving, some server => messageHead.headers.insert "Server" server
-    | .sending, some userAgent => messageHead.headers.insert "User-Agent" userAgent
+    | .receiving, some server => messageHead.headers.insert (.new "Server") server
+    | .sending, some userAgent => messageHead.headers.insert (.new "User-Agent") userAgent
     | _, none => messageHead.headers
 
   -- Add Connection: close if needed
   let headers :=
-    if !machine.keepAlive ∧ !headers.hasEntry "Connection" "close" then
-      headers.insert "Connection" (.new "close")
+    if !machine.keepAlive ∧ !headers.hasEntry (.new "Connection") "close" then
+      headers.insert (.new "Connection") (.new "close")
     else
       headers
 
   -- Add Content-Length or Transfer-Encoding if needed
   let headers :=
-    if !(headers.contains "Content-Length" ∨ headers.contains "Transfer-Encoding") then
+    if !(headers.contains (.new "Content-Length") ∨ headers.contains (.new "Transfer-Encoding")) then
       match size with
-      | .fixed n => headers.insert "Content-Length" (.ofString! <| toString n)
-      | .chunked => headers.insert "Transfer-Encoding" (.new "chunked")
+      | .fixed n => headers.insert (.new "Content-Length") (.ofString! <| toString n)
+      | .chunked => headers.insert (.new "Transfer-Encoding") (.new "chunked")
     else
       headers
 
@@ -510,7 +502,7 @@ partial def processRead (machine : Machine dir) : Machine dir :=
       else
         if let some result := result then
           if let some (name, value) := result then
-            if let some headerValue := HeaderValue.ofString? value then
+            if let some (name, headerValue) := Prod.mk <$> HeaderName.ofString? name <*> HeaderValue.ofString? value then
               machine
               |>.modifyReader (.addHeader name headerValue)
               |>.setReaderState (.needHeader (headerCount + 1))

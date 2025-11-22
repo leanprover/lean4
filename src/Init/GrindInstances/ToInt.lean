@@ -116,6 +116,9 @@ instance [NeZero n] : ToInt.Zero (Fin n) (.co 0 n) where
 instance [NeZero n] : ToInt.OfNat (Fin n) (.co 0 n) where
   toInt_ofNat x := by simp; rfl
 
+theorem ofNat_FinZero (n : Nat) [NeZero n] : ToInt.toInt (OfNat.ofNat 0 : Fin n) = 0 := by
+  rw [ToInt.toInt, instToIntFinCoOfNatIntCast, Fin.instOfNat, Fin.ofNat]; simp
+
 instance : ToInt.Add (Fin n) (.co 0 n) where
   toInt_add x y := by rfl
 

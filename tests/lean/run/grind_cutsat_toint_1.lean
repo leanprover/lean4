@@ -83,6 +83,11 @@ example (a : Fin 2) : a ≠ 0 → a ≠ 1 → False := by
 /--
 trace: [grind.lia.model] a := 2
 [grind.lia.model] b := 0
+[grind.lia.model] ↑a := 2
+[grind.lia.model] ↑b := 0
+[grind.lia.model] ↑0 := 0
+[grind.lia.model] ↑1 := 1
+[grind.lia.model] ↑(a + b) := 2
 -/
 #guard_msgs (drop error, trace) in
 set_option trace.grind.lia.model true in
@@ -90,7 +95,10 @@ example (a b : Fin 3) : a > 0 → a ≠ b → a + b ≠ 0 → a + b ≠ 1 → Fa
   grind
 
 -- We use `↑a` when pretty printing `ToInt.toInt a`
-/-- trace: [grind.debug.ring.basis] ↑a + ↑b + -1 * ((↑a + ↑b) % 3) + -3 * ((↑a + ↑b) / 3) = 0 -/
+/--
+trace: [grind.debug.ring.basis] ↑a + ↑b + -1 * ((↑a + ↑b) % 3) + -3 * ((↑a + ↑b) / 3) = 0
+[grind.debug.ring.basis] b = 0
+-/
 #guard_msgs (drop error, trace) in
 set_option trace.grind.debug.ring.basis true in
 example (a b : Fin 3) : a > 0 → a ≠ b → a + b ≠ 0 → a + b ≠ 1 → False := by

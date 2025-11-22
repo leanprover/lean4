@@ -19,110 +19,45 @@ open Std.Iterators
 
 namespace Std.Iterators
 
-/--
-This typeclass provides an iterator for the given element `x : γ`. Usually, instances are provided
-for all elements of a type `γ`.
--/
-class ToIterator {γ : Type u} (x : γ) (m : Type w → Type w') (β : outParam (Type w)) where
-  State : Type w
-  iterMInternal : IterM (α := State) m β
+/-- This typeclass provides an iterator for elements of type `γ`. -/
+class ToIterator (γ : Type u) (m : Type w → Type w') (α β : outParam (Type w)) where
+  iterMInternal (x : γ) : IterM (α := α) m β
 
 /-- Converts `x` into a monadic iterator. -/
 @[always_inline, inline, expose]
-def ToIterator.iterM (x : γ) [ToIterator x m β] : IterM (α := ToIterator.State x m) m β :=
+def ToIterator.iterM (x : γ) [ToIterator γ m α β] : IterM (α := α) m β :=
   ToIterator.iterMInternal (x := x)
 
 /-- Converts `x` into a pure iterator. -/
 @[always_inline, inline, expose]
-def ToIterator.iter (x : γ) [ToIterator x Id β] : Iter (α := ToIterator.State x Id) β :=
+def ToIterator.iter [ToIterator γ Id α β] (x : γ) : Iter (α := α) β :=
   ToIterator.iterM x |>.toIter
 
 /-- Creates a monadic `ToIterator` instance. -/
 @[always_inline, inline, expose]
-def ToIterator.ofM {x : γ} (State : Type w)
-    (iterM : IterM (α := State) m β) :
-    ToIterator x m β where
-  State := State
-  iterMInternal := iterM
+def ToIterator.ofM (α : Type w)
+    (iterM : γ → IterM (α := α) m β) :
+    ToIterator γ m α β where
+  iterMInternal x := iterM x
 
 /-- Creates a pure `ToIterator` instance. -/
 @[always_inline, inline, expose]
-def ToIterator.of {x : γ} (State : Type w)
-    (iter : Iter (α := State) β) :
-    ToIterator x Id β where
-  State := State
-  iterMInternal := iter.toIterM
+def ToIterator.of (α : Type w)
+    (iter : γ → Iter (α := α) β) :
+    ToIterator γ Id α β where
+  iterMInternal x := iter x |>.toIterM
 
-theorem ToIterator.iterM_eq {γ : Type u} {x : γ} {State : Type v} {β : Type v} {it} :
-    letI : ToIterator x Id β := .ofM State it
-    ToIterator.iterM x = it :=
+/-- Replaces `ToIterator.iterM` with its definition. -/
+theorem ToIterator.iterM_eq {γ : Type u} {α β : Type v}
+    {it : γ → IterM (α := α) Id β} {x} :
+    letI : ToIterator γ Id α β := .ofM α it
+    ToIterator.iterM x = it x :=
   rfl
 
-theorem ToIterator.iter_eq {γ : Type u} {x : γ} {State : Type v} {β : Type v} {it} :
-    letI : ToIterator x Id β := .ofM State it
-    ToIterator.iter x = it.toIter :=
-  rfl
-
-/-!
-## Instance forwarding
-
-If the type defined as `ToIterator.State` implements an iterator typeclass, then this typeclass
-should also be available when the type is syntactically visible as `ToIteratorState`. The following
-instances are responsible for this forwarding.
--/
-
-instance {x : γ} {State : Type w} {iter}
-    [Iterator State m β] :
-    letI i : ToIterator x m β := .ofM State iter
-    Iterator (α := i.State) m β :=
-  inferInstanceAs <| Iterator State m β
-
-instance {x : γ} {State : Type w} {iter}
-    [Iterator (α := State) m β] [Finite State m] :
-    letI i : ToIterator x m β := .ofM State iter
-    Finite (α := i.State) m :=
-  inferInstanceAs <| Finite (α := State) m
-
-instance {x : γ} {State : Type w} {iter}
-    [Iterator (α := State) m β] [IteratorCollect State m n] :
-    letI i : ToIterator x m β := .ofM State iter
-    IteratorCollect (α := i.State) m n :=
-  inferInstanceAs <| IteratorCollect (α := State) m n
-
-instance {x : γ} {State : Type w} {iter} [Monad m] [Monad n]
-    [Iterator (α := State) m β] [IteratorCollect State m n] [LawfulIteratorCollect State m n] :
-    letI i : ToIterator x m β := .ofM State iter
-    LawfulIteratorCollect (α := i.State) m n :=
-  inferInstanceAs <| LawfulIteratorCollect (α := State) m n
-
-instance {x : γ} {State : Type w} {iter}
-    [Iterator (α := State) m β] [IteratorCollectPartial State m n] :
-    letI i : ToIterator x m β := .ofM State iter
-    IteratorCollectPartial (α := i.State) m n :=
-  inferInstanceAs <| IteratorCollectPartial (α := State) m n
-
-instance {x : γ} {State : Type w} {iter}
-    [Iterator (α := State) m β] [IteratorLoop State m n] :
-    letI i : ToIterator x m β := .ofM State iter
-    IteratorLoop (α := i.State) m n :=
-  inferInstanceAs <| IteratorLoop (α := State) m n
-
-instance {x : γ} {State : Type w} {iter} [Monad m] [Monad n]
-    [Iterator (α := State) m β] [IteratorLoop State m n] [LawfulIteratorLoop State m n]:
-    letI i : ToIterator x m β := .ofM State iter
-    LawfulIteratorLoop (α := i.State) m n :=
-  inferInstanceAs <| LawfulIteratorLoop (α := State) m n
-
-instance {x : γ} {State : Type w} {iter}
-    [Iterator (α := State) m β] [IteratorLoopPartial State m n] :
-    letI i : ToIterator x m β := .ofM State iter
-    IteratorLoopPartial (α := i.State) m n :=
-  inferInstanceAs <| IteratorLoopPartial (α := State) m n
-
-@[simp]
-theorem ToIterator.state_eq {x : γ} {State : Type w} {iter} :
-    haveI : ToIterator x Id β := .of State iter
-    ToIterator.State x Id = State :=
+/-- Replaces `ToIterator.iter` with its definition. -/
+theorem ToIterator.iter_eq {γ : Type u} {x : γ} {α β : Type v} {it} :
+    letI : ToIterator γ Id α β := .ofM α it
+    ToIterator.iter x = (it x).toIter :=
   rfl
 
 end Std.Iterators

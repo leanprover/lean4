@@ -125,6 +125,39 @@ theorem iunfoldr_replace_snd
     (iunfoldr f a).snd = value := by
   simp [iunfoldr.eq_test state value a init step]
 
+/-!
+## Induction principle
+
+Induction principle for treating `BitVec` as a container, building up from LSB to MSB.
+-/
+
+/--
+Induction principle for bitvectors, viewing them as built from `cons`.
+
+This allows reasoning about bitvectors by induction on their structure:
+- Base case: `nil : BitVec 0`
+- Inductive case: `cons b x : BitVec (w+1)` where `x : BitVec w`
+
+Example usage:
+```lean
+theorem my_theorem (x : BitVec w) : P x := by
+  induction x using BitVec.induction with
+  | nil => -- prove P nil
+  | cons b x ih => -- prove P (cons b x) using ih : P x
+```
+-/
+@[elab_as_elim]
+def induction {motive : ∀ {w}, BitVec w → Prop}
+    (nil : motive nil)
+    (cons : ∀ w (b : Bool) (x : BitVec w), motive x → motive (cons b x))
+    {w : Nat} (x : BitVec w) : motive x := by
+  induction w with
+  | zero =>
+    rw [eq_nil x]
+    exact nil
+  | succ w ih =>
+    rw [←cons_msb_setWidth x]
+    exact cons w x.msb (setWidth w x) (ih (setWidth w x))
 
 /--
 Fold a function over the bits of a bitvector from least significant to most significant.

@@ -1289,6 +1289,23 @@ opaque internalize (e : Expr) (generation : Nat) (parent? : Option Expr := none)
 opaque processNewFacts : GoalM Unit
 
 /--
+Internalizes a local declaration which is not a proposition.
+**Note**: We must internalize local variables because their types may be empty, and may not be
+referenced anywhere else. Example:
+```
+example (a : { x : Int // x < 0 ∧ x > 0 }) : False := by grind
+```
+`etaStruct` may also be applicable.
+-/
+def internalizeLocalDecl (localDecl : LocalDecl) : GoalM Unit := do
+  let e ← shareCommon localDecl.toExpr
+  internalize e 0
+  /-
+  **Note**: `internalize` may add new facts (e.g., `etaStruct` equality)
+  -/
+  processNewFacts
+
+/--
 Returns a proof that `a = b` if they have the same type. Otherwise, returns a proof of `a ≍ b`.
 It assumes `a` and `b` are in the same equivalence class.
 -/

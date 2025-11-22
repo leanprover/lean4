@@ -50,220 +50,176 @@ instance : Transport Socket.Client where
 
 open Internal.IO.Async in
 
-private inductive MockLink.Consumer where
-  | normal (promise : IO.Promise (Option ByteArray))
-  | select (waiter : Waiter (Option ByteArray))
-
-private def MockLink.Consumer.resolve (c : MockLink.Consumer) (data : Option ByteArray) : BaseIO Bool := do
-  match c with
-  | .normal promise =>
-    promise.resolve data
-    return true
-  | .select waiter =>
-    let lose := return false
-    let win promise := do
-      promise.resolve (.ok data)
-      return true
-    waiter.race lose win
-
-private structure MockLink.State where
+/--
+Shared state for a bidirectional mock connection.
+-/
+private structure MockLink.SharedState where
   /--
-  Queue of data to be received by the client.
+  Client to server direction.
   -/
-  receiveQueue : ByteArray := .empty
+  clientToServer : Std.CloseableChannel ByteArray
 
   /--
-  Consumers that are blocked waiting for data.
+  Server to client direction.
   -/
-  consumers : Std.Queue MockLink.Consumer := .empty
-
-  /--
-  Buffer containing all data sent through this client.
-  -/
-  sentData : ByteArray := .empty
-
-  /--
-  Flag indicating whether the connection is closed.
-  -/
-  closed : Bool := false
+  serverToClient : Std.CloseableChannel ByteArray
 
 /--
-Mock client socket for testing HTTP interactions.
+Mock client endpoint for testing.
 -/
-structure Mock.Link where
-  private state : Std.Mutex MockLink.State
-
-namespace Mock.Link
+structure Mock.Client where
+  private shared : MockLink.SharedState
 
 /--
-Create a new mock client with empty buffers.
+Mock server endpoint for testing.
 -/
-def new : BaseIO Mock.Link := do
-  let state ← Std.Mutex.new {
-    receiveQueue := .empty,
-    consumers := .empty,
-    sentData := .empty,
-    closed := false
-  }
-  return { state }
+structure Mock.Server where
+  private shared : MockLink.SharedState
+
+namespace Mock
 
 /--
-Add data to the receive queue for testing and notify any waiting receivers.
+Create a new pair of connected mock clients (client and server).
+They share the same underlying state for bidirectional communication.
 -/
-def enqueueReceive (client : Mock.Link) (data : ByteArray) : BaseIO Unit := do
-  client.state.atomically do
-    let st ← get
-    if st.closed then
-      return ()
+def new : BaseIO (Mock.Client × Mock.Server) := do
+  let first ← Std.CloseableChannel.new
+  let second ← Std.CloseableChannel.new
 
-    let mut newQueue := st.receiveQueue ++ data
-    set { st with receiveQueue := newQueue }
-
-    while true do
-      let st ← get
-      if let some (consumer, consumers) := st.consumers.dequeue? then
-        if st.receiveQueue.size > 0 then
-          discard <| consumer.resolve (some st.receiveQueue)
-          set { st with
-            receiveQueue := .empty,
-            consumers
-          }
-        else
-          break
-      else
-        break
+  return (⟨⟨second, first⟩⟩, ⟨⟨first, second⟩⟩)
 
 /--
-Close the mock connection and notify all waiters.
+Receive data from a channel, joining all available data.
+First does a blocking recv, then greedily consumes all available data with tryRecv.
 -/
-def close (client : Mock.Link) : BaseIO Unit := do
-  client.state.atomically do
-    let st ← get
-    for consumer in st.consumers.toArray do
-      discard <| consumer.resolve none
-
-    set { st with
-      closed := true,
-      consumers := .empty
-    }
+def recvJoined (recvChan : Std.CloseableChannel ByteArray) (_expect : UInt64) : Async (Option ByteArray) := do
+  -- First blocking receive
+  match ← await (← recvChan.recv) with
+  | none => return none
+  | some first =>
+    let mut result := first
+    repeat
+      match ← recvChan.tryRecv with
+      | none => break
+      | some chunk => result := result ++ chunk
+    return some result
 
 /--
-Get all data that was sent through this client.
+Send a single ByteArray through a channel.
 -/
-def getSentData (client : Mock.Link) : BaseIO ByteArray :=
-  client.state.atomically do
-    let st ← get
-    return st.sentData
+def send (sendChan : Std.CloseableChannel ByteArray) (data : ByteArray) : Async Unit := do
+  Async.ofAsyncTask ((← sendChan.send data) |>.map (Except.mapError (IO.userError ∘ toString)))
 
 /--
-Clear the sent data buffer.
+Send all ByteArrays through a channel.
 -/
-def clearSentData (client : Mock.Link) : BaseIO Unit :=
-  client.state.atomically do
-    modify fun st => { st with sentData := .empty }
+def sendAll (sendChan : Std.CloseableChannel ByteArray) (data : Array ByteArray) : Async Unit := do
+  for chunk in data do
+    Async.ofAsyncTask ((← sendChan.send chunk) |>.map (Except.mapError (IO.userError ∘ toString)))
 
 /--
-Check if the connection is closed.
+Create a selector for receiving from a channel with joining behavior.
 -/
-def isClosed (client : Mock.Link) : BaseIO Bool :=
-  client.state.atomically do
-    let st ← get
-    return st.closed
+def recvSelector (recvChan : Std.CloseableChannel ByteArray) : Selector (Option ByteArray) :=
+  recvChan.recvSelector
+
+end Mock
+
+namespace Mock.Client
 
 /--
-Try to receive data immediately without blocking.
+Get the receive channel for a client (server to client direction).
 -/
-private def tryRecv' (size : UInt64) : AtomicT MockLink.State Async (Option ByteArray) := do
-  let st ← get
-  if st.closed then
-    return none
-
-  if st.receiveQueue.isEmpty then
-    return none
-  else
-    let data := st.receiveQueue
-    let requested := data.extract 0 size.toNat
-    let remainder := data.extract size.toNat data.size
-    set { st with receiveQueue := remainder }
-    return some requested
+def getRecvChan (client : Mock.Client) : Std.CloseableChannel ByteArray :=
+  client.shared.clientToServer
 
 /--
-Try to receive data immediately without blocking.
+Get the send channel for a client (client to server direction).
 -/
-def tryRecv (client : Mock.Link) (size : UInt64) : Async (Option ByteArray) :=
-  client.state.atomically do
-    tryRecv' size
+def getSendChan (client : Mock.Client) : Std.CloseableChannel ByteArray :=
+  client.shared.serverToClient
 
 /--
-Check if data is ready to be received.
+Send a single ByteArray.
 -/
-@[inline]
-private def recvReady' : AtomicT MockLink.State Async Bool := do
-  let st ← get
-  return !st.receiveQueue.isEmpty || st.closed
+def send (client : Mock.Client) (data : ByteArray) : Async Unit :=
+  Mock.send (getSendChan client) data
 
 /--
-Receive data from the mock client, simulating network behavior.
+Receive data, joining all available chunks.
 -/
-def recv? (client : Mock.Link) (size : UInt64) : Async (Option ByteArray) := do
-  client.state.atomically do
-    if let some data ← tryRecv' size then
-      return (some data)
-    else if (← get).closed then
-      return none
-    else
-      let promise ← IO.Promise.new
-      modify fun st => { st with consumers := st.consumers.enqueue (.normal promise) }
-      Async.ofTask promise.result!
+def recv? (client : Mock.Client) (expect : UInt64 := 0) : Async (Option ByteArray) :=
+  Mock.recvJoined (getRecvChan client) expect
 
 /--
-Send all data through the mock client by appending to the sent data buffer.
+Try to receive data without blocking, joining all immediately available chunks.
+Returns `none` if no data is available.
 -/
-def sendAll (client : Mock.Link) (data : Array ByteArray) : Async Unit := do
-  let closed ← client.state.atomically do
-    let st ← get
-    if st.closed then
-      return true
-    else
-      let combinedData := data.foldl ByteArray.append .empty
-      set { st with sentData := st.sentData ++ combinedData }
+def tryRecv? (client : Mock.Client) (_expect : UInt64 := 0) : BaseIO (Option ByteArray) := do
+  match ← (getRecvChan client).tryRecv with
+  | none => return none
+  | some first =>
+    let mut result := first
+    repeat
+      match ← (getRecvChan client).tryRecv with
+      | none => break
+      | some chunk => result := result ++ chunk
+    return some result
 
-      return false
+end Mock.Client
 
-  if closed then
-    throw (.userError "Cannot send on closed connection")
+namespace Mock.Server
 
 /--
-Create a selector for receiving data asynchronously.
+Get the receive channel for a server (client to server direction).
 -/
-def recvSelector (client : Mock.Link) (size : UInt64) : Selector (Option ByteArray) :=
-  {
-    tryFn := do
-      client.state.atomically do
-        if ← recvReady' then
-          let data ← tryRecv' size
-          return some data
-        else
-          return none
+def getRecvChan (server : Mock.Server) : Std.CloseableChannel ByteArray :=
+  server.shared.clientToServer
 
-    registerFn := fun waiter => do
-      let lose := return ()
-      let win promise := do
-        promise.resolve (.ok none)
-      waiter.race lose win
+/--
+Get the send channel for a server (server to client direction).
+-/
+def getSendChan (server : Mock.Server) : Std.CloseableChannel ByteArray :=
+  server.shared.serverToClient
 
-    unregisterFn := do
-      client.state.atomically do
-        let st ← get
-        let consumers ← st.consumers.filterM fun
-          | .normal _ => return true
-          | .select waiter => return !(← waiter.checkFinished)
-        set { st with consumers }
-  }
+/--
+Send a single ByteArray.
+-/
+def send (server : Mock.Server) (data : ByteArray) : Async Unit :=
+  dbg_trace "<---- {(String.fromUTF8! data).quote}"
+  Mock.send (getSendChan server) data
 
-instance : Transport Mock.Link where
-  recv := Mock.Link.recv?
-  sendAll := Mock.Link.sendAll
-  recvSelector := Mock.Link.recvSelector
+/--
+Receive data, joining all available chunks.
+-/
+def recv? (server : Mock.Server) (expect : UInt64 := 0) : Async (Option ByteArray) :=
+  Mock.recvJoined (getRecvChan server) expect
 
-end Std.Http.Mock.Link
+/--
+Try to receive data without blocking, joining all immediately available chunks.
+Returns `none` if no data is available.
+-/
+def tryRecv? (server : Mock.Server) (_expect : UInt64 := 0) : BaseIO (Option ByteArray) := do
+  match ← (getRecvChan server).tryRecv with
+  | none => return none
+  | some first =>
+    let mut result := first
+    repeat
+      match ← (getRecvChan server).tryRecv with
+      | none => break
+      | some chunk => result := result ++ chunk
+    return some result
+
+end Mock.Server
+
+instance : Transport Mock.Client where
+  recv client expect := Mock.recvJoined (Mock.Client.getRecvChan client) expect
+  sendAll client data := Mock.sendAll (Mock.Client.getSendChan client) data
+  recvSelector client _ := Mock.recvSelector (Mock.Client.getRecvChan client)
+
+instance : Transport Mock.Server where
+  recv server expect := Mock.recvJoined (Mock.Server.getRecvChan server) expect
+  sendAll server data := Mock.sendAll (Mock.Server.getSendChan server) data
+  recvSelector server _ := Mock.recvSelector (Mock.Server.getRecvChan server)
+
+end Std.Http

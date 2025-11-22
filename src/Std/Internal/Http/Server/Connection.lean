@@ -160,13 +160,10 @@ private def handle
             then machine := machine.sendData #[data]
             else machine := machine.userClosedBody
         else
-          if ← stream.isClosed then
-            pure ()
-          else
-            if let some res ← stream.tryRecv then
-              machine := machine.sendData #[res]
-            else if ← stream.isClosed then
-               machine := machine.userClosedBody
+          if let some res ← stream.tryRecv then
+            machine := machine.sendData #[res]
+          else if ← stream.isClosed then
+              machine := machine.userClosedBody
 
     if ¬machine.writer.sentMessage ∧ (← response.isResolved) ∧ machine.isWaitingMessage ∧ waitingResponse then
       let res ← await response.result!
@@ -175,9 +172,9 @@ private def handle
       machine := machine.send res.head
 
       match res.body with
-      | some (.bytes data) => machine := machine.sendData #[Chunk.mk data #[]] |>.userClosedBody
-      | some ( .zero) | none => machine := machine.userClosedBody
-      | some (.stream stream) => do
+      | .bytes data => machine := machine.sendData #[Chunk.mk data #[]] |>.userClosedBody
+      |  .zero => machine := machine.userClosedBody
+      | .stream stream => do
         let size ← stream.getKnownSize
         machine := machine.setKnownSize (size.getD .chunked)
 

@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Internal.Http.Client
 public import Std.Internal.Http.Server
+public import Std.Internal.Http.Client
 
 public section
 

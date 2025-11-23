@@ -94,6 +94,16 @@ theorem _root_.Std.Rxc.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
 instance {m} [UpwardEnumerable α]
     [LE α] [DecidableLE α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Monad m] [Finite (Rxc.Iterator α) Id] :
+    ForInNew' m (Rcc α) α Membership.mem where
+  forInNew' r init kcons knil := by
+    haveI := Iter.instForInNew' (α := Rxc.Iterator α) (β := α) (n := m)
+    refine forInNew' (α := α) (Internal.iter r) init (fun a ha kcontinue s => kcons a ?_ kcontinue s) knil
+    rwa [Internal.isPlausibleIndirectOutput_iter_iff] at ha
+
+@[no_expose]
+instance {m} [UpwardEnumerable α]
+    [LE α] [DecidableLE α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    [Monad m] [Finite (Rxc.Iterator α) Id] :
     ForIn' m (Rcc α) α inferInstance where
   forIn' r init f := by
     haveI := Iter.instForIn' (α := Rxc.Iterator α) (β := α) (n := m)
@@ -175,6 +185,16 @@ theorem _root_.Std.Rxo.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
   refine ⟨a, ha, ?_⟩
   simp only [isPlausibleIndirectOutput_iff, ha, Option.bind_some, exists_and_right] at hout
   exact hout.1
+
+@[no_expose]
+instance {m} [UpwardEnumerable α] [LE α] [LT α] [DecidableLT α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
+    [Monad m] [Finite (Rxo.Iterator α) Id] :
+    ForInNew' m (Rco α) α Membership.mem where
+  forInNew' r init kcons knil := by
+    haveI := Iter.instForInNew' (α := Rxo.Iterator α) (β := α) (n := m)
+    refine forInNew' (α := α) (Internal.iter r) init (fun a ha kcontinue s => kcons a ?_ kcontinue s) knil
+    rwa [Internal.isPlausibleIndirectOutput_iter_iff] at ha
 
 @[no_expose]
 instance {m} [UpwardEnumerable α] [LE α] [LT α] [DecidableLT α]
@@ -265,6 +285,17 @@ instance {m} [UpwardEnumerable α]
     [LE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Monad m] [Finite (Rxi.Iterator α) Id] :
+    ForInNew' m (Rci α) α Membership.mem where
+  forInNew' r init kcons knil := by
+    haveI := Iter.instForInNew' (α := Rxi.Iterator α) (β := α) (n := m)
+    refine forInNew' (α := α) (Internal.iter r) init (fun a ha kcontinue s => kcons a ?_ kcontinue s) knil
+    rwa [Internal.isPlausibleIndirectOutput_iter_iff] at ha
+
+@[no_expose]
+instance {m} [UpwardEnumerable α]
+    [LE α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    [Monad m] [Finite (Rxi.Iterator α) Id] :
     ForIn' m (Rci α) α inferInstance where
   forIn' r init f := by
     haveI := Iter.instForIn' (α := Rxi.Iterator α) (β := α) (n := m)
@@ -340,6 +371,17 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
     obtain ⟨n, hn⟩ := hl
     exact ⟨n,
       by simp [Internal.iter, hn, ← UpwardEnumerable.succMany?_add_one_eq_succ?_bind_succMany?], hu⟩
+
+@[no_expose]
+instance {m} [UpwardEnumerable α]
+    [LE α] [DecidableLE α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    [LT α] [LawfulUpwardEnumerableLT α]
+    [Monad m] [Finite (Rxc.Iterator α) Id] :
+    ForInNew' m (Roc α) α Membership.mem where
+  forInNew' r init kcons knil := by
+    haveI := Iter.instForInNew' (α := Rxc.Iterator α) (β := α) (n := m)
+    refine forInNew' (α := α) (Internal.iter r) init (fun a ha kcontinue s => kcons a ?_ kcontinue s) knil
+    rwa [Internal.isPlausibleIndirectOutput_iter_iff] at ha
 
 @[no_expose]
 instance {m} [UpwardEnumerable α]
@@ -426,6 +468,17 @@ instance {m} [UpwardEnumerable α]
     [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Monad m] [Finite (Rxo.Iterator α) Id] :
+    ForInNew' m (Roo α) α Membership.mem where
+  forInNew' r init kcons knil := by
+    haveI := Iter.instForInNew' (α := Rxo.Iterator α) (β := α) (n := m)
+    refine forInNew' (α := α) (Internal.iter r) init (fun a ha kcontinue s => kcons a ?_ kcontinue s) knil
+    rwa [Internal.isPlausibleIndirectOutput_iter_iff] at ha
+
+@[no_expose]
+instance {m} [UpwardEnumerable α]
+    [LT α] [DecidableLT α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    [Monad m] [Finite (Rxo.Iterator α) Id] :
     ForIn' m (Roo α) α inferInstance where
   forIn' r init f := by
     haveI := Iter.instForIn' (α := Rxo.Iterator α) (β := α) (n := m)
@@ -502,6 +555,16 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
 instance {m} [UpwardEnumerable α]
     [LT α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Monad m] [Finite (Rxi.Iterator α) Id] :
+    ForInNew' m (Roi α) α Membership.mem where
+  forInNew' r init kcons knil := by
+    haveI := Iter.instForInNew' (α := Rxi.Iterator α) (β := α) (n := m)
+    refine forInNew' (α := α) (Internal.iter r) init (fun a ha kcontinue s => kcons a ?_ kcontinue s) knil
+    rwa [Internal.isPlausibleIndirectOutput_iter_iff] at ha
+
+@[no_expose]
+instance {m} [UpwardEnumerable α]
+    [LT α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    [Monad m] [Finite (Rxi.Iterator α) Id] :
     ForIn' m (Roi α) α inferInstance where
   forIn' r init f := by
     haveI := Iter.instForIn' (α := Rxi.Iterator α) (β := α) (n := m)
@@ -570,6 +633,18 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
   · intro hu
     obtain ⟨init, hi, hia⟩ := LawfulUpwardEnumerableLeast?.least?_le a
     simpa [iter, hi] using ⟨hia, hu⟩
+
+@[no_expose]
+instance {m} [UpwardEnumerable α]
+    [LE α] [DecidableLE α] [Least? α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    [LawfulUpwardEnumerableLeast? α]
+    [Monad m] [Finite (Rxc.Iterator α) Id] :
+    ForInNew' m (Ric α) α Membership.mem where
+  forInNew' r init kcons knil := by
+    haveI := Iter.instForInNew' (α := Rxc.Iterator α) (β := α) (n := m)
+    refine forInNew' (α := α) (Internal.iter r) init (fun a ha kcontinue s => kcons a ?_ kcontinue s) knil
+    rwa [Internal.isPlausibleIndirectOutput_iter_iff] at ha
 
 @[no_expose]
 instance {m} [UpwardEnumerable α]
@@ -723,6 +798,16 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
   · simp [Membership.mem]
   · obtain ⟨init, hi, hia⟩ := LawfulUpwardEnumerableLeast?.least?_le a
     simpa [Membership.mem, iter, hi] using hia
+
+@[no_expose]
+instance {m} [UpwardEnumerable α] [Least? α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
+    [Monad m] [Finite (Rxi.Iterator α) Id] :
+    ForInNew' m (Rii α) α Membership.mem where
+  forInNew' r init kcons knil := by
+    haveI := Iter.instForInNew' (α := Rxi.Iterator α) (β := α) (n := m)
+    refine forInNew' (α := α) (Internal.iter r) init (fun a ha kcontinue s => kcons a ?_ kcontinue s) knil
+    rwa [Internal.isPlausibleIndirectOutput_iter_iff] at ha
 
 @[no_expose]
 instance {m} [UpwardEnumerable α] [Least? α]

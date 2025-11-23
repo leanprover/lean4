@@ -224,7 +224,7 @@ theorem cons_cast {w v : Nat} (h : w = v) (b : Bool) (x : BitVec w) :
   subst h
   rfl
 
-theorem ofBoolListLE_append_cons (l : List Bool) (b : Bool) :
+theorem ofBoolListLE_concat (l : List Bool) (b : Bool) :
     ofBoolListLE (l ++ [b]) = (cons b (ofBoolListLE l)).cast (by simp) := by
   apply toList_injective
   simp [toList_ofBoolListLE, toList_cons]
@@ -243,29 +243,50 @@ theorem ofBoolListLE_toList (x : BitVec w) : ofBoolListLE x.toList = x.cast (by 
   | nil => rfl
   | cons _ b x' ih =>
     calc ofBoolListLE (cons b x').toList
-      _ = (ofBoolListLE ((toList x').concat b)).cast (by rw [toList_cons b x']) := by
+      _ = (ofBoolListLE ((toList x').concat b)).cast (by rw [toList_cons]) := by
         apply ofBoolListLE_congr
-        exact toList_cons b x'
+        exact toList_cons _ _
       _ = (cons b x').cast (by simp) := by
         rw [ofBoolListLE_congr List.concat_eq_append,
-            ofBoolListLE_append_cons,
+            ofBoolListLE_concat,
             ih]
         simp
--- /--
--- Round-trip: `ofBoolListBE` and `toListBE` are inverses.
--- -/
--- @[simp]
--- theorem toListBE_ofBoolListBE (l : List Bool) : (ofBoolListBE l).toListBE = l := by
---   induction l with
---   | nil => simp [ofBoolListBE]
---   | cons b bs ih => simp [ofBoolListBE, ih]
---
--- /--
--- Round-trip: `toListBE` and `ofBoolListBE` are inverses.
--- -/
--- @[simp]
--- theorem ofBoolListBE_toListBE (x : BitVec w) : ofBoolListBE x.toListBE = x.cast (by simp) := by
---   sorry
+/--
+Round-trip: `ofBoolListBE` and `toListBE` are inverses.
+-/
+@[simp]
+theorem toListBE_ofBoolListBE (l : List Bool) : (ofBoolListBE l).toListBE = l := by
+  induction l with
+  | nil => simp [ofBoolListBE, ←ofNat_eq_ofNat]
+  | cons b bs ih => simp [ofBoolListBE, ih]
+
+theorem ofBoolListBE_congr {l1 l2 : List Bool} (h : l1 = l2) :
+    ofBoolListBE l1 = (ofBoolListBE l2).cast (by rw [h]) := by
+  subst h
+  rfl
+
+theorem ofBoolListBE_cons (l : List Bool) (b : Bool) :
+    ofBoolListBE (b :: l) = ((ofBoolListBE l).cons b).cast (by simp) := by
+  apply toListBE_injective
+  simp [toListBE_ofBoolListBE, toListBE_cons]
+
+/--
+Round-trip: `toListBE` and `ofBoolListBE` are inverses.
+-/
+@[simp]
+theorem ofBoolListBE_toListBE (x : BitVec w) :
+  ofBoolListBE x.toListBE = x.cast (by simp) := by
+    induction x using BitVec.induction with
+    | nil => rfl
+    | cons w' b x' ih =>
+      calc ofBoolListBE (cons b x').toListBE
+        _ = (ofBoolListBE (b :: x'.toListBE)).cast (by rw [toListBE_cons]) := by
+          apply ofBoolListBE_congr
+          simp
+        _ = (x'.cons b).cast (by simp) := by
+          rw [ofBoolListBE_cons,
+              ih]
+          simp_all
 
 /--
 Convert a bitvector to an array of bools (LSB first).

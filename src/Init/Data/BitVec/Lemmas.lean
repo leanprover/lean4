@@ -1684,9 +1684,13 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
   simp
   omega
 
+@[simp] theorem not_nil : ~~~nil = nil := by
+  simp
+
 @[simp] theorem not_zero : ~~~(0#n) = allOnes n := by
   ext
   simp
+
 
 @[simp] theorem not_allOnes : ~~~ allOnes w = 0#w := by
   ext
@@ -5148,11 +5152,19 @@ theorem shiftLeft_neg {x : BitVec w} {y : Nat} :
   ext
   simp [getElem_cons]
 
+@[simp] theorem true_cons_allOnes : cons true (allOnes w) = allOnes (w + 1) := by
+  ext
+  simp [getElem_cons]
+
 @[simp] theorem false_cons_zero : cons false 0#w = 0#(w + 1) := by
   ext
   simp [getElem_cons]
 
 @[simp] theorem zero_concat_true : concat 0#w true = 1#(w + 1) := by
+  ext
+  simp [getElem_concat]
+
+@[simp] theorem allOnes_concat_true : concat (allOnes w) true = allOnes (w + 1) := by
   ext
   simp [getElem_concat]
 

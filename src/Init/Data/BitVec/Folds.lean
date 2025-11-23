@@ -209,12 +209,37 @@ Processes bits from LSB to MSB, providing the index to the function.
 def foldrIdx (f : Fin w → Bool → α → α) (init : α) (x : BitVec w) : α :=
   w.fold (fun i h acc => f ⟨i, h⟩ x[i] acc) init
 
+@[simp]
+theorem foldrIdx_nil : foldrIdx f a nil = a := by
+  simp [foldrIdx]
+
+@[simp]
+theorem foldrIdx_cons {x : BitVec w} :
+    foldrIdx f a (cons b x) = f ⟨w, by omega⟩ b (foldrIdx (fun i => f ⟨i.val, by omega⟩) a x) := by
+  simp [foldrIdx, getElem_cons]
+  congr
+  ext
+  rw [dif_neg (by omega)]
+
 /--
 Left fold with index.
 Processes bits from MSB to LSB, providing the index to the function.
 -/
 def foldlIdx (f : α → Fin w → Bool → α) (init : α) (x : BitVec w) : α :=
   w.foldRev (fun i h acc => f acc ⟨i, h⟩ x[i]) init
+
+
+@[simp]
+theorem foldlIdx_nil : foldlIdx f a nil = a := by
+  simp [foldlIdx]
+
+@[simp]
+theorem foldlIdx_cons {x : BitVec w} :
+    foldlIdx f a (cons b x) = foldlIdx (fun acc i => f acc ⟨i.val, by omega⟩) (f a ⟨w, by omega⟩ b) x := by
+  simp [foldlIdx, getElem_cons, Nat.foldRev_succ, ↓reduceDIte]
+  congr
+  ext
+  rw [dif_neg (by omega)]
 
 /-!
 ## Aggregation operations

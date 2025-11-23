@@ -19,7 +19,7 @@ set_option pp.all true in
 def ForInNew.forInInv {m} {ρ : Type u} {α : Type v} [ForInNew m ρ α] {σ γ}
     (xs : ρ) (s : σ) (kcons : α → (σ → m γ) → σ → m γ) (knil : σ → m γ)
     [Monad m] [inst : ForInNew.{u,v,v,v} Id ρ α] {ps} [Std.Do.WP m ps] (inv : Std.Do.Invariant (inst.toList xs) σ ps) : m γ :=
-  forIn xs s kcons knil
+  forInNew xs s kcons knil
 
 meta def doInvariant := leading_parser
   "invariant " >> withPosition (
@@ -159,7 +159,7 @@ elab_rules : doElem <= dec
   | `(doElem| for $x:ident in $xs invariant $cursorBinder $stateBinders* => $body do $doSeq) => do
     --trace[Elab.do] "cursorBinder: {cursorBinder}"
     let call ← elabDoElem (← `(doElem| for $x:ident in $xs do $doSeq)) dec
-    let_expr ForInNew.forIn m ρ α instForIn σ γ xs s kcons knil := call
+    let_expr ForInNew.forInNew m ρ α instForIn σ γ xs s kcons knil := call
       | throwError "Internal elaboration error: `for` loop did not elaborate to a call of `Foldable.foldr`."
     call.withApp fun head args => do
     let [u, v, w, x] := head.constLevels!
@@ -275,13 +275,13 @@ trace: [Elab.do] let x := 1;
     have kbreak := fun s =>
       let x := s;
       pure x;
-    ForInNew.forIn [1, 2, 3] x
+    forInNew [1, 2, 3] x
       (fun i kcontinue s =>
         let x := s;
         have kbreak_1 := fun s_1 =>
           let x_1 := s_1;
           if x_1 > 20 then kbreak x_1 else kcontinue x_1;
-        ForInNew.forIn [4, 5, 6] x
+        forInNew [4, 5, 6] x
           (fun j kcontinue_1 s_1 =>
             let x_1 := s_1;
             have __do_jp := fun x_2 r =>
@@ -321,7 +321,7 @@ set_option trace.Elab.do true in
 info: (let x := 42;
   let y := 0;
   let z := 1;
-  ForInNew.forIn [1, 2, 3] (x, z)
+  forInNew [1, 2, 3] (x, z)
     (fun i kcontinue s =>
       let x := s.fst;
       let z := s.snd;
@@ -364,7 +364,7 @@ info: (let w := 23;
     let y := s.fst;
     let z := s.snd;
     pure (w + x + y + z);
-  ForInNew.forIn [1, 2, 3] (x, y, z)
+  forInNew [1, 2, 3] (x, y, z)
     (fun i kcontinue s =>
       let x := s.fst;
       let s := s.snd;
@@ -403,7 +403,7 @@ info: (let w := 23;
 set_option trace.Compiler.saveBase true in
 /--
 trace: [Compiler.saveBase] size: 44
-    def List.forInNew._at_.Do._example.spec_0 _x.1 _x.2 w l s : Nat :=
+    def List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 w l s : Nat :=
       jp _jp.3 s.4 : Nat :=
         let x := s.4 # 0;
         let s.5 := s.4 # 1;
@@ -417,42 +417,93 @@ trace: [Compiler.saveBase] size: 44
       | List.nil =>
         goto _jp.3 s
       | List.cons head.9 tail.10 =>
-        let x := s # 0;
-        let s.11 := s # 1;
-        let y := s.11 # 0;
-        jp _jp.12 z : Nat :=
-          let _x.13 := 10;
-          let _x.14 := Nat.decLt _x.13 x;
-          cases _x.14 : Nat
-          | Decidable.isFalse x.15 =>
-            let x := Nat.add x head.9;
-            let _x.16 := @Prod.mk _ _ y z;
-            let _x.17 := @Prod.mk _ _ x _x.16;
-            let _x.18 := List.forInNew._at_.Do._example.spec_0 _x.1 _x.2 w tail.10 _x.17;
-            return _x.18
-          | Decidable.isTrue x.19 =>
-            let x := Nat.add x _x.1;
-            let _x.20 := @Prod.mk _ _ y z;
-            let _x.21 := @Prod.mk _ _ x _x.20;
-            let _x.22 := List.forInNew._at_.Do._example.spec_0 _x.1 _x.2 w tail.10 _x.21;
-            return _x.22;
-        let z := s.11 # 1;
-        let _x.23 := 20;
-        let _x.24 := Nat.decLt x _x.23;
-        cases _x.24 : Nat
-        | Decidable.isFalse x.25 =>
-          let _x.26 := instDecidableEqNat x _x.1;
-          cases _x.26 : Nat
-          | Decidable.isFalse x.27 =>
-            goto _jp.12 z
-          | Decidable.isTrue x.28 =>
-            let z := Nat.add z head.9;
-            goto _jp.12 z
-        | Decidable.isTrue x.29 =>
-          let y := Nat.sub y _x.2;
-          let _x.30 := @Prod.mk _ _ y z;
-          let _x.31 := @Prod.mk _ _ x _x.30;
-          goto _jp.3 _x.31
+        let _x.11 := s # 0;
+        let _x.12 := s # 1;
+        let _x.13 := _x.12 # 0;
+        jp _jp.14 z : Nat :=
+          let _x.15 := 10;
+          let _x.16 := Nat.decLt _x.15 _x.11;
+          cases _x.16 : Nat
+          | Decidable.isFalse x.17 =>
+            let _x.18 := Nat.add _x.11 head.9;
+            let _x.19 := @Prod.mk _ _ _x.13 z;
+            let _x.20 := @Prod.mk _ _ _x.18 _x.19;
+            let _x.21 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 w tail.10 _x.20;
+            return _x.21
+          | Decidable.isTrue x.22 =>
+            let _x.23 := Nat.add _x.11 _x.1;
+            let _x.24 := @Prod.mk _ _ _x.13 z;
+            let _x.25 := @Prod.mk _ _ _x.23 _x.24;
+            let _x.26 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 w tail.10 _x.25;
+            return _x.26;
+        let _x.27 := _x.12 # 1;
+        let _x.28 := 20;
+        let _x.29 := Nat.decLt _x.11 _x.28;
+        cases _x.29 : Nat
+        | Decidable.isFalse x.30 =>
+          let _x.31 := instDecidableEqNat _x.11 _x.1;
+          cases _x.31 : Nat
+          | Decidable.isFalse x.32 =>
+            goto _jp.14 _x.27
+          | Decidable.isTrue x.33 =>
+            let _x.34 := Nat.add _x.27 head.9;
+            goto _jp.14 _x.34
+        | Decidable.isTrue x.35 =>
+          let _x.36 := Nat.sub _x.13 _x.2;
+          let _x.37 := @Prod.mk _ _ _x.36 _x.27;
+          let _x.38 := @Prod.mk _ _ _x.11 _x.37;
+          goto _jp.3 _x.38
+[Compiler.saveBase] size: 44
+    def List.forInNew'._at_.Do._example.spec_0 _x.1 _x.2 w l s : Nat :=
+      jp _jp.3 s.4 : Nat :=
+        let x := s.4 # 0;
+        let s.5 := s.4 # 1;
+        let y := s.5 # 0;
+        let z := s.5 # 1;
+        let _x.6 := Nat.add w x;
+        let _x.7 := Nat.add _x.6 y;
+        let _x.8 := Nat.add _x.7 z;
+        return _x.8;
+      cases l : Nat
+      | List.nil =>
+        goto _jp.3 s
+      | List.cons head.9 tail.10 =>
+        let _x.11 := s # 0;
+        let _x.12 := s # 1;
+        let _x.13 := _x.12 # 0;
+        jp _jp.14 z : Nat :=
+          let _x.15 := 10;
+          let _x.16 := Nat.decLt _x.15 _x.11;
+          cases _x.16 : Nat
+          | Decidable.isFalse x.17 =>
+            let _x.18 := Nat.add _x.11 head.9;
+            let _x.19 := @Prod.mk _ _ _x.13 z;
+            let _x.20 := @Prod.mk _ _ _x.18 _x.19;
+            let _x.21 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 w tail.10 _x.20;
+            return _x.21
+          | Decidable.isTrue x.22 =>
+            let _x.23 := Nat.add _x.11 _x.1;
+            let _x.24 := @Prod.mk _ _ _x.13 z;
+            let _x.25 := @Prod.mk _ _ _x.23 _x.24;
+            let _x.26 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 w tail.10 _x.25;
+            return _x.26;
+        let _x.27 := _x.12 # 1;
+        let _x.28 := 20;
+        let _x.29 := Nat.decLt _x.11 _x.28;
+        cases _x.29 : Nat
+        | Decidable.isFalse x.30 =>
+          let _x.31 := instDecidableEqNat _x.11 _x.1;
+          cases _x.31 : Nat
+          | Decidable.isFalse x.32 =>
+            goto _jp.14 _x.27
+          | Decidable.isTrue x.33 =>
+            let _x.34 := Nat.add _x.27 head.9;
+            goto _jp.14 _x.34
+        | Decidable.isTrue x.35 =>
+          let _x.36 := Nat.sub _x.13 _x.2;
+          let _x.37 := @Prod.mk _ _ _x.36 _x.27;
+          let _x.38 := @Prod.mk _ _ _x.11 _x.37;
+          goto _jp.3 _x.38
 [Compiler.saveBase] size: 13
     def Do._example : Nat :=
       let w := 23;
@@ -467,7 +518,7 @@ trace: [Compiler.saveBase] size: 44
       let _x.6 := @List.cons _ z _x.5;
       let _x.7 := @Prod.mk _ _ y z;
       let _x.8 := @Prod.mk _ _ x _x.7;
-      let _x.9 := List.forInNew._at_.Do._example.spec_0 _x.2 _x.1 w _x.6 _x.8;
+      let _x.9 := List.forInNew'._at_.Do._example.spec_0 _x.2 _x.1 w _x.6 _x.8;
       return _x.9
 -/
 #guard_msgs in
@@ -490,7 +541,7 @@ trace: [Elab.do] let x := 42;
     have kbreak := fun s =>
       let x := s;
       pure (x + x + x + x);
-    ForInNew.forIn [1, 2, 3] x
+    forInNew [1, 2, 3] x
       (fun i kcontinue s =>
         let x := s;
         have __do_jp := fun x_1 r =>
@@ -587,7 +638,7 @@ trace: [Elab.do] let x := 42;
       let x := x + 13;
       let x := x + 13;
       pure x;
-    ForInNew.forIn [1, 2, 3] x
+    forInNew [1, 2, 3] x
       (fun i kcontinue s =>
         let x := s;
         if x = 3 then pure x
@@ -605,7 +656,7 @@ trace: [Elab.do] let x := 42;
       kbreak
 ---
 trace: [Compiler.saveBase] size: 29
-    def List.forInNew._at_.Do._example.spec_0 _x.1 _x.2 l s : Nat :=
+    def List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 l s : Nat :=
       jp _jp.3 s.4 : Nat :=
         let _x.5 := 13;
         let x := Nat.add s.4 _x.5;
@@ -628,17 +679,53 @@ trace: [Compiler.saveBase] size: 29
             let _x.14 := Nat.decLt s _x.13;
             cases _x.14 : Nat
             | Decidable.isFalse x.15 =>
-              let x := Nat.add s head.6;
-              let _x.16 := List.forInNew._at_.Do._example.spec_0 _x.1 _x.2 tail.7 x;
-              return _x.16
-            | Decidable.isTrue x.17 =>
-              let x := Nat.mul s _x.2;
-              goto _jp.3 x
-          | Decidable.isTrue x.18 =>
-            let x := Nat.add s _x.1;
-            let _x.19 := List.forInNew._at_.Do._example.spec_0 _x.1 _x.2 tail.7 x;
-            return _x.19
-        | Decidable.isTrue x.20 =>
+              let _x.16 := Nat.add s head.6;
+              let _x.17 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 tail.7 _x.16;
+              return _x.17
+            | Decidable.isTrue x.18 =>
+              let _x.19 := Nat.mul s _x.2;
+              goto _jp.3 _x.19
+          | Decidable.isTrue x.20 =>
+            let _x.21 := Nat.add s _x.1;
+            let _x.22 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 tail.7 _x.21;
+            return _x.22
+        | Decidable.isTrue x.23 =>
+          return s
+[Compiler.saveBase] size: 29
+    def List.forInNew'._at_.Do._example.spec_0 _x.1 _x.2 l s : Nat :=
+      jp _jp.3 s.4 : Nat :=
+        let _x.5 := 13;
+        let x := Nat.add s.4 _x.5;
+        let x := Nat.add x _x.5;
+        let x := Nat.add x _x.5;
+        let x := Nat.add x _x.5;
+        return x;
+      cases l : Nat
+      | List.nil =>
+        goto _jp.3 s
+      | List.cons head.6 tail.7 =>
+        let _x.8 := instDecidableEqNat s _x.1;
+        cases _x.8 : Nat
+        | Decidable.isFalse x.9 =>
+          let _x.10 := 10;
+          let _x.11 := Nat.decLt _x.10 s;
+          cases _x.11 : Nat
+          | Decidable.isFalse x.12 =>
+            let _x.13 := 20;
+            let _x.14 := Nat.decLt s _x.13;
+            cases _x.14 : Nat
+            | Decidable.isFalse x.15 =>
+              let _x.16 := Nat.add s head.6;
+              let _x.17 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 tail.7 _x.16;
+              return _x.17
+            | Decidable.isTrue x.18 =>
+              let _x.19 := Nat.mul s _x.2;
+              goto _jp.3 _x.19
+          | Decidable.isTrue x.20 =>
+            let _x.21 := Nat.add s _x.1;
+            let _x.22 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 tail.7 _x.21;
+            return _x.22
+        | Decidable.isTrue x.23 =>
           return s
 [Compiler.saveBase] size: 9
     def Do._example : Nat :=
@@ -650,7 +737,7 @@ trace: [Compiler.saveBase] size: 29
       let _x.5 := @List.cons _ _x.3 _x.4;
       let _x.6 := @List.cons _ _x.2 _x.5;
       let _x.7 := @List.cons _ _x.1 _x.6;
-      let _x.8 := List.forInNew._at_.Do._example.spec_0 _x.3 _x.2 _x.7 x;
+      let _x.8 := List.forInNew'._at_.Do._example.spec_0 _x.3 _x.2 _x.7 x;
       return _x.8
 -/
 #guard_msgs in
@@ -670,7 +757,7 @@ example := Id.run doo
 set_option trace.Compiler.saveBase true in
 /--
 trace: [Compiler.saveBase] size: 29
-    def List.forInNew._at_.Do._example.spec_0 _x.1 _x.2 l s : Nat :=
+    def List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 l s : Nat :=
       jp _jp.3 s.4 : Nat :=
         let _x.5 := 13;
         let x := Nat.add s.4 _x.5;
@@ -693,17 +780,53 @@ trace: [Compiler.saveBase] size: 29
             let _x.14 := Nat.decLt s _x.13;
             cases _x.14 : Nat
             | Decidable.isFalse x.15 =>
-              let x := Nat.add s head.6;
-              let _x.16 := List.forInNew._at_.Do._example.spec_0 _x.1 _x.2 tail.7 x;
-              return _x.16
-            | Decidable.isTrue x.17 =>
-              let x := Nat.mul s _x.2;
-              goto _jp.3 x
-          | Decidable.isTrue x.18 =>
-            let x := Nat.add s _x.1;
-            let _x.19 := List.forInNew._at_.Do._example.spec_0 _x.1 _x.2 tail.7 x;
-            return _x.19
-        | Decidable.isTrue x.20 =>
+              let _x.16 := Nat.add s head.6;
+              let _x.17 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 tail.7 _x.16;
+              return _x.17
+            | Decidable.isTrue x.18 =>
+              let _x.19 := Nat.mul s _x.2;
+              goto _jp.3 _x.19
+          | Decidable.isTrue x.20 =>
+            let _x.21 := Nat.add s _x.1;
+            let _x.22 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 tail.7 _x.21;
+            return _x.22
+        | Decidable.isTrue x.23 =>
+          return s
+[Compiler.saveBase] size: 29
+    def List.forInNew'._at_.Do._example.spec_0 _x.1 _x.2 l s : Nat :=
+      jp _jp.3 s.4 : Nat :=
+        let _x.5 := 13;
+        let x := Nat.add s.4 _x.5;
+        let x := Nat.add x _x.5;
+        let x := Nat.add x _x.5;
+        let x := Nat.add x _x.5;
+        return x;
+      cases l : Nat
+      | List.nil =>
+        goto _jp.3 s
+      | List.cons head.6 tail.7 =>
+        let _x.8 := instDecidableEqNat s _x.1;
+        cases _x.8 : Nat
+        | Decidable.isFalse x.9 =>
+          let _x.10 := 10;
+          let _x.11 := Nat.decLt _x.10 s;
+          cases _x.11 : Nat
+          | Decidable.isFalse x.12 =>
+            let _x.13 := 20;
+            let _x.14 := Nat.decLt s _x.13;
+            cases _x.14 : Nat
+            | Decidable.isFalse x.15 =>
+              let _x.16 := Nat.add s head.6;
+              let _x.17 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 tail.7 _x.16;
+              return _x.17
+            | Decidable.isTrue x.18 =>
+              let _x.19 := Nat.mul s _x.2;
+              goto _jp.3 _x.19
+          | Decidable.isTrue x.20 =>
+            let _x.21 := Nat.add s _x.1;
+            let _x.22 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 tail.7 _x.21;
+            return _x.22
+        | Decidable.isTrue x.23 =>
           return s
 [Compiler.saveBase] size: 9
     def Do._example : Nat :=
@@ -715,7 +838,7 @@ trace: [Compiler.saveBase] size: 29
       let _x.5 := @List.cons _ _x.3 _x.4;
       let _x.6 := @List.cons _ _x.2 _x.5;
       let _x.7 := @List.cons _ _x.1 _x.6;
-      let _x.8 := List.forInNew._at_.Do._example.spec_0 _x.3 _x.2 _x.7 x;
+      let _x.8 := List.forInNew'._at_.Do._example.spec_0 _x.3 _x.2 _x.7 x;
       return _x.8
 -/
 #guard_msgs in
@@ -738,12 +861,12 @@ set_option trace.Compiler.saveBase true in
 trace: [Elab.do] let x := 42;
     let y := 0;
     let z := 1;
-    ForInNew.forIn [1, 2, 3] (x, z)
+    forInNew [1, 2, 3] (x, z)
       (fun i kcontinue s =>
         let x := s.fst;
         let z := s.snd;
         let x := x + i;
-        ForInNew.forIn [i:10].toList z
+        forInNew [i:10].toList z
           (fun j kcontinue s =>
             let z := s;
             let z := z + x + j;
@@ -757,19 +880,31 @@ trace: [Elab.do] let x := 42;
       pure (x + y + z)
 ---
 trace: [Compiler.saveBase] size: 8
-    def List.forInNew._at_.Do._example.spec_0 x kcontinue.1 l s : Nat :=
+    def List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _y.2 l s : Nat :=
       cases l : Nat
       | List.nil =>
-        let _x.2 := @Prod.mk _ _ x s;
-        let _x.3 := kcontinue.1 _x.2;
-        return _x.3
-      | List.cons head.4 tail.5 =>
-        let _x.6 := Nat.add s x;
-        let z := Nat.add _x.6 head.4;
-        let _x.7 := List.forInNew._at_.Do._example.spec_0 x kcontinue.1 tail.5 z;
-        return _x.7
+        let _x.3 := @Prod.mk _ _ _x.1 s;
+        let _x.4 := _y.2 _x.3;
+        return _x.4
+      | List.cons head.5 tail.6 =>
+        let _x.7 := Nat.add s _x.1;
+        let _x.8 := Nat.add _x.7 head.5;
+        let _x.9 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _y.2 tail.6 _x.8;
+        return _x.9
+[Compiler.saveBase] size: 8
+    def List.forInNew'._at_.Do._example.spec_0 _x.1 _y.2 l s : Nat :=
+      cases l : Nat
+      | List.nil =>
+        let _x.3 := @Prod.mk _ _ _x.1 s;
+        let _x.4 := _y.2 _x.3;
+        return _x.4
+      | List.cons head.5 tail.6 =>
+        let _x.7 := Nat.add s _x.1;
+        let _x.8 := Nat.add _x.7 head.5;
+        let _x.9 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _y.2 tail.6 _x.8;
+        return _x.9
 [Compiler.saveBase] size: 20
-    def List.forInNew._at_.List.forInNew._at_.Do._example.spec_1.spec_1 z l s : Nat :=
+    def List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_2.spec_2 z l s : Nat :=
       cases l : Nat
       | List.nil =>
         let x := s # 0;
@@ -778,24 +913,24 @@ trace: [Compiler.saveBase] size: 8
         return _x.1
       | List.cons head.2 tail.3 =>
         fun _f.4 x.5 : Nat :=
-          let _x.6 := List.forInNew._at_.List.forInNew._at_.Do._example.spec_1.spec_1 z tail.3 x.5;
+          let _x.6 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_2.spec_2 z tail.3 x.5;
           return _x.6;
-        let x := s # 0;
-        let z := s # 1;
-        let x := Nat.add x head.2;
-        let _x.7 := 10;
-        let _x.8 := Nat.sub _x.7 head.2;
-        let _x.9 := Nat.add _x.8 z;
-        let _x.10 := 1;
-        let _x.11 := Nat.sub _x.9 _x.10;
-        let _x.12 := Nat.mul z _x.11;
-        let _x.13 := Nat.add head.2 _x.12;
-        let _x.14 := @List.nil _;
-        let _x.15 := List.range'TR.go z _x.11 _x.13 _x.14;
-        let _x.16 := List.forInNew._at_.Do._example.spec_0 x _f.4 _x.15 z;
-        return _x.16
+        let _x.7 := s # 0;
+        let _x.8 := s # 1;
+        let _x.9 := Nat.add _x.7 head.2;
+        let _x.10 := 10;
+        let _x.11 := Nat.sub _x.10 head.2;
+        let _x.12 := Nat.add _x.11 z;
+        let _x.13 := 1;
+        let _x.14 := Nat.sub _x.12 _x.13;
+        let _x.15 := Nat.mul z _x.14;
+        let _x.16 := Nat.add head.2 _x.15;
+        let _x.17 := @List.nil _;
+        let _x.18 := List.range'TR.go z _x.14 _x.16 _x.17;
+        let _x.19 := List.forInNew'._at_.Do._example.spec_0 _x.9 _f.4 _x.18 _x.8;
+        return _x.19
 [Compiler.saveBase] size: 20
-    def List.forInNew._at_.Do._example.spec_1 z l s : Nat :=
+    def List.forInNew'._at_.Do._example.spec_2 z l s : Nat :=
       cases l : Nat
       | List.nil =>
         let x := s # 0;
@@ -804,22 +939,22 @@ trace: [Compiler.saveBase] size: 8
         return _x.1
       | List.cons head.2 tail.3 =>
         fun _f.4 x.5 : Nat :=
-          let _x.6 := List.forInNew._at_.List.forInNew._at_.Do._example.spec_1.spec_1 z tail.3 x.5;
+          let _x.6 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_2.spec_2 z tail.3 x.5;
           return _x.6;
-        let x := s # 0;
-        let z := s # 1;
-        let x := Nat.add x head.2;
-        let _x.7 := 10;
-        let _x.8 := Nat.sub _x.7 head.2;
-        let _x.9 := Nat.add _x.8 z;
-        let _x.10 := 1;
-        let _x.11 := Nat.sub _x.9 _x.10;
-        let _x.12 := Nat.mul z _x.11;
-        let _x.13 := Nat.add head.2 _x.12;
-        let _x.14 := @List.nil _;
-        let _x.15 := List.range'TR.go z _x.11 _x.13 _x.14;
-        let _x.16 := List.forInNew._at_.Do._example.spec_0 x _f.4 _x.15 z;
-        return _x.16
+        let _x.7 := s # 0;
+        let _x.8 := s # 1;
+        let _x.9 := Nat.add _x.7 head.2;
+        let _x.10 := 10;
+        let _x.11 := Nat.sub _x.10 head.2;
+        let _x.12 := Nat.add _x.11 z;
+        let _x.13 := 1;
+        let _x.14 := Nat.sub _x.12 _x.13;
+        let _x.15 := Nat.mul z _x.14;
+        let _x.16 := Nat.add head.2 _x.15;
+        let _x.17 := @List.nil _;
+        let _x.18 := List.range'TR.go z _x.14 _x.16 _x.17;
+        let _x.19 := List.forInNew'._at_.Do._example.spec_0 _x.9 _f.4 _x.18 _x.8;
+        return _x.19
 [Compiler.saveBase] size: 10
     def Do._example : Nat :=
       let x := 42;
@@ -831,7 +966,7 @@ trace: [Compiler.saveBase] size: 8
       let _x.5 := @List.cons _ _x.1 _x.4;
       let _x.6 := @List.cons _ z _x.5;
       let _x.7 := @Prod.mk _ _ x z;
-      let _x.8 := List.forInNew._at_.Do._example.spec_1 z _x.6 _x.7;
+      let _x.8 := List.forInNew'._at_.Do._example.spec_2 z _x.6 _x.7;
       return _x.8
 -/
 #guard_msgs in
@@ -1702,7 +1837,7 @@ trace: [Elab.do] let x := 42;
       let x := x + 13;
       let x := x + 13;
       pure x;
-    ForInNew.forIn [1, 2, 3] x
+    forInNew [1, 2, 3] x
       (fun i kcontinue s =>
         let x := s;
         if x = 3 then pure x

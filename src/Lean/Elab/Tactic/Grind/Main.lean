@@ -161,7 +161,8 @@ def mkGrindParams
   this is not very effective. We now use anchors to restrict the set of case-splits.
   -/
   let casesTypes ← Grind.getCasesTypes
-  let params := { params with ematch, casesTypes, inj }
+  let funCCs ← Grind.getFunCCSet
+  let params := { params with ematch, casesTypes, inj, funCCs }
   let suggestions ← if config.suggestions then
     LibrarySuggestions.select mvarId
   else

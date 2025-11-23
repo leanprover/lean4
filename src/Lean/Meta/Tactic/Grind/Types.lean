@@ -163,6 +163,8 @@ structure Context where
   splitSource  : SplitSource := .input
   /-- Symbol priorities for inferring E-matching patterns -/
   symPrios     : SymbolPriorities
+  /-- Global declarations marked with `@[grind funCC]` -/
+  funCCs       : NameSet
   trueExpr     : Expr
   falseExpr    : Expr
   natZExpr     : Expr

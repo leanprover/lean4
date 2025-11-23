@@ -16,6 +16,7 @@ import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Proof
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Tactic.Grind.PropagateInj
+import Lean.Meta.Tactic.Grind.FunCC
 public section
 namespace Lean.Meta.Grind
 
@@ -437,7 +438,8 @@ private def tryEta (e : Expr) (generation : Nat) : GoalM Unit := do
 Returns `true` if we should use `funCC` for applications of the given constant symbol.
 -/
 private def useFunCongrAtDecl (declName : Name) : GrindM Bool := do
-  -- **TODO**: Add attribute to control which constant symbols should be treated as high-order.
+  if (← readThe Grind.Context).funCCs.contains declName then
+    return true
   if (← isInstance declName) then
     /- **Note**: Instances are support elements. No `funCC` -/
     return false

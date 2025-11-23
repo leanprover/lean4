@@ -39,6 +39,7 @@ structure Params where
   casesTypes  : CasesTypes := {}
   extra       : PArray EMatchTheorem := {}
   extraInj    : PArray InjectiveTheorem := {}
+  funCCs      : NameSet := {}
   norm        : Simp.Context
   normProcs   : Array Simprocs
   anchorRefs? : Option (Array AnchorRef) := none
@@ -96,7 +97,8 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
   let config := params.config
   let symPrios := params.symPrios
   let anchorRefs? := params.anchorRefs?
-  x (← mkMethods evalTactic?).toMethodsRef { config, anchorRefs?, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr, symPrios }
+  let funCCs := params.funCCs
+  x (← mkMethods evalTactic?).toMethodsRef { config, anchorRefs?, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr, symPrios, funCCs }
     |>.run' { scState }
 
 private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State := mvarId.withContext do

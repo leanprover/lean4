@@ -730,6 +730,14 @@ static inline void lean_closure_set(u_lean_obj_arg o, unsigned i, lean_obj_arg a
     assert(i < lean_closure_num_fixed(o));
     lean_to_closure(o)->m_objs[i] = a;
 }
+static inline size_t lean_closure_byte_size(lean_object * o) {
+    return sizeof(lean_closure_object) + sizeof(void*)*lean_closure_num_fixed(o);
+}
+
+static inline size_t lean_closure_data_byte_size(lean_object * o) {
+    // Matches for closures.
+    return lean_closure_byte_size(o);
+}
 
 LEAN_EXPORT lean_object* lean_apply_1(lean_object* f, lean_object* a1);
 LEAN_EXPORT lean_object* lean_apply_2(lean_object* f, lean_object* a1, lean_object* a2);
@@ -1155,7 +1163,7 @@ static inline uint8_t lean_string_dec_eq(b_lean_obj_arg s1, b_lean_obj_arg s2) {
 static inline uint8_t lean_string_dec_lt(b_lean_obj_arg s1, b_lean_obj_arg s2) { return lean_string_lt(s1, s2); }
 LEAN_EXPORT uint64_t lean_string_hash(b_lean_obj_arg);
 LEAN_EXPORT lean_obj_res lean_string_of_usize(size_t);
-LEAN_EXPORT uint8_t lean_slice_memcmp(b_lean_obj_arg s1, b_lean_obj_arg s2, b_lean_obj_arg lstart, b_lean_obj_arg rstart, b_lean_obj_arg len);
+LEAN_EXPORT uint8_t lean_string_memcmp(b_lean_obj_arg s1, b_lean_obj_arg s2, b_lean_obj_arg lstart, b_lean_obj_arg rstart, b_lean_obj_arg len);
 LEAN_EXPORT uint64_t lean_slice_hash(b_lean_obj_arg);
 LEAN_EXPORT uint8_t lean_slice_dec_lt(b_lean_obj_arg s1, b_lean_obj_arg s2);
 

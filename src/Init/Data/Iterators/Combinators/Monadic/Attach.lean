@@ -106,16 +106,6 @@ instance Attach.instIteratorLoopPartial {α β : Type w} {m : Type w → Type w'
     IteratorLoopPartial (Attach α m P) m n :=
   .defaultImplementation
 
-instance {α β : Type w} {m : Type w → Type w'} [Monad m]
-    {P : β → Prop} [Iterator α m β] [IteratorSize α m] :
-    IteratorSize (Attach α m P) m where
-  size it := IteratorSize.size it.internalState.inner
-
-instance {α β : Type w} {m : Type w → Type w'} [Monad m]
-    {P : β → Prop} [Iterator α m β] [IteratorSizePartial α m] :
-    IteratorSizePartial (Attach α m P) m where
-  size it := IteratorSizePartial.size it.internalState.inner
-
 end Types
 
 /--

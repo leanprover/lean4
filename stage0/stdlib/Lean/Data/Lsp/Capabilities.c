@@ -5905,29 +5905,29 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_ctor_get(x_1, 3);
-if (lean_obj_tag(x_2) == 0)
+if (lean_obj_tag(x_2) == 1)
 {
-uint8_t x_3; 
-x_3 = 0;
-return x_3;
-}
-else
+lean_object* x_3; 
+x_3 = lean_ctor_get(x_2, 0);
+if (lean_obj_tag(x_3) == 1)
 {
-lean_object* x_4; 
-x_4 = lean_ctor_get(x_2, 0);
-if (lean_obj_tag(x_4) == 0)
-{
-uint8_t x_5; 
-x_5 = 0;
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_ctor_get(x_3, 0);
+x_5 = lean_unbox(x_4);
 return x_5;
 }
 else
 {
-lean_object* x_6; uint8_t x_7; 
-x_6 = lean_ctor_get(x_4, 0);
-x_7 = lean_unbox(x_6);
-return x_7;
+uint8_t x_6; 
+x_6 = 0;
+return x_6;
 }
+}
+else
+{
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
 }
 }
 }

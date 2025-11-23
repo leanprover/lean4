@@ -96,7 +96,7 @@ def collectAvailableImportsFromLake : IO (Option AvailableImports) := do
     args   := #["available-imports"]
   }
   let lakeProc ← IO.Process.spawn spawnArgs
-  let stdout := String.trim (← lakeProc.stdout.readToEnd)
+  let stdout := String.trimAscii (← lakeProc.stdout.readToEnd) |>.copy
   let exitCode ← lakeProc.wait
   match exitCode with
   | 0 =>

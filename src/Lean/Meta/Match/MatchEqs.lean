@@ -11,39 +11,12 @@ public import Lean.Meta.Match.MatchEqsExt
 public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.SplitIf
+import Lean.Meta.Match.SimpH
+import Lean.Meta.Match.SolveOverlap
 
 public section
 
 namespace Lean.Meta
-
-/--
-A custom, approximated, and quick `contradiction` tactic.
-It only finds contradictions of the form `(h₁ : p)` and `(h₂ : ¬ p)` where
-`p`s are structurally equal. The procedure is not quadratic like `contradiction`.
-
-We use it to improve the performance of `proveSubgoalLoop` at `mkSplitterProof`.
-We will eventually have to write more efficient proof automation for this module.
-The new proof automation should exploit the structure of the generated goals and avoid general purpose tactics
-such as `contradiction`.
--/
-private def _root_.Lean.MVarId.contradictionQuick (mvarId : MVarId) : MetaM Bool := do
-  mvarId.withContext do
-    let mut posMap : Std.HashMap Expr FVarId := {}
-    let mut negMap : Std.HashMap Expr FVarId := {}
-    for localDecl in (← getLCtx) do
-      unless localDecl.isImplementationDetail do
-        if let some p ← matchNot? localDecl.type then
-          if let some pFVarId := posMap[p]? then
-            mvarId.assign (← mkAbsurd (← mvarId.getType) (mkFVar pFVarId) localDecl.toExpr)
-            return true
-          negMap := negMap.insert p localDecl.fvarId
-        if (← isProp localDecl.type) then
-          if let some nFVarId := negMap[localDecl.type]? then
-            mvarId.assign (← mkAbsurd (← mvarId.getType) localDecl.toExpr (mkFVar nFVarId))
-            return true
-          posMap := posMap.insert localDecl.type localDecl.fvarId
-      pure ()
-    return false
 
 /--
   Helper method for `proveCondEqThm`. Given a goal of the form `C.rec ... xMajor = rhs`,
@@ -112,19 +85,23 @@ def unfoldNamedPattern (e : Expr) : MetaM Expr := do
 
   This can be used to use the alternative of a match expression in its splitter.
 -/
-partial def forallAltVarsTelescope (altType : Expr) (altNumParams numDiscrEqs : Nat)
+partial def forallAltVarsTelescope (altType : Expr) (altInfo : AltParamInfo)
   (k : (patVars : Array Expr) → (args : Array Expr) → (mask : Array Bool) → (type : Expr) → MetaM α) : MetaM α := do
-  go #[] #[] #[] 0 altType
+  assert! altInfo.numOverlaps = 0
+  if altInfo.hasUnitThunk then
+    let type ← whnfForall altType
+    let type ← Match.unfoldNamedPattern type
+    let type ← instantiateForall type #[mkConst ``Unit.unit]
+    k #[] #[mkConst ``Unit.unit] #[false] type
+  else
+    go #[] #[] #[] 0 altType
 where
   go (ys : Array Expr) (args : Array Expr) (mask : Array Bool) (i : Nat) (type : Expr) : MetaM α := do
     let type ← whnfForall type
-    if i < altNumParams - numDiscrEqs then
-      let Expr.forallE n d b .. := type
-        | throwError "expecting {altNumParams} parameters, excluding {numDiscrEqs} equalities, but found type{indentExpr altType}"
 
-      -- Handle the special case of `Unit` parameters.
-      if i = 0 && altNumParams - numDiscrEqs = 1 && d.isConstOf ``Unit && !b.hasLooseBVars then
-        return ← k #[] #[mkConst ``Unit.unit] #[false] b
+    if i < altInfo.numFields then
+      let Expr.forallE n d b .. := type
+        | throwError "expecting {altInfo.numFields} parameters, but found type{indentExpr altType}"
 
       let d ← Match.unfoldNamedPattern d
       withLocalDeclD n d fun y => do
@@ -172,17 +149,17 @@ where
 
   This can be used to use the alternative of a match expression in its splitter.
 -/
-partial def forallAltTelescope (altType : Expr) (altNumParams numDiscrEqs : Nat)
+partial def forallAltTelescope (altType : Expr) (altInfo : AltParamInfo) (numDiscrEqs : Nat)
     (k : (ys : Array Expr) → (eqs : Array Expr) → (args : Array Expr) → (mask : Array Bool) → (type : Expr) → MetaM α)
     : MetaM α := do
-  forallAltVarsTelescope altType altNumParams numDiscrEqs fun ys args mask altType => do
+  forallAltVarsTelescope altType altInfo fun ys args mask altType => do
     go ys #[] args mask 0 altType
 where
   go (ys : Array Expr) (eqs : Array Expr) (args : Array Expr) (mask : Array Bool) (i : Nat) (type : Expr) : MetaM α := do
     let type ← whnfForall type
     if i < numDiscrEqs then
       let Expr.forallE n d b .. := type
-        | throwError "expecting {altNumParams} parameters, including {numDiscrEqs} equalities, but found type{indentExpr altType}"
+        | throwError "expecting {numDiscrEqs} equalities, but found type{indentExpr altType}"
       let arg ← if let some (_, _, rhs) ← matchEq? d then
         mkEqRefl rhs
       else if let some (_, _, _, rhs) ← matchHEq? d then
@@ -215,152 +192,6 @@ where
     else
       return e
 
-namespace SimpH
-
-/--
-  State for the equational theorem hypothesis simplifier.
-
-  Recall that each equation contains additional hypotheses to ensure the associated case does not taken by previous cases.
-  We have one hypothesis for each previous case.
-
-  Each hypothesis is of the form `forall xs, eqs → False`
-
-  We use tactics to minimize code duplication.
--/
-structure State where
-  mvarId : MVarId            -- Goal representing the hypothesis
-  xs  : List FVarId          -- Pattern variables for a previous case
-  eqs : List FVarId          -- Equations to be processed
-  eqsNew : List FVarId := [] -- Simplified (already processed) equations
-
-abbrev M := StateRefT State MetaM
-
-/--
-  Apply the given substitution to `fvarIds`.
-  This is an auxiliary method for `substRHS`.
--/
-private def applySubst (s : FVarSubst) (fvarIds : List FVarId) : List FVarId :=
-  fvarIds.filterMap fun fvarId => match s.apply (mkFVar fvarId) with
-    | Expr.fvar fvarId .. => some fvarId
-    | _ => none
-
-/--
-  Given an equation of the form `lhs = rhs` where `rhs` is variable in `xs`,
-  replace it everywhere with `lhs`.
--/
-private def substRHS (eq : FVarId) (rhs : FVarId) : M Unit := do
-  assert! (← get).xs.contains rhs
-  let (subst, mvarId) ← substCore (← get).mvarId eq (symm := true)
-  modify fun s => { s with
-    mvarId,
-    xs  := applySubst subst (s.xs.erase rhs)
-    eqs := applySubst subst s.eqs
-    eqsNew := applySubst subst s.eqsNew
-  }
-
-private def isDone : M Bool :=
-  return (← get).eqs.isEmpty
-
-/-- Customized `contradiction` tactic for `simpH?` -/
-private def contradiction (mvarId : MVarId) : MetaM Bool :=
-   mvarId.contradictionCore { genDiseq := false, emptyType := false }
-
-/--
-  Auxiliary tactic that tries to replace as many variables as possible and then apply `contradiction`.
-  We use it to discard redundant hypotheses.
--/
-partial def trySubstVarsAndContradiction (mvarId : MVarId) (forbidden : FVarIdSet := {}) : MetaM Bool :=
-  commitWhen do
-    let mvarId ← substVars mvarId
-    match (← injections mvarId (forbidden := forbidden)) with
-    | .solved => return true -- closed goal
-    | .subgoal mvarId' _ forbidden =>
-      if mvarId' == mvarId then
-        contradiction mvarId
-      else
-        trySubstVarsAndContradiction mvarId' forbidden
-
-private def processNextEq : M Bool := do
-  let s ← get
-  s.mvarId.withContext do
-    if let eq :: eqs := s.eqs then
-      modify fun s => { s with eqs }
-      let eqType ← inferType (mkFVar eq)
-      -- See `substRHS`. Recall that if `rhs` is a variable then if must be in `s.xs`
-      if let some (_, lhs, rhs) ← matchEq? eqType then
-        -- Common case: Different constructors
-        match (← isConstructorApp? lhs), (← isConstructorApp? rhs) with
-        | some lhsCtor, some rhsCtor =>
-          if lhsCtor.name != rhsCtor.name then
-            return false -- If the constructors are different, we can discard the hypothesis even if it a heterogeneous equality
-        | _,_ => pure ()
-        if (← isDefEq lhs rhs) then
-          return true
-        if rhs.isFVar && s.xs.contains rhs.fvarId! then
-          substRHS eq rhs.fvarId!
-          return true
-      if let some (α, lhs, β, rhs) ← matchHEq? eqType then
-        -- Try to convert `HEq` into `Eq`
-        if (← isDefEq α β) then
-          let (eqNew, mvarId) ← heqToEq s.mvarId eq (tryToClear := true)
-          modify fun s => { s with mvarId, eqs := eqNew :: s.eqs }
-          return true
-        -- If it is not possible, we try to show the hypothesis is redundant by substituting even variables that are not at `s.xs`, and then use contradiction.
-        else
-          match (← isConstructorApp? lhs), (← isConstructorApp? rhs) with
-          | some lhsCtor, some rhsCtor =>
-            if lhsCtor.name != rhsCtor.name then
-              return false -- If the constructors are different, we can discard the hypothesis even if it a heterogeneous equality
-            else if (← trySubstVarsAndContradiction s.mvarId) then
-              return false
-          | _, _ =>
-            if (← trySubstVarsAndContradiction s.mvarId) then
-              return false
-      try
-        -- Try to simplify equation using `injection` tactic.
-        match (← injection s.mvarId eq) with
-        | InjectionResult.solved => return false
-        | InjectionResult.subgoal mvarId eqNews .. =>
-          modify fun s => { s with mvarId, eqs := eqNews.toList ++ s.eqs }
-      catch _ =>
-        modify fun s => { s with eqsNew := eq :: s.eqsNew }
-    return true
-
-partial def go : M Bool := do
-  if (← isDone) then
-    return true
-  else if (← processNextEq) then
-    go
-  else
-    return false
-
-end SimpH
-
-/--
-  Auxiliary method for simplifying equational theorem hypotheses.
-
-  Recall that each equation contains additional hypotheses to ensure the associated case was not taken by previous cases.
-  We have one hypothesis for each previous case.
--/
-private partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := withDefault do
-  let numVars ← forallTelescope h fun ys _ => pure (ys.size - numEqs)
-  let mvarId := (← mkFreshExprSyntheticOpaqueMVar h).mvarId!
-  let (xs, mvarId) ← mvarId.introN numVars
-  let (eqs, mvarId) ← mvarId.introN numEqs
-  let (r, s) ← SimpH.go |>.run { mvarId, xs := xs.toList, eqs := eqs.toList }
-  if r then
-    s.mvarId.withContext do
-      let eqs := s.eqsNew.reverse.toArray.map mkFVar
-      let mut r ← mkForallFVars eqs (mkConst ``False)
-      /- We only include variables in `xs` if there is a dependency. -/
-      for x in s.xs.reverse do
-        if (← dependsOn r x) then
-          r ← mkForallFVars #[mkFVar x] r
-      trace[Meta.Match.matchEqs] "simplified hypothesis{indentExpr r}"
-      check r
-      return some r
-  else
-    return none
 
 private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.withContext do
   for localDecl in (← getLCtx) do
@@ -443,68 +274,30 @@ private partial def withSplitterAlts (altTypes : Array Expr) (f : Array Expr →
       f xs
   go 0 #[]
 
-inductive InjectionAnyResult where
-  | solved
-  | failed
-  /-- `fvarId` refers to the local declaration selected for the application of the `injection` tactic. -/
-  | subgoal (fvarId : FVarId) (mvarId : MVarId)
-
-private def injectionAnyCandidate? (type : Expr) : MetaM (Option (Expr × Expr)) := do
-  if let some (_, lhs, rhs) ← matchEq? type then
-    return some (lhs, rhs)
-  else if let some (α, lhs, β, rhs) ← matchHEq? type then
-    if (← isDefEq α β) then
-      return some (lhs, rhs)
-  return none
-
-/--
-Try applying `injection` to a local declaration that is not in `forbidden`.
-
-We use `forbidden` because the `injection` tactic might fail to clear the variable if there are forward dependencies.
-See `proveSubgoalLoop` for additional details.
--/
-private def injectionAny (mvarId : MVarId) (forbidden : FVarIdSet := {}) : MetaM InjectionAnyResult := do
-  mvarId.withContext do
-    for localDecl in (← getLCtx) do
-      unless forbidden.contains localDecl.fvarId do
-        if let some (lhs, rhs) ← injectionAnyCandidate? localDecl.type then
-          unless (← isDefEq lhs rhs) do
-            let lhs ← whnf lhs
-            let rhs ← whnf rhs
-            unless lhs.isRawNatLit && rhs.isRawNatLit do
-              try
-                match (← injection mvarId localDecl.fvarId) with
-                | InjectionResult.solved  => return InjectionAnyResult.solved
-                | InjectionResult.subgoal mvarId .. => return InjectionAnyResult.subgoal localDecl.fvarId mvarId
-              catch ex =>
-                trace[Meta.Match.matchEqs] "injectionAnyFailed at {localDecl.userName}, error\n{ex.toMessageData}"
-                pure ()
-    return InjectionAnyResult.failed
-
-
-private abbrev ConvertM := ReaderT (FVarIdMap (Expr × Nat × Array Bool)) $ StateRefT (Array MVarId) MetaM
+private abbrev ConvertM := ReaderT (FVarIdMap (Expr × AltParamInfo × Array Bool)) $ StateRefT (Array MVarId) MetaM
 
 /--
   Construct a proof for the splitter generated by `mkEquationsFor`.
   The proof uses the definition of the `match`-declaration as a template (argument `template`).
   - `alts` are free variables corresponding to alternatives of the `match` auxiliary declaration being processed.
   - `altNews` are the new free variables which contains additional hypotheses that ensure they are only used
-     when the previous overlapping alternatives are not applicable. -/
+     when the previous overlapping alternatives are not applicable.
+  - `altInfos` refers to the splitter -/
 private partial def mkSplitterProof (matchDeclName : Name) (template : Expr) (alts altsNew : Array Expr)
-    (altsNewNumParams : Array Nat)
-    (altArgMasks : Array (Array Bool)) : MetaM Expr := do
+    (altInfos : Array AltParamInfo) (altArgMasks : Array (Array Bool)) : MetaM Expr := do
   trace[Meta.Match.matchEqs] "proof template: {template}"
   let map := mkMap
   let (proof, mvarIds) ← convertTemplate template |>.run map |>.run #[]
   trace[Meta.Match.matchEqs] "splitter proof: {proof}"
   for mvarId in mvarIds do
-    proveSubgoal mvarId
+    let mvarId ← mvarId.tryClearMany (alts.map (·.fvarId!))
+    solveOverlap mvarId
   instantiateMVars proof
 where
-  mkMap : FVarIdMap (Expr × Nat × Array Bool) := Id.run do
+  mkMap : FVarIdMap (Expr × AltParamInfo × Array Bool) := Id.run do
     let mut m := {}
-    for alt in alts, altNew in altsNew, numParams in altsNewNumParams, argMask in altArgMasks do
-      m := m.insert alt.fvarId! (altNew, numParams, argMask)
+    for alt in alts, altNew in altsNew, altInfo in altInfos, argMask in altArgMasks do
+      m := m.insert alt.fvarId! (altNew, altInfo, argMask)
     return m
 
   trimFalseTrail (argMask : Array Bool) : Array Bool :=
@@ -664,8 +457,11 @@ where
         return .done (← convertCastEqRec e)
       else
         let Expr.fvar fvarId .. := e.getAppFn | return .continue
-        let some (altNew, numParams, argMask) := (← read).get? fvarId | return .continue
-        trace[Meta.Match.matchEqs] ">> argMask: {argMask}, e: {e}, {altNew}"
+        let some (altNew, altParamInfo, argMask) := (← read).get? fvarId | return .continue
+        trace[Meta.Match.matchEqs] ">> argMask: {argMask}, altParamInfo: {repr altParamInfo}, e: {e}, alsNew: {altNew}, "
+        if altParamInfo.hasUnitThunk then
+          let eNew := mkApp altNew (mkConst ``Unit.unit)
+          return TransformStep.done eNew
         let mut newArgs := #[]
         let argMask := trimFalseTrail argMask
         unless e.getAppNumArgs ≥ argMask.size do
@@ -674,38 +470,11 @@ where
           if includeArg then
             newArgs := newArgs.push arg
         let eNew := mkAppN altNew newArgs
-        /- Recall that `numParams` does not include the equalities associated with discriminants of the form `h : discr`. -/
-        let (mvars, _, _) ← forallMetaBoundedTelescope (← inferType eNew) (numParams - newArgs.size) (kind := MetavarKind.syntheticOpaque)
+        let (mvars, _, _) ← forallMetaBoundedTelescope (← inferType eNew) altParamInfo.numOverlaps (kind := MetavarKind.syntheticOpaque)
         modify fun s => s ++ (mvars.map (·.mvarId!))
         let eNew := mkAppN eNew mvars
         return TransformStep.done eNew
 
-  /-
-  `forbidden` tracks variables that we have already applied `injection`.
-  Recall that the `injection` tactic may not be able to eliminate them when
-  they have forward dependencies.
-  -/
-  proveSubgoalLoop (mvarId : MVarId) (forbidden : FVarIdSet) : MetaM Unit := do
-    trace[Meta.Match.matchEqs] "proveSubgoalLoop\n{mvarId}"
-    if (← mvarId.contradictionQuick) then
-      return ()
-    match (← injectionAny mvarId forbidden) with
-    | .solved => return ()
-    | .failed =>
-      let mvarId' ← substVars mvarId
-      if mvarId' == mvarId then
-        if (← mvarId.contradictionCore {}) then
-          return ()
-        throwError "failed to generate splitter for match auxiliary declaration `{matchDeclName}`, unsolved subgoal:\n{MessageData.ofGoal mvarId}"
-      else
-        proveSubgoalLoop mvarId' forbidden
-    | .subgoal fvarId mvarId => proveSubgoalLoop mvarId (forbidden.insert fvarId)
-
-  proveSubgoal (mvarId : MVarId) : MetaM Unit := do
-    trace[Meta.Match.matchEqs] "subgoal {mkMVar mvarId}, {repr (← mvarId.getDecl).kind}, {← mvarId.isAssigned}\n{MessageData.ofGoal mvarId}"
-    let (_, mvarId) ← mvarId.intros
-    let mvarId ← mvarId.tryClearMany (alts.map (·.fvarId!))
-    proveSubgoalLoop mvarId {}
 
 /--
   Create new alternatives (aka minor premises) by replacing `discrs` with `patterns` at `alts`.
@@ -763,25 +532,33 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
     let mut notAlts := #[]
     let mut idx := 1
     let mut splitterAltTypes := #[]
-    let mut splitterAltNumParams := #[]
+    let mut splitterAltInfos := #[]
     let mut altArgMasks := #[] -- masks produced by `forallAltTelescope`
     for i in *...alts.size do
-      let altNumParams := matchInfo.altNumParams[i]!
+      let altInfo := matchInfo.altInfos[i]!
       let thmName := Name.str baseName eqnThmSuffixBase |>.appendIndexAfter idx
       eqnNames := eqnNames.push thmName
-      let (notAlt, splitterAltType, splitterAltNumParam, argMask) ←
-          forallAltTelescope (← inferType alts[i]!) altNumParams numDiscrEqs
+      let (notAlt, splitterAltType, splitterAltInfo, argMask) ←
+          forallAltTelescope (← inferType alts[i]!) altInfo numDiscrEqs
           fun ys eqs rhsArgs argMask altResultType => do
         let patterns := altResultType.getAppArgs
         let mut hs := #[]
-        for notAlt in notAlts do
+        for overlappedBy in matchInfo.overlaps.overlapping i do
+          let notAlt := notAlts[overlappedBy]!
           let h ← instantiateForall notAlt patterns
           if let some h ← simpH? h patterns.size then
             hs := hs.push h
         trace[Meta.Match.matchEqs] "hs: {hs}"
-        let splitterAltType ← mkForallFVars ys (← hs.foldrM (init := (← mkForallFVars eqs altResultType)) (mkArrow · ·))
+        let splitterAltType ← mkForallFVars eqs altResultType
+        let splitterAltType ← mkArrowN hs splitterAltType
+        let splitterAltType ← mkForallFVars ys splitterAltType
+        let hasUnitThunk := splitterAltType == altResultType
+        let splitterAltType ← if hasUnitThunk then
+          mkArrow (mkConst ``Unit) splitterAltType
+        else
+          pure splitterAltType
         let splitterAltType ← unfoldNamedPattern splitterAltType
-        let splitterAltNumParam := hs.size + ys.size
+        let splitterAltInfo := { numFields := ys.size, numOverlaps := hs.size, hasUnitThunk }
         -- Create a proposition for representing terms that do not match `patterns`
         let mut notAlt := mkConst ``False
         for discr in discrs.toArray.reverse, pattern in patterns.reverse do
@@ -804,10 +581,10 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
             type        := thmType
             value       := thmVal
           }
-          return (notAlt, splitterAltType, splitterAltNumParam, argMask)
+          return (notAlt, splitterAltType, splitterAltInfo, argMask)
       notAlts := notAlts.push notAlt
       splitterAltTypes := splitterAltTypes.push splitterAltType
-      splitterAltNumParams := splitterAltNumParams.push splitterAltNumParam
+      splitterAltInfos := splitterAltInfos.push splitterAltInfo
       altArgMasks := altArgMasks.push argMask
       trace[Meta.Match.matchEqs] "splitterAltType: {splitterAltType}"
       idx := idx + 1
@@ -816,14 +593,14 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
       let splitterParams := params.toArray ++ #[motive] ++ discrs.toArray ++ altsNew
       let splitterType ← mkForallFVars splitterParams matchResultType
       trace[Meta.Match.matchEqs] "splitterType: {splitterType}"
-      let template := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
-      let template ← deltaExpand template (· == constInfo.name)
-      let template := template.headBeta
       let splitterVal ←
         if (← isDefEq splitterType constInfo.type) then
           pure <| mkConst constInfo.name us
         else
-          mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew splitterAltNumParams altArgMasks)
+          let template := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
+          let template ← deltaExpand template (· == constInfo.name)
+          let template := template.headBeta
+          mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew splitterAltInfos altArgMasks)
       addAndCompile <| Declaration.defnDecl {
         name        := splitterName
         levelParams := constInfo.levelParams
@@ -833,7 +610,8 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
         safety      := .safe
       }
       setInlineAttribute splitterName
-      let result := { eqnNames, splitterName, splitterAltNumParams }
+      let splitterMatchInfo := { matchInfo with altInfos := splitterAltInfos }
+      let result := { eqnNames, splitterName, splitterMatchInfo }
       registerMatchEqns matchDeclName result
 
 /- We generate the equations and splitter on demand, and do not save them on .olean files. -/
@@ -879,12 +657,12 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
     let mut notAlts := #[]
     let mut idx := 1
     for i in *...alts.size do
-      let altNumParams := matchInfo.altNumParams[i]!
+      let altInfo := matchInfo.altInfos[i]!
       let thmName := (Name.str baseName congrEqnThmSuffixBase).appendIndexAfter idx
       eqnNames := eqnNames.push thmName
       let notAlt ← do
         let alt := alts[i]!
-        Match.forallAltVarsTelescope (← inferType alt) altNumParams numDiscrEqs fun altVars args _mask altResultType => do
+        Match.forallAltVarsTelescope (← inferType alt) altInfo fun altVars args _mask altResultType => do
         let patterns ← forallTelescope altResultType fun _ t => pure t.getAppArgs
         let mut heqsTypes := #[]
         assert! patterns.size == discrs.size
@@ -894,9 +672,10 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
         withLocalDeclsDND heqsTypes fun heqs => do
           let rhs ← Match.mkAppDiscrEqs (mkAppN alt args) heqs numDiscrEqs
           let mut hs := #[]
-          for notAlt in notAlts do
+          for overlappedBy in matchInfo.overlaps.overlapping i do
+            let notAlt := notAlts[overlappedBy]!
             let h ← instantiateForall notAlt patterns
-            if let some h ← Match.simpH? h patterns.size then
+            if let some h ← simpH? h patterns.size then
               hs := hs.push h
           trace[Meta.Match.matchEqs] "hs: {hs}"
           let mut notAlt := mkConst ``False

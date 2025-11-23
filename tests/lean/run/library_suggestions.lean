@@ -16,7 +16,7 @@ set_library_suggestions Nat
 
 set_library_suggestions (fun _ _ => pure #[])
 
-/-- info: Library suggestions: [] -/
+/-- info: Library suggestions: -/
 #guard_msgs in
 example : True := by
   suggestions

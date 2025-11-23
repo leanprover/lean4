@@ -22,17 +22,53 @@ section AxiomaticInstances
 public instance (r : α → α → Prop) [Asymm r] : Irrefl r where
   irrefl a h := Asymm.asymm a a h h
 
-public instance {r : α → α → Prop} [Total r] : Refl r where
+public instance (r : α → α → Prop) [Total r] : Refl r where
   refl a := by simpa using Total.total a a
 
+public instance (r : α → α → Prop) [Asymm r] : Antisymm r where
+  antisymm a b h h' := (Asymm.asymm a b h h').elim
+
+public instance (r : α → α → Prop) [Total r] : Trichotomous r where
+  trichotomous a b h h' := by simpa [h, h'] using Total.total (r := r) a b
+
+public theorem Trichotomous.rel_or_eq_or_rel_swap {r : α → α → Prop} [i : Trichotomous r] {a b} :
+    r a b ∨ a = b ∨ r b a := match Classical.em (r a b) with
+  | .inl hab => .inl hab | .inr hab => match Classical.em (r b a) with
+    | .inl hba => .inr <| .inr hba
+    | .inr hba => .inr <| .inl <| i.trichotomous _ _ hab hba
+
+public theorem trichotomous_of_rel_or_eq_or_rel_swap {r : α → α → Prop}
+    (h : ∀ {a b}, r a b ∨ a = b ∨ r b a) : Trichotomous r where
+  trichotomous _ _ hab hba := (h.resolve_left hab).resolve_right hba
+
+public instance Antisymm.trichotomous_of_antisymm_not {r : α → α → Prop} [i : Antisymm (¬ r · ·)] :
+    Trichotomous r where trichotomous := i.antisymm
+
+public theorem Trichotomous.antisymm_not {r : α → α → Prop} [i : Trichotomous r] :
+    Antisymm (¬ r · ·) where antisymm := i.trichotomous
+
+public theorem Total.rel_of_not_rel_swap {r : α → α → Prop} [Total r] {a b} (h : ¬ r a b) : r b a :=
+  (Total.total a b).elim (fun h' => (h h').elim) (·)
+
+public theorem total_of_not_rel_swap_imp_rel {r : α → α → Prop} (h : ∀ {a b}, ¬ r a b → r b a) :
+    Total r where
+  total a b := match Classical.em (r a b) with | .inl hab => .inl hab | .inr hab => .inr (h hab)
+
+public theorem total_of_refl_of_trichotomous (r : α → α → Prop) [Refl r] [Trichotomous r] :
+    Total r where
+  total a b := (Trichotomous.rel_or_eq_or_rel_swap (a := a) (b := b) (r := r)).elim Or.inl <|
+    fun h => h.elim (fun h => h ▸ Or.inl (Refl.refl _)) Or.inr
+
+public theorem asymm_of_irrefl_of_antisymm (r : α → α → Prop) [Irrefl r] [Antisymm r] :
+    Asymm r where asymm a b h h' := Irrefl.irrefl _ (Antisymm.antisymm a b h h' ▸ h)
+
 public instance Total.asymm_of_total_not {r : α → α → Prop} [i : Total (¬ r · ·)] : Asymm r where
-  asymm a b h := by cases i.total a b <;> trivial
+  asymm a b h := (i.total a b).resolve_left (· h)
 
 public theorem Asymm.total_not {r : α → α → Prop} [i : Asymm r] : Total (¬ r · ·) where
-  total a b := by
-    apply Classical.byCases (p := r a b) <;> intro hab
-    · exact Or.inr <| i.asymm a b hab
-    · exact Or.inl hab
+  total a b := match Classical.em (r b a) with
+    | .inl hba => .inl <| i.asymm b a hba
+    | .inr hba => .inr hba
 
 public instance {α : Type u} [LE α] [IsPartialOrder α] :
     Antisymm (α := α) (· ≤ ·) where
@@ -74,9 +110,7 @@ public theorem le_total {α : Type u} [LE α] [Std.Total (α := α) (· ≤ ·)]
   Std.Total.total a b
 
 public theorem le_of_not_ge {α : Type u} [LE α] [Std.Total (α := α) (· ≤ ·)] {a b : α} :
-    ¬ b ≤ a → a ≤ b := by
-  intro h
-  simpa [h] using Std.Total.total a b (r := (· ≤ ·))
+    ¬ b ≤ a → a ≤ b := Total.rel_of_not_rel_swap
 
 end LE
 
@@ -90,18 +124,30 @@ public theorem lt_iff_le_and_not_ge {α : Type u} [LT α] [LE α] [LawfulOrderLT
     a < b ↔ a ≤ b ∧ ¬ b ≤ a :=
   LawfulOrderLT.lt_iff a b
 
-public theorem not_lt {α : Type u} [LT α] [LE α] [Std.Total (α := α) (· ≤ ·)] [LawfulOrderLT α]
-    {a b : α} : ¬ a < b ↔ b ≤ a := by
-  simp [lt_iff_le_and_not_ge, Classical.not_not, Std.Total.total]
+public theorem not_lt_iff_not_le_or_ge {α : Type u} [LT α] [LE α] [LawfulOrderLT α]
+    {a b : α} : ¬ a < b ↔ ¬ a ≤ b ∨ b ≤ a := by
+  simp only [lt_iff_le_and_not_ge, Classical.not_and_iff_not_or_not, Classical.not_not]
+
+public theorem not_le_of_gt {α : Type u} [LT α] [LE α] [LawfulOrderLT α] {a b : α}
+    (h : a < b) : ¬ b ≤ a := (lt_iff_le_and_not_ge.1 h).2
+
+public theorem not_lt_of_ge {α : Type u} [LT α] [LE α] [LawfulOrderLT α] {a b : α}
+    (h : a ≤ b) : ¬ b < a := imp_not_comm.1 not_le_of_gt h
+
+public instance {α : Type u} {_ : LE α} [LT α] [LawfulOrderLT α]
+    [Trichotomous (α := α) (· < ·)] : Antisymm (α := α) (· ≤ ·) where
+  antisymm _ _ hab hba := Trichotomous.trichotomous _ _ (not_lt_of_ge hba) (not_lt_of_ge hab)
 
 public theorem not_gt_of_lt {α : Type u} [LT α] [i : Std.Asymm (α := α) (· < ·)] {a b : α}
     (h : a < b) : ¬ b < a :=
   i.asymm a b h
 
 public theorem le_of_lt {α : Type u} [LT α] [LE α] [LawfulOrderLT α] {a b : α} (h : a < b) :
-    a ≤ b := by
-  simp only [LawfulOrderLT.lt_iff] at h
-  exact h.1
+    a ≤ b := (lt_iff_le_and_not_ge.1 h).1
+
+public instance {α : Type u} {_ : LT α} [LE α] [LawfulOrderLT α]
+    [Antisymm (α := α) (· ≤ ·)] : Antisymm (α := α) (· < ·) where
+  antisymm _ _ hab hba := Antisymm.antisymm _ _ (le_of_lt hab) (le_of_lt hba)
 
 public instance {α : Type u} [LT α] [LE α] [LawfulOrderLT α] :
     Std.Asymm (α := α) (· < ·) where
@@ -110,8 +156,9 @@ public instance {α : Type u} [LT α] [LE α] [LawfulOrderLT α] :
     intro h h'
     exact h.2.elim h'.1
 
-public instance {α : Type u} [LT α] [LE α] [LawfulOrderLT α] :
-    Std.Irrefl (α := α) (· < ·) := inferInstance
+@[deprecated instIrreflOfAsymm (since := "2025-10-24")]
+public theorem instIrreflLtOfIsPreorderOfLawfulOrderLT {α : Type u} [LT α] [LE α]
+    [LawfulOrderLT α] : Std.Irrefl (α := α) (· < ·) := inferInstance
 
 public instance {α : Type u} [LT α] [LE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) ]
     [LawfulOrderLT α] : Trans (α := α) (· < ·) (· < ·) (· < ·) where
@@ -122,10 +169,19 @@ public instance {α : Type u} [LT α] [LE α] [Trans (α := α) (· ≤ ·) (· 
     · intro hca
       exact hab.2.elim (le_trans hbc.1 hca)
 
+public theorem not_lt {α : Type u} [LT α] [LE α] [Std.Total (α := α) (· ≤ ·)] [LawfulOrderLT α]
+    {a b : α} : ¬ a < b ↔ b ≤ a := by
+  simp [not_lt_iff_not_le_or_ge]
+  exact le_of_not_ge
+
+public theorem not_le {α : Type u} [LT α] [LE α] [Std.Total (α := α) (· ≤ ·)] [LawfulOrderLT α]
+    {a b : α} : ¬ a ≤ b ↔ b < a := by
+  simp [lt_iff_le_and_not_ge]
+  exact le_of_not_ge
+
 public instance {α : Type u} {_ : LT α} [LE α] [LawfulOrderLT α]
-    [Total (α := α) (· ≤ ·)] [Antisymm (α := α) (· ≤ ·)] :
-    Antisymm (α := α) (¬ · < ·) where
-  antisymm a b hab hba := by
+    [Total (α := α) (· ≤ ·)] [Antisymm (α := α) (· ≤ ·)] : Trichotomous (α := α) (· < ·) where
+  trichotomous a b hab hba := by
     simp only [not_lt] at hab hba
     exact Antisymm.antisymm (r := (· ≤ ·)) a b hba hab
 
@@ -136,9 +192,9 @@ public instance {α : Type u} {_ : LT α} [LE α] [LawfulOrderLT α]
     simp only [not_lt] at hab hbc ⊢
     exact le_trans hbc hab
 
-public instance {α : Type u} {_ : LT α} [LE α] [LawfulOrderLT α] [Total (α := α) (· ≤ ·)] :
-    Total (α := α) (¬ · < ·) where
-  total a b := by simp [not_lt, Std.Total.total]
+@[deprecated Asymm.total_not (since := "2025-10-24")]
+public theorem instTotalNotLtOfLawfulOrderLTOfLe {α : Type u} {_ : LT α} [LE α] [LawfulOrderLT α]
+    : Total (α := α) (¬ · < ·) := Asymm.total_not
 
 public theorem lt_of_le_of_lt {α : Type u} [LE α] [LT α]
     [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)] [LawfulOrderLT α] {a b c : α} (hab : a ≤ b)

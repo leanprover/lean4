@@ -11,6 +11,7 @@ public import Lake.Toml.Data.Dict
 public import Lake.Toml.Data.DateTime
 import Lake.Util.String
 import Init.Data.String.TakeDrop
+import Init.Data.String.Search
 
 /-!
 # TOML Value
@@ -133,7 +134,7 @@ public def ppTable (t : Table) : String :=
     | _ => (appendKeyval ts k v, fs)
   -- Ensures root table keys come before subtables
   -- See https://github.com/leanprover/lean4/issues/4099
-  (ts.push '\n' ++ fs).trimRight.push '\n'
+  (ts.push '\n' ++ fs).trimAsciiEnd.copy.push '\n'
 where
   appendKeyval s k v :=
     s.append s!"{ppKey k} = {v}\n"

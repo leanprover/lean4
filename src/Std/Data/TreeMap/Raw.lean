@@ -10,3 +10,5 @@ public import Std.Data.TreeMap.Raw.Basic
 public import Std.Data.TreeMap.Raw.AdditionalOperations
 public import Std.Data.TreeMap.Raw.Lemmas
 public import Std.Data.TreeMap.Raw.WF
+public import Std.Data.TreeMap.Raw.Iterator
+public import Std.Data.TreeMap.Raw.Slice

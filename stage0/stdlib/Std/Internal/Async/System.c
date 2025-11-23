@@ -175,6 +175,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_getGroup(lean_object*);
 static lean_object* l_Prod_repr___at___00List_repr___at___00Std_Internal_IO_Async_System_instReprEnvironment_repr_spec__0_spec__0___redArg___closed__5;
 static lean_object* l_Array_Array_repr___at___00Std_Internal_IO_Async_System_instReprGroupInfo_repr_spec__0___closed__8;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instReprEnvironment_repr___redArg(lean_object*);
+uint8_t l_Option_instDecidableEq___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instReprGroupId___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l_List_repr___at___00Std_Internal_IO_Async_System_instReprEnvironment_repr_spec__0___redArg___closed__5;
 lean_object* l_instBEqOfDecidableEq___redArg(lean_object*);
@@ -305,7 +306,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instDecidableEqUserId_de
 static lean_object* l_Option_repr___at___00Std_Internal_IO_Async_System_instReprSystemUser_repr_spec__0___closed__3;
 LEAN_EXPORT lean_object* l_Option_repr___at___00Std_Internal_IO_Async_System_instReprSystemUser_repr_spec__3___boxed(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-uint8_t l_Option_instDecidableEq_decEq___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_instOrdUserId___closed__0;
 static lean_object* l_Std_Internal_IO_Async_System_instReprEnvironment_repr___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_getCPUInfo();
@@ -806,7 +806,7 @@ else
 {
 lean_object* x_14; uint8_t x_15; 
 x_14 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_System_instDecidableEqUserId___boxed), 2, 0);
-x_15 = l_Option_instDecidableEq_decEq___redArg(x_14, x_4, x_9);
+x_15 = l_Option_instDecidableEq___redArg(x_14, x_4, x_9);
 if (x_15 == 0)
 {
 lean_dec(x_12);
@@ -821,7 +821,7 @@ else
 {
 lean_object* x_16; uint8_t x_17; 
 x_16 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_System_instDecidableEqGroupId___boxed), 2, 0);
-x_17 = l_Option_instDecidableEq_decEq___redArg(x_16, x_5, x_10);
+x_17 = l_Option_instDecidableEq___redArg(x_16, x_5, x_10);
 if (x_17 == 0)
 {
 lean_dec(x_12);
@@ -834,7 +834,7 @@ else
 {
 lean_object* x_18; uint8_t x_19; 
 x_18 = lean_alloc_closure((void*)(l_instDecidableEqString___boxed), 2, 0);
-x_19 = l_Option_instDecidableEq_decEq___redArg(x_18, x_6, x_11);
+x_19 = l_Option_instDecidableEq___redArg(x_18, x_6, x_11);
 if (x_19 == 0)
 {
 lean_dec(x_12);
@@ -845,7 +845,7 @@ else
 {
 lean_object* x_20; uint8_t x_21; 
 x_20 = lean_alloc_closure((void*)(l_System_instDecidableEqFilePath___boxed), 2, 0);
-x_21 = l_Option_instDecidableEq_decEq___redArg(x_20, x_7, x_12);
+x_21 = l_Option_instDecidableEq___redArg(x_20, x_7, x_12);
 return x_21;
 }
 }
@@ -1781,7 +1781,7 @@ return x_6;
 else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 lean_dec_ref(x_1);
@@ -3385,7 +3385,7 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; 
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 lean_dec_ref(x_1);
@@ -3674,7 +3674,7 @@ return x_6;
 else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 lean_dec_ref(x_1);
@@ -4890,8 +4890,8 @@ if (lean_is_scalar(x_10)) {
  x_14 = x_10;
 }
 lean_ctor_set(x_14, 0, x_5);
-lean_ctor_set(x_14, 1, x_12);
-lean_ctor_set(x_14, 2, x_11);
+lean_ctor_set(x_14, 1, x_11);
+lean_ctor_set(x_14, 2, x_12);
 lean_ctor_set(x_14, 3, x_8);
 lean_ctor_set(x_14, 4, x_13);
 if (lean_is_scalar(x_4)) {
@@ -4908,8 +4908,8 @@ if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_19; 
 x_19 = lean_box(0);
-x_11 = x_18;
-x_12 = x_17;
+x_11 = x_17;
+x_12 = x_18;
 x_13 = x_19;
 goto block_16;
 }
@@ -4919,8 +4919,8 @@ uint8_t x_20;
 x_20 = !lean_is_exclusive(x_9);
 if (x_20 == 0)
 {
-x_11 = x_18;
-x_12 = x_17;
+x_11 = x_17;
+x_12 = x_18;
 x_13 = x_9;
 goto block_16;
 }
@@ -4932,8 +4932,8 @@ lean_inc(x_21);
 lean_dec(x_9);
 x_22 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_22, 0, x_21);
-x_11 = x_18;
-x_12 = x_17;
+x_11 = x_17;
+x_12 = x_18;
 x_13 = x_22;
 goto block_16;
 }

@@ -1628,11 +1628,14 @@ theorem filterMap_eq_filter {p : α → Bool} (w : stop = as.size) :
   cases as
   simp
 
-@[grind =]
 theorem filterMap_filterMap {f : α → Option β} {g : β → Option γ} {xs : Array α} :
     filterMap g (filterMap f xs) = filterMap (fun x => (f x).bind g) xs := by
   cases xs
   simp [List.filterMap_filterMap]
+
+grind_pattern filterMap_filterMap => filterMap g (filterMap f xs) where
+  f =/= some
+  g =/= some
 
 @[grind =]
 theorem map_filterMap {f : α → Option β} {g : β → γ} {xs : Array α} :
@@ -2228,8 +2231,8 @@ theorem push_eq_flatten_iff {xss : Array (Array α)} {ys : Array α} {y : α} :
 --           zs = cs ++ ds.flatten := by sorry
 
 
-/-- Two arrays of subarrays are equal iff their flattens coincide, as well as the sizes of the
-subarrays. -/
+/-- Two arrays of arrays are equal iff their flattens coincide, as well as the sizes of the
+arrays. -/
 theorem eq_iff_flatten_eq {xss₁ xss₂ : Array (Array α)} :
     xss₁ = xss₂ ↔ xss₁.flatten = xss₂.flatten ∧ map size xss₁ = map size xss₂ := by
   cases xss₁ using array₂_induction with
@@ -3325,6 +3328,16 @@ theorem foldr_filterMap {f : α → Option β} {g : β → γ → γ} {xs : Arra
     (xs.filterMap f).foldr g init = xs.foldr (fun x y => match f x with | some b => g b y | none => y) init := by
   simp [foldr_filterMap']
 
+theorem foldl_flatMap {f : α → Array β} {g : γ → β → γ} {xs : Array α} {init : γ} :
+    (xs.flatMap f).foldl g init = xs.foldl (fun acc x => (f x).foldl g acc) init := by
+  rcases xs with ⟨l⟩
+  simp [List.foldl_flatMap]
+
+theorem foldr_flatMap {f : α → Array β} {g : β → γ → γ} {xs : Array α} {init : γ} :
+    (xs.flatMap f).foldr g init = xs.foldr (fun x acc => (f x).foldr g acc) init := by
+  rcases xs with ⟨l⟩
+  simp [List.foldr_flatMap]
+
 theorem foldl_map_hom' {g : α → β} {f : α → α → α} {f' : β → β → β} {a : α} {xs : Array α}
     {stop : Nat} (h : ∀ x y, f' (g x) (g y) = g (f x y)) (w : stop = xs.size) :
     (xs.map g).foldl f' (g a) 0 stop = g (xs.foldl f a) := by
@@ -3542,11 +3555,6 @@ theorem mem_of_back? {xs : Array α} {a : α} (h : xs.back? = some a) : a ∈ xs
   rcases ys with ⟨ys⟩
   simp only [List.append_toArray, List.back_toArray, List.getLast_append, List.isEmpty_iff,
     List.isEmpty_toArray]
-  split
-  · rw [dif_pos]
-    simpa only [List.isEmpty_toArray]
-  · rw [dif_neg]
-    simpa only [List.isEmpty_toArray]
 
 theorem back_append_right {xs ys : Array α} (h : 0 < ys.size) :
     (xs ++ ys).back (by simp; omega) = ys.back h := by
@@ -4262,6 +4270,10 @@ theorem size_uset {xs : Array α} {v : α} {i : USize} (h : i.toNat < xs.size) :
 
 theorem getElem!_eq_getD [Inhabited α] {xs : Array α} {i} : xs[i]! = xs.getD i default := by
   rfl
+
+theorem getElem_eq_getD {xs : Array α} {i} {h : i < xs.size} (fallback : α) :
+    xs[i]'h = xs.getD i fallback := by
+  rw [getD_eq_getD_getElem?, getElem_eq_getElem?_get, Option.get_eq_getD]
 
 /-! # mem -/
 

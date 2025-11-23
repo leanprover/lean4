@@ -7,15 +7,9 @@ module
 
 prelude
 public import Init.Data.String.Substring
-public import Init.Data.String.Iterator
+import Init.Data.String.Search
 
 public section
-
-instance : Repr String.Iterator where
-  reprPrec | ⟨s, pos⟩, prec => Repr.addAppParen ("String.Iterator.mk " ++ reprArg s ++ " " ++ reprArg pos) prec
-
-instance : ToString String.Iterator :=
-  ⟨fun it => it.remainingToString⟩
 
 /--
 Interprets a string as the decimal representation of an integer, returning it. Returns `none` if
@@ -41,7 +35,7 @@ Examples:
 -/
 def String.toInt? (s : String) : Option Int := do
   if s.front = '-' then do
-    let v ← (s.toSubstring.drop 1).toNat?;
+    let v ← (s.toRawSubstring.drop 1).toNat?;
     pure <| - Int.ofNat v
   else
    Int.ofNat <$> s.toNat?
@@ -69,7 +63,7 @@ Examples:
 -/
 def String.isInt (s : String) : Bool :=
   if s.front = '-' then
-    (s.toSubstring.drop 1).isNat
+    (s.toRawSubstring.drop 1).isNat
   else
     s.isNat
 

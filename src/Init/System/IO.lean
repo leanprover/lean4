@@ -10,6 +10,7 @@ public import Init.System.IOError
 public import Init.System.FilePath
 public import Init.Data.Ord.UInt
 import Init.Data.String.TakeDrop
+import Init.Data.String.Search
 
 public section
 
@@ -1008,8 +1009,8 @@ partial def Handle.lines (h : Handle) : IO (Array String) := do
     if line.length == 0 then
       pure lines
     else if line.back == '\n' then
-      let line := line.dropRight 1
-      let line := if line.back == '\r' then line.dropRight 1 else line
+      let line := line.dropEnd 1 |>.copy
+      let line := if line.back == '\r' then line.dropEnd 1 |>.copy else line
       read <| lines.push line
     else
       pure <| lines.push line
@@ -1791,8 +1792,8 @@ partial def lines (s : Stream) : IO (Array String) := do
     if line.length == 0 then
       pure lines
     else if line.back == '\n' then
-      let line := line.dropRight 1
-      let line := if line.back == '\r' then line.dropRight 1 else line
+      let line := line.dropEnd 1 |>.copy
+      let line := if line.back == '\r' then line.dropEnd 1 |>.copy else line
       read <| lines.push line
     else
       pure <| lines.push line

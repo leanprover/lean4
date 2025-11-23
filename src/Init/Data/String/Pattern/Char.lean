@@ -29,7 +29,7 @@ deriving Inhabited
 namespace ForwardCharSearcher
 
 @[inline]
-def iter (s : Slice) (c : Char) : Std.Iter (α := ForwardCharSearcher s) (SearchStep s) :=
+def iter (c : Char) (s : Slice) : Std.Iter (α := ForwardCharSearcher s) (SearchStep s) :=
   { internalState := { currPos := s.startPos, needle := c }}
 
 instance (s : Slice) : Std.Iterators.Iterator (ForwardCharSearcher s) Id (SearchStep s) where
@@ -79,10 +79,10 @@ instance : Std.Iterators.Finite (ForwardCharSearcher s) Id :=
 instance : Std.Iterators.IteratorLoop (ForwardCharSearcher s) Id Id :=
   .defaultImplementation
 
-instance : ToForwardSearcher Char ForwardCharSearcher where
-  toSearcher := iter
+instance {c : Char} : ToForwardSearcher c ForwardCharSearcher where
+  toSearcher := iter c
 
-instance : ForwardPattern Char := .defaultImplementation
+instance {c : Char} : ForwardPattern c := .defaultImplementation
 
 end ForwardCharSearcher
 
@@ -94,7 +94,7 @@ deriving Inhabited
 namespace BackwardCharSearcher
 
 @[inline]
-def iter (s : Slice) (c : Char) : Std.Iter (α := BackwardCharSearcher s) (SearchStep s) :=
+def iter (c : Char) (s : Slice) : Std.Iter (α := BackwardCharSearcher s) (SearchStep s) :=
   { internalState := { currPos := s.endPos, needle := c }}
 
 instance (s : Slice) : Std.Iterators.Iterator (BackwardCharSearcher s) Id (SearchStep s) where
@@ -144,10 +144,10 @@ instance : Std.Iterators.Finite (BackwardCharSearcher s) Id :=
 instance : Std.Iterators.IteratorLoop (BackwardCharSearcher s) Id Id :=
   .defaultImplementation
 
-instance : ToBackwardSearcher Char BackwardCharSearcher where
-  toSearcher := iter
+instance {c : Char} : ToBackwardSearcher c BackwardCharSearcher where
+  toSearcher := iter c
 
-instance : BackwardPattern Char := ToBackwardSearcher.defaultImplementation
+instance {c : Char} : BackwardPattern c := ToBackwardSearcher.defaultImplementation
 
 end BackwardCharSearcher
 

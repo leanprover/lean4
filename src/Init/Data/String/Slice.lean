@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Henrik Böving
+Authors: Henrik Böving, Markus Himmel
 -/
 module
 
@@ -10,6 +10,7 @@ public import Init.Data.String.Pattern
 public import Init.Data.Ord.Basic
 public import Init.Data.Iterators.Combinators.FilterMap
 public import Init.Data.String.ToSlice
+public import Init.Data.String.Termination
 
 set_option doc.verso true
 
@@ -67,7 +68,7 @@ def beq (s1 s2 : Slice) : Bool :=
   if h : s1.utf8ByteSize = s2.utf8ByteSize then
     have h1 := by simp [h, String.Pos.Raw.le_iff]
     have h2 := by simp [h, String.Pos.Raw.le_iff]
-    Internal.memcmp s1 s2 s1.startPos.offset s2.startPos.offset s1.rawEndPos h1 h2
+    Internal.memcmpSlice s1 s2 s1.startPos.offset s2.startPos.offset s1.rawEndPos h1 h2
   else
     false
 
@@ -116,21 +117,21 @@ Examples:
  * {lean}`"red green blue".toSlice.startsWith Char.isLower = true`
 -/
 @[inline]
-def startsWith [ForwardPattern ρ] (s : Slice) (pat : ρ) : Bool :=
-  ForwardPattern.startsWith s pat
+def startsWith (s : Slice) (pat : ρ) [ForwardPattern pat] : Bool :=
+  ForwardPattern.startsWith pat s
 
-inductive SplitIterator (ρ : Type) (s : Slice) [ToForwardSearcher ρ σ] where
+inductive SplitIterator {ρ : Type} (pat : ρ) (s : Slice) [ToForwardSearcher pat σ] where
   | operating (currPos : s.Pos) (searcher : Std.Iter (α := σ s) (SearchStep s))
   | atEnd
 deriving Inhabited
 
 namespace SplitIterator
 
-variable [ToForwardSearcher ρ σ]
+variable {pat : ρ} [ToForwardSearcher pat σ]
 
 inductive PlausibleStep
 
-instance : Std.Iterators.Iterator (SplitIterator ρ s) Id Slice where
+instance : Std.Iterators.Iterator (SplitIterator pat s) Id Slice where
   IsPlausibleStep
     | ⟨.operating _ s⟩, .yield ⟨.operating _ s'⟩ _ => s'.IsPlausibleSuccessorOf s
     | ⟨.operating _ s⟩, .yield ⟨.atEnd ..⟩ _ => True
@@ -144,7 +145,7 @@ instance : Std.Iterators.Iterator (SplitIterator ρ s) Id Slice where
     | ⟨.operating currPos searcher⟩ =>
       match h : searcher.step with
       | ⟨.yield searcher' (.matched startPos endPos), hps⟩ =>
-        let slice := s.replaceStartEnd! currPos startPos
+        let slice := s.slice! currPos startPos
         let nextIt := ⟨.operating endPos searcher'⟩
         pure (.deflate ⟨.yield nextIt slice, by simp [nextIt, hps.isPlausibleSuccessor_of_yield]⟩)
       | ⟨.yield searcher' (.rejected ..), hps⟩ =>
@@ -154,16 +155,16 @@ instance : Std.Iterators.Iterator (SplitIterator ρ s) Id Slice where
         pure (.deflate ⟨.skip ⟨.operating currPos searcher'⟩,
           by simp [hps.isPlausibleSuccessor_of_skip]⟩)
       | ⟨.done, _⟩ =>
-        let slice := s.replaceStart currPos
+        let slice := s.sliceFrom currPos
         pure (.deflate ⟨.yield ⟨.atEnd⟩ slice, by simp⟩)
     | ⟨.atEnd⟩ => pure (.deflate ⟨.done, by simp⟩)
 
-private def toOption : SplitIterator ρ s → Option (Std.Iter (α := σ s) (SearchStep s))
+private def toOption : SplitIterator pat s → Option (Std.Iter (α := σ s) (SearchStep s))
   | .operating _ s => some s
   | .atEnd => none
 
 private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
-    Std.Iterators.FinitenessRelation (SplitIterator ρ s) Id where
+    Std.Iterators.FinitenessRelation (SplitIterator pat s) Id where
   rel := InvImage (Option.lt Std.Iterators.Iter.IsPlausibleSuccessorOf)
     (SplitIterator.toOption ∘ Std.Iterators.IterM.internalState)
   wf := InvImage.wf _ (Option.wellFounded_lt Std.Iterators.Finite.wf_of_id)
@@ -181,19 +182,19 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
       | ⟨.atEnd⟩, _ => simp
 
 @[no_expose]
-instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (SplitIterator ρ s) Id :=
+instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (SplitIterator pat s) Id :=
   .of_finitenessRelation finitenessRelation
 
-instance [Monad n] : Std.Iterators.IteratorCollect (SplitIterator ρ s) Id n :=
+instance [Monad n] : Std.Iterators.IteratorCollect (SplitIterator pat s) Id n :=
   .defaultImplementation
 
-instance [Monad n] : Std.Iterators.IteratorCollectPartial (SplitIterator ρ s) Id n :=
+instance [Monad n] : Std.Iterators.IteratorCollectPartial (SplitIterator pat s) Id n :=
   .defaultImplementation
 
-instance [Monad n] : Std.Iterators.IteratorLoop (SplitIterator ρ s) Id n :=
+instance [Monad n] : Std.Iterators.IteratorLoop (SplitIterator pat s) Id n :=
   .defaultImplementation
 
-instance [Monad n] : Std.Iterators.IteratorLoopPartial (SplitIterator ρ s) Id n :=
+instance [Monad n] : Std.Iterators.IteratorLoopPartial (SplitIterator pat s) Id n :=
   .defaultImplementation
 
 end SplitIterator
@@ -214,19 +215,19 @@ Examples:
  * {lean}`("baaab".toSlice.split "aa").toList == ["b".toSlice, "ab".toSlice]`
 -/
 @[specialize pat]
-def split [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Std.Iter (α := SplitIterator ρ s) Slice :=
-  { internalState := .operating s.startPos (ToForwardSearcher.toSearcher s pat) }
+def split (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : Std.Iter (α := SplitIterator pat s) Slice :=
+  { internalState := .operating s.startPos (ToForwardSearcher.toSearcher pat s) }
 
-inductive SplitInclusiveIterator (ρ : Type) (s : Slice) [ToForwardSearcher ρ σ] where
+inductive SplitInclusiveIterator {ρ : Type} (pat : ρ) (s : Slice) [ToForwardSearcher pat σ] where
   | operating (currPos : s.Pos) (searcher : Std.Iter (α := σ s) (SearchStep s))
   | atEnd
 deriving Inhabited
 
 namespace SplitInclusiveIterator
 
-variable [ToForwardSearcher ρ σ]
+variable {pat : ρ} [ToForwardSearcher pat σ]
 
-instance : Std.Iterators.Iterator (SplitInclusiveIterator ρ s) Id Slice where
+instance : Std.Iterators.Iterator (SplitInclusiveIterator pat s) Id Slice where
   IsPlausibleStep
     | ⟨.operating _ s⟩, .yield ⟨.operating _ s'⟩ _ => s'.IsPlausibleSuccessorOf s
     | ⟨.operating _ s⟩, .yield ⟨.atEnd ..⟩ _ => True
@@ -240,7 +241,7 @@ instance : Std.Iterators.Iterator (SplitInclusiveIterator ρ s) Id Slice where
     | ⟨.operating currPos searcher⟩ =>
       match h : searcher.step with
       | ⟨.yield searcher' (.matched _ endPos), hps⟩ =>
-        let slice := s.replaceStartEnd! currPos endPos
+        let slice := s.slice! currPos endPos
         let nextIt := ⟨.operating endPos searcher'⟩
         pure (.deflate ⟨.yield nextIt slice,
           by simp [nextIt, hps.isPlausibleSuccessor_of_yield]⟩)
@@ -252,18 +253,18 @@ instance : Std.Iterators.Iterator (SplitInclusiveIterator ρ s) Id Slice where
           by simp [hps.isPlausibleSuccessor_of_skip]⟩)
       | ⟨.done, _⟩ =>
         if currPos != s.endPos then
-          let slice := s.replaceStart currPos
+          let slice := s.sliceFrom currPos
           pure (.deflate ⟨.yield ⟨.atEnd⟩ slice, by simp⟩)
         else
           pure (.deflate ⟨.done, by simp⟩)
     | ⟨.atEnd⟩ => pure (.deflate ⟨.done, by simp⟩)
 
-private def toOption : SplitInclusiveIterator ρ s → Option (Std.Iter (α := σ s) (SearchStep s))
+private def toOption : SplitInclusiveIterator pat s → Option (Std.Iter (α := σ s) (SearchStep s))
   | .operating _ s => some s
   | .atEnd => none
 
 private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
-    Std.Iterators.FinitenessRelation (SplitInclusiveIterator ρ s) Id where
+    Std.Iterators.FinitenessRelation (SplitInclusiveIterator pat s) Id where
   rel := InvImage (Option.lt Std.Iterators.Iter.IsPlausibleSuccessorOf)
     (SplitInclusiveIterator.toOption ∘ Std.Iterators.IterM.internalState)
   wf := InvImage.wf _ (Option.wellFounded_lt Std.Iterators.Finite.wf_of_id)
@@ -282,23 +283,23 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
 
 @[no_expose]
 instance [Std.Iterators.Finite (σ s) Id] :
-    Std.Iterators.Finite (SplitInclusiveIterator ρ s) Id :=
+    Std.Iterators.Finite (SplitInclusiveIterator pat s) Id :=
   .of_finitenessRelation finitenessRelation
 
 instance [Monad n] {s} :
-    Std.Iterators.IteratorCollect (SplitInclusiveIterator ρ s) Id n :=
+    Std.Iterators.IteratorCollect (SplitInclusiveIterator pat s) Id n :=
   .defaultImplementation
 
 instance [Monad n] {s} :
-    Std.Iterators.IteratorCollectPartial (SplitInclusiveIterator ρ s) Id n :=
+    Std.Iterators.IteratorCollectPartial (SplitInclusiveIterator pat s) Id n :=
   .defaultImplementation
 
 instance [Monad n] {s} :
-    Std.Iterators.IteratorLoop (SplitInclusiveIterator ρ s) Id n :=
+    Std.Iterators.IteratorLoop (SplitInclusiveIterator pat s) Id n :=
   .defaultImplementation
 
 instance [Monad n] {s} :
-    Std.Iterators.IteratorLoopPartial (SplitInclusiveIterator ρ s) Id n :=
+    Std.Iterators.IteratorLoopPartial (SplitInclusiveIterator pat s) Id n :=
   .defaultImplementation
 
 end SplitInclusiveIterator
@@ -316,9 +317,9 @@ Examples:
  * {lean}`("baaab".toSlice.splitInclusive "aa").toList == ["baa".toSlice, "ab".toSlice]`
 -/
 @[specialize pat]
-def splitInclusive [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) :
-    Std.Iter (α := SplitInclusiveIterator ρ s) Slice :=
-  { internalState := .operating s.startPos (ToForwardSearcher.toSearcher s pat) }
+def splitInclusive (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] :
+    Std.Iter (α := SplitInclusiveIterator pat s) Slice :=
+  { internalState := .operating s.startPos (ToForwardSearcher.toSearcher pat s) }
 
 /--
 If {name}`pat` matches a prefix of {name}`s`, returns the remainder. Returns {name}`none` otherwise.
@@ -335,8 +336,8 @@ Examples:
  * {lean}`"red green blue".toSlice.dropPrefix? Char.isLower == some "ed green blue".toSlice`
 -/
 @[inline]
-def dropPrefix? [ForwardPattern ρ] (s : Slice) (pat : ρ) : Option Slice :=
-  (ForwardPattern.dropPrefix? s pat).map s.replaceStart
+def dropPrefix? (s : Slice) (pat : ρ) [ForwardPattern pat] : Option Slice :=
+  (ForwardPattern.dropPrefix? pat s).map s.sliceFrom
 
 /--
 If {name}`pat` matches a prefix of {name}`s`, returns the remainder. Returns {name}`s` unmodified
@@ -353,7 +354,7 @@ Examples:
  * {lean}`"red green blue".toSlice.dropPrefix Char.isLower == "ed green blue".toSlice`
 -/
 @[specialize pat]
-def dropPrefix [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+def dropPrefix (s : Slice) (pat : ρ) [ForwardPattern pat] : Slice :=
   dropPrefix? s pat |>.getD s
 
 /--
@@ -372,11 +373,11 @@ Examples:
 * {lean}`"aaaaa".toSlice.replace "aa" "b" = "bba"`
 * {lean}`"abc".toSlice.replace "" "k" = "kakbkck"`
 -/
-def replace [ToForwardSearcher ρ σ] [ToSlice α] (s : Slice) (pattern : ρ) (replacement : α) :
+def replace [ToSlice α] (s : Slice) (pattern : ρ) [ToForwardSearcher pattern σ] (replacement : α) :
     String :=
-  (ToForwardSearcher.toSearcher s pattern).fold (init := "") (fun
+  (ToForwardSearcher.toSearcher pattern s).fold (init := "") (fun
     | sofar, .matched .. => sofar ++ ToSlice.toSlice replacement
-    | sofar, .rejected start stop => sofar ++ s.replaceStartEnd! start stop)
+    | sofar, .rejected start stop => sofar ++ s.slice! start stop)
 
 /--
 Removes the specified number of characters (Unicode code points) from the start of the slice.
@@ -390,7 +391,7 @@ Examples:
 -/
 @[inline]
 def drop (s : Slice) (n : Nat) : Slice :=
-  s.replaceStart (s.startPos.nextn n)
+  s.sliceFrom (s.startPos.nextn n)
 
 /--
 Creates a new slice that contains the longest prefix of {name}`s` for which {name}`pat` matched
@@ -403,19 +404,19 @@ Examples:
  * {lean}`"red green blue".toSlice.dropWhile (fun (_ : Char) => true) == "".toSlice`
 -/
 @[inline]
-partial def dropWhile [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
-  go s
+def dropWhile (s : Slice) (pat : ρ) [ForwardPattern pat] : Slice :=
+  go s.startPos
 where
   @[specialize pat]
-  go (s : Slice) : Slice :=
-    if let some nextS := dropPrefix? s pat then
-      -- TODO: need lawful patterns to show this terminates
-      if s.startInclusive.offset < nextS.startInclusive.offset then
-        go nextS
+  go (curr : s.Pos) : Slice :=
+    if let some nextCurr := ForwardPattern.dropPrefix? pat (s.sliceFrom curr) then
+      if curr < Pos.ofSliceFrom nextCurr then
+        go (Pos.ofSliceFrom nextCurr)
       else
-        s
+        s.sliceFrom curr
     else
-      s
+      s.sliceFrom curr
+  termination_by curr
 
 /--
 Removes leading whitespace from a slice by moving its start position to the first non-whitespace
@@ -448,7 +449,7 @@ Examples:
 -/
 @[inline]
 def take (s : Slice) (n : Nat) : Slice :=
-  s.replaceEnd (s.startPos.nextn n)
+  s.sliceTo (s.startPos.nextn n)
 
 /--
 Creates a new slice that contains the longest prefix of {name}`s` for which {name}`pat` matched
@@ -463,22 +464,22 @@ Examples:
  * {lean}`"red green blue".toSlice.takeWhile (fun (_ : Char) => true) == "red green blue".toSlice`
 -/
 @[inline]
-partial def takeWhile [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+def takeWhile (s : Slice) (pat : ρ) [ForwardPattern pat] : Slice :=
   go s.startPos
 where
   @[specialize pat]
   go (curr : s.Pos) : Slice :=
-    if let some nextCurr := ForwardPattern.dropPrefix? (s.replaceStart curr) pat then
-      if (s.replaceStart curr).startPos < nextCurr then
-        -- TODO: need lawful patterns to show this terminates
-        go (Pos.ofReplaceStart nextCurr)
+    if let some nextCurr := ForwardPattern.dropPrefix? pat (s.sliceFrom curr) then
+      if curr < Pos.ofSliceFrom nextCurr then
+        go (Pos.ofSliceFrom nextCurr)
       else
-        s.replaceEnd curr
+        s.sliceTo curr
     else
-      s.replaceEnd curr
+      s.sliceTo curr
+  termination_by curr
 
 /--
-Finds the position of the first match of the pattern {name}`pat` in a slice {name}`true`. If there
+Finds the position of the first match of the pattern {name}`pat` in a slice {name}`s`. If there
 is no match {name}`none` is returned.
 
 This function is generic over all currently supported patterns.
@@ -488,10 +489,25 @@ Examples:
  * {lean}`"tea".toSlice.find? (fun (c : Char) => c == 'X') == none`
  * {lean}`("coffee tea water".toSlice.find? "tea").map (·.get!) == some 't'`
 -/
-@[specialize pat]
-def find? [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Option s.Pos :=
-  let searcher := ToForwardSearcher.toSearcher s pat
+@[inline]
+def find? (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : Option s.Pos :=
+  let searcher := ToForwardSearcher.toSearcher pat s
   searcher.findSome? (fun | .matched startPos _ => some startPos | .rejected .. => none)
+
+/--
+Finds the position of the first match of the pattern {name}`pat` in a slice {name}`s`. If there
+is no match {lean}`s.endPos` is returned.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * {lean}`("coffee tea water".toSlice.find Char.isWhitespace).get! == ' '`
+ * {lean}`"tea".toSlice.find (fun (c : Char) => c == 'X') == "tea".toSlice.endPos`
+ * {lean}`("coffee tea water".toSlice.find "tea").get! == 't'`
+-/
+@[inline]
+def find (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : s.Pos :=
+  s.find? pat |>.getD s.endPos
 
 /--
 Checks whether a slice has a match of the pattern {name}`pat` anywhere.
@@ -504,9 +520,13 @@ Examples:
  * {lean}`"coffee tea water".toSlice.contains "tea" = true`
 -/
 @[specialize pat]
-def contains [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Bool :=
-  let searcher := ToForwardSearcher.toSearcher s pat
+def contains (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
+  let searcher := ToForwardSearcher.toSearcher pat s
   searcher.any (· matches .matched ..)
+
+@[inline, inherit_doc contains]
+def any (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
+  s.contains pat
 
 /--
 Checks whether a slice only consists of matches of the pattern {name}`pat` anywhere.
@@ -523,7 +543,7 @@ Examples:
  * {lean}`"aaaaaaa".toSlice.all "aa" = false`
 -/
 @[inline]
-def all [ForwardPattern ρ] (s : Slice) (pat : ρ) : Bool :=
+def all (s : Slice) (pat : ρ) [ForwardPattern pat] : Bool :=
   s.dropWhile pat |>.isEmpty
 
 end ForwardPatternUsers
@@ -548,10 +568,10 @@ Examples:
  * {lean}`"red green blue".toSlice.endsWith Char.isLower = true`
 -/
 @[inline]
-def endsWith [BackwardPattern ρ] (s : Slice) (pat : ρ) : Bool :=
-  BackwardPattern.endsWith s pat
+def endsWith (s : Slice) (pat : ρ) [BackwardPattern pat]  : Bool :=
+  BackwardPattern.endsWith pat s
 
-inductive RevSplitIterator (ρ : Type) (s : Slice) [ToBackwardSearcher ρ σ] where
+inductive RevSplitIterator {ρ : Type} (pat : ρ) (s : Slice) [ToBackwardSearcher pat σ] where
   | operating (currPos : s.Pos) (searcher : Std.Iter (α := σ s) (SearchStep s))
   | atEnd
 deriving Inhabited
@@ -574,7 +594,7 @@ instance [Pure m] : Std.Iterators.Iterator (RevSplitIterator ρ s) m Slice where
     | ⟨.operating currPos searcher⟩ =>
       match h : searcher.step with
       | ⟨.yield searcher' (.matched startPos endPos), hps⟩ =>
-        let slice := s.replaceStartEnd! endPos currPos
+        let slice := s.slice! endPos currPos
         let nextIt := ⟨.operating startPos searcher'⟩
         pure (.deflate ⟨.yield nextIt slice, by simp [nextIt, hps.isPlausibleSuccessor_of_yield]⟩)
       | ⟨.yield searcher' (.rejected ..), hps⟩ =>
@@ -585,7 +605,7 @@ instance [Pure m] : Std.Iterators.Iterator (RevSplitIterator ρ s) m Slice where
           by simp [hps.isPlausibleSuccessor_of_skip]⟩)
       | ⟨.done, _⟩ =>
         if currPos ≠ s.startPos then
-          let slice := s.replaceEnd currPos
+          let slice := s.sliceTo currPos
           pure (.deflate ⟨.yield ⟨.atEnd⟩ slice, by simp⟩)
         else
           pure (.deflate ⟨.done, by simp⟩)
@@ -647,9 +667,9 @@ Examples:
  * {lean}`("coffee tea water".toSlice.revSplit ' ').toList == ["water".toSlice, "tea".toSlice, "coffee".toSlice]`
 -/
 @[specialize pat]
-def revSplit [ToBackwardSearcher ρ σ] (s : Slice) (pat : ρ) :
-    Std.Iter (α := RevSplitIterator ρ s) Slice :=
-  { internalState := .operating s.endPos (ToBackwardSearcher.toSearcher s pat) }
+def revSplit (s : Slice) (pat : ρ) [ToBackwardSearcher pat σ] :
+    Std.Iter (α := RevSplitIterator pat s) Slice :=
+  { internalState := .operating s.endPos (ToBackwardSearcher.toSearcher pat s) }
 
 /--
 If {name}`pat` matches a suffix of {name}`s`, returns the remainder. Returns {name}`none` otherwise.
@@ -666,8 +686,8 @@ Examples:
  * {lean}`"red green blue".toSlice.dropSuffix? Char.isLower == some "red green blu".toSlice`
 -/
 @[inline]
-def dropSuffix? [BackwardPattern ρ] (s : Slice) (pat : ρ) : Option Slice :=
-  (BackwardPattern.dropSuffix? s pat).map s.replaceEnd
+def dropSuffix? (s : Slice) (pat : ρ) [BackwardPattern pat] : Option Slice :=
+  (BackwardPattern.dropSuffix? pat s).map s.sliceTo
 
 /--
 If {name}`pat` matches a suffix of {name}`s`, returns the remainder. Returns {name}`s` unmodified
@@ -685,7 +705,7 @@ Examples:
  * {lean}`"red green blue".toSlice.dropSuffix Char.isLower == "red green blu".toSlice`
 -/
 @[specialize pat]
-def dropSuffix [BackwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+def dropSuffix (s : Slice) (pat : ρ) [BackwardPattern pat]  : Slice :=
   dropSuffix? s pat |>.getD s
 
 /--
@@ -700,7 +720,7 @@ Examples:
 -/
 @[inline]
 def dropEnd (s : Slice) (n : Nat) : Slice :=
-  s.replaceEnd (s.endPos.prevn n)
+  s.sliceTo (s.endPos.prevn n)
 
 /--
 Creates a new slice that contains the longest suffix of {name}`s` for which {name}`pat` matched
@@ -712,23 +732,23 @@ Examples:
  * {lean}`"red green blue".toSlice.dropEndWhile (fun (_ : Char) => true) == "".toSlice`
 -/
 @[inline]
-partial def dropEndWhile [BackwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
-  go s
+def dropEndWhile (s : Slice) (pat : ρ) [BackwardPattern pat] : Slice :=
+  go s.endPos
 where
   @[specialize pat]
-  go (s : Slice) : Slice :=
-    if let some nextS := dropSuffix? s pat then
-      -- TODO: need lawful patterns to show this terminates
-      if nextS.endExclusive.offset < s.endExclusive.offset then
-        go nextS
+  go (curr : s.Pos) : Slice :=
+    if let some nextCurr := BackwardPattern.dropSuffix? pat (s.sliceTo curr) then
+      if Pos.ofSliceTo nextCurr < curr then
+        go (Pos.ofSliceTo nextCurr)
       else
-        s
+        s.sliceTo curr
     else
-      s
+      s.sliceTo curr
+  termination_by curr.down
 
 /--
-Removes trailing whitespace from a slice by moving its start position to the first non-whitespace
-character, or to its end position if there is no non-whitespace character.
+Removes trailing whitespace from a slice by moving its end position to the last non-whitespace
+character, or to its start position if there is no non-whitespace character.
 
 “Whitespace” is defined as characters for which {name}`Char.isWhitespace` returns {name}`true`.
 
@@ -757,7 +777,7 @@ Examples:
 -/
 @[inline]
 def takeEnd (s : Slice) (n : Nat) : Slice :=
-  s.replaceStart (s.endPos.prevn n)
+  s.sliceFrom (s.endPos.prevn n)
 
 /--
 Creates a new slice that contains the suffix prefix of {name}`s` for which {name}`pat` matched
@@ -771,22 +791,22 @@ Examples:
  * {lean}`"red green blue".toSlice.takeEndWhile (fun (_ : Char) => true) == "red green blue".toSlice`
 -/
 @[inline]
-partial def takeEndWhile [BackwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+def takeEndWhile (s : Slice) (pat : ρ) [BackwardPattern pat] : Slice :=
   go s.endPos
 where
   @[specialize pat]
   go (curr : s.Pos) : Slice :=
-    if let some nextCurr := BackwardPattern.dropSuffix? (s.replaceEnd curr) pat then
-      if nextCurr < (s.replaceEnd curr).endPos then
-        -- TODO: need lawful patterns to show this terminates
-        go (Pos.ofReplaceEnd nextCurr)
+    if let some nextCurr := BackwardPattern.dropSuffix? pat (s.sliceTo curr) then
+      if Pos.ofSliceTo nextCurr < curr then
+        go (Pos.ofSliceTo nextCurr)
       else
-        s.replaceStart curr
+        s.sliceFrom curr
     else
-      s.replaceStart curr
+      s.sliceFrom curr
+  termination_by curr.down
 
 /--
-Finds the position of the first match of the pattern {name}`pat` in a slice {name}`true`, starting
+Finds the position of the first match of the pattern {name}`pat` in a slice, starting
 from the end of the slice and traversing towards the start. If there is no match {name}`none` is
 returned.
 
@@ -794,13 +814,12 @@ This function is generic over all currently supported patterns except
 {name}`String`/{name}`String.Slice`.
 
 Examples:
- * {lean}`("coffee tea water".toSlice.find? Char.isWhitespace).map (·.get!) == some ' '`
- * {lean}`"tea".toSlice.find? (fun (c : Char) => c == 'X') == none`
- * {lean}`("coffee tea water".toSlice.find? "tea").map (·.get!) == some 't'`
+ * {lean}`("coffee tea water".toSlice.revFind? Char.isWhitespace).map (·.get!) == some ' '`
+ * {lean}`"tea".toSlice.revFind? (fun (c : Char) => c == 'X') == none`
 -/
 @[specialize pat]
-def revFind? [ToBackwardSearcher ρ σ] (s : Slice) (pat : ρ) : Option s.Pos :=
-  let searcher := ToBackwardSearcher.toSearcher s pat
+def revFind? (s : Slice) (pat : ρ) [ToBackwardSearcher pat σ] : Option s.Pos :=
+  let searcher := ToBackwardSearcher.toSearcher pat s
   searcher.findSome? (fun | .matched startPos _ => some startPos | .rejected .. => none)
 
 end BackwardPatternUsers
@@ -925,6 +944,10 @@ Examples:
 @[expose, inline]
 def chars (s : Slice) :=
   Std.Iterators.Iter.map (fun ⟨pos, h⟩ => pos.get h) (positions s)
+
+@[deprecated "There is no constant-time length function on slices. Use `s.positions.count` instead, or `isEmpty` if you only need to know whether the slice is empty." (since := "2025-11-20")]
+def length (s : Slice) : Nat :=
+  s.positions.count
 
 structure RevPosIterator (s : Slice) where
   currPos : s.Pos
@@ -1295,13 +1318,13 @@ def toNat! (s : Slice) : Nat :=
     panic! "Nat expected"
 
 /--
-Returns the first character in {name}`s`. If {name}`s` is empty, {name}`none`.
+Returns the first character in {name}`s`. If {name}`s` is empty, returns {name}`none`.
 
 Examples:
 * {lean}`"abc".toSlice.front? = some 'a'`
 * {lean}`"".toSlice.front? = none`
 -/
-@[inline]
+@[inline, expose]
 def front? (s : Slice) : Option Char :=
   s.startPos.get?
 
@@ -1312,7 +1335,7 @@ Examples:
 * {lean}`"abc".toSlice.front = 'a'`
 * {lean}`"".toSlice.front = (default : Char)`
 -/
-@[inline]
+@[inline, expose]
 def front (s : Slice) : Char :=
   s.front?.getD default
 
@@ -1323,7 +1346,7 @@ Examples:
 * {lean}`"abc".toSlice.back? = some 'c'`
 * {lean}`"".toSlice.back? = none`
 -/
-@[inline]
+@[inline, expose]
 def back? (s : Slice) : Option Char :=
   s.endPos.prev? |>.bind (·.get?)
 
@@ -1334,8 +1357,56 @@ Examples:
 * {lean}`"abc".toSlice.back = 'c'`
 * {lean}`"".toSlice.back = (default : Char)`
 -/
-@[inline]
+@[inline, expose]
 def back (s : Slice) : Char :=
   s.back?.getD default
 
+/--
+Appends the slices in a list of slices, placing the separator {name}`s` between each pair.
+
+Examples:
+ * {lean}`", ".toSlice.intercalate ["red".toSlice, "green".toSlice, "blue".toSlice] = "red, green, blue"`
+ * {lean}`" and ".toSlice.intercalate ["tea".toSlice, "coffee".toSlice] = "tea and coffee"`
+ * {lean}`" | ".toSlice.intercalate ["M".toSlice, "".toSlice, "N".toSlice] = "M |  | N"`
+-/
+def intercalate (s : Slice) : List Slice → String
+  | []      => ""
+  | a :: as => go a.copy s as
+where go (acc : String) (s : Slice) : List Slice → String
+  | a :: as => go (acc ++ s ++ a) s as
+  | []      => acc
+
+@[inherit_doc Slice.copy]
+def toString (s : Slice) : String :=
+  s.copy
+
+instance : ToString String.Slice where
+  toString := toString
+
+/--
+Converts a string to the Lean compiler's representation of names. The resulting name is
+hierarchical, and the string is split at the dots ({lean}`'.'`).
+
+{lean}`"a.b".toSlice.toName` is the name {lit}`a.b`, not {lit}`«a.b»`. For the latter, use
+`Name.mkSimple`.
+-/
+def toName (s : Slice) : Lean.Name :=
+  s.toString.toName
+
+instance : Std.ToFormat String.Slice where
+  format s := Std.ToFormat.format s.copy
+
 end String.Slice
+
+/-- Converts a {lean}`Std.Iter String.Slice` to a {lean}`List String`. -/
+@[inline]
+def Std.Iterators.Iter.toStringList {α : Type} [Std.Iterators.Iterator α Id String.Slice]
+    [Std.Iterators.Finite α Id] [Std.Iterators.IteratorCollect α Id Id]
+    (i : Std.Iter (α := α) String.Slice) : List String :=
+  i.map String.Slice.copy |>.toList
+
+/-- Converts a {lean}`Std.Iter String.Slice` to an {lean}`Array String`. -/
+def Std.Iterators.Iter.toStringArray {α : Type} [Std.Iterators.Iterator α Id String.Slice]
+    [Std.Iterators.Finite α Id] [Std.Iterators.IteratorCollect α Id Id]
+    (i : Std.Iter (α := α) String.Slice) : Array String :=
+  i.map String.Slice.copy |>.toArray

@@ -351,7 +351,7 @@ def processNewEq (a b : Expr) : GoalM Unit := do
     trace_goal[grind.ring.assert] "{← mkEq a b}"
     let some ra ← toRingExpr? a | return ()
     let some rb ← toRingExpr? b | return ()
-    let p ← (ra.sub rb).toPolyM
+    let some p ← (ra.sub rb).toPolyM? | return ()
     addNewEq (← mkEqCnstr p (.core a b ra rb))
   else if let some semiringId ← inSameSemiring? a b then SemiringM.run semiringId do
     trace_goal[grind.ring.assert] "{← mkEq a b}"
@@ -362,7 +362,7 @@ def processNewEq (a b : Expr) : GoalM Unit := do
     RingM.run (← getCommSemiring).ringId do
       let some ra ← reify? lhs (skipVar := false) (gen := (← getGeneration a)) | return ()
       let some rb ← reify? rhs (skipVar := false) (gen := (← getGeneration b)) | return ()
-      let p ← (ra.sub rb).toPolyM
+      let some p ← (ra.sub rb).toPolyM? | return ()
       addNewEq (← mkEqCnstr p (.coreS a b sa sb ra rb))
 
 private def pre (e : Expr) : GoalM Expr := do
@@ -399,7 +399,7 @@ private def processNewDiseqCommRing (a b : Expr) : RingM Unit := do
   trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"
   let some ra ← toRingExpr? a | return ()
   let some rb ← toRingExpr? b | return ()
-  let p ← (ra.sub rb).toPolyM
+  let some p ← (ra.sub rb).toPolyM? | return ()
   if (← isField) then
     if !(p matches .num _) || !(← hasChar) then
       if rb matches .num 0 then
@@ -424,7 +424,7 @@ private def processNewDiseqCommSemiring (a b : Expr) : SemiringM Unit := do
     RingM.run (← getCommSemiring).ringId do
       let some ra ← reify? lhs (skipVar := false) (gen := (← getGeneration a)) | return ()
       let some rb ← reify? rhs (skipVar := false) (gen := (← getGeneration b)) | return ()
-      let p ← (ra.sub rb).toPolyM
+      let some p ← (ra.sub rb).toPolyM? | return ()
       addNewDiseq {
         lhs := a, rhs := b
         rlhs := ra, rrhs := rb
@@ -505,14 +505,15 @@ private def propagateEqs : RingM Bool := do
   return propagated
 where
   process (a : Expr) (ra : RingExpr) : StateT (Bool × PropagateEqMap) RingM Unit := do
-    let d : PolyDerivation := .input (← ra.toPolyM)
+    let some p ← ra.toPolyM? | return ()
+    let d : PolyDerivation := .input p
     let d ← d.simplify
     let k := d.getMultiplier
     trace_goal[grind.debug.ring.impEq] "{a}, {k}, {← d.p.denoteExpr}"
     if let some (b, rb) :=  (← get).2[(k, d.p)]? then
       -- TODO: use `isEqv` more effectively
       unless (← isEqv a b) do
-        let p ← (ra.sub rb).toPolyM
+        let some p ← (ra.sub rb).toPolyM? | return ()
         let d : PolyDerivation := .input p
         let d ← d.simplify
         if d.getMultiplier != 1 then
@@ -522,7 +523,12 @@ where
             trace_goal[grind.ring.impEq] "skip: {← mkEq a b}, k: {k}, noZeroDivisors: false"
             modify fun (propagated, map) => (propagated, map.insert (k, d.p) (a, ra))
             return ()
-        trace_goal[grind.ring.impEq] "{← mkEq a b}, {k}, {← p.denoteExpr}"
+        trace_goal[grind.ring.impEq] "{← mkEq a b}, {k}, {← d.p.denoteExpr}"
+        /-
+        **Note**: If max number of steps has been reached, then `d.p` is not fully simplified.
+        Recall that `propagateEq` assumes that it is.
+        -/
+        if (← checkMaxSteps) then return ()
         propagateEq a b ra rb d
         modify fun s => (true, s.2)
     else

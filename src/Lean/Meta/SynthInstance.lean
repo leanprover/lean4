@@ -29,7 +29,6 @@ register_builtin_option synthInstance.maxSize : Nat := {
 
 register_builtin_option backward.synthInstance.canonInstances : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr := "use optimization that relies on 'morally canonical' instances during type class resolution"
 }
 
@@ -861,9 +860,14 @@ private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <|
               mvarId.assign val
               return true
 
+register_builtin_option trace.Meta.synthInstance : Bool := {
+  group := "trace"
+  defValue := false
+  descr := "track the backtracking attempt to synthesize type class instances"
+}
+
 builtin_initialize
   registerTraceClass `Meta.synthPending
-  registerTraceClass `Meta.synthInstance
   registerTraceClass `Meta.synthInstance.instances (inherited := true)
   registerTraceClass `Meta.synthInstance.tryResolve (inherited := true)
   registerTraceClass `Meta.synthInstance.answer (inherited := true)

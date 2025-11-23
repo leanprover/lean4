@@ -4,37 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Basic
-
 public section
-
 namespace Lean.Meta.Simp.Arith
-/-
-To prevent the kernel from accidentally reducing the atoms in the equation while typechecking,
-we abstract over them.
--/
-def withAbstractAtoms (atoms : Array Expr) (type : Name) (k : Array Expr → MetaM (Option (Expr × Expr))) :
-    MetaM (Option (Expr × Expr)) := do
-  let type := mkConst type
-  let rec go (i : Nat) (atoms' : Array Expr) (xs : Array Expr) (args : Array Expr) : MetaM (Option (Expr × Expr)) := do
-    if h : i < atoms.size then
-      let atom := atoms[i]
-      if atom.isFVar then
-        go (i+1) (atoms'.push atom) xs args
-      else
-        withLocalDeclD (← mkFreshUserName `x) type fun x =>
-          go (i+1) (atoms'.push x) (xs.push x) (args.push atom)
-    else
-      if xs.isEmpty then
-        k atoms'
-      else
-        let some (r, p) ← k atoms' | return none
-        let r := (← mkLambdaFVars xs r).beta args
-        let p := mkAppN (← mkLambdaFVars xs p) args
-        return some (r, p)
-  go 0 #[] #[] #[]
 
 private def isSupportedType (type : Expr) : Bool :=
   match_expr type with

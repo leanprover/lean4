@@ -19,7 +19,7 @@ def h : Nat → Nat → Nat
 termination_by x y => x
 
 @[macro_inline] -- Error
-partial def skipMany (p : Parser α) (it : String.Iterator) : Parser PUnit := do
+partial def skipMany (p : Parser α) (it : Sigma String.ValidPos) : Parser PUnit := do
   match p it with
   | .success it _ => skipMany p it
   | .error _ _  => pure ()

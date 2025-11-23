@@ -7516,46 +7516,47 @@ lean_object* x_9;
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 lean_dec_ref(x_8);
-if (lean_obj_tag(x_9) == 0)
+if (lean_obj_tag(x_9) == 1)
 {
-lean_object* x_10; lean_object* x_11; 
+uint8_t x_10; 
+x_10 = !lean_is_exclusive(x_9);
+if (x_10 == 0)
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_11 = lean_ctor_get(x_9, 0);
+x_12 = l_Lean_LocalDecl_type(x_11);
+lean_dec(x_11);
+lean_ctor_set(x_9, 0, x_1);
+x_13 = l___private_Lean_Elab_Tactic_Do_Attr_0__Lean_Elab_Tactic_Do_SpecAttr_mkSpecTheorem(x_12, x_9, x_2, x_3, x_4, x_5, x_6);
+return x_13;
+}
+else
+{
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_14 = lean_ctor_get(x_9, 0);
+lean_inc(x_14);
+lean_dec(x_9);
+x_15 = l_Lean_LocalDecl_type(x_14);
+lean_dec(x_14);
+x_16 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_16, 0, x_1);
+x_17 = l___private_Lean_Elab_Tactic_Do_Attr_0__Lean_Elab_Tactic_Do_SpecAttr_mkSpecTheorem(x_15, x_16, x_2, x_3, x_4, x_5, x_6);
+return x_17;
+}
+}
+else
+{
+lean_object* x_18; lean_object* x_19; 
+lean_dec(x_9);
 lean_dec(x_2);
 lean_dec(x_1);
-x_10 = l_Lean_Elab_Tactic_Do_SpecAttr_mkSpecTheoremFromLocal___closed__1;
-x_11 = l_Lean_throwError___at___00__private_Lean_Elab_Tactic_Do_Attr_0__Lean_Elab_Tactic_Do_SpecAttr_mkSpecTheorem_spec__0___redArg(x_10, x_3, x_4, x_5, x_6);
+x_18 = l_Lean_Elab_Tactic_Do_SpecAttr_mkSpecTheoremFromLocal___closed__1;
+x_19 = l_Lean_throwError___at___00__private_Lean_Elab_Tactic_Do_Attr_0__Lean_Elab_Tactic_Do_SpecAttr_mkSpecTheorem_spec__0___redArg(x_18, x_3, x_4, x_5, x_6);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
-return x_11;
-}
-else
-{
-uint8_t x_12; 
-x_12 = !lean_is_exclusive(x_9);
-if (x_12 == 0)
-{
-lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_13 = lean_ctor_get(x_9, 0);
-x_14 = l_Lean_LocalDecl_type(x_13);
-lean_dec(x_13);
-lean_ctor_set(x_9, 0, x_1);
-x_15 = l___private_Lean_Elab_Tactic_Do_Attr_0__Lean_Elab_Tactic_Do_SpecAttr_mkSpecTheorem(x_14, x_9, x_2, x_3, x_4, x_5, x_6);
-return x_15;
-}
-else
-{
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_16 = lean_ctor_get(x_9, 0);
-lean_inc(x_16);
-lean_dec(x_9);
-x_17 = l_Lean_LocalDecl_type(x_16);
-lean_dec(x_16);
-x_18 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_18, 0, x_1);
-x_19 = l___private_Lean_Elab_Tactic_Do_Attr_0__Lean_Elab_Tactic_Do_SpecAttr_mkSpecTheorem(x_17, x_18, x_2, x_3, x_4, x_5, x_6);
 return x_19;
-}
 }
 }
 else

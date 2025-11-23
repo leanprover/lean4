@@ -16,7 +16,6 @@ public section
 
 register_builtin_option tactic.customEliminators : Bool := {
   defValue := true
-  group    := "tactic"
   descr    := "enable using custom eliminators in the 'induction' and 'cases' tactics \
     defined using the '@[induction_eliminator]' and '@[cases_eliminator]' attributes"
 }
@@ -977,7 +976,6 @@ def evalInduction : Tactic := fun stx =>
 
 register_builtin_option tactic.fun_induction.unfolding : Bool := {
   defValue := true
-  group    := "tactic"
   descr    := "if set to 'true', then 'fun_induction' and 'fun_cases' will use the “unfolding \
     functional induction (resp. cases) principle” ('….induct_unfolding'/'….fun_cases_unfolding'), \
     which will attempt to replace the function goal of interest in the goal with the appropriate \

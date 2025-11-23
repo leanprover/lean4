@@ -4149,8 +4149,8 @@ return x_8;
 block_15:
 {
 lean_object* x_14; 
-lean_dec(x_12);
-x_14 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Elab_Tactic_BVDecide_Frontend_M_atoms_spec__1___redArg(x_11, x_10, x_13);
+lean_dec(x_10);
+x_14 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Elab_Tactic_BVDecide_Frontend_M_atoms_spec__1___redArg(x_12, x_11, x_13);
 lean_dec(x_13);
 x_4 = x_14;
 goto block_9;
@@ -4163,17 +4163,17 @@ if (x_20 == 0)
 {
 lean_dec(x_16);
 lean_inc(x_19);
-x_10 = x_19;
-x_11 = x_18;
-x_12 = x_17;
+x_10 = x_17;
+x_11 = x_19;
+x_12 = x_18;
 x_13 = x_19;
 goto block_15;
 }
 else
 {
-x_10 = x_19;
-x_11 = x_18;
-x_12 = x_17;
+x_10 = x_17;
+x_11 = x_19;
+x_12 = x_18;
 x_13 = x_16;
 goto block_15;
 }

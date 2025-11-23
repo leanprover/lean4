@@ -89,7 +89,7 @@ def mkMissingFieldsHint (fields : Array (Name × Option Expr)) (stx : Syntax) : 
       let leaderLineEnd := findLineEnd fileMap.source view.leaderTailPos
       let indentPos := (indent + 1).fold (init := leaderLineEnd) (fun _ _ p => p.next fileMap.source)
       let interveningLineEnd := findLineEnd fileMap.source (leaderLineEnd.next fileMap.source)
-      let nextTwoLines := Substring.mk fileMap.source view.leaderTailPos interveningLineEnd
+      let nextTwoLines := Substring.Raw.mk fileMap.source view.leaderTailPos interveningLineEnd
       if nextTwoLines.all (·.isWhitespace) then some (min indentPos nextTwoLines.stopPos) else none
 
   let (preWs, postWs) : Format × Format :=
@@ -148,7 +148,7 @@ where
   Counterpart of `String.findLineStart`.
   -/
   findLineEnd (s : String) (p : String.Pos.Raw) : String.Pos.Raw :=
-    s.findAux (· == '\n') s.rawEndPos p
+    (s.pos! p).find '\n' |>.offset
 
   /--
   Is the structure instance notation `stx` described by `view` using single-line styling?

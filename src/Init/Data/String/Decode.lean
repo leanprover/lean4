@@ -1430,7 +1430,7 @@ public theorem isUTF8FirstByte_getElem_zero_utf8EncodeChar {c : Char} :
     ((String.utf8EncodeChar c)[0]'(by simp [c.utf8Size_pos])).IsUTF8FirstByte := by
   simp
 
-@[expose]
+@[expose, inline]
 public def utf8ByteSize (c : UInt8) (_h : c.IsUTF8FirstByte) : Nat :=
   if c &&& 0x80 = 0 then
     1

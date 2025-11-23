@@ -29,7 +29,7 @@ proved rather than the type of data-valued term.
 
 # Examples
 
-## Defining an intermediate data value within a proof
+## Defining an Intermediate Data Value Within a Proof
 
 ```lean broken
 example {α : Type} [inst : Nonempty α] (p : α → Prop) :
@@ -44,7 +44,7 @@ Tactic `cases` failed with a nested error:
 Tactic `induction` failed: recursor `Nonempty.casesOn` can only eliminate into `Prop`
 
 α : Type
-motive : Nonempty α → Sort ?u.1416
+motive : Nonempty α → Sort ?u.52
 h_1 : (x : α) → motive ⋯
 inst✝ : Nonempty α
 ⊢ motive inst✝
@@ -68,7 +68,7 @@ type `α : Type`. Thus, pattern-matching on the proof of `Nonempty α` (a propos
 `Prop`-valued proof of the existential claim stated in the example's header. This restructuring
 could also be done using a pattern-matching `let` binding.
 
-## Extracting the witness from an existential proof
+## Extracting the Witness from an Existential Proof
 
 ```lean broken
 def getWitness {α : Type u} {p : α → Prop} (h : ∃ x, p x) : α :=
@@ -81,7 +81,7 @@ Tactic `induction` failed: recursor `Exists.casesOn` can only eliminate into `Pr
 
 α : Type u
 p : α → Prop
-motive : (∃ x, p x) → Sort ?u.1419
+motive : (∃ x, p x) → Sort ?u.48
 h_1 : (x : α) → (h : p x) → motive ⋯
 h✝ : ∃ x, p x
 ⊢ motive h✝

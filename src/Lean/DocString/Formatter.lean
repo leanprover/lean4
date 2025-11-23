@@ -154,8 +154,10 @@ partial def versoSyntaxToString' (stx : Syntax) : ReaderT Nat (StateM String) Un
       out "\n"
       let i ← read
       let s := Syntax.decodeStrLit (atomString s) |>.getD ""
-        |>.splitToList (· == '\n')
-        |>.map ("".pushn ' ' i ++ · ) |> "\n".intercalate
+        |>.split '\n'
+        |>.map (fun (s : String.Slice) => "".pushn ' ' i ++ s)
+        |>.toList
+        |> "\n".intercalate
       out s
       out <| "".pushn ' ' i
       out <| atomString tk2

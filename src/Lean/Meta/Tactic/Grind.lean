@@ -46,6 +46,8 @@ public import Lean.Meta.Tactic.Grind.EMatchTheoremParam
 public import Lean.Meta.Tactic.Grind.EMatchAction
 public import Lean.Meta.Tactic.Grind.Filter
 public import Lean.Meta.Tactic.Grind.CollectParams
+public import Lean.Meta.Tactic.Grind.Finish
+public import Lean.Meta.Tactic.Grind.FunCC
 public section
 namespace Lean
 

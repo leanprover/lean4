@@ -262,7 +262,7 @@ def getOptDerivingClasses (optDeriving : Syntax) : CoreM (Array DerivingClassVie
 
 def DerivingClassView.applyHandlers (view : DerivingClassView) (declNames : Array Name) : CommandElabM Unit := do
   let env ← getEnv
-  withScope (fun sc => { sc with isMeta := sc.isMeta || declNames.all (isMeta env) }) do
+  withScope (fun sc => { sc with isMeta := sc.isMeta || declNames.all (isMarkedMeta env) }) do
   withRef view.ref do
     applyDerivingHandlers (setExpose := view.hasExpose) (← liftCoreM <| view.getClassName) declNames
 

@@ -258,30 +258,31 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_denoteNum___redArg___lam__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
-if (lean_obj_tag(x_9) == 0)
+if (lean_obj_tag(x_9) == 1)
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 lean_dec(x_8);
-x_10 = l_Lean_Meta_Grind_Arith_CommRing_denoteNum___redArg___lam__4___closed__3;
-x_11 = l_Lean_mkConst(x_10, x_1);
-x_12 = l_Lean_mkApp3(x_11, x_2, x_3, x_4);
-x_13 = lean_apply_2(x_5, lean_box(0), x_12);
-x_14 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_13, x_7);
-return x_14;
+lean_dec_ref(x_7);
+lean_dec_ref(x_6);
+lean_dec_ref(x_5);
+lean_dec(x_4);
+x_10 = lean_ctor_get(x_9, 0);
+lean_inc(x_10);
+lean_dec_ref(x_9);
+x_11 = lean_apply_2(x_1, lean_box(0), x_10);
+x_12 = lean_apply_4(x_2, lean_box(0), lean_box(0), x_11, x_3);
+return x_12;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-lean_dec(x_7);
-lean_dec_ref(x_4);
-lean_dec_ref(x_3);
-lean_dec_ref(x_2);
-lean_dec(x_1);
-x_15 = lean_ctor_get(x_9, 0);
-lean_inc(x_15);
-lean_dec_ref(x_9);
-x_16 = lean_apply_2(x_5, lean_box(0), x_15);
-x_17 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_16, x_8);
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+lean_dec(x_9);
+lean_dec(x_3);
+x_13 = l_Lean_Meta_Grind_Arith_CommRing_denoteNum___redArg___lam__4___closed__3;
+x_14 = l_Lean_mkConst(x_13, x_4);
+x_15 = l_Lean_mkApp3(x_14, x_5, x_6, x_7);
+x_16 = lean_apply_2(x_1, lean_box(0), x_15);
+x_17 = lean_apply_4(x_2, lean_box(0), lean_box(0), x_16, x_8);
 return x_17;
 }
 }
@@ -333,19 +334,19 @@ x_18 = lean_box(0);
 x_19 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_19, 0, x_11);
 lean_ctor_set(x_19, 1, x_18);
-lean_inc_ref(x_16);
-lean_inc(x_8);
 lean_inc_ref(x_14);
 lean_inc_ref(x_10);
 lean_inc_ref(x_19);
+lean_inc_ref(x_16);
+lean_inc(x_8);
 x_20 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_CommRing_denoteNum___redArg___lam__4), 9, 8);
-lean_closure_set(x_20, 0, x_19);
-lean_closure_set(x_20, 1, x_10);
-lean_closure_set(x_20, 2, x_12);
-lean_closure_set(x_20, 3, x_14);
-lean_closure_set(x_20, 4, x_2);
-lean_closure_set(x_20, 5, x_8);
-lean_closure_set(x_20, 6, x_16);
+lean_closure_set(x_20, 0, x_2);
+lean_closure_set(x_20, 1, x_8);
+lean_closure_set(x_20, 2, x_16);
+lean_closure_set(x_20, 3, x_19);
+lean_closure_set(x_20, 4, x_10);
+lean_closure_set(x_20, 5, x_12);
+lean_closure_set(x_20, 6, x_14);
 lean_closure_set(x_20, 7, x_16);
 x_21 = l_Lean_mkConst(x_17, x_19);
 x_22 = l_Lean_mkAppB(x_21, x_10, x_14);

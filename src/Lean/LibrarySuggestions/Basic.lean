@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Command
 public import Lean.Meta.Eval
 public import Lean.Meta.CompletionName
+public import Lean.Linter.Deprecated
 public import Init.Data.Random
 
 /-!
@@ -146,7 +147,7 @@ structure Config where
   The tactic that is calling the premise selection, e.g. `simp`, `grind`, or `aesop`.
   This may be used to adjust the score of the suggestions
   -/
-  caller : Option Name := none
+  caller : Option String := none
   /--
   A filter on suggestions; only suggestions returning `true` should be returned.
   (It can be better to filter on the premise selection side, to ensure that enough suggestions are returned.)
@@ -299,6 +300,7 @@ def isDeniedPremise (env : Environment) (name : Name) : Bool := Id.run do
   if name == ``sorryAx then return true
   if name.isInternalDetail then return true
   if Lean.Meta.isInstanceCore env name then return true
+  if Lean.Linter.isDeprecated env name then return true
   if (nameDenyListExt.getState env).any (fun p => name.anyS (· == p)) then return true
   if let some moduleIdx := env.getModuleIdxFor? name then
     let moduleName := env.header.moduleNames[moduleIdx.toNat]!
@@ -417,7 +419,16 @@ open Lean.Elab.Tactic in
 @[builtin_tactic Lean.Parser.Tactic.suggestions] def evalSuggestions : Tactic := fun _ =>
   liftMetaTactic1 fun mvarId => do
     let suggestions ← select mvarId
-    logInfo m!"Library suggestions: {suggestions.map (·.name)}"
+    let mut msg : MessageData := "Library suggestions:"
+    -- Check if all scores are 1.0
+    let allScoresOne := suggestions.all (·.score == 1.0)
+    for s in suggestions do
+      msg := msg ++ Format.line ++ "  " ++ MessageData.ofConstName s.name
+      if !allScoresOne then
+        msg := msg ++ m!" (score: {s.score})"
+      if let some flag := s.flag then
+        msg := msg ++ m!" [{flag}]"
+    logInfo msg
     return mvarId
 
 end Lean.LibrarySuggestions

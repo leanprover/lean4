@@ -15,13 +15,11 @@ public section
 namespace Lean
 register_builtin_option diagnostics : Bool := {
   defValue := false
-  group    := "diagnostics"
   descr    := "collect diagnostic information"
 }
 
 register_builtin_option diagnostics.threshold : Nat := {
   defValue := 20
-  group    := "diagnostics"
   descr    := "only diagnostic counters above this threshold are reported by the definitional equality"
 }
 
@@ -437,6 +435,9 @@ def mkFreshUserName (n : Name) : CoreM Name :=
   | Except.error (Exception.internal id _) => throw <| IO.userError <| "internal exception #" ++ toString id.idx
   | Except.ok a                            => return a
 
+@[inline] def CoreM.toIO' (x : CoreM α) (ctx : Context) (s : State) : IO α :=
+  (·.1) <$> x.toIO ctx s
+
 -- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`
 protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=
   controlAt CoreM fun runInBase => withIncRecDepth (runInBase x)
@@ -454,7 +455,6 @@ the exception has been thrown.
 
 register_builtin_option debug.moduleNameAtTimeout : Bool := {
   defValue := true
-  group    := "debug"
   descr    := "include module name in deterministic timeout error messages.\nRemark: we set this option to false to increase the stability of our test suite"
 }
 
@@ -560,7 +560,6 @@ def wrapAsync {α : Type} (act : α → CoreM β) (cancelTk? : Option IO.CancelT
 /-- Option for capturing output to stderr during elaboration. -/
 register_builtin_option stderrAsMessages : Bool := {
   defValue := true
-  group    := "server"
   descr    := "(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message"
 }
 

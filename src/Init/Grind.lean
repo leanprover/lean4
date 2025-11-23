@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Norm
 public import Init.Grind.Tactics
@@ -26,3 +25,4 @@ public import Init.Grind.AC
 public import Init.Grind.Injective
 public import Init.Grind.Order
 public import Init.Grind.Interactive
+public import Init.Grind.Lint

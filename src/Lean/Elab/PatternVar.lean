@@ -91,7 +91,7 @@ where
         .ofList [(0, .ofTermInfo {
           lctx := .empty,
           expr := .const n params,
-          stx := .ident .none (toString n).toSubstring n [.decl n []],
+          stx := .ident .none (toString n).toRawSubstring n [.decl n []],
           elaborator := `Delab,
           expectedType? := none
         })] _

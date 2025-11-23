@@ -9,6 +9,7 @@ prelude
 public import Init.Data.ToString
 public import Lake.Util.Proc
 import Init.Data.String.TakeDrop
+import Init.Data.String.Search
 
 open System
 namespace Lake
@@ -30,7 +31,7 @@ public def filterUrl? (url : String) : Option String :=
   if url.startsWith "git" then
     none
   else if url.endsWith ".git" then
-    some <| url.dropRight 4
+    some <| url.dropEnd 4 |>.copy
   else
     some url
 
@@ -102,7 +103,7 @@ public def getHeadRevisions (repo : GitRepo) (n : Nat := 0) : LogIO (Array Strin
   let args := #["rev-list", "HEAD"]
   let args := if n != 0 then args ++ #["-n", toString n] else args
   let revs ← repo.captureGit args
-  return revs.splitToList (· == '\n') |>.toArray
+  return revs.split '\n' |>.toStringArray
 
 public def resolveRemoteRevision (rev : String) (remote := Git.defaultRemote) (repo : GitRepo) : LogIO String := do
   if Git.isFullObjectName rev then return rev
@@ -121,7 +122,7 @@ public def revisionExists (rev : String) (repo : GitRepo) : BaseIO Bool := do
 
 public def getTags (repo : GitRepo) : BaseIO (List String) := do
   let some out ← repo.captureGit? #["tag"] | return []
-  return out.splitToList (· == '\n')
+  return out.split '\n' |>.toStringList
 
 public def findTag? (rev : String := "HEAD") (repo : GitRepo) : BaseIO (Option String) := do
   repo.captureGit? #["describe", "--tags", "--exact-match", rev]

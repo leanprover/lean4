@@ -235,6 +235,7 @@ static lean_object* l___private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Derivin
 static lean_object* l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__14___redArg___closed__31;
 static lean_object* l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__14___redArg___closed__36;
 static lean_object* l_Lean_Elab_Deriving_Hashable_mkAuxFunction___closed__26;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 lean_object* l_Lean_Core_mkFreshUserName(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_getConstInfoCtor___at___00__private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__0_spec__0_spec__0_spec__0_spec__0_spec__2_spec__2_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
@@ -402,7 +403,6 @@ static lean_object* l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_
 static lean_object* l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_getConstInfoCtor___at___00__private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__0_spec__0_spec__0_spec__0_spec__0_spec__2_spec__2_spec__3___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at___00__private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__16___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_getConstInfoCtor___at___00__private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__0_spec__0_spec__0_spec__0_spec__0_spec__2_spec__2_spec__3___redArg___closed__3;
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l___private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_initFn___closed__0_00___x40_Lean_Elab_Deriving_Hashable_4079464183____hygCtx___hyg_2_;
 static lean_object* l_Lean_Elab_Deriving_Hashable_mkHashableHeader___closed__0;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -1799,7 +1799,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__14___redArg___closed__7;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1931,7 +1931,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__14___redArg___closed__21;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -2112,7 +2112,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__14___redArg___closed__39;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -3285,10 +3285,10 @@ return x_88;
 block_105:
 {
 uint8_t x_96; 
-x_96 = lean_nat_dec_lt(x_92, x_4);
+x_96 = lean_nat_dec_lt(x_93, x_4);
 if (x_96 == 0)
 {
-lean_dec(x_92);
+lean_dec(x_93);
 lean_dec(x_8);
 lean_dec_ref(x_5);
 x_20 = x_90;
@@ -3307,7 +3307,7 @@ lean_inc(x_18);
 lean_inc_ref(x_17);
 lean_inc(x_16);
 lean_inc_ref(x_15);
-x_98 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__14___redArg(x_93, x_5, x_11, x_6, x_7, x_8, x_4, x_97, x_92, x_13, x_14, x_15, x_16, x_17, x_18);
+x_98 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__14___redArg(x_92, x_5, x_11, x_6, x_7, x_8, x_4, x_97, x_93, x_13, x_14, x_15, x_16, x_17, x_18);
 if (lean_obj_tag(x_98) == 0)
 {
 lean_object* x_99; lean_object* x_100; lean_object* x_101; 
@@ -3367,8 +3367,8 @@ if (x_114 == 0)
 {
 x_90 = x_108;
 x_91 = x_113;
-x_92 = x_110;
-x_93 = x_106;
+x_92 = x_106;
+x_93 = x_110;
 x_94 = x_10;
 x_95 = lean_box(0);
 goto block_105;
@@ -3382,8 +3382,8 @@ lean_inc(x_116);
 lean_dec_ref(x_115);
 x_90 = x_108;
 x_91 = x_113;
-x_92 = x_110;
-x_93 = x_106;
+x_92 = x_106;
+x_93 = x_110;
 x_94 = x_116;
 x_95 = lean_box(0);
 goto block_105;
@@ -3885,10 +3885,10 @@ return x_88;
 block_105:
 {
 uint8_t x_96; 
-x_96 = lean_nat_dec_lt(x_91, x_4);
+x_96 = lean_nat_dec_lt(x_90, x_4);
 if (x_96 == 0)
 {
-lean_dec(x_91);
+lean_dec(x_90);
 lean_dec(x_8);
 lean_dec_ref(x_5);
 x_20 = x_92;
@@ -3907,7 +3907,7 @@ lean_inc(x_18);
 lean_inc_ref(x_17);
 lean_inc(x_16);
 lean_inc_ref(x_15);
-x_98 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__14___redArg(x_90, x_5, x_11, x_6, x_7, x_8, x_4, x_97, x_91, x_13, x_14, x_15, x_16, x_17, x_18);
+x_98 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__14___redArg(x_91, x_5, x_11, x_6, x_7, x_8, x_4, x_97, x_90, x_13, x_14, x_15, x_16, x_17, x_18);
 if (lean_obj_tag(x_98) == 0)
 {
 lean_object* x_99; lean_object* x_100; lean_object* x_101; 
@@ -3965,8 +3965,8 @@ x_113 = l_Lean_Syntax_mkNumLit(x_111, x_112);
 x_114 = lean_nat_dec_lt(x_110, x_106);
 if (x_114 == 0)
 {
-x_90 = x_106;
-x_91 = x_110;
+x_90 = x_110;
+x_91 = x_106;
 x_92 = x_108;
 x_93 = x_113;
 x_94 = x_10;
@@ -3980,8 +3980,8 @@ x_115 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Elab_De
 x_116 = lean_ctor_get(x_115, 0);
 lean_inc(x_116);
 lean_dec_ref(x_115);
-x_90 = x_106;
-x_91 = x_110;
+x_90 = x_110;
+x_91 = x_106;
 x_92 = x_108;
 x_93 = x_113;
 x_94 = x_116;
@@ -5310,7 +5310,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Deriving_Hashable_mkAuxFunction___closed__15;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -5440,7 +5440,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Deriving_Hashable_mkAuxFunction___closed__29;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

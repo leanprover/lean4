@@ -84,7 +84,7 @@ inductive _root_.String.Slice.Pattern.ForwardSliceSearcher (s : Slice) where
 deriving Inhabited
 
 @[inline]
-def iter (s : Slice) (pat : Slice) : Std.Iter (α := ForwardSliceSearcher s) (SearchStep s) :=
+def iter (pat : Slice) (s : Slice) : Std.Iter (α := ForwardSliceSearcher s) (SearchStep s) :=
   if h : pat.utf8ByteSize = 0 then
     { internalState := .emptyBefore s.startPos }
   else
@@ -259,45 +259,45 @@ instance : Std.Iterators.IteratorCollect (ForwardSliceSearcher s) Id Id :=
 instance : Std.Iterators.IteratorLoop (ForwardSliceSearcher s) Id Id :=
   .defaultImplementation
 
-instance : ToForwardSearcher Slice ForwardSliceSearcher where
-  toSearcher := iter
+instance {pat : Slice} : ToForwardSearcher pat ForwardSliceSearcher where
+  toSearcher := iter pat
 
 @[inline]
-def startsWith (s : Slice) (pat : Slice) : Bool :=
+def startsWith (pat : Slice) (s : Slice) : Bool :=
   if h : pat.utf8ByteSize ≤ s.utf8ByteSize then
     have hs := by
       simp [Pos.Raw.le_iff] at h ⊢
       omega
     have hp := by
       simp [Pos.Raw.le_iff]
-    Internal.memcmp s pat s.startPos.offset pat.startPos.offset pat.rawEndPos hs hp
+    Internal.memcmpSlice s pat s.startPos.offset pat.startPos.offset pat.rawEndPos hs hp
   else
     false
 
 @[inline]
-def dropPrefix? (s : Slice) (pat : Slice) : Option s.Pos :=
-  if startsWith s pat then
+def dropPrefix? (pat : Slice) (s : Slice) : Option s.Pos :=
+  if startsWith pat s then
     some <| s.pos! <| pat.rawEndPos.offsetBy s.startPos.offset
   else
     none
 
-instance : ForwardPattern Slice where
-  startsWith := startsWith
-  dropPrefix? := dropPrefix?
+instance {pat : Slice} : ForwardPattern pat where
+  startsWith := startsWith pat
+  dropPrefix? := dropPrefix? pat
 
-instance : ToForwardSearcher String ForwardSliceSearcher where
-  toSearcher slice pat := iter slice pat.toSlice
+instance {pat : String} : ToForwardSearcher pat ForwardSliceSearcher where
+  toSearcher := iter pat.toSlice
 
-instance : ForwardPattern String where
-  startsWith s pat := startsWith s pat.toSlice
-  dropPrefix? s pat := dropPrefix? s pat.toSlice
+instance {pat : String} : ForwardPattern pat where
+  startsWith := startsWith pat.toSlice
+  dropPrefix? := dropPrefix? pat.toSlice
 
 end ForwardSliceSearcher
 
 namespace BackwardSliceSearcher
 
 @[inline]
-def endsWith (s : Slice) (pat : Slice) : Bool :=
+def endsWith (pat : Slice) (s : Slice) : Bool :=
   if h : pat.utf8ByteSize ≤ s.utf8ByteSize then
     let sStart := s.endPos.offset.unoffsetBy pat.rawEndPos
     let patStart := pat.startPos.offset
@@ -306,24 +306,24 @@ def endsWith (s : Slice) (pat : Slice) : Bool :=
       omega
     have hp := by
       simp [patStart, Pos.Raw.le_iff] at h ⊢
-    Internal.memcmp s pat sStart patStart pat.rawEndPos hs hp
+    Internal.memcmpSlice s pat sStart patStart pat.rawEndPos hs hp
   else
     false
 
 @[inline]
-def dropSuffix? (s : Slice) (pat : Slice) : Option s.Pos :=
-  if endsWith s pat then
+def dropSuffix? (pat : Slice) (s : Slice) : Option s.Pos :=
+  if endsWith pat s then
     some <| s.pos! <| s.endPos.offset.unoffsetBy pat.rawEndPos
   else
     none
 
-instance : BackwardPattern Slice where
-  endsWith := endsWith
-  dropSuffix? := dropSuffix?
+instance {pat : Slice} : BackwardPattern pat where
+  endsWith := endsWith pat
+  dropSuffix? := dropSuffix? pat
 
-instance : BackwardPattern String where
-  endsWith s pat := endsWith s pat.toSlice
-  dropSuffix? s pat := dropSuffix? s pat.toSlice
+instance {pat : String} : BackwardPattern pat where
+  endsWith := endsWith pat.toSlice
+  dropSuffix? := dropSuffix? pat.toSlice
 
 end BackwardSliceSearcher
 

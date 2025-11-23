@@ -3,10 +3,42 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Fady Adal
 
-Tests for BitVec container operations: OfFn, Count, Map, and Hamming modules.
+Tests for BitVec container operations: Folds, OfFn, Count, Map, and Hamming modules.
 -/
 
 open BitVec
+
+/-! ## Fold operations tests -/
+
+-- foldr tests
+#guard foldr (fun b acc => b :: acc) [] 0b1010#4 = [true, false, true, false]
+#guard foldr (fun b acc => if b then acc + 1 else acc) 0 0b1010#4 = 2  -- count true bits
+#guard foldr (fun b acc => b || acc) false 0b0000#4 = false
+#guard foldr (fun b acc => b || acc) false 0b0010#4 = true
+#guard foldr (fun _ acc => acc + 1) 0 0b1111#4 = 4  -- count all bits
+#guard foldr (fun b acc => b :: acc) [] nil = []
+
+-- foldl tests
+#guard foldl (fun acc b => b :: acc) [] 0b1010#4 = [false, true, false, true]
+#guard foldl (fun acc b => if b then acc + 1 else acc) 0 0b1010#4 = 2
+#guard foldl (fun acc b => b && acc) true 0b1111#4 = true
+#guard foldl (fun acc b => b && acc) true 0b1110#4 = false
+#guard foldl (fun acc _ => acc + 1) 0 0b1111#4 = 4
+#guard foldl (fun acc b => b :: acc) [] nil = []
+
+-- foldrIdx tests (using BOTH index and bit)
+#guard foldrIdx (fun i b acc => if i.val % 2 == 0 && b then acc + 1 else acc) 0 0b1111#4 = 2  -- count bits at even positions
+#guard foldrIdx (fun i b acc => (i.val, b) :: acc) [] 0b1010#4 = [(3, true), (2, false), (1, true), (0, false)]
+#guard foldrIdx (fun i b acc => if i.val < 2 && b then acc + 1 else acc) 0 0b1111#4 = 2
+#guard foldrIdx (fun _ _ acc => acc + 1) 0 0b1111#4 = 4
+#guard foldrIdx (fun i b acc => (i.val, b) :: acc) [] nil = []
+
+-- foldlIdx tests (using BOTH index and bit)
+#guard foldlIdx (fun acc i b => if i.val % 2 == 0 && b then acc + 1 else acc) 0 0b1111#4 = 2
+#guard foldlIdx (fun acc i b => (i.val, b) :: acc) [] 0b1010#4 = [(0, false), (1, true), (2, false), (3, true)]
+#guard foldlIdx (fun acc i b => if i.val >= 2 && b then acc + 1 else acc) 0 0b1111#4 = 2
+#guard foldlIdx (fun acc _ _ => acc + 1) 0 0b1111#4 = 4
+#guard foldlIdx (fun acc i b => (i.val, b) :: acc) [] nil = []
 
 /-! ## OfFn module tests -/
 

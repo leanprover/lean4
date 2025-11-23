@@ -310,8 +310,19 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
   else
     Tactic.TryThis.addSuggestions stx <| tacs.map fun tac => { suggestion := .tsyntax tac }
 
+@[builtin_tactic Lean.Parser.Tactic.lia] def evalLia : Tactic := fun stx => do
+  let `(tactic| lia $config:optConfig) := stx | throwUnsupportedSyntax
+  let config ← elabCutsatConfig config
+  evalGrindCore stx { config with } none none none
+
 @[builtin_tactic Lean.Parser.Tactic.cutsat] def evalCutsat : Tactic := fun stx => do
   let `(tactic| cutsat $config:optConfig) := stx | throwUnsupportedSyntax
+  -- Emit deprecation warning
+  logWarning "`cutsat` has been deprecated, use `lia` instead"
+  -- Emit a "try this:" suggestion to replace `cutsat` with `lia`
+  let liaTac ← `(tactic| lia $config:optConfig)
+  Tactic.TryThis.addSuggestion stx { suggestion := .tsyntax liaTac }
+  -- Execute the same logic as lia
   let config ← elabCutsatConfig config
   evalGrindCore stx { config with } none none none
 

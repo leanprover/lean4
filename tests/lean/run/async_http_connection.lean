@@ -388,7 +388,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.header! "Host" "example.com"
     |>.body #[]
 
-  handler := fun req => do
+  handler := fun _ => do
     let stream ← Body.ByteStream.empty
     stream.setKnownSize (some (.fixed 15))
 
@@ -445,7 +445,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
         for i in [0:2] do
           discard <| stream.write s!"response{i}".toUTF8
         stream.close
-      return Response.ok stream (.empty |>.insert "Content-Length" "18")
+      return Response.ok stream (.empty |>.insert (.new "Content-Length") (.new "18"))
     else
       return Response.badRequest "not chunked"
 
@@ -474,7 +474,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
         for i in [0:2] do
           discard <| stream.write s!"response{i}".toUTF8
         stream.close
-      return Response.ok stream (.empty |>.insert "Content-Length" "18")
+      return Response.ok stream (.empty |>.insert (.new "Content-Length") (.new "18"))
     else
       return Response.badRequest "not chunked"
 
@@ -500,7 +500,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
 
   handler := fun req => do
     if hasMethod req .head
-    then return Response.ok "" (Headers.empty |>.insert bigString "ata")
+    then return Response.ok "" (Headers.empty |>.insert (.ofString! bigString) (.ofString! "ata"))
     else return Response.notFound
   expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }
@@ -529,7 +529,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     Request.new
     |>.method .get
     |>.uri (.originForm (.mk #[String.mk (List.replicate 200 'a')] true) none none)
-    |>.header! "Host" (.ofString! (String.mk (List.replicate 8230 'a')))
+    |>.header! "Host" (String.mk (List.replicate 8230 'a'))
     |>.body #[]
 
   handler := fun req => do
@@ -548,7 +548,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
       |>.header! "Host" "api.example.com"
 
     for i in [0:101] do
-      req := req |>.header! s!"X-Header-{i}" (.ofString! s!"value{i}")
+      req := req |>.header! s!"X-Header-{i}" s!"value{i}"
 
     return req |>.body #[]
 
@@ -565,7 +565,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.method .get
     |>.uri! "/api/test"
     |>.header! "Host" "api.example.com"
-    |>.header! "X-Long-Value" (.ofString! (String.mk (List.replicate 9000 'x')))
+    |>.header! "X-Long-Value" (String.mk (List.replicate 9000 'x'))
     |>.body #[]
 
   handler := fun _ => do
@@ -584,7 +584,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
       |>.header! "Host" "api.example.com"
 
     for i in [0:200] do
-      req := req |>.header! s!"X-Header-{i}" (.ofString! (String.mk (List.replicate 200 'a')))
+      req := req |>.header! s!"X-Header-{i}" (String.mk (List.replicate 200 'a'))
     return req |>.body #[]
 
   handler := fun _ => do

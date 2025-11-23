@@ -134,9 +134,11 @@ def getDoReassignArrowVars (doReassignArrow : TSyntax ``doReassignArrow) : TermE
   | _ => throwUnsupportedSyntax
 
 @[builtin_doElem_elab Lean.Parser.Term.doReturn] def elabDoReturn : DoElab := fun stx _dec => do
-  let `(doReturn| return $e) := stx | throwUnsupportedSyntax
+  let `(doReturn| return $[$e?]?) := stx | throwUnsupportedSyntax
   let returnCont ← getReturnCont
-  let e ← Term.elabTermEnsuringType e returnCont.resultType
+  let e ← match e? with
+    | some e => Term.elabTermEnsuringType e returnCont.resultType
+    | none   => mkPUnitUnit
   mapLetDeclZeta returnCont.resultName returnCont.resultType e fun _ =>
     returnCont.k
 

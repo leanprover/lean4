@@ -65,3 +65,30 @@ example : test () := by
   grind [test]
 
 end WithoutStructure
+
+namespace Ex
+
+opaque f : Nat → Nat → Nat
+opaque g : Nat → Nat
+
+example (a b c : Nat) : f a = g → b = c → f a b = g c := by
+  fail_if_success grind
+  simp_all
+
+example (a b c : Nat) : f a = g → b = c → f a b = g c := by
+  grind [funCC f, funCC g]
+
+example (a b c : Nat) : f a = g → b = c → f a b = g c := by
+  fail_if_success grind
+  simp_all
+
+attribute [grind funCC] f g
+
+example (a b c : Nat) : f a = g → b = c → f a b = g c := by
+  grind
+
+example (a b c : Nat) : f a = g → b = c → f a b = g c := by
+  fail_if_success grind -funCC
+  grind
+
+end Ex

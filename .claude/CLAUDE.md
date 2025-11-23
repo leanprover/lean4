@@ -22,3 +22,7 @@ After rebuilding, LSP diagnostics may be stale until the user interacts with fil
 ## Update prompting when the user is frustrated
 
 If the user expresses frustration with you, stop and ask them to help update this `.claude/CLAUDE.md` file with missing guidance.
+
+## Creating pull requests.
+
+All PRs must have a first paragraph starting with "This PR". This paragraph is automatically incorporated into release notes. Read `lean4/doc/dev/commit_convention.md` when making PRs.

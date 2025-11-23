@@ -9,6 +9,7 @@ public import Lean.Elab.Tactic.Grind.Basic
 public import Lean.Meta.Tactic.Grind.Main
 import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.ForallProp
+import Lean.Meta.Tactic.Grind.Main
 import Lean.Elab.Tactic.Grind.Basic
 import Lean.Elab.Tactic.Grind.Anchor
 import Lean.Elab.SyntheticMVars
@@ -180,22 +181,30 @@ def processTermParam (params : Grind.Params)
     else
       return some (#[], e)
   let some (levelParams, proof) := thm? | return params
-  unless (← isProof proof) do
+  let type ← inferType proof
+  unless (← isProp type) do
     throwError "invalid `grind` parameter, proof term expected"
-  let mkThm (kind : Grind.EMatchTheoremKind) (idx : Nat) : MetaM Grind.EMatchTheorem := do
-    let id := ((`extra).appendIndexAfter idx)
-    let some thm ← Grind.mkEMatchTheoremWithKind? (.stx id p) levelParams proof kind params.symPrios (minIndexable := minIndexable)
-      | throwError "invalid `grind` parameter, failed to infer patterns"
-    return thm
-  let idx := params.extra.size
-  match kind with
-  | .eqBoth gen =>
-    ensureNoMinIndexable minIndexable
-    return { params with extra := params.extra.push (← mkThm (.eqLhs gen) idx) |>.push (← mkThm (.eqRhs gen) idx) }
-  | _ =>
-    if kind matches .eqLhs _ | .eqRhs _ then
+  if type.isForall then
+    let mkThm (kind : Grind.EMatchTheoremKind) (idx : Nat) : MetaM Grind.EMatchTheorem := do
+      let id := ((`extra).appendIndexAfter idx)
+      let some thm ← Grind.mkEMatchTheoremWithKind? (.stx id p) levelParams proof kind params.symPrios (minIndexable := minIndexable)
+        | throwError "invalid `grind` parameter, failed to infer patterns"
+      return thm
+    let idx := params.extra.size
+    match kind with
+    | .eqBoth gen =>
       ensureNoMinIndexable minIndexable
-    return { params with extra := params.extra.push (← mkThm kind idx) }
+      return { params with extra := params.extra.push (← mkThm (.eqLhs gen) idx) |>.push (← mkThm (.eqRhs gen) idx) }
+    | _ =>
+      if kind matches .eqLhs _ | .eqRhs _ then
+        ensureNoMinIndexable minIndexable
+      return { params with extra := params.extra.push (← mkThm kind idx) }
+  else
+    unless mod?.isNone do
+      throwError "invalid `grind` parameter, modifier is redundant since the parameter type is not a `forall`{indentExpr type}"
+    unless levelParams.isEmpty do
+      throwError "invalid `grind` parameter, parameter type is not a `forall` and is universe polymorphic{indentExpr type}"
+    return { params with extraFacts := params.extraFacts.push proof }
 
 /--
 Elaborates `grind` parameters.
@@ -290,10 +299,7 @@ public def withParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.Tactic
       }
       replaceMainGoal [goal]
     liftGoalM do
-      for thm in params.extra do
-        activateTheorem thm 0
-      for thm in params.extraInj do
-        activateInjectiveTheorem thm 0
+      Grind.assertExtra params
       -- **TODO**: `cases` parameters
     k
 

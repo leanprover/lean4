@@ -39,6 +39,7 @@ structure Params where
   casesTypes  : CasesTypes := {}
   extra       : PArray EMatchTheorem := {}
   extraInj    : PArray InjectiveTheorem := {}
+  extraFacts  : PArray Expr := {}
   funCCs      : NameSet := {}
   norm        : Simp.Context
   normProcs   : Array Simprocs
@@ -108,6 +109,18 @@ private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State
     used := used.insert localDecl.userName
   return { used }
 
+/--
+Asserts extra facts provided as `grind` parameters.
+-/
+def assertExtra (params : Params) : GoalM Unit := do
+  for proof in params.extraFacts do
+    let prop ← inferType proof
+    addNewRawFact proof prop 0 .input
+  for thm in params.extra do
+    activateTheorem thm 0
+  for thm in params.extraInj do
+    activateInjectiveTheorem thm 0
+
 private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let mvarId ← if params.config.clean then mvarId.exposeNames else pure mvarId
   let trueExpr ← getTrueExpr
@@ -127,8 +140,7 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
     mkENodeCore bfalseExpr (interpreted := false) (ctor := true) (generation := 0) (funCC := false)
     mkENodeCore natZeroExpr (interpreted := true) (ctor := false) (generation := 0) (funCC := false)
     mkENodeCore ordEqExpr (interpreted := false) (ctor := true) (generation := 0) (funCC := false)
-    for thm in params.extra do
-      activateTheorem thm 0
+    assertExtra params
 
 structure Result where
   failure?   : Option Goal

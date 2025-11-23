@@ -38,8 +38,8 @@ def testSizeLimit (pair : Mock.Client × Mock.Server) : IO Unit := do
       if size > 10 then
         return Response.new
         |>.status .payloadTooLarge
-        |>.header "Connection" (.new "close")
-        |>.build
+        |>.header! "Connection" "close"
+        |>.body .zero
 
     return Response.new
       |>.status .ok
@@ -48,19 +48,19 @@ def testSizeLimit (pair : Mock.Client × Mock.Server) : IO Unit := do
   let response ← sendRequests pair #[
      Request.new
       |>.uri! "/ata/po"
-      |>.header "Content-Length" (.new "4")
-      |>.header "Host" (.new ".")
+      |>.header! "Content-Length" "4"
+      |>.header! "Host" "."
       |>.body #[.mk "test".toUTF8 #[]],
     Request.new
       |>.uri! "/ata/po"
-      |>.header "Content-Length" (.new "13")
-      |>.header "Connection" (.new "close")
-      |>.header "Host" (.new ".")
+      |>.header! "Content-Length" "13"
+      |>.header! "Connection" "close"
+      |>.header! "Host" "."
       |>.body #[.mk "testtesttests".toUTF8 #[]],
      Request.new
       |>.uri! "/ata/po"
-      |>.header "Content-Length" (.new "4")
-      |>.header "Host" (.new ".")
+      |>.header! "Content-Length" "4"
+      |>.header! "Host" "."
       |>.body #[.mk "test".toUTF8 #[]],
   ] handler
 
@@ -79,17 +79,17 @@ def testBasicRequest : IO Unit := do
   let handler := fun (_ : Request Body) => do
     return Response.new
       |>.status .ok
-      |>.header "Custom-Header" (.new "test-value")
-      |>.header "Connection" (.new "close")
+      |>.header! "Custom-Header" "test-value"
+      |>.header! "Connection" "close"
       |>.body "Hello World"
 
   let response ← sendRequests pair #[
     Request.new
       |>.uri! "/hello"
-      |>.header "Host" (.new "localhost")
-      |>.header "User-Agent" (.new "TestClient/1.0")
-      |>.header "Connection" (.new "close")
-      |>.header "Content-Length" (.new "0")
+      |>.header! "Host" "localhost"
+      |>.header! "User-Agent" "TestClient/1.0"
+      |>.header! "Connection" "close"
+      |>.header! "Content-Length" "0"
       |>.method .get
       |>.body #[.mk "".toUTF8 #[]]
   ] handler
@@ -113,18 +113,18 @@ def testPostRequest : IO Unit := do
 
     return Response.new
       |>.status .ok
-      |>.header "Content-Type" (.new "application/json")
-      |>.header "Connection" (.new "close")
+      |>.header! "Content-Type" "application/json"
+      |>.header! "Connection" "close"
       |>.body s!"Received: {body}"
 
   let response ← sendRequests pair #[
     Request.new
       |>.uri! "/api/data"
       |>.method .post
-      |>.header "Host" (.new "localhost")
-      |>.header "Content-Type" (.new "application/json")
-      |>.header "Content-Length" (.new "25")
-      |>.header "Connection" (.new "close")
+      |>.header! "Host" "localhost"
+      |>.header! "Content-Type" "application/json"
+      |>.header! "Content-Length" "25"
+      |>.header! "Connection" "close"
       |>.body #[.mk "{\"name\": \"test\", \"id\": 1}".toUTF8 #[]]
   ] handler
 
@@ -135,12 +135,12 @@ def test100Continue : IO Unit := do
   let pair ← Mock.new
 
   let handler := fun (req : Request Body) => do
-    let expectHeader := req.head.headers.getLast? "Expect" |>.getD (.new "")
+    let expectHeader := req.head.headers.getLast? (.new "Expect") |>.getD (.new "")
     if expectHeader.is "100-continue" then
       return Response.new
         |>.status .continue
-        |>.header "Connection" (.new "close")
-        |>.build
+        |>.header! "Connection" "close"
+        |>.body Body.zero
     else
       return Response.new
         |>.status .ok
@@ -150,10 +150,10 @@ def test100Continue : IO Unit := do
     Request.new
       |>.uri! "/"
       |>.method .get
-      |>.header "Host" (.new "example.com")
-      |>.header "Content-Length" (.new "1")
-      |>.header "Expect" (.new "100-continue")
-      |>.header "Connection" (.new "close")
+      |>.header! "Host" "example.com"
+      |>.header! "Content-Length" "1"
+      |>.header! "Expect" "100-continue"
+      |>.header! "Connection" "close"
       |>.body #[.mk "a".toUTF8 #[]]
   ] handler
 
@@ -176,8 +176,8 @@ def testMaxRequestSize : IO Unit := do
       if totalSize > 1000 then
         return Response.new
           |>.status .payloadTooLarge
-          |>.header "Content-Type" (.new "application/json")
-          |>.header "Connection" (.new "close")
+          |>.header! "Content-Type" "application/json"
+          |>.header! "Connection" "close"
           |>.body "{\"error\": \"Request too large\", \"max_size\": 1000}"
 
     return Response.new
@@ -193,10 +193,10 @@ def testMaxRequestSize : IO Unit := do
     Request.new
       |>.uri! "/upload"
       |>.method .post
-      |>.header "Host" (.new "localhost")
-      |>.header "Content-Type" (.new "text/plain")
-      |>.header "Content-Length" (.ofString! s!"{largeData.length}")
-      |>.header "Connection" (.new "close")
+      |>.header! "Host" "localhost"
+      |>.header! "Content-Type" "text/plain"
+      |>.header! "Content-Length" s!"{largeData.length}"
+      |>.header! "Connection" "close"
       |>.body #[.mk largeData.toUTF8 #[]]
   ] handler
 
@@ -213,37 +213,37 @@ def testCut : IO Unit := do
   let pair ← Mock.new
 
   let handler := fun (req : Request Body) => do
-    if req.head.headers.hasEntry "Accept" "application/json" then
+    if req.head.headers.hasEntry (.new "Accept") "application/json" then
       return Response.new
         |>.status .accepted
-        |>.header "Content-Type" (.new "application/json")
+        |>.header! "Content-Type" "application/json"
         |>.body "{\"message\": \"JSON response\", \"status\": \"accepted\"}"
-    else if req.head.headers.hasEntry "Accept" "text/xml" then
+    else if req.head.headers.hasEntry (.new "Accept") "text/xml" then
       return Response.new
         |>.status .ok
-        |>.header "Content-Type" (.new "application/xml")
+        |>.header! "Content-Type" "application/xml"
         |>.body "<?xml version=\"1.0\"?><response><message>XML response</message></response>"
     else
       return Response.new
         |>.status .ok
-        |>.header "Content-Type" (.new "text/plain")
+        |>.header! "Content-Type" "text/plain"
         |>.body "Plain text response"
 
   let response ← sendRequests pair #[
     Request.new
       |>.uri! "/api/content"
       |>.method .post
-      |>.header "Host" (.new "localhost")
-      |>.header "Accept" (.new "application/json")
-      |>.header "Content-Type" (.new "application/json")
-      |>.header "Content-Length" (.new "18")
+      |>.header! "Host" "localhost"
+      |>.header! "Accept" "application/json"
+      |>.header! "Content-Type" "application/json"
+      |>.header! "Content-Length" "18"
       |>.body #[.mk "{\"request\": \"data\"}".toUTF8 #[]],
     Request.new
       |>.uri! "/api/content"
       |>.method .get
-      |>.header "Host" (.new "localhost")
-      |>.header "Accept" (.new "text/xml")
-      |>.header "Content-Length" (.new "1")
+      |>.header! "Host" "localhost"
+      |>.header! "Accept" "text/xml"
+      |>.header! "Content-Length" "1"
       |>.body #[.mk "a".toUTF8 #[]]
   ] handler
 
@@ -268,37 +268,37 @@ def testContentNegotiation : IO Unit := do
   let pair ← Mock.new
 
   let handler := fun (req : Request Body) => do
-    if req.head.headers.hasEntry "Accept" "application/json" then
+    if req.head.headers.hasEntry (.new "Accept") "application/json" then
       return Response.new
         |>.status .accepted
-        |>.header "Content-Type" (.new "application/json")
+        |>.header! "Content-Type" "application/json"
         |>.body "{\"message\": \"JSON response\", \"status\": \"accepted\"}"
-    else if req.head.headers.hasEntry "Accept" "text/xml" then
+    else if req.head.headers.hasEntry (.new "Accept") "text/xml" then
       return Response.new
         |>.status .ok
-        |>.header "Content-Type" (.new "application/xml")
+        |>.header! "Content-Type" "application/xml"
         |>.body "<?xml version=\"1.0\"?><response><message>XML response</message></response>"
     else
       return Response.new
         |>.status .ok
-        |>.header "Content-Type" (.new "text/plain")
+        |>.header! "Content-Type" "text/plain"
         |>.body "Plain text response"
 
   let response ← sendRequests pair #[
     Request.new
       |>.uri! "/api/content"
       |>.method .post
-      |>.header "Host" (.new "localhost")
-      |>.header "Accept" (.new "application/json")
-      |>.header "Content-Type" (.new "application/json")
-      |>.header "Content-Length" (.new "19")
+      |>.header! "Host" "localhost"
+      |>.header! "Accept" "application/json"
+      |>.header! "Content-Type" "application/json"
+      |>.header! "Content-Length" "19"
       |>.body #[.mk "{\"request\": \"data\"}".toUTF8 #[]],
     Request.new
       |>.uri! "/api/content"
       |>.method .get
-      |>.header "Host" (.new "localhost")
-      |>.header "Accept" (.new "text/xml")
-      |>.header "Content-Length" (.new "1")
+      |>.header! "Host" "localhost"
+      |>.header! "Accept" "text/xml"
+      |>.header! "Content-Length" "1"
       |>.body #[.mk "a".toUTF8 #[]]
   ] handler
 
@@ -315,37 +315,37 @@ def testContentNegotiationError : IO Unit := do
   let pair ← Mock.new
 
   let handler := fun (req : Request Body) => do
-    if req.head.headers.hasEntry "Accept" "application/json" then
+    if req.head.headers.hasEntry (.new "Accept") "application/json" then
       return Response.new
         |>.status .accepted
-        |>.header "Content-Type" (.new "application/json")
+        |>.header! "Content-Type" "application/json"
         |>.body "{\"message\": \"JSON response\", \"status\": \"accepted\"}"
-    else if req.head.headers.hasEntry "Accept" "text/xml" then
+    else if req.head.headers.hasEntry (.new "Accept") "text/xml" then
       return Response.new
         |>.status .ok
-        |>.header "Content-Type" (.new "application/xml")
+        |>.header! "Content-Type" "application/xml"
         |>.body "<?xml version=\"1.0\"?><response><message>XML response</message></response>"
     else
       return Response.new
         |>.status .ok
-        |>.header "Content-Type" (.new "text/plain")
+        |>.header! "Content-Type" "text/plain"
         |>.body "Plain text response"
 
   let response ← sendRequests pair #[
     Request.new
       |>.uri! "/api/content"
       |>.method .post
-      |>.header "Host" (.new "localhost")
-      |>.header "Accept" (.new "application/json")
-      |>.header "Content-Type" (.new "application/json")
-      |>.header "Content-Length" (.new "18")
+      |>.header! "Host" "localhost"
+      |>.header! "Accept" "application/json"
+      |>.header! "Content-Type" "application/json"
+      |>.header! "Content-Length" "18"
       |>.body #[.mk "{\"request\": \"data\"}".toUTF8 #[]],
     Request.new
       |>.uri! "/api/content"
       |>.method .get
-      |>.header "Host" (.new "localhost")
-      |>.header "Accept" (.new "text/xml")
-      |>.header "Content-Length" (.new "1")
+      |>.header! "Host" "localhost"
+      |>.header! "Accept" "text/xml"
+      |>.header! "Content-Length" "1"
       |>.body #[.mk "a".toUTF8 #[]]
   ] handler
 

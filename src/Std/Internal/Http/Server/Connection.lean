@@ -46,37 +46,39 @@ public structure Connection (α : Type) where
 
 namespace Connection
 
+
 private inductive Recv
   | bytes (x : Option ByteArray)
+  | channel (x : Option Chunk)
   | timeout
 
-private def receiveWithTimeout [Transport α] (socket : α) (expect : UInt64)
+private def receiveWithTimeout [Transport α] (socket : α) (expect : UInt64) (channel : Option Body.ByteStream)
     (timeoutMs : Millisecond.Offset) (req : Timestamp) (all : Timestamp) :
   Async Recv := do
-    Selectable.one #[
+    let mut selectables : Array (Selectable _) := #[
       .case (Transport.recvSelector socket expect) (fun x => pure <| .bytes x),
       .case (← Selector.sleep timeoutMs) (fun _ => pure <| .timeout),
       .case (← Selector.sleep (req - (← Timestamp.now) |>.toMilliseconds)) (fun _ => pure <| .timeout),
-      .case (← Selector.sleep (all - (← Timestamp.now) |>.toMilliseconds)) (fun _ => pure <| .timeout)]
+      .case (← Selector.sleep (all - (← Timestamp.now) |>.toMilliseconds)) (fun _ => pure <| .timeout)
+    ]
+
+    if let some channel := channel then
+      selectables := selectables.push (.case channel.recvSelector (fun res => pure <| .channel res))
+
+    Selectable.one selectables
 
 private def processNeedMoreData
-    [Transport α] (config : Config) (socket : α) (expect : Option Nat)
+    [Transport α] (config : Config) (socket : α) (expect : Option Nat) (channel : Option Body.ByteStream)
     (req : Timestamp) (all : Timestamp):
-    Async (Except H1.Error (Option ByteArray)) := do
+    Async Recv := do
   try
     let expect := expect
       |>.getD config.defaultPayloadBytes
       |>.min config.maximumRecvSize
 
-    let data ← receiveWithTimeout socket expect.toUInt64 config.lingeringTimeout req all
-
-    match data with
-    | .bytes (some bytes) => pure (.ok <| some bytes)
-    | .bytes none => pure (.ok <| none)
-    | .timeout => pure (.error H1.Error.timeout)
-
+    receiveWithTimeout socket expect.toUInt64 channel config.lingeringTimeout req all
   catch _ =>
-    pure (.error H1.Error.timeout)
+    pure .timeout
 
 private def handle
     [Transport α]
@@ -107,18 +109,24 @@ private def handle
     for event in step.events do
       match event with
       | .needMoreData expect => do
-        match ← processNeedMoreData config socket expect requestTimer connectionTimer with
-        | .ok (some bs) =>
+        match ← processNeedMoreData config socket expect respStream requestTimer connectionTimer with
+        | .bytes (some bs) =>
           machine := machine.feed bs
-        | .ok none => do
+        | .bytes none =>
           machine := machine.noMoreInput
-        | .error _ =>
+        | .channel (some chunk) =>
+          machine := machine.sendData #[chunk]
+        | .channel none =>
+          machine := machine.userClosedBody
+          respStream := none
+        | .timeout =>
           machine := machine.closeReader
 
           if machine.isWaitingMessage ∧ waitingResponse then
             waitingResponse := false
             machine := machine.send { status := .requestTimeout }
             machine := machine.userClosedBody
+            respStream := none
           else
             machine := machine.closeWriter
 
@@ -158,12 +166,15 @@ private def handle
         if machine.isReaderComplete then
           if let some data ← stream.recv
             then machine := machine.sendData #[data]
-            else machine := machine.userClosedBody
+            else
+              machine := machine.userClosedBody
+              respStream := none
         else
           if let some res ← stream.tryRecv then
             machine := machine.sendData #[res]
           else if ← stream.isClosed then
               machine := machine.userClosedBody
+              respStream := none
 
     if ¬machine.writer.sentMessage ∧ (← response.isResolved) ∧ machine.isWaitingMessage ∧ waitingResponse then
       let res ← await response.result!
@@ -173,7 +184,7 @@ private def handle
 
       match res.body with
       | .bytes data => machine := machine.sendData #[Chunk.mk data #[]] |>.userClosedBody
-      |  .zero => machine := machine.userClosedBody
+      | .zero => machine := machine.userClosedBody
       | .stream stream => do
         let size ← stream.getKnownSize
         machine := machine.setKnownSize (size.getD .chunked)
@@ -197,7 +208,8 @@ private def handle
     Transport.sendAll socket output.data
 
   if let some res := respStream then
-    res.close
+    if ¬ (← res.isClosed) then
+      res.close
 
 
 end Connection

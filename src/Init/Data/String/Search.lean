@@ -112,8 +112,24 @@ Examples:
  * {lean}`("baaab".split "aa").toList == ["b".toSlice, "ab".toSlice]`
 -/
 @[inline]
-def split (s : String) (pat : ρ) [ToForwardSearcher pat σ]  :=
+def split (s : String) (pat : ρ) [ToForwardSearcher pat σ] :=
   (s.toSlice.split pat : Std.Iter String.Slice)
+
+/--
+Splits a string at each subslice that matches the pattern {name}`pat`. Unlike {name}`split` the
+matched subslices are included at the end of each subslice.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * {lean}`("coffee tea water".splitInclusive Char.isWhitespace).toList == ["coffee ".toSlice, "tea ".toSlice, "water".toSlice]`
+ * {lean}`("coffee tea water".splitInclusive ' ').toList == ["coffee ".toSlice, "tea ".toSlice, "water".toSlice]`
+ * {lean}`("coffee tea water".splitInclusive " tea ").toList == ["coffee tea ".toSlice, "water".toSlice]`
+ * {lean}`("baaab".splitInclusive "aa").toList == ["baa".toSlice, "ab".toSlice]`
+-/
+@[inline]
+def splitInclusive (s : String) (pat : ρ) [ToForwardSearcher pat σ] :=
+  (s.toSlice.splitInclusive pat : Std.Iter String.Slice)
 
 @[deprecated String.Slice.foldl (since := "2025-11-20")]
 def foldlAux {α : Type u} (f : α → Char → α) (s : String) (stopPos : Pos.Raw) (i : Pos.Raw) (a : α) : α :=
@@ -199,6 +215,147 @@ Examples:
 -/
 @[inline] def toNat! (s : String) : Nat :=
   s.toSlice.toNat!
+
+/--
+Returns the first character in {name}`s`. If {name}`s` is empty, returns {name}`none`.
+
+Examples:
+* {lean}`"abc".front? = some 'a'`
+* {lean}`"".front? = none`
+-/
+@[inline]
+def front? (s : String) : Option Char :=
+  s.toSlice.front?
+
+/--
+Returns the first character in {name}`s`. If {lean}`s = ""`, returns {lean}`(default : Char)`.
+
+Examples:
+* {lean}`"abc".front = 'a'`
+* {lean}`"".front = (default : Char)`
+-/
+@[inline, expose] def front (s : String) : Char :=
+  s.toSlice.front
+
+@[export lean_string_front]
+def Internal.frontImpl (s : String) : Char :=
+  String.front s
+
+/--
+Returns the last character in {name}`s`. If {name}`s` is empty, returns {name}`none`.
+
+Examples:
+* {lean}`"abc".back? = some 'c'`
+* {lean}`"".back? = none`
+-/
+@[inline]
+def back? (s : String) : Option Char :=
+  s.toSlice.back?
+
+
+/--
+Returns the last character in {name}`s`. If {lean}`s = ""`, returns {lean}`(default : Char)`.
+
+Examples:
+* {lean}`"abc".back = 'c'`
+* {lean}`"".back = (default : Char)`
+-/
+@[inline, expose] def back (s : String) : Char :=
+  s.toSlice.back
+
+theorem Slice.Pos.ofSlice_ne_endValidPos {s : String} {p : s.toSlice.Pos}
+    (h : p ≠ s.toSlice.endPos) : p.ofSlice ≠ s.endValidPos := by
+  rwa [ne_eq, ← ValidPos.toSlice_inj, toSlice_ofSlice, ← endPos_toSlice]
+
+@[inline]
+def Internal.toSliceWithProof {s : String} :
+    { p : s.toSlice.Pos // p ≠ s.toSlice.endPos } → { p : s.ValidPos // p ≠ s.endValidPos } :=
+  fun ⟨p, h⟩ => ⟨p.ofSlice, Slice.Pos.ofSlice_ne_endValidPos h⟩
+
+/--
+Creates an iterator over all valid positions within {name}`s`.
+
+Examples
+ * {lean}`("abc".positions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['a', 'b', 'c']`
+ * {lean}`("abc".positions.map (·.val.offset.byteIdx) |>.toList) = [0, 1, 2]`
+ * {lean}`("ab∀c".positions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['a', 'b', '∀', 'c']`
+ * {lean}`("ab∀c".positions.map (·.val.offset.byteIdx) |>.toList) = [0, 1, 2, 5]`
+-/
+@[inline]
+def positions (s : String) :=
+  (s.toSlice.positions.map Internal.toSliceWithProof : Std.Iter { p : s.ValidPos // p ≠ s.endValidPos })
+
+/--
+Creates an iterator over all characters (Unicode code points) in {name}`s`.
+
+Examples:
+ * {lean}`"abc".chars.toList = ['a', 'b', 'c']`
+ * {lean}`"ab∀c".chars.toList = ['a', 'b', '∀', 'c']`
+-/
+@[inline]
+def chars (s : String) :=
+  (s.toSlice.chars : Std.Iter Char)
+
+/--
+Creates an iterator over all valid positions within {name}`s`, starting from the last valid
+position and iterating towards the first one.
+
+Examples
+ * {lean}`("abc".revPositions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['c', 'b', 'a']`
+ * {lean}`("abc".revPositions.map (·.val.offset.byteIdx) |>.toList) = [2, 1, 0]`
+ * {lean}`("ab∀c".revPositions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['c', '∀', 'b', 'a']`
+ * {lean}`("ab∀c".toSlice.revPositions.map (·.val.offset.byteIdx) |>.toList) = [5, 2, 1, 0]`
+-/
+@[inline]
+def revPositions (s : String) :=
+  (s.toSlice.revPositions.map Internal.toSliceWithProof : Std.Iter { p : s.ValidPos // p ≠ s.endValidPos })
+
+/--
+Creates an iterator over all characters (Unicode code points) in {name}`s`, starting from the end
+of the slice and iterating towards the start.
+
+Example:
+ * {lean}`"abc".revChars.toList = ['c', 'b', 'a']`
+ * {lean}`"ab∀c".revChars.toList = ['c', '∀', 'b', 'a']`
+-/
+@[inline]
+def revChars (s : String) :=
+  (s.toSlice.revChars : Std.Iter Char)
+
+/--
+Creates an iterator over all bytes in {name}`s`.
+
+Examples:
+ * {lean}`"abc".byteIterator.toList = [97, 98, 99]`
+ * {lean}`"ab∀c".byteIterator.toList = [97, 98, 226, 136, 128, 99]`
+-/
+@[inline]
+def byteIterator (s : String) :=
+  (s.toSlice.bytes : Std.Iter UInt8)
+
+/--
+Creates an iterator over all bytes in {name}`s`, starting from the last one and iterating towards
+the first one.
+
+Examples:
+ * {lean}`"abc".revBytes.toList = [99, 98, 97]`
+ * {lean}`"ab∀c".revBytes.toList = [99, 128, 136, 226, 98, 97]`
+-/
+@[inline]
+def revBytes (s : String) :=
+  (s.toSlice.revBytes : Std.Iter UInt8)
+
+/--
+Creates an iterator over all lines in {name}`s` with the line ending characters `\r\n` or `\n` being
+stripped.
+
+Examples:
+ * {lean}`"foo\r\nbar\n\nbaz\n".lines.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz".toSlice]`
+ * {lean}`"foo\r\nbar\n\nbaz".lines.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz".toSlice]`
+ * {lean}`"foo\r\nbar\n\nbaz\r".lines.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz\r".toSlice]`
+-/
+def lines (s : String) :=
+  s.toSlice.lines
 
 end
 

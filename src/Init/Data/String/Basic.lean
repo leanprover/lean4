@@ -2430,37 +2430,6 @@ def prev : (@& String) → (@& Pos.Raw) → Pos.Raw
   | s, p => Pos.Raw.utf8PrevAux s.toList 0 p
 
 /--
-Returns the first character in `s`. If `s = ""`, returns `(default : Char)`.
-
-Examples:
-* `"abc".front = 'a'`
-* `"".front = (default : Char)`
--/
-@[inline, expose] def front (s : String) : Char :=
-  Pos.Raw.get s 0
-
-@[export lean_string_front]
-def Internal.frontImpl (s : String) : Char :=
-  String.front s
-
-theorem front_eq_get {s : String} : s.front = (0 : Pos.Raw).get s := rfl
-
-/--
-Returns the last character in `s`. If `s = ""`, returns `(default : Char)`.
-
-Examples:
-* `"abc".back = 'c'`
-* `"".back = (default : Char)`
--/
-@[inline, expose] def back (s : String) : Char :=
-  (s.rawEndPos.prev s).get s
-
-theorem back_eq_get_prev_rawEndPos {s : String} : s.back = (s.rawEndPos.prev s).get s := rfl
-
-@[deprecated back_eq_get_prev_rawEndPos (since := "2025-10-20")]
-theorem back_eq_get_prev_endPos {s : String} : s.back = (s.rawEndPos.prev s).get s := rfl
-
-/--
 Returns `true` if a specified byte position is greater than or equal to the position which points to
 the end of a string. Otherwise, returns `false`.
 

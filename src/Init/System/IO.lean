@@ -10,6 +10,7 @@ public import Init.System.IOError
 public import Init.System.FilePath
 public import Init.Data.Ord.UInt
 import Init.Data.String.TakeDrop
+import Init.Data.String.Search
 
 public section
 

@@ -30,43 +30,35 @@ def sendRequests (pair : Mock.Client × Mock.Server) (reqs : Array (Request (Arr
   let res ← client.recv?
   pure <| res.getD .empty
 
-def testSizeLimit (pair : Mock.Client × Mock.Server) : IO Unit := do
-  let handler := fun (req : Request Body) => do
-    let mut size := 0
-    for i in req.body do
-      size := size + i.size
-      if size > 10 then
-        return Response.new
-        |>.status .payloadTooLarge
-        |>.header! "Connection" "close"
-        |>.body Body.zero
+/--
+info: "HTTP/1.1 200 OK\x0d\nContent-Length: 9\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nmaracujá"
+-/
+#guard_msgs in
+#eval
+  IO.println =<< Async.block do
+    let (client, server) ← Mock.new
 
-    return Response.new
-      |>.status .ok
-      |>.body "hello robert"
+    let handler := fun (req : Request Body) => show Async _ from do
 
-  let response ← sendRequests pair #[
-     Request.new
-      |>.uri! "/ata/po"
-      |>.header! "Content-Length" "4"
-      |>.header! "Host" "."
-      |>.body #[.mk "test".toUTF8 #[]],
-    Request.new
-      |>.uri! "/ata/po"
-      |>.header! "Content-Length" "13"
-      |>.header! "Connection" "close"
-      |>.header! "Host" "."
-      |>.body #[.mk "testtesttests".toUTF8 #[]],
-     Request.new
-      |>.uri! "/ata/po"
-      |>.header! "Content-Length" "4"
-      |>.header! "Host" "."
-      |>.body #[.mk "test".toUTF8 #[]],
-  ] handler
+      return Response.new
+        |>.status .ok
+        |>.body req.body
 
-  let responseData := String.fromUTF8! response
-  IO.println <| String.quote responseData
+    background (Std.Http.Server.serveConnection server handler (config := { lingeringTimeout := 3000 }))
 
+    let conn ← Http.Client.createPersistentConnection client "localhost"
+
+    let response ← conn.send <| .post (.parse! "/a/b") "maracujá"
+
+    let body := response.body
+    let res ← body.collectString
+
+    return s!"{response.head}{res.getD "?"}".quote
+
+/--
+info: "HTTP/1.1 200 OK\x0d\nContent-Length: 0\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+-/
+#guard_msgs in
 #eval
   IO.println =<< Async.block do
     let (client, server) ← Mock.new
@@ -95,4 +87,58 @@ def testSizeLimit (pair : Mock.Client × Mock.Server) : IO Unit := do
     let body := response.body
     let res ← body.collectString
 
-    return s!"{response.head}{res.getD "?"}"
+    return s!"{response.head}{res.getD "?"}".quote
+
+/--
+info: "HTTP/1.1 404 Not Found\x0d\nContent-Length: 9\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nNot Found"
+-/
+#guard_msgs in
+#eval
+  IO.println =<< Async.block do
+    let (client, server) ← Mock.new
+
+    let handler := fun (req : Request Body) => show Async _ from do
+      if req.head.uri.path?.map toString == "/missing" then
+        return Response.new
+          |>.status .notFound
+          |>.body ("Not Found" : Body)
+      else
+          return Response.new
+          |>.status .ok
+          |>.body ("Found" : Body)
+
+    background (Std.Http.Server.serveConnection server handler (config := { lingeringTimeout := 3000 }))
+
+    let conn ← Http.Client.createPersistentConnection client "localhost"
+
+    let response ← conn.send <| .get (.parse! "/missing")
+
+    let body := response.body
+    let res ← body.collectString
+
+    return s!"{response.head}{res.getD "?"}".quote
+
+/--
+info: "HTTP/1.1 200 OK\x0d\nContent-Length: 13\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: application/json\x0d\n\x0d\n{\"key\":\"val\"}"
+-/
+#guard_msgs in
+#eval
+  IO.println =<< Async.block do
+    let (client, server) ← Mock.new
+
+    let handler := fun (_ : Request Body) => show Async _ from do
+      return Response.new
+        |>.status .ok
+        |>.header! "Content-Type" "application/json"
+        |>.body ("{\"key\":\"val\"}" : Body)
+
+    background (Std.Http.Server.serveConnection server handler (config := { lingeringTimeout := 3000 }))
+
+    let conn ← Http.Client.createPersistentConnection client "localhost"
+
+    let response ← conn.send <| .get (.parse! "/json")
+
+    let body := response.body
+    let res ← body.collectString
+
+    return s!"{response.head}{res.getD "?"}".quote

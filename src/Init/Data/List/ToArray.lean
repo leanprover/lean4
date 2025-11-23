@@ -249,7 +249,7 @@ theorem forM_toArray [Monad m] (l : List α) (f : α → m PUnit) :
   induction l with
   | nil => simp
   | cons a l ih =>
-    simp only [forIn_cons, LawfulMonad.bind_assoc, findSomeM?]
+    simp only [forIn_cons, forInNew_cons, LawfulMonad.bind_assoc, findSomeM?]
     congr
     ext1 (_|_) <;> simp [ih]
 
@@ -278,11 +278,11 @@ theorem findRevM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : Lis
 @[simp, grind =] theorem findM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : List α) :
     l.toArray.findM? f = l.findM? f := by
   rw [Array.findM?]
-  simp only [bind_pure_comp, map_pure, forIn_toArray]
+  simp only [bind_pure_comp, map_pure, forIn_toArray, forInNew_toArray]
   induction l with
   | nil => simp
   | cons a l ih =>
-    simp only [forIn_cons, LawfulMonad.bind_assoc, findM?]
+    simp only [forIn_cons, forInNew_cons, LawfulMonad.bind_assoc, findM?]
     congr
     ext1 (_|_) <;> simp [ih]
 
@@ -293,11 +293,11 @@ theorem findRevM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : Lis
 @[simp, grind =] theorem find?_toArray (f : α → Bool) (l : List α) :
     l.toArray.find? f = l.find? f := by
   rw [Array.find?]
-  simp only [forIn_toArray]
+  simp only [forIn_toArray, forInNew_toArray]
   induction l with
   | nil => simp
   | cons a l ih =>
-    simp only [forIn_cons, find?]
+    simp only [forIn_cons, forInNew_cons, find?]
     by_cases f a <;> simp_all
 
 private theorem findFinIdx?_loop_toArray (w : l' = l.drop j) :

@@ -54,7 +54,7 @@ structure Raw (α : Type u) (β : α → Type v) where
 
 namespace Raw
 
-variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w'}
+variable {α : Type u} {β : α → Type v} {δ : Type w} {σ : Type w} {m : Type w → Type w'}
 
 /--
 Monadically computes a value by folding the given function over the mappings in the hash
@@ -70,6 +70,10 @@ map in some order.
 /-- Carries out a monadic action on each mapping in the hash map in some order. -/
 @[inline] def forM [Monad m] (f : (a : α) → β a → m PUnit) (b : Raw α β) : m PUnit :=
   b.buckets.forM (AssocList.forM f)
+
+/-- Support for the `for` loop construct in `do` blocks. -/
+@[inline] def forInNew (b : Raw α β) (init : σ) (kcons : (a : α) → β a → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  ForInNew.forInNew b.buckets init (fun bucket kcontinue s => bucket.forInNew s kcons kcontinue) knil
 
 /-- Support for the `for` loop construct in `do` blocks. -/
 @[inline] def forIn [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (b : Raw α β) : m δ :=

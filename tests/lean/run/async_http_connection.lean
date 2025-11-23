@@ -105,7 +105,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     then return Response.ok "ok"
     else return Response.badRequest "invalid"
 
-  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 2\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nok"
+  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 2\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nok"
 }
 
 #eval runTestCase {
@@ -123,7 +123,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     then return Response.ok "users list"
     else return Response.notFound
 
-  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 10\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nusers list"
+  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 10\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nusers list"
 }
 
 #eval runTestCase {
@@ -141,7 +141,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     if hasMethod req .post ∧ hasHeader req "Content-Type" "application/json"
     then return Response.new |>.status .created |>.body "Created"
     else return Response.badRequest
-  expected := "HTTP/1.1 201 Created\x0d\nContent-Length: 7\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nCreated"
+  expected := "HTTP/1.1 201 Created\x0d\nContent-Length: 7\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nCreated"
 }
 
 #eval runTestCase {
@@ -159,7 +159,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     then return Response.new |>.status .noContent |>.body ""
     else return Response.notFound
 
-  expected := "HTTP/1.1 204 No Content\x0d\nContent-Length: 0\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+  expected := "HTTP/1.1 204 No Content\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }
 
 #eval runTestCase {
@@ -177,7 +177,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     then return Response.ok ""
     else return Response.notFound
 
-  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 0\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }
 
 #eval runTestCase {
@@ -198,7 +198,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
       |>.body ""
     else return Response.badRequest
 
-  expected := "HTTP/1.1 200 OK\x0d\nAllow: GET, POST, PUT, DELETE, OPTIONS\x0d\nContent-Length: 0\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+  expected := "HTTP/1.1 200 OK\x0d\nAllow: GET, POST, PUT, DELETE, OPTIONS\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }
 
 #eval runTestCase {
@@ -219,7 +219,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     then return Response.ok "authenticated"
     else return Response.new |>.status .unauthorized |>.body "unauthorized"
 
-  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 13\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nauthenticated"
+  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 13\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nauthenticated"
 }
 
 #eval runTestCase {
@@ -237,7 +237,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     then return Response.ok "search results"
     else return Response.notFound
 
-  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 14\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nsearch results"
+  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 14\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nsearch results"
 }
 
 #eval runTestCase {
@@ -256,7 +256,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     then return Response.new |>.status .accepted |>.body "triggered"
     else return Response.badRequest
 
-  expected := "HTTP/1.1 202 Accepted\x0d\nContent-Length: 9\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\ntriggered"
+  expected := "HTTP/1.1 202 Accepted\x0d\nContent-Length: 9\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\ntriggered"
 }
 
 #eval runTestCase {
@@ -273,7 +273,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     let largeBody := String.mk (List.replicate 1000 'X')
     return Response.ok largeBody
 
-  expected := s!"HTTP/1.1 200 OK\x0d\nContent-Length: 1000\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n{String.mk (List.replicate 1000 'X')}"
+  expected := s!"HTTP/1.1 200 OK\x0d\nContent-Length: 1000\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n{String.mk (List.replicate 1000 'X')}"
 }
 
 #eval runTestCase {
@@ -291,7 +291,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
       |>.status .imATeapot
       |>.body "I'm a teapot"
 
-  expected := "HTTP/1.1 418 I'm a teapot\x0d\nContent-Length: 12\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nI'm a teapot"
+  expected := "HTTP/1.1 418 I'm a teapot\x0d\nContent-Length: 12\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nI'm a teapot"
 }
 
 #eval runTestCase {
@@ -306,7 +306,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     if hasUri req "/api/users/%C3%A9"
     then return Response.ok "found"
     else return Response.notFound
-  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 5\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nfound"
+  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 5\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nfound"
 }
 
 #eval runTestCase {
@@ -327,7 +327,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
       |>.header! "X-Custom-Header" "custom-value"
       |>.body "data"
 
-  expected := "HTTP/1.1 200 OK\x0d\nX-Custom-Header: custom-value\x0d\nContent-Length: 4\x0d\nServer: LeanHTTP/1.1\x0d\nCache-Control: no-cache\x0d\n\x0d\ndata"
+  expected := "HTTP/1.1 200 OK\x0d\nX-Custom-Header: custom-value\x0d\nContent-Length: 4\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\nCache-Control: no-cache\x0d\n\x0d\ndata"
 }
 
 #eval runTestCase {
@@ -347,7 +347,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     then return Response.ok "processed xml"
     else return Response.new |>.status .unsupportedMediaType |>.body "unsupported"
 
-  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 13\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nprocessed xml"
+  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 13\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nprocessed xml"
 }
 
 #eval runTestCase {
@@ -367,5 +367,5 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     then return Response.ok "processed xml"
     else return Response.new |>.status .unsupportedMediaType |>.body "unsupported"
 
-  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 13\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nprocessed xml"
+  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 13\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nprocessed xml"
 }

@@ -83,6 +83,11 @@ structure Machine (dir : Direction) where
   -/
   forcedFlush : Bool := false
 
+  /--
+  Host header.
+  -/
+  host : Option HeaderValue := none
+
 namespace Machine
 
 @[inline]
@@ -272,13 +277,21 @@ def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : M
   let machine := { machine with keepAlive := ¬hasClose }
   let size := Writer.determineTransferMode machine.writer
 
+  let headers :=
+    if messageHead.headers.contains (.new "host") then
+      messageHead.headers
+    else if let some host := machine.host then
+      messageHead.headers.insert (.new "Host") host
+    else
+      messageHead.headers
+
   -- Add identity header based on direction
   let headers :=
     let identityOpt := machine.config.identityHeader
     match dir, identityOpt with
-    | .receiving, some server => messageHead.headers.insert (.new "Server") server
-    | .sending, some userAgent => messageHead.headers.insert (.new "User-Agent") userAgent
-    | _, none => messageHead.headers
+    | .receiving, some server => headers.insert (.new "Server") server
+    | .sending, some userAgent => headers.insert (.new "User-Agent") userAgent
+    | _, none => headers
 
   -- Add Connection: close if needed
   let headers :=
@@ -557,8 +570,7 @@ partial def processRead (machine : Machine dir) : Machine dir :=
       |> processRead
 
   | .needFixedBody size =>
-      let (machine, result) := parseWith machine
-        (parseFixedSizeData size) (limit := none) (some size)
+      let (machine, result) := parseWith machine (parseFixedSizeData size) (limit := none) (some size)
 
       if let some body := result then
         match body with

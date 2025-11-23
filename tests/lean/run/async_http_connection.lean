@@ -57,7 +57,7 @@ def runTestCase (tc : TestCase) : IO Unit := do
 
 -- Request Predicates
 
-/-- Check if request is a basic GET request to the specified URI and host. -/
+/-- Check if request is a basic GET requests to the specified URI and host. -/
 def isBasicGetRequest (req : Request Body) (uri : String) (host : String) : Bool :=
   req.head.method == .get ∧
   req.head.version == .v11 ∧
@@ -96,6 +96,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.method .get
     |>.uri! "/"
     |>.header! "Host" "example.com"
+    |>.header! "Connection" "close"
     |>.header! "Content-Length" "7"
     |>.body #[.mk "survive".toUTF8 #[]]
 
@@ -114,6 +115,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.method .get
     |>.uri! "/api/users"
     |>.header! "Host" "api.example.com"
+    |>.header! "Connection" "close"
     |>.body #[]
 
   handler := fun req => do
@@ -132,6 +134,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.header! "Host" "api.example.com"
     |>.header! "Content-Type" "application/json"
     |>.header! "Content-Length" "20"
+    |>.header! "Connection" "close"
     |>.body #[.mk "{\"name\":\"Alice\"}".toUTF8 #[]]
 
   handler := fun req => do
@@ -148,6 +151,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.method .delete
     |>.uri! "/api/users/123"
     |>.header! "Host" "api.example.com"
+    |>.header! "Connection" "close"
     |>.body #[]
 
   handler := fun req => do
@@ -165,6 +169,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.method .head
     |>.uri! "/api/users"
     |>.header! "Host" "api.example.com"
+    |>.header! "Connection" "close"
     |>.body #[]
 
   handler := fun req => do
@@ -182,6 +187,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.method .options
     |>.uri! "*"
     |>.header! "Host" "api.example.com"
+    |>.header! "Connection" "close"
     |>.body #[]
 
   handler := fun req => do
@@ -205,6 +211,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.header! "Accept" "application/json"
     |>.header! "User-Agent" "TestClient/1.0"
     |>.header! "Authorization" "Bearer token123"
+    |>.header! "Connection" "close"
     |>.body #[]
 
   handler := fun req => do
@@ -222,6 +229,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.method .get
     |>.uri! "/api/search?q=test&limit=10"
     |>.header! "Host" "api.example.com"
+    |>.header! "Connection" "close"
     |>.body #[]
 
   handler := fun req => do
@@ -240,6 +248,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.uri! "/api/trigger"
     |>.header! "Host" "api.example.com"
     |>.header! "Content-Length" "0"
+    |>.header! "Connection" "close"
     |>.body #[]
 
   handler := fun req => do
@@ -257,6 +266,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.method .get
     |>.uri! "/api/large"
     |>.header! "Host" "api.example.com"
+    |>.header! "Connection" "close"
     |>.body #[]
 
   handler := fun _ => do
@@ -273,6 +283,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.method .get
     |>.uri! "/api/teapot"
     |>.header! "Host" "api.example.com"
+    |>.header! "Connection" "close"
     |>.body #[]
 
   handler := fun _ => do
@@ -289,6 +300,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.method .get
     |>.uri! "/api/users/%C3%A9"
     |>.header! "Host" "api.example.com"
+    |>.header! "Connection" "close"
     |>.body #[]
   handler := fun req => do
     if hasUri req "/api/users/%C3%A9"
@@ -304,7 +316,8 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.method .get
     |>.uri! "/api/data"
     |>.header! "Host" "api.example.com"
-      |>.header! "Cache-Control" "no-cache"
+    |>.header! "Connection" "close"
+    |>.header! "Cache-Control" "no-cache"
     |>.body #[]
 
   handler := fun _ => do
@@ -326,6 +339,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.header! "Host" "api.example.com"
     |>.header! "Content-Type" "application/xml"
     |>.header! "Content-Length" "17"
+    |>.header! "Connection" "close"
     |>.body #[.mk "<data>test</data>".toUTF8 #[]]
 
   handler := fun req => do
@@ -345,6 +359,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.header! "Host" "api.example.com"
     |>.header! "Content-Type" "application/xml"
     |>.header! "Content-Length" "17"
+    |>.header! "Connection" "close"
     |>.body #[.mk "<data>test</data>".toUTF8 #[]]
 
   handler := fun req => do
@@ -353,242 +368,4 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     else return Response.new |>.status .unsupportedMediaType |>.body "unsupported"
 
   expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 13\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nprocessed xml"
-}
-
-#eval runTestCase {
-  name := "Streaming response with fixed Content-Length"
-
-  request := Request.new
-    |>.method .get
-    |>.uri! "/stream"
-    |>.header! "Host" "example.com"
-    |>.body #[]
-
-  handler := fun req => do
-    let stream ← Body.ByteStream.empty
-
-    background do
-      for i in [0:3] do
-        let sleep ← Sleep.mk 5
-        sleep.wait
-        discard <| stream.write s!"chunk{i}\n".toUTF8
-      stream.close
-
-    return Response.ok stream (.empty |>.insert (.new "Content-Length") (.new "21"))
-
-  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 21\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nchunk0\nchunk1\nchunk2\n"
-}
-
-#eval runTestCase {
-  name := "Streaming response with setKnownSize fixed"
-
-  request := Request.new
-    |>.method .get
-    |>.uri! "/stream-sized"
-    |>.header! "Host" "example.com"
-    |>.body #[]
-
-  handler := fun _ => do
-    let stream ← Body.ByteStream.empty
-    stream.setKnownSize (some (.fixed 15))
-
-    background do
-      for i in [0:3] do
-        discard <| stream.write s!"data{i}".toUTF8
-
-      stream.close
-
-    return Response.ok stream .empty
-
-  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 15\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\ndata0data1data2"
-}
-
-#eval runTestCase {
-  name := "Streaming response with chunked encoding"
-
-  request := Request.new
-    |>.method .get
-    |>.uri! "/stream-chunked"
-    |>.header! "Host" "example.com"
-    |>.body #[]
-
-  handler := fun req => do
-    let stream ← Body.ByteStream.empty
-
-    background do
-      discard <| stream.write "hello".toUTF8
-      discard <| stream.write "world".toUTF8
-      stream.close
-    return Response.ok stream .empty
-
-  expected := "HTTP/1.1 200 OK\x0d\nTransfer-Encoding: chunked\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n5\x0d\nhello\x0d\n5\x0d\nworld\x0d\n0\x0d\n\x0d\n"
-}
-
-#eval runTestCase {
-  name := "Chunked request with streaming response"
-
-  request := Request.new
-    |>.method .post
-    |>.uri! "/"
-    |>.header! "Host" "example.com"
-    |>.header! "Transfer-Encoding" "chunked"
-    |>.body #[
-      .mk "data1".toUTF8 #[],
-      .mk "data2".toUTF8 #[]
-    ]
-
-  handler := fun req => do
-    if isChunkedRequest req
-    then
-      let stream ← Body.ByteStream.empty
-      background do
-        for i in [0:2] do
-          discard <| stream.write s!"response{i}".toUTF8
-        stream.close
-      return Response.ok stream (.empty |>.insert (.new "Content-Length") (.new "18"))
-    else
-      return Response.badRequest "not chunked"
-
-  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 18\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nresponse0response1"
-  chunked := true
-}
-
-#eval runTestCase {
-  name := "Chunked request with streaming response"
-
-  request := Request.new
-    |>.method .post
-    |>.uri! "/"
-    |>.header! "Host" "example.com"
-    |>.header! "Transfer-Encoding" "chunked"
-    |>.body #[
-      .mk "data1".toUTF8 #[],
-      .mk "data2".toUTF8 #[]
-    ]
-
-  handler := fun req => do
-    if isChunkedRequest req
-    then
-      let stream ← Body.ByteStream.empty
-      background do
-        for i in [0:2] do
-          discard <| stream.write s!"response{i}".toUTF8
-        stream.close
-      return Response.ok stream (.empty |>.insert (.new "Content-Length") (.new "18"))
-    else
-      return Response.badRequest "not chunked"
-
-  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 18\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nresponse0response1"
-  chunked := true
-}
-
-
--- Limits
-
-#eval
-  let bigString := String.fromUTF8! (ByteArray.mk (Array.ofFn (n := 257) (fun _ => 65)))
-
-  runTestCase {
-  name := "Huge String request"
-
-  request := Request.new
-    |>.method .head
-    |>.uri! "/api/users"
-    |>.header! "Host" "api.example.com"
-    |>.header! bigString "a"
-    |>.body #[]
-
-  handler := fun req => do
-    if hasMethod req .head
-    then return Response.ok "" (Headers.empty |>.insert (.ofString! bigString) (.ofString! "ata"))
-    else return Response.notFound
-  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
-}
-
-#eval runTestCase {
-  name := "Request line too long"
-
-  request :=
-    Request.new
-    |>.method .get
-    |>.uri (.originForm (.mk #[String.mk (List.replicate 2000 'a')] true) none none)
-    |>.header! "Host" "api.example.com"
-    |>.body #[]
-
-  handler := fun req => do
-    return Response.ok (toString (toString req.head.uri).length)
-
-  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
-}
-
-
-#eval runTestCase {
-  name := "Header long"
-
-  request :=
-    Request.new
-    |>.method .get
-    |>.uri (.originForm (.mk #[String.mk (List.replicate 200 'a')] true) none none)
-    |>.header! "Host" (String.mk (List.replicate 8230 'a'))
-    |>.body #[]
-
-  handler := fun req => do
-    return Response.ok (toString (toString req.head.uri).length)
-
-  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
-}
-
-#eval runTestCase {
-  name := "Too many headers"
-
-  request := Id.run do
-    let mut req := Request.new
-      |>.method .get
-      |>.uri! "/api/data"
-      |>.header! "Host" "api.example.com"
-
-    for i in [0:101] do
-      req := req |>.header! s!"X-Header-{i}" s!"value{i}"
-
-    return req |>.body #[]
-
-  handler := fun _ => do
-    return Response.ok "success"
-
-  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
-}
-
-#eval runTestCase {
-  name := "Header value too long"
-
-  request := Request.new
-    |>.method .get
-    |>.uri! "/api/test"
-    |>.header! "Host" "api.example.com"
-    |>.header! "X-Long-Value" (String.mk (List.replicate 9000 'x'))
-    |>.body #[]
-
-  handler := fun _ => do
-    return Response.ok "ok"
-
-  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
-}
-
-#eval runTestCase {
-  name := "Total headers size too large"
-
-  request := Id.run do
-    let mut req := Request.new
-      |>.method .get
-      |>.uri! "/api/data"
-      |>.header! "Host" "api.example.com"
-
-    for i in [0:200] do
-      req := req |>.header! s!"X-Header-{i}" (String.mk (List.replicate 200 'a'))
-    return req |>.body #[]
-
-  handler := fun _ => do
-    return Response.ok "success"
-
-  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }

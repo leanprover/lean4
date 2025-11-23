@@ -18,6 +18,7 @@ namespace Lean.Meta
 register_builtin_option backward.eqns.nonrecursive : Bool := {
     defValue := true
     descr    := "Create fine-grained equational lemmas even for non-recursive definitions."
+    deprecation := some { since? := "2025-11-05" }
   }
 
 register_builtin_option backward.eqns.deepRecursiveSplit : Bool := {
@@ -27,6 +28,7 @@ register_builtin_option backward.eqns.deepRecursiveSplit : Bool := {
                 that do not contain recursive calls do not cause further splits in the \
                 equational lemmas. This was the behavior before Lean 4.12, and the purpose of \
                 this option is to help migrating old code."
+    deprecation := some { since? := "2025-11-05" }
   }
 
 

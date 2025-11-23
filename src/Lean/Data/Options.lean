@@ -9,10 +9,12 @@ prelude
 public import Lean.ImportingFlag
 public import Lean.Data.KVMap
 public import Lean.Data.NameMap.Basic
+public import Lean.Deprecation
 
 public section
 
 namespace Lean
+
 
 @[expose] def Options := KVMap
 
@@ -28,6 +30,7 @@ structure OptionDecl where
   defValue : DataValue
   group    : String := ""
   descr    : String := ""
+  deprecation : Option Linter.DeprecationEntry := none
   deriving Inhabited
 
 @[expose] def OptionDecls := NameMap OptionDecl
@@ -114,6 +117,7 @@ protected structure Decl (α : Type) where
   defValue : α
   group    : String := ""
   descr    : String := ""
+  deprecation : Option Linter.DeprecationEntry := none
 
 protected def get? [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : Option α :=
   opts.get? opt.name
@@ -137,6 +141,7 @@ protected def register [KVMap.Value α] (name : Name) (decl : Lean.Option.Decl �
     defValue := KVMap.Value.toDataValue decl.defValue
     group := decl.group
     descr := decl.descr
+    deprecation := decl.deprecation
   }
   return { name := name, defValue := decl.defValue }
 

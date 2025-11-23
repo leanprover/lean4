@@ -303,6 +303,38 @@ theorem forIn'_loop_congr [Monad m] {as bs : List α}
   have := forIn'_cons (a := a) (as := as) (fun a' _ b => f a' b) b
   simpa only [forIn'_eq_forIn]
 
+@[congr] theorem forInNew'_congr {m : Type u → Type v} {as₁ as₂ : List α} (has : as₁ = as₂)
+    {s₁ s₂ : σ} (hs : s₁ = s₂)
+    {kcons₁ : (a' : α) → a' ∈ as₁ → (σ → m β) → σ → m β}
+    {kcons₂ : (a' : α) → a' ∈ as₂ → (σ → m β) → σ → m β}
+    (hkcons : ∀ a h k s, kcons₁ a (by simpa [has] using h) k s = kcons₂ a h k s)
+    {knil₁ knil₂ : σ → m β}
+    (hknil : ∀ s, knil₁ s = knil₂ s) :
+    forInNew' as₁ s₁ kcons₁ knil₁ = forInNew' as₂ s₂ kcons₂ knil₂ := by
+  induction as₁ generalizing as₂ s₁ s₂ with
+  | nil =>
+    subst has hs
+    simp [hknil]
+  | cons b bs ih =>
+    cases as₂ with
+    | nil => simp at has
+    | cons a as =>
+      simp only [cons.injEq] at has
+      obtain ⟨rfl, rfl⟩ := has
+      subst hs
+      simp only [forInNew'_cons]
+      conv =>
+        pattern forInNew' _ _ _ _
+        arg 3
+        ext _ _ _ _
+        apply hkcons
+      conv =>
+        pattern forInNew' _ _ _ _
+        arg 4
+        ext _
+        apply hknil
+      apply hkcons _ _ _ _
+
 @[congr] theorem forIn'_congr [Monad m] {as bs : List α} (w : as = bs)
     {b b' : β} (hb : b = b')
     {f : (a' : α) → a' ∈ as → β → m (ForInStep β)}

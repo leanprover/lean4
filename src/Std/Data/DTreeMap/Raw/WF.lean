@@ -85,11 +85,11 @@ theorem partition_snd [TransCmp cmp] {f} :
     · exact ih
     · exact ih.insert
 
-theorem eraseMany [TransCmp cmp] {ρ} [ForIn Id ρ α] {l : ρ} {t : Raw α β cmp}
+theorem eraseMany [TransCmp cmp] {ρ} [ForIn Id ρ α] [ForInNew Id ρ α] {l : ρ} {t : Raw α β cmp}
     (h : t.WF) : WF (t.eraseMany l) :=
   ⟨h.out.eraseMany!⟩
 
-theorem insertMany [TransCmp cmp] {ρ} [ForIn Id ρ ((a : α) × β a)] {l : ρ} {t : Raw α β cmp}
+theorem insertMany [TransCmp cmp] {ρ} [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)] {l : ρ} {t : Raw α β cmp}
     (h : t.WF) : WF (t.insertMany l) :=
   ⟨h.out.insertMany!⟩
 
@@ -121,11 +121,11 @@ theorem constGetThenInsertIfNew? [TransCmp cmp] {a b} (h : t.WF) :
     WF (Raw.Const.getThenInsertIfNew? t a b).2 :=
   ⟨h.out.constGetThenInsertIfNew?!⟩
 
-theorem constInsertMany [TransCmp cmp] {ρ} [ForIn Id ρ (α × β)] {l : ρ} {t : Raw α β cmp}
+theorem constInsertMany [TransCmp cmp] {ρ} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)] {l : ρ} {t : Raw α β cmp}
     (h : t.WF) : WF (Const.insertMany t l) :=
   ⟨h.out.constInsertMany!⟩
 
-theorem constInsertManyIfNewUnit [TransCmp cmp] {ρ} [ForIn Id ρ α] {l : ρ} {t : Raw α Unit cmp}
+theorem constInsertManyIfNewUnit [TransCmp cmp] {ρ} [ForIn Id ρ α] [ForInNew Id ρ α] {l : ρ} {t : Raw α Unit cmp}
     (h : t.WF) : WF (Const.insertManyIfNewUnit t l) :=
   ⟨h.out.constInsertManyIfNewUnit!⟩
 

@@ -473,10 +473,20 @@ instance : ForInNew' m (List α) α Membership.mem where
 -- We simplify `List.forInNew'` to `forInNew'`.
 @[simp, grind =] theorem forInNew'_eq_forInNew' : @List.forInNew' α m σ β = forInNew' := rfl
 
-@[simp, grind =] theorem forInNew'_nil : forInNew' [] b kcons knil = knil b :=
+@[simp, grind =] theorem forInNew'_nil :
+    forInNew' [] s kcons knil = knil s :=
   rfl
 
-@[simp, grind =] theorem forInNew_nil : forInNew [] b kcons knil = knil b :=
+@[simp, grind =] theorem forInNew'_cons :
+    forInNew' (a::as) s kcons knil = kcons a (.head as) (forInNew' as · (fun a' h => kcons a' (.tail a h)) knil) s :=
+  rfl
+
+@[simp, grind =] theorem forInNew_nil :
+    forInNew [] s kcons knil = knil s :=
+  rfl
+
+@[simp, grind =] theorem forInNew_cons :
+    forInNew (a::as) s kcons knil = kcons a (forInNew as · kcons knil) s :=
   rfl
 
 @[inline, expose] protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=

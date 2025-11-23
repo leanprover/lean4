@@ -29,7 +29,7 @@ universe w v u w'
 
 namespace Std.DHashMap.Internal
 
-variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w'} [Monad m]
+variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {σ : Type w} {m : Type w → Type w'} [Monad m]
 
 /--
 `AssocList α β` is "the same as" `List (α × β)`, but flattening the structure
@@ -69,6 +69,16 @@ namespace AssocList
 /-- Internal implementation detail of the hash map -/
 @[inline] def forM (f : (a : α) → β a → m PUnit) (as : AssocList α β) : m PUnit :=
   as.foldlM (fun _ => f) ⟨⟩
+
+/-- Internal implementation detail of the hash map -/
+-- This is just an eta-expanded version of `foldr`.
+@[specialize] def forInNew (as : AssocList α β) (init : σ) (kcons : (a : α) → β a → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  match as with
+  | .nil => knil init
+  | .cons k v t => kcons k v (forInNew t · kcons knil) init
+
+instance : ForInNew m (AssocList α β) ((a : α) × β a) where
+  forInNew as init kcons knil := as.forInNew init (fun a b => kcons ⟨a, b⟩) knil
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def forInStep (as : AssocList α β) (init : δ) (f : (a : α) → β a → δ → m (ForInStep δ)) :

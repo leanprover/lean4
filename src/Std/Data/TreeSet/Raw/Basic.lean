@@ -329,7 +329,7 @@ def merge (t₁ t₂ : Raw α cmp) : Raw α cmp :=
   ⟨TreeMap.Raw.mergeWith (fun _ _ _ => ()) t₁.inner t₂.inner⟩
 
 @[inline, inherit_doc TreeSet.insertMany]
-def insertMany {ρ} [ForIn Id ρ α] (t : Raw α cmp) (l : ρ) : Raw α cmp :=
+def insertMany {ρ} [ForIn Id ρ α] [ForInNew Id ρ α] (t : Raw α cmp) (l : ρ) : Raw α cmp :=
   ⟨TreeMap.Raw.insertManyIfNewUnit t.inner l⟩
 
 /--
@@ -370,7 +370,7 @@ instance : SDiff (Raw α cmp) := ⟨diff⟩
 
 
 @[inline, inherit_doc TreeSet.empty]
-def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α cmp) (l : ρ) : Raw α cmp :=
+def eraseMany {ρ} [ForIn Id ρ α] [ForInNew Id ρ α] (t : Raw α cmp) (l : ρ) : Raw α cmp :=
   ⟨t.inner.eraseMany l⟩
 
 instance [Repr α] : Repr (Raw α cmp) where

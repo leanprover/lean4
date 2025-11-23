@@ -488,7 +488,7 @@ def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : 
   ⟨DTreeMap.Raw.Const.mergeWith mergeFn t₁.inner t₂.inner⟩
 
 @[inline, inherit_doc DTreeMap.Raw.Const.insertMany]
-def insertMany {ρ} [ForIn Id ρ (α × β)] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
+def insertMany {ρ} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
   ⟨DTreeMap.Raw.Const.insertMany t.inner l⟩
 
 @[inline, inherit_doc DTreeMap.Raw.union]
@@ -515,11 +515,11 @@ def diff (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
 instance : SDiff (Raw α β cmp) := ⟨diff⟩
 
 @[inline, inherit_doc DTreeMap.Raw.Const.insertManyIfNewUnit]
-def insertManyIfNewUnit {ρ} [ForIn Id ρ α] (t : Raw α Unit cmp) (l : ρ) : Raw α Unit cmp :=
+def insertManyIfNewUnit {ρ} [ForIn Id ρ α] [ForInNew Id ρ α] (t : Raw α Unit cmp) (l : ρ) : Raw α Unit cmp :=
   ⟨DTreeMap.Raw.Const.insertManyIfNewUnit t.inner l⟩
 
 @[inline, inherit_doc DTreeMap.Raw.eraseMany]
-def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
+def eraseMany {ρ} [ForIn Id ρ α] [ForInNew Id ρ α] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
   ⟨t.inner.eraseMany l⟩
 
 instance [Repr α] [Repr β] : Repr (Raw α β cmp) where

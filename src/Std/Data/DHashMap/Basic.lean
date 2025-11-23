@@ -33,7 +33,7 @@ set_option autoImplicit false
 
 universe u v w w'
 
-variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w'} [Monad m]
+variable {α : Type u} {β : α → Type v} {δ : Type w} {σ : Type w} {m : Type w → Type w'} [Monad m]
 
 variable {_ : BEq α} {_ : Hashable α}
 
@@ -231,12 +231,19 @@ end
     (b : DHashMap α β) : m PUnit :=
   b.1.forM f
 
+@[inline, inherit_doc Raw.forIn] def forInNew
+    (b : DHashMap α β) (init : σ) (kcons : (a : α) → β a → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  b.1.forInNew init kcons knil
+
 @[inline, inherit_doc Raw.forIn] def forIn
     (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (b : DHashMap α β) : m δ :=
   b.1.forIn f init
 
 instance [Monad m] [BEq α] [Hashable α] : ForM m (DHashMap α β) ((a : α) × β a) where
   forM m f := m.forM (fun a b => f ⟨a, b⟩)
+
+instance [BEq α] [Hashable α] : ForInNew m (DHashMap α β) ((a : α) × β a) where
+  forInNew m init kcons knil := m.forInNew init (fun a b => kcons ⟨a, b⟩) knil
 
 instance [Monad m] [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init

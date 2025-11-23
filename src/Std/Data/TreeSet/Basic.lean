@@ -370,7 +370,7 @@ returning `fallback` if no such element exists.
 def getLTD (t : TreeSet α cmp) (k : α) (fallback : α) : α :=
   TreeMap.getKeyLTD t.inner k fallback
 
-variable  {γ δ: Type w} {m : Type w → Type w₂} [Monad m]
+variable  {γ δ σ : Type w} {m : Type w → Type w₂} [Monad m]
 
 /-- Removes all elements from the tree set for which the given function returns `false`. -/
 @[inline]
@@ -421,8 +421,19 @@ order.
 def forIn (f : α → δ → m (ForInStep δ)) (init : δ) (t : TreeSet α cmp) : m δ :=
   t.inner.forIn (fun a _ c => f a c) init
 
+/--
+Support for the `for` loop construct in `do` blocks. The iteration happens in ascending
+order.
+-/
+@[inline]
+def forInNew (t : TreeSet α cmp) (init : σ) (kcons : α → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  t.inner.forInNew init (fun a _ => kcons a) knil
+
 instance [Monad m] : ForM m (TreeSet α cmp) α where
   forM t f := t.forM f
+
+instance : ForInNew m (TreeSet α cmp) α where
+  forInNew t init kcons knil := t.forInNew init kcons knil
 
 instance [Monad m] : ForIn m (TreeSet α cmp) α where
   forIn m init f := m.forIn (fun a acc => f a acc) init
@@ -479,7 +490,7 @@ Note: this precedence behavior is true for `TreeSet` and `TreeSet.Raw`. The `ins
 appearance.
 -/
 @[inline]
-def insertMany {ρ} [ForIn Id ρ α] (t : TreeSet α cmp) (l : ρ) : TreeSet α cmp :=
+def insertMany {ρ} [ForIn Id ρ α] [ForInNew Id ρ α] (t : TreeSet α cmp) (l : ρ) : TreeSet α cmp :=
   ⟨TreeMap.insertManyIfNewUnit t.inner l⟩
 
 /--
@@ -527,7 +538,7 @@ instance : SDiff (TreeSet α cmp) := ⟨diff⟩
 Erases multiple items from the tree set by iterating over the given collection and calling erase.
 -/
 @[inline]
-def eraseMany {ρ} [ForIn Id ρ α] (t : TreeSet α cmp) (l : ρ) : TreeSet α cmp :=
+def eraseMany {ρ} [ForIn Id ρ α] [ForInNew Id ρ α] (t : TreeSet α cmp) (l : ρ) : TreeSet α cmp :=
   ⟨t.inner.eraseMany l⟩
 
 instance [Repr α] : Repr (TreeSet α cmp) where

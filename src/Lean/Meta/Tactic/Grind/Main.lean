@@ -119,12 +119,12 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let clean ← mkCleanState mvarId params
   let sstates ← Solvers.mkInitialStates
   GoalM.run' { mvarId, ematch.thmMap := thmMap, inj.thms := params.inj, split.casesTypes := casesTypes, clean, sstates } do
-    mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
-    mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
-    mkENodeCore btrueExpr (interpreted := false) (ctor := true) (generation := 0)
-    mkENodeCore bfalseExpr (interpreted := false) (ctor := true) (generation := 0)
-    mkENodeCore natZeroExpr (interpreted := true) (ctor := false) (generation := 0)
-    mkENodeCore ordEqExpr (interpreted := false) (ctor := true) (generation := 0)
+    mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0) (fo := false)
+    mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0) (fo := false)
+    mkENodeCore btrueExpr (interpreted := false) (ctor := true) (generation := 0) (fo := false)
+    mkENodeCore bfalseExpr (interpreted := false) (ctor := true) (generation := 0) (fo := false)
+    mkENodeCore natZeroExpr (interpreted := true) (ctor := false) (generation := 0) (fo := false)
+    mkENodeCore ordEqExpr (interpreted := false) (ctor := true) (generation := 0) (fo := false)
     for thm in params.extra do
       activateTheorem thm 0
 

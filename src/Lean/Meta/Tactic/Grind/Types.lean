@@ -508,6 +508,11 @@ structure ENode where
   mt : Nat := 0
   /-- Solver terms attached to this E-node. -/
   sTerms : SolverTerms := .nil
+  /--
+  If `fo := true`, then the expression associated with this entry is an application, and
+  we are using first-order approximation to encode it. That is, we ignore its partial applications.
+  -/
+  fo : Bool := true
   deriving Inhabited, Repr
 
 def ENode.isRoot (n : ENode) :=
@@ -552,6 +557,12 @@ private def hasSameRoot (enodes : ENodeMap) (a b : Expr) : Bool := Id.run do
     let some n2 := enodes.find? { expr := b } | return false
     isSameExpr n1.root n2.root
 
+private def useFO' (enodes : ENodeMap) (e : Expr) : Bool :=
+  if let some n := enodes.find? { expr := e } then
+    n.fo
+  else
+    true
+
 private def congrHash (enodes : ENodeMap) (e : Expr) : UInt64 :=
   if let .forallE _ d b _ := e then
     mixHash (hashRoot enodes d) (hashRoot enodes b)
@@ -559,7 +570,14 @@ private def congrHash (enodes : ENodeMap) (e : Expr) : UInt64 :=
   | Grind.nestedProof p _ => hashRoot enodes p
   | Grind.nestedDecidable p _ => mixHash 13 (hashRoot enodes p)
   | Eq _ lhs rhs => goEq lhs rhs
-  | _ => go e 17
+  | _ =>
+    match e with
+    | .app f a =>
+      if useFO' enodes e then
+        go f (hashRoot enodes a)
+      else
+        mixHash (hashRoot enodes f) (hashRoot enodes a)
+    | _ => hashRoot enodes e
 where
   goEq (lhs rhs : Expr) : UInt64 :=
     let h₁ := hashRoot enodes lhs
@@ -570,28 +588,34 @@ where
     | .app f a => go f (mixHash r (hashRoot enodes a))
     | _ => mixHash r (hashRoot enodes e)
 
-/-- Returns `true` if `a` and `b` are congruent modulo the equivalence classes in `enodes`. -/
-private partial def isCongruent (enodes : ENodeMap) (a b : Expr) : Bool :=
-  if let .forallE _ d₁ b₁ _ := a then
-    if let .forallE _ d₂ b₂ _ := b then
+/-- Returns `true` if `e₁` and `e₂` are congruent modulo the equivalence classes in `enodes`. -/
+private partial def isCongruent (enodes : ENodeMap) (e₁ e₂ : Expr) : Bool :=
+  if let .forallE _ d₁ b₁ _ := e₁ then
+    if let .forallE _ d₂ b₂ _ := e₂ then
       hasSameRoot enodes d₁ d₂ && hasSameRoot enodes b₁ b₂
     else
       false
-  else match_expr a with
+  else match_expr e₁ with
   | Grind.nestedProof p₁ _ =>
-    let_expr Grind.nestedProof p₂ _ := b | false
+    let_expr Grind.nestedProof p₂ _ := e₂ | false
     hasSameRoot enodes p₁ p₂
   | Grind.nestedDecidable p₁ _ =>
-    let_expr Grind.nestedDecidable p₂ _ := b | false
+    let_expr Grind.nestedDecidable p₂ _ := e₂ | false
     hasSameRoot enodes p₁ p₂
   | Eq _ lhs₁ rhs₁ =>
-    let_expr Eq _ lhs₂ rhs₂ := b | false
+    let_expr Eq _ lhs₂ rhs₂ := e₂ | false
     goEq lhs₁ rhs₁ lhs₂ rhs₂
-  | _ =>
-    if a.isApp && b.isApp then
-      go a b
+  | _ => Id.run do
+    let .app f a := e₁ | return false
+    let .app g b := e₂ | return false
+    if useFO' enodes e₁ then
+      hasSameRoot enodes a b && go f g
     else
-      false
+      /-
+      **Note**: We are not in `MetaM` here. Thus, we cannot check whether `f` and `g` have the same type.
+      So, we approximate and try to handle this issue when generating the proof term.
+      -/
+      hasSameRoot enodes a b && hasSameRoot enodes f g
 where
   goEq (lhs₁ rhs₁ lhs₂ rhs₂ : Expr) : Bool :=
     (hasSameRoot enodes lhs₁ lhs₂ && hasSameRoot enodes rhs₁ rhs₂)
@@ -1078,6 +1102,12 @@ def getRootENode (e : Expr) : GoalM ENode := do
 def getRootENode? (e : Expr) : GoalM (Option ENode) := do
   let some n ← getENode? e | return none
   getENode? n.root
+/--
+Returns `true` if the ENode associate with `e` uses first-order approximation
+in the congruence closure algorithm.
+-/
+def useFO (e : Expr) : GoalM Bool :=
+  return (← getENode e).fo
 
 /--
 Returns the next element in the equivalence class of `e`
@@ -1193,7 +1223,7 @@ def copyParentsTo (parents : ParentSet) (root : Expr) : GoalM Unit := do
     curr := curr.insert parent
   modify fun s => { s with parents := s.parents.insert { expr := root } curr }
 
-def mkENodeCore (e : Expr) (interpreted ctor : Bool) (generation : Nat) : GoalM Unit := do
+def mkENodeCore (e : Expr) (interpreted ctor : Bool) (generation : Nat) (fo : Bool) : GoalM Unit := do
   let n := {
     self := e, next := e, root := e, congr := e, size := 1
     flipped := false
@@ -1201,7 +1231,7 @@ def mkENodeCore (e : Expr) (interpreted ctor : Bool) (generation : Nat) : GoalM 
     hasLambdas := e.isLambda
     mt := (← get).ematch.gmt
     idx := (← get).nextIdx
-    interpreted, ctor, generation
+    interpreted, ctor, generation, fo
   }
   modify fun s => { s with
     enodeMap := s.enodeMap.insert { expr := e } n
@@ -1214,11 +1244,11 @@ def mkENodeCore (e : Expr) (interpreted ctor : Bool) (generation : Nat) : GoalM 
 Creates an `ENode` for `e` if one does not already exist.
 This method assumes `e` has been hash-consed.
 -/
-def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
+def mkENode (e : Expr) (generation : Nat) (fo : Bool := true) : GoalM Unit := do
   if (← alreadyInternalized e) then return ()
   let ctor := (← isConstructorAppCore? e).isSome
   let interpreted ← isInterpreted e
-  mkENodeCore e interpreted ctor generation
+  mkENodeCore e interpreted ctor generation fo
 
 def setENode (e : Expr) (n : ENode) : GoalM Unit :=
   modify fun s => { s with

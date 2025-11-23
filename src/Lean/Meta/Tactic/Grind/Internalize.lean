@@ -19,18 +19,38 @@ import Lean.Meta.Tactic.Grind.PropagateInj
 public section
 namespace Lean.Meta.Grind
 
+/--
+Returns `true` if we can generate a congruence proof for `e₁ = e₂`.
+See paper: Congruence Closure in Intensional Type Theory for additional details.
+-/
+private def isCongruentCheck (e₁ e₂ : Expr) : GoalM Bool := do
+  if (← useFO e₁) then
+    /- Using first-order approximation. -/
+    let f := e₁.getAppFn
+    let g := e₂.getAppFn
+    if isSameExpr f g then return true
+    hasSameType f g
+  else
+    go e₁ e₂
+where
+  go (e₁ e₂ : Expr) : GoalM Bool := do
+    let .app f _ := e₁ | return false
+    let .app g _ := e₂ | return false
+    if isSameExpr f g then return true
+    if (← hasSameType f g) then return true
+    go f g
+
 /-- Adds `e` to congruence table. -/
 def addCongrTable (e : Expr) : GoalM Unit := do
   if let some { e := e' } := (← get).congrTable.find? { e } then
-    -- `f` and `g` must have the same type.
-    -- See paper: Congruence Closure in Intensional Type Theory
+    /-
+    See paper: Congruence Closure in Intensional Type Theory
+    **Note**: We do **not** implement the expensive quadratic case used in the paper.
+    -/
     if e.isApp then
-      let f := e.getAppFn
-      let g := e'.getAppFn
-      unless isSameExpr f g do
-        unless (← hasSameType f g) do
-          reportIssue! "found congruence between{indentExpr e}\nand{indentExpr e'}\nbut functions have different types"
-          return ()
+      unless (← isCongruentCheck e e') do
+        reportIssue! "found congruence between{indentExpr e}\nand{indentExpr e'}\nbut functions have different types"
+        return ()
     trace_goal[grind.debug.congr] "{e} = {e'}"
     if (← isEqCongrSymm e e') then
       -- **Note**: See comment at `eqCongrSymmPlaceholderProof`
@@ -154,8 +174,8 @@ private def pushCastHEqs (e : Expr) : GoalM Unit := do
   | f@Eq.recOn α a motive b h v => pushHEq e v (mkApp6 (mkConst ``Grind.eqRecOn_heq f.constLevels!) α a motive b h v)
   | _ => return ()
 
-private def mkENode' (e : Expr) (generation : Nat) : GoalM Unit :=
-  mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
+private def mkENode' (e : Expr) (generation : Nat) (fo := false) : GoalM Unit :=
+  mkENodeCore e (ctor := false) (interpreted := false) (generation := generation) (fo := fo)
 
 /-- Internalizes the nested ground terms in the given pattern. -/
 private partial def internalizePattern (pattern : Expr) (generation : Nat) (origin : Origin) : GoalM Expr := do
@@ -189,7 +209,7 @@ where
 
 /-- Internalizes the `MatchCond` gadget. -/
 private def internalizeMatchCond (matchCond : Expr) (generation : Nat) : GoalM Unit := do
-  mkENode' matchCond generation
+  mkENode' matchCond generation (fo := true)
   let (lhss, e') ← collectMatchCondLhssAndAbstract matchCond
   lhss.forM fun lhs => do internalize lhs generation; registerParent matchCond lhs
   propagateUp matchCond
@@ -413,6 +433,35 @@ private def tryEta (e : Expr) (generation : Nat) : GoalM Unit := do
     internalize e' generation
     pushEq e e' (← mkEqRefl e)
 
+/--
+Returns `true` if we should use first-order approximation for applications of the given constant symbol.
+-/
+private def useFirstOrderApproxAtDecl (declName : Name) : MetaM Bool := do
+  -- **TODO**: Add attribute to control which constant symbols should be treated as high-order.
+  if (← isInstance declName) then
+    /- **Note**: Instances are support elements. Approximate. -/
+    return true
+  if let some projInfo ← getProjectionFnInfo? declName then
+    if projInfo.fromClass then
+      /- **Note**: Field of a class are treated as support elements. Approximate. -/
+      return true
+    /- **Note**: Check the type of the field. If it is a function type, do not approximate. -/
+    let declInfo ← getConstInfo declName
+    let isFn ← forallBoundedTelescope declInfo.type (some (projInfo.numParams + 1)) fun _ type => do
+      let type ← whnf type
+      return type.isForall
+    return !isFn
+  return true
+
+/--
+Returns `true` if we should use first-order approximation in the congruence closure algorithm
+for `f`-applications.
+-/
+private def useFirstOrderApproxAtFn (f : Expr) : MetaM Bool := do
+  -- **TODO**: Add flag to fully disable first-order approximation.
+  let .const declName _ := f | return false
+  useFirstOrderApproxAtDecl declName
+
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
   if (← alreadyInternalized e) then
@@ -484,7 +533,8 @@ where
       else if e.isAppOfArity ``Grind.MatchCond 1 then
         internalizeMatchCond e generation
       else e.withApp fun f args => do
-        mkENode e generation
+        let fo ← useFirstOrderApproxAtFn f
+        mkENode e generation (fo := fo)
         updateAppMap e
         checkAndAddSplitCandidate e
         pushCastHEqs e
@@ -509,13 +559,30 @@ where
         else
           if let .const fName _ := f then
             activateTheorems fName generation
+            unless fo do
+              internalizeImpl f generation e
           else
             internalizeImpl f generation e
           registerParent e f
-          for h : i in *...args.size do
-            let arg := args[i]
-            internalize arg generation e
-            registerParent e arg
+          if fo then
+            for h : i in *...args.size do
+              let arg := args[i]
+              internalizeImpl arg generation e
+              registerParent e arg
+          else
+            let rec traverse (curr : Expr) : GoalM Unit := do
+              let .app f a := curr | return ()
+              mkENode curr generation (fo := false)
+              internalizeImpl a generation e
+              traverse f
+              registerParent curr a
+              registerParent curr f
+              addCongrTable curr
+            let .app curr a := e | unreachable!
+            internalizeImpl a generation e
+            traverse curr
+            registerParent e a
+            registerParent e curr
         addCongrTable e
         Solvers.internalize e parent?
         propagateUp e

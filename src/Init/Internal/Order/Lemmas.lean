@@ -292,6 +292,40 @@ theorem monotone_findSomeM?
       · apply ih
       · apply monotone_const
 
+omit [Monad m] [MonoBind m] in
+@[partial_fixpoint_monotone]
+theorem monotone_forInNew'
+    (as : List α) (init : σ) (kcons : γ → (a : α) → a ∈ as → (σ → m β) → σ → m β) (knil : γ → σ → m β)
+    (hmonocons : ∀ a (h : a ∈ as) k s (_ : monotone k), monotone (fun x => kcons x a h (k x) s)) (hmononil : monotone knil) :
+    monotone (fun x => forInNew' as init (kcons x) (knil x)) := by
+  induction as generalizing init with
+  | nil =>
+    apply monotone_apply
+    apply hmononil
+  | cons _ _ ih =>
+    simp only [List.forInNew'_cons]
+    apply hmonocons
+    apply monotone_of_monotone_apply
+    intro s
+    apply ih s (fun x a h => kcons x a (by simp [h])) (fun a h k s hk => hmonocons a (by simp [h]) k s hk)
+
+omit [Monad m] [MonoBind m] in
+@[partial_fixpoint_monotone]
+theorem monotone_forInNew {α : Type uu}
+    (as : List α) (init : σ) (kcons : γ → (a : α) → (σ → m β) → σ → m β) (knil : γ → σ → m β)
+    (hmonocons : ∀ a k s (_ : monotone k), monotone (fun x => kcons x a (k x) s)) (hmononil : monotone knil) :
+    monotone (fun x => forInNew as init (kcons x) (knil x)) := by
+  induction as generalizing init with
+  | nil =>
+    apply monotone_apply
+    apply hmononil
+  | cons _ _ ih =>
+    simp only [List.forInNew_cons]
+    apply hmonocons
+    apply monotone_of_monotone_apply
+    intro s
+    apply ih
+
 @[partial_fixpoint_monotone]
 theorem monotone_forIn'_loop {α : Type uu}
     (as : List α) (f : γ → (a : α) → a ∈ as → β → m (ForInStep β)) (as' : List α) (b : β)

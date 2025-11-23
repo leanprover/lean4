@@ -245,7 +245,7 @@ theorem forM_toArray [Monad m] (l : List α) (f : α → m PUnit) :
 @[simp, grind =] theorem findSomeM?_toArray [Monad m] [LawfulMonad m] (f : α → m (Option β)) (l : List α) :
     l.toArray.findSomeM? f = l.findSomeM? f := by
   rw [Array.findSomeM?]
-  simp only [bind_pure_comp, map_pure, forIn_toArray, forInNew_toArray]
+  simp [bind_pure_comp, map_pure, forIn_toArray, pure_bind, forInNew_toArray]
   induction l with
   | nil => simp
   | cons a l ih =>

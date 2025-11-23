@@ -6,6 +6,6 @@ Authors: Joachim Breitner
 module
 
 prelude
-import Init.Internal.Order.Basic
-import Init.Internal.Order.Lemmas
-import Init.Internal.Order.Tactic
+public import Init.Internal.Order.Basic
+public import Init.Internal.Order.Lemmas
+public import Init.Internal.Order.Tactic

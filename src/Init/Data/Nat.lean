@@ -6,20 +6,23 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Nat.Basic
-import Init.Data.Nat.Div
-import Init.Data.Nat.Dvd
-import Init.Data.Nat.Gcd
-import Init.Data.Nat.MinMax
-import Init.Data.Nat.Bitwise
-import Init.Data.Nat.Control
-import Init.Data.Nat.Log2
-import Init.Data.Nat.Power2
-import Init.Data.Nat.Linear
-import Init.Data.Nat.SOM
-import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Mod
-import Init.Data.Nat.Lcm
-import Init.Data.Nat.Compare
-import Init.Data.Nat.Simproc
-import Init.Data.Nat.Fold
+public import Init.Data.Nat.Basic
+public import Init.Data.Nat.Div
+public import Init.Data.Nat.Dvd
+public import Init.Data.Nat.Gcd
+public import Init.Data.Nat.Coprime
+public import Init.Data.Nat.MinMax
+public import Init.Data.Nat.Order
+public import Init.Data.Nat.Bitwise
+public import Init.Data.Nat.Control
+public import Init.Data.Nat.Log2
+public import Init.Data.Nat.Power2
+public import Init.Data.Nat.Linear
+public import Init.Data.Nat.SOM
+public import Init.Data.Nat.Lemmas
+public import Init.Data.Nat.Mod
+public import Init.Data.Nat.Lcm
+public import Init.Data.Nat.Compare
+public import Init.Data.Nat.Simproc
+public import Init.Data.Nat.Fold
+public import Init.Data.Nat.Order

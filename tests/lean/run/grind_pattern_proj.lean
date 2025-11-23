@@ -1,5 +1,7 @@
+module
 universe v v₁ v₂ u u₁ u₂
 
+public section
 namespace CategoryTheory
 
 class Quiver (V : Type u) where

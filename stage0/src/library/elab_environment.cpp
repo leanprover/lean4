@@ -8,7 +8,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "kernel/type_checker.h"
 #include "kernel/kernel_exception.h"
 #include "library/elab_environment.h"
-#include "library/compiler/ir_interpreter.h"
 
 namespace lean {
 /* updateBaseAfterKernelAdd (env : Environment) (base : Kernel.Environment) (decl : Declaration) : Environment

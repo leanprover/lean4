@@ -28,7 +28,7 @@ def mkBoo (s : String) : Boo :=
 def M := ReaderT String (StateT Nat IO)
   deriving Monad, MonadState, MonadReader
 
-#print instMMonad
+#print instMonadM
 
 def action : M Unit := do
   modify (· + 1)

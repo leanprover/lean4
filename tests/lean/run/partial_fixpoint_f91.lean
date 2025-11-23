@@ -14,7 +14,7 @@ theorem f91_partial_spec (n r : Nat) :
   intro f91 ih n r h
   split at *
   · simp_all
-  · simp only [Option.bind_eq_bind, Option.bind_eq_some] at h
+  · simp only [Option.bind_eq_bind, Option.bind_eq_some_iff] at h
     obtain ⟨r', hr1, hr2⟩ := h
     replace hr1 := ih _ _ hr1
     replace hr2 := ih _ _ hr2
@@ -38,12 +38,13 @@ theorem f91_spec_low (n : Nat) (h₂ : n ≤ 100) : f91 n = some 91 := by
   simp [*]
   by_cases n < 90
   · rw [f91_spec_low (n + 11) (by omega)]
-    simp only [Option.some_bind]
+    simp only [Option.bind_some]
     rw [f91_spec_low 91 (by omega)]
   · rw [f91_spec_high (n + 11) (by omega)]
-    simp only [Nat.reduceSubDiff, Option.some_bind]
+    simp only [Nat.reduceSubDiff, Option.bind_some]
     by_cases h : n = 100
-    · simp [*, f91]
+    · set_option linter.loopingSimpArgs false in
+      simp [*, f91]
     · exact f91_spec_low (n + 1) (by omega)
 
 theorem f91_spec (n : Nat) :

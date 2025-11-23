@@ -3,11 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Thrane Christiansen
 -/
+module
+
 prelude
 import Lean.DocString
-import Lean.Elab.Command
-import Lean.Parser.Tactic.Doc
-import Lean.Parser.Command
+public import Lean.Elab.Command
+
+public section
 
 namespace Lean.Elab.Tactic.Doc
 open Lean.Parser.Tactic.Doc
@@ -21,9 +23,9 @@ open Lean.Parser.Command
     let tacName ← liftTermElabM <| realizeGlobalConstNoOverloadWithInfo tac
 
     if let some tgt' := alternativeOfTactic (← getEnv) tacName then
-        throwErrorAt tac "'{tacName}' is an alternative form of '{tgt'}'"
+        throwErrorAt tac "`{.ofConstName tacName}` is an alternative form of `{.ofConstName tgt'}`"
     if !(isTactic (← getEnv) tacName) then
-      throwErrorAt tac "'{tacName}' is not a tactic"
+      throwErrorAt tac "`{.ofConstName tacName}` is not a tactic"
 
     modifyEnv (tacticDocExtExt.addEntry · (tacName, docs.getDocString))
     pure ()
@@ -76,16 +78,16 @@ private def showParserName (n : Name) : MetaM MessageData := do
   let tok ←
     if let some descr := env.find? n |>.bind (·.value?) then
       if let some tk ← getFirstTk descr then
-        pure <| Std.Format.text tk.trim
+        pure <| Std.Format.text tk.trimAscii.copy
       else pure <| format n
     else pure <| format n
   pure <| .ofFormatWithInfos {
     fmt := "'" ++ .tag 0 tok ++ "'",
     infos :=
-      .fromList [(0, .ofTermInfo {
+      .ofList [(0, .ofTermInfo {
         lctx := .empty,
         expr := .const n params,
-        stx := .ident .none (toString n).toSubstring n [.decl n []],
+        stx := .ident .none (toString n).toRawSubstring n [.decl n []],
         elaborator := `Delab,
         expectedType? := none
       })] _
@@ -98,15 +100,15 @@ Displays all available tactic tags, with documentation.
 @[builtin_command_elab printTacTags] def elabPrintTacTags : CommandElab := fun _stx => do
   let all :=
     tacticTagExt.toEnvExtension.getState (← getEnv)
-      |>.importedEntries |>.push (tacticTagExt.exportEntriesFn (tacticTagExt.getState (← getEnv)))
+      |>.importedEntries |>.push (tacticTagExt.exportEntriesFn (← getEnv) (tacticTagExt.getState (← getEnv)) .exported)
   let mut mapping : NameMap NameSet := {}
   for arr in all do
     for (tac, tag) in arr do
-      mapping := mapping.insert tag (mapping.findD tag {} |>.insert tac)
+      mapping := mapping.insert tag (mapping.getD tag {} |>.insert tac)
 
   let showDocs : Option String → MessageData
     | none => .nil
-    | some d => Format.line ++ MessageData.joinSep ((d.splitOn "\n").map toMessageData) Format.line
+    | some d => Format.line ++ MessageData.joinSep ((d.split '\n').map (toMessageData ∘ String.Slice.copy)).toList Format.line
 
   let showTactics (tag : Name) : MetaM MessageData := do
     match mapping.find? tag with
@@ -119,7 +121,7 @@ Displays all available tactic tags, with documentation.
 
   let tagDescrs ← liftTermElabM <| (← allTagsWithInfo).mapM fun (name, userName, docs) => do
     pure <| m!"• " ++
-      MessageData.nestD (m!"'{name}'" ++
+      MessageData.nestD (m!"`{name}`" ++
         (if name.toString != userName then m!" — \"{userName}\"" else MessageData.nil) ++
         showDocs docs ++
         (← showTactics name))
@@ -148,11 +150,11 @@ def allTacticDocs : MetaM (Array TacticDoc) := do
   let env ← getEnv
   let all :=
     tacticTagExt.toEnvExtension.getState (← getEnv)
-      |>.importedEntries |>.push (tacticTagExt.exportEntriesFn (tacticTagExt.getState (← getEnv)))
+      |>.importedEntries |>.push (tacticTagExt.exportEntriesFn (← getEnv) (tacticTagExt.getState (← getEnv)) .exported)
   let mut tacTags : NameMap NameSet := {}
   for arr in all do
     for (tac, tag) in arr do
-      tacTags := tacTags.insert tac (tacTags.findD tac {} |>.insert tag)
+      tacTags := tacTags.insert tac (tacTags.getD tac {} |>.insert tag)
 
   let mut docs := #[]
 
@@ -164,14 +166,14 @@ def allTacticDocs : MetaM (Array TacticDoc) := do
     let userName : String ←
       if let some descr := env.find? tac |>.bind (·.value?) then
         if let some tk ← getFirstTk descr then
-          pure tk.trim
+          pure tk.trimAscii.copy
         else pure tac.toString
       else pure tac.toString
 
     docs := docs.push {
       internalName := tac,
       userName := userName,
-      tags := tacTags.findD tac {},
+      tags := tacTags.getD tac {},
       docString := ← findDocString? env tac,
       extensionDocs := getTacticExtensions env tac
     }

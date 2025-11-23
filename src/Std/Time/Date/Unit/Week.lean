@@ -3,14 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Internal.Rat
-import Std.Time.Date.Unit.Day
+public import Std.Time.Date.Unit.Day
+
+public section
 
 namespace Std
 namespace Time
 namespace Week
-open Std.Internal
 open Internal
 
 set_option linter.all true
@@ -18,7 +20,7 @@ set_option linter.all true
 /--
 `Ordinal` represents a bounded value for weeks, which ranges between 1 and 53.
 -/
-def Ordinal := Bounded.LE 1 53
+@[expose] def Ordinal := Bounded.LE 1 53
 deriving Repr, DecidableEq, LE, LT
 
 instance : OfNat Ordinal n :=
@@ -42,7 +44,7 @@ instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 1 _
 /--
 `Offset` represents an offset in weeks.
 -/
-def Offset : Type := UnitVal (86400 * 7)
+@[expose] def Offset : Type := UnitVal (86400 * 7)
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
 instance {x y : Offset} : Decidable (x ≤ y) :=
@@ -72,7 +74,7 @@ def ofInt (data : Int) (h : 1 ≤ data ∧ data ≤ 53) : Ordinal :=
 `OfMonth` represents the number of weeks within a month. It ensures that the week is within the
 correct bounds—either 1 to 6, representing the possible weeks in a month.
 -/
-def OfMonth := Bounded.LE 1 6
+@[expose] def OfMonth := Bounded.LE 1 6
 deriving Repr, DecidableEq
 
 instance : OfNat OfMonth n := inferInstanceAs (OfNat (Bounded.LE 1 (1 + (5 : Nat))) n)
@@ -129,77 +131,77 @@ Convert `Week.Offset` into `Millisecond.Offset`.
 -/
 @[inline]
 def toMilliseconds (weeks : Week.Offset) : Millisecond.Offset :=
-  weeks.mul 604800000
+  weeks.mul 604800000 |>.cast (by decide +kernel)
 
 /--
 Convert `Millisecond.Offset` into `Week.Offset`.
 -/
 @[inline]
 def ofMilliseconds (millis : Millisecond.Offset) : Week.Offset :=
-  millis.ediv 604800000
+  millis.ediv 604800000 |>.cast (by decide +kernel)
 
 /--
 Convert `Week.Offset` into `Nanosecond.Offset`.
 -/
 @[inline]
 def toNanoseconds (weeks : Week.Offset) : Nanosecond.Offset :=
-  weeks.mul 604800000000000
+  weeks.mul 604800000000000 |>.cast (by decide +kernel)
 
 /--
 Convert `Nanosecond.Offset` into `Week.Offset`.
 -/
 @[inline]
 def ofNanoseconds (nanos : Nanosecond.Offset) : Week.Offset :=
-  nanos.ediv 604800000000000
+  nanos.ediv 604800000000000 |>.cast (by decide +kernel)
 
 /--
 Convert `Week.Offset` into `Second.Offset`.
 -/
 @[inline]
 def toSeconds (weeks : Week.Offset) : Second.Offset :=
-  weeks.mul 604800
+  weeks.mul 604800 |>.cast (by decide +kernel)
 
 /--
 Convert `Second.Offset` into `Week.Offset`.
 -/
 @[inline]
 def ofSeconds (secs : Second.Offset) : Week.Offset :=
-  secs.ediv 604800
+  secs.ediv 604800 |>.cast (by decide +kernel)
 
 /--
 Convert `Week.Offset` into `Minute.Offset`.
 -/
 @[inline]
 def toMinutes (weeks : Week.Offset) : Minute.Offset :=
-  weeks.mul 10080
+  weeks.mul 10080 |>.cast (by decide +kernel)
 
 /--
 Convert `Minute.Offset` into `Week.Offset`.
 -/
 @[inline]
 def ofMinutes (minutes : Minute.Offset) : Week.Offset :=
-  minutes.ediv 10080
+  minutes.ediv 10080 |>.cast (by decide +kernel)
 
 /--
 Convert `Week.Offset` into `Hour.Offset`.
 -/
 @[inline]
 def toHours (weeks : Week.Offset) : Hour.Offset :=
-  weeks.mul 168
+  weeks.mul 168 |>.cast (by decide +kernel)
 
 /--
 Convert `Hour.Offset` into `Week.Offset`.
 -/
 @[inline]
 def ofHours (hours : Hour.Offset) : Week.Offset :=
-  hours.ediv 168
+  hours.ediv 168 |>.cast (by decide +kernel)
 
 /--
 Convert `Week.Offset` into `Day.Offset`.
 -/
 @[inline]
 def toDays (weeks : Week.Offset) : Day.Offset :=
-  weeks.mul 7
+  weeks.mul 7 |>.cast (by decide +kernel)
 
 /--
 Convert `Day.Offset` into `Week.Offset`.

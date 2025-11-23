@@ -1,4 +1,4 @@
 false
 foo : Bool
-evalLeak.lean:22:7-22:20: error: unknown identifier '_eval.match_1'
-evalLeak.lean:23:7-23:20: error: unknown identifier '_eval.match_2'
+evalLeak.lean:22:7-22:20: error(lean.unknownIdentifier): Unknown identifier `_eval.match_1`
+evalLeak.lean:23:7-23:20: error(lean.unknownIdentifier): Unknown identifier `_eval.match_2`

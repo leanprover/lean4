@@ -1,5 +1,4 @@
-set_option grind.warning false
-
+module
 example (x : Nat) (h : x < 0) : Nat → Nat := by
   grind
 

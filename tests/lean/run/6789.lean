@@ -36,7 +36,7 @@ theorem Extension.recOn'.eq_1.{v} : ∀ {motive : (Γ Δ : Con) → Extension Γ
   (zero : {Γ : Con} → motive Γ Γ Extension.zero)
   (succ : {Γ Δ : Con} → (xt : Extension Γ Δ) → (A : Nat) → motive Γ Δ xt → motive Γ (Δ.ext A) (xt.succ A)) (x : Con),
   Extension.recOn' zero succ Extension.zero = zero
-theorem Extension.recOn'.eq_2.{v} : ∀ {motive : (Γ Δ : Con) → Extension Γ Δ → Sort v}
+@[defeq] theorem Extension.recOn'.eq_2.{v} : ∀ {motive : (Γ Δ : Con) → Extension Γ Δ → Sort v}
   (zero : {Γ : Con} → motive Γ Γ Extension.zero)
   (succ : {Γ Δ : Con} → (xt : Extension Γ Δ) → (A : Nat) → motive Γ Δ xt → motive Γ (Δ.ext A) (xt.succ A)) (x Δ : Con)
   (A : Nat) (xt : Extension x Δ),
@@ -53,9 +53,9 @@ def Extension.pullback_con
 
 /--
 info: equations:
-theorem Extension.pullback_con.eq_1.{u} : ∀ {Op : Con → Con → Type u} {B B' : Con} (x : Op B' B),
+@[defeq] theorem Extension.pullback_con.eq_1.{u} : ∀ {Op : Con → Con → Type u} {B B' : Con} (x : Op B' B),
   Extension.zero.pullback_con x = B'
-theorem Extension.pullback_con.eq_2.{u} : ∀ {Op : Con → Con → Type u} {B B' : Con} (x : Op B' B) (Δ_2 : Con)
+@[defeq] theorem Extension.pullback_con.eq_2.{u} : ∀ {Op : Con → Con → Type u} {B B' : Con} (x : Op B' B) (Δ_2 : Con)
   (xt : Extension B Δ_2) (A : Nat), (xt.succ A).pullback_con x = (xt.pullback_con x).ext A
 -/
 #guard_msgs in

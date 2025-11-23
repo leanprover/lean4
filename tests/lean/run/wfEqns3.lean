@@ -15,6 +15,6 @@ decreasing_by
 #guard_msgs in
 #check f.eq_def
 
-/-- error: unknown identifier 'f.eq_2' -/
+/-- error: Unknown identifier `f.eq_2` -/
 #guard_msgs in
 #check f.eq_2

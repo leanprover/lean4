@@ -73,7 +73,8 @@ info: [module] message
   [module] hello
                world
   [bughunt] at test2
-  [module] hello world
+  [module] hello
+               world
 [module] hello
              world
 [bughunt] at end of tst3

@@ -3,12 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Init.Data.Nat.Compare
-import Std.Data.DTreeMap.Internal.Def
-import Std.Data.DTreeMap.Internal.Balanced
-import Std.Data.DTreeMap.Internal.Ordered
-import Std.Classes.Ord
+public import Init.Data.Nat.Compare
+public import Std.Data.DTreeMap.Internal.Balanced
+public import Std.Data.DTreeMap.Internal.Ordered
+import Init.BinderPredicates
+
+@[expose] public section
 
 /-!
 # Low-level implementation of the size-bounded tree
@@ -19,12 +22,19 @@ This file contains the basic definition implementing the functionality of the si
 set_option autoImplicit false
 set_option linter.all true
 
-universe u v w
+universe u v w w'
 
-variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w'}
 
 namespace Std.DTreeMap.Internal.Impl
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+
+/-- Two tree maps are equivalent in the sense of Equiv iff all the keys and values are equal. -/
+structure Equiv (t t' : Impl α β) where
+  /-- Implementation detail of the tree map -/
+  impl : t.toListModel.Perm t'.toListModel
+
+@[inherit_doc] scoped infix:50 " ~m " => Equiv
 
 /-- Returns `true` if the given key is contained in the map. -/
 def contains [Ord α] (k : α) (t : Impl α β) : Bool :=
@@ -105,6 +115,45 @@ def getD [Ord α] [LawfulEqOrd α] (t : Impl α β) (k : α) (fallback : β k) :
     | .lt => getD l k fallback
     | .gt => getD r k fallback
     | .eq => cast (congrArg β (compare_eq_iff_eq.mp h).symm) v'
+
+/-- Returns the entry (key-value pair) for the key `k`, or `none` if such a key does not exist. -/
+def getEntry? [Ord α] (t : Impl α β) (k : α) : Option ((a : α) × β a) :=
+  match t with
+  | .leaf => none
+  | .inner _ k' v' l r =>
+    match compare k k' with
+    | .lt => getEntry? l k
+    | .gt => getEntry? r k
+    | .eq => some ⟨k', v'⟩
+
+/-- Returns the entry (key-value pair) for the key `k`. -/
+def getEntry [Ord α] (t : Impl α β) (k : α) (hlk : k ∈ t) : (a : α) × β a :=
+  match t with
+  | .inner _ k' v' l r =>
+    match h : compare k k' with
+    | .lt => getEntry l k (by simpa [mem_iff_contains, contains, h] using hlk)
+    | .gt => getEntry r k (by simpa [mem_iff_contains, contains, h] using hlk)
+    | .eq => ⟨k', v'⟩
+
+/-- Returns the entry (key-value pair) for the key `k`, or panics if such a key does not exist. -/
+def getEntry! [Ord α] [Inhabited ((a : α) × β a)] (t : Impl α β) (k : α) : (a : α) × β a :=
+  match t with
+  | .leaf => panic! "Key is not present in map"
+  | .inner _ k' v' l r =>
+    match compare k k' with
+    | .lt => getEntry! l k
+    | .gt => getEntry! r k
+    | .eq => ⟨k', v'⟩
+
+/-- Returns the entry (key-value pair) for the key `k`, or `fallback` if such a key does not exist. -/
+def getEntryD [Ord α] (t : Impl α β) (k : α) (fallback : (a : α) × β a) : (a : α) × β a :=
+  match t with
+  | .leaf => fallback
+  | .inner _ k' v' l r =>
+    match compare k k' with
+    | .lt => getEntryD l k fallback
+    | .gt => getEntryD r k fallback
+    | .eq => ⟨k', v'⟩
 
 /-- Implementation detail of the tree map -/
 def getKey? [Ord α] (t : Impl α β) (k : α) : Option α :=
@@ -200,7 +249,7 @@ def foldlM {m} [Monad m] (f : δ → (a : α) → β a → m δ) (init : δ) : I
 /-- Folds the given function over the mappings in the tree in ascending order. -/
 @[specialize]
 def foldl (f : δ → (a : α) → β a → δ) (init : δ) (t : Impl α β) : δ :=
-  Id.run (t.foldlM f init)
+  Id.run (t.foldlM (pure <| f · · ·) init)
 
 /-- Folds the given function over the mappings in the tree in descending order. -/
 @[specialize]
@@ -214,7 +263,7 @@ def foldrM {m} [Monad m] (f : (a : α) → β a → δ → m δ) (init : δ) : I
 /-- Folds the given function over the mappings in the tree in descending order. -/
 @[inline]
 def foldr (f : (a : α) → β a → δ → δ) (init : δ) (t : Impl α β) : δ :=
-  Id.run (t.foldrM f init)
+  Id.run (t.foldrM (pure <| f · · ·) init)
 
 /-- Applies the given function to the mappings in the tree in ascending order. -/
 @[inline]
@@ -240,6 +289,9 @@ def forIn {m} [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (ini
   match ← forInStep f init t with
   | ForInStep.done d => return d
   | ForInStep.yield d => return d
+
+instance : ForIn m (Impl α β) ((a : α) × β a) where
+  forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
 /-- Returns a `List` of the keys in order. -/
 @[inline] def keys (t : Impl α β) : List α :=

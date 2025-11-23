@@ -3,10 +3,12 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.LRAT.Internal.Formula.Class
-import Std.Tactic.BVDecide.LRAT.Internal.Assignment
-import Std.Sat.CNF.Basic
+public import Std.Tactic.BVDecide.LRAT.Internal.Formula.Class
+
+@[expose] public section
 
 /-!
 This module contains the default implementation of the `Formula` typeclass that is used in the

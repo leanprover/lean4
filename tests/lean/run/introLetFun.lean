@@ -1,7 +1,7 @@
 import Lean.Elab.Tactic.Basic
 import Lean.Meta.Tactic.Intro
 /-!
-# Testing `intro` with `letFun`
+# Testing `intro` with `have`
 -/
 
 /-!
@@ -12,15 +12,8 @@ example : have x := 2; ∀ _ : Nat, x = x := by
   rfl
 
 /-!
-`intros` is aware of `letFun`.
+`intros` is aware of `have`.
 -/
 example : have x := 2; ∀ _ : Nat, x = x := by
   intros
   rfl
-
-/-!
-Check that it works for `letFun` with an eta reduced argument.
--/
-example (p : Nat → Prop) (h : ∀ x, p x) : letFun 2 p := by
-  intro
-  apply h

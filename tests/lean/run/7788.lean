@@ -67,10 +67,13 @@ Example from issue #7788. Used to panic.
 -/
 
 /--
-error: function expected at
+error: Function expected at
   A
-term has type
+but this term has type
   ?_
+
+Note: Expected a function because this term is being applied to the argument
+  1
 -/
 #guard_msgs in inductive X (h : A 1) where
 

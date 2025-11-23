@@ -6,3 +6,4 @@
 *.cmi
 *.cmx
 *.o
+*.dSYM

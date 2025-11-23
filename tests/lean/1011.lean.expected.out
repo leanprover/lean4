@@ -1,1 +1,3 @@
-1011.lean:6:11-6:13: error: unknown identifier 'AA'
+1011.lean:6:11-6:13: error(lean.unknownIdentifier): Unknown identifier `AA`
+
+Note: It is not possible to treat `AA` as an implicitly bound variable here because it has multiple characters while the `relaxedAutoImplicit` option is set to `false`.

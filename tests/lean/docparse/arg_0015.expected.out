@@ -1,0 +1,17 @@
+4 failures:
+  @4 (⟨1, 4⟩): expected ')'
+    ""
+  @4 (⟨1, 4⟩): expected ':='
+    ""
+  @4 (⟨1, 4⟩): expected token
+    ""
+  @4 (⟨1, 4⟩): unexpected end of input
+    ""
+
+Final stack:
+  (Lean.Doc.Syntax.named
+   "("
+   <missing>
+   <missing>
+   <missing>
+   <missing>)

@@ -6,9 +6,11 @@ Authors: Joe Hendrix, Harun Khan
 module
 
 prelude
-import Init.Data.BitVec.Lemmas
-import Init.Data.Nat.Lemmas
-import Init.Data.Fin.Iterate
+import all Init.Data.BitVec.Basic
+public import Init.Data.BitVec.Lemmas
+public import Init.Data.Fin.Iterate
+
+public section
 
 set_option linter.missingDocs true
 
@@ -23,7 +25,7 @@ the final bitvector.
 It produces a sequence of state values `[s_0, s_1 .. s_w]` and a bitvector `v` where `f i s_i =
 (s_{i+1}, b_i)` and `b_i` is bit `i`th least-significant bit in `v` (e.g., `getLsb v i = b_i`).
 
-The theorem `iunfoldr_replace` allows uses of `BitVec.iunfoldr` to be replaced wiht declarative
+The theorem `iunfoldr_replace` allows uses of `BitVec.iunfoldr` to be replaced with declarative
 specifications that are easier to reason about.
 -/
 def iunfoldr (f : Fin w → α → α × Bool) (s : α) : α × BitVec w :=
@@ -80,10 +82,10 @@ theorem iunfoldr_getLsbD' {f : Fin w → α → α × Bool} (state : Nat → α)
       intro i
       simp only [getLsbD_cons]
       have hj2 : j.val ≤ w := by simp
-      cases (Nat.lt_or_eq_of_le (Nat.lt_succ.mp i.isLt)) with
-      | inl h3 => simp [if_neg, (Nat.ne_of_lt h3)]
+      cases (Nat.lt_or_eq_of_le (Nat.lt_succ_iff.mp i.isLt)) with
+      | inl h3 => simp [(Nat.ne_of_lt h3)]
                   exact (ih hj2).1 ⟨i.val, h3⟩
-      | inr h3 => simp [h3, if_pos]
+      | inr h3 => simp [h3]
                   cases (Nat.eq_zero_or_pos j.val) with
                   | inl hj3 => congr
                                rw [← (ih hj2).2]

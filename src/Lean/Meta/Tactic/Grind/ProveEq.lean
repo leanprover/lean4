@@ -3,17 +3,17 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Simp
-
+public section
 namespace Lean.Meta.Grind
-
 /--
 If `e` has not been internalized yet, instantiate metavariables, unfold reducible, canonicalize,
 and internalize the result.
 
-This is an auxliary function used at `proveEq?` and `proveHEq?`.
+This is an auxiliary function used at `proveEq?` and `proveHEq?`.
 -/
 private def ensureInternalized (e : Expr) : GoalM Expr := do
   if (← alreadyInternalized e) then
@@ -24,7 +24,7 @@ private def ensureInternalized (e : Expr) : GoalM Expr := do
     `¬ a = []` and `b ≠ []` by congruence closure even when `a` and `b` are in the same
     equivalence class.
     -/
-    let e ← shareCommon (← canon (← unfoldReducible (← instantiateMVars e)))
+    let e ← preprocessLight (← instantiateMVars e)
     internalize e 0
     return e
 

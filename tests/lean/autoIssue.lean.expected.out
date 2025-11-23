@@ -29,10 +29,10 @@ a' : x = 1
 autoIssue.lean:60:18-60:19: error: don't know how to synthesize placeholder
 context:
 ⊢ 1 = 1
-autoIssue.lean:63:9-63:10: error: don't know how to synthesize placeholder for argument 'a''
+autoIssue.lean:63:9-63:10: error: don't know how to synthesize placeholder for argument `a'`
 context:
 ⊢ 1 = 1
-autoIssue.lean:68:6-68:7: error: don't know how to synthesize placeholder for argument 'h'
+autoIssue.lean:68:6-68:7: error: don't know how to synthesize placeholder for argument `h`
 context:
 ⊢ 2 = 1
 autoIssue.lean:72:2-72:6: error: unsolved goals

@@ -33,7 +33,7 @@ script mkTree (args : List String) := do
   let treeDir := wsDir / "test" / "tree"
   let config ← IO.FS.readFile (wsDir / "lakefile.lean")
   let mut depsConfig := config ++ "\n"
-  for i in [:numPkgs] do
+  for i in *...numPkgs do
     let pkgName := num2letters i
     let config := config.replace "inundation" pkgName
     let pkgDir := treeDir / pkgName
@@ -58,7 +58,7 @@ script mkBuild (args : List String) := do
 
   let mkImportsFor (layer : Nat) := Id.run do
     let mut out := ""
-    for idx in [:width] do
+    for idx in *...width do
       out := out ++ s!"import {test}.{num2letters layer}{idx}\n"
     return out
   let mkImportsAt (layer : Nat) :=
@@ -71,8 +71,8 @@ script mkBuild (args : List String) := do
     | .noFileOrDirectory .. => pure ()
     | e => throw e
   IO.FS.createDirAll (testDir / test)
-  for layer in [:layers] do
-    for idx in [:width] do
+  for layer in *...layers do
+    for idx in *...width do
       IO.FS.writeFile (testDir / test / s!"{num2letters layer}{idx}.lean") <|
         mkImportsAt layer
   IO.FS.writeFile (testDir / s!"{test}.lean") (mkImportsAt layers)

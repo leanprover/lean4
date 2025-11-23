@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
+public import Init.Data.BitVec.Bitblast
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
+
+@[expose] public section
 
 /-!
 This module contains the verification of the `BitVec.add` bitblaster from `Impl.Operations.Add`.
@@ -30,7 +35,7 @@ theorem denote_mkFullAdderOut (assign : α → Bool) (aig : AIG α) (input : Ful
     ((⟦aig, input.lhs, assign⟧ ^^ ⟦aig, input.rhs, assign⟧) ^^ ⟦aig, input.cin, assign⟧)
     := by
   simp only [mkFullAdderOut, Ref.cast_eq, denote_mkXorCached, denote_projected_entry, Bool.bne_assoc,
-    Bool.bne_left_inj]
+    ]
   rw [LawfulOperator.denote_mem_prefix (f := mkXorCached)]
 
 @[simp]
@@ -40,8 +45,8 @@ theorem denote_mkFullAdderCarry (assign : α → Bool) (aig : AIG α) (input : F
       ((⟦aig, input.lhs, assign⟧ ^^ ⟦aig, input.rhs, assign⟧) && ⟦aig, input.cin, assign⟧ ||
        ⟦aig, input.lhs, assign⟧ && ⟦aig, input.rhs, assign⟧)
     := by
-  simp only [mkFullAdderCarry, Ref.cast_eq, Int.reduceNeg, denote_mkOrCached,
-    LawfulOperator.denote_input_entry, denote_mkAndCached, denote_projected_entry',
+  simp only [mkFullAdderCarry, Ref.cast_eq, denote_mkOrCached,
+    LawfulOperator.denote_input_entry, denote_mkAndCached,
     denote_mkXorCached, denote_projected_entry]
   congr 2
   · rw [LawfulOperator.denote_mem_prefix (f := mkXorCached) (h := input.cin.hgate)]
@@ -70,7 +75,7 @@ theorem mkFullAdder_denote_mem_prefix (aig : AIG α) (input : FullAdderInput aig
     ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
   unfold mkFullAdder
   dsimp only
-  rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderCarry)]
+  rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderCarry) (LawfulOperator.lt_size_of_lt_aig_size aig input hstart)]
   rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderOut)]
 
 theorem go_denote_mem_prefix (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref aig)
@@ -105,15 +110,13 @@ theorem go_get_aux (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref a
   split at hgo
   · rw [← hgo]
     intro hfoo
-    rw [go_get_aux]
-    rw [AIG.RefVec.get_push_ref_lt]
-    · simp only [Ref.cast, Ref.mk.injEq]
-      rw [AIG.RefVec.get_cast]
-      · simp
-      · assumption
-    · apply go_le_size
+    rw [go_get_aux (hidx := Nat.lt_succ_of_lt hidx) (hfoo := go_le_size ..)]
+    rw [AIG.RefVec.get_push_ref_lt (hidx := hidx)]
+    simp only [Ref.cast, Ref.mk.injEq]
+    rw [AIG.RefVec.get_cast]
+    simp
   · rw [← hgo]
-    simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
+    simp only [Nat.le_refl]
     obtain rfl : curr = w := by omega
     simp
 termination_by w - curr
@@ -157,7 +160,7 @@ theorem go_denote_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref
   unfold go at hgo
   dsimp only at hgo
   split at hgo
-  · next hlt =>
+  next hlt =>
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       rw [← hgo]
@@ -188,12 +191,12 @@ theorem go_denote_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref
         · simp
         · simp [Ref.hgate]
       · unfold mkFullAdder
-        simp only [Ref.cast_eq, id_eq, Int.reduceNeg, denote_projected_entry, denote_mkFullAdderCarry,
+        simp only [Ref.cast_eq, denote_projected_entry, denote_mkFullAdderCarry,
           FullAdderInput.lhs_cast, FullAdderInput.rhs_cast, FullAdderInput.cin_cast,
           BitVec.carry_succ]
-        rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderOut)]
-        rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderOut)]
-        rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderOut)]
+        rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderOut) (h := Ref.hgate _)]
+        rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderOut) (h := Ref.hgate _)]
+        rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderOut) (h := Ref.hgate _)]
         rw [hleft, hright, hcin]
         simp [atLeastTwo_eq_halfAdder]
       · omega
@@ -216,19 +219,10 @@ theorem denote_blast (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
     unfold blast
     dsimp only
     rw [blastAdd.go_denote_eq _ 0 (by omega) _ _ _ _ assign lhs rhs _ _]
-    · simp only [BinaryRefVec.lhs_get_cast, Ref.cast_eq, BinaryRefVec.rhs_get_cast]
-      rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
-      rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
+    · simp
     · simp
     · omega
-    · intros
-      simp only [BinaryRefVec.lhs_get_cast, Ref.cast_eq]
-      rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
-      rw [hleft]
-    · intros
-      simp only [BinaryRefVec.rhs_get_cast, Ref.cast_eq]
-      rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
-      rw [hright]
+    · simp [hright]
   · assumption
 
 end blastAdd

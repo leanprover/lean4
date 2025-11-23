@@ -32,23 +32,22 @@ theorem ex5 (p : Nat → Nat → Prop) (a b : Nat) (h₁ : p a b) (h₂ : p b c)
 
 /-! Relation with bad signature -/
 
-infix:50 " ≅ "  => HEq
-instance {α β γ} : Trans (· ≅ · : α → β → Prop) (· ≅ · : β → γ → Prop) (· ≅ · : α → γ → Prop) where
+instance {α β γ} : Trans (· ≍ · : α → β → Prop) (· ≍ · : β → γ → Prop) (· ≍ · : α → γ → Prop) where
   trans h₁ h₂ := HEq.trans h₁ h₂
 
-theorem ex6 {a : α} {b : β} {c : γ} (h₁ : HEq a b) (h₂ : b ≅ c) : a ≅ c :=
-  calc a ≅ b := h₁
-       _ ≅ c := h₂  -- Error because the last two arguments of HEq are not explicit
+theorem ex6 {a : α} {b : β} {c : γ} (h₁ : a ≍ b) (h₂ : b ≍ c) : a ≍ c :=
+  calc a ≍ b := h₁
+       _ ≍ c := h₂  -- Error because the last two arguments of HEq are not explicit
 
 -- fixed
-abbrev HEqRel {α β} (a : α) (b : β) := HEq a b
+abbrev HEqRel {α β} (a : α) (b : β) := a ≍ b
 
 infix:50 "===" => HEqRel
 
 instance {α β γ} : Trans (HEqRel : α → β → Prop) (HEqRel : β → γ → Prop) (HEqRel : α → γ → Prop) where
   trans h₁ h₂ := HEq.trans h₁ h₂
 
-theorem ex7 {a : α} {b : β} {c : γ} (h₁ : a ≅ b) (h₂ : b ≅ c) : a === c :=
+theorem ex7 {a : α} {b : β} {c : γ} (h₁ : a ≍ b) (h₂ : b ≍ c) : a === c :=
   calc a === b := h₁
        _ === c := h₂
 

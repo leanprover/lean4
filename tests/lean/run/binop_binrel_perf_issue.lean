@@ -22,20 +22,6 @@ end Set
 
 end Mathlib.Init.Set
 
-section Mathlib.Init.Function
-
-universe u₁ u₂
-
-variable {α : Sort u₁} {β : Sort u₂}
-
-def Function.Injective (f : α → β) : Prop :=
-  ∀ ⦃a₁ a₂⦄, f a₁ = f a₂ → a₁ = a₂
-
-def Function.Surjective (f : α → β) : Prop :=
-  ∀ b, ∃ a, f a = b
-
-end Mathlib.Init.Function
-
 section Mathlib.Data.Subtype
 
 variable {α : Sort _} {p : α → Prop}
@@ -153,22 +139,10 @@ universe u v w
 class HVAdd (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   hVAdd : α → β → γ
 
-class HSMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  hSMul : α → β → γ
-
 class VAdd (G : Type u) (P : Type v) where
   vadd : G → P → P
 
-class SMul (M : Type u) (α : Type v) where
-  smul : M → α → α
-
 infixl:65 " +ᵥ " => HVAdd.hVAdd
-infixr:73 " • " => HSMul.hSMul
-
-macro_rules | `($x • $y) => `(leftact% HSMul.hSMul $x $y)
-
-instance instHSMul {α β} [SMul α β] : HSMul α β β where
-  hSMul := SMul.smul
 
 instance instHVAdd {α β} [VAdd α β] : HVAdd α β β where
   hVAdd := VAdd.vadd

@@ -1,3 +1,4 @@
+module
 set_option trace.grind.split true
 set_option trace.grind.eqc true
 example (p q : Prop) : p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → False := by

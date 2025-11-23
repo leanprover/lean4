@@ -3,11 +3,12 @@ Copyright (c) 2022 Henrik Böving. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.PassManager
-import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.LCNF.InferType
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -157,27 +158,24 @@ partial def getCtorArgs : Value → Name → Option (Array Value)
 
 partial def ofNat (n : Nat) : Value :=
   if n > maxValueDepth then
-    goBig n n
+    .top
   else
     goSmall n
 where
-  goBig (orig : Nat) (curr : Nat) : Value :=
-    if orig - curr == maxValueDepth then
-      .top
-    else
-      .ctor ``Nat.succ #[goBig orig (curr - 1)]
   goSmall : Nat → Value
   | 0 => .ctor ``Nat.zero #[]
   | n + 1 => .ctor ``Nat.succ #[goSmall n]
 
 def ofLCNFLit : LCNF.LitValue → Value
-| .natVal n => ofNat n
+| .nat n => ofNat n
+-- TODO: Make this work for other numeric literal types.
+| .uint8 _ | .uint16 _ | .uint32 _ | .uint64 _ | .usize _ => .top
 -- TODO: We could make this much more precise but the payoff is questionable
-| .strVal .. => .top
+| .str .. => .top
 
-partial def proj : Value → Nat → Value
+partial def proj (env : Environment) : Value → Nat → Value
 | .ctor _ vs , i => vs.getD i bot
-| .choice vs, i => vs.foldl (fun r v => merge r (proj v i)) bot
+| .choice vs, i => vs.foldl (fun r v => widening env r (proj env v i)) bot
 | v, _ => v
 
 /--
@@ -205,25 +203,27 @@ partial def getLiteral (v : Value) : CompilerM (Option ((Array CodeDecl) × FVar
     return none
 where
   go : Value → CompilerM ((Array CodeDecl) × FVarId)
-  | .ctor `Nat.zero #[] .. => do
-    let decl ← mkAuxLetDecl <| .value <| .natVal <| 0
+  | .ctor ``Nat.zero #[] .. => do
+    let decl ← mkAuxLetDecl <| .lit <| .nat <| 0
     return (#[.let decl], decl.fvarId)
-  | .ctor `Nat.succ #[val] .. => do
+  | .ctor ``Nat.succ #[val] .. => do
     let val := getNatConstant val + 1
-    let decl ← mkAuxLetDecl <| .value <| .natVal <| val
+    let decl ← mkAuxLetDecl <| .lit <| .nat <| val
     return (#[.let decl], decl.fvarId)
-  | .ctor i vs => do
-    let args ← vs.mapM go
+  | .ctor ctorName vs => do
+    let some (.ctorInfo ctorInfo) := (← getEnv).find? ctorName | unreachable!
+    let fields ← vs.mapM go
     let flatten acc := fun (decls, var) => (acc.fst ++ decls, acc.snd.push <| .fvar var)
-    let (decls, params) := args.foldl (init := (#[], Array.mkEmpty args.size)) flatten
-    let letVal : LetValue := .const i [] params
+    let (decls, args) :=
+      fields.foldl (init := (#[], Array.replicate ctorInfo.numParams .erased)) flatten
+    let letVal : LetValue := .const ctorName [] args
     let letDecl ← mkAuxLetDecl letVal
     return (decls.push <| .let letDecl, letDecl.fvarId)
   | _ => unreachable!
 
   getNatConstant : Value → Nat
-  | .ctor `Nat.zero #[] .. => 0
-  | .ctor `Nat.succ #[val] .. => getNatConstant val + 1
+  | .ctor ``Nat.zero #[] .. => 0
+  | .ctor ``Nat.succ #[val] .. => getNatConstant val + 1
   | _ => panic! "Not a well formed Nat constant Value"
 
 end Value
@@ -247,7 +247,10 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (Name × 
   registerSimplePersistentEnvExtension {
     addImportedFn := fun _ => {}
     addEntryFn := fun s ⟨e, n⟩ => s.insert e n
-    toArrayFn := fun s => s.toArray.qsort decLt
+    exportEntriesFnEx? := some fun _ s _ => fun
+      -- preserved for non-modules, make non-persistent at some point?
+      | .private => s.toArray.qsort decLt
+      | _ => #[]
     asyncMode := .sync  -- compilation is non-parallel anyway
     replay? := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.1) (fun s ⟨e, n⟩ => s.insert e n)
   }
@@ -256,7 +259,7 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (Name × 
 Add a `Value` for a function name.
 -/
 def addFunctionSummary (env : Environment) (fid : Name) (v : Value) : Environment :=
-  functionSummariesExt.addEntry (env.addExtraName fid) (fid, v)
+  functionSummariesExt.addEntry env (fid, v)
 
 /--
 Obtain the `Value` for a function name if possible.
@@ -296,7 +299,7 @@ structure InterpState where
   `Value`s of functions in the `InterpContext` use during computation of
   the fixpoint. Afterwards they are stored into the `Environment`.
   -/
-  funVals     : PArray Value
+  funVals     : Array Value
 
 /--
 The monad which powers the abstract interpreter.
@@ -348,8 +351,9 @@ def findArgValue (arg : Arg) : InterpM Value := do
 Update the assignment of `var` by merging the current value with `newVal`.
 -/
 def updateVarAssignment (var : FVarId) (newVal : Value) : InterpM Unit := do
+  let env ← getEnv
   let val ← findVarValue var
-  let updatedVal := .merge val newVal
+  let updatedVal := .widening env val newVal
   modifyAssignment (·.insert var updatedVal)
 
 /--
@@ -375,10 +379,11 @@ a partial application and set the values of the remaining parameters to
 -/
 def updateFunDeclParamsAssignment (params : Array Param) (args : Array Arg) : InterpM Bool := do
   let mut ret := false
+  let env ← getEnv
   for param in params, arg in args do
     let paramVal ← findVarValue param.fvarId
     let argVal ← findArgValue arg
-    let newVal := .merge paramVal argVal
+    let newVal := .widening env paramVal argVal
     if newVal != paramVal then
       modifyAssignment (·.insert param.fvarId newVal)
       ret := true
@@ -389,7 +394,7 @@ def updateFunDeclParamsAssignment (params : Array Param) (args : Array Arg) : In
   to top.
   -/
   if params.size != args.size then
-    for param in params[args.size:] do
+    for param in params[args.size...*] do
       ret := (← findVarValue param.fvarId) == .bot
       updateVarAssignment param.fvarId .top
   return ret
@@ -456,8 +461,10 @@ where
   -/
   interpLetValue (letVal : LetValue) : InterpM Value := do
     match letVal with
-    | .value val => return .ofLCNFLit val
-    | .proj _ idx struct => return (← findVarValue struct).proj idx
+    | .lit val => return .ofLCNFLit val
+    | .proj _ idx struct =>
+      let env ← getEnv
+      return (← findVarValue struct).proj env idx
     | .const declName _ args =>
       let env ← getEnv
       args.forM handleFunArg
@@ -471,7 +478,7 @@ where
           return .top
       | none =>
         let some (.ctorInfo info) := env.find? declName | return .top
-        let args := args[info.numParams:].toArray
+        let args := args[info.numParams...*].toArray
         if info.numFields == args.size then
           return .ctor declName (← args.mapM findArgValue)
         else
@@ -521,7 +528,7 @@ ones. Return whether any `Value` got updated in the process.
 -/
 def inferStep : InterpM Bool := do
   let ctx ← read
-  for h : idx in [0:ctx.decls.size] do
+  for h : idx in *...ctx.decls.size do
     let decl := ctx.decls[idx]
     if !decl.safe then
       continue

@@ -5,24 +5,24 @@ Updated error message to show the elaborated term rather than `h✝`
 -/
 
 /--
-error: type mismatch, term
+error: Type mismatch: After simplification, term
   hp
-after simplification has type
-  p : Prop
+ has type
+  p
 but is expected to have type
-  p ∧ q : Prop
+  p ∧ q
 -/
 #guard_msgs in
 example (p q : Prop) (hp : p ∧ True) : p ∧ q ∧ True := by
   simpa using hp
 
 /--
-error: type mismatch, term
+error: Type mismatch: After simplification, term
   fun x => x
-after simplification has type
-  True : Prop
+ has type
+  True
 but is expected to have type
-  False : Prop
+  False
 -/
 #guard_msgs in
 example : False := by

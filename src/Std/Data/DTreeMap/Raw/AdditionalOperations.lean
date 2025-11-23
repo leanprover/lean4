@@ -3,9 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.DTreeMap.Raw.Basic
-import Std.Data.DTreeMap.AdditionalOperations
+public import Std.Data.DTreeMap.AdditionalOperations
+
+@[expose] public section
 
 /-!
 # Additional dependent raw tree map operations
@@ -20,12 +23,12 @@ set_option linter.missingDocs true
 universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {cmp : α → α → Ordering}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 namespace Std.DTreeMap
 open Internal (Impl)
 
 namespace Raw
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 @[inline, inherit_doc DTreeMap.filterMap]
 def filterMap (f : (a : α) → β a → Option (γ a)) (t : Raw α β cmp) : Raw α γ cmp :=

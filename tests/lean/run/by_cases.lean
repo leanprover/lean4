@@ -11,10 +11,10 @@ example (p : Prop) : True := by
 /-! Should not accidentally leak `open Classical` into branches. -/
 
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   Decidable p
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs in
 example (p : Prop) : True := by

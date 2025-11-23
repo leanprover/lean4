@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean.Meta
 namespace AbstractMVars
@@ -63,6 +67,9 @@ private partial def abstractLevelMVars (u : Level) : M Level := do
           modify fun s => { s with nextParamIdx := s.nextParamIdx + 1, lmap := s.lmap.insert mvarId u, paramNames := s.paramNames.push paramId }
           return u
 
+/--
+Abstracts metavariables in `e`. Assumes `instantiateMVars` has been applied to `e`.
+-/
 partial def abstractExprMVars (e : Expr) : M Expr := do
   if !e.hasMVar then
     return e
@@ -78,34 +85,30 @@ partial def abstractExprMVars (e : Expr) : M Expr := do
     | e@(Expr.mdata _ b)       => return e.updateMData! (← abstractExprMVars b)
     | e@(Expr.lam _ d b _)     => return e.updateLambdaE! (← abstractExprMVars d) (← abstractExprMVars b)
     | e@(Expr.forallE _ d b _) => return e.updateForallE! (← abstractExprMVars d) (← abstractExprMVars b)
-    | e@(Expr.letE _ t v b _)  => return e.updateLet! (← abstractExprMVars t) (← abstractExprMVars v) (← abstractExprMVars b)
+    | e@(Expr.letE _ t v b _)  => return e.updateLetE! (← abstractExprMVars t) (← abstractExprMVars v) (← abstractExprMVars b)
     | e@(Expr.mvar mvarId)     =>
       let decl := (← getMCtx).getDecl mvarId
       if decl.depth != (← getMCtx).depth then
         return e
       else
-        let eNew ← instantiateMVars e
-        if e != eNew then
-          abstractExprMVars eNew
-        else
-          match (← get).emap[mvarId]? with
-          | some e =>
-            return e
-          | none   =>
-            let type   ← abstractExprMVars decl.type
-            let fvarId ← mkFreshFVarId
-            let fvar := mkFVar fvarId;
-            let userName ← if decl.userName.isAnonymous then
-              pure <| (`x).appendIndexAfter (← get).fvars.size
-            else
-              pure decl.userName
-            modify fun s => {
-              s with
-              emap  := s.emap.insert mvarId fvar
-              fvars := s.fvars.push fvar
-              mvars := s.mvars.push e
-              lctx  := s.lctx.mkLocalDecl fvarId userName type }
-            return fvar
+        match (← get).emap[mvarId]? with
+        | some e =>
+          return e
+        | none   =>
+          let type   ← abstractExprMVars (← instantiateMVars decl.type)
+          let fvarId ← mkFreshFVarId
+          let fvar := mkFVar fvarId;
+          let userName ← if decl.userName.isAnonymous then
+            pure <| (`x).appendIndexAfter (← get).fvars.size
+          else
+            pure decl.userName
+          modify fun s => {
+            s with
+            emap  := s.emap.insert mvarId fvar
+            fvars := s.fvars.push fvar
+            mvars := s.mvars.push e
+            lctx  := s.lctx.mkLocalDecl fvarId userName type }
+          return fvar
 
 end AbstractMVars
 

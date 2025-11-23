@@ -1,3 +1,6 @@
+import Std.Data.Iterators.Producers.Range
+import Std.Data.Iterators.Combinators.StepSize
+
 inductive Tree
   | nil
   | node (l r : Tree)
@@ -42,7 +45,7 @@ def main : List String → IO UInt32
     let long := make $ UInt32.ofNat maxN
 
     -- allocate, walk, and deallocate many bottom-up binary trees
-    for d in [minN:maxN+1:2] do
+    for d in (minN...=maxN).iter.stepSize 2 do
       let n := 2 ^ (maxN - d + minN)
       let i := sumT (.ofNat d) (.ofNat n) 0
       out s!"{n}\t trees" d i

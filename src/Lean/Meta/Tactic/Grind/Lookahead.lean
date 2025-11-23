@@ -3,50 +3,49 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Intro
-import Lean.Meta.Tactic.Grind.Arith
+import Lean.Meta.Tactic.Grind.Action
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.EMatch
-
+import Lean.Meta.Tactic.Grind.EMatchAction
+public section
 namespace Lean.Meta.Grind
 
-private partial def solve (generation : Nat) (goal : Goal) : GrindM Bool := do
-  cont (← intros generation goal)
-where
-  cont (goals : List Goal) : GrindM Bool := do
-    match goals with
-    | [] => return true
-    | [goal] => loop goal
-    | _ => throwError "`grind` lookahead internal error, unexpected number of goals"
+/-
+This code is not used anymore.
+TODO: Decide whether we should delete it or not.
+-/
 
-  loop (goal : Goal) : GrindM Bool := withIncRecDepth do
-    if goal.inconsistent then
-      return true
-    else if let some goals ← assertNext goal then
-      cont goals
-    else if let some goals ← Arith.check goal then
-      cont goals
-    else if let some goals ← splitNext goal then
-      cont goals
-    else if let some goals ← ematchAndAssert goal then
-      cont goals
-    else
-      return false
+private abbrev maxIterations := 10000 -- **TODO**: Add option
 
-private def tryLookahead (e : Expr) : GoalM Bool := do
+private def solve (goal : Goal) (generation : Nat) : GrindM (Option Goal) := do
+  let solvers ← Solvers.mkAction
+  let step : Action := solvers <|> Action.splitNext <|> Action.instantiate
+  let a := Action.intros generation >> Action.assertAll >> step.loop maxIterations
+  match (← a.run goal) with
+  | .closed _ => return none
+  | .stuck gs =>
+    let goal :: _ := gs | return some goal
+    return some goal
+
+private def tryLookahead (e : Expr) : GoalM Bool :=
+  withTheReader Grind.Context
+    (fun ctx => { ctx with config.qlia := true, cheapCases := true }) do
   -- TODO: if `e` is an arithmetic expression, we can avoid creating an auxiliary goal.
   -- We can assert it directly to the arithmetic module.
   -- Remark: We can simplify this code because the lookahead only really worked for arithmetic.
   trace_goal[grind.lookahead.try] "{e}"
-  let proof? ← withoutModifyingState do
-    let goal ← get
+  let goal ← get
+  let proof? ← withoutModifyingMCtx do
     let tag ← goal.mvarId.getTag
     let target ← mkArrow (mkNot e) (← getFalseExpr)
-    let mvar ← mkFreshExprMVar target .syntheticOpaque tag
+    let mvar ← mkFreshExprSyntheticOpaqueMVar target tag
+    let goalAux := { goal with mvarId := mvar.mvarId!, newFacts := {} }
     let gen ← getGeneration e
-    if (← solve gen { goal with mvarId := mvar.mvarId! }) then
+    if (← solve goalAux gen).isNone then
       return some (← instantiateMVars mvar)
     else
       return none
@@ -58,44 +57,33 @@ private def tryLookahead (e : Expr) : GoalM Bool := do
   else
     return false
 
-private def withLookaheadConfig (x : GrindM α) : GrindM α := do
-  withTheReader Grind.Context
-    (fun ctx => { ctx with config.qlia := true, cheapCases := true })
-    x
-
-def lookahead : GrindTactic := fun goal => do
+def lookahead : GoalM Bool := do
   unless (← getConfig).lookahead do
-    return none
-  if goal.split.lookaheads.isEmpty then
-    return none
-  withLookaheadConfig do
-  let (progress, goal) ← GoalM.run goal do
-    let mut postponed := []
-    let mut progress := false
-    let infos := (← get).split.lookaheads
-    modify fun s => { s with split.lookaheads := [] }
-    for info in infos do
-      if (← isInconsistent) then
-        return true
-      match (← checkSplitStatus info) with
-      | .resolved => progress := true
-      | .ready _ _ true
-      | .notReady => postponed := info :: postponed
-      | .ready _ _ false =>
-        if (← tryLookahead info.getExpr) then
-          progress := true
-        else
-          postponed := info :: postponed
-    if progress then
-      modify fun s => { s with
-        split.lookaheads := s.split.lookaheads ++ postponed.reverse
-      }
+    return false
+  if (← get).split.lookaheads.isEmpty then
+    return false
+  let mut postponed := []
+  let mut progress := false
+  let infos := (← get).split.lookaheads
+  modify fun s => { s with split.lookaheads := [] }
+  for info in infos do
+    if (← isInconsistent) then
       return true
-    else
-      return false
+    match (← checkSplitStatus info) with
+    | .resolved => progress := true
+    | .ready _ _ true
+    | .notReady => postponed := info :: postponed
+    | .ready _ _ false =>
+      if (← tryLookahead info.getExpr) then
+        progress := true
+      else
+        postponed := info :: postponed
   if progress then
-    return some [goal]
+    modify fun s => { s with
+      split.lookaheads := s.split.lookaheads ++ postponed.reverse
+    }
+    return true
   else
-    return none
+    return false
 
 end Lean.Meta.Grind

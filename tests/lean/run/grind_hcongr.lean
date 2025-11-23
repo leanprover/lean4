@@ -1,4 +1,4 @@
-set_option grind.warning false
+module
 def Matrix (m : Type) (n : Type) (α : Type) : Type :=
   m → n → α
 

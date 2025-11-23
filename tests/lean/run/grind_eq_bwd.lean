@@ -1,5 +1,4 @@
-set_option grind.warning false
-
+module
 theorem dummy (x : Nat) : x = x :=
   rfl
 

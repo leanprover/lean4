@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-import Std.Sat.AIG.LawfulVecOperator
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
+public import Std.Sat.AIG.LawfulVecOperator
+
+@[expose] public section
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec.extract`.
@@ -28,19 +32,16 @@ structure ExtractTarget (aig : AIG α) (len : Nat) where
 def blastExtract (aig : AIG α) (target : ExtractTarget aig newWidth) :
     AIG.RefVecEntry α newWidth :=
   let ⟨input, start⟩ := target
-  let res := aig.mkConstCached false
-  let aig := res.aig
-  let falseRef := res.ref
-  let input := input.cast <| AIG.LawfulOperator.le_size (f := AIG.mkConstCached) ..
-  ⟨aig, go input start falseRef 0 (by omega) (.emptyWithCapacity newWidth)⟩
+  ⟨aig, go input start 0 (by omega) (.emptyWithCapacity newWidth)⟩
 where
-  go {aig : AIG α} {w : Nat} (input : AIG.RefVec aig w) (start : Nat) (falseRef : AIG.Ref aig)
-      (curr : Nat) (hcurr : curr ≤ newWidth) (s : AIG.RefVec aig curr) :
+  go {aig : AIG α} {w : Nat} (input : AIG.RefVec aig w) (start : Nat) (curr : Nat)
+      (hcurr : curr ≤ newWidth) (s : AIG.RefVec aig curr) :
       AIG.RefVec aig newWidth :=
   if h : curr < newWidth then
+    let falseRef := aig.mkConstCached false
     let nextRef := input.getD (start + curr) falseRef
     let s := s.push nextRef
-    go input start falseRef (curr + 1) (by omega) s
+    go input start (curr + 1) (by omega) s
   else
     have : curr = newWidth := by omega
     this ▸ s
@@ -50,12 +51,11 @@ instance : AIG.LawfulVecOperator α ExtractTarget blastExtract where
   le_size := by
     intros
     unfold blastExtract
-    dsimp only
-    apply AIG.LawfulOperator.le_size (f := AIG.mkConstCached)
+    simp
   decl_eq := by
     intros
     unfold blastExtract
-    rw [AIG.LawfulOperator.decl_eq (f := AIG.mkConstCached)]
+    simp
 
 end bitblast
 end BVExpr

@@ -9,11 +9,6 @@ class Add (α : Type u) where
   add : α → α → α
 -/
 
-class Inv (α : Type u) where
-    inv : α → α
-
-postfix:max "⁻¹" => Inv.inv
-
 export Zero (zero)
 
 instance [Zero α] : OfNat α (nat_lit 0) where

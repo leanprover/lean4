@@ -3,9 +3,13 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Exception
-import Lean.Log
+public import Lean.Elab.Exception
+public import Lean.Log
+
+public section
 
 /-!
 # Trace messages
@@ -109,6 +113,7 @@ where
     else
       false
 
+/-- Determine if tracing is available for a given class, checking ancestor classes if appropriate. -/
 def isTracingEnabledFor (cls : Name) : m Bool := do
   return checkTraceOption (← MonadTrace.getInheritedTraceOptions) (← getOptions) cls
 
@@ -159,7 +164,6 @@ private def addTraceNode (oldTraces : PersistentArray TraceElem)
 
 register_builtin_option trace.profiler : Bool := {
   defValue := false
-  group    := "profiler"
   descr    :=
     "activate nested traces with execution time above `trace.profiler.threshold` and annotate with \
     time"
@@ -167,7 +171,6 @@ register_builtin_option trace.profiler : Bool := {
 
 register_builtin_option trace.profiler.threshold : Nat := {
   defValue := 10
-  group    := "profiler"
   descr    :=
     "threshold in milliseconds (or heartbeats if `trace.profiler.useHeartbeats` is true), \
     traces below threshold will not be activated"
@@ -175,21 +178,18 @@ register_builtin_option trace.profiler.threshold : Nat := {
 
 register_builtin_option trace.profiler.useHeartbeats : Bool := {
   defValue := false
-  group    := "profiler"
   descr    :=
     "if true, measure and report heartbeats instead of seconds"
 }
 
 register_builtin_option trace.profiler.output : String := {
   defValue := ""
-  group    := "profiler"
   descr    :=
     "output `trace.profiler` data in Firefox Profiler-compatible format to given file path"
 }
 
 register_builtin_option trace.profiler.output.pp : Bool := {
   defValue := false
-  group    := "profiler"
   descr    :=
     "if false, limit text in exported trace nodes to trace class name and `TraceData.tag`, if any
 
@@ -246,6 +246,21 @@ instance [always : MonadAlwaysExcept ε m] [STWorld ω m] [BEq α] [Hashable α]
     MonadAlwaysExcept ε (MonadCacheT α β m) where
   except := let _ := always.except; inferInstance
 
+/-- Run the provided action `k`, and log its execution within a trace node.
+
+The message is produced after the action completes, and has access to its return value.
+If it is more convenient to produce the message as part of the computation,
+then `Lean.withTraceNode'` can be used instead.
+If profiling is enabled, this will also log the runtime of `k`.
+
+A typical invocation might be:
+```lean4
+withTraceNode `isPosTrace (msg := (return m!"{ExceptToEmoji.toEmoji ·} checking positivity")) do
+  return 0 < x
+```
+
+The `cls`, `collapsed`, and `tag` arguments are fowarded to the constructor of `TraceData`.
+-/
 def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls : Name)
     (msg : Except ε α → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
   let _ := always.except
@@ -268,6 +283,7 @@ def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls :
   addTraceNode oldTraces data ref m
   MonadExcept.ofExcept res
 
+/-- A version of `Lean.withTraceNode` which allows generating the message within the computation. -/
 def withTraceNode' [MonadAlwaysExcept Exception m] [MonadLiftT BaseIO m] (cls : Name)
     (k : m (α × MessageData)) (collapsed := true) (tag := "") : m α :=
   let msg := fun
@@ -289,14 +305,13 @@ def registerTraceClass (traceClassName : Name) (inherited := false) (ref : Name 
   let optionName := `trace ++ traceClassName
   registerOption optionName {
     declName := ref
-    group := "trace"
     defValue := false
     descr := "enable/disable tracing for the given module and submodules"
   }
   if inherited then
     inheritedTraceOptions.modify (·.insert optionName)
 
-def expandTraceMacro (id : Syntax) (s : Syntax) : MacroM (TSyntax `doElem) := do
+private meta def expandTraceMacro (id : Syntax) (s : Syntax) : MacroM (TSyntax `doElem) := do
   let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
   `(doElem| do
     let cls := $(quote id.getId.eraseMacroScopes)
@@ -310,22 +325,33 @@ def bombEmoji := "💥️"
 def checkEmoji := "✅️"
 def crossEmoji := "❌️"
 
+/-- Visualize an `Except _ Bool` using a checkmark or cross.
+
+`bombEmoji` is used for `Except.error`. -/
 def exceptBoolEmoji : Except ε Bool → String
   | .error _ => bombEmoji
   | .ok true => checkEmoji
   | .ok false => crossEmoji
 
+/-- Visualize an `Except _ (Option _)` using a checkmark or cross.
+
+`bombEmoji` is used for `Except.error`. -/
 def exceptOptionEmoji : Except ε (Option α) → String
   | .error _ => bombEmoji
   | .ok (some _) => checkEmoji
   | .ok none => crossEmoji
 
-/-- Visualize an `Except` using a checkmark or a cross. -/
+/-- Visualize an `Except` using a checkmark or a cross.
+
+Unlike `exceptBoolEmoji` this shows `.error` with `crossEmoji`. -/
 def exceptEmoji : Except ε α → String
   | .error _ => crossEmoji
   | .ok _ => checkEmoji
 
 class ExceptToEmoji (ε α : Type) where
+  /-- Visualize an `Except.ok x` using a checkmark or cross.
+
+  By convention, `bombEmoji` is used for `Except.error`. -/
   toEmoji : Except ε α → String
 
 instance : ExceptToEmoji ε Bool where
@@ -375,7 +401,7 @@ def addTraceAsMessages [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] : m Un
   let traces ← getResetTraces
   if traces.isEmpty then
     return
-  let mut pos2traces : Std.HashMap (String.Pos × String.Pos) (Array MessageData) := ∅
+  let mut pos2traces : Std.HashMap (String.Pos.Raw × String.Pos.Raw) (Array MessageData) := ∅
   for traceElem in traces do
     let ref := replaceRef traceElem.ref (← getRef)
     let pos := ref.getPos?.getD 0

@@ -14,16 +14,16 @@ example {c} := Id.run do
 
 
 /--
-error: don't know how to synthesize implicit argument 'ρ'
+error: don't know how to synthesize implicit argument `ρ`
   @forIn Id (List ?_) ?_ instForInOfForIn' PUnit Id.instMonad [] PUnit.unit fun x r => do
     pure ()
     pure (ForInStep.yield PUnit.unit)
 context:
 ⊢ Type _
 ---
-error: failed to infer binder type
+error: Failed to infer type of binder `x`
 ---
-error: don't know how to synthesize implicit argument 'α'
+error: don't know how to synthesize implicit argument `α`
   @List.nil ?_
 context:
 ⊢ Type _
@@ -47,7 +47,7 @@ example {c} := Id.run do
   pure ()
 
 /--
-error: don't know how to synthesize implicit argument 'd'
+error: don't know how to synthesize implicit argument `d`
   @forIn' Id (List ?_) ?_ inferInstance List.instForIn'InferInstanceMembership PUnit Id.instMonad [] PUnit.unit
     fun x h r => do
     pure ()
@@ -55,7 +55,7 @@ error: don't know how to synthesize implicit argument 'd'
 context:
 ⊢ outParam (Membership ?_ (List ?_))
 ---
-error: don't know how to synthesize implicit argument 'ρ'
+error: don't know how to synthesize implicit argument `ρ`
   @forIn' Id (List ?_) ?_ inferInstance List.instForIn'InferInstanceMembership PUnit Id.instMonad [] PUnit.unit
     fun x h r => do
     pure ()
@@ -63,11 +63,11 @@ error: don't know how to synthesize implicit argument 'ρ'
 context:
 ⊢ Type _
 ---
-error: failed to infer binder type
+error: Failed to infer type of binder `h`
 ---
-error: failed to infer binder type
+error: Failed to infer type of binder `x`
 ---
-error: don't know how to synthesize implicit argument 'α'
+error: don't know how to synthesize implicit argument `α`
   @List.nil ?_
 context:
 ⊢ Type _

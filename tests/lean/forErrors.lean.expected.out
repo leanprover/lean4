@@ -1,4 +1,4 @@
-forErrors.lean:3:29-3:30: error: failed to synthesize
-  ToStream α ?m
+forErrors.lean:3:29-3:30: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  Std.ToStream α ?m
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.

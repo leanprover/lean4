@@ -1,11 +1,14 @@
 semicolonOrLinebreak.lean:2:12: error: expected ';' or line break
-semicolonOrLinebreak.lean:9:31-10:8: error: fields missing: 'y'
+semicolonOrLinebreak.lean:9:31-10:8: error: Fields missing: `y`
 semicolonOrLinebreak.lean:10:8-10:9: error: unexpected identifier; expected command
-semicolonOrLinebreak.lean:20:4-20:7: error: function expected at
+semicolonOrLinebreak.lean:20:4-20:7: error: Function expected at
   x
-term has type
+but this term has type
   Nat
-semicolonOrLinebreak.lean:20:2-20:9: error: failed to synthesize
+
+Note: Expected a function because this term is being applied to the argument
+  y
+semicolonOrLinebreak.lean:20:2-20:9: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   Singleton ?m Point
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.

@@ -805,22 +805,8 @@ name get_dep_cases_on(environment const &, name const & n) {
     return name(n, g_cases_on);
 }
 
-extern "C" object * lean_mk_unsafe_rec_name(object *);
-extern "C" object * lean_is_unsafe_rec_name(object *);
-
-name mk_unsafe_rec_name(name const & n) {
-    return name(lean_mk_unsafe_rec_name(n.to_obj_arg()));
-}
-
-optional<name> is_unsafe_rec_name(name const & n) {
-    return option_ref<name>(lean_is_unsafe_rec_name(n.to_obj_arg())).get();
-}
-
 static std::string * g_short_version_string = nullptr;
 std::string const & get_short_version_string() { return *g_short_version_string; }
-
-static std::string * g_version_string = nullptr;
-std::string const & get_version_string() { return *g_version_string; }
 
 expr const & extract_mdata(expr const & e) {
     if (is_mdata(e)) {
@@ -859,17 +845,7 @@ void initialize_library_util() {
     initialize_char();
     initialize_bool();
 
-    sstream out;
-
-    out << LEAN_VERSION_STRING;
-    g_short_version_string = new std::string(out.str());
-    if (std::strlen(LEAN_PLATFORM_TARGET) > 0) {
-        out << ", " << LEAN_PLATFORM_TARGET;
-    }
-    if (std::strlen(LEAN_GITHASH) > 0) {
-        out << ", commit " << std::string(LEAN_GITHASH).substr(0, 12);
-    }
-    g_version_string = new std::string(out.str());
+    g_short_version_string = new std::string(LEAN_VERSION_STRING);
 
     g_util_fresh = new name("_util_fresh");
     mark_persistent(g_util_fresh->raw());
@@ -878,7 +854,6 @@ void initialize_library_util() {
 
 void finalize_library_util() {
     delete g_util_fresh;
-    delete g_version_string;
     finalize_bool();
     finalize_int();
     finalize_nat();

@@ -6,7 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.PropLemmas
+public import Init.PropLemmas
+
+public section
 /-!
 # Specializations of basic logic lemmas
 

@@ -6,8 +6,10 @@ Authors: Markus Himmel
 module
 
 prelude
-import Init.Data.Float32
-import Init.Data.SInt.Basic
+public import Init.Data.Float32
+public import Init.Data.SInt.Basic
+
+public section
 
 set_option linter.missingDocs true
 

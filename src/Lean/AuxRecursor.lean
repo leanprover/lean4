@@ -3,26 +3,27 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.EnvExtension
+public import Lean.EnvExtension
+import Init.Data.String.TakeDrop
+
+public section
 
 namespace Lean
 
 def casesOnSuffix       := "casesOn"
 def recOnSuffix         := "recOn"
 def brecOnSuffix        := "brecOn"
-def binductionOnSuffix  := "binductionOn"
 def belowSuffix         := "below"
-def ibelowSuffix        := "ibelow"
 
 def mkCasesOnName (indDeclName : Name) : Name := Name.mkStr indDeclName casesOnSuffix
 def mkRecOnName (indDeclName : Name) : Name   := Name.mkStr indDeclName recOnSuffix
 def mkBRecOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName brecOnSuffix
-def mkBInductionOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName binductionOnSuffix
 def mkBelowName (indDeclName : Name) : Name := Name.mkStr indDeclName belowSuffix
-def mkIBelowName (indDeclName : Name) : Name := Name.mkStr indDeclName ibelowSuffix
 
-builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExtension
+builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExtension (asyncMode := .local)
 
 def markAuxRecursor (env : Environment) (declName : Name) : Environment :=
   auxRecExt.tag env declName
@@ -48,6 +49,19 @@ def isRecOnRecursor (env : Environment) (declName : Name) : Bool :=
 
 def isBRecOnRecursor (env : Environment) (declName : Name) : Bool :=
   isAuxRecursorWithSuffix env declName brecOnSuffix
+
+private builtin_initialize sparseCasesOnExt : TagDeclarationExtension ← mkTagDeclarationExtension (asyncMode := .local)
+
+def markSparseCasesOn (env : Environment) (declName : Name) : Environment :=
+  sparseCasesOnExt.tag env declName
+
+/-- Is this a constructor elimination or a sparse casesOn? -/
+public def isSparseCasesOn (env : Environment) (declName : Name) : Bool :=
+  sparseCasesOnExt.isTagged env declName
+
+/-- Is this a `.casesOn`, a constructor elimination or a sparse casesOn? -/
+public def isCasesOnLike (env : Environment) (declName : Name) : Bool :=
+  isCasesOnRecursor env declName || isSparseCasesOn env declName
 
 builtin_initialize noConfusionExt : TagDeclarationExtension ← mkTagDeclarationExtension
 

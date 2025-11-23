@@ -6,7 +6,9 @@ Authors: Mario Carneiro, Gabriel Ebner
 module
 
 prelude
-import Init.Coe
+public import Init.Coe
+
+public section
 
 /-!
 # `NatCast`
@@ -64,7 +66,7 @@ class NatCast (R : Type u) where
 
 instance : NatCast Nat where natCast n := n
 
-@[coe, reducible, match_pattern, inherit_doc NatCast]
+@[coe, expose, reducible, match_pattern, inherit_doc NatCast]
 protected def Nat.cast {R : Type u} [NatCast R] : Nat → R :=
   NatCast.natCast
 

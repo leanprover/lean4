@@ -3,77 +3,15 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
+import Init.Grind.Ring.Field
+import Init.Grind.Ring.Envelope
 import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
-
+import Lean.Meta.Tactic.Grind.Arith.Insts
+public section
 namespace Lean.Meta.Grind.Arith.CommRing
-
-private def internalizeFn (fn : Expr) : GoalM Expr := do
-  shareCommon (← canon fn)
-
-private def getAddFn (type : Expr) (u : Level) (commRingInst : Expr) : GoalM Expr := do
-  let instType := mkApp3 (mkConst ``HAdd [u, u, u]) type type type
-  let .some inst ← trySynthInstance instType |
-    throwError "failed to find instance for ring addition{indentExpr instType}"
-  let inst' := mkApp2 (mkConst ``instHAdd [u]) type <| mkApp2 (mkConst ``Grind.CommRing.toAdd [u]) type commRingInst
-  unless (← withDefault <| isDefEq inst inst') do
-    throwError "instance for addition{indentExpr inst}\nis not definitionally equal to the `Grind.CommRing` one{indentExpr inst'}"
-  internalizeFn <| mkApp4 (mkConst ``HAdd.hAdd [u, u, u]) type type type inst
-
-private def getMulFn (type : Expr) (u : Level) (commRingInst : Expr) : GoalM Expr := do
-  let instType := mkApp3 (mkConst ``HMul [u, u, u]) type type type
-  let .some inst ← trySynthInstance instType |
-    throwError "failed to find instance for ring multiplication{indentExpr instType}"
-  let inst' := mkApp2 (mkConst ``instHMul [u]) type <| mkApp2 (mkConst ``Grind.CommRing.toMul [u]) type commRingInst
-  unless (← withDefault <| isDefEq inst inst') do
-    throwError "instance for multiplication{indentExpr inst}\nis not definitionally equal to the `Grind.CommRing` one{indentExpr inst'}"
-  internalizeFn <| mkApp4 (mkConst ``HMul.hMul [u, u, u]) type type type inst
-
-private def getSubFn (type : Expr) (u : Level) (commRingInst : Expr) : GoalM Expr := do
-  let instType := mkApp3 (mkConst ``HSub [u, u, u]) type type type
-  let .some inst ← trySynthInstance instType |
-    throwError "failed to find instance for ring subtraction{indentExpr instType}"
-  let inst' := mkApp2 (mkConst ``instHSub [u]) type <| mkApp2 (mkConst ``Grind.CommRing.toSub [u]) type commRingInst
-  unless (← withDefault <| isDefEq inst inst') do
-    throwError "instance for subtraction{indentExpr inst}\nis not definitionally equal to the `Grind.CommRing` one{indentExpr inst'}"
-  internalizeFn <| mkApp4 (mkConst ``HSub.hSub [u, u, u]) type type type inst
-
-private def getNegFn (type : Expr) (u : Level) (commRingInst : Expr) : GoalM Expr := do
-  let instType := mkApp (mkConst ``Neg [u]) type
-  let .some inst ← trySynthInstance instType |
-    throwError "failed to find instance for ring negation{indentExpr instType}"
-  let inst' := mkApp2 (mkConst ``Grind.CommRing.toNeg [u]) type commRingInst
-  unless (← withDefault <| isDefEq inst inst') do
-    throwError "instance for negation{indentExpr inst}\nis not definitionally equal to the `Grind.CommRing` one{indentExpr inst'}"
-  internalizeFn <| mkApp2 (mkConst ``Neg.neg [u]) type inst
-
-private def getPowFn (type : Expr) (u : Level) (commRingInst : Expr) : GoalM Expr := do
-  let instType := mkApp3 (mkConst ``HPow [u, 0, u]) type Nat.mkType type
-  let .some inst ← trySynthInstance instType |
-    throwError "failed to find instance for ring power operator{indentExpr instType}"
-  let inst' := mkApp2 (mkConst ``Grind.CommRing.toHPow [u]) type commRingInst
-  unless (← withDefault <| isDefEq inst inst') do
-    throwError "instance for power operator{indentExpr inst}\nis not definitionally equal to the `Grind.CommRing` one{indentExpr inst'}"
-  internalizeFn <| mkApp4 (mkConst ``HPow.hPow [u, 0, u]) type Nat.mkType type inst
-
-private def getIntCastFn (type : Expr) (u : Level) (commRingInst : Expr) : GoalM Expr := do
-  let instType := mkApp (mkConst ``IntCast [u]) type
-  let .some inst ← trySynthInstance instType |
-    throwError "failed to find instance for ring intCast{indentExpr instType}"
-  let inst' := mkApp2 (mkConst ``Grind.CommRing.intCast [u]) type commRingInst
-  unless (← withDefault <| isDefEq inst inst') do
-    throwError "instance for intCast{indentExpr inst}\nis not definitionally equal to the `Grind.CommRing` one{indentExpr inst'}"
-  internalizeFn <| mkApp2 (mkConst ``IntCast.intCast [u]) type inst
-
-private def getNatCastFn (type : Expr) (u : Level) (commRingInst : Expr) : GoalM Expr := do
-  let instType := mkApp (mkConst ``NatCast [u]) type
-  let .some inst ← trySynthInstance instType |
-    throwError "failed to find instance for ring natCast{indentExpr instType}"
-  let inst' := mkApp2 (mkConst ``Grind.CommRing.natCast [u]) type commRingInst
-  unless (← withDefault <| isDefEq inst inst') do
-    throwError "instance for natCast{indentExpr inst}\nis not definitionally equal to the `Grind.CommRing` one{indentExpr inst'}"
-  internalizeFn <| mkApp2 (mkConst ``NatCast.natCast [u]) type inst
 
 /--
 Returns the ring id for the given type if there is a `CommRing` instance for it.
@@ -83,7 +21,7 @@ This function will also perform sanity-checks
 
 It also caches the functions representing `+`, `*`, `-`, `^`, and `intCast`.
 -/
-def getRingId? (type : Expr) : GoalM (Option Nat) := do
+def getCommRingId? (type : Expr) : GoalM (Option Nat) := do
   if let some id? := (← get').typeIdOf.find? { expr := type } then
     return id?
   else
@@ -93,31 +31,93 @@ def getRingId? (type : Expr) : GoalM (Option Nat) := do
 where
   go? : GoalM (Option Nat) := do
     let u ← getDecLevel type
-    let ring := mkApp (mkConst ``Grind.CommRing [u]) type
-    let .some commRingInst ← trySynthInstance ring | return none
+    let commRing := mkApp (mkConst ``Grind.CommRing [u]) type
+    let some commRingInst ← synthInstance? commRing | return none
+    let ringInst := mkApp2 (mkConst ``Grind.CommRing.toRing [u]) type commRingInst
+    let semiringInst := mkApp2 (mkConst ``Grind.Ring.toSemiring [u]) type ringInst
+    let commSemiringInst := mkApp2 (mkConst ``Grind.CommRing.toCommSemiring [u]) type semiringInst
     trace_goal[grind.ring] "new ring: {type}"
-    let charInst? ← withNewMCtxDepth do
-      let n ← mkFreshExprMVar (mkConst ``Nat)
-      let charType := mkApp3 (mkConst ``Grind.IsCharP [u]) type commRingInst n
-      let .some charInst ← trySynthInstance charType | pure none
-      let n ← instantiateMVars n
-      let some n ← evalNat n |>.run
-        | trace_goal[grind.ring] "found instance for{indentExpr charType}\nbut characteristic is not a natural number"; pure none
-      trace_goal[grind.ring] "characteristic: {n}"
-      pure <| some (charInst, n)
-    let noZeroDivType := mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type commRingInst
-    let noZeroDivInst? := (← trySynthInstance noZeroDivType).toOption
+    let charInst? ← getIsCharInst? u type semiringInst
+    let noZeroDivInst? ← getNoZeroDivInst? u type
     trace_goal[grind.ring] "NoNatZeroDivisors available: {noZeroDivInst?.isSome}"
-    let addFn ← getAddFn type u commRingInst
-    let mulFn ← getMulFn type u commRingInst
-    let subFn ← getSubFn type u commRingInst
-    let negFn ← getNegFn type u commRingInst
-    let powFn ← getPowFn type u commRingInst
-    let intCastFn ← getIntCastFn type u commRingInst
-    let natCastFn ← getNatCastFn type u commRingInst
+    let fieldInst? ← synthInstance? <| mkApp (mkConst ``Grind.Field [u]) type
+    let semiringId? := none
     let id := (← get').rings.size
-    let ring : Ring := { id, type, u, commRingInst, charInst?, noZeroDivInst?, addFn, mulFn, subFn, negFn, powFn, intCastFn, natCastFn }
+    let ring : CommRing := {
+      id, semiringId?, type, u, semiringInst, ringInst, commSemiringInst,
+      commRingInst, charInst?, noZeroDivInst?, fieldInst?,
+    }
     modify' fun s => { s with rings := s.rings.push ring }
+    return some id
+
+/--
+Returns the ring id for the given type if there is a `Ring` instance for it.
+This function is invoked only when `getCommRingId?` returns `none`.
+-/
+def getNonCommRingId? (type : Expr) : GoalM (Option Nat) := do
+  if let some id? := (← get').nctypeIdOf.find? { expr := type } then
+    return id?
+  else
+    let id? ← go?
+    modify' fun s => { s with nctypeIdOf := s.nctypeIdOf.insert { expr := type } id? }
+    return id?
+where
+  go? : GoalM (Option Nat) := do
+    let u ← getDecLevel type
+    let ring := mkApp (mkConst ``Grind.Ring [u]) type
+    let some ringInst ← synthInstance? ring | return none
+    let semiringInst := mkApp2 (mkConst ``Grind.Ring.toSemiring [u]) type ringInst
+    trace_goal[grind.ring] "new ring: {type}"
+    let charInst? ← getIsCharInst? u type semiringInst
+    let id := (← get').ncRings.size
+    let ring : Ring := {
+      id, type, u, semiringInst, ringInst, charInst?
+    }
+    modify' fun s => { s with ncRings := s.ncRings.push ring }
+    return some id
+
+private def setCommSemiringId (ringId : Nat) (semiringId : Nat) : GoalM Unit := do
+  RingM.run ringId do modifyCommRing fun s => { s with semiringId? := some semiringId }
+
+def getCommSemiringId? (type : Expr) : GoalM (Option Nat) := do
+  if let some id? := (← get').stypeIdOf.find? { expr := type } then
+    return id?
+  else
+    let id? ← go?
+    modify' fun s => { s with stypeIdOf := s.stypeIdOf.insert { expr := type } id? }
+    return id?
+where
+  go? : GoalM (Option Nat) := do
+    let u ← getDecLevel type
+    let commSemiring := mkApp (mkConst ``Grind.CommSemiring [u]) type
+    let some commSemiringInst ← synthInstance? commSemiring | return none
+    let semiringInst := mkApp2 (mkConst ``Grind.CommSemiring.toSemiring [u]) type commSemiringInst
+    let q ← shareCommon (← canon (mkApp2 (mkConst ``Grind.Ring.OfSemiring.Q [u]) type semiringInst))
+    let some ringId ← getCommRingId? q
+      | throwError "`grind` unexpected failure, failure to initialize ring{indentExpr q}"
+    let id := (← get').semirings.size
+    let semiring : CommSemiring := {
+      id, type, ringId, u, semiringInst, commSemiringInst
+    }
+    modify' fun s => { s with semirings := s.semirings.push semiring }
+    setCommSemiringId ringId id
+    return some id
+
+def getNonCommSemiringId? (type : Expr) : GoalM (Option Nat) := do
+  if let some id? := (← get').ncstypeIdOf.find? { expr := type } then
+    return id?
+  else
+    let id? ← go?
+    modify' fun s => { s with ncstypeIdOf := s.ncstypeIdOf.insert { expr := type } id? }
+    return id?
+where
+  go? : GoalM (Option Nat) := do
+    let u ← getDecLevel type
+    let semiring := mkApp (mkConst ``Grind.Semiring [u]) type
+    let some semiringInst ← synthInstance? semiring | return none
+    let id := (← get').ncSemirings.size
+    let semiring : Semiring := { id, type, u, semiringInst }
+    modify' fun s => { s with ncSemirings := s.ncSemirings.push semiring }
     return some id
 
 end Lean.Meta.Grind.Arith.CommRing

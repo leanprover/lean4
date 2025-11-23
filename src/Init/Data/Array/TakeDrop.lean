@@ -6,8 +6,10 @@ Authors: Markus Himmel
 module
 
 prelude
-import Init.Data.Array.Lemmas
-import Init.Data.List.Nat.TakeDrop
+import all Init.Data.Array.Basic
+public import Init.Data.Array.Lemmas
+
+public section
 
 /-!
 These lemmas are used in the internals of HashMap.

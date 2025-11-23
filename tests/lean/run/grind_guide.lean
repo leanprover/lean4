@@ -1,3 +1,5 @@
+module
+@[expose] public section -- TODO: remove after we fix congr_eq
 /-
 `grind` is inspired by automated reasoning techniques developed in the world of Satisfiability Modulo Theories (SMT).
 
@@ -10,8 +12,6 @@ We accumulate terms that are known to be equal. You should think of it as a blac
 we keep all the facts we know about the current goal.
 Remark: Terms known to be true (false) belong to the equivalence class of the term `True` (`False`).
 -/
-
-set_option grind.warning false -- Disables warning messages stating that `grind` is WIP.
 
 example (a b c : α) (f : α → α) : f a = c → a = b → c = f b := by
   grind

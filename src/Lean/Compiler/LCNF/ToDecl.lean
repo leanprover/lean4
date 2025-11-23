@@ -3,13 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Transform
-import Lean.Meta.Match.MatcherInfo
-import Lean.Compiler.ExternAttr
-import Lean.Compiler.InitAttr
-import Lean.Compiler.ImplementedByAttr
-import Lean.Compiler.LCNF.ToLCNF
+public import Lean.Compiler.InitAttr
+public import Lean.Compiler.LCNF.ToLCNF
+
+public section
 
 namespace Lean.Compiler.LCNF
 /--
@@ -27,9 +27,9 @@ private def normalizeAlt (e : Expr) (numParams : Nat) : MetaM Expr :=
     if xs.size == numParams then
       return e
     else if xs.size > numParams then
-      let body ← Meta.mkLambdaFVars xs[numParams:] body
+      let body ← Meta.mkLambdaFVars xs[numParams...*] body
       let body ← Meta.withLetDecl (← mkFreshUserName `_k) (← Meta.inferType body) body fun x => Meta.mkLetFVars #[x] x
-      Meta.mkLambdaFVars xs[:numParams] body
+      Meta.mkLambdaFVars xs[*...numParams] body
     else
       Meta.forallBoundedTelescope (← Meta.inferType e) (numParams - xs.size) fun ys _ =>
         Meta.mkLambdaFVars (xs ++ ys) (mkAppN e ys)
@@ -49,10 +49,9 @@ partial def inlineMatchers (e : Expr) : CoreM Expr :=
         return .visit (← Meta.mkLambdaFVars xs (mkAppN e xs))
     else
       let mut args := e.getAppArgs
-      let numAlts := info.numAlts
       let altNumParams := info.altNumParams
       let rec inlineMatcher (i : Nat) (args : Array Expr) (letFVars : Array Expr) : MetaM Expr := do
-        if h : i < numAlts then
+        if h : i < altNumParams.size then
           let altIdx := i + info.getFirstAltPos
           let numParams := altNumParams[i]
           let alt ← normalizeAlt args[altIdx]! numParams
@@ -97,7 +96,7 @@ The steps for this are roughly:
 -/
 def toDecl (declName : Name) : CompilerM Decl := do
   let declName := if let some name := isUnsafeRecName? declName then name else declName
-  let some info ← getDeclInfo? declName | throwError "declaration `{declName}` not found"
+  let some info ← getDeclInfo? declName | throwError "declaration `{.ofConstName declName}` not found"
   let safe := !info.isPartial && !info.isUnsafe
   let env ← getEnv
   let inlineAttr? := getInlineAttribute? env declName
@@ -121,7 +120,7 @@ def toDecl (declName : Name) : CompilerM Decl := do
     let params ← paramsFromTypeBinders type
     return { name := declName, params, type, value := .extern { entries := [] }, levelParams := info.levelParams, safe, inlineAttr? }
   else
-    let some value := info.value? (allowOpaque := true) | throwError "declaration `{declName}` does not have a value"
+    let some value := info.value? (allowOpaque := true) | throwError "declaration `{.ofConstName declName}` does not have a value"
     let (type, value) ← Meta.MetaM.run' do
       let type  ← toLCNFType info.type
       let value ← Meta.lambdaTelescope value fun xs body => do Meta.mkLambdaFVars xs (← Meta.etaExpand body)
@@ -131,11 +130,6 @@ def toDecl (declName : Name) : CompilerM Decl := do
       let value ← inlineMatchers value
       /- Recall that `inlineMatchers` may have exposed `ite`s and `dite`s which are tagged as `[macro_inline]`. -/
       let value ← macroInline value
-      /-
-      Remark: we have disabled the following transformatbion, we will perform it at phase 2, after code specialization.
-      It prevents many optimizations (e.g., "cases-of-ctor").
-      -/
-      -- let value ← applyCasesOnImplementedBy value
       return (type, value)
     let code ← toLCNF value
     let decl ← if let .fun decl (.return _) := code then

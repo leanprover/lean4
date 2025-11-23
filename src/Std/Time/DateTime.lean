@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.DateTime.Timestamp
-import Std.Time.DateTime.PlainDateTime
+public import Std.Time.DateTime.Timestamp
+public import Std.Time.DateTime.PlainDateTime
+import all Std.Time.Date.Unit.Month
+
+public section
 
 namespace Std
 namespace Time

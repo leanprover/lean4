@@ -1,0 +1,42 @@
+{"item":
+ {"module":
+  {"uri":
+   "file:///tests/lean/interactive/projects/InverseModuleHierarchy/InverseModuleHierarchy/BasicTest.lean",
+   "name": "InverseModuleHierarchy.BasicTest"},
+  "kind": {"metaKind": "full", "isPrivate": false, "isAll": false}},
+ "children":
+ [{"item":
+   {"module":
+    {"uri":
+     "file:///tests/lean/interactive/projects/InverseModuleHierarchy/InverseModuleHierarchy.lean",
+     "name": "InverseModuleHierarchy"},
+    "kind": {"metaKind": "nonMeta", "isPrivate": false, "isAll": false}},
+   "children": []},
+  {"item":
+   {"module":
+    {"uri":
+     "file:///tests/lean/interactive/projects/InverseModuleHierarchy/InverseModuleHierarchy/Basic2.lean",
+     "name": "InverseModuleHierarchy.Basic2"},
+    "kind": {"metaKind": "nonMeta", "isPrivate": false, "isAll": false}},
+   "children":
+   [{"item":
+     {"module":
+      {"uri":
+       "file:///tests/lean/interactive/projects/InverseModuleHierarchy/InverseModuleHierarchy.lean",
+       "name": "InverseModuleHierarchy"},
+      "kind": {"metaKind": "nonMeta", "isPrivate": false, "isAll": false}},
+     "children": []}]},
+  {"item":
+   {"module":
+    {"uri":
+     "file:///tests/lean/interactive/projects/InverseModuleHierarchy/InverseModuleHierarchy/Basic3.lean",
+     "name": "InverseModuleHierarchy.Basic3"},
+    "kind": {"metaKind": "nonMeta", "isPrivate": false, "isAll": false}},
+   "children":
+   [{"item":
+     {"module":
+      {"uri":
+       "file:///tests/lean/interactive/projects/InverseModuleHierarchy/InverseModuleHierarchy.lean",
+       "name": "InverseModuleHierarchy"},
+      "kind": {"metaKind": "nonMeta", "isPrivate": false, "isAll": false}},
+     "children": []}]}]}

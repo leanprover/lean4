@@ -6,11 +6,13 @@ Authors: Henrik Böving
 module
 
 prelude
-import Init.Data.SInt.Basic
-import Init.Data.SInt.Float
-import Init.Data.SInt.Float32
-import Init.Data.SInt.Lemmas
-import Init.Data.SInt.Bitwise
+public import Init.Data.SInt.Basic
+public import Init.Data.SInt.Float
+public import Init.Data.SInt.Float32
+public import Init.Data.SInt.Lemmas
+public import Init.Data.SInt.Bitwise
+
+public section
 
 /-!
 This module contains the definitions and basic theory about signed fixed width integer types.

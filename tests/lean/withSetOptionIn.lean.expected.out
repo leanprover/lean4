@@ -1,8 +1,10 @@
 [debug] foo
 withSetOptionIn.lean:29:0-29:11: error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
-trace: [debug] foo
+- info: [debug] foo
++ trace: [debug] foo
 [debug] foo
 withSetOptionIn.lean:38:0-38:11: error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
-trace: [debug] foo
+- info: [debug] foo
++ trace: [debug] foo

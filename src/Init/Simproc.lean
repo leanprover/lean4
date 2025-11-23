@@ -6,7 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.NotationExtra
+public import Init.NotationExtra
+public meta import Init.Data.ToString.Name
+
+public section
 
 namespace Lean.Parser
 /--
@@ -107,13 +110,13 @@ end Attr
 macro_rules
   | `($[$doc?:docComment]? simproc_decl $n:ident ($pattern:term) := $body) => do
     let simprocType := `Lean.Meta.Simp.Simproc
-    `($[$doc?:docComment]? def $n:ident : $(mkIdent simprocType) := $body
+    `($[$doc?:docComment]? meta def $n:ident : $(mkIdent simprocType) := $body
       simproc_pattern% $pattern => $n)
 
 macro_rules
   | `($[$doc?:docComment]? dsimproc_decl $n:ident ($pattern:term) := $body) => do
     let simprocType := `Lean.Meta.Simp.DSimproc
-    `($[$doc?:docComment]? def $n:ident : $(mkIdent simprocType) := $body
+    `($[$doc?:docComment]? meta def $n:ident : $(mkIdent simprocType) := $body
       simproc_pattern% $pattern => $n)
 
 macro_rules
@@ -128,7 +131,7 @@ macro_rules
     `($[$doc?:docComment]? def $n:ident : $(mkIdent simprocType) := $body
       builtin_simproc_pattern% $pattern => $n)
 
-private def mkAttributeCmds
+private meta def mkAttributeCmds
     (kind : TSyntax `Lean.Parser.Term.attrKind)
     (pre? : Option (TSyntax [`Lean.Parser.Tactic.simpPre, `Lean.Parser.Tactic.simpPost]))
     (ids? : Option (Syntax.TSepArray `ident ","))

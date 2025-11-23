@@ -3,8 +3,12 @@ Copyright (c) 2025 Robin Arnez. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Robin Arnez
 -/
+module
+
 prelude
-import Std.Data.ExtHashMap.Basic
+public import Std.Data.ExtHashMap.Basic
+
+@[expose] public section
 
 /-!
 # Extensional hash sets
@@ -188,6 +192,27 @@ appearance.
 @[inline] def insertMany [EquivBEq α] [LawfulHashable α] {ρ : Type v} [ForIn Id ρ α]
     (m : ExtHashSet α) (l : ρ) : ExtHashSet α :=
   ⟨m.inner.insertManyIfNewUnit l⟩
+
+/--
+Computes the union of the given hash sets.
+
+This function always merges the smaller set into the larger set, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline]
+def union [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashSet α) : ExtHashSet α := ⟨ExtHashMap.union m₁.inner m₂.inner⟩
+
+instance [EquivBEq α] [LawfulHashable α] : Union (ExtHashSet α) := ⟨union⟩
+
+/--
+Computes the intersection of the given hash sets.
+
+This function always iterates through the smaller set.
+-/
+@[inline]
+def inter [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashSet α) : ExtHashSet α := ⟨ExtHashMap.inter m₁.inner m₂.inner⟩
+
+instance [EquivBEq α] [LawfulHashable α] : Inter (ExtHashSet α) := ⟨inter⟩
 
 /--
 Creates a hash set from an array of elements. Note that unlike repeatedly calling `insert`, if the

@@ -5,7 +5,7 @@ inductive Tree
   | node : Tree → Tree → Tree
 
 abbrev notSubtree (x : Tree) (t : Tree) : Prop :=
-  Tree.ibelow (motive := fun z => x ≠ z) t
+  t.rec True fun l r l_ih r_ih => (x ≠ l ∧ l_ih) ∧ (x ≠ r ∧ r_ih)
 
 infix:50 "≮" => notSubtree
 

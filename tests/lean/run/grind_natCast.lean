@@ -1,5 +1,4 @@
-set_option grind.warning false
-
+module
 example (x : Nat) : x ≥ (0 : Int) := by grind
 example (x : Nat) : Int.ofNat x ≥ (0 : Int) := by grind
 example (x : Nat) : NatCast.natCast x ≥ 0 := by grind

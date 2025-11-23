@@ -1,15 +1,15 @@
-shadow.lean:6:0-6:1: error: type mismatch
+shadow.lean:6:0-6:1: error: Type mismatch
   h
 has type
-  x✝ = x✝ : Prop
+  x✝ = x✝
 but is expected to have type
-  x = x : Prop
-shadow.lean:10:0-10:1: error: type mismatch
+  x = x
+shadow.lean:10:0-10:1: error: Type mismatch
   h
 has type
-  x = x : Prop
+  x = x
 but is expected to have type
-  x = x : Prop
+  x = x
 shadow.lean:13:0-13:1: error: don't know how to synthesize placeholder
 context:
 α : Type u_1
@@ -19,7 +19,7 @@ inst✝ inst : α
 shadow.lean:17:0-17:1: error: don't know how to synthesize placeholder
 context:
 α : Type u_1
-inst.74 : Inhabited α
+inst.3 : Inhabited α
 inst inst : α
 ⊢ {β δ : Type} → α → β → δ → α × β × δ
 shadow.lean:20:0-20:1: error: don't know how to synthesize placeholder

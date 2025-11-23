@@ -8,9 +8,15 @@
 		},
 		{
 			"path": "tests"
+		},
+		{
+			"path": "script"
 		}
 	],
 	"settings": {
+		// Open terminal at root, not current workspace folder
+		// (there is not way to directly refer to the root folder included as `.` above)
+		"terminal.integrated.cwd": "${workspaceFolder:src}/..",
 		"files.insertFinalNewline": true,
 		"files.trimTrailingWhitespace": true,
 		"cmake.buildDirectory": "${workspaceFolder}/build/release",
@@ -35,6 +41,15 @@
 				"group": {
 					"kind": "build",
 					"isDefault": true
+				}
+			},
+			{
+				"label": "build-old",
+				"type": "shell",
+				"command": "make -C build/release -j$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4) LAKE_EXTRA_ARGS=--old",
+				"problemMatcher": [],
+				"group": {
+					"kind": "build"
 				}
 			},
 			{

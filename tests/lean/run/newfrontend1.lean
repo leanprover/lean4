@@ -107,7 +107,7 @@ case post => exact h1
 case pre => exact h3
 
 theorem simple9 (x y z : Nat) : y = z → x = x → x = y → x = z := by
-intros h1 _ h3
+intro h1 _ h3
 trace_state
 focus
   refine' Eq.trans ?pre ?post
@@ -119,7 +119,7 @@ focus
       assumption
 
 theorem simple9b (x y z : Nat) : y = z → x = x → x = y → x = z := by
-intros h1 _ h3
+intro h1 _ h3
 trace_state
 focus
   refine' Eq.trans ?pre ?post
@@ -129,14 +129,14 @@ focus
   assumption
 
 theorem simple9c (x y z : Nat) : y = z → x = x → x = y → x = z := by
-  intros h1 _ h3
+  intro h1 _ h3
   solve
     | exact h1
     | refine' Eq.trans ?pre ?post; exact y; exact h3; assumption
     | exact h3
 
 theorem simple9d (x y z : Nat) : y = z → x = x → x = y → x = z := by
-  intros h1 _ h3
+  intro h1 _ h3
   refine' Eq.trans ?pre ?post
   solve
     | exact h1
@@ -185,7 +185,7 @@ by {
 }
 
 theorem simple13 (x y z : Nat) : y = z → x = x → x = y → x = z := by
-intros h1 h2 h3
+intro h1 h2 h3
 trace_state
 apply @Eq.trans
 case b => exact y
@@ -193,7 +193,7 @@ trace_state
 repeat assumption
 
 theorem simple13b (x y z : Nat) : y = z → x = x → x = y → x = z := by {
-intros h1 h2 h3;
+intro h1 h2 h3;
 trace_state;
 apply @Eq.trans;
 case b => exact y;
@@ -209,9 +209,9 @@ repeat assumption
 
 theorem simple15 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 by {
-  intros h1 h2 h3;
+  intro h1 h2 h3;
   revert y;
-  intros y h1 h3;
+  intro y h1 h3;
   apply Eq.trans;
   exact h3;
   exact h1
@@ -219,7 +219,7 @@ by {
 
 theorem simple16 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 by {
-  intros h1 h2 h3;
+  intro h1 h2 h3;
   try clear x; -- should fail
   clear h2;
   trace_state;
@@ -369,7 +369,7 @@ def tst4 : {α : Type} → {β : Type} → α → β → α × β :=
 function α β a b => (a, b)
 
 theorem simple20 (x y z : Nat) : y = z → x = x → x = y → x = z :=
-by intros h1 h2 h3;
+by intro h1 h2 h3;
    try clear x; -- should fail
    clear h2;
    trace_state;

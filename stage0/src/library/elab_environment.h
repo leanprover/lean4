@@ -12,13 +12,13 @@ namespace lean {
 class LEAN_EXPORT elab_environment : public object_ref {
 public:
     elab_environment(elab_environment const & other):object_ref(other) {}
-    elab_environment(elab_environment && other):object_ref(other) {}
+    elab_environment(elab_environment && other) noexcept:object_ref(std::move(other)) {}
     explicit elab_environment(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit elab_environment(obj_arg o):object_ref(o) {}
     ~elab_environment() {}
 
     elab_environment & operator=(elab_environment const & other) { object_ref::operator=(other); return *this; }
-    elab_environment & operator=(elab_environment && other) { object_ref::operator=(other); return *this; }
+    elab_environment & operator=(elab_environment && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
 
     /** \brief Return information for the constant with name \c n (if it is defined in this environment). */
     optional<constant_info> find(name const & n) const { return to_kernel_env().find(n); };
@@ -35,8 +35,6 @@ public:
     }
 
     environment to_kernel_env() const;
-
-    // TODO: delete together with old compiler
     operator environment() const { return to_kernel_env(); }
 };
 }

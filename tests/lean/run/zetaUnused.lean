@@ -2,7 +2,7 @@
 /--
 trace: b : Bool
 ⊢ if b = true then
-    let_fun unused := ();
+    have unused := ();
     True
   else False
 ---
@@ -25,7 +25,7 @@ example (b : Bool) : if b then have unused := (); True else False := by
 /--
 trace: b : Bool
 ⊢ b = true ∧
-    let_fun unused := ();
+    have unused := ();
     True
 ---
 warning: declaration uses 'sorry'
@@ -34,7 +34,7 @@ warning: declaration uses 'sorry'
 example (b : Bool) : if b then have unused := (); True else False := by
   simp (config := Lean.Meta.Simp.neutralConfig); trace_state; sorry
 
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in
 example (b : Bool) : if b then have unused := (); True else False := by
   simp (config := Lean.Meta.Simp.neutralConfig) only; trace_state; sorry
@@ -61,14 +61,14 @@ example (b : Bool) : if b then have unused := (); True else False := by
   simp (config := Lean.Meta.Simp.neutralConfig) +zetaUnused only; trace_state; sorry
 
 
--- Before the introduction of zetaUnused, split would do collateral damage to unused letFuns.
+-- Before the introduction of zetaUnused, split would do collateral damage to unused `have`s.
 -- Now they are preserved:
 
 /--
 trace: case isTrue
 b : Bool
 h✝ : b = true
-⊢ let_fun unused := ();
+⊢ have unused := ();
   True
 ---
 warning: declaration uses 'sorry'

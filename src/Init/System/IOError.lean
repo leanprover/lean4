@@ -7,7 +7,10 @@ Authors: Simon Hudon
 module
 
 prelude
-import Init.Data.ToString.Basic
+public import Init.Data.ToString.Basic
+import Init.Data.String.Modify
+
+public section
 
 /--
 Exceptions that may be thrown in the `IO` monad.
@@ -248,7 +251,7 @@ def mkProtocolError : UInt32 → String → IO.Error :=
 def mkTimeExpired : UInt32 → String → IO.Error :=
   timeExpired
 
-private def downCaseFirst (s : String) : String := s.modify 0 Char.toLower
+private def downCaseFirst (s : String) : String := s.decapitalize
 
 def fopenErrorToString (gist fn : String) (code : UInt32) : Option String → String
   | some details => downCaseFirst gist ++ " (error code: " ++ toString code ++ ", " ++ downCaseFirst details ++ ")\n  file: " ++ fn

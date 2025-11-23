@@ -1,7 +1,7 @@
 import Std.Sync.Mutex
 
 def countIt (mutex : Std.Mutex Nat) : IO Unit := do
-  for _ in [0:1000] do
+  for _ in *...(1000 : Nat) do
     mutex.atomically do
       modify fun s => s + 1
 
@@ -51,7 +51,7 @@ def tryAtomically : IO Unit := do
       throw <| .userError s!"Should be 3 but was {val}"
 
 def workIt (mutex : Std.Mutex Nat) (cond : Std.Condvar) : IO Unit := do
-  for _ in [0:1000] do
+  for _ in *...(1000 : Nat) do
     mutex.atomically do (modify fun s => s + 1)
     cond.notifyAll
 

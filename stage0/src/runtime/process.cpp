@@ -62,7 +62,7 @@ lean_object * wrap_win_handle(HANDLE h) {
     return lean_alloc_external(g_win_handle_external_class, static_cast<void *>(h));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_get_current_dir(obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_get_current_dir() {
     char path[MAX_PATH];
     DWORD sz = GetCurrentDirectory(MAX_PATH, path);
     if (sz != 0) {
@@ -72,7 +72,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_get_current_dir(obj_arg) {
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_set_current_dir(b_obj_arg path, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_set_current_dir(b_obj_arg path) {
     if (SetCurrentDirectory(string_cstr(path))) {
         return io_result_mk_ok(box(0));
     } else {
@@ -80,15 +80,15 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_set_current_dir(b_obj_arg path, o
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_get_pid(obj_arg) {
-    return lean_io_result_mk_ok(box_uint32(GetCurrentProcessId()));
+extern "C" LEAN_EXPORT uint32_t lean_io_process_get_pid() {
+    return GetCurrentProcessId();
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_get_tid(obj_arg) {
-    return lean_io_result_mk_ok(box_uint64(GetCurrentThreadId()));
+extern "C" LEAN_EXPORT uint64_t lean_io_get_tid() {
+    return GetCurrentThreadId();
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child) {
     HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
     DWORD exit_code;
     if (WaitForSingleObject(h, INFINITE) == WAIT_FAILED) {
@@ -100,7 +100,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg c
     return lean_io_result_mk_ok(box_uint32(exit_code));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_arg child, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_arg child) {
     HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
     DWORD exit_code;
     DWORD ret = WaitForSingleObject(h, 0);
@@ -116,7 +116,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_a
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg child, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg child) {
     HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
     if (!TerminateProcess(h, 1)) {
         return io_result_mk_error((sstream() << GetLastError()).str());
@@ -300,7 +300,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     return lean_io_result_mk_ok(r.steal());
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_child_take_stdin(b_obj_arg, obj_arg lchild, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_take_stdin(b_obj_arg, obj_arg lchild) {
     object_ref child(lchild);
     object_ref child2 = mk_cnstr(0, object_ref(box(0)), cnstr_get_ref(child, 1), cnstr_get_ref(child, 2), cnstr_get_ref(child, 3));
     object_ref r = mk_cnstr(0, cnstr_get_ref(child, 0), child2);
@@ -314,7 +314,7 @@ void finalize_process() {}
 
 #else
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_get_current_dir(obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_get_current_dir() {
     char path[PATH_MAX];
     if (getcwd(path, PATH_MAX)) {
         return io_result_mk_ok(mk_string(path));
@@ -323,7 +323,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_get_current_dir(obj_arg) {
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_set_current_dir(b_obj_arg path, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_set_current_dir(b_obj_arg path) {
     if (!chdir(string_cstr(path))) {
         return io_result_mk_ok(box(0));
     } else {
@@ -331,12 +331,12 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_set_current_dir(b_obj_arg path, o
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_get_pid(obj_arg) {
+extern "C" LEAN_EXPORT uint32_t lean_io_process_get_pid() {
     static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
-    return lean_io_result_mk_ok(box_uint32(getpid()));
+    return getpid();
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_get_tid(obj_arg) {
+extern "C" LEAN_EXPORT uint64_t lean_io_get_tid() {
     uint64_t tid;
 #ifdef __APPLE__
     lean_always_assert(pthread_threadid_np(NULL, &tid) == 0);
@@ -347,10 +347,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_tid(obj_arg) {
     // glibc 2.30 would provide a wrapper
     tid = (pid_t)syscall(SYS_gettid);
 #endif
-    return lean_io_result_mk_ok(box_uint64(tid));
+    return tid;
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child) {
     static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
     pid_t pid = cnstr_get_uint32(child, 3 * sizeof(object *));
     int status;
@@ -366,7 +366,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg c
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_arg child, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_arg child) {
     static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
     pid_t pid = cnstr_get_uint32(child, 3 * sizeof(object *));
     int status;
@@ -388,7 +388,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_a
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg child, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg child) {
     static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
     pid_t pid = cnstr_get_uint32(child, 3 * sizeof(object *));
     bool setsid = cnstr_get_uint8(child, 3 * sizeof(object *) + sizeof(pid_t));
@@ -534,7 +534,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     return lean_io_result_mk_ok(r.steal());
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_child_take_stdin(b_obj_arg, obj_arg lchild, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_take_stdin(b_obj_arg, obj_arg lchild) {
     object_ref child(lchild);
     object_ref child2 = mk_cnstr(0, object_ref(box(0)), cnstr_get_ref(child, 1), cnstr_get_ref(child, 2), sizeof(pid_t));
     cnstr_set_uint32(child2.raw(), 3 * sizeof(object *), cnstr_get_uint32(child.raw(), 3 * sizeof(object *)));
@@ -549,7 +549,7 @@ void finalize_process() {}
 
 extern "C" lean_object* lean_mk_io_error_other_error(uint32_t, lean_object*);
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_spawn(obj_arg args_, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_spawn(obj_arg args_) {
     object_ref args(args_);
     object_ref stdio_cfg = cnstr_get_ref(args, 0);
     stdio stdin_mode  = static_cast<stdio>(cnstr_get_uint8(stdio_cfg.raw(), 0));

@@ -6,7 +6,10 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.Lemmas
+import all Init.Data.List.Basic
+public import Init.Data.List.Lemmas
+
+public section
 
 /-!
 # Lemmas about `List.take` and `List.drop`.
@@ -26,6 +29,11 @@ are given in `Init.Data.List.TakeDrop`.
 -/
 
 theorem take_cons {l : List α} (h : 0 < i) : (a :: l).take i = a :: l.take (i - 1) := by
+  cases i with
+  | zero => exact absurd h (Nat.lt_irrefl _)
+  | succ i => rfl
+
+theorem drop_cons {l : List α} (h : 0 < i) : (a :: l).drop i = l.drop (i - 1) := by
   cases i with
   | zero => exact absurd h (Nat.lt_irrefl _)
   | succ i => rfl
@@ -60,15 +68,9 @@ theorem take_of_length_le {l : List α} (h : l.length ≤ i) : take i l = l := b
 theorem lt_length_of_take_ne_self {l : List α} {i} (h : l.take i ≠ l) : i < l.length :=
   gt_of_not_le (mt take_of_length_le h)
 
-@[simp] theorem drop_length {l : List α} : l.drop l.length = [] := drop_of_length_le (Nat.le_refl _)
+@[simp, grind =] theorem drop_length {l : List α} : l.drop l.length = [] := drop_of_length_le (Nat.le_refl _)
 
-@[simp] theorem take_length {l : List α} : l.take l.length = l := take_of_length_le (Nat.le_refl _)
-
-@[simp]
-theorem getElem_cons_drop : ∀ {l : List α} {i : Nat} (h : i < l.length),
-    l[i] :: drop (i + 1) l = drop i l
-  | _::_, 0, _ => rfl
-  | _::_, _+1, h => getElem_cons_drop (Nat.add_one_lt_add_one_iff.mp h)
+@[simp, grind =] theorem take_length {l : List α} : l.take l.length = l := take_of_length_le (Nat.le_refl _)
 
 theorem drop_eq_getElem_cons {i} {l : List α} (h : i < l.length) : drop i l = l[i] :: drop (i + 1) l :=
   (getElem_cons_drop h).symm
@@ -131,8 +133,6 @@ theorem drop_eq_nil_iff {l : List α} {i : Nat} : l.drop i = [] ↔ l.length ≤
     · simp only [drop] at h
       simpa [Nat.succ_le_succ_iff] using hi h
 
-@[deprecated drop_eq_nil_iff (since := "2024-09-10")] abbrev drop_eq_nil_iff_le := @drop_eq_nil_iff
-
 @[simp]
 theorem take_eq_nil_iff {l : List α} {k : Nat} : l.take k = [] ↔ k = 0 ∨ l = [] := by
   cases l <;> cases k <;> simp [Nat.succ_ne_zero]
@@ -158,9 +158,6 @@ theorem take_set {l : List α} {i j : Nat} {a : α} :
     | nil => simp
     | cons hd tl => cases j <;> simp_all
 
-@[deprecated take_set (since := "2025-02-17")]
-abbrev set_take := @take_set
-
 theorem drop_set {l : List α} {i j : Nat} {a : α} :
     (l.set j a).drop i = if j < i then l.drop i else (l.drop i).set (j - i) a := by
   induction i generalizing l j with
@@ -183,7 +180,7 @@ theorem set_drop {l : List α} {i j : Nat} {a : α} :
 theorem take_concat_get {l : List α} {i : Nat} (h : i < l.length) :
     (l.take i).concat l[i] = l.take (i+1) :=
   Eq.symm <| (append_left_inj _).1 <| (take_append_drop (i+1) l).trans <| by
-    rw [concat_eq_append, append_assoc, singleton_append, getElem_cons_drop_succ_eq_drop, take_append_drop]
+    rw [concat_eq_append, append_assoc, singleton_append, getElem_cons_drop, take_append_drop]
 
 @[simp] theorem take_append_getElem {l : List α} {i : Nat} (h : i < l.length) :
     (l.take i) ++ [l[i]] = l.take (i+1) := by
@@ -224,7 +221,7 @@ theorem take_left : ∀ {l₁ l₂ : List α}, take (length l₁) (l₁ ++ l₂)
 theorem take_left' {l₁ l₂ : List α} {i} (h : length l₁ = i) : take i (l₁ ++ l₂) = l₁ := by
   rw [← h]; apply take_left
 
-theorem take_succ {l : List α} {i : Nat} : l.take (i + 1) = l.take i ++ l[i]?.toList := by
+theorem take_add_one {l : List α} {i : Nat} : l.take (i + 1) = l.take i ++ l[i]?.toList := by
   induction l generalizing i with
   | nil =>
     simp only [take_nil, Option.toList, getElem?_nil, append_nil]
@@ -232,6 +229,9 @@ theorem take_succ {l : List α} {i : Nat} : l.take (i + 1) = l.take i ++ l[i]?.t
     cases i
     · simp only [take, Option.toList, getElem?_cons_zero, nil_append]
     · simp only [take, hl, getElem?_cons_succ, cons_append]
+
+@[deprecated take_add_one (since := "2025-10-26")]
+theorem take_succ {l : List α} {i : Nat} : l.take (i + 1) = l.take i ++ l[i]?.toList := take_add_one
 
 theorem dropLast_eq_take {l : List α} : l.dropLast = l.take (l.length - 1) := by
   cases l with
@@ -243,7 +243,7 @@ theorem dropLast_eq_take {l : List α} : l.dropLast = l.take (l.length - 1) := b
     ∀ {l : List α} {i : Nat}, (l.take i).map f = (l.map f).take i
   | [], i => by simp
   | _, 0 => by simp
-  | _ :: tl, n + 1 => by dsimp; rw [map_take]
+  | _ :: tl, n + 1 => by simp [map_take]
 
 @[simp] theorem map_drop {f : α → β} :
     ∀ {l : List α} {i : Nat}, (l.drop i).map f = (l.map f).drop i
@@ -252,6 +252,17 @@ theorem dropLast_eq_take {l : List α} : l.dropLast = l.take (l.length - 1) := b
   | _ :: tl, n + 1 => by
     dsimp
     rw [map_drop]
+
+theorem drop_eq_extract {l : List α} {k : Nat} :
+    l.drop k = l.extract k := by
+  induction l generalizing k
+  case nil => simp
+  case cons _ _ ih =>
+    match k with
+    | 0 => simp
+    | _ + 1 =>
+      simp only [List.drop_succ_cons, List.length_cons, ih]
+      simp only [List.extract_eq_drop_take, List.drop_succ_cons, Nat.succ_sub_succ]
 
 /-! ### takeWhile and dropWhile -/
 
@@ -307,7 +318,7 @@ theorem head?_dropWhile_not (p : α → Bool) (l : List α) :
 -- The argument `p` is explicit, as otherwise the head of the left hand side may be a metavariable.
 theorem head_dropWhile_not (p : α → Bool) {l : List α} (w) :
     p ((l.dropWhile p).head w) = false := by
-  simpa [head?_eq_head, w] using head?_dropWhile_not p l
+  simpa [head?_eq_some_head, w] using head?_dropWhile_not p l
 
 theorem takeWhile_map {f : α → β} {p : β → Bool} {l : List α} :
     (l.map f).takeWhile p = (l.takeWhile (p ∘ f)).map f := by
@@ -335,7 +346,7 @@ theorem takeWhile_filterMap {f : α → Option β} {p : β → Bool} {l : List �
     · simp only [takeWhile_cons, h]
       split <;> simp_all
     · simp [takeWhile_cons, h, ih]
-      split <;> simp_all [filterMap_cons]
+      split <;> simp_all
 
 theorem dropWhile_filterMap {f : α → Option β} {p : β → Bool} {l : List α} :
     (l.filterMap f).dropWhile p = (l.dropWhile fun a => (f a).all p).filterMap f := by
@@ -347,7 +358,7 @@ theorem dropWhile_filterMap {f : α → Option β} {p : β → Bool} {l : List �
     · simp only [dropWhile_cons, h]
       split <;> simp_all
     · simp [dropWhile_cons, h, ih]
-      split <;> simp_all [filterMap_cons]
+      split <;> simp_all
 
 theorem takeWhile_filter {p q : α → Bool} {l : List α} :
     (l.filter p).takeWhile q = (l.takeWhile fun a => !p a || q a).filter p := by
@@ -378,7 +389,7 @@ theorem takeWhile_append {xs ys : List α} :
     (l₁ ++ l₂).takeWhile p = l₁ ++ l₂.takeWhile p := by
   induction l₁ with
   | nil => simp
-  | cons x xs ih => simp_all [takeWhile_cons]
+  | cons x xs ih => simp_all
 
 theorem dropWhile_append {xs ys : List α} :
     (xs ++ ys).dropWhile p =
@@ -393,7 +404,7 @@ theorem dropWhile_append {xs ys : List α} :
     (l₁ ++ l₂).dropWhile p = l₂.dropWhile p := by
   induction l₁ with
   | nil => simp
-  | cons x xs ih => simp_all [dropWhile_cons]
+  | cons x xs ih => simp_all
 
 @[simp] theorem takeWhile_replicate_eq_filter {p : α → Bool} :
     (replicate n a).takeWhile p = (replicate n a).filter p := by
@@ -425,7 +436,7 @@ theorem take_takeWhile {l : List α} {p : α → Bool} :
   induction l generalizing i with
   | nil => simp
   | cons x xs ih =>
-    by_cases h : p x <;> cases i <;> simp [takeWhile_cons, h, ih, take_succ_cons]
+    by_cases h : p x <;> cases i <;> simp [h, ih, take_succ_cons]
 
 @[simp] theorem all_takeWhile {l : List α} : (l.takeWhile p).all p = true := by
   induction l with
@@ -446,13 +457,13 @@ theorem replace_takeWhile [BEq α] [LawfulBEq α] {l : List α} {p : α → Bool
     simp only [takeWhile_cons, replace_cons]
     split <;> rename_i h₁ <;> split <;> rename_i h₂
     · simp_all
-    · simp [replace_cons, h₂, takeWhile_cons, h₁, ih]
+    · simp [replace_cons, h₂, h₁, ih]
     · simp_all
     · simp_all
 
 /-! ### splitAt -/
 
-@[simp] theorem splitAt_eq {i : Nat} {l : List α} : splitAt i l = (l.take i, l.drop i) := by
+@[simp, grind =] theorem splitAt_eq {i : Nat} {l : List α} : splitAt i l = (l.take i, l.drop i) := by
   rw [splitAt, splitAt_go, reverse_nil, nil_append]
   split <;> simp_all [take_of_length_le, drop_of_length_le]
 

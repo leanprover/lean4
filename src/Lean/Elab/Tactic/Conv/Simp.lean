@@ -3,11 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Moritz Doll
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Simp
-import Lean.Elab.Tactic.Split
-import Lean.Elab.Tactic.Conv.Basic
-import Lean.Elab.Tactic.SimpTrace
+public import Lean.Elab.Tactic.Split
+public import Lean.Elab.Tactic.Conv.Basic
+public import Lean.Elab.Tactic.SimpTrace
+
+public section
 
 namespace Lean.Elab.Tactic.Conv
 open Meta Tactic TryThis

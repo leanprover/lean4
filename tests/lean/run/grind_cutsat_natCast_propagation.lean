@@ -1,5 +1,4 @@
-set_option grind.warning false
-
+module
 example (a b : Nat) : a  = a + b - b := by
   grind
 

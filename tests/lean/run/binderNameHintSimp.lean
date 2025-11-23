@@ -1,3 +1,5 @@
+set_option linter.unusedSimpArgs false
+
 /-!
 Checks that `simp` removes the `binderNameHint` in the pre-phase, and does not spend time looking
 at its arguments.
@@ -17,7 +19,10 @@ trace: [Meta.Tactic.simp.rewrite] ↓ binderNameHint.eq_1:1000:
     ==>
       z
 [Meta.Tactic.simp.rewrite] unfold z, z ==> 0
-[Meta.Tactic.simp.rewrite] eq_self:1000: 0 = 0 ==> True
+[Meta.Tactic.simp.rewrite] eq_self:1000:
+      0 = 0
+    ==>
+      True
 -/
 #guard_msgs in
 example : binderNameHint x y z = 0 := by

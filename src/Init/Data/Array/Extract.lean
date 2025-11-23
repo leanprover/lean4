@@ -6,8 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Array.Lemmas
-import Init.Data.List.Nat.TakeDrop
+public import Init.Data.Array.Lemmas
+
+public section
 
 /-!
 # Lemmas about `Array.extract`
@@ -29,7 +30,7 @@ namespace Array
   · simp
     omega
   · simp only [size_extract] at h₁ h₂
-    simp [h]
+    simp
 
 theorem size_extract_le {as : Array α} {i j : Nat} :
     (as.extract i j).size ≤ j - i := by
@@ -46,17 +47,47 @@ theorem size_extract_of_le {as : Array α} {i j : Nat} (h : j ≤ as.size) :
   simp
   omega
 
-@[simp]
-theorem extract_push {as : Array α} {b : α} {start stop : Nat} (h : stop ≤ as.size) :
-    (as.push b).extract start stop = as.extract start stop := by
-  ext i h₁ h₂
-  · simp
-    omega
-  · simp only [size_extract, size_push] at h₁ h₂
-    simp only [getElem_extract, getElem_push]
-    rw [dif_pos (by omega)]
+@[grind =]
+theorem extract_push {as : Array α} {b : α} {start stop : Nat} :
+    (as.push b).extract start stop =
+      if stop ≤ as.size then
+        as.extract start stop
+      else if start ≤ as.size then
+        (as.extract start as.size).push b
+      else #[] := by
+  split
+  · ext i h₁ h₂
+    · simp
+      omega
+    · simp only [size_extract, size_push] at h₁ h₂
+      simp only [getElem_extract, getElem_push]
+      rw [dif_pos (by omega)]
+  · split
+    · ext i h₁ h₂
+      · simp
+        omega
+      · simp only [size_extract, size_push] at h₁ h₂
+        simp only [getElem_extract, getElem_push]
+        split <;> rename_i h₃
+        · split
+          · rfl
+          · simp_all
+            omega
+        · split <;> rename_i h₄
+          · simp at h₄
+            omega
+          · rfl
+    · ext i h₁ h₂
+      · simp
+        omega
+      · simp at h₂
 
 @[simp]
+theorem extract_push_of_le {as : Array α} {b : α} {start stop : Nat} (h : stop ≤ as.size) :
+    (as.push b).extract start stop = as.extract start stop := by
+  rw [extract_push, if_pos h]
+
+@[simp, grind =]
 theorem extract_eq_pop {as : Array α} {stop : Nat} (h : stop = as.size - 1) :
     as.extract 0 stop = as.pop := by
   ext i h₁ h₂
@@ -65,7 +96,7 @@ theorem extract_eq_pop {as : Array α} {stop : Nat} (h : stop = as.size - 1) :
   · simp only [size_extract, size_pop] at h₁ h₂
     simp [getElem_extract, getElem_pop]
 
-@[simp]
+@[simp, grind _=_]
 theorem extract_append_extract {as : Array α} {i j k : Nat} :
     as.extract i j ++ as.extract j k = as.extract (min i j) (max j k) := by
   ext l h₁ h₂
@@ -162,7 +193,7 @@ theorem extract_sub_one {as : Array α} {i j : Nat} (h : j < as.size) :
 @[simp]
 theorem getElem?_extract_of_lt {as : Array α} {i j k : Nat} (h : k < min j as.size - i) :
     (as.extract i j)[k]? = some (as[i + k]'(by omega)) := by
-  simp [getElem?_extract, h]
+  simp [h]
 
 theorem getElem?_extract_of_succ {as : Array α} {j : Nat} :
     (as.extract 0 (j + 1))[j]? = as[j]? := by
@@ -177,6 +208,9 @@ theorem getElem?_extract_of_succ {as : Array α} {j : Nat} :
   · simp only [size_extract] at h₁ h₂
     simp [Nat.add_assoc]
 
+grind_pattern extract_extract => (as.extract i j).extract k l where
+  as =/= #[]
+
 theorem extract_eq_empty_of_eq_empty {as : Array α} {i j : Nat} (h : as = #[]) :
     as.extract i j = #[] := by
   simp [h]
@@ -185,6 +219,7 @@ theorem ne_empty_of_extract_ne_empty {as : Array α} {i j : Nat} (h : as.extract
     as ≠ #[] :=
   mt extract_eq_empty_of_eq_empty h
 
+@[grind =]
 theorem extract_set {as : Array α} {i j k : Nat} (h : k < as.size) {a : α} :
     (as.set k a).extract i j =
       if _ : k < i then
@@ -211,13 +246,14 @@ theorem extract_set {as : Array α} {i j k : Nat} (h : k < as.size) {a : α} :
         simp [getElem_set]
         omega
 
+@[grind =]
 theorem set_extract {as : Array α} {i j k : Nat} (h : k < (as.extract i j).size) {a : α} :
     (as.extract i j).set k a = (as.set (i + k) a (by simp at h; omega)).extract i j := by
   ext l h₁ h₂
   · simp
   · simp_all [getElem_set]
 
-@[simp]
+@[simp, grind =]
 theorem extract_append {as bs : Array α} {i j : Nat} :
     (as ++ bs).extract i j = as.extract i j ++ bs.extract (i - as.size) (j - as.size) := by
   ext l h₁ h₂
@@ -238,28 +274,23 @@ theorem extract_append_left {as bs : Array α} :
     (as ++ bs).extract 0 as.size = as.extract 0 as.size := by
   simp
 
-@[simp] theorem extract_append_right {as bs : Array α} :
+theorem extract_append_right {as bs : Array α} :
     (as ++ bs).extract as.size (as.size + i) = bs.extract 0 i := by
-  simp only [extract_append, extract_size_left, Nat.sub_self, empty_append]
-  congr 1
-  omega
+  simp
 
-@[simp] theorem map_extract {as : Array α} {i j : Nat} :
+@[simp, grind =] theorem map_extract {as : Array α} {i j : Nat} :
     (as.extract i j).map f = (as.map f).extract i j := by
   ext l h₁ h₂
   · simp
   · simp only [size_map, size_extract] at h₁ h₂
     simp only [getElem_map, getElem_extract]
 
-@[simp] theorem extract_replicate {a : α} {n i j : Nat} :
+@[simp, grind =] theorem extract_replicate {a : α} {n i j : Nat} :
     (replicate n a).extract i j = replicate (min j n - i) a := by
   ext l h₁ h₂
   · simp
   · simp only [size_extract, size_replicate] at h₁ h₂
     simp only [getElem_extract, getElem_replicate]
-
-@[deprecated extract_replicate (since := "2025-03-18")]
-abbrev extract_mkArray := @extract_replicate
 
 theorem extract_eq_extract_right {as : Array α} {i j j' : Nat} :
     as.extract i j = as.extract i j' ↔ min (j - i) (as.size - i) = min (j' - i) (as.size - i) := by
@@ -299,6 +330,7 @@ theorem set_eq_push_extract_append_extract {as : Array α} {i : Nat} (h : i < as
   simp at h
   simp [List.set_eq_take_append_cons_drop, h, List.take_of_length_le]
 
+@[grind =]
 theorem extract_reverse {as : Array α} {i j : Nat} :
     as.reverse.extract i j = (as.extract (as.size - j) (as.size - i)).reverse := by
   ext l h₁ h₂
@@ -309,6 +341,7 @@ theorem extract_reverse {as : Array α} {i j : Nat} :
     congr 1
     omega
 
+@[grind =]
 theorem reverse_extract {as : Array α} {i j : Nat} :
     (as.extract i j).reverse = as.reverse.extract (as.size - j) (as.size - i) := by
   rw [extract_reverse]
@@ -376,8 +409,6 @@ theorem popWhile_append {xs ys : Array α} :
   rcases ys with ⟨ys⟩
   simp only [List.append_toArray, List.popWhile_toArray, List.reverse_append, List.dropWhile_append,
     List.isEmpty_iff, List.isEmpty_toArray, List.isEmpty_reverse]
-  -- Why do these not fire with `simp`?
-  rw [List.popWhile_toArray, List.isEmpty_toArray, List.isEmpty_reverse]
   split
   · rfl
   · simp
@@ -396,31 +427,19 @@ theorem popWhile_append {xs ys : Array α} :
     (replicate n a).takeWhile p = (replicate n a).filter p := by
   simp [← List.toArray_replicate]
 
-@[deprecated takeWhile_replicate_eq_filter (since := "2025-03-18")]
-abbrev takeWhile_mkArray_eq_filter := @takeWhile_replicate_eq_filter
-
 theorem takeWhile_replicate {p : α → Bool} :
     (replicate n a).takeWhile p = if p a then replicate n a else #[] := by
   simp [takeWhile_replicate_eq_filter, filter_replicate]
 
-@[deprecated takeWhile_replicate (since := "2025-03-18")]
-abbrev takeWhile_mkArray := @takeWhile_replicate
-
 @[simp] theorem popWhile_replicate_eq_filter_not {p : α → Bool} :
     (replicate n a).popWhile p = (replicate n a).filter (fun a => !p a) := by
   simp [← List.toArray_replicate, ← List.filter_reverse]
-
-@[deprecated popWhile_replicate_eq_filter_not (since := "2025-03-18")]
-abbrev popWhile_mkArray_eq_filter_not := @popWhile_replicate_eq_filter_not
 
 theorem popWhile_replicate {p : α → Bool} :
     (replicate n a).popWhile p = if p a then #[] else replicate n a := by
   simp only [popWhile_replicate_eq_filter_not, size_replicate, filter_replicate, Bool.not_eq_eq_eq_not,
     Bool.not_true]
   split <;> simp_all
-
-@[deprecated popWhile_replicate (since := "2025-03-18")]
-abbrev popWhile_mkArray := @popWhile_replicate
 
 theorem extract_takeWhile {as : Array α} {i : Nat} :
     (as.takeWhile p).extract 0 i = (as.extract 0 i).takeWhile p := by

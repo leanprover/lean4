@@ -6,8 +6,9 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Meta
-import Init.Data.ToString.Basic
+public meta import Init.Meta
+
+public section
 
 syntax:max "s!" interpolatedStr(term) : term
 

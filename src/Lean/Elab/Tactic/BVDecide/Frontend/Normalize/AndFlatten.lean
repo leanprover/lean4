@@ -3,10 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Normalize.Bool
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
-import Lean.Meta.Tactic.Assert
+public import Std.Tactic.BVDecide.Normalize.Bool
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
+
+public section
 
 /-!
 This module contains the implementation of the and flattening pass in the fixpoint pipeline, taking

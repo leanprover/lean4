@@ -1,4 +1,0 @@
-invalidEnd.lean:5:0-5:7: error: invalid 'end', name mismatch (expected nothing)
-invalidEnd.lean:6:0-6:7: error: invalid 'end', name mismatch (expected Baz)
-invalidEnd.lean:7:0-7:12: error: invalid 'end', name mismatch (expected Foo.Bar)
-invalidEnd.lean:8:0-8:3: error: invalid 'end', insufficient scopes

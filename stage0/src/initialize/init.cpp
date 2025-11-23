@@ -13,13 +13,12 @@ Author: Leonardo de Moura
 #include "library/init_module.h"
 #include "library/constructions/init_module.h"
 #include "library/print.h"
-#include "library/compiler/init_module.h"
 #include "initialize/init.h"
 
 namespace lean {
-extern "C" object* initialize_Init(uint8_t, object* w);
-extern "C" object* initialize_Std(uint8_t, object* w);
-extern "C" object* initialize_Lean(uint8_t, object* w);
+extern "C" object* initialize_Init(uint8_t);
+extern "C" object* initialize_Std(uint8_t);
+extern "C" object* initialize_Lean(uint8_t);
 
 /* Initializes the Lean runtime. Before executing any code which uses the Lean package,
 you must first call this function, and then `lean::io_mark_end_initialization`. In between
@@ -33,21 +32,19 @@ extern "C" LEAN_EXPORT void lean_initialize() {
     // * calling exported Lean functions from C++
     // * calling into native code of the current module from a previous stage when `prefer_native`
     //   is set
-    consume_io_result(initialize_Init(builtin, io_mk_world()));
-    consume_io_result(initialize_Std(builtin, io_mk_world()));
-    consume_io_result(initialize_Lean(builtin, io_mk_world()));
+    consume_io_result(initialize_Init(builtin));
+    consume_io_result(initialize_Std(builtin));
+    consume_io_result(initialize_Lean(builtin));
     initialize_kernel_module();
     init_default_print_fn();
     initialize_library_core_module();
     initialize_library_module();
-    initialize_compiler_module();
     initialize_constructions_module();
 }
 
 void finalize() {
     run_thread_finalizers();
     finalize_constructions_module();
-    finalize_compiler_module();
     finalize_library_module();
     finalize_library_core_module();
     finalize_kernel_module();

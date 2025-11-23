@@ -3,11 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.Types
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.Simp.Basic
+public import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.LCNF.Simp.Basic
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -54,27 +56,27 @@ Remark: We use this method when simplifying projections and cases-constructor.
 -/
 def findCtor? (fvarId : FVarId) : DiscrM (Option CtorInfo) := do
   match (← findLetDecl? fvarId) with
-  | some { value := .value (.natVal n), .. } =>
+  | some { value := .lit (.nat n), .. } =>
     return some <| .natVal n
   | some { value := .const declName _ args, .. } =>
     let some (.ctorInfo val) := (← getEnv).find? declName | return none
     return some <| .ctor val args
-  | some _ => return none
-  | none => return (← read).discrCtorMap.find? fvarId
+  | _ => return (← read).discrCtorMap.get? fvarId
 
 def findCtorName? (fvarId : FVarId) : DiscrM (Option Name) := do
   let some ctorInfo ← findCtor? fvarId | return none
   return ctorInfo.getName
 
 /--
-If `type` is an inductive datatype, return its universe levels and parameters.
+If `type` is an application of the inductive type `ind`, return its universe levels and parameters.
 -/
-def getIndInfo? (type : Expr) : CoreM (Option (List Level × Array Arg)) := do
+def getIndInfo? (type : Expr) (ind : Name) : CoreM (Option (List Level × Array Arg)) := do
   let type := type.headBeta
   let .const declName us := type.getAppFn | return none
+  unless declName == ind do return none
   let .inductInfo info ← getConstInfo declName | return none
   unless type.getAppNumArgs >= info.numParams do return none
-  let args := type.getAppArgs[:info.numParams].toArray.map fun
+  let args := type.getAppArgs[*...info.numParams].toArray.map fun
     | .fvar fvarId => .fvar fvarId
     | e => if e.isErased then .erased else .type e
   return some (us, args)
@@ -91,7 +93,7 @@ where
     let ctorVal ← getConstInfoCtor ctorName
     let fieldArgs := ctorFields.map (Arg.fvar ·.fvarId)
     let ctx ← read
-    if let some (us, params) ← getIndInfo? (← getType discr) then
+    if let some (us, params) ← getIndInfo? (← getType discr) ctorVal.induct then
       let ctorArgs := params ++ fieldArgs
       let ctorInfo := .ctor ctorVal ctorArgs
       let ctor := LetValue.const ctorVal.name us ctorArgs

@@ -16,4 +16,4 @@ theorem subZero [AddGroup α] {a : α} : a + -(0 : α) = a := by
   rw [addZero]
 
 theorem shouldFail [AddGroup α] : ((0 : α) + 0) = 0 :=
-  rfl -- Error
+  (rfl) -- Error

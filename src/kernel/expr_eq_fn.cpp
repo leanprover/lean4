@@ -122,6 +122,7 @@ class expr_eq_fn {
                 apply(let_type(a), let_type(b), depth) &&
                 apply(let_value(a), let_value(b), depth) &&
                 apply(let_body(a), let_body(b), depth) &&
+                let_nondep(a) == let_nondep(b) &&
                 (!CompareBinderInfo || let_name(a) == let_name(b));
         }
         lean_unreachable(); // LCOV_EXCL_LINE

@@ -3,18 +3,19 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-prelude
-import Lean.Data.Name
-import Lean.Data.Options
-import Lake.Config.Env
-import Lake.Load.Manifest
-import Lake.Util.FilePath
+module
 
-namespace Lake
+prelude
+public import Lake.Config.Env
+public import Lake.Load.Manifest
+public import Lake.Util.FilePath
+
 open System Lean
 
+namespace Lake
+
 /-- Context for loading a Lake configuration. -/
-structure LoadConfig where
+public structure LoadConfig where
   /-- The Lake environment of the load process. -/
   lakeEnv : Lake.Env
   /--
@@ -25,6 +26,8 @@ structure LoadConfig where
   lakeArgs? : Option (Array String) := none
   /-- The absolute path to the root directory of the Lake workspace. -/
   wsDir : FilePath
+  /-- The assigned name of the package. If `Name.anonymous`, the package's own name will be used. -/
+  pkgName : Name := .anonymous
   /-- The loaded package's directory (relative to the workspace directory). -/
   relPkgDir : FilePath := "."
   /-- The absolute path to the loaded package's directory. -/
@@ -53,6 +56,8 @@ structure LoadConfig where
   /-- The URL to this package's Git remote (if any). -/
   remoteUrl : String := ""
 
+namespace LoadConfig
+
 /-- The package's Lake directory (for Lake temporary files). -/
-@[inline] def LoadConfig.lakeDir (cfg : LoadConfig) : FilePath :=
+@[inline] public def lakeDir (cfg : LoadConfig) : FilePath :=
   cfg.pkgDir / defaultLakeDir

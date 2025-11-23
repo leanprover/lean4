@@ -14,11 +14,6 @@ set_option pp.all true
 #check CommMonoid.mk
 #print CommMonoid.toCommSemigroup
 
-class Inv (α : Type u) where
-  inv : α → α
-
-postfix:100 "⁻¹" => Inv.inv
-
 class Group (α : Type u) extends Monoid α, Inv α where
   mul_left_inv (a : α) : a⁻¹ * a = 1
 

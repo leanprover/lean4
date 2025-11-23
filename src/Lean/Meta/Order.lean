@@ -4,11 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Wojciech Różowski, Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Meta.InferType
-import Lean.Meta.PProdN
-import Lean.Meta.AppBuilder
-import Init.Internal.Order.Basic
+public import Lean.Meta.PProdN
+public import Lean.Meta.AppBuilder
+public import Init.Internal.Order.Basic
+
+public section
 
 /-!
 This module has meta-functions for constructions expressions related to `Lean.Order`.
@@ -32,6 +35,14 @@ def mkInstPiOfInstForall (x : Expr) (inst : Expr) : MetaM Expr := do
   else
     throwError "mkInstPiOfInstForall: unexpected type of {inst}"
 
+/-- An n-ary version of `mkInstPiOfInstForall`. Takes an array of arguments instead.
+--/
+def mkInstPiOfInstsForall (xs : Array Expr) (inst : Expr) : MetaM Expr := do
+  let mut inst := inst
+  for x in xs.reverse do
+    inst ← mkInstPiOfInstForall x inst
+  pure inst
+
 /--
 Given a function `f : α → α`, an instance `inst : CCPO α`
 and a monotonicity proof `hmono : monotone f`, constructs a least fixpoint of `f`
@@ -49,7 +60,7 @@ def mkFixOfMonFun (packedType : Expr) (packedInst : Expr) (hmono : Expr) : MetaM
 /--
 Given `packedInst : CCPO α `, returns an underlying instance of the type
 `PartialOrder α`. Can handle `CompleteLattice` as well.
-Takes an optional argument with the type `α`. If the optional arument is `none`,
+Takes an optional argument with the type `α`. If the optional argument is `none`,
 it is treated implicitly.
 -/
 def toPartialOrder (packedInst : Expr) (type : Option Expr := .none) := do

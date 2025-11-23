@@ -36,21 +36,21 @@ class level : public object_ref {
     friend level mk_imax_core(level const & l1, level const & l2);
     friend level mk_univ_param(name const & n);
     friend level mk_univ_mvar(name const & n);
-    explicit level(object_ref && o):object_ref(o) {}
+    explicit level(object_ref && o) noexcept:object_ref(o) {}
 public:
     /** \brief Universe zero */
     level();
     explicit level(obj_arg o):object_ref(o) {}
     explicit level(b_obj_arg o, bool b):object_ref(o, b) {}
     level(level const & other):object_ref(other) {}
-    level(level && other):object_ref(std::move(other)) {}
+    level(level && other) noexcept:object_ref(std::move(other)) {}
     level_kind kind() const {
       return lean_is_scalar(raw()) ? level_kind::Zero : static_cast<level_kind>(lean_ptr_tag(raw()));
     }
     unsigned hash() const;
 
     level & operator=(level const & other) { object_ref::operator=(other); return *this; }
-    level & operator=(level && other) { object_ref::operator=(std::move(other)); return *this; }
+    level & operator=(level && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
 
     friend bool is_eqp(level const & l1, level const & l2) { return l1.raw() == l2.raw(); }
 

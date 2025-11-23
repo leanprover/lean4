@@ -1,10 +1,10 @@
+module
 /-
 Copyright (c) 2024 Marcus Rossel. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marcus Rossel, Kim Morrison
 -/
-import Lean.Elab.Term
-set_option grind.warning false
+public meta import Lean.Elab.Term
 /-!
 These tests are originally from the `lean-egg` repository at
 https://github.com/marcusrossel/lean-egg and were written by Marcus Rossel.
@@ -83,7 +83,7 @@ example (h₁ : x ∧ y) (h₂ : y ∧ x → 1 = 2) : 1 = 2 := by
   grind
 
 example {a : Nat} (h : a < b) : a % b = a := by
-  grind only [Nat.mod_eq_of_lt]
+  grind only [=Nat.mod_eq_of_lt]
 
 example {x : Nat} (h₁ : x = y) (h₂ : x = y → 1 = 2) : 1 = 2 := by
   grind
@@ -639,9 +639,6 @@ example (h : "Le " ++ " an" = "Le  an") : "Le " ++ " an" = "Le  an" := by
 end
 
 section
-
-class Inv (α) where inv : α → α
-postfix:max "⁻¹" => Inv.inv
 
 class Group (α) extends Mul α, One α, Inv α where
   mul_assoc    (a b c : α) : (a * b) * c = a * (b * c)

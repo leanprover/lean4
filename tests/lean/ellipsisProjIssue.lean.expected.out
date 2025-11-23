@@ -1,1 +1,2 @@
-ellipsisProjIssue.lean:1:17: error: unexpected `.` immediately after `..`
+ellipsisProjIssue.lean:1:18-1:22: error(lean.unknownIdentifier): Unknown identifier `succ`
+Nat.add...sorry : Std.Rco (Nat → Nat → Nat)

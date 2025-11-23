@@ -3,9 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.CollectLevelParams
-import Lean.Compiler.LCNF.Basic
+public import Lean.Util.CollectLevelParams
+public import Lean.Compiler.LCNF.Basic
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -67,7 +71,7 @@ partial def normExpr (e : Expr) : M Expr := do
     | .const _ us      => return e.updateConst! (← us.mapM normLevel)
     | .sort u          => return e.updateSort! (← normLevel u)
     | .app f a         => return e.updateApp! (← normExpr f) (← normExpr a)
-    | .letE _ t v b _  => return e.updateLet! (← normExpr t) (← normExpr v) (← normExpr b)
+    | .letE _ t v b _  => return e.updateLetE! (← normExpr t) (← normExpr v) (← normExpr b)
     | .forallE _ d b _ => return e.updateForallE! (← normExpr d) (← normExpr b)
     | .lam _ d b _     => return e.updateLambdaE! (← normExpr d) (← normExpr b)
     | .mdata _ b       => return e.updateMData! (← normExpr b)
@@ -111,7 +115,7 @@ def visitArgs (args : Array Arg) : Visitor :=
 
 def visitLetValue (e : LetValue) : Visitor :=
   match e with
-  | .erased | .value .. | .proj .. => id
+  | .erased | .lit .. | .proj .. => id
   | .const _ us args => visitLevels us ∘ visitArgs args
   | .fvar _ args => visitArgs args
 

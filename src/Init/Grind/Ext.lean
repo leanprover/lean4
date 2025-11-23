@@ -6,7 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Ext
-import Init.Grind.Tactics
+public import Init.Ext
 
-attribute [grind ext] funext
+public section
+
+attribute [grind ext] Prod Subtype Sigma PSigma

@@ -9,15 +9,11 @@ def g (x : Nat) := x + 1
 
 def f (x : Nat) := x + 1
 
-/--
-error: 'f.eq_def' is a reserved name
--/
+/-- error: `f.eq_def` is a reserved name -/
 #guard_msgs (error) in
 theorem f.eq_def : f x = x + 1 := rfl
 
-/--
-error: 'f.eq_1' is a reserved name
--/
+/-- error: `f.eq_1` is a reserved name -/
 #guard_msgs (error) in
 theorem f.eq_1 : f x = x + 1 := rfl
 
@@ -27,7 +23,7 @@ def f.eq_2_ := 10 -- Should be ok
 #guard_msgs in
 #check f.eq_1
 
-/-- error: unknown identifier 'f.eq_2' -/
+/-- error: Unknown identifier `f.eq_2` -/
 #guard_msgs (error) in
 #check f.eq_2
 
@@ -79,7 +75,7 @@ info: fact.eq_def (x✝ : Nat) :
 #guard_msgs in
 #check fact.eq_2
 
-/-- error: unknown identifier 'fact.eq_3' -/
+/-- error: Unknown identifier `fact.eq_3` -/
 #guard_msgs (error) in
 #check fact.eq_3
 

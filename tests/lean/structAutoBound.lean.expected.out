@@ -5,7 +5,7 @@ fields:
   Foo.b : β self.a
 constructor:
   Foo.mk.{v, u_1} {α : Sort u_1} {β : α → Type v} (a : α) (b : β a) : Foo β
-structAutoBound.lean:9:15-9:16: error: a universe level named 'u' has already been declared
+structAutoBound.lean:9:15-9:16: error: a universe level named `u` has already been declared
 structure Boo.{u, v} (α : Type u) (β : Type v) : Type (max u v)
 number of parameters: 2
 fields:

@@ -5,11 +5,11 @@ Tests that `partial_fixpoint` is not picking up the partial order structure on P
 -- This works as `∨` is monotone in its arguments with respect to the (`ImplicationOrder`/`ReverseImplicationOrder` on `Prop`.
 def f (x : Nat) : Prop :=
   f (x + 1) ∨ f ( x + 2)
-  greatest_fixpoint
+  coinductive_fixpoint
 
 def f' (x : Nat) : Prop :=
   f' (x + 1) ∨ f' ( x + 2)
-  least_fixpoint
+  inductive_fixpoint
 
 /--
 error: Could not prove 'f''' to be monotone in its recursive calls:

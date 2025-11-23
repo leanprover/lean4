@@ -159,7 +159,7 @@ open Lean Meta
 /-- info: true -/
 #guard_msgs in
 #eval show MetaM _ from do
-  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.isSupportedMatch ``Foo.f4.match_2
+  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.isSupportedMatch ``Foo.f4.match_3
   return res matches none
 
 def Foo.f5 : Foo → BitVec 64

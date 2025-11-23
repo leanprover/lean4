@@ -3,10 +3,10 @@
 
 def foo : Unit :=
   x.  -- No completions expected
-  --^ textDocument/completion
+  --^ completion
 
 def bar : Array Nat := Id.run do
   let mut x := sorry
   let foo := x.  -- No completions expected
-             --^ textDocument/completion
+             --^ completion
   sorry

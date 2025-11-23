@@ -1,22 +1,24 @@
-@[semireducible]
-def sorted_from_var [x: LE α] [DecidableRel x.le] (a: Array α) (i: Nat): Bool :=
-  if h: i + 1 < a.size then
-    have : i < a.size := Nat.lt_of_succ_lt h
-    a[i] ≤ a[i+1] && sorted_from_var a (i + 1)
-  else
-    true
-termination_by a.size - i
+def sorted_to_var [x: LE α] [DecidableRel x.le] (a: Array α) (i: Nat) (h : i + 1 < a.size) : Bool :=
+  match i with
+  | 0 => true
+  | i+1 =>
+    have : i + 1 < a.size := Nat.lt_of_succ_lt h
+    a[i] ≤ a[i+1] && sorted_to_var a i this
+termination_by structural i
 
-attribute [irreducible] sorted_from_var
+attribute [irreducible] sorted_to_var
 
 def check_sorted [x: LE α] [DecidableRel x.le] (a: Array α): Bool :=
-  sorted_from_var a 0
+  if h : a.size ≤ 1
+  then true
+  else sorted_to_var a (a.size - 2) (by omega)
 
 /--
-error: tactic 'rfl' failed, the left-hand side
+error: Tactic `rfl` failed: The left-hand side
   check_sorted #[0, 3, 3, 5, 8, 10, 10, 10]
 is not definitionally equal to the right-hand side
   true
+
 ⊢ check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] = true
 -/
 #guard_msgs in
@@ -24,13 +26,13 @@ example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] = true := by
   rfl -- fails because `rfl` uses `.default` transparency, and `sorted_from_var` is marked as irreducible
 
 /--
-error: tactic 'decide' failed for proposition
+error: Tactic `decide` failed for proposition
   check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] = true
-since its 'Decidable' instance
+because its `Decidable` instance
   instDecidableEqBool (check_sorted #[0, 3, 3, 5, 8, 10, 10, 10]) true
-did not reduce to 'isTrue' or 'isFalse'.
+did not reduce to `isTrue` or `isFalse`.
 
-After unfolding the instances 'instDecidableEqBool' and 'Bool.decEq', reduction got stuck at the 'Decidable' instance
+After unfolding the instances `instDecidableEqBool`, `Bool.decEq`, and `Nat.decLe`, reduction got stuck at the `Decidable` instance
   match check_sorted #[0, 3, 3, 5, 8, 10, 10, 10], true with
   | false, false => isTrue ⋯
   | false, true => isFalse ⋯
@@ -41,7 +43,7 @@ After unfolding the instances 'instDecidableEqBool' and 'Bool.decEq', reduction 
 example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] := by
   decide -- fails because `decide` uses `.default` transparency, and `sorted_from_var` is marked as irreducible
 
-unseal sorted_from_var in
+unseal sorted_to_var in
 example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] := by
   decide -- works
 

@@ -1,7 +1,10 @@
-auxDeclIssue.lean:5:3-5:13: error: tactic 'assumption' failed
+auxDeclIssue.lean:5:3-5:13: error: Tactic `assumption` failed
+
 ⊢ False
-auxDeclIssue.lean:11:2-11:9: error: tactic 'subst' failed, did not find equation for eliminating 'x'
+auxDeclIssue.lean:11:2-11:9: error: Tactic `subst` failed: did not find equation for eliminating 'x'
+
 x y : Nat
 ⊢ x = y
-auxDeclIssue.lean:18:3-18:13: error: tactic 'assumption' failed
+auxDeclIssue.lean:18:3-18:13: error: Tactic `assumption` failed
+
 ⊢ False

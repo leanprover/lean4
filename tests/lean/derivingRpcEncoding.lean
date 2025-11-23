@@ -16,7 +16,7 @@ structure FooRef where
   a : Array Nat
   deriving Inhabited, TypeName
 
-#eval test (WithRpcRef FooRef) default
+#eval do return test (WithRpcRef FooRef) (← WithRpcRef.mk default)
 
 structure FooJson where
   s : String
@@ -27,13 +27,18 @@ structure Bar where
   fooJson : FooJson
   deriving RpcEncodable, Inhabited
 
-#eval test Bar default
+def Bar.mkDefault : BaseIO Bar := do return {
+  fooRef  := ← WithRpcRef.mk default
+  fooJson := default
+}
+
+#eval do return test Bar (← Bar.mkDefault)
 
 structure BarTrans where
   bar : Bar
   deriving RpcEncodable, Inhabited
 
-#eval test BarTrans default
+#eval do return test BarTrans { bar := ← Bar.mkDefault }
 
 structure Baz where
   arr : Array String -- non-constant field
@@ -53,15 +58,15 @@ inductive BazInductive
   | baz (arr : Array Bar)
   deriving RpcEncodable, Inhabited
 
-#eval test BazInductive ⟨#[default, default]⟩
+#eval do return test BazInductive ⟨#[← Bar.mkDefault, ← Bar.mkDefault]⟩
 
 inductive FooInductive (α : Type) where
   | a : α → WithRpcRef FooRef → FooInductive α
   | b : (n : Nat) → (a : α) → (m : Nat) → FooInductive α
   deriving RpcEncodable, Inhabited
 
-#eval test (FooInductive BazInductive) (.a default default)
-#eval test (FooInductive BazInductive) (.b 42 default default)
+#eval do return test (FooInductive BazInductive) (.a default (← WithRpcRef.mk default))
+#eval do return test (FooInductive BazInductive) (.b 42 default default)
 
 inductive FooNested (α : Type) where
   | a : α → Array (FooNested α) → FooNested α

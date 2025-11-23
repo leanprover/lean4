@@ -17,7 +17,7 @@ def foo : (n : Nat) → ∃ m, m > n
  | 0 => ⟨1, Nat.zero_lt_one⟩
  | n+1 => by
   cases foo n
-  · case _ m hm => exact ⟨m+1, Nat.succ_lt_succ hm⟩
+  case _ m hm => exact ⟨m+1, Nat.succ_lt_succ hm⟩
 decreasing_by
 
   -- trace_state

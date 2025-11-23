@@ -3,10 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.Format
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.CompilerM
+public import Lean.Compiler.IR.CompilerM
+
+public section
 
 namespace Lean.IR.UnreachableBranches
 
@@ -16,7 +18,7 @@ inductive Value where
   | top -- any value
   | ctor (i : CtorInfo) (vs : Array Value)
   | choice (vs : List Value)
-  deriving Inhabited, Repr
+  deriving Inhabited, BEq, Repr
 
 protected partial def Value.toFormat : Value → Format
   | Value.bot => "⊥"
@@ -37,18 +39,6 @@ instance : ToString Value where
 
 namespace Value
 
-protected partial def beq : Value → Value → Bool
-  | bot, bot => true
-  | top, top => true
-  | ctor i₁ vs₁, ctor i₂ vs₂ => i₁ == i₂ && Array.isEqv vs₁ vs₂ Value.beq
-  | choice vs₁, choice vs₂ =>
-    vs₁.all (fun v₁ => vs₂.any fun v₂ => Value.beq v₁ v₂)
-    &&
-    vs₂.all (fun v₂ => vs₁.any fun v₁ => Value.beq v₁ v₂)
-  | _, _ => false
-
-instance : BEq Value := ⟨Value.beq⟩
-
 partial def addChoice (merge : Value → Value → Value) : List Value → Value → List Value
   | [], v => [v]
   | v₁@(ctor i₁ _) :: cs, v₂@(ctor i₂ _) =>
@@ -68,15 +58,6 @@ partial def merge (v₁ v₂ : Value) : Value :=
   | choice vs₁, choice vs₂ => choice <| vs₁.foldl (addChoice merge) vs₂
   | choice vs, v => choice <| addChoice merge vs v
   | v, choice vs => choice <| addChoice merge vs v
-
-protected partial def format : Value → Format
-  | top => "top"
-  | bot => "bot"
-  | choice vs => format "@" ++ @List.format _ ⟨Value.format⟩ vs
-  | ctor i vs => format "#" ++ if vs.isEmpty then format i.name else Format.paren (format i.name ++ @formatArray _ ⟨Value.format⟩ vs)
-
-instance : ToFormat Value := ⟨Value.format⟩
-instance : ToString Value := ⟨Format.pretty ∘ Value.format⟩
 
 /--
   In `truncate`, we approximate a value as `top` if depth > `truncateMaxDepth`.
@@ -141,13 +122,16 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (FunId ×
   registerSimplePersistentEnvExtension {
     addImportedFn := fun _ => {}
     addEntryFn := fun s ⟨e, n⟩ => s.insert e n
-    toArrayFn := fun s => sortEntries s.toArray
+    exportEntriesFnEx? := some fun _ s _ => fun
+      -- preserved for non-modules, make non-persistent at some point?
+      | .private => sortEntries s.toArray
+      | _ => #[]
     asyncMode := .sync  -- compilation is non-parallel anyway
     replay? := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.1) (fun s ⟨e, n⟩ => s.insert e n)
   }
 
 def addFunctionSummary (env : Environment) (fid : FunId) (v : Value) : Environment :=
-  functionSummariesExt.addEntry (env.addExtraName fid) (fid, v)
+  functionSummariesExt.addEntry env (fid, v)
 
 def getFunctionSummary? (env : Environment) (fid : FunId) : Option Value :=
   match env.getModuleIdxFor? fid with
@@ -179,8 +163,8 @@ def findVarValue (x : VarId) : M Value := do
 
 def findArgValue (arg : Arg) : M Value :=
   match arg with
-  | Arg.var x => findVarValue x
-  | _         => pure top
+  | .var x => findVarValue x
+  | .erased => pure top
 
 def updateVarAssignment (x : VarId) (v : Value) : M Unit := do
   let v' ← findVarValue x
@@ -250,7 +234,7 @@ def updateJPParamsAssignment (j : JoinPointId) (ys : Array Param) (xs : Array Ar
 private partial def resetNestedJPParams : FnBody → M Unit
   | FnBody.jdecl _ ys _ k => do
     ys.forM resetParamAssignment
-    /- Remark we don't need to reset the parameters of joint-points
+    /- Remark we don't need to reset the parameters of join points
       nested in `b` since they will be reset if this JP is used. -/
     resetNestedJPParams k
   | FnBody.case _ _ _ alts =>
@@ -341,8 +325,7 @@ end UnreachableBranches
 open UnreachableBranches
 
 def elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
-  let s ← get
-  let env := s.env
+  let env ← getEnv
   let assignments : Array Assignment := decls.map fun _ => {}
   let funVals := mkPArray decls.size Value.bot
   let visitedJps := decls.map fun _ => {}
@@ -351,10 +334,11 @@ def elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
   let (_, s) := (inferMain ctx).run s
   let funVals := s.funVals
   let assignments := s.assignments
-  modify fun s =>
-    let env := decls.size.fold (init := s.env) fun i _ env =>
+  modifyEnv fun env =>
+    decls.size.fold (init := env) fun i _ env =>
       addFunctionSummary env decls[i].name funVals[i]!
-    { s with env := env }
   return decls.mapIdx fun i decl => elimDead assignments[i]! decl
+
+builtin_initialize registerTraceClass `compiler.ir.elim_dead_branches (inherited := true)
 
 end Lean.IR

@@ -1,7 +1,6 @@
 import Std.Time
 open Std.Time
 
-def ISO8601UTC : GenericFormat .any := datespec("uuuu-MM-dd'T'HH:mm:ss.SSSSSSSSSZ")
 def RFC1123 : GenericFormat .any := datespec("eee, dd MMM uuuu HH:mm:ss ZZZ")
 def ShortDate : GenericFormat .any := datespec("MM/dd/uuuu")
 def LongDate : GenericFormat .any := datespec("MMMM D, uuuu")
@@ -193,6 +192,18 @@ info: "03:11:01 AM"
 -/
 #guard_msgs in
 #eval Time12Hour.formatBuilder time₂.hour.toRelative time₂.minute time₂.second (if time₂.hour.val > 12 then HourMarker.pm else HourMarker.am)
+
+/--
+info: "2024-08-15T14:03:47-03:00"
+-/
+#guard_msgs in
+#eval dateBR₁.toISO8601String
+
+/--
+info: "2024-08-15T14:03:47Z"
+-/
+#guard_msgs in
+#eval dateUTC₁.toISO8601String
 
 /--
 info: "06/16/2014"
@@ -795,7 +806,6 @@ info: 1
 #eval
   let t : ZonedDateTime := .ofPlainDateTime datetime("2018-12-31T12:00:00") (TimeZone.ZoneRules.ofTimeZone TimeZone.UTC)
   IO.println s!"{t.format "w"}"
-
 
 /--
 info: Except.error "offset 0: condition not satisfied"

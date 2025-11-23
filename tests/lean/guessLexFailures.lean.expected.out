@@ -28,7 +28,7 @@ with errors
 failed to infer structural recursion:
 no parameters suitable for structural recursion
 
-well-founded recursion cannot be used, 'noArguments' does not take any (non-fixed) arguments
+well-founded recursion cannot be used, `noArguments` does not take any (non-fixed) arguments
 guessLexFailures.lean:22:4-22:23: error: fail to show termination for
   noNonFixedArguments
 with errors
@@ -37,7 +37,7 @@ Not considering parameter n of noNonFixedArguments:
   it is unchanged in the recursive calls
 no parameters suitable for structural recursion
 
-well-founded recursion cannot be used, 'noNonFixedArguments' does not take any (non-fixed) arguments
+well-founded recursion cannot be used, `noNonFixedArguments` does not take any (non-fixed) arguments
 guessLexFailures.lean:27:0-33:31: error: Could not find a decreasing measure.
 The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
@@ -155,5 +155,5 @@ guessLexFailures.lean:131:14-131:31: error: failed to prove termination, possibl
   - Use `have`-expressions to prove the remaining goals
   - Use `termination_by` to specify a different well-founded relation
   - Use `decreasing_by` to specify your own tactic for discharging this kind of goal
-m n✝ n : Nat
-⊢ n < n✝ + 1
+n✝ m n : Nat
+⊢ n < n✝

@@ -3,11 +3,13 @@ Copyright (c) 2025 Tobias Grosser. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Tobias Grosser
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Simp
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
-import Lean.Elab.Tactic.BVDecide.Frontend.Attr
-import Std.Tactic.BVDecide.Normalize.BitVec
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
+public import Std.Tactic.BVDecide.Normalize.BitVec
+
+public section
 
 /-!
 This module contains the implementation of the short-circuiting pass, which is responsible for

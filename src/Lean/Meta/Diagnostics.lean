@@ -3,10 +3,13 @@ Copyright (c) 2023 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
+public import Lean.Meta.Basic
 import Lean.PrettyPrinter
-import Lean.Meta.Basic
-import Lean.Meta.Instances
+
+public section
 
 namespace Lean.Meta
 
@@ -79,11 +82,13 @@ def appendSection (m : Array MessageData) (cls : Name) (header : String) (s : Di
     let header := if resultSummary then s!"{header} (max: {s.max}, num: {s.data.size}):" else header
     m.push <| .trace { cls } header s.data
 
+/-- Logs diagnostics and resets the counters -/
 def reportDiag : MetaM Unit := do
   if (← isDiagnosticsEnabled) then
     let unfoldCounter := (← get).diag.unfoldCounter
     let unfoldDefault ← mkDiagSummaryForUnfolded unfoldCounter
     let unfoldInstance ← mkDiagSummaryForUnfolded unfoldCounter (instances := true)
+    let unfoldAxiom ← mkDiagSummary `reduction (← get).diag.unfoldAxiomCounter
     let unfoldReducible ← mkDiagSummaryForUnfoldedReducible unfoldCounter
     let heu ← mkDiagSummary `def_eq (← get).diag.heuristicCounter
     let inst ← mkDiagSummaryForUsedInstances
@@ -98,9 +103,13 @@ def reportDiag : MetaM Unit := do
               s!"max synth pending failures (maxSynthPendingDepth: {maxSynthPendingDepth.get (← getOptions)}), use `set_option maxSynthPendingDepth <limit>`"
               synthPending (resultSummary := false)
     let m := appendSection m `def_eq "heuristic for solving `f a =?= f b`" heu
+    let m := appendSection m `reduction "Axioms (possibly imported non-exposed defs) that were tried to be unfolded" unfoldAxiom
     let m := appendSection m `kernel "unfolded declarations" unfoldKernel
     unless m.isEmpty do
       let m := m.push "use `set_option diagnostics.threshold <num>` to control threshold for reporting counters"
       logInfo <| .trace { cls := `diag, collapsed := false } "Diagnostics" m
+    -- Reset any reported diagnostics, so that `reportDiag` can be called again
+    modify (fun s => { s with diag := {} })
+    modifyEnv (Kernel.setDiagnostics · {})
 
 end Lean.Meta

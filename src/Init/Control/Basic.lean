@@ -6,8 +6,10 @@ Author: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-import Init.Core
-import Init.BinderNameHint
+public import Init.Core
+public import Init.BinderNameHint
+
+@[expose] public section
 
 universe u v w
 
@@ -43,13 +45,10 @@ instance (priority := 500) instForInOfForIn' [ForIn' m ρ α d] : ForIn m ρ α 
     forIn x b f = forIn' x b (fun x h => binderNameHint x f <| binderNameHint h () <| f x) := by
   rfl
 
-@[deprecated forIn_eq_forIn' (since := "2025-04-04")]
-abbrev forIn_eq_forin' := @forIn_eq_forIn'
-
 /--
 Extracts the value from a `ForInStep`, ignoring whether it is `ForInStep.done` or `ForInStep.yield`.
 -/
-def ForInStep.value (x : ForInStep α) : α :=
+@[expose] def ForInStep.value (x : ForInStep α) : α :=
   match x with
   | ForInStep.done b => b
   | ForInStep.yield b => b

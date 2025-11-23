@@ -18,7 +18,7 @@ def sumIf (s : PHashSet Nat) (p : Nat → Bool) : Nat := Id.run do
 
 def mk [Hashable α] [BEq α] (f : Nat → α) (n : Nat) : PHashSet α := Id.run do
   let mut s := {}
-  for i in [:n] do
+  for i in *...n do
     s := s.insert (f i)
   return s
 

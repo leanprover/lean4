@@ -8,9 +8,12 @@ notation, basic datatypes and type classes
 module
 
 prelude
-import Init.Prelude
-import Init.SizeOf
+public import Init.SizeOf
+
+public section
 set_option linter.missingDocs true -- keep it documented
+
+@[expose] section
 
 universe u v w
 
@@ -24,6 +27,29 @@ which applies to all applications of the function).
 theorem id_def {α : Sort u} (a : α) : id a = a := rfl
 
 attribute [grind] id
+
+/--
+A helper gadget for instructing the kernel to eagerly reduce terms.
+
+When the gadget wraps the argument of an application, then when checking that
+the expected and inferred type of the argument match, the kernel will evaluate terms more eagerly.
+It is often used to wrap `Eq.refl true` proof terms as `eagerReduce (Eq.refl true)`
+when using proof by reflection.
+As an example, consider the theorem:
+```
+theorem eq_norm (ctx : Context) (p₁ p₂ : Poly) (h : (p₁.norm == p₂) = true) :
+  p₁.denote ctx = 0 → p₂.denote ctx = 0
+```
+The argument `h : (p₁.norm == p₂) = true` is a candidate for `eagerReduce`.
+When applying this theorem, we would write:
+
+```
+eq_norm ctx p q (eagerReduce (Eq.refl true)) h
+```
+to instruct the kernel to use eager reduction when establishing that `(p.norm == q) = true` is
+definitionally equal to `true = true`.
+-/
+@[expose] def eagerReduce {α : Sort u} (a : α) : α := a
 
 /--
 `flip f a b` is `f b a`. It is useful for "point-free" programming,
@@ -41,15 +67,18 @@ and `flip (·<·)` is the greater-than relation.
 theorem Function.comp_def {α β δ} (f : β → δ) (g : α → β) : f ∘ g = fun x => f (g x) := rfl
 
 @[simp] theorem Function.const_comp {f : α → β} {c : γ} :
-    (Function.const β c ∘ f) = Function.const α c := by
+    (Function.const β c ∘ f) = Function.const α c :=
   rfl
 @[simp] theorem Function.comp_const {f : β → γ} {b : β} :
-    (f ∘ Function.const α b) = Function.const α (f b) := by
+    (f ∘ Function.const α b) = Function.const α (f b) :=
   rfl
-@[simp] theorem Function.true_comp {f : α → β} : ((fun _ => true) ∘ f) = fun _ => true := by
+@[simp] theorem Function.true_comp {f : α → β} : ((fun _ => true) ∘ f) = fun _ => true :=
   rfl
-@[simp] theorem Function.false_comp {f : α → β} : ((fun _ => false) ∘ f) = fun _ => false := by
+@[simp] theorem Function.false_comp {f : α → β} : ((fun _ => false) ∘ f) = fun _ => false :=
   rfl
+
+@[simp] theorem Function.comp_id (f : α → β) : f ∘ id = f := rfl
+@[simp] theorem Function.id_comp (f : α → β) : id ∘ f = f := rfl
 
 attribute [simp] namedPattern
 
@@ -90,7 +119,8 @@ structure Thunk (α : Type u) : Type u where
   -/
   mk ::
   /-- Extract the getter function out of a thunk. Use `Thunk.get` instead. -/
-  private fn : Unit → α
+  -- The field is public so as to allow computation through it.
+  fn : Unit → α
 
 attribute [extern "lean_mk_thunk"] Thunk.mk
 
@@ -111,6 +141,11 @@ Computed values are cached, so the value is not recomputed.
 -- NOTE: we use `Thunk.get` instead of `Thunk.fn` as the accessor primitive as the latter has an additional `Unit` argument
 @[extern "lean_thunk_get_own"] protected def Thunk.get (x : @& Thunk α) : α :=
   x.fn ()
+
+-- Ensure `Thunk.fn` is still computable even if it shouldn't be accessed directly.
+/-- Implementation detail. -/
+@[inline] def Thunk.fnImpl (x : Thunk α) : Unit → α := fun _ => x.get
+@[csimp] theorem Thunk.fn_eq_fnImpl : @Thunk.fn = @Thunk.fnImpl := rfl
 
 /--
 Constructs a new thunk that forces `x` and then applies `x` to the result. Upon forcing, the result
@@ -565,17 +600,6 @@ export LawfulSingleton (insert_empty_eq)
 
 attribute [simp] insert_empty_eq
 
-@[deprecated insert_empty_eq (since := "2025-03-12")]
-theorem insert_emptyc_eq [EmptyCollection β] [Insert α β] [Singleton α β]
-    [LawfulSingleton α β] (x : α) : (insert x ∅ : β) = singleton x :=
-  insert_empty_eq _
-
-@[deprecated insert_empty_eq (since := "2025-03-12")]
-theorem LawfulSingleton.insert_emptyc_eq [EmptyCollection β] [Insert α β] [Singleton α β]
-    [LawfulSingleton α β] (x : α) : (insert x ∅ : β) = singleton x :=
-  insert_empty_eq _
-
-
 /-- Type class used to implement the notation `{ a ∈ c | p a }` -/
 class Sep (α : outParam <| Type u) (γ : Type v) where
   /-- Computes `{ a ∈ c | p a }`. -/
@@ -740,6 +764,8 @@ Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead
 
 @[inherit_doc] infix:50 " != " => bne
 
+macro_rules | `($x != $y) => `(binrel_no_prop% bne $x $y)
+
 recommended_spelling "bne" for "!=" in [bne, «term_!=_»]
 
 /-- `ReflBEq α` says that the `BEq` implementation is reflexive. -/
@@ -841,6 +867,8 @@ and asserts that `a` and `b` are not equal.
 
 @[inherit_doc] infix:50 " ≠ "  => Ne
 
+macro_rules | `($x ≠ $y) => `(binrel% Ne $x $y)
+
 recommended_spelling "ne" for "≠" in [Ne, «term_≠_»]
 
 section Ne
@@ -892,43 +920,43 @@ section
 variable {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
 
 /-- Non-dependent recursor for `HEq` -/
-noncomputable def HEq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} (m : motive a) {β : Sort u2} {b : β} (h : HEq a b) : motive b :=
+noncomputable def HEq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} (m : motive a) {β : Sort u2} {b : β} (h : a ≍ b) : motive b :=
   h.rec m
 
 /-- `HEq.ndrec` variant -/
-noncomputable def HEq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} {β : Sort u2} {b : β} (h : HEq a b) (m : motive a) : motive b :=
+noncomputable def HEq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} {β : Sort u2} {b : β} (h : a ≍ b) (m : motive a) : motive b :=
   h.rec m
 
 /-- `HEq.ndrec` variant -/
-noncomputable def HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : HEq a b) (h₂ : p a) : p b :=
+noncomputable def HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : a ≍ b) (h₂ : p a) : p b :=
   eq_of_heq h₁ ▸ h₂
 
 /-- Substitution with heterogeneous equality. -/
-theorem HEq.subst {p : (T : Sort u) → T → Prop} (h₁ : HEq a b) (h₂ : p α a) : p β b :=
+theorem HEq.subst {p : (T : Sort u) → T → Prop} (h₁ : a ≍ b) (h₂ : p α a) : p β b :=
   HEq.ndrecOn h₁ h₂
 
 /-- Heterogeneous equality is symmetric. -/
-@[symm] theorem HEq.symm (h : HEq a b) : HEq b a :=
+@[symm] theorem HEq.symm (h : a ≍ b) : b ≍ a :=
   h.rec (HEq.refl a)
 
 /-- Propositionally equal terms are also heterogeneously equal. -/
-theorem heq_of_eq (h : a = a') : HEq a a' :=
+theorem heq_of_eq (h : a = a') : a ≍ a' :=
   Eq.subst h (HEq.refl a)
 
 /-- Heterogeneous equality is transitive. -/
-theorem HEq.trans (h₁ : HEq a b) (h₂ : HEq b c) : HEq a c :=
+theorem HEq.trans (h₁ : a ≍ b) (h₂ : b ≍ c) : a ≍ c :=
   HEq.subst h₂ h₁
 
 /-- Heterogeneous equality precomposes with propositional equality. -/
-theorem heq_of_heq_of_eq (h₁ : HEq a b) (h₂ : b = b') : HEq a b' :=
+theorem heq_of_heq_of_eq (h₁ : a ≍ b) (h₂ : b = b') : a ≍ b' :=
   HEq.trans h₁ (heq_of_eq h₂)
 
 /-- Heterogeneous equality postcomposes with propositional equality. -/
-theorem heq_of_eq_of_heq (h₁ : a = a') (h₂ : HEq a' b) : HEq a b :=
+theorem heq_of_eq_of_heq (h₁ : a = a') (h₂ : a' ≍ b) : a ≍ b :=
   HEq.trans (heq_of_eq h₁) h₂
 
 /-- If two terms are heterogeneously equal then their types are propositionally equal. -/
-theorem type_eq_of_heq (h : HEq a b) : α = β :=
+theorem type_eq_of_heq (h : a ≍ b) : α = β :=
   h.rec (Eq.refl α)
 
 end
@@ -937,25 +965,25 @@ end
 Rewriting inside `φ` using `Eq.recOn` yields a term that's heterogeneously equal to the original
 term.
 -/
-theorem eqRec_heq {α : Sort u} {φ : α → Sort v} {a a' : α} : (h : a = a') → (p : φ a) → HEq (Eq.recOn (motive := fun x _ => φ x) h p) p
+theorem eqRec_heq {α : Sort u} {φ : α → Sort v} {a a' : α} : (h : a = a') → (p : φ a) → Eq.recOn (motive := fun x _ => φ x) h p ≍ p
   | rfl, p => HEq.refl p
 
 /--
-Heterogenous equality with an `Eq.rec` application on the left is equivalent to a heterogenous
+Heterogeneous equality with an `Eq.rec` application on the left is equivalent to a heterogeneous
 equality on the original term.
 -/
 theorem eqRec_heq_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
-    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h} :
-    HEq (@Eq.rec α a motive refl b h) c ↔ HEq refl c :=
+    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h}
+    : @Eq.rec α a motive refl b h ≍ c ↔ refl ≍ c :=
   h.rec (fun _ => ⟨id, id⟩) c
 
 /--
-Heterogenous equality with an `Eq.rec` application on the right is equivalent to a heterogenous
+Heterogeneous equality with an `Eq.rec` application on the right is equivalent to a heterogeneous
 equality on the original term.
 -/
 theorem heq_eqRec_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
     {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h} :
-    HEq c (@Eq.rec α a motive refl b h) ↔ HEq c refl :=
+    c ≍ @Eq.rec α a motive refl b h ↔ c ≍ refl :=
   h.rec (fun _ => ⟨id, id⟩) c
 
 /--
@@ -972,7 +1000,7 @@ theorem apply_eqRec {α : Sort u} {a : α} (motive : (b : α) → a = b → Sort
 If casting a term with `Eq.rec` to another type makes it equal to some other term, then the two
 terms are heterogeneously equal.
 -/
-theorem heq_of_eqRec_eq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h₂ : Eq.rec (motive := fun α _ => α) a h₁ = b) : HEq a b := by
+theorem heq_of_eqRec_eq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h₂ : Eq.rec (motive := fun α _ => α) a h₁ = b) : a ≍ b := by
   subst h₁
   apply heq_of_eq
   exact h₂
@@ -980,7 +1008,7 @@ theorem heq_of_eqRec_eq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h�
 /--
 The result of casting a term with `cast` is heterogeneously equal to the original term.
 -/
-theorem cast_heq {α β : Sort u} : (h : α = β) → (a : α) → HEq (cast h a) a
+theorem cast_heq {α β : Sort u} : (h : α = β) → (a : α) → cast h a ≍ a
   | rfl, a => HEq.refl a
 
 variable {a b c d : Prop}
@@ -1009,8 +1037,8 @@ instance : Trans Iff Iff Iff where
 theorem Eq.comm {a b : α} : a = b ↔ b = a := Iff.intro Eq.symm Eq.symm
 theorem eq_comm {a b : α} : a = b ↔ b = a := Eq.comm
 
-theorem HEq.comm {a : α} {b : β} : HEq a b ↔ HEq b a := Iff.intro HEq.symm HEq.symm
-theorem heq_comm {a : α} {b : β} : HEq a b ↔ HEq b a := HEq.comm
+theorem HEq.comm {a : α} {b : β} : a ≍ b ↔ b ≍ a := Iff.intro HEq.symm HEq.symm
+theorem heq_comm {a : α} {b : β} : a ≍ b ↔ b ≍ a := HEq.comm
 
 @[symm] theorem Iff.symm (h : a ↔ b) : b ↔ a := Iff.intro h.mpr h.mp
 theorem Iff.comm : (a ↔ b) ↔ (b ↔ a) := Iff.intro Iff.symm Iff.symm
@@ -1043,11 +1071,6 @@ theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
   | isFalse _ => rfl
   | isTrue h  => False.elim h
 
-set_option linter.missingDocs false in
-@[deprecated decide_true (since := "2024-11-05")] abbrev decide_true_eq_true := decide_true
-set_option linter.missingDocs false in
-@[deprecated decide_false (since := "2024-11-05")] abbrev decide_false_eq_false := decide_false
-
 /-- Similar to `decide`, but uses an explicit instance -/
 @[inline] def toBoolUsing {p : Prop} (d : Decidable p) : Bool :=
   decide (h := d)
@@ -1060,14 +1083,6 @@ theorem of_toBoolUsing_eq_true {p : Prop} {d : Decidable p} (h : toBoolUsing d =
 
 theorem of_toBoolUsing_eq_false {p : Prop} {d : Decidable p} (h : toBoolUsing d = false) : ¬p :=
   of_decide_eq_false h
-
-set_option linter.missingDocs false in
-@[deprecated of_toBoolUsing_eq_true (since := "2025-04-04")]
-abbrev ofBoolUsing_eq_true := @of_toBoolUsing_eq_true
-
-set_option linter.missingDocs false in
-@[deprecated of_toBoolUsing_eq_false (since := "2025-04-04")]
-abbrev ofBoolUsing_eq_false := @of_toBoolUsing_eq_false
 
 instance : Decidable True :=
   isTrue trivial
@@ -1131,6 +1146,7 @@ end
     else isFalse (fun h => absurd (h hp) hq)
   else isTrue (fun h => absurd h hp)
 
+@[inline]
 instance {p q} [Decidable p] [Decidable q] : Decidable (p ↔ q) :=
   if hp : p then
     if hq : q then
@@ -1172,17 +1188,13 @@ theorem dif_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : c �
   | isTrue hc   => absurd hc hnc
   | isFalse _   => rfl
 
--- Remark: dite and ite are "defally equal" when we ignore the proofs.
-theorem dif_eq_if (c : Prop) {h : Decidable c} {α : Sort u} (t : α) (e : α) : dite c (fun _ => t) (fun _ => e) = ite c t e :=
-  match h with
-  | isTrue _    => rfl
-  | isFalse _   => rfl
-
+@[macro_inline]
 instance {c t e : Prop} [dC : Decidable c] [dT : Decidable t] [dE : Decidable e] : Decidable (if c then t else e) :=
   match dC with
   | isTrue _   => dT
   | isFalse _  => dE
 
+@[inline]
 instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT : ∀ h, Decidable (t h)] [dE : ∀ h, Decidable (e h)] : Decidable (if h : c then t h else e h) :=
   match dC with
   | isTrue hc  => dT hc
@@ -1207,10 +1219,7 @@ abbrev noConfusionEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : 
 instance : Inhabited Prop where
   default := True
 
-deriving instance Inhabited for NonScalar, PNonScalar, True, ForInStep
-
-theorem nonempty_of_exists {α : Sort u} {p : α → Prop} : Exists (fun x => p x) → Nonempty α
-  | ⟨w, _⟩ => ⟨w⟩
+deriving instance Inhabited for NonScalar, PNonScalar, True
 
 /-! # Subsingleton -/
 
@@ -1237,7 +1246,7 @@ protected theorem Subsingleton.elim {α : Sort u} [h : Subsingleton α] : (a b :
 If two types are equal and one of them is a subsingleton, then all of their elements are
 [heterogeneously equal](lean-manual://section/HEq).
 -/
-protected theorem Subsingleton.helim {α β : Sort u} [h₁ : Subsingleton α] (h₂ : α = β) (a : α) (b : β) : HEq a b := by
+protected theorem Subsingleton.helim {α β : Sort u} [h₁ : Subsingleton α] (h₂ : α = β) (a : α) (b : β) : a ≍ b := by
   subst h₂
   apply heq_of_eq
   apply Subsingleton.elim
@@ -1336,12 +1345,12 @@ namespace Subtype
 theorem exists_of_subtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (fun x => p x)
   | ⟨a, h⟩ => ⟨a, h⟩
 
-set_option linter.missingDocs false in
-@[deprecated exists_of_subtype (since := "2025-04-04")]
-abbrev existsOfSubtype := @exists_of_subtype
+variable {α : Sort u} {p : α → Prop}
 
-variable {α : Type u} {p : α → Prop}
+protected theorem ext : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
+  | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
+@[deprecated Subtype.ext (since := "2025-10-26")]
 protected theorem eq : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
@@ -1356,9 +1365,9 @@ instance {α : Type u} {p : α → Prop} [BEq α] [ReflBEq α] : ReflBEq {x : α
   rfl {x} := BEq.refl x.1
 
 instance {α : Type u} {p : α → Prop} [BEq α] [LawfulBEq α] : LawfulBEq {x : α // p x} where
-  eq_of_beq h := Subtype.eq (eq_of_beq h)
+  eq_of_beq h := Subtype.ext (eq_of_beq h)
 
-instance {α : Type u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
+instance {α : Sort u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
   fun ⟨a, h₁⟩ ⟨b, h₂⟩ =>
     if h : a = b then isTrue (by subst h; exact rfl)
     else isFalse (fun h' => Subtype.noConfusion h' (fun h' => absurd h' h))
@@ -1384,16 +1393,7 @@ instance Sum.nonemptyLeft [h : Nonempty α] : Nonempty (Sum α β) :=
 instance Sum.nonemptyRight [h : Nonempty β] : Nonempty (Sum α β) :=
   Nonempty.elim h (fun b => ⟨Sum.inr b⟩)
 
-instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : DecidableEq (Sum α β) := fun a b =>
-  match a, b with
-  | Sum.inl a, Sum.inl b =>
-    if h : a = b then isTrue (h ▸ rfl)
-    else isFalse fun h' => Sum.noConfusion h' fun h' => absurd h' h
-  | Sum.inr a, Sum.inr b =>
-    if h : a = b then isTrue (h ▸ rfl)
-    else isFalse fun h' => Sum.noConfusion h' fun h' => absurd h' h
-  | Sum.inr _, Sum.inl _ => isFalse fun h => Sum.noConfusion h
-  | Sum.inl _, Sum.inr _ => isFalse fun h => Sum.noConfusion h
+deriving instance DecidableEq for Sum
 
 end
 
@@ -1468,6 +1468,8 @@ def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ 
 
 @[simp] theorem Prod.map_apply (f : α → β) (g : γ → δ) (x) (y) :
     Prod.map f g (x, y) = (f x, g y) := rfl
+
+-- We add `@[grind =]` to these in `Init.Data.Prod`.
 @[simp] theorem Prod.map_fst (f : α → β) (g : γ → δ) (x) : (Prod.map f g x).1 = f x.1 := rfl
 @[simp] theorem Prod.map_snd (f : α → β) (g : γ → δ) (x) : (Prod.map f g x).2 = g x.2 := rfl
 
@@ -1484,20 +1486,24 @@ protected theorem PSigma.eta {α : Sort u} {β : α → Sort v} {a₁ a₂ : α}
 
 /-! # Universe polymorphic unit -/
 
+theorem PUnit.ext (a b : PUnit) : a = b := by
+  cases a; cases b; exact rfl
+
+@[deprecated PUnit.ext (since := "2025-10-26")]
 theorem PUnit.subsingleton (a b : PUnit) : a = b := by
   cases a; cases b; exact rfl
 
 theorem PUnit.eq_punit (a : PUnit) : a = ⟨⟩ :=
-  PUnit.subsingleton a ⟨⟩
+  PUnit.ext a ⟨⟩
 
 instance : Subsingleton PUnit :=
-  Subsingleton.intro PUnit.subsingleton
+  Subsingleton.intro PUnit.ext
 
 instance : Inhabited PUnit where
   default := ⟨⟩
 
 instance : DecidableEq PUnit :=
-  fun a b => isTrue (PUnit.subsingleton a b)
+  fun a b => isTrue (PUnit.ext a b)
 
 /-! # Setoid -/
 
@@ -1537,38 +1543,13 @@ end Setoid
 /-! # Propositional extensionality -/
 
 /--
-The axiom of **propositional extensionality**. It asserts that if propositions
-`a` and `b` are logically equivalent (i.e. we can prove `a` from `b` and vice versa),
-then `a` and `b` are *equal*, meaning that we can replace `a` with `b` in all
-contexts.
+The [axiom](lean-manual://section/axioms) of **propositional extensionality**. It asserts that if
+propositions `a` and `b` are logically equivalent (that is, if `a` can be proved from `b` and vice
+versa), then `a` and `b` are *equal*, meaning `a` can be replaced with `b` in all contexts.
 
-For simple expressions like `a ∧ c ∨ d → e` we can prove that because all the logical
-connectives respect logical equivalence, we can replace `a` with `b` in this expression
-without using `propext`. However, for higher order expressions like `P a` where
-`P : Prop → Prop` is unknown, or indeed for `a = b` itself, we cannot replace `a` with `b`
-without an axiom which says exactly this.
-
-This is a relatively uncontroversial axiom, which is intuitionistically valid.
-It does however block computation when using `#reduce` to reduce proofs directly
-(which is not recommended), meaning that canonicity,
-the property that all closed terms of type `Nat` normalize to numerals,
-fails to hold when this (or any) axiom is used:
-```
-set_option pp.proofs true
-
-def foo : Nat := by
-  have : (True → True) ↔ True := ⟨λ _ => trivial, λ _ _ => trivial⟩
-  have := propext this ▸ (2 : Nat)
-  exact this
-
-#reduce foo
--- propext { mp := fun x x => True.intro, mpr := fun x => True.intro } ▸ 2
-
-#eval foo -- 2
-```
-`#eval` can evaluate it to a numeral because the compiler erases casts and
-does not evaluate proofs, so `propext`, whose return type is a proposition,
-can never block it.
+The standard logical connectives provably respect propositional extensionality. However, an axiom is
+needed for higher order expressions like `P a` where `P : Prop → Prop` is unknown, as well as for
+equality. Propositional extensionality is intuitionistically valid.
 -/
 axiom propext {a b : Prop} : (a ↔ b) → a = b
 
@@ -1583,6 +1564,7 @@ instance {p q : Prop} [d : Decidable (p ↔ q)] : Decidable (p = q) :=
 
 gen_injective_theorems% Array
 gen_injective_theorems% BitVec
+gen_injective_theorems% ByteArray
 gen_injective_theorems% Char
 gen_injective_theorems% DoResultBC
 gen_injective_theorems% DoResultPR
@@ -1599,6 +1581,7 @@ gen_injective_theorems% MProd
 gen_injective_theorems% NonScalar
 gen_injective_theorems% Option
 gen_injective_theorems% PLift
+gen_injective_theorems% PULift
 gen_injective_theorems% PNonScalar
 gen_injective_theorems% PProd
 gen_injective_theorems% Prod
@@ -1606,8 +1589,8 @@ gen_injective_theorems% PSigma
 gen_injective_theorems% PSum
 gen_injective_theorems% Sigma
 gen_injective_theorems% String
-gen_injective_theorems% String.Pos
-gen_injective_theorems% Substring
+gen_injective_theorems% String.Pos.Raw
+gen_injective_theorems% Substring.Raw
 gen_injective_theorems% Subtype
 gen_injective_theorems% Sum
 gen_injective_theorems% Task
@@ -1697,7 +1680,7 @@ theorem true_iff_false : (True ↔ False) ↔ False := iff_false_intro (·.mp  T
 theorem false_iff_true : (False ↔ True) ↔ False := iff_false_intro (·.mpr True.intro)
 
 theorem iff_not_self : ¬(a ↔ ¬a) | H => let f h := H.1 h h; f (H.2 f)
-theorem heq_self_iff_true (a : α) : HEq a a ↔ True := iff_true_intro HEq.rfl
+theorem heq_self_iff_true (a : α) : a ≍ a ↔ True := iff_true_intro HEq.rfl
 
 /-! ## implies -/
 
@@ -1897,7 +1880,7 @@ a structure.
 protected abbrev hrecOn
     (q : Quot r)
     (f : (a : α) → motive (Quot.mk r a))
-    (c : (a b : α) → (p : r a b) → HEq (f a) (f b))
+    (c : (a b : α) → (p : r a b) → f a ≍ f b)
     : motive q :=
   Quot.recOn q f fun a b p => eq_of_heq (eqRec_heq_iff.mpr (c a b p))
 
@@ -2095,7 +2078,7 @@ a structure.
 protected abbrev hrecOn
     (q : Quotient s)
     (f : (a : α) → motive (Quotient.mk s a))
-    (c : (a b : α) → (p : a ≈ b) → HEq (f a) (f b))
+    (c : (a b : α) → (p : a ≈ b) → f a ≍ f b)
     : motive q :=
   Quot.hrecOn q f c
 end
@@ -2259,7 +2242,7 @@ theorem funext {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x}
     Quot.liftOn f
       (fun (f : ∀ (x : α), β x) => f x)
       (fun _ _ h => h x)
-  show extfunApp (Quot.mk eqv f) = extfunApp (Quot.mk eqv g)
+  change extfunApp (Quot.mk eqv f) = extfunApp (Quot.mk eqv g)
   exact congrArg extfunApp (Quot.sound h)
 
 /--
@@ -2524,25 +2507,29 @@ class Antisymm (r : α → α → Prop) : Prop where
   /-- An antisymmetric relation `r` satisfies `r a b → r b a → a = b`. -/
   antisymm (a b : α) : r a b → r b a → a = b
 
-@[deprecated Antisymm (since := "2024-10-16"), inherit_doc Antisymm]
-abbrev _root_.Antisymm (r : α → α → Prop) : Prop := Std.Antisymm r
-
-/-- `Asymm X r` means that the binary relation `r` on `X` is asymmetric, that is,
-`r a b → ¬ r b a`. -/
+/-- `Asymm r` means that the binary relation `r` is asymmetric, that is, `r a b → ¬ r b a`. -/
 class Asymm (r : α → α → Prop) : Prop where
   /-- An asymmetric relation satisfies `r a b → ¬ r b a`. -/
   asymm : ∀ a b, r a b → ¬r b a
 
-/-- `Total X r` means that the binary relation `r` on `X` is total, that is, that for any
-`x y : X` we have `r x y` or `r y x`. -/
+/-- `Symm r` means that the binary relation `r` is symmetric, that is, `r a b → r b a`.  -/
+class Symm (r : α → α → Prop) : Prop where
+  /-- A symmetric relation satisfies `r a b → r b a`. -/
+  symm : ∀ a b, r a b → r b a
+
+/-- `Total X r` means that the binary relation `r` on `X` is total, that is, `r a b` or `r b a`. -/
 class Total (r : α → α → Prop) : Prop where
-  /-- A total relation satisfies `r a b ∨ r b a`. -/
+  /-- A total relation satisfies `r a b` or `r b a`. -/
   total : ∀ a b, r a b ∨ r b a
 
-/-- `Irrefl r` means the binary relation `r` is irreflexive, that is, `r x x` never
-holds. -/
+/-- `Irrefl r` means the binary relation `r` is irreflexive, that is, `r x x` never holds. -/
 class Irrefl (r : α → α → Prop) : Prop where
   /-- An irreflexive relation satisfies `¬ r a a`. -/
   irrefl : ∀ a, ¬r a a
+
+/-- `Trichotomous r` says that `r` is trichotomous, that is, `¬ r a b → ¬ r b a → a = b`. -/
+class Trichotomous (r : α → α → Prop) : Prop where
+  /-- An trichotomous relation `r` satisfies `¬ r a b → ¬ r b a → a = b`. -/
+  trichotomous (a b : α) : ¬ r a b → ¬ r b a → a = b
 
 end Std

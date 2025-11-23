@@ -1,5 +1,4 @@
-set_option grind.warning false
-
+module
 example (a b : Int) : min a b = 10 → a ≥ 10 := by
   grind
 

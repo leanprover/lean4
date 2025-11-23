@@ -2,9 +2,9 @@ theoremType.lean:1:22-1:23: error: don't know how to synthesize placeholder
 context:
 ⊢ Nat
 
-Note: All holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
 theoremType.lean:4:18-4:19: error: don't know how to synthesize placeholder
 context:
 ⊢ Nat
 
-Note: When the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed
+Note: Because this declaration's type has been explicitly provided, all parameter types and holes (e.g., `_`) in its header are resolved before its body is processed; information from the declaration body cannot be used to infer what these values should be

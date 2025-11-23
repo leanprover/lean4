@@ -13,9 +13,10 @@ Currently, we only test the following:
 -/
 
 /-- Collects the module names corresponding to all `lean` files in the file system. -/
-partial def collectModulesOnFileSystem (sysroot : System.FilePath) (roots : Array String) :
+partial def collectModulesOnFileSystem (searchPaths : List System.FilePath) (roots : Array String) :
     IO (Array String) :=
-  roots.flatMapM (fun (root : String) => go (sysroot / "lib" / "lean" / root) root #[])
+  searchPaths.toArray.flatMapM (fun libdir =>
+    roots.flatMapM (fun (root : String) => go (libdir / root) root #[]))
 where
   go (dir : System.FilePath) (pref : String) (sofar : Array String) : IO (Array String) := do
     if !(← dir.pathExists) then
@@ -27,7 +28,7 @@ where
       match mdata.type with
       | .dir => arr ← go entry.path (pref ++ "." ++ entry.fileName) arr
       | .file =>
-          if entry.path.extension == some "olean" then
+          if entry.path.extension == some "lean" then
             arr := arr.push (pref ++ "." ++ entry.path.fileStem.get!)
       | _ => pure ()
     return arr
@@ -63,9 +64,10 @@ def analyzeModuleData (data : Array (Name × ModuleData)) : ImportGraph := Id.ru
 
   result
 
-def computeOrphanedModules (sysroot : System.FilePath) (importGraph : ImportGraph) :
+def computeOrphanedModules (importGraph : ImportGraph) :
     IO (Array String) := do
-  let onFS ← collectModulesOnFileSystem sysroot #["Init", "Std", "Lean"]
+  let searchPath ← Lean.getSrcSearchPath
+  let onFS ← collectModulesOnFileSystem searchPath #["Init", "Std", "Lean"]
   let imported : HashSet String := #["Init", "Std", "Lean"].foldl (init := ∅)
     (fun sofar root => sofar.insertMany (dfs root importGraph.imports ∅))
   return onFS.filter (fun module => !imported.contains module)
@@ -86,22 +88,13 @@ def test : MetaM Unit := do
   let env ← importModules #[`Init, `Std, `Lean] {}
   let importGraph := analyzeModuleData (env.header.moduleNames.zip env.header.moduleData)
 
-  let orphanedModules ← computeOrphanedModules sysroot importGraph
+  let orphanedModules ← computeOrphanedModules importGraph
   if !orphanedModules.isEmpty then do
     logError s!"There are orphaned modules: {orphanedModules}"
 
   let illegalReverseImports := computeIllegalReverseImportsOfInitDataOptionCoe importGraph
   if !illegalReverseImports.isEmpty then do
     logError s!"The following modules illegally (transitively) import Init.Data.Option.Coe: {illegalReverseImports}"
-
-/-!
-We check which modules exist by looking at which `olean` files are present in the file system.
-This means that locally you might get false positives on this test because there are some `olean`
-files still floating around where the corresponding `lean` file no longer exists in the source.
-
-It would be better to check for `lean` files directly, but our CI step which runs the tests doesn't
-see the source files in the `srcPath`.
--/
 
 #guard_msgs in
 #eval test

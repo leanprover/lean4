@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.Simp.Basic
+public import Lean.Compiler.LCNF.Simp.Basic
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -103,7 +107,7 @@ where
 
   addLetValueOccs (e : LetValue) : StateRefT FunDeclInfoMap CompilerM Unit := do
     match e with
-    | .erased | .value .. | .proj .. => return ()
+    | .erased | .lit .. | .proj .. => return ()
     | .const _ _ args => args.forM addArgOcc
     | .fvar fvarId args =>
       let some funDecl ← findFunDecl'? fvarId | return ()

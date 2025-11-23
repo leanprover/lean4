@@ -3,10 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Structural.Basic
-import Lean.Meta.Match.MatcherApp.Basic
+public import Lean.Elab.PreDefinition.Basic
+public import Lean.Elab.PreDefinition.Structural.Basic
+
+public section
 
 namespace Lean.Elab.Structural
 open Meta
@@ -32,8 +35,9 @@ where
     match e with
     | Expr.lam ..     => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← visit b)
     | Expr.forallE .. => forallTelescope e fun xs b => do mkForallFVars xs (← visit b)
-    | Expr.letE n type val body _ =>
-      withLetDecl n type (← visit val) fun x => do mkLetFVars #[x] (← visit (body.instantiate1 x))
+    | Expr.letE n type val body nondep =>
+      mapLetDecl n type (← visit val) (nondep := nondep) fun x => do
+        visit (body.instantiate1 x)
     | Expr.mdata d b     => return mkMData d (← visit b)
     | Expr.proj n i s    => return mkProj n i (← visit s)
     | Expr.app .. =>
@@ -59,12 +63,14 @@ where
       | _ => processApp e
     | _ => return e
 
-partial def addSmartUnfoldingDef (preDef : PreDefinition) (recArgPos : Nat) : TermElabM Unit := do
+partial def addSmartUnfoldingDef
+    (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) (recArgPos : Nat) :
+    TermElabM Unit := do
   if (← isProp preDef.type) then
     return ()
   else
     withEnableInfoTree false do
       let preDefSUnfold ← addSmartUnfoldingDefAux preDef recArgPos
-      addNonRec preDefSUnfold
+      addNonRec docCtx preDefSUnfold (cleanupValue := true)
 
 end Lean.Elab.Structural

@@ -6,7 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Omega.IntList
+public import Init.Omega.IntList
+import all Init.Omega.IntList
+
+public section
 
 /-!
 # `Coeffs` as a wrapper for `IntList`

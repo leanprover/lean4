@@ -1,0 +1,8 @@
+Success! Final stack:
+  [(Lean.Doc.Syntax.command "{" `test [] "}")
+   (Lean.Doc.Syntax.para
+    "para{"
+    [(Lean.Doc.Syntax.text
+      (str "\"Here's a paragraph.\""))]
+    "}")]
+All input consumed.

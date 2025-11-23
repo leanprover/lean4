@@ -4,8 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Data.JsonRpc
+public import Lean.Data.JsonRpc
+
+public section
 
 /-! # Defines `Lean.Lsp.CancelParams`.
 

@@ -69,7 +69,7 @@ noncomputable instance : PartialOrder (Distr α) where
 noncomputable instance : CCPO (Distr α) where
   csup c x := ENNReal.sup fun (Distr : Subtype c) => Distr.val x
   csup_spec := by
-    intros d₁ c hchain
+    intro d₁ c hchain
     constructor
     next =>
       intro h d₂ hd₂ x
@@ -79,7 +79,7 @@ noncomputable instance : CCPO (Distr α) where
     next =>
       intro h x
       apply ENNReal.sup_le
-      intros Distr
+      intro Distr
       apply h Distr.1 Distr.2 x
 
 noncomputable instance : MonoBind Distr where

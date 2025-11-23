@@ -6,7 +6,10 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Prelude
+public import Init.Prelude
+public meta import Init.Prelude
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 /-!

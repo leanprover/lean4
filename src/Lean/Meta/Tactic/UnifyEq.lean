@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Injection
+public import Lean.Meta.Tactic.Injection
+
+public section
 
 namespace Lean.Meta
 
@@ -50,7 +54,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
       let mvarId ← heqToEq' mvarId eqDecl
       return some { mvarId, subst, numNewEqs := 1 }
     else match eqDecl.type.eq? with
-      | none => throwError "equality expected{indentExpr eqDecl.type}"
+      | none => throwError "Expected an equality, but found{indentExpr eqDecl.type}"
       | some (_, a, b) =>
         /-
           Remark: we do not check `isDefeq` here because we would fail to substitute equalities
@@ -73,7 +77,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
           else if (← acyclic mvarId (mkFVar eqFVarId)) then
             return none -- this alternative has been solved
           else
-            throwError "dependent elimination failed, failed to solve equation{indentExpr eqDecl.type}"
+            throwError "Dependent elimination failed: Failed to solve equation{indentExpr eqDecl.type}"
         /- Special support for offset equalities -/
         let injectionOffset? (a b : Expr) := do
           unless (← getEnv).contains ``Nat.elimOffset do return none
@@ -115,8 +119,8 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
               return some { mvarId, subst, numNewEqs := 1 }
             else
               match caseName? with
-              | none => throwError "dependent elimination failed, failed to solve equation{indentExpr eqDecl.type}"
-              | some caseName => throwError "dependent elimination failed, failed to solve equation{indentExpr eqDecl.type}\nat case {.ofConstName caseName}"
+              | none => throwError "Dependent elimination failed: Failed to solve equation{indentExpr eqDecl.type}"
+              | some caseName => throwError "Dependent elimination failed: Failed to solve equation{indentExpr eqDecl.type}\nat case `{.ofConstName caseName}`"
         let a ← instantiateMVars a
         let b ← instantiateMVars b
         match a, b with

@@ -8,4 +8,4 @@ Not considering parameter #2 of foo.a:
   it is unchanged in the recursive calls
 no parameters suitable for structural recursion
 
-well-founded recursion cannot be used, 'foo.a' does not take any (non-fixed) arguments
+well-founded recursion cannot be used, `foo.a` does not take any (non-fixed) arguments

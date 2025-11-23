@@ -29,11 +29,6 @@ instance [CommMonoid α] : CommSemigroup α where
 instance [CommMonoid α] : MulComm α where
   mul_comm := CommSemigroup.mul_comm
 
-class Inv (α : Type u) where
-  inv : α → α
-
-postfix:max "⁻¹" => Inv.inv
-
 class Group (α : Type u) extends Monoid α, Inv α where
   mul_left_inv (a : α) : a⁻¹ * a = 1
 

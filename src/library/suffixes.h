@@ -8,8 +8,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 constexpr char const * g_rec               = "rec";
-constexpr char const * g_brec_on           = "brecOn";
-constexpr char const * g_binduction_on     = "binductionOn";
 constexpr char const * g_cases_on          = "casesOn";
 constexpr char const * g_no_confusion      = "noConfusion";
 constexpr char const * g_no_confusion_type = "noConfusionType";

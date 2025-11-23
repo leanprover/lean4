@@ -1,4 +1,4 @@
-
+set_option pp.fullNames true
 
 -- Issue 1
 def foo := 10

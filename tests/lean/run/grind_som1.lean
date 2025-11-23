@@ -1,4 +1,6 @@
+module
 import Lean
+public meta import Lean.Elab.Tactic
 
 open Lean.Grind
 open Lean.Grind.CommRing
@@ -24,17 +26,3 @@ example (x y : UInt8) : (128 * x + y) * 2 = y + y :=
   let lhs : Expr := .mul (.add (.mul (.num 128) (.var 0)) (.var 1)) (.num 2)
   let rhs : Expr := .add (.var 1) (.var 1)
   Expr.eq_of_toPolyC_eq ctx lhs rhs (Eq.refl true)
-
-def q₁   : Poly := Expr.toPoly (.var 1)
-def lhs₁ : Expr := .var 0
-def rhs₁ : Expr := .var 1
-def q₂   : Poly := Expr.toPoly (.num 1)
-def lhs₂ : Expr := .add (.sub (.var 1) (.mul (.var 0) (.var 1))) (.pow (.var 1) 2)
-def rhs₂ : Expr := .num 1
-def lhs  : Expr := .var 1
-def rhs  : Expr := .num 1
-def nc   : NullCert := .add q₁ lhs₁ rhs₁ (.add q₂ lhs₂ rhs₂ .empty)
-
-example (x y : Int) : x = y → y - x*y + y^2 = 1 → y = 1 :=
-  let ctx := #R[x, y]
-  nc.eq ctx (lhs := lhs) (rhs := rhs) (Eq.refl true)

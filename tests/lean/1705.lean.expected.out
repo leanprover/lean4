@@ -1,5 +1,2 @@
-1705.lean:1:13-1:16: error: function expected at
-  T
-term has type
-  ?m
-1705.lean:1:18-1:19: error: unexpected identifier; expected command
+1705.lean:1:22-1:23: error: type expected, got
+  (R : ?m)

@@ -1,7 +1,7 @@
 def test : (λ x => x)
            =
            (λ x : Nat =>
-             let_fun foo := λ y => id (id y)
+             have foo := λ y => id (id y)
              foo x) := by
   conv =>
     pattern (id _)

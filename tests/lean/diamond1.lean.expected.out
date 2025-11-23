@@ -1,7 +1,7 @@
-diamond1.lean:11:40-11:45: error: field type mismatch, field 'a' from parent 'Baz' has type
-  α → α : Type
+diamond1.lean:11:40-11:45: error: Field type mismatch: Field `a` from parent `Baz` has type
+  α → α
 but is expected to have type
-  α : Type
+  α
 structure Foo (α : Type) : Type
 number of parameters: 1
 parents:
@@ -18,4 +18,4 @@ field notation resolution order:
   Foo, Bar, Baz
 def f : Nat → Foo Nat :=
 fun x => { a := fun y => x + y, b := fun x1 x2 => x1 + x2, c := fun x_1 => x, d := x }
-diamond1.lean:27:47-27:52: warning: field 'a' from 'Baz' has already been declared
+diamond1.lean:27:47-27:52: warning: Field `a` from `Baz` has already been declared

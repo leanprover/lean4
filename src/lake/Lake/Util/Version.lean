@@ -11,6 +11,7 @@ public import Lake.Util.Date
 import Init.Data.String.Slice
 import Init.Data.String.TakeDrop
 import Lean.Data.Trie
+import Init.Data.String.Search
 
 /-! # Version
 
@@ -251,11 +252,11 @@ namespace ToolchainVer
 public instance : Coe LeanVer ToolchainVer := ⟨ToolchainVer.release⟩
 
 public def ofString (ver : String) : ToolchainVer := Id.run do
-  let colonPos := ver.posOf ':'
+  let colonPos := ver.find ':'
   let (origin, tag) :=
-    if h : colonPos < ver.rawEndPos then
-      let pos := colonPos.next' ver (by simp_all [String.rawEndPos, String.Pos.Raw.atEnd, String.Pos.Raw.lt_iff])
-      (String.Pos.Raw.extract ver 0 colonPos, String.Pos.Raw.extract ver pos ver.rawEndPos)
+    if h : ¬colonPos.IsAtEnd then
+      let pos := colonPos.next h
+      (ver.startValidPos.extract colonPos, pos.extract ver.endValidPos)
     else
       ("", ver)
   let noOrigin := origin.isEmpty

@@ -610,9 +610,9 @@ def continuation : String := " [...]"
 
 instance : Std.Format.MonadPrettyFormat M where
   pushOutput s := do
-    let lineEnd := s.find (· == '\n')
-    if lineEnd < s.rawEndPos then
-      let s := (String.Pos.Raw.extract s 0 lineEnd).trimAsciiEnd.copy ++ continuation
+    let lineEnd := s.find '\n'
+    if ¬lineEnd.IsAtEnd then
+      let s := (s.sliceTo lineEnd).trimAsciiEnd.copy ++ continuation
       modify fun st => { st with line := st.line.append s }
       throw ()
     else

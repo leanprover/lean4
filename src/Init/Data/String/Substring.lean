@@ -51,7 +51,7 @@ A substring is empty if its start and end positions are the same.
 def Internal.isEmptyImpl (ss : Substring.Raw) : Bool :=
   Substring.Raw.isEmpty ss
 
-/--
+/--{}
 Copies the region of the underlying string pointed to by a substring into a fresh string.
 -/
 @[inline] def toString : Substring.Raw → String
@@ -155,8 +155,7 @@ Returns the substring-relative position of the first occurrence of `c` in `s`, o
 doesn't occur.
 -/
 @[inline] def posOf (s : Substring.Raw) (c : Char) : String.Pos.Raw :=
-  match s with
-  | ⟨s, b, e⟩ => { byteIdx := (String.posOfAux s c e b).byteIdx - b.byteIdx }
+  s.toSlice.map (·.find c |>.offset) |>.getD ⟨s.bsize⟩
 
 /--
 Removes the specified number of characters (Unicode code points) from the beginning of a substring

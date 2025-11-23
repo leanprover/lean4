@@ -489,10 +489,25 @@ Examples:
  * {lean}`"tea".toSlice.find? (fun (c : Char) => c == 'X') == none`
  * {lean}`("coffee tea water".toSlice.find? "tea").map (·.get!) == some 't'`
 -/
-@[specialize pat]
+@[inline]
 def find? (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : Option s.Pos :=
   let searcher := ToForwardSearcher.toSearcher pat s
   searcher.findSome? (fun | .matched startPos _ => some startPos | .rejected .. => none)
+
+/--
+Finds the position of the first match of the pattern {name}`pat` in a slice {name}`s`. If there
+is no match {lean}`s.endPos` is returned.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * {lean}`("coffee tea water".toSlice.find Char.isWhitespace).get! == ' '`
+ * {lean}`"tea".toSlice.find (fun (c : Char) => c == 'X') == "tea".toSlice.endPos`
+ * {lean}`("coffee tea water".toSlice.find "tea").get! == 't'`
+-/
+@[inline]
+def find (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : s.Pos :=
+  s.find? pat |>.getD s.endPos
 
 /--
 Checks whether a slice has a match of the pattern {name}`pat` anywhere.
@@ -791,7 +806,7 @@ where
   termination_by curr.down
 
 /--
-Finds the position of the first match of the pattern {name}`pat` in a slice {name}`true`, starting
+Finds the position of the first match of the pattern {name}`pat` in a slice, starting
 from the end of the slice and traversing towards the start. If there is no match {name}`none` is
 returned.
 

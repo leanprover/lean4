@@ -122,7 +122,7 @@ instance : HDiv FilePath String FilePath where
   hDiv p sub := FilePath.join p ⟨sub⟩
 
 private def posOfLastSep (p : FilePath) : Option String.Pos.Raw :=
-  p.toString.revFind pathSeparators.contains
+  p.toString.revFind? pathSeparators.contains |>.map String.ValidPos.offset
 
 /--
 Returns the parent directory of a path, if there is one.
@@ -173,7 +173,7 @@ Examples:
 -/
 def fileStem (p : FilePath) : Option String :=
   p.fileName.map fun fname =>
-    match fname.revPosOf '.' with
+    match fname.revFind? '.' |>.map String.ValidPos.offset with
     | some ⟨0⟩ => fname
     | some pos => String.Pos.Raw.extract fname 0 pos
     | none     => fname
@@ -192,7 +192,7 @@ Examples:
 -/
 def extension (p : FilePath) : Option String :=
   p.fileName.bind fun fname =>
-    match fname.revPosOf '.' with
+    match fname.revFind? '.' |>.map String.ValidPos.offset with
     | some 0   => none
     | some pos => some <| String.Pos.Raw.extract fname (pos + '.') fname.rawEndPos
     | none     => none

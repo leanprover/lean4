@@ -2539,95 +2539,6 @@ theorem Pos.Raw.prev_lt_of_pos (s : String) (i : Pos.Raw) (h : i ≠ 0) : (i.pre
 theorem prev_lt_of_pos (s : String) (i : Pos.Raw) (h : i ≠ 0) : (i.prev s).1 < i.1 :=
   Pos.Raw.prev_lt_of_pos s i h
 
-def posOfAux (s : String) (c : Char) (stopPos : Pos.Raw) (pos : Pos.Raw) : Pos.Raw :=
-  if h : pos < stopPos then
-    if pos.get s == c then pos
-    else
-      have := Nat.sub_lt_sub_left h (Pos.Raw.lt_next s pos)
-      posOfAux s c stopPos (pos.next s)
-  else pos
-termination_by stopPos.1 - pos.1
-
-/--
-Returns the position of the first occurrence of a character, `c`, in a string `s`. If `s` does not
-contain `c`, returns `s.rawEndPos`.
-
-Examples:
-* `"abcba".posOf 'a' = ⟨0⟩`
-* `"abcba".posOf 'z' = ⟨5⟩`
-* `"L∃∀N".posOf '∀' = ⟨4⟩`
--/
-@[inline] def posOf (s : String) (c : Char) : Pos.Raw :=
-  posOfAux s c s.rawEndPos 0
-
-@[export lean_string_posof]
-def Internal.posOfImpl (s : String) (c : Char) : Pos.Raw :=
-  String.posOf s c
-
-def revPosOfAux (s : String) (c : Char) (pos : Pos.Raw) : Option Pos.Raw :=
-  if h : pos = 0 then none
-  else
-    have := Pos.Raw.prev_lt_of_pos s pos h
-    let pos := pos.prev s
-    if pos.get s == c then some pos
-    else revPosOfAux s c pos
-termination_by pos.1
-
-/--
-Returns the position of the last occurrence of a character, `c`, in a string `s`. If `s` does not
-contain `c`, returns `none`.
-
-Examples:
-* `"abcabc".revPosOf 'a' = some ⟨3⟩`
-* `"abcabc".revPosOf 'z' = none`
-* `"L∃∀N".revPosOf '∀' = some ⟨4⟩`
--/
-@[inline] def revPosOf (s : String) (c : Char) : Option Pos.Raw :=
-  revPosOfAux s c s.rawEndPos
-
-def findAux (s : String) (p : Char → Bool) (stopPos : Pos.Raw) (pos : Pos.Raw) : Pos.Raw :=
-  if h : pos < stopPos then
-    if p (pos.get s) then pos
-    else
-      have := Nat.sub_lt_sub_left h (Pos.Raw.lt_next s pos)
-      findAux s p stopPos (pos.next s)
-  else pos
-termination_by stopPos.1 - pos.1
-
-/--
-Finds the position of the first character in a string for which the Boolean predicate `p` returns
-`true`. If there is no such character in the string, then the end position of the string is
-returned.
-
-Examples:
- * `"coffee tea water".find (·.isWhitespace) = ⟨6⟩`
- * `"tea".find (· == 'X') = ⟨3⟩`
- * `"".find (· == 'X') = ⟨0⟩`
--/
-@[inline] def find (s : String) (p : Char → Bool) : Pos.Raw :=
-  findAux s p s.rawEndPos 0
-
-def revFindAux (s : String) (p : Char → Bool) (pos : Pos.Raw) : Option Pos.Raw :=
-  if h : pos = 0 then none
-  else
-    have := Pos.Raw.prev_lt_of_pos s pos h
-    let pos := pos.prev s
-    if p (pos.get s) then some pos
-    else revFindAux s p pos
-termination_by pos.1
-
-/--
-Finds the position of the last character in a string for which the Boolean predicate `p` returns
-`true`. If there is no such character in the string, then `none` is returned.
-
-Examples:
- * `"coffee tea water".revFind (·.isWhitespace) = some ⟨10⟩`
- * `"tea".revFind (· == 'X') = none`
- * `"".revFind (· == 'X') = none`
--/
-@[inline] def revFind (s : String) (p : Char → Bool) : Option Pos.Raw :=
-  revFindAux s p s.rawEndPos
-
 /--
 Returns the first position where the two strings differ.
 
@@ -2834,17 +2745,6 @@ where
 @[deprecated Pos.Raw.substrEq (since := "2025-10-10")]
 def substrEq (s1 : String) (pos1 : String.Pos.Raw) (s2 : String) (pos2 : String.Pos.Raw) (sz : Nat) : Bool :=
   Pos.Raw.substrEq s1 pos1 s2 pos2 sz
-
-/--
-Returns the position of the beginning of the line that contains the position `pos`.
-
-Lines are ended by `'\n'`, and the returned position is either `0 : String.Pos` or immediately after
-a `'\n'` character.
--/
-def findLineStart (s : String) (pos : String.Pos.Raw) : String.Pos.Raw :=
-  match s.revFindAux (· = '\n') pos with
-  | none => 0
-  | some n => ⟨n.byteIdx + 1⟩
 
 end String
 

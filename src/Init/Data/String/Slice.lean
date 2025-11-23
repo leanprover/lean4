@@ -1309,7 +1309,7 @@ Examples:
 * {lean}`"abc".toSlice.front? = some 'a'`
 * {lean}`"".toSlice.front? = none`
 -/
-@[inline]
+@[inline, expose]
 def front? (s : Slice) : Option Char :=
   s.startPos.get?
 
@@ -1320,7 +1320,7 @@ Examples:
 * {lean}`"abc".toSlice.front = 'a'`
 * {lean}`"".toSlice.front = (default : Char)`
 -/
-@[inline]
+@[inline, expose]
 def front (s : Slice) : Char :=
   s.front?.getD default
 
@@ -1331,7 +1331,7 @@ Examples:
 * {lean}`"abc".toSlice.back? = some 'c'`
 * {lean}`"".toSlice.back? = none`
 -/
-@[inline]
+@[inline, expose]
 def back? (s : Slice) : Option Char :=
   s.endPos.prev? |>.bind (·.get?)
 
@@ -1342,7 +1342,7 @@ Examples:
 * {lean}`"abc".toSlice.back = 'c'`
 * {lean}`"".toSlice.back = (default : Char)`
 -/
-@[inline]
+@[inline, expose]
 def back (s : Slice) : Char :=
   s.back?.getD default
 

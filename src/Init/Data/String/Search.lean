@@ -234,7 +234,7 @@ Examples:
 * {lean}`"abc".front = 'a'`
 * {lean}`"".front = (default : Char)`
 -/
-@[inline] def front (s : String) : Char :=
+@[inline, expose] def front (s : String) : Char :=
   s.toSlice.front
 
 @[export lean_string_front]
@@ -260,7 +260,7 @@ Examples:
 * {lean}`"abc".back = 'c'`
 * {lean}`"".back = (default : Char)`
 -/
-@[inline] def back (s : String) : Char :=
+@[inline, expose] def back (s : String) : Char :=
   s.toSlice.back
 
 theorem Slice.Pos.ofSlice_ne_endValidPos {s : String} {p : s.toSlice.Pos}

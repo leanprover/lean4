@@ -39,7 +39,7 @@ structure Chunk where
   optional strings.
   -/
   extensions : Array (String × Option String) := #[]
-  deriving Inhabited
+deriving Inhabited
 
 namespace Chunk
 

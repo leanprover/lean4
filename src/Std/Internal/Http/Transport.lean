@@ -115,7 +115,7 @@ Send all ByteArrays through a channel.
 -/
 def sendAll (sendChan : Std.CloseableChannel ByteArray) (data : Array ByteArray) : Async Unit := do
   for chunk in data do
-    Async.ofAsyncTask ((← sendChan.send chunk) |>.map (Except.mapError (IO.userError ∘ toString)))
+    send sendChan chunk
 
 /--
 Create a selector for receiving from a channel with joining behavior.
@@ -186,7 +186,6 @@ def getSendChan (server : Mock.Server) : Std.CloseableChannel ByteArray :=
 Send a single ByteArray.
 -/
 def send (server : Mock.Server) (data : ByteArray) : Async Unit :=
-  dbg_trace "<---- {(String.fromUTF8! data).quote}"
   Mock.send (getSendChan server) data
 
 /--

@@ -68,7 +68,14 @@ Returns `none` if the stream is closed and no data is available.
 -/
 def recv (stream : ByteStream) : Async (Option Chunk) := do
   let task ← stream.channel.recv
-  Async.ofTask task
+  let chunk ← Async.ofTask task
+
+  stream.knownSize.atomically do
+    match (← get), chunk with
+    | some (.fixed res), some chunk =>
+      set (some (Body.Length.fixed (res - chunk.size)))
+      pure (some chunk)
+    | _, _ => pure chunk
 
 /--
 Receives a chunk and returns only its data, discarding extensions.

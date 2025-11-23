@@ -107,7 +107,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     if hasMethod req .head
     then return Response.ok "" (Headers.empty |>.insert (.ofString! bigString) (.ofString! "ata"))
     else return Response.notFound
-  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }
 
 #eval runTestCase {
@@ -180,7 +180,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   handler := fun _ => do
     return Response.ok "ok"
 
-  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }
 
 #eval runTestCase {

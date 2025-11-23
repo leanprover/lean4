@@ -273,7 +273,15 @@ private def processHeaders (machine : Machine dir) : Machine dir :=
         | .chunked => .needChunkedSize
 
 def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : Machine dir :=
+
   let hasClose := hasConnectionClose messageHead.headers
+
+  let hasClose :=
+    if dir == .receiving then
+      hasClose ∨ hasConnectionClose machine.reader.messageHead.headers
+    else
+      hasClose
+
   let machine := { machine with keepAlive := ¬hasClose }
   let size := Writer.determineTransferMode machine.writer
 

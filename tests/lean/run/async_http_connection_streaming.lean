@@ -96,6 +96,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.method .get
     |>.uri! "/stream"
     |>.header! "Host" "example.com"
+    |>.header! "Connection" "close"
     |>.body #[]
 
   handler := fun req => do
@@ -110,7 +111,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
 
     return Response.ok stream (.empty |>.insert (.new "Content-Length") (.new "21"))
 
-  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 21\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nchunk0\nchunk1\nchunk2\n"
+  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 21\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nchunk0\nchunk1\nchunk2\n"
 }
 
 #eval runTestCase {
@@ -120,6 +121,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.method .get
     |>.uri! "/stream-sized"
     |>.header! "Host" "example.com"
+    |>.header! "Connection" "close"
     |>.body #[]
 
   handler := fun _ => do
@@ -134,7 +136,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
 
     return Response.ok stream .empty
 
-  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 15\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\ndata0data1data2"
+  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 15\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\ndata0data1data2"
 }
 
 #eval runTestCase {
@@ -156,7 +158,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
       stream.close
     return Response.ok stream .empty
 
-  expected := "HTTP/1.1 200 OK\x0d\nTransfer-Encoding: chunked\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n5\x0d\nhello\x0d\n5\x0d\nworld\x0d\n0\x0d\n\x0d\n"
+  expected := "HTTP/1.1 200 OK\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n5\x0d\nhello\x0d\n5\x0d\nworld\x0d\n0\x0d\n\x0d\n"
 }
 
 #eval runTestCase {
@@ -185,7 +187,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     else
       return Response.badRequest "not chunked"
 
-  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 18\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nresponse0response1"
+  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 18\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nresponse0response1"
   chunked := true
 }
 
@@ -215,6 +217,6 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     else
       return Response.badRequest "not chunked"
 
-  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 18\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nresponse0response1"
+  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 18\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nresponse0response1"
   chunked := true
 }

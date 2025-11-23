@@ -42,11 +42,6 @@ public structure Connection (α : Type) where
   -/
   machine : Protocol.H1.Machine .sending
 
-  /--
-  The Host value for a client.
-  -/
-  host : HeaderValue
-
 /--
 A request packet to be sent through the persistent connection channel
 -/
@@ -130,35 +125,36 @@ namespace Connection
 
 private inductive Recv
   | bytes (x : Option ByteArray)
+  | channel (x : Option Chunk)
   | timeout
 
-private def receiveWithTimeout [Transport α] (socket : α) (expect : UInt64)
+private def receiveWithTimeout [Transport α] (socket : α) (expect : UInt64) (channel : Option Body.ByteStream)
     (timeoutMs : Millisecond.Offset) (req : Timestamp) (all : Timestamp) :
   Async Recv := do
-    Selectable.one #[
+    let mut selectables : Array (Selectable _) := #[
       .case (Transport.recvSelector socket expect) (fun x => pure <| .bytes x),
       .case (← Selector.sleep timeoutMs) (fun _ => pure <| .timeout),
       .case (← Selector.sleep (req - (← Timestamp.now) |>.toMilliseconds)) (fun _ => pure <| .timeout),
-      .case (← Selector.sleep (all - (← Timestamp.now) |>.toMilliseconds)) (fun _ => pure <| .timeout)]
+      .case (← Selector.sleep (all - (← Timestamp.now) |>.toMilliseconds)) (fun _ => pure <| .timeout)
+    ]
+
+    if let some channel := channel then
+      selectables := selectables.push (.case channel.recvSelector (fun res => pure <| .channel res))
+
+    Selectable.one selectables
 
 private def processNeedMoreData
-    [Transport α] (config : Config) (socket : α) (expect : Option Nat)
+    [Transport α] (config : Config) (socket : α) (expect : Option Nat) (channel : Option Body.ByteStream)
     (req : Timestamp) (all : Timestamp):
-    Async (Except Protocol.H1.Error (Option ByteArray)) := do
+    Async Recv := do
   try
     let expect := expect
       |>.getD config.defaultRequestBufferSize
       |>.min config.maxRecvChunkSize
 
-    let data ← receiveWithTimeout socket expect.toUInt64 config.readTimeout req all
-
-    match data with
-    | .bytes (some bytes) => pure (.ok <| some bytes)
-    | .bytes none => pure (.ok <| none)
-    | .timeout => pure (.error .timeout)
-
+    receiveWithTimeout socket expect.toUInt64 channel config.readTimeout req all
   catch _ =>
-    pure (.error .timeout)
+    pure .timeout
 
 private def handle [Transport α] (connection : Connection α) (config : Client.Config) (requestChannel : CloseableChannel RequestPacket) : Async Unit := do
   let mut machine := connection.machine
@@ -180,11 +176,6 @@ private def handle [Transport α] (connection : Connection α) (config : Client.
         waitingForRequest := false
 
         let head := packet.request.head
-        let head :=
-          if head.headers.contains (.new "host")
-            then head
-            else { head with headers := head.headers.insert (.new "Host") connection.host}
-
         machine := machine.send head
 
         match packet.request.body with
@@ -213,12 +204,17 @@ private def handle [Transport α] (connection : Connection α) (config : Client.
       match event with
       | .needMoreData expect => do
         try
-          match ← processNeedMoreData config socket expect requestTimer connectionTimer with
-          | .ok (some bs) =>
+          match ← processNeedMoreData config socket expect reqStream requestTimer connectionTimer with
+          | .bytes (some bs) =>
             machine := machine.feed bs
-          | .ok none =>
+          | .bytes none =>
             machine := machine.noMoreInput
-          | .error _ =>
+          | .channel (some chunk) =>
+            machine := machine.sendData #[chunk]
+          | .channel none =>
+            machine := machine.userClosedBody
+            reqStream := none
+          | .timeout =>
             machine := machine.closeWriter.closeReader.userClosedBody
 
         catch e =>
@@ -263,13 +259,14 @@ private def handle [Transport α] (connection : Connection α) (config : Client.
             machine := machine.sendData #[data]
           else
             machine := machine.userClosedBody
+            reqStream := none
         else
-          if ← stream.isClosed then
-            pure ()
-          else
-            match ← stream.tryRecv with
-            | some res => machine := machine.sendData #[res]
-            | none => machine := machine.userClosedBody
+          match ← stream.tryRecv with
+          | some res =>
+            machine := machine.sendData #[res]
+          | none =>
+            machine := machine.userClosedBody
+            reqStream := none
 
   responseStream.close
   requestChannel.close
@@ -301,7 +298,7 @@ persistent.close
 -/
 def createPersistentConnection [Transport t] (client : t) (host : String) (config : Client.Config := {}) : Async (PersistentConnection t) := do
   let requestChannel ← CloseableChannel.new
-  let connection := Connection.mk client { config := config.toH1Config } (HeaderValue.ofString? host |>.getD (.new ""))
+  let connection := Connection.mk client { config := config.toH1Config, host := HeaderValue.ofString? host }
   let shutdown ← IO.Promise.new
 
   let conn := { connection, requestChannel, shutdown }

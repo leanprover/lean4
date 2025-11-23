@@ -102,7 +102,6 @@ private def handle
   while ¬machine.halted do
     let (newMachine, step) := machine.step
     machine := newMachine
-
     if machine.reader.state == .closed ∧ ¬waitingResponse then
       machine := machine.closeWriter
 

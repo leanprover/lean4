@@ -82,12 +82,6 @@ def testSizeLimit (pair : Mock.Client × Mock.Server) : IO Unit := do
           |>.header! "Connection" "close"
           |>.body Body.zero
 
-
-      let res ← do
-        match req.body with
-        | .stream s => pure <| toString (← s.isClosed)
-        | _ => pure "b"
-
       return Response.new
         |>.status .ok
         |>.body req.body
@@ -96,7 +90,7 @@ def testSizeLimit (pair : Mock.Client × Mock.Server) : IO Unit := do
 
     let conn ← Http.Client.createPersistentConnection client "localhost"
 
-    let response ← conn.send <| .post (.parse! "/atata/be") "a faca que corta o fogo"
+    let response ← conn.send <| .post (.parse! "/a/b") "maracujá"
 
     let body := response.body
     let res ← body.collectString

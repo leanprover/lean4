@@ -1342,6 +1342,12 @@ theorem forM_eq_forM {t : Impl α β} {m : Type w → Type w'} [Monad m] [Lawful
 ### forIn
 -/
 
+theorem forInNew_eq_forInNew_toListModel {δ σ : Type w} {t : Impl α β} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    {kcons : (a : α) → β a → (σ → m δ) → σ → m δ} {knil : σ → m δ} {init : σ} :
+    t.forInNew init kcons knil = ForInNew.forInNew t.toListModel init (fun a => kcons a.1 a.2) knil := by
+  induction t generalizing init knil with simp [Impl.forInNew, *]
+
+
 theorem forInStep_eq_foldlM {δ : Type w} {t : Impl α β} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {f : (a : α) → β a → δ → m (ForInStep δ)} {init : δ} :
     t.forInStep f init = t.foldlM (init := .yield init) fun
@@ -1736,7 +1742,7 @@ theorem WF.eraseManyEntries! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ ((a : 
 
 theorem insertMany!_eq_foldl {_ : Ord α} {l : List ((a : α) × β a)} {t : Impl α β} :
     (t.insertMany! l).val = l.foldl (init := t) fun acc ⟨k, v⟩ => acc.insert! k v := by
-  simp [insertMany!, ← List.foldl_hom Subtype.val, List.forIn_pure_yield_eq_foldl]
+  simp [insertMany!, ← List.foldl_hom Subtype.val, List.forInNew'_pure_eq_foldl]
 
 theorem insertMany_eq_foldl {_ : Ord α} {l : List ((a : α) × β a)} {t : Impl α β} (h : t.Balanced) :
     (t.insertMany l h).val = l.foldl (init := t) fun acc ⟨k, v⟩ => acc.insert! k v := by
@@ -1748,16 +1754,16 @@ theorem insertMany_eq_foldl_impl {_ : Ord α} {t₁ : Impl α β} (h₁ : t₁.B
   rw [← insertMany_eq_foldl]
   rotate_left
   . exact h₁
-  . simp only [insertMany, pure, ForIn.forIn, Id.run_bind]
-    rw [forIn_eq_forIn_toListModel]
+  . simp only [insertMany, pure, ForIn.forIn, ForInNew.forInNew, Id.run_bind]
+    simp only [forIn_eq_forIn_toListModel, forInNew_eq_forInNew_toListModel]
     congr
 
 theorem insertMany!_eq_foldl_impl {_ : Ord α} {t₁ : Impl α β} {t₂ : Impl α β}:
     (t₁.insertMany! t₂).val = t₂.foldl (init := t₁) fun acc k v => acc.insert! k v := by
   simp [foldl_eq_foldl]
   rw [← insertMany!_eq_foldl]
-  simp only [insertMany!, pure, ForIn.forIn, Id.run_bind]
-  rw [forIn_eq_forIn_toListModel]
+  simp only [insertMany!, pure, ForIn.forIn, ForInNew.forInNew, Id.run_bind]
+  simp only [forIn_eq_forIn_toListModel, forInNew_eq_forInNew_toListModel]
   congr
 
 theorem insertManyIfNew_eq_foldl {_ : Ord α} {l : List ((a : α) × β a)} {t : Impl α β} (h : t.Balanced) :
@@ -1774,16 +1780,16 @@ theorem insertManyIfNew_eq_foldl_impl {_ : Ord α} {t₁ : Impl α β} (h₁ : t
   rw [← insertManyIfNew_eq_foldl]
   rotate_left
   . exact h₁
-  . simp only [insertManyIfNew, ForIn.forIn, pure, Id.run_bind]
-    rw [forIn_eq_forIn_toListModel]
+  . simp only [insertManyIfNew, ForIn.forIn, ForInNew.forInNew, pure, Id.run_bind]
+    simp only [forIn_eq_forIn_toListModel, forInNew_eq_forInNew_toListModel]
     congr
 
 theorem insertManyIfNew!_eq_foldl_impl {_ : Ord α} {t₁ : Impl α β} {t₂ : Impl α β}:
     (t₁.insertManyIfNew! t₂).val = t₂.foldl (init := t₁) fun acc k v => acc.insertIfNew! k v := by
   simp [foldl_eq_foldl]
   rw [← insertManyIfNew!_eq_foldl]
-  simp only [insertManyIfNew!, ForIn.forIn, pure, Id.run_bind]
-  rw [forIn_eq_forIn_toListModel]
+  simp only [insertManyIfNew!, ForIn.forIn, ForInNew.forInNew, pure, Id.run_bind]
+  simp only [forIn_eq_forIn_toListModel, forInNew_eq_forInNew_toListModel]
   congr
 
 theorem insertMany_eq_insertMany! {_ : Ord α} {l : List ((a : α) × β a)}
@@ -1941,14 +1947,14 @@ variable {β : Type v}
 
 theorem insertMany!_eq_foldl {_ : Ord α} {l : List (α × β)} {t : Impl α β} :
     (insertMany! t l).val = l.foldl (init := t) fun acc ⟨k, v⟩ => acc.insert! k v := by
-  simp only [insertMany!, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
+  simp only [insertMany!, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl, List.forInNew_pure_eq_foldl]
   rw [← List.foldl_hom Subtype.val]
   simp only [implies_true]
 
 theorem insertMany_eq_foldl {_ : Ord α} {l : List (α × β)}
     {t : Impl α β} (h : t.Balanced) :
     (Const.insertMany t l h).val = l.foldl (init := t) fun acc ⟨k, v⟩ => acc.insert! k v := by
-  simp only [insertMany, Id.run_pure, insert_eq_insert!, pure_bind, List.forIn_pure_yield_eq_foldl]
+  simp only [insertMany, Id.run_pure, insert_eq_insert!, pure_bind, List.forIn_pure_yield_eq_foldl, List.forInNew_pure_eq_foldl]
   rw [← List.foldl_hom Subtype.val]
   simp only [implies_true]
 
@@ -1975,13 +1981,13 @@ theorem toListModel_insertMany!_list {_ : Ord α} [BEq α] [LawfulBEqOrd α] [Tr
 
 theorem insertManyIfNewUnit_eq_foldl {_ : Ord α} {l : List α} {t : Impl α Unit} (h : t.Balanced) :
     (Const.insertManyIfNewUnit t l h).val = l.foldl (init := t) fun acc k => acc.insertIfNew! k () := by
-  simp only [insertManyIfNewUnit, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
+  simp only [insertManyIfNewUnit, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl, List.forInNew_pure_eq_foldl]
   rw [← List.foldl_hom Subtype.val]
   simp only [insertIfNew_eq_insertIfNew!, implies_true]
 
 theorem insertManyIfNewUnit!_eq_foldl {_ : Ord α} {l : List α} {t : Impl α Unit} :
     (Const.insertManyIfNewUnit! t l).val = l.foldl (init := t) fun acc k => acc.insertIfNew! k () := by
-  simp only [insertManyIfNewUnit!, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
+  simp only [insertManyIfNewUnit!, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl, List.forInNew_pure_eq_foldl]
   rw [← List.foldl_hom Subtype.val]
   simp only [implies_true]
 

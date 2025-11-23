@@ -133,7 +133,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.uri! "/api/users"
     |>.header! "Host" "api.example.com"
     |>.header! "Content-Type" "application/json"
-    |>.header! "Content-Length" "20"
+    |>.header! "Content-Length" "16"
     |>.header! "Connection" "close"
     |>.body #[.mk "{\"name\":\"Alice\"}".toUTF8 #[]]
 

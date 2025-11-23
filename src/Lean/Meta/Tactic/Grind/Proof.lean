@@ -230,7 +230,7 @@ mutual
     else
       mkHCongrProof' f g numArgs lhs rhs heq
 
-  private partial def mkCongrHOProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
+  private partial def mkCongrProofFunCC (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
     let rec go (e₁ e₂ : Expr) (numArgs : Nat) : GoalM Expr := do
       let .app f _ := e₁ | unreachable!
       let .app g _ := e₂ | unreachable!
@@ -250,7 +250,9 @@ mutual
       let u ← withDefault <| getLevel p₁
       let v ← withDefault <| getLevel q₁
       return mkApp6 (mkConst ``implies_congr [u, v]) p₁ p₂ q₁ q₂ (← mkEqProofCore p₁ p₂ false) (← mkEqProofCore q₁ q₂ false)
-    else if (← useFO lhs) then
+    else if (← useFunCC lhs) then
+      mkCongrProofFunCC lhs rhs heq
+    else
       let f := lhs.getAppFn
       let g := rhs.getAppFn
       let numArgs := lhs.getAppNumArgs
@@ -266,8 +268,6 @@ mutual
         mkCongrDefaultProof lhs rhs heq
       else
         mkHCongrProof lhs rhs heq
-    else
-      mkCongrHOProof lhs rhs heq
 
   private partial def realizeEqProof (lhs rhs : Expr) (h : Expr) (flipped : Bool) (heq : Bool) : GoalM Expr := do
     if h == congrPlaceholderProof then

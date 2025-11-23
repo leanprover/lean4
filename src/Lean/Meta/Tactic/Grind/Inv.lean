@@ -65,8 +65,8 @@ def checkMatchCondParent (e : Expr) (parent : Expr) : GoalM Bool := do
   return false
 
 def checkParents (e : Expr) : GoalM Unit := do
-  -- **Note**: We currently check only the first-order approximation
-  if (← useFO e) then
+  -- **Note**: We currently do not check the `funCC` case
+  unless (← useFunCC e) do
     if (← isRoot e) then
       for parent in (← getParents e).elems do
         if isMatchCond parent then

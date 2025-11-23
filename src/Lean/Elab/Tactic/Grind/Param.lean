@@ -141,6 +141,8 @@ def processParam (params : Grind.Params)
   | .symbol prio =>
     ensureNoMinIndexable minIndexable
     params := { params with symPrios := params.symPrios.insert declName prio }
+  | .funCC =>
+    params := { params with funCCs := params.funCCs.insert declName }
   return params
 
 def processAnchor (params : Grind.Params) (val : TSyntax `hexnum) : CoreM Grind.Params := do
@@ -161,7 +163,7 @@ def processTermParam (params : Grind.Params)
   checkNoRevert params
   let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
   let kind ← match kind with
-    | .ematch .user | .cases _ | .intro | .inj | .ext | .symbol _ =>
+    | .ematch .user | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC =>
       throwError "invalid `grind` parameter, only global declarations are allowed with this kind of modifier"
     | .ematch kind => pure kind
     | .infer => pure <| .default false

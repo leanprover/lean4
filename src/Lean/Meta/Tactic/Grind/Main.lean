@@ -39,6 +39,7 @@ structure Params where
   casesTypes  : CasesTypes := {}
   extra       : PArray EMatchTheorem := {}
   extraInj    : PArray InjectiveTheorem := {}
+  funCCs      : NameSet := {}
   norm        : Simp.Context
   normProcs   : Array Simprocs
   anchorRefs? : Option (Array AnchorRef) := none
@@ -96,7 +97,8 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
   let config := params.config
   let symPrios := params.symPrios
   let anchorRefs? := params.anchorRefs?
-  x (← mkMethods evalTactic?).toMethodsRef { config, anchorRefs?, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr, symPrios }
+  let funCCs := params.funCCs
+  x (← mkMethods evalTactic?).toMethodsRef { config, anchorRefs?, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr, symPrios, funCCs }
     |>.run' { scState }
 
 private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State := mvarId.withContext do
@@ -119,12 +121,12 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let clean ← mkCleanState mvarId params
   let sstates ← Solvers.mkInitialStates
   GoalM.run' { mvarId, ematch.thmMap := thmMap, inj.thms := params.inj, split.casesTypes := casesTypes, clean, sstates } do
-    mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
-    mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
-    mkENodeCore btrueExpr (interpreted := false) (ctor := true) (generation := 0)
-    mkENodeCore bfalseExpr (interpreted := false) (ctor := true) (generation := 0)
-    mkENodeCore natZeroExpr (interpreted := true) (ctor := false) (generation := 0)
-    mkENodeCore ordEqExpr (interpreted := false) (ctor := true) (generation := 0)
+    mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0) (funCC := false)
+    mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0) (funCC := false)
+    mkENodeCore btrueExpr (interpreted := false) (ctor := true) (generation := 0) (funCC := false)
+    mkENodeCore bfalseExpr (interpreted := false) (ctor := true) (generation := 0) (funCC := false)
+    mkENodeCore natZeroExpr (interpreted := true) (ctor := false) (generation := 0) (funCC := false)
+    mkENodeCore ordEqExpr (interpreted := false) (ctor := true) (generation := 0) (funCC := false)
     for thm in params.extra do
       activateTheorem thm 0
 

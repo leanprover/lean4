@@ -215,7 +215,7 @@ jobs:
               },
               {
                 "name": "Linux fsanitize",
-                "os": "ubuntu-latest",
+                "os": large && fast ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
                 "enabled": level >= 2,
                 // do not have nightly release wait for this
                 "secondary": level <= 2,

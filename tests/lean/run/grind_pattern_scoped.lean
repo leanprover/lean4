@@ -3,31 +3,15 @@ import Lean.Meta.Tactic.Grind.EMatchTheorem
 open Lean
 open Lean.Meta.Grind
 
--- This should show the scoped grind_pattern in `Int`
--- Check ALL scoped entries in the environment
+/-- info: Namespaces with `scoped grind_pattern` includes `Lean.Meta.Grind.Lia`: true -/
+#guard_msgs in
 run_cmd do
   let stateStack := ematchTheoremsExt.ext.getState (← getEnv)
   let allNamespaces := stateStack.scopedEntries.map.fold (init := #[]) (fun acc k _ => acc.push k)
-  logInfo s!"All scoped grind_pattern namespaces: {allNamespaces}"
-
-namespace Foo
-scoped grind_pattern Int.max_def => max n m
-end Foo
-
-run_cmd do
-  let stateStack := ematchTheoremsExt.ext.getState (← getEnv)
-  let allNamespaces := stateStack.scopedEntries.map.fold (init := #[]) (fun acc k _ => acc.push k)
-  logInfo s!"All scoped grind_pattern namespaces: {allNamespaces}"
-
+  logInfo s!"Namespaces with `scoped grind_pattern` includes `Lean.Meta.Grind.Lia`: {allNamespaces.contains `Lean.Meta.Grind.Lia}"
 
 -- Test namespace-based theorem instantiation
 example (x y : Int) (h : max x y < 7) : x + y < 13 := by
   grind =>
-    use [ns Int]
-    repeat (first (lia) (cases_next))
-
--- Test namespace-based theorem instantiation
-example (x y : Int) (h : max x y < 7) : x + y < 13 := by
-  grind =>
-    use [ns Foo]
+    use [ns Lean.Meta.Grind.Lia]
     repeat (first (lia) (cases_next))

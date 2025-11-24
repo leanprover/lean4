@@ -30,7 +30,7 @@ deriving Inhabited
 namespace ForwardCharPredSearcher
 
 @[inline]
-def iter (s : Slice) (p : Char → Bool) : Std.Iter (α := ForwardCharPredSearcher s) (SearchStep s) :=
+def iter (p : Char → Bool) (s : Slice) : Std.Iter (α := ForwardCharPredSearcher s) (SearchStep s) :=
   { internalState := { currPos := s.startPos, needle := p }}
 
 instance (s : Slice) : Std.Iterators.Iterator (ForwardCharPredSearcher s) Id (SearchStep s) where
@@ -81,10 +81,16 @@ instance : Std.Iterators.Finite (ForwardCharPredSearcher s) Id :=
 instance : Std.Iterators.IteratorLoop (ForwardCharPredSearcher s) Id Id :=
   .defaultImplementation
 
-instance : ToForwardSearcher (Char → Bool) ForwardCharPredSearcher where
-  toSearcher := iter
+instance {p : Char → Bool} : ToForwardSearcher p ForwardCharPredSearcher where
+  toSearcher := iter p
 
-instance : ForwardPattern (Char → Bool) := .defaultImplementation
+instance {p : Char → Bool} : ForwardPattern p := .defaultImplementation
+
+instance {p : Char → Prop} [DecidablePred p] : ToForwardSearcher p ForwardCharPredSearcher where
+  toSearcher := iter (decide <| p ·)
+
+instance {p : Char → Prop} [DecidablePred p] : ForwardPattern p :=
+  .defaultImplementation
 
 end ForwardCharPredSearcher
 
@@ -96,7 +102,7 @@ deriving Inhabited
 namespace BackwardCharPredSearcher
 
 @[inline]
-def iter (s : Slice) (c : Char → Bool) : Std.Iter (α := BackwardCharPredSearcher s) (SearchStep s) :=
+def iter (c : Char → Bool) (s : Slice) : Std.Iter (α := BackwardCharPredSearcher s) (SearchStep s) :=
   { internalState := { currPos := s.endPos, needle := c }}
 
 instance (s : Slice) : Std.Iterators.Iterator (BackwardCharPredSearcher s) Id (SearchStep s) where
@@ -149,10 +155,16 @@ instance : Std.Iterators.Finite (BackwardCharPredSearcher s) Id :=
 instance : Std.Iterators.IteratorLoop (BackwardCharPredSearcher s) Id Id :=
   .defaultImplementation
 
-instance : ToBackwardSearcher (Char → Bool) BackwardCharPredSearcher where
-  toSearcher := iter
+instance {p : Char → Bool} : ToBackwardSearcher p BackwardCharPredSearcher where
+  toSearcher := iter p
 
-instance : BackwardPattern (Char → Bool) := ToBackwardSearcher.defaultImplementation
+instance {p : Char → Bool} : BackwardPattern p := ToBackwardSearcher.defaultImplementation
+
+instance {p : Char → Prop} [DecidablePred p] : ToBackwardSearcher p BackwardCharPredSearcher where
+  toSearcher := iter (decide <| p ·)
+
+instance {p : Char → Prop} [DecidablePred p] : BackwardPattern p :=
+  ToBackwardSearcher.defaultImplementation
 
 end BackwardCharPredSearcher
 

@@ -65,33 +65,35 @@ def checkMatchCondParent (e : Expr) (parent : Expr) : GoalM Bool := do
   return false
 
 def checkParents (e : Expr) : GoalM Unit := do
-  if (← isRoot e) then
-    for parent in (← getParents e).elems do
-      if isMatchCond parent then
-        unless (← checkMatchCondParent e parent) do
-          throwError "e: {e}, parent: {parent}"
-        assert! (← checkMatchCondParent e parent)
-      else
-        let mut found := false
-        -- There is an argument `arg` s.t. root of `arg` is `e`.
-        for arg in parent.getAppArgs do
-          if (← checkChild e arg) then
-            found := true
-            break
-        -- Recall that we have support for `Expr.forallE` propagation. See `ForallProp.lean`.
-        if let .forallE _ d b _ := parent then
-          if (← checkChild e d) then
-            found := true
-          unless b.hasLooseBVars do
-            if (← checkChild e b) then
-              found := true
-        unless found do
-          unless (← checkChild e parent.getAppFn) do
+  -- **Note**: We currently do not check the `funCC` case
+  unless (← useFunCC e) do
+    if (← isRoot e) then
+      for parent in (← getParents e).elems do
+        if isMatchCond parent then
+          unless (← checkMatchCondParent e parent) do
             throwError "e: {e}, parent: {parent}"
-          assert! (← checkChild e parent.getAppFn)
-  else
-    -- All the parents are stored in the root of the equivalence class.
-    assert! (← getParents e).isEmpty
+          assert! (← checkMatchCondParent e parent)
+        else
+          let mut found := false
+          -- There is an argument `arg` s.t. root of `arg` is `e`.
+          for arg in parent.getAppArgs do
+            if (← checkChild e arg) then
+              found := true
+              break
+          -- Recall that we have support for `Expr.forallE` propagation. See `ForallProp.lean`.
+          if let .forallE _ d b _ := parent then
+            if (← checkChild e d) then
+              found := true
+            unless b.hasLooseBVars do
+              if (← checkChild e b) then
+                found := true
+          unless found do
+            unless (← checkChild e parent.getAppFn) do
+              throwError "e: {e}, parent: {parent}"
+            assert! (← checkChild e parent.getAppFn)
+    else
+      -- All the parents are stored in the root of the equivalence class.
+      assert! (← getParents e).isEmpty
 
 def checkPtrEqImpliesStructEq : GoalM Unit := do
   let exprs ← getExprs

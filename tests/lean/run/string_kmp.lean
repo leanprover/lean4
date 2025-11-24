@@ -6,7 +6,7 @@ inductive S where
 deriving Repr, BEq, DecidableEq
 
 def run (s pat : String) : List S :=
-  String.Slice.Pattern.ForwardSliceSearcher.iter s.toSlice pat.toSlice
+  String.Slice.Pattern.ForwardSliceSearcher.iter pat.toSlice s.toSlice
     |>.map (fun | .matched b e => S.m b.offset.byteIdx e.offset.byteIdx | .rejected b e => S.r b.offset.byteIdx e.offset.byteIdx)
     |>.toList
 

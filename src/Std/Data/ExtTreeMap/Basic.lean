@@ -535,6 +535,10 @@ def union [TransCmp cmp] (t₁ t₂ : ExtTreeMap α β cmp) : ExtTreeMap α β c
 
 instance [TransCmp cmp] : Union (ExtTreeMap α β cmp) := ⟨union⟩
 
+@[inline, inherit_doc ExtDTreeMap.inter]
+def inter [TransCmp cmp] (t₁ t₂ : ExtTreeMap α β cmp) : ExtTreeMap α β cmp := ⟨ExtDTreeMap.inter t₁.inner t₂.inner⟩
+
+instance [TransCmp cmp] : Inter (ExtTreeMap α β cmp) := ⟨inter⟩
 
 @[inline, inherit_doc ExtDTreeMap.eraseMany]
 def eraseMany [TransCmp cmp] {ρ} [ForIn Id ρ α] (t : ExtTreeMap α β cmp) (l : ρ) : ExtTreeMap α β cmp :=

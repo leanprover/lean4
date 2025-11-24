@@ -300,8 +300,13 @@ Helper function for propagating over-applied `ite` and `dite`-applications.
 `prefixSize <= args.size`
 -/
 private def applyCongrFun (e rhs : Expr) (h : Expr) (prefixSize : Nat) (args : Array Expr) : GoalM Unit := do
+  /-
+  **Note**: We did not use to set `e` as the parent for `rhs`. This was incorrect because some
+  solvers will inspect the parent to decide whether the term should be internalized or not in the
+  solver.
+  -/
   if prefixSize == args.size then
-    internalize rhs (← getGeneration e)
+    internalize rhs (← getGeneration e) e
     pushEq e rhs h
   else
     go rhs h prefixSize
@@ -314,7 +319,7 @@ where
       go rhs' h' (i+1)
     else
       let rhs ← preprocessLight rhs
-      internalize rhs (← getGeneration e)
+      internalize rhs (← getGeneration e) e
       pushEq e rhs h
 
 /-- Propagates `ite` upwards -/

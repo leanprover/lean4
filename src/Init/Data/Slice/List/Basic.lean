@@ -49,7 +49,7 @@ Additionally, the starting index is clamped to the ending index.
 This function is linear in `start` because it stores `as.drop start` in the slice.
 -/
 public def List.toSlice (as : List α) (start : Nat) (stop : Nat) : ListSlice α :=
-  if start ≤ stop then
+  if start < stop then
     ⟨{ list := as.drop start, stop := some (stop - start) }⟩
   else
     ⟨{ list := [], stop := some 0 }⟩
@@ -66,36 +66,94 @@ public def List.toUnboundedSlice (as : List α) (start : Nat) : ListSlice α :=
 
 public instance : Rcc.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    (xs.toSlice range.lower (range.upper + 1))
+    xs.toSlice range.lower (range.upper + 1)
 
 public instance : Rco.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    (xs.toSlice range.lower range.upper)
+    xs.toSlice range.lower range.upper
 
 public instance : Rci.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    (xs.toUnboundedSlice range.lower)
+    xs.toUnboundedSlice range.lower
 
 public instance : Roc.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    (xs.toSlice (range.lower + 1) (range.upper + 1))
+    xs.toSlice (range.lower + 1) (range.upper + 1)
 
 public instance : Roo.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    (xs.toSlice (range.lower + 1) range.upper)
+    xs.toSlice (range.lower + 1) range.upper
 
 public instance : Roi.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    (xs.toUnboundedSlice (range.lower + 1))
+    xs.toUnboundedSlice (range.lower + 1)
 
 public instance : Ric.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    (xs.toSlice 0 (range.upper + 1))
+    xs.toSlice 0 (range.upper + 1)
 
 public instance : Rio.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs range :=
-    (xs.toSlice 0 range.upper)
+    xs.toSlice 0 range.upper
 
 public instance : Rii.Sliceable (List α) Nat (ListSlice α) where
   mkSlice xs _ :=
-    (xs.toUnboundedSlice 0)
+    xs.toUnboundedSlice 0
+
+public instance : Rcc.Sliceable (ListSlice α) Nat (ListSlice α) where
+  mkSlice xs range :=
+    let stop := match xs.internalRepresentation.stop with
+      | none => range.upper + 1
+      | some stop => min stop (range.upper + 1)
+    xs.internalRepresentation.list[range.lower...stop]
+
+public instance : Rco.Sliceable (ListSlice α) Nat (ListSlice α) where
+  mkSlice xs range :=
+    let stop := match xs.internalRepresentation.stop with
+      | none => range.upper
+      | some stop => min stop range.upper
+    xs.internalRepresentation.list[range.lower...stop]
+
+public instance : Rci.Sliceable (ListSlice α) Nat (ListSlice α) where
+  mkSlice xs range :=
+    match xs.internalRepresentation.stop with
+    | none => xs.internalRepresentation.list[range.lower...*]
+    | some stop => xs.internalRepresentation.list[range.lower...stop]
+
+public instance : Roc.Sliceable (ListSlice α) Nat (ListSlice α) where
+  mkSlice xs range :=
+    let stop := match xs.internalRepresentation.stop with
+      | none => range.upper + 1
+      | some stop => min stop (range.upper + 1)
+    xs.internalRepresentation.list[range.lower<...stop]
+
+public instance : Roo.Sliceable (ListSlice α) Nat (ListSlice α) where
+  mkSlice xs range :=
+    let stop := match xs.internalRepresentation.stop with
+      | none => range.upper
+      | some stop => min stop range.upper
+    xs.internalRepresentation.list[range.lower<...stop]
+
+public instance : Roi.Sliceable (ListSlice α) Nat (ListSlice α) where
+  mkSlice xs range :=
+    match xs.internalRepresentation.stop with
+    | none => xs.internalRepresentation.list[range.lower<...*]
+    | some stop => xs.internalRepresentation.list[range.lower<...stop]
+
+public instance : Ric.Sliceable (ListSlice α) Nat (ListSlice α) where
+  mkSlice xs range :=
+    let stop := match xs.internalRepresentation.stop with
+      | none => range.upper + 1
+      | some stop => min stop (range.upper + 1)
+    xs.internalRepresentation.list[*...stop]
+
+public instance : Rio.Sliceable (ListSlice α) Nat (ListSlice α) where
+  mkSlice xs range :=
+    let stop := match xs.internalRepresentation.stop with
+      | none => range.upper
+      | some stop => min stop range.upper
+    xs.internalRepresentation.list[*...stop]
+
+public instance : Rii.Sliceable (ListSlice α) Nat (ListSlice α) where
+  mkSlice xs _ :=
+    xs

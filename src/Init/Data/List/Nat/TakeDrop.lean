@@ -374,6 +374,22 @@ theorem drop_take : ∀ {i j : Nat} {l : List α}, drop i (take j l) = take (j -
   rw [drop_take]
   simp
 
+@[simp]
+theorem drop_eq_drop_iff :
+    ∀ {l : List α} {i j : Nat}, l.drop i = l.drop j ↔ min i l.length = min j l.length
+  | [], i, j => by simp
+  | _ :: xs, 0, 0 => by simp
+  | x :: xs, i + 1, 0 => by
+    rw [List.ext_getElem_iff]
+    simp [succ_min_succ, show ¬ xs.length - i = xs.length + 1 by omega]
+  | x :: xs, 0, j + 1 => by
+    rw [List.ext_getElem_iff]
+    simp [succ_min_succ, show ¬ xs.length + 1 = xs.length - j by omega]
+  | x :: xs, i + 1, j + 1 => by simp [succ_min_succ, drop_eq_drop_iff]
+
+theorem drop_eq_drop_min {l : List α} {i : Nat} : l.drop i = l.drop (min i l.length) := by
+  simp
+
 theorem take_reverse {α} {xs : List α} {i : Nat} :
     xs.reverse.take i = (xs.drop (xs.length - i)).reverse := by
   by_cases h : i ≤ xs.length

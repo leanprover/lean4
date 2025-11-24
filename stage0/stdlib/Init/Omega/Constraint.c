@@ -80,6 +80,7 @@ LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_neg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_positivize_x3f(lean_object*);
 lean_object* l_Lean_Omega_IntList_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_UpperBound_sat___boxed(lean_object*, lean_object*);
+uint8_t l_Option_instDecidableEq___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_repr(lean_object*);
 lean_object* l_Lean_Omega_IntList_leading(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_ctorIdx___boxed(lean_object*);
@@ -147,7 +148,6 @@ LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_instToString;
 static lean_object* l_Lean_Omega_Constraint_impossible___closed__3;
 static lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__5;
 lean_object* lean_int_ediv(lean_object*, lean_object*);
-uint8_t l_Option_instDecidableEq_decEq___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_tidy_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_normalize_x3f(lean_object*);
 lean_object* lean_int_neg(lean_object*);
@@ -350,7 +350,7 @@ lean_inc(x_6);
 lean_dec_ref(x_2);
 x_7 = lean_alloc_closure((void*)(l_Int_instDecidableEq___boxed), 2, 0);
 lean_inc_ref(x_7);
-x_8 = l_Option_instDecidableEq_decEq___redArg(x_7, x_3, x_5);
+x_8 = l_Option_instDecidableEq___redArg(x_7, x_3, x_5);
 if (x_8 == 0)
 {
 lean_dec_ref(x_7);
@@ -361,7 +361,7 @@ return x_8;
 else
 {
 uint8_t x_9; 
-x_9 = l_Option_instDecidableEq_decEq___redArg(x_7, x_4, x_6);
+x_9 = l_Option_instDecidableEq___redArg(x_7, x_4, x_6);
 return x_9;
 }
 }

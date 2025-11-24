@@ -41,7 +41,7 @@ protected def Parser.run (p : Parser α) (s : String) : Except String α :=
 Parses the given string.
 -/
 def pstring (s : String) : Parser String := fun it =>
-  if (it.1.replaceStart it.2).startsWith s then
+  if (it.1.sliceFrom it.2).startsWith s then
     .success ⟨_, it.2.nextn s.length⟩ s
   else
     .error it (.other s!"expected: {s}")

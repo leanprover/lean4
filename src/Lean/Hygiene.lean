@@ -69,7 +69,6 @@ private def mkInaccessibleUserName (unicode : Bool) : Name → Name
 
 register_builtin_option pp.sanitizeNames : Bool := {
   defValue := true
-  group    := "pp"
   descr    := "add suffix to shadowed/inaccessible variables when pretty printing"
 }
 

@@ -246,6 +246,11 @@ instance neg (n : Nat) : Neg (Fin n) :=
 
 theorem neg_def (a : Fin n) : -a = ⟨(n - a) % n, Nat.mod_lt _ a.pos⟩ := rfl
 
+-- Later we give another version called `Fin.val_neg` that splits on `a = 0`.
+protected theorem val_neg' (a : Fin n) : ((-a : Fin n) : Nat) = (n - a) % n :=
+  rfl
+
+@[deprecated Fin.val_neg' (since := "2025-11-21")]
 protected theorem coe_neg (a : Fin n) : ((-a : Fin n) : Nat) = (n - a) % n :=
   rfl
 

@@ -22,9 +22,11 @@ trace: [grind.debug.proof] fun h h_1 h_2 h_3 h_4 h_5 h_6 h_7 h_8 =>
           (le_lt_combine ctx p_3 p_5 p_1 (eagerReduce (Eq.refl true))
             (le_le_combine ctx p_4 p_2 p_3 (eagerReduce (Eq.refl true))
               (le_norm ctx e_3 e_2 p_4 (eagerReduce (Eq.refl true))
-                (CommRing.le_norm rctx re_3 re_2 rp_2 (eagerReduce (Eq.refl true)) h_8))
+                (CommRing.le_int_module rctx rp_2
+                  (CommRing.le_norm rctx re_3 re_2 rp_2 (eagerReduce (Eq.refl true)) h_8)))
               (le_norm ctx e_1 e_2 p_2 (eagerReduce (Eq.refl true))
-                (CommRing.le_norm rctx re_1 re_2 rp_1 (eagerReduce (Eq.refl true)) h_1)))
+                (CommRing.le_int_module rctx rp_1
+                  (CommRing.le_norm rctx re_1 re_2 rp_1 (eagerReduce (Eq.refl true)) h_1))))
             (zero_lt_one ctx p_5 (eagerReduce (Eq.refl true)) (Eq.refl One.one))))
 -/
 #guard_msgs in

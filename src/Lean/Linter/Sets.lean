@@ -23,7 +23,6 @@ meta def registerSet (setName : Name) (ref : Name := by exact decl_name%) : IO (
     name := setName
     declName := ref
     defValue := false
-    group := "linterSet"
     descr := ""
   }
   return { name := setName, defValue := false }

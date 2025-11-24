@@ -20,7 +20,7 @@ constructor if the inductive type being defined has no indices.
 
 # Examples
 
-## Typo in resulting type
+## Typo in Resulting Type
 ```lean broken
 inductive Tree (α : Type) where
   | leaf : Tree α
@@ -38,7 +38,7 @@ inductive Tree (α : Type) where
   | node : α → Tree α → Tree α
 ```
 
-## Missing resulting type after constructor parameter
+## Missing Resulting Type After Constructor Parameter
 
 ```lean broken
 inductive Credential where

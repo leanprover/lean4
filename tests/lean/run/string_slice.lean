@@ -18,6 +18,8 @@ Tests for `String.Slice` functions
 #guard "red green blue".toSlice.startsWith "" = true
 #guard "red green blue".toSlice.startsWith 'r' = true
 #guard "red green blue".toSlice.startsWith Char.isLower = true
+#guard "red green blue".toSlice.startsWith (· = 'r') = true
+#guard "red green blue".toSlice.startsWith (· = 's') = false
 
 #guard ("coffee tea water".toSlice.split Char.isWhitespace).toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]
 #guard ("coffee tea water".toSlice.split ' ').toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]
@@ -40,6 +42,7 @@ Tests for `String.Slice` functions
 #guard "red green blue".toSlice.dropWhile 'r' == "ed green blue".toSlice
 #guard "red red green blue".toSlice.dropWhile "red " == "green blue".toSlice
 #guard "red green blue".toSlice.dropWhile (fun (_ : Char) => true) == "".toSlice
+#guard "rrrrred green blue".toSlice.dropWhile (· = 'r') == "ed green blue".toSlice
 
 #guard "abc".toSlice.trimAsciiStart == "abc".toSlice
 #guard "   abc".toSlice.trimAsciiStart == "abc".toSlice
@@ -91,6 +94,8 @@ Tests for `String.Slice` functions
 #guard "red green blue".toSlice.endsWith "" = true
 #guard "red green blue".toSlice.endsWith 'e' = true
 #guard "red green blue".toSlice.endsWith Char.isLower = true
+#guard "red green blue".toSlice.endsWith (· = 'e') = true
+#guard "red green blue".toSlice.endsWith (· = 'f') = false
 
 #guard ("coffee tea water".toSlice.revSplit Char.isWhitespace).toList == ["water".toSlice, "tea".toSlice, "coffee".toSlice]
 #guard ("coffee tea water".toSlice.revSplit ' ').toList == ["water".toSlice, "tea".toSlice, "coffee".toSlice]
@@ -102,6 +107,7 @@ Tests for `String.Slice` functions
 #guard "red green blue".toSlice.dropEndWhile Char.isLower == "red green ".toSlice
 #guard "red green blue".toSlice.dropEndWhile 'e' == "red green blu".toSlice
 #guard "red green blue".toSlice.dropEndWhile (fun (_ : Char) => true) == "".toSlice
+#guard "red green blueeeeeee".toSlice.dropEndWhile (· = 'e') == "red green blu".toSlice
 
 #guard "abc".toSlice.trimAsciiEnd == "abc".toSlice
 #guard "   abc".toSlice.trimAsciiEnd == "   abc".toSlice
@@ -219,8 +225,8 @@ open String.Slice.Pattern
 instance [Monad n]{s : String.Slice} : Std.Iterators.IteratorCollect (ForwardSliceSearcher s) Id n :=
   .defaultImplementation
 
-#guard (ToForwardSearcher.toSearcher "".toSlice "").toList == [.matched "".toSlice.startPos "".toSlice.startPos]
-#guard (ToForwardSearcher.toSearcher "abc".toSlice "").toList == [
+#guard (ToForwardSearcher.toSearcher "" "".toSlice).toList == [.matched "".toSlice.startPos "".toSlice.startPos]
+#guard (ToForwardSearcher.toSearcher "" "abc".toSlice).toList == [
   .matched ("abc".toSlice.pos ⟨0⟩ (by decide)) ("abc".toSlice.pos ⟨0⟩ (by decide)),
   .rejected ("abc".toSlice.pos ⟨0⟩ (by decide)) ("abc".toSlice.pos ⟨1⟩ (by decide)),
   .matched ("abc".toSlice.pos ⟨1⟩ (by decide)) ("abc".toSlice.pos ⟨1⟩ (by decide)),

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.String.Substring
+import Init.Data.String.Search
 
 public section
 

@@ -114,7 +114,11 @@ def propagateBeta (lams : Array Expr) (fns : Array Expr) : GoalM Unit := do
           propagateBetaEqs lams curr args.reverse
         let .app f arg := curr
           | break
-        -- Remark: recall that we do not eagerly internalize partial applications.
+        /-
+        **Note**: Recall that we do not eagerly internalize all partial applications.
+        We can add a small optimization here. If `useFO parent` is `false`, then
+        we know `curr` has been internalized
+        -/
         internalize curr (← getGeneration parent)
         args := args.push arg
         curr := f

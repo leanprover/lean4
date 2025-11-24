@@ -1121,6 +1121,23 @@ def useTraceSynthMsg : MessageData :=
     else
       pure <| .hint' s!"Type class instance resolution failures can be inspected with the `set_option {trace.Meta.synthInstance.name} true` command."
 
+builtin_initialize derivableRef : IO.Ref NameSet ← IO.mkRef {}
+
+/--
+Registers a deriving handler for the purpose of error message delivery in `synthesizeInstMVarCore`.
+This should only be called by `Lean.Elab.Term.registerDerivingHandler`.
+-/
+def registerDerivableClass (className : Name) : IO Unit := do
+  unless (← initializing) do
+    throw (IO.userError "failed to register derivable class, it can only be registered during initialization")
+  derivableRef.modify fun m => m.insert className
+
+/--
+Returns whether a classname has a `deriving` handler installed.
+-/
+def hasDerivingHandler (className : Name) : IO Bool := do
+  return (← derivableRef.get).contains className
+
 /--
   Try to synthesize metavariable using type class resolution.
   This method assumes the local context and local instances of `instMVar` coincide
@@ -1182,10 +1199,10 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
       let msg ← match type with
         | .app (.const cls _) (.const typ _) =>
           -- This has the structure of a `deriving`-style type class, alter feedback accordingly
-          if [``Inhabited, ``Nonempty].contains cls then
+          if ← hasDerivingHandler cls then
             pure <| extraErrorMsg ++ .hint' m!"Adding the command `deriving instance {cls} for {typ}` may allow Lean to derive the missing instance."
           else
-            pure <| Format.line ++ Format.line ++ m!"An implementation of {cls} may be missing for {typ}." ++ extraErrorMsg ++ useTraceSynthMsg
+            pure <| extraErrorMsg ++ useTraceSynthMsg
         | _ =>
             pure <| extraErrorMsg ++ useTraceSynthMsg
       throwNamedError lean.synthInstanceFailed "failed to synthesize instance of type class{indentExpr type}{msg}"

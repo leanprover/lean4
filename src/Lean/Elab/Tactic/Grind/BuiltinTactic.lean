@@ -152,20 +152,15 @@ def ematchThms (only : Bool) (thms : Array EMatchTheorem) : GrindTacticM Unit :=
   let mut thms := initThms
   if let some thmRefs := thmRefs? then
     for thmRef in thmRefs do
-      -- Check if this is a namespace reference (ns Foo.Bar)
-      if thmRef.raw.getNumArgs > 0 then
-        if thmRef.raw[0].isOfKind `Lean.Parser.Tactic.Grind.thmNs then
-          let ns := thmRef.raw[0][1] -- Extract the identifier from thmNs (&"ns" ident)
-          let namespaceName := ns.getId
-          let scopedThms ← Grind.getEMatchTheoremsForNamespace namespaceName
-          thms := thms ++ scopedThms
-          continue
-      else
-        match thmRef with
-        | `(Parser.Tactic.Grind.thm| #$anchor:hexnum) => thms := thms ++ (← withRef thmRef <| elabLocalEMatchTheorem anchor)
-        | `(Parser.Tactic.Grind.thm| $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id false)
-        | `(Parser.Tactic.Grind.thm| ! $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id true)
-        | _ => throwErrorAt thmRef "unexpected theorem reference"
+      match thmRef with
+      | `(Parser.Tactic.Grind.thm| ns $ns:ident) =>
+        let namespaceName := ns.getId
+        let scopedThms ← Grind.getEMatchTheoremsForNamespace namespaceName
+        thms := thms ++ scopedThms
+      | `(Parser.Tactic.Grind.thm| #$anchor:hexnum) => thms := thms ++ (← withRef thmRef <| elabLocalEMatchTheorem anchor)
+      | `(Parser.Tactic.Grind.thm| $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id false)
+      | `(Parser.Tactic.Grind.thm| ! $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id true)
+      | _ => throwErrorAt thmRef "unexpected theorem reference"
   ematchThms only thms
 where
   collectThms (anchorRef : AnchorRef) (thms : PArray EMatchTheorem) : StateT (Array EMatchTheorem) GrindTacticM Unit := do

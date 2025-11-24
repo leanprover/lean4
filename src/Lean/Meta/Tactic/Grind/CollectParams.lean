@@ -46,10 +46,7 @@ def collectInstantiateParams (params : Syntax.TSepArray `Lean.Parser.Tactic.Grin
       pushAnchor a
     | _ =>
       -- Namespace references (thmNs) are handled elsewhere, skip them
-      if p.raw[0].isOfKind `Lean.Parser.Tactic.Grind.thmNs then
-        pure ()
-      else
-        pure ()
+      pure ()
 
 partial def collect (tac : TGrind) : Collect Unit := do
   match tac with

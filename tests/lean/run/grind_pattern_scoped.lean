@@ -3,12 +3,11 @@ import Lean.Meta.Tactic.Grind.EMatchTheorem
 open Lean
 open Lean.Meta.Grind
 
-/-- info: Namespaces with `scoped grind_pattern` includes `Lean.Meta.Grind.Lia`: true -/
+/-- info: Namespace `Lean.Meta.Grind.Lia` has scoped theorems: true -/
 #guard_msgs in
-run_cmd do
-  let stateStack := ematchTheoremsExt.ext.getState (← getEnv)
-  let allNamespaces := stateStack.scopedEntries.map.fold (init := #[]) (fun acc k _ => acc.push k)
-  logInfo s!"Namespaces with `scoped grind_pattern` includes `Lean.Meta.Grind.Lia`: {allNamespaces.contains `Lean.Meta.Grind.Lia}"
+#eval show CoreM Unit from do
+  let theorems ← getEMatchTheoremsForNamespace `Lean.Meta.Grind.Lia
+  IO.println s!"Namespace `Lean.Meta.Grind.Lia` has scoped theorems: {decide (theorems.size > 0)}"
 
 -- Test namespace-based theorem instantiation
 example (x y : Int) (h : max x y < 7) : x + y < 13 := by

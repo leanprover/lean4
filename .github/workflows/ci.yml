@@ -108,7 +108,8 @@ jobs:
 
       # 0: PRs without special label
       # 1: PRs with `merge-ci` label, merge queue checks, master commits
-      # 2: PRs with `release-ci` label, releases (incl. nightlies)
+      # 2: nightlies
+      # 2: PRs with `release-ci` label, full releases
       - name: Set check level
         id: set-level
         # We do not use github.event.pull_request.labels.*.name here because
@@ -118,14 +119,16 @@ jobs:
           check_level=0
           fast=false
 
-          if [[ -n "${{ steps.set-nightly.outputs.nightly }}" || -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.outputs.RELEASE_TAG }}" ]]; then
+          if [[ -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.outputs.RELEASE_TAG }}" ]]; then
+            check_level=3
+          elif [[ -n "${{ steps.set-nightly.outputs.nightly }}" ]]; then
             check_level=2
           elif [[ "${{ github.event_name }}" != "pull_request" ]]; then
             check_level=1
           else
             labels="$(gh api repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/${{ github.event.pull_request.number }} --jq '.labels')"
             if echo "$labels" | grep -q "release-ci"; then
-              check_level=2
+              check_level=3
             elif echo "$labels" | grep -q "merge-ci"; then
               check_level=1
             fi
@@ -210,17 +213,18 @@ jobs:
                 "test": true,
                 "CMAKE_PRESET": "reldebug",
               },
-              // TODO: suddenly started failing in CI
-              /*{
+              {
                 "name": "Linux fsanitize",
                 "os": "ubuntu-latest",
                 "enabled": level >= 2,
+                // do not have nightly release wait for this
+                "secondary": level <= 2,
                 "test": true,
                 // turn off custom allocator & symbolic functions to make LSAN do its magic
                 "CMAKE_PRESET": "sanitize",
-                // exclude seriously slow/problematic tests (laketests crash)
-                "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
-              },*/
+                // exclude seriously slow/problematic tests (laketests crash, async_base_functions timeouts)
+                "CTEST_OPTIONS": "-E '(interactive|pkg|lake|bench)/|treemap|StackOverflow|async_base_functions'"
+              },
               {
                 "name": "macOS",
                 "os": "macos-15-intel",
@@ -252,7 +256,7 @@ jobs:
               },
               {
                 "name": "Windows",
-                "os": large && (fast || level == 2) ? "namespace-profile-windows-amd64-4x16" : "windows-2022",
+                "os": large && (fast || level >= 2) ? "namespace-profile-windows-amd64-4x16" : "windows-2022",
                 "release": true,
                 "enabled": level >= 2,
                 "test": true,

@@ -141,6 +141,16 @@
     cmd: lean --run ../script/benchReelabWatchdogRss.lean lean Init/Data/List/Sublist.lean 10 -j4 -Dexperimental.module=true
     max_runs: 2
     parse_output: true
+# This benchmark uncovered the promise cycle in `realizeConst` (#11328)
+- attributes:
+    description: Init.Data.List.Basic re-elab
+    tags: [other]
+  run_config:
+    <<: *time
+    cwd: ../../src
+    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/List/Basic.lean 10 -j4 -Dexperimental.module=true
+    max_runs: 2
+    parse_output: true
 - attributes:
     description: import Lean
     tags: [other]

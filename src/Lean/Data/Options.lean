@@ -27,7 +27,6 @@ structure OptionDecl where
   name     : Name
   declName : Name := by exact decl_name%
   defValue : DataValue
-  group    : String := ""
   descr    : String := ""
   deriving Inhabited
 
@@ -124,7 +123,6 @@ namespace Option
 
 protected structure Decl (α : Type) where
   defValue : α
-  group    : String := ""
   descr    : String := ""
 
 protected def get? [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : Option α :=
@@ -148,7 +146,6 @@ protected def register [KVMap.Value α] (name : Name) (decl : Lean.Option.Decl �
     name
     declName := ref
     defValue := KVMap.Value.toDataValue decl.defValue
-    group := decl.group
     descr := decl.descr
   }
   return { name := name, defValue := decl.defValue }

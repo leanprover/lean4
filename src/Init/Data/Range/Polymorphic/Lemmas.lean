@@ -828,6 +828,23 @@ public theorem toArray_eq_if_roo [UpwardEnumerable α] [LT α] [DecidableLT α]
         #[] := by
   rw [Internal.toArray_eq_toArray_iter, Rxo.Iterator.toArray_eq_match]; rfl
 
+public theorem toList_eq_if_rco [UpwardEnumerable α] [LT α] [DecidableLT α]
+    [LawfulUpwardEnumerable α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerableLT α] :
+    r.toList = if r.lower < r.upper then
+        match UpwardEnumerable.succ? r.lower with
+        | none => [r.lower]
+        | some next => r.lower :: (next...r.upper).toList
+      else
+        [] := by
+  rw [Internal.toList_eq_toList_iter, Rxo.Iterator.toList_eq_match]
+  simp only [Internal.iter]
+  split
+  · split
+    · simp [Rxo.Iterator.toList_eq_match, *]
+    · simp only [*]
+      rfl
+  · rfl
+
 public theorem toArray_eq_if_rco [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerableLT α] :
     r.toArray = if r.lower < r.upper then

@@ -180,8 +180,8 @@ When sets of measures are combined by the formatter, it prunes dominated measure
 invariant that sets of measures contain no dominated measures.
 Together, this means that each set of measures in the formatter can only contain at most `W`
 measures that don't dominate one another: if there were more than `W` measures, at least two
-measures `m₁` and `m₂` must have the same width, which, by the totality of `≤` of a lawful cost
-function, means that either `m₁` dominates `m₂`, or `m₂` dominates `m₁`.
+measures `m₁` and `m₂` must have the same last line length, which, by the totality of `≤` of
+a lawful cost function, means that either `m₁` dominates `m₂`, or `m₂` dominates `m₁`.
 -/
 structure Measure (τ : Type) where
   /-- Length of the last line of the rendering represented by this measure. -/
@@ -226,7 +226,7 @@ Notably, it does not possess a compound cost that we maintain, but merely a seri
 describe how to resolve the tainted measure to a single measure, as well as an approximation of the
 amount of newlines in the rendering of the tainted measure.
 
-The formatter will always prune non-tainted measures in favor of tainted measures.
+The formatter will always prune tainted measures in favor of non-tainted measures.
 When the formatter has to choose amongst multiple tainted measures, instead of tracking all of them
 using a cost function like for non-tainted measures, it simply picks the tainted measure with the
 largest approximation for the amount of newlines, so as to attempt to heuristically produce
@@ -297,7 +297,7 @@ is resolved first.
 
 Yields just the measure with a larger newline approximation if `prunable` is set to `true`, which
 should only be set if it can be guaranteed that both tainted measures will always fail at the same
-time (in which case we do not need to try both).
+time (in which case we never need to try both).
 -/
 def TaintedMeasure.merge (tm1 tm2 : TaintedMeasure τ) (prunable : Bool) : TaintedMeasure τ :=
   let (tm1, tm2) :=
@@ -316,8 +316,23 @@ def TaintedMeasure.merge (tm1 tm2 : TaintedMeasure τ) (prunable : Bool) : Taint
     -- `tm1` can fail.
     .mergeTainted tm1 tm2 tm1.maxNewlineCount?
 
+/--
+Set of non-tainted measures.
+
+Fulfills the following invariants:
+1. No two measures dominate each other.
+2. The set of non-tainted measures is sorted by last line length (strictly descending).
+
+Together, these two invariants also imply that the set of non-tainted measures is sorted
+by cost (ascending), as otherwise the first invariant would be violated.
+
+Since all of these measures are non-tainted, both invariants individually imply that there are
+at most W measures in a given set of non-tainted measures, where W is the optimality cutoff width
+of the cost function.
+-/
 abbrev MeasureSet.Set (τ : Type) := List (Measure τ)
 
+/-- Merges two sets of non-tainted measures, maintaining their invariants in the result. -/
 partial def MeasureSet.Set.merge (ms1 ms2 : MeasureSet.Set τ) : MeasureSet.Set τ :=
   match ms1, ms2 with
   | [], _ => ms2
@@ -332,11 +347,22 @@ partial def MeasureSet.Set.merge (ms1 ms2 : MeasureSet.Set τ) : MeasureSet.Set 
     else
       m2 :: merge ms1 ms2'
 
+/--
+A set of measures is either a single tainted measure or a set of non-tainted measures.
+The formatter prefers non-empty sets of measures over tainted measures and tainted measures
+over empty sets of measures.
+-/
 inductive MeasureSet (τ : Type) where
   | tainted (tm : TaintedMeasure τ)
   | set (ms : MeasureSet.Set τ)
   deriving Inhabited
 
+/--
+Merges two sets of measures, preferring non-empty sets of measures over tainted measures and tainted
+measures over empty sets of measures.
+Tainted measures are merged according to `TaintedMeasure.merge` and sets of non-tainted measures
+are merged according to `MeasureSet.Set.merge`.
+-/
 def MeasureSet.merge (ms1 ms2 : MeasureSet τ) (prunable : Bool) : MeasureSet τ :=
   match ms1, ms2 with
   | _, .set [] =>
@@ -352,6 +378,14 @@ def MeasureSet.merge (ms1 ms2 : MeasureSet τ) (prunable : Bool) : MeasureSet τ
   | .set ms1, .set ms2 =>
     .set (ms1.merge ms2)
 
+/--
+Memoization key for sets of measures produced by the formatter.
+Includes the full context that uniquely determines a set of measures:
+- A pointer to the document that is being formatted
+- The column position at which the document is being formatted
+- The current level of indentation within which the document is being formatted
+- The fullness state surrounding the document
+-/
 structure SetCacheKey where
   docPtr : USize
   columnPos : Nat
@@ -359,11 +393,28 @@ structure SetCacheKey where
   fullness : FullnessState
   deriving BEq, Hashable
 
+/--
+Memoization key for tracking whether a document has failed in the resolver for tainted measures.
+Since resolution failure only depends on the document and the fullness state surrounding it,
+this key does not contain the column position or the current indentation level.
+
+Memoizing the failure state in the resolver for tainted measures ensures that we never have to
+resolve a single document (as identified by its pointer) more than 4 times.
+-/
 structure FailureCacheKey where
   docPtr : USize
   fullness : FullnessState
   deriving BEq, Hashable
 
+/--
+State of the resolver and the resolver for tainted measures, which runs after the regular resolver.
+
+The resolver for tainted measures reuses the memoization cache `setCache` from the regular resolver
+for its own resolutions to obtain previously resolved tainted measures more quickly and to quickly
+resolve sub-documents that were already resolved previously.
+
+The
+-/
 structure ResolutionState (τ : Type) where
   setCache : HashMap SetCacheKey (MeasureSet τ) := {}
   resolvedTaintedCache : HashMap USize (Option (Measure τ)) := {}
@@ -554,6 +605,7 @@ def TaintedResolver.memoize (f : TaintedResolver σ τ) : TaintedResolver σ τ 
   if let .hit m := cachedResolvedTainted? then
     return m
   let m? ← f tm
+  setCachedResolvedTainted tm m?
   return m?
 
 mutual

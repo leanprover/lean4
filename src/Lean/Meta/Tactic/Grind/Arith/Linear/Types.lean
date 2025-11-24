@@ -32,6 +32,7 @@ inductive RingIneqCnstrProof where
 end
 
 mutual
+/-- Auxiliary type for normalizing `Ring` and `Field` equalities. -/
 structure RingEqCnstr where
   p      : Grind.CommRing.Poly
   h      : RingEqCnstrProof

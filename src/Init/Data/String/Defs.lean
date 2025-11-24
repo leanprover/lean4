@@ -635,4 +635,16 @@ def toSubstring (s : String) : Substring.Raw :=
 def toSubstring' (s : String) : Substring.Raw :=
   s.toRawSubstring'
 
+@[deprecated String.Pos (since := "2025-11-24")]
+abbrev ValidPos (s : String) : Type :=
+  s.Pos
+
+@[deprecated String.startPos (since := "2025-11-24")]
+abbrev startValidPos (s : String) : s.Pos :=
+  s.startPos
+
+@[deprecated String.endPos (since := "2025-11-24")]
+abbrev endValidPos (s : String) : s.Pos :=
+  s.endPos
+
 end String

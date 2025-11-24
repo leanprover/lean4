@@ -205,6 +205,22 @@ private def mkCommRingThmPrefix (declName : Name) : ProofM Expr := do
   return mkApp3 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getRingContext)
 
 /--
+Returns the prefix of a theorem with name `declName` where the first four arguments are
+`{α} [CommRing α] [LE α] (rctx : Context α)`
+-/
+private def mkCommRingLEThmPrefix (declName : Name) : ProofM Expr := do
+  let s ← getStruct
+  return mkApp4 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getLEInst) (← getRingContext)
+
+/--
+Returns the prefix of a theorem with name `declName` where the first four arguments are
+`{α} [CommRing α] [LT α] (rctx : Context α)`
+-/
+private def mkCommRingLTThmPrefix (declName : Name) : ProofM Expr := do
+  let s ← getStruct
+  return mkApp4 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getLTInst) (← getRingContext)
+
+/--
 Returns the prefix of a theorem with name `declName` where the first five arguments are
 `{α} [CommRing α] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (rctx : Context α)`
 -/
@@ -257,7 +273,9 @@ partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' d
     let h ← mkIntModLinOrdThmPrefix (if c'.strict then ``Grind.Linarith.not_le_norm else ``Grind.Linarith.not_lt_norm)
     return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
   | .ring c lhs' =>
-    let h' ← c.toExprProof
+    let h ← c.toExprProof
+    let h' ← if c'.strict then mkCommRingLTThmPrefix ``Grind.CommRing.lt_int_module else mkCommRingLEThmPrefix ``Grind.CommRing.le_int_module
+    let h' := mkApp2 h' (← mkRingPolyDecl c.p) h
     let h ← if c'.strict then mkIntModLawfulPreOrdThmPrefix ``Grind.Linarith.lt_norm else mkIntModPreOrdThmPrefix ``Grind.Linarith.le_norm
     return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) eagerReflBoolTrue h'
   | .coreOfNat e natStructId lhs rhs =>

@@ -74,11 +74,11 @@ Encodes a string in UTF-8 as an array of bytes.
 -/
 @[extern "lean_string_to_utf8"]
 def String.toUTF8 (a : @& String) : ByteArray :=
-  a.bytes
+  a.toByteArray
 
-@[simp] theorem String.toUTF8_eq_bytes {s : String} : s.toUTF8 = s.bytes := (rfl)
+@[simp] theorem String.toUTF8_eq_toByteArray {s : String} : s.toUTF8 = s.toByteArray := (rfl)
 
-@[simp] theorem String.bytes_empty : "".bytes = ByteArray.empty := (rfl)
+@[simp] theorem String.toByteArray_empty : "".toByteArray = ByteArray.empty := (rfl)
 
 /--
 Appends two strings. Usually accessed via the `++` operator.
@@ -92,33 +92,33 @@ Examples:
 -/
 @[extern "lean_string_append", expose]
 def String.append (s : String) (t : @& String) : String where
-  bytes := s.bytes ++ t.bytes
+  toByteArray := s.toByteArray ++ t.toByteArray
   isValidUTF8 := s.isValidUTF8.append t.isValidUTF8
 
 instance : Append String where
   append s t := s.append t
 
 @[simp]
-theorem String.bytes_append {s t : String} : (s ++ t).bytes = s.bytes ++ t.bytes := (rfl)
+theorem String.toByteArray_append {s t : String} : (s ++ t).toByteArray = s.toByteArray ++ t.toByteArray := (rfl)
 
-theorem String.bytes_inj {s t : String} : s.bytes = t.bytes ↔ s = t := by
+theorem String.toByteArray_inj {s t : String} : s.toByteArray = t.toByteArray ↔ s = t := by
   refine ⟨fun h => ?_, (· ▸ rfl)⟩
   rcases s with ⟨s⟩
   rcases t with ⟨t⟩
   subst h
   rfl
 
-@[simp] theorem String.bytes_ofList {l : List Char} : (String.ofList l).bytes = l.utf8Encode := by
+@[simp] theorem String.toByteArray_ofList {l : List Char} : (String.ofList l).toByteArray = l.utf8Encode := by
   simp [String.ofList]
 
-@[deprecated String.bytes_ofList (since := "2025-10-30")]
-theorem List.bytes_asString {l : List Char} : (String.ofList l).bytes = l.utf8Encode :=
-  String.bytes_ofList
+@[deprecated String.toByteArray_ofList (since := "2025-10-30")]
+theorem List.toByteArray_asString {l : List Char} : (String.ofList l).toByteArray = l.utf8Encode :=
+  String.toByteArray_ofList
 
 theorem String.exists_eq_ofList (s : String) :
     ∃ l : List Char, s = String.ofList l := by
   rcases s with ⟨_, ⟨l, rfl⟩⟩
-  refine ⟨l, by simp [← String.bytes_inj]⟩
+  refine ⟨l, by simp [← String.toByteArray_inj]⟩
 
 @[deprecated String.exists_eq_ofList (since := "2025-10-30")]
 theorem String.exists_eq_asString (s : String) :
@@ -134,10 +134,10 @@ theorem String.utf8ByteSize_append {s t : String} :
   simp [utf8ByteSize]
 
 @[simp]
-theorem String.size_bytes {s : String} : s.bytes.size = s.utf8ByteSize := rfl
+theorem String.size_toByteArray {s : String} : s.toByteArray.size = s.utf8ByteSize := rfl
 
 @[simp]
-theorem String.bytes_push {s : String} {c : Char} : (s.push c).bytes = s.bytes ++ [c].utf8Encode := by
+theorem String.toByteArray_push {s : String} {c : Char} : (s.push c).toByteArray = s.toByteArray ++ [c].utf8Encode := by
   simp [push]
 
 namespace String
@@ -160,11 +160,11 @@ theorem utf8ByteSize_ofByteArray {b : ByteArray} {h} :
     (String.ofByteArray b h).utf8ByteSize = b.size := rfl
 
 @[simp]
-theorem bytes_singleton {c : Char} : (String.singleton c).bytes = [c].utf8Encode := by
+theorem toByteArray_singleton {c : Char} : (String.singleton c).toByteArray = [c].utf8Encode := by
   simp [singleton]
 
 theorem singleton_eq_ofList {c : Char} : String.singleton c = String.ofList [c] := by
-  simp [← String.bytes_inj]
+  simp [← String.toByteArray_inj]
 
 @[deprecated singleton_eq_ofList (since := "2025-10-30")]
 theorem singleton_eq_asString {c : Char} : String.singleton c = String.ofList [c] :=
@@ -172,20 +172,20 @@ theorem singleton_eq_asString {c : Char} : String.singleton c = String.ofList [c
 
 @[simp]
 theorem append_singleton {s : String} {c : Char} : s ++ singleton c = s.push c := by
-  simp [← bytes_inj]
+  simp [← toByteArray_inj]
 
 @[simp]
 theorem append_left_inj {s₁ s₂ : String} (t : String) :
     s₁ ++ t = s₂ ++ t ↔ s₁ = s₂ := by
-  simp [← bytes_inj]
+  simp [← toByteArray_inj]
 
 theorem append_assoc {s₁ s₂ s₃ : String} : s₁ ++ s₂ ++ s₃ = s₁ ++ (s₂ ++ s₃) := by
-  simp [← bytes_inj, ByteArray.append_assoc]
+  simp [← toByteArray_inj, ByteArray.append_assoc]
 
 @[simp]
 theorem utf8ByteSize_eq_zero_iff {s : String} : s.utf8ByteSize = 0 ↔ s = "" := by
   refine ⟨fun h => ?_, fun h => h ▸ utf8ByteSize_empty⟩
-  simpa [← bytes_inj, ← ByteArray.size_eq_zero_iff] using h
+  simpa [← toByteArray_inj, ← ByteArray.size_eq_zero_iff] using h
 
 theorem rawEndPos_eq_zero_iff {b : String} : b.rawEndPos = 0 ↔ b = "" := by
   simp
@@ -296,14 +296,14 @@ Examples:
 -/
 structure Pos.Raw.IsValid (s : String) (off : String.Pos.Raw) : Prop where private mk ::
   le_rawEndPos : off ≤ s.rawEndPos
-  isValidUTF8_extract_zero : (s.bytes.extract 0 off.byteIdx).IsValidUTF8
+  isValidUTF8_extract_zero : (s.toByteArray.extract 0 off.byteIdx).IsValidUTF8
 
 theorem Pos.Raw.IsValid.le_utf8ByteSize {s : String} {off : String.Pos.Raw} (h : off.IsValid s) :
     off.byteIdx ≤ s.utf8ByteSize := by
   simpa [Pos.Raw.le_iff] using h.le_rawEndPos
 
 theorem Pos.Raw.isValid_iff_isValidUTF8_extract_zero {s : String} {p : Pos.Raw} :
-    p.IsValid s ↔ p ≤ s.rawEndPos ∧ (s.bytes.extract 0 p.byteIdx).IsValidUTF8 :=
+    p.IsValid s ↔ p ≤ s.rawEndPos ∧ (s.toByteArray.extract 0 p.byteIdx).IsValidUTF8 :=
   ⟨fun ⟨h₁, h₂⟩ => ⟨h₁, h₂⟩, fun ⟨h₁, h₂⟩ => ⟨h₁, h₂⟩⟩
 
 @[deprecated le_rawEndPos (since := "2025-10-20")]
@@ -319,7 +319,7 @@ theorem Pos.Raw.isValid_zero {s : String} : (0 : Pos.Raw).IsValid s where
 @[simp]
 theorem Pos.Raw.isValid_rawEndPos {s : String} : s.rawEndPos.IsValid s where
   le_rawEndPos := by simp
-  isValidUTF8_extract_zero := by simp [← size_bytes, s.isValidUTF8]
+  isValidUTF8_extract_zero := by simp [← size_toByteArray, s.isValidUTF8]
 
 theorem Pos.Raw.isValid_of_eq_rawEndPos {s : String} {p : Pos.Raw} (h : p = s.rawEndPos) :
     p.IsValid s := by
@@ -649,5 +649,9 @@ abbrev startValidPos (s : String) : s.Pos :=
 @[deprecated String.endPos (since := "2025-11-24")]
 abbrev endValidPos (s : String) : s.Pos :=
   s.endPos
+
+@[deprecated String.toByteArray (since := "2025-11-24")]
+abbrev String.bytes (s : String) : ByteArray :=
+  s.toByteArray
 
 end String

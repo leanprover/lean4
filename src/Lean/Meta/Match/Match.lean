@@ -788,10 +788,11 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
       return { mvarId := subgoal.mvarId, alts := newAlts, vars := newVars, examples, fallthrough }
 
 
-private def processDivide (p : Problem) (i : Nat) : MetaM (Array Problem) := do
+private def processDivide (p : Problem) (i : Nat) : StateRefT State MetaM (Array Problem) := do
   let mvarType ← p.mvarId.getType
   let (altsUpper, altsLower) := p.alts.splitAt i
 
+  -- TODO: We could negate just those that are needed as overlap assumptions in lower
   let negs ← altsNegation p.vars altsUpper
   let mvarLowerType ← mkArrowN negs mvarType
   let mvarLower ← mkFreshExprSyntheticOpaqueMVar mvarLowerType
@@ -803,6 +804,11 @@ private def processDivide (p : Problem) (i : Nat) : MetaM (Array Problem) := do
     let mvarUpper ← mkFreshExprSyntheticOpaqueMVar mvarType
     p.mvarId.assign (← mkLambdaFVars (generalizeNondepLet := false) #[fvarId] mvarUpper)
     pure (fvarId, mvarUpper)
+
+  -- TODO: More efficent
+  for lowerAlt in altsLower do
+    for upperAlt in altsUpper do
+      modify fun s => { s with overlaps := s.overlaps.insert upperAlt.idx lowerAlt.idx }
 
   let pUpper := { p with mvarId := mvarUpper.mvarId!, alts := altsUpper, fallthrough := some fvarId }
   let pLower := { p with mvarId := mvarLowerId, alts := altsLower }

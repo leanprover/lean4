@@ -12,6 +12,11 @@ def anyTwo : N → N → N → N → Bool
   | _, _, _, .s .z => true
   | _, _, _, _ => false
 
+example : anyTwo N.z.s .z .z .z = true := by rfl
+example : anyTwo .z .z .z N.z.s = true := by rfl
+example : anyTwo N.z.s.s .z .z N.z.s = true := by rfl
+example : anyTwo .z .z .z N.z.s = true := by rfl
+
 /--
 info: def anyTwo.match_1.{u_1} : (motive : N → N → N → N → Sort u_1) →
   (x x_1 x_2 x_3 : N) →
@@ -44,7 +49,7 @@ fun motive x x_1 x_2 x_3 h_1 h_2 h_3 =>
 
 /--
 error: Failed to realize constant anyTwo.match_1.splitter:
-  failed to generate equality theorems for `match` expression `anyTwo.match_1`
+  failed to generate equality theorem `_private.lean.run.match_divide.0.anyTwo.match_1.eq_2` for `match` expression `anyTwo.match_1`
   case s.z
   motive✝ : N → N → N → N → Sort u_1
   x✝¹ x✝ : N

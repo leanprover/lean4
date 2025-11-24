@@ -19,6 +19,19 @@ deriving instance Hashable for Poly
 deriving instance Hashable for Grind.Linarith.Expr
 
 mutual
+/-- Auxiliary type for normalizing `Ring` and `Field` inequalities. -/
+structure RingIneqCnstr where
+  p      : Grind.CommRing.Poly
+  strict : Bool
+  h      : RingIneqCnstrProof
+
+inductive RingIneqCnstrProof where
+  | core (e : Expr) (lhs rhs : Grind.CommRing.Expr)
+  | notCore (e : Expr) (lhs rhs : Grind.CommRing.Expr)
+  -- **TODO**: cleanup denominator proof step
+end
+
+mutual
 /-- An equality constraint and its justification/proof. -/
 structure EqCnstr where
   p      : Poly
@@ -41,8 +54,7 @@ structure IneqCnstr where
 inductive IneqCnstrProof where
   | core (e : Expr) (lhs rhs : LinExpr)
   | notCore (e : Expr) (lhs rhs : LinExpr)
-  | coreCommRing (e : Expr) (lhs rhs : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
-  | notCoreCommRing (e : Expr) (lhs rhs : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | ring (c : RingIneqCnstr) (lhs : LinExpr)
   | coreOfNat (e : Expr) (natStructId : Nat) (lhs rhs : LinExpr)
   | notCoreOfNat (e : Expr) (natStructId : Nat) (lhs rhs : LinExpr)
   | combine (c₁ : IneqCnstr) (c₂ : IneqCnstr)

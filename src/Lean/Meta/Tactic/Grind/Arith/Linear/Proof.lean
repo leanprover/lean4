@@ -228,6 +228,15 @@ private def mkCommRingLinOrdThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
   return mkApp8 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getLEInst) (← getLTInst) (← getLawfulOrderLTInst) (← getIsLinearOrderInst) (← getOrderedRingInst) (← getRingContext)
 
+def RingIneqCnstr.toExprProof (c' : RingIneqCnstr) : ProofM Expr := do
+  match c'.h with
+  | .core e lhs rhs =>
+    let h' ← if c'.strict then mkCommRingLawfulPreOrdThmPrefix ``Grind.CommRing.lt_norm else mkCommRingPreOrdThmPrefix ``Grind.CommRing.le_norm
+    return mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl c'.p) eagerReflBoolTrue (mkOfEqTrueCore e (← mkEqTrueProof e))
+  | .notCore e lhs rhs =>
+    let h' ← mkCommRingLinOrdThmPrefix (if c'.strict then ``Grind.CommRing.not_le_norm else ``Grind.CommRing.not_lt_norm)
+    return mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl c'.p) eagerReflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
+
 mutual
 partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' do
   match c'.h with
@@ -237,14 +246,8 @@ partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' d
   | .notCore e lhs rhs =>
     let h ← mkIntModLinOrdThmPrefix (if c'.strict then ``Grind.Linarith.not_le_norm else ``Grind.Linarith.not_lt_norm)
     return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
-  | .coreCommRing e lhs rhs p' lhs' =>
-    let h' ← if c'.strict then mkCommRingLawfulPreOrdThmPrefix ``Grind.CommRing.lt_norm else mkCommRingPreOrdThmPrefix ``Grind.CommRing.le_norm
-    let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') eagerReflBoolTrue (mkOfEqTrueCore e (← mkEqTrueProof e))
-    let h ← if c'.strict then mkIntModLawfulPreOrdThmPrefix ``Grind.Linarith.lt_norm else mkIntModPreOrdThmPrefix ``Grind.Linarith.le_norm
-    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) eagerReflBoolTrue h'
-  | .notCoreCommRing e lhs rhs p' lhs' =>
-    let h' ← mkCommRingLinOrdThmPrefix (if c'.strict then ``Grind.CommRing.not_le_norm else ``Grind.CommRing.not_lt_norm)
-    let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') eagerReflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
+  | .ring c lhs' =>
+    let h' ← c.toExprProof
     let h ← if c'.strict then mkIntModLawfulPreOrdThmPrefix ``Grind.Linarith.lt_norm else mkIntModPreOrdThmPrefix ``Grind.Linarith.le_norm
     return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) eagerReflBoolTrue h'
   | .coreOfNat e natStructId lhs rhs =>
@@ -403,7 +406,7 @@ mutual
 
 partial def IneqCnstr.collectDecVars (c' : IneqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .core .. | .notCore .. | .coreCommRing .. | .notCoreCommRing .. | .coreOfNat .. | .notCoreOfNat ..
+  | .core .. | .notCore .. | .coreOfNat .. | .notCoreOfNat .. | .ring ..
   | .oneGtZero | .ofEq .. | .ofEqOfNat .. | .ofCommRingEq .. => return ()
   | .combine c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
   | .norm c₁ _ => c₁.collectDecVars

@@ -46,19 +46,21 @@ def propagateCommRingIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : 
   let some rhs ← withRingM <| CommRing.reify? rhs (skipVar := false) | return ()
   let generation ← getGeneration e
   if eqTrue then
-    let p' := (lhs.sub rhs).toPoly
-    let lhs' ← p'.toIntModuleExpr generation
-    let some lhs' ← reify? lhs' (skipVar := false) generation | return ()
-    let p := lhs'.norm
-    let c : IneqCnstr := { p, strict, h := .coreCommRing e lhs rhs p' lhs' }
+    let p := (lhs.sub rhs).toPoly
+    let c : RingIneqCnstr := { p, strict, h := .core e lhs rhs }
+    let lhs ← p.toIntModuleExpr generation
+    let some lhs ← reify? lhs (skipVar := false) generation | return ()
+    let p := lhs.norm
+    let c : IneqCnstr := { p, strict, h := .ring c lhs }
     c.assert
   else if (← isLinearOrder) then
-    let p' := (rhs.sub lhs).toPoly
+    let p := (rhs.sub lhs).toPoly
     let strict := !strict
-    let lhs' ← p'.toIntModuleExpr generation
-    let some lhs' ← reify? lhs' (skipVar := false) generation | return ()
-    let p := lhs'.norm
-    let c : IneqCnstr := { p, strict, h := .notCoreCommRing e lhs rhs p' lhs' }
+    let c : RingIneqCnstr := { p, strict, h := .notCore e lhs rhs }
+    let lhs ← p.toIntModuleExpr generation
+    let some lhs ← reify? lhs (skipVar := false) generation | return ()
+    let p := lhs.norm
+    let c : IneqCnstr := { p, strict, h := .ring c lhs }
     c.assert
   else
     -- Negation for preorders is not supported

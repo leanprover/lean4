@@ -69,6 +69,55 @@ def x : Int := 3
 Lean does not allow integers and strings to be added directly. The function `ToString.toString` uses
 type class overloading to convert values to strings; by successfully searching for an instance of
 `ToString Int`, the second example will succeed.
+
+## Adding a New Type Class Instance
+
+```lean broken
+inductive MyColor where
+  | chartreuse | sienna | thistle
+
+def forceColor (oc : Option MyColor) :=
+  oc.get!
+```
+```output
+failed to synthesize instance of type class
+  Inhabited MyColor
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+```
+```lean fixed (title := "Fixed (derive instance when defining type)")
+inductive MyColor where
+  | chartreuse | sienna | thistle
+deriving Inhabited
+
+def forceColor (oc : Option MyColor) :=
+  oc.get!
+```
+```lean fixed (title := "Fixed (derive instance separately)")
+inductive MyColor where
+  | chartreuse | sienna | thistle
+
+deriving instance Inhabited for MyColor
+
+def forceColor (oc : Option MyColor) :=
+  oc.get!
+```
+```lean fixed (title := "Fixed (define instance)")
+inductive MyColor where
+  | chartreuse | sienna | thistle
+
+instance : Inhabited MyColor where
+  default := .sienna
+
+def forceColor (oc : Option MyColor) :=
+  oc.get!
+```
+
+Type class synthesis can fail because an instance of the type class simply needs to be provided.
+This commonly happens for type classes like `Repr`, `BEq`, `ToJson` and `Inhabited`. Lean can often
+[automatically generate instances of the type class with the `deriving` keyword](lean-manual://section/type-class),
+either when the type is defined or with the stand-alone `deriving` command.
+
 -/
 register_error_explanation lean.synthInstanceFailed {
   summary := "Failed to synthesize instance of type class"

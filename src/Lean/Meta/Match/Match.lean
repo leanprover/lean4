@@ -645,7 +645,7 @@ private def altNegation (vars : Array Expr) (alt : Alt) : MetaM Expr := do
   withExistingLocalDecls alt.fvarDecls do
     let mut hyps := #[]
     for pattern in alt.patterns.reverse, var in vars.reverse do
-      hyps := hyps.push (← mkEq (← pattern.toExpr) var)
+      hyps := hyps.push (← mkEqHEq (← pattern.toExpr) var)
     let neg ← mkArrowN hyps (mkConst ``False)
     mkForallFVars (alt.fvarDecls.toArray.map (mkFVar ·.fvarId)) neg
 
@@ -792,8 +792,12 @@ private def processDivide (p : Problem) (i : Nat) : StateRefT State MetaM (Array
   let mvarType ← p.mvarId.getType
   let (altsUpper, altsLower) := p.alts.splitAt i
 
-  -- TODO: We could negate just those that are needed as overlap assumptions in lower
-  let negs ← altsNegation p.vars altsUpper
+  let mut notAltRequested : Std.HashSet Nat := {}
+  for alt in altsLower do
+    for overlappedBy in alt.notAltIdxs do
+    notAltRequested := notAltRequested.insert overlappedBy
+  let notAlts := altsUpper.filter fun alt => notAltRequested.contains alt.idx
+  let negs ← altsNegation p.vars notAlts
   let mvarLowerType ← mkArrowN negs mvarType
   let mvarLower ← mkFreshExprSyntheticOpaqueMVar mvarLowerType
   let (_, mvarLowerId) ← mvarLower.mvarId!.introN negs.size
@@ -805,7 +809,8 @@ private def processDivide (p : Problem) (i : Nat) : StateRefT State MetaM (Array
     p.mvarId.assign (← mkLambdaFVars (generalizeNondepLet := false) #[fvarId] mvarUpper)
     pure (fvarId, mvarUpper)
 
-  -- TODO: More efficent
+  -- TODO: This can be improved if we join the overlap information later,
+  -- once we know which upper alternatives are overlapping the fallback
   for lowerAlt in altsLower do
     for upperAlt in altsUpper do
       modify fun s => { s with overlaps := s.overlaps.insert upperAlt.idx lowerAlt.idx }
@@ -1181,6 +1186,7 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) (isSplitte
   trace[Meta.Match.debug] "{name} : {type} := {value}"
   let compile := bootstrap.genMatcherCode.get (← getOptions)
   let result ← Closure.mkValueTypeClosure type value (zetaDelta := false)
+  trace[Meta.Match.debug] "mkValueTypeClosure succeeded"
   let env ← getEnv
   let mkMatcherConst name :=
     mkAppN (mkConst name result.levelArgs.toList) result.exprArgs

@@ -174,6 +174,7 @@ to substitute first; this is used for the generalized match equations.
 -/
 partial def proveCondEqThm (matchDeclName : Name) (thmName : Name) (type : Expr)
   (heqPos : Nat := 0) (heqNum : Nat := 0) : MetaM Expr := withLCtx {} {} do
+  withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} proveCondEqThm {thmName}")) do
   let type ← instantiateMVars type
   let mvar0  ← mkFreshExprSyntheticOpaqueMVar type
   trace[Meta.Match.matchEqs] "proveCondEqThm {mvar0.mvarId!}"

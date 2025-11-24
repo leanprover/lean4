@@ -161,7 +161,7 @@ theorem Slice.splits_endPos (s : Slice) : s.endPos.Splits s.copy "" where
 @[simp]
 theorem Slice.splits_endPos_iff {s : Slice} :
     s.endPos.Splits t₁ t₂ ↔ t₁ = s.copy ∧ t₂ = "" := by
-  rw [← Pos.splits_toCopy_iff, ← endPos_copy, splits_endPos_iff]
+  rw [← Pos.splits_toCopy_iff, ← endPos_copy, String.splits_endPos_iff]
 
 theorem Slice.Pos.Splits.eq_endPos_iff {s : Slice} {p : s.Pos} (h : p.Splits t₁ t₂) :
     p = s.endPos ↔ t₂ = "" := by
@@ -175,7 +175,7 @@ theorem Slice.splits_startPos (s : Slice) : s.startPos.Splits "" s.copy where
 @[simp]
 theorem Slice.splits_startPos_iff {s : Slice} :
     s.startPos.Splits t₁ t₂ ↔ t₁ = "" ∧ t₂ = s.copy := by
-  rw [← Pos.splits_toCopy_iff, ← startPos_copy, splits_startPos_iff]
+  rw [← Pos.splits_toCopy_iff, ← startPos_copy, String.splits_startPos_iff]
 
 theorem Slice.Pos.Splits.eq_startPos_iff {s : Slice} {p : s.Pos} (h : p.Splits t₁ t₂) :
     p = s.startPos ↔ t₁ = "" := by

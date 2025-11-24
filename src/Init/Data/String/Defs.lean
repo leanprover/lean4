@@ -142,10 +142,6 @@ theorem String.bytes_push {s : String} {c : Char} : (s.push c).bytes = s.bytes +
 
 namespace String
 
-@[deprecated rawEndPos (since := "2025-10-20")]
-def endPos (s : String) : String.Pos.Raw :=
-  s.rawEndPos
-
 /-- The start position of the string, as a `String.Pos.Raw.` -/
 def rawStartPos (_s : String) : String.Pos.Raw :=
   0

@@ -482,7 +482,10 @@ where
     match alts with
     | [] =>
       if let some fallthrough := p.fallthrough then
-        p.mvarId.assign fallthrough
+        trace[Meta.Match.match] "using fallthrough"
+        let hyps := (← inferType fallthrough).getNumHeadForalls
+        let subgoals ← p.mvarId.applyN fallthrough hyps
+        subgoals.forM (solveOverlap ·)
       else
         let mvarId ← p.mvarId.exfalso
         /- TODO: allow users to configure which tactic is used to close leaves. -/
@@ -677,7 +680,8 @@ private def updateFallthrough (p : Problem) (altsMask : Array Bool) : MetaM Prob
         e := e.app oldHyp
       else
         let a ← mkFreshExprSyntheticOpaqueMVar (← inferType oldHyp)
-        a.mvarId!.admit (synthetic := false)
+        solveOverlap a.mvarId!
+        -- a.mvarId!.admit (synthetic := true)
         e := e.app a
     e := e.headBeta
     mkLambdaFVars (usedOnly := true) oldHyps e
@@ -768,7 +772,8 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
         | _                         => unreachable!
       let fallthrough := p.fallthrough.map (·.applyFVarSubst subst)
       let p := { p with mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples, fallthrough }
-      updateFallthrough p newAltsMask.toArray
+      -- updateFallthrough p newAltsMask.toArray
+      pure p
     else
       -- A catch-all case
       let subst := subgoal.subst

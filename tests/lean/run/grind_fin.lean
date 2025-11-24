@@ -600,3 +600,7 @@ theorem pred_one {n : Nat} :
 theorem val_eq_zero_iff [NeZero n] {a : Fin n} : a.val = 0 ↔ a = 0 := by grind
 
 theorem val_ne_zero_iff [NeZero n] {a : Fin n} : a.val ≠ 0 ↔ a ≠ 0 := by grind
+
+example (n : Nat) (j k : Fin n) (hk : ↑k + 1 < n) (h : j ≠ ⟨↑k + 1, hk⟩) :
+    (if (j : Nat) = ↑k + 1 then 1 else 0) = 0 := by
+  grind

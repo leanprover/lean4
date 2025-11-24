@@ -409,8 +409,6 @@ def visitModule (srcSearchPath : SearchPath)
     let k := NeedsKind.ofImport imp
     if addOnly ||
         args.keepPublic && imp.isExported ||
-        -- keep foreign imports
-        imp.module.getRoot != s.modNames[i]!.getRoot ||
         impStx.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep") then
       deps := deps.union k {j}
   for j in [0:s.mods.size] do

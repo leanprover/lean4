@@ -172,7 +172,6 @@ theorem toListBE_inj {x y : BitVec w} : x.toListBE = y.toListBE ↔ x = y :=
 theorem toListBE_nil : toListBE nil = [] := by
   simp [toListBE]
 
-
 @[simp]
 theorem toListBE_cons (b : Bool) (x : BitVec w) :
     toListBE (cons b x) = b :: toListBE x := by
@@ -187,7 +186,7 @@ theorem toListBE_cons (b : Bool) (x : BitVec w) :
       rw [dif_neg]
       simp only [Nat.reduceSubDiff, List.getElem_cons_succ, getElem_toListBE]
       omega
-  · repeat rw [List.getElem?_eq_none (by simp; omega)]
+  · repeat rw [List.getElem?_eq_none (by simp only [List.length_cons, length_toListBE]; omega)]
 
 @[simp]
 theorem toListBE_concat (b : Bool) (x : BitVec w) :

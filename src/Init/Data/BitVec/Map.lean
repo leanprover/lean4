@@ -55,7 +55,7 @@ theorem getLsbD_map (x : BitVec w) (f : Bool → Bool) (i : Nat) :
 theorem map_cons (f : Bool → Bool) (b : Bool) (x : BitVec w) :
     map (cons b x) f = cons (f b) (map x f) := by
   ext i
-  simp [getElem_cons]
+  simp only [getElem_map, getElem_cons]
   split <;> simp
 
 theorem map_map (x : BitVec w) (f g : Bool → Bool) :
@@ -153,7 +153,7 @@ theorem xor_eq_zipWith (x y : BitVec w) : x ^^^ y = zipWith xor x y := by
   simp [getElem_xor]
   
 
-theorem complement_eq_map (x : BitVec w) : ~~~x = x.map not := by
+theorem not_eq_map (x : BitVec w) : ~~~x = x.map not := by
   ext
   simp [getElem_not]
 

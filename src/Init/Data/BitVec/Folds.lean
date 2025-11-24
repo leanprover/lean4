@@ -157,7 +157,7 @@ def induction {motive : ∀ {w}, BitVec w → Prop}
     exact nil
   | succ w ih =>
     rw [←cons_msb_setWidth x]
-    exact cons w x.msb (setWidth w x) (ih (setWidth w x))
+    exact cons w _ _ (ih _)
 
 /--
 Induction principle for bitvectors, viewing them as built from `concat` (MSB to LSB).
@@ -221,7 +221,7 @@ theorem foldl_nil : foldl f a nil = a := by
 
 @[simp]
 theorem foldl_cons {x : BitVec w} : foldl f a (cons b x) = foldl f (f a b) x := by
-  simp [foldl, getElem_cons, Nat.foldRev_succ, ↓reduceDIte]
+  simp only [foldl, getElem_cons, Nat.foldRev_succ, ↓reduceDIte]
   congr
   ext
   rw [dif_neg (by omega)]
@@ -244,7 +244,7 @@ theorem foldrIdx_nil : foldrIdx f a nil = a := by
 @[simp]
 theorem foldrIdx_cons {x : BitVec w} :
     foldrIdx f a (cons b x) = f ⟨w, by omega⟩ b (foldrIdx (fun i => f ⟨i.val, by omega⟩) a x) := by
-  simp [foldrIdx, getElem_cons]
+  simp only [foldrIdx, getElem_cons, Nat.fold_succ, ↓reduceDIte]
   congr
   ext
   rw [dif_neg (by omega)]
@@ -264,7 +264,7 @@ theorem foldlIdx_nil : foldlIdx f a nil = a := by
 @[simp]
 theorem foldlIdx_cons {x : BitVec w} :
     foldlIdx f a (cons b x) = foldlIdx (fun acc i => f acc ⟨i.val, by omega⟩) (f a ⟨w, by omega⟩ b) x := by
-  simp [foldlIdx, getElem_cons, Nat.foldRev_succ, ↓reduceDIte]
+  simp only [foldlIdx, getElem_cons, Nat.foldRev_succ, ↓reduceDIte]
   congr
   ext
   rw [dif_neg (by omega)]

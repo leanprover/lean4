@@ -32,6 +32,17 @@ inductive RingIneqCnstrProof where
 end
 
 mutual
+structure RingEqCnstr where
+  p      : Grind.CommRing.Poly
+  h      : RingEqCnstrProof
+
+inductive RingEqCnstrProof where
+  | core (a b : Expr) (ra rb : Grind.CommRing.Expr)
+  | symm (c : RingEqCnstr)
+  -- **TODO**: cleanup denominator proof step
+end
+
+mutual
 /-- An equality constraint and its justification/proof. -/
 structure EqCnstr where
   p      : Poly
@@ -66,8 +77,8 @@ inductive IneqCnstrProof where
     ofEq (a b : Expr) (la lb : LinExpr)
   | /-- `a ≤ b` from an equality `a = b` coming from the core. -/
     ofEqOfNat (a b : Expr) (natStructId : Nat) (la lb : LinExpr)
-  | /-- `a ≤ b` from an equality `a = b` coming from the core. -/
-    ofCommRingEq (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | /-- `p ≤ 0` from a ring equality `p = 0`. -/
+    ringEq (c : RingEqCnstr) (lhs : LinExpr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : IneqCnstr)
 
 structure DiseqCnstr where

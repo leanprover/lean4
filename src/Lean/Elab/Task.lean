@@ -39,20 +39,25 @@ returning
 The task is run with a fresh `CancelToken` in its context, so it can detect cancellation
 via `Core.checkInterrupted`. The cancellation hook sets this token.
 
+Uses `Core.wrapAsync` internally to properly handle name generators and heartbeats.
+
 Note: We only set the cancel token and don't call `IO.cancel task`. We're uncertain whether
 `IO.cancel` is also necessary - it may be required for tasks that use `IO.checkCanceled`
 instead of `Core.checkInterrupted`.
 -/
 def asTask (t : CoreM α) : CoreM (BaseIO Unit × Task (CoreM α)) := do
   let cancelToken ← IO.CancelToken.new
-  let ctx := { (← read) with cancelTk? := some cancelToken }
-  let task ← (t.toIO ctx (← get)).asTask
-  return (cancelToken.set, task.map (sync := true) fun
-  | .ok (a, s) => do
-      -- Set state to the task's state (not merging)
-      set s
-      pure a
-  | .error e => throwError m!"Task failed:\n{e}")
+  -- Use wrapAsync to properly handle name generators and heartbeats,
+  -- but modify it to return both the result and state
+  let wrappedAct ← Core.wrapAsync (fun () => do let a ← t; let s ← get; return (a, s)) (some cancelToken)
+  let task ← (wrappedAct ()).asTask
+  return (cancelToken.set, task.map (sync := true) fun result =>
+    match result with
+    | .ok (a, s) => do
+        -- Set state to the task's state (not merging)
+        set s
+        return a
+    | .error e => throw e)
 
 /--
 Given a monadic value in `CoreM`, creates a task that runs it in the current state,

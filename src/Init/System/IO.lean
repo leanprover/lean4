@@ -566,8 +566,19 @@ Waits until any of the tasks in the list has finished, then return its result.
   return tasks[0].get
 
 /--
+Given a non-empty list of tasks, wait for the first to complete.
+Return the value and the list of remaining tasks.
+-/
+def waitAny' (tasks : List (Task α)) (h : 0 < tasks.length := by exact Nat.zero_lt_succ _) :
+    BaseIO (α × List (Task α)) := do
+  let (i, a) ← IO.waitAny
+    (tasks.mapIdx fun i t => t.map (prio := .max) fun a => (i, a))
+    (by simp_all)
+  return (a, tasks.eraseIdx i)
+
+/--
 Returns the number of _heartbeats_ that have occurred during the current thread's execution. The
-heartbeat count is the number of “small” memory allocations performed in a thread.
+heartbeat count is the number of "small" memory allocations performed in a thread.
 
 Heartbeats used to implement timeouts that are more deterministic across different hardware.
 -/

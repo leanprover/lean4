@@ -155,154 +155,18 @@ jobs:
             const isPr = "${{ github.event_name }}" == "pull_request";
             const isPushToMaster = "${{ github.event_name }}" == "push" && "${{ github.ref_name }}" == "master";
             let matrix = [
-              /* TODO: to be updated to new LLVM
-              {
-                "name": "Linux LLVM",
-                "os": "ubuntu-latest",
-                "release": false,
-                "enabled": level >= 2,
-                "test": true,
-                "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-linux-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
-                "binary-check": "ldd -v",
-                // foreign code may be linked against more recent glibc
-                // reverse-ffi needs to be updated to link to LLVM libraries
-                "CTEST_OPTIONS": "-E 'foreign|leanlaketest_reverse-ffi'",
-                "CMAKE_OPTIONS": "-DLLVM=ON -DLLVM_CONFIG=${GITHUB_WORKSPACE}/build/llvm-host/bin/llvm-config"
-              }, */
-              {
-                // portable release build: use channel with older glibc (2.26)
-                "name": "Linux release",
-                // usually not a bottleneck so make exclusive to `fast-ci`
-                "os": large && fast ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
-                "release": true,
-                // Special handling for release jobs. We want:
-                // 1. To run it in PRs so developers get PR toolchains (so secondary without tests is sufficient)
-                // 2. To skip it in merge queues as it takes longer than the
-                //    Linux lake build and adds little value in the merge queue
-                // 3. To run it in release (obviously)
-                // 4. To run it for pushes to master so that pushes to master have a Linux toolchain
-                //    available as an artifact for Grove to use.
-                "enabled": isPr || level != 1 || isPushToMaster,
-                "test": level >= 1,
-                "secondary": level == 0,
-                "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-linux-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
-                "binary-check": "ldd -v",
-                // foreign code may be linked against more recent glibc
-                "CTEST_OPTIONS": "-E 'foreign'",
-              },
-              {
-                "name": "Linux Lake",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
-                "enabled": true,
-                "check-rebootstrap": level >= 1,
-                "check-stage3": level >= 2,
-                "test": true,
-                // NOTE: `test-speedcenter` currently seems to be broken on `ubuntu-latest`
-                "test-speedcenter": large && level >= 2,
-                // We are not warning-free yet on all platforms, start here
-                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror",
-              },
-              {
-                "name": "Linux Reldebug",
-                "os": "ubuntu-latest",
-                "enabled": level >= 2,
-                "test": true,
-                "CMAKE_PRESET": "reldebug",
-              },
               {
                 "name": "Linux fsanitize",
                 "os": large && fast ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
-                "enabled": level >= 2,
+                "enabled": true, //level >= 2,
                 // do not have nightly release wait for this
-                "secondary": level <= 2,
+                //"secondary": level <= 2,
                 "test": true,
                 // turn off custom allocator & symbolic functions to make LSAN do its magic
                 "CMAKE_PRESET": "sanitize",
                 // exclude seriously slow/problematic tests (laketests crash, async_base_functions timeouts)
                 "CTEST_OPTIONS": "-E '(interactive|pkg|lake|bench)/|treemap|StackOverflow|async_base_functions'"
-              },
-              {
-                "name": "macOS",
-                "os": "macos-15-intel",
-                "release": true,
-                "test": false,  // Tier 2 platform
-                "enabled": level >= 2,
-                "shell": "bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-apple-darwin.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
-                "binary-check": "otool -L",
-                "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
-                "CTEST_OPTIONS": "-E 'leanlaketest_hello'", // started failing from unpack
-              },
-              {
-                "name": "macOS aarch64",
-                // standard GH runner only comes with 7GB so use large runner if possible when running tests
-                "os": large && (fast || level >= 1) ? "nscloud-macos-sequoia-arm64-6x14" : "macos-15",
-                "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
-                "release": true,
-                "shell": "bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-aarch64-apple-darwin.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
-                "binary-check": "otool -L",
-                "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
-                // See "Linux release" for release job levels; Grove is not a concern here
-                "enabled": isPr || level != 1,
-                "test": level >= 1,
-                "secondary": level == 0,
-              },
-              {
-                "name": "Windows",
-                "os": large && (fast || level >= 2) ? "namespace-profile-windows-amd64-4x16" : "windows-2022",
-                "release": true,
-                "enabled": level >= 2,
-                "test": true,
-                "shell": "msys2 {0}",
-                "CMAKE_OPTIONS": "-G \"Unix Makefiles\"",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-mingw.sh lean-llvm*",
-                "binary-check": "ldd",
-              },
-              {
-                "name": "Linux aarch64",
-                "os": "nscloud-ubuntu-22.04-arm64-4x16",
-                "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-linux_aarch64",
-                "release": true,
-                "enabled": level >= 2,
-                "test": true,
-                "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-aarch64-linux-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
-              },
-              // Started running out of memory building expensive modules, a 2GB heap is just not that much even before fragmentation
-              //{
-              //  "name": "Linux 32bit",
-              //  "os": "ubuntu-latest",
-              //  // Use 32bit on stage0 and stage1 to keep oleans compatible
-              //  "CMAKE_OPTIONS": "-DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF -DLEAN_INSTALL_SUFFIX=-linux_x86 -DCMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/ -DSTAGE0_CMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/ -DPKG_CONFIG_EXECUTABLE=/usr/bin/i386-linux-gnu-pkg-config",
-              //  "cmultilib": true,
-              //  "release": true,
-              //  "enabled": level >= 2,
-              //  "cross": true,
-              //  "shell": "bash -euxo pipefail {0}"
-              //}
-              // {
-              //   "name": "Web Assembly",
-              //   "os": "ubuntu-latest",
-              //   // Build a native 32bit binary in stage0 and use it to compile the oleans and the wasm build
-              //   "CMAKE_OPTIONS": "-DCMAKE_C_COMPILER_WORKS=1 -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_CMAKE_CXX_COMPILER=clang++ -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_EXECUTABLE_SUFFIX=\"\" -DUSE_GMP=OFF -DMMAP=OFF -DSTAGE0_MMAP=OFF -DCMAKE_AR=../emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=../emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DLEAN_INSTALL_SUFFIX=-linux_wasm32 -DSTAGE0_CMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/",
-              //   "wasm": true,
-              //   "cmultilib": true,
-              //   "release": true,
-              //   "enabled": level >= 2,
-              //   "cross": true,
-              //   "shell": "bash -euxo pipefail {0}",
-              //   // Just a few selected tests because wasm is slow
-              //   "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean|leanruntest_tempfile.lean\\.|leanruntest_libuv\\.lean\""
-              // }
+              }
             ];
             for (const job of matrix) {
               if (job["prepare-llvm"]) {

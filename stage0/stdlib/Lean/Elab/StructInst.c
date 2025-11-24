@@ -9598,7 +9598,6 @@ x_198 = lean_array_get_size(x_197);
 lean_inc(x_189);
 x_199 = l_Array_toSubarray___redArg(x_197, x_189, x_198);
 x_200 = l_Array_ofSubarray___redArg(x_199);
-lean_dec_ref(x_199);
 x_201 = l_Lean_Elab_Term_StructInst_expandStructInstExpectedType___closed__2;
 x_202 = lean_box(2);
 x_203 = lean_alloc_ctor(1, 3, 0);
@@ -31860,7 +31859,6 @@ block_78:
 lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; 
 x_73 = l_Array_toSubarray___redArg(x_57, x_71, x_72);
 x_74 = l_Array_ofSubarray___redArg(x_73);
-lean_dec_ref(x_73);
 x_75 = l_Lean_mkAppN(x_70, x_74);
 lean_dec_ref(x_74);
 if (lean_is_scalar(x_45)) {

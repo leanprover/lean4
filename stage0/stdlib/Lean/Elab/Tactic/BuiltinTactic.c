@@ -2774,7 +2774,6 @@ x_4 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_5 = l_Array_toSubarray___redArg(x_3, x_4, x_1);
 x_6 = l_Array_ofSubarray___redArg(x_5);
-lean_dec_ref(x_5);
 x_7 = l_Lean_Elab_Term_withNarrowedArgTacticReuse___at___00Lean_Elab_Tactic_evalWithAnnotateState_spec__0___redArg___lam__0___closed__1;
 x_8 = lean_box(2);
 x_9 = lean_alloc_ctor(1, 3, 0);
@@ -5330,7 +5329,6 @@ x_5 = lean_unsigned_to_nat(1u);
 x_6 = lean_array_get_size(x_4);
 x_7 = l_Array_toSubarray___redArg(x_4, x_5, x_6);
 x_8 = l_Array_ofSubarray___redArg(x_7);
-lean_dec_ref(x_7);
 x_9 = l_Lean_Elab_Term_withNarrowedArgTacticReuse___at___00Lean_Elab_Tactic_evalWithAnnotateState_spec__0___redArg___lam__0___closed__1;
 x_10 = lean_box(2);
 x_11 = lean_alloc_ctor(1, 3, 0);
@@ -20270,7 +20268,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_validateOptionValue___at___00__private_Lean
 _start:
 {
 lean_object* x_13; uint8_t x_14; 
-x_13 = lean_ctor_get(x_2, 1);
+x_13 = lean_ctor_get(x_2, 2);
 x_14 = l_Lean_DataValue_sameCtor(x_13, x_3);
 if (x_14 == 0)
 {
@@ -20394,7 +20392,6 @@ x_14 = lean_unsigned_to_nat(3u);
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = l_Array_toSubarray___redArg(x_13, x_15, x_14);
 x_17 = l_Array_ofSubarray___redArg(x_16);
-lean_dec_ref(x_16);
 lean_inc(x_12);
 x_18 = l_Lean_Syntax_setArgs(x_12, x_17);
 x_19 = lean_alloc_ctor(5, 1, 0);
@@ -20416,8 +20413,8 @@ lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean
 x_26 = lean_ctor_get(x_25, 0);
 lean_inc(x_26);
 lean_dec_ref(x_25);
-x_27 = lean_ctor_get(x_26, 0);
-x_28 = lean_ctor_get(x_26, 1);
+x_27 = lean_ctor_get(x_26, 1);
+x_28 = lean_ctor_get(x_26, 2);
 lean_inc(x_27);
 lean_inc(x_24);
 x_29 = lean_alloc_ctor(0, 3, 0);
@@ -20634,8 +20631,8 @@ lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean
 x_79 = lean_ctor_get(x_78, 0);
 lean_inc(x_79);
 lean_dec_ref(x_78);
-x_80 = lean_ctor_get(x_79, 0);
-x_81 = lean_ctor_get(x_79, 1);
+x_80 = lean_ctor_get(x_79, 1);
+x_81 = lean_ctor_get(x_79, 2);
 lean_inc(x_80);
 lean_inc(x_77);
 x_82 = lean_alloc_ctor(0, 3, 0);

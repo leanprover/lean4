@@ -2123,7 +2123,6 @@ lean_dec_ref(x_19);
 x_21 = lean_unsigned_to_nat(0u);
 x_22 = l_Array_toSubarray___redArg(x_2, x_21, x_16);
 x_23 = l_Array_ofSubarray___redArg(x_22);
-lean_dec_ref(x_22);
 x_24 = l_Lean_Compiler_LCNF_instantiateForall(x_20, x_23, x_9, x_10);
 lean_dec_ref(x_23);
 if (lean_obj_tag(x_24) == 0)

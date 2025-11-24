@@ -8268,7 +8268,7 @@ block_44:
 {
 lean_object* x_38; lean_object* x_39; 
 x_38 = lean_box(0);
-x_39 = lean_grind_internalize(x_27, x_37, x_38, x_36, x_31, x_34, x_33, x_29, x_28, x_30, x_35);
+x_39 = lean_grind_internalize(x_27, x_37, x_38, x_34, x_33, x_29, x_28, x_32, x_36, x_30, x_35);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; 
@@ -8331,30 +8331,30 @@ x_58 = lean_nat_dec_le(x_55, x_57);
 if (x_58 == 0)
 {
 lean_dec(x_57);
-x_28 = x_50;
-x_29 = x_49;
+x_28 = x_48;
+x_29 = x_47;
 x_30 = x_51;
-x_31 = x_46;
-x_32 = lean_box(0);
-x_33 = x_48;
-x_34 = x_47;
+x_31 = lean_box(0);
+x_32 = x_49;
+x_33 = x_46;
+x_34 = x_45;
 x_35 = x_52;
-x_36 = x_45;
+x_36 = x_50;
 x_37 = x_55;
 goto block_44;
 }
 else
 {
 lean_dec(x_55);
-x_28 = x_50;
-x_29 = x_49;
+x_28 = x_48;
+x_29 = x_47;
 x_30 = x_51;
-x_31 = x_46;
-x_32 = lean_box(0);
-x_33 = x_48;
-x_34 = x_47;
+x_31 = lean_box(0);
+x_32 = x_49;
+x_33 = x_46;
+x_34 = x_45;
 x_35 = x_52;
-x_36 = x_45;
+x_36 = x_50;
 x_37 = x_57;
 goto block_44;
 }

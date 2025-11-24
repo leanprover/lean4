@@ -4285,7 +4285,6 @@ x_74 = l_Lean_mkConst(x_73, x_35);
 x_75 = lean_unsigned_to_nat(0u);
 x_76 = l_Array_toSubarray___redArg(x_66, x_75, x_50);
 x_77 = l_Array_ofSubarray___redArg(x_76);
-lean_dec_ref(x_76);
 lean_inc(x_59);
 lean_inc_ref(x_58);
 lean_inc(x_57);

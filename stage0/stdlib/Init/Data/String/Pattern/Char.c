@@ -17,6 +17,7 @@ LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_finitenessR
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharSearcher(lean_object*);
 lean_object* l_String_Slice_Pattern_ToBackwardSearcher_defaultDropSuffix_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_finitenessRelation___boxed(lean_object*);
+lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instToBackwardSearcherChar___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instToBackwardSearcherChar(uint32_t);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_iter___redArg(uint32_t);
@@ -56,7 +57,6 @@ LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_iter___redAr
 lean_object* l_String_Slice_Pattern_ForwardPattern_defaultStartsWith___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_instIteratorIdSearchStep(lean_object*);
 static lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instIteratorLoopIdSearchStep___closed__2;
-lean_object* l_String_Slice_Pos_next___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharSearcher_iter___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharSearcher_instIteratorIdSearchStep___lam__0___boxed(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -211,100 +211,104 @@ x_10 = lean_nat_dec_eq(x_4, x_9);
 lean_dec(x_9);
 if (x_10 == 0)
 {
-lean_object* x_11; lean_object* x_12; uint32_t x_13; uint8_t x_14; 
-x_11 = l_String_Slice_Pos_next___redArg(x_1, x_4);
-lean_inc(x_11);
-lean_ctor_set(x_2, 0, x_11);
-x_12 = lean_nat_add(x_7, x_4);
-x_13 = lean_string_utf8_get_fast(x_6, x_12);
+lean_object* x_11; lean_object* x_12; lean_object* x_13; uint32_t x_14; uint8_t x_15; 
+x_11 = lean_nat_add(x_7, x_4);
+x_12 = lean_string_utf8_next_fast(x_6, x_11);
+x_13 = lean_nat_sub(x_12, x_7);
 lean_dec(x_12);
-x_14 = lean_uint32_dec_eq(x_13, x_5);
-if (x_14 == 0)
+lean_inc(x_13);
+lean_ctor_set(x_2, 0, x_13);
+x_14 = lean_string_utf8_get_fast(x_6, x_11);
+lean_dec(x_11);
+x_15 = lean_uint32_dec_eq(x_14, x_5);
+if (x_15 == 0)
 {
-lean_object* x_15; lean_object* x_16; 
-x_15 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_15, 0, x_4);
-lean_ctor_set(x_15, 1, x_11);
+lean_object* x_16; lean_object* x_17; 
 x_16 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_16, 0, x_2);
-lean_ctor_set(x_16, 1, x_15);
-return x_16;
+lean_ctor_set(x_16, 0, x_4);
+lean_ctor_set(x_16, 1, x_13);
+x_17 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_17, 0, x_2);
+lean_ctor_set(x_17, 1, x_16);
+return x_17;
 }
 else
 {
-lean_object* x_17; lean_object* x_18; 
-x_17 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_17, 0, x_4);
-lean_ctor_set(x_17, 1, x_11);
-x_18 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_18, 0, x_2);
-lean_ctor_set(x_18, 1, x_17);
-return x_18;
-}
-}
-else
-{
-lean_object* x_19; 
-lean_free_object(x_2);
-lean_dec(x_4);
-x_19 = lean_box(2);
+lean_object* x_18; lean_object* x_19; 
+x_18 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_18, 0, x_4);
+lean_ctor_set(x_18, 1, x_13);
+x_19 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_19, 0, x_2);
+lean_ctor_set(x_19, 1, x_18);
 return x_19;
 }
 }
 else
 {
-lean_object* x_20; uint32_t x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; 
-x_20 = lean_ctor_get(x_2, 0);
-x_21 = lean_ctor_get_uint32(x_2, sizeof(void*)*1);
-lean_inc(x_20);
-lean_dec(x_2);
-x_22 = lean_ctor_get(x_1, 0);
-x_23 = lean_ctor_get(x_1, 1);
-x_24 = lean_ctor_get(x_1, 2);
-x_25 = lean_nat_sub(x_24, x_23);
-x_26 = lean_nat_dec_eq(x_20, x_25);
-lean_dec(x_25);
-if (x_26 == 0)
-{
-lean_object* x_27; lean_object* x_28; lean_object* x_29; uint32_t x_30; uint8_t x_31; 
-x_27 = l_String_Slice_Pos_next___redArg(x_1, x_20);
-lean_inc(x_27);
-x_28 = lean_alloc_ctor(0, 1, 4);
-lean_ctor_set(x_28, 0, x_27);
-lean_ctor_set_uint32(x_28, sizeof(void*)*1, x_21);
-x_29 = lean_nat_add(x_23, x_20);
-x_30 = lean_string_utf8_get_fast(x_22, x_29);
-lean_dec(x_29);
-x_31 = lean_uint32_dec_eq(x_30, x_21);
-if (x_31 == 0)
-{
-lean_object* x_32; lean_object* x_33; 
-x_32 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_32, 0, x_20);
-lean_ctor_set(x_32, 1, x_27);
-x_33 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_33, 0, x_28);
-lean_ctor_set(x_33, 1, x_32);
-return x_33;
+lean_object* x_20; 
+lean_free_object(x_2);
+lean_dec(x_4);
+x_20 = lean_box(2);
+return x_20;
+}
 }
 else
 {
+lean_object* x_21; uint32_t x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; 
+x_21 = lean_ctor_get(x_2, 0);
+x_22 = lean_ctor_get_uint32(x_2, sizeof(void*)*1);
+lean_inc(x_21);
+lean_dec(x_2);
+x_23 = lean_ctor_get(x_1, 0);
+x_24 = lean_ctor_get(x_1, 1);
+x_25 = lean_ctor_get(x_1, 2);
+x_26 = lean_nat_sub(x_25, x_24);
+x_27 = lean_nat_dec_eq(x_21, x_26);
+lean_dec(x_26);
+if (x_27 == 0)
+{
+lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint32_t x_32; uint8_t x_33; 
+x_28 = lean_nat_add(x_24, x_21);
+x_29 = lean_string_utf8_next_fast(x_23, x_28);
+x_30 = lean_nat_sub(x_29, x_24);
+lean_dec(x_29);
+lean_inc(x_30);
+x_31 = lean_alloc_ctor(0, 1, 4);
+lean_ctor_set(x_31, 0, x_30);
+lean_ctor_set_uint32(x_31, sizeof(void*)*1, x_22);
+x_32 = lean_string_utf8_get_fast(x_23, x_28);
+lean_dec(x_28);
+x_33 = lean_uint32_dec_eq(x_32, x_22);
+if (x_33 == 0)
+{
 lean_object* x_34; lean_object* x_35; 
-x_34 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_34, 0, x_20);
-lean_ctor_set(x_34, 1, x_27);
+x_34 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_34, 0, x_21);
+lean_ctor_set(x_34, 1, x_30);
 x_35 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_35, 0, x_28);
+lean_ctor_set(x_35, 0, x_31);
 lean_ctor_set(x_35, 1, x_34);
 return x_35;
 }
+else
+{
+lean_object* x_36; lean_object* x_37; 
+x_36 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_36, 0, x_21);
+lean_ctor_set(x_36, 1, x_30);
+x_37 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_37, 0, x_31);
+lean_ctor_set(x_37, 1, x_36);
+return x_37;
+}
 }
 else
 {
-lean_object* x_36; 
-lean_dec(x_20);
-x_36 = lean_box(2);
-return x_36;
+lean_object* x_38; 
+lean_dec(x_21);
+x_38 = lean_box(2);
+return x_38;
 }
 }
 }

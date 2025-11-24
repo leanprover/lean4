@@ -12168,7 +12168,6 @@ if (x_5 == 0)
 lean_object* x_6; 
 lean_dec(x_1);
 x_6 = l_Array_ofSubarray___redArg(x_3);
-lean_dec_ref(x_3);
 return x_6;
 }
 else
@@ -12181,7 +12180,6 @@ x_8 = l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_msgToInteract
 lean_inc_ref(x_3);
 x_9 = l_Subarray_take___redArg(x_3, x_2);
 x_10 = l_Array_ofSubarray___redArg(x_9);
-lean_dec_ref(x_9);
 x_11 = l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_msgToInteractiveAux_chopUpChildren___closed__0;
 x_12 = l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_msgToInteractiveAux_chopUpChildren___closed__1;
 x_13 = lean_alloc_ctor(0, 2, 17);

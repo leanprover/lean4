@@ -2012,7 +2012,6 @@ x_59 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_27, x_56, x_58);
 x_60 = lean_unsigned_to_nat(0u);
 x_61 = l_Array_toSubarray___redArg(x_59, x_60, x_45);
 x_62 = l_Array_ofSubarray___redArg(x_61);
-lean_dec_ref(x_61);
 x_63 = l_Lean_mkAppN(x_53, x_62);
 lean_dec_ref(x_62);
 lean_inc(x_50);

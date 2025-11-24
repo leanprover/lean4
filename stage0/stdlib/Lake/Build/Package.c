@@ -4046,8 +4046,6 @@ if (x_22 == 0)
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 x_23 = l_Lean_Name_toString(x_5, x_10);
 x_24 = l_Lake_Reservoir_pkgApiUrl(x_14, x_7, x_23);
-lean_dec_ref(x_23);
-lean_dec_ref(x_7);
 x_25 = l___private_Lake_Build_Package_0__Lake_Package_getBarrelUrl___redArg___closed__1;
 x_26 = lean_string_append(x_24, x_25);
 x_27 = lean_string_append(x_26, x_19);
@@ -4056,7 +4054,6 @@ x_28 = l___private_Lake_Build_Package_0__Lake_Package_getBarrelUrl___redArg___cl
 x_29 = lean_string_append(x_27, x_28);
 x_30 = l___private_Lake_Build_Package_0__Lake_Package_recFetchDeps___lam__0___closed__1;
 x_31 = l_Lake_uriEncode(x_20, x_30);
-lean_dec_ref(x_20);
 x_32 = lean_string_append(x_29, x_31);
 lean_dec_ref(x_31);
 x_33 = lean_alloc_ctor(0, 2, 0);

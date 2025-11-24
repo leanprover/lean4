@@ -10320,7 +10320,7 @@ return x_76;
 block_28:
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; 
-x_25 = lean_alloc_ctor(6, 2, 0);
+x_25 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_25, 0, x_1);
 lean_ctor_set(x_25, 1, x_2);
 x_26 = lean_alloc_ctor(0, 2, 1);
@@ -12814,7 +12814,7 @@ block_24:
 {
 uint8_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_20 = 1;
-x_21 = lean_alloc_ctor(8, 1, 0);
+x_21 = lean_alloc_ctor(7, 1, 0);
 lean_ctor_set(x_21, 0, x_18);
 x_22 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_22, 0, x_17);
@@ -21225,7 +21225,7 @@ x_34 = l_Lean_Meta_Grind_Arith_Linear_resolveLowerDiseqConflict___closed__0;
 lean_inc(x_31);
 x_35 = l_Lean_Grind_Linarith_Poly_mul(x_31, x_34);
 x_36 = 1;
-x_37 = lean_alloc_ctor(9, 4, 0);
+x_37 = lean_alloc_ctor(8, 4, 0);
 lean_ctor_set(x_37, 0, x_16);
 lean_ctor_set(x_37, 1, x_23);
 lean_ctor_set(x_37, 2, x_1);

@@ -3856,7 +3856,6 @@ block_22:
 lean_object* x_17; lean_object* x_18; size_t x_19; size_t x_20; lean_object* x_21; 
 x_17 = l_Array_toSubarray___redArg(x_13, x_15, x_16);
 x_18 = l_Array_ofSubarray___redArg(x_17);
-lean_dec_ref(x_17);
 x_19 = lean_array_size(x_18);
 x_20 = 0;
 x_21 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__12(x_12, x_19, x_20, x_18, x_2, x_3, x_4, x_5);

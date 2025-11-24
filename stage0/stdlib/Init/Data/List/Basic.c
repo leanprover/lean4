@@ -22,7 +22,6 @@ LEAN_EXPORT uint8_t l_List_decidableLT___redArg(lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* l_List_sum___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_isEmpty___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_eraseReps(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_length_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_getLast(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__Basic______macroRules__List__term___x3c_x3a_x2b____1___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_beq_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -133,6 +132,7 @@ LEAN_EXPORT uint8_t l_List_isEmpty___redArg(lean_object*);
 static lean_object* l___auto___closed__19_00___x40_Init_Data_List_Basic_1499792475____hygCtx___hyg_12_;
 LEAN_EXPORT uint8_t l_List_decidableBEx___redArg(lean_object*, lean_object*);
 static lean_object* l___auto___closed__49_00___x40_Init_Data_List_Basic_1499792475____hygCtx___hyg_12_;
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__instDecidableEqList_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__16_00___x40_Init_Data_List_Basic_1499792475____hygCtx___hyg_12_;
 LEAN_EXPORT lean_object* l_List_find_x3f(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_reverseAux(lean_object*, lean_object*, lean_object*);
@@ -155,7 +155,6 @@ LEAN_EXPORT lean_object* l_List_extract___boxed(lean_object*, lean_object*, lean
 LEAN_EXPORT uint8_t l_List_eraseDups___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_rightpad___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_length_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_modify___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_id___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_instEmptyCollection(lean_object*);
@@ -382,6 +381,7 @@ static lean_object* l_List_term___x3c_x2b_x3a___00__closed__3;
 static lean_object* l___auto___closed__18_00___x40_Init_Data_List_Basic_1499792475____hygCtx___hyg_12_;
 static lean_object* l_List_and___closed__0;
 static lean_object* l___auto___closed__55_00___x40_Init_Data_List_Basic_1499792475____hygCtx___hyg_12_;
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__instDecidableEqList_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_decidableBEx(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_getLastD___redArg(lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__Basic______macroRules__List__term___x3c_x2b_x3a____1___closed__5;
@@ -9355,7 +9355,7 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_length_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__instDecidableEqList_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -9380,11 +9380,11 @@ return x_8;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_length_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__instDecidableEqList_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l___private_Init_Data_List_Basic_0__List_length_match__1_splitter___redArg(x_3, x_4, x_5);
+x_6 = l___private_Init_Data_List_Basic_0__instDecidableEqList_match__1_splitter___redArg(x_3, x_4, x_5);
 return x_6;
 }
 }

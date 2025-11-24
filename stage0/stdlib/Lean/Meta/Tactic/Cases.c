@@ -2515,7 +2515,6 @@ lean_dec(x_11);
 x_28 = lean_unsigned_to_nat(0u);
 x_29 = l_Array_toSubarray___redArg(x_3, x_28, x_10);
 x_30 = l_Array_ofSubarray___redArg(x_29);
-lean_dec_ref(x_29);
 lean_inc_ref(x_30);
 x_31 = lean_alloc_closure((void*)(l_Lean_Meta_generalizeTargetsEq___lam__0___boxed), 9, 2);
 lean_closure_set(x_31, 0, x_2);

@@ -3669,7 +3669,6 @@ x_20 = lean_nat_add(x_18, x_19);
 lean_dec(x_18);
 x_21 = l_Array_toSubarray___redArg(x_14, x_16, x_20);
 x_22 = l_Array_ofSubarray___redArg(x_21);
-lean_dec_ref(x_21);
 x_23 = l_Lean_Meta_ExtractLets_withEnsuringDeclsInContext___at___00Lean_Meta_ExtractLets_withDeclInContext_spec__0___redArg(x_22, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec_ref(x_22);
 return x_23;

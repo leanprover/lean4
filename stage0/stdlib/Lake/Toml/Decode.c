@@ -2646,6 +2646,7 @@ uint8_t x_6;
 x_6 = lean_nat_dec_le(x_1, x_3);
 if (x_6 == 0)
 {
+lean_dec(x_2);
 return x_4;
 }
 else
@@ -2783,7 +2784,6 @@ _start:
 lean_object* x_6; 
 x_6 = l_Lake_Toml_decodeKeyval___redArg___lam__0(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_6;
 }
@@ -2816,7 +2816,6 @@ if (lean_obj_tag(x_6) == 0)
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_7 = l_Lake_Toml_Table_decodeValue___closed__1;
 x_8 = l_Lake_Toml_ppKey(x_2);
-lean_dec(x_2);
 x_9 = lean_string_append(x_7, x_8);
 lean_dec_ref(x_8);
 x_10 = lean_box(0);

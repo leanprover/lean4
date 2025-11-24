@@ -966,7 +966,6 @@ x_4 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_5 = l_Array_toSubarray___redArg(x_3, x_4, x_1);
 x_6 = l_Array_ofSubarray___redArg(x_5);
-lean_dec_ref(x_5);
 x_7 = l_Lean_Elab_Term_withNarrowedArgTacticReuse___at___00Lean_Elab_Tactic_evalClassical_spec__0___redArg___lam__0___closed__1;
 x_8 = lean_box(2);
 x_9 = lean_alloc_ctor(1, 3, 0);

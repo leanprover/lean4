@@ -26,6 +26,7 @@ static lean_object* l_Std_Internal_Parsec_manyCharsCore___at___00Lean_Xml_Parser
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_elementPrefix___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_NDataDecl(lean_object*);
 static lean_object* l_Std_Internal_Parsec_manyCore___at___00Lean_Xml_Parser_seq_spec__0___closed__0;
+lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_EncodingDecl(lean_object*);
 static lean_object* l___private_Lean_Data_Xml_Parser_0__Lean_Xml_Parser_nameStartCharRanges___closed__16;
 lean_object* lean_uint32_to_nat(uint32_t);
@@ -352,7 +353,6 @@ static lean_object* l___private_Lean_Data_Xml_Parser_0__Lean_Xml_Parser_nameStar
 static lean_object* l_Lean_Xml_Parser_elementDecl___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_AttDef(lean_object*);
 static lean_object* l_Lean_Xml_Parser_Comment___closed__1;
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 static lean_object* l_Lean_Xml_Parser_endl___closed__10;
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCore___at___00Lean_Xml_Parser_elementPrefix_spec__0(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);

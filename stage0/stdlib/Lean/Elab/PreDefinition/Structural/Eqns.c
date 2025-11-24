@@ -957,7 +957,6 @@ lean_inc(x_41);
 lean_inc_ref(x_4);
 x_45 = l_Array_toSubarray___redArg(x_4, x_44, x_41);
 x_46 = l_Array_ofSubarray___redArg(x_45);
-lean_dec_ref(x_45);
 x_47 = l_Lean_mkAppN(x_3, x_46);
 lean_dec_ref(x_46);
 lean_inc(x_9);
@@ -1223,7 +1222,6 @@ lean_inc(x_41);
 lean_inc_ref(x_4);
 x_45 = l_Array_toSubarray___redArg(x_4, x_44, x_41);
 x_46 = l_Array_ofSubarray___redArg(x_45);
-lean_dec_ref(x_45);
 x_47 = l_Lean_mkAppN(x_3, x_46);
 lean_dec_ref(x_46);
 lean_inc(x_9);
@@ -1541,7 +1539,6 @@ _start:
 {
 lean_object* x_10; 
 x_10 = l_Lean_Expr_withAppAux___at___00Lean_Expr_withAppAux___at___00__private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_findBRecOnLHS_go_spec__5_spec__5___redArg___lam__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec_ref(x_1);
 return x_10;
 }
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Trace
-// Imports: public import Lean.Data.Json import Init.Data.Nat.Fold import Lake.Util.String import Lake.Util.IO public import Init.Data.String.Extra
+// Imports: public import Lean.Data.Json import Init.Data.Nat.Fold import Lake.Util.String import Lake.Util.IO public import Init.Data.String.Search public import Init.Data.String.Extra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -32,6 +32,7 @@ static lean_object* l_Lake_instReprBuildTrace_repr___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lake_pureHash___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_Hash_ofJsonNumber_x3f___closed__1;
 static lean_object* l_Lake_instReprHash_repr___redArg___closed__0;
+lean_object* l_String_Slice_toNat_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Hash_instToJson;
 LEAN_EXPORT lean_object* l_Lake_instComputeHashFilePathIO;
 LEAN_EXPORT lean_object* l_Lake_BuildTrace_ofHash___boxed(lean_object*, lean_object*);
@@ -39,7 +40,6 @@ uint64_t lean_uint64_of_nat(lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Lake_CheckExists_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildTrace_withCaption(lean_object*, lean_object*);
-lean_object* l_String_toNat_x3f(lean_object*);
 static lean_object* l_Lake_instToStringTextFilePath___closed__0;
 LEAN_EXPORT uint64_t l_Lake_Hash_ofNat(lean_object*);
 lean_object* l_Std_Format_fill(lean_object*);
@@ -146,7 +146,6 @@ LEAN_EXPORT lean_object* l_Lake_instReprHash_repr___boxed(lean_object*, lean_obj
 uint64_t lean_uint8_to_uint64(uint8_t);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_computeArrayHash___redArg___boxed__const__1;
-LEAN_EXPORT lean_object* l_Lake_Hash_ofDecimal_x3f___boxed(lean_object*);
 static lean_object* l_Lake_Hash_instToJson___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instReprHash_repr___redArg(uint64_t);
 LEAN_EXPORT lean_object* l_Lake_Hash_ofString_x3f___boxed(lean_object*);
@@ -1547,53 +1546,51 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lake_Hash_ofDecimal_x3f(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
-x_2 = l_String_toNat_x3f(x_1);
-x_3 = l_inline(lean_box(0), x_2);
-lean_dec(x_2);
-if (lean_obj_tag(x_3) == 0)
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_string_utf8_byte_size(x_1);
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+x_5 = l_String_Slice_toNat_x3f(x_4);
+lean_dec_ref(x_4);
+x_6 = l_inline(lean_box(0), x_5);
+lean_dec(x_5);
+if (lean_obj_tag(x_6) == 0)
 {
-lean_object* x_4; 
-x_4 = lean_box(0);
-return x_4;
+lean_object* x_7; 
+x_7 = lean_box(0);
+return x_7;
 }
 else
 {
-uint8_t x_5; 
-x_5 = !lean_is_exclusive(x_3);
-if (x_5 == 0)
+uint8_t x_8; 
+x_8 = !lean_is_exclusive(x_6);
+if (x_8 == 0)
 {
-lean_object* x_6; uint64_t x_7; lean_object* x_8; 
-x_6 = lean_ctor_get(x_3, 0);
-x_7 = lean_uint64_of_nat(x_6);
-lean_dec(x_6);
-x_8 = lean_box_uint64(x_7);
-lean_ctor_set(x_3, 0, x_8);
-return x_3;
-}
-else
-{
-lean_object* x_9; uint64_t x_10; lean_object* x_11; lean_object* x_12; 
-x_9 = lean_ctor_get(x_3, 0);
-lean_inc(x_9);
-lean_dec(x_3);
+lean_object* x_9; uint64_t x_10; lean_object* x_11; 
+x_9 = lean_ctor_get(x_6, 0);
 x_10 = lean_uint64_of_nat(x_9);
 lean_dec(x_9);
 x_11 = lean_box_uint64(x_10);
-x_12 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_12, 0, x_11);
-return x_12;
+lean_ctor_set(x_6, 0, x_11);
+return x_6;
 }
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Hash_ofDecimal_x3f___boxed(lean_object* x_1) {
-_start:
+else
 {
-lean_object* x_2; 
-x_2 = l_Lake_Hash_ofDecimal_x3f(x_1);
-lean_dec_ref(x_1);
-return x_2;
+lean_object* x_12; uint64_t x_13; lean_object* x_14; lean_object* x_15; 
+x_12 = lean_ctor_get(x_6, 0);
+lean_inc(x_12);
+lean_dec(x_6);
+x_13 = lean_uint64_of_nat(x_12);
+lean_dec(x_12);
+x_14 = lean_box_uint64(x_13);
+x_15 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_15, 0, x_14);
+return x_15;
+}
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Hash_ofString_x3f(lean_object* x_1) {
@@ -4241,6 +4238,7 @@ lean_object* initialize_Lean_Data_Json(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Fold(uint8_t builtin);
 lean_object* initialize_Lake_Util_String(uint8_t builtin);
 lean_object* initialize_Lake_Util_IO(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Search(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Extra(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Build_Trace(uint8_t builtin) {
@@ -4257,6 +4255,9 @@ res = initialize_Lake_Util_String(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Util_IO(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Search(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Extra(builtin);

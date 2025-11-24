@@ -3017,7 +3017,6 @@ x_118 = lean_ctor_get(x_106, 0);
 lean_inc(x_118);
 lean_dec_ref(x_106);
 x_119 = l_Lake_Hash_ofDecimal_x3f(x_118);
-lean_dec(x_118);
 if (lean_obj_tag(x_119) == 0)
 {
 lean_object* x_120; 

@@ -30776,7 +30776,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_validateOptionValue___at___00__private_Lean
 _start:
 {
 lean_object* x_11; uint8_t x_12; 
-x_11 = lean_ctor_get(x_2, 1);
+x_11 = lean_ctor_get(x_2, 2);
 x_12 = l_Lean_DataValue_sameCtor(x_11, x_3);
 if (x_12 == 0)
 {
@@ -30901,7 +30901,6 @@ x_12 = lean_unsigned_to_nat(3u);
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = l_Array_toSubarray___redArg(x_11, x_13, x_12);
 x_15 = l_Array_ofSubarray___redArg(x_14);
-lean_dec_ref(x_14);
 lean_inc(x_10);
 x_16 = l_Lean_Syntax_setArgs(x_10, x_15);
 x_17 = lean_alloc_ctor(5, 1, 0);
@@ -30923,8 +30922,8 @@ lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean
 x_24 = lean_ctor_get(x_23, 0);
 lean_inc(x_24);
 lean_dec_ref(x_23);
-x_25 = lean_ctor_get(x_24, 0);
-x_26 = lean_ctor_get(x_24, 1);
+x_25 = lean_ctor_get(x_24, 1);
+x_26 = lean_ctor_get(x_24, 2);
 lean_inc(x_25);
 lean_inc(x_22);
 x_27 = lean_alloc_ctor(0, 3, 0);
@@ -31142,8 +31141,8 @@ lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean
 x_77 = lean_ctor_get(x_76, 0);
 lean_inc(x_77);
 lean_dec_ref(x_76);
-x_78 = lean_ctor_get(x_77, 0);
-x_79 = lean_ctor_get(x_77, 1);
+x_78 = lean_ctor_get(x_77, 1);
+x_79 = lean_ctor_get(x_77, 2);
 lean_inc(x_78);
 lean_inc(x_75);
 x_80 = lean_alloc_ctor(0, 3, 0);

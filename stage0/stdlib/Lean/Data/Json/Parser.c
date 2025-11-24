@@ -19,6 +19,7 @@ LEAN_EXPORT lean_object* l_Lean_Json_Parser_objectCore(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_escapedChar___boxed__const__2;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__0___redArg___closed__2;
+lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 static lean_object* l_Lean_Json_Parser_exponent___closed__0;
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__0___redArg___closed__7;
 lean_object* lean_uint32_to_nat(uint32_t);
@@ -111,7 +112,6 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_J
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 static lean_object* l_Lean_Json_Parser_anyCore___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_any(lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_numSign(lean_object*);
 lean_object* l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_skipWs(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

@@ -6533,7 +6533,6 @@ lean_dec(x_109);
 x_115 = lean_unsigned_to_nat(0u);
 x_116 = l_Array_toSubarray___redArg(x_112, x_115, x_114);
 x_117 = l_Array_ofSubarray___redArg(x_116);
-lean_dec_ref(x_116);
 lean_inc(x_1);
 x_118 = l_Lean_Syntax_setArgs(x_1, x_117);
 x_26 = x_100;

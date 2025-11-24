@@ -45,9 +45,9 @@ LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_instances_elim___boxed(lea
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_instances_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instCoeListNatOccurrences;
 LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_ctorIdx___boxed(lean_object*);
-uint8_t l_List_hasDecEq___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instBEqTransparencyMode_beq___boxed(lean_object*, lean_object*);
+uint8_t l_instDecidableEqList___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DSimp_instBEqConfig;
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_default_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_ctorElim___redArg(lean_object*);
@@ -2452,7 +2452,7 @@ block_7:
 {
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_alloc_closure((void*)(l_instDecidableEqNat___boxed), 2, 0);
-x_6 = l_List_hasDecEq___redArg(x_5, x_3, x_4);
+x_6 = l_instDecidableEqList___redArg(x_5, x_3, x_4);
 return x_6;
 }
 }

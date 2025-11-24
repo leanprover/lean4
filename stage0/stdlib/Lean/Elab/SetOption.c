@@ -848,7 +848,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_validateOptionValue___redArg(lean_object* x
 _start:
 {
 lean_object* x_6; uint8_t x_7; 
-x_6 = lean_ctor_get(x_4, 1);
+x_6 = lean_ctor_get(x_4, 2);
 x_7 = l_Lean_DataValue_sameCtor(x_6, x_5);
 if (x_7 == 0)
 {
@@ -1173,9 +1173,9 @@ LEAN_EXPORT lean_object* l_Lean_Elab_elabSetOption___redArg___lam__2(lean_object
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_10 = lean_ctor_get(x_9, 0);
+x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
-x_11 = lean_ctor_get(x_9, 1);
+x_11 = lean_ctor_get(x_9, 2);
 lean_inc_ref(x_11);
 lean_inc(x_4);
 lean_inc_ref(x_2);
@@ -1252,7 +1252,6 @@ x_13 = lean_unsigned_to_nat(3u);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = l_Array_toSubarray___redArg(x_12, x_14, x_13);
 x_16 = l_Array_ofSubarray___redArg(x_15);
-lean_dec_ref(x_15);
 x_17 = l_Lean_Syntax_setArgs(x_9, x_16);
 x_18 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_18, 0, x_17);

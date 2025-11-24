@@ -247,6 +247,7 @@ lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_obje
 LEAN_EXPORT lean_object* l_Vector_mapFinIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_allM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Basic_0__Vector_flatMapM_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Array_instDecidableEqImpl___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_shrink(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__32_00___x40_Init_Data_Vector_Basic_1499792475____hygCtx___hyg_20_;
 LEAN_EXPORT lean_object* l_Vector_findSomeM_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -377,7 +378,6 @@ LEAN_EXPORT lean_object* l_Vector_insertIdx___boxed(lean_object*, lean_object*, 
 static lean_object* l___auto___closed__11_00___x40_Init_Data_Vector_Basic_1499792475____hygCtx___hyg_20_;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_eraseIdx_x21(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Array_instDecidableEq___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 static lean_object* l___auto___closed__42_00___x40_Init_Data_Vector_Basic_1499792475____hygCtx___hyg_20_;
 LEAN_EXPORT lean_object* l_Vector_set_x21___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -952,7 +952,7 @@ LEAN_EXPORT uint8_t l_instDecidableEqVector_decEq___redArg(lean_object* x_1, lea
 _start:
 {
 uint8_t x_4; 
-x_4 = l_Array_instDecidableEq___redArg(x_1, x_2, x_3);
+x_4 = l_Array_instDecidableEqImpl___redArg(x_1, x_2, x_3);
 return x_4;
 }
 }
@@ -960,7 +960,7 @@ LEAN_EXPORT uint8_t l_instDecidableEqVector_decEq(lean_object* x_1, lean_object*
 _start:
 {
 uint8_t x_6; 
-x_6 = l_Array_instDecidableEq___redArg(x_3, x_4, x_5);
+x_6 = l_Array_instDecidableEqImpl___redArg(x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -991,7 +991,7 @@ LEAN_EXPORT uint8_t l_instDecidableEqVector___redArg(lean_object* x_1, lean_obje
 _start:
 {
 uint8_t x_4; 
-x_4 = l_Array_instDecidableEq___redArg(x_1, x_2, x_3);
+x_4 = l_Array_instDecidableEqImpl___redArg(x_1, x_2, x_3);
 return x_4;
 }
 }
@@ -999,7 +999,7 @@ LEAN_EXPORT uint8_t l_instDecidableEqVector(lean_object* x_1, lean_object* x_2, 
 _start:
 {
 uint8_t x_6; 
-x_6 = l_Array_instDecidableEq___redArg(x_3, x_4, x_5);
+x_6 = l_Array_instDecidableEqImpl___redArg(x_3, x_4, x_5);
 return x_6;
 }
 }

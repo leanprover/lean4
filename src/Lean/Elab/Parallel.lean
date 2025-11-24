@@ -6,7 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-import Lean.Elab.Task
+public import Lean.Elab.Task
 import Init.System.IO
 
 /-!
@@ -60,6 +60,8 @@ as tasks complete, unlike `par`/`par'` which restore the initial state after col
 Iterators do not have `Finite` instances, as we cannot prove termination from the available
 information. For consumers that require `Finite` (like `.toList`), use `.allowNontermination.toList`.
 -/
+
+@[expose] public section
 
 set_option autoImplicit true
 

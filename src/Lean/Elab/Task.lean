@@ -6,7 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-import Lean.Elab.Tactic.Basic
+public import Lean.Elab.Tactic.Basic
 
 /-!
 # Task creation utilities for Lean's tactic monads.
@@ -25,6 +25,8 @@ Note: Calling `IO.cancel` on `t.map f` does not cancel `t`,
 so these functions are careful to construct cancellation hooks
 connected to the underlying task rather than various maps of it.
 -/
+
+@[expose] public section
 
 set_option autoImplicit true
 

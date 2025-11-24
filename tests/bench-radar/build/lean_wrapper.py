@@ -7,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-NAME = "stdlib"
+NAME = "build"
 REPO = Path("..")
 BENCH = REPO / "tests" / "bench-radar"
 STAGE2 = REPO / "build" / "release" / "stage2"

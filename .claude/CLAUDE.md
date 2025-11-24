@@ -15,6 +15,12 @@ All new tests should go in `tests/lean/run/`. These tests don't have expected ou
 
 *Never* report success on a task unless you have verified both a clean build without errors, and that the relevant tests pass.
 
+## Build System Safety
+
+**NEVER manually delete build directories** (build/, stage0/, stage1/, etc.) even when builds fail.
+- ONLY use the project's documented build command: `make -j$(nproc) -C build/release`
+- If a build is broken, ask the user before attempting any manual cleanup
+
 ## LSP and IDE Diagnostics
 
 After rebuilding, LSP diagnostics may be stale until the user interacts with files. Trust command-line test results over IDE diagnostics.

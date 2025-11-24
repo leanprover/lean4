@@ -160,6 +160,34 @@ def induction {motive : ∀ {w}, BitVec w → Prop}
     exact cons w x.msb (setWidth w x) (ih (setWidth w x))
 
 /--
+Induction principle for bitvectors, viewing them as built from `concat` (MSB to LSB).
+
+This allows reasoning about bitvectors by induction on their structure from MSB to LSB:
+- Base case: `nil : BitVec 0`
+- Inductive case: `concat x b : BitVec (w+1)` where `x : BitVec w`
+
+Example usage:
+```lean
+theorem my_theorem (x : BitVec w) : P x := by
+  induction x using BitVec.inductionConcat with
+  | nil => -- prove P nil
+  | concat x b ih => -- prove P (concat x b) using ih : P x
+```
+-/
+@[elab_as_elim]
+def inductionConcat {motive : ∀ {w}, BitVec w → Prop}
+    (nil : motive nil)
+    (concat : ∀ w (x : BitVec w) (b : Bool), motive x → motive (concat x b))
+    {w : Nat} (x : BitVec w) : motive x := by
+  induction w with
+  | zero =>
+    rw [eq_nil x]
+    exact nil
+  | succ w ih =>
+    rw [←concat_extractLsb'_getElem_zero x]
+    exact concat w _ _ (ih _)
+
+/--
 Fold a function over the bits of a bitvector from least significant to most significant.
 
 `foldr (cons b x) f init = f b (foldr x f init)`

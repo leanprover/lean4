@@ -573,10 +573,12 @@ theorem induct_rcc_right (motive : Nat → Nat → Prop)
     (base : ∀ a b, b < a → motive a b)
     (step : ∀ a b, a ≤ b → motive a b → motive a (b + 1))
     (a b : Nat) : motive a b := by
-  apply induct_rco_right (fun a b => motive a (b + 1))
   induction h : b + 1 - a generalizing a b
   · apply base; omega
   · rename_i d ih
+    match b with
+    | 0 =>
+      have : a = 0 := by omega
 
     obtain ⟨b, rfl⟩ := Nat.exists_eq_succ_of_ne_zero (show b ≠ 0 by omega)
     apply step

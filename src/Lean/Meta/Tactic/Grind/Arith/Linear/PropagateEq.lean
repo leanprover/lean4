@@ -272,12 +272,13 @@ def processNewEq (a b : Expr) : GoalM Unit := do
 private def processNewCommRingDiseq (a b : Expr) : LinearM Unit := do
   let some lhs ← withRingM <| CommRing.reify? a (skipVar := false) | return ()
   let some rhs ← withRingM <| CommRing.reify? b (skipVar := false) | return ()
+  let p := (lhs.sub rhs).toPoly
+  let c : RingDiseqCnstr := { p, h := .core a b lhs rhs }
   let generation := max (← getGeneration a) (← getGeneration b)
-  let p' := (lhs.sub rhs).toPoly
-  let lhs' ← p'.toIntModuleExpr generation
-  let some lhs' ← reify? lhs' (skipVar := false) generation | return ()
-  let p := lhs'.norm
-  let c : DiseqCnstr := { p, h := .coreCommRing a b lhs rhs p' lhs' }
+  let lhs ← p.toIntModuleExpr generation
+  let some lhs ← reify? lhs (skipVar := false) generation | return ()
+  let p := lhs.norm
+  let c : DiseqCnstr := { p, h := .ring c lhs }
   c.assert
 
 private def processNewIntModuleDiseq (a b : Expr) : LinearM Unit := do

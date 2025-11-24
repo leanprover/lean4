@@ -1587,9 +1587,13 @@ theorem eq_int_module {α} [CommRing α] (ctx : Context α) (p : Poly)
   simp [Poly.denoteAsIntModule_eq_denote]
 
 theorem diseq_norm {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
-    : core_cert lhs rhs p → lhs.denote ctx ≠ rhs.denote ctx → p.denoteAsIntModule ctx ≠ 0 := by
-  simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h; subst p; simp [Expr.denote_toPoly, Expr.denote]
+    : core_cert lhs rhs p → lhs.denote ctx ≠ rhs.denote ctx → p.denote ctx ≠ 0 := by
+  simp [core_cert]; intro _ h; subst p; simp [Expr.denote_toPoly, Expr.denote]
   intro h; rw [sub_eq_zero_iff] at h; contradiction
+
+theorem diseq_int_module {α} [CommRing α] (ctx : Context α) (p : Poly)
+    : p.denote ctx ≠ 0 → p.denoteAsIntModule ctx ≠ 0 := by
+  simp [Poly.denoteAsIntModule_eq_denote]
 
 open OrderedAdd
 

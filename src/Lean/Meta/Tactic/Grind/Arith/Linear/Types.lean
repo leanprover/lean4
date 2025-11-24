@@ -44,6 +44,17 @@ inductive RingEqCnstrProof where
 end
 
 mutual
+/-- Auxiliary type for normalizing `Ring` and `Field` disequalities. -/
+structure RingDiseqCnstr where
+  p      : Grind.CommRing.Poly
+  h      : RingDiseqCnstrProof
+
+inductive RingDiseqCnstrProof where
+  | core (a b : Expr) (ra rb : Grind.CommRing.Expr)
+  -- **TODO**: cleanup denominator proof step
+end
+
+mutual
 /-- An equality constraint and its justification/proof. -/
 structure EqCnstr where
   p      : Poly
@@ -88,7 +99,7 @@ structure DiseqCnstr where
 
 inductive DiseqCnstrProof where
   | core (a b : Expr) (lhs rhs : LinExpr)
-  | coreCommRing (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | ring (c : RingDiseqCnstr) (lhs : LinExpr)
   | coreOfNat (a b : Expr) (natStructId : Nat) (lhs rhs : LinExpr)
   | neg (c : DiseqCnstr)
   | subst (k₁ k₂ : Int) (c₁ : EqCnstr) (c₂ : DiseqCnstr)

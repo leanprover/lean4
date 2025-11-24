@@ -19,7 +19,8 @@ trace: [grind.debug.proof] Classical.byContradiction fun h =>
         let re_2 := (CommRing.Expr.var 1).add (CommRing.Expr.var 0);
         diseq_unsat ctx
           (diseq_norm ctx e_2 e_1 p_1 (eagerReduce (Eq.refl true))
-            (CommRing.diseq_norm rctx re_1 re_2 rp_1 (eagerReduce (Eq.refl true)) h)))
+            (CommRing.diseq_int_module rctx rp_1
+              (CommRing.diseq_norm rctx re_1 re_2 rp_1 (eagerReduce (Eq.refl true)) h))))
 -/
 #guard_msgs in
 open Linarith in

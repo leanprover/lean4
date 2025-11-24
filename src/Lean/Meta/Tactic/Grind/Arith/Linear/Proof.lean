@@ -263,6 +263,12 @@ partial def RingEqCnstr.toExprProof (c' : RingEqCnstr) : ProofM Expr := do
     let h' ← mkCommRingThmPrefix ``Grind.CommRing.Stepwise.inv
     return mkApp4 h' (← mkRingPolyDecl c.p) (← mkRingPolyDecl c'.p) eagerReflBoolTrue h
 
+partial def RingDiseqCnstr.toExprProof (c' : RingDiseqCnstr) : ProofM Expr := do
+  match c'.h with
+  | .core a b lhs rhs =>
+    let h' ← mkCommRingThmPrefix ``Grind.CommRing.diseq_norm
+    return mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl c'.p) eagerReflBoolTrue (← mkDiseqProof a b)
+
 mutual
 partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' do
   match c'.h with
@@ -354,11 +360,11 @@ partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c'
   | .core a b lhs rhs =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.diseq_norm
     return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue (← mkDiseqProof a b)
-  | .coreCommRing a b lhs rhs p' lhs' =>
-    let h' ← mkCommRingThmPrefix ``Grind.CommRing.diseq_norm
-    let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') eagerReflBoolTrue (← mkDiseqProof a b)
+  | .ring c lhs =>
+    let h' ← c.toExprProof
+    let h' := mkApp2 (← mkCommRingThmPrefix ``Grind.CommRing.diseq_int_module) (← mkRingPolyDecl c.p) h'
     let h ← mkIntModThmPrefix ``Grind.Linarith.diseq_norm
-    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) eagerReflBoolTrue h'
+    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl .zero) (← mkPolyDecl c'.p) eagerReflBoolTrue h'
   | .coreOfNat a b natStructId lhs rhs =>
     let h ← OfNatModuleM.run natStructId do
       let ns ← getNatStruct
@@ -446,7 +452,7 @@ partial def IneqCnstr.collectDecVars (c' : IneqCnstr) : CollectDecVarsM Unit := 
 -- Actually, it cannot even contain decision variables in the current implementation.
 partial def DiseqCnstr.collectDecVars (c' : DiseqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .core .. | .coreCommRing .. | .coreOfNat .. | .oneNeZero => return ()
+  | .core .. | .coreOfNat .. | .oneNeZero | .ring .. => return ()
   | .neg c => c.collectDecVars
   | .subst _ _ c₁ c₂ | .subst1 _ c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
 

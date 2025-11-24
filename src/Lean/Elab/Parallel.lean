@@ -209,12 +209,10 @@ def par {α : Type} (jobs : List (CoreM α)) : CoreM (List (Except Exception (α
   let tasks ← jobs.mapM asTask'
   let mut results := []
   for task in tasks do
-    try
+    let resultWithState ← observing do
       let result ← task.get
-      let taskState ← get
-      results := .ok (result, taskState) :: results
-    catch e =>
-      results := .error e :: results
+      pure (result, (← get))
+    results := resultWithState :: results
   set initialState
   return results.reverse
 
@@ -279,12 +277,10 @@ def par {α : Type} (jobs : List (MetaM α)) : MetaM (List (Except Exception (α
   let tasks ← jobs.mapM asTask'
   let mut results := []
   for task in tasks do
-    try
+    let resultWithState ← observing do
       let result ← task.get
-      let taskState ← get
-      results := .ok (result, taskState) :: results
-    catch e =>
-      results := .error e :: results
+      pure (result, (← get))
+    results := resultWithState :: results
   set initialState
   return results.reverse
 
@@ -485,6 +481,8 @@ def par {α : Type} (jobs : List (TermElabM α)) : TermElabM (List (Except Excep
   let tasks ← jobs.mapM asTask'
   let mut results := []
   for task in tasks do
+    -- Note: We use try/catch instead of `observing` here because TermElabM's `observing`
+    -- returns `TermElabResult` (not `Except`), which includes SavedState that we don't need.
     try
       let result ← task.get
       let taskState ← get
@@ -623,6 +621,8 @@ def par {α : Type} (jobs : List (TacticM α)) : TacticM (List (Except Exception
   let tasks ← jobs.mapM asTask'
   let mut results := []
   for task in tasks do
+    -- Note: We use try/catch instead of `observing` here because TacticM's `observing`
+    -- (inherited from TermElabM) returns `TermElabResult`, not `Except`.
     try
       let result ← task.get
       let taskState ← get

@@ -18,8 +18,6 @@ public import Lean.Elab.WhereFinally
 public import Lean.Elab.InfoTree.InlayHints
 public meta import Lean.Parser.Term
 
-
-
 public section
 
 namespace Lean.Elab
@@ -1119,7 +1117,7 @@ If the `trace.Meta.synthInstance` option is not already set, gives a hint explai
 def useTraceSynthMsg : MessageData :=
   MessageData.lazy fun ctx =>
     if trace.Meta.synthInstance.get ctx.opts then
-      pure ""
+      pure .nil
     else
       pure <| .hint' s!"Type class instance resolution failures can be inspected with the `set_option {trace.Meta.synthInstance.name} true` command."
 
@@ -1181,7 +1179,16 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
     if (← read).ignoreTCFailures then
       return false
     else
-      throwNamedError lean.synthInstanceFailed "failed to synthesize instance of type class{indentExpr type}{extraErrorMsg}{useTraceSynthMsg}"
+      let msg ← match type with
+        | .app (.const cls _) (.const typ _) =>
+          -- This has the structure of a `deriving`-style type class, alter feedback accordingly
+          if [``Inhabited, ``Nonempty].contains cls then
+            pure <| extraErrorMsg ++ .hint' m!"Adding the command `deriving instance {cls} for {typ}` may allow Lean to derive the missing instance."
+          else
+            pure <| Format.line ++ Format.line ++ m!"An implementation of {cls} may be missing for {typ}." ++ extraErrorMsg ++ useTraceSynthMsg
+        | _ =>
+            pure <| extraErrorMsg ++ useTraceSynthMsg
+      throwNamedError lean.synthInstanceFailed "failed to synthesize instance of type class{indentExpr type}{msg}"
 
 def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none)
     (mkErrorMsg? : Option (MVarId → (expectedType e : Expr) → MetaM MessageData) := none)

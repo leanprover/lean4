@@ -106,7 +106,7 @@ def rewriteManualLinksCore (s : String) : Id (Array (Lean.Syntax.Range × String
   let scheme := "lean-manual://"
   let mut out := ""
   let mut errors := #[]
-  let mut iter := s.startValidPos
+  let mut iter := s.startPos
   while h : ¬iter.IsAtEnd do
     let c := iter.get h
     let pre := iter
@@ -155,7 +155,7 @@ where
   /--
   Returns `true` if `goal` is a prefix of the string at the position pointed to by `iter`.
   -/
-  lookingAt (goal : String) {s : String} (iter : s.ValidPos) : Bool :=
+  lookingAt (goal : String) {s : String} (iter : s.Pos) : Bool :=
     String.Pos.Raw.substrEq s iter.offset goal 0 goal.rawEndPos.byteIdx
 
 /--

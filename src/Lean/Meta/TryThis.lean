@@ -190,8 +190,8 @@ def getIndentAndColumn (map : FileMap) (range : Lean.Syntax.Range) : Nat × Nat 
   let body := (map.source.slice! start rangeStart).find (fun c => c != ' ') |>.str.offset
   (start.offset.byteDistance body, start.offset.byteDistance range.start)
 where
-  findLineStart {s : String} (p : s.ValidPos) : s.ValidPos :=
-    p.revFind? '\n' |>.map (·.next!) |>.getD s.startValidPos
+  findLineStart {s : String} (p : s.Pos) : s.Pos :=
+    p.revFind? '\n' |>.map (·.next!) |>.getD s.startPos
 
 /--
 An option allowing the user to customize the ideal input width. Defaults to 100.

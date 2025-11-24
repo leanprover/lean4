@@ -13,9 +13,6 @@ public section
 
 namespace String
 
-@[deprecated Pos.Raw (since := "2025-09-30")]
-abbrev Pos := Pos.Raw
-
 instance : OfNat String.Pos.Raw (nat_lit 0) where
   ofNat := {}
 

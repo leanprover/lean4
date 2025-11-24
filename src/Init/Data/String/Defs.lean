@@ -142,10 +142,6 @@ theorem String.bytes_push {s : String} {c : Char} : (s.push c).bytes = s.bytes +
 
 namespace String
 
-@[deprecated rawEndPos (since := "2025-10-20")]
-def endPos (s : String) : String.Pos.Raw :=
-  s.rawEndPos
-
 /-- The start position of the string, as a `String.Pos.Raw.` -/
 def rawStartPos (_s : String) : String.Pos.Raw :=
   0
@@ -341,55 +337,55 @@ theorem Pos.Raw.isValid_empty_iff {p : Pos.Raw} : p.IsValid "" ↔ p = 0 := by
     simp
 
 /--
-A `ValidPos s` is a byte offset in `s` together with a proof that this position is at a UTF-8
+A `Pos s` is a byte offset in `s` together with a proof that this position is at a UTF-8
 character boundary.
 -/
 @[ext]
-structure ValidPos (s : String) where
-  /-- The underlying byte offset of the `ValidPos`. -/
+structure Pos (s : String) where
+  /-- The underlying byte offset of the `Pos`. -/
   offset : Pos.Raw
   /-- The proof that `offset` is valid for the string `s`. -/
   isValid : offset.IsValid s
 deriving @[expose] DecidableEq
 
-/-- The start position of `s`, as an `s.ValidPos`. -/
+/-- The start position of `s`, as an `s.Pos`. -/
 @[inline, expose]
-def startValidPos (s : String) : s.ValidPos where
+def startPos (s : String) : s.Pos where
   offset := 0
   isValid := by simp
 
 @[simp]
-theorem offset_startValidPos {s : String} : s.startValidPos.offset = 0 := (rfl)
+theorem offset_startPos {s : String} : s.startPos.offset = 0 := (rfl)
 
-instance {s : String} : Inhabited s.ValidPos where
-  default := s.startValidPos
+instance {s : String} : Inhabited s.Pos where
+  default := s.startPos
 
-/-- The past-the-end position of `s`, as an `s.ValidPos`. -/
+/-- The past-the-end position of `s`, as an `s.Pos`. -/
 @[inline, expose]
-def endValidPos (s : String) : s.ValidPos where
+def endPos (s : String) : s.Pos where
   offset := s.rawEndPos
   isValid := by simp
 
 @[simp]
-theorem offset_endValidPos {s : String} : s.endValidPos.offset = s.rawEndPos := (rfl)
+theorem offset_endPos {s : String} : s.endPos.offset = s.rawEndPos := (rfl)
 
-instance {s : String} : LE s.ValidPos where
+instance {s : String} : LE s.Pos where
   le l r := l.offset ≤ r.offset
 
-instance {s : String} : LT s.ValidPos where
+instance {s : String} : LT s.Pos where
   lt l r := l.offset < r.offset
 
-theorem ValidPos.le_iff {s : String} {l r : s.ValidPos} : l ≤ r ↔ l.offset ≤ r.offset :=
+theorem Pos.le_iff {s : String} {l r : s.Pos} : l ≤ r ↔ l.offset ≤ r.offset :=
   Iff.rfl
 
-theorem ValidPos.lt_iff {s : String} {l r : s.ValidPos} : l < r ↔ l.offset < r.offset :=
+theorem Pos.lt_iff {s : String} {l r : s.Pos} : l < r ↔ l.offset < r.offset :=
   Iff.rfl
 
-instance {s : String} (l r : s.ValidPos) : Decidable (l ≤ r) :=
-  decidable_of_iff' _ ValidPos.le_iff
+instance {s : String} (l r : s.Pos) : Decidable (l ≤ r) :=
+  decidable_of_iff' _ Pos.le_iff
 
-instance {s : String} (l r : s.ValidPos) : Decidable (l < r) :=
-decidable_of_iff' _ ValidPos.lt_iff
+instance {s : String} (l r : s.Pos) : Decidable (l < r) :=
+decidable_of_iff' _ Pos.lt_iff
 
 /--
 A region or slice of some underlying string.
@@ -406,14 +402,14 @@ structure Slice where
   /-- The underlying strings. -/
   str : String
   /-- The byte position of the start of the string slice. -/
-  startInclusive : str.ValidPos
+  startInclusive : str.Pos
   /-- The byte position of the end of the string slice. -/
-  endExclusive : str.ValidPos
+  endExclusive : str.Pos
   /-- The slice is not degenerate (but it may be empty). -/
   startInclusive_le_endExclusive : startInclusive ≤ endExclusive
 
 instance : Inhabited Slice where
-  default := ⟨"", "".startValidPos, "".startValidPos, by simp [ValidPos.le_iff]⟩
+  default := ⟨"", "".startPos, "".startPos, by simp [Pos.le_iff]⟩
 
 /--
 Returns a slice that contains the entire string.
@@ -421,15 +417,15 @@ Returns a slice that contains the entire string.
 @[inline, expose] -- expose for the defeq `s.toSlice.str = s`.
 def toSlice (s : String) : Slice where
   str := s
-  startInclusive := s.startValidPos
-  endExclusive := s.endValidPos
-  startInclusive_le_endExclusive := by simp [ValidPos.le_iff, Pos.Raw.le_iff]
+  startInclusive := s.startPos
+  endExclusive := s.endPos
+  startInclusive_le_endExclusive := by simp [Pos.le_iff, Pos.Raw.le_iff]
 
 @[simp]
-theorem startInclusive_toSlice {s : String} : s.toSlice.startInclusive = s.startValidPos := rfl
+theorem startInclusive_toSlice {s : String} : s.toSlice.startInclusive = s.startPos := rfl
 
 @[simp]
-theorem endExclusive_toSlice {s : String} : s.toSlice.endExclusive = s.endValidPos := rfl
+theorem endExclusive_toSlice {s : String} : s.toSlice.endExclusive = s.endPos := rfl
 
 @[simp]
 theorem str_toSlice {s : String} : s.toSlice.str = s := rfl
@@ -532,7 +528,7 @@ instance {s : Slice} : Inhabited s.Pos where
 theorem Slice.offset_startInclusive_add_self {s : Slice} :
     s.startInclusive.offset + s = s.endExclusive.offset := by
   have := s.startInclusive_le_endExclusive
-  simp_all [String.Pos.Raw.ext_iff, ValidPos.le_iff, Pos.Raw.le_iff, utf8ByteSize_eq]
+  simp_all [String.Pos.Raw.ext_iff, Pos.le_iff, Pos.Raw.le_iff, utf8ByteSize_eq]
 
 @[simp]
 theorem Pos.Raw.offsetBy_rawEndPos_left {p : Pos.Raw} {s : String} :
@@ -591,18 +587,18 @@ instance {s : Slice} (l r : s.Pos) : Decidable (l < r) :=
   decidable_of_iff' _ Slice.Pos.lt_iff
 
 /--
-`pos.IsAtEnd` is just shorthand for `pos = s.endValidPos` that is easier to write if `s` is long.
+`pos.IsAtEnd` is just shorthand for `pos = s.endPos` that is easier to write if `s` is long.
 -/
-abbrev ValidPos.IsAtEnd {s : String} (pos : s.ValidPos) : Prop :=
-  pos = s.endValidPos
+abbrev Pos.IsAtEnd {s : String} (pos : s.Pos) : Prop :=
+  pos = s.endPos
 
 @[simp]
-theorem ValidPos.isAtEnd_iff {s : String} {pos : s.ValidPos} :
-    pos.IsAtEnd ↔ pos = s.endValidPos := Iff.rfl
+theorem Pos.isAtEnd_iff {s : String} {pos : s.Pos} :
+    pos.IsAtEnd ↔ pos = s.endPos := Iff.rfl
 
 @[inline]
-instance {s : String} {pos : s.ValidPos} : Decidable pos.IsAtEnd :=
-  decidable_of_iff _ ValidPos.isAtEnd_iff
+instance {s : String} {pos : s.Pos} : Decidable pos.IsAtEnd :=
+  decidable_of_iff _ Pos.isAtEnd_iff
 
 /--
 `pos.IsAtEnd` is just shorthand for `pos = s.endPos` that is easier to write if `s` is long.
@@ -638,5 +634,17 @@ def toSubstring (s : String) : Substring.Raw :=
 @[deprecated String.toRawSubstring' (since := "2025-11-18")]
 def toSubstring' (s : String) : Substring.Raw :=
   s.toRawSubstring'
+
+@[deprecated String.Pos (since := "2025-11-24")]
+abbrev ValidPos (s : String) : Type :=
+  s.Pos
+
+@[deprecated String.startPos (since := "2025-11-24")]
+abbrev startValidPos (s : String) : s.Pos :=
+  s.startPos
+
+@[deprecated String.endPos (since := "2025-11-24")]
+abbrev endValidPos (s : String) : s.Pos :=
+  s.endPos
 
 end String

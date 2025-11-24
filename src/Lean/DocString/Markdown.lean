@@ -151,7 +151,7 @@ public instance : MarkdownBlock i Empty where
 
 private def escape (s : String) : String := Id.run do
   let mut s' := ""
-  let mut iter := s.startValidPos
+  let mut iter := s.startPos
   while h : ¬iter.IsAtEnd do
     let c := iter.get h
     iter := iter.next h
@@ -165,7 +165,7 @@ where
 private def quoteCode (str : String) : String := Id.run do
   let mut longest := 0
   let mut current := 0
-  let mut iter := str.startValidPos
+  let mut iter := str.startPos
   while h : ¬iter.IsAtEnd do
     let c := iter.get h
     iter := iter.next h
@@ -273,7 +273,7 @@ public instance [MarkdownInline i] : ToMarkdown (Inline i) where
 private def quoteCodeBlock (indent : Nat) (str : String) : String := Id.run do
   let mut longest := 2
   let mut current := 0
-  let mut iter := str.startValidPos
+  let mut iter := str.startPos
   let mut out := ""
   while h : ¬iter.IsAtEnd do
     let c := iter.get h

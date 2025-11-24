@@ -35,7 +35,7 @@ Converts a `Substring.Raw` into a `String.Slice`, returning `none` if the substr
 def toSlice (s : Substring.Raw) : Option String.Slice :=
   if h : s.startPos.IsValid s.str ∧ s.stopPos.IsValid s.str ∧ s.startPos ≤ s.stopPos then
     some (String.Slice.mk s.str (s.str.pos s.startPos h.1) (s.str.pos s.stopPos h.2.1)
-      (by simp [String.ValidPos.le_iff, h.2.2]))
+      (by simp [String.Pos.le_iff, h.2.2]))
   else
     none
 

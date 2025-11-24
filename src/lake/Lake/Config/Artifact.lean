@@ -56,9 +56,9 @@ public def ofFilePath? (path : FilePath) : Except String ArtifactDescr := do
       | throw "expected artifact file name to be a content hash"
     return {hash, ext := ""}
   else
-    let some hash := Hash.ofString? <| s.startValidPos.extract pos
+    let some hash := Hash.ofString? <| s.startPos.extract pos
       | throw "expected artifact file name to be a content hash"
-    let ext := (pos.next h).extract s.endValidPos
+    let ext := (pos.next h).extract s.endPos
     return {hash, ext}
 
 public protected def fromJson? (data : Json) : Except String ArtifactDescr := do

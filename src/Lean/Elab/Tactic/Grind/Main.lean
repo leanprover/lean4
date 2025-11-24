@@ -313,7 +313,9 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
 @[builtin_tactic Lean.Parser.Tactic.lia] def evalLia : Tactic := fun stx => do
   let `(tactic| lia $config:optConfig) := stx | throwUnsupportedSyntax
   let config ← elabCutsatConfig config
-  evalGrindCore stx { config with } none none none
+  -- Build grind tactic script: repeat (first (lia) (cases_next))
+  let seq ← `(Lean.Parser.Tactic.Grind.grindSeq| repeat (first (lia) (cases_next)))
+  evalGrindCore stx { config with } none none (some seq)
 
 @[builtin_tactic Lean.Parser.Tactic.cutsat] def evalCutsat : Tactic := fun stx => do
   let `(tactic| cutsat $config:optConfig) := stx | throwUnsupportedSyntax
@@ -324,7 +326,9 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
   Tactic.TryThis.addSuggestion stx { suggestion := .tsyntax liaTac }
   -- Execute the same logic as lia
   let config ← elabCutsatConfig config
-  evalGrindCore stx { config with } none none none
+  -- Build grind tactic script: repeat (first (lia) (cases_next))
+  let seq ← `(Lean.Parser.Tactic.Grind.grindSeq| repeat (first (lia) (cases_next)))
+  evalGrindCore stx { config with } none none (some seq)
 
 @[builtin_tactic Lean.Parser.Tactic.grobner] def evalGrobner : Tactic := fun stx => do
   let `(tactic| grobner $config:optConfig) := stx | throwUnsupportedSyntax

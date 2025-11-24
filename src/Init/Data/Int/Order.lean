@@ -1412,3 +1412,7 @@ instance : LawfulOrderLT Int where
     simp [← Int.not_le, Decidable.imp_iff_not_or, Std.Total.total]
 
 end Int
+
+namespace Int
+scoped grind_pattern Int.max_def => max n m
+end Int

@@ -421,6 +421,9 @@ def toSlice (s : String) : Slice where
   endExclusive := s.endPos
   startInclusive_le_endExclusive := by simp [Pos.le_iff, Pos.Raw.le_iff]
 
+instance : Coe String String.Slice where
+  coe := String.toSlice
+
 @[simp]
 theorem startInclusive_toSlice {s : String} : s.toSlice.startInclusive = s.startPos := rfl
 

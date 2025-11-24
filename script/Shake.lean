@@ -466,7 +466,7 @@ def visitModule (srcSearchPath : SearchPath)
     let j := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
     -- A private import should also be removed if the public version has been added
-    if !deps.has k j || !k.isExported && deps.has { k with isExported := true } j then
+    if !deps.has k j || !k.isExported && !imp.importAll && deps.has { k with isExported := true } j then
       toRemove := toRemove.push imp
 
   -- mark and report the removals

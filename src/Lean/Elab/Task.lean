@@ -26,9 +26,7 @@ so these functions are careful to construct cancellation hooks
 connected to the underlying task rather than various maps of it.
 -/
 
-@[expose] public section
-
-set_option autoImplicit true
+public section
 
 namespace Lean.Core.CoreM
 
@@ -49,7 +47,7 @@ def asTask (t : CoreM α) : CoreM (BaseIO Unit × Task (CoreM α)) := do
   let cancelToken ← IO.CancelToken.new
   let ctx := { (← read) with cancelTk? := some cancelToken }
   let task ← (t.toIO ctx (← get)).asTask
-  return (cancelToken.set, task.map (prio := .max) fun
+  return (cancelToken.set, task.map (sync := true) fun
   | .ok (a, s) => do
       -- Set state to the task's state (not merging)
       set s
@@ -74,7 +72,7 @@ returning
 -/
 def asTask (t : MetaM α) : MetaM (BaseIO Unit × Task (MetaM α)) := do
   let (cancel, task) ← (t.run (← read) (← get)).asTask
-  return (cancel, task.map (prio := .max)
+  return (cancel, task.map (sync := true)
     fun c : CoreM (α × Meta.State) => do let (a, s) ← c; set s; pure a)
 
 /--
@@ -95,7 +93,7 @@ returning
 -/
 def asTask (t : TermElabM α) : TermElabM (BaseIO Unit × Task (TermElabM α)) := do
   let (cancel, task) ← (t.run (← read) (← get)).asTask
-  return (cancel, task.map (prio := .max)
+  return (cancel, task.map (sync := true)
     fun c : MetaM (α × Term.State) => do let (a, s) ← c; set s; pure a)
 
 /--

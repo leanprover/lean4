@@ -572,7 +572,7 @@ Return the value and the list of remaining tasks.
 def waitAny' (tasks : List (Task α)) (h : 0 < tasks.length := by exact Nat.zero_lt_succ _) :
     BaseIO (α × List (Task α)) := do
   let (i, a) ← IO.waitAny
-    (tasks.mapIdx fun i t => t.map (prio := .max) fun a => (i, a))
+    (tasks.mapIdx fun i t => t.map (sync := true) fun a => (i, a))
     (by simp_all)
   return (a, tasks.eraseIdx i)
 

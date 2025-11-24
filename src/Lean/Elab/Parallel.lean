@@ -61,9 +61,7 @@ Iterators do not have `Finite` instances, as we cannot prove termination from th
 information. For consumers that require `Finite` (like `.toList`), use `.allowNontermination.toList`.
 -/
 
-@[expose] public section
-
-set_option autoImplicit true
+public section
 
 namespace Std.Iterators
 
@@ -72,7 +70,23 @@ Internal state for an iterator over tasks.
 Maintains the list of tasks that haven't completed yet.
 -/
 structure TaskIterator (α : Type w) where
-  tasks : List (Task α)
+  private tasks : List (Task α)
+
+private instance {α : Type} : Iterator (TaskIterator α) BaseIO α where
+  IsPlausibleStep it
+    | .yield it' out => True
+    | .skip _ => False
+    | .done => it.internalState.tasks = []
+  step it := do
+    match h : it.internalState.tasks with
+    | [] =>
+        pure <| .deflate ⟨.done, rfl⟩
+    | task :: rest =>
+        have hlen : 0 < (task :: rest).length := by simp
+        let (result, remaining) ← IO.waitAny' (task :: rest) hlen
+        pure <| .deflate ⟨
+          .yield (Std.Iterators.toIterM { tasks := remaining } BaseIO α) result,
+          trivial⟩
 
 end Std.Iterators
 
@@ -102,86 +116,8 @@ for result in iter do
   IO.println s!"Got result: {result}"
 ```
 -/
-def iterTasks {α : Type} (tasks : List (Task α)) : IterM (α := TaskIterator α) BaseIO α :=
+private def iterTasks {α : Type} (tasks : List (Task α)) : IterM (α := TaskIterator α) BaseIO α :=
   Std.Iterators.toIterM { tasks } BaseIO α
-
-instance {α : Type} : Iterator (TaskIterator α) BaseIO α where
-  IsPlausibleStep it
-    | .yield it' out => True
-    | .skip _ => False
-    | .done => it.internalState.tasks = []
-  step it := do
-    match h : it.internalState.tasks with
-    | [] =>
-        pure <| .deflate ⟨.done, rfl⟩
-    | task :: rest =>
-        have hlen : 0 < (task :: rest).length := by simp
-        let (result, remaining) ← IO.waitAny' (task :: rest) hlen
-        pure <| .deflate ⟨
-          .yield (Std.Iterators.toIterM { tasks := remaining } BaseIO α) result,
-          trivial⟩
-
-
-
-/--
-Given a list of IO computations, executes them all in parallel as tasks,
-and returns a cancellation hook and an iterator that yields results in completion order.
-
-The cancellation hook calls `IO.cancel` on all tasks.
-
-Results are wrapped in `Except Exception α` so that errors in individual tasks don't stop
-the iteration - you can observe all results including which tasks failed.
--/
-def parIterWithCancel {α : Type} (jobs : List (IO α)) :
-    BaseIO (BaseIO Unit × IterM (α := TaskIterator (Except IO.Error α)) BaseIO (Except IO.Error α)) := do
-  let tasks ← jobs.mapM IO.asTask
-  let cancel := tasks.forM IO.cancel
-  return (cancel, iterTasks tasks)
-
-/--
-Given a list of IO computations, executes them all in parallel as tasks,
-and returns an iterator that yields results in completion order (without cancellation hook).
-
-Results are wrapped in `Except Exception α` so that errors in individual tasks don't stop
-the iteration - you can observe all results including which tasks failed.
--/
-def parIter {α : Type} (jobs : List (IO α)) :
-    BaseIO (IterM (α := TaskIterator (Except IO.Error α)) BaseIO (Except IO.Error α)) :=
-  (·.2) <$> parIterWithCancel jobs
-
-/--
-Given a list of IO computations, executes them all in parallel as tasks,
-and collects results in the original order.
-
-Unlike `parIter`, this waits for all tasks to complete and returns results
-in the same order as the input list, not in completion order.
-
-Results are wrapped in `Except Exception α` so that errors in individual tasks don't stop
-the collection - you can observe all results including which tasks failed.
--/
-def par {α : Type} (jobs : List (IO α)) : BaseIO (List (Except IO.Error α)) := do
-  let tasks ← jobs.mapM IO.asTask
-  let mut results := []
-  for task in tasks do
-    results := task.get :: results
-  return results.reverse
-
-/--
-Given a list of IO computations, executes them all in parallel as tasks,
-and returns the first successful result (by completion order, not list order).
-
-If `cancel := true` (the default), cancels all remaining tasks after the first success.
--/
-def parFirst {α : Type} (jobs : List (IO α)) (cancel : Bool := true) : IO α := do
-  let (cancelHook, iter) ← parIterWithCancel jobs
-  let ioIter := iter.mapM (fun x => (pure x : IO _))
-  for result in ioIter.allowNontermination do
-    match result with
-    | .ok value =>
-      if cancel then cancelHook
-      return value
-    | .error _ => continue
-  throw (IO.userError "All parallel tasks failed")
 
 end IO
 

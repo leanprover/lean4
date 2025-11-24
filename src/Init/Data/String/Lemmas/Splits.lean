@@ -82,7 +82,7 @@ theorem Pos.Splits.toSlice {s : String} {p : s.Pos} {t₁ t₂ : String}
 
 theorem Pos.splits {s : String} (p : s.Pos) :
     p.Splits (s.sliceTo p).copy (s.sliceFrom p).copy where
-  eq_append := by simp [← bytes_inj, Slice.bytes_copy, ← size_bytes]
+  eq_append := by simp [← toByteArray_inj, Slice.toByteArray_copy, ← size_toByteArray]
   offset_eq_rawEndPos := by simp
 
 theorem Slice.Pos.splits {s : Slice} (p : s.Pos) :
@@ -90,21 +90,21 @@ theorem Slice.Pos.splits {s : Slice} (p : s.Pos) :
   eq_append := copy_eq_copy_sliceTo
   offset_eq_rawEndPos := by simp
 
-theorem Pos.Splits.bytes_left_eq {s : String} {p : s.Pos} {t₁ t₂}
-    (h : p.Splits t₁ t₂) : t₁.bytes = s.bytes.extract 0 p.offset.byteIdx := by
+theorem Pos.Splits.toByteArray_left_eq {s : String} {p : s.Pos} {t₁ t₂}
+    (h : p.Splits t₁ t₂) : t₁.toByteArray = s.toByteArray.extract 0 p.offset.byteIdx := by
   simp [h.eq_append, h.offset_eq_rawEndPos, ByteArray.extract_append_eq_left]
 
-theorem Pos.Splits.bytes_right_eq {s : String} {p : s.Pos} {t₁ t₂}
-    (h : p.Splits t₁ t₂) : t₂.bytes = s.bytes.extract p.offset.byteIdx s.utf8ByteSize := by
+theorem Pos.Splits.toByteArray_right_eq {s : String} {p : s.Pos} {t₁ t₂}
+    (h : p.Splits t₁ t₂) : t₂.toByteArray = s.toByteArray.extract p.offset.byteIdx s.utf8ByteSize := by
   simp [h.eq_append, h.offset_eq_rawEndPos, ByteArray.extract_append_eq_right]
 
 theorem Pos.Splits.eq_left {s : String} {p : s.Pos} {t₁ t₂ t₃ t₄}
     (h₁ : p.Splits t₁ t₂) (h₂ : p.Splits t₃ t₄) : t₁ = t₃ := by
-  rw [← String.bytes_inj, h₁.bytes_left_eq, h₂.bytes_left_eq]
+  rw [← String.toByteArray_inj, h₁.toByteArray_left_eq, h₂.toByteArray_left_eq]
 
 theorem Pos.Splits.eq_right {s : String} {p : s.Pos} {t₁ t₂ t₃ t₄}
     (h₁ : p.Splits t₁ t₂) (h₂ : p.Splits t₃ t₄) : t₂ = t₄ := by
-  rw [← String.bytes_inj, h₁.bytes_right_eq, h₂.bytes_right_eq]
+  rw [← String.toByteArray_inj, h₁.toByteArray_right_eq, h₂.toByteArray_right_eq]
 
 theorem Pos.Splits.eq {s : String} {p : s.Pos} {t₁ t₂ t₃ t₄}
     (h₁ : p.Splits t₁ t₂) (h₂ : p.Splits t₃ t₄) : t₁ = t₃ ∧ t₂ = t₄ :=

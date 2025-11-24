@@ -35,7 +35,7 @@ Examples:
 @[extern "lean_string_utf8_set", expose]
 def Pos.set {s : String} (p : s.Pos) (c : Char) (hp : p ≠ s.endPos) : String :=
   if hc : c.utf8Size = 1 ∧ (p.byte hp).utf8ByteSize isUTF8FirstByte_byte = 1 then
-    .ofByteArray (s.bytes.set p.offset.byteIdx c.toUInt8 (p.byteIdx_lt_utf8ByteSize hp)) (by
+    .ofByteArray (s.toByteArray.set p.offset.byteIdx c.toUInt8 (p.byteIdx_lt_utf8ByteSize hp)) (by
       rw [ByteArray.set_eq_push_extract_append_extract, ← hc.2, utf8ByteSize_byte,
         ← Pos.byteIdx_offset_next]
       refine ByteArray.IsValidUTF8.append ?_ (p.next hp).isValid.isValidUTF8_extract_utf8ByteSize
@@ -48,7 +48,7 @@ theorem Pos.set_eq_append {s : String} {p : s.Pos} {c : Char} {hp} :
   rw [set]
   split
   · rename_i h
-    simp [← bytes_inj, ByteArray.set_eq_push_extract_append_extract, Slice.bytes_copy,
+    simp [← toByteArray_inj, ByteArray.set_eq_push_extract_append_extract, Slice.toByteArray_copy,
       List.utf8Encode_singleton, String.utf8EncodeChar_eq_singleton h.1, utf8ByteSize_byte ▸ h.2]
   · rfl
 

@@ -108,7 +108,7 @@ At runtime, this function is implemented by efficient, constant-time code.
 -/
 @[extern "lean_string_get_byte_fast", expose]
 def getUTF8Byte (s : @& String) (p : Pos.Raw) (h : p < s.rawEndPos) : UInt8 :=
-  s.bytes[p.byteIdx]
+  s.toByteArray[p.byteIdx]
 
 @[deprecated getUTF8Byte (since := "2025-10-01"), extern "lean_string_get_byte_fast", expose]
 abbrev getUtf8Byte (s : String) (p : Pos.Raw) (h : p < s.rawEndPos) : UInt8 :=

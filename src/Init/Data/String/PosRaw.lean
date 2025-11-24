@@ -216,7 +216,7 @@ theorem Pos.Raw.increaseBy_charUtf8Size {p : Pos.Raw} {c : Char} :
     p.increaseBy c.utf8Size = p + c := by
   simp [Pos.Raw.ext_iff]
 
-/-- Increases the byte offset of the position by `1`. Not to be confused with `ValidPos.next`. -/
+/-- Increases the byte offset of the position by `1`. Not to be confused with `Pos.next`. -/
 @[inline, expose]
 def Pos.Raw.inc (p : Pos.Raw) : Pos.Raw :=
   ⟨p.byteIdx + 1⟩
@@ -224,7 +224,7 @@ def Pos.Raw.inc (p : Pos.Raw) : Pos.Raw :=
 @[simp]
 theorem Pos.Raw.byteIdx_inc {p : Pos.Raw} : p.inc.byteIdx = p.byteIdx + 1 := (rfl)
 
-/-- Decreases the byte offset of the position by `1`. Not to be confused with `ValidPos.prev`. -/
+/-- Decreases the byte offset of the position by `1`. Not to be confused with `Pos.prev`. -/
 @[inline, expose]
 def Pos.Raw.dec (p : Pos.Raw) : Pos.Raw :=
   ⟨p.byteIdx - 1⟩

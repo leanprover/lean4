@@ -113,119 +113,119 @@ theorem prev_prev_lt {s : Slice} {p : s.Pos} {h h'} : (p.prev h).prev h' < p :=
 
 end Slice.Pos
 
-namespace ValidPos
+namespace Pos
 
 /-- The number of bytes between `p` and the end position. This number decreases as `p` advances. -/
-def remainingBytes {s : String} (p : s.ValidPos) : Nat :=
+def remainingBytes {s : String} (p : s.Pos) : Nat :=
   p.toSlice.remainingBytes
 
 @[simp]
-theorem remainingBytes_toSlice {s : String} {p : s.ValidPos} :
+theorem remainingBytes_toSlice {s : String} {p : s.Pos} :
     p.toSlice.remainingBytes = p.remainingBytes := (rfl)
 
-theorem remainingBytes_eq_byteDistance {s : String} {p : s.ValidPos} :
-    p.remainingBytes = p.offset.byteDistance s.endValidPos.offset := (rfl)
+theorem remainingBytes_eq_byteDistance {s : String} {p : s.Pos} :
+    p.remainingBytes = p.offset.byteDistance s.endPos.offset := (rfl)
 
-theorem remainingBytes_eq {s : String} {p : s.ValidPos} :
+theorem remainingBytes_eq {s : String} {p : s.Pos} :
     p.remainingBytes = s.utf8ByteSize - p.offset.byteIdx := by
   simp [remainingBytes_eq_byteDistance, Pos.Raw.byteDistance_eq]
 
-theorem remainingBytes_inj {s : String} {p q : s.ValidPos} :
+theorem remainingBytes_inj {s : String} {p q : s.Pos} :
     p.remainingBytes = q.remainingBytes ↔ p = q := by
-  simp [← remainingBytes_toSlice, ValidPos.toSlice_inj, Slice.Pos.remainingBytes_inj]
+  simp [← remainingBytes_toSlice, Pos.toSlice_inj, Slice.Pos.remainingBytes_inj]
 
-theorem le_iff_remainingBytes_le {s : String} (p q : s.ValidPos) :
+theorem le_iff_remainingBytes_le {s : String} (p q : s.Pos) :
     p ≤ q ↔ q.remainingBytes ≤ p.remainingBytes := by
   simp [← remainingBytes_toSlice, ← Slice.Pos.le_iff_remainingBytes_le]
 
-theorem lt_iff_remainingBytes_lt {s : String} (p q : s.ValidPos) :
+theorem lt_iff_remainingBytes_lt {s : String} (p q : s.Pos) :
     p < q ↔ q.remainingBytes < p.remainingBytes := by
   simp [← remainingBytes_toSlice, ← Slice.Pos.lt_iff_remainingBytes_lt]
 
-theorem wellFounded_lt {s : String} : WellFounded (fun (p : s.ValidPos) q => p < q) := by
+theorem wellFounded_lt {s : String} : WellFounded (fun (p : s.Pos) q => p < q) := by
   simpa [lt_iff, Pos.Raw.lt_iff] using
-    InvImage.wf (Pos.Raw.byteIdx ∘ ValidPos.offset) Nat.lt_wfRel.wf
+    InvImage.wf (Pos.Raw.byteIdx ∘ Pos.offset) Nat.lt_wfRel.wf
 
-theorem wellFounded_gt {s : String} : WellFounded (fun (p : s.ValidPos) q => q < p) := by
+theorem wellFounded_gt {s : String} : WellFounded (fun (p : s.Pos) q => q < p) := by
   simpa [lt_iff_remainingBytes_lt] using
-    InvImage.wf ValidPos.remainingBytes Nat.lt_wfRel.wf
+    InvImage.wf Pos.remainingBytes Nat.lt_wfRel.wf
 
-instance {s : String} : WellFoundedRelation s.ValidPos where
+instance {s : String} : WellFoundedRelation s.Pos where
   rel p q := q < p
-  wf := ValidPos.wellFounded_gt
+  wf := Pos.wellFounded_gt
 
-/-- Type alias for `String.ValidPos` representing that the given position is expected to decrease
+/-- Type alias for `String.Pos` representing that the given position is expected to decrease
 in recursive calls. -/
 structure Down (s : String) : Type where
-  inner : s.ValidPos
+  inner : s.Pos
 
 /-- Use `termination_by pos.down` to signify that in a recursive call, the parameter `pos` is
 expected to decrease. -/
-def down {s : String} (p : s.ValidPos) : ValidPos.Down s where
+def down {s : String} (p : s.Pos) : Pos.Down s where
   inner := p
 
 @[simp]
-theorem inner_down {s : String} {p : s.ValidPos} : p.down.inner = p := (rfl)
+theorem inner_down {s : String} {p : s.Pos} : p.down.inner = p := (rfl)
 
-instance {s : String} : WellFoundedRelation (ValidPos.Down s) where
+instance {s : String} : WellFoundedRelation (Pos.Down s) where
   rel p q := p.inner < q.inner
-  wf := InvImage.wf ValidPos.Down.inner ValidPos.wellFounded_lt
+  wf := InvImage.wf Pos.Down.inner Pos.wellFounded_lt
 
-theorem map_toSlice_next? {s : String} {p : s.ValidPos} :
-    p.next?.map ValidPos.toSlice = p.toSlice.next? := by
+theorem map_toSlice_next? {s : String} {p : s.Pos} :
+    p.next?.map Pos.toSlice = p.toSlice.next? := by
   simp [next?]
 
-theorem map_toSlice_prev? {s : String} {p : s.ValidPos} :
-    p.prev?.map ValidPos.toSlice = p.toSlice.prev? := by
+theorem map_toSlice_prev? {s : String} {p : s.Pos} :
+    p.prev?.map Pos.toSlice = p.toSlice.prev? := by
   simp [prev?]
 
-theorem ne_endValidPos_of_next?_eq_some {s : String} {p q : s.ValidPos}
-    (h : p.next? = some q) : p ≠ s.endValidPos :=
-  ne_of_apply_ne ValidPos.toSlice (Slice.Pos.ne_endPos_of_next?_eq_some
-    (by simpa only [ValidPos.map_toSlice_next?, Option.map_some] using congrArg (·.map toSlice) h))
+theorem ne_endPos_of_next?_eq_some {s : String} {p q : s.Pos}
+    (h : p.next? = some q) : p ≠ s.endPos :=
+  ne_of_apply_ne Pos.toSlice (Slice.Pos.ne_endPos_of_next?_eq_some
+    (by simpa only [Pos.map_toSlice_next?, Option.map_some] using congrArg (·.map toSlice) h))
 
-theorem eq_next_of_next?_eq_some {s : String} {p q : s.ValidPos} (h : p.next? = some q) :
-    q = p.next (ne_endValidPos_of_next?_eq_some h) := by
+theorem eq_next_of_next?_eq_some {s : String} {p q : s.Pos} (h : p.next? = some q) :
+    q = p.next (ne_endPos_of_next?_eq_some h) := by
   simpa only [← toSlice_inj, toSlice_next] using Slice.Pos.eq_next_of_next?_eq_some
-    (by simpa [ValidPos.map_toSlice_next?] using congrArg (·.map toSlice) h)
+    (by simpa [Pos.map_toSlice_next?] using congrArg (·.map toSlice) h)
 
-theorem ne_startValidPos_of_prev?_eq_some {s : String} {p q : s.ValidPos}
-    (h : p.prev? = some q) : p ≠ s.startValidPos :=
-  ne_of_apply_ne ValidPos.toSlice (Slice.Pos.ne_startPos_of_prev?_eq_some
-    (by simpa only [ValidPos.map_toSlice_prev?, Option.map_some] using congrArg (·.map toSlice) h))
+theorem ne_startPos_of_prev?_eq_some {s : String} {p q : s.Pos}
+    (h : p.prev? = some q) : p ≠ s.startPos :=
+  ne_of_apply_ne Pos.toSlice (Slice.Pos.ne_startPos_of_prev?_eq_some
+    (by simpa only [Pos.map_toSlice_prev?, Option.map_some] using congrArg (·.map toSlice) h))
 
-theorem eq_prev_of_prev?_eq_some {s : String} {p q : s.ValidPos} (h : p.prev? = some q) :
-    q = p.prev (ne_startValidPos_of_prev?_eq_some h) := by
+theorem eq_prev_of_prev?_eq_some {s : String} {p q : s.Pos} (h : p.prev? = some q) :
+    q = p.prev (ne_startPos_of_prev?_eq_some h) := by
   simpa only [← toSlice_inj, toSlice_prev] using Slice.Pos.eq_prev_of_prev?_eq_some
-    (by simpa [ValidPos.map_toSlice_prev?] using congrArg (·.map toSlice) h)
+    (by simpa [Pos.map_toSlice_prev?] using congrArg (·.map toSlice) h)
 
 @[simp]
-theorem le_refl {s : String} (p : s.ValidPos) : p ≤ p := by
-  simp [ValidPos.le_iff]
+theorem le_refl {s : String} (p : s.Pos) : p ≤ p := by
+  simp [Pos.le_iff]
 
-theorem lt_trans {s : String} {p q r : s.ValidPos} : p < q → q < r → p < r := by
-  simpa [ValidPos.lt_iff, Pos.Raw.lt_iff] using Nat.lt_trans
+theorem lt_trans {s : String} {p q r : s.Pos} : p < q → q < r → p < r := by
+  simpa [Pos.lt_iff, Pos.Raw.lt_iff] using Nat.lt_trans
 
 @[simp]
-theorem lt_next_next {s : String} {p : s.ValidPos} {h h'} : p < (p.next h).next h' :=
+theorem lt_next_next {s : String} {p : s.Pos} {h h'} : p < (p.next h).next h' :=
   lt_trans p.lt_next (p.next h).lt_next
 
 @[simp]
-theorem prev_prev_lt {s : String} {p : s.ValidPos} {h h'} : (p.prev h).prev h' < p :=
+theorem prev_prev_lt {s : String} {p : s.Pos} {h h'} : (p.prev h).prev h' < p :=
   lt_trans (p.prev h).prev_lt p.prev_lt
 
-theorem Splits.remainingBytes_eq {s : String} {p : s.ValidPos} {t₁ t₂}
+theorem Splits.remainingBytes_eq {s : String} {p : s.Pos} {t₁ t₂}
     (h : p.Splits t₁ t₂) : p.remainingBytes = t₂.utf8ByteSize := by
-  simp [ValidPos.remainingBytes_eq, h.eq_append, h.offset_eq_rawEndPos]
+  simp [Pos.remainingBytes_eq, h.eq_append, h.offset_eq_rawEndPos]
 
-end ValidPos
+end Pos
 
 namespace Slice.Pos
 
 @[simp]
 theorem remainingBytes_toCopy {s : Slice} {p : s.Pos} :
     p.toCopy.remainingBytes = p.remainingBytes := by
-  simp [remainingBytes_eq, ValidPos.remainingBytes_eq, Slice.utf8ByteSize_eq]
+  simp [remainingBytes_eq, Pos.remainingBytes_eq, Slice.utf8ByteSize_eq]
 
 theorem Splits.remainingBytes_eq {s : Slice} {p : s.Pos} {t₁ t₂} (h : p.Splits t₁ t₂) :
     p.remainingBytes = t₂.utf8ByteSize := by
@@ -244,14 +244,14 @@ macro_rules | `(tactic| decreasing_trivial) => `(tactic|
     Slice.Pos.eq_prev_of_prev?_eq_some (by assumption),
   ]) <;> done)
 macro_rules | `(tactic| decreasing_trivial) => `(tactic|
-  (with_reducible change (_ : String.ValidPos _) < _
+  (with_reducible change (_ : String.Pos _) < _
    simp [
-    ValidPos.eq_next_of_next?_eq_some (by assumption),
+    Pos.eq_next_of_next?_eq_some (by assumption),
   ]) <;> done)
 macro_rules | `(tactic| decreasing_trivial) => `(tactic|
-  (with_reducible change (_ : String.ValidPos _) < _
+  (with_reducible change (_ : String.Pos _) < _
    simp [
-    ValidPos.eq_prev_of_prev?_eq_some (by assumption),
+    Pos.eq_prev_of_prev?_eq_some (by assumption),
   ]) <;> done)
 
 end String

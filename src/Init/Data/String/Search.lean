@@ -88,27 +88,27 @@ Finds the position of the first match of the pattern {name}`pattern` in after th
 This function is generic over all currently supported patterns.
 
 Examples:
- * {lean}`("coffee tea water".startValidPos.find? Char.isWhitespace).map (·.get!) == some ' '`
+ * {lean}`("coffee tea water".startPos.find? Char.isWhitespace).map (·.get!) == some ' '`
  * {lean}`("tea".pos ⟨1⟩ (by decide)).find? (fun (c : Char) => c == 't') == none`
 -/
 @[inline]
-def ValidPos.find?  {s : String} (pos : s.ValidPos) (pattern : ρ)
-    [ToForwardSearcher pattern σ] : Option s.ValidPos :=
+def Pos.find?  {s : String} (pos : s.Pos) (pattern : ρ)
+    [ToForwardSearcher pattern σ] : Option s.Pos :=
   (pos.toSlice.find? pattern).map (·.ofSlice)
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in after the position
-{name}`pos`. If there is no match {lean}`s.endValidPos` is returned.
+{name}`pos`. If there is no match {lean}`s.endPos` is returned.
 
 This function is generic over all currently supported patterns.
 
 Examples:
- * {lean}`("coffee tea water".startValidPos.find Char.isWhitespace).get! == ' '`
- * {lean}`("tea".pos ⟨1⟩ (by decide)).find (fun (c : Char) => c == 't') == "tea".endValidPos`
+ * {lean}`("coffee tea water".startPos.find Char.isWhitespace).get! == ' '`
+ * {lean}`("tea".pos ⟨1⟩ (by decide)).find (fun (c : Char) => c == 't') == "tea".endPos`
 -/
 @[inline]
-def ValidPos.find {s : String} (pos : s.ValidPos) (pattern : ρ) [ToForwardSearcher pattern σ] :
-    s.ValidPos :=
+def Pos.find {s : String} (pos : s.Pos) (pattern : ρ) [ToForwardSearcher pattern σ] :
+    s.Pos :=
   (pos.toSlice.find pattern).ofSlice
 
 /--
@@ -123,23 +123,23 @@ Examples:
  * {lean}`("coffee tea water".find? "tea").map (·.get!) == some 't'`
 -/
 @[inline]
-def find? (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : Option s.ValidPos :=
-  s.startValidPos.find? pattern
+def find? (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : Option s.Pos :=
+  s.startPos.find? pattern
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in a slice {name}`s`. If there
-is no match {lean}`s.endValidPos` is returned.
+is no match {lean}`s.endPos` is returned.
 
 This function is generic over all currently supported patterns.
 
 Examples:
  * {lean}`("coffee tea water".find Char.isWhitespace).get! == ' '`
- * {lean}`"tea".find (fun (c : Char) => c == 'X') == "tea".endValidPos`
+ * {lean}`"tea".find (fun (c : Char) => c == 'X') == "tea".endPos`
  * {lean}`("coffee tea water".find "tea").get! == 't'`
 -/
 @[inline]
-def find (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : s.ValidPos :=
-  s.startValidPos.find pattern
+def find (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : s.Pos :=
+  s.startPos.find pattern
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in a slice {name}`s` that is
@@ -166,12 +166,12 @@ This function is generic over all currently supported patterns except
 {name}`String`/{name}`String.Slice`.
 
 Examples:
-* {lean}`(("ab1c".endValidPos.prev (by decide)).revFind? Char.isAlpha).map (·.get!) == some 'b'`
-* {lean}`"abc".startValidPos.revFind? Char.isAlpha == none`
+* {lean}`(("ab1c".endPos.prev (by decide)).revFind? Char.isAlpha).map (·.get!) == some 'b'`
+* {lean}`"abc".startPos.revFind? Char.isAlpha == none`
 -/
 @[inline]
-def ValidPos.revFind? {s : String} (pos : s.ValidPos) (pattern : ρ) [ToBackwardSearcher pattern σ] :
-    Option s.ValidPos :=
+def Pos.revFind? {s : String} (pos : s.Pos) (pattern : ρ) [ToBackwardSearcher pattern σ] :
+    Option s.Pos :=
   (pos.toSlice.revFind? pattern).map (·.ofSlice)
 
 /--
@@ -187,32 +187,32 @@ Examples:
  * {lean}`"tea".toSlice.revFind? (fun (c : Char) => c == 'X') == none`
 -/
 @[inline]
-def revFind? (s : String) (pattern : ρ) [ToBackwardSearcher pattern σ] : Option s.ValidPos :=
-  s.endValidPos.revFind? pattern
+def revFind? (s : String) (pattern : ρ) [ToBackwardSearcher pattern σ] : Option s.Pos :=
+  s.endPos.revFind? pattern
 
 @[export lean_string_posof]
 def Internal.posOfImpl (s : String) (c : Char) : Pos.Raw :=
   (s.find c).offset
 
-@[deprecated String.ValidPos.find (since := "2025-11-19")]
+@[deprecated String.Pos.find (since := "2025-11-19")]
 def findAux (s : String) (p : Char → Bool) (stopPos : Pos.Raw) (pos : Pos.Raw) : Pos.Raw :=
   if h : pos ≤ stopPos ∧ pos.IsValid s ∧ stopPos.IsValid s then
     (String.Slice.mk s (s.pos pos h.2.1) (s.pos stopPos h.2.2)
-      (by simp [ValidPos.le_iff, h.1])).find p |>.str.offset
+      (by simp [Pos.le_iff, h.1])).find p |>.str.offset
   else stopPos
 
-@[deprecated String.ValidPos.find (since := "2025-11-19")]
+@[deprecated String.Pos.find (since := "2025-11-19")]
 def posOfAux (s : String) (c : Char) (stopPos : Pos.Raw) (pos : Pos.Raw) : Pos.Raw :=
   if h : pos ≤ stopPos ∧ pos.IsValid s ∧ stopPos.IsValid s then
     (String.Slice.mk s (s.pos pos h.2.1) (s.pos stopPos h.2.2)
-      (by simp [ValidPos.le_iff, h.1])).find c |>.str.offset
+      (by simp [Pos.le_iff, h.1])).find c |>.str.offset
   else stopPos
 
 @[deprecated String.find (since := "2025-11-19")]
 def posOf (s : String) (c : Char) : Pos.Raw :=
   (s.find c).offset
 
-@[deprecated String.ValidPos.revFind? (since := "2025-11-19")]
+@[deprecated String.Pos.revFind? (since := "2025-11-19")]
 def revPosOfAux (s : String) (c : Char) (pos : Pos.Raw) : Option Pos.Raw :=
   s.pos? pos |>.bind (·.revFind? c) |>.map (·.offset)
 
@@ -220,7 +220,7 @@ def revPosOfAux (s : String) (c : Char) (pos : Pos.Raw) : Option Pos.Raw :=
 def revPosOf (s : String) (c : Char) : Option Pos.Raw :=
   s.revFind? c |>.map (·.offset)
 
-@[deprecated String.ValidPos.revFind? (since := "2025-11-19")]
+@[deprecated String.Pos.revFind? (since := "2025-11-19")]
 def revFindAux (s : String) (p : Char → Bool) (pos : Pos.Raw) : Option Pos.Raw :=
   s.pos? pos |>.bind (·.revFind? p) |>.map (·.offset)
 
@@ -234,9 +234,9 @@ Returns the position of the beginning of the line that contains the position {na
 Lines are ended by {lean}`'\n'`, and the returned position is either {lean}`0 : String.Pos.Raw` or
 immediately after a {lean}`'\n'` character.
 -/
-@[deprecated String.ValidPos.revFind? (since := "2025-11-19")]
+@[deprecated String.Pos.revFind? (since := "2025-11-19")]
 def findLineStart (s : String) (pos : String.Pos.Raw) : String.Pos.Raw :=
-  s.pos? pos |>.bind (·.revFind? '\n') |>.map (·.offset) |>.getD s.startValidPos.offset
+  s.pos? pos |>.bind (·.revFind? '\n') |>.map (·.offset) |>.getD s.startPos.offset
 
 /--
 Splits a string at each subslice that matches the pattern {name}`pat`.
@@ -405,14 +405,14 @@ Examples:
 @[inline, expose] def back (s : String) : Char :=
   s.toSlice.back
 
-theorem Slice.Pos.ofSlice_ne_endValidPos {s : String} {p : s.toSlice.Pos}
-    (h : p ≠ s.toSlice.endPos) : p.ofSlice ≠ s.endValidPos := by
-  rwa [ne_eq, ← ValidPos.toSlice_inj, toSlice_ofSlice, ← endPos_toSlice]
+theorem Slice.Pos.ofSlice_ne_endPos {s : String} {p : s.toSlice.Pos}
+    (h : p ≠ s.toSlice.endPos) : p.ofSlice ≠ s.endPos := by
+  rwa [ne_eq, ← Pos.toSlice_inj, toSlice_ofSlice, ← endPos_toSlice]
 
 @[inline]
 def Internal.toSliceWithProof {s : String} :
-    { p : s.toSlice.Pos // p ≠ s.toSlice.endPos } → { p : s.ValidPos // p ≠ s.endValidPos } :=
-  fun ⟨p, h⟩ => ⟨p.ofSlice, Slice.Pos.ofSlice_ne_endValidPos h⟩
+    { p : s.toSlice.Pos // p ≠ s.toSlice.endPos } → { p : s.Pos // p ≠ s.endPos } :=
+  fun ⟨p, h⟩ => ⟨p.ofSlice, Slice.Pos.ofSlice_ne_endPos h⟩
 
 /--
 Creates an iterator over all valid positions within {name}`s`.
@@ -425,7 +425,7 @@ Examples
 -/
 @[inline]
 def positions (s : String) :=
-  (s.toSlice.positions.map Internal.toSliceWithProof : Std.Iter { p : s.ValidPos // p ≠ s.endValidPos })
+  (s.toSlice.positions.map Internal.toSliceWithProof : Std.Iter { p : s.Pos // p ≠ s.endPos })
 
 /--
 Creates an iterator over all characters (Unicode code points) in {name}`s`.
@@ -450,7 +450,7 @@ Examples
 -/
 @[inline]
 def revPositions (s : String) :=
-  (s.toSlice.revPositions.map Internal.toSliceWithProof : Std.Iter { p : s.ValidPos // p ≠ s.endValidPos })
+  (s.toSlice.revPositions.map Internal.toSliceWithProof : Std.Iter { p : s.Pos // p ≠ s.endPos })
 
 /--
 Creates an iterator over all characters (Unicode code points) in {name}`s`, starting from the end

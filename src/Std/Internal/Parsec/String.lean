@@ -16,7 +16,7 @@ namespace Std.Internal
 namespace Parsec
 namespace String
 
-instance : Input (Sigma String.ValidPos) Char String.Pos.Raw where
+instance : Input (Sigma String.Pos) Char String.Pos.Raw where
   pos it := it.2.offset
   next it := ⟨it.1, it.2.next!⟩
   curr it := it.2.get!
@@ -25,15 +25,15 @@ instance : Input (Sigma String.ValidPos) Char String.Pos.Raw where
   curr' it h := it.2.get (by simpa using h)
 
 /--
-`Parser α` is a parser that consumes a `String` input using a `Sigma String.ValidPos` and returns a result of type `α`.
+`Parser α` is a parser that consumes a `String` input using a `Sigma String.Pos` and returns a result of type `α`.
 -/
-abbrev Parser (α : Type) : Type := Parsec (Sigma String.ValidPos) α
+abbrev Parser (α : Type) : Type := Parsec (Sigma String.Pos) α
 
 /--
 Run a `Parser` on a `String`, returns either the result or an error string with offset.
 -/
 protected def Parser.run (p : Parser α) (s : String) : Except String α :=
-  match p ⟨s, s.startValidPos⟩ with
+  match p ⟨s, s.startPos⟩ with
   | .success _ res => Except.ok res
   | .error it err => Except.error s!"offset {repr it.2.offset.byteIdx}: {err}"
 
@@ -88,7 +88,7 @@ private def digitsCore (acc : Nat) : Parser Nat := fun it =>
   let ⟨res, it⟩ := go it.2 acc
   .success ⟨_, it⟩ res
 where
-  go {s : String} (it : s.ValidPos) (acc : Nat) : (Nat × s.ValidPos) :=
+  go {s : String} (it : s.Pos) (acc : Nat) : (Nat × s.Pos) :=
     if h : ¬it.IsAtEnd then
       let candidate := it.get h
       if '0' ≤ candidate ∧ candidate ≤ '9' then
@@ -127,7 +127,7 @@ def asciiLetter : Parser Char := attempt do
   let c ← any
   if ('A' ≤ c ∧ c ≤ 'Z') ∨ ('a' ≤ c ∧ c ≤ 'z') then return c else fail s!"ASCII letter expected"
 
-private def skipWs {s : String} (it : s.ValidPos) : s.ValidPos :=
+private def skipWs {s : String} (it : s.Pos) : s.Pos :=
   if h : ¬it.IsAtEnd then
     let c := it.get h
     if c = '\u0009' ∨ c = '\u000a' ∨ c = '\u000d' ∨ c = '\u0020' then
@@ -150,7 +150,7 @@ Takes a fixed amount of chars from the iterator.
 -/
 def take (n : Nat) : Parser String := fun it =>
   let right := it.2.nextn n
-  let substr := String.Slice.mk it.1 it.2 right String.ValidPos.le_nextn |>.copy
+  let substr := String.Slice.mk it.1 it.2 right String.Pos.le_nextn |>.copy
   if substr.length != n then
     .error it .eof
   else

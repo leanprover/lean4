@@ -409,6 +409,7 @@ def visitModule (srcSearchPath : SearchPath)
     let k := NeedsKind.ofImport imp
     if addOnly ||
         args.keepPublic && imp.isExported ||
+        imp.module == `Aesop ||  -- TODO
         impStx.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep") then
       deps := deps.union k {j}
   for j in [0:s.mods.size] do

@@ -7,25 +7,26 @@ module
 
 prelude
 public import Init.Data.Slice.Array.Basic
+public import Init.Data.Slice.Operations
 import Init.Data.Iterators.Combinators.Attach
 public import Init.Data.Iterators.Combinators.ULift
 import all Init.Data.Range.Polymorphic.Basic
 public import Init.Data.Range.Polymorphic.Iterators
 public import Init.Data.Slice.Operations
 import Init.Omega
+import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
 
 public section
 
 /-!
-This module provides slice notation for array slices (a.k.a. `Subarray`) and implements an iterator
-for those slices.
+This module implements an iterator for array slices (`Subarray`).
 -/
 
 open Std Slice PRange Iterators
 
 variable {shape : RangeShape} {α : Type u}
 
-instance {s : Subarray α} : ToIterator s Id α :=
+instance {s : Slice (Internal.SubarrayData α)} : ToIterator s Id α :=
   .of _
     (Rco.Internal.iter (s.internalRepresentation.start...<s.internalRepresentation.stop)
       |>.attachWith (· < s.internalRepresentation.array.size) ?h
@@ -40,23 +41,24 @@ where finally
 
 universe v w
 
-@[no_expose] instance {s : Subarray α} : Iterator (ToIterator.State s Id) Id α := inferInstance
-@[no_expose] instance {s : Subarray α} : Finite (ToIterator.State s Id) Id := inferInstance
-@[no_expose] instance {s : Subarray α} : IteratorCollect (ToIterator.State s Id) Id Id := inferInstance
-@[no_expose] instance {s : Subarray α} : IteratorCollectPartial (ToIterator.State s Id) Id Id := inferInstance
-@[no_expose] instance {s : Subarray α} {m : Type v → Type w} [Monad m] :
+@[no_expose] instance {s : Slice (Internal.SubarrayData α)} : Iterator (ToIterator.State s Id) Id α := inferInstance
+@[no_expose] instance {s : Slice (Internal.SubarrayData α)} : Finite (ToIterator.State s Id) Id := inferInstance
+@[no_expose] instance {s : Slice (Internal.SubarrayData α)} : IteratorCollect (ToIterator.State s Id) Id Id := inferInstance
+@[no_expose] instance {s : Slice (Internal.SubarrayData α)} : LawfulIteratorCollect (ToIterator.State s Id) Id Id := inferInstance
+@[no_expose] instance {s : Slice (Internal.SubarrayData α)} : IteratorCollectPartial (ToIterator.State s Id) Id Id := inferInstance
+@[no_expose] instance {s : Slice (Internal.SubarrayData α)} {m : Type v → Type w} [Monad m] :
     IteratorLoop (ToIterator.State s Id) Id m := inferInstance
-@[no_expose] instance {s : Subarray α} {m : Type v → Type w} [Monad m] :
+@[no_expose] instance {s : Slice (Internal.SubarrayData α)} {m : Type v → Type w} [Monad m] :
+    LawfulIteratorLoop (ToIterator.State s Id) Id m := inferInstance
+@[no_expose] instance {s : Slice (Internal.SubarrayData α)} {m : Type v → Type w} [Monad m] :
     IteratorLoopPartial (ToIterator.State s Id) Id m := inferInstance
-@[no_expose] instance {s : Subarray α} :
-    IteratorSize (ToIterator.State s Id) Id := inferInstance
-@[no_expose] instance {s : Subarray α} :
-    IteratorSizePartial (ToIterator.State s Id) Id := inferInstance
 
-@[no_expose]
-instance {α : Type u} {m : Type v → Type w} :
-    ForIn m (Subarray α) α where
-  forIn xs init f := forIn (Std.Slice.Internal.iter xs) init f
+instance : SliceSize (Internal.SubarrayData α) where
+  size s := s.internalRepresentation.stop - s.internalRepresentation.start
+
+instance {α : Type u} {m : Type v → Type w} [Monad m] :
+    ForIn m (Subarray α) α :=
+  inferInstance
 
 /-!
 Without defining the following function `Subarray.foldlM`, it is still possible to call

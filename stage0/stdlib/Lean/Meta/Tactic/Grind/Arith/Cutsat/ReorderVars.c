@@ -2336,14 +2336,7 @@ goto _start;
 }
 block_33:
 {
-if (lean_obj_tag(x_26) == 0)
-{
-x_18 = x_1;
-x_19 = x_24;
-x_20 = lean_box(0);
-goto block_23;
-}
-else
+if (lean_obj_tag(x_26) == 1)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
 x_27 = lean_ctor_get(x_26, 0);
@@ -2363,6 +2356,14 @@ lean_inc(x_32);
 lean_dec(x_31);
 x_18 = x_1;
 x_19 = x_32;
+x_20 = lean_box(0);
+goto block_23;
+}
+else
+{
+lean_dec(x_26);
+x_18 = x_1;
+x_19 = x_24;
 x_20 = lean_box(0);
 goto block_23;
 }

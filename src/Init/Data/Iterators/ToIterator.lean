@@ -89,6 +89,12 @@ instance {x : γ} {State : Type w} {iter}
     IteratorCollect (α := i.State) m n :=
   inferInstanceAs <| IteratorCollect (α := State) m n
 
+instance {x : γ} {State : Type w} {iter} [Monad m] [Monad n]
+    [Iterator (α := State) m β] [IteratorCollect State m n] [LawfulIteratorCollect State m n] :
+    letI i : ToIterator x m β := .ofM State iter
+    LawfulIteratorCollect (α := i.State) m n :=
+  inferInstanceAs <| LawfulIteratorCollect (α := State) m n
+
 instance {x : γ} {State : Type w} {iter}
     [Iterator (α := State) m β] [IteratorCollectPartial State m n] :
     letI i : ToIterator x m β := .ofM State iter
@@ -101,22 +107,22 @@ instance {x : γ} {State : Type w} {iter}
     IteratorLoop (α := i.State) m n :=
   inferInstanceAs <| IteratorLoop (α := State) m n
 
+instance {x : γ} {State : Type w} {iter} [Monad m] [Monad n]
+    [Iterator (α := State) m β] [IteratorLoop State m n] [LawfulIteratorLoop State m n]:
+    letI i : ToIterator x m β := .ofM State iter
+    LawfulIteratorLoop (α := i.State) m n :=
+  inferInstanceAs <| LawfulIteratorLoop (α := State) m n
+
 instance {x : γ} {State : Type w} {iter}
     [Iterator (α := State) m β] [IteratorLoopPartial State m n] :
     letI i : ToIterator x m β := .ofM State iter
     IteratorLoopPartial (α := i.State) m n :=
   inferInstanceAs <| IteratorLoopPartial (α := State) m n
 
-instance {x : γ} {State : Type w} {iter}
-    [Iterator (α := State) m β] [IteratorSize State m] :
-    letI i : ToIterator x m β := .ofM State iter
-    IteratorSize (α := i.State) m :=
-  inferInstanceAs <| IteratorSize (α := State) m
-
-instance {x : γ} {State : Type w} {iter}
-    [Iterator (α := State) m β] [IteratorSizePartial State m] :
-    letI i : ToIterator x m β := .ofM State iter
-    IteratorSizePartial (α := i.State) m :=
-  inferInstanceAs <| IteratorSizePartial (α := State) m
+@[simp]
+theorem ToIterator.state_eq {x : γ} {State : Type w} {iter} :
+    haveI : ToIterator x Id β := .of State iter
+    ToIterator.State x Id = State :=
+  rfl
 
 end Std.Iterators

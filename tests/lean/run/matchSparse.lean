@@ -9,6 +9,25 @@ def simple : Lean.Expr → Bool
   | .sort _ => true
   | _      => false
 
+/--
+info: def simple.match_1.{u_1} : (motive : Expr → Sort u_1) →
+  (x : Expr) → ((u : Level) → motive (sort u)) → ((x : Expr) → motive x) → motive x :=
+fun motive x h_1 h_2 => simple._sparseCasesOn_1 x (fun u => h_1 u) fun h => h_2 x
+-/
+#guard_msgs in
+#print simple.match_1
+
+-- Check that the splitter re-uses the sparseCasesOn generated for the matcher:
+
+/--
+info: private def simple.match_1.splitter.{u_1} : (motive : Expr → Sort u_1) →
+  (x : Expr) →
+    ((u : Level) → motive (sort u)) → ((x : Expr) → (∀ (u : Level), x = sort u → False) → motive x) → motive x :=
+fun motive x h_1 h_2 => simple._sparseCasesOn_1 x (fun u => h_1 u) fun h => h_2 x ⋯
+-/
+#guard_msgs in
+#print simple.match_1.splitter
+
 def expensive : Lean.Expr → Lean.Expr → Bool
   | .app (.app (.sort 1) (.sort 1)) (.sort 1), .app (.app (.sort 1) (.sort 1)) (.sort 1) => false
   | _, _ => true
@@ -37,8 +56,9 @@ info: expensive.match_1.{u_1} (motive : Expr → Expr → Sort u_1) (x✝ x✝¹
 /--
 info: expensive.match_1.splitter.{u_1} (motive : Expr → Expr → Sort u_1) (x✝ x✝¹ : Expr)
   (h_1 :
-    motive (((sort zero.succ).app (sort zero.succ)).app (sort zero.succ))
-      (((sort zero.succ).app (sort zero.succ)).app (sort zero.succ)))
+    Unit →
+      motive (((sort zero.succ).app (sort zero.succ)).app (sort zero.succ))
+        (((sort zero.succ).app (sort zero.succ)).app (sort zero.succ)))
   (h_2 :
     (x x_1 : Expr) →
       (x = ((sort zero.succ).app (sort zero.succ)).app (sort zero.succ) →
@@ -48,6 +68,7 @@ info: expensive.match_1.splitter.{u_1} (motive : Expr → Expr → Sort u_1) (x�
 -/
 #guard_msgs in
 #check expensive.match_1.splitter
+
 /--
 info: expensive.match_1.eq_1.{u_1} (motive : Expr → Expr → Sort u_1)
   (h_1 :

@@ -1707,7 +1707,6 @@ x_19 = lean_ctor_get(x_15, 0);
 lean_inc(x_19);
 lean_dec_ref(x_15);
 x_20 = l_Lean_SubExpr_Pos_fromString_x3f(x_19);
-lean_dec(x_19);
 if (lean_obj_tag(x_20) == 0)
 {
 uint8_t x_21; 

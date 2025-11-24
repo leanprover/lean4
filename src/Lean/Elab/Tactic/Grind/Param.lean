@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.ForallProp
 import Lean.Elab.Tactic.Grind.Basic
 import Lean.Elab.Tactic.Grind.Anchor
+import Lean.Elab.SyntheticMVars
 namespace Lean.Elab.Tactic
 open Meta
 
@@ -52,8 +53,8 @@ public def addEMatchTheorem (params : Grind.Params) (id : Ident) (declName : Nam
       let thm₁ ← Grind.mkEMatchTheoremForDecl declName (.eqLhs gen) params.symPrios
       let thm₂ ← Grind.mkEMatchTheoremForDecl declName (.eqRhs gen) params.symPrios
       if warn &&
-          params.ematch.containsWithSamePatterns thm₁.origin thm₁.patterns &&
-          params.ematch.containsWithSamePatterns thm₂.origin thm₂.patterns then
+          params.ematch.containsWithSamePatterns thm₁.origin thm₁.patterns thm₁.cnstrs &&
+          params.ematch.containsWithSamePatterns thm₂.origin thm₂.patterns thm₂.cnstrs then
         warnRedundantEMatchArg params.ematch declName
       return { params with extra := params.extra.push thm₁ |>.push thm₂ }
     | _ =>
@@ -63,7 +64,7 @@ public def addEMatchTheorem (params : Grind.Params) (id : Ident) (declName : Nam
         Grind.mkEMatchTheoremAndSuggest id declName params.symPrios minIndexable (isParam := true)
       else
         Grind.mkEMatchTheoremForDecl declName kind params.symPrios (minIndexable := minIndexable)
-      if warn && params.ematch.containsWithSamePatterns thm.origin thm.patterns then
+      if warn && params.ematch.containsWithSamePatterns thm.origin thm.patterns thm.cnstrs then
         warnRedundantEMatchArg params.ematch declName
       return { params with extra := params.extra.push thm }
   | .defn =>
@@ -147,13 +148,60 @@ def processAnchor (params : Grind.Params) (val : TSyntax `hexnum) : CoreM Grind.
   let anchorRef ← Grind.elabAnchorRef val
   return { params with anchorRefs? := some <| anchorRefs.push anchorRef }
 
+def checkNoRevert (params : Grind.Params) : CoreM Unit := do
+  if params.config.revert then
+    throwError "invalid `grind` parameter, only global declarations are allowed when `+revert` is used"
+
+def processTermParam (params : Grind.Params)
+    (p : TSyntax `Lean.Parser.Tactic.grindParam)
+    (mod? : Option (TSyntax `Lean.Parser.Attr.grindMod))
+    (term : Term)
+    (minIndexable : Bool)
+    : TermElabM Grind.Params := withRef p do
+  checkNoRevert params
+  let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
+  let kind ← match kind with
+    | .ematch .user | .cases _ | .intro | .inj | .ext | .symbol _ =>
+      throwError "invalid `grind` parameter, only global declarations are allowed with this kind of modifier"
+    | .ematch kind => pure kind
+    | .infer => pure <| .default false
+  let thm? ← Term.withoutModifyingElabMetaStateWithInfo <| withRef p do
+    let e ← Term.elabTerm term .none
+    Term.synthesizeSyntheticMVars (postpone := .no) (ignoreStuckTC := true)
+    let e ← instantiateMVars e
+    if e.hasSyntheticSorry then
+      return .none
+    let e := e.eta
+    if e.hasMVar then
+      let r ← abstractMVars e
+      return some (r.paramNames, r.expr)
+    else
+      return some (#[], e)
+  let some (levelParams, proof) := thm? | return params
+  unless (← isProof proof) do
+    throwError "invalid `grind` parameter, proof term expected"
+  let mkThm (kind : Grind.EMatchTheoremKind) (idx : Nat) : MetaM Grind.EMatchTheorem := do
+    let id := ((`extra).appendIndexAfter idx)
+    let some thm ← Grind.mkEMatchTheoremWithKind? (.stx id p) levelParams proof kind params.symPrios (minIndexable := minIndexable)
+      | throwError "invalid `grind` parameter, failed to infer patterns"
+    return thm
+  let idx := params.extra.size
+  match kind with
+  | .eqBoth gen =>
+    ensureNoMinIndexable minIndexable
+    return { params with extra := params.extra.push (← mkThm (.eqLhs gen) idx) |>.push (← mkThm (.eqRhs gen) idx) }
+  | _ =>
+    if kind matches .eqLhs _ | .eqRhs _ then
+      ensureNoMinIndexable minIndexable
+    return { params with extra := params.extra.push (← mkThm kind idx) }
+
 /--
 Elaborates `grind` parameters.
 `incremental = true` for tactics such as `finish`, in this case, we disable some kinds of parameters
 such as `- ident`.
 -/
 public def elabGrindParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.Tactic.grindParam)
-    (only : Bool) (lax : Bool := false) (incremental := false) : MetaM Grind.Params := do
+    (only : Bool) (lax : Bool := false) (incremental := false) : TermElabM Grind.Params := do
   let mut params := params
   for p in ps do
     try
@@ -173,6 +221,10 @@ public def elabGrindParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.T
         params ← processParam params p mod? id (minIndexable := false) (only := only) (incremental := incremental)
       | `(Parser.Tactic.grindParam| ! $[$mod?:grindMod]? $id:ident) =>
         params ← processParam params p mod? id (minIndexable := true) (only := only) (incremental := incremental)
+      | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $e:term) =>
+        params ← processTermParam params p mod? e (minIndexable := false)
+      | `(Parser.Tactic.grindParam| ! $[$mod?:grindMod]? $e:term) =>
+        params ← processTermParam params p mod? e (minIndexable := true)
       | `(Parser.Tactic.grindParam| #$anchor:hexnum) =>
         unless only do
           throwErrorAt anchor "invalid anchor, `only` modifier expected"

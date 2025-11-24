@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Elab.Command
+public import Lean.Elab.Term
 meta import Lean.Elab.Command
 public import Lean.Data.KVMap
 public section
@@ -38,21 +39,23 @@ meta def mkConfigSetter (doc? : Option (TSyntax ``Parser.Command.docComment))
       -- **Note**: We only support `Nat` and `Bool` fields
       let fieldIdent : Ident := mkCIdent fieldInfo.fieldName
       if fieldType.isConstOf ``Nat then
-        code ← `(if fieldName == $(quote fieldInfo.fieldName) then
+        code ← `(if fieldName == $(quote fieldInfo.fieldName) then do
+                   Term.addTermInfo' (← getRef) (← mkConstWithLevelParams $(quote fieldInfo.projFn))
                    return { s with $fieldIdent:ident := (← getNatField) }
                  else $code)
       else if fieldType.isConstOf ``Bool then
-        code ← `(if fieldName == $(quote fieldInfo.fieldName) then
+        code ← `(if fieldName == $(quote fieldInfo.fieldName) then do
+                   Term.addTermInfo' (← getRef) (← mkConstWithLevelParams $(quote fieldInfo.projFn))
                    return { s with $fieldIdent:ident := (← getBoolField) }
                  else $code)
     return code
   let cmd ← `(command|
      $[$doc?:docComment]?
-     def $setterName (s : $struct) (fieldName : Name) (val : DataValue) : CoreM $struct :=
-       let getBoolField : CoreM Bool := do
+     def $setterName (s : $struct) (fieldName : Name) (val : DataValue) : TermElabM $struct :=
+       let getBoolField : TermElabM Bool := do
           let .ofBool b := val | throwError "`{fieldName}` is a Boolean"
           return b
-       let getNatField : CoreM Nat := do
+       let getNatField : TermElabM Nat := do
          let .ofNat n := val | throwError "`{fieldName}` is a natural number"
          return n
        $code

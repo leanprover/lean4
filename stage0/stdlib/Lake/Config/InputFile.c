@@ -38,7 +38,6 @@ x_5 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_5);
 lean_dec(x_3);
 x_6 = l_Lake_joinRelative(x_4, x_5);
-lean_dec_ref(x_5);
 return x_6;
 }
 }
@@ -77,7 +76,6 @@ x_5 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_5);
 lean_dec(x_3);
 x_6 = l_Lake_joinRelative(x_4, x_5);
-lean_dec_ref(x_5);
 return x_6;
 }
 }

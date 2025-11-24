@@ -89,7 +89,7 @@ def mkMissingFieldsHint (fields : Array (Name × Option Expr)) (stx : Syntax) : 
       let leaderLineEnd := findLineEnd fileMap.source view.leaderTailPos
       let indentPos := (indent + 1).fold (init := leaderLineEnd) (fun _ _ p => p.next fileMap.source)
       let interveningLineEnd := findLineEnd fileMap.source (leaderLineEnd.next fileMap.source)
-      let nextTwoLines := Substring.mk fileMap.source view.leaderTailPos interveningLineEnd
+      let nextTwoLines := Substring.Raw.mk fileMap.source view.leaderTailPos interveningLineEnd
       if nextTwoLines.all (·.isWhitespace) then some (min indentPos nextTwoLines.stopPos) else none
 
   let (preWs, postWs) : Format × Format :=

@@ -272,6 +272,38 @@ If a mapping exists the result is guaranteed to be pointer equal to the key in t
 def getKeyD (t : DTreeMap α β cmp) (a : α) (fallback : α) : α :=
   letI : Ord α := ⟨cmp⟩; t.inner.getKeyD a fallback
 
+
+/--
+Checks if a mapping for the given key exists and returns the key-value pair if it does, otherwise `none`.
+The key in the returned pair will be `BEq` to the input `a`.
+-/
+@[inline]
+def getEntry? (t : DTreeMap α β cmp) (a : α) : Option ((a : α) × β a) :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getEntry? a
+
+/--
+Retrieves the key-value pair, whose key matches `a`. Ensures that such a mapping exists by requiring a proof of `a ∈ m`. The key in the returned pair will be `BEq` to the input `a`.
+-/
+@[inline]
+def getEntry (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getEntry a h
+
+/--
+Checks if a mapping for the given key exists and returns the key-value pair if it does, otherwise `fallback`.
+The key in the returned pair will compare equal to the input `a`.
+-/
+@[inline]
+def getEntryD (t : DTreeMap α β cmp) (a : α) (fallback : (a : α) × β a) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getEntryD a fallback
+
+/--
+Checks if a mapping for the given key exists and returns the key-value pair if it does, otherwise panics.
+The key in the returned pair will be `BEq` to the input `a`.
+-/
+@[inline]
+def getEntry! [Inhabited ((a : α) × β a)] (t : DTreeMap α β cmp) (a : α) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getEntry! a
+
 /--
 Tries to retrieve the key-value pair with the smallest key in the tree map, returning `none` if the
 map is empty.

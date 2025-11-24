@@ -2,6 +2,8 @@ import Std.Internal.Async.Timer
 import Std.Internal.Async.TCP
 import Std.Internal.Async.UDP
 
+#exit -- TODO: remove `#exit` after nondet issue is resolved.
+
 open Std Internal IO Async
 
 namespace TCP

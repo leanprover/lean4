@@ -6,7 +6,7 @@ Author: Leonardo de Moura, Robin Arnez
 module
 
 prelude
-public import Init.Prelude
+public import Lean.Setup
 import Init.Data.String.Termination
 
 namespace String
@@ -130,13 +130,23 @@ def Name.mangleAux : Name → String
     | p              =>
       mangleAux p ++ "_" ++ n.repr ++ "_"
 
-@[export lean_name_mangle]
 public def Name.mangle (n : Name) (pre : String := "l_") : String :=
   pre ++ Name.mangleAux n
 
-@[export lean_mk_module_initialization_function_name]
-public def mkModuleInitializationFunctionName (moduleName : Name) : String :=
-  "initialize_" ++ moduleName.mangle ""
+/--
+The mangled name of the name used to create the module initialization function.
+
+This also used for the library name of a module plugin.
+-/
+public def mkModuleInitializationStem (moduleName : Name) (pkg? : Option PkgId := none) : String :=
+  let pre := pkg?.elim "" (s!"{·.mangle}_")
+  moduleName.mangle pre
+
+public def mkModuleInitializationFunctionName (moduleName : Name) (pkg? : Option PkgId := none) : String :=
+  "initialize_" ++ mkModuleInitializationStem moduleName pkg?
+
+public def mkPackageSymbolPrefix (pkg? : Option PkgId) : String :=
+  pkg?.elim "l_" (s!"lp_{·.mangle}_")
 
 -- assumes `s` has been generated `Name.mangle n ""`
 def Name.demangleAux (s : String) (p₀ : s.ValidPos) (res : Name)

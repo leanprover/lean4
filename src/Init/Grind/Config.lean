@@ -153,6 +153,25 @@ structure Config where
   at least `Std.IsPreorder`
   -/
   order := true
+  /--
+  Minimum number of instantiations to trigger summary report in `#grind_lint`.
+  Remark: this option is only relevant for the `#grind_lint` command.
+  -/
+  min : Nat := 10
+  /--
+  Minimum number of instantiations to trigger detailed report in `#grind_lint`.
+  Remark: this option is only relevant for the `#grind_lint` command.
+  -/
+  detailed : Nat := 50
+  /--
+  When `trace := true`, uses `sorry` to close unsolved branches.
+  -/
+  useSorry := true
+  /--
+  When `true`, it reverts all hypotheses during the preprocessing step,
+  and then reintroduces them while simplifying and applying eager `cases`.
+  -/
+  revert := false
   deriving Inhabited, BEq
 
 /--

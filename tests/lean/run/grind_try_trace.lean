@@ -51,6 +51,7 @@ public def f : Nat → Nat
 info: Try these:
   [apply] grind [= f]
   [apply] grind only [f]
+  [apply] grind => instantiate only [f]
 -/
 #guard_msgs (info) in
 example : f (f 0) > 0 := by
@@ -59,7 +60,12 @@ example : f (f 0) > 0 := by
 /--
 info: Try these:
   [apply] grind [= f.eq_def]
+  [apply] grind only [= f.eq_def, #bb96]
   [apply] grind only [= f.eq_def]
+  [apply] grind =>
+    instantiate only [= f.eq_def]
+    instantiate only
+    cases #bb96 <;> instantiate only
 -/
 #guard_msgs (info) in
 example : f x > 0 := by
@@ -74,6 +80,10 @@ info: Try these:
   [apply] rfl
   [apply] grind [= app]
   [apply] grind only [app]
+  [apply] grind =>
+    instantiate only [app]
+    instantiate only [app]
+    instantiate only [app]
 -/
 #guard_msgs (info) in
 example : app [a, b] [c] = [a, b, c] := by
@@ -83,6 +93,7 @@ example : app [a, b] [c] = [a, b, c] := by
 info: Try these:
   [apply] (fun_induction app as bs) <;> grind [= app]
   [apply] (fun_induction app as bs) <;> grind only [app]
+  [apply] (fun_induction app as bs) <;> grind => instantiate only [app]
 -/
 #guard_msgs (info) in
 example : app (app as bs) cs = app as (app bs cs) := by
@@ -100,6 +111,7 @@ example : app (app as bs) cs = app as (app bs cs) := by
 info: Try these:
   [apply] · expose_names; fun_induction app as bs_1 <;> grind [= app]
   [apply] · expose_names; fun_induction app as bs_1 <;> grind only [app]
+  [apply] · expose_names; fun_induction app as bs_1 <;> grind => instantiate only [app]
 -/
 #guard_msgs (info) in
 example : app (app as bs) cs = app as (app bs cs) := by
@@ -110,6 +122,7 @@ example : app (app as bs) cs = app as (app bs cs) := by
 info: Try these:
   [apply] · expose_names; fun_induction app as bs <;> grind [= app]
   [apply] · expose_names; fun_induction app as bs <;> grind only [app]
+  [apply] · expose_names; fun_induction app as bs <;> grind => instantiate only [app]
 -/
 #guard_msgs (info) in
 example : app (app as bs) cs = app as (app bs cs) := by
@@ -153,6 +166,7 @@ def map (f : α → β) : List α → List β
 info: Try these:
   [apply] (fun_induction map f xs) <;> grind [= map]
   [apply] (fun_induction map f xs) <;> grind only [map]
+  [apply] (fun_induction map f xs) <;> grind => instantiate only [map]
 -/
 #guard_msgs (info) in
 theorem map_map (f : α → β) (g : β → γ) xs :

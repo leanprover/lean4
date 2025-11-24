@@ -295,6 +295,22 @@ def getₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h 
   (bucket m.1.buckets m.2 a).getCast a h
 
 /-- Internal implementation detail of the hash map -/
+def getEntryₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h : m.containsₘ a) : (a : α) × β a :=
+  (bucket m.1.buckets m.2 a).getEntry a h
+
+/-- Internal implementation detail of the hash map -/
+def getEntry?ₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Option ((a : α) × β a) :=
+  (bucket m.1.buckets m.2 a).getEntry? a
+
+/-- Internal implementation detail of the hash map -/
+def getEntryDₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : (a : α) × β a) : (a : α) × β a :=
+  (bucket m.1.buckets m.2 a).getEntryD a fallback
+
+/-- Internal implementation detail of the hash map -/
+def getEntry!ₘ [BEq α] [Hashable α] [Inhabited ((a : α) × β a)] (m : Raw₀ α β) (a : α) : (a : α) × β a :=
+  (bucket m.1.buckets m.2 a).getEntry! a
+
+/-- Internal implementation detail of the hash map -/
 def getDₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : β a) : β a :=
   (m.get?ₘ a).getD fallback
 
@@ -404,6 +420,12 @@ def unionₘ [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
   else
     insertListₘ m₁ (toListModel m₂.1.buckets)
 
+/-- Internal implementation detail of the hash map -/
+def interSmallerFnₘ [BEq α] [Hashable α] (m sofar : Raw₀ α β) (k : α) : Raw₀ α β :=
+  match m.getEntry?ₘ k with
+  | some kv' => sofar.insertₘ kv'.1 kv'.2
+  | none => sofar
+
 section
 
 variable {β : Type v}
@@ -451,6 +473,18 @@ theorem get?_eq_get?ₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β)
 
 theorem get_eq_getₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h : m.contains a) :
     get m a h = getₘ m a (by exact h) := (rfl)
+
+theorem getEntry_eq_getEntryₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h : m.contains a) :
+    getEntry m a h = getEntryₘ m a (by exact h) := (rfl)
+
+theorem getEntry?_eq_getEntry?ₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
+    getEntry? m a = getEntry?ₘ m a := (rfl)
+
+theorem getEntryD_eq_getEntryDₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : (a : α) × β a) :
+    getEntryD m a fallback = getEntryDₘ m a fallback := (rfl)
+
+theorem getEntry!_eq_getEntry!ₘ [BEq α] [Hashable α] [Inhabited ((a : α) × β a)] (m : Raw₀ α β) (a : α) :
+    getEntry! m a = getEntry!ₘ m a := (rfl)
 
 theorem getD_eq_getDₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : β a) :
     getD m a fallback = getDₘ m a fallback := by
@@ -635,6 +669,14 @@ theorem insertManyIfNew_eq_insertListIfNewₘ [BEq α] [Hashable α] (m : Raw₀
   | cons hd tl ih =>
     simp only [List.foldl_cons, insertListIfNewₘ]
     apply ih
+
+theorem interSmallerFn_eq_interSmallerFnₘ [BEq α] [Hashable α] (m sofar : Raw₀ α β) (k : α) :
+    interSmallerFn m sofar k = interSmallerFnₘ m sofar k := by
+  rw [interSmallerFn, interSmallerFnₘ]
+  rw [getEntry?_eq_getEntry?ₘ]
+  congr
+  ext
+  rw [insert_eq_insertₘ]
 
 section
 

@@ -2317,6 +2317,22 @@ theorem mem_of_mem_union_of_not_mem_left [TransCmp cmp]
   exact Impl.contains_of_contains_union!_of_contains_eq_false_left h₁ h₂
 
 /- Equiv -/
+theorem union_equiv_congr_left {t₃ : Raw α β cmp} [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (equiv : t₁.Equiv t₂) :
+    (t₁ ∪ t₃).Equiv (t₂ ∪ t₃) := by
+  simp only [Union.union]
+  constructor
+  have ⟨equiv⟩ := equiv
+  apply Impl.union!_equiv_congr_left h₁ h₂ h₃ equiv
+
+theorem union_equiv_congr_right {t₃ : Raw α β cmp} [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (equiv : t₂.Equiv t₃) :
+    (t₁ ∪ t₂).Equiv (t₁ ∪ t₃) := by
+  simp only [Union.union]
+  constructor
+  have ⟨equiv⟩ := equiv
+  apply Impl.union!_equiv_congr_right h₁ h₂ h₃ equiv
+
 theorem union_insert_right_equiv_insert_union [TransCmp cmp] {p : (a : α) × β a}
     (h₁ : t₁.WF) (h₂ : t₂.WF) :
     (t₁ ∪ (t₂.insert p.fst p.snd)).Equiv ((t₁ ∪ t₂).insert p.fst p.snd) := by

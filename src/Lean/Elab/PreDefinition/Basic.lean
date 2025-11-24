@@ -137,7 +137,7 @@ private def shouldGenCodeFor (preDef : PreDefinition) : Bool :=
 private def compileDecl (decl : Declaration) : TermElabM Unit := do
   Lean.compileDecl
     -- `meta` should disregard `noncomputable section`
-    (logErrors := !(← read).isNoncomputableSection || decl.getTopLevelNames.any (isMeta (← getEnv)))
+    (logErrors := !(← read).isNoncomputableSection || decl.getTopLevelNames.any (isMarkedMeta (← getEnv)))
     decl
 
 register_builtin_option diagnostics.threshold.proofSize : Nat := {
@@ -214,11 +214,11 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
     match preDef.modifiers.computeKind with
     -- Tags may have been added by `elabMutualDef` already, but that is not the only caller
-    | .meta          => if !isMeta (← getEnv) preDef.declName then modifyEnv (addMeta · preDef.declName)
+    | .meta          => if !isMarkedMeta (← getEnv) preDef.declName then modifyEnv (markMeta · preDef.declName)
     | .noncomputable => if !isNoncomputable (← getEnv) preDef.declName then modifyEnv (addNoncomputable · preDef.declName)
     | _              =>
       if !preDef.kind.isTheorem then
-        modifyEnv (addNotMeta · preDef.declName)
+        modifyEnv (markNotMeta · preDef.declName)
     if compile && shouldGenCodeFor preDef then
       compileDecl decl
     if applyAttrAfterCompilation then

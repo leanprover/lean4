@@ -45,11 +45,9 @@ public def Fun := Nat → Nat
 /-! The compiler should check it has sufficient information about types available. -/
 
 /--
-error: Compilation failed, locally inferred compilation type
-  (Nat → Nat) → Nat → Nat
-differs from type
-  (Nat → Nat) → lcAny
-that would be inferred in other modules. This usually means that a type `def` involved with the mentioned declarations needs to be `@[expose]`d. This is a current compiler limitation for `module`s that may be lifted in the future.
+error: Compilation failed, locally inferred compilation type differs from type that would be inferred in other modules. Some of the following definitions may need to be `@[expose]`d to fix this mismatch: ⏎
+  Fun ↦ 1
+This is a current compiler limitation for `module`s that may be lifted in the future.
 -/
 #guard_msgs in
 public def Fun.mk (f : Nat → Nat) : Fun := f

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.Lemmas.Combinators
-// Imports: public import Init.Data.Iterators.Lemmas.Combinators.Attach public import Init.Data.Iterators.Lemmas.Combinators.Monadic public import Init.Data.Iterators.Lemmas.Combinators.FilterMap public import Init.Data.Iterators.Lemmas.Combinators.FlatMap public import Init.Data.Iterators.Lemmas.Combinators.ULift
+// Imports: public import Init.Data.Iterators.Lemmas.Combinators.Attach public import Init.Data.Iterators.Lemmas.Combinators.Monadic public import Init.Data.Iterators.Lemmas.Combinators.FilterMap public import Init.Data.Iterators.Lemmas.Combinators.FlatMap public import Init.Data.Iterators.Lemmas.Combinators.Take public import Init.Data.Iterators.Lemmas.Combinators.ULift
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,7 @@ lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_Attach(uint8_t bu
 lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_FlatMap(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_Take(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_ULift(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators(uint8_t builtin) {
@@ -33,6 +34,9 @@ res = initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Lemmas_Combinators_FlatMap(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Lemmas_Combinators_Take(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Lemmas_Combinators_ULift(builtin);

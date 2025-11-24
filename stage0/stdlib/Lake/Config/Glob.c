@@ -88,6 +88,7 @@ LEAN_EXPORT lean_object* l_Lake_Glob_instToString;
 static lean_object* l_Lake___aux__Lake__Config__Glob______macroRules__Lake__term_____x2e_x2a__1___closed__8;
 LEAN_EXPORT uint8_t l_Lake_instDecidableEqGlob_decEq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_instDecidableEqGlob(lean_object*, lean_object*);
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l_Lake_instReprGlob___closed__0;
 static lean_object* l_Lake___aux__Lake__Config__Glob______macroRules__Lake__term_____x2e_x2b__1___closed__6;
 LEAN_EXPORT lean_object* l_Lake_term_____x2e_x2b;
@@ -140,7 +141,6 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lake_instCoeGlobArray___closed__0;
 static lean_object* l_Lake_instInhabitedGlob_default___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Glob_one_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedGlob;
 static lean_object* l_Lake_instReprGlob_repr___closed__0;
 static lean_object* l_Lake_term_____x2e_x2a___closed__13;
@@ -919,7 +919,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake___aux__Lake__Config__Glob______macroRules__Lake__term_____x2e_x2a__1___closed__5;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1201,7 +1201,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake___aux__Lake__Config__Glob______macroRules__Lake__term_____x2e_x2b__1___closed__0;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1513,7 +1513,6 @@ lean_closure_set(x_9, 0, x_8);
 lean_closure_set(x_9, 1, x_4);
 x_10 = l_Lake_Glob_forEachModuleIn___redArg___lam__2___closed__0;
 x_11 = l_Lean_modToFilePath(x_3, x_8, x_10);
-lean_dec(x_8);
 lean_dec_ref(x_3);
 x_12 = l_Lean_forEachModuleInDir___redArg(x_1, x_2, x_11, x_9);
 return x_12;
@@ -1574,7 +1573,6 @@ lean_closure_set(x_10, 0, x_9);
 lean_closure_set(x_10, 1, x_5);
 x_11 = l_Lake_Glob_forEachModuleIn___redArg___lam__2___closed__0;
 x_12 = l_Lean_modToFilePath(x_4, x_9, x_11);
-lean_dec(x_9);
 lean_dec_ref(x_4);
 x_13 = l_Lean_forEachModuleInDir___redArg(x_2, x_3, x_12, x_10);
 return x_13;
@@ -1612,7 +1610,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Lake_Glob_forEachModuleIn___redArg___lam__2(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_7;
 }

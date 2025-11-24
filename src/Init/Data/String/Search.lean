@@ -51,6 +51,70 @@ def replace [ToForwardSearcher ρ σ] [ToSlice α] (s : String) (pattern : ρ)
     (replacement : α) : String :=
   s.toSlice.replace pattern replacement
 
+/--
+Finds the position of the first match of the pattern {name}`pattern` in after the position
+{name}`pos`. If there is no match {name}`none` is returned.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * {lean}`("coffee tea water".toSlice.startPos.find? Char.isWhitespace).map (·.get!) == some ' '`
+ * {lean}`("tea".toSlice.pos ⟨1⟩ (by decide)).find? (fun (c : Char) => c == 't') == none`
+-/
+@[inline]
+def Slice.Pos.find? [ToForwardSearcher ρ σ] {s : Slice} (pos : s.Pos) (pattern : ρ) :
+    Option s.Pos :=
+  ((s.replaceStart pos).find? pattern).map ofReplaceStart
+
+/--
+Finds the position of the first match of the pattern {name}`pattern` in after the position
+{name}`pos`. If there is no match {name}`none` is returned.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * {lean}`("coffee tea water".startValidPos.find? Char.isWhitespace).map (·.get!) == some ' '`
+ * {lean}`("tea".pos ⟨1⟩ (by decide)).find? (fun (c : Char) => c == 't') == none`
+-/
+@[inline]
+def ValidPos.find? [ToForwardSearcher ρ σ] {s : String} (pos : s.ValidPos)
+    (pattern : ρ) : Option s.ValidPos :=
+  (pos.toSlice.find? pattern).map (·.ofSlice)
+
+/--
+Finds the position of the first match of the pattern {name}`pattern` in a string {name}`s`. If
+there is no match {name}`none` is returned.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * {lean}`("coffee tea water".find? Char.isWhitespace).map (·.get!) == some ' '`
+ * {lean}`"tea".find? (fun (c : Char) => c == 'X') == none`
+ * {lean}`("coffee tea water".find? "tea").map (·.get!) == some 't'`
+-/
+@[inline]
+def find? [ToForwardSearcher ρ σ] (s : String) (pattern : ρ) : Option s.ValidPos :=
+  s.startValidPos.find? pattern
+
+/--
+Splits a string at each subslice that matches the pattern {name}`pat`.
+
+The subslices that matched the pattern are not included in any of the resulting subslices. If
+multiple subslices in a row match the pattern, the resulting list will contain empty strings.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * {lean}`("coffee tea water".split Char.isWhitespace).toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]`
+ * {lean}`("coffee tea water".split ' ').toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]`
+ * {lean}`("coffee tea water".split " tea ").toList == ["coffee".toSlice, "water".toSlice]`
+ * {lean}`("ababababa".split "aba").toList == ["coffee".toSlice, "water".toSlice]`
+ * {lean}`("baaab".split "aa").toList == ["b".toSlice, "ab".toSlice]`
+-/
+@[inline]
+def split [ToForwardSearcher ρ σ] (s : String) (pat : ρ) :=
+  (s.toSlice.split pat : Std.Iter String.Slice)
+
 end
 
 end String

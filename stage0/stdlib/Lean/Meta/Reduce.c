@@ -1448,8 +1448,8 @@ return x_122;
 block_16:
 {
 lean_object* x_14; lean_object* x_15; 
-x_14 = l_Lean_mkAppN(x_11, x_12);
-lean_dec_ref(x_12);
+x_14 = l_Lean_mkAppN(x_12, x_11);
+lean_dec_ref(x_11);
 x_15 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_15, 0, x_14);
 return x_15;
@@ -1469,8 +1469,8 @@ block_36:
 {
 if (x_27 == 0)
 {
-x_11 = x_24;
-x_12 = x_25;
+x_11 = x_25;
+x_12 = x_24;
 x_13 = lean_box(0);
 goto block_16;
 }
@@ -1483,8 +1483,8 @@ x_30 = lean_array_get_borrowed(x_28, x_25, x_29);
 x_31 = l_Lean_Expr_isRawNatLit(x_30);
 if (x_31 == 0)
 {
-x_11 = x_24;
-x_12 = x_25;
+x_11 = x_25;
+x_12 = x_24;
 x_13 = lean_box(0);
 goto block_16;
 }

@@ -392,9 +392,9 @@ Examples:
 * `(0 : Int) ^ 10 = 0`
 * `(-7 : Int) ^ 3 = -343`
 -/
-protected def pow (m : Int) : Nat → Int
-  | 0      => 1
-  | succ n => Int.pow m n * m
+protected def pow : Int → Nat → Int
+  | (m : Nat), n => Int.ofNat (m ^ n)
+  | m@-[_+1], n => if n % 2 = 0 then Int.ofNat (m.natAbs ^ n) else - Int.ofNat (m.natAbs ^ n)
 
 instance : NatPow Int where
   pow := Int.pow

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators
-// Imports: public import Init.Data.Iterators.Basic public import Init.Data.Iterators.PostconditionMonad public import Init.Data.Iterators.Consumers public import Init.Data.Iterators.Combinators public import Init.Data.Iterators.Lemmas public import Init.Data.Iterators.ToIterator public import Init.Data.Iterators.Internal
+// Imports: public import Init.Data.Iterators.Basic public import Init.Data.Iterators.PostconditionMonad public import Init.Data.Iterators.Consumers public import Init.Data.Iterators.Producers public import Init.Data.Iterators.Combinators public import Init.Data.Iterators.Lemmas public import Init.Data.Iterators.ToIterator public import Init.Data.Iterators.Internal
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 lean_object* initialize_Init_Data_Iterators_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_PostconditionMonad(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Producers(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Combinators(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_ToIterator(uint8_t builtin);
@@ -32,6 +33,9 @@ res = initialize_Init_Data_Iterators_PostconditionMonad(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Producers(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Combinators(builtin);

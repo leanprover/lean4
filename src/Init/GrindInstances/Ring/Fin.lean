@@ -143,7 +143,7 @@ instance [i : NeZero n] : ToInt.Pow (Fin n) (.co 0 n) where
     induction k with
     | zero =>
       match n, i with
-      | 1, _ => rfl
+      | 1, _ => simp
       | (n + 2), _ =>
         simp [IntInterval.wrap, Int.sub_zero, Int.add_zero]
         rw [Int.emod_eq_of_lt] <;> omega

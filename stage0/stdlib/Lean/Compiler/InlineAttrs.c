@@ -2351,7 +2351,6 @@ x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
 lean_dec_ref(x_1);
 x_6 = l_Lean_stringToMessageData(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline_spec__0_spec__0_spec__0_spec__0_spec__2_spec__2___redArg(x_6, x_2, x_3);
 return x_7;
 }
@@ -3313,21 +3312,22 @@ x_4 = 0;
 x_5 = l_Lean_Compiler_setInlineAttribute___closed__0;
 x_6 = lean_box(x_4);
 x_7 = l_Lean_EnumAttributes_getValue___redArg(x_6, x_5, x_1, x_3);
-if (lean_obj_tag(x_7) == 0)
+if (lean_obj_tag(x_7) == 1)
 {
-uint8_t x_8; 
-x_8 = 0;
-return x_8;
+lean_object* x_8; uint8_t x_9; uint8_t x_10; 
+x_8 = lean_ctor_get(x_7, 0);
+lean_inc(x_8);
+lean_dec_ref(x_7);
+x_9 = lean_unbox(x_8);
+lean_dec(x_8);
+x_10 = l_Lean_Compiler_instBEqInlineAttributeKind_beq(x_2, x_9);
+return x_10;
 }
 else
 {
-lean_object* x_9; uint8_t x_10; uint8_t x_11; 
-x_9 = lean_ctor_get(x_7, 0);
-lean_inc(x_9);
-lean_dec_ref(x_7);
-x_10 = lean_unbox(x_9);
-lean_dec(x_9);
-x_11 = l_Lean_Compiler_instBEqInlineAttributeKind_beq(x_2, x_10);
+uint8_t x_11; 
+lean_dec(x_7);
+x_11 = 0;
 return x_11;
 }
 }

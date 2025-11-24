@@ -23,6 +23,38 @@ namespace Lean.Meta.Grind
 /-- We use this auxiliary constant to mark delayed congruence proofs. -/
 def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
 
+/--
+We use this auxiliary constant to mark delayed symmetric congruence proofs.
+**Example:** `a = b` is symmetrically congruent to `c = d` if `a = d` and `b = c`.
+
+**Note:** We previously used `congrPlaceholderProof` for this case, but it
+caused non-termination during proof term construction when `a = b = c = d`.
+The issue was that we did not have enough information to determine how
+`a = b` and `c = d` became congruent. The new marker resolves this issue.
+
+If `congrPlaceholderProof` is used, then `a = b` became congruent to `c = d`
+because `a = c` and `b = d`.
+If `eqCongrSymmPlaceholderProof` is used, then it was because `a = d` and `b = c`.
+
+**Example:** suppose we have the following equivalence class:
+```
+{p, q, p = q, q = p, True}
+```
+Recall that `True` is always the root of its equivalence class.
+Assume we also have the following two paths in the class:
+```
+1. p -> p = q -> q = p -> True
+2. q -> True
+```
+Now suppose we try to build a proof for `p = True`.
+We must construct a proof for `(p = q) = (q = p)`.
+These equalities are congruent, but if we try to prove `p = q` and `q = p`
+using the facts `p = True` and `q = True`, we end up trying to prove `p = True` again.
+In other words, we are missing the information that `p = q` became congruent to `q = p`
+because of the symmetric case. By using `eqCongrSymmPlaceholderProof`, we retain this information.
+-/
+def eqCongrSymmPlaceholderProof := mkConst (Name.mkSimple "[eq_congr_symm]")
+
 /-- Similar to `isDefEq`, but ensures default transparency is used. -/
 def isDefEqD (t s : Expr) : MetaM Bool :=
   withDefault <| isDefEq t s
@@ -155,27 +187,6 @@ instance : BEq CongrTheoremCacheKey where
 instance : Hashable CongrTheoremCacheKey where
   hash a := mixHash (hashPtrExpr a.f) (hash a.numArgs)
 
-structure EMatchTheoremTrace where
-  origin       : Origin
-  kind         : EMatchTheoremKind
-  minIndexable : Bool
-  deriving BEq, Hashable
-
-/--
-E-match theorems and case-splits performed by `grind`.
-Note that it may contain elements that are not needed by the final proof.
-For example, `grind` instantiated the theorem, but theorem instance was not actually used
-in the proof.
-
-**Note**: Consider removing this, we are using a new approach for implementing
-`grind?`
--/
-structure Trace where
-  thms       : PHashSet EMatchTheoremTrace := {}
-  eagerCases : PHashSet Name := {}
-  cases      : PHashSet Name := {}
-  deriving Inhabited
-
 structure Counters where
   /-- Number of times E-match theorem has been instantiated. -/
   thm  : PHashMap Origin Nat := {}
@@ -216,8 +227,6 @@ structure State where
   users when `grind` fails.
   -/
   issues     : List MessageData := []
-  /-- `trace` for `grind?` -/
-  trace      : Trace := {}
   /-- Performance counters -/
   counters   : Counters := {}
   /-- Split diagnostic information. This information is only collected when `set_option diagnostics true` -/
@@ -348,21 +357,9 @@ private def incCounter [Hashable α] [BEq α] (s : PHashMap α Nat) (k : α) : P
       s.insert k 1
 
 private def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
-  if (← getConfig).trace then
-    unless (← isMatchEqLikeDeclName thm.origin.key) do
-      modify fun s => { s with trace.thms := s.trace.thms.insert {
-          origin := thm.origin
-          kind := thm.kind
-          minIndexable := thm.minIndexable
-      } }
   modify fun s => { s with counters.thm := incCounter s.counters.thm thm.origin }
 
-def saveCases (declName : Name) (eager : Bool) : GrindM Unit := do
-  if (← getConfig).trace then
-    if eager then
-      modify fun s => { s with trace.eagerCases := s.trace.eagerCases.insert declName }
-    else
-      modify fun s => { s with trace.cases := s.trace.cases.insert declName }
+def saveCases (declName : Name) : GrindM Unit := do
   modify fun s => { s with counters.case := incCounter s.counters.case declName }
 
 def saveAppOf (h : HeadIndex) : GrindM Unit := do
@@ -1006,11 +1003,11 @@ def Goal.getENode? (goal : Goal) (e : Expr) : Option ENode :=
 def getENode? (e : Expr) : GoalM (Option ENode) :=
   return (← get).getENode? e
 
-def throwNonInternalizedExpr (e : Expr) : CoreM α :=
+def throwNonInternalizedExpr (e : Expr) : MetaM α :=
   throwError "internal `grind` error, term has not been internalized{indentExpr e}"
 
 /-- Returns node associated with `e`. It assumes `e` has already been internalized. -/
-def Goal.getENode (goal : Goal) (e : Expr) : CoreM ENode := do
+def Goal.getENode (goal : Goal) (e : Expr) : MetaM ENode := do
   let some n := goal.enodeMap.find? { expr := e }
     | throwNonInternalizedExpr e
   return n
@@ -1069,7 +1066,7 @@ def getRoot? (e : Expr) : GoalM (Option Expr) := do
   return (← get).getRoot? e
 
 /-- Returns the root element in the equivalence class of `e`. -/
-def Goal.getRoot (goal : Goal) (e : Expr) : CoreM Expr :=
+def Goal.getRoot (goal : Goal) (e : Expr) : MetaM Expr :=
   return (← goal.getENode e).root
 
 @[inline, inherit_doc Goal.getRoot]
@@ -1094,7 +1091,7 @@ def Goal.getNext? (goal : Goal) (e : Expr) : Option Expr := Id.run do
   return some n.next
 
 /-- Returns the next element in the equivalence class of `e`. -/
-def Goal.getNext (goal : Goal) (e : Expr) : CoreM Expr :=
+def Goal.getNext (goal : Goal) (e : Expr) : MetaM Expr :=
   return (← goal.getENode e).next
 
 @[inline, inherit_doc Goal.getRoot]
@@ -1122,7 +1119,7 @@ def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
       throwError "`grind` internal error, lhs of new equality has not been internalized{indentExpr lhs}"
     unless (← alreadyInternalized rhs) do
       throwError "`grind` internal error, rhs of new equality has not been internalized{indentExpr rhs}"
-    unless proof == congrPlaceholderProof do
+    if proof != congrPlaceholderProof && proof != eqCongrSymmPlaceholderProof then
       let expectedType ← if isHEq then mkHEq lhs rhs else mkEq lhs rhs
       unless (← withReducible <| isDefEq (← inferType proof) expectedType) do
         throwError "`grind` internal error, trying to assert equality{indentExpr expectedType}\n\
@@ -1392,6 +1389,18 @@ def getExprs : GoalM (PArray Expr) := do
     f n
     if isSameExpr n.next e then return ()
     curr := n.next
+
+/--
+Executes `f` to each term in the equivalence class containing `e`, and stops as soon as `f` returns `true`.
+-/
+@[inline] def findEqc (e : Expr) (f : ENode → GoalM Bool) : GoalM Bool := do
+  let mut curr := e
+  repeat
+    let n ← getENode curr
+    if (← f n) then return true
+    if isSameExpr n.next e then break
+    curr := n.next
+  return false
 
 /-- Folds using `f` and `init` over the equivalence class containing `e` -/
 @[inline] def foldEqc (e : Expr) (init : α) (f : ENode → α → GoalM α) : GoalM α := do

@@ -22,7 +22,7 @@ lean_object* l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(lean_object*, lea
 lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 static lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_Meta_Grind_Arith_CommRing_propagatePower_spec__0___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_Meta_Grind_Arith_CommRing_propagatePower_spec__0___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_Goal_getENode(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_Goal_getENode(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instantiateMVarsIfMVarApp___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_mkSemiringThm(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_Meta_Grind_Arith_CommRing_propagatePower_spec__0___closed__5;
@@ -165,7 +165,7 @@ if (lean_is_exclusive(x_7)) {
  x_19 = lean_box(0);
 }
 lean_inc(x_18);
-x_20 = l_Lean_Meta_Grind_Goal_getENode(x_17, x_18, x_14, x_15);
+x_20 = l_Lean_Meta_Grind_Goal_getENode(x_17, x_18, x_12, x_13, x_14, x_15);
 if (lean_obj_tag(x_20) == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_33; lean_object* x_38; 
@@ -480,17 +480,7 @@ lean_object* x_93;
 x_93 = lean_ctor_get(x_92, 0);
 lean_inc(x_93);
 lean_dec_ref(x_92);
-if (lean_obj_tag(x_93) == 0)
-{
-lean_dec_ref(x_88);
-lean_dec(x_85);
-lean_dec_ref(x_70);
-lean_dec_ref(x_69);
-lean_dec_ref(x_23);
-x_25 = lean_box(0);
-goto block_32;
-}
-else
+if (lean_obj_tag(x_93) == 1)
 {
 lean_object* x_94; lean_object* x_95; 
 x_94 = lean_ctor_get(x_93, 0);
@@ -620,6 +610,17 @@ lean_ctor_set(x_107, 0, x_106);
 return x_107;
 }
 }
+}
+else
+{
+lean_dec(x_93);
+lean_dec_ref(x_88);
+lean_dec(x_85);
+lean_dec_ref(x_70);
+lean_dec_ref(x_69);
+lean_dec_ref(x_23);
+x_25 = lean_box(0);
+goto block_32;
 }
 }
 else

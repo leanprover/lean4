@@ -26,6 +26,8 @@ import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Meta.Tactic.Grind.LawfulEqCmp
 import Lean.Meta.Tactic.Grind.ReflCmp
 import Lean.Meta.Tactic.Grind.PP
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Core
 public section
 namespace Lean.Meta.Grind
 
@@ -130,7 +132,6 @@ structure Result where
   failure?   : Option Goal
   issues     : List MessageData
   config     : Grind.Config
-  trace      : Trace
   counters   : Counters
   simp       : Simp.Stats
   splitDiags : PArray SplitDiagInfo
@@ -200,6 +201,31 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
       msgs := msgs ++ [msg]
   return MessageData.joinSep msgs m!"\n"
 
+/--
+When `Config.revert := false`, we preprocess the hypotheses, and add them to the `grind` state.
+-/
+private def addHypotheses (goal : Goal) : GrindM Goal := GoalM.run' goal do
+  let mvarDecl ← goal.mvarId.getDecl
+  for localDecl in mvarDecl.lctx do
+    if (← isInconsistent) then return ()
+    let type := localDecl.type
+    if (← isProp type) then
+      let r ← preprocessHypothesis type
+      match r.proof? with
+      | none => add r.expr localDecl.toExpr
+      | some h => add r.expr <| mkApp4 (mkConst ``Eq.mp [0]) type r.expr h localDecl.toExpr
+    else
+      /-
+      **Note**: We must internalize local variables because their types may be empty, and may not be
+      referenced anywhere else. Example:
+      ```
+      example (a : { x : Int // x < 0 ∧ x > 0 }) : False := by grind
+      ```
+      -/
+      let e ← shareCommon localDecl.toExpr
+      internalize e 0
+  processNewFacts
+
 private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
   /-
   **Note**: We used to use `abstractMVars` and `clearImpDetails` here.
@@ -207,16 +233,19 @@ private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
   -/
   -- let mvarId ← mvarId.abstractMVars
   -- let mvarId ← mvarId.clearImplDetails
-  let mvarId ← if params.config.clean then pure mvarId else mvarId.markAccessible
-  let mvarId ← mvarId.revertAll
+  let mvarId ← if params.config.clean || !params.config.revert then pure mvarId else mvarId.markAccessible
+  let mvarId ← if params.config.revert then mvarId.revertAll else pure mvarId
   let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.betaReduce
   appendTagSuffix mvarId `grind
-  mkGoal mvarId params
+  let goal ← mkGoal mvarId params
+  if params.config.revert then
+    return goal
+  else
+    addHypotheses goal
 
 def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
   let issues     := (← get).issues
-  let trace      := (← get).trace
   let counters   := (← get).counters
   let splitDiags := (← get).splitDiags
   let simp       := { (← get).simp with }
@@ -225,7 +254,7 @@ def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
     if (← isDiagnosticsEnabled) then
       if let some msg ← mkGlobalDiag counters simp splitDiags then
         logInfo msg
-  return { failure?, issues, config := params.config, trace, counters, simp, splitDiags }
+  return { failure?, issues, config := params.config, counters, simp, splitDiags }
 
 def GrindM.runAtGoal (mvarId : MVarId) (params : Params) (k : Goal → GrindM α) (evalTactic? : Option EvalTactic := none) : MetaM α := do
   let go : GrindM α := withReducible do

@@ -13,7 +13,11 @@ already be set from importing Lean.LibrarySuggestions (which imports Default).
 -/
 
 /--
-info: ✓ Selector found in imported state: `Lean.LibrarySuggestions.sineQuaNonSelector
+info: ✓ Selector found in imported state: (Term.open
+ "open"
+ (Command.openSimple [`Lean.LibrarySuggestions])
+ "in"
+ (Term.app `sineQuaNonSelector.intersperse [`currentFile]))
 ---
 info:   ✓ Successfully retrieved selector using getSelector!
 -/

@@ -1207,9 +1207,9 @@ private def mkSuggestion
     let pre := String.Pos.Raw.extract text.source 0 b
     let post := String.Pos.Raw.extract text.source e text.source.rawEndPos
     let edits := newStrings.map fun (s, _, _) =>
-      let lines := text.source.splitToList (· == '\n') |>.toArray
+      let lines := text.source.split '\n' |>.toStringArray
       let s' := pre ++ s ++ post
-      let lines' := s'.splitToList (· == '\n') |>.toArray
+      let lines' := s'.split '\n' |>.toStringArray
       let d := diff lines lines'
       toMessageData <| Diff.linesToString <| d.filter (·.1 != Action.skip)
     pure m!"\n\nHint: {hintTitle}\n{indentD <| m!"\n".joinSep edits.toList}"
@@ -1491,6 +1491,7 @@ private def elabModSnippet'
           logErrorAt b m!"Incorrect header nesting: expected at most `{"#".pushn '#' maxLevel}` \
             but got `{"#".pushn '#' n}`"
         else
+          maxLevel := n + 1
           let title ←
             liftM <| withInfoContext (mkInfo := pure <| .ofDocInfo {elaborator := `no_elab, stx := b}) <|
               name.mapM elabInline

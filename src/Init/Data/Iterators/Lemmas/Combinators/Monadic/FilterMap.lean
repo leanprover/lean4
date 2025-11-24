@@ -895,6 +895,23 @@ theorem IterM.fold_map {α β γ δ : Type w} {m : Type w → Type w'}
 
 end Fold
 
+section Count
+
+@[simp]
+theorem IterM.count_map {α β β' : Type w} {m : Type w → Type w'} [Iterator α m β] [Monad m]
+    [IteratorLoop α m m] [Finite α m] [LawfulMonad m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → β'} :
+    (it.map f).count = it.count := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [count_eq_match_step, count_eq_match_step, step_map, bind_assoc]
+  apply bind_congr; intro step
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simp [ihy ‹_›]
+  · simp [ihs ‹_›]
+  · simp
+
+end Count
+
 section AnyAll
 
 theorem IterM.anyM_filterMapM {α β β' : Type w} {m : Type w → Type w'} {n : Type w → Type w''}

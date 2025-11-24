@@ -3758,26 +3758,27 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeMAux___redArg___lam__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-if (lean_obj_tag(x_5) == 0)
+if (lean_obj_tag(x_5) == 1)
 {
-lean_object* x_6; lean_object* x_7; 
-x_6 = lean_apply_2(x_1, lean_box(0), x_2);
-x_7 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_6, x_4);
-return x_7;
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_6, 0, x_5);
+x_7 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_7, 0, x_6);
+lean_ctor_set(x_7, 1, x_1);
+x_8 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_8, 0, x_7);
+x_9 = lean_apply_2(x_2, lean_box(0), x_8);
+return x_9;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_dec(x_4);
-lean_dec(x_3);
-x_8 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_8, 0, x_5);
-x_9 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_9, 0, x_8);
-lean_ctor_set(x_9, 1, x_2);
-x_10 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_10, 0, x_9);
-x_11 = lean_apply_2(x_1, lean_box(0), x_10);
+lean_object* x_10; lean_object* x_11; 
+lean_dec(x_5);
+x_10 = lean_apply_2(x_2, lean_box(0), x_1);
+x_11 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_10, x_4);
 return x_11;
 }
 }
@@ -3844,8 +3845,8 @@ lean_closure_set(x_12, 1, x_7);
 lean_inc(x_6);
 lean_inc(x_7);
 x_13 = lean_alloc_closure((void*)(l_Lean_PersistentArray_findSomeMAux___redArg___lam__3), 5, 4);
-lean_closure_set(x_13, 0, x_7);
-lean_closure_set(x_13, 1, x_8);
+lean_closure_set(x_13, 0, x_8);
+lean_closure_set(x_13, 1, x_7);
 lean_closure_set(x_13, 2, x_6);
 lean_closure_set(x_13, 3, x_12);
 lean_inc(x_6);
@@ -3890,8 +3891,8 @@ lean_closure_set(x_27, 1, x_22);
 lean_inc(x_21);
 lean_inc(x_22);
 x_28 = lean_alloc_closure((void*)(l_Lean_PersistentArray_findSomeMAux___redArg___lam__3), 5, 4);
-lean_closure_set(x_28, 0, x_22);
-lean_closure_set(x_28, 1, x_23);
+lean_closure_set(x_28, 0, x_23);
+lean_closure_set(x_28, 1, x_22);
 lean_closure_set(x_28, 2, x_21);
 lean_closure_set(x_28, 3, x_27);
 lean_inc(x_21);
@@ -3981,26 +3982,27 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeM_x3f___redArg___lam__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-if (lean_obj_tag(x_5) == 0)
+if (lean_obj_tag(x_5) == 1)
 {
-lean_object* x_6; lean_object* x_7; 
-x_6 = lean_apply_2(x_1, lean_box(0), x_2);
-x_7 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_6, x_4);
-return x_7;
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_6, 0, x_5);
+x_7 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_7, 0, x_6);
+lean_ctor_set(x_7, 1, x_1);
+x_8 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_8, 0, x_7);
+x_9 = lean_apply_2(x_2, lean_box(0), x_8);
+return x_9;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_dec(x_4);
-lean_dec(x_3);
-x_8 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_8, 0, x_5);
-x_9 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_9, 0, x_8);
-lean_ctor_set(x_9, 1, x_2);
-x_10 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_10, 0, x_9);
-x_11 = lean_apply_2(x_1, lean_box(0), x_10);
+lean_object* x_10; lean_object* x_11; 
+lean_dec(x_5);
+x_10 = lean_apply_2(x_2, lean_box(0), x_1);
+x_11 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_10, x_4);
 return x_11;
 }
 }
@@ -4039,8 +4041,8 @@ lean_closure_set(x_11, 0, x_10);
 lean_closure_set(x_11, 1, x_1);
 lean_inc(x_2);
 x_12 = lean_alloc_closure((void*)(l_Lean_PersistentArray_findSomeM_x3f___redArg___lam__3), 5, 4);
-lean_closure_set(x_12, 0, x_1);
-lean_closure_set(x_12, 1, x_8);
+lean_closure_set(x_12, 0, x_8);
+lean_closure_set(x_12, 1, x_1);
 lean_closure_set(x_12, 2, x_2);
 lean_closure_set(x_12, 3, x_11);
 lean_inc(x_2);

@@ -207,39 +207,24 @@ mutual
         let proof ← mkEqNDRec motive proof fEq
         mkEqOfHEqIfNeeded proof heq
 
-  private partial def mkEqCongrProof (lhs rhs : Expr) : GoalM Expr := do
+  partial def mkEqCongrProof (lhs rhs : Expr) : GoalM Expr := withIncRecDepth do
     let_expr f@Eq α₁ a₁ b₁ := lhs | unreachable!
     let_expr Eq α₂ a₂ b₂ := rhs | unreachable!
+    assert! (← get).hasSameRoot a₁ a₂ && (← get).hasSameRoot b₁ b₂
     let us := f.constLevels!
     if !isSameExpr α₁ α₂ then
-      if (← get).hasSameRoot a₁ a₂ && (← get).hasSameRoot b₁ b₂ then
-        return mkApp8 (mkConst ``Grind.heq_congr us) α₁ α₂ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ a₂ true) (← mkEqProofCore b₁ b₂ true)
-      else
-        return mkApp8 (mkConst ``Grind.heq_congr' us) α₁ α₂ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ b₂ true) (← mkEqProofCore b₁ a₂ true)
-    else if isSameExpr a₁ b₂ && isSameExpr b₁ a₂ then
-      /-
-      **Note**: We added this case to avoid a non-termination during proof construction.
-      We had the following equivalence class
-      ```
-      {p, q, p = q, q = p, True}
-      ```
-      Recall that `True` is always the root of its equivalence class.
-      We had the following two paths in the equivalence class:
-      ```
-      1. p -> p = q -> q = p -> True
-      2. q -> True
-      ```
-      Then, suppose we try to build a proof for `p = True`.
-      We have to construct a proof for `(p = q) = (q = p)`.
-      The equalities are congruent, but if we try to prove `p = q` and `q = p`,
-      We have to construct `p = True` and `True = q`, and we are back to `p = True`.
-      Note that this can only happen if `α₁` is a `Prop`.
-      -/
-      return mkApp3 (mkConst ``Grind.eq_symm us) α₁ a₁ b₁
-    if (← get).hasSameRoot a₁ a₂ && (← get).hasSameRoot b₁ b₂ then
-      return mkApp7 (mkConst ``Grind.eq_congr us) α₁ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ a₂ false) (← mkEqProofCore b₁ b₂ false)
+      return mkApp8 (mkConst ``Grind.heq_congr us) α₁ α₂ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ a₂ true) (← mkEqProofCore b₁ b₂ true)
     else
-      assert! (← get).hasSameRoot a₁ b₂ && (← get).hasSameRoot b₁ a₂
+      return mkApp7 (mkConst ``Grind.eq_congr us) α₁ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ a₂ false) (← mkEqProofCore b₁ b₂ false)
+
+  partial def mkEqCongrSymmProof (lhs rhs : Expr) : GoalM Expr := withIncRecDepth do
+    let_expr f@Eq α₁ a₁ b₁ := lhs | unreachable!
+    let_expr Eq α₂ a₂ b₂ := rhs | unreachable!
+    assert! (← get).hasSameRoot a₁ b₂ && (← get).hasSameRoot b₁ a₂
+    let us := f.constLevels!
+    if !isSameExpr α₁ α₂ then
+      return mkApp8 (mkConst ``Grind.heq_congr' us) α₁ α₂ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ b₂ true) (← mkEqProofCore b₁ a₂ true)
+    else
       return mkApp7 (mkConst ``Grind.eq_congr' us) α₁ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ b₂ false) (← mkEqProofCore b₁ a₂ false)
 
   /-- Constructs a congruence proof for `lhs` and `rhs`. -/
@@ -267,8 +252,11 @@ mutual
         mkHCongrProof lhs rhs heq
 
   private partial def realizeEqProof (lhs rhs : Expr) (h : Expr) (flipped : Bool) (heq : Bool) : GoalM Expr := do
-    let h ← if h == congrPlaceholderProof then
+    if h == congrPlaceholderProof then
       mkCongrProof lhs rhs heq
+    else if h == eqCongrSymmPlaceholderProof then
+      let r ← mkEqCongrSymmProof lhs rhs
+      if heq then mkHEqOfEq r else return r
     else
       flipProof h flipped heq
 

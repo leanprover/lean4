@@ -84,6 +84,7 @@ LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___redArg
 static lean_object* l_Lean_doElemRepeat___00__closed__6;
 LEAN_EXPORT lean_object* l_Lean_Loop_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemWhile__Do____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemWhile___x3a__Do____1___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Loop_noConfusion___redArg(lean_object*);
@@ -144,7 +145,6 @@ static lean_object* l_Lean_doElemRepeat___00__closed__9;
 static lean_object* l_Lean_doElemWhile___x3a__Do___00__closed__7;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__24;
 static lean_object* l_Lean_doElemWhile___x3a__Do___00__closed__15;
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Lean_doElemWhile__Do___00__closed__4;
 static lean_object* l_Lean_doElemRepeat____Until___00__closed__14;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemWhile___x3a__Do____1___closed__0;
@@ -546,7 +546,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__14;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }

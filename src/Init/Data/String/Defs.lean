@@ -396,10 +396,11 @@ A region or slice of some underlying string.
 
 A slice consists of a string together with the start and end byte positions of a region of
 interest. Actually extracting a substring requires copying and memory allocation, while many
-slices of the same underlying string may exist with very little overhead. While this could be achieved by tracking the bounds by hand, the slice API is much more convenient.
+slices of the same underlying string may exist with very little overhead. While this could be
+achieved by tracking the bounds by hand, the slice API is much more convenient.
 
 `String.Slice` bundles proofs to ensure that the start and end positions always delineate a valid
-string. For this reason, it should be preferred over `Substring`.
+string. For this reason, it should be preferred over `Substring.Raw`.
 -/
 structure Slice where
   /-- The underlying strings. -/
@@ -434,7 +435,7 @@ theorem endExclusive_toSlice {s : String} : s.toSlice.endExclusive = s.endValidP
 theorem str_toSlice {s : String} : s.toSlice.str = s := rfl
 
 /-- The number of bytes of the UTF-8 encoding of the string slice. -/
-@[expose]
+@[expose, inline]
 def Slice.utf8ByteSize (s : Slice) : Nat :=
   s.startInclusive.offset.byteDistance s.endExclusive.offset
 
@@ -463,7 +464,7 @@ theorem Pos.Raw.byteIdx_sub_slice {p : Pos.Raw} {s : Slice} :
     (p - s).byteIdx = p.byteIdx - s.utf8ByteSize := rfl
 
 /-- The end position of a slice, as a `Pos.Raw`. -/
-@[expose]
+@[expose, inline]
 def Slice.rawEndPos (s : Slice) : Pos.Raw where
   byteIdx := s.utf8ByteSize
 
@@ -589,6 +590,34 @@ instance {s : Slice} (l r : s.Pos) : Decidable (l ≤ r) :=
 instance {s : Slice} (l r : s.Pos) : Decidable (l < r) :=
   decidable_of_iff' _ Slice.Pos.lt_iff
 
+/--
+`pos.IsAtEnd` is just shorthand for `pos = s.endValidPos` that is easier to write if `s` is long.
+-/
+abbrev ValidPos.IsAtEnd {s : String} (pos : s.ValidPos) : Prop :=
+  pos = s.endValidPos
+
+@[simp]
+theorem ValidPos.isAtEnd_iff {s : String} {pos : s.ValidPos} :
+    pos.IsAtEnd ↔ pos = s.endValidPos := Iff.rfl
+
+@[inline]
+instance {s : String} {pos : s.ValidPos} : Decidable pos.IsAtEnd :=
+  decidable_of_iff _ ValidPos.isAtEnd_iff
+
+/--
+`pos.IsAtEnd` is just shorthand for `pos = s.endPos` that is easier to write if `s` is long.
+-/
+abbrev Slice.Pos.IsAtEnd {s : Slice} (pos : s.Pos) : Prop :=
+  pos = s.endPos
+
+@[simp]
+theorem Slice.Pos.isAtEnd_iff {s : Slice} {pos : s.Pos} :
+    pos.IsAtEnd ↔ pos = s.endPos := Iff.rfl
+
+@[inline]
+instance {s : Slice} {pos : s.Pos} : Decidable pos.IsAtEnd :=
+  decidable_of_iff _ Slice.Pos.isAtEnd_iff
+
 /-- Returns the byte at a position in a slice that is not the end position. -/
 @[inline, expose]
 def Slice.Pos.byte {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : UInt8 :=
@@ -601,5 +630,13 @@ def Slice.Pos.byte {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : UInt8 :=
 
 theorem push_eq_append (c : Char) : String.push s c = s ++ singleton c := by
   simp
+
+@[deprecated String.toRawSubstring (since := "2025-11-18")]
+def toSubstring (s : String) : Substring.Raw :=
+  s.toRawSubstring
+
+@[deprecated String.toRawSubstring' (since := "2025-11-18")]
+def toSubstring' (s : String) : Substring.Raw :=
+  s.toRawSubstring'
 
 end String

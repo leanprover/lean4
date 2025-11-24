@@ -16,29 +16,64 @@ namespace Match
 structure DiscrInfo where
   /-- `some h` if the discriminant is annotated with `h:` -/
   hName? : Option Name := none
-  deriving Inhabited
+deriving Inhabited, Repr
+
+
+structure Overlaps where
+  map : Std.HashMap Nat (Std.TreeSet Nat) := {}
+deriving Inhabited, Repr
+
+def Overlaps.isEmpty (o : Overlaps) : Bool :=
+  o.map.isEmpty
+
+def Overlaps.insert (o : Overlaps) (overlapping overlapped : Nat) : Overlaps where
+  map := o.map.alter overlapped fun s? => some ((s?.getD {}).insert overlapping)
+
+def Overlaps.overlapping (o : Overlaps) (overlapped : Nat) : Array Nat :=
+  match o.map[overlapped]? with
+  | some s => s.toArray
+  | none   => #[]
 
 /--
-A "matcher" auxiliary declaration has the following structure:
-- `numParams` parameters
-- motive
-- `numDiscrs` discriminators (aka major premises)
-- `altNumParams.size` alternatives (aka minor premises) where alternative `i` has `altNumParams[i]` parameters
-- `uElimPos?` is `some pos` when the matcher can eliminate in different universe levels, and
-   `pos` is the position of the universe level parameter that specifies the elimination universe.
-   It is `none` if the matcher only eliminates into `Prop`. -/
+Informatino about the parameter structure for the alternative of a matcher or splitter.
+-/
+structure AltParamInfo where
+  /-- Actual fields (not incuding discr eqns) -/
+  numFields : Nat
+  /-- Overlap assumption (for splitters only) -/
+  numOverlaps : Nat
+  /-- Whether this alternatie has an artifcial `Unit` parameter -/
+  hasUnitThunk : Bool
+deriving Inhabited, Repr, BEq
+
+/--
+Information about the structure of a matcher declaration
+-/
 structure MatcherInfo where
+  /-- Number of parameters -/
   numParams    : Nat
+  /-- Number of discriminants -/
   numDiscrs    : Nat
-  altNumParams : Array Nat
+  /-- Parameter structure information for each alternative -/
+  altInfos     : Array AltParamInfo
+  /--
+  `uElimPos?` is `some pos` when the matcher can eliminate in different universe levels, and
+  `pos` is the position of the universe level parameter that specifies the elimination universe.
+  It is `none` if the matcher only eliminates into `Prop`.
+  -/
   uElimPos?    : Option Nat
   /--
-    `discrInfos[i] = { hName? := some h }` if the i-th discriminant was annotated with `h :`.
+  `discrInfos[i] = { hName? := some h }` if the i-th discriminant was annotated with `h :`.
   -/
   discrInfos   : Array DiscrInfo
+  /--
+  (Conservative approximation of) which alternatives may overlap another.
+  -/
+  overlaps     : Overlaps
+deriving Inhabited, Repr
 
 @[expose] def MatcherInfo.numAlts (info : MatcherInfo) : Nat :=
-  info.altNumParams.size
+  info.altInfos.size
 
 def MatcherInfo.arity (info : MatcherInfo) : Nat :=
   info.numParams + 1 + info.numDiscrs + info.numAlts
@@ -67,6 +102,11 @@ def getNumEqsFromDiscrInfos (infos : Array DiscrInfo) : Nat := Id.run do
 
 def MatcherInfo.getNumDiscrEqs (info : MatcherInfo) : Nat :=
   getNumEqsFromDiscrInfos info.discrInfos
+
+def MatcherInfo.altNumParams (info : MatcherInfo) : Array Nat :=
+  info.altInfos.map fun {numFields, numOverlaps, hasUnitThunk} =>
+    numFields + numOverlaps + (if hasUnitThunk then 1 else 0) + info.getNumDiscrEqs
+
 
 namespace Extension
 

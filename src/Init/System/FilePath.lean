@@ -7,8 +7,8 @@ module
 
 prelude
 public import Init.Data.String.Basic
-import Init.Data.String.Iterator
 import Init.Data.String.Modify
+import Init.Data.String.Search
 
 public section
 
@@ -93,7 +93,7 @@ An absolute path starts at the root directory or a drive letter. Accessing files
 path does not depend on the current working directory.
 -/
 def isAbsolute (p : FilePath) : Bool :=
-  pathSeparators.contains p.toString.front || (isWindows && p.toString.length > 1 && p.toString.iter.next.curr == ':')
+  pathSeparators.contains p.toString.front || (isWindows && p.toString.length > 1 && p.toString.startValidPos.next?.bind (·.get?) == some ':')
 
 /--
 A relative path is one that depends on the current working directory for interpretation. Relative
@@ -243,7 +243,7 @@ def withExtension (p : FilePath) (ext : String) : FilePath :=
 Splits a path into a list of individual file names at the platform-specific path separator.
 -/
 def components (p : FilePath) : List String :=
-  p.normalize |>.toString.splitOn pathSeparator.toString
+  p.normalize |>.toString.split pathSeparator.toString |>.toStringList
 
 end FilePath
 
@@ -274,7 +274,7 @@ Separates the entries in the `$PATH` (or `%PATH%`) environment variable by the c
 platform-dependent separator character.
 -/
 def parse (s : String) : SearchPath :=
-  s.splitToList (fun c => SearchPath.separator == c) |>.map FilePath.mk
+  s.split SearchPath.separator |>.map (FilePath.mk ∘ String.Slice.copy) |>.toList
 
 /--
 Joins a list of paths into a suitable value for the current platform's `$PATH` (or `%PATH%`)

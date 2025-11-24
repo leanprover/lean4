@@ -18,17 +18,15 @@ open Lean System
 public structure Module where
   lib : LeanLib
   name : Name
-  /--
-  The name of the module as a key.
-  Used to create private modules (e.g., executable roots).
-  -/
-  keyName : Name := name
+
+@[deprecated name (since := "2025-11-13")]
+public abbrev Module.keyName := name
 
 public instance : ToJson Module := ⟨(toJson ·.name)⟩
 public instance : ToString Module := ⟨(·.name.toString)⟩
 
-public instance : Hashable Module where hash m := hash m.keyName
-public instance : BEq Module where beq m n := m.keyName == n.keyName
+public instance : Hashable Module where hash m := hash m.name
+public instance : BEq Module where beq m n := m.name == n.name
 
 public abbrev ModuleSet := Std.HashSet Module
 @[inline] public def ModuleSet.empty : ModuleSet := ∅
@@ -149,7 +147,7 @@ public def dynlibSuffix := "-1"
     name used for the module's initialization function, thus enabling it
     to be loaded as a plugin.
   -/
-  self.name.mangle ""
+  mkModuleInitializationStem self.name self.pkg.id?
 
 @[inline] public def dynlibFile (self : Module) : FilePath :=
   self.pkg.leanLibDir / s!"{self.dynlibName}.{sharedLibExt}"

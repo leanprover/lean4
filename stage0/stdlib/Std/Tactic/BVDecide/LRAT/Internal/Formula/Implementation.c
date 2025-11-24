@@ -360,11 +360,7 @@ else
 {
 lean_object* x_3; 
 x_3 = lean_ctor_get(x_2, 0);
-if (lean_obj_tag(x_3) == 0)
-{
-return x_1;
-}
-else
+if (lean_obj_tag(x_3) == 1)
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_3, 1);
@@ -469,6 +465,10 @@ else
 {
 return x_1;
 }
+}
+else
+{
+return x_1;
 }
 }
 }
@@ -639,11 +639,7 @@ if (lean_is_exclusive(x_1)) {
  lean_dec_ref(x_1);
  x_7 = lean_box(0);
 }
-if (lean_obj_tag(x_2) == 0)
-{
-goto block_11;
-}
-else
+if (lean_obj_tag(x_2) == 1)
 {
 lean_object* x_12; 
 x_12 = lean_ctor_get(x_2, 1);
@@ -790,6 +786,10 @@ else
 goto block_11;
 }
 }
+else
+{
+goto block_11;
+}
 block_11:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -865,11 +865,7 @@ else
 {
 lean_object* x_15; 
 x_15 = lean_ctor_get(x_13, 0);
-if (lean_obj_tag(x_15) == 0)
-{
-goto block_11;
-}
-else
+if (lean_obj_tag(x_15) == 1)
 {
 lean_object* x_16; 
 x_16 = lean_ctor_get(x_15, 1);
@@ -923,6 +919,10 @@ else
 {
 goto block_11;
 }
+}
+else
+{
+goto block_11;
 }
 }
 block_11:

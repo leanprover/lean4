@@ -11,6 +11,7 @@ public import Init.Data.String.Bootstrap
 public import Init.Data.String.Decode
 public import Init.Data.String.Defs
 public import Init.Data.String.Extra
+public import Init.Data.String.Iterator
 public import Init.Data.String.Lemmas
 public import Init.Data.String.Repr
 public import Init.Data.String.Bootstrap
@@ -24,3 +25,4 @@ public import Init.Data.String.Modify
 public import Init.Data.String.Termination
 public import Init.Data.String.ToSlice
 public import Init.Data.String.Search
+public import Init.Data.String.Legacy

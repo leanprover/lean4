@@ -2260,6 +2260,22 @@ theorem mem_of_mem_union_of_not_mem_left [TransCmp cmp]
 
 
 /- Equiv -/
+theorem union_equiv_congr_left {t₃ : DTreeMap α β cmp} [TransCmp cmp]
+    (equiv : t₁.Equiv t₂) :
+    (t₁ ∪ t₃).Equiv (t₂ ∪ t₃) := by
+  simp only [Union.union]
+  constructor
+  have ⟨equiv⟩ := equiv
+  apply Impl.union_equiv_congr_left t₁.wf t₂.wf t₃.wf equiv
+
+theorem union_equiv_congr_right {t₃ : DTreeMap α β cmp} [TransCmp cmp]
+    (equiv : t₂.Equiv t₃) :
+    (t₁ ∪ t₂).Equiv (t₁ ∪ t₃) := by
+  simp only [Union.union]
+  constructor
+  have ⟨equiv⟩ := equiv
+  apply Impl.union_equiv_congr_right t₁.wf t₂.wf t₃.wf equiv
+
 theorem union_insert_right_equiv_insert_union [TransCmp cmp] {p : (a : α) × β a} :
     (t₁ ∪ (t₂.insert p.fst p.snd)).Equiv ((t₁ ∪ t₂).insert p.fst p.snd) :=
   ⟨Impl.union_insert_right_equiv_insert_union t₁.wf t₂.wf⟩

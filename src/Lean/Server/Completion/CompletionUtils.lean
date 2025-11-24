@@ -22,7 +22,7 @@ where
       let ac := aPos.get' a ha
       let bc := bPos.get' b hb
       let bPos := bPos.next' b hb
-      if ac == bc then
+      if ac.toLower == bc.toLower then
         let aPos := aPos.next' a ha
         go aPos bPos
       else

@@ -1295,7 +1295,7 @@ decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 
 /--
-Returns the index of the first element equal to `a`, or the size of the array if no element is equal
+Returns the index of the first element equal to `a`, or `none` if no element is equal
 to `a`. The index is returned as a `Fin`, which guarantees that it is in bounds.
 
 Examples:

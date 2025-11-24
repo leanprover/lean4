@@ -659,6 +659,18 @@ theorem findIdx_eq {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs.length
   simp at h3
   simp_all [not_of_lt_findIdx h3]
 
+@[simp]
+theorem lt_findIdx_iff (xs : List α) (p : α → Bool) (i : Nat) :
+    i < xs.findIdx p ↔ ∃ h : i < xs.length, ∀ j, (hj : j ≤ i) → p xs[j] = false :=
+  ⟨fun h => ⟨by have := findIdx_le_length (xs := xs) (p := p); omega,
+    fun j hj => by apply not_of_lt_findIdx; omega⟩,
+    fun ⟨h, w⟩ => by apply lt_findIdx_of_not h; simpa using w⟩
+
+@[simp, grind =]
+theorem findIdx_map (xs : List α) (f : α → β) (p : β → Bool) :
+    (xs.map f).findIdx p = xs.findIdx (p ∘ f) := by
+  induction xs with simp_all [findIdx_cons]
+
 @[grind =]
 theorem findIdx_append {p : α → Bool} {l₁ l₂ : List α} :
     (l₁ ++ l₂).findIdx p =

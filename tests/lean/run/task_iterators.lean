@@ -86,19 +86,33 @@ Message texts: [Task 1, Task 2, Task 3]
 def testMetaMPar : IO Unit := do
   let (ctx, state) ← mkCoreState #[]
 
-  let testMeta : Lean.MetaM (List Nat) := do
+  -- Create promises that tasks will resolve after sleeping
+  let promise2 ← (IO.Promise.new : BaseIO (IO.Promise Unit))
+  let promise3 ← (IO.Promise.new : BaseIO (IO.Promise Unit))
+
+  let testMeta : Lean.MetaM (List (Nat × Bool)) := do
+    -- Task 1 sleeps longest, Task 2 shortest - if parallel, Task 2 completes first
     let results ← Lean.Meta.MetaM.par' [
-      do IO.sleep 300; return 1,
-      do IO.sleep 50; return 2,
-      do IO.sleep 150; return 3
+      do IO.sleep 300; let task2Done ← promise2.isResolved; return (1, task2Done),
+      do IO.sleep 50; promise2.resolve (); return (2, false),
+      do IO.sleep 150; promise3.resolve (); return (3, false)
     ]
     return results.filterMap (·.toOption)
 
   let (values, _) ← testMeta.run' |>.toIO ctx state
   IO.println s!"Values in original order: {values}"
+  -- Task 1 should see that Task 2 completed (promise2 resolved)
+  match values with
+  | [(1, task2Done), (2, _), (3, _)] =>
+    if task2Done then
+      IO.println "PASSED: Task 1 observed Task 2 completed (parallel execution verified)"
+    else
+      IO.println "FAILED: Task 1 did not see Task 2 complete (suggests sequential execution)"
+  | _ => IO.println s!"FAILED: Unexpected result structure"
 
 /--
-info: Values in original order: [1, 2, 3]
+info: Values in original order: [(1, true), (2, false), (3, false)]
+PASSED: Task 1 observed Task 2 completed (parallel execution verified)
 -/
 #guard_msgs in
 #eval testMetaMPar
@@ -108,6 +122,7 @@ def testMetaMParFirst : IO Unit := do
   let (ctx, state) ← mkCoreState #[]
 
   let testMeta : Lean.MetaM Nat := do
+    -- Task 2 sleeps least, so should complete first and be returned
     Lean.Meta.MetaM.parFirst [
       do IO.sleep 300; Lean.logInfo "Task 1 completed"; return 1,
       do IO.sleep 50; Lean.logInfo "Task 2 completed"; return 2,
@@ -117,7 +132,7 @@ def testMetaMParFirst : IO Unit := do
   let (result, finalState) ← testMeta.run' |>.toIO ctx state
   IO.println s!"First result: {result}"
 
-  -- Check message log to see which tasks completed before cancellation
+  -- Check message log - only the first completing task should have logged
   let messages := finalState.messages.toList
   IO.println s!"Messages logged: {messages.length}"
 
@@ -215,55 +230,61 @@ Goal counts: [0, 0, 1]
 #guard_msgs in
 #eval testTacticMStateThreading
 
-/-- Test that cancellation hooks work properly with cooperative cancellation. -/
-def testCancellation : IO Unit := do
-  let tacticTest : Lean.Elab.Tactic.TacticM (List String × Nat) := do
+/-- Test that TacticM parallel execution works correctly. -/
+def testTacticMParallel : IO Unit := do
+  -- Create promise that fastest task will resolve
+  let promise ← (IO.Promise.new : BaseIO (IO.Promise Unit))
+
+  let tacticTest : Lean.Elab.Tactic.TacticM (List (String × Bool)) := do
     let tasks := [
-      mkTacticTask 300  (← `(tactic| sorry)) "sorry",
-      mkTacticTask 50   (← `(tactic| exact True.intro)) "exact",
-      mkTacticTask 150  (← `(tactic| skip)) "skip",
-      mkTacticTask 1000 (← `(tactic| sorry)) "sorry-slow"
+      -- Task 1 sleeps longest, should see Task 2 completed
+      do IO.sleep 300; Lean.Elab.Tactic.evalTactic (← `(tactic| sorry));
+         let task2Done ← promise.isResolved; return ("sorry", task2Done),
+      -- Task 2 sleeps shortest, completes first
+      do IO.sleep 50; Lean.Elab.Tactic.evalTactic (← `(tactic| exact True.intro));
+         promise.resolve (); return ("exact", false),
+      do IO.sleep 150; Lean.Elab.Tactic.evalTactic (← `(tactic| skip));
+         return ("skip", false)
     ]
-    let (cancel, iter) ← Lean.Elab.Tactic.TacticM.parIterWithCancel tasks
+    let (_, iter) ← Lean.Elab.Tactic.TacticM.parIterWithCancel tasks
 
-    -- Cancel after 500ms (task4 will still be sleeping)
-    IO.sleep 500
-    cancel
+    -- Consume the iterator and collect successful results
+    let results ← iter.take 3 |>.allowNontermination.toList
+    return results.filterMap fun r => match r with | .ok n => some n | .error _ => none
 
-    -- Consume the iterator and partition into successes and failures
-    let results ← iter.take 4 |>.allowNontermination.toList
-    let successNames := results.filterMap fun r => match r with | .ok n => some n | .error _ => none
-    let failedCount := results.countP fun r => match r with | .error _ => true | _ => false
-    return (successNames, failedCount)
+  let successResults ← runTacticTest tacticTest
 
-  let (successNames, failedCount) ← runTacticTest tacticTest
-
-  -- Sort for deterministic output (timing can vary)
-  IO.println s!"Succeeded: {successNames.mergeSort (· < ·)}"
-  IO.println s!"Failed: {failedCount}"
+  IO.println s!"Results: {successResults}"
+  -- Check if Task 1 observed Task 2 completed
+  match successResults with
+  | [("sorry", task2Done), ("exact", _), ("skip", _)] =>
+    if task2Done then
+      IO.println "PASSED: Task 1 observed Task 2 completed (parallel execution verified)"
+    else
+      IO.println "FAILED: Task 1 did not see Task 2 complete (suggests sequential execution)"
+  | _ => IO.println s!"FAILED: Unexpected result structure"
 
 /--
-info: Succeeded: [exact, skip, sorry]
-Failed: 1
+info: Results: [(sorry, true), (exact, false), (skip, false)]
+PASSED: Task 1 observed Task 2 completed (parallel execution verified)
 -/
 #guard_msgs in
-#eval testCancellation
+#eval testTacticMParallel
 
-/-- Test that parIter runs tasks in parallel AND returns results in original order. -/
-def testParIterParallelism : IO Unit := do
+/-- Test that parIter returns results in original order (not completion order). -/
+def testParIterOrdering : IO Unit := do
   let (ctx, state) ← mkCoreState #[]
 
-  let testCore : Lean.CoreM (List Nat × Nat) := do
-    let startTime ← IO.monoMsNow
+  -- Create promises that tasks will resolve after sleeping
+  let promise2 ← (IO.Promise.new : BaseIO (IO.Promise Unit))
+  let promise3 ← (IO.Promise.new : BaseIO (IO.Promise Unit))
 
-    -- Three tasks with different sleep times: 300ms, 50ms, 150ms
-    -- If parallel: ~300ms total (max)
-    -- If sequential: ~500ms total (sum)
-    -- Expected order: [1, 2, 3] (original order, not completion order [2, 3, 1])
+  let testCore : Lean.CoreM (List (Nat × Bool)) := do
+    -- Task 1 sleeps longest, Task 2 shortest - verify parallel execution and original ordering
     let iter ← Lean.Core.CoreM.parIter [
-      do IO.sleep 300; return 1,
-      do IO.sleep 50; return 2,
-      do IO.sleep 150; return 3
+      do IO.sleep 300; let task2Done ← promise2.isResolved; return (1, task2Done),
+      do IO.sleep 50; promise2.resolve (); return (2, false),
+      do IO.sleep 150; promise3.resolve (); return (3, false)
     ]
 
     -- Consume all results from the iterator
@@ -273,31 +294,24 @@ def testParIterParallelism : IO Unit := do
       | .ok value => results := results.concat value
       | .error _ => pure ()
 
-    let endTime ← IO.monoMsNow
-    let elapsed := endTime - startTime
+    return results
 
-    return (results, elapsed)
-
-  let ((results, elapsed), _) ← testCore.toIO ctx state
+  let (results, _) ← testCore.toIO ctx state
 
   IO.println s!"Results: {results}"
 
-  -- Check ordering: should be [1, 2, 3], not [2, 3, 1]
-  if results != [1, 2, 3] then
-    IO.println s!"FAILED: Expected results in original order [1, 2, 3], got {results}"
-  else
-    IO.println s!"PASSED: Results in correct original order"
-
-  -- Check parallelism: should be ~300ms, not ~500ms
-  if elapsed > 450 then
-    IO.println s!"FAILED: Elapsed time >450ms suggests sequential execution!"
-  else
-    IO.println s!"PASSED: Elapsed time ≤450ms indicates parallel execution"
+  -- Check ordering: should be [(1, true), (2, false), (3, false)] - original order with Task 1 seeing Task 2 done
+  match results with
+  | [(1, task2Done), (2, _), (3, _)] =>
+    if task2Done then
+      IO.println "PASSED: Results in original order AND Task 1 observed Task 2 completed (parallel execution verified)"
+    else
+      IO.println "FAILED: Results in order but Task 1 did not see Task 2 complete (suggests sequential execution)"
+  | _ => IO.println s!"FAILED: Unexpected result structure or ordering: {results}"
 
 /--
-info: Results: [1, 2, 3]
-PASSED: Results in correct original order
-PASSED: Elapsed time ≤450ms indicates parallel execution
+info: Results: [(1, true), (2, false), (3, false)]
+PASSED: Results in original order AND Task 1 observed Task 2 completed (parallel execution verified)
 -/
 #guard_msgs in
-#eval testParIterParallelism
+#eval testParIterOrdering

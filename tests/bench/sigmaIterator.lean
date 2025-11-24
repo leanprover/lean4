@@ -180,7 +180,7 @@ def f._at_.g.spec_0._redArg _x.1 _x.2 _x.3 it : Nat :=
 ```
 -/
 def g : Nat := Id.run do
-  (*...2000000).iter.filter (fun _ => True)
+  (*...30000000).iter.filter (fun _ => True)
     |>.sigma (α := fun _ => _) (param := 0)
     |> f (acc := 0)
 

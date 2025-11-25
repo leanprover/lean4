@@ -111,3 +111,10 @@ example [IntModule α] [LE α] [LT α] [Preorder α] [OrderedAdd α] (f : α →
 example [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedRing α] (f : α → α → α) (x y z : α)
     : z ≤ x → x ≤ 1 → z = 1 → f x y = 2 → f 1 y = 2 := by
   grind
+
+example (a : Rat) : a/(1/3) ≥ 3*a := by
+  grind
+
+example [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [Field α] [IsCharP α 0] [OrderedRing α]
+    (a : α) : a/(1/3) ≥ 3*a := by
+  grind

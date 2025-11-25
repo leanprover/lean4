@@ -3,16 +3,25 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
-import Lean.SimpLC.Setup
-import Lean.SimpLC.MVarCycles
-import Lean.Elab.Tactic.Meta
-import Lean.Elab.Tactic.Conv.Congr
-import Lean.Meta.Tactic.TryThis
+public meta import Lean.SimpLC.Setup
+public meta import Lean.SimpLC.MVarCycles
+public meta import Lean.Elab.Tactic.Meta
+public meta import Lean.Elab.Tactic.Conv.Congr
+public meta import Lean.Meta.Tactic.TryThis
+public meta import Lean.Elab.Command
+public meta import Lean.Meta.Tactic.Simp.SimpTheorems
+public meta import Lean.Elab.Term.TermElabM
+public meta import Lean.Elab.Tactic.Conv.Basic
+public meta import Lean.Meta.Tactic.Simp.Attr
 
 /-!
 See the documentation for the `simp_lc` command.
 -/
+
+public meta section
 
 namespace Lean.SimpLC
 
@@ -280,7 +289,7 @@ def checkSimpLCAll (cmdStx : TSyntax `command) (root_only : Bool) (pfixs? : Opti
       return true
     return false
   logInfo m!"Checking {thms.size} simp lemmas for critical pairs"
-  let filtered_sthms := thms.foldl Lean.Meta.addSimpTheoremEntry (init := {})
+  let filtered_sthms := thms.foldl SimpTheorems.addSimpTheorem (init := {})
   reportBadPairs (stats := true) cmdStx do
     for thm1 in thms do
       try
@@ -333,3 +342,5 @@ elab_rules : command
   logWarning m!"Please use one of the `simp_lc` subcommands."
 
 end Lean.SimpLC
+
+end -- public meta section

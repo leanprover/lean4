@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Util.Trace
+public import Lean.Util.Trace
+
+public section
 
 open Lean
 
@@ -49,3 +53,5 @@ register_option simplc.checkAllow : Bool := {
 }
 
 end Lean.SimpLC
+
+end -- public section

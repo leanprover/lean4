@@ -3,20 +3,22 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.SimpLC.Exceptions.Root
-import Lean.SimpLC.Exceptions.Array
-import Lean.SimpLC.Exceptions.BitVec
-import Lean.SimpLC.Exceptions.Bool
-import Lean.SimpLC.Exceptions.Fin
-import Lean.SimpLC.Exceptions.List
-import Lean.SimpLC.Exceptions.Monad
-import Lean.SimpLC.Exceptions.Nat
-import Lean.SimpLC.Exceptions.Option
-import Lean.SimpLC.Exceptions.Prod
-import Lean.SimpLC.Exceptions.Std
-import Lean.SimpLC.Exceptions.Subtype
-import Lean.SimpLC.Exceptions.Sum
+public import Lean.SimpLC.Exceptions.Root
+public import Lean.SimpLC.Exceptions.Array
+public import Lean.SimpLC.Exceptions.BitVec
+public import Lean.SimpLC.Exceptions.Bool
+public import Lean.SimpLC.Exceptions.Fin
+public import Lean.SimpLC.Exceptions.List
+public import Lean.SimpLC.Exceptions.Monad
+public import Lean.SimpLC.Exceptions.Nat
+public import Lean.SimpLC.Exceptions.Option
+public import Lean.SimpLC.Exceptions.Prod
+public import Lean.SimpLC.Exceptions.Std
+public import Lean.SimpLC.Exceptions.Subtype
+public import Lean.SimpLC.Exceptions.Sum
 
 /-
 The actual checks happen in `tests/lean/000_simplc.lean`.

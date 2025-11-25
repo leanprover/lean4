@@ -5629,15 +5629,92 @@ theorem wf_partition_fst [EquivBEq α] [LawfulHashable α] (h : m.WF) {p : (a : 
     · simp [hhd]
       apply ih _ _ h₁ (WF.insert h₂)
 
+section Perm
 
-theorem Perm_helper {α : Type u} (l1 l2 : List α) (h₁ : l1.Nodup) (h₂ : l2.Nodup) (h₃ : ∀ (a : α), a ∈ l1 ↔ a ∈ l2) :
-    l1.Perm l2 := by
-  sorry
+variable {α : Type u}
 
-theorem neg_mem_toList_empty [EquivBEq α] [LawfulHashable α] {x : (a : α) × β a} : ¬ x ∈ (∅ : Raw α β).toList := by
-  have := isEmpty_toList (α := α) (β := β) (m := ∅) WF.empty
-  simp only [isEmpty_empty, List.isEmpty_iff] at this
-  simp [this]
+theorem move_to_front {pre post : List α} {a : α} :
+    (pre ++ a :: post).Perm (a::pre++post) := by
+  induction pre with
+  | nil => simp
+  | cons hd tl ih =>
+    cases tl with
+    | nil =>
+      simp
+      apply List.Perm.swap
+    | cons hd' tl' =>
+      simp
+      apply List.Perm.trans (l₂ := hd::a::hd'::tl'++post)
+      · apply List.Perm.cons
+        apply ih
+      · apply List.Perm.swap
+
+theorem Perm_helper {α : Type u} (l₁ l₂ : List α) (h₁ : l₁.Nodup) (h₂ : l₂.Nodup) (h₃ : ∀ (a : α), a ∈ l₁ ↔ a ∈ l₂) :
+    l₁.Perm l₂ := by
+  induction l₁ generalizing l₂ with
+  | nil =>
+    cases l₂ with
+    | nil => simp
+    | cons hd tl =>
+      specialize h₃ hd
+      simp at h₃
+  | cons hd tl ih =>
+    have hd_mem : hd ∈ l₂ := (h₃ hd).mp (by simp)
+    rw [List.mem_iff_append] at hd_mem
+    rcases hd_mem with ⟨pre, post, h⟩
+    rw [h]
+    apply List.Perm.trans ?_ move_to_front.symm
+    apply List.Perm.cons
+    have nodup_pre_post : (pre ++ post).Nodup := by
+      rw [h] at h₂
+      have := List.Perm.nodup move_to_front h₂
+      simp at this
+      apply this.2
+    apply ih
+    · simp at h₁
+      apply h₁.2
+    · apply nodup_pre_post
+    · simp
+      intro x
+      constructor
+      · intro hx
+        specialize h₃ x
+        simp [hx, h] at h₃
+        simp [h] at h₂
+        cases h₃ with
+        | inl h => apply Or.inl h
+        | inr h =>
+          cases h with
+          | inl h =>
+            rw [h] at hx
+            simp at h₁
+            simp [hx] at h₁
+          | inr h =>
+            apply Or.inr h
+      · intro h'
+        simp [h, List.nodup_append] at h₂
+        rw [h] at h₃
+        specialize h₃ x
+        simp at h₃
+        cases h' with
+        | inl h' =>
+          simp [h'] at h₃
+          cases h₃ with
+          | inl h₃ =>
+            have := (h₂.2.2 x h').1
+            contradiction
+          | inr h₃ =>
+            apply h₃
+        | inr h' =>
+          simp [h'] at h₃
+          cases h₃ with
+          | inl h₃ =>
+            have := (h₂.2.1.1)
+            simp [← h₃, h'] at this
+          | inr h₃ =>
+            apply h₃
+
+end Perm
 
 theorem mem_toList_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β k} {x : (a : α) × β a} (h' : ¬ k ∈ m) :
     x ∈ (m.insert k v).toList ↔ x ∈ m.toList ∨ x = ⟨k, v⟩ := by
@@ -5655,7 +5732,7 @@ theorem mem_toList_fst_partition [EquivBEq α] [LawfulHashable α] (h : m.WF) {p
       x ∈ (f (m₁, m₂) l).1.toList ↔ (x ∈ l ∧ p x.1 x.2 = true) ∨ x ∈ m₁.toList by
     specialize this m.toList ∅ ∅ WF.empty WF.empty (by simp) (distinct_keys_toList h)
     rw [this]
-    simp [neg_mem_toList_empty]
+    simp
   intro l
   induction l with
   | nil =>

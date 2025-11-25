@@ -656,6 +656,26 @@ noncomputable def Expr.toPoly_k (e : Expr) : Poly :=
       (k.beq 0))
     e
 
+def Mon.degreeOf (m : Mon) (x : Var) : Nat :=
+  match m with
+  | .unit => 0
+  | .mult pw m => bif pw.x == x then pw.k else degreeOf m x
+
+def Mon.cancelVar (m : Mon) (x : Var) : Mon :=
+  match m with
+  | .unit => .unit
+  | .mult pw m => bif pw.x == x then m else .mult pw (cancelVar m x)
+
+def Poly.cancelVar (c : Int) (x : Var) (p : Poly) : Poly :=
+  match p with
+  | .num k => .num k
+  | .add k m p =>
+    let n := m.degreeOf x
+    bif n > 0 && c^n ∣ k then
+      .add (k / (c^n)) (m.cancelVar x) (p.cancelVar c x)
+    else
+      .add k m (p.cancelVar c x)
+
 @[simp] theorem Expr.toPoly_k_eq_toPoly (e : Expr) : e.toPoly_k = e.toPoly := by
   induction e <;> simp only [toPoly, toPoly_k]
   next a ih => rw [Poly.mulConst_k_eq_mulConst]; congr
@@ -1175,6 +1195,58 @@ theorem Expr.eq_of_toPoly_nc_eq {α} [Ring α] (ctx : Context α) (a b : Expr) (
   simp [denote_toPoly_nc] at h
   assumption
 
+section
+attribute [local simp] Semiring.pow_zero Semiring.mul_one Semiring.one_mul cond_eq_ite
+
+theorem Mon.denote_cancelVar [CommSemiring α] (ctx : Context α) (m : Mon) (x : Var)
+    : m.denote ctx = x.denote ctx ^ (m.degreeOf x) * (m.cancelVar x).denote ctx := by
+  fun_induction cancelVar <;> simp [degreeOf]
+  next h =>
+    simp at h; simp [*, denote, Power.denote_eq]
+  next h ih =>
+    simp at h; simp [*, denote, Semiring.mul_assoc, CommSemiring.mul_comm, CommSemiring.mul_left_comm]
+
+theorem Poly.denote_cancelVar {α} [CommRing α] (ctx : Context α) (p : Poly) (c : Int) (x : Var)
+    : c ≠ 0 → c * x.denote ctx = 1 → (p.cancelVar c x).denote ctx = p.denote ctx := by
+  intro h₁ h₂
+  fun_induction cancelVar <;> simp [*, denote]
+  next k m p n h ih =>
+    conv => rhs; rw [Mon.denote_cancelVar (x := x)]
+    congr 1
+    simp +zetaDelta [Ring.zsmul_eq_intCast_mul, ← Semiring.mul_assoc]
+    congr 1
+    simp +zetaDelta [Int.dvd_def] at h
+    have ⟨d, h⟩ := h.2
+    simp [h]
+    rw [Int.mul_ediv_cancel_left _ (Int.pow_ne_zero h₁)]
+    rw [Ring.intCast_mul]
+    conv => rhs; lhs; rw [CommSemiring.mul_comm]
+    rw [Semiring.mul_assoc, Ring.intCast_pow, ← CommSemiring.mul_pow, h₂, Semiring.one_pow, Semiring.mul_one]
+
+noncomputable def cancel_var_cert (c : Int) (x : Var) (p₁ p₂ : Poly) : Bool :=
+  c != 0 && p₂.beq' (p₁.cancelVar c x)
+
+theorem cancel_var_eq {α} [CommRing α] (ctx : Context α) (c : Int) (x : Var) (p₁ p₂ : Poly)
+    : cancel_var_cert c x p₁ p₂ → c * x.denote ctx = 1 → p₁.denote ctx = 0 → p₂.denote ctx = 0 := by
+  simp [cancel_var_cert]; intros h₁ _ h₂ _; subst p₂
+  simp [Poly.denote_cancelVar ctx p₁ c x h₁ h₂]; assumption
+
+theorem cancel_var_ne {α} [CommRing α] (ctx : Context α) (c : Int) (x : Var) (p₁ p₂ : Poly)
+    : cancel_var_cert c x p₁ p₂ → c * x.denote ctx = 1 → p₁.denote ctx ≠ 0 → p₂.denote ctx ≠ 0 := by
+  simp [cancel_var_cert]; intros h₁ _ h₂ _; subst p₂
+  simp [Poly.denote_cancelVar ctx p₁ c x h₁ h₂]; assumption
+
+theorem cancel_var_le {α} [CommRing α] [LE α] (ctx : Context α) (c : Int) (x : Var) (p₁ p₂ : Poly)
+    : cancel_var_cert c x p₁ p₂ → c * x.denote ctx = 1 → p₁.denote ctx ≤ 0 → p₂.denote ctx ≤ 0 := by
+  simp [cancel_var_cert]; intros h₁ _ h₂ _; subst p₂
+  simp [Poly.denote_cancelVar ctx p₁ c x h₁ h₂]; assumption
+
+theorem cancel_var_lt {α} [CommRing α] [LT α] (ctx : Context α) (c : Int) (x : Var) (p₁ p₂ : Poly)
+    : cancel_var_cert c x p₁ p₂ → c * x.denote ctx = 1 → p₁.denote ctx < 0 → p₂.denote ctx < 0 := by
+  simp [cancel_var_cert]; intros h₁ _ h₂ _; subst p₂
+  simp [Poly.denote_cancelVar ctx p₁ c x h₁ h₂]; assumption
+
+end
 /-!
 Theorems for justifying the procedure for commutative rings with a characteristic in `grind`.
 -/

@@ -888,6 +888,13 @@ def addEMatchEqTheorem (declName : Name) : MetaM Unit := do
 def getEMatchTheorems : CoreM EMatchTheorems :=
   return ematchTheoremsExt.getState (← getEnv)
 
+/-- Returns the scoped E-matching theorems declared in the given namespace. -/
+def getEMatchTheoremsForNamespace (namespaceName : Name) : CoreM (Array EMatchTheorem) := do
+  let stateStack := ematchTheoremsExt.ext.getState (← getEnv)
+  match stateStack.scopedEntries.map.find? namespaceName with
+  | none => return #[]
+  | some entries => return entries.toArray
+
 /-- Returns the types of `xs` that are propositions. -/
 private def getPropTypes (xs : Array Expr) : MetaM (Array Expr) :=
   xs.filterMapM fun x => do

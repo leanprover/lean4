@@ -293,6 +293,68 @@ Examples:
 def Internal.foldlImpl (f : String → Char → String) (init : String) (s : String) : String :=
   String.foldl f init s
 
+@[deprecated String.Slice.foldr (since := "2025-11-25")]
+def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (i begPos : Pos.Raw) : α :=
+  s.slice! (s.pos! begPos) (s.pos! i) |>.foldr f a
+
+/--
+Folds a function over a string from the right, accumulating a value starting with {lean}`init`. The
+accumulated value is combined with each character in reverse order, using {lean}`f`.
+
+Examples:
+ * {lean}`"coffee tea water".foldr (fun c n => if c.isWhitespace then n + 1 else n) 0 = 2`
+ * {lean}`"coffee tea and water".foldr (fun c n => if c.isWhitespace then n + 1 else n) 0 = 3`
+ * {lean}`"coffee tea water".foldr (fun c s => s.push c) "" = "retaw aet eeffoc"`
+-/
+@[inline] def foldr {α : Type u} (f : Char → α → α) (init : α) (s : String) : α :=
+  s.toSlice.foldr f init
+
+@[deprecated String.Slice.any (since := "2025-11-25")]
+def anyAux (s : String) (stopPos : Pos.Raw) (p : Char → Bool) (i : Pos.Raw) : Bool :=
+  s.slice! (s.pos! i) (s.pos! stopPos) |>.any p
+
+
+/--
+Checks whether a string has a match of the pattern {name}`pat` anywhere.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * {lean}`"coffee tea water".contains Char.isWhitespace = true`
+ * {lean}`"tea".contains (fun (c : Char) => c == 'X') = false`
+ * {lean}`"coffee tea water".contains "tea" = true`
+-/
+@[inline] def contains (s : String) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
+  s.toSlice.contains pat
+
+@[export lean_string_contains]
+def Internal.containsImpl (s : String) (c : Char) : Bool :=
+  String.contains s c
+
+@[inline, inherit_doc contains] def any (s : String) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
+  s.contains pat
+
+@[export lean_string_any]
+def Internal.anyImpl (s : String) (p : Char → Bool) :=
+  String.any s p
+
+/--
+Checks whether a slice only consists of matches of the pattern {name}`pat`.
+
+Short-circuits at the first pattern mis-match.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * {lean}`"brown".all Char.isLower = true`
+ * {lean}`"brown and orange".all Char.isLower = false`
+ * {lean}`"aaaaaa".all 'a' = true`
+ * {lean}`"aaaaaa".all "aa" = true`
+ * {lean}`"aaaaaaa".all "aa" = false`
+-/
+@[inline] def all (s : String) (pat : ρ) [ForwardPattern pat] : Bool :=
+  s.toSlice.all pat
+
 /--
 Checks whether the string can be interpreted as the decimal representation of a natural number.
 

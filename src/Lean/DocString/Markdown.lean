@@ -183,7 +183,7 @@ where
   go : List (Inline i) → String × Inline i
     | [] => ("", .empty)
     | .text s :: more =>
-      if s.all (·.isWhitespace) then
+      if s.all Char.isWhitespace then
         let (pre, post) := go more
         (s ++ pre, post)
       else
@@ -198,7 +198,7 @@ where
   go : List (Inline i) → Inline i × String
     | [] => (.empty, "")
     | .text s :: more =>
-      if s.all (·.isWhitespace) then
+      if s.all Char.isWhitespace then
         let (pre, post) := go more
         (pre, post ++ s)
       else

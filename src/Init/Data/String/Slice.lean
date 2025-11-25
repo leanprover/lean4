@@ -529,7 +529,7 @@ def any (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
   s.contains pat
 
 /--
-Checks whether a slice only consists of matches of the pattern {name}`pat` anywhere.
+Checks whether a slice only consists of matches of the pattern {name}`pat`.
 
 Short-circuits at the first pattern mis-match.
 

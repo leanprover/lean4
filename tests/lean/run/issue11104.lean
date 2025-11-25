@@ -80,18 +80,43 @@ error: Unknown constant `natToBin.match_1.splitter`
 #guard_msgs(pass trace, all) in
 #print sig natToBin.match_1.splitter
 
+
+-- This fails because we do the match division only when there is a catch all
+
+/--
+error: Tactic `cases` failed with a nested error:
+Dependent elimination failed: Failed to solve equation
+  n✝¹.succ.succ = n✝.add n✝
+at case `Parity.even` after processing
+  (Nat.succ (Nat.succ _)), _
+the dependent pattern matcher can solve the following kinds of equations
+- <var> = <term> and <term> = <var>
+- <term> = <term> where the terms are definitionally equal
+- <constructor> = <constructor>, examples: List.cons x xs = List.cons y ys, and List.cons x xs = List.nil
+-/
+#guard_msgs in
 partial def natToBin2 : (n : Nat) → Parity n →  List Bool
 | 0, _             => []
 | .succ 0, _       => [true]
 | _, Parity.even j => [false, false]
 | _, Parity.odd  j => [true, true]
 
-#print sig natToBin2.match_1.splitter
+-- Just to confirm that match division is relevant here
 
+/--
+error: Tactic `cases` failed with a nested error:
+Dependent elimination failed: Failed to solve equation
+  n✝¹.succ = n✝.add n✝
+at case `Parity.even` after processing
+  (Nat.succ _), _
+the dependent pattern matcher can solve the following kinds of equations
+- <var> = <term> and <term> = <var>
+- <term> = <term> where the terms are definitionally equal
+- <constructor> = <constructor>, examples: List.cons x xs = List.cons y ys, and List.cons x xs = List.nil
+-/
+#guard_msgs in
 set_option backwards.match.divide false in
 partial def natToBin3 : (n : Nat) → Parity n →  List Bool
 | 0, _             => []
 | _, Parity.even j => [false, false]
 | _, Parity.odd  j => [true, true]
-
-#print sig natToBin3.match_1.splitter

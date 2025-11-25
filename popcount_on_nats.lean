@@ -84,7 +84,7 @@ def rec_add_eq_rec_add_iff (a b : List Nat) (n : Nat)
           simp [show ¬ 2 * n + 1 < tailb.length by omega, show 2 * n + 1 - tailb.length = 1 by omega]
         rw [he1, he2,
             show e2 + (e1 + recursive_addition_list tailb) = e1 + e2 + recursive_addition_list tailb by omega]
-        simp
+        simp only [Nat.add_left_cancel_iff]
         apply ihn
         · omega
         · omega
@@ -110,8 +110,7 @@ def rec_add_eq_rec_add_iff (a b : List Nat) (n : Nat)
         have halen : a.length = taila.length + 1 := by
           subst htaila; simp
         have heq : b[2 * n] = hb' := by
-          simp [htailb]
-          rw [List.getElem_append]
+          simp only [htailb, List.getElem_append]
           have : 2 * n = tailb.length := by omega
           simp [show ¬ 2 * n < tailb.length by omega, show 2 * n - tailb.length = 0 by omega]
         rw [heq]

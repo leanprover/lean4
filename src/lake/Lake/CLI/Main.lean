@@ -173,13 +173,18 @@ def takeArg (arg : String) : CliM String := do
   | none => throw <| CliError.missingArg arg
   | some arg => pure arg
 
-def takeOptArg (opt arg : String) : CliM String := do
-  match (← takeArg?) with
-  | none => throw <| CliError.missingOptArg opt arg
-  | some arg => pure arg
+def takeOptArg (optArg? : Option String.Slice) (opt argName : String) : CliM String := do
+  if let some arg := optArg? then
+    return arg.copy
+  else if let some arg ← takeArg? then
+    return arg
+  else
+    throw <| CliError.missingOptArg opt argName
 
-@[inline] def takeOptArg' (opt arg : String) (f : String → Option α)  : CliM α := do
-  if let some a :=  f (← takeOptArg opt arg) then return a
+@[inline] def takeOptArg'
+  (optArg? : Option String.Slice) (opt arg : String) (f : String → Option α)
+: CliM α := do
+  if let some a := f (← takeOptArg optArg? opt arg) then return a
   throw <| CliError.invalidOptArg opt arg
 
 /--
@@ -206,21 +211,22 @@ def setConfigOpt (kvPair : String) : CliM PUnit :=
   modifyThe LakeOptions fun opts =>
     {opts with configOpts := opts.configOpts.insert key val}
 
-def lakeShortOption : (opt : Char) → CliM PUnit
-| 'q' => modifyThe LakeOptions ({· with verbosity := .quiet})
-| 'v' => modifyThe LakeOptions ({· with verbosity := .verbose})
-| 'd' => do let rootDir ← takeOptArg "-d" "path"; modifyThe LakeOptions ({· with rootDir})
-| 'f' => do let configFile ← takeOptArg "-f" "path"; modifyThe LakeOptions ({· with configFile})
-| 'o' => do let outputsFile? ← takeOptArg "-o" "path"; modifyThe LakeOptions ({· with outputsFile?})
-| 'K' => do setConfigOpt <| ← takeOptArg "-K" "key-value pair"
-| 'U' => do
-  logWarning "the '-U' shorthand for '--update' is deprecated"
-  modifyThe LakeOptions ({· with updateDeps := true})
-| 'R' => modifyThe LakeOptions ({· with reconfigure := true})
-| 'h' => modifyThe LakeOptions ({· with wantsHelp := true})
-| 'H' => modifyThe LakeOptions ({· with trustHash := false})
-| 'J' => modifyThe LakeOptions ({· with outFormat := .json})
-| opt => throw <| CliError.unknownShortOption opt
+def lakeShortOption : ShortOptHandler CliM := .ofFn fun opt optArg? =>
+  match opt with
+  | 'q' => modifyThe LakeOptions ({· with verbosity := .quiet})
+  | 'v' => modifyThe LakeOptions ({· with verbosity := .verbose})
+  | 'd' => do let rootDir ← takeOptArg optArg? "-d" "path"; modifyThe LakeOptions ({· with rootDir})
+  | 'f' => do let configFile ← takeOptArg optArg? "-f" "path"; modifyThe LakeOptions ({· with configFile})
+  | 'o' => do let outputsFile? ← takeOptArg optArg? "-o" "path"; modifyThe LakeOptions ({· with outputsFile?})
+  | 'K' => do setConfigOpt <| ← takeOptArg optArg? "-K" "key-value pair"
+  | 'U' => do
+    logWarning "the '-U' shorthand for '--update' is deprecated"
+    modifyThe LakeOptions ({· with updateDeps := true})
+  | 'R' => modifyThe LakeOptions ({· with reconfigure := true})
+  | 'h' => modifyThe LakeOptions ({· with wantsHelp := true})
+  | 'H' => modifyThe LakeOptions ({· with trustHash := false})
+  | 'J' => modifyThe LakeOptions ({· with outFormat := .json})
+  | opt => throw <| CliError.unknownShortOption opt
 
 /-- Returns an error if the string is not valid GitHub repository name. -/
 -- Limitations derived from https://github.com/dead-claudia/github-limits
@@ -269,122 +275,129 @@ def parseLintersSpec (spec : String) : CliM PUnit := do
     { opts with runBuiltinLint := true, builtinLint.linterOverrides :=
         opts.builtinLint.linterOverrides ++ entries }
 
-def lakeLongOption : (opt : String) → CliM PUnit
-| "--quiet"       => modifyThe LakeOptions ({· with verbosity := .quiet})
-| "--verbose"     => modifyThe LakeOptions ({· with verbosity := .verbose})
-| "--update"      => modifyThe LakeOptions ({· with updateDeps := true})
-| "--keep-toolchain" => modifyThe LakeOptions ({· with updateToolchain := false})
-| "--reconfigure" => modifyThe LakeOptions ({· with reconfigure := true})
-| "--old"         => modifyThe LakeOptions ({· with oldMode := true})
-| "--text"        => modifyThe LakeOptions ({· with outFormat := .text})
-| "--json"        => modifyThe LakeOptions ({· with outFormat := .json})
-| "--allow-empty" => modifyThe LakeOptions ({· with allowEmpty := true})
-| "--no-build"    => modifyThe LakeOptions ({· with noBuild := true})
-| "--no-cache"    => modifyThe LakeOptions ({· with noCache := true})
-| "--try-cache"   => modifyThe LakeOptions ({· with noCache := false})
-| "--rehash"      => modifyThe LakeOptions ({· with trustHash := false})
-| "--offline"     => modifyThe LakeOptions ({· with offline := true})
-| "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
-| "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
-| "--no-overwrite" => modifyThe LakeOptions ({· with overwrite? := some false})
-| "--force-overwrite" => modifyThe LakeOptions ({· with overwrite? := some true})
-| "--force-download" => modifyThe LakeOptions ({· with forceDownload := true})
-| "--download-arts" => modifyThe LakeOptions ({· with mappingsOnly := false})
-| "--mappings-only" => modifyThe LakeOptions ({· with mappingsOnly := true})
-| "--service" => do
-  let service ← takeOptArg "--service" "service name"
-  modifyThe LakeOptions ({· with service? := some service})
-| "--scope" => do
-  let scope ← takeOptArg "--scope" "cache scope"
-  modifyThe LakeOptions ({· with scope? := some (.ofString scope)})
-| "--repo" => do
-  let repo ← takeOptArg "--repo" "GitHub repository"
-  if let some e := validateRepo? repo then error e
-  modifyThe LakeOptions ({· with scope? := some (.ofRepo repo)})
-| "--platform" => do
-  let platform ← takeOptArg "--platform" "cache platform"
-  if platform.chars.length > 100 then
-    error "invalid platform; platform is expected to be at most 100 characters long"
-  modifyThe LakeOptions ({· with platform? := some <| .ofString platform})
-| "--toolchain" => do
-  let toolchain ← takeOptArg "--toolchain" "cache toolchain"
-  let toolchain := if toolchain.isEmpty then .none else .ofString toolchain
-  if toolchain.length > 256 then
-    error "invalid toolchain version; toolchain is expected to be at most 256 characters long"
-  modifyThe LakeOptions ({· with toolchain? := some toolchain})
-| "--rev" => do
-  let rev ← takeOptArg "--rev" "Git revision"
-  modifyThe LakeOptions ({· with rev? := some rev})
-| "--max-revs" => do
-  let some n ← (·.toNat?) <$> takeOptArg "--max-revs" "number of revisions"
-    | error "argument to `--max-revs` should be a natural number"
-  modifyThe LakeOptions ({· with maxRevs := n})
-| "--log-level"   => do
-  let outLv ← takeOptArg' "--log-level" "log level" LogLevel.ofString?
-  modifyThe LakeOptions ({· with outLv? := outLv})
-| "--fail-level"  => do
-  let failLv ← takeOptArg' "--fail-level" "log level" LogLevel.ofString?
-  modifyThe LakeOptions ({· with failLv})
-| "--ansi"        => modifyThe LakeOptions ({· with ansiMode := .ansi})
-| "--no-ansi"     => modifyThe LakeOptions ({· with ansiMode := .noAnsi})
-| "--packages"    => do
-  let file ← takeOptArg "--packages" "package overrides file"
-  let overrides ← Manifest.loadEntries file
-  modifyThe LakeOptions fun opts =>
-    {opts with packageOverrides := opts.packageOverrides ++ overrides}
-| "--dir"         => do
-  let rootDir ← takeOptArg "--dir" "path"
-  modifyThe LakeOptions ({· with rootDir})
-| "--file"        => do
-  let configFile ← takeOptArg "--file" "path"
-  modifyThe LakeOptions ({· with configFile})
-| "--help"        => modifyThe LakeOptions ({· with wantsHelp := true})
-| "--"            => do
-  let subArgs ← takeArgs
-  modifyThe LakeOptions ({· with subArgs})
--- Builtin lint options (using any of these implicitly enables --builtin-lint)
-| "--builtin-lint" => modifyThe LakeOptions ({· with runBuiltinLint := true})
-| "--builtin-only" => modifyThe LakeOptions ({· with runBuiltinLint := true, builtinOnly := true})
-| "--record-exceptions" =>
-  modifyThe LakeOptions ({· with runBuiltinLint := true, builtinLint.recordExceptions := true})
-| "--linters" => do
-  let opts ← getThe LakeOptions
-  if opts.builtinLint.lintOnly then
-    flushLinterOptions
-    modifyLintOnlyFlag false
-  let spec ← takeOptArg "--linters" "comma-separated linter spec"
-  parseLintersSpec spec
-| "--lint-only" => do
-  let opts ← getThe LakeOptions
-  if !opts.builtinLint.lintOnly then
-    flushLinterOptions
-    modifyLintOnlyFlag true
-  let spec ← takeOptArg "--lint-only" "comma-separated linter spec"
-  parseLintersSpec spec
+def lakeLongOption : LongOptHandler CliM := .ofFn fun opt optArg? =>
+  match opt with
+  | "--quiet"       => modifyThe LakeOptions ({· with verbosity := .quiet})
+  | "--verbose"     => modifyThe LakeOptions ({· with verbosity := .verbose})
+  | "--update"      => modifyThe LakeOptions ({· with updateDeps := true})
+  | "--keep-toolchain" => modifyThe LakeOptions ({· with updateToolchain := false})
+  | "--reconfigure" => modifyThe LakeOptions ({· with reconfigure := true})
+  | "--old"         => modifyThe LakeOptions ({· with oldMode := true})
+  | "--text"        => modifyThe LakeOptions ({· with outFormat := .text})
+  | "--json"        => modifyThe LakeOptions ({· with outFormat := .json})
+  | "--allow-empty" => modifyThe LakeOptions ({· with allowEmpty := true})
+  | "--no-build"    => modifyThe LakeOptions ({· with noBuild := true})
+  | "--no-cache"    => modifyThe LakeOptions ({· with noCache := true})
+  | "--try-cache"   => modifyThe LakeOptions ({· with noCache := false})
+  | "--rehash"      => modifyThe LakeOptions ({· with trustHash := false})
+  | "--offline"     => modifyThe LakeOptions ({· with offline := true})
+  | "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
+  | "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
+  | "--no-overwrite" => modifyThe LakeOptions ({· with overwrite? := some false})
+  | "--force-overwrite" => modifyThe LakeOptions ({· with overwrite? := some true})
+  | "--force-download" => modifyThe LakeOptions ({· with forceDownload := true})
+  | "--download-arts" => modifyThe LakeOptions ({· with mappingsOnly := false})
+  | "--mappings-only" => modifyThe LakeOptions ({· with mappingsOnly := true})
+  | "--service" => do
+    let service ← takeOptArg optArg? "--service" "service name"
+    modifyThe LakeOptions ({· with service? := some service})
+  | "--scope" => do
+    let scope ← takeOptArg optArg? "--scope" "cache scope"
+    modifyThe LakeOptions ({· with scope? := some (.ofString scope)})
+  | "--repo" => do
+    let repo ← takeOptArg optArg? "--repo" "GitHub repository"
+    if let some e := validateRepo? repo then error e
+    modifyThe LakeOptions ({· with scope? := some (.ofRepo repo)})
+  | "--platform" => do
+    let platform ← takeOptArg optArg? "--platform" "cache platform"
+    if platform.chars.length > 100 then
+      error "invalid platform; platform is expected to be at most 100 characters long"
+    modifyThe LakeOptions ({· with platform? := some <| .ofString platform})
+  | "--toolchain" => do
+    let toolchain ← takeOptArg optArg? "--toolchain" "cache toolchain"
+    let toolchain := if toolchain.isEmpty then .none else .ofString toolchain
+    if toolchain.length > 256 then
+      error "invalid toolchain version; toolchain is expected to be at most 256 characters long"
+    modifyThe LakeOptions ({· with toolchain? := some toolchain})
+  | "--rev" => do
+    let rev ← takeOptArg optArg? "--rev" "Git revision"
+    modifyThe LakeOptions ({· with rev? := some rev})
+  | "--max-revs" => do
+    let some n ← (·.toNat?) <$> takeOptArg optArg? "--max-revs" "number of revisions"
+      | throw <| CliError.invalidOptArg "--max-revs" "natural number"
+    modifyThe LakeOptions ({· with maxRevs := n})
+  | "--log-level"   => do
+    let outLv ← takeOptArg' optArg? "--log-level" "log level" LogLevel.ofString?
+    modifyThe LakeOptions ({· with outLv? := outLv})
+  | "--fail-level"  => do
+    let failLv ← takeOptArg' optArg? "--fail-level" "log level" LogLevel.ofString?
+    modifyThe LakeOptions ({· with failLv})
+  | "--ansi"        => modifyThe LakeOptions ({· with ansiMode := .ansi})
+  | "--no-ansi"     => modifyThe LakeOptions ({· with ansiMode := .noAnsi})
+  | "--packages"    => do
+    let file ← takeOptArg optArg? "--packages" "package overrides file"
+    let overrides ← Manifest.loadEntries file
+    modifyThe LakeOptions fun opts =>
+      {opts with packageOverrides := opts.packageOverrides ++ overrides}
+  | "--dir"         => do
+    let rootDir ← takeOptArg optArg? "--dir" "path"
+    modifyThe LakeOptions ({· with rootDir})
+  | "--file"        => do
+    let configFile ← takeOptArg optArg? "--file" "path"
+    modifyThe LakeOptions ({· with configFile})
+  | "--help"        => modifyThe LakeOptions ({· with wantsHelp := true})
+  | "--"            => do
+    let subArgs ← takeArgs
+    modifyThe LakeOptions ({· with subArgs})
+  -- Builtin lint options (using any of these implicitly enables --builtin-lint)
+  | "--builtin-lint" => modifyThe LakeOptions ({· with runBuiltinLint := true})
+  | "--builtin-only" => modifyThe LakeOptions ({· with runBuiltinLint := true, builtinOnly := true})
+  | "--record-exceptions" =>
+    modifyThe LakeOptions ({· with runBuiltinLint := true, builtinLint.recordExceptions := true})
+  | "--linters" => do
+    let opts ← getThe LakeOptions
+    if opts.builtinLint.lintOnly then
+      flushLinterOptions
+      modifyLintOnlyFlag false
+    let spec ← takeOptArg optArg? "--linters" "comma-separated linter spec"
+    parseLintersSpec spec
+  | "--lint-only" => do
+    let opts ← getThe LakeOptions
+    if !opts.builtinLint.lintOnly then
+      flushLinterOptions
+      modifyLintOnlyFlag true
+    let spec ← takeOptArg optArg? "--lint-only" "comma-separated linter spec"
+    parseLintersSpec spec
 
--- Shared options
-| "--force" => modifyThe LakeOptions ({· with shake.force := true})
--- Shake options
-| "--keep-implied" => modifyThe LakeOptions ({· with shake.keepImplied := true})
-| "--keep-prefix" => modifyThe LakeOptions ({· with shake.keepPrefix := true})
-| "--keep-public" => modifyThe LakeOptions ({· with shake.keepPublic := true})
-| "--add-public" => modifyThe LakeOptions ({· with shake.addPublic := true})
-| "--gh-style" => modifyThe LakeOptions ({· with shake.githubStyle := true})
-| "--explain" => modifyThe LakeOptions ({· with shake.explain := true})
-| "--trace" => modifyThe LakeOptions ({· with shake.trace := true})
-| "--fix" => modifyThe LakeOptions ({· with shake.fix := true})
-| "--only" => do
-  let mod ← takeOptArg "--only" "minimize only this module"
-  modifyThe LakeOptions fun opts =>
-    {opts with shake.onlyMods := opts.shake.onlyMods.push mod.toName}
-| opt             =>  throw <| CliError.unknownLongOption opt
+  -- Shared options
+  | "--force" => modifyThe LakeOptions ({· with shake.force := true})
+  -- Shake options
+  | "--keep-implied" => modifyThe LakeOptions ({· with shake.keepImplied := true})
+  | "--keep-prefix" => modifyThe LakeOptions ({· with shake.keepPrefix := true})
+  | "--keep-public" => modifyThe LakeOptions ({· with shake.keepPublic := true})
+  | "--add-public" => modifyThe LakeOptions ({· with shake.addPublic := true})
+  | "--gh-style" => modifyThe LakeOptions ({· with shake.githubStyle := true})
+  | "--explain" => modifyThe LakeOptions ({· with shake.explain := true})
+  | "--trace" => modifyThe LakeOptions ({· with shake.trace := true})
+  | "--fix" => modifyThe LakeOptions ({· with shake.fix := true})
+  | "--only" => do
+    let mod ← takeOptArg optArg? "--only" "minimize only this module"
+    modifyThe LakeOptions fun opts =>
+      {opts with shake.onlyMods := opts.shake.onlyMods.push mod.toName}
+  | opt             =>  throw <| CliError.unknownLongOption opt.copy
 
-def lakeOption :=
+def lakeOption : OptHandler CliM :=
   option {
     short := lakeShortOption
     long := lakeLongOption
     longShort := shortOptionWithArg lakeShortOption
   }
+
+def processLakeOptions : CliM PUnit :=
+  processOptions lakeOption -- specializes `processOptions`
+
+def processLeadingLakeOptions : CliM PUnit :=
+  processLeadingOptions lakeOption -- specializes `processLeadingOptions`
 
 /-! ## Actions -/
 
@@ -463,7 +476,7 @@ def endpointDeprecation : String :=
    "configuring the cache service via environment variables is deprecated; use --service instead"
 
 protected def get : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let mappings? ← takeArg?
   noArgsRem do
@@ -648,7 +661,7 @@ where
       return art
 
 protected def put : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let file ← takeArg "mappings"
   let opts ← getThe LakeOptions
   let some scope := opts.scope?
@@ -666,7 +679,7 @@ protected def put : CliM PUnit := do
   putCore rev file lakeCache.artifactDir service scope platform toolchain
 
 protected def add : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let file ← takeArg "mappings"
   let pkg? ← takeArg?
   let opts ← getThe LakeOptions
@@ -692,7 +705,7 @@ protected def add : CliM PUnit := do
 private def stagingOutputsFile := "outputs.jsonl"
 
 protected def stage : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let mappingsFile ← FilePath.mk <$> takeArg "mappings"
   let stagingDir ← FilePath.mk <$> takeArg "staging directory"
@@ -729,7 +742,7 @@ protected def stage : CliM PUnit := do
     exit 1
 
 protected def unstage : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let stagingDir ← FilePath.mk <$> takeArg "staging directory"
   let pkg? ← takeArg?
@@ -777,7 +790,7 @@ protected def unstage : CliM PUnit := do
   ws.lakeCache.writeMap localScope map service? opts.scope? overwrite
 
 protected def putStaged : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let stagingDir ← FilePath.mk <$> takeArg "staging directory"
   let some scope := opts.scope?
@@ -793,7 +806,7 @@ protected def putStaged : CliM PUnit := do
   putCore rev outputsFile stagingDir service scope platform toolchain
 
 protected def services : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   noArgsRem do
   let lakeEnv ← opts.computeEnv
@@ -801,7 +814,7 @@ protected def services : CliM PUnit := do
   cfg.config.cache.services.forM (IO.println ·.name)
 
 protected def clean : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   noArgsRem do
   let cfg ← mkLoadConfig opts
@@ -836,7 +849,7 @@ def cacheCli : (cmd : String) → CliM PUnit
 namespace script
 
 protected def list : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let config ← mkLoadConfig (← getThe LakeOptions)
   noArgsRem do
     let ws ← loadWorkspace config
@@ -845,7 +858,7 @@ protected def list : CliM PUnit := do
         IO.println script.name
 
 protected nonrec def run : CliM PUnit := do
-  processLeadingOptions lakeOption  -- between `lake [script] run` and `<name>`
+  processLeadingLakeOptions  -- between `lake [script] run` and `<name>`
   let config ← mkLoadConfig (← getThe LakeOptions)
   let ws ← loadWorkspace config
   if let some spec ← takeArg? then
@@ -858,7 +871,7 @@ protected nonrec def run : CliM PUnit := do
     exit 0
 
 protected def doc : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let spec ← takeArg "script name"
   let config ← mkLoadConfig (← getThe LakeOptions)
   noArgsRem do
@@ -883,21 +896,21 @@ def scriptCli : (cmd : String) → CliM PUnit
 /-! ### `lake` CLI -/
 
 protected def new : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let name ← takeArg "package name"
   let (tmp, lang) ← parseTemplateLangSpec <| ← takeArgD ""
   noArgsRem do new name tmp lang (← opts.computeEnv) opts.rootDir opts.offline
 
 protected def init : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let name := ← takeArgD "."
   let (tmp, lang) ← parseTemplateLangSpec <| ← takeArgD ""
   noArgsRem do init name tmp lang (← opts.computeEnv) opts.rootDir opts.offline
 
 protected def build : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
@@ -916,12 +929,12 @@ protected def build : CliM PUnit := do
   ws.runBuild (buildSpecs specs) buildConfig
 
 protected def checkBuild : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
   noArgsRem do exit <| if pkg.defaultTargets.isEmpty then 1 else 0
 
 protected def query : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
@@ -933,7 +946,7 @@ protected def query : CliM PUnit := do
   results.forM (IO.println ·)
 
 protected def queryKind : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
@@ -953,21 +966,21 @@ protected def queryKind : CliM PUnit := do
     | none => error "build failed"
 
 protected def resolveDeps : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   noArgsRem do
   discard <| loadWorkspace config
 
 protected def update : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   let toUpdate := (← getArgs).foldl (·.insert <| stringToLegalOrSimpleName ·) {}
   updateManifest config toUpdate
 
 protected def pack : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let file? ← takeArg?
   noArgsRem do
   let ws ← loadWorkspace (← mkLoadConfig (← getThe LakeOptions))
@@ -975,7 +988,7 @@ protected def pack : CliM PUnit := do
   ws.root.pack file
 
 protected def unpack : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let file? ← takeArg?
   noArgsRem do
   let ws ← loadWorkspace (← mkLoadConfig (← getThe LakeOptions))
@@ -983,7 +996,7 @@ protected def unpack : CliM PUnit := do
   ws.root.unpack file
 
 protected def upload : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let tag ← takeArg "release tag"
   noArgsRem do
   let ws ← loadWorkspace (← mkLoadConfig (← getThe LakeOptions))
@@ -991,7 +1004,7 @@ protected def upload : CliM PUnit := do
 
 protected def cache : CliM PUnit := do
   if let some cmd ← takeArg? then
-    processLeadingOptions lakeOption -- between `lake cache <cmd>` and args
+    processLeadingLakeOptions -- between `lake cache <cmd>` and args
     if (← getWantsHelp) then
       IO.println <| helpCache cmd
     else
@@ -1000,7 +1013,7 @@ protected def cache : CliM PUnit := do
     throw <| CliError.missingCommand
 
 protected def setupFile : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let loadConfig ← mkLoadConfig opts
   let buildConfig := mkBuildConfig opts
@@ -1015,7 +1028,7 @@ protected def setupFile : CliM PUnit := do
   exit <| ← setupFile loadConfig filePath header buildConfig
 
 protected def test : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let ws ← loadWorkspace (← mkLoadConfig opts)
   noArgsRem do
@@ -1023,7 +1036,7 @@ protected def test : CliM PUnit := do
   exit <| ← x.run (mkLakeContext ws)
 
 protected def checkTest : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
   noArgsRem do exit <| if pkg.testDriver.isEmpty then 1 else 0
 
@@ -1055,7 +1068,7 @@ private def runBuiltinLint
   BuiltinLint.run args
 
 protected def lint : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let ws ← loadWorkspace (← mkLoadConfig opts)
   let hasDriver := !ws.root.lintDriver.isEmpty && !opts.builtinOnly
@@ -1075,14 +1088,14 @@ protected def lint : CliM PUnit := do
   exit exitCode
 
 protected def checkLint : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
   noArgsRem do
   let hasLint := !pkg.lintDriver.isEmpty || pkg.config.builtinLint? == some true
   exit <| if hasLint then 0 else 1
 
 protected def clean : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let config ← mkLoadConfig (← getThe LakeOptions)
   let ws ← loadWorkspace config
   let pkgSpecs ← takeArgs
@@ -1097,7 +1110,7 @@ protected def clean : CliM PUnit := do
 
 /-- The `lake shake` command: minimize imports in Lean source files. -/
 protected def shake : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
@@ -1121,7 +1134,7 @@ protected def shake : CliM PUnit := do
 
 protected def script : CliM PUnit := do
   if let some cmd ← takeArg? then
-    processLeadingOptions lakeOption -- between `lake script <cmd>` and args
+    processLeadingLakeOptions -- between `lake script <cmd>` and args
     if (← getWantsHelp) then
       IO.println <| helpScript cmd
     else
@@ -1130,7 +1143,7 @@ protected def script : CliM PUnit := do
     throw <| CliError.missingCommand
 
 protected def serve : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let args := opts.subArgs.toArray
   let config ← mkLoadConfig opts
@@ -1162,7 +1175,7 @@ protected def exe : CliM PUnit := do
   exit <| ← (Lake.env exeFile.toString args.toArray).run <| mkLakeContext ws
 
 protected def lean : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let leanFile ← takeArg "Lean file"
   let opts ← getThe LakeOptions
   noArgsRem do
@@ -1171,7 +1184,7 @@ protected def lean : CliM PUnit := do
   exit rc
 
 protected def translateConfig : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let cfg ← mkLoadConfig opts
   let lang ← parseLangSpec (← takeArg "configuration language")
@@ -1203,7 +1216,7 @@ structure ReservoirConfig where
   deriving Lean.ToJson
 
 protected def reservoirConfig : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let cfg ← mkLoadConfig opts
   let _ ← id do
@@ -1235,7 +1248,7 @@ protected def reservoirConfig : CliM PUnit := do
   IO.println (toJson cfg).pretty
 
 protected def versionTags : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let cfg ← mkLoadConfig opts
   noArgsRem do
@@ -1246,7 +1259,7 @@ protected def versionTags : CliM PUnit := do
       IO.println tag
 
 protected def selfCheck : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   noArgsRem do verifyInstall (← getThe LakeOptions)
 
 protected def help : CliM PUnit := do
@@ -1297,9 +1310,9 @@ def lake : CliM PUnit := do
   | [] => IO.println usage
   | ["--version"] => IO.println uiVersionString
   | _ => -- normal CLI
-    processLeadingOptions lakeOption -- between `lake` and command
+    processLeadingLakeOptions -- between `lake` and command
     if let some cmd ← takeArg? then
-      processLeadingOptions lakeOption -- between `lake <cmd>` and args
+      processLeadingLakeOptions -- between `lake <cmd>` and args
       if (← getWantsHelp) then
         IO.println <| help cmd
       else

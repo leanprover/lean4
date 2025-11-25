@@ -6,8 +6,8 @@ inductive N where | z | s (n : N)
 
 def anyTwo : N → N → N → N → Bool
   | .s .z, _, _ , _ => true
-  -- | _, .s .z, _ , _ => true
-  -- | _, _, .s .z, _ => true
+  | _, .s .z, _ , _ => true
+  | _, _, .s .z, _ => true
   | _, _, _, .s .z => true
   | _, _, _, _ => false
 
@@ -20,12 +20,26 @@ example : anyTwo .z .z .z N.z.s = true := by rfl
 info: def anyTwo.match_1.{u_1} : (motive : N → N → N → N → Sort u_1) →
   (x x_1 x_2 x_3 : N) →
     ((x x_4 x_5 : N) → motive N.z.s x x_4 x_5) →
-      ((x x_4 x_5 : N) → motive x x_4 x_5 N.z.s) →
-        ((x x_4 x_5 x_6 : N) → motive x x_4 x_5 x_6) → motive x x_1 x_2 x_3 :=
-fun motive x x_1 x_2 x_3 h_1 h_2 h_3 =>
+      ((x x_4 x_5 : N) → motive x N.z.s x_4 x_5) →
+        ((x x_4 x_5 : N) → motive x x_4 N.z.s x_5) →
+          ((x x_4 x_5 : N) → motive x x_4 x_5 N.z.s) →
+            ((x x_4 x_5 x_6 : N) → motive x x_4 x_5 x_6) → motive x x_1 x_2 x_3 :=
+fun motive x x_1 x_2 x_3 h_1 h_2 h_3 h_4 h_5 =>
   have cont_1 :=
-    anyTwo._sparseCasesOn_1 x_3 (fun n => anyTwo._sparseCasesOn_2 n (h_2 x x_1 x_2) fun h => h_3 x x_1 x_2 n.s) fun h =>
-      h_3 x x_1 x_2 x_3;
+    have cont_2 :=
+      have cont_3 :=
+        anyTwo._sparseCasesOn_1 x_3 (fun n => anyTwo._sparseCasesOn_2 n (h_4 x x_1 x_2) fun h => h_5 x x_1 x_2 n.s)
+          fun h => h_5 x x_1 x_2 x_3;
+      N.casesOn (motive := fun x_4 => motive x x_1 x_4 x_3 → motive x x_1 x_4 x_3) x_2 (fun cont_3 => cont_3)
+        (fun n cont_3 =>
+          N.casesOn (motive := fun x_4 => motive x x_1 x_4.s x_3 → motive x x_1 x_4.s x_3) n
+            (fun cont_3 => h_3 x x_1 x_3) (fun n cont_3 => cont_3) cont_3)
+        cont_3;
+    N.casesOn (motive := fun x_4 => motive x x_4 x_2 x_3 → motive x x_4 x_2 x_3) x_1 (fun cont_2 => cont_2)
+      (fun n cont_2 =>
+        N.casesOn (motive := fun x_4 => motive x x_4.s x_2 x_3 → motive x x_4.s x_2 x_3) n (fun cont_2 => h_2 x x_2 x_3)
+          (fun n cont_2 => cont_2) cont_2)
+      cont_2;
   N.casesOn (motive := fun x => motive x x_1 x_2 x_3 → motive x x_1 x_2 x_3) x (fun cont_1 => cont_1)
     (fun n cont_1 =>
       N.casesOn (motive := fun x => motive x.s x_1 x_2 x_3 → motive x.s x_1 x_2 x_3) n (fun cont_1 => h_1 x_1 x_2 x_3)
@@ -40,9 +54,14 @@ fun motive x x_1 x_2 x_3 h_1 h_2 h_3 =>
 info: private def anyTwo.match_1.splitter.{u_1} : (motive : N → N → N → N → Sort u_1) →
   (x x_1 x_2 x_3 : N) →
     ((x x_4 x_5 : N) → motive N.z.s x x_4 x_5) →
-      ((x x_4 x_5 : N) → (x = N.z.s → False) → motive x x_4 x_5 N.z.s) →
-        ((x x_4 x_5 x_6 : N) → (x = N.z.s → False) → (x_6 = N.z.s → False) → motive x x_4 x_5 x_6) →
-          motive x x_1 x_2 x_3
+      ((x x_4 x_5 : N) → (x = N.z.s → False) → motive x N.z.s x_4 x_5) →
+        ((x x_4 x_5 : N) → (x = N.z.s → False) → (x_4 = N.z.s → False) → motive x x_4 N.z.s x_5) →
+          ((x x_4 x_5 : N) →
+              (x = N.z.s → False) → (x_4 = N.z.s → False) → (x_5 = N.z.s → False) → motive x x_4 x_5 N.z.s) →
+            ((x x_4 x_5 x_6 : N) →
+                (x = N.z.s → False) →
+                  (x_4 = N.z.s → False) → (x_5 = N.z.s → False) → (x_6 = N.z.s → False) → motive x x_4 x_5 x_6) →
+              motive x x_1 x_2 x_3
 -/
 #guard_msgs(pass trace, all) in
 #print sig anyTwo.match_1.splitter

@@ -285,7 +285,7 @@ def isCurrVarInductive (p : Problem) : MetaM Bool := do
 
 private def isConstructorTransition (p : Problem) : MetaM Bool := do
   return (← isCurrVarInductive p)
-    && (hasCtorPattern p || p.alts.isEmpty)
+    && (hasCtorPattern p || (p.alts.isEmpty && p.fallthrough.isNone))
     && p.alts.all fun alt => match alt.patterns with
       | .ctor .. :: _        => true
       | .var _ :: _          => true
@@ -724,7 +724,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
        try
          p.mvarId.cases x.fvarId! (interestingCtors? := interestingCtors?)
        catch ex =>
-         if p.alts.isEmpty then
+         if p.alts.isEmpty && p.fallthrough.isNone then
            /- If we have no alternatives and dependent pattern matching fails, then a "missing cases" error is better than a "stuck" error message. -/
            return none
          else
@@ -732,7 +732,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
      if subgoals.isEmpty then
        /- Easy case: we have solved problem `p` since there are no subgoals -/
        return some #[]
-     else if !p.alts.isEmpty then
+     else if !p.alts.isEmpty || p.fallthrough.isSome then
        return some subgoals
      else do
        let isRec ← withGoalOf p <| hasRecursiveType x

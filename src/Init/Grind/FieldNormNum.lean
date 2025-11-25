@@ -20,27 +20,50 @@ attribute [local simp]
   Field.inv_one Semiring.natCast_zero Semiring.natCast_one Ring.intCast_zero Ring.intCast_one Semiring.one_mul Semiring.mul_one
   Semiring.pow_zero Field.inv_one Field.inv_zero
 
-private theorem dvd_helper₁ {z : Int} {n : Nat} : ↑(z.natAbs.gcd n : Int) ∣ z := sorry
-private theorem dvd_helper₂ {z : Int} {n : Nat} : z.natAbs.gcd n ∣ n := sorry
+private theorem dvd_helper₁ {z : Int} {n : Nat} : ↑(z.natAbs.gcd n : Int) ∣ z :=
+  Rat.normalize.dvd_num rfl
+private theorem dvd_helper₂ {z : Int} {n : Nat} : z.natAbs.gcd n ∣ n :=
+  Nat.gcd_dvd_right z.natAbs n
 
-private theorem nonzero_helper {α} [Field α] {z : Int} {n m : Nat} (hn : n ≠ 0) (hm : m ≠ 0) :
-    (z.natAbs.gcd (n * m) : α) ≠ 0 := sorry
+private theorem nonzero_helper {α} [Field α] {z : Int} {n m : Nat} (hn : (n : α) ≠ 0) (hm : (m : α) ≠ 0) :
+    (z.natAbs.gcd (n * m) : α) ≠ 0 := by
+  intro h
+  have : z.natAbs.gcd (n * m) ∣ (n * m) := Nat.gcd_dvd_right z.natAbs (n * m)
+  obtain ⟨k, hk⟩ := this
+  replace hk := congrArg (fun x : Nat => (x : α)) hk
+  dsimp at hk
+  rw [Semiring.natCast_mul, Semiring.natCast_mul, h, Semiring.zero_mul] at hk
+  replace hk := Field.of_mul_eq_zero hk
+  simp_all
 
-theorem ofRat_add {α} [Field α] (a b : Rat) : (ofRat (a + b) : α) = ofRat a + ofRat b := by
+theorem ofRat_add' {α} [Field α] {a b : Rat} (ha : (a.den : α) ≠ 0) (hb : (b.den : α) ≠ 0) :
+    (ofRat (a + b) : α) = ofRat a + ofRat b := by
   rw [ofRat, ofRat, ofRat, Rat.num_add, Rat.den_add]
-  rw [Field.intCast_div_of_dvd dvd_helper₁]
-  rw [Field.natCast_div_of_dvd dvd_helper₂]
-  rw [Ring.intCast_natCast, Field.div_div]
-  rw [Field.div_mul_cancel _ (nonzero_helper a.den_nz b.den_nz)]
-  rw [Field.add_div, Field.div_mul, Field.div_add]
-  sorry
-theorem ofRat_mul {α} [Field α] (a b : Rat) : (ofRat (a * b) : α) = ofRat a * ofRat b := by
+  rw [Field.intCast_div_of_dvd dvd_helper₁ (by simpa [Ring.intCast_natCast] using (nonzero_helper ha hb))]
+  rw [Field.natCast_div_of_dvd dvd_helper₂ (nonzero_helper ha hb)]
+  rw [Ring.intCast_natCast, Field.div_div_right]
+  rw [Field.div_mul_cancel (nonzero_helper ha hb)]
+  rw [Field.add_div hb, Field.div_mul, Field.div_add ha]
+  rw [Ring.intCast_add, Ring.intCast_mul, Ring.intCast_mul, Ring.intCast_natCast,
+    Ring.intCast_natCast, CommSemiring.mul_comm (a.den : α), Field.div_div_left,
+    Semiring.natCast_mul]
+theorem ofRat_mul' {α} [Field α] {a b : Rat} (ha : (a.den : α) ≠ 0) (hb : (b.den : α) ≠ 0) : (ofRat (a * b) : α) = ofRat a * ofRat b := by
   rw [ofRat, ofRat, ofRat, Rat.num_mul, Rat.den_mul]
-  rw [Field.intCast_div_of_dvd dvd_helper₁]
-  rw [Field.natCast_div_of_dvd dvd_helper₂]
-  rw [Ring.intCast_natCast, Field.div_div]
-  rw [Field.div_mul_cancel _ (nonzero_helper a.den_nz b.den_nz)]
-  sorry
+  rw [Field.intCast_div_of_dvd dvd_helper₁ (by simpa [Ring.intCast_natCast] using (nonzero_helper ha hb))]
+  rw [Field.natCast_div_of_dvd dvd_helper₂ (nonzero_helper ha hb)]
+  rw [Ring.intCast_natCast, Field.div_div_right]
+  rw [Field.div_mul_cancel (nonzero_helper ha hb)]
+  rw [Field.div_mul, Field.mul_div, Field.div_div_left, Ring.intCast_mul, Semiring.natCast_mul,
+    CommSemiring.mul_comm (b.den : α)]
+
+-- Note: false without `IsCharP α 0` (consider `a = b = 1/2` in `ℤ/2ℤ`):
+theorem ofRat_add {α} [Field α] [IsCharP α 0] (a b : Rat) :
+    (ofRat (a + b) : α) = ofRat a + ofRat b :=
+  ofRat_add' (natCast_ne_zero a.den_nz) (natCast_ne_zero b.den_nz)
+-- Note: false without `IsCharP α 0` (consider `a = 2/3` and `b = 1/2` in `ℤ/2ℤ`):
+theorem ofRat_mul {α} [Field α] [IsCharP α 0] (a b : Rat) : (ofRat (a * b) : α) = ofRat a * ofRat b :=
+  ofRat_mul' (natCast_ne_zero a.den_nz) (natCast_ne_zero b.den_nz)
+
 theorem ofRat_inv {α} [Field α] (a : Rat) : (ofRat (a⁻¹) : α) = (ofRat a)⁻¹ := by
   simp [ofRat]; split
   next h => simp [h, Field.div_eq_mul_inv]
@@ -57,17 +80,71 @@ theorem ofRat_inv {α} [Field α] (a : Rat) : (ofRat (a⁻¹) : α) = (ofRat a)�
     rw [← this, Semiring.mul_assoc, Semiring.mul_assoc]
     congr 1
     rw [CommSemiring.mul_comm]
-theorem ofRat_div {α} [Field α] (a b : Rat) : (ofRat (a / b) : α) = ofRat a / ofRat b := by
-  simp [Rat.div_def, ofRat_mul, Field.div_eq_mul_inv (ofRat a), ofRat_inv]
+
+theorem ofRat_div' {α} [Field α] {a b : Rat} (ha : (a.den : α) ≠ 0) (hb : (b.num : α) ≠ 0) :
+    (ofRat (a / b) : α) = ofRat a / ofRat b := by
+  replace hb : ((b⁻¹).den : α) ≠ 0 := by
+    simp only [Rat.den_inv, Rat.num_eq_zero, ne_eq]
+    rw [if_neg (by intro h; simp_all)]
+    rw [← Ring.intCast_natCast]
+    by_cases h : 0 ≤ b.num
+    · have : (b.num.natAbs : Int) = b.num := Int.natAbs_of_nonneg h
+      rwa [this]
+    · have : (b.num.natAbs : Int) = -b.num := Int.ofNat_natAbs_of_nonpos (by omega)
+      rw [this, Ring.intCast_neg]
+      rwa [AddCommGroup.neg_eq_iff, AddCommGroup.neg_zero]
+  rw [Rat.div_def, ofRat_mul' ha hb, ofRat_inv, Field.div_eq_mul_inv (ofRat a)]
+
+theorem ofRat_div {α} [Field α] [IsCharP α 0] (a b : Rat) : (ofRat (a / b) : α) = ofRat a / ofRat b := by
+  rw [Rat.div_def, ofRat_mul, ofRat_inv, Field.div_eq_mul_inv (ofRat a)]
+
 theorem ofRat_neg {α} [Field α] (a : Rat) : (ofRat (-a) : α) = -ofRat a := by
   simp [ofRat, Field.div_eq_mul_inv, Ring.intCast_neg, Ring.neg_mul]
-theorem ofRat_sub {α} [Field α] (a b : Rat) : (ofRat (a - b) : α) = ofRat a - ofRat b := by
-  simp [Rat.sub_eq_add_neg, ofRat_add, ofRat_neg, Ring.sub_eq_add_neg]
-theorem ofRat_npow {α} [Field α] (a : Rat) (n : Nat) : (ofRat (a^n) : α) = ofRat a ^ n := by
+
+theorem ofRat_sub' {α} [Field α] {a b : Rat} (ha : (a.den : α) ≠ 0) (hb : (b.den : α) ≠ 0) :
+    (ofRat (a - b) : α) = ofRat a - ofRat b := by
+  replace hb : ((-b).den : α) ≠ 0 := by simpa
+  rw [Rat.sub_eq_add_neg, ofRat_add' ha hb, ofRat_neg, Ring.sub_eq_add_neg]
+
+theorem ofRat_sub {α} [Field α] [IsCharP α 0] (a b : Rat) :
+    (ofRat (a - b) : α) = ofRat a - ofRat b := by
+  rw [Rat.sub_eq_add_neg, ofRat_add, ofRat_neg, Ring.sub_eq_add_neg]
+
+theorem ofRat_npow' {α} [Field α] {a : Rat} (ha : (a.den : α) ≠ 0) (n : Nat) : (ofRat (a^n) : α) = ofRat a ^ n := by
+  have h : ∀ n : Nat, ((a^n).den : α) ≠ 0 := by
+    intro n
+    rw [Rat.den_pow, ne_eq, Semiring.natCast_pow]
+    intro h
+    induction n with
+    | zero =>
+      rw [Semiring.pow_zero] at h
+      exact Field.zero_ne_one h.symm
+    | succ n ih' =>
+      rw [Semiring.pow_succ] at h
+      replace h := Field.of_mul_eq_zero h
+      rcases h with h | h
+      · exact ih' h
+      · exact ha h
   induction n
   next => simp [Field.div_eq_mul_inv, ofRat]
-  next n ih => simp [Rat.pow_succ, ofRat_mul, ih, Semiring.pow_succ]
-theorem ofRat_zpow {α} [Field α] (a : Rat) (n : Int) : (ofRat (a^n) : α) = ofRat a ^ n := by
+  next n ih =>
+    rw [Rat.pow_succ, ofRat_mul' (h _) ha, ih, Semiring.pow_succ]
+
+theorem ofRat_npow {α} [Field α] [IsCharP α 0] (a : Rat) (n : Nat) : (ofRat (a^n) : α) = ofRat a ^ n := by
+  induction n
+  next => simp [Field.div_eq_mul_inv, ofRat]
+  next n ih => rw [Rat.pow_succ, ofRat_mul, ih, Semiring.pow_succ]
+
+theorem ofRat_zpow' {α} [Field α] {a : Rat} (ha : (a.den : α) ≠ 0) (n : Int) : (ofRat (a^n) : α) = ofRat a ^ n := by
+  cases n
+  next => rw [Int.ofNat_eq_natCast, Rat.zpow_natCast, Field.zpow_natCast, ofRat_npow' ha]
+  next =>
+    rw [Int.negSucc_eq, Rat.zpow_neg, Field.zpow_neg, ofRat_inv]
+    congr 1
+    have : (1 : Int) = (1 : Nat) := rfl
+    rw [this, ← Int.natCast_add, Rat.zpow_natCast, Field.zpow_natCast, ofRat_npow' ha]
+
+theorem ofRat_zpow {α} [Field α] [IsCharP α 0] (a : Rat) (n : Int) : (ofRat (a^n) : α) = ofRat a ^ n := by
   cases n
   next => rw [Int.ofNat_eq_natCast, Rat.zpow_natCast, Field.zpow_natCast, ofRat_npow]
   next =>
@@ -87,19 +164,19 @@ theorem ofNat_eq {α} [Field α] (n : Nat) : (OfNat.ofNat n : α) = ofRat n := b
 theorem intCast_eq {α} [Field α] (n : Int) : (IntCast.intCast n : α) = ofRat n := by
   simp [ofRat, Semiring.natCast_one, Field.div_eq_mul_inv, Field.inv_one, Semiring.mul_one]
 
-theorem add_eq {α} [Field α] (a b : α) (v₁ v₂ v : Rat)
+theorem add_eq {α} [Field α] [IsCharP α 0] (a b : α) (v₁ v₂ v : Rat)
     : v == v₁ + v₂ → a = ofRat v₁ → b = ofRat v₂ → a + b = ofRat v := by
   simp; intros; subst v a b; rw [ofRat_add]
 
-theorem sub_eq {α} [Field α] (a b : α) (v₁ v₂ v : Rat)
+theorem sub_eq {α} [Field α] [IsCharP α 0] (a b : α) (v₁ v₂ v : Rat)
     : v == v₁ - v₂ → a = ofRat v₁ → b = ofRat v₂ → a - b = ofRat v := by
   simp; intros; subst v a b; rw [ofRat_sub]
 
-theorem mul_eq {α} [Field α] (a b : α) (v₁ v₂ v : Rat)
+theorem mul_eq {α} [Field α] [IsCharP α 0] (a b : α) (v₁ v₂ v : Rat)
     : v == v₁ * v₂ → a = ofRat v₁ → b = ofRat v₂ → a * b = ofRat v := by
   simp; intros; subst v a b; rw [ofRat_mul]
 
-theorem div_eq {α} [Field α] (a b : α) (v₁ v₂ v : Rat)
+theorem div_eq {α} [Field α] [IsCharP α 0] (a b : α) (v₁ v₂ v : Rat)
     : v == v₁ / v₂ → a = ofRat v₁ → b = ofRat v₂ → a / b = ofRat v := by
   simp; intros; subst v a b; rw [ofRat_div]
 
@@ -111,11 +188,11 @@ theorem neg_eq {α} [Field α] (a : α) (v₁ v : Rat)
     : v == -v₁ → a = ofRat v₁ → -a = ofRat v := by
   simp; intros; subst v a; rw [ofRat_neg]
 
-theorem npow_eq {α} [Field α] (a : α) (n : Nat) (v₁ v : Rat)
+theorem npow_eq {α} [Field α] [IsCharP α 0] (a : α) (n : Nat) (v₁ v : Rat)
     : v == v₁^n → a = ofRat v₁ → a ^ n = ofRat v := by
   simp; intros; subst v a; rw [ofRat_npow]
 
-theorem zpow_eq {α} [Field α] (a : α) (n : Int) (v₁ v : Rat)
+theorem zpow_eq {α} [Field α] [IsCharP α 0] (a : α) (n : Int) (v₁ v : Rat)
     : v == v₁^n → a = ofRat v₁ → a ^ n = ofRat v := by
   simp; intros; subst v a; rw [ofRat_zpow]
 

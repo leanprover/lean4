@@ -324,7 +324,7 @@ Fulfills the following invariants:
 2. The set of non-tainted measures is sorted by last line length (strictly descending).
 
 Together, these two invariants also imply that the set of non-tainted measures is sorted
-by cost (ascending), as otherwise the first invariant would be violated.
+by cost (strictly ascending), as otherwise the first invariant would be violated.
 
 Since all of these measures are non-tainted, both invariants individually imply that there are
 at most W measures in a given set of non-tainted measures, where W is the optimality cutoff width
@@ -362,6 +362,10 @@ Merges two sets of measures, preferring non-empty sets of measures over tainted 
 measures over empty sets of measures.
 Tainted measures are merged according to `TaintedMeasure.merge` and sets of non-tainted measures
 are merged according to `MeasureSet.Set.merge`.
+
+`prunable` can only be set to `true` if either `ms1` and `ms2` are not both tainted, or if it can be
+guaranteed that both tainted measures will always fail at the same time
+(in which case we never need to try both).
 -/
 def MeasureSet.merge (ms1 ms2 : MeasureSet τ) (prunable : Bool) : MeasureSet τ :=
   match ms1, ms2 with
@@ -628,17 +632,30 @@ where
             let mut deduped := []
             for m2 in ms2 do
               let current := m1.append m2
-              -- `ms2` fulfills the measure set invariants, which are retained when appending these
-              -- measures to `m1`, i.e. they are still sorted by last line length
-              -- (strictly descending) and cost (ascending).
-              -- This means that we do not need to check the last line length
-              -- so it suffices to check the cost here to determine
+              -- `ms2` fulfills the measure set invariants, which means that appending these
+              -- measures to `m1` results in a set that is still sorted by last line length
+              -- in strictly descending order. The resulting set is also still sorted by cost, but
+              -- in general not in strictly ascending order, just in ascending order
+              -- (by monotonicity of a lawful `+`):
+              -- A cost function over ℕ with `a + b := max(a, b)`, ≤ as on the natural numbers and
+              -- `textCost` / `newlineCost` defined in some arbitrary lawful manner is lawful,
+              -- while `ms2 := [(3, 1), (2, 2), (1, 3)]` fulfills the measure set invariants
+              -- and `map ms2 (append (2, 2) ·) = [(3, 2), (2, 2), (1, 3)]` is not strictly
+              -- ascending in cost.
+              -- The two order invariants imply that we only need to check adjacent measures for
+              -- domination and that we only need to check the cost of measures when checking for
+              -- domination. The fact that the cost order is not necessarily strict implies that
+              -- checking the cost of adjacent measures is still necessary for general lawful cost
+              -- functions.
               if current.cost <= last.cost then
                 last := current
                 continue
               deduped := last :: deduped
               last := current
             return last :: deduped |>.reverse
+        -- `m1Result` and (inductively) all results in `acc` are resolutions of `d2`, so all
+        -- resolutions being merged here either fail at once or none of them fail.
+        -- Hence, we can set `prunable := true` here.
         return m1Result.merge acc (prunable := true)
 
 partial def MeasureSet.resolve : Resolver σ τ := Resolver.memoize fun d columnPos indentation fullness => do

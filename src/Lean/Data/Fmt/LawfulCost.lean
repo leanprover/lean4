@@ -31,14 +31,14 @@ in order for formatting with the cost function to be correct and efficient.
 public class LawfulCost (τ : Type) [Add τ] [LE τ] extends Cost τ, Grind.AddCommMonoid τ, Std.IsLinearOrder τ where
   zero := textCost 0 0
 
-  textCost_columnPos_monotone (cp₁ cp₂ n : Nat) :
+  textCost_monotone (cp₁ cp₂ n : Nat) :
     cp₁ ≤ cp₂ → textCost cp₁ n ≤ textCost cp₂ n
-  textCost_length_add_decompose (cp n₁ n₂ : Nat) :
+  textCost_add (cp n₁ n₂ : Nat) :
     textCost cp (n₁ + n₂) = textCost cp n₁ + textCost (cp + n₁) n₂
   newlineCost_monotone (i₁ i₂ : Nat) :
     i₁ ≤ i₂ → newlineCost i₁ ≤ newlineCost i₂
 
-  le_add_invariant (c₁ c₂ c₃ c₄ : τ) : c₁ ≤ c₂ → c₃ ≤ c₄ → c₁ + c₃ ≤ c₂ + c₄
+  add_monotone (c₁ c₂ c₃ c₄ : τ) : c₁ ≤ c₂ → c₃ ≤ c₄ → c₁ + c₃ ≤ c₂ + c₄
 
 attribute [grind ext] DefaultCost
 
@@ -92,14 +92,14 @@ instance : Std.IsLinearOrder (DefaultCost w W) where
   le_antisymm := DefaultCost.le_antisymm
   le_total := DefaultCost.le_total
 
-theorem DefaultCost.textCost_columnPos_monotone
+theorem DefaultCost.textCost_monotone
     (cp₁ cp₂ n : Nat) :
     cp₁ ≤ cp₂ →
     (Cost.textCost cp₁ n : DefaultCost w W) ≤
       Cost.textCost cp₂ n := by
   grind [= textCost_def, = le_def, Nat.mul_le_mul]
 
-theorem DefaultCost.textCost_length_add_decompose (cp n₁ n₂ : Nat) :
+theorem DefaultCost.textCost_add (cp n₁ n₂ : Nat) :
     (Cost.textCost cp (n₁ + n₂) : DefaultCost w W) =
       Cost.textCost cp n₁ + Cost.textCost (cp + n₁) n₂ := by
   grind [= textCost_def, = add_def, Nat.sub_add_comm]
@@ -110,12 +110,12 @@ theorem DefaultCost.newlineCost_monotone (i₁ i₂ : Nat) :
       Cost.newlineCost i₂ := by
   grind [newlineCost_def]
 
-def DefaultCost.le_add_invariant (c₁ c₂ c₃ c₄ : DefaultCost w W) : c₁ ≤ c₂ → c₃ ≤ c₄ → c₁ + c₃ ≤ c₂ + c₄ := by
+def DefaultCost.add_monotone (c₁ c₂ c₃ c₄ : DefaultCost w W) : c₁ ≤ c₂ → c₃ ≤ c₄ → c₁ + c₃ ≤ c₂ + c₄ := by
   grind [= le_def, = add_def]
 
 instance : LawfulCost (DefaultCost softWidth optimalityCutoffWidth) where
-  textCost_columnPos_monotone := DefaultCost.textCost_columnPos_monotone
-  textCost_length_add_decompose := DefaultCost.textCost_length_add_decompose
+  textCost_monotone := DefaultCost.textCost_monotone
+  textCost_add := DefaultCost.textCost_add
   newlineCost_monotone := DefaultCost.newlineCost_monotone
 
-  le_add_invariant := DefaultCost.le_add_invariant
+  add_monotone := DefaultCost.add_monotone

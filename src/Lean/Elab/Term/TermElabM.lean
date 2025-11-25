@@ -1135,7 +1135,7 @@ def registerDerivableClass (className : Name) : IO Unit := do
   derivableRef.modify fun m => m.insert className
 
 /--
-Returns whether a classname has a `deriving` handler installed.
+Returns whether `className` has a `deriving` handler installed.
 -/
 def hasDerivingHandler (className : Name) : IO Bool := do
   return (← derivableRef.get).contains className

@@ -49,7 +49,7 @@ The binary operation `+` is associated with the `HAdd` type class, and there's n
 strings. The binary operation `++`, associated with the `HAppend` type class, is the correct way to
 append strings.
 
-## Modifying the Type of an Argument
+## Arguments Have the Wrong Type
 
 ```lean broken
 def x : Int := 3
@@ -70,7 +70,7 @@ Lean does not allow integers and strings to be added directly. The function `ToS
 type class overloading to convert values to strings; by successfully searching for an instance of
 `ToString Int`, the second example will succeed.
 
-## Adding a New Type Class Instance
+## Missing Type Class Instance
 
 ```lean broken
 inductive MyColor where

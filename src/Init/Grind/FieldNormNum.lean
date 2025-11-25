@@ -21,7 +21,7 @@ attribute [local simp]
   Semiring.pow_zero Field.inv_one Field.inv_zero
 
 theorem ofRat_add {α} [Field α] (a b : Rat) : (ofRat (a + b) : α) = ofRat a + ofRat b := sorry
-theorem ofRat_mul {α} [Field α] (a b : Rat) : (ofRat (a * b) : α) = ofRat a * ofRat b := sorry
+theorem ofRat_mul {α} [Field α] (a b : Rat) : (ofRat (a * b) : α) = ofRat a * ofRat b := sorry]
 theorem ofRat_inv {α} [Field α] (a : Rat) : (ofRat (a⁻¹) : α) = (ofRat a)⁻¹ := by
   simp [ofRat]; split
   next h => simp [h, Field.div_eq_mul_inv]
@@ -48,7 +48,14 @@ theorem ofRat_npow {α} [Field α] (a : Rat) (n : Nat) : (ofRat (a^n) : α) = of
   induction n
   next => simp [Field.div_eq_mul_inv, ofRat]
   next n ih => simp [Rat.pow_succ, ofRat_mul, ih, Semiring.pow_succ]
-theorem ofRat_zpow {α} [Field α] (a : Rat) (n : Int) : (ofRat (a^n) : α) = ofRat a ^ n := sorry
+theorem ofRat_zpow {α} [Field α] (a : Rat) (n : Int) : (ofRat (a^n) : α) = ofRat a ^ n := by
+  cases n
+  next => rw [Int.ofNat_eq_natCast, Rat.zpow_natCast, Field.zpow_natCast, ofRat_npow]
+  next =>
+    rw [Int.negSucc_eq, Rat.zpow_neg, Field.zpow_neg, ofRat_inv]
+    congr 1
+    have : (1 : Int) = (1 : Nat) := rfl
+    rw [this, ← Int.natCast_add, Rat.zpow_natCast, Field.zpow_natCast, ofRat_npow]
 
 theorem natCast_eq {α} [Field α] (n : Nat) : (NatCast.natCast n : α) = ofRat n := by
   simp [ofRat, Ring.intCast_natCast, Semiring.natCast_one, Field.div_eq_mul_inv,

@@ -1781,15 +1781,15 @@ theorem ediv_lt_ediv_iff_of_dvd_of_neg_of_neg {a b c d : Int} (hb : b < 0) (hd :
   obtain ⟨⟨x, rfl⟩, y, rfl⟩ := hba, hdc
   simp [*, Int.ne_of_lt, d.mul_assoc, b.mul_comm]
 
-theorem ediv_lt_ediv_of_lt {a b c : Int} (h : a < b) (hca : c ∣ a) (hcb : c ∣ b) (hc : 0 < c) :
+theorem ediv_lt_ediv_of_lt {a b c : Int} (h : a < b) (hcb : c ∣ b) (hc : 0 < c) :
     a / c < b / c := by
-  rwa [Int.ediv_lt_ediv_iff_of_dvd_of_pos hc hc hca hcb, Int.mul_comm, 
-    Int.mul_lt_mul_right hc]
+  Int.lt_ediv_of_mul_lt (Int.le_of_lt hc) hcb 
+    (Int.lt_of_le_of_lt (Int.ediv_mul_le _ (Int.ne_of_gt hc)) h)
   
-theorem ediv_lt_ediv_of_lt_of_neg {a b c : Int} (h : b < a) (hca : c ∣ a) (hcb : c ∣ b) (hc : c < 0) :
+theorem ediv_lt_ediv_of_lt_of_neg {a b c : Int} (h : b < a) (hca : c ∣ a) (hc : c < 0) :
     a / c < b / c := by
-  rwa [Int.ediv_lt_ediv_iff_of_dvd_of_neg_of_neg hc hc hca hcb, Int.mul_comm, 
-    Int.mul_lt_mul_right_of_neg hc]
+  (Int.ediv_lt_iff_of_dvd_of_neg hc hca).2 
+    (Int.lt_of_le_of_lt (Int.mul_ediv_self_le (Int.ne_of_lt hc)) h)
 
 /-! ### `tdiv` and ordering -/
 

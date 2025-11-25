@@ -9,6 +9,7 @@ prelude
 public import Lean.Util.RecDepth
 public import Lean.ResolveName
 public import Lean.Language.Basic
+public import Lean.ErrorExplanations.InductionWithNoAlts
 
 public section
 
@@ -522,7 +523,7 @@ instance : MonadLog CoreM where
     if (← read).suppressElabErrors then
       -- discard elaboration errors, except for a few important and unlikely misleading ones, on
       -- parse error
-      unless msg.data.hasTag (· matches `Elab.synthPlaceholder | `Tactic.unsolvedGoals | `trace) do
+      unless msg.data.hasTag (· matches `Elab.synthPlaceholder | `Tactic.unsolvedGoals | `lean.inductionWithNoAlts | `trace) do
         return
 
     let ctx ← read

@@ -12,6 +12,7 @@ public import Lean.Elab.Tactic.ElabTerm
 import Lean.Meta.Tactic.FunIndCollect
 import Lean.Elab.App
 import Lean.Elab.Tactic.Generalize
+import Lean.ErrorExplanations.InductionWithNoAlts
 
 
 public section
@@ -660,7 +661,8 @@ def getOptPreTacOfOptInductionAlts (optInductionAlts : Syntax) : TacticM Syntax 
       ]
     ]
   ]) := optInductionAlts then
-    throwOrLogErrorAt var "`with` keyword not followed by a tactic or case as expected"
+    throwNamedErrorAt optInductionAlts lean.inductionWithNoAlts
+      m!"Invalid syntax for `induction` or `cases` tactic: the `with` keyword must followed by a tactic or by an alternative (e.g. `| zero =>`)"
   if optInductionAlts.isNone then
     return mkNullNode
   else

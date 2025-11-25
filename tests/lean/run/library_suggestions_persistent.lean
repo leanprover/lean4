@@ -17,7 +17,7 @@ info: ✓ Selector found in imported state: (Term.open
  "open"
  (Command.openSimple [`Lean.LibrarySuggestions])
  "in"
- (Term.app `sineQuaNonSelector.intersperse [`currentFile]))
+ (Term.app `sineQuaNonSelector.filterGrindAnnotated.intersperse [`currentFile]))
 ---
 info:   ✓ Successfully retrieved selector using getSelector!
 -/

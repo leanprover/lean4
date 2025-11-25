@@ -1,5 +1,5 @@
 /--
-info: x y : Nat
+trace: x y : Nat
 h : y = 0
 ⊢ id (2 * x + y) = id (2 * x)
 -/

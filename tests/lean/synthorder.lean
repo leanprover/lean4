@@ -17,7 +17,6 @@ instance : Foo (Option A) A where
 
 
 
-class One (α : Type)
 class Two (α) [One α]
 class TwoHalf (α) [One α] extends Two α
 class Three (α : Type) (β : outParam Type) [One β] [Two β]

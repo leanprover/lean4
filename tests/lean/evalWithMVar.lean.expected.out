@@ -1,9 +1,9 @@
 c.someRight : Option Nat
-evalWithMVar.lean:13:6-13:21: error: don't know how to synthesize implicit argument 'α'
+evalWithMVar.lean:13:6-13:21: error: don't know how to synthesize implicit argument `α`
   @Sum.someRight ?m Nat c
 context:
 ⊢ Type ?u
-evalWithMVar.lean:13:20-13:21: error: don't know how to synthesize implicit argument 'α'
+evalWithMVar.lean:13:20-13:21: error: don't know how to synthesize implicit argument `α`
   @c ?m
 context:
 ⊢ Type ?u

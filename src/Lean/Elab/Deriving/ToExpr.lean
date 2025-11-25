@@ -3,12 +3,11 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+module
+
 prelude
-import Lean.Meta.Transform
 import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
-import Lean.ToLevel
-import Lean.ToExpr
 
 /-!
 # `ToExpr` deriving handler
@@ -81,7 +80,7 @@ where
       let alt ← forallTelescopeReducing ctorInfo.type fun xs _ => do
         let mut patterns := #[]
         -- add `_` pattern for indices, before the constructor's pattern
-        for _ in [:indVal.numIndices] do
+        for _ in *...indVal.numIndices do
           patterns := patterns.push (← `(_))
         let mut ctorArgs := #[]
         let mut rhsArgs : Array Term := #[]
@@ -93,11 +92,11 @@ where
           else
             ``(toExpr $a)
         -- add `_` pattern for inductive parameters, which are inaccessible
-        for i in [:ctorInfo.numParams] do
+        for i in *...ctorInfo.numParams do
           let a := mkIdent header.argNames[i]!
           ctorArgs := ctorArgs.push (← `(_))
           rhsArgs := rhsArgs.push <| ← mkArg xs[i]! a
-        for i in [:ctorInfo.numFields] do
+        for i in *...ctorInfo.numFields do
           let a := mkIdent (← mkFreshUserName `a)
           ctorArgs := ctorArgs.push a
           rhsArgs := rhsArgs.push <| ← mkArg xs[ctorInfo.numParams + i]! a
@@ -123,9 +122,9 @@ def mkLocalInstanceLetDecls (ctx : Deriving.Context) (argNames : Array Name) (le
   for indVal in ctx.typeInfos, auxFunName in ctx.auxFunNames do
     let currArgNames ← mkInductArgNames indVal
     let numParams    := indVal.numParams
-    let currIndices  := currArgNames[numParams:]
+    let currIndices  := currArgNames[numParams...*]
     let binders      ← mkImplicitBinders currIndices
-    let argNamesNew  := argNames[:numParams] ++ currIndices
+    let argNamesNew  := argNames[*...numParams] ++ currIndices
     let indType      ← mkInductiveApp indVal argNamesNew
     let instName     ← mkFreshUserName `localinst
     let toTypeExpr   ← mkToTypeExpr indVal argNames
@@ -168,9 +167,9 @@ def mkAuxFunction (ctx : Deriving.Context) (i : Nat) : TermElabM Command := do
     | _ => throwError "(internal error) expecting inst binder"
   let binders := header.binders.pop ++ levelBinders ++ #[← addLevels header.binders.back!]
   if ctx.usePartial then
-    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Expr := $body:term)
+    `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Expr := $body:term)
   else
-    `(private         def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Expr := $body:term)
+    `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Expr := $body:term)
 
 /--
 Creates all the auxiliary functions (using `mkAuxFunction`) for the (mutual) inductive type(s).
@@ -178,7 +177,7 @@ Wraps the resulting definition commands in `mutual ... end`.
 -/
 def mkAuxFunctions (ctx : Deriving.Context) : TermElabM Syntax := do
   let mut auxDefs := #[]
-  for i in [:ctx.typeInfos.size] do
+  for i in *...ctx.typeInfos.size do
     auxDefs := auxDefs.push (← mkAuxFunction ctx i)
   `(mutual $auxDefs:command* end)
 
@@ -186,7 +185,8 @@ open TSyntax.Compat in
 /--
 Assuming all of the auxiliary definitions exist,
 creates all the `instance` commands for the `ToExpr` instances for the (mutual) inductive type(s).
-This is a modified copy of `Lean.Elab.Deriving.mkInstanceCmds` to account for `ToLevel` instances.
+This is a modified copy of `Lean.Elab.Deriving.mkInstanceCmds` to account for `ToLevel` instances
+parameters.
 -/
 def mkInstanceCmds (ctx : Deriving.Context) (typeNames : Array Name) :
     TermElabM (Array Command) := do
@@ -202,7 +202,8 @@ def mkInstanceCmds (ctx : Deriving.Context) (typeNames : Array Name) :
       let binders      := binders ++ levelBinders
       let indType      ← updateIndType indVal (← mkInductiveApp indVal argNames)
       let toTypeExpr   ← mkToTypeExpr indVal argNames
-      let instCmd ← `(instance $binders:implicitBinder* : ToExpr $indType where
+      let instName     ← mkInstName ``ToExpr indVal.name
+      let instCmd ← `(instance $(mkIdent instName):ident $binders:implicitBinder* : ToExpr $indType where
                         toExpr := $(mkIdent auxFunName) $toLevelInsts*
                         toTypeExpr := $toTypeExpr)
       instances := instances.push instCmd
@@ -212,7 +213,7 @@ def mkInstanceCmds (ctx : Deriving.Context) (typeNames : Array Name) :
 Returns all the commands necessary to construct the `ToExpr` instances.
 -/
 def mkToExprInstanceCmds (declNames : Array Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "toExpr" declNames[0]!
+  let ctx ← mkContext ``ToExpr "toExpr" declNames[0]!
   let cmds := #[← mkAuxFunctions ctx] ++ (← mkInstanceCmds ctx declNames)
   trace[Elab.Deriving.toExpr] "\n{cmds}"
   return cmds

@@ -7,6 +7,11 @@ In particular that it behaves the same as `induction … using ….induct`.
 variable (xs ys : List Nat)
 variable (P : ∀ {α}, List α → Prop)
 
+-- We re-define this here to avoid stage0 complications
+def zipWith (f : α → β → γ) : (xs : List α) → (ys : List β) → List γ
+  | x::xs, y::ys => f x y :: zipWith f xs ys
+  | _,     _     => []
+
 /--
 error: unsolved goals
 case case1
@@ -22,13 +27,13 @@ ih1✝ : P (xs✝.zip ys✝)
 case case2
 xs ys : List Nat
 P : {α : Type} → List α → Prop
-t✝ x✝¹ : List Nat
-x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → x✝¹ = y :: ys → False
-⊢ P (t✝.zip x✝¹)
+t✝ ys✝ : List Nat
+x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → ys✝ = y :: ys → False
+⊢ P (t✝.zip ys✝)
 -/
 #guard_msgs in
 example : P (List.zip xs ys) := by
-  fun_induction List.zipWith _ xs ys
+  fun_induction zipWith _ xs ys
 
 
 /--
@@ -47,14 +52,14 @@ h : (x✝ :: xs✝).isEmpty = true
 case case2
 xs ys : List Nat
 P : {α : Type} → List α → Prop
-t✝ x✝¹ : List Nat
-x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → x✝¹ = y :: ys → False
+t✝ ys✝ : List Nat
+x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → ys✝ = y :: ys → False
 h : t✝.isEmpty = true
-⊢ P (t✝.zip x✝¹)
+⊢ P (t✝.zip ys✝)
 -/
 #guard_msgs in
 example (h : xs.isEmpty) : P (List.zip xs ys) := by
-  fun_induction List.zipWith _ xs ys
+  fun_induction zipWith _ xs ys
 
 
 /--
@@ -73,14 +78,14 @@ h : (x✝ :: xs✝).isEmpty = true
 case case2
 xs ys : List Nat
 P : {α : Type} → List α → Prop
-t✝ x✝¹ : List Nat
-x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → x✝¹ = y :: ys → False
+t✝ ys✝ : List Nat
+x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → ys✝ = y :: ys → False
 h : t✝.isEmpty = true
 ⊢ P (t✝.zip ys)
 -/
 #guard_msgs in
 example (h : xs.isEmpty) : P (List.zip xs ys) := by
-  fun_induction List.zipWith _ xs (ys.take 2)
+  fun_induction zipWith _ xs (ys.take 2)
 
 /--
 error: unsolved goals
@@ -98,14 +103,14 @@ h : (x✝ :: xs✝).isEmpty = true
 case case2
 xs ys : List Nat
 P : {α : Type} → List α → Prop
-t✝ x✝¹ : List Nat
-x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → x✝¹ = y :: ys → False
+t✝ ys✝ : List Nat
+x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → ys✝ = y :: ys → False
 h : t✝.isEmpty = true
 ⊢ P (t✝.zip ys)
 -/
 #guard_msgs in
 example (h : xs.isEmpty) : P (List.zip xs ys) := by
-  induction xs, ys.take 2 using List.zipWith.induct
+  induction xs, ys.take 2 using zipWith.induct
 
 /--
 error: unsolved goals
@@ -124,13 +129,13 @@ case case2
 xs ys : List Nat
 P : {α : Type} → List α → Prop
 h : xs.isEmpty = true
-t✝ x✝¹ : List Nat
-x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → x✝¹ = y :: ys → False
-⊢ P (xs.zip x✝¹)
+t✝ ys✝ : List Nat
+x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → ys✝ = y :: ys → False
+⊢ P (xs.zip ys✝)
 -/
 #guard_msgs in
 example (h : xs.isEmpty) : P (List.zip xs ys) := by
-  fun_induction List.zipWith _ (xs.take 2) ys
+  fun_induction zipWith _ (xs.take 2) ys
 
 /--
 error: unsolved goals
@@ -149,13 +154,13 @@ case case2
 xs ys : List Nat
 P : {α : Type} → List α → Prop
 h : xs.isEmpty = true
-t✝ x✝¹ : List Nat
-x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → x✝¹ = y :: ys → False
-⊢ P (xs.zip x✝¹)
+t✝ ys✝ : List Nat
+x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → ys✝ = y :: ys → False
+⊢ P (xs.zip ys✝)
 -/
 #guard_msgs in
 example (h : xs.isEmpty) : P (List.zip xs ys) := by
-  induction xs.take 2, ys using List.zipWith.induct
+  induction xs.take 2, ys using zipWith.induct
 
 /--
 error: unsolved goals
@@ -172,15 +177,15 @@ h : xs.isEmpty = true
 
 case case2
 P : {α : Type} → List α → Prop
-t✝ x✝¹ : List Nat
-x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → x✝¹ = y :: ys → False
+t✝ ys✝ : List Nat
+x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → ys✝ = y :: ys → False
 xs : List Nat
 h : xs.isEmpty = true
-⊢ P (xs.zip x✝¹)
+⊢ P (xs.zip ys✝)
 -/
 #guard_msgs in
 example (h : xs.isEmpty) : P (List.zip xs ys) := by
-  fun_induction List.zipWith _ (xs.take 2) ys generalizing xs
+  fun_induction zipWith _ (xs.take 2) ys generalizing xs
 
 /--
 error: unsolved goals
@@ -197,12 +202,12 @@ h : xs.isEmpty = true
 
 case case2
 P : {α : Type} → List α → Prop
-t✝ x✝¹ : List Nat
-x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → x✝¹ = y :: ys → False
+t✝ ys✝ : List Nat
+x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → ys✝ = y :: ys → False
 xs : List Nat
 h : xs.isEmpty = true
-⊢ P (xs.zip x✝¹)
+⊢ P (xs.zip ys✝)
 -/
 #guard_msgs in
 example (h : xs.isEmpty) : P (List.zip xs ys) := by
-  induction xs.take 2, ys using List.zipWith.induct generalizing xs
+  induction xs.take 2, ys using zipWith.induct generalizing xs

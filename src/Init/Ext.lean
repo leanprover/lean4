@@ -3,10 +3,14 @@ Copyright (c) 2021 Gabriel Ebner. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Mario Carneiro
 -/
+module
+
 prelude
-import Init.Data.ToString.Macro
-import Init.TacticsExtra
-import Init.RCases
+public import Init.Data.ToString.Macro
+public import Init.TacticsExtra
+public import Init.RCases
+
+public section
 
 namespace Lean
 namespace Parser.Attr
@@ -78,9 +82,14 @@ end Elab.Tactic.Ext
 end Lean
 
 attribute [ext] Prod PProd Sigma PSigma
-attribute [ext] funext propext Subtype.eq Array.ext
+attribute [ext] funext propext Subtype.ext Array.ext Char.ext
 
-@[ext] protected theorem PUnit.ext (x y : PUnit) : x = y := rfl
+@[deprecated Subtype.ext_iff (since := "2025-10-26")]
+protected def Subtype.eq_iff := @Subtype.ext_iff
+
+attribute [grind ext] funext Array.ext
+
+attribute [ext] PUnit.ext
 protected theorem Unit.ext (x y : Unit) : x = y := rfl
 
 @[ext] protected theorem Thunk.ext : {a b : Thunk α} → a.get = b.get → a = b

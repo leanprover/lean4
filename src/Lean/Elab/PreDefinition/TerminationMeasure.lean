@@ -3,14 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
+module
+
 prelude
 
-import Lean.Parser.Term
-import Lean.Elab.Term
-import Lean.Elab.Binders
-import Lean.Elab.SyntheticMVars
-import Lean.Elab.PreDefinition.TerminationHint
-import Lean.PrettyPrinter.Delaborator.Basic
+public import Lean.Elab.Binders
+
+public section
 
 /-!
 This module contains
@@ -52,7 +51,6 @@ Elaborates a `TerminationBy` to an `TerminationMeasure`.
 def TerminationMeasure.elab (funName : Name) (type : Expr) (arity extraParams : Nat)
     (hint : TerminationBy) : TermElabM TerminationMeasure := withDeclName funName do
   assert! extraParams ≤ arity
-
   if h : hint.vars.size > extraParams then
     let mut msg := m!"{parameters hint.vars.size} bound in `termination_by`, but the body of " ++
       m!"{funName} only binds {parameters extraParams}."
@@ -64,7 +62,7 @@ def TerminationMeasure.elab (funName : Name) (type : Expr) (arity extraParams : 
 
   -- Bring parameters before the colon into scope
   let r ← withoutErrToSorry <|
-    forallBoundedTelescope type (arity - extraParams) fun ys type' => do
+    forallBoundedTelescope (cleanupAnnotations := true) type (arity - extraParams) fun ys type' => do
       -- Bring the variables bound by `termination_by` into scope.
       elabFunBinders hint.vars (some type') fun xs type' => do
         -- Elaborate the body in this local environment

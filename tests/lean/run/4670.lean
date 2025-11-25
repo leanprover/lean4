@@ -11,14 +11,14 @@ structure Foo : Type where
 Was printing `true.out`, but it should have been `Foo.out true`.
 -/
 /--
-error: application type mismatch
-  Foo.out true
-argument
+error: Application type mismatch: The argument
   true
 has type
-  Bool : Type
+  Bool
 but is expected to have type
-  Foo : Type
+  Foo
+in the application
+  Foo.out true
 ---
 info: sorry.out : Nat
 -/
@@ -29,14 +29,14 @@ Verifying that generalized field notation does not have this bug.
 -/
 def Foo.out' (f : Foo) : Nat := f.out
 /--
-error: application type mismatch
-  Foo.out' true
-argument
+error: Application type mismatch: The argument
   true
 has type
-  Bool : Type
+  Bool
 but is expected to have type
-  Foo : Type
+  Foo
+in the application
+  Foo.out' true
 ---
 info: sorry.out' : Nat
 -/

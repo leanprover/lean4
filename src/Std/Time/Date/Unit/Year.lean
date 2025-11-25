@@ -3,16 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.Internal
-import Std.Internal.Rat
-import Std.Time.Date.Unit.Day
-import Std.Time.Date.Unit.Month
+public import Std.Time.Date.Unit.Month
+
+public section
 
 namespace Std
 namespace Time
 namespace Year
-open Std.Internal
 open Internal
 
 set_option linter.all true
@@ -26,7 +26,7 @@ inductive Era
 
   /-- The Common Era (CE), represents dates from year 0 onwards. -/
   | ce
-  deriving Repr, Inhabited
+deriving Repr, Inhabited
 
 instance : ToString Era where
   toString
@@ -36,8 +36,8 @@ instance : ToString Era where
 /--
 `Offset` represents a year offset, defined as an `Int`.
 -/
-def Offset : Type := Int
-  deriving Repr, BEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
+@[expose] def Offset : Type := Int
+deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
 instance {x y : Offset} : Decidable (x ≤ y) :=
   let x : Int := x
@@ -48,6 +48,12 @@ instance {x y : Offset} : Decidable (x < y) :=
   inferInstanceAs (Decidable (x < y))
 
 instance : OfNat Offset n := ⟨Int.ofNat n⟩
+
+instance : Ord Offset := inferInstanceAs <| Ord Int
+
+instance : TransOrd Offset := inferInstanceAs <| TransOrd Int
+
+instance : LawfulEqOrd Offset := inferInstanceAs <| LawfulEqOrd Int
 
 namespace Offset
 

@@ -21,6 +21,7 @@ namespace chrono = std::chrono;
 #if defined(LEAN_MULTI_THREAD)
 #include <thread>
 #include <mutex>
+#include <shared_mutex>
 #include <atomic>
 #include <condition_variable>
 #define LEAN_THREAD_LOCAL thread_local
@@ -29,6 +30,7 @@ namespace lean {
 using std::thread;
 using std::mutex;
 using std::recursive_mutex;
+using std::shared_timed_mutex;
 using std::atomic;
 using std::atomic_bool;
 using std::atomic_ushort;
@@ -81,13 +83,13 @@ class atomic {
     T m_value;
 public:
     atomic(T const & v = T()):m_value(v) {}
-    atomic(T && v):m_value(std::forward<T>(v)) {}
+    atomic(T && v) noexcept(std::is_nothrow_move_constructible<T>::value):m_value(std::move(v)) {}
     atomic(atomic const & v):m_value(v.m_value) {}
-    atomic(atomic && v):m_value(std::forward<T>(v.m_value)) {}
+    atomic(atomic && v) noexcept(std::is_nothrow_move_constructible<T>::value):m_value(std::move(v.m_value)) {}
     atomic & operator=(T const & v) { m_value = v; return *this; }
-    atomic & operator=(T && v) { m_value = std::forward<T>(v); return *this; }
+    atomic & operator=(T && v) { m_value = std::move(v); return *this; }
     atomic & operator=(atomic const & v) { m_value = v.m_value; return *this; }
-    atomic & operator=(atomic && v) { m_value = std::forward<T>(v.m_value); return *this; }
+    atomic & operator=(atomic && v) { m_value = std::move(v.m_value); return *this; }
     operator T() const { return m_value; }
     void store(T const & v) { m_value = v; }
     T load() const { return m_value; }
@@ -145,12 +147,23 @@ public:
 class mutex {
 public:
     void lock() {}
+    bool try_lock() { return true; }
     void unlock() {}
 };
 class recursive_mutex {
 public:
     void lock() {}
+    bool try_lock() { return true; }
     void unlock() {}
+};
+class shared_timed_mutex {
+public:
+    void lock() {}
+    bool try_lock() { return true; }
+    void unlock() {}
+    void lock_shared() {}
+    bool try_lock_shared() { return true; }
+    void unlock_shared() {}
 };
 class condition_variable {
 public:

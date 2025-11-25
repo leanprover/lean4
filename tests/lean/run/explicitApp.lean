@@ -19,10 +19,13 @@ example : p := @foo (h := h)
 example : p := @foo (h := h) _ _ _ _ _
 
 /--
-error: function expected at
+error: Function expected at
   foo h
-term has type
+but this term has type
   p
+
+Note: Expected a function because this term is being applied to the argument
+  _
 -/
 #guard_msgs in
 example : p := @foo (h := h) _ _ _ _ _ _

@@ -3,10 +3,15 @@ Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.WF
-import Init.WFTactics
-import Init.Data.Nat.Basic
+public import Init.WFTactics
+public meta import Init.MetaTypes
+
+public section
+
+@[expose] section
 
 namespace Nat
 
@@ -17,24 +22,38 @@ there is some `c` such that `b = a * c`.
 instance : Dvd Nat where
   dvd a b := Exists (fun c => b = a * c)
 
-theorem div_rec_lemma {x y : Nat} : 0 < y ∧ y ≤ x → x - y < x :=
-  fun ⟨ypos, ylex⟩ => sub_lt (Nat.lt_of_lt_of_le ypos ylex) ypos
-
-@[extern "lean_nat_div"]
-protected def div (x y : @& Nat) : Nat :=
-  if 0 < y ∧ y ≤ x then
-    Nat.div (x - y) y + 1
-  else
-    0
-decreasing_by apply div_rec_lemma; assumption
-
-instance instDiv : Div Nat := ⟨Nat.div⟩
+private theorem div.go.fuel_congr (x y fuel1 fuel2 : Nat) (hy : 0 < y) (h1 : x < fuel1) (h2 : x < fuel2) :
+    Nat.div.go y hy fuel1 x h1 = Nat.div.go y hy fuel2 x h2 := by
+  match fuel1, fuel2 with
+  | 0, _ => contradiction
+  | _, 0 => contradiction
+  | succ fuel1, succ fuel2  =>
+    simp only [Nat.div.go]
+    split
+    next => rw [Nat.div.go.fuel_congr]
+    next => rfl
+termination_by structural fuel1
 
 theorem div_eq (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 := by
-  show Nat.div x y = _
-  rw [Nat.div]
-  rfl
+  change Nat.div _ _ = ite _ (Nat.div _ _ + 1) _
+  unfold Nat.div
+  split
+  next =>
+    rw [Nat.div.go]
+    split
+    next =>
+      simp only [and_self, ↓reduceIte, *]
+      congr 1
+      apply div.go.fuel_congr
+    next =>
+      simp only [and_false, ↓reduceIte, *]
+  next =>
+    simp only [false_and, ↓reduceIte, *]
 
+/--
+An induction principle customized for reasoning about the recursion pattern of natural number
+division by iterated subtraction.
+-/
 def div.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
       (x y : Nat)
@@ -72,48 +91,74 @@ theorem div_lt_self {n k : Nat} (hLtN : 0 < n) (hLtK : 1 < k) : n / k < n := by
     have := Nat.add_le_of_le_sub hKN this
     exact Nat.lt_of_lt_of_le (Nat.add_lt_add_left hLtK _) this
 
-@[extern "lean_nat_mod"]
-protected def modCore (x y : @& Nat) : Nat :=
+/--
+Division of two divisible natural numbers. Division by `0` returns `0`.
+
+This operation uses an optimized implementation, specialized for two divisible natural numbers.
+
+This function is overridden at runtime with an efficient implementation. This definition is
+the logical model.
+
+Examples:
+ * `Nat.divExact 21 3 (by decide) = 7`
+ * `Nat.divExact 0 22 (by decide) = 0`
+ * `Nat.divExact 0 0 (by decide) = 0`
+-/
+@[extern "lean_nat_div_exact"]
+protected def divExact (x y : @& Nat) (h : y ∣ x) : Nat :=
+  x / y
+
+@[simp]
+theorem divExact_eq_div {x y : Nat} (h : y ∣ x) : x.divExact y h = x / y := rfl
+
+private theorem modCore.go.fuel_congr (x y fuel1 fuel2 : Nat) (hy : 0 < y) (h1 : x < fuel1) (h2 : x < fuel2) :
+    Nat.modCore.go y hy fuel1 x h1 = Nat.modCore.go y hy fuel2 x h2 := by
+  match fuel1, fuel2 with
+  | 0, _ => contradiction
+  | _, 0 => contradiction
+  | succ fuel1, succ fuel2  =>
+    simp only [Nat.modCore.go]
+    split
+    next => rw [Nat.modCore.go.fuel_congr]
+    next => rfl
+termination_by structural fuel1
+
+protected theorem modCore_eq (x y : Nat) : Nat.modCore x y =
   if 0 < y ∧ y ≤ x then
     Nat.modCore (x - y) y
   else
-    x
-decreasing_by apply div_rec_lemma; assumption
-
-@[extern "lean_nat_mod"]
-protected def mod : @& Nat → @& Nat → Nat
-  /-
-  Nat.modCore is defined by well-founded recursion and thus irreducible. Nevertheless it is
-  desirable if trivial `Nat.mod` calculations, namely
-  * `Nat.mod 0 m` for all `m`
-  * `Nat.mod n (m+n)` for concrete literals `n`
-  reduce definitionally.
-  This property is desirable for `Fin n` literals, as it means `(ofNat 0 : Fin n).val = 0` by
-  definition.
-   -/
-  | 0, _ => 0
-  | n@(_ + 1), m =>
-    if m ≤ n -- NB: if n < m does not reduce as well as `m ≤ n`!
-    then Nat.modCore n m
-    else n
-
-instance instMod : Mod Nat := ⟨Nat.mod⟩
+    x := by
+  unfold Nat.modCore
+  split
+  next =>
+    rw [Nat.modCore.go]
+    split
+    next =>
+      simp only [and_self, ↓reduceIte, *]
+      apply modCore.go.fuel_congr
+    next =>
+      simp only [and_false, ↓reduceIte, *]
+  next =>
+    simp only [false_and, ↓reduceIte, *]
 
 protected theorem modCore_eq_mod (n m : Nat) : Nat.modCore n m = n % m := by
-  show Nat.modCore n m = Nat.mod n m
+  change Nat.modCore n m = Nat.mod n m
   match n, m with
   | 0, _ =>
-    rw [Nat.modCore]
+    rw [Nat.modCore_eq]
     exact if_neg fun ⟨hlt, hle⟩ => Nat.lt_irrefl _ (Nat.lt_of_lt_of_le hlt hle)
   | (_ + 1), _ =>
     rw [Nat.mod]; dsimp
     refine iteInduction (fun _ => rfl) (fun h => ?false) -- cannot use `split` this early yet
-    rw [Nat.modCore]
+    rw [Nat.modCore_eq]
     exact if_neg fun ⟨_hlt, hle⟩ => h hle
 
 theorem mod_eq (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x := by
-  rw [←Nat.modCore_eq_mod, ←Nat.modCore_eq_mod, Nat.modCore]
+  rw [←Nat.modCore_eq_mod, ←Nat.modCore_eq_mod, Nat.modCore_eq]
 
+/--
+An induction principle customized for reasoning about the recursion pattern of `Nat.mod`.
+-/
 def mod.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
       (x y  : Nat)
@@ -143,7 +188,7 @@ theorem mod_eq_of_lt {a b : Nat} (h : a < b) : a % b = a :=
     simp only [add_one_ne_zero, false_iff, ne_eq]
     exact ne_of_beq_eq_false rfl
 
-@[simp] theorem Nat.zero_eq_one_mod_iff {n : Nat} : 0 = 1 % n ↔ n = 1 := by
+@[simp] theorem zero_eq_one_mod_iff {n : Nat} : 0 = 1 % n ↔ n = 1 := by
   rw [eq_comm]
   simp
 
@@ -151,24 +196,6 @@ theorem mod_eq_sub_mod {a b : Nat} (h : a ≥ b) : a % b = (a - b) % b :=
   match eq_zero_or_pos b with
   | Or.inl h₁ => h₁.symm ▸ (Nat.sub_zero a).symm ▸ rfl
   | Or.inr h₁ => (mod_eq a b).symm ▸ if_pos ⟨h₁, h⟩
-
-theorem mod_lt (x : Nat) {y : Nat} : y > 0 → x % y < y := by
-  induction x, y using mod.inductionOn with
-  | base x y h₁ =>
-    intro h₂
-    have h₁ : ¬ 0 < y ∨ ¬ y ≤ x := Decidable.not_and_iff_or_not.mp h₁
-    match h₁ with
-    | Or.inl h₁ => exact absurd h₂ h₁
-    | Or.inr h₁ =>
-      have hgt : y > x := gt_of_not_le h₁
-      have heq : x % y = x := mod_eq_of_lt hgt
-      rw [← heq] at hgt
-      exact hgt
-  | ind x y h h₂ =>
-    intro h₃
-    have ⟨_, h₁⟩ := h
-    rw [mod_eq_sub_mod h₁]
-    exact h₂ h₃
 
 @[simp] protected theorem sub_mod_add_mod_cancel (a b : Nat) [NeZero a] : a - b % a + b % a = a := by
   rw [Nat.sub_add_cancel]
@@ -184,12 +211,10 @@ theorem mod_le (x y : Nat) : x % y ≤ x := by
     | Or.inl h₂ => rw [h₂, Nat.mod_zero x]; apply Nat.le_refl
     | Or.inr h₂ => exact Nat.le_trans (Nat.le_of_lt (mod_lt _ h₂)) h₁
 
-@[simp] theorem zero_mod (b : Nat) : 0 % b = 0 := by
-  rw [mod_eq]
-  have : ¬ (0 < b ∧ b = 0) := by
-    intro ⟨h₁, h₂⟩
-    simp_all
-  simp [this]
+theorem mod_lt_of_lt {a b c : Nat} (h : a < c) : a % b < c :=
+  Nat.lt_of_le_of_lt (Nat.mod_le _ _) h
+
+@[simp] theorem zero_mod (b : Nat) : 0 % b = 0 := rfl
 
 @[simp] theorem mod_self (n : Nat) : n % n = 0 := by
   rw [mod_eq_sub_mod (Nat.le_refl _), Nat.sub_self, zero_mod]
@@ -334,7 +359,8 @@ Nat.le_antisymm
   (le_of_lt_succ ((Nat.div_lt_iff_lt_mul npos).2 hi))
   ((Nat.le_div_iff_mul_le npos).2 lo)
 
-theorem sub_mul_div (x n p : Nat) (h₁ : n*p ≤ x) : (x - n*p) / n = x / n - p := by
+/-- See also `sub_mul_div` for a strictly more general version. -/
+theorem sub_mul_div_of_le (x n p : Nat) (h₁ : n*p ≤ x) : (x - n*p) / n = x / n - p := by
   match eq_zero_or_pos n with
   | .inl h₀ => rw [h₀, Nat.div_zero, Nat.div_zero, Nat.zero_sub]
   | .inr h₀ => induction p with
@@ -347,7 +373,7 @@ theorem sub_mul_div (x n p : Nat) (h₁ : n*p ≤ x) : (x - n*p) / n = x / n - p
         rw [mul_succ] at h₁
         exact h₁
       rw [sub_succ, ← IH h₂, div_eq_sub_div h₀ h₃]
-      simp [Nat.pred_succ, mul_succ, Nat.sub_sub]
+      simp [mul_succ, Nat.sub_sub]
 
 theorem mul_sub_div (x n p : Nat) (h₁ : x < n*p) : (n * p - (x + 1)) / n = p - ((x / n) + 1) := by
   have npos : 0 < n := (eq_zero_or_pos _).resolve_left fun n0 => by
@@ -357,7 +383,7 @@ theorem mul_sub_div (x n p : Nat) (h₁ : x < n*p) : (n * p - (x + 1)) / n = p -
     rw [Nat.mul_sub_right_distrib, Nat.mul_comm]
     exact Nat.sub_le_sub_left ((div_lt_iff_lt_mul npos).1 (lt_succ_self _)) _
   focus
-    show succ (pred (n * p - x)) ≤ (succ (pred (p - x / n))) * n
+    change succ (pred (n * p - x)) ≤ (succ (pred (p - x / n))) * n
     rw [succ_pred_eq_of_pos (Nat.sub_pos_of_lt h₁),
       fun h => succ_pred_eq_of_pos (Nat.sub_pos_of_lt h)] -- TODO: why is the function needed?
     focus
@@ -412,7 +438,7 @@ protected theorem div_le_of_le_mul {m n : Nat} : ∀ {k}, m ≤ k * n → m / k 
 @[simp] theorem mul_div_left (m : Nat) {n : Nat} (H : 0 < n) : m * n / n = m := by
   rw [Nat.mul_comm, mul_div_right _ H]
 
-protected theorem div_self (H : 0 < n) : n / n = 1 := by
+@[simp] protected theorem div_self (H : 0 < n) : n / n = 1 := by
   let t := add_div_right 0 H
   rwa [Nat.zero_add, Nat.zero_div] at t
 

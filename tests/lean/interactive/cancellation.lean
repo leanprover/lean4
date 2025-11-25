@@ -25,6 +25,23 @@ theorem t : True := by
 import Lean.Server.Test.Cancel
 open Lean.Server.Test.Cancel
 
+/-! Changes in a declaration should not invalidate elaboration of previous declarations. -/
+
+theorem t1 : True := by
+  wait_for_unblock
+  trivial
+
+example : True := by
+  trivial
+       --^ waitFor: blocked
+       --^ insert: "; unblock"
+       --^ collectDiagnostics
+       -- (should print "blocked!" exactly once)
+
+-- RESET
+import Lean.Server.Test.Cancel
+open Lean.Server.Test.Cancel
+
 /-! Changes in a declaration should not invalidate async tasks of previous declarations. -/
 
 theorem t1 : True := by
@@ -36,7 +53,7 @@ example : True := by
        --^ waitFor: blocked
        --^ insert: "; unblock"
        --^ collectDiagnostics
-       -- (should print "blocked" exactly once)
+       -- (should print "blocked!" exactly once)
 
 -- RESET
 import Lean.Server.Test.Cancel
@@ -50,4 +67,119 @@ theorem t1 : True := by
        --^ waitFor: blocked
        --^ insert: "; unblock"
        --^ collectDiagnostics
-       -- (should print "blocked" exactly once)
+       -- (should print "blocked!" exactly once)
+
+-- RESET
+import Lean.Server.Test.Cancel
+open Lean.Server.Test.Cancel
+
+/-! Changes in a tactic should not invalidate elaboration of previous tactics. -/
+
+theorem t1 : True := by
+  wait_for_unblock
+  skip
+    --^ waitFor: blocked
+    --^ insert: "; trivial\nexample : True := by unblock; trivial"
+    --^ collectDiagnostics
+    -- (should print "blocked!" exactly once)
+    -- (must put `unblock` in a separate decl so it's not blocked by `wait_for_unblock`)
+
+-- RESET
+import Lean.Server.Test.Cancel
+open Lean.Server.Test.Cancel
+
+/-! Changes in a tactic *should* invalidate async tasks of subsequent tactics. -/
+
+theorem t1 : True := by
+  skip
+    --^ waitFor: blocked
+    --^ insert: "; skip"
+    --^ collectDiagnostics
+    -- (should never print "blocked")
+  wait_for_cancel_once_async
+  trivial
+
+-- RESET
+import Lean.Server.Test.Cancel
+open Lean.Server.Test.Cancel
+
+/-! Changes in a tactic *should* invalidate elaboration of later tactics. -/
+
+theorem t1 : True := by
+  skip
+    --^ waitFor: blocked
+    --^ insert: "; skip"
+    --^ collectDiagnostics
+    -- (should never print "blocked")
+  wait_for_cancel_once
+  trivial
+
+-- RESET
+import Lean.Server.Test.Cancel
+open Lean.Server.Test.Cancel
+
+/-! Changes in the body should not invalidate header async tasks. -/
+
+theorem t1 : (by wait_for_unblock_async; exact True) := by
+  skip
+    --^ waitFor: blocked
+    --^ insert: "; unblock"
+    --^ collectDiagnostics
+    -- (should print "blocked!" exactly once)
+  trivial
+
+-- RESET
+import Lean.Server.Test.Cancel
+open Lean.Server.Test.Cancel
+
+/-! Changes in the header *should* invalidate header async tasks. -/
+
+theorem t1 : (by wait_for_cancel_once_async; exact True) := by
+        --^ waitFor: blocked
+        --^ insert: "'"
+        --^ collectDiagnostics
+        -- (should never print "blocked")
+  trivial
+
+-- RESET
+import Lean.Server.Test.Cancel
+open Lean.Server.Test.Cancel
+
+/-! Changes in the header *should* invalidate header elaboration. -/
+
+theorem t1 : (by wait_for_main_cancel_once_async; exact True) := by
+        --^ waitFor: blocked
+        --^ insert: "'"
+        --^ collectDiagnostics
+        -- (should never print "blocked")
+  trivial
+
+-- RESET
+import Lean.Server.Test.Cancel
+open Lean.Server.Test.Cancel
+
+/-! Changes in the body (without incrementality) *should* invalidate body async tasks. -/
+
+theorem t1 : True := (by
+  skip
+    --^ waitFor: blocked
+    --^ insert: "; skip"
+    --^ collectDiagnostics
+    -- (should never print "blocked")
+  wait_for_cancel_once_async
+  trivial)
+
+-- RESET
+import Lean.Server.Test.Cancel
+open Lean.Server.Test.Cancel
+
+/-! Changes in the body (without incrementality) *should* invalidate body elaboration. -/
+
+theorem t1 : True := (by
+  skip
+    --^ waitFor: blocked
+    --^ insert: "; skip"
+    --^ collectDiagnostics
+    -- (should never print "blocked")
+  wait_for_main_cancel_once_async
+  trivial)

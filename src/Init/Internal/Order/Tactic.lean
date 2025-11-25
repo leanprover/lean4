@@ -4,8 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Init.Notation
+public import Init.Notation
+
+public section
 
 namespace Lean.Order
 /--

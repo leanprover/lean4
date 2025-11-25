@@ -2,7 +2,7 @@
   2 * a
 
 /--
-info: case h
+trace: case h
 x : Nat
 ⊢ 2 * x = x + x
 -/
@@ -19,7 +19,7 @@ by
   | a => 2 * a
 
 /--
-info: case h
+trace: case h
 x : Nat
 ⊢ 2 * x = x + x
 -/

@@ -27,11 +27,11 @@ def heapifyDown (lt : α → α → Bool) (a : Array α) (i : Fin a.size) :
     if lt a[j.1] a[right] then ⟨⟨right, h⟩, right_le⟩ else j else j
   if h : i.1 = j then ⟨a, rfl⟩ else
     let a' := a.swap i j
-    let j' := ⟨j, by rw [a.size_swap i j]; exact j.1.2⟩
+    let j' := ⟨j, by rw [a.size_swap]; exact j.1.2⟩
     have : a'.size - j < a.size - i := by
-      rw [a.size_swap i j]; sorry
+      rw [a.size_swap]; sorry
     let ⟨a₂, h₂⟩ := heapifyDown lt a' j'
-    ⟨a₂, h₂.trans (a.size_swap i j)⟩
+    ⟨a₂, h₂.trans a.size_swap⟩
 termination_by a.size - i
 decreasing_by assumption
 
@@ -62,8 +62,8 @@ if i0 : i.1 = 0 then ⟨a, rfl⟩ else
   let j : Fin a.size := ⟨(i.1 - 1) / 2, Nat.lt_trans this i.2⟩
   if lt a[j] a[i] then
     let a' := a.swap i j
-    let ⟨a₂, h₂⟩ := heapifyUp lt a' ⟨j.1, by rw [a.size_swap i j]; exact j.2⟩
-    ⟨a₂, h₂.trans (a.size_swap i j)⟩
+    let ⟨a₂, h₂⟩ := heapifyUp lt a' ⟨j.1, by rw [a.size_swap]; exact j.2⟩
+    ⟨a₂, h₂.trans (a.size_swap)⟩
   else ⟨a, rfl⟩
 termination_by i.1
 decreasing_by assumption
@@ -84,7 +84,7 @@ def singleton (lt) (x : α) : BinaryHeap α lt := ⟨#[x]⟩
 def size {lt} (self : BinaryHeap α lt) : Nat := self.1.size
 
 /-- `O(1)`. Get an element in the heap by index. -/
-def get {lt} (self : BinaryHeap α lt) (i : Fin self.size) : α := self.1.get i i.2
+def get {lt} (self : BinaryHeap α lt) (i : Fin self.size) : α := self.1[i]'i.2
 
 /-- `O(log n)`. Insert an element into a `BinaryHeap`, preserving the max-heap property. -/
 def insert {lt} (self : BinaryHeap α lt) (x : α) : BinaryHeap α lt where
@@ -96,7 +96,7 @@ def insert {lt} (self : BinaryHeap α lt) (x : α) : BinaryHeap α lt where
   simp [insert, size, size_heapifyUp]
 
 /-- `O(1)`. Get the maximum element in a `BinaryHeap`. -/
-def max {lt} (self : BinaryHeap α lt) : Option α := self.1.get? 0
+def max {lt} (self : BinaryHeap α lt) : Option α := self.1[0]?
 
 /-- Auxiliary for `popMax`. -/
 def popMaxAux {lt} (self : BinaryHeap α lt) : {a' : BinaryHeap α lt // a'.size = self.size - 1} :=
@@ -124,7 +124,7 @@ def extractMax {lt} (self : BinaryHeap α lt) : Option α × BinaryHeap α lt :=
   (self.max, self.popMax)
 
 theorem size_pos_of_max {lt} {self : BinaryHeap α lt} (e : self.max = some x) : 0 < self.size :=
-  Decidable.of_not_not fun h: ¬ 0 < self.1.size => by simp [BinaryHeap.max, Array.get?, h] at e
+  Decidable.of_not_not fun h: ¬ 0 < self.1.size => by simp [BinaryHeap.max, h] at e
 
 /-- `O(log n)`. Equivalent to `extractMax (self.insert x)`, except that extraction cannot fail. -/
 def insertExtractMax {lt} (self : BinaryHeap α lt) (x : α) : α × BinaryHeap α lt :=
@@ -184,7 +184,7 @@ info: Array.heapSort.loop.eq_1 fun a b =>
     match e : a.max with
     | none => out
     | some x =>
-      let_fun this := ⋯;
+      have this := ⋯;
       Array.heapSort.loop (fun a b => decide (a < b)) a.popMax (out.push x)
 -/
 #guard_msgs in

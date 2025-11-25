@@ -5,13 +5,6 @@ inductive Foo (α : Type u) where
   | mk4 (val : String)
   | mk5 (head : α) (tail : Foo α)
 
-def Foo.ctorIdx : Foo α → Nat
-  | .mk1 .. => 0
-  | .mk2 .. => 1
-  | .mk3 .. => 2
-  | .mk4 .. => 3
-  | .mk5 .. => 4
-
 @[elab_as_elim]
 def Foo.elimCtor1 {motive : Foo α → Sort v} (a : Foo α) (hIdx : a.ctorIdx == 0) (h : (val : α) → motive (Foo.mk1 val)) : motive a :=
   match a with
@@ -94,4 +87,4 @@ def Foo.decEq {α : Type u} [DecidableEq α] (a b : Foo α) : Decidable (a = b) 
       else
         isFalse (fun h => Foo.noConfusion' h fun h _ => he1 h)
   else
-    isFalse (fun h => have : ¬ b.ctorIdx == b.ctorIdx := h ▸ hc; this LawfulBEq.rfl)
+    isFalse (fun h => have : ¬ b.ctorIdx == b.ctorIdx := h ▸ hc; this BEq.rfl)

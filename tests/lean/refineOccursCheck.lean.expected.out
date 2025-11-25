@@ -1,3 +1,3 @@
-refineOccursCheck.lean:11:2-11:14: error: 'refine' tactic failed, value
+refineOccursCheck.lean:11:2-11:14: error: `refine` tactic failed, value
   ax ?a
-depends on the main goal metavariable '?a'
+depends on the main goal metavariable `?a`

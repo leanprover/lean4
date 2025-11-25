@@ -57,7 +57,7 @@ forallBoundedTelescope t (some 1) fun xs b => do
   pure ()
 
 /--
-info: [Meta.debug] ----- tst2 -----
+trace: [Meta.debug] ----- tst2 -----
 [Meta.debug] Nat → IO Nat
 [Meta.debug] IO Nat
 -/
@@ -79,7 +79,7 @@ forallBoundedTelescope t (some 0) fun xs b => do
   pure ()
 
 /--
-info: [Meta.debug] ----- tst2 -----
+trace: [Meta.debug] ----- tst2 -----
 [Meta.debug] IO Nat
 [Meta.debug] IO Nat
 -/
@@ -109,7 +109,7 @@ pure ()
 
 set_option pp.mvars false in
 /--
-info: [Meta.debug] ----- tst4 -----
+trace: [Meta.debug] ----- tst4 -----
 [Meta.debug] x y : Nat
     ⊢ Nat
 [Meta.debug] ?_ (Add.add 10 y) y
@@ -139,7 +139,7 @@ check m;
 pure ()
 
 /--
-info: [Meta.debug] ----- tst5 -----
+trace: [Meta.debug] ----- tst5 -----
 [Meta.debug] p q : Prop
     h₁ : q
     h₂ : p = q
@@ -172,7 +172,7 @@ pure ()
 
 set_option pp.mvars false in
 /--
-info: [Meta.debug] ----- tst6 -----
+trace: [Meta.debug] ----- tst6 -----
 [Meta.debug] x y : Nat
     ⊢ Nat
 [Meta.debug] ?_ (Add.add 10 y)
@@ -200,7 +200,7 @@ checkM (pure $ val == expected);
 pure ()
 
 /--
-info: [Meta.debug] ----- tst7 -----
+trace: [Meta.debug] ----- tst7 -----
 [Meta.debug] Add.add x y
 [Meta.debug] Add.add 0 1
 [Meta.debug] Add.add 0 1
@@ -221,7 +221,7 @@ def tst8 : MetaM Unit := do
   pure ()
 
 /--
-info: [Meta.debug] ----- tst8 -----
+trace: [Meta.debug] ----- tst8 -----
 [Meta.debug] match [1, 2, 3] with
     | [] => true
     | head :: tail => false
@@ -237,7 +237,7 @@ def tst9 : MetaM Unit := do
   pure ()
 
 /--
-info: [Meta.debug] ----- tst9 -----
+trace: [Meta.debug] ----- tst9 -----
 [Meta.debug] [(instOfNatNat, 100)]
 -/
 #guard_msgs in
@@ -269,7 +269,7 @@ def tst11 : MetaM Unit := do
     checkM (isDefEq x y)
     pure ()
 
-/-- info: [Meta.debug] ----- tst11 ----- -/
+/-- trace: [Meta.debug] ----- tst11 ----- -/
 #guard_msgs in
 #eval tst11
 
@@ -287,7 +287,7 @@ def tst12 : MetaM Unit := do
   pure ()
 
 /--
-info: [Meta.debug] ----- tst12 -----
+trace: [Meta.debug] ----- tst12 -----
 [Meta.debug] Add.add 10 y
 [Meta.debug] Add.add (Int.ofNat 10) (Int.ofNat y)
 [Meta.debug] Add.add 10 y

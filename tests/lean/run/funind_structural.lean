@@ -61,20 +61,18 @@ info: zip.induct.{u_1, u_2} {α : Type u_1} {β : Type u_2} (motive : List α �
 #guard_msgs in
 #check zip.induct
 
-/-- Lets try ot use it! -/
+/-- Let's try to use it! -/
 theorem zip_length {α β} (xs : List α) (ys : List β) :
     (zip xs ys).length = xs.length.min ys.length := by
   induction xs, ys using zip.induct
   case case1 => simp [zip]
   case case2 => simp [zip]
-  case case3 =>
-    simp [zip, *]
-    simp [Nat.min_def]
-    split <;> omega
+  case case3 => simp [zip, *]
 
-theorem zip_get?  {α β} (as : List α) (bs : List β) :
-    (List.zip as bs).get? i = match as.get? i, bs.get? i with
-      | some a, some b => some (a, b) | _, _ => none := by
+theorem zip_get? {i : Nat}  {α β} (as : List α) (bs : List β) :
+    (List.zip as bs)[i]? = match as[i]?, bs[i]? with
+      | some a, some b => some (a, b)
+      | _, _ => none := by
   induction as, bs using zip.induct generalizing i
     <;> cases i <;> simp_all
 
@@ -91,8 +89,8 @@ termination_by structural n
 
 /--
 info: Finn.min.induct (motive : Bool → {n : Nat} → Nat → Finn n → Finn n → Prop)
-  (case1 : ∀ (x : Bool) (m n : Nat) (x_1 : Finn n), motive x m Finn.fzero x_1)
-  (case2 : ∀ (x : Bool) (m n : Nat) (x_1 : Finn n), (x_1 = Finn.fzero → False) → motive x m x_1 Finn.fzero)
+  (case1 : ∀ (x : Bool) (m n : Nat) (f : Finn n), motive x m Finn.fzero f)
+  (case2 : ∀ (x : Bool) (m n : Nat) (a : Finn n), (a = Finn.fzero → False) → motive x m a Finn.fzero)
   (case3 : ∀ (x : Bool) (m n : Nat) (i j : Finn n), motive (!x) (m + 1) i j → motive x m i.fsucc j.fsucc) (x : Bool)
   {n : Nat} (m : Nat) (a✝ f : Finn n) : motive x m a✝ f
 -/
@@ -118,18 +116,17 @@ def Tree.insert (t : Tree β) (k : Nat) (v : β) : Tree β :=
 termination_by structural t
 
 /--
-info: TreeExample.Tree.insert.induct.{u_1} {β : Type u_1} (motive : Tree β → Nat → β → Prop)
-  (case1 : ∀ (k : Nat) (v : β), motive Tree.leaf k v)
+info: TreeExample.Tree.insert.induct.{u_1} {β : Type u_1} (k : Nat) (motive : Tree β → Prop) (case1 : motive Tree.leaf)
   (case2 :
-    ∀ (k : Nat) (v : β) (left : Tree β) (key : Nat) (value : β) (right : Tree β),
-      k < key → motive left k v → motive (left.node key value right) k v)
+    ∀ (left : Tree β) (key : Nat) (value : β) (right : Tree β),
+      k < key → motive left → motive (left.node key value right))
   (case3 :
-    ∀ (k : Nat) (v : β) (left : Tree β) (key : Nat) (value : β) (right : Tree β),
-      ¬k < key → key < k → motive right k v → motive (left.node key value right) k v)
+    ∀ (left : Tree β) (key : Nat) (value : β) (right : Tree β),
+      ¬k < key → key < k → motive right → motive (left.node key value right))
   (case4 :
-    ∀ (k : Nat) (v : β) (left : Tree β) (key : Nat) (value : β) (right : Tree β),
-      ¬k < key → ¬key < k → motive (left.node key value right) k v)
-  (t : Tree β) (k : Nat) (v : β) : motive t k v
+    ∀ (left : Tree β) (key : Nat) (value : β) (right : Tree β),
+      ¬k < key → ¬key < k → motive (left.node key value right))
+  (t : Tree β) : motive t
 -/
 #guard_msgs in
 #check Tree.insert.induct

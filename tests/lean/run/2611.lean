@@ -45,6 +45,8 @@ class A (n : Nat) where
 class B (n : Nat) [A n] where
   x : Nat
 class C extends A 3, B 3
-/-- info: Ex4.C.toB [self : C] : @B (@OfNat.ofNat Nat 3 (instOfNatNat 3)) (@C.toA self) -/
+/--
+info: Ex4.C.toB [self : C] : @B (@OfNat.ofNat Nat (nat_lit 3) (instOfNatNat (nat_lit 3))) (@C.toA self)
+-/
 #guard_msgs in set_option pp.explicit true in #check C.toB
 end Ex4

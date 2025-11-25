@@ -1,7 +1,7 @@
 def foo : A → B → B :=
 fun a b => { x := a.x, y := b.y }
 def boo : A → B → B :=
-fun a b => { x := b.x, y := b.y }
+fun a b => b
 def baz : A → B → C :=
 fun a b => { toB := { x := a.x, y := b.y } }
 def biz : A → B → C :=
@@ -9,4 +9,4 @@ fun a b => { toB := b }
 def faz : A → C → C :=
 fun a c => { toB := { x := a.x, y := c.y } }
 def fiz : A → C → C :=
-fun a c => { toB := c.toB }
+fun a c => c

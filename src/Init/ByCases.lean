@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
+module
+
 prelude
-import Init.Classical
+public import Init.Classical
+
+public section
 
 /-! # by_cases tactic and if-then-else support -/
 
@@ -41,23 +45,9 @@ theorem apply_ite (f : α → β) (P : Prop) [Decidable P] (x y : α) :
 @[simp] theorem dite_eq_ite [Decidable P] :
   (dite P (fun _ => a) (fun _ => b)) = ite P a b := rfl
 
-@[deprecated "Use `ite_eq_right_iff`" (since := "2024-09-18")]
-theorem ite_some_none_eq_none [Decidable P] :
-    (if P then some x else none) = none ↔ ¬ P := by
-  simp only [ite_eq_right_iff, reduceCtorEq]
-  rfl
-
-@[deprecated "Use `Option.ite_none_right_eq_some`" (since := "2024-09-18")]
-theorem ite_some_none_eq_some [Decidable P] :
-    (if P then some x else none) = some y ↔ P ∧ x = y := by
-  split <;> simp_all
-
-@[deprecated "Use `dite_eq_right_iff" (since := "2024-09-18")]
-theorem dite_some_none_eq_none [Decidable P] {x : P → α} :
-    (if h : P then some (x h) else none) = none ↔ ¬P := by
-  simp
-
-@[deprecated "Use `Option.dite_none_right_eq_some`" (since := "2024-09-18")]
-theorem dite_some_none_eq_some [Decidable P] {x : P → α} {y : α} :
-    (if h : P then some (x h) else none) = some y ↔ ∃ h : P, x h = y := by
-  by_cases h : P <;> simp [h]
+-- Remark: dite and ite are "defally equal" when we ignore the proofs.
+@[deprecated dite_eq_ite (since := "2025-10-29")]
+theorem dif_eq_if (c : Prop) {h : Decidable c} {α : Sort u} (t : α) (e : α) : dite c (fun _ => t) (fun _ => e) = ite c t e :=
+  match h with
+  | isTrue _    => rfl
+  | isFalse _   => rfl

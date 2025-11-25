@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <unordered_map>
 #include "kernel/replace_fn.h"
+#include "util/alloc.h"
 
 namespace lean {
 
@@ -18,7 +19,7 @@ class replace_rec_fn {
             return hash((size_t)p.first >> 3, p.second);
         }
     };
-    std::unordered_map<std::pair<lean_object *, unsigned>, expr, key_hasher> m_cache;
+    lean::unordered_map<std::pair<lean_object *, unsigned>, expr, key_hasher> m_cache;
     std::function<optional<expr>(expr const &, unsigned)> m_f;
     bool                                                  m_use_cache;
 
@@ -84,7 +85,7 @@ expr replace(expr const & e, std::function<optional<expr>(expr const &, unsigned
 }
 
 class replace_fn {
-    std::unordered_map<lean_object *, expr> m_cache;
+    lean::unordered_map<lean_object *, expr> m_cache;
     lean_object * m_f;
 
     expr save_result(expr const & e, expr const & r, bool shared) {

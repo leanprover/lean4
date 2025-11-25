@@ -13,7 +13,7 @@ theorem ex2 (x : Nat) (h₁ : f x x = g x) (h₂ : g x = x) : f x (f x x) = x :=
 axiom g_ax (x : Nat) : g x = 0
 
 /--
-info: x y : Nat
+trace: x y : Nat
 h₁ : f x x = g x
 h₂ : g x < 5
 ⊢ g x + g x = 0

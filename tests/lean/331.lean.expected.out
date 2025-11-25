@@ -1,4 +1,6 @@
-331.lean:6:13-6:14: error: failed to infer binder type
-when the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed
-331.lean:7:13-7:14: error: failed to infer binder type
-when the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed
+331.lean:6:9-6:10: error(lean.inferBinderTypeFailed): Failed to infer type of binder `x`
+
+Note: Because this declaration's type has been explicitly provided, all parameter types and holes (e.g., `_`) in its header are resolved before its body is processed; information from the declaration body cannot be used to infer what these values should be
+331.lean:7:9-7:10: error(lean.inferBinderTypeFailed): Failed to infer type of binder `x`
+
+Note: Because this declaration's type has been explicitly provided, all parameter types and holes (e.g., `_`) in its header are resolved before its body is processed; information from the declaration body cannot be used to infer what these values should be

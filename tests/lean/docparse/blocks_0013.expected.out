@@ -1,0 +1,22 @@
+Success! Final stack:
+  [(Lean.Doc.Syntax.blockquote
+    ">"
+    [(Lean.Doc.Syntax.ul
+      "ul{"
+      [(Lean.Doc.Syntax.li
+        "*"
+        [(Lean.Doc.Syntax.para
+          "para{"
+          [(Lean.Doc.Syntax.text (str "\"foo\""))]
+          "}")])]
+      "}")
+     (Lean.Doc.Syntax.ul
+      "ul{"
+      [(Lean.Doc.Syntax.li
+        "*"
+        [(Lean.Doc.Syntax.para
+          "para{"
+          [(Lean.Doc.Syntax.text (str "\"foo\""))]
+          "}")])]
+      "}")])]
+All input consumed.

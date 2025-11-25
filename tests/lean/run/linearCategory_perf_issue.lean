@@ -1,29 +1,6 @@
 universe u v w v₁ v₂ v₃ u₁ u₂ u₃
 
-section Mathlib.Algebra.Group.ZeroOne
-
-class One (α : Type u) where
-  one : α
-
-instance (priority := 300) One.toOfNat1 {α} [One α] : OfNat α (nat_lit 1) where
-  ofNat := ‹One α›.1
-
-end Mathlib.Algebra.Group.ZeroOne
-
 section Mathlib.Algebra.Group.Defs
-
-class HSMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  hSMul : α → β → γ
-
-class SMul (M : Type u) (α : Type v) where
-  smul : M → α → α
-
-infixr:73 " • " => SMul.smul
-
-macro_rules | `($x • $y) => `(leftact% HSMul.hSMul $x $y)
-
-instance instHSMul {α β} [SMul α β] : HSMul α β β where
-  hSMul := SMul.smul
 
 class AddMonoid (M : Type u) extends Add M, Zero M where
   protected add_assoc : ∀ a b c : M, a + b + c = a + (b + c)
@@ -265,17 +242,14 @@ instance Functor.category : Category.{max u₁ v₂} (C ⥤ D) where
   comp α β := vcomp α β
   id_comp := by
     intro X Y f
-    simp_all only
     ext x : 2
     apply id_comp
   comp_id := by
     intro X Y f
-    simp_all only
     ext x : 2
     apply comp_id
   assoc := by
     intro W X Y Z f g h
-    simp_all only
     ext x : 2
     apply assoc
 
@@ -384,7 +358,6 @@ instance functorCategoryPreadditive : Preadditive (C ⥤ D) where
         apply add_zero
       neg_add_cancel := by
         intros
-        dsimp only
         ext
         apply neg_add_cancel }
   add_comp := by

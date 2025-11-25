@@ -1,5 +1,5 @@
 import Lean
-
+--^ waitForILeans
 example : True := by
   apply True.intro
       --^ textDocument/hover
@@ -299,3 +299,50 @@ open List renaming zip → zip'
                  --^ textDocument/hover
 
 end Foo
+
+/-!
+`#eval` needs to save info context for this hover to give the inferred type,
+since it needs the environment with the generated `_eval.match_1` matcher.
+-/
+#eval (default : Nat) matches .succ ..
+                      --^ textDocument/hover
+
+/--
+These are docs
+-/
+structure S where
+        --^ textDocument/hover
+  /-- So are these -/
+  mk ::
+--^ textDocument/hover
+  /-- And these -/
+  x : Nat
+--^ textDocument/hover
+
+#check { x := 5 : S }
+       --^ textDocument/hover
+                --^ textDocument/hover
+
+/-- Docs -/
+inductive S' where
+        --^ textDocument/hover
+  /-- More docs -/
+  | mk (x : Nat)
+  --^ textDocument/hover
+
+#check (.mk 5 : S')
+       --^ textDocument/hover
+              --^ textDocument/hover
+
+/-- An infinite sequence -/
+coinductive InfSeq (r : α → α → Prop) : α → Prop where
+          --^ textDocument/hover
+  /-- Take a step -/
+  | step : r a b → InfSeq r b → InfSeq r a
+     --^ textDocument/hover
+
+#check InfSeq
+     --^ textDocument/hover
+
+#check InfSeq.step
+     --^ textDocument/hover

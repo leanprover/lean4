@@ -3,8 +3,12 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean.Meta
 /-!
@@ -58,6 +62,9 @@ def isInstLTNat (e : Expr) : MetaM Bool := do
   return true
 def isInstLENat (e : Expr) : MetaM Bool := do
   let_expr instLENat ← e | return false
+  return true
+def isInstDvdNat (e : Expr) : MetaM Bool := do
+  let_expr Nat.instDvd ← e | return false
   return true
 
 end Lean.Meta

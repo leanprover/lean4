@@ -3,16 +3,20 @@ Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Nat.Div.Basic
+public meta import Init.Data.Nat.Div.Basic
+
+public section
 
 /-!
 # Notation for `List` literals.
 -/
 
 set_option linter.missingDocs true -- keep it documented
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 open Decidable List
 

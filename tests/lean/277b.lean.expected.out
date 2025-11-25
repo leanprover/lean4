@@ -1,2 +1,3 @@
-277b.lean:8:10-8:16: error: invalid constructor ⟨...⟩, expected type must be an inductive type with only one constructor 
-  List Point
+277b.lean:8:10-8:16: error: Invalid `⟨...⟩` notation: The expected type `List Point` has more than one constructor
+
+Note: This notation can only be used when the expected type is an inductive type with a single constructor

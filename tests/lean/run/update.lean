@@ -24,8 +24,8 @@ do let f   := mkConst `f [];
    let id₁ := id.updateLambda! BinderInfo.default s (mkBVar 0);
    let id₂ := id.updateLambda! BinderInfo.default nat (mkBVar 0);
    let l   := mkLet `z nat x t1;
-   let l₁  := l.updateLet! nat x t2;
-   let l₂  := l.updateLet! nat x t1;
+   let l₁  := l.updateLetE! nat x t2;
+   let l₂  := l.updateLetE! nat x t1;
    IO.println [t1, t2, t3, t5, t6, x₁, x₂, s₁, s₂, a₁, a₂, id₁, id₂, l₁, l₂];
    pure ()
 

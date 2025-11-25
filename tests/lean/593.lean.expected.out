@@ -1,8 +1,8 @@
 Foo.Bar.bar : Nat
 Foo.Bar.bar : Nat
 Foo.Bar.bar : Nat
-593.lean:21:7-21:10: error: unknown identifier 'boo'
-593.lean:26:7-26:10: error: unknown identifier 'bar'
+593.lean:21:7-21:10: error(lean.unknownIdentifier): Unknown identifier `boo`
+593.lean:26:7-26:10: error(lean.unknownIdentifier): Unknown identifier `bar`
 Foo.boo : Nat
 Foo.Bar.bar : Nat
 Foo.Bar.bar : Nat

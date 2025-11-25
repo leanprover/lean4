@@ -3,10 +3,12 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
-
+public section
 namespace Int.Linear
 /-- Returns `true` if all coefficients are not `0`. -/
 def Poly.checkCoeffs : Poly → Bool
@@ -33,8 +35,9 @@ def _root_.Int.Linear.Poly.checkOccs (p : Poly) : GoalM Unit := do
 def _root_.Int.Linear.Poly.checkCnstrOf (p : Poly) (x : Var) : GoalM Unit := do
   assert! p.isSorted
   assert! p.checkCoeffs
-  p.checkNoElimVars
-  p.checkOccs
+  unless (← inconsistent) do
+    p.checkNoElimVars
+    p.checkOccs
   let .add _ y _ := p | unreachable!
   assert! x == y
 
@@ -58,11 +61,11 @@ def checkUppers : GoalM Unit := do
   assert! s.uppers.size == s.vars.size
   checkLeCnstrs s.uppers (isLower := false)
 
-def checkDvdCnstrs : GoalM Unit := do
+def checkDvds : GoalM Unit := do
   let s ← get'
-  assert! s.vars.size == s.dvdCnstrs.size
+  assert! s.vars.size == s.dvds.size
   let mut x := 0
-  for c? in s.dvdCnstrs do
+  for c? in s.dvds do
     if let some c := c? then
       c.p.checkCnstrOf x
       assert! c.d > 1
@@ -96,12 +99,23 @@ def checkElimStack : GoalM Unit := do
   for x in (← get').elimStack do
     assert! (← eliminated x)
 
+def checkDiseqCnstrs : GoalM Unit := do
+  let s ← get'
+  assert! s.vars.size == s.diseqs.size
+  let mut x := 0
+  for cs in s.diseqs do
+    for c in cs do
+      c.p.checkCnstrOf x
+    x := x + 1
+  return ()
+
 def checkInvariants : GoalM Unit := do
   checkVars
-  checkDvdCnstrs
+  checkDvds
   checkLowers
   checkUppers
   checkElimEqs
   checkElimStack
+  checkDiseqCnstrs
 
 end Lean.Meta.Grind.Arith.Cutsat

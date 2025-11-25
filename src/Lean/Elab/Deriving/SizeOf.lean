@@ -3,9 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.SizeOf
-import Lean.Elab.Deriving.Basic
+public import Lean.Meta.SizeOf
+public import Lean.Elab.Deriving.Basic
+import Lean.Elab.Deriving.Util
+
+public section
 
 /-!
 Remark: `SizeOf` instances are automatically generated. We add support for `deriving instance` for `SizeOf`
@@ -19,7 +24,7 @@ open Command
 def mkSizeOfHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) then
     for declName in declNames do
-      liftTermElabM <| Meta.mkSizeOfInstances declName
+      withoutExposeFromCtors declName <| liftTermElabM <| Meta.mkSizeOfInstances declName
     return true
   else
     return false

@@ -1,19 +1,20 @@
 set_option debug.proofAsSorry true
+set_option pp.mvars false
 
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
-  ?m.156 = ?m.156 : Prop
+  ?_ = ?_
 but is expected to have type
-  2 + 2 = 5 : Prop
+  2 + 2 = 5
 -/
 #guard_msgs in
 example : 2 + 2 = 5 := rfl -- This is not a theorem
 
 /-- warning: declaration uses 'sorry' -/
 #guard_msgs in
-theorem ex : 2 + 2 = 5 := rfl
+theorem ex : 2 + 2 = 5 := id rfl -- id rfl to avoid the rfl attribute kicking in
 
 #guard_msgs in
 def data (w : Nat) : String := toString w

@@ -31,7 +31,7 @@ def RTree.simple_size : RTree α → Nat
   | .node _x t _ts => 1 + (t true).simple_size + (t false).simple_size
 
 /--
-info: theorem RTree.simple_size.eq_1.{u_1} : ∀ {α : Type u_1} (_x : α) (t : Bool → RTree α) (_ts : List (RTree α)),
+info: @[defeq] theorem RTree.simple_size.eq_1.{u_1} : ∀ {α : Type u_1} (_x : α) (t : Bool → RTree α) (_ts : List (RTree α)),
   (RTree.node _x t _ts).simple_size = 1 + (t true).simple_size + (t false).simple_size :=
 fun {α} _x t _ts => Eq.refl (RTree.node _x t _ts).simple_size
 -/
@@ -51,7 +51,7 @@ def RTree.aux_size : List (RTree α) → Nat
 end
 
 /--
-info: theorem RTree.aux_size.eq_2.{u_1} : ∀ {α : Type u_1} (t : RTree α) (ts : List (RTree α)),
+info: @[defeq] theorem RTree.aux_size.eq_2.{u_1} : ∀ {α : Type u_1} (t : RTree α) (ts : List (RTree α)),
   RTree.aux_size (t :: ts) = t.size + RTree.aux_size ts :=
 fun {α} t ts => Eq.refl (RTree.aux_size (t :: ts))
 -/
@@ -67,8 +67,8 @@ def RTree.map_aux (f : α → β) : List (RTree α) → List (RTree β)
 end
 
 /--
-info: theorem RTree.map_aux.eq_2.{u_1, u_2} : ∀ {α : Type u_1} {β : Type u_2} (f : α → β) (t : RTree α) (ts : List (RTree α)),
-  RTree.map_aux f (t :: ts) = RTree.map f t :: RTree.map_aux f ts :=
+info: @[defeq] theorem RTree.map_aux.eq_2.{u_1, u_2} : ∀ {α : Type u_1} {β : Type u_2} (f : α → β) (t : RTree α)
+  (ts : List (RTree α)), RTree.map_aux f (t :: ts) = RTree.map f t :: RTree.map_aux f ts :=
 fun {α} {β} f t ts => Eq.refl (RTree.map_aux f (t :: ts))
 -/
 #guard_msgs in
@@ -95,7 +95,7 @@ def VTree.vec_size : Vec (VTree α true 5) n b → Nat
 end
 
 /--
-info: theorem VTree.size.eq_1.{u_1} : ∀ {α : Type u_1} (b_2 : Bool) (n_2 : Nat) (a : α)
+info: @[defeq] theorem VTree.size.eq_1.{u_1} : ∀ {α : Type u_1} (b_2 : Bool) (n_2 : Nat) (a : α)
   (f : List Bool → List Nat → Vec (VTree α true 5) n_2 b_2),
   (VTree.node b_2 n_2 a f).size = 1 + VTree.vec_size (f [] []) :=
 fun {α} b_2 n_2 a f => Eq.refl (VTree.node b_2 n_2 a f).size

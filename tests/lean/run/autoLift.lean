@@ -19,12 +19,12 @@ set_option autoLift false
 
 set_option pp.mvars false in
 /--
-info: type mismatch
+info: Type mismatch
   f
 has type
-  IO Nat : Type
+  IO Nat
 but is expected to have type
-  M ?_ : Type
+  M ?_
 ---
 info: id do
   let a ← sorry

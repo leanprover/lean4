@@ -27,7 +27,7 @@ parserRecovery.lean:42:9-42:12: error: unexpected token; expected identifier
 parserRecovery.lean:42:14: error: expected token
 parserRecovery.lean:44:9-44:11: error: unexpected token '!'; expected identifier
 parserRecovery.lean:45:4: error: expected token
-parserRecovery.lean:47:6-47:11: error: unknown identifier 'Foo.a'
+parserRecovery.lean:47:6-47:11: error(lean.unknownIdentifier): Unknown identifier `Foo.a`
 parserRecovery.lean:49:16-49:17: error: unexpected token; expected identifier
 parserRecovery.lean:49:18-49:20: error: unexpected token; expected identifier
 parserRecovery.lean:49:21-49:23: error: unexpected token; expected identifier

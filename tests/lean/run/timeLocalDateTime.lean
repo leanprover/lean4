@@ -77,7 +77,7 @@ info: #[]
 #eval Id.run do
   let mut res := #[]
 
-  for i in [0:10000] do
+  for i in *...(10000 : Nat) do
     let i := Int.ofNat i - 999975
     let date := PlainDate.ofDaysSinceUNIXEpoch (Day.Offset.ofInt i)
     let num := date.toDaysSinceUNIXEpoch

@@ -3,11 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.DateTime
-import Std.Time.Zoned.TimeZone
-import Std.Time.Zoned.ZoneRules
-import Std.Time.Zoned.Database.Basic
+public import Std.Time.Zoned.Database.Basic
+import Init.Data.String.TakeDrop
+
+public section
 
 namespace Std
 namespace Time
@@ -63,9 +65,9 @@ def idFromPath (path : System.FilePath) : Option String := do
   let last ← res[res.size - 1]?
   let last₁ ← res[res.size - 2]?
 
-  if last₁ = some "zoneinfo"
-    then last.trim
-    else last₁.trim ++ "/" ++ last.trim
+  if last₁ = "zoneinfo"
+    then some <| last.trimAscii.copy
+    else some <| last₁.trimAscii.copy ++ "/" ++ last.trimAscii
 
 /--
 Retrieves the timezone rules from the local timezone data file.

@@ -3,8 +3,10 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lean.Data.Json
+public import Lean.Data.Json
 
 open Lean
 
@@ -16,46 +18,49 @@ indexing fields more convenient.
 namespace Lake
 
 /-- A JSON object (`Json.obj` data). -/
-abbrev JsonObject :=
-  RBNode String (fun _ => Json)
+@[expose] public abbrev JsonObject :=
+  Std.TreeMap.Raw String Json
 
 namespace JsonObject
 
-@[inline] def mk (val : RBNode String (fun _ => Json)) : JsonObject :=
+@[inline] public def mk (val : Std.TreeMap.Raw String Json) : JsonObject :=
   val
 
-@[inline] protected def toJson (obj : JsonObject) : Json :=
+@[inline] public protected def toJson (obj : JsonObject) : Json :=
   .obj obj
 
-instance : Coe JsonObject Json := ⟨Json.obj⟩
-instance : ToJson JsonObject := ⟨JsonObject.toJson⟩
+public instance : Coe JsonObject Json := ⟨Json.obj⟩
+public instance : ToJson JsonObject := ⟨JsonObject.toJson⟩
 
-@[inline] protected def fromJson? (json : Json) : Except String JsonObject :=
+@[inline] public protected def fromJson? (json : Json) : Except String JsonObject :=
   json.getObj?
 
-instance : FromJson JsonObject := ⟨JsonObject.fromJson?⟩
+public instance : FromJson JsonObject := ⟨JsonObject.fromJson?⟩
 
-@[inline] nonrec def insert [ToJson α] (obj : JsonObject) (prop : String) (val : α) : JsonObject :=
-  obj.insert compare prop (toJson val)
+public def insertJson (obj : JsonObject) (prop : String) (val : Json) : JsonObject :=
+  obj.insert prop (toJson val) -- specializes `insert`
 
-@[inline] def insertSome [ToJson α] (obj : JsonObject) (prop : String) (val? : Option α) : JsonObject :=
+@[inline] public def insert [ToJson α] (obj : JsonObject) (prop : String) (val : α) : JsonObject :=
+  obj.insertJson prop (toJson val)
+
+@[inline] public def insertSome [ToJson α] (obj : JsonObject) (prop : String) (val? : Option α) : JsonObject :=
   if let some val := val? then obj.insert prop val else obj
 
-nonrec def erase (obj : JsonObject) (prop : String) : JsonObject :=
-  inline <| obj.erase compare prop
+public nonrec def erase (obj : JsonObject) (prop : String) : JsonObject :=
+  obj.erase prop -- specializes `erase`
 
-@[inline] def getJson? (obj : JsonObject) (prop : String) : Option Json :=
-  obj.find compare prop
+public def getJson? (obj : JsonObject) (prop : String) : Option Json :=
+  obj.get? prop -- specializes `get?`
 
-@[inline] def get [FromJson α] (obj : JsonObject) (prop : String) : Except String α :=
+@[inline] public def get [FromJson α] (obj : JsonObject) (prop : String) : Except String α :=
   match obj.getJson? prop with
   | none => throw s!"property not found: {prop}"
   | some val => fromJson? val |>.mapError (s!"{prop}: {·}")
 
-@[inline] def get? [FromJson α] (obj : JsonObject) (prop : String) : Except String (Option α) :=
+@[inline] public def get? [FromJson α] (obj : JsonObject) (prop : String) : Except String (Option α) :=
   match obj.getJson? prop with
   | none => pure none
   | some val => fromJson? val |>.mapError (s!"{prop}: {·}")
 
-@[macro_inline] def getD [FromJson α] (obj : JsonObject) (prop : String) (default : α) : Except String α := do
+@[macro_inline, expose] public def getD [FromJson α] (obj : JsonObject) (prop : String) (default : α) : Except String α := do
   return (← obj.get? prop).getD default

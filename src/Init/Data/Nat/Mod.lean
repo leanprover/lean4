@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Omega
+public import Init.Omega
+
+public section
 
 /-!
 # Further results about `mod`.
@@ -27,7 +31,7 @@ namespace Nat
   | succ a ih =>
     cases a
     · simp
-    · simp_all [succ_eq_add_one, Nat.right_distrib]
+    · simp_all [Nat.right_distrib]
       omega
 
 @[simp] protected theorem mul_lt_mul_right (a0 : 0 < a) : b * a < c * a ↔ b < c := by

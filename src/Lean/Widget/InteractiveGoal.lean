@@ -4,10 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Meta.PPGoal
-import Lean.Widget.InteractiveCode
-import Lean.Data.Lsp.Extra
+public import Lean.Widget.InteractiveCode
+public import Lean.Data.Lsp.Extra
+
+public section
 
 /-! Functionality related to tactic-mode and term-mode goals with embedded `CodeWithInfos`. -/
 
@@ -116,7 +119,7 @@ instance : EmptyCollection InteractiveGoals := ⟨{goals := #[]}⟩
 open Meta in
 /-- Extend an array of hypothesis bundles with another bundle. -/
 def addInteractiveHypothesisBundle (hyps : Array InteractiveHypothesisBundle)
-    (ids : Array (String × FVarId)) (type : Expr) (value? : Option Expr := none) :
+    (ids : Array (String × FVarId)) (type : Expr) (value? : Option Expr := none) (tactic := false ) :
     MetaM (Array InteractiveHypothesisBundle) := do
   if ids.size == 0 then
     throwError "Can only add a nonzero number of ids as an InteractiveHypothesisBundle."
@@ -126,10 +129,22 @@ def addInteractiveHypothesisBundle (hyps : Array InteractiveHypothesisBundle)
     names
     fvarIds
     type        := (← ppExprTagged type)
-    val?        := (← value?.mapM ppExprTagged)
+    val?        := (← value?.mapM ppLetValueExprTagged)
     isInstance? := if (← isClass? type).isSome then true else none
     isType?     := if (← instantiateMVars type).isSort then true else none
   }
+where
+  ppLetValueExprTagged (value : Expr) : MetaM CodeWithInfos := do
+    if ← ppGoal.shouldShowLetValue tactic value then
+      ppExprTagged value
+    else
+      ppExprTagged value do PrettyPrinter.Delaborator.omission <| .string <|
+        if tactic then
+          "Value omitted since `pp.showLetValues` is false and \
+          the expression's depth exceeds both `pp.showLetValues.tactic.threshold` and `pp.showLetValues.threshold`."
+        else
+          "Value omitted since `pp.showLetValues` is false and \
+          the expression's depth exceeds `pp.showLetValues.threshold`."
 
 open Meta in
 variable [MonadControlT MetaM n] [Monad n] [MonadError n] [MonadOptions n] [MonadMCtx n] in
@@ -145,8 +160,9 @@ open Meta in
 def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
   let ppAuxDecls := pp.auxDecls.get (← getOptions)
   let ppImplDetailHyps := pp.implementationDetailHyps.get (← getOptions)
-  let showLetValues := pp.showLetValues.get (← getOptions)
   withGoalCtx mvarId fun lctx mvarDecl => do
+    -- See comment in `Lean.Meta.ppGoal` about this synthetic opaque heuristic.
+    let tactic := mvarDecl.kind.isSyntheticOpaque
     let pushPending (ids : Array (String × FVarId)) (type? : Option Expr) (hyps : Array InteractiveHypothesisBundle)
         : MetaM (Array InteractiveHypothesisBundle) :=
       if ids.isEmpty then
@@ -163,7 +179,8 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
         continue
       else
         match localDecl with
-        | LocalDecl.cdecl _index fvarId varName type _ _ =>
+        | LocalDecl.cdecl _index fvarId varName type ..
+        | LocalDecl.ldecl _index fvarId varName type (nondep := true) .. =>
           -- We rely on the fact that `withGoalCtx` runs `LocalContext.sanitizeNames`,
           -- so the `userName`s of local hypotheses are already pretty-printed
           -- and it suffices to simply `toString` them.
@@ -175,12 +192,12 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
             hyps ← pushPending varNames prevType? hyps
             varNames := #[(varName, fvarId)]
           prevType? := some type
-        | LocalDecl.ldecl _index fvarId varName type val _ _ => do
+        | LocalDecl.ldecl _index fvarId varName type val (nondep := false) .. => do
           let varName := toString varName
           hyps ← pushPending varNames prevType? hyps
           let type ← instantiateMVars type
-          let val? ← if showLetValues then pure (some (← instantiateMVars val)) else pure none
-          hyps ← addInteractiveHypothesisBundle hyps #[(varName, fvarId)] type val?
+          let val ← instantiateMVars val
+          hyps ← addInteractiveHypothesisBundle hyps #[(varName, fvarId)] type val tactic
           varNames := #[]
           prevType? := none
     hyps ← pushPending varNames prevType? hyps
@@ -192,7 +209,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
     return {
       hyps
       type := goalFmt
-      ctx := ⟨{← Elab.CommandContextInfo.save with }⟩
+      ctx := ← WithRpcRef.mk {← Elab.CommandContextInfo.save with }
       userName?
       goalPrefix := getGoalPrefix mvarDecl
       mvarId

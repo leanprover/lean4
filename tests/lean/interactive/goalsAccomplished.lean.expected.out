@@ -1,0 +1,31 @@
+{"version": 1,
+ "uri": "file:///goalsAccomplished.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 0, "character": 0}, "end": {"line": 1, "character": 0}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
+   {"start": {"line": 0, "character": 0}, "end": {"line": 1, "character": 18}}},
+  {"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 4, "character": 0}, "end": {"line": 4, "character": 35}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
+   {"start": {"line": 4, "character": 0}, "end": {"line": 4, "character": 35}}},
+  {"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 7, "character": 0}, "end": {"line": 7, "character": 28}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
+   {"start": {"line": 7, "character": 0},
+    "end": {"line": 7, "character": 28}}}]}

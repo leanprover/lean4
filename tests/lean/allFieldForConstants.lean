@@ -93,9 +93,9 @@ theorem foldl_init (s : Nat) (xs : List String) :  (xs.foldl (init := s) fun sum
 
 theorem listStringLen_append (xs ys : List String) : listStringLen (xs ++ ys) = listStringLen xs + listStringLen ys := by
   simp [listStringLen]
-  induction xs with
+  cases xs with
   | nil => simp
-  | cons x xs ih => simp +arith [foldl_init x.length, foldl_init (_ + _), ih]
+  | cons x xs => simp +arith [foldl_init x.length, foldl_init (_ + _)]
 
 mutual
   theorem listStringLen_flat (f : Foo) : listStringLen (flat f) = textLength f := by

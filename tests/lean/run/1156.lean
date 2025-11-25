@@ -28,7 +28,7 @@ inductive Foo : Nat → Char → Prop
 info: inductive Ex2.Foo : Nat → Char → Prop
 number of parameters: 1
 constructors:
-Ex2.Foo.mk : ∀ (n : Nat), natToType n → ∀ (c : Char), Foo n c
+Ex2.Foo.mk : ∀ (n : Nat) (elem : natToType n) (c : Char), Foo n c
 -/
 #guard_msgs in
 #print Foo

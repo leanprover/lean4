@@ -1,10 +1,12 @@
-import Lean.Meta.Tactic.Grind
+module
+meta import Lean.Meta.Tactic.Grind
+#exit -- TODO: reenable after we add support for running code in interactive mode
 
 def g (s : Type) := s
 def f (a : α) := a
 
 open Lean Meta Grind in
-def fallback : Fallback := do
+meta def fallback : Fallback := do
   let nodes ← filterENodes fun e => return e.self.isApp && e.self.isAppOf ``f
   trace[Meta.debug] "{nodes.toList.map (·.self)}"
   (← get).mvarId.admit
@@ -12,9 +14,9 @@ def fallback : Fallback := do
 set_option trace.Meta.debug true
 set_option pp.explicit true
 /--
-info: [Meta.debug] [@f Nat a, @f Nat b]
+trace: [Meta.debug] [@f Nat a, @f Nat b]
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example (a b c d : Nat) : @f Nat a = b → @f (g Nat) a = c → @f (g Nat) b = d → a = b → False := by
   -- State should have only two `f`-applications: `@f Nat a`, `@f Nat b`
   -- Note that `@f (g Nat) b` has been canonicalized to `@f Nat b`.

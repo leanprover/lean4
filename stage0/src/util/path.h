@@ -44,6 +44,4 @@ optional<bool> is_dir(std::string const & fn);
 std::vector<std::string> read_dir(std::string const & dirname);
 
 time_t get_mtime(std::string const & fname);
-
-LEAN_EXPORT std::string lrealpath(std::string const & fname);
 }

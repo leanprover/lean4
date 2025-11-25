@@ -12,7 +12,7 @@ theorem all_eq_allPairs (l : List α) (p : α → Bool) :
 -- scope) and `z` without dagger (because intro1P is not hygienic)
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 f : String → Bool
 names : List String
 a y✝ z : String

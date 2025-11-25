@@ -48,7 +48,7 @@ def baseTypeIdent := mkIdent (Name.mkSimple "Base")
 
 def init (type val : TSyntax `ident) (width : Nat) : MacroM (TSyntax `command) := do
   let fieldsStx ← mkFieldsStx type "base_" width
-  let vals := Array.mkArray width val
+  let vals := Array.replicate width val
   `(structure $baseTypeIdent where
     $fieldsStx:structFields
     def $baseIdent : $baseTypeIdent := ⟨$vals,*⟩)

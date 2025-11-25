@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.ReifiedBVPred
+public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.ReifiedBVPred
+
+public section
 
 /-!
 Provides the logic for reifying `BitVec` problems with boolean substructure.
@@ -33,11 +37,12 @@ Construct a `ReifiedBVLogical` from `ReifiedBVPred` by wrapping it as an atom.
 def ofPred (bvPred : ReifiedBVPred) : M ReifiedBVLogical := do
   let boolExpr := .literal bvPred.bvPred
   let expr := mkApp2 (mkConst ``BoolExpr.literal) (mkConst ``BVPred) bvPred.expr
+  -- important: This must be the same proof as the bvPred one in order for the cache to be correct
   let proof := bvPred.evalsAtAtoms
-  return ⟨boolExpr, proof, expr⟩
+  return ⟨boolExpr, bvPred.originalExpr, proof, expr⟩
 
 /--
-Construct an uninterrpeted `Bool` atom from `t`.
+Construct an uninterpreted `Bool` atom from `t`.
 -/
 def boolAtom (t : Expr) : M (Option ReifiedBVLogical) := do
   let some pred ← ReifiedBVPred.boolAtom t | return none
@@ -51,14 +56,14 @@ def mkBoolConst (val : Bool) : M ReifiedBVLogical := do
   let expr := mkApp2 (mkConst ``BoolExpr.const) (mkConst ``BVPred) (toExpr val)
   -- This is safe because this proof always holds definitionally.
   let proof := pure none
-  return ⟨boolExpr, proof, expr⟩
+  return ⟨boolExpr, toExpr val, proof, expr⟩
 
 /--
 Construct the reified version of applying the gate in `gate` to `lhs` and `rhs`.
 This function assumes that `lhsExpr` and `rhsExpr` are the corresponding expressions to `lhs`
 and `rhs`.
 -/
-def mkGate (lhs rhs : ReifiedBVLogical) (lhsExpr rhsExpr : Expr) (gate : Gate) :
+def mkGate (lhs rhs : ReifiedBVLogical) (lhsExpr rhsExpr : Expr) (gate : Gate) (origExpr : Expr) :
     M ReifiedBVLogical := do
   let congrThm := congrThmOfGate gate
   let boolExpr := .gate gate lhs.bvExpr rhs.bvExpr
@@ -84,7 +89,7 @@ def mkGate (lhs rhs : ReifiedBVLogical) (lhsExpr rhsExpr : Expr) (gate : Gate) :
       lhsExpr rhsExpr
       lhsEvalExpr rhsEvalExpr
       lhsProof rhsProof
-  return ⟨boolExpr, proof, expr⟩
+  return ⟨boolExpr, origExpr, proof, expr⟩
 where
   congrThmOfGate (gate : Gate) : Name :=
     match gate with
@@ -97,7 +102,7 @@ where
 Construct the reified version of `Bool.not subExpr`.
 This function assumes that `subExpr` is the expression corresponding to `sub`.
 -/
-def mkNot (sub : ReifiedBVLogical) (subExpr : Expr) : M ReifiedBVLogical := do
+def mkNot (sub : ReifiedBVLogical) (subExpr : Expr) (origExpr : Expr) : M ReifiedBVLogical := do
   let boolExpr := .not sub.bvExpr
   let expr := mkApp2 (mkConst ``BoolExpr.not) (mkConst ``BVPred) sub.expr
   let proof := do
@@ -105,14 +110,14 @@ def mkNot (sub : ReifiedBVLogical) (subExpr : Expr) : M ReifiedBVLogical := do
     let some subProof ← sub.evalsAtAtoms | return none
     let subEvalExpr ← ReifiedBVLogical.mkEvalExpr sub.expr
     return mkApp3 (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.not_congr) subExpr subEvalExpr subProof
-  return ⟨boolExpr, proof, expr⟩
+  return ⟨boolExpr, origExpr, proof, expr⟩
 
 /--
 Construct the reified version of `if discrExpr then lhsExpr else rhsExpr`.
 This function assumes that `discrExpr`, lhsExpr` and `rhsExpr` are the corresponding expressions to
 `discr`, `lhs` and `rhs`.
 -/
-def mkIte (discr lhs rhs : ReifiedBVLogical) (discrExpr lhsExpr rhsExpr : Expr) :
+def mkIte (discr lhs rhs : ReifiedBVLogical) (discrExpr lhsExpr rhsExpr : Expr) (origExpr : Expr) :
     M ReifiedBVLogical := do
   let boolExpr := .ite discr.bvExpr lhs.bvExpr rhs.bvExpr
   let expr :=
@@ -140,7 +145,7 @@ def mkIte (discr lhs rhs : ReifiedBVLogical) (discrExpr lhsExpr rhsExpr : Expr) 
       discrExpr lhsExpr rhsExpr
       discrEvalExpr lhsEvalExpr rhsEvalExpr
       discrProof lhsProof rhsProof
-  return ⟨boolExpr, proof, expr⟩
+  return ⟨boolExpr, origExpr, proof, expr⟩
 
 end ReifiedBVLogical
 

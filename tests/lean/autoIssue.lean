@@ -50,7 +50,7 @@ def tst : MetaM Unit :=
 
 example (z : A) : z.x = 1 := by
   match z with
-  | { a' := h } => trace_state; exact h
+  | { a' := h, .. } => trace_state; exact h
 
 example (z : A) : z.x = 1 := by
   match z with

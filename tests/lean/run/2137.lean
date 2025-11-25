@@ -12,7 +12,7 @@ def main (_ : List String) : IO UInt32 := do
   makeProc
   IO.println "done test"
 
-  for _ in [0:6] do
+  for _ in *...(6 : Nat) do
     let _ ← IO.asTask makeProc
 
   return 0

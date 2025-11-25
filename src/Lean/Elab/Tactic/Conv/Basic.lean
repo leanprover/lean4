@@ -3,12 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Reduce
-import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Replace
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.Tactic.BuiltinTactic
+public import Lean.Meta.Tactic.Replace
+public import Lean.Elab.Tactic.BuiltinTactic
+
+public section
 
 namespace Lean.Elab.Tactic.Conv
 open Meta
@@ -52,7 +53,7 @@ def convert (lhs : Expr) (conv : TacticM Unit) : TacticM (Expr × Expr) := do
       liftM <| mvarId.refl <|> mvarId.inferInstance <|> pure ()
     pruneSolvedGoals
     unless (← getGoals).isEmpty do
-      throwError "convert tactic failed, there are unsolved goals\n{goalsToMessageData (← getGoals)}"
+      throwError "Tactic `conv` failed: There are unsolved goals\n{goalsToMessageData (← getGoals)}"
     pure ()
   finally
     setGoals savedGoals
@@ -60,7 +61,8 @@ def convert (lhs : Expr) (conv : TacticM Unit) : TacticM (Expr × Expr) := do
 
 def getLhsRhsCore (mvarId : MVarId) : MetaM (Expr × Expr) :=
   mvarId.withContext do
-    let some (_, lhs, rhs) ← matchEq? (← mvarId.getType) | throwError "invalid 'conv' goal"
+    let some (_, lhs, rhs) ← matchEq? (← mvarId.getType) |
+      throwError "Internal error: Conversion-mode tactic found an invalid `conv` goal"
     return (lhs, rhs)
 
 def getLhsRhs : TacticM (Expr × Expr) := do
@@ -98,9 +100,38 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
    withMainContext do
      changeLhs (← zetaReduce (← getLhs))
 
+/--
+Removes the hypothesis referred to by `fvarId` from the context of the currently focused `conv`
+goal, provided that `fvarId` is not referenced by another hypothesis or the current `conv`-focused
+target.
+-/
+def convClear (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId := do
+  let (lhs, rhs) ← getLhsRhsCore mvarId
+  unless rhs.isMVar do
+    return (← mvarId.clear fvarId)
+  let rhsKind ← rhs.mvarId!.getKind
+  -- Clear the fvar from the RHS mvar's context so that it isn't detected as a dependent. Note that
+  -- `clear` always produces a synthetic-opaque mvar, so we need to reset its kind afterward
+  let rhs' ← rhs.mvarId!.clear fvarId
+  rhs'.setKind rhsKind
+  let mvarId' ← mvarId.replaceTargetDefEq (mkLHSGoalRaw (← mkEq lhs (mkMVar rhs')))
+  let mvarIdCleared ← mvarId'.clear fvarId
+  return mvarIdCleared
+
+@[builtin_tactic Lean.Parser.Tactic.Conv.clear] def evalClear : Tactic := fun stx => do
+  match stx with
+  | `(conv| clear $hs*) => do
+    let fvarIds ← getFVarIds hs
+    let fvarIds ← withMainContext <| sortFVarIds fvarIds
+    for fvarId in fvarIds.reverse do
+      withMainContext do
+        let mvarId ← convClear (← getMainGoal) fvarId
+        replaceMainGoal [mvarId]
+  | _ => throwUnsupportedSyntax
+
 /-- Evaluate `sepByIndent conv "; " -/
 def evalSepByIndentConv (stx : Syntax) : TacticM Unit := do
-  for arg in stx.getArgs, i in [:stx.getArgs.size] do
+  for arg in stx.getArgs, i in *...stx.getArgs.size do
     if i % 2 == 0 then
       evalTactic arg
     else

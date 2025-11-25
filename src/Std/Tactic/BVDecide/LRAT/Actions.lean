@@ -3,8 +3,12 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+module
+
 prelude
-import Std.Sat.CNF
+public import Std.Sat.CNF
+
+@[expose] public section
 
 /-!
 This module contains the definition of the LRAT format (https://www.cs.utexas.edu/~marijn/publications/lrat.pdf)

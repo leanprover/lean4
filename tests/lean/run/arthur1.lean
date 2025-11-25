@@ -1,4 +1,4 @@
-import Lean.Data.HashMap
+import Std.Data.HashMap
 
 inductive NEList (α : Type)
   | uno  : α → NEList α
@@ -67,7 +67,7 @@ inductive Value
   | lam  : Lambda → Value
   deriving Inhabited
 
-abbrev Context := Lean.HashMap String Value
+abbrev Context := Std.HashMap String Value
 
 inductive ErrorType
   | name | type | runTime
@@ -85,7 +85,7 @@ def removeRightmostZeros (s : String) : String :=
       if a != '0'
         then aux [] (a :: (buff ++ res)) as
         else aux (a :: buff) res as
-  ⟨aux [] [] s.data⟩
+  (aux [] [] s.data).asString
 
 protected def Literal.toString : Literal → String
   | bool  b => toString b
@@ -318,7 +318,7 @@ def State.step : State → State
 
   | expr (.lit l) ctx k => ret (.lit l) ctx k
   | expr (.list l) ctx k => ret (.list l) ctx k
-  | expr (.var n) ctx k => match ctx[n] with
+  | expr (.var n) ctx k => match ctx[n]? with
     | none   => error .name ctx $ notFound n
     | some v => ret v ctx k
   | expr (.lam l) ctx k => ret (.lam l) ctx k
@@ -362,7 +362,7 @@ def State.step : State → State
   | s@(done ..)  => s
 
 def Context.equiv (cₗ cᵣ : Context) : Prop :=
-  ∀ n : String, cₗ[n] = cᵣ[n]
+  ∀ n : String, cₗ[n]? = cᵣ[n]?
 
 def State.stepN : State → Nat → State
   | s, 0     => s

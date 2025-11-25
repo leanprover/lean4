@@ -36,13 +36,10 @@ Type → Type → Type
 (α : Type) → α → α
 {α : Type} → α
 {α : Type} →
-  [inst :
-      ToString α] →
-    α
+  [ToString α] → α
 ∀ (x : Nat), x = x
 ∀ {x : Nat}
-  [inst :
-    ToString Nat],
+  [ToString Nat],
   x = x
 ∀ x, x = x
 0

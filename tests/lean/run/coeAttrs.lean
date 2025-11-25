@@ -4,7 +4,7 @@
 
 -- With the option off (default)
 /--
-info: n : Nat
+trace: n : Nat
 h : n = 0
 ⊢ ↑n = 0
 -/
@@ -15,7 +15,7 @@ example (n : Nat) (h : n = 0) : (↑n : Int) = 0 := by
 
 -- With the option on
 /--
-info: n : Nat
+trace: n : Nat
 h : n = 0
 ⊢ (↑n : Int) = 0
 -/

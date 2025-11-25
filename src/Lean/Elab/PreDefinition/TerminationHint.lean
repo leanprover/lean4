@@ -3,8 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Parser.Term
+public import Lean.Parser.Term
+meta import Lean.Parser.Term
+
+public section
 
 set_option autoImplicit false
 
@@ -33,10 +38,17 @@ structure DecreasingBy where
   tactic    : TSyntax ``Lean.Parser.Tactic.tacticSeq
   deriving Inhabited
 
-/-- A single `partial_fixpoint` clause -/
+inductive PartialFixpointType where
+  | partialFixpoint
+  | coinductiveFixpoint
+  | inductiveFixpoint
+  deriving Inhabited
+
+/-- A single `partial_fixpoint`, `inductive_fixpoint` or `coinductive_fixpoint` clause -/
 structure PartialFixpoint where
-  ref       : Syntax
-  term?     : Option Term
+  ref               : Syntax
+  term?             : Option Term
+  fixpointType      : PartialFixpointType := .partialFixpoint
   deriving Inhabited
 
 /--
@@ -62,6 +74,21 @@ structure TerminationHints where
   extraParams : Nat
   deriving Inhabited
 
+def isInductiveFixpoint : PartialFixpointType → Bool
+  | .inductiveFixpoint => true
+  | _ => false
+
+def isCoinductiveFixpoint : PartialFixpointType → Bool
+  | .coinductiveFixpoint => true
+  | _ => false
+
+def isPartialFixpoint : PartialFixpointType → Bool
+  | .partialFixpoint => true
+  | _ => false
+
+def isLatticeTheoretic (p : PartialFixpointType) : Bool :=
+  isInductiveFixpoint p ∨ isCoinductiveFixpoint p
+
 def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none, .none, .none, 0⟩
 
 /-- Logs warnings when the `TerminationHints` are unexpectedly present.  -/
@@ -75,7 +102,10 @@ def TerminationHints.ensureNone (hints : TerminationHints) (reason : String) : C
   | .none, .some term_by, .none, .none =>
     logWarningAt term_by.ref m!"unused `termination_by`, function is {reason}"
   | .none, .none, .none, .some partialFixpoint =>
-    logWarningAt partialFixpoint.ref m!"unused `partial_fixpoint`, function is {reason}"
+    match partialFixpoint.fixpointType with
+    | .partialFixpoint => logWarningAt partialFixpoint.ref m!"unused `partial_fixpoint`, function is {reason}"
+    | .coinductiveFixpoint => logWarningAt partialFixpoint.ref m!"unused `coinductive_fixpoint`, function is {reason}"
+    | .inductiveFixpoint  => logWarningAt partialFixpoint.ref m!"unused `inductive_fixpoint`, function is {reason}"
   | _, _, _, _=>
     logWarningAt hints.ref m!"unused termination hints, function is {reason}"
 
@@ -127,20 +157,22 @@ def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) :
       | _ => pure none
       else pure none
     let terminationBy? : Option TerminationBy ← if let some t := t? then match t with
-      | `(terminationBy|termination_by partialFixpointursion) =>
-        pure (some {ref := t, structural := false, vars := #[], body := ⟨.missing⟩ : TerminationBy})
       | `(terminationBy|termination_by $[structural%$s]? => $_body) =>
         throwErrorAt t "no extra parameters bounds, please omit the `=>`"
       | `(terminationBy|termination_by $[structural%$s]? $vars* => $body) =>
-        pure (some {ref := t, structural := s.isSome, vars, body})
+        pure (some {ref := t, structural := s.isSome, vars, body : TerminationBy})
       | `(terminationBy|termination_by $[structural%$s]? $body:term) =>
         pure (some {ref := t, structural := s.isSome, vars := #[], body})
       | `(terminationBy?|termination_by?) => pure none
       | `(partialFixpoint|partial_fixpoint $[monotonicity $_]?) => pure none
+      | `(coinductiveFixpoint|coinductive_fixpoint $[monotonicity $_]?) => pure none
+      | `(inductiveFixpoint|inductive_fixpoint $[monotonicity $_]?) => pure none
       | _ => throwErrorAt t "unexpected `termination_by` syntax"
       else pure none
     let partialFixpoint? : Option PartialFixpoint ← if let some t := t? then match t with
-      | `(partialFixpoint|partial_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?})
+      | `(partialFixpoint|partial_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?, fixpointType := .partialFixpoint})
+      | `(coinductiveFixpoint|coinductive_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?, fixpointType := .coinductiveFixpoint})
+      | `(inductiveFixpoint|inductive_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?, fixpointType := .inductiveFixpoint})
       | _ => pure none
       else pure none
     let decreasingBy? ← d?.mapM fun d => match d with

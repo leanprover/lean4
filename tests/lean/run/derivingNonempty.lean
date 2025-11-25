@@ -1,3 +1,5 @@
+module
+
 inductive Foo (α : Type u) (β : Type v) where
   | mk₁ : α → Foo α β
   | mk₂ : List β → Foo α β
@@ -47,3 +49,17 @@ end
 
 def ex5 : Nonempty (Boo α) :=
   inferInstance
+
+/-! Public structures with private fields should yield public opaque instances. -/
+
+public structure PrivField where
+  private a : Nat
+deriving Nonempty
+
+/--
+info: theorem instNonemptyPrivField : Nonempty PrivField :=
+<not imported>
+-/
+#guard_msgs in
+#with_exporting
+#print instNonemptyPrivField

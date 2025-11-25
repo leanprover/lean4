@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.Time
+public import Std.Time.Time
+
+public section
 
 namespace Std
 namespace Time
@@ -16,8 +20,8 @@ set_option linter.all true
 /--
 `Ordinal` represents a bounded value for days, which ranges between 1 and 31.
 -/
-def Ordinal := Bounded.LE 1 31
-  deriving Repr, BEq, LE, LT
+@[expose] def Ordinal := Bounded.LE 1 31
+deriving Repr, DecidableEq, LE, LT
 
 instance : OfNat Ordinal n :=
   inferInstanceAs (OfNat (Bounded.LE 1 (1 + (30 : Nat))) n)
@@ -30,12 +34,18 @@ instance {x y : Ordinal} : Decidable (x < y) :=
 
 instance : Inhabited Ordinal where default := 1
 
+instance : Ord Ordinal := inferInstanceAs <| Ord (Bounded.LE 1 _)
+
+instance : TransOrd Ordinal := inferInstanceAs <| TransOrd (Bounded.LE 1 _)
+
+instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 1 _)
+
 /--
 `Offset` represents an offset in days. It is defined as an `Int` with a base unit of 86400
 (the number of seconds in a day).
 -/
-def Offset : Type := UnitVal 86400
-  deriving Repr, BEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
+@[expose] def Offset : Type := UnitVal 86400
+deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
 instance : OfNat Offset n := ⟨UnitVal.ofNat n⟩
 
@@ -44,6 +54,12 @@ instance {x y : Offset} : Decidable (x ≤ y) :=
 
 instance {x y : Offset} : Decidable (x < y) :=
   inferInstanceAs (Decidable (x.val < y.val))
+
+instance : Ord Offset := inferInstanceAs <| Ord (UnitVal _)
+
+instance : TransOrd Offset := inferInstanceAs <| TransOrd (UnitVal _)
+
+instance : LawfulEqOrd Offset := inferInstanceAs <| LawfulEqOrd (UnitVal _)
 
 namespace Ordinal
 
@@ -58,13 +74,21 @@ def ofInt (data : Int) (h : 1 ≤ data ∧ data ≤ 31) : Ordinal :=
 `OfYear` represents the day ordinal within a year, which can be bounded between 1 and 365 or 366,
 depending on whether it's a leap year.
 -/
-def OfYear (leap : Bool) := Bounded.LE 1 (.ofNat (if leap then 366 else 365))
+@[expose] def OfYear (leap : Bool) := Bounded.LE 1 (.ofNat (if leap then 366 else 365))
 
 instance : Repr (OfYear leap) where
   reprPrec r p := reprPrec r.val p
 
 instance : ToString (OfYear leap) where
   toString r := toString r.val
+
+instance : DecidableEq (OfYear leap) := inferInstanceAs <| DecidableEq (Bounded.LE 1 _)
+
+instance : Ord (OfYear leap) := inferInstanceAs <| Ord (Bounded.LE 1 _)
+
+instance : TransOrd (OfYear leap) := inferInstanceAs <| TransOrd (Bounded.LE 1 _)
+
+instance : LawfulEqOrd (OfYear leap) := inferInstanceAs <| LawfulEqOrd (Bounded.LE 1 _)
 
 namespace OfYear
 
@@ -150,70 +174,70 @@ Convert `Day.Offset` into `Nanosecond.Offset`.
 -/
 @[inline]
 def toNanoseconds (days : Day.Offset) : Nanosecond.Offset :=
-  days.mul 86400000000000
+  days.mul 86400000000000 |>.cast (by decide +kernel)
 
 /--
 Convert `Nanosecond.Offset` into `Day.Offset`.
 -/
 @[inline]
 def ofNanoseconds (ns : Nanosecond.Offset) : Day.Offset :=
-  ns.ediv 86400000000000
+  ns.ediv 86400000000000 |>.cast (by decide +kernel)
 
 /--
 Convert `Day.Offset` into `Millisecond.Offset`.
 -/
 @[inline]
 def toMilliseconds (days : Day.Offset) : Millisecond.Offset :=
-  days.mul 86400000
+  days.mul 86400000 |>.cast (by decide +kernel)
 
 /--
 Convert `Millisecond.Offset` into `Day.Offset`.
 -/
 @[inline]
 def ofMilliseconds (ms : Millisecond.Offset) : Day.Offset :=
-  ms.ediv 86400000
+  ms.ediv 86400000 |>.cast (by decide +kernel)
 
 /--
 Convert `Day.Offset` into `Second.Offset`.
 -/
 @[inline]
 def toSeconds (days : Day.Offset) : Second.Offset :=
-  days.mul 86400
+  days.mul 86400 |>.cast (by decide +kernel)
 
 /--
 Convert `Second.Offset` into `Day.Offset`.
 -/
 @[inline]
 def ofSeconds (secs : Second.Offset) : Day.Offset :=
-  secs.ediv 86400
+  secs.ediv 86400 |>.cast (by decide +kernel)
 
 /--
 Convert `Day.Offset` into `Minute.Offset`.
 -/
 @[inline]
 def toMinutes (days : Day.Offset) : Minute.Offset :=
-  days.mul 1440
+  days.mul 1440 |>.cast (by decide +kernel)
 
 /--
 Convert `Minute.Offset` into `Day.Offset`.
 -/
 @[inline]
 def ofMinutes (minutes : Minute.Offset) : Day.Offset :=
-  minutes.ediv 1440
+  minutes.ediv 1440 |>.cast (by decide +kernel)
 
 /--
 Convert `Day.Offset` into `Hour.Offset`.
 -/
 @[inline]
 def toHours (days : Day.Offset) : Hour.Offset :=
-  days.mul 24
+  days.mul 24 |>.cast (by decide +kernel)
 
 /--
 Convert `Hour.Offset` into `Day.Offset`.
 -/
 @[inline]
 def ofHours (hours : Hour.Offset) : Day.Offset :=
-  hours.ediv 24
+  hours.ediv 24 |>.cast (by decide +kernel)
 
 end Offset
 end Day

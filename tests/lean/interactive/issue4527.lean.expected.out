@@ -6,5 +6,6 @@
    "range":
    {"start": {"line": 1, "character": 2}, "end": {"line": 2, "character": 0}},
    "message": "unsolved goals\n⊢ True",
+   "leanTags": [1],
    "fullRange":
    {"start": {"line": 1, "character": 2}, "end": {"line": 3, "character": 8}}}]}

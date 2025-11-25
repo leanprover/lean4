@@ -9,7 +9,7 @@ theorem f_eq : f (x + 1) = q (f x) := rfl
 set_option trace.Meta.debug true
 
 /--
-info: [diag] Diagnostics
+trace: [diag] Diagnostics
   [reduction] unfolded declarations (max: 15, num: 6):
     [reduction] Nat.rec ↦ 15
     [reduction] Add.add ↦ 10
@@ -30,7 +30,7 @@ example : f (x + 5) = q (q (q (q (q (f x))))) :=
   rfl
 
 /--
-info: [diag] Diagnostics
+trace: [diag] Diagnostics
   [reduction] unfolded declarations (max: 15, num: 6):
     [reduction] Nat.rec ↦ 15
     [reduction] Add.add ↦ 10

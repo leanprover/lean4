@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
+public import Lean.Compiler.LCNF.CompilerM
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -14,30 +18,19 @@ abbrev UsedLocalDecls := FVarIdHashSet
 Collect set of (let) free variables in a LCNF value.
 This code exploits the LCNF property that local declarations do not occur in types.
 -/
-def collectLocalDeclsType (s : UsedLocalDecls) (type : Expr) : UsedLocalDecls :=
-  go s type
-where
-  go (s : UsedLocalDecls) (e : Expr) : UsedLocalDecls :=
-    match e with
-    | .forallE .. => s
-    | .lam _ _ b _ => go s b
-    | .app f a => go (go s a) f
-    | .fvar fvarId => s.insert fvarId
-    | .letE .. | .proj .. | .mdata .. => unreachable! -- Valid LCNF type does not contain this kind of expr
-    | _ => s
 
 def collectLocalDeclsArg (s : UsedLocalDecls) (arg : Arg) : UsedLocalDecls :=
   match arg with
-  | .erased => s
-  | .type e => collectLocalDeclsType s e
   | .fvar fvarId => s.insert fvarId
+  -- Locally declared variables do not occur in types.
+  | .type _ | .erased => s
 
 def collectLocalDeclsArgs (s : UsedLocalDecls) (args : Array Arg) : UsedLocalDecls :=
   args.foldl (init := s) collectLocalDeclsArg
 
 def collectLocalDeclsLetValue (s : UsedLocalDecls) (e : LetValue) : UsedLocalDecls :=
   match e with
-  | .erased  | .value .. => s
+  | .erased  | .lit .. => s
   | .proj _ _ fvarId => s.insert fvarId
   | .const _ _ args => collectLocalDeclsArgs s args
   | .fvar fvarId args => collectLocalDeclsArgs (s.insert fvarId) args

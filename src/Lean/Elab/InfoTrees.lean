@@ -3,8 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.Elab.Command
+public import Lean.Elab.Command
+
+public section
 
 open Lean Elab Command
 
@@ -17,7 +21,7 @@ def elabInfoTrees : CommandElab
       logError "Info trees are disabled, can not use `#info_trees`."
     else
       elabCommand cmd
-      let infoTrees ← getInfoTrees
+      let infoTrees := (← getInfoState).substituteLazy.get.trees
       for t in infoTrees do
         logInfoAt tk (← t.format)
   | _ => throwUnsupportedSyntax

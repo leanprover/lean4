@@ -1,6 +1,3 @@
-class One (M : Type u) where one : M
-instance {M} [One M] : OfNat M (nat_lit 1) := ⟨One.one⟩
-
 class Monoid (M : Type u) extends Mul M, One M where
   mul_one (m : M) : m * 1 = m
 

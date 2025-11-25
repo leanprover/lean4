@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.System.IO
-import Std.Tactic.BVDecide.LRAT.Actions
-import Std.Internal.Parsec
+public import Init.System.IO
+public import Std.Tactic.BVDecide.LRAT.Actions
+public import Std.Internal.Parsec
+
+public section
 
 /-!
 This module implements parsers and serializers for both the binary and non-binary LRAT format.
@@ -332,7 +336,7 @@ Serialize `proof` into the binary LRAT format as a `ByteArray`.
 -/
 partial def lratProofToBinary (proof : Array IntAction) : ByteArray :=
   -- we will definitely need at least 4 bytes per add step and almost exclusively produce add.
-  go 0 (ByteArray.mkEmpty (4 * proof.size))
+  go 0 (ByteArray.emptyWithCapacity (4 * proof.size))
 where
   go (idx : Nat) (acc : ByteArray) : ByteArray :=
     if h : idx < proof.size then

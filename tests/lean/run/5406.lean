@@ -6,16 +6,17 @@ This is to fix a bug where structure instance notation was not working when ther
 
 /-!
 Motivating issue from https://github.com/leanprover/lean4/issues/5406
-The `example` had an elaboration error because the structure instance was expanding to `{b := m.b}`.
-Now it expands to `{b := @m.b}`.
+The `example` had an elaboration error because the structure instance was expanding to `{b := m.b, x := 1}`.
+Now it expands to `{b := @m.b, x := 1}`.
 -/
 structure Methods where
   b : Nat → (opt : Nat := 42) → Nat
+  x : Nat
 
-example (m : Methods) : Methods := { m with }
+example (m : Methods) : Methods := { m with x := 1 }
 
-/-- info: fun m => { b := @Methods.b m } : Methods → Methods -/
-#guard_msgs in #check fun (m : Methods) => { m with }
+/-- info: fun m => { b := @Methods.b m, x := 1 } : Methods → Methods -/
+#guard_msgs in #check fun (m : Methods) => { m with x := 1 }
 
 
 /-!
@@ -54,6 +55,7 @@ We need this so that structure instances work properly.
 
 class C (α : Type) [Inhabited α] where
   f (x : α := default) : α
+  x : Nat
 
 /-- info: fun inst => C.f : C Nat → Nat -/
 #guard_msgs in #check fun (inst : C Nat) => inst.f
@@ -64,8 +66,8 @@ class C (α : Type) [Inhabited α] where
 /-- info: fun inst => @C.f Nat instInhabitedNat inst : C Nat → optParam Nat default → Nat -/
 #guard_msgs in #check fun (inst : C Nat) => @C.f _ _ inst
 
-/-- info: fun inst => { f := @C.f Nat instInhabitedNat inst } : C Nat → C Nat -/
-#guard_msgs in #check fun (inst : C Nat) => { inst with }
+/-- info: fun inst => { f := @C.f Nat instInhabitedNat inst, x := 1 } : C Nat → C Nat -/
+#guard_msgs in #check fun (inst : C Nat) => { inst with x := 1 }
 
 
 /-!
@@ -93,7 +95,8 @@ Tests of implicit arguments in updates.
 
 structure I where
   f : {_ : Nat} → Nat
+  x := 1
 
 -- used to give `fun i ↦ ?m.369 i : I → I`
 /-- info: fun i => { f := @I.f i } : I → I -/
-#guard_msgs in #check fun (i : I) => {i with}
+#guard_msgs in #check fun (i : I) => {i with x := 1 }

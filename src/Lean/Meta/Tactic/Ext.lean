@@ -3,9 +3,13 @@ Copyright (c) 2021 Gabriel Ebner. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Mario Carneiro
 -/
+module
+
 prelude
-import Init.Data.Array.InsertionSort
-import Lean.Meta.DiscrTree
+public import Init.Data.Array.InsertionSort
+public import Lean.Meta.DiscrTree
+
+public section
 
 namespace Lean.Meta.Ext
 
@@ -62,6 +66,15 @@ This is triggered by `attribute [-ext] name`.
 def ExtTheorems.eraseCore (d : ExtTheorems) (declName : Name) : ExtTheorems :=
  { d with erased := d.erased.insert declName }
 
+/-- Returns `true` if `d` contains theorem with name `declName`. -/
+def ExtTheorems.contains (d : ExtTheorems) (declName : Name) : Bool :=
+  d.tree.containsValueP (·.declName == declName) && !d.erased.contains declName
+
+/-- Returns `true` if `declName` is tagged with `[ext]` attribute. -/
+def isExtTheorem (declName : Name) : CoreM Bool := do
+  let extTheorems := extExtension.getState (← getEnv)
+  return extTheorems.contains declName
+
 /--
 Erases a name marked as a `ext` attribute.
 Check that it does in fact have the `ext` attribute by making sure it names a `ExtTheorem`
@@ -69,8 +82,8 @@ found somewhere in the state's tree, and is not erased.
 -/
 def ExtTheorems.erase [Monad m] [MonadError m] (d : ExtTheorems) (declName : Name) :
     m ExtTheorems := do
-  unless d.tree.containsValueP (·.declName == declName) && !d.erased.contains declName do
-    throwError "'{declName}' does not have [ext] attribute"
+  unless d.contains declName do
+    throwError "Cannot erase `[ext]` attribute from `{.ofConstName declName}`: It does not have this attribute"
   return d.eraseCore declName
 
 end Lean.Meta.Ext

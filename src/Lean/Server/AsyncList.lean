@@ -4,9 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Server.ServerTask
-import Init.System.Promise
+public import Lean.Server.ServerTask
+
+public section
 
 namespace IO
 
@@ -74,13 +77,13 @@ partial def getFinishedPrefix : AsyncList ε α → BaseIO (List α × Option ε
   | nil => pure ⟨[], none, true⟩
   | delayed tl => do
     if ← tl.hasFinished then
-      match tl.get with
+      match ← tl.wait with
       | Except.ok tl => tl.getFinishedPrefix
       | Except.error e => pure ⟨[], some e, true⟩
     else pure ⟨[], none, false⟩
 
 partial def getFinishedPrefixWithTimeout (xs : AsyncList ε α) (timeoutMs : UInt32)
-    (cancelTk? : Option (ServerTask Unit) := none) : BaseIO (List α × Option ε × Bool) := do
+    (cancelTks : List (ServerTask Unit) := []) : BaseIO (List α × Option ε × Bool) := do
   let timeoutTask : ServerTask (Unit ⊕ Except ε (AsyncList ε α)) ←
     if timeoutMs == 0 then
       pure <| ServerTask.pure (Sum.inl ())
@@ -98,23 +101,23 @@ where
       return ⟨hd :: tl, e?, isComplete⟩
     | nil => return ⟨[], none, true⟩
     | delayed tl =>
-      let tl : ServerTask (Except ε (AsyncList ε α)) := tl
-      let tl := tl.mapCheap .inr
-      let cancelTk? := do return (← cancelTk?).mapCheap .inl
-      let tasks : { t : List _ // t.length > 0 } :=
-        match cancelTk? with
-        | none => ⟨[tl, timeoutTask], by exact Nat.zero_lt_succ _⟩
-        | some cancelTk => ⟨[tl, cancelTk, timeoutTask], by exact Nat.zero_lt_succ _⟩
-      let r ← ServerTask.waitAny tasks.val (h := tasks.property)
-      match r with
-      | .inl _ => return ⟨[], none, false⟩ -- Timeout or cancellation - stop waiting
-      | .inr (.ok tl) => go timeoutTask tl
-      | .inr (.error e) => return ⟨[], some e, true⟩
+      if ← tl.hasFinished then
+        match ← tl.wait with
+        | .ok tl => go timeoutTask tl
+        | .error e => return ⟨[], some e, true⟩
+      else
+        let tl := tl.mapCheap .inr
+        let cancelTks := cancelTks.map (·.mapCheap .inl)
+        let r ← ServerTask.waitAny (tl :: cancelTks ++ [timeoutTask])
+        match r with
+        | .inl _ => return ⟨[], none, false⟩ -- Timeout or cancellation - stop waiting
+        | .inr (.ok tl) => go timeoutTask tl
+        | .inr (.error e) => return ⟨[], some e, true⟩
 
 partial def getFinishedPrefixWithConsistentLatency (xs : AsyncList ε α) (latencyMs : UInt32)
-    (cancelTk? : Option (ServerTask Unit) := none) : BaseIO (List α × Option ε × Bool) := do
+    (cancelTks : List (ServerTask Unit) := []) : BaseIO (List α × Option ε × Bool) := do
   let timestamp ← IO.monoMsNow
-  let r ← xs.getFinishedPrefixWithTimeout latencyMs cancelTk?
+  let r ← xs.getFinishedPrefixWithTimeout latencyMs cancelTks
   let passedTimeMs := (← IO.monoMsNow) - timestamp
   let remainingLatencyMs := (latencyMs.toNat - passedTimeMs).toUInt32
   sleepWithCancellation remainingLatencyMs
@@ -123,14 +126,14 @@ where
   sleepWithCancellation (sleepDurationMs : UInt32) : BaseIO Unit := do
     if sleepDurationMs == 0 then
       return
-    let some cancelTk := cancelTk?
-      | IO.sleep sleepDurationMs
-        return
-    if ← cancelTk.hasFinished then
+    if cancelTks.isEmpty then
+      IO.sleep sleepDurationMs
+      return
+    if ← cancelTks.anyM (·.hasFinished) then
       return
     let sleepTask ← Lean.Server.ServerTask.BaseIO.asTask do
       IO.sleep sleepDurationMs
-    ServerTask.waitAny [sleepTask, cancelTk]
+    ServerTask.waitAny <| sleepTask :: cancelTks
 
 end AsyncList
 

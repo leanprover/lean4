@@ -1,7 +1,7 @@
 set_option pp.coercions false -- Show `OfNat.ofNat` when present for clarity
 
 /--
-info: x : Nat
+trace: x : Nat
 ⊢ OfNat.ofNat 2 = x
 ---
 warning: declaration uses 'sorry'
@@ -13,7 +13,7 @@ example : nat_lit 2 = x := by
   sorry
 
 /--
-info: x : Nat
+trace: x : Nat
 ⊢ OfNat.ofNat 2 = x
 ---
 warning: declaration uses 'sorry'
@@ -25,7 +25,7 @@ example : nat_lit 2 = x := by
   sorry
 
 /--
-info: α : Nat → Type
+trace: α : Nat → Type
 f : (n : Nat) → α n
 x : α (OfNat.ofNat 2)
 ⊢ f (OfNat.ofNat 2) = x
@@ -39,12 +39,12 @@ example (α : Nat → Type) (f : (n : Nat) → α n) (x : α 2) : f (nat_lit 2) 
   sorry
 
 /--
-info: x : Nat
+trace: x : Nat
 f : Nat → Nat
 h : f (OfNat.ofNat 2) = x
 ⊢ f (OfNat.ofNat 2) = x
 ---
-info: x : Nat
+trace: x : Nat
 f : Nat → Nat
 h : f (OfNat.ofNat 2) = x
 ⊢ f 2 = x
@@ -57,12 +57,12 @@ example (f : Nat → Nat) (h : f 2 = x) : f 2 = x := by
   assumption
 
 /--
-info: α : Nat → Type
+trace: α : Nat → Type
 f : (n : Nat) → α n
 x : α (OfNat.ofNat 2)
 ⊢ f (OfNat.ofNat 2) = x
 ---
-info: α : Nat → Type
+trace: α : Nat → Type
 f : (n : Nat) → α n
 x : α (OfNat.ofNat 2)
 ⊢ f 2 = x

@@ -1,8 +1,7 @@
 /--
-error: invalid field notation, type is not of the form (C ...) where C is a constant
+error: Invalid projection: Type of
   x✝
-has type
-  ?m.9
+is not known; cannot resolve projection `1`
 ---
 error: unsolved goals
 case refine'_1
@@ -18,7 +17,7 @@ case refine'_4
 ⊢ ?refine'_1
 
 case refine'_5
-⊢ ¬(fun x => ?m.16) ?refine'_3 = (fun x => ?m.16) ?refine'_4
+⊢ ¬(fun x => ?m.9) ?refine'_3 = (fun x => ?m.9) ?refine'_4
 -/
 #guard_msgs in
 example : False := by

@@ -8,20 +8,20 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "kernel/type_checker.h"
 #include "kernel/kernel_exception.h"
 #include "library/elab_environment.h"
-#include "library/compiler/ir_interpreter.h"
 
 namespace lean {
-/* updateBaseAfterKernelAdd (env : Environment) (base : Kernel.Environment) : Environment
+/* updateBaseAfterKernelAdd (env : Environment) (base : Kernel.Environment) (decl : Declaration) : Environment
 
    Updates an elab environment with a given kernel environment.
 
    NOTE: Ideally this language switching would not be necessary and we could do all this in Lean
-   only but the old code generator and `mk_projections` still need a C++ `elab_environment::add`. */
-extern "C" obj_res lean_elab_environment_update_base_after_kernel_add(obj_arg env, obj_arg kenv);
+   only but the old code generator still needs a C++ `elab_environment::add`
+   that throws C++ exceptions. */
+extern "C" obj_res lean_elab_environment_update_base_after_kernel_add(obj_arg env, obj_arg kenv, obj_arg decl);
 
 elab_environment elab_environment::add(declaration const & d, bool check) const {
     environment kenv = to_kernel_env().add(d, check);
-    return elab_environment(lean_elab_environment_update_base_after_kernel_add(this->to_obj_arg(), kenv.to_obj_arg()));
+    return elab_environment(lean_elab_environment_update_base_after_kernel_add(this->to_obj_arg(), kenv.to_obj_arg(), d.to_obj_arg()));
 }
 
 extern "C" LEAN_EXPORT object * lean_elab_add_decl(object * env, size_t max_heartbeat, object * decl,
@@ -42,11 +42,6 @@ extern "C" LEAN_EXPORT object * lean_elab_add_decl_without_checking(object * env
 extern "C" obj_res lean_elab_environment_to_kernel_env(obj_arg);
 environment elab_environment::to_kernel_env() const {
     return environment(lean_elab_environment_to_kernel_env(to_obj_arg()));
-}
-
-extern "C" obj_res lean_display_stats(obj_arg env, obj_arg w);
-void elab_environment::display_stats() const {
-    dec_ref(lean_display_stats(to_obj_arg(), io_mk_world()));
 }
 
 extern "C" LEAN_EXPORT lean_object * lean_kernel_is_def_eq(lean_object * obj_env, lean_object * lctx, lean_object * a, lean_object * b) {

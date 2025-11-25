@@ -13,11 +13,19 @@ Default values
 /-- info: ?a : Nat -/
 #guard_msgs in #check (?a : Nat)
 
-/-- info: ⊢ Sort ?u.1 -/
-#guard_msgs (info, drop all) in
+/-- trace: ⊢ Sort ?u.1 -/
+#guard_msgs (trace, drop all) in
 example : (by_elab do return .sort (.mvar (.mk (.num `_uniq 1)))) := by
   trace_state
   sorry
+
+/-!
+No such mvar, pretty print using the mvarid rather than the index.
+-/
+/-- info: ?_mvar.222222 -/
+#guard_msgs in #eval do
+  let e := Expr.mvar (.mk (.num `_uniq 222222))
+  logInfo m!"{e}"
 
 /-!
 Turning off `pp.mvars`
@@ -31,14 +39,14 @@ set_option pp.mvars false
 /-- info: ?_ : Nat -/
 #guard_msgs in #check (_ : Nat)
 
-/-- info: ⊢ Sort _ -/
-#guard_msgs (info, drop all) in
+/-- trace: ⊢ Sort _ -/
+#guard_msgs (trace, drop all) in
 example : (by_elab do return .sort (.mvar (.mk (.num `_uniq 1)))) := by
   trace_state
   sorry
 
-/-- info: ⊢ Type _ -/
-#guard_msgs (info, drop all) in
+/-- trace: ⊢ Type _ -/
+#guard_msgs (trace, drop all) in
 example : Type _ := by
   trace_state
   sorry
@@ -54,23 +62,17 @@ set_option pp.mvars.levels false
 /-- info: ?a : Nat -/
 #guard_msgs in #check (?a : Nat)
 
-/-- info: ?m.222222222 : Nat -/
-#guard_msgs in #check by_elab do
-  -- Control the mvarId with something that's too big to happen naturally:
-  let mvarId : MVarId := .mk (.num `_uniq 222222222)
-  let lctx ← getLCtx
-  let type := mkConst ``Nat
-  Lean.MonadMCtx.modifyMCtx fun mctx => mctx.addExprMVarDecl mvarId .anonymous lctx {} type .natural 0
-  return .mvar mvarId
+/-- info: ?m.1 : Nat -/
+#guard_msgs in #check (_ : Nat)
 
-/-- info: ⊢ Sort _ -/
-#guard_msgs (info, drop all) in
+/-- trace: ⊢ Sort _ -/
+#guard_msgs (trace, drop all) in
 example : (by_elab do return .sort (.mvar (.mk (.num `_uniq 1)))) := by
   trace_state
   sorry
 
-/-- info: ⊢ Type _ -/
-#guard_msgs (info, drop all) in
+/-- trace: ⊢ Type _ -/
+#guard_msgs (trace, drop all) in
 example : Type _ := by
   trace_state
   sorry
@@ -95,14 +97,14 @@ set_option pp.mvars.anonymous false
   Lean.MonadMCtx.modifyMCtx fun mctx => mctx.addExprMVarDecl mvarId .anonymous lctx {} type .natural 0
   return .mvar mvarId
 
-/-- info: ⊢ Sort _ -/
-#guard_msgs (info, drop all) in
+/-- trace: ⊢ Sort _ -/
+#guard_msgs (trace, drop all) in
 example : (by_elab do return .sort (.mvar (.mk (.num `_uniq 1)))) := by
   trace_state
   sorry
 
-/-- info: ⊢ Type _ -/
-#guard_msgs (info, drop all) in
+/-- trace: ⊢ Type _ -/
+#guard_msgs (trace, drop all) in
 example : Type _ := by
   trace_state
   sorry

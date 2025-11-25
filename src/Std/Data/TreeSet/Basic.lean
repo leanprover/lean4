@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.TreeMap.Basic
+public import Std.Data.TreeMap.Basic
+
+@[expose] public section
 
 /-!
 # Tree sets
@@ -14,8 +18,8 @@ This file develops the type `Std.TreeSet` of tree sets.
 Lemmas about the operations on `Std.Data.TreeSet` will be available in the
 module `Std.Data.TreeSet.Lemmas`.
 
-See the module `Std.Data.TreeSet.Raw` for a variant of this type which is safe to use in
-nested inductive types.
+See the module `Std.Data.TreeSet.Raw.Basic` for a variant of this type which is safe to use in
+nested inductive types and `Std.Data.ExtTreeSet.Basic` for a variant with extensionality.
 -/
 
 set_option autoImplicit false
@@ -50,9 +54,13 @@ To avoid expensive copies, users should make sure that the tree set is used line
 Internally, the tree sets are represented as size-bounded trees, a type of self-balancing binary
 search tree with efficient order statistic lookups.
 
+For use in proofs, the type `Std.ExtTreeSet` of extensional tree sets should be preferred. This
+type comes with several extensionality lemmas and provides the same functions but requires a
+`TransCmp` instance to work with.
+
 These tree sets contain a bundled well-formedness invariant, which means that they cannot
-be used in nested inductive types. For these use cases, `Std.Data.TreeSet.Raw` and
-`Std.Data.TreeSet.Raw.WF` unbundle the invariant from the tree set. When in doubt, prefer
+be used in nested inductive types. For these use cases, `Std.TreeSet.Raw` and
+`Std.TreeSet.Raw.WF` unbundle the invariant from the tree set. When in doubt, prefer
 `TreeSet` over `TreeSet.Raw`.
 -/
 structure TreeSet (α : Type u) (cmp : α → α → Ordering := by exact compare) where
@@ -76,7 +84,14 @@ instance : EmptyCollection (TreeSet α cmp) where
 instance : Inhabited (TreeSet α cmp) where
   default := ∅
 
-@[simp]
+/-- Two tree sets are equivalent in the sense of Equiv iff all the values are equal. -/
+structure Equiv (m₁ m₂ : TreeSet α cmp) where
+  /-- Internal implementation detail of the tree map -/
+  inner : m₁.1.Equiv m₂.1
+
+@[inherit_doc] scoped infix:50 " ~m " => Equiv
+
+@[simp, grind =]
 theorem empty_eq_emptyc : (empty : TreeSet α cmp) = ∅ :=
   rfl
 
@@ -99,7 +114,7 @@ instance : Insert α (TreeSet α cmp) where
   insert e s := s.insert e
 
 instance : LawfulSingleton α (TreeSet α cmp) where
-  insert_emptyc_eq _ := rfl
+  insert_empty_eq _ := rfl
 
 /--
 Checks whether an element is present in a set and inserts the element if it was not found.
@@ -238,22 +253,22 @@ def maxD (t : TreeSet α cmp) (fallback : α) : α :=
 /-- Returns the `n`-th smallest element, or `none` if `n` is at least `t.size`. -/
 @[inline]
 def atIdx? (t : TreeSet α cmp) (n : Nat) : Option α :=
-  TreeMap.keyAtIndex? t.inner n
+  TreeMap.keyAtIdx? t.inner n
 
 /-- Returns the `n`-th smallest element. -/
 @[inline]
 def atIdx (t : TreeSet α cmp) (n : Nat) (h : n < t.size) : α :=
-  TreeMap.keyAtIndex t.inner n h
+  TreeMap.keyAtIdx t.inner n h
 
 /-- Returns the `n`-th smallest element, or panics if `n` is at least `t.size`. -/
 @[inline]
 def atIdx! [Inhabited α] (t : TreeSet α cmp) (n : Nat) : α :=
-  TreeMap.keyAtIndex! t.inner n
+  TreeMap.keyAtIdx! t.inner n
 
 /-- Returns the `n`-th smallest element, or `fallback` if `n` is at least `t.size`. -/
 @[inline]
 def atIdxD (t : TreeSet α cmp) (n : Nat) (fallback : α) : α :=
-  TreeMap.keyAtIndexD t.inner n fallback
+  TreeMap.keyAtIdxD t.inner n fallback
 
 /--
 Tries to retrieve the smallest element that is greater than or equal to the
@@ -370,35 +385,23 @@ ascending order.
 def foldlM {m δ} [Monad m] (f : δ → (a : α) → m δ) (init : δ) (t : TreeSet α cmp) : m δ :=
   t.inner.foldlM (fun c a _ => f c a) init
 
-@[inline, inherit_doc foldlM, deprecated foldlM (since := "2025-02-12")]
-def foldM (f : δ → (a : α) → m δ) (init : δ) (t : TreeSet α cmp) : m δ :=
-  t.foldlM f init
-
 /-- Folds the given function over the elements of the tree set in ascending order. -/
 @[inline]
 def foldl (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
   t.inner.foldl (fun c a _ => f c a) init
-
-@[inline, inherit_doc foldl, deprecated foldl (since := "2025-02-12")]
-def fold (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
-  t.foldl f init
 
 /--
 Monadically computes a value by folding the given function over the elements in the tree set in
 descending order.
 -/
 @[inline]
-def foldrM {m δ} [Monad m] (f : δ → (a : α) → m δ) (init : δ) (t : TreeSet α cmp) : m δ :=
-  t.inner.foldrM (fun c a _ => f c a) init
+def foldrM {m δ} [Monad m] (f : (a : α) → δ → m δ) (init : δ) (t : TreeSet α cmp) : m δ :=
+  t.inner.foldrM (fun a _ acc => f a acc) init
 
 /-- Folds the given function over the elements of the tree set in descending order. -/
 @[inline]
-def foldr (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
-  t.inner.foldr (fun c a _ => f c a) init
-
-@[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
-def revFold (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
-  foldr f init t
+def foldr (f : (a : α) → δ → δ) (init : δ) (t : TreeSet α cmp) : δ :=
+  t.inner.foldr (fun a _ acc => f a acc) init
 
 /-- Partitions a tree set into two tree sets based on a predicate. -/
 @[inline]
@@ -437,28 +440,20 @@ def all (t : TreeSet α cmp) (p : α → Bool) : Bool :=
 /-- Transforms the tree set into a list of elements in ascending order. -/
 @[inline]
 def toList (t : TreeSet α cmp) : List α :=
-  t.inner.inner.inner.foldr (fun l a _ => a :: l) ∅
+  t.inner.keys
 
 /-- Transforms a list into a tree set. -/
 def ofList (l : List α) (cmp : α → α → Ordering := by exact compare) : TreeSet α cmp :=
   ⟨TreeMap.unitOfList l cmp⟩
 
-@[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-12")]
-def fromList (l : List α) (cmp : α → α → Ordering) : TreeSet α cmp :=
-  ofList l cmp
-
 /-- Transforms the tree set into an array of elements in ascending order. -/
 @[inline]
 def toArray (t : TreeSet α cmp) : Array α :=
-  t.foldl (init := ∅) fun acc k => acc.push k
+  t.inner.keysArray
 
 /-- Transforms an array into a tree set. -/
 def ofArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : TreeSet α cmp :=
   ⟨TreeMap.unitOfArray a cmp⟩
-
-@[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
-def fromArray (a : Array α) (cmp : α → α → Ordering) : TreeSet α cmp :=
-  ofArray a cmp
 
 /--
 Returns a set that contains all mappings of `t₁` and `t₂.
@@ -488,6 +483,27 @@ def insertMany {ρ} [ForIn Id ρ α] (t : TreeSet α cmp) (l : ρ) : TreeSet α 
   ⟨TreeMap.insertManyIfNewUnit t.inner l⟩
 
 /--
+Computes the union of the given tree sets. If both maps contain elements that are equal according
+to the comparison function, the element contained in the second argument will appear in the result.
+
+This function always merges the smaller set into the larger set.
+-/
+def union (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
+  ⟨TreeMap.union t₁.inner t₂.inner⟩
+
+instance : Union (TreeSet α cmp) := ⟨union⟩
+
+/--
+Computes the intersection of the given tree sets.
+
+This function always iterates through the smaller set.
+-/
+def inter (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
+  ⟨TreeMap.inter t₁.inner t₂.inner⟩
+
+instance : Inter (TreeSet α cmp) := ⟨inter⟩
+
+/--
 Erases multiple items from the tree set by iterating over the given collection and calling erase.
 -/
 @[inline]
@@ -495,7 +511,7 @@ def eraseMany {ρ} [ForIn Id ρ α] (t : TreeSet α cmp) (l : ρ) : TreeSet α c
   ⟨t.inner.eraseMany l⟩
 
 instance [Repr α] : Repr (TreeSet α cmp) where
-  reprPrec m prec := Repr.addAppParen ("TreeSet.ofList " ++ repr m.toList) prec
+  reprPrec m prec := Repr.addAppParen ("Std.TreeSet.ofList " ++ repr m.toList) prec
 
 end TreeSet
 

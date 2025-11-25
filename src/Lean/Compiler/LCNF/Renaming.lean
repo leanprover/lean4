@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
+public import Lean.Compiler.LCNF.CompilerM
+
+public section
 
 namespace Lean.Compiler.LCNF
 /--
@@ -13,7 +17,7 @@ A mapping from free variable id to binder name.
 abbrev Renaming := FVarIdMap Name
 
 def Param.applyRenaming (param : Param) (r : Renaming) : CompilerM Param := do
-  if let some binderName := r.find? param.fvarId then
+  if let some binderName := r.get? param.fvarId then
     let param := { param with binderName }
     modifyLCtx fun lctx => lctx.addParam param
     return param
@@ -21,7 +25,7 @@ def Param.applyRenaming (param : Param) (r : Renaming) : CompilerM Param := do
     return param
 
 def LetDecl.applyRenaming (decl : LetDecl) (r : Renaming) : CompilerM LetDecl := do
-  if let some binderName := r.find? decl.fvarId then
+  if let some binderName := r.get? decl.fvarId then
     let decl := { decl with binderName }
     modifyLCtx fun lctx => lctx.addLetDecl decl
     return decl
@@ -29,8 +33,8 @@ def LetDecl.applyRenaming (decl : LetDecl) (r : Renaming) : CompilerM LetDecl :=
     return decl
 
 mutual
-partial def FunDeclCore.applyRenaming (decl : FunDecl) (r : Renaming) : CompilerM FunDecl := do
-  if let some binderName := r.find? decl.fvarId then
+partial def FunDecl.applyRenaming (decl : FunDecl) (r : Renaming) : CompilerM FunDecl := do
+  if let some binderName := r.get? decl.fvarId then
     let decl := { decl with binderName }
     modifyLCtx fun lctx => lctx.addFunDecl decl
     decl.updateValue (← decl.value.applyRenaming r)

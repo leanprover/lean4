@@ -1,4 +1,7 @@
-302.lean:1:8-1:11: error: function expected at
+302.lean:1:8-1:11: error: Function expected at
   m
-term has type
+but this term has type
   ?m
+
+Note: Expected a function because this term is being applied to the argument
+  0

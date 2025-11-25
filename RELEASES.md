@@ -4,9 +4,6 @@ We intend to provide regular "minor version" releases of the Lean language at ap
 There is not yet a strong guarantee of backwards compatibility between versions,
 only an expectation that breaking changes will be documented in the release notes.
 
-The folder [releases/](https://github.com/leanprover/lean4/tree/master/releases)
-contains work-in-progress notes for the upcoming release, as well as previous stable releases.
+[Release notes](https://lean-lang.org/doc/reference/latest/releases/#release-notes) are available in the Lean language reference.
 
-Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status
-of each version.
-
+Release notes for the current release candidate are available on the GitHub [releases](https://github.com/leanprover/lean4/releases) page.

@@ -92,3 +92,50 @@ info: Tree.size_aux1.mutual_induct.{u_1} {α : Type u_1} (motive_1 motive_2 moti
 -/
 #guard_msgs in
 #check Tree.size_aux1.mutual_induct
+
+
+
+namespace Map2
+
+mutual
+def map2a (f : Nat → Nat → Bool) : List Nat → List Nat → List Bool
+  | x::xs, y::ys => f x y::map2b f xs ys
+  | _, _ => []
+termination_by structural x => x
+def map2b (f : Nat → Nat → Bool) : List Nat → List Nat → List Bool
+  | x::xs, y::ys => f x y::map2a f xs ys
+  | _, _ => []
+termination_by structural x => x
+end
+
+/--
+info: Map2.map2a.mutual_induct (motive_1 motive_2 : List Nat → List Nat → Prop)
+  (case1 : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), motive_2 xs ys → motive_1 (x :: xs) (y :: ys))
+  (case2 :
+    ∀ (t x : List Nat),
+      (∀ (x_1 : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t = x_1 :: xs → x = y :: ys → False) → motive_1 t x)
+  (case3 : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), motive_1 xs ys → motive_2 (x :: xs) (y :: ys))
+  (case4 :
+    ∀ (t x : List Nat),
+      (∀ (x_1 : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t = x_1 :: xs → x = y :: ys → False) → motive_2 t x) :
+  (∀ (a a_1 : List Nat), motive_1 a a_1) ∧ ∀ (a a_1 : List Nat), motive_2 a a_1
+-/
+#guard_msgs in
+#check map2a.mutual_induct
+
+/--
+info: Map2.map2a.induct (motive_1 motive_2 : List Nat → List Nat → Prop)
+  (case1 : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), motive_2 xs ys → motive_1 (x :: xs) (y :: ys))
+  (case2 :
+    ∀ (t x : List Nat),
+      (∀ (x_1 : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t = x_1 :: xs → x = y :: ys → False) → motive_1 t x)
+  (case3 : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), motive_1 xs ys → motive_2 (x :: xs) (y :: ys))
+  (case4 :
+    ∀ (t x : List Nat),
+      (∀ (x_1 : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t = x_1 :: xs → x = y :: ys → False) → motive_2 t x)
+  (a✝ a✝¹ : List Nat) : motive_1 a✝ a✝¹
+-/
+#guard_msgs in
+#check map2a.induct
+
+end Map2

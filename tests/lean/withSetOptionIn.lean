@@ -26,7 +26,7 @@ Ensure that `#trace_debug_foo` works as expected.
 #trace_debug_foo
 
 /-- info: [debug] foo -/
-#guard_msgs in
+#guard_msgs(trace) in
 set_option trace.debug true in #trace_debug_foo
 
 /-! ## Test
@@ -35,5 +35,5 @@ Should trace `[debug] foo`, and not log the error "unexpected command 'in'".
 -/
 
 /-- info: [debug] foo -/
-#guard_msgs in
+#guard_msgs(trace) in
 #test set_option trace.debug true in #trace_debug_foo

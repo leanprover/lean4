@@ -3,8 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Init.System.IO
+public import Init.Task
+
+public section
 
 /-!
 This file provides a thin `ServerTask` wrapper over the `Task` API.
@@ -50,6 +54,8 @@ def pure (x : α) : ServerTask α := Task.pure x
 
 def get (t : ServerTask α) : α := t.task.get
 
+def wait (t : ServerTask α) : BaseIO α := IO.wait t.task
+
 def mapCheap (f : α → β) (t : ServerTask α) : ServerTask β :=
   t.task.map f (sync := true)
 
@@ -61,6 +67,12 @@ def bindCheap (t : ServerTask α) (f : α → ServerTask β) : ServerTask β :=
 
 def bindCostly (t : ServerTask α) (f : α → ServerTask β) : ServerTask β :=
   t.task.bind (f · |>.task) (prio := .dedicated)
+
+def join (ts : Array (ServerTask α)) : ServerTask (Array α) := Id.run do
+  let mut r := ServerTask.pure #[]
+  for t in ts do
+    r := r.bindCheap fun acc => t.mapCheap (acc.push ·)
+  return r
 
 namespace BaseIO
 

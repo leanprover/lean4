@@ -3,8 +3,12 @@ Copyright (c) 2014 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Gabriel Ebner
 -/
+module
+
 prelude
-import Init.Coe
+public import Init.Coe
+
+public section
 
 /-!
 # `NatCast`
@@ -44,25 +48,26 @@ Nat → Nat → ...`. Sometimes we also need to declare the `CoeHTCT`
 instance if we need to shadow another coercion.
 -/
 
-/-- Type class for the canonical homomorphism `Nat → R`. -/
+/--
+The canonical homomorphism `Nat → R`. In most use cases, the target type will have a (semi)ring
+structure, and this homomorphism should be a (semi)ring homomorphism.
+
+`NatCast` and `IntCast` exist to allow different libraries with their own types that can be notated
+as natural numbers to have consistent `simp` normal forms without needing to create coercion
+simplification sets that are aware of all combinations. Libraries should make it easy to work with
+`NatCast` where possible. For instance, in Mathlib there will be such a homomorphism (and thus a
+`NatCast R` instance) whenever `R` is an additive monoid with a `1`.
+
+The prototypical example is `Int.ofNat`.
+-/
 class NatCast (R : Type u) where
   /-- The canonical map `Nat → R`. -/
   protected natCast : Nat → R
 
 instance : NatCast Nat where natCast n := n
 
-/--
-Canonical homomorphism from `Nat` to a type `R`.
-
-It contains just the function, with no axioms.
-In practice, the target type will likely have a (semi)ring structure,
-and this homomorphism should be a ring homomorphism.
-
-The prototypical example is `Int.ofNat`.
-
-This class and `IntCast` exist to allow different libraries with their own types that can be notated as natural numbers to have consistent `simp` normal forms without needing to create coercion simplification sets that are aware of all combinations. Libraries should make it easy to work with `NatCast` where possible. For instance, in Mathlib there will be such a homomorphism (and thus a `NatCast R` instance) whenever `R` is an additive monoid with a `1`.
--/
-@[coe, reducible, match_pattern] protected def Nat.cast {R : Type u} [NatCast R] : Nat → R :=
+@[coe, expose, reducible, match_pattern, inherit_doc NatCast]
+protected def Nat.cast {R : Type u} [NatCast R] : Nat → R :=
   NatCast.natCast
 
 -- see the notes about coercions into arbitrary types in the module doc-string

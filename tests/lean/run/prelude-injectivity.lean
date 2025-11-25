@@ -1,3 +1,5 @@
+module
+
 import Lean
 
 open Lean Meta
@@ -11,11 +13,9 @@ gen_injective_theorems% MacroScopesView
 gen_injective_theorems% ParserDescr
 gen_injective_theorems% SourceInfo
 gen_injective_theorems% TSyntax
-gen_injective_theorems% Grind.Config
 gen_injective_theorems% Macro.Context
 gen_injective_theorems% Macro.Exception
 gen_injective_theorems% Macro.Methods
-gen_injective_theorems% Macro.State
 gen_injective_theorems% Syntax.Preresolved
 gen_injective_theorems% Syntax.SepArray
 gen_injective_theorems% Syntax.TSepArray

@@ -3,10 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison, Henrik Böving
 -/
+module
+
 prelude
-import Lean.Util.Trace
-import Lean.Elab.Tactic.Simp
-import Std.Tactic.BVDecide.Syntax
+public import Lean.Elab.Tactic.Simp
+public import Std.Tactic.BVDecide.Syntax
+
+public section
 
 /-!
 Provides environment extensions around the `bv_decide` tactic frontends.

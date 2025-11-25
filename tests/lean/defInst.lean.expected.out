@@ -1,8 +1,8 @@
 [4, 5, 6]
-defInst.lean:8:26-8:32: error: failed to synthesize
+defInst.lean:8:26-8:32: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   BEq Foo
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 fun x y => sorry : (x y : Foo) → ?m x y
 [4, 5, 6]
 fun x y => x == y : Foo → Foo → Bool
@@ -10,5 +10,5 @@ fun x y => x == y : Foo → Foo → Bool
 false
 true
 true
-def instMMonad : Monad M :=
+def instMonadM : Monad M :=
 ReaderT.instMonad

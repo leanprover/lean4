@@ -16,13 +16,13 @@ fun x x_1 =>
         | a, b.succ => fun x => (x.1 a).succ)
         f)
     x
-theorem ex.{u} : ∀ {α β : Sort u} (h : α = β) (a : α), HEq (cast h a) a :=
+theorem ex.{u} : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≍ a :=
 fun x x_1 x_2 x_3 =>
   match x, x_1, x_2, x_3 with
   | α, .(α), Eq.refl α, a => HEq.refl a
-theorem ex.{u} : ∀ {α β : Sort u} (h : α = β) (a : α), HEq (cast h a) a :=
+theorem ex.{u} : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≍ a :=
 fun x x_1 x_2 x_3 =>
-  match (motive := ∀ (x x_4 : Sort u) (x_5 : x = x_4) (x_6 : x), HEq (cast x_5 x_6) x_6) x, x_1, x_2, x_3 with
+  match (motive := ∀ (x x_4 : Sort u) (x_5 : x = x_4) (x_6 : x), cast x_5 x_6 ≍ x_6) x, x_1, x_2, x_3 with
   | α, .(α), Eq.refl α, a => HEq.refl a
 def fact : Nat → Nat :=
 fun n => Nat.recOn n 1 fun n acc => (n + 1) * acc

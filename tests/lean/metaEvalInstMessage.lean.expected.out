@@ -1,2 +1,2 @@
-metaEvalInstMessage.lean:5:0-5:5: error: could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
+metaEvalInstMessage.lean:5:0-5:5: error: could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type
   Nat → Nat

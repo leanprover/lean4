@@ -3,28 +3,53 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Control.Lawful.Basic
+public import Init.Control.Lawful.Basic
+
+public section
+
+set_option linter.missingDocs true
 
 /-!
 The State monad transformer using CPS style.
 -/
 
-def StateCpsT (σ : Type u) (m : Type u → Type v) (α : Type u) := (δ : Type u) → σ → (α → σ → m δ) → m δ
+/--
+An alternative implementation of a state monad transformer that internally uses continuation passing
+style instead of tuples.
+-/
+@[expose] def StateCpsT (σ : Type u) (m : Type u → Type v) (α : Type u) := (δ : Type u) → σ → (α → σ → m δ) → m δ
 
 namespace StateCpsT
 
 variable {α σ : Type u} {m : Type u → Type v}
 
-@[always_inline, inline]
+/--
+Runs a stateful computation that's represented using continuation passing style by providing it with
+an initial state and a continuation.
+-/
+@[always_inline, inline, expose]
 def runK (x : StateCpsT σ m α) (s : σ) (k : α → σ → m β) : m β :=
   x _ s k
 
-@[always_inline, inline]
+/--
+Executes an action from a monad with added state in the underlying monad `m`. Given an initial
+state, it returns a value paired with the final state.
+
+While the state is internally represented in continuation passing style, the resulting value is the
+same as for a non-CPS state monad.
+-/
+@[always_inline, inline, expose]
 def run [Monad m] (x : StateCpsT σ m α) (s : σ) : m (α × σ) :=
   runK x s (fun a s => pure (a, s))
 
-@[always_inline, inline]
+/--
+Executes an action from a monad with added state in the underlying monad `m`. Given an initial
+state, it returns a value, discarding the final state.
+-/
+@[always_inline, inline, expose]
 def run' [Monad m] (x : StateCpsT σ m α) (s : σ) : m α :=
   runK x s (fun a _ => pure a)
 
@@ -43,7 +68,13 @@ instance : MonadStateOf σ (StateCpsT σ m) where
   set s := fun _ _ k => k ⟨⟩ s
   modifyGet f := fun _ s k => let (a, s) := f s; k a s
 
-@[always_inline, inline]
+/--
+Runs an action from the underlying monad in the monad with state. The state is not modified.
+
+This function is typically implicitly accessed via a `MonadLiftT` instance as part of [automatic
+lifting](lean-manual://section/monad-lifting).
+-/
+@[always_inline, inline, expose]
 protected def lift [Monad m] (x : m α) : StateCpsT σ m α :=
   fun _ s k => x >>= (k . s)
 

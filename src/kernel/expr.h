@@ -50,9 +50,9 @@ public:
     explicit literal(nat const & v);
     literal():literal(0u) {}
     literal(literal const & other):object_ref(other) {}
-    literal(literal && other):object_ref(std::move(other)) {}
+    literal(literal && other) noexcept:object_ref(std::move(other)) {}
     literal & operator=(literal const & other) { object_ref::operator=(other); return *this; }
-    literal & operator=(literal && other) { object_ref::operator=(std::move(other)); return *this; }
+    literal & operator=(literal && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
 
     static literal_kind kind(object * o) { return static_cast<literal_kind>(cnstr_tag(o)); }
     literal_kind kind() const { return kind(raw()); }
@@ -76,14 +76,14 @@ inductive Expr
 | app     : Expr → Expr → Expr                        -- application
 | lam     : Name → BinderInfo → Expr → Expr → Expr    -- lambda abstraction
 | forallE : Name → BinderInfo → Expr → Expr → Expr    -- (dependent) arrow
-| letE    : Name → Expr → Expr → Expr → Expr          -- let expressions
+| letE    : Name → Expr → Expr → Expr → Bool → Expr   -- let expressions
 | lit     : Literal → Expr                            -- literals
 | mdata   : MData → Expr → Expr                       -- metadata
 | proj    : Name → Nat → Expr → Expr                  -- projection
 */
 enum class expr_kind { BVar, FVar, MVar, Sort, Const, App, Lambda, Pi, Let, Lit, MData, Proj };
 class expr : public object_ref {
-    explicit expr(object_ref && o):object_ref(o) {}
+    explicit expr(object_ref && o) noexcept:object_ref(o) {}
 
     friend expr mk_lit(literal const & lit);
     friend expr mk_mdata(kvmap const & d, expr const & e);
@@ -100,14 +100,14 @@ class expr : public object_ref {
 public:
     expr();
     expr(expr const & other):object_ref(other) {}
-    expr(expr && other):object_ref(std::move(other)) {}
+    expr(expr && other) noexcept:object_ref(std::move(other)) {}
     explicit expr(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit expr(obj_arg o):object_ref(o) {}
     static expr_kind kind(object * o) { return static_cast<expr_kind>(cnstr_tag(o)); }
     expr_kind kind() const { return kind(raw()); }
 
     expr & operator=(expr const & other) { object_ref::operator=(other); return *this; }
-    expr & operator=(expr && other) { object_ref::operator=(std::move(other)); return *this; }
+    expr & operator=(expr && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
 
     friend bool is_eqp(expr const & e1, expr const & e2) { return e1.raw() == e2.raw(); }
 };
@@ -221,7 +221,8 @@ inline expr mk_binding(expr_kind k, name const & n, expr const & t, expr const &
     return k == expr_kind::Pi ? mk_pi(n, t, e, bi) : mk_lambda(n, t, e, bi);
 }
 expr mk_arrow(expr const & t, expr const & e);
-expr mk_let(name const & n, expr const & t, expr const & v, expr const & b);
+expr mk_let(name const & n, expr const & t, expr const & v, expr const & b, bool nondep);
+inline expr mk_let(name const & n, expr const & t, expr const & v, expr const & b) { return mk_let(n, t, v, b, false); };
 expr mk_sort(level const & l);
 expr mk_Prop();
 expr mk_Type();
@@ -258,6 +259,13 @@ inline name const &    let_name(expr const & e)              { lean_assert(is_le
 inline expr const &    let_type(expr const & e)              { lean_assert(is_let(e)); return static_cast<expr const &>(cnstr_get_ref(e, 1)); }
 inline expr const &    let_value(expr const & e)             { lean_assert(is_let(e)); return static_cast<expr const &>(cnstr_get_ref(e, 2)); }
 inline expr const &    let_body(expr const & e)              { lean_assert(is_let(e)); return static_cast<expr const &>(cnstr_get_ref(e, 3)); }
+bool                   let_nondep_core(expr const & e);
+inline bool            let_nondep(expr const & e) {
+    lean_assert(is_let(e));
+    bool r = lean_ctor_get_uint8(e.raw(), 4*sizeof(object*) + sizeof(uint64_t));
+    lean_assert(r == let_nondep_core(e)); // ensure the C++ implementation matches the Lean one.
+    return r;
+}
 inline bool            is_shared(expr const & e)             { return !is_exclusive(e.raw()); }
 //
 

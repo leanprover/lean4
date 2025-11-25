@@ -41,7 +41,7 @@ info: g.eq_def (i j : Nat) :
 #guard_msgs in
 #check g.eq_def
 
-/-- error: unknown identifier 'g.eq_3' -/
+/-- error: Unknown identifier `g.eq_3` -/
 #guard_msgs in
 #check g.eq_3
 
@@ -63,6 +63,25 @@ info: h.eq_def (i j : Nat) :
 #guard_msgs in
 #check h.eq_def
 
-/-- error: unknown identifier 'h.eq_3' -/
+/-- error: Unknown identifier `h.eq_3` -/
 #guard_msgs in
 #check h.eq_3
+
+
+/--
+info: g._mutual.eq_def (i : Nat) (x✝ : Nat ⊕' Nat) :
+  g._mutual i x✝ =
+    PSum.casesOn x✝
+      (fun j =>
+        if i < 5 then 0
+        else
+          match j with
+          | Nat.zero => 1
+          | j.succ => g._mutual i (PSum.inr j))
+      fun j =>
+      match j with
+      | 0 => g._mutual i (PSum.inl 0)
+      | j.succ => g._mutual i (PSum.inl j)
+-/
+#guard_msgs in
+#check g._mutual.eq_def

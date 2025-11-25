@@ -10,7 +10,7 @@ def mkRandomArray : Nat → Elem → Array Elem → Array Elem
 partial def checkSortedAux (a : Array Elem) : Nat → IO Unit
 | i =>
   if i < a.size - 1 then do
-    unless (a.get! i <= a.get! (i+1)) do  throw (IO.userError "array is not sorted");
+    unless (a[i]! <= a[i+1]!) do  throw (IO.userError "array is not sorted");
     checkSortedAux a (i+1)
   else
     pure ()
@@ -23,7 +23,7 @@ macro:max "↑" x:term:max : term => `(UInt32.toNat $x)
 @[specialize] private partial def partitionAux {α : Type} [Inhabited α] (lt : α → α → Bool) (hi : Idx) (pivot : α) : Array α → Idx → Idx → Idx × Array α
 | as, i, j =>
   if j < hi then
-    if lt (as.get! ↑j) pivot then
+    if lt (as[j.toNat]!) pivot then
       let as := as.swapIfInBounds ↑i ↑j;
       partitionAux lt hi pivot as (i+1) (j+1)
     else
@@ -35,10 +35,10 @@ macro:max "↑" x:term:max : term => `(UInt32.toNat $x)
 set_option pp.all true
 @[inline] def partition {α : Type} [Inhabited α] (as : Array α) (lt : α → α → Bool) (lo hi : Idx) : Idx × Array α :=
 let mid : Idx := (lo + hi) / 2;
-let as  := if lt (as.get! ↑mid) (as.get! ↑lo) then as.swapIfInBounds ↑lo ↑mid else as;
-let as  := if lt (as.get! ↑hi)  (as.get! ↑lo) then as.swapIfInBounds ↑lo ↑hi  else as;
-let as  := if lt (as.get! ↑mid) (as.get! ↑hi) then as.swapIfInBounds ↑mid ↑hi else as;
-let pivot := as.get! ↑hi;
+let as  := if lt (as[mid.toNat]!) (as[lo.toNat]!) then as.swapIfInBounds ↑lo ↑mid else as;
+let as  := if lt (as[hi.toNat]!)  (as[lo.toNat]!) then as.swapIfInBounds ↑lo ↑hi  else as;
+let as  := if lt (as[mid.toNat]!) (as[hi.toNat]!) then as.swapIfInBounds ↑mid ↑hi else as;
+let pivot := as[hi.toNat]!;
 partitionAux lt hi pivot as lo lo
 
 @[specialize] partial def qsortAux {α : Type} [Inhabited α] (lt : α → α → Bool) : Array α → Idx → Idx → Array α

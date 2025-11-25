@@ -1,3 +1,5 @@
+module
+@[expose] public section -- TODO: remove after we fix congr_eq
 /-
 `grind` is inspired by automated reasoning techniques developed in the world of Satisfiability Modulo Theories (SMT).
 
@@ -10,8 +12,6 @@ We accumulate terms that are known to be equal. You should think of it as a blac
 we keep all the facts we know about the current goal.
 Remark: Terms known to be true (false) belong to the equivalence class of the term `True` (`False`).
 -/
-
-set_option grind.warning false -- Disables warning messages stating that `grind` is WIP.
 
 example (a b c : α) (f : α → α) : f a = c → a = b → c = f b := by
   grind
@@ -221,7 +221,7 @@ Very effective for examples using the notation `a[i]`
 -/
 
 -- Standard library will be
-attribute [grind =] Array.size_set Array.get_set_eq Array.get_set_ne
+attribute [grind =] Array.size_set Array.getElem_set_self Array.getElem_set_ne
 
 example (as bs cs ds : Array α) (v₁ v₂ v₃ : α)
         (i₁ i₂ i₃ j : Nat)

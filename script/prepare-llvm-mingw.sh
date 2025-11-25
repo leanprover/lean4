@@ -25,7 +25,10 @@ cp llvm/lib/clang/*/include/{std*,__std*,limits}.h stage1/include/clang
 echo '
 // https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-seterrormode
 #define SEM_FAILCRITICALERRORS 0x0001
-__declspec(dllimport) __stdcall unsigned int SetErrorMode(unsigned int uMode);' > stage1/include/clang/windows.h
+__declspec(dllimport) __stdcall unsigned int SetErrorMode(unsigned int uMode);
+// https://docs.microsoft.com/en-us/windows/console/setconsoleoutputcp
+#define CP_UTF8 65001
+__declspec(dllimport) __stdcall int SetConsoleOutputCP(unsigned int wCodePageID);' > stage1/include/clang/windows.h
 # COFF dependencies
 cp /clang64/lib/{crtbegin,crtend,crt2,dllcrt2}.o stage1/lib/
 # runtime
@@ -47,5 +50,4 @@ echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='--sysroot ROOT -L ROOT/lib -Wl,-Bstatic
 # when not using the above flags, link GMP dynamically/as usual. Always link ICU dynamically.
 echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-lgmp $(pkg-config --libs libuv) -lucrtbase'"
 # do not set `LEAN_CC` for tests
-echo -n " -DAUTO_THREAD_FINALIZATION=OFF -DSTAGE0_AUTO_THREAD_FINALIZATION=OFF"
 echo -n " -DLEAN_TEST_VARS=''"

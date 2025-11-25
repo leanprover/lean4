@@ -4,4 +4,4 @@ structure C where
   b1 : String
 
 #check fun c : C => s!"testing {c. "
-                                --^ textDocument/completion
+                                --^ completion

@@ -1,4 +1,6 @@
-%reset_grind_attrs
+module
+@[expose] public section -- TODO: remove after we fix congr_eq
+reset_grind_attrs%
 
 attribute [grind cases] Or
 

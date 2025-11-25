@@ -125,11 +125,11 @@ x y : Nat
 h1 : y = 0
 h2 : p x
 | y
-conv1.lean:221:10-221:13: error: invalid 'lhs' tactic, application has 1 explicit argument(s) but the index is out of bounds
-conv1.lean:224:10-224:15: error: invalid 'arg' tactic, application has 1 explicit argument(s) but the index is out of bounds
-conv1.lean:227:10-227:13: error: invalid 'rhs' conv tactic, application or implication expected
+conv1.lean:221:10-221:13: error: invalid `lhs` tactic, application has 1 explicit argument(s) but the index is out of bounds
+conv1.lean:224:10-224:15: error: invalid `arg` tactic, application has 1 explicit argument(s) but the index is out of bounds
+conv1.lean:227:10-227:13: error: invalid `rhs` conv tactic, application or implication expected
   p
-conv1.lean:230:10-230:15: error: 'arg' conv tactic failed, cannot select argument
+conv1.lean:230:10-230:15: error: `arg` conv tactic failed, cannot select argument
 a✝ : Nat := 0
 b✝ : Nat := a✝
 | 0 = 0

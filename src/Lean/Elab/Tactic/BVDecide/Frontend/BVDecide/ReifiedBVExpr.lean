@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.Reflect
-import Std.Tactic.BVDecide.Reflect
+public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.Reflect
+public import Std.Tactic.BVDecide.Reflect
+
+public section
 
 /-!
 Provides the logic for reifying `BitVec` expressions.
@@ -39,7 +43,7 @@ def mkAtom (e : Expr) (width : Nat) (synthetic : Bool) : M ReifiedBVExpr := do
   let expr := mkApp2 (mkConst ``BVExpr.var) (toExpr width) (toExpr ident)
   -- This is safe because this proof always holds definitionally.
   let proof := pure none
-  return ⟨width, .var ident, proof, expr⟩
+  return ⟨width, .var ident, expr, proof, expr⟩
 
 /--
 Parse `expr` as a `Nat` or `BitVec` constant depending on `ty`.
@@ -71,7 +75,7 @@ def mkBVConst (val : BitVec w) : M ReifiedBVExpr := do
   let expr := mkApp2 (mkConst ``BVExpr.const) (toExpr w) (toExpr val)
   -- This is safe because this proof always holds definitionally.
   let proof := pure none
-  return ⟨w, bvExpr, proof, expr⟩
+  return ⟨w, bvExpr, toExpr val, proof, expr⟩
 
 end ReifiedBVExpr
 

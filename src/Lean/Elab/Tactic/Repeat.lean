@@ -3,9 +3,13 @@ Copyright (c) 2022 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Kim Morrison
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Repeat
-import Lean.Elab.Tactic.Basic
+public import Lean.Meta.Tactic.Repeat
+public import Lean.Elab.Tactic.Basic
+
+public section
 
 namespace Lean.Elab.Tactic
 

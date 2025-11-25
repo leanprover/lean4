@@ -10,7 +10,7 @@ theorem write_simplify_test_0 (a x y : BitVec 64)
   simp only [setWidth_eq, BitVec.cast_eq]
 
 /--
-info: write : (n : Nat) → BitVec 64 → BitVec (n * 8) → Type → Type
+trace: write : (n : Nat) → BitVec 64 → BitVec (n * 8) → Type → Type
 s aux : Type
 a x y : BitVec 64
 h : 128 = 128

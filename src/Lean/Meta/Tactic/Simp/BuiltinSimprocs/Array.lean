@@ -3,9 +3,12 @@ Copyright (c) 2024 Lean FRO. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.Meta.LitValues
-import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+
+public section
 
 namespace Array
 open Lean Meta Simp

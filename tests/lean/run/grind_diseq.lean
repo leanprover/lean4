@@ -1,3 +1,4 @@
+module
 set_option grind.debug true
 
 example (p q : Prop) (a b c d : Nat) :

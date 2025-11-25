@@ -8,10 +8,13 @@ driver. See the [server readme](../Server/README.md#worker-architecture) for an 
 Authors: Sebastian Ullrich
 -/
 
+module
+
 prelude
-import Init.System.Promise
-import Lean.Parser.Types
-import Lean.Util.Trace
+public import Lean.Parser.Types
+public import Lean.Util.Trace
+
+public section
 
 set_option linter.missingDocs true
 
@@ -66,12 +69,30 @@ structure Snapshot where
   isFatal := false
 deriving Inhabited
 
+/-- Range that is marked as being processed by the server while a task is running. -/
+inductive SnapshotTask.ReportingRange where
+  /-- Inherit range from outer task if any, or else the entire file. -/
+  | inherit
+  /-- Use given range. -/
+  | protected some (range : Lean.Syntax.Range)
+  /-- Do not mark as being processed. Child nodes are still visited. -/
+  | skip
+deriving Inhabited
+
+/--
+Constructs a reporting range by replacing a missing range with `inherit`, which is a reasonable
+default to ensure that a range is shown in all cases.
+-/
+def SnapshotTask.ReportingRange.ofOptionInheriting : Option Lean.Syntax.Range → SnapshotTask.ReportingRange
+  | some range => .some range
+  | none       => .inherit
+
 /--
 Yields the default reporting range of a `Syntax`, which is just the `canonicalOnly` range
-of the syntax.
+of the syntax if any, or `inherit` otherwise.
 -/
-def SnapshotTask.defaultReportingRange? (stx? : Option Syntax) : Option String.Range :=
-  stx?.bind (·.getRange? (canonicalOnly := true))
+def SnapshotTask.defaultReportingRange (stx? : Option Syntax) : ReportingRange :=
+  .ofOptionInheriting <| stx?.bind (·.getRange? (canonicalOnly := true))
 
 /-- A task producing some snapshot type (usually a subclass of `Snapshot`). -/
 -- Longer-term TODO: Give the server more control over the priority of tasks, depending on e.g. the
@@ -82,29 +103,31 @@ structure SnapshotTask (α : Type) where
   `Syntax` processed by this `SnapshotTask`.
   The `Syntax` is used by the language server to determine whether to force this `SnapshotTask`
   when a request is made.
+  In general, the elaborator retains the following invariant:
+  If `stx?` is `none`, then this snapshot task (and all of its children) do not contain `InfoTree`
+  information that can be used in the language server, and so the language server will ignore it
+  when it is looking for an `InfoTree`.
+  Nonetheless, if `stx?` is `none`, then this snapshot task (and any of its children) may still
+  contain message log information.
   -/
   stx? : Option Syntax
-  /--
-  Range that is marked as being processed by the server while the task is running. If `none`,
-  the range of the outer task if some or else the entire file is reported.
-  -/
-  reportingRange? : Option String.Range := SnapshotTask.defaultReportingRange? stx?
+  /-- Range that is marked as being processed by the server while the task is running. -/
+  reportingRange : SnapshotTask.ReportingRange := SnapshotTask.defaultReportingRange stx?
   /--
   Cancellation token that can be set by the server to cancel the task when it detects the results
   are not needed anymore.
   -/
-  cancelTk? : Option IO.CancelToken := none
+  cancelTk? : Option IO.CancelToken
   /-- Underlying task producing the snapshot. -/
   task : Task α
 deriving Nonempty, Inhabited
 
 /-- Creates a snapshot task from the syntax processed by the task and a `BaseIO` action. -/
-def SnapshotTask.ofIO (stx? : Option Syntax)
-    (reportingRange? : Option String.Range := defaultReportingRange? stx?) (act : BaseIO α) :
+def SnapshotTask.ofIO (stx? : Option Syntax) (cancelTk? : Option IO.CancelToken)
+    (reportingRange : SnapshotTask.ReportingRange := SnapshotTask.defaultReportingRange stx?) (act : BaseIO α) :
     BaseIO (SnapshotTask α) := do
   return {
-    stx?
-    reportingRange?
+    stx?, reportingRange, cancelTk?
     task := (← BaseIO.asTask act)
   }
 
@@ -112,13 +135,14 @@ def SnapshotTask.ofIO (stx? : Option Syntax)
 def SnapshotTask.finished (stx? : Option Syntax) (a : α) : SnapshotTask α where
   stx?
   -- irrelevant when already finished
-  reportingRange? := none
+  reportingRange := .skip
   task := .pure a
+  cancelTk? := none
 
 /-- Transforms a task's output without changing the processed syntax. -/
 def SnapshotTask.map (t : SnapshotTask α) (f : α → β) (stx? : Option Syntax := t.stx?)
-    (reportingRange? : Option String.Range := t.reportingRange?) (sync := false) : SnapshotTask β :=
-  { stx?, cancelTk? := t.cancelTk?, reportingRange?, task := t.task.map (sync := sync) f }
+    (reportingRange : SnapshotTask.ReportingRange := t.reportingRange) (sync := false) : SnapshotTask β :=
+  { stx?, cancelTk? := t.cancelTk?, reportingRange, task := t.task.map (sync := sync) f }
 
 /--
   Chains two snapshot tasks. The processed syntax and the reporting range are taken from the first
@@ -126,10 +150,10 @@ def SnapshotTask.map (t : SnapshotTask α) (f : α → β) (stx? : Option Syntax
   discarded. The cancellation tokens of both tasks are discarded. They are replaced with the given
   token if any. -/
 def SnapshotTask.bindIO (t : SnapshotTask α) (act : α → BaseIO (SnapshotTask β))
-    (stx? : Option Syntax := t.stx?) (reportingRange? : Option String.Range := t.reportingRange?)
+    (stx? : Option Syntax := t.stx?) (reportingRange : SnapshotTask.ReportingRange := t.reportingRange)
     (cancelTk? : Option IO.CancelToken) (sync := false) : BaseIO (SnapshotTask β) := do
   return {
-    stx?, reportingRange?, cancelTk?
+    stx?, reportingRange, cancelTk?
     task := (← BaseIO.bindTask (sync := sync) t.task fun a => (·.task) <$> (act a))
   }
 
@@ -184,7 +208,7 @@ structure SnapshotTree where
   element : Snapshot
   /-- The asynchronously available children of the snapshot tree node. -/
   children : Array (SnapshotTask SnapshotTree)
-deriving Inhabited
+deriving Inhabited, TypeName
 
 /--
   Helper class for projecting a heterogeneous hierarchy of snapshot classes to a homogeneous
@@ -212,7 +236,7 @@ partial def SnapshotTask.cancelRec [ToSnapshotTree α] (t : SnapshotTask α) : B
 
 /-- Snapshot type without child nodes. -/
 structure SnapshotLeaf extends Snapshot
-deriving Nonempty, TypeName
+deriving Inhabited, TypeName
 
 instance : ToSnapshotTree SnapshotLeaf where
   toSnapshotTree s := SnapshotTree.mk s.toSnapshot #[]
@@ -272,28 +296,42 @@ register_builtin_option printMessageEndPos : Bool := {
   defValue := false, descr := "print end position of each message in addition to start position"
 }
 
+/-- Maximum number of errors to report. -/
+register_builtin_option maxErrors : Nat := {
+  defValue := 100
+  descr := "maximum number of errors to report (0 for no limit)"
+}
+
 /--
-Reports messages on stdout and returns whether an error was reported.
+Reports messages on stdout and returns the new total number of errors reported.
 If `json` is true, prints messages as JSON (one per line).
 If a message's kind is in `severityOverrides`, it will be reported with
 the specified severity.
 -/
-def reportMessages (msgLog : MessageLog) (opts : Options)
-    (json := false) (severityOverrides : NameMap MessageSeverity := {}) : IO Bool := do
+private def reportMessages (msgLog : MessageLog) (opts : Options)
+    (json : Bool) (severityOverrides : NameMap MessageSeverity) (numErrors : Nat) : IO Nat := do
   let includeEndPos := printMessageEndPos.get opts
-  msgLog.unreported.foldlM (init := false) fun hasErrors msg => do
+  msgLog.unreported.foldlM (init := numErrors) fun numErrors msg => do
+    let numErrors := numErrors + (if msg.severity matches .error then 1 else 0)
+    let maxErrorsReached := maxErrors.get opts != 0 && numErrors > maxErrors.get opts
     let msg : Message :=
-      if let some severity := severityOverrides.find? msg.kind then
+      if maxErrorsReached then { msg with
+        data := s!"maximum number of errors ({maxErrors.get opts}; from option `maxErrors`) reached, exiting"
+        severity := .error
+      } else if let some severity := severityOverrides.find? msg.kind then
         {msg with severity}
       else
         msg
-    if json then
-      let j ← msg.toJson
-      IO.println j.compress
-    else
-      let s ← msg.toString includeEndPos
-      IO.print s
-    return hasErrors || msg.severity matches .error
+    unless msg.isSilent do
+      if json then
+        let j ← msg.toJson
+        IO.println j.compress
+      else
+        let s ← msg.toString includeEndPos
+        IO.print s
+    if maxErrorsReached then
+      IO.Process.exit 1
+    return numErrors
 
 /--
   Runs a tree of snapshots to conclusion and incrementally report messages on stdout. Messages are
@@ -302,21 +340,21 @@ def reportMessages (msgLog : MessageLog) (opts : Options)
   the language server reports snapshots asynchronously.  -/
 def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options)
     (json := false) (severityOverrides : NameMap MessageSeverity := {}) : IO Bool := do
-  s.foldM (init := false) fun e snap => do
-    let e' ← reportMessages snap.diagnostics.msgLog opts json severityOverrides
-    return strictOr e e'
+  let numErrors ← s.foldM (init := 0) fun e snap => do
+    reportMessages snap.diagnostics.msgLog opts json severityOverrides e
+  return numErrors > 0
 
 /-- Waits on and returns all snapshots in the tree. -/
 def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
-  Id.run <| s.foldM (·.push ·) #[]
+  Id.run <| s.foldM (pure <| ·.push ·) #[]
 
 /-- Returns a task that waits on all snapshots in the tree. -/
-def SnapshotTree.waitAll : SnapshotTree → BaseIO (Task Unit)
+partial def SnapshotTree.waitAll : SnapshotTree → BaseIO (Task Unit)
   | mk _ children => go children.toList
 where
   go : List (SnapshotTask SnapshotTree) → BaseIO (Task Unit)
     | [] => return .pure ()
-    | t::ts => BaseIO.bindTask t.task fun _ => go ts
+    | t::ts => BaseIO.bindTask (sync := true) t.task fun t => go (t.children.toList ++ ts)
 
 /-- Context of an input processing invocation. -/
 structure ProcessingContext extends Parser.InputContext
@@ -342,7 +380,7 @@ def diagnosticsOfHeaderError (msg : String) : ProcessingM Snapshot.Diagnostics :
   let msgLog := MessageLog.empty.add {
     fileName := "<input>"
     pos := ⟨1, 0⟩
-    endPos := (← read).fileMap.toPosition (← read).fileMap.source.endPos
+    endPos := (← read).fileMap.toPosition (← read).fileMap.source.rawEndPos
     data := msg
   }
   Snapshot.Diagnostics.ofMessageLog msgLog

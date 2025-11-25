@@ -16,9 +16,9 @@ public:
     explicit pair_ref(b_obj_arg o, bool b):object_ref(o, b) {}
     pair_ref(T1 const & a, T2 const & b):object_ref(mk_cnstr(0, a.raw(), b.raw())) { inc(a.raw()); inc(b.raw()); }
     pair_ref(pair_ref const & other):object_ref(other) {}
-    pair_ref(pair_ref && other):object_ref(other) {}
+    pair_ref(pair_ref && other) noexcept:object_ref(std::move(other)) {}
     pair_ref & operator=(pair_ref const & other) { object_ref::operator=(other); return *this; }
-    pair_ref & operator=(pair_ref && other) { object_ref::operator=(other); return *this; }
+    pair_ref & operator=(pair_ref && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
 
     T1 const & fst() const { return static_cast<T1 const &>(cnstr_get_ref(*this, 0)); }
     T2 const & snd() const { return static_cast<T2 const &>(cnstr_get_ref(*this, 1)); }

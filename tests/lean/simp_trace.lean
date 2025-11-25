@@ -1,6 +1,9 @@
 set_option tactic.simp.trace true
 set_option trace.Meta.Tactic.simp.rewrite true
 
+-- These lemmas were subsequently added to the simp set and confuse the test.
+attribute [-simp] Nat.add_left_cancel_iff Nat.add_right_cancel_iff Nat.sub_eq_zero_of_le Nat.add_eq_left Nat.add_eq_right
+
 def f (x : α) := x
 
 example (a : α) (b : List α) : f (a::b = []) = False :=
@@ -84,8 +87,6 @@ example : x - 1 + 1 = x := by simp (discharger := sorry) [Nat.sub_add_cancel]
 
 -- The following examples test simplification at hypotheses.
 section
--- These lemmas were subsequently added to the simp set and confuse the test.
-attribute [-simp] Nat.add_left_eq_self Nat.add_right_eq_self
 
 -- Two simp lemmas applied to one hypothesis.
 example (h' : bla x = x) : x + x = x := by

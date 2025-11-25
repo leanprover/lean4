@@ -5,7 +5,7 @@ open Lean.Meta
 open Lean.Elab.Tactic
 
 /--
-info: a b c : Nat
+trace: a b c : Nat
 h₁ : a = b
 h₂ : b = c
 ⊢ a = b
@@ -17,7 +17,7 @@ example (a b c : Nat) (h₁ : a = b) (h₂ : b = c) : a = c := by
   exact h₁
 
 /--
-info: case h
+trace: case h
 a : Nat
 ⊢ ?w = a
 
@@ -38,7 +38,7 @@ elab "eapply " e:term : tactic =>
   evalApplyLikeTactic (MVarId.apply (cfg := {newGoals := ApplyNewGoals.nonDependentOnly})) e
 
 /--
-info: case h
+trace: case h
 a : Nat
 ⊢ ?w = a
 -/
@@ -49,7 +49,7 @@ example (a : Nat) : ∃ x, x = a := by
   rfl
 
 /--
-info: case w
+trace: case w
 a : Nat
 ⊢ Nat
 
@@ -57,7 +57,7 @@ case h
 a : Nat
 ⊢ ?w = a
 ---
-info: case h
+trace: case h
 a : Nat
 ⊢ a = a
 -/

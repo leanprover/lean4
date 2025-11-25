@@ -3,16 +3,28 @@ Copyright (c) 2024 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
-prelude
-import Init.Data.List.Nat.Range
-import Init.Data.List.Find
+module
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+prelude
+public import Init.Data.List.Nat.Range
+
+public section
+
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
+protected theorem Nat.sum_pos_iff_exists_pos {l : List Nat} : 0 < l.sum ↔ ∃ x ∈ l, 0 < x := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    simp [← ih]
+    omega
 
 namespace List
 
 open Nat
+
+/-! ### Results about `List.sum` specialized to `Nat` -/
 
 theorem find?_eq_some_iff_getElem {xs : List α} {p : α → Bool} {b : α} :
     xs.find? p = some b ↔ p b ∧ ∃ i h, xs[i] = b ∧ ∀ j : Nat, (hj : j < i) → !p xs[j] := by
@@ -58,4 +70,4 @@ theorem findIdx?_eq_some_le_of_findIdx?_eq_some {xs : List α} {p q : α → Boo
     rw [findIdx?_eq_some_iff_findIdx_eq] at h
     omega
   | none =>
-    refine ⟨l₁'.length, by simp, by simp_all⟩
+    refine ⟨l₁'.length, by simp, by simp_all [findIdx?_cons]⟩

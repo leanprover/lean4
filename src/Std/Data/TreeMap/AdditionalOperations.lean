@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.TreeMap.Basic
-import Std.Data.TreeMap.Raw
-import Std.Data.DTreeMap.AdditionalOperations
+public import Std.Data.TreeMap.Basic
+public import Std.Data.TreeMap.Raw.Basic
+public import Std.Data.DTreeMap.AdditionalOperations
+
+@[expose] public section
 
 /-!
 # Additional tree map operations
@@ -23,22 +27,6 @@ universe u v w
 variable {α : Type u} {β : Type v} {γ : Type w} {cmp : α → α → Ordering}
 
 namespace Std.TreeMap
-
-namespace Raw
-
-@[inline, inherit_doc DTreeMap.Raw.filterMap]
-def filterMap (f : (a : α) → β → Option γ) (t : Raw α β cmp) : Raw α γ cmp :=
-  ⟨t.inner.filterMap f⟩
-
-@[inline, inherit_doc DTreeMap.Raw.map]
-def map (f : α → β → γ) (t : Raw α β cmp) : Raw α γ cmp :=
-  ⟨t.inner.map f⟩
-
-/-!
-We do not provide `get*GE`, `get*GT`, `get*LE` and `get*LT` functions for the raw trees.
--/
-
-end Raw
 
 @[inline, inherit_doc DTreeMap.filterMap]
 def filterMap (f : (a : α) → β → Option γ) (m : TreeMap α β cmp) : TreeMap α γ cmp :=

@@ -1,20 +1,20 @@
-doIssue.lean:2:2-2:3: error: type mismatch
+doIssue.lean:2:2-2:3: error: Type mismatch
   x
 has type
-  Nat : Type
+  Nat
 but is expected to have type
-  IO PUnit : Type
-doIssue.lean:10:2-10:13: error: type mismatch
+  IO PUnit
+doIssue.lean:10:2-10:13: error: Type mismatch
   xs.set! 0 1
 has type
-  Array Nat : Type
+  Array Nat
 but is expected to have type
-  IO PUnit : Type
-doIssue.lean:18:7-18:20: error: application type mismatch
+  IO PUnit
+doIssue.lean:18:7-18:20: error: Application type mismatch: The argument
+  xs.set! 0 1
+has type
+  Array Nat
+but is expected to have type
+  PUnit
+in the application
   pure (xs.set! 0 1)
-argument
-  xs.set! 0 1
-has type
-  Array Nat : Type
-but is expected to have type
-  PUnit : Type

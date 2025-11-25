@@ -45,7 +45,7 @@ info: @f.eq_def : ∀ {α : Type u_1} (x : Nat) (x_1 x_2 : α),
 -/
 #guard_msgs in
 #check @f.eq_def
-/-- error: unknown identifier 'f.eq_3' -/
+/-- error: Unknown identifier `f.eq_3` -/
 #guard_msgs in
 #check @f.eq_3
 
@@ -65,6 +65,35 @@ info: @h.eq_def : ∀ {α : Type u_1} (x x_1 : α) (x_2 : Nat),
 #guard_msgs in
 #check @h.eq_def
 
-/-- error: unknown identifier 'h.eq_3' -/
+/-- error: Unknown identifier `h.eq_3` -/
 #guard_msgs in
 #check @h.eq_3
+
+/--
+info: f._mutual.eq_def.{u_1} {α : Type u_1}
+  (x✝ : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) :
+  f._mutual x✝ =
+    PSum.casesOn x✝
+      (fun _x =>
+        PSigma.casesOn _x fun a a_1 =>
+          PSigma.casesOn a_1 fun a_2 a_3 =>
+            match a, a_2, a_3 with
+            | 0, a, b => a
+            | n, a, b => (f._mutual (PSum.inr (PSum.inl ⟨a, ⟨n, b⟩⟩))).fst)
+      fun _x =>
+      PSum.casesOn _x
+        (fun _x =>
+          PSigma.casesOn _x fun a a_1 =>
+            PSigma.casesOn a_1 fun a_2 a_3 =>
+              match a, a_2, a_3 with
+              | a, 0, b => (a, b)
+              | a, n, b => (f._mutual (PSum.inr (PSum.inr ⟨a, ⟨b, n⟩⟩)), a))
+        fun _x =>
+        PSigma.casesOn _x fun a a_1 =>
+          PSigma.casesOn a_1 fun a_2 a_3 =>
+            match a, a_2, a_3 with
+            | a, b, 0 => b
+            | a, b, n.succ => f._mutual (PSum.inl ⟨n, ⟨a, b⟩⟩)
+-/
+#guard_msgs in
+#check f._mutual.eq_def

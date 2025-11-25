@@ -3,15 +3,15 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Instances
-import Lean.Compiler.InlineAttrs
-import Lean.Compiler.LCNF.Closure
-import Lean.Compiler.LCNF.Types
-import Lean.Compiler.LCNF.MonadScope
-import Lean.Compiler.LCNF.Internalize
-import Lean.Compiler.LCNF.Level
-import Lean.Compiler.LCNF.AuxDeclCache
+public import Lean.Compiler.LCNF.Closure
+public import Lean.Compiler.LCNF.MonadScope
+public import Lean.Compiler.LCNF.Level
+public import Lean.Compiler.LCNF.AuxDeclCache
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace LambdaLifting
@@ -169,25 +169,18 @@ def lambdaLifting : Pass where
     decls.foldlM (init := #[]) fun decls decl => return decls ++ (← decl.lambdaLifting false (suffix := `_lam))
 
 /--
-During eager lambda lifting, we lift
-- All local function declarations from instances (motivation: make sure it is cheap to inline them later)
-- Local function declarations that take local instances as parameters (motivation: ensure they are specialized)
+During eager lambda lifting, we inspect declarations that are not inlineable or instances (doing it
+everywhere can accidentally introduce mutual recursion which the compiler cannot handle well at the
+moment). We then lift local function declarations that take local instances as parameters from
+their body to ensure they are specialized.
 -/
 def eagerLambdaLifting : Pass where
   phase      := .base
   name       := `eagerLambdaLifting
   run        := fun decls => do
     decls.foldlM (init := #[]) fun decls decl => do
-      if (← Meta.isInstance decl.name) then
-        /-
-        Recall that we lambda lift local functions in instances to control code blowup, and make sure they are cheap to inline.
-        It is not worth to lift tiny ones. TODO: evaluate whether we should add a compiler option to control the min size.
-
-        Recall that when performing eager lambda lifting in instances, we progatate the `[inline]` annotations to the new auxiliary functions.
-
-        Note: we have tried `if decl.inlineable then return decls.push decl`, but it didn't help in our preliminary experiments.
-        -/
-        return decls ++ (← decl.lambdaLifting (liftInstParamOnly := false) (suffix := `_elam) (inheritInlineAttrs := true) (minSize := 3))
+      if decl.inlineable || (← Meta.isInstance decl.name) then
+        return decls.push decl
       else
         return decls ++ (← decl.lambdaLifting (liftInstParamOnly := true) (suffix := `_elam))
 

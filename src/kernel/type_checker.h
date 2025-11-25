@@ -46,6 +46,11 @@ private:
     diagnostics *             m_diag;
     local_ctx                 m_lctx;
     definition_safety         m_definition_safety;
+    /*
+    `m_eager_reduce` is set to true whenever we are type checking an application argument that has been
+    wrapped with `eagerReduce`.
+    */
+    bool                      m_eager_reduce = false;
     /* When `m_lparams != nullptr, the `check` method makes sure all level parameters
        are in `m_lparams`. */
     names const *             m_lparams;

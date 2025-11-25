@@ -126,7 +126,7 @@ partial def extractGameState : Lean.Expr → Lean.MetaM GameState
 
 def update2dArray {α : Type} : Array (Array α) → Coords → α → Array (Array α)
 | a, ⟨x,y⟩, v =>
-   Array.set! a y $ Array.set! (Array.get! a y) x v
+   Array.set! a y $ Array.set! a[y]! x v
 
 def update2dArrayMulti {α : Type} : Array (Array α) → List Coords → α → Array (Array α)
 | a, [], _ => a
@@ -144,13 +144,13 @@ def delabGameState : Lean.Expr → Lean.PrettyPrinter.Delaborator.Delab
        try extractGameState e
        catch err => failure -- can happen if game state has variables in it
 
-     let topBar := Array.mkArray numCols $ ← `(horizontal_border| ─)
+     let topBar := Array.replicate numCols $ ← `(horizontal_border| ─)
      let emptyCell ← `(game_cell| ░)
-     let emptyRow := Array.mkArray numCols emptyCell
+     let emptyRow := Array.replicate numCols emptyCell
      let emptyRowStx ← `(game_row| │$emptyRow:game_cell*│)
-     let allRows := Array.mkArray numRows emptyRowStx
+     let allRows := Array.replicate numRows emptyRowStx
 
-     let a0 := Array.mkArray numRows $ Array.mkArray numCols emptyCell
+     let a0 := Array.replicate numRows $ Array.replicate numCols emptyCell
      let a1 := update2dArray a0 playerCoords $ ← `(game_cell| @)
      let a2 := update2dArrayMulti a1 walls $ ← `(game_cell| ▓)
      let aa ← Array.mapM delabGameRow a2

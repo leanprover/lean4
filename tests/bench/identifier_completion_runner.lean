@@ -2,12 +2,12 @@ import Lean.Data.Lsp
 open IO Lean Lsp
 
 def mkCompletionRequest (id : Nat) : JsonRpc.Request Json :=
-  let param := Json.parse r#"{"textDocument":{"uri":"file:///home/mhuisi/Lean/lean4/tests/bench/identifier_completion.lean"},"position":{"line":25,"character":40},"context":{"triggerKind":1}}"#
+  let param := Json.parse r#"{"textDocument":{"uri":"file:///home/sebastian/lean4/tests/bench/identifier_completion.lean"},"position":{"line":24,"character":40},"context":{"triggerKind":1}}"#
   let param := param.toOption.get!
   { id, method := "textDocument/completion", param }
 
 def main : IO Unit := do
-  Ipc.runWith (←IO.appPath) #["--server"] do
+  Ipc.runWith "lean" #["--server"] do
     let hIn ← Ipc.stdin
     hIn.write (← FS.readBinFile "identifier_completion_initialization.log")
     hIn.flush
@@ -21,7 +21,7 @@ def main : IO Unit := do
     Ipc.writeRequest <| mkCompletionRequest 1
     let _ ← Ipc.readResponseAs 1 CompletionList
     let startTime ← IO.monoMsNow
-    for i in [2:5] do
+    for i in 2...(5 : Nat) do
       Ipc.writeRequest <| mkCompletionRequest i
       let _ ← Ipc.readResponseAs i CompletionList
     let endTime ← IO.monoMsNow

@@ -92,7 +92,7 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     if (is_nat_lit(major))
         major = nat_lit_to_constructor(major);
     else if (is_string_lit(major))
-        major = string_lit_to_constructor(major);
+        major = whnf(string_lit_to_constructor(major));
     else
         major = to_cnstr_when_structure(env, rec_val.get_major_induct(), major, whnf, infer_type);
     optional<recursor_rule> rule = get_rec_rule_for(rec_val, major);

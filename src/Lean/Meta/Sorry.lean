@@ -3,10 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+module
+
 prelude
-import Lean.Data.Lsp.Utf16
-import Lean.Meta.InferType
-import Lean.Util.Recognizers
+public import Lean.Data.Lsp.Utf16
+public import Lean.Meta.ForEachExpr
+public import Lean.Meta.InferType
+public import Lean.Util.Recognizers
+
+public section
 
 /-!
 # Utilities for creating and recognizing `sorry`
@@ -34,6 +39,9 @@ Returns `sorryAx type synthetic`. Recall that `synthetic` is true if this sorry 
 See also `Lean.Meta.mkLabeledSorry`, for creating a `sorry` that is labeled or unique.
 -/
 def mkSorry (type : Expr) (synthetic : Bool) : MetaM Expr := do
+  if !(← hasConst ``sorryAx) then
+    -- Abort if we are not ready yet to generate `sorry`s in bootstrapping contexts.
+    Elab.throwAbortCommand
   let u ← getLevel type
   return mkApp2 (mkConst ``sorryAx [u]) type (toExpr synthetic)
 
@@ -73,6 +81,9 @@ Constructs a `sorryAx`.
 * If `unique` is true, the `sorry` is unique, in the sense that it is not defeq to any other `sorry` created by `mkLabeledSorry`.
 -/
 def mkLabeledSorry (type : Expr) (synthetic : Bool) (unique : Bool) : MetaM Expr := do
+  if !(← hasConst ``Lean.Name) then
+    -- Abort if we are not ready yet to generate `sorry`s in bootstrapping contexts.
+    Elab.throwAbortCommand
   let tag ←
     if let (some startSPos, some endSPos) := ((← getRef).getPos?, (← getRef).getTailPos?) then
       let fileMap ← getFileMap
@@ -113,3 +124,42 @@ def isLabeledSorry? (e : Expr) : Option SorryLabelView := do
     guard <| arg.appFn!.appArg!.isAppOfArity ``Unit.unit 0
     let tag ← arg.appArg!.name?
     SorryLabelView.decode? tag
+
+end Meta
+
+/--
+If `e` is a sorry application, returns the sorry itself,
+stripping off any arguments in case the `sorry` is standing in for a function.
+
+For labeled sorries, includes the label information.
+-/
+def Expr.getSorry? (e : Expr) : Option Expr :=
+  if e.isSorry then
+    if (Meta.isLabeledSorry? e).isSome then
+      e.getBoundedAppFn (e.getAppNumArgs - 3)
+    else
+      e.getBoundedAppFn (e.getAppNumArgs - 2)
+  else
+    none
+
+/--
+Evaluates `fn` on each `sorry` in the expression.
+Instantiates bound variables with free variables.
+-/
+def Meta.forEachSorryM {m : Type → Type} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m] (input : Expr)
+    (fn : Expr → m Unit) : m Unit := do
+  Meta.forEachExpr' input fun e => do
+    if let some e' := e.getSorry? then
+      fn e'
+      return false
+    else
+      return true
+
+/--
+Evaluates `fn` on each `sorry` in the declaration.
+-/
+def Declaration.forEachSorryM {m : Type → Type} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m] (decl : Declaration)
+    (fn : Expr → m Unit) : m Unit := do
+  decl.forExprM (Meta.forEachSorryM · fn)
+
+end Lean

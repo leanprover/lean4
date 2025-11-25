@@ -3,10 +3,12 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Clear
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Simp.Main
+public import Lean.Meta.Tactic.Simp.Main
+
+public section
 
 namespace Lean.Meta
 
@@ -59,7 +61,7 @@ private partial def loop : M Bool := do
   let simprocs := (← get).simprocs
   -- simplify entries
   let entries := (← get).entries
-  for h : i in [:entries.size] do
+  for h : i in *...entries.size do
     let entry := entries[i]
     let ctx := (← get).ctx
     -- We disable the current entry to prevent it to be simplified to `True`

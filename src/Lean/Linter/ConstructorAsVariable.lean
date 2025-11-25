@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Thrane Christiansen
 -/
+module
+
 prelude
-import Lean.Elab.Command
-import Lean.Linter.Util
+public import Lean.Elab.Command
+public import Lean.Linter.Util
+
+public section
 
 set_option linter.missingDocs true
 
@@ -34,7 +38,7 @@ def constructorNameAsVariable : Linter where
       | return
 
     let infoTrees := (← get).infoState.trees.toArray
-    let warnings : IO.Ref (Std.HashMap String.Range (Syntax × Name × Name)) ← IO.mkRef {}
+    let warnings : IO.Ref (Std.HashMap Lean.Syntax.Range (Syntax × Name × Name)) ← IO.mkRef {}
 
     for tree in infoTrees do
       tree.visitM' (postNode := fun ci info _ => do

@@ -3,12 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Expr
-import Lean.ToLevel
-import Init.Data.BitVec.Basic
+public import Lean.ToLevel
+public import Init.Data.Rat.Basic
+public section
 universe u
-
 namespace Lean
 
 /--
@@ -48,6 +48,26 @@ where
     let r := mkRawNatLit n
     mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int []) r
         (.app (.const ``instOfNat []) r)
+
+instance : ToExpr Rat where
+  toTypeExpr := .const ``Rat []
+  toExpr i   := if i.den == 1 then
+    mkInt i.num
+  else
+    mkApp6 (.const ``HDiv.hDiv [0, 0, 0]) (.const ``Rat []) (.const ``Rat []) (.const ``Rat [])
+      (mkApp2 (.const ``instHDiv [0]) (.const ``Rat []) (.const ``Rat.instDiv []))
+      (mkInt i.num) (mkInt i.den)
+where
+  mkInt (i : Int) : Expr :=
+    if 0 ≤ i then
+      mkNat i.toNat
+    else
+      mkApp3 (.const ``Neg.neg [0]) (.const ``Rat []) (.const ``Rat.instNeg [])
+        (mkNat (-i).toNat)
+  mkNat (n : Nat) : Expr :=
+    let r := mkRawNatLit n
+    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Rat []) r
+        (.app (.const ``Rat.instOfNat []) r)
 
 instance : ToExpr (Fin n) where
   toTypeExpr := .app (mkConst ``Fin) (toExpr n)
@@ -97,6 +117,71 @@ instance : ToExpr USize where
     mkApp3 (.const ``OfNat.ofNat [0]) (mkConst ``USize) r
       (.app (.const ``USize.instOfNat []) r)
 
+instance : ToExpr Int8 where
+  toTypeExpr := mkConst ``Int8
+  toExpr i := if 0 ≤ i then
+    mkNat i.toNatClampNeg
+  else
+    mkApp3 (.const ``Neg.neg [0]) (.const ``Int8 []) (.const ``Int8.instNeg [])
+      (mkNat (-(i.toInt)).toNat)
+where
+  mkNat (n : Nat) : Expr :=
+    let r := mkRawNatLit n
+    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int8 []) r
+        (.app (.const ``Int8.instOfNat []) r)
+
+instance : ToExpr Int16 where
+  toTypeExpr := mkConst ``Int16
+  toExpr i := if 0 ≤ i then
+    mkNat i.toNatClampNeg
+  else
+    mkApp3 (.const ``Neg.neg [0]) (.const ``Int16 []) (.const ``Int16.instNeg [])
+      (mkNat (-(i.toInt)).toNat)
+where
+  mkNat (n : Nat) : Expr :=
+    let r := mkRawNatLit n
+    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int16 []) r
+        (.app (.const ``Int16.instOfNat []) r)
+
+instance : ToExpr Int32 where
+  toTypeExpr := mkConst ``Int32
+  toExpr i := if 0 ≤ i then
+    mkNat i.toNatClampNeg
+  else
+    mkApp3 (.const ``Neg.neg [0]) (.const ``Int32 []) (.const ``Int32.instNeg [])
+      (mkNat (-(i.toInt)).toNat)
+where
+  mkNat (n : Nat) : Expr :=
+    let r := mkRawNatLit n
+    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int32 []) r
+        (.app (.const ``Int32.instOfNat []) r)
+
+instance : ToExpr Int64 where
+  toTypeExpr := mkConst ``Int64
+  toExpr i := if 0 ≤ i then
+    mkNat i.toNatClampNeg
+  else
+    mkApp3 (.const ``Neg.neg [0]) (.const ``Int64 []) (.const ``Int64.instNeg [])
+      (mkNat (-(i.toInt)).toNat)
+where
+  mkNat (n : Nat) : Expr :=
+    let r := mkRawNatLit n
+    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int64 []) r
+        (.app (.const ``Int64.instOfNat []) r)
+
+instance : ToExpr ISize where
+  toTypeExpr := mkConst ``ISize
+  toExpr i := if 0 ≤ i then
+    mkNat i.toNatClampNeg
+  else
+    mkApp3 (.const ``Neg.neg [0]) (.const ``ISize []) (.const ``ISize.instNeg [])
+      (mkNat (-(i.toInt)).toNat)
+where
+  mkNat (n : Nat) : Expr :=
+    let r := mkRawNatLit n
+    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``ISize []) r
+        (.app (.const ``ISize.instOfNat []) r)
+
 instance : ToExpr Bool where
   toExpr     := fun b => if b then mkConst ``Bool.true else mkConst ``Bool.false
   toTypeExpr := mkConst ``Bool
@@ -141,7 +226,7 @@ where
     | .num p n ..=> mkApp2 (mkConst ``Lean.Name.num) (go p) (toExpr n)
 
 instance : ToExpr Name where
-  toExpr     := Name.toExprAux
+  toExpr     := private Name.toExprAux
   toTypeExpr := mkConst ``Name
 
 instance {α : Type u} [ToLevel.{u}] [ToExpr α] : ToExpr (Option α) :=
@@ -159,7 +244,7 @@ instance {α : Type u} [ToLevel.{u}] [ToExpr α] : ToExpr (List α) :=
   let type := toTypeExpr α
   let nil  := mkApp (mkConst ``List.nil [toLevel.{u}]) type
   let cons := mkApp (mkConst ``List.cons [toLevel.{u}]) type
-  { toExpr     := List.toExprAux nil cons,
+  { toExpr     := private List.toExprAux nil cons,
     toTypeExpr := mkApp (mkConst ``List [toLevel.{u}]) type }
 
 instance {α : Type u} [ToLevel.{u}] [ToExpr α] : ToExpr (Array α) :=
@@ -189,13 +274,5 @@ instance : ToExpr Syntax.Preresolved where
   toExpr
     | .namespace ns => mkApp (.const ``Syntax.Preresolved.namespace []) (toExpr ns)
     | .decl a ls => mkApp2 (.const ``Syntax.Preresolved.decl []) (toExpr a) (toExpr ls)
-
-def Expr.toCtorIfLit : Expr → Expr
-  | .lit (.natVal v) =>
-    if v == 0 then mkConst ``Nat.zero
-    else mkApp (mkConst ``Nat.succ) (mkRawNatLit (v-1))
-  | .lit (.strVal v) =>
-    mkApp (mkConst ``String.mk) (toExpr v.toList)
-  | e => e
 
 end Lean

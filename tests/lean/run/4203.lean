@@ -12,15 +12,15 @@ def IsGood [DecidableEq dOut] [DecidableEq dOut₂] (Λ : Mappish dIn dOut) (Λ�
   ∃ (D : Mappish dOut (dOut₂)), D.k = Λ.k + Λ₂.k
 
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   Fintype v
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs in
 def MappishOrder [DecidableEq dIn] : Preorder
     (Σ dOut : Sigma (fun t ↦ Fintype t × DecidableEq t), let fin := dOut.snd.1; Mappish dIn dOut.fst) where
-  le Λ₁ Λ₂ := by
+le Λ₁ Λ₂ := by
     let u := Λ₁.fst.fst;
     let v := Λ₂.fst.fst;
     let ⟨w,x⟩ := Λ₁.fst.snd;

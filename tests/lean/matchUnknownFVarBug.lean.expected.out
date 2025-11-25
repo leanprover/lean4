@@ -1,4 +1,4 @@
-matchUnknownFVarBug.lean:2:2-2:7: error: missing cases:
+matchUnknownFVarBug.lean:2:2-2:7: error: Missing cases:
 (some (Nat.succ _)), (some _)
 (some (Nat.succ _)), none
 none, (some _)

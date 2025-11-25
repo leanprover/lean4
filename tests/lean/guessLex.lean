@@ -22,6 +22,7 @@ def ackermannList (n m : List Unit) := match n, m with
   | ()::n, [] => ackermannList n [()]
   | ()::n, ()::m => ackermannList n (ackermannList (()::n) m)
 
+set_option backwards.match.divide false in
 def foo2 : Nat → Nat → Nat
   | .succ n, 1 => foo2 n 1
   | .succ n, 2 => foo2 (.succ n) 1

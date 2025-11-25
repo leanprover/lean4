@@ -797,16 +797,18 @@ private def processDivide (p : Problem) (i : Nat) : StateRefT State MetaM (Array
     notAltRequested := notAltRequested.insert overlappedBy
   let notAlts := altsUpper.filter fun alt => notAltRequested.contains alt.idx
   let negs ← altsNegation p.vars notAlts
-  let mvarLowerType ← mkArrowN negs mvarType
+  let mvarLowerType ← mkArrow (mkConst ``Unit) (← mkArrowN negs mvarType)
   let mvarLower ← mkFreshExprSyntheticOpaqueMVar mvarLowerType
-  let (_, mvarLowerId) ← mvarLower.mvarId!.introN negs.size
+  let (_, mvarLowerId) ← mvarLower.mvarId!.intro1
+  let (_, mvarLowerId) ← mvarLowerId.introN negs.size
   let idx := p.alts[i]!.idx
   let n := (`cont).appendIndexAfter idx
   -- We don't have `mvarId.have` like `mvarId.define`?
-  let (fvarId, mvarUpper) ← withLetDecl n mvarLowerType mvarLower (nondep := true) fun fvarId => do
+  let (fallthroughRhs, mvarUpper) ← withLetDecl n mvarLowerType mvarLower (nondep := true) fun fvarId => do
     let mvarUpper ← mkFreshExprSyntheticOpaqueMVar mvarType
     p.mvarId.assign (← mkLambdaFVars (generalizeNondepLet := false) #[fvarId] mvarUpper)
     pure (fvarId, mvarUpper)
+  let fallthroughRhs := mkApp fallthroughRhs (mkConst ``Unit.unit)
 
   -- TODO: This can be improved if we join the overlap information later,
   -- once we know which upper alternatives are overlapping the fallback
@@ -814,7 +816,7 @@ private def processDivide (p : Problem) (i : Nat) : StateRefT State MetaM (Array
     for upperAlt in altsUpper do
       modify fun s => { s with overlaps := s.overlaps.insert upperAlt.idx lowerAlt.idx }
 
-  let pUpper := { p with mvarId := mvarUpper.mvarId!, alts := altsUpper, fallthrough := some fvarId, fallthroughArgs := negs.size }
+  let pUpper := { p with mvarId := mvarUpper.mvarId!, alts := altsUpper, fallthrough := some fallthroughRhs, fallthroughArgs := negs.size }
   let pLower := { p with mvarId := mvarLowerId, alts := altsLower }
   return #[pUpper, pLower]
 

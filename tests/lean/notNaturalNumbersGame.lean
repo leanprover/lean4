@@ -8,3 +8,18 @@ theorem zero_mul (m : Nat) : 0 * m = 0 := by
   rw [Nat.mul_succ]
   rw [Nat.add_zero]
   rw [n_ih]
+
+theorem zero_mul2 (m : Nat) : 0 * m = 0 := by
+  cases m with n
+  rw [Nat.mul_zero]
+  rw [Nat.mul_succ]
+  rw [Nat.add_zero]
+  rw [zero_mul]
+
+-- Special case not triggered by empty case analysis
+
+theorem zero_mul3 (m : Nat) : 0 * m = 0 := by
+  induction m with
+
+theorem zero_mul4 (m : Nat) : 0 * m = 0 := by
+  cases m with

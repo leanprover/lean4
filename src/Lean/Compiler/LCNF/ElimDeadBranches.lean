@@ -35,7 +35,7 @@ inductive Value where
   A set of values are possible.
   -/
   | choice (vs : List Value)
-  deriving Inhabited, Repr
+  deriving Inhabited
 
 namespace Value
 
@@ -43,16 +43,35 @@ namespace Value
 def maxValueDepth := 8
 
 protected partial def beq : Value → Value → Bool
-| bot, bot => true
-| top, top => true
-| ctor i1 vs1 , ctor i2 vs2 =>
-  i1 == i2 && Array.isEqv vs1 vs2 Value.beq
-| choice vs1 , choice vs2 =>
-  let isSubset as bs := as.all (fun a => bs.any fun b => Value.beq a b)
-  isSubset vs1 vs2 && isSubset vs2 vs1
-| _, _ => false
+  | bot, bot => true
+  | top, top => true
+  | ctor i1 vs1 , ctor i2 vs2 =>
+    i1 == i2 && Array.isEqv vs1 vs2 Value.beq
+  | choice vs1 , choice vs2 =>
+    let isSubset as bs := as.all (fun a => bs.any fun b => Value.beq a b)
+    isSubset vs1 vs2 && isSubset vs2 vs1
+  | _, _ => false
 
 instance : BEq Value := ⟨Value.beq⟩
+
+protected partial def toFormat : Value → Format
+  | bot => "⊥"
+  | top => "⊤"
+  | ctor i vs =>
+    if vs.isEmpty then
+      format i
+    else
+      .paren <| format i ++ .join (vs.toList.map fun v => " " ++ Value.toFormat v)
+  | choice vs =>
+    .paren <| .joinSep (vs.map Value.toFormat) " | "
+
+instance : Repr Value where
+  reprPrec v _ := Value.toFormat v
+
+def inductValOfCtor (ctorName : Name) (env : Environment) : InductiveVal := Id.run do
+  let some (.ctorInfo info) ← env.find? ctorName | unreachable!
+  let some (.inductInfo info) ← env.find? info.induct | unreachable!
+  return info
 
 mutual
 
@@ -62,32 +81,60 @@ is a constructor that is already contained within `vs` try to detect
 the difference between these values and merge them accordingly into a
 choice node further down the tree.
 -/
-partial def addChoice (vs : List Value) (v : Value) : List Value :=
+partial def addChoice (env : Environment) (vs : List Value) (v : Value) : List Value :=
   match vs, v with
   | [], v => [v]
   | v1@(ctor i1 _ ) :: cs, ctor i2 _ =>
     if i1 == i2 then
-      (merge v1 v) :: cs
+      (merge env v1 v) :: cs
     else
-      v1 :: addChoice cs v
+      v1 :: addChoice env cs v
   | _, _ => panic! "invalid addChoice"
 
 /--
 Merge two values into one. `bot` is the neutral element, `top` the annihilator.
 -/
-partial def merge (v1 v2 : Value) : Value :=
-  match v1, v2 with
-  | bot, v | v, bot => v
-  | top, _ | _, top => top
-  | ctor i1 vs1, ctor i2 vs2 =>
-    if i1 == i2 then
-      ctor i1 (Array.zipWith merge vs1 vs2)
+partial def merge (env : Environment) (v1 v2 : Value) : Value :=
+  let newValue :=
+    match v1, v2 with
+    | bot, v | v, bot => v
+    | top, _ | _, top => top
+    | ctor i1 vs1, ctor i2 vs2 =>
+      if i1 == i2 then
+        ctor i1 (Array.zipWith (merge env) vs1 vs2)
+      else
+        choice [v1, v2]
+    | choice vs1, choice vs2 =>
+      choice (vs1.foldl (addChoice env) vs2)
+    | choice vs, v | v, choice vs =>
+      choice (addChoice env vs v)
+  match newValue with
+  | .top | .bot => newValue
+  | .choice vs => cleanup vs
+  | .ctor ctorName .. =>
+    if eligible newValue && inductHasNumCtors ctorName env 1 then
+      top
     else
-      choice [v1, v2]
-  | choice vs1, choice vs2 =>
-    choice (vs1.foldl addChoice vs2)
-  | choice vs, v | v, choice vs =>
-    choice (addChoice vs v)
+      newValue
+where
+  cleanup (vs : List Value) : Value := Id.run do
+    if vs.all eligible then
+      let .ctor ctorName .. := vs.head! | unreachable!
+      if inductHasNumCtors ctorName env vs.length then
+        top
+      else
+        choice vs
+    else
+      choice vs
+
+  inductHasNumCtors (ctorName : Name) (env : Environment) (n : Nat) : Bool := Id.run do
+    let induct := inductValOfCtor ctorName env
+    n == induct.numCtors
+
+  @[inline]
+  eligible (value : Value) : Bool := Id.run do
+    let .ctor _ args := value | return false
+    args.all (· == .top)
 
 end
 
@@ -106,19 +153,16 @@ where
     | remainingDepth + 1 =>
       match v with
       | ctor i vs =>
-        let typeName := i.getPrefix
-        if forbiddenTypes.contains typeName then
+        let induct := inductValOfCtor i env
+        if forbiddenTypes.contains induct.name then
           top
         else
           let cont forbiddenTypes' :=
             ctor i (vs.map (go · forbiddenTypes' remainingDepth))
-          match env.find? typeName with
-          | some (.inductInfo type) =>
-            if type.isRec then
-              cont <| forbiddenTypes.insert typeName
-            else
-              cont forbiddenTypes
-          | _ => cont forbiddenTypes
+          if induct.isRec then
+            cont <| forbiddenTypes.insert induct.name
+          else
+            cont forbiddenTypes
       | choice vs =>
         let vs := vs.map (go · forbiddenTypes remainingDepth)
         if vs.elem top then
@@ -129,7 +173,7 @@ where
 
 /-- Widening operator that guarantees termination in our abstract interpreter. -/
 def widening (env : Environment) (v1 v2 : Value) : Value :=
-  truncate env (merge v1 v2)
+  truncate env (merge env v1 v2)
 
 /--
 Check whether a certain constructor is part of a `Value` by name.

@@ -6357,7 +6357,7 @@ theorem cpopAuxRec_allOnes_eq {w n : Nat} (h : n ≤ w) :
     · omega
 
 theorem cpop_toNat_le (x : BitVec w) :
-    x.cpop.toNat ≤ w := by
+    (cpop w x).toNat ≤ w := by
   have h := BitVec.cpopAuxRec_le (x := x) (n :=w) (by omega)
   have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
   simp [cpop, Nat.mod_eq_of_lt (a := x.cpopAuxRec w) (b := 2 ^ (w )) (by omega), h]

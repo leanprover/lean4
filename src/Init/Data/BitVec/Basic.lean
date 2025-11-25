@@ -877,6 +877,6 @@ def cpopAuxRec (x : BitVec w) (pos : Nat) : Nat :=
   | n + 1 => (if x.getLsbD n then 1 else 0) + x.cpopAuxRec n
 
 /-- Count the number of bits with value `1` in `x`. -/
-def cpop {v w : Nat} (x : BitVec v) : BitVec w := BitVec.ofNat w (cpopAuxRec x w)
+def cpop (x : BitVec v) (w : Nat) : BitVec w := BitVec.ofNat w (cpopAuxRec x w)
 
 end BitVec

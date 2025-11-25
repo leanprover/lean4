@@ -1340,6 +1340,85 @@ def front (s : Slice) : Char :=
   s.front?.getD default
 
 /--
+Checks whether the slice can be interpreted as the decimal representation of an integer.
+
+A slice can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading {lit}`+` characters are not allowed.
+
+Use {name (scope := "Init.Data.String.Slice")}`String.Slice.toInt?` or {name (scope := "Init.Data.String.Slice")}`String.toInt!` to convert such a string to an integer.
+
+Examples:
+ * {lean}`"".toSlice.isInt = false`
+ * {lean}`"-".toSlice.isInt = false`
+ * {lean}`"0".toSlice.isInt = true`
+ * {lean}`"-0".toSlice.isInt = true`
+ * {lean}`"5".toSlice.isInt = true`
+ * {lean}`"587".toSlice.isInt = true`
+ * {lean}`"-587".toSlice.isInt = true`
+ * {lean}`"+587".toSlice.isInt = false`
+ * {lean}`" 5".toSlice.isInt = false`
+ * {lean}`"2-3".toSlice.isInt = false`
+ * {lean}`"0xff".toSlice.isInt = false`
+-/
+def isInt (s : Slice) : Bool :=
+  if s.front = '-' then
+    (s.drop 1).isNat
+  else
+    s.isNat
+
+/--
+Interprets a slice as the decimal representation of an integer, returning it. Returns {lean}`none` if
+the string does not contain a decimal integer.
+
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading {lit}`+` characters are not allowed.
+
+Use {name}`Slice.isInt` to check whether {name}`Slice.toInt?` would return {lean}`some`.
+{name (scope := "Init.Data.String.Slice")}`Slice.toInt!` is an alternative that panics instead of
+returning {lean}`none` when the string is not an integer.
+
+Examples:
+ * {lean}`"".toSlice.toInt? = none`
+ * {lean}`"-".toSlice.toInt? = none`
+ * {lean}`"0".toSlice.toInt? = some 0`
+ * {lean}`"5".toSlice.toInt? = some 5`
+ * {lean}`"-5".toSlice.toInt? = some (-5)`
+ * {lean}`"587".toSlice.toInt? = some 587`
+ * {lean}`"-587".toSlice.toInt? = some (-587)`
+ * {lean}`" 5".toSlice.toInt? = none`
+ * {lean}`"2-3".toSlice.toInt? = none`
+ * {lean}`"0xff".toSlice.toInt? = none`
+-/
+def toInt? (s : Slice) : Option Int :=
+  if s.front = '-' then
+    Int.negOfNat <$> (s.drop 1).toNat?
+  else
+   Int.ofNat <$> s.toNat?
+
+/--
+Interprets a string as the decimal representation of an integer, returning it. Panics if the string
+does not contain a decimal integer.
+
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading `+` characters are not allowed.
+
+Use {name}`Slice.isInt` to check whether {name}`Slice.toInt!` would return a value.
+{name}`Slice.toInt?` is a safer alternative that returns {lean}`none` instead of panicking when the
+string is not an integer.
+
+Examples:
+ * {lean}`"0".toSlice.toInt! = 0`
+ * {lean}`"5".toSlice.toInt! = 5`
+ * {lean}`"587".toSlice.toInt! = 587`
+ * {lean}`"-587".toSlice.toInt! = -587`
+-/
+@[inline]
+def toInt! (s : Slice) : Int :=
+  match s.toInt? with
+  | some v => v
+  | none   => panic "Int expected"
+
+/--
 Returns the last character in {name}`s`. If {name}`s` is empty, returns {name}`none`.
 
 Examples:

@@ -359,6 +359,78 @@ Examples:
   s.toSlice.toNat!
 
 /--
+Interprets a string as the decimal representation of an integer, returning it. Returns {lean}`none`
+if the string does not contain a decimal integer.
+
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading `+` characters are not allowed.
+
+Use {name (scope := "Init.Data.String.Search")}`String.isInt` to check whether {name}`String.toInt?`
+would return {lean}`some`. {name (scope := "Init.Data.String.Search")}`String.toInt!` is an
+alternative that panics instead of returning {lean}`none` when the string is not an integer.
+
+Examples:
+ * {lean}`"".toInt? = none`
+ * {lean}`"-".toInt? = none`
+ * {lean}`"0".toInt? = some 0`
+ * {lean}`"5".toInt? = some 5`
+ * {lean}`"-5".toInt? = some (-5)`
+ * {lean}`"587".toInt? = some 587`
+ * {lean}`"-587".toInt? = some (-587)`
+ * {lean}`" 5".toInt? = none`
+ * {lean}`"2-3".toInt? = none`
+ * {lean}`"0xff".toInt? = none`
+-/
+@[inline] def toInt? (s : String) : Option Int :=
+  s.toSlice.toInt?
+
+/--
+Checks whether the string can be interpreted as the decimal representation of an integer.
+
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading `+` characters are not allowed.
+
+Use {name}`String.toInt?` or {name (scope := "Init.Data.String.Search")}`String.toInt!` to convert
+such a string to an integer.
+
+Examples:
+ * {lean}`"".isInt = false`
+ * {lean}`"-".isInt = false`
+ * {lean}`"0".isInt = true`
+ * {lean}`"-0".isInt = true`
+ * {lean}`"5".isInt = true`
+ * {lean}`"587".isInt = true`
+ * {lean}`"-587".isInt = true`
+ * {lean}`"+587".isInt = false`
+ * {lean}`" 5".isInt = false`
+ * {lean}`"2-3".isInt = false`
+ * {lean}`"0xff".isInt = false`
+-/
+@[inline] def isInt (s : String) : Bool :=
+  s.toSlice.isInt
+
+/--
+Interprets a string as the decimal representation of an integer, returning it. Panics if the string
+does not contain a decimal integer.
+
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading `+` characters are not allowed.
+
+Use {name}`String.isInt` to check whether {name}`String.toInt!` would return a value.
+{name}`String.toInt?` is a safer alternative that returns {lean}`none` instead of panicking when the
+string is not an integer.
+
+Examples:
+ * {lean}`"0".toInt! = 0`
+ * {lean}`"5".toInt! = 5`
+ * {lean}`"587".toInt! = 587`
+ * {lean}`"-587".toInt! = -587`
+-/
+@[inline] def toInt! (s : String) : Int :=
+  s.toSlice.toInt!
+
+
+/--
 Returns the first character in {name}`s`. If {name}`s` is empty, returns {name}`none`.
 
 Examples:

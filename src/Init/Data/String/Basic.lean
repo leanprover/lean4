@@ -2256,6 +2256,16 @@ theorem Pos.ofSliceFrom_inj {s : String} {p₀ : s.Pos}
     ofSliceFrom pos = ofSliceFrom pos' ↔ pos = pos' := by
   simp [Pos.ext_iff, String.Pos.Raw.ext_iff, Slice.Pos.ext_iff]
 
+@[simp]
+theorem Pos.le_ofSliceFrom {s : String} {p₀ : s.Pos} {pos : (s.sliceFrom p₀).Pos} :
+    p₀ ≤ ofSliceFrom pos := by
+  simp [Pos.le_iff, Pos.Raw.le_iff]
+
+@[simp]
+theorem Slice.Pos.le_ofSliceFrom {s : Slice} {p₀ : s.Pos} {pos : (s.sliceFrom p₀).Pos} :
+    p₀ ≤ ofSliceFrom pos := by
+  simp [Pos.le_iff, Pos.Raw.le_iff]
+
 theorem Pos.get_eq_get_ofSliceFrom {s : String} {p₀ : s.Pos}
     {pos : (s.sliceFrom p₀).Pos} {h} :
     pos.get h = (ofSliceFrom pos).get (by rwa [← ofSliceFrom_endPos, ne_eq, ofSliceFrom_inj]) := by
@@ -2274,6 +2284,16 @@ def Pos.ofReplaceEnd {s : String} {p₀ : s.Pos} (pos : (s.sliceTo p₀).Pos) : 
 @[simp]
 theorem Pos.offset_ofSliceTo {s : String} {p₀ : s.Pos} {pos : (s.sliceTo p₀).Pos} :
     (ofSliceTo pos).offset = pos.offset := (rfl)
+
+@[simp]
+theorem Pos.ofSliceTo_le {s : String} {p₀ : s.Pos} {pos : (s.sliceTo p₀).Pos} :
+    ofSliceTo pos ≤ p₀ := by
+  simpa [Pos.le_iff, Pos.Raw.le_iff] using pos.isValidForSlice.le_utf8ByteSize
+
+@[simp]
+theorem Slice.Pos.ofSliceTo_le {s : Slice} {p₀ : s.Pos} {pos : (s.sliceTo p₀).Pos} :
+    ofSliceTo pos ≤ p₀ := by
+  simpa [Pos.le_iff, Pos.Raw.le_iff] using pos.isValidForSlice.le_utf8ByteSize
 
 /-- Given a position in `s` that is at most `p₀`, obtain the corresponding position in `s.sliceTo p₀`. -/
 @[inline]

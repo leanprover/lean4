@@ -409,6 +409,25 @@ structure FailureCacheKey where
 /--
 State of the resolver and the resolver for tainted measures, which runs after the regular resolver.
 
+Maintains three separate memoization caches:
+- `setCache`, which memoizes sets of measures that are produced during resolution per `SetCacheKey`.
+  This is the main memoization cache of the formatter. It memoizes all resolution results for all
+  documents with `shouldMemoize = true` and ensures that the time complexity of resolution remains
+  reasonable.
+  After resolution, the `setCache` is re-used in resolutions performed by the resolution of tainted
+  measures. Notably, in the resolution of tainted measures, it is not used for resolving the
+  top-level measure in a `TaintedMeasure.resolveTainted`, as this would simply again yield a
+  tainted measure, and no progress in resolving the tainted measure would be made.
+  In the Racket implementation, this cache is replaced by several mutable caches
+  (one per fullness state) on the document.
+- `resolvedTaintedCache`, which memoizes the measure (if any) produced by resolving a tainted
+  measure. Tainted measures can be shared during resolution if they are cached in `setCache` and
+  then later re-used. This cache ensures that the resolver for tainted measures does not perform
+  additional work relative to the resolver if the resolver has already figured out that two tainted
+  measures are identical.
+  In the Racket implementation, this cache is replaced with mutable state on the tainted measure.
+- `failureCache`, which memoizes whether resolving a document in a given fullness state resulted
+  in a failure. This cache is only used in the resolver for tainted measures,
 The resolver for tainted measures reuses the memoization cache `setCache` from the regular resolver
 for its own resolutions to obtain previously resolved tainted measures more quickly and to quickly
 resolve sub-documents that were already resolved previously.
@@ -448,7 +467,7 @@ def setCachedSet (d : Doc) (columnPos indentation : Nat) (fullness : FullnessSta
       } set
   }
 
-inductive CacheResult (α : Type)
+inductive CacheResult (α : Type) where
   | miss
   | hit (cached : α)
 

@@ -15,8 +15,7 @@ import all Init.Data.List.Control
 public import Init.BinderPredicates
 import Init.Grind.Annotated
 
--- TODO: turn this on after an update-stage0
--- grind_annotated "2025-01-24"
+grind_annotated "2025-01-24"
 
 public section
 

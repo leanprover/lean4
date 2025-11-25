@@ -169,6 +169,24 @@ theorem zpow_add {a : α} (h : a ≠ 0) (m n : Int) : a ^ (m + n) = a ^ m * a ^ 
     | zero => simp [Int.add_neg_one, zpow_sub_one h, zpow_neg_one]
     | succ n ih => rw [Int.natCast_add_one, Int.neg_add, Int.add_neg_one, ← Int.add_sub_assoc, zpow_sub_one h, zpow_sub_one h, ih, Semiring.mul_assoc]
 
+theorem div_mul (x y z : α) : x / y * z = x * z / y := sorry
+theorem div_add (x y z : α) : x / y + z = (x + y * z) / y := sorry
+theorem add_div (x y z : α) : x + y / z = (x * z + y) / z := sorry
+
+theorem div_div (x y z : α) : x / (y / z) = x * z / y := sorry
+
+theorem div_mul_cancel (x : α) {y : α} (h : y ≠ 0) : x / y * y = x := sorry
+
+attribute [local instance] Ring.intCast in
+theorem intCast_div_of_dvd {x y : Int} (h : y ∣ x) :
+    ((x / y : Int) : α) = ((x : α) / (y : α)) :=
+  sorry
+
+attribute [local instance] Semiring.natCast in
+theorem natCast_div_of_dvd {x y : Nat} (h : y ∣ x) :
+    ((x / y : Nat) : α) = ((x : α) / (y : α)) :=
+  sorry
+
 -- This is expensive as an instance. Let's see what breaks without it.
 def noNatZeroDivisors.ofIsCharPZero [IsCharP α 0] : NoNatZeroDivisors α := NoNatZeroDivisors.mk' <| by
   intro a b h w

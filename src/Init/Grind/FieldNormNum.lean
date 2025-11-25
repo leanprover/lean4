@@ -14,14 +14,33 @@ namespace Lean.Grind.Field.NormNum
 attribute [local instance] Semiring.natCast Ring.intCast
 
 abbrev ofRat {α} [Field α] (r : Rat) : α :=
-  (IntCast.intCast r.num : α)/(NatCast.natCast r.den : α)
+  (r.num : α)/(r.den : α)
 
 attribute [local simp]
   Field.inv_one Semiring.natCast_zero Semiring.natCast_one Ring.intCast_zero Ring.intCast_one Semiring.one_mul Semiring.mul_one
   Semiring.pow_zero Field.inv_one Field.inv_zero
 
-theorem ofRat_add {α} [Field α] (a b : Rat) : (ofRat (a + b) : α) = ofRat a + ofRat b := sorry
-theorem ofRat_mul {α} [Field α] (a b : Rat) : (ofRat (a * b) : α) = ofRat a * ofRat b := sorry]
+private theorem dvd_helper₁ {z : Int} {n : Nat} : ↑(z.natAbs.gcd n : Int) ∣ z := sorry
+private theorem dvd_helper₂ {z : Int} {n : Nat} : z.natAbs.gcd n ∣ n := sorry
+
+private theorem nonzero_helper {α} [Field α] {z : Int} {n m : Nat} (hn : n ≠ 0) (hm : m ≠ 0) :
+    (z.natAbs.gcd (n * m) : α) ≠ 0 := sorry
+
+theorem ofRat_add {α} [Field α] (a b : Rat) : (ofRat (a + b) : α) = ofRat a + ofRat b := by
+  rw [ofRat, ofRat, ofRat, Rat.num_add, Rat.den_add]
+  rw [Field.intCast_div_of_dvd dvd_helper₁]
+  rw [Field.natCast_div_of_dvd dvd_helper₂]
+  rw [Ring.intCast_natCast, Field.div_div]
+  rw [Field.div_mul_cancel _ (nonzero_helper a.den_nz b.den_nz)]
+  rw [Field.add_div, Field.div_mul, Field.div_add]
+  sorry
+theorem ofRat_mul {α} [Field α] (a b : Rat) : (ofRat (a * b) : α) = ofRat a * ofRat b := by
+  rw [ofRat, ofRat, ofRat, Rat.num_mul, Rat.den_mul]
+  rw [Field.intCast_div_of_dvd dvd_helper₁]
+  rw [Field.natCast_div_of_dvd dvd_helper₂]
+  rw [Ring.intCast_natCast, Field.div_div]
+  rw [Field.div_mul_cancel _ (nonzero_helper a.den_nz b.den_nz)]
+  sorry
 theorem ofRat_inv {α} [Field α] (a : Rat) : (ofRat (a⁻¹) : α) = (ofRat a)⁻¹ := by
   simp [ofRat]; split
   next h => simp [h, Field.div_eq_mul_inv]

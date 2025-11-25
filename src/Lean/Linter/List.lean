@@ -179,7 +179,6 @@ def indexLinter : Linter
     if (← get).messages.hasErrors then return
     if ! (← getInfoState).enabled then return
     for t in ← getInfoTrees do
-      if let .context _ _ := t then -- Only consider info trees with top-level context
       for (idxStx, n) in numericalIndices t do
         if let .str _ n := n then
           if !allowedIndices.contains (stripBinderName n) then
@@ -236,32 +235,31 @@ def listVariablesLinter : Linter
     if (← get).messages.hasErrors then return
     if ! (← getInfoState).enabled then return
     for t in ← getInfoTrees do
-      if let .context _ _ := t then -- Only consider info trees with top-level context
-        let binders ← binders t
-        for (stx, n, ty) in binders.filter fun (_, _, ty) => ty.isAppOf `List do
-          if let .str _ n := n then
-          let n := stripBinderName n
-          if !allowedListNames.contains n then
-            -- Allow `L` or `xss` for `List (List α)` or `List (Array α)`
-            unless ((ty.getArg! 0).isAppOf `List || (ty.getArg! 0).isAppOf `Array) && (n == "L" || n == "xss") do
-              Linter.logLint linter.listVariables stx
-                m!"Forbidden variable appearing as a `List` name: {n}"
-        for (stx, n, ty) in binders.filter fun (_, _, ty) => ty.isAppOf `Array do
-          if let .str _ n := n then
-          let n := stripBinderName n
-          if !allowedArrayNames.contains n then
-            -- Allow `xss` for `Array (Array α)` or `Array (Vector α)`
-            unless ((ty.getArg! 0).isAppOf `Array || (ty.getArg! 0).isAppOf `Vector) && n == "xss" do
-              Linter.logLint linter.listVariables stx
-                m!"Forbidden variable appearing as a `Array` name: {n}"
-        for (stx, n, ty) in binders.filter fun (_, _, ty) => ty.isAppOf `Vector do
-          if let .str _ n := n then
-          let n := stripBinderName n
-          if !allowedVectorNames.contains n then
-            -- Allow `xss` for `Vector (Vector α)`
-            unless (ty.getArg! 0).isAppOf `Vector && n == "xss" do
-              Linter.logLint linter.listVariables stx
-                m!"Forbidden variable appearing as a `Vector` name: {n}"
+      let binders ← binders t
+      for (stx, n, ty) in binders.filter fun (_, _, ty) => ty.isAppOf `List do
+        if let .str _ n := n then
+        let n := stripBinderName n
+        if !allowedListNames.contains n then
+          -- Allow `L` or `xss` for `List (List α)` or `List (Array α)`
+          unless ((ty.getArg! 0).isAppOf `List || (ty.getArg! 0).isAppOf `Array) && (n == "L" || n == "xss") do
+            Linter.logLint linter.listVariables stx
+              m!"Forbidden variable appearing as a `List` name: {n}"
+      for (stx, n, ty) in binders.filter fun (_, _, ty) => ty.isAppOf `Array do
+        if let .str _ n := n then
+        let n := stripBinderName n
+        if !allowedArrayNames.contains n then
+          -- Allow `xss` for `Array (Array α)` or `Array (Vector α)`
+          unless ((ty.getArg! 0).isAppOf `Array || (ty.getArg! 0).isAppOf `Vector) && n == "xss" do
+            Linter.logLint linter.listVariables stx
+              m!"Forbidden variable appearing as a `Array` name: {n}"
+      for (stx, n, ty) in binders.filter fun (_, _, ty) => ty.isAppOf `Vector do
+        if let .str _ n := n then
+        let n := stripBinderName n
+        if !allowedVectorNames.contains n then
+          -- Allow `xss` for `Vector (Vector α)`
+          unless (ty.getArg! 0).isAppOf `Vector && n == "xss" do
+            Linter.logLint linter.listVariables stx
+              m!"Forbidden variable appearing as a `Vector` name: {n}"
 
 builtin_initialize addLinter listVariablesLinter
 

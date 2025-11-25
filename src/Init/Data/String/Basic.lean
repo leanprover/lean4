@@ -817,6 +817,14 @@ theorem Pos.isValidUTF8_extract {s : String} (pos₁ pos₂ : s.Pos) :
       · have := Pos.Raw.le_iff.1 pos₂.isValid.le_rawEndPos
         rwa [size_toByteArray, ← byteIdx_rawEndPos]
 
+/--
+Copies a region of a string to a new string.
+
+The region of `s` from `b` (inclusive) to `e` (exclusive) is copied to a newly-allocated `String`.
+
+If `b`'s offset is greater than or equal to that of `e`, then the resulting string is `""`.
+
+-/
 @[extern "lean_string_utf8_extract"]
 def Pos.extract {s : @& String} (b e : @& s.Pos) : String where
   toByteArray := s.toByteArray.extract b.offset.byteIdx e.offset.byteIdx

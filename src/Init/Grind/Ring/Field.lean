@@ -16,6 +16,7 @@ namespace Lean.Grind
 A field is a commutative ring with inverses for all non-zero elements.
 -/
 class Field (α : Type u) extends CommRing α, Inv α, Div α where
+  /-- An exponentiation operator. -/
   [zpow : HPow α Int α]
   /-- Division is multiplication by the inverse. -/
   div_eq_mul_inv : ∀ a b : α, a / b = a * b⁻¹

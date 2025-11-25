@@ -132,6 +132,11 @@ Copies the bytes with indices {name}`b` (inclusive) to {name}`e` (exclusive) to 
 def extract (a : ByteArray) (b e : Nat) : ByteArray :=
   a.copySlice b empty 0 (e - b)
 
+/--
+Appends two bye arrays using fast array primitives instead of converting them into lists and back.
+
+In compiled code, this function replaces calls to {name}`ByteArray.append`.
+-/
 @[inline]
 protected def fastAppend (a : ByteArray) (b : ByteArray) : ByteArray :=
   -- we assume that `append`s may be repeated, so use asymptotic growing; use `copySlice` directly to customize

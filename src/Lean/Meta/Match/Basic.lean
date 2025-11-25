@@ -237,6 +237,7 @@ structure Problem where
   vars          : List Expr
   alts          : List Alt
   fallthrough   : Option Expr
+  fallthroughArgs : Nat := 0
   examples      : List Example
   deriving Inhabited
 

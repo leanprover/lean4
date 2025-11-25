@@ -482,9 +482,8 @@ where
     match alts with
     | [] =>
       if let some fallthrough := p.fallthrough then
-        trace[Meta.Match.match] "using fallthrough"
-        let hyps := (← inferType fallthrough).getNumHeadForalls
-        let subgoals ← p.mvarId.applyN fallthrough hyps
+        trace[Meta.Match.match] "using fallthrough (with {p.fallthroughArgs} overlap assumptions)"
+        let subgoals ← p.mvarId.applyN fallthrough p.fallthroughArgs
         subgoals.forM (solveOverlap ·)
       else
         let mvarId ← p.mvarId.exfalso
@@ -815,7 +814,7 @@ private def processDivide (p : Problem) (i : Nat) : StateRefT State MetaM (Array
     for upperAlt in altsUpper do
       modify fun s => { s with overlaps := s.overlaps.insert upperAlt.idx lowerAlt.idx }
 
-  let pUpper := { p with mvarId := mvarUpper.mvarId!, alts := altsUpper, fallthrough := some fvarId }
+  let pUpper := { p with mvarId := mvarUpper.mvarId!, alts := altsUpper, fallthrough := some fvarId, fallthroughArgs := negs.size }
   let pLower := { p with mvarId := mvarLowerId, alts := altsLower }
   return #[pUpper, pLower]
 

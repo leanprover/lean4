@@ -1,3 +1,5 @@
+set_option linter.unusedVariables false
+
 inductive N where | z | s (n : N)
 
 set_option backwards.match.sparseCases false
@@ -120,3 +122,1339 @@ partial def natToBin3 : (n : Nat) → Parity n →  List Bool
 | 0, _             => []
 | _, Parity.even j => [false, false]
 | _, Parity.odd  j => [true, true]
+
+
+partial def foo2 : Nat → Nat → Nat
+  | .succ n, 1 => foo2 n 1
+  | .succ n, 2 => foo2 (.succ n) 1
+  | n,       3 => foo2 (.succ n) 2
+  | .succ n, 4 => foo2 (if n > 10 then n else .succ n) 3
+  | n,       5 => foo2 (n - 1) 4
+  | n, .succ m => foo2 n m
+  | _, _ => 0
+
+/--
+error: Failed to realize constant foo2.match_1.splitter:
+  failed to generate equality theorem `_private.lean.run.issue11104.0.foo2.match_1.eq_6` for `match` expression `foo2.match_1`
+  case succ.isTrue
+  motive✝ : Nat → Nat → Sort u_1
+  m✝ : Nat
+  h_1✝ : (n : Nat) → motive✝ n.succ 1
+  h_2✝ : (n : Nat) → motive✝ n.succ 2
+  h_3✝ : (n : Nat) → motive✝ n 3
+  h_4✝ : (n : Nat) → motive✝ n.succ 4
+  h_5✝ : (n : Nat) → motive✝ n 5
+  h_6✝ : (n m : Nat) → motive✝ n m.succ
+  h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+  x✝⁴ : m✝ = 2 → False
+  x✝³ : m✝ = 4 → False
+  n✝ : Nat
+  x✝² : ∀ (n : Nat), n✝.succ = n.succ → m✝ = 0 → False
+  x✝¹ : ∀ (n : Nat), n✝.succ = n.succ → m✝ = 1 → False
+  x✝ : ∀ (n : Nat), n✝.succ = n.succ → m✝ = 3 → False
+  h✝ : m✝.succ = 1
+  ⊢ (Eq.symm h✝ ▸ fun cont_2 => Eq.symm h✝ ▸ h_1✝ n✝)
+        (Nat.casesOn m✝.succ (h_7✝ n✝.succ Nat.zero) fun n =>
+          have cont_5 := h_6✝ n✝.succ n;
+          if h_1 : n = 2 then
+            Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → motive✝ n✝.succ n.succ)
+              (fun cont_5 => Eq.symm h_1 ▸ h_3✝ n✝.succ) (Eq.symm h_1) cont_5
+          else
+            if h_2 : n = 3 then
+              Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → ¬n = 2 → motive✝ n✝.succ n.succ)
+                (fun cont_5 h_1 =>
+                  Eq.symm h_2 ▸
+                    Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) n✝.succ
+                      (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                (Eq.symm h_2) cont_5 h_1
+            else
+              if h_3 : n = 4 then
+                Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → ¬n = 2 → ¬n = 3 → motive✝ n✝.succ n.succ)
+                  (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ n✝.succ) (Eq.symm h_3) cont_5 h_1 h_2
+              else cont_5) =
+      h_6✝ n✝.succ m✝
+---
+error: Failed to realize constant foo2.match_1.splitter:
+  failed to generate equality theorem `_private.lean.run.issue11104.0.foo2.match_1.eq_6` for `match` expression `foo2.match_1`
+  case succ.isTrue
+  motive✝ : Nat → Nat → Sort u_1
+  m✝ : Nat
+  h_1✝ : (n : Nat) → motive✝ n.succ 1
+  h_2✝ : (n : Nat) → motive✝ n.succ 2
+  h_3✝ : (n : Nat) → motive✝ n 3
+  h_4✝ : (n : Nat) → motive✝ n.succ 4
+  h_5✝ : (n : Nat) → motive✝ n 5
+  h_6✝ : (n m : Nat) → motive✝ n m.succ
+  h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+  x✝⁴ : m✝ = 2 → False
+  x✝³ : m✝ = 4 → False
+  n✝ : Nat
+  x✝² : ∀ (n : Nat), n✝.succ = n.succ → m✝ = 0 → False
+  x✝¹ : ∀ (n : Nat), n✝.succ = n.succ → m✝ = 1 → False
+  x✝ : ∀ (n : Nat), n✝.succ = n.succ → m✝ = 3 → False
+  h✝ : m✝.succ = 1
+  ⊢ (Eq.symm h✝ ▸ fun cont_2 => Eq.symm h✝ ▸ h_1✝ n✝)
+        (Nat.casesOn m✝.succ (h_7✝ n✝.succ Nat.zero) fun n =>
+          have cont_5 := h_6✝ n✝.succ n;
+          if h_1 : n = 2 then
+            Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → motive✝ n✝.succ n.succ)
+              (fun cont_5 => Eq.symm h_1 ▸ h_3✝ n✝.succ) (Eq.symm h_1) cont_5
+          else
+            if h_2 : n = 3 then
+              Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → ¬n = 2 → motive✝ n✝.succ n.succ)
+                (fun cont_5 h_1 =>
+                  Eq.symm h_2 ▸
+                    Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) n✝.succ
+                      (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                (Eq.symm h_2) cont_5 h_1
+            else
+              if h_3 : n = 4 then
+                Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → ¬n = 2 → ¬n = 3 → motive✝ n✝.succ n.succ)
+                  (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ n✝.succ) (Eq.symm h_3) cont_5 h_1 h_2
+              else cont_5) =
+      h_6✝ n✝.succ m✝
+---
+error: Unknown identifier `foo2.match_1.splitter`
+---
+trace: [Meta.Match.matchEqs] hs: []
+[Meta.Match.matchEqs] ✅️ proveCondEqThm _private.lean.run.issue11104.0.foo2.match_1.eq_1
+  [Meta.Match.matchEqs] proveCondEqThm ⊢ ∀ (motive : Nat → Nat → Sort u_1) (n : Nat) (h_1 : (n : Nat) → motive n.succ 1)
+          (h_2 : (n : Nat) → motive n.succ 2) (h_3 : (n : Nat) → motive n 3) (h_4 : (n : Nat) → motive n.succ 4)
+          (h_5 : (n : Nat) → motive n 5) (h_6 : (n m : Nat) → motive n m.succ) (h_7 : (x x_1 : Nat) → motive x x_1),
+          (match n.succ, 1 with
+            | n.succ, 1 => h_1 n
+            | n.succ, 2 => h_2 n
+            | n, 3 => h_3 n
+            | n.succ, 4 => h_4 n
+            | n, 5 => h_5 n
+            | n, m.succ => h_6 n m
+            | x, x_1 => h_7 x x_1) =
+            h_1 n
+[Meta.Match.matchEqs] hs: []
+[Meta.Match.matchEqs] ✅️ proveCondEqThm _private.lean.run.issue11104.0.foo2.match_1.eq_2
+  [Meta.Match.matchEqs] proveCondEqThm ⊢ ∀ (motive : Nat → Nat → Sort u_1) (n : Nat) (h_1 : (n : Nat) → motive n.succ 1)
+          (h_2 : (n : Nat) → motive n.succ 2) (h_3 : (n : Nat) → motive n 3) (h_4 : (n : Nat) → motive n.succ 4)
+          (h_5 : (n : Nat) → motive n 5) (h_6 : (n m : Nat) → motive n m.succ) (h_7 : (x x_1 : Nat) → motive x x_1),
+          (match n.succ, 2 with
+            | n.succ, 1 => h_1 n
+            | n.succ, 2 => h_2 n
+            | n, 3 => h_3 n
+            | n.succ, 4 => h_4 n
+            | n, 5 => h_5 n
+            | n, m.succ => h_6 n m
+            | x, x_1 => h_7 x x_1) =
+            h_2 n
+[Meta.Match.matchEqs] overlap notAlt: 0 overlapping 2:
+      ∀ (x x_1 n : Nat), x = n.succ → x_1 = 1 → False
+[Meta.Match.matchEqs] overlap notAlt: 1 overlapping 2:
+      ∀ (x x_1 n : Nat), x = n.succ → x_1 = 2 → False
+[Meta.Match.matchEqs] hs: []
+[Meta.Match.matchEqs] ✅️ proveCondEqThm _private.lean.run.issue11104.0.foo2.match_1.eq_3
+  [Meta.Match.matchEqs] proveCondEqThm ⊢ ∀ (motive : Nat → Nat → Sort u_1) (n : Nat) (h_1 : (n : Nat) → motive n.succ 1)
+          (h_2 : (n : Nat) → motive n.succ 2) (h_3 : (n : Nat) → motive n 3) (h_4 : (n : Nat) → motive n.succ 4)
+          (h_5 : (n : Nat) → motive n 5) (h_6 : (n m : Nat) → motive n m.succ) (h_7 : (x x_1 : Nat) → motive x x_1),
+          (match n, 3 with
+            | n.succ, 1 => h_1 n
+            | n.succ, 2 => h_2 n
+            | n, 3 => h_3 n
+            | n.succ, 4 => h_4 n
+            | n, 5 => h_5 n
+            | n, m.succ => h_6 n m
+            | x, x_1 => h_7 x x_1) =
+            h_3 n
+  [Meta.Match.matchEqs] proveCondEqThm.go motive✝ : Nat → Nat → Sort u_1
+      n✝ : Nat
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      ⊢ (have cont_2 :=
+            Nat.casesOn 3 (h_7✝ n✝ Nat.zero) fun n =>
+              have cont_5 := h_6✝ n✝ n;
+              if h_1 : n = 2 then
+                Eq.ndrec (motive := fun n => motive✝ n✝ n.succ → motive✝ n✝ n.succ)
+                  (fun cont_5 => Eq.symm h_1 ▸ h_3✝ n✝) (Eq.symm h_1) cont_5
+              else
+                if h_2 : n = 3 then
+                  Eq.ndrec (motive := fun n => motive✝ n✝ n.succ → ¬n = 2 → motive✝ n✝ n.succ)
+                    (fun cont_5 h_1 =>
+                      Eq.symm h_2 ▸
+                        Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) n✝
+                          (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                    (Eq.symm h_2) cont_5 h_1
+                else
+                  if h_3 : n = 4 then
+                    Eq.ndrec (motive := fun n => motive✝ n✝ n.succ → ¬n = 2 → ¬n = 3 → motive✝ n✝ n.succ)
+                      (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ n✝) (Eq.symm h_3) cont_5 h_1 h_2
+                  else cont_5;
+          Nat.casesOn (motive := fun x => motive✝ x 3 → motive✝ x 3) n✝ (fun cont_2 => cont_2)
+            (fun n cont_2 =>
+              if h_1 : 3 = 1 then
+                Eq.ndrec (motive := fun x => motive✝ n.succ x → motive✝ n.succ x) (fun cont_2 => Eq.symm h_1 ▸ h_1✝ n)
+                  (Eq.symm h_1) cont_2
+              else
+                if h_2 : 3 = 2 then
+                  Eq.ndrec (motive := fun x => motive✝ n.succ x → ¬x = 1 → motive✝ n.succ x)
+                    (fun cont_2 h_1 => Eq.symm h_2 ▸ h_2✝ n) (Eq.symm h_2) cont_2 h_1
+                else cont_2)
+            cont_2) =
+          h_3✝ n✝
+  [Meta.Match.matchEqs] proveCondEqThm.go case zero
+      motive✝ : Nat → Nat → Sort u_1
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      ⊢ Nat.rec (motive := fun x => motive✝ x 3 → motive✝ x 3) (fun cont_2 => cont_2)
+            (fun n n_ih =>
+              (fun n cont_2 =>
+                  if h_1 : 3 = 1 then
+                    Eq.ndrec (motive := fun x => motive✝ n.succ x → motive✝ n.succ x)
+                      (fun cont_2 => Eq.symm h_1 ▸ h_1✝ n) (Eq.symm h_1) cont_2
+                  else
+                    if h_2 : 3 = 2 then
+                      Eq.ndrec (motive := fun x => motive✝ n.succ x → ¬x = 1 → motive✝ n.succ x)
+                        (fun cont_2 h_1 => Eq.symm h_2 ▸ h_2✝ n) (Eq.symm h_2) cont_2 h_1
+                    else cont_2)
+                n)
+            Nat.zero
+            (Nat.casesOn 3 (h_7✝ Nat.zero Nat.zero) fun n =>
+              have cont_5 := h_6✝ Nat.zero n;
+              if h_1 : n = 2 then
+                Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → motive✝ Nat.zero n.succ)
+                  (fun cont_5 => Eq.symm h_1 ▸ h_3✝ Nat.zero) (Eq.symm h_1) cont_5
+              else
+                if h_2 : n = 3 then
+                  Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → ¬n = 2 → motive✝ Nat.zero n.succ)
+                    (fun cont_5 h_1 =>
+                      Eq.symm h_2 ▸
+                        Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) Nat.zero
+                          (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                    (Eq.symm h_2) cont_5 h_1
+                else
+                  if h_3 : n = 4 then
+                    Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → ¬n = 2 → ¬n = 3 → motive✝ Nat.zero n.succ)
+                      (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ Nat.zero) (Eq.symm h_3) cont_5 h_1 h_2
+                  else cont_5) =
+          h_3✝ Nat.zero
+  [Meta.Match.matchEqs] proveCondEqThm.go case succ
+      motive✝ : Nat → Nat → Sort u_1
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      n✝ : Nat
+      ⊢ Nat.rec (motive := fun x => motive✝ x 3 → motive✝ x 3) (fun cont_2 => cont_2)
+            (fun n n_ih =>
+              (fun n cont_2 =>
+                  if h_1 : 3 = 1 then
+                    Eq.ndrec (motive := fun x => motive✝ n.succ x → motive✝ n.succ x)
+                      (fun cont_2 => Eq.symm h_1 ▸ h_1✝ n) (Eq.symm h_1) cont_2
+                  else
+                    if h_2 : 3 = 2 then
+                      Eq.ndrec (motive := fun x => motive✝ n.succ x → ¬x = 1 → motive✝ n.succ x)
+                        (fun cont_2 h_1 => Eq.symm h_2 ▸ h_2✝ n) (Eq.symm h_2) cont_2 h_1
+                    else cont_2)
+                n)
+            n✝.succ
+            (Nat.casesOn 3 (h_7✝ n✝.succ Nat.zero) fun n =>
+              have cont_5 := h_6✝ n✝.succ n;
+              if h_1 : n = 2 then
+                Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → motive✝ n✝.succ n.succ)
+                  (fun cont_5 => Eq.symm h_1 ▸ h_3✝ n✝.succ) (Eq.symm h_1) cont_5
+              else
+                if h_2 : n = 3 then
+                  Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → ¬n = 2 → motive✝ n✝.succ n.succ)
+                    (fun cont_5 h_1 =>
+                      Eq.symm h_2 ▸
+                        Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) n✝.succ
+                          (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                    (Eq.symm h_2) cont_5 h_1
+                else
+                  if h_3 : n = 4 then
+                    Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → ¬n = 2 → ¬n = 3 → motive✝ n✝.succ n.succ)
+                      (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ n✝.succ) (Eq.symm h_3) cont_5 h_1 h_2
+                  else cont_5) =
+          h_3✝ n✝.succ
+[Meta.Match.matchEqs] overlap notAlt: 0 overlapping 3:
+      ∀ (x x_1 n : Nat), x = n.succ → x_1 = 1 → False
+[Meta.Match.matchEqs] overlap notAlt: 1 overlapping 3:
+      ∀ (x x_1 n : Nat), x = n.succ → x_1 = 2 → False
+[Meta.Match.matchEqs] hs: []
+[Meta.Match.matchEqs] ✅️ proveCondEqThm _private.lean.run.issue11104.0.foo2.match_1.eq_4
+  [Meta.Match.matchEqs] proveCondEqThm ⊢ ∀ (motive : Nat → Nat → Sort u_1) (n : Nat) (h_1 : (n : Nat) → motive n.succ 1)
+          (h_2 : (n : Nat) → motive n.succ 2) (h_3 : (n : Nat) → motive n 3) (h_4 : (n : Nat) → motive n.succ 4)
+          (h_5 : (n : Nat) → motive n 5) (h_6 : (n m : Nat) → motive n m.succ) (h_7 : (x x_1 : Nat) → motive x x_1),
+          (match n.succ, 4 with
+            | n.succ, 1 => h_1 n
+            | n.succ, 2 => h_2 n
+            | n, 3 => h_3 n
+            | n.succ, 4 => h_4 n
+            | n, 5 => h_5 n
+            | n, m.succ => h_6 n m
+            | x, x_1 => h_7 x x_1) =
+            h_4 n
+[Meta.Match.matchEqs] overlap notAlt: 0 overlapping 4:
+      ∀ (x x_1 n : Nat), x = n.succ → x_1 = 1 → False
+[Meta.Match.matchEqs] overlap notAlt: 1 overlapping 4:
+      ∀ (x x_1 n : Nat), x = n.succ → x_1 = 2 → False
+[Meta.Match.matchEqs] hs: []
+[Meta.Match.matchEqs] ✅️ proveCondEqThm _private.lean.run.issue11104.0.foo2.match_1.eq_5
+  [Meta.Match.matchEqs] proveCondEqThm ⊢ ∀ (motive : Nat → Nat → Sort u_1) (n : Nat) (h_1 : (n : Nat) → motive n.succ 1)
+          (h_2 : (n : Nat) → motive n.succ 2) (h_3 : (n : Nat) → motive n 3) (h_4 : (n : Nat) → motive n.succ 4)
+          (h_5 : (n : Nat) → motive n 5) (h_6 : (n m : Nat) → motive n m.succ) (h_7 : (x x_1 : Nat) → motive x x_1),
+          (match n, 5 with
+            | n.succ, 1 => h_1 n
+            | n.succ, 2 => h_2 n
+            | n, 3 => h_3 n
+            | n.succ, 4 => h_4 n
+            | n, 5 => h_5 n
+            | n, m.succ => h_6 n m
+            | x, x_1 => h_7 x x_1) =
+            h_5 n
+  [Meta.Match.matchEqs] proveCondEqThm.go motive✝ : Nat → Nat → Sort u_1
+      n✝ : Nat
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      ⊢ (have cont_2 :=
+            Nat.casesOn 5 (h_7✝ n✝ Nat.zero) fun n =>
+              have cont_5 := h_6✝ n✝ n;
+              if h_1 : n = 2 then
+                Eq.ndrec (motive := fun n => motive✝ n✝ n.succ → motive✝ n✝ n.succ)
+                  (fun cont_5 => Eq.symm h_1 ▸ h_3✝ n✝) (Eq.symm h_1) cont_5
+              else
+                if h_2 : n = 3 then
+                  Eq.ndrec (motive := fun n => motive✝ n✝ n.succ → ¬n = 2 → motive✝ n✝ n.succ)
+                    (fun cont_5 h_1 =>
+                      Eq.symm h_2 ▸
+                        Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) n✝
+                          (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                    (Eq.symm h_2) cont_5 h_1
+                else
+                  if h_3 : n = 4 then
+                    Eq.ndrec (motive := fun n => motive✝ n✝ n.succ → ¬n = 2 → ¬n = 3 → motive✝ n✝ n.succ)
+                      (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ n✝) (Eq.symm h_3) cont_5 h_1 h_2
+                  else cont_5;
+          Nat.casesOn (motive := fun x => motive✝ x 5 → motive✝ x 5) n✝ (fun cont_2 => cont_2)
+            (fun n cont_2 =>
+              if h_1 : 5 = 1 then
+                Eq.ndrec (motive := fun x => motive✝ n.succ x → motive✝ n.succ x) (fun cont_2 => Eq.symm h_1 ▸ h_1✝ n)
+                  (Eq.symm h_1) cont_2
+              else
+                if h_2 : 5 = 2 then
+                  Eq.ndrec (motive := fun x => motive✝ n.succ x → ¬x = 1 → motive✝ n.succ x)
+                    (fun cont_2 h_1 => Eq.symm h_2 ▸ h_2✝ n) (Eq.symm h_2) cont_2 h_1
+                else cont_2)
+            cont_2) =
+          h_5✝ n✝
+  [Meta.Match.matchEqs] proveCondEqThm.go case zero
+      motive✝ : Nat → Nat → Sort u_1
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      ⊢ Nat.rec (motive := fun x => motive✝ x 5 → motive✝ x 5) (fun cont_2 => cont_2)
+            (fun n n_ih =>
+              (fun n cont_2 =>
+                  if h_1 : 5 = 1 then
+                    Eq.ndrec (motive := fun x => motive✝ n.succ x → motive✝ n.succ x)
+                      (fun cont_2 => Eq.symm h_1 ▸ h_1✝ n) (Eq.symm h_1) cont_2
+                  else
+                    if h_2 : 5 = 2 then
+                      Eq.ndrec (motive := fun x => motive✝ n.succ x → ¬x = 1 → motive✝ n.succ x)
+                        (fun cont_2 h_1 => Eq.symm h_2 ▸ h_2✝ n) (Eq.symm h_2) cont_2 h_1
+                    else cont_2)
+                n)
+            Nat.zero
+            (Nat.casesOn 5 (h_7✝ Nat.zero Nat.zero) fun n =>
+              have cont_5 := h_6✝ Nat.zero n;
+              if h_1 : n = 2 then
+                Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → motive✝ Nat.zero n.succ)
+                  (fun cont_5 => Eq.symm h_1 ▸ h_3✝ Nat.zero) (Eq.symm h_1) cont_5
+              else
+                if h_2 : n = 3 then
+                  Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → ¬n = 2 → motive✝ Nat.zero n.succ)
+                    (fun cont_5 h_1 =>
+                      Eq.symm h_2 ▸
+                        Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) Nat.zero
+                          (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                    (Eq.symm h_2) cont_5 h_1
+                else
+                  if h_3 : n = 4 then
+                    Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → ¬n = 2 → ¬n = 3 → motive✝ Nat.zero n.succ)
+                      (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ Nat.zero) (Eq.symm h_3) cont_5 h_1 h_2
+                  else cont_5) =
+          h_5✝ Nat.zero
+  [Meta.Match.matchEqs] proveCondEqThm.go case succ
+      motive✝ : Nat → Nat → Sort u_1
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      n✝ : Nat
+      ⊢ Nat.rec (motive := fun x => motive✝ x 5 → motive✝ x 5) (fun cont_2 => cont_2)
+            (fun n n_ih =>
+              (fun n cont_2 =>
+                  if h_1 : 5 = 1 then
+                    Eq.ndrec (motive := fun x => motive✝ n.succ x → motive✝ n.succ x)
+                      (fun cont_2 => Eq.symm h_1 ▸ h_1✝ n) (Eq.symm h_1) cont_2
+                  else
+                    if h_2 : 5 = 2 then
+                      Eq.ndrec (motive := fun x => motive✝ n.succ x → ¬x = 1 → motive✝ n.succ x)
+                        (fun cont_2 h_1 => Eq.symm h_2 ▸ h_2✝ n) (Eq.symm h_2) cont_2 h_1
+                    else cont_2)
+                n)
+            n✝.succ
+            (Nat.casesOn 5 (h_7✝ n✝.succ Nat.zero) fun n =>
+              have cont_5 := h_6✝ n✝.succ n;
+              if h_1 : n = 2 then
+                Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → motive✝ n✝.succ n.succ)
+                  (fun cont_5 => Eq.symm h_1 ▸ h_3✝ n✝.succ) (Eq.symm h_1) cont_5
+              else
+                if h_2 : n = 3 then
+                  Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → ¬n = 2 → motive✝ n✝.succ n.succ)
+                    (fun cont_5 h_1 =>
+                      Eq.symm h_2 ▸
+                        Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) n✝.succ
+                          (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                    (Eq.symm h_2) cont_5 h_1
+                else
+                  if h_3 : n = 4 then
+                    Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → ¬n = 2 → ¬n = 3 → motive✝ n✝.succ n.succ)
+                      (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ n✝.succ) (Eq.symm h_3) cont_5 h_1 h_2
+                  else cont_5) =
+          h_5✝ n✝.succ
+[Meta.Match.matchEqs] overlap notAlt: 0 overlapping 5:
+      ∀ (x x_1 n : Nat), x = n.succ → x_1 = 1 → False
+[Meta.Match.matchEqs] simplified hypothesis
+      ∀ (n_1 : Nat), n = n_1.succ → m = 0 → False
+[Meta.Match.matchEqs] overlap notAlt: 1 overlapping 5:
+      ∀ (x x_1 n : Nat), x = n.succ → x_1 = 2 → False
+[Meta.Match.matchEqs] simplified hypothesis
+      ∀ (n_1 : Nat), n = n_1.succ → m = 1 → False
+[Meta.Match.matchEqs] overlap notAlt: 2 overlapping 5:
+      ∀ (x x_1 n : Nat), x = n → x_1 = 3 → False
+[Meta.Match.matchEqs] simplified hypothesis
+      m = 2 → False
+[Meta.Match.matchEqs] overlap notAlt: 3 overlapping 5:
+      ∀ (x x_1 n : Nat), x = n.succ → x_1 = 4 → False
+[Meta.Match.matchEqs] simplified hypothesis
+      ∀ (n_1 : Nat), n = n_1.succ → m = 3 → False
+[Meta.Match.matchEqs] overlap notAlt: 4 overlapping 5:
+      ∀ (x x_1 n : Nat), x = n → x_1 = 5 → False
+[Meta.Match.matchEqs] simplified hypothesis
+      m = 4 → False
+[Meta.Match.matchEqs] hs: [∀ (n_1 : Nat), n = n_1.succ → m = 0 → False,
+     ∀ (n_1 : Nat), n = n_1.succ → m = 1 → False,
+     m = 2 → False,
+     ∀ (n_1 : Nat), n = n_1.succ → m = 3 → False,
+     m = 4 → False]
+[Meta.Match.matchEqs] ❌️ proveCondEqThm _private.lean.run.issue11104.0.foo2.match_1.eq_6
+  [Meta.Match.matchEqs] proveCondEqThm ⊢ ∀ (motive : Nat → Nat → Sort u_1) (n m : Nat)
+          (h_1 : (n : Nat) → motive n.succ 1) (h_2 : (n : Nat) → motive n.succ 2) (h_3 : (n : Nat) → motive n 3)
+          (h_4 : (n : Nat) → motive n.succ 4) (h_5 : (n : Nat) → motive n 5) (h_6 : (n m : Nat) → motive n m.succ)
+          (h_7 : (x x_1 : Nat) → motive x x_1),
+          (∀ (n_1 : Nat), n = n_1.succ → m = 0 → False) →
+            (∀ (n_1 : Nat), n = n_1.succ → m = 1 → False) →
+              (m = 2 → False) →
+                (∀ (n_1 : Nat), n = n_1.succ → m = 3 → False) →
+                  (m = 4 → False) →
+                    (match n, m.succ with
+                      | n.succ, 1 => h_1 n
+                      | n.succ, 2 => h_2 n
+                      | n, 3 => h_3 n
+                      | n.succ, 4 => h_4 n
+                      | n, 5 => h_5 n
+                      | n, m.succ => h_6 n m
+                      | x, x_1 => h_7 x x_1) =
+                      h_6 n m
+  [Meta.Match.matchEqs] proveCondEqThm.go motive✝ : Nat → Nat → Sort u_1
+      n✝ m✝ : Nat
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      x✝⁴ : ∀ (n : Nat), n✝ = n.succ → m✝ = 0 → False
+      x✝³ : ∀ (n : Nat), n✝ = n.succ → m✝ = 1 → False
+      x✝² : m✝ = 2 → False
+      x✝¹ : ∀ (n : Nat), n✝ = n.succ → m✝ = 3 → False
+      x✝ : m✝ = 4 → False
+      ⊢ (have cont_2 :=
+            Nat.casesOn m✝.succ (h_7✝ n✝ Nat.zero) fun n =>
+              have cont_5 := h_6✝ n✝ n;
+              if h_1 : n = 2 then
+                Eq.ndrec (motive := fun n => motive✝ n✝ n.succ → motive✝ n✝ n.succ)
+                  (fun cont_5 => Eq.symm h_1 ▸ h_3✝ n✝) (Eq.symm h_1) cont_5
+              else
+                if h_2 : n = 3 then
+                  Eq.ndrec (motive := fun n => motive✝ n✝ n.succ → ¬n = 2 → motive✝ n✝ n.succ)
+                    (fun cont_5 h_1 =>
+                      Eq.symm h_2 ▸
+                        Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) n✝
+                          (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                    (Eq.symm h_2) cont_5 h_1
+                else
+                  if h_3 : n = 4 then
+                    Eq.ndrec (motive := fun n => motive✝ n✝ n.succ → ¬n = 2 → ¬n = 3 → motive✝ n✝ n.succ)
+                      (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ n✝) (Eq.symm h_3) cont_5 h_1 h_2
+                  else cont_5;
+          Nat.casesOn (motive := fun x => motive✝ x m✝.succ → motive✝ x m✝.succ) n✝ (fun cont_2 => cont_2)
+            (fun n cont_2 =>
+              if h_1 : m✝.succ = 1 then
+                Eq.ndrec (motive := fun x => motive✝ n.succ x → motive✝ n.succ x) (fun cont_2 => Eq.symm h_1 ▸ h_1✝ n)
+                  (Eq.symm h_1) cont_2
+              else
+                if h_2 : m✝.succ = 2 then
+                  Eq.ndrec (motive := fun x => motive✝ n.succ x → ¬x = 1 → motive✝ n.succ x)
+                    (fun cont_2 h_1 => Eq.symm h_2 ▸ h_2✝ n) (Eq.symm h_2) cont_2 h_1
+                else cont_2)
+            cont_2) =
+          h_6✝ n✝ m✝
+  [Meta.Match.matchEqs] proveCondEqThm.go case zero
+      motive✝ : Nat → Nat → Sort u_1
+      m✝ : Nat
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      x✝⁴ : m✝ = 2 → False
+      x✝³ : m✝ = 4 → False
+      x✝² : ∀ (n : Nat), Nat.zero = n.succ → m✝ = 0 → False
+      x✝¹ : ∀ (n : Nat), Nat.zero = n.succ → m✝ = 1 → False
+      x✝ : ∀ (n : Nat), Nat.zero = n.succ → m✝ = 3 → False
+      ⊢ Nat.rec (motive := fun x => motive✝ x m✝.succ → motive✝ x m✝.succ) (fun cont_2 => cont_2)
+            (fun n n_ih =>
+              (fun n cont_2 =>
+                  if h_1 : m✝.succ = 1 then
+                    Eq.ndrec (motive := fun x => motive✝ n.succ x → motive✝ n.succ x)
+                      (fun cont_2 => Eq.symm h_1 ▸ h_1✝ n) (Eq.symm h_1) cont_2
+                  else
+                    if h_2 : m✝.succ = 2 then
+                      Eq.ndrec (motive := fun x => motive✝ n.succ x → ¬x = 1 → motive✝ n.succ x)
+                        (fun cont_2 h_1 => Eq.symm h_2 ▸ h_2✝ n) (Eq.symm h_2) cont_2 h_1
+                    else cont_2)
+                n)
+            Nat.zero
+            (Nat.casesOn m✝.succ (h_7✝ Nat.zero Nat.zero) fun n =>
+              have cont_5 := h_6✝ Nat.zero n;
+              if h_1 : n = 2 then
+                Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → motive✝ Nat.zero n.succ)
+                  (fun cont_5 => Eq.symm h_1 ▸ h_3✝ Nat.zero) (Eq.symm h_1) cont_5
+              else
+                if h_2 : n = 3 then
+                  Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → ¬n = 2 → motive✝ Nat.zero n.succ)
+                    (fun cont_5 h_1 =>
+                      Eq.symm h_2 ▸
+                        Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) Nat.zero
+                          (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                    (Eq.symm h_2) cont_5 h_1
+                else
+                  if h_3 : n = 4 then
+                    Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → ¬n = 2 → ¬n = 3 → motive✝ Nat.zero n.succ)
+                      (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ Nat.zero) (Eq.symm h_3) cont_5 h_1 h_2
+                  else cont_5) =
+          h_6✝ Nat.zero m✝
+  [Meta.Match.matchEqs] proveCondEqThm.go case zero
+      motive✝ : Nat → Nat → Sort u_1
+      m✝ : Nat
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      x✝⁴ : m✝ = 2 → False
+      x✝³ : m✝ = 4 → False
+      x✝² : ∀ (n : Nat), Nat.zero = n.succ → m✝ = 0 → False
+      x✝¹ : ∀ (n : Nat), Nat.zero = n.succ → m✝ = 1 → False
+      x✝ : ∀ (n : Nat), Nat.zero = n.succ → m✝ = 3 → False
+      ⊢ (if h_2 : m✝ = 3 then
+            Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → ¬n = 2 → motive✝ Nat.zero n.succ)
+              (fun cont_5 h_1 =>
+                Eq.symm h_2 ▸
+                  Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) Nat.zero
+                    (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+              (Eq.symm h_2) (h_6✝ Nat.zero m✝) x✝⁴
+          else
+            if h_3 : m✝ = 4 then
+              Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → ¬n = 2 → ¬n = 3 → motive✝ Nat.zero n.succ)
+                (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ Nat.zero) (Eq.symm h_3) (h_6✝ Nat.zero m✝) x✝⁴ h_2
+            else h_6✝ Nat.zero m✝) =
+          h_6✝ Nat.zero m✝
+  [Meta.Match.matchEqs] proveCondEqThm.go case zero.isTrue
+      motive✝ : Nat → Nat → Sort u_1
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      x✝⁴ : 3 = 2 → False
+      x✝³ : 3 = 4 → False
+      x✝² : ∀ (n : Nat), Nat.zero = n.succ → 3 = 0 → False
+      x✝¹ : ∀ (n : Nat), Nat.zero = n.succ → 3 = 1 → False
+      x✝ : ∀ (n : Nat), Nat.zero = n.succ → 3 = 3 → False
+      ⊢ Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → ¬n = 2 → motive✝ Nat.zero n.succ)
+            (fun cont_5 h_1 =>
+              Eq.symm (Eq.refl 3) ▸
+                Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) Nat.zero
+                  (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+            (Eq.symm (Eq.refl 3)) (h_6✝ Nat.zero 3) x✝⁴ =
+          h_6✝ Nat.zero 3
+  [Meta.Match.matchEqs] proveCondEqThm.go case zero.isFalse
+      motive✝ : Nat → Nat → Sort u_1
+      m✝ : Nat
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      x✝⁴ : m✝ = 2 → False
+      x✝³ : m✝ = 4 → False
+      x✝² : ∀ (n : Nat), Nat.zero = n.succ → m✝ = 0 → False
+      x✝¹ : ∀ (n : Nat), Nat.zero = n.succ → m✝ = 1 → False
+      x✝ : ∀ (n : Nat), Nat.zero = n.succ → m✝ = 3 → False
+      h✝ : ¬m✝ = 3
+      ⊢ h_6✝ Nat.zero m✝ = h_6✝ Nat.zero m✝
+  [Meta.Match.matchEqs] proveCondEqThm.go case succ
+      motive✝ : Nat → Nat → Sort u_1
+      m✝ : Nat
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      x✝⁴ : m✝ = 2 → False
+      x✝³ : m✝ = 4 → False
+      n✝ : Nat
+      x✝² : ∀ (n : Nat), n✝.succ = n.succ → m✝ = 0 → False
+      x✝¹ : ∀ (n : Nat), n✝.succ = n.succ → m✝ = 1 → False
+      x✝ : ∀ (n : Nat), n✝.succ = n.succ → m✝ = 3 → False
+      ⊢ Nat.rec (motive := fun x => motive✝ x m✝.succ → motive✝ x m✝.succ) (fun cont_2 => cont_2)
+            (fun n n_ih =>
+              (fun n cont_2 =>
+                  if h_1 : m✝.succ = 1 then
+                    Eq.ndrec (motive := fun x => motive✝ n.succ x → motive✝ n.succ x)
+                      (fun cont_2 => Eq.symm h_1 ▸ h_1✝ n) (Eq.symm h_1) cont_2
+                  else
+                    if h_2 : m✝.succ = 2 then
+                      Eq.ndrec (motive := fun x => motive✝ n.succ x → ¬x = 1 → motive✝ n.succ x)
+                        (fun cont_2 h_1 => Eq.symm h_2 ▸ h_2✝ n) (Eq.symm h_2) cont_2 h_1
+                    else cont_2)
+                n)
+            n✝.succ
+            (Nat.casesOn m✝.succ (h_7✝ n✝.succ Nat.zero) fun n =>
+              have cont_5 := h_6✝ n✝.succ n;
+              if h_1 : n = 2 then
+                Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → motive✝ n✝.succ n.succ)
+                  (fun cont_5 => Eq.symm h_1 ▸ h_3✝ n✝.succ) (Eq.symm h_1) cont_5
+              else
+                if h_2 : n = 3 then
+                  Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → ¬n = 2 → motive✝ n✝.succ n.succ)
+                    (fun cont_5 h_1 =>
+                      Eq.symm h_2 ▸
+                        Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) n✝.succ
+                          (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                    (Eq.symm h_2) cont_5 h_1
+                else
+                  if h_3 : n = 4 then
+                    Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → ¬n = 2 → ¬n = 3 → motive✝ n✝.succ n.succ)
+                      (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ n✝.succ) (Eq.symm h_3) cont_5 h_1 h_2
+                  else cont_5) =
+          h_6✝ n✝.succ m✝
+  [Meta.Match.matchEqs] proveCondEqThm.go case succ.isTrue
+      motive✝ : Nat → Nat → Sort u_1
+      m✝ : Nat
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      x✝⁴ : m✝ = 2 → False
+      x✝³ : m✝ = 4 → False
+      n✝ : Nat
+      x✝² : ∀ (n : Nat), n✝.succ = n.succ → m✝ = 0 → False
+      x✝¹ : ∀ (n : Nat), n✝.succ = n.succ → m✝ = 1 → False
+      x✝ : ∀ (n : Nat), n✝.succ = n.succ → m✝ = 3 → False
+      h✝ : m✝.succ = 1
+      ⊢ Eq.ndrec (motive := fun x => motive✝ n✝.succ x → motive✝ n✝.succ x) (fun cont_2 => Eq.symm h✝ ▸ h_1✝ n✝)
+            (Eq.symm h✝)
+            (Nat.casesOn m✝.succ (h_7✝ n✝.succ Nat.zero) fun n =>
+              have cont_5 := h_6✝ n✝.succ n;
+              if h_1 : n = 2 then
+                Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → motive✝ n✝.succ n.succ)
+                  (fun cont_5 => Eq.symm h_1 ▸ h_3✝ n✝.succ) (Eq.symm h_1) cont_5
+              else
+                if h_2 : n = 3 then
+                  Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → ¬n = 2 → motive✝ n✝.succ n.succ)
+                    (fun cont_5 h_1 =>
+                      Eq.symm h_2 ▸
+                        Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) n✝.succ
+                          (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                    (Eq.symm h_2) cont_5 h_1
+                else
+                  if h_3 : n = 4 then
+                    Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → ¬n = 2 → ¬n = 3 → motive✝ n✝.succ n.succ)
+                      (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ n✝.succ) (Eq.symm h_3) cont_5 h_1 h_2
+                  else cont_5) =
+          h_6✝ n✝.succ m✝
+---
+trace: [Meta.Match.matchEqs] hs: []
+[Meta.Match.matchEqs] ✅️ proveCondEqThm _private.lean.run.issue11104.0.foo2.match_1.eq_1
+  [Meta.Match.matchEqs] proveCondEqThm ⊢ ∀ (motive : Nat → Nat → Sort u_1) (n : Nat) (h_1 : (n : Nat) → motive n.succ 1)
+          (h_2 : (n : Nat) → motive n.succ 2) (h_3 : (n : Nat) → motive n 3) (h_4 : (n : Nat) → motive n.succ 4)
+          (h_5 : (n : Nat) → motive n 5) (h_6 : (n m : Nat) → motive n m.succ) (h_7 : (x x_1 : Nat) → motive x x_1),
+          (match n.succ, 1 with
+            | n.succ, 1 => h_1 n
+            | n.succ, 2 => h_2 n
+            | n, 3 => h_3 n
+            | n.succ, 4 => h_4 n
+            | n, 5 => h_5 n
+            | n, m.succ => h_6 n m
+            | x, x_1 => h_7 x x_1) =
+            h_1 n
+[Meta.Match.matchEqs] hs: []
+[Meta.Match.matchEqs] ✅️ proveCondEqThm _private.lean.run.issue11104.0.foo2.match_1.eq_2
+  [Meta.Match.matchEqs] proveCondEqThm ⊢ ∀ (motive : Nat → Nat → Sort u_1) (n : Nat) (h_1 : (n : Nat) → motive n.succ 1)
+          (h_2 : (n : Nat) → motive n.succ 2) (h_3 : (n : Nat) → motive n 3) (h_4 : (n : Nat) → motive n.succ 4)
+          (h_5 : (n : Nat) → motive n 5) (h_6 : (n m : Nat) → motive n m.succ) (h_7 : (x x_1 : Nat) → motive x x_1),
+          (match n.succ, 2 with
+            | n.succ, 1 => h_1 n
+            | n.succ, 2 => h_2 n
+            | n, 3 => h_3 n
+            | n.succ, 4 => h_4 n
+            | n, 5 => h_5 n
+            | n, m.succ => h_6 n m
+            | x, x_1 => h_7 x x_1) =
+            h_2 n
+[Meta.Match.matchEqs] overlap notAlt: 0 overlapping 2:
+      ∀ (x x_1 n : Nat), x = n.succ → x_1 = 1 → False
+[Meta.Match.matchEqs] overlap notAlt: 1 overlapping 2:
+      ∀ (x x_1 n : Nat), x = n.succ → x_1 = 2 → False
+[Meta.Match.matchEqs] hs: []
+[Meta.Match.matchEqs] ✅️ proveCondEqThm _private.lean.run.issue11104.0.foo2.match_1.eq_3
+  [Meta.Match.matchEqs] proveCondEqThm ⊢ ∀ (motive : Nat → Nat → Sort u_1) (n : Nat) (h_1 : (n : Nat) → motive n.succ 1)
+          (h_2 : (n : Nat) → motive n.succ 2) (h_3 : (n : Nat) → motive n 3) (h_4 : (n : Nat) → motive n.succ 4)
+          (h_5 : (n : Nat) → motive n 5) (h_6 : (n m : Nat) → motive n m.succ) (h_7 : (x x_1 : Nat) → motive x x_1),
+          (match n, 3 with
+            | n.succ, 1 => h_1 n
+            | n.succ, 2 => h_2 n
+            | n, 3 => h_3 n
+            | n.succ, 4 => h_4 n
+            | n, 5 => h_5 n
+            | n, m.succ => h_6 n m
+            | x, x_1 => h_7 x x_1) =
+            h_3 n
+  [Meta.Match.matchEqs] proveCondEqThm.go motive✝ : Nat → Nat → Sort u_1
+      n✝ : Nat
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      ⊢ (have cont_2 :=
+            Nat.casesOn 3 (h_7✝ n✝ Nat.zero) fun n =>
+              have cont_5 := h_6✝ n✝ n;
+              if h_1 : n = 2 then
+                Eq.ndrec (motive := fun n => motive✝ n✝ n.succ → motive✝ n✝ n.succ)
+                  (fun cont_5 => Eq.symm h_1 ▸ h_3✝ n✝) (Eq.symm h_1) cont_5
+              else
+                if h_2 : n = 3 then
+                  Eq.ndrec (motive := fun n => motive✝ n✝ n.succ → ¬n = 2 → motive✝ n✝ n.succ)
+                    (fun cont_5 h_1 =>
+                      Eq.symm h_2 ▸
+                        Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) n✝
+                          (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                    (Eq.symm h_2) cont_5 h_1
+                else
+                  if h_3 : n = 4 then
+                    Eq.ndrec (motive := fun n => motive✝ n✝ n.succ → ¬n = 2 → ¬n = 3 → motive✝ n✝ n.succ)
+                      (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ n✝) (Eq.symm h_3) cont_5 h_1 h_2
+                  else cont_5;
+          Nat.casesOn (motive := fun x => motive✝ x 3 → motive✝ x 3) n✝ (fun cont_2 => cont_2)
+            (fun n cont_2 =>
+              if h_1 : 3 = 1 then
+                Eq.ndrec (motive := fun x => motive✝ n.succ x → motive✝ n.succ x) (fun cont_2 => Eq.symm h_1 ▸ h_1✝ n)
+                  (Eq.symm h_1) cont_2
+              else
+                if h_2 : 3 = 2 then
+                  Eq.ndrec (motive := fun x => motive✝ n.succ x → ¬x = 1 → motive✝ n.succ x)
+                    (fun cont_2 h_1 => Eq.symm h_2 ▸ h_2✝ n) (Eq.symm h_2) cont_2 h_1
+                else cont_2)
+            cont_2) =
+          h_3✝ n✝
+  [Meta.Match.matchEqs] proveCondEqThm.go case zero
+      motive✝ : Nat → Nat → Sort u_1
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      ⊢ Nat.rec (motive := fun x => motive✝ x 3 → motive✝ x 3) (fun cont_2 => cont_2)
+            (fun n n_ih =>
+              (fun n cont_2 =>
+                  if h_1 : 3 = 1 then
+                    Eq.ndrec (motive := fun x => motive✝ n.succ x → motive✝ n.succ x)
+                      (fun cont_2 => Eq.symm h_1 ▸ h_1✝ n) (Eq.symm h_1) cont_2
+                  else
+                    if h_2 : 3 = 2 then
+                      Eq.ndrec (motive := fun x => motive✝ n.succ x → ¬x = 1 → motive✝ n.succ x)
+                        (fun cont_2 h_1 => Eq.symm h_2 ▸ h_2✝ n) (Eq.symm h_2) cont_2 h_1
+                    else cont_2)
+                n)
+            Nat.zero
+            (Nat.casesOn 3 (h_7✝ Nat.zero Nat.zero) fun n =>
+              have cont_5 := h_6✝ Nat.zero n;
+              if h_1 : n = 2 then
+                Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → motive✝ Nat.zero n.succ)
+                  (fun cont_5 => Eq.symm h_1 ▸ h_3✝ Nat.zero) (Eq.symm h_1) cont_5
+              else
+                if h_2 : n = 3 then
+                  Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → ¬n = 2 → motive✝ Nat.zero n.succ)
+                    (fun cont_5 h_1 =>
+                      Eq.symm h_2 ▸
+                        Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) Nat.zero
+                          (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                    (Eq.symm h_2) cont_5 h_1
+                else
+                  if h_3 : n = 4 then
+                    Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → ¬n = 2 → ¬n = 3 → motive✝ Nat.zero n.succ)
+                      (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ Nat.zero) (Eq.symm h_3) cont_5 h_1 h_2
+                  else cont_5) =
+          h_3✝ Nat.zero
+  [Meta.Match.matchEqs] proveCondEqThm.go case succ
+      motive✝ : Nat → Nat → Sort u_1
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      n✝ : Nat
+      ⊢ Nat.rec (motive := fun x => motive✝ x 3 → motive✝ x 3) (fun cont_2 => cont_2)
+            (fun n n_ih =>
+              (fun n cont_2 =>
+                  if h_1 : 3 = 1 then
+                    Eq.ndrec (motive := fun x => motive✝ n.succ x → motive✝ n.succ x)
+                      (fun cont_2 => Eq.symm h_1 ▸ h_1✝ n) (Eq.symm h_1) cont_2
+                  else
+                    if h_2 : 3 = 2 then
+                      Eq.ndrec (motive := fun x => motive✝ n.succ x → ¬x = 1 → motive✝ n.succ x)
+                        (fun cont_2 h_1 => Eq.symm h_2 ▸ h_2✝ n) (Eq.symm h_2) cont_2 h_1
+                    else cont_2)
+                n)
+            n✝.succ
+            (Nat.casesOn 3 (h_7✝ n✝.succ Nat.zero) fun n =>
+              have cont_5 := h_6✝ n✝.succ n;
+              if h_1 : n = 2 then
+                Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → motive✝ n✝.succ n.succ)
+                  (fun cont_5 => Eq.symm h_1 ▸ h_3✝ n✝.succ) (Eq.symm h_1) cont_5
+              else
+                if h_2 : n = 3 then
+                  Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → ¬n = 2 → motive✝ n✝.succ n.succ)
+                    (fun cont_5 h_1 =>
+                      Eq.symm h_2 ▸
+                        Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) n✝.succ
+                          (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                    (Eq.symm h_2) cont_5 h_1
+                else
+                  if h_3 : n = 4 then
+                    Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → ¬n = 2 → ¬n = 3 → motive✝ n✝.succ n.succ)
+                      (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ n✝.succ) (Eq.symm h_3) cont_5 h_1 h_2
+                  else cont_5) =
+          h_3✝ n✝.succ
+[Meta.Match.matchEqs] overlap notAlt: 0 overlapping 3:
+      ∀ (x x_1 n : Nat), x = n.succ → x_1 = 1 → False
+[Meta.Match.matchEqs] overlap notAlt: 1 overlapping 3:
+      ∀ (x x_1 n : Nat), x = n.succ → x_1 = 2 → False
+[Meta.Match.matchEqs] hs: []
+[Meta.Match.matchEqs] ✅️ proveCondEqThm _private.lean.run.issue11104.0.foo2.match_1.eq_4
+  [Meta.Match.matchEqs] proveCondEqThm ⊢ ∀ (motive : Nat → Nat → Sort u_1) (n : Nat) (h_1 : (n : Nat) → motive n.succ 1)
+          (h_2 : (n : Nat) → motive n.succ 2) (h_3 : (n : Nat) → motive n 3) (h_4 : (n : Nat) → motive n.succ 4)
+          (h_5 : (n : Nat) → motive n 5) (h_6 : (n m : Nat) → motive n m.succ) (h_7 : (x x_1 : Nat) → motive x x_1),
+          (match n.succ, 4 with
+            | n.succ, 1 => h_1 n
+            | n.succ, 2 => h_2 n
+            | n, 3 => h_3 n
+            | n.succ, 4 => h_4 n
+            | n, 5 => h_5 n
+            | n, m.succ => h_6 n m
+            | x, x_1 => h_7 x x_1) =
+            h_4 n
+[Meta.Match.matchEqs] overlap notAlt: 0 overlapping 4:
+      ∀ (x x_1 n : Nat), x = n.succ → x_1 = 1 → False
+[Meta.Match.matchEqs] overlap notAlt: 1 overlapping 4:
+      ∀ (x x_1 n : Nat), x = n.succ → x_1 = 2 → False
+[Meta.Match.matchEqs] hs: []
+[Meta.Match.matchEqs] ✅️ proveCondEqThm _private.lean.run.issue11104.0.foo2.match_1.eq_5
+  [Meta.Match.matchEqs] proveCondEqThm ⊢ ∀ (motive : Nat → Nat → Sort u_1) (n : Nat) (h_1 : (n : Nat) → motive n.succ 1)
+          (h_2 : (n : Nat) → motive n.succ 2) (h_3 : (n : Nat) → motive n 3) (h_4 : (n : Nat) → motive n.succ 4)
+          (h_5 : (n : Nat) → motive n 5) (h_6 : (n m : Nat) → motive n m.succ) (h_7 : (x x_1 : Nat) → motive x x_1),
+          (match n, 5 with
+            | n.succ, 1 => h_1 n
+            | n.succ, 2 => h_2 n
+            | n, 3 => h_3 n
+            | n.succ, 4 => h_4 n
+            | n, 5 => h_5 n
+            | n, m.succ => h_6 n m
+            | x, x_1 => h_7 x x_1) =
+            h_5 n
+  [Meta.Match.matchEqs] proveCondEqThm.go motive✝ : Nat → Nat → Sort u_1
+      n✝ : Nat
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      ⊢ (have cont_2 :=
+            Nat.casesOn 5 (h_7✝ n✝ Nat.zero) fun n =>
+              have cont_5 := h_6✝ n✝ n;
+              if h_1 : n = 2 then
+                Eq.ndrec (motive := fun n => motive✝ n✝ n.succ → motive✝ n✝ n.succ)
+                  (fun cont_5 => Eq.symm h_1 ▸ h_3✝ n✝) (Eq.symm h_1) cont_5
+              else
+                if h_2 : n = 3 then
+                  Eq.ndrec (motive := fun n => motive✝ n✝ n.succ → ¬n = 2 → motive✝ n✝ n.succ)
+                    (fun cont_5 h_1 =>
+                      Eq.symm h_2 ▸
+                        Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) n✝
+                          (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                    (Eq.symm h_2) cont_5 h_1
+                else
+                  if h_3 : n = 4 then
+                    Eq.ndrec (motive := fun n => motive✝ n✝ n.succ → ¬n = 2 → ¬n = 3 → motive✝ n✝ n.succ)
+                      (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ n✝) (Eq.symm h_3) cont_5 h_1 h_2
+                  else cont_5;
+          Nat.casesOn (motive := fun x => motive✝ x 5 → motive✝ x 5) n✝ (fun cont_2 => cont_2)
+            (fun n cont_2 =>
+              if h_1 : 5 = 1 then
+                Eq.ndrec (motive := fun x => motive✝ n.succ x → motive✝ n.succ x) (fun cont_2 => Eq.symm h_1 ▸ h_1✝ n)
+                  (Eq.symm h_1) cont_2
+              else
+                if h_2 : 5 = 2 then
+                  Eq.ndrec (motive := fun x => motive✝ n.succ x → ¬x = 1 → motive✝ n.succ x)
+                    (fun cont_2 h_1 => Eq.symm h_2 ▸ h_2✝ n) (Eq.symm h_2) cont_2 h_1
+                else cont_2)
+            cont_2) =
+          h_5✝ n✝
+  [Meta.Match.matchEqs] proveCondEqThm.go case zero
+      motive✝ : Nat → Nat → Sort u_1
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      ⊢ Nat.rec (motive := fun x => motive✝ x 5 → motive✝ x 5) (fun cont_2 => cont_2)
+            (fun n n_ih =>
+              (fun n cont_2 =>
+                  if h_1 : 5 = 1 then
+                    Eq.ndrec (motive := fun x => motive✝ n.succ x → motive✝ n.succ x)
+                      (fun cont_2 => Eq.symm h_1 ▸ h_1✝ n) (Eq.symm h_1) cont_2
+                  else
+                    if h_2 : 5 = 2 then
+                      Eq.ndrec (motive := fun x => motive✝ n.succ x → ¬x = 1 → motive✝ n.succ x)
+                        (fun cont_2 h_1 => Eq.symm h_2 ▸ h_2✝ n) (Eq.symm h_2) cont_2 h_1
+                    else cont_2)
+                n)
+            Nat.zero
+            (Nat.casesOn 5 (h_7✝ Nat.zero Nat.zero) fun n =>
+              have cont_5 := h_6✝ Nat.zero n;
+              if h_1 : n = 2 then
+                Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → motive✝ Nat.zero n.succ)
+                  (fun cont_5 => Eq.symm h_1 ▸ h_3✝ Nat.zero) (Eq.symm h_1) cont_5
+              else
+                if h_2 : n = 3 then
+                  Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → ¬n = 2 → motive✝ Nat.zero n.succ)
+                    (fun cont_5 h_1 =>
+                      Eq.symm h_2 ▸
+                        Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) Nat.zero
+                          (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                    (Eq.symm h_2) cont_5 h_1
+                else
+                  if h_3 : n = 4 then
+                    Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → ¬n = 2 → ¬n = 3 → motive✝ Nat.zero n.succ)
+                      (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ Nat.zero) (Eq.symm h_3) cont_5 h_1 h_2
+                  else cont_5) =
+          h_5✝ Nat.zero
+  [Meta.Match.matchEqs] proveCondEqThm.go case succ
+      motive✝ : Nat → Nat → Sort u_1
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      n✝ : Nat
+      ⊢ Nat.rec (motive := fun x => motive✝ x 5 → motive✝ x 5) (fun cont_2 => cont_2)
+            (fun n n_ih =>
+              (fun n cont_2 =>
+                  if h_1 : 5 = 1 then
+                    Eq.ndrec (motive := fun x => motive✝ n.succ x → motive✝ n.succ x)
+                      (fun cont_2 => Eq.symm h_1 ▸ h_1✝ n) (Eq.symm h_1) cont_2
+                  else
+                    if h_2 : 5 = 2 then
+                      Eq.ndrec (motive := fun x => motive✝ n.succ x → ¬x = 1 → motive✝ n.succ x)
+                        (fun cont_2 h_1 => Eq.symm h_2 ▸ h_2✝ n) (Eq.symm h_2) cont_2 h_1
+                    else cont_2)
+                n)
+            n✝.succ
+            (Nat.casesOn 5 (h_7✝ n✝.succ Nat.zero) fun n =>
+              have cont_5 := h_6✝ n✝.succ n;
+              if h_1 : n = 2 then
+                Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → motive✝ n✝.succ n.succ)
+                  (fun cont_5 => Eq.symm h_1 ▸ h_3✝ n✝.succ) (Eq.symm h_1) cont_5
+              else
+                if h_2 : n = 3 then
+                  Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → ¬n = 2 → motive✝ n✝.succ n.succ)
+                    (fun cont_5 h_1 =>
+                      Eq.symm h_2 ▸
+                        Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) n✝.succ
+                          (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                    (Eq.symm h_2) cont_5 h_1
+                else
+                  if h_3 : n = 4 then
+                    Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → ¬n = 2 → ¬n = 3 → motive✝ n✝.succ n.succ)
+                      (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ n✝.succ) (Eq.symm h_3) cont_5 h_1 h_2
+                  else cont_5) =
+          h_5✝ n✝.succ
+[Meta.Match.matchEqs] overlap notAlt: 0 overlapping 5:
+      ∀ (x x_1 n : Nat), x = n.succ → x_1 = 1 → False
+[Meta.Match.matchEqs] simplified hypothesis
+      ∀ (n_1 : Nat), n = n_1.succ → m = 0 → False
+[Meta.Match.matchEqs] overlap notAlt: 1 overlapping 5:
+      ∀ (x x_1 n : Nat), x = n.succ → x_1 = 2 → False
+[Meta.Match.matchEqs] simplified hypothesis
+      ∀ (n_1 : Nat), n = n_1.succ → m = 1 → False
+[Meta.Match.matchEqs] overlap notAlt: 2 overlapping 5:
+      ∀ (x x_1 n : Nat), x = n → x_1 = 3 → False
+[Meta.Match.matchEqs] simplified hypothesis
+      m = 2 → False
+[Meta.Match.matchEqs] overlap notAlt: 3 overlapping 5:
+      ∀ (x x_1 n : Nat), x = n.succ → x_1 = 4 → False
+[Meta.Match.matchEqs] simplified hypothesis
+      ∀ (n_1 : Nat), n = n_1.succ → m = 3 → False
+[Meta.Match.matchEqs] overlap notAlt: 4 overlapping 5:
+      ∀ (x x_1 n : Nat), x = n → x_1 = 5 → False
+[Meta.Match.matchEqs] simplified hypothesis
+      m = 4 → False
+[Meta.Match.matchEqs] hs: [∀ (n_1 : Nat), n = n_1.succ → m = 0 → False,
+     ∀ (n_1 : Nat), n = n_1.succ → m = 1 → False,
+     m = 2 → False,
+     ∀ (n_1 : Nat), n = n_1.succ → m = 3 → False,
+     m = 4 → False]
+[Meta.Match.matchEqs] ❌️ proveCondEqThm _private.lean.run.issue11104.0.foo2.match_1.eq_6
+  [Meta.Match.matchEqs] proveCondEqThm ⊢ ∀ (motive : Nat → Nat → Sort u_1) (n m : Nat)
+          (h_1 : (n : Nat) → motive n.succ 1) (h_2 : (n : Nat) → motive n.succ 2) (h_3 : (n : Nat) → motive n 3)
+          (h_4 : (n : Nat) → motive n.succ 4) (h_5 : (n : Nat) → motive n 5) (h_6 : (n m : Nat) → motive n m.succ)
+          (h_7 : (x x_1 : Nat) → motive x x_1),
+          (∀ (n_1 : Nat), n = n_1.succ → m = 0 → False) →
+            (∀ (n_1 : Nat), n = n_1.succ → m = 1 → False) →
+              (m = 2 → False) →
+                (∀ (n_1 : Nat), n = n_1.succ → m = 3 → False) →
+                  (m = 4 → False) →
+                    (match n, m.succ with
+                      | n.succ, 1 => h_1 n
+                      | n.succ, 2 => h_2 n
+                      | n, 3 => h_3 n
+                      | n.succ, 4 => h_4 n
+                      | n, 5 => h_5 n
+                      | n, m.succ => h_6 n m
+                      | x, x_1 => h_7 x x_1) =
+                      h_6 n m
+  [Meta.Match.matchEqs] proveCondEqThm.go motive✝ : Nat → Nat → Sort u_1
+      n✝ m✝ : Nat
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      x✝⁴ : ∀ (n : Nat), n✝ = n.succ → m✝ = 0 → False
+      x✝³ : ∀ (n : Nat), n✝ = n.succ → m✝ = 1 → False
+      x✝² : m✝ = 2 → False
+      x✝¹ : ∀ (n : Nat), n✝ = n.succ → m✝ = 3 → False
+      x✝ : m✝ = 4 → False
+      ⊢ (have cont_2 :=
+            Nat.casesOn m✝.succ (h_7✝ n✝ Nat.zero) fun n =>
+              have cont_5 := h_6✝ n✝ n;
+              if h_1 : n = 2 then
+                Eq.ndrec (motive := fun n => motive✝ n✝ n.succ → motive✝ n✝ n.succ)
+                  (fun cont_5 => Eq.symm h_1 ▸ h_3✝ n✝) (Eq.symm h_1) cont_5
+              else
+                if h_2 : n = 3 then
+                  Eq.ndrec (motive := fun n => motive✝ n✝ n.succ → ¬n = 2 → motive✝ n✝ n.succ)
+                    (fun cont_5 h_1 =>
+                      Eq.symm h_2 ▸
+                        Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) n✝
+                          (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                    (Eq.symm h_2) cont_5 h_1
+                else
+                  if h_3 : n = 4 then
+                    Eq.ndrec (motive := fun n => motive✝ n✝ n.succ → ¬n = 2 → ¬n = 3 → motive✝ n✝ n.succ)
+                      (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ n✝) (Eq.symm h_3) cont_5 h_1 h_2
+                  else cont_5;
+          Nat.casesOn (motive := fun x => motive✝ x m✝.succ → motive✝ x m✝.succ) n✝ (fun cont_2 => cont_2)
+            (fun n cont_2 =>
+              if h_1 : m✝.succ = 1 then
+                Eq.ndrec (motive := fun x => motive✝ n.succ x → motive✝ n.succ x) (fun cont_2 => Eq.symm h_1 ▸ h_1✝ n)
+                  (Eq.symm h_1) cont_2
+              else
+                if h_2 : m✝.succ = 2 then
+                  Eq.ndrec (motive := fun x => motive✝ n.succ x → ¬x = 1 → motive✝ n.succ x)
+                    (fun cont_2 h_1 => Eq.symm h_2 ▸ h_2✝ n) (Eq.symm h_2) cont_2 h_1
+                else cont_2)
+            cont_2) =
+          h_6✝ n✝ m✝
+  [Meta.Match.matchEqs] proveCondEqThm.go case zero
+      motive✝ : Nat → Nat → Sort u_1
+      m✝ : Nat
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      x✝⁴ : m✝ = 2 → False
+      x✝³ : m✝ = 4 → False
+      x✝² : ∀ (n : Nat), Nat.zero = n.succ → m✝ = 0 → False
+      x✝¹ : ∀ (n : Nat), Nat.zero = n.succ → m✝ = 1 → False
+      x✝ : ∀ (n : Nat), Nat.zero = n.succ → m✝ = 3 → False
+      ⊢ Nat.rec (motive := fun x => motive✝ x m✝.succ → motive✝ x m✝.succ) (fun cont_2 => cont_2)
+            (fun n n_ih =>
+              (fun n cont_2 =>
+                  if h_1 : m✝.succ = 1 then
+                    Eq.ndrec (motive := fun x => motive✝ n.succ x → motive✝ n.succ x)
+                      (fun cont_2 => Eq.symm h_1 ▸ h_1✝ n) (Eq.symm h_1) cont_2
+                  else
+                    if h_2 : m✝.succ = 2 then
+                      Eq.ndrec (motive := fun x => motive✝ n.succ x → ¬x = 1 → motive✝ n.succ x)
+                        (fun cont_2 h_1 => Eq.symm h_2 ▸ h_2✝ n) (Eq.symm h_2) cont_2 h_1
+                    else cont_2)
+                n)
+            Nat.zero
+            (Nat.casesOn m✝.succ (h_7✝ Nat.zero Nat.zero) fun n =>
+              have cont_5 := h_6✝ Nat.zero n;
+              if h_1 : n = 2 then
+                Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → motive✝ Nat.zero n.succ)
+                  (fun cont_5 => Eq.symm h_1 ▸ h_3✝ Nat.zero) (Eq.symm h_1) cont_5
+              else
+                if h_2 : n = 3 then
+                  Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → ¬n = 2 → motive✝ Nat.zero n.succ)
+                    (fun cont_5 h_1 =>
+                      Eq.symm h_2 ▸
+                        Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) Nat.zero
+                          (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                    (Eq.symm h_2) cont_5 h_1
+                else
+                  if h_3 : n = 4 then
+                    Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → ¬n = 2 → ¬n = 3 → motive✝ Nat.zero n.succ)
+                      (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ Nat.zero) (Eq.symm h_3) cont_5 h_1 h_2
+                  else cont_5) =
+          h_6✝ Nat.zero m✝
+  [Meta.Match.matchEqs] proveCondEqThm.go case zero
+      motive✝ : Nat → Nat → Sort u_1
+      m✝ : Nat
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      x✝⁴ : m✝ = 2 → False
+      x✝³ : m✝ = 4 → False
+      x✝² : ∀ (n : Nat), Nat.zero = n.succ → m✝ = 0 → False
+      x✝¹ : ∀ (n : Nat), Nat.zero = n.succ → m✝ = 1 → False
+      x✝ : ∀ (n : Nat), Nat.zero = n.succ → m✝ = 3 → False
+      ⊢ (if h_2 : m✝ = 3 then
+            Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → ¬n = 2 → motive✝ Nat.zero n.succ)
+              (fun cont_5 h_1 =>
+                Eq.symm h_2 ▸
+                  Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) Nat.zero
+                    (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+              (Eq.symm h_2) (h_6✝ Nat.zero m✝) x✝⁴
+          else
+            if h_3 : m✝ = 4 then
+              Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → ¬n = 2 → ¬n = 3 → motive✝ Nat.zero n.succ)
+                (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ Nat.zero) (Eq.symm h_3) (h_6✝ Nat.zero m✝) x✝⁴ h_2
+            else h_6✝ Nat.zero m✝) =
+          h_6✝ Nat.zero m✝
+  [Meta.Match.matchEqs] proveCondEqThm.go case zero.isTrue
+      motive✝ : Nat → Nat → Sort u_1
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      x✝⁴ : 3 = 2 → False
+      x✝³ : 3 = 4 → False
+      x✝² : ∀ (n : Nat), Nat.zero = n.succ → 3 = 0 → False
+      x✝¹ : ∀ (n : Nat), Nat.zero = n.succ → 3 = 1 → False
+      x✝ : ∀ (n : Nat), Nat.zero = n.succ → 3 = 3 → False
+      ⊢ Eq.ndrec (motive := fun n => motive✝ Nat.zero n.succ → ¬n = 2 → motive✝ Nat.zero n.succ)
+            (fun cont_5 h_1 =>
+              Eq.symm (Eq.refl 3) ▸
+                Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) Nat.zero
+                  (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+            (Eq.symm (Eq.refl 3)) (h_6✝ Nat.zero 3) x✝⁴ =
+          h_6✝ Nat.zero 3
+  [Meta.Match.matchEqs] proveCondEqThm.go case zero.isFalse
+      motive✝ : Nat → Nat → Sort u_1
+      m✝ : Nat
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      x✝⁴ : m✝ = 2 → False
+      x✝³ : m✝ = 4 → False
+      x✝² : ∀ (n : Nat), Nat.zero = n.succ → m✝ = 0 → False
+      x✝¹ : ∀ (n : Nat), Nat.zero = n.succ → m✝ = 1 → False
+      x✝ : ∀ (n : Nat), Nat.zero = n.succ → m✝ = 3 → False
+      h✝ : ¬m✝ = 3
+      ⊢ h_6✝ Nat.zero m✝ = h_6✝ Nat.zero m✝
+  [Meta.Match.matchEqs] proveCondEqThm.go case succ
+      motive✝ : Nat → Nat → Sort u_1
+      m✝ : Nat
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      x✝⁴ : m✝ = 2 → False
+      x✝³ : m✝ = 4 → False
+      n✝ : Nat
+      x✝² : ∀ (n : Nat), n✝.succ = n.succ → m✝ = 0 → False
+      x✝¹ : ∀ (n : Nat), n✝.succ = n.succ → m✝ = 1 → False
+      x✝ : ∀ (n : Nat), n✝.succ = n.succ → m✝ = 3 → False
+      ⊢ Nat.rec (motive := fun x => motive✝ x m✝.succ → motive✝ x m✝.succ) (fun cont_2 => cont_2)
+            (fun n n_ih =>
+              (fun n cont_2 =>
+                  if h_1 : m✝.succ = 1 then
+                    Eq.ndrec (motive := fun x => motive✝ n.succ x → motive✝ n.succ x)
+                      (fun cont_2 => Eq.symm h_1 ▸ h_1✝ n) (Eq.symm h_1) cont_2
+                  else
+                    if h_2 : m✝.succ = 2 then
+                      Eq.ndrec (motive := fun x => motive✝ n.succ x → ¬x = 1 → motive✝ n.succ x)
+                        (fun cont_2 h_1 => Eq.symm h_2 ▸ h_2✝ n) (Eq.symm h_2) cont_2 h_1
+                    else cont_2)
+                n)
+            n✝.succ
+            (Nat.casesOn m✝.succ (h_7✝ n✝.succ Nat.zero) fun n =>
+              have cont_5 := h_6✝ n✝.succ n;
+              if h_1 : n = 2 then
+                Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → motive✝ n✝.succ n.succ)
+                  (fun cont_5 => Eq.symm h_1 ▸ h_3✝ n✝.succ) (Eq.symm h_1) cont_5
+              else
+                if h_2 : n = 3 then
+                  Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → ¬n = 2 → motive✝ n✝.succ n.succ)
+                    (fun cont_5 h_1 =>
+                      Eq.symm h_2 ▸
+                        Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) n✝.succ
+                          (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                    (Eq.symm h_2) cont_5 h_1
+                else
+                  if h_3 : n = 4 then
+                    Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → ¬n = 2 → ¬n = 3 → motive✝ n✝.succ n.succ)
+                      (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ n✝.succ) (Eq.symm h_3) cont_5 h_1 h_2
+                  else cont_5) =
+          h_6✝ n✝.succ m✝
+  [Meta.Match.matchEqs] proveCondEqThm.go case succ.isTrue
+      motive✝ : Nat → Nat → Sort u_1
+      m✝ : Nat
+      h_1✝ : (n : Nat) → motive✝ n.succ 1
+      h_2✝ : (n : Nat) → motive✝ n.succ 2
+      h_3✝ : (n : Nat) → motive✝ n 3
+      h_4✝ : (n : Nat) → motive✝ n.succ 4
+      h_5✝ : (n : Nat) → motive✝ n 5
+      h_6✝ : (n m : Nat) → motive✝ n m.succ
+      h_7✝ : (x x_1 : Nat) → motive✝ x x_1
+      x✝⁴ : m✝ = 2 → False
+      x✝³ : m✝ = 4 → False
+      n✝ : Nat
+      x✝² : ∀ (n : Nat), n✝.succ = n.succ → m✝ = 0 → False
+      x✝¹ : ∀ (n : Nat), n✝.succ = n.succ → m✝ = 1 → False
+      x✝ : ∀ (n : Nat), n✝.succ = n.succ → m✝ = 3 → False
+      h✝ : m✝.succ = 1
+      ⊢ Eq.ndrec (motive := fun x => motive✝ n✝.succ x → motive✝ n✝.succ x) (fun cont_2 => Eq.symm h✝ ▸ h_1✝ n✝)
+            (Eq.symm h✝)
+            (Nat.casesOn m✝.succ (h_7✝ n✝.succ Nat.zero) fun n =>
+              have cont_5 := h_6✝ n✝.succ n;
+              if h_1 : n = 2 then
+                Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → motive✝ n✝.succ n.succ)
+                  (fun cont_5 => Eq.symm h_1 ▸ h_3✝ n✝.succ) (Eq.symm h_1) cont_5
+              else
+                if h_2 : n = 3 then
+                  Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → ¬n = 2 → motive✝ n✝.succ n.succ)
+                    (fun cont_5 h_1 =>
+                      Eq.symm h_2 ▸
+                        Nat.casesOn (motive := fun x => motive✝ x (Nat.succ 3) → motive✝ x (Nat.succ 3)) n✝.succ
+                          (fun cont_5 => cont_5) (fun n cont_5 => h_4✝ n) cont_5)
+                    (Eq.symm h_2) cont_5 h_1
+                else
+                  if h_3 : n = 4 then
+                    Eq.ndrec (motive := fun n => motive✝ n✝.succ n.succ → ¬n = 2 → ¬n = 3 → motive✝ n✝.succ n.succ)
+                      (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ n✝.succ) (Eq.symm h_3) cont_5 h_1 h_2
+                  else cont_5) =
+          h_6✝ n✝.succ m✝
+-/
+#guard_msgs in
+#check foo2.match_1.splitter
+
+def mixed_matches_pure (f : Nat → Option Nat) : Nat :=
+  match h : f 0, f 10 with
+  | some y, some z => 1
+  | _, some _ => 2
+  | _, _ => 3

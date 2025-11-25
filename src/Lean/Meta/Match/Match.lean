@@ -208,6 +208,7 @@ private def hasIntValPattern (p : Problem) : MetaM Bool :=
     | _           => return false
 
 private def hasVarPattern (p : Problem) : Bool :=
+  p.fallthrough.isSome || -- a fallthrough is a bit like a variable pattern
   p.alts.any fun alt => match alt.patterns with
     | .var _ :: _ => true
     | _           => false
@@ -293,7 +294,7 @@ private def isConstructorTransition (p : Problem) : MetaM Bool := do
       | _                    => false
 
 private def isValueTransition (p : Problem) : Bool :=
-  (hasVarPattern p || p.fallthrough.isSome) && hasValPattern p
+  hasVarPattern p && hasValPattern p
   && p.alts.all fun alt => match alt.patterns with
      | .val _ :: _ => true
      | .var _ :: _ => true

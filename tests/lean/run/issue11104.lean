@@ -185,3 +185,15 @@ def mixed_matches_pure (f : Nat → Option Nat) : Nat :=
   | some y, some z => 1
   | _, some _ => 2
   | _, _ => 3
+
+inductive Inline (α : Type u) where
+  | concat : Array (Inline α) → Inline α
+  | leaf : Inline α
+
+def Inline.append : (x y : Inline α) → Inline α
+    | .concat #[], x => x
+    | x, .concat #[] => x
+    | .concat xs, .concat ys => .concat (xs ++ ys)
+    | .concat xs, x => .concat (xs.push x)
+    | x, .concat xs => .concat (#[x] ++ xs)
+    | x, y => .concat #[x, y]

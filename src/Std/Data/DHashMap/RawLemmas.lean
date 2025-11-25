@@ -5633,23 +5633,7 @@ section Perm
 
 variable {α : Type u}
 
-theorem move_to_front {pre post : List α} {a : α} :
-    (pre ++ a :: post).Perm (a::pre++post) := by
-  induction pre with
-  | nil => simp
-  | cons hd tl ih =>
-    cases tl with
-    | nil =>
-      simp
-      apply List.Perm.swap
-    | cons hd' tl' =>
-      simp
-      apply List.Perm.trans (l₂ := hd::a::hd'::tl'++post)
-      · apply List.Perm.cons
-        apply ih
-      · apply List.Perm.swap
-
-theorem Perm_helper {α : Type u} (l₁ l₂ : List α) (h₁ : l₁.Nodup) (h₂ : l₂.Nodup) (h₃ : ∀ (a : α), a ∈ l₁ ↔ a ∈ l₂) :
+theorem List.Perm.of_nodup_of_nodup_of_forall_mem_iff_mem {α : Type u} (l₁ l₂ : List α) (h₁ : l₁.Nodup) (h₂ : l₂.Nodup) (h₃ : ∀ (a : α), a ∈ l₁ ↔ a ∈ l₂) :
     l₁.Perm l₂ := by
   induction l₁ generalizing l₂ with
   | nil =>
@@ -5663,11 +5647,11 @@ theorem Perm_helper {α : Type u} (l₁ l₂ : List α) (h₁ : l₁.Nodup) (h�
     rw [List.mem_iff_append] at hd_mem
     rcases hd_mem with ⟨pre, post, h⟩
     rw [h]
-    apply List.Perm.trans ?_ move_to_front.symm
+    apply List.Perm.trans ?_ List.perm_middle.symm
     apply List.Perm.cons
     have nodup_pre_post : (pre ++ post).Nodup := by
       rw [h] at h₂
-      have := List.Perm.nodup move_to_front h₂
+      have := List.Perm.nodup List.perm_middle h₂
       simp at this
       apply this.2
     apply ih
@@ -5833,7 +5817,7 @@ theorem partition_fst_equiv_filter [EquivBEq α] [LawfulHashable α]
     (m.partition p).fst ~m m.filter p := by
   apply Equiv.of_toList_perm
   apply List.Perm.trans _ (toList_filter h).symm
-  apply Perm_helper
+  apply List.Perm.of_nodup_of_nodup_of_forall_mem_iff_mem
   · apply nodup_toList
     apply wf_partition_fst h
   · apply List.nodup_filter_of_nodup (nodup_toList h)

@@ -235,10 +235,10 @@ end
     (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (b : DHashMap α β) : m δ :=
   b.1.forIn f init
 
-instance [BEq α] [Hashable α] : ForM m (DHashMap α β) ((a : α) × β a) where
+instance [Monad m] [BEq α] [Hashable α] : ForM m (DHashMap α β) ((a : α) × β a) where
   forM m f := m.forM (fun a b => f ⟨a, b⟩)
 
-instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) where
+instance [Monad m] [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
 namespace Const

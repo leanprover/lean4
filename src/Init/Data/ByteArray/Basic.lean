@@ -243,7 +243,7 @@ protected def forIn {β : Type v} {m : Type v → Type w} [Monad m] (as : ByteAr
       | ForInStep.yield b => loop i (Nat.le_of_lt h') b
   loop as.size (Nat.le_refl _) b
 
-instance : ForIn m ByteArray UInt8 where
+instance [Monad m] : ForIn m ByteArray UInt8 where
   forIn := ByteArray.forIn
 
 /--

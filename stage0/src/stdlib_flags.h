@@ -1,5 +1,7 @@
 #include "util/options.h"
 
+// please update stage0
+
 // stage0 update needed for grind_annotated command
 namespace lean {
 options get_default_options() {

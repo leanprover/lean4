@@ -16595,8 +16595,8 @@ x_47 = l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_RCasesPatt
 if (lean_obj_tag(x_31) == 0)
 {
 x_12 = x_33;
-x_13 = lean_box(0);
-x_14 = x_47;
+x_13 = x_47;
+x_14 = lean_box(0);
 x_15 = x_46;
 x_16 = x_44;
 goto block_23;
@@ -16613,8 +16613,8 @@ x_50 = l_Lean_TSyntax_getId(x_49);
 lean_dec(x_49);
 lean_ctor_set(x_31, 0, x_50);
 x_12 = x_33;
-x_13 = lean_box(0);
-x_14 = x_47;
+x_13 = x_47;
+x_14 = lean_box(0);
 x_15 = x_46;
 x_16 = x_31;
 goto block_23;
@@ -16630,8 +16630,8 @@ lean_dec(x_51);
 x_53 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_53, 0, x_52);
 x_12 = x_33;
-x_13 = lean_box(0);
-x_14 = x_47;
+x_13 = x_47;
+x_14 = lean_box(0);
 x_15 = x_46;
 x_16 = x_53;
 goto block_23;
@@ -16712,7 +16712,7 @@ block_23:
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_17 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_17, 0, x_15);
-lean_ctor_set(x_17, 1, x_14);
+lean_ctor_set(x_17, 1, x_13);
 lean_ctor_set(x_17, 2, x_16);
 x_18 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_18, 0, x_12);

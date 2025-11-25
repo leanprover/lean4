@@ -58,7 +58,6 @@ LEAN_EXPORT lean_object* l_String_Slice_Pos_prev_x21___boxed(lean_object*, lean_
 LEAN_EXPORT lean_object* l_String_Slice_Pos_ofSliceTo___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_replaceStartEnd___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
-lean_object* lean_string_to_utf8(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__ByteArray_utf8Decode_x3f_go_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pos_ofReplaceStart___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_ofCopy(lean_object*, lean_object*);
@@ -126,6 +125,7 @@ LEAN_EXPORT lean_object* l_String_Pos_ofCopy___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_next_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_prev_x3f___boxed(lean_object*, lean_object*);
 static lean_object* l_String_Slice_Pos_prev_x21___closed__0;
+lean_object* lean_string_to_utf8(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_utf8Decode_x3f___boxed(lean_object*);
 static lean_object* l_String_Slice_pos_x21___closed__1;
 LEAN_EXPORT lean_object* l_String_firstDiffPos___boxed(lean_object*, lean_object*);

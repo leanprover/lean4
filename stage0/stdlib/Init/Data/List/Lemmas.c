@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Lemmas
-// Imports: public import Init.Data.Option.Lemmas public import Init.Data.List.BasicAux import all Init.Data.List.BasicAux public import Init.Data.List.Control import all Init.Data.List.Control public import Init.BinderPredicates
+// Imports: public import Init.Data.Option.Lemmas public import Init.Data.List.BasicAux import all Init.Data.List.BasicAux public import Init.Data.List.Control import all Init.Data.List.Control public import Init.BinderPredicates import Init.Grind.Annotated
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -800,6 +800,7 @@ lean_object* initialize_Init_Data_List_BasicAux(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Control(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Control(uint8_t builtin);
 lean_object* initialize_Init_BinderPredicates(uint8_t builtin);
+lean_object* initialize_Init_Grind_Annotated(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_Lemmas(uint8_t builtin) {
 lean_object * res;
@@ -821,6 +822,9 @@ res = initialize_Init_Data_List_Control(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_BinderPredicates(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Annotated(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

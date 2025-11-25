@@ -4106,33 +4106,33 @@ return x_80;
 block_23:
 {
 lean_object* x_21; 
-lean_inc(x_13);
-lean_inc_ref(x_12);
 lean_inc(x_15);
-lean_inc_ref(x_14);
+lean_inc_ref(x_12);
 lean_inc(x_16);
+lean_inc_ref(x_13);
+lean_inc(x_17);
 lean_inc_ref(x_2);
 lean_inc_ref(x_1);
-x_21 = l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachExprWhere_visit_go___at___00Lean_ForEachExprWhere_visit___at___00Lean_MVarId_getNondepPropHyps_spec__3_spec__3(x_1, x_2, x_3, x_18, x_20, x_16, x_14, x_15, x_12, x_13);
+x_21 = l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachExprWhere_visit_go___at___00Lean_ForEachExprWhere_visit___at___00Lean_MVarId_getNondepPropHyps_spec__3_spec__3(x_1, x_2, x_3, x_18, x_20, x_17, x_13, x_16, x_12, x_15);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_dec_ref(x_21);
 x_4 = x_19;
 x_5 = x_20;
-x_6 = x_16;
-x_7 = x_14;
-x_8 = x_15;
+x_6 = x_17;
+x_7 = x_13;
+x_8 = x_16;
 x_9 = x_12;
-x_10 = x_13;
+x_10 = x_15;
 goto _start;
 }
 else
 {
 lean_dec_ref(x_19);
+lean_dec(x_17);
 lean_dec(x_16);
 lean_dec(x_15);
-lean_dec_ref(x_14);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 lean_dec_ref(x_12);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
@@ -4151,11 +4151,11 @@ x_32 = lean_ctor_get(x_4, 2);
 lean_inc_ref(x_32);
 lean_dec_ref(x_4);
 x_12 = x_28;
-x_13 = x_29;
-x_14 = x_26;
-x_15 = x_27;
-x_16 = x_25;
-x_17 = lean_box(0);
+x_13 = x_26;
+x_14 = lean_box(0);
+x_15 = x_29;
+x_16 = x_27;
+x_17 = x_25;
 x_18 = x_31;
 x_19 = x_32;
 x_20 = x_24;
@@ -4170,11 +4170,11 @@ x_34 = lean_ctor_get(x_4, 2);
 lean_inc_ref(x_34);
 lean_dec_ref(x_4);
 x_12 = x_28;
-x_13 = x_29;
-x_14 = x_26;
-x_15 = x_27;
-x_16 = x_25;
-x_17 = lean_box(0);
+x_13 = x_26;
+x_14 = lean_box(0);
+x_15 = x_29;
+x_16 = x_27;
+x_17 = x_25;
 x_18 = x_33;
 x_19 = x_34;
 x_20 = x_24;
@@ -5154,8 +5154,8 @@ uint8_t x_41;
 x_41 = l_Lean_LocalDecl_hasValue(x_22, x_29);
 if (x_41 == 0)
 {
-x_23 = x_32;
-x_24 = lean_box(0);
+x_23 = lean_box(0);
+x_24 = x_32;
 goto block_28;
 }
 else
@@ -5169,8 +5169,8 @@ goto block_17;
 }
 else
 {
-x_23 = x_32;
-x_24 = lean_box(0);
+x_23 = lean_box(0);
+x_24 = x_32;
 goto block_28;
 }
 }
@@ -5217,7 +5217,7 @@ lean_object* x_25; lean_object* x_26; lean_object* x_27;
 x_25 = l_Lean_LocalDecl_fvarId(x_22);
 lean_dec(x_22);
 x_26 = lean_box(0);
-x_27 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00Lean_MVarId_getNondepPropHyps_spec__13___redArg(x_23, x_25, x_26);
+x_27 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00Lean_MVarId_getNondepPropHyps_spec__13___redArg(x_24, x_25, x_26);
 x_11 = x_27;
 x_12 = lean_box(0);
 goto block_17;

@@ -9274,7 +9274,7 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18;
 x_16 = lean_array_fget_borrowed(x_4, x_3);
 if (lean_obj_tag(x_16) == 0)
 {
-lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_46; uint8_t x_47; uint8_t x_64; lean_object* x_65; uint8_t x_67; lean_object* x_68; lean_object* x_70; lean_object* x_71; uint8_t x_72; 
+lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_46; uint8_t x_47; lean_object* x_64; uint8_t x_65; uint8_t x_67; lean_object* x_68; lean_object* x_70; lean_object* x_71; uint8_t x_72; 
 x_30 = lean_ctor_get(x_16, 0);
 x_31 = lean_ctor_get(x_16, 1);
 x_32 = lean_ctor_get(x_16, 2);
@@ -9575,7 +9575,7 @@ goto block_45;
 else
 {
 x_46 = lean_box(0);
-x_47 = x_64;
+x_47 = x_65;
 goto block_63;
 }
 }
@@ -9583,8 +9583,8 @@ block_69:
 {
 if (lean_obj_tag(x_32) == 6)
 {
-x_64 = x_67;
-x_65 = lean_box(0);
+x_64 = lean_box(0);
+x_65 = x_67;
 goto block_66;
 }
 else
@@ -9597,8 +9597,8 @@ goto block_63;
 }
 else
 {
-x_64 = x_67;
-x_65 = lean_box(0);
+x_64 = lean_box(0);
+x_65 = x_67;
 goto block_66;
 }
 }

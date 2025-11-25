@@ -26,7 +26,6 @@ static lean_object* l___private_Lean_Server_InfoUtils_0__Lean_Elab_Info_fmtHover
 LEAN_EXPORT lean_object* l_List_filterMapTR_go___at___00Lean_Elab_InfoTree_hoverableInfoAtM_x3f___at___00Lean_Elab_InfoTree_termGoalAt_x3f_spec__1_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_deepestNodes___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_ppSignature(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_filterTR_loop___at___00List_filterTR_loop___at___00Lean_Elab_InfoTree_goalsAt_x3f_spec__4_spec__4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findModuleOf_x3f___at___00__private_Lean_Server_InfoUtils_0__Lean_Elab_Info_fmtHover_x3f_fmtModule_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Lean_Elab_InfoTree_goalsAt_x3f_spec__0(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -271,7 +270,6 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_InfoUtils_0__Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___closed__6;
 static lean_object* l_Lean_Elab_InfoTree_smallestInfo_x3f___closed__0;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyM___at___00__private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_filterTR_loop___at___00List_filterTR_loop___at___00Lean_Elab_InfoTree_goalsAt_x3f_spec__4_spec__4___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_InfoTree_hoverableInfoAtM_x3f___redArg___lam__6___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_foldInfoTree_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isIdent(lean_object*);
@@ -11183,7 +11181,7 @@ return x_8;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_filterTR_loop___at___00List_filterTR_loop___at___00Lean_Elab_InfoTree_goalsAt_x3f_spec__4_spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_List_filterTR_loop___at___00Lean_Elab_InfoTree_goalsAt_x3f_spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -11255,80 +11253,6 @@ lean_ctor_set(x_19, 1, x_3);
 x_2 = x_14;
 x_3 = x_19;
 goto _start;
-}
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_List_filterTR_loop___at___00Lean_Elab_InfoTree_goalsAt_x3f_spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_4; 
-x_4 = l_List_reverse___redArg(x_3);
-return x_4;
-}
-else
-{
-uint8_t x_5; 
-x_5 = !lean_is_exclusive(x_2);
-if (x_5 == 0)
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-x_6 = lean_ctor_get(x_2, 0);
-x_7 = lean_ctor_get(x_2, 1);
-x_8 = lean_ctor_get(x_6, 2);
-lean_inc(x_8);
-x_9 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_9, 0, x_8);
-x_10 = l_Option_instBEq_beq___at___00Lean_Elab_InfoTree_goalsAt_x3f_spec__3(x_9, x_1);
-lean_dec_ref(x_9);
-if (x_10 == 0)
-{
-lean_object* x_11; 
-lean_free_object(x_2);
-lean_dec(x_6);
-x_11 = l_List_filterTR_loop___at___00List_filterTR_loop___at___00Lean_Elab_InfoTree_goalsAt_x3f_spec__4_spec__4(x_1, x_7, x_3);
-return x_11;
-}
-else
-{
-lean_object* x_12; 
-lean_ctor_set(x_2, 1, x_3);
-x_12 = l_List_filterTR_loop___at___00List_filterTR_loop___at___00Lean_Elab_InfoTree_goalsAt_x3f_spec__4_spec__4(x_1, x_7, x_2);
-return x_12;
-}
-}
-else
-{
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
-x_13 = lean_ctor_get(x_2, 0);
-x_14 = lean_ctor_get(x_2, 1);
-lean_inc(x_14);
-lean_inc(x_13);
-lean_dec(x_2);
-x_15 = lean_ctor_get(x_13, 2);
-lean_inc(x_15);
-x_16 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_16, 0, x_15);
-x_17 = l_Option_instBEq_beq___at___00Lean_Elab_InfoTree_goalsAt_x3f_spec__3(x_16, x_1);
-lean_dec_ref(x_16);
-if (x_17 == 0)
-{
-lean_object* x_18; 
-lean_dec(x_13);
-x_18 = l_List_filterTR_loop___at___00List_filterTR_loop___at___00Lean_Elab_InfoTree_goalsAt_x3f_spec__4_spec__4(x_1, x_14, x_3);
-return x_18;
-}
-else
-{
-lean_object* x_19; lean_object* x_20; 
-x_19 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_19, 0, x_13);
-lean_ctor_set(x_19, 1, x_3);
-x_20 = l_List_filterTR_loop___at___00List_filterTR_loop___at___00Lean_Elab_InfoTree_goalsAt_x3f_spec__4_spec__4(x_1, x_14, x_19);
-return x_20;
 }
 }
 }
@@ -11661,15 +11585,6 @@ x_3 = l_Option_instBEq_beq___at___00Lean_Elab_InfoTree_goalsAt_x3f_spec__3(x_1, 
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_List_filterTR_loop___at___00List_filterTR_loop___at___00Lean_Elab_InfoTree_goalsAt_x3f_spec__4_spec__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_List_filterTR_loop___at___00List_filterTR_loop___at___00Lean_Elab_InfoTree_goalsAt_x3f_spec__4_spec__4(x_1, x_2, x_3);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -12029,7 +11944,7 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_hoverableInfoAtM_x3f___at___00Lean_Elab_InfoTree_termGoalAt_x3f_spec__1___lam__1(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; uint8_t x_9; uint8_t x_10; uint8_t x_11; uint8_t x_17; uint8_t x_18; lean_object* x_19; uint8_t x_20; uint8_t x_21; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+uint8_t x_8; uint8_t x_9; lean_object* x_10; uint8_t x_11; uint8_t x_17; uint8_t x_18; lean_object* x_19; uint8_t x_20; uint8_t x_21; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 x_23 = l_Lean_Elab_InfoTree_hoverableInfoAtM_x3f___redArg___lam__9___closed__0;
 x_24 = l_List_filterMapTR_go___at___00Lean_Elab_InfoTree_hoverableInfoAtM_x3f___at___00Lean_Elab_InfoTree_termGoalAt_x3f_spec__1_spec__1(x_7, x_23);
 lean_inc_ref(x_6);
@@ -12143,29 +12058,29 @@ x_44 = lean_ctor_get(x_5, 0);
 x_45 = lean_ctor_get(x_44, 3);
 if (lean_obj_tag(x_45) == 1)
 {
-x_17 = x_32;
-x_18 = x_33;
+x_17 = x_33;
+x_18 = x_42;
 x_19 = x_43;
-x_20 = x_42;
+x_20 = x_32;
 x_21 = x_33;
 goto block_22;
 }
 else
 {
-x_17 = x_32;
-x_18 = x_33;
+x_17 = x_33;
+x_18 = x_42;
 x_19 = x_43;
-x_20 = x_42;
+x_20 = x_32;
 x_21 = x_32;
 goto block_22;
 }
 }
 else
 {
-x_17 = x_32;
-x_18 = x_33;
+x_17 = x_33;
+x_18 = x_42;
 x_19 = x_43;
-x_20 = x_42;
+x_20 = x_32;
 x_21 = x_32;
 goto block_22;
 }
@@ -12251,8 +12166,8 @@ block_16:
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = lean_alloc_ctor(0, 1, 3);
-lean_ctor_set(x_12, 0, x_8);
-lean_ctor_set_uint8(x_12, sizeof(void*)*1, x_10);
+lean_ctor_set(x_12, 0, x_10);
+lean_ctor_set_uint8(x_12, sizeof(void*)*1, x_8);
 lean_ctor_set_uint8(x_12, sizeof(void*)*1 + 1, x_9);
 lean_ctor_set_uint8(x_12, sizeof(void*)*1 + 2, x_11);
 x_13 = lean_alloc_ctor(0, 3, 0);
@@ -12270,18 +12185,18 @@ block_22:
 {
 if (lean_obj_tag(x_5) == 2)
 {
-x_8 = x_19;
+x_8 = x_18;
 x_9 = x_21;
-x_10 = x_20;
-x_11 = x_18;
+x_10 = x_19;
+x_11 = x_17;
 goto block_16;
 }
 else
 {
-x_8 = x_19;
+x_8 = x_18;
 x_9 = x_21;
-x_10 = x_20;
-x_11 = x_17;
+x_10 = x_19;
+x_11 = x_20;
 goto block_16;
 }
 }

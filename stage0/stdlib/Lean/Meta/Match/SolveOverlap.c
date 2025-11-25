@@ -8011,7 +8011,7 @@ lean_dec(x_61);
 if (x_62 == 0)
 {
 lean_object* x_63; 
-lean_dec_ref(x_56);
+lean_dec_ref(x_57);
 lean_dec(x_47);
 lean_dec(x_38);
 x_63 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forInAux___at___00Lean_PersistentArray_forIn___at___00__private_Lean_Meta_Match_SolveOverlap_0__Lean_Meta_Match_injectionAny_spec__4_spec__4_spec__5_spec__5___lam__0(x_1, x_1, x_10, x_11, x_12, x_13);
@@ -8037,7 +8037,7 @@ x_68 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00
 x_69 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_69, 0, x_67);
 lean_ctor_set(x_69, 1, x_68);
-x_70 = l_Lean_Exception_toMessageData(x_56);
+x_70 = l_Lean_Exception_toMessageData(x_57);
 x_71 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_71, 0, x_69);
 lean_ctor_set(x_71, 1, x_70);
@@ -8068,7 +8068,7 @@ if (lean_is_scalar(x_55)) {
  x_75 = x_55;
  lean_ctor_set_tag(x_75, 1);
 }
-lean_ctor_set(x_75, 0, x_56);
+lean_ctor_set(x_75, 0, x_57);
 return x_75;
 }
 }
@@ -8138,15 +8138,15 @@ if (x_85 == 0)
 {
 uint8_t x_86; 
 x_86 = l_Lean_Exception_isRuntime(x_84);
-x_56 = x_84;
-x_57 = lean_box(0);
+x_56 = lean_box(0);
+x_57 = x_84;
 x_58 = x_86;
 goto block_76;
 }
 else
 {
-x_56 = x_84;
-x_57 = lean_box(0);
+x_56 = lean_box(0);
+x_57 = x_84;
 x_58 = x_85;
 goto block_76;
 }

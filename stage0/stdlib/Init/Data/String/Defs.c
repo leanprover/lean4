@@ -29,6 +29,7 @@ LEAN_EXPORT lean_object* l_String_instLTPos__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_endValidPos___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_getUTF8Byte___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_append___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_String_bytes(lean_object*);
 static lean_object* l_String_instInhabitedSlice___closed__0;
 LEAN_EXPORT lean_object* l_String_Pos_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_ctorIdx(lean_object*);
@@ -42,6 +43,7 @@ LEAN_EXPORT lean_object* l_String_Slice_getUTF8Byte_x21___boxed(lean_object*, le
 LEAN_EXPORT lean_object* l_String_Slice_getUTF8Byte___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_string_intercalate(lean_object*, lean_object*);
+lean_object* lean_string_to_utf8(lean_object*);
 LEAN_EXPORT uint8_t l_String_Slice_getUTF8Byte___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_rawEndPos(lean_object*);
 LEAN_EXPORT lean_object* l_String_fromUTF8___redArg(lean_object*);
@@ -1470,6 +1472,14 @@ _start:
 lean_object* x_2; 
 x_2 = l_String_endValidPos(x_1);
 lean_dec_ref(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_String_String_bytes(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_string_to_utf8(x_1);
 return x_2;
 }
 }

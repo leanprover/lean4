@@ -2663,14 +2663,14 @@ block_78:
 {
 lean_object* x_69; 
 lean_inc(x_59);
-x_69 = l_Lean_Grind_Linarith_Poly_updateOccs(x_56, x_59, x_60, x_61, x_62, x_63, x_64, x_65, x_66, x_67);
+x_69 = l_Lean_Grind_Linarith_Poly_updateOccs(x_58, x_59, x_60, x_61, x_62, x_63, x_64, x_65, x_66, x_67);
 if (lean_obj_tag(x_69) == 0)
 {
 lean_object* x_70; uint8_t x_71; 
 lean_dec_ref(x_69);
 x_70 = l_Lean_Meta_Grind_Arith_Linear_IneqCnstr_assert___closed__0;
-x_71 = lean_int_dec_lt(x_58, x_70);
-lean_dec(x_58);
+x_71 = lean_int_dec_lt(x_57, x_70);
+lean_dec(x_57);
 if (x_71 == 0)
 {
 lean_object* x_72; lean_object* x_73; lean_object* x_74; 
@@ -2685,7 +2685,7 @@ x_74 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtensi
 if (lean_obj_tag(x_74) == 0)
 {
 lean_dec_ref(x_74);
-x_25 = x_57;
+x_25 = x_56;
 x_26 = x_59;
 x_27 = x_60;
 x_28 = x_61;
@@ -2709,7 +2709,7 @@ lean_dec_ref(x_62);
 lean_dec(x_61);
 lean_dec(x_60);
 lean_dec(x_59);
-lean_dec(x_57);
+lean_dec(x_56);
 lean_dec_ref(x_1);
 return x_74;
 }
@@ -2728,7 +2728,7 @@ x_77 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtensi
 if (lean_obj_tag(x_77) == 0)
 {
 lean_dec_ref(x_77);
-x_25 = x_57;
+x_25 = x_56;
 x_26 = x_59;
 x_27 = x_60;
 x_28 = x_61;
@@ -2752,7 +2752,7 @@ lean_dec_ref(x_62);
 lean_dec(x_61);
 lean_dec(x_60);
 lean_dec(x_59);
-lean_dec(x_57);
+lean_dec(x_56);
 lean_dec_ref(x_1);
 return x_77;
 }
@@ -2769,8 +2769,8 @@ lean_dec_ref(x_62);
 lean_dec(x_61);
 lean_dec(x_60);
 lean_dec(x_59);
-lean_dec(x_58);
 lean_dec(x_57);
+lean_dec(x_56);
 lean_dec(x_55);
 lean_dec_ref(x_1);
 return x_69;
@@ -3035,13 +3035,13 @@ x_131 = lean_unbox(x_130);
 lean_dec(x_130);
 if (x_131 == 0)
 {
-lean_inc(x_126);
 lean_inc_ref(x_89);
+lean_inc(x_126);
 lean_inc_n(x_127, 2);
 x_55 = x_127;
-x_56 = x_89;
-x_57 = x_127;
-x_58 = x_126;
+x_56 = x_127;
+x_57 = x_126;
+x_58 = x_89;
 x_59 = x_79;
 x_60 = x_80;
 x_61 = x_81;
@@ -3067,13 +3067,13 @@ lean_dec_ref(x_132);
 x_134 = l_Lean_MessageData_ofExpr(x_133);
 x_135 = l_Lean_addTrace___at___00Lean_Meta_Grind_Arith_Linear_IneqCnstr_assert_spec__10___redArg(x_128, x_134, x_84, x_85, x_86, x_87);
 lean_dec_ref(x_135);
-lean_inc(x_126);
 lean_inc_ref(x_89);
+lean_inc(x_126);
 lean_inc_n(x_127, 2);
 x_55 = x_127;
-x_56 = x_89;
-x_57 = x_127;
-x_58 = x_126;
+x_56 = x_127;
+x_57 = x_126;
+x_58 = x_89;
 x_59 = x_79;
 x_60 = x_80;
 x_61 = x_81;

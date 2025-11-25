@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_System_FilePath_pathSeparators;
-LEAN_EXPORT lean_object* l_String_mapAux___at___00String_mapAux___at___00System_FilePath_normalize_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_instInhabitedFilePath_default;
 lean_object* l_List_lengthTR___redArg(lean_object*);
 lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
@@ -51,7 +50,6 @@ uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_isAbsolute___closed__0___boxed__const__1;
 LEAN_EXPORT lean_object* l_System_FilePath_withExtension___boxed(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
-LEAN_EXPORT lean_object* l_String_mapAux___at___00String_mapAux___at___00System_FilePath_normalize_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 static lean_object* l_String_Slice_split___at___00System_FilePath_components_spec__0___closed__2;
@@ -513,7 +511,7 @@ return x_7;
 }
 }
 }
-LEAN_EXPORT lean_object* l_String_mapAux___at___00String_mapAux___at___00System_FilePath_normalize_spec__1_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_String_mapAux___at___00System_FilePath_normalize_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint32_t x_4; lean_object* x_10; uint8_t x_11; 
@@ -555,50 +553,6 @@ lean_dec(x_3);
 x_2 = x_5;
 x_3 = x_7;
 goto _start;
-}
-}
-}
-LEAN_EXPORT lean_object* l_String_mapAux___at___00System_FilePath_normalize_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint32_t x_4; lean_object* x_10; uint8_t x_11; 
-x_10 = lean_string_utf8_byte_size(x_2);
-x_11 = lean_nat_dec_eq(x_3, x_10);
-lean_dec(x_10);
-if (x_11 == 0)
-{
-uint32_t x_12; uint8_t x_13; 
-x_12 = lean_string_utf8_get_fast(x_2, x_3);
-x_13 = l_List_elem___at___00System_FilePath_normalize_spec__0(x_12, x_1);
-if (x_13 == 0)
-{
-x_4 = x_12;
-goto block_9;
-}
-else
-{
-uint32_t x_14; 
-x_14 = l_System_FilePath_pathSeparator;
-x_4 = x_14;
-goto block_9;
-}
-}
-else
-{
-lean_dec(x_3);
-return x_2;
-}
-block_9:
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_inc(x_3);
-x_5 = lean_string_utf8_set(x_2, x_3, x_4);
-x_6 = l_Char_utf8Size(x_4);
-x_7 = lean_nat_add(x_3, x_6);
-lean_dec(x_6);
-lean_dec(x_3);
-x_8 = l_String_mapAux___at___00String_mapAux___at___00System_FilePath_normalize_spec__1_spec__1(x_1, x_5, x_7);
-return x_8;
 }
 }
 }
@@ -759,15 +713,6 @@ x_4 = l_List_elem___at___00System_FilePath_normalize_spec__0(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_String_mapAux___at___00String_mapAux___at___00System_FilePath_normalize_spec__1_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_String_mapAux___at___00String_mapAux___at___00System_FilePath_normalize_spec__1_spec__1(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_String_mapAux___at___00System_FilePath_normalize_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

@@ -4213,12 +4213,12 @@ lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean
 x_13 = lean_ctor_get(x_8, 5);
 x_14 = l_Lean_mkOptionalNode(x_12);
 x_15 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Init_Simproc_0__Lean_Parser_mkAttributeCmds_spec__0___redArg___closed__0;
-x_16 = lean_array_push(x_15, x_11);
+x_16 = lean_array_push(x_15, x_10);
 x_17 = lean_array_push(x_16, x_14);
 x_18 = lean_box(2);
 x_19 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_19, 0, x_18);
-lean_ctor_set(x_19, 1, x_10);
+lean_ctor_set(x_19, 1, x_11);
 lean_ctor_set(x_19, 2, x_17);
 x_20 = 0;
 x_21 = l_Lean_SourceInfo_fromRef(x_13, x_20);
@@ -4264,8 +4264,8 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_43; 
 x_43 = lean_box(0);
-x_10 = x_40;
-x_11 = x_42;
+x_10 = x_42;
+x_11 = x_40;
 x_12 = x_43;
 goto block_39;
 }
@@ -4276,8 +4276,8 @@ x_44 = lean_ctor_get(x_3, 0);
 lean_inc(x_44);
 x_45 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_45, 0, x_44);
-x_10 = x_40;
-x_11 = x_42;
+x_10 = x_42;
+x_11 = x_40;
 x_12 = x_45;
 goto block_39;
 }

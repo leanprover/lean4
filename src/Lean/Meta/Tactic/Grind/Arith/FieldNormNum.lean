@@ -17,6 +17,7 @@ structure Context where
   u : Level
   type : Expr
   fieldInst : Expr
+  isChar0Inst : Expr
   ringInst : Expr
   semiringInst : Expr
 
@@ -28,7 +29,10 @@ def run? (type : Expr) (x : M α) : MetaM (Option α) := do
   let commRingInst := mkApp2 (mkConst ``Grind.Field.toCommRing [u]) type fieldInst
   let ringInst := mkApp2 (mkConst ``Grind.CommRing.toRing [u]) type commRingInst
   let semiringInst := mkApp2 (mkConst ``Grind.Ring.toSemiring [u]) type ringInst
-  x.run { u, type, fieldInst, ringInst, semiringInst }
+  let isCharP := mkApp3 (mkConst ``Grind.IsCharP [u]) type semiringInst (mkNatLit 0)
+  checkWithKernel isCharP
+  let some isChar0Inst ← synthInstanceMeta? isCharP | return none
+  x.run { u, type, fieldInst, ringInst, semiringInst, isChar0Inst }
 
 def isAddInst (inst : Expr) : M Bool := do
   let ctx ← read
@@ -75,22 +79,51 @@ def isOfNatInst (inst : Expr) (n : Expr) : M Bool := do
   let expectedInst := mkApp3 (mkConst ``Grind.Semiring.ofNat [ctx.u]) ctx.type ctx.semiringInst n
   isDefEqI inst expectedInst
 
-def isNatCastInst (inst : Expr) : M Bool := do
+def mkNatCastInst : M Expr := do
   let ctx ← read
-  let expectedInst := mkApp2 (mkConst ``Grind.Semiring.natCast [ctx.u]) ctx.type ctx.semiringInst
-  isDefEqI inst expectedInst
+  return mkApp2 (mkConst ``Grind.Semiring.natCast [ctx.u]) ctx.type ctx.semiringInst
+
+def isNatCastInst (inst : Expr) : M Bool := do
+  isDefEqI inst (← mkNatCastInst)
+
+def mkNatCast (n : Nat) : M Expr := do
+  let ctx ← read
+  let n := mkNatLit n
+  try
+    mkAppOptM ``NatCast.natCast #[ctx.type, none, n]
+  catch _ =>
+    /-
+    **Note**: This may happen because the `NatCast` instances defined in core are not enabled by default.
+    We must ensure the normalizer works even when there is not `NatCast` instance available.
+    -/
+    return mkApp3 (mkConst ``NatCast.natCast [ctx.u]) ctx.type (← mkNatCastInst) n
+
+def mkIntCastInst : M Expr := do
+  let ctx ← read
+  return mkApp2 (mkConst ``Grind.Ring.intCast [ctx.u]) ctx.type ctx.ringInst
 
 def isIntCastInst (inst : Expr) : M Bool := do
+  isDefEqI inst (← mkIntCastInst)
+
+def mkIntCast (n : Int) : M Expr := do
   let ctx ← read
-  let expectedInst := mkApp2 (mkConst ``Grind.Ring.intCast [ctx.u]) ctx.type ctx.ringInst
-  isDefEqI inst expectedInst
+  let n := mkIntLit n
+  try
+     mkAppOptM ``IntCast.intCast #[ctx.type, none, n]
+  catch _ =>
+    /-
+    **Note**: This may happen because the `IntCast` instances defined in core are not enabled by default.
+    We must ensure the normalizer works even when there is not `IntCast` instance available.
+    -/
+    return mkApp3 (mkConst ``IntCast.intCast [ctx.u]) ctx.type (← mkIntCastInst) n
 
 def mkBin (declName : Name) (a b : Expr) (r₁ r₂ : Rat × Expr) (op : Rat → Rat → Rat) : M (Rat × Expr) := do
   let ctx ← read
   let (v₁, h₁) := r₁
   let (v₂, h₂) := r₂
   let v := op v₁ v₂
-  let h := mkApp10 (mkConst declName [ctx.u]) ctx.type ctx.fieldInst a b (toExpr v₁) (toExpr v₂) (toExpr v) eagerReflBoolTrue h₁ h₂
+  let h := mkApp8 (mkConst declName [ctx.u]) ctx.type ctx.fieldInst ctx.isChar0Inst a b (toExpr v₁) (toExpr v₂) (toExpr v)
+  let h := mkApp3 h eagerReflBoolTrue h₁ h₂
   return (v, h)
 
 def mkUnary (declName : Name) (a : Expr) (r : Rat × Expr) (op : Rat → Rat) : M (Rat × Expr) := do
@@ -146,7 +179,8 @@ partial def eval (e : Expr) : M (Rat × Expr) := do
       -- **Note**: Would be great to be able to use `Grind.Config.exp`, but we don't have access to it in the `MetaM` monad
       guard (← checkExponent n (warning := false))
       let v := v₁ ^ n
-      let h := mkApp8 (mkConst ``Grind.Field.NormNum.npow_eq [ctx.u]) ctx.type ctx.fieldInst a (toExpr n) (toExpr v₁) (toExpr v) eagerReflBoolTrue h₁
+      let h := mkApp9 (mkConst ``Grind.Field.NormNum.npow_eq [ctx.u]) ctx.type ctx.fieldInst ctx.isChar0Inst
+        a (toExpr n) (toExpr v₁) (toExpr v) eagerReflBoolTrue h₁
       return (v, h)
     else if (← isZPowInst inst) then
       let (v₁, h₁) ← eval a
@@ -154,37 +188,57 @@ partial def eval (e : Expr) : M (Rat × Expr) := do
       let ctx ← read
       guard (← checkExponent n.natAbs (warning := false))
       let v := v₁ ^ n
-      let h := mkApp8 (mkConst ``Grind.Field.NormNum.zpow_eq [ctx.u]) ctx.type ctx.fieldInst a (toExpr n) (toExpr v₁) (toExpr v) eagerReflBoolTrue h₁
+      let h := mkApp9 (mkConst ``Grind.Field.NormNum.zpow_eq [ctx.u]) ctx.type ctx.fieldInst ctx.isChar0Inst
+        a (toExpr n) (toExpr v₁) (toExpr v) eagerReflBoolTrue h₁
       return (v, h)
     else
       failure
   | _ => failure
 
+/-- Quick filter to decide whether it is worth applying `eval` or not. -/
+partial def isApplicable (e : Expr) : Bool :=
+  match_expr e with
+  | HAdd.hAdd _ _ _ _ a b => isApplicable a && isApplicable b
+  | HMul.hMul _ _ _ _ a b => isApplicable a && isApplicable b
+  | HSub.hSub _ _ _ _ a b => isApplicable a && isApplicable b
+  | HDiv.hDiv _ _ _ _ a b => isApplicable a && isApplicable b
+  | HPow.hPow _ _ _ _ a b => isApplicable a && isApplicable b
+  | Neg.neg _ _ a => isApplicable a
+  | Inv.inv _ _ a => isApplicable a
+  | OfNat.ofNat _ _ _ => true
+  | NatCast.natCast _ _ _ => true
+  | IntCast.intCast _ _ _ => true
+  | _ => false
+
 end FieldNormNum
+
+open FieldNormNum
 
 /--
 Evaluates the `Field` expression `e` with type `type` using the given exponential threshold,
 and returns `some (v, h)` s.t. `h : e = ofRat v` if successful.
 -/
 public def evalFieldExpr? (e : Expr) (type : Expr) : MetaM (Option (Rat × Expr)) := do
-  FieldNormNum.run? type <| FieldNormNum.eval e
+  unless isApplicable e do return none
+  run? type <| eval e
 
 public def normFieldExpr? (e : Expr) (type : Expr) : MetaM (Option (Expr × Expr)) := do
-  FieldNormNum.run? type do
-    let (v, h) ← FieldNormNum.eval e
+  unless isApplicable e do return none
+  run? type do
+    let (v, h) ← eval e
     let ctx ← read
     if v.den == 1 then
-      let r ← mkAppOptM ``IntCast.intCast #[type, none, mkIntLit v.num]
+      let r ← mkIntCast v.num
       let h := mkApp7 (mkConst ``Grind.Field.NormNum.eq_int [ctx.u]) ctx.type ctx.fieldInst e (toExpr v) (toExpr v.num) eagerReflBoolTrue h
       return (r, h)
     else if v.num == 1 then
-      let r ← mkAppOptM ``NatCast.natCast #[type, none, mkNatLit v.den]
+      let r ← mkNatCast v.den
       let r ← mkAppM ``Inv.inv #[r]
       let h := mkApp7 (mkConst ``Grind.Field.NormNum.eq_inv [ctx.u]) ctx.type ctx.fieldInst e (toExpr v) (toExpr v.den) eagerReflBoolTrue h
       return (r, h)
     else
-      let n ← mkAppOptM ``IntCast.intCast #[type, none, mkIntLit v.num]
-      let d ← mkAppOptM ``NatCast.natCast #[type, none, mkNatLit v.den]
+      let n ← mkIntCast v.num
+      let d ← mkNatCast v.den
       let d ← mkAppM ``Inv.inv #[d]
       let r ← mkMul n d
       let h := mkApp8 (mkConst ``Grind.Field.NormNum.eq_mul_inv [ctx.u]) ctx.type ctx.fieldInst e (toExpr v) (toExpr v.num) (toExpr v.den) eagerReflBoolTrue h

@@ -76,7 +76,6 @@ builtin_simproc_decl expandDiv (_ / _) := fun e => do
   return .visit { expr, proof? := some <| mkApp4 (mkConst ``Grind.Field.div_eq_mul_inv [u]) α fieldInst a b }
 
 builtin_simproc_decl normFieldInv (_ ⁻¹) := fun e => do
-  if e.hasFVar || e.hasMVar then return .continue
   let_expr Inv.inv α _ a ← e | return .continue
   if isNotFieldQuick α then return .continue
   match_expr a with
@@ -84,7 +83,6 @@ builtin_simproc_decl normFieldInv (_ ⁻¹) := fun e => do
   | OfNat.ofNat _ _ _ => return .continue -- Already normalized
   | _ =>
   let some (expr, h) ← normFieldExpr? e α | return .continue
-  trace[Meta.debug] "{e} = {expr}"
   checkWithKernel h
   return .done { expr, proof? := h }
 

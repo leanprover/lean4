@@ -313,7 +313,6 @@ Examples:
 def anyAux (s : String) (stopPos : Pos.Raw) (p : Char → Bool) (i : Pos.Raw) : Bool :=
   s.slice! (s.pos! i) (s.pos! stopPos) |>.any p
 
-
 /--
 Checks whether a string has a match of the pattern {name}`pat` anywhere.
 
@@ -326,17 +325,6 @@ Examples:
 -/
 @[inline] def contains (s : String) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
   s.toSlice.contains pat
-
-@[export lean_string_contains]
-def Internal.containsImpl (s : String) (c : Char) : Bool :=
-  String.contains s c
-
-@[inline, inherit_doc contains] def any (s : String) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
-  s.contains pat
-
-@[export lean_string_any]
-def Internal.anyImpl (s : String) (p : Char → Bool) :=
-  String.any s p
 
 /--
 Checks whether a slice only consists of matches of the pattern {name}`pat`.
@@ -499,6 +487,24 @@ Examples:
 @[inline]
 def chars (s : String) :=
   (s.toSlice.chars : Std.Iter Char)
+
+@[export lean_string_contains]
+def Internal.containsImpl (s : String) (c : Char) : Bool :=
+  s.chars.any (· == c)
+
+/--
+Checks whether a string contains a character maching the predicate {lean}`p`.
+
+Examples:
+ * {lean}`"coffee tea water".any Char.isWhitespace = true`
+ * {lean}`"tea".any (fun (c : Char) => c == 'X') = false`
+-/
+@[inline] def any (s : String) (p : Char → Bool) : Bool :=
+  s.chars.any p
+
+@[export lean_string_any]
+def Internal.anyImpl (s : String) (p : Char → Bool) :=
+  s.chars.any p
 
 /--
 Creates an iterator over all valid positions within {name}`s`, starting from the last valid

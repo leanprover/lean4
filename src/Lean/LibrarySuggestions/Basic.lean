@@ -11,6 +11,7 @@ public import Lean.Meta.Eval
 public import Lean.Meta.CompletionName
 public import Lean.Linter.Deprecated
 public import Init.Data.Random
+public import Lean.Elab.Tactic.Grind.Annotated
 
 /-!
 # An API for library suggestion algorithms.
@@ -211,6 +212,31 @@ def combine (selector₁ selector₂ : Selector) : Selector := fun g c => do
   let sorted := deduped.qsort (fun s₁ s₂ => s₁.score > s₂.score)
 
   return sorted.take c.maxSuggestions
+
+/-- Check if a module has been marked as grind-annotated. -/
+def isGrindAnnotatedModule (env : Environment) (modIdx : ModuleIdx) : Bool :=
+  let state := Lean.Elab.Tactic.Grind.grindAnnotatedExt.getState env
+  let moduleName := env.header.moduleNames[modIdx.toNat]!
+  state.contains moduleName
+
+/--
+Filter out theorems from grind-annotated modules when the caller is "grind".
+Modules marked with `grind_annotated` contain manually reviewed/annotated theorems,
+so they should be excluded from automatic premise selection for grind.
+Other callers (like "simp") still receive suggestions from these modules.
+-/
+def filterGrindAnnotated (selector : Selector) : Selector := fun g c => do
+  let suggestions ← selector g c
+  -- Only filter when caller is "grind"
+  if c.caller == some "grind" then
+    let env ← getEnv
+    suggestions.filterM fun s => do
+      -- Check if the suggestion's module is grind-annotated
+      match env.getModuleIdxFor? s.name with
+      | none => return true  -- Keep suggestions with no module info
+      | some modIdx => return !isGrindAnnotatedModule env modIdx
+  else
+    return suggestions
 
 /--
 Combine two premise selectors by interspersing their results (ignoring scores).

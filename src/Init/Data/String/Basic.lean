@@ -2594,8 +2594,6 @@ where
 def extract : (@& String) → (@& Pos.Raw) → (@& Pos.Raw) → String
   | s, b, e => Pos.Raw.extract s b e
 
-
-
 def Pos.Raw.offsetOfPosAux (s : String) (pos : Pos.Raw) (i : Pos.Raw) (offset : Nat) : Nat :=
   if i >= pos then offset
   else if h : i.atEnd s then
@@ -2631,83 +2629,6 @@ def offsetOfPos (s : String) (pos : Pos.Raw) : Nat :=
 @[export lean_string_offsetofpos]
 def Internal.offsetOfPosImpl (s : String) (pos : Pos.Raw) : Nat :=
   String.Pos.Raw.offsetOfPos s pos
-
-@[specialize] def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (i begPos : Pos.Raw) : α :=
-  if h : begPos < i then
-    have := Pos.Raw.prev_lt_of_pos s i <| mt (congrArg String.Pos.Raw.byteIdx) <|
-      Ne.symm <| Nat.ne_of_lt <| Nat.lt_of_le_of_lt (Nat.zero_le _) h
-    let i := i.prev s
-    let a := f (i.get s) a
-    foldrAux f a s i begPos
-  else a
-termination_by i.1
-
-/--
-Folds a function over a string from the right, accumulating a value starting with `init`. The
-accumulated value is combined with each character in reverse order, using `f`.
-
-Examples:
- * `"coffee tea water".foldr (fun c n => if c.isWhitespace then n + 1 else n) 0 = 2`
- * `"coffee tea and water".foldr (fun c n => if c.isWhitespace then n + 1 else n) 0 = 3`
- * `"coffee tea water".foldr (fun c s => c.push s) "" = "retaw dna aet eeffoc"`
--/
-@[inline] def foldr {α : Type u} (f : Char → α → α) (init : α) (s : String) : α :=
-  foldrAux f init s s.rawEndPos 0
-
-@[specialize] def anyAux (s : String) (stopPos : Pos.Raw) (p : Char → Bool) (i : Pos.Raw) : Bool :=
-  if h : i < stopPos then
-    if p (i.get s) then true
-    else
-      have := Nat.sub_lt_sub_left h (Pos.Raw.lt_next s i)
-      anyAux s stopPos p (i.next s)
-  else false
-termination_by stopPos.1 - i.1
-
-/--
-Checks whether there is a character in a string for which the Boolean predicate `p` returns `true`.
-
-Short-circuits at the first character for which `p` returns `true`.
-
-Examples:
- * `"brown".any (·.isLetter) = true`
- * `"brown".any (·.isWhitespace) = false`
- * `"brown and orange".any (·.isLetter) = true`
- * `"".any (fun _ => false) = false`
--/
-@[inline] def any (s : String) (p : Char → Bool) : Bool :=
-  anyAux s s.rawEndPos p 0
-
-@[export lean_string_any]
-def Internal.anyImpl (s : String) (p : Char → Bool) :=
-  String.any s p
-
-/--
-Checks whether the Boolean predicate `p` returns `true` for every character in a string.
-
-Short-circuits at the first character for which `p` returns `false`.
-
-Examples:
- * `"brown".all (·.isLetter) = true`
- * `"brown and orange".all (·.isLetter) = false`
- * `"".all (fun _ => false) = true`
--/
-@[inline] def all (s : String) (p : Char → Bool) : Bool :=
-  !s.any (fun c => !p c)
-
-/--
-Checks whether a string contains the specified character.
-
-Examples:
-* `"green".contains 'e' = true`
-* `"green".contains 'x' = false`
-* `"".contains 'x' = false`
--/
-@[inline] def contains (s : String) (c : Char) : Bool :=
-  s.any (fun a => a == c)
-
-@[export lean_string_contains]
-def Internal.containsImpl (s : String) (c : Char) : Bool :=
-  String.contains s c
 
 theorem Pos.Raw.utf8SetAux_of_gt (c' : Char) : ∀ (cs : List Char) {i p : Pos.Raw}, i > p → utf8SetAux c' cs i p = cs
   | [],    _, _, _ => rfl

@@ -90,6 +90,8 @@ def logLintIf [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [Mon
     (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit := do
   if getLinterValue linterOption (← getLinterOptions) then logLint linterOption stx msg
 
+end Linter
+
 /--
 Given a command elaborator `cmd`, returns a new command elaborator that
 first evaluates any local `set_option ... in ...` clauses and then invokes `cmd` on what remains.
@@ -109,3 +111,5 @@ partial def withSetOptionIn (cmd : CommandElab) : CommandElab := fun stx => do
         withSetOptionIn cmd stx[2]
   else
     cmd stx
+
+end Lean

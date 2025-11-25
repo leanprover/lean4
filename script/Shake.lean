@@ -544,13 +544,9 @@ def toBitset (s : State) (ns : List Name) : Bitset :=
     | none => c
 
 local instance : Ord Import where
-  compare a b :=
-    if a.isExported && !b.isExported then
-      Ordering.lt
-    else if !a.isExported && b.isExported then
-      Ordering.gt
-    else
-      a.module.cmp b.module
+  compare :=
+    let _ := @lexOrd
+    compareOn fun imp => (!imp.isExported, imp.module.toString)
 
 /-- The main entry point. See `help` for more information on arguments. -/
 def main (args : List String) : IO UInt32 := do

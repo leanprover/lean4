@@ -72,7 +72,7 @@ syntax (name := linarith) "linarith" : grind
 /-- The `sorry` tactic is a temporary placeholder for an incomplete tactic proof. -/
 syntax (name := «sorry») "sorry" : grind
 
-syntax thmNs := &"ns" ident
+syntax thmNs := &"namespace" ident
 
 syntax thm := anchor <|> thmNs <|> grindLemmaMin <|> grindLemma
 

@@ -153,7 +153,7 @@ def ematchThms (only : Bool) (thms : Array EMatchTheorem) : GrindTacticM Unit :=
   if let some thmRefs := thmRefs? then
     for thmRef in thmRefs do
       match thmRef with
-      | `(Parser.Tactic.Grind.thm| ns $ns:ident) =>
+      | `(Parser.Tactic.Grind.thm| namespace $ns:ident) =>
         let namespaceName := ns.getId
         let scopedThms ← Grind.getEMatchTheoremsForNamespace namespaceName
         thms := thms ++ scopedThms

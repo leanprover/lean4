@@ -12,5 +12,5 @@ open Lean.Meta.Grind
 -- Test namespace-based theorem instantiation
 example (x y : Int) (h : max x y < 7) : x + y < 13 := by
   grind =>
-    use [ns Lean.Meta.Grind.Lia]
+    use [namespace Lean.Meta.Grind.Lia]
     repeat (first (lia) (cases_next))

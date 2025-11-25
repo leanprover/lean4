@@ -16,6 +16,10 @@ attribute [local instance] Semiring.natCast Ring.intCast
 abbrev ofRat {α} [Field α] (r : Rat) : α :=
   (IntCast.intCast r.num : α)/(NatCast.natCast r.den : α)
 
+attribute [local simp]
+  Field.inv_one Semiring.natCast_zero Semiring.natCast_one Ring.intCast_zero Ring.intCast_one Semiring.one_mul Semiring.mul_one
+  Semiring.pow_zero Field.inv_one Field.inv_zero
+
 theorem ofRat_add {α} [Field α] (a b : Rat) : (ofRat (a + b) : α) = ofRat a + ofRat b := sorry
 theorem ofRat_mul {α} [Field α] (a b : Rat) : (ofRat (a * b) : α) = ofRat a * ofRat b := sorry
 theorem ofRat_inv {α} [Field α] (a : Rat) : (ofRat (a⁻¹) : α) = (ofRat a)⁻¹ := sorry
@@ -25,7 +29,10 @@ theorem ofRat_neg {α} [Field α] (a : Rat) : (ofRat (-a) : α) = -ofRat a := by
   simp [ofRat, Field.div_eq_mul_inv, Ring.intCast_neg, Ring.neg_mul]
 theorem ofRat_sub {α} [Field α] (a b : Rat) : (ofRat (a - b) : α) = ofRat a - ofRat b := by
   simp [Rat.sub_eq_add_neg, ofRat_add, ofRat_neg, Ring.sub_eq_add_neg]
-theorem ofRat_npow {α} [Field α] (a : Rat) (n : Nat) : (ofRat (a^n) : α) = ofRat a ^ n := sorry
+theorem ofRat_npow {α} [Field α] (a : Rat) (n : Nat) : (ofRat (a^n) : α) = ofRat a ^ n := by
+  induction n
+  next => simp [Field.div_eq_mul_inv, ofRat]
+  next n ih => simp [Rat.pow_succ, ofRat_mul, ih, Semiring.pow_succ]
 theorem ofRat_zpow {α} [Field α] (a : Rat) (n : Int) : (ofRat (a^n) : α) = ofRat a ^ n := sorry
 
 theorem natCast_eq {α} [Field α] (n : Nat) : (NatCast.natCast n : α) = ofRat n := by

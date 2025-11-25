@@ -527,6 +527,15 @@ section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
 
+/-- Partition a hash map into two hash map based on a predicate. -/
+@[inline] def partition [BEq α] [Hashable α] (f : (a : α) → β a → Bool)
+    (m : Raw α β) : Raw α β × Raw α β :=
+  m.fold (init := (∅, ∅)) fun ⟨l, r⟩  a b =>
+    if f a b then
+      (l.insert a b, r)
+    else
+      (l, r.insert a b)
+
 /-- Returns a list of all values present in the hash map in some order. -/
 @[inline] def values {β : Type v} (m : Raw α (fun _ => β)) : List β :=
   Internal.foldRev (fun acc _ v => v :: acc) [] m

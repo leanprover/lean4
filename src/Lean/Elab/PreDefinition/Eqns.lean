@@ -11,6 +11,7 @@ import Lean.Elab.PreDefinition.EqnsUtils
 import Lean.Meta.Match.MatchEqs
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Split
+import Lean.Meta.Tactic.CasesOnStuckLHS
 
 /-!
 This module implements the generation of equational theorems, given unfolding theorems.

@@ -14,6 +14,7 @@ import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Meta.Match.MatchEqs
 import Lean.Meta.Tactic.Rewrite
+import Lean.Meta.Tactic.CasesOnStuckLHS
 
 namespace Lean.Elab
 open Meta

@@ -13,48 +13,11 @@ public import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.SplitIf
 import Lean.Meta.Match.SimpH
 import Lean.Meta.Match.SolveOverlap
+import Lean.Meta.Tactic.CasesOnStuckLHS
 
 public section
 
 namespace Lean.Meta
-
-/--
-  Helper method for `proveCondEqThm`. Given a goal of the form `C.rec ... xMajor = rhs`,
-  apply `cases xMajor`. -/
-partial def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
-  let target ← mvarId.getType
-  if let some (_, lhs, _) ← matchEq? target then
-    if let some fvarId ← findFVar? lhs then
-      return (←  mvarId.cases fvarId).map fun s => s.mvarId
-  throwError "'casesOnStuckLHS' failed"
-where
-  findFVar? (e : Expr) : MetaM (Option FVarId) := do
-    match e.getAppFn with
-    | Expr.proj _ _ e => findFVar? e
-    | f =>
-      if !f.isConst then
-        return none
-      else
-        let declName := f.constName!
-        let args := e.getAppArgs
-        match (← getProjectionFnInfo? declName) with
-        | some projInfo =>
-          if projInfo.numParams < args.size then
-            findFVar? args[projInfo.numParams]!
-          else
-            return none
-        | none =>
-          matchConstRec f (fun _ => return none) fun recVal _ => do
-            if recVal.getMajorIdx >= args.size then
-              return none
-            let major := args[recVal.getMajorIdx]!.consumeMData
-            if major.isFVar then
-              return some major.fvarId!
-            else
-              return none
-
-def casesOnStuckLHS? (mvarId : MVarId) : MetaM (Option (Array MVarId)) := do
-  try casesOnStuckLHS mvarId catch _ => return none
 
 namespace Match
 
@@ -195,6 +158,10 @@ where
 
 private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.withContext do
   for localDecl in (← getLCtx) do
+    if let some (α, _lhs, β, _rhs) ← matchHEq? localDecl.type then
+      if (← isDefEq α β) then
+        let (_, mvarId') ← heqToEq mvarId localDecl.fvarId
+        return #[mvarId']
     if let some (_, lhs, rhs) ← matchEq? localDecl.type then
       if lhs.isFVar then
         if !(← dependsOn rhs lhs.fvarId!) then
@@ -221,12 +188,13 @@ partial def proveCondEqThm (matchDeclName : Name) (type : Expr)
   let mvar0  ← mkFreshExprSyntheticOpaqueMVar type
   trace[Meta.Match.matchEqs] "proveCondEqThm {mvar0.mvarId!}"
   let mut mvarId := mvar0.mvarId!
+  let mut eqns := #[]
   if heqNum > 0 then
     mvarId := (← mvarId.introN heqPos).2
-    for _ in *...heqNum do
-      let (h, mvarId') ← mvarId.intro1
-      mvarId ← subst mvarId' h
-    trace[Meta.Match.matchEqs] "proveCondEqThm after subst{mvarId}"
+    let (hs, mvarId') ← mvarId.introN heqNum
+    eqns := hs
+    mvarId := mvarId'
+    -- trace[Meta.Match.matchEqs] "proveCondEqThm after subst{mvarId}"
   mvarId := (← mvarId.intros).2
   try mvarId.refl
   catch _ =>
@@ -256,6 +224,10 @@ where
             return #[mvarId₁, s₂.mvarId]
           else
             throwError "spliIf failed")
+      <|>
+      (do let mvarId' ← mvarId.heqOfEq
+          if mvarId' == mvarId then throwError "heqOfEq failed"
+          return #[mvarId'])
       <|>
       (substSomeVar mvarId)
       <|>

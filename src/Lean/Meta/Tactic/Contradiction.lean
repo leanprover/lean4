@@ -180,9 +180,11 @@ def _root_.Lean.MVarId.contradictionCore (mvarId : MVarId) (config : Contradicti
         let mut isEq := false
         -- (h : ctor₁ ... = ctor₂ ...)
         if let some (_, lhs, rhs) ← matchEq? localDecl.type then
+          trace[Meta.Match.matchEqs] "contradictionCore: {lhs} = {rhs}"
           isEq := true
           if let some lhsCtor ← matchConstructorApp? lhs then
           if let some rhsCtor ← matchConstructorApp? rhs then
+          trace[Meta.Match.matchEqs] "contradictionCore: {lhsCtor.name} = {rhsCtor.name}"
           if lhsCtor.name != rhsCtor.name then
             mvarId.assign (← mkNoConfusion (← mvarId.getType) localDecl.toExpr)
             return true

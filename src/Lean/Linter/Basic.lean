@@ -7,6 +7,9 @@ module
 
 prelude
 public import Lean.MonadEnv
+public import Lean.Elab.SetOption
+public import Lean.Elab.Command
+public meta import Lean.Parser.Command
 
 public section
 
@@ -91,6 +94,8 @@ def logLintIf [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [Mon
   if getLinterValue linterOption (← getLinterOptions) then logLint linterOption stx msg
 
 end Linter
+
+open Elab Command
 
 /--
 Given a command elaborator `cmd`, returns a new command elaborator that

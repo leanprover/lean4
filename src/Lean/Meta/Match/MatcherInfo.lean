@@ -27,7 +27,9 @@ def Overlaps.isEmpty (o : Overlaps) : Bool :=
   o.map.isEmpty
 
 def Overlaps.insert (o : Overlaps) (overlapping overlapped : Nat) : Overlaps where
-  map := o.map.alter overlapped fun s? => some ((s?.getD {}).insert overlapping)
+  map :=
+    assert! overlapping < overlapped
+    o.map.alter overlapped fun s? => some ((s?.getD {}).insert overlapping)
 
 def Overlaps.overlapping (o : Overlaps) (overlapped : Nat) : Array Nat :=
   match o.map[overlapped]? with

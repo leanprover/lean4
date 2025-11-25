@@ -1,3 +1,5 @@
+set_option linter.unusedVariables false
+
 def f : Nat → Nat → Nat
 | 100, 2 => 0
 | _,   4 => 1

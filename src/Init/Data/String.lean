@@ -13,7 +13,6 @@ public import Init.Data.String.Defs
 public import Init.Data.String.Extra
 public import Init.Data.String.Iterator
 public import Init.Data.String.Lemmas
-public import Init.Data.String.Repr
 public import Init.Data.String.Bootstrap
 public import Init.Data.String.Slice
 public import Init.Data.String.Pattern

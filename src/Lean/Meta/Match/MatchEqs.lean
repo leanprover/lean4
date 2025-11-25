@@ -152,6 +152,10 @@ where
 
 private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.withContext do
   for localDecl in (← getLCtx) do
+    if let some (α, _lhs, β, _rhs) ← matchHEq? localDecl.type then
+      if (← isDefEq α β) then
+        let (_, mvarId') ← heqToEq mvarId localDecl.fvarId
+        return #[mvarId']
     if let some (_, lhs, rhs) ← matchEq? localDecl.type then
       if lhs.isFVar then
         if !(← dependsOn rhs lhs.fvarId!) then
@@ -179,12 +183,13 @@ partial def proveCondEqThm (matchDeclName : Name) (thmName : Name) (type : Expr)
   let mvar0  ← mkFreshExprSyntheticOpaqueMVar type
   trace[Meta.Match.matchEqs] "proveCondEqThm {mvar0.mvarId!}"
   let mut mvarId := mvar0.mvarId!
+  let mut eqns := #[]
   if heqNum > 0 then
     mvarId := (← mvarId.introN heqPos).2
-    for _ in *...heqNum do
-      let (h, mvarId') ← mvarId.intro1
-      mvarId ← subst mvarId' h
-    trace[Meta.Match.matchEqs] "proveCondEqThm after subst{mvarId}"
+    let (hs, mvarId') ← mvarId.introN heqNum
+    eqns := hs
+    mvarId := mvarId'
+    -- trace[Meta.Match.matchEqs] "proveCondEqThm after subst{mvarId}"
   mvarId := (← mvarId.intros).2
   try mvarId.refl
   catch _ =>
@@ -214,6 +219,10 @@ where
             return #[mvarId₁, s₂.mvarId]
           else
             throwError "spliIf failed")
+      <|>
+      (do let mvarId' ← mvarId.heqOfEq
+          if mvarId' == mvarId then throwError "heqOfEq failed"
+          return #[mvarId'])
       <|>
       (substSomeVar mvarId)
       <|>

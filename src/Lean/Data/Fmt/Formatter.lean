@@ -437,7 +437,7 @@ The
 structure ResolutionState (τ : Type) where
   setCache : HashMap SetCacheKey (MeasureSet τ) := {}
   resolvedTaintedCache : HashMap USize (Option (Measure τ)) := {}
-  isFailureCacheEnabled : Bool := false
+  isFailureCacheEnabled : Bool := true
   failureCache : HashSet FailureCacheKey := {}
 
 abbrev ResolverM (σ τ : Type) := StateRefT (ResolutionState τ) (ST σ)
@@ -490,11 +490,19 @@ def enableFailureCache : ResolverM σ τ Unit :=
     isFailureCacheEnabled := true
   }
 
+def Doc.isLeaf : Doc → Bool
+  | .failure => true
+  | .newline .. => true
+  | .text .. => true
+  | _ => false
+
 def isFailing (d : Doc) (fullness : FullnessState) : ResolverM σ τ Bool := do
   let s ← get
   let isDocFailure := d.isFailure fullness
   if isDocFailure then
     return true
+  else if d.isLeaf then
+    return false
   else if s.isFailureCacheEnabled then
     let isCachedFailure := (← get).failureCache.contains {
       docPtr := unsafe ptrAddrUnsafe d
@@ -523,11 +531,16 @@ def Resolver.memoize (f : Resolver σ τ) : Resolver σ τ := fun d columnPos in
     return .set []
   if columnPos > Cost.optimalityCutoffWidth τ || indentation > Cost.optimalityCutoffWidth τ
       || ! d.shouldMemoize then
-    return ← f d columnPos indentation fullness
+    let r ← f d columnPos indentation fullness
+    if r matches .set [] then
+      setCachedFailing d fullness
+    return r
   if let some cachedSet ← getCachedSet? d columnPos indentation fullness then
     return cachedSet
   let r ← f d columnPos indentation fullness
   setCachedSet d columnPos indentation fullness r
+  if r matches .set [] then
+    setCachedFailing d fullness
   return r
 
 mutual

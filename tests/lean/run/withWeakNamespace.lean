@@ -40,3 +40,18 @@ with_weak_namespace _root_.Test1
   #check 1 * 2  -- Scoped notation from Outer still works
 
 end Outer
+
+-- Test 4: Relative namespace (without _root_)
+namespace Parent
+
+def parentFn (n : Nat) : Nat := n + 10
+
+scoped prefix:100 "!" => parentFn
+
+with_weak_namespace Child
+  def childDef : Nat := !0  -- Scoped notation from Parent still works
+  #check Parent.Child.childDef
+
+end Parent
+
+#check Parent.Child.childDef

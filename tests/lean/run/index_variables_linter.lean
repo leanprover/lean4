@@ -50,3 +50,21 @@ Note: This linter can be disabled with `set_option linter.indexVariables false`
 -/
 #guard_msgs in
 example (xs : List Nat) (m : Nat) : xs.drop m = xs.drop m := rfl
+
+/- Test that `set_option ... in` works; ensures that `withSetOptionIn` no longer leaves
+context-free info nodes (#11313) -/
+
+set_option linter.indexVariables false
+
+/--
+warning: Forbidden variable appearing as an index: use `i`, `j`, or `k`: m
+
+Note: This linter can be disabled with `set_option linter.indexVariables false`
+---
+warning: Forbidden variable appearing as an index: use `i`, `j`, or `k`: m
+
+Note: This linter can be disabled with `set_option linter.indexVariables false`
+-/
+#guard_msgs in
+set_option linter.indexVariables true in
+example (xs : List Nat) (m : Nat) : xs.drop m = xs.drop m := rfl

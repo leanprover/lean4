@@ -666,10 +666,7 @@ def checkForInductionWithNoAlts (tacticKind : String) (optInductionAlts : Syntax
 Separate out the optional `with` tactics from the rest of the alternates
 -/
 def getOptPreTacOfOptInductionAlts (optInductionAlts : Syntax) : Syntax :=
-  if optInductionAlts.isNone then
-    mkNullNode
-  else
-    optInductionAlts[0][1]
+  if optInductionAlts.isNone then mkNullNode else optInductionAlts[0][1]
 
 /--
 Returns true if the `Lean.Parser.Tactic.inductionAlt` either has more than one alternative

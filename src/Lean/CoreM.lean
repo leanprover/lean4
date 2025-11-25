@@ -9,7 +9,6 @@ prelude
 public import Lean.Util.RecDepth
 public import Lean.ResolveName
 public import Lean.Language.Basic
-public import Lean.ErrorExplanations.InductionWithNoAlts
 
 public section
 

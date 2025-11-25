@@ -10,6 +10,7 @@ public import Lean.Meta.Structure
 public import Lean.Elab.MutualInductive
 import Lean.Linter.Basic
 import Lean.DocString
+import Lean.DocString.Extension
 
 public section
 
@@ -241,7 +242,7 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
     let ref := structStx[1].mkSynthetic
     addDeclarationRangesFromSyntax declName ref
     if structModifiers.isMeta then
-      modifyEnv (addMeta · declName)
+      modifyEnv (markMeta · declName)
     pure { ref, declId := ref, modifiers, declName }
   if structStx[4].isNone then
     useDefault
@@ -283,7 +284,7 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
       let binders := ctor[2]
       addDeclarationRangesFromSyntax declName ctor[1]
       if structModifiers.isMeta then
-        modifyEnv (addMeta · declName)
+        modifyEnv (markMeta · declName)
       pure { ref := ctor[1], declId := ctor[1], modifiers := ctorModifiers, declName, binders }
 
 /--
@@ -417,7 +418,7 @@ def structureSyntaxToView (modifiers : Modifiers) (stx : Syntax) : TermElabM Str
   let declId    := stx[1]
   let ⟨name, declName, levelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
   if modifiers.isMeta then
-    modifyEnv (addMeta · declName)
+    modifyEnv (markMeta · declName)
   addDeclarationRangesForBuiltin declName modifiers.stx stx
   let (binders, type?) := expandOptDeclSig stx[2]
   let exts := stx[3]
@@ -661,8 +662,8 @@ private partial def withStructField (view : StructView) (sourceStructNames : Lis
     let mut declName := view.declName ++ fieldName
     if inSubobject?.isNone then
       declName ← applyVisibility (← toModifiers fieldInfo) declName
-      -- No need to validate links because this docstring was already added to the environment previously
-      addDocStringCore' declName (← findDocString? (← getEnv) fieldInfo.projFn)
+      -- Create a link to the parent field's docstring
+      addInheritedDocString declName fieldInfo.projFn
       addDeclarationRangesFromSyntax declName (← getRef)
     checkNotAlreadyDeclared declName
     withLocalDecl fieldName fieldInfo.binderInfo (← reduceFieldProjs fieldType) fun fieldFVar => do

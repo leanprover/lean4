@@ -57,19 +57,19 @@ def main (args : List String) : IO Unit := do
         sec := "\n\n" ++ sec
       if insertPos?.isNone then
         sec := sec ++ "\n\n"
-      text := text.extract 0 insertPos ++ sec ++ text.extract insertPos text.endPos
+      text := text.extract 0 insertPos ++ sec ++ text.extract insertPos text.rawEndPos
 
     -- prepend each import with `public `
     for imp in imps.reverse do
       let insertPos := imp.raw.getPos?.get!
       let prfx := if doMeta then "public meta " else "public "
-      text := text.extract 0 insertPos ++ prfx ++ text.extract insertPos text.endPos
+      text := text.extract 0 insertPos ++ prfx ++ text.extract insertPos text.rawEndPos
 
     -- insert `module` header
     let mut initText := text.extract 0 startPos
     if !initText.trim.isEmpty then
       -- If there is a header comment, preserve it and put `module` in the line after
       initText := initText.trimRight ++ "\n"
-    text := initText ++ "module\n\n" ++ text.extract startPos text.endPos
+    text := initText ++ "module\n\n" ++ text.extract startPos text.rawEndPos
 
     IO.FS.writeFile path text

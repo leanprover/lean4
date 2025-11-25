@@ -7,14 +7,8 @@ module
 
 prelude
 public import Lean.AddDecl
-public import Lean.Class
 public import Lean.ReservedNameAction
-public import Lean.ResolveName
-public import Lean.Meta.Basic
-import Lean.Meta.AppBuilder
 import Lean.Meta.Tactic.Subst
-import Lean.Meta.Tactic.Intro
-import Lean.Meta.Tactic.Assert
 
 public section
 

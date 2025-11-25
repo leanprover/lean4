@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Structure
 public import Lean.Meta.SynthInstance
-public import Lean.Meta.Check
 public import Lean.Meta.DecLevel
 import Lean.Meta.SameCtorUtils
 import Lean.Data.Array

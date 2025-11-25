@@ -35,21 +35,6 @@ instance [DecidableEq α] (j : α) (o : Option α) : Decidable (j ∈ o) :=
 
 theorem some_inj {a b : α} : some a = some b ↔ a = b := by simp; rfl
 
-/--
-Equality with `none` is decidable even if the wrapped type does not have decidable equality.
-
-This is not an instance because it is not definitionally equal to the standard instance of
-`DecidableEq (Option α)`, which can cause problems. It can be locally bound if needed.
-
-Try to use the Boolean comparisons `Option.isNone` or `Option.isSome` instead.
--/
-@[inline] def decidableEqNone {o : Option α} : Decidable (o = none) :=
-  decidable_of_decidable_of_iff isNone_iff_eq_none
-
-@[deprecated decidableEqNone (since := "2025-04-10"), inline]
-def decidable_eq_none {o : Option α} : Decidable (o = none) :=
-  decidableEqNone
-
 instance decidableForallMem {p : α → Prop} [DecidablePred p] :
     ∀ o : Option α, Decidable (∀ a, a ∈ o → p a)
   | none => isTrue nofun

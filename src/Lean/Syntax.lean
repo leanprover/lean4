@@ -8,22 +8,24 @@ module
 prelude
 public import Init.Data.Slice
 public import Init.Data.Hashable
-public import Lean.Data.Name
 public import Lean.Data.Format
 public import Init.Data.Option.Coe
 
 public section
 
 /--
-A position range inside a string. This type is mostly in combination with syntax trees,
+A position range inside a string. This type is mostly used in combination with syntax trees,
 as there might not be a single underlying string in this case that could be used for a `Substring`.
 -/
-protected structure String.Range where
+protected structure Lean.Syntax.Range where
   start : String.Pos.Raw
   stop  : String.Pos.Raw
   deriving Inhabited, Repr, BEq, Hashable
 
-def String.Range.contains (r : String.Range) (pos : String.Pos.Raw) (includeStop := false) : Bool :=
+@[expose, deprecated Lean.Syntax.Range (since := "2025-10-20")]
+def String.Range := Lean.Syntax.Range
+
+def Lean.Syntax.Range.contains (r : Lean.Syntax.Range) (pos : String.Pos.Raw) (includeStop := false) : Bool :=
   r.start <= pos && (if includeStop then pos <= r.stop else pos < r.stop)
 
 /--
@@ -31,7 +33,7 @@ Checks whether `sub` is contained in `super`.
 `includeSuperStop` and `includeSubStop` control whether `super` and `sub` have
 an inclusive upper bound.
 -/
-def String.Range.includes (super sub : String.Range)
+def Lean.Syntax.Range.includes (super sub : Lean.Syntax.Range)
     (includeSuperStop := false) (includeSubStop := false) : Bool :=
   super.start <= sub.start && (
     if includeSuperStop && !includeSubStop then
@@ -42,24 +44,38 @@ def String.Range.includes (super sub : String.Range)
       sub.stop <= super.stop
   )
 
-def String.Range.overlaps (first second : String.Range)
+@[deprecated Lean.Syntax.Range.includes (since := "2025-10-20")]
+def String.Range.includes (super sub : Lean.Syntax.Range)
+    (includeSuperStop := false) (includeSubStop := false) : Bool :=
+  Lean.Syntax.Range.includes super sub includeSuperStop includeSubStop
+
+def Lean.Syntax.Range.overlaps (first second : Lean.Syntax.Range)
     (includeFirstStop := false) (includeSecondStop := false) : Bool :=
   (if includeFirstStop then second.start <= first.stop else second.start < first.stop) &&
     (if includeSecondStop then first.start <= second.stop else first.start < second.stop)
 
-def String.Range.bsize (r : String.Range) : Nat :=
+@[deprecated Lean.Syntax.Range.overlaps (since := "2025-10-20")]
+def String.Range.overlaps (first second : Lean.Syntax.Range)
+    (includeFirstStop := false) (includeSecondStop := false) : Bool :=
+  Lean.Syntax.Range.overlaps first second includeFirstStop includeSecondStop
+
+def Lean.Syntax.Range.bsize (r : Lean.Syntax.Range) : Nat :=
   r.stop.byteIdx - r.start.byteIdx
+
+@[deprecated Lean.Syntax.Range.bsize (since := "2025-10-20")]
+def String.Range.bsize (r : Lean.Syntax.Range) : Nat :=
+  Lean.Syntax.Range.bsize r
 
 namespace Lean
 
-def SourceInfo.updateTrailing (trailing : Substring) : SourceInfo → SourceInfo
+def SourceInfo.updateTrailing (trailing : Substring.Raw) : SourceInfo → SourceInfo
   | SourceInfo.original leading pos _ endPos => SourceInfo.original leading pos trailing endPos
   | info                                     => info
 
-def SourceInfo.getRange? (canonicalOnly := false) (info : SourceInfo) : Option String.Range :=
+def SourceInfo.getRange? (canonicalOnly := false) (info : SourceInfo) : Option Lean.Syntax.Range :=
   return ⟨(← info.getPos? canonicalOnly), (← info.getTailPos? canonicalOnly)⟩
 
-def SourceInfo.getRangeWithTrailing? (canonicalOnly := false) (info : SourceInfo) : Option String.Range :=
+def SourceInfo.getRangeWithTrailing? (canonicalOnly := false) (info : SourceInfo) : Option Lean.Syntax.Range :=
   return ⟨← info.getPos? canonicalOnly, ← info.getTrailingTailPos? canonicalOnly⟩
 
 /--
@@ -246,7 +262,7 @@ private def updateInfo : SourceInfo → String.Pos.Raw → String.Pos.Raw → So
     SourceInfo.original { lead with startPos := leadStart } pos { trail with stopPos := trailStop } endPos
   | info, _, _ => info
 
-private def chooseNiceTrailStop (trail : Substring) : String.Pos.Raw :=
+private def chooseNiceTrailStop (trail : Substring.Raw) : String.Pos.Raw :=
   (trail.posOf '\n').offsetBy trail.startPos
 
 /-- Remark: the State `String.Pos` is the `SourceInfo.trailing.stopPos` of the previous token,
@@ -283,7 +299,7 @@ private def updateLeadingAux : Syntax → StateM String.Pos.Raw (Option Syntax)
 def updateLeading : Syntax → Syntax :=
   fun stx => (replaceM updateLeadingAux stx).run' 0
 
-partial def updateTrailing (trailing : Substring) : Syntax → Syntax
+partial def updateTrailing (trailing : Substring.Raw) : Syntax → Syntax
   | Syntax.atom info val               => Syntax.atom (info.updateTrailing trailing) val
   | Syntax.ident info rawVal val pre   => Syntax.ident (info.updateTrailing trailing) rawVal val pre
   | n@(Syntax.node info k args)        =>
@@ -311,7 +327,7 @@ def identComponents (stx : Syntax) (nFields? : Option Nat := none) : List Syntax
       let rawComps :=
         if let some nFields := nFields? then
           let nPrefix := rawComps.length - nFields
-          let prefixSz := rawComps.take nPrefix |>.foldl (init := 0) fun acc (ss : Substring) => acc + ss.bsize + 1
+          let prefixSz := rawComps.take nPrefix |>.foldl (init := 0) fun acc (ss : Substring.Raw) => acc + ss.bsize + 1
           let prefixSz := prefixSz - 1 -- The last component has no dot
           rawStr.extract 0 ⟨prefixSz⟩ :: rawComps.drop nPrefix
         else
@@ -319,18 +335,18 @@ def identComponents (stx : Syntax) (nFields? : Option Nat := none) : List Syntax
       if nameComps.length == rawComps.length then
         return nameComps.zip rawComps |>.map fun (id, ss) =>
           let off := ss.startPos.unoffsetBy rawStr.startPos
-          let lead := if off == 0 then lead else "".toSubstring
-          let trail := if ss.stopPos == rawStr.stopPos then trail else "".toSubstring
+          let lead := if off == 0 then lead else "".toRawSubstring
+          let trail := if ss.stopPos == rawStr.stopPos then trail else "".toRawSubstring
           let info := original lead (pos.offsetBy off) trail (pos.offsetBy off |>.offsetBy ⟨ss.bsize⟩)
           ident info ss id []
     -- if re-parsing failed, just give them all the same span
-    nameComps.map fun n => ident si n.toString.toSubstring n []
+    nameComps.map fun n => ident si n.toString.toRawSubstring n []
   | ident si _ val _ =>
     let val := val.eraseMacroScopes
     /- With non-original info:
      - `rawStr` can take all kinds of forms so we only use `val`.
      - there is no source extent to offset, so we pass it as-is. -/
-    nameComps val nFields? |>.map fun n => ident si n.toString.toSubstring n []
+    nameComps val nFields? |>.map fun n => ident si n.toString.toRawSubstring n []
   | _ => unreachable!
   where
     nameComps (n : Name) (nFields? : Option Nat) : List Name :=
@@ -404,16 +420,16 @@ def hasMissing (stx : Syntax) : Bool := Id.run do
       return true
   return false
 
-def getRange? (stx : Syntax) (canonicalOnly := false) : Option String.Range :=
+def getRange? (stx : Syntax) (canonicalOnly := false) : Option Lean.Syntax.Range :=
   match stx.getPos? canonicalOnly, stx.getTailPos? canonicalOnly with
   | some start, some stop => some { start, stop }
   | _,          _         => none
 
-def getRangeWithTrailing? (stx : Syntax) (canonicalOnly := false) : Option String.Range :=
+def getRangeWithTrailing? (stx : Syntax) (canonicalOnly := false) : Option Lean.Syntax.Range :=
   return ⟨← stx.getPos? canonicalOnly, ← stx.getTrailingTailPos? canonicalOnly⟩
 
-/-- Returns a synthetic Syntax which has the specified `String.Range`. -/
-def ofRange (range : String.Range) (canonical := true) : Lean.Syntax :=
+/-- Returns a synthetic Syntax which has the specified `Lean.Syntax.Range`. -/
+def ofRange (range : Lean.Syntax.Range) (canonical := true) : Lean.Syntax :=
   .atom (.synthetic range.start range.stop canonical) ""
 
 /--

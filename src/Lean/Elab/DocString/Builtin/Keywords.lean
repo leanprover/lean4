@@ -6,17 +6,13 @@ Author: David Thrane Christiansen
 
 module
 prelude
-public import Lean.Elab.DocString
 public import Lean.Elab.DocString.Builtin.Scopes
 public import Lean.Elab.DocString.Builtin.Postponed
 public meta import Lean.Elab.DocString.Builtin.Postponed
-import Lean.DocString.Links
 public import Lean.DocString.Syntax
 public import Lean.Elab.InfoTree
-public meta import Lean.Elab.Term.TermElabM
 import Lean.Elab.Open
 public import Lean.Parser
-import Lean.Meta.Hint
 import Lean.Meta.Reduce
 import Lean.Elab.Tactic.Doc
 import Lean.Data.EditDistance
@@ -58,14 +54,14 @@ private partial def containsAtom (e : Expr) (atom : String) : MetaM Bool := do
     | (``ParserDescr.trailingNode, #[_, _, _, p]) => containsAtom p atom
     | (``ParserDescr.unary, #[.app _ (.lit (.strVal _)), p]) => containsAtom p atom
     | (``ParserDescr.binary, #[.app _ (.lit (.strVal "andthen")), p, _]) => containsAtom p atom
-    | (``ParserDescr.nonReservedSymbol, #[.lit (.strVal tk), _]) => pure (tk.trim == atom)
-    | (``ParserDescr.symbol, #[.lit (.strVal tk)]) => pure (tk.trim == atom)
+    | (``ParserDescr.nonReservedSymbol, #[.lit (.strVal tk), _]) => pure (tk.trimAscii == atom.toSlice)
+    | (``ParserDescr.symbol, #[.lit (.strVal tk)]) => pure (tk.trimAscii == atom.toSlice)
     | (``Parser.withAntiquot, #[_, p]) => containsAtom p atom
     | (``Parser.leadingNode, #[_, _, p]) => containsAtom p atom
     | (``HAndThen.hAndThen, #[_, _, _, _, p1, p2]) =>
       containsAtom p1 atom <||> containsAtom p2 atom
-    | (``Parser.nonReservedSymbol, #[.lit (.strVal tk), _]) => pure (tk.trim == atom)
-    | (``Parser.symbol, #[.lit (.strVal tk)]) => pure (tk.trim == atom)
+    | (``Parser.nonReservedSymbol, #[.lit (.strVal tk), _]) => pure (tk.trimAscii == atom.toSlice)
+    | (``Parser.symbol, #[.lit (.strVal tk)]) => pure (tk.trimAscii == atom.toSlice)
     | (``Parser.symbol, #[_nonlit]) => pure false
     | (``Parser.withCache, #[_, p]) => containsAtom p atom
     | _ => if tryWhnf then attempt (← Meta.whnf p) false else pure false
@@ -85,7 +81,7 @@ private partial def containsAtom' (e : Expr) (atom : String) : MetaM (Option Exp
     | (``ParserDescr.symbol, #[.lit (.strVal tk)])
     | (``Parser.symbol, #[.lit (.strVal tk)])
     | (``Parser.nonReservedSymbol, #[.lit (.strVal tk), _]) =>
-        if tk.trim == atom then
+        if tk.trimAscii == atom.toSlice then
           pure (Expr.app (.const ``ParserDescr.const []) (toExpr ``Parser.skip))
         else pure none
     | (``Parser.withAntiquot, #[_, p]) => containsAtom' p atom
@@ -136,7 +132,7 @@ private partial def startsWithAtom? (e : Expr) (atom : String) : MetaM (Option E
     | (``ParserDescr.symbol, #[.lit (.strVal tk)])
     | (``Parser.symbol, #[.lit (.strVal tk)])
     | (``Parser.nonReservedSymbol, #[.lit (.strVal tk), _]) =>
-        if tk.trim == atom then
+        if tk.trimAscii == atom.toSlice then
           pure (Expr.app (.const ``ParserDescr.const []) (toExpr ``Parser.skip))
         else pure none
     | (``Parser.withAntiquot, #[_, p]) => startsWithAtom? p atom
@@ -196,7 +192,7 @@ where
       | [] => return false
       | .ident .. :: _ => return false
       | .atom _ s :: ss =>
-        if a.trim == s.trim then
+        if a.trimAscii == s.trimAscii then
           set as
           go ss
         else return false
@@ -240,7 +236,7 @@ private def parserDescrHasAtom (atom : String) (p : ParserDescr) : TermElabM (Op
   | .node _ _ p | .trailingNode _ _ _ p | .unary _ p =>
     parserDescrHasAtom atom p
   | .nonReservedSymbol tk _ | .symbol tk =>
-    if tk.trim == atom then
+    if tk.trimAscii == atom.toSlice then
       pure (some (.const ``Parser.skip))
     else pure none
   | .binary ``Parser.andthen p1 p2 =>
@@ -262,7 +258,7 @@ private def parserDescrStartsWithAtom (atom : String) (p : ParserDescr) : TermEl
   | .node _ _ p | .trailingNode _ _ _ p | .unary _ p =>
     parserDescrStartsWithAtom atom p
   | .nonReservedSymbol tk _ | .symbol tk =>
-    if tk.trim == atom then
+    if tk.trimAscii == atom.toSlice then
       pure (some (.const ``Parser.skip))
     else pure none
   | .binary ``Parser.andthen p1 p2 =>
@@ -334,7 +330,7 @@ private def withAtoms (cat : Name) (atoms : List String) : TermElabM (Array Name
 private def kwImpl (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anonymous)
     (suggest : Bool)
     (s : StrLit) : TermElabM (Inline ElabInline) := do
-  let atoms := s.getString |>.split (·.isWhitespace)
+  let atoms := s.getString |>.split Char.isWhitespace |>.toStringList
   let env ← getEnv
   let parsers := Lean.Parser.parserExtension.getState env
   let cat' := cat.getId
@@ -417,7 +413,7 @@ where
         (mkNullNode (#[name] ++ args)).getRange?
       | _ => none
     if let some ⟨b, e⟩ := range? then
-      let str := (← getFileMap).source.extract b e
+      let str := String.Pos.Raw.extract (← getFileMap).source b e
       let str := if str.startsWith "kw?" then "kw" ++ str.drop 3 else str
       let stx := Syntax.mkStrLit str (info := .synthetic b e (canonical := true))
       let suggs := suggestions.map (fun (s : String) => {suggestion := str ++ s})
@@ -499,7 +495,7 @@ Suggests the `kw` role, if applicable.
 -/
 @[builtin_doc_code_suggestions]
 public def suggestKw (code : StrLit) : DocM (Array CodeSuggestion) := do
-  let atoms := code.getString |>.split (·.isWhitespace)
+  let atoms := code.getString |>.split Char.isWhitespace |>.toStringList
   let env ← getEnv
   let parsers := Lean.Parser.parserExtension.getState env
   let cats := parsers.categories.toArray

@@ -6,10 +6,8 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Init.System.Promise
 public import Init.Data.Queue
 public import Std.Sync.Mutex
-public import Std.Internal.Async.Select
 public import Std.Internal.Async.IO
 import Init.Data.Vector.Basic
 

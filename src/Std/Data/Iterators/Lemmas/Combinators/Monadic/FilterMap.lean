@@ -68,7 +68,7 @@ theorem stepAsHetT_filterMapWithPostcondition [Monad m] [LawfulMonad m] [Monad n
       PlausibleIterStep.yield, PlausibleIterStep.done, bind_assoc]
     apply bind_congr
     intro step
-    cases step using PlausibleIterStep.casesOn
+    cases step.inflate using PlausibleIterStep.casesOn
     · simp only [bind_assoc, bind, HetT.prun_bind, HetT.prun_ofPostconditionT]
       apply bind_congr
       rintro ⟨out, _⟩

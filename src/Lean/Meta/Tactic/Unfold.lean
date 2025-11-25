@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Eqns
 public import Lean.Meta.Tactic.Delta
 public import Lean.Meta.Tactic.Simp.Main
 

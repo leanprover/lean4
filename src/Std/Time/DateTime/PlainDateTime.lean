@@ -6,9 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time.Date
-public import Std.Time.Time
-public import Std.Time.Internal
 public import Std.Time.DateTime.Timestamp
 
 public section

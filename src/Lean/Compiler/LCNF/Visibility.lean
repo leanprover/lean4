@@ -6,8 +6,6 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Lean.Compiler.LCNF.PhaseExt
-public import Lean.Compiler.MetaAttr
 public import Lean.Compiler.ImplementedByAttr
 import Lean.ExtraModUses
 import Lean.Compiler.Options
@@ -79,7 +77,7 @@ where go (isMeta isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit 
       let env ← getEnv
       if isMeta && isPublic then
         if let some modIdx := env.getModuleIdxFor? ref then
-          if Lean.isMeta env ref then
+          if isMarkedMeta env ref then
             if env.header.modules[modIdx]?.any (!·.isExported) then
               throwError "Invalid public `meta` definition `{.ofConstName origDecl.name}`, \
                 `{.ofConstName ref}` is not accessible here; consider adding \
@@ -93,15 +91,17 @@ where go (isMeta isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit 
       match getIRPhases env ref, isMeta with
       | .runtime, true =>
         if let some modIdx := env.getModuleIdxFor? ref then
+          -- We use `public` here as a conservative default (and most common case) as necessary
+          -- visibility is only clear at the end of the file.
           throwError "Invalid `meta` definition `{.ofConstName origDecl.name}`, \
             `{.ofConstName ref}` is not accessible here; consider adding \
-            `meta import {env.header.moduleNames[modIdx]!}`"
+            `public meta import {env.header.moduleNames[modIdx]!}`"
         else
           throwError "Invalid `meta` definition `{.ofConstName origDecl.name}`, \
             `{.ofConstName ref}` not marked `meta`"
       | .comptime, false =>
         if let some modIdx := env.getModuleIdxFor? ref then
-          if !Lean.isMeta env ref then
+          if !isMarkedMeta env ref then
             throwError "Invalid definition `{.ofConstName origDecl.name}`, may not access \
               declaration `{.ofConstName ref}` imported as `meta`; consider adding \
               `import {env.header.moduleNames[modIdx]!}`"
@@ -114,30 +114,6 @@ where go (isMeta isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit 
         if irPhases == .all || isPublic && isPrivateName ref then
           if let some refDecl ← getLocalDecl? ref then
             go isMeta isPublic refDecl
-
-/--
-Checks meta availability just before `evalConst`. This is a "last line of defense" as accesses
-should have been checked at declaration time in case of attributes. We do not solely want to rely on
-errors from the interpreter itself as those depend on whether we are running in the server.
--/
-@[export lean_eval_check_meta]
-private partial def evalCheckMeta (env : Environment) (declName : Name) : Except String Unit := do
-  if !env.header.isModule then
-    return
-  let some decl := getDeclCore? env baseExt declName
-    | return  -- We might not have the LCNF available, in which case there's nothing we can do
-  go decl |>.run' {}
-where go (decl : Decl) : StateT NameSet (Except String) Unit :=
-  decl.value.forCodeM fun code =>
-    for ref in collectUsedDecls code do
-      if (← get).contains ref then
-        continue
-      modify (·.insert ref)
-      if let some localDecl := baseExt.getState env |>.find? ref then
-        go localDecl
-      else
-        if getIRPhases env ref == .runtime then
-          throw s!"Cannot evaluate constant `{declName}` as it uses `{ref}` which is neither marked nor imported as `meta`"
 
 /--
 Checks that imports necessary for inlining/specialization are public as otherwise we may run into
@@ -155,7 +131,7 @@ partial def checkTemplateVisibility : Pass where
         -- A private template-like decl cannot directly be used by a different module. If it could be used
         -- indirectly via a public template-like, we do a recursive check when checking the latter.
         if !isPrivateName decl.name && (← decl.isTemplateLike) then
-          let isMeta := isMeta (← getEnv) decl.name
+          let isMeta := isMarkedMeta (← getEnv) decl.name
           go decl decl |>.run' {}
     return decls
 where go (origDecl decl : Decl) : StateT NameSet CompilerM Unit := do

@@ -403,7 +403,7 @@ static lean_object* _init_l___private_Lake_CLI_Help_0__Lake_helpCacheGet___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Download artifacts from a remote service into the Lake cache\n\nUSAGE:\n  lake cache get [<mappings>] [--scope=<remote-scope>] [--max-revs=<n>]\n\nDownloads artifacts for packages in the workspace from a remote cache service.\nThe cache service used can be configured via the environment variables:\n\n  LAKE_CACHE_ARTIFACT_ENDPOINT  base URL for artifact downloads\n  LAKE_CACHE_REVISION_ENDPOINT  base URL for the mapping download\n\nIf neither of these are set, Lake will use Reservoir instead.\n\nIf an input-to-outputs mappings file or a scope is provided, Lake will\ndownload artifacts for the root package. Otherwise, it will download artifacts\nfor each package in the root's dependency tree in order (using Reservoir).\nNon-Reservoir dependencies will be skipped.\n\nTo determine the artifacts to download, Lake uses the package's Git revision\n(commit hash) to lookup its input-to-outputs mappings on the cache service.\nLake will download the artifacts for the most recent commit with available\nmappings. It will backtrack up to `--max-revs`, which defaults to 100.\nIf set to 0, Lake will search the repository's whole history.\n\nWhile downloading, Lake will continue on when a download for an artifact\nfails or if the download process for a whole package fails. However, it will\nreport this and exit with a nonzero status code in such cases.", 1332, 1332);
+x_1 = lean_mk_string_unchecked("Download artifacts from a remote service into the Lake cache\n\nUSAGE:\n  lake cache get [<mappings>]\n\nOPTIONS:\n  --max-revs=<n>                  backtrack up to n revisions (default: 100)\n  --rev=<commit-hash>             uses this exact revision to lookup artifacts\n  --repo=<github-repo>            GitHub repository of the package or a fork\n  --platform=<target-triple>      with Reservoir or --repo, sets the platform\n  --toolchain=<name>              with Reservoir or --repo, sets the toolchain\n  --scope=<remote-scope>          scope for a custom endpoint\n\nDownloads artifacts for packages in the workspace from a remote cache service.\nThe cache service used can be configured via the environment variables:\n\n  LAKE_CACHE_ARTIFACT_ENDPOINT  base URL for artifact downloads\n  LAKE_CACHE_REVISION_ENDPOINT  base URL for the mapping download\n\nIf neither of these are set, Lake will use Reservoir.\n\nIf an input-to-outputs mappings file, `--scope`, or `--repo` is provided,\nLake will download artifacts for the root package. Otherwise, it will use\nReservoir to download artifacts for each dependency in workspace (in order).\nNon-Reservoir dependencies will be skipped.\n\nTo determine the artifacts to download, Lake searches for input-to-output\nmappings for a given build of the package via the cache service. This mapping\nis identified by a Git revision and prefixed with a scope derived from the\npackage's name, GitHub repository, Lean toolchain, and current platform.\nThe exact configuration can be customized using options.\n\nFor Reservoir, setting `--repo` will make Lake lookup artifacts for the root\npackage by a repository name, rather than the package's. This can be used to\ndownload artifacts for a fork of the Reservoir package (if such artifacts are\navailable). The `--platform` and `--toolchain` options can be used to download\nartifacts for a different platform/toolchain configuration than Lake detects.\nFor a custom endpoint, the full prefix Lake uses can be set via  `--scope`.\n\nIf `--rev` is not set, Lake uses the package's current revision to lookup\nartifacts. If no mappings are found, Lake will backtrack the Git history up to\n`--max-revs`, looking for a revision with mappings. If `--max-revs` is 0, Lake\nwill search the repository's entire history (or as far as Git will allow).\n\nIf a download for an artifact fails or the download process for a whole\npackage fails, Lake will report this and continue on to the next. Once done,\nif any download failed, Lake will exit with a nonzero status code.", 2517, 2517);
 return x_1;
 }
 }
@@ -419,7 +419,7 @@ static lean_object* _init_l___private_Lake_CLI_Help_0__Lake_helpCachePut___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Upload artifacts from the Lake cache to a remote service\n\nUSAGE:\n  lake cache put <mappings> --scope=<remote-scope>\n\nUploads the input-to-outputs mappings contained in the specified file along\nwith the corresponding output artifacts to a remote cache. The cache service\nused is configured via the environment variables:\n\n  LAKE_CACHE_KEY                authentication key for requests\n  LAKE_CACHE_ARTIFACT_ENDPOINT  base URL for artifact uploads\n  LAKE_CACHE_REVISION_ENDPOINT  base URL for the mapping upload\n\nFiles are uploaded using the AWS Signature Version 4 authentication protocol\nvia `curl`. Thus, the service should generally be an S3-compatible bucket.\n\nArtifacts are uploaded to the artifact endpoint under the prefix `scope`\nwith a file name corresponding to their Lake content hash. The mappings file\nis uploaded  to the revision endpoint under the prefix `scope` with a file name\ncorresponding to the package's current Git revision. As such, the command will\nfail if the the work tree currently has changes.", 1022, 1022);
+x_1 = lean_mk_string_unchecked("Upload artifacts from the Lake cache to a remote service\n\nUSAGE:\n  lake cache put <mappings> <scope-option>\n\nUploads the input-to-outputs mappings contained in the specified file along\nwith the corresponding output artifacts to a remote cache. The cache service\nused is configured via the environment variables:\n\n  LAKE_CACHE_KEY                  authentication key for requests\n  LAKE_CACHE_ARTIFACT_ENDPOINT    base URL for artifact uploads\n  LAKE_CACHE_REVISION_ENDPOINT    base URL for the mapping upload\n\nFiles are uploaded using the AWS Signature Version 4 authentication protocol\nvia `curl`. Thus, the service should generally be an S3-compatible bucket.\n\nSince Lake does not currently use cryptographically secure hashes for\nartifacts and outputs, uploads to the cache are prefixed with a scope to avoid\nclashes. This scoped is configured with the following options:\n\n  --scope=<remote-scope>          sets a fixed scope\n  --repo=<github-repo>            uses the repository + toolchain & platform\n  --toolchain=<name>              with --repo, sets the toolchain\n  --platform=<target-triple>      with --repo, sets the platform\n\nAt least one of `--scope` or `--repo` must be set. If `--repo` is used, Lake\nwill produce a scope by augmenting the repository with toolchain and platform\ninformation as it deems necessary. If `--scope` is set, Lake will use the\nspecified scope verbatim.\n\nArtifacts are uploaded to the artifact endpoint with a file name derived\nfrom their Lake content hash (and prefixed by the repository or scope).\nThe mappings file is uploaded to the revision endpoint with a file name\nderived from the package's current Git revision (and prefixed by the\nfull scope). As such, the command will warn if the the work tree currently\nhas changes.", 1767, 1767);
 return x_1;
 }
 }
@@ -1218,21 +1218,21 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Init_Data_ToString(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Version(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_ToString(uint8_t builtin);
+lean_object* initialize_Lake_Version(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_CLI_Help(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_CLI_Help(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_ToString(builtin, lean_io_mk_world());
+res = initialize_Init_Data_ToString(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Version(builtin, lean_io_mk_world());
+res = initialize_Lake_Version(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_usage___closed__0 = _init_l_Lake_usage___closed__0();

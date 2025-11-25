@@ -7,9 +7,10 @@ module
 
 prelude
 public import Lake.Util.Log
-import all Init.Data.String.Extra
 import Lake.Util.JsonObject
 import Lake.Util.Proc
+import Init.Data.String.TakeDrop
+import Init.Data.String.Search
 
 open Lean
 
@@ -96,8 +97,8 @@ public def uriEncodeChar (c : Char) (s := "") : String :=
     uriEscapeChar c s
 
 /-- Encodes a string as an ASCII URI component, escaping special characters (and unicode). -/
-public def uriEncode (s : String) : String :=
-  s.foldl (init := "") fun s c => uriEncodeChar c s
+public def uriEncode (s : String) (init := "") : String :=
+  s.foldl (init := init) fun s c => uriEncodeChar c s
 
 /--
 Performs a HTTP `GET` request of a URL (using `curl` with JSON output) and, if successful,
@@ -120,11 +121,11 @@ public def getUrl?
       | .ok none => error s!"curl's JSON output did not contain a response code"
       | .error e => error s!"curl's JSON output contained an invalid JSON response code: {e}"
     if code == 200 then
-      return some out.stdout.trim
+      return some out.stdout.trimAscii.copy
     else if code == 404 then
       return none
     else
-      error s!"failed to GET URL, error {code}"
+      error s!"failed to GET URL, error {code}; received:\n{out.stdout}"
   | .error e =>
     error s!"curl produced invalid JSON output: {e}"
 

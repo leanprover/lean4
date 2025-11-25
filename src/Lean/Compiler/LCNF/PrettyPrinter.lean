@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.PrettyPrinter.Delaborator.Options
-public import Lean.Compiler.LCNF.CompilerM
 public import Lean.Compiler.LCNF.Internalize
 
 public section

@@ -7,7 +7,6 @@ Authors: Wojciech Nawrocki
 module
 
 prelude
-public import Init.System.IO
 
 public import Lean.Elab.Import
 public import Lean.Elab.Command

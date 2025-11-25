@@ -13,6 +13,7 @@ import Lake.Build.Targets
 import Lake.Build.Module
 import Lake.CLI.Build
 import Lake.Util.Proc
+import Init.Data.String.Search
 
 namespace Lake
 open Lean (Name)
@@ -60,7 +61,7 @@ public def Package.resolveDriver
   if driver.isEmpty then
     error s!"{pkgName}: no {kind} driver configured"
   else
-    match driver.split (· == '/') with
+    match driver.split '/' |>.toStringList with
     | [pkg, driver] =>
       let some pkg ← findPackage? pkg.toName
         | error s!"{pkgName}: unknown {kind} driver package '{pkg}'"

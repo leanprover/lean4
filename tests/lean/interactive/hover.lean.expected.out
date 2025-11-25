@@ -657,3 +657,102 @@
  {"start": {"line": 306, "character": 6},
   "end": {"line": 306, "character": 38}},
  "contents": {"value": "```lean\nBool\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 312, "character": 10}}
+{"range":
+ {"start": {"line": 312, "character": 10},
+  "end": {"line": 312, "character": 11}},
+ "contents":
+ {"value": "```lean\nS : Type\n```\n***\nThese are docs\n", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 315, "character": 2}}
+{"range":
+ {"start": {"line": 315, "character": 2}, "end": {"line": 315, "character": 4}},
+ "contents":
+ {"value": "```lean\nS.mk (x : ℕ) : S\n```\n***\nSo are these ",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 318, "character": 2}}
+{"range":
+ {"start": {"line": 318, "character": 2}, "end": {"line": 318, "character": 3}},
+ "contents":
+ {"value": "```lean\nS.x (self : S) : ℕ\n```\n***\nAnd these ",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 321, "character": 9}}
+{"range":
+ {"start": {"line": 321, "character": 9},
+  "end": {"line": 321, "character": 10}},
+ "contents":
+ {"value": "```lean\nx : ℕ\n```\n***\nAnd these ", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 321, "character": 18}}
+{"range":
+ {"start": {"line": 321, "character": 18},
+  "end": {"line": 321, "character": 19}},
+ "contents":
+ {"value": "```lean\nS : Type\n```\n***\nThese are docs\n", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 326, "character": 10}}
+{"range":
+ {"start": {"line": 326, "character": 10},
+  "end": {"line": 326, "character": 12}},
+ "contents":
+ {"value": "```lean\nS' : Type\n```\n***\nDocs ", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 329, "character": 4}}
+{"range":
+ {"start": {"line": 329, "character": 4}, "end": {"line": 329, "character": 6}},
+ "contents":
+ {"value": "```lean\nS'.mk (x : ℕ) : S'\n```\n***\nMore docs ",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 332, "character": 9}}
+{"range":
+ {"start": {"line": 332, "character": 8},
+  "end": {"line": 332, "character": 11}},
+ "contents":
+ {"value": "```lean\nS'.mk (x : ℕ) : S'\n```\n***\nMore docs ",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 332, "character": 16}}
+{"range":
+ {"start": {"line": 332, "character": 16},
+  "end": {"line": 332, "character": 18}},
+ "contents":
+ {"value": "```lean\nS' : Type\n```\n***\nDocs ", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 337, "character": 12}}
+{"range":
+ {"start": {"line": 337, "character": 12},
+  "end": {"line": 337, "character": 18}},
+ "contents":
+ {"value":
+  "```lean\nInfSeq.{u_1} {α : Sort u_1} (r : α → α → Prop) : α → Prop\n```\n***\nAn infinite sequence ",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 340, "character": 7}}
+{"range":
+ {"start": {"line": 340, "character": 4}, "end": {"line": 340, "character": 8}},
+ "contents":
+ {"value":
+  "```lean\nInfSeq.step.{u_1} {α : Sort u_1} (r : α → α → Prop) {a b : α} : r a b → InfSeq r b → InfSeq r a\n```\n***\nTake a step ",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 343, "character": 7}}
+{"range":
+ {"start": {"line": 343, "character": 7},
+  "end": {"line": 343, "character": 13}},
+ "contents":
+ {"value":
+  "```lean\nInfSeq.{u_1} {α : Sort u_1} (r : α → α → Prop) : α → Prop\n```\n***\nAn infinite sequence ",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 346, "character": 7}}
+{"range":
+ {"start": {"line": 346, "character": 7},
+  "end": {"line": 346, "character": 18}},
+ "contents":
+ {"value":
+  "```lean\nInfSeq.step.{u_1} {α : Sort u_1} (r : α → α → Prop) {a b : α} : r a b → InfSeq r b → InfSeq r a\n```\n***\nTake a step ",
+  "kind": "markdown"}}

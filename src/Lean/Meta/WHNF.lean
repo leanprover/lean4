@@ -11,7 +11,6 @@ public import Lean.Util.Recognizers
 public import Lean.Util.SafeExponentiation
 public import Lean.Meta.GetUnfoldableConst
 public import Lean.Meta.FunInfo
-public import Lean.Meta.Offset
 public import Lean.Meta.CtorRecognizer
 public import Lean.Meta.Match.MatcherInfo
 public import Lean.Meta.Match.MatchPatternAttr
@@ -26,7 +25,7 @@ def toCtorIfLit : Expr → MetaM Expr
     if v == 0 then return mkConst ``Nat.zero
     else return mkApp (mkConst ``Nat.succ) (mkRawNatLit (v-1))
   | .lit (.strVal v) =>
-    Lean.Meta.whnf (mkApp (mkConst ``String.mk) (toExpr v.toList))
+    Lean.Meta.whnf (mkApp (mkConst ``String.ofList) (toExpr v.toList))
   | e => return e
 
 end Lean.Expr
@@ -635,7 +634,7 @@ partial def consumeUnusedLet (e : Expr) (consumeNondep : Bool := false) : Expr :
 
 /--
 Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
-expand let-expressions, expand assigned meta-variables.
+expand let-expressions, expand assigned meta-variables, unfold aux declarations.
 -/
 partial def whnfCore (e : Expr) : MetaM Expr :=
   go e

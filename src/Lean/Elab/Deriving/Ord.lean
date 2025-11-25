@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Data.Options
-import Lean.Meta.Transform
 import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
 import Lean.Meta.Constructions.CtorIdx
@@ -119,6 +118,9 @@ def mkMatchNew (header : Header) (indVal : InductiveVal) : TermElabM Term := do
           else
             rhsCont := fun rhs => `(Ordering.then (compare $a $b) $rhs) >>= rhsCont
       let rhs ← rhsCont (← `(Ordering.eq))
+      if ctorArgs1.isEmpty then
+        -- Unit thunking argument
+        ctorArgs1 := ctorArgs1.push (← `(()))
       `(@fun $ctorArgs1:term* $ctorArgs2:term* =>$rhs:term)
   if indVal.numCtors == 1 then
     `( $(mkCIdent casesOnSameCtorName) $x1:term $x2:term rfl $alts:term* )

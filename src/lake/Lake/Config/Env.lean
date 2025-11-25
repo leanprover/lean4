@@ -159,7 +159,7 @@ public def compute
     reservoirApiUrl := ← getUrlD "RESERVOIR_API_URL" s!"{reservoirBaseUrl}/v1"
     noCache := (noCache <|> (← IO.getEnv "LAKE_NO_CACHE").bind envToBool?).getD false
     enableArtifactCache := (← IO.getEnv "LAKE_ARTIFACT_CACHE").bind envToBool? |>.getD false
-    cacheKey? := (← IO.getEnv "LAKE_CACHE_KEY").map (·.trim)
+    cacheKey? := (← IO.getEnv "LAKE_CACHE_KEY").map (·.trimAscii.copy)
     cacheArtifactEndpoint? := (← IO.getEnv "LAKE_CACHE_ARTIFACT_ENDPOINT").map normalizeUrl
     cacheRevisionEndpoint? := (← IO.getEnv "LAKE_CACHE_REVISION_ENDPOINT").map normalizeUrl
     githashOverride := (← IO.getEnv "LEAN_GITHASH").getD ""
@@ -193,7 +193,7 @@ where
     else
        return default
   normalizeUrl url :=
-    if url.back == '/' then url.dropRight 1 else url
+    if url.back == '/' then url.dropEnd 1 |>.copy else url
 
 /--
 The string Lake uses to identify Lean in traces.

@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Core
 public import Init.Data.Range.Polymorphic.UpwardEnumerable
 
 set_option doc.verso true

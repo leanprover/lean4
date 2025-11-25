@@ -11,7 +11,6 @@ public import Init.System.Uri
 public import Lean.Data.Lsp.Communication
 public import Lean.Data.Lsp.Diagnostics
 public import Lean.Data.Lsp.Extra
-public import Lean.Data.Lsp.TextSync
 public import Lean.Server.InfoUtils
 
 public section
@@ -110,8 +109,8 @@ with `newText`.
 def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMap :=
   let start := text.lspPosToUtf8Pos r.start
   let «end» := text.lspPosToUtf8Pos r.«end»
-  let pre := text.source.extract 0 start
-  let post := text.source.extract «end» text.source.endPos
+  let pre := String.Pos.Raw.extract text.source 0 start
+  let post := String.Pos.Raw.extract text.source «end» text.source.rawEndPos
   -- `pre` and `post` already have normalized line endings, so only `newText` needs its endings normalized.
   -- Note: this assumes that editing never separates a `\r\n`.
   -- If `pre` ends with `\r` and `newText` begins with `\n`, the result is potentially inaccurate.
@@ -119,22 +118,6 @@ def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMa
   (pre ++ newText.crlfToLf ++ post).toFileMap
 
 open IO
-
-/--
-Duplicates an I/O stream to a log file `fName` in LEAN_SERVER_LOG_DIR
-if that envvar is set.
--/
-def maybeTee (fName : String) (isOut : Bool) (h : FS.Stream) : IO FS.Stream := do
-  match (← IO.getEnv "LEAN_SERVER_LOG_DIR") with
-  | none => pure h
-  | some logDir =>
-    IO.FS.createDirAll logDir
-    let hTee ← FS.Handle.mk (System.mkFilePath [logDir, fName]) FS.Mode.write
-    let hTee := FS.Stream.ofHandle hTee
-    pure $ if isOut then
-      hTee.chainLeft h true
-    else
-      h.chainRight hTee true
 
 open Lsp
 
@@ -172,7 +155,7 @@ def mkFileProgressNotification (m : DocumentMeta) (processing : Array LeanFilePr
 def mkFileProgressAtPosNotification (m : DocumentMeta) (pos : String.Pos.Raw)
   (kind : LeanFileProgressKind := LeanFileProgressKind.processing) :
     JsonRpc.Notification Lsp.LeanFileProgressParams :=
-  mkFileProgressNotification m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.endPos⟩, kind := kind }]
+  mkFileProgressNotification m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.rawEndPos⟩, kind := kind }]
 
 /-- Constructs a `$/lean/fileProgress` notification marking processing as done. -/
 def mkFileProgressDoneNotification (m : DocumentMeta) : JsonRpc.Notification Lsp.LeanFileProgressParams :=
@@ -219,8 +202,8 @@ def moduleFromDocumentUri (uri : DocumentUri) : IO Name := do
 end Lean.Server
 
 /--
-Converts an UTF-8-based `String.range` in `text` to an equivalent LSP UTF-16-based `Lsp.Range`
+Converts an UTF-8-based `Lean.Syntax.Range` in `text` to an equivalent LSP UTF-16-based `Lsp.Range`
 in `text`.
 -/
-def String.Range.toLspRange (text : Lean.FileMap) (r : String.Range) : Lean.Lsp.Range :=
+def Lean.Syntax.Range.toLspRange (text : Lean.FileMap) (r : Lean.Syntax.Range) : Lean.Lsp.Range :=
   ⟨text.utf8PosToLspPos r.start, text.utf8PosToLspPos r.stop⟩

@@ -8,7 +8,6 @@ module
 
 prelude
 public import Lean.Server.Requests
-public import Lean.Server.InfoUtils
 
 public section
 

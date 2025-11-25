@@ -586,7 +586,7 @@ partial def whitespace : ParserFn := fun c s =>
       else s
     else s
 
-def ParserContext.mkEmptySubstringAt (c : ParserContext) (p : String.Pos.Raw) : Substring :=
+def ParserContext.mkEmptySubstringAt (c : ParserContext) (p : String.Pos.Raw) : Substring.Raw :=
   c.substring p p
 
 private def rawAux (startPos : String.Pos.Raw) (trailingWs : Bool) : ParserFn := fun c s =>
@@ -1040,7 +1040,7 @@ private def tokenFnAux : ParserFn := fun c s =>
   else
     let tk := c.tokens.matchPrefix c.inputString i c.endPos.byteIdx <| by
       have := c.endPos_valid
-      rw [String.endPos] at this
+      rw [String.rawEndPos] at this
       omega
     identFnAux i tk .anonymous (includeWhitespace := true) c s
 
@@ -1111,7 +1111,7 @@ def symbolFn (sym : String) : ParserFn :=
   symbolFnAux sym ("'" ++ sym ++ "'")
 
 def symbolNoAntiquot (sym : String) : Parser :=
-  let sym := sym.trim
+  let sym := sym.trimAscii.copy
   { info := symbolInfo sym
     fn   := symbolFn sym }
 
@@ -1154,18 +1154,18 @@ def nonReservedSymbolInfo (sym : String) (includeIdent : Bool) : ParserInfo := {
 }
 
 def nonReservedSymbolNoAntiquot (sym : String) (includeIdent := false) : Parser :=
-  let sym := sym.trim
+  let sym := sym.trimAscii.copy
   { info := nonReservedSymbolInfo sym includeIdent,
     fn   := nonReservedSymbolFn sym }
 
 partial def strAux (sym : String) (errorMsg : String) (j : String.Pos.Raw) :ParserFn :=
   let rec parse (j c s) :=
-    if h₁ : sym.atEnd j then s
+    if h₁ : j.atEnd sym then s
     else
       let i := s.pos
       if h₂ : c.atEnd i then s.mkError errorMsg
-      else if sym.get' j h₁ != c.get' i h₂ then s.mkError errorMsg
-      else parse (sym.next' j h₁) c (s.next' c i h₂)
+      else if j.get' sym h₁ != c.get' i h₂ then s.mkError errorMsg
+      else parse (j.next' sym h₁) c (s.next' c i h₂)
   parse j
 
 def checkTailWs (prev : Syntax) : Bool :=
@@ -1236,8 +1236,8 @@ def unicodeSymbolFn (sym asciiSym : String) : ParserFn :=
 
 set_option linter.unusedVariables false in
 def unicodeSymbolNoAntiquot (sym asciiSym : String) (preserveForPP : Bool) : Parser :=
-  let sym := sym.trim
-  let asciiSym := asciiSym.trim
+  let sym := sym.trimAscii.copy
+  let asciiSym := asciiSym.trimAscii.copy
   { info := unicodeSymbolInfo sym asciiSym
     fn   := unicodeSymbolFn sym asciiSym }
 
@@ -1893,7 +1893,7 @@ def nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : Parser) (anony
 -- =========================
 
 def sepByElemParser (p : Parser) (sep : String) : Parser :=
-  withAntiquotSpliceAndSuffix `sepBy p (symbol (sep.trim ++ "*"))
+  withAntiquotSpliceAndSuffix `sepBy p (symbol (sep.trimAscii.copy ++ "*"))
 
 def sepBy (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
   sepByNoAntiquot (sepByElemParser p sep) psep allowTrailingSep

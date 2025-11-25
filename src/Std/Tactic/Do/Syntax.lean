@@ -7,7 +7,6 @@ module
 
 prelude
 public import Std.Do
-public import Init.NotationExtra
 public import Std.Tactic.Do.ProofMode -- For (meta) importing `mgoalStx`; otherwise users might experience
                                       -- a broken goal view due to the builtin delaborator for `MGoalEntails`
 
@@ -106,8 +105,7 @@ syntax (name := mleft) "mleft" : tactic
 syntax (name := mpure) "mpure" colGt ident : tactic
 
 @[tactic_alt Lean.Parser.Tactic.mpureIntroMacro]
-macro (name := mpureIntro) "mpure_intro" : tactic =>
-  `(tactic| apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro))
+syntax (name := mpureIntro) "mpure_intro" : tactic
 
 @[tactic_alt Lean.Parser.Tactic.mrenameIMacro]
 syntax (name := mrenameI) "mrename_i" (ppSpace colGt binderIdent)+ : tactic
@@ -365,5 +363,11 @@ syntax vcAlts := "with " (ppSpace colGt tactic)? withPosition((colGe vcAlt)*)
 
 @[tactic_alt Lean.Parser.Tactic.mvcgenMacro]
 syntax (name := mvcgen) "mvcgen" optConfig
-  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")?
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
   (invariantAlts)? (vcAlts)? : tactic
+
+/--
+A hint tactic that expands to `mvcgen invariants?`.
+-/
+syntax (name := mvcgenHint) "mvcgen?" optConfig
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")? : tactic

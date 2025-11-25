@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.InternalExceptionId
 public import Lean.Exception
 
 public section

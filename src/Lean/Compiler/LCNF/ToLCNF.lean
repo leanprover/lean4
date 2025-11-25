@@ -6,17 +6,12 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.ProjFns
 public import Lean.Meta.AppBuilder
-public import Lean.Meta.CtorRecognizer
-public import Lean.Compiler.BorrowedAnnotation
 public import Lean.Compiler.CSimpAttr
 public import Lean.Compiler.ImplementedByAttr
-public import Lean.Compiler.LCNF.Types
 public import Lean.Compiler.LCNF.Bind
-public import Lean.Compiler.LCNF.InferType
-public import Lean.Compiler.LCNF.Util
 public import Lean.Compiler.NeverExtractAttr
+import Lean.Meta.CasesInfo
 
 public section
 
@@ -382,7 +377,8 @@ def mustEtaExpand (env : Environment) (e : Expr) : Bool :=
   if let .const declName _ := e.getAppFn then
     match env.find? declName with
     | some (.recInfo ..) | some (.ctorInfo ..) | some (.quotInfo ..) => true
-    | _ => isCasesOnRecursor env declName || isNoConfusion env declName || env.isProjectionFn declName || declName == ``Eq.ndrec
+    | _ => isCasesOnLike env declName || isNoConfusion env declName ||
+           env.isProjectionFn declName || declName == ``Eq.ndrec
   else
     false
 
@@ -523,8 +519,14 @@ where
   /--
   Visit a `matcher`/`casesOn` alternative.
   -/
-  visitAlt (ctorName : Name) (numParams : Nat) (e : Expr) : M (Expr × Alt) := do
+  visitAlt (casesAltInfo : CasesAltInfo) (e : Expr) : M (Expr × Alt) := do
     withNewScope do
+    match casesAltInfo with
+    | .default numHyps =>
+      let c ← toCode (← visit (mkAppN e (Array.replicate numHyps erasedExpr)))
+      let altType ← c.inferType
+      return (altType, .default c)
+    | .ctor ctorName numParams =>
       let mut (ps, e) ← visitBoundedLambda e numParams
       if ps.size < numParams then
         e ← etaExpandN e (numParams - ps.size)
@@ -556,7 +558,7 @@ where
     etaIfUnderApplied e casesInfo.arity do
       let args := e.getAppArgs
       let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args[*...casesInfo.arity]))
-      let typeName := casesInfo.declName.getPrefix
+      let typeName := casesInfo.indName
       let .inductInfo indVal ← getConstInfo typeName | unreachable!
       if casesInfo.numAlts == 0 then
         /- `casesOn` of an empty type. -/
@@ -566,7 +568,7 @@ where
         let numParams := indVal.numParams
         let numIndices := indVal.numIndices
         let .ctorInfo ctorVal ← getConstInfo indVal.ctors[0]! | unreachable!
-        let numCtorFields := casesInfo.altNumParams[0]!
+        let .ctor _ numCtorFields := casesInfo.altNumParams[0]! | unreachable!
         let fieldArgs : Array Expr ←
           Meta.MetaM.run' <| Meta.forallTelescope ctorVal.type fun params indApp => do
             let ⟨indAppF, indAppArgs⟩ := indApp.getAppFnArgs
@@ -593,8 +595,8 @@ where
         let discrFVarId ← match discr with
           | .fvar discrFVarId => pure discrFVarId
           | .erased | .type .. => mkAuxLetDecl .erased
-        for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
-          let (altType, alt) ← visitAlt ctorName numParams args[i]!
+        for i in casesInfo.altsRange, numParams in casesInfo.altNumParams do
+          let (altType, alt) ← visitAlt numParams args[i]!
           resultType := joinTypes altType resultType
           alts := alts.push alt
         let cases : Cases := { typeName, discr := discrFVarId, resultType, alts }

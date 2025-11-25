@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Elab.Term
 public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.Tactic.ElabTerm
 public import Lean.Elab.Tactic.Induction

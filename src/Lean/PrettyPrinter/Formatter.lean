@@ -6,10 +6,8 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Lean.CoreM
 public import Lean.Parser.Extension
 public import Lean.Parser.StrInterpolation
-public import Lean.KeyedDeclsAttribute
 public import Lean.ParserCompiler.Attribute
 public import Lean.PrettyPrinter.Basic
 public import Lean.PrettyPrinter.Delaborator.Options
@@ -368,8 +366,8 @@ def pushToken (info : SourceInfo) (tk : String) (ident : Bool) : FormatterM Unit
     -- preserve non-whitespace content (comments)
     let ss' := ss.trim
     unless ss'.isEmpty do
-      let preNL := Substring.contains { ss with stopPos := ss'.startPos } '\n'
-      let postNL := Substring.contains { ss with startPos := ss'.stopPos } '\n'
+      let preNL := Substring.Raw.contains { ss with stopPos := ss'.startPos } '\n'
+      let postNL := Substring.Raw.contains { ss with startPos := ss'.stopPos } '\n'
       if postNL then
         pushWhitespace "\n"
       else if !(← get).leadWord.isEmpty then
@@ -382,16 +380,16 @@ def pushToken (info : SourceInfo) (tk : String) (ident : Bool) : FormatterM Unit
 
   let st ← get
   -- If there is no space between `tk` and the next word, see if we should insert a discretionary space.
-  if st.leadWord != "" && tk.trimRight == tk then
+  if st.leadWord != "" && tk.trimAsciiEnd == tk.toSlice then
     let insertSpace ← do
       if ident && st.leadWordIdent then
         -- Both idents => need space
         pure true
       else
         -- Check if we would parse more than `tk` as a single token
-        let tk' := tk.trimLeft
+        let tk' := tk.trimAsciiStart.copy
         let t ← parseToken $ tk' ++ st.leadWord
-        if t.pos ≤ tk'.endPos then
+        if t.pos ≤ tk'.rawEndPos then
           -- stopped within `tk` => use it as is
           pure false
         else
@@ -400,28 +398,28 @@ def pushToken (info : SourceInfo) (tk : String) (ident : Bool) : FormatterM Unit
     if !insertSpace then
       -- extend `leadWord` if not prefixed by whitespace
       push tk
-      modify fun st => { st with leadWord := if tk.trimLeft == tk then tk ++ st.leadWord else "", leadWordIdent := ident }
+      modify fun st => { st with leadWord := if tk.trimAsciiStart == tk.toSlice then tk ++ st.leadWord else "", leadWordIdent := ident }
     else
       pushLine
       push tk
-      modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "", leadWordIdent := ident }
+      modify fun st => { st with leadWord := if tk.trimAsciiStart == tk.toSlice then tk else "", leadWordIdent := ident }
   else
     -- already separated => use `tk` as is
     if st.leadWord == "" then
-      push tk.trimRight
+      push tk.trimAsciiEnd.copy
     else if tk.endsWith " " then
       pushLine
-      push tk.trimRight
+      push tk.trimAsciiEnd.copy
     else
       push tk -- preserve special whitespace for tokens like ":=\n"
-    modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "", leadWordIdent := ident }
+    modify fun st => { st with leadWord := if tk.trimAsciiStart == tk.toSlice then tk else "", leadWordIdent := ident }
 
   if let SourceInfo.original ss _ _ _ := info then
     -- preserve non-whitespace content (comments)
     let ss' := ss.trim
     unless ss'.isEmpty do
-      let preNL := Substring.contains { ss with stopPos := ss'.startPos } '\n'
-      let postNL := Substring.contains { ss with startPos := ss'.stopPos } '\n'
+      let preNL := Substring.Raw.contains { ss with stopPos := ss'.startPos } '\n'
+      let postNL := Substring.Raw.contains { ss with startPos := ss'.stopPos } '\n'
       -- Indentation is automatically increased when entering a category, but comments should be aligned
       -- with the actual token, so dedent
       indent (indent := some (-Std.Format.getIndent (← getOptions))) do
@@ -592,7 +590,6 @@ open Formatter
 
 register_builtin_option pp.oneline : Bool := {
   defValue := false
-  group    := "pp"
   descr    := "(pretty printer) elide all but first line of pretty printer output"
 }
 
@@ -613,9 +610,9 @@ def continuation : String := " [...]"
 
 instance : Std.Format.MonadPrettyFormat M where
   pushOutput s := do
-    let lineEnd := s.find (· == '\n')
-    if lineEnd < s.endPos then
-      let s := (s.extract 0 lineEnd).trimRight ++ continuation
+    let lineEnd := s.find '\n'
+    if ¬lineEnd.IsAtEnd then
+      let s := (s.sliceTo lineEnd).trimAsciiEnd.copy ++ continuation
       modify fun st => { st with line := st.line.append s }
       throw ()
     else

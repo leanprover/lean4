@@ -7,10 +7,7 @@ Authors: Joachim Breitner
 module
 
 prelude
-public import Init.Data.RArray
-public import Lean.Meta.InferType
 public import Lean.Meta.DecLevel
-public import Lean.ToExpr
 
 public section
 

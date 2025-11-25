@@ -7,6 +7,7 @@ module
 prelude
 public import Init.Grind.Ring.Basic
 public import Init.Grind.Ring.Field
+public import Init.Grind.Ring.OfScientific
 public import Init.Grind.Ring.Envelope
 public import Init.Grind.Ring.CommSolver
 public import Init.Grind.Ring.CommSemiringAdapter

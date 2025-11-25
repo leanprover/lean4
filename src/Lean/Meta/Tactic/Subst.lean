@@ -8,12 +8,7 @@ module
 prelude
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.MatchUtil
-public import Lean.Meta.Tactic.Util
-public import Lean.Meta.Tactic.Revert
 public import Lean.Meta.Tactic.Assert
-public import Lean.Meta.Tactic.Intro
-public import Lean.Meta.Tactic.Clear
-public import Lean.Meta.Tactic.FVarSubst
 
 public section
 

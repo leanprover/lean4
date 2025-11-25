@@ -114,7 +114,6 @@ LEAN_EXPORT lean_object* l_Lake_getEnvLeanSrcPath___redArg(lean_object*, lean_ob
 lean_object* l_Lake_Workspace_findModule_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getEnvLeanSrcPath___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanCc_x3f(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lake_Cache_getArtifact_x3f(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanSharedLib___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLakeInstall___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanSrcPath___redArg___lam__0___boxed(lean_object*);
@@ -157,6 +156,7 @@ LEAN_EXPORT lean_object* l_Lake_getArtifact_x3f___redArg(lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Lake_getLake(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanSrcDir___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanAr___redArg___lam__0___boxed(lean_object*);
+lean_object* l_Lake_Cache_getArtifact_x3f___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getEnvSharedLibPath___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getElan_x3f___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getServerOptions___redArg___lam__0(lean_object*);
@@ -1277,7 +1277,7 @@ LEAN_EXPORT lean_object* l_Lake_getArtifact_x3f___redArg___lam__1(lean_object* x
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_alloc_closure((void*)(l_Lake_Cache_getArtifact_x3f), 3, 2);
+x_4 = lean_alloc_closure((void*)(l_Lake_Cache_getArtifact_x3f___boxed), 3, 2);
 lean_closure_set(x_4, 0, x_3);
 lean_closure_set(x_4, 1, x_1);
 x_5 = lean_apply_2(x_2, lean_box(0), x_4);
@@ -2776,13 +2776,13 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Lake_Config_Workspace(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Config_Workspace(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Config_Monad(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Config_Monad(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Config_Workspace(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_Workspace(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_findPackage_x3f___redArg___lam__0___closed__0 = _init_l_Lake_findPackage_x3f___redArg___lam__0___closed__0();

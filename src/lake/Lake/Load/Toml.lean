@@ -47,7 +47,7 @@ public instance [DecodeToml α] [ConfigField σ name α] : DecodeField σ name w
 
 /-! ## Value Decoders -/
 
-def takeNamePart (ss : Substring) (pre : Name) : (Substring × Name) :=
+def takeNamePart (ss : Substring.Raw) (pre : Name) : (Substring.Raw × Name) :=
   if ss.isEmpty then
     (ss, .anonymous)
   else
@@ -57,25 +57,25 @@ def takeNamePart (ss : Substring) (pre : Name) : (Substring × Name) :=
       let startPos := ss.startPos
       let ss := ss.dropWhile (!isIdEndEscape ·)
       if isIdEndEscape ss.front then
-        let id := ss.str.extract startPos ss.startPos
+        let id := String.Pos.Raw.extract ss.str startPos ss.startPos
         (ss, Name.str pre id)
       else
         (ss, .anonymous)
     else if isIdFirst curr then
       let startPos := ss.startPos
       let ss := ss.drop 1 |>.dropWhile isIdRest
-      let id := ss.str.extract startPos ss.startPos
+      let id := String.Pos.Raw.extract ss.str startPos ss.startPos
       (ss, Name.str pre id)
     else if curr.isDigit then
       let startPos := ss.startPos
       let ss := ss.drop 1 |>.dropWhile Char.isDigit
-      let digits := ss.str.extract startPos ss.startPos
+      let digits := String.Pos.Raw.extract ss.str startPos ss.startPos
       let n := (Syntax.decodeNatLitVal? digits).get!
       (ss, Name.num pre n)
     else
       (ss, .anonymous)
 
-partial def takeName (ss : Substring) : (Substring × Name) :=
+partial def takeName (ss : Substring.Raw) : (Substring.Raw × Name) :=
   let rec takeRest ss pre :=
     if ss.front == '.' then
       let startPos := ss.startPos
@@ -87,11 +87,11 @@ partial def takeName (ss : Substring) : (Substring × Name) :=
   if n.isAnonymous then (ss, .anonymous) else takeRest ss n
 
 def Glob.ofString? (v : String) : Option Glob := do
-  let (ss, n) := takeName v.toSubstring
+  let (ss, n) := takeName v.toRawSubstring
   if n.isAnonymous then failure
-  if h : ss.str.atEnd ss.startPos then
+  if h : ss.startPos.atEnd ss.str then
     return .one n
-  else if ss.str.get' ss.startPos h == '.' then
+  else if ss.startPos.get' ss.str h == '.' then
     match (ss.drop 1).front with
     | '+' => return .submodules n
     | '*' => return .andSubmodules n

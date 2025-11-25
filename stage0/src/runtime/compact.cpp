@@ -397,7 +397,7 @@ compacted_region::~compacted_region() {
 
 inline object * compacted_region::fix_object_ptr(object * o) {
     if (lean_is_scalar(o)) return o;
-    return reinterpret_cast<object*>(static_cast<char*>(m_begin) + (reinterpret_cast<size_t>(o) - reinterpret_cast<size_t>(m_base_addr)));
+    return reinterpret_cast<object*>(static_cast<char*>(m_begin) - reinterpret_cast<char*>(m_base_addr) + reinterpret_cast<ptrdiff_t>(o));
 }
 
 inline void compacted_region::move(size_t d) {

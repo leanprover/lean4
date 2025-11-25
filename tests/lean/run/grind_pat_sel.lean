@@ -64,35 +64,35 @@ opaque r : Nat → Nat → Nat
 
 /--
 info: Try these:
-  • [grind! .] for pattern: [r #2 (f #1)]
-  • [grind! =>] for pattern: [f #2, f #1]
+  [apply] [grind! .] for pattern: [r #2 (f #1)]
+  [apply] [grind! =>] for pattern: [f #2, f #1]
 -/
 #guard_msgs in
 @[grind!] theorem pr₅ : p (f x) → r x (f y) = y := sorry
 
 /--
 info: Try these:
-  • [grind! .] for pattern: [f #1, f #2]
-  • [grind! =>] for pattern: [f #2, f #1]
+  [apply] [grind! .] for pattern: [f #1, f #2]
+  [apply] [grind! =>] for pattern: [f #2, f #1]
 -/
 #guard_msgs in
 @[grind!] theorem pr₆ : p (f x) → r y (f y) = y := sorry
 
 /--
 info: Try these:
-  • [grind .] for pattern: [r #1 (f #1), p (f #2)]
-  • [grind =>] for pattern: [p (f #2), r #1 (f #1)]
-  • [grind! .] for pattern: [f #1, f #2]
-  • [grind! =>] for pattern: [f #2, f #1]
+  [apply] [grind .] for pattern: [r #1 (f #1), p (f #2)]
+  [apply] [grind =>] for pattern: [p (f #2), r #1 (f #1)]
+  [apply] [grind! .] for pattern: [f #1, f #2]
+  [apply] [grind! =>] for pattern: [f #2, f #1]
 -/
 #guard_msgs in
 @[grind] theorem pr₇ : p (f x) → r y (f y) = y := sorry
 
 /--
 info: Try these:
-  • [grind =] for pattern: [r #2 (f #1)]
-  • [grind =>] for pattern: [p (f #2), r #2 (f #1)]
-  • [grind! =>] for pattern: [f #2, f #1]
+  [apply] [grind =] for pattern: [r #2 (f #1)]
+  [apply] [grind =>] for pattern: [p (f #2), r #2 (f #1)]
+  [apply] [grind! =>] for pattern: [f #2, f #1]
 -/
 #guard_msgs in
 @[grind] theorem pr₈ : p (f x) → r x (f y) = y := sorry
@@ -100,24 +100,24 @@ info: Try these:
 
 /--
 info: Try these:
-  • [grind =] for pattern: [f (g #0)]
-  • [grind! .] for pattern: [g #0]
+  [apply] [grind =] for pattern: [f (g #0)]
+  [apply] [grind! .] for pattern: [g #0]
 -/
 #guard_msgs in
 @[grind] axiom fg₆ : f (g x) = x
 
 /--
 info: Try these:
-  • [grind =] for pattern: [f (g #0)]
-  • [grind =_] for pattern: [r #0 #0]
-  • [grind! .] for pattern: [g #0]
+  [apply] [grind =] for pattern: [f (g #0)]
+  [apply] [grind =_] for pattern: [r #0 #0]
+  [apply] [grind! .] for pattern: [g #0]
 -/
 #guard_msgs in
 @[grind] axiom fg₇ : f (g x) = r x x
 
 /--
 info: Try this:
-  [grind =] for pattern: [f #0]
+  [apply] [grind =] for pattern: [f #0]
 -/
 #guard_msgs in
 @[grind] axiom fg₈ : f x = x

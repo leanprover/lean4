@@ -6,7 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lean.Data.Name
 public import Lake.Config.Pattern
 public import Lake.Config.MetaClasses
 public import Init.Data.ToString.Name

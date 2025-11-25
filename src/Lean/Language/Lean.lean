@@ -11,10 +11,8 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Lean.Language.Basic
 public import Lean.Language.Util
 public import Lean.Language.Lean.Types
-public import Lean.Parser.Module
 public import Lean.Elab.Import
 
 public section
@@ -287,6 +285,8 @@ simple uses, these can be computed eagerly without looking at the imports.
 structure SetupImportsResult where
   /-- Module name of the file being processed. -/
   mainModuleName : Name
+  /-- Package name of the file being processed (if any). -/
+  package? : Option PkgId := none
   /-- Whether the file is participating in the module system. -/
   isModule : Bool
   /-- Direct imports of the file being processed. -/
@@ -317,7 +317,7 @@ def reparseOptions (opts : Options) : IO Options := do
       | unless weak do
           throw <| .userError s!"invalid -D parameter, unknown configuration option '{name}'
 
-If the option is defined in this library, use '-D{`weak ++ name}' to set it conditionally"
+If the option is defined in a library, use '-D{`weak ++ name}' to set it conditionally"
 
     let .ofString val := val
       | opts' := opts'.insert name val  -- Already parsed
@@ -495,7 +495,7 @@ where
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
       let (headerEnv, msgLog) ← Elab.processHeaderCore (leakEnv := true)
         stx.startPos setup.imports setup.isModule setup.opts .empty ctx.toInputContext
-        setup.trustLevel setup.plugins setup.mainModuleName setup.importArts
+        setup.trustLevel setup.plugins setup.mainModuleName setup.package? setup.importArts
       let stopTime := (← IO.monoNanosNow).toFloat / 1000000000
       let diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
       if msgLog.hasErrors then

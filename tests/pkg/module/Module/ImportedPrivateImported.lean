@@ -8,3 +8,7 @@ public import Module.PrivateImported
 /-- error: Unknown identifier `f` -/
 #guard_msgs in
 #check f
+
+/-- info: 5 -/
+#guard_msgs in
+#eval publicDefOfPrivatelyInitialized

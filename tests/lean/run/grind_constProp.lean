@@ -209,7 +209,7 @@ def evalExpr (e : Expr) : EvalM Val := do
 
 /--
 info: Try this:
-  fun_induction Expr.simplify <;> grind
+  [apply] (fun_induction Expr.simplify) <;> grind
 -/
 #guard_msgs (info) in
 example (e : Expr) : e.simplify.eval σ = e.eval σ := by
@@ -311,7 +311,7 @@ theorem State.cons_le_of_eq (h₁ : σ' ≼ σ) (h₂ : σ.find? x = some v) : (
 
 /--
 info: Try this:
-  fun_induction join <;> grind
+  [apply] (fun_induction join) <;> grind
 -/
 #guard_msgs (info) in
 open State in

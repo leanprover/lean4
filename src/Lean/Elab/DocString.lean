@@ -5,14 +5,11 @@ Authors: David Thrane Christiansen
 -/
 module
 prelude
-public import Lean.ScopedEnvExtension
 import Std.Data.HashMap
-public import Lean.DocString.Types
 public import Lean.Elab.Term.TermElabM
 public import Lean.Elab.Command.Scope
 import Lean.DocString.Syntax
 import Lean.Meta.Hint
-import Lean.DocString.Markdown
 import Lean.BuiltinDocAttr
 
 set_option linter.missingDocs true
@@ -1164,7 +1161,6 @@ If `true`, suggestions are provided for code elements.
 register_builtin_option doc.verso.suggestions : Bool := {
   defValue := true
   descr := "whether to provide suggestions for code elements"
-  group := "doc"
 }
 
 -- Normally, name suggestions should be provided relative to the current scope. But
@@ -1207,12 +1203,12 @@ private def mkSuggestion
     let some ⟨b, e⟩ := ref.getRange?
       | pure m!""
     let text ← getFileMap
-    let pre := text.source.extract 0 b
-    let post := text.source.extract e text.source.endPos
+    let pre := String.Pos.Raw.extract text.source 0 b
+    let post := String.Pos.Raw.extract text.source e text.source.rawEndPos
     let edits := newStrings.map fun (s, _, _) =>
-      let lines := text.source.split (· == '\n') |>.toArray
+      let lines := text.source.split '\n' |>.toStringArray
       let s' := pre ++ s ++ post
-      let lines' := s'.split (· == '\n') |>.toArray
+      let lines' := s'.split '\n' |>.toStringArray
       let d := diff lines lines'
       toMessageData <| Diff.linesToString <| d.filter (·.1 != Action.skip)
     pure m!"\n\nHint: {hintTitle}\n{indentD <| m!"\n".joinSep edits.toList}"
@@ -1258,7 +1254,7 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
           catch | _ => pure ()
         unless suggestions.isEmpty do
           let text ← getFileMap
-          let str := text.source.extract b e
+          let str := String.Pos.Raw.extract text.source b e
           let ss : Array (String × Option String × Option String) ←
             suggestions.mapM fun {role, args, moreInfo} => do
               pure {
@@ -1376,7 +1372,7 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
           catch | _ => pure ()
         unless suggestions.isEmpty do
           let text ← getFileMap
-          let str := text.source.extract b e
+          let str := String.Pos.Raw.extract text.source b e
           let ss : Array (String × Option String × Option String) ←
             suggestions.mapM fun {name, args, moreInfo} => do
               pure {
@@ -1494,6 +1490,7 @@ private def elabModSnippet'
           logErrorAt b m!"Incorrect header nesting: expected at most `{"#".pushn '#' maxLevel}` \
             but got `{"#".pushn '#' n}`"
         else
+          maxLevel := n + 1
           let title ←
             liftM <| withInfoContext (mkInfo := pure <| .ofDocInfo {elaborator := `no_elab, stx := b}) <|
               name.mapM elabInline

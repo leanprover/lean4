@@ -1,5 +1,10 @@
 set -euo pipefail
 
+# Elan configuration
+
+ELAN=${ELAN:-elan}
+echo "ELAN=$ELAN"
+
 # Lake configuration
 
 LAKE=${LAKE:-lake}

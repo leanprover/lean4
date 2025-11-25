@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Compiler.LCNF.Basic
-public import Lean.Compiler.LCNF.Types
 
 public section
 

@@ -4,7 +4,6 @@
  "context": {"diagnostics": []}}
 [{"title": "Try this: simp only",
   "kind": "quickfix",
-  "isPreferred": true,
   "edit":
   {"documentChanges":
    [{"textDocument": {"version": 1, "uri": "file:///tryThisCodeAction.lean"},

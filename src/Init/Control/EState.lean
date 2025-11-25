@@ -6,8 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Control.State
-public import Init.Control.Except
 public import Init.Data.ToString.Basic
 
 public section

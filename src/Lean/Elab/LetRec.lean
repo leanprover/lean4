@@ -6,11 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Elab.Attributes
-public import Lean.Elab.Binders
-public import Lean.Elab.DeclModifiers
-public import Lean.Elab.SyntheticMVars
-public import Lean.Elab.DeclarationRange
 public import Lean.Elab.MutualDef
 
 public section

@@ -6,12 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Zero
 import all Init.Data.Zero
-public import Init.Grind.Ring.Basic
 public import Init.GrindInstances.ToInt
 import all Init.GrindInstances.ToInt
-public import Init.Data.Fin.Lemmas
 
 public section
 
@@ -146,7 +143,7 @@ instance [i : NeZero n] : ToInt.Pow (Fin n) (.co 0 n) where
     induction k with
     | zero =>
       match n, i with
-      | 1, _ => rfl
+      | 1, _ => simp
       | (n + 2), _ =>
         simp [IntInterval.wrap, Int.sub_zero, Int.add_zero]
         rw [Int.emod_eq_of_lt] <;> omega

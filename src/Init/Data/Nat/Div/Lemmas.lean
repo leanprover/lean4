@@ -6,8 +6,6 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Omega
-public import Init.Data.Nat.Lemmas
 public import Init.Data.Nat.Simproc
 import Init.TacticsExtra
 
@@ -46,10 +44,10 @@ theorem add_mod_eq_sub : (a + b) % c = a % c + b % c - if a % c + b % c < c then
 
 theorem lt_div_iff_mul_lt (h : 0 < k) : x < y / k ↔ x * k < y - (k - 1) := by
   have t := le_div_iff_mul_le h (x := x + 1) (y := y)
-  rw [succ_le, add_one_mul] at t
+  rw [succ_le_iff, add_one_mul] at t
   have s : k = k - 1 + 1 := by omega
   conv at t => rhs; lhs; rhs; rw [s]
-  rw [← Nat.add_assoc, succ_le, add_lt_iff_lt_sub_right] at t
+  rw [← Nat.add_assoc, succ_le_iff, add_lt_iff_lt_sub_right] at t
   exact t
 
 theorem div_le_iff_le_mul (h : 0 < k) : x / k ≤ y ↔ x ≤ y * k + k - 1 := by

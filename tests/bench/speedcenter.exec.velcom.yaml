@@ -116,18 +116,41 @@
     cmd: lean -Dexperimental.module=true Init/Data/BitVec/Lemmas.lean
 - attributes:
     description: Init.Data.List.Sublist re-elab -j4
+    tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
     cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/List/Sublist.lean 10 -j4 -Dexperimental.module=true
     max_runs: 2
+    parse_output: true
 - attributes:
     description: Init.Data.BitVec.Lemmas re-elab
+    tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/BitVec/Lemmas.lean 2 -j4 -Dexperimental.module=true
+    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/BitVec/Lemmas.lean 3 -j4 -Dexperimental.module=true
     max_runs: 2
+    parse_output: true
+- attributes:
+    description: Init.Data.List.Sublist re-elab -j4 (watchdog rss)
+    tags: [other]
+  run_config:
+    <<: *time
+    cwd: ../../src
+    cmd: lean --run ../script/benchReelabWatchdogRss.lean lean Init/Data/List/Sublist.lean 10 -j4 -Dexperimental.module=true
+    max_runs: 2
+    parse_output: true
+# This benchmark uncovered the promise cycle in `realizeConst` (#11328)
+- attributes:
+    description: Init.Data.List.Basic re-elab
+    tags: [other]
+  run_config:
+    <<: *time
+    cwd: ../../src
+    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/List/Basic.lean 10 -j4 -Dexperimental.module=true
+    max_runs: 2
+    parse_output: true
 - attributes:
     description: import Lean
     tags: [other]
@@ -442,6 +465,12 @@
     <<: *time
     cmd: lean big_match.lean
 - attributes:
+    description: big_match_partial
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean big_match_partial.lean
+- attributes:
     description: big_beq
     tags: [other]
   run_config:
@@ -486,7 +515,7 @@
     tags: [other]
   run_config:
     <<: *time
-    cmd: lean workspaceSymbols.lean
+    cmd: lean -Dexperimental.module=true workspaceSymbols.lean
     max_runs: 2
 - attributes:
     description: bv_decide_realworld
@@ -587,6 +616,14 @@
   run_config:
     <<: *time
     cmd: lean iterators.lean
+- attributes:
+    description: sigma iterator
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: ./sigmaIterator.lean.out
+  build_config:
+    cmd: ./compile.sh sigmaIterator.lean
 - attributes:
     description: workspaceSymbols with new ranges
     tags: [other]

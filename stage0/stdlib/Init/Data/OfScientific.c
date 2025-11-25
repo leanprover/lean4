@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.OfScientific
-// Imports: public import Init.Meta public import Init.Data.Float public import Init.Data.Float32 public import Init.Data.Nat.Log2
+// Imports: public import Init.Data.Float32 public import Init.Data.Nat.Log2
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,7 +17,7 @@ LEAN_EXPORT lean_object* l_Float32_ofBinaryScientific___boxed(lean_object*, lean
 LEAN_EXPORT float l_Nat_toFloat32(lean_object*);
 double lean_float_scaleb(double, lean_object*);
 float lean_float32_negate(float);
-LEAN_EXPORT lean_object* l_Nat_cast___at___Float_ofBinaryScientific_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Float_ofBinaryScientific_spec__0(lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 static lean_object* l_Float_ofScientific___closed__0;
 LEAN_EXPORT float l_Float32_ofBinaryScientific(lean_object*, lean_object*);
@@ -86,7 +86,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Float_ofBinaryScientific_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Float_ofBinaryScientific_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -519,25 +519,17 @@ x_3 = lean_box_float32(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Meta(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Float(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Float32(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Nat_Log2(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Float32(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Log2(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_OfScientific(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_OfScientific(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Meta(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Float32(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Float(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Float32(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Log2(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Nat_Log2(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Float_ofScientific___closed__0 = _init_l_Float_ofScientific___closed__0();

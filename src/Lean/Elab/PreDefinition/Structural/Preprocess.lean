@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Transform
 public import Lean.Elab.RecAppSyntax
 public import Lean.Meta.WHNF
 

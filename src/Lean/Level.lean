@@ -7,13 +7,9 @@ module
 
 prelude
 public import Init.Data.Array.QSort
-public import Lean.Data.PersistentHashMap
 public import Lean.Data.PersistentHashSet
 public import Lean.Hygiene
-public import Lean.Data.Name
-public import Lean.Data.Format
 public import Init.Data.Option.Coe
-public import Std.Data.TreeSet.Basic
 
 public section
 

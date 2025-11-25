@@ -7,8 +7,6 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 module
 
 prelude
-public import Init.System.IO
-public import Lean.Data.Json.Basic
 public import Lean.Data.Lsp.Communication
 public import Lean.Data.Lsp.Diagnostics
 public import Lean.Data.Lsp.Extra

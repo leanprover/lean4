@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Elab.Command
 public import Lean.Elab.DeclNameGen
 public import Lean.Elab.DeclUtil
 

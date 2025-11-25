@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Compiler.BorrowedAnnotation
 public import Lean.Meta.InferType
+import Lean.AddDecl
 
 public section
 
@@ -138,10 +139,27 @@ partial def toLCNFType (type : Expr) : MetaM Expr := do
     let res'? ← observing <| withExporting <| go type
     if let .ok res' := res'? then
       if res != res' then
-        throwError "Compilation failed, locally inferred compilation type{indentD res}\n\
+        let mut reason := m!"locally inferred compilation type{indentD res}\n\
           differs from type{indentD res'}\n\
           that would be inferred in other modules. This usually means that a type `def` involved \
-          with the mentioned declarations needs to be `@[expose]`d. This is a current compiler \
+          with the mentioned declarations needs to be `@[expose]`d. "
+        -- The above error message is terrible to read, so we'll try to condense it to the essential
+        -- list of non-exposed definitions.
+        let origDiag := (← get).diag
+        try
+          let _ ← observing <| withOptions (diagnostics.set · true)  <| withExporting <| go type
+          let env ← getEnv
+          let blocked := (← get).diag.unfoldAxiomCounter.toList.filterMap fun (n, count) => do
+            let count := count - origDiag.unfoldAxiomCounter.findD n 0
+            guard <| count > 0 && getOriginalConstKind? env n matches some .defn
+            return m!"{.ofConstName n} ↦ {count}"
+          if !blocked.isEmpty then
+            reason := m!"locally inferred compilation type differs from type that would be \
+              inferred in other modules. Some of the following definitions may need to be \
+              `@[expose]`d to fix this mismatch: {indentD <| .joinSep blocked Format.line}\n"
+        finally
+          modify ({ · with diag := origDiag })
+        throwError "Compilation failed, {reason}This is a current compiler \
           limitation for `module`s that may be lifted in the future."
   return res
 where
@@ -163,8 +181,8 @@ where
     | .forallE .. => visitForall type #[]
     | .app ..  => type.withApp visitApp
     | .fvar .. => visitApp type #[]
-    | .proj ``Subtype 0 (.const ``IO.RealWorld.nonemptyType []) =>
-      return mkConst ``lcRealWorld
+    | .proj ``Subtype 0 (.app (.const ``Void.nonemptyType []) _) =>
+      return mkConst ``lcVoid
     | _        => return mkConst ``lcAny
 
   whnfEta (type : Expr) : MetaM Expr := do
@@ -195,6 +213,10 @@ where
   visitApp (f : Expr) (args : Array Expr) := do
     let fNew ← match f with
       | .const declName us =>
+        if (← getEnv).isExporting && isPrivateName declName then
+          -- This branch can happen under `backward.privateInPublic`; restore original behavior of
+          -- failing here, which is caught and ignored above by `observing`.
+          throwError "internal compiler error: private in public"
         let .inductInfo _ ← getConstInfo declName | return anyExpr
         pure <| .const declName us
       | .fvar .. => pure f

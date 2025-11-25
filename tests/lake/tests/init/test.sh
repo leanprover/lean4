@@ -3,6 +3,10 @@ source ../common.sh
 
 ./clean.sh
 
+# Ensure that Lake is run without a toolchain name
+# (for consistent default behavior in tests)
+export ELAN_TOOLCHAIN=
+
 # Test `new` and `init` with bad template/language (should error)
 
 echo "# TEST: Template validation"
@@ -64,22 +68,30 @@ test_run -d hello build Hello
 test -f hello/.lake/build/lib/lean/Hello.olean
 rm -rf hello
 
-# Test math-lax template
+# Test math & math-lax template
 
-echo "# TEST: math-lax template"
-# Use `--offline` and remove the `require`,
-# since we do not wish to download mathlib during tests
-test_run new qed math-lax.lean --offline
-sed_i '/^require.*/{N;d;}' qed/lakefile.lean
-test_run -d qed build Qed
-test -f qed/.lake/build/lib/lean/Qed.olean
-rm -rf qed
-# Use `--offline` and remove the `require`,
-# since we do not wish to download mathlib during tests
-test_run new qed math-lax.toml --offline
-sed_i '/^\[\[require\]\]/{N;N;N;d;}' qed/lakefile.toml
-test_run -d qed build Qed
-test -f qed/.lake/build/lib/lean/Qed.olean
+test_math_tmp () {
+  tmp=$1; pkg=$2; mod=$3
+  echo "# TEST: $tmp template"
+  # Use `--offline` and remove the `require`,
+  # since we do not wish to download mathlib during tests
+  ELAN_TOOLCHAIN="v4.0.0-test" test_run new $pkg $tmp.lean --offline
+  sed_i '/^require.*/{N;d;}' $pkg/lakefile.lean
+  test_cmd_out "v4.0.0-test" cat $pkg/lean-toolchain
+  test_run -d $pkg build $mod
+  test -f $pkg/.lake/build/lib/lean/$mod.olean
+  rm -rf $pkg
+  # Use `--offline` and remove the `require`,
+  # since we do not wish to download mathlib during tests
+  test_out "creating a new math package with a non-release Lean toolchain" \
+    new $pkg $tmp.toml --offline
+  sed_i '/^\[\[require\]\]/{N;N;N;d;}' $pkg/lakefile.toml
+  test_run -d $pkg build $mod
+  test -f $pkg/.lake/build/lib/lean/$mod.olean
+}
+
+test_math_tmp math-lax qed-lax QedLax
+test_math_tmp math qed Qed
 
 # Test `init .`
 
@@ -151,34 +163,6 @@ popd
 
 echo "# TEST: init existing"
 test_err "package already initialized" -d hello_world init
-
-# Tests of the `math` template are usually disabled as they fail unless Mathlib
-# and Lean are synchronized. However, it remains here as it useful when testing
-# changes to the template.
-if false; then
-
-# Test that Mathlib-standard packages have the expected strict linter options.
-mkdir mathlib_standards
-pushd mathlib_standards
-test_run init mathlib_standards math
-
-# Run via elan to make sure the version of Lean is compatible with the version of Mathlib.
-ELAN=${ELAN:-elan}
-
-# skip if no elan found
-echo "# Check if elan exists"
-if ! command -v $ELAN > /dev/null; then
-   echo "elan not found; skipping test"
-   exit 0
-fi
-
-# '#'-commands are not allowed only when enabling the Mathlib standard linters.
-echo >MathlibStandards.lean "import Mathlib.Init"
-echo >>MathlibStandards.lean "#guard true"
-test_cmd_out 'note: this linter can be disabled with `set_option linter.hashCommand false`' $ELAN run $(cat lean-toolchain) lake build mathlib_standards
-popd
-
-fi
 
 # Cleanup
 rm -f produced.out

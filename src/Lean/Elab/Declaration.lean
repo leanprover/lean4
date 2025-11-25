@@ -6,13 +6,8 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Util.CollectLevelParams
-public import Lean.Elab.DeclUtil
-public import Lean.Elab.DefView
 public import Lean.Elab.MutualDef
 public import Lean.Elab.MutualInductive
-public import Lean.Elab.DeclarationRange
-public import Lean.Parser.Command
 import Lean.Parser.Command
 
 public section

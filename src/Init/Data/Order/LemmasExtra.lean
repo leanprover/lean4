@@ -6,9 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Order.Lemmas
 public import Init.Data.Order.FactoriesExtra
-public import Init.Data.Order.Ord
 public import Init.Data.Order.Lemmas
 import Init.ByCases
 

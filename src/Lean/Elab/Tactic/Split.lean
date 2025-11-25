@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Meta.Hint
 public import Lean.Meta.Tactic.Split
-public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.Tactic.Location
 
 public section

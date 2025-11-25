@@ -78,7 +78,7 @@ private def showParserName (n : Name) : MetaM MessageData := do
   let tok ←
     if let some descr := env.find? n |>.bind (·.value?) then
       if let some tk ← getFirstTk descr then
-        pure <| Std.Format.text tk.trim
+        pure <| Std.Format.text tk.trimAscii.copy
       else pure <| format n
     else pure <| format n
   pure <| .ofFormatWithInfos {
@@ -87,7 +87,7 @@ private def showParserName (n : Name) : MetaM MessageData := do
       .ofList [(0, .ofTermInfo {
         lctx := .empty,
         expr := .const n params,
-        stx := .ident .none (toString n).toSubstring n [.decl n []],
+        stx := .ident .none (toString n).toRawSubstring n [.decl n []],
         elaborator := `Delab,
         expectedType? := none
       })] _
@@ -108,7 +108,7 @@ Displays all available tactic tags, with documentation.
 
   let showDocs : Option String → MessageData
     | none => .nil
-    | some d => Format.line ++ MessageData.joinSep ((d.splitOn "\n").map toMessageData) Format.line
+    | some d => Format.line ++ MessageData.joinSep ((d.split '\n').map (toMessageData ∘ String.Slice.copy)).toList Format.line
 
   let showTactics (tag : Name) : MetaM MessageData := do
     match mapping.find? tag with
@@ -166,7 +166,7 @@ def allTacticDocs : MetaM (Array TacticDoc) := do
     let userName : String ←
       if let some descr := env.find? tac |>.bind (·.value?) then
         if let some tk ← getFirstTk descr then
-          pure tk.trim
+          pure tk.trimAscii.copy
         else pure tac.toString
       else pure tac.toString
 

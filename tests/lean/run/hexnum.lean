@@ -22,3 +22,7 @@ macro_rules
 /-- info: (3, 10) : Nat × Nat -/
 #guard_msgs in
 #check #00a
+
+/-- info: (8, 65536) : Nat × Nat -/
+#guard_msgs in
+#check #0001_0000

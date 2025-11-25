@@ -7,7 +7,6 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Data.Lsp.Basic
 public import Lean.Data.Lsp.TextSync
 public import Lean.Server.Rpc.Basic
 

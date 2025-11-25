@@ -80,8 +80,8 @@ Examples from documentation (added in https://github.com/leanprover/lean4/pull/4
 #test lean.get (0 |> lean.next |> lean.next) = '∀'
 
 -- prev
-#test abc.get (abc.endPos |> abc.prev) = 'c'
-#test lean.get (lean.endPos |> lean.prev |> lean.prev |> lean.prev) = '∃'
+#test abc.get (abc.rawEndPos |> abc.prev) = 'c'
+#test lean.get (lean.rawEndPos |> lean.prev |> lean.prev |> lean.prev) = '∃'
 
 -- front
 #test "abc".front = 'a'
@@ -143,7 +143,7 @@ Behavior of `String.prev` (`lean_string_utf8_prev`) in special cases (see issue 
 #test "L∃∀N".prev ⟨5⟩ = ⟨4⟩
 #test "L∃∀N".prev ⟨6⟩ = ⟨4⟩
 #test "L∃∀N".prev ⟨7⟩ = ⟨4⟩
-#test "L∃∀N".prev ⟨8⟩ = ⟨7⟩ -- endPos
+#test "L∃∀N".prev ⟨8⟩ = ⟨7⟩ -- rawEndPos
 #test "L∃∀N".prev ⟨9⟩ = ⟨8⟩
 #test "L∃∀N".prev ⟨100⟩ = ⟨99⟩ -- small value out of bounds
 #test "L∃∀N".prev ⟨2 ^ 128⟩ = ⟨2 ^ 128 - 1⟩ -- large non-scalar

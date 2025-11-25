@@ -8,13 +8,10 @@ module
 prelude
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Simp.Types
-import Lean.Meta.Tactic.Simp.Rewrite
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Util.OccursCheck
 import Lean.PrettyPrinter.Delaborator
 import Lean.Elab.Tactic.Do.ProofMode.MGoal
-import Lean.Util.CollectFVars
-import Std.Do.Triple
 import Std.Tactic.Do -- Needed for use of `mleave` in quote
 
 namespace Lean.Elab.Tactic.Do
@@ -372,7 +369,9 @@ public def suggestInvariant (vcs : Array MVarId) (inv : MVarId) : TacticM Term :
   let invType ← instantiateMVars (← inv.getType)
   let_expr c@Std.Do.Invariant α l letMutsTy _ps := invType
     | throwError "Expected invariant type, got {invType}"
-  let us := c.constLevels!
+  let us := c.constLevels!.take 1 -- This is the list of universe params for `List.Cursor`. It only
+                                  -- takes the level `u₁` for `α` in the type of `Invariant`, so
+                                  -- we drop the rest (i.e., `u₂` for `β`).
 
   -- Simplify the VCs a bit using `mleave`. Makes the job of the analysis below simpler.
   let vcs ← vcs.flatMapM fun vc =>

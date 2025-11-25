@@ -13,7 +13,7 @@ instance : MyClass Prop where
 
 /--
 info: Try this:
-  simp only [MyClass.le_refl, MyClass.sup_of_le_left]
+  [apply] simp only [MyClass.le_refl, MyClass.sup_of_le_left]
 -/
 #guard_msgs in
 example : MyClass.sup False False = False := by

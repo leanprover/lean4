@@ -14,7 +14,6 @@ public import Init.ByCases
 public import Init.RCases
 public import Init.Core
 public import Init.Control
-public import Init.Data.Basic
 public import Init.WF
 public import Init.WFTactics
 public import Init.Data

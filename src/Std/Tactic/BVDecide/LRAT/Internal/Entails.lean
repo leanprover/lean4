@@ -6,7 +6,6 @@ Authors: Josh Clune, Henrik Böving
 module
 
 prelude
-public import Init.NotationExtra
 public import Init.PropLemmas
 
 @[expose] public section

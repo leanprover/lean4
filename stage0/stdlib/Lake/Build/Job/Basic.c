@@ -2667,29 +2667,29 @@ x_2 = l_Lake_instCoeOutJobOpaqueJob___closed__0;
 return x_2;
 }
 }
-lean_object* initialize_Lake_Util_Log(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Util_Task(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Util_Opaque(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Build_Trace(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Build_Data(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Util_Log(uint8_t builtin);
+lean_object* initialize_Lake_Util_Task(uint8_t builtin);
+lean_object* initialize_Lake_Util_Opaque(uint8_t builtin);
+lean_object* initialize_Lake_Build_Trace(uint8_t builtin);
+lean_object* initialize_Lake_Build_Data(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Build_Job_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Build_Job_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Util_Log(builtin, lean_io_mk_world());
+res = initialize_Lake_Util_Log(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Task(builtin, lean_io_mk_world());
+res = initialize_Lake_Util_Task(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Opaque(builtin, lean_io_mk_world());
+res = initialize_Lake_Util_Opaque(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Trace(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Trace(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Data(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Data(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instInhabitedJobAction_default = _init_l_Lake_instInhabitedJobAction_default();

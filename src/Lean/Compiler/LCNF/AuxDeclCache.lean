@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.LCNF.CompilerM
 public import Lean.Compiler.LCNF.DeclHash
 public import Lean.Compiler.LCNF.Internalize
 

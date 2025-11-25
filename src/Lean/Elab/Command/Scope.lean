@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Gabriel Ebner
 module
 
 prelude
-public import Lean.Data.Options
 public import Lean.Parser.Term
 
 public section

@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Array.Lemmas
-public import Init.Data.List.Nat.TakeDrop
 
 public section
 
@@ -201,13 +200,16 @@ theorem getElem?_extract_of_succ {as : Array α} {j : Nat} :
   simp [getElem?_extract]
   omega
 
-@[simp, grind =] theorem extract_extract {as : Array α} {i j k l : Nat} :
+@[simp] theorem extract_extract {as : Array α} {i j k l : Nat} :
     (as.extract i j).extract k l = as.extract (i + k) (min (i + l) j) := by
   ext m h₁ h₂
   · simp
     omega
   · simp only [size_extract] at h₁ h₂
     simp [Nat.add_assoc]
+
+grind_pattern extract_extract => (as.extract i j).extract k l where
+  as =/= #[]
 
 theorem extract_eq_empty_of_eq_empty {as : Array α} {i j : Nat} (h : as = #[]) :
     as.extract i j = #[] := by
@@ -289,9 +291,6 @@ theorem extract_append_right {as bs : Array α} :
   · simp
   · simp only [size_extract, size_replicate] at h₁ h₂
     simp only [getElem_extract, getElem_replicate]
-
-@[deprecated extract_replicate (since := "2025-03-18")]
-abbrev extract_mkArray := @extract_replicate
 
 theorem extract_eq_extract_right {as : Array α} {i j j' : Nat} :
     as.extract i j = as.extract i j' ↔ min (j - i) (as.size - i) = min (j' - i) (as.size - i) := by
@@ -410,8 +409,6 @@ theorem popWhile_append {xs ys : Array α} :
   rcases ys with ⟨ys⟩
   simp only [List.append_toArray, List.popWhile_toArray, List.reverse_append, List.dropWhile_append,
     List.isEmpty_iff, List.isEmpty_toArray, List.isEmpty_reverse]
-  -- Why do these not fire with `simp`?
-  rw [List.popWhile_toArray, List.isEmpty_toArray, List.isEmpty_reverse]
   split
   · rfl
   · simp
@@ -430,31 +427,19 @@ theorem popWhile_append {xs ys : Array α} :
     (replicate n a).takeWhile p = (replicate n a).filter p := by
   simp [← List.toArray_replicate]
 
-@[deprecated takeWhile_replicate_eq_filter (since := "2025-03-18")]
-abbrev takeWhile_mkArray_eq_filter := @takeWhile_replicate_eq_filter
-
 theorem takeWhile_replicate {p : α → Bool} :
     (replicate n a).takeWhile p = if p a then replicate n a else #[] := by
   simp [takeWhile_replicate_eq_filter, filter_replicate]
 
-@[deprecated takeWhile_replicate (since := "2025-03-18")]
-abbrev takeWhile_mkArray := @takeWhile_replicate
-
 @[simp] theorem popWhile_replicate_eq_filter_not {p : α → Bool} :
     (replicate n a).popWhile p = (replicate n a).filter (fun a => !p a) := by
   simp [← List.toArray_replicate, ← List.filter_reverse]
-
-@[deprecated popWhile_replicate_eq_filter_not (since := "2025-03-18")]
-abbrev popWhile_mkArray_eq_filter_not := @popWhile_replicate_eq_filter_not
 
 theorem popWhile_replicate {p : α → Bool} :
     (replicate n a).popWhile p = if p a then #[] else replicate n a := by
   simp only [popWhile_replicate_eq_filter_not, size_replicate, filter_replicate, Bool.not_eq_eq_eq_not,
     Bool.not_true]
   split <;> simp_all
-
-@[deprecated popWhile_replicate (since := "2025-03-18")]
-abbrev popWhile_mkArray := @popWhile_replicate
 
 theorem extract_takeWhile {as : Array α} {i : Nat} :
     (as.takeWhile p).extract 0 i = (as.extract 0 i).takeWhile p := by

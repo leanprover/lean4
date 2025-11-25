@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Compiler.InitAttr
-public import Lean.DocString.Extension
 
 public section
 

@@ -84,11 +84,11 @@ public def chFn (c : Char) (expected : List String := [s!"'{c}'"]) : ParserFn :=
   satisfyFn (fun d => d == c) expected
 
 public partial def strAuxFn (str : String) (expected : List String) (strPos : String.Pos.Raw) : ParserFn := fun c s =>
-  if h₁ : str.atEnd strPos then
+  if h₁ : strPos.atEnd str then
     s
   else
-    let s := chFn (str.get' strPos h₁) expected c s
-    if s.hasError then s else strAuxFn str expected (str.next' strPos h₁) c s
+    let s := chFn (strPos.get' str h₁) expected c s
+    if s.hasError then s else strAuxFn str expected (strPos.next' str h₁) c s
 
 /-- Consume a matching string atomically. -/
 public def strFn (str : String) (expected : List String := [s!"'{str}'"]) : ParserFn :=
@@ -173,7 +173,7 @@ public def chAtom.parenthesizer (_ : Char) (_  : List String) (_ : ParserFn) : P
 
 /-- Parse the trimmed string as an atom (but use the full string for formatting). -/
 public def strAtom (s : String) (expected := [s!"'{s}'"]) (trailingFn := skipFn) : Parser :=
-  atom (strFn s.trim expected) trailingFn
+  atom (strFn s.trimAscii.copy expected) trailingFn
 
 @[combinator_formatter strAtom]
 public def strAtom.formatter (s : String) (_ : List String) (_ : ParserFn) : Formatter :=

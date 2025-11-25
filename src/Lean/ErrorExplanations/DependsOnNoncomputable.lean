@@ -26,7 +26,7 @@ definitions.
 
 # Examples
 
-## Necessarily noncomputable function not appropriately marked
+## Necessarily Noncomputable Function Not Appropriately Marked
 
 ```lean broken
 axiom transform : Nat → Nat
@@ -36,7 +36,7 @@ def transformIfZero : Nat → Nat
   | n => n
 ```
 ```output
-axiom 'transform' not supported by code generator; consider marking definition as 'noncomputable'
+`transform` not supported by code generator; consider marking definition as `noncomputable`
 ```
 ```lean fixed
 axiom transform : Nat → Nat
@@ -50,7 +50,7 @@ axiom, it does not contain any executable code; although the value `transform 0`
 there is no way to compute its value. Thus, `transformIfZero` must be marked `noncomputable` because
 its execution would depend on this axiom.
 
-## Noncomputable dependency can be made computable
+## Noncomputable Dependency Can Be Made Computable
 
 ```lean broken
 noncomputable def getOrDefault [Nonempty α] : Option α → α
@@ -63,7 +63,7 @@ def endsOrDefault (ns : List Nat) : Nat × Nat :=
   (head, tail)
 ```
 ```output
-failed to compile definition, consider marking it as 'noncomputable' because it depends on 'getOrDefault', which is 'noncomputable'
+failed to compile definition, consider marking it as 'noncomputable' because it depends on 'propDecidable', which is 'noncomputable'
 ```
 ```lean fixed (title := "Fixed (computable)")
 def getOrDefault [Inhabited α] : Option α → α
@@ -81,7 +81,7 @@ version of `getOrDefault` (using the `Inhabited` type class), allowing `endsOrDe
 computable. (The differences between `Inhabited` and `Nonempty` are described in the documentation
 of inhabited types in the manual section on [Basic Classes](lean-manual://section/basic-classes).)
 
-## Noncomputable instance in namespace
+## Noncomputable Instance in Namespace
 
 ```lean broken
 open Classical in

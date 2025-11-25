@@ -6,7 +6,6 @@ Author: Markus Himmel
 module
 
 prelude
-public import Init.Prelude
 public import Init.Data.List.Basic
 
 public section

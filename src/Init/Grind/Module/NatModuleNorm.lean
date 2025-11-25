@@ -35,7 +35,7 @@ def Poly.denoteN_nil {α} [NatModule α] (ctx : Context α) : Poly.denoteN ctx .
 
 def Poly.denoteN_add {α} [NatModule α] (ctx : Context α) (k : Int) (x : Var) (p : Poly)
     : k ≥ 0 → Poly.denoteN ctx (.add k x p) = k.toNat • x.denote ctx + p.denoteN ctx := by
-  intro h; simp [denoteN, cond_eq_if]; split
+  intro h; simp [denoteN, cond_eq_ite]; split
   next => omega
   next =>
     have : (k.natAbs : Int) = k.toNat := by

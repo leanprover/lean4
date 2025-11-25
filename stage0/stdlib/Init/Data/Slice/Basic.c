@@ -290,13 +290,13 @@ x_1 = l_Std_Slice_Self_eq___autoParam___closed__21;
 return x_1;
 }
 }
-lean_object* initialize_Init_Core(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Core(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Slice_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Slice_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Core(builtin, lean_io_mk_world());
+res = initialize_Init_Core(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Slice_Self_eq___autoParam___closed__0 = _init_l_Std_Slice_Self_eq___autoParam___closed__0();

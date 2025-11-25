@@ -6,12 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Option.Basic
-public import Init.Data.Option.List
 public import Init.Data.Option.Array
 public import Init.Data.Array.Attach
-public import Init.Data.List.Attach
-public import Init.BinderPredicates
 
 public section
 

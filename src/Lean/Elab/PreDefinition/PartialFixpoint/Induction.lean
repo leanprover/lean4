@@ -7,16 +7,10 @@ Authors: Joachim Breitner
 module
 
 prelude
-import Lean.Meta.Basic
 import Lean.Meta.Match.MatcherApp.Transform
-import Lean.Meta.Check
-import Lean.Meta.Tactic.Subst
 import Lean.Meta.Injective -- for elimOptParam
 import Lean.Meta.ArgsPacker
-import Lean.Meta.PProdN
-import Lean.Meta.Tactic.Apply
 import Lean.Elab.PreDefinition.PartialFixpoint.Eqns
-import Lean.Elab.Command
 import Lean.Meta.Tactic.ElimInfo
 import Init.Internal.Order.Basic
 

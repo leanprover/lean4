@@ -120,7 +120,7 @@ def withReportedOutput (x : MetaM α) : MetaM Unit := do
   -- We need to omit the path to the file, since that's host-dependent; also drop line
   -- number to avoid noise
   let dropped := res.splitOn fileName |>.map (fun (s : String) => s.dropWhile (· != ' '))
-  logInfo ("".intercalate dropped)
+  logInfo ("".toSlice.intercalate dropped)
 
 /--
 info:  error(lean.bar): function is noncomputable

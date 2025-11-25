@@ -6,10 +6,8 @@ Authors: Sebastian Ullrich, Dany Fabian
 module
 
 prelude
-public import Lean.Meta.Transform
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.Deriving.Util
-public import Lean.Data.Json.FromToJson.Basic
 meta import Lean.Parser.Do
 
 public section
@@ -31,7 +29,7 @@ def mkFromJsonHeader (indVal : InductiveVal) : TermElabM Header := do
 
 def mkJsonField (n : Name) : CoreM (Bool × Term) := do
   let .str .anonymous s := n | throwError "invalid json field name {n}"
-  let s₁ := s.dropRightWhile (· == '?')
+  let s₁ := s.dropEndWhile (· == '?') |>.copy
   return (s != s₁, Syntax.mkStrLit s₁)
 
 def mkToJsonBodyForStruct (header : Header) (indName : Name) : TermElabM Term := do

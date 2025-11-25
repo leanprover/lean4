@@ -1,6 +1,9 @@
 module
 
 meta import Init.Dynamic
+meta import Init.System.IO
+public import Lean.PrettyPrinter.Delaborator.Basic
+public meta import Lean.PrettyPrinter.Delaborator.Basic
 
 public axiom testSorry : α
 
@@ -42,11 +45,9 @@ public def Fun := Nat → Nat
 /-! The compiler should check it has sufficient information about types available. -/
 
 /--
-error: Compilation failed, locally inferred compilation type
-  (Nat → Nat) → Nat → Nat
-differs from type
-  (Nat → Nat) → lcAny
-that would be inferred in other modules. This usually means that a type `def` involved with the mentioned declarations needs to be `@[expose]`d. This is a current compiler limitation for `module`s that may be lifted in the future.
+error: Compilation failed, locally inferred compilation type differs from type that would be inferred in other modules. Some of the following definitions may need to be `@[expose]`d to fix this mismatch: ⏎
+  Fun ↦ 1
+This is a current compiler limitation for `module`s that may be lifted in the future.
 -/
 #guard_msgs in
 public def Fun.mk (f : Nat → Nat) : Fun := f
@@ -79,6 +80,16 @@ Note: A private declaration `fpriv` (from the current module) exists but would n
 -/
 #guard_msgs in
 public theorem tpriv : fpriv = 1 := rfl
+
+/-! Type inference should not be able to smuggle out private references. -/
+
+/--
+error: Unknown constant `_private.Module.Basic.0.fpriv`
+
+Note: A private declaration `fpriv` (from the current module) exists but would need to be public to access here.
+-/
+#guard_msgs in
+public def inferredPrivRef := (rfl : fpriv = 1)
 
 public class X
 
@@ -172,6 +183,7 @@ is not definitionally equal to the right-hand side
 #guard_msgs in
 @[defeq] public theorem not_rfl : f = 2 := testSorry
 
+/-- A private definition. -/
 def priv := 2
 
 /-! Private decls should not be accessible in exported contexts. -/
@@ -459,3 +471,43 @@ info: @[expose] meta def msecexp : Nat :=
 #print msecexp
 
 attribute [simp] f_struct
+
+/-! `[inherit_doc]` should work independently of visibility. -/
+
+@[inherit_doc priv] public def pubInheritDoc := 1
+
+/-! `initialize` should be run even if imported IR-only. -/
+
+public initialize initialized : Nat ← pure 5
+
+/-! Error message on private dot notation access. -/
+
+public structure S
+
+def S.s := 1
+
+/--
+error: Invalid field `s`: The environment does not contain `S.s`
+  s
+has type
+  S
+
+Note: A private declaration `S.s` (from the current module) exists but would need to be public to access here.
+-/
+#guard_msgs in
+@[expose] public def useS (s : S) := s.s
+
+/- `meta` should trump `noncomputable`. -/
+
+noncomputable section
+/-- error: Invalid `meta` definition `m`, `S.s` not marked `meta` -/
+#guard_msgs in
+meta def m := S.s
+end
+
+-- setup for `Imported`
+public meta def delab : Lean.PrettyPrinter.Delaborator.Delab :=
+  default
+
+public def noMetaDelab : Lean.PrettyPrinter.Delaborator.Delab :=
+  default

@@ -1,2 +1,2 @@
 Try this:
-  simp only [Nat.foo]
+  [apply] simp only [Nat.foo]

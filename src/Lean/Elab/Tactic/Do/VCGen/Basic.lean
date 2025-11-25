@@ -19,7 +19,6 @@ builtin_initialize registerTraceClass `Elab.Tactic.Do.vcgen
 
 register_builtin_option mvcgen.warning : Bool := {
   defValue := true
-  group    := "debug"
   descr    := "disable `mvcgen` usage warning"
 }
 

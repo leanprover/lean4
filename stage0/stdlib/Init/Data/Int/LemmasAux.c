@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.LemmasAux
-// Imports: public import Init.Data.Int.Order public import Init.Data.Int.Pow public import Init.Omega
+// Imports: public import Init.Data.Int.Pow
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -84,21 +84,13 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* initialize_Init_Data_Int_Order(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Int_Pow(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_Pow(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Int_Order(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Int_Pow(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Omega(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Int_Pow(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match__1_splitter___redArg___closed__0 = _init_l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match__1_splitter___redArg___closed__0();

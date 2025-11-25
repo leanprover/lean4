@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.ToString.Basic
-import Init.Data.String.Extra
+import Init.Data.String.Basic
 import Init.Data.Nat.Fold
 
 namespace Lake

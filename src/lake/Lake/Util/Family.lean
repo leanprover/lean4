@@ -7,8 +7,6 @@ module
 
 prelude
 public import Init.Prelude
-public meta import Init.Meta
-public meta import Init.Data.String.Basic
 public meta import Init.Data.ToString.Name
 import Init.Data.ToString
 

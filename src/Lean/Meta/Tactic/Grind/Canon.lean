@@ -5,13 +5,10 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Util
-public import Lean.Meta.Basic
-public import Lean.Meta.FunInfo
-public import Lean.Util.FVarSubset
-public import Lean.Util.PtrSet
-public import Lean.Util.FVarSubset
 public import Lean.Meta.Tactic.Grind.Types
+import Init.Grind.Util
+import Lean.Meta.FunInfo
+import Lean.Util.FVarSubset
 import Lean.Meta.IntInstTesters
 import Lean.Meta.NatInstTesters
 public section

@@ -42,6 +42,8 @@ structure Config where
   ```
   -/
   merge := true
+  /-- If `wrapWithBy` is `true`, suggestions are wrapped with `by` for term mode usage. -/
+  wrapWithBy := false
   deriving Inhabited
 
 end Lean.Try
@@ -57,3 +59,23 @@ syntax (name := attemptAll) "attempt_all " withPosition((ppDedent(ppLine) colGe 
 syntax (name := tryResult) "try_suggestions " tactic* : tactic
 
 end Lean.Parser.Tactic
+
+namespace Lean.Parser.Command
+
+/--
+`register_try?_tactic tac` registers a tactic `tac` as a suggestion generator for the `try?` tactic.
+
+An optional priority can be specified with `register_try?_tactic (priority := 500) tac`.
+Higher priority generators are tried first. The default priority is 1000.
+-/
+syntax (name := registerTryTactic) (docComment)?
+  "register_try?_tactic" ("(" &"priority" ":=" num ")")? tacticSeq : command
+
+end Lean.Parser.Command
+
+/-- `∎` (typed as `\qed`) is a macro that expands to `try?` in tactic mode. -/
+macro "∎" : tactic => `(tactic| try?)
+
+/-- `∎` (typed as `\qed`) is a macro that expands to `by try? (wrapWithBy := true)` in term mode.
+    The `wrapWithBy` config option causes suggestions to be prefixed with `by`. -/
+macro "∎" : term => `(by try? (wrapWithBy := true))

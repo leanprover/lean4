@@ -11,7 +11,6 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Init.System.Promise
 public import Lean.Parser.Types
 public import Lean.Util.Trace
 
@@ -75,7 +74,7 @@ inductive SnapshotTask.ReportingRange where
   /-- Inherit range from outer task if any, or else the entire file. -/
   | inherit
   /-- Use given range. -/
-  | protected some (range : String.Range)
+  | protected some (range : Lean.Syntax.Range)
   /-- Do not mark as being processed. Child nodes are still visited. -/
   | skip
 deriving Inhabited
@@ -84,7 +83,7 @@ deriving Inhabited
 Constructs a reporting range by replacing a missing range with `inherit`, which is a reasonable
 default to ensure that a range is shown in all cases.
 -/
-def SnapshotTask.ReportingRange.ofOptionInheriting : Option String.Range → SnapshotTask.ReportingRange
+def SnapshotTask.ReportingRange.ofOptionInheriting : Option Lean.Syntax.Range → SnapshotTask.ReportingRange
   | some range => .some range
   | none       => .inherit
 
@@ -381,7 +380,7 @@ def diagnosticsOfHeaderError (msg : String) : ProcessingM Snapshot.Diagnostics :
   let msgLog := MessageLog.empty.add {
     fileName := "<input>"
     pos := ⟨1, 0⟩
-    endPos := (← read).fileMap.toPosition (← read).fileMap.source.endPos
+    endPos := (← read).fileMap.toPosition (← read).fileMap.source.rawEndPos
     data := msg
   }
   Snapshot.Diagnostics.ofMessageLog msgLog

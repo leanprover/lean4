@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Order.Classes
 public import Init.Data.Range.Polymorphic.Basic
 import Init.Data.Nat.Lemmas
 import Init.Data.Order.Lemmas

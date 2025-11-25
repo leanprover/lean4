@@ -219,6 +219,14 @@ def DiseqCnstr.satisfied (c : DiseqCnstr) : GoalM LBool := do
   return v != 0 |>.toLBool
 
 /--
+Returns `.true` if `c` is satisfied by the current partial model,
+`.undef` if `c` contains unassigned variables, and `.false` otherwise.
+-/
+def EqCnstr.satisfied (c : EqCnstr) : GoalM LBool := do
+  let some v ← c.p.eval? | return .undef
+  return v == 0 |>.toLBool
+
+/--
 Given a polynomial `p`, returns `some (x, k, c)` if `p` contains the monomial `k*x`,
 and `x` has been eliminated using the equality `c`.
 -/

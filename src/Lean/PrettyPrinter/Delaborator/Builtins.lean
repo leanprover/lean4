@@ -6,14 +6,10 @@ Authors: Sebastian Ullrich, Leonardo de Moura, Gabriel Ebner, Mario Carneiro
 module
 
 prelude
-public import Lean.PrettyPrinter.Delaborator.Attributes
 public import Lean.PrettyPrinter.Delaborator.Basic
-public import Lean.PrettyPrinter.Delaborator.SubExpr
-public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
 public import Lean.Meta.CoeAttr
 public import Lean.Meta.Structure
 import Lean.Parser.Command
-meta import Lean.Parser.Do
 meta import Lean.Parser.Command
 
 public section
@@ -1161,8 +1157,8 @@ def delabOfScientific : Delab := whenNotPPOption getPPExplicit <| whenPPOption g
   if s && e == str.length then
     return Syntax.mkScientificLit ("0." ++ str)
   else if s && e < str.length then
-    let mStr := str.extract 0 ⟨str.length - e⟩
-    let eStr := str.extract ⟨str.length - e⟩ ⟨str.length⟩
+    let mStr := String.Pos.Raw.extract str 0 ⟨str.length - e⟩
+    let eStr := String.Pos.Raw.extract str ⟨str.length - e⟩ ⟨str.length⟩
     return Syntax.mkScientificLit (mStr ++ "." ++ eStr)
   else
     return Syntax.mkScientificLit (str ++ "e" ++ (if s then "-" else "") ++ toString e)

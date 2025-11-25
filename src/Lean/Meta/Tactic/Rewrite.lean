@@ -9,8 +9,6 @@ prelude
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.MatchUtil
 public import Lean.Meta.KAbstract
-public import Lean.Meta.Check
-public import Lean.Meta.Tactic.Util
 public import Lean.Meta.Tactic.Apply
 public import Lean.Meta.BinderNameHint
 

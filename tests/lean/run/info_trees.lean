@@ -70,7 +70,7 @@ info: • [Command] @ ⟨77, 0⟩-⟨77, 40⟩ @ Lean.Elab.Command.elabDeclarati
     • [Term] t (isBinder := true) : ∀ (n : Nat), 0 ≤ n @ ⟨77, 8⟩-⟨77, 9⟩
 ---
 info: Try this:
-  exact Nat.zero_le n
+  [apply] exact Nat.zero_le n
 -/
 #guard_msgs in
 #info_trees in

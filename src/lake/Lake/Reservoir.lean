@@ -6,7 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lake.Util.Log
 public import Lake.Util.JsonObject
 public import Lake.Util.Version
 public import Lake.Config.Env
@@ -148,12 +147,12 @@ public def Reservoir.fetchPkg? (lakeEnv : Lake.Env) (owner pkg : String) : LogIO
     | .error e =>
       errorWithLog do
       logError s!"{owner}/{pkg}: Reservoir lookup failed; server returned unsupported JSON: {e}"
-      logVerbose s!"{owner}/{pkg}: Reservoir responded with:\n{out.trim}"
+      logVerbose s!"{owner}/{pkg}: Reservoir responded with:\n{out.trimAscii}"
       failure
   | .error e =>
     errorWithLog do
     logError s!"{owner}/{pkg}: Reservoir lookup failed; server returned invalid JSON: {e}"
-    logVerbose s!"{owner}/{pkg}: Reservoir responded with:\n{out.trim}"
+    logVerbose s!"{owner}/{pkg}: Reservoir responded with:\n{out.trimAscii}"
     failure
 
 /--
@@ -200,10 +199,10 @@ public def Reservoir.fetchPkgVersions
     | .error e =>
       errorWithLog do
       logError s!"{owner}/{pkg}: Reservoir lookup failed; server returned unsupported JSON: {e}"
-      logVerbose s!"{owner}/{pkg}: Reservoir responded with:\n{out.trim}"
+      logVerbose s!"{owner}/{pkg}: Reservoir responded with:\n{out.trimAscii}"
       failure
   | .error e =>
     errorWithLog do
     logError s!"{owner}/{pkg}: Reservoir lookup failed; server returned invalid JSON: {e}"
-    logVerbose s!"{owner}/{pkg}: Reservoir responded with:\n{out.trim}"
+    logVerbose s!"{owner}/{pkg}: Reservoir responded with:\n{out.trimAscii}"
     failure

@@ -6,14 +6,11 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Vector.Basic
 import all Init.Data.Vector.Basic
 public import Init.Data.Vector.Lemmas
-public import Init.Data.Array.Lex.Basic
 import all Init.Data.Array.Lex.Basic
 public import Init.Data.Array.Lex.Lemmas
 import Init.Data.Range.Polymorphic.Lemmas
-import Init.Data.Order.Lemmas
 
 public section
 
@@ -35,7 +32,18 @@ grind_pattern le_toArray => xs.toArray ≤ ys.toArray
 @[simp] theorem lt_toList [LT α] {xs ys : Vector α n} : xs.toList < ys.toList ↔ xs < ys := Iff.rfl
 @[simp] theorem le_toList [LT α] {xs ys : Vector α n} : xs.toList ≤ ys.toList ↔ xs ≤ ys := Iff.rfl
 
+@[simp]
+protected theorem not_lt [LT α] {xs ys : Vector α n} : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl
+
+@[deprecated Vector.not_lt (since := "2025-10-26")]
 protected theorem not_lt_iff_ge [LT α] {xs ys : Vector α n} : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl
+
+@[simp]
+protected theorem not_le [LT α] {xs ys : Vector α n} :
+    ¬ xs ≤ ys ↔ ys < xs :=
+  Classical.not_not
+
+@[deprecated Vector.not_le (since := "2025-10-26")]
 protected theorem not_le_iff_gt [LT α] {xs ys : Vector α n} :
     ¬ xs ≤ ys ↔ ys < xs :=
   Classical.not_not
@@ -107,7 +115,7 @@ protected theorem lt_of_le_of_lt [LT α] [LE α] [LawfulOrderLT α] [IsLinearOrd
 @[deprecated Vector.lt_of_le_of_lt (since := "2025-08-01")]
 protected theorem lt_of_le_of_lt' [LT α]
     [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
+    [Std.Trichotomous (· < · : α → α → Prop)]
     [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
     {xs ys zs : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
   letI := LE.ofLT α
@@ -121,7 +129,7 @@ protected theorem le_trans [LT α] [LE α] [LawfulOrderLT α] [IsLinearOrder α]
 @[deprecated Vector.le_trans (since := "2025-08-01")]
 protected theorem le_trans' [LT α]
     [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
+    [Std.Trichotomous (· < · : α → α → Prop)]
     [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
     {xs ys zs : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys ≤ zs) : xs ≤ zs :=
   letI := LE.ofLT α
@@ -160,12 +168,6 @@ instance [LT α] [LE α] [IsLinearOrder α] [LawfulOrderLT α] :
   case le_total => constructor; apply Vector.le_total
   case le_trans => constructor; apply Vector.le_trans
 
-@[simp] protected theorem not_lt [LT α]
-    {xs ys : Vector α n} : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl
-
-@[simp] protected theorem not_le [LT α]
-    {xs ys : Vector α n} : ¬ ys ≤ xs ↔ xs < ys := Classical.not_not
-
 instance [LT α] [Std.Asymm (· < · : α → α → Prop)] : LawfulOrderLT (Vector α n) where
   lt_iff _ _ := by
     open Classical in
@@ -178,7 +180,7 @@ protected theorem le_of_lt [LT α]
 
 protected theorem le_iff_lt_or_eq [LT α]
     [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
+    [Std.Trichotomous (· < · : α → α → Prop)]
     {xs ys : Vector α n} : xs ≤ ys ↔ xs < ys ∨ xs = ys := by
   simpa using Array.le_iff_lt_or_eq (xs := xs.toArray) (ys := ys.toArray)
 
@@ -249,7 +251,7 @@ protected theorem lt_iff_exists [LT α] {xs ys : Vector α n} :
 
 protected theorem le_iff_exists [LT α]
     [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)] {xs ys : Vector α n} :
+    [Std.Trichotomous (· < · : α → α → Prop)] {xs ys : Vector α n} :
     xs ≤ ys ↔
       (xs = ys) ∨
         (∃ (i : Nat) (h : i < n), (∀ j, (hj : j < i) → xs[j] = ys[j]) ∧ xs[i] < ys[i]) := by
@@ -263,7 +265,7 @@ theorem append_left_lt [LT α] {xs : Vector α n} {ys ys' : Vector α m} (h : ys
 
 theorem append_left_le [LT α]
     [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
+    [Std.Trichotomous (· < · : α → α → Prop)]
     {xs : Vector α n} {ys ys' : Vector α m} (h : ys ≤ ys') :
     xs ++ ys ≤ xs ++ ys' := by
   simpa using Array.append_left_le h
@@ -275,9 +277,9 @@ protected theorem map_lt [LT α] [LT β]
 
 protected theorem map_le [LT α] [LT β]
     [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
+    [Std.Trichotomous (· < · : α → α → Prop)]
     [Std.Asymm (· < · : β → β → Prop)]
-    [Std.Antisymm (¬ · < · : β → β → Prop)]
+    [Std.Trichotomous (· < · : β → β → Prop)]
     {xs ys : Vector α n} {f : α → β} (w : ∀ x y, x < y → f x < f y) (h : xs ≤ ys) :
     map f xs ≤ map f ys := by
   simpa using Array.map_le w h

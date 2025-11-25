@@ -7,12 +7,7 @@ module
 
 prelude
 public import Lean.Util.RecDepth
-public import Lean.Util.Trace
-public import Lean.Log
 public import Lean.ResolveName
-public import Lean.Elab.InfoTree.Types
-public import Lean.MonadEnv
-public import Lean.Elab.Exception
 public import Lean.Language.Basic
 
 public section
@@ -20,13 +15,11 @@ public section
 namespace Lean
 register_builtin_option diagnostics : Bool := {
   defValue := false
-  group    := "diagnostics"
   descr    := "collect diagnostic information"
 }
 
 register_builtin_option diagnostics.threshold : Nat := {
   defValue := 20
-  group    := "diagnostics"
   descr    := "only diagnostic counters above this threshold are reported by the definitional equality"
 }
 
@@ -442,6 +435,9 @@ def mkFreshUserName (n : Name) : CoreM Name :=
   | Except.error (Exception.internal id _) => throw <| IO.userError <| "internal exception #" ++ toString id.idx
   | Except.ok a                            => return a
 
+@[inline] def CoreM.toIO' (x : CoreM α) (ctx : Context) (s : State) : IO α :=
+  (·.1) <$> x.toIO ctx s
+
 -- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`
 protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=
   controlAt CoreM fun runInBase => withIncRecDepth (runInBase x)
@@ -459,7 +455,6 @@ the exception has been thrown.
 
 register_builtin_option debug.moduleNameAtTimeout : Bool := {
   defValue := true
-  group    := "debug"
   descr    := "include module name in deterministic timeout error messages.\nRemark: we set this option to false to increase the stability of our test suite"
 }
 
@@ -565,7 +560,6 @@ def wrapAsync {α : Type} (act : α → CoreM β) (cancelTk? : Option IO.CancelT
 /-- Option for capturing output to stderr during elaboration. -/
 register_builtin_option stderrAsMessages : Bool := {
   defValue := true
-  group    := "server"
   descr    := "(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message"
 }
 
@@ -689,9 +683,25 @@ def traceBlock (tag : String) (t : Task α) : CoreM α := do
     profileitM Exception "blocked" (← getOptions) do
       IO.wait t
 
--- Forward declaration
-@[extern "lean_lcnf_compile_decls"]
-opaque compileDeclsImpl (declNames : Array Name) : CoreM Unit
+/--
+This ref exists to break a linking cycle that goes as follows:
+- We start in `Environment.lean`, there we have functions referencing the compiler such as
+  `evalConst`
+- This pulls in the entire compiler transitively as well as all of its dependents
+- The compiler relies on things like WHNF to inspect types
+- WHNF in turn imports Environment
+
+On Windows this causes a large amount of symbols to be included in one DLL as everything that
+imports the Environment instantly requires a large chunk of the Meta stack to be linked. This ref
+breaks the cycle by making `compileDeclsImpl` a "dynamic" call through the ref that is not visible
+to the linker. In the compiler there is a matching `builtin_initialize` to set this ref to the
+actual implementation of compileDeclsRef.
+-/
+builtin_initialize compileDeclsRef : IO.Ref (Array Name → CoreM Unit) ←
+  IO.mkRef (fun _ => throwError m!"call to compileDecls with uninitialized compileDeclsRef")
+
+def compileDeclsImpl (declNames : Array Name) : CoreM Unit := do
+  (← compileDeclsRef.get) declNames
 
 -- `ref?` is used for error reporting if available
 partial def compileDecls (decls : Array Name) (logErrors := true) : CoreM Unit := do

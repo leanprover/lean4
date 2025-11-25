@@ -7,7 +7,6 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Data.Json.FromToJson.Basic
 public import Lean.Data.Lsp.Basic
 
 public section

@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.ToString.Basic
 public import Init.Data.String.Basic
 
 public section

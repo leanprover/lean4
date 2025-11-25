@@ -6,7 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lake.Util.Log
 public import Lake.Config.Context
 public import Lake.Build.Job.Basic
 

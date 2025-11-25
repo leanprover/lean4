@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Log
 public import Lean.Elab.InfoTree
 
 public section

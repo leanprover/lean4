@@ -6,7 +6,6 @@ Author: Dany Fabian
 module
 
 prelude
-public import Init.Data.ToString.Macro
 public import Std.Data.TreeMap.Basic
 public import Init.Data.Ord.String
 

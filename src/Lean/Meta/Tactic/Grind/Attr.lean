@@ -5,12 +5,11 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.EMatchTheorem
 public import Lean.Meta.Tactic.Grind.Injective
 public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.ExtAttr
+public import Lean.Meta.Tactic.Grind.FunCC
 import Lean.ExtraModUses
-
 public section
 namespace Lean.Meta.Grind
 
@@ -22,6 +21,7 @@ inductive AttrKind where
   | ext
   | symbol (prio : Nat)
   | inj
+  | funCC
 
 /-- Return theorem kind for `stx` of the form `Attr.grindThmMod` -/
 def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
@@ -47,6 +47,7 @@ def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   | `(Parser.Attr.grindMod|intro) => return .intro
   | `(Parser.Attr.grindMod|ext) => return .ext
   | `(Parser.Attr.grindMod|inj) => return .inj
+  | `(Parser.Attr.grindMod|funCC) => return .funCC
   | `(Parser.Attr.grindMod|symbol $prio:prio) =>
     let some prio := prio.raw.isNatLit? | throwErrorAt prio "priority expected"
     return .symbol prio
@@ -100,6 +101,10 @@ private def registerGrindAttr (minIndexable : Bool) (showInfo : Bool) : IO Unit 
     applicationTime := .afterCompilation
     add := fun declName stx attrKind => MetaM.run' do
       recordExtraModUseFromDecl (isMeta := false) declName
+      -- `[grind] def` should be allowed without `[expose]` so make body accessible unconditionally.
+      -- When the body is not available (i.e. the def equations are private), the attribute will not
+      -- be exported; see `ematchTheoremsExt.exportEntry?`.
+      withoutExporting do
       match (← getAttrKindFromOpt stx) with
       | .ematch .user => throwInvalidUsrModifier
       | .ematch k => addEMatchAttr declName attrKind k (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
@@ -123,6 +128,7 @@ private def registerGrindAttr (minIndexable : Bool) (showInfo : Bool) : IO Unit 
           addEMatchAttrAndSuggest stx declName attrKind (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
       | .symbol prio => addSymbolPriorityAttr declName attrKind prio
       | .inj => addInjectiveAttr declName attrKind
+      | .funCC => addFunCCAttr declName attrKind
     erase := fun declName => MetaM.run' do
       if showInfo then
         throwError "`[grind?]` is a helper attribute for displaying inferred patterns, if you want to remove the attribute, consider using `[grind]` instead"
@@ -132,6 +138,8 @@ private def registerGrindAttr (minIndexable : Bool) (showInfo : Bool) : IO Unit 
         eraseExtAttr declName
       else if (← isInjectiveTheorem declName) then
         eraseInjectiveAttr declName
+      else if (← hasFunCCAttr declName) then
+        eraseFunCCAttr declName
       else
         eraseEMatchAttr declName
   }

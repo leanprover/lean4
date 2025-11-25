@@ -238,23 +238,26 @@ def stop (s : Signal.Waiter) : IO Unit :=
   s.native.stop
 
 /--
-Create a `Selector` that resolves once `s` has received the signal. Note that calling this function starts `s`
-if it hasn't already started.
+Create a `Selector` that resolves once `s` has received the signal. Note that calling this function
+does not start the signal waiter.
 -/
-def selector (s : Signal.Waiter) : IO (Selector Unit) := do
-  let signalWaiter ← s.wait
-  return {
+def selector (s : Signal.Waiter) : Selector Unit :=
+  {
     tryFn := do
+      let signalWaiter : AsyncTask _ ← async s.wait
       if ← IO.hasFinished signalWaiter then
         return some ()
       else
+        s.native.cancel
         return none
 
     registerFn waiter := do
+      let signalWaiter ← s.wait
       discard <| AsyncTask.mapIO (x := signalWaiter) fun _ => do
         let lose := return ()
         let win promise := promise.resolve (.ok ())
         waiter.race lose win
 
-    unregisterFn := s.stop
+    unregisterFn := s.native.cancel
+
   }

@@ -7,10 +7,9 @@ module
 
 prelude
 public import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Eqns
-import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Split
 public import Lean.Meta.Tactic.Simp.Types
+import Lean.Elab.PreDefinition.EqnsUtils
+import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs
 import Lean.Meta.Tactic.Delta
@@ -98,6 +97,7 @@ matcherArgPusher params motive {α} {β} (f : ∀ (x : α), β x) rel alt1 .. x1
 def mkMatchArgPusher (matcherName : Name) (matcherInfo : MatcherInfo) : MetaM Name := do
   let name := (mkPrivateName (← getEnv) matcherName) ++ `_arg_pusher
   realizeConst matcherName name do
+    prependError m!"Cannot create match arg pusher for {matcherName}" do
     let matcherVal ← getConstVal matcherName
     forallBoundedTelescope matcherVal.type (some (matcherInfo.numParams + 1)) fun xs _ => do
       let params := xs[*...matcherInfo.numParams]

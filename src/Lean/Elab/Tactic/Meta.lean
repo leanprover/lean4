@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Elab.SyntheticMVars
-public import Lean.Elab.Tactic.Basic
 
 public section
 

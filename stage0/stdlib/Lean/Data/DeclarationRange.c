@@ -85,7 +85,7 @@ static lean_object* l_Lean_instReprDeclarationRanges_repr___redArg___closed__2;
 extern lean_object* l_Lean_instInhabitedPosition_default;
 static lean_object* l_Lean_instReprDeclarationRange_repr___redArg___closed__8;
 static lean_object* l_Lean_instToExprDeclarationRange___lam__0___closed__1;
-LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_instReprDeclarationRange_repr_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_instReprDeclarationRange_repr_spec__0(lean_object*);
 static lean_object* l_Lean_instReprDeclarationRanges_repr___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_DeclarationRange_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_instInhabitedDeclarationRange_default___closed__1;
@@ -254,7 +254,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_instReprDeclarationRange_repr_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_instReprDeclarationRange_repr_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -1570,13 +1570,13 @@ x_1 = l_Lean_instReprDeclarationLocation___closed__0;
 return x_1;
 }
 }
-lean_object* initialize_Lean_Data_Position(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Position(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Data_DeclarationRange(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Data_DeclarationRange(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Data_Position(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_Position(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instInhabitedDeclarationRange_default___closed__0 = _init_l_Lean_instInhabitedDeclarationRange_default___closed__0();

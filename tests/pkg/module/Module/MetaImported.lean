@@ -1,6 +1,5 @@
 module
 
-prelude
 meta import Module.Basic
 
 /-! Basic phase restriction tests. -/

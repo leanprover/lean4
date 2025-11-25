@@ -6,7 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Sat.AIG.LawfulOperator
 public import Std.Sat.AIG.CachedGatesLemmas
 public import Init.Data.Vector.Lemmas
 

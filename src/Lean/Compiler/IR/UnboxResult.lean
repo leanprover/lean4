@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Data.Format
 public import Lean.Compiler.IR.Basic
 
 public section

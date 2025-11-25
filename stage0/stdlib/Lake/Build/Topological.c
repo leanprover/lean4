@@ -358,21 +358,21 @@ x_12 = l_Lake_recFetchMemoize___redArg(x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_12;
 }
 }
-lean_object* initialize_Lake_Util_Cycle(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Util_Store(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Util_EquipT(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Util_Cycle(uint8_t builtin);
+lean_object* initialize_Lake_Util_Store(uint8_t builtin);
+lean_object* initialize_Lake_Util_EquipT(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Build_Topological(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Build_Topological(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Util_Cycle(builtin, lean_io_mk_world());
+res = initialize_Lake_Util_Cycle(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Store(builtin, lean_io_mk_world());
+res = initialize_Lake_Util_Store(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_EquipT(builtin, lean_io_mk_world());
+res = initialize_Lake_Util_EquipT(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_recFetchAcyclic___redArg___lam__3___closed__0 = _init_l_Lake_recFetchAcyclic___redArg___lam__3___closed__0();

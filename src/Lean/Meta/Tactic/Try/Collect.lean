@@ -7,10 +7,8 @@ module
 prelude
 public import Init.Try
 public import Lean.Meta.Tactic.LibrarySearch
-public import Lean.Meta.Tactic.Util
 public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.EMatchTheorem
-public import Lean.Meta.Tactic.FunIndInfo
 public import Lean.Meta.Tactic.FunIndCollect
 import Lean.Meta.Eqns
 public section
@@ -125,7 +123,9 @@ def visitApp (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
   saveLibSearchCandidates e
 
 def checkInductive (localDecl : LocalDecl) : M Unit := do
-  let .const declName _ ← whnfD localDecl.type | return ()
+  let type ← whnfD localDecl.type
+  -- Use getAppFn to handle both `T` and `T α β ...` cases
+  let .const declName _ := type.getAppFn | return ()
   let .inductInfo val ← getConstInfo declName | return ()
   if (← isEligible declName) then
     unless (← Grind.isSplit declName) do

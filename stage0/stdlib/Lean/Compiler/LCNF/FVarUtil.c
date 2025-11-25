@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.FVarUtil
-// Imports: public import Lean.Expr public import Lean.Compiler.LCNF.Basic public import Lean.Compiler.LCNF.CompilerM
+// Imports: public import Lean.Compiler.LCNF.CompilerM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -518,7 +518,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(39u);
-x_3 = lean_unsigned_to_nat(31u);
+x_3 = lean_unsigned_to_nat(29u);
 x_4 = l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___closed__1;
 x_5 = l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -701,7 +701,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_5;
 }
 }
@@ -794,7 +794,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(38u);
-x_3 = lean_unsigned_to_nat(47u);
+x_3 = lean_unsigned_to_nat(45u);
 x_4 = l_Lean_Compiler_LCNF_Expr_forFVarM___redArg___closed__0;
 x_5 = l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1767,7 +1767,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(9u);
-x_3 = lean_unsigned_to_nat(319u);
+x_3 = lean_unsigned_to_nat(316u);
 x_4 = l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__2;
 x_5 = l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3807,10 +3807,10 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_allFVarM___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-if (lean_obj_tag(x_2) == 0)
+if (lean_obj_tag(x_2) == 1)
 {
 uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = 0;
+x_3 = 1;
 x_4 = lean_box(x_3);
 x_5 = lean_apply_2(x_1, lean_box(0), x_4);
 return x_5;
@@ -3818,7 +3818,7 @@ return x_5;
 else
 {
 uint8_t x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = 1;
+x_6 = 0;
 x_7 = lean_box(x_6);
 x_8 = lean_apply_2(x_1, lean_box(0), x_7);
 return x_8;
@@ -4149,21 +4149,13 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* initialize_Lean_Expr(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_LCNF_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_LCNF_CompilerM(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_LCNF_CompilerM(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_FVarUtil(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_FVarUtil(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Expr(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_CompilerM(builtin, lean_io_mk_world());
+res = initialize_Lean_Compiler_LCNF_CompilerM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___closed__0 = _init_l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___closed__0();

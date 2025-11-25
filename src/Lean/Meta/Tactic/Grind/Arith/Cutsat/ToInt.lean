@@ -5,9 +5,9 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Init.Grind.ToIntLemmas
+import Init.GrindInstances.ToInt
 import Lean.Meta.Tactic.Grind.SynthInstance
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.EvalNum
@@ -16,7 +16,7 @@ public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 private def reportMissingToIntAdapter (type : Expr) (instType : Expr) : MetaM Unit := do
-  trace[grind.debug.cutsat.debug] "`ToInt` initialization failure, failed to synthesize{indentExpr instType}\nfor type{indentExpr type}"
+  trace[grind.debug.lia.debug] "`ToInt` initialization failure, failed to synthesize{indentExpr instType}\nfor type{indentExpr type}"
 
 private def throwMissingDecl (declName : Name) : MetaM Unit :=
   throwError "`grind cutsat`, unexpected missing declaration {.ofConstName declName}"
@@ -61,7 +61,7 @@ where
       let hi ← normalizeBound hi
       return some (.co lo hi)
     | _ =>
-      trace[grind.debug.cutsat.toInt] "unsupported `ToInt` interval{indentExpr rangeExpr}\nfor type{indentExpr type}"
+      trace[grind.debug.lia.toInt] "unsupported `ToInt` interval{indentExpr rangeExpr}\nfor type{indentExpr type}"
       return none
 
   go? : GoalM (Option Nat) := withNewMCtxDepth do
@@ -70,7 +70,7 @@ where
     let rangeExpr ← mkFreshExprMVar (mkConst ``Grind.IntInterval)
     let toIntType := mkApp2 (mkConst ``Grind.ToInt [u]) type rangeExpr
     let some toIntInst ← synthInstance? toIntType |
-      trace[grind.debug.cutsat.toInt] "failed to synthesize {indentExpr toIntType}"
+      trace[grind.debug.lia.toInt] "failed to synthesize {indentExpr toIntType}"
       return none
     let rangeExpr ← instantiateMVars rangeExpr
     let some range ← toIntInterval? rangeExpr | return none
@@ -102,7 +102,7 @@ where
         let some_hi ← mkSome Int.mkType hi.val
         pure <| some <| mkApp5 (mkConst ``Grind.ToInt.le_upper' [u]) type rangeExpr toIntInst hi.val (← mkEqRefl some_hi)
     else pure none
-    trace[grind.debug.cutsat.toInt] "registered toInt: {type}"
+    trace[grind.debug.lia.toInt] "registered toInt: {type}"
     let id := (← get').toIntInfos.size
     modify' fun s => { s with toIntInfos := s.toIntInfos.push { id, type, u, toIntInst, rangeExpr, range, toInt, wrap, ofWrap0?, ofEq, ofDiseq, lowerThm?, upperThm? } }
     return some id
@@ -386,6 +386,11 @@ private def ToIntThms.mkResult (toIntThms : ToIntThms) (mkBinOp : Expr → Expr 
   | none,     some b'' => if let some f := toIntThms.c_wr? then mk f a' b'' else mk f a' b'
   | some a'', some b'' => if let some f := toIntThms.c_ww? then mk f a'' b'' else mk f a' b'
 
+/-- Returns `some (n, neZeroInst)` if `inst` is of the form `Fin.instOfNat n neZeroInst _` -/
+private def isFinInstOfNat? (inst : Expr) : MetaM (Option (Expr × Expr)) := do
+  let_expr Fin.instOfNat n neZeroInst _ := inst | return none
+  return some (n, neZeroInst)
+
 private partial def toInt' (e : Expr) : ToIntM (Expr × Expr) := do
   match_expr e with
   | HAdd.hAdd α β γ _ a b =>
@@ -411,9 +416,13 @@ private partial def toInt' (e : Expr) : ToIntM (Expr × Expr) := do
   | Zero.zero _ _ =>
     let some thm ← getZeroThm? | mkToIntVar e
     return (mkIntLit 0, thm)
-  | OfNat.ofNat _ n _ =>
-    let some thm ← getOfNatThm? | mkToIntVar e
+  | OfNat.ofNat _ n inst =>
     let some n ← getNatValue? n | mkToIntVar e
+    if n == 0 then
+      if let some (k, neZeroInst) ← isFinInstOfNat? inst then
+        let h := mkApp2 (mkConst ``Lean.Grind.ofNat_FinZero) k neZeroInst
+        return (mkIntLit 0, h)
+    let some thm ← getOfNatThm? | mkToIntVar e
     let h := mkApp thm (toExpr n)
     if (← hasNumericLoHi) then
       let r ← (← getInfo).range.wrap (mkIntLit n)

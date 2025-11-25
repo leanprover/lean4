@@ -17,7 +17,9 @@ Because interpretation of the fuzzy matching algorithm is prohibitively slow, we
 just use `TermElabM` to extract the list of symbols from the environment.
 -/
 
-import Lean.Elab.Term
+module
+public import Lean.Elab.Term
+meta import Lean.Elab.Term.TermElabM
 
 @[specialize] private def iterateLookaround (f : (Option Char × Char × Option Char) → α) (string : String) : Array α :=
   if string.isEmpty then
@@ -37,7 +39,7 @@ private def containsInOrderLower (a b : String) : Bool := Id.run do
     return true
   let mut aIt := a.mkIterator
     -- TODO: the following code is assuming all characters are ASCII
-  for i in *...b.endPos.byteIdx do
+  for i in *...b.rawEndPos.byteIdx do
     if aIt.curr.toLower == (b.get ⟨i⟩).toLower then
       aIt := aIt.next
       if !aIt.hasNext then
@@ -250,7 +252,7 @@ def fuzzyMatch (pattern word : String) (threshold := 0.2) : Bool :=
 -- The constants have been generated using the following code.
 open Lean Elab Term Meta
 
-def getConsts : MetaM (List Name) := do
+meta def getConsts : MetaM (List Name) := do
   let env ← getEnv
   return env.constants.toList.map (·.1)
 
@@ -1268,7 +1270,7 @@ def bench (pattern : String) : IO Unit := do
     if fuzzyMatch pattern c then n := n + 1
   IO.println s!"{n} matches"
 
-def main : IO Unit := do
+public def main : IO Unit := do
   bench "L"
   bench "Lean."
   bench "Lean.Expr"

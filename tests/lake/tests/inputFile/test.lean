@@ -3,6 +3,7 @@ import Std.Data.HashMap
 def foo := include_str "inputs" / "foo.txt"
 def bar := include_str "inputs" / "barz" / "bar.txt"
 def baz := include_str "inputs" / "barz" / "baz.txt"
+def boo := include_str "inputs" / "barz" / "bam" / "boo.txt"
 def untraced := include_str "inputs" / "untraced.txt"
 def untracedBarz := include_str "inputs" / "barz" / "untraced.txt"
 
@@ -11,6 +12,7 @@ def inputs : Std.HashMap String String :=
   |>.insert "foo" foo
   |>.insert "bar" bar
   |>.insert "baz" baz
+  |>.insert "boo" boo
   |>.insert "untraced" untraced
   |>.insert "untracedBarz" untracedBarz
 
@@ -19,6 +21,7 @@ def main (args : List String) : IO Unit := do
     IO.print foo
     IO.print bar
     IO.print baz
+    IO.print boo
     IO.print untraced
     IO.print untracedBarz
   else

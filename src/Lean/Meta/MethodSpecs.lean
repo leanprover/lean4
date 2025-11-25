@@ -6,17 +6,7 @@ Authors: Joachim Breitner
 
 module
 prelude
-public import Init.System.IO
-public import Lean.Attributes
 public import Lean.Meta.Tactic.Simp.SimpTheorems
-import Lean.Meta.Basic
-import Lean.Structure
-import Lean.Meta.CtorRecognizer
-import Lean.Meta.InferType
-import Lean.Meta.AppBuilder
-import Lean.ReservedNameAction
-import Lean.Meta.Tactic.Simp.SimpTheorems
-import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Simp.Main
 
 namespace Lean

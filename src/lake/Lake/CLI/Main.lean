@@ -30,6 +30,7 @@ import Lake.CLI.Error
 import Lake.CLI.Actions
 import Lake.CLI.Translate
 import Lake.CLI.Serve
+import Init.Data.String.Search
 
 -- # CLI
 
@@ -67,6 +68,10 @@ public structure LakeOptions where
   outputsFile? : Option FilePath := none
   forceDownload : Bool := false
   scope? : Option String := none
+  /-- Was `scope?` set with `--repo` (and not `--scope`)? -/
+  repoScope : Bool := false
+  platform? : Option String := none
+  toolchain? : Option String := none
   rev? : Option String := none
   maxRevs : Nat := 100
 
@@ -98,7 +103,7 @@ def LakeOptions.getInstall (opts : LakeOptions) : Except CliError (LeanInstall �
 /-- Compute the Lake environment based on `opts`. Error if an install is missing. -/
 def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
   Env.compute (← opts.getLakeInstall) (← opts.getLeanInstall) opts.elanInstall?
-    opts.noCache |>.adaptExcept fun msg => .invalidEnv msg
+    opts.noCache |>.adapt fun msg => .invalidEnv msg
 
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
 public def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig := do
@@ -186,12 +191,12 @@ def getWantsHelp : CliStateM Bool :=
   (·.wantsHelp) <$> get
 
 def setConfigOpt (kvPair : String) : CliM PUnit :=
-  let pos := kvPair.posOf '='
+  let pos := kvPair.find '='
   let (key, val) :=
-    if pos = kvPair.endPos then
+    if h : pos.IsAtEnd then
       (kvPair.toName, "")
     else
-      (kvPair.extract 0 pos |>.toName, kvPair.extract (kvPair.next pos) kvPair.endPos)
+      (kvPair.startPos.extract pos |>.toName, (pos.next h).extract kvPair.endPos)
   modifyThe LakeOptions fun opts =>
     {opts with configOpts := opts.configOpts.insert key val}
 
@@ -210,6 +215,24 @@ def lakeShortOption : (opt : Char) → CliM PUnit
 | 'H' => modifyThe LakeOptions ({· with trustHash := false})
 | 'J' => modifyThe LakeOptions ({· with outFormat := .json})
 | opt => throw <| CliError.unknownShortOption opt
+
+/-- Returns an error if the string is not valid GitHub repository name. -/
+-- Limitations derived from https://github.com/dead-claudia/github-limits
+def validateRepo? (repo : String) : Option String := Id.run do
+  unless repo.all isValidRepoChar do
+    return "invalid characters in repository name"
+  match repo.split '/' |>.toStringList with
+  | [owner, name] =>
+    if owner.length > 39 then
+      return "invalid repository name; owner must be at most 390 characters long"
+    if name.length > 100 then
+      return "invalid repository name; owner must be at most 100 characters long"
+  | _ => return "invalid repository name; must contain exactly one '/'"
+  return none
+where
+  /-- Returns whether `c` is a valid character in GitHub repository name -/
+  isValidRepoChar (c : Char) : Bool :=
+    c.isAlphanum || c == '-' || c == '_' || c == '.' || c == '/'
 
 def lakeLongOption : (opt : String) → CliM PUnit
 | "--quiet"       => modifyThe LakeOptions ({· with verbosity := .quiet})
@@ -230,10 +253,22 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--force-download" => modifyThe LakeOptions ({· with forceDownload := true})
 | "--scope" => do
   let scope ← takeOptArg "--scope" "cache scope"
-  modifyThe LakeOptions ({· with scope? := some scope})
+  modifyThe LakeOptions ({· with scope? := some scope, repoScope := false})
 | "--repo" => do
-  let repo ← takeOptArg "--repo" "repository"
-  modifyThe LakeOptions ({· with scope? := some repo})
+  let repo ← takeOptArg "--repo" "GitHub repository"
+  if let some e := validateRepo? repo then error e
+  modifyThe LakeOptions ({· with scope? := some repo, repoScope := true})
+| "--platform" => do
+  let platform ← takeOptArg "--platform" "cache platform"
+  if platform.length > 100 then
+    error "invalid platform; platform is expected to be at most 100 characters long"
+  modifyThe LakeOptions ({· with platform? := some platform})
+| "--toolchain" => do
+  let toolchain ← takeOptArg "--toolchain" "cache toolchain"
+  let toolchain := if toolchain.isEmpty then toolchain else normalizeToolchain toolchain
+  if toolchain.length > 256 then
+    error "invalid toolchain version; toolchain is expected to be at most 256 characters long"
+  modifyThe LakeOptions ({· with toolchain? := some toolchain})
 | "--rev" => do
   let rev ← takeOptArg "--rev" "Git revision"
   modifyThe LakeOptions ({· with rev? := some rev})
@@ -289,7 +324,7 @@ def verifyInstall (opts : LakeOptions) : ExceptT CliError MainM PUnit := do
   verifyLeanVersion leanInstall
 
 def parseScriptSpec (ws : Workspace) (spec : String) : Except CliError Script :=
-  match spec.splitOn "/" with
+  match spec.split '/' |>.toStringList with
   | [scriptName] =>
     match ws.findScript? (stringToLegalOrSimpleName scriptName) with
     | some script => return script
@@ -318,7 +353,7 @@ def parseLangSpec (spec : String) : Except CliError ConfigLang :=
     throw <| CliError.unknownConfigLang spec
 
 def parseTemplateLangSpec (spec : String) : Except CliError (InitTemplate × ConfigLang) := do
-  match spec.splitOn "." with
+  match spec.split '.' |>.toStringList with
   | [tmp, lang] => return (← parseTemplateSpec tmp, ← parseLangSpec lang)
   | [tmp] => return (← parseTemplateSpec tmp, default)
   | _ => return default
@@ -332,59 +367,86 @@ namespace lake
 
 namespace cache
 
+@[inline] private def cacheToolchain (pkg : Package) (toolchain : String) : String :=
+  if pkg.bootstrap then "" else toolchain
+
+@[inline] private def cachePlatform (pkg : Package) (platform : String) : String :=
+  if pkg.isPlatformIndependent then "" else platform
+
 protected def get : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let mappings? ← takeArg?
-  noArgsRem  do
+  noArgsRem do
   let cfg ← mkLoadConfig opts
   let ws ← loadWorkspace cfg
   let cache := ws.lakeCache
-  if let some file := mappings? then
+  if let some file := mappings? then liftM (m := LoggerIO) do
+    if opts.platform?.isSome || opts.toolchain?.isSome then
+      logWarning "the `--platform` and `--toolchain` options do nothing for `cache get` with a mappings file"
+      if .warning ≤ opts.failLv then
+        failure
     let some remoteScope := opts.scope?
-      | error "to use `cache get` with a mappings file, `--scope` must be set"
+      | error "to use `cache get` with a mappings file, `--scope` or `--repo` must be set"
     let service : CacheService :=
       if let some artifactEndpoint := ws.lakeEnv.cacheArtifactEndpoint? then
-        {artifactEndpoint}
+        .downloadArtsService artifactEndpoint
       else
-        {apiEndpoint? := some ws.lakeEnv.reservoirApiUrl}
+        .reservoirService ws.lakeEnv.reservoirApiUrl
     let map ← CacheMap.load file
-    service.downloadOutputArtifacts map cache remoteScope ws.root.cacheScope opts.forceDownload
+    service.downloadOutputArtifacts map cache ws.root.cacheScope remoteScope opts.forceDownload
   else
+    let platform := opts.platform?.getD System.Platform.target
+    let toolchain := opts.toolchain?.getD ws.lakeEnv.toolchain
     let service : CacheService ← id do
       match ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
       | some artifactEndpoint, some revisionEndpoint =>
-        return {artifactEndpoint, revisionEndpoint}
+        return .downloadService artifactEndpoint revisionEndpoint
       | none, none =>
-        return {apiEndpoint? := some ws.lakeEnv.reservoirApiUrl}
+        return .reservoirService ws.lakeEnv.reservoirApiUrl
       | some artifactEndpoint, none =>
         error (invalidEndpointConfig artifactEndpoint "")
       | none, some revisionEndpoint =>
         error (invalidEndpointConfig "" revisionEndpoint)
     if let some remoteScope := opts.scope? then
-      let service := if service.apiEndpoint?.isNone then service else {
-        artifactEndpoint := s!"{ws.lakeEnv.reservoirApiUrl}/artifacts"
-        revisionEndpoint := s!"{ws.lakeEnv.reservoirApiUrl}/outputs"
-      }
-      let map ← getOutputs cache service ws.root remoteScope opts
-      service.downloadOutputArtifacts map cache remoteScope ws.root.cacheScope opts.forceDownload
-    else if service.apiEndpoint?.isSome then -- Reservoir
+      if !opts.repoScope && service.isReservoir then
+        -- `--scope` with Reservoir would imply downloading artifacts for a different package.
+        -- This is likely user error (they meant `--repo`) rather than something actually useful.
+        error "to use `cache get` with `--scope`, a custom endpoint must be set (not Reservoir); \
+          if you instead want to download artifacts for a fork of the package, use `--repo`"
+      let service := service.withRepoScope opts.repoScope
+      let pkg := ws.root
+      let repo := GitRepo.mk pkg.dir
+      let platform := cachePlatform pkg platform
+      let toolchain := cacheToolchain pkg toolchain
+      let map ← id do
+        if let some rev := opts.rev? then
+          let rev ← repo.resolveRevision rev
+          let some map ← service.downloadRevisionOutputs? rev cache pkg.cacheScope remoteScope platform toolchain
+            | error s!"{remoteScope}: outputs not found for revision {rev}"
+          return map
+        else
+          findOutputs cache service pkg remoteScope opts platform toolchain
+      service.downloadOutputArtifacts map cache pkg.cacheScope remoteScope opts.forceDownload
+    else if service.isReservoir then
       -- TODO: Parallelize?
       let ok ← ws.packages.foldlM (start := 1) (init := true) (m := LoggerIO) fun ok pkg => do
         try
           if pkg.scope.isEmpty then
             logInfo s!"{pkg.name}: skipping non-Reservoir dependency`"
           else
+            let platform := cachePlatform pkg platform
+            let toolchain := cacheToolchain pkg toolchain
             let remoteScope := s!"{pkg.scope}/{pkg.name.toString (escape := false)}"
-            let map ← getOutputs cache service pkg remoteScope opts
-            service.downloadOutputArtifacts map cache remoteScope pkg.cacheScope opts.forceDownload
+            let map ← findOutputs cache service pkg remoteScope opts platform toolchain
+            service.downloadOutputArtifacts map cache pkg.cacheScope remoteScope opts.forceDownload
           return ok
         catch _ =>
           return false
       unless ok do
         error "failed to download artifacts for some dependencies"
     else
-      error "to use `cache get` with a custom endpoint, the `--scope` option must be set"
+      error "to use `cache get` with a custom endpoint, the `--scope` or `--repo` option must be set"
 where
   invalidEndpointConfig artifactEndpoint revisionEndpoint :=
     s!"invalid endpoint configuration:\
@@ -392,45 +454,42 @@ where
     \n  LAKE_CACHE_REVISION_ENDPOINT={revisionEndpoint}\n\
     To use `cache get` with a custom endpoint, both environment variables \
     must be set to non-empty strings. To use Reservoir, neither should be set."
-  getOutputs cache service pkg remoteScope opts : LoggerIO CacheMap := do
+  findOutputs cache service pkg remoteScope opts platform toolchain : LoggerIO CacheMap := do
     let repo := GitRepo.mk pkg.dir
-    if let some rev := opts.rev? then
-      let rev ← repo.resolveRevision rev
-      let some map ← service.downloadRevisionOutputs? rev cache remoteScope
-        | error s!"{remoteScope}: outputs not found for revision {rev}"
-      return map
-    else
-      if (← repo.hasDiff) then
-        logWarning s!"{pkg.name}: package has changes; \
-          only artifacts for committed code will be downloaded"
-        if .warning ≤ opts.failLv then
-          failure
-      let n := opts.maxRevs
-      let revs ← repo.getHeadRevisions n
-      let map? ← revs.findSomeM? fun rev =>
-        service.downloadRevisionOutputs? rev cache remoteScope
-      let some map := map?
-        | let revisions :=
-            if n = 0 || revs.size < n then "for any revision" else s!"in {n} revisions from HEAD"
-          error s!"{remoteScope}: no outputs found {revisions}"
-      return map
+    if (← repo.hasDiff) then
+      logWarning s!"{pkg.name}: package has changes; \
+        only artifacts for committed code will be downloaded"
+      if .warning ≤ opts.failLv then
+        failure
+    let n := opts.maxRevs
+    let revs ← repo.getHeadRevisions n
+    let map? ← revs.findSomeM? fun rev =>
+      service.downloadRevisionOutputs? rev cache pkg.cacheScope remoteScope platform toolchain
+    let some map := map?
+      | let revisions :=
+          if n = 0 || revs.size < n then "for any revision" else s!"in {n} revisions from HEAD"
+        error s!"{remoteScope}: no outputs found {revisions}"
+    return map
 
 protected def put : CliM PUnit := do
   processOptions lakeOption
   let file ← takeArg "mappings"
   let opts ← getThe LakeOptions
   let some scope := opts.scope?
-    | error "the `--scope` option must be set for `cache put`"
+    | error "the `--scope` or `--repo` option must be set for `cache put`"
   noArgsRem do
   let cfg ← mkLoadConfig opts
   let ws ← loadWorkspace cfg
+  let pkg := ws.root
+  let platform := cachePlatform pkg (opts.platform?.getD System.Platform.target)
+  let toolchain := cacheToolchain pkg (opts.toolchain?.getD ws.lakeEnv.toolchain)
   let service : CacheService ← id do
     match ws.lakeEnv.cacheKey?, ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
     | some key, some artifactEndpoint, some revisionEndpoint =>
-      return {key, artifactEndpoint, revisionEndpoint}
+      return .uploadService key artifactEndpoint revisionEndpoint
     | key?, artifactEndpoint?, revisionEndpoint? =>
       error (invalidEndpointConfig key? artifactEndpoint? revisionEndpoint?)
-  let pkg := ws.root
+  let service := service.withRepoScope opts.repoScope
   let repo := GitRepo.mk pkg.dir
   if (← repo.hasDiff) then
     logWarning s!"{pkg.name}: package has changes; \
@@ -444,7 +503,7 @@ protected def put : CliM PUnit := do
   service.uploadArtifacts ⟨descrs, rfl⟩ paths scope
   -- Mappings are uploaded after artifacts to allow downloads to assume that
   -- if the mappings exist, the artifacts should also exist
-  service.uploadRevisionOutputs rev file scope
+  service.uploadRevisionOutputs rev file scope platform toolchain
 where
   invalidEndpointConfig key? artifactEndpoint? revisionEndpoint? :=
     s!"invalid endpoint configuration:\

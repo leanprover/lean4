@@ -6,10 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Zero
-public import Init.Data.Int.DivMod.Lemmas
 public import Init.Data.Int.LemmasAux
-public import Init.Data.Int.Pow
 public import Init.TacticsExtra
 public import Init.Grind.Module.Basic
 
@@ -203,6 +200,9 @@ theorem pow_add (a : α) (k₁ k₂ : Nat) : a ^ (k₁ + k₂) = a^k₁ * a^k₂
   induction k₂
   next => simp [pow_zero, mul_one]
   next k₂ ih => rw [Nat.add_succ, pow_succ, pow_succ, ih, mul_assoc]
+
+theorem pow_add_congr (a r : α) (k k₁ k₂ : Nat) : k = k₁ + k₂ → a^k₁ * a^k₂ = r → a ^ k = r := by
+  intros; subst k r; rw [pow_add]
 
 theorem natCast_pow (x : Nat) (k : Nat) : ((x ^ k : Nat) : α) = (x : α) ^ k := by
   induction k

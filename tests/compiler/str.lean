@@ -8,7 +8,7 @@ def showChars : Nat → String → String.Pos.Raw → IO Unit
 def main : IO UInt32 :=
 let s₁             := "hello α_world_β";
 let b : String.Pos.Raw := 0;
-let e              := s₁.endPos;
+let e              := s₁.rawEndPos;
 IO.println (s₁.extract b e) *>
 IO.println (s₁.extract (b+ "  ") e) *>
 IO.println (s₁.extract (b+ "  ") (e.unoffsetBy ⟨1⟩)) *>

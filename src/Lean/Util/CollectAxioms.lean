@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.MonadEnv
-public import Lean.Util.FoldConsts
 
 public section
 

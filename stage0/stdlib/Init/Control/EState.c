@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.EState
-// Imports: public import Init.Control.State public import Init.Control.Except public import Init.Data.ToString.Basic
+// Imports: public import Init.Data.ToString.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -252,15 +252,7 @@ lean_inc(x_7);
 lean_dec_ref(x_1);
 lean_inc(x_5);
 x_8 = lean_apply_1(x_2, x_5);
-if (lean_obj_tag(x_8) == 0)
-{
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec_ref(x_3);
-return x_8;
-}
-else
+if (lean_obj_tag(x_8) == 1)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_9 = lean_ctor_get(x_8, 0);
@@ -271,12 +263,7 @@ lean_dec_ref(x_8);
 x_11 = lean_apply_1(x_6, x_5);
 x_12 = lean_apply_2(x_7, x_10, x_11);
 x_13 = lean_apply_1(x_3, x_12);
-if (lean_obj_tag(x_13) == 0)
-{
-lean_dec(x_9);
-return x_13;
-}
-else
+if (lean_obj_tag(x_13) == 1)
 {
 if (x_4 == 0)
 {
@@ -308,6 +295,19 @@ return x_17;
 }
 }
 }
+else
+{
+lean_dec(x_9);
+return x_13;
+}
+}
+else
+{
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec_ref(x_3);
+return x_8;
 }
 }
 }
@@ -322,15 +322,7 @@ lean_inc(x_11);
 lean_dec_ref(x_5);
 lean_inc(x_9);
 x_12 = lean_apply_1(x_6, x_9);
-if (lean_obj_tag(x_12) == 0)
-{
-lean_dec(x_11);
-lean_dec(x_10);
-lean_dec(x_9);
-lean_dec_ref(x_7);
-return x_12;
-}
-else
+if (lean_obj_tag(x_12) == 1)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_13 = lean_ctor_get(x_12, 0);
@@ -341,12 +333,7 @@ lean_dec_ref(x_12);
 x_15 = lean_apply_1(x_10, x_9);
 x_16 = lean_apply_2(x_11, x_14, x_15);
 x_17 = lean_apply_1(x_7, x_16);
-if (lean_obj_tag(x_17) == 0)
-{
-lean_dec(x_13);
-return x_17;
-}
-else
+if (lean_obj_tag(x_17) == 1)
 {
 if (x_8 == 0)
 {
@@ -378,6 +365,19 @@ return x_21;
 }
 }
 }
+else
+{
+lean_dec(x_13);
+return x_17;
+}
+}
+else
+{
+lean_dec(x_11);
+lean_dec(x_10);
+lean_dec(x_9);
+lean_dec_ref(x_7);
+return x_12;
 }
 }
 }
@@ -654,21 +654,13 @@ return x_10;
 }
 }
 }
-lean_object* initialize_Init_Control_State(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_Except(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_ToString_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_ToString_Basic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Control_EState(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Control_EState(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_State(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_Except(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_ToString_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_ToString_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_EStateM_instToStringResult___redArg___lam__0___closed__0 = _init_l_EStateM_instToStringResult___redArg___lam__0___closed__0();

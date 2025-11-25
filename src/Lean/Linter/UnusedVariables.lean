@@ -369,11 +369,11 @@ structure References where
   the spans for `foo`, `bar`, and `baz`. Global definitions are always treated as used.
   (It would be nice to be able to detect unused global definitions but this requires more
   information than the linter framework can provide.) -/
-  constDecls : Std.HashSet String.Range := ∅
+  constDecls : Std.HashSet Lean.Syntax.Range := ∅
   /-- The collection of all local declarations, organized by the span of the declaration.
   We collapse all declarations declared at the same position into a single record using
   `FVarDefinition.aliases`. -/
-  fvarDefs : Std.HashMap String.Range FVarDefinition := ∅
+  fvarDefs : Std.HashMap Lean.Syntax.Range FVarDefinition := ∅
   /-- The set of `FVarId`s that are used directly. These may or may not be aliases. -/
   fvarUses : Std.HashSet FVarId := ∅
   /-- A mapping from alias to original FVarId. We don't guarantee that the value is not itself
@@ -386,7 +386,7 @@ structure References where
 
 /-- Collect information from the `infoTrees` into `References`.
 See `References` for more information about the return value. -/
-partial def collectReferences (infoTrees : Array Elab.InfoTree) (cmdStxRange : String.Range)
+partial def collectReferences (infoTrees : Array Elab.InfoTree) (cmdStxRange : Lean.Syntax.Range)
     (linterSets : LinterSets) :
     StateRefT References IO Unit := ReaderT.run (r := false) <| go infoTrees none
 where

@@ -6,13 +6,10 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-import Init.Grind.Ordered.Module
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.OrderInsts
-import Lean.Meta.Tactic.Grind.SynthInstance
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
-import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 import Lean.Meta.Tactic.Grind.Arith.Insts
@@ -63,7 +60,7 @@ private def isNonTrivialIsCharInst (isCharInst? : Option (Expr × Nat)) : Bool :
   | none => false
 
 private def isCutsatType (type : Expr) : GoalM Bool := do
-  if (← getConfig).cutsat then
+  if (← getConfig).lia then
     if (← Cutsat.isSupportedType type) then
       -- If `type` is supported by cutsat, let it handle
       return true
@@ -174,7 +171,7 @@ def getStructId? (type : Expr) : GoalM (Option Nat) := do
     return id?
 where
   go? : GoalM (Option Nat) := do
-    let u ← getDecLevel type
+    let some u ← getDecLevel? type | return none
     let ringId? ← CommRing.getCommRingId? type
     let leInst? ← getInst? ``LE u type
     let ltInst? ← getInst? ``LT u type

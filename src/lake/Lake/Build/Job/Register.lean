@@ -44,7 +44,7 @@ Registers the job for the top-level build monitor,
   return job.renew
 
 /-- Wraps stray I/O, logs, and errors in `x` into the produced job.  -/
-public def ensureJob
+@[nospecialize] public def ensureJob
   [OptDataKind α] (x : FetchM (Job α))
 : FetchM (Job α) := .ofFn fun fetch pkg? stack store ctx log => do
   let iniPos := log.endPos

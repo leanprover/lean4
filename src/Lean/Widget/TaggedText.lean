@@ -7,7 +7,6 @@ Authors: Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Data.Json.FromToJson.Basic
 public import Lean.Server.Rpc.Basic
 
 public section

@@ -6,9 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.LCNF.CompilerM
-public import Lean.Compiler.LCNF.PhaseExt
-public import Lean.Compiler.LCNF.InferType
 public import Lean.Compiler.LCNF.Internalize
 
 public section
@@ -131,10 +128,12 @@ partial def reduce (code : Code) : ReduceM Code := do
   | .let decl k =>
     let .const declName _ args := decl.value | do return code.updateLet! decl (← reduce k)
     unless declName == (← read).declName do return code.updateLet! decl (← reduce k)
+    let mask := (← read).paramMask
     let mut argsNew := #[]
-    for used in (← read).paramMask, arg in args do
-      if used then
-        argsNew := argsNew.push arg
+    for h : i in *...args.size do
+      -- keep over-application
+      if mask.getD i true then
+        argsNew := argsNew.push args[i]
     let decl ← decl.updateValue (.const (← read).auxDeclName [] argsNew)
     return code.updateLet! decl (← reduce k)
   | .fun decl k | .jp decl k =>

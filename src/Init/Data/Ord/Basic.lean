@@ -6,10 +6,6 @@ Authors: Dany Fabian, Sebastian Ullrich
 module
 
 prelude
-public import Init.Data.Repr
-import Init.TacticsExtra
-import Init.RCases
-import Init.Classical
 import Init.ByCases
 import Init.Ext
 public import Init.PropLemmas

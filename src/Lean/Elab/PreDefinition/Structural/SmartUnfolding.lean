@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.Structural.Basic
-public import Lean.Meta.Match.MatcherApp.Basic
 
 public section
 

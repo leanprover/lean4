@@ -324,7 +324,7 @@ private def splitStr (text : FileMap) (stx : Syntax) : Array Syntax := Id.run do
     -- terminating the token at `l` includes the newline. If the semantic token includes the
     -- newline, then VS Code ignores it (it doesn't support multi-line tokens), so the token
     -- should be terminated one character earlier.
-    let l' := text.source.prev l
+    let l' := l.prev text.source
     stxs := stxs.push <| .ofRange ⟨pos, l'⟩
     pos := l
   return stxs
@@ -489,7 +489,7 @@ partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) �
     let Syntax.atom _ val := stx
       | return tokens
     let isRegularKeyword := val.length > 0 && isIdFirst val.front
-    let isHashKeyword := val.length > 1 && val.front == '#' && isIdFirst (val.get ⟨1⟩)
+    let isHashKeyword := val.length > 1 && val.front == '#' && isIdFirst (String.Pos.Raw.get val ⟨1⟩)
     if ! isRegularKeyword && ! isHashKeyword then
       return tokens
     return tokens.push { stx, type := keywordSemanticTokenMap.getD val .keyword }

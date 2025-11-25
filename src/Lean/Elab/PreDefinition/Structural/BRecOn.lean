@@ -9,8 +9,6 @@ prelude
 public import Lean.Util.HasConstCache
 public import Lean.Meta.PProdN
 public import Lean.Meta.Match.MatcherApp.Transform
-public import Lean.Elab.RecAppSyntax
-public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.Structural.Basic
 public import Lean.Elab.PreDefinition.Structural.RecArgInfo
 
@@ -189,11 +187,11 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
           trace[Elab.definition.structural] "below before matcherApp.addArg: {below} : {← inferType below}"
           if let some matcherApp ← matcherApp.addArg? below then
             let altsNew ← matcherApp.alts.zipWithM (bs := matcherApp.altNumParams) fun alt numParams =>
-              lambdaBoundedTelescope alt numParams fun xs altBody => do
+              lambdaBoundedTelescope alt (numParams + 1) fun xs altBody => do
                 trace[Elab.definition.structural] "altNumParams: {numParams}, xs: {xs}"
-                unless xs.size = numParams do
+                unless xs.size = numParams + 1 do
                   throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
-                let belowForAlt := xs[numParams - 1]!
+                let belowForAlt := xs[numParams]!
                 mkLambdaFVars xs (← loop belowForAlt altBody)
             pure { matcherApp with alts := altsNew }.toExpr
           else

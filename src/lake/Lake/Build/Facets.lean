@@ -6,10 +6,8 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lake.Build.Data
 public import Lake.Build.Job.Basic
 public import Lake.Build.ModuleArtifacts
-public import Lake.Config.Dynlib
 meta import all Lake.Build.Data
 
 /-!

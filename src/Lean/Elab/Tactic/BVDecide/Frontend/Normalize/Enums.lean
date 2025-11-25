@@ -6,11 +6,7 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
-public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis
-public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ApplyControlFlow
 public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Structures
-public import Lean.Meta.Tactic.Simp
 
 public section
 

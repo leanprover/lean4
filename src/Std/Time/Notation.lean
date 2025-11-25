@@ -6,10 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time.Date
-public import Std.Time.Time
-public meta import Std.Time.Zoned
-public import Std.Time.DateTime
 public import Std.Time.Format
 public meta import Std.Time.Format
 

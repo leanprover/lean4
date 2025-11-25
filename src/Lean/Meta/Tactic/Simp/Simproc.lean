@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.ScopedEnvExtension
 public import Lean.Compiler.InitAttr
-public import Lean.Meta.DiscrTree
 public import Lean.Meta.Tactic.Simp.Types
 
 public section
@@ -338,7 +336,6 @@ def dsimprocArrayCore (post : Bool) (ss : SimprocsArray) (e : Expr) : SimpM DSte
 
 register_builtin_option simprocs : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr    := "Enable/disable `simproc`s (simplification procedures)."
 }
 

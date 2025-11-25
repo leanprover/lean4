@@ -6,10 +6,8 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Parser.Term
 public import Lean.Parser.Do
 import Lean.DocString.Parser
-public import Lean.DocString.Formatter
 meta import Lean.Parser.Basic
 
 public section
@@ -315,6 +313,20 @@ corresponding `end <id>` or the end of the file.
 -/
 @[builtin_command_parser] def «namespace»    := leading_parser
   "namespace " >> checkColGt >> ident
+/--
+`with_weak_namespace <id> <cmd>` changes the current namespace to `<id>` for the duration of
+executing command `<cmd>`, without causing scoped things to go out of scope.
+
+This is in contrast to `namespace <id>` which pushes a new scope and deactivates scoped entries
+from the previous namespace. `with_weak_namespace` modifies the existing scope's namespace,
+so scoped extensions remain active.
+
+This is primarily useful for defining syntax extensions that should be scoped to a different
+namespace than the current one.
+-/
+@[builtin_command_parser] def withWeakNamespace := leading_parser
+  "with_weak_namespace " >> checkColGt >> ident >> ppSpace >> checkColGt >> commandParser
+
 /--
 `end` closes a `section` or `namespace` scope. If the scope is named `<id>`, it has to be closed
 with `end <id>`. The `end` command is optional at the end of a file.
@@ -783,7 +795,7 @@ def initializeKeyword := leading_parser
   optional (atomic (ident >> Term.typeSpec >> ppSpace >> Term.leftArrow)) >> Term.doSeq
 
 @[builtin_command_parser] def «in»  := trailing_parser
-  withOpen (ppDedent (" in " >> commandParser))
+  withOpen (ppDedent (" in" >> ppLine >> commandParser))
 
 /--
 Adds a docstring to an existing declaration, replacing any existing docstring.
@@ -911,14 +923,15 @@ abbrev declModifiersT := declModifiers true
 builtin_initialize
   register_parser_alias (kind := ``declModifiers) "declModifiers"       declModifiersF
   register_parser_alias (kind := ``declModifiers) "nestedDeclModifiers" declModifiersT
-  register_parser_alias                                                 declId
-  register_parser_alias                                                 declSig
-  register_parser_alias                                                 declVal
-  register_parser_alias                                                 optDeclSig
-  register_parser_alias                                                 openDecl
-  register_parser_alias                                                 docComment
-  register_parser_alias                                                 plainDocComment
-  register_parser_alias                                                 visibility
+  register_parser_alias declId
+  register_parser_alias declSig
+  register_parser_alias declVal
+  register_parser_alias optDeclSig
+  register_parser_alias openDecl
+  register_parser_alias docComment
+  register_parser_alias plainDocComment
+  register_parser_alias visibility
+  register_parser_alias "optionValue" Command.optionValue
 
 /--
 Registers an error explanation.

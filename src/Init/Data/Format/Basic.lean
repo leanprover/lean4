@@ -170,7 +170,7 @@ private def spaceUptoLine : Format → Bool → Int → Nat → SpaceResult
   | text s,       flatten, _, _ =>
     let p := String.Internal.posOf s '\n'
     let off := String.Internal.offsetOfPos s p
-    { foundLine := p != s.endPos, foundFlattenedHardLine := flatten && p != s.endPos, space := off }
+    { foundLine := p != s.rawEndPos, foundFlattenedHardLine := flatten && p != s.rawEndPos, space := off }
   | append f₁ f₂, flatten, m, w => merge w (spaceUptoLine f₁ flatten m w) (spaceUptoLine f₂ flatten m)
   | nest n f,     flatten, m, w => spaceUptoLine f flatten (m - n) w
   | group f _,    _,       m, w => spaceUptoLine f true m w
@@ -264,14 +264,14 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGrou
     | nest n f => be w (gs' ({ i with f, indent := i.indent + n }::is))
     | text s =>
       let p := String.Internal.posOf s '\n'
-      if p == s.endPos then
+      if p == s.rawEndPos then
         pushOutput s
         endTags i.activeTags
         be w (gs' is)
       else
         pushOutput (String.Internal.extract s {} p)
         pushNewline i.indent.toNat
-        let is := { i with f := text (String.Internal.extract s (String.Internal.next s p) s.endPos) }::is
+        let is := { i with f := text (String.Internal.extract s (String.Internal.next s p) s.rawEndPos) }::is
         -- after a hard line break, re-evaluate whether to flatten the remaining group
         -- note that we shouldn't start flattening after a hard break outside a group
         if g.fla == .disallow then
@@ -411,7 +411,6 @@ Renders a `Format` to a string.
 * `column`: begin the first line wrap `column` characters earlier than usual
   (this is useful when the output String will be printed starting at `column`)
 -/
-@[export lean_format_pretty]
 def pretty (f : Format) (width : Nat := defWidth) (indent : Nat := 0) (column := 0) : String :=
   let act : StateM State Unit := prettyM f width indent
   State.out <| act (State.mk "" column) |>.snd

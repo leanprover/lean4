@@ -99,11 +99,21 @@ test_run resolve-deps -R -KrestoreAll=true
 echo "def bar := ()" > Ignored.lean
 test_out "Built Ignored" -v build +Ignored
 echo "def foo := ()" > Ignored.lean
-test_out "restored artifact from cache" -v build +Ignored
+test_out "restored artifact from cache" -v build +Ignored --no-build
 echo "def bar := ()" > Ignored.lean
-test_out "restored artifact from cache" -v build +Ignored
+test_out "restored artifact from cache" -v build +Ignored --no-build
 test_run -v build Test.ImportIgnored
 test_run resolve-deps -R
+
+# Test that outdated files are not stored in the cache with `--old`
+echo "def baz := ()" > Ignored.lean
+test_out "Built Ignored" -v build +Ignored --old
+test_out "Replayed Test.ImportIgnored" -v build Test.ImportIgnored --no-build --old
+test_err 'Unknown identifier `bar`' -v build Test.ImportIgnored
+
+# Test that truly up-to-date files are still cached with `--old`
+test_cmd rm .lake/build/lib/lean/Ignored.*
+test_out "restored artifact from cache" -v build +Ignored --no-build
 
 # Verify module ileans are restored from the cache
 test_run build +Test --no-build

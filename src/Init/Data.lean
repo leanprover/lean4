@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Basic
 public import Init.Data.Nat
 public import Init.Data.Bool
 public import Init.Data.BitVec

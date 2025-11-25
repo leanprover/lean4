@@ -13,45 +13,45 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init_Data_Option_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Option_BasicAux(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Option_Coe(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Option_Instances(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Option_Attach(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Option_List(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Option_Monadic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Option_Array(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Option_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_BasicAux(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Coe(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Instances(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Attach(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_List(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Monadic(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Array(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Option(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Option(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Option_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Option_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option_BasicAux(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Option_BasicAux(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option_Coe(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Option_Coe(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option_Instances(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Option_Instances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Option_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option_Attach(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Option_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option_List(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Option_List(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option_Monadic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Option_Monadic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option_Array(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Option_Array(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

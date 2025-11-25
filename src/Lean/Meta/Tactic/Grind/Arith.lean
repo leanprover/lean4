@@ -8,7 +8,6 @@ prelude
 public import Lean.Meta.Tactic.Grind.Arith.Util
 public import Lean.Meta.Tactic.Grind.Arith.Types
 public import Lean.Meta.Tactic.Grind.Arith.Main
-public import Lean.Meta.Tactic.Grind.Arith.Offset
 public import Lean.Meta.Tactic.Grind.Arith.CommRing
 public import Lean.Meta.Tactic.Grind.Arith.Linear
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat

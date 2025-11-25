@@ -10,7 +10,6 @@ public import Lean.Elab.Tactic.BVDecide.Frontend.Attr
 public import Lean.Elab.Tactic.BVDecide.LRAT.Trim
 public import Lean.Elab.Tactic.BVDecide.External
 public import Std.Tactic.BVDecide.LRAT.Checker
-public import Std.Sat.CNF.Dimacs
 
 public section
 

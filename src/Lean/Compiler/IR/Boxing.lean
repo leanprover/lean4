@@ -8,10 +8,7 @@ module
 prelude
 public import Lean.Runtime
 public import Lean.Compiler.ClosedTermCache
-public import Lean.Compiler.ExternAttr
-public import Lean.Compiler.IR.Basic
 public import Lean.Compiler.IR.CompilerM
-public import Lean.Compiler.IR.FreeVars
 public import Lean.Compiler.IR.ElimDeadVars
 public import Lean.Compiler.IR.ToIRType
 public import Lean.Data.AssocList
@@ -42,7 +39,7 @@ private def N.mkFresh : N VarId :=
 
 def requiresBoxedVersion (env : Environment) (decl : Decl) : Bool :=
   let ps := decl.params
-  (ps.size > 0 && (decl.resultType.isScalar || ps.any (fun p => p.ty.isScalar || p.borrow) || isExtern env decl.name))
+  (ps.size > 0 && (decl.resultType.isScalar || ps.any (fun p => p.ty.isScalar || p.borrow || p.ty.isVoid) || isExtern env decl.name))
   || ps.size > closureMaxArgs
 
 def mkBoxedVersionAux (decl : Decl) : N Decl := do

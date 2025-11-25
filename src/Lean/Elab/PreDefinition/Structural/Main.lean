@@ -6,9 +6,7 @@ Authors: Leonardo de Moura, Joachim Breitner
 module
 
 prelude
-public import Lean.Elab.PreDefinition.TerminationMeasure
 public import Lean.Elab.PreDefinition.Mutual
-public import Lean.Elab.PreDefinition.Structural.Basic
 public import Lean.Elab.PreDefinition.Structural.FindRecArg
 public import Lean.Elab.PreDefinition.Structural.Preprocess
 public import Lean.Elab.PreDefinition.Structural.BRecOn

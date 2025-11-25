@@ -6,7 +6,6 @@ Authors: Mario Carneiro, Mac Malone
 module
 
 prelude
-public import Init.System.IO
 public import Lean.Util.Path
 import Lake.Util.Name
 

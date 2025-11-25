@@ -438,17 +438,17 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* initialize_Init_Data_List_Notation(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_SimpLemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Notation(uint8_t builtin);
+lean_object* initialize_Init_SimpLemmas(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Do_SPred_SVal(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Do_SPred_SVal(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_Notation(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Notation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_SimpLemmas(builtin, lean_io_mk_world());
+res = initialize_Init_SimpLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Do_SVal_instInhabitedStateTupleNil = _init_l_Std_Do_SVal_instInhabitedStateTupleNil();

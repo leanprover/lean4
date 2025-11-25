@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Meta.WHNF
-public import Lean.Meta.Transform
 public import Lean.Meta.DiscrTreeTypes
 
 public section

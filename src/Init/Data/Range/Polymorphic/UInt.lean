@@ -6,9 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Range.Polymorphic.Instances
-public import Init.Data.Order.Lemmas
-public import Init.Data.UInt
 import Init.Omega
 public import Init.Data.Range.Polymorphic.BitVec
 
@@ -63,7 +60,6 @@ instance : LawfulUpwardEnumerableLE UInt8 where
     simpa [upwardEnumerableLE_ofBitVec, UInt8.le_iff_toBitVec_le] using
       LawfulUpwardEnumerableLE.le_iff _ _
 
-instance : LawfulUpwardEnumerableLT UInt8 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt8 := inferInstance
 
 instance : Rxc.HasSize UInt8 where
@@ -160,7 +156,6 @@ instance : LawfulUpwardEnumerableLE UInt16 where
       LawfulUpwardEnumerableLE.le_iff _ _
 
 instance : LawfulUpwardEnumerableLT UInt16 := inferInstance
-instance : LawfulUpwardEnumerableLT UInt16 := inferInstance
 
 instance : Rxc.HasSize UInt16 where
   size lo hi := hi.toNat + 1 - lo.toNat
@@ -255,7 +250,6 @@ instance : LawfulUpwardEnumerableLE UInt32 where
     simpa [upwardEnumerableLE_ofBitVec, UInt32.le_iff_toBitVec_le] using
       LawfulUpwardEnumerableLE.le_iff _ _
 
-instance : LawfulUpwardEnumerableLT UInt32 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt32 := inferInstance
 
 instance : Rxc.HasSize UInt32 where
@@ -352,7 +346,6 @@ instance : LawfulUpwardEnumerableLE UInt64 where
       LawfulUpwardEnumerableLE.le_iff _ _
 
 instance : LawfulUpwardEnumerableLT UInt64 := inferInstance
-instance : LawfulUpwardEnumerableLT UInt64 := inferInstance
 
 instance : Rxc.HasSize UInt64 where
   size lo hi := hi.toNat + 1 - lo.toNat
@@ -447,7 +440,6 @@ instance : LawfulUpwardEnumerableLE USize where
     simpa [upwardEnumerableLE_ofBitVec, USize.le_iff_toBitVec_le] using
       LawfulUpwardEnumerableLE.le_iff _ _
 
-instance : LawfulUpwardEnumerableLT USize := inferInstance
 instance : LawfulUpwardEnumerableLT USize := inferInstance
 
 instance : Rxc.HasSize USize where

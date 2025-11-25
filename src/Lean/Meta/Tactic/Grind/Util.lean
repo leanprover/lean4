@@ -5,13 +5,9 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Basic
-public import Lean.Meta.Transform
 public import Lean.Meta.Tactic.Simp.Simproc
 import Init.Simproc
-import Init.Grind.Tactics
 import Lean.Meta.AbstractNestedProofs
-import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Clear
 public section
 namespace Lean.Meta.Grind
@@ -22,6 +18,18 @@ def _root_.Lean.MVarId.ensureNoMVar (mvarId : MVarId) : MetaM Unit := do
   let type ← instantiateMVars (← mvarId.getType)
   if type.hasExprMVar then
     throwTacticEx `grind mvarId "goal contains metavariables"
+
+/--
+Instantiates metavariables occurring in the target and hypotheses.
+-/
+def _root_.Lean.MVarId.instantiateGoalMVars (mvarId : MVarId) : MetaM MVarId := do
+  mvarId.checkNotAssigned `grind
+  let mvarDecl ← mvarId.getDecl
+  let lctx ← instantiateLCtxMVars mvarDecl.lctx
+  let type ← Lean.instantiateMVars mvarDecl.type
+  let mvarNew ← mkFreshExprMVarAt lctx mvarDecl.localInstances type .syntheticOpaque mvarDecl.userName
+  mvarId.assign mvarNew
+  return mvarNew.mvarId!
 
 /-- Abstracts metavariables occurring in the target. -/
 def _root_.Lean.MVarId.abstractMVars (mvarId : MVarId) : MetaM MVarId := do

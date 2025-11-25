@@ -6,10 +6,7 @@ Authors: Joachim Breitner, Mario Carneiro
 module
 
 prelude
-public import Init.Data.Array.Mem
-public import Init.Data.Array.Lemmas
 public import Init.Data.Array.Count
-public import Init.Data.List.Attach
 import all Init.Data.List.Attach
 
 public section
@@ -751,9 +748,6 @@ and simplifies these to the function directly taking the value.
 @[simp] theorem unattach_replicate {p : α → Prop} {n : Nat} {x : { x // p x }} :
     (Array.replicate n x).unattach = Array.replicate n x.1 := by
   simp [unattach]
-
-@[deprecated unattach_replicate (since := "2025-03-18")]
-abbrev unattach_mkArray := @unattach_replicate
 
 /-! ### Well-founded recursion preprocessing setup -/
 

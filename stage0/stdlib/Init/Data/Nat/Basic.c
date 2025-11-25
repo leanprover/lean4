@@ -350,40 +350,44 @@ lean_dec(x_5);
 x_9 = lean_nat_dec_eq(x_2, x_7);
 if (x_9 == 1)
 {
+lean_object* x_10; lean_object* x_11; 
 lean_dec(x_4);
-lean_inc(x_3);
-return x_3;
+x_10 = lean_box(0);
+x_11 = lean_apply_1(x_3, x_10);
+return x_11;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_10 = lean_unsigned_to_nat(1u);
-x_11 = lean_nat_sub(x_2, x_10);
-x_12 = lean_apply_1(x_4, x_11);
-return x_12;
+lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_dec(x_3);
+x_12 = lean_unsigned_to_nat(1u);
+x_13 = lean_nat_sub(x_2, x_12);
+x_14 = lean_apply_1(x_4, x_13);
+return x_14;
 }
 }
 else
 {
-lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 lean_dec(x_4);
-x_13 = lean_unsigned_to_nat(1u);
-x_14 = lean_nat_sub(x_1, x_13);
-x_15 = lean_nat_dec_eq(x_2, x_7);
-if (x_15 == 1)
+lean_dec(x_3);
+x_15 = lean_unsigned_to_nat(1u);
+x_16 = lean_nat_sub(x_1, x_15);
+x_17 = lean_nat_dec_eq(x_2, x_7);
+if (x_17 == 1)
 {
-lean_object* x_16; 
+lean_object* x_18; 
 lean_dec(x_6);
-x_16 = lean_apply_1(x_5, x_14);
-return x_16;
+x_18 = lean_apply_1(x_5, x_16);
+return x_18;
 }
 else
 {
-lean_object* x_17; lean_object* x_18; 
+lean_object* x_19; lean_object* x_20; 
 lean_dec(x_5);
-x_17 = lean_nat_sub(x_2, x_13);
-x_18 = lean_apply_2(x_6, x_14, x_17);
-return x_18;
+x_19 = lean_nat_sub(x_2, x_15);
+x_20 = lean_apply_2(x_6, x_16, x_19);
+return x_20;
 }
 }
 }
@@ -401,7 +405,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l___private_Init_Data_Nat_Basic_0__Nat_beq_match__1_splitter___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_7;
@@ -412,7 +415,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l___private_Init_Data_Nat_Basic_0__Nat_beq_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_8;
@@ -581,21 +583,21 @@ lean_dec(x_3);
 return x_7;
 }
 }
-lean_object* initialize_Init_SimpLemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_NeZero(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Tactics(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_SimpLemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_NeZero(uint8_t builtin);
+lean_object* initialize_Init_Grind_Tactics(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Nat_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Nat_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_SimpLemmas(builtin, lean_io_mk_world());
+res = initialize_Init_SimpLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_NeZero(builtin, lean_io_mk_world());
+res = initialize_Init_Data_NeZero(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Tactics(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Tactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Nat_instTransLt = _init_l_Nat_instTransLt();

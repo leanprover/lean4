@@ -8,7 +8,6 @@ module
 prelude
 public import Lake.Util.Log
 public import Lake.Util.Exit
-public import Lake.Util.Error
 
 namespace Lake
 

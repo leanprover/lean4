@@ -4543,13 +4543,13 @@ x_1 = l_Lake_DSL_runIO___closed__8;
 return x_1;
 }
 }
-lean_object* initialize_Lake_DSL_DeclUtil(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_DSL_DeclUtil(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_DSL_Syntax(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_DSL_Syntax(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_DSL_DeclUtil(builtin, lean_io_mk_world());
+res = initialize_Lake_DSL_DeclUtil(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_DSL_nameConst___closed__0 = _init_l_Lake_DSL_nameConst___closed__0();

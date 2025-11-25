@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Data.Ord.Basic
 import Lake.Util.String
-import Init.Data.String.Basic
+import Init.Data.String.Search
 
 /-!
 #  Date
@@ -55,7 +55,7 @@ public def ofValid? (year month day : Nat) : Option Date := do
   return {year, month, day}
 
 public def ofString? (t : String) : Option Date := do
-  match t.split (· == '-') with
+  match t.split '-' |>.toList with
   | [y,m,d] =>
     ofValid? (← y.toNat?) (← m.toNat?) (← d.toNat?)
   | _ => none

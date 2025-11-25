@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Facets
-// Imports: public import Lake.Build.Data public import Lake.Build.Job.Basic public import Lake.Build.ModuleArtifacts public import Lake.Config.Dynlib meta import all Lake.Build.Data
+// Imports: public import Lake.Build.Job.Basic public import Lake.Build.ModuleArtifacts meta import all Lake.Build.Data
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1641,29 +1641,21 @@ x_1 = l_Lake_InputDir_defaultFacet___closed__1;
 return x_1;
 }
 }
-lean_object* initialize_Lake_Build_Data(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Build_Job_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Build_ModuleArtifacts(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_Dynlib(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Build_Data(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Build_Job_Basic(uint8_t builtin);
+lean_object* initialize_Lake_Build_ModuleArtifacts(uint8_t builtin);
+lean_object* initialize_Lake_Build_Data(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Build_Facets(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Build_Facets(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Build_Data(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Job_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Job_Basic(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_ModuleArtifacts(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_ModuleArtifacts(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Config_Dynlib(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Build_Data(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Data(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instReprModuleFacet_repr___redArg___closed__0 = _init_l_Lake_instReprModuleFacet_repr___redArg___closed__0();

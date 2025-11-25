@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Nat.Bitwise
-public import Init.Data.Fin.Basic
 
 public section
 

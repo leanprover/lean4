@@ -5,21 +5,11 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Basic
 public import Lean.Meta.Tactic.Grind.Theorems
 import Init.Grind.Util
-import Init.Grind.Tactics
-import Lean.Util.FoldConsts
-import Lean.Util.CollectFVars
-import Lean.Meta.Basic
-import Lean.Meta.InferType
-import Lean.Meta.Eqns
 import Lean.Meta.Tactic.Grind.Util
-import Lean.Message
-import Lean.Meta.Tactic.FVarSubst
 import Lean.Meta.Match.Basic
 import Lean.Meta.Tactic.TryThis
-import Lean.ExtraModUses
 public section
 namespace Lean.Meta.Grind
 /--
@@ -354,6 +344,22 @@ private def EMatchTheoremKind.explainFailure : EMatchTheoremKind → String
   | .default _ => "failed to find patterns"
   | .user      => unreachable!
 
+/--
+Grind patterns may have constraints of the form `lhs =/= rhs` associated with them.
+The `lhs` is one of the bound variables, and the `rhs` an abstract term that must not be definitionally
+equal to a term `t` assigned to `lhs`.
+-/
+structure EMatchTheoremConstraint where
+  /-- `lhs` -/
+  bvarIdx    : Nat
+  /-- Abstracted universe level param names in the `rhs` -/
+  levelNames : Array Name
+  /-- Number of abstracted metavariable in the `rhs` -/
+  numMVars   : Nat
+  /-- The actual `rhs`. -/
+  rhs        : Expr
+  deriving Inhabited, Repr, BEq
+
 /-- A theorem for heuristic instantiation based on E-matching. -/
 structure EMatchTheorem where
   /--
@@ -372,6 +378,7 @@ structure EMatchTheorem where
   kind         : EMatchTheoremKind
   /-- Stores whether patterns were inferred using the minimal indexable subexpression condition. -/
   minIndexable : Bool
+  cnstrs       : List EMatchTheoremConstraint := []
   deriving Inhabited
 
 instance : TheoremLike EMatchTheorem where
@@ -384,10 +391,13 @@ instance : TheoremLike EMatchTheorem where
 /-- Set of E-matching theorems. -/
 abbrev EMatchTheorems := Theorems EMatchTheorem
 
-/-- Returns `true` if there is a theorem with exactly the same pattern is already in `s` -/
-def EMatchTheorems.containsWithSamePatterns (s : EMatchTheorems) (origin : Origin) (patterns : List Expr) : Bool :=
+/--
+Returns `true` if there is a theorem with exactly the same pattern and constraints is already in `s`
+-/
+def EMatchTheorems.containsWithSamePatterns (s : EMatchTheorems) (origin : Origin)
+    (patterns : List Expr) (cnstrs : List EMatchTheoremConstraint) : Bool :=
   let thms := s.find origin
-  thms.any fun thm => thm.patterns == patterns
+  thms.any fun thm => thm.patterns == patterns && thm.cnstrs == cnstrs
 
 def EMatchTheorems.getKindsFor (s : EMatchTheorems) (origin : Origin) : List EMatchTheoremKind :=
   let thms := s.find origin
@@ -398,9 +408,16 @@ def EMatchTheorem.getProofWithFreshMVarLevels (thm : EMatchTheorem) : MetaM Expr
 
 private builtin_initialize ematchTheoremsExt : SimpleScopedEnvExtension EMatchTheorem (Theorems EMatchTheorem) ←
   registerSimpleScopedEnvExtension {
-      addEntry := Theorems.insert
-      initial  := {}
-    }
+    addEntry     := Theorems.insert
+    initial      := {}
+    exportEntry? := fun lvl e => do
+      -- export only annotations on public decls, like simp
+      let declName := match e.origin with
+        | .decl n => n
+        | _ => unreachable!  -- used only for tactic-local entries
+      guard (lvl == .private || !isPrivateName declName)
+      return e
+  }
 
 /-- Returns `true` if `declName` has been tagged as an E-match theorem using `[grind]`. -/
 def isEMatchTheorem (declName : Name) : CoreM Bool := do
@@ -779,7 +796,7 @@ Creates an E-matching theorem for a theorem with proof `proof`, `numParams` para
 Pattern variables are represented using de Bruijn indices.
 -/
 def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams : Nat) (proof : Expr)
-    (patterns : List Expr) (kind : EMatchTheoremKind) (showInfo := false) (minIndexable : Bool := false) : MetaM EMatchTheorem := do
+    (patterns : List Expr) (kind : EMatchTheoremKind) (cnstrs : List EMatchTheoremConstraint := []) (showInfo := false) (minIndexable : Bool := false) : MetaM EMatchTheorem := do
   -- the patterns have already been selected, there is no point in using priorities here
   let (patterns, symbols, bvarFound) ← NormalizePattern.main patterns (← getGlobalSymbolPriorities) (minPrio := 1)
   if symbols.isEmpty then
@@ -791,7 +808,7 @@ def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams 
   logPatternWhen showInfo origin patterns
   return {
     proof, patterns, numParams, symbols
-    levelParams, origin, kind, minIndexable
+    levelParams, origin, kind, minIndexable, cnstrs
   }
 
 private def getProofFor (declName : Name) : MetaM Expr := do
@@ -808,8 +825,8 @@ Creates an E-matching theorem for `declName` with `numParams` parameters, and th
 Pattern variables are represented using de Bruijn indices.
 -/
 def mkEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr)
-    (kind : EMatchTheoremKind) (minIndexable : Bool) : MetaM EMatchTheorem := do
-  mkEMatchTheoremCore (.decl declName) #[] numParams (← getProofFor declName) patterns kind (minIndexable := minIndexable)
+    (kind : EMatchTheoremKind) (minIndexable : Bool) (cnstrs : List EMatchTheoremConstraint) : MetaM EMatchTheorem := do
+  mkEMatchTheoremCore (.decl declName) #[] numParams (← getProofFor declName) patterns kind cnstrs (minIndexable := minIndexable)
 
 /--
 Given a theorem with proof `proof` and type of the form `∀ (a_1 ... a_n), lhs = rhs`,
@@ -857,8 +874,8 @@ Adds an E-matching theorem to the environment.
 See `mkEMatchTheorem`.
 -/
 def addEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr) (kind : EMatchTheoremKind)
-    (minIndexable : Bool) (attrKind := AttributeKind.global) : MetaM Unit := do
-  ematchTheoremsExt.add (← mkEMatchTheorem declName numParams patterns kind (minIndexable := minIndexable)) attrKind
+    (minIndexable : Bool) (attrKind := AttributeKind.global) (cnstrs : List EMatchTheoremConstraint) : MetaM Unit := do
+  ematchTheoremsExt.add (← mkEMatchTheorem declName numParams patterns kind cnstrs (minIndexable := minIndexable)) attrKind
 
 /--
 Adds an E-matching equality theorem to the environment.
@@ -870,6 +887,13 @@ def addEMatchEqTheorem (declName : Name) : MetaM Unit := do
 /-- Returns the E-matching theorems registered in the environment. -/
 def getEMatchTheorems : CoreM EMatchTheorems :=
   return ematchTheoremsExt.getState (← getEnv)
+
+/-- Returns the scoped E-matching theorems declared in the given namespace. -/
+def getEMatchTheoremsForNamespace (namespaceName : Name) : CoreM (Array EMatchTheorem) := do
+  let stateStack := ematchTheoremsExt.ext.getState (← getEnv)
+  match stateStack.scopedEntries.map.find? namespaceName with
+  | none => return #[]
+  | some entries => return entries.toArray
 
 /-- Returns the types of `xs` that are propositions. -/
 private def getPropTypes (xs : Array Expr) : MetaM (Array Expr) :=
@@ -1070,13 +1094,11 @@ where
 
 register_builtin_option backward.grind.inferPattern : Bool := {
   defValue := false
-  group    := "backward compatibility"
   descr    := "use old E-matching pattern inference"
 }
 
 register_builtin_option backward.grind.checkInferPatternDiscrepancy : Bool := {
   defValue := false
-  group    := "backward compatibility"
   descr    := "check whether old and new pattern inference procedures infer the same pattern"
 }
 

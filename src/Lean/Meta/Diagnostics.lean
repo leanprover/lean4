@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Meta.Basic
-import Lean.Meta.Instances
 import Lean.PrettyPrinter
 
 public section
@@ -89,6 +88,7 @@ def reportDiag : MetaM Unit := do
     let unfoldCounter := (← get).diag.unfoldCounter
     let unfoldDefault ← mkDiagSummaryForUnfolded unfoldCounter
     let unfoldInstance ← mkDiagSummaryForUnfolded unfoldCounter (instances := true)
+    let unfoldAxiom ← mkDiagSummary `reduction (← get).diag.unfoldAxiomCounter
     let unfoldReducible ← mkDiagSummaryForUnfoldedReducible unfoldCounter
     let heu ← mkDiagSummary `def_eq (← get).diag.heuristicCounter
     let inst ← mkDiagSummaryForUsedInstances
@@ -103,6 +103,7 @@ def reportDiag : MetaM Unit := do
               s!"max synth pending failures (maxSynthPendingDepth: {maxSynthPendingDepth.get (← getOptions)}), use `set_option maxSynthPendingDepth <limit>`"
               synthPending (resultSummary := false)
     let m := appendSection m `def_eq "heuristic for solving `f a =?= f b`" heu
+    let m := appendSection m `reduction "Axioms (possibly imported non-exposed defs) that were tried to be unfolded" unfoldAxiom
     let m := appendSection m `kernel "unfolded declarations" unfoldKernel
     unless m.isEmpty do
       let m := m.push "use `set_option diagnostics.threshold <num>` to control threshold for reporting counters"

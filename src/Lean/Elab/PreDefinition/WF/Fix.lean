@@ -9,9 +9,7 @@ prelude
 public import Lean.Data.Array
 public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.WF.Basic
-public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.ArgsPacker
-public import Lean.Meta.ForEachExpr
 public import Lean.Meta.Match.MatcherApp.Transform
 public import Lean.Meta.Tactic.Cleanup
 public import Lean.Util.HasConstCache
@@ -103,10 +101,10 @@ where
       | some matcherApp =>
         if let some matcherApp ← matcherApp.addArg? F then
           let altsNew ← matcherApp.alts.zipWithM (bs := matcherApp.altNumParams) fun alt numParams =>
-            lambdaBoundedTelescope alt numParams fun xs altBody => do
-              unless xs.size = numParams do
+            lambdaBoundedTelescope alt (numParams + 1) fun xs altBody => do
+              unless xs.size = (numParams + 1) do
                 throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
-              let FAlt := xs[numParams - 1]!
+              let FAlt := xs[numParams]!
               let altBody' ← loop FAlt altBody
               mkLambdaFVars xs altBody'
           return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
@@ -223,8 +221,10 @@ def solveDecreasingGoals (funNames : Array Name) (argsPacker : ArgsPacker) (decr
           let type ← goal.getType
           let some ref := getRecAppSyntax? (← goal.getType)
             | throwError "MVar not annotated as a recursive call:{indentExpr type}"
+          goal.setType type.mdataExpr!
           withRef ref <| applyDefaultDecrTactic goal
       | some decrTactic => withRef decrTactic.ref do
+        goals.forM fun goal => do goal.setType (← goal.getType).mdataExpr!
         unless goals.isEmpty do -- unlikely to be empty
           -- make info from `runTactic` available
           goals.forM fun goal => pushInfoTree (.hole goal)

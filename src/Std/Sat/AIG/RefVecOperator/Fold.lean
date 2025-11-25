@@ -6,7 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Sat.AIG.RefVec
 public import Std.Sat.AIG.LawfulVecOperator
 
 @[expose] public section

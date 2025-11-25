@@ -7,7 +7,6 @@ Authors: Marc Huisinga
 module
 
 prelude
-public import Init.System.IO
 public import Lean.Data.Json.Parser
 public import Lean.Data.Json.Printer
 

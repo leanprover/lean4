@@ -129,6 +129,10 @@ namespace Package
 @[inline] public def bootstrap (self : Package) : Bool  :=
   self.config.bootstrap
 
+/-- The identifier passed to Lean to disambiguate the package's native symbols. -/
+public def id? (self : Package) : Option PkgId :=
+  if self.bootstrap then none else some <| self.name.toString (escape := false)
+
 /-- The package version. -/
 @[inline] public def version (self : Package) : LeanVer  :=
   self.config.version
@@ -212,6 +216,10 @@ namespace Package
 /-- The package's `platformIndependent` configuration. -/
 @[inline] public def platformIndependent (self : Package) : Option Bool :=
   self.config.platformIndependent
+
+/-- Whether the package's  has been configured with `platformIndependent = true`. -/
+@[inline] public def isPlatformIndependent (self : Package) : Bool :=
+  self.config.platformIndependent == some true
 
 /-- The package's `releaseRepo`/`releaseRepo?` configuration. -/
 @[inline] public def releaseRepo? (self : Package) : Option String :=
@@ -325,11 +333,6 @@ Where shared libraries for the package are located.
 The package's `buildDir` joined with its `nativeLibDir` configuration.
 -/
 @[inline] public def sharedLibDir (self : Package) : FilePath :=
-  self.buildDir / self.config.nativeLibDir.normalize
-
-/-- The package's `buildDir` joined with its `nativeLibDir` configuration. -/
-@[inline, deprecated "Use staticLibDir or sharedLibDir instead." (since := "2025-03-29")]
-public def nativeLibDir (self : Package) : FilePath :=
   self.buildDir / self.config.nativeLibDir.normalize
 
 /-- The package's `buildDir` joined with its `binDir` configuration. -/

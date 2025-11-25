@@ -17,35 +17,40 @@ LIB_PREFIX=lib
 SHARED_LIB_EXT=so
 fi
 
+PKG=targets
+
 ./clean.sh
 
 # Test error on nonexistent facet
 $LAKE build targets:noexistent && exit 1 || true
 
 # Test custom targets and package, library, and module facets
-$LAKE build bark | awk '/Ran/,/Bark!/' | diff -u --strip-trailing-cr <(cat << 'EOF'
-ℹ [1/1] Ran targets/bark
+diff_out() {
+  awk "/Ran/,$1" | sed '/Ran/ s/^[^R]*//' | diff -u --strip-trailing-cr $2 -
+}
+$LAKE build bark | diff_out '/Bark!/' <(cat << 'EOF'
+Ran targets/bark
 info: Bark!
 EOF
-) -
-$LAKE build targets/bark_bark | awk '/Ran/,0' | diff -u --strip-trailing-cr <(cat << 'EOF'
-ℹ [1/2] Ran targets/bark
+)
+$LAKE build targets/bark_bark | diff_out '0' <(cat << 'EOF'
+Ran targets/bark
 info: Bark!
 Build completed successfully (2 jobs).
 EOF
-) -
-$LAKE build targets:print_name | awk '/Ran/,/^targets/' | diff -u --strip-trailing-cr <(cat << 'EOF'
-ℹ [1/1] Ran targets:print_name
+)
+$LAKE build targets:print_name | diff_out '/^targets/' <(cat << 'EOF'
+Ran targets:print_name
 info: stdout/stderr:
 targets
 EOF
-) -
-$LAKE build Foo:print_name | awk '/Ran/,/^Foo/' | diff -u --strip-trailing-cr <(cat << 'EOF'
-ℹ [1/1] Ran targets/Foo:print_name
+)
+$LAKE build Foo:print_name | diff_out '/^Foo/' <(cat << 'EOF'
+Ran targets/Foo:print_name
 info: stdout/stderr:
 Foo
 EOF
-) -
+)
 $LAKE build Foo.Bar:print_src | grep --color Bar.lean
 
 # Test the module `deps` facet
@@ -66,19 +71,19 @@ test -f ./.lake/build/ir/Bar.c.o.export
 # Test default targets
 test ! -f ./.lake/build/bin/c
 test ! -f ./.lake/build/lib/lean/Foo.olean
-test ! -f ./.lake/build/lib/${LIB_PREFIX}Foo.a
+test ! -f ./.lake/build/lib/${LIB_PREFIX}${PKG}_Foo.a
 test ! -f ./.lake/build/meow.txt
 $LAKE build targets/
 ./.lake/build/bin/c
 test -f ./.lake/build/lib/lean/Foo.olean
-test -f ./.lake/build/lib/${LIB_PREFIX}Foo.a
+test -f ./.lake/build/lib/${LIB_PREFIX}${PKG}_Foo.a
 cat ./.lake/build/meow.txt | grep Meow!
 
 # Test shared lib facets
-test ! -f ./.lake/build/lib/${LIB_PREFIX}Foo.$SHARED_LIB_EXT
+test ! -f ./.lake/build/lib/${LIB_PREFIX}${PKG}_Foo.$SHARED_LIB_EXT
 test ! -f ./.lake/build/lib/libBar.$SHARED_LIB_EXT
 $LAKE build Foo:shared Bar
-test -f ./.lake/build/lib/${LIB_PREFIX}Foo.$SHARED_LIB_EXT
+test -f ./.lake/build/lib/${LIB_PREFIX}${PKG}_Foo.$SHARED_LIB_EXT
 test -f ./.lake/build/lib/libBar.$SHARED_LIB_EXT
 
 # Test static lib facet
@@ -87,9 +92,9 @@ $LAKE build Foo:shared Bar:static
 test -f ./.lake/build/lib/libBar.a
 
 # Test dynlib facet
-test ! -f ./.lake/build/lib/lean/Foo.$SHARED_LIB_EXT
+test ! -f ./.lake/build/lib/lean/${PKG}_Foo.$SHARED_LIB_EXT
 $LAKE build +Foo:dynlib
-test -f ./.lake/build/lib/lean/Foo.$SHARED_LIB_EXT
+test -f ./.lake/build/lib/lean/${PKG}_Foo.$SHARED_LIB_EXT
 
 # Test library `extraDepTargets`
 test ! -f ./.lake/build/caw.txt

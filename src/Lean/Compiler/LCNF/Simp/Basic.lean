@@ -6,9 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Instances
-public import Lean.Compiler.InlineAttrs
-public import Lean.Compiler.Specialize
 public import Lean.Compiler.LCNF.CompilerM
 
 public section

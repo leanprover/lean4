@@ -13,7 +13,7 @@ partial_fixpoint
 
 /--
 info: equations:
-theorem loop.eq_1 : ∀ (x : Nat), loop x = loop (x + 1)
+@[defeq] theorem loop.eq_1 : ∀ (x : Nat), loop x = loop (x + 1)
 -/
 #guard_msgs in
 #print equations loop

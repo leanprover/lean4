@@ -77,9 +77,6 @@ def cancelBehaviorNoRepeat : IO Unit := do
   assert! (← IO.getTaskState prom.result?) != IO.TaskState.finished
   timer.cancel
   assert! (← IO.getTaskState prom.result?) == IO.TaskState.finished
-  let prom ← timer.next
-  assert! (← IO.getTaskState prom.result?) == IO.TaskState.finished
-  assert! (← IO.getTaskState prom.result?) == IO.TaskState.finished
 
 def stopBehaviorNoRepeat : IO Unit := do
   let timer ← Timer.mk BASE_DURATION.toUInt64 false

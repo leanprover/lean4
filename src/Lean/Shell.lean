@@ -253,15 +253,15 @@ def shellMain
   ---TODO: make it extensible, and add `lean4md`
   let contents ←
     if contents.startsWith "#lang" then
-      let endLinePos := contents.posOf '\n'
-      let langId := contents.extract ⟨6⟩ endLinePos |>.trim
+      let endLinePos := contents.find '\n'
+      let langId := String.Pos.Raw.extract contents ⟨6⟩ endLinePos.offset |>.trimAscii
       if langId == "lean4" then
         pure () -- do nothing for now
       else
         IO.eprintln s!"unknown language '{langId}'\n";
         return 1
       -- Remove up to `\n`
-      pure <| contents.extract endLinePos contents.endPos
+      pure <| String.Pos.Raw.extract contents endLinePos.offset contents.rawEndPos
     else
       pure contents
   let setup? ← setupFileName?.mapM ModuleSetup.load

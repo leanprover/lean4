@@ -8,10 +8,8 @@ module
 
 prelude
 public import Lean.Data.Lsp.Internal
-public import Lean.Data.Lsp.Extra
 public import Lean.Server.Utils
 public import Lean.Elab.Import
-public import Std.Data.TreeSet.Basic
 
 public section
 

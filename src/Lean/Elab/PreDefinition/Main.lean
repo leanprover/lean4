@@ -7,10 +7,8 @@ module
 
 prelude
 public import Lean.Util.SCC
-public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.Structural
 public import Lean.Elab.PreDefinition.WF.Main
-public import Lean.Elab.PreDefinition.MkInhabitant
 public import Lean.Elab.PreDefinition.PartialFixpoint
 
 public section
@@ -334,9 +332,8 @@ def addPreDefinitions (docCtx : LocalContext × LocalInstances) (preDefs : Array
         else
           -- Consider partial if `partial` was given explicitly, or implied and no termination hint
           -- was given
-          if preDefs.any fun preDef =>
-              preDef.modifiers.isPartial ||
-              preDef.modifiers.isInferredPartial && !preDef.termination.isNotNone then
+          if preDefs.any (·.modifiers.isPartial) ||
+             preDefs.any (·.modifiers.isInferredPartial) && !preDefs.any (·.termination.isNotNone) then
             let mut isPartial := true
             for preDef in preDefs do
               if !(← whnfD preDef.type).isForall then

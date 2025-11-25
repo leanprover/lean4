@@ -6,16 +6,10 @@ Author: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Data.String.Basic
-public import Init.Data.ToString.Basic
+public import Init.Data.String.Substring
+import Init.Data.String.Search
 
 public section
-
-instance : Repr String.Iterator where
-  reprPrec | ⟨s, pos⟩, prec => Repr.addAppParen ("String.Iterator.mk " ++ reprArg s ++ " " ++ reprArg pos) prec
-
-instance : ToString String.Iterator :=
-  ⟨fun it => it.remainingToString⟩
 
 /--
 Interprets a string as the decimal representation of an integer, returning it. Returns `none` if
@@ -40,8 +34,8 @@ Examples:
  * `"0xff".toInt? = none`
 -/
 def String.toInt? (s : String) : Option Int := do
-  if s.get 0 = '-' then do
-    let v ← (s.toSubstring.drop 1).toNat?;
+  if s.front = '-' then do
+    let v ← (s.toRawSubstring.drop 1).toNat?;
     pure <| - Int.ofNat v
   else
    Int.ofNat <$> s.toNat?
@@ -68,8 +62,8 @@ Examples:
  * `"0xff".isInt = false`
 -/
 def String.isInt (s : String) : Bool :=
-  if s.get 0 = '-' then
-    (s.toSubstring.drop 1).isNat
+  if s.front = '-' then
+    (s.toRawSubstring.drop 1).isNat
   else
     s.isNat
 

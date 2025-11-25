@@ -8,13 +8,8 @@ module
 prelude
 public import Lean.Meta.ACLt
 public import Lean.Meta.Match.MatchEqsExt
-public import Lean.Meta.AppBuilder
-public import Lean.Meta.SynthInstance
-public import Lean.Meta.Tactic.Util
 public import Lean.Meta.Tactic.UnifyEq
-public import Lean.Meta.Tactic.Simp.Types
 public import Lean.Meta.Tactic.Simp.Arith
-public import Lean.Meta.Tactic.Simp.Simproc
 public import Lean.Meta.Tactic.Simp.Attr
 public import Lean.Meta.BinderNameHint
 

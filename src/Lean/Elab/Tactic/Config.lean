@@ -7,9 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Eval
-public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.SyntheticMVars
-public import Lean.ExtraModUses
 import Lean.Linter.MissingDocs
 meta import Lean.Parser.Tactic
 

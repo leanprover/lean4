@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.WF
 public import Init.WFTactics
-public import Init.Data.Nat.Basic
 public meta import Init.MetaTypes
 
 public section

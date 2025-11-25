@@ -26,3 +26,26 @@ structure JustOneConstructor where
 
 /-- error: Unknown constant `JustOneConstructor.mk.elim` -/
 #guard_msgs in #print sig JustOneConstructor.mk.elim
+
+-- Test that the compiler compiles the ctorelim to straight line code
+
+set_option trace.Compiler.saveBase true
+
+/--
+trace: [Compiler.saveBase] size: 0
+    def testDecl1 α motive a.1 t h nil : motive lcAny lcAny :=
+      return nil
+-/
+#guard_msgs in
+def testDecl1 :=@Vec.nil.elim
+
+/--
+trace: [Compiler.saveBase] size: 3
+    def testDecl2 α motive a.1 t h cons : motive lcAny lcAny :=
+      cases t : motive lcAny lcAny
+      | Vec.cons n a.2 a.3 =>
+        let _x.4 := cons n a.2 a.3;
+        return _x.4
+-/
+#guard_msgs in
+def testDecl2 := @Vec.cons.elim

@@ -1759,11 +1759,12 @@ as well as tactics such as `next`, `case`, and `rename_i`.
 syntax (name := exposeNames) "expose_names" : tactic
 
 /--
-`#suggest_premises` will suggest premises for the current goal, using the currently registered premise selector.
+`#suggestions` will suggest relevant theorems from the library for the current goal,
+using the currently registered library suggestion engine.
 
 The suggestions are printed in the order of their confidence, from highest to lowest.
 -/
-syntax (name := suggestPremises) "suggest_premises" : tactic
+syntax (name := suggestions) "suggestions" : tactic
 
 /--
 Close fixed-width `BitVec` and `Bool` goals by obtaining a proof from an external SAT solver and
@@ -2317,6 +2318,12 @@ Theorems tagged with the `wf_preprocess` attribute are used during the processin
 by well-founded recursion. They are applied to the function's body to add additional hypotheses,
 such as replacing `if c then _ else _` with `if h : c then _ else _` or `xs.map` with
 `xs.attach.map`. Also see `wfParam`.
+
+Warning: These rewrites are only applied to the declaration for the purpose of the logical
+definition, but do not affect the compiled code. In particular they can cause a function definition
+that diverges as compiled to be accepted without an explicit `partial` keyword, for example if they
+remove irrelevant subterms or change the evaluation order by hiding terms under binders. Therefore
+avoid tagging theorems with `[wf_preprocess]` unless they preserve also operational behavior.
 -/
 syntax (name := wf_preprocess) "wf_preprocess" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
 

@@ -6,10 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.LitValues
-public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int
-public import Init.Data.BitVec.Basic
 
 public section
 

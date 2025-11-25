@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Control.Id
 public import Init.Data.List.Impl
 
 public section

@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Elab.Tactic.ElabTerm
 public import Lean.Elab.Tactic.Change
 public import Lean.Elab.Tactic.Conv.Basic
 

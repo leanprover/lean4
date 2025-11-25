@@ -6,7 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lake.Build.Trace
 public import Lake.Config.Artifact
 import Lake.Util.JsonObject
 

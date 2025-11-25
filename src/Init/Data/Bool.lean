@@ -111,34 +111,10 @@ Needed for confluence of term `(a && b) ↔ a` which reduces to `(a && b) = a` v
 @[simp] theorem eq_self_and : ∀ {a b : Bool}, (a = (a && b)) ↔ (a → b) := by decide
 @[simp] theorem eq_and_self : ∀ {a b : Bool}, (b = (a && b)) ↔ (b → a) := by decide
 
-@[deprecated and_eq_left_iff_imp (since := "2025-04-04")]
-abbrev and_iff_left_iff_imp := @and_eq_left_iff_imp
-
-@[deprecated and_eq_right_iff_imp (since := "2025-04-04")]
-abbrev and_iff_right_iff_imp := @and_eq_right_iff_imp
-
-@[deprecated eq_self_and (since := "2025-04-04")]
-abbrev iff_self_and := @eq_self_and
-
-@[deprecated eq_and_self (since := "2025-04-04")]
-abbrev iff_and_self := @eq_and_self
-
 @[simp] theorem not_and_eq_left_iff_and  : ∀ {a b : Bool}, ((!a && b) = a) ↔ !a ∧ !b := by decide
 @[simp] theorem and_not_eq_right_iff_and : ∀ {a b : Bool}, ((a && !b) = b) ↔ !a ∧ !b := by decide
 @[simp] theorem eq_not_self_and : ∀ {a b : Bool}, (a = (!a && b)) ↔ !a ∧ !b := by decide
 @[simp] theorem eq_and_not_self : ∀ {a b : Bool}, (b = (a && !b)) ↔ !a ∧ !b := by decide
-
-@[deprecated not_and_eq_left_iff_and (since := "2025-04-04")]
-abbrev not_and_iff_left_iff_imp := @not_and_eq_left_iff_and
-
-@[deprecated and_not_eq_right_iff_and (since := "2025-04-04")]
-abbrev and_not_iff_right_iff_imp := @and_not_eq_right_iff_and
-
-@[deprecated eq_not_self_and (since := "2025-04-04")]
-abbrev iff_not_self_and := @eq_not_self_and
-
-@[deprecated eq_and_not_self (since := "2025-04-04")]
-abbrev iff_and_not_self := @eq_and_not_self
 
 /-! ### or -/
 
@@ -169,34 +145,10 @@ Needed for confluence of term `(a || b) ↔ a` which reduces to `(a || b) = a` v
 @[simp] theorem eq_self_or : ∀ {a b : Bool}, (a = (a || b)) ↔ (b → a) := by decide
 @[simp] theorem eq_or_self : ∀ {a b : Bool}, (b = (a || b)) ↔ (a → b) := by decide
 
-@[deprecated or_eq_left_iff_imp (since := "2025-04-04")]
-abbrev or_iff_left_iff_imp := @or_eq_left_iff_imp
-
-@[deprecated or_eq_right_iff_imp (since := "2025-04-04")]
-abbrev or_iff_right_iff_imp := @or_eq_right_iff_imp
-
-@[deprecated eq_self_or (since := "2025-04-04")]
-abbrev iff_self_or := @eq_self_or
-
-@[deprecated eq_or_self (since := "2025-04-04")]
-abbrev iff_or_self := @eq_or_self
-
 @[simp] theorem not_or_eq_left_iff_and  : ∀ {a b : Bool}, ((!a || b) = a) ↔ a ∧ b := by decide
 @[simp] theorem or_not_eq_right_iff_and : ∀ {a b : Bool}, ((a || !b) = b) ↔ a ∧ b := by decide
 @[simp] theorem eq_not_self_or : ∀ {a b : Bool}, (a = (!a || b)) ↔ a ∧ b := by decide
 @[simp] theorem eq_or_not_self : ∀ {a b : Bool}, (b = (a || !b)) ↔ a ∧ b := by decide
-
-@[deprecated not_or_eq_left_iff_and (since := "2025-04-04")]
-abbrev not_or_iff_left_iff_imp := @not_or_eq_left_iff_and
-
-@[deprecated or_not_eq_right_iff_and (since := "2025-04-04")]
-abbrev or_not_iff_right_iff_imp := @or_not_eq_right_iff_and
-
-@[deprecated eq_not_self_or (since := "2025-04-04")]
-abbrev iff_not_self_or := @eq_not_self_or
-
-@[deprecated eq_or_not_self (since := "2025-04-04")]
-abbrev iff_or_not_self := @eq_or_not_self
 
 theorem or_comm : ∀ (x y : Bool), (x || y) = (y || x) := by decide
 instance : Std.Commutative (· || ·) := ⟨or_comm⟩
@@ -562,6 +514,7 @@ theorem exists_bool {p : Bool → Prop} : (∃ b, p b) ↔ p false ∨ p true :=
 theorem cond_eq_ite {α} (b : Bool) (t e : α) : cond b t e = if b then t else e := by
   cases b <;> simp
 
+@[deprecated cond_eq_ite (since := "2025-10-29")]
 theorem cond_eq_if : (bif b then x else y) = (if b then x else y) := cond_eq_ite b x y
 
 @[simp] theorem cond_not (b : Bool) (t e : α) : cond (!b) t e = cond b e t := by
@@ -621,11 +574,6 @@ protected theorem cond_false {α : Sort u} {a b : α} : cond false a b = b := co
 @[simp] theorem cond_then_self  : ∀ (c b : Bool), cond c c b = (c || b) := by decide
 @[simp] theorem cond_else_self : ∀ (c b : Bool), cond c b c = (c && b) := by decide
 
-@[deprecated cond_then_not_self (since := "2025-04-04")] abbrev cond_true_not_same := @cond_then_not_self
-@[deprecated cond_else_not_self (since := "2025-04-04")] abbrev cond_false_not_same := @cond_else_not_self
-@[deprecated cond_then_self (since := "2025-04-04")] abbrev cond_true_same := @cond_then_self
-@[deprecated cond_else_self (since := "2025-04-04")] abbrev cond_false_same := @cond_else_self
-
 theorem cond_pos {b : Bool} {a a' : α} (h : b = true) : (bif b then a else a') = a := by
   rw [h, cond_true]
 
@@ -665,7 +613,7 @@ theorem decide_beq_decide (p q : Prop) [dpq : Decidable (p ↔ q)] [dp : Decidab
 
 end Bool
 
-export Bool (cond_eq_if xor and or not)
+export Bool (cond_eq_if cond_eq_ite xor and or not)
 
 /-! ### decide -/
 

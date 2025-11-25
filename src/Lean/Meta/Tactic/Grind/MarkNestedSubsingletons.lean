@@ -7,10 +7,6 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind.Util
-import Lean.Util.PtrSet
-import Lean.Meta.Transform
-import Lean.Meta.Basic
-import Lean.Meta.InferType
 import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Util
 public section
@@ -95,6 +91,10 @@ where
     return e'
 
   preprocess (e : Expr) : M Expr := do
+    /-
+    **Note**: We must use `instantiateMVars` here because this function is called using the result of `inferType`.
+    -/
+    let e ← instantiateMVars e
     /-
     We must unfold reducible constants occurring in `prop` because the congruence closure
     module in `grind` assumes they have been expanded.

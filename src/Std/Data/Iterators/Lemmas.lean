@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Lemmas.Basic
 public import Std.Data.Iterators.Lemmas.Monadic
 public import Std.Data.Iterators.Lemmas.Combinators
 public import Std.Data.Iterators.Lemmas.Producers

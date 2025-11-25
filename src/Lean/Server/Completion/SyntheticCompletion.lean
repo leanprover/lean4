@@ -106,11 +106,11 @@ private def findSyntheticIdentifierCompletion?
   some { hoverInfo, ctx, info := .id stx id danglingDot info.lctx none }
 
 private partial def isCursorOnWhitespace (fileMap : FileMap) (hoverPos : String.Pos.Raw) : Bool :=
-  fileMap.source.atEnd hoverPos || (fileMap.source.get hoverPos).isWhitespace
+  hoverPos.atEnd fileMap.source || (hoverPos.get fileMap.source).isWhitespace
 
 private partial def isCursorInProperWhitespace (fileMap : FileMap) (hoverPos : String.Pos.Raw) : Bool :=
-  (fileMap.source.atEnd hoverPos || (fileMap.source.get hoverPos).isWhitespace)
-    && (fileMap.source.get (hoverPos.unoffsetBy ⟨1⟩)).isWhitespace
+  (hoverPos.atEnd fileMap.source || (hoverPos.get fileMap.source).isWhitespace)
+    && ((hoverPos.unoffsetBy ⟨1⟩).get fileMap.source).isWhitespace
 
 private partial def isSyntheticTacticCompletion
     (fileMap  : FileMap)
@@ -309,7 +309,7 @@ private def isSyntheticStructFieldCompletion
         stx.getTrailingTailPos? (canonicalOnly := true)
           <|> leadingToken.getTrailingTailPos? (canonicalOnly := true)
       | return false
-    let outerBounds : String.Range := ⟨outerBoundsStart, outerBoundsStop⟩
+    let outerBounds : Lean.Syntax.Range := ⟨outerBoundsStart, outerBoundsStop⟩
 
     let isCompletionInEmptyBlock :=
       fieldsAndSeps.isEmpty && outerBounds.contains hoverPos (includeStop := true)

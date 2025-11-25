@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Order.Ord
-// Imports: public import Init.Data.Ord.Basic import Init.RCases import Init.Data.Bool import Init.ByCases import Init.Data.Int.Order import Init.Data.Option.Lemmas import Init.Data.List.Lemmas import Init.Data.Array.DecidableEq public import Init.Data.Ord.Array public import Init.Data.BEq
+// Imports: import Init.Data.List.Lemmas import Init.Data.Array.DecidableEq public import Init.Data.Ord.Array public import Init.Data.BEq
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,49 +13,25 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_RCases(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Bool(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_ByCases(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Int_Order(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_DecidableEq(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Ord_Array(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BEq(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_DecidableEq(uint8_t builtin);
+lean_object* initialize_Init_Data_Ord_Array(uint8_t builtin);
+lean_object* initialize_Init_Data_BEq(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Order_Ord(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Order_Ord(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Ord_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_RCases(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_DecidableEq(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Bool(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Ord_Array(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_ByCases(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Int_Order(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Option_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array_DecidableEq(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Ord_Array(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_BEq(builtin, lean_io_mk_world());
+res = initialize_Init_Data_BEq(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

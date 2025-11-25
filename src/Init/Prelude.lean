@@ -23,6 +23,16 @@ use `PUnit` in the desugaring of `do` notation, or in the pattern match compiler
 
 universe u v w
 
+/-- Marker for information that has been erased by the code generator. -/
+unsafe axiom lcErased : Type
+
+/-- Marker for type dependency that has been erased by the code generator. -/
+unsafe axiom lcAny : Type
+
+/-- Internal representation of `Void` in the compiler. -/
+unsafe axiom lcVoid : Type
+
+
 /--
 The identity function. `id` takes an implicit argument `α : Sort u`
 (a type in any universe), and an argument `a : α`, and returns `a`.
@@ -134,15 +144,6 @@ The only element of the unit type.
 It can be written as an empty tuple: `()`.
 -/
 @[match_pattern] abbrev Unit.unit : Unit := PUnit.unit
-
-/-- Marker for information that has been erased by the code generator. -/
-unsafe axiom lcErased : Type
-
-/-- Marker for type dependency that has been erased by the code generator. -/
-unsafe axiom lcAny : Type
-
-/-- Internal representation of `IO.RealWorld` in the compiler. -/
-unsafe axiom lcRealWorld : Type
 
 /--
 Auxiliary unsafe constant used by the Compiler when erasing proofs from code.
@@ -630,6 +631,8 @@ structure Subtype {α : Sort u} (p : α → Prop) where
   -/
   property : p val
 
+grind_pattern Subtype.property => self.val
+
 set_option linter.unusedVariables.funArgs false in
 /--
 Gadget for optional parameter support.
@@ -1098,6 +1101,7 @@ until `c` is known.
         | Or.inl h => hp h
         | Or.inr h => hq h
 
+@[inline]
 instance [dp : Decidable p] : Decidable (Not p) :=
   match dp with
   | isTrue hp  => isFalse (absurd hp)
@@ -1553,7 +1557,7 @@ class HomogeneousPow (α : Type u) where
 
 /-- Typeclass for types with a scalar multiplication operation, denoted `•` (`\bu`) -/
 class SMul (M : Type u) (α : Type v) where
-  /-- `a • b` computes the product of `a` and `b`. The meaning of this notation is type-dependent,
+  /-- `m • a : α` denotes the product of `m : M` and `a : α`. The meaning of this notation is type-dependent,
   but it is intended to be used for left actions. -/
   smul : M → α → α
 
@@ -1829,8 +1833,7 @@ Examples:
 -/
 @[extern "lean_nat_dec_le"]
 def Nat.ble : @& Nat → @& Nat → Bool
-  | zero,   zero   => true
-  | zero,   succ _ => true
+  | zero,   _      => true
   | succ _, zero   => false
   | succ n, succ m => ble n m
 
@@ -1875,7 +1878,7 @@ theorem Nat.succ_le_succ : LE.le n m → LE.le (succ n) (succ m)
 theorem Nat.zero_lt_succ (n : Nat) : LT.lt 0 (succ n) :=
   succ_le_succ (zero_le n)
 
-theorem Nat.le_step (h : LE.le n m) : LE.le n (succ m) :=
+theorem Nat.le_succ_of_le (h : LE.le n m) : LE.le n (succ m) :=
   Nat.le.step h
 
 protected theorem Nat.le_trans {n m k : Nat} : LE.le n m → LE.le m k → LE.le n k
@@ -1886,13 +1889,10 @@ protected theorem Nat.lt_of_lt_of_le {n m k : Nat} : LT.lt n m → LE.le m k →
   Nat.le_trans
 
 protected theorem Nat.lt_trans {n m k : Nat} (h₁ : LT.lt n m) : LT.lt m k → LT.lt n k :=
-  Nat.le_trans (le_step h₁)
+  Nat.le_trans (le_succ_of_le h₁)
 
 theorem Nat.le_succ (n : Nat) : LE.le n (succ n) :=
   Nat.le.step Nat.le.refl
-
-theorem Nat.le_succ_of_le {n m : Nat} (h : LE.le n m) : LE.le n (succ m) :=
-  Nat.le_trans h (le_succ m)
 
 protected theorem Nat.le_refl (n : Nat) : LE.le n n :=
   Nat.le.refl
@@ -2217,6 +2217,7 @@ theorem Nat.mod_lt : (x : Nat) →  {y : Nat} → (hy : LT.lt 0 y) → LT.lt (HM
       | .isFalse h => Nat.lt_of_not_le h
 
 attribute [gen_constructor_elims] Nat
+attribute [gen_constructor_elims] Bool
 
 /--
 Gets the word size of the current platform. The word size may be 64 or 32 bits.
@@ -2263,6 +2264,7 @@ structure Fin (n : Nat) where
   isLt : LT.lt val n
 
 attribute [coe] Fin.val
+grind_pattern Fin.isLt => self.val
 
 theorem Fin.eq_of_val_eq {n} : ∀ {i j : Fin n}, Eq i.val j.val → Eq i j
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
@@ -2811,7 +2813,7 @@ def Char.ofNat (n : Nat) : Char :=
     (fun h => Char.ofNatAux n h)
     (fun _ => { val := ⟨BitVec.ofNatLT 0 (of_decide_eq_true rfl)⟩, valid := Or.inl (of_decide_eq_true rfl) })
 
-theorem Char.eq_of_val_eq : ∀ {c d : Char}, Eq c.val d.val → Eq c d
+theorem Char.ext : ∀ {c d : Char}, Eq c.val d.val → Eq c d
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
 theorem Char.val_eq_of_eq : ∀ {c d : Char}, Eq c d → Eq c.val d.val
@@ -2821,12 +2823,12 @@ theorem Char.ne_of_val_ne {c d : Char} (h : Not (Eq c.val d.val)) : Not (Eq c d)
   fun h' => absurd (val_eq_of_eq h') h
 
 theorem Char.val_ne_of_ne {c d : Char} (h : Not (Eq c d)) : Not (Eq c.val d.val) :=
-  fun h' => absurd (eq_of_val_eq h') h
+  fun h' => absurd (ext h') h
 
 instance : DecidableEq Char :=
   fun c d =>
     match decEq c.val d.val with
-    | isTrue h  => isTrue (Char.eq_of_val_eq h)
+    | isTrue h  => isTrue (Char.ext h)
     | isFalse h => isFalse (Char.ne_of_val_ne h)
 
 /-- Returns the number of bytes required to encode this `Char` in UTF-8. -/
@@ -2921,7 +2923,40 @@ protected def List.hasDecEq {α : Type u} [DecidableEq α] : (a b : List α) →
       | isFalse nabs => isFalse (fun h => List.noConfusion h (fun _ habs => absurd habs nabs))
     | isFalse nab => isFalse (fun h => List.noConfusion h (fun hab _ => absurd hab nab))
 
-instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := List.hasDecEq
+instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := fun xs ys =>
+  /-
+  The first match step is expanded to make this instance
+  maximally-definitionally-equivalent to the compare-with-empty-list cases.
+  -/
+  match xs with
+  | .nil => match ys with
+    | .nil => isTrue rfl
+    | .cons _ _ => isFalse List.noConfusion
+  | .cons a as => match ys with
+    | .nil => isFalse List.noConfusion
+    | .cons b bs =>
+      match decEq a b with
+      | isTrue hab =>
+        match List.hasDecEq as bs with
+        | isTrue habs  => isTrue (hab ▸ habs ▸ rfl)
+        | isFalse nabs => isFalse (List.noConfusion · (fun _ habs => absurd habs nabs))
+      | isFalse nab => isFalse (List.noConfusion · (fun hab _ => absurd hab nab))
+
+/--
+Equality with `List.nil` is decidable even if the underlying type does not have decidable equality.
+-/
+instance List.instDecidableNilEq (a : List α) : Decidable (Eq List.nil a) :=
+  match a with
+  | .nil => isTrue rfl
+  | .cons _ _ => isFalse List.noConfusion
+
+/--
+Equality with `List.nil` is decidable even if the underlying type does not have decidable equality.
+-/
+instance List.instDecidableEqNil (a : List α) : Decidable (Eq a List.nil) :=
+  match a with
+  | .nil => isTrue rfl
+  | .cons _ _ => isFalse List.noConfusion
 
 /--
 The length of a list.
@@ -3396,7 +3431,10 @@ Note that in order for this definition to be well-behaved it is necessary to kno
 is unique. To show this, one defines UTF-8 decoding and shows that encoding and decoding are
 mutually inverse. -/
 inductive ByteArray.IsValidUTF8 (b : ByteArray) : Prop
-  /-- Show that a byte -/
+  /--
+  Show that a byte array is valid UTF-8 by exhibiting it as `List.utf8Encode m` for some list `m`
+  of characters.
+   -/
   | intro (m : List Char) (hm : Eq b (List.utf8Encode m))
 
 /--
@@ -3411,11 +3449,11 @@ structure String where ofByteArray ::
   /-- The bytes of the UTF-8 encoding of the string. Since strings have a special representation in
   the runtime, this function actually takes linear time and space at runtime. For efficient access
   to the string's bytes, use `String.utf8ByteSize` and `String.getUTF8Byte`. -/
-  bytes : ByteArray
+  toByteArray : ByteArray
   /-- The bytes of the string form valid UTF-8. -/
-  isValidUTF8 : ByteArray.IsValidUTF8 bytes
+  isValidUTF8 : ByteArray.IsValidUTF8 toByteArray
 
-attribute [extern "lean_string_to_utf8"] String.bytes
+attribute [extern "lean_string_to_utf8"] String.toByteArray
 attribute [extern "lean_string_from_utf8_unchecked"] String.ofByteArray
 
 /--
@@ -3430,7 +3468,7 @@ def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
   | ⟨⟨⟨s₁⟩⟩, _⟩, ⟨⟨⟨s₂⟩⟩, _⟩ =>
     dite (Eq s₁ s₂) (fun h => match s₁, s₂, h with | _, _, Eq.refl _ => isTrue rfl)
       (fun h => isFalse
-        (fun h' => h (congrArg (fun s => Array.toList (ByteArray.data (String.bytes s))) h')))
+        (fun h' => h (congrArg (fun s => Array.toList (ByteArray.data (String.toByteArray s))) h')))
 
 instance : DecidableEq String := String.decEq
 
@@ -3441,10 +3479,10 @@ Character positions (counting the Unicode code points rather than bytes) are rep
 `Nat`s. Indexing a `String` by a `String.Pos.Raw` takes constant time, while character positions need to
 be translated internally to byte positions, which takes linear time.
 
-A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.endPos` and `p` lies on a UTF-8
+A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.rawEndPos` and `p` lies on a UTF-8
 character boundary, see `String.Pos.IsValid`.
 
-There is another type, `String.ValidPos`, which bundles the validity predicate. Using `String.ValidPos`
+There is another type, `String.Pos`, which bundles the validity predicate. Using `String.Pos`
 instead of `String.Pos.Raw` is recommended because it will lead to less error handling and fewer edge cases.
 -/
 structure String.Pos.Raw where
@@ -3472,7 +3510,7 @@ the positions is invalid for the string. Many operations will return unexpected 
 if the start and stop positions are not valid. For this reason, `Substring` will be deprecated in
 favor of `String.Slice`, which always represents a valid substring.
 -/
-structure Substring where
+structure Substring.Raw where
   /-- The underlying string. -/
   str      : String
   /-- The byte position of the start of the string slice. -/
@@ -3480,13 +3518,13 @@ structure Substring where
   /-- The byte position of the end of the string slice. -/
   stopPos  : String.Pos.Raw
 
-instance : Inhabited Substring where
+instance : Inhabited Substring.Raw where
   default := ⟨"", {}, {}⟩
 
 /--
 The number of bytes used by the string's UTF-8 encoding.
 -/
-@[inline, expose] def Substring.bsize : Substring → Nat
+@[inline, expose] def Substring.Raw.bsize : Substring.Raw → Nat
   | ⟨_, b, e⟩ => e.byteIdx.sub b.byteIdx
 
 /--
@@ -3496,32 +3534,32 @@ At runtime, this function takes constant time because the byte length of strings
 -/
 @[extern "lean_string_utf8_byte_size"]
 def String.utf8ByteSize (s : @& String) : Nat :=
-  s.bytes.size
+  s.toByteArray.size
 
 /--
 A UTF-8 byte position that points at the end of a string, just after the last character.
 
-* `"abc".endPos = ⟨3⟩`
-* `"L∃∀N".endPos = ⟨8⟩`
+* `"abc".rawEndPos = ⟨3⟩`
+* `"L∃∀N".rawEndPos = ⟨8⟩`
 -/
-@[inline] def String.endPos (s : String) : String.Pos.Raw where
+@[inline] def String.rawEndPos (s : String) : String.Pos.Raw where
   byteIdx := utf8ByteSize s
 
 /--
 Converts a `String` into a `Substring` that denotes the entire string.
 -/
-@[inline] def String.toSubstring (s : String) : Substring where
+@[inline] def String.toRawSubstring (s : String) : Substring.Raw where
   str      := s
   startPos := {}
-  stopPos  := s.endPos
+  stopPos  := s.rawEndPos
 
 /--
 Converts a `String` into a `Substring` that denotes the entire string.
 
-This is a version of `String.toSubstring` that doesn't have an `@[inline]` annotation.
+This is a version of `String.toRawSubstring` that doesn't have an `@[inline]` annotation.
 -/
-def String.toSubstring' (s : String) : Substring :=
-  s.toSubstring
+def String.toRawSubstring' (s : String) : Substring.Raw :=
+  s.toRawSubstring
 
 /--
 This function will cast a value of type `α` to type `β`, and is a no-op in the
@@ -3703,7 +3741,7 @@ When thinking about `f` as potential side effects, `*>` evaluates first the left
 argument for their side effects, discarding the value of the left argument and returning the value
 of the right argument.
 
-For most applications, `Applicative` or `Monad` should be used rather than `SeqLeft` itself.
+For most applications, `Applicative` or `Monad` should be used rather than `SeqRight` itself.
 -/
 class SeqRight (f : Type u → Type v) : Type (max (u+1) v) where
   /--
@@ -4718,7 +4756,7 @@ inductive SourceInfo where
   The `leading` whitespace is inferred after parsing by `Syntax.updateLeading`. This is because the
   “preceding token” is not well-defined during parsing, especially in the presence of backtracking.
   -/
-  | original (leading : Substring) (pos : String.Pos.Raw) (trailing : Substring) (endPos : String.Pos.Raw)
+  | original (leading : Substring.Raw) (pos : String.Pos.Raw) (trailing : Substring.Raw) (endPos : String.Pos.Raw)
   /--
   Synthetic syntax is syntax that was produced by a metaprogram or by Lean itself (e.g. by a
   quotation). Synthetic syntax is annotated with a source span from the original syntax, which
@@ -4777,7 +4815,7 @@ def getTailPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos
 /--
 Gets the substring representing the trailing whitespace of a `SourceInfo`, if available.
 -/
-def getTrailing? (info : SourceInfo) : Option Substring :=
+def getTrailing? (info : SourceInfo) : Option Substring.Raw :=
   match info with
   | original (trailing := trailing) .. => some trailing
   | _                                  => none
@@ -4872,7 +4910,7 @@ inductive Syntax where
   * `preresolved` is the list of possible declarations this could refer to, populated by
     [quotations](lean-manual://section/quasiquotation).
   -/
-  | ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List Syntax.Preresolved) : Syntax
+  | ident  (info : SourceInfo) (rawVal : Substring.Raw) (val : Name) (preresolved : List Syntax.Preresolved) : Syntax
 
 /-- Create syntax node with 1 child -/
 def Syntax.node1 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ : Syntax) : Syntax :=

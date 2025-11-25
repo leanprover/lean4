@@ -153,6 +153,28 @@ public def mkPropagateEqTrueProof (u v : Expr) (k : Weight) (huv : Expr) (k' : W
   else
     mkPropagateEqTrueProofCore u v k huv k'
 
+def mkPropagateSelfEqTrueProofOffset (u : Expr) (k : Weight) : OrderM Expr := do
+  let declName := match k.strict with
+    | false => ``Grind.Order.le_eq_true_k
+    | true  => ``Grind.Order.lt_eq_true_k
+  let h ← mkOrdRingPrefix declName
+  return mkApp3 h u (toExpr k.k) eagerReflBoolTrue
+
+def mkPropagateSelfEqTrueProofCore (u : Expr) : OrderM Expr := do
+  let h ← mkLePreorderPrefix ``Grind.Order.le_eq_true
+  return mkApp h u
+
+/--
+Constructs a proof of `e = True` where `e` is a term corresponding to the edge `u --(k) --> u`
+with `k` non-negative
+-/
+public def mkPropagateSelfEqTrueProof (u : Expr) (k : Weight) : OrderM Expr := do
+  if (← isRing) then
+    mkPropagateSelfEqTrueProofOffset u k
+  else
+    assert! !k.strict
+    mkPropagateSelfEqTrueProofCore u
+
 /--
 `u < v → (v ≤ u) = False
 -/
@@ -184,6 +206,50 @@ public def mkPropagateEqFalseProof (u v : Expr) (k : Weight) (huv : Expr) (k' : 
   else
     mkPropagateEqFalseProofCore u v k huv k'
 
+def mkPropagateSelfEqFalseProofOffset (u : Expr) (k : Weight) : OrderM Expr := do
+  let declName := match k.strict with
+    | false => ``Grind.Order.le_eq_false_k
+    | true  => ``Grind.Order.lt_eq_false_k
+  let h ← mkOrdRingPrefix declName
+  return mkApp3 h u (toExpr k.k) eagerReflBoolTrue
+
+def mkPropagateSelfEqFalseProofCore (u : Expr) : OrderM Expr := do
+  let h ← mkLeLtPrefix ``Grind.Order.lt_eq_false
+  return mkApp h u
+
+/--
+Constructs a proof of `e = False` where `e` is a term corresponding to the edge `u --(k) --> u` and
+`k` is negative.
+-/
+public def mkPropagateSelfEqFalseProof (u : Expr) (k : Weight) : OrderM Expr := do
+  if (← isRing) then
+    mkPropagateSelfEqFalseProofOffset u k
+  else
+    assert! k.strict
+    mkPropagateSelfEqFalseProofCore u
+
+def mkSelfUnsatProofCore (u : Expr) (h : Expr) : OrderM Expr := do
+  let hf ← mkLeLtPreorderPrefix ``Grind.Order.lt_unsat
+  return mkApp2 hf u h
+
+def mkSelfUnsatProofOffset (u : Expr) (k : Weight) (h : Expr) : OrderM Expr := do
+  let declName := if k.strict then
+    ``Grind.Order.lt_unsat_k
+  else
+    ``Grind.Order.le_unsat_k
+  let hf ← mkOrdRingPrefix declName
+  return mkApp4 hf u (toExpr k.k) eagerReflBoolTrue h
+
+/--
+Returns a proof of `False` using
+`u --(k)--> u` with proof `h` where `k` is negative
+-/
+public def mkSelfUnsatProof (u : Expr) (k : Weight) (h : Expr) : OrderM Expr := do
+  if (← isRing) then
+    mkSelfUnsatProofOffset u k h
+  else
+    mkSelfUnsatProofCore u h
+
 def mkUnsatProofCore (u v : Expr) (k₁ : Weight) (h₁ : Expr) (k₂ : Weight) (h₂ : Expr) : OrderM Expr := do
   let h ← mkTransCoreProof u v u k₁.strict k₂.strict h₁ h₂
   assert! k₁.strict || k₂.strict
@@ -210,8 +276,19 @@ public def mkUnsatProof (u v : Expr) (k₁ : Weight) (h₁ : Expr) (k₂ : Weigh
   else
     mkUnsatProofCore u v k₁ h₁ k₂ h₂
 
-public def mkEqProofOfLeOfLe (u v : Expr) (h₁ : Expr) (h₂ : Expr) : OrderM Expr := do
+public def mkEqProofOfLeOfLeCore (u v : Expr) (h₁ : Expr) (h₂ : Expr) : OrderM Expr := do
   let h ← mkLePartialPrefix ``Grind.Order.eq_of_le_of_le
   return mkApp4 h u v h₁ h₂
+
+public def mkEqProofOfLeOfLeOffset (u v : Expr) (h₁ : Expr) (h₂ : Expr) : OrderM Expr := do
+  let h ← mkLePartialPrefix ``Grind.Order.eq_of_le_of_le_0
+  let h := mkApp h (← getStruct).ringInst?.get!
+  return mkApp4 h u v h₁ h₂
+
+public def mkEqProofOfLeOfLe (u v : Expr) (h₁ : Expr) (h₂ : Expr) : OrderM Expr := do
+  if (← isRing) then
+    mkEqProofOfLeOfLeOffset  u v h₁ h₂
+  else
+    mkEqProofOfLeOfLeCore u v h₁ h₂
 
 end Lean.Meta.Grind.Order

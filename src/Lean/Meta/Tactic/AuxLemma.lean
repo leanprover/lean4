@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.AddDecl
-public import Lean.Meta.Basic
 public import Lean.DefEqAttrib
 
 public section

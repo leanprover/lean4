@@ -6,10 +6,8 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Count
 public import Init.Data.List.Find
 public import Init.Data.List.MinMax
-public import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Order
 
 public section

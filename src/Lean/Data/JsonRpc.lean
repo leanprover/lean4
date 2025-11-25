@@ -7,7 +7,6 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 module
 
 prelude
-public import Init.System.IO
 public import Lean.Data.Json.Stream
 public import Lean.Data.Json.FromToJson.Basic
 
@@ -26,7 +25,7 @@ inductive RequestID where
   | str (s : String)
   | num (n : JsonNumber)
   | null
-  deriving Inhabited, BEq, Ord
+  deriving Inhabited, BEq, Hashable, Ord
 
 instance : OfNat RequestID n := ⟨RequestID.num n⟩
 
@@ -308,6 +307,12 @@ inductive MessageMetaData where
   | responseError (id : RequestID) (code : ErrorCode) (message : String) (data? : Option Json)
   deriving Inhabited
 
+def Message.metaData : Message → MessageMetaData
+  | .request id method .. => .request id method
+  | .notification method .. => .notification method
+  | .response id .. => .response id
+  | .responseError id code message data? => .responseError id code message data?
+
 def MessageMetaData.toMessage : MessageMetaData → Message
   | .request id method => .request id method none
   | .notification method => .notification method none
@@ -394,6 +399,24 @@ Namely:
 -/
 def parseMessageMetaData (input : String) : Except String MessageMetaData :=
   messageMetaDataParser input |>.run input
+
+public inductive MessageDirection where
+  | clientToServer
+  | serverToClient
+  deriving Inhabited, FromJson, ToJson
+
+inductive MessageKind where
+  | request
+  | notification
+  | response
+  | responseError
+  deriving FromJson, ToJson
+
+def MessageKind.ofMessage : Message → MessageKind
+  | .request .. => .request
+  | .notification .. => .notification
+  | .response .. => .response
+  | .responseError .. => .responseError
 
 end Lean.JsonRpc
 

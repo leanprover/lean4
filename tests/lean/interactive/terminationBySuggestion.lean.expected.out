@@ -4,7 +4,6 @@
  "context": {"diagnostics": []}}
 [{"title": "Try this: termination_by (n, m)",
   "kind": "quickfix",
-  "isPreferred": true,
   "edit":
   {"documentChanges":
    [{"textDocument":
@@ -20,7 +19,6 @@
  "context": {"diagnostics": []}}
 [{"title": "Try this: termination_by structural n",
   "kind": "quickfix",
-  "isPreferred": true,
   "edit":
   {"documentChanges":
    [{"textDocument":
@@ -36,7 +34,6 @@
  "context": {"diagnostics": []}}
 [{"title": "Try this: termination_by structural x => x",
   "kind": "quickfix",
-  "isPreferred": true,
   "edit":
   {"documentChanges":
    [{"textDocument":
@@ -52,7 +49,6 @@
  "context": {"diagnostics": []}}
 [{"title": "Try this: termination_by n",
   "kind": "quickfix",
-  "isPreferred": true,
   "edit":
   {"documentChanges":
    [{"textDocument":
@@ -68,7 +64,6 @@
  "context": {"diagnostics": []}}
 [{"title": "Try this: termination_by x1 => x1",
   "kind": "quickfix",
-  "isPreferred": true,
   "edit":
   {"documentChanges":
    [{"textDocument":

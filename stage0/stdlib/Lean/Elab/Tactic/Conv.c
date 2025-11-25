@@ -13,45 +13,45 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Lean_Elab_Tactic_Conv_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Conv_Congr(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Conv_Rewrite(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Conv_Change(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Conv_Lets(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Conv_Simp(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Conv_Pattern(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Conv_Delta(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Conv_Unfold(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Tactic_Conv_Basic(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Conv_Congr(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Conv_Rewrite(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Conv_Change(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Conv_Lets(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Conv_Simp(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Conv_Pattern(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Conv_Delta(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Conv_Unfold(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Conv(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Conv(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_Tactic_Conv_Basic(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Conv_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Conv_Congr(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Conv_Congr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Conv_Rewrite(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Conv_Rewrite(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Conv_Change(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Conv_Change(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Conv_Lets(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Conv_Lets(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Conv_Simp(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Conv_Simp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Conv_Pattern(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Conv_Pattern(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Conv_Delta(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Conv_Delta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Conv_Unfold(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Conv_Unfold(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

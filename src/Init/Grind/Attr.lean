@@ -130,7 +130,7 @@ If `grind!` is used, then only minimal indexable subexpressions are considered.
 syntax grindLR     := patternIgnore("⇒" <|> "=>")
 /--
 The `.` modifier instructs `grind` to select a multi-pattern by traversing the conclusion of the
-theorem, and then the hypotheses from eft to right. We say this is the default modifier.
+theorem, and then the hypotheses from left to right. We say this is the default modifier.
 Each time it encounters a subexpression which covers an argument which was not
 previously covered, it adds that subexpression as a pattern, until all arguments have been covered.
 If `grind!` is used, then only minimal indexable subexpressions are considered.
@@ -188,6 +188,16 @@ where the term `f` contains at least one constant symbol.
 -/
 syntax grindInj    := &"inj"
 /--
+The `funCC` modifier marks global functions that support **function-valued congruence closure**.
+Given an application `f a₁ a₂ … aₙ`, when `funCC := true`,
+`grind` generates and tracks equalities for all partial applications:
+- `f a₁`
+- `f a₁ a₂`
+- `…`
+- `f a₁ a₂ … aₙ`
+-/
+syntax grindFunCC  := &"funCC"
+/--
 `symbol <prio>` sets the priority of a constant for `grind`’s pattern-selection
 procedure. `grind` prefers patterns that contain higher-priority symbols.
 Example:
@@ -214,7 +224,7 @@ syntax grindMod :=
     grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd
     <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
     <|> grindCases <|> grindIntro <|> grindExt <|> grindGen <|> grindSym <|> grindInj
-    <|> grindDef
+    <|> grindFunCC <|> grindDef
 
 /--
 Marks a theorem or definition for use by the `grind` tactic.

@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Range.Polymorphic.Basic
 public import Init.Data.Vector.Basic
 
 public section

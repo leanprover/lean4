@@ -7,8 +7,6 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-public import Std.Sat.AIG.CachedGatesLemmas
-public import Std.Sat.AIG.LawfulVecOperator
 public import Std.Sat.AIG.If
 
 @[expose] public section

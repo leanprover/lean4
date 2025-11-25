@@ -6,12 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Grind.Ring.Basic
 public import Init.Grind.Ordered.Order
 public import Init.GrindInstances.ToInt
-public import Init.Data.BitVec.Basic
 import all Init.Data.BitVec.Basic
-public import Init.Grind.ToInt
 import all Init.Grind.ToInt
 
 public section

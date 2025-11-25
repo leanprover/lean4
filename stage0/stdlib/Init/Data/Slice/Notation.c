@@ -101,6 +101,7 @@ static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__te
 static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__0;
 static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__68;
 static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__63;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__22;
 static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__54;
 static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__26;
@@ -143,7 +144,6 @@ static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__te
 static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__73;
 static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__87;
 LEAN_EXPORT lean_object* l_Std_Rcc_Sliceable_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__70;
 static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__85;
 static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__89;
@@ -603,7 +603,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__32;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -716,7 +716,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__44;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -796,7 +796,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__52;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -876,7 +876,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__60;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -956,7 +956,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__68;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1036,7 +1036,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__76;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1116,7 +1116,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__84;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1196,7 +1196,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__92;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1276,7 +1276,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__100;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1963,13 +1963,13 @@ return x_260;
 }
 }
 }
-lean_object* initialize_Init_Data_Range_Polymorphic_PRange(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Range_Polymorphic_PRange(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Slice_Notation(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Slice_Notation(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Range_Polymorphic_PRange(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Range_Polymorphic_PRange(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__0 = _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__0();

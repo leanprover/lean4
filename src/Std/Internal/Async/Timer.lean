@@ -69,17 +69,18 @@ def stop (s : Sleep) : IO Unit :=
   s.native.stop
 
 /--
-Create a `Selector` that resolves once `s` has finished. Note that calling this function starts `s`
-if it hasn't already started.
+Create a `Selector` that resolves once `s` has finished. `s` only starts when it runs inside of a Selectable.
 -/
-def selector (s : Sleep) : Async (Selector Unit) := do
-  return {
+def selector (s : Sleep) : Selector Unit :=
+  {
     tryFn := do
       let sleepWaiter ← s.native.next
       if ← sleepWaiter.isResolved then
         return some ()
       else
+        s.native.cancel
         return none
+
     registerFn waiter := do
       let sleepWaiter ← s.native.next
       BaseIO.chainTask sleepWaiter.result? fun
@@ -107,7 +108,7 @@ Return a `Selector` that completes after `duration`.
 -/
 def Selector.sleep (duration : Std.Time.Millisecond.Offset) : Async (Selector Unit) := do
   let sleeper ← Sleep.mk duration
-  sleeper.selector
+  return sleeper.selector
 
 /--
 `Interval` can be used to repeatedly wait for some duration like a clock.

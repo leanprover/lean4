@@ -9,7 +9,6 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 import Init.Grind.Ring.Field
 import Init.Grind.Ring.Envelope
 import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.SynthInstance
 import Lean.Meta.Tactic.Grind.Arith.Insts
 public section
 namespace Lean.Meta.Grind.Arith.CommRing

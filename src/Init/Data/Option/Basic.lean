@@ -15,7 +15,40 @@ public section
 
 namespace Option
 
-deriving instance DecidableEq for Option
+instance instDecidableEq {α} [inst : DecidableEq α] : DecidableEq (Option α) := fun a b =>
+  /-
+  Structured for compatibility with the decidable-equality-with-none instances.
+  -/
+  match a with
+  | none => match b with
+    | none => .isTrue rfl
+    | some _ => .isFalse Option.noConfusion
+  | some a => match b with
+    | none => .isFalse Option.noConfusion
+    | some b => match inst a b with
+      | .isTrue h => .isTrue (h ▸ rfl)
+      | .isFalse n => .isFalse (Option.noConfusion · n)
+
+/--
+Equality with `none` is decidable even if the wrapped type does not have decidable equality.
+-/
+instance decidableEqNone (o : Option α) : Decidable (o = none) :=
+  /- We use a `match` instead of transferring from `isNone_iff_eq_none` for
+    compatibility with the `DecidableEq` instance. -/
+  match o with
+  | none => .isTrue rfl
+  | some _ => .isFalse Option.noConfusion
+
+/--
+Equality with `none` is decidable even if the wrapped type does not have decidable equality.
+-/
+instance decidableNoneEq (o : Option α) : Decidable (none = o) :=
+  /- We use a `match` instead of transferring from `isNone_iff_eq_none` for
+    compatibility with the `DecidableEq` instance. -/
+  match o with
+  | none => .isTrue rfl
+  | some _ => .isFalse Option.noConfusion
+
 deriving instance BEq for Option
 
 @[simp, grind =] theorem getD_none : getD none a = a := rfl
@@ -389,27 +422,6 @@ Examples:
 @[inline] def toArray : Option α → Array α
   | none => List.toArray .nil
   | some a => List.toArray (.cons a .nil)
-
-/--
-Applies a function to a two optional values if both are present. Otherwise, if one value is present,
-it is returned and the function is not used.
-
-The value is `some (f a b)` if the inputs are `some a` and `some b`. Otherwise, the behavior is
-equivalent to `Option.orElse`. If only one input is `some x`, then the value is `some x`. If both
-are `none`, then the value is `none`.
-
-Examples:
- * `Option.liftOrGet (· + ·) none (some 3) = some 3`
- * `Option.liftOrGet (· + ·) (some 2) (some 3) = some 5`
- * `Option.liftOrGet (· + ·) (some 2) none = some 2`
- * `Option.liftOrGet (· + ·) none none = none`
--/
-@[deprecated merge (since := "2025-04-04")]
-def liftOrGet (f : α → α → α) : Option α → Option α → Option α
-  | none, none => none
-  | some a, none => some a
-  | none, some b => some b
-  | some a, some b => some (f a b)
 
 /-- Lifts a relation `α → β → Prop` to a relation `Option α → Option β → Prop` by just adding
 `none ~ none`. -/

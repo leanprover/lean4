@@ -38,8 +38,8 @@ def test (p : ParserFn) (input : String) : IO String := do
   let stk := ppStack <| s'.stxStack.extract 0 s'.stxStack.size
 
   let remaining : String :=
-    if s'.pos ≥ input.endPos then "All input consumed."
-    else s!"Remaining:\n{repr (input.extract s'.pos input.endPos)}"
+    if s'.pos ≥ input.rawEndPos then "All input consumed."
+    else s!"Remaining:\n{repr (input.extract s'.pos input.rawEndPos)}"
 
   if s'.allErrors.isEmpty then
     return s!"Success! Final stack:\n{stk.pretty 50}\n{remaining}"
@@ -47,17 +47,17 @@ def test (p : ParserFn) (input : String) : IO String := do
     return s!"Failure @{p} ({ictx.fileMap.toPosition p}): {toString err}\n\
       Final stack:\n\
       {stk.pretty 50}\n\
-      Remaining: {repr $ input.extract p input.endPos}"
+      Remaining: {repr $ input.extract p input.rawEndPos}"
   else
     let mut errors := ""
     for (p, _, e) in s'.allErrors.qsort errLt do
       errors :=
         errors ++
         s!"  @{p} ({ictx.fileMap.toPosition p}): {toString e}\n" ++
-        s!"    {repr <| input.extract p input.endPos}\n"
+        s!"    {repr <| input.extract p input.rawEndPos}\n"
     return s!"{s'.allErrors.size} failures:\n{errors}\nFinal stack:\n{stk.pretty 50}"
 where
-  errLt (x y : String.Pos × SyntaxStack × Error) : Bool :=
+  errLt (x y : String.Pos.Raw × SyntaxStack × Error) : Bool :=
     let (p1, _, e1) := x
     let (p2, _, e2) := y
     p1 < p2 || p1 == p2 && toString e1 < toString e2
@@ -106,7 +106,7 @@ def main : List String → IO UInt32
       | IO.eprintln "Expected file in current directory"
         return 4
     let kind := file.takeWhile (· != '_')
-    let some p := testConfigs.lookup kind
+    let some p := testConfigs.lookup kind.copy
       | IO.eprintln s!"Not found in test configs: {kind}"
         return 5
     IO.print <| ← test p (← IO.FS.readFile inputFile)

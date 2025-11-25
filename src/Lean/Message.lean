@@ -9,12 +9,9 @@ module
 
 prelude
 public import Init.Data.Slice.Array
-public import Lean.Data.Position
-public import Lean.Data.OpenDecl
-public import Lean.MetavarContext
-public import Lean.Environment
 public import Lean.Util.PPExt
 public import Lean.Util.Sorry
+import Init.Data.String.Search
 
 public section
 
@@ -707,9 +704,9 @@ class ToMessageData (α : Type) where
 export ToMessageData (toMessageData)
 
 def stringToMessageData (str : String) : MessageData :=
-  let lines := str.split (· == '\n')
+  let lines := str.split '\n'
   let lines := lines.map (MessageData.ofFormat ∘ format)
-  MessageData.joinSep lines (MessageData.ofFormat Format.line)
+  MessageData.joinSep lines.toList (MessageData.ofFormat Format.line)
 
 instance [ToFormat α] : ToMessageData α := ⟨MessageData.ofFormat ∘ format⟩
 instance : ToMessageData Expr          := ⟨MessageData.ofExpr⟩

@@ -39,16 +39,18 @@ theorem ex3 (h : L.cons x xs = L.cons y ys) : x = y ∧ xs = ys := by
 info: theorem ex3._proof_1_1.{u_1} : ∀ {α : Type u_1} {x : α} {xs : L α} {y : α} {ys : L α},
   L.cons x xs = L.cons y ys → x = y ∧ xs = ys :=
 fun {α} {x} {xs} {y} {ys} h =>
-  L.cons.noConfusion (x = y ∧ xs = ys) x xs y ys h fun x_eq xs_eq =>
-    Classical.byContradiction
-      (Lean.Grind.intro_with_eq (¬(x = y ∧ xs = ys)) (¬x = y ∨ ¬xs = ys) False (Lean.Grind.not_and (x = y) (xs = ys))
-        fun h_1 =>
-        Eq.mp
-          (Eq.trans (Eq.symm (eq_true x_eq))
+  Classical.byContradiction
+    (Lean.Grind.intro_with_eq (¬(x = y ∧ xs = ys)) (¬x = y ∨ ¬xs = ys) False (Lean.Grind.not_and (x = y) (xs = ys))
+      fun h_1 =>
+      id
+        (Eq.mp
+          (Eq.trans (Eq.symm (eq_true (L.cons.inj (id h)).1))
             (Lean.Grind.eq_false_of_not_eq_true
-              (Eq.trans (Eq.symm (Lean.Grind.or_eq_of_eq_false_right (Lean.Grind.not_eq_of_eq_true (eq_true xs_eq))))
+              (Eq.trans
+                (Eq.symm
+                  (Lean.Grind.or_eq_of_eq_false_right (Lean.Grind.not_eq_of_eq_true (eq_true (L.cons.inj (id h)).2))))
                 (eq_true h_1))))
-          True.intro)
+          True.intro))
 -/
 #guard_msgs in #print ex3._proof_1_1
 

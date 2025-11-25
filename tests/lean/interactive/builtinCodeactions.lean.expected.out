@@ -5,7 +5,6 @@
 [{"title":
   "Try this: simp only [AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,\n    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] at h",
   "kind": "quickfix",
-  "isPreferred": true,
   "edit":
   {"documentChanges":
    [{"textDocument": {"version": 1, "uri": "file:///builtinCodeactions.lean"},

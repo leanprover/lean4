@@ -6,9 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Attributes
 public import Lean.Compiler.InitAttr
-public import Lean.ToExpr
 import Lean.ExtraModUses
 
 public section

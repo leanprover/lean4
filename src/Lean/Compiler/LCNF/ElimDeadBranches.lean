@@ -6,9 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Compiler.LCNF.CompilerM
-public import Lean.Compiler.LCNF.PassManager
-public import Lean.Compiler.LCNF.PhaseExt
 public import Lean.Compiler.LCNF.InferType
 
 public section
@@ -176,9 +173,9 @@ def ofLCNFLit : LCNF.LitValue → Value
 -- TODO: We could make this much more precise but the payoff is questionable
 | .str .. => .top
 
-partial def proj : Value → Nat → Value
+partial def proj (env : Environment) : Value → Nat → Value
 | .ctor _ vs , i => vs.getD i bot
-| .choice vs, i => vs.foldl (fun r v => merge r (proj v i)) bot
+| .choice vs, i => vs.foldl (fun r v => widening env r (proj env v i)) bot
 | v, _ => v
 
 /--
@@ -354,8 +351,9 @@ def findArgValue (arg : Arg) : InterpM Value := do
 Update the assignment of `var` by merging the current value with `newVal`.
 -/
 def updateVarAssignment (var : FVarId) (newVal : Value) : InterpM Unit := do
+  let env ← getEnv
   let val ← findVarValue var
-  let updatedVal := .merge val newVal
+  let updatedVal := .widening env val newVal
   modifyAssignment (·.insert var updatedVal)
 
 /--
@@ -381,10 +379,11 @@ a partial application and set the values of the remaining parameters to
 -/
 def updateFunDeclParamsAssignment (params : Array Param) (args : Array Arg) : InterpM Bool := do
   let mut ret := false
+  let env ← getEnv
   for param in params, arg in args do
     let paramVal ← findVarValue param.fvarId
     let argVal ← findArgValue arg
-    let newVal := .merge paramVal argVal
+    let newVal := .widening env paramVal argVal
     if newVal != paramVal then
       modifyAssignment (·.insert param.fvarId newVal)
       ret := true
@@ -463,7 +462,9 @@ where
   interpLetValue (letVal : LetValue) : InterpM Value := do
     match letVal with
     | .lit val => return .ofLCNFLit val
-    | .proj _ idx struct => return (← findVarValue struct).proj idx
+    | .proj _ idx struct =>
+      let env ← getEnv
+      return (← findVarValue struct).proj env idx
     | .const declName _ args =>
       let env ← getEnv
       args.forM handleFunArg

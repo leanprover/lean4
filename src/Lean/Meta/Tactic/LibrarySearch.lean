@@ -6,7 +6,6 @@ Authors: Gabriel Ebner, Joe Hendrix, Kim Morrison
 module
 
 prelude
-public import Init.Data.Nat.MinMax
 public import Lean.Meta.LazyDiscrTree
 public import Lean.Meta.Tactic.SolveByElim
 public import Lean.Util.Heartbeats

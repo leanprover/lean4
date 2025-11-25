@@ -13,37 +13,37 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Ord_BitVec(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Ord_SInt(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Ord_String(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Ord_UInt(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Ord_Vector(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Ord_Array(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Ord_BitVec(uint8_t builtin);
+lean_object* initialize_Init_Data_Ord_SInt(uint8_t builtin);
+lean_object* initialize_Init_Data_Ord_String(uint8_t builtin);
+lean_object* initialize_Init_Data_Ord_UInt(uint8_t builtin);
+lean_object* initialize_Init_Data_Ord_Vector(uint8_t builtin);
+lean_object* initialize_Init_Data_Ord_Array(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Ord(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Ord(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Ord_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Ord_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Ord_BitVec(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Ord_BitVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Ord_SInt(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Ord_SInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Ord_String(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Ord_String(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Ord_UInt(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Ord_UInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Ord_Vector(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Ord_Vector(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Ord_Array(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Ord_Array(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

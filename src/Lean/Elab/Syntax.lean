@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Elab.Command
 public import Lean.Parser.Syntax
-public import Lean.Elab.Util
 public meta import Lean.Parser.Syntax
 import Lean.ExtraModUses
 
@@ -245,12 +244,12 @@ where
 
   isValidAtom (s : String) : Bool :=
     -- Pretty-printing instructions shouldn't affect validity
-    let s := s.trim
+    let s := s.trimAscii.copy
     !s.isEmpty &&
     (s.front != '\'' || "''".isPrefixOf s) &&
     s.front != '\"' &&
     !(isIdBeginEscape s.front) &&
-    !(s.front == '`' && (s.endPos == ⟨1⟩ || isIdFirst (s.get ⟨1⟩) || isIdBeginEscape (s.get ⟨1⟩))) &&
+    !(s.front == '`' && (s.rawEndPos == ⟨1⟩ || isIdFirst (String.Pos.Raw.get s ⟨1⟩) || isIdBeginEscape (String.Pos.Raw.get s ⟨1⟩))) &&
     !s.front.isDigit &&
     !(s.any Char.isWhitespace)
 
@@ -332,7 +331,7 @@ private partial def mkNameFromParserSyntax (catName : Name) (stx : Syntax) : Mac
 where
   visit (stx : Syntax) (acc : String) : String :=
     match stx.isStrLit? with
-    | some val => acc ++ (val.trim.map fun c => if c.isWhitespace then '_' else c).capitalize
+    | some val => acc ++ (val.trimAscii.copy.map fun c => if c.isWhitespace then '_' else c).capitalize
     | none =>
       match stx with
       | Syntax.node _ k args =>

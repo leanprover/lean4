@@ -7,11 +7,6 @@ module
 
 prelude
 public import Init.Simproc
-public import Init.Data.Nat.Simproc
-public import Lean.Util.SafeExponentiation
-public import Lean.Meta.LitValues
-public import Lean.Meta.Offset
-public import Lean.Meta.Tactic.Simp.Simproc
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Util
 
 public section

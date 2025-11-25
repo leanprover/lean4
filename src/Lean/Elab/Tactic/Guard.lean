@@ -9,8 +9,6 @@ prelude
 public import Init.Guard
 public import Lean.Elab.Command
 public import Lean.Elab.Tactic.Conv.Basic
-public import Lean.Meta.Basic
-public import Lean.Meta.Eval
 
 public section
 

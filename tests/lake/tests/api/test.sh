@@ -3,5 +3,8 @@ source ../common.sh
 
 ./clean.sh
 
-# Run DSK tests
+# Run DSL tests
 test_run -f keys.lean resolve-deps
+
+# Run Lean tests
+test_run env lean vers.lean

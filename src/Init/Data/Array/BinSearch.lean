@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Array.Basic
 public import Init.Data.Int.DivMod.Lemmas
-public import Init.Omega
 
 public section
 universe u v

@@ -6,11 +6,9 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
-import Init.Grind.Ring.CommSolver
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
-import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
 import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
 import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
@@ -56,18 +54,19 @@ private def processNewCommRingEq' (a b : Expr) : LinearM Unit := do
   let some lhs ← withRingM <| CommRing.reify? a (skipVar := false) | return ()
   let some rhs ← withRingM <| CommRing.reify? b (skipVar := false) | return ()
   let generation := max (← getGeneration a) (← getGeneration b)
-  let p' := (lhs.sub rhs).toPoly
-  let lhs' ← p'.toIntModuleExpr generation
-  let some lhs' ← reify? lhs' (skipVar := false) generation | return ()
-  let p := lhs'.norm
+  let p := (lhs.sub rhs).toPoly
+  let c : RingEqCnstr := { p, h := .core a b lhs rhs }
+  let lhs ← p.toIntModuleExpr generation
+  let some lhs ← reify? lhs (skipVar := false) generation | return ()
+  let p := lhs.norm
   if p == .nil then return ()
-  let c₁ : IneqCnstr := { p, strict := false, h := .ofCommRingEq a b lhs rhs p' lhs' }
+  let c₁ : IneqCnstr := { p, strict := false, h := .ringEq c lhs }
   c₁.assert
+  let c := { c with p := c.p.mulConst (-1), h := .symm c }
   let p := p.mul (-1)
-  let p' := p'.mulConst (-1)
-  let lhs' ← p'.toIntModuleExpr generation
-  let some lhs' ← reify? lhs' (skipVar := false) generation | return ()
-  let c₂ : IneqCnstr := { p, strict := false, h := .ofCommRingEq b a rhs lhs p' lhs' }
+  let lhs ← c.p.toIntModuleExpr generation
+  let some lhs ← reify? lhs (skipVar := false) generation | return ()
+  let c₂ : IneqCnstr := { p, strict := false, h := .ringEq c lhs }
   c₂.assert
 
 private def processNewIntModuleEq' (a b : Expr) : LinearM Unit := do
@@ -273,12 +272,13 @@ def processNewEq (a b : Expr) : GoalM Unit := do
 private def processNewCommRingDiseq (a b : Expr) : LinearM Unit := do
   let some lhs ← withRingM <| CommRing.reify? a (skipVar := false) | return ()
   let some rhs ← withRingM <| CommRing.reify? b (skipVar := false) | return ()
+  let p := (lhs.sub rhs).toPoly
+  let c : RingDiseqCnstr := { p, h := .core a b lhs rhs }
   let generation := max (← getGeneration a) (← getGeneration b)
-  let p' := (lhs.sub rhs).toPoly
-  let lhs' ← p'.toIntModuleExpr generation
-  let some lhs' ← reify? lhs' (skipVar := false) generation | return ()
-  let p := lhs'.norm
-  let c : DiseqCnstr := { p, h := .coreCommRing a b lhs rhs p' lhs' }
+  let lhs ← p.toIntModuleExpr generation
+  let some lhs ← reify? lhs (skipVar := false) generation | return ()
+  let p := lhs.norm
+  let c : DiseqCnstr := { p, h := .ring c lhs }
   c.assert
 
 private def processNewIntModuleDiseq (a b : Expr) : LinearM Unit := do

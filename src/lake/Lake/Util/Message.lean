@@ -6,8 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lean.Message
-public import Lean.Exception
 public import Lean.Parser.Basic
 
 open Lean Parser

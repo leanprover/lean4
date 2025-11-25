@@ -6,13 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Array.MapIdx
-public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
-public import Init.Data.Vector.Basic
 import all Init.Data.Vector.Basic
 public import Init.Data.Vector.Attach
-public import Init.Data.Vector.Lemmas
 
 public section
 
@@ -220,9 +216,6 @@ theorem mapFinIdx_eq_replicate_iff {xs : Vector α n} {f : (i : Nat) → α → 
   rcases xs with ⟨xs, rfl⟩
   simp [Array.mapFinIdx_eq_replicate_iff]
 
-@[deprecated mapFinIdx_eq_replicate_iff (since := "2025-03-18")]
-abbrev mapFinIdx_eq_mkVector_iff := @mapFinIdx_eq_replicate_iff
-
 @[simp, grind =] theorem mapFinIdx_reverse {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} :
     xs.reverse.mapFinIdx f = (xs.mapFinIdx (fun i a h => f (n - 1 - i) a (by omega))).reverse := by
   rcases xs with ⟨xs, rfl⟩
@@ -354,9 +347,6 @@ theorem mapIdx_eq_replicate_iff {xs : Vector α n} {f : Nat → α → β} {b : 
     mapIdx f xs = replicate n b ↔ ∀ (i : Nat) (h : i < n), f i xs[i] = b := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.mapIdx_eq_replicate_iff]
-
-@[deprecated mapIdx_eq_replicate_iff (since := "2025-03-18")]
-abbrev mapIdx_eq_mkVector_iff := @mapIdx_eq_replicate_iff
 
 @[simp, grind =] theorem mapIdx_reverse {xs : Vector α n} {f : Nat → α → β} :
     xs.reverse.mapIdx f = (mapIdx (fun i => f (n - 1 - i)) xs).reverse := by

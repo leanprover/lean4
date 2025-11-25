@@ -7,10 +7,8 @@ Authors: Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Data.Lsp.Extra
 public import Lean.Server.Requests
 
-public import Lean.Server.Rpc.Basic
 
 public section
 

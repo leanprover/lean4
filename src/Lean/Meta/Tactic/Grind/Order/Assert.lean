@@ -75,7 +75,19 @@ public def propagateEqTrue (c : Cnstr NodeId) (e : Expr) (u v : NodeId) (k k' : 
   let mut h ← mkPropagateEqTrueProof u v k kuv k'
   if let some he := c.h? then
     h := mkApp4 (mkConst ``Grind.Order.eq_trans_true) e c.e he h
-  if let some (e', he) := (← get').cnstrsMapInv.find? { expr := e } then
+  if let some (e', he) := (← get').termMapInv.find? { expr := e } then
+    h := mkApp4 (mkConst ``Grind.Order.eq_trans_true) e' e he h
+    pushEqTrue e' h
+  else
+    pushEqTrue e h
+
+public def propagateSelfEqTrue (c : Cnstr NodeId) (e : Expr) : OrderM Unit := do
+  let u ← getExpr c.u
+  assert! c.u == c.v
+  let mut h ← mkPropagateSelfEqTrueProof u c.getWeight
+  if let some he := c.h? then
+    h := mkApp4 (mkConst ``Grind.Order.eq_trans_true) e c.e he h
+  if let some (e', he) := (← get').termMapInv.find? { expr := e } then
     h := mkApp4 (mkConst ``Grind.Order.eq_trans_true) e' e he h
     pushEqTrue e' h
   else
@@ -88,7 +100,19 @@ public def propagateEqFalse (c : Cnstr NodeId) (e : Expr) (u v : NodeId) (k k' :
   let mut h ← mkPropagateEqFalseProof u v k kuv k'
   if let some he := c.h? then
     h := mkApp4 (mkConst ``Grind.Order.eq_trans_false) e c.e he h
-  if let some (e', he) := (← get').cnstrsMapInv.find? { expr := e } then
+  if let some (e', he) := (← get').termMapInv.find? { expr := e } then
+    h := mkApp4 (mkConst ``Grind.Order.eq_trans_false) e' e he h
+    pushEqFalse e' h
+  else
+    pushEqFalse e h
+
+public def propagateSelfEqFalse (c : Cnstr NodeId) (e : Expr) : OrderM Unit := do
+  let u ← getExpr c.u
+  assert! c.u == c.v
+  let mut h ← mkPropagateSelfEqFalseProof u c.getWeight
+  if let some he := c.h? then
+    h := mkApp4 (mkConst ``Grind.Order.eq_trans_false) e c.e he h
+  if let some (e', he) := (← get').termMapInv.find? { expr := e } then
     h := mkApp4 (mkConst ``Grind.Order.eq_trans_false) e' e he h
     pushEqFalse e' h
   else
@@ -105,57 +129,94 @@ def propagatePending : OrderM Unit := do
     | .eq u v =>
       let ue ← getExpr u
       let ve ← getExpr v
-      unless (← isEqv ue ve) do
+      if (← alreadyInternalized ue <&&> alreadyInternalized ve) then
+        unless (← isEqv ue ve) do
+          let huv ← mkProofForPath u v
+          let hvu ← mkProofForPath v u
+          let h ← mkEqProofOfLeOfLe ue ve huv hvu
+          pushEq ue ve h
+      -- Checks whether `ue` and `ve` are auxiliary terms
+      let some (ue', h₁) ← getOriginal? ue | continue
+      let some (ve', h₂) ← getOriginal? ve | continue
+      if (← alreadyInternalized ue' <&&> alreadyInternalized ve') then
+      unless (← isEqv ue' ve') do
         let huv ← mkProofForPath u v
         let hvu ← mkProofForPath v u
         let h ← mkEqProofOfLeOfLe ue ve huv hvu
-        pushEq ue ve h
+        /-
+        We have
+        - `h₁ : ↑ue' = ue`
+        - `h₂ : ↑ve' = ve`
+        - `h : ue = ve`
+        **Note**: We currently only support `Nat`. Thus `↑a` is actually
+        `NatCast.natCast a`. If we decide to support arbitrary semirings
+        in this module, we must adjust this code.
+        -/
+        pushEq ue' ve' <| mkApp7 (mkConst ``Grind.Order.nat_eq) ue' ve' ue ve h₁ h₂ h
+where
+  /--
+  If `e` is an auxiliary term used to represent some term `a`, returns
+  `some (a, h)` s.t. `h : ↑a = e`
+  -/
+  getOriginal? (e : Expr) : GoalM (Option (Expr × Expr)) := do
+    return (← get').termMapInv.find? { expr := e }
+
+/--
+Returns `true` if `e` is already `True` in the `grind` core.
+Recall that `e` may be an auxiliary term created for a term `e'` (see `cnstrsMapInv`).
+-/
+private def isAlreadyTrue (e : Expr) : OrderM Bool := do
+  if let some (e', _) := (← get').termMapInv.find? { expr := e } then
+    alreadyInternalized e' <&&> isEqTrue e'
+  else
+    alreadyInternalized e <&&> isEqTrue e
 
 /--
 Given `e` represented by constraint `c` (from `u` to `v`).
 Checks whether `e = True` can be propagated using the path `u --(k)--> v`.
 If it can, adds a new entry to propagation list.
 -/
-def checkEqTrue (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : OrderM Bool := do
-  if (← alreadyInternalized e <&&> isEqTrue e) then return true
+def checkEqTrue (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : OrderM Unit := do
+  if (← isAlreadyTrue e) then return ()
   let k' := c.getWeight
   trace[grind.debug.order.check_eq_true] "{← getExpr u}, {← getExpr v}, {k}, {k'}, {← c.pp}"
   if k ≤ k' then
     pushToPropagate <| .eqTrue c e u v k k'
-    return true
+
+/--
+Returns `true` if `e` is already `False` in the `grind` core.
+Recall that `e` may be an auxiliary term created for a term `e'` (see `cnstrsMapInv`).
+-/
+private def isAlreadyFalse (e : Expr) : OrderM Bool := do
+  if let some (e', _) := (← get').termMapInv.find? { expr := e } then
+    alreadyInternalized e' <&&> isEqFalse e'
   else
-    return false
+    alreadyInternalized e <&&> isEqFalse e
 
 /--
 Given `e` represented by constraint `c` (from `v` to `u`).
 Checks whether `e = False` can be propagated using the path `u --(k)--> v`.
 If it can, adds a new entry to propagation list.
 -/
-def checkEqFalse (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : OrderM Bool := do
-  if (← alreadyInternalized e <&&> isEqFalse e) then return true
+def checkEqFalse (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : OrderM Unit := do
+  if (← isAlreadyFalse e) then return ()
   let k' := c.getWeight
   trace[grind.debug.order.check_eq_false] "{← getExpr u}, {← getExpr v}, {k}, {k'} {← c.pp}"
   if (k + k').isNeg  then
     pushToPropagate <| .eqFalse c e u v k k'
-    return true
-  return false
 
 /--
 Auxiliary function for implementing theory propagation.
 Traverses the constraints `c` (representing an expression `e`) s.t.
-`c.u = u` and `c.v = v`, it removes `c` from the list of constraints
-associated with `(u, v)` IF
-- `e` is already assigned, or
-- `f c e` returns true
+`c.u = u` and `c.v = v`.
 -/
-@[inline] def updateCnstrsOf (u v : NodeId) (f : Cnstr NodeId → Expr → OrderM Bool) : OrderM Unit := do
+@[inline] def forEachCnstrsOf (u v : NodeId) (f : Cnstr NodeId → Expr → OrderM Unit) : OrderM Unit := do
   if let some cs := (← getStruct).cnstrsOf.find? (u, v) then
-    let cs' ← cs.filterM fun (c, e) => do
-      return !(← f c e)
-    modifyStruct fun s => { s with cnstrsOf := s.cnstrsOf.insert (u, v) cs' }
+    cs.forM fun (c, e) => f c e
 
 /-- Equality propagation. -/
 def checkEq (u v : NodeId) (k : Weight) : OrderM Unit := do
+  if u == v then return ()
   if (← isPartialOrder) then
   if !k.isZero then return ()
   let some k' ← getDist? v u | return ()
@@ -165,11 +226,24 @@ def checkEq (u v : NodeId) (k : Weight) : OrderM Unit := do
   if (← alreadyInternalized ue <&&> alreadyInternalized ve) then
     if (← isEqv ue ve) then return ()
     pushToPropagate <| .eq u v
+  else
+    /-
+    Check whether `ue` and `ve` are auxiliary terms.
+    -/
+    let some ue ← getOriginal? ue | return ()
+    let some ve ← getOriginal? ve | return ()
+    if (← alreadyInternalized ue <&&> alreadyInternalized ve) then
+      if (← isEqv ue ve) then return ()
+      pushToPropagate <| .eq u v
+where
+  getOriginal? (e : Expr) : GoalM (Option Expr) := do
+    let some (a, _) := (← get').termMapInv.find? { expr := e } | return none
+    return some a
 
 /-- Finds constrains and equalities to be propagated. -/
 def checkToPropagate (u v : NodeId) (k : Weight) : OrderM Unit := do
-  updateCnstrsOf u v fun c e => return !(← checkEqTrue u v k c e)
-  updateCnstrsOf v u fun c e => return !(← checkEqFalse u v k c e)
+  forEachCnstrsOf u v fun c e => checkEqTrue u v k c e
+  forEachCnstrsOf v u fun c e => checkEqFalse u v k c e
   checkEq u v k
 
 /--
@@ -187,8 +261,12 @@ Adds an edge `u --(k) --> v` justified by the proof term `p`, and then
 if no negative cycle was created, updates the shortest distance of affected
 node pairs.
 -/
-def addEdge (u : NodeId) (v : NodeId) (k : Weight) (h : Expr) : OrderM Unit := do
+public def addEdge (u : NodeId) (v : NodeId) (k : Weight) (h : Expr) : OrderM Unit := do
   if (← isInconsistent) then return ()
+  if u == v then
+    if k.isNeg then
+      closeGoal (← mkSelfUnsatProof (← getExpr u) k h)
+    return ()
   trace[grind.debug.order.add_edge] "{← getExpr u}, {← getExpr v}, {k}"
   if let some k' ← getDist? v u then
     if (k + k').isNeg then
@@ -265,7 +343,7 @@ def getStructIdOf? (e : Expr) : GoalM (Option Nat) := do
   return (← get').exprToStructId.find? { expr := e }
 
 def propagateIneq (e : Expr) : GoalM Unit := do
-  if let some (e', he) := (← get').cnstrsMap.find? { expr := e } then
+  if let some (e', he) := (← get').termMap.find? { expr := e } then
     go e' (some he)
   else
     go e none
@@ -290,6 +368,24 @@ builtin_grind_propagator propagateLT ↓LT.lt := propagateIneq
 
 public def processNewEq (a b : Expr) : GoalM Unit := do
   unless isSameExpr a b do
+    let h ← mkEqProof a b
+    if let some (a', h₁) ← getAuxTerm? a then
+      let some (b', h₂) ← getAuxTerm? b | return ()
+      /-
+      We have
+      - `h  : a = b`
+      - `h₁ : ↑a = a'`
+      - `h₂ : ↑b = b'`
+      -/
+      let h := mkApp7 (mkConst ``Grind.Order.of_nat_eq) a b a' b' h₁ h₂ h
+      go a' b' h
+    else
+      go a b h
+where
+  getAuxTerm? (e : Expr) : GoalM (Option (Expr × Expr)) := do
+    return (← get').termMap.find? { expr := e }
+
+  go (a b h : Expr) : GoalM Unit := do
     let some id₁ ← getStructIdOf? a | return ()
     let some id₂ ← getStructIdOf? b | return ()
     unless id₁ == id₂ do return ()
@@ -297,7 +393,6 @@ public def processNewEq (a b : Expr) : GoalM Unit := do
       trace[grind.order.assert] "{a} = {b}"
       let u ← getNodeId a
       let v ← getNodeId b
-      let h ← mkEqProof a b
       if (← isRing) then
         let h₁ := mkApp3 (← mkOrdRingPrefix ``Grind.Order.le_of_eq_1_k) a b h
         let h₂ := mkApp3 (← mkOrdRingPrefix ``Grind.Order.le_of_eq_2_k) a b h

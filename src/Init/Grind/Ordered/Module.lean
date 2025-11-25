@@ -6,7 +6,6 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Int.Order
 public import Init.Grind.Module.Basic
 public import Init.Grind.Ordered.Order
 

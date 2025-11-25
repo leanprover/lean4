@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Expr
-import Init.Grind.ToInt
 import Init.Grind.Ring.Envelope
 import Init.Grind.Module.Envelope
 namespace Lean.Meta.Grind

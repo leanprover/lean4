@@ -6,9 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Data.KVMap
-public import Lean.Data.Name
-public import Lean.Data.Format
 public import Lean.Compiler.ExternAttr
 
 public section
@@ -54,6 +51,9 @@ instance : ToString JoinPointId := ⟨fun a => "block_" ++ toString a.idx⟩
 
    - `tobject` an `object` or a `tagged` pointer
 
+   - `void` is used to identify uses of the state token from `BaseIO` which do no longer need
+     to be passed around etc. at this point in the pipeline.
+
    - `struct` and `union` are used to return small values (e.g., `Option`, `Prod`, `Except`)
       on the stack.
 
@@ -81,6 +81,7 @@ inductive IRType where
   | union (leanTypeName : Name) (types : Array IRType) : IRType
   -- TODO: Move this upwards after a stage0 update.
   | tagged
+  | void
   deriving Inhabited, BEq, Repr
 
 namespace IRType
@@ -99,6 +100,7 @@ def isObj : IRType → Bool
   | object  => true
   | tagged  => true
   | tobject => true
+  | void    => true
   | _       => false
 
 def isPossibleRef : IRType → Bool
@@ -113,9 +115,13 @@ def isErased : IRType → Bool
   | erased => true
   | _ => false
 
+def isVoid : IRType → Bool
+  | void => true
+  | _ => false
+
 def boxed : IRType → IRType
   | object | float | float32 => object
-  | tagged | uint8 | uint16 => tagged
+  | void | tagged | uint8 | uint16 => tagged
   | _ => tobject
 
 end IRType

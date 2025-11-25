@@ -32,7 +32,9 @@ namespace Lean
 -/
 structure SMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
   stage₁ : Bool         := true
+  /-- Imported constants. -/
   map₁   : Std.HashMap α β  := {}
+  /-- Local constants defined in the current module. -/
   map₂   : PHashMap α β := {}
 
 namespace SMap

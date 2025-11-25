@@ -6,8 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Init.SimpLemmas
-public import Init.Data.Bool
 public import Init.Data.BitVec.Lemmas
 public import Init.Data.BitVec.Decidable
 import Init.Data.BEq
@@ -44,7 +42,7 @@ attribute [bv_normalize] Bool.cond_not
 
 @[bv_normalize]
 theorem if_eq_cond {b : Bool} {x y : α} : (if b = true then x else y) = (bif b then x else y) := by
-  rw [cond_eq_if]
+  rw [cond_eq_ite]
 
 @[bv_normalize]
 theorem Bool.not_xor : ∀ (a b : Bool), (!(a ^^ b)) = (a == b) := by decide

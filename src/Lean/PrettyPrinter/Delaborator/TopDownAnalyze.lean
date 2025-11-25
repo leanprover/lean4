@@ -7,13 +7,11 @@ module
 
 prelude
 public import Lean.Meta.SynthInstance
-public import Lean.Meta.CtorRecognizer
 public import Lean.Util.FindMVar
 public import Lean.Util.FindLevelMVar
 public import Lean.Util.CollectLevelParams
 public import Lean.Util.ReplaceLevel
 public import Lean.PrettyPrinter.Delaborator.FieldNotation
-public import Lean.PrettyPrinter.Delaborator.Options
 public import Lean.PrettyPrinter.Delaborator.SubExpr
 public import Lean.Elab.Config
 
@@ -33,7 +31,6 @@ open Meta SubExpr
 
 register_builtin_option pp.analyze : Bool := {
   defValue := false
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) try to determine annotations sufficient to ensure round-tripping"
 }
 
@@ -43,68 +40,57 @@ register_builtin_option pp.analyze.checkInstances : Bool := {
   -- that would otherwise be easy to synthesize. We may consider threading the instances in the future,
   -- or at least tracking a bool for whether the instances have been lost.
   defValue := false
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) confirm that instances can be re-synthesized"
 }
 
 register_builtin_option pp.analyze.typeAscriptions : Bool := {
   defValue := true
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) add type ascriptions when deemed necessary"
 }
 
 register_builtin_option pp.analyze.trustSubst : Bool := {
   defValue := false
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) always 'pretend' applications that can delab to ▸ are 'regular'"
 }
 
 register_builtin_option pp.analyze.trustOfNat : Bool := {
   defValue := true
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) always 'pretend' `OfNat.ofNat` applications can elab bottom-up"
 }
 
 register_builtin_option pp.analyze.trustOfScientific : Bool := {
   defValue := true
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) always 'pretend' `OfScientific.ofScientific` applications can elab bottom-up"
 }
 
 -- TODO: this is an arbitrary special case of a more general principle.
 register_builtin_option pp.analyze.trustSubtypeMk : Bool := {
   defValue := true
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) assume the implicit arguments of Subtype.mk can be inferred"
 }
 
 register_builtin_option pp.analyze.trustId : Bool := {
   defValue := true
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) always assume an implicit `fun x => x` can be inferred"
 }
 
 register_builtin_option pp.analyze.trustKnownFOType2TypeHOFuns : Bool := {
   defValue := true
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) omit higher-order functions whose values seem to be knownType2Type"
 }
 
 register_builtin_option pp.analyze.omitMax : Bool := {
   defValue := true
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) omit universe `max` annotations (these constraints can actually hurt)"
 }
 
 register_builtin_option pp.analyze.knowsType : Bool := {
   defValue := true
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) assume the type of the original expression is known"
 }
 
 register_builtin_option pp.analyze.explicitHoles : Bool := {
   defValue := false
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) use `_` for explicit arguments that can be inferred"
 }
 

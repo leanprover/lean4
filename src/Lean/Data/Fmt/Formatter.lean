@@ -427,19 +427,24 @@ Maintains three separate memoization caches:
   measures are identical.
   In the Racket implementation, this cache is replaced with mutable state on the tainted measure.
 - `failureCache`, which memoizes whether resolving a document in a given fullness state resulted
-  in a failure. This cache is only used in the resolver for tainted measures,
-The resolver for tainted measures reuses the memoization cache `setCache` from the regular resolver
-for its own resolutions to obtain previously resolved tainted measures more quickly and to quickly
-resolve sub-documents that were already resolved previously.
-
-The
+  in a failure. Resolution failure depends only on the document and the given fullness state that
+  the document is resolved in, so this cache allows pruning subtrees of the search more
+  aggressively.
+  In the resolver for tainted measures, this cache also ensures that we never try to resolve the
+  same document more than four times, which bounds the time complexity of the tainted resolver.
+  In the Racket implementation, this cache is a mutable cache on the document that is only used
+  in the resolver for tainted measures to bound its time complexity. However, we've found that
+  performance improves when also enabling it for the regular resolver.
 -/
 structure ResolutionState (τ : Type) where
   setCache : HashMap SetCacheKey (MeasureSet τ) := {}
   resolvedTaintedCache : HashMap USize (Option (Measure τ)) := {}
-  isFailureCacheEnabled : Bool := true
   failureCache : HashSet FailureCacheKey := {}
 
+/--
+Monad for resolving a document in a resolution context to a set of measures.
+Uses `StateRefT` to avoid having to box the state together with return values during resolution.
+-/
 abbrev ResolverM (σ τ : Type) := StateRefT (ResolutionState τ) (ST σ)
 
 def ResolverM.run (f : ResolverM σ τ α) : ST σ α :=
@@ -485,11 +490,6 @@ def setCachedResolvedTainted (tm : TaintedMeasure τ) (m? : Option (Measure τ))
     resolvedTaintedCache := state.resolvedTaintedCache.insert (unsafe ptrAddrUnsafe tm) m?
   }
 
-def enableFailureCache : ResolverM σ τ Unit :=
-  modify fun state => { state with
-    isFailureCacheEnabled := true
-  }
-
 def Doc.isLeaf : Doc → Bool
   | .failure => true
   | .newline .. => true
@@ -497,20 +497,21 @@ def Doc.isLeaf : Doc → Bool
   | _ => false
 
 def isFailing (d : Doc) (fullness : FullnessState) : ResolverM σ τ Bool := do
-  let s ← get
-  let isDocFailure := d.isFailure fullness
-  if isDocFailure then
+  if d.isLeaf then
+    -- For leaf nodes, guaranteed failure is fully determinined by `Doc.isFailure`.
+    return d.isFailure fullness
+  else if d.isFailure fullness then
+    -- For some inner nodes (`full` specifically), we can prune specific subtrees
+    -- if `Doc.isFailure` yields `true` and have no information about failure otherwise.
     return true
-  else if d.isLeaf then
-    return false
-  else if s.isFailureCacheEnabled then
+  else
+    -- For all other nodes, if we have already determined that a document fails in a given fullness
+    -- state, we can prune that subtree.
     let isCachedFailure := (← get).failureCache.contains {
       docPtr := unsafe ptrAddrUnsafe d
       fullness
     }
     return isCachedFailure
-  else
-    return false
 
 def setCachedFailing (d : Doc) (fullness : FullnessState) : ResolverM σ τ Unit :=
   modify fun state => { state with
@@ -524,10 +525,13 @@ def Resolver (σ τ : Type) :=
   (d : Doc) → (columnPos indentation : Nat) → (fullness : FullnessState) →
     ResolverM σ τ (MeasureSet τ)
 
+/--
+Checks whether we have a memoized result for a given resolution context and uses that.
+Otherwise, `f` is evaluated and the result is memoized if `Doc.shouldMemoize` is true.
+-/
 @[specialize]
 def Resolver.memoize (f : Resolver σ τ) : Resolver σ τ := fun d columnPos indentation fullness => do
   if ← isFailing d fullness then
-    -- TODO: Set failing, unlike Racket impl?
     return .set []
   if columnPos > Cost.optimalityCutoffWidth τ || indentation > Cost.optimalityCutoffWidth τ
       || ! d.shouldMemoize then
@@ -545,6 +549,10 @@ def Resolver.memoize (f : Resolver σ τ) : Resolver σ τ := fun d columnPos in
 
 mutual
 
+/--
+Determines the set of measures for a given resolution context.
+The root node is not memoized, while nodes below the root node can be memoized.
+-/
 partial def MeasureSet.resolveCore : Resolver σ τ := fun d columnPos indentation fullness => do
   match d with
   | .failure =>
@@ -564,7 +572,7 @@ partial def MeasureSet.resolveCore : Resolver σ τ := fun d columnPos indentati
         out ++ s
     }]
   | .flattened _ =>
-    -- Eliminated during pre-processing
+    -- Eliminated during pre-processing.
     unreachable!
   | .indented n d =>
     resolve d columnPos (indentation + n) fullness
@@ -573,6 +581,9 @@ partial def MeasureSet.resolveCore : Resolver σ τ := fun d columnPos indentati
   | .unindented d =>
     resolve d columnPos 0 fullness
   | .full d =>
+    -- The failure condition of `full` ensures that `fullness.isFullAfter` is true when we reach
+    -- this point. However, within `full`, the `full` node imposes no constraints, so we case-split
+    -- on `fullness.isFullAfter` here.
     let set1 ← resolve d columnPos indentation (fullness.setFullAfter false)
     let set2 ← resolve d columnPos indentation (fullness.setFullAfter true)
     return .merge set1 set2 (prunable := false)
@@ -682,7 +693,6 @@ def resolve? (d : Doc) (offset : Nat) : Option (Measure τ) := runST fun _ => Re
   let ms1 ← MeasureSet.resolve d offset 0 (.mk false false)
   let ms2 ← MeasureSet.resolve d offset 0 (.mk false true)
   let ms := ms1.merge ms2 (prunable := false)
-  enableFailureCache
   ms.extractAtMostOne?
 
 public def formatWithCost? (τ : Type) [Add τ] [LE τ] [DecidableLE τ] [Cost τ]

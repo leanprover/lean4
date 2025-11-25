@@ -116,7 +116,7 @@ example (a : Rat) : a/(1/3) ≥ 3*a := by
   grind
 
 example [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [Field α] [IsCharP α 0] [OrderedRing α]
-    (a : α) : a/(1/3) ≥ 3*a := by
+    (a : α) : a/(1/(2 + 3*2 + (-3) - 2^3 + 6 + 2⁻¹ + 2^(-1) + (-1))) ≥ 3*a := by
   grind
 
 example (a : Rat) : a/(1/(2 + 3*2 + (-3) - 2^3 + 6 + 2⁻¹ + 2^(-1) + (-1))) ≥ 3*a := by

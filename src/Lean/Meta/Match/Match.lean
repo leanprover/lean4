@@ -293,7 +293,7 @@ private def isConstructorTransition (p : Problem) : MetaM Bool := do
       | _                    => false
 
 private def isValueTransition (p : Problem) : Bool :=
-  hasVarPattern p && hasValPattern p
+  (hasVarPattern p || p.fallthrough.isSome) && hasValPattern p
   && p.alts.all fun alt => match alt.patterns with
      | .val _ :: _ => true
      | .var _ :: _ => true
@@ -879,7 +879,7 @@ private def processValue (p : Problem) : MetaM (Array Problem) := do
           alt.replaceFVarId fvarId value
         | _  => unreachable!
       let newVars := xs.map fun x => x.applyFVarSubst subst
-      let fallthrough := p.fallthrough
+      let fallthrough := p.fallthrough.map (·.applyFVarSubst subst)
       return { p with mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples, fallthrough }
     else
       -- else branch for value
@@ -1148,7 +1148,7 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := p.mvar
   if (← hasNatValPattern p) then
     -- This branch is reachable when `p`, for example, is just values without an else-alternative.
     -- We added it just to get better error messages.
-    traceStep ("nat value to constructor")
+    traceStep ("nat value to constructor (failing)")
     process (← expandNatValuePattern p)
     return
 

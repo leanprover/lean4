@@ -53,8 +53,9 @@ info: def test3.match_1.{u_1} : (motive : List Nat → Bool → Sort u_1) →
       ((x : List Nat) → motive x true) →
         ((x : Bool) → motive [] x) → ((x : List Nat) → (x_1 : Bool) → motive x x_1) → motive a b :=
 fun motive a b h_1 h_2 h_3 =>
-  have cont_1 := test3._sparseCasesOn_1 a (h_2 b) fun h => h_3 a b;
-  Bool.casesOn (motive := fun x => motive a x → motive a x) b (fun cont_1 => cont_1) (fun cont_1 => h_1 a) cont_1
+  have cont_1 := fun x => test3._sparseCasesOn_1 a (h_2 b) fun h => h_3 a b;
+  Bool.casesOn (motive := fun x => (Unit → motive a x) → motive a x) b (fun cont_1 => cont_1 ()) (fun cont_1 => h_1 a)
+    cont_1
 -/
 #guard_msgs in #print test3.match_1
 
@@ -81,18 +82,18 @@ info: def test4.match_1.{u_1} : (motive : Bool → Bool → Bool → Bool → Bo
             ((x x_5 x_6 x_7 : Bool) → motive true x x_5 x_6 x_7) →
               ((x x_5 x_6 x_7 x_8 : Bool) → motive x x_5 x_6 x_7 x_8) → motive x x_1 x_2 x_3 x_4 :=
 fun motive x x_1 x_2 x_3 x_4 h_1 h_2 h_3 h_4 h_5 h_6 =>
-  have cont_1 :=
-    have cont_2 :=
-      have cont_3 :=
-        have cont_4 := test4._sparseCasesOn_1 x (h_5 x_1 x_2 x_3 x_4) fun h => h_6 x x_1 x_2 x_3 x_4;
-        Bool.casesOn (motive := fun x_5 => motive x x_5 x_2 x_3 x_4 → motive x x_5 x_2 x_3 x_4) x_1
-          (fun cont_4 => cont_4) (fun cont_4 => h_4 x x_2 x_3 x_4) cont_4;
-      Bool.casesOn (motive := fun x_5 => motive x x_1 x_5 x_3 x_4 → motive x x_1 x_5 x_3 x_4) x_2 (fun cont_3 => cont_3)
-        (fun cont_3 => h_3 x x_1 x_3 x_4) cont_3;
-    Bool.casesOn (motive := fun x_5 => motive x x_1 x_2 x_5 x_4 → motive x x_1 x_2 x_5 x_4) x_3 (fun cont_2 => cont_2)
-      (fun cont_2 => h_2 x x_1 x_2 x_4) cont_2;
-  Bool.casesOn (motive := fun x_5 => motive x x_1 x_2 x_3 x_5 → motive x x_1 x_2 x_3 x_5) x_4 (fun cont_1 => cont_1)
-    (fun cont_1 => h_1 x x_1 x_2 x_3) cont_1
+  have cont_1 := fun x_5 =>
+    have cont_2 := fun x_6 =>
+      have cont_3 := fun x_7 =>
+        have cont_4 := fun x_8 => test4._sparseCasesOn_1 x (h_5 x_1 x_2 x_3 x_4) fun h => h_6 x x_1 x_2 x_3 x_4;
+        Bool.casesOn (motive := fun x_8 => (Unit → motive x x_8 x_2 x_3 x_4) → motive x x_8 x_2 x_3 x_4) x_1
+          (fun cont_4 => cont_4 ()) (fun cont_4 => h_4 x x_2 x_3 x_4) cont_4;
+      Bool.casesOn (motive := fun x_7 => (Unit → motive x x_1 x_7 x_3 x_4) → motive x x_1 x_7 x_3 x_4) x_2
+        (fun cont_3 => cont_3 ()) (fun cont_3 => h_3 x x_1 x_3 x_4) cont_3;
+    Bool.casesOn (motive := fun x_6 => (Unit → motive x x_1 x_2 x_6 x_4) → motive x x_1 x_2 x_6 x_4) x_3
+      (fun cont_2 => cont_2 ()) (fun cont_2 => h_2 x x_1 x_2 x_4) cont_2;
+  Bool.casesOn (motive := fun x_5 => (Unit → motive x x_1 x_2 x_3 x_5) → motive x x_1 x_2 x_3 x_5) x_4
+    (fun cont_1 => cont_1 ()) (fun cont_1 => h_1 x x_1 x_2 x_3) cont_1
 -/
 #guard_msgs in
 #print test4.match_1

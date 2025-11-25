@@ -592,10 +592,20 @@ partial def MeasureSet.resolveCore : Resolver σ τ := fun d columnPos indentati
     let set2 ← resolve d2 columnPos indentation fullness
     return .merge set1 set2 (prunable := false)
   | .append d1 d2 =>
+    -- We can't tell whether the line at the end of `d1` will be full in advance, which decides
+    -- whether we need to set `isFullAfter` on the left side of the `append` and `isFullBefore`
+    -- on the right side of the `append`, so we case-split on these two alternatives and then
+    -- later prune subtrees that are inconsistent with the given fullness state.
     let set1 ← analyzeAppend d d1 d2 columnPos indentation fullness false
     let set2 ← analyzeAppend d d1 d2 columnPos indentation fullness true
     return .merge set1 set2 (prunable := false)
 where
+  /--
+  Resolves `d1` to a measure set, then resolves `d2` with each of the column positions in the
+  measure set of `d1` and finally appends each measure from resolving `d2` to each measure from
+  resolving `d1`.
+  At the end, the invariants for sets of measures (documented at `MeasureSet.Set`) are enforced.
+  -/
   analyzeAppend (d d1 d2 : Doc) (columnPos indentation : Nat) (fullness : FullnessState)
       (isMidFull : Bool) : ResolverM σ τ (MeasureSet τ) := do
     let fullness1 := fullness.setFullAfter isMidFull
@@ -614,17 +624,21 @@ where
           | .set [] =>
             .set []
           | .set (m2 :: ms2) => .set <| Id.run do
-            let mut currentBest := m1.append m2
+            let mut last := m1.append m2
             let mut deduped := []
             for m2 in ms2 do
               let current := m1.append m2
-              -- TODO: Why was this sound again?
-              if current.cost <= currentBest.cost then
-                currentBest := current
+              -- `ms2` fulfills the measure set invariants, which are retained when appending these
+              -- measures to `m1`, i.e. they are still sorted by last line length
+              -- (strictly descending) and cost (ascending).
+              -- This means that we do not need to check the last line length
+              -- so it suffices to check the cost here to determine
+              if current.cost <= last.cost then
+                last := current
                 continue
-              deduped := currentBest :: deduped
-              currentBest := current
-            return currentBest :: deduped |>.reverse
+              deduped := last :: deduped
+              last := current
+            return last :: deduped |>.reverse
         return m1Result.merge acc (prunable := true)
 
 partial def MeasureSet.resolve : Resolver σ τ := Resolver.memoize fun d columnPos indentation fullness => do

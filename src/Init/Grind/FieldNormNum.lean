@@ -17,11 +17,14 @@ abbrev ofRat {α} [Field α] (r : Rat) : α :=
   (IntCast.intCast r.num : α)/(NatCast.natCast r.den : α)
 
 theorem ofRat_add {α} [Field α] (a b : Rat) : (ofRat (a + b) : α) = ofRat a + ofRat b := sorry
-theorem ofRat_sub {α} [Field α] (a b : Rat) : (ofRat (a - b) : α) = ofRat a - ofRat b := sorry
 theorem ofRat_mul {α} [Field α] (a b : Rat) : (ofRat (a * b) : α) = ofRat a * ofRat b := sorry
-theorem ofRat_div {α} [Field α] (a b : Rat) : (ofRat (a / b) : α) = ofRat a / ofRat b := sorry
 theorem ofRat_inv {α} [Field α] (a : Rat) : (ofRat (a⁻¹) : α) = (ofRat a)⁻¹ := sorry
-theorem ofRat_neg {α} [Field α] (a : Rat) : (ofRat (-a) : α) = -ofRat a := sorry
+theorem ofRat_div {α} [Field α] (a b : Rat) : (ofRat (a / b) : α) = ofRat a / ofRat b := by
+  simp [Rat.div_def, ofRat_mul, Field.div_eq_mul_inv (ofRat a), ofRat_inv]
+theorem ofRat_neg {α} [Field α] (a : Rat) : (ofRat (-a) : α) = -ofRat a := by
+  simp [ofRat, Field.div_eq_mul_inv, Ring.intCast_neg, Ring.neg_mul]
+theorem ofRat_sub {α} [Field α] (a b : Rat) : (ofRat (a - b) : α) = ofRat a - ofRat b := by
+  simp [Rat.sub_eq_add_neg, ofRat_add, ofRat_neg, Ring.sub_eq_add_neg]
 theorem ofRat_npow {α} [Field α] (a : Rat) (n : Nat) : (ofRat (a^n) : α) = ofRat a ^ n := sorry
 theorem ofRat_zpow {α} [Field α] (a : Rat) (n : Int) : (ofRat (a^n) : α) = ofRat a ^ n := sorry
 

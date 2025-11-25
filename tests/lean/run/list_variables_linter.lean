@@ -50,3 +50,21 @@ Note: This linter can be disabled with `set_option linter.listVariables false`
 -/
 #guard_msgs in
 example (l : Array Nat) : l = l := rfl
+
+/- Test that `set_option ... in` works; ensures that `withSetOptionIn` no longer leaves
+context-free info nodes (#11313) -/
+
+set_option linter.listVariables false
+
+/--
+warning: Forbidden variable appearing as a `Array` name: l
+
+Note: This linter can be disabled with `set_option linter.listVariables false`
+---
+warning: Forbidden variable appearing as a `Array` name: l
+
+Note: This linter can be disabled with `set_option linter.listVariables false`
+-/
+#guard_msgs in
+set_option linter.listVariables true in
+example (l : Array Nat) : l = l := rfl

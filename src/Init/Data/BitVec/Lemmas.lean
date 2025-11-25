@@ -6154,6 +6154,18 @@ theorem getLsbD_false_of_clzAuxRec {x : BitVec w} (h : ∀ i, n < i → x.getLsb
         · specialize h i (by omega)
           exact h
 
+theorem getLsbD_false_of_clz {x : BitVec w} :
+    ∀ j, x.getLsbD (w - x.clz.toNat + j) = false := by
+  rw [BitVec.clz]
+  have h : ∀ i, (w - 1) < i → x.getLsbD i = false := by
+    intro i hi
+    by_cases hxi : x.getLsbD i
+    · have := BitVec.lt_of_getLsbD hxi
+      omega
+    · simp at hxi
+      exact hxi
+  exact getLsbD_false_of_clzAuxRec h
+
 theorem getLsbD_true_of_eq_clzAuxRec_of_ne_zero {x : BitVec w} (hx : ¬ x = 0#w) (hn : ∀ i, n < i → x.getLsbD i = false) :
     x.getLsbD (w - 1 - (x.clzAuxRec n).toNat) = true := by
   rcases w with _|w

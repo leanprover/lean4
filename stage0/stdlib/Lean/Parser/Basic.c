@@ -17726,7 +17726,7 @@ if (x_10 == 0)
 {
 lean_dec_ref(x_7);
 lean_dec_ref(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
 return x_6;
 }
@@ -17739,7 +17739,7 @@ x_12 = l_Lean_Syntax_isAntiquots(x_11);
 if (x_12 == 0)
 {
 lean_dec_ref(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
 return x_6;
 }

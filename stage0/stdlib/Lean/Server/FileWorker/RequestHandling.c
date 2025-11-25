@@ -3175,7 +3175,7 @@ return x_22;
 block_62:
 {
 lean_object* x_29; 
-x_29 = l_Lean_Elab_Info_fmtHover_x3f(x_27, x_26);
+x_29 = l_Lean_Elab_Info_fmtHover_x3f(x_26, x_27);
 if (lean_obj_tag(x_29) == 0)
 {
 uint8_t x_30; 
@@ -3337,8 +3337,8 @@ lean_inc(x_72);
 lean_dec_ref(x_71);
 x_24 = x_72;
 x_25 = lean_box(0);
-x_26 = x_70;
-x_27 = x_69;
+x_26 = x_69;
+x_27 = x_70;
 x_28 = x_63;
 goto block_62;
 }
@@ -3370,8 +3370,8 @@ else
 {
 x_24 = x_74;
 x_25 = lean_box(0);
-x_26 = x_70;
-x_27 = x_69;
+x_26 = x_69;
+x_27 = x_70;
 x_28 = x_63;
 goto block_62;
 }

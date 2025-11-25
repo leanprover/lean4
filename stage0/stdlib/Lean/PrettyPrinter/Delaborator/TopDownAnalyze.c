@@ -17273,10 +17273,10 @@ x_75 = lean_unbox(x_74);
 lean_dec(x_74);
 if (x_75 == 0)
 {
-lean_dec(x_69);
+lean_dec(x_67);
 x_13 = x_66;
-x_14 = x_68;
-x_15 = x_67;
+x_14 = x_69;
+x_15 = x_68;
 x_16 = x_70;
 x_17 = x_71;
 x_18 = x_72;
@@ -17286,15 +17286,15 @@ goto block_65;
 else
 {
 uint8_t x_76; 
-x_76 = l_Lean_getPPProofsWithType(x_69);
-lean_dec(x_69);
+x_76 = l_Lean_getPPProofsWithType(x_67);
+lean_dec(x_67);
 if (x_76 == 0)
 {
 lean_dec_ref(x_72);
 lean_dec(x_71);
 lean_dec_ref(x_70);
-lean_dec_ref(x_68);
-lean_dec(x_67);
+lean_dec_ref(x_69);
+lean_dec(x_68);
 lean_dec(x_66);
 x_9 = lean_box(0);
 goto block_12;
@@ -17313,7 +17313,7 @@ lean_closure_set(x_82, 0, lean_box(0));
 lean_closure_set(x_82, 1, x_80);
 lean_closure_set(x_82, 2, x_81);
 lean_closure_set(x_82, 3, x_79);
-x_83 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withType___at___00Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_spec__0___redArg(x_82, x_72, x_66, x_70, x_67, x_68, x_71);
+x_83 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withType___at___00Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_spec__0___redArg(x_82, x_72, x_66, x_70, x_68, x_69, x_71);
 if (lean_obj_tag(x_83) == 0)
 {
 lean_dec_ref(x_83);
@@ -17333,8 +17333,8 @@ uint8_t x_84;
 lean_dec_ref(x_72);
 lean_dec(x_71);
 lean_dec_ref(x_70);
-lean_dec(x_69);
-lean_dec_ref(x_68);
+lean_dec_ref(x_69);
+lean_dec(x_68);
 lean_dec(x_67);
 lean_dec(x_66);
 x_84 = !lean_is_exclusive(x_73);
@@ -17358,11 +17358,11 @@ block_98:
 {
 if (x_97 == 0)
 {
-lean_dec(x_93);
-lean_dec_ref(x_89);
+lean_dec_ref(x_90);
+lean_dec(x_89);
 x_13 = x_88;
-x_14 = x_92;
-x_15 = x_91;
+x_14 = x_93;
+x_15 = x_92;
 x_16 = x_94;
 x_17 = x_95;
 x_18 = x_96;
@@ -17372,13 +17372,13 @@ goto block_65;
 else
 {
 x_66 = x_88;
-x_67 = x_91;
+x_67 = x_89;
 x_68 = x_92;
 x_69 = x_93;
 x_70 = x_94;
 x_71 = x_95;
 x_72 = x_96;
-x_73 = x_89;
+x_73 = x_90;
 goto block_87;
 }
 }
@@ -17407,9 +17407,9 @@ x_111 = l_Lean_Meta_isProof(x_107, x_101, x_102, x_103, x_104);
 if (lean_obj_tag(x_111) == 0)
 {
 x_66 = x_100;
-x_67 = x_102;
-x_68 = x_103;
-x_69 = x_108;
+x_67 = x_108;
+x_68 = x_102;
+x_69 = x_103;
 x_70 = x_101;
 x_71 = x_104;
 x_72 = x_99;
@@ -17428,11 +17428,11 @@ uint8_t x_114;
 x_114 = l_Lean_Exception_isRuntime(x_112);
 lean_dec(x_112);
 x_88 = x_100;
-x_89 = x_111;
-x_90 = lean_box(0);
-x_91 = x_102;
-x_92 = x_103;
-x_93 = x_108;
+x_89 = x_108;
+x_90 = x_111;
+x_91 = lean_box(0);
+x_92 = x_102;
+x_93 = x_103;
 x_94 = x_101;
 x_95 = x_104;
 x_96 = x_99;
@@ -17443,11 +17443,11 @@ else
 {
 lean_dec(x_112);
 x_88 = x_100;
-x_89 = x_111;
-x_90 = lean_box(0);
-x_91 = x_102;
-x_92 = x_103;
-x_93 = x_108;
+x_89 = x_108;
+x_90 = x_111;
+x_91 = lean_box(0);
+x_92 = x_102;
+x_93 = x_103;
 x_94 = x_101;
 x_95 = x_104;
 x_96 = x_99;
@@ -19703,16 +19703,16 @@ block_76:
 if (x_71 == 0)
 {
 uint8_t x_72; 
-x_72 = l_Lean_getPPAnalyzeTrustSubtypeMk(x_68);
-lean_dec(x_68);
+x_72 = l_Lean_getPPAnalyzeTrustSubtypeMk(x_63);
+lean_dec(x_63);
 if (x_72 == 0)
 {
-lean_dec_ref(x_65);
+lean_dec_ref(x_66);
 x_26 = x_62;
-x_27 = x_63;
-x_28 = x_64;
-x_29 = x_67;
-x_30 = x_66;
+x_27 = x_64;
+x_28 = x_65;
+x_29 = x_68;
+x_30 = x_67;
 x_31 = lean_box(0);
 x_32 = x_69;
 x_33 = x_72;
@@ -19723,13 +19723,13 @@ else
 lean_object* x_73; lean_object* x_74; uint8_t x_75; 
 x_73 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeAppStaged___closed__2;
 x_74 = lean_unsigned_to_nat(4u);
-x_75 = l_Lean_Expr_isAppOfArity(x_65, x_73, x_74);
-lean_dec_ref(x_65);
+x_75 = l_Lean_Expr_isAppOfArity(x_66, x_73, x_74);
+lean_dec_ref(x_66);
 x_26 = x_62;
-x_27 = x_63;
-x_28 = x_64;
-x_29 = x_67;
-x_30 = x_66;
+x_27 = x_64;
+x_28 = x_65;
+x_29 = x_68;
+x_30 = x_67;
 x_31 = lean_box(0);
 x_32 = x_69;
 x_33 = x_75;
@@ -19738,13 +19738,13 @@ goto block_61;
 }
 else
 {
-lean_dec(x_68);
-lean_dec_ref(x_65);
+lean_dec_ref(x_66);
+lean_dec(x_63);
 x_26 = x_62;
-x_27 = x_63;
-x_28 = x_64;
-x_29 = x_67;
-x_30 = x_66;
+x_27 = x_64;
+x_28 = x_65;
+x_29 = x_68;
+x_30 = x_67;
 x_31 = lean_box(0);
 x_32 = x_69;
 x_33 = x_71;
@@ -19769,12 +19769,12 @@ if (x_89 == 0)
 {
 lean_dec(x_85);
 x_62 = x_77;
-x_63 = x_80;
-x_64 = x_78;
-x_65 = x_87;
-x_66 = x_79;
-x_67 = x_81;
-x_68 = x_88;
+x_63 = x_88;
+x_64 = x_80;
+x_65 = x_78;
+x_66 = x_87;
+x_67 = x_79;
+x_68 = x_81;
 x_69 = x_82;
 x_70 = lean_box(0);
 x_71 = x_89;
@@ -19786,12 +19786,12 @@ uint8_t x_90;
 x_90 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isSubstLike(x_85);
 lean_dec(x_85);
 x_62 = x_77;
-x_63 = x_80;
-x_64 = x_78;
-x_65 = x_87;
-x_66 = x_79;
-x_67 = x_81;
-x_68 = x_88;
+x_63 = x_88;
+x_64 = x_80;
+x_65 = x_78;
+x_66 = x_87;
+x_67 = x_79;
+x_68 = x_81;
 x_69 = x_82;
 x_70 = lean_box(0);
 x_71 = x_90;

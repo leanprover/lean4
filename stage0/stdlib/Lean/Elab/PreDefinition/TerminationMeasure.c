@@ -2082,7 +2082,7 @@ x_16 = lean_unbox(x_5);
 x_17 = l_Lean_Elab_TerminationMeasure_elab___lam__1(x_1, x_2, x_3, x_4, x_16, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_6);
 lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_17;
 }
 }

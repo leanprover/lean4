@@ -9155,7 +9155,7 @@ return x_16;
 else
 {
 lean_object* x_17; lean_object* x_18; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_17 = lean_alloc_closure((void*)(l_Lean_Parser_evalParserConstUnsafe), 3, 1);
 lean_closure_set(x_17, 0, x_2);
 x_18 = l_Lean_Parser_adaptUncacheableContextFn(x_3, x_17, x_4, x_5);

@@ -632,7 +632,7 @@ return x_5;
 }
 else
 {
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -649,7 +649,7 @@ lean_dec_ref(x_7);
 if (x_2 == 0)
 {
 lean_object* x_8; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_8 = lean_apply_2(x_3, x_5, lean_box(0));
 return x_8;
 }
@@ -675,7 +675,7 @@ return x_9;
 else
 {
 lean_dec_ref(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 return x_7;
 }
@@ -693,7 +693,7 @@ lean_dec_ref(x_7);
 if (x_2 == 0)
 {
 lean_object* x_8; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_8 = lean_apply_2(x_3, x_5, lean_box(0));
 return x_8;
 }
@@ -719,7 +719,7 @@ return x_9;
 else
 {
 lean_dec_ref(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 return x_7;
 }

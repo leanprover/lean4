@@ -3754,7 +3754,7 @@ block_43:
 {
 lean_object* x_37; lean_object* x_38; 
 x_37 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_37, 0, x_32);
+lean_ctor_set(x_37, 0, x_33);
 lean_ctor_set(x_37, 1, x_36);
 lean_ctor_set(x_37, 2, x_35);
 x_38 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage_lastTrailing(x_3);
@@ -3775,7 +3775,7 @@ if (x_42 == 0)
 {
 lean_dec(x_40);
 x_18 = x_37;
-x_19 = x_33;
+x_19 = x_32;
 x_20 = x_34;
 goto block_31;
 }
@@ -3783,7 +3783,7 @@ else
 {
 lean_dec(x_34);
 x_18 = x_37;
-x_19 = x_33;
+x_19 = x_32;
 x_20 = x_40;
 goto block_31;
 }
@@ -3792,7 +3792,7 @@ else
 {
 lean_dec(x_38);
 x_18 = x_37;
-x_19 = x_33;
+x_19 = x_32;
 x_20 = x_34;
 goto block_31;
 }
@@ -3804,8 +3804,8 @@ case 3:
 {
 lean_object* x_48; 
 x_48 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___closed__1;
-x_32 = x_44;
-x_33 = x_46;
+x_32 = x_46;
+x_33 = x_44;
 x_34 = x_47;
 x_35 = x_45;
 x_36 = x_48;
@@ -3819,8 +3819,8 @@ x_50 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___closed__2;
 x_51 = lean_string_append(x_50, x_49);
 x_52 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___closed__3;
 x_53 = lean_string_append(x_51, x_52);
-x_32 = x_44;
-x_33 = x_46;
+x_32 = x_46;
+x_33 = x_44;
 x_34 = x_47;
 x_35 = x_45;
 x_36 = x_53;
@@ -3830,8 +3830,8 @@ default:
 {
 lean_object* x_54; 
 x_54 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___closed__4;
-x_32 = x_44;
-x_33 = x_46;
+x_32 = x_46;
+x_33 = x_44;
 x_34 = x_47;
 x_35 = x_45;
 x_36 = x_54;
@@ -3954,8 +3954,8 @@ lean_ctor_set(x_11, 0, x_10);
 x_12 = 2;
 x_13 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___closed__0;
 x_14 = lean_alloc_ctor(0, 5, 3);
-lean_ctor_set(x_14, 0, x_7);
-lean_ctor_set(x_14, 1, x_8);
+lean_ctor_set(x_14, 0, x_8);
+lean_ctor_set(x_14, 1, x_7);
 lean_ctor_set(x_14, 2, x_11);
 lean_ctor_set(x_14, 3, x_13);
 lean_ctor_set(x_14, 4, x_4);
@@ -3978,8 +3978,8 @@ x_20 = l_Lean_Syntax_getTailPos_x3f(x_3, x_5);
 if (lean_obj_tag(x_20) == 0)
 {
 x_6 = x_18;
-x_7 = x_17;
-x_8 = x_19;
+x_7 = x_19;
+x_8 = x_17;
 x_9 = x_16;
 goto block_15;
 }
@@ -3991,8 +3991,8 @@ x_21 = lean_ctor_get(x_20, 0);
 lean_inc(x_21);
 lean_dec_ref(x_20);
 x_6 = x_18;
-x_7 = x_17;
-x_8 = x_19;
+x_7 = x_19;
+x_8 = x_17;
 x_9 = x_21;
 goto block_15;
 }

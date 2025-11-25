@@ -1345,7 +1345,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_apply_1(x_3, x_2);
 x_5 = lean_unbox(x_4);
 return x_5;

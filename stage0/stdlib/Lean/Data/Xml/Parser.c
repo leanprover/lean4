@@ -3782,20 +3782,20 @@ block_17:
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
-lean_dec(x_13);
+lean_dec(x_12);
 lean_dec(x_11);
 x_15 = l_Lean_Xml_Parser_NameChar___closed__1;
 x_16 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_16, 0, x_12);
+lean_ctor_set(x_16, 0, x_13);
 lean_ctor_set(x_16, 1, x_15);
 return x_16;
 }
 else
 {
-lean_dec_ref(x_12);
+lean_dec_ref(x_13);
 x_2 = x_10;
 x_3 = x_11;
-x_4 = x_13;
+x_4 = x_12;
 goto block_9;
 }
 }
@@ -3808,8 +3808,8 @@ if (x_23 == 0)
 {
 x_10 = x_18;
 x_11 = x_19;
-x_12 = x_20;
-x_13 = x_21;
+x_12 = x_21;
+x_13 = x_20;
 x_14 = x_23;
 goto block_17;
 }
@@ -3820,8 +3820,8 @@ x_24 = 8256;
 x_25 = lean_uint32_dec_le(x_18, x_24);
 x_10 = x_18;
 x_11 = x_19;
-x_12 = x_20;
-x_13 = x_21;
+x_12 = x_21;
+x_13 = x_20;
 x_14 = x_25;
 goto block_17;
 }

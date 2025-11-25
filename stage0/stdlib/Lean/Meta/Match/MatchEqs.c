@@ -16062,13 +16062,13 @@ block_43:
 if (x_26 == 0)
 {
 lean_object* x_27; 
-lean_dec_ref(x_21);
+lean_dec_ref(x_22);
 lean_dec(x_18);
 lean_inc(x_20);
 lean_inc_ref(x_19);
-lean_inc(x_23);
+lean_inc(x_24);
 lean_inc_ref(x_25);
-x_27 = l_Lean_MVarId_deltaTarget(x_24, x_2, x_25, x_23, x_19, x_20);
+x_27 = l_Lean_MVarId_deltaTarget(x_21, x_2, x_25, x_24, x_19, x_20);
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_28; lean_object* x_29; 
@@ -16077,30 +16077,30 @@ lean_inc(x_28);
 lean_dec_ref(x_27);
 lean_inc(x_20);
 lean_inc_ref(x_19);
-lean_inc(x_23);
+lean_inc(x_24);
 lean_inc_ref(x_25);
-x_29 = l_Lean_MVarId_heqOfEq(x_28, x_25, x_23, x_19, x_20);
+x_29 = l_Lean_MVarId_heqOfEq(x_28, x_25, x_24, x_19, x_20);
 if (lean_obj_tag(x_29) == 0)
 {
 lean_object* x_30; lean_object* x_31; 
 x_30 = lean_ctor_get(x_29, 0);
 lean_inc(x_30);
 lean_dec_ref(x_29);
-lean_inc(x_23);
-x_31 = l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_proveCondEqThm_go(x_3, x_30, x_4, x_25, x_23, x_19, x_20);
+lean_inc(x_24);
+x_31 = l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_proveCondEqThm_go(x_3, x_30, x_4, x_25, x_24, x_19, x_20);
 lean_dec(x_4);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; 
 lean_dec_ref(x_31);
-x_32 = l_Lean_instantiateMVars___at___00Lean_Meta_Match_proveCondEqThm_spec__0___redArg(x_17, x_23);
-lean_dec(x_23);
+x_32 = l_Lean_instantiateMVars___at___00Lean_Meta_Match_proveCondEqThm_spec__0___redArg(x_17, x_24);
+lean_dec(x_24);
 return x_32;
 }
 else
 {
 uint8_t x_33; 
-lean_dec(x_23);
+lean_dec(x_24);
 lean_dec(x_17);
 x_33 = !lean_is_exclusive(x_31);
 if (x_33 == 0)
@@ -16123,7 +16123,7 @@ else
 {
 uint8_t x_36; 
 lean_dec_ref(x_25);
-lean_dec(x_23);
+lean_dec(x_24);
 lean_dec(x_20);
 lean_dec_ref(x_19);
 lean_dec(x_17);
@@ -16150,7 +16150,7 @@ else
 {
 uint8_t x_39; 
 lean_dec_ref(x_25);
-lean_dec(x_23);
+lean_dec(x_24);
 lean_dec(x_20);
 lean_dec_ref(x_19);
 lean_dec(x_17);
@@ -16178,7 +16178,7 @@ else
 lean_object* x_42; 
 lean_dec_ref(x_25);
 lean_dec(x_24);
-lean_dec(x_23);
+lean_dec(x_21);
 lean_dec(x_20);
 lean_dec_ref(x_19);
 lean_dec(x_17);
@@ -16191,7 +16191,7 @@ if (lean_is_scalar(x_18)) {
  x_42 = x_18;
  lean_ctor_set_tag(x_42, 1);
 }
-lean_ctor_set(x_42, 0, x_21);
+lean_ctor_set(x_42, 0, x_22);
 return x_42;
 }
 }
@@ -16248,10 +16248,10 @@ uint8_t x_58;
 x_58 = l_Lean_Exception_isRuntime(x_56);
 x_19 = x_47;
 x_20 = x_48;
-x_21 = x_56;
-x_22 = lean_box(0);
-x_23 = x_46;
-x_24 = x_52;
+x_21 = x_52;
+x_22 = x_56;
+x_23 = lean_box(0);
+x_24 = x_46;
 x_25 = x_45;
 x_26 = x_58;
 goto block_43;
@@ -16260,10 +16260,10 @@ else
 {
 x_19 = x_47;
 x_20 = x_48;
-x_21 = x_56;
-x_22 = lean_box(0);
-x_23 = x_46;
-x_24 = x_52;
+x_21 = x_52;
+x_22 = x_56;
+x_23 = lean_box(0);
+x_24 = x_46;
 x_25 = x_45;
 x_26 = x_57;
 goto block_43;
@@ -26756,8 +26756,8 @@ block_101:
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; size_t x_42; size_t x_43; lean_object* x_44; uint8_t x_45; 
 lean_dec(x_26);
-x_33 = lean_array_get_size(x_23);
-x_34 = l_Array_toSubarray___redArg(x_23, x_22, x_33);
+x_33 = lean_array_get_size(x_24);
+x_34 = l_Array_toSubarray___redArg(x_24, x_23, x_33);
 x_35 = l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_casesOnStuckLHS_findFVar_x3f___closed__0;
 x_36 = l_Lean_Expr_getAppNumArgs(x_2);
 lean_inc(x_36);
@@ -26800,7 +26800,7 @@ x_50 = lean_ctor_get(x_49, 0);
 lean_inc(x_50);
 lean_dec_ref(x_49);
 x_51 = 2;
-x_52 = l_Lean_Meta_forallMetaBoundedTelescope(x_50, x_24, x_51, x_28, x_29, x_30, x_31);
+x_52 = l_Lean_Meta_forallMetaBoundedTelescope(x_50, x_22, x_51, x_28, x_29, x_30, x_31);
 if (lean_obj_tag(x_52) == 0)
 {
 uint8_t x_53; 
@@ -26884,7 +26884,7 @@ lean_dec_ref(x_30);
 lean_dec(x_29);
 lean_dec_ref(x_28);
 lean_dec(x_27);
-lean_dec(x_24);
+lean_dec(x_22);
 x_74 = !lean_is_exclusive(x_49);
 if (x_74 == 0)
 {
@@ -26926,7 +26926,7 @@ x_81 = lean_ctor_get(x_80, 0);
 lean_inc(x_81);
 lean_dec_ref(x_80);
 x_82 = 2;
-x_83 = l_Lean_Meta_forallMetaBoundedTelescope(x_81, x_24, x_82, x_28, x_29, x_30, x_31);
+x_83 = l_Lean_Meta_forallMetaBoundedTelescope(x_81, x_22, x_82, x_28, x_29, x_30, x_31);
 if (lean_obj_tag(x_83) == 0)
 {
 lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; size_t x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; 
@@ -26994,7 +26994,7 @@ lean_dec_ref(x_30);
 lean_dec(x_29);
 lean_dec_ref(x_28);
 lean_dec(x_27);
-lean_dec(x_24);
+lean_dec(x_22);
 x_98 = lean_ctor_get(x_80, 0);
 lean_inc(x_98);
 if (lean_is_exclusive(x_80)) {
@@ -27090,9 +27090,9 @@ else
 {
 lean_dec(x_104);
 lean_dec(x_1);
-x_22 = x_114;
-x_23 = x_116;
-x_24 = x_113;
+x_22 = x_113;
+x_23 = x_114;
+x_24 = x_116;
 x_25 = x_115;
 x_26 = x_105;
 x_27 = x_106;
@@ -31865,9 +31865,9 @@ block_40:
 lean_object* x_38; lean_object* x_39; 
 x_38 = lean_alloc_closure((void*)(l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_getEquationsForImpl_go___lam__1___boxed), 27, 21);
 lean_closure_set(x_38, 0, x_27);
-lean_closure_set(x_38, 1, x_31);
+lean_closure_set(x_38, 1, x_32);
 lean_closure_set(x_38, 2, x_29);
-lean_closure_set(x_38, 3, x_32);
+lean_closure_set(x_38, 3, x_31);
 lean_closure_set(x_38, 4, x_18);
 lean_closure_set(x_38, 5, x_5);
 lean_closure_set(x_38, 6, x_6);
@@ -31908,8 +31908,8 @@ lean_dec_ref(x_14);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 x_30 = x_43;
-x_31 = x_45;
-x_32 = x_48;
+x_31 = x_48;
+x_32 = x_45;
 x_33 = x_26;
 x_34 = x_26;
 x_35 = x_26;
@@ -31959,8 +31959,8 @@ x_60 = lean_ctor_get(x_56, 1);
 lean_inc(x_60);
 lean_dec(x_56);
 x_30 = x_43;
-x_31 = x_45;
-x_32 = x_48;
+x_31 = x_48;
+x_32 = x_45;
 x_33 = x_57;
 x_34 = x_58;
 x_35 = x_59;

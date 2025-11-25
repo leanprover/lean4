@@ -877,7 +877,7 @@ x_24 = lean_nat_dec_lt(x_22, x_23);
 if (x_24 == 0)
 {
 lean_object* x_25; lean_object* x_26; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_25 = l___private_Lean_Meta_Tactic_Grind_AC_Inv_0__Lean_Meta_Grind_AC_checkVars___lam__0___closed__3;
 x_26 = l_panic___at___00__private_Lean_Meta_Tactic_Grind_AC_Inv_0__Lean_Meta_Grind_AC_checkVars_spec__0(x_25, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_26) == 0)

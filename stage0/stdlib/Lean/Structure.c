@@ -6961,14 +6961,14 @@ return x_36;
 block_48:
 {
 uint8_t x_43; 
-x_43 = lean_nat_dec_lt(x_40, x_42);
+x_43 = lean_nat_dec_lt(x_38, x_42);
 if (x_43 == 0)
 {
 lean_dec(x_42);
 lean_dec_ref(x_41);
-lean_dec(x_40);
+lean_dec_ref(x_40);
 lean_dec_ref(x_39);
-lean_dec_ref(x_38);
+lean_dec(x_38);
 lean_dec(x_6);
 lean_dec(x_5);
 goto block_37;
@@ -6976,11 +6976,11 @@ goto block_37;
 else
 {
 size_t x_44; size_t x_45; lean_object* x_46; uint8_t x_47; 
-x_44 = lean_usize_of_nat(x_40);
-lean_dec(x_40);
+x_44 = lean_usize_of_nat(x_38);
+lean_dec(x_38);
 x_45 = lean_usize_of_nat(x_42);
 lean_dec(x_42);
-x_46 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_38, x_39, x_41, x_44, x_45);
+x_46 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_39, x_40, x_41, x_44, x_45);
 x_47 = lean_unbox(x_46);
 if (x_47 == 0)
 {
@@ -7045,9 +7045,9 @@ x_63 = lean_nat_dec_le(x_58, x_62);
 if (x_63 == 0)
 {
 lean_dec(x_58);
-x_38 = x_23;
-x_39 = x_61;
-x_40 = x_57;
+x_38 = x_57;
+x_39 = x_23;
+x_40 = x_61;
 x_41 = x_56;
 x_42 = x_62;
 goto block_48;
@@ -7055,9 +7055,9 @@ goto block_48;
 else
 {
 lean_dec(x_62);
-x_38 = x_23;
-x_39 = x_61;
-x_40 = x_57;
+x_38 = x_57;
+x_39 = x_23;
+x_40 = x_61;
 x_41 = x_56;
 x_42 = x_58;
 goto block_48;

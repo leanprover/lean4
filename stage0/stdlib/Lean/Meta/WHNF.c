@@ -2767,12 +2767,12 @@ goto block_177;
 block_161:
 {
 uint8_t x_157; 
-x_157 = lean_nat_dec_lt(x_154, x_156);
+x_157 = lean_nat_dec_lt(x_155, x_156);
 if (x_157 == 0)
 {
 lean_dec(x_156);
-lean_dec_ref(x_155);
-lean_dec(x_154);
+lean_dec(x_155);
+lean_dec_ref(x_154);
 lean_dec(x_120);
 x_121 = x_153;
 goto block_144;
@@ -2780,12 +2780,12 @@ goto block_144;
 else
 {
 size_t x_158; size_t x_159; uint8_t x_160; 
-x_158 = lean_usize_of_nat(x_154);
-lean_dec(x_154);
+x_158 = lean_usize_of_nat(x_155);
+lean_dec(x_155);
 x_159 = lean_usize_of_nat(x_156);
 lean_dec(x_156);
-x_160 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Meta_WHNF_0__Lean_Meta_toCtorWhenK_spec__2(x_155, x_158, x_159);
-lean_dec_ref(x_155);
+x_160 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Meta_WHNF_0__Lean_Meta_toCtorWhenK_spec__2(x_154, x_158, x_159);
+lean_dec_ref(x_154);
 x_145 = x_160;
 goto block_147;
 }
@@ -2819,16 +2819,16 @@ x_176 = lean_nat_dec_le(x_173, x_175);
 if (x_176 == 0)
 {
 lean_dec(x_173);
-x_154 = x_172;
-x_155 = x_171;
+x_154 = x_171;
+x_155 = x_172;
 x_156 = x_175;
 goto block_161;
 }
 else
 {
 lean_dec(x_175);
-x_154 = x_172;
-x_155 = x_171;
+x_154 = x_171;
+x_155 = x_172;
 x_156 = x_173;
 goto block_161;
 }
@@ -3103,12 +3103,12 @@ goto block_233;
 block_217:
 {
 uint8_t x_213; 
-x_213 = lean_nat_dec_lt(x_210, x_212);
+x_213 = lean_nat_dec_lt(x_211, x_212);
 if (x_213 == 0)
 {
 lean_dec(x_212);
-lean_dec_ref(x_211);
-lean_dec(x_210);
+lean_dec(x_211);
+lean_dec_ref(x_210);
 lean_dec(x_184);
 x_185 = x_209;
 goto block_199;
@@ -3116,12 +3116,12 @@ goto block_199;
 else
 {
 size_t x_214; size_t x_215; uint8_t x_216; 
-x_214 = lean_usize_of_nat(x_210);
-lean_dec(x_210);
+x_214 = lean_usize_of_nat(x_211);
+lean_dec(x_211);
 x_215 = lean_usize_of_nat(x_212);
 lean_dec(x_212);
-x_216 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Meta_WHNF_0__Lean_Meta_toCtorWhenK_spec__2(x_211, x_214, x_215);
-lean_dec_ref(x_211);
+x_216 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Meta_WHNF_0__Lean_Meta_toCtorWhenK_spec__2(x_210, x_214, x_215);
+lean_dec_ref(x_210);
 x_200 = x_216;
 goto block_202;
 }
@@ -3155,16 +3155,16 @@ x_232 = lean_nat_dec_le(x_229, x_231);
 if (x_232 == 0)
 {
 lean_dec(x_229);
-x_210 = x_228;
-x_211 = x_227;
+x_210 = x_227;
+x_211 = x_228;
 x_212 = x_231;
 goto block_217;
 }
 else
 {
 lean_dec(x_231);
-x_210 = x_228;
-x_211 = x_227;
+x_210 = x_227;
+x_211 = x_228;
 x_212 = x_229;
 goto block_217;
 }

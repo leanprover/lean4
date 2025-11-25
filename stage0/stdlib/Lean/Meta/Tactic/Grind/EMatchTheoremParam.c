@@ -4761,7 +4761,7 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_logAt___at___00Lean_log___at___00Lean_logWarning___at___00Lean_checkPrivateInPublic___at___00Lean_resolveGlobalName___at___00__private_Lean_ResolveName_0__Lean_resolveLocalName_loop___at___00Lean_resolveLocalName___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0_spec__9_spec__9_spec__9_spec__11_spec__11_spec__11(lean_object* x_1, lean_object* x_2, uint8_t x_3, uint8_t x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_50; lean_object* x_51; uint8_t x_52; uint8_t x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; lean_object* x_57; lean_object* x_77; uint8_t x_78; uint8_t x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; uint8_t x_83; lean_object* x_84; lean_object* x_88; lean_object* x_89; uint8_t x_90; uint8_t x_91; lean_object* x_92; lean_object* x_93; uint8_t x_94; uint8_t x_100; lean_object* x_101; lean_object* x_102; uint8_t x_103; lean_object* x_104; lean_object* x_105; uint8_t x_106; uint8_t x_107; uint8_t x_109; uint8_t x_125; 
+lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_50; lean_object* x_51; uint8_t x_52; uint8_t x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; lean_object* x_57; lean_object* x_77; uint8_t x_78; uint8_t x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; uint8_t x_83; lean_object* x_84; lean_object* x_88; uint8_t x_89; lean_object* x_90; uint8_t x_91; lean_object* x_92; lean_object* x_93; uint8_t x_94; uint8_t x_100; uint8_t x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; uint8_t x_106; uint8_t x_107; uint8_t x_109; uint8_t x_125; 
 x_100 = 2;
 x_125 = l_Lean_instBEqMessageSeverity_beq(x_3, x_100);
 if (x_125 == 0)
@@ -5004,17 +5004,17 @@ goto block_49;
 block_87:
 {
 lean_object* x_85; 
-x_85 = l_Lean_Syntax_getTailPos_x3f(x_82, x_78);
-lean_dec(x_82);
+x_85 = l_Lean_Syntax_getTailPos_x3f(x_81, x_79);
+lean_dec(x_81);
 if (lean_obj_tag(x_85) == 0)
 {
 lean_inc(x_84);
 x_50 = x_77;
 x_51 = x_84;
-x_52 = x_79;
-x_53 = x_78;
+x_52 = x_78;
+x_53 = x_79;
 x_54 = x_80;
-x_55 = x_81;
+x_55 = x_82;
 x_56 = x_83;
 x_57 = x_84;
 goto block_76;
@@ -5027,10 +5027,10 @@ lean_inc(x_86);
 lean_dec_ref(x_85);
 x_50 = x_77;
 x_51 = x_84;
-x_52 = x_79;
-x_53 = x_78;
+x_52 = x_78;
+x_53 = x_79;
 x_54 = x_80;
-x_55 = x_81;
+x_55 = x_82;
 x_56 = x_83;
 x_57 = x_86;
 goto block_76;
@@ -5039,19 +5039,19 @@ goto block_76;
 block_99:
 {
 lean_object* x_95; lean_object* x_96; 
-x_95 = l_Lean_replaceRef(x_1, x_89);
-lean_dec(x_89);
+x_95 = l_Lean_replaceRef(x_1, x_90);
+lean_dec(x_90);
 x_96 = l_Lean_Syntax_getPos_x3f(x_95, x_91);
 if (lean_obj_tag(x_96) == 0)
 {
 lean_object* x_97; 
 x_97 = lean_unsigned_to_nat(0u);
 x_77 = x_88;
-x_78 = x_91;
-x_79 = x_90;
+x_78 = x_89;
+x_79 = x_91;
 x_80 = x_92;
-x_81 = x_93;
-x_82 = x_95;
+x_81 = x_95;
+x_82 = x_93;
 x_83 = x_94;
 x_84 = x_97;
 goto block_87;
@@ -5063,11 +5063,11 @@ x_98 = lean_ctor_get(x_96, 0);
 lean_inc(x_98);
 lean_dec_ref(x_96);
 x_77 = x_88;
-x_78 = x_91;
-x_79 = x_90;
+x_78 = x_89;
+x_79 = x_91;
 x_80 = x_92;
-x_81 = x_93;
-x_82 = x_95;
+x_81 = x_95;
+x_82 = x_93;
 x_83 = x_94;
 x_84 = x_98;
 goto block_87;
@@ -5120,9 +5120,9 @@ if (x_119 == 0)
 lean_inc_ref(x_111);
 lean_inc_ref(x_110);
 lean_inc(x_113);
-x_101 = x_113;
+x_101 = x_114;
 x_102 = x_117;
-x_103 = x_114;
+x_103 = x_113;
 x_104 = x_110;
 x_105 = x_111;
 x_106 = x_109;
@@ -5137,9 +5137,9 @@ x_121 = l_Lean_Option_get___at___00Lean_Option_getM___at___00Lean_checkPrivateIn
 lean_inc_ref(x_111);
 lean_inc_ref(x_110);
 lean_inc(x_113);
-x_101 = x_113;
+x_101 = x_114;
 x_102 = x_117;
-x_103 = x_114;
+x_103 = x_113;
 x_104 = x_110;
 x_105 = x_111;
 x_106 = x_109;

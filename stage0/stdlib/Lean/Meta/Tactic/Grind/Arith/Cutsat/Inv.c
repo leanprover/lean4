@@ -9877,7 +9877,7 @@ x_23 = lean_nat_dec_lt(x_21, x_22);
 if (x_23 == 0)
 {
 lean_object* x_24; lean_object* x_25; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_24 = l_Lean_Meta_Grind_Arith_Cutsat_checkVars___lam__0___closed__1;
 x_25 = l_panic___at___00Int_Linear_Poly_checkNoElimVars_spec__0(x_24, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_25) == 0)

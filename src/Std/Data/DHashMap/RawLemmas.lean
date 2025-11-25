@@ -5702,7 +5702,16 @@ end Perm
 
 theorem mem_toList_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β k} {x : (a : α) × β a} (h' : ¬ k ∈ m) :
     x ∈ (m.insert k v).toList ↔ x ∈ m.toList ∨ x = ⟨k, v⟩ := by
-  sorry
+  have : containsₘ ⟨m, h.size_buckets_pos⟩ k = false := by
+    simp only [← contains_eq_containsₘ]
+    rw [mem_iff_contains] at h'
+    simp only [contains, h.size_buckets_pos, ↓reduceDIte, Bool.not_eq_true] at h'
+    apply h'
+  simp only [toList, insert, h.size_buckets_pos, ↓reduceDIte, insert_eq_insertₘ, insertₘ, this,
+    Bool.false_eq_true, ↓reduceIte, foldRev_cons, List.append_nil]
+  rw [List.Perm.mem_iff (toListModel_expandIfNecessary (consₘ ⟨m, h.size_buckets_pos⟩ k v))]
+  rw [List.Perm.mem_iff (toListModel_consₘ ⟨m, h.size_buckets_pos⟩ (Raw.WF.out h) k v)]
+  simp [Or.comm]
 
 theorem mem_toList_fst_partition [EquivBEq α] [LawfulHashable α] (h : m.WF) {p : (a : α) → β a → Bool} (x : (a : α) × β a):
     x ∈ (m.partition p).1.toList ↔ x ∈ m.toList ∧ p x.1 x.2 = true := by

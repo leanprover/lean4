@@ -6,11 +6,13 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
+import Lean.Parser.Tactic
 public import Lean.Meta.Tactic.ElimInfo
 public import Lean.Elab.Tactic.ElabTerm
 import Lean.Meta.Tactic.FunIndCollect
 import Lean.Elab.App
 import Lean.Elab.Tactic.Generalize
+
 
 public section
 
@@ -641,8 +643,28 @@ def withAltsOfOptInductionAlts (optInductionAlts : Syntax)
       else                                 -- has `with` clause, but no alts
         cont (some #[]))
 
-def getOptPreTacOfOptInductionAlts (optInductionAlts : Syntax) : Syntax :=
-  if optInductionAlts.isNone then mkNullNode else optInductionAlts[0][1]
+/--
+Separate out the optional `with` tactics in inductionAlts structure.
+
+This is also where we situate a specific check for proofs of the form
+`induction h with n n_ih` which can arise from Natural-Numbers-Game-style
+`induction` proofs being used in standard Lean style proofs, so that we can
+highlight an error explanation.
+-/
+def getOptPreTacOfOptInductionAlts (optInductionAlts : Syntax) : TacticM Syntax := do
+  if let (.node _ `null #[
+    .node _ ``Parser.Tactic.inductionAlts #[
+      .atom _ "with",
+      .node _ `null #[
+        .node _ ``Lean.Parser.Tactic.«unknown» #[var, .missing]
+      ]
+    ]
+  ]) := optInductionAlts then
+    throwOrLogErrorAt var "`with` keyword not followed by a tactic or case as expected"
+  if optInductionAlts.isNone then
+    return mkNullNode
+  else
+    return optInductionAlts[0][1]
 
 /--
 Returns true if the `Lean.Parser.Tactic.inductionAlt` either has more than one alternative
@@ -957,7 +979,7 @@ def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr
       -- everything up to the alternatives must be unchanged for reuse
       Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := inductionAltsPos stx) fun optInductionAlts => do
       withAltsOfOptInductionAlts optInductionAlts fun alts? => do
-        let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
+        let optPreTac ← getOptPreTacOfOptInductionAlts optInductionAlts
         mvarId.assign result.elimApp
         ElimApp.evalAlts elimInfo result.alts optPreTac alts? mkInitInfo stx[0]
           (generalized := generalized) (toClear := targetFVarIds) (toTag := toTag)
@@ -1078,10 +1100,10 @@ def evalCasesCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
       -- unchanged
       -- everything up to the alternatives must be unchanged for reuse
       Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := inductionAltsPos stx) fun optInductionAlts => do
-      withAltsOfOptInductionAlts optInductionAlts fun alts => do
-        let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
+      withAltsOfOptInductionAlts optInductionAlts fun alts? => do
+        let optPreTac ← getOptPreTacOfOptInductionAlts optInductionAlts
         mvarId.assign result.elimApp
-        ElimApp.evalAlts elimInfo result.alts optPreTac alts mkInitInfo stx[0]
+        ElimApp.evalAlts elimInfo result.alts optPreTac alts? mkInitInfo stx[0]
           (numEqs := targets.size) (toClear := targetsNew) (toTag := toTag)
 
 @[builtin_tactic Lean.Parser.Tactic.cases, builtin_incremental]

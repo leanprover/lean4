@@ -6,9 +6,9 @@ termination_by n => n
 
 /--
 info: equations:
-theorem foo.eq_1 : foo 0 0 = 0
+@[defeq] theorem foo.eq_1 : foo 0 0 = 0
 theorem foo.eq_2 : ∀ (x : Nat), (x = 0 → False) → foo 0 x = x
-theorem foo.eq_3 : ∀ (x n : Nat), foo n.succ x = foo n x
+@[defeq] theorem foo.eq_3 : ∀ (x n : Nat), foo n.succ x = foo n x
 -/
 #guard_msgs in
 #print equations foo
@@ -53,12 +53,12 @@ termination_by n => n
 
 /--
 info: equations:
-theorem bar.eq_1 : ∀ (x : Nat),
+@[defeq] theorem bar.eq_1 : ∀ (x : Nat),
   bar 0 x =
     match x with
     | 0 => 0
     | m => m
-theorem bar.eq_2 : ∀ (x n : Nat), bar n.succ x = bar n x
+@[defeq] theorem bar.eq_2 : ∀ (x n : Nat), bar n.succ x = bar n x
 -/
 #guard_msgs in
 #print equations bar
@@ -120,12 +120,12 @@ termination_by n => n
 
 /--
 info: equations:
-theorem Structural.bar.eq_1 : ∀ (x : Nat),
+@[defeq] theorem Structural.bar.eq_1 : ∀ (x : Nat),
   bar 0 x =
     match x with
     | 0 => 0
     | m => m
-theorem Structural.bar.eq_2 : ∀ (x n : Nat), bar n.succ x = bar n x
+@[defeq] theorem Structural.bar.eq_2 : ∀ (x n : Nat), bar n.succ x = bar n x
 -/
 #guard_msgs in
 #print equations bar

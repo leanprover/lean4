@@ -22,7 +22,7 @@ This module provides the `casesOnStuckLHS` tactic, used by
   apply `cases xMajor`. -/
 public partial def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
   let target ← mvarId.getType
-  if let some (_, lhs) ← matchEqHEqLHS? target then
+  if let some (_, lhs, _) ← matchEq? target then
     if let some fvarId ← findFVar? lhs then
       return (←  mvarId.cases fvarId).map fun s => s.mvarId
   throwError "'casesOnStuckLHS' failed"

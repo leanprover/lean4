@@ -227,8 +227,6 @@ def _root_.Lean.MVarId.modifyTargetEqLHS (mvarId : MVarId) (f : Expr → MetaM E
    mvarId.modifyTarget fun target => do
      if let some (_, lhs, rhs) ← matchEq? target then
        mkEq (← f lhs) rhs
-     else if let some (_, lhs, _, rhs) ← matchHEq? target then
-       mkHEq (← f lhs) rhs
      else
        throwTacticEx `modifyTargetEqLHS mvarId m!"equality expected{indentExpr target}"
 

@@ -22,7 +22,22 @@ attribute [local simp]
 
 theorem ofRat_add {α} [Field α] (a b : Rat) : (ofRat (a + b) : α) = ofRat a + ofRat b := sorry
 theorem ofRat_mul {α} [Field α] (a b : Rat) : (ofRat (a * b) : α) = ofRat a * ofRat b := sorry
-theorem ofRat_inv {α} [Field α] (a : Rat) : (ofRat (a⁻¹) : α) = (ofRat a)⁻¹ := sorry
+theorem ofRat_inv {α} [Field α] (a : Rat) : (ofRat (a⁻¹) : α) = (ofRat a)⁻¹ := by
+  simp [ofRat]; split
+  next h => simp [h, Field.div_eq_mul_inv]
+  next =>
+    simp [Field.div_eq_mul_inv, Field.inv_mul, Field.inv_inv, Ring.intCast_mul, Ring.intCast_natCast]
+    generalize a.num = n
+    generalize a.den = d
+    conv => rhs; rw [← Int.sign_mul_natAbs n]
+    simp [Ring.intCast_mul, Ring.intCast_natCast, Field.inv_mul]
+    have : (Int.cast n.sign : α) = (Int.cast n.sign : α)⁻¹ := by
+      cases Int.sign_trichotomy n
+      next h => simp [h]
+      next h => cases h <;> simp [*, Ring.intCast_neg, Field.inv_neg]
+    rw [← this, Semiring.mul_assoc, Semiring.mul_assoc]
+    congr 1
+    rw [CommSemiring.mul_comm]
 theorem ofRat_div {α} [Field α] (a b : Rat) : (ofRat (a / b) : α) = ofRat a / ofRat b := by
   simp [Rat.div_def, ofRat_mul, Field.div_eq_mul_inv (ofRat a), ofRat_inv]
 theorem ofRat_neg {α} [Field α] (a : Rat) : (ofRat (-a) : α) = -ofRat a := by

@@ -1226,22 +1226,22 @@ theorem Poly.denote_cancelVar {α} [CommRing α] (ctx : Context α) (p : Poly) (
 noncomputable def cancel_var_cert (c : Int) (x : Var) (p₁ p₂ : Poly) : Bool :=
   c != 0 && p₂.beq' (p₁.cancelVar c x)
 
-theorem cancel_var_eq {α} [CommRing α] (ctx : Context α) (c : Int) (x : Var) (p₁ p₂ : Poly)
+theorem eq_cancel_var {α} [CommRing α] (ctx : Context α) (c : Int) (x : Var) (p₁ p₂ : Poly)
     : cancel_var_cert c x p₁ p₂ → c * x.denote ctx = 1 → p₁.denote ctx = 0 → p₂.denote ctx = 0 := by
   simp [cancel_var_cert]; intros h₁ _ h₂ _; subst p₂
   simp [Poly.denote_cancelVar ctx p₁ c x h₁ h₂]; assumption
 
-theorem cancel_var_ne {α} [CommRing α] (ctx : Context α) (c : Int) (x : Var) (p₁ p₂ : Poly)
+theorem diseq_cancel_var {α} [CommRing α] (ctx : Context α) (c : Int) (x : Var) (p₁ p₂ : Poly)
     : cancel_var_cert c x p₁ p₂ → c * x.denote ctx = 1 → p₁.denote ctx ≠ 0 → p₂.denote ctx ≠ 0 := by
   simp [cancel_var_cert]; intros h₁ _ h₂ _; subst p₂
   simp [Poly.denote_cancelVar ctx p₁ c x h₁ h₂]; assumption
 
-theorem cancel_var_le {α} [CommRing α] [LE α] (ctx : Context α) (c : Int) (x : Var) (p₁ p₂ : Poly)
+theorem le_cancel_var {α} [CommRing α] [LE α] (ctx : Context α) (c : Int) (x : Var) (p₁ p₂ : Poly)
     : cancel_var_cert c x p₁ p₂ → c * x.denote ctx = 1 → p₁.denote ctx ≤ 0 → p₂.denote ctx ≤ 0 := by
   simp [cancel_var_cert]; intros h₁ _ h₂ _; subst p₂
   simp [Poly.denote_cancelVar ctx p₁ c x h₁ h₂]; assumption
 
-theorem cancel_var_lt {α} [CommRing α] [LT α] (ctx : Context α) (c : Int) (x : Var) (p₁ p₂ : Poly)
+theorem lt_cancel_var {α} [CommRing α] [LT α] (ctx : Context α) (c : Int) (x : Var) (p₁ p₂ : Poly)
     : cancel_var_cert c x p₁ p₂ → c * x.denote ctx = 1 → p₁.denote ctx < 0 → p₂.denote ctx < 0 := by
   simp [cancel_var_cert]; intros h₁ _ h₂ _; subst p₂
   simp [Poly.denote_cancelVar ctx p₁ c x h₁ h₂]; assumption
@@ -1698,7 +1698,7 @@ theorem le_int_module {α} [CommRing α] [LE α] (ctx : Context α) (p : Poly)
 noncomputable def mul_ineq_cert (p₁ : Poly) (k : Int) (p : Poly) : Bool :=
   k > 0 && (p₁.mulConst_k k |>.beq' p)
 
-theorem mul_le {α} [CommRing α] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (p₁ : Poly) (k : Int) (p : Poly)
+theorem le_mul {α} [CommRing α] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (p₁ : Poly) (k : Int) (p : Poly)
     : mul_ineq_cert p₁ k p → p₁.denote ctx ≤ 0 → p.denote ctx ≤ 0 := by
   simp [mul_ineq_cert]; intro h₁ _ h₂; subst p; simp [Poly.denote_mulConst]
   replace h₂ := zsmul_nonpos (Int.le_of_lt h₁) h₂
@@ -1716,7 +1716,7 @@ theorem lt_int_module {α} [CommRing α] [LT α] (ctx : Context α) (p : Poly)
     : p.denote ctx < 0 → p.denoteAsIntModule ctx < 0 := by
   simp [Poly.denoteAsIntModule_eq_denote]
 
-theorem mul_lt {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (p₁ : Poly) (k : Int) (p : Poly)
+theorem lt_mul {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (p₁ : Poly) (k : Int) (p : Poly)
     : mul_ineq_cert p₁ k p → p₁.denote ctx < 0 → p.denote ctx < 0 := by
   simp [mul_ineq_cert]; intro h₁ _ h₂; subst p; simp [Poly.denote_mulConst]
   replace h₂ := zsmul_neg_iff k h₂ |>.mpr h₁

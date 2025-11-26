@@ -1308,6 +1308,21 @@ theorem isEmpty_of_isEmpty_insertMany [EquivBEq α] [LawfulHashable α] (h : m.W
     {l : ρ} : (insertMany m l).isEmpty → m.isEmpty :=
   DHashMap.Raw.Const.isEmpty_of_isEmpty_insertMany h.out
 
+section
+variable {β : Type v} {m₁ m₂ : Raw α β}
+
+theorem Equiv.beq [LawfulHashable α] [EquivBEq α] [BEq β] [ReflBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁ ~m m₂ → beq m₁ m₂ := fun hyp =>
+  @DHashMap.Raw.Const.Equiv.beq _ _ _ _ m₁.1 m₂.1 _ _ _ _ h₁.1 h₂.1 hyp.1
+
+theorem Equiv_of_beq_eq_true [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁ == m₂ → m₁ ~m m₂ := fun hyp =>
+  ⟨@DHashMap.Raw.Const.Equiv_of_beq_eq_true _ _ _ _ m₁.1 m₂.1 _ _ _ h₁.1 h₂.1 hyp⟩
+
+theorem Equiv.beq_congr [LawfulBEq α] [BEq β] {m₃ m₄ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF)  :
+    m₁ ~m m₃ → m₂ ~m m₄ → (m₁ == m₂) = (m₃ == m₄) := fun hyp1 hyp2 =>
+  @DHashMap.Raw.Const.Equiv.beq_congr _ _ _ _ m₁.1 m₂.1 _ _ m₃.1 m₄.1 h₁.1 h₂.1 h₃.1 h₄.1 hyp1.1 hyp2.1
+
+end
+
 section Union
 
 variable {β : Type v}

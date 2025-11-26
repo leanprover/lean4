@@ -243,6 +243,12 @@ This function always merges the smaller set into the larger set, so the expected
 
 instance [BEq α] [Hashable α] : Inter (Raw α) := ⟨inter⟩
 
+/-- Internal implementation detail of the hash map. -/
+def beq [BEq α] [Hashable α] (m₁ m₂ : Raw α) : Bool :=
+  HashMap.Raw.beq m₁.inner m₂.inner
+
+instance [BEq α] [Hashable α] : BEq (Raw α) := ⟨beq⟩
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/

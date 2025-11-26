@@ -172,7 +172,7 @@ end StateT
 Creates a suitable implementation of `ForIn.forIn` from a `ForM` instance.
 -/
 @[always_inline, inline]
-def ForM.forIn [Monad m] [ForM (StateT β (ExceptT β m)) ρ α]
+def ForM.forIn [Functor m] [ForM (StateT β (ExceptT β m)) ρ α]
     (x : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β :=
   let g a b := .mk <|
     (fun | .yield b' => .ok (⟨⟩, b') | .done b' => .error b')

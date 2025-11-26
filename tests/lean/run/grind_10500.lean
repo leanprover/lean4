@@ -16,7 +16,7 @@ trace: [grind.linarith.model] a₁ := 0
 [grind.linarith.model] a₅ := 0
 [grind.linarith.model] α := 0
 [grind.linarith.model] L := 0
-[grind.linarith.model] ν := 2
+[grind.linarith.model] ν := 0
 -/
 #guard_msgs in
 set_option trace.grind.linarith.model true in
@@ -43,7 +43,7 @@ trace: [grind.linarith.model] a₁ := 0
 [grind.linarith.model] a₅ := 0
 [grind.linarith.model] α := 0
 [grind.linarith.model] L := 0
-[grind.linarith.model] ν := 2
+[grind.linarith.model] ν := 0
 -/
 #guard_msgs in
 set_option trace.grind.linarith.model true in

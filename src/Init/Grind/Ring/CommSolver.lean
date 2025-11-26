@@ -1746,6 +1746,13 @@ theorem inv_int_eq [Field α] [IsCharP α 0] (b : Int) : b != 0 → (denoteInt b
     have := IsCharP.intCast_eq_zero_iff (α := α) 0 b; simp [*] at this
   rw [Field.mul_inv_cancel this]
 
+theorem intCast_eq_denoteInt [Field α] (b : Int) : (IntCast.intCast b : α) = denoteInt b := by
+  simp [denoteInt_eq]
+
+theorem inv_int_eq' [Field α] [IsCharP α 0] (b : Int) : b != 0 → (IntCast.intCast b : α) * (denoteInt b)⁻¹ = 1 := by
+  rw [intCast_eq_denoteInt]
+  apply inv_int_eq
+
 theorem inv_int_eqC {α c} [Field α] [IsCharP α c] (b : Int) : b % c != 0 → (denoteInt b : α) * (denoteInt b)⁻¹ = 1 := by
   simp; intro h
   have : (denoteInt b : α) ≠ 0 := by

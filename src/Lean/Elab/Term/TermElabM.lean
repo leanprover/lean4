@@ -78,7 +78,7 @@ inductive SyntheticMVarKind where
     If `header?` is not provided, the default header is "type mismatch".
     If `f?` is provided, then throws an application type mismatch error.
   -/
-  | coe (header? : Option String) (expectedType : Expr) (e : Expr) (f? : Option Expr)
+  | coe (header? : Option MessageData) (expectedType : Expr) (e : Expr) (f? : Option Expr)
       (mkErrorMsg? : Option (MVarId → Expr → Expr → MetaM MessageData))
   /--
   Use tactic to synthesize value for metavariable.

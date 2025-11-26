@@ -163,6 +163,7 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
      ⟨`getEntryD, (``getEntryD_eq_getEntryD, #[`(getEntryD_of_perm _)])⟩,
      ⟨`getEntry!, (``getEntry!_eq_getEntry!, #[`(getEntry!_of_perm _)])⟩,
      ⟨`toList, (``Raw.toList_eq_toListModel, #[])⟩,
+     ⟨`Const.beq, (``Raw₀.Const.toListModel_beq, #[])⟩,
      ⟨`beq, (``toListModel_beq, #[])⟩,
      ⟨`keys, (``Raw.keys_eq_keys_toListModel, #[`(perm_keys_congr_left)])⟩,
      ⟨`Const.toList, (``Raw.Const.toList_eq_toListModel_map, #[`(perm_map_congr_left)])⟩,
@@ -2589,15 +2590,28 @@ end Const
 end insertMany
 
 section BEq
-variable {m₁ m₂ : Raw₀ α β}
+variable {m₁ m₂ : Raw₀ α β} [LawfulBEq α] [∀ k, BEq (β k)]
 
-theorem checkBEq_eq_true_of_Equiv {m₁ m₂ : Raw₀ α β} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] : m₁.1.Equiv m₂.1 → beq m₁ m₂ := by
+theorem Equiv.beq [∀ k, ReflBEq (β k)] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : m₁.1.Equiv m₂.1 → beq m₁ m₂ := by
   simp_to_model using List.beqModel_eq_true_of_perm
 
-theorem Equiv_of_checkBEq_eq_true {m₁ m₂ : Raw₀ α β} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] : beq m₁ m₂ → m₁.1.Equiv m₂.1 := by
+theorem Equiv_of_beq_eq_true [∀ k, LawfulBEq (β k)] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq m₁ m₂ → m₁.1.Equiv m₂.1 := by
   simp_to_model using List.perm_of_beqModel
 
 end BEq
+
+namespace Const
+
+variable {β : Type v}
+variable {m₁ m₂ : Raw₀ α (fun _ => β)}
+
+theorem Equiv.beq [LawfulHashable α] [EquivBEq α] [BEq β] [ReflBEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : m₁.1.Equiv m₂.1 → Const.beq m₁ m₂ := by
+  simp_to_model using List.Const.beqModel_eq_true_of_perm
+
+theorem Equiv_of_beq_eq_true [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq m₁ m₂ → m₁.1.Equiv m₂.1 := by
+  simp_to_model using List.Const.perm_of_beqModel
+
+end Const
 
 section Union
 

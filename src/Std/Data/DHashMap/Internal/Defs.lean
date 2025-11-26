@@ -495,6 +495,10 @@ def Const.get? [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α) : O
   buckets[i].get? a
 
 /-- Internal implementation detail of the hash map -/
+def Const.beq [BEq α] [Hashable α] [BEq β] (m₁ m₂ : Raw₀ α (fun _ => β)) : Bool :=
+  if m₁.1.size ≠ m₂.1.size then false else m₁.1.all (fun k v => Const.get? m₂ k == some v)
+
+/-- Internal implementation detail of the hash map -/
 def Const.get [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α)
     (hma : m.contains a) : β :=
   let ⟨⟨_, buckets⟩, h⟩ := m

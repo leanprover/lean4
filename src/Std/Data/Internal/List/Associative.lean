@@ -289,6 +289,10 @@ section
 
 variable {β : Type v}
 
+/-- Internal implementation detail of the hash map -/
+def Const.beqModel [BEq α] [Hashable α] [BEq β] (l₁ l₂ : List ((_ : α) × β)) :=
+  if l₁.length ≠ l₂.length then false else (l₁.all fun x => getValue? x.fst l₂ == some x.snd)
+
 /-- This is a strange dependent version of `Option.map` in which the mapping function is allowed to
 "know" about the option that is being mapped. This happens to be useful in this file (see
 `getValueCast_eq_getEntry?`), but we do not want it to leak out of the file. -/
@@ -6719,6 +6723,28 @@ theorem beqModel_eq_true_of_perm [BEq α] [Hashable α] [LawfulBEq α]  [LawfulB
     symm
     apply getValueCast?_of_perm hl₁ hyp
 
+theorem Const.beqModel_eq_true_of_perm {β : Type v} [BEq α] [EquivBEq α] [Hashable α] [BEq β] [ReflBEq β] {l₁ l₂ : List ((_ : α) × β )}  (hl₁ : DistinctKeys l₁) : l₁.Perm l₂ → Const.beqModel l₁ l₂ := by
+  intro hyp
+  rw [beqModel]
+  split
+  case isTrue hlen =>
+    rw [ne_eq] at hlen
+    apply Classical.byContradiction
+    intro _
+    exact hlen <| List.Perm.length_eq hyp
+  case isFalse hlen =>
+    simp only [List.all_eq_true]
+    intro ⟨k,v⟩ mem
+    have hv := @getValue_of_mem α β _ _ l₁ ⟨k,v⟩ mem
+    have hc := containsKey_of_mem mem
+    apply beq_of_eq
+    simp only at |- hc hv
+    rw [← hv, ← getValue?_eq_some_getValue]
+    · symm
+      apply getValue?_of_perm hl₁ hyp
+    · exact hl₁
+    · exact hc
+
 theorem perm_of_beqModel [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
     beqModel l₁ l₂ → l₁.Perm l₂ := by
   rw [beqModel]
@@ -6759,6 +6785,21 @@ theorem perm_of_beqModel [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k
       case neg =>
         rw [Bool.not_eq_true] at hc₂
         rw [getValueCast?_eq_none hc₁, getValueCast?_eq_none hc₂]
+
+theorem beqModel_eq_beqModel_const {β : Type v} [BEq α] [LawfulBEq α] [Hashable α] [BEq β] {l₁ l₂ : List ((_ : α) × β)} : beqModel l₁ l₂ = Const.beqModel l₁ l₂ := by
+  rw [beqModel, Const.beqModel]
+  congr
+  ext x
+  rw [getValue?_eq_getValueCast?]
+
+theorem Const.perm_of_beqModel {β : Type v} [BEq α] [Hashable α] [LawfulBEq α] [BEq β] [LawfulBEq β] {l₁ l₂ : List ((_ : α) × β)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
+    beqModel l₁ l₂ → l₁.Perm l₂ := by
+  rw [← beqModel_eq_beqModel_const]
+  intro hyp
+  apply List.perm_of_beqModel
+  · exact hl₁
+  · exact hl₂
+  · exact hyp
 
 namespace Const
 

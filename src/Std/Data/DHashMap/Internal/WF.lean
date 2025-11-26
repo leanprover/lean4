@@ -1519,4 +1519,23 @@ theorem toListModel_beq [BEq α] [LawfulBEq α] [Hashable α] [∀ k, BEq (β k)
     · exact h₂
     · exact h₁
 
+theorem Const.toListModel_beq {β : Type v} [BEq α] [PartialEquivBEq α] [Hashable α] [LawfulHashable α] [BEq β] {m₁ m₂ : Raw₀ α (fun _ => β)}  (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1) :
+    beq m₁ m₂ = Const.beqModel m₁.1.toList m₂.1.toList := by
+  rw [beq, Const.beqModel]
+  split
+  case isTrue h =>
+    rw [Raw.size_eq_length, Raw.size_eq_length] at h
+    rw [Raw.toList_eq_toListModel, Raw.toList_eq_toListModel]
+    · simp only [ne_eq, h, not_false_eq_true, ↓reduceIte]
+    · exact h₂
+    · exact h₁
+  case isFalse h =>
+    rw [Raw.size_eq_length, Raw.size_eq_length] at h
+    simp [Raw.toList_eq_toListModel, h, ← Raw.all_toList]
+    congr
+    · ext x
+      rw [get?_eq_getValue? h₂]
+    · exact h₂
+    · exact h₁
+
 end Raw₀

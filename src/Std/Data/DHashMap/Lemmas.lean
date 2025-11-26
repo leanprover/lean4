@@ -1841,13 +1841,13 @@ theorem isEmpty_of_isEmpty_insertMany [EquivBEq α] [LawfulHashable α]
 section BEq
 variable {m₁ m₂ : DHashMap α β} [LawfulBEq α] [∀ k, BEq (β k)]
 
-theorem BEq_of_Equiv [∀ k, ReflBEq (β k)] (h : m₁ ~m m₂ ) : m₁ == m₂ := by
+theorem Equiv.beq [∀ k, ReflBEq (β k)] (h : m₁ ~m m₂ ) : m₁ == m₂ := by
   simp [BEq.beq]
-  apply Raw₀.checkBEq_eq_true_of_Equiv m₁.2 m₂.2 h.1
+  apply Raw₀.Equiv.beq m₁.2 m₂.2 h.1
 
-theorem Equiv.of_BEq [∀ k, LawfulBEq (β k)] (h : m₁ == m₂) : m₁ ~m m₂ := by
+theorem Equiv_of_beq_eq_true [∀ k, LawfulBEq (β k)] (h : m₁ == m₂) : m₁ ~m m₂ := by
   constructor
-  have := @Raw₀.Equiv_of_checkBEq_eq_true α β _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ m₁.2 m₂.2 _ _ _ h
+  have := @Raw₀.Equiv_of_beq_eq_true α β _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 h
   simp only at this
   exact this
 

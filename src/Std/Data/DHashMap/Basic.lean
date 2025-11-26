@@ -387,8 +387,16 @@ end Unverified
     DHashMap α β :=
   insertMany ∅ l
 
+@[inline, inherit_doc Raw.ofArray] def ofArray [BEq α] [Hashable α] (l : Array ((a : α) × β a)) :
+    DHashMap α β :=
+  insertMany ∅ l
+
 @[inline, inherit_doc Raw.Const.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
     (l : List (α × β)) : DHashMap α (fun _ => β) :=
+  Const.insertMany ∅ l
+
+@[inline, inherit_doc Raw.Const.ofArray] def Const.ofArray {β : Type v} [BEq α] [Hashable α]
+    (l : Array (α × β)) : DHashMap α (fun _ => β) :=
   Const.insertMany ∅ l
 
 @[inline, inherit_doc Raw.Const.unitOfList] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :

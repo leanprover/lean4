@@ -192,6 +192,10 @@ instance [BEq α] [Hashable α] : GetElem? (Raw α β) α β (fun m a => a ∈ m
     (l : List α) : Raw α Unit :=
   ⟨DHashMap.Raw.Const.unitOfList l⟩
 
+@[inline, inherit_doc DHashMap.Raw.Const.ofList] def ofArray [BEq α] [Hashable α]
+    (a : Array (α × β)) : Raw α β :=
+  ⟨DHashMap.Raw.Const.ofArray a⟩
+
 @[inline, inherit_doc DHashMap.Raw.Const.alter] def alter [BEq α] [EquivBEq α] [Hashable α]
     (m : Raw α β) (a : α) (f : Option β → Option β) : Raw α β :=
   ⟨DHashMap.Raw.Const.alter m.inner a f⟩
@@ -342,8 +346,14 @@ theorem WF.insertManyIfNewUnit [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ
 theorem WF.ofList [BEq α] [Hashable α] {l : List (α × β)} : (ofList l).WF :=
   ⟨DHashMap.Raw.WF.Const.ofList⟩
 
+theorem WF.ofArray [BEq α] [Hashable α] {a : Array (α × β)} : (ofArray a).WF :=
+  ⟨DHashMap.Raw.WF.Const.ofArray⟩
+
 theorem WF.unitOfList [BEq α] [Hashable α] {l : List α} : (unitOfList l).WF :=
   ⟨DHashMap.Raw.WF.Const.unitOfList⟩
+
+theorem WF.unitOfArray [BEq α] [Hashable α] {a : Array α} : (unitOfArray a).WF :=
+  ⟨DHashMap.Raw.WF.Const.unitOfArray⟩
 
 theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ ∪ m₂).WF :=
   ⟨DHashMap.Raw.WF.union h₁.out h₂.out⟩

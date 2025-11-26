@@ -607,8 +607,17 @@ occurrence takes precedence. -/
 @[inline] def ofList [BEq α] [Hashable α] (l : List ((a : α) × β a)) : Raw α β :=
   insertMany ∅ l
 
+/-- Creates a hash map from an array of mappings. If the same key appears multiple times, the last
+occurrence takes precedence. -/
+@[inline] def ofArray [BEq α] [Hashable α] (l : Array ((a : α) × β a)) : Raw α β :=
+  insertMany ∅ l
+
 @[inline, inherit_doc Raw.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
     (l : List (α × β)) : Raw α (fun _ => β) :=
+  Const.insertMany ∅ l
+
+@[inline, inherit_doc Raw.ofArray] def Const.ofArray {β : Type v} [BEq α] [Hashable α]
+    (l : Array (α × β)) : Raw α (fun _ => β) :=
   Const.insertMany ∅ l
 
 /-- Creates a hash map from a list of keys, associating the value `()` with each key.
@@ -758,6 +767,18 @@ theorem WF.Const.ofList {β : Type v} [BEq α] [Hashable α] {l : List (α × β
 
 theorem WF.Const.unitOfList [BEq α] [Hashable α] {l : List α} :
     (Const.unitOfList l : Raw α (fun _ => Unit)).WF :=
+  Const.insertManyIfNewUnit WF.empty
+
+theorem WF.ofArray [BEq α] [Hashable α] {a : Array ((a : α) × β a)} :
+    (ofArray a : Raw α β).WF :=
+  .insertMany WF.empty
+
+theorem WF.Const.ofArray {β : Type v} [BEq α] [Hashable α] {a : Array (α × β)} :
+    (Const.ofArray a : Raw α (fun _ => β)).WF :=
+  Const.insertMany WF.empty
+
+theorem WF.Const.unitOfArray [BEq α] [Hashable α] {a : Array α} :
+    (Const.unitOfArray a : Raw α (fun _ => Unit)).WF :=
   Const.insertManyIfNewUnit WF.empty
 
 theorem WF.union₀ [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (Raw₀.union ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩).val.WF := by

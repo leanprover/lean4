@@ -616,7 +616,7 @@ occurrence takes precedence. -/
     (l : List (α × β)) : Raw α (fun _ => β) :=
   Const.insertMany ∅ l
 
-@[inline, inherit_doc Raw.ofList] def Const.ofArray {β : Type v} [BEq α] [Hashable α]
+@[inline, inherit_doc Raw.ofArray] def Const.ofArray {β : Type v} [BEq α] [Hashable α]
     (l : Array (α × β)) : Raw α (fun _ => β) :=
   Const.insertMany ∅ l
 

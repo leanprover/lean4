@@ -2870,7 +2870,7 @@ namespace DHashMap
 @[simp, grind =]
 theorem ofArray_eq_ofList (a : Array ((a : α) × (β a))) :
     ofArray a = ofList a.toList :=
-  ext <| congrArg Subtype.val <| congrArg Subtype.val (Raw₀.insertMany_eq_insertMany_ofList (α := α) a)
+  ext <| congrArg Subtype.val <| congrArg Subtype.val (Raw₀.insertMany_array_eq_insertMany_toList (α := α) a)
 
 @[simp, grind =]
 theorem ofList_nil :
@@ -3024,7 +3024,7 @@ variable {β : Type v}
 @[simp, grind =]
 theorem ofArray_eq_ofList (a : Array (α × β)) :
     ofArray a = ofList a.toList :=
-  ext <| congrArg Subtype.val <| congrArg Subtype.val (Raw₀.Const.insertMany_eq_insertMany_ofList (α := α) a)
+  ext <| congrArg Subtype.val <| congrArg Subtype.val (Raw₀.Const.insertMany_array_eq_insertMany_toList (α := α) a)
 
 @[simp, grind =]
 theorem ofList_nil :

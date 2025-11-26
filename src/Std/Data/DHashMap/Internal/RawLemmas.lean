@@ -2192,7 +2192,7 @@ theorem getD_insertManyIfNewUnit_list
 end Const
 
 @[simp, grind =]
-theorem insertMany_eq_insertMany_ofList (a : Array ((a : α) × (β a))) :
+theorem insertMany_array_eq_insertMany_toList (a : Array ((a : α) × (β a))) :
     insertMany emptyWithCapacity a = insertMany emptyWithCapacity a.toList := by
   rw [Internal.Raw₀.insertMany_eq_insertMany_toList]
 
@@ -4029,7 +4029,7 @@ namespace Const
 variable {β : Type v} (m₁ m₂ : Raw₀ α fun _ => β)
 @[simp, grind =]
 
-theorem insertMany_eq_insertMany_ofList (a : Array (α × β)) :
+theorem insertMany_array_eq_insertMany_toList (a : Array (α × β)) :
     insertMany emptyWithCapacity a = insertMany emptyWithCapacity a.toList := by
   rw [Internal.Raw₀.Const.insertMany_eq_insertMany_toList]
 

@@ -3303,7 +3303,7 @@ open Internal.Raw Internal.Raw₀
 theorem ofArray_eq_ofList (a : Array ((a : α) × (β a))) :
     ofArray a = ofList a.toList := by
   simp_to_raw
-  rw [insertMany_eq_insertMany_ofList]
+  rw [insertMany_array_eq_insertMany_toList]
 
 @[simp, grind =]
 theorem ofList_nil :
@@ -3461,7 +3461,7 @@ variable {β : Type v}
 theorem ofArray_eq_ofList (a : Array (α × β)) :
     ofArray a = ofList a.toList := by
   simp_to_raw
-  rw [Const.insertMany_eq_insertMany_ofList]
+  rw [Const.insertMany_array_eq_insertMany_toList]
 
 @[simp, grind =]
 theorem ofList_nil :

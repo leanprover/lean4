@@ -83,7 +83,7 @@ public def mkCtorIdx (indName : Name) : MetaM Unit :=
       modifyEnv fun env => addProtected env declName
       setReducibleAttribute declName
       if info.numCtors = 1 then
-        setInlineAttribute declName
+        setInlineAttribute declName .macroInline
       compileDecl decl
 
       -- Deprecated alias for enumeration types (which used to have `toCtorIdx`)

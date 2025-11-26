@@ -71,16 +71,20 @@ public def mkCtorIdx (indName : Name) : MetaM Unit :=
             value := mkApp value alt
           pure value
         mkLambdaFVars (xs.push x) value
-      addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+      let decl := .defnDecl (← mkDefinitionValInferringUnsafe
         (name        := declName)
         (levelParams := info.levelParams)
         (type        := declType)
         (value       := declValue)
         (hints       := ReducibilityHints.abbrev)
-      ))
+      )
+      addDecl decl
       modifyEnv fun env => addToCompletionBlackList env declName
       modifyEnv fun env => addProtected env declName
       setReducibleAttribute declName
+      if info.numCtors = 1 then
+        setInlineAttribute declName
+      compileDecl decl
 
       -- Deprecated alias for enumeration types (which used to have `toCtorIdx`)
       if (← isEnumType indName) then

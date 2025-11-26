@@ -2635,6 +2635,7 @@ theorem Const.Equiv.beq_unit_congr [LawfulBEq α] {m₃ m₄ : Raw₀ α (fun _ 
   simp_to_model using List.Const.beqModel_unit_congr
 end
 
+section Union
 variable (m₁ m₂ : Raw₀ α β)
 
 variable {m₁ m₂}

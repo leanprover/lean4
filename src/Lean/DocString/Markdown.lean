@@ -151,7 +151,7 @@ public instance : MarkdownBlock i Empty where
 
 private def escape (s : String) : String := Id.run do
   let mut s' := ""
-  let mut iter := s.startValidPos
+  let mut iter := s.startPos
   while h : ¬iter.IsAtEnd do
     let c := iter.get h
     iter := iter.next h
@@ -165,7 +165,7 @@ where
 private def quoteCode (str : String) : String := Id.run do
   let mut longest := 0
   let mut current := 0
-  let mut iter := str.startValidPos
+  let mut iter := str.startPos
   while h : ¬iter.IsAtEnd do
     let c := iter.get h
     iter := iter.next h
@@ -183,12 +183,12 @@ where
   go : List (Inline i) → String × Inline i
     | [] => ("", .empty)
     | .text s :: more =>
-      if s.all (·.isWhitespace) then
+      if s.all Char.isWhitespace then
         let (pre, post) := go more
         (s ++ pre, post)
       else
-        let s1 := s.takeWhile (·.isWhitespace)
-        let s2 := s.drop s1.length
+        let s1 := s.takeWhile Char.isWhitespace |>.copy
+        let s2 := s.drop s1.length |>.copy
         (s1, .text s2 ++ .concat more.toArray)
     | .concat xs :: more => go (xs.toList ++ more)
     | here :: more => ("", here ++ .concat more.toArray)
@@ -198,12 +198,12 @@ where
   go : List (Inline i) → Inline i × String
     | [] => (.empty, "")
     | .text s :: more =>
-      if s.all (·.isWhitespace) then
+      if s.all Char.isWhitespace then
         let (pre, post) := go more
         (pre, post ++ s)
       else
-        let s1 := s.takeRightWhile (·.isWhitespace)
-        let s2 := s.dropRight s1.length
+        let s1 := s.takeEndWhile Char.isWhitespace |>.copy
+        let s2 := s.dropEnd s1.length |>.copy
         (.concat more.toArray.reverse ++ .text s2, s1)
     | .concat xs :: more => go (xs.reverse.toList ++ more)
     | here :: more => (.concat more.toArray.reverse ++ here, "")
@@ -273,7 +273,7 @@ public instance [MarkdownInline i] : ToMarkdown (Inline i) where
 private def quoteCodeBlock (indent : Nat) (str : String) : String := Id.run do
   let mut longest := 2
   let mut current := 0
-  let mut iter := str.startValidPos
+  let mut iter := str.startPos
   let mut out := ""
   while h : ¬iter.IsAtEnd do
     let c := iter.get h

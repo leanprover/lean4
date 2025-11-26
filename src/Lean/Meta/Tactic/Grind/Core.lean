@@ -114,7 +114,11 @@ def propagateBeta (lams : Array Expr) (fns : Array Expr) : GoalM Unit := do
           propagateBetaEqs lams curr args.reverse
         let .app f arg := curr
           | break
-        -- Remark: recall that we do not eagerly internalize partial applications.
+        /-
+        **Note**: Recall that we do not eagerly internalize all partial applications.
+        We can add a small optimization here. If `useFO parent` is `false`, then
+        we know `curr` has been internalized
+        -/
         internalize curr (← getGeneration parent)
         args := args.push arg
         curr := f
@@ -335,8 +339,7 @@ private def processNewFactsImpl : GoalM Unit := do
       resetNewFacts
       return ()
     checkSystem "grind"
-    let some next := (← popNextFact?)
-      | return ()
+    let some next ← popNextFact? | return ()
     match next with
     | .eq lhs rhs proof isHEq => addEqStep lhs rhs proof isHEq
     | .fact prop proof gen => addFactStep prop proof gen

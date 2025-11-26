@@ -161,9 +161,7 @@ LEAN_EXPORT uint8_t l_Lake_Pattern_star___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Pattern_all(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedStrPatDescr_default___closed__0;
-lean_object* l_Substring_Raw_prevn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instEmptyCollectionPatternDescr(lean_object*, lean_object*);
-uint8_t l_Substring_Raw_beq(lean_object*, lean_object*);
 static lean_object* l_Lake___aux__Lake__Config__Pattern______macroRules__Lake__term___x3d_x7e____1___closed__0;
 LEAN_EXPORT lean_object* l_Lake_StrPatDescr_mem_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_StrPat_verLike___closed__2;
@@ -193,7 +191,6 @@ lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lake_PathPatDescr_eq___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_StrPatDescr_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_StrPatDescr_mem_elim___redArg(lean_object*, lean_object*);
-lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_StrPat_startsWith(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Pattern_ofDescr___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PathPatDescr_extension_elim___redArg(lean_object*, lean_object*);
@@ -214,6 +211,7 @@ LEAN_EXPORT lean_object* l_Lake_instIsPatternPathPatDescrFilePath;
 LEAN_EXPORT lean_object* l_Lake_Pattern_not(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PathPat_fileName(lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedPattern_default__1(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 static lean_object* l_Lake_instCoeStringStrPatDescr___closed__0;
@@ -224,6 +222,7 @@ LEAN_EXPORT lean_object* l_Lake_defaultVersionTags;
 LEAN_EXPORT lean_object* l_Lake_instCoePatternDescrPatternOfIsPattern___redArg(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_instIsPatternPattern___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_contains___at___00Lake_StrPatDescr_matches_spec__0___boxed(lean_object*, lean_object*);
+uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PathPat_path(lean_object*);
 static lean_object* l_Lake_term___x3d_x7e___00__closed__3;
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -280,7 +279,6 @@ LEAN_EXPORT lean_object* l_Lake_instIsPatternStrPatDescrString;
 static lean_object* l_Lake_term___x3d_x7e___00__closed__1;
 LEAN_EXPORT uint8_t l_Array_contains___at___00Lake_StrPatDescr_matches_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PatternDescr_coe_elim___redArg(lean_object*, lean_object*);
-lean_object* l_Substring_Raw_nextn(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedPathPatDescr_default___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Pattern_ctorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_IsPattern_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2121,64 +2119,54 @@ case 0:
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = l_Array_contains___at___00Lake_StrPatDescr_matches_spec__0(x_3, x_1);
-lean_dec_ref(x_1);
 return x_4;
 }
 case 1:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_5 = lean_ctor_get(x_2, 0);
-x_6 = lean_unsigned_to_nat(0u);
-x_7 = lean_string_utf8_byte_size(x_1);
-lean_inc_ref(x_1);
-x_8 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_8, 0, x_1);
-lean_ctor_set(x_8, 1, x_6);
-lean_ctor_set(x_8, 2, x_7);
-x_9 = lean_string_length(x_5);
-x_10 = l_Substring_Raw_nextn(x_8, x_9, x_6);
-lean_dec_ref(x_8);
-x_11 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_11, 0, x_1);
-lean_ctor_set(x_11, 1, x_6);
-lean_ctor_set(x_11, 2, x_10);
-x_12 = lean_string_utf8_byte_size(x_5);
-lean_inc_ref(x_5);
-x_13 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_13, 0, x_5);
-lean_ctor_set(x_13, 1, x_6);
-lean_ctor_set(x_13, 2, x_12);
-x_14 = l_Substring_Raw_beq(x_11, x_13);
-return x_14;
+x_6 = lean_string_utf8_byte_size(x_1);
+x_7 = lean_string_utf8_byte_size(x_5);
+x_8 = lean_nat_dec_le(x_7, x_6);
+lean_dec(x_6);
+if (x_8 == 0)
+{
+lean_dec(x_7);
+return x_8;
+}
+else
+{
+lean_object* x_9; uint8_t x_10; 
+x_9 = lean_unsigned_to_nat(0u);
+x_10 = lean_string_memcmp(x_1, x_5, x_9, x_9, x_7);
+lean_dec(x_7);
+return x_10;
+}
 }
 default: 
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-x_15 = lean_ctor_get(x_2, 0);
-x_16 = lean_unsigned_to_nat(0u);
-x_17 = lean_string_utf8_byte_size(x_1);
-lean_inc(x_17);
-lean_inc_ref(x_1);
-x_18 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_18, 0, x_1);
-lean_ctor_set(x_18, 1, x_16);
-lean_ctor_set(x_18, 2, x_17);
-x_19 = lean_string_length(x_15);
-lean_inc(x_17);
-x_20 = l_Substring_Raw_prevn(x_18, x_19, x_17);
-lean_dec_ref(x_18);
-x_21 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_21, 0, x_1);
-lean_ctor_set(x_21, 1, x_20);
-lean_ctor_set(x_21, 2, x_17);
-x_22 = lean_string_utf8_byte_size(x_15);
-lean_inc_ref(x_15);
-x_23 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_23, 0, x_15);
-lean_ctor_set(x_23, 1, x_16);
-lean_ctor_set(x_23, 2, x_22);
-x_24 = l_Substring_Raw_beq(x_21, x_23);
-return x_24;
+lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+x_11 = lean_ctor_get(x_2, 0);
+x_12 = lean_string_utf8_byte_size(x_1);
+x_13 = lean_string_utf8_byte_size(x_11);
+x_14 = lean_nat_dec_le(x_13, x_12);
+if (x_14 == 0)
+{
+lean_dec(x_13);
+lean_dec(x_12);
+return x_14;
+}
+else
+{
+lean_object* x_15; lean_object* x_16; uint8_t x_17; 
+x_15 = lean_unsigned_to_nat(0u);
+x_16 = lean_nat_sub(x_12, x_13);
+lean_dec(x_12);
+x_17 = lean_string_memcmp(x_1, x_11, x_16, x_15, x_13);
+lean_dec(x_13);
+lean_dec(x_16);
+return x_17;
+}
 }
 }
 }
@@ -2215,6 +2203,7 @@ _start:
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lake_StrPatDescr_matches(x_1, x_2);
 lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }

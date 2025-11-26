@@ -133,7 +133,6 @@ private partial def findIfToSplit? (e : Expr) : MetaM (Option (Expr × Expr)) :=
 
 register_builtin_option backward.split : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr    := "use the old semantics for the `split` tactic where nested `if-then-else` terms could be simplified too"
 }
 

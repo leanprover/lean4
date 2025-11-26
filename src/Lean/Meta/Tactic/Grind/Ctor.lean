@@ -10,17 +10,25 @@ import Lean.Meta.Tactic.Grind.Simp
 public section
 namespace Lean.Meta.Grind
 
-private partial def propagateInjEqs (eqs : Expr) (proof : Expr) : GoalM Unit := do
+private partial def propagateInjEqs (eqs : Expr) (proof : Expr) (generation : Nat) : GoalM Unit := do
   -- Remark: we must use `shareCommon` before using `pushEq` and `pushHEq`.
   -- This is needed because the result type of the injection theorem may allocate
   match_expr eqs with
   | And left right =>
-    propagateInjEqs left (.proj ``And 0 proof)
-    propagateInjEqs right (.proj ``And 1 proof)
+    propagateInjEqs left (.proj ``And 0 proof) generation
+    propagateInjEqs right (.proj ``And 1 proof) generation
   | Eq _ lhs rhs    =>
-    pushEq (← preprocessLight lhs) (← preprocessLight rhs) proof
+    let lhs ← preprocessLight lhs
+    let rhs ← preprocessLight rhs
+    internalize lhs generation
+    internalize rhs generation
+    pushEq lhs rhs proof
   | HEq _ lhs _ rhs =>
-    pushHEq (← preprocessLight lhs) (← preprocessLight rhs) proof
+    let lhs ← preprocessLight lhs
+    let rhs ← preprocessLight rhs
+    internalize lhs generation
+    internalize rhs generation
+    pushHEq lhs rhs proof
   | _ =>
    reportIssue! "unexpected injectivity theorem result type{indentExpr eqs}"
    return ()
@@ -51,7 +59,8 @@ def propagateCtor (a b : Expr) : GoalM Unit := do
     let mask := mask.set! (n-1) (some (← mkExpectedTypeHint (← mkEqProof a b) (← mkEq a b)))
     let injLemma ← mkAppOptM injDeclName mask
     let injLemmaType ← inferType injLemma
-    propagateInjEqs injLemmaType injLemma
+    let gen := max (← getGeneration a) (← getGeneration b)
+    propagateInjEqs injLemmaType injLemma gen
   else
     let .const declName _ := aType.getAppFn | return ()
     let noConfusionDeclName := Name.mkStr declName "noConfusion"

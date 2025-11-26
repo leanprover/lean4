@@ -72,7 +72,7 @@ inst_1 : One α
 inst_2 : Zero α
 x y : α
 h : DvdNotUnit x y
-hx0 : ¬x = 0
+hx0 : x ≠ 0
 d : α
 hdu : ¬IsUnit d
 hdx : y = x * d

@@ -13,6 +13,7 @@ import Lake.Build.Infos
 import Lake.Build.Job.Monad
 public import Lake.Build.Job.Register
 import Lake.Util.IO
+import Init.Data.String.Search
 
 open System Lean
 
@@ -179,26 +180,26 @@ def resolveTargetInWorkspace
 private def resolveTargetLikeSpec
   (ws : Workspace) (spec : String) (facet : Name) (isMaybePath explicit := false)
 : Except CliError (Array BuildSpec) := do
-  match spec.splitOn "/" with
+  match spec.split '/' |>.toList with
   | [spec] =>
     if spec.isEmpty then
       resolvePackageTarget ws ws.root facet
     else if explicit then
-      resolvePackageTarget ws (← parsePackageSpec ws spec) facet
+      resolvePackageTarget ws (← parsePackageSpec ws spec.copy) facet
     else
-      resolveTargetInWorkspace ws (stringToLegalOrSimpleName spec) facet
+      resolveTargetInWorkspace ws (stringToLegalOrSimpleName spec.copy) facet
   | [pkgSpec, targetSpec] =>
-    let pkg ← parsePackageSpec ws pkgSpec
+    let pkg ← parsePackageSpec ws pkgSpec.copy
     if targetSpec.isEmpty then
       resolvePackageTarget ws pkg facet
     else if targetSpec.startsWith "+" then
-      let mod := targetSpec.drop 1 |>.toName
+      let mod := targetSpec.drop 1 |>.copy.toName
       if let some mod := pkg.findTargetModule? mod then
         Array.singleton <$> resolveModuleTarget ws mod facet
       else
         throw <| CliError.unknownModule mod
     else
-      resolveTargetInPackage ws pkg (stringToLegalOrSimpleName targetSpec) facet
+      resolveTargetInPackage ws pkg (stringToLegalOrSimpleName targetSpec.copy) facet
   | _ =>
     if isMaybePath then
       throw <| CliError.unknownModulePath spec
@@ -210,7 +211,7 @@ private def resolveTargetBaseSpec
 : EIO CliError (Array BuildSpec) := do
   if spec.startsWith "@" then
     let spec := spec.drop 1
-    resolveTargetLikeSpec ws spec facet (explicit := true)
+    resolveTargetLikeSpec ws spec.copy facet (explicit := true)
   else if spec.startsWith "+" then
     let mod := spec.drop 1 |>.toName
     if let some mod := ws.findTargetModule? mod then
@@ -230,16 +231,16 @@ private def resolveTargetBaseSpec
 public def parseExeTargetSpec
   (ws : Workspace) (spec : String)
 : Except CliError LeanExe := do
-  match spec.splitOn "/" with
+  match spec.split '/' |>.toList with
   | [targetSpec] =>
-    let targetName := stringToLegalOrSimpleName targetSpec
+    let targetName := stringToLegalOrSimpleName targetSpec.copy
     match ws.findLeanExe? targetName with
     | some exe => return exe
     | none => throw <| CliError.unknownExe spec
   | [pkgSpec, targetSpec] =>
     let pkgSpec := if pkgSpec.startsWith "@" then pkgSpec.drop 1 else pkgSpec
-    let pkg ← parsePackageSpec ws pkgSpec
-    let targetName := stringToLegalOrSimpleName targetSpec
+    let pkg ← parsePackageSpec ws pkgSpec.copy
+    let targetName := stringToLegalOrSimpleName targetSpec.copy
     match pkg.findLeanExe? targetName with
     | some exe => return exe
     | none => throw <| CliError.unknownExe spec
@@ -249,7 +250,7 @@ public def parseExeTargetSpec
 public def parseTargetSpec
   (ws : Workspace) (spec : String)
 : EIO CliError (Array BuildSpec) := do
-  match spec.splitOn ":" with
+  match spec.split ':' |>.toStringList with
   | [spec] =>
     resolveTargetBaseSpec ws spec .anonymous
   | [rootSpec, facet] =>

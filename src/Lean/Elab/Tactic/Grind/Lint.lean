@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Elab.Command
 import Init.Grind.Lint
+import Lean.Data.Name
 import Lean.Meta.Tactic.Grind.EMatchTheorem
 import Lean.EnvExtension
 import Lean.Elab.Tactic.Grind.Config
@@ -15,6 +16,12 @@ import Lean.PrettyPrinter
 namespace Lean.Elab.Tactic.Grind
 
 builtin_initialize skipExt : SimplePersistentEnvExtension Name NameSet ←
+  registerSimplePersistentEnvExtension {
+    addEntryFn := (·.insert)
+    addImportedFn := mkStateFromImportedEntries (·.insert) {}
+  }
+
+builtin_initialize skipSuffixExt : SimplePersistentEnvExtension Name NameSet ←
   registerSimplePersistentEnvExtension {
     addEntryFn := (·.insert)
     addImportedFn := mkStateFromImportedEntries (·.insert) {}
@@ -34,14 +41,23 @@ def checkEMatchTheorem (declName : Name) : CoreM Unit := do
 
 @[builtin_command_elab Lean.Grind.grindLintSkip]
 def elabGrindLintSkip : CommandElab := fun stx => do
-  let `(#grind_lint skip $ids:ident*) := stx | throwUnsupportedSyntax
+  let `(#grind_lint skip $[suffix%$sfx?]? $ids:ident*) := stx | throwUnsupportedSyntax
   liftTermElabM do
-  for id in ids do
-    let declName ← realizeGlobalConstNoOverloadWithInfo id
-    checkEMatchTheorem declName
-    if skipExt.getState (← getEnv) |>.contains declName then
-      throwError "`{declName}` is already in the `#grind_lint` skip set"
-    modifyEnv fun env => skipExt.addEntry env declName
+  if sfx?.isSome then
+    -- Skip by suffix
+    for id in ids do
+      let suffixName := id.getId
+      if skipSuffixExt.getState (← getEnv) |>.contains suffixName then
+        throwError "`{suffixName}` is already in the `#grind_lint` skip suffix set"
+      modifyEnv fun env => skipSuffixExt.addEntry env suffixName
+  else
+    -- Skip by exact name
+    for id in ids do
+      let declName ← realizeGlobalConstNoOverloadWithInfo id
+      checkEMatchTheorem declName
+      if skipExt.getState (← getEnv) |>.contains declName then
+        throwError "`{declName}` is already in the `#grind_lint` skip set"
+      modifyEnv fun env => skipExt.addEntry env declName
 
 @[builtin_command_elab Lean.Grind.grindLintMute]
 def elabGrindLintMute : CommandElab := fun stx => do
@@ -139,13 +155,22 @@ def elabGrindLintInspect : CommandElab := fun stx => liftTermElabM <| withTheRea
         $(⟨stx⟩):command)
       Tactic.TryThis.addSuggestion (header := "Try this to display the actual theorem instances:") stx { suggestion := .tsyntax s }
 
+/-- Check if the last component of `name` ends with the string form of `suff`. -/
+def nameEndsWithSuffix (name suff : Name) : Bool :=
+  match name with
+  | .str _ s => s.endsWith suff.toString
+  | _ => false
+
 def getTheorems (prefixes? : Option (Array Name)) (inModule : Bool) : CoreM (List Name) := do
   let skip := skipExt.getState (← getEnv)
+  let skipSuffixes := skipSuffixExt.getState (← getEnv)
   let origins := (← getEMatchTheorems).getOrigins
   let env ← getEnv
   return origins.filterMap fun origin => Id.run do
     let .decl declName := origin | return none
     if skip.contains declName then return none
+    -- Check if declName's last component ends with any of the skip suffixes
+    if skipSuffixes.any fun suff => nameEndsWithSuffix declName suff then return none
     let some prefixes := prefixes? | return some declName
     if inModule then
       let some modIdx := env.getModuleIdxFor? declName | return none
@@ -189,11 +214,3 @@ def elabGrindLintCheck : CommandElab := fun stx => liftTermElabM <| withTheReade
     Tactic.TryThis.addSuggestion stx { suggestion := .string suggestion }
 
 end Lean.Elab.Tactic.Grind
-
--- We allow these as grind lemmas even though they triggers >20 further instantiations.
--- See tests/lean/run/grind_lint.lean for more details.
-#grind_lint skip BitVec.msb_replicate
-#grind_lint skip BitVec.msb_signExtend
-#grind_lint skip List.replicate_sublist_iff
-#grind_lint skip List.Sublist.append
-#grind_lint skip List.Sublist.middle

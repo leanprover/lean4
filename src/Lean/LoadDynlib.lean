@@ -97,7 +97,7 @@ def loadPlugin (path : System.FilePath) : IO Unit := do
   let dynlib ← Dynlib.load path
   -- Lean libraries can be prefixed with `lib` or suffixed with `_shared`
   -- under some configurations. We strip these from the initializer symbol.
-  let name := name.stripPrefix "lib" |>.stripSuffix "_shared"
+  let name := name.dropPrefix "lib" |>.dropSuffix "_shared"
   let name := s!"initialize_{name}"
   let some sym := dynlib.get? name
     | throw <| IO.userError s!"error loading plugin, initializer not found '{name}'"

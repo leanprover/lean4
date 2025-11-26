@@ -2123,7 +2123,6 @@ x_133 = lean_unsigned_to_nat(3u);
 x_134 = lean_array_get_size(x_104);
 x_135 = l_Array_toSubarray___redArg(x_104, x_133, x_134);
 x_136 = l_Array_ofSubarray___redArg(x_135);
-lean_dec_ref(x_135);
 x_137 = l_Array_append___redArg(x_132, x_136);
 lean_dec_ref(x_136);
 lean_inc_ref(x_130);
@@ -2400,7 +2399,6 @@ x_192 = lean_array_get_size(x_104);
 lean_inc_ref(x_104);
 x_193 = l_Array_toSubarray___redArg(x_104, x_191, x_192);
 x_194 = l_Array_ofSubarray___redArg(x_193);
-lean_dec_ref(x_193);
 lean_inc_ref(x_194);
 x_195 = l_Lean_Expr_beta(x_190, x_194);
 lean_inc_ref(x_195);
@@ -3695,7 +3693,6 @@ block_105:
 {
 lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; 
 x_99 = l_Lean_stringToMessageData(x_98);
-lean_dec_ref(x_98);
 x_100 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_100, 0, x_97);
 lean_ctor_set(x_100, 1, x_99);
@@ -3738,7 +3735,6 @@ block_95:
 {
 lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; uint8_t x_90; 
 x_84 = l_Lean_stringToMessageData(x_83);
-lean_dec_ref(x_83);
 x_85 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_85, 0, x_82);
 lean_ctor_set(x_85, 1, x_84);

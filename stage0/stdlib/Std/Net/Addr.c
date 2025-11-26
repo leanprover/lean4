@@ -67,6 +67,7 @@ LEAN_EXPORT uint8_t l_Std_Net_SocketAddress_family(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_instDecidableEqIPAddr___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Net_instDecidableEqIPAddr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_instDecidableEqSocketAddressV4___boxed(lean_object*, lean_object*);
+uint8_t l_Array_instDecidableEqImpl___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Net_instDecidableEqSocketAddress(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_IPv6Addr_toString___boxed(lean_object*);
 static lean_object* l_Std_Net_instInhabitedSocketAddressV6_default___closed__0;
@@ -100,7 +101,6 @@ LEAN_EXPORT lean_object* l_Std_Net_instInhabitedInterfaceAddress;
 LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_noConfusion___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_instInhabitedIPAddr;
 LEAN_EXPORT lean_object* l_Std_Net_SocketAddressV6_instCoeSocketAddress;
-uint8_t l_Array_instDecidableEq___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_instInhabitedInterfaceAddress_default;
 LEAN_EXPORT lean_object* l_Std_Net_instDecidableEqSocketAddress_decEq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_noConfusion___redArg___boxed(lean_object*, lean_object*);
@@ -239,7 +239,7 @@ _start:
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_alloc_closure((void*)(l_instDecidableEqUInt8___boxed), 2, 0);
-x_4 = l_Array_instDecidableEq___redArg(x_3, x_1, x_2);
+x_4 = l_Array_instDecidableEqImpl___redArg(x_3, x_1, x_2);
 return x_4;
 }
 }
@@ -322,7 +322,7 @@ _start:
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_alloc_closure((void*)(l_instDecidableEqUInt8___boxed), 2, 0);
-x_4 = l_Array_instDecidableEq___redArg(x_3, x_1, x_2);
+x_4 = l_Array_instDecidableEqImpl___redArg(x_3, x_1, x_2);
 return x_4;
 }
 }
@@ -510,7 +510,7 @@ _start:
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_alloc_closure((void*)(l_instDecidableEqUInt16___boxed), 2, 0);
-x_4 = l_Array_instDecidableEq___redArg(x_3, x_1, x_2);
+x_4 = l_Array_instDecidableEqImpl___redArg(x_3, x_1, x_2);
 return x_4;
 }
 }

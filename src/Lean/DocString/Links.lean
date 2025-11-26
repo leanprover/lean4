@@ -9,6 +9,7 @@ module
 prelude
 public import Lean.Syntax
 import Init.Data.String.TakeDrop
+import Init.Data.String.Search
 
 public section
 
@@ -70,7 +71,7 @@ def manualLink (kind name : String) : Except String String :=
     throw s!"Unknown documentation type `{kind}`. Expected one of the following: {acceptableKinds}"
 
 private def rw (path : String) : Except String String := do
-  match path.splitOn "/" with
+  match path.split '/' |>.toStringList with
   | [] | [""] =>
     throw "Missing documentation type"
   | kind :: args =>
@@ -105,7 +106,7 @@ def rewriteManualLinksCore (s : String) : Id (Array (Lean.Syntax.Range × String
   let scheme := "lean-manual://"
   let mut out := ""
   let mut errors := #[]
-  let mut iter := s.startValidPos
+  let mut iter := s.startPos
   while h : ¬iter.IsAtEnd do
     let c := iter.get h
     let pre := iter
@@ -154,7 +155,7 @@ where
   /--
   Returns `true` if `goal` is a prefix of the string at the position pointed to by `iter`.
   -/
-  lookingAt (goal : String) {s : String} (iter : s.ValidPos) : Bool :=
+  lookingAt (goal : String) {s : String} (iter : s.Pos) : Bool :=
     String.Pos.Raw.substrEq s iter.offset goal 0 goal.rawEndPos.byteIdx
 
 /--

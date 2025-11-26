@@ -10,6 +10,7 @@ public import Init.System.IOError
 public import Init.System.FilePath
 public import Init.Data.Ord.UInt
 import Init.Data.String.TakeDrop
+import Init.Data.String.Search
 
 public section
 
@@ -565,8 +566,19 @@ Waits until any of the tasks in the list has finished, then return its result.
   return tasks[0].get
 
 /--
+Given a non-empty list of tasks, wait for the first to complete.
+Return the value and the list of remaining tasks.
+-/
+def waitAny' (tasks : List (Task α)) (h : 0 < tasks.length := by exact Nat.zero_lt_succ _) :
+    BaseIO (α × List (Task α)) := do
+  let (i, a) ← IO.waitAny
+    (tasks.mapIdx fun i t => t.map (sync := true) fun a => (i, a))
+    (by simp_all)
+  return (a, tasks.eraseIdx i)
+
+/--
 Returns the number of _heartbeats_ that have occurred during the current thread's execution. The
-heartbeat count is the number of “small” memory allocations performed in a thread.
+heartbeat count is the number of "small" memory allocations performed in a thread.
 
 Heartbeats used to implement timeouts that are more deterministic across different hardware.
 -/
@@ -1008,8 +1020,8 @@ partial def Handle.lines (h : Handle) : IO (Array String) := do
     if line.length == 0 then
       pure lines
     else if line.back == '\n' then
-      let line := line.dropRight 1
-      let line := if line.back == '\r' then line.dropRight 1 else line
+      let line := line.dropEnd 1 |>.copy
+      let line := if line.back == '\r' then line.dropEnd 1 |>.copy else line
       read <| lines.push line
     else
       pure <| lines.push line
@@ -1791,8 +1803,8 @@ partial def lines (s : Stream) : IO (Array String) := do
     if line.length == 0 then
       pure lines
     else if line.back == '\n' then
-      let line := line.dropRight 1
-      let line := if line.back == '\r' then line.dropRight 1 else line
+      let line := line.dropEnd 1 |>.copy
+      let line := if line.back == '\r' then line.dropEnd 1 |>.copy else line
       read <| lines.push line
     else
       pure <| lines.push line

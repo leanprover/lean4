@@ -2,17 +2,17 @@ module
 
 -- Test that termination proofs for stepping through a string with `next` and `prev` works.
 
-def isConsonant (i : String.ValidPos str) : Bool :=
+def isConsonant (i : String.Pos str) : Bool :=
   match i.get! with
   | 'a' | 'e' | 'i' | 'o' | 'u' => false
   | 'y' =>
-    if h : i = str.startValidPos then true
+    if h : i = str.startPos then true
     else !isConsonant (i.prev h)
   | _ => true
 termination_by i.down
 
 def measure₁ (word : String) : Nat :=
-  let rec aux (pos : String.ValidPos word) (inVowel : Bool) (count : Nat) : Nat :=
+  let rec aux (pos : String.Pos word) (inVowel : Bool) (count : Nat) : Nat :=
     match h : pos.next? with
     | some next =>
       if !isConsonant pos then
@@ -24,11 +24,11 @@ def measure₁ (word : String) : Nat :=
     | none => count
   termination_by pos
 
-  aux word.startValidPos false 0
+  aux word.startPos false 0
 
 def measure₂ (word : String) : Nat :=
-  let rec aux (pos : String.ValidPos word) (inVowel : Bool) (count : Nat) : Nat :=
-    if h : pos = word.endValidPos then count
+  let rec aux (pos : String.Pos word) (inVowel : Bool) (count : Nat) : Nat :=
+    if h : pos = word.endPos then count
     else
       let next := pos.next h
       if !isConsonant pos then
@@ -39,4 +39,4 @@ def measure₂ (word : String) : Nat :=
         aux next false count
   termination_by pos
 
-  aux word.startValidPos false 0
+  aux word.startPos false 0

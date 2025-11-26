@@ -123,7 +123,7 @@ private def withInfoSyntaxFn (p : ParserFn) (infoP : SourceInfo → ParserFn) : 
 
 private def unescapeStr (str : String) : String := Id.run do
   let mut out := ""
-  let mut iter := str.startValidPos
+  let mut iter := str.startPos
   while h : ¬iter.IsAtEnd do
     let c := iter.get h
     iter := iter.next h
@@ -246,7 +246,7 @@ private def pushMissing : ParserFn := fun _c s =>
   s.pushSyntax .missing
 
 private def strFn (str : String) : ParserFn := asStringFn <| fun c s =>
-  let rec go (iter : str.ValidPos) (s : ParserState) :=
+  let rec go (iter : str.Pos) (s : ParserState) :=
     if h : iter.IsAtEnd then s
     else
       let ch := iter.get h
@@ -254,7 +254,7 @@ private def strFn (str : String) : ParserFn := asStringFn <| fun c s =>
   termination_by iter
   let iniPos := s.pos
   let iniSz := s.stxStack.size
-  let s := go str.startValidPos s
+  let s := go str.startPos s
   if s.hasError then s.mkErrorAt s!"'{str}'" iniPos (some iniSz) else s
 
 /--
@@ -683,7 +683,7 @@ mutual
       let str := s.stxStack.back
       if let .atom info str := str then
         if str.startsWith "\" " && str.endsWith " \"" then
-          let core := str.drop 2 |>.dropRight 2
+          let core := str.drop 2 |>.dropEnd 2 |>.copy
           if core.any (· != ' ') then
             let str := "\"" ++ core ++ "\""
             let info : SourceInfo :=
@@ -1047,9 +1047,9 @@ mutual
       | other => s.mkError s!"Internal error - not a column node {other}"
 
     deIndent (n : Nat) (str : String) : String := Id.run do
-      let str := if str != "" && str.back == '\n' then str.dropRight 1 else str
+      let str := if str != "" && str.back == '\n' then str.dropEnd 1 |>.copy else str
       let mut out := ""
-      for line in str.splitOn "\n" do
+      for line in str.split '\n' do
         out := out ++ line.drop n ++ "\n"
       out
 

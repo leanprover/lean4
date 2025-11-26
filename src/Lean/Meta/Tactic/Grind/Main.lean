@@ -26,6 +26,8 @@ import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Meta.Tactic.Grind.LawfulEqCmp
 import Lean.Meta.Tactic.Grind.ReflCmp
 import Lean.Meta.Tactic.Grind.PP
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Core
 public section
 namespace Lean.Meta.Grind
 
@@ -37,6 +39,8 @@ structure Params where
   casesTypes  : CasesTypes := {}
   extra       : PArray EMatchTheorem := {}
   extraInj    : PArray InjectiveTheorem := {}
+  extraFacts  : PArray Expr := {}
+  funCCs      : NameSet := {}
   norm        : Simp.Context
   normProcs   : Array Simprocs
   anchorRefs? : Option (Array AnchorRef) := none
@@ -94,7 +98,8 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
   let config := params.config
   let symPrios := params.symPrios
   let anchorRefs? := params.anchorRefs?
-  x (← mkMethods evalTactic?).toMethodsRef { config, anchorRefs?, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr, symPrios }
+  let funCCs := params.funCCs
+  x (← mkMethods evalTactic?).toMethodsRef { config, anchorRefs?, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr, symPrios, funCCs }
     |>.run' { scState }
 
 private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State := mvarId.withContext do
@@ -103,6 +108,18 @@ private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State
   for localDecl in (← getLCtx) do
     used := used.insert localDecl.userName
   return { used }
+
+/--
+Asserts extra facts provided as `grind` parameters.
+-/
+def assertExtra (params : Params) : GoalM Unit := do
+  for proof in params.extraFacts do
+    let prop ← inferType proof
+    addNewRawFact proof prop 0 .input
+  for thm in params.extra do
+    activateTheorem thm 0
+  for thm in params.extraInj do
+    activateInjectiveTheorem thm 0
 
 private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let mvarId ← if params.config.clean then mvarId.exposeNames else pure mvarId
@@ -117,14 +134,13 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let clean ← mkCleanState mvarId params
   let sstates ← Solvers.mkInitialStates
   GoalM.run' { mvarId, ematch.thmMap := thmMap, inj.thms := params.inj, split.casesTypes := casesTypes, clean, sstates } do
-    mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
-    mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
-    mkENodeCore btrueExpr (interpreted := false) (ctor := true) (generation := 0)
-    mkENodeCore bfalseExpr (interpreted := false) (ctor := true) (generation := 0)
-    mkENodeCore natZeroExpr (interpreted := true) (ctor := false) (generation := 0)
-    mkENodeCore ordEqExpr (interpreted := false) (ctor := true) (generation := 0)
-    for thm in params.extra do
-      activateTheorem thm 0
+    mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0) (funCC := false)
+    mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0) (funCC := false)
+    mkENodeCore btrueExpr (interpreted := false) (ctor := true) (generation := 0) (funCC := false)
+    mkENodeCore bfalseExpr (interpreted := false) (ctor := true) (generation := 0) (funCC := false)
+    mkENodeCore natZeroExpr (interpreted := true) (ctor := false) (generation := 0) (funCC := false)
+    mkENodeCore ordEqExpr (interpreted := false) (ctor := true) (generation := 0) (funCC := false)
+    assertExtra params
 
 structure Result where
   failure?   : Option Goal
@@ -199,6 +215,22 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
       msgs := msgs ++ [msg]
   return MessageData.joinSep msgs m!"\n"
 
+/--
+When `Config.revert := false`, we preprocess the hypotheses, and add them to the `grind` state.
+-/
+private def addHypotheses (goal : Goal) : GrindM Goal := GoalM.run' goal do
+  let mvarDecl ← goal.mvarId.getDecl
+  for localDecl in mvarDecl.lctx do
+    if (← isInconsistent) then return ()
+    let type := localDecl.type
+    if (← isProp type) then
+      let r ← preprocessHypothesis type
+      match r.proof? with
+      | none => add r.expr localDecl.toExpr
+      | some h => add r.expr <| mkApp4 (mkConst ``Eq.mp [0]) type r.expr h localDecl.toExpr
+    else
+      internalizeLocalDecl localDecl
+
 private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
   /-
   **Note**: We used to use `abstractMVars` and `clearImpDetails` here.
@@ -206,12 +238,16 @@ private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
   -/
   -- let mvarId ← mvarId.abstractMVars
   -- let mvarId ← mvarId.clearImplDetails
-  let mvarId ← if params.config.clean then pure mvarId else mvarId.markAccessible
-  let mvarId ← mvarId.revertAll
+  let mvarId ← if params.config.clean || !params.config.revert then pure mvarId else mvarId.markAccessible
+  let mvarId ← if params.config.revert then mvarId.revertAll else pure mvarId
   let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.betaReduce
   appendTagSuffix mvarId `grind
-  mkGoal mvarId params
+  let goal ← mkGoal mvarId params
+  if params.config.revert then
+    return goal
+  else
+    addHypotheses goal
 
 def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
   let issues     := (← get).issues
@@ -248,6 +284,11 @@ See issue #11806 for a motivating example.
 def withProtectedMCtx [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
     [MonadExcept Exception m] [MonadRuntimeException m]
     (abstractProof : Bool) (mvarId : MVarId) (k : MVarId → m α) : m α := do
+  /-
+  **Note**: `instantiateGoalMVars` here also instantiates mvars occurring in hypotheses.
+  This is particularly important when using `grind -revert`.
+  -/
+  let mvarId ← mvarId.instantiateGoalMVars
   let mvarId ← mvarId.abstractMVars
   let mvarId ← mvarId.clearImplDetails
   tryCatchRuntimeEx (main mvarId) fun ex => do

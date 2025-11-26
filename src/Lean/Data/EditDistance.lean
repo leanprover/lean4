@@ -32,11 +32,11 @@ public def levenshtein (str1 str2 : String) (cutoff : Nat) : Option Nat := Id.ru
 
   for h : i in [0:v0.size] do
     v0 := v0.set i i
-  let mut iter1 := str1.startValidPos
+  let mut iter1 := str1.startPos
   let mut i := 0
   while h1 : ¬iter1.IsAtEnd do
     v1 := v1.set 0 (i+1)
-    let mut iter2 := str2.startValidPos
+    let mut iter2 := str2.startPos
     let mut j : Fin (len2 + 1) := 0
     while h2 : ¬iter2.IsAtEnd do
       let j' : Fin _ := j + 1

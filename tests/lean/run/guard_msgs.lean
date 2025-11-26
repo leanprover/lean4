@@ -48,13 +48,13 @@ example : α := x
 
 #guard_msgs in
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   OfNat α 22
 numerals are polymorphic in Lean, but the numeral `22` cannot be used in a context where the expected type is
   α
 due to the absence of the instance above
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs(error) in
 example : α := 22

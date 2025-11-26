@@ -2535,11 +2535,6 @@ theorem back?_eq_some_iff {xs : Vector α n} {a : α} :
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, rfl⟩
   simp [Array.back_append]
-  split <;> rename_i h
-  · rw [dif_pos]
-    simp_all
-  · rw [dif_neg]
-    rwa [Array.isEmpty_iff_size_eq_zero] at h
 
 theorem back_append_right {xs : Vector α n} {ys : Vector α m} [NeZero m] :
     (xs ++ ys).back = ys.back := by

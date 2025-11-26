@@ -10,6 +10,8 @@ public import Init.Simproc
 public import Lean.Meta.Tactic.Simp.Simproc
 public import Lean.Meta.Tactic.Grind.SynthInstance
 import Init.Grind.Ring.Field
+import Init.Grind.FieldNormNum
+import Lean.Meta.Tactic.Grind.Arith.FieldNormNum
 public section
 namespace Lean.Meta.Grind.Arith
 
@@ -72,6 +74,17 @@ builtin_simproc_decl expandDiv (_ / _) := fun e => do
   let some invInst ← synthInstanceMeta? (mkApp (mkConst ``Inv [u]) α) | return .continue
   let expr := mkApp6 (mkConst ``HMul.hMul us) α α α mulInst a (mkApp3 (mkConst ``Inv.inv [u]) α invInst b)
   return .visit { expr, proof? := some <| mkApp4 (mkConst ``Grind.Field.div_eq_mul_inv [u]) α fieldInst a b }
+
+builtin_simproc_decl normFieldInv (_ ⁻¹) := fun e => do
+  let_expr Inv.inv α _ a ← e | return .continue
+  if isNotFieldQuick α then return .continue
+  match_expr a with
+  | NatCast.natCast _ _ _ => return .continue -- Already normalized
+  | OfNat.ofNat _ _ _ => return .continue -- Already normalized
+  | _ =>
+  let some (expr, h) ← normFieldExpr? e α | return .continue
+  checkWithKernel h
+  return .done { expr, proof? := h }
 
 /-!
 Normalize arithmetic instances for `Nat` and `Int` operations.
@@ -209,6 +222,7 @@ def addSimproc (s : Simprocs) : CoreM Simprocs := do
   let s ← s.add ``normNatCastNum (post := false)
   let s ← s.add ``normIntCastNum (post := false)
   let s ← s.add ``normPowRatInt (post := false)
+  let s ← s.add ``normFieldInv (post := false)
   return s
 
 end Lean.Meta.Grind.Arith

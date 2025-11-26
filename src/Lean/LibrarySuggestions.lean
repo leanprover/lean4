@@ -6,8 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-import Lean.LibrarySuggestions.Basic
+public import Lean.LibrarySuggestions.Basic
 import Lean.LibrarySuggestions.SymbolFrequency
 import Lean.LibrarySuggestions.MePo
-import Lean.LibrarySuggestions.SineQuaNon
-import Lean.LibrarySuggestions.Default
+public import Lean.LibrarySuggestions.SineQuaNon
+public import Lean.LibrarySuggestions.Default

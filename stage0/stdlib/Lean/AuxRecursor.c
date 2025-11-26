@@ -53,7 +53,6 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l___private_Lean_AuxRecursor_0__Lean_initFn___closed__1_00___x40_Lean_AuxRecursor_2879463644____hygCtx___hyg_2_;
 static lean_object* l_Lean_initFn___closed__1_00___x40_Lean_AuxRecursor_4182987117____hygCtx___hyg_2_;
-uint8_t l_Substring_Raw_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_belowSuffix;
 static lean_object* l_Lean_isAuxRecursor___closed__2;
 LEAN_EXPORT lean_object* l_Lean_recOnSuffix;
@@ -63,7 +62,6 @@ static lean_object* l_Lean_isAuxRecursorWithSuffix___closed__0;
 static lean_object* l___private_Lean_AuxRecursor_0__Lean_initFn___closed__3_00___x40_Lean_AuxRecursor_2879463644____hygCtx___hyg_2_;
 static lean_object* l_Lean_isAuxRecursor___closed__1;
 static lean_object* l_Lean_initFn___closed__1_00___x40_Lean_AuxRecursor_3622182683____hygCtx___hyg_2_;
-lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_brecOnSuffix;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_isAuxRecursor___closed__0;
@@ -76,6 +74,7 @@ LEAN_EXPORT uint8_t l_Lean_isRecOnRecursor(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isBRecOnRecursor___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_markNoConfusion(lean_object*, lean_object*);
 static lean_object* l_Lean_isAuxRecursor___closed__4;
+uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isSparseCasesOn___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_noConfusionExt;
 static lean_object* l___private_Lean_AuxRecursor_0__Lean_initFn___closed__5_00___x40_Lean_AuxRecursor_2879463644____hygCtx___hyg_2_;
@@ -83,11 +82,11 @@ static lean_object* l_Lean_markSparseCasesOn___closed__0;
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_isAuxRecursorWithSuffix(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isAuxRecursor___boxed(lean_object*, lean_object*);
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l___private_Lean_AuxRecursor_0__Lean_initFn___closed__8_00___x40_Lean_AuxRecursor_2879463644____hygCtx___hyg_2_;
 lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_isCasesOnRecursor(lean_object*, lean_object*);
 static lean_object* l_Lean_belowSuffix___closed__0;
-lean_object* l_Substring_Raw_nextn(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_markAuxRecursor___closed__0;
 static lean_object* _init_l_Lean_casesOnSuffix___closed__0() {
 _start:
@@ -366,32 +365,30 @@ x_7 = lean_ctor_get(x_2, 1);
 x_8 = lean_string_dec_eq(x_7, x_3);
 if (x_8 == 0)
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; 
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_9 = l_Lean_isAuxRecursorWithSuffix___closed__0;
 x_10 = lean_string_append(x_3, x_9);
-x_11 = lean_unsigned_to_nat(0u);
-x_12 = lean_string_utf8_byte_size(x_7);
-lean_inc_ref(x_7);
-x_13 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_13, 0, x_7);
-lean_ctor_set(x_13, 1, x_11);
-lean_ctor_set(x_13, 2, x_12);
-x_14 = lean_string_length(x_10);
-x_15 = l_Substring_Raw_nextn(x_13, x_14, x_11);
-lean_dec_ref(x_13);
-lean_inc_ref(x_7);
-x_16 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_16, 0, x_7);
-lean_ctor_set(x_16, 1, x_11);
-lean_ctor_set(x_16, 2, x_15);
-x_17 = lean_string_utf8_byte_size(x_10);
-x_18 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_18, 0, x_10);
-lean_ctor_set(x_18, 1, x_11);
-lean_ctor_set(x_18, 2, x_17);
-x_19 = l_Substring_Raw_beq(x_16, x_18);
-x_4 = x_19;
+x_11 = lean_string_utf8_byte_size(x_7);
+x_12 = lean_string_utf8_byte_size(x_10);
+x_13 = lean_nat_dec_le(x_12, x_11);
+lean_dec(x_11);
+if (x_13 == 0)
+{
+lean_dec(x_12);
+lean_dec_ref(x_10);
+x_4 = x_8;
 goto block_6;
+}
+else
+{
+lean_object* x_14; uint8_t x_15; 
+x_14 = lean_unsigned_to_nat(0u);
+x_15 = lean_string_memcmp(x_7, x_10, x_14, x_14, x_12);
+lean_dec(x_12);
+lean_dec_ref(x_10);
+x_4 = x_15;
+goto block_6;
+}
 }
 else
 {
@@ -402,12 +399,12 @@ goto block_6;
 }
 else
 {
-uint8_t x_20; 
+uint8_t x_16; 
 lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
-x_20 = 0;
-return x_20;
+x_16 = 0;
+return x_16;
 }
 block_6:
 {

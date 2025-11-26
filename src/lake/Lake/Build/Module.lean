@@ -481,6 +481,7 @@ private def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := en
     return {
       name := mod.name
       isModule := header.isModule
+      package? := mod.pkg.id?
       imports? := none
       importArts := info.directArts
       dynlibs := dynlibs.map (·.path)
@@ -978,6 +979,7 @@ private def setupEditedModule
     let transImpArts ← fetchTransImportArts directImports info.directArts !header.isModule
     return {
       name := mod.name
+      package? := mod.pkg.id?
       isModule := header.isModule
       imports? := none
       importArts := transImpArts

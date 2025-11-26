@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Running benchmark: build"
+tests/bench-radar/build/run
+
+echo "Running benchmark: size"
+tests/bench-radar/size/run

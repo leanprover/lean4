@@ -285,6 +285,8 @@ simple uses, these can be computed eagerly without looking at the imports.
 structure SetupImportsResult where
   /-- Module name of the file being processed. -/
   mainModuleName : Name
+  /-- Package name of the file being processed (if any). -/
+  package? : Option PkgId := none
   /-- Whether the file is participating in the module system. -/
   isModule : Bool
   /-- Direct imports of the file being processed. -/
@@ -297,6 +299,28 @@ structure SetupImportsResult where
   importArts : NameMap ImportArtifacts := {}
   /-- Lean plugins to load as part of the environment setup. -/
   plugins : Array System.FilePath := #[]
+
+/--
+Parses an option value from a string and inserts it into `opts`.
+The type of the option is determined from `decl`.
+-/
+def setOption (opts : Options) (decl : OptionDecl) (name : Name) (val : String)  : IO Options := do
+  match decl.defValue with
+  | .ofBool _ =>
+    match val with
+    | "true"  => return opts.insert name true
+    | "false" => return opts.insert name false
+    | _ =>
+      throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
+        it must be true/false"
+  | .ofNat _ =>
+    let some val := val.toNat?
+      | throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
+          it must be a natural number"
+    return opts.insert name val
+  | .ofString _ => return opts.insert name val
+  | _ => throw <| .userError s!"invalid -D parameter, configuration option '{name}' \
+            cannot be set in the command line, use set_option command"
 
 /--
 Parses values of options registered during import and left by the C++ frontend as strings.
@@ -320,22 +344,7 @@ If the option is defined in a library, use '-D{`weak ++ name}' to set it conditi
     let .ofString val := val
       | opts' := opts'.insert name val  -- Already parsed
 
-    match decl.defValue with
-    | .ofBool _ =>
-      match val with
-      | "true"  => opts' := opts'.insert name true
-      | "false" => opts' := opts'.insert name false
-      | _ =>
-        throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
-          it must be true/false"
-    | .ofNat _ =>
-      let some val := val.toNat?
-        | throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
-            it must be a natural number"
-      opts' := opts'.insert name val
-    | .ofString _ => opts' := opts'.insert name val
-    | _ => throw <| .userError s!"invalid -D parameter, configuration option '{name}' \
-              cannot be set in the command line, use set_option command"
+    opts' ← setOption opts' decl name val
 
   return opts'
 
@@ -493,7 +502,7 @@ where
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
       let (headerEnv, msgLog) ← Elab.processHeaderCore (leakEnv := true)
         stx.startPos setup.imports setup.isModule setup.opts .empty ctx.toInputContext
-        setup.trustLevel setup.plugins setup.mainModuleName setup.importArts
+        setup.trustLevel setup.plugins setup.mainModuleName setup.package? setup.importArts
       let stopTime := (← IO.monoNanosNow).toFloat / 1000000000
       let diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
       if msgLog.hasErrors then

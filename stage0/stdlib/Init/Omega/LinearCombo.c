@@ -46,10 +46,10 @@ static lean_object* l_Lean_Omega_LinearCombo_instAdd___closed__0;
 LEAN_EXPORT lean_object* l_List_foldl___at___00__private_Init_Omega_LinearCombo_0__Lean_Omega_LinearCombo_join_spec__0___boxed(lean_object*, lean_object*);
 static lean_object* l_List_mapTR_loop___at___00Lean_Omega_LinearCombo_instToString___private__1_spec__0___closed__1;
 lean_object* l_Nat_reprFast(lean_object*);
-uint8_t l_List_hasDecEq___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0___redArg___closed__0;
 static lean_object* l_Lean_Omega_instReprLinearCombo_repr___redArg___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_smul(lean_object*, lean_object*);
+uint8_t l_instDecidableEqList___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_instToString___lam__0(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Omega_instDecidableEqLinearCombo(lean_object*, lean_object*);
 uint8_t l_List_all___redArg(lean_object*, lean_object*);
@@ -176,7 +176,7 @@ else
 {
 lean_object* x_8; uint8_t x_9; 
 x_8 = lean_alloc_closure((void*)(l_Int_instDecidableEq___boxed), 2, 0);
-x_9 = l_List_hasDecEq___redArg(x_8, x_4, x_6);
+x_9 = l_instDecidableEqList___redArg(x_8, x_4, x_6);
 return x_9;
 }
 }

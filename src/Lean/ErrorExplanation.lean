@@ -94,11 +94,11 @@ where
   prior to the next whitespace.
   -/
   upToWs (nonempty : Bool) : Parser String := fun it =>
-    let it' := (it.2.find? fun (c : Char) => c.isWhitespace).getD it.1.endValidPos
+    let it' := (it.2.find? fun (c : Char) => c.isWhitespace).getD it.1.endPos
     if nonempty && it' == it.2 then
       .error ⟨_, it'⟩ (.other "Expected a nonempty string")
     else
-      .success ⟨_, it'⟩ (it.1.replaceStartEnd! it.2 it').copy
+      .success ⟨_, it'⟩ (it.1.slice! it.2 it').copy
 
   /-- Parses a named attribute, and returns its name and value. -/
   namedAttr : Parser (String × String) := attempt do
@@ -152,10 +152,10 @@ deriving Repr, Inhabited
 
 /-- Creates an iterator for validation from the raw contents of an error explanation. -/
 private def ValidationState.ofSource (input : String) : ValidationState where
-  lines := input.splitOn "\n"
+  lines := input.split '\n'
+    |>.filter (!·.trimAscii.isEmpty)
+    |>.toStringArray
     |>.zipIdx
-    |>.filter (!·.1.trim.isEmpty)
-    |>.toArray
 
 -- Workaround to account for the fact that `Input` expects "EOF" to be a valid position
 private def ValidationState.get (s : ValidationState) :=
@@ -258,9 +258,9 @@ where
     let (_, closing) ← fence numTicks
       <|> fail s!"Missing closing code fence for block with header '{infoString}'"
     -- Validate code block:
-    unless closing.trim.isEmpty do
+    unless closing.trimAscii.isEmpty do
       fail s!"Expected a closing code fence, but found the nonempty info string `{closing}`"
-    let info ← match ErrorExplanation.CodeInfo.parse infoString with
+    let info ← match ErrorExplanation.CodeInfo.parse infoString.copy with
       | .ok i => pure i
       | .error s =>
         fail s
@@ -277,7 +277,7 @@ where
   fence (ticksToClose : Option Nat := none) := attempt do
     let line ← any
     if line.startsWith "```" then
-      let numTicks := line.takeWhile (· == '`') |>.length
+      let numTicks := line.takeWhile (· == '`') |>.utf8ByteSize -- this makes sense because we know the slice consists only of ticks
       match ticksToClose with
       | none => return (numTicks, line.drop numTicks)
       | some n =>

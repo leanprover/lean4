@@ -842,10 +842,10 @@ def forM (f : (a : α) → β a → m PUnit) (t : DTreeMap α β cmp) : m PUnit 
 def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (t : DTreeMap α β cmp) : m δ :=
   t.inner.forIn f init
 
-instance : ForM m (DTreeMap α β cmp) ((a : α) × β a) where
+instance [Monad m] : ForM m (DTreeMap α β cmp) ((a : α) × β a) where
   forM t f := t.forM (fun a b => f ⟨a, b⟩)
 
-instance : ForIn m (DTreeMap α β cmp) ((a : α) × β a) where
+instance [Monad m] : ForIn m (DTreeMap α β cmp) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
 namespace Const
@@ -1044,6 +1044,15 @@ def union (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
 
 instance : Union (DTreeMap α β cmp) := ⟨union⟩
 
+/--
+Computes the intersection of the given tree maps. The result will only contain entries from the first map.
+
+This function always merges the smaller map into the larger map.
+-/
+def inter (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.inter t₂.inner t₁.wf.balanced,  @Impl.WF.inter _ _ _ _ t₂.inner t₁.wf.balanced t₁.wf⟩
+
+instance : Inter (DTreeMap α β cmp) := ⟨inter⟩
 /--
 Erases multiple mappings from the tree map by iterating over the given collection and calling
 `erase`.

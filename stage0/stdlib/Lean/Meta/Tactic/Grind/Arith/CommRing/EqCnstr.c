@@ -28133,8 +28133,8 @@ x_78 = lean_unbox(x_77);
 lean_dec(x_77);
 if (x_78 == 0)
 {
-x_13 = x_54;
-x_14 = x_72;
+x_13 = x_72;
+x_14 = x_54;
 x_15 = x_55;
 x_16 = x_3;
 x_17 = x_4;
@@ -28155,8 +28155,8 @@ lean_inc(x_72);
 x_79 = l_Lean_MessageData_ofExpr(x_72);
 x_80 = l_Lean_addTrace___at___00Lean_Meta_Grind_Arith_CommRing_PolyDerivation_simplifyWith_spec__19___redArg(x_75, x_79, x_8, x_9, x_10, x_11);
 lean_dec_ref(x_80);
-x_13 = x_54;
-x_14 = x_72;
+x_13 = x_72;
+x_14 = x_54;
 x_15 = x_55;
 x_16 = x_3;
 x_17 = x_4;
@@ -28558,11 +28558,11 @@ lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean
 x_29 = lean_ctor_get(x_28, 0);
 lean_inc(x_29);
 lean_dec_ref(x_28);
-x_30 = lean_ctor_get(x_13, 1);
+x_30 = lean_ctor_get(x_14, 1);
 lean_inc_ref(x_30);
-x_31 = lean_ctor_get(x_13, 2);
+x_31 = lean_ctor_get(x_14, 2);
 lean_inc(x_31);
-lean_dec_ref(x_13);
+lean_dec_ref(x_14);
 x_32 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_EqCnstr_0__Lean_Meta_Grind_Arith_CommRing_diseqToEq___closed__2;
 x_33 = lean_box(0);
 x_34 = lean_alloc_ctor(1, 2, 0);
@@ -28571,7 +28571,7 @@ lean_ctor_set(x_34, 1, x_33);
 x_35 = l_Lean_mkConst(x_32, x_34);
 x_36 = l_Lean_mkApp5(x_35, x_30, x_15, x_1, x_2, x_29);
 x_37 = 0;
-x_38 = l_Lean_Meta_Grind_pushEqCore___redArg(x_14, x_27, x_36, x_37, x_17, x_21, x_22, x_23, x_24);
+x_38 = l_Lean_Meta_Grind_pushEqCore___redArg(x_13, x_27, x_36, x_37, x_17, x_21, x_22, x_23, x_24);
 lean_dec(x_17);
 return x_38;
 }

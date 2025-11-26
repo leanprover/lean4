@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.Old
-// Imports: public import Lean.Environment
+// Imports: public import Lean.Environment import Init.Data.String.TakeDrop
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23,7 +23,9 @@ static lean_object* l_Lean_Compiler_checkIsDefinition___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Compiler_mkEagerLambdaLiftingName(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_getDeclNamesForCodeGen(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
+lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
+static lean_object* l_Lean_Compiler_isEagerLambdaLiftingName___closed__1;
 static lean_object* l_Lean_Compiler_mkUnsafeRecName___closed__0;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(lean_object*, uint8_t);
@@ -31,10 +33,10 @@ static lean_object* l_Lean_Compiler_checkIsDefinition___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Compiler_isUnsafeRecName_x3f(lean_object*);
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__1;
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__2;
-uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_checkIsDefinition(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_mkUnsafeRecName(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_getDeclNamesForCodeGen_spec__0(size_t, size_t, lean_object*);
+uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
 lean_object* l_Lean_Environment_findAsync_x3f(lean_object*, lean_object*, uint8_t);
 size_t lean_usize_add(size_t, size_t);
@@ -44,6 +46,7 @@ size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_isUnsafeRecName_x3f___boxed(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_mkEagerLambdaLiftingName___closed__0;
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT uint8_t l_Lean_Compiler_isEagerLambdaLiftingName(lean_object*);
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__3;
@@ -76,39 +79,62 @@ x_1 = lean_mk_string_unchecked("_elambda", 8, 8);
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_Compiler_isEagerLambdaLiftingName___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Compiler_isEagerLambdaLiftingName___closed__0;
+x_2 = lean_string_utf8_byte_size(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT uint8_t l_Lean_Compiler_isEagerLambdaLiftingName(lean_object* x_1) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
 case 1:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = l_Lean_Compiler_isEagerLambdaLiftingName___closed__0;
-x_5 = l_String_isPrefixOf(x_4, x_3);
-if (x_5 == 0)
+x_5 = lean_string_utf8_byte_size(x_3);
+x_6 = l_Lean_Compiler_isEagerLambdaLiftingName___closed__1;
+x_7 = lean_nat_dec_le(x_6, x_5);
+lean_dec(x_5);
+if (x_7 == 0)
 {
 x_1 = x_2;
 goto _start;
 }
 else
 {
-return x_5;
+lean_object* x_9; uint8_t x_10; 
+x_9 = lean_unsigned_to_nat(0u);
+x_10 = lean_string_memcmp(x_3, x_4, x_9, x_9, x_6);
+if (x_10 == 0)
+{
+x_1 = x_2;
+goto _start;
+}
+else
+{
+return x_10;
+}
 }
 }
 case 2:
 {
-lean_object* x_7; 
-x_7 = lean_ctor_get(x_1, 0);
-x_1 = x_7;
+lean_object* x_12; 
+x_12 = lean_ctor_get(x_1, 0);
+x_1 = x_12;
 goto _start;
 }
 default: 
 {
-uint8_t x_9; 
-x_9 = 0;
-return x_9;
+uint8_t x_14; 
+x_14 = 0;
+return x_14;
 }
 }
 }
@@ -464,6 +490,7 @@ return x_2;
 }
 }
 lean_object* initialize_Lean_Environment(uint8_t builtin);
+lean_object* initialize_Init_Data_String_TakeDrop(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_Old(uint8_t builtin) {
 lean_object * res;
@@ -472,10 +499,15 @@ _G_initialized = true;
 res = initialize_Lean_Environment(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_String_TakeDrop(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Lean_Compiler_mkEagerLambdaLiftingName___closed__0 = _init_l_Lean_Compiler_mkEagerLambdaLiftingName___closed__0();
 lean_mark_persistent(l_Lean_Compiler_mkEagerLambdaLiftingName___closed__0);
 l_Lean_Compiler_isEagerLambdaLiftingName___closed__0 = _init_l_Lean_Compiler_isEagerLambdaLiftingName___closed__0();
 lean_mark_persistent(l_Lean_Compiler_isEagerLambdaLiftingName___closed__0);
+l_Lean_Compiler_isEagerLambdaLiftingName___closed__1 = _init_l_Lean_Compiler_isEagerLambdaLiftingName___closed__1();
+lean_mark_persistent(l_Lean_Compiler_isEagerLambdaLiftingName___closed__1);
 l_Lean_Compiler_getDeclNamesForCodeGen___closed__0 = _init_l_Lean_Compiler_getDeclNamesForCodeGen___closed__0();
 lean_mark_persistent(l_Lean_Compiler_getDeclNamesForCodeGen___closed__0);
 l_Lean_Compiler_getDeclNamesForCodeGen___closed__1 = _init_l_Lean_Compiler_getDeclNamesForCodeGen___closed__1();

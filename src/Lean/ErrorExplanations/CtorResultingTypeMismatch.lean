@@ -20,17 +20,17 @@ constructor if the inductive type being defined has no indices.
 
 # Examples
 
-## Typo in resulting type
+## Typo in Resulting Type
 ```lean broken
 inductive Tree (α : Type) where
   | leaf : Tree α
   | node : α → Tree α → Treee α
 ```
 ```output
-Unexpected resulting type for constructor 'Tree.node': Expected an application of
+Unexpected resulting type for constructor `Tree.node`: Expected an application of
   Tree
 but found
-  ?m.22
+  ?m.2
 ```
 ```lean fixed
 inductive Tree (α : Type) where
@@ -38,7 +38,7 @@ inductive Tree (α : Type) where
   | node : α → Tree α → Tree α
 ```
 
-## Missing resulting type after constructor parameter
+## Missing Resulting Type After Constructor Parameter
 
 ```lean broken
 inductive Credential where
@@ -46,7 +46,7 @@ inductive Credential where
   | password : String
 ```
 ```output
-Unexpected resulting type for constructor 'Credential.pin': Expected
+Unexpected resulting type for constructor `Credential.pin`: Expected
   Credential
 but found
   Nat

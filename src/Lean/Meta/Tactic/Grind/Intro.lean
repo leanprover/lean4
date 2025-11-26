@@ -38,7 +38,7 @@ Similar to `Grind.preprocess`, but does not simplify `e` if
 We added this feature because it may be coming from external sources
 (e.g., manually applying an function induction principle before invoking `grind`).
 -/
-private def preprocessHypothesis (e : Expr) : GoalM Simp.Result := do
+def preprocessHypothesis (e : Expr) : GoalM Simp.Result := do
   if isMatchCondCandidate e then
     preprocess (markAsPreMatchCond e)
   else if let some c := isAlreadyNorm? e then
@@ -53,15 +53,16 @@ It ensures base name is a simple `Name` and does not have a `_<idx>` suffix
 -/
 private def mkBaseName (name : Name) (type : Expr) : MetaM Name := do
   if let .str _ s := name then
-    let pos := s.find (· == '_')
-    unless pos < s.rawEndPos do
+    let pos := s.find '_'
+    if h : pos.IsAtEnd then
       return Name.mkSimple s
-    let suffix := String.Pos.Raw.extract s (pos+'_') s.rawEndPos
-    unless suffix.isNat do
-      return Name.mkSimple s
-    let s := String.Pos.Raw.extract s ⟨0⟩ pos
-    unless s == "" do
-      return Name.mkSimple s
+    else
+      let suffix := s.sliceFrom (pos.next h)
+      unless suffix.isNat do
+        return Name.mkSimple s
+      let s := s.sliceTo pos
+      unless s.isEmpty do
+        return Name.mkSimple s.copy
   if (← isProp type) then return `h else return `x
 
 private def mkCleanName (name : Name) (type : Expr) : GoalM Name := do

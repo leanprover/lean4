@@ -76,8 +76,8 @@ open Nat List
 #check List.instDecidableMemOfLawfulBEq
 #discr_tree_key List.instDecidableMemOfLawfulBEq
 
-#check List.instForIn'InferInstanceMembership
-#discr_tree_key List.instForIn'InferInstanceMembership
+#check List.instForIn'InferInstanceMembershipOfMonad
+#discr_tree_key List.instForIn'InferInstanceMembershipOfMonad
 
 /-!
   We can also specify a term directly.

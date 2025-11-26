@@ -52,11 +52,16 @@ def testInvalid (tomlFile : FilePath) : BaseIO TestOutcome := do
   | .fail l => return .pass (← mkMessageLogString l)
   | .error e => return .error (toString e)
 
-def expectBEq [BEq α] [ToString α] (actual expected : α) : Except String Unit := do
+/-- Given `actual`, verify that it is equal to `expected` via `BEq`. -/
+@[inline] def checkBEq [BEq α] [ToString α] (actual expected : α) : Except String Unit := do
   unless actual == expected do
     throw s!"expected '{expected}', got '{actual}'"
 
-def expectPrimitive (actualTy : String) (expected : Json) : Except String String := do
+/--
+Given a primitive TOML value of type `actualTy`,
+verify that it was expected and return the expected value (as a `String`).
+-/
+def checkPrimitive (actualTy : String) (expected : Json) : Except String String := do
   let .ok expected := expected.getObj?
     | throw s!"expected non-primitive, got '{actualTy}'"
   let some ty := expected.get?  "type"
@@ -69,53 +74,55 @@ def expectPrimitive (actualTy : String) (expected : Json) : Except String String
     throw s!"expected value of type '{ty}', got '{actualTy}'"
   return val
 
-def decodeSign (s : String) : Bool × String :=
+def decodeSign (s : String) : Bool × String.Slice :=
   if s.front == '-' then
     (true, s.drop 1)
   else if s.front == '+' then
     (false, s.drop 1)
   else
-    (false, s)
+    (false, s.toSlice)
 
 mutual
 
-partial def expectValue (actual : Value) (expected : Json) : Except String Unit := do
+/-- Given a TOML value `actual`, verify that it was expected. -/
+partial def checkValue (actual : Value) (expected : Json) : Except String Unit := do
   match actual with
-  | .boolean _ b => expectBEq (toString b) (← expectPrimitive "bool" expected)
-  | .string _ s => expectBEq s (← expectPrimitive "string" expected)
-  | .integer _ n => expectBEq (toString n) (← expectPrimitive "integer" expected)
+  | .boolean _ b => checkBEq (toString b) (← checkPrimitive "bool" expected)
+  | .string _ s => checkBEq s (← checkPrimitive "string" expected)
+  | .integer _ n => checkBEq (toString n) (← checkPrimitive "integer" expected)
   | .float _ actN =>
-    let expected ← expectPrimitive "float" expected
-    if expected.toLower == "nan" then
+    let expected ← checkPrimitive "float" expected
+    if expected.toSlice.eqIgnoreAsciiCase "nan".toSlice then
       unless actN.isNaN do
         throw s!"expected '{expected}', got '{actN}'"
     else
       let (neg, e) := decodeSign expected
-      if e.toLower == "inf" then
+      if e.eqIgnoreAsciiCase "inf".toSlice then
         unless actN.isInf && neg == (actN < 0) do
           throw s!"expected '{e}', got '{actN}'"
       else
           let some flt :=
             (Nat.toFloat <$> e.toNat?) <|>
-            (Syntax.decodeScientificLitVal? e |>.map fun (m,s,e) => .ofScientific m s e)
+            (Syntax.decodeScientificLitVal? e.copy |>.map fun (m,s,e) => Float.ofScientific m s e)
             | throw s!"failed to parse expected float value: {e}"
-          expectBEq actN <| if neg then -flt else flt
+          checkBEq actN <| if neg then -flt else flt
   | .dateTime _ dt =>
     match dt with
-    | .offsetDateTime _ _ _ => expectBEq (toString dt) (← expectPrimitive "datetime" expected)
-    | .localDateTime .. =>  expectBEq (toString dt) (← expectPrimitive "datetime-local" expected)
-    | .localDate d => expectBEq (toString d) (← expectPrimitive "date-local" expected)
-    | .localTime t => expectBEq (toString t) (← expectPrimitive "time-local" expected)
+    | .offsetDateTime _ _ _ => checkBEq (toString dt) (← checkPrimitive "datetime" expected)
+    | .localDateTime .. =>  checkBEq (toString dt) (← checkPrimitive "datetime-local" expected)
+    | .localDate d => checkBEq (toString d) (← checkPrimitive "date-local" expected)
+    | .localTime t => checkBEq (toString t) (← checkPrimitive "time-local" expected)
   | .array _ actVs =>
     let .ok expVs := expected.getArr?
       | throw "expected non-array, got array"
     if h_size : actVs.size = expVs.size then
-      actVs.size.forM fun i _ => expectValue actVs[i] expVs[i]
+      actVs.size.forM fun i _ => checkValue actVs[i] expVs[i]
     else
       throw s!"expected array of size {expVs.size}, got {actVs.size}:\n{actual}"
-  | .table _ t => expectTable t expected
+  | .table _ t => checkTable t expected
 
-partial def expectTable (actual : Table) (expected : Json) : Except String Unit := do
+/-- Given a TOML table `actual`, verify that it was expected. -/
+partial def checkTable (actual : Table) (expected : Json) : Except String Unit := do
   let .ok expected := expected.getObj?
     | throw "expected non-table, got table"
   if actual.size != expected.size then
@@ -123,32 +130,23 @@ partial def expectTable (actual : Table) (expected : Json) : Except String Unit 
   for ⟨k,expV⟩ in expected do
     let some actV := actual.find? (Name.mkSimple k)
       | throw s!"expected key '{k}'"
-    try expectValue actV expV catch e => throw s!"{k}: {e}"
+    try checkValue actV expV catch e => throw s!"{k}: {e}"
 
 end
 
-def expectJson (actual expected : Json) : TestOutcome :=
-  let s := actual.pretty ++ "\n"
-  if actual == expected then .pass s else .fail s
-
 def testValid (tomlFile : FilePath) : BaseIO TestOutcome := do
-  -- Tests skipped due to bugs in Lean's JSON parser
-  -- TODO: Fix JSON parser (high-low unicode escape pairs)
-  let normPath := tomlFile.toString.map fun c => if c = '\\' then '/' else c
-  for testPath in ["string/quoted-unicode.toml", "key/quoted-unicode.toml"] do
-    if normPath.endsWith testPath then return .skip
   match (← loadToml tomlFile) with
-  | .pass t =>
+  | .pass actualTable =>
     match (← IO.FS.readFile (tomlFile.withExtension "json") |>.toBaseIO) with
     | .ok contents =>
       match Json.parse contents with
-      | .ok j =>
-        match expectTable t j with
-        | .ok _ => return .pass <| ppTable t
-        | .error e => return .fail <| e.trimRight.push '\n'
+      | .ok expected =>
+        match checkTable actualTable expected with
+        | .ok _ => return .pass <| ppTable actualTable
+        | .error e => return .fail <| e.trimAsciiEnd.copy.push '\n'
       | .error e => return .error s!"invalid JSON: {e}"
     | .error e => return .error (toString e)
-  | .fail l => return .fail (← mkMessageLogString l)
+  | .fail log => return .fail (← mkMessageLogString log)
   | .error e => return .error (toString e)
 
 def walkDir (root : FilePath) (ext : String := "toml") : IO (Array FilePath) := do
@@ -160,8 +158,8 @@ def main : IO UInt32 := do
   let validTestFiles ← walkDir <| "tests" / "valid"
   let invalidTestFiles ← walkDir <| "tests" / "invalid"
   let numTests := validTestFiles.size + invalidTestFiles.size
-  let outcomes := Array.mkEmpty numTests
   -- Run Tests
+  let outcomes := Array.mkEmpty numTests
   let outcomes ← invalidTestFiles.foldlM (init := outcomes) fun outcomes path => do
     return outcomes.push (← IO.FS.realPath path, ← testInvalid path)
   let outcomes ← validTestFiles.foldlM (init := outcomes) fun outcomes path => do

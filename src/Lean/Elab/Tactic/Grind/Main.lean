@@ -146,13 +146,13 @@ def elabGrindParamsAndSuggestions
     (params : Grind.Params)
     (ps : TSyntaxArray ``Parser.Tactic.grindParam)
     (suggestions : Array Suggestion := #[])
-    (only : Bool) (lax : Bool := false) : MetaM Grind.Params := do
+    (only : Bool) (lax : Bool := false) : TermElabM Grind.Params := do
   let params ← elabGrindParams params ps (lax := lax) (only := only)
   elabGrindSuggestions params suggestions
 
 def mkGrindParams
     (config : Grind.Config) (only : Bool) (ps : TSyntaxArray ``Parser.Tactic.grindParam) (mvarId : MVarId) :
-    MetaM Grind.Params := do
+    TermElabM Grind.Params := do
   let params ← Grind.mkParams config
   let ematch ← if only then pure default else Grind.getEMatchTheorems
   let inj ← if only then pure default else Grind.getInjectiveTheorems
@@ -161,9 +161,10 @@ def mkGrindParams
   this is not very effective. We now use anchors to restrict the set of case-splits.
   -/
   let casesTypes ← Grind.getCasesTypes
-  let params := { params with ematch, casesTypes, inj }
+  let funCCs ← Grind.getFunCCSet
+  let params := { params with ematch, casesTypes, inj, funCCs }
   let suggestions ← if config.suggestions then
-    LibrarySuggestions.select mvarId
+    LibrarySuggestions.select mvarId { caller := some "grind" }
   else
     pure #[]
   let mut params ← elabGrindParamsAndSuggestions params ps suggestions (only := only) (lax := config.lax)
@@ -309,8 +310,19 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
   else
     Tactic.TryThis.addSuggestions stx <| tacs.map fun tac => { suggestion := .tsyntax tac }
 
+@[builtin_tactic Lean.Parser.Tactic.lia] def evalLia : Tactic := fun stx => do
+  let `(tactic| lia $config:optConfig) := stx | throwUnsupportedSyntax
+  let config ← elabCutsatConfig config
+  evalGrindCore stx { config with } none none none
+
 @[builtin_tactic Lean.Parser.Tactic.cutsat] def evalCutsat : Tactic := fun stx => do
   let `(tactic| cutsat $config:optConfig) := stx | throwUnsupportedSyntax
+  -- Emit deprecation warning
+  logWarning "`cutsat` has been deprecated, use `lia` instead"
+  -- Emit a "try this:" suggestion to replace `cutsat` with `lia`
+  let liaTac ← `(tactic| lia $config:optConfig)
+  Tactic.TryThis.addSuggestion stx { suggestion := .tsyntax liaTac }
+  -- Execute the same logic as lia
   let config ← elabCutsatConfig config
   evalGrindCore stx { config with } none none none
 

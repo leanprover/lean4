@@ -115,6 +115,7 @@ def _root_.Lean.Grind.CommRing.Poly.spolM (p₁ p₂ : Poly) : RingM Grind.CommR
     return { spol, m₁, m₂, k₁ := c₁, k₂ := c₂ }
   | _, _ => return {}
 
+/-- Returns `some (val, x)` if `m` contains a variable `x` whose the denotation is `val⁻¹`. -/
 def _root_.Lean.Grind.CommRing.Mon.findInvNumeralVar? (m : Mon) : RingM (Option (Nat × Var)) := do
   match m with
   | .unit => return none
@@ -125,6 +126,7 @@ def _root_.Lean.Grind.CommRing.Mon.findInvNumeralVar? (m : Mon) : RingM (Option 
     let some n ← getNatValue? n | m.findInvNumeralVar?
     return some (n, pw.x)
 
+/-- Returns `some (val, x)` if `p` contains a variable `x` whose the denotation is `val⁻¹`. -/
 def _root_.Lean.Grind.CommRing.Poly.findInvNumeralVar? (p : Poly) : RingM (Option (Nat × Var)) :=
   match p with
   | .num _ => return none

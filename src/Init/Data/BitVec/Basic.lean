@@ -874,7 +874,7 @@ def ctz (x : BitVec w) : BitVec w := (x.reverse).clz
 def cpopAuxRec (x : BitVec w) (pos : Nat) : Nat :=
   match pos with
   | 0 => 0
-  | n + 1 => (if x.getLsbD n then 1 else 0) + x.cpopAuxRec n
+  | n + 1 => (x.getLsbD n).toNat + x.cpopAuxRec n
 
 /-- Count the number of bits with value `1` in `x`. -/
 def cpopNat (x : BitVec w) : Nat := (cpopAuxRec x w)

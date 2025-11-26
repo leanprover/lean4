@@ -141,27 +141,17 @@ def visitDecl (decl : Decl) : M Decl := do
 
 end ExtractClosed
 
-partial def Decl.extractClosed (decl : Decl) (sccDecls : Array Decl) : CompilerM (Decl × Array Decl) := do
+partial def Decl.extractClosed (decl : Decl) (sccDecls : Array Decl) : CompilerM (Array Decl) := do
   let ⟨decl, s⟩ ← ExtractClosed.visitDecl decl |>.run { baseName := decl.name, sccDecls } |>.run {}
-  return (decl, s.decls)
+  return s.decls.push decl
 
 def extractClosed : Pass where
   phase := .mono
   name := `extractClosed
   run := fun decls => do
     if (← getConfig).extractClosed then
-      let mut changedDecls := Array.emptyWithCapacity decls.size
-      let mut closedDecls := #[]
-      for decl in decls do
-        let (change, new) ← decl.extractClosed decls
-        changedDecls := changedDecls.push change
-        closedDecls := closedDecls ++ new
-
-      /-
-      EmitC later relies on the fact that within an SCC the closed term declarations come first,
-      then the declarations that rely on them.
-      -/
-      return closedDecls ++ changedDecls
+      decls.foldlM (init := #[]) fun newDecls decl =>
+        return newDecls ++ (← decl.extractClosed decls)
     else
       return decls
 

@@ -20,6 +20,9 @@ example (a b : α) (h : a ≠ b) : a < b ∨ a > b := by grind
 variable [NoNatZeroDivisors α]
 example (a b : α) (h : a ≠ b * (3⁻¹)^2) : 9 * a < b ∨ 9 * a > b := by grind
 example (a b : α) (h : a / 2 ≠ b / 9) : 9 * a < 2 * b ∨ 9 * a > 2 * b := by grind
+
+example (a b : α) (h : a < b / (2^2 - 3/2 + -1 + 1/2)) : 2 * a < b := by grind
+
 end
 
 example (a b : Rat) (h : a < b * (3⁻¹)^2) : 9 * a < b := by grind

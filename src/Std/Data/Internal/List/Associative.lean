@@ -351,10 +351,6 @@ def containsKey [BEq α] (a : α) : List ((a : α) × β a) → Bool
   | [] => false
   | ⟨k, _⟩ :: l => k == a || containsKey a l
 
-/-- Internal implementation detail of the hash map -/
-def Const.beqModel_unit [BEq α] [Hashable α] (l₁ l₂ : List ((_ : α) × Unit)) :=
-  if l₁.length ≠ l₂.length then false else (l₁.all fun x => List.containsKey x.fst l₂)
-
 @[simp] theorem containsKey_nil [BEq α] {a : α} :
     containsKey a ([] : List ((a : α) × β a)) = false := (rfl)
 @[simp] theorem containsKey_cons [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} :
@@ -6749,22 +6745,6 @@ theorem Const.beqModel_eq_true_of_perm {β : Type v} [BEq α] [EquivBEq α] [Has
     · exact hl₁
     · exact hc
 
-theorem Const.beqModel_unit_eq_true_of_perm [BEq α] [EquivBEq α] [Hashable α] {l₁ l₂ : List ((_ : α) × Unit )} : l₁.Perm l₂ → Const.beqModel_unit l₁ l₂ := by
-  intro hyp
-  rw [beqModel_unit]
-  split
-  case isTrue hlen =>
-    rw [ne_eq] at hlen
-    apply Classical.byContradiction
-    intro _
-    exact hlen <| List.Perm.length_eq hyp
-  case isFalse hlen =>
-    simp only [List.all_eq_true]
-    intro ⟨k, v⟩ mem
-    simp only
-    rw [containsKey_of_perm hyp.symm]
-    simp [containsKey_of_mem mem]
-
 theorem perm_of_beqModel [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
     beqModel l₁ l₂ → l₁.Perm l₂ := by
   rw [beqModel]
@@ -6859,62 +6839,15 @@ theorem Const.beqModel_congr {β : Type v} [BEq α] [LawfulBEq α] [Hashable α]
     rw [this]
     apply all_congr p₁
 
-theorem Const.beqModel_unit_congr [BEq α] [LawfulBEq α] [Hashable α]  {l₁ l₂ l₃ l₄ : List ((_ : α) × Unit)}
-(p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel_unit l₁ l₂ = beqModel_unit l₃ l₄ := by
-  rw [beqModel_unit]
-  split
-  case isTrue h =>
-    rw [ne_eq] at h
-    rw [beqModel_unit]
-    simp only [ne_eq, ite_not, Bool.if_false_right, Bool.false_eq, Bool.and_eq_false_imp,
-      decide_eq_true_eq]
-    intro hyp
-    rw [Perm.length_eq p₁, Perm.length_eq p₂] at h
-    contradiction
-  case isFalse h =>
-    rw [beqModel_unit]
-    rw [Perm.length_eq p₁, Perm.length_eq p₂] at h
-    simp only [h, ↓reduceIte]
-    have : (fun x : ((_ : α) × Unit) => containsKey x.fst l₂) = (fun x => containsKey x.fst l₄) := by
-      ext x
-      rw [containsKey_of_perm p₂]
-    rw [this]
-    apply all_congr p₁
-
 theorem beqModel_eq_beqModel_const {β : Type v} [BEq α] [LawfulBEq α] [Hashable α] [BEq β] {l₁ l₂ : List ((_ : α) × β)} : beqModel l₁ l₂ = Const.beqModel l₁ l₂ := by
   rw [beqModel, Const.beqModel]
   congr
   ext x
   rw [getValue?_eq_getValueCast?]
 
-theorem beqModel_eq_beqModel_unit [BEq α] [LawfulBEq α] [Hashable α]  {l₁ l₂ : List ((_ : α) × Unit)} : beqModel l₁ l₂ = Const.beqModel_unit l₁ l₂ := by
-  rw [beqModel, Const.beqModel_unit]
-  congr
-  ext x
-  rw [Bool.eq_iff_iff]
-  constructor
-  · intro hyp
-    rw [containsKey_eq_isSome_getValueCast?]
-    apply Option.isSome_of_eq_some
-    · apply eq_of_beq hyp
-  · intro hyp
-    apply beq_of_eq
-    rw [containsKey_eq_isSome_getValueCast?, Option.isSome_iff_exists ] at hyp
-    have ⟨_, hyp2⟩ := hyp
-    rw [hyp2]
-
 theorem Const.perm_of_beqModel {β : Type v} [BEq α] [Hashable α] [LawfulBEq α] [BEq β] [LawfulBEq β] {l₁ l₂ : List ((_ : α) × β)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
     beqModel l₁ l₂ → l₁.Perm l₂ := by
   rw [← beqModel_eq_beqModel_const]
-  intro hyp
-  apply List.perm_of_beqModel
-  · exact hl₁
-  · exact hl₂
-  · exact hyp
-
-theorem Const.perm_of_beqModel_unit [BEq α] [Hashable α] [LawfulBEq α] {l₁ l₂ : List ((_ : α) × Unit)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
-    beqModel_unit l₁ l₂ → l₁.Perm l₂ := by
-  rw [← beqModel_eq_beqModel_unit]
   intro hyp
   apply List.perm_of_beqModel
   · exact hl₁

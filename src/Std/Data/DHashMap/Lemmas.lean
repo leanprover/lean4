@@ -1841,7 +1841,7 @@ theorem isEmpty_of_isEmpty_insertMany [EquivBEq α] [LawfulHashable α]
 section BEq
 variable {m₁ m₂ : DHashMap α β} [LawfulBEq α] [∀ k, BEq (β k)]
 
-theorem Equiv.beq [∀ k, ReflBEq (β k)] (h : m₁ ~m m₂ ) : m₁ == m₂ := by
+theorem Equiv.beq [∀ k, ReflBEq (β k)] (h : m₁ ~m m₂) : m₁ == m₂ := by
   simp [BEq.beq]
   apply Raw₀.Equiv.beq m₁.2 m₂.2 h.1
 

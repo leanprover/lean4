@@ -164,7 +164,6 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
      ⟨`getEntry!, (``getEntry!_eq_getEntry!, #[`(getEntry!_of_perm _)])⟩,
      ⟨`toList, (``Raw.toList_eq_toListModel, #[])⟩,
      ⟨`Const.beq, (``Raw₀.Const.toListModel_beq, #[])⟩,
-     ⟨`Const.beq_unit, (``Raw₀.Const.toListModel_beq_unit, #[])⟩,
      ⟨`beq, (``toListModel_beq, #[])⟩,
      ⟨`keys, (``Raw.keys_eq_keys_toListModel, #[`(perm_keys_congr_left)])⟩,
      ⟨`Const.toList, (``Raw.Const.toList_eq_toListModel_map, #[`(perm_map_congr_left)])⟩,
@@ -2618,21 +2617,6 @@ theorem Const.Equiv_of_beq_eq_true [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ 
 theorem Const.Equiv.beq_congr [LawfulBEq α] {m₃ m₄ : Raw₀ α (fun _ => β)} [BEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (h₄ : m₄.val.WF) :
     m₁.1.Equiv m₃.1 → m₂.1.Equiv m₄.1 → Const.beq m₁ m₂ = Const.beq m₃ m₄ := by
   simp_to_model using List.Const.beqModel_congr
-end
-
-section
-
-variable {m₁ m₂ : Raw₀ α (fun _ => Unit)}
-
-theorem Const.Equiv.beq_unit [LawfulHashable α] [EquivBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : m₁.1.Equiv m₂.1 → Const.beq_unit m₁ m₂ := by
-  simp_to_model using List.Const.beqModel_unit_eq_true_of_perm
-
-theorem Const.Equiv_of_beq_unit_eq_true [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq_unit m₁ m₂ = true → m₁.1.Equiv m₂.1 := by
-  simp_to_model using List.Const.perm_of_beqModel_unit
-
-theorem Const.Equiv.beq_unit_congr [LawfulBEq α] {m₃ m₄ : Raw₀ α (fun _ => Unit)} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (h₄ : m₄.val.WF) :
-    m₁.1.Equiv m₃.1 → m₂.1.Equiv m₄.1 → Const.beq_unit m₁ m₂ = Const.beq_unit m₃ m₄ := by
-  simp_to_model using List.Const.beqModel_unit_congr
 end
 
 section Union

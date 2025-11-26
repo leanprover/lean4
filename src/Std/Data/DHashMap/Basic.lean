@@ -349,8 +349,15 @@ This function always iterates through the smaller map, so the expected runtime i
 instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
 instance [BEq α] [Hashable α] : Inter (DHashMap α β) := ⟨inter⟩
 
-instance [LawfulBEq α] [∀ k, BEq (β k)] : BEq (DHashMap α β) where
-  beq a b := Raw₀.beq ⟨a.1, a.2.size_buckets_pos⟩ ⟨b.1, b.2.size_buckets_pos⟩
+/-- Internal implementation detail of the hash map. -/
+def beq [LawfulBEq α] [∀ k, BEq (β k)] (a b : DHashMap α β) : Bool :=
+  Raw₀.beq ⟨a.1, a.2.size_buckets_pos⟩ ⟨b.1, b.2.size_buckets_pos⟩
+
+instance [LawfulBEq α] [∀ k, BEq (β k)] : BEq (DHashMap α β) := ⟨beq⟩
+
+/-- Internal implementation detail of the hash map. -/
+def Const.beq {β : Type v} [BEq α] [BEq β] (m₁ m₂ : DHashMap α (fun _ => β)) : Bool :=
+  Raw₀.Const.beq ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩
 
 section Unverified
 

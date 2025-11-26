@@ -28,7 +28,7 @@ structure RingIneqCnstr where
 inductive RingIneqCnstrProof where
   | core (e : Expr) (lhs rhs : Grind.CommRing.Expr)
   | notCore (e : Expr) (lhs rhs : Grind.CommRing.Expr)
-  -- **TODO**: cleanup denominator proof step
+  | cancelDen (c : RingIneqCnstr) (val : Int) (x : Var) (n : Var)
 end
 
 mutual

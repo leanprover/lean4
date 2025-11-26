@@ -252,6 +252,7 @@ partial def RingIneqCnstr.toExprProof (c' : RingIneqCnstr) : ProofM Expr := do
   | .notCore e lhs rhs =>
     let h' ← mkCommRingLinOrdThmPrefix (if c'.strict then ``Grind.CommRing.not_le_norm else ``Grind.CommRing.not_lt_norm)
     return mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl c'.p) eagerReflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
+  | .cancelDen c val x n => throwError "NIY val: {val}, n: {n}"
 
 partial def RingEqCnstr.toExprProof (c' : RingEqCnstr) : ProofM Expr := do
   match c'.h with

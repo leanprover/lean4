@@ -6816,16 +6816,30 @@ theorem beqModel_eq_beqModel_unit [BEq α] [LawfulBEq α] [Hashable α]  {l₁ l
   rw [beqModel, Const.beqModel_unit]
   congr
   ext x
-  rw [containsKey_eq_isSome_getValueCast?]
-  rw [← getValue?_eq_getValueCast?]
-  --apply (eq_iff_iff).2
-  sorry
-
-
+  rw [Bool.eq_iff_iff]
+  constructor
+  · intro hyp
+    rw [containsKey_eq_isSome_getValueCast?]
+    apply Option.isSome_of_eq_some
+    · apply eq_of_beq hyp
+  · intro hyp
+    apply beq_of_eq
+    rw [containsKey_eq_isSome_getValueCast?, Option.isSome_iff_exists ] at hyp
+    have ⟨_, hyp2⟩ := hyp
+    rw [hyp2]
 
 theorem Const.perm_of_beqModel {β : Type v} [BEq α] [Hashable α] [LawfulBEq α] [BEq β] [LawfulBEq β] {l₁ l₂ : List ((_ : α) × β)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
     beqModel l₁ l₂ → l₁.Perm l₂ := by
   rw [← beqModel_eq_beqModel_const]
+  intro hyp
+  apply List.perm_of_beqModel
+  · exact hl₁
+  · exact hl₂
+  · exact hyp
+
+theorem Const.perm_of_beqModel_unit [BEq α] [Hashable α] [LawfulBEq α] {l₁ l₂ : List ((_ : α) × Unit)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
+    beqModel_unit l₁ l₂ → l₁.Perm l₂ := by
+  rw [← beqModel_eq_beqModel_unit]
   intro hyp
   apply List.perm_of_beqModel
   · exact hl₁

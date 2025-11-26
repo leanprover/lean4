@@ -530,7 +530,7 @@ def Resolver (σ τ : Type) :=
     ResolverM σ τ (MeasureSet τ)
 
 /--
-Checks whether we have a memoized result for a given resolution context and uses that.
+Checks whether we have a memoized result for a given resolution context and if so, uses that.
 Otherwise, `f` is evaluated and the result is memoized if `Doc.shouldMemoize` is true.
 -/
 @[specialize]
@@ -556,6 +556,11 @@ mutual
 /--
 Determines the set of measures for a given resolution context.
 The root node is not memoized, while nodes below the root node can be memoized.
+
+Notably, this function skips checks that determine whether the context at the root node already
+exceeds the optimality cutoff width, which (together with not memoizing the root node) means that
+we can use this function to resolve tainted documents to non-tainted ones in the resolver for
+tainted measures.
 -/
 partial def MeasureSet.resolveCore : Resolver σ τ := fun d columnPos indentation fullness => do
   match d with
@@ -658,7 +663,13 @@ where
         -- Hence, we can set `prunable := true` here.
         return m1Result.merge acc (prunable := true)
 
+/--
+Determines the set of measures for a given resolution context and memoizes all nodes along the way.
+-/
 partial def MeasureSet.resolve : Resolver σ τ := Resolver.memoize fun d columnPos indentation fullness => do
+  -- Lifting both the memoization of the root node and the taintedness check out to
+  -- `MeasureSet.resolve` ensures that we can use `resolveCore` to resolve `resolveTainted` nodes
+  -- in the resolver for tainted measures.
   let columnPos' :=
     if let .text s := d then
       columnPos + s.length
@@ -673,6 +684,15 @@ end
 def TaintedResolver (σ τ : Type) :=
     (tm : TaintedMeasure τ) → ResolverM σ τ (Option (Measure τ))
 
+/--
+Checks whether we have a memoized result for a given tainted measure and if so, uses that.
+Otherwise, `f` is evaluated and the result is memoized.
+
+We memoize all tainted resolution results because the resolver for tainted measures will only
+have to resolve every document at most 4 times, as it only performs a case-split in `mergeTainted`
+when one of the two resolutions fail, which is independent of indentation and column position and
+only depends on the document and the fullness state surrounding it.
+-/
 @[specialize]
 def TaintedResolver.memoize (f : TaintedResolver σ τ) : TaintedResolver σ τ := fun tm => do
   let cachedResolvedTainted? ← getCachedResolvedTainted? tm
@@ -687,6 +707,10 @@ mutual
 partial def TaintedMeasure.resolve? : TaintedResolver σ τ := TaintedResolver.memoize fun tm => do
   match tm with
   | .mergeTainted tm1 tm2 _ =>
+    -- We need to try both alternatives here when the first alternative fails.
+    -- However, such failures only depend on the document and the surrounding fullness state,
+    -- so this will never try more than 4 separate alternatives per document overall,
+    -- which bounds the time complexity of the tainted resolver.
     let some m1 ← tm1.resolve?
       | let m2? ← tm2.resolve?
         return m2?
@@ -703,14 +727,24 @@ partial def TaintedMeasure.resolve? : TaintedResolver σ τ := TaintedResolver.m
       | return none
     return some <| m1.append m2
   | .resolveTainted d columnPos indentation fullness _ =>
-    -- TODO: Why resolveCore instead of resolve?
-    -- Because it allows us to pop the top-level tainted node and replace it with something else
+    -- If we used `resolve` instead of `resolveCore` here, we would just again obtain a tainted
+    -- measure, and the mutual recursion between `MeasureSet.extractAtMostOne?` and
+    -- `TaintedMeasure.resolve?` would make no progress.
+    -- Using `resolveCore`, which does not perform taintedness checks and does not memoize the
+    -- result of resolving the root node, ensures that we make progress on the root node.
+    -- This resolution may again produce tainted measures for the children of `d`, which will then
+    -- be resolved recursively.
     let ms ← MeasureSet.resolveCore d columnPos indentation fullness
     let m? ← ms.extractAtMostOne?
     if m?.isNone then
       setCachedFailing d fullness
     return m?
 
+/--
+Yields the measure in a non-tainted measure set with the lowest cost and amongst measures with the
+lowest cost, the one with the largest last line length.
+For a tainted measure, resolves the tainted measure to a regular measure.
+-/
 partial def MeasureSet.extractAtMostOne? (ms : MeasureSet τ) : ResolverM σ τ (Option (Measure τ)) := do
   match ms with
   | .tainted tm =>
@@ -720,18 +754,49 @@ partial def MeasureSet.extractAtMostOne? (ms : MeasureSet τ) : ResolverM σ τ 
 
 end
 
+/--
+Resolves a document to a measure with the given initial offset, or `none` if the resolution
+failed, i.e. if there is no interpretation of `d` that does not result in `failure`.
+-/
 def resolve? (d : Doc) (offset : Nat) : Option (Measure τ) := runST fun _ => ResolverM.run do
+  -- We cannot tell in advance whether the last line of `d` will be full, so we case split on
+  -- `isFullAfter` of the fullness state and later prune subtrees of the search
+  -- when we notice that they are inconsistent with the actual document.
   let ms1 ← MeasureSet.resolve d offset 0 (.mk false false)
   let ms2 ← MeasureSet.resolve d offset 0 (.mk false true)
   let ms := ms1.merge ms2 (prunable := false)
   ms.extractAtMostOne?
 
+/--
+Formats a document to a string for a given cost function.
+Yields `none` if the resolution failed, i.e. if there is no interpretation of `d` that does not
+result in `failure`.
+-/
 public def formatWithCost? (τ : Type) [Add τ] [LE τ] [DecidableLE τ] [Cost τ]
     (d : Doc) (offset : Nat := 0) : Option String := do
   let d := d.preprocess
   let m ← resolve? (τ := τ) d offset
   return m.print
 
+/--
+Default cost function for the formatter.
+
+Minimizes the sum of squared overflows over a page width limit `softWidth`. This means that the
+formatter will find renderings with smaller overflows even when all possible renderings for a
+document overflow the page width limit.
+Amongst renderings with the same sum of squared overflows (or no overflows), it minimizes the
+amount of newlines in the document.
+
+If the width of all renderings of a document exceed a parameter `optimalityCutoffWidth`,
+the formatter will not attempt to determine an optimal rendering with the least amount of overflow
+amongst these renderings. Instead, it heuristically chooses a rendering using an approximation for
+the amount of newlines, and picks the rendering with the largest approximation for the amount of
+newlines.
+
+`optimalityCutoffWidth` bounds the worst-case time complexity of the formatter.
+It does not represent the actual page limit and should always be chosen to be larger than
+`softWidth`.
+-/
 public structure DefaultCost (softWidth : Nat) (optimalityCutoffWidth : Nat) where
   widthCost : Nat
   heightCost : Nat
@@ -761,12 +826,34 @@ public instance : DecidableLE (DefaultCost w W) :=
 def DefaultCost.textCost (softWidth optimalityCutoffWidth columnPos length : Nat) :
     DefaultCost softWidth optimalityCutoffWidth :=
   if columnPos + length <= softWidth then
+    -- `softWidth` not exceeded => no cost
     ⟨0, 0⟩
   else if columnPos <= softWidth then
+    -- `softWidth` first exceeded with this text node by `columnPos + length - softWidth`
+    -- => cost of `(columnPos + length - softWidth)^2`
     let lengthOverflow := (columnPos + length) - softWidth
     ⟨lengthOverflow*lengthOverflow, 0⟩
   else
-    -- TODO: Explain
+    -- This text node is being placed at a column position that already exceeds `softWidth`,
+    -- which means that we have already booked costs for another text node before this one on
+    -- the same line.
+    -- We want the sum of these two costs to represent the combined squared overflow over
+    -- `softWidth` so that the sum of all costs of the text nodes on a line denotes the total
+    -- squared overflow.
+    --
+    -- Assume that the cost `c₁` of the text nodes that have already been placed on this line prior
+    -- to this one represents the squared overflow over `softWidth` so far, i.e. that
+    -- `c₁ = (columnPos - softWidth)^2` (the induction basis for this assumption is given by the
+    -- first two branches of this function).
+    --
+    -- We now want to choose a cost `c₂` for this text node with
+    -- `c₁ + c₂ = (columnPos + length - softWidth)^2` to maintain the invariant.
+    -- With `columnPos > softWidth` and `(a + b)^2 - a^2 = b*(2*a + b)`, we have
+    -- ```
+    -- c₁ + c₂ = (columnPos - softWidth)^2 + c₂ = (columnPos + length - softWidth)^2 iff
+    -- c₂ = (columnPos - softWidth + length)^2 - (columnPos - softWidth)^2
+    --    = length*(2*(columnPos - softWidth) + length)
+    -- ```.
     let columnPosOverflow := columnPos - softWidth
     let lengthOverflow := length
     ⟨lengthOverflow*(2*columnPosOverflow + lengthOverflow), 0⟩
@@ -781,6 +868,27 @@ public instance : Cost (DefaultCost softWidth optimalityCutoffWidth) where
   newlineCost := DefaultCost.newlineCost softWidth optimalityCutoffWidth
   optimalityCutoffWidth := optimalityCutoffWidth
 
+/--
+Formats a document to a string with the default cost function for a given page width limit `width`.
+Yields `none` if the resolution failed, i.e. if there is no interpretation of `d` that does not
+result in `failure`.
+
+The default cost function minimizes the sum of squared overflows over `width`. This means that the
+formatter will find renderings with smaller overflows even when all possible renderings for a
+document overflow the page width limit.
+Amongst renderings with the same sum of squared overflows (or no overflows), it minimizes the
+amount of newlines in the document.
+
+If the width of all renderings of a document exceed `optimalityCutoffWidth`,
+the formatter will not attempt to determine an optimal rendering with the least amount of overflow
+amongst these renderings. Instead, it heuristically chooses a rendering using an approximation for
+the amount of newlines, and picks the rendering with the largest approximation for the amount of
+newlines.
+
+`optimalityCutoffWidth` bounds the worst-case time complexity of the formatter.
+It does not represent the actual page limit and should always be chosen to be larger than
+`width`.
+-/
 public def format? (d : Doc) (width : Nat)
     (optimalityCutoffWidth : Nat := Nat.max ((5*width)/4) 200)
     (offset : Nat := 0) :

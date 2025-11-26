@@ -285,7 +285,13 @@ partial def RingEqCnstr.toExprProof (c' : RingEqCnstr) : ProofM Expr := do
     let h' ← mkCommRingThmPrefix ``Grind.CommRing.Stepwise.inv
     return mkApp4 h' (← mkRingPolyDecl c.p) (← mkRingPolyDecl c'.p) eagerReflBoolTrue h
   | .cancelDen c val x n =>
-    throwError "NIY"
+    let h ← mkCommRingThmPrefix ``Grind.CommRing.Stepwise.eq_mul
+    let p₁ := c.p.mulConst (val^n)
+    let p₁ ← mkRingPolyDecl p₁
+    let h := mkApp5 h (← mkRingPolyDecl c.p) (toExpr (val^n)) p₁ eagerReflBoolTrue (← c.toExprProof)
+    let h_eq_one := mkApp2 (← mkFieldChar0ThmPrefix ``Grind.CommRing.inv_int_eq') (toExpr val) eagerReflBoolTrue
+    let h' ← mkCommRingThmPrefix ``Grind.CommRing.eq_cancel_var
+    return mkApp7 h' (toExpr val) (toExpr x) p₁ (← mkRingPolyDecl c'.p) eagerReflBoolTrue h_eq_one h
 
 partial def RingDiseqCnstr.toExprProof (c' : RingDiseqCnstr) : ProofM Expr := do
   match c'.h with

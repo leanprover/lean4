@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.Linear.Den
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
 import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
@@ -56,6 +57,8 @@ private def processNewCommRingEq' (a b : Expr) : LinearM Unit := do
   let generation := max (← getGeneration a) (← getGeneration b)
   let p := (lhs.sub rhs).toPoly
   let c : RingEqCnstr := { p, h := .core a b lhs rhs }
+  let c ← c.cleanupDenominators
+  let p := c.p
   let lhs ← p.toIntModuleExpr generation
   let some lhs ← reify? lhs (skipVar := false) generation | return ()
   let p := lhs.norm
@@ -274,6 +277,8 @@ private def processNewCommRingDiseq (a b : Expr) : LinearM Unit := do
   let some rhs ← withRingM <| CommRing.reify? b (skipVar := false) | return ()
   let p := (lhs.sub rhs).toPoly
   let c : RingDiseqCnstr := { p, h := .core a b lhs rhs }
+  let c ← c.cleanupDenominators
+  let p := c.p
   let generation := max (← getGeneration a) (← getGeneration b)
   let lhs ← p.toIntModuleExpr generation
   let some lhs ← reify? lhs (skipVar := false) generation | return ()

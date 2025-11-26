@@ -3656,7 +3656,7 @@ theorem isEmpty_ofList [EquivBEq α] [LawfulHashable α]
 theorem unitOfArray_eq_unitOfList (a : Array α) :
     unitOfArray a = unitOfList a.toList := by
   simp_to_raw
-  rw [Raw₀.Const.insertManyIfNewUnit_eq_insertManyIfNewUnit_ofList]
+  rw [Raw₀.Const.insertManyIfNewUnit_array_eq_insertManyIfNewUnit_toList]
 
 @[simp]
 theorem unitOfList_nil :

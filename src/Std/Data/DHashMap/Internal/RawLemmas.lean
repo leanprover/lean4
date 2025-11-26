@@ -2478,9 +2478,9 @@ theorem isEmpty_insertMany_emptyWithCapacity_list [EquivBEq α] [LawfulHashable 
   simp [isEmpty_insertMany_list _ Raw.WF.emptyWithCapacity₀]
 
 @[simp, grind =]
-theorem insertManyIfNewUnit_eq_insertManyIfNewUnit_ofList (a : Array α):
+theorem Const.insertManyIfNewUnit_array_eq_insertManyIfNewUnit_toList (a : Array α):
     insertManyIfNewUnit emptyWithCapacity a = insertManyIfNewUnit emptyWithCapacity a.toList := by
-  rw [Internal.Raw₀.Const.insertManyIfNewUnit_eq_insertManyIfNewUnit_toList]
+  rw [Raw₀.Const.insertManyIfNewUnit_array_eq_insertManyIfNewUnit_toList]
 
 @[simp]
 theorem insertManyIfNewUnit_emptyWithCapacity_list_nil :

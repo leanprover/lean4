@@ -1132,7 +1132,7 @@ theorem Const.insertMany_eq_insertMany_toList [BEq α] [Hashable α] {β : Type 
     Const.insertMany m a = Const.insertMany m a.toList := by
   simp only [insertMany, bind_pure_comp, map_pure, bind_pure, ← Array.forIn_toList, forIn_pure_yield_eq_foldl, Array.foldl_toList, Id.run_pure]
 
-theorem Const.insertManyIfNewUnit_eq_insertManyIfNewUnit_toList [BEq α] [Hashable α] (m : Raw₀ α fun _ => Unit) (a : Array α) :
+theorem Const.insertManyIfNewUnit_array_eq_insertManyIfNewUnit_toList [BEq α] [Hashable α] (m : Raw₀ α fun _ => Unit) (a : Array α) :
     Const.insertManyIfNewUnit m a = Const.insertManyIfNewUnit m a.toList := by
   simp only [insertManyIfNewUnit, bind_pure_comp, map_pure, bind_pure, ← Array.forIn_toList, forIn_pure_yield_eq_foldl, Array.foldl_toList, Id.run_pure]
 

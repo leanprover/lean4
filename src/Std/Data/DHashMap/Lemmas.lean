@@ -3195,7 +3195,7 @@ theorem isEmpty_ofList [EquivBEq α] [LawfulHashable α]
 @[simp, grind =]
 theorem unitOfArray_eq_unitOfList (a : Array α) :
     unitOfArray a = unitOfList a.toList :=
-  ext <| congrArg Subtype.val <| congrArg Subtype.val (Raw₀.Const.insertManyIfNewUnit_eq_insertManyIfNewUnit_ofList (α := α) a)
+  ext <| congrArg Subtype.val <| congrArg Subtype.val (Raw₀.Const.insertManyIfNewUnit_array_eq_insertManyIfNewUnit_toList (α := α) _ a)
 
 @[simp]
 theorem unitOfList_nil :

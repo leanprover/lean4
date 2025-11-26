@@ -1,4 +1,4 @@
-To build Lean you should use `make -j$(nproc) -C build/release`.
+To build Lean you should use `make -j -C build/release`.
 
 To run a test you should use `cd tests/lean/run && ./test_single.sh example_test.lean`.
 
@@ -18,7 +18,7 @@ All new tests should go in `tests/lean/run/`. These tests don't have expected ou
 ## Build System Safety
 
 **NEVER manually delete build directories** (build/, stage0/, stage1/, etc.) even when builds fail.
-- ONLY use the project's documented build command: `make -j$(nproc) -C build/release`
+- ONLY use the project's documented build command: `make -j -C build/release`
 - If a build is broken, ask the user before attempting any manual cleanup
 
 ## LSP and IDE Diagnostics

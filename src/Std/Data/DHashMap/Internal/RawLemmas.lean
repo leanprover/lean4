@@ -164,6 +164,7 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
      ⟨`getEntry!, (``getEntry!_eq_getEntry!, #[`(getEntry!_of_perm _)])⟩,
      ⟨`toList, (``Raw.toList_eq_toListModel, #[])⟩,
      ⟨`Const.beq, (``Raw₀.Const.toListModel_beq, #[])⟩,
+     ⟨`Const.beq_unit, (``Raw₀.Const.toListModel_beq_unit, #[])⟩,
      ⟨`beq, (``toListModel_beq, #[])⟩,
      ⟨`keys, (``Raw.keys_eq_keys_toListModel, #[`(perm_keys_congr_left)])⟩,
      ⟨`Const.toList, (``Raw.Const.toList_eq_toListModel_map, #[`(perm_map_congr_left)])⟩,

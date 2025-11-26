@@ -562,6 +562,10 @@ def getKey? [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Option α :=
   buckets[i].getKey? a
 
 /-- Internal implementation detail of the hash map -/
+def Const.beq_unit [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α (fun _ => Unit)) : Bool :=
+  if m₁.1.size ≠ m₂.1.size then false else m₁.1.all (fun k _ => m₂.contains k)
+
+/-- Internal implementation detail of the hash map -/
 def getKey [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (hma : m.contains a) : α :=
   let ⟨⟨_, buckets⟩, h⟩ := m
   let idx := mkIdx buckets.size h (hash a)

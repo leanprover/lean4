@@ -236,19 +236,20 @@ instance [Ring R] [LE R] [LT R] [LawfulOrderLT R] [IsPreorder R] [OrderedRing R]
 
 end Preorder
 
+theorem mul_pos [LE R] [LT R] [IsPreorder R] [OrderedRing R] {a b : R} (h₁ : 0 < a) (h₂ : 0 < b) : 0 < a * b := by
+  simpa [Semiring.zero_mul] using mul_lt_mul_of_pos_right h₁ h₂
+
+theorem zero_le_one [LE R] [LT R] [LawfulOrderLT R] [IsPreorder R] [OrderedRing R] : (0 : R) ≤ 1 :=
+  Preorder.le_of_lt zero_lt_one
+
+theorem not_one_lt_zero [LE R] [LT R] [LawfulOrderLT R] [IsPreorder R] [OrderedRing R] : ¬ ((1 : R) < 0) :=
+  fun h => Preorder.lt_irrefl (0 : R) (Preorder.lt_trans zero_lt_one h)
+
 section PartialOrder
 
 variable [LE R] [LT R] [IsPartialOrder R] [OrderedRing R]
 
-theorem mul_pos {a b : R} (h₁ : 0 < a) (h₂ : 0 < b) : 0 < a * b := by
-  simpa [Semiring.zero_mul] using mul_lt_mul_of_pos_right h₁ h₂
-
 variable [LawfulOrderLT R]
-
-theorem zero_le_one : (0 : R) ≤ 1 := Preorder.le_of_lt zero_lt_one
-
-theorem not_one_lt_zero : ¬ ((1 : R) < 0) :=
-  fun h => Preorder.lt_irrefl (0 : R) (Preorder.lt_trans zero_lt_one h)
 
 theorem mul_le_mul_of_nonneg_left {a b c : R} (h : a ≤ b) (h' : 0 ≤ c) : c * a ≤ c * b := by
   rw [PartialOrder.le_iff_lt_or_eq] at h'

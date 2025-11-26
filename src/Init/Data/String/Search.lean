@@ -94,7 +94,7 @@ Examples:
 @[inline]
 def Pos.find?  {s : String} (pos : s.Pos) (pattern : ρ)
     [ToForwardSearcher pattern σ] : Option s.Pos :=
-  (pos.toSlice.find? pattern).map (·.ofSlice)
+  (pos.toSlice.find? pattern).map Pos.ofToSlice
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in after the position
@@ -109,7 +109,7 @@ Examples:
 @[inline]
 def Pos.find {s : String} (pos : s.Pos) (pattern : ρ) [ToForwardSearcher pattern σ] :
     s.Pos :=
-  (pos.toSlice.find pattern).ofSlice
+  ofToSlice (pos.toSlice.find pattern)
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in a string {name}`s`. If
@@ -172,7 +172,7 @@ Examples:
 @[inline]
 def Pos.revFind? {s : String} (pos : s.Pos) (pattern : ρ) [ToBackwardSearcher pattern σ] :
     Option s.Pos :=
-  (pos.toSlice.revFind? pattern).map (·.ofSlice)
+  (pos.toSlice.revFind? pattern).map Pos.ofToSlice
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in a string, starting
@@ -539,14 +539,14 @@ Examples:
 @[inline, expose] def back (s : String) : Char :=
   s.toSlice.back
 
-theorem Slice.Pos.ofSlice_ne_endPos {s : String} {p : s.toSlice.Pos}
-    (h : p ≠ s.toSlice.endPos) : p.ofSlice ≠ s.endPos := by
-  rwa [ne_eq, ← Pos.toSlice_inj, toSlice_ofSlice, ← endPos_toSlice]
+theorem Pos.ofToSlice_ne_endPos {s : String} {p : s.toSlice.Pos}
+    (h : p ≠ s.toSlice.endPos) : ofToSlice p ≠ s.endPos := by
+  rwa [ne_eq, ← Pos.toSlice_inj, Slice.Pos.toSlice_ofToSlice, ← endPos_toSlice]
 
 @[inline]
 def Internal.toSliceWithProof {s : String} :
     { p : s.toSlice.Pos // p ≠ s.toSlice.endPos } → { p : s.Pos // p ≠ s.endPos } :=
-  fun ⟨p, h⟩ => ⟨p.ofSlice, Slice.Pos.ofSlice_ne_endPos h⟩
+  fun ⟨p, h⟩ => ⟨Pos.ofToSlice p, Pos.ofToSlice_ne_endPos h⟩
 
 /--
 Creates an iterator over all valid positions within {name}`s`.

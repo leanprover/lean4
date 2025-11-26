@@ -23,7 +23,7 @@ by default even when their signatures are public; the bodies of
 definitions can be made public by adding the `@[expose]`
 attribute. Theorems and opaque constants never expose their bodies.
 
-`public section` and `@[expose section]` change the default visibility
+`public section` and `@[expose] section` change the default visibility
 of declarations in the section.
 
 # Imports

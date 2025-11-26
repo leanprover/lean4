@@ -66,6 +66,7 @@ private partial def formatIRType : IRType → Format
   | IRType.uint64       => "u64"
   | IRType.usize        => "usize"
   | IRType.erased       => "◾"
+  | IRType.void         => "void"
   | IRType.object       => "obj"
   | IRType.tagged       => "tagged"
   | IRType.tobject      => "tobj"

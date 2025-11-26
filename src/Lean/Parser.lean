@@ -51,6 +51,7 @@ builtin_initialize
   register_parser_alias withoutPosition { stackSz? := none }
   register_parser_alias withoutForbidden { stackSz? := none }
   register_parser_alias (kind := interpolatedStrKind) interpolatedStr
+  register_parser_alias (kind := hexnumKind) hexnum
   register_parser_alias orelse
   register_parser_alias andthen { stackSz? := none }
   register_parser_alias recover
@@ -92,6 +93,7 @@ unsafe def interpretParserDescr : ParserDescr → CoreM Parenthesizer
   | ParserDescr.trailingNode k prec lhsPrec d       => return trailingNode.parenthesizer k prec lhsPrec (← interpretParserDescr d)
   | ParserDescr.symbol tk                           => return symbol.parenthesizer tk
   | ParserDescr.nonReservedSymbol tk includeIdent   => return nonReservedSymbol.parenthesizer tk includeIdent
+  | ParserDescr.unicodeSymbol tk asciiTk preserve   => return unicodeSymbol.parenthesizer tk asciiTk preserve
   | ParserDescr.parser constName                    => combinatorParenthesizerAttribute.runDeclFor constName
   | ParserDescr.cat catName prec                    => return categoryParser.parenthesizer catName prec
 
@@ -124,6 +126,7 @@ unsafe def interpretParserDescr : ParserDescr → CoreM Formatter
   | ParserDescr.trailingNode k prec lhsPrec d       => return trailingNode.formatter k prec lhsPrec (← interpretParserDescr d)
   | ParserDescr.symbol tk                           => return symbol.formatter tk
   | ParserDescr.nonReservedSymbol tk _              => return nonReservedSymbol.formatter tk
+  | ParserDescr.unicodeSymbol tk asciiTk preserve   => return unicodeSymbol.formatter tk asciiTk preserve
   | ParserDescr.parser constName                    => combinatorFormatterAttribute.runDeclFor constName
   | ParserDescr.cat catName _                       => return categoryParser.formatter catName
 

@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Sum
 public import Lean.LabelAttribute
-public import Lean.Meta.Tactic.Apply
 public import Lean.Meta.Tactic.Backtrack
 public import Lean.Meta.Tactic.Constructor
 public import Lean.Meta.Tactic.Repeat

@@ -20,7 +20,7 @@ The elaborator attempts to synthesize an instance of `DecodeVersion` for the
 expected type and then applies it to the string literal.
 -/
 
-namespace Lake
+namespace Lake.DSL
 
 public instance : ToExpr SemVerCore where
   toExpr ver := mkAppN (mkConst ``SemVerCore.mk)

@@ -1,0 +1,12 @@
+name = "test"
+
+[[lean_lib]]
+name = "Test"
+
+[[require]]
+name = "depA"
+path = "depA"
+
+[[require]]
+name = "depB"
+path = "depB"

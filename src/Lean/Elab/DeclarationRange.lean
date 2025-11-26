@@ -6,10 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Log
 public import Lean.Parser.Command
-public import Lean.DeclarationRange
-public import Lean.Data.Lsp.Utf16
 
 public section
 

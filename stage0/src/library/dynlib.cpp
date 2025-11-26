@@ -67,7 +67,7 @@ static inline void * symbol_ptr(b_obj_arg sym) {
 }
 
 /* Dynlib.load : System.FilePath -> IO Dynlib */
-extern "C" LEAN_EXPORT obj_res lean_dynlib_load(b_obj_arg path, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_dynlib_load(b_obj_arg path) {
 #ifdef LEAN_WINDOWS
     HMODULE h = LoadLibrary(string_cstr(path));
     if (!h) {
@@ -114,22 +114,22 @@ extern "C" LEAN_EXPORT obj_res lean_dynlib_get(b_obj_arg dynlib, b_obj_arg name)
 }
 
 /* Dynlib.Symbol.runAsInit : {Dynlib} -> Symbol -> IO Unit */
-extern "C" LEAN_EXPORT obj_res lean_dynlib_symbol_run_as_init(b_obj_arg /* dynlib */, b_obj_arg sym, obj_arg) {
-    auto init_fn = reinterpret_cast<object *(*)(uint8_t, object *)>(symbol_ptr(sym));
-    return init_fn(1 /* builtin */, io_mk_world());
+extern "C" LEAN_EXPORT obj_res lean_dynlib_symbol_run_as_init(b_obj_arg /* dynlib */, b_obj_arg sym) {
+    auto init_fn = reinterpret_cast<object *(*)(uint8_t)>(symbol_ptr(sym));
+    return init_fn(1 /* builtin */);
 }
 
 /* Lean.loadDynlib : System.FilePath -> IO Unit */
-extern "C" obj_res lean_load_dynlib(obj_arg path, obj_arg);
+extern "C" obj_res lean_load_dynlib(obj_arg path);
 
 void load_dynlib(std::string path) {
-    consume_io_result(lean_load_dynlib(mk_string(path), io_mk_world()));
+    consume_io_result(lean_load_dynlib(mk_string(path)));
 }
 
 /* Lean.loadPlugin : System.FilePath -> IO Unit */
-extern "C" obj_res lean_load_plugin(obj_arg path, obj_arg);
+extern "C" obj_res lean_load_plugin(obj_arg path);
 
 void load_plugin(std::string path) {
-    consume_io_result(lean_load_plugin(mk_string(path), io_mk_world()));
+    consume_io_result(lean_load_plugin(mk_string(path)));
 }
 }

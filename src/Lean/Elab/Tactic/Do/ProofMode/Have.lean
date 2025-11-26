@@ -7,8 +7,10 @@ module
 
 prelude
 public import Std.Tactic.Do.Syntax
-public import Lean.Elab.Tactic.Do.ProofMode.Cases
-public import Lean.Elab.Tactic.Do.ProofMode.Specialize
+public import Lean.Elab.Tactic.Basic
+import Lean.Elab.Tactic.Do.ProofMode.Focus
+import Lean.Elab.Tactic.Do.ProofMode.Cases
+import Lean.Elab.Tactic.Do.ProofMode.Specialize
 
 public section
 

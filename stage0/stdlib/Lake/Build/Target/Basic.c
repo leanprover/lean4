@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Target.Basic
-// Imports: Lake.Build.Key
+// Imports: public import Lake.Build.Key
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,7 +15,6 @@ extern "C" {
 #endif
 static lean_object* l_Lake_Target_repr___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Target_instRepr(lean_object*);
-lean_object* l_Lake_reprBuildKey____x40_Lake_Build_Key_961682309____hygCtx___hyg_74_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_ctorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_Target_repr___redArg___closed__0;
 static lean_object* l_Lake_Target_repr___redArg___closed__3;
@@ -31,6 +30,7 @@ static lean_object* l_Lake_Target_instRepr___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Target_instToString___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_ctorIdx(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
+lean_object* l_Lake_instReprBuildKey_repr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_instCoePartialBuildKey___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_instToString(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_repr___redArg___boxed(lean_object*, lean_object*);
@@ -49,7 +49,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_Target_ctorIdx(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }
@@ -126,7 +126,7 @@ block_12:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; 
 x_4 = l_Lake_Target_repr___redArg___closed__2;
 x_5 = lean_unsigned_to_nat(1024u);
-x_6 = l_Lake_reprBuildKey____x40_Lake_Build_Key_961682309____hygCtx___hyg_74_(x_1, x_5);
+x_6 = l_Lake_instReprBuildKey_repr(x_1, x_5);
 x_7 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_7, 0, x_4);
 lean_ctor_set(x_7, 1, x_6);
@@ -204,7 +204,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lake_Target_instCoePartialBuildKey___lam__0(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
+lean_inc_ref(x_1);
 return x_1;
 }
 }
@@ -221,17 +221,17 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_Target_instCoePartialBuildKey___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Lake_Build_Key(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Build_Key(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Build_Target_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Build_Target_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Build_Key(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Key(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_Target_repr___redArg___closed__0 = _init_l_Lake_Target_repr___redArg___closed__0();

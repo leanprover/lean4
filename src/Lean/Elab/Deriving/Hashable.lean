@@ -81,7 +81,7 @@ def mkHashFuncs (ctx : Context) : TermElabM Syntax := do
   `(mutual $auxDefs:command* end)
 
 private def mkHashableInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "hash" declName
+  let ctx ← mkContext ``Hashable "hash" declName
   let cmds := #[← mkHashFuncs ctx] ++ (← mkInstanceCmds ctx `Hashable #[declName])
   trace[Elab.Deriving.hashable] "\n{cmds}"
   return cmds

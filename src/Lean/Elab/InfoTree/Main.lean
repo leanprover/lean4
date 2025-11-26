@@ -49,10 +49,14 @@ def PartialContextInfo.mergeIntoOuter?
     some { info with }
   | .parentDeclCtx _, none =>
     panic! "Unexpected incomplete InfoTree context info."
+  | .autoImplicitCtx _, none =>
+    panic! "Unexpected incomplete InfoTree context info."
   | .commandCtx innerInfo, some outer =>
     some { outer with toCommandContextInfo := innerInfo }
   | .parentDeclCtx innerParentDecl, some outer =>
     some { outer with parentDecl? := innerParentDecl }
+  | .autoImplicitCtx innerAutoImplicits, some outer =>
+    some { outer with autoImplicits := innerAutoImplicits }
 
 def CompletionInfo.stx : CompletionInfo → Syntax
   | dot i ..          => i.stx
@@ -221,6 +225,12 @@ def DelabTermInfo.format (ctx : ContextInfo) (info : DelabTermInfo) : IO Format 
 def ChoiceInfo.format (ctx : ContextInfo) (info : ChoiceInfo) : Format :=
   f!"[Choice] @ {formatElabInfo ctx info.toElabInfo}"
 
+def DocInfo.format (ctx : ContextInfo) (info : DocInfo) : Format :=
+  f!"[Doc] {info.stx.getKind} @ {formatElabInfo ctx info.toElabInfo}"
+
+def DocElabInfo.format (ctx : ContextInfo) (info : DocElabInfo) : Format :=
+  f!"[DocElab] {info.name} ({repr info.kind}) @ {formatElabInfo ctx info.toElabInfo}"
+
 def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofTacticInfo i         => i.format ctx
   | ofTermInfo i           => i.format ctx
@@ -237,6 +247,8 @@ def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofFieldRedeclInfo i    => pure <| i.format ctx
   | ofDelabTermInfo i      => i.format ctx
   | ofChoiceInfo i         => pure <| i.format ctx
+  | ofDocInfo i            => pure <| i.format ctx
+  | ofDocElabInfo i        => pure <| i.format ctx
 
 def Info.toElabInfo? : Info → Option ElabInfo
   | ofTacticInfo i         => some i.toElabInfo
@@ -254,6 +266,8 @@ def Info.toElabInfo? : Info → Option ElabInfo
   | ofFieldRedeclInfo _    => none
   | ofDelabTermInfo i      => some i.toElabInfo
   | ofChoiceInfo i         => some i.toElabInfo
+  | ofDocInfo i            => some i.toElabInfo
+  | ofDocElabInfo i        => some i.toElabInfo
 
 /--
   Helper function for propagating the tactic metavariable context to its children nodes.
@@ -272,6 +286,12 @@ def Info.toElabInfo? : Info → Option ElabInfo
 def Info.updateContext? : Option ContextInfo → Info → Option ContextInfo
   | some ctx, ofTacticInfo i => some { ctx with mctx := i.mctxAfter }
   | ctx?, _ => ctx?
+
+def PartialContextInfo.format (ctx : PartialContextInfo) : Format :=
+  match ctx with
+  | .commandCtx _ => "command"
+  | .parentDeclCtx n => s!"parent[{n}]"
+  | .autoImplicitCtx implicits => s!"autoImplicits[{implicits}]"
 
 partial def InfoTree.format (tree : InfoTree) (ctx? : Option ContextInfo := none) : IO Format := do
   match tree with
@@ -442,6 +462,16 @@ def withSaveParentDeclInfoContext [MonadFinally m] [MonadParentDecl m] (x : m α
     let some declName ← getParentDeclName?
       | return none
     return some <| .parentDeclCtx declName
+
+/--
+Resets the trees state `t₀`, runs `x` to produce a new trees state `t₁` and sets the state to be
+`t₀ ++ (InfoTree.context (PartialContextInfo.autoImplicitCtx Γ) <$> t₁)` where `Γ` is the set of
+auto-implicits provided by `MonadAutoImplicits m`.
+-/
+def withSaveAutoImplicitInfoContext [MonadFinally m] [MonadAutoImplicits m] (x : m α) : m α := do
+  withSavedPartialInfoContext x do
+    let autoImplicits ← getAutoImplicits
+    return some <| .autoImplicitCtx autoImplicits
 
 def getInfoHoleIdAssignment? (mvarId : MVarId) : m (Option InfoTree) :=
   return (← getInfoState).assignment[mvarId]

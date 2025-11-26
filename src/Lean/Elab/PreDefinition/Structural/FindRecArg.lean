@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Elab.PreDefinition.TerminationMeasure
-public import Lean.Elab.PreDefinition.FixedParams
 public import Lean.Elab.PreDefinition.Structural.Basic
 public import Lean.Elab.PreDefinition.Structural.RecArgInfo
 

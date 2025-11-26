@@ -11,5 +11,3 @@ public import Init.Data.Fin.Log2
 public import Init.Data.Fin.Iterate
 public import Init.Data.Fin.Fold
 public import Init.Data.Fin.Lemmas
-
-public section

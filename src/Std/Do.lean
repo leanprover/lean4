@@ -11,5 +11,3 @@ public import Std.Do.WP
 public import Std.Do.Triple
 public import Std.Do.PredTrans
 public import Std.Do.PostCond
-
-@[expose] public section

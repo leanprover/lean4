@@ -12,6 +12,7 @@ public import Lean.Meta.Eqns
 public import Lean.Meta.Tactic.Simp.SimpTheorems
 public import Lean.Meta.Tactic.Simp.SimpCongrTheorems
 import Lean.Meta.Tactic.Replace
+import Lean.ExtraModUses
 
 public section
 
@@ -559,6 +560,13 @@ def Result.mkEqMPR (r : Simp.Result) (e : Expr) : MetaM Expr := do
   else
     Meta.mkEqMPR (← r.getProof) e
 
+/-- Construct the `Expr` `h.mp e`, from a `Simp.Result` with proof `h`. -/
+def Result.mkEqMP (r : Simp.Result) (e : Expr) : MetaM Expr := do
+  if r.proof?.isNone && r.expr == e then
+    pure e
+  else
+    Meta.mkEqMP (← r.getProof) e
+
 def mkCongrFun (r : Result) (a : Expr) : MetaM Result :=
   match r.proof? with
   | none   => return { expr := mkApp r.expr a, proof? := none }
@@ -873,6 +881,11 @@ def SimpM.run (ctx : Context) (s : State := {}) (methods : Methods := {}) (k : S
     trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
     let stats ← updateUsedSimpsWithZetaDelta ctx { s with }
     let s := { s with diag := stats.diag, usedTheorems := stats.usedTheorems }
+    for (thm, _) in s.usedTheorems.map do
+      if let .decl declName .. := thm then
+        -- for `rfl` theorems and simprocs, there might not be an explicit reference in the proof
+        -- term
+        recordExtraModUseFromDecl (isMeta := false) declName
     return (r, s)
 
 end Simp

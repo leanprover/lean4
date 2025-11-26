@@ -9,11 +9,8 @@ prelude
 public import Lean.Util.HasConstCache
 public import Lean.Meta.Match.MatcherApp.Transform
 public import Lean.Meta.Tactic.Cleanup
-public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.TryThis
 public import Lean.Meta.ArgsPacker
-public import Lean.Elab.RecAppSyntax
-public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.Mutual
 public import Lean.Elab.PreDefinition.Structural.Basic
 public import Lean.Elab.PreDefinition.TerminationMeasure
@@ -29,7 +26,7 @@ This module finds lexicographic termination measures for well-founded recursion.
 
 Starting with basic measures (`sizeOf xᵢ` for all parameters `xᵢ`), and complex measures
 (e.g. `e₂ - e₁` if `e₁ < e₂` is found in the context of a recursive call) it tries all combinations
-until it finds one where all proof obligations go through with the given tactic (`decerasing_by`),
+until it finds one where all proof obligations go through with the given tactic (`decreasing_by`),
 if given, or the default `decreasing_tactic`.
 
 For mutual recursion, a single measure is not just one parameter, but one from each recursive

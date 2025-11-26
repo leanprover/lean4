@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Util
 public import Lean.Elab.Term
+import Lean.ExtraModUses
 
 public section
 
@@ -235,6 +236,7 @@ where
           withReader ({ · with elaborator := m.declName }) do
             withTacticInfoContext stx do
               let stx' ← adaptMacro m.value stx
+              recordExtraModUseFromDecl (isMeta := true) m.declName
               -- Support incrementality; see also Note [Incremental Macros]
               if evalFns.isEmpty && ms.isEmpty then  -- Only try incrementality in one branch
                 if let some snap := (← readThe Term.Context).tacSnap? then
@@ -360,6 +362,10 @@ instance : MonadExcept Exception TacticM where
 /-- Execute `x` with error recovery disabled -/
 def withoutRecover (x : TacticM α) : TacticM α :=
   withReader (fun ctx => { ctx with recover := false }) x
+
+/-- Execute `x` with error recovery disabled -/
+def withRecover (recover : Bool) (x : TacticM α) : TacticM α :=
+  withReader (fun ctx => { ctx with recover }) x
 
 /--
 Like `throwErrorAt`, but, if recovery is enabled, logs the error instead.

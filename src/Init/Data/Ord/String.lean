@@ -23,6 +23,9 @@ open Std
 
 namespace String
 
+instance : Ord String where
+  compare x y := compareOfLessAndEq x y
+
 instance : TransOrd String :=
   TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     String.le_antisymm String.le_trans String.le_total String.not_le

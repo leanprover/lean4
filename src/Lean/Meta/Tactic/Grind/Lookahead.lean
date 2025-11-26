@@ -7,22 +7,29 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Intro
+import Lean.Meta.Tactic.Grind.Action
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.EMatch
-import Lean.Meta.Tactic.Grind.SearchM
-import Lean.Meta.Tactic.Grind.Check
+import Lean.Meta.Tactic.Grind.EMatchAction
 public section
 namespace Lean.Meta.Grind
 
-private partial def solve (generation : Nat) : SearchM Bool := withIncRecDepth do
-  unless (← get).choiceStack.isEmpty do
-    return false -- `splitNext` should have been configured to not create choice points
-  if (← getGoal).inconsistent then
-    return true
-  if (← intros' generation <||> assertAll <||> check <||> splitNext <||> ematch) then
-    solve generation
-  else
-    return false
+/-
+This code is not used anymore.
+TODO: Decide whether we should delete it or not.
+-/
+
+private abbrev maxIterations := 10000 -- **TODO**: Add option
+
+private def solve (goal : Goal) (generation : Nat) : GrindM (Option Goal) := do
+  let solvers ← Solvers.mkAction
+  let step : Action := solvers <|> Action.splitNext <|> Action.instantiate
+  let a := Action.intros generation >> Action.assertAll >> step.loop maxIterations
+  match (← a.run goal) with
+  | .closed _ => return none
+  | .stuck gs =>
+    let goal :: _ := gs | return some goal
+    return some goal
 
 private def tryLookahead (e : Expr) : GoalM Bool :=
   withTheReader Grind.Context
@@ -38,8 +45,7 @@ private def tryLookahead (e : Expr) : GoalM Bool :=
     let mvar ← mkFreshExprSyntheticOpaqueMVar target tag
     let goalAux := { goal with mvarId := mvar.mvarId!, newFacts := {} }
     let gen ← getGeneration e
-    let (ok, _) ← (solve gen).run goalAux
-    if ok then
+    if (← solve goalAux gen).isNone then
       return some (← instantiateMVars mvar)
     else
       return none

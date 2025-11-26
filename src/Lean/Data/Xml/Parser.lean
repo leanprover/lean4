@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Internal.Parsec
 public import Lean.Data.Xml.Basic
+import Init.Data.String.Search
 
 public section
 

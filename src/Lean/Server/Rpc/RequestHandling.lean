@@ -7,16 +7,14 @@ Authors: Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Data.Lsp.Extra
 public import Lean.Server.Requests
 
-public import Lean.Server.Rpc.Basic
 
 public section
 
 namespace Lean.Server
 
-private structure RpcProcedure where
+structure RpcProcedure where private mk ::
   wrapper : (sessionId : UInt64) → Json → RequestM (RequestTask Json)
   deriving Inhabited
 
@@ -36,6 +34,10 @@ private unsafe def evalRpcProcedureUnsafe (env : Environment) (opts : Options) (
 private opaque evalRpcProcedure (env : Environment) (opts : Options) (procName : Name) :
     Except String RpcProcedure
 
+/-- Checks whether a builtin RPC procedure exists with the given name. -/
+def existsBuiltinRpcProcedure (method : Name) : IO Bool := do
+  return (← builtinRpcProcedures.get).contains method
+
 open RequestM in
 def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
   -- The imports are finished at this point, because the handleRequest function
@@ -44,7 +46,7 @@ def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
   if let some proc := (← builtinRpcProcedures.get).find? p.method then
     RequestM.asTask do
       let t ← proc.wrapper p.sessionId p.params
-      match t.get with
+      match ← t.wait with
       | .ok r => return r
       | .error err => throw err
   else
@@ -71,7 +73,7 @@ def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
 builtin_initialize
   registerLspRequestHandler "$/lean/rpc/call" Lsp.RpcCallParams Json handleRpcCall
 
-private def wrapRpcProcedure (method : Name) paramType respType
+def wrapRpcProcedure (method : Name) paramType respType
     [RpcEncodable paramType] [RpcEncodable respType]
     (handler : paramType → RequestM (RequestTask respType)) : RpcProcedure where
   wrapper seshId j := do
@@ -140,7 +142,8 @@ builtin_initialize registerBuiltinAttribute {
     The function must have type `α → RequestM (RequestTask β)` with
     `[RpcEncodable α]` and `[RpcEncodable β]`."
   applicationTime := AttributeApplicationTime.afterCompilation
-  add := fun decl _ _ =>
+  add := fun decl _ attrKind => do
+    ensureAttrDeclIsMeta `server_rpc_method decl attrKind
     registerRpcProcedure decl
 }
 

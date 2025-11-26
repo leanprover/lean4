@@ -49,6 +49,7 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #include "library/init_attribute.h"
 #include "util/nat.h"
 #include "util/option_declarations.h"
+#include "util/name_hash_map.h"
 
 #ifndef LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE
 #define LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE true
@@ -179,28 +180,38 @@ decl_kind decl_tag(decl const & a) { return is_scalar(a.raw()) ? static_cast<dec
 fun_id const & decl_fun_id(decl const & b) { return cnstr_get_ref_t<fun_id>(b, 0); }
 array_ref<param> const & decl_params(decl const & b) { return cnstr_get_ref_t<array_ref<param>>(b, 1); }
 type decl_type(decl const & b) { return cnstr_get_type(b, 2); }
-fn_body const & decl_fun_body(decl const & b) { lean_assert(decl_tag(b) == decl_kind::Fun); return cnstr_get_ref_t<fn_body>(b, 3); }
+fn_body const & decl_fun_body(decl const & b) {
+    if (decl_tag(b) != decl_kind::Fun) {
+        throw exception(sstream() << "(interpreter) IR of declaration '" << decl_fun_id(b) << "' not available; this may point to a missing `meta` check in a metaprogram");
+    }
+    return cnstr_get_ref_t<fn_body>(b, 3);
+}
 
 extern "C" object * lean_ir_find_env_decl(object * env, object * n);
 option_ref<decl> find_ir_decl(elab_environment const & env, name const & n) {
     return option_ref<decl>(lean_ir_find_env_decl(env.to_obj_arg(), n.to_obj_arg()));
 }
 
+extern "C" object * lean_ir_find_env_decl_boxed(object * env, object * n);
+option_ref<decl> find_ir_decl_boxed(elab_environment const & env, name const & n) {
+    return option_ref<decl>(lean_ir_find_env_decl_boxed(env.to_obj_arg(), n.to_obj_arg()));
+}
+
 extern "C" double lean_float_of_nat(lean_obj_arg a);
 extern "C" float lean_float32_of_nat(lean_obj_arg a);
 
-static string_ref * g_mangle_prefix = nullptr;
-static string_ref * g_boxed_suffix = nullptr;
 static string_ref * g_boxed_mangled_suffix = nullptr;
 static name * g_interpreter_prefer_native = nullptr;
 
 // constants (lacking native declarations) initialized by `lean_run_init`
-static name_map<object *> * g_init_globals;
+// We can assume this variable is never written to and read from in parallel; see `enableInitializersExecution`.
+static name_hash_map<object *> * g_init_globals;
 
 // reuse the compiler's name mangling to compute native symbol names
-extern "C" object * lean_name_mangle(object * n, object * pre);
-string_ref name_mangle(name const & n, string_ref const & pre) {
-    return string_ref(lean_name_mangle(n.to_obj_arg(), pre.to_obj_arg()));
+/* getSymbolStem (env : Environment) (fn : Name) :  String */
+extern "C" obj_res lean_get_symbol_stem(obj_arg env, obj_arg fn);
+string_ref get_symbol_stem(elab_environment const & env, name const & fn) {
+    return string_ref(lean_get_symbol_stem(env.to_obj_arg(), fn.to_obj_arg()));
 }
 
 extern "C" object * lean_ir_format_fn_body_head(object * b);
@@ -209,12 +220,18 @@ std::string format_fn_body_head(fn_body const & b) {
 }
 
 static bool type_is_scalar(type t) {
-    return t != type::Object && t != type::Tagged && t != type::TObject && t != type::Irrelevant;
+    return t != type::Object && t != type::Tagged && t != type::TObject && t != type::Irrelevant
+            && t != type::Void;
 }
 
 extern "C" object* lean_get_regular_init_fn_name_for(object* env, object* fn);
 optional<name> get_regular_init_fn_name_for(elab_environment const & env, name const & n) {
     return to_optional<name>(lean_get_regular_init_fn_name_for(env.to_obj_arg(), n.to_obj_arg()));
+}
+
+extern "C" object* lean_get_export_name_for(object* env, object* fn);
+optional<name> get_export_name_for(elab_environment const & env, name const & n) {
+    return to_optional<name>(lean_get_export_name_for(env.to_obj_arg(), n.to_obj_arg()));
 }
 
 /** \brief Value stored in an interpreter variable slot */
@@ -258,6 +275,7 @@ object * box_t(value v, type t) {
     case type::Tagged:
     case type::TObject:
     case type::Irrelevant:
+    case type::Void:
         return v.m_obj;
     case type::Struct:
     case type::Union:
@@ -276,6 +294,7 @@ value unbox_t(object * o, type t) {
     case type::UInt64:  return unbox_uint64(o);
     case type::USize:   return unbox_size_t(o);
     case type::Irrelevant:
+    case type::Void:
     case type::Object:
     case type::Tagged:
     case type::TObject:
@@ -347,7 +366,7 @@ struct native_symbol_cache_entry {
 
 // Caches native symbol lookup successes _and_ failures; we assume no native code is loaded or
 // unloaded after the interpreter is first invoked, so this can be a global cache.
-name_map<native_symbol_cache_entry> * g_native_symbol_cache;
+name_hash_map<native_symbol_cache_entry> * g_native_symbol_cache;
 // could be `shared_mutex` with C++17
 std::shared_timed_mutex * g_native_symbol_cache_mutex;
 
@@ -374,7 +393,7 @@ class interpreter {
       value m_val;
     };
     // caches values of nullary functions ("constants")
-    name_map<constant_cache_entry> m_constant_cache;
+    name_hash_map<constant_cache_entry> m_constant_cache;
     struct symbol_cache_entry {
         // looking up IR from .oleans is slow enough to warrant its own cache; but as local IR can
         // be backtracked, this cache needs to be local as well.
@@ -382,7 +401,7 @@ class interpreter {
         native_symbol_cache_entry m_native;
     };
     // caches symbol lookup successes _and_ failures
-    name_map<symbol_cache_entry> m_symbol_cache;
+    name_hash_map<symbol_cache_entry> m_symbol_cache;
 
     /** \brief Get current stack frame */
     inline frame & get_frame() {
@@ -506,6 +525,7 @@ private:
                     case type::UInt64: return cnstr_get_uint64(o, offset);
                     case type::USize:
                     case type::Irrelevant:
+                    case type::Void:
                     case type::Object:
                     case type::Tagged:
                     case type::TObject:
@@ -577,6 +597,7 @@ private:
                             case type::TObject:
                                 return n.to_obj_arg();
                             case type::Irrelevant:
+                            case type::Void:
                                 break;
                             case type::Union:
                             case type::Struct:
@@ -699,6 +720,7 @@ private:
                         case type::UInt64: cnstr_set_uint64(o, offset, v.m_num); break;
                         case type::USize:
                         case type::Irrelevant:
+                        case type::Void:
                         case type::Object:
                         case type::Tagged:
                         case type::TObject:
@@ -796,37 +818,46 @@ private:
 
     /** \brief Return cached lookup result for given unmangled function name in the current binary. */
     symbol_cache_entry lookup_symbol(name const & fn) {
-        if (symbol_cache_entry const * e = m_symbol_cache.find(fn)) {
-            return *e;
+        auto e = m_symbol_cache.find(fn);
+        if (e != m_symbol_cache.end()) {
+            return e->second;
         }
         std::shared_lock<std::shared_timed_mutex> lock(*g_native_symbol_cache_mutex);
-        if (native_symbol_cache_entry const * ne = g_native_symbol_cache->find(fn)) {
-            symbol_cache_entry e_new { get_decl(fn), *ne };
-            m_symbol_cache.insert(fn, e_new);
+        auto ne = g_native_symbol_cache->find(fn);
+        if (ne != g_native_symbol_cache->end()) {
+            symbol_cache_entry e_new { get_decl(fn), ne->second };
+            m_symbol_cache.insert({ fn, e_new });
             return e_new;
         }
         lock.unlock();
         std::unique_lock<std::shared_timed_mutex> unique_lock(*g_native_symbol_cache_mutex);
-        if (native_symbol_cache_entry const * ne = g_native_symbol_cache->find(fn)) {
-            symbol_cache_entry e_new { get_decl(fn), *ne };
-            m_symbol_cache.insert(fn, e_new);
+        ne = g_native_symbol_cache->find(fn);
+        if (ne != g_native_symbol_cache->end()) {
+            symbol_cache_entry e_new { get_decl(fn), ne->second };
+            m_symbol_cache.insert({ fn, e_new });
             return e_new;
         }
         symbol_cache_entry e_new { get_decl(fn), {nullptr, false} };
         if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || has_init_attribute(m_env, fn)) {
-            string_ref mangled = name_mangle(fn, *g_mangle_prefix);
+            string_ref mangled = get_symbol_stem(m_env, fn);
             string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
             // check for boxed version first
             if (void *p_boxed = lookup_symbol_in_cur_exe(boxed_mangled.data())) {
                 e_new.m_native.m_addr = p_boxed;
                 e_new.m_native.m_boxed = true;
-            } else if (void *p = lookup_symbol_in_cur_exe(mangled.data())) {
-                // if there is no boxed version, there are no unboxed parameters, so use default version
-                e_new.m_native.m_addr = p;
+            } else {
+                // `@[export]` affects only the unboxed symbol name
+                if (optional<name> n = get_export_name_for(m_env, fn)) {
+                    mangled = n->get_string();
+                }
+                if (void *p = lookup_symbol_in_cur_exe(mangled.data())) {
+                    // if there is no boxed version, there are no unboxed parameters, so use default version
+                    e_new.m_native.m_addr = p;
+                }
             }
         }
-        g_native_symbol_cache->insert(fn, e_new.m_native);
-        m_symbol_cache.insert(fn, e_new);
+        g_native_symbol_cache->insert({ fn, e_new.m_native });
+        m_symbol_cache.insert({ fn, e_new });
         return e_new;
     }
 
@@ -841,15 +872,19 @@ private:
 
     /** \brief Evaluate nullary function ("constant"). */
     value load(name const & fn, type t) {
-        if (constant_cache_entry const * cached = m_constant_cache.find(fn)) {
-            if (!cached->m_is_scalar) {
-                inc(cached->m_val.m_obj);
+        auto cached_entry = m_constant_cache.find(fn);
+        if (cached_entry != m_constant_cache.end()) {
+            auto cached = cached_entry->second;
+            if (!cached.m_is_scalar) {
+                inc(cached.m_val.m_obj);
             }
-            return cached->m_val;
+            return cached.m_val;
         }
-        if (object * const * o = g_init_globals->find(fn)) {
+        auto o_entry = g_init_globals->find(fn);
+        if (o_entry != g_init_globals->end()) {
             // persistent, so no `inc` needed
-            return type_is_scalar(t) ? unbox_t(*o, t) : *o;
+            auto o = o_entry->second;
+            return type_is_scalar(t) ? unbox_t(o, t) : o;
         }
 
         symbol_cache_entry e = lookup_symbol(fn);
@@ -869,6 +904,7 @@ private:
                 case type::Tagged:
                 case type::TObject:
                 case type::Irrelevant:
+                case type::Void:
                     return *static_cast<object **>(e.m_native.m_addr);
                 case type::Struct:
                 case type::Union:
@@ -882,13 +918,16 @@ private:
             throw exception(sstream() << "cannot evaluate `[init]` declaration '" << fn << "' in the same module");
         }
         push_frame(e.m_decl, m_arg_stack.size());
-        lean_always_assert(decl_tag(e.m_decl) == decl_kind::Fun);
+        // `Unreachable` can be from `mkDummyExternDecl`, which may mean that we failed to run the
+        // initializer, suggesting some incorrect `meta` phase setup. Let's make sure we give a
+        // better signal than a segfault in that case.
+        lean_always_assert(fn_body_tag(decl_fun_body(e.m_decl)) != fn_body_kind::Unreachable);
         value r = eval_body(decl_fun_body(e.m_decl));
         pop_frame(r, decl_type(e.m_decl));
         if (!type_is_scalar(t)) {
             inc(r.m_obj);
         }
-        m_constant_cache.insert(fn, constant_cache_entry { type_is_scalar(t), r });
+        m_constant_cache.insert({ fn, constant_cache_entry { type_is_scalar(t), r } });
         return r;
     }
 
@@ -922,7 +961,7 @@ private:
             }
         } else {
             if (decl_tag(e.m_decl) == decl_kind::Extern) {
-                string_ref mangled = name_mangle(fn, *g_mangle_prefix);
+                string_ref mangled = get_symbol_stem(m_env, fn);
                 string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
                 throw exception(sstream() << "Could not find native implementation of external declaration '" << fn
                                           << "' (symbols '" << boxed_mangled.data() << "' or '" << mangled.data() << "').\n"
@@ -1010,11 +1049,12 @@ public:
     interpreter(interpreter const &) = delete;
 
     ~interpreter() {
-        for_each(m_constant_cache, [](name const &, constant_cache_entry const & e) {
+        for (auto& it: m_constant_cache) {
+            auto e = it.second;
             if (!e.m_is_scalar) {
                 dec(e.m_val.m_obj);
             }
-        });
+        }
     }
 
     /** A variant of `call` designed for external uses.
@@ -1036,7 +1076,7 @@ public:
             } else {
                 // `lookup_symbol` does not prefer the boxed version for interpreted functions, so check manually.
                 decl d = e.m_decl;
-                if (option_ref<decl> d_boxed = find_ir_decl(m_env, fn + *g_boxed_suffix)) {
+                if (option_ref<decl> d_boxed = find_ir_decl_boxed(m_env, fn)) {
                     d = *d_boxed.get();
                 }
                 r = mk_stub_closure(d, 0, nullptr);
@@ -1081,7 +1121,7 @@ public:
 
     object * run_init(name const & decl, name const & init_decl) {
         try {
-            object * args[] = { io_mk_world() };
+            object * args[] = {};
             object * r = call_boxed(init_decl, 1, args);
             if (io_result_is_ok(r)) {
                 object * o = io_result_get_value(r);
@@ -1091,7 +1131,7 @@ public:
                 if (e.m_native.m_addr) {
                     *((object **)e.m_native.m_addr) = o;
                 } else {
-                    g_init_globals->insert(decl, o);
+                    g_init_globals->insert({ decl, o });
                 }
                 return lean_io_result_mk_ok(box(0));
             } else {
@@ -1131,9 +1171,9 @@ uint32 run_main(elab_environment const & env, options const & opts, list_ref<str
 }
 
 /* runMain (env : Environment) (opts : Iptions) (args : List String) : BaseIO UInt32 */
-extern "C" LEAN_EXPORT obj_res lean_run_main(b_obj_arg env, b_obj_arg opts, b_obj_arg args, obj_arg) {
+extern "C" LEAN_EXPORT uint32_t lean_run_main(b_obj_arg env, b_obj_arg opts, b_obj_arg args) {
     uint32 ret = run_main(TO_REF(elab_environment, env), TO_REF(options, opts), TO_REF(list_ref<string_ref>, args));
-    return io_result_mk_ok(box(ret));
+    return ret;
 }
 
 extern "C" LEAN_EXPORT object * lean_eval_const(object * env, object * opts, object * c) {
@@ -1144,15 +1184,12 @@ extern "C" LEAN_EXPORT object * lean_eval_const(object * env, object * opts, obj
     }
 }
 
-/* mkModuleInitializationFunctionName (moduleName : Name) : String */
-extern "C" obj_res lean_mk_module_initialization_function_name(obj_arg);
-
-extern "C" LEAN_EXPORT object * lean_run_mod_init(object * mod, object *) {
-    string_ref mangled = string_ref(lean_mk_module_initialization_function_name(mod));
-    if (void * init = lookup_symbol_in_cur_exe(mangled.data())) {
-        auto init_fn = reinterpret_cast<object *(*)(uint8_t, object *)>(init);
+/* runModInitCore (sym : @& String) : IO Bool */
+extern "C" LEAN_EXPORT obj_res lean_run_mod_init_core(b_obj_arg  sym) {
+    if (void * init = lookup_symbol_in_cur_exe(string_cstr(sym))) {
+        auto init_fn = reinterpret_cast<object *(*)(uint8_t)>(init);
         uint8_t builtin = 0;
-        object * r = init_fn(builtin, io_mk_world());
+        object * r = init_fn(builtin);
         if (io_result_is_ok(r)) {
             dec_ref(r);
             return lean_io_result_mk_ok(box(true));
@@ -1172,21 +1209,17 @@ extern "C" LEAN_EXPORT object * lean_run_init(object * env, object * opts, objec
 }
 
 void initialize_ir_interpreter() {
-    ir::g_mangle_prefix = new string_ref("l_");
-    mark_persistent(ir::g_mangle_prefix->raw());
-    ir::g_boxed_suffix = new string_ref("_boxed");
-    mark_persistent(ir::g_boxed_suffix->raw());
     ir::g_boxed_mangled_suffix = new string_ref("___boxed");
     mark_persistent(ir::g_boxed_mangled_suffix->raw());
     ir::g_interpreter_prefer_native = new name({"interpreter", "prefer_native"});
-    ir::g_init_globals = new name_map<object *>();
+    ir::g_init_globals = new name_hash_map<object *>();
     register_bool_option(*ir::g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE, "(interpreter) whether to use precompiled code where available");
     DEBUG_CODE({
         register_trace_class({"interpreter"});
         register_trace_class({"interpreter", "call"});
         register_trace_class({"interpreter", "step"});
     });
-    ir::g_native_symbol_cache = new name_map<ir::native_symbol_cache_entry>();
+    ir::g_native_symbol_cache = new name_hash_map<ir::native_symbol_cache_entry>();
     ir::g_native_symbol_cache_mutex = new std::shared_timed_mutex();
 }
 
@@ -1196,7 +1229,5 @@ void finalize_ir_interpreter() {
     delete ir::g_init_globals;
     delete ir::g_interpreter_prefer_native;
     delete ir::g_boxed_mangled_suffix;
-    delete ir::g_boxed_suffix;
-    delete ir::g_mangle_prefix;
 }
 }

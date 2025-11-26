@@ -11,7 +11,6 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Init.System.Promise
 public import Lean.Parser.Types
 public import Lean.Util.Trace
 
@@ -75,7 +74,7 @@ inductive SnapshotTask.ReportingRange where
   /-- Inherit range from outer task if any, or else the entire file. -/
   | inherit
   /-- Use given range. -/
-  | protected some (range : String.Range)
+  | protected some (range : Lean.Syntax.Range)
   /-- Do not mark as being processed. Child nodes are still visited. -/
   | skip
 deriving Inhabited
@@ -84,7 +83,7 @@ deriving Inhabited
 Constructs a reporting range by replacing a missing range with `inherit`, which is a reasonable
 default to ensure that a range is shown in all cases.
 -/
-def SnapshotTask.ReportingRange.ofOptionInheriting : Option String.Range → SnapshotTask.ReportingRange
+def SnapshotTask.ReportingRange.ofOptionInheriting : Option Lean.Syntax.Range → SnapshotTask.ReportingRange
   | some range => .some range
   | none       => .inherit
 
@@ -297,18 +296,29 @@ register_builtin_option printMessageEndPos : Bool := {
   defValue := false, descr := "print end position of each message in addition to start position"
 }
 
+/-- Maximum number of errors to report. -/
+register_builtin_option maxErrors : Nat := {
+  defValue := 100
+  descr := "maximum number of errors to report (0 for no limit)"
+}
+
 /--
-Reports messages on stdout and returns whether an error was reported.
+Reports messages on stdout and returns the new total number of errors reported.
 If `json` is true, prints messages as JSON (one per line).
 If a message's kind is in `severityOverrides`, it will be reported with
 the specified severity.
 -/
-def reportMessages (msgLog : MessageLog) (opts : Options)
-    (json := false) (severityOverrides : NameMap MessageSeverity := {}) : IO Bool := do
+private def reportMessages (msgLog : MessageLog) (opts : Options)
+    (json : Bool) (severityOverrides : NameMap MessageSeverity) (numErrors : Nat) : IO Nat := do
   let includeEndPos := printMessageEndPos.get opts
-  msgLog.unreported.foldlM (init := false) fun hasErrors msg => do
+  msgLog.unreported.foldlM (init := numErrors) fun numErrors msg => do
+    let numErrors := numErrors + (if msg.severity matches .error then 1 else 0)
+    let maxErrorsReached := maxErrors.get opts != 0 && numErrors > maxErrors.get opts
     let msg : Message :=
-      if let some severity := severityOverrides.find? msg.kind then
+      if maxErrorsReached then { msg with
+        data := s!"maximum number of errors ({maxErrors.get opts}; from option `maxErrors`) reached, exiting"
+        severity := .error
+      } else if let some severity := severityOverrides.find? msg.kind then
         {msg with severity}
       else
         msg
@@ -319,7 +329,9 @@ def reportMessages (msgLog : MessageLog) (opts : Options)
       else
         let s ← msg.toString includeEndPos
         IO.print s
-    return hasErrors || msg.severity matches .error
+    if maxErrorsReached then
+      IO.Process.exit 1
+    return numErrors
 
 /--
   Runs a tree of snapshots to conclusion and incrementally report messages on stdout. Messages are
@@ -328,9 +340,9 @@ def reportMessages (msgLog : MessageLog) (opts : Options)
   the language server reports snapshots asynchronously.  -/
 def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options)
     (json := false) (severityOverrides : NameMap MessageSeverity := {}) : IO Bool := do
-  s.foldM (init := false) fun e snap => do
-    let e' ← reportMessages snap.diagnostics.msgLog opts json severityOverrides
-    return strictOr e e'
+  let numErrors ← s.foldM (init := 0) fun e snap => do
+    reportMessages snap.diagnostics.msgLog opts json severityOverrides e
+  return numErrors > 0
 
 /-- Waits on and returns all snapshots in the tree. -/
 def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
@@ -368,7 +380,7 @@ def diagnosticsOfHeaderError (msg : String) : ProcessingM Snapshot.Diagnostics :
   let msgLog := MessageLog.empty.add {
     fileName := "<input>"
     pos := ⟨1, 0⟩
-    endPos := (← read).fileMap.toPosition (← read).fileMap.source.endPos
+    endPos := (← read).fileMap.toPosition (← read).fileMap.source.rawEndPos
     data := msg
   }
   Snapshot.Diagnostics.ofMessageLog msgLog

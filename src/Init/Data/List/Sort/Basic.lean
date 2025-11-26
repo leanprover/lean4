@@ -6,7 +6,6 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Impl
 public import Init.Data.List.Nat.TakeDrop
 
 public section

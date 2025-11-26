@@ -12,7 +12,6 @@ public section
 
 namespace Std
 namespace Time
-open Std.Internal
 open Internal
 
 set_option linter.all true

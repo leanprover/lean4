@@ -41,7 +41,7 @@ theorem go_get_aux (aig : AIG α) (c : BitVec w) (curr : Nat) (hcurr : curr ≤ 
   · dsimp only at hgo
     rw [← hgo]
     intro hfoo
-    rw [go_get_aux]
+    rw [go_get_aux (hfoo := hfoo) (hidx := Nat.lt_succ_of_lt hidx)]
     rw [AIG.RefVec.get_push_ref_lt]
   · dsimp only at hgo
     rw [← hgo]
@@ -74,7 +74,7 @@ theorem go_denote_eq (aig : AIG α) (c : BitVec w) (assign : α → Bool)
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       rw [← hgo]
-      rw [go_get]
+      rw [go_get]; case hidx => omega
       rw [AIG.RefVec.get_push_ref_eq']
       · rw [← heq]
         simp

@@ -77,7 +77,6 @@ namespace Lean.Meta
 
 register_builtin_option tactic.hygienic : Bool := {
   defValue := true
-  group    := "tactic"
   descr    := "make sure tactics are hygienic"
 }
 

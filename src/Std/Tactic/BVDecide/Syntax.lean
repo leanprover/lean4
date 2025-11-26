@@ -6,7 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Init.Notation
 public import Init.Simproc
 
 @[expose] public section
@@ -87,14 +86,14 @@ bv_check "proof.lrat"
 -/
 syntax (name := bvCheck) "bv_check " optConfig str : tactic
 
-@[inherit_doc bvDecideMacro]
+@[tactic_alt bvDecideMacro]
 syntax (name := bvDecide) "bv_decide" optConfig : tactic
 
 
-@[inherit_doc bvTraceMacro]
+@[tactic_alt bvTraceMacro]
 syntax (name := bvTrace) "bv_decide?" optConfig : tactic
 
-@[inherit_doc bvNormalizeMacro]
+@[tactic_alt bvNormalizeMacro]
 syntax (name := bvNormalize) "bv_normalize" optConfig : tactic
 
 end Tactic

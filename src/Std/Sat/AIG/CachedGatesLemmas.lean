@@ -7,7 +7,6 @@ module
 
 prelude
 public import Std.Sat.AIG.CachedGates
-public import Std.Sat.AIG.LawfulOperator
 
 @[expose] public section
 
@@ -124,8 +123,8 @@ theorem mkXorCached_decl_eq idx (aig : AIG α) (input : BinaryInput aig) {h : id
   simp only [mkXorCached]
   rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
   rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
-  · rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
-    apply LawfulOperator.lt_size_of_lt_aig_size
+  rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
+  · apply LawfulOperator.lt_size_of_lt_aig_size
     assumption
   · apply LawfulOperator.lt_size_of_lt_aig_size
     apply LawfulOperator.lt_size_of_lt_aig_size
@@ -159,8 +158,8 @@ theorem mkBEqCached_decl_eq idx (aig : AIG α) (input : BinaryInput aig) {h : id
   simp only [mkBEqCached]
   rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
   rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
-  · rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
-    apply LawfulOperator.lt_size_of_lt_aig_size
+  rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
+  · apply LawfulOperator.lt_size_of_lt_aig_size
     assumption
   · apply LawfulOperator.lt_size_of_lt_aig_size
     apply LawfulOperator.lt_size_of_lt_aig_size

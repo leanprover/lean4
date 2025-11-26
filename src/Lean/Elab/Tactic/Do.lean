@@ -12,5 +12,3 @@ public import Lean.Elab.Tactic.Do.Attr
 public import Lean.Elab.Tactic.Do.LetElim
 public import Lean.Elab.Tactic.Do.Spec
 public import Lean.Elab.Tactic.Do.VCGen
-
-public section

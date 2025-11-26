@@ -1,0 +1,11 @@
+Failure @12 (⟨1, 12⟩): expected ')'
+Final stack:
+  (Lean.Doc.Syntax.image
+   "!["
+   (str "\"\"")
+   "]"
+   (Lean.Doc.Syntax.url
+    "("
+    (str "\"logo.png\"")
+    <missing>))
+Remaining: "\nabc"

@@ -8,8 +8,6 @@ module
 prelude
 public import Lean.Meta.CongrTheorems
 public import Lean.Meta.Tactic.Assert
-public import Lean.Meta.Tactic.Apply
-public import Lean.Meta.Tactic.Clear
 public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.Assumption
 

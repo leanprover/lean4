@@ -6,7 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lake.Build.Data
 public import Lake.Build.Job.Basic
 
 namespace Lake

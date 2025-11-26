@@ -6,12 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Control.Lawful.Basic
-public import Init.Ext
 public import Init.Internal.Order
-public import Init.Core
 public import Init.Data.Iterators.Basic
-public import Init.Data.Iterators.PostconditionMonad
 public import Std.Data.Iterators.Lemmas.Equivalence.HetT
 
 @[expose] public section
@@ -64,7 +60,7 @@ namely `IterM.Equiv` and `Iter.Equiv`.
 -/
 noncomputable def IterM.stepAsHetT [Iterator α m β] [Monad m] (it : IterM (α := α) m β) :
     HetT m (IterStep (IterM (α := α) m β) β) :=
-    ⟨it.IsPlausibleStep, inferInstance, (fun step => .deflate step) <$> it.step⟩
+    ⟨it.IsPlausibleStep, inferInstance, (fun step => .deflate step.inflate) <$> it.step⟩
 
 /-
 Makes a step with a bundled iterator in the `HetT` monad.
@@ -99,7 +95,7 @@ theorem Equivalence.prun_liftInner_step [Iterator α m β] [Monad m] [Monad n]
     [MonadLiftT m n] [LawfulMonad m] [LawfulMonad n] [LawfulMonadLiftT m n]
     {it : IterM (α := α) m β} {f : (step : _) → _ → n γ} :
     ((IterM.stepAsHetT it).liftInner n).prun f =
-      (it.step : n _) >>= (fun step => f step.1 step.2) := by
+      (it.step : n _) >>= (fun step => f step.inflate.1 step.inflate.2) := by
   simp [IterM.stepAsHetT, HetT.liftInner, HetT.prun, PlausibleIterStep]
 
 @[simp]
@@ -110,7 +106,7 @@ theorem Equivalence.property_step [Iterator α m β] [Monad m] [LawfulMonad m]
 @[simp]
 theorem Equivalence.prun_step [Iterator α m β] [Monad m] [LawfulMonad m]
     {it : IterM (α := α) m β} {f : (step : _) → _ → m γ} :
-    (IterM.stepAsHetT it).prun f = it.step >>= (fun step => f step.1 step.2) := by
+    (IterM.stepAsHetT it).prun f = it.step >>= (fun step => f step.inflate.1 step.inflate.2) := by
   simp [IterM.stepAsHetT, HetT.prun, PlausibleIterStep]
 
 /--

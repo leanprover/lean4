@@ -9,8 +9,6 @@ prelude
 public import Init.Guard
 public import Lean.Elab.Command
 public import Lean.Elab.Tactic.Conv.Basic
-public import Lean.Meta.Basic
-public import Lean.Meta.Eval
 
 public section
 
@@ -160,7 +158,7 @@ def evalGuardCmd : Lean.Elab.Command.CommandElab
     let e ← instantiateMVars e
     let mvars ← getMVars e
     if mvars.isEmpty then
-      let v ← unsafe evalExpr Bool (mkConst ``Bool) e
+      let v ← unsafe evalExpr (checkMeta := false) Bool (mkConst ``Bool) e
       unless v do
         throwError "Expression{indentExpr e}\ndid not evaluate to `true`"
     else

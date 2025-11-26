@@ -7,8 +7,6 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.Normalize
-public import Std.Tactic.BVDecide.Syntax
-public import Lean.Elab.Tactic.Simp
 public import Lean.Elab.Tactic.BVDecide.Frontend.Attr
 
 public section

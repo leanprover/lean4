@@ -6,8 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.LCNF.CompilerM
-public import Lean.Compiler.LCNF.Types
 public import Lean.Compiler.LCNF.InferType
 public import Lean.Compiler.LCNF.Simp.Basic
 
@@ -63,19 +61,19 @@ def findCtor? (fvarId : FVarId) : DiscrM (Option CtorInfo) := do
   | some { value := .const declName _ args, .. } =>
     let some (.ctorInfo val) := (← getEnv).find? declName | return none
     return some <| .ctor val args
-  | some _ => return none
-  | none => return (← read).discrCtorMap.get? fvarId
+  | _ => return (← read).discrCtorMap.get? fvarId
 
 def findCtorName? (fvarId : FVarId) : DiscrM (Option Name) := do
   let some ctorInfo ← findCtor? fvarId | return none
   return ctorInfo.getName
 
 /--
-If `type` is an inductive datatype, return its universe levels and parameters.
+If `type` is an application of the inductive type `ind`, return its universe levels and parameters.
 -/
-def getIndInfo? (type : Expr) : CoreM (Option (List Level × Array Arg)) := do
+def getIndInfo? (type : Expr) (ind : Name) : CoreM (Option (List Level × Array Arg)) := do
   let type := type.headBeta
   let .const declName us := type.getAppFn | return none
+  unless declName == ind do return none
   let .inductInfo info ← getConstInfo declName | return none
   unless type.getAppNumArgs >= info.numParams do return none
   let args := type.getAppArgs[*...info.numParams].toArray.map fun
@@ -95,7 +93,7 @@ where
     let ctorVal ← getConstInfoCtor ctorName
     let fieldArgs := ctorFields.map (Arg.fvar ·.fvarId)
     let ctx ← read
-    if let some (us, params) ← getIndInfo? (← getType discr) then
+    if let some (us, params) ← getIndInfo? (← getType discr) ctorVal.induct then
       let ctorArgs := params ++ fieldArgs
       let ctorInfo := .ctor ctorVal ctorArgs
       let ctor := LetValue.const ctorVal.name us ctorArgs

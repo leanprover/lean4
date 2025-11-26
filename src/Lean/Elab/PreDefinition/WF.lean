@@ -8,5 +8,3 @@ module
 prelude
 public import Lean.Elab.PreDefinition.WF.Main
 public import Lean.Elab.PreDefinition.WF.Eqns
-
-public section

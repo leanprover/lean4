@@ -11,4 +11,5 @@ public import Lake.CLI.Actions
 public import Lake.Config
 public import Lake.DSL
 public import Lake.Toml
+public import Lake.Util
 public import Lake.Version

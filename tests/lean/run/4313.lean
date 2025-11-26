@@ -21,7 +21,7 @@ theorem bmod_add_bmod_congr : Int.bmod (Int.bmod x n + y) n = Int.bmod (x + y) n
   rw [bmod_def x n]
   split -- `split` now generates the more meaningful `isTrue` and `isFalse` tags.
   case isTrue p =>
-    simp only [emod_add_bmod_congr]
+    simp only [emod_add_bmod]
   case isFalse p =>
     rw [Int.sub_eq_add_neg, Int.add_right_comm, ←Int.sub_eq_add_neg]
     simp

@@ -9,6 +9,7 @@ prelude
 public import Init.ByCases
 public import Init.Data.Prod
 public import Init.Data.RArray
+import Init.LawfulBEqTactics
 
 public section
 
@@ -27,10 +28,10 @@ abbrev Context := Lean.RArray Nat
 /--
   When encoding polynomials. We use `fixedVar` for encoding numerals.
   The denotation of `fixedVar` is always `1`. -/
-def fixedVar := 100000000 -- Any big number should work here
+abbrev fixedVar := 100000000 -- Any big number should work here
 
-def Var.denote (ctx : Context) (v : Var) : Nat :=
-  bif v == fixedVar then 1 else ctx.get v
+noncomputable abbrev Var.denote (ctx : Context) (v : Var) : Nat :=
+  Bool.rec (ctx.get v) 1 (Nat.beq v fixedVar)
 
 inductive Expr where
   | num  (v : Nat)
@@ -40,7 +41,7 @@ inductive Expr where
   | mulR (a : Expr) (k : Nat)
   deriving Inhabited, BEq
 
-def Expr.denote (ctx : Context) : Expr → Nat
+noncomputable abbrev Expr.denote (ctx : Context) : Expr → Nat
   | .add a b  => Nat.add (denote ctx a) (denote ctx b)
   | .num k    => k
   | .var v    => v.denote ctx
@@ -49,7 +50,7 @@ def Expr.denote (ctx : Context) : Expr → Nat
 
 abbrev Poly := List (Nat × Var)
 
-def Poly.denote (ctx : Context) (p : Poly) : Nat :=
+noncomputable abbrev Poly.denote (ctx : Context) (p : Poly) : Nat :=
   match p with
   | [] => 0
   | (k, v) :: p => Nat.add (Nat.mul k (v.denote ctx)) (denote ctx p)
@@ -112,9 +113,14 @@ def Poly.isNonZero (p : Poly) : Bool :=
   | [] => false
   | (k, v) :: p => bif v == fixedVar then k > 0 else isNonZero p
 
-def Poly.denote_eq (ctx : Context) (mp : Poly × Poly) : Prop := mp.1.denote ctx = mp.2.denote ctx
+abbrev Poly.denote_eq (ctx : Context) (mp : Poly × Poly) : Prop :=
+  mp.1.denote ctx = mp.2.denote ctx
 
-def Poly.denote_le (ctx : Context) (mp : Poly × Poly) : Prop := mp.1.denote ctx ≤ mp.2.denote ctx
+abbrev Poly.denote_le (ctx : Context) (mp : Poly × Poly) : Prop :=
+  mp.1.denote ctx ≤ mp.2.denote ctx
+
+set_option allowUnsafeReducibility true
+attribute [semireducible] Poly.denote_eq Poly.denote_le
 
 def Expr.toPoly (e : Expr) :=
   go 1 e []
@@ -138,28 +144,14 @@ structure PolyCnstr  where
   eq  : Bool
   lhs : Poly
   rhs : Poly
-  deriving BEq
-
--- TODO: implement LawfulBEq generator companion for BEq
-instance : LawfulBEq PolyCnstr where
-  eq_of_beq {a b} h := by
-    cases a; rename_i eq₁ lhs₁ rhs₁
-    cases b; rename_i eq₂ lhs₂ rhs₂
-    have h : eq₁ == eq₂ && (lhs₁ == lhs₂ && rhs₁ == rhs₂) := h
-    simp at h
-    have ⟨h₁, h₂, h₃⟩ := h
-    rw [h₁, h₂, h₃]
-  rfl {a} := by
-    cases a; rename_i eq lhs rhs
-    change (eq == eq && (lhs == lhs && rhs == rhs)) = true
-    simp
+  deriving BEq, ReflBEq, LawfulBEq
 
 structure ExprCnstr where
   eq  : Bool
   lhs : Expr
   rhs : Expr
 
-def PolyCnstr.denote (ctx : Context) (c : PolyCnstr) : Prop :=
+abbrev PolyCnstr.denote (ctx : Context) (c : PolyCnstr) : Prop :=
   bif c.eq then
     Poly.denote_eq ctx (c.lhs, c.rhs)
   else
@@ -181,7 +173,7 @@ def PolyCnstr.isValid (c : PolyCnstr) : Bool :=
   else
     c.lhs.isZero
 
-def ExprCnstr.denote (ctx : Context) (c : ExprCnstr) : Prop :=
+abbrev ExprCnstr.denote (ctx : Context) (c : ExprCnstr) : Prop :=
   bif c.eq then
     c.lhs.denote ctx = c.rhs.denote ctx
   else

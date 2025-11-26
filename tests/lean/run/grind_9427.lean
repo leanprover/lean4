@@ -21,16 +21,17 @@ example (x y : BitVec 1024) : x * y = y * x := by
   grind
 
 example (x y : BitVec 1024) : x * y = y * x := by
-  grind -cutsat
+  grind -lia
 
 example (x y : BitVec 100000) : x * y = y * x := by
-  grind -cutsat
+  grind -lia
 
 example (x y z : BitVec 100000) : x * y - z*z = 0 → z*z = y * x := by
-  grind -cutsat
+  grind -lia
 
 /--
 trace: [grind.issues] exponent 1024 exceeds threshold for exponentiation `(exp := 16)`
+[grind.issues] exponent 1024 exceeds threshold for exponentiation `(exp := 16)`
 [grind.issues] exponent 1024 exceeds threshold for exponentiation `(exp := 16)`
 -/
 #guard_msgs in

@@ -6,9 +6,8 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Data.Int.Linear
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
-import Lean.Data.PersistentArray
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
 import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Arith.Util
 public section
@@ -348,6 +347,13 @@ structure State where
   from a α-term `e` to the pair `(toInt e, α)`.
   -/
   toIntTermMap : PHashMap ExprPtr ToIntTermInfo := {}
+  -- Note: the terms in the range `toIntTermMap` may not have been internalized.
+  -- Note: we may reconsider this design decision to simplify model construction.
+  /--
+  Mapping from `a : α` (where `ToInt α`) to `toInt a` that has been internalized.
+  We use this information during model construction.
+  -/
+  toIntVarMap : PHashMap ExprPtr Expr := {}
   /--
   `usedCommRing` is `true` if the `CommRing` has been used to normalize expressions.
   -/
@@ -363,5 +369,7 @@ structure State where
   -/
   nonlinearOccs : PHashMap Var (List Var) := {}
   deriving Inhabited
+
+builtin_initialize cutsatExt : SolverExtension State ← registerSolverExtension (return {})
 
 end Lean.Meta.Grind.Arith.Cutsat

@@ -5,8 +5,8 @@
 /-!
 Defined without named arguments, prints without named arguments.
 -/
-/-- info: String.append : String → String → String -/
-#guard_msgs in #check String.append
+/-- info: Nat.add : Nat → Nat → Nat -/
+#guard_msgs in #check Nat.add
 
 /-!
 The List argument is not named, it is not printed as a named argument.

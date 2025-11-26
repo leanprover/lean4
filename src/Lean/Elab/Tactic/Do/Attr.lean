@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Simp
-public import Std.Do.Triple.Basic
 public import Std.Tactic.Do.Syntax
 
 public section

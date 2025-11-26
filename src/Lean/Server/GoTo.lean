@@ -7,8 +7,6 @@ Authors: Sebastian Ullrich, Lars König, Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Data.Json.FromToJson.Basic
-public import Lean.Util.Path
 public import Lean.Server.Utils
 public import Lean.Data.Lsp.Internal
 public import Lean.Util.CollectFVars
@@ -324,6 +322,8 @@ def locationLinksOfInfo (doc : DocumentMeta) (kind : GoToKind) (ictx : InfoWithC
         locationLinksFromCommandInfo cci
       | .ofErrorNameInfo eni =>
         locationLinksFromErrorNameInfo eni
+      | .ofDocElabInfo dei =>
+        locationLinksFromDecl dei.name
       | _ =>
         pure #[]
     if kind == .declaration || ll.isEmpty then

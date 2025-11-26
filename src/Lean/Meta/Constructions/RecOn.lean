@@ -6,8 +6,6 @@ Authors: Leonardo de Moura, Joachim Breitner
 module
 
 prelude
-public import Lean.Meta.InferType
-public import Lean.AuxRecursor
 public import Lean.AddDecl
 public import Lean.Meta.CompletionName
 

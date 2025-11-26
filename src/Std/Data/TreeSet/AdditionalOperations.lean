@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Std.Data.TreeSet.Basic
 public import Std.Data.TreeSet.Raw.Basic
 public import Std.Data.TreeMap.AdditionalOperations
 

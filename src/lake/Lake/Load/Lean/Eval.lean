@@ -45,7 +45,7 @@ but with plain universe-polymorphic `Except`.
 -/
 @[implemented_by unsafeEvalConstCheck]
 private opaque evalConstCheck
-  (env : Environment) (opts : Options) (α) [TypeName α] (const : Name)
+  (env : Environment) (opts : Options) (α : Type) [TypeName α] (const : Name)
 : Except String α
 
 /-- Construct a `DNameMap` from the declarations tagged with `attr`. -/

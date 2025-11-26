@@ -427,7 +427,7 @@ def targetPath (e : Expr) : MetaM (Array Key) := do
   buildPath op (root := true) (todo.push e) (.mkEmpty initCapacity)
 
 /- Monad for finding matches while resolving deferred patterns. -/
-@[reducible]
+@[reducible, expose /- for codegen -/]
 def MatchM α := StateRefT (Array (Trie α)) MetaM
 
 def runMatch (d : LazyDiscrTree α) (m : MatchM α β)  : MetaM (β × LazyDiscrTree α) := do

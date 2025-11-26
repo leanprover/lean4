@@ -94,7 +94,7 @@ theorem inv_eq_zero_iff {a : α} : a⁻¹ = 0 ↔ a = 0 := by
 theorem zero_eq_inv_iff {a : α} : 0 = a⁻¹ ↔ 0 = a := by
   rw [eq_comm, inv_eq_zero_iff, eq_comm]
 
-theorem of_mul_eq_zero {a b : α} : a*b = 0 → a = 0 ∨ b = 0 := by
+theorem of_mul_eq_zero {a b : α} : a * b = 0 → a = 0 ∨ b = 0 := by
   cases (Classical.em (a = 0)); · simp [*, Semiring.zero_mul]
   cases (Classical.em (b = 0)); · simp [*, Semiring.mul_zero]
   rename_i h₁ h₂
@@ -169,7 +169,54 @@ theorem zpow_add {a : α} (h : a ≠ 0) (m n : Int) : a ^ (m + n) = a ^ m * a ^ 
     | zero => simp [Int.add_neg_one, zpow_sub_one h, zpow_neg_one]
     | succ n ih => rw [Int.natCast_add_one, Int.neg_add, Int.add_neg_one, ← Int.add_sub_assoc, zpow_sub_one h, zpow_sub_one h, ih, Semiring.mul_assoc]
 
-instance [IsCharP α 0] : NoNatZeroDivisors α := NoNatZeroDivisors.mk' <| by
+theorem div_zero {x : α} : x / 0 = 0 := by rw [div_eq_mul_inv, inv_zero, Semiring.mul_zero]
+
+theorem mul_div {x y z : α} : x * (y / z) = (x * y) / z := by
+  rw [div_eq_mul_inv, div_eq_mul_inv, Semiring.mul_assoc]
+theorem div_mul {x y z : α} : x / y * z = x * z / y := by
+  rw [div_eq_mul_inv, div_eq_mul_inv, Semiring.mul_assoc, CommSemiring.mul_comm y⁻¹,
+    Semiring.mul_assoc]
+theorem div_add {x y z : α} (hy : y ≠ 0) : x / y + z = (x + y * z) / y := by
+  rw [div_eq_mul_inv, div_eq_mul_inv, Semiring.right_distrib, CommSemiring.mul_comm y,
+    Semiring.mul_assoc, Field.mul_inv_cancel hy, Semiring.mul_one]
+theorem add_div {x y z : α} (hz : z ≠ 0) : x + y / z = (x * z + y) / z := by
+  rw [div_eq_mul_inv, div_eq_mul_inv, Semiring.right_distrib, Semiring.mul_assoc,
+    Field.mul_inv_cancel hz, Semiring.mul_one]
+
+theorem div_div_right {x y z : α} : x / (y / z) = x * z / y := by
+  rw [div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, inv_mul, inv_inv, CommSemiring.mul_comm y⁻¹,
+    Semiring.mul_assoc]
+theorem div_div_left {x y z : α} : (x / y) / z = x / (y * z) := by
+  rw [div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, inv_mul, Semiring.mul_assoc]
+theorem div_mul_cancel {x y : α} (h : y ≠ 0) : x / y * y = x := by
+  rw [div_eq_mul_inv, Semiring.mul_assoc, Field.inv_mul_cancel h, Semiring.mul_one]
+
+attribute [local instance] Semiring.natCast in
+theorem natCast_ne_zero [IsCharP α 0] {n : Nat} (h : n ≠ 0) : (n : α) ≠ 0 := by
+    simpa [IsCharP.natCast_eq_zero_iff]
+
+attribute [local instance] Ring.intCast in
+theorem intCast_div_of_dvd {x y : Int} (h : y ∣ x) (w : (y : α) ≠ 0) :
+    ((x / y : Int) : α) = ((x : α) / (y : α)) := by
+  obtain ⟨z, rfl⟩ := h
+  by_cases hy : y = 0
+  · simp_all [Ring.intCast_zero]
+  · rw [Int.mul_ediv_cancel_left _ hy]
+    rw [Ring.intCast_mul, CommSemiring.mul_comm, div_eq_mul_inv, Semiring.mul_assoc,
+      mul_inv_cancel w, Semiring.mul_one]
+
+attribute [local instance] Semiring.natCast in
+theorem natCast_div_of_dvd {x y : Nat} (h : y ∣ x) (w : (y : α) ≠ 0) :
+    ((x / y : Nat) : α) = ((x : α) / (y : α)) := by
+  obtain ⟨z, rfl⟩ := h
+  by_cases hy : y = 0
+  · simp_all [Semiring.natCast_zero]
+  · rw [Nat.mul_div_cancel_left _ (by omega)]
+    rw [Semiring.natCast_mul, CommSemiring.mul_comm, div_eq_mul_inv, Semiring.mul_assoc,
+      mul_inv_cancel w, Semiring.mul_one]
+
+-- This is expensive as an instance. Let's see what breaks without it.
+def noNatZeroDivisors.ofIsCharPZero [IsCharP α 0] : NoNatZeroDivisors α := NoNatZeroDivisors.mk' <| by
   intro a b h w
   have := IsCharP.natCast_eq_zero_iff (α := α) 0 a
   simp only [Nat.mod_zero, h, iff_false] at this

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Util
-// Imports: Init.Data.String.Basic Init.Data.ToString.Basic
+// Imports: public import Init.Data.ToString.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -54,11 +54,11 @@ static lean_object* l_mkPanicMessage___closed__0;
 LEAN_EXPORT lean_object* l_withPtrEqDecEq___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_withPtrEqDecEq___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_withPtrEqUnsafe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panicWithPosWithDecl___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_dbgTraceIfShared___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_withPtrAddrUnsafe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_withPtrEqUnsafe___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_withPtrAddrUnsafe___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_mkPanicMessage___closed__1;
@@ -435,32 +435,32 @@ return x_4;
 }
 else
 {
-if (lean_obj_tag(x_2) == 0)
+if (lean_obj_tag(x_2) == 1)
 {
-uint8_t x_5; 
-x_5 = 0;
-return x_5;
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; uint8_t x_11; 
+x_5 = lean_ctor_get(x_1, 0);
+x_6 = lean_ctor_get(x_1, 1);
+x_7 = lean_ctor_get(x_2, 0);
+x_8 = lean_ctor_get(x_2, 1);
+x_9 = lean_ptr_addr(x_5);
+x_10 = lean_ptr_addr(x_7);
+x_11 = lean_usize_dec_eq(x_9, x_10);
+if (x_11 == 0)
+{
+return x_11;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; uint8_t x_12; 
-x_6 = lean_ctor_get(x_1, 0);
-x_7 = lean_ctor_get(x_1, 1);
-x_8 = lean_ctor_get(x_2, 0);
-x_9 = lean_ctor_get(x_2, 1);
-x_10 = lean_ptr_addr(x_6);
-x_11 = lean_ptr_addr(x_8);
-x_12 = lean_usize_dec_eq(x_10, x_11);
-if (x_12 == 0)
-{
-return x_12;
-}
-else
-{
-x_1 = x_7;
-x_2 = x_9;
+x_1 = x_6;
+x_2 = x_8;
 goto _start;
 }
+}
+else
+{
+uint8_t x_13; 
+x_13 = 0;
+return x_13;
 }
 }
 }
@@ -627,17 +627,13 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_ToString_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_ToString_Basic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Util(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Util(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_ToString_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_ToString_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_mkPanicMessage___closed__0 = _init_l_mkPanicMessage___closed__0();

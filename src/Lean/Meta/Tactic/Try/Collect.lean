@@ -4,18 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Try
 public import Lean.Meta.Tactic.LibrarySearch
-public import Lean.Meta.Tactic.Util
 public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.EMatchTheorem
-public import Lean.Meta.Tactic.FunIndInfo
 public import Lean.Meta.Tactic.FunIndCollect
-
+import Lean.Meta.Eqns
 public section
-
 namespace Lean.Meta.Try.Collector
 
 structure InductionCandidate where
@@ -127,7 +123,9 @@ def visitApp (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
   saveLibSearchCandidates e
 
 def checkInductive (localDecl : LocalDecl) : M Unit := do
-  let .const declName _ ← whnfD localDecl.type | return ()
+  let type ← whnfD localDecl.type
+  -- Use getAppFn to handle both `T` and `T α β ...` cases
+  let .const declName _ := type.getAppFn | return ()
   let .inductInfo val ← getConstInfo declName | return ()
   if (← isEligible declName) then
     unless (← Grind.isSplit declName) do

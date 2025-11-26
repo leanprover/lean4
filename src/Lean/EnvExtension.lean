@@ -66,8 +66,9 @@ instance {α σ : Type} [Inhabited σ] : Inhabited (SimplePersistentEnvExtension
 
 /-- Get the list of values used to update the state of the given
 `SimplePersistentEnvExtension` in the current file. -/
-def getEntries {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment) : List α :=
-  (PersistentEnvExtension.getState ext env).1
+def getEntries {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ)
+    (env : Environment) (asyncMode := ext.toEnvExtension.asyncMode) : List α :=
+  (PersistentEnvExtension.getState (asyncMode := asyncMode) ext env).1
 
 /-- Get the current state of the given `SimplePersistentEnvExtension`. -/
 def getState {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment)
@@ -125,7 +126,8 @@ deriving Inhabited
 def mkMapDeclarationExtension (name : Name := by exact decl_name%)
     (asyncMode : EnvExtension.AsyncMode := .async .mainEnv)
     (exportEntriesFn : Environment → NameMap α → OLeanLevel → Array (Name × α) :=
-      fun _ s _ => s.toArray) :
+      -- Do not export info for private defs by default
+      fun env s _ => s.toArray.filter (fun (n, _) => env.contains (skipRealize := false) n)) :
     IO (MapDeclarationExtension α) :=
   .mk <$> registerPersistentEnvExtension {
     name            := name,

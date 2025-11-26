@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Time.Unit.Minute
-// Imports: Std.Time.Internal Std.Time.Time.Unit.Second
+// Imports: public import Std.Time.Time.Unit.Second
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -42,19 +42,20 @@ lean_object* l_compareOn___boxed(lean_object*, lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Std_Time_Minute_Ordinal_ofInt___redArg___boxed(lean_object*);
 lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_Std_Time_Minute_instReprOffset___closed__0;
+lean_object* l_Std_Time_Internal_instInhabitedUnitVal_default(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Minute_Ordinal_ofInt___redArg(lean_object*);
 static lean_object* l_Std_Time_Minute_instOrdOrdinal___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_Minute_instDecidableLeOffset___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_Minute_instDecidableEqOffset(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Minute_instReprOffset_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_Minute_instReprOffset_spec__0(lean_object*);
 lean_object* l_Std_Time_Internal_Bounded_instRepr___lam__0___boxed(lean_object*, lean_object*);
 lean_object* l_Std_Time_Internal_UnitVal_instToString___lam__0___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_Minute_instDecidableLeOffset(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Minute_instInhabitedOrdinal;
 LEAN_EXPORT lean_object* l_Std_Time_Minute_instDecidableLeOrdinal___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Minute_Ordinal_ofFin(lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___Nat_cast___at___Std_Time_Minute_instReprOffset_spec__0_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Nat_cast___at___00Std_Time_Minute_instReprOffset_spec__0_spec__0(lean_object*);
 lean_object* l_Std_Time_Internal_Bounded_LE_instOfNatHAddIntCast(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Minute_instLTOffset;
 static lean_object* l_Std_Time_Minute_instSubOffset___closed__0;
@@ -83,7 +84,6 @@ static lean_object* l_Std_Time_Minute_instAddOffset___closed__0;
 static lean_object* l_Std_Time_Minute_instInhabitedOrdinal___closed__5;
 static lean_object* l_Std_Time_Minute_instOrdOffset___closed__0;
 LEAN_EXPORT uint8_t l_Std_Time_Minute_instDecidableLtOrdinal(lean_object*, lean_object*);
-lean_object* l_Std_Time_Internal_defaultUnitVal____x40_Std_Time_Internal_UnitVal_2277112071____hygCtx___hyg_185_(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Minute_instOfNatOrdinal(lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Minute_instDecidableEqOrdinal___boxed(lean_object*, lean_object*);
@@ -361,7 +361,7 @@ x_1 = l_Std_Time_Minute_instOrdOrdinal___closed__2;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Nat_cast___at___Std_Time_Minute_instReprOffset_spec__0_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Nat_cast___at___00Std_Time_Minute_instReprOffset_spec__0_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -369,7 +369,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Minute_instReprOffset_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_Minute_instReprOffset_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -418,7 +418,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(60u);
-x_2 = l_Nat_cast___at___Std_Time_Minute_instReprOffset_spec__0(x_1);
+x_2 = l_Nat_cast___at___00Std_Time_Minute_instReprOffset_spec__0(x_1);
 return x_2;
 }
 }
@@ -427,7 +427,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Time_Minute_instInhabitedOffset___closed__0;
-x_2 = l_Std_Time_Internal_defaultUnitVal____x40_Std_Time_Internal_UnitVal_2277112071____hygCtx___hyg_185_(x_1);
+x_2 = l_Std_Time_Internal_instInhabitedUnitVal_default(x_1);
 return x_2;
 }
 }
@@ -681,17 +681,13 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Std_Time_Internal(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Time_Time_Unit_Second(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Time_Time_Unit_Second(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Time_Time_Unit_Minute(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Time_Time_Unit_Minute(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Time_Internal(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Time_Time_Unit_Second(builtin, lean_io_mk_world());
+res = initialize_Std_Time_Time_Unit_Second(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Time_Minute_instReprOrdinal___closed__0 = _init_l_Std_Time_Minute_instReprOrdinal___closed__0();

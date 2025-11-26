@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.Basic
-// Imports: Init.Core Init.Classical Init.Ext Init.NotationExtra Init.TacticsExtra
+// Imports: public import Init.Classical public import Init.Ext
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,8 +15,10 @@ extern "C" {
 #endif
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__32;
 LEAN_EXPORT lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__4(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Shrink_inflate___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_toIterM___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_Step_toMonadic(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Shrink_deflate(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instWellFoundedRelationProductiveOfProductive___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toIter___redArg(lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__2___closed__8;
@@ -30,6 +32,7 @@ static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______mac
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_finitelyManySkips___redArg(lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__2___closed__10;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_TerminationMeasures_Finite_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Shrink_inflate___redArg(lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__27;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__26;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_successor___redArg(lean_object*);
@@ -49,6 +52,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_ctorIdx___boxed(lean_object*, 
 LEAN_EXPORT lean_object* l_Std_Iterators_PlausibleIterStep_yield(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__42;
+LEAN_EXPORT lean_object* l_Std_Shrink_deflate___redArg(lean_object*);
 lean_object* l_Array_mkArray0(lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__30;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__2___closed__7;
@@ -80,6 +84,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic____
 LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_ctorIdx___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_step___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toIter___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Basic_0__Std_Internal_idOpaque___lam__0(lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__15;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__35;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__21;
@@ -88,6 +93,7 @@ static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______mac
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__20;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__2___closed__6;
+LEAN_EXPORT lean_object* l_Std_Shrink_deflate___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__4___closed__5;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__2___closed__9;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__3___closed__2;
@@ -99,10 +105,11 @@ lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_successor(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_Step_toMonadic___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Basic_0__Std_Iterators_IterStep_successor_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Shrink_deflate___redArg___boxed(lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__34;
 LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Basic_0__Std_Iterators_IterStep_successor_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_finitelyManySkips(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Shrink_inflate(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_finitelyManySteps(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_step(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__13;
@@ -110,7 +117,10 @@ static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______mac
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_finitelyManySkips___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__1;
+LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Basic_0__Std_Internal_idOpaque___lam__0___boxed(lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__3___closed__3;
+LEAN_EXPORT lean_object* l_Std_Shrink_inflate___redArg___boxed(lean_object*);
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__31;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__41;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__6;
@@ -140,6 +150,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_IterM_finitelyManySkips___redArg___boxe
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__2___closed__1;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_step___redArg(lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__16;
+LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Basic_0__Std_Internal_idOpaque(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_ctorIdx(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__45;
 LEAN_EXPORT lean_object* l_Std_Iterators_PlausibleIterStep_casesOn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -154,7 +165,6 @@ static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______mac
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__9;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Basic_0__Std_Iterators_IterStep_successor_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_ctorIdx(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__36;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__48;
@@ -170,7 +180,6 @@ static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______mac
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_finitelyManySkips___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__2___closed__11;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_mapIterator(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_done_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__3___closed__5;
 LEAN_EXPORT lean_object* l_Std_Iterators_PlausibleIterStep_casesOn___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -184,6 +193,94 @@ LEAN_EXPORT lean_object* l_Std_Iterators_Iter_toIterM___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_TerminationMeasures_Productive_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__47;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Basic_0__Std_Internal_idOpaque___lam__0(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Basic_0__Std_Internal_idOpaque(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Iterators_Basic_0__Std_Internal_idOpaque___lam__0___boxed), 1, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Basic_0__Std_Internal_idOpaque___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l___private_Init_Data_Iterators_Basic_0__Std_Internal_idOpaque___lam__0(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Shrink_deflate___redArg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Shrink_deflate(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_inc(x_2);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Shrink_deflate___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Shrink_deflate___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Shrink_deflate___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Shrink_deflate(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Shrink_inflate___redArg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Shrink_inflate(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_inc(x_2);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Shrink_inflate___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Shrink_inflate___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Shrink_inflate___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Shrink_inflate(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -912,7 +1009,7 @@ _start:
 lean_object* x_6; 
 x_6 = l_Std_Iterators_Iter_Step_toMonadic(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_6;
 }
 }
@@ -1030,7 +1127,7 @@ _start:
 lean_object* x_6; 
 x_6 = l_Std_Iterators_IterM_Step_toPure(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_6;
 }
 }
@@ -1041,6 +1138,7 @@ switch (lean_obj_tag(x_1)) {
 case 0:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_dec(x_4);
 lean_dec(x_3);
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
@@ -1053,6 +1151,7 @@ return x_7;
 case 1:
 {
 lean_object* x_8; lean_object* x_9; 
+lean_dec(x_4);
 lean_dec(x_2);
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
@@ -1062,10 +1161,12 @@ return x_9;
 }
 default: 
 {
+lean_object* x_10; lean_object* x_11; 
 lean_dec(x_3);
 lean_dec(x_2);
-lean_inc(x_4);
-return x_4;
+x_10 = lean_box(0);
+x_11 = lean_apply_1(x_4, x_10);
+return x_11;
 }
 }
 }
@@ -1075,24 +1176,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l___private_Init_Data_Iterators_Basic_0__Std_Iterators_IterStep_successor_match__1_splitter___redArg(x_4, x_5, x_6, x_7);
-return x_8;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Basic_0__Std_Iterators_IterStep_successor_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l___private_Init_Data_Iterators_Basic_0__Std_Iterators_IterStep_successor_match__1_splitter___redArg(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Basic_0__Std_Iterators_IterStep_successor_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; 
-x_8 = l___private_Init_Data_Iterators_Basic_0__Std_Iterators_IterStep_successor_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_7);
 return x_8;
 }
 }
@@ -1480,7 +1563,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__21;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1656,7 +1739,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__40;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -1931,7 +2014,7 @@ _start:
 lean_object* x_6; 
 x_6 = l_Std_Iterators_Iter_finitelyManySteps(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_6;
 }
 }
@@ -1948,7 +2031,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__2___closed__0;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -2023,7 +2106,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__2___closed__7;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -2314,7 +2397,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__3___closed__0;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -2534,7 +2617,7 @@ _start:
 lean_object* x_6; 
 x_6 = l_Std_Iterators_Iter_finitelyManySkips(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_6;
 }
 }
@@ -2551,7 +2634,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__4___closed__0;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -2734,29 +2817,17 @@ return x_60;
 }
 }
 }
-lean_object* initialize_Init_Core(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Classical(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Ext(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_NotationExtra(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_TacticsExtra(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Classical(uint8_t builtin);
+lean_object* initialize_Init_Ext(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Core(builtin, lean_io_mk_world());
+res = initialize_Init_Classical(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Classical(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Ext(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_NotationExtra(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_TacticsExtra(builtin, lean_io_mk_world());
+res = initialize_Init_Ext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__0 = _init_l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__0();

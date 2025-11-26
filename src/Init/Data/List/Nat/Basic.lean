@@ -6,10 +6,8 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Count
 public import Init.Data.List.Find
 public import Init.Data.List.MinMax
-public import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Order
 
 public section
@@ -104,9 +102,6 @@ theorem getElem_eq_getElem_reverse {l : List α} {i} (h : i < l.length) :
 theorem length_leftpad {n : Nat} {a : α} {l : List α} :
     (leftpad n a l).length = max n l.length := by
   simp only [leftpad, length_append, length_replicate, Nat.sub_add_eq_max]
-
-@[deprecated length_leftpad (since := "2025-02-24")]
-abbrev leftpad_length := @length_leftpad
 
 theorem length_rightpad {n : Nat} {a : α} {l : List α} :
     (rightpad n a l).length = max n l.length := by

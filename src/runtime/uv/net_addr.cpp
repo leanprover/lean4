@@ -217,7 +217,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_ntop_v6(b_obj_arg ipv6_addr) {
 }
 
 /* Std.Net.networkInterface : IO (Array InterfaceAddress) */
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_interface_addresses(obj_arg /* w */) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_interface_addresses() {
     uv_interface_address_t* info;
     int count;
 
@@ -291,7 +291,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_ntop_v6(b_obj_arg ipv6_addr) {
 }
 
 /* Std.Net.networkInterface : IO (Array InterfaceAddress) */
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_interface_addresses(obj_arg /* w */) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_interface_addresses() {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );

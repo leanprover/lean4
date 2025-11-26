@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Hashable
 public import Std.Data.HashSet.Basic
-public import Std.Data.HashMap.Basic
 
 public section
 

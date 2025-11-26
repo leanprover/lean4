@@ -6,7 +6,6 @@ Authors: Gabriel Ebner, Joe Hendrix, Kim Morrison
 module
 
 prelude
-public import Init.Data.Nat.MinMax
 public import Lean.Meta.LazyDiscrTree
 public import Lean.Meta.Tactic.SolveByElim
 public import Lean.Util.Heartbeats
@@ -148,9 +147,7 @@ def interleaveWith {α β γ} (f : α → γ) (x : Array α) (g : β → γ) (y 
   let mut res := Array.mkEmpty (x.size + y.size)
   let n := min x.size y.size
   for h : i in *...n do
-    have p : i < min x.size y.size := Std.PRange.lt_upper_of_mem h
-    have q : i < x.size := Nat.le_trans p (Nat.min_le_left ..)
-    have r : i < y.size := Nat.le_trans p (Nat.min_le_right ..)
+    have p : i < min x.size y.size := Std.Rio.lt_upper_of_mem h
     res := res.push (f x[i])
     res := res.push (g y[i])
   let last :=

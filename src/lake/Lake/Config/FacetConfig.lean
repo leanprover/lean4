@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lake.Build.Fetch
-public import Lake.Config.OutFormat
 
 namespace Lake
 open Lean (Name)

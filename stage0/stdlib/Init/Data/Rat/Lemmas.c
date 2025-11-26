@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Rat.Lemmas
-// Imports: Init.Data.Rat.Basic Init.Data.Int.Bitwise.Lemmas
+// Imports: public import Init.Data.Rat.Basic public import Init.Data.Int.Gcd import Init.Data.Int.Bitwise.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -21,7 +21,7 @@ LEAN_EXPORT lean_object* l_Rat_numDenCasesOn_x27___redArg(lean_object*, lean_obj
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Rat_Lemmas_0__Rat_divInt_match__3_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Rat_numDenCasesOn_x27_x27___redArg(lean_object*, lean_object*);
-static lean_object* l___private_Init_Data_Rat_Lemmas_0__Rat_divInt_match__3_splitter___redArg___closed__0;
+LEAN_EXPORT lean_object* l___private_Init_Data_Rat_Lemmas_0__Rat_divInt_match__3_splitter___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Rat_numDenCasesOn_x27___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Rat_numDenCasesOn_x27_x27___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Rat_numDenCasesOn(lean_object*, lean_object*, lean_object*);
@@ -165,17 +165,21 @@ x_4 = l_Rat_numDenCasesOn_x27_x27___redArg(x_2, x_3);
 return x_4;
 }
 }
-lean_object* initialize_Init_Data_Rat_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Int_Bitwise_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Rat_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Gcd(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Bitwise_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Rat_Lemmas(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Rat_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Rat_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Rat_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Bitwise_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Int_Gcd(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Bitwise_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Init_Data_Rat_Lemmas_0__Rat_divInt_match__3_splitter___redArg___closed__0 = _init_l___private_Init_Data_Rat_Lemmas_0__Rat_divInt_match__3_splitter___redArg___closed__0();

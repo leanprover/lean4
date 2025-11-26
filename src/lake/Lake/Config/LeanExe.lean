@@ -49,7 +49,6 @@ namespace LeanExe
 @[inline] public def root (self : LeanExe) : Module where
   lib := self.toLeanLib
   name := self.config.root
-  keyName := self.pkg.name ++ self.config.root
 
 /-- Return the root module if the name matches; otherwise, return `none`. -/
 public def isRoot? (name : Name) (self : LeanExe) : Option Module :=
@@ -109,6 +108,14 @@ That is, the package's `weakLinkArgs` plus the executable's  `weakLinkArgs`.
 -/
 @[inline] public def weakLinkArgs (self : LeanExe) : Array String :=
   self.pkg.weakLinkArgs ++ self.config.weakLinkArgs
+
+/-- Additional objects (e.g., `.o` files, static libraries) to link to the executable. -/
+@[inline] public def moreLinkObjs (self : LeanExe) : TargetArray FilePath :=
+  self.config.moreLinkObjs
+
+/-- Additional shared libraries to link to the executable. -/
+@[inline] public def moreLinkLibs (self : LeanExe) : TargetArray Dynlib :=
+  self.config.moreLinkLibs
 
 end LeanExe
 

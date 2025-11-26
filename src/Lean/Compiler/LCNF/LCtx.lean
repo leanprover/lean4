@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.LocalContext
 public import Lean.Compiler.LCNF.Basic
 
 public section

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Lex.Lemmas
-// Imports: Init.Data.Array.Lex.Basic Init.Data.Array.Lex.Basic Init.Data.Array.Lemmas Init.Data.List.Lex Init.Data.Range.Polymorphic.Lemmas Init.Data.Range.Polymorphic.NatLemmas Init.Data.Order.Lemmas
+// Imports: import all Init.Data.Array.Lex.Basic public import Init.Data.Array.Lex.Basic public import Init.Data.Array.Lemmas public import Init.Data.List.Lex import Init.Data.Range.Polymorphic.NatLemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,10 +16,8 @@ extern "C" {
 LEAN_EXPORT uint8_t l_Array_instDecidableLTOfDecidableEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__Array_lex_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_instTransLt(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__Array_lex_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_lex___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_instDecidableLTOfDecidableEq___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__Array_lex_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_instDecidableLEOfDecidableEqOfDecidableLT___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__List_forIn_x27__cons_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_instDecidableLTOfDecidableEq___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -38,18 +36,21 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
+lean_object* x_4; lean_object* x_5; 
 lean_dec(x_3);
-lean_inc(x_2);
-return x_2;
+x_4 = lean_box(0);
+x_5 = lean_apply_1(x_2, x_4);
+return x_5;
 }
 else
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
+lean_object* x_6; lean_object* x_7; 
+lean_dec(x_2);
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
 lean_dec_ref(x_1);
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
+x_7 = lean_apply_1(x_3, x_6);
+return x_7;
 }
 }
 }
@@ -58,24 +59,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l___private_Init_Data_Array_Lex_Lemmas_0__Array_lex_match__1_splitter___redArg(x_2, x_3, x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__Array_lex_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l___private_Init_Data_Array_Lex_Lemmas_0__Array_lex_match__1_splitter___redArg(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__Array_lex_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l___private_Init_Data_Array_Lex_Lemmas_0__Array_lex_match__1_splitter(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
 return x_5;
 }
 }
@@ -227,37 +210,29 @@ x_8 = lean_box(x_7);
 return x_8;
 }
 }
-lean_object* initialize_Init_Data_Array_Lex_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Lex_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Lex(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Range_Polymorphic_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Range_Polymorphic_NatLemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Lex_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Lex_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Lex(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_NatLemmas(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Array_Lex_Lemmas(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Array_Lex_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Array_Lex_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Lex_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Lex_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Lex_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Lex(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Lex(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_NatLemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Order_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Range_Polymorphic_NatLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

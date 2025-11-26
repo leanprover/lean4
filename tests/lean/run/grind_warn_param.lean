@@ -41,7 +41,7 @@ example : True := by grind [→ pqf, = Array.size_set]
 warning: this parameter is redundant, environment already contains `Array.size_set` annotated with `@[grind =]`
 -/
 #guard_msgs (warning) in
-example : True := by grind [Array.size_set]
+example : True := by grind [= Array.size_set]
 
 /--
 warning: this parameter is redundant, environment already contains `hg` annotated with `@[grind _=_]`
@@ -59,7 +59,7 @@ example : True := by grind [=_ hg]
 warning: this parameter is redundant, environment already contains `Array.size_set` annotated with `@[grind =]`
 -/
 #guard_msgs (warning) in
-example : True := by grind [Array.size_set]
+example : True := by grind [= Array.size_set]
 
 #guard_msgs (warning) in
 example : True := by grind [pqf]

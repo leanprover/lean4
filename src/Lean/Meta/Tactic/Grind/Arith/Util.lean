@@ -4,16 +4,36 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Ring.Basic
 public import Lean.Meta.SynthInstance
-public import Lean.Meta.Basic
 public import Init.Data.Rat.Basic
-
 public section
-
 namespace Lean.Meta.Grind.Arith
+
+/-- Returns `true` if `e` is a numeral and has type `Nat`. -/
+def isNatNum (e : Expr) : Bool := Id.run do
+  let_expr OfNat.ofNat _ _ inst := e | false
+  let_expr instOfNatNat _ := inst | false
+  true
+
+/-- Returns `true` if `e` is a nonnegative numeral and has type `Int`. -/
+def isNonnegIntNum (e : Expr) : Bool := Id.run do
+  let_expr OfNat.ofNat _ _ inst := e | false
+  let_expr instOfNat _ := inst | false
+  true
+
+/-- Returns `true` if `e` is a numeral and has type `Int`. -/
+def isIntNum (e : Expr) : Bool :=
+  match_expr e with
+  | Neg.neg _ inst e => Id.run do
+    let_expr Int.instNegInt := inst | false
+    isNonnegIntNum e
+  | _ => isNonnegIntNum e
+
+/-- Returns `true` if `e` is a numeral supported by cutsat. -/
+def isNum (e : Expr) : Bool :=
+  isNatNum e || isIntNum e
 
 /-- Returns `true` if `e` is of the form `Nat` -/
 def isNatType (e : Expr) : Bool :=
@@ -59,17 +79,6 @@ def isNatNum? (e : Expr) : Option Nat := Id.run do
   let .lit (.natVal k) := k | none
   some k
 
-def isSupportedType (e : Expr) : Bool :=
-  isNatType e || isIntType e
-
-partial def isRelevantPred (e : Expr) : Bool :=
-  match_expr e with
-  | Not p => isRelevantPred p
-  | LE.le α _ _ _ => isSupportedType α
-  | Eq α _ _ => isSupportedType α
-  | Dvd.dvd α _ _ _ => isSupportedType α
-  | _ => false
-
 def isArithTerm (e : Expr) : Bool :=
   match_expr e with
   | HAdd.hAdd _ _ _ _ _ _ => true
@@ -81,6 +90,8 @@ def isArithTerm (e : Expr) : Bool :=
   | HSMul.hSMul _ _ _ _ _ _ => true
   | Neg.neg _ _ _ => true
   | OfNat.ofNat _ _ _ => true
+  | NatCast.natCast _ _ _ => true
+  | IntCast.intCast _ _ _ => true
   | _ => false
 
 /-- Quote `e` using `「` and `」` if `e` is an arithmetic term that is being treated as a variable. -/

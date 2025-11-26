@@ -10,11 +10,10 @@ public import Lean.Linter.Util
 public import Lean.Linter.Builtin
 public import Lean.Linter.ConstructorAsVariable
 public import Lean.Linter.Deprecated
+public import Lean.Linter.DocsOnAlt
 public import Lean.Linter.UnusedVariables
 public import Lean.Linter.MissingDocs
 public import Lean.Linter.Omit
 public import Lean.Linter.List
 public import Lean.Linter.Sets
 public import Lean.Linter.UnusedSimpArgs
-
-public section

@@ -6,7 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Sat.AIG.RefVec
 public import Std.Sat.AIG.LawfulVecOperator
 
 @[expose] public section
@@ -29,6 +28,7 @@ class LawfulMapOperator (α : Type) [Hashable α] [DecidableEq α]
 
 namespace LawfulMapOperator
 
+@[deprecated chainable (since := "2025-10-29")]
 theorem denote_prefix_cast_ref {aig : AIG α} {input1 input2 : Ref aig}
     {f : (aig : AIG α) → Ref aig → Entrypoint α} [LawfulOperator α Ref f] [LawfulMapOperator α f]
     {h} :
@@ -148,12 +148,11 @@ theorem go_get_aux {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVe
   · dsimp only at hgo
     rw [← hgo]
     intro hfoo
-    rw [go_get_aux]
-    rw [AIG.RefVec.get_push_ref_lt]
+    rw [go_get_aux]; case hidx => omega
+    rw [AIG.RefVec.get_push_ref_lt (hidx := hidx)]
     · simp only [Ref.cast, Ref.mk.injEq]
       rw [AIG.RefVec.get_cast]
-      · simp
-      · assumption
+      simp
     · apply go_le_size
   · dsimp only at hgo
     rw [← hgo]
@@ -209,13 +208,12 @@ theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       rw [← hgo]
-      rw [go_get]
-      rw [AIG.RefVec.get_push_ref_eq']
-      · simp only [← heq]
-        rw [go_denote_mem_prefix]
-        · simp
-        · simp [Ref.hgate]
-      · rw [heq]
+      rw [go_get]; case hidx => omega
+      rw [AIG.RefVec.get_push_ref_eq' (hidx := heq.symm)]
+      simp only [← heq]
+      rw [go_denote_mem_prefix]
+      · simp
+      · simp [Ref.hgate]
     | inr hlt =>
       rw [← hgo]
       rw [denote_go]

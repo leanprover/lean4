@@ -10,8 +10,9 @@ public import Lake.Build.Key
 public import Lake.Util.Family
 public import Lake.Config.Dynlib
 public import Lake.Config.Kinds
-meta import all Lake.Config.Kinds
-meta import Lake.Util.Name
+public meta import Lake.Config.Kinds
+public meta import Lake.Util.Name
+import all Lake.Config.Kinds
 
 open Lean
 
@@ -74,8 +75,6 @@ public instance : CoeOut (OptDataKind α) Lean.Name := ⟨(·.name)⟩
 public instance : ToString (OptDataKind α) := ⟨(·.name.toString)⟩
 
 end OptDataKind
-
-@[deprecated DataType (since := "2025-03-26")] public abbrev TargetData := DataType
 
 /--
 The open type family which maps a Lake facet to its output type.
@@ -155,6 +154,7 @@ public instance [h : FamilyDef CustomOut (p, t) α] : FamilyDef (CustomData p) t
 /-! ## Build Data                                                             -/
 --------------------------------------------------------------------------------
 
+set_option linter.deprecated false in
 /--
 A mapping between a build key and its associated build data in the store.
 It is a simple type function composed of the separate open type families for
@@ -163,6 +163,7 @@ modules facets, package facets, Lake target facets, and custom targets.
 public abbrev BuildData : BuildKey → Type
 | .module _ => DataType Module.facetKind
 | .package _ => DataType Package.facetKind
+| .packageModule _ _ => DataType Module.facetKind
 | .packageTarget p t => CustomData p t
 | .facet _ f => FacetOut f
 
@@ -173,6 +174,11 @@ public instance [FamilyOut (CustomData p) t α]
 : FamilyDef BuildData (.packageTarget p t) α where
   fam_eq := by unfold BuildData; simp
 
+public instance [FamilyOut DataType Module.facetKind α]
+: FamilyDef BuildData (.packageModule p m) α where
+  fam_eq := by unfold BuildData; simp
+
+set_option linter.deprecated false in
 public instance [FamilyOut DataType Module.facetKind α]
 : FamilyDef BuildData (.module k) α where
   fam_eq := by unfold BuildData; simp
@@ -259,14 +265,6 @@ scoped macro (name := moduleDataDecl)
 scoped macro (name := libraryDataDecl)
   doc?:optional(docComment) tk:"library_data " facet:ident " : " ty:term
 : command => `($[$doc?]? facet_data%$tk $(mkIdentFrom tk LeanLib.facetKind) $facet : $ty)
-
-/-- Macro for declaring new `TargetData`. -/
-scoped macro (name := targetDataDecl)
-  doc?:optional(docComment) tk:"target_data " id:ident " : " ty:term
-: command => withRef tk do
-  let fam := mkCIdentFrom (← getRef) ``TargetData
-  let idx := Name.quoteFrom id id.getId
-  `($[$doc?]? family_def $id : $fam $idx := $ty)
 
 /-- Macro for declaring new `CustomData`. -/
 scoped macro (name := customDataDecl)

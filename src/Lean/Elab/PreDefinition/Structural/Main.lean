@@ -6,9 +6,7 @@ Authors: Leonardo de Moura, Joachim Breitner
 module
 
 prelude
-public import Lean.Elab.PreDefinition.TerminationMeasure
 public import Lean.Elab.PreDefinition.Mutual
-public import Lean.Elab.PreDefinition.Structural.Basic
 public import Lean.Elab.PreDefinition.Structural.FindRecArg
 public import Lean.Elab.PreDefinition.Structural.Preprocess
 public import Lean.Elab.PreDefinition.Structural.BRecOn
@@ -22,59 +20,6 @@ public section
 namespace Lean.Elab
 namespace Structural
 open Meta
-
-private def getFixedPrefix (declName : Name) (xs : Array Expr) (value : Expr) : MetaM Nat := do
-  let numFixedRef ← IO.mkRef xs.size
-  forEachExpr' value fun e => do
-    if e.isAppOf declName then
-      let args := e.getAppArgs
-      numFixedRef.modify fun numFixed => if args.size < numFixed then args.size else numFixed
-      for arg in args, x in xs do
-        /- We should not use structural equality here. For example, given the definition
-           ```
-           def V.map {α β} f x x_1 :=
-             @V.map.match_1.{1} α (fun x x_2 => V β x) x x_1
-               (fun x x_2 => @V.mk₁ β x (f Bool.true x_2))
-               (fun e => @V.mk₂ β (V.map (fun b => α b) (fun b => β b) f Bool.false e))
-           ```
-           The first three arguments at `V.map (fun b => α b) (fun b => β b) f Bool.false e` are "fixed"
-           modulo definitional equality.
-
-           We disable to proof irrelevance to be able to use structural recursion on inductive predicates.
-           For example, consider the example
-           ```
-           inductive PList (α : Type) : Prop
-           | nil
-           | cons : α → PList α → PList α
-
-           infixr:67 " ::: " => PList.cons
-
-           set_option trace.Elab.definition.structural true in
-           def pmap {α β} (f : α → β) : PList α → PList β
-             | PList.nil => PList.nil
-             | a:::as => f a ::: pmap f as
-           ```
-          The "Fixed" prefix would be 4 since all elements of type `PList α` are definitionally equal.
-        -/
-        if !(← withoutProofIrrelevance <| withReducible <| isDefEq arg x) then
-          -- We continue searching if e's arguments are not a prefix of `xs`
-          return true
-      return false
-    else
-      return true
-  numFixedRef.get
-
-partial def withCommonTelescope (preDefs : Array PreDefinition) (k : Array Expr → Array Expr → M α) : M α :=
-  go #[] (preDefs.map (·.value))
-where
-  go (fvars : Array Expr) (vals : Array Expr) : M α := do
-    if !(vals.all fun val => val.isLambda) then
-      k fvars vals
-    else if !(← vals.allM fun val=> isDefEq val.bindingDomain! vals[0]!.bindingDomain!) then
-      k fvars vals
-    else
-      withLocalDecl vals[0]!.bindingName! vals[0]!.binderInfo vals[0]!.bindingDomain! fun x =>
-        go (fvars.push x) (vals.map fun val => val.bindingBody!.instantiate1 x)
 
 private def elimMutualRecursion (preDefs : Array PreDefinition) (fixedParamPerms : FixedParamPerms)
     (xs : Array Expr) (recArgInfos : Array RecArgInfo) : M (Array PreDefinition) := do
@@ -132,13 +77,13 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (fixedParamPerms
   return preDefs.zipWith (bs := valuesNew) fun preDef valueNew => { preDef with value := valueNew }
 
 private def inferRecArgPos (preDefs : Array PreDefinition) (termMeasure?s : Array (Option TerminationMeasure)) :
-    M (Array Nat × (Array PreDefinition) × FixedParamPerms) := do
+    M (Array Nat × Array PreDefinition × FixedParamPerms) := do
   withoutModifyingEnv do
     preDefs.forM (addAsAxiom ·)
     let fnNames := preDefs.map (·.declName)
+    let numSectionVars := preDefs[0]!.numSectionVars
     let preDefs ← preDefs.mapM fun preDef =>
-      return { preDef with value := (← preprocess preDef.value fnNames) }
-
+      return { preDef with value := (← preprocess preDef.value fnNames numSectionVars) }
     -- The syntactically fixed arguments
     let fixedParamPerms ← getFixedParamPerms preDefs
 
@@ -183,7 +128,10 @@ def reportTermMeasure (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit :=
     Tactic.TryThis.addSuggestion ref stx
 
 
-def structuralRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option TerminationMeasure)) : TermElabM Unit := do
+def structuralRecursion
+    (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition)
+    (termMeasure?s : Array (Option TerminationMeasure)) :
+    TermElabM Unit := do
   let names := preDefs.map (·.declName)
   let ((recArgPoss, preDefsNonRec, fixedParamPerms), state) ← run <| inferRecArgPos preDefs termMeasure?s
   for recArgPos in recArgPoss, preDef in preDefs do
@@ -194,9 +142,9 @@ def structuralRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (
     prependError m!"structural recursion failed, produced type incorrect term" do
       -- We create the `_unsafe_rec` before we abstract nested proofs.
       -- Reason: the nested proofs may be referring to the _unsafe_rec.
-      addNonRec preDefNonRec (applyAttrAfterCompilation := false) (all := names.toList)
+      addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (all := names.toList)
   let preDefs ← preDefs.mapM (eraseRecAppSyntax ·)
-  addAndCompilePartialRec preDefs
+  addAndCompilePartialRec docCtx preDefs
   for preDef in preDefs, recArgPos in recArgPoss do
     let mut preDef := preDef
     unless preDef.kind.isTheorem do
@@ -208,7 +156,7 @@ def structuralRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (
         See issue #2327
         -/
         registerEqnsInfo preDef (preDefs.map (·.declName)) recArgPos fixedParamPerms
-    addSmartUnfoldingDef preDef recArgPos
+    addSmartUnfoldingDef docCtx preDef recArgPos
     markAsRecursive preDef.declName
   for preDef in preDefs do
     -- must happen in separate loop so realizations can see eqnInfos of all other preDefs

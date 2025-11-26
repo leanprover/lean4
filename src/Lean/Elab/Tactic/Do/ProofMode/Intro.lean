@@ -6,7 +6,6 @@ Authors: Lars König, Mario Carneiro, Sebastian Graf
 module
 
 prelude
-public import Std.Tactic.Do.Syntax
 public import Lean.Elab.Tactic.Do.ProofMode.Basic
 
 public section
@@ -73,7 +72,7 @@ macro_rules
 @[builtin_tactic Lean.Parser.Tactic.mintro]
 def elabMIntro : Tactic
   | `(tactic| mintro $ident:binderIdent) => do
-    let (mvar, goal) ← mStartMVar (← getMainGoal)
+    let (mvar, goal) ← mStartMainGoal
     mvar.withContext do
     let goals ← IO.mkRef []
     mvar.assign (← mIntro goal ident fun newGoal => do
@@ -82,7 +81,7 @@ def elabMIntro : Tactic
       return m)
     replaceMainGoal (← goals.get)
   | `(tactic| mintro ∀$ident:binderIdent) => do
-    let (mvar, goal) ← mStartMVar (← getMainGoal)
+    let (mvar, goal) ← mStartMainGoal
     mvar.withContext do
     let goals ← IO.mkRef []
     mvar.assign (← mIntroForall goal ident fun newGoal => do

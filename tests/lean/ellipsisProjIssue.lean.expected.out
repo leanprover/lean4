@@ -1,3 +1,2 @@
 ellipsisProjIssue.lean:1:18-1:22: error(lean.unknownIdentifier): Unknown identifier `succ`
-Nat.add...sorry : Std.PRange { lower := Std.PRange.BoundShape.closed, upper := Std.PRange.BoundShape.open }
-  (Nat → Nat → Nat)
+Nat.add...sorry : Std.Rco (Nat → Nat → Nat)

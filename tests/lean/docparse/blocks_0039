@@ -1,0 +1,7 @@
+Attention:
+
+Here is a paragraph with an unterminated `code block
+that would be super annoying without error recovery in the
+parser.
+
+Yep.

@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Unfold
-public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.Tactic.Location
 
 public section

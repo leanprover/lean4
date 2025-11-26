@@ -7,10 +7,7 @@ module
 
 prelude
 public import Init.Data.List.Nat.Find
-public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
-public import Init.Data.Array.Lemmas
-public import Init.Data.Array.Attach
 public import Init.Data.Array.Range
 
 public section
@@ -27,11 +24,11 @@ open Nat
 
 /-! ### findSome? -/
 
-@[simp, grind] theorem findSome?_empty : (#[] : Array α).findSome? f = none := rfl
-@[simp, grind] theorem findSome?_push {xs : Array α} : (xs.push a).findSome? f = (xs.findSome? f).or (f a) := by
+@[simp, grind =] theorem findSome?_empty : (#[] : Array α).findSome? f = none := rfl
+@[simp, grind =] theorem findSome?_push {xs : Array α} : (xs.push a).findSome? f = (xs.findSome? f).or (f a) := by
   cases xs; simp [List.findSome?_append]
 
-@[grind]
+@[grind =]
 theorem findSome?_singleton {a : α} {f : α → Option β} : #[a].findSome? f = f a := by
   simp
 
@@ -132,30 +129,18 @@ theorem getElem_zero_flatten {xss : Array (Array α)} (h) :
 theorem findSome?_replicate : findSome? f (replicate n a) = if n = 0 then none else f a := by
   simp [← List.toArray_replicate, List.findSome?_replicate]
 
-@[deprecated findSome?_replicate (since := "2025-03-18")]
-abbrev findSome?_mkArray := @findSome?_replicate
-
 @[simp] theorem findSome?_replicate_of_pos (h : 0 < n) : findSome? f (replicate n a) = f a := by
   simp [findSome?_replicate, Nat.ne_of_gt h]
-
-@[deprecated findSome?_replicate_of_pos (since := "2025-03-18")]
-abbrev findSome?_mkArray_of_pos := @findSome?_replicate_of_pos
 
 -- Argument is unused, but used to decide whether `simp` should unfold.
 @[simp] theorem findSome?_replicate_of_isSome (_ : (f a).isSome) :
    findSome? f (replicate n a) = if n = 0 then none else f a := by
   simp [findSome?_replicate]
 
-@[deprecated findSome?_replicate_of_isSome (since := "2025-03-18")]
-abbrev findSome?_mkArray_of_isSome := @findSome?_replicate_of_isSome
-
 @[simp] theorem findSome?_replicate_of_isNone (h : (f a).isNone) :
     findSome? f (replicate n a) = none := by
   rw [Option.isNone_iff_eq_none] at h
   simp [findSome?_replicate, h]
-
-@[deprecated findSome?_replicate_of_isNone (since := "2025-03-18")]
-abbrev findSome?_mkArray_of_isNone := @findSome?_replicate_of_isNone
 
 /-! ### find? -/
 
@@ -228,10 +213,11 @@ theorem mem_of_find?_eq_some {xs : Array α} (h : find? p xs = some a) : a ∈ x
   simp at h
   simpa using List.mem_of_find?_eq_some h
 
-@[grind]
 theorem get_find?_mem {xs : Array α} (h) : (xs.find? p).get h ∈ xs := by
   cases xs
   simp [List.get_find?_mem]
+
+grind_pattern get_find?_mem => (xs.find? p).get h
 
 @[simp, grind =] theorem find?_filter {xs : Array α} (p q : α → Bool) :
     (xs.filter p).find? q = xs.find? (fun a => p a ∧ q a) := by
@@ -277,9 +263,6 @@ theorem find?_flatten_eq_none_iff {xss : Array (Array α)} {p : α → Bool} :
     xss.flatten.find? p = none ↔ ∀ ys ∈ xss, ∀ x ∈ ys, !p x := by
   simp
 
-@[deprecated find?_flatten_eq_none_iff (since := "2025-02-03")]
-abbrev find?_flatten_eq_none := @find?_flatten_eq_none_iff
-
 /--
 If `find? p` returns `some a` from `xs.flatten`, then `p a` holds, and
 some array in `xs` contains `a`, and no earlier element of that array satisfies `p`.
@@ -305,9 +288,6 @@ theorem find?_flatten_eq_some_iff {xss : Array (Array α)} {p : α → Bool} {a 
       ⟨zs.toList, bs.toList.map Array.toList, by simpa using h⟩,
         by simpa using h₁, by simpa using h₂⟩
 
-@[deprecated find?_flatten_eq_some_iff (since := "2025-02-03")]
-abbrev find?_flatten_eq_some := @find?_flatten_eq_some_iff
-
 @[simp, grind =] theorem find?_flatMap {xs : Array α} {f : α → Array β} {p : β → Bool} :
     (xs.flatMap f).find? p = xs.findSome? (fun x => (f x).find? p) := by
   cases xs
@@ -317,61 +297,34 @@ theorem find?_flatMap_eq_none_iff {xs : Array α} {f : α → Array β} {p : β 
     (xs.flatMap f).find? p = none ↔ ∀ x ∈ xs, ∀ y ∈ f x, !p y := by
   simp
 
-@[deprecated find?_flatMap_eq_none_iff (since := "2025-02-03")]
-abbrev find?_flatMap_eq_none := @find?_flatMap_eq_none_iff
-
 @[grind =]
 theorem find?_replicate :
     find? p (replicate n a) = if n = 0 then none else if p a then some a else none := by
   simp [← List.toArray_replicate, List.find?_replicate]
 
-@[deprecated find?_replicate (since := "2025-03-18")]
-abbrev find?_mkArray := @find?_replicate
-
 @[simp] theorem find?_replicate_of_size_pos (h : 0 < n) :
     find? p (replicate n a) = if p a then some a else none := by
   simp [find?_replicate, Nat.ne_of_gt h]
-
-@[deprecated find?_replicate_of_size_pos (since := "2025-03-18")]
-abbrev find?_mkArray_of_length_pos := @find?_replicate_of_size_pos
 
 @[simp] theorem find?_replicate_of_pos (h : p a) :
     find? p (replicate n a) = if n = 0 then none else some a := by
   simp [find?_replicate, h]
 
-@[deprecated find?_replicate_of_pos (since := "2025-03-18")]
-abbrev find?_mkArray_of_pos := @find?_replicate_of_pos
-
 @[simp] theorem find?_replicate_of_neg (h : ¬ p a) : find? p (replicate n a) = none := by
   simp [find?_replicate, h]
-
-@[deprecated find?_replicate_of_neg (since := "2025-03-18")]
-abbrev find?_mkArray_of_neg := @find?_replicate_of_neg
 
 -- This isn't a `@[simp]` lemma since there is already a lemma for `l.find? p = none` for any `l`.
 theorem find?_replicate_eq_none_iff {n : Nat} {a : α} {p : α → Bool} :
     (replicate n a).find? p = none ↔ n = 0 ∨ !p a := by
   simp [← List.toArray_replicate, Classical.or_iff_not_imp_left]
 
-@[deprecated find?_replicate_eq_none_iff (since := "2025-03-18")]
-abbrev find?_mkArray_eq_none_iff := @find?_replicate_eq_none_iff
-
 @[simp] theorem find?_replicate_eq_some_iff {n : Nat} {a b : α} {p : α → Bool} :
     (replicate n a).find? p = some b ↔ n ≠ 0 ∧ p a ∧ a = b := by
   simp [← List.toArray_replicate]
 
-@[deprecated find?_replicate_eq_some_iff (since := "2025-03-18")]
-abbrev find?_mkArray_eq_some_iff := @find?_replicate_eq_some_iff
-
-@[deprecated find?_replicate_eq_some_iff (since := "2025-02-03")]
-abbrev find?_mkArray_eq_some := @find?_replicate_eq_some_iff
-
 @[simp] theorem get_find?_replicate {n : Nat} {a : α} {p : α → Bool} (h) :
     ((replicate n a).find? p).get h = a := by
   simp [← List.toArray_replicate]
-
-@[deprecated get_find?_replicate (since := "2025-03-18")]
-abbrev get_find?_mkArray := @get_find?_replicate
 
 @[grind =]
 theorem find?_pmap {P : α → Prop} {f : (a : α) → P a → β} {xs : Array α}
@@ -395,7 +348,6 @@ theorem findIdx_singleton {a : α} {p : α → Bool} :
     #[a].findIdx p = if p a then 0 else 1 := by
   simp
 
-@[grind →]
 theorem findIdx_of_getElem?_eq_some {xs : Array α} (w : xs[xs.findIdx p]? = some y) : p y := by
   rcases xs with ⟨xs⟩
   exact List.findIdx_of_getElem?_eq_some (by simpa using w)
@@ -613,9 +565,6 @@ theorem findIdx?_flatten {xss : Array (Array α)} {p : α → Bool} :
   simp only [List.findIdx?_toArray]
   simp
 
-@[deprecated findIdx?_replicate (since := "2025-03-18")]
-abbrev findIdx?_mkArray := @findIdx?_replicate
-
 theorem findIdx?_eq_findSome?_zipIdx {xs : Array α} {p : α → Bool} :
     xs.findIdx? p = xs.zipIdx.findSome? fun ⟨a, i⟩ => if p a then some i else none := by
   rcases xs with ⟨xs⟩
@@ -728,7 +677,7 @@ theorem isNone_findFinIdx? {xs : Array α} {p : α → Bool} :
   cases xs
   simp only [List.findFinIdx?_toArray, hf, List.findFinIdx?_subtype]
   rw [findFinIdx?_congr List.unattach_toArray]
-  simp only [Option.map_map, Function.comp_def, Fin.cast_trans]
+  simp only [Option.map_map, Function.comp_def, Fin.cast_cast]
   simp [Array.size]
 
 /-! ### idxOf

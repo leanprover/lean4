@@ -7,10 +7,6 @@ Authors: Shreyas Srinivas, François G. Dorais, Kim Morrison
 module
 
 prelude
-public meta import Init.Coe
-public import Init.Data.Stream
-public import Init.Data.Array.Lemmas
-public import Init.Data.Array.MapIdx
 public import Init.Data.Array.InsertIdx
 public import Init.Data.Array.Range
 public import Init.Data.Range
@@ -36,7 +32,7 @@ structure Vector (α : Type u) (n : Nat) where
   size_toArray : toArray.size = n
 deriving Repr, DecidableEq
 
-attribute [simp, grind] Vector.size_toArray
+attribute [simp, grind =] Vector.size_toArray
 
 /--
 Converts an array to a vector. The resulting vector's size is the array's size.
@@ -84,14 +80,8 @@ def elimAsList {motive : Vector α n → Sort u}
 /-- Make an empty vector with pre-allocated capacity. -/
 @[inline, expose] def emptyWithCapacity (capacity : Nat) : Vector α 0 := ⟨.emptyWithCapacity capacity, by simp⟩
 
-@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
-abbrev mkEmpty := @emptyWithCapacity
-
 /-- Makes a vector of size `n` with all cells containing `v`. -/
 @[inline, expose] def replicate (n) (v : α) : Vector α n := ⟨Array.replicate n v, by simp⟩
-
-@[deprecated replicate (since := "2025-03-18")]
-abbrev mkVector := @replicate
 
 instance : Nonempty (Vector α 0) := ⟨#v[]⟩
 instance [Nonempty α] : Nonempty (Vector α n) := ⟨replicate _ Classical.ofNonempty⟩
@@ -535,23 +525,18 @@ and do not provide separate verification theorems.
 @[simp] theorem mem_toArray_iff (a : α) (xs : Vector α n) : a ∈ xs.toArray ↔ a ∈ xs :=
   ⟨fun h => ⟨h⟩, fun ⟨h⟩ => h⟩
 
-instance : ForIn' m (Vector α n) α inferInstance where
+instance [Monad m] : ForIn' m (Vector α n) α inferInstance where
   forIn' xs b f := Array.forIn' xs.toArray b (fun a h b => f a (by simpa using h) b)
 
 /-! ### ForM instance -/
 
-instance : ForM m (Vector α n) α where
+instance [Monad m] : ForM m (Vector α n) α where
   forM := Vector.forM
 
 -- We simplify `Vector.forM` to `forM`.
 @[simp] theorem forM_eq_forM [Monad m] (f : α → m PUnit) :
     Vector.forM v f = forM v f := rfl
 
-/-! ### ToStream instance -/
-
-@[no_expose]
-instance : ToStream (Vector α n) (Subarray α) where
-  toStream xs := xs.toArray[*...*]
 
 /-! ### Lexicographic ordering -/
 

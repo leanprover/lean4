@@ -10,6 +10,7 @@ public import Lean.Meta.Structure
 public import Lean.Elab.MutualInductive
 import Lean.Linter.Basic
 import Lean.DocString
+import Lean.DocString.Extension
 
 public section
 
@@ -240,6 +241,8 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
     let declName ← applyVisibility modifiers declName
     let ref := structStx[1].mkSynthetic
     addDeclarationRangesFromSyntax declName ref
+    if structModifiers.isMeta then
+      modifyEnv (markMeta · declName)
     pure { ref, declId := ref, modifiers, declName }
   if structStx[4].isNone then
     useDefault
@@ -279,8 +282,9 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
       let declName ← applyVisibility ctorModifiers declName
       -- `binders` is type parameter binder overrides; this will be validated when the constructor is created in `Structure.mkCtor`.
       let binders := ctor[2]
-      addDocString' declName ctorModifiers.docString?
       addDeclarationRangesFromSyntax declName ctor[1]
+      if structModifiers.isMeta then
+        modifyEnv (markMeta · declName)
       pure { ref := ctor[1], declId := ctor[1], modifiers := ctorModifiers, declName, binders }
 
 /--
@@ -383,7 +387,6 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
         throwErrorAt ident "Invalid field name `{name.eraseMacroScopes}`: Field names must be atomic"
       let declName := structDeclName ++ name
       let declName ← applyVisibility fieldModifiers declName
-      addDocString' declName fieldModifiers.docString?
       return views.push {
         ref        := ident
         modifiers  := fieldModifiers
@@ -413,7 +416,9 @@ def structureSyntaxToView (modifiers : Modifiers) (stx : Syntax) : TermElabM Str
   let isClass   := stx[0].getKind == ``Parser.Command.classTk
   let modifiers := if isClass then modifiers.addAttr { name := `class } else modifiers
   let declId    := stx[1]
-  let ⟨name, declName, levelNames⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
+  let ⟨name, declName, levelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
+  if modifiers.isMeta then
+    modifyEnv (markMeta · declName)
   addDeclarationRangesForBuiltin declName modifiers.stx stx
   let (binders, type?) := expandOptDeclSig stx[2]
   let exts := stx[3]
@@ -459,6 +464,7 @@ def structureSyntaxToView (modifiers : Modifiers) (stx : Syntax) : TermElabM Str
     fields
     computedFields := #[]
     derivingClasses
+    docString?
   }
 
 
@@ -656,8 +662,8 @@ private partial def withStructField (view : StructView) (sourceStructNames : Lis
     let mut declName := view.declName ++ fieldName
     if inSubobject?.isNone then
       declName ← applyVisibility (← toModifiers fieldInfo) declName
-      -- No need to validate links because this docstring was already added to the environment previously
-      addDocStringCore' declName (← findDocString? (← getEnv) fieldInfo.projFn)
+      -- Create a link to the parent field's docstring
+      addInheritedDocString declName fieldInfo.projFn
       addDeclarationRangesFromSyntax declName (← getRef)
     checkNotAlreadyDeclared declName
     withLocalDecl fieldName fieldInfo.binderInfo (← reduceFieldProjs fieldType) fun fieldFVar => do
@@ -1534,6 +1540,17 @@ def elabStructureCommand : InductiveElabDescr where
                 withOptions (warn.sorry.set · false) do
                   mkRemainingProjections levelParams params view
               setStructureParents view.declName parentInfos
+
+              if let some (doc, isVerso) := view.docString? then
+                addDocStringOf isVerso view.declName view.binders doc
+              if let some (doc, isVerso) := view.ctor.modifiers.docString? then
+                addDocStringOf isVerso view.ctor.declName view.ctor.binders doc
+              for field in view.fields do
+                  -- may not exist if overriding inherited field
+                if (← getEnv).contains field.declName then
+                  if let some (doc, isVerso) := field.modifiers.docString? then
+                    addDocStringOf isVerso field.declName field.binders doc
+
               withSaveInfoContext do  -- save new env
                 for field in view.fields do
                   -- may not exist if overriding inherited field

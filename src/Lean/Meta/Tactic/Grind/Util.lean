@@ -4,18 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Simproc
-public import Init.Grind.Tactics
-public import Lean.Meta.AbstractNestedProofs
-public import Lean.Meta.Transform
-public import Lean.Meta.Tactic.Util
-public import Lean.Meta.Tactic.Clear
 public import Lean.Meta.Tactic.Simp.Simproc
-
+import Init.Simproc
+import Lean.Meta.AbstractNestedProofs
+import Lean.Meta.Tactic.Clear
 public section
-
 namespace Lean.Meta.Grind
 /--
 Throws an exception if target of the given goal contains metavariables.
@@ -24,6 +18,18 @@ def _root_.Lean.MVarId.ensureNoMVar (mvarId : MVarId) : MetaM Unit := do
   let type ← instantiateMVars (← mvarId.getType)
   if type.hasExprMVar then
     throwTacticEx `grind mvarId "goal contains metavariables"
+
+/--
+Instantiates metavariables occurring in the target and hypotheses.
+-/
+def _root_.Lean.MVarId.instantiateGoalMVars (mvarId : MVarId) : MetaM MVarId := do
+  mvarId.checkNotAssigned `grind
+  let mvarDecl ← mvarId.getDecl
+  let lctx ← instantiateLCtxMVars mvarDecl.lctx
+  let type ← Lean.instantiateMVars mvarDecl.type
+  let mvarNew ← mkFreshExprMVarAt lctx mvarDecl.localInstances type .syntheticOpaque mvarDecl.userName
+  mvarId.assign mvarNew
+  return mvarNew.mvarId!
 
 /-- Abstracts metavariables occurring in the target. -/
 def _root_.Lean.MVarId.abstractMVars (mvarId : MVarId) : MetaM MVarId := do

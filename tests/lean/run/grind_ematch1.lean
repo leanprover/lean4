@@ -125,7 +125,7 @@ opaque f : Nat → Nat → Nat
 
 /-- trace: [grind.ematch.pattern] pqf: [f #2 #1] -/
 #guard_msgs (trace) in
-@[grind←] theorem pqf : Q x → P (f x y) := sorry
+@[grind! ←] theorem pqf : Q x → P (f x y) := sorry
 
 /--
 trace: [grind.ematch.instance] pqf: Q a → P (f a b)
@@ -188,7 +188,7 @@ error: `@[grind ←] theorem pqBad2` failed to find patterns in the theorem's co
 trace: [grind.ematch.pattern] pqBad: [Q #3 #1, P #3 #2]
 -/
 #guard_msgs (trace) in
-@[grind] theorem pqBad : P x y → Q x z := sorry
+@[grind! <=] theorem pqBad : P x y → Q x z := sorry
 
 example : P a b → Q a c := by
   grind

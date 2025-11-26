@@ -3,4 +3,4 @@ inductive Boo where
 
 def f : Boo :=
   .tr
-   --^ textDocument/completion
+   --^ completion

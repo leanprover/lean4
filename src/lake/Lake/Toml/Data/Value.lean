@@ -9,6 +9,9 @@ prelude
 public import Init.Data.Float
 public import Lake.Toml.Data.Dict
 public import Lake.Toml.Data.DateTime
+import Lake.Util.String
+import Init.Data.String.TakeDrop
+import Init.Data.String.Search
 
 /-!
 # TOML Value
@@ -63,7 +66,7 @@ public def ppString (s : String) : String :=
     | '\\' => s ++ "\\\\"
     | _ =>
       if c.val < 0x20 || c.val == 0x7F then
-        s ++ "\\u" ++ lpad (String.mk <| Nat.toDigits 16 c.val.toNat) '0' 4
+        s ++ "\\u" ++ lpad (String.ofList <| Nat.toDigits 16 c.val.toNat) '0' 4
       else
         s.push c
   s.push '\"'
@@ -131,7 +134,7 @@ public def ppTable (t : Table) : String :=
     | _ => (appendKeyval ts k v, fs)
   -- Ensures root table keys come before subtables
   -- See https://github.com/leanprover/lean4/issues/4099
-  (ts.push '\n' ++ fs).trimRight.push '\n'
+  (ts.push '\n' ++ fs).trimAsciiEnd.copy.push '\n'
 where
   appendKeyval s k v :=
     s.append s!"{ppKey k} = {v}\n"

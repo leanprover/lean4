@@ -6,11 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Std.Data.Iterators.Combinators.Monadic.Take
 public import Std.Data.Iterators.Combinators.Monadic.TakeWhile
 public import Std.Data.Iterators.Combinators.Monadic.Drop
 public import Std.Data.Iterators.Combinators.Monadic.DropWhile
 public import Std.Data.Iterators.Combinators.Monadic.StepSize
 public import Std.Data.Iterators.Combinators.Monadic.Zip
-
-@[expose] public section

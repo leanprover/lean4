@@ -6,20 +6,14 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Var
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Not
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftLeft
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftRight
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Add
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Append
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Replicate
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Extract
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateLeft
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateRight
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Mul
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Udiv
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Umod
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Reverse
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Clz
@@ -313,7 +307,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       simp only [RefVec.denote_zip, RefVec.get_cast, Ref.cast_eq, denote_mkAndCached, eval_bin,
         BVBinOp.eval_and, BitVec.getLsbD_and]
       congr 1
-      · rw [goCache_denote_mem_prefix]
+      · rw [goCache_denote_mem_prefix (hstart := Ref.hgate _)]
         rw [goCache_denote_eq]
         exact hinv
       · rw [goCache_denote_eq]
@@ -323,7 +317,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       simp only [RefVec.denote_zip, RefVec.get_cast, Ref.cast_eq, denote_mkOrCached, eval_bin,
         BVBinOp.eval_or, BitVec.getLsbD_or]
       congr 1
-      · rw [goCache_denote_mem_prefix]
+      · rw [goCache_denote_mem_prefix (hstart := Ref.hgate _)]
         rw [goCache_denote_eq]
         exact hinv
       · rw [goCache_denote_eq]
@@ -333,7 +327,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       simp only [RefVec.denote_zip, RefVec.get_cast, Ref.cast_eq, denote_mkXorCached, eval_bin,
         BVBinOp.eval_xor, BitVec.getLsbD_xor]
       congr 1
-      · rw [goCache_denote_mem_prefix]
+      · rw [goCache_denote_mem_prefix (hstart := Ref.hgate _)]
         rw [goCache_denote_eq]
         exact hinv
       · rw [goCache_denote_eq]
@@ -444,7 +438,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
     · rw [goCache_denote_eq]
       apply goCache_Inv_of_Inv
       exact hinv
-    · rw [goCache_denote_mem_prefix]
+    · rw [goCache_denote_mem_prefix (hstart := Ref.hgate _)]
       rw [goCache_denote_eq]
       exact hinv
   next h =>

@@ -1,5 +1,58 @@
 #!/usr/bin/env python3
 
+"""
+Release Checklist for Lean4 and Downstream Repositories
+
+This script validates the status of a Lean4 release across all dependent repositories.
+It checks whether repositories are ready for release and identifies missing steps.
+
+IMPORTANT: Keep this documentation up-to-date when modifying the script's behavior!
+
+What this script does:
+1. Validates preliminary Lean4 release infrastructure:
+   - Checks that the release branch (releases/vX.Y.0) exists
+   - Verifies CMake version settings are correct
+   - Confirms the release tag exists
+   - Validates the release page exists on GitHub (created automatically by CI after tag push)
+   - Checks the release notes page on lean-lang.org (updated while bumping the `reference-manual` repository)
+
+   **IMPORTANT: If the release page doesn't exist, the script will skip checking
+   downstream repositories and the master branch configuration. The preliminary
+   infrastructure must be in place before the release process can proceed.**
+
+   **NOTE: The GitHub release page is created AUTOMATICALLY by CI after the tag is pushed.
+   DO NOT create it manually. Wait for CI to complete after pushing the tag.**
+
+2. For each downstream repository (batteries, mathlib4, etc.):
+   - Checks if dependencies are ready (e.g., mathlib4 depends on batteries)
+   - Verifies the main branch is on the target toolchain (or newer)
+   - Checks if a PR exists to bump the toolchain (if not yet updated)
+   - Validates tags exist for the release version
+   - Ensures tags are merged into stable branches (for non-RC releases)
+   - Verifies bump branches exist and are configured correctly
+   - Special handling for ProofWidgets4 release tags
+
+3. Optionally automates missing steps (when not in --dry-run mode):
+   - Creates missing release tags using push_repo_release_tag.py
+   - Merges tags into stable branches using merge_remote.py
+
+Usage:
+    ./release_checklist.py v4.24.0           # Check release status
+    ./release_checklist.py v4.24.0 --verbose # Show detailed debug info
+    ./release_checklist.py v4.24.0 --dry-run # Check only, don't execute fixes
+
+For automated release management with Claude Code:
+    /release v4.24.0                 # Run full release process with Claude
+
+The script reads repository configurations from release_repos.yml and reports:
+- ✅ for completed requirements
+- ❌ for missing requirements (with instructions to fix)
+- 🟡 for repositories waiting on dependencies
+- ⮕ for automated actions being taken
+
+This script is idempotent and safe to rerun multiple times.
+"""
+
 import argparse
 import yaml
 import requests
@@ -76,6 +129,39 @@ def release_page_exists(repo_url, tag_name, github_token):
     response = requests.get(api_url, headers=headers)
     return response.status_code == 200
 
+def get_tag_workflow_status(repo_url, tag_name, github_token):
+    """Get the status of CI workflows running for a specific tag."""
+    api_base = repo_url.replace("https://github.com/", "https://api.github.com/repos/")
+    headers = {'Authorization': f'token {github_token}'} if github_token else {}
+
+    # Get workflow runs for the tag
+    # GitHub's workflow runs API uses the branch/tag name in the 'head_branch' field
+    api_url = f"{api_base}/actions/runs?event=push&head_branch={tag_name}"
+    response = requests.get(api_url, headers=headers)
+
+    if response.status_code != 200:
+        return None
+
+    data = response.json()
+    workflow_runs = data.get('workflow_runs', [])
+
+    if not workflow_runs:
+        return None
+
+    # Get the most recent workflow run for this tag
+    run = workflow_runs[0]
+    status = run.get('status')
+    conclusion = run.get('conclusion')
+    workflow_name = run.get('name', 'CI')
+    run_id = run.get('id')
+
+    return {
+        'status': status,
+        'conclusion': conclusion,
+        'workflow_name': workflow_name,
+        'run_id': run_id
+    }
+
 def get_release_notes(tag_name):
     """Fetch release notes page title from lean-lang.org."""
     # Strip -rcX suffix if present for the URL
@@ -84,20 +170,17 @@ def get_release_notes(tag_name):
     try:
         response = requests.get(reference_url)
         response.raise_for_status() # Raise HTTPError for bad responses (4xx or 5xx)
-        
+
         # Extract title using regex
         match = re.search(r"<title>(.*?)</title>", response.text, re.IGNORECASE | re.DOTALL)
         if match:
             return match.group(1).strip()
         else:
-            print(f"  ⚠️ Could not find <title> tag in {reference_url}")
             return None
-            
-    except requests.exceptions.RequestException as e:
-        print(f"  ❌ Error fetching release notes from {reference_url}: {e}")
+
+    except requests.exceptions.RequestException:
         return None
-    except Exception as e:
-        print(f"  ❌ An unexpected error occurred while processing release notes: {e}")
+    except Exception:
         return None
 
 def get_branch_content(repo_url, branch, file_path, github_token):
@@ -286,6 +369,68 @@ def check_bump_branch_toolchain(url, bump_branch, github_token):
     print(f"  ✅ Bump branch correctly uses toolchain: {content}")
     return True
 
+def get_pr_ci_status(repo_url, pr_number, github_token):
+    """Get the CI status for a pull request."""
+    api_base = repo_url.replace("https://github.com/", "https://api.github.com/repos/")
+    headers = {'Authorization': f'token {github_token}'} if github_token else {}
+
+    # Get PR details to find the head SHA
+    pr_response = requests.get(f"{api_base}/pulls/{pr_number}", headers=headers)
+    if pr_response.status_code != 200:
+        return "unknown", "Could not fetch PR details"
+
+    pr_data = pr_response.json()
+    head_sha = pr_data['head']['sha']
+
+    # Get check runs for the commit
+    check_runs_response = requests.get(
+        f"{api_base}/commits/{head_sha}/check-runs",
+        headers=headers
+    )
+
+    if check_runs_response.status_code != 200:
+        return "unknown", "Could not fetch check runs"
+
+    check_runs_data = check_runs_response.json()
+    check_runs = check_runs_data.get('check_runs', [])
+
+    if not check_runs:
+        # No check runs, check for status checks (legacy)
+        status_response = requests.get(
+            f"{api_base}/commits/{head_sha}/status",
+            headers=headers
+        )
+        if status_response.status_code == 200:
+            status_data = status_response.json()
+            state = status_data.get('state', 'unknown')
+            if state == 'success':
+                return "success", "All status checks passed"
+            elif state == 'failure':
+                return "failure", "Some status checks failed"
+            elif state == 'pending':
+                return "pending", "Status checks in progress"
+        return "unknown", "No CI checks found"
+
+    # Analyze check runs
+    conclusions = [run['conclusion'] for run in check_runs if run.get('status') == 'completed']
+    in_progress = [run for run in check_runs if run.get('status') in ['queued', 'in_progress']]
+
+    if in_progress:
+        return "pending", f"{len(in_progress)} check(s) in progress"
+
+    if not conclusions:
+        return "pending", "Checks queued"
+
+    if all(c == 'success' for c in conclusions):
+        return "success", f"All {len(conclusions)} checks passed"
+
+    failed = sum(1 for c in conclusions if c in ['failure', 'timed_out', 'action_required'])
+    if failed > 0:
+        return "failure", f"{failed} check(s) failed"
+
+    # Some checks are cancelled, skipped, or neutral
+    return "warning", f"Some checks did not complete normally"
+
 def pr_exists_with_title(repo_url, title, github_token):
     api_url = repo_url.replace("https://github.com/", "https://api.github.com/repos/") + "/pulls"
     headers = {'Authorization': f'token {github_token}'} if github_token else {}
@@ -404,29 +549,56 @@ def main():
             print(f"  ❌ Short commit hash {commit_hash[:SHORT_HASH_LENGTH]} is numeric and starts with 0, causing issues for version parsing. Try regenerating the last commit to get a new hash.")
             lean4_success = False
 
-    if not release_page_exists(lean_repo_url, toolchain, github_token):
-        print(f"  ❌ Release page for {toolchain} does not exist")
+    release_page_ready = release_page_exists(lean_repo_url, toolchain, github_token)
+    if not release_page_ready:
+        print(f"  ❌ Release page for {toolchain} does not exist (This will be created by CI.)")
+
+        # Check CI workflow status
+        workflow_status = get_tag_workflow_status(lean_repo_url, toolchain, github_token)
+        if workflow_status:
+            status = workflow_status['status']
+            conclusion = workflow_status['conclusion']
+            workflow_name = workflow_status['workflow_name']
+            run_id = workflow_status['run_id']
+            workflow_url = f"{lean_repo_url}/actions/runs/{run_id}"
+
+            if status == 'in_progress' or status == 'queued':
+                print(f"     🔄 {workflow_name} workflow is {status}: {workflow_url}")
+            elif status == 'completed':
+                if conclusion == 'success':
+                    print(f"     ✅ {workflow_name} workflow completed successfully: {workflow_url}")
+                elif conclusion == 'failure':
+                    print(f"     ❌ {workflow_name} workflow failed: {workflow_url}")
+                else:
+                    print(f"     ⚠️  {workflow_name} workflow completed with status: {conclusion}: {workflow_url}")
+            else:
+                print(f"     ℹ️  {workflow_name} workflow status: {status}: {workflow_url}")
+
         lean4_success = False
     else:
         print(f"  ✅ Release page for {toolchain} exists")
-        
-    # Check the actual release notes page title
+
+    # Check the actual release notes page title (informational only - does not block)
     actual_title = get_release_notes(toolchain)
     expected_title_prefix = f"Lean {toolchain.lstrip('v')}" # e.g., "Lean 4.19.0" or "Lean 4.19.0-rc1"
+    base_tag = toolchain.split('-')[0]
+    release_notes_url = f"https://lean-lang.org/doc/reference/latest/releases/{base_tag}/"
 
     if actual_title is None:
-        # Error already printed by get_release_notes
-        lean4_success = False
+        print(f"  ⚠️  Release notes not found at {release_notes_url} (this will be fixed while updating the reference-manual repository)")
     elif not actual_title.startswith(expected_title_prefix):
-        # Construct URL for the error message (using the base tag)
-        base_tag = toolchain.split('-')[0]
-        check_url = f"https://lean-lang.org/doc/reference/latest/releases/{base_tag}/"
-        print(f"  ❌ Release notes page title mismatch. Expected prefix '{expected_title_prefix}', got '{actual_title}'. Check {check_url}")
-        lean4_success = False
+        print(f"  ⚠️  Release notes page title mismatch. Expected prefix '{expected_title_prefix}', got '{actual_title}'. Check {release_notes_url}")
     else:
         print(f"  ✅ Release notes page title looks good ('{actual_title}').")
 
     repo_status["lean4"] = lean4_success
+
+    # If the release page doesn't exist, skip repository checks and master branch checks
+    # The preliminary infrastructure must be in place first
+    if not release_page_exists(lean_repo_url, toolchain, github_token):
+        print("\n⚠️  Release process blocked: preliminary Lean4 infrastructure incomplete.")
+        print("   Complete the steps above, then rerun this script to proceed with downstream repositories.")
+        return
 
     # Load repositories and perform further checks
     print("\nChecking repositories...")
@@ -471,6 +643,19 @@ def main():
             if pr_info:
                 pr_number, pr_url = pr_info
                 print(f"  ✅ PR with title '{pr_title}' exists: #{pr_number} ({pr_url})")
+
+                # Check CI status
+                ci_status, ci_message = get_pr_ci_status(url, pr_number, github_token)
+                if ci_status == "success":
+                    print(f"     ✅ CI: {ci_message}")
+                elif ci_status == "failure":
+                    print(f"     ❌ CI: {ci_message}")
+                elif ci_status == "pending":
+                    print(f"     🔄 CI: {ci_message}")
+                elif ci_status == "warning":
+                    print(f"     ⚠️  CI: {ci_message}")
+                else:
+                    print(f"     ❓ CI: {ci_message}")
             else:
                 print(f"  ❌ PR with title '{pr_title}' does not exist")
                 print(f"     Run `script/release_steps.py {toolchain} {name}` to create it")

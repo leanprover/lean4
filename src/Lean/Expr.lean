@@ -7,12 +7,7 @@ module
 
 prelude
 public import Init.Data.Hashable
-public import Init.Data.Int.Basic
-public import Lean.Data.KVMap
-public import Lean.Data.SMap
 public import Lean.Level
-public import Std.Data.HashSet.Basic
-public import Std.Data.TreeSet.Basic
 
 public section
 
@@ -70,7 +65,7 @@ def bar ⦃x : Nat⦄ : Nat := x
 #check bar -- bar : ⦃x : Nat⦄ → Nat
 ```
 
-See also [the Lean manual](https://lean-lang.org/lean4/doc/expressions.html#implicit-arguments).
+See also [the Lean Language Reference](https://lean-lang.org/doc/reference/latest/Terms/Functions/#implicit-functions).
 -/
 inductive BinderInfo where
   /-- Default binder annotation, e.g. `(x : α)` -/
@@ -223,7 +218,7 @@ This is a persistent data structure implemented using `Std.TreeSet`. -/
 @[expose] def FVarIdSet := Std.TreeSet FVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
-instance : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
+instance [Monad m] : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
 def FVarIdSet.insert (s : FVarIdSet) (fvarId : FVarId) : FVarIdSet :=
   Std.TreeSet.insert s fvarId
@@ -277,7 +272,7 @@ def MVarIdSet.ofList (l : List MVarId) : MVarIdSet :=
 def MVarIdSet.ofArray (l : Array MVarId) : MVarIdSet :=
   Std.TreeSet.ofArray l _
 
-instance : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
+instance [Monad m] : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
 @[expose] def MVarIdMap (α : Type) := Std.TreeMap MVarId α (Name.quickCmp ·.name ·.name)
 
@@ -286,7 +281,7 @@ def MVarIdMap.insert (s : MVarIdMap α) (mvarId : MVarId) (a : α) : MVarIdMap �
 
 instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (Std.TreeMap _ _ _))
 
-instance : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
+instance [Monad m] : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
 
 instance : Inhabited (MVarIdMap α) where
   default := {}
@@ -709,7 +704,7 @@ def mkSimpleThunk (type : Expr) : Expr :=
 /--
 `.lit l` is now the preferred form.
 -/
-def mkLit (l : Literal) : Expr :=
+@[match_pattern, expose] def mkLit (l : Literal) : Expr :=
   .lit l
 
 /--
@@ -717,7 +712,7 @@ Return the "raw" natural number `.lit (.natVal n)`.
 This is not the default representation used by the Lean frontend.
 See `mkNatLit`.
 -/
-def mkRawNatLit (n : Nat) : Expr :=
+@[match_pattern, expose] def mkRawNatLit (n : Nat) : Expr :=
   mkLit (.natVal n)
 
 /--
@@ -725,12 +720,12 @@ Return a natural number literal used in the frontend. It is a `OfNat.ofNat` appl
 Recall that all theorems and definitions containing numeric literals are encoded using
 `OfNat.ofNat` applications in the frontend.
 -/
-def mkNatLit (n : Nat) : Expr :=
+@[match_pattern, expose] def mkNatLit (n : Nat) : Expr :=
   let r := mkRawNatLit n
   mkApp3 (mkConst ``OfNat.ofNat [levelZero]) (mkConst ``Nat) r (mkApp (mkConst ``instOfNatNat) r)
 
 /-- Return the string literal `.lit (.strVal s)` -/
-def mkStrLit (s : String) : Expr :=
+@[match_pattern, expose] def mkStrLit (s : String) : Expr :=
   mkLit (.strVal s)
 
 @[export lean_expr_mk_bvar] def mkBVarEx : Nat → Expr := mkBVar
@@ -1267,7 +1262,7 @@ def getRevArg!' : Expr → Nat → Expr
   getRevArg! e (n - i - 1)
 
 /-- Similar to `getArg!`, but skips mdata -/
-@[inline] def getArg!' (e : Expr) (i : Nat) (n := e.getAppNumArgs) : Expr :=
+@[inline] def getArg!' (e : Expr) (i : Nat) (n := e.getAppNumArgs') : Expr :=
   getRevArg!' e (n - i - 1)
 
 /-- Given `f a₀ a₁ ... aₙ`, returns the `i`th argument or returns `v₀` if out of bounds. -/
@@ -1346,7 +1341,7 @@ def inferImplicit (e : Expr) (numParams : Nat) (considerRange : Bool) : Expr :=
   | e, _ => e
 
 /--
-Uses `newBinderInfos` to update the binder infos of the first `numParams` foralls.
+Uses `binderInfos?` to update the binder infos of the corresponding forall expressions.
 -/
 def updateForallBinderInfos (e : Expr) (binderInfos? : List (Option BinderInfo)) : Expr :=
   match e, binderInfos? with
@@ -1354,6 +1349,21 @@ def updateForallBinderInfos (e : Expr) (binderInfos? : List (Option BinderInfo))
     let b  := updateForallBinderInfos b binderInfos?
     let bi := newBi?.getD bi
     Expr.forallE n d b bi
+  | e, _ => e
+
+/--
+Uses `binderNames?` to update the binder names of the corresponding lambda and forall expressions.
+-/
+def updateBinderNames (e : Expr) (binderNames? : List (Option Name)) : Expr :=
+  match e, binderNames? with
+  | Expr.forallE n d b bi, newN? :: binderNames? =>
+    let b := updateBinderNames b binderNames?
+    let n := newN?.getD n
+    Expr.forallE n d b bi
+  | Expr.lam n d b bi, newN? :: binderNames? =>
+    let b := updateBinderNames b binderNames?
+    let n := newN?.getD n
+    Expr.lam n d b bi
   | e, _ => e
 
 /--
@@ -2181,9 +2191,9 @@ def mkAndN : List Expr → Expr
   | [] => mkConst ``True
   | [p] => p
   | p :: ps => mkAnd p (mkAndN ps)
-/-- Return `Classical.em p` -/
+/-- Returns `Classical.em p` -/
 def mkEM (p : Expr) : Expr := mkApp (mkConst ``Classical.em) p
-/-- Return `p ↔ q` -/
+/-- Returns `p ↔ q` -/
 def mkIff (p q : Expr) : Expr := mkApp2 (mkConst ``Iff) p q
 
 /-! Constants for Nat typeclasses. -/
@@ -2261,9 +2271,10 @@ private def natEqPred : Expr :=
 def mkNatEq (a b : Expr) : Expr :=
   mkApp2 natEqPred a b
 
-/-- Given `a b : Prop`, return `a = b` -/
+private def propEq := mkApp (mkConst ``Eq [1]) (mkSort 0)
+/-- Given `a b : Prop`, returns `a = b` -/
 def mkPropEq (a b : Expr) : Expr :=
-  mkApp3 (mkConst ``Eq [levelOne]) (mkSort levelZero) a b
+  mkApp2 propEq a b
 
 /-! Constants for Int typeclasses. -/
 namespace Int
@@ -2360,6 +2371,13 @@ private def intLEPred : Expr :=
 /-- Given `a b : Int`, returns `a ≤ b` -/
 def mkIntLE (a b : Expr) : Expr :=
   mkApp2 intLEPred a b
+
+private def intLTPred : Expr :=
+  mkApp2 (mkConst ``LT.lt [0]) Int.mkType Int.mkInstLT
+
+/-- Given `a b : Int`, returns `a < b` -/
+def mkIntLT (a b : Expr) : Expr :=
+  mkApp2 intLTPred a b
 
 private def intEqPred : Expr :=
   mkApp (mkConst ``Eq [1]) Int.mkType

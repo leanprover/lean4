@@ -5,17 +5,17 @@ def v : Array Nat := Array.mk [1, 2, 3, 4]
 #guard v == #[1, 2, 3, 4, ]
 
 def w : Array Nat :=
-(mkArray 9 1).push 3
+(Array.replicate 9 1).push 3
 
 #check @Array.casesOn
 
 def f : Fin w.size → Nat :=
-  fun i => w.get i i.isLt
+  fun i => w[i]'(i.isLt)
 
 def arraySum (a : Array Nat) : Nat :=
 a.foldl Nat.add 0
 
-#guard mkArray 4 1 == #[1, 1, 1, 1]
+#guard Array.replicate 4 1 == #[1, 1, 1, 1]
 
 #guard Array.map (fun x => x+10) v == #[11, 12, 13, 14]
 
@@ -23,9 +23,9 @@ a.foldl Nat.add 0
 
 #guard f ⟨9, sorry⟩ == 3
 
-#guard (((mkArray 1 1).push 2).push 3).foldl (fun x y => x + y) 0 == 6
+#guard (((Array.replicate 1 1).push 2).push 3).foldl (fun x y => x + y) 0 == 6
 
-#guard arraySum (mkArray 10 1) == 10
+#guard arraySum (Array.replicate 10 1) == 10
 
 axiom axLt {a b : Nat} : a < b
 

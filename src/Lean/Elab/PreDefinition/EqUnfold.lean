@@ -7,11 +7,8 @@ module
 
 prelude
 public import Lean.Meta.Eqns
-public import Lean.Meta.Tactic.Util
 public import Lean.Meta.Tactic.Rfl
 public import Lean.Meta.Tactic.Intro
-public import Lean.Meta.Tactic.Apply
-public import Lean.DefEqAttrib
 
 public section
 

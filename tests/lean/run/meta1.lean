@@ -65,7 +65,7 @@ mkAppN add #[mkLit (Literal.natVal 3), mkLit (Literal.natVal 5)]
 #eval tstWHNF t5
 
 set_option pp.all true
-/-- info: @List.cons.{0} Nat : Nat → List.{0} Nat → List.{0} Nat -/
+/-- info: @List.cons.{0} Nat : (head : Nat) → (tail : List.{0} Nat) → List.{0} Nat -/
 #guard_msgs in
 #check @List.cons Nat
 

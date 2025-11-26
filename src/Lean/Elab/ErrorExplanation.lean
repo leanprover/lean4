@@ -6,10 +6,7 @@ Authors: Joseph Rotella
 module
 
 prelude
-public import Lean.ErrorExplanation
-public import Lean.Meta.Eval
-public import Lean.Elab.Term
-public import Lean.Elab.Command
+meta import Lean.ErrorExplanation
 public import Lean.Widget.UserWidget
 
 public section
@@ -100,11 +97,12 @@ def elabCheckedNamedError : TermElab := fun stx expType? => do
 open Command in
 @[builtin_command_elab registerErrorExplanationStx] def elabRegisterErrorExplanation : CommandElab
 | `(registerErrorExplanationStx| $docStx:docComment register_error_explanation%$cmd $id:ident $t:term) => withRef cmd do
-  unless (← getEnv).contains ``Lean.ErrorExplanation do
+  unless (← getEnv).contains ``ErrorExplanation.Metadata do
     throwError "To use this command, add `import Lean.ErrorExplanation` to the header of this file"
+  recordExtraModUseFromDecl ``ErrorExplanation.Metadata (isMeta := true)
   let tp := mkConst ``ErrorExplanation.Metadata
   let metadata ← runTermElabM <| fun _ => unsafe do
-    let e ← elabTerm t tp
+    let e ← elabTermEnsuringType t tp
     if e.hasSyntheticSorry then throwAbortTerm
     evalExpr ErrorExplanation.Metadata tp e
   let name := id.getId
@@ -118,7 +116,7 @@ open Command in
     throwErrorAt id m!"Invalid name `{name}`: Error explanation names must have two components"
       ++ .note m!"The first component of an error explanation name identifies the package from \
         which the error originates, and the second identifies the error itself."
-  validateDocComment docStx
+  runTermElabM fun _ => validateDocComment docStx
   let doc ← getDocStringText docStx
   if errorExplanationExt.getState (← getEnv) |>.contains name then
     throwErrorAt id m!"Cannot add explanation: An error explanation already exists for `{name}`"

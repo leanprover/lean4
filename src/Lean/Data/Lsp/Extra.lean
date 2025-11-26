@@ -7,7 +7,6 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Data.Lsp.Basic
 public import Lean.Data.Lsp.TextSync
 public import Lean.Server.Rpc.Basic
 
@@ -126,6 +125,13 @@ structure PlainTermGoal where
   deriving FromJson, ToJson
 
 structure ModuleHierarchyOptions where
+  deriving FromJson, ToJson
+
+structure HighlightMatchesOptions where
+  deriving FromJson, ToJson
+
+structure RpcOptions where
+  highlightMatchesProvider? : Option HighlightMatchesOptions := none
   deriving FromJson, ToJson
 
 structure LeanModule where

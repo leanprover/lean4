@@ -1680,6 +1680,16 @@ theorem le_int_module {α} [CommRing α] [LE α] (ctx : Context α) (p : Poly)
     : p.denote ctx ≤ 0 → p.denoteAsIntModule ctx ≤ 0 := by
   simp [Poly.denoteAsIntModule_eq_denote]
 
+noncomputable def mul_ineq_cert (p₁ : Poly) (k : Int) (p : Poly) : Bool :=
+  k > 0 && (p₁.mulConst_k k |>.beq' p)
+
+theorem mul_le {α} [CommRing α] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (p₁ : Poly) (k : Int) (p : Poly)
+    : mul_ineq_cert p₁ k p → p₁.denote ctx ≤ 0 → p.denote ctx ≤ 0 := by
+  simp [mul_ineq_cert]; intro h₁ _ h₂; subst p; simp [Poly.denote_mulConst]
+  replace h₂ := zsmul_nonpos (Int.le_of_lt h₁) h₂
+  simp [Ring.zsmul_eq_intCast_mul] at h₂
+  assumption
+
 theorem lt_norm {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert lhs rhs p → lhs.denote ctx < rhs.denote ctx → p.denote ctx < 0 := by
   simp [core_cert]; intro _ h; subst p; simp [Expr.denote_toPoly, Expr.denote]
@@ -1690,6 +1700,13 @@ theorem lt_norm {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorde
 theorem lt_int_module {α} [CommRing α] [LT α] (ctx : Context α) (p : Poly)
     : p.denote ctx < 0 → p.denoteAsIntModule ctx < 0 := by
   simp [Poly.denoteAsIntModule_eq_denote]
+
+theorem mul_lt {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (p₁ : Poly) (k : Int) (p : Poly)
+    : mul_ineq_cert p₁ k p → p₁.denote ctx < 0 → p.denote ctx < 0 := by
+  simp [mul_ineq_cert]; intro h₁ _ h₂; subst p; simp [Poly.denote_mulConst]
+  replace h₂ := zsmul_neg_iff k h₂ |>.mpr h₁
+  simp [Ring.zsmul_eq_intCast_mul] at h₂
+  assumption
 
 theorem not_le_norm {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert rhs lhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → p.denote ctx < 0 := by

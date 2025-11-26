@@ -173,19 +173,19 @@ def takeArg (arg : String) : CliM String := do
   | none => throw <| CliError.missingArg arg
   | some arg => pure arg
 
-def takeOptArg (optArg? : Option String.Slice) (opt argName : String) : CliM String := do
-  if let some arg := optArg? then
-    return arg.copy
-  else if let some arg ← takeArg? then
+@[inline] def takeOptArg (argName : String) : OptT CliM String.Slice := do
+  if let some arg ← takeOptArg? then
     return arg
   else
-    throw <| CliError.missingOptArg opt argName
+    throw <| CliError.missingOptArg (← getOpt).copy argName
 
 @[inline] def takeOptArg'
-  (optArg? : Option String.Slice) (opt arg : String) (f : String → Option α)
-: CliM α := do
-  if let some a := f (← takeOptArg optArg? opt arg) then return a
-  throw <| CliError.invalidOptArg opt arg
+  (argName : String) (f : String.Slice → Option α) (argTy := argName)
+: OptT CliM α := do
+  if let some a := f (← takeOptArg argName) then
+    return a
+  else
+    throw <| CliError.invalidOptArg (← getOpt).copy argTy
 
 /--
 Verify that there are no CLI arguments remaining
@@ -201,24 +201,30 @@ def noArgsRem (act : CliStateM α) : CliM α := do
 def getWantsHelp : CliStateM Bool :=
   (·.wantsHelp) <$> get
 
-def setConfigOpt (kvPair : String) : CliM PUnit :=
+def setConfigOpt (kvPair : String.Slice) : CliM PUnit :=
   let pos := kvPair.find '='
   let (key, val) :=
     if h : pos.IsAtEnd then
       (kvPair.toName, "")
     else
-      (kvPair.extract kvPair.startPos pos |>.toName, kvPair.extract (pos.next h) kvPair.endPos)
+      (kvPair.sliceTo pos |>.toName, kvPair.sliceFrom (pos.next h) |>.copy)
   modifyThe LakeOptions fun opts =>
     {opts with configOpts := opts.configOpts.insert key val}
 
-def lakeShortOption : ShortOptHandler CliM := .ofFn fun opt optArg? =>
-  match opt with
+def lakeShortOption : ShortOptHandler CliM := .ofM do
+  match (← getOptChar) with
   | 'q' => modifyThe LakeOptions ({· with verbosity := .quiet})
   | 'v' => modifyThe LakeOptions ({· with verbosity := .verbose})
-  | 'd' => do let rootDir ← takeOptArg optArg? "-d" "path"; modifyThe LakeOptions ({· with rootDir})
-  | 'f' => do let configFile ← takeOptArg optArg? "-f" "path"; modifyThe LakeOptions ({· with configFile})
-  | 'o' => do let outputsFile? ← takeOptArg optArg? "-o" "path"; modifyThe LakeOptions ({· with outputsFile?})
-  | 'K' => do setConfigOpt <| ← takeOptArg optArg? "-K" "key-value pair"
+  | 'd' => do
+    let rootDir ← takeOptArg "path"
+    modifyThe LakeOptions ({· with rootDir := FilePath.mk rootDir.copy})
+  | 'f' => do
+    let configFile ← takeOptArg "path"
+    modifyThe LakeOptions ({· with configFile := FilePath.mk configFile.copy})
+  | 'o' => do
+    let outputsFile ← takeOptArg "path"
+    modifyThe LakeOptions ({· with outputsFile? := some <| FilePath.mk outputsFile.copy})
+  | 'K' => do setConfigOpt (← takeOptArg "key-value pair")
   | 'U' => do
     logWarning "the '-U' shorthand for '--update' is deprecated"
     modifyThe LakeOptions ({· with updateDeps := true})
@@ -230,7 +236,7 @@ def lakeShortOption : ShortOptHandler CliM := .ofFn fun opt optArg? =>
 
 /-- Returns an error if the string is not valid GitHub repository name. -/
 -- Limitations derived from https://github.com/dead-claudia/github-limits
-def validateRepo? (repo : String) : Option String := Id.run do
+def validateRepo? (repo : String.Slice) : Option String := Id.run do
   unless repo.all isValidRepoChar do
     return "invalid characters in repository name"
   match repo.split '/' |>.toStringList with
@@ -275,8 +281,8 @@ def parseLintersSpec (spec : String) : CliM PUnit := do
     { opts with runBuiltinLint := true, builtinLint.linterOverrides :=
         opts.builtinLint.linterOverrides ++ entries }
 
-def lakeLongOption : LongOptHandler CliM := .ofFn fun opt optArg? =>
-  match opt with
+def lakeLongOption : LongOptHandler CliM := .ofM do
+  match (← getOpt).copy with
   | "--quiet"       => modifyThe LakeOptions ({· with verbosity := .quiet})
   | "--verbose"     => modifyThe LakeOptions ({· with verbosity := .verbose})
   | "--update"      => modifyThe LakeOptions ({· with updateDeps := true})
@@ -299,52 +305,52 @@ def lakeLongOption : LongOptHandler CliM := .ofFn fun opt optArg? =>
   | "--download-arts" => modifyThe LakeOptions ({· with mappingsOnly := false})
   | "--mappings-only" => modifyThe LakeOptions ({· with mappingsOnly := true})
   | "--service" => do
-    let service ← takeOptArg optArg? "--service" "service name"
-    modifyThe LakeOptions ({· with service? := some service})
+    let service ← takeOptArg "service name"
+    modifyThe LakeOptions ({· with service? := some service.copy})
   | "--scope" => do
-    let scope ← takeOptArg optArg? "--scope" "cache scope"
-    modifyThe LakeOptions ({· with scope? := some (.ofString scope)})
+    let scope ← takeOptArg "cache scope"
+    modifyThe LakeOptions ({· with scope? := some (.ofString scope.copy)})
   | "--repo" => do
-    let repo ← takeOptArg optArg? "--repo" "GitHub repository"
+    let repo ← takeOptArg "GitHub repository"
     if let some e := validateRepo? repo then error e
-    modifyThe LakeOptions ({· with scope? := some (.ofRepo repo)})
+    modifyThe LakeOptions ({· with scope? := some (.ofRepo repo.copy)})
   | "--platform" => do
-    let platform ← takeOptArg optArg? "--platform" "cache platform"
+    let platform ← takeOptArg "cache platform"
+    let platform := platform.copy
     if platform.chars.length > 100 then
       error "invalid platform; platform is expected to be at most 100 characters long"
     modifyThe LakeOptions ({· with platform? := some <| .ofString platform})
   | "--toolchain" => do
-    let toolchain ← takeOptArg optArg? "--toolchain" "cache toolchain"
-    let toolchain := if toolchain.isEmpty then .none else .ofString toolchain
+    let toolchain ← takeOptArg "cache toolchain"
+    let toolchain := if toolchain.isEmpty then .none else .ofString toolchain.copy
     if toolchain.length > 256 then
       error "invalid toolchain version; toolchain is expected to be at most 256 characters long"
     modifyThe LakeOptions ({· with toolchain? := some toolchain})
   | "--rev" => do
-    let rev ← takeOptArg optArg? "--rev" "Git revision"
-    modifyThe LakeOptions ({· with rev? := some rev})
+    let rev ← takeOptArg "Git revision"
+    modifyThe LakeOptions ({· with rev? := some rev.copy})
   | "--max-revs" => do
-    let some n ← (·.toNat?) <$> takeOptArg optArg? "--max-revs" "number of revisions"
-      | throw <| CliError.invalidOptArg "--max-revs" "natural number"
-    modifyThe LakeOptions ({· with maxRevs := n})
+    let maxRevs ← takeOptArg' "number of revisions" (·.toNat?) "natural number"
+    modifyThe LakeOptions ({· with maxRevs})
   | "--log-level"   => do
-    let outLv ← takeOptArg' optArg? "--log-level" "log level" LogLevel.ofString?
+    let outLv ← takeOptArg' "log level" LogLevel.ofString?
     modifyThe LakeOptions ({· with outLv? := outLv})
   | "--fail-level"  => do
-    let failLv ← takeOptArg' optArg? "--fail-level" "log level" LogLevel.ofString?
+    let failLv ← takeOptArg' "log level" LogLevel.ofString?
     modifyThe LakeOptions ({· with failLv})
   | "--ansi"        => modifyThe LakeOptions ({· with ansiMode := .ansi})
   | "--no-ansi"     => modifyThe LakeOptions ({· with ansiMode := .noAnsi})
   | "--packages"    => do
-    let file ← takeOptArg optArg? "--packages" "package overrides file"
-    let overrides ← Manifest.loadEntries file
+    let file ← takeOptArg "package overrides file"
+    let overrides ← Manifest.loadEntries (FilePath.mk file.copy)
     modifyThe LakeOptions fun opts =>
       {opts with packageOverrides := opts.packageOverrides ++ overrides}
   | "--dir"         => do
-    let rootDir ← takeOptArg optArg? "--dir" "path"
-    modifyThe LakeOptions ({· with rootDir})
+    let rootDir ← takeOptArg "path"
+    modifyThe LakeOptions ({· with rootDir := FilePath.mk rootDir.copy})
   | "--file"        => do
-    let configFile ← takeOptArg optArg? "--file" "path"
-    modifyThe LakeOptions ({· with configFile})
+    let configFile ← takeOptArg "path"
+    modifyThe LakeOptions ({· with configFile := FilePath.mk configFile.copy})
   | "--help"        => modifyThe LakeOptions ({· with wantsHelp := true})
   | "--"            => do
     let subArgs ← takeArgs
@@ -359,15 +365,15 @@ def lakeLongOption : LongOptHandler CliM := .ofFn fun opt optArg? =>
     if opts.builtinLint.lintOnly then
       flushLinterOptions
       modifyLintOnlyFlag false
-    let spec ← takeOptArg optArg? "--linters" "comma-separated linter spec"
-    parseLintersSpec spec
+    let spec ← takeOptArg "comma-separated linter spec"
+    parseLintersSpec spec.copy
   | "--lint-only" => do
     let opts ← getThe LakeOptions
     if !opts.builtinLint.lintOnly then
       flushLinterOptions
       modifyLintOnlyFlag true
-    let spec ← takeOptArg optArg? "--lint-only" "comma-separated linter spec"
-    parseLintersSpec spec
+    let spec ← takeOptArg "comma-separated linter spec"
+    parseLintersSpec spec.copy
 
   -- Shared options
   | "--force" => modifyThe LakeOptions ({· with shake.force := true})
@@ -381,10 +387,10 @@ def lakeLongOption : LongOptHandler CliM := .ofFn fun opt optArg? =>
   | "--trace" => modifyThe LakeOptions ({· with shake.trace := true})
   | "--fix" => modifyThe LakeOptions ({· with shake.fix := true})
   | "--only" => do
-    let mod ← takeOptArg optArg? "--only" "minimize only this module"
+    let mod ← takeOptArg "minimize only this module"
     modifyThe LakeOptions fun opts =>
       {opts with shake.onlyMods := opts.shake.onlyMods.push mod.toName}
-  | opt             =>  throw <| CliError.unknownLongOption opt.copy
+  | opt             =>  throw <| CliError.unknownLongOption opt
 
 def lakeOption : OptHandler CliM :=
   option {

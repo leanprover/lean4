@@ -284,12 +284,16 @@ partial def RingEqCnstr.toExprProof (c' : RingEqCnstr) : ProofM Expr := do
     let h ← c.toExprProof
     let h' ← mkCommRingThmPrefix ``Grind.CommRing.Stepwise.inv
     return mkApp4 h' (← mkRingPolyDecl c.p) (← mkRingPolyDecl c'.p) eagerReflBoolTrue h
+  | .cancelDen c val x n =>
+    throwError "NIY"
 
 partial def RingDiseqCnstr.toExprProof (c' : RingDiseqCnstr) : ProofM Expr := do
   match c'.h with
   | .core a b lhs rhs =>
     let h' ← mkCommRingThmPrefix ``Grind.CommRing.diseq_norm
     return mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl c'.p) eagerReflBoolTrue (← mkDiseqProof a b)
+  | .cancelDen c val x n =>
+    throwError "NIY"
 
 mutual
 partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' do

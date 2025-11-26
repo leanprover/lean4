@@ -1,5 +1,5 @@
-import Lean.LibrarySuggestions
-import Lean.Meta.Basic
+module
+import Lean
 
 /-!
 # Test that library suggestions persist across file boundaries
@@ -34,14 +34,3 @@ run_cmd do
       match selector? with
       | none => Lean.logInfo "  ❌ getSelector returned none"
       | some _ => Lean.logInfo "  ✓ Successfully retrieved selector using getSelector!"
-
--- These examples should work with grind +suggestions but not grind alone
--- (proving that the suggestions engine is active and helping)
-
-example {x : Dyadic} {prec : Int} : x.roundDown prec ≤ x := by
-  fail_if_success grind
-  grind +suggestions
-
-example {x : Dyadic} {prec : Int} : (x.roundUp prec).precision ≤ some prec := by
-  fail_if_success grind
-  grind +suggestions

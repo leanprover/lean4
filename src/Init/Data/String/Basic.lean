@@ -1104,7 +1104,7 @@ def Slice.slice? (s : Slice) (newStart newEnd : s.Pos) : Option Slice :=
 /-- Given a slice and two valid positions within the slice, obtain a new slice on the same underlying
 string formed by the new bounds, or panic if the given end is strictly less than the given start. -/
 def Slice.slice! (s : Slice) (newStart newEnd : s.Pos) : Slice :=
-  if h : newStart.offset ≤ newEnd.offset then
+  if h : newStart ≤ newEnd then
     s.slice newStart newEnd h
   else
     panic! "Starting position must be less than or equal to end position."
@@ -2155,11 +2155,8 @@ This happens to be equivalent to the constructor of `String.Slice`.
 -/
 @[inline, expose] -- For the defeq `(s.slice p₁ p₂).str = s`
 def slice (s : String) (startInclusive endExclusive : s.Pos)
-    (h : startInclusive ≤ endExclusive) : String.Slice where
-  str := s
-  startInclusive
-  endExclusive
-  startInclusive_le_endExclusive := h
+    (h : startInclusive ≤ endExclusive) : String.Slice :=
+  s.toSlice.slice startInclusive.toSlice endExclusive.toSlice (by simpa)
 
 @[simp]
 theorem str_slice {s : String} {startInclusive endExclusive h} :
@@ -2167,11 +2164,13 @@ theorem str_slice {s : String} {startInclusive endExclusive h} :
 
 @[simp]
 theorem startInclusive_slice {s : String} {startInclusive endExclusive h}  :
-    (s.slice startInclusive endExclusive h).startInclusive = startInclusive := rfl
+    (s.slice startInclusive endExclusive h).startInclusive = startInclusive := by
+  simp [slice]
 
 @[simp]
 theorem endExclusive_slice {s : String} {startInclusive endExclusive h}  :
-    (s.slice startInclusive endExclusive h).endExclusive = endExclusive := rfl
+    (s.slice startInclusive endExclusive h).endExclusive = endExclusive := by
+  simp [slice]
 
 /-- Given a string and two valid positions within the string, obtain a slice on the string formed
 by the new bounds, or return `none` if the given end is strictly less then the given start. -/
@@ -2306,6 +2305,127 @@ def Pos.toReplaceEnd {s : String} (p₀ : s.Pos) (pos : s.Pos) (h : pos ≤ p₀
 @[simp]
 theorem Pos.offset_sliceTo {s : String} {p₀ : s.Pos} {pos : s.Pos} {h : pos ≤ p₀} :
     (sliceTo p₀ pos h).offset = pos.offset := (rfl)
+
+theorem Pos.Raw.isValidForSlice_slice {s : Slice} {p₀ p₁ : s.Pos} {h} (pos : Pos.Raw) :
+    pos.IsValidForSlice (s.slice p₀ p₁ h) ↔
+      pos.offsetBy p₀.offset ≤ p₁.offset ∧ (pos.offsetBy p₀.offset).IsValidForSlice s := by
+  refine ⟨fun ⟨h₁, h₂⟩ => ?_, fun ⟨h₁, h₂⟩ => ⟨?_, ?_⟩⟩
+  · have : pos.offsetBy p₀.offset ≤ p₁.offset := by
+      simp [Slice.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq] at h h₁ ⊢
+      omega
+    exact ⟨this, ⟨Pos.Raw.le_trans this p₁.isValidForSlice.le_rawEndPos, by simpa [offsetBy_assoc]⟩⟩
+  · simp [Slice.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq] at h h₁ ⊢
+    omega
+  · simpa [offsetBy_assoc] using h₂.isValid_offsetBy
+
+theorem Pos.Raw.isValidForSlice_stringSlice {s : String} {p₀ p₁ : s.Pos} {h} (pos : Pos.Raw) :
+    pos.IsValidForSlice (s.slice p₀ p₁ h) ↔
+      pos.offsetBy p₀.offset ≤ p₁.offset ∧ (pos.offsetBy p₀.offset).IsValid s := by
+  simp [slice, isValidForSlice_slice]
+
+/-- Given a position in `s.slice p₀ p₁ h`, obtain the corresponding position in `s`. -/
+@[inline]
+def Slice.Pos.ofSlice {s : Slice} {p₀ p₁ : s.Pos} {h} (pos : (s.slice p₀ p₁ h).Pos) : s.Pos where
+  offset := pos.offset.offsetBy p₀.offset
+  isValidForSlice := (Pos.Raw.isValidForSlice_slice _).1 pos.isValidForSlice |>.2
+@[simp]
+theorem Slice.Pos.offset_ofSlice {s : Slice} {p₀ p₁ : s.Pos} {h} {pos : (s.slice p₀ p₁ h).Pos} :
+    (Pos.ofSlice pos).offset = pos.offset.offsetBy p₀.offset := (rfl)
+
+/-- Given a position in `s.slice p₀ p₁ h`, obtain the corresponding position in `s`. -/
+@[inline]
+def Pos.ofSlice {s : String} {p₀ p₁ : s.Pos} {h} (pos : (s.slice p₀ p₁ h).Pos) : s.Pos :=
+  ofToSlice (Slice.Pos.ofSlice pos)
+
+@[simp]
+theorem Pos.offset_ofSlice {s : String} {p₀ p₁ : s.Pos} {h} {pos : (s.slice p₀ p₁ h).Pos} :
+    (Pos.ofSlice pos).offset = pos.offset.offsetBy p₀.offset := (rfl)
+
+theorem Slice.Pos.le_trans {s : Slice} {p q r : s.Pos} : p ≤ q → q ≤ r → p ≤ r := by
+  simpa [Pos.le_iff, Pos.Raw.le_iff] using Nat.le_trans
+
+/-- Given a position in `s` that is between `p₀` and `p₁`, obtain the corresponding position in
+`s.slice p₀ p₁ h`. -/
+@[inline]
+def Slice.Pos.slice {s : Slice} (pos : s.Pos) (p₀ p₁ : s.Pos) (h₁ : p₀ ≤ pos) (h₂ : pos ≤ p₁) :
+    (s.slice p₀ p₁ (Slice.Pos.le_trans h₁ h₂)).Pos where
+  offset := pos.offset.unoffsetBy p₀.offset
+  isValidForSlice := (Pos.Raw.isValidForSlice_slice _).2
+    (by simp [Pos.Raw.offsetBy_unoffsetBy_of_le h₁, Slice.Pos.le_iff.1 h₂, pos.isValidForSlice])
+
+/-- Given a position in `s` that is between `p₀` and `p₁`, obtain the corresponding position in
+`s.slice p₀ p₁ h`. -/
+@[inline]
+def Pos.slice {s : String} (pos : s.Pos) (p₀ p₁ : s.Pos) (h₁ : p₀ ≤ pos) (h₂ : pos ≤ p₁) :
+    (s.slice p₀ p₁ (Pos.le_trans h₁ h₂)).Pos :=
+  Slice.Pos.slice pos.toSlice _ _ h₁ h₂
+
+@[simp]
+theorem Pos.offset_slice {s : String} {p₀ p₁ pos : s.Pos} {h₁ : p₀ ≤ pos} {h₂ : pos ≤ p₁} :
+    (pos.slice p₀ p₁ h₁ h₂).offset = pos.offset.unoffsetBy p₀.offset := (rfl)
+
+/--
+Given a position in `s`, obtain the corresponding position in `s.slice p₀ p₁ h`, or panic if `pos`
+is not between `p₀` and `p₁`.
+-/
+@[inline]
+def Slice.Pos.sliceOrPanic {s : Slice} (pos : s.Pos) (p₀ p₁ : s.Pos) {h} :
+    (s.slice p₀ p₁ h).Pos :=
+  if h : p₀ ≤ pos ∧ pos ≤ p₁ then
+    pos.slice p₀ p₁ h.1 h.2
+  else
+    panic! "Position is outside of the bounds of the slice."
+
+/--
+Given a position in `s`, obtain the corresponding position in `s.slice p₀ p₁ h`, or panic if `pos`
+is not between `p₀` and `p₁`.
+-/
+@[inline]
+def Pos.sliceOrPanic {s : String} (pos : s.Pos) (p₀ p₁ : s.Pos) {h} :
+    (s.slice p₀ p₁ h).Pos :=
+  Slice.Pos.sliceOrPanic pos.toSlice _ _
+
+theorem Slice.slice_eq_slice! {s : Slice} {p₀ p₁ h} : s.slice p₀ p₁ h = s.slice! p₀ p₁ := by
+  simp [slice!, h]
+
+theorem slice_eq_slice! {s : String} {p₀ p₁ h} : s.slice p₀ p₁ h = s.slice! p₀ p₁ := by
+  simp [slice!, slice, Slice.slice_eq_slice!]
+
+/-- Given a position in `s.slice! p₀ p₁`, obtain the corresponding position in `s`, or panic if
+taking `s.slice! p₀ p₁` already panicked. -/
+@[inline]
+def Slice.Pos.ofSlice! {s : Slice} {p₀ p₁ : s.Pos} (pos : (s.slice! p₀ p₁).Pos) : s.Pos :=
+  if h : p₀ ≤ p₁ then
+    ofSlice (h := h) (pos.cast slice_eq_slice!.symm)
+  else
+    panic! "Starting position must be less than or equal to end position."
+
+/-- Given a position in `s.slice! p₀ p₁`, obtain the corresponding position in `s`, or panic if
+taking `s.slice! p₀ p₁` already panicked. -/
+@[inline]
+def Pos.ofSlice! {s : String} {p₀ p₁ : s.Pos} (pos : (s.slice! p₀ p₁).Pos) : s.Pos :=
+  ofToSlice (Slice.Pos.ofSlice! pos)
+
+/--
+Given a position in `s`, obtain the corresponding position in `s.slice! p₀ p₁ h`, or panic if
+taking `s.slice! p₀ p₁` already panicked or if the position is not between `p₀` and `p₁`.
+-/
+@[inline]
+def Slice.Pos.slice! {s : Slice} (pos : s.Pos) (p₀ p₁ : s.Pos) :
+    (s.slice! p₀ p₁).Pos :=
+  if h : p₀ ≤ pos ∧ pos ≤ p₁ then
+    (pos.slice _ _ h.1 h.2).cast slice_eq_slice!
+  else
+    panic! "Starting position must be less than or equal to end position and position must be between starting position and end position."
+
+/--
+Given a position in `s`, obtain the corresponding position in `s.slice! p₀ p₁ h`, or panic if
+taking `s.slice! p₀ p₁` already panicked or if the position is not between `p₀` and `p₁`.
+-/
+@[inline]
+def Pos.slice! {s : String} (pos : s.Pos) (p₀ p₁ : s.Pos) :
+    (s.slice! p₀ p₁).Pos :=
+  Slice.Pos.slice! pos.toSlice _ _
 
 /--
 Advances the position `p` `n` times.

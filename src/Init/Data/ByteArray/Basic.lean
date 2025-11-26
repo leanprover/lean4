@@ -133,7 +133,7 @@ def extract (a : ByteArray) (b e : Nat) : ByteArray :=
   a.copySlice b empty 0 (e - b)
 
 /--
-Appends two bye arrays using fast array primitives instead of converting them into lists and back.
+Appends two byte arrays using fast array primitives instead of converting them into lists and back.
 
 In compiled code, this function replaces calls to {name}`ByteArray.append`.
 -/

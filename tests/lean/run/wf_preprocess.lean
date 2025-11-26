@@ -361,4 +361,12 @@ theorem Tree.map2.eq_1.{u_1, u_2, u_3} : ∀ {α : Type u_1} {β : Type u_2} {γ
 #guard_msgs in
 #print equations Tree.map2
 
+#guard_msgs in
+def Tree.any (f : α → Bool) (t : Tree α) : Bool :=
+  if f t.val
+  then true
+  else t.cs.any fun c => any f c
+termination_by t
+decreasing_by cases t; decreasing_tactic
+
 end Binary

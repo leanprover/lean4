@@ -6806,6 +6806,81 @@ theorem perm_of_beqModel [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k
         rw [Bool.not_eq_true] at hc₂
         rw [getValueCast?_eq_none hc₁, getValueCast?_eq_none hc₂]
 
+theorem all_congr [BEq α] {l₁ l₂ : List ((a : α) × β a)} {f : (a : α) × β a → Bool} (hp : l₁.Perm l₂) : l₁.all f = l₂.all f := by
+  rw [Bool.eq_iff_iff, Bool.eq_iff_iff, List.all_eq_true, List.all_eq_true]
+  simp only [iff_true]
+  constructor
+  · intro hyp ⟨k,v⟩ mem
+    exact hyp ⟨k,v⟩ (@Perm.mem_iff _ ⟨k,v⟩ l₁ l₂ hp |>.2 mem)
+  · intro hyp ⟨k,v⟩ mem
+    exact hyp ⟨k,v⟩ (@Perm.mem_iff _ ⟨k,v⟩ l₂ l₁ hp.symm |>.2 mem)
+
+theorem beqModel_congr [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] {l₁ l₂ l₃ l₄ : List ((a : α) × β a)}
+(hl : DistinctKeys l₂) (p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel l₁ l₂ = beqModel l₃ l₄ := by
+  rw [beqModel]
+  split
+  case isTrue h =>
+    rw [ne_eq] at h
+    rw [beqModel]
+    simp only [ne_eq, ite_not, Bool.if_false_right, Bool.false_eq, Bool.and_eq_false_imp,
+      decide_eq_true_eq]
+    intro hyp
+    rw [Perm.length_eq p₁, Perm.length_eq p₂] at h
+    contradiction
+  case isFalse h =>
+    rw [beqModel]
+    rw [Perm.length_eq p₁, Perm.length_eq p₂] at h
+    simp only [h, ↓reduceIte]
+    have : fun (x : (a : α) × β a) => getValueCast? x.fst l₂ == some x.snd = fun x => getValueCast? x.fst l₄ == some x.snd := by
+      ext x
+      rw [getValueCast?_of_perm hl p₂]
+    rw [this]
+    apply all_congr p₁
+
+theorem Const.beqModel_congr {β : Type v} [BEq α] [LawfulBEq α] [Hashable α] [BEq β] {l₁ l₂ l₃ l₄ : List ((_ : α) × β)}
+(hl : DistinctKeys l₂) (p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel l₁ l₂ = beqModel l₃ l₄ := by
+  rw [beqModel]
+  split
+  case isTrue h =>
+    rw [ne_eq] at h
+    rw [beqModel]
+    simp only [ne_eq, ite_not, Bool.if_false_right, Bool.false_eq, Bool.and_eq_false_imp,
+      decide_eq_true_eq]
+    intro hyp
+    rw [Perm.length_eq p₁, Perm.length_eq p₂] at h
+    contradiction
+  case isFalse h =>
+    rw [beqModel]
+    rw [Perm.length_eq p₁, Perm.length_eq p₂] at h
+    simp only [h, ↓reduceIte]
+    have : fun (x : (_ : α) × β) => getValue? x.fst l₂ == some x.snd = fun x => getValue? x.fst l₄ == some x.snd := by
+      ext x
+      rw [getValue?_of_perm hl p₂]
+    rw [this]
+    apply all_congr p₁
+
+theorem Const.beqModel_unit_congr [BEq α] [LawfulBEq α] [Hashable α]  {l₁ l₂ l₃ l₄ : List ((_ : α) × Unit)}
+(p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel_unit l₁ l₂ = beqModel_unit l₃ l₄ := by
+  rw [beqModel_unit]
+  split
+  case isTrue h =>
+    rw [ne_eq] at h
+    rw [beqModel_unit]
+    simp only [ne_eq, ite_not, Bool.if_false_right, Bool.false_eq, Bool.and_eq_false_imp,
+      decide_eq_true_eq]
+    intro hyp
+    rw [Perm.length_eq p₁, Perm.length_eq p₂] at h
+    contradiction
+  case isFalse h =>
+    rw [beqModel_unit]
+    rw [Perm.length_eq p₁, Perm.length_eq p₂] at h
+    simp only [h, ↓reduceIte]
+    have : (fun x : ((_ : α) × Unit) => containsKey x.fst l₂) = (fun x => containsKey x.fst l₄) := by
+      ext x
+      rw [containsKey_of_perm p₂]
+    rw [this]
+    apply all_congr p₁
+
 theorem beqModel_eq_beqModel_const {β : Type v} [BEq α] [LawfulBEq α] [Hashable α] [BEq β] {l₁ l₂ : List ((_ : α) × β)} : beqModel l₁ l₂ = Const.beqModel l₁ l₂ := by
   rw [beqModel, Const.beqModel]
   congr

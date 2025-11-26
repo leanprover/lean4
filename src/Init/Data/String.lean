@@ -25,3 +25,4 @@ public import Init.Data.String.Termination
 public import Init.Data.String.ToSlice
 public import Init.Data.String.Search
 public import Init.Data.String.Legacy
+public import Init.Data.String.Grind

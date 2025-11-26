@@ -82,6 +82,10 @@ class Semiring (α : Type u) extends Add α, Mul α where
   ofNat_succ : ∀ a : Nat, OfNat.ofNat (α := α) (a + 1) = OfNat.ofNat a + 1 := by intros; rfl
   /-- Numerals are consistently defined with respect to the canonical map from natural numbers. -/
   ofNat_eq_natCast : ∀ n : Nat, OfNat.ofNat (α := α) n = Nat.cast n := by intros; rfl
+  /--
+  Multiplying by a numeral is consistently defined with respect to the canonical map from natural
+  numbers.
+  -/
   nsmul_eq_natCast_mul : ∀ n : Nat, ∀ a : α, n • a = Nat.cast n * a := by intros; rfl
 
 /--

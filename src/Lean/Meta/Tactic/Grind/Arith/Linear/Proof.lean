@@ -244,6 +244,14 @@ private def mkCommRingLinOrdThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
   return mkApp8 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getLEInst) (← getLTInst) (← getLawfulOrderLTInst) (← getIsLinearOrderInst) (← getOrderedRingInst) (← getRingContext)
 
+/--
+Returns the prefix of a theorem with name `declName` where the first three arguments are
+`{α} [Field α] [IsCharP α 0]`
+-/
+private def mkFieldChar0ThmPrefix (declName : Name) : ProofM Expr := do
+  let s ← getStruct
+  return mkApp3 (mkConst declName [s.u]) s.type s.fieldInst?.get! s.charInst?.get!.1
+
 partial def RingIneqCnstr.toExprProof (c' : RingIneqCnstr) : ProofM Expr := do
   match c'.h with
   | .core e lhs rhs =>
@@ -252,7 +260,20 @@ partial def RingIneqCnstr.toExprProof (c' : RingIneqCnstr) : ProofM Expr := do
   | .notCore e lhs rhs =>
     let h' ← mkCommRingLinOrdThmPrefix (if c'.strict then ``Grind.CommRing.not_le_norm else ``Grind.CommRing.not_lt_norm)
     return mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl c'.p) eagerReflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
-  | .cancelDen c val x n => throwError "NIY val: {val}, n: {n}"
+  | .cancelDen c val x n =>
+    let h ← if c.strict then
+      mkCommRingLawfulPreOrdThmPrefix ``Grind.CommRing.lt_mul
+    else
+      mkCommRingPreOrdThmPrefix ``Grind.CommRing.le_mul
+    let p₁ := c.p.mulConst (val^n)
+    let p₁ ← mkRingPolyDecl p₁
+    let h := mkApp5 h (← mkRingPolyDecl c.p) (toExpr (val^n)) p₁ eagerReflBoolTrue (← c.toExprProof)
+    let h_eq_one := mkApp2 (← mkFieldChar0ThmPrefix ``Grind.CommRing.inv_int_eq') (toExpr val) eagerReflBoolTrue
+    let h' ← if c.strict then
+      mkCommRingLTThmPrefix ``Grind.CommRing.lt_cancel_var
+    else
+      mkCommRingLEThmPrefix ``Grind.CommRing.le_cancel_var
+    return mkApp7 h' (toExpr val) (toExpr x) p₁ (← mkRingPolyDecl c'.p) eagerReflBoolTrue h_eq_one h
 
 partial def RingEqCnstr.toExprProof (c' : RingEqCnstr) : ProofM Expr := do
   match c'.h with

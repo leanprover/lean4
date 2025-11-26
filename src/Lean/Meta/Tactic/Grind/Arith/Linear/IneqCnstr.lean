@@ -8,7 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
-import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Den
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
 import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
@@ -42,18 +42,6 @@ public def IneqCnstr.assert (c : IneqCnstr) : LinearM Unit := do
     if (← c.satisfied) == .false then
       resetAssignmentFrom x
 
-partial def cleanupDenominators (c : RingIneqCnstr) : LinearM RingIneqCnstr := do
-  let s ← getStruct
-  if s.fieldInst?.isNone then return c
-  withRingM <| go c
-where
-  go (c : RingIneqCnstr) : CommRing.RingM RingIneqCnstr := do
-    let some (val, x) ← c.p.findInvNumeralVar? | return c
-    let n := c.p.maxDegreeOf x
-    let p := c.p.mulConst (val ^ n)
-    let p := p.cancelVar val x
-    go { c with p, h := .cancelDen c val x n }
-
 def propagateCommRingIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : Bool) : LinearM Unit := do
   let some lhs ← withRingM <| CommRing.reify? lhs (skipVar := false) | return ()
   let some rhs ← withRingM <| CommRing.reify? rhs (skipVar := false) | return ()
@@ -61,7 +49,7 @@ def propagateCommRingIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : 
   if eqTrue then
     let p := (lhs.sub rhs).toPoly
     let c : RingIneqCnstr := { p, strict, h := .core e lhs rhs }
-    let c ← cleanupDenominators c
+    let c ← c.cleanupDenominators
     let p := c.p
     let lhs ← p.toIntModuleExpr generation
     let some lhs ← reify? lhs (skipVar := false) generation | return ()
@@ -72,7 +60,7 @@ def propagateCommRingIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : 
     let p := (rhs.sub lhs).toPoly
     let strict := !strict
     let c : RingIneqCnstr := { p, strict, h := .notCore e lhs rhs }
-    let c ← cleanupDenominators c
+    let c ← c.cleanupDenominators
     let p := c.p
     let lhs ← p.toIntModuleExpr generation
     let some lhs ← reify? lhs (skipVar := false) generation | return ()

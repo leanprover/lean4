@@ -1093,17 +1093,19 @@ def handleCallHierarchyIncomingCalls (p : CallHierarchyIncomingCallsParams)
   let references := (← read).references
   let identRefs := references.referringTo (.const itemData.module.toString itemData.name.toString) false
 
-  let incomingCalls ← identRefs.filterMapM fun ⟨location, refModule, parentDecl?⟩ => do
+  let incomingCalls ← identRefs.mapM fun ⟨location, refModule, parentDecl?⟩ => do
 
-    let some ⟨parentDeclNameString, parentDeclRange, parentDeclSelectionRange⟩ := parentDecl?
-      | return none
+    let ⟨parentDeclNameString, parentDeclRange, parentDeclSelectionRange⟩ :=
+      match parentDecl? with
+      | some parentDecl => parentDecl
+      | none => ⟨"[anonymous]", location.range, location.range⟩
 
     let parentDeclName := parentDeclNameString.toName
 
     -- Remove private header from name
     let label := Lean.privateToUserName? parentDeclName |>.getD parentDeclName
 
-    return some {
+    return {
       «from» := {
         name           := label.toString
         kind           := SymbolKind.constant

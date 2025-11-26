@@ -1470,6 +1470,21 @@ theorem mul {α} [CommRing α] (ctx : Context α) (p₁ : Poly) (k : Int) (p : P
   simp [mul_cert]; intro _ h; subst p
   simp [Poly.denote_mulConst, *, mul_zero]
 
+theorem mul_eq {α} [CommRing α] (ctx : Context α) (p₁ : Poly) (k : Int) (p : Poly)
+    : mul_cert p₁ k p → p₁.denote ctx = 0 → p.denote ctx = 0 := by
+  apply mul
+
+noncomputable def mul_ne_cert (p₁ : Poly) (k : Int) (p : Poly) : Bool :=
+  k != 0 && (p₁.mulConst_k k |>.beq' p)
+
+theorem mul_ne {α} [CommRing α] [NoNatZeroDivisors α] (ctx : Context α) (p₁ : Poly) (k : Int) (p : Poly)
+    : mul_ne_cert p₁ k p → p₁.denote ctx ≠ 0 → p.denote ctx ≠ 0 := by
+  simp [mul_ne_cert]; intro h₁ _ h₂; subst p
+  simp [Poly.denote_mulConst]; intro h₃
+  rw [← zsmul_eq_intCast_mul] at h₃
+  have := no_int_zero_divisors h₁ h₃
+  contradiction
+
 theorem inv {α} [CommRing α] (ctx : Context α) (p₁ : Poly) (p : Poly)
     : mul_cert p₁ (-1) p → p₁.denote ctx = 0 → p.denote ctx = 0 :=
   mul ctx p₁ (-1) p

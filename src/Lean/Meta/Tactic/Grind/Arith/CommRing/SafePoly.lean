@@ -127,9 +127,11 @@ def _root_.Lean.Grind.CommRing.Mon.findInvNumeralVar? (m : Mon) : RingM (Option 
     return some (n, pw.x)
 
 /-- Returns `some (val, x)` if `p` contains a variable `x` whose the denotation is `val⁻¹`. -/
-def _root_.Lean.Grind.CommRing.Poly.findInvNumeralVar? (p : Poly) : RingM (Option (Nat × Var)) :=
+def _root_.Lean.Grind.CommRing.Poly.findInvNumeralVar? (p : Poly) : RingM (Option (Nat × Var)) := do
   match p with
   | .num _ => return none
-  | .add _ m p => m.findInvNumeralVar? <|> p.findInvNumeralVar?
+  | .add _ m p =>
+    let some r ← m.findInvNumeralVar? | p.findInvNumeralVar?
+    return some r
 
 end Lean.Meta.Grind.Arith.CommRing

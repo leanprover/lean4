@@ -3298,6 +3298,44 @@ variable [BEq α] [Hashable α]
 
 open Internal.Raw Internal.Raw₀
 
+section BEq
+variable {m₁ m₂ : Raw α β} [LawfulBEq α] [∀ k, BEq (β k)]
+
+theorem Equiv.beq [∀ k, ReflBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁ ~m m₂ → beq m₁ m₂ := by
+  simp_to_raw
+  intro h
+  exact Raw₀.Equiv.beq h₁ h₂ h
+
+theorem Equiv_of_beq_eq_true [∀ k, LawfulBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : beq m₁ m₂ = true → m₁ ~m m₂ := by
+  simp_to_raw using Raw₀.Equiv_of_beq_eq_true
+
+theorem Equiv.beq_congr {m₃ m₄ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) :
+    m₁ ~m m₃ → m₂ ~m m₄ → Raw.beq m₁ m₂ = Raw.beq m₃ m₄ := by
+  simp_to_raw
+  intro w1 w2
+  exact Raw₀.Equiv.beq_congr h₁ h₂ h₃ h₄ w1 w2
+
+end BEq
+
+section
+variable {β : Type v} {m₁ m₂ : Raw α (fun _ => β)}
+
+theorem Const.Equiv.beq [LawfulHashable α] [EquivBEq α] [BEq β] [ReflBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁ ~m m₂ → beq m₁ m₂ := by
+  simp_to_raw
+  intro h
+  exact Raw₀.Const.Equiv.beq h₁ h₂ h
+
+theorem Const.Equiv_of_beq_eq_true [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : beq m₁ m₂ = true → m₁ ~m m₂ := by
+  simp_to_raw using Raw₀.Const.Equiv_of_beq_eq_true
+
+theorem Const.Equiv.beq_congr [LawfulBEq α] [BEq β] {m₃ m₄ : Raw  α (fun _ => β)} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF)  :
+    m₁ ~m m₃ → m₂ ~m m₄ → Raw.Const.beq m₁ m₂ = Raw.Const.beq m₃ m₄ := by
+  simp_to_raw
+  intro w1 w2
+  exact Raw₀.Const.Equiv.beq_congr h₁ h₂ h₃ h₄ w1 w2
+
+end
+
 @[simp, grind =]
 theorem ofList_nil :
     ofList ([] : List ((a : α) × (β a))) = ∅ := by

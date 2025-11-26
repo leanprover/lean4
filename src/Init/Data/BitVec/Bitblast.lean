@@ -3145,4 +3145,92 @@ theorem popCount_eq_popCountParSum {x : BitVec w} :
   --   · subst hw
   --     simp [popCount]
 
+/-- recursive addition on a flattened bitvec -/
+def recursive_addition (x : BitVec (l * w)) (remaining_elements : Nat) : BitVec w :=
+  match remaining_elements with
+  | 0 => 0
+  | n + 1 => x.extractLsb' n w + x.recursive_addition n
+
+/-- given a flattened list of bitvectors `old_layer`, produce a `new_layer` adding
+  the elements of `old_layer` two-by-two. -/
+def pps_layer {w : Nat}  (iter_num : Nat) (old_layer : BitVec (old_length * w))
+  (new_layer : BitVec (iter_num * w))
+  (hold : 2 * (iter_num - 1) < old_length)
+  (proof_addition : ∀ i (_: i < iter_num) (_ : 2 * i < old_length),
+        new_layer.extractLsb' (i * w) w =
+          old_layer.extractLsb' ((2 * i) * w) w
+          + (if h : 2 * i + 1 < old_length then old_layer.extractLsb' ((2 * i + 1) * w) w else 0)) :
+    {ls : BitVec (((old_length + 1)/2) * w) //
+      ∀ i (_: i < (old_length + 1)/2) (_ : 2 * i < old_length),
+        ls.extractLsb' (i * w) w =
+          old_layer.extractLsb' ((2 * i) * w) w
+          + (if h : 2 * i + 1 < old_length then old_layer.extractLsb' ((2 * i + 1) * w) w else 0)} :=
+  match hlen : old_length - (iter_num * 2) with
+  | 0 =>
+    have : ((old_length + 1)/2) = iter_num := by omega
+    ⟨new_layer.cast (by simp [this]), by
+      simp [this]; exact proof_addition⟩
+  | n + 1 =>
+    let op1 := old_layer.extractLsb' ((2 * iter_num) * w) w
+    let op2 := if hlt : (2 * iter_num + 1) < old_length
+                then old_layer.extractLsb' ((2 * iter_num + 1) * w) w
+                else 0#w
+    let new_layer' := (op1 + op2) ++ new_layer
+    have proof_old_layer_length_lt : 2 * (iter_num + 1 - 1) < old_length := by omega
+    have hcast : w + iter_num * w = (iter_num + 1) * w := by simp [Nat.add_mul]; omega
+    have proof_new_layer_elements_eq_old_layer_add :
+      ∀ (i : Nat),
+    i < iter_num + 1 →
+      2 * i < old_length →
+        extractLsb' (i * w) w (new_layer'.cast hcast) =
+          extractLsb' (2 * i * w) w old_layer +
+            if h : 2 * i + 1 < old_length then extractLsb' ((2 * i + 1) * w) w old_layer else 0 := by
+          intros i hi hi'
+          by_cases hlt : i < iter_num
+          · simp [new_layer']
+            have : extractLsb' (i * w) w (BitVec.cast hcast (op1 + op2 ++ new_layer)) =
+                  extractLsb' (i * w) w (op1 + op2 ++ new_layer) := by
+                ext k hk; simp
+            rw [this]
+            rw [extractLsb'_append_eq_of_add_le (by
+              simp [show i * w + w = i * w + 1 * w by omega]
+              rw [← Nat.add_mul (n := i) (m := 1) (k := w)]
+              exact mul_le_mul_right w hlt)]
+            specialize proof_addition (i := i) hlt (by omega)
+            simp [proof_addition]
+          · have : extractLsb' (i * w) w (BitVec.cast hcast (op1 + op2 ++ new_layer)) =
+                  extractLsb' (i * w) w (op1 + op2 ++ new_layer) := by ext k hk; simp
+            rw [this]
+            simp [show i = iter_num by omega]
+            rw [extractLsb'_append_eq_left]
+            simp [op1, op2]
+    pps_layer (iter_num + 1) old_layer
+                                    (new_layer'.cast hcast)
+                                    (by omega)
+                                    proof_new_layer_elements_eq_old_layer_add
+termination_by old_length - (iter_num * 2)
+
+def pps (l : BitVec (l_length * w)) (k: BitVec w)
+      (proof : recursive_addition l l_length = k)
+      (proof_length : 0 < l_length) :
+    {ls : BitVec (1 * w) // recursive_addition ls 1 = k} :=
+  if h : l_length = 1 then
+    ⟨l.cast (by simp [h]), by
+      simp [h] at proof
+      rw [← proof]
+      simp [recursive_addition]
+      ext k hk; simp⟩
+  else
+    let ⟨new_layer, proof_new_layer⟩ := pps_layer 0 l 0#(0 * w) (by omega) (by simp)
+    let l_length' := (l_length + 1) / 2
+    let proof_sum_eq : recursive_addition new_layer ((l_length + 1) / 2) = k := by
+      -- every element of `new_layer` results from the sum of two adjacent elements in `l` (by `proof_new_layer`)
+      -- we proceed by induction on the length of the list recursively summated
+      rw [← proof]
+      sorry
+      -- apply rec_add_eq_rec_add_iff (a := new_layer) (b := l) (n := new_layer.length) (by omega) (by omega)
+      -- exact proof_new_layer
+    let proof_new_layer_length : 0 < l_length' := by omega
+    pps new_layer k (by sorry) (by sorry)
+
 end BitVec

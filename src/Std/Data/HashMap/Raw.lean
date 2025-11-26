@@ -192,7 +192,7 @@ instance [BEq α] [Hashable α] : GetElem? (Raw α β) α β (fun m a => a ∈ m
     (l : List α) : Raw α Unit :=
   ⟨DHashMap.Raw.Const.unitOfList l⟩
 
-  @[inline, inherit_doc DHashMap.Raw.Const.ofList] def ofArray [BEq α] [Hashable α]
+@[inline, inherit_doc DHashMap.Raw.Const.ofList] def ofArray [BEq α] [Hashable α]
     (a : Array (α × β)) : Raw α β :=
   ⟨DHashMap.Raw.Const.ofArray a⟩
 

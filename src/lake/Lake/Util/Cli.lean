@@ -21,6 +21,57 @@ The abstract API used by Lake to parse command line arguments.
 
 namespace Lake
 
+/-! ## Argument-related Types -/
+
+/-- A List of command line arguments. -/
+@[expose] -- for codegen
+public def ArgList := List String
+
+/-- Type class for monads equipped with a command line argument list. -/
+public abbrev MonadArgs (m) := MonadStateOf ArgList m
+
+/-- A monad transformer to equip a monad with an argument list. -/
+public abbrev ArgsT := StateT ArgList
+
+/-- Run the monad with the command line arguments {lean}`args`. -/
+@[inline] public def ArgsT.run (args : List String) (self : ArgsT m α) : m (α × List String) :=
+  StateT.run self args
+
+/-- Run the monad with the command line arguments {lean}`args` and discard any unprocessed arguments. -/
+@[inline] public def ArgsT.run' [Functor m] (args : List String) (self : ArgsT m α) : m α :=
+  StateT.run' self args
+
+/-- A monadic callback for an arbitrary command line argument. -/
+@[expose] -- for codegen
+public def ArgHandler (m : Type u → Type v) (α : Type u := PUnit) :=
+  (arg : String) → m α
+
+/-- Constructs an argument handler from a monadic function operating on an arbitrary string. -/
+@[inline] public def ArgHandler.ofFn (fn : String → m α) : ArgHandler m α :=
+  fn
+
+/-! ## Monadic Argument Utilities -/
+
+/-- Get the remaining argument list. -/
+@[inline] public def getArgs [MonadArgs m] : m (List String) :=
+  get
+
+/-- Replace the argument list. -/
+@[inline] public def setArgs [MonadArgs m] (args : List String) : m PUnit :=
+  set (σ := ArgList) args
+
+/-- Take the head of the remaining argument list (or {lean}`none` if empty). -/
+@[inline] public def takeArg? [MonadArgs m] : m (Option String) :=
+  modifyGet fun | [] => (none, []) | arg :: args => (some arg, args)
+
+/-- Take the head of the remaining argument list (or {lean}`default` if empty). -/
+@[inline] public def takeArgD [MonadArgs m] (default : String) : m String :=
+  modifyGet fun | [] => (default, []) | arg :: args => (arg, args)
+
+/-- Take the remaining argument list, leaving only an empty list. -/
+@[inline] public def takeArgs [MonadArgs m] : m (List String) :=
+  modifyGet fun args => (args, [])
+
 /-! ## Option-related Types -/
 
 /--
@@ -53,30 +104,41 @@ public theorem offset_next_startPos (h : IsOpt arg) :
   (arg.startPos.next h.startPos_ne_endPos).offset = ⟨1⟩
 := by simp [String.Pos.Raw.ext_iff, h.get_startPos, Char.utf8Size]
 
-/-- The position in {lean}`arg` after the initial {lit}`-`. -/
-@[inline] public def afterStartPos (h : IsOpt arg) : arg.Pos :=
+/--
+The position in {lean}`arg` after the initial {lit}`-`
+(e.g., {lit}`x` in {lit}`-x` or {lit}`-` in {lit}`--long`).
+-/
+@[inline] public def shortPos (h : IsOpt arg) : arg.Pos :=
   arg.pos ⟨1⟩ <| by
     rw [← h.offset_next_startPos]
     apply String.Pos.isValid
 
-public theorem afterStartPos_eq (h : IsOpt arg) :
-  h.afterStartPos = arg.startPos.next h.startPos_ne_endPos
-:= by simp [afterStartPos, String.Pos.ext_iff, -String.Pos.offset_next, h.offset_next_startPos]
+public theorem shortPos_eq (h : IsOpt arg) :
+  h.shortPos = arg.startPos.next h.startPos_ne_endPos
+:= by simp [shortPos, String.Pos.ext_iff, -String.Pos.offset_next, h.offset_next_startPos]
 
-public theorem afterStartPos_ne_endPos (h : IsOpt arg) : h.afterStartPos ≠ arg.endPos := by
-  rw [afterStartPos_eq]
+public theorem shortPos_ne_endPos (h : IsOpt arg) : h.shortPos ≠ arg.endPos := by
+  rw [shortPos_eq]
   exact h.next_startPos_ne_endPos
 
 /-- The character in {lean}`arg` after the initial {lit}`-`. -/
 @[inline] public def shortChar (h : IsOpt arg) : Char :=
-  h.afterStartPos.get h.afterStartPos_ne_endPos
+  h.shortPos.get h.shortPos_ne_endPos
 
 /-- The position in {lean}`arg` after {lean}`shortChar` (e.g., {lit}`y` in {lit}`-xy`). -/
 @[inline] public def afterShortPos (h : IsOpt arg) : arg.Pos :=
-  h.afterStartPos.next h.afterStartPos_ne_endPos
+  h.shortPos.next h.shortPos_ne_endPos
 
 public theorem afterShortPos_eq (h : IsOpt arg) :
-  h.afterShortPos = h.afterStartPos.next h.afterStartPos_ne_endPos
+  h.afterShortPos = h.shortPos.next h.shortPos_ne_endPos
+:= by rfl
+
+/-- The first two characters of {lean}`arg` (e.g., {lit}`-x` in {lit}`-x=arg`). -/
+@[inline] public def shortOpt (h : IsOpt arg) : String.Slice :=
+  arg.sliceTo h.afterShortPos
+
+public theorem shortOpt_eq (h : IsOpt arg) :
+  h.shortOpt = arg.sliceTo h.afterShortPos
 := by rfl
 
 /-- The remainder of {lean}`arg` after {lean}`shortChar` (e.g., {lit}`=arg` in {lit}`-x=arg`). -/
@@ -89,14 +151,72 @@ public theorem shortTail_eq (h : IsOpt arg) :
 
 end IsOpt
 
-/-- A monadic callback for an arbitrary command line argument. -/
+/-- An optional command line option argument. -/
 @[expose] -- for codegen
-public def ArgHandler (m : Type u → Type v) (α : Type u := PUnit) :=
-  (arg : String) → m α
+public def OptArg := Option String.Slice
 
-/-- Constructs an argument handler from a monadic function operating on an arbitrary string. -/
-@[inline] public def ArgHandler.ofFn (fn : String → m α) : ArgHandler m α :=
-  fn
+/-- A monad transformer to equip a monad with an optional command line option argument. -/
+public abbrev OptArgT := ReaderT OptArg
+
+/-- Run the monad with the optional command line option argument {lean}`optArg?`. -/
+@[inline] public def OptArgT.run (optArg? : Option String.Slice) (self : OptArgT m α) : m α :=
+  ReaderT.run self optArg?
+
+/-- Type class for monads equipped with an optional command line option argument. -/
+public abbrev MonadOptArg (m) := MonadReaderOf OptArg m
+
+/-- A command line option. -/
+@[expose] -- for codegen
+public def Opt := String.Slice
+
+/-- Type class for monads equipped with an command line option. -/
+public abbrev MonadOpt (m) := MonadReaderOf Opt m
+
+/-- A monad transformer to equip a monad with a command line option and optional argument. -/
+public abbrev OptT (m) := ReaderT Opt <| OptArgT m
+
+/-- Run the monad with the command line option {lean}`opt` with optional argument {lean}`optArg?`. -/
+@[inline] public def OptT.run
+  (opt : String.Slice) (optArg? : Option String.Slice)  (self : OptT m α)
+: m α := self opt optArg?
+
+/-- The character of a command line short option (e.g., {lit}`x` of {lit}`-x`). -/
+@[expose] -- for codegen
+public def OptChar := Char
+
+/-- Type class for monads equipped with a command line short option. -/
+public abbrev MonadOptChar (m) := MonadReaderOf OptChar m
+
+/-- A monad transformer to equip a monad with a short option and optional argument. -/
+public abbrev ShortOptT (m) := ReaderT OptChar <| OptT m
+
+/-! ## Monadic Option Utilities -/
+
+/-- Get the command line option of the current context (e.g., in an option handler). -/
+@[inline] public def getOpt [MonadOpt m] : m String.Slice :=
+  read
+
+/--
+Get the character of the command line short option of the current context
+(e.g., in an option handler).
+-/
+@[inline] public def getOptChar [MonadOptChar m] : m Char :=
+  read
+
+/-- Get the option argument (if any). -/
+@[inline] public def getOptArg? [MonadOptArg m] : m (Option String.Slice) :=
+  read
+
+/-- Take the option argument or, if {lean}`none`, the head of the remaining argument list. -/
+@[inline] public def takeOptArg? [Monad m] [MonadOptArg m] [MonadArgs m] : m (Option String.Slice) := do
+  if let some arg ← getOptArg? then
+    return some arg
+  else if let some arg ← takeArg? then
+    return some arg
+  else
+    return none
+
+/-! ## Option Handler Types -/
 
 /-- A monadic callback for an arbitrary option (e.g., short or long). -/
 @[expose] -- for codegen
@@ -128,10 +248,27 @@ Construct an long option handler from a monadic function that takes the option a
   (fn : (opt : String.Slice) → (optArg? : Option String.Slice) → m α)
 : LongOptHandler m α := fn
 
+/--
+Construct an long option handler from a monadic action.
+
+The name of the option (e.g., {lit}`-long` or {lit}`--long`) is available via {name}`getOpt`.
+An argument for the option (e.g., {lit}`arg` in {lit}`--long=arg` or {lit}`--long arg`) can be
+accessed through {name}`takeOptArg?`.
+-/
+@[inline] public def LongOptHandler.ofM (x : OptT m α) : LongOptHandler m α := x
+
+/--
+Run the monad with the short option {lean}`opt` of character {lean}`optChar`
+with optional argument {lean}`optArg?`.
+-/
+@[inline] public def ShortOptT.run
+  (optChar : Char) (opt : String.Slice) (optArg? : Option String.Slice) (self : ShortOptT m α)
+: m α := self optChar opt optArg?
+
 /-- A monadic callback for a short option (e.g., {lit}`-x` or {lit}`-x=arg`). -/
 @[expose] -- for codegen
 public def ShortOptHandler (m : Type u → Type v) (α : Type u := PUnit) :=
-  (opt : Char) → (optArg? : Option String.Slice) → m α
+  (optChar : Char) → (opt : String.Slice) → (optArg? : Option String.Slice) → m α
 
 /--
 Constructs an short option handler from a monadic function that takes the option and its argument.
@@ -142,8 +279,19 @@ Constructs an short option handler from a monadic function that takes the option
 * {lit}`"-x foo bar"` => {lean}`fn 'x' (some "foo bar")`
 -/
 @[inline] public def ShortOptHandler.ofFn
-  (fn : (opt : Char) → (optArg? : Option String.Slice) → m α)
-: ShortOptHandler m α := fn
+  (fn : (optChar : Char) → (optArg? : Option String.Slice) → m α)
+: ShortOptHandler m α := fun c _ a? => fn c a?
+
+/--
+Construct an short option handler from a monadic action.
+
+The name of the option (e.g., {lit}`-x`) is available via {name}`getOpt`, and
+the character of the option (e.g., {lit}`x` in {lit}`-x`) is available via {name}`getOptChar`,
+
+An argument for the option (e.g., {lit}`arg` in {lit}`-x=arg` or {lit}`-x arg`) can be accessed
+through  {name}`takeOptArg?`.
+-/
+@[inline] public def ShortOptHandler.ofM (x : ShortOptT m α) : ShortOptHandler m α := x
 
 /-- A monadic callback for a long short option (e.g., {lit}`-long` or {lit}`-long=short`). -/
 @[expose] -- for codegen
@@ -173,7 +321,7 @@ Process a short option of the form {lit}`-xarg`.
 Can be used as the handler for {lean}`OptHandlers.longShort`.
 -/
 @[inline] public def shortOptionWithArg (handler : ShortOptHandler m α) : OptHandler m α := fun _ h =>
-  handler h.shortChar (some h.shortTail)
+  handler h.shortChar h.shortOpt (some h.shortTail)
 
 /--
 Process a multiple short options grouped together
@@ -182,16 +330,18 @@ Process a multiple short options grouped together
 Can be used as the handler for {lean}`OptHandlers.longShort`.
 -/
 @[inline] public def multiShortOption
-  [Monad m] (handler : ShortOptHandler m)
-: OptHandler m := fun arg h => do
-  let rec @[specialize handler] loop (p : arg.Pos) := do
-    if h : p.IsAtEnd then
-      return
+  [SeqRight m] (handler : ShortOptHandler m)
+: OptHandler m := fun arg h =>
+  let rec @[specialize handler] loop (p : arg.Pos) (h : ¬ p.IsAtEnd) :=
+    let p' := p.next h
+    let optChar := p.get h
+    let r := handler optChar s!"-{optChar}" none
+    if h' : p'.IsAtEnd then
+      r
     else
-      handler (p.get h) none
-      loop (p.next h)
+      r *> loop p' h'
   termination_by p
-  loop h.afterStartPos
+  loop h.shortPos h.shortPos_ne_endPos
 
 @[inline] private def splitLongOption
   {arg : String} (sepPos : arg.Pos)
@@ -251,15 +401,15 @@ Can be used as the handler for {lean}`OptHandlers.longShort`.
   (shortHandler : ShortOptHandler m α) (longHandler : LongShortOptHandler m α)
 : OptHandler m α := fun arg h =>
   if h' : h.afterShortPos.IsAtEnd then -- `-x`
-    shortHandler h.shortChar none
+    shortHandler h.shortChar h.shortOpt none
   else -- `-c(.+)`
     let c := h.afterShortPos.get h'
     let nextPos := h.afterShortPos.next h'
     match c with
     | '=' => -- `-x=arg`
-      shortHandler h.shortChar (some <| arg.sliceFrom nextPos)
+      shortHandler h.shortChar h.shortOpt (some <| arg.sliceFrom nextPos)
     | ' ' => -- `"-x arg"`
-      shortHandler h.shortChar (some <| arg.sliceFrom nextPos |>.trimAsciiStart)
+      shortHandler h.shortChar h.shortOpt (some <| arg.sliceFrom nextPos |>.trimAsciiStart)
     | _   => -- `-long`
       longHandler arg h
 
@@ -274,54 +424,9 @@ An option may consume additional elements of the argument list.
   else
     shortOption handlers.short handlers.longShort arg h
 
-/-! ## Argument-related Types -/
-
-/-- A List of command line arguments. -/
-@[expose] public def ArgList := List String
-
-/-- Treats a list of strings as an argument list. -/
-@[inline] public def ArgList.mk (args : List String) : ArgList :=
-  args
-
-/-- A monad transformer to equip a monad with an argument list. -/
-public abbrev ArgsT := StateT ArgList
-
-/-- Run the monad with the command line arguments {lean}`args`. -/
-@[inline] public def ArgsT.run (args : List String) (self : ArgsT m α) : m (α × List String) :=
-  StateT.run self args
-
-/-- Run the monad with the command line arguments {lean}`args` and discard any unprocessed arguments. -/
-@[inline] public def ArgsT.run' [Functor m] (args : List String) (self : ArgsT m α) : m α :=
-  StateT.run' self args
-
-/-- Type class for monads equipped with a command line argument list. -/
-public abbrev MonadArgs (m) := MonadStateOf ArgList m
-
-/-! ## Argument Utilities -/
-
-variable [Monad m] [MonadArgs m]
-
-/-- Get the remaining argument list. -/
-@[inline] public def getArgs : m (List String) :=
-  get
-
-/-- Replace the argument list. -/
-@[inline] public def setArgs (args : List String) : m PUnit :=
-  set (ArgList.mk args)
-
-/-- Take the head of the remaining argument list (or {lean}`none` if empty). -/
-@[inline] public def takeArg? : m (Option String) :=
-  modifyGet fun | [] => (none, []) | arg :: args => (some arg, args)
-
-/-- Take the head of the remaining argument list (or {lean}`default` if empty). -/
-@[inline] public def takeArgD (default : String) : m String :=
-  modifyGet fun | [] => (default, []) | arg :: args => (arg, args)
-
-/-- Take the remaining argument list, leaving only an empty list. -/
-@[inline] public def takeArgs : m (List String) :=
-  modifyGet fun args => (args, [])
-
 /-! ## Argument Processors -/
+
+variable [MonadArgs m] [Monad m]
 
 /-- Process the head argument of the list using {lean}`handler` if it is an option. -/
 public def processLeadingOption (handler : OptHandler m) : m PUnit := do

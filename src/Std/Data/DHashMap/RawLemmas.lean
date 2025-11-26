@@ -5841,9 +5841,24 @@ theorem getKey?_partition_fst [LawfulBEq α]
   apply Equiv.getKey?_eq (wf_partition_fst h) (WF.filter h)
   apply partition_fst_equiv_filter h
 
+theorem getKey?_partition_snd [LawfulBEq α]
+    {p : (a : α) → β a → Bool} (h : m.WF) {k : α} :
+  (m.partition p).2.getKey? k = (m.getKey? k).pfilter (fun x h' =>
+    ! p x (m.get x (mem_of_getKey?_eq_some h h'))) := by
+  rw [← partition_not_fst_eq_partition_snd h, ← getKey?_filter h (f := fun a b => ! p a b)]
+  apply Equiv.getKey?_eq (wf_partition_fst h) (WF.filter h)
+  apply partition_fst_equiv_filter h
+
 theorem size_partition_fst_le_size [EquivBEq α] [LawfulHashable α]
     {p : (a : α) → β a → Bool} (h : m.WF) :
     (m.partition p).1.size ≤ m.size := by
+  rw [Equiv.size_eq (wf_partition_fst h) (WF.filter h) (partition_fst_equiv_filter h)]
+  apply size_filter_le_size h
+
+theorem size_partition_snd_le_size [EquivBEq α] [LawfulHashable α]
+    {p : (a : α) → β a → Bool} (h : m.WF) :
+    (m.partition p).2.size ≤ m.size := by
+  rw [← partition_not_fst_eq_partition_snd h]
   rw [Equiv.size_eq (wf_partition_fst h) (WF.filter h) (partition_fst_equiv_filter h)]
   apply size_filter_le_size h
 

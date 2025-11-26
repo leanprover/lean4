@@ -355,7 +355,6 @@ theorem WF.unitOfList [BEq α] [Hashable α] {l : List α} : (unitOfList l).WF :
 theorem WF.unitOfArray [BEq α] [Hashable α] {a : Array α} : (unitOfArray a).WF :=
   ⟨DHashMap.Raw.WF.Const.unitOfArray⟩
 
-theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.union m₂).WF :=
 theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ ∪ m₂).WF :=
   ⟨DHashMap.Raw.WF.union h₁.out h₂.out⟩
 

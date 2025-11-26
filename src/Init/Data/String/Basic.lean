@@ -1219,12 +1219,12 @@ theorem Pos.offset_toSlice {s : String} {pos : s.Pos} : pos.toSlice.offset = pos
 /-- Given a string `s`, turns a valid position on the slice `s.toSlice` into a valid position on the
 string `s`. -/
 @[inline, expose]
-def Slice.Pos.ofSlice {s : String} (pos : s.toSlice.Pos) : s.Pos where
+def Pos.ofToSlice {s : String} (pos : s.toSlice.Pos) : s.Pos where
   offset := pos.offset
   isValid := pos.isValidForSlice.ofSlice
 
 @[simp]
-theorem Slice.Pos.offset_ofSlice {s : String} {pos : s.toSlice.Pos} : pos.ofSlice.offset = pos.offset := (rfl)
+theorem Pos.offset_ofToSlice {s : String} {pos : s.toSlice.Pos} : (ofToSlice pos).offset = pos.offset := (rfl)
 
 @[simp]
 theorem rawEndPos_toSlice {s : String} : s.toSlice.rawEndPos = s.rawEndPos := by
@@ -1239,25 +1239,25 @@ theorem startPos_toSlice {s : String} : s.toSlice.startPos = s.startPos.toSlice 
   Slice.Pos.ext (by simp)
 
 @[simp]
-theorem Pos.ofSlice_toSlice {s : String} (pos : s.Pos) : pos.toSlice.ofSlice = pos :=
+theorem Pos.ofToSlice_toSlice {s : String} (pos : s.Pos) : (ofToSlice pos.toSlice) = pos :=
   Pos.ext (by simp)
 
 @[simp]
-theorem Slice.Pos.toSlice_ofSlice {s : String} (pos : s.toSlice.Pos) : pos.ofSlice.toSlice = pos :=
+theorem Slice.Pos.toSlice_ofToSlice {s : String} (pos : s.toSlice.Pos) : (Pos.ofToSlice pos).toSlice = pos :=
   Slice.Pos.ext (by simp)
 
 @[simp]
-theorem Slice.Pos.toSlice_comp_ofSlice {s : String} :
-    Pos.toSlice ∘ (ofSlice (s := s)) = id := by ext; simp
+theorem Pos.toSlice_comp_ofToSlice {s : String} :
+    Pos.toSlice ∘ (Pos.ofToSlice (s := s)) = id := by ext; simp
 
 @[simp]
-theorem Pos.ofSlice_comp_toSlice {s : String} :
-    Slice.Pos.ofSlice ∘ (toSlice (s := s)) = id := by ext; simp
+theorem Pos.ofToSlice_comp_toSlice {s : String} :
+    Pos.ofToSlice ∘ (toSlice (s := s)) = id := by ext; simp
 
 theorem Pos.toSlice_inj {s : String} {p q : s.Pos} : p.toSlice = q.toSlice ↔ p = q :=
-  ⟨fun h => by simpa using congrArg Slice.Pos.ofSlice h, (· ▸ rfl)⟩
+  ⟨fun h => by simpa using congrArg Pos.ofToSlice h, (· ▸ rfl)⟩
 
-theorem Slice.Pos.ofSlice_inj {s : String} {p q : s.toSlice.Pos} : p.ofSlice = q.ofSlice ↔ p = q :=
+theorem Pos.ofToSlice_inj {s : String} {p q : s.toSlice.Pos} : ofToSlice p = ofToSlice q ↔ p = q :=
   ⟨fun h => by simpa using congrArg Pos.toSlice h, (· ▸ rfl)⟩
 
 @[simp]
@@ -1265,18 +1265,18 @@ theorem Pos.toSlice_le {s : String} {p q : s.Pos} : p.toSlice ≤ q.toSlice ↔ 
   simp [le_iff, Slice.Pos.le_iff]
 
 @[simp]
-theorem Slice.Pos.ofSlice_le {s : String} {p q : s.toSlice.Pos} :
-    p.ofSlice ≤ q.ofSlice ↔ p ≤ q := by
-  simp [String.Pos.le_iff, le_iff]
+theorem Pos.ofToSlice_le {s : String} {p q : s.toSlice.Pos} :
+    ofToSlice p ≤ ofToSlice q ↔ p ≤ q := by
+  simp [le_iff, Slice.Pos.le_iff]
 
 @[simp]
 theorem Pos.toSlice_lt {s : String} {p q : s.Pos} : p.toSlice < q.toSlice ↔ p < q := by
   simp [lt_iff, Slice.Pos.lt_iff]
 
 @[simp]
-theorem Slice.Pos.ofSlice_lt {s : String} {p q : s.toSlice.Pos} :
-    p.ofSlice < q.ofSlice ↔ p < q := by
-  simp [String.Pos.lt_iff, lt_iff]
+theorem Pos.ofToSlice_lt {s : String} {p q : s.toSlice.Pos} :
+    ofToSlice p < ofToSlice q ↔ p < q := by
+  simp [lt_iff, Slice.Pos.lt_iff]
 
 /--
 Returns the character at the position `pos` of a string, taking a proof that `p` is not the
@@ -1290,7 +1290,7 @@ Examples:
 -/
 @[inline, expose]
 def Pos.get {s : String} (pos : s.Pos) (h : pos ≠ s.endPos) : Char :=
-  pos.toSlice.get (ne_of_apply_ne Slice.Pos.ofSlice (by simp [h]))
+  pos.toSlice.get (ne_of_apply_ne Pos.ofToSlice (by simp [h]))
 
 /--
 Returns the character at the position `pos` of a string, or `none` if the position is the
@@ -1317,7 +1317,7 @@ Returns the byte at the position `pos` of a string.
 -/
 @[inline, expose]
 def Pos.byte {s : String} (pos : s.Pos) (h : pos ≠ s.endPos) : UInt8 :=
-  pos.toSlice.byte (ne_of_apply_ne Slice.Pos.ofSlice (by simp [h]))
+  pos.toSlice.byte (ne_of_apply_ne Pos.ofToSlice (by simp [h]))
 
 theorem Pos.isUTF8FirstByte_byte {s : String} {pos : s.Pos} {h : pos ≠ s.endPos} :
     (pos.byte h).IsUTF8FirstByte :=
@@ -1661,60 +1661,56 @@ def Slice.pos! (s : Slice) (off : String.Pos.Raw) : s.Pos :=
 position is not the past-the-end position, which guarantees that such a position exists. -/
 @[expose, extern "lean_string_utf8_next_fast"]
 def Pos.next {s : @& String} (pos : @& s.Pos) (h : pos ≠ s.endPos) : s.Pos :=
-  (Slice.Pos.next pos.toSlice (ne_of_apply_ne Slice.Pos.ofSlice (by simpa))).ofSlice
+  ofToSlice (Slice.Pos.next pos.toSlice (ne_of_apply_ne Pos.ofToSlice (by simpa)))
 
 @[simp]
 theorem Slice.Pos.str_inj {s : Slice} (p₁ p₂ : s.Pos) : p₁.str = p₂.str ↔ p₁ = p₂ := by
   simp [Slice.Pos.ext_iff, String.Pos.ext_iff, Pos.Raw.ext_iff]
 
-@[expose, extern "lean_string_utf8_next_fast"]
-def String.Pos.next {s : @& String} (pos : @& s.Pos) (h : pos ≠ s.endPos) : s.Pos :=
-  (Slice.Pos.next pos.toSlice (ne_of_apply_ne Slice.Pos.ofSlice (by simpa))).ofSlice
-
 /-- Advances a valid position on a string to the next valid position, or returns `none` if the
 given position is the past-the-end position. -/
 @[inline, expose]
 def Pos.next? {s : String} (pos : s.Pos) : Option s.Pos :=
-  pos.toSlice.next?.map Slice.Pos.ofSlice
+  pos.toSlice.next?.map Pos.ofToSlice
 
 /-- Advances a valid position on a string to the next valid position, or panics if the given
 position is the past-the-end position. -/
 @[inline, expose]
 def Pos.next! {s : String} (pos : s.Pos) : s.Pos :=
-  pos.toSlice.next!.ofSlice
+  ofToSlice pos.toSlice.next!
 
 /-- Returns the previous valid position before the given position, given a proof that the position
 is not the start position, which guarantees that such a position exists. -/
 @[inline, expose]
 def Pos.prev {s : String} (pos : s.Pos) (h : pos ≠ s.startPos) : s.Pos :=
-  (pos.toSlice.prev (ne_of_apply_ne Slice.Pos.ofSlice (by simpa))).ofSlice
+  ofToSlice (pos.toSlice.prev (ne_of_apply_ne Pos.ofToSlice (by simpa)))
 
 /-- Returns the previous valid position before the given position, or `none` if the position is
 the start position. -/
 @[inline, expose]
 def Pos.prev? {s : String} (pos : s.Pos) : Option s.Pos :=
-  pos.toSlice.prev?.map Slice.Pos.ofSlice
+  pos.toSlice.prev?.map Pos.ofToSlice
 
 /-- Returns the previous valid position before the given position, or panics if the position is
 the start position. -/
 @[inline, expose]
 def Pos.prev! {s : String} (pos : s.Pos) : s.Pos :=
-  pos.toSlice.prev!.ofSlice
+  ofToSlice pos.toSlice.prev!
 
 /-- Constructs a valid position on `s` from a position and a proof that it is valid. -/
 @[inline, expose]
 def pos (s : String) (off : Pos.Raw) (h : off.IsValid s) : s.Pos :=
-  (s.toSlice.pos off h.toSlice).ofSlice
+  Pos.ofToSlice (s.toSlice.pos off h.toSlice)
 
 /-- Constructs a valid position on `s` from a position, returning `none` if the position is not valid. -/
 @[inline, expose]
 def pos? (s : String) (off : Pos.Raw) : Option s.Pos :=
-  (s.toSlice.pos? off).map Slice.Pos.ofSlice
+  (s.toSlice.pos? off).map Pos.ofToSlice
 
 /-- Constructs a valid position `s` from a position, panicking if the position is not valid. -/
 @[inline, expose]
 def pos! (s : String) (off : Pos.Raw) : s.Pos :=
-  (s.toSlice.pos! off).ofSlice
+  Pos.ofToSlice (s.toSlice.pos! off)
 
 @[simp]
 theorem offset_pos {s : String} {off : Pos.Raw} {h} : (s.pos off h).offset = off := rfl
@@ -1814,10 +1810,10 @@ theorem Slice.Pos.prev_ne_endPos {s : Slice} {p : s.Pos} {h} : p.prev h ≠ s.en
 
 @[simp]
 theorem Pos.prev_ne_endPos {s : String} {p : s.Pos} {h} : p.prev h ≠ s.endPos :=
-  mt (congrArg (·.toSlice)) (Slice.Pos.prev_ne_endPos (h := mt (congrArg (·.ofSlice)) h))
+  mt (congrArg (·.toSlice)) (Slice.Pos.prev_ne_endPos (h := mt (congrArg Pos.ofToSlice) (by simpa)))
 
 theorem Pos.toSlice_prev {s : String} {p : s.Pos} {h} :
-    (p.prev h).toSlice = p.toSlice.prev (ne_of_apply_ne Slice.Pos.ofSlice (by simpa)) := by
+    (p.prev h).toSlice = p.toSlice.prev (ne_of_apply_ne Pos.ofToSlice (by simpa)) := by
   simp [prev]
 
 theorem Slice.Pos.offset_prev_lt_offset {s : Slice} {p : s.Pos} {h} : (p.prev h).offset < p.offset := by
@@ -1936,7 +1932,7 @@ theorem Pos.get_toSlice {s : String} {p : s.Pos} {h} :
   rfl
 
 theorem Pos.get_eq_get_toSlice {s : String} {p : s.Pos} {h}  :
-    p.get h = p.toSlice.get (ne_of_apply_ne Slice.Pos.ofSlice (by simp [h])) := rfl
+    p.get h = p.toSlice.get (ne_of_apply_ne Pos.ofToSlice (by simp [h])) := rfl
 
 @[simp]
 theorem Pos.offset_next {s : String} (p : s.Pos) (h : p ≠ s.endPos) :
@@ -1948,7 +1944,7 @@ theorem Pos.byteIdx_offset_next {s : String} (p : s.Pos) (h : p ≠ s.endPos) :
   simp
 
 theorem Pos.toSlice_next {s : String} {p : s.Pos} {h} :
-    (p.next h).toSlice = p.toSlice.next (ne_of_apply_ne Slice.Pos.ofSlice (by simpa)) := by
+    (p.next h).toSlice = p.toSlice.next (ne_of_apply_ne Pos.ofToSlice (by simpa)) := by
   simp [next]
 
 theorem Pos.byteIdx_lt_utf8ByteSize {s : String} (p : s.Pos) (h : p ≠ s.endPos) :
@@ -2052,15 +2048,15 @@ theorem Slice.Pos.next_le_of_lt {s : Slice} {p q : s.Pos} {h} : p < q → p.next
     · have := (p.next h).str.isValid.le_utf8ByteSize
       simpa [Nat.add_assoc] using this
 
-theorem Slice.Pos.ofSlice_le_iff {s : String} {p : s.toSlice.Pos} {q : s.Pos} :
-    p.ofSlice ≤ q ↔ p ≤ q.toSlice := Iff.rfl
+theorem Pos.ofToSlice_le_iff {s : String} {p : s.toSlice.Pos} {q : s.Pos} :
+    ofToSlice p ≤ q ↔ p ≤ q.toSlice := Iff.rfl
 
 @[simp]
 theorem Pos.toSlice_lt_toSlice_iff {s : String} {p q : s.Pos} :
     p.toSlice < q.toSlice ↔ p < q := Iff.rfl
 
 theorem Pos.next_le_of_lt {s : String} {p q : s.Pos} {h} : p < q → p.next h ≤ q := by
-  rw [next, Slice.Pos.ofSlice_le_iff, ← Pos.toSlice_lt_toSlice_iff]
+  rw [next, Pos.ofToSlice_le_iff, ← Pos.toSlice_lt_toSlice_iff]
   exact Slice.Pos.next_le_of_lt
 
 theorem Slice.Pos.get_eq_get_str {s : Slice} {p : s.Pos} {h} :
@@ -2346,7 +2342,7 @@ If this would move `p` past the end of `s`, the result is `s.endPos`.
 -/
 @[inline]
 def Pos.nextn {s : String} (p : s.Pos) (n : Nat) : s.Pos :=
-  (p.toSlice.nextn n).ofSlice
+  ofToSlice (p.toSlice.nextn n)
 
 /--
 Iterates `p.prev` `n` times.
@@ -2355,7 +2351,7 @@ If this would move `p` past the start of `s`, the result is `s.startPos`.
 -/
 @[inline]
 def Pos.prevn {s : String} (p : s.Pos) (n : Nat) : s.Pos :=
-  (p.toSlice.prevn n).ofSlice
+  ofToSlice (p.toSlice.prevn n)
 
 theorem Slice.Pos.le_nextn {s : Slice} {p : s.Pos} {n : Nat} : p ≤ p.nextn n := by
   fun_induction nextn with

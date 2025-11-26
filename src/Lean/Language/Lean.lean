@@ -301,28 +301,6 @@ structure SetupImportsResult where
   plugins : Array System.FilePath := #[]
 
 /--
-Parses an option value from a string and inserts it into `opts`.
-The type of the option is determined from `decl`.
--/
-def setOption (opts : Options) (decl : OptionDecl) (name : Name) (val : String)  : IO Options := do
-  match decl.defValue with
-  | .ofBool _ =>
-    match val with
-    | "true"  => return opts.insert name true
-    | "false" => return opts.insert name false
-    | _ =>
-      throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
-        it must be true/false"
-  | .ofNat _ =>
-    let some val := val.toNat?
-      | throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
-          it must be a natural number"
-    return opts.insert name val
-  | .ofString _ => return opts.insert name val
-  | _ => throw <| .userError s!"invalid -D parameter, configuration option '{name}' \
-            cannot be set in the command line, use set_option command"
-
-/--
 Parses values of options registered during import and left by the C++ frontend as strings.
 Removes `weak` prefixes from both parsed and unparsed options and fails if any option names remain
 unknown.
@@ -344,7 +322,22 @@ If the option is defined in a library, use '-D{`weak ++ name}' to set it conditi
     let .ofString val := val
       | opts' := opts'.insert name val  -- Already parsed
 
-    opts' ← setOption opts' decl name val
+    match decl.defValue with
+    | .ofBool _ =>
+      match val with
+      | "true"  => opts' := opts'.insert name true
+      | "false" => opts' := opts'.insert name false
+      | _ =>
+        throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
+          it must be true/false"
+    | .ofNat _ =>
+      let some val := val.toNat?
+        | throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
+            it must be a natural number"
+      opts' := opts'.insert name val
+    | .ofString _ => opts' := opts'.insert name val
+    | _ => throw <| .userError s!"invalid -D parameter, configuration option '{name}' \
+              cannot be set in the command line, use set_option command"
 
   return opts'
 

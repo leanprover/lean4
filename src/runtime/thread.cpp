@@ -157,12 +157,6 @@ lthread::~lthread() {}
 void lthread::join() { m_imp->join(); }
 #endif
 
-/* setThreadStackSize (sz : USize) : BaseIO Unit */
-extern "C" LEAN_EXPORT lean_obj_res lean_internal_set_thread_stack_size(size_t sz) {
-    lthread::set_thread_stack_size(sz);
-    return lean_box(0);
-}
-
 LEAN_THREAD_VALUE(bool, g_finalizing, false);
 
 bool in_thread_finalization() {

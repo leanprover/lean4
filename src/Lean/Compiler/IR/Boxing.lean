@@ -26,12 +26,6 @@ Assumptions:
   `Expr.isShared`, `Expr.isTaggedPtr`, and `FnBody.set`.
 -/
 
-def mkBoxedName (n : Name) : Name :=
-  Name.mkStr n "_boxed"
-
-def isBoxedName (name : Name) : Bool :=
-  name matches .str _ "_boxed"
-
 abbrev N := StateM Nat
 
 private def N.mkFresh : N VarId :=

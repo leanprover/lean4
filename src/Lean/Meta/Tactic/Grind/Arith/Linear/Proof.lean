@@ -206,6 +206,14 @@ private def mkCommRingThmPrefix (declName : Name) : ProofM Expr := do
 
 /--
 Returns the prefix of a theorem with name `declName` where the first four arguments are
+`{α} [CommRing α] [NoNatZeroDivisors α] (rctx : Context α)`
+-/
+private def mkCommRingNoNatDivThmPrefix (declName : Name) : ProofM Expr := do
+  let s ← getStruct
+  return mkApp4 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getNoNatDivInst) (← getRingContext)
+
+/--
+Returns the prefix of a theorem with name `declName` where the first four arguments are
 `{α} [CommRing α] [LE α] (rctx : Context α)`
 -/
 private def mkCommRingLEThmPrefix (declName : Name) : ProofM Expr := do
@@ -299,7 +307,13 @@ partial def RingDiseqCnstr.toExprProof (c' : RingDiseqCnstr) : ProofM Expr := do
     let h' ← mkCommRingThmPrefix ``Grind.CommRing.diseq_norm
     return mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl c'.p) eagerReflBoolTrue (← mkDiseqProof a b)
   | .cancelDen c val x n =>
-    throwError "NIY"
+    let h ← mkCommRingNoNatDivThmPrefix ``Grind.CommRing.Stepwise.diseq_mul
+    let p₁ := c.p.mulConst (val^n)
+    let p₁ ← mkRingPolyDecl p₁
+    let h := mkApp5 h (← mkRingPolyDecl c.p) (toExpr (val^n)) p₁ eagerReflBoolTrue (← c.toExprProof)
+    let h_eq_one := mkApp2 (← mkFieldChar0ThmPrefix ``Grind.CommRing.inv_int_eq') (toExpr val) eagerReflBoolTrue
+    let h' ← mkCommRingThmPrefix ``Grind.CommRing.diseq_cancel_var
+    return mkApp7 h' (toExpr val) (toExpr x) p₁ (← mkRingPolyDecl c'.p) eagerReflBoolTrue h_eq_one h
 
 mutual
 partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' do

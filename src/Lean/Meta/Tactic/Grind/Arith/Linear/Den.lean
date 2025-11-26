@@ -35,7 +35,9 @@ public def RingIneqCnstr.cleanupDenominators (c : RingIneqCnstr) : LinearM RingI
 public def RingEqCnstr.cleanupDenominators (c : RingEqCnstr) : LinearM RingEqCnstr :=
   cleanupDenominators' c (·.p) fun c p val x n => { c with p, h := .cancelDen c val x n }
 
-public def RingDiseqCnstr.cleanupDenominators (c : RingDiseqCnstr) : LinearM RingDiseqCnstr :=
+public def RingDiseqCnstr.cleanupDenominators (c : RingDiseqCnstr) : LinearM RingDiseqCnstr := do
+  let s ← getStruct
+  if s.noNatDivInst?.isNone then return c
   cleanupDenominators' c (·.p) fun c p val x n => { c with p, h := .cancelDen c val x n }
 
 end Lean.Meta.Grind.Arith.Linear

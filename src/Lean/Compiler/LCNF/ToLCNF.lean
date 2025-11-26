@@ -609,20 +609,17 @@ where
     etaIfUnderApplied e arity do
       visitAppDefaultConst e.getAppFn e.getAppArgs
 
+  visitQuotMk (e : Expr) : M Arg := do
+    let arity := 3
+    etaIfUnderApplied e arity do
+      let args := e.getAppArgs
+      visit args[2]!
+
   visitQuotLift (e : Expr) : M Arg := do
     let arity := 6
     etaIfUnderApplied e arity do
-      let mut args := e.getAppArgs
-      let α := args[0]!
-      let r := args[1]!
-      let f ← visitAppArg args[3]!
-      let q ← visitAppArg args[5]!
-      let .const _ [u, _] := e.getAppFn | unreachable!
-      let invq ← mkAuxLetDecl (.const ``Quot.lcInv [u] #[.type α, .type r, q])
-      match f with
-      | .erased => return .erased
-      | .type _ => unreachable!
-      | .fvar fvarId => mkOverApplication (← letValueToArg <| .fvar fvarId #[.fvar invq]) args arity
+      let args := e.getAppArgs
+      visit (mkApp args[3]! args[5]!)
 
   visitEqRec (e : Expr) : M Arg :=
     let arity := 6
@@ -721,7 +718,7 @@ where
       if declName == ``Quot.lift then
         visitQuotLift e
       else if declName == ``Quot.mk then
-        visitCtor 3 e
+        visitQuotMk e
       else if declName == ``Eq.rec || declName == ``Eq.recOn || declName == ``Eq.ndrec then
         visitEqRec e
       else if declName == ``HEq.rec || declName == ``HEq.ndrec then

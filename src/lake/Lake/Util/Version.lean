@@ -33,14 +33,15 @@ private theorem le_next_of_le
 
 /-! ## Parser Utils -/
 
+abbrev ParseM (s : String.Slice) (α) :=
+   EStateM String s.Pos α
+
 /--
 Parses version components separated by a `.` from the head of the string.
 
 Components are composed of alphanumerics or a `*`.
 -/
-@[inline] def parseVerComponents
-  (s : String.Slice)
-: EStateM String s.Pos (Array String.Slice) :=
+@[inline] def parseVerComponents (s : String.Slice) : ParseM s (Array String.Slice) :=
   fun p => go #[] p p p.le_refl
 where
   go cs iniPos p (iniPos_le : iniPos ≤ p) :=
@@ -86,7 +87,7 @@ private def parseVerComponent {σ} (what : String) (s? : Option String.Slice) : 
       | throw s!"invalid {what} version: expected numeral or wildcard, got '{s.copy}'"
     return .nat n
 
-def parseSpecialDescr? (s : String.Slice) : EStateM String s.Pos (Option String.Slice) := do
+def parseSpecialDescr? (s : String.Slice) : ParseM s (Option String.Slice) := do
   let p ← get
   if h : p.IsAtEnd then
     return none
@@ -110,7 +111,7 @@ where
       nextUntilWhitespace (p.next h) iniPos (le_next_of_le iniPos_le)
   termination_by p
 
-private def parseSpecialDescr (s : String.Slice) : EStateM String s.Pos String := do
+private def parseSpecialDescr (s : String.Slice) : ParseM s String := do
   let some specialDescr ← parseSpecialDescr? s
     | return ""
   if specialDescr.isEmpty then
@@ -118,7 +119,7 @@ private def parseSpecialDescr (s : String.Slice) : EStateM String s.Pos String :
   return specialDescr.copy
 
 private def runVerParse
-  (s : String.Slice) (x : (s : String.Slice) → EStateM String s.Pos α)
+  (s : String.Slice) (x : (s : String.Slice) → ParseM s α)
 : Except String α :=
   match x s s.startPos with
   | .ok v p =>
@@ -145,7 +146,7 @@ public instance : LE SemVerCore := leOfOrd
 public instance : Min SemVerCore := minOfLe
 public instance : Max SemVerCore := maxOfLe
 
-def parseM (s : String.Slice) : EStateM String s.Pos SemVerCore := do
+def parseM (s : String.Slice) : ParseM s SemVerCore := do
   try
     let cs ← parseVerComponents s
     if h : cs.size = 3 then
@@ -209,7 +210,7 @@ public instance : LE StdVer := leOfOrd
 public instance : Min StdVer := minOfLe
 public instance : Max StdVer := maxOfLe
 
-public def parseM (s : String.Slice) : EStateM String s.Pos StdVer := do
+def parseM (s : String.Slice) : ParseM s StdVer := do
   let core ← SemVerCore.parseM s
   let specialDescr ← parseSpecialDescr s
   return {toSemVerCore := core, specialDescr}
@@ -352,19 +353,19 @@ deriving Repr, Inhabited
 
 namespace ComparatorOp
 
-def parseM
-  (s : String.Slice)
-: EStateM String s.Pos ComparatorOp := fun p =>
+def parseM (s : String.Slice) : ParseM s ComparatorOp := do
+  let p ← get
   let r? := trie.matchPrefix s.str p.offset s.endExclusive.offset.byteIdx <|
     String.byteIdx_rawEndPos ▸ String.Pos.Raw.le_iff.mp s.endExclusive.isValid.le_rawEndPos
   if let some (tk, op) := r? then
     let p' := p.offset + tk
     if h : p'.IsValidForSlice s then
-      .ok op (.mk p' h)
+      set (s.pos p' h)
+      return op
     else
-      .error "(internal) comparison operator parse produced invalid position" p
+      throw "(internal) comparison operator parse produced invalid position"
   else
-    .error "expected comparison operator" p
+    throw "expected comparison operator"
 where trie :=
   let add sym cmp t := t.insert sym (sym, cmp)
   (∅ : Lean.Data.Trie (String × ComparatorOp))
@@ -411,7 +412,7 @@ public def wild : VerComparator :=
 
 public instance : Inhabited VerComparator := ⟨.wild⟩
 
-def parseM (s : String.Slice) : EStateM String s.Pos VerComparator := do
+def parseM (s : String.Slice) : ParseM s VerComparator := do
   let op ← ComparatorOp.parseM s
   let core ← SemVerCore.parseM s
   if let some specialDescr ← parseSpecialDescr? s then
@@ -488,64 +489,62 @@ where
       ands.foldl (init := ands[0].toString) (start := 1) fun s v =>
         s!"{s}, {v}"
 
-partial def parseM (s : String.Slice) : EStateM String s.Pos (Array (Array VerComparator)) := do
+partial def parseM (s : String.Slice) : ParseM s (Array (Array VerComparator)) := do
   go true #[] #[]
 where
-  go needsRange ors (ands : Array VerComparator) p :=
+  go needsRange ors (ands : Array VerComparator) := do
+    let p ← get
     if h : p.IsAtEnd then
       if needsRange || ands.size == 0 then
-        .error "expected version range" p
+        throw "expected version range"
       else
-        .ok (ors.push ands) p
+        return ors.push ands
     else
       let c := p.get h
       if c.isAlphanum || c == '*' then
-        match parseWild s ands p with
-        | .ok ands p =>
-          go false ors ands p
-        | .error e p => .error e p
+        let cs ← parseVerComponents s
+        if (← get).get?.any (· == '-') then
+          throw s!"invalid wildcard range: wildcard versions do not support suffixes"
+        let ands ← parseWildComponents cs ands
+        go false ors ands
       else if c == '^' then
-        match parseCaret s ands (p.next h) with
-        | .ok ands p =>
-          go false ors ands p
-        | .error e p => .error e p
+        set (p.next h)
+        let ands ← parseCaret s ands
+        go false ors ands
       else if c == '~' then
-        match parseTilde s ands (p.next h) with
-        | .ok ands p =>
-          go false ors ands p
-        | .error e p => .error e p
+        set (p.next h)
+        let ands ← parseTilde s ands
+        go false ors ands
       else if c.isWhitespace then
-        go needsRange ors ands (p.next h)
+        set (p.next h)
+        go needsRange ors ands
       else if c == ',' then
         if needsRange then
-          .error "expected version range" p
+          throw "expected version range"
         else
-          go true ors ands (p.next h)
+          set (p.next h)
+          go true ors ands
       else if c == '|' then
-        let p := p.next h
-        if h : p = s.endPos then
-          .error "expected '|' after first '|'" p
+        let p' := p.next h; set p'
+        if h : p.IsAtEnd then
+          throw "expected '|' after first '|'"
         else if p.get h = '|' then
           if ands.size = 0 then
-            .error "expected version range" p
+            throw "expected version range"
           else
-            go true (ors.push ands) #[] (p.next h)
+            set (p.next h)
+            go true (ors.push ands) #[]
         else
-          .error "expected '|' after first '|'" p
+          throw "expected '|' after first '|'"
       else
-        match VerComparator.parseM s p with
-        | .ok cmp p =>
-          go false ors (ands.push cmp) p
-        | .error e p => .error e p
+        let cmp ← VerComparator.parseM s
+        go false ors (ands.push cmp)
   @[inline] appendRange ands minVer maxVer (specialDescr := "") :=
     let minVer := StdVer.mk minVer specialDescr
     let maxVer := StdVer.ofSemVerCore maxVer
     ands.push {op := .ge, ver := minVer} |>.push {op := .lt, ver := maxVer, includeSuffixes := true}
-  parseWild (s : String.Slice) ands : EStateM String s.Pos _ := do
-    let cs ← parseVerComponents s
-    if (← get).get?.any (· == '-') then
-      throw s!"invalid wildcard range: wildcard versions do not support suffixes"
-    else if cs.size = 0 ∨ cs.size > 3 then
+  parseWildComponents {σ} (cs : Array String.Slice) ands : EStateM String σ  _ := do
+    if cs.size = 0 ∨ cs.size > 3 then
       throw s!"invalid wildcard range: incorrect number of components: got {cs.size}, expected 1-3"
     else
       let major? ← parseVerComponent "major" cs[0]?
@@ -566,7 +565,7 @@ where
           otherwise, use '≥' to support it and future versions"
       | _, _, _ =>
         return ands.push .wild
-  parseCaret (s : String.Slice) ands : EStateM String s.Pos _ := do
+  parseCaret (s : String.Slice) ands : ParseM s _ := do
     let cs ← parseVerComponents s
     let specialDescr ← parseSpecialDescr s
     if h : cs.size = 1 then
@@ -595,7 +594,7 @@ where
         return appendRange ands {major, minor, patch}  {major := major + 1} specialDescr
     else
       throw s!"invalid caret range: incorrect number of components: got {cs.size}, expected 1-3"
-  parseTilde (s : String.Slice) ands : EStateM String s.Pos _ := do
+  parseTilde (s : String.Slice) ands : ParseM s _ := do
     let cs ← parseVerComponents s
     let specialDescr ← parseSpecialDescr s
     if h : cs.size = 1 then

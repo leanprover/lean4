@@ -4045,7 +4045,8 @@ theorem equiv_of_forall_get?_eq [LawfulBEq α] (h₁ : m₁.1.WF) (h₂ : m₂.1
 
 namespace Const
 
-variable {β : Type v} (m₁ m₂ : Raw₀ α fun _ => β) [EquivBEq α] [LawfulHashable α]
+variable {β : Type v} (m₁ m₂ : Raw₀ α fun _ => β)
+variable [EquivBEq α] [LawfulHashable α]
 
 theorem get?_eq_of_equiv (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ~m m₂.1) {k : α} :
     get? m₁ k = get? m₂ k := by

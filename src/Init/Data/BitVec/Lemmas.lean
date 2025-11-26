@@ -6455,7 +6455,7 @@ theorem cons_cpopNat_eq_concat_cpopNat {w : Nat} (x : BitVec w) :
     (x.cons y).cpopNat = (x.concat y).cpopNat := by
   rw [cpopNat_cons, concat_cpopNat]
 
-theorem cons_cpop_eq_concat_cpop {w : Nat} (x : BitVec w) :
+theorem cpop_cons_eq_cpop_concat {w : Nat} (x : BitVec w) :
     (x.cons y).cpop v = (x.concat y).cpop v := by
   simp [cpop, cons_cpopNat_eq_concat_cpopNat]
 

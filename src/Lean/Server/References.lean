@@ -509,15 +509,24 @@ built.
 -/
 structure TransientWorkerILean where
   /-- URI of the module that the file worker is associated with. -/
-  moduleUri     : DocumentUri
+  moduleUri       : DocumentUri
   /-- Document version for which these references have been collected. -/
-  version       : Nat
+  version         : Nat
   /-- Direct imports of the module that the file worker is associated with. -/
-  directImports : DirectImports
+  directImports   : DirectImports
+  /--
+  Whether `lake setup-file` has failed for this worker. `none` if no setup info has been received
+  for this version yet.
+  -/
+  isSetupFailure? : Option Bool
   /-- References provided by the worker. -/
-  refs          : Lsp.ModuleRefs
+  refs            : Lsp.ModuleRefs
   /-- Declarations provided by the worker. -/
-  decls         : Lsp.Decls
+  decls           : Lsp.Decls
+
+/-- Determines whether this transient worker ILean includes actual references. -/
+def TransientWorkerILean.hasRefs (i : TransientWorkerILean) : Bool :=
+  i.isSetupFailure?.any (fun isSetupFailure => ! isSetupFailure)
 
 /--
 Document versions and module references for every module name. Loaded from the current state
@@ -576,15 +585,41 @@ def updateWorkerImports
     : IO References := do
   let directImports ← DirectImports.convertImportInfos directImports
   let some workerRefs := self.workers[name]?
-    | return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs := ∅, decls := ∅} }
+    | return { self with workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure? := none, refs := ∅, decls := ∅} }
   match compare version workerRefs.version with
   | .lt => return self
-  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs := ∅, decls := ∅} }
+  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure? := none, refs := ∅, decls := ∅} }
+  | .eq =>
+    let isSetupFailure? := workerRefs.isSetupFailure?
+    let refs := workerRefs.refs
+    let decls := workerRefs.decls
+    return { self with
+      workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure?, refs, decls }
+    }
+
+/--
+Replaces the direct imports of a worker for the module `name` in `self` with
+a new set of direct imports.
+-/
+def updateWorkerSetupInfo
+    (self           : References)
+    (name           : Name)
+    (moduleUri      : DocumentUri)
+    (version        : Nat)
+    (isSetupFailure : Bool)
+    : IO References := do
+  let isSetupFailure? := some isSetupFailure
+  let some workerRefs := self.workers[name]?
+    | return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, isSetupFailure?, refs := ∅, decls := ∅} }
+  let directImports := workerRefs.directImports
+  match compare version workerRefs.version with
+  | .lt => return self
+  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure?, refs := ∅, decls := ∅} }
   | .eq =>
     let refs := workerRefs.refs
     let decls := workerRefs.decls
     return { self with
-      workers := self.workers.insert name { moduleUri, version, directImports, refs, decls }
+      workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure?, refs, decls }
     }
 
 /--
@@ -601,17 +636,18 @@ def updateWorkerRefs
     (decls     : Lsp.Decls)
     : IO References := do
   let some workerRefs := self.workers[name]?
-    | return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, refs, decls } }
+    | return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, isSetupFailure? := none, refs, decls } }
   let directImports := workerRefs.directImports
+  let isSetupFailure? := workerRefs.isSetupFailure?
   match compare version workerRefs.version with
   | .lt => return self
-  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs, decls } }
+  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure?, refs, decls } }
   | .eq =>
     let mergedRefs := refs.foldl (init := workerRefs.refs) fun m ident info =>
       m.getD ident Lsp.RefInfo.empty |>.merge info |> m.insert ident
     let mergedDecls := workerRefs.decls.insertMany decls
     return { self with
-      workers := self.workers.insert name { moduleUri, version, directImports, refs := mergedRefs, decls := mergedDecls }
+      workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure?, refs := mergedRefs, decls := mergedDecls }
     }
 
 /--
@@ -627,13 +663,14 @@ def finalizeWorkerRefs
     (decls     : Lsp.Decls)
     : IO References := do
   let some workerRefs := self.workers[name]?
-    | return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, refs, decls } }
+    | return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, isSetupFailure? := none, refs, decls } }
   let directImports := workerRefs.directImports
+  let isSetupFailure? := workerRefs.isSetupFailure?
   match compare version workerRefs.version with
   | .lt => return self
-  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs, decls } }
+  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure?, refs, decls } }
   | .eq =>
-    return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs, decls } }
+    return { self with workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure?, refs, decls } }
 
 /-- Erases all worker references in `self` for the worker managing `name`. -/
 def removeWorkerRefs (self : References) (name : Name) : References :=
@@ -648,7 +685,11 @@ abbrev AllRefsMap := Std.TreeMap Name (DocumentUri × Lsp.ModuleRefs × Lsp.Decl
 /-- Yields a map from all modules to all of their references. -/
 def allRefs (self : References) : AllRefsMap :=
   let ileanRefs := self.ileans.foldl (init := ∅) fun m name { moduleUri, refs, decls, .. } => m.insert name (moduleUri, refs, decls)
-  self.workers.foldl (init := ileanRefs) fun m name { moduleUri, refs, decls, ..} => m.insert name (moduleUri, refs, decls)
+  self.workers.foldl (init := ileanRefs) fun m name i@{ moduleUri, refs, decls, ..} =>
+    if i.hasRefs then
+      m.insert name (moduleUri, refs, decls)
+    else
+      m
 
 /--
 Map from each module to all of its direct imports.
@@ -671,7 +712,8 @@ The current references in a file worker take precedence over those in .ilean fil
 -/
 def getModuleRefs? (self : References) (mod : Name) : Option (DocumentUri × Lsp.ModuleRefs × Lsp.Decls) := do
   if let some worker := self.workers[mod]? then
-    return (worker.moduleUri, worker.refs, worker.decls)
+    if worker.hasRefs then
+      return (worker.moduleUri, worker.refs, worker.decls)
   if let some ilean := self.ileans[mod]? then
     return (ilean.moduleUri, ilean.refs, ilean.decls)
   none
@@ -690,7 +732,8 @@ def getDirectImports? (self : References) (mod : Name) : Option DirectImports :=
 /-- Gets the set of declarations of `mod`. -/
 def getDecls? (self : References) (mod : Name) : Option Decls := do
   if let some worker := self.workers[mod]? then
-    return worker.decls
+    if worker.hasRefs then
+      return worker.decls
   if let some ilean := self.ileans[mod]? then
     return ilean.decls
   none

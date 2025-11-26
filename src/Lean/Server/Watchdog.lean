@@ -533,6 +533,11 @@ section ServerM
     let uri := fw.doc.uri
     modifyReferencesIO (·.updateWorkerImports module uri params.version params.directImports)
 
+  def handleILeanHeaderSetupInfo (fw : FileWorker) (params : LeanILeanHeaderSetupInfoParams) : ServerM Unit := do
+    let module := fw.doc.mod
+    let uri := fw.doc.uri
+    modifyReferencesIO (·.updateWorkerSetupInfo module uri params.version params.isSetupFailure)
+
   def handleIleanInfoUpdate (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
     let module := fw.doc.mod
     let uri := fw.doc.uri
@@ -852,6 +857,9 @@ section ServerM
         | .notification "$/lean/ileanHeaderInfo" =>
           if let .ok params := parseNotificationParams? LeanILeanHeaderInfoParams msg then
             handleILeanHeaderInfo fw params
+        | .notification "$/lean/ileanHeaderSetupInfo" =>
+          if let .ok params := parseNotificationParams? LeanILeanHeaderSetupInfoParams msg then
+            handleILeanHeaderSetupInfo fw params
         | .notification "$/lean/ileanInfoUpdate" =>
           if let .ok params := parseNotificationParams? LeanIleanInfoParams msg then
             handleIleanInfoUpdate fw params

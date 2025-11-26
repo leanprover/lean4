@@ -170,7 +170,7 @@ instance : FromJson DeclInfo where
 
 /-- Declarations of a file with associated position information. -/
 @[expose] def Decls := Std.TreeMap String DeclInfo
-  deriving EmptyCollection, ForIn
+  deriving EmptyCollection, ForIn Id
 
 instance : ToJson Decls where
   toJson m := Json.mkObj <| m.toList.map fun (declName, info) => (declName, toJson info)
@@ -302,6 +302,17 @@ structure LeanILeanHeaderInfoParams where
   version       : Nat
   /-- Direct imports of this file. -/
   directImports : Array ImportInfo
+  deriving FromJson, ToJson
+
+/--
+Used in the `$/lean/ileanHeaderSetupInfo` watchdog <- worker notifications.
+Contains status information about `lake setup-file`.
+-/
+structure LeanILeanHeaderSetupInfoParams where
+  /-- Version of the file these imports are from. -/
+  version        : Nat
+  /-- Whether setting up the header using `lake setup-file` has failed. -/
+  isSetupFailure : Bool
   deriving FromJson, ToJson
 
 /--

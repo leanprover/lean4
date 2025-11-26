@@ -6815,7 +6815,7 @@ theorem all_congr [BEq α] {l₁ l₂ : List ((a : α) × β a)} {f : (a : α) �
   · intro hyp ⟨k,v⟩ mem
     exact hyp ⟨k,v⟩ (@Perm.mem_iff _ ⟨k,v⟩ l₂ l₁ hp.symm |>.2 mem)
 
-theorem beqModel_congr [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] {l₁ l₂ l₃ l₄ : List ((a : α) × β a)}
+theorem beqModel_congr [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] {l₁ l₂ l₃ l₄ : List ((a : α) × β a)}
 (hl : DistinctKeys l₂) (p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel l₁ l₂ = beqModel l₃ l₄ := by
   rw [beqModel]
   split

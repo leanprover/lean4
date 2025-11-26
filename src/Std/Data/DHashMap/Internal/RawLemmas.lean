@@ -2599,6 +2599,10 @@ theorem Equiv.beq [∀ k, ReflBEq (β k)] (h₁ : m₁.val.WF) (h₂ : m₂.val.
 theorem Equiv_of_beq_eq_true [∀ k, LawfulBEq (β k)] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq m₁ m₂ = true → m₁.1.Equiv m₂.1 := by
   simp_to_model using List.perm_of_beqModel
 
+theorem Equiv.beq_congr {m₃ m₄ : Raw₀ α β} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (h₄ : m₄.val.WF) :
+    m₁.1.Equiv m₃.1 → m₂.1.Equiv m₄.1 → Raw₀.beq m₁ m₂ = Raw₀.beq m₃ m₄ := by
+  simp_to_model using List.beqModel_congr
+
 end BEq
 
 section
@@ -2610,6 +2614,10 @@ theorem Const.Equiv.beq [LawfulHashable α] [EquivBEq α] [BEq β] [ReflBEq β] 
 
 theorem Const.Equiv_of_beq_eq_true [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq m₁ m₂ = true → m₁.1.Equiv m₂.1 := by
   simp_to_model using List.Const.perm_of_beqModel
+
+theorem Const.Equiv.beq_congr [LawfulBEq α] {m₃ m₄ : Raw₀ α (fun _ => β)} [BEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (h₄ : m₄.val.WF) :
+    m₁.1.Equiv m₃.1 → m₂.1.Equiv m₄.1 → Const.beq m₁ m₂ = Const.beq m₃ m₄ := by
+  simp_to_model using List.Const.beqModel_congr
 end
 
 section
@@ -2621,6 +2629,10 @@ theorem Const.Equiv.beq_unit [LawfulHashable α] [EquivBEq α] (h₁ : m₁.val.
 
 theorem Const.Equiv_of_beq_unit_eq_true [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq_unit m₁ m₂ = true → m₁.1.Equiv m₂.1 := by
   simp_to_model using List.Const.perm_of_beqModel_unit
+
+theorem Const.Equiv.beq_unit_congr [LawfulBEq α] {m₃ m₄ : Raw₀ α (fun _ => Unit)} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (h₄ : m₄.val.WF) :
+    m₁.1.Equiv m₃.1 → m₂.1.Equiv m₄.1 → Const.beq_unit m₁ m₂ = Const.beq_unit m₃ m₄ := by
+  simp_to_model using List.Const.beqModel_unit_congr
 end
 
 variable (m₁ m₂ : Raw₀ α β)

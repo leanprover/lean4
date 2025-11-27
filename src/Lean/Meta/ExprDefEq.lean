@@ -1656,6 +1656,8 @@ private partial def consumeLetIfZeta (e : Expr) : MetaM Expr := do
 mutual
 
 private partial def isDefEqQuick (t s : Expr) : MetaM LBool := do
+  if unsafe ptrEq t s then -- Safe because pointer-equal expressions are certainly defeq
+    return .true
   let t ← consumeLetIfZeta t
   let s ← consumeLetIfZeta s
   match t, s with

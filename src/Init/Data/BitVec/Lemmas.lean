@@ -5822,7 +5822,7 @@ theorem reverse_reverse_eq {x : BitVec w} :
   rw [getElem_reverse, getMsbD_reverse, getLsbD_eq_getElem]
 
 @[simp]
-theorem concat_reverse_setWidth_msb_eq_reverse {x : BitVec (w + 1)}:
+theorem concat_reverse_setWidth_msb_eq_reverse {x : BitVec (w + 1)} :
     concat ((x.setWidth w).reverse) x.msb = x.reverse := by
   ext i hi
   simp only [getElem_reverse, BitVec.msb, getElem_concat, getMsbD_setWidth, Nat.le_add_right,
@@ -6402,7 +6402,7 @@ theorem cons_cpopNatRec_eq_cpopNatRec_add {x : BitVec w} {b : Bool} (hn : w < n)
 
 
 theorem concat_cpopNatRec_eq_add_cpopNatRec_of_lt {x : BitVec w} {b : Bool} (hn : 0 < n) :
-    ((concat x b).cpopNatRec n) = b.toNat + x.cpopNatRec (n - 1) := by
+    (concat x b).cpopNatRec n = b.toNat + x.cpopNatRec (n - 1) := by
   induction n
   · omega
   · case _ n ihn =>
@@ -6451,16 +6451,16 @@ theorem concat_cpop {x : BitVec w} {b : Bool} :
   have := cpopNat_le (x := x)
   by_cases b <;> simp
 
-theorem cons_cpopNat_eq_concat_cpopNat {w : Nat} (x : BitVec w) :
+theorem cons_cpopNat_eq_concat_cpopNat (x : BitVec w) :
     (x.cons y).cpopNat = (x.concat y).cpopNat := by
   rw [cpopNat_cons, concat_cpopNat]
 
-theorem cpop_cons_eq_cpop_concat {w : Nat} (x : BitVec w) :
+theorem cpop_cons_eq_cpop_concat (x : BitVec w) :
     (x.cons y).cpop v = (x.concat y).cpop v := by
   simp [cpop, cons_cpopNat_eq_concat_cpopNat]
 
 @[simp]
-theorem reverse_cpopNat {w : Nat} (x : BitVec w) :
+theorem reverse_cpopNat (x : BitVec w) :
     x.reverse.cpopNat = x.cpopNat := by
   induction w
   case zero =>
@@ -6472,11 +6472,11 @@ theorem reverse_cpopNat {w : Nat} (x : BitVec w) :
       rw [← cons_msb_setWidth (x := x), cpopNat_cons]
 
 @[simp]
-theorem reverse_cpop {w : Nat} (x : BitVec w) :
+theorem reverse_cpop (x : BitVec w) :
     x.reverse.cpop v = x.cpop v := by
   simp [cpop]
 
-theorem cast_cpopNatRec_eq_cpopNatRec_of_eq {x : BitVec w}  (p : w = v) :
+theorem cast_cpopNatRec_eq_cpopNatRec_of_eq {x : BitVec w} (p : w = v) :
     (x.cast p).cpopNatRec n = x.cpopNatRec n := by
   congr
   · omega

@@ -6332,12 +6332,11 @@ theorem cpopNatRec_le_width {x : BitVec w} (n : Nat) :
   · simp
   · case _ n ihn =>
     simp only [cpopNatRec_succ]
+    have := cpopNatRec_le (x := x) (by omega)
     by_cases hle : n < w
-    · have := cpopNatRec_le (x := x) (n := n) (by omega)
-      by_cases h : x.getLsbD n
+    · by_cases h : x.getLsbD n
       <;> (simp [h]; omega)
     · simp [show w ≤ n by omega]
-      have := cpopNatRec_le (x := x) (n := w) (by omega)
       omega
 
 theorem cpopNatRec_eq_of_le {x : BitVec w} (n : Nat) (hn : w ≤ n) :

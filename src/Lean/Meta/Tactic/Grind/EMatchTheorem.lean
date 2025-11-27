@@ -378,6 +378,10 @@ inductive EMatchTheoremConstraint where
     -/
     depthLt (lhs : Nat) (n : Nat)
   | /--
+    Instantiates the theorem only if its generation is less than `n`
+    -/
+    genLt (lhs : Nat) (n : Nat)
+  | /--
     Constraints of the form `is_value x` and `is_strict_value x`.
     A value is defined as
     - A constructor fully applied to value arguments.
@@ -389,10 +393,6 @@ inductive EMatchTheoremConstraint where
     Instantiates the theorem only if less than `n` instances have been generated for this theorem.
     -/
     maxInsts (n : Nat)
-  | /--
-    Instantiates the theorem only if its generation is less than `n`
-    -/
-    maxGen (n : Nat)
   | /--
     It is not really a constraint. It instructs `grind` to mark `e` as a candidate for case-splitting.
     -/

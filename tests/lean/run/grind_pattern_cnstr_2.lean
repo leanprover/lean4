@@ -108,3 +108,50 @@ example (h : g [1, 2, 3] > 0) : False := by
   grind
 
 end Ex6
+
+namespace Ex7
+
+opaque f {α : Type u} : List α × α → Nat
+axiom fax : f x > 0
+
+grind_pattern fax => f x where
+  is_value x
+
+/--
+trace: [grind.ematch.instance] fax: f ([true], false) > 0
+[grind.ematch.instance] fax: f ([1, 2], 4) > 0
+[grind.ematch.instance] fax: f ([fun x => x], fun x => x) > 0
+-/
+#guard_msgs (drop error, trace) in
+set_option trace.grind.ematch.instance true in
+example
+    : f (as, bs) = f ([1], c) →
+      f ([fun x : Nat => x], fun y => y) = d →
+      f ([1, 2], 4) = f ([true], false) →
+      False := by
+  grind
+
+end Ex7
+
+namespace Ex8
+
+opaque f {α : Type u} : List α × α → Nat
+axiom fax : f x > 0
+
+grind_pattern fax => f x where
+  is_strict_value x
+
+/--
+trace: [grind.ematch.instance] fax: f ([true], false) > 0
+[grind.ematch.instance] fax: f ([1, 2], 4) > 0
+-/
+#guard_msgs (drop error, trace) in
+set_option trace.grind.ematch.instance true in
+example
+    : f (as, bs) = f ([1], c) →
+      f ([fun x : Nat => x], fun y => y) = d →
+      f ([1, 2], 4) = f ([true], false) →
+      False := by
+  grind
+
+end Ex8

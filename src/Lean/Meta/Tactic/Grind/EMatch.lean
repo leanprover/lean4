@@ -694,6 +694,20 @@ where
             go arg
     | _ => return ()
 
+/-- Helper function for testing constraints of the form `is_value e` and `is_strict_value e` -/
+private partial def isValue (e : Expr) (strict : Bool) : MetaM Bool := do
+  match_expr e with
+  | Neg.neg _ _ e => isValue e strict
+  | OfNat.ofNat _ n _ => return (← getNatValue? n).isSome
+  | HDiv.hDiv _ _ _ _ a b => isValue a strict <&&> isValue b strict
+  | _ =>
+    if e.isLambda && !strict then return true
+    if (← isLitValue e) then return true
+    let some (ctorVal, args) ← constructorApp'? e | return false
+    for h : i in ctorVal.numParams...args.size do
+      unless (← isValue args[i] strict) do return false
+    return true
+
 /--
 Checks whether `vars` satisfies the `grind_pattern` constraints attached at `thm`.
 Example:
@@ -718,6 +732,7 @@ private def checkConstraints (thm : EMatchTheorem) (gen : Nat) (proof : Expr) (a
     | .defEq lhs rhs => checkDefEq (expectedResult := true) info.levelParams us args lhs rhs
     | .depthLt lhs n => return (← getLHS args lhs).approxDepth.toNat < n
     | .isGround lhs => let lhs ← getLHS args lhs; return !lhs.hasFVar && !lhs.hasMVar
+    | .isValue lhs strict => isValue (← getLHS args lhs) strict
     | .sizeLt lhs n => checkSize (← getLHS args lhs) n
     | .genLt n => return gen < n
     | .maxInsts n =>

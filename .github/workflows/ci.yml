@@ -207,9 +207,9 @@ jobs:
                 //"secondary": level <= 2,
                 "test": true,
                 // turn off custom allocator & symbolic functions to make LSAN do its magic
-                "CMAKE_PRESET": "sanitize",
+                "CMAKE_PRESET": "sanitize"
                 // exclude seriously slow/problematic tests (laketests crash, async_base_functions timeouts)
-                "CTEST_OPTIONS": "-E '(interactive|pkg|lake|bench)/|treemap|StackOverflow|async_base_functions'"
+                //"CTEST_OPTIONS": "-E '(interactive|pkg|lake|bench)/|treemap|StackOverflow|async_base_functions'"
               }
             ];
             for (const job of matrix) {

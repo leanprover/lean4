@@ -6316,7 +6316,7 @@ theorem cpopNatRec_zero {x : BitVec w} :
 theorem cpopNatRec_succ {n : Nat} {x : BitVec w} :
     x.cpopNatRec (n + 1) = (x.getLsbD n).toNat + x.cpopNatRec n := by simp [BitVec.cpopNatRec]
 
-theorem cpopNatRec_le {n : Nat} {x : BitVec w} (h : n ≤ w) :
+theorem cpopNatRec_le {x : BitVec w} (n : Nat) (h : n ≤ w) :
     x.cpopNatRec n ≤ n := by
   induction n
   · simp
@@ -6326,7 +6326,7 @@ theorem cpopNatRec_le {n : Nat} {x : BitVec w} (h : n ≤ w) :
     <;> simp [h]
     <;> omega
 
-theorem cpopNatRec_le_width {w n : Nat} {x : BitVec w} :
+theorem cpopNatRec_le_width {x : BitVec w} (n : Nat) :
     x.cpopNatRec n ≤ w := by
   induction n
   · simp
@@ -6340,7 +6340,7 @@ theorem cpopNatRec_le_width {w n : Nat} {x : BitVec w} :
       have := cpopNatRec_le (x := x) (n := w) (by omega)
       omega
 
-theorem cpopNatRec_eq_of_le {w n : Nat} {x : BitVec w} (hn : w ≤ n) :
+theorem cpopNatRec_eq_of_le {x : BitVec w} (n : Nat) (hn : w ≤ n) :
     x.cpopNatRec n = x.cpopNatRec (n + k) := by
   induction k
   · simp
@@ -6348,7 +6348,7 @@ theorem cpopNatRec_eq_of_le {w n : Nat} {x : BitVec w} (hn : w ≤ n) :
     simp [show n + (k + 1) = (n + k) + 1 by omega, cpopNatRec_succ, ihk, show w ≤ n + k by omega]
 
 @[simp]
-theorem cpopNatRec_allOnes_eq {w n : Nat} (h : n ≤ w) :
+theorem cpopNatRec_allOnes_eq (h : n ≤ w) :
     (BitVec.allOnes w).cpopNatRec n = n := by
   induction n
   · case zero => simp

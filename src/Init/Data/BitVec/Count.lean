@@ -52,10 +52,9 @@ Examples:
 * `(0b1111#4).popcount = 4`
 * `(0#8).popcount = 0`
 
-Note: This implementation could be optimized with a native `@[extern]` implementation
-using efficient CPU instructions (e.g., GMP's `gmp_popcount` or x86's `POPCNT`).
-See https://github.com/leanprover/lean4/issues/7887 for discussion of native implementations.
+This function uses a native implementation with CPU popcount instructions when available.
 -/
+@[extern "lean_bitvec_popcount"]
 def popcount (x : BitVec w) : Nat :=
   x.countP id
 
@@ -130,22 +129,27 @@ Count the number of `false` bits (zeros).
 This is the complement of `popcount`.
 -/
 def zerocount (x : BitVec w) : Nat :=
-  x.countP not
+  w - x.popcount
 
 @[simp]
 theorem zerocount_nil : zerocount nil = 0 := by
-  simp [zerocount, -ofNat_eq_ofNat]
+  simp [zerocount]
 
 @[simp]
 theorem zerocount_cons (b : Bool) (x : BitVec w) :
   zerocount (cons b x) = (!b).toNat + zerocount x := by
-    cases b <;> simp +arith [zerocount, countP]
+    cases b <;>
+      simp +arith [zerocount, Nat.sub_add_comm (popcount_le_width _)]
+
+theorem zerocount_eq_countP (x : BitVec w) :
+  x.zerocount = x.countP not := by
+    induction x using BitVec.induction with
+    | nil => simp [-ofNat_eq_ofNat]
+    | cons _ b => cases b <;> simp_all
 
 theorem popcount_add_zerocount (x : BitVec w) :
   x.popcount + x.zerocount = w := by
-    induction x using BitVec.induction with
-    | nil => simp [-ofNat_eq_ofNat]
-    | cons _ b => cases b <;> simp_all +arith
+    simp +arith [zerocount, popcount_le_width]
 
 @[simp]
 theorem zerocount_not {x : BitVec w} :
@@ -160,14 +164,14 @@ theorem popcount_not {x : BitVec w} :
 
 @[simp]
 theorem zerocount_zero : zerocount 0#w = w := by
-  simp [←popcount_add_zerocount 0#w, -ofNat_eq_ofNat]
+  simp [zerocount]
 
 @[simp]
 theorem zerocount_allOnes : zerocount (allOnes w) = 0 := by
-  simp [←not_zero]
+  simp [zerocount]
 
 theorem zerocount_le_width {x : BitVec w} : zerocount x ≤ w := by
-  simp [←popcount_add_zerocount x]
+  simp [zerocount]
 
 
 /--

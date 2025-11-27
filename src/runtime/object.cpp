@@ -1531,6 +1531,43 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a) {
     }
 }
 
+extern "C" LEAN_EXPORT lean_obj_res lean_bitvec_popcount(b_lean_obj_arg /* w */, b_lean_obj_arg x) {
+    if (lean_is_scalar(x)) {
+        size_t n = lean_unbox(x);
+        unsigned count = 0;
+        bool builtin_used = false;
+
+        #if defined(__GNUC__) || defined(__clang__)
+            #if SIZE_MAX == UINT64_MAX
+                count = __builtin_popcountll(n);
+                builtin_used = true;
+            #elif SIZE_MAX == UINT32_MAX
+                count = __builtin_popcount(n);
+                builtin_used = true;
+            #endif
+        #elif defined(_MSC_VER)
+            #include <intrin.h>
+            #if SIZE_MAX == UINT64_MAX
+                count = __popcnt64(n);
+                builtin_used = true;
+            #elif SIZE_MAX == UINT32_MAX
+                count = __popcnt(n);
+                builtin_used = true;
+            #endif
+        #endif
+
+        if (!builtin_used) {
+            while (n) {
+                count += n & 1;
+                n >>= 1;
+            }
+        }
+        return lean_box(count);
+    } else {
+        return lean_box(mpz_value(x).popcount());
+    }
+}
+
 // =======================================
 // Integers
 

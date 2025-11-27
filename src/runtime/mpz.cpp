@@ -222,6 +222,12 @@ size_t mpz::log2() const {
     return r - 1;
 }
 
+size_t mpz::popcount() const {
+    if (is_nonpos())
+        return 0;
+    return mpz_popcount(m_val);
+}
+
 mpz & mpz::operator&=(mpz const & o) {
     mpz_and(m_val, m_val, o.m_val);
     return *this;
@@ -854,6 +860,20 @@ static unsigned log2_uint(unsigned v) {
 
 size_t mpz::log2() const {
     return (m_size - 1)*sizeof(mpn_digit)*8 + log2_uint(m_digits[m_size - 1]);
+}
+
+size_t mpz::popcount() const {
+    if (is_nonpos())
+        return 0;
+    size_t count = 0;
+    for (size_t i = 0; i < m_size; i++) {
+        mpn_digit d = m_digits[i];
+        while (d) {
+            count += d & 1;
+            d >>= 1;
+        }
+    }
+    return count;
 }
 
 mpz & mpz::operator&=(mpz const & o) {

@@ -190,7 +190,6 @@ LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subMilliseconds(lean_object*, 
 static lean_object* l_Std_Time_instInhabitedPlainDateTime_default___closed__2;
 lean_object* l_Std_Time_PlainDate_rollOver(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_withWeekday(lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_ctorIdx___boxed(lean_object*);
 static lean_object* l_Std_Time_instReprPlainDateTime_repr___redArg___closed__6;
 static lean_object* l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__3;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_instHAddDuration;
@@ -296,7 +295,6 @@ static lean_object* l_Std_Time_instInhabitedPlainDateTime_default___closed__24;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_instHAddOffset;
 static lean_object* l_Std_Time_PlainDateTime_instHAddOffset__2___closed__0;
 static lean_object* l_Std_Time_PlainDateTime_toTimestampAssumingUTC___closed__0;
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subYearsRollOver(lean_object*, lean_object*);
 static lean_object* l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__20;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subMinutes___boxed(lean_object*, lean_object*);
@@ -311,23 +309,6 @@ static lean_object* l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__4;
 static lean_object* l_Std_Time_instInhabitedPlainDateTime_default___closed__17;
 static lean_object* l_Std_Time_instInhabitedPlainDateTime_default___closed__34;
 static lean_object* l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__6;
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Time_PlainDateTime_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_instInhabitedPlainDateTime_default_spec__0(lean_object* x_1) {
 _start:
 {
@@ -1153,6 +1134,24 @@ lean_inc_ref(x_2);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Time_instOrdPlainDateTime___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Time_instOrdPlainDateTime___lam__0(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_instOrdPlainDateTime___lam__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Time_instOrdPlainDateTime___lam__1(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Std_Time_instOrdPlainDateTime() {
 _start:
 {
@@ -1177,24 +1176,6 @@ lean_closure_set(x_7, 1, lean_box(0));
 lean_closure_set(x_7, 2, x_5);
 lean_closure_set(x_7, 3, x_6);
 return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_instOrdPlainDateTime___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Time_instOrdPlainDateTime___lam__0(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_instOrdPlainDateTime___lam__1___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Time_instOrdPlainDateTime___lam__1(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_PlainDateTime_toTimestampAssumingUTC_spec__0(lean_object* x_1) {
@@ -4912,14 +4893,6 @@ x_20 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_19);
 return x_20;
 }
 }
-static lean_object* _init_l_Std_Time_PlainDateTime_instHAddDuration() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_Time_PlainDateTime_instHAddDuration___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_instHAddDuration___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -4927,6 +4900,14 @@ lean_object* x_3;
 x_3 = l_Std_Time_PlainDateTime_instHAddDuration___lam__0(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
+}
+}
+static lean_object* _init_l_Std_Time_PlainDateTime_instHAddDuration() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_Time_PlainDateTime_instHAddDuration___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_PlainDate_atTime(lean_object* x_1, lean_object* x_2) {

@@ -6841,6 +6841,14 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_Lake_Toml_elabVal___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lake_Toml_elabVal(x_1, x_2, x_3);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_Toml_elabVal(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -7478,14 +7486,6 @@ return x_138;
 }
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Toml_elabVal___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lake_Toml_elabVal(x_1, x_2, x_3);
-return x_5;
 }
 }
 lean_object* initialize_Lean_CoreM(uint8_t builtin);

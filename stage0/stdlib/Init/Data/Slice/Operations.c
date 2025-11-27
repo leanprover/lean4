@@ -18,7 +18,6 @@ static lean_object* l_Std_Slice_toListRev___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Std_Slice_toArray___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_instToIterator___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_toArray___redArg___lam__1(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Slice_SliceSize_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_instForInOfMonadOfToIteratorOfIteratorLoopOfFiniteId___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_toArray(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_foldlM___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -35,7 +34,6 @@ LEAN_EXPORT lean_object* l_Std_Slice_foldlM(lean_object*, lean_object*, lean_obj
 lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Std_Slice_toListRev___redArg___closed__8;
 LEAN_EXPORT lean_object* l_Std_Slice_foldl___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Slice_SliceSize_ctorIdx___boxed(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Slice_toListRev___redArg___closed__7;
 LEAN_EXPORT lean_object* l_Std_Slice_foldlM___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -115,23 +113,6 @@ x_6 = lean_apply_1(x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Slice_SliceSize_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Slice_SliceSize_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Slice_SliceSize_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Slice_size___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -162,6 +143,24 @@ lean_inc(x_1);
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Slice_toArray___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Slice_toArray___redArg___lam__0(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Slice_toArray___redArg___lam__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Slice_toArray___redArg___lam__1(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Slice_toArray___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -182,24 +181,6 @@ x_10 = lean_alloc_closure((void*)(l_Std_Slice_toArray___redArg___lam__1___boxed)
 x_11 = lean_apply_1(x_4, x_8);
 x_12 = lean_apply_5(x_6, lean_box(0), x_9, lean_box(0), x_10, x_11);
 return x_12;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Slice_toArray___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Slice_toArray___redArg___lam__0(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Slice_toArray___redArg___lam__1___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Slice_toArray___redArg___lam__1(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Slice_toArray___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -426,6 +407,15 @@ x_14 = lean_apply_7(x_4, x_5, lean_box(0), lean_box(0), lean_box(0), x_12, x_8, 
 return x_14;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Slice_instForInOfMonadOfToIteratorOfIteratorLoopOfFiniteId___redArg___lam__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Slice_instForInOfMonadOfToIteratorOfIteratorLoopOfFiniteId___redArg___lam__1(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Slice_instForInOfMonadOfToIteratorOfIteratorLoopOfFiniteId___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -447,15 +437,6 @@ _start:
 lean_object* x_10; 
 x_10 = l_Std_Slice_instForInOfMonadOfToIteratorOfIteratorLoopOfFiniteId___redArg(x_5, x_6, x_8);
 return x_10;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Slice_instForInOfMonadOfToIteratorOfIteratorLoopOfFiniteId___redArg___lam__1___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Slice_instForInOfMonadOfToIteratorOfIteratorLoopOfFiniteId___redArg___lam__1(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Slice_instForInOfMonadOfToIteratorOfIteratorLoopOfFiniteId___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {

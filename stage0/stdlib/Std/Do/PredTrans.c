@@ -36,10 +36,8 @@ LEAN_EXPORT lean_object* l_Std_Do_PredTrans_pushOption___redArg___lam__1(lean_ob
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_instMonad___lam__7___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_const(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_pushArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_PredTrans_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_pushExcept___redArg___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_instLE___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_PredTrans_ctorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_instMonad___lam__4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_instMonad___lam__7(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_pushArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -60,24 +58,6 @@ lean_object* l_Function_const___boxed(lean_object*, lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_pushExcept___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_pure___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_pure(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_PredTrans_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Do_PredTrans_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Do_PredTrans_ctorIdx(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_1);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_instLE(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -190,6 +170,16 @@ lean_inc(x_1);
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Do_PredTrans_const___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Do_PredTrans_const___redArg___lam__0(x_1, x_2);
+lean_dec_ref(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_const___redArg(lean_object* x_1) {
 _start:
 {
@@ -206,16 +196,6 @@ lean_object* x_4;
 x_4 = lean_alloc_closure((void*)(l_Std_Do_PredTrans_const___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(x_4, 0, x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Do_PredTrans_const___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Do_PredTrans_const___redArg___lam__0(x_1, x_2);
-lean_dec_ref(x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_const___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -303,6 +283,15 @@ x_4 = l_Std_Do_PredTrans_pure___redArg___lam__0(x_1, x_3);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Do_PredTrans_instMonad___lam__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_Do_PredTrans_instMonad___lam__4(x_1, x_2, x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_instMonad___lam__5(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -332,6 +321,15 @@ lean_object* x_4; lean_object* x_5;
 x_4 = lean_box(0);
 x_5 = lean_apply_2(x_1, x_4, x_3);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_PredTrans_instMonad___lam__7___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_Do_PredTrans_instMonad___lam__7(x_1, x_2, x_3);
+lean_dec(x_2);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_instMonad___lam__8(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -377,24 +375,6 @@ x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
 return x_11;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Do_PredTrans_instMonad___lam__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Do_PredTrans_instMonad___lam__4(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Do_PredTrans_instMonad___lam__7___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Do_PredTrans_instMonad___lam__7(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_pushArg___redArg___lam__0(lean_object* x_1, lean_object* x_2) {

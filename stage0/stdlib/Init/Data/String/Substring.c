@@ -905,6 +905,16 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Substring_Raw_posOf___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Substring_Raw_posOf___lam__1(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+lean_dec_ref(x_2);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Substring_Raw_posOf(lean_object* x_1, uint32_t x_2) {
 _start:
 {
@@ -1081,16 +1091,6 @@ return x_42;
 }
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Substring_Raw_posOf___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Substring_Raw_posOf___lam__1(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-lean_dec_ref(x_2);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Substring_Raw_posOf___boxed(lean_object* x_1, lean_object* x_2) {
@@ -2043,6 +2043,36 @@ x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
 }
+LEAN_EXPORT lean_object* l_Substring_Raw_foldl___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint32_t x_5; lean_object* x_6; 
+x_5 = lean_unbox_uint32(x_2);
+lean_dec(x_2);
+x_6 = l_Substring_Raw_foldl___redArg___lam__0(x_1, x_5, x_3, x_4);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Substring_Raw_foldl___redArg___lam__2___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Substring_Raw_foldl___redArg___lam__2(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Substring_Raw_foldl___redArg___lam__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint32_t x_3; lean_object* x_4; 
+x_3 = l_Substring_Raw_foldl___redArg___lam__1(x_1, x_2);
+lean_dec(x_2);
+lean_dec_ref(x_1);
+x_4 = lean_box_uint32(x_3);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Substring_Raw_foldl___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2373,36 +2403,6 @@ goto block_42;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Substring_Raw_foldl___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint32_t x_5; lean_object* x_6; 
-x_5 = lean_unbox_uint32(x_2);
-lean_dec(x_2);
-x_6 = l_Substring_Raw_foldl___redArg___lam__0(x_1, x_5, x_3, x_4);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Substring_Raw_foldl___redArg___lam__2___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Substring_Raw_foldl___redArg___lam__2(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Substring_Raw_foldl___redArg___lam__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint32_t x_3; lean_object* x_4; 
-x_3 = l_Substring_Raw_foldl___redArg___lam__1(x_1, x_2);
-lean_dec(x_2);
-lean_dec_ref(x_1);
-x_4 = lean_box_uint32(x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Substring_Raw_foldr___redArg___lam__0(lean_object* x_1, uint32_t x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -2420,6 +2420,16 @@ _start:
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Substring_Raw_foldl___redArg___lam__2___boxed), 2, 0);
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Substring_Raw_foldr___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint32_t x_5; lean_object* x_6; 
+x_5 = lean_unbox_uint32(x_2);
+lean_dec(x_2);
+x_6 = l_Substring_Raw_foldr___redArg___lam__0(x_1, x_5, x_3, x_4);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Substring_Raw_foldr___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2750,16 +2760,6 @@ x_34 = x_45;
 goto block_42;
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Substring_Raw_foldr___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint32_t x_5; lean_object* x_6; 
-x_5 = lean_unbox_uint32(x_2);
-lean_dec(x_2);
-x_6 = l_Substring_Raw_foldr___redArg___lam__0(x_1, x_5, x_3, x_4);
-return x_6;
 }
 }
 LEAN_EXPORT uint8_t l_Substring_Raw_any(lean_object* x_1, lean_object* x_2) {
@@ -3342,6 +3342,19 @@ x_3 = lean_uint32_dec_eq(x_2, x_1);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Substring_Raw_contains___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint32_t x_3; uint32_t x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_4 = lean_unbox_uint32(x_2);
+lean_dec(x_2);
+x_5 = l_Substring_Raw_contains___lam__0(x_3, x_4);
+x_6 = lean_box(x_5);
+return x_6;
+}
+}
 LEAN_EXPORT uint8_t l_Substring_Raw_contains(lean_object* x_1, uint32_t x_2) {
 _start:
 {
@@ -3493,19 +3506,6 @@ x_28 = x_33;
 goto block_31;
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Substring_Raw_contains___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint32_t x_3; uint32_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox_uint32(x_1);
-lean_dec(x_1);
-x_4 = lean_unbox_uint32(x_2);
-lean_dec(x_2);
-x_5 = l_Substring_Raw_contains___lam__0(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Substring_Raw_contains___boxed(lean_object* x_1, lean_object* x_2) {
@@ -3971,6 +3971,17 @@ return x_5;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Substring_Raw_isNat___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+uint32_t x_2; uint8_t x_3; lean_object* x_4; 
+x_2 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_3 = l_Substring_Raw_isNat___lam__0(x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
 LEAN_EXPORT uint8_t l_Substring_Raw_isNat(lean_object* x_1) {
 _start:
 {
@@ -4171,17 +4182,6 @@ x_49 = 0;
 return x_49;
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Substring_Raw_isNat___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-uint32_t x_2; uint8_t x_3; lean_object* x_4; 
-x_2 = lean_unbox_uint32(x_1);
-lean_dec(x_1);
-x_3 = l_Substring_Raw_isNat___lam__0(x_2);
-x_4 = lean_box(x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Substring_Raw_isNat___boxed(lean_object* x_1) {

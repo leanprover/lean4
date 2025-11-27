@@ -383,14 +383,6 @@ return x_15;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_instOrdValidDate(uint8_t x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Time_instOrdValidDate___lam__0___boxed), 2, 0);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_instOrdValidDate___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -400,6 +392,14 @@ lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_instOrdValidDate(uint8_t x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Std_Time_instOrdValidDate___lam__0___boxed), 2, 0);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_instOrdValidDate___boxed(lean_object* x_1) {

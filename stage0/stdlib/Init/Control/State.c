@@ -114,6 +114,15 @@ lean_inc(x_2);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_StateT_run_x27___redArg___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_StateT_run_x27___redArg___lam__0(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_StateT_run_x27___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -138,15 +147,6 @@ x_8 = lean_alloc_closure((void*)(l_StateT_run_x27___redArg___lam__0___boxed), 1,
 x_9 = lean_apply_1(x_5, x_6);
 x_10 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_8, x_9);
 return x_10;
-}
-}
-LEAN_EXPORT lean_object* l_StateT_run_x27___redArg___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_StateT_run_x27___redArg___lam__0(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_StateT_pure___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

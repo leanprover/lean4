@@ -10142,6 +10142,26 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_queryMap___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_queryMap___lam__0(x_1, x_2, x_3);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_queryMap___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_queryMap___lam__1(x_1, x_2, x_3);
+lean_dec_ref(x_2);
+lean_dec(x_1);
+return x_4;
+}
+}
 static lean_object* _init_l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_queryMap() {
 _start:
 {
@@ -10590,26 +10610,6 @@ lean_object* x_5;
 x_5 = l_List_forIn_x27_loop___at___00Std_DHashMap_Internal_Raw_u2080_insertMany___at___00__private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_queryMap_spec__0_spec__0(x_1, x_2, x_3, x_4);
 lean_dec(x_1);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_queryMap___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_queryMap___lam__0(x_1, x_2, x_3);
-lean_dec_ref(x_2);
-lean_dec_ref(x_1);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_queryMap___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_queryMap___lam__1(x_1, x_2, x_3);
-lean_dec_ref(x_2);
-lean_dec(x_1);
-return x_4;
 }
 }
 static lean_object* _init_l_Std_DHashMap_Internal_Raw_u2080_tacticSimp__to__model_x5b___x5dUsing___00__closed__0() {

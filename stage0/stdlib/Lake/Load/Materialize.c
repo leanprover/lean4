@@ -58,7 +58,6 @@ LEAN_EXPORT lean_object* l_Lake_instInhabitedMaterializedDep_default;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 extern lean_object* l_Lake_instInhabitedPackageEntry_default;
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_Dependency_materialize_mkDep(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MaterializedDep_ctorIdx___boxed(lean_object*);
 lean_object* l_Lake_GitRepo_resolveRemoteRevision(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lake_Dependency_materialize___closed__8;
@@ -152,7 +151,6 @@ LEAN_EXPORT lean_object* l_Lake_Dependency_materialize___boxed(lean_object*, lea
 lean_object* lean_io_error_to_string(lean_object*);
 extern lean_object* l_Lake_defaultConfigFile;
 static size_t l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__8;
-LEAN_EXPORT lean_object* l_Lake_MaterializedDep_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___at___00__private_Lake_Load_Materialize_0__Lake_materializeGitRepo_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -2866,23 +2864,6 @@ _start:
 lean_object* x_7; 
 x_7 = l___private_Lake_Load_Materialize_0__Lake_materializeGitRepo(x_1, x_2, x_3, x_4, x_5);
 return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_MaterializedDep_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_MaterializedDep_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_MaterializedDep_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lake_instInhabitedMaterializedDep_default___closed__0() {

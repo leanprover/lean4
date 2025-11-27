@@ -94,7 +94,6 @@ LEAN_EXPORT lean_object* l_Lake_GitRepo_clone(lean_object*, lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Lake_GitRepo_resolveRevision_x3f(lean_object*, lean_object*);
 static lean_object* l_Lake_GitRepo_resolveRevision___closed__1;
 static lean_object* l_Lake_GitRepo_findTag_x3f___closed__4;
-LEAN_EXPORT lean_object* l_Lake_GitRepo_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardPattern_defaultDropPrefix_x3f___at___00__private_Init_Data_String_Slice_0__String_Slice_dropWhile_go___at___00Lake_Git_isFullObjectName_spec__0_spec__0___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_GitRepo_dirExists(lean_object*);
 static lean_object* l_Lake_GitRepo_resolveRevision___closed__0;
@@ -192,7 +191,6 @@ LEAN_EXPORT lean_object* l_Lake_instCoeFilePathGitRepo___lam__0___boxed(lean_obj
 static lean_object* l_Lake_instToStringGitRepo___closed__0;
 LEAN_EXPORT uint8_t l_Lake_GitRepo_insideWorkTree(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Git_upstreamBranch;
-LEAN_EXPORT lean_object* l_Lake_GitRepo_ctorIdx(lean_object*);
 static lean_object* _init_l_Lake_Git_defaultRemote___closed__0() {
 _start:
 {
@@ -540,35 +538,10 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_GitRepo_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_GitRepo_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_GitRepo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_instCoeFilePathGitRepo___lam__0(lean_object* x_1) {
 _start:
 {
 lean_inc_ref(x_1);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_instCoeFilePathGitRepo() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_instCoeFilePathGitRepo___lam__0___boxed), 1, 0);
 return x_1;
 }
 }
@@ -579,6 +552,14 @@ lean_object* x_2;
 x_2 = l_Lake_instCoeFilePathGitRepo___lam__0(x_1);
 lean_dec_ref(x_1);
 return x_2;
+}
+}
+static lean_object* _init_l_Lake_instCoeFilePathGitRepo() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lake_instCoeFilePathGitRepo___lam__0___boxed), 1, 0);
+return x_1;
 }
 }
 static lean_object* _init_l_Lake_instToStringGitRepo___closed__0() {

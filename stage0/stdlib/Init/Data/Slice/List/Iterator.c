@@ -379,6 +379,16 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_instSliceSizeListSliceData___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_instSliceSizeListSliceData___lam__1(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_instSliceSizeListSliceData(lean_object* x_1) {
 _start:
 {
@@ -393,16 +403,6 @@ lean_closure_set(x_6, 1, x_5);
 lean_closure_set(x_6, 2, x_2);
 lean_closure_set(x_6, 3, x_3);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_instSliceSizeListSliceData___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_instSliceSizeListSliceData___lam__1(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_1);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_instForInListSliceOfMonad___redArg___lam__0(lean_object* x_1) {
@@ -526,6 +526,15 @@ return x_15;
 }
 }
 }
+LEAN_EXPORT lean_object* l_instForInListSliceOfMonad___redArg___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_instForInListSliceOfMonad___redArg___lam__0(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_instForInListSliceOfMonad___redArg(lean_object* x_1) {
 _start:
 {
@@ -549,15 +558,6 @@ _start:
 lean_object* x_4; 
 x_4 = l_instForInListSliceOfMonad___redArg(x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_instForInListSliceOfMonad___redArg___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_instForInListSliceOfMonad___redArg___lam__0(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_List_instAppendListSlice___lam__0(lean_object* x_1, lean_object* x_2) {
@@ -774,6 +774,24 @@ goto block_19;
 }
 }
 }
+LEAN_EXPORT lean_object* l_List_instAppendListSlice___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_List_instAppendListSlice___lam__0(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_List_instAppendListSlice___lam__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_List_instAppendListSlice___lam__1(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_List_instAppendListSlice(lean_object* x_1) {
 _start:
 {
@@ -792,24 +810,6 @@ lean_closure_set(x_6, 3, x_5);
 lean_closure_set(x_6, 4, x_2);
 lean_closure_set(x_6, 5, x_3);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_List_instAppendListSlice___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_instAppendListSlice___lam__0(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_List_instAppendListSlice___lam__1___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_List_instAppendListSlice___lam__1(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_List_ListSlice_repr___redArg___closed__0() {
@@ -948,6 +948,15 @@ x_4 = l_List_ListSlice_repr___redArg(x_1, x_2);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_List_instReprListSlice___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_List_instReprListSlice___redArg___lam__0(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_List_instReprListSlice___redArg(lean_object* x_1) {
 _start:
 {
@@ -963,15 +972,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_List_instReprListSlice___redArg(x_2);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_List_instReprListSlice___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_List_instReprListSlice___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
 }
 }
 static lean_object* _init_l_List_instToStringListSlice___redArg___lam__2___closed__0() {

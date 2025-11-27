@@ -20,7 +20,6 @@ lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_join(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_System_FilePath_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_normalize(lean_object*);
 static lean_object* l_String_Slice_split___at___00System_FilePath_components_spec__0___closed__6;
 LEAN_EXPORT lean_object* l_System_FilePath_instHDivString___lam__0(lean_object*, lean_object*);
@@ -168,25 +167,7 @@ LEAN_EXPORT lean_object* l_String_Slice_revFind_x3f___at___00__private_Init_Syst
 static lean_object* l_String_Slice_split___at___00System_FilePath_components_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_System_FilePath_isRelative___boxed(lean_object*);
 static lean_object* l_String_Slice_split___at___00System_FilePath_components_spec__0___closed__3;
-LEAN_EXPORT lean_object* l_System_FilePath_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_System_instToStringFilePath___lam__0___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_System_FilePath_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_System_FilePath_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_System_FilePath_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_System_instInhabitedFilePath_default___closed__0() {
 _start:
 {
@@ -318,14 +299,6 @@ x_7 = l_Repr_addAppParen(x_6, x_2);
 return x_7;
 }
 }
-static lean_object* _init_l_System_instReprFilePath() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_System_instReprFilePath___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_System_instReprFilePath___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -335,18 +308,18 @@ lean_dec(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_System_instReprFilePath() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_System_instReprFilePath___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_System_instToStringFilePath___lam__0(lean_object* x_1) {
 _start:
 {
 lean_inc_ref(x_1);
-return x_1;
-}
-}
-static lean_object* _init_l_System_instToStringFilePath() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_System_instToStringFilePath___lam__0___boxed), 1, 0);
 return x_1;
 }
 }
@@ -357,6 +330,14 @@ lean_object* x_2;
 x_2 = l_System_instToStringFilePath___lam__0(x_1);
 lean_dec_ref(x_1);
 return x_2;
+}
+}
+static lean_object* _init_l_System_instToStringFilePath() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_System_instToStringFilePath___lam__0___boxed), 1, 0);
+return x_1;
 }
 }
 static uint8_t _init_l_System_FilePath_pathSeparator___closed__0() {
@@ -1135,6 +1116,18 @@ x_3 = l_List_elem___at___00System_FilePath_normalize_spec__0(x_2, x_1);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_String_Slice_revFind_x3f___at___00__private_Init_System_FilePath_0__System_FilePath_posOfLastSep_spec__0___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint32_t x_3; uint8_t x_4; lean_object* x_5; 
+x_3 = lean_unbox_uint32(x_2);
+lean_dec(x_2);
+x_4 = l_String_Slice_revFind_x3f___at___00__private_Init_System_FilePath_0__System_FilePath_posOfLastSep_spec__0___redArg___lam__0(x_1, x_3);
+lean_dec(x_1);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_String_Slice_revFind_x3f___at___00__private_Init_System_FilePath_0__System_FilePath_posOfLastSep_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1233,18 +1226,6 @@ lean_dec(x_6);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_String_Slice_revFind_x3f___at___00__private_Init_System_FilePath_0__System_FilePath_posOfLastSep_spec__0___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint32_t x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = lean_unbox_uint32(x_2);
-lean_dec(x_2);
-x_4 = l_String_Slice_revFind_x3f___at___00__private_Init_System_FilePath_0__System_FilePath_posOfLastSep_spec__0___redArg___lam__0(x_1, x_3);
-lean_dec(x_1);
-x_5 = lean_box(x_4);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_String_Slice_revFind_x3f___at___00__private_Init_System_FilePath_0__System_FilePath_posOfLastSep_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
@@ -2633,14 +2614,6 @@ lean_inc_ref(x_1);
 return x_1;
 }
 }
-static lean_object* _init_l_System_instCoeStringFilePath() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_System_instCoeStringFilePath___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_System_instCoeStringFilePath___lam__0___boxed(lean_object* x_1) {
 _start:
 {
@@ -2648,6 +2621,14 @@ lean_object* x_2;
 x_2 = l_System_instCoeStringFilePath___lam__0(x_1);
 lean_dec_ref(x_1);
 return x_2;
+}
+}
+static lean_object* _init_l_System_instCoeStringFilePath() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_System_instCoeStringFilePath___lam__0___boxed), 1, 0);
+return x_1;
 }
 }
 static uint32_t _init_l_System_SearchPath_separator() {

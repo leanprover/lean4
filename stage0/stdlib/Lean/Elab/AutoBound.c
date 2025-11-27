@@ -28,7 +28,6 @@ static lean_object* l___private_Lean_Elab_AutoBound_0__Lean_Elab_isValidAutoBoun
 static lean_object* l_Lean_Elab_initFn___closed__4_00___x40_Lean_Elab_AutoBound_366037992____hygCtx___hyg_4_;
 static lean_object* l_Lean_Elab_checkValidAutoBoundImplicitName___closed__10;
 static lean_object* l_Lean_Elab_initFn___closed__0_00___x40_Lean_Elab_AutoBound_366037992____hygCtx___hyg_4_;
-LEAN_EXPORT lean_object* l_Lean_Elab_AutoBoundImplicitContext_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___00Lean_Elab_initFn_00___x40_Lean_Elab_AutoBound_366037992____hygCtx___hyg_4__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_initFn_00___x40_Lean_Elab_AutoBound_323533819____hygCtx___hyg_4____boxed(lean_object*);
@@ -43,7 +42,6 @@ static lean_object* l_Lean_Elab_checkValidAutoBoundImplicitName___closed__7;
 extern lean_object* l_String_instInhabitedSlice;
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 static lean_object* l_Lean_Elab_checkValidAutoBoundImplicitName___closed__4;
-LEAN_EXPORT lean_object* l_Lean_Elab_AutoBoundImplicitContext_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Elab_initFn___closed__3_00___x40_Lean_Elab_AutoBound_323533819____hygCtx___hyg_4_;
 LEAN_EXPORT uint8_t l_Lean_Elab_isValidAutoBoundLevelName(lean_object*, uint8_t);
 static lean_object* l_Lean_Elab_checkValidAutoBoundImplicitName___closed__3;
@@ -1069,23 +1067,6 @@ x_3 = lean_unbox(x_2);
 x_4 = l_Lean_Elab_isValidAutoBoundLevelName(x_1, x_3);
 x_5 = lean_box(x_4);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_AutoBoundImplicitContext_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_AutoBoundImplicitContext_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_AutoBoundImplicitContext_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_Elab_instInhabitedAutoBoundImplicitContext_default___closed__0() {

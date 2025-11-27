@@ -32,7 +32,6 @@ static lean_object* l_Lake_instReprArtifact_repr___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedArtifact_default;
 lean_object* l_IO_FS_instReprSystemTime_repr___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Artifact_useLocalFile(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Artifact_ctorIdx(lean_object*);
 lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_instFromJson;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at___00Lake_ArtifactDescr_ofFilePath_x3f_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -73,7 +72,6 @@ LEAN_EXPORT lean_object* l_Lake_artifactWithExt(uint64_t, lean_object*);
 static lean_object* l_Lake_instReprArtifact_repr___redArg___closed__11;
 LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_fromJson_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_instToString;
-LEAN_EXPORT lean_object* l_Lake_Artifact_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lake_instReprArtifact_repr___redArg___closed__3;
 static lean_object* l_Lake_ArtifactDescr_ofFilePath_x3f___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedArtifactDescr_default;
@@ -81,14 +79,12 @@ static lean_object* l_Lake_instReprArtifact_repr___redArg___closed__2;
 static lean_object* l_Lake_instReprArtifact_repr___redArg___closed__12;
 static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__0;
 static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__6;
-LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_instToJson;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 extern uint64_t l_Lake_Hash_nil;
 LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_relPath___boxed(lean_object*);
 static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__2;
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Artifact_trace(lean_object*);
 static lean_object* l_Lake_instInhabitedArtifact_default___closed__3;
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
@@ -162,23 +158,6 @@ lean_dec(x_1);
 x_4 = l_Lake_artifactPath(x_3, x_2);
 lean_dec_ref(x_2);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_ArtifactDescr_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static uint64_t _init_l_Lake_instInhabitedArtifactDescr_default___closed__0() {
@@ -585,14 +564,6 @@ return x_11;
 }
 }
 }
-static lean_object* _init_l_Lake_ArtifactDescr_instToString() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_ArtifactDescr_instToString___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_instToString___lam__0___boxed(lean_object* x_1) {
 _start:
 {
@@ -600,6 +571,14 @@ lean_object* x_2;
 x_2 = l_Lake_ArtifactDescr_instToString___lam__0(x_1);
 lean_dec_ref(x_1);
 return x_2;
+}
+}
+static lean_object* _init_l_Lake_ArtifactDescr_instToString() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lake_ArtifactDescr_instToString___lam__0___boxed), 1, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_instToJson___lam__0(lean_object* x_1) {
@@ -633,14 +612,6 @@ return x_13;
 }
 }
 }
-static lean_object* _init_l_Lake_ArtifactDescr_instToJson() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_ArtifactDescr_instToJson___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_instToJson___lam__0___boxed(lean_object* x_1) {
 _start:
 {
@@ -648,6 +619,14 @@ lean_object* x_2;
 x_2 = l_Lake_ArtifactDescr_instToJson___lam__0(x_1);
 lean_dec_ref(x_1);
 return x_2;
+}
+}
+static lean_object* _init_l_Lake_ArtifactDescr_instToJson() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lake_ArtifactDescr_instToJson___lam__0___boxed), 1, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at___00Lake_ArtifactDescr_ofFilePath_x3f_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -963,23 +942,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lake_ArtifactDescr_instFromJson___closed__0;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Artifact_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Artifact_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Artifact_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lake_instInhabitedArtifact_default___closed__0() {

@@ -70,7 +70,6 @@ LEAN_EXPORT lean_object* l_FloatArray_foldl___redArg___lam__0___boxed(lean_objec
 lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_get_x3f(lean_object*, lean_object*);
 static lean_object* l_FloatArray_foldl___redArg___closed__8;
-LEAN_EXPORT lean_object* l_FloatArray_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instBEq_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instGetElemNatFloatLtSize;
 LEAN_EXPORT lean_object* l_FloatArray_foldl___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -151,7 +150,6 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_toList(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_set_x21___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_ctorIdx(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -174,23 +172,6 @@ LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe___redArg___boxed(lean_object*
 LEAN_EXPORT lean_object* l_FloatArray_instEmptyCollection;
 LEAN_EXPORT lean_object* l_FloatArray_uget___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_FloatArray_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_FloatArray_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_FloatArray_mk___boxed(lean_object* x_1) {
 _start:
 {
@@ -698,14 +679,6 @@ x_4 = lean_float_array_fget(x_1, x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_FloatArray_instGetElemNatFloatLtSize() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_FloatArray_instGetElemNatFloatLtSize___lam__0___boxed), 3, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_FloatArray_instGetElemNatFloatLtSize___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -717,20 +690,20 @@ x_5 = lean_box_float(x_4);
 return x_5;
 }
 }
+static lean_object* _init_l_FloatArray_instGetElemNatFloatLtSize() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_FloatArray_instGetElemNatFloatLtSize___lam__0___boxed), 3, 0);
+return x_1;
+}
+}
 LEAN_EXPORT double l_FloatArray_instGetElemUSizeFloatLtNatToNatSize___lam__0(lean_object* x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 double x_4; 
 x_4 = lean_float_array_uget(x_1, x_2);
 return x_4;
-}
-}
-static lean_object* _init_l_FloatArray_instGetElemUSizeFloatLtNatToNatSize() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_FloatArray_instGetElemUSizeFloatLtNatToNatSize___lam__0___boxed), 3, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_FloatArray_instGetElemUSizeFloatLtNatToNatSize___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -743,6 +716,14 @@ x_5 = l_FloatArray_instGetElemUSizeFloatLtNatToNatSize___lam__0(x_1, x_4, x_3);
 lean_dec_ref(x_1);
 x_6 = lean_box_float(x_5);
 return x_6;
+}
+}
+static lean_object* _init_l_FloatArray_instGetElemUSizeFloatLtNatToNatSize() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_FloatArray_instGetElemUSizeFloatLtNatToNatSize___lam__0___boxed), 3, 0);
+return x_1;
 }
 }
 static lean_object* _init_l___auto_00___x40_Init_Data_FloatArray_Basic_2154413398____hygCtx___hyg_9_() {
@@ -875,36 +856,16 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___lam__0(lean_object* x_1, size_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, size_t x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-if (lean_obj_tag(x_7) == 0)
-{
-lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-lean_dec(x_5);
-lean_dec_ref(x_4);
-lean_dec_ref(x_3);
-x_8 = lean_ctor_get(x_7, 0);
-lean_inc(x_8);
-lean_dec_ref(x_7);
-x_9 = lean_ctor_get(x_1, 1);
-lean_inc(x_9);
-lean_dec_ref(x_1);
-x_10 = lean_apply_2(x_9, lean_box(0), x_8);
+size_t x_8; size_t x_9; lean_object* x_10; 
+x_8 = lean_unbox_usize(x_2);
+lean_dec(x_2);
+x_9 = lean_unbox_usize(x_6);
+lean_dec(x_6);
+x_10 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___lam__0(x_1, x_8, x_3, x_4, x_5, x_9, x_7);
 return x_10;
-}
-else
-{
-lean_object* x_11; size_t x_12; size_t x_13; lean_object* x_14; 
-lean_dec_ref(x_1);
-x_11 = lean_ctor_get(x_7, 0);
-lean_inc(x_11);
-lean_dec_ref(x_7);
-x_12 = 1;
-x_13 = lean_usize_add(x_2, x_12);
-x_14 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg(x_3, x_4, x_5, x_6, x_13, x_11);
-return x_14;
-}
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, size_t x_4, size_t x_5, lean_object* x_6) {
@@ -953,24 +914,44 @@ return x_19;
 }
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___lam__0(lean_object* x_1, size_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, size_t x_6, lean_object* x_7) {
+_start:
+{
+if (lean_obj_tag(x_7) == 0)
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_dec(x_5);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
+x_8 = lean_ctor_get(x_7, 0);
+lean_inc(x_8);
+lean_dec_ref(x_7);
+x_9 = lean_ctor_get(x_1, 1);
+lean_inc(x_9);
+lean_dec_ref(x_1);
+x_10 = lean_apply_2(x_9, lean_box(0), x_8);
+return x_10;
+}
+else
+{
+lean_object* x_11; size_t x_12; size_t x_13; lean_object* x_14; 
+lean_dec_ref(x_1);
+x_11 = lean_ctor_get(x_7, 0);
+lean_inc(x_11);
+lean_dec_ref(x_7);
+x_12 = 1;
+x_13 = lean_usize_add(x_2, x_12);
+x_14 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg(x_3, x_4, x_5, x_6, x_13, x_11);
+return x_14;
+}
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, size_t x_6, size_t x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
 x_9 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg(x_3, x_4, x_5, x_6, x_7, x_8);
 return x_9;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-size_t x_8; size_t x_9; lean_object* x_10; 
-x_8 = lean_unbox_usize(x_2);
-lean_dec(x_2);
-x_9 = lean_unbox_usize(x_6);
-lean_dec(x_6);
-x_10 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___lam__0(x_1, x_8, x_3, x_4, x_5, x_9, x_7);
-return x_10;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -1017,31 +998,13 @@ x_9 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___re
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-if (lean_obj_tag(x_6) == 0)
-{
-lean_object* x_7; lean_object* x_8; 
-lean_dec(x_4);
-lean_dec_ref(x_3);
-lean_dec_ref(x_2);
-x_7 = lean_ctor_get(x_6, 0);
-lean_inc(x_7);
-lean_dec_ref(x_6);
-x_8 = lean_apply_2(x_1, lean_box(0), x_7);
-return x_8;
-}
-else
-{
-lean_object* x_9; lean_object* x_10; 
-lean_dec(x_1);
-x_9 = lean_ctor_get(x_6, 0);
-lean_inc(x_9);
-lean_dec_ref(x_6);
-x_10 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg(x_2, x_3, x_4, x_5, x_9);
-return x_10;
-}
+lean_object* x_7; 
+x_7 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_5);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -1095,21 +1058,39 @@ return x_21;
 }
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+if (lean_obj_tag(x_6) == 0)
+{
+lean_object* x_7; lean_object* x_8; 
+lean_dec(x_4);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
+x_7 = lean_ctor_get(x_6, 0);
+lean_inc(x_7);
+lean_dec_ref(x_6);
+x_8 = lean_apply_2(x_1, lean_box(0), x_7);
+return x_8;
+}
+else
+{
+lean_object* x_9; lean_object* x_10; 
+lean_dec(x_1);
+x_9 = lean_ctor_get(x_6, 0);
+lean_inc(x_9);
+lean_dec_ref(x_6);
+x_10 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg(x_2, x_3, x_4, x_5, x_9);
+return x_10;
+}
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
 x_9 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg(x_3, x_4, x_5, x_6, x_8);
 return x_9;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_5);
-return x_7;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -1157,13 +1138,15 @@ x_3 = l_FloatArray_instForInFloatOfMonad___redArg(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg___lam__0(size_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, size_t x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; 
-x_7 = 1;
-x_8 = lean_usize_add(x_1, x_7);
-x_9 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg(x_2, x_3, x_4, x_8, x_5, x_6);
+x_7 = lean_unbox_usize(x_1);
+lean_dec(x_1);
+x_8 = lean_unbox_usize(x_5);
+lean_dec(x_5);
+x_9 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg___lam__0(x_7, x_2, x_3, x_4, x_8, x_6);
 return x_9;
 }
 }
@@ -1210,23 +1193,21 @@ return x_18;
 }
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg___lam__0(size_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, size_t x_5, lean_object* x_6) {
+_start:
+{
+size_t x_7; size_t x_8; lean_object* x_9; 
+x_7 = 1;
+x_8 = lean_usize_add(x_1, x_7);
+x_9 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg(x_2, x_3, x_4, x_8, x_5, x_6);
+return x_9;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, size_t x_6, size_t x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
 x_9 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg(x_3, x_4, x_5, x_6, x_7, x_8);
-return x_9;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-size_t x_7; size_t x_8; lean_object* x_9; 
-x_7 = lean_unbox_usize(x_1);
-lean_dec(x_1);
-x_8 = lean_unbox_usize(x_5);
-lean_dec(x_5);
-x_9 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg___lam__0(x_7, x_2, x_3, x_4, x_8, x_6);
 return x_9;
 }
 }
@@ -1374,14 +1355,14 @@ lean_dec(x_7);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_8 = lean_unsigned_to_nat(1u);
-x_9 = lean_nat_add(x_1, x_8);
-x_10 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg(x_2, x_3, x_4, x_5, x_6, x_9, x_7);
-return x_10;
+lean_object* x_8; 
+x_8 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_6);
+lean_dec(x_1);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -1454,22 +1435,22 @@ return x_24;
 }
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_unsigned_to_nat(1u);
+x_9 = lean_nat_add(x_1, x_8);
+x_10 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg(x_2, x_3, x_4, x_5, x_6, x_9, x_7);
+return x_10;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
 lean_object* x_11; 
 x_11 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg(x_3, x_4, x_5, x_6, x_8, x_9, x_10);
 return x_11;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; 
-x_8 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_6);
-lean_dec(x_1);
-return x_8;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -1597,6 +1578,16 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_FloatArray_foldl___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+double x_4; lean_object* x_5; 
+x_4 = lean_unbox_float(x_3);
+lean_dec_ref(x_3);
+x_5 = l_FloatArray_foldl___redArg___lam__0(x_1, x_2, x_4);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_FloatArray_foldl___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -1669,16 +1660,6 @@ x_14 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___
 return x_14;
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_FloatArray_foldl___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-double x_4; lean_object* x_5; 
-x_4 = lean_unbox_float(x_3);
-lean_dec_ref(x_3);
-x_5 = l_FloatArray_foldl___redArg___lam__0(x_1, x_2, x_4);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_FloatArray_foldl___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -1765,6 +1746,15 @@ x_1 = lean_alloc_closure((void*)(l_Float_toString___boxed), 1, 0);
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_instToStringFloatArray___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_instToStringFloatArray___lam__0(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
+}
+}
 static lean_object* _init_l_instToStringFloatArray() {
 _start:
 {
@@ -1773,15 +1763,6 @@ x_1 = l_instToStringFloatArray___closed__0;
 x_2 = lean_alloc_closure((void*)(l_instToStringFloatArray___lam__0___boxed), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_instToStringFloatArray___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_instToStringFloatArray___lam__0(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
 }
 }
 lean_object* initialize_Init_Data_Float(uint8_t builtin);

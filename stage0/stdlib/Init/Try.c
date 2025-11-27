@@ -108,7 +108,6 @@ static lean_object* l_Lean_Parser_Tactic_tryResult___closed__7;
 static lean_object* l_term_u220e___closed__2;
 static lean_object* l_Lean_Parser_Tactic_tryTrace___closed__9;
 static lean_object* l_Lean_Parser_Command_registerTryTactic___closed__24;
-LEAN_EXPORT lean_object* l_Lean_Try_Config_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_attemptAllPar___closed__0;
 static lean_object* l___aux__Init__Try______macroRules__term_u220e__1___closed__20;
 static lean_object* l___aux__Init__Try______macroRules__term_u220e__1___closed__7;
@@ -149,7 +148,6 @@ static lean_object* l_Lean_Parser_Tactic_attemptAllPar___closed__2;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 static lean_object* l_Lean_Parser_Command_registerTryTactic___closed__9;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Try_Config_ctorIdx(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__26;
 static lean_object* l_Lean_Parser_Command_registerTryTactic___closed__5;
 static lean_object* l___aux__Init__Try______macroRules__term_u220e__1___closed__9;
@@ -168,23 +166,6 @@ static lean_object* l___aux__Init__Try______macroRules__term_u220e__1___closed__
 static lean_object* l___aux__Init__Try______macroRules__tactic_u220e__1___closed__1;
 static lean_object* l___aux__Init__Try______macroRules__term_u220e__1___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_attemptAllPar;
-LEAN_EXPORT lean_object* l_Lean_Try_Config_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Try_Config_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Try_Config_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Try_instInhabitedConfig_default___closed__0() {
 _start:
 {

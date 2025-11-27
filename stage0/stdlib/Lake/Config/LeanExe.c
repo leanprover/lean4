@@ -263,6 +263,16 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Lake_Package_leanExes___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lake_Package_leanExes___lam__0(x_1, x_2, x_3, x_4);
+lean_dec_ref(x_4);
+lean_dec(x_1);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_Package_leanExes(lean_object* x_1) {
 _start:
 {
@@ -306,16 +316,6 @@ x_13 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0),
 return x_13;
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Package_leanExes___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lake_Package_leanExes___lam__0(x_1, x_2, x_3, x_4);
-lean_dec_ref(x_4);
-lean_dec(x_1);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Package_findLeanExe_x3f(lean_object* x_1, lean_object* x_2) {

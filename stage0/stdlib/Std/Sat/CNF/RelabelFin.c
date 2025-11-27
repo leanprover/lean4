@@ -300,6 +300,16 @@ return x_2;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabelFin___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Sat_CNF_relabelFin___lam__0(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabelFin(lean_object* x_1) {
 _start:
 {
@@ -325,16 +335,6 @@ lean_closure_set(x_7, 0, x_6);
 x_8 = l_Std_Sat_CNF_relabel___redArg(x_7, x_1);
 return x_8;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabelFin___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Sat_CNF_relabelFin___lam__0(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 lean_object* initialize_Init_Data_Nat_Order(uint8_t builtin);

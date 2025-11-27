@@ -29,7 +29,6 @@ lean_object* l_Lean_mkSort(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Structural_instReprIndGroupInst_repr___redArg(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
-LEAN_EXPORT lean_object* l_Lean_Elab_Structural_RecArgInfo_ctorIdx(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___00Array_Array_repr___at___00Lean_Elab_Structural_instReprRecArgInfo_repr_spec__0_spec__1___lam__0(lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
@@ -98,7 +97,6 @@ static lean_object* l_Lean_Elab_Structural_instReprRecArgInfo_repr___redArg___cl
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_instReprRecArgInfo_repr___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Structural_RecArgInfo_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__2;
 static lean_object* l_Option_repr___at___00Array_Array_repr___at___00Lean_Elab_Structural_instReprRecArgInfo_repr_spec__0_spec__0___closed__1;
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
@@ -128,23 +126,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Structural_instInhabitedRecArgInfo_default;
 LEAN_EXPORT lean_object* l_Array_contains___at___00Lean_Elab_Structural_RecArgInfo_pickIndicesMajor_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_RecArgInfo_indName_x21___boxed(lean_object*);
 static lean_object* l_Lean_Elab_Structural_instReprRecArgInfo_repr___redArg___closed__15;
-LEAN_EXPORT lean_object* l_Lean_Elab_Structural_RecArgInfo_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Structural_RecArgInfo_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_Structural_RecArgInfo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__0() {
 _start:
 {

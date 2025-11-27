@@ -53,7 +53,6 @@ LEAN_EXPORT lean_object* l_Lake_instReprDate;
 LEAN_EXPORT lean_object* l_Lake_instReprDate_repr___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_instReprDate_repr___redArg___closed__17;
 static lean_object* l_Lake_instReprDate_repr___redArg___closed__15;
-LEAN_EXPORT lean_object* l_Lake_Date_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Date_instMin___lam__0(lean_object*, lean_object*);
 static lean_object* l_Lake_instReprDate_repr___redArg___closed__18;
 LEAN_EXPORT lean_object* l_Lake_instOrdDate_ord___boxed(lean_object*, lean_object*);
@@ -89,29 +88,11 @@ static lean_object* l_Lake_instReprDate_repr___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Lake_instOrdDate;
 static lean_object* l_Lake_instReprDate_repr___redArg___closed__20;
 LEAN_EXPORT lean_object* l_Lake_Date_maxDay___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Date_ctorIdx(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lake_instReprDate_repr___redArg___closed__9;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lake_Date_toString___closed__0;
-LEAN_EXPORT lean_object* l_Lake_Date_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Date_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Date_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lake_instInhabitedDate_default___closed__0() {
 _start:
 {
@@ -677,14 +658,6 @@ return x_1;
 }
 }
 }
-static lean_object* _init_l_Lake_Date_instMin() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_Date_instMin___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_Date_instMin___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -693,6 +666,14 @@ x_3 = l_Lake_Date_instMin___lam__0(x_1, x_2);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_3;
+}
+}
+static lean_object* _init_l_Lake_Date_instMin() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lake_Date_instMin___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Date_instMax___lam__0(lean_object* x_1, lean_object* x_2) {
@@ -712,14 +693,6 @@ return x_2;
 }
 }
 }
-static lean_object* _init_l_Lake_Date_instMax() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_Date_instMax___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_Date_instMax___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -728,6 +701,14 @@ x_3 = l_Lake_Date_instMax___lam__0(x_1, x_2);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_3;
+}
+}
+static lean_object* _init_l_Lake_Date_instMax() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lake_Date_instMax___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Date_maxDay(lean_object* x_1, lean_object* x_2) {

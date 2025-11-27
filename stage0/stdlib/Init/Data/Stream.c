@@ -21,9 +21,7 @@ LEAN_EXPORT lean_object* l_Std_instForInOfMonadOfStream___redArg(lean_object*, l
 LEAN_EXPORT lean_object* l_Std_instForInOfMonadOfStream___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instToStreamRange___lam__0___boxed(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Stream_ctorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ToStream_toStream___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_ToStream_ctorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instToStreamSubarray(lean_object*);
 LEAN_EXPORT lean_object* l_Stream_next_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instStreamProd___redArg(lean_object*, lean_object*);
@@ -37,7 +35,6 @@ LEAN_EXPORT lean_object* l_Std_instForInOfMonadOfStream(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l___private_Init_Data_Stream_0__Std_Stream_forIn_visit___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Stream_0__Std_Stream_forIn_visit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instStreamProd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Stream_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instToStreamSubarray___lam__0(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -45,7 +42,6 @@ LEAN_EXPORT lean_object* l_ToStream_toStream(lean_object*, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Std_instStreamProd___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instToStreamStringRaw;
-LEAN_EXPORT lean_object* l_Std_ToStream_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instToStreamRange___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Stream_forIn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instStreamRangeNat___lam__0(lean_object*);
@@ -57,68 +53,6 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instStreamList(lean_object*);
 LEAN_EXPORT lean_object* l_Std_instToStreamRange;
-LEAN_EXPORT lean_object* l_Std_ToStream_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_ToStream_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_ToStream_ctorIdx(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Stream_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Stream_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Stream_ctorIdx(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Stream_0__Std_Stream_forIn_visit___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-if (lean_obj_tag(x_6) == 0)
-{
-lean_object* x_7; lean_object* x_8; 
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec_ref(x_3);
-lean_dec_ref(x_2);
-x_7 = lean_ctor_get(x_6, 0);
-lean_inc(x_7);
-lean_dec_ref(x_6);
-x_8 = lean_apply_2(x_1, lean_box(0), x_7);
-return x_8;
-}
-else
-{
-lean_object* x_9; lean_object* x_10; 
-lean_dec(x_1);
-x_9 = lean_ctor_get(x_6, 0);
-lean_inc(x_9);
-lean_dec_ref(x_6);
-x_10 = l___private_Init_Data_Stream_0__Std_Stream_forIn_visit___redArg(x_2, x_3, x_4, x_5, x_9);
-return x_10;
-}
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_Stream_0__Std_Stream_forIn_visit___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -161,6 +95,34 @@ lean_closure_set(x_14, 4, x_13);
 x_15 = lean_apply_2(x_3, x_12, x_5);
 x_16 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_15, x_14);
 return x_16;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Stream_0__Std_Stream_forIn_visit___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+if (lean_obj_tag(x_6) == 0)
+{
+lean_object* x_7; lean_object* x_8; 
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
+x_7 = lean_ctor_get(x_6, 0);
+lean_inc(x_7);
+lean_dec_ref(x_6);
+x_8 = lean_apply_2(x_1, lean_box(0), x_7);
+return x_8;
+}
+else
+{
+lean_object* x_9; lean_object* x_10; 
+lean_dec(x_1);
+x_9 = lean_ctor_get(x_6, 0);
+lean_inc(x_9);
+lean_dec_ref(x_6);
+x_10 = l___private_Init_Data_Stream_0__Std_Stream_forIn_visit___redArg(x_2, x_3, x_4, x_5, x_9);
+return x_10;
 }
 }
 }
@@ -221,20 +183,20 @@ lean_inc(x_1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_instToStreamList(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_instToStreamList___lam__0___boxed), 1, 0);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_instToStreamList___lam__0___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_instToStreamList___lam__0(x_1);
 lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_instToStreamList(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Std_instToStreamList___lam__0___boxed), 1, 0);
 return x_2;
 }
 }
@@ -263,20 +225,20 @@ lean_inc_ref(x_1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_instToStreamSubarray(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_instToStreamSubarray___lam__0___boxed), 1, 0);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_instToStreamSubarray___lam__0___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_instToStreamSubarray___lam__0(x_1);
 lean_dec_ref(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_instToStreamSubarray(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Std_instToStreamSubarray___lam__0___boxed), 1, 0);
 return x_2;
 }
 }
@@ -308,14 +270,6 @@ lean_inc_ref(x_1);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_instToStreamRange() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_instToStreamRange___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_instToStreamRange___lam__0___boxed(lean_object* x_1) {
 _start:
 {
@@ -323,6 +277,14 @@ lean_object* x_2;
 x_2 = l_Std_instToStreamRange___lam__0(x_1);
 lean_dec_ref(x_1);
 return x_2;
+}
+}
+static lean_object* _init_l_Std_instToStreamRange() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_instToStreamRange___lam__0___boxed), 1, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_instStreamProd___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

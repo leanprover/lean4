@@ -1869,6 +1869,15 @@ return x_6;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lean_NameSet_instInter___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_NameSet_instInter___lam__0(x_1, x_2, x_3, x_4);
+lean_dec(x_1);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_NameSet_instInter___lam__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1886,15 +1895,6 @@ _start:
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lean_NameSet_instInter___lam__1), 2, 0);
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_NameSet_instInter___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_NameSet_instInter___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_1);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_NameSet_instSDiff___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

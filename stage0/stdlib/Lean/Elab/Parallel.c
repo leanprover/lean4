@@ -52,7 +52,6 @@ LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forInPartial___a
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___00Lean_Meta_MetaM_par_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentD(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_TermElabM_parFirst(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_TaskIterator_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Term_TermElabM_parFirst_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___00Lean_Meta_MetaM_par_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -241,7 +240,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_MetaM_parFirst___redArg(lean_object*, uint8
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forInPartial___at___00Std_Iterators_IterM_DefaultConsumers_forInPartial___at___00Lean_Elab_Tactic_TacticM_parFirst_spec__0_spec__0(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00Lean_Elab_Term_TermElabM_par_x27_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_saveState___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_TaskIterator_ctorIdx___boxed(lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forInPartial___at___00Std_Iterators_IterM_DefaultConsumers_forInPartial___at___00Lean_Core_CoreM_parFirst_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_TacticM_parIter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -307,23 +305,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_MetaM_par_x27___boxed(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lean_Meta_MetaM_parIterGreedy___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forInPartial___at___00Lean_Core_CoreM_parFirst_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_TermElabM_par_x27___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_TaskIterator_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_TaskIterator_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Iterators_TaskIterator_ctorIdx(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Parallel_0__Std_Iterators_instIteratorTaskIteratorBaseIO___lam__0(lean_object* x_1) {
 _start:
 {
@@ -363,20 +344,20 @@ return x_10;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Parallel_0__Std_Iterators_instIteratorTaskIteratorBaseIO(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Elab_Parallel_0__Std_Iterators_instIteratorTaskIteratorBaseIO___lam__0___boxed), 2, 0);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Parallel_0__Std_Iterators_instIteratorTaskIteratorBaseIO___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
 x_3 = l___private_Lean_Elab_Parallel_0__Std_Iterators_instIteratorTaskIteratorBaseIO___lam__0(x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Elab_Parallel_0__Std_Iterators_instIteratorTaskIteratorBaseIO(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l___private_Lean_Elab_Parallel_0__Std_Iterators_instIteratorTaskIteratorBaseIO___lam__0___boxed), 2, 0);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Parallel_0__IO_iterTasks___redArg(lean_object* x_1) {
@@ -555,6 +536,14 @@ goto _start;
 }
 }
 }
+LEAN_EXPORT lean_object* l_List_forM___at___00Lean_Core_CoreM_parIterWithCancel_spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_List_forM___at___00Lean_Core_CoreM_parIterWithCancel_spec__1(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Core_CoreM_parIterWithCancel___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -676,14 +665,6 @@ lean_object* x_7;
 x_7 = l_List_mapM_loop___at___00Lean_Core_CoreM_parIterWithCancel_spec__0(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
 return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_List_forM___at___00Lean_Core_CoreM_parIterWithCancel_spec__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_forM___at___00Lean_Core_CoreM_parIterWithCancel_spec__1(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Core_CoreM_parIterWithCancel___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

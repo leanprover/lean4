@@ -51,7 +51,6 @@ static lean_object* l_Lake_ReservoirResp_fromJson_x3f___at___00Lake_Reservoir_fe
 static lean_object* l_Lake_ReservoirResp_fromJson_x3f___redArg___closed__6;
 static lean_object* l_Lake_RegistrySrc_fromJson_x3f___closed__5;
 static lean_object* l_Lake_RegistryPkg_fromJson_x3f___closed__2;
-LEAN_EXPORT lean_object* l_Lake_RegistryVer_ctorIdx(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RegistryVer_fromJson_x3f(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
@@ -70,7 +69,6 @@ static lean_object* l_Lake_Reservoir_fetchPkg_x3f___closed__0;
 lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake_RegistryPkg_fromJson_x3f_spec__0(size_t, size_t, lean_object*);
 static lean_object* l_Lake_RegistryPkg_fromJson_x3f___closed__6;
-LEAN_EXPORT lean_object* l_Lake_RegistryVer_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lake_Reservoir_pkgApiUrl___closed__1;
 static lean_object* l_Array_fromJson_x3f___at___00Option_fromJson_x3f___at___00Lake_RegistryPkg_fromJson_x3f_spec__1_spec__1___closed__0;
 static lean_object* l_Lake_RegistryPkg_fromJson_x3f___closed__9;
@@ -132,7 +130,6 @@ static lean_object* l_Lake_RegistryPkg_fromJson_x3f___closed__3;
 static lean_object* l_Lake_RegistrySrc_fromJson_x3f___closed__1;
 static lean_object* l_Lake_Reservoir_fetchPkg_x3f___closed__3;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_RegistryPkg_ctorIdx(lean_object*);
 static lean_object* l_Lake_ReservoirResp_fromJson_x3f___redArg___closed__13;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedRegistrySrc;
 LEAN_EXPORT lean_object* l_Lake_RegistryPkg_gitSrc_x3f(lean_object*);
@@ -161,7 +158,6 @@ size_t lean_array_size(lean_object*);
 static lean_object* l_Lake_RegistryPkg_fromJson_x3f___closed__5;
 LEAN_EXPORT lean_object* l_Lake_RegistrySrc_git_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_fromJson_x3f___at___00Lake_ReservoirResp_fromJson_x3f___at___00Lake_Reservoir_fetchPkg_x3f_spec__0_spec__0(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_RegistryPkg_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lake_ReservoirResp_fromJson_x3f___redArg___closed__9;
 LEAN_EXPORT lean_object* l_Lake_RegistrySrc_toJson(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -1080,23 +1076,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lake_RegistrySrc_instFromJson___closed__0;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_RegistryPkg_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_RegistryPkg_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_RegistryPkg_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lake_instInhabitedRegistryPkg_default___closed__0() {
@@ -3831,23 +3810,6 @@ _start:
 lean_object* x_6; 
 x_6 = l_Lake_Reservoir_fetchPkg_x3f(x_1, x_2, x_3, x_4);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_RegistryVer_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_RegistryVer_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_RegistryVer_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lake_RegistryVer_fromJson_x3f___closed__0() {

@@ -1123,6 +1123,87 @@ infix:50 " ⇔ " => Bijection
 recommended_spelling "bij" for "⇔" in [Bijection, «term_⇔_»]
 ```
 
+#### Tactics
+
+Docstrings for tactics should have the following structure:
+
+* Short summary
+* Details
+* Variants
+* Examples
+
+Sometimes more than one declaration is needed to implement what the user
+sees as a single tactic. In that case, only one declaration should have
+the associated docstring, and the others should have the `tactic_alt`
+attribute to mark them as an implementation detail.
+
+The **short summary** should be 1–3 sentences (ideally 1) and provide
+enough information for most readers to quickly decide whether the
+docstring is relevant to their task. The first (or only) sentence of
+the short summary should be a full sentence in which the subject
+is an example invocation of the tactic, written in present tense
+indicative. If the example tactic invocation names parameters, then the
+short summary may refer to them. The summary should be written as a
+single paragraph.
+
+**Details**, if needed, may be 1-3 paragraphs that describe further
+relevant information. They may insert links as needed. This section
+should fully explain the scope of the tactic: its syntax format,
+on which goals it works and what the resulting goal(s) look like. It
+should be clear whether the tactic fails if it does not close the main
+goal and if it creates any side goals. The details may include
+explanatory examples that can’t necessarily be machine checked and
+don’t fit the format.
+
+**Variants**, if needed, should be a bulleted list describing different
+options and forms of the same tactic. The reader should be able to parse
+and understand the parts of a tactic invocation they are hovering over,
+using this list. Each list item should take the format of the **short
+summary** above and describe an individual variant.
+
+**Examples** should start with the line `Examples:` (or `Example:` if
+there’s exactly one). The section should consist of a sequence of code
+blocks, each showing a Lean declaration (usually with the `example`
+keyword) that invokes the tactic. When the effect of the tactic is not
+clear from the code, you can use code comments to describe this.
+
+##### Example
+
+````
+`rw [e]` uses the expression `e` as a rewrite rule on the main goal,
+then tries to close the goal by "cheap" (reducible) `rfl`.
+
+If `e` is a defined constant, then the equational theorems associated with `e` are used. This provides a convenient way to unfold `e`.
+If `e` has parameters, the tactic will try to fill these in by unification with the matching part of the target.
+Parameters are only filled in once per rule, restricting which later rewrites can be found.
+Parameters that are not filled in after unification will create side goals.
+If the `rfl` fails to close the main goal, no error is raised.
+
+`rw` may fail to rewrite terms "under binders", such as `∀ x, ...` or `∃ x, ...`.
+`rw` can also fail with a "motive is type incorrect" error in the context of dependent types.
+In these cases, consider using `simp only`.
+
+* `rw [e₁, ... eₙ]` applies the given rules sequentially.
+* `rw [← e]` or `rw [<- e]` applies the rewrite in the reverse direction.
+* `rw [e] at l` rewrites with `e` at location(s) `l`.
+* `rw (occs := .pos L) [e]`, where `L : List Nat`, only rewrites the
+  given occurrences in the target. Occurrences count from 1.
+* `rw (occs := .neg L) [e]`, where `L : List Nat`, skips rewriting the
+  given occurrences in the target. Occurrences count from 1.
+
+Examples:
+
+```lean
+example {a b : Nat} (h : a + a = b) : (a + a) + (a + a) = b + b := by rw [h]
+```
+
+```lean
+example {f : Nat -> Nat} (h : ∀ x, f x = 1) (a b : Nat) : f a = f b := by
+  rw [h] -- `rw` instantiates `h` only once, so this is equivalent to: `rw [h a]`
+  -- goal: ⊢ 1 = f b
+  rw [h] -- equivalent to: `rw [h b]`
+```
+````
 
 
 ## Dictionary

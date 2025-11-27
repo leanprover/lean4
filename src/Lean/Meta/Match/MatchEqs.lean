@@ -15,20 +15,26 @@ import Lean.Meta.Match.SimpH
 import Lean.Meta.Match.SolveOverlap
 import Lean.Meta.Tactic.CasesOnStuckLHS
 import Lean.Meta.Constructions.SparseCasesOn
+import Lean.Meta.Constructions.SparseCasesOnEq
+import Lean.Meta.Tactic.Rewrite
+import Lean.Meta.Constructions.SparseCasesOnEq
 
 public section
 
 namespace Lean.Meta
 
+private def rewriteGoalUsingEq (goal : MVarId) (eq : Expr) (symm : Bool := false) : MetaM MVarId := do
+  let rewriteResult ← goal.rewrite (←goal.getType) eq symm
+  goal.replaceTargetEq rewriteResult.eNew rewriteResult.eqProof
+
 private def splitSparseCasesOn (mvarId : MVarId) : MetaM (Array MVarId) := do
+  let some (_, lhs) ← matchEqHEqLHS? (← mvarId.getType) | throwError "Target not an equality"
+  lhs.withApp fun f xs => do
+  let .const matchDeclName _  := f | throwError "Not a const application"
+  let some sparseCasesOnInfo ← getSparseCasesOnInfo matchDeclName | throwError "Not a sparse casesOn application"
   withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} splitSparseCasesOn")) do
   try
     trace[Meta.Match.matchEqs] "splitSparseCasesOn running on\n{mvarId}"
-    let target ← mvarId.getType
-    let some (_, lhs) ← matchEqHEqLHS? target | throwError "Target not an equality"
-    lhs.withApp fun f xs => do
-    let .const matchDeclName _  := f | throwError "Not a const application"
-    let some sparseCasesOnInfo ← getSparseCasesOnInfo matchDeclName | throwError "Not a sparse casesOn application"
     if xs.size < sparseCasesOnInfo.arity then
       throwError "Not enough arguments for sparse casesOn application"
     let majorIdx := sparseCasesOnInfo.majorPos
@@ -36,12 +42,20 @@ private def splitSparseCasesOn (mvarId : MVarId) : MetaM (Array MVarId) := do
       throwError "Major premise is not a free variable:{indentExpr xs[majorIdx]!}"
     let fvarId := xs[majorIdx]!.fvarId!
     let subgoals ← mvarId.cases fvarId (interestingCtors? := sparseCasesOnInfo.insterestingCtors)
-    subgoals.mapM fun s =>
+    subgoals.mapM fun s => s.mvarId.withContext do
       if s.ctorName.isNone then
-        s.mvarId.withContext do
-          throwError "TODO: {s.mvarId} (fields: {s.fields})"
+        unless s.fields.size = 1 do
+          throwError "Unexpected number of fields for catch-all branch: {s.fields}"
+        let sparseCasesOnEqName ← getSparseCasesOnEq matchDeclName
+        let some (_, lhs) ← matchEqHEqLHS? (← s.mvarId.getType) | throwError "Target not an equality"
+        let eqProof := mkConst sparseCasesOnEqName lhs.getAppFn.constLevels!
+        let eqProof := mkAppN eqProof lhs.getAppArgs[:sparseCasesOnInfo.arity]
+        let eqProof := mkApp eqProof s.fields[0]!
+        rewriteGoalUsingEq s.mvarId eqProof
       else
-        return s.mvarId
+        s.mvarId.modifyTargetEqLHS fun lhs =>
+          unfoldDefinition lhs
+
   catch e =>
     trace[Meta.Match.matchEqs] "splitSparseCasesOn failed{indentD e.toMessageData}"
     throw e
@@ -242,6 +256,8 @@ where
       <|>
       (do mvarId.contradiction { genDiseq := true }; return #[])
       <|>
+      (do solveOverlap mvarId; return #[])
+      <|>
       (do let mvarId ← unfoldElimOffset mvarId; return #[mvarId])
       <|>
       (casesOnStuckLHS mvarId)
@@ -264,7 +280,7 @@ where
       <|>
       (substSomeVar mvarId)
       <|>
-      (throwError "failed to generate equality theorems for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
+      (throwError "failed to generate equality theorem {thmName} for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
     subgoals.forM (go · (depth+1))
 
 

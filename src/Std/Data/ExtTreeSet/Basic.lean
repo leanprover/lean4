@@ -529,6 +529,34 @@ def inter [TransCmp cmp] (t₁ t₂ : ExtTreeSet α cmp) : ExtTreeSet α cmp := 
 
 instance [TransCmp cmp] : Inter (ExtTreeSet α cmp) := ⟨inter⟩
 
+@[inline, inherit_doc ExtTreeMap.beq]
+def beq [TransCmp cmp] [LawfulEqCmp cmp] (m₁ m₂ : ExtTreeSet α cmp) : Bool := ExtDTreeMap.Const.beq m₁.inner.inner m₂.inner.inner
+
+instance [TransCmp cmp] [LawfulEqCmp cmp] : BEq (ExtTreeSet α cmp) := ⟨beq⟩
+
+instance [TransCmp cmp] [LawfulEqCmp cmp] : ReflBEq (ExtTreeSet α cmp) where
+  rfl := by
+    intro a
+    cases a
+    case mk a =>
+      apply ExtDTreeMap.Const.beq_of_eq
+      rfl
+
+instance [TransCmp cmp] [LawfulEqCmp cmp] : LawfulBEq (ExtTreeSet α cmp) where
+  eq_of_beq := by
+    intro a b hyp
+    cases a
+    case mk a₀ =>
+      cases b
+      case mk b₀ =>
+        cases a₀
+        case mk a₁ =>
+          cases b₀
+          case mk b₁ =>
+            simp only [mk.injEq, ExtTreeMap.mk.injEq]
+            simp only [BEq.beq, beq] at hyp
+            apply ExtDTreeMap.Const.eq_of_beq_eq_true
+            · exact hyp
 
 /--
 Erases multiple items from the tree set by iterating over the given collection and calling erase.

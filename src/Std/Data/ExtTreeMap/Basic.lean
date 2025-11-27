@@ -535,6 +535,25 @@ def inter [TransCmp cmp] (t₁ t₂ : ExtTreeMap α β cmp) : ExtTreeMap α β c
 
 instance [TransCmp cmp] : Inter (ExtTreeMap α β cmp) := ⟨inter⟩
 
+@[inline, inherit_doc ExtDTreeMap.beq]
+def beq [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] (m₁ m₂ : ExtTreeMap α β cmp) : Bool := ExtDTreeMap.Const.beq m₁.inner m₂.inner
+
+instance [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] : BEq (ExtTreeMap α β cmp) := ⟨beq⟩
+
+instance [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] [ReflBEq β] : ReflBEq (ExtTreeMap α β cmp) where
+  rfl := by intro a; apply ExtDTreeMap.Const.beq_of_eq; rfl
+
+instance [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] [LawfulBEq β] : LawfulBEq (ExtTreeMap α β cmp) where
+  eq_of_beq := by
+    intro a b hyp
+    cases a
+    case mk a₀ =>
+      cases b
+      case mk b₀ =>
+        simp only [mk.injEq]
+        apply ExtDTreeMap.Const.eq_of_beq_eq_true
+        exact hyp
+
 @[inline, inherit_doc ExtDTreeMap.eraseMany]
 def eraseMany [TransCmp cmp] {ρ} [ForIn Id ρ α] (t : ExtTreeMap α β cmp) (l : ρ) : ExtTreeMap α β cmp :=
   ⟨t.inner.eraseMany l⟩

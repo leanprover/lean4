@@ -8,8 +8,6 @@ has type
 of sort `Type 1` but is expected to have type
   Lean.LibrarySuggestions.Selector
 of sort `Type`
----
-error: Failed to elaborate Nat as a `MVarId → Config → MetaM (Array Suggestion)`.
 -/
 #guard_msgs in
 set_library_suggestions Nat

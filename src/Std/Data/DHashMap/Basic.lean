@@ -346,8 +346,19 @@ This function always iterates through the smaller map, so the expected runtime i
   inner := Raw₀.inter ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩
   wf := Std.DHashMap.Raw.WF.inter₀ m₁.2 m₂.2
 
+/--
+Computes the difference of the given hash maps.
+
+This function always iterates through the smaller map, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def diff [BEq α] [Hashable α] (m₁ m₂ : DHashMap α β) : DHashMap α β where
+  inner := Raw₀.diff ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩
+  wf := Std.DHashMap.Raw.WF.diff₀ m₁.2 m₂.2
+
 instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
 instance [BEq α] [Hashable α] : Inter (DHashMap α β) := ⟨inter⟩
+instance [BEq α] [Hashable α] : SDiff (DHashMap α β) := ⟨diff⟩
 
 /-- Internal implementation detail of the hash map. -/
 def beq [LawfulBEq α] [∀ k, BEq (β k)] (a b : DHashMap α β) : Bool :=

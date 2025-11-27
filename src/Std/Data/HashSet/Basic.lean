@@ -259,11 +259,24 @@ This function always iterates through the smaller set, so the expected runtime i
 
 instance [BEq α] [Hashable α] : Inter (HashSet α) := ⟨inter⟩
 
+
 /-- Internal implementation detail of the hash map. -/
 def beq [BEq α] (m₁ m₂ : HashSet α) : Bool :=
   HashMap.beq m₁.inner m₂.inner
 
 instance [BEq α] : BEq (HashSet α) := ⟨beq⟩
+
+
+/--
+Computes the difference of the given hash sets.
+
+This function always iterates through the smaller set, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def diff [BEq α] [Hashable α] (m₁ m₂ : HashSet α) : HashSet α :=
+  ⟨HashMap.diff m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : SDiff (HashSet α) := ⟨diff⟩
 
 section Unverified
 

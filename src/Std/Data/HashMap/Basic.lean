@@ -284,6 +284,11 @@ def beq {β : Type v} [BEq α] [BEq β] (m₁ m₂ : HashMap α β) : Bool :=
 
 instance [BEq α] [BEq β] : BEq (HashMap α β) := ⟨beq⟩
 
+@[inherit_doc DHashMap.inter, inline] def diff [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=
+  ⟨DHashMap.diff m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : SDiff (HashMap α β) := ⟨diff⟩
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/

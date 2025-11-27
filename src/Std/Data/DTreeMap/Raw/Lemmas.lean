@@ -3042,6 +3042,36 @@ theorem get!_inter_of_not_mem_left [TransCmp cmp] [Inhabited β] (h₁ : m₁.WF
 
 end Const
 
+section BEq
+variable {m₁ m₂ : Raw α β cmp} [∀ k, BEq (β k)] [LawfulEqCmp cmp] [TransCmp cmp]
+
+theorem Equiv.beq [∀ k, ReflBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁ ~m m₂ → beq m₁ m₂ :=
+  fun h => Impl.Equiv.beq h₁ h₂ h.1
+
+theorem Equiv_of_beq_eq_true [∀ k, LawfulBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : beq m₁ m₂ = true → m₁ ~m m₂ :=
+  fun hyp => ⟨@Impl.Equiv_of_beq_eq_true _ _ ⟨cmp⟩ m₁.1 m₂.1 _ _ _ _ h₁.1 h₂.1 hyp⟩
+
+theorem Equiv.beq_congr {m₃ m₄ : Raw α β cmp} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) :
+    m₁ ~m m₃ → m₂ ~m m₄ → Raw.beq m₁ m₂ = Raw.beq m₃ m₄ :=
+  fun w1 w2 => Impl.Equiv.beq_congr h₁ h₂ h₃ h₄ w1.1 w2.1
+
+end BEq
+
+section
+variable {β : Type v} {m₁ m₂ : Raw α (fun _ => β) cmp}
+
+theorem Const.Equiv.beq [TransCmp cmp] [BEq β] [ReflBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁ ~m m₂ → beq m₁ m₂ :=
+  fun h => Impl.Const.Equiv.beq h₁ h₂ h.1
+
+theorem Const.Equiv_of_beq_eq_true [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] [LawfulBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : beq m₁ m₂ = true → m₁ ~m m₂ :=
+  fun hyp => ⟨@Impl.Const.Equiv_of_beq_eq_true α ⟨cmp⟩ β m₁.1 m₂.1 _ _ _ _ h₁.1 h₂.1 hyp⟩
+
+theorem Const.Equiv.beq_congr [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] {m₃ m₄ : Raw α (fun _ => β) cmp} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) :
+    m₁ ~m m₃ → m₂ ~m m₄ → Raw.Const.beq m₁ m₂ = Raw.Const.beq m₃ m₄ :=
+  fun w1 w2 => Impl.Const.Equiv.beq_congr h₁ h₂ h₃ h₄ w1.1 w2.1
+
+end
+
 section Alter
 
 theorem isEmpty_alter_eq_isEmpty_erase [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α}

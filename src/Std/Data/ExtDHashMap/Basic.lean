@@ -360,6 +360,8 @@ def union [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtDHashMap α β) : Ex
     . exact equiv₁
     . exact equiv₂) m₁ m₂
 
+instance [EquivBEq α] [LawfulHashable α] : Union (ExtDHashMap α β) := ⟨union⟩
+
 @[inline, inherit_doc DHashMap.beq]
 def beq [LawfulBEq α] [∀ k, BEq (β k)] (m₁ m₂ : ExtDHashMap α β) : Bool := lift₂ (fun x y : DHashMap α β => x.beq y)
   (fun _ _ _ _ => DHashMap.Equiv.beq_congr) m₁ m₂

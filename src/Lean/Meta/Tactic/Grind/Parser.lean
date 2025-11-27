@@ -15,6 +15,7 @@ def isValue := leading_parser nonReservedSymbol "is_value " >> ident >> optional
 def isStrictValue := leading_parser nonReservedSymbol "is_strict_value " >> ident >> optional ";"
 def sizeLt := leading_parser nonReservedSymbol "size " >> ident >> " < " >> numLit >> optional ";"
 def depthLt := leading_parser nonReservedSymbol "depth " >> ident >> " < " >> numLit >> optional ";"
+def genLt := leading_parser nonReservedSymbol "gen " >> ident >> " < " >> numLit >> optional ";"
 def maxInsts := leading_parser nonReservedSymbol "max_insts " >> numLit >> optional ";"
 def guard := leading_parser nonReservedSymbol "guard " >> checkColGe "irrelevant" >> termParser >> optional ";"
 def branch := leading_parser nonReservedSymbol "branch " >> checkColGe "irrelevant" >> termParser >> optional ";"
@@ -25,7 +26,7 @@ end GrindCnstr
 
 open GrindCnstr in
 def grindPatternCnstr : Parser :=
-  isValue <|> isStrictValue <|> sizeLt <|> depthLt <|> maxInsts
+  isValue <|> isStrictValue <|> sizeLt <|> depthLt <|> genLt <|> maxInsts
   <|> guard <|> branch <|> notDefEq <|> defEq
 
 def grindPatternCnstrs : Parser := leading_parser "where " >> many1Indent (ppLine >> grindPatternCnstr)

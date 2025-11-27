@@ -70,7 +70,7 @@ where
           let { paramNames := levelNames, mvars, expr := rhs } ← abstractMVars rhsExpr
           let numMVars := mvars.size
           let rhs := rhs.abstract xs
-          return { bvarIdx, levelNames, numMVars, rhs }
+          return .notDefEq bvarIdx { levelNames, numMVars, expr := rhs }
         i := i + 1
       throwErrorAt lhs "invalid constraint, `{lhsId}` is not local variable of the theorem"
 

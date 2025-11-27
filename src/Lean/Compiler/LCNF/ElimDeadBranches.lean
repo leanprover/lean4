@@ -84,12 +84,12 @@ choice node further down the tree.
 partial def addChoice (env : Environment) (vs : List Value) (v : Value) : List Value :=
   match vs, v with
   | [], v => [v]
-  | v1@(ctor i1 _ ) :: cs, ctor i2 _ =>
+  | v1@(ctor i1 vs1) :: cs, ctor i2 vs2 =>
     if i1 == i2 then
-      (merge env v1 v) :: cs
+      ctor i1 (Array.zipWith (merge env) vs1 vs2) :: cs
     else
       v1 :: addChoice env cs v
-  | _, _ => panic! "invalid addChoice"
+  | _, _ => panic! s!"invalid addChoice {repr v} into {repr vs}"
 
 /--
 Merge two values into one. `bot` is the neutral element, `top` the annihilator.

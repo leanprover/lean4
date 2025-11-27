@@ -1844,7 +1844,7 @@ theorem all_toList {p : (a : α) → β a → Bool} {m : Impl α β}:
     · simp only [forIn'_eq_forIn] at ih
       simp [h, ih]
 
-theorem toListModel_beq {_ : Ord α} [BEq α] [TransOrd α] [LawfulBEqOrd α] [LawfulBEq α] [∀ k, BEq (β k)] {m₁ m₂ : Impl α β} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+theorem toListModel_beq {_ : Ord α} [BEq α] [TransOrd α] [LawfulBEq α] [LawfulBEqOrd α] [∀ k, BEq (β k)] {m₁ m₂ : Impl α β} (h₁ : m₁.WF) (h₂ : m₂.WF) :
     Impl.beq m₁ m₂ = beqModel m₁.toListModel m₂.toListModel := by
   rw [beq, beqModel]
   split

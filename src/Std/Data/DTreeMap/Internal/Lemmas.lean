@@ -99,6 +99,8 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
      ⟨`getKeyD, (``getKeyD_eq_getKeyD, #[``(getKeyD_of_perm _)])⟩,
      ⟨`getKey!, (``getKey!_eq_getKey!, #[``(getKey!_of_perm _)])⟩,
      ⟨`toList, (``toList_eq_toListModel, #[])⟩,
+     ⟨`beq, (``toListModel_beq, #[])⟩,
+     ⟨`Const.beq, (``Internal.Impl.Const.toListModel_beq, #[])⟩,
      ⟨`keys, (``keys_eq_keys, #[])⟩,
      ⟨`Const.toList, (``Const.toList_eq_toListModel_map, #[])⟩,
      ⟨`foldlM, (``foldlM_eq_foldlM_toListModel, #[])⟩,
@@ -4849,6 +4851,41 @@ theorem get!_inter!_of_contains_eq_false_left [TransOrd α] [Inhabited β] (h₁
   all_goals wf_trivial
 
 end Const
+
+-- section BEq
+-- variable {m₁ m₂ : Impl α β} [BEq α] [LawfulBEq α] [TransOrd α] [LawfulBEqOrd α] [∀ k, BEq (β k)]
+
+-- theorem Equiv.beq [∀ k, ReflBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁.Equiv m₂ → beq m₁ m₂ := by
+--   simp_to_model
+--   intro hyp
+--   rw [toListModel_beq]
+--   apply List.beqModel_eq_true_of_perm
+
+
+-- theorem Equiv_of_beq_eq_true [∀ k, LawfulBEq (β k)] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq m₁ m₂ = true → m₁.1.Equiv m₂.1 := by
+--   simp_to_model
+--   using List.perm_of_beqModel
+
+-- theorem Equiv.beq_congr {m₃ m₄ : Raw₀ α β} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (h₄ : m₄.val.WF) :
+--     m₁.1.Equiv m₃.1 → m₂.1.Equiv m₄.1 → Raw₀.beq m₁ m₂ = Raw₀.beq m₃ m₄ := by
+--   simp_to_model using List.beqModel_congr
+
+-- end BEq
+
+-- section
+
+-- variable {β : Type v} {m₁ m₂ : Raw₀ α (fun _ => β)}
+
+-- theorem Const.Equiv.beq [LawfulHashable α] [EquivBEq α] [BEq β] [ReflBEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : m₁.1.Equiv m₂.1 → Const.beq m₁ m₂ := by
+--   simp_to_model using List.Const.beqModel_eq_true_of_perm
+
+-- theorem Const.Equiv_of_beq_eq_true [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq m₁ m₂ = true → m₁.1.Equiv m₂.1 := by
+--   simp_to_model using List.Const.perm_of_beqModel
+
+-- theorem Const.Equiv.beq_congr [LawfulBEq α] {m₃ m₄ : Raw₀ α (fun _ => β)} [BEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (h₄ : m₄.val.WF) :
+--     m₁.1.Equiv m₃.1 → m₂.1.Equiv m₄.1 → Const.beq m₁ m₂ = Const.beq m₃ m₄ := by
+--   simp_to_model using List.Const.beqModel_congr
+-- end
 
 section Alter
 

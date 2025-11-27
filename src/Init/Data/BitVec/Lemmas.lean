@@ -127,7 +127,7 @@ protected theorem toNat_lt_twoPow_of_le (h : m ≤ n) {x : BitVec m} :
   apply Nat.pow_le_pow_of_le
   <;> omega
 
-theorem toNat_ofNat_of_le {w n : Nat} (h : n ≤ w):
+theorem toNat_ofNat_of_le {w n : Nat} (h : n ≤ w) :
     (BitVec.ofNat w n).toNat = n := by
   have := Nat.lt_pow_self (a := 2) (n := w)
   rw [toNat_ofNat, Nat.mod_eq_of_lt (by omega)]

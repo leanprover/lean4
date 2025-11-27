@@ -728,6 +728,16 @@ def inter (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
 
 instance : Inter (Raw α β cmp) := ⟨inter⟩
 
+/-- Internal implementation detail of the hash map. -/
+def beq [BEq α] [LawfulEqCmp cmp] [∀ k, BEq (β k)] (t₁ t₂ : Raw α β cmp) : Bool :=
+  letI : Ord α := ⟨cmp⟩; t₁.inner.beq t₂.inner
+
+instance [BEq α] [LawfulEqCmp cmp] [∀ k, BEq (β k)] : BEq (Raw α β cmp) := ⟨beq⟩
+
+/-- Internal implementation detail of the hash map. -/
+def Const.beq {β : Type v} [BEq α] [BEq β] (t₁ t₂ : Raw α (fun _ => β) cmp) : Bool :=
+  letI : Ord α := ⟨cmp⟩; Internal.Impl.Const.beq t₁.inner t₂.inner
+
 @[inline, inherit_doc DTreeMap.eraseMany]
 def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseMany! l⟩

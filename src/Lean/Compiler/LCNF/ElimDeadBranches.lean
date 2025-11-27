@@ -650,6 +650,10 @@ end UnreachableBranches
 
 open UnreachableBranches in
 def Decl.elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
+  /-
+  We sort declarations by size here to ensure that when we restart in inferStep it will mostly be
+  small declarations that get re-analyzed.
+  -/
   let decls := decls.qsort (fun l r => (l.size, l.name.toString).lexLt (r.size, r.name.toString))
   let mut assignments := decls.map fun _ => {}
   let initialVal i :=

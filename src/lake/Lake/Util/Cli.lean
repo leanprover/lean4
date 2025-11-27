@@ -52,25 +52,85 @@ public def ArgHandler (m : Type u → Type v) (α : Type u := PUnit) :=
 
 /-! ## Monadic Argument Utilities -/
 
-/-- Get the remaining argument list. -/
+/-- Gets the remaining argument list. -/
 @[inline] public def getArgs [MonadArgs m] : m (List String) :=
   get
 
-/-- Replace the argument list. -/
+/-- Replaces the argument list. -/
 @[inline] public def setArgs [MonadArgs m] (args : List String) : m PUnit :=
   set (σ := ArgList) args
 
-/-- Take the head of the remaining argument list (or {lean}`none` if empty). -/
-@[inline] public def takeArg? [MonadArgs m] : m (Option String) :=
+/-- Removes and returns the head of the remaining argument list (or {lean}`none` if empty). -/
+@[inline] def takeRawArg? [MonadArgs m] : m (Option String) :=
   modifyGet fun | [] => (none, []) | arg :: args => (some arg, args)
 
-/-- Take the head of the remaining argument list (or {lean}`default` if empty). -/
-@[inline] public def takeArgD [MonadArgs m] (default : String) : m String :=
+/-- Removes and returns  the head of the remaining argument list (or {lean}`default` if empty). -/
+@[inline] def takeRawArgD [MonadArgs m] (default : String) : m String :=
   modifyGet fun | [] => (default, []) | arg :: args => (arg, args)
 
-/-- Take the remaining argument list, leaving only an empty list. -/
+/-- Removes and returns  the remaining argument list, leaving only an empty list. -/
 @[inline] public def takeArgs [MonadArgs m] : m (List String) :=
   modifyGet fun args => (args, [])
+
+/-! ## Monadic Argument Parsing Utilities -/
+
+/-- Type class for parsing command line arguments. -/
+public class MonadParseArg (α : Type u) (m : Type u → Type v) where
+  /-- Parse a command line argument {lean}`arg` into the type {lean}`α`. -/
+  parseArg (arg : String.Slice) : m α
+
+export MonadParseArg (parseArg)
+
+public instance [MonadLift m n] [MonadParseArg α  m] : MonadParseArg α n where
+  parseArg arg := liftM (m := m) <| parseArg arg
+
+public instance [Pure m] : MonadParseArg String m := ⟨(pure ·.copy)⟩
+@[default_instance] public instance [Pure m] : MonadParseArg String.Slice m := ⟨(pure ·)⟩
+
+/-- Type class for indicating a missing argument. -/
+public class MonadThrowExpectedArg  (m : Type u → Type v) where
+  /-- Throw an error indicating a missing argument described by {lean}`descr`. -/
+  throwExpectedArg {α} (descr : String) : m α
+
+export MonadThrowExpectedArg (throwExpectedArg)
+
+public instance [MonadLift m n] [MonadThrowExpectedArg m] : MonadThrowExpectedArg n where
+  throwExpectedArg descr := liftM (m := m) <| throwExpectedArg descr
+
+/--
+Removes and returns the head of the remaining argument list, parsing the argument into {lean}`α`.
+
+If no argument is available, returns {lean}`none`.
+-/
+@[inline] public def takeArg?
+  [Monad m] [MonadArgs m] [MonadParseArg α m]
+: m (Option α) := do
+  if let some arg ← takeRawArg? then
+    return some (← parseArg arg)
+  else
+    return none
+
+/--
+Removes and returns the head of the remaining argument list, parsing the argument into {lean}`α`.
+
+If no argument is available, returns {lean}`default`.
+-/
+@[inline] public def takeArgD
+  [Monad m] [MonadArgs m] [MonadParseArg α m] (default : α)
+: m α := return (← takeArg?).getD default
+
+/--
+Removes and returns the head of the remaining argument list, parsing the argument into {lean}`α`.
+
+If no argument is available,, errors using {name}`throwExpectedArg` with {lean}`descr`.
+-/
+@[inline] public def takeArg
+  [Monad m] [MonadArgs m] [MonadParseArg α m] [MonadThrowExpectedArg m] (descr : String)
+: m α := do
+  if let some arg ← takeArg? then
+    parseArg arg
+  else
+    throwExpectedArg descr
 
 /-! ## Option-related Types -/
 
@@ -204,17 +264,27 @@ Get the character of the command line short option of the current context
   read
 
 /-- Get the option argument (if any). -/
-@[inline] public def getOptArg? [MonadOptArg m] : m (Option String.Slice) :=
+@[inline] def getOptArg? [MonadOptArg m] : m (Option String.Slice) :=
   read
 
-/-- Take the option argument or, if {lean}`none`, the head of the remaining argument list. -/
-@[inline] public def takeOptArg? [Monad m] [MonadOptArg m] [MonadArgs m] : m (Option String.Slice) := do
+/--
+Returns the option argument or, if {lean}`none`, removes and returns
+the head of the remaining argument list.
+
+Parses the argument into {lean}`α`.
+If no argument is available, errors using {name}`throwExpectedArg` with {lean}`descr`.
+-/
+@[inline] public def takeOptArg
+  [Monad m] [MonadOptArg m] [MonadArgs m]
+  [MonadParseArg α m] [MonadThrowExpectedArg m]
+  (descr : String)
+: m α := do
   if let some arg ← getOptArg? then
-    return some arg
+    parseArg arg
   else if let some arg ← takeArg? then
-    return some arg
+    parseArg arg
   else
-    return none
+    throwExpectedArg descr
 
 /-! ## Option Handler Types -/
 
@@ -253,7 +323,7 @@ Construct an long option handler from a monadic action.
 
 The name of the option (e.g., {lit}`-long` or {lit}`--long`) is available via {name}`getOpt`.
 An argument for the option (e.g., {lit}`arg` in {lit}`--long=arg` or {lit}`--long arg`) can be
-accessed through {name}`takeOptArg?`.
+accessed through {name}`takeArg?`.
 -/
 @[inline] public def LongOptHandler.ofM (x : OptT m α) : LongOptHandler m α := x
 
@@ -289,7 +359,7 @@ The name of the option (e.g., {lit}`-x`) is available via {name}`getOpt`, and
 the character of the option (e.g., {lit}`x` in {lit}`-x`) is available via {name}`getOptChar`,
 
 An argument for the option (e.g., {lit}`arg` in {lit}`-x=arg` or {lit}`-x arg`) can be accessed
-through  {name}`takeOptArg?`.
+through  {name}`takeOptArg`.
 -/
 @[inline] public def ShortOptHandler.ofM (x : ShortOptT m α) : ShortOptHandler m α := x
 
@@ -455,7 +525,7 @@ public partial def processLeadingOptions (handler : OptHandler m) : m PUnit := d
   (optHandler : OptHandler m) (argHandler : ArgHandler m)
 : m PUnit :=
   let rec @[specialize optHandler argHandler] loop := do
-    if let some arg ← takeArg? then
+    if let some arg ← takeRawArg? then
       if h0 : arg.startPos.IsAtEnd then -- skip empty args
         loop
       else if h : arg.startPos.get h0 = '-' ∧ ¬ (arg.startPos.next h0).IsAtEnd then -- `-(.+)`
@@ -470,7 +540,7 @@ public partial def processLeadingOptions (handler : OptHandler m) : m PUnit := d
 @[specialize handler] public partial def collectArgs
   (handler : OptHandler m) (args : Array String := #[])
 : m (Array String) := do
-  if let some arg ← takeArg? then
+  if let some arg ← takeRawArg? then
     if h0 : arg.startPos.IsAtEnd then -- skip empty args
       collectArgs handler args
     else if h : arg.startPos.get h0 = '-' ∧ ¬ (arg.startPos.next h0).IsAtEnd then -- `-(.+)`

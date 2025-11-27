@@ -1831,45 +1831,55 @@ theorem WF.union! {_ : Ord α} [TransOrd α]
   . exact WF.insertManyIfNew! h₂
   . exact WF.insertMany! h₁
 
-theorem toListModel_beq {_ : Ord α} [BEq α] [LawfulEqOrd α] [LawfulBEq α] [∀ k, BEq (β k)] {m₁ m₂ : Impl α β}  (h₁ : m₁.WF) (h₂ : m₂.WF) :
-    Impl.beq m₁ m₂ = beqModel m₁.toListModel m₂.toListModel := sorry
+theorem all_toList {p : (a : α) → β a → Bool} {m : Impl α β}:
+    m.toList.all (fun x => p x.1 x.2) = m.all p := by
+  simp [all, ForIn.forIn, bind_pure_comp, map_pure, Id.run_bind]
+  rw [forIn_eq_forIn_toListModel, ← toList_eq_toListModel, forIn_eq_forIn']
+  induction m.toList with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [forIn'_eq_forIn, List.all_cons]
+    by_cases h : p hd.fst hd.snd = false
+    · simp [h]
+    · simp only [forIn'_eq_forIn] at ih
+      simp [h, ih]
 
-  --   beqModel m₁.1.toList m₂.1.toList := by
-  -- rw [beq, beqModel]
-  -- split
-  -- case isTrue h =>
-  --   rw [Raw.size_eq_length, Raw.size_eq_length] at h
-  --   rw [Raw.toList_eq_toListModel, Raw.toList_eq_toListModel]
-  --   · simp only [ne_eq, h, not_false_eq_true, ↓reduceIte]
-  --   · exact h₂
-  --   · exact h₁
-  -- case isFalse h =>
-  --   rw [Raw.size_eq_length, Raw.size_eq_length] at h
-  --   simp [Raw.toList_eq_toListModel, h, ← Raw.all_toList]
-  --   congr
-  --   · ext x
-  --     rw [get?_eq_getValueCast? h₂]
-  --   · exact h₂
-  --   · exact h₁
+theorem toListModel_beq {_ : Ord α} [BEq α] [TransOrd α] [LawfulBEqOrd α] [LawfulBEq α] [∀ k, BEq (β k)] {m₁ m₂ : Impl α β} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    Impl.beq m₁ m₂ = beqModel m₁.toListModel m₂.toListModel := by
+  rw [beq, beqModel]
+  split
+  case isTrue h =>
+    rw [size_eq_length, size_eq_length] at h
+    · simp only [ne_eq, h, not_false_eq_true, ↓reduceIte]
+    · exact h₂.balanced
+    · exact h₁.balanced
+  case isFalse h =>
+    rw [size_eq_length, size_eq_length] at h
+    simp [h, ← all_toList, toList_eq_toListModel]
+    congr
+    · ext x
+      rw [get?_eq_getValueCast? h₂.ordered]
+    · exact h₂.balanced
+    · exact h₁.balanced
 
--- theorem Const.toListModel_beq {β : Type v} [BEq α] [PartialEquivBEq α] [Hashable α] [LawfulHashable α] [BEq β] {m₁ m₂ : Raw₀ α (fun _ => β)}  (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1) :
---     beq m₁ m₂ = Const.beqModel m₁.1.toList m₂.1.toList := by
---   rw [beq, Const.beqModel]
---   split
---   case isTrue h =>
---     rw [Raw.size_eq_length, Raw.size_eq_length] at h
---     rw [Raw.toList_eq_toListModel, Raw.toList_eq_toListModel]
---     · simp only [ne_eq, h, not_false_eq_true, ↓reduceIte]
---     · exact h₂
---     · exact h₁
---   case isFalse h =>
---     rw [Raw.size_eq_length, Raw.size_eq_length] at h
---     simp [Raw.toList_eq_toListModel, h, ← Raw.all_toList]
---     congr
---     · ext x
---       rw [get?_eq_getValue? h₂]
---     · exact h₂
---     · exact h₁
+theorem Const.toListModel_beq {β : Type v} [BEq α] {_ : Ord α} [BEq β] {m₁ m₂ : Impl α (fun _ => β)}  (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    beq m₁ m₂ = Const.beqModel m₁.toListModel m₂.toListModel := by
+  rw [beq, Const.beqModel]
+  split
+  case isTrue h =>
+    rw [Raw.size_eq_length, Raw.size_eq_length] at h
+    rw [Raw.toList_eq_toListModel, Raw.toList_eq_toListModel]
+    · simp only [ne_eq, h, not_false_eq_true, ↓reduceIte]
+    · exact h₂
+    · exact h₁
+  case isFalse h =>
+    rw [Raw.size_eq_length, Raw.size_eq_length] at h
+    simp [Raw.toList_eq_toListModel, h, ← Raw.all_toList]
+    congr
+    · ext x
+      rw [get?_eq_getValue? h₂]
+    · exact h₂
+    · exact h₁
 
 theorem WF.constInsertMany! {β : Type v} {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ (α × β)] {l : ρ}
     {t : Impl α β} (h : t.WF) : (Const.insertMany! t l).1.WF :=

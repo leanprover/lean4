@@ -143,7 +143,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_instMonad___lam__4___
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_asTask___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_IO_Async_EAsync_instMonadExceptOf___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instMonad___lam__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_race___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_await___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instMonad___lam__7(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -297,7 +297,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_ofTask___boxed(lean_o
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_ofExcept(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instMonad___lam__4(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instForInLoopUnit___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instForInLoopUnit___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_get___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_toRawBaseIO(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_raceAll___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -365,7 +365,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instFunctor___lam__1___b
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_concurrentlyAll___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_instMonad___lam__7(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_race___redArg___lam__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_block___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_race___redArg___lam__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
@@ -476,7 +476,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_ofTask___boxed(lean_objec
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_race___redArg___lam__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_ETask_bind___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_map___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_bind___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_bindIO___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_concurrently___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -524,7 +524,7 @@ static lean_object* l_Std_Internal_IO_Async_BaseAsync_concurrentlyAll___redArg__
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_mapIO(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_raceAll___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MonadAwait_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instMonadAwaitETask(lean_object*);
 static lean_object* l_Std_Internal_IO_Async_EAsync_instOrElse___closed__1;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_race___redArg___lam__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -560,7 +560,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_ETask_bindEIO(lean_object*, lea
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_concurrently(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_race___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instMonad___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_BaseIO_chainTask___redArg(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_concurrently___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_EAsync_forIn_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -579,7 +579,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_ofPurePromise___redArg___
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instFunctor___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_instMonadAsyncStateRefT_x27___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_instMonadAwaitStateTOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_ETask_ofPromise_x21(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_toEIO___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_instFunctor;
@@ -685,7 +685,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_race___redArg___lam__
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_mk___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_mapTaskIO___redArg(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instForInLoopUnit___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instForInLoopUnit___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MonadAwait_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -5468,73 +5468,69 @@ x_13 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_b
 return x_13;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___lam__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___lam__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; 
-lean_inc(x_7);
-x_9 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_BaseAsync_race___redArg___lam__2___boxed), 3, 1);
-lean_closure_set(x_9, 0, x_7);
-x_10 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___lam__2___boxed), 4, 2);
-lean_closure_set(x_10, 0, x_1);
-lean_closure_set(x_10, 1, x_9);
-x_11 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___lam__0___boxed), 5, 3);
-lean_closure_set(x_11, 0, x_2);
-lean_closure_set(x_11, 1, x_3);
-lean_closure_set(x_11, 2, x_10);
-x_12 = lean_apply_4(x_4, x_5, x_6, x_11, lean_box(0));
-x_13 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_BaseAsync_race___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(x_13, 0, x_7);
-x_14 = lean_unsigned_to_nat(0u);
-x_15 = 0;
-x_16 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask___redArg(x_14, x_15, x_12, x_13);
-return x_16;
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; 
+lean_inc(x_6);
+x_8 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_BaseAsync_race___redArg___lam__2___boxed), 3, 1);
+lean_closure_set(x_8, 0, x_6);
+x_9 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___lam__2___boxed), 4, 2);
+lean_closure_set(x_9, 0, x_1);
+lean_closure_set(x_9, 1, x_8);
+x_10 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___lam__0___boxed), 5, 3);
+lean_closure_set(x_10, 0, x_2);
+lean_closure_set(x_10, 1, x_3);
+lean_closure_set(x_10, 2, x_9);
+x_11 = lean_apply_3(x_4, x_5, x_10, lean_box(0));
+x_12 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_BaseAsync_race___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(x_12, 0, x_6);
+x_13 = lean_unsigned_to_nat(0u);
+x_14 = 0;
+x_15 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask___redArg(x_13, x_14, x_11, x_12);
+return x_15;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; 
-x_5 = l_Std_Internal_IO_Async_BaseAsync_instMonad;
-x_6 = lean_io_promise_new();
-x_7 = l_Std_Internal_IO_Async_BaseAsync_asTask___redArg___closed__0;
-x_8 = l_Std_Internal_IO_Async_BaseAsync_race___redArg___closed__0;
-x_9 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___lam__3___boxed), 8, 6);
-lean_closure_set(x_9, 0, x_8);
-lean_closure_set(x_9, 1, x_3);
-lean_closure_set(x_9, 2, x_7);
-lean_closure_set(x_9, 3, x_1);
-lean_closure_set(x_9, 4, x_5);
-lean_closure_set(x_9, 5, x_2);
-x_10 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_10, 0, x_6);
-x_11 = lean_unsigned_to_nat(0u);
-x_12 = 0;
-x_13 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask___redArg(x_11, x_12, x_10, x_9);
-return x_13;
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; 
+x_5 = lean_io_promise_new();
+x_6 = l_Std_Internal_IO_Async_BaseAsync_asTask___redArg___closed__0;
+x_7 = l_Std_Internal_IO_Async_BaseAsync_race___redArg___closed__0;
+x_8 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___lam__3___boxed), 7, 5);
+lean_closure_set(x_8, 0, x_7);
+lean_closure_set(x_8, 1, x_3);
+lean_closure_set(x_8, 2, x_6);
+lean_closure_set(x_8, 3, x_1);
+lean_closure_set(x_8, 4, x_2);
+x_9 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_9, 0, x_5);
+x_10 = lean_unsigned_to_nat(0u);
+x_11 = 0;
+x_12 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask___redArg(x_10, x_11, x_9, x_8);
+return x_12;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_raceAll(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; 
-x_8 = l_Std_Internal_IO_Async_BaseAsync_instMonad;
-x_9 = lean_io_promise_new();
-x_10 = l_Std_Internal_IO_Async_BaseAsync_asTask___redArg___closed__0;
-x_11 = l_Std_Internal_IO_Async_BaseAsync_race___redArg___closed__0;
-x_12 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___lam__3___boxed), 8, 6);
-lean_closure_set(x_12, 0, x_11);
-lean_closure_set(x_12, 1, x_6);
-lean_closure_set(x_12, 2, x_10);
-lean_closure_set(x_12, 3, x_4);
-lean_closure_set(x_12, 4, x_8);
-lean_closure_set(x_12, 5, x_5);
-x_13 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_13, 0, x_9);
-x_14 = lean_unsigned_to_nat(0u);
-x_15 = 0;
-x_16 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask___redArg(x_14, x_15, x_13, x_12);
-return x_16;
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; 
+x_8 = lean_io_promise_new();
+x_9 = l_Std_Internal_IO_Async_BaseAsync_asTask___redArg___closed__0;
+x_10 = l_Std_Internal_IO_Async_BaseAsync_race___redArg___closed__0;
+x_11 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___lam__3___boxed), 7, 5);
+lean_closure_set(x_11, 0, x_10);
+lean_closure_set(x_11, 1, x_6);
+lean_closure_set(x_11, 2, x_9);
+lean_closure_set(x_11, 3, x_4);
+lean_closure_set(x_11, 4, x_5);
+x_12 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_12, 0, x_8);
+x_13 = lean_unsigned_to_nat(0u);
+x_14 = 0;
+x_15 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask___redArg(x_13, x_14, x_12, x_11);
+return x_15;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -5553,12 +5549,12 @@ x_6 = l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___lam__0(x_1, x_2, x_3,
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___lam__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___lam__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_9; 
-x_9 = l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___lam__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-return x_9;
+lean_object* x_8; 
+x_8 = l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___lam__3(x_1, x_2, x_3, x_4, x_5, x_6);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_raceAll___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -8653,30 +8649,30 @@ return x_24;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instForInLoopUnit___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instForInLoopUnit___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; 
-x_7 = lean_io_promise_new();
-x_8 = lean_unsigned_to_nat(0u);
-x_9 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_EAsync_instForInLoopUnit___lam__1___boxed), 5, 3);
-lean_closure_set(x_9, 0, x_5);
-lean_closure_set(x_9, 1, x_8);
-lean_closure_set(x_9, 2, x_4);
-x_10 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_10, 0, x_7);
-x_11 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_11, 0, x_10);
-x_12 = 0;
-x_13 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask___redArg(x_8, x_12, x_11, x_9);
-return x_13;
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; 
+x_6 = lean_io_promise_new();
+x_7 = lean_unsigned_to_nat(0u);
+x_8 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_EAsync_instForInLoopUnit___lam__1___boxed), 5, 3);
+lean_closure_set(x_8, 0, x_4);
+lean_closure_set(x_8, 1, x_7);
+lean_closure_set(x_8, 2, x_3);
+x_9 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_9, 0, x_6);
+x_10 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_10, 0, x_9);
+x_11 = 0;
+x_12 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask___redArg(x_7, x_11, x_10, x_8);
+return x_12;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instForInLoopUnit(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_EAsync_instForInLoopUnit___lam__0___boxed), 6, 0);
+x_2 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_EAsync_instForInLoopUnit___lam__0___boxed), 5, 0);
 return x_2;
 }
 }
@@ -8688,13 +8684,12 @@ x_6 = l_Std_Internal_IO_Async_EAsync_instForInLoopUnit___lam__1(x_1, x_2, x_3, x
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instForInLoopUnit___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instForInLoopUnit___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_7; 
-x_7 = l_Std_Internal_IO_Async_EAsync_instForInLoopUnit___lam__0(x_1, x_2, x_3, x_4, x_5);
-lean_dec_ref(x_2);
-return x_7;
+lean_object* x_6; 
+x_6 = l_Std_Internal_IO_Async_EAsync_instForInLoopUnit___lam__0(x_1, x_2, x_3, x_4);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_ofExcept___redArg(lean_object* x_1) {
@@ -9933,66 +9928,65 @@ x_14 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_b
 return x_14;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-if (lean_obj_tag(x_9) == 0)
+if (lean_obj_tag(x_8) == 0)
 {
-uint8_t x_11; 
-lean_dec_ref(x_8);
+uint8_t x_10; 
 lean_dec_ref(x_7);
-lean_dec(x_6);
-lean_dec_ref(x_5);
+lean_dec_ref(x_6);
+lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_11 = !lean_is_exclusive(x_9);
-if (x_11 == 0)
+x_10 = !lean_is_exclusive(x_8);
+if (x_10 == 0)
 {
-lean_object* x_12; 
-x_12 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_12, 0, x_9);
-return x_12;
+lean_object* x_11; 
+x_11 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_11, 0, x_8);
+return x_11;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_13 = lean_ctor_get(x_9, 0);
-lean_inc(x_13);
-lean_dec(x_9);
+lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_12 = lean_ctor_get(x_8, 0);
+lean_inc(x_12);
+lean_dec(x_8);
+x_13 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_13, 0, x_12);
 x_14 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_14, 0, x_13);
-x_15 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_15, 0, x_14);
-return x_15;
+return x_14;
 }
 }
 else
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; 
-x_16 = lean_ctor_get(x_9, 0);
-lean_inc(x_16);
-lean_dec_ref(x_9);
-lean_inc(x_16);
-x_17 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_EAsync_race___redArg___lam__3___boxed), 3, 1);
-lean_closure_set(x_17, 0, x_16);
-x_18 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__4___boxed), 4, 2);
-lean_closure_set(x_18, 0, x_1);
-lean_closure_set(x_18, 1, x_17);
-x_19 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__0___boxed), 5, 3);
-lean_closure_set(x_19, 0, x_2);
-lean_closure_set(x_19, 1, x_3);
-lean_closure_set(x_19, 2, x_18);
-x_20 = lean_apply_4(x_4, x_5, x_6, x_19, lean_box(0));
-x_21 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_EAsync_race___redArg___lam__2___boxed), 5, 3);
-lean_closure_set(x_21, 0, x_16);
-lean_closure_set(x_21, 1, x_7);
-lean_closure_set(x_21, 2, x_8);
-x_22 = lean_unsigned_to_nat(0u);
-x_23 = 0;
-x_24 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask___redArg(x_22, x_23, x_20, x_21);
-return x_24;
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; lean_object* x_23; 
+x_15 = lean_ctor_get(x_8, 0);
+lean_inc(x_15);
+lean_dec_ref(x_8);
+lean_inc(x_15);
+x_16 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_EAsync_race___redArg___lam__3___boxed), 3, 1);
+lean_closure_set(x_16, 0, x_15);
+x_17 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__4___boxed), 4, 2);
+lean_closure_set(x_17, 0, x_1);
+lean_closure_set(x_17, 1, x_16);
+x_18 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__0___boxed), 5, 3);
+lean_closure_set(x_18, 0, x_2);
+lean_closure_set(x_18, 1, x_3);
+lean_closure_set(x_18, 2, x_17);
+x_19 = lean_apply_3(x_4, x_5, x_18, lean_box(0));
+x_20 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_EAsync_race___redArg___lam__2___boxed), 5, 3);
+lean_closure_set(x_20, 0, x_15);
+lean_closure_set(x_20, 1, x_6);
+lean_closure_set(x_20, 2, x_7);
+x_21 = lean_unsigned_to_nat(0u);
+x_22 = 0;
+x_23 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask___redArg(x_21, x_22, x_19, x_20);
+return x_23;
 }
 }
 }
@@ -10015,59 +10009,55 @@ return x_1;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_raceAll___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; 
-x_5 = l_Std_Internal_IO_Async_EAsync_concurrentlyAll___redArg___closed__0;
-x_6 = lean_io_promise_new();
-x_7 = l_Std_Internal_IO_Async_EAsync_raceAll___redArg___closed__0;
-x_8 = l_Std_Internal_IO_Async_EAsync_raceAll___redArg___closed__1;
-x_9 = l_Std_Internal_IO_Async_EAsync_block___redArg___closed__0;
-x_10 = l_Std_Internal_IO_Async_BaseAsync_race___redArg___closed__0;
-x_11 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__2___boxed), 10, 8);
-lean_closure_set(x_11, 0, x_10);
-lean_closure_set(x_11, 1, x_3);
-lean_closure_set(x_11, 2, x_9);
-lean_closure_set(x_11, 3, x_1);
-lean_closure_set(x_11, 4, x_5);
-lean_closure_set(x_11, 5, x_2);
-lean_closure_set(x_11, 6, x_7);
-lean_closure_set(x_11, 7, x_8);
-x_12 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_12, 0, x_6);
-x_13 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_13, 0, x_12);
-x_14 = lean_unsigned_to_nat(0u);
-x_15 = 0;
-x_16 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask___redArg(x_14, x_15, x_13, x_11);
-return x_16;
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; 
+x_5 = lean_io_promise_new();
+x_6 = l_Std_Internal_IO_Async_EAsync_raceAll___redArg___closed__0;
+x_7 = l_Std_Internal_IO_Async_EAsync_raceAll___redArg___closed__1;
+x_8 = l_Std_Internal_IO_Async_EAsync_block___redArg___closed__0;
+x_9 = l_Std_Internal_IO_Async_BaseAsync_race___redArg___closed__0;
+x_10 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__2___boxed), 9, 7);
+lean_closure_set(x_10, 0, x_9);
+lean_closure_set(x_10, 1, x_3);
+lean_closure_set(x_10, 2, x_8);
+lean_closure_set(x_10, 3, x_1);
+lean_closure_set(x_10, 4, x_2);
+lean_closure_set(x_10, 5, x_6);
+lean_closure_set(x_10, 6, x_7);
+x_11 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_11, 0, x_5);
+x_12 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_12, 0, x_11);
+x_13 = lean_unsigned_to_nat(0u);
+x_14 = 0;
+x_15 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask___redArg(x_13, x_14, x_12, x_10);
+return x_15;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_raceAll(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; 
-x_9 = l_Std_Internal_IO_Async_EAsync_concurrentlyAll___redArg___closed__0;
-x_10 = lean_io_promise_new();
-x_11 = l_Std_Internal_IO_Async_EAsync_raceAll___redArg___closed__0;
-x_12 = l_Std_Internal_IO_Async_EAsync_raceAll___redArg___closed__1;
-x_13 = l_Std_Internal_IO_Async_EAsync_block___redArg___closed__0;
-x_14 = l_Std_Internal_IO_Async_BaseAsync_race___redArg___closed__0;
-x_15 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__2___boxed), 10, 8);
-lean_closure_set(x_15, 0, x_14);
-lean_closure_set(x_15, 1, x_7);
-lean_closure_set(x_15, 2, x_13);
-lean_closure_set(x_15, 3, x_5);
-lean_closure_set(x_15, 4, x_9);
-lean_closure_set(x_15, 5, x_6);
-lean_closure_set(x_15, 6, x_11);
-lean_closure_set(x_15, 7, x_12);
-x_16 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_16, 0, x_10);
-x_17 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_17, 0, x_16);
-x_18 = lean_unsigned_to_nat(0u);
-x_19 = 0;
-x_20 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask___redArg(x_18, x_19, x_17, x_15);
-return x_20;
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; 
+x_9 = lean_io_promise_new();
+x_10 = l_Std_Internal_IO_Async_EAsync_raceAll___redArg___closed__0;
+x_11 = l_Std_Internal_IO_Async_EAsync_raceAll___redArg___closed__1;
+x_12 = l_Std_Internal_IO_Async_EAsync_block___redArg___closed__0;
+x_13 = l_Std_Internal_IO_Async_BaseAsync_race___redArg___closed__0;
+x_14 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__2___boxed), 9, 7);
+lean_closure_set(x_14, 0, x_13);
+lean_closure_set(x_14, 1, x_7);
+lean_closure_set(x_14, 2, x_12);
+lean_closure_set(x_14, 3, x_5);
+lean_closure_set(x_14, 4, x_6);
+lean_closure_set(x_14, 5, x_10);
+lean_closure_set(x_14, 6, x_11);
+x_15 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_15, 0, x_9);
+x_16 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_16, 0, x_15);
+x_17 = lean_unsigned_to_nat(0u);
+x_18 = 0;
+x_19 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask___redArg(x_17, x_18, x_16, x_14);
+return x_19;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -10086,12 +10076,12 @@ x_6 = l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__0(x_1, x_2, x_3, x_
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
-lean_object* x_11; 
-x_11 = l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-return x_11;
+lean_object* x_10; 
+x_10 = l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+return x_10;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_raceAll___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -12362,66 +12352,65 @@ x_14 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_b
 return x_14;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-if (lean_obj_tag(x_9) == 0)
+if (lean_obj_tag(x_8) == 0)
 {
-uint8_t x_11; 
-lean_dec_ref(x_8);
+uint8_t x_10; 
 lean_dec_ref(x_7);
-lean_dec(x_6);
-lean_dec_ref(x_5);
+lean_dec_ref(x_6);
+lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_11 = !lean_is_exclusive(x_9);
-if (x_11 == 0)
+x_10 = !lean_is_exclusive(x_8);
+if (x_10 == 0)
 {
-lean_object* x_12; 
-x_12 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_12, 0, x_9);
-return x_12;
+lean_object* x_11; 
+x_11 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_11, 0, x_8);
+return x_11;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_13 = lean_ctor_get(x_9, 0);
-lean_inc(x_13);
-lean_dec(x_9);
+lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_12 = lean_ctor_get(x_8, 0);
+lean_inc(x_12);
+lean_dec(x_8);
+x_13 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_13, 0, x_12);
 x_14 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_14, 0, x_13);
-x_15 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_15, 0, x_14);
-return x_15;
+return x_14;
 }
 }
 else
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; 
-x_16 = lean_ctor_get(x_9, 0);
-lean_inc(x_16);
-lean_dec_ref(x_9);
-lean_inc(x_16);
-x_17 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Async_race___redArg___lam__3___boxed), 3, 1);
-lean_closure_set(x_17, 0, x_16);
-x_18 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__4___boxed), 4, 2);
-lean_closure_set(x_18, 0, x_1);
-lean_closure_set(x_18, 1, x_17);
-x_19 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__0___boxed), 5, 3);
-lean_closure_set(x_19, 0, x_2);
-lean_closure_set(x_19, 1, x_3);
-lean_closure_set(x_19, 2, x_18);
-x_20 = lean_apply_4(x_4, x_5, x_6, x_19, lean_box(0));
-x_21 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Async_race___redArg___lam__2___boxed), 5, 3);
-lean_closure_set(x_21, 0, x_16);
-lean_closure_set(x_21, 1, x_7);
-lean_closure_set(x_21, 2, x_8);
-x_22 = lean_unsigned_to_nat(0u);
-x_23 = 0;
-x_24 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask___redArg(x_22, x_23, x_20, x_21);
-return x_24;
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; lean_object* x_23; 
+x_15 = lean_ctor_get(x_8, 0);
+lean_inc(x_15);
+lean_dec_ref(x_8);
+lean_inc(x_15);
+x_16 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Async_race___redArg___lam__3___boxed), 3, 1);
+lean_closure_set(x_16, 0, x_15);
+x_17 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__4___boxed), 4, 2);
+lean_closure_set(x_17, 0, x_1);
+lean_closure_set(x_17, 1, x_16);
+x_18 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__0___boxed), 5, 3);
+lean_closure_set(x_18, 0, x_2);
+lean_closure_set(x_18, 1, x_3);
+lean_closure_set(x_18, 2, x_17);
+x_19 = lean_apply_3(x_4, x_5, x_18, lean_box(0));
+x_20 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Async_race___redArg___lam__2___boxed), 5, 3);
+lean_closure_set(x_20, 0, x_15);
+lean_closure_set(x_20, 1, x_6);
+lean_closure_set(x_20, 2, x_7);
+x_21 = lean_unsigned_to_nat(0u);
+x_22 = 0;
+x_23 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask___redArg(x_21, x_22, x_19, x_20);
+return x_23;
 }
 }
 }
@@ -12444,59 +12433,55 @@ return x_1;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_raceAll___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; 
-x_5 = l_Std_Internal_IO_Async_EAsync_concurrentlyAll___redArg___closed__0;
-x_6 = lean_io_promise_new();
-x_7 = l_Std_Internal_IO_Async_Async_raceAll___redArg___closed__0;
-x_8 = l_Std_Internal_IO_Async_Async_raceAll___redArg___closed__1;
-x_9 = l_Std_Internal_IO_Async_Async_block___redArg___closed__0;
-x_10 = l_Std_Internal_IO_Async_BaseAsync_race___redArg___closed__0;
-x_11 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__2___boxed), 10, 8);
-lean_closure_set(x_11, 0, x_10);
-lean_closure_set(x_11, 1, x_3);
-lean_closure_set(x_11, 2, x_9);
-lean_closure_set(x_11, 3, x_1);
-lean_closure_set(x_11, 4, x_5);
-lean_closure_set(x_11, 5, x_2);
-lean_closure_set(x_11, 6, x_7);
-lean_closure_set(x_11, 7, x_8);
-x_12 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_12, 0, x_6);
-x_13 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_13, 0, x_12);
-x_14 = lean_unsigned_to_nat(0u);
-x_15 = 0;
-x_16 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask___redArg(x_14, x_15, x_13, x_11);
-return x_16;
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; 
+x_5 = lean_io_promise_new();
+x_6 = l_Std_Internal_IO_Async_Async_raceAll___redArg___closed__0;
+x_7 = l_Std_Internal_IO_Async_Async_raceAll___redArg___closed__1;
+x_8 = l_Std_Internal_IO_Async_Async_block___redArg___closed__0;
+x_9 = l_Std_Internal_IO_Async_BaseAsync_race___redArg___closed__0;
+x_10 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__2___boxed), 9, 7);
+lean_closure_set(x_10, 0, x_9);
+lean_closure_set(x_10, 1, x_3);
+lean_closure_set(x_10, 2, x_8);
+lean_closure_set(x_10, 3, x_1);
+lean_closure_set(x_10, 4, x_2);
+lean_closure_set(x_10, 5, x_6);
+lean_closure_set(x_10, 6, x_7);
+x_11 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_11, 0, x_5);
+x_12 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_12, 0, x_11);
+x_13 = lean_unsigned_to_nat(0u);
+x_14 = 0;
+x_15 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask___redArg(x_13, x_14, x_12, x_10);
+return x_15;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_raceAll(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; 
-x_7 = l_Std_Internal_IO_Async_EAsync_concurrentlyAll___redArg___closed__0;
-x_8 = lean_io_promise_new();
-x_9 = l_Std_Internal_IO_Async_Async_raceAll___redArg___closed__0;
-x_10 = l_Std_Internal_IO_Async_Async_raceAll___redArg___closed__1;
-x_11 = l_Std_Internal_IO_Async_Async_block___redArg___closed__0;
-x_12 = l_Std_Internal_IO_Async_BaseAsync_race___redArg___closed__0;
-x_13 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__2___boxed), 10, 8);
-lean_closure_set(x_13, 0, x_12);
-lean_closure_set(x_13, 1, x_5);
-lean_closure_set(x_13, 2, x_11);
-lean_closure_set(x_13, 3, x_3);
-lean_closure_set(x_13, 4, x_7);
-lean_closure_set(x_13, 5, x_4);
-lean_closure_set(x_13, 6, x_9);
-lean_closure_set(x_13, 7, x_10);
-x_14 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_14, 0, x_8);
-x_15 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_15, 0, x_14);
-x_16 = lean_unsigned_to_nat(0u);
-x_17 = 0;
-x_18 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask___redArg(x_16, x_17, x_15, x_13);
-return x_18;
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; 
+x_7 = lean_io_promise_new();
+x_8 = l_Std_Internal_IO_Async_Async_raceAll___redArg___closed__0;
+x_9 = l_Std_Internal_IO_Async_Async_raceAll___redArg___closed__1;
+x_10 = l_Std_Internal_IO_Async_Async_block___redArg___closed__0;
+x_11 = l_Std_Internal_IO_Async_BaseAsync_race___redArg___closed__0;
+x_12 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__2___boxed), 9, 7);
+lean_closure_set(x_12, 0, x_11);
+lean_closure_set(x_12, 1, x_5);
+lean_closure_set(x_12, 2, x_10);
+lean_closure_set(x_12, 3, x_3);
+lean_closure_set(x_12, 4, x_4);
+lean_closure_set(x_12, 5, x_8);
+lean_closure_set(x_12, 6, x_9);
+x_13 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_13, 0, x_7);
+x_14 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_14, 0, x_13);
+x_15 = lean_unsigned_to_nat(0u);
+x_16 = 0;
+x_17 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask___redArg(x_15, x_16, x_14, x_12);
+return x_17;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -12515,12 +12500,12 @@ x_6 = l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__0(x_1, x_2, x_3, x_4
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
-lean_object* x_11; 
-x_11 = l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-return x_11;
+lean_object* x_10; 
+x_10 = l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+return x_10;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_raceAll___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

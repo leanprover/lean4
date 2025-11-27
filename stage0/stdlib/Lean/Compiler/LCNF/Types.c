@@ -5392,7 +5392,7 @@ block_101:
 {
 if (x_95 == 0)
 {
-lean_dec_ref(x_94);
+lean_dec_ref(x_93);
 x_71 = lean_box(0);
 goto block_92;
 }
@@ -5413,7 +5413,7 @@ lean_object* x_99;
 x_99 = lean_ctor_get(x_97, 0);
 lean_dec(x_99);
 lean_ctor_set_tag(x_97, 1);
-lean_ctor_set(x_97, 0, x_94);
+lean_ctor_set(x_97, 0, x_93);
 return x_97;
 }
 else
@@ -5421,7 +5421,7 @@ else
 lean_object* x_100; 
 lean_dec(x_97);
 x_100 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_100, 0, x_94);
+lean_ctor_set(x_100, 0, x_93);
 return x_100;
 }
 }
@@ -5468,15 +5468,15 @@ if (x_125 == 0)
 {
 uint8_t x_126; 
 x_126 = l_Lean_Exception_isRuntime(x_124);
-x_93 = lean_box(0);
-x_94 = x_124;
+x_93 = x_124;
+x_94 = lean_box(0);
 x_95 = x_126;
 goto block_101;
 }
 else
 {
-x_93 = lean_box(0);
-x_94 = x_124;
+x_93 = x_124;
+x_94 = lean_box(0);
 x_95 = x_125;
 goto block_101;
 }
@@ -5856,7 +5856,7 @@ block_225:
 {
 if (x_220 == 0)
 {
-lean_dec_ref(x_219);
+lean_dec_ref(x_218);
 x_196 = lean_box(0);
 goto block_217;
 }
@@ -5883,7 +5883,7 @@ if (lean_is_scalar(x_223)) {
  x_224 = x_223;
  lean_ctor_set_tag(x_224, 1);
 }
-lean_ctor_set(x_224, 0, x_219);
+lean_ctor_set(x_224, 0, x_218);
 return x_224;
 }
 }
@@ -5929,15 +5929,15 @@ if (x_249 == 0)
 {
 uint8_t x_250; 
 x_250 = l_Lean_Exception_isRuntime(x_248);
-x_218 = lean_box(0);
-x_219 = x_248;
+x_218 = x_248;
+x_219 = lean_box(0);
 x_220 = x_250;
 goto block_225;
 }
 else
 {
-x_218 = lean_box(0);
-x_219 = x_248;
+x_218 = x_248;
+x_219 = lean_box(0);
 x_220 = x_249;
 goto block_225;
 }
@@ -6394,7 +6394,7 @@ block_362:
 {
 if (x_357 == 0)
 {
-lean_dec_ref(x_356);
+lean_dec_ref(x_355);
 x_333 = lean_box(0);
 goto block_354;
 }
@@ -6421,7 +6421,7 @@ if (lean_is_scalar(x_360)) {
  x_361 = x_360;
  lean_ctor_set_tag(x_361, 1);
 }
-lean_ctor_set(x_361, 0, x_356);
+lean_ctor_set(x_361, 0, x_355);
 return x_361;
 }
 }
@@ -6467,15 +6467,15 @@ if (x_386 == 0)
 {
 uint8_t x_387; 
 x_387 = l_Lean_Exception_isRuntime(x_385);
-x_355 = lean_box(0);
-x_356 = x_385;
+x_355 = x_385;
+x_356 = lean_box(0);
 x_357 = x_387;
 goto block_362;
 }
 else
 {
-x_355 = lean_box(0);
-x_356 = x_385;
+x_355 = x_385;
+x_356 = lean_box(0);
 x_357 = x_386;
 goto block_362;
 }

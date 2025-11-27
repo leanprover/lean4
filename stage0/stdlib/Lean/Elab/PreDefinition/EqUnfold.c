@@ -2468,11 +2468,11 @@ lean_dec(x_50);
 lean_dec_ref(x_49);
 lean_dec_ref(x_35);
 lean_dec_ref(x_34);
-x_12 = x_8;
-x_13 = x_7;
-x_14 = x_9;
-x_15 = lean_box(0);
-x_16 = x_10;
+x_12 = lean_box(0);
+x_13 = x_10;
+x_14 = x_8;
+x_15 = x_9;
+x_16 = x_7;
 goto block_24;
 }
 else
@@ -2484,11 +2484,11 @@ if (x_53 == 0)
 {
 lean_dec_ref(x_35);
 lean_dec_ref(x_34);
-x_12 = x_8;
-x_13 = x_7;
-x_14 = x_9;
-x_15 = lean_box(0);
-x_16 = x_10;
+x_12 = lean_box(0);
+x_13 = x_10;
+x_14 = x_8;
+x_15 = x_9;
+x_16 = x_7;
 goto block_24;
 }
 else
@@ -2527,11 +2527,11 @@ x_18 = l_Lean_MessageData_ofExpr(x_1);
 x_19 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
-x_20 = l_Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Meta_getConstUnfoldEqnFor_x3f_spec__3_spec__3_spec__3_spec__3_spec__3_spec__5_spec__5___redArg(x_19, x_13, x_12, x_14, x_16);
-lean_dec(x_16);
-lean_dec_ref(x_14);
-lean_dec(x_12);
-lean_dec_ref(x_13);
+x_20 = l_Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Meta_getConstUnfoldEqnFor_x3f_spec__3_spec__3_spec__3_spec__3_spec__3_spec__5_spec__5___redArg(x_19, x_16, x_14, x_15, x_13);
+lean_dec(x_13);
+lean_dec_ref(x_15);
+lean_dec(x_14);
+lean_dec_ref(x_16);
 x_21 = !lean_is_exclusive(x_20);
 if (x_21 == 0)
 {

@@ -7308,8 +7308,8 @@ x_34 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Elab_Der
 x_35 = l_List_forIn_x27_loop___at___00__private_Lean_Elab_Deriving_Ord_0__Lean_Elab_Deriving_Ord_mkMatchOld_mkAlts_spec__19___redArg___lam__2___closed__11;
 x_36 = l_Array_append___redArg(x_35, x_16);
 lean_dec_ref(x_16);
-x_37 = l_Array_append___redArg(x_36, x_15);
-lean_dec_ref(x_15);
+x_37 = l_Array_append___redArg(x_36, x_14);
+lean_dec_ref(x_14);
 lean_inc(x_26);
 x_38 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_38, 0, x_26);
@@ -7326,7 +7326,7 @@ x_41 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_41, 0, x_26);
 lean_ctor_set(x_41, 1, x_40);
 lean_inc(x_26);
-x_42 = l_Lean_Syntax_node4(x_26, x_33, x_38, x_39, x_41, x_14);
+x_42 = l_Lean_Syntax_node4(x_26, x_33, x_38, x_39, x_41, x_15);
 lean_inc(x_26);
 x_43 = l_Lean_Syntax_node2(x_26, x_31, x_32, x_42);
 x_44 = l_Lean_Syntax_node2(x_26, x_27, x_29, x_43);
@@ -7356,8 +7356,8 @@ x_53 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Elab_Der
 x_54 = l_List_forIn_x27_loop___at___00__private_Lean_Elab_Deriving_Ord_0__Lean_Elab_Deriving_Ord_mkMatchOld_mkAlts_spec__19___redArg___lam__2___closed__11;
 x_55 = l_Array_append___redArg(x_54, x_16);
 lean_dec_ref(x_16);
-x_56 = l_Array_append___redArg(x_55, x_15);
-lean_dec_ref(x_15);
+x_56 = l_Array_append___redArg(x_55, x_14);
+lean_dec_ref(x_14);
 lean_inc(x_45);
 x_57 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_57, 0, x_45);
@@ -7374,7 +7374,7 @@ x_60 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_60, 0, x_45);
 lean_ctor_set(x_60, 1, x_59);
 lean_inc(x_45);
-x_61 = l_Lean_Syntax_node4(x_45, x_52, x_57, x_58, x_60, x_14);
+x_61 = l_Lean_Syntax_node4(x_45, x_52, x_57, x_58, x_60, x_15);
 lean_inc(x_45);
 x_62 = l_Lean_Syntax_node2(x_45, x_50, x_51, x_61);
 x_63 = l_Lean_Syntax_node2(x_45, x_46, x_48, x_62);
@@ -7387,8 +7387,8 @@ else
 {
 uint8_t x_65; 
 lean_dec_ref(x_16);
-lean_dec_ref(x_15);
-lean_dec(x_14);
+lean_dec(x_15);
+lean_dec_ref(x_14);
 x_65 = !lean_is_exclusive(x_24);
 if (x_65 == 0)
 {
@@ -7441,8 +7441,8 @@ lean_dec_ref(x_83);
 x_85 = l_Array_isEmpty___redArg(x_69);
 if (x_85 == 0)
 {
-x_14 = x_84;
-x_15 = x_70;
+x_14 = x_70;
+x_15 = x_84;
 x_16 = x_69;
 x_17 = x_7;
 x_18 = x_8;
@@ -7508,8 +7508,8 @@ lean_ctor_set(x_104, 0, x_87);
 lean_ctor_set(x_104, 1, x_103);
 x_105 = l_Lean_Syntax_node3(x_87, x_88, x_99, x_102, x_104);
 x_106 = lean_array_push(x_69, x_105);
-x_14 = x_84;
-x_15 = x_70;
+x_14 = x_70;
+x_15 = x_84;
 x_16 = x_106;
 x_17 = x_7;
 x_18 = x_8;

@@ -3012,19 +3012,19 @@ block_78:
 {
 lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; 
 lean_dec_ref(x_62);
-lean_dec_ref(x_58);
-lean_dec(x_56);
-lean_dec(x_55);
-lean_inc(x_57);
+lean_dec_ref(x_60);
+lean_dec(x_59);
+lean_dec(x_54);
+lean_inc(x_58);
 if (lean_is_scalar(x_52)) {
  x_64 = lean_alloc_ctor(0, 2, 0);
 } else {
  x_64 = x_52;
 }
 lean_ctor_set(x_64, 0, x_63);
-lean_ctor_set(x_64, 1, x_57);
-lean_inc(x_57);
-x_65 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Lean_Meta_Tactic_ExposeNames_0__Lean_Meta_getLCtxWithExposedNames_spec__16___redArg(x_54, x_1, x_2, x_57, x_64);
+lean_ctor_set(x_64, 1, x_58);
+lean_inc(x_58);
+x_65 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Lean_Meta_Tactic_ExposeNames_0__Lean_Meta_getLCtxWithExposedNames_spec__16___redArg(x_61, x_1, x_2, x_58, x_64);
 x_66 = lean_ctor_get(x_65, 0);
 lean_inc(x_66);
 lean_dec_ref(x_65);
@@ -3033,22 +3033,22 @@ lean_inc(x_67);
 x_68 = lean_ctor_get(x_66, 1);
 lean_inc(x_68);
 lean_dec(x_66);
-x_69 = lean_ctor_get(x_60, 0);
-x_70 = lean_ctor_get(x_60, 1);
-x_71 = lean_ctor_get(x_60, 2);
-x_72 = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lean_Meta_Tactic_ExposeNames_0__Lean_Meta_getLCtxWithExposedNames_spec__0___redArg(x_59, x_57, x_67);
+x_69 = lean_ctor_get(x_56, 0);
+x_70 = lean_ctor_get(x_56, 1);
+x_71 = lean_ctor_get(x_56, 2);
+x_72 = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lean_Meta_Tactic_ExposeNames_0__Lean_Meta_getLCtxWithExposedNames_spec__0___redArg(x_57, x_58, x_67);
 lean_inc(x_53);
 lean_inc(x_68);
-x_73 = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lean_Meta_Tactic_ExposeNames_0__Lean_Meta_getLCtxWithExposedNames_spec__0___redArg(x_54, x_68, x_53);
-lean_inc_ref(x_60);
-x_74 = lean_local_ctx_find(x_60, x_53);
+x_73 = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lean_Meta_Tactic_ExposeNames_0__Lean_Meta_getLCtxWithExposedNames_spec__0___redArg(x_61, x_68, x_53);
+lean_inc_ref(x_56);
+x_74 = lean_local_ctx_find(x_56, x_53);
 if (lean_obj_tag(x_74) == 0)
 {
 lean_dec(x_68);
 x_13 = lean_box(0);
 x_14 = x_72;
 x_15 = x_73;
-x_16 = x_60;
+x_16 = x_56;
 goto block_22;
 }
 else
@@ -3057,7 +3057,7 @@ lean_object* x_75; lean_object* x_76; lean_object* x_77;
 lean_inc(x_71);
 lean_inc_ref(x_70);
 lean_inc_ref(x_69);
-lean_dec_ref(x_60);
+lean_dec_ref(x_56);
 x_75 = lean_ctor_get(x_74, 0);
 lean_inc(x_75);
 lean_dec_ref(x_74);
@@ -3065,12 +3065,12 @@ x_76 = l_Lean_LocalDecl_setUserName(x_75, x_68);
 x_77 = lean_ctor_get(x_76, 1);
 lean_inc(x_77);
 x_35 = lean_box(0);
-x_36 = x_72;
-x_37 = x_70;
-x_38 = x_69;
-x_39 = x_76;
-x_40 = x_71;
-x_41 = x_73;
+x_36 = x_70;
+x_37 = x_72;
+x_38 = x_71;
+x_39 = x_69;
+x_40 = x_73;
+x_41 = x_76;
 x_42 = x_77;
 goto block_45;
 }
@@ -3082,14 +3082,14 @@ x_86 = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00__private_Lean_M
 if (lean_obj_tag(x_86) == 0)
 {
 lean_inc(x_3);
-x_54 = x_50;
-x_55 = x_84;
-x_56 = x_82;
-x_57 = x_79;
-x_58 = x_81;
-x_59 = x_51;
-x_60 = x_80;
-x_61 = lean_box(0);
+x_54 = x_82;
+x_55 = lean_box(0);
+x_56 = x_80;
+x_57 = x_51;
+x_58 = x_79;
+x_59 = x_84;
+x_60 = x_81;
+x_61 = x_50;
 x_62 = x_83;
 x_63 = x_3;
 goto block_78;
@@ -3100,14 +3100,14 @@ lean_object* x_87;
 x_87 = lean_ctor_get(x_86, 0);
 lean_inc(x_87);
 lean_dec_ref(x_86);
-x_54 = x_50;
-x_55 = x_84;
-x_56 = x_82;
-x_57 = x_79;
-x_58 = x_81;
-x_59 = x_51;
-x_60 = x_80;
-x_61 = lean_box(0);
+x_54 = x_82;
+x_55 = lean_box(0);
+x_56 = x_80;
+x_57 = x_51;
+x_58 = x_79;
+x_59 = x_84;
+x_60 = x_81;
+x_61 = x_50;
 x_62 = x_83;
 x_63 = x_87;
 goto block_78;
@@ -3133,31 +3133,31 @@ block_34:
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 x_31 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_31, 0, x_27);
-x_32 = l_Lean_PersistentArray_set___redArg(x_26, x_30, x_31);
+lean_ctor_set(x_31, 0, x_29);
+x_32 = l_Lean_PersistentArray_set___redArg(x_25, x_30, x_31);
 lean_dec(x_30);
 x_33 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_33, 0, x_23);
+lean_ctor_set(x_33, 0, x_27);
 lean_ctor_set(x_33, 1, x_32);
-lean_ctor_set(x_33, 2, x_28);
+lean_ctor_set(x_33, 2, x_26);
 x_13 = lean_box(0);
-x_14 = x_25;
-x_15 = x_29;
+x_14 = x_24;
+x_15 = x_28;
 x_16 = x_33;
 goto block_22;
 }
 block_45:
 {
 lean_object* x_43; lean_object* x_44; 
-lean_inc_ref(x_39);
-x_43 = l_Lean_PersistentHashMap_insert___at___00__private_Lean_Meta_Tactic_ExposeNames_0__Lean_Meta_getLCtxWithExposedNames_spec__17___redArg(x_38, x_42, x_39);
-x_44 = lean_ctor_get(x_39, 0);
+lean_inc_ref(x_41);
+x_43 = l_Lean_PersistentHashMap_insert___at___00__private_Lean_Meta_Tactic_ExposeNames_0__Lean_Meta_getLCtxWithExposedNames_spec__17___redArg(x_39, x_42, x_41);
+x_44 = lean_ctor_get(x_41, 0);
 lean_inc(x_44);
-x_23 = x_43;
-x_24 = lean_box(0);
+x_23 = lean_box(0);
+x_24 = x_37;
 x_25 = x_36;
-x_26 = x_37;
-x_27 = x_39;
+x_26 = x_38;
+x_27 = x_43;
 x_28 = x_40;
 x_29 = x_41;
 x_30 = x_44;

@@ -5301,7 +5301,7 @@ x_13 = l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_isBuiltin(x_9);
 if (x_13 == 0)
 {
 uint8_t x_14; lean_object* x_15; lean_object* x_16; 
-x_14 = lean_is_matcher(x_11, x_9);
+x_14 = lean_is_matcher(x_10, x_9);
 x_15 = lean_box(x_14);
 x_16 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_16, 0, x_15);
@@ -5310,7 +5310,7 @@ return x_16;
 else
 {
 lean_object* x_17; lean_object* x_18; 
-lean_dec_ref(x_11);
+lean_dec_ref(x_10);
 lean_dec(x_9);
 x_17 = lean_box(x_13);
 x_18 = lean_alloc_ctor(0, 1, 0);
@@ -5321,7 +5321,7 @@ return x_18;
 else
 {
 lean_object* x_19; lean_object* x_20; 
-lean_dec_ref(x_11);
+lean_dec_ref(x_10);
 lean_dec(x_9);
 x_19 = lean_box(x_12);
 x_20 = lean_alloc_ctor(0, 1, 0);
@@ -5342,15 +5342,15 @@ if (x_26 == 0)
 {
 uint8_t x_27; 
 x_27 = l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_isGadget(x_9);
-x_10 = lean_box(0);
-x_11 = x_25;
+x_10 = x_25;
+x_11 = lean_box(0);
 x_12 = x_27;
 goto block_21;
 }
 else
 {
-x_10 = lean_box(0);
-x_11 = x_25;
+x_10 = x_25;
+x_11 = lean_box(0);
 x_12 = x_26;
 goto block_21;
 }

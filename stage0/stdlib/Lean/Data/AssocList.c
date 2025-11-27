@@ -23,6 +23,7 @@ static lean_object* l_Lean_AssocList_foldl___redArg___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Data_AssocList_0__Lean_AssocList_forIn_loop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_toAssocList_x27(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_AssocList_instForInProdOfMonad(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_all___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_ctorIdx___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_forIn___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -32,7 +33,6 @@ LEAN_EXPORT lean_object* l_Lean_AssocList_toList___boxed(lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at___00Lean_AssocList_toList_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_AssocList_foldl___redArg___closed__9;
 LEAN_EXPORT uint8_t l_Lean_AssocList_contains(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_AssocList_instForInProd___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_toAssocList_x27___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -51,11 +51,13 @@ lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_all___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_AssocList_instForInProdOfMonad___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_replace___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_findEntry_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_instEmptyCollection(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_AssocList_isEmpty(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_findEntry_x3f___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_AssocList_instForInProdOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_ctorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_AssocList_isEmpty___redArg(lean_object*);
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -97,7 +99,6 @@ static lean_object* l_Lean_AssocList_foldl___redArg___closed__8;
 LEAN_EXPORT lean_object* l_Lean_AssocList_any___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_forIn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_AssocList_instForInProd(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_nil_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_mapVal___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_contains___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1372,20 +1373,29 @@ x_9 = l___private_Lean_Data_AssocList_0__Lean_AssocList_forIn_loop___redArg(x_5,
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_AssocList_instForInProd___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lean_AssocList_instForInProdOfMonad___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l___private_Lean_Data_AssocList_0__Lean_AssocList_forIn_loop___redArg(x_2, x_5, x_4, x_3);
+x_6 = l___private_Lean_Data_AssocList_0__Lean_AssocList_forIn_loop___redArg(x_1, x_5, x_4, x_3);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_AssocList_instForInProd(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_AssocList_instForInProdOfMonad___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Lean_AssocList_instForInProd___lam__0), 5, 0);
-return x_4;
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_AssocList_instForInProdOfMonad___redArg___lam__0), 5, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_AssocList_instForInProdOfMonad(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_AssocList_instForInProdOfMonad___redArg(x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_List_toAssocList_x27___redArg(lean_object* x_1) {

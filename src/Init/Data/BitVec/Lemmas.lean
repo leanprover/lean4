@@ -6348,7 +6348,7 @@ theorem cpopNatRec_eq_of_le {x : BitVec w} (n : Nat) (hn : w ≤ n) :
 
 @[simp]
 theorem cpopNatRec_allOnes_eq_of_le (h : n ≤ w) :
-    (BitVec.allOnes w).cpopNatRec n = n := by
+    (allOnes w).cpopNatRec n = n := by
   induction n
   · case zero => simp
   · case succ n ihn =>

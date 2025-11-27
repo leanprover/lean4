@@ -6714,7 +6714,7 @@ theorem isEmpty_filter_key_iff [BEq α] [EquivBEq α] {f : α → Bool}
     simp only [getKey, getKey?_eq_getEntry?, this] at h
     exact h
 
-theorem beqModel_eq_true_of_perm [BEq α] [Hashable α] [LawfulBEq α]  [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) : l₁.Perm l₂ → beqModel l₁ l₂ := by
+theorem beqModel_eq_true_of_perm [BEq α] [LawfulBEq α]  [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) : l₁.Perm l₂ → beqModel l₁ l₂ := by
   intro hyp
   rw [beqModel]
   split
@@ -6734,7 +6734,7 @@ theorem beqModel_eq_true_of_perm [BEq α] [Hashable α] [LawfulBEq α]  [LawfulB
     symm
     apply getValueCast?_of_perm hl₁ hyp
 
-theorem Const.beqModel_eq_true_of_perm {β : Type v} [BEq α] [EquivBEq α] [Hashable α] [BEq β] [ReflBEq β] {l₁ l₂ : List ((_ : α) × β )} (hl₁ : DistinctKeys l₁) : l₁.Perm l₂ → Const.beqModel l₁ l₂ := by
+theorem Const.beqModel_eq_true_of_perm {β : Type v} [BEq α] [EquivBEq α] [BEq β] [ReflBEq β] {l₁ l₂ : List ((_ : α) × β )} (hl₁ : DistinctKeys l₁) : l₁.Perm l₂ → Const.beqModel l₁ l₂ := by
   intro hyp
   rw [beqModel]
   split
@@ -6756,7 +6756,7 @@ theorem Const.beqModel_eq_true_of_perm {β : Type v} [BEq α] [EquivBEq α] [Has
     · exact hl₁
     · exact hc
 
-theorem perm_of_beqModel [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
+theorem perm_of_beqModel [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
     beqModel l₁ l₂ → l₁.Perm l₂ := by
   rw [beqModel]
   split
@@ -6806,7 +6806,7 @@ theorem all_congr [BEq α] {l₁ l₂ : List ((a : α) × β a)} {f : (a : α) �
   · intro hyp ⟨k,v⟩ mem
     exact hyp ⟨k,v⟩ (@Perm.mem_iff _ ⟨k,v⟩ l₂ l₁ hp.symm |>.2 mem)
 
-theorem beqModel_congr [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] {l₁ l₂ l₃ l₄ : List ((a : α) × β a)}
+theorem beqModel_congr [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] {l₁ l₂ l₃ l₄ : List ((a : α) × β a)}
 (hl : DistinctKeys l₂) (p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel l₁ l₂ = beqModel l₃ l₄ := by
   rw [beqModel]
   split
@@ -6828,7 +6828,7 @@ theorem beqModel_congr [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)]
     rw [this]
     apply all_congr p₁
 
-theorem Const.beqModel_congr {β : Type v} [BEq α] [LawfulBEq α] [Hashable α] [BEq β] {l₁ l₂ l₃ l₄ : List ((_ : α) × β)}
+theorem Const.beqModel_congr {β : Type v} [BEq α] [LawfulBEq α] [BEq β] {l₁ l₂ l₃ l₄ : List ((_ : α) × β)}
 (hl : DistinctKeys l₂) (p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel l₁ l₂ = beqModel l₃ l₄ := by
   rw [beqModel]
   split
@@ -6850,13 +6850,13 @@ theorem Const.beqModel_congr {β : Type v} [BEq α] [LawfulBEq α] [Hashable α]
     rw [this]
     apply all_congr p₁
 
-theorem beqModel_eq_beqModel_const {β : Type v} [BEq α] [LawfulBEq α] [Hashable α] [BEq β] {l₁ l₂ : List ((_ : α) × β)} : beqModel l₁ l₂ = Const.beqModel l₁ l₂ := by
+theorem beqModel_eq_beqModel_const {β : Type v} [BEq α] [LawfulBEq α] [BEq β] {l₁ l₂ : List ((_ : α) × β)} : beqModel l₁ l₂ = Const.beqModel l₁ l₂ := by
   rw [beqModel, Const.beqModel]
   congr
   ext x
   rw [getValue?_eq_getValueCast?]
 
-theorem Const.perm_of_beqModel {β : Type v} [BEq α] [Hashable α] [LawfulBEq α] [BEq β] [LawfulBEq β] {l₁ l₂ : List ((_ : α) × β)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
+theorem Const.perm_of_beqModel {β : Type v} [BEq α] [LawfulBEq α] [BEq β] [LawfulBEq β] {l₁ l₂ : List ((_ : α) × β)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
     beqModel l₁ l₂ → l₁.Perm l₂ := by
   rw [← beqModel_eq_beqModel_const]
   intro hyp

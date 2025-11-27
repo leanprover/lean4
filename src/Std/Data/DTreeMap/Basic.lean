@@ -1047,6 +1047,17 @@ def inter (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.inter t₂.inner t₁.wf.balanced,  @Impl.WF.inter _ _ _ _ t₂.inner t₁.wf.balanced t₁.wf⟩
 
 instance : Inter (DTreeMap α β cmp) := ⟨inter⟩
+
+/-- Internal implementation detail of the hash map. -/
+def beq [BEq α] [LawfulEqCmp cmp] [∀ k, BEq (β k)] (t₁ t₂ : DTreeMap α β cmp) : Bool :=
+  letI : Ord α := ⟨cmp⟩; t₁.inner.beq t₂.inner
+
+instance [BEq α] [LawfulEqCmp cmp] [∀ k, BEq (β k)] : BEq (DTreeMap α β cmp) := ⟨beq⟩
+
+/-- Internal implementation detail of the hash map. -/
+def Const.beq {β : Type v} [BEq α] [BEq β] (t₁ t₂ : DTreeMap α (fun _ => β) cmp) : Bool :=
+  letI : Ord α := ⟨cmp⟩; Internal.Impl.Const.beq t₁.inner t₂.inner
+
 /--
 Erases multiple mappings from the tree map by iterating over the given collection and calling
 `erase`.

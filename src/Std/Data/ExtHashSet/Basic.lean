@@ -204,6 +204,35 @@ def union [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashSet α) : ExtHas
 
 instance [EquivBEq α] [LawfulHashable α] : Union (ExtHashSet α) := ⟨union⟩
 
+@[inline, inherit_doc ExtHashMap.beq]
+def beq [LawfulBEq α] (m₁ m₂ : ExtHashSet α) : Bool := ExtDHashMap.Const.beq_unit m₁.inner.inner m₂.inner.inner
+
+instance [LawfulBEq α] : BEq (ExtHashSet α) := ⟨beq⟩
+
+instance [LawfulBEq α] : ReflBEq (ExtHashSet α) where
+  rfl := by
+    intro a
+    cases a
+    case mk a =>
+      apply ExtDHashMap.Const.beq_unit_of_eq
+      rfl
+
+instance [LawfulBEq α] : LawfulBEq (ExtHashSet α) where
+  eq_of_beq := by
+    intro a b hyp
+    cases a
+    case mk a₀ =>
+      cases b
+      case mk b₀ =>
+        cases a₀
+        case mk a₁ =>
+          cases b₀
+          case mk b₁ =>
+            simp only [mk.injEq, ExtHashMap.mk.injEq]
+            simp only [BEq.beq, beq] at hyp
+            apply ExtDHashMap.Const.eq_of_beq_unit_eq_true
+            · exact hyp
+
 /--
 Creates a hash set from an array of elements. Note that unlike repeatedly calling `insert`, if the
 collection contains multiple elements that are equal (with regard to `==`), then the last element

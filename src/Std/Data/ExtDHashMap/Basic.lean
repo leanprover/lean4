@@ -416,11 +416,11 @@ namespace Const
 def beq_unit [LawfulBEq α] (m₁ m₂ : ExtDHashMap α fun _ => Unit) : Bool := lift₂ (fun x y : DHashMap α fun _ => Unit => DHashMap.Const.beq x y)
   (fun _ _ _ _ => DHashMap.Const.Equiv.beq_congr) m₁ m₂
 
-theorem beq_unit_of_eq [LawfulBEq α] (m₁ m₂ : ExtDHashMap α fun _ => Unit) (h : m₁ = m₂) : Const.beq m₁ m₂ := by
+theorem beq_unit_of_eq [LawfulBEq α] (m₁ m₂ : ExtDHashMap α fun _ => Unit) (h : m₁ = m₂) : Const.beq_unit m₁ m₂ := by
   apply beq_of_eq
   exact h
 
-theorem eq_of_beq_unit_eq_true [LawfulBEq α] (m₁ m₂ : ExtDHashMap α fun _ => Unit) (h : Const.beq m₁ m₂) : m₁ = m₂ := by
+theorem eq_of_beq_unit_eq_true [LawfulBEq α] (m₁ m₂ : ExtDHashMap α fun _ => Unit) (h : Const.beq_unit m₁ m₂) : m₁ = m₂ := by
   apply eq_of_beq_eq_true
   exact h
 

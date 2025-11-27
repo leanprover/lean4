@@ -695,7 +695,7 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
           let mut hs := #[]
           for overlappedBy in matchInfo.overlaps.overlapping i do
             let notAlt := notAlts[overlappedBy]!
-            let h ← instantiateForall notAlt patterns
+            let h ← instantiateForall notAlt discrs
             if let some h ← simpH? h patterns.size then
               hs := hs.push h
           trace[Meta.Match.matchEqs] "hs: {hs}"

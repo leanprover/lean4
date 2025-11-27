@@ -83,7 +83,8 @@ def injectionAny (mvarId : MVarId) (forbidden : FVarIdSet := {}) : MetaM Injecti
 Solves the overlap assumptions expected by the alternative of a splitter
 -/
 public partial def solveOverlap (mvarId : MVarId) : MetaM Unit := do
-    trace[Meta.Match.matchEqs] "solveOverlap {mkMVar mvarId}, {repr (← mvarId.getDecl).kind}\n{indentD mvarId}"
+    withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} solveOverlap")) do
+    trace[Meta.Match.matchEqs] "goal:{mkMVar mvarId}"
     let (_, mvarId) ← mvarId.intros
     loop mvarId {}
 where

@@ -1049,13 +1049,13 @@ def inter (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
 instance : Inter (DTreeMap α β cmp) := ⟨inter⟩
 
 /-- Internal implementation detail of the hash map. -/
-def beq [BEq α] [LawfulEqCmp cmp] [∀ k, BEq (β k)] (t₁ t₂ : DTreeMap α β cmp) : Bool :=
+def beq [LawfulEqCmp cmp] [∀ k, BEq (β k)] (t₁ t₂ : DTreeMap α β cmp) : Bool :=
   letI : Ord α := ⟨cmp⟩; t₁.inner.beq t₂.inner
 
-instance [BEq α] [LawfulEqCmp cmp] [∀ k, BEq (β k)] : BEq (DTreeMap α β cmp) := ⟨beq⟩
+instance [LawfulEqCmp cmp] [∀ k, BEq (β k)] : BEq (DTreeMap α β cmp) := ⟨beq⟩
 
 /-- Internal implementation detail of the hash map. -/
-def Const.beq {β : Type v} [BEq α] [BEq β] (t₁ t₂ : DTreeMap α (fun _ => β) cmp) : Bool :=
+def Const.beq {β : Type v} [BEq β] (t₁ t₂ : DTreeMap α (fun _ => β) cmp) : Bool :=
   letI : Ord α := ⟨cmp⟩; Internal.Impl.Const.beq t₁.inner t₂.inner
 
 /--

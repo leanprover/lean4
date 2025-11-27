@@ -1425,7 +1425,13 @@ section MessageHandling
     | "$/lean/waitForILeans" =>
       let rd ← ctx.referenceData.atomically get
       IO.wait rd.loadingTask.task
-      let ⟨uri, version⟩ ← parseParams WaitForILeansParams params
+      let ⟨some uri, some version⟩ ← parseParams WaitForILeansParams params
+        | writeMessage {
+            id
+            result := ⟨⟩
+            : Response WaitForILeans
+          }
+          return
       if let none ← getFileWorker? uri then
         writeMessage {
           id

@@ -792,6 +792,10 @@ information but still assumes the preconditions of `filter`, otherwise might pan
 def inter! [Ord α] (m₁ m₂ : Impl α β): Impl α β :=
   if m₁.size ≤ m₂.size then m₁.filter! (fun k _ => m₂.contains k) else interSmaller m₁ m₂
 
+/-- Internal implementation detail of the hash map -/
+def beq [Ord α] [LawfulEqOrd α] [∀ k, BEq (β k)] (t₁ t₂ : Impl α β) : Bool :=
+  if t₁.size ≠ t₂.size then false else t₁.all (fun k v => t₂.get? k == some v)
+
 /--
 Changes the mapping of the key `k` by applying the function `f` to the current mapped value
 (if any). This function can be used to insert a new mapping, modify an existing one or delete it.
@@ -906,6 +910,11 @@ def mergeWith! [Ord α] [LawfulEqOrd α] (mergeFn : (a : α) → β a → β a �
 namespace Const
 
 variable {β : Type v}
+
+/-- Internal implementation detail of the hash map -/
+def beq [Ord α] [BEq β] (t₁ t₂ : Impl α fun _ => β) : Bool :=
+  if t₁.size ≠ t₂.size then false else t₁.all (fun k v => Const.get? t₂ k == some v)
+
 local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 /--

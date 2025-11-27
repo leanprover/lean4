@@ -5025,10 +5025,10 @@ theorem forM_eq [TransCmp cmp] [Monad m] [LawfulMonad m] {f : (a : α) × β a �
   h.1.forM_eq t₁.2 t₂.2
 
 theorem any_eq [TransCmp cmp] {p : (a : α) → β a → Bool} (h : t₁ ~m t₂) : t₁.any p = t₂.any p := by
-  simp only [any, h.forIn_eq]
+  simp only [any, Impl.any, ForIn.forIn, h.1.forIn_eq t₁.2 t₂.2]
 
 theorem all_eq [TransCmp cmp] {p : (a : α) → β a → Bool} (h : t₁ ~m t₂) : t₁.all p = t₂.all p := by
-  simp only [all, h.forIn_eq]
+  simp only [all, Impl.all, ForIn.forIn, h.1.forIn_eq t₁.2 t₂.2]
 
 theorem minKey?_eq [TransCmp cmp] (h : t₁ ~m t₂) : t₁.minKey? = t₂.minKey? :=
   h.1.minKey?_eq t₁.2 t₂.2

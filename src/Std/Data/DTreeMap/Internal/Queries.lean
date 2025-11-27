@@ -293,6 +293,20 @@ def forIn {m} [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (ini
 instance [Monad m] : ForIn m (Impl α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
+/-- Implementation detail. -/
+@[inline]
+def any (t : Impl α β) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
+  for ⟨a, b⟩ in t do
+    if p a b then return true
+  return false
+
+/-- Implementation detail. -/
+@[inline]
+def all (t : Impl α β) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
+  for ⟨a, b⟩ in t do
+    if p a b = false then return false
+  return true
+
 /-- Returns a `List` of the keys in order. -/
 @[inline] def keys (t : Impl α β) : List α :=
   t.foldr (init := []) fun k _ l => k :: l

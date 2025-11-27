@@ -1831,6 +1831,46 @@ theorem WF.union! {_ : Ord α} [TransOrd α]
   . exact WF.insertManyIfNew! h₂
   . exact WF.insertMany! h₁
 
+theorem toListModel_beq {_ : Ord α} [BEq α] [LawfulEqOrd α] [LawfulBEq α] [∀ k, BEq (β k)] {m₁ m₂ : Impl α β}  (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    Impl.beq m₁ m₂ = beqModel m₁.toListModel m₂.toListModel := sorry
+
+  --   beqModel m₁.1.toList m₂.1.toList := by
+  -- rw [beq, beqModel]
+  -- split
+  -- case isTrue h =>
+  --   rw [Raw.size_eq_length, Raw.size_eq_length] at h
+  --   rw [Raw.toList_eq_toListModel, Raw.toList_eq_toListModel]
+  --   · simp only [ne_eq, h, not_false_eq_true, ↓reduceIte]
+  --   · exact h₂
+  --   · exact h₁
+  -- case isFalse h =>
+  --   rw [Raw.size_eq_length, Raw.size_eq_length] at h
+  --   simp [Raw.toList_eq_toListModel, h, ← Raw.all_toList]
+  --   congr
+  --   · ext x
+  --     rw [get?_eq_getValueCast? h₂]
+  --   · exact h₂
+  --   · exact h₁
+
+-- theorem Const.toListModel_beq {β : Type v} [BEq α] [PartialEquivBEq α] [Hashable α] [LawfulHashable α] [BEq β] {m₁ m₂ : Raw₀ α (fun _ => β)}  (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1) :
+--     beq m₁ m₂ = Const.beqModel m₁.1.toList m₂.1.toList := by
+--   rw [beq, Const.beqModel]
+--   split
+--   case isTrue h =>
+--     rw [Raw.size_eq_length, Raw.size_eq_length] at h
+--     rw [Raw.toList_eq_toListModel, Raw.toList_eq_toListModel]
+--     · simp only [ne_eq, h, not_false_eq_true, ↓reduceIte]
+--     · exact h₂
+--     · exact h₁
+--   case isFalse h =>
+--     rw [Raw.size_eq_length, Raw.size_eq_length] at h
+--     simp [Raw.toList_eq_toListModel, h, ← Raw.all_toList]
+--     congr
+--     · ext x
+--       rw [get?_eq_getValue? h₂]
+--     · exact h₂
+--     · exact h₁
+
 theorem WF.constInsertMany! {β : Type v} {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ (α × β)] {l : ρ}
     {t : Impl α β} (h : t.WF) : (Const.insertMany! t l).1.WF :=
   (Const.insertMany! t l).2 h (fun _ _ _ h' => h'.insert!)

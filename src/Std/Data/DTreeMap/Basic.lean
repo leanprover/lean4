@@ -870,17 +870,11 @@ end Const
 
 /-- Check if any element satisfies the predicate, short-circuiting if a predicate fails. -/
 @[inline]
-def any (t : DTreeMap α β cmp) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
-  for ⟨a, b⟩ in t do
-    if p a b then return true
-  return false
+def any (t : DTreeMap α β cmp) (p : (a : α) → β a → Bool) : Bool := t.inner.any p
 
 /-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
 @[inline]
-def all (t : DTreeMap α β cmp) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
-  for ⟨a, b⟩ in t do
-    if p a b = false then return false
-  return true
+def all (t : DTreeMap α β cmp) (p : (a : α) → β a → Bool) : Bool := t.inner.all p
 
 /-- Returns a list of all keys present in the tree map in ascending  order. -/
 @[inline]

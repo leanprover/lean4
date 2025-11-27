@@ -604,16 +604,12 @@ def forInUncurried (f : α × β → δ → m (ForInStep δ)) (init : δ) (t : R
 end Const
 
 @[inline, inherit_doc DTreeMap.any]
-def any (t : Raw α β cmp) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
-  for ⟨a, b⟩ in t do
-    if p a b then return true
-  return false
+def any (t : Raw α β cmp) (p : (a : α) → β a → Bool) : Bool :=
+  t.inner.any p
 
 @[inline, inherit_doc DTreeMap.all]
 def all (t : Raw α β cmp) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
-  for ⟨a, b⟩ in t do
-    if p a b = false then return false
-  return true
+  t.inner.all p
 
 @[inline, inherit_doc DTreeMap.keys]
 def keys (t : Raw α β cmp) : List α :=

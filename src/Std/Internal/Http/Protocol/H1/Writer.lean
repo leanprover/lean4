@@ -22,6 +22,11 @@ open Internal
 
 inductive Writer.State
   /--
+  It only starts to write when part of the request is received.
+  -/
+  | pending
+
+  /--
   Ready to write the message
   -/
   | waitingHeaders
@@ -76,7 +81,7 @@ structure Writer (dir : Direction) where
   The state of the writer machine. It carries if the reader had already read the headers, the size
   of the output, if it's chunked or not.
   -/
-  state : Writer.State := .waitingHeaders
+  state : Writer.State := .pending
 
   /--
   When the user specifies the exact size upfront, we can use Content-Length

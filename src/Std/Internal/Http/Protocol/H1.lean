@@ -243,7 +243,7 @@ private def resetForNextMessage (machine : Machine ty) : Machine ty :=
       writer := {
         userData := .empty,
         outputData := machine.writer.outputData,
-        state := .waitingHeaders,
+        state := .pending,
         knownSize := none,
         messageHead := {},
         userClosedBody := false,
@@ -265,12 +265,16 @@ private def processHeaders (machine : Machine dir) : Machine dir :=
   match getMessageSize machine.reader.messageHead with
   | none => machine.setFailure .badMessage
   | some size =>
+      let size := match size with
+      | .fixed n => .needFixedBody n
+      | .chunked => .needChunkedSize
+
       let machine := machine.addEvent (.endHeaders machine.reader.messageHead)
       let machine := if hasClose then { machine with keepAlive := false } else machine
 
-      machine.setReaderState <| match size with
-        | .fixed n => .needFixedBody n
-        | .chunked => .needChunkedSize
+      machine.setReaderState size
+      |>.setWriterState .waitingHeaders
+      |>.addEvent .needAnswer
 
 def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : Machine dir :=
 
@@ -411,11 +415,16 @@ def startNextCycle (machine : Machine dir) : Machine dir :=
 /-- Process the writer part of the machine. -/
 partial def processWrite (machine : Machine dir) : Machine dir :=
   match machine.writer.state with
+  | .pending =>
+      if ¬machine.writer.canSendData ∨ machine.isReaderClosed then
+        machine.setWriterState .closed
+      else
+        machine
   | .waitingHeaders =>
       if ¬machine.writer.canSendData then
         machine.setWriterState .closed
       else
-        machine
+        machine.addEvent .needAnswer
 
   | .waitingForFlush =>
       if machine.shouldFlush then
@@ -480,7 +489,9 @@ partial def processWrite (machine : Machine dir) : Machine dir :=
 private def handleReaderFailed (machine : Machine dir) (error : H1.Error) : Machine dir :=
   let machine : Machine dir :=
     match dir with
-    | .receiving => machine |>.send { status := .badRequest } |>.userClosedBody
+    | .receiving => machine
+       |>.setWriterState .waitingHeaders
+       |>.send { status := .badRequest } |>.userClosedBody
     | .sending => machine
 
   machine
@@ -532,6 +543,7 @@ partial def processRead (machine : Machine dir) : Machine dir :=
               machine.setFailure .badMessage
           else
             processHeaders machine
+            |> processRead
         else
           machine
 

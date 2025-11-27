@@ -39,7 +39,7 @@ structure Config where
   /--
   Maximum waiting time for more data.
   -/
-  lingeringTimeout : Time.Millisecond.Offset := 5000
+  lingeringTimeout : Time.Millisecond.Offset := 10000
 
   /--
   Timeout for keep-alive connections

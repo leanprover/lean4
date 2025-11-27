@@ -54,6 +54,16 @@ inductive Event (dir : Direction)
   | close
 
   /--
+  Need an answer
+  -/
+  | needAnswer
+
+  /--
+  Need a body
+  -/
+  | needBody
+
+  /--
   Awaiting the next message
   -/
   | next

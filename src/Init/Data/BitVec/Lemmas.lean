@@ -6387,7 +6387,7 @@ theorem cons_cpopNatRec_eq_cpopNatRec_of_le {x : BitVec w} {b : Bool} (hn : n �
       · apply ihn (by omega)
     · omega
 
-theorem cons_cpopNatRec_eq_cpopNatRec_add {x : BitVec w} {b : Bool} (hn : w < n) (hw : 0 < w) :
+theorem cons_cpopNatRec_eq_toNat_cpopNatRec_add {x : BitVec w} {b : Bool} (hn : w < n) (hw : 0 < w) :
     (cons b x).cpopNatRec n = b.toNat + x.cpopNatRec n := by
   induction n
   · omega

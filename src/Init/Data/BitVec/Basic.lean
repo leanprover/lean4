@@ -871,15 +871,15 @@ def clz (x : BitVec w) : BitVec w := clzAuxRec x (w - 1)
 def ctz (x : BitVec w) : BitVec w := (x.reverse).clz
 
 /-- Count the number of bits with value `1` downward from the `n`-th bit to the `0`-th bit of `x`. -/
-def cpopAuxRec (x : BitVec w) (pos : Nat) : Nat :=
+def cpopNatRec (x : BitVec w) (pos : Nat) : Nat :=
   match pos with
   | 0 => 0
-  | n + 1 => (x.getLsbD n).toNat + x.cpopAuxRec n
+  | n + 1 => (x.getLsbD n).toNat + x.cpopNatRec n
 
 /-- Count the number of bits with value `1` in `x`. -/
-def cpopNat (x : BitVec w) : Nat := (cpopAuxRec x w)
+def cpopNat (x : BitVec w) : Nat := (cpopNatRec x w)
 
-/-- Express `cpopAux` as a `BitVec v` -/
+/-- Express `cpopNat` as a `BitVec v` -/
 def cpop (x : BitVec w) (v : Nat) : BitVec v := BitVec.ofNat v (cpopNat x)
 
 end BitVec

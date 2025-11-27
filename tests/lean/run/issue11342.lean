@@ -14,28 +14,18 @@ partial def natToBin3 : (n : Nat) → Parity n →  List Bool
 
 /--
 error: Failed to realize constant natToBin3.match_1.congr_eq_1:
-  right-hand side is not application of a free variables:
-    case zero.h
-    motive✝ : (x : Nat) → Parity x → Sort u_1
-    h_1✝ : (x : Parity 0) → motive✝ 0 x
-    h_2✝ : (j : Nat) → motive✝ (j + j) (Parity.even j)
-    h_3✝ : (j : Nat) → motive✝ (j + j).succ (Parity.odd j)
-    x✝ : Parity 0
-    heq_1✝ : Nat.zero = 0
-    ⊢ natToBin3._sparseCasesOn_1 (motive := fun x => (x_1 : Parity x) → motive✝ x x_1) Nat.zero (fun x => h_1✝ x)
-          (fun h x =>
-            Parity.casesOn (motive := fun a x_1 => Nat.zero = a → x ≍ x_1 → motive✝ Nat.zero x) x
-              (fun n h_1 =>
-                Eq.ndrec (motive := fun x =>
-                  Nat.hasNotBit 1 x.ctorIdx → (x_1 : Parity x) → x_1 ≍ Parity.even n → motive✝ x x_1)
-                  (fun h x h_2 => ⋯ ▸ h_2✝ n) ⋯ h x)
-              (fun n h_1 =>
-                Eq.ndrec (motive := fun x =>
-                  Nat.hasNotBit 1 x.ctorIdx → (x_1 : Parity x) → x_1 ≍ Parity.odd n → motive✝ x x_1)
-                  (fun h x h_2 => ⋯ ▸ h_3✝ n) ⋯ h x)
-              ⋯ ⋯)
-          x✝ =
-        h_1✝ x✝
+  failed to generate equality theorem _private.lean.run.issue11342.0.natToBin3.match_1.congr_eq_2 for `match` expression `natToBin3.match_1`
+  case else.even
+  motive✝ : (x : Nat) → Parity x → Sort u_1
+  h_1✝ : (x : Parity 0) → motive✝ 0 x
+  h_2✝ : (j : Nat) → motive✝ (j + j) (Parity.even j)
+  h_3✝ : (j : Nat) → motive✝ (j + j).succ (Parity.odd j)
+  j✝ n✝ : Nat
+  h✝ : Nat.hasNotBit 1 (n✝ + n✝).ctorIdx
+  heq_1✝ : n✝ + n✝ = j✝ + j✝
+  heq_2✝ : Parity.even n✝ ≍ Parity.even j✝
+  x✝ : ∀ (x : Parity 0), n✝ + n✝ = 0 → Parity.even n✝ ≍ x → False
+  ⊢ h_2✝ n✝ ≍ h_2✝ j✝
 ---
 error: Unknown constant `natToBin3.match_1.congr_eq_1`
 -/

@@ -6313,10 +6313,10 @@ theorem cpopNatRec_zero {x : BitVec w} :
     x.cpopNatRec 0 = 0 := by simp [BitVec.cpopNatRec]
 
 @[simp]
-theorem cpopNatRec_succ {w n' : Nat} {x : BitVec w} :
-    x.cpopNatRec (n' + 1) = (x.getLsbD n').toNat + x.cpopNatRec n' := by simp [BitVec.cpopNatRec]
+theorem cpopNatRec_succ {n : Nat} {x : BitVec w} :
+    x.cpopNatRec (n + 1) = (x.getLsbD n).toNat + x.cpopNatRec n := by simp [BitVec.cpopNatRec]
 
-theorem cpopNatRec_le {w n : Nat} {x : BitVec w} (h : n ≤ w) :
+theorem cpopNatRec_le {n : Nat} {x : BitVec w} (h : n ≤ w) :
     x.cpopNatRec n ≤ n := by
   induction n
   · simp

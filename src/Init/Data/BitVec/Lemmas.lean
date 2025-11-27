@@ -6316,7 +6316,7 @@ theorem cpopNatRec_zero {x : BitVec w} :
 theorem cpopNatRec_succ {n : Nat} {x : BitVec w} :
     x.cpopNatRec (n + 1) = (x.getLsbD n).toNat + x.cpopNatRec n := by simp [BitVec.cpopNatRec]
 
-theorem cpopNatRec_le {x : BitVec w} (n : Nat) (h : n ≤ w) :
+theorem cpopNatRec_le_of_le {x : BitVec w} (n : Nat) (h : n ≤ w) :
     x.cpopNatRec n ≤ n := by
   induction n
   · simp
@@ -6326,13 +6326,13 @@ theorem cpopNatRec_le {x : BitVec w} (n : Nat) (h : n ≤ w) :
     <;> simp [h]
     <;> omega
 
-theorem cpopNatRec_le_width {x : BitVec w} (n : Nat) :
+theorem cpopNatRec_le {x : BitVec w} (n : Nat) :
     x.cpopNatRec n ≤ w := by
   induction n
   · simp
   · case _ n ihn =>
     simp only [cpopNatRec_succ]
-    have := cpopNatRec_le (x := x) (by omega)
+    have := cpopNatRec_le_of_le (x := x) (by omega)
     by_cases hle : n < w
     · by_cases h : x.getLsbD n
       <;> (simp [h]; omega)
@@ -6347,7 +6347,7 @@ theorem cpopNatRec_eq_of_le {x : BitVec w} (n : Nat) (hn : w ≤ n) :
     simp [show n + (k + 1) = (n + k) + 1 by omega, cpopNatRec_succ, ihk, show w ≤ n + k by omega]
 
 @[simp]
-theorem cpopNatRec_allOnes_eq (h : n ≤ w) :
+theorem cpopNatRec_allOnes_eq_of_le (h : n ≤ w) :
     (BitVec.allOnes w).cpopNatRec n = n := by
   induction n
   · case zero => simp
@@ -6360,13 +6360,13 @@ theorem cpopNatRec_allOnes_eq (h : n ≤ w) :
 
 theorem cpopNat_le (x : BitVec w) :
     x.cpopNat ≤ w := by
-  have h := BitVec.cpopNatRec_le (x := x) (n :=w) (by omega)
+  have h := BitVec.cpopNatRec_le_of_le (x := x) (n :=w) (by omega)
   have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
   simp [cpopNat, h]
 
 /-- We ensure that `cpop` does not overflow, as `x.cpopNat` is at most `w`
   and must fit in a `v`-long BitVec -/
-theorem cpop_le (x : BitVec w) (h : w < 2 ^ v) :
+theorem cpop_le_of_lt (x : BitVec w) (h : w < 2 ^ v) :
     (x.cpop v) ≤ w := by
   have hle := cpopNat_le (x := x)
   simp only [cpop, natCast_eq_ofNat, ofNat_le_ofNat, ge_iff_le]

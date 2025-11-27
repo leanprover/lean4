@@ -9,7 +9,24 @@ public import Lean.Parser.Command
 public section
 namespace Lean.Parser.Command
 
-def grindPatternCnstr : Parser := leading_parser ident >> " =/= " >> checkColGe "irrelevant" >> termParser >> optional ";"
+namespace GrindCnstr
+
+def isValue := leading_parser nonReservedSymbol "is_value " >> ident >> optional ";"
+def isStrictValue := leading_parser nonReservedSymbol "is_strict_value " >> ident >> optional ";"
+def sizeLt := leading_parser nonReservedSymbol "size " >> ident >> " < " >> numLit >> optional ";"
+def depthLt := leading_parser nonReservedSymbol "depth " >> ident >> " < " >> numLit >> optional ";"
+def maxInsts := leading_parser nonReservedSymbol "max_insts " >> numLit >> optional ";"
+def guard := leading_parser nonReservedSymbol "guard " >> checkColGe "irrelevant" >> termParser >> optional ";"
+def branch := leading_parser nonReservedSymbol "branch " >> checkColGe "irrelevant" >> termParser >> optional ";"
+def notDefEq := leading_parser atomic (ident >> " =/= ") >> checkColGe "irrelevant" >> termParser >> optional ";"
+def defEq := leading_parser atomic (ident >> " =?= ") >> checkColGe "irrelevant" >> termParser >> optional ";"
+
+end GrindCnstr
+
+open GrindCnstr in
+def grindPatternCnstr : Parser :=
+  isValue <|> isStrictValue <|> sizeLt <|> depthLt <|> maxInsts
+  <|> guard <|> branch <|> notDefEq <|> defEq
 
 def grindPatternCnstrs : Parser := leading_parser "where " >> many1Indent (ppLine >> grindPatternCnstr)
 

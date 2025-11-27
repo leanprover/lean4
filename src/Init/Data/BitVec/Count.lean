@@ -84,43 +84,32 @@ theorem popcount_eq_foldr (x : BitVec w) :
 theorem popcount_zero : popcount 0#w = 0 := by
   induction w with
   | zero => rw [eq_nil 0#0, popcount_nil]
-  | succ w' ih => simpa [←false_cons_zero]
+  | succ => simpa [←false_cons_zero]
 
 theorem popcount_eq_zero_iff {x : BitVec w} :
   popcount x = 0 ↔ x = 0#w := by
     constructor
-    · intros h
-      induction w with
-      | zero => rw [eq_nil 0#0]; rw [eq_nil x] at h ⊢
-      | succ w' ih =>
-        rw [←cons_msb_setWidth x] at h ⊢
-        rw [popcount_cons] at h
-        cases hmsb : x.msb
-        · simp_all only [Nat.add_eq_zero_iff, Bool.toNat_eq_zero]
-          rw [ih h.2, false_cons_zero]
-        · simp_all
+    · intros
+      induction x using BitVec.induction with
+      | nil      => rfl
+      | cons _ b => cases b <;> simp_all
     · intros; simp_all
 
 @[simp]
 theorem popcount_allOnes : popcount (allOnes w) = w := by
   induction w with
   | zero => rw [eq_nil (allOnes 0)]; simp [-ofNat_eq_ofNat]
-  | succ w' ih => simpa +arith [←true_cons_allOnes]
+  | succ => simpa +arith [←true_cons_allOnes]
 
 theorem popcount_eq_width_iff {x : BitVec w} :
   popcount x = w ↔ x = allOnes w := by
     constructor
-    · intros h
-      induction w with
-      | zero => rw [eq_nil (allOnes 0)]; rw [eq_nil x] at h ⊢
-      | succ w' ih =>
-        rw [←cons_msb_setWidth x] at h ⊢
-        rw [popcount_cons] at h
-        cases hmsb : x.msb
-        · simp_all only [Bool.toNat_false, Nat.zero_add]
-          have : (setWidth w' x).popcount ≤ w' := popcount_le_width _
-          omega
-        · simp_all +arith
+    · intros
+      induction x using BitVec.induction with
+      | nil => rfl
+      | cons w' b x' ih =>
+        have : x'.popcount ≤ w' := popcount_le_width _
+        cases b <;> simp_all +arith [(by omega : x'.popcount ≠ w' + 1)]
     · intros; simp_all
 
 /--
@@ -182,7 +171,6 @@ set bits at odd/even positions or within specific bit ranges.
 
 Examples:
 * `x.countIdxP (fun i b => i.val % 2 = 1 && b)` - count true bits at odd positions
-* `x.countIdxP (fun i _ => i.val < 8)` - count all bits in positions 0-7
 * `x.countIdxP (fun i b => b && (start ≤ i.val && i.val < end))` - count true bits in range
 -/
 def countIdxP (x : BitVec w) (p : Fin w → Bool → Bool) : Nat :=

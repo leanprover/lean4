@@ -67,13 +67,9 @@ theorem dot_le_popcount_left (x y : BitVec w) :
     simp only [dot_cons, Bool.and_eq_true, popcount_cons]
     cases b <;> cases y.msb <;> simp_all +arith [Nat.le_succ_iff]
 
-theorem dot_le_popcount_right (x y : BitVec w) : dot x y ≤ y.popcount := by
-  induction x using BitVec.induction with
-  | nil => simp [-ofNat_eq_ofNat, eq_nil y]
-  | cons w' b x' ih =>
-    rw [←cons_msb_setWidth y]
-    simp only [dot_cons, Bool.and_eq_true, popcount_cons]
-    cases b <;> cases y.msb <;> simp_all +arith [Nat.le_succ_iff]
+theorem dot_le_popcount_right (x y : BitVec w) :
+  dot x y ≤ y.popcount := 
+    dot_comm .. ▸ dot_le_popcount_left ..
 
 @[simp]
 theorem dot_allOnes_left (x : BitVec w) : dot (allOnes w) x = x.popcount := by
@@ -83,8 +79,9 @@ theorem dot_allOnes_left (x : BitVec w) : dot (allOnes w) x = x.popcount := by
     rw [←true_cons_allOnes, ←(cons_msb_setWidth x), dot_cons]
     cases x.msb <;> simp_all
 
-theorem dot_allOnes_right (x : BitVec w) : dot x (allOnes w) = x.popcount := by
-  rw [dot_comm, dot_allOnes_left]
+theorem dot_allOnes_right (x : BitVec w) :
+  dot x (allOnes w) = x.popcount := 
+    dot_comm .. ▸ dot_allOnes_left ..
 
 /--
 Hamming distance: number of positions where bits differ.
@@ -124,11 +121,12 @@ theorem hammingDist_comm (x y : BitVec w) : hammingDist x y = hammingDist y x :=
 theorem hammingDist_self (x : BitVec w) : hammingDist x x = 0 := by
   simp [hammingDist, -ofNat_eq_ofNat]
 
-theorem hammingDist_eq_zero_iff (x y : BitVec w) : hammingDist x y = 0 ↔ x = y := by
-  constructor
-  · intro h
-    apply BitVec.xor_eq_zero_iff.mp <| popcount_eq_zero_iff.mp h
-  · intros; simp_all
+theorem hammingDist_eq_zero_iff (x y : BitVec w) :
+  hammingDist x y = 0 ↔ x = y := by
+    constructor
+    · intros
+      apply BitVec.xor_eq_zero_iff.mp <| popcount_eq_zero_iff.mp ‹_›
+    · intros; simp_all
 
 theorem hammingDist_le_width (x y : BitVec w) :
   hammingDist x y ≤ w := by

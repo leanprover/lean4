@@ -6375,6 +6375,7 @@ theorem cpop_le (x : BitVec w) (h : w < 2 ^ v) :
   rw [Nat.mod_eq_of_lt (by omega)]
   exact hle
 
+@[simp]
 theorem cons_cpopNatRec_eq_cpopNatRec_of_le {x : BitVec w} {b : Bool} (hn : n ≤ w) :
     (cons b x).cpopNatRec n = x.cpopNatRec n := by
   induction n
@@ -6476,6 +6477,7 @@ theorem reverse_cpop (x : BitVec w) :
     x.reverse.cpop v = x.cpop v := by
   simp [cpop]
 
+@[simp]
 theorem cast_cpopNatRec_eq_cpopNatRec_of_eq {x : BitVec w} (p : w = v) :
     (x.cast p).cpopNatRec n = x.cpopNatRec n := by
   congr

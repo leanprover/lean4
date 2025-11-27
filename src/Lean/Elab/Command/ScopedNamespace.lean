@@ -5,6 +5,8 @@ Authors: Mario Carneiro, Daniel Selsam, Gabriel Ebner
 -/
 
 module
+
+prelude
 public import Lean.Elab.Command.WithWeakNamespace
 
 namespace Lean.Elab.Command

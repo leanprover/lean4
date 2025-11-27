@@ -695,9 +695,11 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
           let mut hs := #[]
           for overlappedBy in matchInfo.overlaps.overlapping i do
             let notAlt := notAlts[overlappedBy]!
-            let h ← instantiateForall notAlt discrs
-            if let some h ← simpH? h patterns.size then
-              hs := hs.push h
+            let h ← instantiateForall notAlt discrs -- We want these to be general during the proof
+            -- if let some h ← simpH? h patterns.size then
+              -- hs := hs.push h
+            -- TODO: We still should simplify them before creating the declaration
+            hs := hs.push h
           trace[Meta.Match.matchEqs] "hs: {hs}"
           let mut notAlt := mkConst ``False
           for discr in discrs.toArray.reverse, pattern in patterns.reverse do

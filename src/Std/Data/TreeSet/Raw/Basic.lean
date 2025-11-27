@@ -353,6 +353,11 @@ def inter (t₁ t₂ : Raw α cmp) : Raw α cmp :=
 
 instance : Inter (Raw α cmp) := ⟨inter⟩
 
+/-- Internal implementation detail of the hash map. -/
+def beq (t₁ t₂ : Raw α cmp) : Bool :=
+  letI : Ord α := ⟨cmp⟩; TreeMap.Raw.beq t₁.inner t₂.inner
+
+instance : BEq (Raw α cmp) := ⟨beq⟩
 
 @[inline, inherit_doc TreeSet.empty]
 def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α cmp) (l : ρ) : Raw α cmp :=

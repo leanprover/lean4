@@ -503,6 +503,12 @@ def inter (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
 
 instance : Inter (TreeSet α cmp) := ⟨inter⟩
 
+/-- Internal implementation detail of the hash map. -/
+def beq (t₁ t₂ : TreeSet α cmp) : Bool :=
+  letI : Ord α := ⟨cmp⟩; TreeMap.beq t₁.inner t₂.inner
+
+instance : BEq (TreeSet α cmp) := ⟨beq⟩
+
 /--
 Erases multiple items from the tree set by iterating over the given collection and calling erase.
 -/

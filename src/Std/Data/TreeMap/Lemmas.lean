@@ -1961,6 +1961,21 @@ theorem isEmpty_inter_iff [TransCmp cmp] :
 
 end Inter
 
+section
+
+variable {β : Type v} {m₁ m₂ : TreeMap α β cmp} [BEq β]
+
+theorem Equiv.beq [TransCmp cmp] [ReflBEq β] (h : m₁ ~m m₂) : m₁ == m₂ :=
+  DTreeMap.Const.Equiv.beq h.1
+
+theorem Equiv_of_beq_eq_true [TransCmp cmp] [LawfulEqCmp cmp] [LawfulBEq β] (h : m₁ == m₂) : m₁ ~m m₂ :=
+  ⟨DTreeMap.Const.Equiv_of_beq_eq_true h⟩
+
+theorem Equiv.beq_congr [TransCmp cmp] [LawfulEqCmp cmp] {m₃ m₄ : TreeMap α β cmp} : m₁ ~m m₃ → m₂ ~m m₄ → (m₁ == m₂) = (m₃ == m₄) := fun h1 h2 =>
+  DTreeMap.Const.Equiv.beq_congr h1.1 h2.1
+
+end
+
 section Alter
 
 theorem isEmpty_alter_eq_isEmpty_erase [TransCmp cmp] {k : α}

@@ -503,6 +503,12 @@ def inter (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
 
 instance : Inter (Raw α β cmp) := ⟨inter⟩
 
+/-- Internal implementation detail of the hash map. -/
+def beq [BEq β] (t₁ t₂ : Raw α β cmp) : Bool :=
+  letI : Ord α := ⟨cmp⟩; DTreeMap.Raw.Const.beq t₁.inner t₂.inner
+
+instance [BEq β] : BEq (Raw α β cmp) := ⟨beq⟩
+
 @[inline, inherit_doc DTreeMap.Raw.Const.insertManyIfNewUnit]
 def insertManyIfNewUnit {ρ} [ForIn Id ρ α] (t : Raw α Unit cmp) (l : ρ) : Raw α Unit cmp :=
   ⟨DTreeMap.Raw.Const.insertManyIfNewUnit t.inner l⟩

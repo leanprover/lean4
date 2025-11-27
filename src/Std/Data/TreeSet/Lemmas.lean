@@ -772,6 +772,20 @@ theorem isEmpty_inter_iff [TransCmp cmp] :
 
 end Inter
 
+section
+variable {m₁ m₂ : TreeSet α cmp}
+
+theorem Equiv.beq [TransCmp cmp] (h : m₁ ~m m₂) : m₁ == m₂ :=
+  TreeMap.Equiv.beq h.1
+
+theorem Equiv_of_beq_eq_true [TransCmp cmp] [LawfulEqCmp cmp] (h : m₁ == m₂) : m₁ ~m m₂ :=
+  ⟨TreeMap.Equiv_of_beq_eq_true h⟩
+
+theorem Equiv.beq_congr [TransCmp cmp] [LawfulEqCmp cmp] {m₃ m₄ : TreeSet α cmp} : m₁ ~m m₃ → m₂ ~m m₄ → (m₁ == m₂) = (m₃ == m₄) := fun h1 h2 =>
+  TreeMap.Equiv.beq_congr h1.1 h2.1
+
+end
+
 section monadic
 
 variable {δ : Type w} {m : Type w → Type w'}

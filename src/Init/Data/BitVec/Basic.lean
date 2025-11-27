@@ -880,6 +880,6 @@ def cpopNatRec (x : BitVec w) (pos : Nat) : Nat :=
 def cpopNat (x : BitVec w) : Nat := (cpopNatRec x w)
 
 /-- Express `cpopNat` as a `BitVec v` -/
-def cpop (x : BitVec w) (v : Nat) : BitVec v := BitVec.ofNat v (cpopNat x)
+def cpop (x : BitVec w) : BitVec w := BitVec.ofNat w (cpopNat x)
 
 end BitVec

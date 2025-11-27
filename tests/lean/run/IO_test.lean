@@ -13,6 +13,14 @@ unless (expected == actual) do
   throw $ IO.userError $
     s!"assertion failure \"{tag}\":\n  expected: {repr expected}\n  actual:   {repr actual}"
 
+def mkEmptyFile (file : System.FilePath) : IO Unit :=
+  writeFile file ""
+
+def removeFileIfExists (file : System.FilePath) : IO Unit :=
+  try removeFile file catch
+    | .noFileOrDirectory .. => pure ()
+    | e => throw e
+
 def test : IO Unit := do
 let xs : ByteArray := ⟨#[1,2,3,4]⟩;
 let fn := "io_test/foo.txt";
@@ -171,3 +179,51 @@ def testHardLink : IO Unit := do
 
 #guard_msgs in
 #eval testHardLink
+
+/-
+`walkDir` with `followLinks := false` yields a subset of entries obtained by `walkDir` which
+follows symlinks.
+-/
+
+def testWalkDir : IO Unit := do
+  let fn := "g.txt"
+  let symlink := "io_test/walkdir/dir/symlink"
+  createDirAll "io_test/walkdir/dir"
+  createDirAll "io_test/walkdir/symlink_target"
+  mkEmptyFile "io_test/walkdir/dir/f.txt"
+  mkEmptyFile s!"io_test/walkdir/symlink_target/{fn}"
+  removeFileIfExists symlink
+
+  unless System.Platform.isWindows do
+    let _ ← IO.Process.run { cmd := "ln", args := #["-s", "../../symlink_target", symlink] }
+    let noSymlinks <- System.FilePath.walkDir "io_test/walkdir/dir" (followLinks := false)
+    let withSymlinks <- System.FilePath.walkDir "io_test/walkdir/dir" (followLinks := true)
+    check_eq "1" (withSymlinks.filter (fun s => !(s.toString.endsWith fn))) noSymlinks
+
+#guard_msgs in
+#eval testWalkDir
+
+/-
+`walkDir` with `followLinks := false` does not throw an exception when encountering a dangling
+symlink. When the dangling symlink is followed, `IO.Error.noFileOrDirectory` exception is thrown.
+-/
+
+def testWalkDirDanglingSymlink : IO Unit := do
+  let symlink := "io_test/walkdir_dangling_symlink/symlink"
+  let nonexistentTarget := "nonexistent-target"
+  createDirAll "io_test/walkdir_dangling_symlink"
+  removeFileIfExists symlink
+
+  unless System.Platform.isWindows do
+    assert! !(← System.FilePath.pathExists nonexistentTarget)
+    let _ ← IO.Process.run { cmd := "ln", args := #["-s", nonexistentTarget, symlink] }
+    let noSymlinks <- System.FilePath.walkDir  "io_test/walkdir_dangling_symlink" (followLinks := false)
+    /- symbolic link was recorded in the array, but not followed -/
+    check_eq "1" noSymlinks.size 1
+
+    match <- (System.FilePath.walkDir  "io_test/walkdir_dangling_symlink" (followLinks := true)).toBaseIO with
+    | .error (.noFileOrDirectory ..) => pure ()
+    | _ => assert! false
+
+#guard_msgs in
+#eval testWalkDirDanglingSymlink

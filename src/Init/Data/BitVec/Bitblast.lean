@@ -3238,6 +3238,17 @@ theorem extractLsb'_extractLsb'_eq_of_lt (a : BitVec w) (hlt : i + k ≤ len) :
   intros hlt
   omega
 
+theorem extractLsb'_append_extractLsb'_eq_of_lt (a : BitVec (a_length * w)) (ha : 0 < a_length) :
+  a = (a.extractLsb' ((a_length - 1) * w) w ++ a.extractLsb' 0 ((a_length - 1) * w)).cast
+    (by rw [show w + (a_length - 1) * w= 1 * w + (a_length - 1) * w by omega,
+        ← Nat.add_mul, show 1 + (a_length - 1) = a_length by omega]) := by
+  ext i hi
+  simp only [getElem_cast, getElem_append, getElem_extractLsb', Nat.zero_add, dite_eq_ite]
+  split
+  · rw [← getLsbD_eq_getElem]
+  · simp [show (a_length - 1) * w + (i - (a_length - 1) * w) = i by omega]
+    rw [← getLsbD_eq_getElem]
+
 theorem rec_add_eq_rec_add_iff
     (a : BitVec (a_length * w))
     (halen : a_length = (b_length + 1) / 2)
@@ -3255,7 +3266,11 @@ theorem rec_add_eq_rec_add_iff
   · have hb : b_length = 0 := by omega
     have ha : a_length = 0 := by omega
     simp [ha, hb, recursive_addition]
-  ·
+  · case _ n' ihn =>
+    rw [extractLsb'_append_extractLsb'_eq_of_lt (a := a) (by omega)]
+    have : a_length - 1 + 1 = a_length := by omega
+    rw [this] at *
+    rw [recursive_addition_concat (a_length := a_length - 1) (w := w) (a := a)]
     sorry
 
 /-- construct the parallel prefix sum circuit of the flattend bitvectors in `l` -/

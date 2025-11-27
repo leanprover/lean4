@@ -1714,19 +1714,17 @@ theorem eraseManyEntries_impl_perm_eraseList {_ : Ord α} [BEq α] [LawfulBEqOrd
 
 theorem toListModel_eraseManyEntries_impl {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
     {t₁ : Impl α β} (h₁ : t₁.WF) {t₂ : Impl α β} :
-    List.Perm (t₁.eraseManyEntries t₂ h₁.balanced).val.toListModel (t₁.toListModel.filter (fun p => !containsKey p.fst t₂.toListModel)) := by
+    List.Perm (t₁.eraseManyEntries t₂ h₁.balanced).val.toListModel (t₁.toListModel.filter (fun p => !List.contains (t₂.toListModel.map Sigma.fst) p.fst )) := by
   apply List.Perm.trans
   · apply eraseManyEntries_impl_perm_eraseList h₁
-  · sorry
-  -- · apply eraseList_perm_filter_containsKey
-  --   · exact h₁.ordered.distinctKeys
+  · apply eraseList_perm_filter_not_contains
+    · apply h₁.ordered.distinctKeys
 
 theorem toListModel_eraseManyEntries!_impl {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
     {t₁ : Impl α β} (h₁ : t₁.WF) {t₂ : Impl α β} :
-    List.Perm (t₁.eraseManyEntries! t₂).val.toListModel (t₁.toListModel.filter (fun p => !containsKey p.fst t₂.toListModel)) := by
+    List.Perm (t₁.eraseManyEntries! t₂).val.toListModel (t₁.toListModel.filter (fun p => !List.contains (t₂.toListModel.map Sigma.fst) p.fst)) := by
   rw [← eraseManyEntries_eq_eraseManyEntries!_impl h₁.balanced]
   apply toListModel_eraseManyEntries_impl h₁
-
 
 theorem WF.eraseManyEntries! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ ((a : α) × β a)] {l : ρ}
     {t : Impl α β} (h : t.WF) : (t.eraseManyEntries! l).1.WF :=
@@ -2125,7 +2123,7 @@ theorem toListModel_interSmallerFn {_ : Ord α} [TransOrd α] [BEq α] [LawfulBE
 
 theorem toListModel_diff_list {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
     {t₁ t₂ : Impl α β} (h₁ : t₁.WF) (h₂ : t₂.WF) :
-    List.Perm (t₁.diff t₂ h₁.balanced).toListModel (t₁.toListModel.filter (fun p => !containsKey p.fst t₂.toListModel)) := by
+    List.Perm (t₁.diff t₂ h₁.balanced).toListModel (t₁.toListModel.filter (fun p => !List.contains (t₂.toListModel.map Sigma.fst) p.fst)) := by
   rw [diff]
   split
   · simp only [toListModel_filter]
@@ -2135,6 +2133,7 @@ theorem toListModel_diff_list {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd 
       ext e
       congr
       rw [contains_eq_containsKey h₂.ordered]
+      rw [containsKey_eq_contains_map_fst]
   · apply toListModel_eraseManyEntries_impl h₁
 
 theorem diff_eq_diff! [Ord α]

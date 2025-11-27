@@ -116,8 +116,11 @@ where
       else if kind == ``isStrictValue then
         let (_, lhs) ← findLHS xs cnstr[1]
         return .isValue lhs true
-      else if kind == ``branch then
-        return .branch (← elabProp xs cnstr[1])
+      else if kind == ``isGround then
+        let (_, lhs) ← findLHS xs cnstr[1]
+        return .isGround lhs
+      else if kind == ``Parser.Command.GrindCnstr.check then
+        return .check (← elabProp xs cnstr[1])
       else if kind == ``Parser.Command.GrindCnstr.guard then
         return .guard (← elabProp xs cnstr[1])
       else

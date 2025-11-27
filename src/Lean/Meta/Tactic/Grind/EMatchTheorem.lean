@@ -382,6 +382,11 @@ inductive EMatchTheoremConstraint where
     -/
     genLt (lhs : Nat) (n : Nat)
   | /--
+    Constraints of the form `is_ground x`. Instantiates the theorem only if
+    `x` is ground term.
+    -/
+    isGround (bvarIdx : Nat)
+  | /--
     Constraints of the form `is_value x` and `is_strict_value x`.
     A value is defined as
     - A constructor fully applied to value arguments.
@@ -394,14 +399,13 @@ inductive EMatchTheoremConstraint where
     -/
     maxInsts (n : Nat)
   | /--
-    It is not really a constraint. It instructs `grind` to mark `e` as a candidate for case-splitting.
-    -/
-    branch (e : Expr)
-  | /--
     It instructs `grind` to postpone the instantiation of the theorem until `e` is known to be `true`.
-    It can be combined with `branch e`.
     -/
     guard (e : Expr)
+  | /--
+    Similar to `guard`, but checks whether `e` is implied by asserting `¬e`.
+    -/
+    check (e : Expr)
   deriving Inhabited, Repr, BEq
 
 /-- A theorem for heuristic instantiation based on E-matching. -/

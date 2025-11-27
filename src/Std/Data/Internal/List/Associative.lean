@@ -5761,6 +5761,34 @@ theorem perm_filter_containsKey_of_perm {l₁ l₂ l₃ : List ((a : α) × β a
     · simp only [List.perm_cons, ih]
     · simp [ih]
 
+theorem perm_filter_not_contains_map_fst_of_perm {l₁ l₂ l₃ : List ((a : α) × β a)}
+    [BEq α] [EquivBEq α]
+    (h : l₂.Perm l₃)
+    (wf₁ : DistinctKeys l₁) :
+    (l₁.filter (fun p => !List.contains (l₂.map Sigma.fst) p.1)).Perm (l₁.filter (fun p => !List.contains (l₃.map Sigma.fst) p.1)) := by
+  conv =>
+    lhs
+    lhs
+    ext p
+    congr
+    rw [← List.containsKey_eq_contains_map_fst]
+  conv =>
+    rhs
+    lhs
+    ext p
+    congr
+    rw [← List.containsKey_eq_contains_map_fst]
+  induction l₁
+  case nil => simp
+  case cons hd tl ih =>
+    rw [List.distinctKeys_cons_iff] at wf₁
+    rw [List.filter_cons, List.filter_cons]
+    rw [List.containsKey_of_perm h]
+    specialize ih wf₁.1
+    split
+    · simp only [List.perm_cons, ih]
+    · simp [ih]
+
 theorem congr_filter_containsKey_of_perm {l₁ l₂ l₃ l₄ : List ((a : α) × β a)}
     [BEq α] [EquivBEq α]
     (h₁ : l₁.Perm l₃) (h₂ : l₂.Perm l₄)
@@ -5770,6 +5798,16 @@ theorem congr_filter_containsKey_of_perm {l₁ l₂ l₃ l₄ : List ((a : α) �
   · apply List.Perm.filter
     · exact h₁
   · apply perm_filter_containsKey_of_perm h₂ hd
+
+theorem congr_filter_not_contains_map_fst_of_perm {l₁ l₂ l₃ l₄ : List ((a : α) × β a)}
+    [BEq α] [EquivBEq α]
+    (h₁ : l₁.Perm l₃) (h₂ : l₂.Perm l₄)
+    (hd : DistinctKeys l₃) :
+    (l₁.filter (fun p => !List.contains (l₂.map Sigma.fst) p.1)).Perm (l₃.filter (fun p => !List.contains (l₄.map Sigma.fst) p.1)) := by
+  apply Perm.trans
+  · apply List.Perm.filter
+    · exact h₁
+  · apply perm_filter_not_contains_map_fst_of_perm h₂ hd
 
 theorem containsKey_filter_not_contains_of_contains_right [BEq α] [EquivBEq α] {l₁ : List ((a : α) × β a)} {l₂ : List α} {hl₁ : DistinctKeys l₁} {k : α} :
     List.contains l₂ k → containsKey k (List.filter (fun p => !List.contains l₂ p.fst) l₁) = false := by

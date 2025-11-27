@@ -1114,6 +1114,22 @@ theorem not_mem_diff_of_mem_right [EquivBEq α] [LawfulHashable α] {k : α}
     k ∉ m₁ \ m₂ :=
   @HashMap.not_mem_diff_of_mem_right _ _ _ _ m₁.inner m₂.inner _ _ k mem
 
+/- Equiv -/
+theorem Equiv.diff_left {m₃ : HashSet α} [EquivBEq α] [LawfulHashable α]
+    (equiv : m₁ ~m m₂) :
+    (m₁ \ m₃) ~m (m₂ \ m₃) :=
+  ⟨HashMap.Equiv.diff_left equiv.1⟩
+
+theorem Equiv.diff_right {m₃ : HashSet α} [EquivBEq α] [LawfulHashable α]
+    (equiv : m₂ ~m m₃) :
+    (m₁ \ m₂) ~m (m₁ \ m₃) :=
+  ⟨HashMap.Equiv.diff_right equiv.1⟩
+
+theorem Equiv.diff_congr {m₃ m₄ : HashSet α} [EquivBEq α] [LawfulHashable α]
+    (equiv₁ : m₁ ~m m₃) (equiv₂ : m₂ ~m m₄) :
+    (m₁ \ m₂) ~m (m₃ \ m₄) :=
+  ⟨HashMap.Equiv.diff_congr equiv₁.1 equiv₂.1⟩
+
 /- get? -/
 theorem get?_diff [EquivBEq α] [LawfulHashable α] {k : α} :
     (m₁ \ m₂).get? k =

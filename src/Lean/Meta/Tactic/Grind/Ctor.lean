@@ -63,8 +63,7 @@ def propagateCtor (a b : Expr) : GoalM Unit := do
     propagateInjEqs injLemmaType injLemma gen
   else
     let .const declName _ := aType.getAppFn | return ()
-    let noConfusionDeclName := Name.mkStr declName "noConfusion"
-    unless (← getEnv).contains noConfusionDeclName do return ()
+    unless (← hasNoConfusionDecl declName) do return ()
     closeGoal (← mkNoConfusion (← getFalseExpr) (← mkEqProof a b))
 
 end Lean.Meta.Grind

@@ -267,6 +267,7 @@ instance [LawfulBEq α] [BEq β] [LawfulBEq β] : LawfulBEq (ExtHashMap α β) w
         simp only [mk.injEq]
         apply ExtDHashMap.Const.eq_of_beq_eq_true
         exact hyp
+
 @[inline, inherit_doc ExtDHashMap.inter]
 def inter [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashMap α β) : ExtHashMap α β := ⟨ExtDHashMap.inter m₁.inner m₂.inner⟩
 

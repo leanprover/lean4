@@ -30,7 +30,7 @@ line comment marker.
 -/
 private def addCommentAt (indent : Nat) (line : String) : String := Id.run do
   let s := "".pushn ' ' indent ++ "-- "
-  let mut iter := line.startValidPos
+  let mut iter := line.startPos
   for _i in *...indent do
     if h : ¬iter.IsAtEnd then
       if iter.get h == ' ' then
@@ -53,7 +53,7 @@ Splits a string into lines, preserving newline characters.
 -/
 private def lines (s : String) : Array String := Id.run do
   let mut result := #[]
-  let mut lineStart := s.startValidPos
+  let mut lineStart := s.startPos
   let mut iter := lineStart
   while h : ¬iter.IsAtEnd do
     let c := iter.get h

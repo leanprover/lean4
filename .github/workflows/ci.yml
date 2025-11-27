@@ -106,6 +106,50 @@ jobs:
           TAG_NAME="${GITHUB_REF##*/}"
           echo "RELEASE_TAG=$TAG_NAME" >> "$GITHUB_OUTPUT"
 
+      - name: Validate CMakeLists.txt version matches tag
+        if: steps.set-release.outputs.RELEASE_TAG != ''
+        run: |
+          echo "Validating CMakeLists.txt version matches tag ${{ steps.set-release.outputs.RELEASE_TAG }}"
+
+          # Extract version values from CMakeLists.txt
+          CMAKE_MAJOR=$(grep -E "^set\(LEAN_VERSION_MAJOR " src/CMakeLists.txt | grep -oE '[0-9]+')
+          CMAKE_MINOR=$(grep -E "^set\(LEAN_VERSION_MINOR " src/CMakeLists.txt | grep -oE '[0-9]+')
+          CMAKE_PATCH=$(grep -E "^set\(LEAN_VERSION_PATCH " src/CMakeLists.txt | grep -oE '[0-9]+')
+          CMAKE_IS_RELEASE=$(grep -E "^set\(LEAN_VERSION_IS_RELEASE " src/CMakeLists.txt | grep -oE '[0-9]+')
+
+          # Expected values from tag parsing
+          TAG_MAJOR="${{ steps.set-release.outputs.LEAN_VERSION_MAJOR }}"
+          TAG_MINOR="${{ steps.set-release.outputs.LEAN_VERSION_MINOR }}"
+          TAG_PATCH="${{ steps.set-release.outputs.LEAN_VERSION_PATCH }}"
+
+          ERRORS=""
+
+          if [[ "$CMAKE_MAJOR" != "$TAG_MAJOR" ]]; then
+            ERRORS+="LEAN_VERSION_MAJOR: expected $TAG_MAJOR, found $CMAKE_MAJOR\n"
+          fi
+          if [[ "$CMAKE_MINOR" != "$TAG_MINOR" ]]; then
+            ERRORS+="LEAN_VERSION_MINOR: expected $TAG_MINOR, found $CMAKE_MINOR\n"
+          fi
+          if [[ "$CMAKE_PATCH" != "$TAG_PATCH" ]]; then
+            ERRORS+="LEAN_VERSION_PATCH: expected $TAG_PATCH, found $CMAKE_PATCH\n"
+          fi
+          if [[ "$CMAKE_IS_RELEASE" != "1" ]]; then
+            ERRORS+="LEAN_VERSION_IS_RELEASE: expected 1, found $CMAKE_IS_RELEASE\n"
+          fi
+
+          if [[ -n "$ERRORS" ]]; then
+            echo "::error::Version mismatch between tag and src/CMakeLists.txt"
+            echo ""
+            echo "Tag ${{ steps.set-release.outputs.RELEASE_TAG }} expects version $TAG_MAJOR.$TAG_MINOR.$TAG_PATCH"
+            echo "But src/CMakeLists.txt has mismatched values:"
+            echo -e "$ERRORS"
+            echo ""
+            echo "Fix src/CMakeLists.txt, delete the tag, and re-tag."
+            exit 1
+          fi
+
+          echo "Version validation passed: $TAG_MAJOR.$TAG_MINOR.$TAG_PATCH"
+
       # 0: PRs without special label
       # 1: PRs with `merge-ci` label, merge queue checks, master commits
       # 2: nightlies

@@ -33,28 +33,28 @@ Examples:
 * `("L∃∀N".pos ⟨4⟩ (by decide)).set 'X' (by decide) = "L∃XN"`
 -/
 @[extern "lean_string_utf8_set", expose]
-def ValidPos.set {s : String} (p : s.ValidPos) (c : Char) (hp : p ≠ s.endValidPos) : String :=
+def Pos.set {s : String} (p : s.Pos) (c : Char) (hp : p ≠ s.endPos) : String :=
   if hc : c.utf8Size = 1 ∧ (p.byte hp).utf8ByteSize isUTF8FirstByte_byte = 1 then
-    .ofByteArray (s.bytes.set p.offset.byteIdx c.toUInt8 (p.byteIdx_lt_utf8ByteSize hp)) (by
+    .ofByteArray (s.toByteArray.set p.offset.byteIdx c.toUInt8 (p.byteIdx_lt_utf8ByteSize hp)) (by
       rw [ByteArray.set_eq_push_extract_append_extract, ← hc.2, utf8ByteSize_byte,
-        ← ValidPos.byteIdx_offset_next]
+        ← Pos.byteIdx_offset_next]
       refine ByteArray.IsValidUTF8.append ?_ (p.next hp).isValid.isValidUTF8_extract_utf8ByteSize
       exact p.isValid.isValidUTF8_extract_zero.push hc.1)
   else
     (s.sliceTo p).copy ++ singleton c ++ (s.sliceFrom (p.next hp)).copy
 
-theorem ValidPos.set_eq_append {s : String} {p : s.ValidPos} {c : Char} {hp} :
+theorem Pos.set_eq_append {s : String} {p : s.Pos} {c : Char} {hp} :
     p.set c hp = (s.sliceTo p).copy ++ singleton c ++ (s.sliceFrom (p.next hp)).copy := by
   rw [set]
   split
   · rename_i h
-    simp [← bytes_inj, ByteArray.set_eq_push_extract_append_extract, Slice.bytes_copy,
+    simp [← toByteArray_inj, ByteArray.set_eq_push_extract_append_extract, Slice.toByteArray_copy,
       List.utf8Encode_singleton, String.utf8EncodeChar_eq_singleton h.1, utf8ByteSize_byte ▸ h.2]
   · rfl
 
-theorem Pos.Raw.IsValid.set_of_le {s : String} {p : s.ValidPos} {c : Char} {hp : p ≠ s.endValidPos}
+theorem Pos.Raw.IsValid.set_of_le {s : String} {p : s.Pos} {c : Char} {hp : p ≠ s.endPos}
     {q : Pos.Raw} (hq : q.IsValid s) (hpq : q ≤ p.offset) : q.IsValid (p.set c hp) := by
-  rw [ValidPos.set_eq_append, String.append_assoc]
+  rw [Pos.set_eq_append, String.append_assoc]
   apply append_right
   rw [isValid_copy_iff, isValidForSlice_stringSliceTo]
   exact ⟨hpq, hq⟩
@@ -62,40 +62,40 @@ theorem Pos.Raw.IsValid.set_of_le {s : String} {p : s.ValidPos} {c : Char} {hp :
 /-- Given a valid position in a string, obtain the corresponding position after setting a character on
 that string, provided that the position was before the changed position. -/
 @[inline]
-def ValidPos.toSetOfLE {s : String} (q p : s.ValidPos) (c : Char) (hp : p ≠ s.endValidPos)
-    (hpq : q ≤ p) : (p.set c hp).ValidPos where
+def Pos.toSetOfLE {s : String} (q p : s.Pos) (c : Char) (hp : p ≠ s.endPos)
+    (hpq : q ≤ p) : (p.set c hp).Pos where
   offset := q.offset
   isValid := q.isValid.set_of_le hpq
 
 @[simp]
-theorem ValidPos.offset_toSetOfLE {s : String} {q p : s.ValidPos} {c : Char} {hp : p ≠ s.endValidPos}
+theorem Pos.offset_toSetOfLE {s : String} {q p : s.Pos} {c : Char} {hp : p ≠ s.endPos}
     {hpq : q ≤ p} : (q.toSetOfLE p c hp hpq).offset = q.offset := (rfl)
 
-theorem Pos.Raw.isValid_add_char_set {s : String} {p : s.ValidPos} {c : Char} {hp} :
+theorem Pos.Raw.isValid_add_char_set {s : String} {p : s.Pos} {c : Char} {hp} :
     (p.offset + c).IsValid (p.set c hp) :=
-  ValidPos.set_eq_append ▸ IsValid.append_right (isValid_of_eq_rawEndPos (by simp)) _
+  Pos.set_eq_append ▸ IsValid.append_right (isValid_of_eq_rawEndPos (by simp)) _
 
-/-- The position just after the position that changed in a `ValidPos.set` call. -/
+/-- The position just after the position that changed in a `Pos.set` call. -/
 @[inline]
-def ValidPos.pastSet {s : String} (p : s.ValidPos) (c : Char) (hp) : (p.set c hp).ValidPos where
+def Pos.pastSet {s : String} (p : s.Pos) (c : Char) (hp) : (p.set c hp).Pos where
   offset := p.offset + c
   isValid := Pos.Raw.isValid_add_char_set
 
 @[simp]
-theorem ValidPos.offset_pastSet {s : String} {p : s.ValidPos} {c : Char} {hp} :
+theorem Pos.offset_pastSet {s : String} {p : s.Pos} {c : Char} {hp} :
     (p.pastSet c hp).offset = p.offset + c := (rfl)
 
 @[inline]
-def ValidPos.appendRight {s : String} (p : s.ValidPos) (t : String) : (s ++ t).ValidPos where
+def Pos.appendRight {s : String} (p : s.Pos) (t : String) : (s ++ t).Pos where
   offset := p.offset
   isValid := p.isValid.append_right t
 
-theorem ValidPos.splits_pastSet {s : String} {p : s.ValidPos} {c : Char} {hp} :
+theorem Pos.splits_pastSet {s : String} {p : s.Pos} {c : Char} {hp} :
     (p.pastSet c hp).Splits ((s.sliceTo p).copy ++ singleton c) (s.sliceFrom (p.next hp)).copy where
   eq_append := set_eq_append
   offset_eq_rawEndPos := by simp
 
-theorem remainingBytes_pastSet {s : String} {p : s.ValidPos} {c : Char} {hp} :
+theorem remainingBytes_pastSet {s : String} {p : s.Pos} {c : Char} {hp} :
     (p.pastSet c hp).remainingBytes = (p.next hp).remainingBytes := by
   rw [(p.next hp).splits.remainingBytes_eq, p.splits_pastSet.remainingBytes_eq]
 
@@ -110,34 +110,34 @@ Examples:
 * `("abc".pos ⟨1⟩ (by decide)).modify Char.toUpper (by decide) = "aBc"`
 -/
 @[inline]
-def ValidPos.modify {s : String} (p : s.ValidPos) (f : Char → Char) (hp : p ≠ s.endValidPos) :
+def Pos.modify {s : String} (p : s.Pos) (f : Char → Char) (hp : p ≠ s.endPos) :
     String :=
   p.set (f <| p.get hp) hp
 
-theorem Pos.Raw.IsValid.modify_of_le {s : String} {p : s.ValidPos} {f : Char → Char}
-    {hp : p ≠ s.endValidPos} {q : Pos.Raw} (hq : q.IsValid s) (hpq : q ≤ p.offset) :
+theorem Pos.Raw.IsValid.modify_of_le {s : String} {p : s.Pos} {f : Char → Char}
+    {hp : p ≠ s.endPos} {q : Pos.Raw} (hq : q.IsValid s) (hpq : q ≤ p.offset) :
     q.IsValid (p.modify f hp) :=
   set_of_le hq hpq
 
 /-- Given a valid position in a string, obtain the corresponding position after modifying a character
 in that string, provided that the position was before the changed position. -/
 @[inline]
-def ValidPos.toModifyOfLE {s : String} (q p : s.ValidPos) (f : Char → Char)
-    (hp : p ≠ s.endValidPos) (hpq : q ≤ p) : (p.modify f hp).ValidPos where
+def Pos.toModifyOfLE {s : String} (q p : s.Pos) (f : Char → Char)
+    (hp : p ≠ s.endPos) (hpq : q ≤ p) : (p.modify f hp).Pos where
   offset := q.offset
   isValid := q.isValid.modify_of_le hpq
 
 @[simp]
-theorem ValidPos.offset_toModifyOfLE {s : String} {q p : s.ValidPos} {f : Char → Char}
-    {hp : p ≠ s.endValidPos} {hpq : q ≤ p} : (q.toModifyOfLE p f hp hpq).offset = q.offset := (rfl)
+theorem Pos.offset_toModifyOfLE {s : String} {q p : s.Pos} {f : Char → Char}
+    {hp : p ≠ s.endPos} {hpq : q ≤ p} : (q.toModifyOfLE p f hp hpq).offset = q.offset := (rfl)
 
-/-- The position just after the position that was modified in a `ValidPos.modify` call. -/
+/-- The position just after the position that was modified in a `Pos.modify` call. -/
 @[inline]
-def ValidPos.pastModify {s : String} (p : s.ValidPos) (f : Char → Char)
-    (hp : p ≠ s.endValidPos) : (p.modify f hp).ValidPos :=
+def Pos.pastModify {s : String} (p : s.Pos) (f : Char → Char)
+    (hp : p ≠ s.endPos) : (p.modify f hp).Pos :=
   p.pastSet _ _
 
-theorem remainingBytes_pastModify {s : String} {p : s.ValidPos} {f : Char → Char} {hp} :
+theorem remainingBytes_pastModify {s : String} {p : s.Pos} {f : Char → Char} {hp} :
     (p.pastModify f hp).remainingBytes = (p.next hp).remainingBytes :=
   remainingBytes_pastSet
 
@@ -148,8 +148,8 @@ invalid, the string is returned unchanged.
 If both the replacement character and the replaced character are 7-bit ASCII characters and the
 string is not shared, then it is updated in-place and not copied.
 
-This is a legacy function. The recommended alternative is `String.ValidPos.set`, combined with
-`String.pos` or another means of obtaining a `String.ValidPos`.
+This is a legacy function. The recommended alternative is `String.Pos.set`, combined with
+`String.pos` or another means of obtaining a `String.Pos`.
 
 Examples:
 * `"abc".set ⟨1⟩ 'B' = "aBc"`
@@ -173,8 +173,8 @@ character. If `p` is an invalid position, the string is returned unchanged.
 If both the replacement character and the replaced character are 7-bit ASCII characters and the
 string is not shared, then it is updated in-place and not copied.
 
-This is a legacy function. The recommended alternative is `String.ValidPos.set`, combined with
-`String.pos` or another means of obtaining a `String.ValidPos`.
+This is a legacy function. The recommended alternative is `String.Pos.set`, combined with
+`String.pos` or another means of obtaining a `String.Pos`.
 
 Examples:
 * `"abc".modify ⟨1⟩ Char.toUpper = "aBc"`
@@ -188,14 +188,14 @@ def Pos.Raw.modify (s : String) (i : Pos.Raw) (f : Char → Char) : String :=
 def modify (s : String) (i : Pos.Raw) (f : Char → Char) : String :=
   i.set s (f (i.get s))
 
-@[specialize] def mapAux (f : Char → Char) (s : String) (p : s.ValidPos) : String :=
-  if h : p = s.endValidPos then
+@[specialize] def mapAux (f : Char → Char) (s : String) (p : s.Pos) : String :=
+  if h : p = s.endPos then
     s
   else
     mapAux f (p.modify f h) (p.pastModify f h)
 termination_by p.remainingBytes
 decreasing_by
-  simp [remainingBytes_pastModify, ← ValidPos.lt_iff_remainingBytes_lt]
+  simp [remainingBytes_pastModify, ← Pos.lt_iff_remainingBytes_lt]
 
 /--
 Applies the function `f` to every character in a string, returning a string that contains the
@@ -206,7 +206,7 @@ Examples:
  * `"".map Char.toUpper = ""`
 -/
 @[inline] def map (f : Char → Char) (s : String) : String :=
-  mapAux f s s.startValidPos
+  mapAux f s s.startPos
 
 /--
 Replaces each character in `s` with the result of applying `Char.toUpper` to it.

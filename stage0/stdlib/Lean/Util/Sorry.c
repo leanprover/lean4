@@ -300,6 +300,16 @@ x_3 = l_Lean_Expr_isConstOf(x_1, x_2);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Expr_hasSorry___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Expr_hasSorry___lam__0(x_1);
+lean_dec_ref(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT uint8_t l_Lean_Expr_hasSorry(lean_object* x_1) {
 _start:
 {
@@ -322,16 +332,6 @@ return x_5;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Expr_hasSorry___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lean_Expr_hasSorry___lam__0(x_1);
-lean_dec_ref(x_1);
-x_3 = lean_box(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Expr_hasSorry___boxed(lean_object* x_1) {
 _start:
 {
@@ -348,6 +348,16 @@ _start:
 uint8_t x_2; 
 x_2 = l_Lean_Expr_isSyntheticSorry(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Expr_hasSyntheticSorry___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Expr_hasSyntheticSorry___lam__0(x_1);
+lean_dec_ref(x_1);
+x_3 = lean_box(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT uint8_t l_Lean_Expr_hasSyntheticSorry(lean_object* x_1) {
@@ -372,16 +382,6 @@ return x_5;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Expr_hasSyntheticSorry___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lean_Expr_hasSyntheticSorry___lam__0(x_1);
-lean_dec_ref(x_1);
-x_3 = lean_box(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Expr_hasSyntheticSorry___boxed(lean_object* x_1) {
 _start:
 {
@@ -398,6 +398,16 @@ _start:
 uint8_t x_2; 
 x_2 = l_Lean_Expr_isNonSyntheticSorry(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Expr_hasNonSyntheticSorry___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Expr_hasNonSyntheticSorry___lam__0(x_1);
+lean_dec_ref(x_1);
+x_3 = lean_box(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT uint8_t l_Lean_Expr_hasNonSyntheticSorry(lean_object* x_1) {
@@ -420,16 +430,6 @@ lean_dec_ref(x_3);
 x_5 = 1;
 return x_5;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Expr_hasNonSyntheticSorry___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lean_Expr_hasNonSyntheticSorry___lam__0(x_1);
-lean_dec_ref(x_1);
-x_3 = lean_box(x_2);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Expr_hasNonSyntheticSorry___boxed(lean_object* x_1) {

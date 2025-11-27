@@ -76,7 +76,7 @@ def getRecommendedSpellingString (env : Environment) (declName : Name) : String 
   else "\n\nConventions for notations in identifiers:\n\n" ++ String.join (spellings.toList.map bullet) |>.trimAsciiEnd |>.copy
 where
   indentLine (str : String) : String :=
-    (if str.all (·.isWhitespace) then str else "   " ++ str) ++ "\n"
+    (if str.all Char.isWhitespace then str else "   " ++ str) ++ "\n"
   bullet (spelling : RecommendedSpelling) : String :=
     let firstLine := s!" * The recommended spelling of `{spelling.«notation»}` in identifiers is `{spelling.recommendedSpelling}`"
     let additionalInfoLines := spelling.additionalInformation?.map (·.split '\n' |>.toStringList)

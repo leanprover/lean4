@@ -255,7 +255,7 @@ def shellMain
     if contents.startsWith "#lang" then
       let endLinePos := contents.find '\n'
       let langId := String.Pos.Raw.extract contents ⟨6⟩ endLinePos.offset |>.trimAscii
-      if langId == "lean4".toSlice then
+      if langId == "lean4" then
         pure () -- do nothing for now
       else
         IO.eprintln s!"unknown language '{langId}'\n";

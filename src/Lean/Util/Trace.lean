@@ -304,6 +304,7 @@ on an opt-in basis.
 def registerTraceClass (traceClassName : Name) (inherited := false) (ref : Name := by exact decl_name%) : IO Unit := do
   let optionName := `trace ++ traceClassName
   registerOption optionName {
+    name := optionName
     declName := ref
     defValue := false
     descr := "enable/disable tracing for the given module and submodules"

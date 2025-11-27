@@ -300,7 +300,7 @@ def parseHeaderFromString (text path : String) :
     throw <| .userError "parse errors in file"
   -- the insertion point for `add` is the first newline after the imports
   let insertion := header.raw.getTailPos?.getD parserState.pos
-  let insertion := text.findAux (· == '\n') text.endPos insertion + '\n'
+  let insertion := text.findAux (· == '\n') text.rawEndPos insertion + '\n'
   pure (path, inputCtx, header, insertion)
 
 /-- Parse a source file to extract the location of the import lines, for edits and error messages.
@@ -593,16 +593,16 @@ def main (args : List String) : IO UInt32 := do
     for stx in imports do
       let mod := decodeImport stx
       if remove.contains mod || seen.contains mod then
-        out := out ++ text.extract pos stx.raw.getPos?.get!
+        out := out ++ String.Pos.Raw.extract text pos stx.raw.getPos?.get!
         -- We use the end position of the syntax, but include whitespace up to the first newline
         pos := text.findAux (· == '\n') text.rawEndPos stx.raw.getTailPos?.get! + '\n'
       seen := seen.insert mod
-    out := out ++ text.extract pos insertion
+    out := out ++ String.Pos.Raw.extract text pos insertion
     for mod in add do
       if !seen.contains mod then
         seen := seen.insert mod
         out := out ++ s!"{mod}\n"
-    out := out ++ text.extract insertion text.rawEndPos
+    out := out ++ String.Pos.Raw.extract text insertion text.rawEndPos
 
     IO.FS.writeFile path out
     count := count + 1

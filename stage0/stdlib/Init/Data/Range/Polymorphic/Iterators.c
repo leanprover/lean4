@@ -13,19 +13,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Rci_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Rci_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rii_toArray___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rco_size(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Roo_Internal_iter___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Roi_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Roi_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rio_size___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Ric_Internal_iter___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Roc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Roc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rio_Internal_iter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Roi_toList(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rii_size___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Rci_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Rxo_instIteratorIteratorIdOfUpwardEnumerableOfDecidableLT___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rii_size(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rio_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -34,16 +33,14 @@ LEAN_EXPORT lean_object* l_Std_Rcc_toArray(lean_object*, lean_object*, lean_obje
 static lean_object* l_Std_Rcc_toList___redArg___closed__7;
 LEAN_EXPORT lean_object* l_Std_Roi_toList___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rcc_Internal_iter(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rco_toArray(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rci_toList(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rcc_toList___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rci_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rci_Internal_iter___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rci_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Roo_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Rcc_toList___redArg___closed__4;
-LEAN_EXPORT lean_object* l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rcc_Internal_iter___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Roo_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Roc_Internal_iter___redArg(lean_object*, lean_object*);
@@ -51,24 +48,20 @@ LEAN_EXPORT lean_object* l_Std_Rii_Internal_iter___redArg___boxed(lean_object*);
 static lean_object* l_Std_Rcc_toList___redArg___closed__9;
 LEAN_EXPORT lean_object* l_Std_Rcc_toList___redArg___lam__1(lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Roi_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Roc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rcc_toList___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Ric_size___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rii_toList___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rci_toArray___redArg(lean_object*, lean_object*);
 lean_object* l_Std_Rxc_Iterator_instIteratorLoop_loop___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Rcc_toList___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Std_Roc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Ric_toList___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rco_toList___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Roc_toList(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Ric_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Ric_toArray(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Rxo_Iterator_instIteratorLoop_loop___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Ric_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Ric_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Ric_toList(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Roc_toList___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rcc_toList___redArg___lam__1___boxed(lean_object*);
@@ -77,7 +70,6 @@ static lean_object* l_Std_Rcc_toList___redArg___closed__10;
 LEAN_EXPORT lean_object* l_Std_Rci_size(lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rco_Internal_iter(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Rio_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Roo_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___closed__0;
@@ -95,7 +87,7 @@ static lean_object* l_Std_Rcc_toList___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Std_Rii_toArray___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rio_Internal_iter___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Roo_Internal_iter(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Rio_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Rio_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rco_Internal_iter___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Roc_Internal_iter(lean_object*, lean_object*, lean_object*);
@@ -108,12 +100,11 @@ LEAN_EXPORT lean_object* l_Std_Rio_toList(lean_object*, lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Std_Roi_size___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rco_Internal_iter___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rcc_toList(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Rii_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rio_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rii_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rco_size___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rii_Internal_iter(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Rii_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Rii_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rcc_Internal_iter___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rco_toList(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -155,7 +146,7 @@ lean_object* l_Std_Rxc_instIteratorIteratorIdOfUpwardEnumerableOfDecidableLE___r
 LEAN_EXPORT lean_object* l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rio_size(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rii_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Roo_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Roo_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Roo_toList(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Ric_toArray___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -359,6 +350,24 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Rcc_toList___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Rcc_toList___redArg___lam__0(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Rcc_toList___redArg___lam__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Rcc_toList___redArg___lam__1(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Rcc_toList___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -453,24 +462,6 @@ x_26 = l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___redArg(x_24, x_
 x_27 = lean_array_to_list(x_26);
 return x_27;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Std_Rcc_toList___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Rcc_toList___redArg___lam__0(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Rcc_toList___redArg___lam__1___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Rcc_toList___redArg___lam__1(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Std_Rcc_toArray___redArg___closed__0() {
@@ -630,7 +621,7 @@ LEAN_EXPORT lean_object* l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulU
 _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
-x_9 = lean_ctor_get(x_5, 0);
+x_9 = lean_ctor_get(x_1, 0);
 x_10 = lean_ctor_get(x_6, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_6, 1);
@@ -638,10 +629,10 @@ lean_inc(x_11);
 lean_dec_ref(x_6);
 x_12 = lean_ctor_get(x_9, 0);
 x_13 = lean_ctor_get(x_9, 1);
-lean_inc_ref(x_1);
+lean_inc_ref(x_2);
 lean_inc(x_11);
 lean_inc(x_10);
-x_14 = lean_apply_2(x_1, x_10, x_11);
+x_14 = lean_apply_2(x_2, x_10, x_11);
 x_15 = lean_unbox(x_14);
 if (x_15 == 0)
 {
@@ -650,7 +641,7 @@ lean_inc(x_13);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_8);
-lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
@@ -664,30 +655,10 @@ lean_inc_ref(x_12);
 x_17 = lean_alloc_closure((void*)(l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__1), 7, 3);
 lean_closure_set(x_17, 0, x_12);
 lean_closure_set(x_17, 1, x_8);
-lean_closure_set(x_17, 2, x_2);
-x_18 = l_Std_Rxc_Iterator_instIteratorLoop_loop___redArg(x_3, x_1, x_5, x_11, x_7, x_17, x_10);
+lean_closure_set(x_17, 2, x_3);
+x_18 = l_Std_Rxc_Iterator_instIteratorLoop_loop___redArg(x_4, x_2, x_1, x_11, x_7, x_17, x_10);
 return x_18;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_alloc_closure((void*)(l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__0___boxed), 1, 0);
-x_4 = lean_alloc_closure((void*)(l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__2), 8, 3);
-lean_closure_set(x_4, 0, x_2);
-lean_closure_set(x_4, 1, x_3);
-lean_closure_set(x_4, 2, x_1);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
-_start:
-{
-lean_object* x_10; 
-x_10 = l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg(x_3, x_5);
-return x_10;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__0___boxed(lean_object* x_1) {
@@ -699,12 +670,24 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_alloc_closure((void*)(l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__0___boxed), 1, 0);
+x_5 = lean_alloc_closure((void*)(l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__2), 8, 4);
+lean_closure_set(x_5, 0, x_3);
+lean_closure_set(x_5, 1, x_2);
+lean_closure_set(x_5, 2, x_4);
+lean_closure_set(x_5, 3, x_1);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
 lean_object* x_10; 
-x_10 = l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec_ref(x_8);
+x_10 = l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg(x_3, x_5, x_8);
 return x_10;
 }
 }
@@ -997,7 +980,7 @@ LEAN_EXPORT lean_object* l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulU
 _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
-x_9 = lean_ctor_get(x_5, 0);
+x_9 = lean_ctor_get(x_1, 0);
 x_10 = lean_ctor_get(x_6, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_6, 1);
@@ -1005,10 +988,10 @@ lean_inc(x_11);
 lean_dec_ref(x_6);
 x_12 = lean_ctor_get(x_9, 0);
 x_13 = lean_ctor_get(x_9, 1);
-lean_inc_ref(x_1);
+lean_inc_ref(x_2);
 lean_inc(x_11);
 lean_inc(x_10);
-x_14 = lean_apply_2(x_1, x_10, x_11);
+x_14 = lean_apply_2(x_2, x_10, x_11);
 x_15 = lean_unbox(x_14);
 if (x_15 == 0)
 {
@@ -1017,7 +1000,7 @@ lean_inc(x_13);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_8);
-lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
@@ -1031,8 +1014,8 @@ lean_inc_ref(x_12);
 x_17 = lean_alloc_closure((void*)(l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__1), 7, 3);
 lean_closure_set(x_17, 0, x_12);
 lean_closure_set(x_17, 1, x_8);
-lean_closure_set(x_17, 2, x_2);
-x_18 = l_Std_Rxo_Iterator_instIteratorLoop_loop___redArg(x_3, x_1, x_5, x_11, x_7, x_17, x_10);
+lean_closure_set(x_17, 2, x_3);
+x_18 = l_Std_Rxo_Iterator_instIteratorLoop_loop___redArg(x_4, x_2, x_1, x_11, x_7, x_17, x_10);
 return x_18;
 }
 }
@@ -1045,32 +1028,24 @@ x_1 = lean_alloc_closure((void*)(l_Std_Rcc_instForIn_x27InferInstanceMembershipO
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___closed__0;
-x_4 = lean_alloc_closure((void*)(l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___lam__2), 8, 3);
-lean_closure_set(x_4, 0, x_2);
-lean_closure_set(x_4, 1, x_3);
-lean_closure_set(x_4, 2, x_1);
-return x_4;
+lean_object* x_4; lean_object* x_5; 
+x_4 = l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___closed__0;
+x_5 = lean_alloc_closure((void*)(l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___lam__2), 8, 4);
+lean_closure_set(x_5, 0, x_3);
+lean_closure_set(x_5, 1, x_2);
+lean_closure_set(x_5, 2, x_4);
+lean_closure_set(x_5, 3, x_1);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
 lean_object* x_12; 
-x_12 = l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(x_3, x_6);
-return x_12;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
-_start:
-{
-lean_object* x_12; 
-x_12 = l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec_ref(x_10);
+x_12 = l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(x_3, x_6, x_10);
 return x_12;
 }
 }
@@ -1199,42 +1174,34 @@ LEAN_EXPORT lean_object* l_Std_Rci_instForIn_x27InferInstanceMembershipOfLawfulU
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = lean_ctor_get(x_4, 0);
+x_8 = lean_ctor_get(x_1, 0);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc_ref(x_9);
 x_10 = lean_alloc_closure((void*)(l_Std_Rci_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__1), 6, 3);
 lean_closure_set(x_10, 0, x_9);
 lean_closure_set(x_10, 1, x_7);
-lean_closure_set(x_10, 2, x_1);
-x_11 = l_Std_Rxi_Iterator_instIteratorLoop_loop___redArg(x_2, x_4, x_6, x_10, x_5);
+lean_closure_set(x_10, 2, x_2);
+x_11 = l_Std_Rxi_Iterator_instIteratorLoop_loop___redArg(x_3, x_1, x_6, x_10, x_5);
 return x_11;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Rci_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Rci_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
-x_2 = l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___closed__0;
-x_3 = lean_alloc_closure((void*)(l_Std_Rci_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__0), 7, 2);
-lean_closure_set(x_3, 0, x_2);
-lean_closure_set(x_3, 1, x_1);
-return x_3;
+lean_object* x_3; lean_object* x_4; 
+x_3 = l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___closed__0;
+x_4 = lean_alloc_closure((void*)(l_Std_Rci_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__0), 7, 3);
+lean_closure_set(x_4, 0, x_2);
+lean_closure_set(x_4, 1, x_3);
+lean_closure_set(x_4, 2, x_1);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Rci_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = l_Std_Rci_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg(x_3);
-return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Rci_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
-_start:
-{
-lean_object* x_9; 
-x_9 = l_Std_Rci_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec_ref(x_7);
+x_9 = l_Std_Rci_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg(x_3, x_7);
 return x_9;
 }
 }
@@ -1566,7 +1533,7 @@ LEAN_EXPORT lean_object* l_Std_Roc_instForIn_x27InferInstanceMembershipOfLawfulU
 _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_9 = lean_ctor_get(x_5, 0);
+x_9 = lean_ctor_get(x_2, 0);
 x_10 = lean_ctor_get(x_1, 0);
 x_11 = lean_ctor_get(x_6, 0);
 lean_inc(x_11);
@@ -1583,7 +1550,7 @@ lean_object* x_16;
 lean_inc(x_14);
 lean_dec(x_12);
 lean_dec(x_8);
-lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
@@ -1596,10 +1563,10 @@ lean_object* x_17; lean_object* x_18; uint8_t x_19;
 x_17 = lean_ctor_get(x_15, 0);
 lean_inc(x_17);
 lean_dec_ref(x_15);
-lean_inc_ref(x_2);
+lean_inc_ref(x_3);
 lean_inc(x_12);
 lean_inc(x_17);
-x_18 = lean_apply_2(x_2, x_17, x_12);
+x_18 = lean_apply_2(x_3, x_17, x_12);
 x_19 = lean_unbox(x_18);
 if (x_19 == 0)
 {
@@ -1608,7 +1575,7 @@ lean_dec(x_17);
 lean_inc(x_14);
 lean_dec(x_12);
 lean_dec(x_8);
-lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
@@ -1622,39 +1589,31 @@ lean_inc_ref(x_13);
 x_21 = lean_alloc_closure((void*)(l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__1), 7, 3);
 lean_closure_set(x_21, 0, x_13);
 lean_closure_set(x_21, 1, x_8);
-lean_closure_set(x_21, 2, x_3);
-x_22 = l_Std_Rxc_Iterator_instIteratorLoop_loop___redArg(x_1, x_2, x_5, x_12, x_7, x_21, x_17);
+lean_closure_set(x_21, 2, x_4);
+x_22 = l_Std_Rxc_Iterator_instIteratorLoop_loop___redArg(x_1, x_3, x_2, x_12, x_7, x_21, x_17);
 return x_22;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Roc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Roc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___closed__0;
-x_4 = lean_alloc_closure((void*)(l_Std_Roc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___lam__2), 8, 3);
-lean_closure_set(x_4, 0, x_1);
-lean_closure_set(x_4, 1, x_2);
-lean_closure_set(x_4, 2, x_3);
-return x_4;
+lean_object* x_4; lean_object* x_5; 
+x_4 = l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___closed__0;
+x_5 = lean_alloc_closure((void*)(l_Std_Roc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___lam__2), 8, 4);
+lean_closure_set(x_5, 0, x_1);
+lean_closure_set(x_5, 1, x_3);
+lean_closure_set(x_5, 2, x_2);
+lean_closure_set(x_5, 3, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Roc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
 lean_object* x_12; 
-x_12 = l_Std_Roc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(x_3, x_5);
-return x_12;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Roc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
-_start:
-{
-lean_object* x_12; 
-x_12 = l_Std_Roc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec_ref(x_10);
+x_12 = l_Std_Roc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(x_3, x_5, x_10);
 return x_12;
 }
 }
@@ -1986,7 +1945,7 @@ LEAN_EXPORT lean_object* l_Std_Roo_instForIn_x27InferInstanceMembershipOfLawfulU
 _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_9 = lean_ctor_get(x_5, 0);
+x_9 = lean_ctor_get(x_2, 0);
 x_10 = lean_ctor_get(x_1, 0);
 x_11 = lean_ctor_get(x_6, 0);
 lean_inc(x_11);
@@ -2003,7 +1962,7 @@ lean_object* x_16;
 lean_inc(x_14);
 lean_dec(x_12);
 lean_dec(x_8);
-lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
@@ -2016,10 +1975,10 @@ lean_object* x_17; lean_object* x_18; uint8_t x_19;
 x_17 = lean_ctor_get(x_15, 0);
 lean_inc(x_17);
 lean_dec_ref(x_15);
-lean_inc_ref(x_2);
+lean_inc_ref(x_3);
 lean_inc(x_12);
 lean_inc(x_17);
-x_18 = lean_apply_2(x_2, x_17, x_12);
+x_18 = lean_apply_2(x_3, x_17, x_12);
 x_19 = lean_unbox(x_18);
 if (x_19 == 0)
 {
@@ -2028,7 +1987,7 @@ lean_dec(x_17);
 lean_inc(x_14);
 lean_dec(x_12);
 lean_dec(x_8);
-lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
@@ -2042,39 +2001,31 @@ lean_inc_ref(x_13);
 x_21 = lean_alloc_closure((void*)(l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__1), 7, 3);
 lean_closure_set(x_21, 0, x_13);
 lean_closure_set(x_21, 1, x_8);
-lean_closure_set(x_21, 2, x_3);
-x_22 = l_Std_Rxo_Iterator_instIteratorLoop_loop___redArg(x_1, x_2, x_5, x_12, x_7, x_21, x_17);
+lean_closure_set(x_21, 2, x_4);
+x_22 = l_Std_Rxo_Iterator_instIteratorLoop_loop___redArg(x_1, x_3, x_2, x_12, x_7, x_21, x_17);
 return x_22;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Roo_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Roo_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___closed__0;
-x_4 = lean_alloc_closure((void*)(l_Std_Roo_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___lam__2), 8, 3);
-lean_closure_set(x_4, 0, x_1);
-lean_closure_set(x_4, 1, x_2);
-lean_closure_set(x_4, 2, x_3);
-return x_4;
+lean_object* x_4; lean_object* x_5; 
+x_4 = l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___closed__0;
+x_5 = lean_alloc_closure((void*)(l_Std_Roo_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___lam__2), 8, 4);
+lean_closure_set(x_5, 0, x_1);
+lean_closure_set(x_5, 1, x_3);
+lean_closure_set(x_5, 2, x_2);
+lean_closure_set(x_5, 3, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Roo_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
 lean_object* x_10; 
-x_10 = l_Std_Roo_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(x_3, x_5);
-return x_10;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Roo_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
-_start:
-{
-lean_object* x_10; 
-x_10 = l_Std_Roo_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec_ref(x_8);
+x_10 = l_Std_Roo_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(x_3, x_5, x_8);
 return x_10;
 }
 }
@@ -2226,7 +2177,7 @@ LEAN_EXPORT lean_object* l_Std_Roi_instForIn_x27InferInstanceMembershipOfLawfulU
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_8 = lean_ctor_get(x_4, 0);
+x_8 = lean_ctor_get(x_2, 0);
 x_9 = lean_ctor_get(x_1, 0);
 x_10 = lean_ctor_get(x_8, 0);
 x_11 = lean_ctor_get(x_8, 1);
@@ -2237,7 +2188,7 @@ if (lean_obj_tag(x_12) == 0)
 lean_object* x_13; 
 lean_inc(x_11);
 lean_dec(x_7);
-lean_dec_ref(x_4);
+lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_13 = lean_apply_2(x_11, lean_box(0), x_6);
@@ -2253,37 +2204,29 @@ lean_inc_ref(x_10);
 x_15 = lean_alloc_closure((void*)(l_Std_Rci_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__1), 6, 3);
 lean_closure_set(x_15, 0, x_10);
 lean_closure_set(x_15, 1, x_7);
-lean_closure_set(x_15, 2, x_2);
-x_16 = l_Std_Rxi_Iterator_instIteratorLoop_loop___redArg(x_1, x_4, x_6, x_15, x_14);
+lean_closure_set(x_15, 2, x_3);
+x_16 = l_Std_Rxi_Iterator_instIteratorLoop_loop___redArg(x_1, x_2, x_6, x_15, x_14);
 return x_16;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Roi_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Roi_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
-x_2 = l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___closed__0;
-x_3 = lean_alloc_closure((void*)(l_Std_Roi_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___lam__2), 7, 2);
-lean_closure_set(x_3, 0, x_1);
-lean_closure_set(x_3, 1, x_2);
-return x_3;
+lean_object* x_3; lean_object* x_4; 
+x_3 = l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___closed__0;
+x_4 = lean_alloc_closure((void*)(l_Std_Roi_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___lam__2), 7, 3);
+lean_closure_set(x_4, 0, x_1);
+lean_closure_set(x_4, 1, x_2);
+lean_closure_set(x_4, 2, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Roi_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = l_Std_Roi_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(x_3);
-return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Roi_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
-_start:
-{
-lean_object* x_9; 
-x_9 = l_Std_Roi_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec_ref(x_7);
+x_9 = l_Std_Roi_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg(x_3, x_7);
 return x_9;
 }
 }
@@ -2428,17 +2371,17 @@ return x_7;
 LEAN_EXPORT lean_object* l_Std_Ric_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg___lam__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_10 = lean_ctor_get(x_6, 0);
+x_10 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_10);
 lean_dec(x_9);
 lean_dec(x_7);
-lean_dec_ref(x_6);
+lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_11 = lean_ctor_get(x_10, 1);
 lean_inc(x_11);
 lean_dec_ref(x_10);
@@ -2448,16 +2391,16 @@ return x_12;
 else
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
-x_13 = lean_ctor_get(x_6, 0);
+x_13 = lean_ctor_get(x_1, 0);
 x_14 = lean_ctor_get(x_13, 0);
 x_15 = lean_ctor_get(x_13, 1);
-x_16 = lean_ctor_get(x_1, 0);
+x_16 = lean_ctor_get(x_2, 0);
 lean_inc(x_16);
-lean_dec_ref(x_1);
-lean_inc_ref(x_2);
+lean_dec_ref(x_2);
+lean_inc_ref(x_3);
 lean_inc(x_7);
 lean_inc(x_16);
-x_17 = lean_apply_2(x_2, x_16, x_7);
+x_17 = lean_apply_2(x_3, x_16, x_7);
 x_18 = lean_unbox(x_17);
 if (x_18 == 0)
 {
@@ -2466,10 +2409,10 @@ lean_dec(x_16);
 lean_inc(x_15);
 lean_dec(x_9);
 lean_dec(x_7);
-lean_dec_ref(x_6);
+lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_19 = lean_apply_2(x_15, lean_box(0), x_8);
 return x_19;
 }
@@ -2480,40 +2423,32 @@ lean_inc_ref(x_14);
 x_20 = lean_alloc_closure((void*)(l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__1), 7, 3);
 lean_closure_set(x_20, 0, x_14);
 lean_closure_set(x_20, 1, x_9);
-lean_closure_set(x_20, 2, x_3);
-x_21 = l_Std_Rxc_Iterator_instIteratorLoop_loop___redArg(x_4, x_2, x_6, x_7, x_8, x_20, x_16);
+lean_closure_set(x_20, 2, x_4);
+x_21 = l_Std_Rxc_Iterator_instIteratorLoop_loop___redArg(x_5, x_3, x_1, x_7, x_8, x_20, x_16);
 return x_21;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Ric_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_Ric_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___closed__0;
-x_5 = lean_alloc_closure((void*)(l_Std_Ric_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg___lam__2), 9, 4);
-lean_closure_set(x_5, 0, x_3);
-lean_closure_set(x_5, 1, x_2);
-lean_closure_set(x_5, 2, x_4);
-lean_closure_set(x_5, 3, x_1);
-return x_5;
+lean_object* x_5; lean_object* x_6; 
+x_5 = l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___closed__0;
+x_6 = lean_alloc_closure((void*)(l_Std_Ric_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg___lam__2), 9, 5);
+lean_closure_set(x_6, 0, x_4);
+lean_closure_set(x_6, 1, x_3);
+lean_closure_set(x_6, 2, x_2);
+lean_closure_set(x_6, 3, x_5);
+lean_closure_set(x_6, 4, x_1);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Ric_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
 lean_object* x_12; 
-x_12 = l_Std_Ric_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg(x_3, x_5, x_6);
-return x_12;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Ric_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
-_start:
-{
-lean_object* x_12; 
-x_12 = l_Std_Ric_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec_ref(x_10);
+x_12 = l_Std_Ric_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg(x_3, x_5, x_6, x_10);
 return x_12;
 }
 }
@@ -2667,17 +2602,17 @@ return x_7;
 LEAN_EXPORT lean_object* l_Std_Rio_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg___lam__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_10 = lean_ctor_get(x_6, 0);
+x_10 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_10);
 lean_dec(x_9);
 lean_dec(x_7);
-lean_dec_ref(x_6);
+lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_11 = lean_ctor_get(x_10, 1);
 lean_inc(x_11);
 lean_dec_ref(x_10);
@@ -2687,16 +2622,16 @@ return x_12;
 else
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
-x_13 = lean_ctor_get(x_6, 0);
+x_13 = lean_ctor_get(x_1, 0);
 x_14 = lean_ctor_get(x_13, 0);
 x_15 = lean_ctor_get(x_13, 1);
-x_16 = lean_ctor_get(x_1, 0);
+x_16 = lean_ctor_get(x_2, 0);
 lean_inc(x_16);
-lean_dec_ref(x_1);
-lean_inc_ref(x_2);
+lean_dec_ref(x_2);
+lean_inc_ref(x_3);
 lean_inc(x_7);
 lean_inc(x_16);
-x_17 = lean_apply_2(x_2, x_16, x_7);
+x_17 = lean_apply_2(x_3, x_16, x_7);
 x_18 = lean_unbox(x_17);
 if (x_18 == 0)
 {
@@ -2705,10 +2640,10 @@ lean_dec(x_16);
 lean_inc(x_15);
 lean_dec(x_9);
 lean_dec(x_7);
-lean_dec_ref(x_6);
+lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_19 = lean_apply_2(x_15, lean_box(0), x_8);
 return x_19;
 }
@@ -2719,40 +2654,32 @@ lean_inc_ref(x_14);
 x_20 = lean_alloc_closure((void*)(l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__1), 7, 3);
 lean_closure_set(x_20, 0, x_14);
 lean_closure_set(x_20, 1, x_9);
-lean_closure_set(x_20, 2, x_3);
-x_21 = l_Std_Rxo_Iterator_instIteratorLoop_loop___redArg(x_4, x_2, x_6, x_7, x_8, x_20, x_16);
+lean_closure_set(x_20, 2, x_4);
+x_21 = l_Std_Rxo_Iterator_instIteratorLoop_loop___redArg(x_5, x_3, x_1, x_7, x_8, x_20, x_16);
 return x_21;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Rio_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_Rio_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___closed__0;
-x_5 = lean_alloc_closure((void*)(l_Std_Rio_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg___lam__2), 9, 4);
-lean_closure_set(x_5, 0, x_3);
-lean_closure_set(x_5, 1, x_2);
-lean_closure_set(x_5, 2, x_4);
-lean_closure_set(x_5, 3, x_1);
-return x_5;
+lean_object* x_5; lean_object* x_6; 
+x_5 = l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___closed__0;
+x_6 = lean_alloc_closure((void*)(l_Std_Rio_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg___lam__2), 9, 5);
+lean_closure_set(x_6, 0, x_4);
+lean_closure_set(x_6, 1, x_3);
+lean_closure_set(x_6, 2, x_2);
+lean_closure_set(x_6, 3, x_5);
+lean_closure_set(x_6, 4, x_1);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Rio_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
 lean_object* x_12; 
-x_12 = l_Std_Rio_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg(x_3, x_5, x_6);
-return x_12;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Rio_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
-_start:
-{
-lean_object* x_12; 
-x_12 = l_Std_Rio_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec_ref(x_10);
+x_12 = l_Std_Rio_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLTOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg(x_3, x_5, x_6, x_10);
 return x_12;
 }
 }
@@ -2896,15 +2823,15 @@ return x_7;
 LEAN_EXPORT lean_object* l_Std_Rii_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg___lam__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_9 = lean_ctor_get(x_5, 0);
+x_9 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_9);
 lean_dec(x_8);
-lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
 lean_dec_ref(x_9);
@@ -2914,47 +2841,39 @@ return x_11;
 else
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_12 = lean_ctor_get(x_5, 0);
+x_12 = lean_ctor_get(x_1, 0);
 x_13 = lean_ctor_get(x_12, 0);
-x_14 = lean_ctor_get(x_1, 0);
+x_14 = lean_ctor_get(x_2, 0);
 lean_inc(x_14);
-lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 lean_inc_ref(x_13);
 x_15 = lean_alloc_closure((void*)(l_Std_Rci_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__1), 6, 3);
 lean_closure_set(x_15, 0, x_13);
 lean_closure_set(x_15, 1, x_8);
-lean_closure_set(x_15, 2, x_2);
-x_16 = l_Std_Rxi_Iterator_instIteratorLoop_loop___redArg(x_3, x_5, x_7, x_15, x_14);
+lean_closure_set(x_15, 2, x_3);
+x_16 = l_Std_Rxi_Iterator_instIteratorLoop_loop___redArg(x_4, x_1, x_7, x_15, x_14);
 return x_16;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Rii_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Rii_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___closed__0;
-x_4 = lean_alloc_closure((void*)(l_Std_Rii_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg___lam__2), 8, 3);
-lean_closure_set(x_4, 0, x_2);
-lean_closure_set(x_4, 1, x_3);
-lean_closure_set(x_4, 2, x_1);
-return x_4;
+lean_object* x_4; lean_object* x_5; 
+x_4 = l_Std_Rco_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLTOfMonadOfFiniteIteratorId___redArg___closed__0;
+x_5 = lean_alloc_closure((void*)(l_Std_Rii_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg___lam__2), 8, 4);
+lean_closure_set(x_5, 0, x_3);
+lean_closure_set(x_5, 1, x_2);
+lean_closure_set(x_5, 2, x_4);
+lean_closure_set(x_5, 3, x_1);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Rii_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = l_Std_Rii_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg(x_3, x_4);
-return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Rii_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
-_start:
-{
-lean_object* x_9; 
-x_9 = l_Std_Rii_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec_ref(x_7);
+x_9 = l_Std_Rii_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg(x_3, x_4, x_7);
 return x_9;
 }
 }

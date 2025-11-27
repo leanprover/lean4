@@ -88,28 +88,28 @@ Finds the position of the first match of the pattern {name}`pattern` in after th
 This function is generic over all currently supported patterns.
 
 Examples:
- * {lean}`("coffee tea water".startValidPos.find? Char.isWhitespace).map (·.get!) == some ' '`
+ * {lean}`("coffee tea water".startPos.find? Char.isWhitespace).map (·.get!) == some ' '`
  * {lean}`("tea".pos ⟨1⟩ (by decide)).find? (fun (c : Char) => c == 't') == none`
 -/
 @[inline]
-def ValidPos.find?  {s : String} (pos : s.ValidPos) (pattern : ρ)
-    [ToForwardSearcher pattern σ] : Option s.ValidPos :=
-  (pos.toSlice.find? pattern).map (·.ofSlice)
+def Pos.find?  {s : String} (pos : s.Pos) (pattern : ρ)
+    [ToForwardSearcher pattern σ] : Option s.Pos :=
+  (pos.toSlice.find? pattern).map Pos.ofToSlice
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in after the position
-{name}`pos`. If there is no match {lean}`s.endValidPos` is returned.
+{name}`pos`. If there is no match {lean}`s.endPos` is returned.
 
 This function is generic over all currently supported patterns.
 
 Examples:
- * {lean}`("coffee tea water".startValidPos.find Char.isWhitespace).get! == ' '`
- * {lean}`("tea".pos ⟨1⟩ (by decide)).find (fun (c : Char) => c == 't') == "tea".endValidPos`
+ * {lean}`("coffee tea water".startPos.find Char.isWhitespace).get! == ' '`
+ * {lean}`("tea".pos ⟨1⟩ (by decide)).find (fun (c : Char) => c == 't') == "tea".endPos`
 -/
 @[inline]
-def ValidPos.find {s : String} (pos : s.ValidPos) (pattern : ρ) [ToForwardSearcher pattern σ] :
-    s.ValidPos :=
-  (pos.toSlice.find pattern).ofSlice
+def Pos.find {s : String} (pos : s.Pos) (pattern : ρ) [ToForwardSearcher pattern σ] :
+    s.Pos :=
+  ofToSlice (pos.toSlice.find pattern)
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in a string {name}`s`. If
@@ -123,23 +123,23 @@ Examples:
  * {lean}`("coffee tea water".find? "tea").map (·.get!) == some 't'`
 -/
 @[inline]
-def find? (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : Option s.ValidPos :=
-  s.startValidPos.find? pattern
+def find? (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : Option s.Pos :=
+  s.startPos.find? pattern
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in a slice {name}`s`. If there
-is no match {lean}`s.endValidPos` is returned.
+is no match {lean}`s.endPos` is returned.
 
 This function is generic over all currently supported patterns.
 
 Examples:
  * {lean}`("coffee tea water".find Char.isWhitespace).get! == ' '`
- * {lean}`"tea".find (fun (c : Char) => c == 'X') == "tea".endValidPos`
+ * {lean}`"tea".find (fun (c : Char) => c == 'X') == "tea".endPos`
  * {lean}`("coffee tea water".find "tea").get! == 't'`
 -/
 @[inline]
-def find (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : s.ValidPos :=
-  s.startValidPos.find pattern
+def find (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : s.Pos :=
+  s.startPos.find pattern
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in a slice {name}`s` that is
@@ -166,13 +166,13 @@ This function is generic over all currently supported patterns except
 {name}`String`/{name}`String.Slice`.
 
 Examples:
-* {lean}`(("ab1c".endValidPos.prev (by decide)).revFind? Char.isAlpha).map (·.get!) == some 'b'`
-* {lean}`"abc".startValidPos.revFind? Char.isAlpha == none`
+* {lean}`(("ab1c".endPos.prev (by decide)).revFind? Char.isAlpha).map (·.get!) == some 'b'`
+* {lean}`"abc".startPos.revFind? Char.isAlpha == none`
 -/
 @[inline]
-def ValidPos.revFind? {s : String} (pos : s.ValidPos) (pattern : ρ) [ToBackwardSearcher pattern σ] :
-    Option s.ValidPos :=
-  (pos.toSlice.revFind? pattern).map (·.ofSlice)
+def Pos.revFind? {s : String} (pos : s.Pos) (pattern : ρ) [ToBackwardSearcher pattern σ] :
+    Option s.Pos :=
+  (pos.toSlice.revFind? pattern).map Pos.ofToSlice
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in a string, starting
@@ -187,32 +187,32 @@ Examples:
  * {lean}`"tea".toSlice.revFind? (fun (c : Char) => c == 'X') == none`
 -/
 @[inline]
-def revFind? (s : String) (pattern : ρ) [ToBackwardSearcher pattern σ] : Option s.ValidPos :=
-  s.endValidPos.revFind? pattern
+def revFind? (s : String) (pattern : ρ) [ToBackwardSearcher pattern σ] : Option s.Pos :=
+  s.endPos.revFind? pattern
 
 @[export lean_string_posof]
 def Internal.posOfImpl (s : String) (c : Char) : Pos.Raw :=
   (s.find c).offset
 
-@[deprecated String.ValidPos.find (since := "2025-11-19")]
+@[deprecated String.Pos.find (since := "2025-11-19")]
 def findAux (s : String) (p : Char → Bool) (stopPos : Pos.Raw) (pos : Pos.Raw) : Pos.Raw :=
   if h : pos ≤ stopPos ∧ pos.IsValid s ∧ stopPos.IsValid s then
     (String.Slice.mk s (s.pos pos h.2.1) (s.pos stopPos h.2.2)
-      (by simp [ValidPos.le_iff, h.1])).find p |>.str.offset
+      (by simp [Pos.le_iff, h.1])).find p |>.str.offset
   else stopPos
 
-@[deprecated String.ValidPos.find (since := "2025-11-19")]
+@[deprecated String.Pos.find (since := "2025-11-19")]
 def posOfAux (s : String) (c : Char) (stopPos : Pos.Raw) (pos : Pos.Raw) : Pos.Raw :=
   if h : pos ≤ stopPos ∧ pos.IsValid s ∧ stopPos.IsValid s then
     (String.Slice.mk s (s.pos pos h.2.1) (s.pos stopPos h.2.2)
-      (by simp [ValidPos.le_iff, h.1])).find c |>.str.offset
+      (by simp [Pos.le_iff, h.1])).find c |>.str.offset
   else stopPos
 
 @[deprecated String.find (since := "2025-11-19")]
 def posOf (s : String) (c : Char) : Pos.Raw :=
   (s.find c).offset
 
-@[deprecated String.ValidPos.revFind? (since := "2025-11-19")]
+@[deprecated String.Pos.revFind? (since := "2025-11-19")]
 def revPosOfAux (s : String) (c : Char) (pos : Pos.Raw) : Option Pos.Raw :=
   s.pos? pos |>.bind (·.revFind? c) |>.map (·.offset)
 
@@ -220,7 +220,7 @@ def revPosOfAux (s : String) (c : Char) (pos : Pos.Raw) : Option Pos.Raw :=
 def revPosOf (s : String) (c : Char) : Option Pos.Raw :=
   s.revFind? c |>.map (·.offset)
 
-@[deprecated String.ValidPos.revFind? (since := "2025-11-19")]
+@[deprecated String.Pos.revFind? (since := "2025-11-19")]
 def revFindAux (s : String) (p : Char → Bool) (pos : Pos.Raw) : Option Pos.Raw :=
   s.pos? pos |>.bind (·.revFind? p) |>.map (·.offset)
 
@@ -234,9 +234,9 @@ Returns the position of the beginning of the line that contains the position {na
 Lines are ended by {lean}`'\n'`, and the returned position is either {lean}`0 : String.Pos.Raw` or
 immediately after a {lean}`'\n'` character.
 -/
-@[deprecated String.ValidPos.revFind? (since := "2025-11-19")]
+@[deprecated String.Pos.revFind? (since := "2025-11-19")]
 def findLineStart (s : String) (pos : String.Pos.Raw) : String.Pos.Raw :=
-  s.pos? pos |>.bind (·.revFind? '\n') |>.map (·.offset) |>.getD s.startValidPos.offset
+  s.pos? pos |>.bind (·.revFind? '\n') |>.map (·.offset) |>.getD s.startPos.offset
 
 /--
 Splits a string at each subslice that matches the pattern {name}`pat`.
@@ -292,6 +292,68 @@ Examples:
 @[export lean_string_foldl]
 def Internal.foldlImpl (f : String → Char → String) (init : String) (s : String) : String :=
   String.foldl f init s
+
+@[deprecated String.Slice.foldr (since := "2025-11-25")]
+def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (i begPos : Pos.Raw) : α :=
+  s.slice! (s.pos! begPos) (s.pos! i) |>.foldr f a
+
+/--
+Folds a function over a string from the right, accumulating a value starting with {lean}`init`. The
+accumulated value is combined with each character in reverse order, using {lean}`f`.
+
+Examples:
+ * {lean}`"coffee tea water".foldr (fun c n => if c.isWhitespace then n + 1 else n) 0 = 2`
+ * {lean}`"coffee tea and water".foldr (fun c n => if c.isWhitespace then n + 1 else n) 0 = 3`
+ * {lean}`"coffee tea water".foldr (fun c s => s.push c) "" = "retaw aet eeffoc"`
+-/
+@[inline] def foldr {α : Type u} (f : Char → α → α) (init : α) (s : String) : α :=
+  s.toSlice.foldr f init
+
+@[deprecated String.Slice.any (since := "2025-11-25")]
+def anyAux (s : String) (stopPos : Pos.Raw) (p : Char → Bool) (i : Pos.Raw) : Bool :=
+  s.slice! (s.pos! i) (s.pos! stopPos) |>.any p
+
+
+/--
+Checks whether a string has a match of the pattern {name}`pat` anywhere.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * {lean}`"coffee tea water".contains Char.isWhitespace = true`
+ * {lean}`"tea".contains (fun (c : Char) => c == 'X') = false`
+ * {lean}`"coffee tea water".contains "tea" = true`
+-/
+@[inline] def contains (s : String) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
+  s.toSlice.contains pat
+
+@[export lean_string_contains]
+def Internal.containsImpl (s : String) (c : Char) : Bool :=
+  String.contains s c
+
+@[inline, inherit_doc contains] def any (s : String) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
+  s.contains pat
+
+@[export lean_string_any]
+def Internal.anyImpl (s : String) (p : Char → Bool) :=
+  String.any s p
+
+/--
+Checks whether a slice only consists of matches of the pattern {name}`pat`.
+
+Short-circuits at the first pattern mis-match.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * {lean}`"brown".all Char.isLower = true`
+ * {lean}`"brown and orange".all Char.isLower = false`
+ * {lean}`"aaaaaa".all 'a' = true`
+ * {lean}`"aaaaaa".all "aa" = true`
+ * {lean}`"aaaaaaa".all "aa" = false`
+-/
+@[inline] def all (s : String) (pat : ρ) [ForwardPattern pat] : Bool :=
+  s.toSlice.all pat
 
 /--
 Checks whether the string can be interpreted as the decimal representation of a natural number.
@@ -359,6 +421,78 @@ Examples:
   s.toSlice.toNat!
 
 /--
+Interprets a string as the decimal representation of an integer, returning it. Returns {lean}`none`
+if the string does not contain a decimal integer.
+
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading `+` characters are not allowed.
+
+Use {name (scope := "Init.Data.String.Search")}`String.isInt` to check whether {name}`String.toInt?`
+would return {lean}`some`. {name (scope := "Init.Data.String.Search")}`String.toInt!` is an
+alternative that panics instead of returning {lean}`none` when the string is not an integer.
+
+Examples:
+ * {lean}`"".toInt? = none`
+ * {lean}`"-".toInt? = none`
+ * {lean}`"0".toInt? = some 0`
+ * {lean}`"5".toInt? = some 5`
+ * {lean}`"-5".toInt? = some (-5)`
+ * {lean}`"587".toInt? = some 587`
+ * {lean}`"-587".toInt? = some (-587)`
+ * {lean}`" 5".toInt? = none`
+ * {lean}`"2-3".toInt? = none`
+ * {lean}`"0xff".toInt? = none`
+-/
+@[inline] def toInt? (s : String) : Option Int :=
+  s.toSlice.toInt?
+
+/--
+Checks whether the string can be interpreted as the decimal representation of an integer.
+
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading `+` characters are not allowed.
+
+Use {name}`String.toInt?` or {name (scope := "Init.Data.String.Search")}`String.toInt!` to convert
+such a string to an integer.
+
+Examples:
+ * {lean}`"".isInt = false`
+ * {lean}`"-".isInt = false`
+ * {lean}`"0".isInt = true`
+ * {lean}`"-0".isInt = true`
+ * {lean}`"5".isInt = true`
+ * {lean}`"587".isInt = true`
+ * {lean}`"-587".isInt = true`
+ * {lean}`"+587".isInt = false`
+ * {lean}`" 5".isInt = false`
+ * {lean}`"2-3".isInt = false`
+ * {lean}`"0xff".isInt = false`
+-/
+@[inline] def isInt (s : String) : Bool :=
+  s.toSlice.isInt
+
+/--
+Interprets a string as the decimal representation of an integer, returning it. Panics if the string
+does not contain a decimal integer.
+
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading `+` characters are not allowed.
+
+Use {name}`String.isInt` to check whether {name}`String.toInt!` would return a value.
+{name}`String.toInt?` is a safer alternative that returns {lean}`none` instead of panicking when the
+string is not an integer.
+
+Examples:
+ * {lean}`"0".toInt! = 0`
+ * {lean}`"5".toInt! = 5`
+ * {lean}`"587".toInt! = 587`
+ * {lean}`"-587".toInt! = -587`
+-/
+@[inline] def toInt! (s : String) : Int :=
+  s.toSlice.toInt!
+
+
+/--
 Returns the first character in {name}`s`. If {name}`s` is empty, returns {name}`none`.
 
 Examples:
@@ -405,14 +539,14 @@ Examples:
 @[inline, expose] def back (s : String) : Char :=
   s.toSlice.back
 
-theorem Slice.Pos.ofSlice_ne_endValidPos {s : String} {p : s.toSlice.Pos}
-    (h : p ≠ s.toSlice.endPos) : p.ofSlice ≠ s.endValidPos := by
-  rwa [ne_eq, ← ValidPos.toSlice_inj, toSlice_ofSlice, ← endPos_toSlice]
+theorem Pos.ofToSlice_ne_endPos {s : String} {p : s.toSlice.Pos}
+    (h : p ≠ s.toSlice.endPos) : ofToSlice p ≠ s.endPos := by
+  rwa [ne_eq, ← Pos.toSlice_inj, Slice.Pos.toSlice_ofToSlice, ← endPos_toSlice]
 
 @[inline]
 def Internal.toSliceWithProof {s : String} :
-    { p : s.toSlice.Pos // p ≠ s.toSlice.endPos } → { p : s.ValidPos // p ≠ s.endValidPos } :=
-  fun ⟨p, h⟩ => ⟨p.ofSlice, Slice.Pos.ofSlice_ne_endValidPos h⟩
+    { p : s.toSlice.Pos // p ≠ s.toSlice.endPos } → { p : s.Pos // p ≠ s.endPos } :=
+  fun ⟨p, h⟩ => ⟨Pos.ofToSlice p, Pos.ofToSlice_ne_endPos h⟩
 
 /--
 Creates an iterator over all valid positions within {name}`s`.
@@ -425,7 +559,7 @@ Examples
 -/
 @[inline]
 def positions (s : String) :=
-  (s.toSlice.positions.map Internal.toSliceWithProof : Std.Iter { p : s.ValidPos // p ≠ s.endValidPos })
+  (s.toSlice.positions.map Internal.toSliceWithProof : Std.Iter { p : s.Pos // p ≠ s.endPos })
 
 /--
 Creates an iterator over all characters (Unicode code points) in {name}`s`.
@@ -450,7 +584,7 @@ Examples
 -/
 @[inline]
 def revPositions (s : String) :=
-  (s.toSlice.revPositions.map Internal.toSliceWithProof : Std.Iter { p : s.ValidPos // p ≠ s.endValidPos })
+  (s.toSlice.revPositions.map Internal.toSliceWithProof : Std.Iter { p : s.Pos // p ≠ s.endPos })
 
 /--
 Creates an iterator over all characters (Unicode code points) in {name}`s`, starting from the end

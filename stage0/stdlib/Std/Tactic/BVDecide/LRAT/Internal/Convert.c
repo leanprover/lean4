@@ -49,6 +49,15 @@ x_3 = lean_nat_add(x_1, x_2);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_CNF_lift___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Tactic_BVDecide_LRAT_Internal_CNF_lift___lam__0(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_CNF_lift(lean_object* x_1) {
 _start:
 {
@@ -57,15 +66,6 @@ x_2 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_CNF_lift___
 x_3 = l_Std_Sat_CNF_relabelFin(x_1);
 x_4 = l_Std_Sat_CNF_relabel___redArg(x_2, x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_CNF_lift___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Tactic_BVDecide_LRAT_Internal_CNF_lift___lam__0(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_CNF_Clause_convertLRAT_x27(lean_object* x_1, lean_object* x_2) {

@@ -97,7 +97,6 @@ LEAN_EXPORT lean_object* l_String_Legacy_instDecidableEqIterator___boxed(lean_ob
 LEAN_EXPORT lean_object* l_String_Legacy_instSizeOfIterator;
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Iterator_0__String_Legacy_Iterator_remainingBytes_match__1_splitter(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_toRawSubstring_x27(lean_object*);
-LEAN_EXPORT lean_object* l_String_Legacy_Iterator_ctorIdx(lean_object*);
 static lean_object* l_instReprIterator___lam__0___closed__7;
 static lean_object* l_String_Legacy_Iterator___aux__Init__Data__String__Iterator______macroRules__tacticDecreasing__trivial__1___closed__7;
 static lean_object* l_instReprIterator___lam__0___closed__0;
@@ -129,7 +128,6 @@ static lean_object* l_String_Legacy_Iterator___aux__Init__Data__String__Iterator
 static lean_object* l_String_Legacy_Iterator___aux__Init__Data__String__Iterator______macroRules__tacticDecreasing__trivial__1___closed__27;
 LEAN_EXPORT lean_object* l_Substring_Raw_toLegacyIterator(lean_object*);
 LEAN_EXPORT lean_object* l_String_Legacy_Iterator_nextn(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Legacy_Iterator_ctorIdx___boxed(lean_object*);
 static lean_object* l_String_Legacy_Iterator___aux__Init__Data__String__Iterator______macroRules__tacticDecreasing__trivial__1___closed__2;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -155,23 +153,6 @@ static lean_object* l_instReprIterator___lam__0___closed__4;
 LEAN_EXPORT lean_object* l_String_Legacy_Iterator_curr_x27___boxed(lean_object*, lean_object*);
 static lean_object* l_String_Legacy_Iterator___aux__Init__Data__String__Iterator______macroRules__tacticDecreasing__trivial__1___closed__4;
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Iterator_0__String_Pos_Raw_get_x3f_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Legacy_Iterator_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_String_Legacy_Iterator_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_String_Legacy_Iterator_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT uint8_t l_String_Legacy_instDecidableEqIterator_decEq(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -293,14 +274,6 @@ lean_dec(x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_String_Legacy_instSizeOfIterator() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_Legacy_instSizeOfIterator___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_String_Legacy_instSizeOfIterator___lam__0___boxed(lean_object* x_1) {
 _start:
 {
@@ -308,6 +281,14 @@ lean_object* x_2;
 x_2 = l_String_Legacy_instSizeOfIterator___lam__0(x_1);
 lean_dec_ref(x_1);
 return x_2;
+}
+}
+static lean_object* _init_l_String_Legacy_instSizeOfIterator() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_String_Legacy_instSizeOfIterator___lam__0___boxed), 1, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_String_Legacy_Iterator_toString(lean_object* x_1) {
@@ -1781,14 +1762,6 @@ return x_34;
 }
 }
 }
-static lean_object* _init_l_instReprIterator() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instReprIterator___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_instReprIterator___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1796,6 +1769,14 @@ lean_object* x_3;
 x_3 = l_instReprIterator___lam__0(x_1, x_2);
 lean_dec(x_2);
 return x_3;
+}
+}
+static lean_object* _init_l_instReprIterator() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instReprIterator___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_instToStringIterator___lam__0(lean_object* x_1) {
@@ -1810,14 +1791,6 @@ lean_dec(x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_instToStringIterator() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instToStringIterator___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_instToStringIterator___lam__0___boxed(lean_object* x_1) {
 _start:
 {
@@ -1825,6 +1798,14 @@ lean_object* x_2;
 x_2 = l_instToStringIterator___lam__0(x_1);
 lean_dec_ref(x_1);
 return x_2;
+}
+}
+static lean_object* _init_l_instToStringIterator() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instToStringIterator___lam__0___boxed), 1, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_String_iter(lean_object* x_1) {

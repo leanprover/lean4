@@ -32,10 +32,10 @@ def ofSlice (s : String.Slice) : Substring.Raw where
 Converts a `Substring.Raw` into a `String.Slice`, returning `none` if the substring is invalid.
 -/
 @[inline]
-def toSlice (s : Substring.Raw) : Option String.Slice :=
+def toSlice? (s : Substring.Raw) : Option String.Slice :=
   if h : s.startPos.IsValid s.str ∧ s.stopPos.IsValid s.str ∧ s.startPos ≤ s.stopPos then
     some (String.Slice.mk s.str (s.str.pos s.startPos h.1) (s.str.pos s.stopPos h.2.1)
-      (by simp [String.ValidPos.le_iff, h.2.2]))
+      (by simp [String.Pos.le_iff, h.2.2]))
   else
     none
 
@@ -155,7 +155,7 @@ Returns the substring-relative position of the first occurrence of `c` in `s`, o
 doesn't occur.
 -/
 @[inline] def posOf (s : Substring.Raw) (c : Char) : String.Pos.Raw :=
-  s.toSlice.map (·.find c |>.offset) |>.getD ⟨s.bsize⟩
+  s.toSlice?.map (·.find c |>.offset) |>.getD ⟨s.bsize⟩
 
 /--
 Removes the specified number of characters (Unicode code points) from the beginning of a substring
@@ -260,15 +260,14 @@ Folds a function over a substring from the left, accumulating a value starting w
 accumulated value is combined with each character in order, using `f`.
 -/
 @[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : Substring.Raw) : α :=
-  s.toSlice.get!.foldl f init
+  s.toSlice?.get!.foldl f init
 
 /--
 Folds a function over a substring from the right, accumulating a value starting with `init`. The
 accumulated value is combined with each character in reverse order, using `f`.
 -/
 @[inline] def foldr {α : Type u} (f : Char → α → α) (init : α) (s : Substring.Raw) : α :=
-  match s with
-  | ⟨s, b, e⟩ => String.foldrAux f init s e b
+  s.toSlice?.get!.foldr f init
 
 /--
 Checks whether the Boolean predicate `p` returns `true` for any character in a substring.
@@ -276,8 +275,7 @@ Checks whether the Boolean predicate `p` returns `true` for any character in a s
 Short-circuits at the first character for which `p` returns `true`.
 -/
 @[inline] def any (s : Substring.Raw) (p : Char → Bool) : Bool :=
-  match s with
-  | ⟨s, b, e⟩ => String.anyAux s e p b
+  s.toSlice?.get!.any p
 
 /--
 Checks whether the Boolean predicate `p` returns `true` for every character in a substring.
@@ -285,7 +283,7 @@ Checks whether the Boolean predicate `p` returns `true` for every character in a
 Short-circuits at the first character for which `p` returns `false`.
 -/
 @[inline] def all (s : Substring.Raw) (p : Char → Bool) : Bool :=
-  !s.any (fun c => !p c)
+  s.toSlice?.get!.all p
 
 @[export lean_substring_all]
 def Internal.allImpl (s : Substring.Raw) (p : Char → Bool) : Bool :=

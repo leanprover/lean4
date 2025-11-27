@@ -124,14 +124,6 @@ x_2 = lean_uint64_of_nat(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_instHashableNat() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instHashableNat___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_instHashableNat___lam__0___boxed(lean_object* x_1) {
 _start:
 {
@@ -142,20 +134,20 @@ x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_instHashableNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instHashableNat___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT uint64_t l_instHashableRaw___lam__0(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; 
 x_2 = lean_uint64_of_nat(x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_instHashableRaw() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instHashableRaw___lam__0___boxed), 1, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_instHashableRaw___lam__0___boxed(lean_object* x_1) {
@@ -166,6 +158,14 @@ x_2 = l_instHashableRaw___lam__0(x_1);
 lean_dec(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;
+}
+}
+static lean_object* _init_l_instHashableRaw() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instHashableRaw___lam__0___boxed), 1, 0);
+return x_1;
 }
 }
 LEAN_EXPORT uint64_t l_instHashableProd___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -187,6 +187,15 @@ x_10 = lean_uint64_mix_hash(x_8, x_9);
 return x_10;
 }
 }
+LEAN_EXPORT lean_object* l_instHashableProd___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint64_t x_4; lean_object* x_5; 
+x_4 = l_instHashableProd___redArg___lam__0(x_1, x_2, x_3);
+x_5 = lean_box_uint64(x_4);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_instHashableProd___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -202,15 +211,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_instHashableProd___redArg(x_3, x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_instHashableProd___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint64_t x_4; lean_object* x_5; 
-x_4 = l_instHashableProd___redArg___lam__0(x_1, x_2, x_3);
-x_5 = lean_box_uint64(x_4);
 return x_5;
 }
 }
@@ -231,14 +231,6 @@ return x_3;
 }
 }
 }
-static lean_object* _init_l_instHashableBool() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instHashableBool___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_instHashableBool___lam__0___boxed(lean_object* x_1) {
 _start:
 {
@@ -249,18 +241,18 @@ x_4 = lean_box_uint64(x_3);
 return x_4;
 }
 }
+static lean_object* _init_l_instHashableBool() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instHashableBool___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT uint64_t l_instHashablePEmpty___lam__0(uint8_t x_1) {
 _start:
 {
 lean_internal_panic_unreachable();
-}
-}
-static lean_object* _init_l_instHashablePEmpty() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instHashablePEmpty___lam__0___boxed), 1, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_instHashablePEmpty___lam__0___boxed(lean_object* x_1) {
@@ -273,20 +265,20 @@ x_4 = lean_box_uint64(x_3);
 return x_4;
 }
 }
+static lean_object* _init_l_instHashablePEmpty() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instHashablePEmpty___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT uint64_t l_instHashablePUnit___lam__0(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; 
 x_2 = 11;
 return x_2;
-}
-}
-static lean_object* _init_l_instHashablePUnit() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instHashablePUnit___lam__0___boxed), 1, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_instHashablePUnit___lam__0___boxed(lean_object* x_1) {
@@ -296,6 +288,14 @@ uint64_t x_2; lean_object* x_3;
 x_2 = l_instHashablePUnit___lam__0(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;
+}
+}
+static lean_object* _init_l_instHashablePUnit() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instHashablePUnit___lam__0___boxed), 1, 0);
+return x_1;
 }
 }
 LEAN_EXPORT uint64_t l_instHashableOption___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
@@ -323,6 +323,15 @@ return x_8;
 }
 }
 }
+LEAN_EXPORT lean_object* l_instHashableOption___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint64_t x_3; lean_object* x_4; 
+x_3 = l_instHashableOption___redArg___lam__0(x_1, x_2);
+x_4 = lean_box_uint64(x_3);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_instHashableOption___redArg(lean_object* x_1) {
 _start:
 {
@@ -338,15 +347,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_instHashableOption___redArg(x_2);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_instHashableOption___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint64_t x_3; lean_object* x_4; 
-x_3 = l_instHashableOption___redArg___lam__0(x_1, x_2);
-x_4 = lean_box_uint64(x_3);
-return x_4;
 }
 }
 LEAN_EXPORT uint64_t l_instHashableList___redArg___lam__0(lean_object* x_1, uint64_t x_2, lean_object* x_3) {
@@ -380,25 +380,6 @@ lean_dec(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_instHashableList___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_alloc_closure((void*)(l_instHashableList___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-x_3 = lean_alloc_closure((void*)(l_instHashableList___redArg___lam__1___boxed), 2, 1);
-lean_closure_set(x_3, 0, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_instHashableList(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_instHashableList___redArg(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_instHashableList___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -417,6 +398,25 @@ uint64_t x_3; lean_object* x_4;
 x_3 = l_instHashableList___redArg___lam__1(x_1, x_2);
 x_4 = lean_box_uint64(x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_instHashableList___redArg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_alloc_closure((void*)(l_instHashableList___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(x_2, 0, x_1);
+x_3 = lean_alloc_closure((void*)(l_instHashableList___redArg___lam__1___boxed), 2, 1);
+lean_closure_set(x_3, 0, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_instHashableList(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_instHashableList___redArg(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT uint64_t l_instHashableArray___redArg___lam__0(lean_object* x_1, uint64_t x_2, lean_object* x_3) {
@@ -579,25 +579,6 @@ return x_13;
 }
 }
 }
-LEAN_EXPORT lean_object* l_instHashableArray___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_alloc_closure((void*)(l_instHashableArray___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-x_3 = lean_alloc_closure((void*)(l_instHashableArray___redArg___lam__1___boxed), 2, 1);
-lean_closure_set(x_3, 0, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_instHashableArray(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_instHashableArray___redArg(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_instHashableArray___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -618,20 +599,31 @@ x_4 = lean_box_uint64(x_3);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_instHashableArray___redArg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_alloc_closure((void*)(l_instHashableArray___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(x_2, 0, x_1);
+x_3 = lean_alloc_closure((void*)(l_instHashableArray___redArg___lam__1___boxed), 2, 1);
+lean_closure_set(x_3, 0, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_instHashableArray(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_instHashableArray___redArg(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT uint64_t l_instHashableUInt8___lam__0(uint8_t x_1) {
 _start:
 {
 uint64_t x_2; 
 x_2 = lean_uint8_to_uint64(x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_instHashableUInt8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instHashableUInt8___lam__0___boxed), 1, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_instHashableUInt8___lam__0___boxed(lean_object* x_1) {
@@ -644,20 +636,20 @@ x_4 = lean_box_uint64(x_3);
 return x_4;
 }
 }
+static lean_object* _init_l_instHashableUInt8() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instHashableUInt8___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT uint64_t l_instHashableUInt16___lam__0(uint16_t x_1) {
 _start:
 {
 uint64_t x_2; 
 x_2 = lean_uint16_to_uint64(x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_instHashableUInt16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instHashableUInt16___lam__0___boxed), 1, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_instHashableUInt16___lam__0___boxed(lean_object* x_1) {
@@ -670,20 +662,20 @@ x_4 = lean_box_uint64(x_3);
 return x_4;
 }
 }
+static lean_object* _init_l_instHashableUInt16() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instHashableUInt16___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT uint64_t l_instHashableUInt32___lam__0(uint32_t x_1) {
 _start:
 {
 uint64_t x_2; 
 x_2 = lean_uint32_to_uint64(x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_instHashableUInt32() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instHashableUInt32___lam__0___boxed), 1, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_instHashableUInt32___lam__0___boxed(lean_object* x_1) {
@@ -697,17 +689,17 @@ x_4 = lean_box_uint64(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT uint64_t l_instHashableUInt64___lam__0(uint64_t x_1) {
-_start:
-{
-return x_1;
-}
-}
-static lean_object* _init_l_instHashableUInt64() {
+static lean_object* _init_l_instHashableUInt32() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instHashableUInt64___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_instHashableUInt32___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
+LEAN_EXPORT uint64_t l_instHashableUInt64___lam__0(uint64_t x_1) {
+_start:
+{
 return x_1;
 }
 }
@@ -722,20 +714,20 @@ x_4 = lean_box_uint64(x_3);
 return x_4;
 }
 }
+static lean_object* _init_l_instHashableUInt64() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instHashableUInt64___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT uint64_t l_instHashableUSize___lam__0(size_t x_1) {
 _start:
 {
 uint64_t x_2; 
 x_2 = lean_usize_to_uint64(x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_instHashableUSize() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instHashableUSize___lam__0___boxed), 1, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_instHashableUSize___lam__0___boxed(lean_object* x_1) {
@@ -749,19 +741,19 @@ x_4 = lean_box_uint64(x_3);
 return x_4;
 }
 }
+static lean_object* _init_l_instHashableUSize() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instHashableUSize___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT uint64_t l_instHashableFin___lam__0(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; 
 x_2 = lean_uint64_of_nat(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_instHashableFin(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instHashableFin___lam__0___boxed), 1, 0);
 return x_2;
 }
 }
@@ -773,6 +765,14 @@ x_2 = l_instHashableFin___lam__0(x_1);
 lean_dec(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_instHashableFin(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_instHashableFin___lam__0___boxed), 1, 0);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_instHashableFin___boxed(lean_object* x_1) {
@@ -792,14 +792,6 @@ x_2 = lean_uint32_to_uint64(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_instHashableChar() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instHashableChar___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_instHashableChar___lam__0___boxed(lean_object* x_1) {
 _start:
 {
@@ -809,6 +801,14 @@ lean_dec(x_1);
 x_3 = l_instHashableChar___lam__0(x_2);
 x_4 = lean_box_uint64(x_3);
 return x_4;
+}
+}
+static lean_object* _init_l_instHashableChar() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instHashableChar___lam__0___boxed), 1, 0);
+return x_1;
 }
 }
 static lean_object* _init_l_instHashableInt___lam__0___closed__0() {
@@ -855,14 +855,6 @@ return x_14;
 }
 }
 }
-static lean_object* _init_l_instHashableInt() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instHashableInt___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_instHashableInt___lam__0___boxed(lean_object* x_1) {
 _start:
 {
@@ -873,19 +865,19 @@ x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_instHashableInt() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instHashableInt___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT uint64_t l_instHashable___lam__0(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; 
 x_2 = 0;
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_instHashable(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instHashable___lam__0___boxed), 1, 0);
 return x_2;
 }
 }
@@ -896,6 +888,14 @@ uint64_t x_2; lean_object* x_3;
 x_2 = l_instHashable___lam__0(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_instHashable(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_instHashable___lam__0___boxed), 1, 0);
+return x_2;
 }
 }
 LEAN_EXPORT uint64_t l_hash64(uint64_t x_1) {

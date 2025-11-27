@@ -732,14 +732,6 @@ def inter (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
 
 instance : Inter (Raw α β cmp) := ⟨inter⟩
 
-@[inline, inherit_doc DTreeMap.eraseMany]
-def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseMany! l⟩
-
-@[inline, inherit_doc DTreeMap.eraseMany]
-def eraseManyEntries {ρ} [ForIn Id ρ ((a : α) × β a)] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseManyEntries! l⟩
-
 /--
 Computes the diffrence of the given tree maps.
 This function always iteraters through the smaller map.
@@ -748,6 +740,10 @@ def diff (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.diff! t₂.inner⟩
 
 instance : SDiff (Raw α β cmp) := ⟨diff⟩
+
+@[inline, inherit_doc DTreeMap.eraseMany]
+def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseMany! l⟩
 
 namespace Const
 

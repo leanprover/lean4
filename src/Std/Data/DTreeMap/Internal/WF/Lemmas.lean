@@ -2121,7 +2121,7 @@ theorem toListModel_interSmallerFn {_ : Ord α} [TransOrd α] [BEq α] [LawfulBE
 ### diff
 -/
 
-theorem toListModel_diff_list {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
+theorem toListModel_diff {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
     {t₁ t₂ : Impl α β} (h₁ : t₁.WF) (h₂ : t₂.WF) :
     List.Perm (t₁.diff t₂ h₁.balanced).toListModel (t₁.toListModel.filter (fun p => !List.contains (t₂.toListModel.map Sigma.fst) p.fst)) := by
   rw [diff]

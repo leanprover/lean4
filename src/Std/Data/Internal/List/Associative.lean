@@ -258,7 +258,7 @@ end
       else getValueCast? a l
 
 /-- Internal implementation detail of the hash map -/
-def beqModel [BEq α] [LawfulBEq α] [Hashable α] [∀ k, BEq (β k)] (l₁ l₂ : List ((a : α) × β a)) :=
+def beqModel [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] (l₁ l₂ : List ((a : α) × β a)) :=
   if l₁.length ≠ l₂.length then false else (l₁.all fun x => getValueCast? x.fst l₂ == some x.snd)
 
 @[simp] theorem getValueCast?_nil [BEq α] [LawfulBEq α] {a : α} :

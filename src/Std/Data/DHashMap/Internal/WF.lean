@@ -1370,7 +1370,7 @@ theorem toListModel_diffₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable
         rw [containsKey_eq_contains_map_fst]
   · rw [eraseManyEntries_eq_eraseListₘ]
     apply Perm.trans (toListModel_eraseListₘ h₁)
-    · apply eraseList_perm_filter_contains_eq_false
+    · apply eraseList_perm_filter_not_contains
       · exact h₁.distinct
 
 theorem diff_eq_diffₘ [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) :

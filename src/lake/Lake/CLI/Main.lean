@@ -160,35 +160,43 @@ def CliStateM.runLoggerIO (x : LoggerIO α) : CliStateM α := do
 
 instance (priority := low) : MonadLift LoggerIO CliStateM := ⟨CliStateM.runLoggerIO⟩
 
+@[inline] def throwMissingArg (arg : String) : CliM α := do
+  throw <| CliError.missingArg arg
+
+instance : MonadThrowExpectedArg CliM := ⟨throwMissingArg⟩
+
+@[inline] def throwMissingOptArg (arg : String) : OptT CliM α := do
+  throw <| CliError.missingOptArg (← getOpt).copy arg
+
+instance : MonadThrowExpectedArg (OptT CliM) := ⟨throwMissingOptArg⟩
+
 /-! ## Argument Parsing -/
 
-def takeArg (arg : String) : CliM String := do
-  match (← takeArg?) with
-  | none => throw <| CliError.missingArg arg
-  | some arg => pure arg
+instance [Pure m] : MonadParseArg FilePath m :=
+  ⟨(pure <| FilePath.mk ·.copy)⟩
 
-@[inline] def takeOptArg (argName : String) : OptT CliM String.Slice := do
-  if let some arg ← takeOptArg? then
-    return arg
-  else
-    throw <| CliError.missingOptArg (← getOpt).copy argName
-
-@[inline] def takeOptArg'
-  (argName : String) (f : String.Slice → Option α) (argTy := argName)
+@[inline] def parseOptArgUsing
+  (descr : String) (f : String.Slice → Option α) (arg : String.Slice)
 : OptT CliM α := do
-  if let some a := f (← takeOptArg argName) then
+  if let some a := f arg then
     return a
   else
-    throw <| CliError.invalidOptArg (← getOpt).copy argTy
+    throw <| CliError.invalidOptArg (← getOpt).copy descr
+
+instance : MonadParseArg Nat (OptT CliM) where
+  parseArg := parseOptArgUsing "natural number" (·.toNat?)
+
+instance : MonadParseArg LogLevel (OptT CliM) where
+  parseArg := parseOptArgUsing "log level" LogLevel.ofString?
 
 /--
 Verify that there are no CLI arguments remaining
 before running the given action.
 -/
 def noArgsRem (act : CliStateM α) : CliM α := do
-  let args ← getArgs
-  if args.isEmpty then act else
-    throw <| CliError.unexpectedArguments args
+  match (← getArgs) with
+  | [] => act
+  | args => throw <| CliError.unexpectedArguments args
 
 /-! ## Option Parsing -/
 
@@ -205,19 +213,37 @@ def setConfigOpt (kvPair : String.Slice) : CliM PUnit :=
   modifyThe LakeOptions fun opts =>
     {opts with configOpts := opts.configOpts.insert key val}
 
+/-- Returns an error if the string is not valid GitHub repository name. -/
+-- Limitations derived from https://github.com/dead-claudia/github-limits
+def validateRepo? (repo : String.Slice) : Option String := Id.run do
+  unless repo.all isValidRepoChar do
+    return "invalid characters in repository name"
+  if let [owner, name] := repo.split '/' |>.toList then
+    if owner.chars.count > 39 then
+      return "invalid repository name; owner must be at most 39 characters long"
+    if name.chars.count > 100 then
+      return "invalid repository name; name must be at most 100 characters long"
+  else
+    return "invalid repository name; must contain exactly one '/'"
+  return none
+where
+  /-- Returns whether `c` is a valid character in GitHub repository name -/
+  isValidRepoChar (c : Char) : Bool :=
+    c.isAlphanum || c == '-' || c == '_' || c == '.' || c == '/'
+
 def lakeShortOption : ShortOptHandler CliM := .ofM do
   match (← getOptChar) with
   | 'q' => modifyThe LakeOptions ({· with verbosity := .quiet})
   | 'v' => modifyThe LakeOptions ({· with verbosity := .verbose})
   | 'd' => do
     let rootDir ← takeOptArg "path"
-    modifyThe LakeOptions ({· with rootDir := FilePath.mk rootDir.copy})
+    modifyThe LakeOptions ({· with rootDir})
   | 'f' => do
     let configFile ← takeOptArg "path"
-    modifyThe LakeOptions ({· with configFile := FilePath.mk configFile.copy})
+    modifyThe LakeOptions ({· with configFile})
   | 'o' => do
     let outputsFile ← takeOptArg "path"
-    modifyThe LakeOptions ({· with outputsFile? := some <| FilePath.mk outputsFile.copy})
+    modifyThe LakeOptions ({· with outputsFile? := some outputsFile})
   | 'K' => do setConfigOpt (← takeOptArg "key-value pair")
   | 'U' => do
     logWarning "the '-U' shorthand for '--update' is deprecated"
@@ -227,24 +253,6 @@ def lakeShortOption : ShortOptHandler CliM := .ofM do
   | 'H' => modifyThe LakeOptions ({· with trustHash := false})
   | 'J' => modifyThe LakeOptions ({· with outFormat := .json})
   | opt => throw <| CliError.unknownShortOption opt
-
-/-- Returns an error if the string is not valid GitHub repository name. -/
--- Limitations derived from https://github.com/dead-claudia/github-limits
-def validateRepo? (repo : String.Slice) : Option String := Id.run do
-  unless repo.all isValidRepoChar do
-    return "invalid characters in repository name"
-  match repo.split '/' |>.toStringList with
-  | [owner, name] =>
-    if owner.length > 39 then
-      return "invalid repository name; owner must be at most 390 characters long"
-    if name.length > 100 then
-      return "invalid repository name; owner must be at most 100 characters long"
-  | _ => return "invalid repository name; must contain exactly one '/'"
-  return none
-where
-  /-- Returns whether `c` is a valid character in GitHub repository name -/
-  isValidRepoChar (c : Char) : Bool :=
-    c.isAlphanum || c == '-' || c == '_' || c == '.' || c == '/'
 
 def lakeLongOption : LongOptHandler CliM := .ofM do
   match (← getOpt).copy with
@@ -287,13 +295,13 @@ def lakeLongOption : LongOptHandler CliM := .ofM do
     let rev ← takeOptArg "Git revision"
     modifyThe LakeOptions ({· with rev? := some rev.copy})
   | "--max-revs" => do
-    let maxRevs ← takeOptArg' "number of revisions" (·.toNat?) "natural number"
+    let maxRevs ← takeOptArg "number of revisions"
     modifyThe LakeOptions ({· with maxRevs})
   | "--log-level"   => do
-    let outLv ← takeOptArg' "log level" LogLevel.ofString?
-    modifyThe LakeOptions ({· with outLv? := outLv})
+    let outLv ← takeOptArg "log level"
+    modifyThe LakeOptions ({· with outLv? := some outLv})
   | "--fail-level"  => do
-    let failLv ← takeOptArg' "log level" LogLevel.ofString?
+    let failLv ← takeOptArg "log level"
     modifyThe LakeOptions ({· with failLv})
   | "--ansi"        => modifyThe LakeOptions ({· with ansiMode := .ansi})
   | "--no-ansi"     => modifyThe LakeOptions ({· with ansiMode := .noAnsi})
@@ -395,7 +403,7 @@ namespace cache
 protected def get : CliM PUnit := do
   processLakeOptions
   let opts ← getThe LakeOptions
-  let mappings? ← takeArg?
+  let mappings? : Option FilePath ← takeArg?
   noArgsRem do
   let cfg ← mkLoadConfig opts
   let ws ← loadWorkspace cfg
@@ -492,7 +500,7 @@ where
 
 protected def put : CliM PUnit := do
   processLakeOptions
-  let file ← takeArg "mappings"
+  let file : FilePath ← takeArg "mappings"
   let opts ← getThe LakeOptions
   let some scope := opts.scope?
     | error "the `--scope` or `--repo` option must be set for `cache put`"
@@ -533,7 +541,7 @@ where
 
 protected def add : CliM PUnit := do
   processLakeOptions
-  let file ← takeArg "mappings"
+  let file : FilePath ← takeArg "mappings"
   let pkg? ← takeArg?
   let opts ← getThe LakeOptions
   noArgsRem do

@@ -350,40 +350,44 @@ lean_dec(x_5);
 x_9 = lean_nat_dec_eq(x_2, x_7);
 if (x_9 == 1)
 {
+lean_object* x_10; lean_object* x_11; 
 lean_dec(x_4);
-lean_inc(x_3);
-return x_3;
+x_10 = lean_box(0);
+x_11 = lean_apply_1(x_3, x_10);
+return x_11;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_10 = lean_unsigned_to_nat(1u);
-x_11 = lean_nat_sub(x_2, x_10);
-x_12 = lean_apply_1(x_4, x_11);
-return x_12;
+lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_dec(x_3);
+x_12 = lean_unsigned_to_nat(1u);
+x_13 = lean_nat_sub(x_2, x_12);
+x_14 = lean_apply_1(x_4, x_13);
+return x_14;
 }
 }
 else
 {
-lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 lean_dec(x_4);
-x_13 = lean_unsigned_to_nat(1u);
-x_14 = lean_nat_sub(x_1, x_13);
-x_15 = lean_nat_dec_eq(x_2, x_7);
-if (x_15 == 1)
+lean_dec(x_3);
+x_15 = lean_unsigned_to_nat(1u);
+x_16 = lean_nat_sub(x_1, x_15);
+x_17 = lean_nat_dec_eq(x_2, x_7);
+if (x_17 == 1)
 {
-lean_object* x_16; 
+lean_object* x_18; 
 lean_dec(x_6);
-x_16 = lean_apply_1(x_5, x_14);
-return x_16;
+x_18 = lean_apply_1(x_5, x_16);
+return x_18;
 }
 else
 {
-lean_object* x_17; lean_object* x_18; 
+lean_object* x_19; lean_object* x_20; 
 lean_dec(x_5);
-x_17 = lean_nat_sub(x_2, x_13);
-x_18 = lean_apply_2(x_6, x_14, x_17);
-return x_18;
+x_19 = lean_nat_sub(x_2, x_15);
+x_20 = lean_apply_2(x_6, x_16, x_19);
+return x_20;
 }
 }
 }
@@ -401,7 +405,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l___private_Init_Data_Nat_Basic_0__Nat_beq_match__1_splitter___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_7;
@@ -412,7 +415,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l___private_Init_Data_Nat_Basic_0__Nat_beq_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_8;
@@ -486,14 +488,6 @@ return x_2;
 }
 }
 }
-static lean_object* _init_l_Nat_instMax() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Nat_instMax___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Nat_instMax___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -502,6 +496,14 @@ x_3 = l_Nat_instMax___lam__0(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
+}
+}
+static lean_object* _init_l_Nat_instMax() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Nat_instMax___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Nat_max(lean_object* x_1, lean_object* x_2) {

@@ -70,6 +70,15 @@ x_5 = lean_unbox(x_4);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_Nat_decidableBallLT___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Nat_decidableBallLT___redArg___lam__0(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
 LEAN_EXPORT uint8_t l_Nat_decidableBallLT___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -114,15 +123,6 @@ x_4 = l_Nat_decidableBallLT___redArg(x_1, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_decidableBallLT___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Nat_decidableBallLT___redArg___lam__0(x_1, x_2, x_3);
-x_5 = lean_box(x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Nat_decidableBallLT___redArg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -152,6 +152,15 @@ x_5 = lean_unbox(x_4);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_Nat_decidableForallFin___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Nat_decidableForallFin___redArg___lam__0(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
 LEAN_EXPORT uint8_t l_Nat_decidableForallFin___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -168,15 +177,6 @@ _start:
 uint8_t x_4; 
 x_4 = l_Nat_decidableForallFin___redArg(x_1, x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Nat_decidableForallFin___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Nat_decidableForallFin___redArg___lam__0(x_1, x_2, x_3);
-x_5 = lean_box(x_4);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Nat_decidableForallFin___redArg___boxed(lean_object* x_1, lean_object* x_2) {
@@ -208,6 +208,15 @@ x_5 = lean_unbox(x_4);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_Nat_decidableBallLE___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Nat_decidableBallLE___redArg___lam__0(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
 LEAN_EXPORT uint8_t l_Nat_decidableBallLE___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -227,15 +236,6 @@ _start:
 uint8_t x_4; 
 x_4 = l_Nat_decidableBallLE___redArg(x_1, x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Nat_decidableBallLE___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Nat_decidableBallLE___redArg___lam__0(x_1, x_2, x_3);
-x_5 = lean_box(x_4);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Nat_decidableBallLE___redArg___boxed(lean_object* x_1, lean_object* x_2) {
@@ -370,6 +370,15 @@ x_5 = lean_unbox(x_4);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_Nat_decidableExistsLT_x27___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Nat_decidableExistsLT_x27___redArg___lam__0(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
 LEAN_EXPORT uint8_t l_Nat_decidableExistsLT_x27___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -416,15 +425,6 @@ x_4 = l_Nat_decidableExistsLT_x27___redArg(x_1, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_decidableExistsLT_x27___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Nat_decidableExistsLT_x27___redArg___lam__0(x_1, x_2, x_3);
-x_5 = lean_box(x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Nat_decidableExistsLT_x27___redArg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -454,6 +454,15 @@ x_5 = lean_unbox(x_4);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_Nat_decidableExistsLE_x27___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Nat_decidableExistsLE_x27___redArg___lam__0(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
 LEAN_EXPORT uint8_t l_Nat_decidableExistsLE_x27___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -473,15 +482,6 @@ _start:
 uint8_t x_4; 
 x_4 = l_Nat_decidableExistsLE_x27___redArg(x_1, x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Nat_decidableExistsLE_x27___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Nat_decidableExistsLE_x27___redArg___lam__0(x_1, x_2, x_3);
-x_5 = lean_box(x_4);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Nat_decidableExistsLE_x27___redArg___boxed(lean_object* x_1, lean_object* x_2) {
@@ -526,6 +526,16 @@ return x_7;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Nat_decidableExistsFin___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Nat_decidableExistsFin___redArg___lam__0(x_1, x_2, x_3);
+lean_dec(x_1);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
 LEAN_EXPORT uint8_t l_Nat_decidableExistsFin___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -545,16 +555,6 @@ _start:
 uint8_t x_4; 
 x_4 = l_Nat_decidableExistsFin___redArg(x_1, x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Nat_decidableExistsFin___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Nat_decidableExistsFin___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_1);
-x_5 = lean_box(x_4);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Nat_decidableExistsFin___redArg___boxed(lean_object* x_1, lean_object* x_2) {

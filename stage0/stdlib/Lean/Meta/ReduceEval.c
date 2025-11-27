@@ -140,7 +140,6 @@ lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
 static lean_object* l_Lean_Meta_instReduceEvalFVarId___private__1___closed__1;
 static lean_object* l_Lean_Meta_instReduceEvalLiteral___private__1___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Meta_ReduceEval_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_reduceEval___at___00Lean_Meta_instReduceEvalBitVec___private__1_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instReduceEvalNat;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -179,29 +178,11 @@ static lean_object* l_Lean_Meta_instReduceEvalMVarId___private__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ReduceEval_0__Lean_Meta_throwFailedToEval___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instReduceEvalFinOfNeZeroNat___private__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instReduceEvalOption___private__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_ReduceEval_ctorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_instReduceEvalBitVec___private__1___closed__2;
 static lean_object* l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName___closed__5;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Meta_ReduceEval_0__Lean_Meta_throwFailedToEval_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instReduceEvalMVarId;
 LEAN_EXPORT lean_object* l_Lean_Meta_instReduceEvalString___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_ReduceEval_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_ReduceEval_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Meta_ReduceEval_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_reduceEval___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -750,20 +731,20 @@ x_7 = l_Lean_Meta_instReduceEvalNat___private__1(x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Meta_instReduceEvalNat() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_instReduceEvalNat___lam__0___boxed), 6, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_instReduceEvalNat___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
 x_7 = l_Lean_Meta_instReduceEvalNat___lam__0(x_1, x_2, x_3, x_4, x_5);
 return x_7;
+}
+}
+static lean_object* _init_l_Lean_Meta_instReduceEvalNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_instReduceEvalNat___lam__0___boxed), 6, 0);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_instReduceEvalOption___private__1___redArg___closed__0() {
@@ -1039,6 +1020,14 @@ x_8 = l_Lean_Meta_instReduceEvalOption___private__1___redArg(x_1, x_2, x_3, x_4,
 return x_8;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Meta_instReduceEvalOption___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_Lean_Meta_instReduceEvalOption___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6);
+return x_8;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_instReduceEvalOption___redArg(lean_object* x_1) {
 _start:
 {
@@ -1054,14 +1043,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_Meta_instReduceEvalOption___redArg(x_2);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_instReduceEvalOption___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; 
-x_8 = l_Lean_Meta_instReduceEvalOption___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6);
-return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_instReduceEvalString___private__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -1222,20 +1203,20 @@ x_7 = l_Lean_Meta_instReduceEvalString___private__1(x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Meta_instReduceEvalString() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_instReduceEvalString___lam__0___boxed), 6, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_instReduceEvalString___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
 x_7 = l_Lean_Meta_instReduceEvalString___lam__0(x_1, x_2, x_3, x_4, x_5);
 return x_7;
+}
+}
+static lean_object* _init_l_Lean_Meta_instReduceEvalString() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_instReduceEvalString___lam__0___boxed), 6, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_reduceEval___at___00__private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -4706,20 +4687,20 @@ x_7 = l_Lean_Meta_instReduceEvalMVarId___private__1(x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Meta_instReduceEvalMVarId() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_instReduceEvalMVarId___lam__0___boxed), 6, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_instReduceEvalMVarId___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
 x_7 = l_Lean_Meta_instReduceEvalMVarId___lam__0(x_1, x_2, x_3, x_4, x_5);
 return x_7;
+}
+}
+static lean_object* _init_l_Lean_Meta_instReduceEvalMVarId() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_instReduceEvalMVarId___lam__0___boxed), 6, 0);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_instReduceEvalLevelMVarId___private__1___closed__0() {
@@ -4859,20 +4840,20 @@ x_7 = l_Lean_Meta_instReduceEvalLevelMVarId___private__1(x_1, x_2, x_3, x_4, x_5
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Meta_instReduceEvalLevelMVarId() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_instReduceEvalLevelMVarId___lam__0___boxed), 6, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_instReduceEvalLevelMVarId___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
 x_7 = l_Lean_Meta_instReduceEvalLevelMVarId___lam__0(x_1, x_2, x_3, x_4, x_5);
 return x_7;
+}
+}
+static lean_object* _init_l_Lean_Meta_instReduceEvalLevelMVarId() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_instReduceEvalLevelMVarId___lam__0___boxed), 6, 0);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_instReduceEvalFVarId___private__1___closed__0() {
@@ -5012,20 +4993,20 @@ x_7 = l_Lean_Meta_instReduceEvalFVarId___private__1(x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Meta_instReduceEvalFVarId() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_instReduceEvalFVarId___lam__0___boxed), 6, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_instReduceEvalFVarId___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
 x_7 = l_Lean_Meta_instReduceEvalFVarId___lam__0(x_1, x_2, x_3, x_4, x_5);
 return x_7;
+}
+}
+static lean_object* _init_l_Lean_Meta_instReduceEvalFVarId() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_instReduceEvalFVarId___lam__0___boxed), 6, 0);
+return x_1;
 }
 }
 lean_object* initialize_Lean_Meta_Offset(uint8_t builtin);

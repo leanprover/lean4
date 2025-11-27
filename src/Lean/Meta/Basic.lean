@@ -2534,6 +2534,9 @@ generated diagnostics is deterministic). Note that, as `realize` is run using th
 declaration time of `forConst`, trace options must be set prior to that (or, for imported constants,
 on the cmdline) in order to be active. If `realize` throws an exception, it is rethrown at all
 callers.
+
+CAVEAT: `realize` MUST NOT reference the current environment (the result of `getEnv`) in its result
+to avoid creating an un-collectable promise cycle.
 -/
 def realizeValue [BEq α] [Hashable α] [TypeName α] [TypeName β] (forConst : Name) (key : α) (realize : MetaM β) :
     MetaM β := do

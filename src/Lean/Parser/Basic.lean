@@ -1612,7 +1612,7 @@ instance : Inhabited (TokenMap α) where
 
 instance : EmptyCollection (TokenMap α) := ⟨Std.TreeMap.empty⟩
 
-instance : ForIn m (TokenMap α) (Name × List α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) _)
+instance [Monad m] : ForIn m (TokenMap α) (Name × List α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) _)
 
 end TokenMap
 

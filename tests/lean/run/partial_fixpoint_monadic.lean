@@ -6,7 +6,7 @@ Testing `partial_fixpoint` with monad transformers
 Using an `Option`-based monad
 -/
 
-abbrev M1 := ReaderT String (StateT String.Pos Option)
+abbrev M1 := ReaderT String (StateT String.Pos.Raw Option)
 
 def parseAll1 (x : M1 α) : M1 (List α) := do
   if (← read).atEnd (← get) then
@@ -37,7 +37,7 @@ theorem parseAll1.eq_1 : ∀ {α : Type} (x : M1 α),
 Using an `IO`-based monad
 -/
 
-abbrev M2 := ReaderT String (StateRefT String.Pos IO)
+abbrev M2 := ReaderT String (StateRefT String.Pos.Raw IO)
 
 def parseAll2 (x : M2 α) : M2 (List α) := do
   if (← read).atEnd (← get) then

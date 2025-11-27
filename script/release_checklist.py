@@ -31,6 +31,8 @@ What this script does:
    - Ensures tags are merged into stable branches (for non-RC releases)
    - Verifies bump branches exist and are configured correctly
    - Special handling for ProofWidgets4 release tags
+   - For mathlib4: runs verify_version_tags.py to validate the release tag
+     (checks git/GitHub consistency, toolchain, elan, cache, and build)
 
 3. Optionally automates missing steps (when not in --dry-run mode):
    - Creates missing release tags using push_repo_release_tag.py
@@ -499,6 +501,57 @@ def check_proofwidgets4_release(repo_url, target_toolchain, github_token):
     print(f"     You will need to create and push a tag v0.0.{next_version}")
     return False
 
+def run_mathlib_verify_version_tags(toolchain, verbose=False):
+    """Run mathlib4's verify_version_tags.py script to validate the release tag.
+
+    This clones mathlib4 to a temp directory and runs the verification script.
+    Returns True if verification passes, False otherwise.
+    """
+    import tempfile
+
+    print(f"  ... Running mathlib4 verify_version_tags.py {toolchain}")
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Clone mathlib4 (shallow clone is sufficient for running the script)
+        clone_result = subprocess.run(
+            ['git', 'clone', '--depth', '1', 'https://github.com/leanprover-community/mathlib4.git', tmpdir],
+            capture_output=True,
+            text=True
+        )
+        if clone_result.returncode != 0:
+            print(f"  ❌ Failed to clone mathlib4: {clone_result.stderr.strip()[:200]}")
+            return False
+
+        # Run the verification script
+        script_path = os.path.join(tmpdir, 'scripts', 'verify_version_tags.py')
+        if not os.path.exists(script_path):
+            print(f"  ❌ verify_version_tags.py not found in mathlib4 (expected at scripts/verify_version_tags.py)")
+            return False
+
+        # Run from the mathlib4 directory so git operations work
+        result = subprocess.run(
+            ['python3', script_path, toolchain],
+            cwd=tmpdir,
+            capture_output=True,
+            text=True,
+            timeout=900  # 15 minutes timeout for cache download etc.
+        )
+
+        # Print output with indentation
+        if result.stdout:
+            for line in result.stdout.strip().split('\n'):
+                print(f"     {line}")
+        if result.stderr:
+            for line in result.stderr.strip().split('\n'):
+                print(f"     {line}")
+
+        if result.returncode != 0:
+            print(f"  ❌ mathlib4 verify_version_tags.py failed")
+            return False
+
+        print(f"  ✅ mathlib4 verify_version_tags.py passed")
+        return True
+
 def main():
     parser = argparse.ArgumentParser(description="Check release status of Lean4 repositories")
     parser.add_argument("toolchain", help="The toolchain version to check (e.g., v4.6.0)")
@@ -760,6 +813,12 @@ def main():
                     repo_status[name] = False
                     continue
             if not check_bump_branch_toolchain(bump_url, bump_branch, github_token):
+                repo_status[name] = False
+                continue
+
+        # For mathlib4, run verify_version_tags.py to validate the release tag
+        if name == "mathlib4":
+            if not run_mathlib_verify_version_tags(toolchain, verbose):
                 repo_status[name] = False
                 continue
 

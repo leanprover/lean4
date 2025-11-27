@@ -9,6 +9,8 @@ prelude
 public import Init.Data.Iterators.Consumers.Collect
 public import Init.Data.Iterators.Consumers.Monadic.Loop
 
+set_option linter.missingDocs true
+
 public section
 
 /-!
@@ -46,6 +48,9 @@ instance (α : Type w) (β : Type w) (n : Type x → Type x') [Monad n]
   haveI : ForIn' n (Iter (α := α) β) β _ := Iter.instForIn'
   instForInOfForIn'
 
+/--
+An implementation of `for h : ... in ... do ...` notation for partial iterators.
+-/
 @[always_inline, inline]
 def Iter.Partial.instForIn' {α : Type w} {β : Type w} {n : Type x → Type x'} [Monad n]
     [Iterator α Id β] [IteratorLoopPartial α Id n] :
@@ -63,12 +68,12 @@ instance (α : Type w) (β : Type w) (n : Type x → Type x') [Monad n]
   instForInOfForIn'
 
 instance {m : Type x → Type x'}
-    {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m] :
+    {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m] [Monad m] :
     ForM m (Iter (α := α) β) β where
   forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
 
 instance {m : Type x → Type x'}
-    {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] [IteratorLoopPartial α Id m] :
+    {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] [IteratorLoopPartial α Id m] [Monad m] :
     ForM m (Iter.Partial (α := α) β) β where
   forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
 
@@ -202,6 +207,11 @@ def Iter.all {α β : Type w}
     (p : β → Bool) (it : Iter (α := α) β) : Bool :=
   (it.allM (fun x => pure (f := Id) (p x))).run
 
+/--
+Steps through the iterator until the monadic function `f` returns `some` for an element, at which
+point iteration stops and the result of `f` is returned. If the iterator is completely consumed
+without `f` returning `some`, then the result is `none`.
+-/
 @[inline]
 def Iter.findSomeM? {α β : Type w} {γ : Type x} {m : Type x → Type w'} [Monad m] [Iterator α Id β]
     [IteratorLoop α Id m] [Finite α Id] (it : Iter (α := α) β) (f : β → m (Option γ)) :
@@ -211,7 +221,7 @@ def Iter.findSomeM? {α β : Type w} {γ : Type x} {m : Type x → Type w'} [Mon
     | none => return .yield none
     | some fx => return .done (some fx))
 
-@[inline]
+@[inline, inherit_doc Iter.findSomeM?]
 def Iter.Partial.findSomeM? {α β : Type w} {γ : Type x} {m : Type x → Type w'} [Monad m]
     [Iterator α Id β] [IteratorLoopPartial α Id m] (it : Iter.Partial (α := α) β)
     (f : β → m (Option γ)) :
@@ -221,36 +231,50 @@ def Iter.Partial.findSomeM? {α β : Type w} {γ : Type x} {m : Type x → Type 
     | none => return .yield none
     | some fx => return .done (some fx))
 
+/--
+Steps through the iterator until `f` returns `some` for an element, at which point iteration stops
+and the result of `f` is returned. If the iterator is completely consumed without `f` returning
+`some`, then the result is `none`.
+-/
 @[inline]
 def Iter.findSome? {α β : Type w} {γ : Type x} [Iterator α Id β]
     [IteratorLoop α Id Id] [Finite α Id] (it : Iter (α := α) β) (f : β → Option γ) :
     Option γ :=
   Id.run (it.findSomeM? (pure <| f ·))
 
-@[inline]
+@[inline, inherit_doc Iter.findSome?]
 def Iter.Partial.findSome? {α β : Type w} {γ : Type x} [Iterator α Id β]
     [IteratorLoopPartial α Id Id] (it : Iter.Partial (α := α) β) (f : β → Option γ) :
     Option γ :=
   Id.run (it.findSomeM? (pure <| f ·))
 
+/--
+Steps through the iterator until an element satisfies the monadic predicate `f`, at which point
+iteration stops and the element is returned. If no element satisfies `f`, then the result is
+`none`.
+-/
 @[inline]
 def Iter.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α Id β]
     [IteratorLoop α Id m] [Finite α Id] (it : Iter (α := α) β) (f : β → m (ULift Bool)) :
     m (Option β) :=
   it.findSomeM? (fun x => return if (← f x).down then some x else none)
 
-@[inline]
+@[inline, inherit_doc Iter.findM?]
 def Iter.Partial.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α Id β]
     [IteratorLoopPartial α Id m] (it : Iter.Partial (α := α) β) (f : β → m (ULift Bool)) :
     m (Option β) :=
   it.findSomeM? (fun x => return if (← f x).down then some x else none)
 
+/--
+Steps through the iterator until an element satisfies `f`, at which point iteration stops and the
+element is returned. If no element satisfies `f`, then the result is `none`.
+-/
 @[inline]
 def Iter.find? {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
     [Finite α Id] (it : Iter (α := α) β) (f : β → Bool) : Option β :=
   Id.run (it.findM? (pure <| .up <| f ·))
 
-@[inline]
+@[inline, inherit_doc Iter.find?]
 def Iter.Partial.find? {α β : Type w} [Iterator α Id β] [IteratorLoopPartial α Id Id]
     (it : Iter.Partial (α := α) β) (f : β → Bool) : Option β :=
   Id.run (it.findM? (pure <| .up <| f ·))

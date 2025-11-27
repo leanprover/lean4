@@ -838,15 +838,21 @@ theorem mem_of_mem_union_of_not_mem_left [EquivBEq α]
   @HashMap.mem_of_mem_union_of_not_mem_left _ _ _ _ m₁.inner m₂.inner _ _  k
 
 /- Equiv -/
-theorem union_equiv_congr_left {m₃ : HashSet α} [EquivBEq α] [LawfulHashable α]
+theorem Equiv.union_left {m₃ : HashSet α} [EquivBEq α] [LawfulHashable α]
     (equiv : m₁ ~m m₂) :
     (m₁ ∪ m₃) ~m (m₂ ∪ m₃) :=
-  ⟨HashMap.union_equiv_congr_left equiv.1⟩
+  ⟨HashMap.Equiv.union_left equiv.1⟩
 
-theorem union_equiv_congr_right {m₃ : HashSet α} [EquivBEq α] [LawfulHashable α]
+theorem Equiv.union_right {m₃ : HashSet α} [EquivBEq α] [LawfulHashable α]
     (equiv : m₂ ~m m₃) :
     (m₁ ∪ m₂) ~m (m₁ ∪ m₃) :=
-  ⟨HashMap.union_equiv_congr_right equiv.1⟩
+  ⟨HashMap.Equiv.union_right equiv.1⟩
+
+theorem Equiv.union_congr {m₃ m₄ : HashSet α} [EquivBEq α] [LawfulHashable α]
+    (equiv₁ : m₁ ~m m₃)
+    (equiv₂ : m₂ ~m m₄) :
+    (m₁ ∪ m₂) ~m (m₃ ∪ m₄) :=
+  ⟨HashMap.Equiv.union_congr equiv₁.1 equiv₂.1⟩
 
 /- get? -/
 theorem get?_union [EquivBEq α] [LawfulHashable α] {k : α} :
@@ -966,6 +972,22 @@ theorem not_mem_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α] {k : α
     k ∉ m₁ ∩ m₂ :=
   @HashMap.not_mem_inter_of_not_mem_right _ _ _ _ m₁.inner m₂.inner _ _ k not_mem
 
+/- Equiv -/
+theorem Equiv.inter_left {m₃ : HashSet α} [EquivBEq α] [LawfulHashable α]
+    (equiv : m₁ ~m m₂) :
+    (m₁ ∩ m₃) ~m (m₂ ∩ m₃) :=
+  ⟨HashMap.Equiv.inter_left equiv.1⟩
+
+theorem Equiv.inter_right {m₃ : HashSet α} [EquivBEq α] [LawfulHashable α]
+    (equiv : m₂ ~m m₃) :
+    (m₁ ∩ m₂) ~m (m₁ ∩ m₃) :=
+  ⟨HashMap.Equiv.inter_right equiv.1⟩
+
+theorem Equiv.inter_congr {m₃ m₄ : HashSet α} [EquivBEq α] [LawfulHashable α]
+    (equiv₁ : m₁ ~m m₃) (equiv₂ : m₂ ~m m₄) :
+    (m₁ ∩ m₂) ~m (m₃ ∩ m₄) :=
+  ⟨HashMap.Equiv.inter_congr equiv₁.1 equiv₂.1⟩
+
 /- get? -/
 theorem get?_inter [EquivBEq α] [LawfulHashable α] {k : α} :
     (m₁ ∩ m₂).get? k =
@@ -1077,6 +1099,12 @@ theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] :
 end Inter
 
 section
+
+@[simp, grind =]
+theorem ofArray_eq_ofList (a : Array α) :
+    ofArray a = ofList a.toList := by
+  apply ext
+  apply HashMap.unitOfArray_eq_unitOfList
 
 @[simp, grind =]
 theorem ofList_nil :

@@ -631,6 +631,8 @@ structure Subtype {α : Sort u} (p : α → Prop) where
   -/
   property : p val
 
+grind_pattern Subtype.property => self.val
+
 set_option linter.unusedVariables.funArgs false in
 /--
 Gadget for optional parameter support.
@@ -2262,6 +2264,7 @@ structure Fin (n : Nat) where
   isLt : LT.lt val n
 
 attribute [coe] Fin.val
+grind_pattern Fin.isLt => self.val
 
 theorem Fin.eq_of_val_eq {n} : ∀ {i j : Fin n}, Eq i.val j.val → Eq i j
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
@@ -2920,7 +2923,40 @@ protected def List.hasDecEq {α : Type u} [DecidableEq α] : (a b : List α) →
       | isFalse nabs => isFalse (fun h => List.noConfusion h (fun _ habs => absurd habs nabs))
     | isFalse nab => isFalse (fun h => List.noConfusion h (fun hab _ => absurd hab nab))
 
-instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := List.hasDecEq
+instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := fun xs ys =>
+  /-
+  The first match step is expanded to make this instance
+  maximally-definitionally-equivalent to the compare-with-empty-list cases.
+  -/
+  match xs with
+  | .nil => match ys with
+    | .nil => isTrue rfl
+    | .cons _ _ => isFalse List.noConfusion
+  | .cons a as => match ys with
+    | .nil => isFalse List.noConfusion
+    | .cons b bs =>
+      match decEq a b with
+      | isTrue hab =>
+        match List.hasDecEq as bs with
+        | isTrue habs  => isTrue (hab ▸ habs ▸ rfl)
+        | isFalse nabs => isFalse (List.noConfusion · (fun _ habs => absurd habs nabs))
+      | isFalse nab => isFalse (List.noConfusion · (fun hab _ => absurd hab nab))
+
+/--
+Equality with `List.nil` is decidable even if the underlying type does not have decidable equality.
+-/
+instance List.instDecidableNilEq (a : List α) : Decidable (Eq List.nil a) :=
+  match a with
+  | .nil => isTrue rfl
+  | .cons _ _ => isFalse List.noConfusion
+
+/--
+Equality with `List.nil` is decidable even if the underlying type does not have decidable equality.
+-/
+instance List.instDecidableEqNil (a : List α) : Decidable (Eq a List.nil) :=
+  match a with
+  | .nil => isTrue rfl
+  | .cons _ _ => isFalse List.noConfusion
 
 /--
 The length of a list.
@@ -3413,11 +3449,11 @@ structure String where ofByteArray ::
   /-- The bytes of the UTF-8 encoding of the string. Since strings have a special representation in
   the runtime, this function actually takes linear time and space at runtime. For efficient access
   to the string's bytes, use `String.utf8ByteSize` and `String.getUTF8Byte`. -/
-  bytes : ByteArray
+  toByteArray : ByteArray
   /-- The bytes of the string form valid UTF-8. -/
-  isValidUTF8 : ByteArray.IsValidUTF8 bytes
+  isValidUTF8 : ByteArray.IsValidUTF8 toByteArray
 
-attribute [extern "lean_string_to_utf8"] String.bytes
+attribute [extern "lean_string_to_utf8"] String.toByteArray
 attribute [extern "lean_string_from_utf8_unchecked"] String.ofByteArray
 
 /--
@@ -3432,7 +3468,7 @@ def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
   | ⟨⟨⟨s₁⟩⟩, _⟩, ⟨⟨⟨s₂⟩⟩, _⟩ =>
     dite (Eq s₁ s₂) (fun h => match s₁, s₂, h with | _, _, Eq.refl _ => isTrue rfl)
       (fun h => isFalse
-        (fun h' => h (congrArg (fun s => Array.toList (ByteArray.data (String.bytes s))) h')))
+        (fun h' => h (congrArg (fun s => Array.toList (ByteArray.data (String.toByteArray s))) h')))
 
 instance : DecidableEq String := String.decEq
 
@@ -3446,7 +3482,7 @@ be translated internally to byte positions, which takes linear time.
 A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.rawEndPos` and `p` lies on a UTF-8
 character boundary, see `String.Pos.IsValid`.
 
-There is another type, `String.ValidPos`, which bundles the validity predicate. Using `String.ValidPos`
+There is another type, `String.Pos`, which bundles the validity predicate. Using `String.Pos`
 instead of `String.Pos.Raw` is recommended because it will lead to less error handling and fewer edge cases.
 -/
 structure String.Pos.Raw where
@@ -3498,7 +3534,7 @@ At runtime, this function takes constant time because the byte length of strings
 -/
 @[extern "lean_string_utf8_byte_size"]
 def String.utf8ByteSize (s : @& String) : Nat :=
-  s.bytes.size
+  s.toByteArray.size
 
 /--
 A UTF-8 byte position that points at the end of a string, just after the last character.

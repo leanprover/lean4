@@ -405,6 +405,17 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_Lake_setupFile___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; uint8_t x_7; lean_object* x_8; 
+x_6 = lean_unbox(x_2);
+x_7 = lean_unbox(x_3);
+x_8 = l_Lake_setupFile___lam__0(x_1, x_6, x_7, x_4);
+lean_dec_ref(x_4);
+return x_8;
+}
+}
 LEAN_EXPORT uint32_t l_Lake_setupFile(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -584,17 +595,6 @@ x_8 = l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21(x_7);
 x_9 = 1;
 return x_9;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lake_setupFile___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-uint8_t x_6; uint8_t x_7; lean_object* x_8; 
-x_6 = lean_unbox(x_2);
-x_7 = lean_unbox(x_3);
-x_8 = l_Lake_setupFile___lam__0(x_1, x_6, x_7, x_4);
-lean_dec_ref(x_4);
-return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_setupFile___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

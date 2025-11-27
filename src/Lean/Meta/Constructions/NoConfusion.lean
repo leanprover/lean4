@@ -45,7 +45,7 @@ def mkNoConfusionCtorArg (ctorName : Name) (P : Expr) : MetaM Expr := do
       t := mkForall name .default eq t
     mkLambdaFVars (xs ++ fields1 ++ fields2) t
 
-register_builtin_option backwards.linearNoConfusionType : Bool := {
+register_builtin_option backward.linearNoConfusionType : Bool := {
   defValue := true
   descr    := "use the linear-size construction for the `noConfusionType` declaration of an inductive type. Set to false to use the previous, simpler but quadratic-size construction. "
 }
@@ -54,7 +54,7 @@ def mkNoConfusionTypeName (indName : Name) : Name :=
   Name.str indName "noConfusionType"
 
 def canUseLinear (indName : Name) : MetaM Bool := do
-  unless backwards.linearNoConfusionType.get (← getOptions) do return false
+  unless backward.linearNoConfusionType.get (← getOptions) do return false
   -- Check if the prelude is loaded
   unless (← hasConst ``Eq.propIntro) do return false
   -- Check if we have the constructor elim helpers
@@ -74,7 +74,7 @@ def mkNoConfusionType (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
   let useLinearConstruction :=
     (info.numCtors > 2) &&
-    backwards.linearNoConfusionType.get (← getOptions) &&
+    backward.linearNoConfusionType.get (← getOptions) &&
     (← hasConst (mkCtorElimName indName))
   let casesOnName := mkCasesOnName indName
   let casesOnInfo ← getConstVal casesOnName

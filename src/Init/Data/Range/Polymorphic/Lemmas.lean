@@ -2846,6 +2846,7 @@ public theorem size_eq_if_rcc [LE α] [DecidableLE α] [UpwardEnumerable α]
   · split <;> simp [*]
   · rfl
 
+@[simp]
 public theorem length_toList [LE α] [DecidableLE α] [UpwardEnumerable α]
     [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
@@ -2864,6 +2865,7 @@ public theorem length_toList [LE α] [DecidableLE α] [UpwardEnumerable α]
         simp [h, ← ih _ h]
     · simp
 
+@[simp]
 public theorem size_toArray [LE α] [DecidableLE α] [UpwardEnumerable α]
     [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
@@ -2988,6 +2990,7 @@ public theorem size_eq_match_roc [LE α] [DecidableLE α] [UpwardEnumerable α]
   rw [size_eq_match_rcc]
   simp [Rcc.size_eq_if_roc]
 
+@[simp]
 public theorem length_toList [LE α] [DecidableLE α] [UpwardEnumerable α]
     [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
@@ -2995,6 +2998,7 @@ public theorem length_toList [LE α] [DecidableLE α] [UpwardEnumerable α]
   simp only [toList_eq_match_rcc, size_eq_match_rcc]
   split <;> simp [Rcc.length_toList]
 
+@[simp]
 public theorem size_toArray [LE α] [DecidableLE α] [UpwardEnumerable α]
     [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
@@ -3094,6 +3098,7 @@ public theorem size_eq_match_roc [Least? α] [LE α] [DecidableLE α] [UpwardEnu
   rw [size_eq_match_rcc]
   simp [Rcc.size_eq_if_roc]
 
+@[simp]
 public theorem length_toList [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α]
     [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
@@ -3101,6 +3106,7 @@ public theorem length_toList [Least? α] [LE α] [DecidableLE α] [UpwardEnumera
   rw [toList_eq_match_rcc, size_eq_match_rcc]
   split <;> simp [Rcc.length_toList]
 
+@[simp]
 public theorem size_toArray [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α]
     [Rxc.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxc.IsAlwaysFinite α] [Rxc.LawfulHasSize α] :
@@ -3223,6 +3229,7 @@ public theorem size_eq_if_rcc [LT α] [DecidableLT α] [UpwardEnumerable α]
   · split <;> simp [*]
   · rfl
 
+@[simp]
 public theorem length_toList [LT α] [DecidableLT α] [UpwardEnumerable α]
     [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
@@ -3241,6 +3248,7 @@ public theorem length_toList [LT α] [DecidableLT α] [UpwardEnumerable α]
         simp [h, ← ih _ h]
     · simp
 
+@[simp]
 public theorem size_toArray [LT α] [DecidableLT α] [UpwardEnumerable α]
     [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
@@ -3366,6 +3374,7 @@ public theorem size_eq_match_roc [LT α] [DecidableLT α] [UpwardEnumerable α]
   rw [size_eq_match_rcc]
   simp [Rco.size_eq_if_roo]
 
+@[simp]
 public theorem length_toList [LT α] [DecidableLT α] [UpwardEnumerable α]
     [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
@@ -3373,6 +3382,7 @@ public theorem length_toList [LT α] [DecidableLT α] [UpwardEnumerable α]
   simp only [toList_eq_match_rco, size_eq_match_rcc]
   split <;> simp [Rco.length_toList]
 
+@[simp]
 public theorem size_toArray [LT α] [DecidableLT α] [UpwardEnumerable α]
     [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
@@ -3472,6 +3482,7 @@ public theorem size_eq_match_roc [Least? α] [LT α] [DecidableLT α] [UpwardEnu
   rw [size_eq_match_rcc]
   simp [Rco.size_eq_if_roo]
 
+@[simp]
 public theorem length_toList [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α]
     [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
@@ -3479,6 +3490,7 @@ public theorem length_toList [Least? α] [LT α] [DecidableLT α] [UpwardEnumera
   rw [toList_eq_match_rco, size_eq_match_rcc]
   split <;> simp [Rco.length_toList]
 
+@[simp]
 public theorem size_toArray [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α]
     [Rxo.HasSize α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] [Rxo.LawfulHasSize α] :
@@ -3590,6 +3602,7 @@ public theorem size_eq_match_rci [UpwardEnumerable α] [Rxi.HasSize α] [LawfulU
   simp only [Rci.size]
   split <;> simp [*]
 
+@[simp]
 public theorem length_toList [UpwardEnumerable α] [Rxi.HasSize α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
     r.toList.length = r.size := by
@@ -3605,6 +3618,7 @@ public theorem length_toList [UpwardEnumerable α] [Rxi.HasSize α] [LawfulUpwar
     · simp only [Nat.add_right_cancel_iff, *] at h
       simp [ih _ h, h]
 
+@[simp]
 public theorem size_toArray [UpwardEnumerable α] [Rxi.HasSize α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
     r.toArray.size = r.size := by
@@ -3711,12 +3725,14 @@ public theorem size_eq_match_roi [UpwardEnumerable α] [Rxi.HasSize α] [LawfulU
   rw [size_eq_match_rci]
   simp [Rci.size_eq_size_roi]
 
+@[simp]
 public theorem length_toList [UpwardEnumerable α] [Rxi.HasSize α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
     r.toList.length = r.size := by
   simp only [toList_eq_match_rci, size_eq_match_rci]
   split <;> simp [Rci.length_toList]
 
+@[simp]
 public theorem size_toArray [UpwardEnumerable α] [Rxi.HasSize α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
     r.toArray.size = r.size := by
@@ -3809,6 +3825,7 @@ public theorem size_eq_match_roi [Least? α] [UpwardEnumerable α] [Rxi.HasSize 
   rw [size_eq_match_rci]
   simp [Rci.size_eq_size_roi]
 
+@[simp]
 public theorem length_toList [Least? α] [UpwardEnumerable α]
     [Rxi.HasSize α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :
@@ -3816,6 +3833,7 @@ public theorem length_toList [Least? α] [UpwardEnumerable α]
   rw [toList_eq_match_rci, size_eq_match_rci]
   split <;> simp [Rci.length_toList]
 
+@[simp]
 public theorem size_toArray [Least? α] [UpwardEnumerable α]
     [Rxi.HasSize α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α] [Rxi.LawfulHasSize α] :

@@ -8,6 +8,7 @@ module
 
 prelude
 public import Lean.Compiler.IR.Boxing
+import Lean.Compiler.IR.RC
 
 public section
 
@@ -26,11 +27,12 @@ def addExtern (declName : Name) (externAttrData : ExternAttrData) : CoreM Unit :
     type := b
     nextVarIndex := nextVarIndex + 1
   let irType ← toIRType type
-  let decl := .extern declName params irType externAttrData
-  addDecl decl
-  if !isPrivateName decl.name then
-    modifyEnv (Compiler.LCNF.setDeclPublic · decl.name)
-  if ExplicitBoxing.requiresBoxedVersion (← Lean.getEnv) decl then
-    addDecl (ExplicitBoxing.mkBoxedVersion decl)
+  let decls := #[.extern declName params irType externAttrData]
+  if !isPrivateName declName then
+    modifyEnv (Compiler.LCNF.setDeclPublic · declName)
+  let decls := ExplicitBoxing.addBoxedVersions (← Lean.getEnv) decls
+  let decls ← explicitRC decls
+  logDecls `result decls
+  addDecls decls
 
 end Lean.IR

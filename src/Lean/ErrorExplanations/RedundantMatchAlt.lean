@@ -40,7 +40,7 @@ matches with redundant alternatives to be compiled by discarding the unused arms
 
 # Examples
 
-## Incorrect ordering of pattern matches
+## Incorrect Ordering of Pattern Matches
 
 ```lean broken
 def seconds : List (List α) → List α
@@ -64,7 +64,7 @@ Since any expression matching `(_ :: x :: _) :: xss` will also match `_ :: xss`,
 alternative in the broken implementation is never reached. We resolve this by moving the more
 specific alternative before the more general one.
 
-## Unnecessary fallback clause
+## Unnecessary Fallback Clause
 
 ```lean broken
 example (p : Nat × Nat) : IO Nat := do
@@ -87,7 +87,7 @@ Here, the fallback clause serves as a catch-all for all values of `p` that do no
 However, no such values exist, so the fallback clause is unnecessary and can be removed. A similar
 error arises when using `if let pat := e` when `e` will always match `pat`.
 
-## Pattern treated as variable, not constructor
+## Pattern Treated as Variable, Not Constructor
 
 ```lean broken
 example (xs : List Nat) : Bool :=

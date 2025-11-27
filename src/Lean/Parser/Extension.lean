@@ -380,7 +380,6 @@ opaque evalParserConst (declName : Name) : ParserFn
 
 register_builtin_option internal.parseQuotWithCurrentStage : Bool := {
   defValue := false
-  group    := "internal"
   descr    := "(Lean bootstrapping) use parsers from the current stage inside quotations"
 }
 

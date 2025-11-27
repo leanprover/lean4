@@ -189,14 +189,6 @@ return x_9;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Second_instReprOrdinal(uint8_t x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Time_Second_instReprOrdinal___lam__0___boxed), 2, 0);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_Second_instReprOrdinal___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -205,6 +197,14 @@ x_3 = l_Std_Time_Second_instReprOrdinal___lam__0(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Second_instReprOrdinal(uint8_t x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Std_Time_Second_instReprOrdinal___lam__0___boxed), 2, 0);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_Second_instReprOrdinal___boxed(lean_object* x_1) {
@@ -254,20 +254,20 @@ return x_12;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Second_instToStringOrdinal(uint8_t x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Time_Second_instToStringOrdinal___lam__0___boxed), 1, 0);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_Second_instToStringOrdinal___lam__0___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Time_Second_instToStringOrdinal___lam__0(x_1);
 lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Second_instToStringOrdinal(uint8_t x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Std_Time_Second_instToStringOrdinal___lam__0___boxed), 1, 0);
 return x_2;
 }
 }

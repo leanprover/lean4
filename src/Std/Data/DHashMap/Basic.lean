@@ -235,10 +235,10 @@ end
     (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (b : DHashMap α β) : m δ :=
   b.1.forIn f init
 
-instance [BEq α] [Hashable α] : ForM m (DHashMap α β) ((a : α) × β a) where
+instance [Monad m] [BEq α] [Hashable α] : ForM m (DHashMap α β) ((a : α) × β a) where
   forM m f := m.forM (fun a b => f ⟨a, b⟩)
 
-instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) where
+instance [Monad m] [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
 namespace Const
@@ -397,8 +397,16 @@ end Unverified
     DHashMap α β :=
   insertMany ∅ l
 
+@[inline, inherit_doc Raw.ofArray] def ofArray [BEq α] [Hashable α] (l : Array ((a : α) × β a)) :
+    DHashMap α β :=
+  insertMany ∅ l
+
 @[inline, inherit_doc Raw.Const.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
     (l : List (α × β)) : DHashMap α (fun _ => β) :=
+  Const.insertMany ∅ l
+
+@[inline, inherit_doc Raw.Const.ofArray] def Const.ofArray {β : Type v} [BEq α] [Hashable α]
+    (l : Array (α × β)) : DHashMap α (fun _ => β) :=
   Const.insertMany ∅ l
 
 @[inline, inherit_doc Raw.Const.unitOfList] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :

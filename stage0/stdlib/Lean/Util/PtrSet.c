@@ -22,7 +22,6 @@ static lean_object* l_Lean_PtrSet_insert___redArg___closed__1;
 static lean_object* l_Lean_PtrSet_insert___redArg___closed__0;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_mk_array(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Ptr_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PtrSet_contains___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkPtrMap___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PtrSet_insert___redArg(lean_object*, lean_object*);
@@ -32,7 +31,6 @@ lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___redArg(lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_PtrMap_contains___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_usize_to_uint64(size_t);
 lean_object* lean_nat_div(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Ptr_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_Lean_instHashablePtr___lam__0(lean_object*);
 uint8_t l_Std_DHashMap_Internal_Raw_u2080_contains___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PtrMap_contains___redArg___boxed(lean_object*, lean_object*);
@@ -59,23 +57,6 @@ LEAN_EXPORT lean_object* l_Lean_PtrSet_contains___redArg___boxed(lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_mkPtrSet___redArg(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PtrMap_contains(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkPtrSet___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Ptr_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Ptr_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Ptr_ctorIdx(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT uint64_t l_Lean_instHashablePtr___lam__0(lean_object* x_1) {
 _start:
 {
@@ -85,14 +66,6 @@ x_3 = lean_usize_to_uint64(x_2);
 x_4 = 11;
 x_5 = lean_uint64_mix_hash(x_3, x_4);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_instHashablePtr(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_instHashablePtr___lam__0___boxed), 1, 0);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_instHashablePtr___lam__0___boxed(lean_object* x_1) {
@@ -105,6 +78,14 @@ x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_instHashablePtr(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_instHashablePtr___lam__0___boxed), 1, 0);
+return x_2;
+}
+}
 LEAN_EXPORT uint8_t l_Lean_instBEqPtr___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -113,14 +94,6 @@ x_3 = lean_ptr_addr(x_1);
 x_4 = lean_ptr_addr(x_2);
 x_5 = lean_usize_dec_eq(x_3, x_4);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_instBEqPtr(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_instBEqPtr___lam__0___boxed), 2, 0);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_instBEqPtr___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
@@ -132,6 +105,14 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_instBEqPtr(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_instBEqPtr___lam__0___boxed), 2, 0);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_mkPtrSet___redArg(lean_object* x_1) {

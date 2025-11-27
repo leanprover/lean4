@@ -75,10 +75,10 @@ map in some order.
 @[inline] def forIn [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (b : Raw α β) : m δ :=
   ForIn.forIn b.buckets init (fun bucket acc => bucket.forInStep acc f)
 
-instance x : ForM m (Raw α β) ((a : α) × β a) where
+instance [Monad m] : ForM m (Raw α β) ((a : α) × β a) where
   forM m f := m.forM (fun a b => f ⟨a, b⟩)
 
-instance : ForIn m (Raw α β) ((a : α) × β a) where
+instance [Monad m] : ForIn m (Raw α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
 /-- Checks if all elements satisfy the predicate, short-circuiting if a predicate fails. -/

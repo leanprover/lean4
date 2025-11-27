@@ -483,6 +483,15 @@ x_8 = l_Repr_addAppParen(x_7, x_3);
 return x_8;
 }
 }
+LEAN_EXPORT lean_object* l_instReprSSet___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_instReprSSet___redArg___lam__0(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_instReprSSet___redArg(lean_object* x_1) {
 _start:
 {
@@ -498,15 +507,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_instReprSSet___redArg(x_4);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_instReprSSet___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_instReprSSet___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_instReprSSet___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

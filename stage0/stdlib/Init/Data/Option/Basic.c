@@ -19,17 +19,21 @@ LEAN_EXPORT uint8_t l_Option_isNone(lean_object*, lean_object*);
 static lean_object* l_instAlternativeOption___closed__1;
 LEAN_EXPORT lean_object* l_instLEOption(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadExceptOfUnitOption___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Option_decidableNoneEq___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Option_instBEq(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Option_guard(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instAlternativeOption;
 LEAN_EXPORT lean_object* l_Option_getDM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Option_decidableNoneEq___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Option_join___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_max(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Option_decidableEqNone___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Option_mapM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_elimM___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Option_instDecidableEq(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadOption___lam__2(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Option_decidableNoneEq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadOption___lam__0(lean_object*, lean_object*);
 static lean_object* l_instAlternativeOption___closed__4;
 LEAN_EXPORT lean_object* l_instMonadOption___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -55,6 +59,7 @@ static lean_object* l_instMonadOption___closed__2;
 LEAN_EXPORT lean_object* l_instMonadOption___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instOrElse___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instDecidableRelLt___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Option_decidableNoneEq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_toList___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Option_filterM___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_getDM___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -66,7 +71,7 @@ LEAN_EXPORT lean_object* l_Option_guard___redArg(lean_object*, lean_object*);
 static lean_object* l_instAlternativeOption___closed__3;
 LEAN_EXPORT lean_object* l_instFunctorOption;
 static lean_object* l_instMonadExceptOfUnitOption___closed__0;
-LEAN_EXPORT lean_object* l_Option_instDecidableEq_decEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Option_decidableEqNone___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadOption___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instMax___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Option_mapM___redArg___lam__0(lean_object*);
@@ -83,6 +88,7 @@ LEAN_EXPORT lean_object* l_Option_sequence___redArg(lean_object*, lean_object*);
 static lean_object* l_instMonadOption___closed__0;
 LEAN_EXPORT lean_object* l_Option_join(lean_object*, lean_object*);
 static lean_object* l_Option_toArray___redArg___closed__0;
+LEAN_EXPORT uint8_t l_Option_decidableEqNone(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instDecidableEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Option_instDecidableEq___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_instMonadOption___closed__1;
@@ -99,6 +105,7 @@ LEAN_EXPORT lean_object* l_Option_filter(lean_object*, lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Option_any___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_mapM___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_get(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Option_decidableEqNone___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Option_elim___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Option_isNone___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Option_get___redArg___boxed(lean_object*);
@@ -121,10 +128,8 @@ LEAN_EXPORT lean_object* l_Option_tryCatch___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instDecidableRelLt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_filter___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftOption(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Option_instDecidableEq_decEq(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Option_instDecidableRelLt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_join___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Option_instDecidableEq_decEq___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_isEqSome___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_getDM___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instAlternativeOption___lam__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -138,7 +143,6 @@ LEAN_EXPORT uint8_t l_Option_instBEq_beq___redArg(lean_object*, lean_object*, le
 LEAN_EXPORT lean_object* l_Option_isSome___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instBEq_beq___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_elimM___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Option_instDecidableEq_decEq___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instMin___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Option_get___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_instAlternativeOption___lam__1(lean_object*, lean_object*, lean_object*);
@@ -150,7 +154,7 @@ LEAN_EXPORT lean_object* l_Option_elim___boxed(lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Option_instDecidableEq___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_filterM___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instAlternativeOption___lam__0(lean_object*);
-LEAN_EXPORT uint8_t l_Option_instDecidableEq_decEq___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT uint8_t l_Option_instDecidableEq___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -172,78 +176,35 @@ return x_5;
 }
 else
 {
-lean_object* x_6; uint8_t x_7; 
-x_6 = lean_ctor_get(x_2, 0);
-lean_inc(x_6);
-lean_dec_ref(x_2);
-x_7 = 0;
 if (lean_obj_tag(x_3) == 0)
 {
-lean_dec(x_6);
+uint8_t x_6; 
+lean_dec_ref(x_2);
 lean_dec_ref(x_1);
-return x_7;
+x_6 = 0;
+return x_6;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_7 = lean_ctor_get(x_2, 0);
+lean_inc(x_7);
+lean_dec_ref(x_2);
 x_8 = lean_ctor_get(x_3, 0);
 lean_inc(x_8);
 lean_dec_ref(x_3);
-x_9 = lean_apply_2(x_1, x_6, x_8);
+x_9 = lean_apply_2(x_1, x_7, x_8);
 x_10 = lean_unbox(x_9);
-if (x_10 == 0)
-{
-return x_7;
-}
-else
-{
-uint8_t x_11; 
-x_11 = lean_unbox(x_9);
-return x_11;
+return x_10;
 }
 }
-}
-}
-}
-LEAN_EXPORT uint8_t l_Option_instDecidableEq_decEq(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; 
-x_5 = l_Option_instDecidableEq_decEq___redArg(x_2, x_3, x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Option_instDecidableEq_decEq___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Option_instDecidableEq_decEq___redArg(x_1, x_2, x_3);
-x_5 = lean_box(x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Option_instDecidableEq_decEq___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; lean_object* x_6; 
-x_5 = l_Option_instDecidableEq_decEq(x_1, x_2, x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT uint8_t l_Option_instDecidableEq___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; 
-x_4 = l_Option_instDecidableEq_decEq___redArg(x_1, x_2, x_3);
-return x_4;
 }
 }
 LEAN_EXPORT uint8_t l_Option_instDecidableEq(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
-x_5 = l_Option_instDecidableEq_decEq___redArg(x_2, x_3, x_4);
+x_5 = l_Option_instDecidableEq___redArg(x_2, x_3, x_4);
 return x_5;
 }
 }
@@ -263,6 +224,96 @@ uint8_t x_5; lean_object* x_6;
 x_5 = l_Option_instDecidableEq(x_1, x_2, x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
+}
+}
+LEAN_EXPORT uint8_t l_Option_decidableEqNone___redArg(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+uint8_t x_2; 
+x_2 = 1;
+return x_2;
+}
+else
+{
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
+}
+}
+}
+LEAN_EXPORT uint8_t l_Option_decidableEqNone(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = l_Option_decidableEqNone___redArg(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Option_decidableEqNone___redArg___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Option_decidableEqNone___redArg(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Option_decidableEqNone___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Option_decidableEqNone(x_1, x_2);
+lean_dec(x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT uint8_t l_Option_decidableNoneEq___redArg(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+uint8_t x_2; 
+x_2 = 1;
+return x_2;
+}
+else
+{
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
+}
+}
+}
+LEAN_EXPORT uint8_t l_Option_decidableNoneEq(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = l_Option_decidableNoneEq___redArg(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Option_decidableNoneEq___redArg___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Option_decidableNoneEq___redArg(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Option_decidableNoneEq___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Option_decidableNoneEq(x_1, x_2);
+lean_dec(x_2);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT uint8_t l_Option_instBEq_beq___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -819,6 +870,16 @@ return x_1;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Option_filterM___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = lean_unbox(x_2);
+x_4 = l_Option_filterM___redArg___lam__0(x_1, x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Option_filterM___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -881,16 +942,6 @@ x_12 = lean_apply_1(x_4, x_9);
 x_13 = lean_apply_4(x_10, lean_box(0), lean_box(0), x_11, x_12);
 return x_13;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Option_filterM___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = lean_unbox(x_2);
-x_4 = l_Option_filterM___redArg___lam__0(x_1, x_3);
-lean_dec(x_1);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Option_filter___redArg(lean_object* x_1, lean_object* x_2) {
@@ -1093,14 +1144,6 @@ return x_1;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Option_instOrElse(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Option_instOrElse___lam__0___boxed), 2, 0);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Option_instOrElse___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1108,6 +1151,14 @@ lean_object* x_3;
 x_3 = l_Option_instOrElse___lam__0(x_1, x_2);
 lean_dec(x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Option_instOrElse(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Option_instOrElse___lam__0___boxed), 2, 0);
+return x_2;
 }
 }
 LEAN_EXPORT uint8_t l_Option_instDecidableRelLt___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1633,6 +1684,15 @@ return x_5;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Option_elimM___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Option_elimM___redArg___lam__0(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Option_elimM___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1659,15 +1719,6 @@ lean_closure_set(x_9, 0, x_6);
 lean_closure_set(x_9, 1, x_7);
 x_10 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_5, x_9);
 return x_10;
-}
-}
-LEAN_EXPORT lean_object* l_Option_elimM___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Option_elimM___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Option_getDM___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2088,6 +2139,24 @@ x_1 = lean_alloc_closure((void*)(l_Option_bind), 4, 0);
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_instMonadOption___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_instMonadOption___lam__2(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_instMonadOption___lam__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_instMonadOption___lam__3(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+return x_5;
+}
+}
 static lean_object* _init_l_instMonadOption() {
 _start:
 {
@@ -2108,24 +2177,6 @@ x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_6);
 lean_ctor_set(x_8, 1, x_7);
 return x_8;
-}
-}
-LEAN_EXPORT lean_object* l_instMonadOption___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_instMonadOption___lam__2(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_instMonadOption___lam__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_instMonadOption___lam__3(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_instAlternativeOption___lam__0(lean_object* x_1) {
@@ -2204,6 +2255,15 @@ lean_ctor_set(x_6, 4, x_1);
 return x_6;
 }
 }
+LEAN_EXPORT lean_object* l_instAlternativeOption___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_instAlternativeOption___lam__1(x_1, x_2, x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
 static lean_object* _init_l_instAlternativeOption() {
 _start:
 {
@@ -2215,15 +2275,6 @@ x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_1);
 lean_ctor_set(x_4, 2, x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_instAlternativeOption___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_instAlternativeOption___lam__1(x_1, x_2, x_3);
-lean_dec(x_2);
 return x_4;
 }
 }

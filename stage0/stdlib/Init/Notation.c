@@ -980,7 +980,6 @@ LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__prec_x28___x29
 LEAN_EXPORT lean_object* l_precMax;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__HOr__hOr__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_guardMsgsWhitespaceArg___closed__14;
-LEAN_EXPORT lean_object* l_Lean_Parser_Category_ctorIdx(lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__term___u2022____1___closed__5;
 static lean_object* l_stx___x3c_x7c_x3e___00__closed__3;
 static lean_object* l_term_x7b___x3a___x2f_x2f___x7d___closed__16;
@@ -1807,14 +1806,6 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x5c_x2f____1
 LEAN_EXPORT lean_object* l_precMin1;
 static lean_object* l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__17;
 LEAN_EXPORT lean_object* l_Lean_Parser_Category_doElem;
-LEAN_EXPORT lean_object* l_Lean_Parser_Category_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Parser_Category_toCtorIdx(lean_object* x_1) {
 _start:
 {
@@ -2277,20 +2268,20 @@ lean_inc(x_1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instCoeOutTSyntaxSyntax(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_instCoeOutTSyntaxSyntax___lam__0___boxed), 1, 0);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_instCoeOutTSyntaxSyntax___lam__0___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_instCoeOutTSyntaxSyntax___lam__0(x_1);
 lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_instCoeOutTSyntaxSyntax(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_instCoeOutTSyntaxSyntax___lam__0___boxed), 1, 0);
 return x_2;
 }
 }

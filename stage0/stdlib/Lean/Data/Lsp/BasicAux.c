@@ -64,12 +64,10 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_instToStringPosition___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instLTRange;
 static lean_object* l_Lean_Lsp_instFromJsonRange_fromJson___closed__5;
 lean_object* lean_nat_to_int(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Lsp_Range_ctorIdx___boxed(lean_object*);
 lean_object* l_Lean_Json_getObjValD(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonRange_fromJson___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instHashablePosition;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instOrdRange;
-LEAN_EXPORT lean_object* l_Lean_Lsp_Range_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instReprRange_repr(lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToStringPosition;
@@ -82,9 +80,7 @@ static lean_object* l_Lean_Lsp_instBEqRange___closed__0;
 static lean_object* l_Lean_Lsp_instToJsonRange___closed__0;
 static lean_object* l_Lean_Lsp_instReprRange___closed__0;
 static lean_object* l_Lean_Lsp_instFromJsonPosition_fromJson___closed__15;
-LEAN_EXPORT lean_object* l_Lean_Lsp_Position_ctorIdx(lean_object*);
 static lean_object* l_Lean_Lsp_instReprPosition_repr___redArg___closed__14;
-LEAN_EXPORT lean_object* l_Lean_Lsp_Position_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonPosition_fromJson___closed__12;
 static lean_object* l_Lean_Lsp_instReprPosition_repr___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instLEPosition;
@@ -157,23 +153,6 @@ static lean_object* l_Lean_Lsp_instHashableRange___closed__0;
 static lean_object* l_Lean_Lsp_instReprPosition_repr___redArg___closed__1;
 LEAN_EXPORT uint64_t l_Lean_Lsp_instHashableRange_hash(lean_object*);
 LEAN_EXPORT uint64_t l_Lean_Lsp_instHashablePosition_hash(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Lsp_Position_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Lsp_Position_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Lsp_Position_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Lsp_instInhabitedPosition_default___closed__0() {
 _start:
 {
@@ -1259,23 +1238,6 @@ _start:
 lean_object* x_1; 
 x_1 = lean_box(0);
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Lsp_Range_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Lsp_Range_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Lsp_Range_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_Lsp_instInhabitedRange_default___closed__0() {

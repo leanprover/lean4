@@ -25,7 +25,6 @@ static lean_object* l_Lake_instInhabitedTargetConfig_default___lam__0___closed__
 LEAN_EXPORT lean_object* l_Lake_mkTargetJobConfig(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Config_TargetConfig_0__Lake_OpaqueTargetConfig_unsafeMk___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig_default___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_TargetConfig_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_NConfigDecl_targetConfig_x3f(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_findTargetConfig_x3f___boxed(lean_object*, lean_object*);
@@ -53,7 +52,6 @@ extern lean_object* l_Lake_instInhabitedJobState_default;
 LEAN_EXPORT lean_object* l_Lake_NConfigDecl_targetConfig_x3f___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_get_x3f___at___00Lake_Package_findTargetConfig_x3f_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_get_x3f___at___00Lake_Package_findTargetConfig_x3f_spec__0___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_TargetConfig_ctorIdx(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedTargetConfig_default___lam__0___closed__4;
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedOfTargetConfig___redArg(lean_object*);
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
@@ -66,25 +64,6 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_get_x3f___at___00Lake_Pack
 lean_object* l_Lake_formatQuery___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_Log_instInhabitedPos_default;
 LEAN_EXPORT lean_object* l___private_Lake_Config_TargetConfig_0__Lake_OpaqueTargetConfig_unsafeGet___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_TargetConfig_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_TargetConfig_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lake_TargetConfig_ctorIdx(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_4;
-}
-}
 static lean_object* _init_l_Lake_instInhabitedTargetConfig_default___lam__0___closed__0() {
 _start:
 {
@@ -165,18 +144,6 @@ x_3 = l_Lake_instInhabitedTargetConfig_default___lam__0___closed__4;
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig_default(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_alloc_closure((void*)(l_Lake_instInhabitedTargetConfig_default___lam__0___boxed), 8, 0);
-x_4 = lean_alloc_closure((void*)(l_Lake_instInhabitedTargetConfig_default___lam__1___boxed), 2, 0);
-x_5 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_5, 0, x_3);
-lean_ctor_set(x_5, 1, x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig_default___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -199,6 +166,18 @@ x_3 = lean_unbox(x_1);
 x_4 = l_Lake_instInhabitedTargetConfig_default___lam__1(x_3, x_2);
 lean_dec(x_2);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig_default(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_alloc_closure((void*)(l_Lake_instInhabitedTargetConfig_default___lam__0___boxed), 8, 0);
+x_4 = lean_alloc_closure((void*)(l_Lake_instInhabitedTargetConfig_default___lam__1___boxed), 2, 0);
+x_5 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_5, 0, x_3);
+lean_ctor_set(x_5, 1, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig_default___boxed(lean_object* x_1, lean_object* x_2) {

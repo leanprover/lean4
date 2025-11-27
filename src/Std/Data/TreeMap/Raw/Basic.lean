@@ -421,10 +421,10 @@ def forM (f : α → β → m PUnit) (t : Raw α β cmp) : m PUnit :=
 def forIn (f : α → β → δ → m (ForInStep δ)) (init : δ) (t : Raw α β cmp) : m δ :=
   t.inner.forIn (fun a b c => f a b c) init
 
-instance : ForM m (Raw α β cmp) (α × β) where
+instance [Monad m] : ForM m (Raw α β cmp) (α × β) where
   forM t f := t.forM (fun a b => f ⟨a, b⟩)
 
-instance : ForIn m (Raw α β cmp) (α × β) where
+instance [Monad m] : ForIn m (Raw α β cmp) (α × β) where
   forIn t init f := t.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
 @[inline, inherit_doc DTreeMap.Raw.any]
@@ -496,6 +496,12 @@ def union (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
   ⟨DTreeMap.Raw.union t₁.inner t₂.inner⟩
 
 instance : Union (Raw α β cmp) := ⟨union⟩
+
+@[inline, inherit_doc DTreeMap.Raw.inter]
+def inter (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
+  ⟨DTreeMap.Raw.inter t₁.inner t₂.inner⟩
+
+instance : Inter (Raw α β cmp) := ⟨inter⟩
 
 @[inline, inherit_doc DTreeMap.Raw.Const.insertManyIfNewUnit]
 def insertManyIfNewUnit {ρ} [ForIn Id ρ α] (t : Raw α Unit cmp) (l : ρ) : Raw α Unit cmp :=

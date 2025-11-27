@@ -84,9 +84,12 @@ choice node further down the tree.
 partial def addChoice (env : Environment) (vs : List Value) (v : Value) : List Value :=
   match vs, v with
   | [], v => [v]
+  | .top :: _, _ => [.top]  -- Propagate top
   | v1@(ctor i1 _ ) :: cs, ctor i2 _ =>
     if i1 == i2 then
-      (merge env v1 v) :: cs
+      match merge env v1 v with
+      | .top => .top :: cs  -- merge can return top due to cleanup; preserve for later handling
+      | merged => merged :: cs
     else
       v1 :: addChoice env cs v
   | _, _ => panic! "invalid addChoice"
@@ -118,6 +121,9 @@ partial def merge (env : Environment) (v1 v2 : Value) : Value :=
       newValue
 where
   cleanup (vs : List Value) : Value := Id.run do
+    -- If any element is top, the whole choice is top
+    if vs.any (· == .top) then
+      return .top
     if vs.all eligible then
       let .ctor ctorName .. := vs.head! | unreachable!
       if inductHasNumCtors ctorName env vs.length then

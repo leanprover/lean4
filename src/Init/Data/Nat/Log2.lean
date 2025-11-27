@@ -33,7 +33,7 @@ Examples:
  * `Nat.log2 7 = 2`
  * `Nat.log2 8 = 3`
 -/
-@[extern "lean_nat_log2"]
+@[expose, extern "lean_nat_log2"]
 def log2 (n : @& Nat) : Nat :=
   if n ≥ 2 then log2 (n / 2) + 1 else 0
 decreasing_by exact log2_terminates _ ‹_›

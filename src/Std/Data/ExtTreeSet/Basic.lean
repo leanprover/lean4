@@ -529,6 +529,15 @@ def inter [TransCmp cmp] (t₁ t₂ : ExtTreeSet α cmp) : ExtTreeSet α cmp := 
 
 instance [TransCmp cmp] : Inter (ExtTreeSet α cmp) := ⟨inter⟩
 
+/--
+Computes the difference of the given tree sets.
+
+This function always iterates through the smaller set.
+-/
+@[inline]
+def diff [TransCmp cmp] (t₁ t₂ : ExtTreeSet α cmp) : ExtTreeSet α cmp := ⟨ExtTreeMap.diff t₁.inner t₂.inner⟩
+
+instance [TransCmp cmp] : SDiff (ExtTreeSet α cmp) := ⟨diff⟩
 
 /--
 Erases multiple items from the tree set by iterating over the given collection and calling erase.

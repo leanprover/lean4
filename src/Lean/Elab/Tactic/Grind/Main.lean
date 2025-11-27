@@ -100,8 +100,7 @@ where
       else if kind == ``defEq then
         elabDefEq xs cnstr[0] cnstr[2]
       else if kind == ``genLt then
-        let (_, lhs) ← findLHS xs cnstr[1]
-        return .genLt lhs cnstr[3].toNat
+        return .genLt cnstr[2].toNat
       else if kind == ``sizeLt then
         let (_, lhs) ← findLHS xs cnstr[1]
         return .sizeLt lhs cnstr[3].toNat
@@ -109,7 +108,7 @@ where
         let (_, lhs) ← findLHS xs cnstr[1]
         return .depthLt lhs cnstr[3].toNat
       else if kind == ``maxInsts then
-        return .maxInsts cnstr[1].toNat
+        return .maxInsts cnstr[2].toNat
       else if kind == ``isValue then
         let (_, lhs) ← findLHS xs cnstr[1]
         return .isValue lhs false

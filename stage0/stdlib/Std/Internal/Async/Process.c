@@ -24,7 +24,6 @@ static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___
 lean_object* lean_uv_os_getpriority(uint64_t);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_setPriority(uint64_t, uint64_t);
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__41;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_PId_ctorIdx___boxed(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__7;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_getParentId();
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__5;
@@ -39,7 +38,6 @@ static lean_object* l_Std_Internal_IO_Process_instOrdPId___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_constrainedMemory___boxed(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__37;
 extern lean_object* l_Std_Time_Millisecond_instInhabitedOffset;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_ResourceUsageStats_ctorIdx(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__11;
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Internal_IO_Process_instReprResourceUsageStats_repr_spec__0(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__54;
@@ -55,7 +53,6 @@ static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___
 lean_object* lean_string_length(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__21;
 lean_object* lean_uv_get_process_title();
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_ResourceUsageStats_ctorIdx___boxed(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__30;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_totalMemory___boxed(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__31;
@@ -106,7 +103,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_getCwd();
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__38;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_getExecutablePath___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_getProcessTitle___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_PId_ctorIdx(uint64_t);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_getParentId___boxed(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__42;
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__17;
@@ -157,23 +153,6 @@ static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__29;
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__50;
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__13;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_ResourceUsageStats_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_ResourceUsageStats_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Internal_IO_Process_ResourceUsageStats_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Internal_IO_Process_instReprResourceUsageStats_repr_spec__0(lean_object* x_1) {
 _start:
 {
@@ -1229,24 +1208,6 @@ x_1 = l_Std_Internal_IO_Process_instInhabitedResourceUsageStats_default;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_PId_ctorIdx(uint64_t x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_PId_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-uint64_t x_2; lean_object* x_3; 
-x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
-x_3 = l_Std_Internal_IO_Process_PId_ctorIdx(x_2);
-return x_3;
-}
-}
 static uint64_t _init_l_Std_Internal_IO_Process_instInhabitedPId_default() {
 _start:
 {
@@ -1398,14 +1359,6 @@ x_8 = l_Repr_addAppParen(x_7, x_2);
 return x_8;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Process_instReprPId() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_Internal_IO_Process_instReprPId___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_instReprPId___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1415,6 +1368,14 @@ lean_dec(x_1);
 x_4 = l_Std_Internal_IO_Process_instReprPId___lam__0(x_3, x_2);
 lean_dec(x_2);
 return x_4;
+}
+}
+static lean_object* _init_l_Std_Internal_IO_Process_instReprPId() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_Internal_IO_Process_instReprPId___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_getProcessTitle() {
@@ -1723,6 +1684,15 @@ x_1 = lean_alloc_closure((void*)(l_Std_Internal_UV_System_getrusage___boxed), 1,
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_getResourceUsage___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Internal_IO_Process_getResourceUsage___lam__0(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_getResourceUsage() {
 _start:
 {
@@ -1738,15 +1708,6 @@ x_6 = l_Std_Internal_IO_Process_getResourceUsage___closed__1;
 x_7 = l_Functor_mapRev___redArg(x_4, x_6, x_5);
 x_8 = lean_apply_1(x_7, lean_box(0));
 return x_8;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_getResourceUsage___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Internal_IO_Process_getResourceUsage___lam__0(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_getResourceUsage___boxed(lean_object* x_1) {

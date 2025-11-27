@@ -574,6 +574,146 @@ theorem isEmpty_union [TransCmp cmp] :
 
 end Union
 
+section Inter
+
+variable {t₁ t₂ : ExtTreeSet α cmp}
+
+@[simp]
+theorem inter_eq [TransCmp cmp] : t₁.inter t₂ = t₁ ∩ t₂ := by
+  simp only [Inter.inter]
+
+/- contains -/
+@[simp]
+theorem contains_inter [TransCmp cmp] {k : α} :
+    (t₁ ∩ t₂).contains k = (t₁.contains k && t₂.contains k) :=
+  ExtTreeMap.contains_inter
+
+/- mem -/
+@[simp]
+theorem mem_inter_iff [TransCmp cmp] {k : α} :
+    k ∈ t₁ ∩ t₂ ↔ k ∈ t₁ ∧ k ∈ t₂ :=
+  ExtTreeMap.mem_inter_iff
+
+theorem not_mem_inter_of_not_mem_left [TransCmp cmp] {k : α}
+    (not_mem : k ∉ t₁) :
+    k ∉ t₁ ∩ t₂ :=
+  ExtTreeMap.not_mem_inter_of_not_mem_left not_mem
+
+theorem not_mem_inter_of_not_mem_right [TransCmp cmp] {k : α}
+    (not_mem : k ∉ t₂) :
+    k ∉ t₁ ∩ t₂ :=
+  ExtTreeMap.not_mem_inter_of_not_mem_right not_mem
+
+/- get? -/
+theorem get?_inter [TransCmp cmp] {k : α} :
+    (t₁ ∩ t₂).get? k =
+    if k ∈ t₂ then t₁.get? k else none :=
+  ExtTreeMap.getKey?_inter
+
+theorem get?_inter_of_mem_right [TransCmp cmp]
+    {k : α} (mem : k ∈ t₂) :
+    (t₁ ∩ t₂).get? k = t₁.get? k :=
+  ExtTreeMap.getKey?_inter_of_mem_right mem
+
+theorem get?_inter_of_not_mem_left [TransCmp cmp]
+    {k : α} (not_mem : k ∉ t₁) :
+    (t₁ ∩ t₂).get? k = none :=
+  ExtTreeMap.getKey?_inter_of_not_mem_left not_mem
+
+theorem get?_inter_of_not_mem_right [TransCmp cmp]
+    {k : α} (not_mem : k ∉ t₂) :
+    (t₁ ∩ t₂).get? k = none :=
+  ExtTreeMap.getKey?_inter_of_not_mem_right not_mem
+
+/- get -/
+@[simp]
+theorem get_inter [TransCmp cmp]
+    {k : α} {h_mem : k ∈ t₁ ∩ t₂} :
+    (t₁ ∩ t₂).get k h_mem =
+    t₁.get k (mem_inter_iff.1 h_mem).1 :=
+  ExtTreeMap.getKey_inter
+
+/- getD -/
+theorem getD_inter [TransCmp cmp] {k fallback : α} :
+    (t₁ ∩ t₂).getD k fallback =
+    if k ∈ t₂ then t₁.getD k fallback else fallback :=
+  ExtTreeMap.getKeyD_inter
+
+theorem getD_inter_of_mem_right [TransCmp cmp]
+    {k fallback : α} (mem : k ∈ t₂) :
+    (t₁ ∩ t₂).getD k fallback = t₁.getD k fallback :=
+  ExtTreeMap.getKeyD_inter_of_mem_right mem
+
+theorem getD_inter_of_not_mem_right [TransCmp cmp]
+    {k fallback : α} (not_mem : k ∉ t₂) :
+    (t₁ ∩ t₂).getD k fallback = fallback :=
+  ExtTreeMap.getKeyD_inter_of_not_mem_right not_mem
+
+theorem getD_inter_of_not_mem_left [TransCmp cmp]
+    {k fallback : α} (not_mem : k ∉ t₁) :
+    (t₁ ∩ t₂).getD k fallback = fallback :=
+  ExtTreeMap.getKeyD_inter_of_not_mem_left not_mem
+
+/- get! -/
+theorem get!_inter [TransCmp cmp] [Inhabited α] {k : α} :
+    (t₁ ∩ t₂).get! k =
+    if k ∈ t₂ then t₁.get! k else default :=
+  ExtTreeMap.getKey!_inter
+
+theorem get!_inter_of_mem_right [TransCmp cmp] [Inhabited α]
+    {k : α} (mem : k ∈ t₂) :
+    (t₁ ∩ t₂).get! k = t₁.get! k :=
+  ExtTreeMap.getKey!_inter_of_mem_right mem
+
+theorem get!_inter_of_not_mem_right [TransCmp cmp] [Inhabited α]
+    {k : α} (not_mem : k ∉ t₂) :
+    (t₁ ∩ t₂).get! k = default :=
+  ExtTreeMap.getKey!_inter_of_not_mem_right not_mem
+
+theorem get!_inter_of_not_mem_left [TransCmp cmp] [Inhabited α]
+    {k : α} (not_mem : k ∉ t₁) :
+    (t₁ ∩ t₂).get! k = default :=
+  ExtTreeMap.getKey!_inter_of_not_mem_left not_mem
+
+/- size -/
+theorem size_inter_le_size_left [TransCmp cmp] :
+    (t₁ ∩ t₂).size ≤ t₁.size :=
+  ExtTreeMap.size_inter_le_size_left
+
+theorem size_inter_le_size_right [TransCmp cmp] :
+    (t₁ ∩ t₂).size ≤ t₂.size :=
+  ExtTreeMap.size_inter_le_size_right
+
+theorem size_inter_eq_size_left [TransCmp cmp]
+    (h : ∀ (a : α), a ∈ t₁ → a ∈ t₂) :
+    (t₁ ∩ t₂).size = t₁.size :=
+  ExtTreeMap.size_inter_eq_size_left h
+
+theorem size_inter_eq_size_right [TransCmp cmp]
+    (h : ∀ (a : α), a ∈ t₂ → a ∈ t₁) :
+    (t₁ ∩ t₂).size = t₂.size :=
+  ExtTreeMap.size_inter_eq_size_right h
+
+theorem size_add_size_eq_size_union_add_size_inter [TransCmp cmp] :
+    t₁.size + t₂.size = (t₁ ∪ t₂).size + (t₁ ∩ t₂).size :=
+  ExtTreeMap.size_add_size_eq_size_union_add_size_inter
+
+/- isEmpty -/
+@[simp]
+theorem isEmpty_inter_left [TransCmp cmp] (h : t₁.isEmpty) :
+    (t₁ ∩ t₂).isEmpty = true :=
+  ExtTreeMap.isEmpty_inter_left h
+
+@[simp]
+theorem isEmpty_inter_right [TransCmp cmp] (h : t₂.isEmpty) :
+    (t₁ ∩ t₂).isEmpty = true :=
+  ExtTreeMap.isEmpty_inter_right h
+
+theorem isEmpty_inter_iff [TransCmp cmp] :
+    (t₁ ∩ t₂).isEmpty ↔ ∀ k, k ∈ t₁ → k ∉ t₂ :=
+  ExtTreeMap.isEmpty_inter_iff
+
+end Inter
 
 section monadic
 

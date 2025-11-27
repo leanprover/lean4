@@ -205,3 +205,5 @@ export Classical (imp_iff_right_iff imp_and_neg_imp_iff and_or_imp not_imp)
 
 /-- Show that an element extracted from `P : ∃ a, p a` using `P.choose` satisfies `p`. -/
 theorem Exists.choose_spec {p : α → Prop} (P : ∃ a, p a) : p P.choose := Classical.choose_spec P
+
+grind_pattern Exists.choose_spec => P.choose

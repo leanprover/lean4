@@ -930,14 +930,6 @@ lean_inc(x_1);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_DSL_instCoePackageCommandCommand() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_DSL_instCoePackageCommandCommand___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_DSL_instCoePackageCommandCommand___lam__0___boxed(lean_object* x_1) {
 _start:
 {
@@ -945,6 +937,14 @@ lean_object* x_2;
 x_2 = l_Lake_DSL_instCoePackageCommandCommand___lam__0(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+static lean_object* _init_l_Lake_DSL_instCoePackageCommandCommand() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lake_DSL_instCoePackageCommandCommand___lam__0___boxed), 1, 0);
+return x_1;
 }
 }
 static lean_object* _init_l_Lake_DSL_postUpdateDecl___closed__0() {

@@ -500,27 +500,28 @@ def processNewDiseq (a b : Expr) : GoalM Unit := do
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where
-  | add | mul | num | div | mod | sub | pow | natAbs | toNat | natCast | neg | toInt | finVal
+  | add | mul | num | div | mod | sub | pow | natAbs | toNat | natCast | neg | toInt | finVal | finMk
   deriving BEq, Repr
 
-private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
+private def getKindAndType? (e : Expr) : GrindM (Option (SupportedTermKind × Expr)) :=
   match_expr e with
-  | HAdd.hAdd α _ _ _ _ _ => some (.add, α)
-  | HSub.hSub α _ _ _ _ _ => some (.sub, α)
-  | HMul.hMul α _ _ _ _ _ => some (.mul, α)
-  | HDiv.hDiv α _ _ _ _ _ => some (.div, α)
-  | HMod.hMod α _ _ _ _ _ => some (.mod, α)
-  | HPow.hPow α _ _ _ _ _ => some (.pow, α)
-  | OfNat.ofNat α _ _     => some (.num, α)
+  | HAdd.hAdd α _ _ _ _ _ => return some (.add, α)
+  | HSub.hSub α _ _ _ _ _ => return some (.sub, α)
+  | HMul.hMul α _ _ _ _ _ => return some (.mul, α)
+  | HDiv.hDiv α _ _ _ _ _ => return some (.div, α)
+  | HMod.hMod α _ _ _ _ _ => return some (.mod, α)
+  | HPow.hPow α _ _ _ _ _ => return some (.pow, α)
+  | OfNat.ofNat α _ _     => return some (.num, α)
   | Neg.neg α _ a =>
-    let_expr OfNat.ofNat _ _ _ := a | some (.neg, α)
-    some (.num, α)
-  | Int.natAbs _ => some (.natAbs, Nat.mkType)
-  | Int.toNat _ => some (.toNat, Nat.mkType)
-  | NatCast.natCast α _ _ => some (.natCast, α)
-  | Fin.val _ _ => some (.finVal, Nat.mkType)
-  | Grind.ToInt.toInt _ _ _ _ => some (.toInt, Int.mkType)
-  | _ => none
+    let_expr OfNat.ofNat _ _ _ := a | return some (.neg, α)
+    return some (.num, α)
+  | Int.natAbs _ => return some (.natAbs, Nat.mkType)
+  | Int.toNat _ => return some (.toNat, Nat.mkType)
+  | NatCast.natCast α _ _ => return some (.natCast, α)
+  | Fin.val _ _ => return some (.finVal, Nat.mkType)
+  | Grind.ToInt.toInt _ _ _ _ => return some (.toInt, Int.mkType)
+  | Fin.mk n _ _ => return some (.finMk, ← shareCommon (mkApp (mkConst ``Fin) n))
+  | _ => return none
 
 private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : Bool := Id.run do
   let some parent := parent? | return false
@@ -528,7 +529,7 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
   -- TODO: document `NatCast.natCast` case.
   -- Remark: we added it to prevent natCast_sub from being expanded twice.
   if declName == ``NatCast.natCast then return true
-  if k matches .div | .mod | .sub | .pow | .neg | .natAbs | .toNat | .natCast | .toInt | .finVal then return false
+  if k matches .div | .mod | .sub | .pow | .neg | .natAbs | .toNat | .natCast | .toInt | .finVal | .finMk then return false
   if declName == ``HAdd.hAdd || declName == ``LE.le || declName == ``Dvd.dvd then return true
   match k with
   | .add => return false
@@ -626,11 +627,11 @@ private def propagateToNat (e : Expr) : GoalM Unit := do
   let_expr Int.toNat a := e | return ()
   pushNewFact <| mkApp (mkConst ``Nat.ToInt.ofNat_toNat) a
 
-private def isToIntForbiddenParent (parent? : Option Expr) : Bool :=
+private def isToIntForbiddenParent (parent? : Option Expr) : GrindM Bool := do
   if let some parent := parent? then
-    getKindAndType? parent |>.isSome
+    return (← getKindAndType? parent).isSome
   else
-    false
+    return false
 
 private def internalizeIntTerm (e type : Expr) (parent? : Option Expr) (k : SupportedTermKind) : GoalM Unit := do
   if isForbiddenParent parent? k then return ()
@@ -707,13 +708,13 @@ Internalizes an integer (and `Nat`) expression. Here are the different cases tha
 -/
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).lia do return ()
-  if let some (k, type) := getKindAndType? e then
+  if let some (k, type) ← getKindAndType? e then
     if type.isConstOf ``Int then
       internalizeIntTerm e type parent? k
     else if type.isConstOf ``Nat then
       internalizeNatTerm e type parent? k
     else
-      if isToIntForbiddenParent parent? then return ()
+      if (← isToIntForbiddenParent parent?) then return ()
       internalizeToIntTerm e type
   else
     /-

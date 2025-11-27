@@ -46,9 +46,10 @@ private meta def baseNames : Array Name :=
     ``get?_eq, ``get_eq, ``get!_eq, ``getD_eq,
     ``Const.get?_eq, ``Const.get_eq, ``Const.getD_eq, ``Const.get!_eq,
     ``getKey?_eq, ``getKey_eq, ``getKey!_eq, ``getKeyD_eq,
-    ``insertMany_eq, ``Const.insertMany_eq, ``Const.insertManyIfNewUnit_eq,
-    ``ofList_eq, ``Const.ofList_eq, ``Const.unitOfList_eq,
+    ``insertMany_eq, ``Const.insertMany_eq, ``Const.insertManyIfNewUnit_eq, ``ofArray_eq, ``Const.ofArray_eq,
+    ``ofList_eq, ``Const.ofList_eq, ``Const.unitOfList_eq, ``Const.unitOfArray_eq,
     ``alter_eq, ``Const.alter_eq, ``modify_eq, ``Const.modify_eq, ``union_eq, ``inter_eq, ``diff_eq]
+
 
 /-- Internal implementation detail of the hash map -/
 scoped syntax "simp_to_raw" ("using" term)? : tactic
@@ -2041,25 +2042,35 @@ theorem mem_of_mem_union_of_not_mem_left [EquivBEq α]
   simp_to_raw using Raw₀.contains_of_contains_union_of_contains_eq_false_left
 
 /- Equiv -/
-theorem union_equiv_congr_left {m₃ : Raw α β} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF)
+theorem Equiv.union_left {m₃ : Raw α β} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF)
     (equiv : m₁ ~m m₂) :
     (m₁ ∪ m₃) ~m (m₂ ∪ m₃) := by
   revert equiv
   simp only [Union.union]
   simp_to_raw
   intro hyp
-  apply Raw₀.union_equiv_congr_left
+  apply Raw₀.Equiv.union_left
   all_goals wf_trivial
 
-theorem union_equiv_congr_right {m₃ : Raw α β} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF)
+theorem Equiv.union_right {m₃ : Raw α β} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF)
     (equiv : m₂ ~m m₃) :
     (m₁ ∪ m₂) ~m (m₁ ∪ m₃) := by
   revert equiv
   simp only [Union.union]
   simp_to_raw
   intro hyp
-  apply Raw₀.union_equiv_congr_right
+  apply Raw₀.Equiv.union_right
   all_goals wf_trivial
+
+theorem Equiv.union_congr {m₃ m₄ : Raw α β} [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF)
+    (equiv₁ : m₁ ~m m₃)
+    (equiv₂ : m₂ ~m m₄) :
+    (m₁ ∪ m₂) ~m (m₃ ∪ m₄) := by
+  simp only [Union.union]
+  revert equiv₁ equiv₂
+  simp_to_raw
+  intro equiv₁ equiv₂
+  apply Raw₀.Equiv.union_congr h₁ h₂ h₃ h₄ equiv₁ equiv₂
 
 theorem union_insert_right_equiv_insert_union [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
     (h₁ : m₁.WF) (h₂ : m₂.WF) :
@@ -3718,6 +3729,12 @@ variable [BEq α] [Hashable α]
 open Internal.Raw Internal.Raw₀
 
 @[simp, grind =]
+theorem ofArray_eq_ofList (a : Array ((a : α) × (β a))) :
+    ofArray a = ofList a.toList := by
+  simp_to_raw
+  rw [Raw₀.insertMany_array_eq_insertMany_toList]
+
+@[simp, grind =]
 theorem ofList_nil :
     ofList ([] : List ((a : α) × (β a))) = ∅ := by
   simp_to_raw
@@ -3870,6 +3887,12 @@ namespace Const
 variable {β : Type v}
 
 @[simp, grind =]
+theorem ofArray_eq_ofList (a : Array (α × β)) :
+    ofArray a = ofList a.toList := by
+  simp_to_raw
+  rw [Const.insertMany_array_eq_insertMany_toList]
+
+@[simp, grind =]
 theorem ofList_nil :
     ofList ([] : List (α × β)) = ∅ := by
   simp_to_raw
@@ -4016,6 +4039,12 @@ theorem isEmpty_ofList [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} :
     (ofList l).isEmpty = l.isEmpty := by
   simp_to_raw using Raw₀.Const.isEmpty_insertMany_emptyWithCapacity_list
+
+@[simp, grind =]
+theorem unitOfArray_eq_unitOfList (a : Array α) :
+    unitOfArray a = unitOfList a.toList := by
+  simp_to_raw
+  rw [Raw₀.Const.insertManyIfNewUnit_array_eq_insertManyIfNewUnit_toList]
 
 @[simp]
 theorem unitOfList_nil :

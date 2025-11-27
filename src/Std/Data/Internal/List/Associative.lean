@@ -3209,6 +3209,13 @@ theorem insertList_perm_of_perm_second [BEq α] [EquivBEq α] {l1 l2 l : List ((
   rw [@getEntry?_insertList α β _ _ l l2 distinct_l (DistinctKeys_impl_Pairwise_distinct distinct') k]
   rw [@getEntry?_of_perm α β _ _ l1 l2 k distinct h]
 
+theorem insertList_congr [BEq α] [EquivBEq α] {l1 l2 l3 l4 : List ((a : α) × β a)}
+    (h₁  : Perm l1 l3) (h₂ : Perm l2 l4) (hd₁ : DistinctKeys l1) (hd₂ : DistinctKeys l2) (hd₃ : DistinctKeys l3) :
+    Perm (insertList l1 l2) (insertList l3 l4) := by
+      apply Perm.trans
+      · apply List.insertList_perm_of_perm_first h₁ hd₁
+      · apply List.insertList_perm_of_perm_second h₂ hd₃ hd₂
+
 theorem getEntry?_insertList_of_contains_left_eq_false [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)} {k : α}
     (distinct_l : DistinctKeys l)

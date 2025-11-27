@@ -336,7 +336,6 @@ def dsimprocArrayCore (post : Bool) (ss : SimprocsArray) (e : Expr) : SimpM DSte
 
 register_builtin_option simprocs : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr    := "Enable/disable `simproc`s (simplification procedures)."
 }
 

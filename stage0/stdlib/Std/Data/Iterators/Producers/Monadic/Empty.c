@@ -21,7 +21,6 @@ LEAN_EXPORT lean_object* l_Std_Iterators_Empty_instIteratorLoopPartial___redArg(
 LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Producers_Monadic_Empty_0__Std_Iterators_Empty_instFinitenessRelation___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Empty_instIteratorCollect(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_empty(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_Empty_ctorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Empty_instIteratorCollect___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Empty_instIteratorCollectPartial(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Empty_instIteratorLoop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -37,14 +36,6 @@ lean_object* l_Std_Iterators_IterM_DefaultConsumers_forInPartial___redArg(lean_o
 static lean_object* l_Std_Iterators_Empty_instIteratorCollect___redArg___lam__0___closed__0;
 lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Empty_instIteratorCollect___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_Empty_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_empty(lean_object* x_1, lean_object* x_2) {
 _start:
 {

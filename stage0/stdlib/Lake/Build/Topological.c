@@ -102,6 +102,16 @@ lean_ctor_set(x_2, 1, x_1);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_Lake_recFetchAcyclic___redArg___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; uint8_t x_6; lean_object* x_7; 
+x_5 = lean_unbox(x_3);
+x_6 = l_Lake_recFetchAcyclic___redArg___lam__2(x_1, x_2, x_5, x_4);
+x_7 = lean_box(x_6);
+return x_7;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_recFetchAcyclic___redArg___lam__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -232,16 +242,6 @@ _start:
 lean_object* x_11; 
 x_11 = l_Lake_recFetchAcyclic___redArg(x_5, x_6, x_7, x_8, x_9, x_10);
 return x_11;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_recFetchAcyclic___redArg___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; uint8_t x_6; lean_object* x_7; 
-x_5 = lean_unbox(x_3);
-x_6 = l_Lake_recFetchAcyclic___redArg___lam__2(x_1, x_2, x_5, x_4);
-x_7 = lean_box(x_6);
-return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_recFetchMemoize___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

@@ -48,14 +48,6 @@ return x_7;
 }
 }
 }
-static lean_object* _init_l_String_instOrd() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_instOrd___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_String_instOrd___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -65,6 +57,14 @@ lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+static lean_object* _init_l_String_instOrd() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_String_instOrd___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 lean_object* initialize_Init_Data_Order_Ord(uint8_t builtin);

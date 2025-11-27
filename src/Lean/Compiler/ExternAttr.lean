@@ -76,7 +76,7 @@ builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
 def getExternAttrData? (env : Environment) (n : Name) : Option ExternAttrData :=
   externAttr.getParam? env n
 
-private def parseOptNum : Nat → (pattern : String) → (it : pattern.ValidPos) → Nat → pattern.ValidPos × Nat
+private def parseOptNum : Nat → (pattern : String) → (it : pattern.Pos) → Nat → pattern.Pos × Nat
   | 0,   _      , it, r => (it, r)
   | n+1, pattern, it, r =>
     if h : it.IsAtEnd then (it, r)
@@ -86,7 +86,7 @@ private def parseOptNum : Nat → (pattern : String) → (it : pattern.ValidPos)
       then parseOptNum n pattern (it.next h) (r*10 + (c.toNat - '0'.toNat))
       else (it, r)
 
-def expandExternPatternAux (args : List String) : Nat → (pattern : String) → (it : pattern.ValidPos) → String → String
+def expandExternPatternAux (args : List String) : Nat → (pattern : String) → (it : pattern.Pos) → String → String
   | 0,   _,       _,  r => r
   | i+1, pattern, it, r =>
     if h : it.IsAtEnd then r
@@ -99,7 +99,7 @@ def expandExternPatternAux (args : List String) : Nat → (pattern : String) →
         expandExternPatternAux args i pattern it (r ++ args.getD j "")
 
 def expandExternPattern (pattern : String) (args : List String) : String :=
-  expandExternPatternAux args pattern.length pattern pattern.startValidPos ""
+  expandExternPatternAux args pattern.length pattern pattern.startPos ""
 
 def mkSimpleFnCall (fn : String) (args : List String) : String :=
   fn ++ "(" ++ ((args.intersperse ", ").foldl (·++·) "") ++ ")"

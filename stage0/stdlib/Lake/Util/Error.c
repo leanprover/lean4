@@ -26,7 +26,6 @@ LEAN_EXPORT lean_object* l_Lake_instMonadErrorExceptString;
 LEAN_EXPORT lean_object* l_Lake_instMonadErrorExceptString___lam__0(lean_object*, lean_object*);
 lean_object* lean_mk_io_user_error(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonadError_runIO___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MonadError_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadErrorIO___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadErrorEIOString;
 LEAN_EXPORT lean_object* l_Lake_instMonadErrorOfMonadLift___redArg(lean_object*, lean_object*);
@@ -34,24 +33,6 @@ LEAN_EXPORT lean_object* l_Lake_MonadError_runIO(lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* l_Lake_instMonadErrorEIOString___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonadError_runEIO___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MonadError_ctorIdx___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MonadError_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_MonadError_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_MonadError_ctorIdx(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_instMonadErrorOfMonadLift___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -89,20 +70,20 @@ lean_ctor_set(x_5, 0, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lake_instMonadErrorIO() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_instMonadErrorIO___lam__0___boxed), 3, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_instMonadErrorIO___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_instMonadErrorIO___lam__0(x_1, x_2);
 return x_4;
+}
+}
+static lean_object* _init_l_Lake_instMonadErrorIO() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lake_instMonadErrorIO___lam__0___boxed), 3, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instMonadErrorEIOString___lam__0(lean_object* x_1, lean_object* x_2) {
@@ -114,20 +95,20 @@ lean_ctor_set(x_4, 0, x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_Lake_instMonadErrorEIOString() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_instMonadErrorEIOString___lam__0___boxed), 3, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_instMonadErrorEIOString___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_instMonadErrorEIOString___lam__0(x_1, x_2);
 return x_4;
+}
+}
+static lean_object* _init_l_Lake_instMonadErrorEIOString() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lake_instMonadErrorEIOString___lam__0___boxed), 3, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instMonadErrorExceptString___lam__0(lean_object* x_1, lean_object* x_2) {

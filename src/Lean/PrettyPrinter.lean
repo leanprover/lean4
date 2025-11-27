@@ -33,7 +33,6 @@ def ppUsing (e : Expr) (delab : Expr → MetaM Term) : MetaM Format := do
 
 register_builtin_option pp.exprSizes : Bool := {
   defValue := false
-  group    := "pp"
   descr    := "(pretty printer) prefix each embedded expression with its sizes in the format \
     (size disregarding sharing/size with sharing/size with max sharing)"
 }

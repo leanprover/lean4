@@ -207,10 +207,10 @@ order.
     (init : β) (b : Raw α) : m β :=
   b.inner.forIn (fun a _ acc => f a acc) init
 
-instance {m : Type v → Type w} : ForM m (Raw α) α where
+instance {m : Type v → Type w} [Monad m] : ForM m (Raw α) α where
   forM m f := m.forM f
 
-instance {m : Type v → Type w} : ForIn m (Raw α) α where
+instance {m : Type v → Type w} [Monad m] : ForIn m (Raw α) α where
   forIn m init f := m.forIn f init
 
 /-- Removes all elements from the hash set for which the given function returns `false`. -/

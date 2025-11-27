@@ -1185,6 +1185,15 @@ x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_IR_UnboxResult_initFn___lam__0_00___x40_Lean_Compiler_IR_UnboxResult_1925234477____hygCtx___hyg_2____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_IR_UnboxResult_initFn___lam__0_00___x40_Lean_Compiler_IR_UnboxResult_1925234477____hygCtx___hyg_2_(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_IR_UnboxResult_initFn_00___x40_Lean_Compiler_IR_UnboxResult_1925234477____hygCtx___hyg_2_() {
 _start:
 {
@@ -1341,15 +1350,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_getConstInfo___at___00Lean_IR_UnboxResult_initFn_00___x40_Lean_Compiler_IR_UnboxResult_1925234477____hygCtx___hyg_2__spec__0(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_IR_UnboxResult_initFn___lam__0_00___x40_Lean_Compiler_IR_UnboxResult_1925234477____hygCtx___hyg_2____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_IR_UnboxResult_initFn___lam__0_00___x40_Lean_Compiler_IR_UnboxResult_1925234477____hygCtx___hyg_2_(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_5;
 }

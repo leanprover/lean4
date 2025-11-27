@@ -2317,7 +2317,7 @@ theorem mem_of_mem_union_of_not_mem_left [TransCmp cmp]
   exact Impl.contains_of_contains_union!_of_contains_eq_false_left h₁ h₂
 
 /- Equiv -/
-theorem union_equiv_congr_left {t₃ : Raw α β cmp} [TransCmp cmp]
+theorem Equiv.union_left {t₃ : Raw α β cmp} [TransCmp cmp]
     (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (equiv : t₁.Equiv t₂) :
     (t₁ ∪ t₃).Equiv (t₂ ∪ t₃) := by
   simp only [Union.union]
@@ -2325,13 +2325,21 @@ theorem union_equiv_congr_left {t₃ : Raw α β cmp} [TransCmp cmp]
   have ⟨equiv⟩ := equiv
   apply Impl.union!_equiv_congr_left h₁ h₂ h₃ equiv
 
-theorem union_equiv_congr_right {t₃ : Raw α β cmp} [TransCmp cmp]
+theorem Equiv.union_right {t₃ : Raw α β cmp} [TransCmp cmp]
     (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (equiv : t₂.Equiv t₃) :
     (t₁ ∪ t₂).Equiv (t₁ ∪ t₃) := by
   simp only [Union.union]
   constructor
   have ⟨equiv⟩ := equiv
   apply Impl.union!_equiv_congr_right h₁ h₂ h₃ equiv
+
+theorem Equiv.union_congr {t₃ t₄ : Raw α β cmp} [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (h₄ : t₄.WF)
+    (equiv₁ : t₁.Equiv t₃) (equiv₂ : t₂.Equiv t₄) :
+    (t₁ ∪ t₂).Equiv (t₃ ∪ t₄) := by
+  simp only [Union.union]
+  constructor
+  apply Impl.union!_equiv_congr h₁ h₂ h₃ h₄ equiv₁.1 equiv₂.1
 
 theorem union_insert_right_equiv_insert_union [TransCmp cmp] {p : (a : α) × β a}
     (h₁ : t₁.WF) (h₂ : t₂.WF) :
@@ -2682,6 +2690,25 @@ theorem not_mem_inter_of_not_mem_right [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t
   rw [← contains_eq_false_iff_not_mem] at h ⊢
   simp only [Inter.inter]
   exact Impl.contains_inter!_eq_false_of_contains_eq_false_right h₁ h₂ h
+
+theorem Equiv.inter_left [TransCmp cmp] {t₃ : Raw α β cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (equiv : t₁ ~m t₂) :
+    (t₁ ∩ t₃).Equiv (t₂ ∩ t₃) := by
+  simp only [Inter.inter]
+  exact ⟨@Impl.Equiv.inter!_left _ _ ⟨cmp⟩ t₁.inner t₂.inner t₃.inner _ h₁.out h₂.out h₃.out equiv.1⟩
+
+theorem Equiv.inter_right [TransCmp cmp] {t₃ : Raw α β cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (equiv : t₂ ~m t₃) :
+    (t₁ ∩ t₂).Equiv (t₁ ∩ t₃) := by
+  simp only [Inter.inter]
+  exact ⟨@Impl.Equiv.inter!_right _ _ ⟨cmp⟩ t₁.inner t₂.inner t₃.inner _ h₁.out h₂.out h₃.out equiv.1⟩
+
+theorem Equiv.inter_congr [TransCmp cmp] {t₃ t₄ : Raw α β cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (h₄ : t₄.WF)
+    (equiv₁ : t₁ ~m t₃) (equiv₂ : t₂ ~m t₄) :
+    (t₁ ∩ t₂).Equiv (t₃ ∩ t₄) := by
+  simp only [Inter.inter]
+  exact ⟨@Impl.Equiv.inter!_congr _ _ ⟨cmp⟩ t₁.inner t₂.inner t₃.inner t₄.inner _ h₁.out h₂.out h₃.out h₄.out equiv₁.1 equiv₂.1⟩
 
 /- get? -/
 theorem get?_inter [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)

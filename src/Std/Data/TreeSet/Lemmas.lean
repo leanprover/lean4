@@ -513,13 +513,18 @@ theorem mem_of_mem_union_of_not_mem_left [TransCmp cmp]
     k ∈ t₁ ∪ t₂ → ¬k ∈ t₁ → k ∈ t₂ :=
   TreeMap.mem_of_mem_union_of_not_mem_left
 
-theorem union_equiv_congr_left {t₃ : TreeSet α cmp} [TransCmp cmp] (equiv : t₁.Equiv t₂) :
+theorem Equiv.union_left {t₃ : TreeSet α cmp} [TransCmp cmp] (equiv : t₁.Equiv t₂) :
     (t₁ ∪ t₃).Equiv (t₂ ∪ t₃) :=
-  ⟨TreeMap.union_equiv_congr_left equiv.1⟩
+  ⟨TreeMap.Equiv.union_left equiv.1⟩
 
-theorem union_equiv_congr_right {t₃ : TreeSet α cmp} [TransCmp cmp] (equiv : t₂.Equiv t₃) :
+theorem Equiv.union_right {t₃ : TreeSet α cmp} [TransCmp cmp] (equiv : t₂.Equiv t₃) :
     (t₁ ∪ t₂).Equiv (t₁ ∪ t₃) :=
-  ⟨TreeMap.union_equiv_congr_right equiv.1⟩
+  ⟨TreeMap.Equiv.union_right equiv.1⟩
+
+theorem Equiv.union_congr {t₃ t₄ : TreeSet α cmp} [TransCmp cmp]
+    (equiv₁ : t₁.Equiv t₃) (equiv₂ : t₂.Equiv t₄) :
+    (t₁ ∪ t₂).Equiv (t₃ ∪ t₄) :=
+  ⟨TreeMap.Equiv.union_congr equiv₁.1 equiv₂.1⟩
 
 /- get? -/
 theorem get?_union [TransCmp cmp]
@@ -636,6 +641,25 @@ theorem not_mem_inter_of_not_mem_right [TransCmp cmp] {k : α}
     (not_mem : k ∉ t₂) :
     k ∉ t₁ ∩ t₂ :=
   TreeMap.not_mem_inter_of_not_mem_right not_mem
+
+/- Equiv -/
+theorem Equiv.inter_left {t₃ : TreeSet α cmp} [TransCmp cmp]
+    (equiv : t₁ ~m t₂) :
+    (t₁ ∩ t₃).Equiv (t₂ ∩ t₃) := by
+  constructor
+  apply TreeMap.Equiv.inter_left equiv.1
+
+theorem Equiv.inter_right {t₃ : TreeSet α cmp} [TransCmp cmp]
+    (equiv : t₂ ~m t₃) :
+    (t₁ ∩ t₂).Equiv (t₁ ∩ t₃) := by
+  constructor
+  apply TreeMap.Equiv.inter_right equiv.1
+
+theorem Equiv.inter_congr {t₃ t₄ : TreeSet α cmp} [TransCmp cmp]
+    (equiv₁ : t₁ ~m t₃) (equiv₂ : t₂ ~m t₄) :
+    (t₁ ∩ t₂).Equiv (t₃ ∩ t₄) := by
+  constructor
+  apply TreeMap.Equiv.inter_congr equiv₁.1 equiv₂.1
 
 /- get? -/
 theorem get?_inter [TransCmp cmp] {k : α} :

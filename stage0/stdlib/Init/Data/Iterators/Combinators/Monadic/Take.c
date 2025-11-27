@@ -20,7 +20,6 @@ lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMappedPartial(lean_ob
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toTake___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Take_instIteratorLoop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Take_instIterator___redArg___lam__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_Take_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Take_instIteratorCollectPartial(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_take(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Take_instIterator___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -38,7 +37,6 @@ LEAN_EXPORT lean_object* l_Std_Iterators_Take_instIteratorCollectPartial___redAr
 LEAN_EXPORT lean_object* l_Std_Iterators_Take_instIterator(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toTake(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_Take_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Combinators_Monadic_Take_0__Std_Iterators_Take_instFinitenessRelation(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -49,24 +47,6 @@ lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___redArg(le
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Take_instIteratorCollect___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Take_instIterator___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_Take_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = lean_unsigned_to_nat(0u);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_Take_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Std_Iterators_Take_ctorIdx(x_1, x_2, x_3, x_4, x_5);
-lean_dec_ref(x_5);
-lean_dec(x_4);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_take___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -238,6 +218,15 @@ return x_30;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Std_Iterators_Take_instIterator___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_Iterators_Take_instIterator___redArg___lam__0(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Iterators_Take_instIterator___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -301,15 +290,6 @@ x_6 = lean_alloc_closure((void*)(l_Std_Iterators_Take_instIterator___redArg___la
 lean_closure_set(x_6, 0, x_4);
 lean_closure_set(x_6, 1, x_5);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_Take_instIterator___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_Iterators_Take_instIterator___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Combinators_Monadic_Take_0__Std_Iterators_Take_instFinitenessRelation(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {

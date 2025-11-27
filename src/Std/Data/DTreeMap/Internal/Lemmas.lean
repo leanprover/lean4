@@ -3389,7 +3389,7 @@ theorem union!_insert_right_equiv_insert_union! [TransOrd α] {p : (a : α) × �
   . wf_trivial
   . exact h₂.balanced
 
-theorem union_equiv_congr_left {m₃ : Impl α β} [TransOrd α]
+theorem Equiv.union_left {m₃ : Impl α β} [TransOrd α]
     (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₁.Equiv m₂) :
     (m₁.union m₃ h₁.balanced h₃.balanced).Equiv (m₂.union m₃ h₂.balanced h₃.balanced) := by
   revert equiv
@@ -3402,10 +3402,10 @@ theorem union!_equiv_congr_left {m₃ : Impl α β} [TransOrd α]
     (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₁.Equiv m₂) :
     (m₁.union! m₃).Equiv (m₂.union! m₃) := by
   rw [← union_eq_union!, ← union_eq_union!]
-  apply union_equiv_congr_left
+  apply Equiv.union_left
   all_goals wf_trivial
 
-theorem union_equiv_congr_right {m₃ : Impl α β} [TransOrd α]
+theorem Equiv.union_right {m₃ : Impl α β} [TransOrd α]
     (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₂.Equiv m₃) :
     (m₁.union m₂ h₁.balanced h₂.balanced).Equiv (m₁.union m₃ h₁.balanced h₃.balanced) := by
   revert equiv
@@ -3418,7 +3418,23 @@ theorem union!_equiv_congr_right {m₃ : Impl α β} [TransOrd α]
     (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₂.Equiv m₃) :
     (m₁.union! m₂).Equiv (m₁.union! m₃) := by
   rw [← union_eq_union!, ← union_eq_union!]
-  apply union_equiv_congr_right
+  apply Equiv.union_right
+  all_goals wf_trivial
+
+theorem Equiv.union_congr {m₃ m₄: Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) (equiv₁ : m₁.Equiv m₃)(equiv₂ : m₂.Equiv m₄) :
+    (m₁.union m₂ h₁.balanced h₂.balanced).Equiv (m₃.union m₄ h₃.balanced h₄.balanced) := by
+  revert equiv₁ equiv₂
+  simp_to_model [Equiv, union]
+  intro equiv₁ equiv₂
+  apply List.insertList_congr equiv₁ equiv₂
+  all_goals wf_trivial
+
+theorem union!_equiv_congr {m₃ m₄: Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) (equiv₁ : m₁.Equiv m₃) (equiv₂ : m₂.Equiv m₄) :
+    (m₁.union! m₂).Equiv (m₃.union! m₄) := by
+  rw [← union_eq_union!, ← union_eq_union!]
+  apply Equiv.union_congr
   all_goals wf_trivial
 
 /- get? -/
@@ -4129,6 +4145,57 @@ theorem contains_inter!_eq_false_of_contains_eq_false_right [TransOrd α]
     (m₁.inter! m₂).contains k = false := by
   rw [← inter_eq_inter!]
   apply contains_inter_eq_false_of_contains_eq_false_right h₁ h₂
+  all_goals wf_trivial
+
+/- Equiv -/
+theorem Equiv.inter_left {m₃ : Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₁.Equiv m₂) :
+    (m₁.inter m₃ h₁.balanced).Equiv (m₂.inter m₃ h₂.balanced) := by
+  revert equiv
+  simp_to_model [Equiv, inter]
+  intro equiv
+  apply List.Perm.filter
+  wf_trivial
+
+theorem Equiv.inter!_left {m₃ : Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₁.Equiv m₂) :
+    (m₁.inter! m₃).Equiv (m₂.inter! m₃) := by
+  rw [← inter_eq_inter!, ← inter_eq_inter!]
+  apply Equiv.inter_left
+  all_goals wf_trivial
+
+theorem Equiv.inter_right {m₃ : Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₂.Equiv m₃) :
+    (m₁.inter m₂ h₁.balanced).Equiv (m₁.inter m₃ h₁.balanced) := by
+  revert equiv
+  simp_to_model [Equiv, inter]
+  intro equiv
+  apply List.perm_filter_containsKey_of_perm equiv
+  all_goals wf_trivial
+
+theorem Equiv.inter!_right {m₃ : Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₂.Equiv m₃) :
+    (m₁.inter! m₂).Equiv (m₁.inter! m₃) := by
+  rw [← inter_eq_inter!, ← inter_eq_inter!]
+  apply Equiv.inter_right
+  all_goals wf_trivial
+
+theorem Equiv.inter_congr {m₃ m₄ : Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF)
+    (equiv₁ : m₁.Equiv m₃) (equiv₂ : m₂.Equiv m₄) :
+    (m₁.inter m₂ h₁.balanced).Equiv (m₃.inter m₄ h₃.balanced) := by
+  revert equiv₁ equiv₂
+  simp_to_model [Equiv, inter]
+  intro equiv₁ equiv₂
+  apply List.congr_filter_containsKey_of_perm
+  all_goals wf_trivial
+
+theorem Equiv.inter!_congr {m₃ m₄ : Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF)
+    (equiv₁ : m₁.Equiv m₃) (equiv₂ : m₂.Equiv m₄) :
+    (m₁.inter! m₂).Equiv (m₃.inter! m₄) := by
+  rw [← inter_eq_inter!, ← inter_eq_inter!]
+  apply Equiv.inter_congr
   all_goals wf_trivial
 
 /- get? -/

@@ -17,27 +17,6 @@ public section
 
 namespace String
 
-/--
-Interprets a string as the decimal representation of a natural number, returning it. Panics if the
-string does not contain a decimal natural number.
-
-A string can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits.
-
-Use `String.isNat` to check whether `String.toNat!` would return a value. `String.toNat?` is a safer
-alternative that returns `none` instead of panicking when the string is not a natural number.
-
-Examples:
- * `"0".toNat! = 0`
- * `"5".toNat! = 5`
- * `"587".toNat! = 587`
--/
-def toNat! (s : String) : Nat :=
-  if s.isNat then
-    s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
-  else
-    panic! "Nat expected"
-
 @[deprecated ByteArray.utf8DecodeChar? (since := "2025-10-01")]
 abbrev utf8DecodeChar? (a : ByteArray) (i : Nat) : Option Char :=
   a.utf8DecodeChar? i
@@ -50,28 +29,28 @@ abbrev validateUTF8 (a : ByteArray) : Bool :=
   a.validateUTF8
 
 private def findLeadingSpacesSize (s : String) : Nat :=
-  let it := s.startValidPos
-  let it := it.find? (· == '\n') |>.bind String.ValidPos.next?
+  let it := s.startPos
+  let it := it.find? (· == '\n') |>.bind String.Pos.next?
   match it with
   | some it => consumeSpaces it 0 s.length
   | none => 0
 where
-  consumeSpaces {s : String} (it : s.ValidPos) (curr min : Nat) : Nat :=
+  consumeSpaces {s : String} (it : s.Pos) (curr min : Nat) : Nat :=
     if h : it.IsAtEnd then min
     else if it.get h == ' ' || it.get h == '\t' then consumeSpaces (it.next h) (curr + 1) min
     else if it.get h == '\n' then findNextLine (it.next h) min
     else findNextLine (it.next h) (Nat.min curr min)
   termination_by it
-  findNextLine {s : String} (it : s.ValidPos) (min : Nat) : Nat :=
+  findNextLine {s : String} (it : s.Pos) (min : Nat) : Nat :=
     if h : it.IsAtEnd then min
     else if it.get h == '\n' then consumeSpaces (it.next h) 0 min
     else findNextLine (it.next h) min
   termination_by it
 
 private def removeNumLeadingSpaces (n : Nat) (s : String) : String :=
-  consumeSpaces n s.startValidPos ""
+  consumeSpaces n s.startPos ""
 where
-  consumeSpaces (n : Nat) {s : String} (it : s.ValidPos) (r : String) : String :=
+  consumeSpaces (n : Nat) {s : String} (it : s.Pos) (r : String) : String :=
      match n with
      | 0 => saveLine it r
      | n+1 =>
@@ -79,7 +58,7 @@ where
        else if it.get h == ' ' || it.get h == '\t' then consumeSpaces n (it.next h) r
        else saveLine it r
   termination_by (it, 1)
-  saveLine {s : String} (it : s.ValidPos) (r : String) : String :=
+  saveLine {s : String} (it : s.Pos) (r : String) : String :=
     if h : it.IsAtEnd then r
     else if it.get h  == '\n' then consumeSpaces n (it.next h) (r.push '\n')
     else saveLine (it.next h) (r.push (it.get h))

@@ -1,5 +1,4 @@
 module
-public import Lean.Elab.Command.ScopedNamespace
 /-
 Tests for scoping syntax to a specific namespace using `scoped[NS]`
 -/

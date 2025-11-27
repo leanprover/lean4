@@ -357,4 +357,27 @@ meta def insertUnexpander : Lean.PrettyPrinter.Unexpander
   | `($_ $a { $ts:term,* }) => `({$a:term, $ts,*})
   | _ => throw ()
 
+namespace Parser.Command
+
+/-- An attribute instance with optional scoped/local modifier. -/
+syntax scopedNSAttrInstance := attrKind attr
+
+/-- Attributes syntax `@[...]` for scoped namespace commands. -/
+syntax scopedNSAttrs := "@[" sepBy1(scopedNSAttrInstance, ", ") "] "
+
+/--
+Syntax for declaring notations and attributes that are scoped to a specific namespace,
+without being inside that namespace. For example:
+
+```lean
+scoped[Nat] infix:65 " +! " => Nat.add
+```
+
+defines an infix notation that is only available when `Nat` is opened.
+-/
+syntax (name := scopedNS) (docComment)? (scopedNSAttrs)?
+  "scoped" "[" ident "] " command : command
+
+end Parser.Command
+
 end Lean

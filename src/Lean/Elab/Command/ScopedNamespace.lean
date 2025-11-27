@@ -7,36 +7,37 @@ Authors: Mario Carneiro, Daniel Selsam, Gabriel Ebner
 module
 public import Lean.Elab.Command.WithWeakNamespace
 
-open Lean
-
-namespace Lean.Parser.Command
-
-syntax (name := scopedNS) (docComment)? (Parser.Term.attributes)?
-  "scoped" "[" ident "] " command : command
-
-end Lean.Parser.Command
-
 namespace Lean.Elab.Command
 
+private def toTermAttrs (attr : TSyntax `Lean.Parser.Command.scopedNSAttrs) :
+    TSyntax `Lean.Parser.Term.attributes :=
+  ⟨attr.raw.setKind `Lean.Parser.Term.attributes⟩
+
 @[builtin_macro Lean.Parser.Command.scopedNS] def expandScopedNS : Macro
-  | `($[$doc]? $(attr)? scoped[$ns] notation $(prec)? $(n)? $(prio)? $sym* => $t) =>
+  | `($[$doc]? $(attr)? scoped[$ns] notation $(prec)? $(n)? $(prio)? $sym* => $t) => do
+    let attr' := attr.map toTermAttrs
     `(with_weak_namespace $(mkIdentFrom ns <| rootNamespace ++ ns.getId)
-      $[$doc]? $(attr)? scoped notation $(prec)? $(n)? $(prio)? $sym* => $t)
-  | `($[$doc]? $(attr)? scoped[$ns] $mk:prefix $prec $(n)? $(prio)? $sym => $t) =>
+      $[$doc]? $[$attr']? scoped notation $(prec)? $(n)? $(prio)? $sym* => $t)
+  | `($[$doc]? $(attr)? scoped[$ns] $mk:prefix $prec $(n)? $(prio)? $sym => $t) => do
+    let attr' := attr.map toTermAttrs
     `(with_weak_namespace $(mkIdentFrom ns <| rootNamespace ++ ns.getId)
-      $[$doc]? $(attr)? scoped $mk:prefix $prec $(n)? $(prio)? $sym => $t)
-  | `($[$doc]? $(attr)? scoped[$ns] $mk:infix $prec $(n)? $(prio)? $sym => $t) =>
+      $[$doc]? $[$attr']? scoped $mk:prefix $prec $(n)? $(prio)? $sym => $t)
+  | `($[$doc]? $(attr)? scoped[$ns] $mk:infix $prec $(n)? $(prio)? $sym => $t) => do
+    let attr' := attr.map toTermAttrs
     `(with_weak_namespace $(mkIdentFrom ns <| rootNamespace ++ ns.getId)
-      $[$doc]? $(attr)? scoped $mk:infix $prec $(n)? $(prio)? $sym => $t)
-  | `($[$doc]? $(attr)? scoped[$ns] $mk:infixl $prec $(n)? $(prio)? $sym => $t) =>
+      $[$doc]? $[$attr']? scoped $mk:infix $prec $(n)? $(prio)? $sym => $t)
+  | `($[$doc]? $(attr)? scoped[$ns] $mk:infixl $prec $(n)? $(prio)? $sym => $t) => do
+    let attr' := attr.map toTermAttrs
     `(with_weak_namespace $(mkIdentFrom ns <| rootNamespace ++ ns.getId)
-      $[$doc]? $(attr)? scoped $mk:infixl $prec $(n)? $(prio)? $sym => $t)
-  | `($[$doc]? $(attr)? scoped[$ns] $mk:infixr $prec $(n)? $(prio)? $sym => $t) =>
+      $[$doc]? $[$attr']? scoped $mk:infixl $prec $(n)? $(prio)? $sym => $t)
+  | `($[$doc]? $(attr)? scoped[$ns] $mk:infixr $prec $(n)? $(prio)? $sym => $t) => do
+    let attr' := attr.map toTermAttrs
     `(with_weak_namespace $(mkIdentFrom ns <| rootNamespace ++ ns.getId)
-      $[$doc]? $(attr)? scoped $mk:infixr $prec $(n)? $(prio)? $sym => $t)
-  | `($[$doc]? $(attr)? scoped[$ns] $mk:postfix $prec $(n)? $(prio)? $sym => $t) =>
+      $[$doc]? $[$attr']? scoped $mk:infixr $prec $(n)? $(prio)? $sym => $t)
+  | `($[$doc]? $(attr)? scoped[$ns] $mk:postfix $prec $(n)? $(prio)? $sym => $t) => do
+    let attr' := attr.map toTermAttrs
     `(with_weak_namespace $(mkIdentFrom ns <| rootNamespace ++ ns.getId)
-      $[$doc]? $(attr)? scoped $mk:postfix $prec $(n)? $(prio)? $sym => $t)
+      $[$doc]? $[$attr']? scoped $mk:postfix $prec $(n)? $(prio)? $sym => $t)
   | `(scoped[$ns] attribute [$[$attr:attr],*] $ids*) =>
     `(with_weak_namespace $(mkIdentFrom ns <| rootNamespace ++ ns.getId)
       attribute [$[scoped $attr:attr],*] $ids*)

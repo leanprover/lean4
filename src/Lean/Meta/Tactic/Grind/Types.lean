@@ -358,6 +358,9 @@ private def incCounter [Hashable α] [BEq α] (s : PHashMap α Nat) (k : α) : P
 private def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
   modify fun s => { s with counters.thm := incCounter s.counters.thm thm.origin }
 
+def getEMatchTheoremNumInstances (thm : EMatchTheorem) : GrindM Nat := do
+  return (← get).counters.thm.find? thm.origin |>.getD 0
+
 def saveCases (declName : Name) : GrindM Unit := do
   modify fun s => { s with counters.case := incCounter s.counters.case declName }
 

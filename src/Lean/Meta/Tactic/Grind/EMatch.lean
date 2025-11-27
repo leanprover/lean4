@@ -637,13 +637,17 @@ private abbrev withFreshNGen (x : M α) : M α := do
   finally
     setNGen ngen
 
-/--
-Checks constraints of the form `lhs =/= rhs`.
--/
-private def checkNotDefEq (levelParams : List Name) (us : List Level) (args : Array Expr) (lhs : Nat) (rhs : CnstrRHS) : GoalM Bool := do
+private def getLHS (args : Array Expr) (lhs : Nat) : MetaM Expr := do
   unless lhs < args.size do
     throwError "`grind` internal error, invalid variable in `grind_pattern` constraint"
-  let lhs := args[args.size - lhs - 1]!
+  instantiateMVars args[args.size - lhs - 1]!
+
+/--
+Checks constraints of the form `lhs =/= rhs` and `lhs =?= rhs`.
+`expectedResult` is `true` if `lhs` and `rhs` should be definitionally equal.
+-/
+private def checkDefEq (expectedResult : Bool) (levelParams : List Name) (us : List Level) (args : Array Expr) (lhs : Nat) (rhs : CnstrRHS) : GoalM Bool := do
+  let lhs ← getLHS args lhs
   /- **Note**: We first instantiate the theorem variables and universes occurring in `rhs`. -/
   let rhsExpr := rhs.expr.instantiateRev args
   let rhsExpr := rhsExpr.instantiateLevelParams levelParams us
@@ -657,7 +661,38 @@ private def checkNotDefEq (levelParams : List Name) (us : List Level) (args : Ar
     let (_, _, rhsExpr) ← lambdaMetaTelescope rhsExpr (some rhs.numMVars)
     /- **Note**: We used the guarded version to ensure type errors will not interrupt `grind`. -/
     let defEq ← isDefEqGuarded lhs rhsExpr
-    return !defEq
+    return defEq == expectedResult
+
+/--
+Helper function for checking grind pattern constraints of the form `size e < threshold`
+Implicit arguments and type information in lambdas and let-expressions are ignored.
+-/
+partial def checkSize (e : Expr) (threshold : Nat) : MetaM Bool :=
+  return (← go e |>.run |>.run 0).1.isSome
+where
+  go (e : Expr) : OptionT (StateT Nat MetaM) Unit := do
+    guard ((← get) < threshold)
+    modify (·+1)
+    match e with
+    | .forallE _ d b _ => go d; go b
+    | .lam _ _ b _     => go b
+    | .letE _ _ v b _  => go v; go b
+    | .mdata _ e
+    | .proj _ _ e      => go e
+    | .app .. => e.withApp fun f args => do
+      if f.hasLooseBVars then
+        go f; args.forM go
+      else
+        let paramInfo := (← getFunInfo f).paramInfo
+        for h : i in *...args.size do
+          let arg := args[i]
+          if h : i < paramInfo.size then
+            let pinfo := paramInfo[i]
+            if pinfo.isExplicit && !pinfo.isProp then
+              go arg
+          else
+            go arg
+    | _ => return ()
 
 /--
 Checks whether `vars` satisfies the `grind_pattern` constraints attached at `thm`.
@@ -672,14 +707,25 @@ In the example above, a `map_map` instance should be added to the logical contex
 
 Remark: `proof` is used to extract the universe parameters in the proof.
 -/
-private def checkConstraints (thm : EMatchTheorem) (proof : Expr) (args : Array Expr) : GoalM Bool := do
+private def checkConstraints (thm : EMatchTheorem) (gen : Nat) (proof : Expr) (args : Array Expr) : GoalM Bool := do
   if thm.cnstrs.isEmpty then return true
   /- **Note**: Only top-level theorems have constraints. -/
   let .const declName us := proof | return true
   let info ← getConstInfo declName
   thm.cnstrs.allM fun cnstr => do
     match cnstr with
-    | .notDefEq lhs rhs => checkNotDefEq info.levelParams us args lhs rhs
+    | .notDefEq lhs rhs => checkDefEq (expectedResult := false) info.levelParams us args lhs rhs
+    | .defEq lhs rhs => checkDefEq (expectedResult := true) info.levelParams us args lhs rhs
+    | .depthLt lhs n => return (← getLHS args lhs).approxDepth.toNat < n
+    | .isGround lhs => let lhs ← getLHS args lhs; return !lhs.hasFVar && !lhs.hasMVar
+    | .sizeLt lhs n => checkSize (← getLHS args lhs) n
+    | .genLt n => return gen < n
+    | .maxInsts n =>
+      /-
+      **Note**: We are checking the number of instances produced in the whole proof.
+      It may be useful to bound the number of instances in the current branch.
+      -/
+      return (← getEMatchTheoremNumInstances thm) + 1 < n
     | _ => throwError "NIY"
 
 /--
@@ -700,7 +746,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
     return ()
   let (some _, c) ← applyAssignment mvars |>.run c | return ()
   let some _ ← synthesizeInsts mvars bis | return ()
-  if (← checkConstraints thm proof mvars) then
+  if (← checkConstraints thm c.gen proof mvars) then
     let proof := mkAppN proof mvars
     if (← mvars.allM (·.mvarId!.isAssigned)) then
       addNewInstance thm proof c.gen

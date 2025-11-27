@@ -290,7 +290,7 @@ section
 variable {β : Type v}
 
 /-- Internal implementation detail of the hash map -/
-def Const.beqModel [BEq α] [Hashable α] [BEq β] (l₁ l₂ : List ((_ : α) × β)) :=
+def Const.beqModel [BEq α] [BEq β] (l₁ l₂ : List ((_ : α) × β)) :=
   if l₁.length ≠ l₂.length then false else (l₁.all fun x => getValue? x.fst l₂ == some x.snd)
 
 /-- This is a strange dependent version of `Option.map` in which the mapping function is allowed to

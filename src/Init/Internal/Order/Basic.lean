@@ -1005,6 +1005,27 @@ noncomputable instance [Nonempty ε] : CCPO (EIO ε α) :=
 noncomputable instance [Nonempty ε] : MonoBind (EIO ε) :=
   inferInstanceAs (MonoBind (EST ε IO.RealWorld))
 
+instance : CCPO (IO α) :=
+  inferInstanceAs (CCPO ((s : _) → FlatOrder (.error (.userError "csup ∅") (Classical.choice ⟨s⟩))))
+
+instance : MonoBind IO where
+  bind_mono_left {_ _ a₁ a₂ f} h₁₂ := by
+    intro s
+    specialize h₁₂ s
+    change FlatOrder.rel (a₁.bind f s) (a₂.bind f s)
+    simp only [EST.bind]
+    generalize a₁ s = a₁ at h₁₂; generalize a₂ s = a₂ at h₁₂
+    cases h₁₂
+    · exact .bot
+    · exact .refl
+  bind_mono_right {_ _ a f₁ f₂} h₁₂ := by
+    intro w
+    change FlatOrder.rel (a.bind f₁ w) (a.bind f₂ w)
+    simp only [EST.bind]
+    split
+    · apply h₁₂
+    · exact .refl
+
 end mono_bind
 
 section implication_order

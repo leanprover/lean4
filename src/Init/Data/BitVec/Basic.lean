@@ -870,23 +870,14 @@ def clz (x : BitVec w) : BitVec w := clzAuxRec x (w - 1)
 /-- Count the number of trailing zeros. -/
 def ctz (x : BitVec w) : BitVec w := (x.reverse).clz
 
-/-- Count the number of bits with value `1` downward from the `pos`-th bit to the `0`-th bit of `x`. -/
-def cpopNatRec (x : BitVec w) (pos : Nat) : Nat :=
-  match pos with
-  | 0 => 0
-  | n + 1 => (x.getLsbD n).toNat + x.cpopNatRec n
-
 /-- Tail-recursively count the number of bits with value `1` downward from the `pos`-th bit to the
   `0`-th bit of `x`, storing the result in `acc`. -/
-def cpopNatRecTR (x : BitVec w) (pos acc : Nat) : Nat :=
+def cpopNatRec (x : BitVec w) (pos acc : Nat) : Nat :=
   match pos with
   | 0 => acc
-  | n + 1 => x.cpopNatRecTR n (acc + (x.getLsbD n).toNat)
+  | n + 1 => x.cpopNatRec n (acc + (x.getLsbD n).toNat)
 
-/-- Express `cpopNat` as a `BitVec w`. -/
-def cpop (x : BitVec w) : BitVec w := BitVec.ofNat w (cpopNatRec x w)
-
-/-- Express `cpopNat` as a `BitVec w` using the tail-recursive definition -/
-def cpopTR (x : BitVec w) : BitVec w := BitVec.ofNat w (cpopNatRecTR x w 0)
+/-- Express `cpopNat` as a `BitVec w` -/
+def cpop(x : BitVec w) : BitVec w := BitVec.ofNat w (cpopNatRec x w 0)
 
 end BitVec

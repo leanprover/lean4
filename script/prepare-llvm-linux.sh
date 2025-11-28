@@ -58,7 +58,8 @@ OPTIONS=()
 # We build cadical using the custom toolchain on Linux to avoid glibc versioning issues
 echo -n " -DLEAN_STANDALONE=ON -DCADICAL_USE_CUSTOM_CXX=ON"
 echo -n " -DCMAKE_CXX_COMPILER=$PWD/llvm-host/bin/clang++ -DLEAN_CXX_STDLIB='-Wl,-Bstatic -lc++ -lc++abi -Wl,-Bdynamic'"
-echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -idirafter $GLIBC_DEV/include ${EXTRA_FLAGS:-}'"
+# these should also be used for cadical, so do not use `LEAN_EXTRA_CXX_FLAGS` here
+echo -n " -DCMAKE_CXX_FLAGS='--sysroot $PWD/llvm -idirafter $GLIBC_DEV/include ${EXTRA_FLAGS:-}'"
 # use target compiler directly when not cross-compiling
 if [[ -L llvm-host ]]; then
   echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang"

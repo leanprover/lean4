@@ -294,10 +294,10 @@ def forM (f : α → m PUnit) (t : Raw α cmp) : m PUnit :=
 def forIn (f : α → δ → m (ForInStep δ)) (init : δ) (t : Raw α cmp) : m δ :=
   t.inner.forIn (fun a _ c => f a c) init
 
-instance : ForM m (Raw α cmp) α where
+instance [Monad m] : ForM m (Raw α cmp) α where
   forM t f := t.forM f
 
-instance : ForIn m (Raw α cmp) α where
+instance [Monad m] : ForIn m (Raw α cmp) α where
   forIn t init f := t.forIn (fun a acc => f a acc) init
 
 @[inline, inherit_doc TreeSet.empty]

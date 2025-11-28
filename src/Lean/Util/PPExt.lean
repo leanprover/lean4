@@ -13,22 +13,18 @@ public section
 namespace Lean
 register_builtin_option pp.raw : Bool := {
   defValue := false
-  group    := "pp"
   descr    := "(pretty printer) print raw expression/syntax tree"
 }
 register_builtin_option pp.raw.showInfo : Bool := {
   defValue := false
-  group    := "pp"
   descr    := "(pretty printer) print `SourceInfo` metadata with raw printer"
 }
 register_builtin_option pp.raw.maxDepth : Nat := {
   defValue := 32
-  group    := "pp"
   descr    := "(pretty printer) maximum `Syntax` depth for raw printer"
 }
 register_builtin_option pp.rawOnError : Bool := {
   defValue := false
-  group    := "pp"
   descr    := "(pretty printer) fallback to 'raw' printer when pretty printer fails"
 }
 

@@ -1587,15 +1587,21 @@ theorem mem_of_mem_union_of_not_mem_left [TransCmp cmp]
   DTreeMap.Raw.mem_of_mem_union_of_not_mem_left h₁ h₂
 
 /- Equiv -/
-theorem union_equiv_congr_left {t₃ : Raw α β cmp} [TransCmp cmp]
+theorem Equiv.union_left {t₃ : Raw α β cmp} [TransCmp cmp]
     (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (equiv : t₁.Equiv t₂) :
     (t₁ ∪ t₃).Equiv (t₂ ∪ t₃) :=
-  ⟨DTreeMap.Raw.union_equiv_congr_left h₁ h₂ h₃ equiv.1⟩
+  ⟨DTreeMap.Raw.Equiv.union_left h₁ h₂ h₃ equiv.1⟩
 
-theorem union_equiv_congr_right {t₃ : Raw α β cmp} [TransCmp cmp]
+theorem Equiv.union_right {t₃ : Raw α β cmp} [TransCmp cmp]
     (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (equiv : t₂.Equiv t₃) :
     (t₁ ∪ t₂).Equiv (t₁ ∪ t₃) :=
-  ⟨DTreeMap.Raw.union_equiv_congr_right h₁ h₂ h₃ equiv.1⟩
+  ⟨DTreeMap.Raw.Equiv.union_right h₁ h₂ h₃ equiv.1⟩
+
+theorem Equiv.union_congr {t₃ t₄ : Raw α β cmp} [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (h₄ : t₄.WF)
+    (equiv₁ : t₁.Equiv t₃) (equiv₂ : t₂.Equiv t₄) :
+    (t₁ ∪ t₂).Equiv (t₃ ∪ t₄) :=
+  ⟨DTreeMap.Raw.Equiv.union_congr h₁ h₂ h₃ h₄ equiv₁.1 equiv₂.1⟩
 
 theorem union_insert_right_equiv_insert_union [TransCmp cmp] {p : (_ : α) × β}
     (h₁ : t₁.WF) (h₂ : t₂.WF) :
@@ -1796,6 +1802,24 @@ theorem not_mem_inter_of_not_mem_right [TransCmp cmp]
     (not_mem : k ∉ t₂) :
     k ∉ t₁ ∩ t₂ :=
   DTreeMap.Raw.not_mem_inter_of_not_mem_right h₁ h₂ not_mem
+
+/- Equiv -/
+
+theorem Equiv.inter_left [TransCmp cmp] {t₃ : Raw α β cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (equiv : t₁ ~m t₂) :
+    (t₁ ∩ t₃).Equiv (t₂ ∩ t₃) :=
+  ⟨DTreeMap.Raw.Equiv.inter_left h₁ h₂ h₃ equiv.1⟩
+
+theorem Equiv.inter_right [TransCmp cmp] {t₃ : Raw α β cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (equiv : t₂ ~m t₃) :
+    (t₁ ∩ t₂).Equiv (t₁ ∩ t₃) :=
+  ⟨DTreeMap.Raw.Equiv.inter_right h₁ h₂ h₃ equiv.1⟩
+
+theorem Equiv.inter_congr [TransCmp cmp] {t₃ t₄ : Raw α β cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (h₄ : t₄.WF)
+    (equiv₁ : t₁ ~m t₃) (equiv₂ : t₂ ~m t₄) :
+    (t₁ ∩ t₂).Equiv (t₃ ∩ t₄) :=
+  ⟨DTreeMap.Raw.Equiv.inter_congr h₁ h₂ h₃ h₄ equiv₁.1 equiv₂.1⟩
 
 /- get? -/
 theorem get?_inter [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α} :

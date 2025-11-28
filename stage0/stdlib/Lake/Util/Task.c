@@ -108,6 +108,15 @@ x_3 = lean_task_pure(x_1);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Lake_instMonadTask__lake___lam__6___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lake_instMonadTask__lake___lam__6(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_instMonadTask__lake___lam__7(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -139,6 +148,15 @@ lean_object* x_3; lean_object* x_4;
 x_3 = lean_box(0);
 x_4 = lean_apply_1(x_1, x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instMonadTask__lake___lam__9___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lake_instMonadTask__lake___lam__9(x_1, x_2);
+lean_dec(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instMonadTask__lake___lam__10(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -183,24 +201,6 @@ x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_5);
 return x_10;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_instMonadTask__lake___lam__6___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_instMonadTask__lake___lam__6(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_instMonadTask__lake___lam__9___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_instMonadTask__lake___lam__9(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 static lean_object* _init_l_Lake_instMonadBaseIOTask() {

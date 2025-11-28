@@ -631,7 +631,7 @@ instance [Ord α] : DecidableRel (@LT.lt α ltOfOrd) := fun a b =>
   decidable_of_bool (compare a b).isLT Ordering.isLT_iff_eq_lt
 
 /--
-Constructs an `LT` instance from an `Ord` instance that asserts that the result of `compare`
+Constructs an `LE` instance from an `Ord` instance that asserts that the result of `compare`
 satisfies `Ordering.isLE`.
 -/
 @[expose] def leOfOrd [Ord α] : LE α where

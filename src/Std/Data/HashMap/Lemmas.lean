@@ -1389,15 +1389,20 @@ theorem mem_of_mem_union_of_not_mem_left [EquivBEq α]
   @DHashMap.mem_of_mem_union_of_not_mem_left _ _ _ _ m₁.inner m₂.inner _ _  k
 
 /- Equiv -/
-theorem union_equiv_congr_left {m₃ : HashMap α β} [EquivBEq α] [LawfulHashable α]
+theorem Equiv.union_left {m₃ : HashMap α β} [EquivBEq α] [LawfulHashable α]
     (equiv : m₁ ~m m₂) :
     (m₁ ∪ m₃) ~m (m₂ ∪ m₃) :=
-  ⟨DHashMap.union_equiv_congr_left equiv.1⟩
+  ⟨DHashMap.Equiv.union_left equiv.1⟩
 
-theorem union_equiv_congr_right {m₃ : HashMap α β} [EquivBEq α] [LawfulHashable α]
+theorem Equiv.union_right {m₃ : HashMap α β} [EquivBEq α] [LawfulHashable α]
     (equiv : m₂ ~m m₃) :
     (m₁ ∪ m₂) ~m (m₁ ∪ m₃) :=
-  ⟨DHashMap.union_equiv_congr_right equiv.1⟩
+  ⟨DHashMap.Equiv.union_right equiv.1⟩
+
+theorem Equiv.union_congr {m₃ m₄ : HashMap α β} [EquivBEq α] [LawfulHashable α]
+    (equiv₁ : m₁ ~m m₃)  (equiv₂ : m₂ ~m m₄) :
+    (m₁ ∪ m₂) ~m (m₃ ∪ m₄) :=
+  ⟨DHashMap.Equiv.union_congr equiv₁.1 equiv₂.1⟩
 
 theorem union_insert_right_equiv_insert_union [EquivBEq α] [LawfulHashable α] {p : α × β} :
     (m₁ ∪ (m₂.insert p.fst p.snd)) ~m ((m₁ ∪ m₂).insert p.fst p.snd) :=
@@ -2101,6 +2106,12 @@ theorem size_ofList_le [EquivBEq α] [LawfulHashable α]
 grind_pattern size_ofList_le => (ofList l).size
 
 @[simp, grind =]
+theorem ofArray_eq_ofList (a : Array (α × β)) :
+    ofArray a = ofList a.toList := by
+  apply ext
+  apply DHashMap.Const.ofArray_eq_ofList
+
+@[simp, grind =]
 theorem isEmpty_ofList [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} :
     (ofList l).isEmpty = l.isEmpty :=
@@ -2216,6 +2227,12 @@ theorem size_unitOfList_le [EquivBEq α] [LawfulHashable α]
     {l : List α} :
     (unitOfList l).size ≤ l.length :=
   DHashMap.Const.size_unitOfList_le
+
+@[simp, grind =]
+theorem unitOfArray_eq_unitOfList (a : Array α) :
+    unitOfArray a = unitOfList a.toList := by
+  apply ext
+  apply DHashMap.Const.unitOfArray_eq_unitOfList
 
 @[simp]
 theorem isEmpty_unitOfList [EquivBEq α] [LawfulHashable α]

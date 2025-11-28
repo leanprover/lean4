@@ -80,9 +80,9 @@ LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_neg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_positivize_x3f(lean_object*);
 lean_object* l_Lean_Omega_IntList_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_UpperBound_sat___boxed(lean_object*, lean_object*);
+uint8_t l_Option_instDecidableEq___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_repr(lean_object*);
 lean_object* l_Lean_Omega_IntList_leading(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_tidyConstraint(lean_object*, lean_object*);
 static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__15;
 LEAN_EXPORT lean_object* l_Lean_Omega_tidy_x3f(lean_object*);
@@ -147,7 +147,6 @@ LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_instToString;
 static lean_object* l_Lean_Omega_Constraint_impossible___closed__3;
 static lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__5;
 lean_object* lean_int_ediv(lean_object*, lean_object*);
-uint8_t l_Option_instDecidableEq_decEq___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_tidy_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_normalize_x3f(lean_object*);
 lean_object* lean_int_neg(lean_object*);
@@ -157,7 +156,6 @@ static lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__
 static lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__6;
 static lean_object* l_Lean_Omega_Constraint_impossible___closed__2;
 static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__8;
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_ctorIdx(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Omega_Constraint_isImpossible(lean_object*);
 lean_object* l_Lean_Omega_IntList_dot(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_instReprConstraint_repr(lean_object*, lean_object*);
@@ -219,23 +217,6 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Omega_Constraint_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Lean_Omega_instBEqConstraint_beq_spec__0(lean_object* x_1, lean_object* x_2) {
@@ -350,7 +331,7 @@ lean_inc(x_6);
 lean_dec_ref(x_2);
 x_7 = lean_alloc_closure((void*)(l_Int_instDecidableEq___boxed), 2, 0);
 lean_inc_ref(x_7);
-x_8 = l_Option_instDecidableEq_decEq___redArg(x_7, x_3, x_5);
+x_8 = l_Option_instDecidableEq___redArg(x_7, x_3, x_5);
 if (x_8 == 0)
 {
 lean_dec_ref(x_7);
@@ -361,7 +342,7 @@ return x_8;
 else
 {
 uint8_t x_9; 
-x_9 = l_Option_instDecidableEq_decEq___redArg(x_7, x_4, x_6);
+x_9 = l_Option_instDecidableEq___redArg(x_7, x_4, x_6);
 return x_9;
 }
 }
@@ -1411,16 +1392,6 @@ x_3 = lean_int_add(x_2, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_translate(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_alloc_closure((void*)(l_Lean_Omega_Constraint_translate___lam__0___boxed), 2, 1);
-lean_closure_set(x_3, 0, x_2);
-x_4 = l_Lean_Omega_Constraint_map(x_1, x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_translate___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1429,6 +1400,16 @@ x_3 = l_Lean_Omega_Constraint_translate___lam__0(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_translate(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_alloc_closure((void*)(l_Lean_Omega_Constraint_translate___lam__0___boxed), 2, 1);
+lean_closure_set(x_3, 0, x_2);
+x_4 = l_Lean_Omega_Constraint_map(x_1, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_flip(lean_object* x_1) {
@@ -1468,6 +1449,15 @@ x_2 = lean_int_neg(x_1);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_neg___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Omega_Constraint_neg___lam__0(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_neg(lean_object* x_1) {
 _start:
 {
@@ -1476,15 +1466,6 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Omega_Constraint_neg___lam__0___boxed), 
 x_3 = l_Lean_Omega_Constraint_flip(x_1);
 x_4 = l_Lean_Omega_Constraint_map(x_3, x_2);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_neg___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Omega_Constraint_neg___lam__0(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_Omega_Constraint_trivial___closed__0() {
@@ -1721,6 +1702,16 @@ lean_ctor_set(x_2, 1, x_1);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_scale___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Omega_Constraint_scale___lam__0(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_scale(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1766,16 +1757,6 @@ else
 return x_2;
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_scale___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Omega_Constraint_scale___lam__0(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_add(lean_object* x_1, lean_object* x_2) {
@@ -2004,6 +1985,26 @@ return x_1;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combine___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Omega_Constraint_combine___lam__0(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combine___lam__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Omega_Constraint_combine___lam__1(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combine(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2044,26 +2045,6 @@ lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set(x_18, 1, x_17);
 return x_18;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combine___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Omega_Constraint_combine___lam__0(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combine___lam__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Omega_Constraint_combine___lam__1(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Option_merge_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -2656,6 +2637,15 @@ x_3 = l_Int_bmod(x_2, x_1);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Omega_bmod__div__term___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Omega_bmod__div__term___lam__0(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Omega_bmod__div__term(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2680,15 +2670,6 @@ x_12 = lean_int_ediv(x_10, x_11);
 lean_dec(x_11);
 lean_dec(x_10);
 return x_12;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Omega_bmod__div__term___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Omega_bmod__div__term___lam__0(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Lean_Omega_bmod__coeffs_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

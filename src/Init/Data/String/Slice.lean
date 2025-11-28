@@ -489,10 +489,25 @@ Examples:
  * {lean}`"tea".toSlice.find? (fun (c : Char) => c == 'X') == none`
  * {lean}`("coffee tea water".toSlice.find? "tea").map (·.get!) == some 't'`
 -/
-@[specialize pat]
+@[inline]
 def find? (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : Option s.Pos :=
   let searcher := ToForwardSearcher.toSearcher pat s
   searcher.findSome? (fun | .matched startPos _ => some startPos | .rejected .. => none)
+
+/--
+Finds the position of the first match of the pattern {name}`pat` in a slice {name}`s`. If there
+is no match {lean}`s.endPos` is returned.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * {lean}`("coffee tea water".toSlice.find Char.isWhitespace).get! == ' '`
+ * {lean}`"tea".toSlice.find (fun (c : Char) => c == 'X') == "tea".toSlice.endPos`
+ * {lean}`("coffee tea water".toSlice.find "tea").get! == 't'`
+-/
+@[inline]
+def find (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : s.Pos :=
+  s.find? pat |>.getD s.endPos
 
 /--
 Checks whether a slice has a match of the pattern {name}`pat` anywhere.
@@ -514,7 +529,7 @@ def any (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
   s.contains pat
 
 /--
-Checks whether a slice only consists of matches of the pattern {name}`pat` anywhere.
+Checks whether a slice only consists of matches of the pattern {name}`pat`.
 
 Short-circuits at the first pattern mis-match.
 
@@ -791,7 +806,7 @@ where
   termination_by curr.down
 
 /--
-Finds the position of the first match of the pattern {name}`pat` in a slice {name}`true`, starting
+Finds the position of the first match of the pattern {name}`pat` in a slice, starting
 from the end of the slice and traversing towards the start. If there is no match {name}`none` is
 returned.
 
@@ -1303,13 +1318,13 @@ def toNat! (s : Slice) : Nat :=
     panic! "Nat expected"
 
 /--
-Returns the first character in {name}`s`. If {name}`s` is empty, {name}`none`.
+Returns the first character in {name}`s`. If {name}`s` is empty, returns {name}`none`.
 
 Examples:
 * {lean}`"abc".toSlice.front? = some 'a'`
 * {lean}`"".toSlice.front? = none`
 -/
-@[inline]
+@[inline, expose]
 def front? (s : Slice) : Option Char :=
   s.startPos.get?
 
@@ -1320,9 +1335,88 @@ Examples:
 * {lean}`"abc".toSlice.front = 'a'`
 * {lean}`"".toSlice.front = (default : Char)`
 -/
-@[inline]
+@[inline, expose]
 def front (s : Slice) : Char :=
   s.front?.getD default
+
+/--
+Checks whether the slice can be interpreted as the decimal representation of an integer.
+
+A slice can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading {lit}`+` characters are not allowed.
+
+Use {name (scope := "Init.Data.String.Slice")}`String.Slice.toInt?` or {name (scope := "Init.Data.String.Slice")}`String.toInt!` to convert such a string to an integer.
+
+Examples:
+ * {lean}`"".toSlice.isInt = false`
+ * {lean}`"-".toSlice.isInt = false`
+ * {lean}`"0".toSlice.isInt = true`
+ * {lean}`"-0".toSlice.isInt = true`
+ * {lean}`"5".toSlice.isInt = true`
+ * {lean}`"587".toSlice.isInt = true`
+ * {lean}`"-587".toSlice.isInt = true`
+ * {lean}`"+587".toSlice.isInt = false`
+ * {lean}`" 5".toSlice.isInt = false`
+ * {lean}`"2-3".toSlice.isInt = false`
+ * {lean}`"0xff".toSlice.isInt = false`
+-/
+def isInt (s : Slice) : Bool :=
+  if s.front = '-' then
+    (s.drop 1).isNat
+  else
+    s.isNat
+
+/--
+Interprets a slice as the decimal representation of an integer, returning it. Returns {lean}`none` if
+the string does not contain a decimal integer.
+
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading {lit}`+` characters are not allowed.
+
+Use {name}`Slice.isInt` to check whether {name}`Slice.toInt?` would return {lean}`some`.
+{name (scope := "Init.Data.String.Slice")}`Slice.toInt!` is an alternative that panics instead of
+returning {lean}`none` when the string is not an integer.
+
+Examples:
+ * {lean}`"".toSlice.toInt? = none`
+ * {lean}`"-".toSlice.toInt? = none`
+ * {lean}`"0".toSlice.toInt? = some 0`
+ * {lean}`"5".toSlice.toInt? = some 5`
+ * {lean}`"-5".toSlice.toInt? = some (-5)`
+ * {lean}`"587".toSlice.toInt? = some 587`
+ * {lean}`"-587".toSlice.toInt? = some (-587)`
+ * {lean}`" 5".toSlice.toInt? = none`
+ * {lean}`"2-3".toSlice.toInt? = none`
+ * {lean}`"0xff".toSlice.toInt? = none`
+-/
+def toInt? (s : Slice) : Option Int :=
+  if s.front = '-' then
+    Int.negOfNat <$> (s.drop 1).toNat?
+  else
+   Int.ofNat <$> s.toNat?
+
+/--
+Interprets a string as the decimal representation of an integer, returning it. Panics if the string
+does not contain a decimal integer.
+
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading `+` characters are not allowed.
+
+Use {name}`Slice.isInt` to check whether {name}`Slice.toInt!` would return a value.
+{name}`Slice.toInt?` is a safer alternative that returns {lean}`none` instead of panicking when the
+string is not an integer.
+
+Examples:
+ * {lean}`"0".toSlice.toInt! = 0`
+ * {lean}`"5".toSlice.toInt! = 5`
+ * {lean}`"587".toSlice.toInt! = 587`
+ * {lean}`"-587".toSlice.toInt! = -587`
+-/
+@[inline]
+def toInt! (s : Slice) : Int :=
+  match s.toInt? with
+  | some v => v
+  | none   => panic "Int expected"
 
 /--
 Returns the last character in {name}`s`. If {name}`s` is empty, returns {name}`none`.
@@ -1331,7 +1425,7 @@ Examples:
 * {lean}`"abc".toSlice.back? = some 'c'`
 * {lean}`"".toSlice.back? = none`
 -/
-@[inline]
+@[inline, expose]
 def back? (s : Slice) : Option Char :=
   s.endPos.prev? |>.bind (·.get?)
 
@@ -1342,7 +1436,7 @@ Examples:
 * {lean}`"abc".toSlice.back = 'c'`
 * {lean}`"".toSlice.back = (default : Char)`
 -/
-@[inline]
+@[inline, expose]
 def back (s : Slice) : Char :=
   s.back?.getD default
 

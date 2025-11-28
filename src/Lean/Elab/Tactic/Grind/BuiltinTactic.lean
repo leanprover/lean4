@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.Grind.Arith.Linear.Search
 import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
 import Lean.Meta.Tactic.Grind.AC.Eq
 import Lean.Meta.Tactic.Grind.EMatch
+import Lean.Meta.Tactic.Grind.EMatchTheorem
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.Intro
@@ -152,6 +153,10 @@ def ematchThms (only : Bool) (thms : Array EMatchTheorem) : GrindTacticM Unit :=
   if let some thmRefs := thmRefs? then
     for thmRef in thmRefs do
       match thmRef with
+      | `(Parser.Tactic.Grind.thm| namespace $ns:ident) =>
+        let namespaceName := ns.getId
+        let scopedThms ← Grind.getEMatchTheoremsForNamespace namespaceName
+        thms := thms ++ scopedThms
       | `(Parser.Tactic.Grind.thm| #$anchor:hexnum) => thms := thms ++ (← withRef thmRef <| elabLocalEMatchTheorem anchor)
       | `(Parser.Tactic.Grind.thm| $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id false)
       | `(Parser.Tactic.Grind.thm| ! $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id true)
@@ -239,7 +244,7 @@ where
         elabEMatchTheorem declName (.default false) minIndexable
       else
         return thms.toArray
-    | .cases _ | .intro | .inj | .ext | .symbol _ =>
+    | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC =>
       throwError "invalid modifier"
 
 def logAnchor (c : SplitInfo) : TermElabM Unit := do

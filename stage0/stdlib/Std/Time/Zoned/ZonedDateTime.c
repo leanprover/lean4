@@ -67,7 +67,6 @@ LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_instHSubDuration__1___lam__0(l
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_subMilliseconds___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_addMilliseconds___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_toTimestamp(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofTimestamp___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_millisecond___boxed(lean_object*);
@@ -125,7 +124,6 @@ static lean_object* l_Std_Time_ZonedDateTime_ofTimestamp___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_convertZoneRules___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_ZonedDateTime_instHAddOffset__3___closed__0;
 lean_object* lean_thunk_get_own(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_addMinutes(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_era___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_toPlainDateTime___boxed(lean_object*);
@@ -246,23 +244,6 @@ LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_withNanoseconds(lean_object*, 
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_instHSubOffset__4;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_toDaysSinceUNIXEpoch___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Time_ZonedDateTime_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_instInhabitedZonedDateTime___private__1___lam__0(lean_object* x_1) {
 _start:
 {
@@ -370,6 +351,15 @@ x_20 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_19);
 return x_20;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofTimestamp___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_Time_ZonedDateTime_ofTimestamp___lam__0(x_1, x_2, x_3);
+lean_dec_ref(x_2);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofTimestamp(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -411,15 +401,6 @@ lean_ctor_set(x_6, 2, x_2);
 lean_ctor_set(x_6, 3, x_3);
 return x_6;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofTimestamp___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Time_ZonedDateTime_ofTimestamp___lam__0(x_1, x_2, x_3);
-lean_dec_ref(x_2);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -485,6 +466,27 @@ lean_object* x_1; lean_object* x_2;
 x_1 = l_Std_Time_ZonedDateTime_ofPlainDateTime___closed__0;
 x_2 = lean_int_neg(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__0(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1(x_1, x_2);
+lean_dec_ref(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofPlainDateTime(lean_object* x_1, lean_object* x_2) {
@@ -608,27 +610,6 @@ lean_dec_ref(x_22);
 x_4 = x_23;
 goto block_21;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1(x_1, x_2);
-lean_dec_ref(x_2);
-lean_dec(x_1);
-x_4 = lean_box(x_3);
-return x_4;
 }
 }
 static lean_object* _init_l_Std_Time_ZonedDateTime_ofTimestampWithZone___closed__0() {
@@ -932,6 +913,15 @@ x_20 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_19);
 return x_20;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_convertZoneRules___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_Time_ZonedDateTime_convertZoneRules___lam__0(x_1, x_2, x_3);
+lean_dec_ref(x_2);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_convertZoneRules(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -991,15 +981,6 @@ return x_8;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_convertZoneRules___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Time_ZonedDateTime_convertZoneRules___lam__0(x_1, x_2, x_3);
-lean_dec_ref(x_2);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofPlainDateTimeAssumingUTC___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1039,6 +1020,15 @@ x_19 = l_Std_Time_Duration_ofNanoseconds(x_18);
 lean_dec(x_18);
 x_20 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_19);
 return x_20;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofPlainDateTimeAssumingUTC___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_Time_ZonedDateTime_ofPlainDateTimeAssumingUTC___lam__0(x_1, x_2, x_3);
+lean_dec_ref(x_2);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofPlainDateTimeAssumingUTC(lean_object* x_1, lean_object* x_2) {
@@ -1083,15 +1073,6 @@ lean_ctor_set(x_9, 2, x_2);
 lean_ctor_set(x_9, 3, x_6);
 return x_9;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofPlainDateTimeAssumingUTC___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Time_ZonedDateTime_ofPlainDateTimeAssumingUTC___lam__0(x_1, x_2, x_3);
-lean_dec_ref(x_2);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_toPlainDateTime(lean_object* x_1) {
@@ -1153,6 +1134,15 @@ x_20 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_19);
 return x_20;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_toDateTime___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_Time_ZonedDateTime_toDateTime___lam__0(x_1, x_2, x_3);
+lean_dec_ref(x_2);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_toDateTime(lean_object* x_1) {
 _start:
 {
@@ -1171,15 +1161,6 @@ x_6 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_6, 0, x_2);
 lean_ctor_set(x_6, 1, x_5);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_toDateTime___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Time_ZonedDateTime_toDateTime___lam__0(x_1, x_2, x_3);
-lean_dec_ref(x_2);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_time(lean_object* x_1) {
@@ -3329,6 +3310,16 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_addHours___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_Time_ZonedDateTime_addHours___lam__0(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+lean_dec_ref(x_2);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_addHours(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -3423,16 +3414,6 @@ lean_ctor_set(x_29, 2, x_4);
 lean_ctor_set(x_29, 3, x_26);
 return x_29;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_addHours___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_Time_ZonedDateTime_addHours___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-lean_dec_ref(x_2);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_addHours___boxed(lean_object* x_1, lean_object* x_2) {
@@ -9275,14 +9256,6 @@ lean_dec(x_16);
 return x_17;
 }
 }
-static lean_object* _init_l_Std_Time_ZonedDateTime_instHSubDuration() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_instHSubDuration___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_instHSubDuration___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -9291,6 +9264,14 @@ x_3 = l_Std_Time_ZonedDateTime_instHSubDuration___lam__0(x_1, x_2);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_3;
+}
+}
+static lean_object* _init_l_Std_Time_ZonedDateTime_instHSubDuration() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_instHSubDuration___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_instHAddDuration___lam__0(lean_object* x_1, lean_object* x_2) {
@@ -9308,14 +9289,6 @@ lean_dec(x_7);
 return x_8;
 }
 }
-static lean_object* _init_l_Std_Time_ZonedDateTime_instHAddDuration() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_instHAddDuration___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_instHAddDuration___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -9323,6 +9296,14 @@ lean_object* x_3;
 x_3 = l_Std_Time_ZonedDateTime_instHAddDuration___lam__0(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
+}
+}
+static lean_object* _init_l_Std_Time_ZonedDateTime_instHAddDuration() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_instHAddDuration___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_instHSubDuration__1___lam__0(lean_object* x_1, lean_object* x_2) {
@@ -9340,14 +9321,6 @@ lean_dec(x_7);
 return x_8;
 }
 }
-static lean_object* _init_l_Std_Time_ZonedDateTime_instHSubDuration__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_instHSubDuration__1___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_instHSubDuration__1___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -9355,6 +9328,14 @@ lean_object* x_3;
 x_3 = l_Std_Time_ZonedDateTime_instHSubDuration__1___lam__0(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
+}
+}
+static lean_object* _init_l_Std_Time_ZonedDateTime_instHSubDuration__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_instHSubDuration__1___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 lean_object* initialize_Std_Time_Zoned_DateTime(uint8_t builtin);

@@ -6,17 +6,19 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
+import Lean.Parser.Tactic
 public import Lean.Meta.Tactic.ElimInfo
 public import Lean.Elab.Tactic.ElabTerm
 import Lean.Meta.Tactic.FunIndCollect
 import Lean.Elab.App
 import Lean.Elab.Tactic.Generalize
+import Lean.ErrorExplanations.InductionWithNoAlts
+
 
 public section
 
 register_builtin_option tactic.customEliminators : Bool := {
   defValue := true
-  group    := "tactic"
   descr    := "enable using custom eliminators in the 'induction' and 'cases' tactics \
     defined using the '@[induction_eliminator]' and '@[cases_eliminator]' attributes"
 }
@@ -642,6 +644,27 @@ def withAltsOfOptInductionAlts (optInductionAlts : Syntax)
       else                                 -- has `with` clause, but no alts
         cont (some #[]))
 
+/--
+Check for the specific proof structure `induction h with n n_ih` that can arise from
+Natural-Numbers-Game-style `induction` proofs being used in standard Lean style proofs.
+
+These errors are provided with a custom error explanation.
+-/
+def checkForInductionWithNoAlts (tacticKind : String) (optInductionAlts : Syntax) : TacticM Unit := do
+  if let (.node _ `null #[
+    .node _ ``Parser.Tactic.inductionAlts #[
+      .atom _ "with",
+      .node _ `null #[.node _ ``Lean.Parser.Tactic.«unknown» #[var, .missing]]
+    ]
+  ]) := optInductionAlts then
+    -- Usually errors are suppressed for syntax containing `.missing` nodes, but this named error is
+    -- listed in `Lean.Core.getAndEmptySnapshotTasks` as an error that ignores suppression.
+    throwNamedErrorAt optInductionAlts lean.inductionWithNoAlts
+      m!"Invalid syntax for {tacticKind} tactic: The `with` keyword must followed by a tactic or by an alternative (e.g. `| zero =>`), but here it is followed by the identifier `{var}`."
+
+/--
+Separate out the optional `with` tactics from the rest of the alternates
+-/
 def getOptPreTacOfOptInductionAlts (optInductionAlts : Syntax) : Syntax :=
   if optInductionAlts.isNone then mkNullNode else optInductionAlts[0][1]
 
@@ -957,6 +980,7 @@ def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr
       -- unchanged
       -- everything up to the alternatives must be unchanged for reuse
       Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := inductionAltsPos stx) fun optInductionAlts => do
+      checkForInductionWithNoAlts "induction" optInductionAlts
       withAltsOfOptInductionAlts optInductionAlts fun alts? => do
         let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
         mvarId.assign result.elimApp
@@ -977,7 +1001,6 @@ def evalInduction : Tactic := fun stx =>
 
 register_builtin_option tactic.fun_induction.unfolding : Bool := {
   defValue := true
-  group    := "tactic"
   descr    := "if set to 'true', then 'fun_induction' and 'fun_cases' will use the “unfolding \
     functional induction (resp. cases) principle” ('….induct_unfolding'/'….fun_cases_unfolding'), \
     which will attempt to replace the function goal of interest in the goal with the appropriate \
@@ -1080,10 +1103,11 @@ def evalCasesCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
       -- unchanged
       -- everything up to the alternatives must be unchanged for reuse
       Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := inductionAltsPos stx) fun optInductionAlts => do
-      withAltsOfOptInductionAlts optInductionAlts fun alts => do
+      checkForInductionWithNoAlts "case analysis" optInductionAlts
+      withAltsOfOptInductionAlts optInductionAlts fun alts? => do
         let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
         mvarId.assign result.elimApp
-        ElimApp.evalAlts elimInfo result.alts optPreTac alts mkInitInfo stx[0]
+        ElimApp.evalAlts elimInfo result.alts optPreTac alts? mkInitInfo stx[0]
           (numEqs := targets.size) (toClear := targetsNew) (toTag := toTag)
 
 @[builtin_tactic Lean.Parser.Tactic.cases, builtin_incremental]

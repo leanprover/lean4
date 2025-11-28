@@ -727,16 +727,11 @@ def forM [TransCmp cmp] (f : (a : α) → β a → m PUnit) (t : ExtDTreeMap α 
 def forIn [TransCmp cmp] (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (t : ExtDTreeMap α β cmp) : m δ :=
   t.lift (fun m => m.forIn f init) (fun _ _ h => h.forIn_eq (f := fun x => f x.1 x.2))
 
-/-
-Note: We ignore the monad instance provided by `forM` / `forIn` and instead use the one from the
-instance in order to get the `LawfulMonad m` assumption
--/
+instance [TransCmp cmp] [Monad m] [LawfulMonad m] : ForM m (ExtDTreeMap α β cmp) ((a : α) × β a) where
+  forM t f := forM (fun a b => f ⟨a, b⟩) t
 
-instance [TransCmp cmp] [inst : Monad m] [LawfulMonad m] : ForM m (ExtDTreeMap α β cmp) ((a : α) × β a) where
-  forM t f := @forM _ _ _ _ inst _ _ (fun a b => f ⟨a, b⟩) t
-
-instance [TransCmp cmp] [inst : Monad m] [LawfulMonad m] : ForIn m (ExtDTreeMap α β cmp) ((a : α) × β a) where
-  forIn m init f := @forIn _ _ _ _ _ inst _ _ (fun a b acc => f ⟨a, b⟩ acc) init m
+instance [TransCmp cmp] [Monad m] [LawfulMonad m] : ForIn m (ExtDTreeMap α β cmp) ((a : α) × β a) where
+  forIn m init f := forIn (fun a b acc => f ⟨a, b⟩ acc) init m
 
 namespace Const
 
@@ -907,19 +902,27 @@ def insertManyIfNewUnit [TransCmp cmp] {ρ} [ForIn Id ρ α] (t : ExtDTreeMap α
 
 end Const
 
-theorem union_congr [TransCmp cmp] (a b c d : DTreeMap α β cmp) (h₁ : a ~m c) (h₂ : b ~m d) : a ∪ b ~m c ∪ d :=
-  DTreeMap.Equiv.trans (DTreeMap.union_equiv_congr_left h₁) (DTreeMap.union_equiv_congr_right h₂)
-
 @[inline, inherit_doc DTreeMap.union]
 def union [TransCmp cmp] (m₁ m₂ : ExtDTreeMap α β cmp) : ExtDTreeMap α β cmp := lift₂ (fun x y : DTreeMap α β cmp => mk (x.union y))
   (fun a b c d equiv₁ equiv₂ => by
     simp only [DTreeMap.union_eq, mk'.injEq]
     apply Quotient.sound
-    apply union_congr
+    apply DTreeMap.Equiv.union_congr
     . exact equiv₁
     . exact equiv₂) m₁ m₂
 
 instance [TransCmp cmp] : Union (ExtDTreeMap α β cmp) := ⟨union⟩
+
+@[inline, inherit_doc DTreeMap.union]
+def inter [TransCmp cmp] (m₁ m₂ : ExtDTreeMap α β cmp) : ExtDTreeMap α β cmp := lift₂ (fun x y : DTreeMap α β cmp => mk (x.inter y))
+  (fun a b c d equiv₁ equiv₂ => by
+    simp only [DTreeMap.inter_eq, mk'.injEq]
+    apply Quotient.sound
+    apply DTreeMap.Equiv.inter_congr
+    . exact equiv₁
+    . exact equiv₂) m₁ m₂
+
+instance [TransCmp cmp] : Inter (ExtDTreeMap α β cmp) := ⟨inter⟩
 
 instance [TransCmp cmp] [Repr α] [(a : α) → Repr (β a)] : Repr (ExtDTreeMap α β cmp) where
   reprPrec m prec := Repr.addAppParen ("Std.ExtDTreeMap.ofList " ++ repr m.toList) prec

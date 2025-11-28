@@ -142,7 +142,6 @@ private def compileDecl (decl : Declaration) : TermElabM Unit := do
 
 register_builtin_option diagnostics.threshold.proofSize : Nat := {
   defValue := 16384
-  group    := "diagnostics"
   descr    := "only display proof statistics when proof has at least this number of terms"
 }
 

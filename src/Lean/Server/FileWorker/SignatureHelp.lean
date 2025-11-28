@@ -84,7 +84,7 @@ inductive SearchControl where
   /-- Stop the search through a syntax stack. -/
   | stop
 
-private def lineCommentPosition? (s : String) : Option s.ValidPos :=
+private def lineCommentPosition? (s : String) : Option s.Pos :=
   s.find? "--"
 
 private def isPositionInLineComment (text : FileMap) (pos : String.Pos.Raw) : Bool := Id.run do

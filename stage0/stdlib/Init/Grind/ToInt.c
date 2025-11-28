@@ -19,7 +19,6 @@ static lean_object* l_Lean_Grind_toIntUnexpander___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_uint___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_ctorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_ToInt_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_ToInt_0__Lean_Grind_instBEqIntInterval_beq_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_IntInterval_wrap___closed__0;
 static lean_object* l_Lean_Grind_IntInterval_uint___closed__0;
@@ -67,7 +66,6 @@ LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_ii_elim___redArg(lean_object*,
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_instBEqIntInterval_beq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_ToInt_ctorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_ToInt_0__Lean_Grind_instBEqIntInterval_beq_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_toIntUnexpander___closed__1;
@@ -1019,24 +1017,6 @@ x_3 = l_Lean_Grind_IntInterval_wrap(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_ToInt_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_ToInt_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Grind_ToInt_ctorIdx(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-lean_dec(x_2);
-return x_4;
 }
 }
 static lean_object* _init_l_Lean_Grind_toIntUnexpander___closed__0() {

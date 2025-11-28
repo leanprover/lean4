@@ -577,10 +577,10 @@ def forM (f : (a : α) → β a → m PUnit) (t : Raw α β cmp) : m PUnit :=
 def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (t : Raw α β cmp) : m δ :=
   t.inner.forIn f init
 
-instance : ForM m (Raw α β cmp) ((a : α) × β a) where
+instance [Monad m] : ForM m (Raw α β cmp) ((a : α) × β a) where
   forM t f := t.forM (fun a b => f ⟨a, b⟩)
 
-instance : ForIn m (Raw α β cmp) ((a : α) × β a) where
+instance [Monad m] : ForIn m (Raw α β cmp) ((a : α) × β a) where
   forIn t init f := t.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
 namespace Const

@@ -20,7 +20,6 @@ static lean_object* l_Lean_Lsp_instFromJsonDidChangeTextDocumentParams_fromJson_
 static lean_object* l_Lean_Lsp_instFromJsonDidCloseTextDocumentParams_fromJson___closed__1;
 static lean_object* l_Lean_Lsp_instFromJsonDidSaveTextDocumentParams___closed__0;
 static lean_object* l_Lean_Lsp_instFromJsonDidOpenTextDocumentParams_fromJson___closed__10;
-LEAN_EXPORT lean_object* l_Lean_Lsp_DidCloseTextDocumentParams_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonDidChangeTextDocumentParams_fromJson___closed__3;
 static lean_object* l_Lean_Lsp_instFromJsonTextDocumentSyncOptions_fromJson___closed__1;
 static lean_object* l_Lean_Lsp_instFromJsonTextDocumentSyncOptions_fromJson___closed__14;
@@ -28,7 +27,6 @@ lean_object* l_Lean_Lsp_instFromJsonTextDocumentItem_fromJson(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Lsp_instToJsonDidSaveTextDocumentParams___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncKind_noConfusion___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Lsp_DidSaveTextDocumentParams_ctorIdx(lean_object*);
 static lean_object* l_Option_fromJson_x3f___at___00Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonTextDocumentSyncOptions_fromJson_spec__0_spec__0___closed__0;
 static lean_object* l_Lean_Lsp_instFromJsonTextDocumentChangeRegistrationOptions_fromJson___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentContentChangeEvent_hasToJson;
@@ -55,7 +53,6 @@ static lean_object* l_Lean_Lsp_instFromJsonTextDocumentSyncOptions_fromJson___cl
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonSaveOptions_fromJson_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonTextDocumentSyncKind___lam__0___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Lsp_DidOpenTextDocumentParams_ctorIdx(lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonDidSaveTextDocumentParams_fromJson___closed__6;
 static lean_object* l_Lean_Lsp_instFromJsonTextDocumentSyncOptions_fromJson___closed__8;
 static lean_object* l_Lean_Lsp_instFromJsonDidChangeTextDocumentParams_fromJson___closed__9;
@@ -74,7 +71,6 @@ LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJ
 static lean_object* l_Lean_Lsp_instToJsonTextDocumentSyncKind___lam__0___closed__5;
 static lean_object* l_Lean_Lsp_instFromJsonTextDocumentSyncOptions_fromJson___closed__3;
 static lean_object* l_Lean_Lsp_instToJsonDidOpenTextDocumentParams_toJson___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Lsp_DidChangeTextDocumentParams_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_opt___at___00Lean_Lsp_instToJsonDidSaveTextDocumentParams_toJson_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___closed__0;
 static lean_object* l_Lean_Lsp_instFromJsonDidOpenTextDocumentParams_fromJson___closed__0;
@@ -106,13 +102,11 @@ static lean_object* l_Lean_Lsp_instFromJsonDidSaveTextDocumentParams_fromJson___
 static lean_object* l_Lean_Lsp_instFromJsonDidOpenTextDocumentParams_fromJson___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncKind_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 static lean_object* l_Lean_Lsp_instToJsonTextDocumentSyncKind___lam__0___closed__4;
-LEAN_EXPORT lean_object* l_Lean_Lsp_DidChangeTextDocumentParams_ctorIdx(lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonTextDocumentSyncOptions_fromJson___closed__24;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonDidChangeTextDocumentParams_fromJson_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonTextDocumentChangeRegistrationOptions_fromJson___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncKind_incremental_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonDidChangeTextDocumentParams;
-LEAN_EXPORT lean_object* l_Lean_Lsp_DidSaveTextDocumentParams_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonDidOpenTextDocumentParams_fromJson(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Array_fromJson_x3f___at___00Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonDidChangeTextDocumentParams_fromJson_spec__1_spec__1_spec__3(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Lsp_instToJsonDidCloseTextDocumentParams___closed__0;
@@ -130,7 +124,6 @@ static lean_object* l_Lean_Lsp_instToJsonTextDocumentSyncOptions_toJson___closed
 LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncKind_none_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Array_toJson___at___00Lean_Lsp_instToJsonDidChangeTextDocumentParams_toJson_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonTextDocumentSyncKind;
-LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncOptions_ctorIdx(lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonTextDocumentChangeRegistrationOptions_fromJson___closed__8;
 static lean_object* l_Lean_Lsp_instToJsonSaveOptions___closed__0;
 static lean_object* l_Lean_Lsp_instFromJsonDidSaveTextDocumentParams_fromJson___closed__1;
@@ -139,18 +132,15 @@ LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJ
 LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncKind_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonTextDocumentChangeRegistrationOptions___closed__0;
 lean_object* lean_array_to_list(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncOptions_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonTextDocumentSyncOptions_fromJson___closed__7;
 static lean_object* l_Lean_Lsp_instFromJsonTextDocumentSyncKind___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonDidChangeTextDocumentParams_toJson(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Lsp_SaveOptions_ctorIdx(uint8_t);
 static lean_object* l_Lean_Lsp_instFromJsonDidOpenTextDocumentParams_fromJson___closed__5;
 static lean_object* l_Option_fromJson_x3f___at___00Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonDidSaveTextDocumentParams_fromJson_spec__1_spec__1___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncKind_full_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instToJsonDidOpenTextDocumentParams___closed__0;
 static lean_object* l_Lean_Lsp_instFromJsonTextDocumentSyncOptions_fromJson___closed__6;
 static lean_object* l_Lean_Lsp_instFromJsonDidCloseTextDocumentParams_fromJson___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Lsp_SaveOptions_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Lsp_instToJsonTextDocumentSyncOptions_toJson___closed__3;
 LEAN_EXPORT lean_object* l_Array_toJson___at___00Lean_Lsp_instToJsonDidChangeTextDocumentParams_toJson_spec__0(lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonTextDocumentChangeRegistrationOptions_fromJson___closed__5;
@@ -162,7 +152,6 @@ static lean_object* l_Lean_Lsp_instFromJsonTextDocumentChangeRegistrationOptions
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonDidOpenTextDocumentParams_toJson(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncKind_none_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncKind_ctorElim___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Lsp_DidCloseTextDocumentParams_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncKind_incremental_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonDidChangeTextDocumentParams_fromJson(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncKind_ctorIdx___boxed(lean_object*);
@@ -243,7 +232,6 @@ static lean_object* l_Lean_Lsp_instToJsonTextDocumentSyncOptions___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Array_toJson___at___00Lean_Lsp_instToJsonDidChangeTextDocumentParams_toJson_spec__0_spec__0(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___lam__0(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
-LEAN_EXPORT lean_object* l_Lean_Lsp_DidOpenTextDocumentParams_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonTextDocumentSyncKind___lam__0(uint8_t);
 static lean_object* l_Option_fromJson_x3f___at___00Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonTextDocumentChangeRegistrationOptions_fromJson_spec__0_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncKind_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -289,11 +277,9 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_m
 lean_object* l_Lean_Lsp_instFromJsonRange_fromJson(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentContentChangeEvent_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_fromJson_x3f___at___00Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonDidChangeTextDocumentParams_fromJson_spec__1_spec__1(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentChangeRegistrationOptions_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___00Array_fromJson_x3f___at___00Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonDidChangeTextDocumentParams_fromJson_spec__1_spec__1_spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instToJsonTextDocumentSyncOptions_toJson___closed__4;
 static lean_object* l_Lean_Lsp_instFromJsonTextDocumentSyncOptions___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentChangeRegistrationOptions_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Option_fromJson_x3f___at___00Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonTextDocumentChangeRegistrationOptions_fromJson_spec__0_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncKind_none_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncKind_ctorIdx(uint8_t x_1) {
@@ -487,6 +473,15 @@ lean_inc(x_1);
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncKind_noConfusion___redArg___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Lsp_TextDocumentSyncKind_noConfusion___redArg___lam__0(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncKind_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
@@ -506,15 +501,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Lsp_TextDocumentSyncKind_noConfusion___redArg(x_2, x_3);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncKind_noConfusion___redArg___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Lsp_TextDocumentSyncKind_noConfusion___redArg___lam__0(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncKind_noConfusion___redArg___boxed(lean_object* x_1, lean_object* x_2) {
@@ -742,14 +728,6 @@ return x_4;
 }
 }
 }
-static lean_object* _init_l_Lean_Lsp_instToJsonTextDocumentSyncKind() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Lsp_instToJsonTextDocumentSyncKind___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonTextDocumentSyncKind___lam__0___boxed(lean_object* x_1) {
 _start:
 {
@@ -759,21 +737,12 @@ x_3 = l_Lean_Lsp_instToJsonTextDocumentSyncKind___lam__0(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Lsp_DidOpenTextDocumentParams_ctorIdx(lean_object* x_1) {
+static lean_object* _init_l_Lean_Lsp_instToJsonTextDocumentSyncKind() {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Lsp_DidOpenTextDocumentParams_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Lsp_DidOpenTextDocumentParams_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Lsp_instToJsonTextDocumentSyncKind___lam__0___boxed), 1, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonDidOpenTextDocumentParams_toJson_spec__0(lean_object* x_1, lean_object* x_2) {
@@ -1075,23 +1044,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Lsp_instFromJsonDidOpenTextDocumentParams___closed__0;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentChangeRegistrationOptions_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentChangeRegistrationOptions_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Lsp_TextDocumentChangeRegistrationOptions_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Array_fromJson_x3f___at___00Option_fromJson_x3f___at___00Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonTextDocumentChangeRegistrationOptions_fromJson_spec__0_spec__0_spec__0_spec__0(size_t x_1, size_t x_2, lean_object* x_3) {
@@ -2050,23 +2002,6 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Lsp_TextDocumentContentChangeEvent_hasTo
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Lsp_DidChangeTextDocumentParams_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Lsp_DidChangeTextDocumentParams_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Lsp_DidChangeTextDocumentParams_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Array_toJson___at___00Lean_Lsp_instToJsonDidChangeTextDocumentParams_toJson_spec__0_spec__0(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
@@ -2805,23 +2740,6 @@ x_1 = l_Lean_Lsp_instFromJsonDidChangeTextDocumentParams___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Lsp_DidSaveTextDocumentParams_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Lsp_DidSaveTextDocumentParams_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Lsp_DidSaveTextDocumentParams_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Json_opt___at___00Lean_Lsp_instToJsonDidSaveTextDocumentParams_toJson_spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -3329,23 +3247,6 @@ x_1 = l_Lean_Lsp_instFromJsonDidSaveTextDocumentParams___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Lsp_SaveOptions_ctorIdx(uint8_t x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Lsp_SaveOptions_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = lean_unbox(x_1);
-x_3 = l_Lean_Lsp_SaveOptions_ctorIdx(x_2);
-return x_3;
-}
-}
 static lean_object* _init_l_Lean_Lsp_instToJsonSaveOptions_toJson___closed__0() {
 _start:
 {
@@ -3593,23 +3494,6 @@ x_1 = l_Lean_Lsp_instFromJsonSaveOptions___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Lsp_DidCloseTextDocumentParams_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Lsp_DidCloseTextDocumentParams_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Lsp_DidCloseTextDocumentParams_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonDidCloseTextDocumentParams_toJson(lean_object* x_1) {
 _start:
 {
@@ -3799,23 +3683,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Lsp_instFromJsonDidCloseTextDocumentParams___closed__0;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncOptions_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Lsp_TextDocumentSyncOptions_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Lsp_TextDocumentSyncOptions_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Json_opt___at___00Lean_Lsp_instToJsonTextDocumentSyncOptions_toJson_spec__0(lean_object* x_1, lean_object* x_2) {

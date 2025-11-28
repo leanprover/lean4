@@ -43,7 +43,7 @@ The first three cases are demonstrated in examples below.
 
 # Examples
 
-## Binder type requires new type variable
+## Binder Type Requires New Type Variable
 
 ```lean broken
 def identity x :=
@@ -63,7 +63,7 @@ specified explicitly. Note that if automatic implicit parameter insertion is ena
 default), a binder for `α` itself need not be provided; Lean will insert an implicit binder for this
 parameter automatically.
 
-## Uninferred binder type due to resulting type annotation
+## Uninferred Binder Type Due to Resulting Type Annotation
 
 ```lean broken
 def plusTwo x : Nat :=
@@ -86,7 +86,7 @@ determined, resulting in the shown error. It is therefore necessary to include t
 its binder.
 
 
-## Attempting to name an example declaration
+## Attempting to Name an Example Declaration
 
 ```lean broken
 example trivial_proof : True :=
@@ -106,7 +106,7 @@ be named, and an identifier written where a name would appear in other declarati
 elaborated as a binder, whose type cannot be inferred. If a declaration must be named, it should be
 defined using a declaration form that supports naming, such as `def` or `theorem`.
 
-## Attempting to define multiple opaque constants at once
+## Attempting to Define Multiple Opaque Constants at Once
 
 ```lean broken
 opaque m n : Nat
@@ -128,7 +128,7 @@ instead elaborated as defining a single constant (e.g., `m` above) with paramete
 subsequent identifiers (`n`), whose types are unspecified and cannot be inferred. To define multiple
 global constants, it is necessary to declare each separately.
 
-## Attempting to define multiple structure fields on the same line
+## Attempting to Define Multiple Structure Fields on the Same Line
 
 ```lean broken
 structure Person where

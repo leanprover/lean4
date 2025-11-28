@@ -636,13 +636,16 @@ def processGenericRequest : RunnerM Unit := do
   logResponse s.method params
 
 def processDirective (ws directive : String) (directiveTargetLineNo : Nat) : RunnerM Unit := do
-  let directive := directive.drop 1 |>.copy
-  let colon := directive.posOf ':'
-  let method := String.Pos.Raw.extract directive 0 colon |>.trimAscii |>.copy
+  let directive := directive.drop 1
+  let colon := directive.find ':'
+  let method := directive.sliceTo colon |>.trimAscii |>.copy
   -- TODO: correctly compute in presence of Unicode
   let directiveTargetColumn := ws.rawEndPos + "--"
   let pos : Lsp.Position := { line := directiveTargetLineNo, character := directiveTargetColumn.byteIdx }
-  let params := if colon < directive.rawEndPos then String.Pos.Raw.extract directive (colon + ':') directive.rawEndPos |>.trimAscii |>.copy else "{}"
+  let params :=
+    if h : ¬colon.IsAtEnd then
+      directive.sliceFrom (colon.next h) |>.trimAscii.copy
+    else "{}"
   modify fun s => { s with pos, method, params }
   match method with
   -- `delete: "foo"` deletes the given string's number of characters at the given position.

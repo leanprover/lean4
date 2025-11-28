@@ -16,21 +16,42 @@ import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Proof
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Tactic.Grind.PropagateInj
+import Lean.Meta.Tactic.Grind.FunCC
 public section
 namespace Lean.Meta.Grind
+
+/--
+Returns `true` if we can generate a congruence proof for `e₁ = e₂`.
+See paper: Congruence Closure in Intensional Type Theory for additional details.
+-/
+private def isCongruentCheck (e₁ e₂ : Expr) : GoalM Bool := do
+  if (← useFunCC e₁) then
+    go e₁ e₂
+  else
+    /- Using first-order approximation. -/
+    let f := e₁.getAppFn
+    let g := e₂.getAppFn
+    if isSameExpr f g then return true
+    hasSameType f g
+where
+  go (e₁ e₂ : Expr) : GoalM Bool := do
+    let .app f _ := e₁ | return false
+    let .app g _ := e₂ | return false
+    if isSameExpr f g then return true
+    if (← hasSameType f g) then return true
+    go f g
 
 /-- Adds `e` to congruence table. -/
 def addCongrTable (e : Expr) : GoalM Unit := do
   if let some { e := e' } := (← get).congrTable.find? { e } then
-    -- `f` and `g` must have the same type.
-    -- See paper: Congruence Closure in Intensional Type Theory
+    /-
+    See paper: Congruence Closure in Intensional Type Theory
+    **Note**: We do **not** implement the expensive quadratic case used in the paper.
+    -/
     if e.isApp then
-      let f := e.getAppFn
-      let g := e'.getAppFn
-      unless isSameExpr f g do
-        unless (← hasSameType f g) do
-          reportIssue! "found congruence between{indentExpr e}\nand{indentExpr e'}\nbut functions have different types"
-          return ()
+      unless (← isCongruentCheck e e') do
+        reportIssue! "found congruence between{indentExpr e}\nand{indentExpr e'}\nbut functions have different types"
+        return ()
     trace_goal[grind.debug.congr] "{e} = {e'}"
     if (← isEqCongrSymm e e') then
       -- **Note**: See comment at `eqCongrSymmPlaceholderProof`
@@ -154,8 +175,8 @@ private def pushCastHEqs (e : Expr) : GoalM Unit := do
   | f@Eq.recOn α a motive b h v => pushHEq e v (mkApp6 (mkConst ``Grind.eqRecOn_heq f.constLevels!) α a motive b h v)
   | _ => return ()
 
-private def mkENode' (e : Expr) (generation : Nat) : GoalM Unit :=
-  mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
+private def mkENode' (e : Expr) (generation : Nat) (funCC := false) : GoalM Unit :=
+  mkENodeCore e (ctor := false) (interpreted := false) (generation := generation) (funCC := funCC)
 
 /-- Internalizes the nested ground terms in the given pattern. -/
 private partial def internalizePattern (pattern : Expr) (generation : Nat) (origin : Origin) : GoalM Expr := do
@@ -189,7 +210,7 @@ where
 
 /-- Internalizes the `MatchCond` gadget. -/
 private def internalizeMatchCond (matchCond : Expr) (generation : Nat) : GoalM Unit := do
-  mkENode' matchCond generation
+  mkENode' matchCond generation (funCC := false)
   let (lhss, e') ← collectMatchCondLhssAndAbstract matchCond
   lhss.forM fun lhs => do internalize lhs generation; registerParent matchCond lhs
   propagateUp matchCond
@@ -413,6 +434,35 @@ private def tryEta (e : Expr) (generation : Nat) : GoalM Unit := do
     internalize e' generation
     pushEq e e' (← mkEqRefl e)
 
+/--
+Returns `true` if we should use `funCC` for applications of the given constant symbol.
+-/
+private def useFunCongrAtDecl (declName : Name) : GrindM Bool := do
+  if (← readThe Grind.Context).funCCs.contains declName then
+    return true
+  if (← isInstance declName) then
+    /- **Note**: Instances are support elements. No `funCC` -/
+    return false
+  if let some projInfo ← getProjectionFnInfo? declName then
+    if projInfo.fromClass then
+      /- **Note**: Field of a class are treated as support elements. No `funCC`. -/
+      return false
+    /- **Note**: Check the type of the field. If it is a function type, use `funCC` -/
+    let declInfo ← getConstInfo declName
+    let isFn ← forallBoundedTelescope declInfo.type (some (projInfo.numParams + 1)) fun _ type => do
+      let type ← whnf type
+      return type.isForall
+    return isFn
+  return false
+
+/--
+Returns `true` if we should use `funCC` for `f`-applications.
+-/
+private def useFunCongrAtFn (f : Expr) : GrindM Bool := do
+  unless (← getConfig).funCC do return false
+  let .const declName _ := f | return true
+  useFunCongrAtDecl declName
+
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
   if (← alreadyInternalized e) then
@@ -484,7 +534,8 @@ where
       else if e.isAppOfArity ``Grind.MatchCond 1 then
         internalizeMatchCond e generation
       else e.withApp fun f args => do
-        mkENode e generation
+        let funCC ← useFunCongrAtFn f
+        mkENode e generation (funCC := funCC)
         updateAppMap e
         checkAndAddSplitCandidate e
         pushCastHEqs e
@@ -509,13 +560,30 @@ where
         else
           if let .const fName _ := f then
             activateTheorems fName generation
+            if funCC then
+              internalizeImpl f generation e
           else
             internalizeImpl f generation e
           registerParent e f
-          for h : i in *...args.size do
-            let arg := args[i]
-            internalize arg generation e
-            registerParent e arg
+          if funCC then
+            let rec traverse (curr : Expr) : GoalM Unit := do
+              let .app f a := curr | return ()
+              mkENode curr generation (funCC := true)
+              internalizeImpl a generation e
+              traverse f
+              registerParent curr a
+              registerParent curr f
+              addCongrTable curr
+            let .app curr a := e | unreachable!
+            internalizeImpl a generation e
+            traverse curr
+            registerParent e a
+            registerParent e curr
+          else
+            for h : i in *...args.size do
+              let arg := args[i]
+              internalizeImpl arg generation e
+              registerParent e arg
         addCongrTable e
         Solvers.internalize e parent?
         propagateUp e

@@ -70,7 +70,7 @@ def T.check : T → IO Unit := fun (t,a) => do
     unless t.matchPrefix s 0 = a.matchPrefix s do
       IO.println s!"matchPrefix differs: key = {s}, got: {t.matchPrefix s 0} exp: {a.matchPrefix s} "
     let s' := "somePrefix" ++ s
-    unless t.matchPrefix s' ((0 : String.Pos) + "somePrefix") = a.matchPrefix s do
+    unless t.matchPrefix s' ((0 : String.Pos.Raw) + "somePrefix") = a.matchPrefix s do
       IO.println s!"matchPrefix differs (with prefix): key = {s}"
 
 def main : IO Unit := do

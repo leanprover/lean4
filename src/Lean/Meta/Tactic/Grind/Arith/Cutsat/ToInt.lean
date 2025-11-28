@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Init.Grind.ToIntLemmas
+import Init.GrindInstances.ToInt
 import Lean.Meta.Tactic.Grind.SynthInstance
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.EvalNum
@@ -385,6 +386,11 @@ private def ToIntThms.mkResult (toIntThms : ToIntThms) (mkBinOp : Expr → Expr 
   | none,     some b'' => if let some f := toIntThms.c_wr? then mk f a' b'' else mk f a' b'
   | some a'', some b'' => if let some f := toIntThms.c_ww? then mk f a'' b'' else mk f a' b'
 
+/-- Returns `some (n, neZeroInst)` if `inst` is of the form `Fin.instOfNat n neZeroInst _` -/
+private def isFinInstOfNat? (inst : Expr) : MetaM (Option (Expr × Expr)) := do
+  let_expr Fin.instOfNat n neZeroInst _ := inst | return none
+  return some (n, neZeroInst)
+
 private partial def toInt' (e : Expr) : ToIntM (Expr × Expr) := do
   match_expr e with
   | HAdd.hAdd α β γ _ a b =>
@@ -410,9 +416,13 @@ private partial def toInt' (e : Expr) : ToIntM (Expr × Expr) := do
   | Zero.zero _ _ =>
     let some thm ← getZeroThm? | mkToIntVar e
     return (mkIntLit 0, thm)
-  | OfNat.ofNat _ n _ =>
-    let some thm ← getOfNatThm? | mkToIntVar e
+  | OfNat.ofNat _ n inst =>
     let some n ← getNatValue? n | mkToIntVar e
+    if n == 0 then
+      if let some (k, neZeroInst) ← isFinInstOfNat? inst then
+        let h := mkApp2 (mkConst ``Lean.Grind.ofNat_FinZero) k neZeroInst
+        return (mkIntLit 0, h)
+    let some thm ← getOfNatThm? | mkToIntVar e
     let h := mkApp thm (toExpr n)
     if (← hasNumericLoHi) then
       let r ← (← getInfo).range.wrap (mkIntLit n)

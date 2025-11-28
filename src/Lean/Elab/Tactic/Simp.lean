@@ -199,7 +199,7 @@ private def elabDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (id : Origin
 
 private def elabSimpTheorem (config : Meta.ConfigWithKey) (id : Origin) (stx : Syntax)
     (post : Bool) (inv : Bool) : TermElabM ElabSimpArgResult := do
-  let thm? ← Term.withoutModifyingElabMetaStateWithInfo <| withRef stx do
+  let thm? ← withNewMCtxDepth <| Term.withoutModifyingElabMetaStateWithInfo <| withRef stx do
     let e ← Term.elabTerm stx .none
     Term.synthesizeSyntheticMVars (postpone := .no) (ignoreStuckTC := true)
     let e ← instantiateMVars e

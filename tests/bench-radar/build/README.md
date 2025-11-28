@@ -15,6 +15,7 @@ The following metrics are collected from `leanc --profile` and `leanc --stat` an
 
 - `build/profile/<name>//wall-clock`
 - `build/stat/<name>//amount`
+- `build/stat/<name>//bytes`
 
 The following metrics are collected from `lakeprof report`:
 

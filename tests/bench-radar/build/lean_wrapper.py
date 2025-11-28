@@ -90,7 +90,10 @@ def run_lean(module: str) -> None:
             stat[name] += count
     for name, count in stat.items():
         if count > 0:
-            save_result(f"{NAME}/stat/{name}//amount", count)
+            if name.endswith("bytes"):
+                save_result(f"{NAME}/stat/{name}//bytes", count, "B")
+            else:
+                save_result(f"{NAME}/stat/{name}//amount", count)
 
 
 def main() -> None:

@@ -180,6 +180,53 @@ where
         else
           .mult { x := pw₁.x, k := pw₁.k + pw₂.k } (go fuel m₁ m₂)
 
+noncomputable def Mon.mul_k : Mon → Mon → Mon :=
+  Nat.rec
+    (fun m₁ m₂ => concat m₁ m₂)
+    (fun _ ih m₁ m₂ =>
+      Mon.rec (t := m₂)
+        m₁
+        (fun pw₂ m₂' _ => Mon.rec (t := m₁)
+          m₂
+          (fun pw₁ m₁' _ =>
+            Bool.rec (t := pw₁.varLt pw₂)
+              (Bool.rec (t := pw₂.varLt pw₁)
+                (.mult { x := pw₁.x, k := pw₁.k + pw₂.k } (ih m₁' m₂'))
+                (.mult pw₂ (ih (.mult pw₁ m₁') m₂')))
+              (.mult pw₁ (ih m₁' (.mult pw₂ m₂'))))))
+    hugeFuel
+
+theorem Mon.mul_k_eq_mul : Mon.mul_k m₁ m₂ = Mon.mul m₁ m₂ := by
+  unfold mul_k mul
+  generalize hugeFuel = fuel
+  fun_induction mul.go
+  · rfl
+  · rfl
+  case case3 m₂ _ =>
+    cases m₂
+    · contradiction
+    · dsimp
+  case case4 fuel pw₁ m₁ pw₂ m₂ h ih =>
+    dsimp only
+    rw [h]
+    dsimp only
+    rw [ih]
+  case case5 fuel pw₁ m₁ pw₂ m₂ h₁ h₂ ih =>
+    dsimp only
+    rw [h₁]
+    dsimp only
+    rw [h₂]
+    dsimp only
+    rw [ih]
+  case case6 fuel pw₁ m₁ pw₂ m₂ h₁ h₂ ih =>
+    dsimp only
+    rw [h₁]
+    dsimp only
+    rw [h₂]
+    dsimp only
+    rw [ih]
+
+
 def Mon.mul_nc (m₁ m₂ : Mon) : Mon :=
   match m₁ with
   | .unit          => m₂
@@ -481,7 +528,7 @@ noncomputable def Poly.mulMon_k (k : Int) (m : Mon) (p : Poly) : Poly :=
     (Bool.rec
       (Poly.rec
         (fun k' => Bool.rec (.add (Int.mul k k') m (.num 0)) (.num 0) (Int.beq' k' 0))
-        (fun k' m' _ ih => .add (Int.mul k k') (m.mul m') ih)
+        (fun k' m' _ ih => .add (Int.mul k k') (m.mul_k m') ih)
         p)
       (p.mulConst_k k)
       (Mon.beq' m .unit))
@@ -511,7 +558,7 @@ noncomputable def Poly.mulMon_k (k : Int) (m : Mon) (p : Poly) : Poly :=
         next =>
           have h : Int.beq' k 0 = false := by simp [*]
           simp [h]
-      next ih => simp [← ih]
+      next ih => simp [← ih, Mon.mul_k_eq_mul]
 
 def Poly.mulMon_nc (k : Int) (m : Mon) (p : Poly) : Poly :=
   bif k == 0 then

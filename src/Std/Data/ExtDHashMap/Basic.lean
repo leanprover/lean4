@@ -386,7 +386,7 @@ instance [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] : ReflBEq (E
   rfl {a} := by apply beq_of_eq; rfl
 
 instance [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] : LawfulBEq (ExtDHashMap α β) where
-  eq_of_beq := fun hyp => ExtDHashMap.eq_of_beq_true _ _ hyp
+  eq_of_beq := fun hyp => eq_of_beq_true _ _ hyp
 
 namespace Const
 

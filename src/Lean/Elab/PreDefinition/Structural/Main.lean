@@ -81,9 +81,8 @@ private def inferRecArgPos (preDefs : Array PreDefinition) (termMeasure?s : Arra
   withoutModifyingEnv do
     preDefs.forM (addAsAxiom ·)
     let fnNames := preDefs.map (·.declName)
-    let numSectionVars := preDefs[0]!.numSectionVars
     let preDefs ← preDefs.mapM fun preDef =>
-      return { preDef with value := (← preprocess preDef.value fnNames numSectionVars) }
+      return { preDef with value := (← preprocess preDef.value fnNames) }
     -- The syntactically fixed arguments
     let fixedParamPerms ← getFixedParamPerms preDefs
 

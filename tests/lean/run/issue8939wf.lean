@@ -26,6 +26,7 @@ decreasing_by
   as_aux_lemma => sorry
   as_aux_lemma => sorry
   as_aux_lemma => sorry
+  as_aux_lemma => sorry
   done
 
 def ackermann_fuel'' : (n m : Nat) → (fuel : Nat) → (h : g n m < fuel)  → Nat
@@ -35,6 +36,7 @@ def ackermann_fuel'' : (n m : Nat) → (fuel : Nat) → (h : g n m < fuel)  → 
   ackermann_fuel'' n (ackermann_fuel'' (n + 1) m (f - 1) (by sorry)) (f - 1) (by as_aux_lemma => sorry)
 termination_by _ _ fuel => fuel
 decreasing_by
+  as_aux_lemma => sorry
   as_aux_lemma => sorry
   as_aux_lemma => sorry
   as_aux_lemma => sorry

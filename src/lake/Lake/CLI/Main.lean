@@ -148,7 +148,7 @@ export LakeOptions (mkLoadConfig mkBuildConfig)
 
 abbrev CliMainM := ExceptT CliError MainM
 abbrev CliStateM := StateT LakeOptions CliMainM
-abbrev CliM := ArgsT CliStateM
+abbrev CliM := StateT ArgList CliStateM
 
 def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
   let (elanInstall?, leanInstall?, lakeInstall?) ← findInstall?
@@ -171,10 +171,10 @@ instance (priority := low) : MonadLift LoggerIO CliStateM := ⟨CliStateM.runLog
 
 instance : MonadThrowExpectedArg CliM := ⟨throwMissingArg⟩
 
-@[inline] def throwMissingOptArg (arg : String) : OptT CliM α := do
+@[inline] def throwMissingOptArg (arg : String) : OptT CliStateM α := do
   throw <| CliError.missingOptArg (← getOpt).copy arg
 
-instance : MonadThrowExpectedArg (OptT CliM) := ⟨throwMissingOptArg⟩
+instance : MonadThrowExpectedArg (OptT CliStateM) := ⟨throwMissingOptArg⟩
 
 /-! ## Argument Parsing -/
 
@@ -183,16 +183,16 @@ instance [Pure m] : MonadParseArg FilePath m :=
 
 @[inline] def parseOptArgUsing
   (descr : String) (f : String.Slice → Option α) (arg : String.Slice)
-: OptT CliM α := do
+: OptT CliStateM α := do
   if let some a := f arg then
     return a
   else
     throw <| CliError.invalidOptArg (← getOpt).copy descr
 
-instance : MonadParseArg Nat (OptT CliM) where
+instance : MonadParseArg Nat (OptT CliStateM) where
   parseArg := parseOptArgUsing "natural number" (·.toNat?)
 
-instance : MonadParseArg LogLevel (OptT CliM) where
+instance : MonadParseArg LogLevel (OptT CliStateM) where
   parseArg := parseOptArgUsing "log level" LogLevel.ofString?
 
 /--
@@ -209,7 +209,7 @@ def noArgsRem (act : CliStateM α) : CliM α := do
 def getWantsHelp : CliStateM Bool :=
   (·.wantsHelp) <$> get
 
-def setConfigOpt (kvPair : String.Slice) : CliM PUnit :=
+def setConfigOpt (kvPair : String.Slice) : CliStateM PUnit :=
   let pos := kvPair.find '='
   let (key, val) :=
     if h : pos.IsAtEnd then
@@ -237,7 +237,7 @@ where
   isValidRepoChar (c : Char) : Bool :=
     c.isAlphanum || c == '-' || c == '_' || c == '.' || c == '/'
 
-def lakeShortOption : ShortOptHandler CliM := .ofM do
+def lakeShortOption : ShortOptHandler CliStateM := .ofM do
   match (← getOptChar) with
   | 'q' => modifyThe LakeOptions ({· with verbosity := .quiet})
   | 'v' => modifyThe LakeOptions ({· with verbosity := .verbose})
@@ -260,11 +260,11 @@ def lakeShortOption : ShortOptHandler CliM := .ofM do
   | 'J' => modifyThe LakeOptions ({· with outFormat := .json})
   | opt => throw <| CliError.unknownShortOption opt
 
-def flushLinterOptions : CliM PUnit := do
+def flushLinterOptions : CliStateM PUnit := do
   modifyThe LakeOptions fun opts =>
     { opts with builtinLint.linterOverrides := #[] }
 
-def modifyLintOnlyFlag (b : Bool) : CliM PUnit := do
+def modifyLintOnlyFlag (b : Bool) : CliStateM PUnit := do
   modifyThe LakeOptions fun opts =>
     { opts with builtinLint := {opts.builtinLint with lintOnly := b} }
 
@@ -273,7 +273,7 @@ Parses a comma-separated list of Boolean-valued `Lean.Option` names.
 If the name is prefixed with `-`, this means that option will be set to `false`.
 Otherwise, it will be `true`.
 -/
-def parseLintersSpec (spec : String) : CliM PUnit := do
+def parseLintersSpec (spec : String) : CliStateM PUnit := do
   let mut entries : Array (Lean.Name × Bool) := #[]
   for raw in spec.split (· == ',') do
     let mut s := raw.trimAscii
@@ -289,7 +289,7 @@ def parseLintersSpec (spec : String) : CliM PUnit := do
     { opts with runBuiltinLint := true, builtinLint.linterOverrides :=
         opts.builtinLint.linterOverrides ++ entries }
 
-def lakeLongOption : LongOptHandler CliM := .ofM do
+def lakeLongOption : LongOptHandler CliStateM := .ofM do
   match (← getOpt).copy with
   | "--quiet"       => modifyThe LakeOptions ({· with verbosity := .quiet})
   | "--verbose"     => modifyThe LakeOptions ({· with verbosity := .verbose})
@@ -400,18 +400,20 @@ def lakeLongOption : LongOptHandler CliM := .ofM do
       {opts with shake.onlyMods := opts.shake.onlyMods.push mod.toName}
   | opt             =>  throw <| CliError.unknownLongOption opt
 
-def lakeOption : OptHandler CliM :=
+def lakeOption : OptHandler CliStateM :=
   option {
     short := lakeShortOption
     long := lakeLongOption
     longShort := shortOptionWithArg lakeShortOption
   }
 
-def processLakeOptions : CliM PUnit :=
-  processOptions lakeOption -- specializes `processOptions`
+def processLakeOptions : CliM PUnit := fun args => do
+  let args ← collectArgs args lakeOption -- specializes `collectArgs`
+  return (⟨⟩, args.toList)
 
-def processLeadingLakeOptions : CliM PUnit :=
-  processLeadingOptions lakeOption -- specializes `processLeadingOptions`
+def processLeadingLakeOptions : CliM PUnit := fun args => do
+  let args ← processLeadingOptions args lakeOption -- specializes `processLeadingOptions`
+  return (⟨⟩, args)
 
 /-! ## Actions -/
 

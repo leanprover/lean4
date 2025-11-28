@@ -67,7 +67,9 @@ structure Context where
   declName : Name
 
 structure State where
-  decls : Array Decl := #[]
+  processedDecls : Array Decl := #[]
+  newDecls : Array Decl := #[]
+  localSpecParamInfo : Std.HashMap Name (Array SpecParamInfo) := {}
 
 abbrev SpecializeM := ReaderT Context $ StateRefT State CompilerM
 
@@ -264,7 +266,10 @@ Specialize `decl` using
 - `levelParamsNew`: the universe level parameters for the new declaration.
 -/
 def mkSpecDecl (decl : Decl) (us : List Level) (argMask : Array (Option Arg)) (params : Array Param) (decls : Array CodeDecl) (levelParamsNew : List Name) : SpecializeM Decl := do
-  let nameNew := decl.name.appendCore `_at_ |>.appendCore (← read).declName |>.appendCore `spec |>.appendIndexAfter (← get).decls.size
+  let nameNew := decl.name.appendCore `_at_
+    |>.appendCore (← read).declName
+    |>.appendCore `spec
+    |>.appendIndexAfter ((← get).processedDecls.size + (← get).newDecls.size)
   /-
   Recall that we have just retrieved `decl` using `getDecl?`, and it may have free variable identifiers that overlap with the free-variables
   in `params` and `decls` (i.e., the "closure").
@@ -321,6 +326,9 @@ def paramsToGroundVars (params : Array Param) : CompilerM FVarIdSet :=
     else
       return r
 
+def getSpecParamInfo? (declName : Name) : SpecializeM (Option (Array SpecParamInfo)) := do
+  (pure (← get).localSpecParamInfo[declName]?) <||> (LCNF.getSpecParamInfo? declName)
+
 mutual
   /--
   Try to specialize the function application in the given let-declaration.
@@ -355,11 +363,7 @@ mutual
       specDecl.saveBase
       let specDecl ← specDecl.simp {}
       let specDecl ← specDecl.simp { etaPoly := true, inlinePartial := true, implementedBy := true }
-      let ground ← paramsToGroundVars specDecl.params
-      let value ← withReader (fun _ => { declName := specDecl.name, ground }) do
-         withParams specDecl.params <| specDecl.value.mapCodeM visitCode
-      let specDecl := { specDecl with value }
-      modify fun s => { s with decls := s.decls.push specDecl }
+      modify fun s => { s with newDecls := s.newDecls.push specDecl }
       return some (.const specDecl.name usNew argsNew)
 
   partial def visitFunDecl (funDecl : FunDecl) : SpecializeM FunDecl := do
@@ -392,26 +396,56 @@ mutual
 
 end
 
-def main (decl : Decl) : SpecializeM Decl := do
+def specializeDecl (decl : Decl) : SpecializeM Decl := do
+  trace[Compiler.specialize.step] m!"Working {decl.name}"
+  -- TODO: conside a different heuristic here
   if (← decl.isTemplateLike) then
     return decl
   else
     let value ← withParams decl.params <| decl.value.mapCodeM visitCode
     return { decl with value }
 
-end Specialize
+def updateSpecParamInfo : SpecializeM Unit := do
+  let decls := (← get).processedDecls ++ (← get).newDecls
+  -- TODO: have to pass in info for new decls based on old ones
+  let infos ← computeSpecParamInfo decls
+  
+  for entry in infos do
+    modify fun s => {
+      s with
+        localSpecParamInfo := s.localSpecParamInfo.insert entry.declName entry.paramsInfo
+    }
 
-partial def Decl.specialize (decl : Decl) : CompilerM (Array Decl) := do
-  let ground ← Specialize.paramsToGroundVars decl.params
-  let (decl, s) ← Specialize.main decl |>.run { declName := decl.name, ground } |>.run {}
-  return s.decls.push decl
+  trace[Compiler.specialize.step] m!"Info for next round: {(← get).localSpecParamInfo.toList}"
+
+partial def loop (n : Nat := 0) : SpecializeM Unit := do
+  let targets ← modifyGet (fun s => (s.newDecls, { s with newDecls := #[] }))
+  if targets.isEmpty then
+    trace[Compiler.specialize.step] m!"Termination after {n} rounds"
+    return ()
+
+  trace[Compiler.specialize.step] m!"Round: {n}"
+  for decl in targets do
+    let ground ← Specialize.paramsToGroundVars decl.params
+    let processed ← withReader (fun ctx => { ctx with ground, declName := decl.name }) do
+      specializeDecl decl
+    modify fun s => { s with processedDecls := s.processedDecls.push processed }
+
+  --updateSpecParamInfo
+
+  loop (n + 1)
+
+def main (decls : Array Decl) : CompilerM (Array Decl) := do
+  saveSpecParamInfo decls
+  let (_, s) ← loop |>.run { declName := .anonymous } |>.run { newDecls := decls }
+  return s.processedDecls
+
+end Specialize
 
 def specialize : Pass where
   phase := .base
   name  := `specialize
-  run   := fun decls => do
-    saveSpecParamInfo decls
-    decls.foldlM (init := #[]) fun decls decl => return decls ++ (← decl.specialize)
+  run   := Specialize.main
 
 builtin_initialize
   registerTraceClass `Compiler.specialize (inherited := true)

@@ -68,6 +68,22 @@ end PartialOrder
 
 section CCPO
 
+open PartialOrder
+
+def is_csup {α : Sort u} [PartialOrder α] (c : α → Prop) (s : α) : Prop :=
+  ∀ x, s ⊑ x ↔ (∀ y, c y → y ⊑ x)
+
+theorem is_csup_unique {α} [PartialOrder α] {c : α → Prop} {s₁ s₂ : α}
+    (h₁ : is_csup c s₁) (h₂ : is_csup c s₂) : s₁ = s₂ := by
+  apply rel_antisymm
+  · apply (h₁ s₂).mpr
+    intro y hy
+    apply (h₂ s₂).mp rel_refl y hy
+  · apply (h₂ s₁).mpr
+    intro y hy
+    apply (h₁ s₁).mp rel_refl y hy
+
+
 /--
 A chain-complete partial order (CCPO) is a partial order where every chain has a least upper bound.
 
@@ -76,41 +92,44 @@ otherwise.
 -/
 class CCPO (α : Sort u) extends PartialOrder α where
   /--
-  The least upper bound of a chain.
-
-  This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used
-  otherwise.
-  -/
-  csup : (α → Prop) → α
-  /--
   `csup c` is the least upper bound of the chain `c` when all elements `x` that are at
   least as large as `csup c` are at least as large as all elements of `c`, and vice versa.
   -/
-  csup_spec {c : α → Prop} (hc : chain c) : csup c ⊑ x ↔ (∀ y, c y → y ⊑ x)
+  has_csup {c : α → Prop} (hc : chain c) : Exists (is_csup c)
 
-open PartialOrder CCPO
+open  CCPO
 
 variable {α  : Sort u} [CCPO α]
 
-theorem csup_le {c : α → Prop} (hchain : chain c) : (∀ y, c y → y ⊑ x) → csup c ⊑ x :=
-  (csup_spec hchain).mpr
+noncomputable def CCPO.csup {c : α → Prop} (hc : chain c) : α :=
+  Classical.choose (CCPO.has_csup hc)
 
-theorem le_csup {c : α → Prop} (hchain : chain c) {y : α} (hy : c y) : y ⊑ csup c :=
-  (csup_spec hchain).mp rel_refl y hy
+theorem CCPO.csup_spec {c : α → Prop} (hc : chain c) : is_csup c (csup hc) :=
+  @fun x => Classical.choose_spec (CCPO.has_csup hc) x
+
+theorem csup_le {c : α → Prop} (hc : chain c) : (∀ y, c y → y ⊑ x) → csup hc ⊑ x :=
+  (csup_spec hc x).mpr
+
+theorem le_csup {c : α → Prop} (hc : chain c) {y : α} (hy : c y) : y ⊑ csup hc :=
+  (csup_spec hc (csup hc)).mp rel_refl y hy
+
+def empty_chain (α) : α → Prop := fun _ => False
+
+def chain_empty (α : Sort u) [PartialOrder α] : chain (empty_chain α) := by
+  intro x y hx hy; contradiction
 
 /--
 The bottom element is the least upper bound of the empty chain.
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
-def bot : α := csup (fun _ => False)
+noncomputable def bot : α := csup (chain_empty α)
 
 scoped notation "⊥" => bot
 
 theorem bot_le (x : α) : ⊥ ⊑ x := by
   apply csup_le
-  · intro x y hx hy; contradiction
-  · intro x hx; contradiction
+  intro x y; contradiction
 
 end CCPO
 
@@ -204,7 +223,7 @@ from this definition, and `P ⊥` is a separate condition of the induction predi
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
 def admissible (P : α → Prop) :=
-  ∀ (c : α → Prop), chain c → (∀ x, c x → P x) → P (csup c)
+  ∀ (c : α → Prop) (hc : chain c), (∀ x, c x → P x) → P (csup hc)
 
 theorem admissible_const_true : admissible (fun (_ : α) => True) :=
   fun _ _ _ => trivial
@@ -220,7 +239,7 @@ theorem chain_conj (c P : α → Prop) (hchain : chain c) : chain (fun x => c x 
   exact hchain x y hcx hcy
 
 theorem csup_conj (c P : α → Prop) (hchain : chain c) (h : ∀ x, c x → ∃ y, c y ∧ x ⊑ y ∧ P y) :
-    csup c = csup (fun x => c x ∧ P x) := by
+    csup hchain = csup (chain_conj c P hchain) := by
   apply rel_antisymm
   · apply csup_le hchain
     intro x hcx
@@ -355,7 +374,7 @@ This is intended to be used in the construction of `partial_fixpoint`, and not m
 -/
 inductive iterates (f : α → α) : α → Prop where
   | step : iterates f x → iterates f (f x)
-  | sup {c : α → Prop} (hc : chain c) (hi : ∀ x, c x → iterates f x) : iterates f (csup c)
+  | sup {c : α → Prop} (hc : chain c) (hi : ∀ x, c x → iterates f x) : iterates f (csup hc)
 
 theorem chain_iterates {f : α → α} (hf : monotone f) : chain (iterates f) := by
   intro x y hx hy
@@ -367,7 +386,7 @@ theorem chain_iterates {f : α → α} (hf : monotone f) : chain (iterates f) :=
       · left; apply hf; assumption
       · right; apply hf; assumption
     case sup c hchain hi ih2 =>
-      change f x ⊑ csup c ∨ csup c ⊑ f x
+      change f x ⊑ csup hchain ∨ csup hchain ⊑ f x
       by_cases h : ∃ z, c z ∧ f x ⊑ z
       · left
         obtain ⟨z, hz, hfz⟩ := h
@@ -384,7 +403,7 @@ theorem chain_iterates {f : α → α} (hf : monotone f) : chain (iterates f) :=
         next => contradiction
         next => assumption
   case sup c hchain hi ih =>
-    change rel (csup c) y ∨ rel y (csup c)
+    change rel (csup hchain) y ∨ rel y (csup hchain)
     by_cases h : ∃ z, c z ∧ rel y z
     · right
       obtain ⟨z, hz, hfz⟩ := h
@@ -423,7 +442,7 @@ definition is not very meaningful and it simplifies applying theorems like `fix_
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
-def fix (f : α → α) (hmono : monotone f) := csup (iterates f)
+noncomputable def fix (f : α → α) (hmono : monotone f) := csup (chain_iterates hmono)
 
 /--
 The main fixpoint theorem for fixed points of monotone functions in chain-complete partial orders.
@@ -488,28 +507,36 @@ theorem chain_apply [∀ x, PartialOrder (β x)] {c : (∀ x, β x) → Prop} (h
   next h => left; apply h x
   next h => right; apply h x
 
-def fun_csup [∀ x, CCPO (β x)] (c : (∀ x, β x) → Prop) (x : α) :=
-  CCPO.csup (fun y => ∃ f, c f ∧ f x = y)
+noncomputable def fun_csup [∀ x, CCPO (β x)] (c : (∀ x, β x) → Prop) (hc : chain c) (x : α) :=
+  CCPO.csup (chain_apply hc x)
+
+theorem fun_csup_is_csup [∀ x, CCPO (β x)] (c : (∀ x, β x) → Prop) (hc : chain c) :
+    is_csup c (fun_csup c hc) := by
+  intro f
+  constructor
+  next =>
+    intro hf g hg x
+    apply rel_trans _ (hf x); clear hf
+    apply le_csup (chain_apply hc x)
+    exact ⟨g, hg, rfl⟩
+  next =>
+    intro h x
+    apply csup_le (chain_apply hc x)
+    intro y ⟨z, hz, hyz⟩
+    subst y
+    apply h z hz
 
 def fun_sup [∀ x, CompleteLattice (β x)] (c : (∀ x, β x) → Prop) (x : α) :=
   CompleteLattice.sup (fun y => ∃ f, c f ∧ f x = y)
 
 instance instCCPOPi [∀ x, CCPO (β x)] : CCPO (∀ x, β x) where
-  csup := fun_csup
-  csup_spec := by
-    intro f c hc
-    constructor
-    next =>
-      intro hf g hg x
-      apply rel_trans _ (hf x); clear hf
-      apply le_csup (chain_apply hc x)
-      exact ⟨g, hg, rfl⟩
-    next =>
-      intro h x
-      apply csup_le (chain_apply hc x)
-      intro y ⟨z, hz, hyz⟩
-      subst y
-      apply h z hz
+  has_csup hc := ⟨fun_csup _ hc, fun_csup_is_csup _ hc⟩
+
+theorem fun_csup_eq [∀ x, CCPO (β x)] (c : (∀ x, β x) → Prop) (hc : chain c) :
+    fun_csup c hc = CCPO.csup hc := by
+  apply is_csup_unique (c := c)
+  · apply fun_csup_is_csup
+  · apply CCPO.csup_spec
 
 instance instCompleteLatticePi [∀ x, CompleteLattice (β x)] : CompleteLattice (∀ x, β x) where
   sup := fun_sup
@@ -531,6 +558,7 @@ instance instCompleteLatticePi [∀ x, CompleteLattice (β x)] : CompleteLattice
 def admissible_apply [∀ x, CCPO (β x)] (P : ∀ x, β x → Prop) (x : α)
   (hadm : admissible (P x)) : admissible (fun (f : ∀ x, β x) => P x (f x)) := by
   intro c hchain h
+  rw [← fun_csup_eq]
   apply hadm _ (chain_apply hchain x)
   rintro _ ⟨f, hcf, rfl⟩
   apply h _ hcf
@@ -656,33 +684,45 @@ instance instCompleteLatticePProd [CompleteLattice α] [CompleteLattice β] : Co
         intro y' hc
         apply (h ⟨y', b' ⟩ hc).2
 
+noncomputable def prod_csup [CCPO α] [CCPO β] (c : α ×' β → Prop) (hchain : chain c) : α ×' β :=
+  ⟨CCPO.csup (PProd.chain.chain_fst hchain), CCPO.csup (PProd.chain.chain_snd hchain)⟩
+
+theorem prod_csup_is_csup [CCPO α] [CCPO β] (c : α ×' β → Prop) (hchain : chain c) :
+    is_csup c (prod_csup c hchain) := by
+  intro ⟨a, b⟩
+  constructor
+  next =>
+    intro ⟨h₁, h₂⟩ ⟨a', b'⟩ cab
+    constructor <;> dsimp at *
+    · apply rel_trans ?_ h₁
+      apply le_csup (PProd.chain.chain_fst hchain)
+      exact ⟨b', cab⟩
+    · apply rel_trans ?_ h₂
+      apply le_csup (PProd.chain.chain_snd hchain)
+      exact ⟨a', cab⟩
+  next =>
+    intro h
+    constructor <;> dsimp
+    · apply csup_le (PProd.chain.chain_fst hchain)
+      intro a' ⟨b', hcab⟩
+      apply (h _ hcab).1
+    · apply csup_le (PProd.chain.chain_snd hchain)
+      intro b' ⟨a', hcab⟩
+      apply (h _ hcab).2
+
 instance instCCPOPProd [CCPO α] [CCPO β] : CCPO (α ×' β) where
-  csup c := ⟨CCPO.csup (PProd.chain.fst c), CCPO.csup (PProd.chain.snd c)⟩
-  csup_spec := by
-    intro ⟨a, b⟩ c hchain
-    constructor
-    next =>
-      intro ⟨h₁, h₂⟩ ⟨a', b'⟩ cab
-      constructor <;> dsimp at *
-      · apply rel_trans ?_ h₁
-        apply le_csup (PProd.chain.chain_fst hchain)
-        exact ⟨b', cab⟩
-      · apply rel_trans ?_ h₂
-        apply le_csup (PProd.chain.chain_snd hchain)
-        exact ⟨a', cab⟩
-    next =>
-      intro h
-      constructor <;> dsimp
-      · apply csup_le (PProd.chain.chain_fst hchain)
-        intro a' ⟨b', hcab⟩
-        apply (h _ hcab).1
-      · apply csup_le (PProd.chain.chain_snd hchain)
-        intro b' ⟨a', hcab⟩
-        apply (h _ hcab).2
+  has_csup hchain := ⟨prod_csup _ hchain, prod_csup_is_csup _ hchain⟩
+
+theorem prod_csup_eq [CCPO α] [CCPO β] (c : α ×' β → Prop) (hchain : chain c) :
+    prod_csup c hchain = CCPO.csup hchain := by
+  apply is_csup_unique (c := c)
+  · apply prod_csup_is_csup
+  · apply CCPO.csup_spec
 
 theorem admissible_pprod_fst {α : Sort u} {β : Sort v} [CCPO α] [CCPO β] (P : α → Prop)
     (hadm : admissible P) : admissible (fun (x : α ×' β) => P x.1) := by
   intro c hchain h
+  rw [<- prod_csup_eq]
   apply hadm _ (PProd.chain.chain_fst hchain)
   intro x ⟨y, hxy⟩
   apply h ⟨x,y⟩ hxy
@@ -690,6 +730,7 @@ theorem admissible_pprod_fst {α : Sort u} {β : Sort v} [CCPO α] [CCPO β] (P 
 theorem admissible_pprod_snd {α : Sort u} {β : Sort v} [CCPO α] [CCPO β] (P : β → Prop)
     (hadm : admissible P) : admissible (fun (x : α ×' β) => P x.2) := by
   intro c hchain h
+  rw [<- prod_csup_eq]
   apply hadm _ (PProd.chain.chain_snd hchain)
   intro y ⟨x, hxy⟩
   apply h ⟨x,y⟩ hxy
@@ -736,49 +777,57 @@ noncomputable def flat_csup (c : FlatOrder b → Prop) : FlatOrder b := by
   · exact Classical.choose h
   · exact b
 
-noncomputable instance FlatOrder.instCCPO : CCPO (FlatOrder b) where
-  csup := flat_csup
-  csup_spec := by
-    intro x c hc
-    unfold flat_csup
-    split
-    next hex =>
-      apply Classical.some_spec₂ (q := (· ⊑ x ↔ (∀ y, c y → y ⊑ x)))
-      clear hex
-      intro z ⟨hz, hnb⟩
-      constructor
-      · intro h y hy
-        apply PartialOrder.rel_trans _ h; clear h
-        cases hc y z hy hz
-        next => assumption
-        next h =>
-          cases h
-          · contradiction
-          · constructor
-      · intro h
-        cases h z hz
+theorem flat_csup_is_csup (c : FlatOrder b → Prop) (hc : chain c) :
+    is_csup c (flat_csup c) := by
+  intro x
+  unfold flat_csup
+  split
+  next hex =>
+    apply Classical.some_spec₂ (q := (· ⊑ x ↔ (∀ y, c y → y ⊑ x)))
+    clear hex
+    intro z ⟨hz, hnb⟩
+    constructor
+    · intro h y hy
+      apply PartialOrder.rel_trans _ h; clear h
+      cases hc y z hy hz
+      next => assumption
+      next h =>
+        cases h
         · contradiction
         · constructor
-    next hnotex =>
-      constructor
-      · intro h y hy; clear h
-        suffices y = b by rw [this]; exact rel.bot
-        rw [not_exists] at hnotex
-        specialize hnotex y
-        rw [not_and] at hnotex
-        specialize hnotex hy
-        rw [@Classical.not_not] at hnotex
-        assumption
-      · intro; exact rel.bot
+    · intro h
+      cases h z hz
+      · contradiction
+      · constructor
+  next hnotex =>
+    constructor
+    · intro h y hy; clear h
+      suffices y = b by rw [this]; exact FlatOrder.rel.bot
+      rw [not_exists] at hnotex
+      specialize hnotex y
+      rw [not_and] at hnotex
+      specialize hnotex hy
+      rw [@Classical.not_not] at hnotex
+      assumption
+    · intro; exact FlatOrder.rel.bot
+
+instance FlatOrder.instCCPO : CCPO (FlatOrder b) where
+  has_csup hchain := ⟨flat_csup _ , flat_csup_is_csup _ hchain⟩
+
+theorem flat_csup_eq (c : FlatOrder b → Prop) (hchain : chain c) :
+    flat_csup c = CCPO.csup hchain := by
+  apply is_csup_unique (c := c)
+  · apply flat_csup_is_csup _ hchain
+  · apply CCPO.csup_spec
 
 theorem admissible_flatOrder (P : FlatOrder b → Prop) (hnot : P b) : admissible P := by
   intro c hchain h
   by_cases h' : ∃ (x : FlatOrder b), c x ∧ x ≠ b
-  · simp [CCPO.csup, flat_csup, h']
+  · simp [← flat_csup_eq, flat_csup, h']
     apply Classical.some_spec₂ (q := (P ·))
     intro x ⟨hcx, hneb⟩
     apply h x hcx
-  · simp [CCPO.csup, flat_csup, h', hnot]
+  · simp [← flat_csup_eq, flat_csup, h', hnot]
 
 end flat_order
 
@@ -809,8 +858,8 @@ theorem monotone_bind
   · apply MonoBind.bind_mono_right (fun y => monotone_apply y _ hmono₂ _ _ hx₁₂)
 
 instance : PartialOrder (Option α) := inferInstanceAs (PartialOrder (FlatOrder none))
-noncomputable instance : CCPO (Option α) := inferInstanceAs (CCPO (FlatOrder none))
-noncomputable instance : MonoBind Option where
+instance : CCPO (Option α) := inferInstanceAs (CCPO (FlatOrder none))
+instance : MonoBind Option where
   bind_mono_left h := by
     cases h
     · exact FlatOrder.rel.bot
@@ -926,7 +975,7 @@ theorem monotone_stateTRun [PartialOrder γ]
 noncomputable instance [Nonempty ε] : CCPO (EST ε σ α) :=
   inferInstanceAs (CCPO ((s : _) → FlatOrder (.error Classical.ofNonempty (Classical.choice ⟨s⟩))))
 
-noncomputable instance [Nonempty ε] : MonoBind (EST ε σ) where
+instance [Nonempty ε] : MonoBind (EST ε σ) where
   bind_mono_left {_ _ a₁ a₂ f} h₁₂ := by
     intro s
     specialize h₁₂ s

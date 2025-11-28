@@ -368,37 +368,36 @@ def currentFile : Selector := fun _ cfg => do
     | _ => continue
   return suggestions
 
-builtin_initialize librarySuggestionsExt : SimplePersistentEnvExtension Syntax (Option Syntax) ←
+builtin_initialize librarySuggestionsExt : SimplePersistentEnvExtension Name (Option Name) ←
   registerSimplePersistentEnvExtension {
-    addEntryFn := fun _ stx => some stx  -- Last entry wins
+    addEntryFn := fun _ name => some name  -- Last entry wins
     addImportedFn := fun entries =>
-      -- Take the last selector syntax from all imported modules
+      -- Take the last selector name from all imported modules
       entries.foldl (init := none) fun acc moduleEntries =>
-        moduleEntries.foldl (init := acc) fun _ stx => some stx
+        moduleEntries.foldl (init := acc) fun _ name => some name
   }
 
-/--
-Helper function to elaborate and evaluate selector syntax.
-This is shared by both validation (`elabSetLibrarySuggestions`) and retrieval (`getSelector`).
--/
-def elabAndEvalSelector (stx : Syntax) : MetaM Selector :=
-  Elab.Term.TermElabM.run' do
-    let selectorTerm ← Elab.Term.elabTermEnsuringType stx (some (Expr.const ``Selector []))
-    unsafe Meta.evalExpr Selector (Expr.const ``Selector []) selectorTerm
+/-- Attribute for registering library suggestions selectors. -/
+builtin_initialize librarySuggestionsAttr : TagAttribute ←
+  registerTagAttribute `library_suggestions "library suggestions selector" fun declName => do
+    let decl ← getConstInfo declName
+    unless decl.type == mkConst ``Selector do
+      throwError "declaration '{declName}' must have type `Selector`"
+    modifyEnv fun env => librarySuggestionsExt.addEntry env declName
 
 /--
-Get the currently registered library suggestions selector by evaluating the stored syntax.
+Get the currently registered library suggestions selector by looking up the stored declaration name.
 Returns `none` if no selector is registered or if evaluation fails.
-
-Uses `Term.elabTermEnsuringType` to elaborate arbitrary syntax (not just identifiers).
 -/
-def getSelector : MetaM (Option Selector) := do
-  let some stx := librarySuggestionsExt.getState (← getEnv) | return none
+unsafe def getSelectorImpl : MetaM (Option Selector) := do
+  let some declName := librarySuggestionsExt.getState (← getEnv) | return none
   try
-    let selector ← elabAndEvalSelector stx
-    return some selector
+    evalConstCheck Selector ``Selector declName
   catch _ =>
     return none
+
+@[implemented_by getSelectorImpl]
+opaque getSelector : MetaM (Option Selector)
 
 /-- Generate library suggestions for the given metavariable, using the currently registered library suggestions engine. -/
 def select (m : MVarId) (c : Config := {}) : MetaM (Array Suggestion) := do
@@ -425,14 +424,11 @@ def elabSetLibrarySuggestions : CommandElab
   | `(command| set_library_suggestions $selector) => do
     if `Lean.LibrarySuggestions.Basic ∉ (← getEnv).header.moduleNames then
       logWarning "Add `import Lean.LibrarySuggestions.Basic` before using the `set_library_suggestions` command."
-    -- Validate that the syntax can be elaborated (to catch errors early)
-    liftTermElabM do
-      try
-        discard <| elabAndEvalSelector selector
-      catch _ =>
-        throwError "Failed to elaborate {selector} as a `MVarId → Config → MetaM (Array Suggestion)`."
-    -- Store the syntax (not the evaluated Selector) for persistence
-    modifyEnv fun env => librarySuggestionsExt.addEntry env selector
+    -- Generate a fresh name for the selector definition
+    let name ← liftMacroM <| Macro.addMacroScope `_librarySuggestions
+    -- Elaborate the definition with the library_suggestions attribute
+    -- Note: not private, to ensure visibility across module boundaries
+    elabCommand (← `(@[library_suggestions] def $(mkIdent name) : Selector := $selector))
   | _ => throwUnsupportedSyntax
 
 open Lean.Elab.Tactic in

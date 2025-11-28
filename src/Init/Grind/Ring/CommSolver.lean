@@ -191,7 +191,7 @@ noncomputable def Mon.mul_k : Mon → Mon → Mon :=
           (fun pw₁ m₁' _ =>
             Bool.rec (t := pw₁.varLt pw₂)
               (Bool.rec (t := pw₂.varLt pw₁)
-                (.mult { x := pw₁.x, k := pw₁.k + pw₂.k } (ih m₁' m₂'))
+                (.mult { x := pw₁.x, k := Nat.add pw₁.k pw₂.k } (ih m₁' m₂'))
                 (.mult pw₂ (ih (.mult pw₁ m₁') m₂')))
               (.mult pw₁ (ih m₁' (.mult pw₂ m₂'))))))
     hugeFuel
@@ -225,7 +225,7 @@ theorem Mon.mul_k_eq_mul : Mon.mul_k m₁ m₂ = Mon.mul m₁ m₂ := by
     rw [h₂]
     dsimp only
     rw [ih]
-
+    rfl
 
 def Mon.mul_nc (m₁ m₂ : Mon) : Mon :=
   match m₁ with

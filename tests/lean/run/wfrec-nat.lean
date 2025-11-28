@@ -2,6 +2,8 @@
 Tests around the special case of well-founded recursion on Nat.
 -/
 
+set_option warn.sorry false
+
 namespace T1
 
 def foo : List α → Nat
@@ -69,3 +71,59 @@ example : foo (x::xs) = 1 + foo xs := by (fail_if_success rfl); simp [foo]
 example : foo (x::y::z::xs) = 1+ (1 + ( 1+ foo xs)) := by (fail_if_success rfl); simp [foo]
 
 end T3
+
+-- Defeq between similar functions
+
+namespace T4
+
+def foo (b : Bool) : Nat → Nat
+  | 0 => 0
+  | n+1 => 1 + foo b n
+termination_by n => n
+
+def bar (b : Bool) : Nat → Nat
+  | 0 => 0
+  | n+1 => cond b 1 2 + bar b n
+termination_by n => n
+
+def baz : Nat → Nat
+  | 0 => 0
+  | n+1 => 1 + baz n
+termination_by n => n
+
+example : foo true n = bar true n := rfl
+example : foo true n = baz n := rfl
+example : bar true n = baz n := rfl
+
+end T4
+
+-- For comparison: with wfrec
+
+namespace T4wfrec
+
+def foo (b : Bool) : Nat → Nat
+  | 0 => 0
+  | n+1 => 1 + foo b n
+termination_by n => (n, 0)
+
+def bar (b : Bool) : Nat → Nat
+  | 0 => 0
+  | n+1 => cond b 1 2 + bar b n
+termination_by n => (n, 0)
+
+def baz : Nat → Nat
+  | 0 => 0
+  | n+1 => 1 + baz n
+termination_by n => (n, 0)
+
+example : foo true n = bar true n := by (fail_if_success rfl); sorry
+example : foo true n = baz n := by (fail_if_success rfl); sorry
+example : bar true n = baz n := by (fail_if_success rfl); sorry
+
+unseal foo bar baz
+
+example : foo true n = bar true n := rfl
+example : foo true n = baz n := rfl
+example : bar true n = baz n := rfl
+
+end T4wfrec

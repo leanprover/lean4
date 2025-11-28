@@ -68,20 +68,31 @@ def wasOriginallyTheorem (env : Environment) (declName : Name) : Bool :=
   getOriginalConstKind? env declName |>.map (· matches .thm) |>.getD false
 
 /-- If `warn.sorry` is set to true, then, so long as the message log does not already have any errors,
-declarations with `sorryAx` generate the "declaration uses 'sorry'" warning. -/
+declarations with `sorryAx` generate the "declaration uses `sorry`" warning. -/
 register_builtin_option warn.sorry : Bool := {
   defValue := true
   descr    := "warn about uses of `sorry` in declarations added to the environment"
 }
 
+/-- Get a displayable name for a declaration, for use in sorry warnings. -/
+def Declaration.nameForSorry (decl : Declaration) : Name :=
+  match decl.getTopLevelNames with
+  | [name] => name
+  | names =>
+    -- For mutual definitions, join names with commas
+    names.foldl (init := .anonymous) fun acc name =>
+      if acc.isAnonymous then name
+      else acc ++ `«, » ++ name
+
 /--
 If the `warn.sorry` option is set to true and there are no errors in the log already,
-logs a warning if the declaration uses `sorry`.
+logs a warning if the declaration uses `sorry`, including the declaration name.
 -/
 def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
   if warn.sorry.get (← getOptions) then
     if !(← MonadLog.hasErrors) && decl.hasSorry then
-      -- Find an actual sorry expression to use for 'sorry'.
+      let declName := decl.nameForSorry
+      -- Find an actual sorry expression to use for `sorry`.
       -- That way the user can hover over it to see its type and use "go to definition" if it is a labeled sorry.
       let findSorry : StateRefT (Array (Bool × MessageData)) MetaM Unit := decl.forEachSorryM fun s => do
         let s' ← addMessageContext s
@@ -91,10 +102,10 @@ def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
       -- These can appear without logged errors if `decl` is referring to declarations with elaboration errors;
       -- that's where a user should direct their focus.
       if let some (_, s) := sorries.find? (·.1) <|> sorries[0]? then
-        logWarning <| .tagged `hasSorry m!"declaration uses '{s}'"
+        logWarning <| .tagged `hasSorry m!"declaration `{declName}` uses `{s}`"
       else
         -- This case should not happen, but it ensures a warning will get logged no matter what.
-        logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
+        logWarning <| .tagged `hasSorry m!"declaration `{declName}` uses `sorry`"
 
 builtin_initialize
   registerTraceClass `addDecl

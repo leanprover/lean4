@@ -162,23 +162,17 @@ def Mon.length : Mon → Nat
 def hugeFuel := 1000000
 
 def Mon.mul (m₁ m₂ : Mon) : Mon :=
-  -- We could use `m₁.length + m₂.length` to avoid hugeFuel
-  go hugeFuel m₁ m₂
-where
-  go (fuel : Nat) (m₁ m₂ : Mon) : Mon :=
-    match fuel with
-    | 0 => concat m₁ m₂
-    | fuel + 1 =>
-      match m₁, m₂ with
-      | m₁, .unit => m₁
-      | .unit, m₂ => m₂
-      | .mult pw₁ m₁, .mult pw₂ m₂ =>
-        bif pw₁.varLt pw₂ then
-          .mult pw₁ (go fuel m₁ (.mult pw₂ m₂))
-        else bif pw₂.varLt pw₁ then
-          .mult pw₂ (go fuel (.mult pw₁ m₁) m₂)
-        else
-          .mult { x := pw₁.x, k := pw₁.k + pw₂.k } (go fuel m₁ m₂)
+  match m₁, m₂ with
+  | m₁, .unit => m₁
+  | .unit, m₂ => m₂
+  | .mult pw₁ m₁, .mult pw₂ m₂ =>
+    bif pw₁.varLt pw₂ then
+      .mult pw₁ (mul m₁ (.mult pw₂ m₂))
+    else bif pw₂.varLt pw₁ then
+      .mult pw₂ (mul (.mult pw₁ m₁) m₂)
+    else
+      .mult { x := pw₁.x, k := pw₁.k + pw₂.k } (mul m₁ m₂)
+termination_by sizeOf m₁ + sizeOf m₂
 
 def Mon.mul_nc (m₁ m₂ : Mon) : Mon :=
   match m₁ with
@@ -820,26 +814,21 @@ where
     | .num k' => acc.insert (k*k' % c) m
     | .add k' m' p => go p (acc.insert (k*k' % c) (m.mul_nc m'))
 
-def Poly.combineC (p₁ p₂ : Poly) (c : Nat) : Poly :=
-  go hugeFuel p₁ p₂
-where
-  go (fuel : Nat) (p₁ p₂ : Poly) : Poly :=
-    match fuel with
-    | 0 => p₁.concat p₂
-    | fuel + 1 => match p₁, p₂ with
-      | .num k₁, .num k₂ => .num ((k₁ + k₂) % c)
-      | .num k₁, .add k₂ m₂ p₂ => addConstC (.add k₂ m₂ p₂) k₁ c
-      | .add k₁ m₁ p₁, .num k₂ => addConstC (.add k₁ m₁ p₁) k₂ c
-      | .add k₁ m₁ p₁, .add k₂ m₂ p₂ =>
-        match m₁.grevlex m₂ with
-        | .eq =>
-          let k := (k₁ + k₂) % c
-          bif k == 0 then
-            go fuel p₁ p₂
-          else
-            .add k m₁ (go fuel p₁ p₂)
-        | .gt => .add k₁ m₁ (go fuel p₁ (.add k₂ m₂ p₂))
-        | .lt => .add k₂ m₂ (go fuel (.add k₁ m₁ p₁) p₂)
+def Poly.combineC (p₁ p₂ : Poly) (c : Nat) : Poly := match p₁, p₂ with
+  | .num k₁, .num k₂ => .num ((k₁ + k₂) % c)
+  | .num k₁, .add k₂ m₂ p₂ => addConstC (.add k₂ m₂ p₂) k₁ c
+  | .add k₁ m₁ p₁, .num k₂ => addConstC (.add k₁ m₁ p₁) k₂ c
+  | .add k₁ m₁ p₁, .add k₂ m₂ p₂ =>
+    match m₁.grevlex m₂ with
+    | .eq =>
+      let k := (k₁ + k₂) % c
+      bif k == 0 then
+        combineC p₁ p₂ c
+      else
+        .add k m₁ (combineC p₁ p₂ c)
+    | .gt => .add k₁ m₁ (combineC p₁ (.add k₂ m₂ p₂) c)
+    | .lt => .add k₂ m₂ (combineC (.add k₁ m₁ p₁) p₂ c)
+termination_by sizeOf p₁ + sizeOf p₂
 
 def Poly.mulC (p₁ : Poly) (p₂ : Poly) (c : Nat) : Poly :=
   go p₁ (.num 0)
@@ -970,11 +959,8 @@ theorem Mon.denote_mulPow_nc {α} [Semiring α] (ctx : Context α) (p : Power) (
 
 theorem Mon.denote_mul {α} [CommSemiring α] (ctx : Context α) (m₁ m₂ : Mon)
     : denote ctx (mul m₁ m₂) = m₁.denote ctx * m₂.denote ctx := by
-  unfold mul
-  generalize hugeFuel = fuel
-  fun_induction mul.go
-    <;> simp [denote, denote_concat, one_mul,
-      mul_assoc, mul_left_comm, CommSemiring.mul_comm, *]
+  fun_induction mul
+    <;> simp [denote, one_mul, mul_assoc, mul_left_comm, CommSemiring.mul_comm, *]
   next h₁ h₂ _ =>
     have := eq_of_blt_false h₁ h₂
     simp [Power.denote_eq, pow_add, this]
@@ -1363,10 +1349,9 @@ theorem Poly.denote_mulMonC_nc {α c} [Ring α] [IsCharP α c] (ctx : Context α
 
 theorem Poly.denote_combineC {α c} [Ring α] [IsCharP α c] (ctx : Context α) (p₁ p₂ : Poly)
     : (combineC p₁ p₂ c).denote ctx = p₁.denote ctx + p₂.denote ctx := by
-  unfold combineC; generalize hugeFuel = fuel
-  fun_induction combineC.go
-    <;> simp [*, denote_concat, denote_addConstC, denote, intCast_add,
-          add_comm, add_left_comm, add_assoc, IsCharP.intCast_emod, zsmul_eq_intCast_mul]
+  fun_induction combineC
+    <;> simp [*, denote_addConstC, denote, intCast_add, add_comm, add_left_comm, add_assoc,
+      IsCharP.intCast_emod, zsmul_eq_intCast_mul]
   next hg _ h _ =>
     simp +zetaDelta at h
     rw [← add_assoc, Mon.eq_of_grevlex hg, ← right_distrib, ← intCast_add,

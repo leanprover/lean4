@@ -6308,6 +6308,20 @@ theorem two_pow_ctz_le_toNat_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
 
 /-! ### Population Count -/
 
+
+@[csimp]
+theorem cpopNatRec_eq_cpopNatRecTR (x : BitVec w):
+    @cpop = @cpopTR := by
+  simp [cpopTR, go t]
+  where
+    go (t : BitVec _) (acc : List (Nat × β))
+      : toListTR.go t acc = t.toList ++ acc := by
+      induction t generalizing acc <;>
+        simp [toListTR.go, toList, *, List.append_assoc]
+
+    sorry
+
+
 @[simp]
 theorem cpopNatRec_zero {x : BitVec w} :
     x.cpopNatRec 0 = 0 := by simp [BitVec.cpopNatRec]

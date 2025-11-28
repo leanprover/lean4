@@ -1028,6 +1028,12 @@ theorem setWidth_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v) :
   rw [Nat.mod_mod_of_dvd]
   exact Nat.pow_dvd_pow_iff_le_right'.mpr h
 
+theorem setWidth_ofNat_of_le_of_lt  (x : Nat) (h : w ≤ v) (h' : x < 2 ^ w) : setWidth v (BitVec.ofNat w x) = BitVec.ofNat v x := by
+  apply BitVec.eq_of_toNat_eq
+  have := Nat.pow_le_pow_of_le (a := 2) (m := v) (n := w) (by omega) h
+  simp only [toNat_setWidth, toNat_ofNat]
+  rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega)]
+
 /--
 Iterated `setWidth` agrees with the second `setWidth`
 except in the case the first `setWidth` is a non-trivial truncation,
@@ -6316,6 +6322,21 @@ theorem cpopNatRec_zero {x : BitVec w} :
 theorem cpopNatRec_succ {n : Nat} {x : BitVec w} :
     x.cpopNatRec (n + 1) acc = x.cpopNatRec n (acc + (x.getLsbD n).toNat):= by simp [BitVec.cpopNatRec]
 
+theorem cpopNatRec_eq_add {x : BitVec w} {acc n : Nat}:
+    x.cpopNatRec n acc = x.cpopNatRec n 0 + acc := by
+  induction n generalizing acc
+  · simp
+  · case _ n ihn =>
+    simp only [cpopNatRec_succ, Nat.zero_add]
+    have ihn' := ihn (acc := acc + (x.getLsbD n).toNat)
+    have ihn'' := ihn (acc := (x.getLsbD n).toNat)
+    rw [ihn', ihn'', Nat.add_assoc, Nat.add_comm acc]
+
+theorem cpopNatRec_eq_add' {x : BitVec w} {acc n : Nat}:
+    x.cpopNatRec n (acc + acc') = x.cpopNatRec n acc + acc' := by
+  rw [cpopNatRec_eq_add (acc := acc + acc'), cpopNatRec_eq_add (acc := acc)]
+  omega
+
 theorem cpopNatRec_le_of_le {x : BitVec w} (n : Nat) (h : n ≤ w) :
     x.cpopNatRec n acc ≤ acc + n := by
   induction n generalizing acc
@@ -6325,6 +6346,13 @@ theorem cpopNatRec_le_of_le {x : BitVec w} (n : Nat) (h : n ≤ w) :
     specialize ihn (by omega) (acc:= acc + (x.getLsbD n).toNat)
     simp
     omega
+
+theorem cpopNatRec_eq_of_le {x : BitVec w} (n : Nat) (hn : w ≤ n) :
+    x.cpopNatRec n acc = x.cpopNatRec (n + k) acc := by
+  induction k
+  · simp
+  · case _ k ihk =>
+    simp [show n + (k + 1) = (n + k) + 1 by omega, cpopNatRec_succ, ihk, show w ≤ n + k by omega]
 
 theorem cpopNatRec_le {x : BitVec w} (n : Nat) :
     x.cpopNatRec n 0 ≤ w := by
@@ -6343,145 +6371,94 @@ theorem cpopNatRec_le {x : BitVec w} (n : Nat) :
     · simp [show w ≤ n by omega]
       omega
 
-theorem cpopNatRec_eq_of_le {x : BitVec w} (n : Nat) (hn : w ≤ n) :
-    x.cpopNatRec n = x.cpopNatRec (n + k) := by
-  induction k
-  · simp
-  · case _ k ihk =>
-    simp [show n + (k + 1) = (n + k) + 1 by omega, cpopNatRec_succ, ihk, show w ≤ n + k by omega]
-
 @[simp]
-theorem cpopNatRec_allOnes_eq_of_le (h : n ≤ w) :
-    (allOnes w).cpopNatRec n = n := by
+theorem cpopNatRec_allOnes_eq_add_of_le (h : n ≤ w) :
+    (allOnes w).cpopNatRec n acc = acc + n := by
   induction n
   · case zero => simp
   · case succ n ihn =>
-    simp only [cpopNatRec_succ, getLsbD_allOnes]
-    by_cases hlt : n < w
-    · rw [ihn (by omega)]
-      simp [hlt, Nat.add_comm]
-    · omega
+    specialize ihn (by omega)
+    simp [show n < w by omega, ihn, cpopNatRec_eq_add' (acc := acc) (acc' := 1)]
+    omega
 
-theorem cpopNat_le (x : BitVec w) :
-    x.cpopNat ≤ w := by
-  have h := BitVec.cpopNatRec_le_of_le (x := x) (n :=w) (by omega)
-  have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
-  simp [cpopNat, h]
-
-/-- We ensure that `cpop` does not overflow, as `x.cpopNat` is at most `w`
-  and must fit in a `v`-long BitVec -/
-theorem cpop_le (x : BitVec w) :
-    x.cpop ≤ w := by
+theorem toNat_cpop_le (x : BitVec w) :
+    x.cpop.toNat ≤ w := by
   have hlt := Nat.lt_pow_self (a := 2) (n := w) (by omega)
-  have hle := cpopNat_le (x := x)
-  simp only [cpop, natCast_eq_ofNat, ofNat_le_ofNat, Nat.mod_two_pow_self, ge_iff_le]
+  have hle := cpopNatRec_le (x := x) (n := w)
+  simp only [cpop, toNat_ofNat, ge_iff_le]
   rw [Nat.mod_eq_of_lt (by omega)]
   exact hle
 
 @[simp]
 theorem cpopNatRec_cons_eq_cpopNatRec_of_le {x : BitVec w} {b : Bool} (hn : n ≤ w) :
-    (cons b x).cpopNatRec n = x.cpopNatRec n := by
-  induction n
+    (cons b x).cpopNatRec n acc = x.cpopNatRec n acc := by
+  induction n generalizing acc
   · simp
   · case _ n ihn =>
-    by_cases hn' : n < w
-    · simp only [cpopNatRec_succ]
-      congr 1
-      · simp [getLsbD_cons, show ¬ n = w by omega]
-      · apply ihn (by omega)
-    · omega
+    specialize ihn (acc := acc + ((cons b x).getLsbD n).toNat) (by omega)
+    rw [cpopNatRec_succ, ihn, getLsbD_cons]
+    simp [show ¬ n = w by omega]
 
-theorem cpopNatRec_cons_eq_toNat_add_cpopNatRec_of_lt {x : BitVec w} {b : Bool} (hn : w < n) (hw : 0 < w) :
-    (cons b x).cpopNatRec n = b.toNat + x.cpopNatRec n := by
-  induction n
+theorem cpopNatRec_cons_eq_toNat_add_cpopNatRec_of_lt {x : BitVec w} {b : Bool} (hn : w < n) :
+    (cons b x).cpopNatRec n acc = b.toNat + x.cpopNatRec n acc := by
+  induction n generalizing acc
   · omega
   · case _ n ihn =>
-    by_cases hwn : w < n
-    · simp [cpopNatRec_succ, ihn hwn, getLsbD_cons, show ¬n = w by omega]
+    simp
+    by_cases hlt : w < n
+    · specialize ihn (acc := acc + ((cons b x).getLsbD n).toNat) (by omega)
+      rw [ihn, Nat.add_left_cancel_iff, getLsbD_cons]
+      simp [show ¬ n = w by omega]
+    · rw [cpopNatRec_eq_add' (acc := acc), cpopNatRec_eq_add' (acc := acc), getLsbD_cons]
+      simp [show n = w by omega]
       omega
-    · simp only [show n = w by omega, cpopNatRec_succ, Nat.lt_add_one, getLsbD_eq_getElem,
-        getElem_cons, ↓reduceDIte, Nat.le_refl, getLsbD_of_ge]
-      rw [cpopNatRec_cons_eq_cpopNatRec_of_le (by omega)]
-      simp
 
 theorem cpopNatRec_concat_eq_toNat_add_cpopNatRec_of_lt {x : BitVec w} {b : Bool} (hn : 0 < n) :
-    (concat x b).cpopNatRec n = b.toNat + x.cpopNatRec (n - 1) := by
-  induction n
+    (concat x b).cpopNatRec n acc = b.toNat + x.cpopNatRec (n - 1) acc := by
+  induction n generalizing acc
   · omega
   · case _ n ihn =>
     by_cases hn0 : 0 < n
-    · rw [cpopNatRec_succ, ihn (by omega), Nat.add_one_sub_one, Nat.add_comm, Nat.add_assoc,
-          Nat.add_comm, show x.cpopNatRec n = x.cpopNatRec (n - 1 + 1) by rw [Nat.sub_one_add_one (by omega)],
-          cpopNatRec_succ, Nat.add_comm,
-          show (x.getLsbD (n - 1)).toNat + x.cpopNatRec (n - 1) =
-          x.cpopNatRec (n - 1) + (x.getLsbD (n - 1)).toNat by omega]
-      congr 2
-      simp [getLsbD_concat, show ¬ n = 0 by omega]
+    · specialize ihn (acc := (acc + ((x.concat b).getLsbD n).toNat)) (by omega)
+      rw [cpopNatRec_succ, ihn, cpopNatRec_eq_add' (acc := acc)]
+      simp [getLsbD_concat, show ¬ n = 0 by omega,
+        show n + 1 - 1 = n - 1 + 1 by omega, cpopNatRec_eq_add']
     · simp [show n = 0 by omega]
-
-theorem cpopNat_cons {x : BitVec w} {b : Bool} :
-    (x.cons b).cpopNat = b.toNat + x.cpopNat := by
-  simp only [cpopNat, cpopNatRec_succ, Nat.lt_add_one, getLsbD_eq_getElem]
-  rw [cpopNatRec_cons_eq_cpopNatRec_of_le (by omega)]
-  congr
-  simp [getElem_cons]
+      omega
 
 theorem cpop_cons_eq_add_setWidth {x : BitVec w} {b : Bool} :
     (x.cons b).cpop = b.toNat + x.cpop.setWidth (w + 1) := by
-  simp only [cpop, cpopNat_cons]
-  apply eq_of_toNat_eq
-  have := cpopNat_le (x := x)
+  have := cpopNatRec_le (x := x) (n := w)
   have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
-  simp only [toNat_ofNat, natCast_eq_ofNat, toNat_add, toNat_setWidth, Nat.add_mod_mod,
-    Nat.mod_add_mod]
-  rw [Nat.mod_eq_of_lt (b := 2 ^ (w + 1)) (by cases h : b <;> (simp; omega)),
-    Nat.mod_eq_of_lt (b := 2 ^ (w + 1)) (by cases h : b <;> (simp; omega)),
-    Nat.mod_eq_of_lt (b := 2 ^ w) (by omega)]
-
-theorem cpopNat_concat {x : BitVec w} {b : Bool} :
-    (x.concat b).cpopNat = b.toNat + x.cpopNat := by
-  simp only [cpopNat, cpopNatRec_succ, Nat.lt_add_one, getLsbD_eq_getElem]
-  by_cases hw0 : 0 < w
-  · rw [cpopNatRec_concat_eq_toNat_add_cpopNatRec_of_lt hw0]
-    have : x.cpopNatRec w = x.cpopNatRec (w - 1 + 1) := by rw [Nat.sub_one_add_one]; omega
-    rw [this, cpopNatRec_succ, Nat.add_comm, Nat.add_assoc,
-      Nat.add_comm (n := (x.getLsbD (w - 1)).toNat)]
-    simp only [getElem_concat, show ¬w = 0 by omega, reduceDIte, ← getLsbD_eq_getElem (x := x) (i := w - 1)]
-  · simp [show w = 0 by omega]
+  simp only [cpop]
+  rw [cpopNatRec_cons_eq_toNat_add_cpopNatRec_of_lt]
+  simp only [cpopNatRec_succ, Nat.le_refl, getLsbD_of_ge, Bool.toNat_false, Nat.add_zero, ofNat_add,
+    natCast_eq_ofNat]
+  congr
+  rw [setWidth_ofNat_of_le_of_lt (x := x.cpopNatRec w 0) (by omega) (by omega)]
+  omega
 
 theorem cpop_concat_eq_add_setWidth {x : BitVec w} {b : Bool} :
     (x.concat b).cpop = b.toNat + x.cpop.setWidth (w + 1) := by
-  simp only [cpop, cpopNat_concat]
-  apply eq_of_toNat_eq
-  have := cpopNat_le (x := x)
+  have := cpopNatRec_le (x := x) (n := w)
   have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
-  simp only [toNat_ofNat, natCast_eq_ofNat, toNat_add, toNat_setWidth, Nat.add_mod_mod,
-    Nat.mod_add_mod]
-  rw [Nat.mod_eq_of_lt (b := 2 ^ (w + 1)) (by cases h : b <;> (simp; omega)),
-    Nat.mod_eq_of_lt (b := 2 ^ (w + 1)) (by cases h : b <;> (simp; omega)),
-    Nat.mod_eq_of_lt (b := 2 ^ w) (by omega)]
-
-theorem cpopNat_cons_eq_cpopNat_concat (x : BitVec w) :
-    (x.cons y).cpopNat = (x.concat y).cpopNat := by
-  rw [cpopNat_cons, cpopNat_concat]
+  simp only [cpop]
+  rw [cpopNatRec_concat_eq_toNat_add_cpopNatRec_of_lt]
+  simp only [Nat.add_one_sub_one, natCast_eq_ofNat, ofNat_add]
+  congr
+  rw [setWidth_ofNat_of_le_of_lt (x := x.cpopNatRec w 0) (by omega) (by omega)]
+  omega
 
 theorem cpop_cons_eq_cpop_concat (x : BitVec w) :
     (x.cons y).cpop = (x.concat y).cpop := by
-  simp [cpop, cpopNat_cons_eq_cpopNat_concat]
+  rw [cpop_cons_eq_add_setWidth, cpop_concat_eq_add_setWidth]
 
 @[simp]
-theorem cpopNat_reverse (x : BitVec w) :
-    x.reverse.cpopNat = x.cpopNat := by
-  induction w
-  case zero =>
-    simp [BitVec.of_length_zero]
-  case succ w' ih =>
-    rw [← concat_reverse_setWidth_msb_eq_reverse, ← cpopNat_cons_eq_cpopNat_concat, cpopNat_cons, ih]
-    conv =>
-      rhs
-      rw [← cons_msb_setWidth (x := x), cpopNat_cons]
+theorem cpopNatRec_reverse (x : BitVec w) (hn : w ≤ n):
+    x.reverse.cpopNatRec n acc = x.cpopNatRec n acc := by
+  sorry
 
--- @[simp]
+@[simp]
 theorem cpop_reverse (x : BitVec w) :
     x.reverse.cpop = x.cpop := by
   simp [cpop]
@@ -6495,49 +6472,42 @@ theorem cpopNatRec_cast_eq_cpopNatRec_of_eq {x : BitVec w} (p : w = v) :
   · exact heq_of_eqRec_eq (congrArg (Eq w) (id (Eq.symm p))) rfl
 
 theorem cpopNatRec_append_eq_add_cpopNatRec {x : BitVec w} {y : BitVec v} :
-    (x ++ y).cpopNatRec (w + v) = x.cpopNatRec w + y.cpopNatRec v := by
-  by_cases hv0 : v = 0
-  · subst hv0; simp
-  · induction w
-    · simp [cpopNatRec_cast_eq_cpopNatRec_of_eq]
-    · case _ w ihw =>
-      rw [← cons_msb_setWidth (x := x), cons_append,
-        cpopNatRec_cast_eq_cpopNatRec_of_eq (x := cons x.msb (setWidth w x ++ y)) (by omega)]
-      by_cases hw0 : w = 0
-      · subst hw0
-        simp only [BitVec.msb, Nat.reduceAdd, getMsbD_eq_getLsbD, Nat.lt_add_one, decide_true,
-          Nat.sub_self, getLsbD_eq_getElem, Bool.true_and, zero_width_append, Nat.zero_add,
-          cpopNatRec_succ, cpopNatRec_zero, Nat.add_zero,
-          zero_width_append, Nat.zero_add, cpopNatRec_zero]
-        rw [cpopNatRec_cons_eq_toNat_add_cpopNatRec_of_lt (by omega) (by omega), cpopNatRec_cast_eq_cpopNatRec_of_eq]
-        simp only [getElem_cons, reduceDIte, Nat.add_left_cancel_iff]
-        rw [Nat.add_comm, ← cpopNatRec_eq_of_le (x := y) (n := v) (k := 1) (by omega)]
-      · specialize ihw (x := x.setWidth w)
-        rw [cpopNatRec_cons_eq_toNat_add_cpopNatRec_of_lt (by omega) (by omega),
-          cpopNatRec_cons_eq_toNat_add_cpopNatRec_of_lt (by omega) (by omega), show w + 1 + v = w + v + 1 by omega]
-        simp [ihw]
-        omega
-
-theorem cpopNat_append_eq_add_cpopNat {x : BitVec w} {y : BitVec u} :
-    (x ++ y).cpopNat = x.cpopNat + y.cpopNat := by
-  by_cases hv0 : u = 0
-  · subst hv0
-    simp [cpopNat]
-  · simp [cpopNat, cpopNatRec_append_eq_add_cpopNatRec]
+    (x ++ y).cpopNatRec (w + v) acc = x.cpopNatRec w acc + y.cpopNatRec v acc := by sorry
+  -- by_cases hv0 : v = 0
+  -- · subst hv0; simp
+  -- · induction w
+  --   · simp [cpopNatRec_cast_eq_cpopNatRec_of_eq]
+  --   · case _ w ihw =>
+  --     rw [← cons_msb_setWidth (x := x), cons_append,
+  --       cpopNatRec_cast_eq_cpopNatRec_of_eq (x := cons x.msb (setWidth w x ++ y)) (by omega)]
+  --     by_cases hw0 : w = 0
+  --     · subst hw0
+  --       simp only [BitVec.msb, Nat.reduceAdd, getMsbD_eq_getLsbD, Nat.lt_add_one, decide_true,
+  --         Nat.sub_self, getLsbD_eq_getElem, Bool.true_and, zero_width_append, Nat.zero_add,
+  --         cpopNatRec_succ, cpopNatRec_zero, Nat.add_zero,
+  --         zero_width_append, Nat.zero_add, cpopNatRec_zero]
+  --       rw [cpopNatRec_cons_eq_toNat_add_cpopNatRec_of_lt (by omega) (by omega), cpopNatRec_cast_eq_cpopNatRec_of_eq]
+  --       simp only [getElem_cons, reduceDIte, Nat.add_left_cancel_iff]
+  --       rw [Nat.add_comm, ← cpopNatRec_eq_of_le (x := y) (n := v) (k := 1) (by omega)]
+  --     · specialize ihw (x := x.setWidth w)
+  --       rw [cpopNatRec_cons_eq_toNat_add_cpopNatRec_of_lt (by omega) (by omega),
+  --         cpopNatRec_cons_eq_toNat_add_cpopNatRec_of_lt (by omega) (by omega), show w + 1 + v = w + v + 1 by omega]
+  --       simp [ihw]
+  --       omega
 
 theorem cpop_append_eq_setWidth_add_cpop {x : BitVec w} {y : BitVec u} :
-    (x ++ y).cpop = x.cpop.setWidth (w + u) + y.cpop.setWidth (w + u) := by
-  simp only [cpop, cpopNat_append_eq_add_cpopNat]
-  apply eq_of_toNat_eq
-  simp only [toNat_ofNat, toNat_add, toNat_setWidth, Nat.add_mod_mod, Nat.mod_add_mod]
-  have := cpopNat_le (x := x)
-  have := cpopNat_le (x := y)
-  have := Nat.lt_pow_self (a := 2) (n := w + u) (by omega)
-  have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
-  have := Nat.lt_pow_self (a := 2) (n := u) (by omega)
-  rw [Nat.mod_eq_of_lt (b := 2 ^ (w + u)) (by omega),
-    Nat.mod_eq_of_lt (b := 2 ^ w) (by omega),
-    Nat.mod_eq_of_lt (b := 2 ^ u) (by omega),
-    Nat.mod_eq_of_lt (b := 2 ^ (w + u)) (by omega)]
+    (x ++ y).cpop = x.cpop.setWidth (w + u) + y.cpop.setWidth (w + u) := by sorry
+  -- simp only [cpop, cpopNat_append_eq_add_cpopNat]
+  -- apply eq_of_toNat_eq
+  -- simp only [toNat_ofNat, toNat_add, toNat_setWidth, Nat.add_mod_mod, Nat.mod_add_mod]
+  -- have := cpopNat_le (x := x)
+  -- have := cpopNat_le (x := y)
+  -- have := Nat.lt_pow_self (a := 2) (n := w + u) (by omega)
+  -- have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
+  -- have := Nat.lt_pow_self (a := 2) (n := u) (by omega)
+  -- rw [Nat.mod_eq_of_lt (b := 2 ^ (w + u)) (by omega),
+  --   Nat.mod_eq_of_lt (b := 2 ^ w) (by omega),
+  --   Nat.mod_eq_of_lt (b := 2 ^ u) (by omega),
+  --   Nat.mod_eq_of_lt (b := 2 ^ (w + u)) (by omega)]
 
 end BitVec

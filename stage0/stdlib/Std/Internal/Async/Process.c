@@ -1583,6 +1583,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_Internal_IO_Process_setCwd(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }

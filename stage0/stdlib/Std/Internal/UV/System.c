@@ -3217,6 +3217,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_uv_chdir(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }

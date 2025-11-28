@@ -59,6 +59,10 @@ instance : EmptyCollection (NameTrie β) where
 def NameTrie.find? (t : NameTrie β) (k : Name) : Option β :=
   PrefixTree.find? t (toKey k)
 
+@[inline, inherit_doc PrefixTree.findShortestPrefix?]
+def NameTrie.findShortestPrefix? (t : NameTrie β) (k : Name) : Option β :=
+  PrefixTree.findShortestPrefix? t (toKey k)
+
 @[inline, inherit_doc PrefixTree.findLongestPrefix?]
 def NameTrie.findLongestPrefix? (t : NameTrie β) (k : Name) : Option β :=
   PrefixTree.findLongestPrefix? t (toKey k)

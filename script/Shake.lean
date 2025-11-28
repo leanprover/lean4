@@ -37,6 +37,10 @@ Options:
     Preserves existing imports that are implied by other imports and thus not technically needed
     anymore
 
+  --keep-prefix
+    If an import `X` would be replaced in favor of a more specific import `X.Y...`, preserves the
+    original import instead
+
   --keep-public
     Preserves all `public` imports to avoid breaking changes for external downstream modules
 
@@ -64,6 +68,7 @@ open Lean
 structure Args where
   help : Bool := false
   keepImplied : Bool := false
+  keepPrefix : Bool := false
   keepPublic : Bool := false
   addPublic : Bool := false
   force : Bool := false
@@ -410,6 +415,8 @@ def visitModule (srcSearchPath : SearchPath)
   else
     preserve
   let addOnly := addOnly || module?.any (·.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep-all"))
+  -- tries of import names for each kind, used for `--keep-prefix` and empty otherwise
+  let mut impTries : Std.HashMap NeedsKind (NameTrie Import) := {}
   let mut deps := needs
 
   -- Add additional preserved imports
@@ -417,9 +424,10 @@ def visitModule (srcSearchPath : SearchPath)
     let imp := decodeImport impStx
     let j := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
+    if args.keepPrefix then
+      impTries := impTries.insert k (impTries.get? k |>.getD NameTrie.empty |>.insert imp.module imp)
     if addOnly ||
         args.keepPublic && imp.isExported ||
-        imp.module == `Aesop ||  -- TODO
         impStx.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep") then
       deps := deps.union k {j}
   for j in [0:s.mods.size] do
@@ -441,8 +449,8 @@ def visitModule (srcSearchPath : SearchPath)
   if prelude?.isNone then
     deps := deps.union .pub {s.env.getModuleIdx? `Init |>.get!}
 
-  -- Accumulate `newDeps` which is the transitive closure of the still-live imports
-  let mut newDeps := Needs.empty
+  -- Accumulate `transDeps` which is the transitive closure of the still-live imports
+  let mut transDeps := Needs.empty
   for imp in s.mods[i]!.imports do
     let j := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
@@ -451,33 +459,53 @@ def visitModule (srcSearchPath : SearchPath)
         -- skip folder-nested imports
         s.modNames[i]!.isPrefixOf imp.module ||
         imp.importAll then
-      newDeps := addTransitiveImps newDeps imp j s.transDeps[j]!
+      transDeps := addTransitiveImps transDeps imp j s.transDeps[j]!
       deps := deps.union k {j}
 
-  -- If `newDeps` does not cover `deps`, then we have to add back some imports until it does.
+  -- If `transDeps` does not cover `deps`, then we have to add back some imports until it does.
   -- To minimize new imports we pick only new imports which are not transitively implied by
   -- another new import
   let mut toAdd : Array Import := #[]
+  let mut keptPrefix := false
+  let mut newTransDeps := transDeps
   for j in (0...s.mods.size).toArray.reverse do
     for k in NeedsKind.all do
-      if deps.has k j && !newDeps.has k j && !newDeps.has { k with isExported := true } j then
-        let mut imp := { k with module := s.modNames[j]! }
+      if deps.has k j && !newTransDeps.has k j && !newTransDeps.has { k with isExported := true } j then
+        let mut imp : Import := { k with module := s.modNames[j]! }
         if args.addPublic && !k.isExported &&
             (s.transDepsOrig[i]!.has { k with isExported := true } j || s.transDepsOrig[i]!.has { k with isExported := true, isMeta := true } j) then
           imp := { imp with isExported := true }
-          deps := deps.union { k with isExported := true } {j}
-        if !s.mods[i]!.imports.contains imp then  -- can be false due to `addPublic`
+        if args.keepPrefix && !s.mods[i]!.imports.contains imp then
+          if let some prfx := impTries.get? (.ofImport imp) |>.bind (·.findShortestPrefix? imp.module) then
+            imp := prfx
+            keptPrefix := true
+        if !s.mods[i]!.imports.contains imp then
           toAdd := toAdd.push imp
-        newDeps := addTransitiveImps newDeps imp j s.transDeps[j]!
+        deps := deps.union (.ofImport imp) {j}
+        newTransDeps := addTransitiveImps newTransDeps imp j s.transDeps[j]! |>.union (.ofImport imp) {j}
+
+  if keptPrefix then
+    -- if an import was replaced by `--keep-prefix`, we did not visit the modules in dependency
+    -- order anymore and so we have to redo the transitive closure checking
+    newTransDeps := transDeps
+    for j in (0...s.mods.size).toArray.reverse do
+      for k in NeedsKind.all do
+        if deps.has k j then
+          let mut imp : Import := { k with module := s.modNames[j]! }
+          if toAdd.contains imp && (newTransDeps.has k j || newTransDeps.has { k with isExported := true } j) then
+            toAdd := toAdd.erase imp
+            deps := deps.sub k {j}
+          else
+            newTransDeps := addTransitiveImps newTransDeps imp j s.transDeps[j]! |>.union (.ofImport imp) {j}
 
   -- Any import which is still not in `deps` was unused
   let mut toRemove : Array Import := #[]
   for imp in s.mods[i]!.imports do
     let j := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
-    let keep := if args.keepImplied then newDeps else deps
+    let keep := if args.keepImplied then newTransDeps else deps
     -- A private import should also be removed if the public version has been added
-    if !keep.has k j || !k.isExported && !imp.importAll && deps.has { k with isExported := true } j then
+    if !keep.has k j || !k.isExported && !imp.importAll && newTransDeps.has { k with isExported := true } j then
       toRemove := toRemove.push imp
 
   -- mark and report the removals
@@ -567,6 +595,7 @@ public def main (args : List String) : IO UInt32 := do
     | [] => args
     | "--help" :: rest => parseArgs { args with help := true } rest
     | "--keep-implied" :: rest => parseArgs { args with keepImplied := true } rest
+    | "--keep-prefix" :: rest => parseArgs { args with keepPrefix := true } rest
     | "--keep-public" :: rest => parseArgs { args with keepPublic := true } rest
     | "--add-public" :: rest => parseArgs { args with addPublic := true } rest
     | "--force" :: rest => parseArgs { args with force := true } rest

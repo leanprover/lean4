@@ -8,7 +8,7 @@ termination_by n => n
 info: equations:
 @[defeq] theorem foo.eq_1 : foo 0 0 = 0
 theorem foo.eq_2 : ∀ (x : Nat), (x = 0 → False) → foo 0 x = x
-@[defeq] theorem foo.eq_3 : ∀ (x n : Nat), foo n.succ x = foo n x
+theorem foo.eq_3 : ∀ (x n : Nat), foo n.succ x = foo n x
 -/
 #guard_msgs in
 #print equations foo
@@ -58,7 +58,7 @@ info: equations:
     match x with
     | 0 => 0
     | m => m
-@[defeq] theorem bar.eq_2 : ∀ (x n : Nat), bar n.succ x = bar n x
+theorem bar.eq_2 : ∀ (x n : Nat), bar n.succ x = bar n x
 -/
 #guard_msgs in
 #print equations bar
@@ -125,7 +125,7 @@ info: equations:
     match x with
     | 0 => 0
     | m => m
-@[defeq] theorem Structural.bar.eq_2 : ∀ (x n : Nat), bar n.succ x = bar n x
+theorem Structural.bar.eq_2 : ∀ (x n : Nat), bar n.succ x = bar n x
 -/
 #guard_msgs in
 #print equations bar

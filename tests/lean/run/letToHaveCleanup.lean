@@ -168,7 +168,7 @@ def fnWFRec (n : Nat) : let α := Nat; α :=
   | 0 => 0
   | n + 1 => id (let m := n + 1; m * fnWFRec (n / 2))
 /--
-info: @[irreducible] def fnWFRec : Nat →
+info: def fnWFRec : Nat →
   have α : Type := Nat;
   α :=
 WellFounded.Nat.fix (fun x => x) fun n a =>

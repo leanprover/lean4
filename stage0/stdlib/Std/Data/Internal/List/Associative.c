@@ -282,15 +282,6 @@ x_7 = l_Std_Internal_List_getEntryD___redArg(x_3, x_4, x_5, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_List_getEntryD___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_Internal_List_getEntryD___redArg(x_1, x_2, x_3, x_4);
-lean_dec_ref(x_3);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Internal_List_getEntryD___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -300,11 +291,20 @@ lean_dec_ref(x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_Std_Internal_List_getEntry_x21___redArg___closed__0() {
+LEAN_EXPORT lean_object* l_Std_Internal_List_getEntryD___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_Internal_List_getEntryD___redArg(x_1, x_2, x_3, x_4);
+lean_dec_ref(x_3);
+return x_5;
+}
+}
+static lean_object* _init_l_Std_Internal_List_getEntry_x21___redArg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Std.Data.Internal.List.Associative", 34, 34);
+x_1 = lean_mk_string_unchecked("key is not present in associative list", 38, 38);
 return x_1;
 }
 }
@@ -316,11 +316,11 @@ x_1 = lean_mk_string_unchecked("Std.Internal.List.getEntry!", 27, 27);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Internal_List_getEntry_x21___redArg___closed__2() {
+static lean_object* _init_l_Std_Internal_List_getEntry_x21___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("key is not present in associative list", 38, 38);
+x_1 = lean_mk_string_unchecked("Std.Data.Internal.List.Associative", 34, 34);
 return x_1;
 }
 }
@@ -813,15 +813,6 @@ x_6 = l_Std_Internal_List_containsKey___redArg(x_3, x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_List_containsKey___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Std_Internal_List_containsKey___redArg(x_1, x_2, x_3);
-x_5 = lean_box(x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Internal_List_containsKey___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -829,6 +820,15 @@ uint8_t x_6; lean_object* x_7;
 x_6 = l_Std_Internal_List_containsKey(x_1, x_2, x_3, x_4, x_5);
 x_7 = lean_box(x_6);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_List_containsKey___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Std_Internal_List_containsKey___redArg(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_List_getEntry___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -916,15 +916,6 @@ x_8 = l_Std_Internal_List_getValueCastD___redArg(x_3, x_5, x_6, x_7);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_List_getValueCastD___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_Internal_List_getValueCastD___redArg(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Internal_List_getValueCastD___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -934,11 +925,20 @@ lean_dec(x_7);
 return x_8;
 }
 }
-static lean_object* _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__0() {
+LEAN_EXPORT lean_object* l_Std_Internal_List_getValueCastD___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_Internal_List_getValueCastD___redArg(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+return x_5;
+}
+}
+static lean_object* _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Init.Data.Option.BasicAux", 25, 25);
+x_1 = lean_mk_string_unchecked("value is none", 13, 13);
 return x_1;
 }
 }
@@ -950,11 +950,11 @@ x_1 = lean_mk_string_unchecked("Option.get!", 11, 11);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__2() {
+static lean_object* _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("value is none", 13, 13);
+x_1 = lean_mk_string_unchecked("Init.Data.Option.BasicAux", 25, 25);
 return x_1;
 }
 }
@@ -1030,15 +1030,6 @@ x_7 = l_Std_Internal_List_getValueD___redArg(x_3, x_4, x_5, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_List_getValueD___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_Internal_List_getValueD___redArg(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Internal_List_getValueD___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -1046,6 +1037,15 @@ lean_object* x_7;
 x_7 = l_Std_Internal_List_getValueD(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_6);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_List_getValueD___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_Internal_List_getValueD___redArg(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_List_getValue_x21___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -1180,15 +1180,6 @@ x_7 = l_Std_Internal_List_getKeyD___redArg(x_3, x_4, x_5, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_List_getKeyD___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_Internal_List_getKeyD___redArg(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Internal_List_getKeyD___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -1196,6 +1187,15 @@ lean_object* x_7;
 x_7 = l_Std_Internal_List_getKeyD(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_6);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_List_getKeyD___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_Internal_List_getKeyD___redArg(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_List_getKey_x21___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -2225,15 +2225,6 @@ x_6 = l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_instDe
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_instDecidableLESigma__std___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_instDecidableLESigma__std___redArg(x_1, x_2, x_3);
-x_5 = lean_box(x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_instDecidableLESigma__std___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -2241,6 +2232,15 @@ uint8_t x_6; lean_object* x_7;
 x_6 = l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_instDecidableLESigma__std(x_1, x_2, x_3, x_4, x_5);
 x_7 = lean_box(x_6);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_instDecidableLESigma__std___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_instDecidableLESigma__std___redArg(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_minSigmaOfOrd___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2522,15 +2522,6 @@ x_6 = l_Std_Internal_List_minKeyD___redArg(x_3, x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_List_minKeyD___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Internal_List_minKeyD___redArg(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Internal_List_minKeyD___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -2540,12 +2531,12 @@ lean_dec(x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_List_maxKey_x3f___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Internal_List_minKeyD___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = l_Ord_opposite___redArg(x_1);
-x_4 = l_Std_Internal_List_minKey_x3f___redArg(x_3, x_2);
+lean_object* x_4; 
+x_4 = l_Std_Internal_List_minKeyD___redArg(x_1, x_2, x_3);
+lean_dec(x_3);
 return x_4;
 }
 }
@@ -2558,12 +2549,12 @@ x_6 = l_Std_Internal_List_minKey_x3f___redArg(x_5, x_4);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_List_maxKey___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Internal_List_maxKey_x3f___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_Ord_opposite___redArg(x_1);
-x_4 = l_Std_Internal_List_minKey___redArg(x_3, x_2);
+x_4 = l_Std_Internal_List_minKey_x3f___redArg(x_3, x_2);
 return x_4;
 }
 }
@@ -2574,6 +2565,15 @@ lean_object* x_6; lean_object* x_7;
 x_6 = l_Ord_opposite___redArg(x_3);
 x_7 = l_Std_Internal_List_minKey___redArg(x_6, x_4);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_List_maxKey___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = l_Ord_opposite___redArg(x_1);
+x_4 = l_Std_Internal_List_minKey___redArg(x_3, x_2);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_List_maxKey_x21___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2608,15 +2608,6 @@ x_6 = l_Std_Internal_List_maxKey_x21___redArg(x_3, x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_List_maxKeyD___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; 
-x_4 = l_Ord_opposite___redArg(x_1);
-x_5 = l_Std_Internal_List_minKeyD___redArg(x_4, x_2, x_3);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Internal_List_maxKeyD(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -2626,13 +2617,13 @@ x_7 = l_Std_Internal_List_minKeyD___redArg(x_6, x_4, x_5);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_List_maxKeyD___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_Internal_List_maxKeyD___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; 
-x_4 = l_Std_Internal_List_maxKeyD___redArg(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
+lean_object* x_4; lean_object* x_5; 
+x_4 = l_Ord_opposite___redArg(x_1);
+x_5 = l_Std_Internal_List_minKeyD___redArg(x_4, x_2, x_3);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_List_maxKeyD___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -2642,6 +2633,15 @@ lean_object* x_6;
 x_6 = l_Std_Internal_List_maxKeyD(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_List_maxKeyD___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_Internal_List_maxKeyD___redArg(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_List_interSmallerFn___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -2774,20 +2774,20 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Subtype_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Internal_List_getEntry_x21___redArg___closed__0 = _init_l_Std_Internal_List_getEntry_x21___redArg___closed__0();
-lean_mark_persistent(l_Std_Internal_List_getEntry_x21___redArg___closed__0);
-l_Std_Internal_List_getEntry_x21___redArg___closed__1 = _init_l_Std_Internal_List_getEntry_x21___redArg___closed__1();
-lean_mark_persistent(l_Std_Internal_List_getEntry_x21___redArg___closed__1);
 l_Std_Internal_List_getEntry_x21___redArg___closed__2 = _init_l_Std_Internal_List_getEntry_x21___redArg___closed__2();
 lean_mark_persistent(l_Std_Internal_List_getEntry_x21___redArg___closed__2);
+l_Std_Internal_List_getEntry_x21___redArg___closed__1 = _init_l_Std_Internal_List_getEntry_x21___redArg___closed__1();
+lean_mark_persistent(l_Std_Internal_List_getEntry_x21___redArg___closed__1);
+l_Std_Internal_List_getEntry_x21___redArg___closed__0 = _init_l_Std_Internal_List_getEntry_x21___redArg___closed__0();
+lean_mark_persistent(l_Std_Internal_List_getEntry_x21___redArg___closed__0);
 l_Std_Internal_List_getEntry_x21___redArg___closed__3 = _init_l_Std_Internal_List_getEntry_x21___redArg___closed__3();
 lean_mark_persistent(l_Std_Internal_List_getEntry_x21___redArg___closed__3);
-l_Std_Internal_List_getValueCast_x21___redArg___closed__0 = _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__0();
-lean_mark_persistent(l_Std_Internal_List_getValueCast_x21___redArg___closed__0);
-l_Std_Internal_List_getValueCast_x21___redArg___closed__1 = _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__1();
-lean_mark_persistent(l_Std_Internal_List_getValueCast_x21___redArg___closed__1);
 l_Std_Internal_List_getValueCast_x21___redArg___closed__2 = _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__2();
 lean_mark_persistent(l_Std_Internal_List_getValueCast_x21___redArg___closed__2);
+l_Std_Internal_List_getValueCast_x21___redArg___closed__1 = _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__1();
+lean_mark_persistent(l_Std_Internal_List_getValueCast_x21___redArg___closed__1);
+l_Std_Internal_List_getValueCast_x21___redArg___closed__0 = _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__0();
+lean_mark_persistent(l_Std_Internal_List_getValueCast_x21___redArg___closed__0);
 l_Std_Internal_List_getValueCast_x21___redArg___closed__3 = _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__3();
 lean_mark_persistent(l_Std_Internal_List_getValueCast_x21___redArg___closed__3);
 l_Std_Internal_List_insertListConst___redArg___closed__0 = _init_l_Std_Internal_List_insertListConst___redArg___closed__0();

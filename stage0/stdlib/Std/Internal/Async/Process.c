@@ -161,12 +161,22 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__0() {
+static lean_object* _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("{ ", 2, 2);
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
 return x_1;
+}
+}
+static lean_object* _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__4;
+x_2 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__1() {
@@ -197,24 +207,6 @@ x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
-}
-}
-static lean_object* _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" := ", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__4;
-x_2 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__6() {
@@ -616,11 +608,11 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__50() {
+static lean_object* _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" }", 2, 2);
+x_1 = lean_mk_string_unchecked("{ ", 2, 2);
 return x_1;
 }
 }
@@ -650,6 +642,14 @@ x_1 = l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___close
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
+}
+}
+static lean_object* _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__50() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked(" }", 2, 2);
+return x_1;
 }
 }
 static lean_object* _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__54() {
@@ -1122,15 +1122,6 @@ x_3 = l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1139,6 +1130,15 @@ x_3 = l_Std_Internal_IO_Process_instReprResourceUsageStats_repr(x_1, x_2);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg(x_1);
+lean_dec_ref(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_Internal_IO_Process_instReprResourceUsageStats___closed__0() {
@@ -1853,18 +1853,16 @@ lean_dec_ref(res);
 res = initialize_Std_Data_HashMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__0 = _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__0();
-lean_mark_persistent(l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__0);
+l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__4 = _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__4();
+lean_mark_persistent(l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__4);
+l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__5 = _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__5();
+lean_mark_persistent(l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__5);
 l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__1 = _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__1();
 lean_mark_persistent(l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__1);
 l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__2 = _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__2();
 lean_mark_persistent(l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__2);
 l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__3 = _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__3();
 lean_mark_persistent(l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__3);
-l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__4 = _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__4();
-lean_mark_persistent(l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__4);
-l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__5 = _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__5();
-lean_mark_persistent(l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__5);
 l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__6 = _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__6();
 lean_mark_persistent(l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__6);
 l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__7 = _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__7();
@@ -1953,14 +1951,16 @@ l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__48 
 lean_mark_persistent(l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__48);
 l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__49 = _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__49();
 lean_mark_persistent(l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__49);
-l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__50 = _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__50();
-lean_mark_persistent(l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__50);
+l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__0 = _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__0();
+lean_mark_persistent(l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__0);
 l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__51 = _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__51();
 lean_mark_persistent(l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__51);
 l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__52 = _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__52();
 lean_mark_persistent(l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__52);
 l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__53 = _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__53();
 lean_mark_persistent(l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__53);
+l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__50 = _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__50();
+lean_mark_persistent(l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__50);
 l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__54 = _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__54();
 lean_mark_persistent(l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__54);
 l_Std_Internal_IO_Process_instReprResourceUsageStats___closed__0 = _init_l_Std_Internal_IO_Process_instReprResourceUsageStats___closed__0();

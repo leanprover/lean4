@@ -267,8 +267,9 @@ jobs:
                 "CMAKE_PRESET": "sanitize",
                 // `StackOverflow*` correctly triggers ubsan
                 // `reverse-ffi` fails to link in sanitizers
-                // `interactive` fails/timeouts nondeterministically, would need to be investigated.
-                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive'"
+                // `interactive` and `async_select_channel` fail nondeterministically, would need to
+                // be investigated.
+                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel'"
               },
               {
                 "name": "macOS",

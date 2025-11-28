@@ -10,9 +10,10 @@ The following metrics are collected by a wrapper around the entire build process
 - `build//task-clock`
 - `build//wall-clock`
 
-The following metrics are collected from `leanc --profile` and summed across all modules:
+The following metrics are collected from `leanc --profile` and `leanc --stat` and summed across all modules:
 
 - `build/profile/<name>//wall-clock`
+- `build/stat/<name>//amount`
 
 The following metrics are collected from `lakeprof report`:
 

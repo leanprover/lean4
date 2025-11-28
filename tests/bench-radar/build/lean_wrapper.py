@@ -49,6 +49,14 @@ def count_lines(module: str, path: Path) -> None:
     save_result(f"{NAME}/module/{module}//lines", lines)
 
 
+def count_bytes(module: str, path: Path, suffix: str) -> None:
+    try:
+        bytes = path.with_suffix(suffix).stat().st_size
+    except FileNotFoundError:
+        return
+    save_result(f"{NAME}/module/{module}//bytes {suffix}", bytes, "B")
+
+
 def run_lean(module: str) -> None:
     stdout, stderr = run_capture(
         f"{BENCH}/measure.py",
@@ -88,14 +96,26 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("lean", type=Path)
     parser.add_argument("--setup", type=Path)
+    parser.add_argument("--i", "-i", type=Path)
+    parser.add_argument("--o", "-o", type=Path)
     args, _ = parser.parse_known_args()
 
     lean: Path = args.lean
     setup: Path = args.setup
+    ilean: Path | None = args.i
+    olean: Path | None = args.o
 
     module = get_module(setup)
+
     count_lines(module, lean)
     run_lean(module)
+
+    if ilean is not None:
+        count_bytes(module, ilean, ".ilean")
+    if olean is not None:
+        count_bytes(module, olean, ".olean")
+        count_bytes(module, olean, ".olean.server")
+        count_bytes(module, olean, ".olean.private")
 
 
 if __name__ == "__main__":

@@ -77,7 +77,7 @@ info: private theorem f_struct.eq_unfold : f_struct = fun x =>
 -/
 #guard_msgs in #print sig f_struct.eq_unfold
 
-/-- info: private theorem f_wfrec.eq_1 : ∀ (x : Nat), f_wfrec 0 x = x -/
+/-- info: @[defeq] private theorem f_wfrec.eq_1 : ∀ (x : Nat), f_wfrec 0 x = x -/
 #guard_msgs(pass trace, all) in #print sig f_wfrec.eq_1
 
 /--

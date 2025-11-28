@@ -3,8 +3,13 @@ Copyright (c) 2023 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Sebastian Ullrich
 -/
-import Lake.CLI.Main
+module
+
 import Lean.ExtraModUses
+
+import Lake.CLI.Main
+import Lean.Parser.Module
+import Lake.Load.Workspace
 
 /-! # `lake exe shake` command
 
@@ -555,7 +560,7 @@ local instance : Ord Import where
     compareOn fun imp => (!imp.isExported, imp.module.toString)
 
 /-- The main entry point. See `help` for more information on arguments. -/
-def main (args : List String) : IO UInt32 := do
+public def main (args : List String) : IO UInt32 := do
   initSearchPath (← findSysroot)
   -- Parse the arguments
   let rec parseArgs (args : Args) : List String → Args
@@ -636,10 +641,10 @@ def main (args : List String) : IO UInt32 := do
   for i in [0:s.mods.size], t in needs, header in headers do
     match header.get with
     | .ok (_, _, stx, _) =>
-      if !pkg.isPrefixOf s.modNames[i]! then
-        continue
-      (edits, preserve) ← visitModule (addOnly := false)
-        srcSearchPath i t.get preserve edits stx args
+      -- only process modules in the selected package, but still update `preserve` for others
+      if pkg.isPrefixOf s.modNames[i]! then
+        (edits, preserve) ← visitModule (addOnly := false)
+          srcSearchPath i t.get preserve edits stx args
       if isExtraRevModUse s.env i then
         preserve := preserve.union (if args.addPublic then .pub else .priv) {i}
     | .error e =>

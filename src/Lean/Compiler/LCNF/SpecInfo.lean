@@ -142,14 +142,7 @@ private def hasFwdDeps (decl : Decl) (paramsInfo : Array SpecParamInfo) (j : Nat
         return true
   return false
 
-/--
-Save parameter information for `decls`.
-
-Remark: this function, similarly to `mkFixedArgMap`,
-assumes that if a function `f` was declared in a mutual block, then `decls`
-contains all (computationally relevant) functions in the mutual block.
--/
-def saveSpecParamInfo (decls : Array Decl) : CompilerM Unit := do
+def computeSpecParamInfo (decls : Array Decl) : CompilerM (Array SpecEntry) := do
   let mut declsInfo := #[]
   for decl in decls do
     if hasNospecializeAttribute (← getEnv) decl.name then
@@ -187,6 +180,7 @@ def saveSpecParamInfo (decls : Array Decl) : CompilerM Unit := do
       declsInfo := declsInfo.push paramsInfo
   if declsInfo.any fun paramsInfo => paramsInfo.any (· matches .user | .fixedInst | .fixedHO) then
     let m := mkFixedParamsMap decls
+    let mut entries := Array.emptyWithCapacity decls.size
     for hi : i in *...decls.size do
       let decl := decls[i]
       let mut paramsInfo := declsInfo[i]!
@@ -201,9 +195,27 @@ def saveSpecParamInfo (decls : Array Decl) : CompilerM Unit := do
         let mut info := paramsInfo[j]!
         if info matches .fixedNeutral && !hasFwdDeps decl paramsInfo j then
           paramsInfo := paramsInfo.set! j .other
-      if paramsInfo.any fun info => info matches .fixedInst | .fixedHO | .user then
-        trace[Compiler.specialize.info] "{decl.name} {paramsInfo}"
-        modifyEnv fun env => specExtension.addEntry env { declName := decl.name, paramsInfo }
+      entries := entries.push { declName := decl.name, paramsInfo }
+    return entries
+  else
+    return decls.map fun decl => {
+      declName := decl.name,
+      paramsInfo := Array.replicate decl.params.size .other
+    }
+
+/--
+Save parameter information for `decls`.
+
+Remark: this function, similarly to `mkFixedArgMap`,
+assumes that if a function `f` was declared in a mutual block, then `decls`
+contains all (computationally relevant) functions in the mutual block.
+-/
+def saveSpecParamInfo (decls : Array Decl) : CompilerM Unit := do
+  let entries ← computeSpecParamInfo decls
+  for entry in entries do
+    if entry.paramsInfo.any fun info => info matches .fixedInst | .fixedHO | .user then
+      trace[Compiler.specialize.info] "{entry.declName} {entry.paramsInfo}"
+      modifyEnv fun env => specExtension.addEntry env entry
 
 def getSpecParamInfoCore? (env : Environment) (declName : Name) : Option (Array SpecParamInfo) :=
   match env.getModuleIdxFor? declName with

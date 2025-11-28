@@ -6310,32 +6310,36 @@ theorem two_pow_ctz_le_toNat_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
 
 @[simp]
 theorem cpopNatRec_zero {x : BitVec w} :
-    x.cpopNatRec 0 = 0 := by simp [BitVec.cpopNatRec]
+    x.cpopNatRec 0 acc = acc := by simp [BitVec.cpopNatRec]
 
 @[simp]
 theorem cpopNatRec_succ {n : Nat} {x : BitVec w} :
-    x.cpopNatRec (n + 1) = (x.getLsbD n).toNat + x.cpopNatRec n := by simp [BitVec.cpopNatRec]
+    x.cpopNatRec (n + 1) acc = x.cpopNatRec n (acc + (x.getLsbD n).toNat):= by simp [BitVec.cpopNatRec]
 
 theorem cpopNatRec_le_of_le {x : BitVec w} (n : Nat) (h : n ≤ w) :
-    x.cpopNatRec n ≤ n := by
-  induction n
+    x.cpopNatRec n acc ≤ acc + n := by
+  induction n generalizing acc
   · simp
   · case _ n ihn =>
-    simp only [cpopNatRec_succ]
-    by_cases h : x.getLsbD n
-    <;> simp [h]
-    <;> omega
+    have : (x.getLsbD n).toNat ≤ 1 := by cases x.getLsbD n <;> simp
+    specialize ihn (by omega) (acc:= acc + (x.getLsbD n).toNat)
+    simp
+    omega
 
 theorem cpopNatRec_le {x : BitVec w} (n : Nat) :
-    x.cpopNatRec n ≤ w := by
+    x.cpopNatRec n 0 ≤ w := by
   induction n
   · simp
   · case _ n ihn =>
-    simp only [cpopNatRec_succ]
-    have := cpopNatRec_le_of_le (x := x) (by omega)
-    by_cases hle : n < w
-    · by_cases h : x.getLsbD n
-      <;> (simp [h]; omega)
+    by_cases hle : n ≤ w
+    · by_cases hx : x.getLsbD n
+      · have := cpopNatRec_le_of_le (x := x) (acc := 1) (by omega) (by omega)
+        have := lt_of_getLsbD hx
+        simp [hx]
+        omega
+      · have := cpopNatRec_le_of_le (x := x) (acc := 0) (by omega) (by omega)
+        simp [hx]
+        omega
     · simp [show w ≤ n by omega]
       omega
 

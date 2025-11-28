@@ -5,6 +5,7 @@ and collects global and per-module metrics.
 
 The following metrics are collected by a wrapper around the entire build process:
 
+- `build//cycles`
 - `build//instructions`
 - `build//maxrss`
 - `build//task-clock`
@@ -23,6 +24,7 @@ The following metrics are collected from `lakeprof report`:
 The following metrics are collected individually for each module:
 
 - `build/module/<name>//lines`
+- `build/module/<name>//cycles`
 - `build/module/<name>//instructions`
 - `build/module/<name>//bytes .ilean`
 - `build/module/<name>//bytes .olean`

@@ -63,6 +63,7 @@ def run_lean(module: str) -> None:
         *("-t", f"{NAME}/module/{module}"),
         *("-o", f"{OUT}"),
         *("-m", "instructions"),
+        *("-m", "cycles"),
         "--",
         f"{STAGE2}/bin/lean.wrapped",
         *("--profile", "-Dprofiler.threshold=9999999"),

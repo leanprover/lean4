@@ -1,3 +1,4 @@
+module
 import Lean
 
 /-!

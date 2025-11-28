@@ -23,9 +23,8 @@ example : foo [1,2,3,4,5] = 5 := by decide +kernel
 -- Open terms should not (these wouldn't even without the provisions with `WellFounded.Nat.eager`,
 -- the fuel does not line up)
 
--- TODO
--- example : foo (x::xs) = 1 + foo xs := by (fail_if_success rfl); simp [foo]
--- example : foo (x::y::z::xs) = 1+ (1+(1+ foo xs)) := by (fail_if_success rfl); simp [foo]
+example : foo (x::xs) = 1 + foo xs := by (fail_if_success rfl); simp [foo]
+example : foo (x::y::z::xs) = 1+ (1+(1+ foo xs)) := by (fail_if_success rfl); simp [foo]
 
 end T1
 

@@ -215,7 +215,7 @@ def mkGrindParams
   let funCCs ← Grind.getFunCCSet
   let params := { params with ematch, casesTypes, inj, funCCs }
   let suggestions ← if config.suggestions then
-    LibrarySuggestions.select mvarId { caller := some "grind" }
+    LibrarySuggestions.select mvarId { caller := some "grind", maxSuggestions := config.maxSuggestions }
   else
     pure #[]
   let mut params ← elabGrindParamsAndSuggestions params ps suggestions (only := only) (lax := config.lax)
@@ -291,21 +291,24 @@ def setGrindParams (stx : TSyntax `tactic) (params : Array Syntax) : TSyntax `ta
 def getGrindParams (stx : TSyntax `tactic) : Array Syntax :=
   stx.raw[grindParamsPos][1].getSepArgs
 
-/-- Filter out `+suggestions` from the config syntax -/
+/-- Filter out `+suggestions` and `(config := {...})` from the config syntax for cleaner output -/
 def filterSuggestionsFromGrindConfig (config : TSyntax ``Lean.Parser.Tactic.optConfig) :
     TSyntax ``Lean.Parser.Tactic.optConfig :=
-  let configItems := config.raw.getArgs
-  let filteredItems := configItems.filter fun item =>
-    -- Keep all items except +suggestions
-    -- Structure: null node -> configItem -> posConfigItem -> ["+", ident]
-    match item[0]? with
-    | some configItem => match configItem[0]? with
-      | some posConfigItem => match posConfigItem[1]? with
-        | some ident => !(posConfigItem.getKind == ``Lean.Parser.Tactic.posConfigItem && ident.getId == `suggestions)
-        | none => true
-      | none => true
-    | none => true
-  ⟨config.raw.setArgs filteredItems⟩
+  -- Structure: optConfig -> null node -> configItem* -> posConfigItem/valConfigItem
+  let nullNode := config.raw[0]!
+  let configItems := nullNode.getArgs
+  let filteredItems := configItems.filter fun configItem =>
+    -- Each configItem has one child: either posConfigItem or valConfigItem
+    let inner := configItem[0]!
+    -- Check for +suggestions: posConfigItem -> ["+", ident]
+    let isPlusSuggestions :=
+      inner.getKind == ``Lean.Parser.Tactic.posConfigItem && inner[1]!.getId == `suggestions
+    -- Check for (config := ...): valConfigItem -> ["(", ident, ":=", value, ")"]
+    let isConfigBlock :=
+      inner.getKind == ``Lean.Parser.Tactic.valConfigItem && inner[1]!.getId == `config
+    !isPlusSuggestions && !isConfigBlock
+  let newNullNode := nullNode.setArgs filteredItems
+  ⟨config.raw.setArg 0 newNullNode⟩
 
 private def elabGrindConfig' (config : TSyntax ``Lean.Parser.Tactic.optConfig) (interactive : Bool) : TacticM Grind.Config := do
   if interactive then

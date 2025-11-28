@@ -26,7 +26,10 @@ axiom special_7 : SpecialProperty 7
 -- Set up a premise selector that suggests special_7
 set_library_suggestions (fun _ _ => pure #[{ name := `special_7, score := 1.0 }])
 
--- Expected: try? should find grind only [special_7]
+-- Expected: try? should find grind with library suggestions
+-- Note: first_par runs multiple grind configs in parallel; the first to complete wins
+-- Config details are filtered from output for cleaner suggestions
+-- Plain `grind` is not suggested since it won't work without the library suggestions
 /--
 info: Try these:
   [apply] grind only [special_7]
@@ -45,7 +48,7 @@ axiom custom_comm : ∀ x y, CustomOp x y = CustomOp y x
 -- Set up a premise selector that suggests custom_comm
 set_library_suggestions (fun _ _ => pure #[{ name := `custom_comm, score := 1.0 }])
 
--- Expected: try? should find grind only [custom_comm]
+-- Expected: try? should find grind with custom_comm
 /--
 info: Try these:
   [apply] grind only [custom_comm]

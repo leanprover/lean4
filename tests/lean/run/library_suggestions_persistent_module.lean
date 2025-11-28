@@ -1,33 +1,36 @@
--- This will be restored after an update-stage0
--- import Lean
+module
+import Lean
 
--- /-!
--- # Test that library suggestions persist across file boundaries
+/-!
+# Test that library suggestions persist across file boundaries
 
--- This test verifies that the default library suggestion engine set in
--- `Lean.LibrarySuggestions.Default` is correctly persisted when imported via `Lean.LibrarySuggestions`.
+This test verifies that the default library suggestion engine set in
+`Lean.LibrarySuggestions.Default` is correctly persisted when imported via `Lean.LibrarySuggestions`.
 
--- We do NOT call `set_library_suggestions` in this file - the selector should
--- already be set from importing Lean.LibrarySuggestions (which imports Default).
--- -/
+We do NOT call `set_library_suggestions` in this file - the selector should
+already be set from importing Lean.LibrarySuggestions (which imports Default).
+-/
 
--- /--
--- info: ✓ Selector registered in imported state
--- ---
--- info:   ✓ getSelector succeeded
--- -/
--- #guard_msgs in
--- open Lean Lean.LibrarySuggestions in
--- run_cmd do
---   -- Check if a selector is registered
---   let hasSelector := (librarySuggestionsExt.getState (← getEnv)).isSome
---   if hasSelector then
---     Lean.logInfo "✓ Selector registered in imported state"
---     -- Try to retrieve the selector using getSelector
---     Elab.Command.liftTermElabM do
---       let selector? ← getSelector
---       match selector? with
---       | none => Lean.logInfo "  ❌ getSelector returned none"
---       | some _ => Lean.logInfo "  ✓ getSelector succeeded"
---   else
---     Lean.logInfo "❌ No selector registered in imported state!"
+/--
+info: ✓ Selector found in imported state: (Term.open
+ "open"
+ (Command.openSimple [`Lean.LibrarySuggestions])
+ "in"
+ (Term.app `sineQuaNonSelector.filterGrindAnnotated.intersperse [`currentFile]))
+---
+info:   ✓ Successfully retrieved selector using getSelector!
+-/
+#guard_msgs in
+open Lean Lean.LibrarySuggestions in
+run_cmd do
+  let stx? := librarySuggestionsExt.getState (← getEnv)
+  match stx? with
+  | none => Lean.logInfo "❌ No selector found in imported state!"
+  | some stx =>
+    Lean.logInfo s!"✓ Selector found in imported state: {stx}"
+    -- Try to retrieve the selector using getSelector
+    Elab.Command.liftTermElabM do
+      let selector? ← getSelector
+      match selector? with
+      | none => Lean.logInfo "  ❌ getSelector returned none"
+      | some _ => Lean.logInfo "  ✓ Successfully retrieved selector using getSelector!"

@@ -1,6 +1,6 @@
 #include "util/options.h"
 
-// stage0 update needed for grind_annotated command
+// stage0 update needed: revert library_suggestions aux def
 namespace lean {
 options get_default_options() {
     options opts;

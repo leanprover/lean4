@@ -213,12 +213,6 @@ def combine (selector₁ selector₂ : Selector) : Selector := fun g c => do
 
   return sorted.take c.maxSuggestions
 
-/-- Check if a module has been marked as grind-annotated. -/
-def isGrindAnnotatedModule (env : Environment) (modIdx : ModuleIdx) : Bool :=
-  let state := Lean.Elab.Tactic.Grind.grindAnnotatedExt.getState env
-  let moduleName := env.header.moduleNames[modIdx.toNat]!
-  state.contains moduleName
-
 /--
 Filter out theorems from grind-annotated modules when the caller is "grind".
 Modules marked with `grind_annotated` contain manually reviewed/annotated theorems,
@@ -234,7 +228,7 @@ def filterGrindAnnotated (selector : Selector) : Selector := fun g c => do
       -- Check if the suggestion's module is grind-annotated
       match env.getModuleIdxFor? s.name with
       | none => return true  -- Keep suggestions with no module info
-      | some modIdx => return !isGrindAnnotatedModule env modIdx
+      | some modIdx => return !Lean.Elab.Tactic.Grind.isGrindAnnotatedModule env modIdx
   else
     return suggestions
 

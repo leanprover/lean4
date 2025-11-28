@@ -638,6 +638,28 @@ private abbrev withFreshNGen (x : M α) : M α := do
     setNGen ngen
 
 /--
+Checks constraints of the form `lhs =/= rhs`.
+-/
+private def checkNotDefEq (levelParams : List Name) (us : List Level) (args : Array Expr) (lhs : Nat) (rhs : CnstrRHS) : GoalM Bool := do
+  unless lhs < args.size do
+    throwError "`grind` internal error, invalid variable in `grind_pattern` constraint"
+  let lhs := args[args.size - lhs - 1]!
+  /- **Note**: We first instantiate the theorem variables and universes occurring in `rhs`. -/
+  let rhsExpr := rhs.expr.instantiateRev args
+  let rhsExpr := rhsExpr.instantiateLevelParams levelParams us
+  withNewMCtxDepth do
+    /-
+    **Note**: Recall that we have abstracted metavariables occurring in `rhs` after we elaborated it.
+    So, we must "recreate" them.
+    -/
+    let us ← rhs.levelNames.mapM fun _ => mkFreshLevelMVar
+    let rhsExpr := rhsExpr.instantiateLevelParamsArray rhs.levelNames us
+    let (_, _, rhsExpr) ← lambdaMetaTelescope rhsExpr (some rhs.numMVars)
+    /- **Note**: We used the guarded version to ensure type errors will not interrupt `grind`. -/
+    let defEq ← isDefEqGuarded lhs rhsExpr
+    return !defEq
+
+/--
 Checks whether `vars` satisfies the `grind_pattern` constraints attached at `thm`.
 Example:
 ```
@@ -650,29 +672,15 @@ In the example above, a `map_map` instance should be added to the logical contex
 
 Remark: `proof` is used to extract the universe parameters in the proof.
 -/
-private def checkConstraints (thm : EMatchTheorem) (proof : Expr) (args : Array Expr) : MetaM Bool := do
+private def checkConstraints (thm : EMatchTheorem) (proof : Expr) (args : Array Expr) : GoalM Bool := do
   if thm.cnstrs.isEmpty then return true
   /- **Note**: Only top-level theorems have constraints. -/
   let .const declName us := proof | return true
   let info ← getConstInfo declName
   thm.cnstrs.allM fun cnstr => do
-    unless cnstr.bvarIdx < args.size do
-      throwError "`grind` internal error, invalid variable in `grind_pattern` constraint"
-    let lhs := args[args.size - cnstr.bvarIdx - 1]!
-    /- **Note**: We first instantiate the theorem variables and universes occurring in `rhs`. -/
-    let rhs := cnstr.rhs.instantiateRev args
-    let rhs := rhs.instantiateLevelParams info.levelParams us
-    withNewMCtxDepth do
-      /-
-      **Note**: Recall that we have abstracted metavariables occurring in `rhs` after we elaborated it.
-      So, we must "recreate" them.
-      -/
-      let us ← cnstr.levelNames.mapM fun _ => mkFreshLevelMVar
-      let rhs := rhs.instantiateLevelParamsArray cnstr.levelNames us
-      let (_, _, rhs) ← lambdaMetaTelescope rhs (some cnstr.numMVars)
-      /- **Note**: We used the guarded version to ensure type errors will not interrupt `grind`. -/
-      let defEq ← isDefEqGuarded lhs rhs
-      return !defEq
+    match cnstr with
+    | .notDefEq lhs rhs => checkNotDefEq info.levelParams us args lhs rhs
+    | _ => throwError "NIY"
 
 /--
 After processing a (multi-)pattern, use the choice assignment to instantiate the proof.

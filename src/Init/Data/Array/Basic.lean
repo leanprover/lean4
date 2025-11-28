@@ -570,7 +570,7 @@ protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad 
       | ForInStep.yield b => loop i (Nat.le_of_lt h') b
   loop as.size (Nat.le_refl _) b
 
-instance : ForIn' m (Array α) α inferInstance where
+instance [Monad m] : ForIn' m (Array α) α inferInstance where
   forIn' := Array.forIn'
 
 -- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
@@ -1001,7 +1001,7 @@ unless `start < stop`. By default, the entire array is used.
 protected def forM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Array α) (start := 0) (stop := as.size) : m PUnit :=
   as.foldlM (fun _ => f) ⟨⟩ start stop
 
-instance : ForM m (Array α) α where
+instance [Monad m] : ForM m (Array α) α where
   forM xs f := Array.forM f xs
 
 -- We simplify `Array.forM` to `forM`.

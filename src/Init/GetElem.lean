@@ -116,7 +116,7 @@ macro:max x:term noWs "[" i:term "]" noWs "?" : term => `(getElem? $x $i)
 
 /--
 The syntax `arr[i]!` gets the `i`'th element of the collection `arr` and
-panics `i` is out of bounds.
+panics if `i` is out of bounds.
 -/
 macro:max x:term noWs "[" i:term "]" noWs "!" : term => `(getElem! $x $i)
 

@@ -15,39 +15,12 @@ extern "C" {
 #endif
 LEAN_EXPORT uint8_t l_Lean_Grind_instBEqConfig_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instInhabitedConfig_default;
-LEAN_EXPORT lean_object* l_Lean_Grind_GrobnerConfig_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instBEqConfig_beq___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_GrobnerConfig_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_ConfigInteractive_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Grind_instInhabitedConfig_default___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Grind_Config_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instBEqConfig;
-LEAN_EXPORT lean_object* l_Lean_Grind_NoopConfig_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instInhabitedConfig;
-LEAN_EXPORT lean_object* l_Lean_Grind_CutsatConfig_ctorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_CutsatConfig_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_ConfigInteractive_ctorIdx(lean_object*);
 static lean_object* l_Lean_Grind_instBEqConfig___closed__0;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Config_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_NoopConfig_ctorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Config_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_Config_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Grind_Config_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Grind_instInhabitedConfig_default___closed__0() {
 _start:
 {
@@ -1039,74 +1012,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Grind_instBEqConfig___closed__0;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_ConfigInteractive_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_ConfigInteractive_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Grind_ConfigInteractive_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_NoopConfig_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_NoopConfig_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Grind_NoopConfig_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_CutsatConfig_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_CutsatConfig_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Grind_CutsatConfig_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_GrobnerConfig_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_GrobnerConfig_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Grind_GrobnerConfig_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 lean_object* initialize_Init_Core(uint8_t builtin);

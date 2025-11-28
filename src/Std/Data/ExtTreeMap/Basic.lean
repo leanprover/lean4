@@ -451,16 +451,11 @@ def forM [TransCmp cmp] (f : α → β → m PUnit) (t : ExtTreeMap α β cmp) :
 def forIn [TransCmp cmp] (f : α → β → δ → m (ForInStep δ)) (init : δ) (t : ExtTreeMap α β cmp) : m δ :=
   t.inner.forIn (fun a b c => f a b c) init
 
-/-
-Note: We ignore the monad instance provided by `forM` / `forIn` and instead use the one from the
-instance in order to get the `LawfulMonad m` assumption
--/
+instance [TransCmp cmp] [Monad m] [LawfulMonad m] : ForM m (ExtTreeMap α β cmp) (α × β) where
+  forM t f := forM (fun a b => f ⟨a, b⟩) t
 
-instance [TransCmp cmp] [inst : Monad m] [LawfulMonad m] : ForM m (ExtTreeMap α β cmp) (α × β) where
-  forM t f := @forM _ _ _ _ inst _ _ (fun a b => f ⟨a, b⟩) t
-
-instance [TransCmp cmp] [inst : Monad m] [LawfulMonad m] : ForIn m (ExtTreeMap α β cmp) (α × β) where
-  forIn m init f := @forIn _ _ _ _ _ inst _ _ (fun a b acc => f ⟨a, b⟩ acc) init m
+instance [TransCmp cmp] [Monad m] [LawfulMonad m] : ForIn m (ExtTreeMap α β cmp) (α × β) where
+  forIn m init f := forIn (fun a b acc => f ⟨a, b⟩ acc) init m
 
 @[inline, inherit_doc ExtDTreeMap.any]
 def any [TransCmp cmp] (t : ExtTreeMap α β cmp) (p : α → β → Bool) : Bool :=

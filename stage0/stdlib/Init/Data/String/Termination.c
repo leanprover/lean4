@@ -49,7 +49,6 @@ static lean_object* l_String___aux__Init__Data__String__Termination______macroRu
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__7;
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__26;
 lean_object* l_Lean_Syntax_node5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Pos_Down_ctorIdx(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__1;
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__9;
@@ -89,7 +88,6 @@ LEAN_EXPORT lean_object* l_String_Pos_remainingBytes___boxed(lean_object*, lean_
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__5;
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__5;
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__2___closed__3;
-LEAN_EXPORT lean_object* l_String_Pos_Down_ctorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__4___closed__4;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -116,7 +114,6 @@ static lean_object* l_String___aux__Init__Data__String__Termination______macroRu
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__40;
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__8;
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__64;
-LEAN_EXPORT lean_object* l_String_Slice_Pos_Down_ctorIdx(lean_object*, lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__20;
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__4___closed__1;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
@@ -124,7 +121,6 @@ LEAN_EXPORT lean_object* l_String_Pos_down___redArg___boxed(lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__10;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pos_Down_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_instWellFoundedRelationDown(lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__39;
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__18;
@@ -153,7 +149,6 @@ static lean_object* l_String___aux__Init__Data__String__Termination______macroRu
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__63;
 LEAN_EXPORT lean_object* l_String_Slice_Pos_down___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pos_remainingBytes(lean_object*, lean_object*);
-static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__13;
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__2___closed__5;
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__11;
 static lean_object* l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__58;
@@ -201,24 +196,6 @@ lean_object* x_2;
 x_2 = l_String_Slice_Pos_instWellFoundedRelation(x_1);
 lean_dec_ref(x_1);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_String_Slice_Pos_Down_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_String_Slice_Pos_Down_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_String_Slice_Pos_Down_ctorIdx(x_1, x_2);
-lean_dec(x_2);
-lean_dec_ref(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_String_Slice_Pos_down___redArg(lean_object* x_1) {
@@ -310,24 +287,6 @@ lean_object* x_2;
 x_2 = l_String_Pos_instWellFoundedRelation(x_1);
 lean_dec_ref(x_1);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_String_Pos_Down_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_String_Pos_Down_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_String_Pos_Down_ctorIdx(x_1, x_2);
-lean_dec(x_2);
-lean_dec_ref(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_String_Pos_down___redArg(lean_object* x_1) {
@@ -1738,29 +1697,31 @@ return x_3;
 static lean_object* _init_l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__4() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__45;
-x_2 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__32;
-x_3 = l_Lean_Name_mkStr3(x_2, x_2, x_1);
-return x_3;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__2;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__4;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__4;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__5;
+x_1 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__5;
+x_2 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__3;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -1770,33 +1731,21 @@ return x_3;
 static lean_object* _init_l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__7() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__6;
-x_2 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__3;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__8() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("Pos.eq_next_of_next\?_eq_some", 28, 28);
 return x_1;
 }
 }
-static lean_object* _init_l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__9() {
+static lean_object* _init_l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__8;
+x_1 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__7;
 x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__10() {
+static lean_object* _init_l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1806,7 +1755,7 @@ x_3 = l_Lean_Name_mkStr2(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__11() {
+static lean_object* _init_l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -1817,24 +1766,24 @@ x_4 = l_Lean_Name_mkStr3(x_3, x_2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__12() {
+static lean_object* _init_l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__11;
+x_2 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__10;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__13() {
+static lean_object* _init_l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__12;
+x_2 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__11;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -1932,7 +1881,7 @@ x_45 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDe
 lean_inc(x_9);
 lean_inc(x_8);
 x_46 = l_Lean_addMacroScope(x_8, x_45, x_9);
-x_47 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__7;
+x_47 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__6;
 lean_inc(x_12);
 x_48 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_48, 0, x_12);
@@ -1996,10 +1945,10 @@ x_71 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_71, 0, x_12);
 lean_ctor_set(x_71, 1, x_70);
 x_72 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__61;
-x_73 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__9;
-x_74 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__10;
+x_73 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__8;
+x_74 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__9;
 x_75 = l_Lean_addMacroScope(x_8, x_74, x_9);
-x_76 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__13;
+x_76 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__12;
 lean_inc(x_12);
 x_77 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_77, 0, x_12);
@@ -2238,7 +2187,7 @@ x_45 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDe
 lean_inc(x_9);
 lean_inc(x_8);
 x_46 = l_Lean_addMacroScope(x_8, x_45, x_9);
-x_47 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__7;
+x_47 = l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__6;
 lean_inc(x_12);
 x_48 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_48, 0, x_12);
@@ -2604,8 +2553,6 @@ l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasin
 lean_mark_persistent(l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__11);
 l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__12 = _init_l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__12();
 lean_mark_persistent(l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__12);
-l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__13 = _init_l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__13();
-lean_mark_persistent(l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__3___closed__13);
 l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__4___closed__0 = _init_l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__4___closed__0();
 lean_mark_persistent(l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__4___closed__0);
 l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__4___closed__1 = _init_l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__4___closed__1();

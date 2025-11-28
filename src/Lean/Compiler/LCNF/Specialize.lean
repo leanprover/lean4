@@ -238,7 +238,13 @@ def mkKey (params : Array Param) (decls : Array CodeDecl) (body : LetValue) : Co
   let key := ToExpr.run do
     ToExpr.withParams params do
       ToExpr.mkLambdaM params (← ToExpr.abstractM body)
-  let key ← Meta.MetaM.run' <| Meta.transform (usedLetOnly := true) key
+  let pre e := do
+    -- beta reduce if possible
+    if e.isHeadBetaTarget then
+      return .visit e.headBeta
+    else
+      return .continue
+  let key ← Meta.MetaM.run' <| Meta.transform (usedLetOnly := true) key pre
   return normLevelParams key
 
 open Internalize in

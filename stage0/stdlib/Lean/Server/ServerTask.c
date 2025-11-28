@@ -51,7 +51,6 @@ static lean_object* l___auto___closed__34_00___x40_Lean_Server_ServerTask_211813
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_bindTaskCheap___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_get___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_mapTaskCostly___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_bindCostly___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_mapCheap___redArg(lean_object*, lean_object*);
 static lean_object* l___auto___closed__1_00___x40_Lean_Server_ServerTask_2118130630____hygCtx___hyg_12_;
@@ -153,7 +152,6 @@ static lean_object* l___auto___closed__13_00___x40_Lean_Server_ServerTask_211813
 uint8_t lean_io_get_task_state(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_BaseIO_asTask___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_bindTaskCostly(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instCoeTaskServerTask___lam__0___boxed(lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Task_asServerTask___boxed(lean_object*, lean_object*);
@@ -211,23 +209,6 @@ static lean_object* l___auto___closed__14_00___x40_Lean_Server_ServerTask_211813
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_cancel(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_bindCheap___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_bindTaskCostly___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Server_ServerTask_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedServerTask_default___redArg(lean_object* x_1) {
 _start:
 {
@@ -267,20 +248,20 @@ lean_inc_ref(x_1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_instCoeTaskServerTask(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Server_instCoeTaskServerTask___lam__0___boxed), 1, 0);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_instCoeTaskServerTask___lam__0___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Server_instCoeTaskServerTask___lam__0(x_1);
 lean_dec_ref(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_instCoeTaskServerTask(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Server_instCoeTaskServerTask___lam__0___boxed), 1, 0);
 return x_2;
 }
 }
@@ -672,6 +653,14 @@ x_4 = lean_apply_2(x_1, x_2, lean_box(0));
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_BaseIO_bindTaskCheap___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Server_ServerTask_BaseIO_bindTaskCheap___redArg___lam__0(x_1, x_2);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_BaseIO_bindTaskCheap___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -690,14 +679,6 @@ _start:
 lean_object* x_6; 
 x_6 = l_Lean_Server_ServerTask_BaseIO_bindTaskCheap___redArg(x_3, x_4);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_BaseIO_bindTaskCheap___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Server_ServerTask_BaseIO_bindTaskCheap___redArg___lam__0(x_1, x_2);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_BaseIO_bindTaskCheap___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -799,6 +780,14 @@ return x_9;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_asTask___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Server_ServerTask_EIO_asTask___redArg___lam__0(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_asTask___redArg(lean_object* x_1) {
 _start:
 {
@@ -816,14 +805,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Server_ServerTask_EIO_asTask___redArg(x_3);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_asTask___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Server_ServerTask_EIO_asTask___redArg___lam__0(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_asTask___redArg___boxed(lean_object* x_1, lean_object* x_2) {
@@ -889,6 +870,14 @@ return x_10;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_mapTaskCheap___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Server_ServerTask_EIO_mapTaskCheap___redArg___lam__0(x_1, x_2);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_mapTaskCheap___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -907,14 +896,6 @@ _start:
 lean_object* x_7; 
 x_7 = l_Lean_Server_ServerTask_EIO_mapTaskCheap___redArg(x_4, x_5);
 return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_mapTaskCheap___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Server_ServerTask_EIO_mapTaskCheap___redArg___lam__0(x_1, x_2);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_mapTaskCheap___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1007,6 +988,14 @@ return x_10;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_bindTaskCheap___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Server_ServerTask_EIO_bindTaskCheap___redArg___lam__0(x_1, x_2);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_bindTaskCheap___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1025,14 +1014,6 @@ _start:
 lean_object* x_7; 
 x_7 = l_Lean_Server_ServerTask_EIO_bindTaskCheap___redArg(x_4, x_5);
 return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_bindTaskCheap___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Server_ServerTask_EIO_bindTaskCheap___redArg___lam__0(x_1, x_2);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_bindTaskCheap___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1134,6 +1115,14 @@ return x_9;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_asTask___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Server_ServerTask_IO_asTask___redArg___lam__0(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_asTask___redArg(lean_object* x_1) {
 _start:
 {
@@ -1151,14 +1140,6 @@ _start:
 lean_object* x_4; 
 x_4 = l_Lean_Server_ServerTask_IO_asTask___redArg(x_2);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_asTask___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Server_ServerTask_IO_asTask___redArg___lam__0(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_asTask___redArg___boxed(lean_object* x_1, lean_object* x_2) {
@@ -1224,6 +1205,14 @@ return x_10;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_mapTaskCheap___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Server_ServerTask_IO_mapTaskCheap___redArg___lam__0(x_1, x_2);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_mapTaskCheap___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1242,14 +1231,6 @@ _start:
 lean_object* x_6; 
 x_6 = l_Lean_Server_ServerTask_IO_mapTaskCheap___redArg(x_3, x_4);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_mapTaskCheap___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Server_ServerTask_IO_mapTaskCheap___redArg___lam__0(x_1, x_2);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_mapTaskCheap___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1342,6 +1323,14 @@ return x_10;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_bindTaskCheap___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Server_ServerTask_IO_bindTaskCheap___redArg___lam__0(x_1, x_2);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_bindTaskCheap___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1360,14 +1349,6 @@ _start:
 lean_object* x_6; 
 x_6 = l_Lean_Server_ServerTask_IO_bindTaskCheap___redArg(x_3, x_4);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_bindTaskCheap___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Server_ServerTask_IO_bindTaskCheap___redArg___lam__0(x_1, x_2);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_bindTaskCheap___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

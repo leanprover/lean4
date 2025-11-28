@@ -976,6 +976,18 @@ lean_ctor_set(x_7, 0, x_6);
 return x_7;
 }
 }
+LEAN_EXPORT lean_object* l_Lake_MainM_instMonadLog___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; uint8_t x_7; lean_object* x_8; 
+x_6 = lean_unbox(x_2);
+x_7 = lean_unbox(x_3);
+x_8 = l_Lake_MainM_instMonadLog___lam__0(x_1, x_6, x_7, x_4);
+lean_dec_ref(x_4);
+lean_dec(x_1);
+return x_8;
+}
+}
 static lean_object* _init_l_Lake_MainM_instMonadLog() {
 _start:
 {
@@ -990,18 +1002,6 @@ lean_closure_set(x_6, 0, x_3);
 lean_closure_set(x_6, 1, x_4);
 lean_closure_set(x_6, 2, x_5);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_MainM_instMonadLog___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-uint8_t x_6; uint8_t x_7; lean_object* x_8; 
-x_6 = lean_unbox(x_2);
-x_7 = lean_unbox(x_3);
-x_8 = l_Lake_MainM_instMonadLog___lam__0(x_1, x_6, x_7, x_4);
-lean_dec_ref(x_4);
-lean_dec(x_1);
-return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_MainM_error___redArg(lean_object* x_1, uint32_t x_2) {
@@ -1090,20 +1090,20 @@ lean_ctor_set(x_11, 0, x_10);
 return x_11;
 }
 }
-static lean_object* _init_l_Lake_MainM_instMonadError() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_MainM_instMonadError___lam__0___boxed), 3, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_MainM_instMonadError___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_MainM_instMonadError___lam__0(x_1, x_2);
 return x_4;
+}
+}
+static lean_object* _init_l_Lake_MainM_instMonadError() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lake_MainM_instMonadError___lam__0___boxed), 3, 0);
+return x_1;
 }
 }
 static lean_object* _init_l_Lake_MainM_instMonadLiftIO___lam__0___boxed__const__1() {
@@ -1185,20 +1185,20 @@ return x_27;
 }
 }
 }
-static lean_object* _init_l_Lake_MainM_instMonadLiftIO() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_MainM_instMonadLiftIO___lam__0___boxed), 3, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_MainM_instMonadLiftIO___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_MainM_instMonadLiftIO___lam__0(x_1, x_2);
 return x_4;
+}
+}
+static lean_object* _init_l_Lake_MainM_instMonadLiftIO() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lake_MainM_instMonadLiftIO___lam__0___boxed), 3, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_MainM_runLogIO___redArg___lam__0(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5) {
@@ -1233,6 +1233,17 @@ uint32_t x_1; lean_object* x_2;
 x_1 = 1;
 x_2 = lean_box_uint32(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_MainM_runLogIO___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+uint8_t x_7; uint8_t x_8; lean_object* x_9; 
+x_7 = lean_unbox(x_2);
+x_8 = lean_unbox(x_3);
+x_9 = l_Lake_MainM_runLogIO___redArg___lam__0(x_1, x_7, x_8, x_4, x_5);
+lean_dec_ref(x_5);
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_MainM_runLogIO___redArg(lean_object* x_1, lean_object* x_2) {
@@ -1588,17 +1599,6 @@ goto block_38;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_MainM_runLogIO___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-uint8_t x_7; uint8_t x_8; lean_object* x_9; 
-x_7 = lean_unbox(x_2);
-x_8 = lean_unbox(x_3);
-x_9 = l_Lake_MainM_runLogIO___redArg___lam__0(x_1, x_7, x_8, x_4, x_5);
-lean_dec_ref(x_5);
-return x_9;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_MainM_runLogIO___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1888,6 +1888,17 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_Lake_MainM_runLoggerIO___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; uint8_t x_7; lean_object* x_8; 
+x_6 = lean_unbox(x_2);
+x_7 = lean_unbox(x_3);
+x_8 = l_Lake_MainM_runLoggerIO___redArg___lam__0(x_1, x_6, x_7, x_4);
+lean_dec_ref(x_4);
+return x_8;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_MainM_runLoggerIO___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2019,17 +2030,6 @@ return x_21;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_MainM_runLoggerIO___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-uint8_t x_6; uint8_t x_7; lean_object* x_8; 
-x_6 = lean_unbox(x_2);
-x_7 = lean_unbox(x_3);
-x_8 = l_Lake_MainM_runLoggerIO___redArg___lam__0(x_1, x_6, x_7, x_4);
-lean_dec_ref(x_4);
-return x_8;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_MainM_runLoggerIO___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2063,6 +2063,17 @@ uint32_t x_1; lean_object* x_2;
 x_1 = 1;
 x_2 = lean_box_uint32(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_MainM_liftLoggerIO___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; uint8_t x_7; lean_object* x_8; 
+x_6 = lean_unbox(x_2);
+x_7 = lean_unbox(x_3);
+x_8 = l_Lake_MainM_liftLoggerIO___redArg___lam__0(x_1, x_6, x_7, x_4);
+lean_dec_ref(x_4);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_MainM_liftLoggerIO___redArg(lean_object* x_1) {
@@ -2132,17 +2143,6 @@ _start:
 lean_object* x_4; 
 x_4 = l_Lake_MainM_liftLoggerIO___redArg(x_2);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_MainM_liftLoggerIO___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-uint8_t x_6; uint8_t x_7; lean_object* x_8; 
-x_6 = lean_unbox(x_2);
-x_7 = lean_unbox(x_3);
-x_8 = l_Lake_MainM_liftLoggerIO___redArg___lam__0(x_1, x_6, x_7, x_4);
-lean_dec_ref(x_4);
-return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_MainM_liftLoggerIO___redArg___boxed(lean_object* x_1, lean_object* x_2) {

@@ -1716,6 +1716,17 @@ return x_7;
 }
 }
 }
+LEAN_EXPORT lean_object* l_String_Pos_Raw_nextUntil___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint32_t x_3; uint8_t x_4; lean_object* x_5; 
+x_3 = lean_unbox_uint32(x_2);
+lean_dec(x_2);
+x_4 = l_String_Pos_Raw_nextUntil___lam__0(x_1, x_3);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_String_Pos_Raw_nextUntil(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1726,17 +1737,6 @@ x_5 = lean_string_utf8_byte_size(x_1);
 x_6 = l_Substring_Raw_takeWhileAux(x_1, x_5, x_4, x_3);
 lean_dec(x_5);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_String_Pos_Raw_nextUntil___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint32_t x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = lean_unbox_uint32(x_2);
-lean_dec(x_2);
-x_4 = l_String_Pos_Raw_nextUntil___lam__0(x_1, x_3);
-x_5 = lean_box(x_4);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_String_Pos_Raw_nextUntil___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

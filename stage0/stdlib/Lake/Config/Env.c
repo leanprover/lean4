@@ -58,7 +58,6 @@ static lean_object* l_Lake_Env_noToolchainVars___closed__0;
 static lean_object* l_Lake_Env_noToolchainVars___closed__3;
 static lean_object* l_Lake_Env_compute___closed__11;
 static lean_object* l_Lake_Env_noToolchainVars___closed__6;
-LEAN_EXPORT lean_object* l_Lake_Env_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Env_compute(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lake_Env_compute___closed__0;
@@ -101,7 +100,6 @@ static lean_object* l_Lean_NameMap_fromJson_x3f___at___00__private_Lake_Config_E
 LEAN_EXPORT lean_object* l_Lake_getUserHome_x3f();
 lean_object* l_List_appendTR___redArg(lean_object*, lean_object*);
 lean_object* l_String_Slice_Pos_get_x3f(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Env_ctorIdx(lean_object*);
 static lean_object* l_Lake_Env_compute___closed__13;
 lean_object* l_Lake_getSearchPath(lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_NameMap_toJson___at___00Lake_Env_baseVars_spec__0_spec__0___redArg___closed__5;
@@ -175,23 +173,6 @@ extern uint8_t l_System_Platform_isWindows;
 static lean_object* l_Lake_Env_baseVars___closed__4;
 static lean_object* l_Lake_Env_noToolchainVars___closed__12;
 LEAN_EXPORT lean_object* l___private_Lake_Config_Env_0__Lake_ElanInstall_lakeToolchainCache_x3f___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Env_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Env_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Env_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lake_instInhabitedEnv_default___closed__0() {
 _start:
 {

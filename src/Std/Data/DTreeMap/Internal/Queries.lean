@@ -290,7 +290,7 @@ def forIn {m} [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (ini
   | ForInStep.done d => return d
   | ForInStep.yield d => return d
 
-instance : ForIn m (Impl α β) ((a : α) × β a) where
+instance [Monad m] : ForIn m (Impl α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
 /-- Returns a `List` of the keys in order. -/

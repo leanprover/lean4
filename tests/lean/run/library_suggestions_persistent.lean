@@ -1,6 +1,5 @@
 import Lean.LibrarySuggestions
 import Lean.Meta.Basic
-import Std.Data.ExtHashMap
 
 /-!
 # Test that library suggestions persist across file boundaries

@@ -25,7 +25,6 @@ static lean_object* l_Std_Time_instInhabitedTimeZone_default___closed__0;
 static lean_object* l_Std_Time_TimeZone_UTC___closed__1;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instReprTimeZone_repr(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_toSeconds(lean_object*);
@@ -61,7 +60,6 @@ LEAN_EXPORT lean_object* l_Std_Time_TimeZone_toSeconds___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTC;
 lean_object* l_Bool_repr___redArg(uint8_t);
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Nat_cast___at___00Std_Time_instInhabitedTimeZone_default_spec__0_spec__0(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ctorIdx(lean_object*);
 lean_object* l_Std_Time_TimeZone_instReprOffset_repr___redArg(lean_object*);
 static lean_object* l_Std_Time_instReprTimeZone_repr___redArg___closed__14;
 static lean_object* l_Std_Time_instReprTimeZone_repr___redArg___closed__8;
@@ -79,23 +77,6 @@ static lean_object* l_Std_Time_instReprTimeZone_repr___redArg___closed__7;
 LEAN_EXPORT lean_object* l_Std_Time_instInhabitedTimeZone;
 static lean_object* l_Std_Time_instReprTimeZone_repr___redArg___closed__22;
 LEAN_EXPORT lean_object* l_Std_Time_instInhabitedTimeZone_default;
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Time_TimeZone_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Nat_cast___at___00Std_Time_instInhabitedTimeZone_default_spec__0_spec__0(lean_object* x_1) {
 _start:
 {

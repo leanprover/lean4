@@ -1441,6 +1441,9 @@ public def utf8ByteSize (c : UInt8) (_h : c.IsUTF8FirstByte) : Nat :=
   else
     4
 
+public theorem utf8ByteSize_pos (c : UInt8) (h : c.IsUTF8FirstByte) : 0 < c.utf8ByteSize h := by
+  fun_cases utf8ByteSize <;> simp
+
 def _root_.ByteArray.utf8DecodeChar?.FirstByte.utf8ByteSize : FirstByte → Nat
   | .invalid => 0
   | .done => 1

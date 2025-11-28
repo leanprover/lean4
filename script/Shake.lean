@@ -28,8 +28,12 @@ Options:
   --force
     Skips the `lake build --no-build` sanity check
 
+  --keep-implied
+    Preserves existing imports that are implied by other imports and thus not technically needed
+    anymore
+
   --keep-public
-    Preserves all `public` imports to avoid breaking changes
+    Preserves all `public` imports to avoid breaking changes for external downstream modules
 
   --add-public
     Adds new imports as `public` if they have been in the original public closure of that module.
@@ -54,6 +58,7 @@ open Lean
 /-- The parsed CLI arguments. See `help` for more information -/
 structure Args where
   help : Bool := false
+  keepImplied : Bool := false
   keepPublic : Bool := false
   addPublic : Bool := false
   force : Bool := false
@@ -465,8 +470,9 @@ def visitModule (srcSearchPath : SearchPath)
   for imp in s.mods[i]!.imports do
     let j := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
+    let keep := if args.keepImplied then newDeps else deps
     -- A private import should also be removed if the public version has been added
-    if !deps.has k j || !k.isExported && !imp.importAll && deps.has { k with isExported := true } j then
+    if !keep.has k j || !k.isExported && !imp.importAll && deps.has { k with isExported := true } j then
       toRemove := toRemove.push imp
 
   -- mark and report the removals
@@ -555,6 +561,7 @@ def main (args : List String) : IO UInt32 := do
   let rec parseArgs (args : Args) : List String → Args
     | [] => args
     | "--help" :: rest => parseArgs { args with help := true } rest
+    | "--keep-implied" :: rest => parseArgs { args with keepImplied := true } rest
     | "--keep-public" :: rest => parseArgs { args with keepPublic := true } rest
     | "--add-public" :: rest => parseArgs { args with addPublic := true } rest
     | "--force" :: rest => parseArgs { args with force := true } rest

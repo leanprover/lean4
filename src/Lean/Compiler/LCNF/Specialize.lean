@@ -70,6 +70,7 @@ structure State where
   processedDecls : Array Decl := #[]
   newDecls : Array Decl := #[]
   localSpecParamInfo : Std.HashMap Name (Array SpecParamInfo) := {}
+  parentMask : Std.HashMap Name (Array Bool) := {}
 
 abbrev SpecializeM := ReaderT Context $ StateRefT State CompilerM
 
@@ -363,7 +364,12 @@ mutual
       specDecl.saveBase
       let specDecl ← specDecl.simp {}
       let specDecl ← specDecl.simp { etaPoly := true, inlinePartial := true, implementedBy := true }
-      modify fun s => { s with newDecls := s.newDecls.push specDecl }
+      modify fun s => {
+        s with
+          newDecls := s.newDecls.push specDecl,
+          -- TODO: correct mask
+          parentMask := s.parentMask.insert specDecl.name (Array.replicate specDecl.params.size false)
+      }
       return some (.const specDecl.name usNew argsNew)
 
   partial def visitFunDecl (funDecl : FunDecl) : SpecializeM FunDecl := do
@@ -407,14 +413,23 @@ def specializeDecl (decl : Decl) : SpecializeM Decl := do
 
 def updateSpecParamInfo : SpecializeM Unit := do
   let decls := (← get).processedDecls ++ (← get).newDecls
-  -- TODO: have to pass in info for new decls based on old ones
-  let infos ← computeSpecParamInfo decls
+  let masks := (← get).parentMask
+  let infos ← computeSpecParamInfo decls fun declName specArgs? =>
+    specArgs? == some #[] || (masks[declName]?.getD #[] |>.any (· == true))
   
   for entry in infos do
-    modify fun s => {
-      s with
-        localSpecParamInfo := s.localSpecParamInfo.insert entry.declName entry.paramsInfo
-    }
+    if let some mask := (← get).parentMask[entry.declName]? then
+      let maskInfo info :=
+        mask.zipWith info (f := fun b i =>
+          if (i matches .user | .fixedInst | .fixedHO) && !b then
+            .other
+          else
+            i)
+      let entry := { entry with paramsInfo := maskInfo entry.paramsInfo }
+      modify fun s => {
+        s with
+          localSpecParamInfo := s.localSpecParamInfo.insert entry.declName entry.paramsInfo
+      }
 
   trace[Compiler.specialize.step] m!"Info for next round: {(← get).localSpecParamInfo.toList}"
 
@@ -431,7 +446,7 @@ partial def loop (n : Nat := 0) : SpecializeM Unit := do
       specializeDecl decl
     modify fun s => { s with processedDecls := s.processedDecls.push processed }
 
-  --updateSpecParamInfo
+  updateSpecParamInfo
 
   loop (n + 1)
 

@@ -142,7 +142,8 @@ private def hasFwdDeps (decl : Decl) (paramsInfo : Array SpecParamInfo) (j : Nat
         return true
   return false
 
-def computeSpecParamInfo (decls : Array Decl) : CompilerM (Array SpecEntry) := do
+def computeSpecParamInfo (decls : Array Decl) (autoSpecialize : Name → Option (Array Nat) → Bool) :
+    CompilerM (Array SpecEntry) := do
   let mut declsInfo := #[]
   for decl in decls do
     if hasNospecializeAttribute (← getEnv) decl.name then
@@ -171,7 +172,7 @@ def computeSpecParamInfo (decls : Array Decl) : CompilerM (Array SpecEntry) := d
           specify which arguments must be specialized besides instances. In this case, we try to specialize
           any "fixed higher-order argument"
           -/
-          else if specArgs? == some #[] && param.type matches .forallE .. then
+          else if autoSpecialize decl.name specArgs? && param.type matches .forallE .. then
             pure .fixedHO
           else
             pure .other
@@ -211,7 +212,7 @@ assumes that if a function `f` was declared in a mutual block, then `decls`
 contains all (computationally relevant) functions in the mutual block.
 -/
 def saveSpecParamInfo (decls : Array Decl) : CompilerM Unit := do
-  let entries ← computeSpecParamInfo decls
+  let entries ← computeSpecParamInfo decls (fun _ specArgs? => specArgs? == some #[])
   for entry in entries do
     if entry.paramsInfo.any fun info => info matches .fixedInst | .fixedHO | .user then
       trace[Compiler.specialize.info] "{entry.declName} {entry.paramsInfo}"

@@ -147,6 +147,7 @@ mutual
         else if let some letDecl ← findLetDecl? fvarId then
           collectType letDecl.type
           if ctx.isUnderBinder || ctx.abstract letDecl.fvarId then
+            trace[Compiler.specialize.candidate] m!"Collecting {mkFVar fvarId}, binder: {ctx.isUnderBinder} scope: {ctx.inScope fvarId}, abstract? {ctx.abstract fvarId}"
             modify fun s => { s with params := s.params.push <| { letDecl with borrow := false } }
           else
             collectLetValue letDecl.value

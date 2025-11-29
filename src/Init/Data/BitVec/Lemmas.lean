@@ -6536,7 +6536,6 @@ theorem toNat_msb_add_toNat_cpop_setWidth {x : BitVec (w + 1)} :
     simp [cpop, BitVec.msb, getMsbD_eq_getLsbD]
     omega
   case succ n =>
-
     rewrite (occs := .pos [2]) [toNat_cpop_eq_cpopNatRec]
     rw [cpopNatRec_succ, toNat_cpop_eq_cpopNatRec, msb_eq_getLsbD_last]
     simp [-cpopNatRec_succ] -- TODO: should we drop @[simp] from cpopNatRec_succ?

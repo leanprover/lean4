@@ -6382,6 +6382,25 @@ theorem cpopNatRec_allOnes_eq_add_of_le (h : n ≤ w) :
     simp [show n < w by omega, ihn, cpopNatRec_add_eq_add_cpopNatRec (acc := acc) (acc' := 1)]
     omega
 
+@[simp]
+theorem cpop_allOnes : (allOnes w).cpop = BitVec.ofNat w w := by
+  rw [cpop, cpopNatRec_allOnes_eq_add_of_le (by omega)]
+  simp
+
+@[simp]
+theorem cpopNatRec_zero' (h : n ≤ w) :
+    (0#w).cpopNatRec n acc = acc := by
+  induction n
+  · case zero => simp
+  · case succ n ihn =>
+    specialize ihn (by omega)
+    simp [show n < w by omega, ihn]
+
+@[simp]
+theorem cpop_zero : (0#w).cpop = 0#w := by
+  rw [cpop]
+  simp
+
 theorem toNat_cpop_le (x : BitVec w) :
     x.cpop.toNat ≤ w := by
   have hlt := Nat.lt_pow_self (a := 2) (n := w) (by omega)

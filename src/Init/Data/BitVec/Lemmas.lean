@@ -6432,7 +6432,6 @@ theorem toNat_cpop_eq_cpopNatRec (x : BitVec w) :
   have := cpopNatRec_le x w
   have := toNat_cpop_le x
   have := @Nat.lt_pow_self w 2 (by omega)
-
   rw [cpop, toNat_ofNat, Nat.mod_eq_of_lt]
   omega
 
@@ -6470,9 +6469,8 @@ theorem cpop_concat_eq_add_setWidth {x : BitVec w} {b : Bool} :
     (x.concat b).cpop = b.toNat + x.cpop.setWidth (w + 1) := by
   have := cpopNatRec_le (x := x) (n := w)
   have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
-  simp only [cpop]
-  rw [cpopNatRec_concat_eq_toNat_add_cpopNatRec_of_lt]
-  simp only [Nat.add_one_sub_one, natCast_eq_ofNat, ofNat_add]
+  rw [cpop, cpop, cpopNatRec_concat_eq_toNat_add_cpopNatRec_of_lt,
+    Nat.add_one_sub_one, natCast_eq_ofNat, ofNat_add]
   congr
   rw [setWidth_ofNat_of_le_of_lt (x := x.cpopNatRec w 0) (by omega) (by omega)]
   omega
@@ -6516,9 +6514,10 @@ theorem toNat_msb_add_toNat_cpop_setWidth {x : BitVec (w + 1)} :
   cases w
   case zero =>
     have := Bool.toNat_lt x[0]
-    simp [cpop, msb_eq_getLsbD_last]
+    simp [cpop, BitVec.msb, getMsbD_eq_getLsbD]
     omega
   case succ n =>
+
     rewrite (occs := .pos [2]) [toNat_cpop_eq_cpopNatRec]
     rw [cpopNatRec_succ, toNat_cpop_eq_cpopNatRec, msb_eq_getLsbD_last]
     simp [-cpopNatRec_succ] -- TODO: should we drop @[simp] from cpopNatRec_succ?

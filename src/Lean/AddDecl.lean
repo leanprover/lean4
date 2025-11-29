@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Meta.Sorry
 public import Lean.Util.CollectAxioms
-import Lean.Compiler.Old
 
 public section
 
@@ -75,13 +74,31 @@ register_builtin_option warn.sorry : Bool := {
   descr    := "warn about uses of `sorry` in declarations added to the environment"
 }
 
+/-- Returns true if a name component is an internal auxiliary suffix that should
+be stripped for user-facing messages. Uses the same criteria as `Name.isInternalDetail`
+for leaf components: names starting with `_`, or matching patterns like `proof_N`, `eq_N`, etc. -/
+private def isAuxiliarySuffix (s : String) : Bool :=
+  s.startsWith "_" ||
+  matchPrefix s "eq_" ||
+  matchPrefix s "match_" ||
+  matchPrefix s "proof_" ||
+  matchPrefix s "omega_"
+where
+  /-- Check that a string begins with the given prefix, and then is only digits/'_'. -/
+  matchPrefix (s : String) (pre : String) :=
+    s.startsWith pre && (s.drop pre.length).all fun c => c.isDigit || c == '_'
+
 /-- Get displayable names for a declaration, for use in sorry warnings.
-For partial definitions, strips the `_unsafe_rec` suffix since the sorry
-exists in the auxiliary definition but users should see the original name.
+Strips auxiliary suffixes from the leaf component so users see the original declaration name.
 For anonymous declarations like `_example`, displays as `example`. -/
 def Declaration.namesForSorry (decl : Declaration) : List Name :=
+  let stripAuxiliarySuffix (n : Name) : Name := match n with
+    | .str parent s =>
+      -- Only strip if parent is not anonymous (to avoid stripping the entire name)
+      if !parent.isAnonymous && isAuxiliarySuffix s then parent else n
+    | _ => n
   let cleanupName (n : Name) : Name :=
-    let n := Compiler.isUnsafeRecName? n |>.getD n
+    let n := stripAuxiliarySuffix n
     if n == `_example then `example else n
   decl.getTopLevelNames.map cleanupName
 
@@ -94,10 +111,11 @@ def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
     if !(← MonadLog.hasErrors) && decl.hasSorry then
       let declNames := decl.namesForSorry
       -- Format declaration names, each individually quoted so they're clickable
-      let declNamesMsg : MessageData := match declNames with
-        | [] => m!"<anonymous>"
-        | [n] => m!"`{n}`"
-        | ns => MessageData.joinSep (ns.map fun n => m!"`{n}`") ", "
+      -- Use proper grammar: "declaration ... uses" vs "declarations ... use"
+      let (declWord, useWord, declNamesMsg) : String × String × MessageData := match declNames with
+        | [] => ("declaration", "uses", m!"<anonymous>")
+        | [n] => ("declaration", "uses", m!"`{.ofConstName n}`")
+        | ns => ("declarations", "use", MessageData.joinSep (ns.map fun n => m!"`{.ofConstName n}`") ", ")
       -- Find an actual sorry expression to use for `sorry`.
       -- That way the user can hover over it to see its type and use "go to definition" if it is a labeled sorry.
       let findSorry : StateRefT (Array (Bool × MessageData)) MetaM Unit := decl.forEachSorryM fun s => do
@@ -108,10 +126,10 @@ def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
       -- These can appear without logged errors if `decl` is referring to declarations with elaboration errors;
       -- that's where a user should direct their focus.
       if let some (_, s) := sorries.find? (·.1) <|> sorries[0]? then
-        logWarning <| .tagged `hasSorry m!"declaration {declNamesMsg} uses `{s}`"
+        logWarning <| .tagged `hasSorry m!"{declWord} {declNamesMsg} {useWord} `{s}`"
       else
         -- This case should not happen, but it ensures a warning will get logged no matter what.
-        logWarning <| .tagged `hasSorry m!"declaration {declNamesMsg} uses `sorry`"
+        logWarning <| .tagged `hasSorry m!"{declWord} {declNamesMsg} {useWord} `sorry`"
 
 builtin_initialize
   registerTraceClass `addDecl

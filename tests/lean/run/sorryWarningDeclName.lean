@@ -20,7 +20,7 @@ theorem mySorryThm : True := sorry
 
 -- Test: Example shows as `example` (not `_example`)
 /--
-warning: declaration `example` uses `sorry`
+warning: declaration `«example»` uses `sorry`
 -/
 #guard_msgs in
 example : True := sorry
@@ -109,3 +109,13 @@ where
   loop : Nat → Nat
     | 0 => 0
     | n + 1 => sorry
+
+-- Test: Mutual partial definitions (exercises mutualDefnDecl with multiple names)
+/--
+warning: declarations `mutualPartialA`, `mutualPartialB` use `sorry`
+-/
+#guard_msgs in
+mutual
+partial def mutualPartialA (n : Nat) : Nat := mutualPartialB n + sorry
+partial def mutualPartialB (n : Nat) : Nat := sorry + mutualPartialA n
+end

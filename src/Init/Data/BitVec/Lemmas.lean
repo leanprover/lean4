@@ -6426,7 +6426,7 @@ theorem cpopNatRec_cons_eq_toNat_add_cpopNatRec_of_lt {x : BitVec w} {b : Bool} 
   induction n generalizing acc
   · omega
   · case _ n ihn =>
-    simp
+    simp only [cpopNatRec_succ]
     by_cases hlt : w < n
     · specialize ihn (acc := acc + ((cons b x).getLsbD n).toNat) (by omega)
       rw [ihn, Nat.add_left_cancel_iff, getLsbD_cons]

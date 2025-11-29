@@ -232,3 +232,64 @@ example : f x y = 0 → False := by
  grind
 
 end Ex11
+
+namespace Ex12
+
+opaque f : Nat → Nat
+axiom fMono : x ≤ y → f x ≤ f y
+grind_pattern fMono => f x, f y
+
+-- Many unnecessary instances were generated.
+/--
+trace: [grind.ematch.instance] fMono: f a ≤ b → f (f a) ≤ f b
+[grind.ematch.instance] fMono: f a ≤ c → f (f a) ≤ f c
+[grind.ematch.instance] fMono: f a ≤ a → f (f a) ≤ f a
+[grind.ematch.instance] fMono: f a ≤ f (f a) → f (f a) ≤ f (f (f a))
+[grind.ematch.instance] fMono: f a ≤ f a → f (f a) ≤ f (f a)
+[grind.ematch.instance] fMono: f (f a) ≤ b → f (f (f a)) ≤ f b
+[grind.ematch.instance] fMono: f (f a) ≤ c → f (f (f a)) ≤ f c
+[grind.ematch.instance] fMono: f (f a) ≤ a → f (f (f a)) ≤ f a
+[grind.ematch.instance] fMono: f (f a) ≤ f (f a) → f (f (f a)) ≤ f (f (f a))
+[grind.ematch.instance] fMono: f (f a) ≤ f a → f (f (f a)) ≤ f (f a)
+[grind.ematch.instance] fMono: a ≤ b → f a ≤ f b
+[grind.ematch.instance] fMono: a ≤ c → f a ≤ f c
+[grind.ematch.instance] fMono: a ≤ a → f a ≤ f a
+[grind.ematch.instance] fMono: a ≤ f (f a) → f a ≤ f (f (f a))
+[grind.ematch.instance] fMono: a ≤ f a → f a ≤ f (f a)
+[grind.ematch.instance] fMono: c ≤ b → f c ≤ f b
+[grind.ematch.instance] fMono: c ≤ c → f c ≤ f c
+[grind.ematch.instance] fMono: c ≤ a → f c ≤ f a
+[grind.ematch.instance] fMono: c ≤ f (f a) → f c ≤ f (f (f a))
+[grind.ematch.instance] fMono: c ≤ f a → f c ≤ f (f a)
+[grind.ematch.instance] fMono: b ≤ b → f b ≤ f b
+[grind.ematch.instance] fMono: b ≤ c → f b ≤ f c
+[grind.ematch.instance] fMono: b ≤ a → f b ≤ f a
+[grind.ematch.instance] fMono: b ≤ f (f a) → f b ≤ f (f (f a))
+[grind.ematch.instance] fMono: b ≤ f a → f b ≤ f (f a)
+-/
+#guard_msgs in
+example : f b = f c → a ≤ f a → f (f a) ≤ f (f (f a)) := by
+  set_option trace.grind.ematch.instance true in
+  grind
+
+end Ex12
+
+namespace Ex13
+-- Same example but using constraints to control theorem/axiom instantiation
+opaque f : Nat → Nat
+axiom fMono : x ≤ y → f x ≤ f y
+grind_pattern fMono => f x, f y where
+  guard x ≤ y
+  x =/= y
+
+/--
+trace: [grind.ematch.instance] fMono: a ≤ f a → f a ≤ f (f a)
+[grind.ematch.instance] fMono: f a ≤ f (f a) → f (f a) ≤ f (f (f a))
+[grind.ematch.instance] fMono: a ≤ f (f a) → f a ≤ f (f (f a))
+-/
+#guard_msgs in
+example : f b = f c → a ≤ f a → f (f a) ≤ f (f (f a)) := by
+  set_option trace.grind.ematch.instance true in
+  grind
+
+end Ex13

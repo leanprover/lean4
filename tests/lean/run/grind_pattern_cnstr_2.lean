@@ -187,3 +187,48 @@ example : x ≠ y → f x y = 0 → False := by
  grind
 
 end Ex9
+
+namespace Ex10
+
+opaque f : Nat → Nat → Nat
+axiom fax : x = y → f x y > 0
+
+grind_pattern fax => f x y where
+  check x = y
+
+/--
+trace: [grind.ematch.instance.delayed] `fax` waiting
+      x = y
+[grind.split] x = y, generation: 1
+[grind.ematch.instance] fax: x = y → f x y > 0
+-/
+#guard_msgs (drop error, trace) in
+example : f x y = 0 → False := by
+ set_option trace.grind.ematch.instance true in
+ set_option trace.grind.ematch.instance.delayed true in
+ set_option trace.grind.split true in
+ grind
+
+end Ex10
+
+namespace Ex11
+
+opaque f : Nat → Nat → Nat
+axiom fax : x = y → f x y > 0
+
+grind_pattern fax => f x y where
+  guard x = y
+
+-- `grind` will not case-split on `x = y` since `guard` was used instead of `check`
+/--
+trace: [grind.ematch.instance.delayed] `fax` waiting
+      x = y
+-/
+#guard_msgs (drop error, trace) in
+example : f x y = 0 → False := by
+ set_option trace.grind.ematch.instance true in
+ set_option trace.grind.ematch.instance.delayed true in
+ set_option trace.grind.split true in
+ grind
+
+end Ex11

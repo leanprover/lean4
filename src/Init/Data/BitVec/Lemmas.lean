@@ -6454,14 +6454,15 @@ theorem cpop_cons_eq_cpop_concat (x : BitVec w) :
   rw [cpop_cons_eq_add_setWidth, cpop_concat_eq_add_setWidth]
 
 @[simp]
-theorem cpopNatRec_reverse (x : BitVec w) (hn : w ≤ n):
-    x.reverse.cpopNatRec n acc = x.cpopNatRec n acc := by
-  sorry
-
-@[simp]
 theorem cpop_reverse (x : BitVec w) :
     x.reverse.cpop = x.cpop := by
-  simp [cpop]
+  induction w
+  case zero =>
+    simp [cpop, reverse]
+  case succ w ihw =>
+    rw [← concat_reverse_setWidth_msb_eq_reverse, cpop_concat_eq_add_setWidth, ihw,
+      ← cpop_cons_eq_add_setWidth]
+    simp
 
 @[simp]
 theorem cpopNatRec_cast_eq_cpopNatRec_of_eq {x : BitVec w} (p : w = v) :

@@ -174,7 +174,7 @@ end WithBot
 
 namespace WithBot
 
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration `WithBot.le_of_forall_lt_iff_le` uses `sorry` -/
 #guard_msgs in
 theorem le_of_forall_lt_iff_le [LinearOrder α] [DenselyOrdered α]
     {x y : WithBot α} : (∀ z : α, x < z → y ≤ z) ↔ y ≤ x := by

@@ -18,6 +18,13 @@ warning: declaration `mySorryThm` uses `sorry`
 #guard_msgs in
 theorem mySorryThm : True := sorry
 
+-- Test: Example shows as `example` (not `_example`)
+/--
+warning: declaration `example` uses `sorry`
+-/
+#guard_msgs in
+example : True := sorry
+
 -- Test: Recursive definition
 /--
 warning: declaration `recDef` uses `sorry`
@@ -27,7 +34,7 @@ def recDef : Nat → Nat
   | 0 => 0
   | n + 1 => sorry
 
--- Test: Mutual recursion (non-recursive bodies to avoid internal defs)
+-- Test: Mutual recursion - each definition gets its own warning
 /--
 warning: declaration `mutualB` uses `sorry`
 ---

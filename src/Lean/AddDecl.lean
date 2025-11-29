@@ -77,10 +77,13 @@ register_builtin_option warn.sorry : Bool := {
 
 /-- Get displayable names for a declaration, for use in sorry warnings.
 For partial definitions, strips the `_unsafe_rec` suffix since the sorry
-exists in the auxiliary definition but users should see the original name. -/
+exists in the auxiliary definition but users should see the original name.
+For anonymous declarations like `_example`, displays as `example`. -/
 def Declaration.namesForSorry (decl : Declaration) : List Name :=
-  let stripUnsafeRec (n : Name) : Name := Compiler.isUnsafeRecName? n |>.getD n
-  decl.getTopLevelNames.map stripUnsafeRec
+  let cleanupName (n : Name) : Name :=
+    let n := Compiler.isUnsafeRecName? n |>.getD n
+    if n == `_example then `example else n
+  decl.getTopLevelNames.map cleanupName
 
 /--
 If the `warn.sorry` option is set to true and there are no errors in the log already,

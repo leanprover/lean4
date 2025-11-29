@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Sorry
 public import Lean.Util.CollectAxioms
+import Lean.Compiler.Old
 
 public section
 
@@ -74,24 +75,26 @@ register_builtin_option warn.sorry : Bool := {
   descr    := "warn about uses of `sorry` in declarations added to the environment"
 }
 
-/-- Get a displayable name for a declaration, for use in sorry warnings. -/
-def Declaration.nameForSorry (decl : Declaration) : Name :=
-  match decl.getTopLevelNames with
-  | [name] => name
-  | names =>
-    -- For mutual definitions, join names with commas
-    names.foldl (init := .anonymous) fun acc name =>
-      if acc.isAnonymous then name
-      else acc ++ `«, » ++ name
+/-- Get displayable names for a declaration, for use in sorry warnings.
+For partial definitions, strips the `_unsafe_rec` suffix since the sorry
+exists in the auxiliary definition but users should see the original name. -/
+def Declaration.namesForSorry (decl : Declaration) : List Name :=
+  let stripUnsafeRec (n : Name) : Name := Compiler.isUnsafeRecName? n |>.getD n
+  decl.getTopLevelNames.map stripUnsafeRec
 
 /--
 If the `warn.sorry` option is set to true and there are no errors in the log already,
-logs a warning if the declaration uses `sorry`, including the declaration name.
+logs a warning if the declaration uses `sorry`, including the declaration name(s).
 -/
 def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
   if warn.sorry.get (← getOptions) then
     if !(← MonadLog.hasErrors) && decl.hasSorry then
-      let declName := decl.nameForSorry
+      let declNames := decl.namesForSorry
+      -- Format declaration names, each individually quoted so they're clickable
+      let declNamesMsg : MessageData := match declNames with
+        | [] => m!"<anonymous>"
+        | [n] => m!"`{n}`"
+        | ns => MessageData.joinSep (ns.map fun n => m!"`{n}`") ", "
       -- Find an actual sorry expression to use for `sorry`.
       -- That way the user can hover over it to see its type and use "go to definition" if it is a labeled sorry.
       let findSorry : StateRefT (Array (Bool × MessageData)) MetaM Unit := decl.forEachSorryM fun s => do
@@ -102,10 +105,10 @@ def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
       -- These can appear without logged errors if `decl` is referring to declarations with elaboration errors;
       -- that's where a user should direct their focus.
       if let some (_, s) := sorries.find? (·.1) <|> sorries[0]? then
-        logWarning <| .tagged `hasSorry m!"declaration `{declName}` uses `{s}`"
+        logWarning <| .tagged `hasSorry m!"declaration {declNamesMsg} uses `{s}`"
       else
         -- This case should not happen, but it ensures a warning will get logged no matter what.
-        logWarning <| .tagged `hasSorry m!"declaration `{declName}` uses `sorry`"
+        logWarning <| .tagged `hasSorry m!"declaration {declNamesMsg} uses `sorry`"
 
 builtin_initialize
   registerTraceClass `addDecl

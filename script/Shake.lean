@@ -457,23 +457,28 @@ def visitModule (srcSearchPath : SearchPath)
   if prelude?.isNone then
     deps := deps.union .pub {s.env.getModuleIdx? `Init |>.get!}
 
+  let mut toAdd : Array Import := #[]
+
   -- Accumulate `transDeps` which is the non-reflexive transitive closure of the still-live imports
   let mut transDeps := Needs.empty
   for imp in s.mods[i]!.imports do
     let j := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
-    if
-        deps.has k j ||
-        -- skip folder-nested imports
-        s.modNames[i]!.isPrefixOf imp.module ||
-        imp.importAll then
+    if deps.has k j || imp.importAll then
       transDeps := addTransitiveImps transDeps imp j s.transDeps[j]!
       deps := deps.union k {j}
+    -- skip folder-nested `public import`s but remove `meta`
+    else if s.modNames[i]!.isPrefixOf imp.module then
+      let imp := { imp with isMeta := false }
+      let k := { k with isMeta := false }
+      transDeps := addTransitiveImps transDeps imp j s.transDeps[j]!
+      deps := deps.union k {j}
+      if !s.mods[i]!.imports.contains imp then
+        toAdd := toAdd.push imp
 
   -- If `transDeps` does not cover `deps`, then we have to add back some imports until it does.
   -- To minimize new imports we pick only new imports which are not transitively implied by
   -- another new import
-  let mut toAdd : Array Import := #[]
   let mut keptPrefix := false
   let mut newTransDeps := transDeps
   for j in (0...s.mods.size).toArray.reverse do
@@ -492,10 +497,7 @@ def visitModule (srcSearchPath : SearchPath)
         if args.keepPrefix then
           if let some (prfx, j') := impTries.get? (.ofImport imp) |>.bind (·.findShortestPrefix? imp.module) then
             let j'transDeps := addTransitiveImps .empty prfx j' s.transDeps[j']!
-            if j'transDeps.has k j ||
-                -- TODO: this is an approximation for when `X` `public meta import`s `X.Y`, which it
-                -- really shouldn't do outside of auto-ported code
-                j'transDeps.has { k with isMeta := true } j then
+            if j'transDeps.has k j then
               imp := prfx
               j := j'
               keptPrefix := true

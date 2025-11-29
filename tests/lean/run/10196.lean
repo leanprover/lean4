@@ -9,10 +9,10 @@ It re-used the `g._proof_1` proof.
 -/
 
 def f (n : Nat) (_ : n ≠ 0) : Nat := n
-/-- warning: declaration `g._proof_1` uses `sorry` -/
+/-- warning: declaration `g` uses `sorry` -/
 #guard_msgs in
 def g (m : Nat) := f m sorry
-/-- warning: declaration `g'._proof_1` uses `sorry` -/
+/-- warning: declaration `g'` uses `sorry` -/
 #guard_msgs in
 def g' (m : Nat) := f m sorry
 
@@ -43,11 +43,11 @@ def ByteString.Pos.toSlice {s : ByteString} (pos : s.Pos) : s.toSlice.Pos :=
 #guard_msgs in
 def ByteString.Slice.Pos.next {s : ByteString.Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : s.Pos :=
   sorry
-/-- warning: declaration `ByteString.Pos.get._proof_1` uses `sorry` -/
+/-- warning: declaration `ByteString.Pos.get` uses `sorry` -/
 #guard_msgs in
 def ByteString.Pos.get {s : ByteString} (pos : s.Pos) : Char :=
   pos.toSlice.get sorry
-/-- warning: declaration `ByteString.Pos.next._proof_1` uses `sorry` -/
+/-- warning: declaration `ByteString.Pos.next` uses `sorry` -/
 #guard_msgs in
 def ByteString.Pos.next {s : ByteString} (pos : s.Pos) (h : True) : s.toSlice.Pos :=
   pos.toSlice.next sorry

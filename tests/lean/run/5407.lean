@@ -103,7 +103,7 @@ info: found a partial proof, but the corresponding tactic failed:
 
 It may be possible to correct this proof by adding type annotations, explicitly specifying implicit arguments, or eliminating unnecessary function abstractions.
 ---
-warning: declaration uses 'sorry'
+warning: declaration `example` uses `sorry`
 -/
 #guard_msgs in
 example : E := by apply?
@@ -121,7 +121,7 @@ info: Try this:
   -- Remaining subgoals:
   -- ⊢ R a b
 ---
-warning: declaration uses 'sorry'
+warning: declaration `example` uses `sorry`
 -/
 #guard_msgs in
 example : (b : B) → R a b := by

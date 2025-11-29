@@ -20,7 +20,7 @@ def f (x : Nat) : Nat := by
 
 set_option debug.byAsSorry true in
 /--
-warning: declaration `g._proof_1` uses `sorry`
+warning: declaration `g` uses `sorry`
 -/
 #guard_msgs in
 def g (x : Nat) : { x : Nat // x > 0 } :=

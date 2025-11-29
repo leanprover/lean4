@@ -19,7 +19,7 @@ reprove List.append_nil by
 
 -- Test failed reprove - wrong tactic
 /--
-warning: declaration uses 'sorry'
+warning: declaration `reprove_example✝` uses `sorry`
 -/
 #guard_msgs in
 reprove simpleTheorem by

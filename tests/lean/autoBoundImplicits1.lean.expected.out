@@ -1,6 +1,6 @@
 myid 10 : Nat
 myid true : Bool
-autoBoundImplicits1.lean:16:4-16:11: warning: declaration uses 'sorry'
+autoBoundImplicits1.lean:16:4-16:11: warning: declaration `Vec.map` uses `sorry`
 autoBoundImplicits1.lean:20:25-20:29: error(lean.unknownIdentifier): Unknown identifier `size`
 
 Note: It is not possible to treat `size` as an implicitly bound variable here because it has multiple characters while the `relaxedAutoImplicit` option is set to `false`.
@@ -23,5 +23,5 @@ autoBoundImplicits1.lean:24:48-24:49: error(lean.unknownIdentifier): Unknown ide
 
 Note: It is not possible to treat `n` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
 f {α : Type} {n : Nat} (xs : Vec α n) : Vec α n
-f mkVec : Vec ?m 0
+f mkVec : Vec ?m.5 0
 f mkVec : Vec Nat 0

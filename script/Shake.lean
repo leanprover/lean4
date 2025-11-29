@@ -38,8 +38,8 @@ Options:
     anymore
 
   --keep-prefix
-    If an import `X` would be replaced in favor of a more specific import `X.Y...`, preserves the
-    original import instead
+    If an import `X` would be replaced in favor of a more specific import `X.Y...` it implies,
+    preserves the original import instead
 
   --keep-public
     Preserves all `public` imports to avoid breaking changes for external downstream modules
@@ -457,7 +457,7 @@ def visitModule (srcSearchPath : SearchPath)
   if prelude?.isNone then
     deps := deps.union .pub {s.env.getModuleIdx? `Init |>.get!}
 
-  -- Accumulate `transDeps` which is the transitive closure of the still-live imports
+  -- Accumulate `transDeps` which is the non-reflexive transitive closure of the still-live imports
   let mut transDeps := Needs.empty
   for imp in s.mods[i]!.imports do
     let j := s.env.getModuleIdx? imp.module |>.get!
@@ -489,13 +489,18 @@ def visitModule (srcSearchPath : SearchPath)
           imp := { imp with isExported := true }
           if args.trace then
             IO.eprintln s!"* upgrading to `{imp}` because of `--add-public`"
-        if args.keepPrefix && !s.mods[i]!.imports.contains imp then
+        if args.keepPrefix then
           if let some (prfx, j') := impTries.get? (.ofImport imp) |>.bind (·.findShortestPrefix? imp.module) then
-            imp := prfx
-            j := j'
-            keptPrefix := true
-            if args.trace then
-              IO.eprintln s!"* upgrading to `{imp}` because of `--keep-prefix`"
+            let j'transDeps := addTransitiveImps .empty prfx j' s.transDeps[j']!
+            if j'transDeps.has k j ||
+                -- TODO: this is an approximation for when `X` `public meta import`s `X.Y`, which it
+                -- really shouldn't do outside of auto-ported code
+                j'transDeps.has { k with isMeta := true } j then
+              imp := prfx
+              j := j'
+              keptPrefix := true
+              if args.trace then
+                IO.eprintln s!"* upgrading to `{imp}` because of `--keep-prefix`"
         if !s.mods[i]!.imports.contains imp then
           toAdd := toAdd.push imp
         deps := deps.union (.ofImport imp) {j}

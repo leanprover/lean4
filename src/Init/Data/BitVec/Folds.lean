@@ -201,13 +201,13 @@ theorem foldr_nil : foldr f a nil = a := by
 
 @[simp]
 theorem foldr_cons {x : BitVec w} : foldr f a (cons b x) = f b (foldr f a x) := by
-  simp only [foldr, getElem_cons, Nat.fold_succ, ↓reduceDIte]
+  simp only [foldr, getElem_cons, Nat.fold_succ]
   congr
   ext
   rw [dif_neg (by omega)]
 
 /--
-Fold a function over the bits of a bitvector from least significant to most significant,
+Fold a function over the bits of a bitvector from most significant to least significant,
 accumulating from the left.
 
 `foldl (cons b x) f init = foldl x f (f init b)`
@@ -221,7 +221,7 @@ theorem foldl_nil : foldl f a nil = a := by
 
 @[simp]
 theorem foldl_cons {x : BitVec w} : foldl f a (cons b x) = foldl f (f a b) x := by
-  simp only [foldl, getElem_cons, Nat.foldRev_succ, ↓reduceDIte]
+  simp only [foldl, getElem_cons, Nat.foldRev_succ]
   congr
   ext
   rw [dif_neg (by omega)]
@@ -244,7 +244,7 @@ theorem foldrIdx_nil : foldrIdx f a nil = a := by
 @[simp]
 theorem foldrIdx_cons {x : BitVec w} :
     foldrIdx f a (cons b x) = f ⟨w, by omega⟩ b (foldrIdx (fun i => f ⟨i.val, by omega⟩) a x) := by
-  simp only [foldrIdx, getElem_cons, Nat.fold_succ, ↓reduceDIte]
+  simp only [foldrIdx, getElem_cons, Nat.fold_succ]
   congr
   ext
   rw [dif_neg (by omega)]
@@ -264,7 +264,7 @@ theorem foldlIdx_nil : foldlIdx f a nil = a := by
 @[simp]
 theorem foldlIdx_cons {x : BitVec w} :
     foldlIdx f a (cons b x) = foldlIdx (fun acc i => f acc ⟨i.val, by omega⟩) (f a ⟨w, by omega⟩ b) x := by
-  simp only [foldlIdx, getElem_cons, Nat.foldRev_succ, ↓reduceDIte]
+  simp only [foldlIdx, getElem_cons, Nat.foldRev_succ]
   congr
   ext
   rw [dif_neg (by omega)]

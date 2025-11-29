@@ -765,8 +765,10 @@ structure EMatch.State where
   thms         : PArray EMatchTheorem := {}
   /-- Active theorems that we have not performed any round of ematching yet. -/
   newThms      : PArray EMatchTheorem := {}
-  /-- Number of theorem instances generated so far -/
+  /-- Number of theorem instances generated so far. -/
   numInstances : Nat := 0
+  /-- Number of delayed theorem instances generated so far. We track them to decide whether E-match made progress or not. -/
+  numDelayedInstances : Nat := 0
   /-- Number of E-matching rounds performed in this goal since the last case-split. -/
   num          : Nat := 0
   /-- (pre-)instances found so far. It includes instances that failed to be instantiated. -/
@@ -1650,7 +1652,10 @@ def addTheoremInstance (thm : EMatchTheorem) (proof : Expr) (prop : Expr) (gener
     let thms := (← get).delayedThmInsts.find? { expr := guard } |>.getD []
     let thms := { thm, proof, prop, generation, guards } :: thms
     trace_goal[grind.ematch.instance.delayed] "`{thm.origin.pp}` waiting{indentExpr guard}"
-    modify fun s => { s with delayedThmInsts := s.delayedThmInsts.insert { expr := guard } thms }
+    modify fun s => { s with
+      delayedThmInsts := s.delayedThmInsts.insert { expr := guard } thms
+      ematch.numDelayedInstances := s.ematch.numDelayedInstances + 1
+    }
 
 def DelayedTheoremInstance.check (delayed : DelayedTheoremInstance) : GoalM Unit := do
   addTheoremInstance delayed.thm delayed.proof delayed.prop delayed.generation delayed.guards

@@ -917,8 +917,19 @@ Recall that the mapping is nonempty only if tracing is enabled.
 -/
 def ematch' (extraThms : Array EMatchTheorem := #[]) : GoalM (Bool × InstanceMap) := do
   let numInstances := (← get).ematch.numInstances
+  let numDelayedInstances := (← get).ematch.numDelayedInstances
   let map ← ematchCore extraThms
-  return ((← get).ematch.numInstances != numInstances, map)
+  let progress :=
+    (← get).ematch.numInstances != numInstances
+    ||
+    (← get).ematch.numDelayedInstances != numDelayedInstances
+  if (← get).ematch.numDelayedInstances != numDelayedInstances then
+    /-
+    **Note**: If delayed instances were produced, new guards may have been internalized,
+    and we may have pending facts to process.
+    -/
+    processNewFacts
+  return (progress, map)
 
 /--
 Performs one round of E-matching, and returns `true` if new instances were generated.

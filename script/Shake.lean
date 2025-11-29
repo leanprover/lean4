@@ -471,6 +471,8 @@ def visitModule (srcSearchPath : SearchPath)
     else if s.modNames[i]!.isPrefixOf imp.module then
       let imp := { imp with isMeta := false }
       let k := { k with isMeta := false }
+      if args.trace then
+        IO.eprintln s!"`{imp}` is preserved as folder-nested import"
       transDeps := addTransitiveImps transDeps imp j s.transDeps[j]!
       deps := deps.union k {j}
       if !s.mods[i]!.imports.contains imp then
@@ -485,27 +487,33 @@ def visitModule (srcSearchPath : SearchPath)
     for k in NeedsKind.all do
       if deps.has k j && !newTransDeps.has k j && !newTransDeps.has { k with isExported := true } j then
         -- `add-public/keep-prefix` may change the import and even module we're considering
+        let mut k := k
         let mut imp : Import := { k with module := s.modNames[j]! }
         let mut j := j
         if args.trace then
           IO.eprintln s!"`{imp}` is needed"
         if args.addPublic && !k.isExported &&
             (s.transDepsOrig[i]!.has { k with isExported := true } j || s.transDepsOrig[i]!.has { k with isExported := true, isMeta := true } j) then
+          k := { k with isExported := true }
           imp := { imp with isExported := true }
           if args.trace then
             IO.eprintln s!"* upgrading to `{imp}` because of `--add-public`"
         if args.keepPrefix then
-          if let some (prfx, j') := impTries.get? (.ofImport imp) |>.bind (·.findShortestPrefix? imp.module) then
-            let j'transDeps := addTransitiveImps .empty prfx j' s.transDeps[j']!
-            if j'transDeps.has k j then
-              imp := prfx
-              j := j'
-              keptPrefix := true
-              if args.trace then
-                IO.eprintln s!"* upgrading to `{imp}` because of `--keep-prefix`"
+          if let some (prfx, j') := impTries.get? k |>.bind (·.findShortestPrefix? imp.module) then
+            if prfx != imp then
+              let j'transDeps := addTransitiveImps .empty prfx j' s.transDeps[j']!
+              if !j'transDeps.has k j then
+                if args.trace then
+                  IO.eprintln s!"cannot prefix-upgrade `{imp}` to `{prfx}` because it is not implied"
+              else
+                imp := prfx
+                j := j'
+                keptPrefix := true
+                if args.trace then
+                  IO.eprintln s!"* upgrading to `{imp}` because of `--keep-prefix`"
         if !s.mods[i]!.imports.contains imp then
           toAdd := toAdd.push imp
-        deps := deps.union (.ofImport imp) {j}
+        deps := deps.union k {j}
         newTransDeps := addTransitiveImps newTransDeps imp j s.transDeps[j]!
 
   if keptPrefix then
@@ -529,12 +537,14 @@ def visitModule (srcSearchPath : SearchPath)
   for imp in s.mods[i]!.imports do
     let j := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
-    let keep := if args.keepImplied then newTransDeps ∪ deps else deps
-    -- A private import should also be removed if the public version has been added
-    if !keep.has k j then
+    if args.keepImplied && newTransDeps.has k j then
+      if args.trace && !deps.has k j then
+        IO.eprintln s!"`{imp}` is implied by other imports"
+    else if !deps.has k j then
       if args.trace then
         IO.eprintln s!"`{imp}` is now unused"
       toRemove := toRemove.push imp
+    -- A private import should also be removed if the public version has been added
     else if !k.isExported && !imp.importAll && newTransDeps.has { k with isExported := true } j then
       if args.trace then
         IO.eprintln s!"`{imp}` is already covered by `{ { imp with isExported := true } }`"
@@ -709,6 +719,8 @@ public def main (args : List String) : IO UInt32 := do
           srcSearchPath i t.get preserve edits stx args
       if isExtraRevModUse s.env i then
         preserve := preserve.union (if args.addPublic then .pub else .priv) {i}
+        if args.trace then
+          IO.eprintln s!"Preserving `{s.modNames[i]!}` because of recorded extra rev use"
     | .error e =>
       println! e.toString
 

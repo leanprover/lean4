@@ -878,6 +878,6 @@ def cpopNatRec (x : BitVec w) (pos acc : Nat) : Nat :=
   | n + 1 => x.cpopNatRec n (acc + (x.getLsbD n).toNat)
 
 /-- Population count over `x` as a `BitVec w` -/
-def cpop(x : BitVec w) : BitVec w := BitVec.ofNat w (cpopNatRec x w 0)
+def cpop (x : BitVec w) : BitVec w := BitVec.ofNat w (cpopNatRec x w 0)
 
 end BitVec

@@ -8,7 +8,7 @@ is false
 #eval show Nat from False.elim (by decide)
 
 /--
-error: aborting evaluation since the expression depends on the 'sorry' axiom, which can lead to runtime instability and crashes.
+error: Aborting evaluation since the expression depends on the 'sorry' axiom, which can lead to runtime instability and crashes.
 
 To attempt to evaluate anyway despite the risks, use the '#eval!' command.
 ---

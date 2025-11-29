@@ -434,6 +434,10 @@ def visitModule (srcSearchPath : SearchPath)
     let k := NeedsKind.ofImport imp
     if args.keepPrefix then
       impTries := impTries.insert k (impTries.get? k |>.getD NameTrie.empty |>.insert imp.module (imp, j))
+      if k.isMeta then
+        let k := { k with isMeta := false }
+        let imp := { imp with isMeta := false }
+        impTries := impTries.insert k (impTries.get? k |>.getD NameTrie.empty |>.insert imp.module (imp, j))
     if addOnly ||
         args.keepPublic && imp.isExported ||
         impStx.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep") then
@@ -457,10 +461,9 @@ def visitModule (srcSearchPath : SearchPath)
   if prelude?.isNone then
     deps := deps.union .pub {s.env.getModuleIdx? `Init |>.get!}
 
-  let mut toAdd : Array Import := #[]
-
   -- Accumulate `transDeps` which is the non-reflexive transitive closure of the still-live imports
   let mut transDeps := Needs.empty
+  let mut alwaysAdd : Array Import := #[]
   for imp in s.mods[i]!.imports do
     let j := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
@@ -476,13 +479,14 @@ def visitModule (srcSearchPath : SearchPath)
       transDeps := addTransitiveImps transDeps imp j s.transDeps[j]!
       deps := deps.union k {j}
       if !s.mods[i]!.imports.contains imp then
-        toAdd := toAdd.push imp
+        alwaysAdd := alwaysAdd.push imp
 
   -- If `transDeps` does not cover `deps`, then we have to add back some imports until it does.
   -- To minimize new imports we pick only new imports which are not transitively implied by
   -- another new import
   let mut keptPrefix := false
   let mut newTransDeps := transDeps
+  let mut toAdd : Array Import := #[]
   for j in (0...s.mods.size).toArray.reverse do
     for k in NeedsKind.all do
       if deps.has k j && !newTransDeps.has k j && !newTransDeps.has { k with isExported := true } j then
@@ -531,6 +535,9 @@ def visitModule (srcSearchPath : SearchPath)
             deps := deps.sub k {j}
           else
             newTransDeps := addTransitiveImps newTransDeps imp j s.transDeps[j]!
+
+  -- now that `toAdd` filtering is done, add `alwaysAdd`
+  toAdd := alwaysAdd ++ toAdd
 
   -- Any import which is still not in `deps` was unused
   let mut toRemove : Array Import := #[]

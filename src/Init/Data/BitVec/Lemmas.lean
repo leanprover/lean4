@@ -6532,15 +6532,13 @@ theorem add_cpopNatRec_eq_cpopNatRec_add (x : BitVec w) :
 @[simp]
 theorem toNat_msb_add_toNat_cpop_setWidth {x : BitVec (w + 1)} :
     x.msb.toNat + (setWidth w x).cpop.toNat = x.cpop.toNat := by
-  cases w
-  case zero =>
-    have := Bool.toNat_lt x[0]
-    simp [cpop, BitVec.msb, getMsbD_eq_getLsbD]
-    omega
-  case succ n =>
-    rewrite (occs := .pos [2]) [toNat_cpop_eq_cpopNatRec]
-    rw [cpopNatRec_succ, toNat_cpop_eq_cpopNatRec, msb_eq_getLsbD_last]
-    simp [-cpopNatRec_succ] -- TODO: should we drop @[simp] from cpopNatRec_succ?
+  have : x.msb.toNat ≤ 1 := by cases x.msb <;> simp
+  conv =>
+    rhs
+    rw [← cons_msb_setWidth (x := x)]
+  simp only [cpop_cons_eq_add_setWidth, natCast_eq_ofNat, toNat_add, toNat_ofNat, toNat_setWidth,
+    Nat.lt_add_one, toNat_mod_cancel_of_lt, Nat.mod_add_mod,
+    Nat.mod_eq_of_lt (a := x.msb.toNat + (setWidth w x).cpop.toNat) (b := 2 ^ (w + 1)) (by omega)]
 
 @[simp]
 theorem toNat_cpop_append {x : BitVec w} {y : BitVec u} :

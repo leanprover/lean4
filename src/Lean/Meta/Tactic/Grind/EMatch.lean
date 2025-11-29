@@ -461,7 +461,7 @@ macro "reportEMatchIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
 Stores new theorem instance in the state.
 Recall that new instances are internalized later, after a full round of ematching.
 -/
-private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Nat) : M Unit := do
+private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Nat) (guards : List TheoremGuard) : M Unit := do
   let proof ← instantiateMVars proof
   if grind.debug.proofs.get (← getOptions) then
     check proof
@@ -499,8 +499,7 @@ where
       -- We must add a hint because `annotateEqnTypeConds` introduces `Grind.PreMatchCond`
       -- which is not reducible.
       proof := mkExpectedPropHint proof prop
-    trace_goal[grind.ematch.instance] "{thm.origin.pp}: {prop}"
-    addTheoremInstance thm proof prop (generation+1)
+    addTheoremInstance thm proof prop (generation+1) guards
 
 private def synthesizeInsts (mvars : Array Expr) (bis : Array BinderInfo) : OptionT M Unit := do
   let thm := (← read).thm
@@ -741,7 +740,33 @@ private def checkConstraints (thm : EMatchTheorem) (gen : Nat) (proof : Expr) (a
       It may be useful to bound the number of instances in the current branch.
       -/
       return (← getEMatchTheoremNumInstances thm) + 1 < n
-    | _ => throwError "NIY"
+    | .check _ | .guard _ => return true
+
+private def collectGuards (thm : EMatchTheorem) (proof : Expr) (args : Array Expr) : GoalM (List TheoremGuard) := do
+  if thm.cnstrs.isEmpty then return []
+  /- **Note**: Only top-level theorems have constraints. -/
+  let .const declName us := proof | return []
+  unless thm.cnstrs.any fun c => c matches .check _ | .guard _ do return []
+  let info ← getConstInfo declName
+  let mut result := #[]
+  let applySubst (e : Expr) : GoalM (Option Expr) := do
+    let e := e.instantiateRev args
+    let e := e.instantiateLevelParams info.levelParams us
+    let e ← instantiateMVars e
+    if e.hasMVar then
+      reportIssue! "guard for `{thm.origin.pp}` was skipped because it contains metavariables after theorem instantiation{indentExpr e}"
+      return none
+    return some e
+  for cnstr in thm.cnstrs do
+    match cnstr with
+    | .check e =>
+      let some e ← applySubst e | pure ()
+      result := result.push <| { e, check := true }
+    | .guard e =>
+      let some e ← applySubst e | pure ()
+      result := result.push <| { e, check := false }
+    | _ => pure ()
+  return result.toList
 
 /--
 After processing a (multi-)pattern, use the choice assignment to instantiate the proof.
@@ -762,15 +787,16 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
   let (some _, c) ← applyAssignment mvars |>.run c | return ()
   let some _ ← synthesizeInsts mvars bis | return ()
   if (← checkConstraints thm c.gen proof mvars) then
+    let guards ← collectGuards thm proof mvars
     let proof := mkAppN proof mvars
     if (← mvars.allM (·.mvarId!.isAssigned)) then
-      addNewInstance thm proof c.gen
+      addNewInstance thm proof c.gen guards
     else
       let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
       if let some mvarBad ← mvars.findM? fun mvar => return !(← isProof mvar) then
         reportEMatchIssue! "failed to instantiate {thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
       let proof ← mkLambdaFVars (binderInfoForMVars := .default) mvars (← instantiateMVars proof)
-      addNewInstance thm proof c.gen
+      addNewInstance thm proof c.gen guards
 
 /-- Process choice stack until we don't have more choices to be processed. -/
 private def processChoices : M Unit := do

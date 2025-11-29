@@ -12945,13 +12945,6 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_PackageConfig_origName___redArg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_origName(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -12959,13 +12952,11 @@ lean_inc(x_2);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_PackageConfig_origName___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_PackageConfig_origName___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lake_PackageConfig_origName___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_origName___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -12977,6 +12968,15 @@ lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_PackageConfig_origName___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lake_PackageConfig_origName___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lake_instImpl___closed__0_00___x40_Lake_Config_PackageConfig_1370621153____hygCtx___hyg_35_() {

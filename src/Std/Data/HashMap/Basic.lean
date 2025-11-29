@@ -278,6 +278,11 @@ instance [BEq α] [Hashable α] : Union (HashMap α β) := ⟨union⟩
 
 instance [BEq α] [Hashable α] : Inter (HashMap α β) := ⟨inter⟩
 
+@[inherit_doc DHashMap.inter, inline] def diff [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=
+  ⟨DHashMap.diff m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : SDiff (HashMap α β) := ⟨diff⟩
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/

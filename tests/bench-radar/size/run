@@ -47,14 +47,14 @@ if __name__ == "__main__":
     )
 
     # Stdlib
-    measure_lines("size/stdlib/.c", STAGE3_TEMP.glob("**/*.c"))
-    measure_bytes("size/stdlib/.ir", STAGE3_LEAN.glob("**/*.ir"))
-    measure_lines("size/stdlib/.cpp", SRC.glob("**/*.cpp"))
-    measure_lines("size/stdlib/.lean", SRC.glob("**/*.lean"))
-    measure_bytes("size/stdlib/.ilean", STAGE3_LEAN.glob("**/*.ilean"))
-    measure_bytes("size/stdlib/.olean", STAGE3_LEAN.glob("**/*.olean"))
-    measure_bytes("size/stdlib/.olean.server", STAGE3_LEAN.glob("**/*.olean.server"))
-    measure_bytes("size/stdlib/.olean.private", STAGE3_LEAN.glob("**/*.olean.private"))
+    measure_lines("size/all/.c", STAGE3_TEMP.glob("**/*.c"))
+    measure_bytes("size/all/.ir", STAGE3_LEAN.glob("**/*.ir"))
+    measure_lines("size/all/.cpp", SRC.glob("**/*.cpp"))
+    measure_lines("size/all/.lean", SRC.glob("**/*.lean"))
+    measure_bytes("size/all/.ilean", STAGE3_LEAN.glob("**/*.ilean"))
+    measure_bytes("size/all/.olean", STAGE3_LEAN.glob("**/*.olean"))
+    measure_bytes("size/all/.olean.server", STAGE3_LEAN.glob("**/*.olean.server"))
+    measure_bytes("size/all/.olean.private", STAGE3_LEAN.glob("**/*.olean.private"))
 
     # Init
     measure_bytes("size/init/.olean", STAGE3_LEAN.glob("Init/**/*.olean"))

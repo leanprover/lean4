@@ -74,6 +74,7 @@ structure Args where
   force : Bool := false
   githubStyle : Bool := false
   explain : Bool := false
+  trace : Bool := false
   fix : Bool := false
   /-- `<MODULE>..`: the list of root modules to check -/
   mods : Array Name := #[]
@@ -131,7 +132,7 @@ def ofImport : Lean.Import → NeedsKind
 
 end NeedsKind
 
-/-- Logically, a map `NeedsKind → Bitset`. -/
+/-- Logically, a map `NeedsKind → Set ModuleIdx`, or `Set Import`. -/
 structure Needs where
   pub : Bitset
   priv : Bitset
@@ -166,6 +167,13 @@ def Needs.union (needs : Needs) (k : NeedsKind) (s : Bitset) : Needs :=
 
 def Needs.sub (needs : Needs) (k : NeedsKind) (s : Bitset) : Needs :=
   needs.modify k (fun s' => s' ^^^ (s' ∩ s))
+
+instance : Union Needs where
+  union a b := {
+    pub := a.pub ∪ b.pub
+    priv := a.priv ∪ b.priv
+    metaPub := a.metaPub ∪ b.metaPub
+    metaPriv := a.metaPriv ∪ b.metaPriv }
 
 /-- The main state of the checker, containing information on all loaded modules. -/
 structure State where
@@ -416,7 +424,7 @@ def visitModule (srcSearchPath : SearchPath)
     preserve
   let addOnly := addOnly || module?.any (·.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep-all"))
   -- tries of import names for each kind, used for `--keep-prefix` and empty otherwise
-  let mut impTries : Std.HashMap NeedsKind (NameTrie Import) := {}
+  let mut impTries : Std.HashMap NeedsKind (NameTrie (Import × ModuleIdx)) := {}
   let mut deps := needs
 
   -- Add additional preserved imports
@@ -425,7 +433,7 @@ def visitModule (srcSearchPath : SearchPath)
     let j := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
     if args.keepPrefix then
-      impTries := impTries.insert k (impTries.get? k |>.getD NameTrie.empty |>.insert imp.module imp)
+      impTries := impTries.insert k (impTries.get? k |>.getD NameTrie.empty |>.insert imp.module (imp, j))
     if addOnly ||
         args.keepPublic && imp.isExported ||
         impStx.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep") then
@@ -471,18 +479,27 @@ def visitModule (srcSearchPath : SearchPath)
   for j in (0...s.mods.size).toArray.reverse do
     for k in NeedsKind.all do
       if deps.has k j && !newTransDeps.has k j && !newTransDeps.has { k with isExported := true } j then
+        -- `add-public/keep-prefix` may change the import and even module we're considering
         let mut imp : Import := { k with module := s.modNames[j]! }
+        let mut j := j
+        if args.trace then
+          IO.eprintln s!"`{imp}` is needed"
         if args.addPublic && !k.isExported &&
             (s.transDepsOrig[i]!.has { k with isExported := true } j || s.transDepsOrig[i]!.has { k with isExported := true, isMeta := true } j) then
           imp := { imp with isExported := true }
+          if args.trace then
+            IO.eprintln s!"* upgrading to `{imp}` because of `--add-public`"
         if args.keepPrefix && !s.mods[i]!.imports.contains imp then
-          if let some prfx := impTries.get? (.ofImport imp) |>.bind (·.findShortestPrefix? imp.module) then
+          if let some (prfx, j') := impTries.get? (.ofImport imp) |>.bind (·.findShortestPrefix? imp.module) then
             imp := prfx
+            j := j'
             keptPrefix := true
+            if args.trace then
+              IO.eprintln s!"* upgrading to `{imp}` because of `--keep-prefix`"
         if !s.mods[i]!.imports.contains imp then
           toAdd := toAdd.push imp
         deps := deps.union (.ofImport imp) {j}
-        newTransDeps := addTransitiveImps newTransDeps imp j s.transDeps[j]! |>.union (.ofImport imp) {j}
+        newTransDeps := addTransitiveImps newTransDeps imp j s.transDeps[j]!
 
   if keptPrefix then
     -- if an import was replaced by `--keep-prefix`, we did not visit the modules in dependency
@@ -493,19 +510,27 @@ def visitModule (srcSearchPath : SearchPath)
         if deps.has k j then
           let mut imp : Import := { k with module := s.modNames[j]! }
           if toAdd.contains imp && (newTransDeps.has k j || newTransDeps.has { k with isExported := true } j) then
+            if args.trace then
+              IO.eprintln s!"Removing `{imp}` from imports to be added because it is now implied"
             toAdd := toAdd.erase imp
             deps := deps.sub k {j}
           else
-            newTransDeps := addTransitiveImps newTransDeps imp j s.transDeps[j]! |>.union (.ofImport imp) {j}
+            newTransDeps := addTransitiveImps newTransDeps imp j s.transDeps[j]!
 
   -- Any import which is still not in `deps` was unused
   let mut toRemove : Array Import := #[]
   for imp in s.mods[i]!.imports do
     let j := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
-    let keep := if args.keepImplied then newTransDeps else deps
+    let keep := if args.keepImplied then newTransDeps ∪ deps else deps
     -- A private import should also be removed if the public version has been added
-    if !keep.has k j || !k.isExported && !imp.importAll && newTransDeps.has { k with isExported := true } j then
+    if !keep.has k j then
+      if args.trace then
+        IO.eprintln s!"`{imp}` is now unused"
+      toRemove := toRemove.push imp
+    else if !k.isExported && !imp.importAll && newTransDeps.has { k with isExported := true } j then
+      if args.trace then
+        IO.eprintln s!"`{imp}` is already covered by `{ { imp with isExported := true } }`"
       toRemove := toRemove.push imp
 
   -- mark and report the removals
@@ -601,6 +626,7 @@ public def main (args : List String) : IO UInt32 := do
     | "--force" :: rest => parseArgs { args with force := true } rest
     | "--fix" :: rest => parseArgs { args with fix := true } rest
     | "--explain" :: rest => parseArgs { args with explain := true } rest
+    | "--trace" :: rest => parseArgs { args with trace := true } rest
     | "--gh-style" :: rest => parseArgs { args with githubStyle := true } rest
     | "--" :: rest => { args with mods := args.mods ++ rest.map (·.toName) }
     | other :: rest => parseArgs { args with mods := args.mods.push other.toName } rest

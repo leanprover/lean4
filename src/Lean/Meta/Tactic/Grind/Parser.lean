@@ -28,7 +28,7 @@ end GrindCnstr
 open GrindCnstr in
 def grindPatternCnstr : Parser :=
   isValue <|> isStrictValue <|> isGround <|> sizeLt <|> depthLt <|> genLt <|> maxInsts
-  <|> guard <|> check <|> notDefEq <|> defEq
+  <|> guard <|> GrindCnstr.check <|> notDefEq <|> defEq
 
 def grindPatternCnstrs : Parser := leading_parser "where " >> many1Indent (ppLine >> grindPatternCnstr)
 

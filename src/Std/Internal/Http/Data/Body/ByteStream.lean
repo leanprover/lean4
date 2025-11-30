@@ -87,18 +87,15 @@ def recvBytes (stream : ByteStream) : Async (Option ByteArray) := do
 
 /--
 Writes data to the stream as a chunk with optional extensions.
-Returns `false` if the stream is closed.
 -/
-def write (stream : ByteStream) (data : ByteArray) (extensions : Array (String × Option String) := #[]) : Async Bool := do
+def write (stream : ByteStream) (data : ByteArray) (extensions : Array (String × Option String) := #[]) : Async Unit := do
   if data.isEmpty then
-    return true
+    return
 
   let chunk : Chunk := { data := data, extensions := extensions }
   let task ← stream.channel.send chunk
   let task : AsyncTask _ := task.map (Except.mapError (fun x => userError (toString x)))
   Async.ofAsyncTask task
-
-  return true
 
 /--
 Writes a complete chunk with extensions to the stream.

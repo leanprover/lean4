@@ -6390,7 +6390,7 @@ theorem cpop_allOnes : (allOnes w).cpop = BitVec.ofNat w w := by
   simp
 
 @[simp]
-theorem cpopNatRec_zero' (h : n ≤ w) :
+theorem cpopNatRec_zero_eq (h : n ≤ w) :
     (0#w).cpopNatRec n acc = acc := by
   induction n
   · case zero => simp
@@ -6399,7 +6399,7 @@ theorem cpopNatRec_zero' (h : n ≤ w) :
     simp [show n < w by omega, ihn, cpopNatRec_succ]
 
 @[simp]
-theorem cpop_zero : (0#w).cpop = 0#w := by
+theorem cpop_zero_eq : (0#w).cpop = 0#w := by
   rw [cpop]
   simp
 

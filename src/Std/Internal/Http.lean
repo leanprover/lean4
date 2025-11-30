@@ -68,9 +68,9 @@ standard way to communicate over the internet in HTTP/1.1.
 
 ## Connection
 
-`Std.Http.Server.Connection` is a structure that holds both a `Transport` and a `Machine`. Currently,
-the machine is a `Protocol.H1.Machine`, which implements the state machine responsible for parsing HTTP/1.1
-requests and responses.
+`Std.Http.Server.Connection` is a structure that holds both a `Transport` and a `Machine`. The machine is
+a `Protocol.H1.Machine`, which implements the state machine responsible for parsing HTTP/1.1 requests and responses.
+It can change in the future if some other protocols are implemented
 
 If you want to customize how your server handles sockets, you can use `Std.Http.Server.serveConnection`,
 a simple function that binds a handler to a `ClientConnection`.

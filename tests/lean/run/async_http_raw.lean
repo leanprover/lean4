@@ -331,6 +331,7 @@ def testContentNegotiationError : IO Unit := do
         |>.header! "Content-Type" "text/plain"
         |>.body "Plain text response"
 
+  -- Size is 19 of the first so it's wrong.
   let response ← sendRequests pair #[
     Request.new
       |>.uri! "/api/content"

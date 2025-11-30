@@ -22,7 +22,7 @@ namespace Std.Http
 open Std Internal IO Async
 
 /--
-Type that represents the body of a request or response with streams of bytearrays or bytearrays of fixed
+Type that represents the body of a request or response with streams of byte arrays or byte arrays of fixed
 size.
 -/
 inductive Body where
@@ -43,6 +43,9 @@ inductive Body where
 deriving Inhabited
 
 namespace Body
+
+instance : EmptyCollection Body where
+  emptyCollection := Body.zero
 
 /--
 Get content length of a body (if known).

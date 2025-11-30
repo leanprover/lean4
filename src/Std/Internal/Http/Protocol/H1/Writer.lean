@@ -78,8 +78,7 @@ structure Writer (dir : Direction) where
   outputData : ChunkedBuffer := .empty
 
   /--
-  The state of the writer machine. It carries if the reader had already read the headers, the size
-  of the output, if it's chunked or not.
+  The state of the writer machine.
   -/
   state : Writer.State := .pending
 

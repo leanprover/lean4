@@ -72,22 +72,23 @@ def new (config : Std.Http.Config := {}) : IO Server := do
   return { cancellation, activeConnections, shutdownPromise, config }
 
 /--
-Triggers the cancellation of all the requests and the accept loop in the server.
+Triggers cancellation of all requests and the accept loop in the server. This function should be used
+in conjunction with `waitShutdown` to properly coordinate the shutdown sequence.
 -/
 @[inline]
 def shutdown (s : Server) : Async Unit :=
   s.cancellation.cancel
 
 /--
-Waits for the server to shutdown.
+Waits for the server to shut down. Blocks until another task or async operation calls the `shutdown` function.
 -/
 @[inline]
 def waitShutdown (s : Server) : Async Unit := do
   Async.ofAsyncTask (s.shutdownPromise.result?.map (Option.map Except.ok · |>.getD (.error "promise dropped at server shutdown task")))
 
 /--
-Triggers the cancellation of all the requests and the accept loop in the server and wait for the server
-to be cancelled.
+Triggers cancellation of all requests and the accept loop, then waits for the server to fully shut down.
+This is a convenience function combining `shutdown` and then `waitShutdown`.
 -/
 @[inline]
 def shutdownAndWait (s : Server) : Async Unit := do
@@ -127,7 +128,7 @@ def serve
     frameCancellation httpServer do
       while not (← httpServer.cancellation.isCancelled) do
         let client ← server.accept
-        background (frameCancellation httpServer (serveConnection client onRequest config) )
+        background (frameCancellation httpServer (serveConnection client onRequest config))
 
   return httpServer
 

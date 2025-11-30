@@ -120,7 +120,7 @@ def parseHttpVersion : Parser Version := do
 --   method         = token
 def parseMethod (limits : H1.Config) : Parser Method := do
   let method ← token limits.maxMethodLength
-  opt <| Method.fromString? (String.fromUTF8! method.toByteArray)
+  opt <| Method.fromString? =<< (String.fromUTF8? method.toByteArray)
 
 def parseURI (limits : H1.Config) : Parser ByteArray := do
   let uri ← takeUntilUpTo (· == ' '.toUInt8) limits.maxUriLength
@@ -144,8 +144,13 @@ public def parseRequestLine (limits : H1.Config) : Parser Request.Head := do
 
 -- field-line   = field-name ":" OWS field-value OWS
 def parseFieldLine (limits : H1.Config) : Parser (String × String) := do
-  (String.fromUTF8! ·.toByteArray, String.fromUTF8! ·.toByteArray) <$>
-  token limits.maxHeaderNameLength <*> (skipByte ':'.toUInt8 *> osp limits *> takeWhileUpTo1 isFieldVChar limits.maxHeaderValueLength <* osp limits)
+  let name ← token limits.maxHeaderNameLength
+  let value ← skipByte ':'.toUInt8 *> osp limits *> takeWhileUpTo1 isFieldVChar limits.maxHeaderValueLength <* osp limits
+
+  let name ← opt <| String.fromUTF8? name.toByteArray
+  let value ← opt <| String.fromUTF8? value.toByteArray
+
+  return (name, value)
 
 /--
 Parses a single header.
@@ -184,16 +189,16 @@ partial def parseQuotedString : Parser String := do
     else
       fail s!"invalid qdtext byte: {Char.ofUInt8 b |>.quote}"
 
-  return String.fromUTF8! (← loop .empty)
+  opt <| String.fromUTF8? (← loop .empty)
 
 -- chunk-ext = *( BWS ";" BWS chunk-ext-name [ BWS "=" BWS chunk-ext-val] )
 def parseChunkExt (limits : H1.Config) : Parser (String × Option String) := do
   osp limits *> skipByte ';'.toUInt8 *> osp limits
-  let name ← (String.fromUTF8! <$> ByteSlice.toByteArray <$> token limits.maxChunkExtNameLength) <* osp limits
+  let name ← (opt =<< String.fromUTF8? <$> ByteSlice.toByteArray <$> token limits.maxChunkExtNameLength) <* osp limits
 
   if (← peekWhen? (· == '='.toUInt8)) |>.isSome then
     osp limits *> skipByte '='.toUInt8 *> osp limits
-    let value ← osp limits *> (parseQuotedString <|> String.fromUTF8! <$> ByteSlice.toByteArray <$> token limits.maxChunkExtValueLength)
+    let value ← osp limits *> (parseQuotedString <|> opt =<< (String.fromUTF8? <$> ByteSlice.toByteArray <$> token limits.maxChunkExtValueLength))
     return (name, some value)
 
   return (name, none)
@@ -273,7 +278,7 @@ Parses reason phrase (text after status code)
 -/
 def parseReasonPhrase (limits : H1.Config) : Parser String := do
   let bytes ← takeWhileUpTo (fun c => c != '\r'.toUInt8) limits.maxReasonPhraseLength
-  return String.fromUTF8! bytes.toByteArray
+  opt <| String.fromUTF8? bytes.toByteArray
 
 /--
 Parses a status line

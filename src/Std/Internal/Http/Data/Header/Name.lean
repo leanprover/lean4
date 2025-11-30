@@ -36,7 +36,7 @@ Proposition that asserts all characters in a string are valid for HTTP header va
 -/
 @[expose]
 abbrev isValidHeaderValue (s : String) : Prop :=
-  s.data.all isValidHeaderCharNode
+  s.toList.all isValidHeaderCharNode
 
 /--
 A validated HTTP header value that ensures all characters conform to HTTP standards.
@@ -65,7 +65,7 @@ Creates a new `HeaderValue` from a string with an optional proof of validity.
 If no proof is provided, it attempts to prove validity automatically.
 -/
 @[expose]
-def new (s : String) (h : s.data.all isValidHeaderCharNode := by decide) : HeaderValue :=
+def new (s : String) (h : s.toList.all isValidHeaderCharNode := by decide) : HeaderValue :=
   ⟨s, h⟩
 
 /--
@@ -74,7 +74,7 @@ contains invalid characters for HTTP header values.
 -/
 @[expose]
 def ofString? (s : String) : Option HeaderValue :=
-  if h : s.data.all isValidHeaderCharNode then
+  if h : s.toList.all isValidHeaderCharNode then
     some ⟨s, h⟩
   else
     none
@@ -85,7 +85,7 @@ string contains invalid characters for HTTP header values.
 -/
 @[expose]
 def ofString! (s : String) : HeaderValue :=
-  if h : s.data.all isValidHeaderCharNode then
+  if h : s.toList.all isValidHeaderCharNode then
     ⟨s, h⟩
   else
     panic! s!"invalid header value: {s.quote}"
@@ -105,7 +105,7 @@ def append (l : HeaderValue) (r : HeaderValue) : HeaderValue :=
   ⟨l.value ++ r.value, ?_⟩
 where finally
   unfold isValidHeaderValue
-  rw [String.data_append]
+  rw [String.toList_append]
   rw [List.all_append]
   rw [Bool.and_eq_true]
   constructor
@@ -151,7 +151,7 @@ Proposition that asserts all characters in a string are valid for HTTP header na
 -/
 @[expose]
 abbrev isValidHeaderName (s : String) : Prop :=
-  s.data.all isValidHeaderNameChar ∧ !s.data.isEmpty
+  s.toList.all isValidHeaderNameChar ∧ !s.toList.isEmpty
 
 /--
 A validated HTTP header name that ensures all characters conform to HTTP standards.

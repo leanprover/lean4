@@ -6524,7 +6524,6 @@ theorem cpop_cast (h : w = v) (x : BitVec w) :
   (x.cast h).cpop = x.cpop.cast h := by
   subst h; simp
 
-@[simp]
 theorem add_cpopNatRec_eq_cpopNatRec_add (x : BitVec w) :
     acc + x.cpopNatRec pos val = x.cpopNatRec pos (acc + val) := by
   rw [Nat.add_comm acc val, cpopNatRec_add_eq_add_cpopNatRec (acc := val), Nat.add_comm]
@@ -6540,7 +6539,6 @@ theorem toNat_msb_add_toNat_cpop_setWidth {x : BitVec (w + 1)} :
     Nat.lt_add_one, toNat_mod_cancel_of_lt, Nat.mod_add_mod,
     Nat.mod_eq_of_lt (a := x.msb.toNat + (setWidth w x).cpop.toNat) (b := 2 ^ (w + 1)) (by omega)]
 
-@[simp]
 theorem toNat_cpop_append {x : BitVec w} {y : BitVec u} :
     (x ++ y).cpop.toNat = x.cpop.toNat + y.cpop.toNat := by
   induction w generalizing u

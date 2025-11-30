@@ -5,6 +5,7 @@ Authors: Mario Carneiro, Sebastian Ullrich
 -/
 module
 
+import Lean.Environment
 import Lean.ExtraModUses
 
 import Lake.CLI.Main
@@ -270,7 +271,8 @@ def getDepConstName? (env : Environment) (ref : Name) : Option Name := do
     ref
 
 /-- Calculates the needs for a given module `mod` from constants and recorded extra uses. -/
-def calcNeeds (env : Environment) (i : ModuleIdx) : Needs := Id.run do
+def calcNeeds (s : State) (args : Args) (i : ModuleIdx) : Needs := Id.run do
+  let env := s.env
   let mut needs := default
   for ci in env.header.moduleData[i]!.constants do
     -- Added guard for cases like `structure` that are still exported even if private
@@ -291,6 +293,7 @@ def calcNeeds (env : Environment) (i : ModuleIdx) : Needs := Id.run do
 where
   /-- Accumulate the results from expression `e` into `deps`. -/
   visitExpr (k : NeedsKind) (e : Expr) (deps : Needs) : Needs :=
+    let env := s.env
     Lean.Expr.foldConsts e deps fun c deps => Id.run do
       let mut deps := deps
       if let some c := getDepConstName? env c then
@@ -298,6 +301,11 @@ where
           let k := { k with isMeta := k.isMeta && !isDeclMeta' env c }
           if j != i then
             deps := deps.union k {j}
+            for indMod in (indirectModUseExt.getState env)[c]?.getD #[] do
+              if s.transDeps[i]!.has k indMod then
+                deps := deps.union k {indMod}
+                if args.trace then
+                  dbg_trace s!"adding {s.modNames[indMod]!} as indirect dependency of {s.modNames[i]!} via {c}"
       return deps
 
 /--
@@ -400,7 +408,7 @@ def parseHeader (srcSearchPath : SearchPath) (mod : Name) :
 def decodeHeader : TSyntax ``Parser.Module.header → Option (TSyntax `module) × Option (TSyntax `prelude) × TSyntaxArray ``Parser.Module.import
   | `(Parser.Module.header| $[module%$moduleTk?]? $[prelude%$preludeTk?]? $imports*) =>
     (moduleTk?.map .mk, preludeTk?.map .mk, imports)
-  | _ => unreachable!
+  | stx => panic! s!"unexpected header syntax {stx}"
 
 def decodeImport : TSyntax ``Parser.Module.import → Import
   | `(Parser.Module.import| $[public%$pubTk?]? $[meta%$metaTk?]? import $[all%$allTk?]? $id) =>
@@ -414,14 +422,25 @@ def decodeImport : TSyntax ``Parser.Module.import → Import
 * `needs`: the module's calculated needs
 * `addOnly`: if true, only add missing imports, do not remove unused ones
 -/
-def visitModule (srcSearchPath : SearchPath)
+def visitModule (pkg : Name) (srcSearchPath : SearchPath)
     (i : Nat) (needs : Needs) (headerStx : TSyntax ``Parser.Module.header)
     (addOnly := false) (args : Args) : StateT State IO Unit := do
+  if isExtraRevModUse (← get).env i then
+    modify fun s => { s with preserve := s.preserve.union (if args.addPublic then .pub else .priv) {i} }
+    if args.trace then
+      IO.eprintln s!"Preserving `{(← get).modNames[i]!}` because of recorded extra rev use"
+
+  -- only process modules in the selected package
+  -- TODO: should be after `keep-downstream` but core headers are not found yet?
+  if !pkg.isPrefixOf (← get).modNames[i]! then
+    return
+
   let (module?, prelude?, imports) := decodeHeader headerStx
   if module?.any (·.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep-downstream")) then
     modify fun s => { s with preserve := s.preserve.union .pub {i} }
 
   let s ← get
+
   let addOnly := addOnly || module?.any (·.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep-all"))
   -- tries of import names for each kind, used for `--keep-prefix` and empty otherwise
   let mut impTries : Std.HashMap NeedsKind (NameTrie (Import × ModuleIdx)) := {}
@@ -433,11 +452,11 @@ def visitModule (srcSearchPath : SearchPath)
     let j := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
     if args.keepPrefix then
-      impTries := impTries.insert k (impTries.get? k |>.getD NameTrie.empty |>.insert imp.module (imp, j))
+      impTries := impTries.alter k (·.getD NameTrie.empty |>.insert imp.module (imp, j))
       if k.isMeta then
         let k := { k with isMeta := false }
         let imp := { imp with isMeta := false }
-        impTries := impTries.insert k (impTries.get? k |>.getD NameTrie.empty |>.insert imp.module (imp, j))
+        impTries := impTries.alter k (·.getD NameTrie.empty |>.insert imp.module (imp, j))
     if addOnly ||
         args.keepPublic && imp.isExported ||
         impStx.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep") then
@@ -693,16 +712,18 @@ public def main (args : List String) : IO UInt32 := do
   let imps := mods.map ({ module := · })
   let (_, s) ← importModulesCore imps (isExported := true) |>.run
   let s := s.markAllExported
-  let env ← finalizeImport s (isModule := true) imps {} (leakEnv := false) (loadExts := false)
+  let mut env ← finalizeImport s (isModule := true) imps {} (leakEnv := false) (loadExts := false)
+  -- the one env ext we want to initialize
+  let is := indirectModUseExt.toEnvExtension.getState env
+  let newState ← indirectModUseExt.addImportedFn is.importedEntries { env := env, opts := {} }
+  env := indirectModUseExt.toEnvExtension.setState (asyncMode := .sync) env { is with state := newState }
 
   StateT.run' (s := initStateFromEnv env) do
 
   let s ← get
-  -- Parse the config file
-
   -- Run the calculation of the `needs` array in parallel
   let needs := s.mods.mapIdx fun i _ =>
-    Task.spawn fun _ => calcNeeds s.env i
+    Task.spawn fun _ => calcNeeds s args i
 
   -- Parse headers in parallel
   let headers ← s.mods.mapIdxM fun i _ =>
@@ -718,14 +739,7 @@ public def main (args : List String) : IO UInt32 := do
   for i in [0:s.mods.size], t in needs, header in headers do
     match header.get with
     | .ok (_, _, stx, _) =>
-      -- only process modules in the selected package, but still update `preserve` for others
-      if pkg.isPrefixOf s.modNames[i]! then
-        visitModule (addOnly := false)
-          srcSearchPath i t.get stx args
-      if isExtraRevModUse s.env i then
-        modify fun s => { s with preserve := s.preserve.union (if args.addPublic then .pub else .priv) {i} }
-        if args.trace then
-          IO.eprintln s!"Preserving `{s.modNames[i]!}` because of recorded extra rev use"
+      visitModule (addOnly := false) pkg srcSearchPath i t.get stx args
     | .error e =>
       println! e.toString
 

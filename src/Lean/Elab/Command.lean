@@ -377,7 +377,8 @@ private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : PersistentArr
   let scope := s.scopes.head!
   let tree := InfoTree.node (Info.ofCommandInfo { elaborator, stx }) trees
   let ctx := PartialContextInfo.commandCtx {
-    env := s.env, fileMap := ctx.fileMap, mctx := {}, currNamespace := scope.currNamespace,
+    env := s.env, cmdEnv? := some s.env, fileMap := ctx.fileMap, mctx := {},
+    currNamespace := scope.currNamespace,
     openDecls := scope.openDecls, options := scope.opts, ngen := s.ngen
   }
   return InfoTree.context ctx tree

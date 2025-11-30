@@ -175,6 +175,13 @@ instance : Union Needs where
     metaPub := a.metaPub ∪ b.metaPub
     metaPriv := a.metaPriv ∪ b.metaPriv }
 
+/-- The list of edits that will be applied in `--fix`. `edits[i] = (removed, added)` where:
+
+* If `j ∈ removed` then we want to delete module named `j` from the imports of `i`
+* If `j ∈ added` then we want to add module index `j` to the imports of `i`.
+-/
+abbrev Edits := Std.HashMap Name (Array Import × Array Import)
+
 /-- The main state of the checker, containing information on all loaded modules. -/
 structure State where
   env  : Environment
@@ -194,6 +201,10 @@ structure State where
   changes to upstream headers.
   -/
   transDepsOrig : Array Needs := #[]
+  /-- Modules that should always be preserved downstream. -/
+  preserve : Needs := default
+  /-- Edits to be applied to the module imports. -/
+  edits : Edits := {}
 
 def State.mods (s : State) := s.env.header.moduleData
 def State.modNames (s : State) := s.env.header.moduleNames
@@ -342,13 +353,6 @@ partial def initStateFromEnv (env : Environment) : State := Id.run do
   s := { s with transDepsOrig := s.transDeps }
   return s
 
-/-- The list of edits that will be applied in `--fix`. `edits[i] = (removed, added)` where:
-
-* If `j ∈ removed` then we want to delete module named `j` from the imports of `i`
-* If `j ∈ added` then we want to add module index `j` to the imports of `i`.
--/
-abbrev Edits := Std.HashMap Name (Array Import × Array Import)
-
 /-- Register that we want to remove `tgt` from the imports of `src`. -/
 def Edits.remove (ed : Edits) (src : Name) (tgt : Import) : Edits :=
   match ed.get? src with
@@ -403,25 +407,21 @@ def decodeImport : TSyntax ``Parser.Module.import → Import
     { module := id.getId, isExported := pubTk?.isSome, isMeta := metaTk?.isSome, importAll := allTk?.isSome }
   | stx => panic! s!"unexpected syntax {stx}"
 
-/-- Analyze and report issues from module `i`. Returns new `(edits, preserve)`. Arguments:
+/-- Analyze and report issues from module `i`. Arguments:
 
 * `srcSearchPath`: Used to find the path for error reporting purposes
 * `i`: the module index
 * `needs`: the module's calculated needs
-* `preserve`: imports that should always be preserved (but not inserted if missing)
-* `pinned`: dependencies that should be preserved even if unused
-* `edits`: accumulates the list of edits to apply if `--fix` is true
 * `addOnly`: if true, only add missing imports, do not remove unused ones
 -/
 def visitModule (srcSearchPath : SearchPath)
-    (i : Nat) (needs : Needs) (preserve : Needs) (edits : Edits) (headerStx : TSyntax ``Parser.Module.header)
-    (addOnly := false) (args : Args) : StateT State IO (Edits × Needs) := do
-  let s ← get
+    (i : Nat) (needs : Needs) (headerStx : TSyntax ``Parser.Module.header)
+    (addOnly := false) (args : Args) : StateT State IO Unit := do
   let (module?, prelude?, imports) := decodeHeader headerStx
-  let preserve := if module?.any (·.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep-downstream")) then
-    preserve.union .pub {i}
-  else
-    preserve
+  if module?.any (·.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep-downstream")) then
+    modify fun s => { s with preserve := s.preserve.union .pub {i} }
+
+  let s ← get
   let addOnly := addOnly || module?.any (·.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep-all"))
   -- tries of import names for each kind, used for `--keep-prefix` and empty otherwise
   let mut impTries : Std.HashMap NeedsKind (NameTrie (Import × ModuleIdx)) := {}
@@ -445,7 +445,7 @@ def visitModule (srcSearchPath : SearchPath)
   for j in [0:s.mods.size] do
     for k in NeedsKind.all do
       -- remove `meta` while preserving, no use-case for preserving `meta` so far
-      if s.transDepsOrig[i]!.has k j && preserve.has { k with isMeta := false } j then
+      if s.transDepsOrig[i]!.has k j && s.preserve.has { k with isMeta := false } j then
         deps := deps.union { k with isMeta := false } {j}
 
   -- Do transitive reduction of `needs` in `deps`.
@@ -558,8 +558,9 @@ def visitModule (srcSearchPath : SearchPath)
       toRemove := toRemove.push imp
 
   -- mark and report the removals
-  let mut edits := toRemove.foldl (init := edits) fun edits imp =>
-    edits.remove s.modNames[i]! imp
+  modify fun s => { s with
+    edits := toRemove.foldl (init := s.edits) fun edits imp =>
+      edits.remove s.modNames[i]! imp }
 
   if !toAdd.isEmpty || !toRemove.isEmpty || args.explain then
     if let some path ← srcSearchPath.findModuleWithExt "lean" s.modNames[i]! then
@@ -587,8 +588,9 @@ def visitModule (srcSearchPath : SearchPath)
     catch _ => pure ()
 
   -- mark and report the additions
-  edits := toAdd.foldl (init := edits) fun edits imp =>
-    edits.add s.modNames[i]! imp
+  modify fun s => { s with
+    edits := toAdd.foldl (init := s.edits) fun edits imp =>
+      edits.add s.modNames[i]! imp }
 
   if !toAdd.isEmpty then
     println! "  add {toAdd}"
@@ -603,7 +605,7 @@ def visitModule (srcSearchPath : SearchPath)
     let j := s.env.getModuleIdx? imp.module |>.get!
     newTransDepsI := addTransitiveImps newTransDepsI imp j s.transDeps[j]!
 
-  set { s with transDeps := s.transDeps.set! i newTransDepsI }
+  modify fun s => { s with transDeps := s.transDeps.set! i newTransDepsI }
 
   if args.explain then
     let explanation := getExplanations s.env i
@@ -621,8 +623,6 @@ def visitModule (srcSearchPath : SearchPath)
       if !toRemove.contains j then
         run j
     for i in toAdd do run i
-
-  return (edits, preserve)
 
 /-- Convert a list of module names to a bitset of module indexes -/
 def toBitset (s : State) (ns : List Name) : Bitset :=
@@ -715,17 +715,15 @@ public def main (args : List String) : IO UInt32 := do
     println! "The following changes will be made automatically:"
 
   -- Check all selected modules
-  let mut edits : Edits := ∅
-  let mut preserve : Needs := default
   for i in [0:s.mods.size], t in needs, header in headers do
     match header.get with
     | .ok (_, _, stx, _) =>
       -- only process modules in the selected package, but still update `preserve` for others
       if pkg.isPrefixOf s.modNames[i]! then
-        (edits, preserve) ← visitModule (addOnly := false)
-          srcSearchPath i t.get preserve edits stx args
+        visitModule (addOnly := false)
+          srcSearchPath i t.get stx args
       if isExtraRevModUse s.env i then
-        preserve := preserve.union (if args.addPublic then .pub else .priv) {i}
+        modify fun s => { s with preserve := s.preserve.union (if args.addPublic then .pub else .priv) {i} }
         if args.trace then
           IO.eprintln s!"Preserving `{s.modNames[i]!}` because of recorded extra rev use"
     | .error e =>
@@ -733,12 +731,12 @@ public def main (args : List String) : IO UInt32 := do
 
   if !args.fix then
     -- return error if any issues were found
-    return if edits.isEmpty then 0 else 1
+    return if (← get).edits.isEmpty then 0 else 1
 
   -- Apply the edits to existing files
   let mut count := 0
   for mod in s.modNames, header? in headers do
-    let some (remove, add) := edits[mod]? | continue
+    let some (remove, add) := (← get).edits[mod]? | continue
     let add : Array Import := add.qsortOrd
 
     -- Parse the input file

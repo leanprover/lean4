@@ -1143,8 +1143,11 @@ tactic is relevant to their task. The first (or only) sentence of
 the short summary should be a full sentence in which the subject
 is an example invocation of the tactic, written in present tense
 indicative. If the example tactic invocation names parameters, then the
-short summary may refer to them. The summary should be written as a
-single paragraph.
+short summary may refer to them. For the example invocation, prefer the
+simplest representative example. Explain more complicated forms in the
+variants section. If needed, abbreviate the invocation by naming part of
+the syntax and expanding it in the next sentence. The summary should be
+written as a single paragraph.
 
 **Details**, if needed, may be 1-3 paragraphs that describe further
 relevant information. They may insert links as needed. This section
@@ -1155,11 +1158,20 @@ goal and whether it creates any side goals. The details may include
 explanatory examples that can’t necessarily be machine checked and
 don’t fit the format.
 
+If the tactic is extensible using `macro_rules`, mention this in the
+details and give a one-line example. If the tactic provides an attribute
+or a command that allows the user to extend its behavior, the
+documentation on how to extend the tactic belongs to that attribute or
+command. In the tactic docstring, use a single sentence to refer the
+reader to this further documentation.
+
 **Variants**, if needed, should be a bulleted list describing different
 options and forms of the same tactic. The reader should be able to parse
 and understand the parts of a tactic invocation they are hovering over,
-using this list. Each list item should take the format of the **short
-summary** above and describe an individual variant.
+using this list. Each list item should describe an individual variant
+and take one of two formats: the **short summary** as above, or a
+**named list item**. A named list item consists of a title in bold
+followed by an indented short paragraph.
 
 Variants should be explained from the perspective of the tactic's users, not
 their implementers. A tactic that is implemented as a single Lean parser may

@@ -192,27 +192,22 @@ mutual
     if backward.dsimp.useDefEqAttr.get (← getOptions) then
       return defeqAttr.hasTag (← getEnv) declName
     else
-      let { kind := .thm, constInfo, .. } ← getAsyncConstInfo declName | return false
+      -- Make theorem body available if `declName` is from the current module; the body does not matter
+      -- for the ultimate application of a rfl theorem, only that the theorem type's LHS and RHS are
+      -- defeq.
+      let { kind := .thm, constInfo, .. } ← withoutExporting <| getAsyncConstInfo declName | return false
       let .thmInfo info ← traceBlock "isRflTheorem theorem body" constInfo | return false
       isRflProofCore info.type info.value
 end
 
 def isRflTheorem (declName : Name) : CoreM Bool :=
-  -- Make theorem body available if `declName` is from the current module; the body does not matter
-  -- for the ultimate application of a rfl theorem, only that the theorem type's LHS and RHS are
-  -- defeq.
-  withoutExporting do
     isRflTheoremCore declName
 
 def isRflProof (proof : Expr) : MetaM Bool := do
-  -- Make theorem body available if `declName` is from the current module; the body does not matter
-  -- for the ultimate application of a rfl theorem, only that the theorem type's LHS and RHS are
-  -- defeq.
-  withoutExporting do
-    if let .const declName .. := proof then
-      isRflTheoremCore declName
-    else
-      isRflProofCore (← inferType proof) proof
+  if let .const declName .. := proof then
+    isRflTheoremCore declName
+  else
+    isRflProofCore (← inferType proof) proof
 
 instance : ToFormat SimpTheorem where
   format s :=

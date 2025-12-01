@@ -11,15 +11,14 @@ from this file without updating that module's docstring.
 -- set_option debug.skipKernelTC true
 -- set_option trace.Meta.mkNoConfusion true
 -- set_option trace.Kernel true
-
-set_option genInjectivity false
+-- set_option genInjectivity false
+-- set_option trace.Meta.injective true
+-- set_option trace.Meta.Tactic.injection true
 
 inductive Vec.{u} (α : Type) : Nat → Type u where
   | nil : Vec α 0
   | cons1 {n} : α → Vec α n → Vec α (n + 1)
   | cons2 {n} : α → Vec α n → Vec α (n + 1)
-
-#check Vec.cons1.noConfusion
 
 @[reducible] protected def Vec.noConfusionType'.{u_1, u} : {α : Type} →
   Sort u_1 → {a : Nat} → Vec.{u} α a → {a : Nat} → Vec α a → Sort u_1 :=

@@ -142,14 +142,14 @@ def mkNoConfusionType (indName : Name) : MetaM Unit := do
   setReducibleAttribute declName
 
 /--
-Given arrays `x1,x2,..,xn` and `y1,y2,..,yn`, bring fresh variables of types `x1 = y1`, `x2 = y2`,
-.., `xn = yn` (using `HEq` where necessary) into scope.
+Given arrays `x1,x2,..,xn` and `y1,y2,..,yn`, bring fresh variables of types `x1 ≍ y1`, `x2 ≍ y2`,
+.., `xn ≍ yn` (`HEq` for uniformity) into scope.
 -/
-def withEqTelescope [Inhabited α] (xs ys : Array Expr) (k : Array Expr → MetaM α) : MetaM α := do
+def withHEqTelescope [Inhabited α] (xs ys : Array Expr) (k : Array Expr → MetaM α) : MetaM α := do
   assert! xs.size == ys.size
   let mut eqs : Array (Name × Expr) := #[]
   for x in xs, y in ys, i in [0:xs.size] do
-    let eq ← mkEqHEq x y
+    let eq ← mkHEq x y
     let n := if xs.size > 1 then (`eq).appendIndexAfter (i + 1) else `eq
     eqs := eqs.push (n, eq)
   withLocalDeclsDND eqs k
@@ -158,19 +158,19 @@ def withEqTelescope [Inhabited α] (xs ys : Array Expr) (k : Array Expr → Meta
 Telescoping `mkEqNDRec`: given
 * motive `∀ y1 .. yn, P y1 .. yn`
 * expression of type `P x1 .. xn`
-* produces an expression of type (x1 = y1) → .. → (xn = yn) → P y1 .. yn
-  (possibly using `HEq`)
+* produces an expression of type (x1 ≍ y1) → .. → (xn ≍ yn) → P y1 .. yn
 produce an expression of type `motive y1 … yn`
-by repeatedly applying `Eq.ndRec` (and `eq_of_heq` if needed).
+by repeatedly applying `eq_of_heq` and `Eq.ndRec`
 -/
-def mkEqNDRecTelescope (motive : Expr) (e : Expr) (xs ys : Array Expr) : MetaM Expr := do
+def mkHEqNDRecTelescope (motive : Expr) (e : Expr) (xs ys : Array Expr) : MetaM Expr := do
   trace[Meta.mkNoConfusion] m!"mkEqNDRecTelescope: {e}, xs = {xs}, ys = {ys}"
   assert! xs.size == ys.size
-  withEqTelescope xs ys fun eqs => do
+  withHEqTelescope xs ys fun eqs => do
     let result ← mkFreshExprMVar (motive.beta ys)
     let mut mvarId := result.mvarId!
     let mut subst := {}
     for eq in eqs do
+      -- TODO: Can we build this easily and directly tactic-free?
       let eq := subst.get eq.fvarId!
       mvarId.withContext do trace[Meta.mkNoConfusion] m!"substituting {eq}"
       let (subst', mvarId') ← Meta.substEq mvarId eq.fvarId! (fvarSubst := subst)
@@ -215,7 +215,7 @@ def mkNoConfusionCoreImp (indName : Name) : MetaM Unit := do
       let e := mkAppN (mkConst casesOnName (v :: us)) (params ++ #[motive1] ++ ysx1 ++ alts)
       let target2 := mkAppN (mkConst noConfusionTypeName (v :: us)) (params ++ #[P] ++ ysx1 ++ ysx2)
       let motive2 ← mkLambdaFVars ysx2 target2
-      let e ← mkEqNDRecTelescope motive2 e ysx1 ysx2
+      let e ← mkHEqNDRecTelescope motive2 e ysx1 ysx2
       mkLambdaFVars (params ++ #[P] ++ ysx1 ++ ysx2) e
 
   addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
@@ -241,6 +241,7 @@ def L.cons.noConfusion.{u_1, u} : {α : Type u} → (P : Sort u_1) →
   P
 ```
 
+TODO: Update
 These definitions are less expressive than the general `noConfusion` principle when there are
 complicated indices. In particular they assume that all fields of the constructor that appear
 in its type are equal already. The `mkNoConfusion` app builder falls back to the general principle
@@ -277,7 +278,7 @@ def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
           let is1 := (← whnf (← inferType ctor1)).getAppArgsN indVal.numIndices
           let is2 := (← whnf (← inferType ctor2)).getAppArgsN indVal.numIndices
           -- TODO: get indices, assert equalities
-          withEqTelescope (is1.push ctor1) (is2.push ctor2) fun eqs => do
+          withHEqTelescope (is1.push ctor1) (is2.push ctor2) fun eqs => do
             -- When the kernel checks this definition, it will perform the potentially expensive
             -- computation that `noConfusionType h` is equal to `$kType → P`
             let kType ← mkNoConfusionCtorArg ctor P

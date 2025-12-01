@@ -37,7 +37,9 @@ def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCor
         match (← isConstructorApp'? a), (← isConstructorApp'? b) with
         | some aCtor, some bCtor =>
           -- We use the default transparency because `a` and `b` may be builtin literals.
+          trace[Meta.Tactic.injection] "applying noConfusion to {← inferType prf} at\n{mvarId}"
           let val ← withTransparency .default <| mkNoConfusion target prf
+          trace[Meta.Tactic.injection] "got no-confusion principle{indentExpr val}\nof type{indentExpr (← inferType val)}"
           if aCtor.name != bCtor.name then
             mvarId.assign val
             return InjectionResultCore.solved
@@ -73,7 +75,7 @@ inductive InjectionResult where
   | subgoal (mvarId : MVarId) (newEqs : Array FVarId) (remainingNames : List Name)
 
 
-def injectionIntro (mvarId : MVarId) (numEqs : Nat) (newNames : List Name) (tryToClear := true) : MetaM InjectionResult :=
+def injectionIntro (mvarId : MVarId) (numEqs : Nat) (newNames : List Name) (tryToClear := true) : MetaM InjectionResult := do
   let rec go : Nat → MVarId → Array FVarId → List Name → MetaM InjectionResult
     | 0, mvarId, fvarIds, remainingNames =>
       return InjectionResult.subgoal mvarId fvarIds remainingNames
@@ -85,6 +87,7 @@ def injectionIntro (mvarId : MVarId) (numEqs : Nat) (newNames : List Name) (tryT
       let (fvarId, mvarId) ← mvarId.intro1
       let (fvarId, mvarId) ← heqToEq mvarId fvarId tryToClear
       go n mvarId (fvarIds.push fvarId) []
+  trace[Meta.Tactic.injection] "introducing {numEqs} new equalities at\n{mvarId}"
   go numEqs mvarId #[] newNames
 
 def injection (mvarId : MVarId) (fvarId : FVarId) (newNames : List Name := []) : MetaM InjectionResult := do
@@ -139,3 +142,6 @@ where
       else cont
 
 end Lean.Meta
+
+builtin_initialize
+  Lean.registerTraceClass `Meta.Tactic.injection

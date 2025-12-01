@@ -1188,10 +1188,10 @@ of dependent types. In these cases, consider using `simp only`.
 * `rw [e₁, ... eₙ]` applies the given rules sequentially.
 * `rw [← e]` or `rw [<- e]` applies the rewrite in the reverse direction.
 * `rw [e] at l` rewrites with `e` at location(s) `l`.
-* `rw (occs := .pos L) [e]`, where `L : List Nat`, only rewrites the
-  given occurrences in the target. Occurrences count from 1.
-* `rw (occs := .neg L) [e]`, where `L : List Nat`, skips rewriting the
-  given occurrences in the target. Occurrences count from 1.
+* `rw (occs := .pos L) [e]`, where `L` is a literal list of natural numbers,
+  only rewrites the given occurrences in the target. Occurrences count from 1.
+* `rw (occs := .neg L) [e]`, where `L` is a literal list of natural numbers,
+  skips rewriting the given occurrences in the target. Occurrences count from 1.
 
 Examples:
 

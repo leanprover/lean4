@@ -37,7 +37,7 @@ Asynchronously resolves a hostname and service to an array of socket addresses.
 -/
 @[inline]
 def getAddrInfo (host : String) (service : String) (addrFamily : Option AddressFamily := none) : Async (Array IPAddr) := do
-  Async.ofPromise <| UV.DNS.getAddrInfo
+  Async.ofIOPromise <| UV.DNS.getAddrInfo
     host
     service
     (match addrFamily with
@@ -51,7 +51,7 @@ Performs a reverse DNS lookup on a `SocketAddress`.
 @[inline]
 def getNameInfo (host : @& SocketAddress) : Async NameInfo :=
   UV.DNS.getNameInfo host
-  |> Async.ofPromise
+  |> Async.ofIOPromise
   |>.map (Function.uncurry NameInfo.mk)
 
 end DNS

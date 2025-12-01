@@ -864,10 +864,10 @@ protected def block (x : Async α) (prio := Task.Priority.default) : IO α :=
   x.asTask (prio := prio) >>= ETask.block
 
 /--
-Converts `Promise` into `Async`.
+Converts `IO (IO.Promise (Except IO.Error α))` into `Async`.
 -/
 @[inline]
-protected def ofPromise (task : IO (IO.Promise (Except IO.Error α))) (error : String := "the promise linked to the Async was dropped") : Async α := do
+protected def ofIOPromise (task : IO (IO.Promise (Except IO.Error α))) (error : String := "the promise linked to the Async was dropped") : Async α := do
   match ← task.toBaseIO with
   | .ok data => pure (f := BaseIO) <| MaybeTask.ofTask <| data.result?.map fun
     | none => .error error

@@ -9581,7 +9581,7 @@ x_10 = lean_ctor_get(x_1, 1);
 x_11 = lean_ctor_get(x_1, 2);
 x_12 = lean_ctor_get(x_1, 3);
 x_13 = lean_ctor_get(x_6, 4);
-x_14 = lean_ctor_get(x_6, 5);
+x_14 = lean_ctor_get(x_6, 6);
 x_15 = lean_unsigned_to_nat(0u);
 lean_inc_ref(x_2);
 x_54 = l_Lean_PersistentArray_foldlM___at___00__private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppThresholds_spec__0(x_2, x_7, x_15, x_15);

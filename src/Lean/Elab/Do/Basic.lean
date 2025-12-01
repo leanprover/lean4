@@ -315,8 +315,9 @@ def mkBindCancellingPure (x : Name) (eResultTy e : Expr) (k : Expr → DoElabM E
   withLocalDeclD x eResultTy fun x => do
     let body ← k x
     let body' := body.consumeMData
-    if body'.isAppOfArity ``Pure.pure 4 && body'.getArg! 3 == x then
-      return e
+    if body.isAppOfArity ``Pure.pure 4 && body'.getArg! 3 == x then
+      if ← isDefEq body' (← mkPureApp eResultTy x) then
+        return e
     let kResultTy ← mkFreshResultType `kResultTy
     let k ← mkLambdaFVars #[x] body
     mkBindApp eResultTy kResultTy e k
@@ -348,44 +349,6 @@ private partial def withPendingMVars (k : TermElabM α) : TermElabM (α × List 
     return (a, pendingMVars)
   finally
     modify fun s => { s with pendingMVars := s.pendingMVars ++ pendingMVarsSaved }
-
-/-
-def captureNestedActionHoles (k : DoElabM α) : DoElabM (α × Array Term.NestedActionHole) := do
-  let lctx ← getLCtx
-  let monad := (← read).monadInfo.m
-  let liftActionCtx := { lctx, monad : Term.LiftNestedActionContext }
-  controlAtTermElabM fun runInBase => do
-    let oldNestedActionHoles := (← get).nestedActionHoles
-    let a ← withReader (fun ctx => { ctx with liftActionCtx }) (runInBase k)
-    let newNestedActionHoles := (← get).nestedActionHoles
-    modify fun s => { s with nestedActionHoles := oldNestedActionHoles }
-    return (a, newNestedActionHoles)
-
-def withNestedAction (k : DoElabM Expr) : DoElabM Expr := do
-  let (e, nestedActionHoles) ← captureNestedActionHoles k
-  trace[Elab.do] "nestedActionHoles: {nestedActionHoles.map fun { rhs, mvar } => (rhs, mvar)}"
-  let β ← mkFreshResultType `β
-  discard <| Term.ensureHasType (← mkMonadicType β) e
-  let rec wrapNestedActions (i : Nat) (e : Expr) : DoElabM Expr := do
-    if h : i < nestedActionHoles.size then
-      let { rhs, mvar } := nestedActionHoles[i]
-      let α ← inferType mvar
-      let k ← withLocalDeclD (← mkFreshUserName `x) (← inferType mvar) fun x => do
-        -- Abstraction (`mkLambdaFVars`, `mkLetFVars`) may have instantiated the original mvar since
-        -- we created it. So we instantiate `mvar` and take the app head, which is the unassigned
-        -- mvar.
-        trace[Elab.do] "instantiating mvar: {mvar}"
-        let mvarId := (← instantiateMVars mvar).getAppFn.mvarId!
-        -- NB: `x` is not in the local context of `mvarId`, but the assignment below does the Right
-        -- Thing for us. After the next instantiation of the mvar, nobody will notice our deception.
-        mvarId.assign x
-        let e ← wrapNestedActions (i + 1) e
-        mkLambdaFVars #[x] e
-      mkBindApp α β rhs k
-    else
-      return e
-  wrapNestedActions 0 e
--/
 
 def elabBinder (binder : Syntax) (x : Expr → DoElabM α) : DoElabM α := do
   controlAtTermElabM fun runInBase => Term.elabBinder binder (runInBase ∘ x)
@@ -602,10 +565,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
   else if jumpCount = 1 then
     -- Linear use of the continuation. Do not introduce a join point; just emit the continuation
     -- directly.
-    contVarId.synthesizeJumps do
-
-      let r ← nondupDec.k
-      return r
+    contVarId.synthesizeJumps nondupDec.k
     let e ← Term.ensureHasType mγ e
     return e
   else -- jumps.size > 1
@@ -620,12 +580,13 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
     -- Assign the `joinTy` based on the types of the reassigned mut vars and the result type.
     let reassignedDecls ← reassignedMutVars.mapM (getLocalDeclFromUserName ·)
     let reassignedTys := reassignedDecls.map (·.type)
-    let resTy ← mkFreshResultType
-    let joinTy ← mkArrowN (reassignedTys.push resTy) mγ
+    let joinTy ← mkArrowN (reassignedTys.push nondupDec.resultType) mγ
 
     -- Assign the `joinRhs` with the result of the continuation.
     let joinRhs ← withLCtx' rootCtx do
-      withLocalDeclsDND (reassignedDecls.map (fun d => (d.userName, d.type)) |>.push (nondupDec.resultName, resTy)) fun xs => do
+      let xs := reassignedDecls.map (fun d => (d.userName, d.type))
+        |>.push (nondupDec.resultName, nondupDec.resultType)
+      withLocalDeclsDND xs fun xs => do
         mkLambdaFVars xs (← nondupDec.k)
 
     withLetDecl (← mkFreshUserName `__do_jp) joinTy joinRhs (kind := .implDetail) (nondep := true) fun jp => do
@@ -640,7 +601,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
         for name in reassignedMutVars do
           let newDefn ← getLocalDeclFromUserName name
           jump := mkApp jump newDefn.toExpr
-        return mkApp jump (← Term.ensureHasType resTy r "Mismatched result type for match arm. It")
+        return mkApp jump (← Term.ensureHasType nondupDec.resultType r "Mismatched result type for match arm. It")
       -- Now instantiate the metavariables in `e` to ensure that `abstract` sees all FVar
       -- occurrences of `jp`, rather than trusting, e.g. `Expr.hasFVar` or some cache.
       let e ← instantiateMVars e

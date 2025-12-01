@@ -6312,11 +6312,19 @@ theorem two_pow_ctz_le_toNat_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
 /-! ### Population Count -/
 
 @[simp]
-theorem cpopNatRec_zero {x : BitVec w} :
+theorem cpopNatRec_zero_eq_self {x : BitVec w} :
     x.cpopNatRec 0 acc = acc := by simp [BitVec.cpopNatRec]
 
 theorem cpopNatRec_succ {n : Nat} {x : BitVec w} :
     x.cpopNatRec (n + 1) acc = x.cpopNatRec n (acc + (x.getLsbD n).toNat):= by simp [BitVec.cpopNatRec]
+
+@[simp]
+theorem cpopNatRec_zero :
+    (0#w).cpopNatRec n acc = acc := by
+  induction n
+  · case zero => simp
+  · case succ n ihn =>
+    simp [cpopNatRec_succ, ihn]
 
 theorem cpopNatRec_eq_add_cpopNatRec_zero {x : BitVec w} {acc n : Nat}:
     x.cpopNatRec n acc = x.cpopNatRec n 0 + acc := by
@@ -6382,15 +6390,6 @@ theorem cpopNatRec_allOnes (h : n ≤ w) :
 @[simp]
 theorem cpop_allOnes : (allOnes w).cpop = BitVec.ofNat w w := by
   simp [cpop, cpopNatRec_allOnes]
-
-@[simp]
-theorem cpopNatRec_eq_of_zero {x : BitVec w} (hx : x = 0#w) :
-    x.cpopNatRec n acc = acc := by
-  induction n
-  · case zero => simp
-  · case succ n ihn =>
-    subst hx
-    simp [cpopNatRec_succ, ihn]
 
 @[simp]
 theorem cpop_zero : (0#w).cpop = 0#w := by

@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Random
-public import Std.Internal.Async.Basic
+public import Std.Async.Basic
 import Init.Data.ByteArray.Extra
 
 public section
@@ -19,8 +19,6 @@ The main entrypoint for users is `Selectable.one` and the various functions to p
 -/
 
 namespace Std
-namespace Internal
-namespace IO
 namespace Async
 
 /--
@@ -246,6 +244,4 @@ def Selectable.combine (selectables : Array (Selectable α)) : IO (Selector α) 
   }
 
 end Async
-end IO
-end Internal
 end Std

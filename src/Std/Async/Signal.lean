@@ -8,13 +8,11 @@ module
 prelude
 public import Std.Time
 public import Std.Internal.UV.Signal
-public import Std.Internal.Async.Select
+public import Std.Async.Select
 
 public section
 
 namespace Std
-namespace Internal
-namespace IO
 namespace Async
 
 /--

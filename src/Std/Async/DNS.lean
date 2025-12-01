@@ -8,17 +8,15 @@ module
 prelude
 public import Std.Time
 public import Std.Internal.UV
-public import Std.Internal.Async.Basic
+public import Std.Async.Basic
 
 public section
 
 namespace Std
-namespace Internal
-namespace IO
 namespace Async
 namespace DNS
 
-open Std.Net
+open Std.Net Internal
 
 /--
 Represents a resolved hostname and service name from a socket address.
@@ -58,6 +56,4 @@ def getNameInfo (host : @& SocketAddress) : Async NameInfo :=
 
 end DNS
 end Async
-end IO
-end Internal
 end Std

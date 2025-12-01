@@ -11,9 +11,6 @@ public import Init.System.Promise
 public section
 
 namespace Std
-namespace Internal
-namespace IO
-namespace Async
 
 /-!
 
@@ -995,7 +992,4 @@ This function transforms the operation inside the monad `m` into a task and let 
 def background [Monad m] [MonadAsync t m] (action : m α) (prio := Task.Priority.default) : m Unit :=
   discard (async (t := t) (prio := prio) action)
 
-end Async
-end IO
-end Internal
 end Std

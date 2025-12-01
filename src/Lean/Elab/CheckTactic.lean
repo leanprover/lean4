@@ -23,13 +23,13 @@ namespace Lean.Parser
 on a goal with `t` and sees if the resulting expression has reduced it
 to `r`.
 -/
-syntax (name := checkTactic') "#check_tactic " term "~>" Term.termBeforeBy "by" tactic : command
+syntax (name := checkTactic) "#check_tactic " term "~>" Term.termBeforeBy "by" tactic : command
 
 /--
 `#check_tactic_failure t by tac` runs the tactic `tac`
 on a goal with `t` and verifies it fails.
 -/
-syntax  (name := checkTacticFailure') "#check_tactic_failure " Term.termBeforeBy "by" tactic : command
+syntax  (name := checkTacticFailure) "#check_tactic_failure " Term.termBeforeBy "by" tactic : command
 
 end Lean.Parser
 

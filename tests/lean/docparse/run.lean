@@ -39,7 +39,7 @@ def test (p : ParserFn) (input : String) : IO String := do
 
   let remaining : String :=
     if s'.pos ≥ input.rawEndPos then "All input consumed."
-    else s!"Remaining:\n{repr (input.extract s'.pos input.rawEndPos)}"
+    else s!"Remaining:\n{repr (s'.pos.extract input input.rawEndPos)}"
 
   if s'.allErrors.isEmpty then
     return s!"Success! Final stack:\n{stk.pretty 50}\n{remaining}"
@@ -47,14 +47,14 @@ def test (p : ParserFn) (input : String) : IO String := do
     return s!"Failure @{p} ({ictx.fileMap.toPosition p}): {toString err}\n\
       Final stack:\n\
       {stk.pretty 50}\n\
-      Remaining: {repr $ input.extract p input.rawEndPos}"
+      Remaining: {repr $ p.extract input input.rawEndPos}"
   else
     let mut errors := ""
     for (p, _, e) in s'.allErrors.qsort errLt do
       errors :=
         errors ++
         s!"  @{p} ({ictx.fileMap.toPosition p}): {toString e}\n" ++
-        s!"    {repr <| input.extract p input.rawEndPos}\n"
+        s!"    {repr <| p.extract input input.rawEndPos}\n"
     return s!"{s'.allErrors.size} failures:\n{errors}\nFinal stack:\n{stk.pretty 50}"
 where
   errLt (x y : String.Pos.Raw × SyntaxStack × Error) : Bool :=

@@ -17,9 +17,9 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg(l
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___redArg___lam__0(lean_object*, lean_object*);
 lean_object* l_List_forM___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_SCC_scc___redArg___closed__4;
-lean_object* l_StateT_instMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC_add___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_StateT_instMonad___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__10;
 lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__18;
@@ -27,6 +27,7 @@ static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___clos
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__6;
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__12;
+lean_object* l_StateT_instMonad___lam__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__2;
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__14;
@@ -36,6 +37,7 @@ lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_push___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__8;
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_StateT_instMonad___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___redArg___closed__0;
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__17;
@@ -49,7 +51,6 @@ static lean_object* l_Lean_SCC_scc___redArg___closed__1;
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__19;
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_SCC_scc___redArg___closed__2;
-lean_object* l_StateT_instMonad___redArg___lam__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack___redArg___lam__0(lean_object*);
 lean_object* l_instBEqOfDecidableEq___redArg(lean_object*);
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__13;
@@ -57,7 +58,6 @@ lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___redArg(lean_objec
 static lean_object* l_Lean_SCC_scc___redArg___closed__3;
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_push(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_StateT_instMonad___redArg___lam__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_bind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__3;
@@ -88,7 +88,7 @@ lean_object* l_StateT_map(lean_object*, lean_object*, lean_object*, lean_object*
 static lean_object* l_Lean_SCC_scc___redArg___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC_add(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_StateT_instMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_StateT_instMonad___lam__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_pure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___redArg___closed__0() {
 _start:
@@ -872,7 +872,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__9;
-x_2 = lean_alloc_closure((void*)(l_StateT_instMonad___redArg___lam__9), 6, 1);
+x_2 = lean_alloc_closure((void*)(l_StateT_instMonad___lam__9), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -882,7 +882,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__9;
-x_2 = lean_alloc_closure((void*)(l_StateT_instMonad___redArg___lam__7), 6, 1);
+x_2 = lean_alloc_closure((void*)(l_StateT_instMonad___lam__7), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -892,7 +892,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__9;
-x_2 = lean_alloc_closure((void*)(l_StateT_instMonad___redArg___lam__4), 6, 1);
+x_2 = lean_alloc_closure((void*)(l_StateT_instMonad___lam__4), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -914,7 +914,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__9;
-x_2 = lean_alloc_closure((void*)(l_StateT_instMonad___redArg___lam__1), 6, 1);
+x_2 = lean_alloc_closure((void*)(l_StateT_instMonad___lam__1), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -971,6 +971,95 @@ x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_inc(x_5);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
+x_7 = l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___redArg(x_1, x_2, x_5, x_6);
+x_8 = lean_ctor_get(x_7, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_8, 0);
+lean_inc(x_9);
+if (lean_obj_tag(x_9) == 0)
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+lean_dec(x_8);
+x_10 = lean_ctor_get(x_7, 1);
+lean_inc(x_10);
+lean_dec_ref(x_7);
+lean_inc(x_5);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
+x_11 = l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg(x_1, x_2, x_3, x_5, x_10);
+x_12 = lean_ctor_get(x_11, 1);
+lean_inc(x_12);
+lean_dec_ref(x_11);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
+x_13 = l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___redArg(x_1, x_2, x_5, x_12);
+x_14 = lean_ctor_get(x_13, 0);
+lean_inc(x_14);
+x_15 = lean_ctor_get(x_13, 1);
+lean_inc(x_15);
+lean_dec_ref(x_13);
+x_16 = lean_ctor_get(x_14, 1);
+lean_inc(x_16);
+lean_dec(x_14);
+x_17 = l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___redArg(x_1, x_2, x_4, x_16, x_15);
+return x_17;
+}
+else
+{
+uint8_t x_18; 
+lean_dec(x_5);
+lean_dec_ref(x_3);
+x_18 = lean_ctor_get_uint8(x_8, sizeof(void*)*2);
+lean_dec(x_8);
+if (x_18 == 0)
+{
+uint8_t x_19; 
+lean_dec_ref(x_9);
+lean_dec(x_4);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
+x_19 = !lean_is_exclusive(x_7);
+if (x_19 == 0)
+{
+lean_object* x_20; lean_object* x_21; 
+x_20 = lean_ctor_get(x_7, 0);
+lean_dec(x_20);
+x_21 = lean_box(0);
+lean_ctor_set(x_7, 0, x_21);
+return x_7;
+}
+else
+{
+lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+x_22 = lean_ctor_get(x_7, 1);
+lean_inc(x_22);
+lean_dec(x_7);
+x_23 = lean_box(0);
+x_24 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_24, 0, x_23);
+lean_ctor_set(x_24, 1, x_22);
+return x_24;
+}
+}
+else
+{
+lean_object* x_25; lean_object* x_26; 
+x_25 = lean_ctor_get(x_7, 1);
+lean_inc(x_25);
+lean_dec_ref(x_7);
+x_26 = l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___redArg(x_1, x_2, x_4, x_9, x_25);
+return x_26;
+}
+}
 }
 }
 static lean_object* _init_l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__20() {
@@ -1077,95 +1166,6 @@ else
 lean_object* x_32; 
 x_32 = l___private_Lean_Util_SCC_0__Lean_SCC_addSCC___redArg(x_1, x_2, x_4, x_25);
 return x_32;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_inc(x_5);
-lean_inc_ref(x_2);
-lean_inc_ref(x_1);
-x_7 = l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___redArg(x_1, x_2, x_5, x_6);
-x_8 = lean_ctor_get(x_7, 0);
-lean_inc(x_8);
-x_9 = lean_ctor_get(x_8, 0);
-lean_inc(x_9);
-if (lean_obj_tag(x_9) == 0)
-{
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-lean_dec(x_8);
-x_10 = lean_ctor_get(x_7, 1);
-lean_inc(x_10);
-lean_dec_ref(x_7);
-lean_inc(x_5);
-lean_inc_ref(x_2);
-lean_inc_ref(x_1);
-x_11 = l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg(x_1, x_2, x_3, x_5, x_10);
-x_12 = lean_ctor_get(x_11, 1);
-lean_inc(x_12);
-lean_dec_ref(x_11);
-lean_inc_ref(x_2);
-lean_inc_ref(x_1);
-x_13 = l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___redArg(x_1, x_2, x_5, x_12);
-x_14 = lean_ctor_get(x_13, 0);
-lean_inc(x_14);
-x_15 = lean_ctor_get(x_13, 1);
-lean_inc(x_15);
-lean_dec_ref(x_13);
-x_16 = lean_ctor_get(x_14, 1);
-lean_inc(x_16);
-lean_dec(x_14);
-x_17 = l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___redArg(x_1, x_2, x_4, x_16, x_15);
-return x_17;
-}
-else
-{
-uint8_t x_18; 
-lean_dec(x_5);
-lean_dec_ref(x_3);
-x_18 = lean_ctor_get_uint8(x_8, sizeof(void*)*2);
-lean_dec(x_8);
-if (x_18 == 0)
-{
-uint8_t x_19; 
-lean_dec_ref(x_9);
-lean_dec(x_4);
-lean_dec_ref(x_2);
-lean_dec_ref(x_1);
-x_19 = !lean_is_exclusive(x_7);
-if (x_19 == 0)
-{
-lean_object* x_20; lean_object* x_21; 
-x_20 = lean_ctor_get(x_7, 0);
-lean_dec(x_20);
-x_21 = lean_box(0);
-lean_ctor_set(x_7, 0, x_21);
-return x_7;
-}
-else
-{
-lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_22 = lean_ctor_get(x_7, 1);
-lean_inc(x_22);
-lean_dec(x_7);
-x_23 = lean_box(0);
-x_24 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_24, 0, x_23);
-lean_ctor_set(x_24, 1, x_22);
-return x_24;
-}
-}
-else
-{
-lean_object* x_25; lean_object* x_26; 
-x_25 = lean_ctor_get(x_7, 1);
-lean_inc(x_25);
-lean_dec_ref(x_7);
-x_26 = l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___redArg(x_1, x_2, x_4, x_9, x_25);
-return x_26;
 }
 }
 }

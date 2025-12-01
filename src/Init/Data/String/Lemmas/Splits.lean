@@ -56,25 +56,25 @@ theorem Slice.Pos.Splits.cast {s₁ s₂ : Slice} {p : s₁.Pos} {t₁ t₂ : St
     p.Splits t₁ t₂ → (p.cast h).Splits t₁ t₂ :=
   splits_cast_iff.mpr
 
-theorem Slice.Pos.Splits.toCopy {s : Slice} {p : s.Pos} {t₁ t₂ : String}
-    (h : p.Splits t₁ t₂) : p.toCopy.Splits t₁ t₂ where
+theorem Slice.Pos.Splits.copy {s : Slice} {p : s.Pos} {t₁ t₂ : String}
+    (h : p.Splits t₁ t₂) : p.copy.Splits t₁ t₂ where
   eq_append := h.eq_append
   offset_eq_rawEndPos := by simpa using h.offset_eq_rawEndPos
 
-theorem Slice.Pos.splits_of_splits_toCopy {s : Slice} {p : s.Pos} {t₁ t₂ : String}
-    (h : p.toCopy.Splits t₁ t₂) : p.Splits t₁ t₂ where
+theorem Slice.Pos.splits_of_splits_copy {s : Slice} {p : s.Pos} {t₁ t₂ : String}
+    (h : p.copy.Splits t₁ t₂) : p.Splits t₁ t₂ where
   eq_append := h.eq_append
   offset_eq_rawEndPos := by simpa using h.offset_eq_rawEndPos
 
 @[simp]
-theorem Slice.Pos.splits_toCopy_iff {s : Slice} {p : s.Pos} {t₁ t₂ : String} :
-    p.toCopy.Splits t₁ t₂ ↔ p.Splits t₁ t₂ :=
-  ⟨splits_of_splits_toCopy, (·.toCopy)⟩
+theorem Slice.Pos.splits_copy_iff {s : Slice} {p : s.Pos} {t₁ t₂ : String} :
+    p.copy.Splits t₁ t₂ ↔ p.Splits t₁ t₂ :=
+  ⟨splits_of_splits_copy, (·.copy)⟩
 
 @[simp]
 theorem Pos.splits_toSlice_iff {s : String} {p : s.Pos} {t₁ t₂ : String} :
     p.toSlice.Splits t₁ t₂ ↔ p.Splits t₁ t₂ := by
-  rw [← Slice.Pos.splits_toCopy_iff, p.toCopy_toSlice_eq_cast, splits_cast_iff]
+  rw [← Slice.Pos.splits_copy_iff, p.copy_toSlice_eq_cast, splits_cast_iff]
 
 theorem Pos.Splits.toSlice {s : String} {p : s.Pos} {t₁ t₂ : String}
     (h : p.Splits t₁ t₂) : p.toSlice.Splits t₁ t₂ :=
@@ -112,15 +112,15 @@ theorem Pos.Splits.eq {s : String} {p : s.Pos} {t₁ t₂ t₃ t₄}
 
 theorem Slice.Pos.Splits.eq_left {s : Slice} {p : s.Pos} {t₁ t₂ t₃ t₄}
     (h₁ : p.Splits t₁ t₂) (h₂ : p.Splits t₃ t₄) : t₁ = t₃ :=
-  (splits_toCopy_iff.2 h₁).eq_left (splits_toCopy_iff.2 h₂)
+  (splits_copy_iff.2 h₁).eq_left (splits_copy_iff.2 h₂)
 
 theorem Slice.Pos.Splits.eq_right {s : Slice} {p : s.Pos} {t₁ t₂ t₃ t₄}
     (h₁ : p.Splits t₁ t₂) (h₂ : p.Splits t₃ t₄) : t₂ = t₄ :=
-  (splits_toCopy_iff.2 h₁).eq_right (splits_toCopy_iff.2 h₂)
+  (splits_copy_iff.2 h₁).eq_right (splits_copy_iff.2 h₂)
 
 theorem Slice.Pos.Splits.eq {s : Slice} {p : s.Pos} {t₁ t₂ t₃ t₄}
     (h₁ : p.Splits t₁ t₂) (h₂ : p.Splits t₃ t₄) : t₁ = t₃ ∧ t₂ = t₄ :=
-  (splits_toCopy_iff.2 h₁).eq (splits_toCopy_iff.2 h₂)
+  (splits_copy_iff.2 h₁).eq (splits_copy_iff.2 h₂)
 
 @[simp]
 theorem splits_endPos (s : String) : s.endPos.Splits s "" where
@@ -161,11 +161,11 @@ theorem Slice.splits_endPos (s : Slice) : s.endPos.Splits s.copy "" where
 @[simp]
 theorem Slice.splits_endPos_iff {s : Slice} :
     s.endPos.Splits t₁ t₂ ↔ t₁ = s.copy ∧ t₂ = "" := by
-  rw [← Pos.splits_toCopy_iff, ← endPos_copy, String.splits_endPos_iff]
+  rw [← Pos.splits_copy_iff, ← endPos_copy, String.splits_endPos_iff]
 
 theorem Slice.Pos.Splits.eq_endPos_iff {s : Slice} {p : s.Pos} (h : p.Splits t₁ t₂) :
     p = s.endPos ↔ t₂ = "" := by
-  rw [← toCopy_inj, ← endPos_copy, h.toCopy.eq_endPos_iff]
+  rw [← copy_inj, ← endPos_copy, h.copy.eq_endPos_iff]
 
 @[simp]
 theorem Slice.splits_startPos (s : Slice) : s.startPos.Splits "" s.copy where
@@ -175,11 +175,11 @@ theorem Slice.splits_startPos (s : Slice) : s.startPos.Splits "" s.copy where
 @[simp]
 theorem Slice.splits_startPos_iff {s : Slice} :
     s.startPos.Splits t₁ t₂ ↔ t₁ = "" ∧ t₂ = s.copy := by
-  rw [← Pos.splits_toCopy_iff, ← startPos_copy, String.splits_startPos_iff]
+  rw [← Pos.splits_copy_iff, ← startPos_copy, String.splits_startPos_iff]
 
 theorem Slice.Pos.Splits.eq_startPos_iff {s : Slice} {p : s.Pos} (h : p.Splits t₁ t₂) :
     p = s.startPos ↔ t₁ = "" := by
-  rw [← toCopy_inj, ← startPos_copy, h.toCopy.eq_startPos_iff]
+  rw [← copy_inj, ← startPos_copy, h.copy.eq_startPos_iff]
 
 theorem Pos.splits_next_right {s : String} (p : s.Pos) (hp : p ≠ s.endPos) :
     p.Splits (s.sliceTo p).copy (singleton (p.get hp) ++ (s.sliceFrom (p.next hp)).copy) where

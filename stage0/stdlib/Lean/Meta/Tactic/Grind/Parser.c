@@ -1276,7 +1276,7 @@ static lean_object* _init_l_Lean_Parser_Command_GrindCnstr_genLt___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("gen ", 4, 4);
+x_1 = lean_mk_string_unchecked("gen", 3, 3);
 return x_1;
 }
 }
@@ -1294,7 +1294,7 @@ static lean_object* _init_l_Lean_Parser_Command_GrindCnstr_genLt___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Command_GrindCnstr_sizeLt___closed__10;
+x_1 = l_Lean_Parser_Command_GrindCnstr_sizeLt___closed__9;
 x_2 = l_Lean_Parser_Command_GrindCnstr_genLt___closed__4;
 x_3 = l_Lean_Parser_andthen(x_2, x_1);
 return x_3;
@@ -1376,7 +1376,7 @@ static lean_object* _init_l_Lean_Parser_Command_GrindCnstr_maxInsts___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("max_insts ", 10, 10);
+x_1 = lean_mk_string_unchecked("max_insts", 9, 9);
 return x_1;
 }
 }
@@ -1394,7 +1394,7 @@ static lean_object* _init_l_Lean_Parser_Command_GrindCnstr_maxInsts___closed__5(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Command_GrindCnstr_sizeLt___closed__8;
+x_1 = l_Lean_Parser_Command_GrindCnstr_sizeLt___closed__9;
 x_2 = l_Lean_Parser_Command_GrindCnstr_maxInsts___closed__4;
 x_3 = l_Lean_Parser_andthen(x_2, x_1);
 return x_3;
@@ -3100,7 +3100,7 @@ static lean_object* _init_l_Lean_Parser_Command_GrindCnstr_genLt_formatter___clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Command_GrindCnstr_sizeLt_formatter___closed__6;
+x_1 = l_Lean_Parser_Command_GrindCnstr_sizeLt_formatter___closed__5;
 x_2 = l_Lean_Parser_Command_GrindCnstr_genLt_formatter___closed__1;
 x_3 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_andthen_formatter___boxed), 7, 2);
 lean_closure_set(x_3, 0, x_2);
@@ -3209,7 +3209,7 @@ static lean_object* _init_l_Lean_Parser_Command_GrindCnstr_maxInsts_formatter___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Command_GrindCnstr_sizeLt_formatter___closed__4;
+x_1 = l_Lean_Parser_Command_GrindCnstr_sizeLt_formatter___closed__5;
 x_2 = l_Lean_Parser_Command_GrindCnstr_maxInsts_formatter___closed__1;
 x_3 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_andthen_formatter___boxed), 7, 2);
 lean_closure_set(x_3, 0, x_2);
@@ -4839,7 +4839,7 @@ static lean_object* _init_l_Lean_Parser_Command_GrindCnstr_genLt_parenthesizer__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Command_GrindCnstr_sizeLt_parenthesizer___closed__6;
+x_1 = l_Lean_Parser_Command_GrindCnstr_sizeLt_parenthesizer___closed__5;
 x_2 = l_Lean_Parser_Command_GrindCnstr_genLt_parenthesizer___closed__1;
 x_3 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_andthen_parenthesizer___boxed), 7, 2);
 lean_closure_set(x_3, 0, x_2);
@@ -4948,7 +4948,7 @@ static lean_object* _init_l_Lean_Parser_Command_GrindCnstr_maxInsts_parenthesize
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Command_GrindCnstr_sizeLt_parenthesizer___closed__4;
+x_1 = l_Lean_Parser_Command_GrindCnstr_sizeLt_parenthesizer___closed__5;
 x_2 = l_Lean_Parser_Command_GrindCnstr_maxInsts_parenthesizer___closed__1;
 x_3 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_andthen_parenthesizer___boxed), 7, 2);
 lean_closure_set(x_3, 0, x_2);

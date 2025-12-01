@@ -539,6 +539,71 @@ LEAN_EXPORT uint8_t l_Lean_getPPProofsWithType(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_714017495____hygCtx___hyg_4____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1488711282____hygCtx___hyg_4_();
 static lean_object* l_Lean_getPPExplicit___closed__0;
+static lean_object* _init_l_Lean_initFn___closed__0_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("pp", 2, 2);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_initFn___closed__1_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("maxSteps", 8, 8);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_initFn___closed__2_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_initFn___closed__1_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_;
+x_2 = l_Lean_initFn___closed__0_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_;
+x_3 = l_Lean_Name_mkStr2(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_initFn___closed__3_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("(pretty printer) maximum number of expressions to visit, after which terms will pretty print as `⋯`", 101, 99);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_initFn___closed__4_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_initFn___closed__3_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_;
+x_2 = lean_unsigned_to_nat(5000u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_initFn___closed__5_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_initFn___closed__6_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_initFn___closed__1_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_;
+x_2 = l_Lean_initFn___closed__0_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_;
+x_3 = l_Lean_initFn___closed__5_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_;
+x_4 = l_Lean_Name_mkStr3(x_3, x_2, x_1);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___00Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4__spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -673,71 +738,6 @@ return x_27;
 }
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__0_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("pp", 2, 2);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_initFn___closed__1_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("maxSteps", 8, 8);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_initFn___closed__2_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_initFn___closed__1_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_;
-x_2 = l_Lean_initFn___closed__0_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_;
-x_3 = l_Lean_Name_mkStr2(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_initFn___closed__3_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("(pretty printer) maximum number of expressions to visit, after which terms will pretty print as `⋯`", 101, 99);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_initFn___closed__4_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_initFn___closed__3_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_;
-x_2 = lean_unsigned_to_nat(5000u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_initFn___closed__5_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_initFn___closed__6_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_initFn___closed__1_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_;
-x_2 = l_Lean_initFn___closed__0_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_;
-x_3 = l_Lean_initFn___closed__5_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_;
-x_4 = l_Lean_Name_mkStr3(x_3, x_2, x_1);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_() {
 _start:
 {
@@ -749,6 +749,14 @@ x_5 = l_Lean_Option_register___at___00Lean_initFn_00___x40_Lean_PrettyPrinter_De
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4____boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_();
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___00Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4__spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -757,12 +765,54 @@ x_5 = l_Lean_Option_register___at___00Lean_initFn_00___x40_Lean_PrettyPrinter_De
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4____boxed(lean_object* x_1) {
+static lean_object* _init_l_Lean_initFn___closed__0_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4_() {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_();
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("all", 3, 3);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_initFn___closed__1_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_initFn___closed__0_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4_;
+x_2 = l_Lean_initFn___closed__0_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_;
+x_3 = l_Lean_Name_mkStr2(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_initFn___closed__2_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("(pretty printer) display coercions, implicit parameters, proof terms, fully qualified names, universe, and disable beta reduction and notations during pretty printing", 166, 166);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_initFn___closed__3_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4_() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_initFn___closed__2_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4_;
+x_2 = 0;
+x_3 = lean_box(x_2);
+x_4 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_1);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_initFn___closed__4_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_initFn___closed__0_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4_;
+x_2 = l_Lean_initFn___closed__0_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_;
+x_3 = l_Lean_initFn___closed__5_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_;
+x_4 = l_Lean_Name_mkStr3(x_3, x_2, x_1);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___00Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4__spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -899,56 +949,6 @@ return x_29;
 }
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__0_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4_() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("all", 3, 3);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_initFn___closed__1_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4_() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_initFn___closed__0_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4_;
-x_2 = l_Lean_initFn___closed__0_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_;
-x_3 = l_Lean_Name_mkStr2(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_initFn___closed__2_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4_() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("(pretty printer) display coercions, implicit parameters, proof terms, fully qualified names, universe, and disable beta reduction and notations during pretty printing", 166, 166);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_initFn___closed__3_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4_() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_initFn___closed__2_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4_;
-x_2 = 0;
-x_3 = lean_box(x_2);
-x_4 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_1);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_initFn___closed__4_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4_() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_initFn___closed__0_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4_;
-x_2 = l_Lean_initFn___closed__0_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_;
-x_3 = l_Lean_initFn___closed__5_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_;
-x_4 = l_Lean_Name_mkStr3(x_3, x_2, x_1);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4_() {
 _start:
 {
@@ -960,20 +960,20 @@ x_5 = l_Lean_Option_register___at___00Lean_initFn_00___x40_Lean_PrettyPrinter_De
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Option_register___at___00Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4__spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_Option_register___at___00Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4__spec__0(x_1, x_2, x_3);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4____boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4_();
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Option_register___at___00Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4__spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Option_register___at___00Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4__spec__0(x_1, x_2, x_3);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_initFn___closed__0_00___x40_Lean_PrettyPrinter_Delaborator_Options_3540906103____hygCtx___hyg_4_() {

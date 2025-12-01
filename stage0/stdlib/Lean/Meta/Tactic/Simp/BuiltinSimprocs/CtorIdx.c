@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_ReaderT_instFunctorOfMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_reduceCtorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkNatLit(lean_object*);
 lean_object* l_Lean_Core_instMonadCoreM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -23,20 +24,18 @@ LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2(l
 lean_object* l_Lean_Expr_sort___override(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__3;
-lean_object* l_ReaderT_instFunctorOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__3;
-lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Array_back_x21___redArg(lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonad___redArg(lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_0____regBuiltin_reduceCtorIdx_declare__5___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_1593573171____hygCtx___hyg_9_;
 static lean_object* l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__4;
+lean_object* l_ReaderT_instApplicativeOfMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_0____regBuiltin_reduceCtorIdx_declare__5_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_1593573171____hygCtx___hyg_9____boxed(lean_object*);
 lean_object* l_instMonadEST(lean_object*, lean_object*);
 static lean_object* l_reduceCtorIdx___closed__0;
-lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 extern lean_object* l_Lean_instInhabitedExpr;
@@ -57,13 +56,13 @@ static lean_object* l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___clos
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_0____regBuiltin_reduceCtorIdx_declare__5___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_1593573171____hygCtx___hyg_9_;
 static lean_object* l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__2;
 lean_object* l_Lean_Meta_Simp_registerBuiltinDSimproc(lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_instFunctorOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_instApplicativeOfMonad___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__1;
 LEAN_EXPORT lean_object* l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_instApplicativeOfMonad___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_findAsync_x3f(lean_object*, lean_object*, uint8_t);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_0____regBuiltin_reduceCtorIdx_declare__5_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_1593573171____hygCtx___hyg_9_();
@@ -74,6 +73,71 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_0____regBuiltin_reduceCtorIdx_declare__5___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_1593573171____hygCtx___hyg_9_;
 lean_object* l_Lean_Meta_isConstructorApp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_instFunctorOfMonad___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* _init_l_reduceCtorIdx___closed__0() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Expr_sort___override(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2___closed__0() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("ctorIdx", 7, 7);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Lean.isInductive\?", 17, 17);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Lean.MonadEnv", 13, 13);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_1 = l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__2;
+x_2 = lean_unsigned_to_nat(11u);
+x_3 = lean_unsigned_to_nat(104u);
+x_4 = l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__1;
+x_5 = l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__0;
+x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
+return x_6;
+}
+}
 static lean_object* _init_l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__0() {
 _start:
 {
@@ -140,18 +204,18 @@ lean_dec(x_20);
 x_21 = l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__1;
 x_22 = l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__2;
 lean_inc_ref(x_16);
-x_23 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___redArg___lam__0), 6, 1);
+x_23 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___lam__0), 6, 1);
 lean_closure_set(x_23, 0, x_16);
-x_24 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___redArg___lam__1), 6, 1);
+x_24 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___lam__1), 6, 1);
 lean_closure_set(x_24, 0, x_16);
 x_25 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_25, 0, x_23);
 lean_ctor_set(x_25, 1, x_24);
-x_26 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__1), 6, 1);
+x_26 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__1), 6, 1);
 lean_closure_set(x_26, 0, x_19);
-x_27 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__3), 6, 1);
+x_27 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__3), 6, 1);
 lean_closure_set(x_27, 0, x_18);
-x_28 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__4), 6, 1);
+x_28 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__4), 6, 1);
 lean_closure_set(x_28, 0, x_17);
 lean_ctor_set(x_13, 4, x_26);
 lean_ctor_set(x_13, 3, x_27);
@@ -180,18 +244,18 @@ lean_dec(x_38);
 x_39 = l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__3;
 x_40 = l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__4;
 lean_inc_ref(x_34);
-x_41 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___redArg___lam__0), 6, 1);
+x_41 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___lam__0), 6, 1);
 lean_closure_set(x_41, 0, x_34);
-x_42 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___redArg___lam__1), 6, 1);
+x_42 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___lam__1), 6, 1);
 lean_closure_set(x_42, 0, x_34);
 x_43 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_43, 0, x_41);
 lean_ctor_set(x_43, 1, x_42);
-x_44 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__1), 6, 1);
+x_44 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__1), 6, 1);
 lean_closure_set(x_44, 0, x_37);
-x_45 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__3), 6, 1);
+x_45 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__3), 6, 1);
 lean_closure_set(x_45, 0, x_36);
-x_46 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__4), 6, 1);
+x_46 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__4), 6, 1);
 lean_closure_set(x_46, 0, x_35);
 lean_ctor_set(x_31, 4, x_44);
 lean_ctor_set(x_31, 3, x_45);
@@ -223,18 +287,18 @@ lean_dec(x_31);
 x_58 = l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__3;
 x_59 = l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__4;
 lean_inc_ref(x_54);
-x_60 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___redArg___lam__0), 6, 1);
+x_60 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___lam__0), 6, 1);
 lean_closure_set(x_60, 0, x_54);
-x_61 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___redArg___lam__1), 6, 1);
+x_61 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___lam__1), 6, 1);
 lean_closure_set(x_61, 0, x_54);
 x_62 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_62, 0, x_60);
 lean_ctor_set(x_62, 1, x_61);
-x_63 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__1), 6, 1);
+x_63 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__1), 6, 1);
 lean_closure_set(x_63, 0, x_57);
-x_64 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__3), 6, 1);
+x_64 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__3), 6, 1);
 lean_closure_set(x_64, 0, x_56);
-x_65 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__4), 6, 1);
+x_65 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__4), 6, 1);
 lean_closure_set(x_65, 0, x_55);
 x_66 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_66, 0, x_62);
@@ -282,18 +346,18 @@ if (lean_is_exclusive(x_74)) {
 x_80 = l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__3;
 x_81 = l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__4;
 lean_inc_ref(x_75);
-x_82 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___redArg___lam__0), 6, 1);
+x_82 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___lam__0), 6, 1);
 lean_closure_set(x_82, 0, x_75);
-x_83 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___redArg___lam__1), 6, 1);
+x_83 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___lam__1), 6, 1);
 lean_closure_set(x_83, 0, x_75);
 x_84 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_84, 0, x_82);
 lean_ctor_set(x_84, 1, x_83);
-x_85 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__1), 6, 1);
+x_85 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__1), 6, 1);
 lean_closure_set(x_85, 0, x_78);
-x_86 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__3), 6, 1);
+x_86 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__3), 6, 1);
 lean_closure_set(x_86, 0, x_77);
-x_87 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__4), 6, 1);
+x_87 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__4), 6, 1);
 lean_closure_set(x_87, 0, x_76);
 if (lean_is_scalar(x_79)) {
  x_88 = lean_alloc_ctor(0, 5, 0);
@@ -333,18 +397,18 @@ lean_dec(x_13);
 x_101 = l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__1;
 x_102 = l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__2;
 lean_inc_ref(x_97);
-x_103 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___redArg___lam__0), 6, 1);
+x_103 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___lam__0), 6, 1);
 lean_closure_set(x_103, 0, x_97);
-x_104 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___redArg___lam__1), 6, 1);
+x_104 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___lam__1), 6, 1);
 lean_closure_set(x_104, 0, x_97);
 x_105 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_105, 0, x_103);
 lean_ctor_set(x_105, 1, x_104);
-x_106 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__1), 6, 1);
+x_106 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__1), 6, 1);
 lean_closure_set(x_106, 0, x_100);
-x_107 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__3), 6, 1);
+x_107 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__3), 6, 1);
 lean_closure_set(x_107, 0, x_99);
-x_108 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__4), 6, 1);
+x_108 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__4), 6, 1);
 lean_closure_set(x_108, 0, x_98);
 x_109 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_109, 0, x_105);
@@ -387,18 +451,18 @@ if (lean_is_exclusive(x_111)) {
 x_118 = l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__3;
 x_119 = l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__4;
 lean_inc_ref(x_113);
-x_120 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___redArg___lam__0), 6, 1);
+x_120 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___lam__0), 6, 1);
 lean_closure_set(x_120, 0, x_113);
-x_121 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___redArg___lam__1), 6, 1);
+x_121 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___lam__1), 6, 1);
 lean_closure_set(x_121, 0, x_113);
 x_122 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_122, 0, x_120);
 lean_ctor_set(x_122, 1, x_121);
-x_123 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__1), 6, 1);
+x_123 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__1), 6, 1);
 lean_closure_set(x_123, 0, x_116);
-x_124 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__3), 6, 1);
+x_124 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__3), 6, 1);
 lean_closure_set(x_124, 0, x_115);
-x_125 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__4), 6, 1);
+x_125 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__4), 6, 1);
 lean_closure_set(x_125, 0, x_114);
 if (lean_is_scalar(x_117)) {
  x_126 = lean_alloc_ctor(0, 5, 0);
@@ -455,18 +519,18 @@ if (lean_is_exclusive(x_135)) {
 x_141 = l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__1;
 x_142 = l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__2;
 lean_inc_ref(x_136);
-x_143 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___redArg___lam__0), 6, 1);
+x_143 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___lam__0), 6, 1);
 lean_closure_set(x_143, 0, x_136);
-x_144 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___redArg___lam__1), 6, 1);
+x_144 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___lam__1), 6, 1);
 lean_closure_set(x_144, 0, x_136);
 x_145 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_145, 0, x_143);
 lean_ctor_set(x_145, 1, x_144);
-x_146 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__1), 6, 1);
+x_146 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__1), 6, 1);
 lean_closure_set(x_146, 0, x_139);
-x_147 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__3), 6, 1);
+x_147 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__3), 6, 1);
 lean_closure_set(x_147, 0, x_138);
-x_148 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__4), 6, 1);
+x_148 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__4), 6, 1);
 lean_closure_set(x_148, 0, x_137);
 if (lean_is_scalar(x_140)) {
  x_149 = lean_alloc_ctor(0, 5, 0);
@@ -514,18 +578,18 @@ if (lean_is_exclusive(x_152)) {
 x_159 = l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__3;
 x_160 = l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__4;
 lean_inc_ref(x_154);
-x_161 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___redArg___lam__0), 6, 1);
+x_161 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___lam__0), 6, 1);
 lean_closure_set(x_161, 0, x_154);
-x_162 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___redArg___lam__1), 6, 1);
+x_162 = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___lam__1), 6, 1);
 lean_closure_set(x_162, 0, x_154);
 x_163 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_163, 0, x_161);
 lean_ctor_set(x_163, 1, x_162);
-x_164 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__1), 6, 1);
+x_164 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__1), 6, 1);
 lean_closure_set(x_164, 0, x_157);
-x_165 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__3), 6, 1);
+x_165 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__3), 6, 1);
 lean_closure_set(x_165, 0, x_156);
-x_166 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__4), 6, 1);
+x_166 = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___lam__4), 6, 1);
 lean_closure_set(x_166, 0, x_155);
 if (lean_is_scalar(x_158)) {
  x_167 = lean_alloc_ctor(0, 5, 0);
@@ -553,43 +617,6 @@ x_174 = lean_panic_fn(x_173, x_1);
 x_175 = lean_apply_8(x_174, x_2, x_3, x_4, x_5, x_6, x_7, x_8, lean_box(0));
 return x_175;
 }
-}
-}
-static lean_object* _init_l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.MonadEnv", 13, 13);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.isInductive\?", 17, 17);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__2;
-x_2 = lean_unsigned_to_nat(11u);
-x_3 = lean_unsigned_to_nat(104u);
-x_4 = l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__1;
-x_5 = l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__0;
-x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
-return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -755,24 +782,6 @@ x_12 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_12, 0, x_11);
 return x_12;
 }
-}
-}
-static lean_object* _init_l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("ctorIdx", 7, 7);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
@@ -1235,15 +1244,6 @@ return x_15;
 }
 }
 }
-static lean_object* _init_l_reduceCtorIdx___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Expr_sort___override(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_reduceCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -1260,11 +1260,11 @@ x_16 = l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2(x_10, x_1, x_13, x_
 return x_16;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l_reduceCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
 lean_object* x_10; 
-x_10 = l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+x_10 = l_reduceCtorIdx(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
 }
@@ -1276,20 +1276,20 @@ x_10 = l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0(x_1, x_2, x_3, x_4,
 return x_10;
 }
 }
+LEAN_EXPORT lean_object* l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+_start:
+{
+lean_object* x_10; 
+x_10 = l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+return x_10;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
 lean_object* x_13; 
 x_13 = l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_13;
-}
-}
-LEAN_EXPORT lean_object* l_reduceCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
-_start:
-{
-lean_object* x_10; 
-x_10 = l_reduceCtorIdx(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-return x_10;
 }
 }
 static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_0____regBuiltin_reduceCtorIdx_declare__5___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_1593573171____hygCtx___hyg_9_() {
@@ -1360,6 +1360,20 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Simp_Simproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_reduceCtorIdx___closed__0 = _init_l_reduceCtorIdx___closed__0();
+lean_mark_persistent(l_reduceCtorIdx___closed__0);
+l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2___closed__0 = _init_l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2___closed__0();
+lean_mark_persistent(l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2___closed__0);
+l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2___closed__1 = _init_l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2___closed__1();
+lean_mark_persistent(l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2___closed__1);
+l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__2 = _init_l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__2();
+lean_mark_persistent(l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__2);
+l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__1 = _init_l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__1();
+lean_mark_persistent(l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__1);
+l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__0 = _init_l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__0();
+lean_mark_persistent(l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__0);
+l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__3 = _init_l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__3();
+lean_mark_persistent(l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__3);
 l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__0 = _init_l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__0();
 lean_mark_persistent(l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__0);
 l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__1 = _init_l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__1();
@@ -1370,20 +1384,6 @@ l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___c
 lean_mark_persistent(l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__3);
 l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__4 = _init_l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__4();
 lean_mark_persistent(l_panic___at___00Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0_spec__0___closed__4);
-l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__0 = _init_l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__0();
-lean_mark_persistent(l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__0);
-l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__1 = _init_l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__1();
-lean_mark_persistent(l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__1);
-l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__2 = _init_l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__2();
-lean_mark_persistent(l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__2);
-l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__3 = _init_l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__3();
-lean_mark_persistent(l_Lean_isInductive_x3f___at___00reduceCtorIdx_spec__0___closed__3);
-l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2___closed__0 = _init_l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2___closed__0();
-lean_mark_persistent(l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2___closed__0);
-l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2___closed__1 = _init_l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2___closed__1();
-lean_mark_persistent(l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__2___closed__1);
-l_reduceCtorIdx___closed__0 = _init_l_reduceCtorIdx___closed__0();
-lean_mark_persistent(l_reduceCtorIdx___closed__0);
 l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_0____regBuiltin_reduceCtorIdx_declare__5___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_1593573171____hygCtx___hyg_9_ = _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_0____regBuiltin_reduceCtorIdx_declare__5___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_1593573171____hygCtx___hyg_9_();
 lean_mark_persistent(l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_0____regBuiltin_reduceCtorIdx_declare__5___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_1593573171____hygCtx___hyg_9_);
 l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_0____regBuiltin_reduceCtorIdx_declare__5___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_1593573171____hygCtx___hyg_9_ = _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_0____regBuiltin_reduceCtorIdx_declare__5___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_1593573171____hygCtx___hyg_9_();

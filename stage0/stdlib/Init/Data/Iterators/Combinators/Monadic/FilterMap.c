@@ -104,13 +104,6 @@ LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorMap___redArg___lam__1(lean_
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMapWithPostcondition___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Map_instIteratorLoopPartial(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Map_instIteratorCollectPartial(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_InternalCombinators_filterMap___redArg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_InternalCombinators_filterMap(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -118,13 +111,11 @@ lean_inc(x_9);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_InternalCombinators_filterMap___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_InternalCombinators_filterMap___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Iterators_IterM_InternalCombinators_filterMap___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_InternalCombinators_filterMap___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
@@ -139,11 +130,13 @@ lean_dec(x_6);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_InternalCombinators_map___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_InternalCombinators_filterMap___redArg___boxed(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
-return x_1;
+lean_object* x_2; 
+x_2 = l_Std_Iterators_IterM_InternalCombinators_filterMap___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_InternalCombinators_map(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
@@ -153,13 +146,11 @@ lean_inc(x_10);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_InternalCombinators_map___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_InternalCombinators_map___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Iterators_IterM_InternalCombinators_map___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_InternalCombinators_map___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
@@ -175,11 +166,13 @@ lean_dec_ref(x_6);
 return x_11;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMapWithPostcondition___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_InternalCombinators_map___redArg___boxed(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
-return x_1;
+lean_object* x_2; 
+x_2 = l_Std_Iterators_IterM_InternalCombinators_map___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMapWithPostcondition(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
@@ -189,13 +182,11 @@ lean_inc(x_9);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMapWithPostcondition___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMapWithPostcondition___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Iterators_IterM_filterMapWithPostcondition___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMapWithPostcondition___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
@@ -208,6 +199,15 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 return x_10;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMapWithPostcondition___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Iterators_IterM_filterMapWithPostcondition___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_FilterMap_instIterator___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -718,13 +718,6 @@ x_12 = l_Std_Iterators_Map_instIteratorLoopPartial___redArg(x_7, x_8, x_9, x_10,
 return x_12;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_mapWithPostcondition___redArg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_mapWithPostcondition(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
@@ -732,13 +725,11 @@ lean_inc(x_10);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_mapWithPostcondition___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_mapWithPostcondition___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Iterators_IterM_mapWithPostcondition___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_mapWithPostcondition___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
@@ -754,11 +745,13 @@ lean_dec_ref(x_6);
 return x_11;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterWithPostcondition___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_mapWithPostcondition___redArg___boxed(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
-return x_1;
+lean_object* x_2; 
+x_2 = l_Std_Iterators_IterM_mapWithPostcondition___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterWithPostcondition(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
@@ -768,13 +761,11 @@ lean_inc(x_9);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterWithPostcondition___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterWithPostcondition___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Iterators_IterM_filterWithPostcondition___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterWithPostcondition___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
@@ -790,11 +781,13 @@ lean_dec_ref(x_5);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMapM___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterWithPostcondition___redArg___boxed(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
-return x_1;
+lean_object* x_2; 
+x_2 = l_Std_Iterators_IterM_filterWithPostcondition___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMapM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
@@ -804,13 +797,11 @@ lean_inc(x_10);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMapM___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMapM___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Iterators_IterM_filterMapM___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMapM___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
@@ -826,11 +817,13 @@ lean_dec(x_6);
 return x_11;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_mapM___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMapM___redArg___boxed(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
-return x_1;
+lean_object* x_2; 
+x_2 = l_Std_Iterators_IterM_filterMapM___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_mapM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
@@ -840,13 +833,11 @@ lean_inc(x_10);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_mapM___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_mapM___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Iterators_IterM_mapM___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_mapM___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
@@ -862,11 +853,13 @@ lean_dec(x_6);
 return x_11;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterM___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_mapM___redArg___boxed(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
-return x_1;
+lean_object* x_2; 
+x_2 = l_Std_Iterators_IterM_mapM___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
@@ -876,13 +869,11 @@ lean_inc(x_9);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterM___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterM___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Iterators_IterM_filterM___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterM___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
@@ -898,11 +889,13 @@ lean_dec(x_5);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMap___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterM___redArg___boxed(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
-return x_1;
+lean_object* x_2; 
+x_2 = l_Std_Iterators_IterM_filterM___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMap(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -912,13 +905,11 @@ lean_inc(x_8);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMap___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMap___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Iterators_IterM_filterMap___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMap___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -933,11 +924,13 @@ lean_dec(x_5);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_map___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMap___redArg___boxed(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
-return x_1;
+lean_object* x_2; 
+x_2 = l_Std_Iterators_IterM_filterMap___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_map(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -947,13 +940,11 @@ lean_inc(x_8);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_map___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_map___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Iterators_IterM_map___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_map___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -968,11 +959,13 @@ lean_dec(x_5);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filter___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_map___redArg___boxed(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
-return x_1;
+lean_object* x_2; 
+x_2 = l_Std_Iterators_IterM_map___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -982,13 +975,11 @@ lean_inc(x_7);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filter___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filter___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Iterators_IterM_filter___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -1001,6 +992,15 @@ lean_dec_ref(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
 return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filter___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Iterators_IterM_filter___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* initialize_Init_Data_Iterators_Consumers_Loop(uint8_t builtin);

@@ -15,6 +15,7 @@ import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.SameCtorUtils
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CtorElim
+import Lean.Meta.Tactic.Subst
 
 namespace Lean
 
@@ -140,6 +141,47 @@ def mkNoConfusionType (indName : Name) : MetaM Unit := do
   modifyEnv fun env => addProtected env declName
   setReducibleAttribute declName
 
+/--
+Given arrays `x1,x2,..,xn` and `y1,y2,..,yn`, bring fresh variables of types `x1 = y1`, `x2 = y2`,
+.., `xn = yn` (using `HEq` where necessary) into scope.
+-/
+def withEqTelescope [Inhabited α] (xs ys : Array Expr) (k : Array Expr → MetaM α) : MetaM α := do
+  assert! xs.size == ys.size
+  let mut eqs : Array (Name × Expr) := #[]
+  for x in xs, y in ys, i in [0:xs.size] do
+    let eq ← mkEqHEq x y
+    let n := if xs.size > 1 then (`eq).appendIndexAfter (i + 1) else `eq
+    eqs := eqs.push (n, eq)
+  withLocalDeclsDND eqs k
+
+/--
+Telescoping `mkEqNDRec`: given
+* motive `∀ y1 .. yn, P y1 .. yn`
+* expression of type `P x1 .. xn`
+* produces an expression of type (x1 = y1) → .. → (xn = yn) → P y1 .. yn
+  (possibly using `HEq`)
+produce an expression of type `motive y1 … yn`
+by repeatedly applying `Eq.ndRec` (and `eq_of_heq` if needed).
+-/
+def mkEqNDRecTelescope (motive : Expr) (e : Expr) (xs ys : Array Expr) : MetaM Expr := do
+  trace[Meta.mkNoConfusion] m!"mkEqNDRecTelescope: {e}, xs = {xs}, ys = {ys}"
+  assert! xs.size == ys.size
+  withEqTelescope xs ys fun eqs => do
+    let result ← mkFreshExprMVar (motive.beta ys)
+    let mut mvarId := result.mvarId!
+    let mut subst := {}
+    for eq in eqs do
+      let eq := subst.get eq.fvarId!
+      mvarId.withContext do trace[Meta.mkNoConfusion] m!"substituting {eq}"
+      let (subst', mvarId') ← Meta.substEq mvarId eq.fvarId! (fvarSubst := subst)
+      subst := subst'
+      mvarId := mvarId'
+    let e := e.applyFVarSubst subst
+    mvarId.withContext do trace[Meta.mkNoConfusion] m!"assigning {e} : {← inferType e} to\n{mvarId}"
+    mvarId.assign e
+    mkLambdaFVars eqs (← instantiateMVars result)
+
+
 def mkNoConfusionCoreImp (indName : Name) : MetaM Unit := do
   let declName := Name.mkStr indName "noConfusion"
   let noConfusionTypeName := mkNoConfusionTypeName indName
@@ -147,38 +189,34 @@ def mkNoConfusionCoreImp (indName : Name) : MetaM Unit := do
   let casesOnName := mkCasesOnName indName
   let casesOnInfo ← getConstVal casesOnName
   let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
-  let e ← forallBoundedTelescope (← inferType (mkConst noConfusionTypeName (v::us))) (info.numParams + 1 + info.numIndices) fun xs _ => do
+  trace[Meta.mkNoConfusion] m!"mkNoConfusionCoreImp for {declName}"
+  let e ← forallBoundedTelescope (← inferType (mkConst noConfusionTypeName (v::us))) (some (info.numParams + 1)) fun xs t => do
     let params : Array Expr := xs[:info.numParams]
     let P := xs[info.numParams]!
-    let is : Array Expr := xs[info.numParams+1:]
-    withLocalDecl `x1 .implicit (mkAppN (mkConst indName us) (params ++ is)) fun x1 =>
-    withLocalDecl `x2 .implicit (mkAppN (mkConst indName us) (params ++ is)) fun x2 => do
-    withLocalDeclD `h12 (← mkEq x1 x2) fun h12 => do
-      let target1 := mkAppN (mkConst noConfusionTypeName (v :: us)) (params ++ #[P] ++ is ++ #[x1] ++ is ++ #[x1])
-      let motive1 ← mkLambdaFVars (is ++ #[x1]) target1
-      let e ← withLocalDeclD `h11 (← mkEq x1 x1) fun h11 => do
-        let alts ← info.ctors.mapM fun ctor => do
-          let ctorType ← inferType (mkAppN (mkConst ctor us) params)
-          forallTelescopeReducing ctorType fun fs _ => do
-            let kType := (← mkNoConfusionCtorArg ctor P).beta (params ++ fs ++ fs)
-            withLocalDeclD `k kType fun k => do
-              let mut e := k
-              let eqns ← arrowDomainsN kType.getNumHeadForalls kType
-              for eqn in eqns do
-                if let some (_, x, _) := eqn.eq? then
-                  e := mkApp e (← mkEqRefl x)
-                else if let some (_, x, _, _) := eqn.heq? then
-                  e := mkApp e (← mkHEqRefl x)
-                else
-                  throwError "unexpected equation {eqn} in `mkNoConfusionCtorArg` for {ctor}"
-              mkLambdaFVars (fs ++ #[k]) e
-        let e := mkAppN (mkConst casesOnName (v :: us)) (params ++ #[motive1] ++ is ++ #[x1] ++ alts)
-        mkLambdaFVars #[h11] e
-      let target2 := mkAppN (mkConst noConfusionTypeName (v :: us)) (params ++ #[P] ++ is ++ #[x1] ++ is ++ #[x2])
-      let motive2 ← mkLambdaFVars #[x2] (← mkArrow (← mkEq x1 x2) target2)
-      let e ← mkEqNDRec motive2 e h12
-      let e := mkApp e h12
-      mkLambdaFVars (params ++ is ++ #[P, x1, x2, h12]) e
+    forallBoundedTelescope t (some (info.numIndices + 1)) fun ysx1 _ => do -- indices and major
+    forallBoundedTelescope t (some (info.numIndices + 1)) fun ysx2 _ => do -- indices and major
+      let target1 := mkAppN (mkConst noConfusionTypeName (v :: us)) (params ++ #[P] ++ ysx1 ++ ysx1)
+      let motive1 ← mkLambdaFVars ysx1 target1
+      let alts ← info.ctors.mapM fun ctor => do
+        let ctorType ← inferType (mkAppN (mkConst ctor us) params)
+        forallTelescopeReducing ctorType fun fs _ => do
+          let kType := (← mkNoConfusionCtorArg ctor P).beta (params ++ fs ++ fs)
+          withLocalDeclD `k kType fun k => do
+            let mut e := k
+            let eqns ← arrowDomainsN kType.getNumHeadForalls kType
+            for eqn in eqns do
+              if let some (_, x, _) := eqn.eq? then
+                e := mkApp e (← mkEqRefl x)
+              else if let some (_, x, _, _) := eqn.heq? then
+                e := mkApp e (← mkHEqRefl x)
+              else
+                throwError "unexpected equation {eqn} in `mkNoConfusionCtorArg` for {ctor}"
+            mkLambdaFVars (fs ++ #[k]) e
+      let e := mkAppN (mkConst casesOnName (v :: us)) (params ++ #[motive1] ++ ysx1 ++ alts)
+      let target2 := mkAppN (mkConst noConfusionTypeName (v :: us)) (params ++ #[P] ++ ysx1 ++ ysx2)
+      let motive2 ← mkLambdaFVars ysx2 target2
+      let e ← mkEqNDRecTelescope motive2 e ysx1 ysx2
+      mkLambdaFVars (params ++ #[P] ++ ysx1 ++ ysx2) e
 
   addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
     (name        := declName)
@@ -206,7 +244,11 @@ def L.cons.noConfusion.{u_1, u} : {α : Type u} → (P : Sort u_1) →
 These definitions are less expressive than the general `noConfusion` principle when there are
 complicated indices. In particular they assume that all fields of the constructor that appear
 in its type are equal already. The `mkNoConfusion` app builder falls back to the general principle
-if the per-constructor one does not apply.
+if the per-constructor one does not apply. Example:
+```
+inductive T : Nat → Type where | mk n : T (n - 2)
+example (h : T.mk 1 = T.mk 2) : False := T.noConfusion h (fun h12 => by contradiction)
+```
 
 At some point I tried to be clever and remove hypotheses that are trivial (`n = n →`), but that
 made it harder for, say, `injection` to know how often to `intro`. So we just keep them.
@@ -227,22 +269,24 @@ def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
     let ctorInfo ← getConstInfoCtor ctor
     if ctorInfo.numFields > 0 then
       let e ← withLocalDeclD `P (.sort v) fun P =>
-        forallBoundedTelescope ctorInfo.type ctorInfo.numParams fun xs _ => do
-          let ctorApp := mkAppN (mkConst ctor us) xs
-          withSharedCtorIndices ctorApp fun ys indices fields1 fields2 => do
-            let ctor1 := mkAppN ctorApp fields1
-            let ctor2 := mkAppN ctorApp fields2
-            let heqType ← mkEq ctor1 ctor2
-            withLocalDeclD `h heqType fun h => do
-              -- When the kernel checks this definitios, it will perform the potentially expensive
-              -- computation that `noConfusionType h` is equal to `$kType → P`
-              let kType ← mkNoConfusionCtorArg ctor P
-              let kType := kType.beta (xs ++ fields1 ++ fields2)
-              withLocalDeclD `k kType fun k => do
-                let e := mkConst noConfusionName (v :: us)
-                let e := mkAppN e (xs ++ indices ++ #[P, ctor1, ctor2, h, k])
-                let e ← mkExpectedTypeHint e P
-                mkLambdaFVars (xs ++ #[P] ++ ys ++ #[h, k]) e
+        forallBoundedTelescope ctorInfo.type ctorInfo.numParams fun xs t => do
+        forallBoundedTelescope t ctorInfo.numFields fun fields1 _ => do
+        forallBoundedTelescope t ctorInfo.numFields fun fields2 _ => do
+          let ctor1 := mkAppN (mkConst ctor us) (xs ++ fields1)
+          let ctor2 := mkAppN (mkConst ctor us) (xs ++ fields2)
+          let is1 := (← whnf (← inferType ctor1)).getAppArgsN indVal.numIndices
+          let is2 := (← whnf (← inferType ctor2)).getAppArgsN indVal.numIndices
+          -- TODO: get indices, assert equalities
+          withEqTelescope (is1.push ctor1) (is2.push ctor2) fun eqs => do
+            -- When the kernel checks this definition, it will perform the potentially expensive
+            -- computation that `noConfusionType h` is equal to `$kType → P`
+            let kType ← mkNoConfusionCtorArg ctor P
+            let kType := kType.beta (xs ++ fields1 ++ fields2)
+            withLocalDeclD `k kType fun k => do
+              let e := mkConst noConfusionName (v :: us)
+              let e := mkAppN e (xs ++ #[P] ++ is1 ++ #[ctor1] ++ is2 ++ #[ctor2] ++ eqs ++ #[k])
+              let e ← mkExpectedTypeHint e P
+              mkLambdaFVars (xs ++ #[P] ++ fields1 ++ fields2 ++ eqs ++ #[k]) e
       let name := ctor.str "noConfusion"
       addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
         (name        := name)

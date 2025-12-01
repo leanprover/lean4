@@ -55,7 +55,7 @@ opaque displayCumulativeProfilingTimes : BaseIO Unit
 @[extern "lean_internal_has_address_sanitizer"]
 opaque Internal.hasAddressSanitizer (_ : Unit) : Bool
 
-/-- Whether Lean was built with multithread support (i.e., `LEAN_MULTI_THREAd`). -/
+/-- Whether Lean was built with multithread support (i.e., `LEAN_MULTI_THREAD`). -/
 @[extern "lean_internal_is_multi_thread"]
 opaque Internal.isMultiThread (_ : Unit) : Bool
 

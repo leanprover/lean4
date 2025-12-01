@@ -127,11 +127,6 @@ protected theorem toNat_lt_twoPow_of_le (h : m ≤ n) {x : BitVec m} :
   apply Nat.pow_le_pow_of_le
   <;> omega
 
-theorem toNat_ofNat_of_le {w n : Nat} (h : n ≤ w) :
-    (BitVec.ofNat w n).toNat = n := by
-  have := Nat.lt_pow_self (a := 2) (n := w)
-  rw [toNat_ofNat, Nat.mod_eq_of_lt (by omega)]
-
 theorem two_pow_le_toNat_of_getElem_eq_true {i : Nat} {x : BitVec w}
     (hi : i < w) (hx : x[i] = true) : 2^i ≤ x.toNat := by
   apply Nat.ge_two_pow_of_testBit

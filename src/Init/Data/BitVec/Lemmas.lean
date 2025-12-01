@@ -6448,7 +6448,6 @@ theorem toNat_cpop (x : BitVec w) :
   rw [cpop, toNat_ofNat, Nat.mod_eq_of_lt]
   omega
 
-@[simp]
 theorem toNat_cpop_cons {x : BitVec w} {b : Bool} :
     (x.cons b).cpop.toNat = b.toNat + x.cpop.toNat := by
   simp only [toNat_cpop]

@@ -76,10 +76,8 @@ macro_rules
 end Range
 end Std.Legacy
 
-@[deprecated "use the new range notation `a...b` instead of `[a:b]` and `Std.Rco.lt_upper_of_mem`" (since := "2025-12-01")]
 theorem Membership.mem.upper {i : Nat} {r : Std.Legacy.Range} (h : i ∈ r) : i < r.stop := h.2.1
 
-@[deprecated "use the new range notation `a...b` instead of `[a:b]` and `Std.Rco.lower_le_of_mem`" (since := "2025-12-01")]
 theorem Membership.mem.lower {i : Nat} {r : Std.Legacy.Range} (h : i ∈ r) : r.start ≤ i := h.1
 
 theorem Membership.mem.step {i : Nat} {r : Std.Legacy.Range} (h : i ∈ r) : (i - r.start) % r.step = 0 := h.2.2

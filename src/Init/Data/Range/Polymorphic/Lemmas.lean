@@ -476,13 +476,12 @@ public theorem Rxc.Iterator.toList_eq_toList_rxoIterator [LE α] [DecidableLE α
   rw [Rxc.Iterator.toList_eq_match, Rxo.Iterator.toList_eq_match]
   split
   · simp [*]
-  · simp [*, UpwardEnumerable.lt_iff, UpwardEnumerable.le_iff]
+  · simp only [UpwardEnumerable.le_iff, UpwardEnumerable.lt_iff, *]
     split <;> rename_i h
     · rw [ihy]; rotate_left
       · simp [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep,
           Iterator.Monadic.step, Iter.toIterM, *]; rfl
-      simp only
-      simpa [UpwardEnumerable.lt_iff, UpwardEnumerable.le_iff, UpwardEnumerable.lt_succ_iff] using h
+      · simpa [UpwardEnumerable.lt_iff, UpwardEnumerable.le_iff, UpwardEnumerable.lt_succ_iff] using h
     · simpa [UpwardEnumerable.lt_iff, UpwardEnumerable.le_iff, UpwardEnumerable.lt_succ_iff] using h
 
 public theorem Rxi.Iterator.toList_eq_match

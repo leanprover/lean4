@@ -13,6 +13,7 @@ public import Std.Data.Internal.List.Defs
 import all Std.Data.Internal.List.Defs
 public import Init.Data.Order.Ord
 import Init.Data.Subtype.Order
+public import Init.Data.Order.ClassesExtra
 
 public section
 
@@ -8248,6 +8249,90 @@ theorem containsKey_minKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l
   simp only [minKey?, Option.map_eq_some_iff, minEntry?_eq_some_iff _ hd] at hkm
   obtain ⟨e, ⟨hm, _⟩, rfl⟩ := hkm
   exact containsKey_of_mem hm
+
+theorem List.minKey?_compare_eq_min?_map_fst [Ord α] [TransOrd α] [LE α] [Min α] [Std.LawfulOrderOrd α] [Std.LawfulOrderMin α] [Std.LawfulEqOrd α]
+    (l : List ((a : α) × β a)) :
+    List.minKey? l = (l.map Sigma.fst).min? := by
+  induction l
+  case nil =>
+    simp [minKey?_of_isEmpty]
+  case cons h t ih =>
+    simp [minKey?, minEntry?_cons]
+    simp [minEntry?]
+    split
+    case h_1 => sorry
+    case h_2 _ w heq =>
+      have : Associative (min : α → α → α) := by sorry
+      simp [List.min?_cons]
+      simp [min]
+      split
+      case isTrue heq2 =>
+        rw [← ih]
+        simp [Option.elim]
+        split
+        case h_1 _ _ v heq3 =>
+        rw [minKey?, minEntry?] at heq3
+        rw [heq] at heq3
+        simp at heq3
+        rw [← heq3]
+        have leq := (@Std.LawfulOrderOrd.isLE_compare α _ _ _ h.fst w.fst).1 heq2
+        apply Or.elim <| @MinEqOr.min_eq_or α _ _ h.fst w.fst
+        case left =>
+          intro hyp
+          rw [hyp]
+        case right =>
+          intro hyp
+          rw [hyp]
+          have := @LawfulOrderInf.le_min_iff α _ _ _ w.fst h.fst w.fst
+          rw [hyp] at this
+          have := this.1 (by simp [← Std.LawfulOrderOrd.isLE_compare])
+          letI inst : Antisymm (α := α) (· ≤ ·) := by
+            constructor
+            intro a b
+            sorry
+          apply @Antisymm.antisymm (α := α) (· ≤ ·) inst
+          · exact leq
+          · exact this.1
+
+
+
+
+      case isFalse => sorry
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      case isFalse heq =>
+        sorry
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 theorem minKey?_eraseKey_eq_iff_beq_minKey?_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {k} {l : List ((a : α) × β a)} (hd : DistinctKeys l) :

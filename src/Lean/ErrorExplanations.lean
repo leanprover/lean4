@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.ErrorExplanations.CtorResultingTypeMismatch
 public import Lean.ErrorExplanations.DependsOnNoncomputable
+public import Lean.ErrorExplanations.InductionWithNoAlts
 public import Lean.ErrorExplanations.InductiveParamMismatch
 public import Lean.ErrorExplanations.InductiveParamMissing
 public import Lean.ErrorExplanations.InferBinderTypeFailed

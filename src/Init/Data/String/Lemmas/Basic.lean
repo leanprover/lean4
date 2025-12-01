@@ -40,7 +40,7 @@ theorem singleton_ne_empty {c : Char} : singleton c ≠ "" := by
   simp [singleton]
 
 @[simp]
-theorem Slice.Pos.toCopy_inj {s : Slice} {p₁ p₂ : s.Pos} : p₁.toCopy = p₂.toCopy ↔ p₁ = p₂ := by
+theorem Slice.Pos.copy_inj {s : Slice} {p₁ p₂ : s.Pos} : p₁.copy = p₂.copy ↔ p₁ = p₂ := by
   simp [String.Pos.ext_iff, Pos.ext_iff]
 
 @[simp]

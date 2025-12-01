@@ -266,9 +266,19 @@
 - attributes:
     description: language server startup
     tags: [other]
+  build_config:
+    cmd: ./compile.sh server_startup.lean
   run_config:
     <<: *time
-    cmd: lean -Dlinter.all=false --run server_startup.lean
+    cmd: ./server_startup.lean.out
+- attributes:
+    description: language server startup with ileans
+    tags: [other]
+  build_config:
+    cmd: ./compile.sh watchdogRss.lean
+  run_config:
+    <<: *time
+    cmd: ./watchdogRss.lean.out
 - attributes:
     description: ilean roundtrip
     tags: [other]

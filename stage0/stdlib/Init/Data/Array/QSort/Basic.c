@@ -528,15 +528,6 @@ x_14 = l___private_Init_Data_Array_QSort_Basic_0__Array_qpartition_loop___redArg
 return x_14;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qpartition_loop___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l___private_Init_Data_Array_QSort_Basic_0__Array_qpartition_loop___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_2);
-return x_7;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qpartition_loop___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
 _start:
 {
@@ -546,6 +537,15 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_2);
 return x_14;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qpartition_loop___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l___private_Init_Data_Array_QSort_Basic_0__Array_qpartition_loop___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_2);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Array_qpartition___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -641,15 +641,6 @@ x_10 = l_Array_qpartition___redArg(x_3, x_4, x_5, x_6);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Array_qpartition___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Array_qpartition___redArg(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Array_qpartition___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -658,6 +649,15 @@ x_10 = l_Array_qpartition(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_6);
 lean_dec(x_2);
 return x_10;
+}
+}
+LEAN_EXPORT lean_object* l_Array_qpartition___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Array_qpartition___redArg(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+return x_5;
 }
 }
 static lean_object* _init_l___auto___closed__0_00___x40_Init_Data_Array_QSort_Basic_2601092091____hygCtx___hyg_6_() {
@@ -1277,15 +1277,6 @@ x_10 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___redArg(x_2,
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___redArg(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -1294,6 +1285,15 @@ x_10 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort(x_1, x_2, x_3
 lean_dec(x_6);
 lean_dec(x_3);
 return x_10;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___redArg(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_match__7_splitter___redArg(lean_object* x_1, lean_object* x_2) {
@@ -1326,83 +1326,6 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_8;
-}
-}
-LEAN_EXPORT lean_object* l_Array_qsort___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
-x_11 = lean_array_get_size(x_1);
-x_12 = lean_unsigned_to_nat(0u);
-x_13 = lean_nat_dec_eq(x_11, x_12);
-if (x_13 == 0)
-{
-lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_19; 
-x_14 = lean_unsigned_to_nat(1u);
-x_15 = lean_nat_sub(x_11, x_14);
-lean_dec(x_11);
-x_19 = lean_nat_dec_le(x_3, x_15);
-if (x_19 == 0)
-{
-lean_dec(x_3);
-lean_inc(x_15);
-x_16 = x_15;
-goto block_18;
-}
-else
-{
-x_16 = x_3;
-goto block_18;
-}
-block_18:
-{
-uint8_t x_17; 
-x_17 = lean_nat_dec_le(x_4, x_15);
-if (x_17 == 0)
-{
-lean_dec(x_4);
-x_5 = x_16;
-x_6 = x_15;
-goto block_10;
-}
-else
-{
-lean_dec(x_15);
-x_5 = x_16;
-x_6 = x_4;
-goto block_10;
-}
-}
-}
-else
-{
-lean_dec(x_11);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec_ref(x_2);
-return x_1;
-}
-block_10:
-{
-uint8_t x_7; 
-x_7 = lean_nat_dec_le(x_5, x_6);
-if (x_7 == 0)
-{
-lean_object* x_8; 
-lean_dec(x_6);
-lean_inc(x_5);
-x_8 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___redArg(x_2, x_1, x_5, x_5);
-lean_dec(x_5);
-return x_8;
-}
-else
-{
-lean_object* x_9; 
-x_9 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___redArg(x_2, x_1, x_5, x_6);
-lean_dec(x_6);
-return x_9;
-}
-}
 }
 }
 LEAN_EXPORT lean_object* l_Array_qsort(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -1478,6 +1401,83 @@ lean_object* x_10;
 x_10 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___redArg(x_3, x_2, x_6, x_7);
 lean_dec(x_7);
 return x_10;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Array_qsort___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+x_11 = lean_array_get_size(x_1);
+x_12 = lean_unsigned_to_nat(0u);
+x_13 = lean_nat_dec_eq(x_11, x_12);
+if (x_13 == 0)
+{
+lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_19; 
+x_14 = lean_unsigned_to_nat(1u);
+x_15 = lean_nat_sub(x_11, x_14);
+lean_dec(x_11);
+x_19 = lean_nat_dec_le(x_3, x_15);
+if (x_19 == 0)
+{
+lean_dec(x_3);
+lean_inc(x_15);
+x_16 = x_15;
+goto block_18;
+}
+else
+{
+x_16 = x_3;
+goto block_18;
+}
+block_18:
+{
+uint8_t x_17; 
+x_17 = lean_nat_dec_le(x_4, x_15);
+if (x_17 == 0)
+{
+lean_dec(x_4);
+x_5 = x_16;
+x_6 = x_15;
+goto block_10;
+}
+else
+{
+lean_dec(x_15);
+x_5 = x_16;
+x_6 = x_4;
+goto block_10;
+}
+}
+}
+else
+{
+lean_dec(x_11);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec_ref(x_2);
+return x_1;
+}
+block_10:
+{
+uint8_t x_7; 
+x_7 = lean_nat_dec_le(x_5, x_6);
+if (x_7 == 0)
+{
+lean_object* x_8; 
+lean_dec(x_6);
+lean_inc(x_5);
+x_8 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___redArg(x_2, x_1, x_5, x_5);
+lean_dec(x_5);
+return x_8;
+}
+else
+{
+lean_object* x_9; 
+x_9 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___redArg(x_2, x_1, x_5, x_6);
+lean_dec(x_6);
+return x_9;
 }
 }
 }

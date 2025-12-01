@@ -26,12 +26,6 @@ Assumptions:
   `Expr.isShared`, `Expr.isTaggedPtr`, and `FnBody.set`.
 -/
 
-def mkBoxedName (n : Name) : Name :=
-  Name.mkStr n "_boxed"
-
-def isBoxedName (name : Name) : Bool :=
-  name matches .str _ "_boxed"
-
 abbrev N := StateM Nat
 
 private def N.mkFresh : N VarId :=
@@ -59,7 +53,7 @@ def mkBoxedVersionAux (decl : Decl) : N Decl := do
     pure <| reshape newVDecls (.ret (.var r))
   else
     let newR ← N.mkFresh
-    let newVDecls := newVDecls.push (.vdecl newR .tobject (.box decl.resultType r) default)
+    let newVDecls := newVDecls.push (.vdecl newR decl.resultType.boxed (.box decl.resultType r) default)
     pure <| reshape newVDecls (.ret (.var newR))
   return Decl.fdecl (mkBoxedName decl.name) qs decl.resultType.boxed body decl.getInfo
 

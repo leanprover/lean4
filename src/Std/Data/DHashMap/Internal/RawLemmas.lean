@@ -950,9 +950,12 @@ theorem getThenInsertIfNew?_snd [LawfulBEq α] {k : α} {v : β k} :
     (m.getThenInsertIfNew? k v).2 = m.insertIfNew k v := by
   rw [getThenInsertIfNew?_eq_insertIfNewₘ, insertIfNew_eq_insertIfNewₘ]
 
+theorem contains_of_getElem_eq [LawfulBEq α] {k : α} {v : β k} {w} (_ : m.get k w = v) : m.contains k := w
+
 namespace Const
 
 variable {β : Type v} (m : Raw₀ α (fun _ => β)) (h : m.1.WF)
+theorem contains_of_getElem_eq {k : α} {v : β} {w} (_ : Const.get m k w = v) : m.contains k := w
 
 @[simp]
 theorem getThenInsertIfNew?_fst {k : α} {v : β} : (getThenInsertIfNew? m k v).1 = get? m k := by

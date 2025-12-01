@@ -30,7 +30,8 @@ Several variants of these combinators are provided:
   iterator, and particularly for specialized termination proofs. If possible, avoid this.
 -/
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 -- We cannot use `inherit_doc` because the docstring for `IterM` states that a `MonadLiftT` instance
 -- is needed.
@@ -305,4 +306,4 @@ def Iter.map {α : Type w} {β : Type w} {γ : Type w} [Iterator α Id β]
     (f : β → γ) (it : Iter (α := α) β) :=
   ((it.toIterM.map f).toIter : Iter γ)
 
-end Std.Iterators
+end Std

@@ -12,7 +12,8 @@ public import Init.Data.Iterators.Lemmas.Consumers
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 theorem Iter.dropWhile_eq_intermediateDropWhile {α β} [Iterator α Id β] {P}
     {it : Iter (α := α) β} :
@@ -125,4 +126,4 @@ theorem Iter.toListRev_dropWhile_of_finite {α β} [Iterator α Id β] {P}
     (it.dropWhile P).toListRev = (it.toList.dropWhile P).reverse := by
   rw [toListRev_eq, toList_dropWhile_of_finite]
 
-end Std.Iterators
+end Std

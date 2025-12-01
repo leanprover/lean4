@@ -10,7 +10,7 @@ public import Std.Data.Iterators.Combinators.Monadic.Zip
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
 
 /--
 Given two iterators `left` and `right`, `left.zip right` is an iterator that yields pairs of
@@ -48,4 +48,4 @@ def Iter.zip {α₁ : Type w} {β₁: Type w} {α₂ : Type w} {β₂ : Type w}
     (left : Iter (α := α₁) β₁) (right : Iter (α := α₂) β₂) :=
   ((left.toIterM.zip right.toIterM).toIter : Iter (β₁ × β₂))
 
-end Std.Iterators
+end Std

@@ -13,7 +13,8 @@ import all Init.Data.Iterators.Consumers.Monadic.Collect
 
 public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 variable {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
   {lift : ⦃δ : Type w⦄ → m δ → n δ} {f : β → n γ} {it : IterM (α := α) m β}
@@ -158,4 +159,4 @@ theorem LawfulIteratorCollect.toList_eq {α β : Type w} {m : Type w → Type w'
     it.toList = (letI : IteratorCollect α m m := .defaultImplementation; it.toList) := by
   simp [IterM.toList, toArray_eq, -IterM.toList_toArray]
 
-end Std.Iterators
+end Std

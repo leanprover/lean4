@@ -12,7 +12,8 @@ public import Init.Data.Iterators.Combinators.FilterMap
 
 public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 variable {α β γ : Type w} [Iterator α Id β] {it : Iter (α := α) β}
     {m : Type w → Type w'} {n : Type w → Type w''}
@@ -791,4 +792,4 @@ theorem Iter.all_map {α β β' : Type w}
   · simp [ihs ‹_›]
   · simp
 
-end Std.Iterators
+end Std

@@ -100,9 +100,9 @@ instance : DecidableLE Slice :=
 section ForwardPatternUsers
 
 variable {ρ : Type} {σ : Slice → Type}
-variable [∀ s, Std.Iterators.Iterator (σ s) Id (SearchStep s)]
+variable [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
 variable [∀ s, Std.Iterators.Finite (σ s) Id]
-variable [∀ s, Std.Iterators.IteratorLoop (σ s) Id Id]
+variable [∀ s, Std.IteratorLoop (σ s) Id Id]
 
 /--
 Checks whether the slice ({name}`s`) begins with the pattern ({name}`pat`).
@@ -131,7 +131,7 @@ variable {pat : ρ} [ToForwardSearcher pat σ]
 
 inductive PlausibleStep
 
-instance : Std.Iterators.Iterator (SplitIterator pat s) Id Slice where
+instance : Std.Iterator (SplitIterator pat s) Id Slice where
   IsPlausibleStep
     | ⟨.operating _ s⟩, .yield ⟨.operating _ s'⟩ _ => s'.IsPlausibleSuccessorOf s
     | ⟨.operating _ s⟩, .yield ⟨.atEnd ..⟩ _ => True
@@ -165,8 +165,8 @@ private def toOption : SplitIterator pat s → Option (Std.Iter (α := σ s) (Se
 
 private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
     Std.Iterators.FinitenessRelation (SplitIterator pat s) Id where
-  rel := InvImage (Option.lt Std.Iterators.Iter.IsPlausibleSuccessorOf)
-    (SplitIterator.toOption ∘ Std.Iterators.IterM.internalState)
+  rel := InvImage (Option.lt Std.Iter.IsPlausibleSuccessorOf)
+    (SplitIterator.toOption ∘ Std.IterM.internalState)
   wf := InvImage.wf _ (Option.wellFounded_lt Std.Iterators.Finite.wf_of_id)
   subrelation {it it'} h := by
     simp_wf
@@ -174,7 +174,7 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
     match step with
     | .yield it'' out | .skip it'' =>
       obtain rfl : it' = it'' := by simpa using h.symm
-      simp only [Std.Iterators.IterM.IsPlausibleStep, Std.Iterators.Iterator.IsPlausibleStep] at h'
+      simp only [Std.IterM.IsPlausibleStep, Std.Iterator.IsPlausibleStep] at h'
       revert h'
       match it, it' with
       | ⟨.operating _ searcher⟩, ⟨.operating _ searcher'⟩ => simp [SplitIterator.toOption, Option.lt]
@@ -185,16 +185,16 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
 instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (SplitIterator pat s) Id :=
   .of_finitenessRelation finitenessRelation
 
-instance [Monad n] : Std.Iterators.IteratorCollect (SplitIterator pat s) Id n :=
+instance [Monad n] : Std.IteratorCollect (SplitIterator pat s) Id n :=
   .defaultImplementation
 
-instance [Monad n] : Std.Iterators.IteratorCollectPartial (SplitIterator pat s) Id n :=
+instance [Monad n] : Std.IteratorCollectPartial (SplitIterator pat s) Id n :=
   .defaultImplementation
 
-instance [Monad n] : Std.Iterators.IteratorLoop (SplitIterator pat s) Id n :=
+instance [Monad n] : Std.IteratorLoop (SplitIterator pat s) Id n :=
   .defaultImplementation
 
-instance [Monad n] : Std.Iterators.IteratorLoopPartial (SplitIterator pat s) Id n :=
+instance [Monad n] : Std.IteratorLoopPartial (SplitIterator pat s) Id n :=
   .defaultImplementation
 
 end SplitIterator
@@ -227,7 +227,7 @@ namespace SplitInclusiveIterator
 
 variable {pat : ρ} [ToForwardSearcher pat σ]
 
-instance : Std.Iterators.Iterator (SplitInclusiveIterator pat s) Id Slice where
+instance : Std.Iterator (SplitInclusiveIterator pat s) Id Slice where
   IsPlausibleStep
     | ⟨.operating _ s⟩, .yield ⟨.operating _ s'⟩ _ => s'.IsPlausibleSuccessorOf s
     | ⟨.operating _ s⟩, .yield ⟨.atEnd ..⟩ _ => True
@@ -265,8 +265,8 @@ private def toOption : SplitInclusiveIterator pat s → Option (Std.Iter (α := 
 
 private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
     Std.Iterators.FinitenessRelation (SplitInclusiveIterator pat s) Id where
-  rel := InvImage (Option.lt Std.Iterators.Iter.IsPlausibleSuccessorOf)
-    (SplitInclusiveIterator.toOption ∘ Std.Iterators.IterM.internalState)
+  rel := InvImage (Option.lt Std.Iter.IsPlausibleSuccessorOf)
+    (SplitInclusiveIterator.toOption ∘ Std.IterM.internalState)
   wf := InvImage.wf _ (Option.wellFounded_lt Std.Iterators.Finite.wf_of_id)
   subrelation {it it'} h := by
     simp_wf
@@ -274,7 +274,7 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
     match step with
     | .yield it'' out | .skip it'' =>
       obtain rfl : it' = it'' := by simpa using h.symm
-      simp only [Std.Iterators.IterM.IsPlausibleStep, Std.Iterators.Iterator.IsPlausibleStep] at h'
+      simp only [Std.IterM.IsPlausibleStep, Std.Iterator.IsPlausibleStep] at h'
       revert h'
       match it, it' with
       | ⟨.operating _ searcher⟩, ⟨.operating _ searcher'⟩ => simp [SplitInclusiveIterator.toOption, Option.lt]
@@ -287,19 +287,19 @@ instance [Std.Iterators.Finite (σ s) Id] :
   .of_finitenessRelation finitenessRelation
 
 instance [Monad n] {s} :
-    Std.Iterators.IteratorCollect (SplitInclusiveIterator pat s) Id n :=
+    Std.IteratorCollect (SplitInclusiveIterator pat s) Id n :=
   .defaultImplementation
 
 instance [Monad n] {s} :
-    Std.Iterators.IteratorCollectPartial (SplitInclusiveIterator pat s) Id n :=
+    Std.IteratorCollectPartial (SplitInclusiveIterator pat s) Id n :=
   .defaultImplementation
 
 instance [Monad n] {s} :
-    Std.Iterators.IteratorLoop (SplitInclusiveIterator pat s) Id n :=
+    Std.IteratorLoop (SplitInclusiveIterator pat s) Id n :=
   .defaultImplementation
 
 instance [Monad n] {s} :
-    Std.Iterators.IteratorLoopPartial (SplitInclusiveIterator pat s) Id n :=
+    Std.IteratorLoopPartial (SplitInclusiveIterator pat s) Id n :=
   .defaultImplementation
 
 end SplitInclusiveIterator
@@ -551,9 +551,9 @@ end ForwardPatternUsers
 section BackwardPatternUsers
 
 variable {σ : Slice → Type}
-variable [∀ s, Std.Iterators.Iterator (σ s) Id (SearchStep s)]
+variable [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
 variable [∀ s, Std.Iterators.Finite (σ s) Id]
-variable [∀ s, Std.Iterators.IteratorLoop (σ s) Id Id]
+variable [∀ s, Std.IteratorLoop (σ s) Id Id]
 
 /--
 Checks whether the slice ({name}`s`) ends with the pattern ({name}`pat`).
@@ -580,7 +580,7 @@ namespace RevSplitIterator
 
 variable [ToBackwardSearcher ρ σ]
 
-instance [Pure m] : Std.Iterators.Iterator (RevSplitIterator ρ s) m Slice where
+instance [Pure m] : Std.Iterator (RevSplitIterator ρ s) m Slice where
   IsPlausibleStep
     | ⟨.operating _ s⟩, .yield ⟨.operating _ s'⟩ _ => s'.IsPlausibleSuccessorOf s
     | ⟨.operating _ s⟩, .yield ⟨.atEnd ..⟩ _ => True
@@ -617,8 +617,8 @@ private def toOption : RevSplitIterator ρ s → Option (Std.Iter (α := σ s) (
 
 private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
     Std.Iterators.FinitenessRelation (RevSplitIterator ρ s) Id where
-  rel := InvImage (Option.lt Std.Iterators.Iter.IsPlausibleSuccessorOf)
-    (RevSplitIterator.toOption ∘ Std.Iterators.IterM.internalState)
+  rel := InvImage (Option.lt Std.Iter.IsPlausibleSuccessorOf)
+    (RevSplitIterator.toOption ∘ Std.IterM.internalState)
   wf := InvImage.wf _ (Option.wellFounded_lt Std.Iterators.Finite.wf_of_id)
   subrelation {it it'} h := by
     simp_wf
@@ -626,7 +626,7 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
     match step with
     | .yield it'' out | .skip it'' =>
       obtain rfl : it' = it'' := by simpa using h.symm
-      simp only [Std.Iterators.IterM.IsPlausibleStep, Std.Iterators.Iterator.IsPlausibleStep] at h'
+      simp only [Std.IterM.IsPlausibleStep, Std.Iterator.IsPlausibleStep] at h'
       revert h'
       match it, it' with
       | ⟨.operating _ searcher⟩, ⟨.operating _ searcher'⟩ => simp [RevSplitIterator.toOption, Option.lt]
@@ -637,17 +637,17 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
 instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (RevSplitIterator ρ s) Id :=
   .of_finitenessRelation finitenessRelation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (RevSplitIterator ρ s) m n :=
+instance [Monad m] [Monad n] : Std.IteratorCollect (RevSplitIterator ρ s) m n :=
   .defaultImplementation
 
 instance [Monad m] [Monad n] :
-    Std.Iterators.IteratorCollectPartial (RevSplitIterator ρ s) m n :=
+    Std.IteratorCollectPartial (RevSplitIterator ρ s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (RevSplitIterator ρ s) m n :=
+instance [Monad m] [Monad n] : Std.IteratorLoop (RevSplitIterator ρ s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (RevSplitIterator ρ s) m n :=
+instance [Monad m] [Monad n] : Std.IteratorLoopPartial (RevSplitIterator ρ s) m n :=
   .defaultImplementation
 
 end RevSplitIterator
@@ -882,7 +882,7 @@ set_option doc.verso true
 namespace PosIterator
 
 instance [Pure m] :
-    Std.Iterators.Iterator (PosIterator s) m { p : s.Pos // p ≠ s.endPos } where
+    Std.Iterator (PosIterator s) m { p : s.Pos // p ≠ s.endPos } where
   IsPlausibleStep it
     | .yield it' out =>
       ∃ h : it.internalState.currPos ≠ s.endPos,
@@ -918,16 +918,16 @@ private def finitenessRelation [Pure m] :
 instance [Pure m] : Std.Iterators.Finite (PosIterator s) m :=
   .of_finitenessRelation finitenessRelation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (PosIterator s) m n :=
+instance [Monad m] [Monad n] : Std.IteratorCollect (PosIterator s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial (PosIterator s) m n :=
+instance [Monad m] [Monad n] : Std.IteratorCollectPartial (PosIterator s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (PosIterator s) m n :=
+instance [Monad m] [Monad n] : Std.IteratorLoop (PosIterator s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (PosIterator s) m n :=
+instance [Monad m] [Monad n] : Std.IteratorLoopPartial (PosIterator s) m n :=
   .defaultImplementation
 
 docs_to_verso positions
@@ -943,7 +943,7 @@ Examples:
 -/
 @[expose, inline]
 def chars (s : Slice) :=
-  Std.Iterators.Iter.map (fun ⟨pos, h⟩ => pos.get h) (positions s)
+  Std.Iter.map (fun ⟨pos, h⟩ => pos.get h) (positions s)
 
 @[deprecated "There is no constant-time length function on slices. Use `s.positions.count` instead, or `isEmpty` if you only need to know whether the slice is empty." (since := "2025-11-20")]
 def length (s : Slice) : Nat :=
@@ -972,7 +972,7 @@ set_option doc.verso true
 namespace RevPosIterator
 
 instance [Pure m] :
-    Std.Iterators.Iterator (RevPosIterator s) m { p : s.Pos // p ≠ s.endPos } where
+    Std.Iterator (RevPosIterator s) m { p : s.Pos // p ≠ s.endPos } where
   IsPlausibleStep it
     | .yield it' out =>
       ∃ h : it.internalState.currPos ≠ s.startPos,
@@ -1008,17 +1008,17 @@ private def finitenessRelation [Pure m] :
 instance [Pure m] : Std.Iterators.Finite (RevPosIterator s) m :=
   .of_finitenessRelation finitenessRelation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (RevPosIterator s) m n :=
+instance [Monad m] [Monad n] : Std.IteratorCollect (RevPosIterator s) m n :=
   .defaultImplementation
 
 instance [Monad m] [Monad n] :
-    Std.Iterators.IteratorCollectPartial (RevPosIterator s) m n :=
+    Std.IteratorCollectPartial (RevPosIterator s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (RevPosIterator s) m n :=
+instance [Monad m] [Monad n] : Std.IteratorLoop (RevPosIterator s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (RevPosIterator s) m n :=
+instance [Monad m] [Monad n] : Std.IteratorLoopPartial (RevPosIterator s) m n :=
   .defaultImplementation
 
 docs_to_verso revPositions
@@ -1035,7 +1035,7 @@ Example:
 -/
 @[expose, inline]
 def revChars (s : Slice) :=
-  Std.Iterators.Iter.map (fun ⟨pos, h⟩ => pos.get h) (revPositions s)
+  Std.Iter.map (fun ⟨pos, h⟩ => pos.get h) (revPositions s)
 
 structure ByteIterator where
   s : Slice
@@ -1057,7 +1057,7 @@ set_option doc.verso true
 
 namespace ByteIterator
 
-instance [Pure m] : Std.Iterators.Iterator ByteIterator m UInt8 where
+instance [Pure m] : Std.Iterator ByteIterator m UInt8 where
   IsPlausibleStep it
     | .yield it' out =>
       ∃ h1 : it.internalState.offset < it.internalState.s.rawEndPos,
@@ -1095,16 +1095,16 @@ private def finitenessRelation [Pure m] :
 instance [Pure m] : Std.Iterators.Finite ByteIterator m :=
   .of_finitenessRelation finitenessRelation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect ByteIterator m n :=
+instance [Monad m] [Monad n] : Std.IteratorCollect ByteIterator m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial ByteIterator m n :=
+instance [Monad m] [Monad n] : Std.IteratorCollectPartial ByteIterator m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop ByteIterator m n :=
+instance [Monad m] [Monad n] : Std.IteratorLoop ByteIterator m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial ByteIterator m n :=
+instance [Monad m] [Monad n] : Std.IteratorLoopPartial ByteIterator m n :=
   .defaultImplementation
 
 docs_to_verso bytes
@@ -1137,7 +1137,7 @@ instance : Inhabited RevByteIterator where
 
 namespace RevByteIterator
 
-instance [Pure m] : Std.Iterators.Iterator RevByteIterator m UInt8 where
+instance [Pure m] : Std.Iterator RevByteIterator m UInt8 where
   IsPlausibleStep it
     | .yield it' out =>
       ∃ h1 : it.internalState.offset.dec < it.internalState.s.rawEndPos,
@@ -1182,16 +1182,16 @@ private def finitenessRelation [Pure m] :
 instance [Pure m] : Std.Iterators.Finite RevByteIterator m :=
   .of_finitenessRelation finitenessRelation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect RevByteIterator m n :=
+instance [Monad m] [Monad n] : Std.IteratorCollect RevByteIterator m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial RevByteIterator m n :=
+instance [Monad m] [Monad n] : Std.IteratorCollectPartial RevByteIterator m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop RevByteIterator m n :=
+instance [Monad m] [Monad n] : Std.IteratorLoop RevByteIterator m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial RevByteIterator m n :=
+instance [Monad m] [Monad n] : Std.IteratorLoopPartial RevByteIterator m n :=
   .defaultImplementation
 
 docs_to_verso revBytes
@@ -1230,7 +1230,7 @@ Examples:
 -/
 @[inline]
 def foldl {α : Type u} (f : α → Char → α) (init : α) (s : Slice) : α :=
-  Std.Iterators.Iter.fold f init (chars s)
+  Std.Iter.fold f init (chars s)
 
 /--
 Folds a function over a slice from the end, accumulating a value starting with {name}`init`. The
@@ -1243,7 +1243,7 @@ Examples:
 -/
 @[inline]
 def foldr {α : Type u} (f : Char → α → α) (init : α) (s : Slice) : α :=
-  Std.Iterators.Iter.fold (flip f) init (revChars s)
+  Std.Iter.fold (flip f) init (revChars s)
 
 /--
 Checks whether the slice can be interpreted as the decimal representation of a natural number.
@@ -1479,13 +1479,13 @@ end String.Slice
 
 /-- Converts a {lean}`Std.Iter String.Slice` to a {lean}`List String`. -/
 @[inline]
-def Std.Iterators.Iter.toStringList {α : Type} [Std.Iterators.Iterator α Id String.Slice]
-    [Std.Iterators.Finite α Id] [Std.Iterators.IteratorCollect α Id Id]
+def Std.Iter.toStringList {α : Type} [Std.Iterator α Id String.Slice]
+    [Std.Iterators.Finite α Id] [Std.IteratorCollect α Id Id]
     (i : Std.Iter (α := α) String.Slice) : List String :=
   i.map String.Slice.copy |>.toList
 
 /-- Converts a {lean}`Std.Iter String.Slice` to an {lean}`Array String`. -/
-def Std.Iterators.Iter.toStringArray {α : Type} [Std.Iterators.Iterator α Id String.Slice]
-    [Std.Iterators.Finite α Id] [Std.Iterators.IteratorCollect α Id Id]
+def Std.Iter.toStringArray {α : Type} [Std.Iterator α Id String.Slice]
+    [Std.Iterators.Finite α Id] [Std.IteratorCollect α Id Id]
     (i : Std.Iter (α := α) String.Slice) : Array String :=
   i.map String.Slice.copy |>.toArray

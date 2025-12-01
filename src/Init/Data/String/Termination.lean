@@ -223,13 +223,13 @@ end Pos
 namespace Slice.Pos
 
 @[simp]
-theorem remainingBytes_toCopy {s : Slice} {p : s.Pos} :
-    p.toCopy.remainingBytes = p.remainingBytes := by
+theorem remainingBytes_copy {s : Slice} {p : s.Pos} :
+    p.copy.remainingBytes = p.remainingBytes := by
   simp [remainingBytes_eq, String.Pos.remainingBytes_eq, Slice.utf8ByteSize_eq]
 
 theorem Splits.remainingBytes_eq {s : Slice} {p : s.Pos} {t₁ t₂} (h : p.Splits t₁ t₂) :
     p.remainingBytes = t₂.utf8ByteSize := by
-  simpa using h.toCopy.remainingBytes_eq
+  simpa using h.copy.remainingBytes_eq
 
 end Slice.Pos
 

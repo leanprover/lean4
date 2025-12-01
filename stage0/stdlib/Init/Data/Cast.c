@@ -46,14 +46,6 @@ x_1 = lean_alloc_closure((void*)(l_instNatCastNat___lam__0___boxed), 1, 0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___redArg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_apply_1(x_1, x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Nat_cast(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -62,14 +54,12 @@ x_4 = lean_apply_1(x_2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_instCoeTailNatOfNatCast___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Nat_cast), 3, 2);
-lean_closure_set(x_2, 0, lean_box(0));
-lean_closure_set(x_2, 1, x_1);
-return x_2;
+lean_object* x_3; 
+x_3 = lean_apply_1(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_instCoeTailNatOfNatCast(lean_object* x_1, lean_object* x_2) {
@@ -82,7 +72,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_instCoeHTCTNatOfNatCast___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_instCoeTailNatOfNatCast___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -100,6 +90,16 @@ x_3 = lean_alloc_closure((void*)(l_Nat_cast), 3, 2);
 lean_closure_set(x_3, 0, lean_box(0));
 lean_closure_set(x_3, 1, x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_instCoeHTCTNatOfNatCast___redArg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Nat_cast), 3, 2);
+lean_closure_set(x_2, 0, lean_box(0));
+lean_closure_set(x_2, 1, x_1);
+return x_2;
 }
 }
 lean_object* initialize_Init_Coe(uint8_t builtin);

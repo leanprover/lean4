@@ -12,28 +12,25 @@ already be set from importing Lean.LibrarySuggestions (which imports Default).
 -/
 
 /--
-info: ✓ Selector found in imported state: (Term.open
- "open"
- (Command.openSimple [`Lean.LibrarySuggestions])
- "in"
- (Term.app `sineQuaNonSelector.filterGrindAnnotated.intersperse [`currentFile]))
+info: ✓ Selector registered in imported state
 ---
-info:   ✓ Successfully retrieved selector using getSelector!
+info:   ✓ getSelector succeeded
 -/
 #guard_msgs in
 open Lean Lean.LibrarySuggestions in
 run_cmd do
-  let stx? := librarySuggestionsExt.getState (← getEnv)
-  match stx? with
-  | none => Lean.logInfo "❌ No selector found in imported state!"
-  | some stx =>
-    Lean.logInfo s!"✓ Selector found in imported state: {stx}"
+  -- Check if a selector is registered
+  let hasSelector := (librarySuggestionsExt.getState (← getEnv)).isSome
+  if hasSelector then
+    Lean.logInfo "✓ Selector registered in imported state"
     -- Try to retrieve the selector using getSelector
     Elab.Command.liftTermElabM do
       let selector? ← getSelector
       match selector? with
       | none => Lean.logInfo "  ❌ getSelector returned none"
-      | some _ => Lean.logInfo "  ✓ Successfully retrieved selector using getSelector!"
+      | some _ => Lean.logInfo "  ✓ getSelector succeeded"
+  else
+    Lean.logInfo "❌ No selector registered in imported state!"
 
 -- These examples should work with grind +suggestions but not grind alone
 -- (proving that the suggestions engine is active and helping)

@@ -380,7 +380,7 @@ inductive EMatchTheoremConstraint where
   | /--
     Instantiates the theorem only if its generation is less than `n`
     -/
-    genLt (lhs : Nat) (n : Nat)
+    genLt (n : Nat)
   | /--
     Constraints of the form `is_ground x`. Instantiates the theorem only if
     `x` is ground term.

@@ -92,6 +92,14 @@ x_3 = lean_box(0);
 return x_3;
 }
 }
+static lean_object* _init_l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_AssocList_instIteratorAssocListIteratorIdSigma___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 static lean_object* _init_l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg___lam__0___closed__0() {
 _start:
 {
@@ -108,14 +116,6 @@ lean_object* x_8; lean_object* x_9;
 x_8 = l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg___lam__0___closed__0;
 x_9 = l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___redArg(x_1, x_4, x_6, x_2, x_7, x_8);
 return x_9;
-}
-}
-static lean_object* _init_l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_AssocList_instIteratorAssocListIteratorIdSigma___lam__0___boxed), 1, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg(lean_object* x_1) {
@@ -214,13 +214,6 @@ x_5 = l_Std_DHashMap_Internal_AssocList_instIteratorLoopPartialAssocListIterator
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_iter___redArg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_iter(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -228,13 +221,11 @@ lean_inc(x_3);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_iter___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_iter___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_DHashMap_Internal_AssocList_iter___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_iter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -244,6 +235,15 @@ lean_object* x_4;
 x_4 = l_Std_DHashMap_Internal_AssocList_iter(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_iter___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_DHashMap_Internal_AssocList_iter___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
@@ -267,10 +267,10 @@ lean_dec_ref(res);
 res = initialize_Std_Data_DHashMap_Internal_AssocList_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg___lam__0___closed__0 = _init_l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg___lam__0___closed__0();
-lean_mark_persistent(l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg___lam__0___closed__0);
 l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg___closed__0 = _init_l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg___closed__0();
 lean_mark_persistent(l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg___closed__0);
+l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg___lam__0___closed__0 = _init_l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg___lam__0___closed__0();
+lean_mark_persistent(l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg___lam__0___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

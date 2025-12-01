@@ -240,6 +240,9 @@ theorem getElem_of_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx
     {c : cont} {i : idx} [Decidable (dom c i)] (h : c[i]? = some e) : Exists fun h : dom c i => c[i] = e :=
   getElem?_eq_some_iff.mp h
 
+theorem of_getElem_eq  [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    {c : cont} {i : idx} [Decidable (dom c i)] {h} (_ : c[i] = e) : dom c i := h
+
 @[simp] theorem some_getElem_eq_getElem?_iff [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     {c : cont} {i : idx} [Decidable (dom c i)] (h : dom c i):
     (some c[i] = c[i]?) ↔ True := by

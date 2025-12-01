@@ -1029,7 +1029,7 @@ theorem setWidth_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v) :
   exact Nat.pow_dvd_pow_iff_le_right'.mpr h
 
 @[simp]
-theorem setWidth_ofNat_of_le_of_lt (x : Nat) (h : w ≤ v) (h' : x < 2 ^ w) :
+theorem setWidth_ofNat_of_le_of_lt {x : Nat} (h : w ≤ v) (h' : x < 2 ^ w) :
     setWidth v (BitVec.ofNat w x) = BitVec.ofNat v x := by
   apply BitVec.eq_of_toNat_eq
   have := Nat.pow_le_pow_of_le (a := 2) (m := v) (n := w) (by omega) h

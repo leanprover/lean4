@@ -167,7 +167,7 @@ def get (t : Raw α β cmp) (a : α) (h : a ∈ t) : β :=
   DTreeMap.Raw.Const.get t.inner a h
 
 @[inline, inherit_doc DTreeMap.Raw.Const.get!]
-def get! (t : Raw α β cmp) (a : α) [Inhabited β]  : β :=
+def get! [Inhabited β] (t : Raw α β cmp) (a : α) : β :=
   DTreeMap.Raw.Const.get! t.inner a
 
 @[inline, inherit_doc DTreeMap.Raw.Const.getD]

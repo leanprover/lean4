@@ -512,6 +512,20 @@ def Doc.joinUsing (sep : Doc) (ds : Array Doc) : Doc :=
   | some d =>
     ds[1:].foldl (init := d) fun acc d => acc.append sep |>.append d
 
+/--
+Appends multiple documents with a separator document between each pair of adjacent documents with
+optional newlines between them.
+-/
+def Doc.fillUsing (sep : Doc) (ds : Array Doc) : Doc := Id.run do
+  let some hd := ds[0]?
+    | return .text ""
+  let mut r : Doc := hd
+  for d in ds do
+    r := Doc.either
+      (Doc.join #[r, sep, d])
+      (Doc.join #[r, sep, .hardNl, d])
+  return r
+
 instance : Append Doc where
   append d1 d2 := d1.append d2
 

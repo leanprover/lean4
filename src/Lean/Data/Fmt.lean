@@ -10,3 +10,4 @@ prelude
 public import Lean.Data.Fmt.Basic
 public import Lean.Data.Fmt.Formatter
 public import Lean.Data.Fmt.LawfulCost
+public import Lean.Data.Fmt.Json

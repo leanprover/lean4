@@ -810,7 +810,7 @@ Docstrings for constants should have the following structure:
 
 The **short summary** should be 1–3 sentences (ideally 1) and provide
 enough information for most readers to quickly decide whether the
-docstring is relevant to their task. The first (or only) sentence of
+constant is relevant to their task. The first (or only) sentence of
 the short summary should be a *sentence fragment* in which the subject
 is implied to be the documented item, written in present tense
 indicative, or a *noun phrase* that characterizes the documented
@@ -1139,7 +1139,7 @@ attribute to mark them as an implementation detail.
 
 The **short summary** should be 1–3 sentences (ideally 1) and provide
 enough information for most readers to quickly decide whether the
-docstring is relevant to their task. The first (or only) sentence of
+tactic is relevant to their task. The first (or only) sentence of
 the short summary should be a full sentence in which the subject
 is an example invocation of the tactic, written in present tense
 indicative. If the example tactic invocation names parameters, then the

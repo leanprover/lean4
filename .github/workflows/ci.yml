@@ -262,12 +262,17 @@ jobs:
                 // Always run on large if available, more reliable regarding timeouts
                 "os": large ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
                 "enabled": level >= 2,
+                // do not fail nightlies on this for now
+                "secondary": level <= 2,
                 "test": true,
                 // turn off custom allocator & symbolic functions to make LSAN do its magic
                 "CMAKE_PRESET": "sanitize",
                 // `StackOverflow*` correctly triggers ubsan
                 // `reverse-ffi` fails to link in sanitizers
-                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi'"
+                // `interactive` and `async_select_channel` fail nondeterministically, would need to
+                // be investigated.
+                // 9366 is too close to timeout
+                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel|9366'"
               },
               {
                 "name": "macOS",

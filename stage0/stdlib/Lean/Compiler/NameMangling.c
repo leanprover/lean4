@@ -145,17 +145,6 @@ x_3 = l___private_Lean_Compiler_NameMangling_0__String_digitChar___redArg(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__String_digitChar___redArg___boxed(lean_object* x_1) {
-_start:
-{
-uint32_t x_2; uint32_t x_3; lean_object* x_4; 
-x_2 = lean_unbox_uint32(x_1);
-lean_dec(x_1);
-x_3 = l___private_Lean_Compiler_NameMangling_0__String_digitChar___redArg(x_2);
-x_4 = lean_box_uint32(x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__String_digitChar___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -165,6 +154,17 @@ lean_dec(x_1);
 x_4 = l___private_Lean_Compiler_NameMangling_0__String_digitChar(x_3, x_2);
 x_5 = lean_box_uint32(x_4);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__String_digitChar___redArg___boxed(lean_object* x_1) {
+_start:
+{
+uint32_t x_2; uint32_t x_3; lean_object* x_4; 
+x_2 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_3 = l___private_Lean_Compiler_NameMangling_0__String_digitChar___redArg(x_2);
+x_4 = lean_box_uint32(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__String_pushHex(lean_object* x_1, uint32_t x_2, lean_object* x_3) {
@@ -746,15 +746,6 @@ x_5 = l___private_Lean_Compiler_NameMangling_0__String_pushHex_match__1_splitter
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__String_pushHex_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l___private_Lean_Compiler_NameMangling_0__String_pushHex_match__1_splitter___redArg(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__String_pushHex_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -762,6 +753,15 @@ lean_object* x_5;
 x_5 = l___private_Lean_Compiler_NameMangling_0__String_pushHex_match__1_splitter(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__String_pushHex_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Lean_Compiler_NameMangling_0__String_pushHex_match__1_splitter___redArg(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_parseLowerHex_x3f_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1754,6 +1754,16 @@ return x_26;
 }
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint32_t x_4; lean_object* x_5; 
+x_4 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_5 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(x_4, x_2, x_3);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_decodeNum___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1771,16 +1781,6 @@ x_4 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_nameStart(
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint32_t x_4; lean_object* x_5; 
-x_4 = lean_unbox_uint32(x_1);
-lean_dec(x_1);
-x_5 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(x_4, x_2, x_3);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -1851,16 +1851,6 @@ x_7 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__6_s
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__6_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint32_t x_5; lean_object* x_6; 
-x_5 = lean_unbox_uint32(x_1);
-lean_dec(x_1);
-x_6 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__6_splitter___redArg(x_5, x_2, x_3, x_4);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__6_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -1870,6 +1860,16 @@ lean_dec(x_3);
 x_8 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__6_splitter(x_1, x_2, x_7, x_4, x_5, x_6);
 lean_dec_ref(x_1);
 return x_8;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__6_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint32_t x_5; lean_object* x_6; 
+x_5 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_6 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__6_splitter___redArg(x_5, x_2, x_3, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__4_splitter___redArg___boxed__const__1() {
@@ -1931,16 +1931,6 @@ x_7 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__4_s
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__4_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint32_t x_5; lean_object* x_6; 
-x_5 = lean_unbox_uint32(x_1);
-lean_dec(x_1);
-x_6 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__4_splitter___redArg(x_5, x_2, x_3, x_4);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__4_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -1950,6 +1940,16 @@ lean_dec(x_3);
 x_8 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__4_splitter(x_1, x_2, x_7, x_4, x_5, x_6);
 lean_dec_ref(x_1);
 return x_8;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__4_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint32_t x_5; lean_object* x_6; 
+x_5 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_6 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__4_splitter___redArg(x_5, x_2, x_3, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__1_splitter___redArg___boxed__const__1() {
@@ -2011,16 +2011,6 @@ x_7 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__1_s
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint32_t x_5; lean_object* x_6; 
-x_5 = lean_unbox_uint32(x_1);
-lean_dec(x_1);
-x_6 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__1_splitter___redArg(x_5, x_2, x_3, x_4);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -2030,6 +2020,16 @@ lean_dec(x_3);
 x_8 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__1_splitter(x_1, x_2, x_7, x_4, x_5, x_6);
 lean_dec_ref(x_1);
 return x_8;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint32_t x_5; lean_object* x_6; 
+x_5 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_6 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__1_splitter___redArg(x_5, x_2, x_3, x_4);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Name_demangle(lean_object* x_1) {

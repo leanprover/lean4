@@ -6336,7 +6336,7 @@ theorem cpopNatRec_eq_add_cpopNatRec_zero {x : BitVec w} {acc n : Nat} :
     have ihn'' := ihn (acc := (x.getLsbD n).toNat)
     rw [ihn', ihn'', Nat.add_assoc, Nat.add_comm acc]
 
-theorem cpopNatRec_add_eq_add_cpopNatRec {x : BitVec w} {acc n : Nat}:
+theorem cpopNatRec_add_eq_add_cpopNatRec {x : BitVec w} {acc n : Nat} :
     x.cpopNatRec n (acc + acc') = x.cpopNatRec n acc + acc' := by
   rw [cpopNatRec_eq_add_cpopNatRec_zero (acc := acc + acc'),
       cpopNatRec_eq_add_cpopNatRec_zero (acc := acc)]

@@ -580,6 +580,61 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_truncate(b_obj_arg h) {
     }
 }
 
+/* Handle.seek : (@& Handle) → SeekMode → UInt64 → IO Unit
+ *
+ * FFI note: the offset is passed as a uint64_t, but it is really an
+ * int64_t two's-complement bit pattern.
+ */
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_seek(b_obj_arg h, uint8_t mode, uint64_t offset) {
+    FILE * fp = io_get_handle(h);
+
+    // Decode the mode value indicating the seek reference point.
+    int whence;
+    switch (mode) {
+        case 0: whence = SEEK_SET; break;  // SeekMode.start
+        case 1: whence = SEEK_CUR; break;  // SeekMode.cur
+        case 2: whence = SEEK_END; break;  // SeekMode.end
+        default: return io_result_mk_error("invalid seek mode");
+    }
+
+    // The offset is passed unsigned, to overcome FFI limitations, but
+    // we need to reinterpret it as signed, assuming 2s complement.
+    int64_t signedOffset = (int64_t)offset;
+
+#ifdef LEAN_WINDOWS
+    // NOTE: We do not use std::fseek here because, on modern Windows
+    //       systems, std::fseek accepts a 32-bit long, which would
+    //       limit us to ~2GiB files.
+    int ret = _fseeki64(fp, (__int64)signedOffset, whence);
+#else
+    int ret = fseeko(fp, (off_t)signedOffset, whence);
+#endif
+
+    if (ret == 0) {
+        return io_result_mk_ok(box(0));
+    } else {
+        return io_result_mk_error(decode_io_error(errno, nullptr));
+    }
+}
+
+/* Handle.tell : (@& Handle) → IO UInt64 */
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_tell(b_obj_arg h) {
+    FILE * fp = io_get_handle(h);
+#ifdef LEAN_WINDOWS
+    // NOTE: We do not use std::ftell here because, on modern Windows
+    //       systems, std::ftell accepts a 32-bit long, which would
+    //       limit us to ~2GiB files.
+    int64_t pos = _ftelli64(fp);
+#else
+    off_t pos = ftello(fp);
+#endif
+    if (pos >= 0) {
+        return io_result_mk_ok(lean_box_uint64((uint64_t)pos));
+    } else {
+        return io_result_mk_error(decode_io_error(errno, nullptr));
+    }
+}
+
 /* Handle.read : (@& Handle) → USize → IO ByteArray */
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_read(b_obj_arg h, usize nbytes) {
     FILE * fp = io_get_handle(h);

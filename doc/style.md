@@ -1161,6 +1161,12 @@ and understand the parts of a tactic invocation they are hovering over,
 using this list. Each list item should take the format of the **short
 summary** above and describe an individual variant.
 
+Variants should be explained from the perspective of the tactic's users, not
+their implementers. A tactic that is implemented as a single Lean parser may
+have multiple variants from the perspective of users, while a tactic that is
+implemented as multiple parsers may have no variants, but merely an optional
+part of the syntax.
+
 **Examples** should start with the line `Examples:` (or `Example:` if
 there’s exactly one). The section should consist of a sequence of code
 blocks, each showing a Lean declaration (usually with the `example`

@@ -526,13 +526,13 @@ where
           go true ors ands
       else if c == '|' then
         let p' := p.next h; set p'
-        if h : p.IsAtEnd then
+        if h : p'.IsAtEnd then
           throw "expected '|' after first '|'"
-        else if p.get h = '|' then
+        else if p'.get h = '|' then
           if ands.size = 0 then
             throw "expected version range"
           else
-            set (p.next h)
+            set (p'.next h)
             go true (ors.push ands) #[]
         else
           throw "expected '|' after first '|'"

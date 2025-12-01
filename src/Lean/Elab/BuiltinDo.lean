@@ -613,12 +613,13 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
     let x := Term.mkExplicitBinder x <| match eType? with
       | some eType => eType
       | none => mkHole x
-    let (catch_, ε, uε) ← elabBinder x fun x => do
-      let ε ← inferType x
-      let uε ← getDecLevel ε
-      let catch_ ← lifter.lift (elabDoSeq catchSeq)
-      let catch_ ← mkLambdaFVars #[x] catch_
-      return (catch_, ε, uε)
+    let (catch_, ε, uε) ← controlAtTermElabM fun runInBase => do
+      Term.elabBinder x fun x => runInBase do
+        let ε ← inferType x
+        let uε ← getDecLevel ε
+        let catch_ ← lifter.lift (elabDoSeq catchSeq)
+        let catch_ ← mkLambdaFVars #[x] catch_
+        return (catch_, ε, uε)
     if eType?.isSome then
       let inst ← Term.mkInstMVar <| mkApp2 (mkConst ``MonadExceptOf [uε, mi.u, mi.v]) ε mi.m
       return mkApp6 (mkConst ``tryCatchThe [uε, mi.u, mi.v])

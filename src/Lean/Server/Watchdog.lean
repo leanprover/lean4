@@ -533,10 +533,15 @@ section ServerM
     let uri := fw.doc.uri
     modifyReferencesIO (·.updateWorkerImports module uri params.version params.directImports)
 
+  def handleILeanHeaderSetupInfo (fw : FileWorker) (params : LeanILeanHeaderSetupInfoParams) : ServerM Unit := do
+    let module := fw.doc.mod
+    let uri := fw.doc.uri
+    modifyReferencesIO (·.updateWorkerSetupInfo module uri params.version params.isSetupFailure)
+
   def handleIleanInfoUpdate (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
     let module := fw.doc.mod
     let uri := fw.doc.uri
-    modifyReferencesIO (·.updateWorkerRefs module uri params.version params.references)
+    modifyReferencesIO (·.updateWorkerRefs module uri params.version params.references params.decls)
 
   def handleIleanInfoFinal (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
     let s ← read
@@ -544,7 +549,7 @@ section ServerM
     let uri := fw.doc.uri
     s.referenceData.atomically do
       let rd ← get
-      let rd ← rd.modifyReferencesM (·.finalizeWorkerRefs module uri params.version params.references)
+      let rd ← rd.modifyReferencesM (·.finalizeWorkerRefs module uri params.version params.references params.decls)
       let (pendingWaitForILeanRequests, rest) := rd.pendingWaitForILeanRequests.partition (·.uri == uri)
       let rd := { rd with pendingWaitForILeanRequests := rest }
       let rd := rd.modifyFinalizedWorkerILeanVersions (·.insert uri params.version)
@@ -852,6 +857,9 @@ section ServerM
         | .notification "$/lean/ileanHeaderInfo" =>
           if let .ok params := parseNotificationParams? LeanILeanHeaderInfoParams msg then
             handleILeanHeaderInfo fw params
+        | .notification "$/lean/ileanHeaderSetupInfo" =>
+          if let .ok params := parseNotificationParams? LeanILeanHeaderSetupInfoParams msg then
+            handleILeanHeaderSetupInfo fw params
         | .notification "$/lean/ileanInfoUpdate" =>
           if let .ok params := parseNotificationParams? LeanIleanInfoParams msg then
             handleIleanInfoUpdate fw params
@@ -1085,17 +1093,19 @@ def handleCallHierarchyIncomingCalls (p : CallHierarchyIncomingCallsParams)
   let references := (← read).references
   let identRefs := references.referringTo (.const itemData.module.toString itemData.name.toString) false
 
-  let incomingCalls ← identRefs.filterMapM fun ⟨location, refModule, parentDecl?⟩ => do
+  let incomingCalls ← identRefs.mapM fun ⟨location, refModule, parentDecl?⟩ => do
 
-    let some ⟨parentDeclNameString, parentDeclRange, parentDeclSelectionRange⟩ := parentDecl?
-      | return none
+    let ⟨parentDeclNameString, parentDeclRange, parentDeclSelectionRange⟩ :=
+      match parentDecl? with
+      | some parentDecl => parentDecl
+      | none => ⟨"[anonymous]", location.range, location.range⟩
 
     let parentDeclName := parentDeclNameString.toName
 
     -- Remove private header from name
     let label := Lean.privateToUserName? parentDeclName |>.getD parentDeclName
 
-    return some {
+    return {
       «from» := {
         name           := label.toString
         kind           := SymbolKind.constant
@@ -1131,14 +1141,14 @@ def handleCallHierarchyOutgoingCalls (p : CallHierarchyOutgoingCallsParams)
 
   let references := (← read).references
 
-  let some (_, refs) := references.getModuleRefs? itemData.module
+  let some (_, refs, _) := references.getModuleRefs? itemData.module
     | return #[]
 
   let items ← refs.toArray.filterMapM fun ⟨ident, info⟩ => do
     let outgoingUsages := info.usages.filter fun usage => Id.run do
       let some parentDecl := usage.parentDecl?
         | return false
-      return itemData.name == parentDecl.name.toName
+      return itemData.name == parentDecl.toName
 
     let outgoingUsages := outgoingUsages.map (·.range)
     if outgoingUsages.isEmpty then
@@ -1425,7 +1435,13 @@ section MessageHandling
     | "$/lean/waitForILeans" =>
       let rd ← ctx.referenceData.atomically get
       IO.wait rd.loadingTask.task
-      let ⟨uri, version⟩ ← parseParams WaitForILeansParams params
+      let ⟨some uri, some version⟩ ← parseParams WaitForILeansParams params
+        | writeMessage {
+            id
+            result := ⟨⟩
+            : Response WaitForILeans
+          }
+          return
       if let none ← getFileWorker? uri then
         writeMessage {
           id

@@ -207,6 +207,19 @@ def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDec
     (dec : DoElemCont) : DoElabM Expr := do
   let vars ← getLetDeclVars decl
   let mγ ← mkMonadicType (← read).doBlockResultType
+  -- For plain variable reassignment, we know the expected type of the reassigned variable and
+  -- propagate it eagerly via type ascription if the user hasn't provided one themselves:
+  let decl ←
+    if letOrReassign matches .reassign then
+      if let `(letDecl| $x:ident := $rhs) := decl then
+        let some decl := (← getLCtx).findFromUserName? x.getId
+          | pure decl -- want to report "undeclared mutable variable" rather than "unknown local declaration"
+        let xType ← Term.exprToSyntax decl.type
+        `(letDecl| $x:ident : $xType := $rhs)
+      else
+        pure decl
+    else
+      pure decl
   elabDoLetOrReassignWith letOrReassign vars dec fun body => do
     Term.elabLetDecl (← `(let $decl:letDecl; $body)) mγ
 
@@ -220,7 +233,8 @@ def elabDoLetOrReassignElse (letOrReassign : LetOrReassign) (pattern rhs : Term)
   elabDoLetOrReassignWith letOrReassign vars dec fun body => do
     Term.elabTerm (← `(match $rhs:term with | $pattern => $body | _ => $otherwise)) mγ (catchExPostpone := false)
 
-def elabDoIdDecl (x : Ident) (xType? : Option Term) (rhs : TSyntax `doElem) (k : DoElabM Expr) (kind : DoElemContKind := .nonDuplicable) : DoElabM Expr := do
+def elabDoIdDecl (x : Ident) (xType? : Option Term) (rhs : TSyntax `doElem) (k : DoElabM Expr)
+    (kind : DoElemContKind := .nonDuplicable) : DoElabM Expr := do
   let xType ← elabType xType?
   let lctx ← getLCtx
   let ctx ← read
@@ -231,6 +245,13 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   match stx with
   | `(doIdDecl| $x:ident $[: $xType?]? ← $rhs) =>
     letOrReassign.checkMutVars #[x]
+    -- For plain variable reassignment, we know the expected type of the reassigned variable and
+    -- propagate it eagerly via type ascription if the user hasn't provided one themselves:
+    let xType? ← match letOrReassign, xType? with
+      | .reassign, none =>
+        let decl ← getLocalDeclFromUserName x.getId
+        some <$> Term.exprToSyntax decl.type
+      | _, _ => pure xType?
     elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x dec.continueWithUnit)
       (kind := dec.kind)
   | `(doPatDecl| $pattern:term ← $rhs $[| $otherwise?]?) =>

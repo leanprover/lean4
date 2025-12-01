@@ -6387,11 +6387,8 @@ theorem cpopNatRec_allOnes (h : n ≤ w) :
       cpopNatRec_add_eq_add_cpopNatRec (acc := acc) (acc' := 1)]
     omega
 
-theorem cpop_allOnes : (allOnes w).cpop = BitVec.ofNat w w := by
-  simp [cpop, cpopNatRec_allOnes]
-
 @[simp]
-theorem toNat_cpop_allOnes : (allOnes w).cpop.toNat = w := by
+theorem cpop_allOnes : (allOnes w).cpop = BitVec.ofNat w w := by
   simp [cpop, cpopNatRec_allOnes]
 
 @[simp]

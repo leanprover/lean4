@@ -31,10 +31,21 @@ theorem succ_eq {n : Nat} : succ n = n + 1 :=
 theorem succMany_eq {n : Nat} : succMany n m = m + n := by
   rfl
 
+end Std.PRange.Nat
+
+namespace Nat
+open Std Std.PRange Std.PRange.Nat
+
 @[simp]
 theorem size_rcc {a b : Nat} :
     (a...=b).size = b + 1 - a := by
   simp [Rcc.size, Rxc.HasSize.size]
+
+@[deprecated size_rcc (since := "2025-10-30")]
+def _root_.Std.PRange.Nat.size_Rcc := @_root_.Nat.size_rcc
+
+@[deprecated size_rcc (since := "2025-12-01")]
+def _root_.Std.PRange.Nat.size_rcc := @_root_.Nat.size_rcc
 
 @[simp]
 theorem length_toList_rcc {a b : Nat} :
@@ -46,14 +57,17 @@ theorem size_toArray_rcc {a b : Nat} :
     (a...=b).toArray.size = b + 1 - a := by
   simp only [Rcc.size_toArray, size_rcc]
 
-@[deprecated size_rcc (since := "2025-10-30")]
-def size_Rcc := @size_rcc
-
 @[simp]
 theorem size_rco {a b : Nat} :
     (a...b).size = b - a := by
   simp only [Rco.size, Rxo.HasSize.size, Rxc.HasSize.size]
   omega
+
+@[deprecated size_rco (since := "2025-10-30")]
+def _root_.Std.PRange.Nat.size_Rco := @_root_.Nat.size_rco
+
+@[deprecated size_rco (since := "2025-12-01")]
+def _root_.Std.PRange.Nat.size_rco := @_root_.Nat.size_rco
 
 @[simp]
 theorem length_toList_rco {a b : Nat} :
@@ -65,13 +79,16 @@ theorem size_toArray_rco {a b : Nat} :
     (a...b).toArray.size = b - a := by
   simp only [Rco.size_toArray, size_rco]
 
-@[deprecated size_rco (since := "2025-10-30")]
-def size_Rco := @size_rco
-
 @[simp]
 theorem size_roc {a b : Nat} :
     (a<...=b).size = b - a := by
   simp [Roc.size, Rxc.HasSize.size]
+
+@[deprecated size_roc (since := "2025-10-30")]
+def _root_.Std.PRange.Nat.size_Roc := @_root_.Nat.size_roc
+
+@[deprecated size_roc (since := "2025-12-01")]
+def _root_.Std.PRange.Nat.size_roc := @_root_.Nat.size_roc
 
 @[simp]
 theorem length_toList_roc {a b : Nat} :
@@ -83,13 +100,16 @@ theorem size_toArray_roc {a b : Nat} :
     (a<...=b).toArray.size = b - a := by
   simp only [Roc.size_toArray, size_roc]
 
-@[deprecated size_roc (since := "2025-10-30")]
-def size_Roc := @size_roc
-
 @[simp]
 theorem size_roo {a b : Nat} :
     (a<...b).size = b - a - 1 := by
   simp [Roo.size, Rxo.HasSize.size, Rxc.HasSize.size]
+
+@[deprecated size_roo (since := "2025-10-30")]
+def _root_.Std.PRange.Nat.size_Roo := @_root_.Nat.size_roo
+
+@[deprecated size_roo (since := "2025-12-01")]
+def _root_.Std.PRange.Nat.size_roo := @_root_.Nat.size_roo
 
 @[simp]
 theorem length_toList_roo {a b : Nat} :
@@ -101,13 +121,16 @@ theorem size_toArray_roo {a b : Nat} :
     (a<...b).toArray.size = b - a - 1 := by
   simp only [Roo.size_toArray, size_roo]
 
-@[deprecated size_roo (since := "2025-10-30")]
-def size_Roo := @size_roo
-
 @[simp]
 theorem size_ric {b : Nat} :
     (*...=b).size = b + 1 := by
   simp [Ric.size, Rxc.HasSize.size]
+
+@[deprecated size_ric (since := "2025-10-30")]
+def _root_.Std.PRange.Nat.size_Ric := @_root_.Nat.size_ric
+
+@[deprecated size_ric (since := "2025-12-01")]
+def _root_.Std.PRange.Nat.size_ric := @_root_.Nat.size_ric
 
 @[simp]
 theorem length_toList_ric {b : Nat} :
@@ -119,13 +142,16 @@ theorem size_toArray_ric {b : Nat} :
     (*...=b).toArray.size = b + 1 := by
   simp only [Ric.size_toArray, size_ric]
 
-@[deprecated size_ric (since := "2025-10-30")]
-def size_Ric := @size_ric
-
 @[simp]
 theorem size_rio {b : Nat} :
     (*...b).size = b := by
   simp [Rio.size, Rxo.HasSize.size, Rxc.HasSize.size]
+
+@[deprecated size_rio (since := "2025-10-30")]
+def _root_.Std.PRange.Nat.size_Rio := @_root_.Nat.size_rio
+
+@[deprecated size_rio (since := "2025-12-01")]
+def _root_.Std.PRange.Nat.size_rio := @_root_.Nat.size_rio
 
 @[simp]
 theorem length_toList_rio {b : Nat} :
@@ -136,9 +162,6 @@ theorem length_toList_rio {b : Nat} :
 theorem size_toArray_rio {b : Nat} :
     (*...b).toArray.size = b := by
   simp only [Rio.size_toArray, size_rio]
-
-@[deprecated size_rio (since := "2025-10-30")]
-def size_Rio := @size_rio
 
 @[simp]
 theorem toList_toArray_rco {m n : Nat} :
@@ -159,11 +182,11 @@ theorem toList_rco_succ_succ {m n : Nat} :
     ((m+1)...(n+1)).toList = (m...n).toList.map (· + 1) := by
   simp [← succ_eq, Rco.toList_succ_succ_eq_map]
 
-@[deprecated toList_rco_succ_succ (since := "2025-10-30")]
-def toList_Rco_succ_succ := @toList_rco_succ_succ
+@[deprecated _root_.Nat.toList_rco_succ_succ (since := "2025-10-30")]
+def _root_.Std.PRange.Nat.toList_Rco_succ_succ := @_root_.Nat.toList_rco_succ_succ
 
-@[deprecated toList_rco_succ_succ (since := "2025-08-22")]
-def ClosedOpen.toList_succ_succ := @toList_rco_succ_succ
+@[deprecated _root_.Nat.toList_rco_succ_succ (since := "2025-12-01")]
+def _root_.Std.PRange.Nat.toList_rco_succ_succ := @_root_.Nat.toList_rco_succ_succ
 
 theorem toList_rco_succ_right_eq_cons_map {m n : Nat} (h : m ≤ n) :
     (m...(n + 1)).toList = m :: (m...n).toList.map (· + 1) := by
@@ -541,11 +564,11 @@ The following is an example reproving {name}`length_toList_rco`.
 
 ```lean
 example (a b : Nat) : (a...b).toList.length = b - a := by
-  induction a, b using Std.PRange.Nat.induct_rco_left
+  induction a, b using Nat.induct_rco_left
   case base =>
-    simp only [Std.PRange.Nat.toList_rco_eq_nil, List.length_nil, Nat.sub_eq_zero_of_le, *]
+    simp only [Nat.toList_rco_eq_nil, List.length_nil, Nat.sub_eq_zero_of_le, *]
   case step =>
-    simp only [Std.PRange.Nat.toList_rco_eq_cons, List.length_cons, *]; omega
+    simp only [Nat.toList_rco_eq_cons, List.length_cons, *]; omega
 ```
 -/
 theorem induct_rco_left (motive : Nat → Nat → Prop)
@@ -573,11 +596,11 @@ The following is an example reproving {name}`length_toList_rco`.
 
 ```lean
 example (a b : Nat) : (a...b).toList.length = b - a := by
-  induction a, b using Std.PRange.Nat.induct_rco_right
+  induction a, b using Nat.induct_rco_right
   case base =>
-    simp only [Std.PRange.Nat.toList_rco_eq_nil, List.length_nil, Nat.sub_eq_zero_of_le, *]
+    simp only [Nat.toList_rco_eq_nil, List.length_nil, Nat.sub_eq_zero_of_le, *]
   case step a b hle ih =>
-    rw [Std.PRange.Nat.toList_rco_eq_append (by omega),
+    rw [Nat.toList_rco_eq_append (by omega),
       List.length_append, List.length_singleton, Nat.add_sub_cancel, ih]
     omega
 ```
@@ -940,11 +963,11 @@ The following is an example reproving {name}`length_toList_rcc`.
 
 ```lean
 example (a b : Nat) : (a...=b).toList.length = b + 1 - a := by
-  induction a, b using Std.PRange.Nat.induct_rcc_left
+  induction a, b using Nat.induct_rcc_left
   case base =>
-    simp only [Std.PRange.Nat.toList_rcc_eq_nil, List.length_nil, *]; omega
+    simp only [Nat.toList_rcc_eq_nil, List.length_nil, *]; omega
   case step =>
-    simp only [Std.PRange.Nat.toList_rcc_eq_cons, List.length_cons, *]; omega
+    simp only [Nat.toList_rcc_eq_cons, List.length_cons, *]; omega
 ```
 -/
 theorem induct_rcc_left (motive : Nat → Nat → Prop)
@@ -972,17 +995,17 @@ The following is an example reproving {name}`length_toList_rcc`.
 
 ```lean
 example (a b : Nat) : (a...=b).toList.length = b + 1 - a := by
-  induction a, b using Std.PRange.Nat.induct_rcc_right
+  induction a, b using Nat.induct_rcc_right
   case base a b hge =>
     by_cases h : b < a
-    · simp only [Std.PRange.Nat.toList_rcc_eq_nil, List.length_nil, *]
+    · simp only [Nat.toList_rcc_eq_nil, List.length_nil, *]
       omega
     · have : b = a := by omega
-      simp only [Std.PRange.Nat.toList_rcc_eq_singleton, List.length_singleton,
+      simp only [Nat.toList_rcc_eq_singleton, List.length_singleton,
         Nat.add_sub_cancel_left, *]
   case step a b hle ih =>
-    rw [Std.PRange.Nat.toList_rcc_succ_right_eq_append (by omega),
-      List.length_append, List.length_singleton, ih] <;> omega
+    rw [Nat.toList_rcc_succ_right_eq_append (by omega), List.length_append,
+      List.length_singleton, ih] <;> omega
 ```
 -/
 theorem induct_rcc_right (motive : Nat → Nat → Prop)
@@ -1346,11 +1369,11 @@ The following is an example reproving {name}`length_toList_roo`.
 
 ```lean
 example (a b : Nat) : (a<...b).toList.length = b - a - 1 := by
-  induction a, b using Std.PRange.Nat.induct_roo_left
+  induction a, b using Nat.induct_roo_left
   case base =>
-    simp only [Std.PRange.Nat.toList_roo_eq_nil, List.length_nil, *]; omega
+    simp only [Nat.toList_roo_eq_nil, List.length_nil, *]; omega
   case step =>
-    simp only [Std.PRange.Nat.toList_roo_eq_cons, List.length_cons, *]; omega
+    simp only [Nat.toList_roo_eq_cons, List.length_cons, *]; omega
 ```
 -/
 theorem induct_roo_left (motive : Nat → Nat → Prop)
@@ -1378,11 +1401,11 @@ The following is an example reproving {name}`length_toList_roo`.
 
 ```lean
 example (a b : Nat) : (a<...b).toList.length = b - a - 1 := by
-  induction a, b using Std.PRange.Nat.induct_roo_right
+  induction a, b using Nat.induct_roo_right
   case base =>
-    simp only [Std.PRange.Nat.toList_roo_eq_nil, List.length_nil, *]; omega
+    simp only [Nat.toList_roo_eq_nil, List.length_nil, *]; omega
   case step a b hle ih =>
-    rw [Std.PRange.Nat.toList_roo_eq_append (by omega),
+    rw [Nat.toList_roo_eq_append (by omega),
       List.length_append, List.length_singleton, Nat.add_sub_cancel, ih]
     omega
 ```
@@ -1773,11 +1796,11 @@ The following is an example reproving {name}`length_toList_roc`.
 
 ```lean
 example (a b : Nat) : (a<...=b).toList.length = b - a := by
-  induction a, b using Std.PRange.Nat.induct_roc_left
+  induction a, b using Nat.induct_roc_left
   case base =>
-    simp only [Std.PRange.Nat.toList_roc_eq_nil, List.length_nil, *]; omega
+    simp only [Nat.toList_roc_eq_nil, List.length_nil, *]; omega
   case step =>
-    simp only [Std.PRange.Nat.toList_roc_eq_cons, List.length_cons, *]; omega
+    simp only [Nat.toList_roc_eq_cons, List.length_cons, *]; omega
 ```
 -/
 theorem induct_roc_left (motive : Nat → Nat → Prop)
@@ -1800,11 +1823,11 @@ The following is an example reproving {name}`length_toList_roc`.
 
 ```lean
 example (a b : Nat) : (a<...=b).toList.length = b - a := by
-  induction a, b using Std.PRange.Nat.induct_roc_right
+  induction a, b using Nat.induct_roc_right
   case base =>
-    simp only [Std.PRange.Nat.toList_roc_eq_nil, List.length_nil, *]; omega
+    simp only [Nat.toList_roc_eq_nil, List.length_nil, *]; omega
   case step a b hle ih =>
-    rw [Std.PRange.Nat.toList_roc_eq_append (by omega),
+    rw [Nat.toList_roc_eq_append (by omega),
       List.length_append, List.length_singleton, Nat.add_sub_cancel, ih]
     omega
 ```
@@ -2437,7 +2460,7 @@ theorem getD_toArray_ric_eq_fallback {n i fallback : Nat} (h : n < i) :
     (*...=n).toArray.getD i fallback = fallback := by
   rw [toArray_ric_eq_toArray_rio, getD_toArray_rio_eq_fallback]; omega
 
-end Std.PRange.Nat
+end Nat
 
 theorem List.range_eq_toList_rco {n : Nat} :
     List.range n = (0...n).toList := by

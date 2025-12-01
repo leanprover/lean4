@@ -1005,6 +1005,7 @@ noncomputable instance [Nonempty ε] : CCPO (EIO ε α) :=
 noncomputable instance [Nonempty ε] : MonoBind (EIO ε) :=
   inferInstanceAs (MonoBind (EST ε IO.RealWorld))
 
+-- Quick hack to get a computable instance
 instance : CCPO (IO α) :=
   inferInstanceAs (CCPO ((s : _) → FlatOrder (.error (.userError "csup ∅") (Classical.choice ⟨s⟩))))
 

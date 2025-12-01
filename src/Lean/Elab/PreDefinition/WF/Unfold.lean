@@ -238,7 +238,7 @@ public def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPrepr
 
 /--
 Derives the equational theorem for the individual functions from the equational
-theorem of `foo._unary` or `foo._binary`.
+theorem of `foo._unary` or `foo._mutual`.
 
 It should just be a specialization of that one, due to defeq.
 -/

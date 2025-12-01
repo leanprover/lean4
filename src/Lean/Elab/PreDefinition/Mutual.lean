@@ -19,7 +19,7 @@ namespace Lean.Elab.Mutual
 open Meta
 
 def addPreDefsFromUnary (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition) (preDefsNonrec : Array PreDefinition)
-    (unaryPreDefNonRec : PreDefinition) (cacheProofs := true) : TermElabM Unit := do
+    (unaryPreDefNonRec : PreDefinition) (cacheProofs := true) (irredByDefault := true) : TermElabM Unit := do
   /-
   We must remove `implemented_by` attributes from the auxiliary application because
   this attribute is only relevant for code that is compiled. Moreover, the `[implemented_by <decl>]`
@@ -31,7 +31,7 @@ def addPreDefsFromUnary (docCtx : LocalContext × LocalInstances) (preDefs : Arr
 
   -- Do not complain if the user sets @[semireducible], which usually is a noop,
   -- we recognize that below and then do not set @[irreducible]
-  withOptions (allowUnsafeReducibility.set · true) do
+  (if irredByDefault then withOptions (allowUnsafeReducibility.set · true) else id) do
     if unaryPreDefNonRec.declName = preDefs[0]!.declName then
       addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (cacheProofs := cacheProofs)
     else
@@ -50,9 +50,11 @@ def cleanPreDef (preDef : PreDefinition) (cacheProofs := true) : MetaM PreDefini
   return preDef
 
 /--
-Assign final attributes to the definitions. Assumes the EqnInfos to be already present.
+Assign final attributes to the definitions.
+Assumes the EqnInfos to be already present.
+Used for wfrec and partial_fixpoint, but not structural recursion.
 -/
-def addPreDefAttributes (preDefs : Array PreDefinition) : TermElabM Unit := do
+def addPreDefAttributes (preDefs : Array PreDefinition) (irredByDefault := true) : TermElabM Unit := do
   for preDef in preDefs do
     markAsRecursive preDef.declName
   for preDef in preDefs.reverse do
@@ -64,8 +66,9 @@ def addPreDefAttributes (preDefs : Array PreDefinition) : TermElabM Unit := do
     generateEagerEqns preDef.declName
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
     -- Unless the user asks for something else, mark the definition as irreducible
-    unless preDef.modifiers.attrs.any fun a =>
-      a.name = `reducible || a.name = `semireducible do
-      setIrreducibleAttribute preDef.declName
+    if irredByDefault then
+      unless preDef.modifiers.attrs.any fun a =>
+        a.name = `reducible || a.name = `semireducible do
+        setIrreducibleAttribute preDef.declName
 
 end Lean.Elab.Mutual

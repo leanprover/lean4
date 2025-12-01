@@ -782,6 +782,8 @@ theorem getThenInsertIfNew?_snd [TransCmp cmp] {k : α} {v : β} :
     (getThenInsertIfNew? t k v).2 = t.insertIfNew k v :=
   ext <| DTreeMap.Const.getThenInsertIfNew?_snd
 
+theorem mem_of_get_eq  {k : α} {v : β} {w} (_ : t.get k w = v) : k ∈ t := w
+
 instance [TransCmp cmp] : LawfulGetElem (TreeMap α β cmp) α β (fun m a => a ∈ m) where
   getElem?_def m a _ := by
     split

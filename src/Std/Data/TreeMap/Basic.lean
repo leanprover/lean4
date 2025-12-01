@@ -501,6 +501,12 @@ def inter (t₁ t₂ : TreeMap α β cmp) : TreeMap α β cmp :=
 
 instance : Inter (TreeMap α β cmp) := ⟨inter⟩
 
+@[inline, inherit_doc DTreeMap.diff]
+def diff (t₁ t₂ : TreeMap α β cmp) : TreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨DTreeMap.diff t₁.inner t₂.inner⟩
+
+instance : SDiff (TreeMap α β cmp) := ⟨diff⟩
+
 @[inline, inherit_doc DTreeMap.Const.insertManyIfNewUnit]
 def insertManyIfNewUnit {ρ} [ForIn Id ρ α] (t : TreeMap α Unit cmp) (l : ρ) : TreeMap α Unit cmp :=
   ⟨DTreeMap.Const.insertManyIfNewUnit t.inner l⟩

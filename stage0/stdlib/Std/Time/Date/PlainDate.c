@@ -207,44 +207,6 @@ static lean_object* l_Std_Time_PlainDate_instHAddOffset__1___closed__0;
 static lean_object* l_Std_Time_instInhabitedPlainDate___closed__11;
 static lean_object* l_Std_Time_instReprPlainDate_repr___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDate_withYearRollOver(lean_object*, lean_object*);
-static lean_object* _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("{ ", 2, 2);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("year", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Time_instReprPlainDate_repr___redArg___closed__1;
-x_2 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_Time_instReprPlainDate_repr___redArg___closed__2;
-x_2 = lean_box(0);
-x_3 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
 static lean_object* _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__4() {
 _start:
 {
@@ -326,11 +288,11 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__13() {
+static lean_object* _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" }", 2, 2);
+x_1 = lean_mk_string_unchecked("{ ", 2, 2);
 return x_1;
 }
 }
@@ -362,6 +324,14 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__13() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked(" }", 2, 2);
+return x_1;
+}
+}
 static lean_object* _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__17() {
 _start:
 {
@@ -370,6 +340,36 @@ x_1 = l_Std_Time_instReprPlainDate_repr___redArg___closed__13;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
+}
+}
+static lean_object* _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("year", 4, 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Std_Time_instReprPlainDate_repr___redArg___closed__1;
+x_2 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Std_Time_instReprPlainDate_repr___redArg___closed__2;
+x_2 = lean_box(0);
+x_3 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__18() {
@@ -624,15 +624,6 @@ x_3 = l_Std_Time_instReprPlainDate_repr___redArg(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_instReprPlainDate_repr___redArg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Time_instReprPlainDate_repr___redArg(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_instReprPlainDate_repr___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -641,6 +632,15 @@ x_3 = l_Std_Time_instReprPlainDate_repr(x_1, x_2);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_instReprPlainDate_repr___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Time_instReprPlainDate_repr___redArg(x_1);
+lean_dec_ref(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_Time_instReprPlainDate___closed__0() {
@@ -3541,14 +3541,6 @@ lean_dec_ref(res);
 res = initialize_Std_Time_Date_Unit_Year(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Time_instReprPlainDate_repr___redArg___closed__0 = _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__0();
-lean_mark_persistent(l_Std_Time_instReprPlainDate_repr___redArg___closed__0);
-l_Std_Time_instReprPlainDate_repr___redArg___closed__1 = _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__1();
-lean_mark_persistent(l_Std_Time_instReprPlainDate_repr___redArg___closed__1);
-l_Std_Time_instReprPlainDate_repr___redArg___closed__2 = _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__2();
-lean_mark_persistent(l_Std_Time_instReprPlainDate_repr___redArg___closed__2);
-l_Std_Time_instReprPlainDate_repr___redArg___closed__3 = _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__3();
-lean_mark_persistent(l_Std_Time_instReprPlainDate_repr___redArg___closed__3);
 l_Std_Time_instReprPlainDate_repr___redArg___closed__4 = _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__4();
 lean_mark_persistent(l_Std_Time_instReprPlainDate_repr___redArg___closed__4);
 l_Std_Time_instReprPlainDate_repr___redArg___closed__5 = _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__5();
@@ -3567,16 +3559,24 @@ l_Std_Time_instReprPlainDate_repr___redArg___closed__11 = _init_l_Std_Time_instR
 lean_mark_persistent(l_Std_Time_instReprPlainDate_repr___redArg___closed__11);
 l_Std_Time_instReprPlainDate_repr___redArg___closed__12 = _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__12();
 lean_mark_persistent(l_Std_Time_instReprPlainDate_repr___redArg___closed__12);
-l_Std_Time_instReprPlainDate_repr___redArg___closed__13 = _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__13();
-lean_mark_persistent(l_Std_Time_instReprPlainDate_repr___redArg___closed__13);
+l_Std_Time_instReprPlainDate_repr___redArg___closed__0 = _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__0();
+lean_mark_persistent(l_Std_Time_instReprPlainDate_repr___redArg___closed__0);
 l_Std_Time_instReprPlainDate_repr___redArg___closed__14 = _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__14();
 lean_mark_persistent(l_Std_Time_instReprPlainDate_repr___redArg___closed__14);
 l_Std_Time_instReprPlainDate_repr___redArg___closed__15 = _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__15();
 lean_mark_persistent(l_Std_Time_instReprPlainDate_repr___redArg___closed__15);
 l_Std_Time_instReprPlainDate_repr___redArg___closed__16 = _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__16();
 lean_mark_persistent(l_Std_Time_instReprPlainDate_repr___redArg___closed__16);
+l_Std_Time_instReprPlainDate_repr___redArg___closed__13 = _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__13();
+lean_mark_persistent(l_Std_Time_instReprPlainDate_repr___redArg___closed__13);
 l_Std_Time_instReprPlainDate_repr___redArg___closed__17 = _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__17();
 lean_mark_persistent(l_Std_Time_instReprPlainDate_repr___redArg___closed__17);
+l_Std_Time_instReprPlainDate_repr___redArg___closed__1 = _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__1();
+lean_mark_persistent(l_Std_Time_instReprPlainDate_repr___redArg___closed__1);
+l_Std_Time_instReprPlainDate_repr___redArg___closed__2 = _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__2();
+lean_mark_persistent(l_Std_Time_instReprPlainDate_repr___redArg___closed__2);
+l_Std_Time_instReprPlainDate_repr___redArg___closed__3 = _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__3();
+lean_mark_persistent(l_Std_Time_instReprPlainDate_repr___redArg___closed__3);
 l_Std_Time_instReprPlainDate_repr___redArg___closed__18 = _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__18();
 lean_mark_persistent(l_Std_Time_instReprPlainDate_repr___redArg___closed__18);
 l_Std_Time_instReprPlainDate_repr___redArg___closed__19 = _init_l_Std_Time_instReprPlainDate_repr___redArg___closed__19();

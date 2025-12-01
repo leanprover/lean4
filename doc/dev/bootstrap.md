@@ -72,6 +72,9 @@ update the archived C source code of the stage 0 compiler in `stage0/src`.
 
 The github repository will automatically update stage0 on `master` once
 `src/stdlib_flags.h` and `stage0/src/stdlib_flags.h` are out of sync.
+To trigger this, modify `stage0/src/stdlib_flags.h` (e.g., by adding or changing
+a comment). When `update-stage0` runs, it will overwrite `stage0/src/stdlib_flags.h`
+with the contents of `src/stdlib_flags.h`, bringing them back in sync.
 
 NOTE: A full rebuild of stage 1 will only be triggered when the *committed* contents of `stage0/` are changed.
 Thus if you change files in it manually instead of through `update-stage0-commit` (see below) or fetching updates from git, you either need to commit those changes first or run `make -C build/release clean-stdlib`.

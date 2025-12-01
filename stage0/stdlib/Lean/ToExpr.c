@@ -3176,19 +3176,19 @@ x_1 = l_Lean_instToExprName___closed__2;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_instToExprOptionOfToLevel___redArg___lam__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Option", 6, 6);
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_instToExprOptionOfToLevel___redArg___lam__0___closed__1() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("none", 4, 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_instToExprOptionOfToLevel___redArg___lam__0___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Option", 6, 6);
 return x_1;
 }
 }
@@ -3362,15 +3362,6 @@ x_6 = l___private_Lean_ToExpr_0__Lean_List_toExprAux___redArg(x_2, x_3, x_4, x_5
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_ToExpr_0__Lean_List_toExprAux___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l___private_Lean_ToExpr_0__Lean_List_toExprAux___redArg(x_1, x_2, x_3, x_4);
-lean_dec_ref(x_2);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_ToExpr_0__Lean_List_toExprAux___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -3380,11 +3371,12 @@ lean_dec_ref(x_3);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instToExprListOfToLevel___private__1___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Lean_ToExpr_0__Lean_List_toExprAux___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
 x_5 = l___private_Lean_ToExpr_0__Lean_List_toExprAux___redArg(x_1, x_2, x_3, x_4);
+lean_dec_ref(x_2);
 return x_5;
 }
 }
@@ -3396,12 +3388,11 @@ x_6 = l___private_Lean_ToExpr_0__Lean_List_toExprAux___redArg(x_2, x_3, x_4, x_5
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instToExprListOfToLevel___private__1___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_instToExprListOfToLevel___private__1___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_instToExprListOfToLevel___private__1___redArg(x_1, x_2, x_3, x_4);
-lean_dec_ref(x_2);
+x_5 = l___private_Lean_ToExpr_0__Lean_List_toExprAux___redArg(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
@@ -3414,12 +3405,13 @@ lean_dec_ref(x_3);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_instToExprListOfToLevel___redArg___closed__0() {
+LEAN_EXPORT lean_object* l_Lean_instToExprListOfToLevel___private__1___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("List", 4, 4);
-return x_1;
+lean_object* x_5; 
+x_5 = l_Lean_instToExprListOfToLevel___private__1___redArg(x_1, x_2, x_3, x_4);
+lean_dec_ref(x_2);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_instToExprListOfToLevel___redArg___closed__1() {
@@ -3427,6 +3419,14 @@ _start:
 {
 lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("nil", 3, 3);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_instToExprListOfToLevel___redArg___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("List", 4, 4);
 return x_1;
 }
 }
@@ -4613,10 +4613,10 @@ l_Lean_instToExprName___closed__2 = _init_l_Lean_instToExprName___closed__2();
 lean_mark_persistent(l_Lean_instToExprName___closed__2);
 l_Lean_instToExprName = _init_l_Lean_instToExprName();
 lean_mark_persistent(l_Lean_instToExprName);
-l_Lean_instToExprOptionOfToLevel___redArg___lam__0___closed__0 = _init_l_Lean_instToExprOptionOfToLevel___redArg___lam__0___closed__0();
-lean_mark_persistent(l_Lean_instToExprOptionOfToLevel___redArg___lam__0___closed__0);
 l_Lean_instToExprOptionOfToLevel___redArg___lam__0___closed__1 = _init_l_Lean_instToExprOptionOfToLevel___redArg___lam__0___closed__1();
 lean_mark_persistent(l_Lean_instToExprOptionOfToLevel___redArg___lam__0___closed__1);
+l_Lean_instToExprOptionOfToLevel___redArg___lam__0___closed__0 = _init_l_Lean_instToExprOptionOfToLevel___redArg___lam__0___closed__0();
+lean_mark_persistent(l_Lean_instToExprOptionOfToLevel___redArg___lam__0___closed__0);
 l_Lean_instToExprOptionOfToLevel___redArg___lam__0___closed__2 = _init_l_Lean_instToExprOptionOfToLevel___redArg___lam__0___closed__2();
 lean_mark_persistent(l_Lean_instToExprOptionOfToLevel___redArg___lam__0___closed__2);
 l_Lean_instToExprOptionOfToLevel___redArg___lam__0___closed__3 = _init_l_Lean_instToExprOptionOfToLevel___redArg___lam__0___closed__3();
@@ -4625,10 +4625,10 @@ l_Lean_instToExprOptionOfToLevel___redArg___lam__0___closed__4 = _init_l_Lean_in
 lean_mark_persistent(l_Lean_instToExprOptionOfToLevel___redArg___lam__0___closed__4);
 l_Lean_instToExprOptionOfToLevel___redArg___closed__0 = _init_l_Lean_instToExprOptionOfToLevel___redArg___closed__0();
 lean_mark_persistent(l_Lean_instToExprOptionOfToLevel___redArg___closed__0);
-l_Lean_instToExprListOfToLevel___redArg___closed__0 = _init_l_Lean_instToExprListOfToLevel___redArg___closed__0();
-lean_mark_persistent(l_Lean_instToExprListOfToLevel___redArg___closed__0);
 l_Lean_instToExprListOfToLevel___redArg___closed__1 = _init_l_Lean_instToExprListOfToLevel___redArg___closed__1();
 lean_mark_persistent(l_Lean_instToExprListOfToLevel___redArg___closed__1);
+l_Lean_instToExprListOfToLevel___redArg___closed__0 = _init_l_Lean_instToExprListOfToLevel___redArg___closed__0();
+lean_mark_persistent(l_Lean_instToExprListOfToLevel___redArg___closed__0);
 l_Lean_instToExprListOfToLevel___redArg___closed__2 = _init_l_Lean_instToExprListOfToLevel___redArg___closed__2();
 lean_mark_persistent(l_Lean_instToExprListOfToLevel___redArg___closed__2);
 l_Lean_instToExprListOfToLevel___redArg___closed__3 = _init_l_Lean_instToExprListOfToLevel___redArg___closed__3();

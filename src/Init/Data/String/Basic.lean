@@ -824,16 +824,25 @@ The region of `s` from `b` (inclusive) to `e` (exclusive) is copied to a newly-a
 
 If `b`'s offset is greater than or equal to that of `e`, then the resulting string is `""`.
 
+If possible, prefer `String.slice`, which avoids the allocation.
 -/
 @[extern "lean_string_utf8_extract"]
-def Pos.extract {s : @& String} (b e : @& s.Pos) : String where
+def extract {s : @& String} (b e : @& s.Pos) : String where
   toByteArray := s.toByteArray.extract b.offset.byteIdx e.offset.byteIdx
   isValidUTF8 := b.isValidUTF8_extract e
+
+@[deprecated String.extract (since := "2025-12-01")]
+def Pos.extract {s : String} (b e : @& s.Pos) : String :=
+  s.extract b e
+
+@[simp]
+theorem toByteArray_extract {s : String} {b e : s.Pos} :
+    (s.extract b e).toByteArray = s.toByteArray.extract b.offset.byteIdx e.offset.byteIdx := (rfl)
 
 /-- Creates a `String` from a `String.Slice` by copying the bytes. -/
 @[inline]
 def Slice.copy (s : Slice) : String :=
-  s.startInclusive.extract s.endExclusive
+  s.str.extract s.startInclusive s.endExclusive
 
 theorem Slice.toByteArray_copy {s : Slice} :
     s.copy.toByteArray = s.str.toByteArray.extract s.startInclusive.offset.byteIdx s.endExclusive.offset.byteIdx := (rfl)
@@ -1387,54 +1396,58 @@ theorem Pos.offset_ofCopy {s : Slice} {pos : s.copy.Pos} : pos.ofCopy.offset = p
 
 /-- Given a slice `s` and a position on `s`, obtain the corresponding position on `s.copy.` -/
 @[inline]
-def Slice.Pos.toCopy {s : Slice} (pos : s.Pos) : s.copy.Pos where
+def Slice.Pos.copy {s : Slice} (pos : s.Pos) : s.copy.Pos where
   offset := pos.offset
   isValid := Pos.Raw.isValid_copy_iff.2 pos.isValidForSlice
 
-@[simp]
-theorem Slice.Pos.offset_toCopy {s : Slice} {pos : s.Pos} : pos.toCopy.offset = pos.offset := (rfl)
+@[deprecated Slice.Pos.copy (since := "2025-12-01")]
+def Slice.Pos.toCopy {s : Slice} (pos : s.Pos) : s.copy.Pos :=
+  pos.copy
 
 @[simp]
-theorem Slice.Pos.ofCopy_toCopy {s : Slice} {pos : s.Pos} : pos.toCopy.ofCopy = pos :=
+theorem Slice.Pos.offset_copy {s : Slice} {pos : s.Pos} : pos.copy.offset = pos.offset := (rfl)
+
+@[simp]
+theorem Slice.Pos.ofCopy_copy {s : Slice} {pos : s.Pos} : pos.copy.ofCopy = pos :=
   Slice.Pos.ext (by simp)
 
 @[simp]
-theorem Pos.toCopy_ofCopy {s : Slice} {pos : s.copy.Pos} : pos.ofCopy.toCopy = pos :=
+theorem Pos.copy_ofCopy {s : Slice} {pos : s.copy.Pos} : pos.ofCopy.copy = pos :=
   Pos.ext (by simp)
 
 theorem Pos.ofCopy_inj {s : Slice} {pos pos' : s.copy.Pos} : pos.ofCopy = pos'.ofCopy ↔ pos = pos' :=
-  ⟨fun h => by simpa using congrArg Slice.Pos.toCopy h, (· ▸ rfl)⟩
+  ⟨fun h => by simpa using congrArg Slice.Pos.copy h, (· ▸ rfl)⟩
 
 @[simp]
-theorem Slice.startPos_copy {s : Slice} : s.copy.startPos = s.startPos.toCopy :=
+theorem Slice.startPos_copy {s : Slice} : s.copy.startPos = s.startPos.copy :=
   String.Pos.ext (by simp)
 
 @[simp]
-theorem Slice.endPos_copy {s : Slice} : s.copy.endPos = s.endPos.toCopy :=
+theorem Slice.endPos_copy {s : Slice} : s.copy.endPos = s.endPos.copy :=
   String.Pos.ext (by simp)
 
-theorem Slice.Pos.get_toCopy {s : Slice} {pos : s.Pos} (h) :
-    pos.toCopy.get h = pos.get (by rintro rfl; simp at h) := by
+theorem Slice.Pos.get_copy {s : Slice} {pos : s.Pos} (h) :
+    pos.copy.get h = pos.get (by rintro rfl; simp at h) := by
   rw [String.Pos.get, Slice.Pos.get_eq_utf8DecodeChar, Slice.Pos.get_eq_utf8DecodeChar]
-  simp only [str_toSlice, toByteArray_copy, startInclusive_toSlice, startPos_copy, offset_toCopy,
+  simp only [str_toSlice, toByteArray_copy, startInclusive_toSlice, startPos_copy, offset_copy,
     Slice.offset_startPos, Pos.Raw.byteIdx_zero, Pos.offset_toSlice, Nat.zero_add]
   rw [ByteArray.utf8DecodeChar_eq_utf8DecodeChar_extract]
   conv => lhs; congr; rw [ByteArray.extract_extract]
   conv => rhs; rw [ByteArray.utf8DecodeChar_eq_utf8DecodeChar_extract]
   exact ByteArray.utf8DecodeChar_extract_congr _ _ _
 
-theorem Slice.Pos.get_eq_get_toCopy {s : Slice} {pos : s.Pos} {h} :
-    pos.get h = pos.toCopy.get (ne_of_apply_ne Pos.ofCopy (by simp [h])) :=
-  (get_toCopy _).symm
+theorem Slice.Pos.get_eq_get_copy {s : Slice} {pos : s.Pos} {h} :
+    pos.get h = pos.copy.get (ne_of_apply_ne Pos.ofCopy (by simp [h])) :=
+  (get_copy _).symm
 
-theorem Slice.Pos.byte_toCopy {s : Slice} {pos : s.Pos} (h) :
-    pos.toCopy.byte h = pos.byte (by rintro rfl; simp at h) := by
+theorem Slice.Pos.byte_copy {s : Slice} {pos : s.Pos} (h) :
+    pos.copy.byte h = pos.byte (by rintro rfl; simp at h) := by
   rw [String.Pos.byte, Slice.Pos.byte, Slice.Pos.byte]
   simp [getUTF8Byte, String.getUTF8Byte, toByteArray_copy, ByteArray.getElem_extract]
 
-theorem Slice.Pos.byte_eq_byte_toCopy {s : Slice} {pos : s.Pos} {h} :
-    pos.byte h = pos.toCopy.byte (ne_of_apply_ne Pos.ofCopy (by simp [h])) :=
-  (byte_toCopy _).symm
+theorem Slice.Pos.byte_eq_byte_copy {s : Slice} {pos : s.Pos} {h} :
+    pos.byte h = pos.copy.byte (ne_of_apply_ne Pos.ofCopy (by simp [h])) :=
+  (byte_copy _).symm
 
 /-- Given a position in `s.sliceFrom p₀`, obtain the corresponding position in `s`. -/
 @[inline]
@@ -1521,7 +1534,7 @@ theorem Slice.Pos.copy_eq_append_get {s : Slice} {pos : s.Pos} (h : pos ≠ s.en
     ∃ t₁ t₂ : String, s.copy = t₁ ++ singleton (pos.get h) ++ t₂ ∧ t₁.utf8ByteSize = pos.offset.byteIdx := by
   obtain ⟨t₂, ht₂⟩ := (s.sliceFrom pos).copy.eq_singleton_append (by simpa [← Pos.ofCopy_inj, ← ofSliceFrom_inj])
   refine ⟨(s.sliceTo pos).copy, t₂, ?_, by simp⟩
-  simp only [Slice.startPos_copy, get_toCopy, get_eq_get_ofSliceFrom, ofSliceFrom_startPos] at ht₂
+  simp only [Slice.startPos_copy, get_copy, get_eq_get_ofSliceFrom, ofSliceFrom_startPos] at ht₂
   rw [append_assoc, ← ht₂, ← copy_eq_copy_sliceTo]
 
 theorem Slice.Pos.utf8ByteSize_byte {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos} :
@@ -1751,8 +1764,8 @@ theorem Pos.offset_cast {s t : String} {pos : s.Pos} {h : s = t} :
 theorem Pos.cast_rfl {s : String} {pos : s.Pos} : pos.cast rfl = pos :=
   Pos.ext (by simp)
 
-theorem Pos.toCopy_toSlice_eq_cast {s : String} (p : s.Pos) :
-    p.toSlice.toCopy = p.cast copy_toSlice.symm :=
+theorem Pos.copy_toSlice_eq_cast {s : String} (p : s.Pos) :
+    p.toSlice.copy = p.cast copy_toSlice.symm :=
   Pos.ext (by simp)
 
 /-- Given a byte position within a string slice, obtains the smallest valid position that is
@@ -2435,6 +2448,35 @@ def Pos.slice! {s : String} (pos : s.Pos) (p₀ p₁ : s.Pos) :
     (s.slice! p₀ p₁).Pos :=
   Slice.Pos.slice! pos.toSlice _ _
 
+theorem extract_eq_copy_slice {s : String} (p₀ p₁ : s.Pos) (h : p₀ ≤ p₁) :
+    s.extract p₀ p₁ = (s.slice p₀ p₁ h).copy := by
+  simp [← toByteArray_inj, Slice.toByteArray_copy]
+
+/--
+Copies a region of a slice to a new string.
+
+The region of `s` from `b` (inclusive) to `e` (exclusive) is copied to a newly-allocated `String`.
+
+If `b`'s offset is greater than or equal to that of `e`, then the resulting string is `""`.
+
+If possible, prefer `Slice.slice`, which avoids the allocation.
+-/
+@[inline]
+def Slice.extract (s : Slice) (p₀ p₁ : s.Pos) : String :=
+  s.str.extract p₀.str p₁.str
+
+@[simp]
+theorem Slice.Pos.str_le_str_iff {s : Slice} {p q : s.Pos} : p.str ≤ q.str ↔ p ≤ q := by
+  simp [String.Pos.le_iff, Slice.Pos.le_iff, Pos.Raw.le_iff]
+
+@[simp]
+theorem Slice.Pos.str_lt_str_iff {s : Slice} {p q : s.Pos} : p.str < q.str ↔ p < q := by
+  simp [String.Pos.lt_iff, Slice.Pos.lt_iff, Pos.Raw.lt_iff]
+
+theorem Slice.extract_eq_copy_slice {s : Slice} (p₀ p₁ : s.Pos) (h : p₀ ≤ p₁) :
+    s.extract p₀ p₁ = (s.slice p₀ p₁ h).copy := by
+  simp [← toByteArray_inj, Slice.toByteArray_copy, Slice.extract]
+
 /--
 Advances the position `p` `n` times.
 
@@ -2733,10 +2775,6 @@ where
   go₂ : List Char → Pos.Raw → Pos.Raw → List Char
     | [],    _, _ => []
     | c::cs, i, e => if i = e then [] else c :: go₂ cs (i + c) e
-
-@[extern "lean_string_utf8_extract", expose, deprecated Pos.Raw.extract (since := "2025-10-14")]
-def extract : (@& String) → (@& Pos.Raw) → (@& Pos.Raw) → String
-  | s, b, e => Pos.Raw.extract s b e
 
 def Pos.Raw.offsetOfPosAux (s : String) (pos : Pos.Raw) (i : Pos.Raw) (offset : Nat) : Nat :=
   if i >= pos then offset

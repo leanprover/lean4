@@ -96,7 +96,7 @@ instance Attach.instIteratorLoop {α β : Type w} {m : Type w → Type w'} [Mona
     IteratorLoop (Attach α m P) m n :=
   .defaultImplementation
 
-end Types
+end Iterators.Types
 
 /--
 “Attaches” individual proofs to an iterator of values that satisfy a predicate `P`, returning an
@@ -111,7 +111,7 @@ iterator with values in the corresponding subtype `{ x // P x }`.
 def IterM.attachWith {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] (it : IterM (α := α) m β) (P : β → Prop)
     (h : ∀ out, it.IsPlausibleIndirectOutput out → P out) :
-    IterM (α := Types.Attach α m P) m { out : β // P out } :=
+    IterM (α := Iterators.Types.Attach α m P) m { out : β // P out } :=
   ⟨⟨it, h⟩⟩
 
-end Std.Iterators
+end Std

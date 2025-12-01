@@ -13,13 +13,14 @@ public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 
 public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators Std.Iterators.Types
 
 variable {α : Type w} {m : Type w → Type w'} {β : Type w} {P : β → Prop}
 
 theorem IterM.step_attachWith [Iterator α m β] [Monad m] {it : IterM (α := α) m β} {hP} :
     (it.attachWith P hP).step =
-      (fun s => .deflate ⟨Types.Attach.Monadic.modifyStep (it.attachWith P hP) s.inflate, s.inflate, rfl⟩) <$> it.step :=
+      (fun s => .deflate ⟨Attach.Monadic.modifyStep (it.attachWith P hP) s.inflate, s.inflate, rfl⟩) <$> it.step :=
   rfl
 
 @[simp]
@@ -70,4 +71,4 @@ theorem IterM.count_attachWith [Iterator α m β] [Monad m] [Monad n]
     ← map_unattach_toList_attachWith (it := it) (P := P) (hP := hP)]
   simp only [Functor.map_map, List.length_unattach]
 
-end Std.Iterators
+end Std

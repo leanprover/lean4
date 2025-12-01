@@ -11,10 +11,10 @@ public import Std.Data.Iterators.Lemmas.Equivalence.StepCongr
 
 @[expose] public section
 
-namespace Std.Iterators
-open Std.Internal
+namespace Std
+open Std.Internal Std.Iterators
 
-theorem stepAsHetT_filterMapWithPostcondition [Monad m] [LawfulMonad m] [Monad n]
+theorem IterM.stepAsHetT_filterMapWithPostcondition [Monad m] [LawfulMonad m] [Monad n]
     [LawfulMonad n] [Iterator α m β] [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → PostconditionT n (Option γ)} {it : IterM (α := α) m β} :
     (IterM.stepAsHetT (it.filterMapWithPostcondition f)) =
@@ -200,4 +200,4 @@ theorem IterM.Equiv.map {α₁ α₂ β γ : Type w}
     IterM.Equiv (ita.map f) (itb.map f) :=
   IterM.Equiv.filterMapWithPostcondition h
 
-end Std.Iterators
+end Std

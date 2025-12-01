@@ -11,7 +11,8 @@ public import Std.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 theorem Iter.Equiv.toListRev_eq
     [Iterator α₁ Id β] [Iterator α₂ Id β] [Finite α₁ Id] [Finite α₂ Id]
@@ -35,4 +36,4 @@ theorem Iter.Equiv.toArray_eq
     ita.toArray = itb.toArray := by
   simp only [← Iter.toArray_toList, toList_eq h]
 
-end Std.Iterators
+end Std

@@ -11,7 +11,8 @@ public import Init.Data.Iterators.Lemmas.Consumers.Monadic
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators Std.Iterators.Types
 
 variable {α₁ α₂ β₁ β₂ : Type w} {m : Type w → Type w'}
 
@@ -87,4 +88,4 @@ theorem IterM.step_zip [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β�
         pure <| .deflate <| .done (.doneLeft rfl hp)) := by
   simp [zip_eq_intermediateZip, step_intermediateZip]
 
-end Std.Iterators
+end Std

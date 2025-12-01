@@ -11,7 +11,8 @@ public import Init.Data.Iterators.Lemmas.Consumers.Monadic
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 theorem IterM.Intermediate.dropWhileM_eq_dropWhileWithPostcondition {α m β} [Monad m]
     [Iterator α m β] {it : IterM (α := α) m β} {P dropping} :
@@ -173,4 +174,4 @@ theorem IterM.step_dropWhile {α m β} [Monad m] [LawfulMonad m] [Iterator α m 
       return .deflate <| .done (.done h)) := by
   simp [dropWhile_eq_intermediateDropWhile, step_intermediateDropWhile]
 
-end Std.Iterators
+end Std

@@ -10,7 +10,7 @@ public import Std.Data.Iterators.Combinators.Monadic.DropWhile
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
 
 /--
 Constructs intermediate states of an iterator created with the combinator `Iter.dropWhile`.
@@ -60,4 +60,4 @@ that, the combinator incurs an additional O(1) cost for each value emitted by `i
 def Iter.dropWhile {α : Type w} {β : Type w} (P : β → Bool) (it : Iter (α := α) β) :=
   (it.toIterM.dropWhile P |>.toIter : Iter β)
 
-end Std.Iterators
+end Std

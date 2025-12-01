@@ -15,12 +15,12 @@ public import Init.Data.Nat.Div.Lemmas
 public section
 
 /-!
-# Lemmas about `Std.Range`
+# Lemmas about `Std.Legacy.Range`
 
-We provide lemmas rewriting for loops over `Std.Range` in terms of `List.range'`.
+We provide lemmas rewriting for loops over `Std.Legacy.Range` in terms of `List.range'`.
 -/
 
-namespace Std.Range
+namespace Std.Legacy.Range
 
 /-- Generalization of `mem_of_mem_range'` used in `forIn'_loop_eq_forIn'_range'` below. -/
 private theorem mem_of_mem_range'_aux {r : Range} {a : Nat} (w₁ : (i - r.start) % r.step = 0)
@@ -37,7 +37,7 @@ theorem mem_of_mem_range' {r : Range} (h : x ∈ List.range' r.start r.size r.st
   unfold size at h
   apply mem_of_mem_range'_aux (by simp) (by simp) h
 
-private theorem size_eq (r : Std.Range) (h : i < r.stop) :
+private theorem size_eq (r : Range) (h : i < r.stop) :
     (r.stop - i + r.step - 1) / r.step =
       (r.stop - (i + r.step) + r.step - 1) / r.step + 1 := by
   have w := r.step_pos
@@ -57,7 +57,7 @@ private theorem size_eq (r : Std.Range) (h : i < r.stop) :
       rw [Nat.div_eq_iff] <;> omega
     omega
 
-private theorem forIn'_loop_eq_forIn'_range' [Monad m] (r : Std.Range)
+private theorem forIn'_loop_eq_forIn'_range' [Monad m] (r : Range)
     (init : β) (f : (a : Nat) → a ∈ r → β → m (ForInStep β)) (i) (w₁) (w₂) :
     forIn'.loop r f init i w₁ w₂ =
       forIn' (List.range' i ((r.stop - i + r.step - 1) / r.step) r.step) init
@@ -75,7 +75,7 @@ private theorem forIn'_loop_eq_forIn'_range' [Monad m] (r : Std.Range)
       rw [Nat.div_eq_iff] <;> omega
     simp [this]
 
-@[simp] theorem forIn'_eq_forIn'_range' [Monad m] (r : Std.Range)
+@[simp] theorem forIn'_eq_forIn'_range' [Monad m] (r : Range)
     (init : β) (f : (a : Nat) → a ∈ r → β → m (ForInStep β)) :
     forIn' r init f =
       forIn' (List.range' r.start r.size r.step) init (fun a h => f a (mem_of_mem_range' h)) := by
@@ -83,12 +83,12 @@ private theorem forIn'_loop_eq_forIn'_range' [Monad m] (r : Std.Range)
   simp only [size]
   rw [forIn'_loop_eq_forIn'_range']
 
-@[simp] theorem forIn_eq_forIn_range' [Monad m] (r : Std.Range)
+@[simp] theorem forIn_eq_forIn_range' [Monad m] (r : Range)
     (init : β) (f : Nat → β → m (ForInStep β)) :
     forIn r init f = forIn (List.range' r.start r.size r.step) init f := by
   simp only [forIn, forIn'_eq_forIn'_range']
 
-private theorem forM_loop_eq_forM_range' [Monad m] (r : Std.Range) (f : Nat → m PUnit) :
+private theorem forM_loop_eq_forM_range' [Monad m] (r : Range) (f : Nat → m PUnit) :
     forM.loop r f i = forM (List.range' i ((r.stop - i + r.step - 1) / r.step) r.step) f := by
   have w := r.step_pos
   rw [forM.loop]
@@ -101,8 +101,8 @@ private theorem forM_loop_eq_forM_range' [Monad m] (r : Std.Range) (f : Nat → 
       rw [Nat.div_eq_iff] <;> omega
     simp [this]
 
-@[simp] theorem forM_eq_forM_range' [Monad m] (r : Std.Range) (f : Nat → m PUnit) :
+@[simp] theorem forM_eq_forM_range' [Monad m] (r : Range) (f : Nat → m PUnit) :
     forM r f = forM (List.range' r.start r.size r.step) f := by
   simp only [forM, Range.forM, forM_loop_eq_forM_range', size]
 
-end Std.Range
+end Std.Legacy.Range

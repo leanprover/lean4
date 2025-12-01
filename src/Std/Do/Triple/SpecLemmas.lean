@@ -24,12 +24,12 @@ public import Init.Data.Iterators.Lemmas.Combinators.FilterMap
 This module contains Hoare triple specifications for some functions in Core.
 -/
 
-namespace Std.Range
+namespace Std.Legacy.Range
 
-abbrev toList (r : Std.Range) : List Nat :=
+abbrev toList (r : Std.Legacy.Range) : List Nat :=
   List.range' r.start ((r.stop - r.start + r.step - 1) / r.step) r.step
 
-end Std.Range
+end Std.Legacy.Range
 
 namespace List
 
@@ -718,23 +718,23 @@ theorem Spec.foldlM_list_const_inv
 @[spec]
 theorem Spec.forIn'_range {β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
-    {xs : Std.Range} {init : β} {f : (a : Nat) → a ∈ xs → β → m (ForInStep β)}
+    {xs : Std.Legacy.Range} {init : β} {f : (a : Nat) → a ∈ xs → β → m (ForInStep β)}
     (inv : Invariant xs.toList β ps)
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (f cur (by simp [Std.Range.mem_of_mem_range', h]) b)
+        (f cur (by simp [Std.Legacy.Range.mem_of_mem_range', h]) b)
         (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
         (fun r => match r with
           | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
           | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
     Triple (forIn' xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
-  simp only [Std.Range.forIn'_eq_forIn'_range', Std.Range.size, Std.Range.size.eq_1]
+  simp only [Std.Legacy.Range.forIn'_eq_forIn'_range', Std.Legacy.Range.size, Std.Legacy.Range.size.eq_1]
   apply Spec.forIn'_list inv (fun c hcur b => step c hcur b)
 
 @[spec]
 theorem Spec.forIn_range {β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
-    {xs : Std.Range} {init : β} {f : Nat → β → m (ForInStep β)}
+    {xs : Std.Legacy.Range} {init : β} {f : Nat → β → m (ForInStep β)}
     (inv : Invariant xs.toList β ps)
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
@@ -744,7 +744,7 @@ theorem Spec.forIn_range {β : Type u} {m : Type u → Type v} {ps : PostShape}
           | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
           | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
     Triple (forIn xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
-  simp only [Std.Range.forIn_eq_forIn_range', Std.Range.size]
+  simp only [Std.Legacy.Range.forIn_eq_forIn_range', Std.Legacy.Range.size]
   apply Spec.forIn_list inv step
 
 open Std.PRange in

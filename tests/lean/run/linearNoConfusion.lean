@@ -16,8 +16,8 @@ inductive Vec.{u} (α : Type) : Nat → Type u where
   | cons2 {n} : α → Vec α n → Vec α (n + 1)
 
 @[reducible] protected def Vec.noConfusionType'.{u_1, u} : {α : Type} →
-  {a : Nat} → Sort u_1 → Vec.{u} α a → Vec α a → Sort u_1 :=
-fun P x1 x2 =>
+  Sort u_1 → {a : Nat} → Vec.{u} α a → {a : Nat} → Vec α a → Sort u_1 :=
+fun P _ x1 _ x2 =>
   Vec.casesOn x1
     (if h : x2.ctorIdx = 0 then
       Vec.nil.elim (motive := fun _ _ => Sort u_1) x2 h (P → P)
@@ -31,13 +31,14 @@ fun P x1 x2 =>
 
 /--
 info: @[reducible] protected def Vec.noConfusionType.{u_1, u} : {α : Type} →
-  {a : Nat} → Sort u_1 → Vec α a → Vec α a → Sort u_1 :=
-fun {α} {a} P x1 x2 =>
-  Vec.casesOn x1 (if h : x2.ctorIdx = 0 then Vec.nil.elim x2 h (P → P) else P)
-    (fun {n} a_1 a_2 =>
-      if h : x2.ctorIdx = 1 then Vec.cons1.elim x2 h fun {n_1} a a_3 => (n = n_1 → a_1 = a → a_2 ≍ a_3 → P) → P else P)
-    fun {n} a_1 a_2 =>
-    if h : x2.ctorIdx = 2 then Vec.cons2.elim x2 h fun {n_1} a a_3 => (n = n_1 → a_1 = a → a_2 ≍ a_3 → P) → P else P
+  Sort u_1 → {a : Nat} → Vec α a → {a : Nat} → Vec α a → Sort u_1 :=
+fun {α} P {a} t {a_1} t_1 =>
+  Vec.casesOn t (if h : t_1.ctorIdx = 0 then Vec.nil.elim t_1 h (P → P) else P)
+    (fun {n} a a_2 =>
+      if h : t_1.ctorIdx = 1 then Vec.cons1.elim t_1 h fun {n_1} a_3 a_4 => (n = n_1 → a = a_3 → a_2 ≍ a_4 → P) → P
+      else P)
+    fun {n} a a_2 =>
+    if h : t_1.ctorIdx = 2 then Vec.cons2.elim t_1 h fun {n_1} a_3 a_4 => (n = n_1 → a = a_3 → a_2 ≍ a_4 → P) → P else P
 -/
 #guard_msgs in
 #print Vec.noConfusionType

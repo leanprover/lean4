@@ -6,6 +6,7 @@ set_option warn.sorry false
 
 namespace T1
 
+@[semireducible]
 def foo : List α → Nat
   | [] => 0
   | _::xs => 1 + (foo xs)

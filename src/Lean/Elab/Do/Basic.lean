@@ -350,9 +350,6 @@ private partial def withPendingMVars (k : TermElabM α) : TermElabM (α × List 
   finally
     modify fun s => { s with pendingMVars := s.pendingMVars ++ pendingMVarsSaved }
 
-def elabBinder (binder : Syntax) (x : Expr → DoElabM α) : DoElabM α := do
-  controlAtTermElabM fun runInBase => Term.elabBinder binder (runInBase ∘ x)
-
 /--
 The subset of `mutVars` that were reassigned in any of the `childCtxs` relative to the given
 `rootCtx`.

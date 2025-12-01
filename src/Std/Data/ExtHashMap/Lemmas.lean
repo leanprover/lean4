@@ -718,6 +718,8 @@ theorem getThenInsertIfNew?_snd [EquivBEq α] [LawfulHashable α] {k : α} {v : 
     (getThenInsertIfNew? m k v).2 = m.insertIfNew k v :=
   ext (ExtDHashMap.Const.getThenInsertIfNew?_snd)
 
+theorem mem_of_get_eq [LawfulBEq α] (m : ExtHashMap α β) {k : α} {v : β} {w} (_ : m.get k w = v) : k ∈ m := w
+
 instance [EquivBEq α] [LawfulHashable α] : LawfulGetElem (ExtHashMap α β) α β (fun m a => a ∈ m) where
   getElem?_def m a _ := by
     split

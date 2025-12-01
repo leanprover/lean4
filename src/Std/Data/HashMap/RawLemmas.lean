@@ -828,6 +828,8 @@ theorem getThenInsertIfNew?_snd (h : m.WF) {k : α} {v : β} :
     (getThenInsertIfNew? m k v).2 = m.insertIfNew k v :=
   ext (DHashMap.Raw.Const.getThenInsertIfNew?_snd h.out)
 
+theorem mem_of_get_eq {k : α} {v : β} {w} (_ : m.get k w = v) : k ∈ m := w
+
 @[simp, grind =]
 theorem length_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.keys.length = m.size :=

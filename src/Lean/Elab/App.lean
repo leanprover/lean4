@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Tactic.ElimInfo
 public import Lean.Elab.Binders
 public import Lean.Elab.RecAppSyntax
+import all Lean.Elab.ErrorUtils
 
 public section
 
@@ -1252,15 +1253,6 @@ inductive LValResolution where
   The `baseName` is the base name of the type to search for in the parameter list. -/
   | localRec (baseName : Name) (fvar : Expr)
 
-private def mkLValError (e : Expr) (eType : Expr) (msg : MessageData) : MessageData :=
-  m!"{msg}{indentExpr e}\nhas type{indentExpr eType}"
-
-private def throwLValErrorAt (ref : Syntax) (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
-  throwErrorAt ref (mkLValError e eType msg)
-
-private def throwLValError (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α := do
-  throwLValErrorAt (← getRef) e eType msg
-
 /--
 `findMethod? S fName` tries the for each namespace `S'` in the resolution order for `S` to resolve the name `S'.fname`.
 If it resolves to `name`, returns `(S', name)`.
@@ -1291,9 +1283,6 @@ private partial def findMethod? (structName fieldName : Name) : MetaM (Option (N
         return res
     return none
 
-private def throwInvalidFieldNotation (e eType : Expr) : TermElabM α :=
-  throwLValError e eType "Invalid field notation: Type is not of the form `C ...` where C is a constant"
-
 /--
 If it seems that the user may be attempting to project out the `n`th element of a tuple, or that the
 nesting behavior of n-ary products is otherwise relevant, generates a corresponding hint; otherwise,
@@ -1304,15 +1293,13 @@ private partial def mkTupleHint (eType : Expr) (idx : Nat) (ref : Syntax) : Term
   if arity > 1 then
     let numComps := arity + 1
     if idx ≤ numComps && ref.getHeadInfo matches .original .. then
-      let ordinalSuffix := match idx % 10 with
-        | 1 => "st" | 2 => "nd" | 3 => "rd" | _ => "th"
       let mut projComps := List.replicate (idx - 1) "2"
       if idx < numComps then projComps := projComps ++ ["1"]
       let proj := ".".intercalate projComps
       let sug := { suggestion := proj, span? := ref,
                    toCodeActionTitle? := some (s!"Change projection `{idx}` to `{·}`") }
       MessageData.hint m!"n-tuples in Lean are actually nested pairs. To access the \
-        {idx}{ordinalSuffix} component of this tuple, use the projection `.{proj}` instead:" #[sug]
+        {idx.toOrdinal} component of this tuple, use the projection `.{proj}` instead:" #[sug]
     else
       return MessageData.hint' m!"n-tuples in Lean are actually nested pairs. For example, to access the \
         \"third\" component of `(a, b, c)`, write `(a, b, c).2.2` instead of `(a, b, c).3`."
@@ -1325,19 +1312,9 @@ where
     | some (_, p2) => prodArity p2 + 1
 
 private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM LValResolution := do
-  let throwInvalidFieldAt {α : Type} (ref : Syntax) (fieldName : String) (fullName : Name)
-      (declHint := Name.anonymous) : TermElabM α := do
-    let msg ←
-      -- ordering: put decl hint, if any, last
-      mkUnknownIdentifierMessage (declHint := declHint)
-        (mkLValError e eType
-          m!"Invalid field `{fieldName}`: The environment does not contain `{fullName}`")
-    -- HACK: Simulate previous embedding of tagged `mkUnknownIdentifierMessage`.
-    -- The "import unknown identifier" code action requires the tag to be present somewhere in the
-    -- message. But if it is at the root, the tag will also be shown to the user even though the
-    -- current help page does not address field notation, which should likely get its own help page
-    -- (if any).
-    throwErrorAt ref m!"{msg}{.nil}"
+
+  -- Functions can use generalized field notation via the `Function` namespace: the `uncurry`
+  -- field projection in `Nat.add.uncurry` refers to `Function.uncurry`.
   if eType.isForall then
     match lval with
     | LVal.fieldName ref fieldName suffix? _fullRef =>
@@ -1351,19 +1328,18 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
            (because of monad namespaces like `IO` and auxiliary declarations like `mutual_induct`) -/
         throwInvalidFieldAt ref fieldName fullName
     | .fieldIdx .. =>
-      throwLValError e eType "Invalid projection: Projections cannot be used on functions"
-  else if eType.getAppFn.isMVar then
-    let (kind, name) :=
-      match lval with
-      |  .fieldName _ fieldName _ _ => (m!"field notation", m!"field `{fieldName}`")
-      | .fieldIdx _ i => (m!"projection", m!"projection `{i}`")
-    throwError "Invalid {kind}: Type of{indentExpr e}\nis not known; cannot resolve {name}"
-  match eType.getAppFn.constName?, lval with
-  | some structName, LVal.fieldIdx ref idx =>
+      throwError "Invalid projection: Projections cannot be used on functions, and{indentExpr e}\n\
+        has function type{inlineExprTrailing eType}"
+
+  match eType.getAppFn, lval with
+  | .const structName _, LVal.fieldIdx ref idx =>
     if idx == 0 then
       throwError "Invalid projection: Index must be greater than 0"
     let env ← getEnv
-    let failK _ := throwLValError e eType "Invalid projection: Expected a value whose type is a structure"
+    let failK _ := throwError  "Invalid projection: Projection operates on structure-like types \
+      with fields. The expression{indentExpr e}\nhas type{inlineExpr eType}which does not \
+      have fields."
+
     matchConstStructure eType.getAppFn failK fun _ _ ctorVal => do
       let numFields := ctorVal.numFields
       if idx - 1 < numFields then
@@ -1376,17 +1352,15 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
           return LValResolution.projIdx structName (idx - 1)
       else
         if numFields == 0 then
-          throwLValError e eType m!"Invalid projection: Projections are not supported on this type \
-            because it has no fields"
-        let (fields, bounds) := if numFields == 1 then
-          (m!"field", m!"the only valid index is 1")
-        else
-          (m!"fields", m!"it must be between 1 and {numFields}")
+          throwError  m!"Invalid projection: Projection operates on structure-like types with \
+            fields. The expression{indentExpr e}\nhas type{inlineExpr eType}which has no fields."
         let tupleHint ← mkTupleHint eType idx ref
-        throwError m!"Invalid projection: Index `{idx}` is invalid for this structure; {bounds}"
-          ++ .note m!"The expression{inlineExpr e}has type{inlineExpr eType}which has only {numFields} {fields}"
+        throwError m!"Invalid projection: Index `{idx}` is invalid for this structure; \
+          {numFields.plural "the only valid index is 1" s!"it must be between 1 and {numFields}"}"
+          ++ .note m!"The expression{indentExpr e}\nhas type{inlineExpr eType}which has only \
+          {numFields} field{numFields.plural}"
           ++ tupleHint
-  | some structName, LVal.fieldName ref fieldName _ _ => withRef ref do
+  | .const structName _, LVal.fieldName ref fieldName _ _ => withRef ref do
     let env ← getEnv
     if isStructure env structName then
       if let some baseStructName := findField? env structName (Name.mkSimple fieldName) then
@@ -1406,7 +1380,11 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       -- Suggest a potential unreachable private name as hint. This does not cover structure
       -- inheritance, nor `import all`.
       (declHint := (mkPrivateName env structName).mkStr fieldName)
-  | none, LVal.fieldName ref _ (some suffix) _fullRef =>
+  | .mvar .., .fieldName _ fieldName _ _  =>
+    throwError "Invalid field notation: Type of{indentExpr e}\nis not known; cannot resolve field `{fieldName}`"
+  | .mvar .., .fieldIdx _ i =>
+    throwError "Invalid projection: Type of{indentExpr e}\nis not known; cannot resolve projection `{i}`"
+  | _, LVal.fieldName ref _ (some suffix) _fullRef =>
     -- This may be a function constant whose implicit arguments have already been filled in:
     let c := e.getAppFn
     if c.isConst then
@@ -1414,6 +1392,26 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     else
       throwInvalidFieldNotation e eType
   | _, _ => throwInvalidFieldNotation e eType
+where
+  throwInvalidFieldAt {α : Type} (ref : Syntax) (fieldName : String) (fullName : Name)
+      (declHint := Name.anonymous) : TermElabM α := do
+    let msg ←
+      -- ordering: put decl hint, if any, last
+      mkUnknownIdentifierMessage (declHint := declHint)
+        m!"Invalid field `{fieldName}`: The environment does not contain `{fullName}`, so it is not \
+          possible to project the field `{fieldName}` from an expression{indentExpr e}\nof \
+          type{inlineExprTrailing eType}"
+    -- By using `mkUnknownIdentifierMessage`, the tag `Lean.unknownIdentifierMessageTag` is
+    -- incorporated tag included within the message, as required for the "import unknown identifier"
+    -- code action. The "outermost" lean.invalidField name is the only one that triggers an error
+    -- explanation.
+    throwNamedErrorAt ref lean.invalidField msg
+
+  throwInvalidFieldNotation (e eType : Expr) :=
+    throwNamedError lean.invalidField "Invalid field notation: Field projection operates on types \
+    of the form `C ...` where C is a constant. The expression{indentExpr e}\nhas \
+    type{inlineExpr eType}which does not have the necessary form."
+
 
 /-- whnfCore + implicit consumption.
    Example: given `e` with `eType := {α : Type} → (fun β => List β) α `, it produces `(e ?m, List ?m)` where `?m` is fresh metavariable. -/

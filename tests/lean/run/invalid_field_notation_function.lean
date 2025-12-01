@@ -14,46 +14,41 @@ def foo : α → α := id
 example := foo.bar
 
 /--
-error: Invalid field `foo`: The environment does not contain `Function.foo`
+error: Invalid field `foo`: The environment does not contain `Function.foo`, so it is not possible to project the field `foo` from an expression
   fun x => x
-has type
-  ?_ → ?_
+of type `?_ → ?_`
 -/
 #guard_msgs in
 example (f : α → α) := (fun x => x).foo
 
 /--
-error: Invalid field `foo`: The environment does not contain `Function.foo`
+error: Invalid field `foo`: The environment does not contain `Function.foo`, so it is not possible to project the field `foo` from an expression
   f
-has type
-  α → α
+of type `α → α`
 -/
 #guard_msgs in
 example (f : α → α) := f.foo
 
 /--
-error: Invalid field notation: Type is not of the form `C ...` where C is a constant
+error: Invalid field notation: Field projection operates on types of the form `C ...` where C is a constant. The expression
   f x
-has type
-  α
+has type `α` which does not have the necessary form.
 -/
 #guard_msgs in
 example (f : α → α) (x : α) := (f x).foo
 
 /--
-error: Invalid field `foo`: The environment does not contain `Function.foo`
+error: Invalid field `foo`: The environment does not contain `Function.foo`, so it is not possible to project the field `foo` from an expression
   f x
-has type
-  α → α
+of type `α → α`
 -/
 #guard_msgs in
 example (f : α → α → α) (x : α) := (f x).foo
 
 /--
-error: Invalid field notation: Type is not of the form `C ...` where C is a constant
+error: Invalid field notation: Field projection operates on types of the form `C ...` where C is a constant. The expression
   foo x
-has type
-  α
+has type `α` which does not have the necessary form.
 -/
 #guard_msgs in
 example (x : α) := (foo x).foo
@@ -61,48 +56,43 @@ example (x : α) := (foo x).foo
 def foo.bar := 32
 
 /--
-error: Invalid field `bar`: The environment does not contain `Function.bar`
+error: Invalid field `bar`: The environment does not contain `Function.bar`, so it is not possible to project the field `bar` from an expression
   foo
-has type
-  α → α
+of type `α → α`
 -/
 #guard_msgs in
 example (foo : α → α) := foo.bar
 
 /--
-error: Invalid field `foo`: The environment does not contain `Function.foo`
+error: Invalid field `foo`: The environment does not contain `Function.foo`, so it is not possible to project the field `foo` from an expression
   let x := id;
   x
-has type
-  ?_ → ?_
+of type `?_ → ?_`
 -/
 #guard_msgs in
 example := (let x := id; x).foo
 
 /--
-error: Invalid field `foo`: The environment does not contain `Function.foo`
+error: Invalid field `foo`: The environment does not contain `Function.foo`, so it is not possible to project the field `foo` from an expression
   ?_
-has type
-  α → α
+of type `α → α`
 -/
 #guard_msgs in
 example {α} := (by intro h; exact h : α → α).foo
 
 /-! Make sure we're not overzealously detecting fvars or implicitly-parameterized values in function position -/
 /--
-error: Invalid field `foo`: The environment does not contain `Nat.foo`
+error: Invalid field `foo`: The environment does not contain `Nat.foo`, so it is not possible to project the field `foo` from an expression
   n
-has type
-  Nat
+of type `Nat`
 -/
 #guard_msgs in
 example (n : Nat) := n.foo
 
 /--
-error: Invalid field `foo`: The environment does not contain `List.foo`
+error: Invalid field `foo`: The environment does not contain `List.foo`, so it is not possible to project the field `foo` from an expression
   []
-has type
-  List Nat
+of type `List Nat`
 -/
 #guard_msgs in
 example (n : Nat) := (@List.nil Nat).foo

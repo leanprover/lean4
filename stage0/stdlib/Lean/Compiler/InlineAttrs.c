@@ -31,6 +31,7 @@ lean_object* l_Lean_Environment_header(lean_object*);
 static lean_object* l_Lean_Compiler_initFn___closed__22_00___x40_Lean_Compiler_InlineAttrs_1525986753____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_Compiler_InlineAttributeKind_inline_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_InlineAttributeKind_toAttrString___closed__0;
+static lean_object* l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__6;
 static lean_object* l_Lean_Compiler_initFn___closed__26_00___x40_Lean_Compiler_InlineAttrs_1525986753____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at___00__private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_setInlineAttribute___boxed(lean_object*, lean_object*, lean_object*);
@@ -95,6 +96,7 @@ static lean_object* l_Lean_Compiler_initFn___closed__17_00___x40_Lean_Compiler_I
 LEAN_EXPORT uint64_t l_Lean_Compiler_instHashableInlineAttributeKind_hash(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_inlineAttrs___regBuiltin_Lean_Compiler_inlineAttrs_docString__1();
 LEAN_EXPORT lean_object* l_Lean_Compiler_InlineAttributeKind_inlineIfReduce_elim___redArg___boxed(lean_object*);
+static lean_object* l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Compiler_InlineAttributeKind_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline_spec__0_spec__0_spec__0_spec__0_spec__2_spec__2___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at___00Lean_Compiler_initFn_00___x40_Lean_Compiler_InlineAttrs_1525986753____hygCtx___hyg_2__spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1567,28 +1569,19 @@ static lean_object* _init_l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("_unary", 6, 6);
+x_1 = lean_mk_string_unchecked("WellFounded", 11, 11);
 return x_1;
 }
 }
 static lean_object* _init_l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__0;
-x_2 = l_Lean_Name_mkStr1(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__2() {
-_start:
-{
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("WellFounded", 11, 11);
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
-static lean_object* _init_l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__3() {
+static lean_object* _init_l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1596,12 +1589,40 @@ x_1 = lean_mk_string_unchecked("fix", 3, 3);
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__2;
+x_2 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__1;
+x_3 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__0;
+x_4 = l_Lean_Name_mkStr3(x_3, x_2, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__4() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("_unary", 6, 6);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__4;
+x_2 = l_Lean_Name_mkStr1(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__6() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__3;
-x_2 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__2;
+x_1 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__2;
+x_2 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__0;
 x_3 = l_Lean_Name_mkStr2(x_2, x_1);
 return x_3;
 }
@@ -1619,34 +1640,46 @@ return x_4;
 }
 else
 {
-lean_object* x_5; uint8_t x_6; uint8_t x_11; 
+lean_object* x_5; uint8_t x_6; uint8_t x_13; 
 x_5 = l_Lean_Expr_constName_x21(x_3);
 lean_inc(x_5);
-x_11 = l_Lean_isBRecOnRecursor(x_2, x_5);
-if (x_11 == 0)
+x_13 = l_Lean_isBRecOnRecursor(x_2, x_5);
+if (x_13 == 0)
 {
-lean_object* x_12; uint8_t x_13; 
-x_12 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__4;
-x_13 = lean_name_eq(x_5, x_12);
-x_6 = x_13;
-goto block_10;
+lean_object* x_14; uint8_t x_15; 
+x_14 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__6;
+x_15 = lean_name_eq(x_5, x_14);
+x_6 = x_15;
+goto block_12;
 }
 else
 {
-x_6 = x_11;
-goto block_10;
+x_6 = x_13;
+goto block_12;
 }
-block_10:
+block_12:
 {
 if (x_6 == 0)
 {
-lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_7 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__1;
-x_8 = l_Lean_Name_append(x_1, x_7);
-x_9 = lean_name_eq(x_5, x_8);
-lean_dec(x_8);
+lean_object* x_7; uint8_t x_8; 
+x_7 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__3;
+x_8 = lean_name_eq(x_5, x_7);
+if (x_8 == 0)
+{
+lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+x_9 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__5;
+x_10 = l_Lean_Name_append(x_1, x_9);
+x_11 = lean_name_eq(x_5, x_10);
+lean_dec(x_10);
 lean_dec(x_5);
-return x_9;
+return x_11;
+}
+else
+{
+lean_dec(x_5);
+lean_dec(x_1);
+return x_8;
+}
 }
 else
 {
@@ -3161,7 +3194,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_unsigned_to_nat(46u);
+x_2 = lean_unsigned_to_nat(47u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -3173,7 +3206,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(63u);
-x_2 = lean_unsigned_to_nat(82u);
+x_2 = lean_unsigned_to_nat(83u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -3201,7 +3234,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(19u);
-x_2 = lean_unsigned_to_nat(67u);
+x_2 = lean_unsigned_to_nat(68u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -3213,7 +3246,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(30u);
-x_2 = lean_unsigned_to_nat(67u);
+x_2 = lean_unsigned_to_nat(68u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -3523,6 +3556,10 @@ l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam_
 lean_mark_persistent(l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__3);
 l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__4 = _init_l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__4();
 lean_mark_persistent(l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__4);
+l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__5 = _init_l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__5();
+lean_mark_persistent(l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__5);
+l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__6 = _init_l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__6();
+lean_mark_persistent(l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lam__0___closed__6);
 l_Lean_withExporting___at___00Lean_withoutExporting___at___00Lean_Compiler_initFn_00___x40_Lean_Compiler_InlineAttrs_1525986753____hygCtx___hyg_2__spec__0_spec__0___redArg___closed__0 = _init_l_Lean_withExporting___at___00Lean_withoutExporting___at___00Lean_Compiler_initFn_00___x40_Lean_Compiler_InlineAttrs_1525986753____hygCtx___hyg_2__spec__0_spec__0___redArg___closed__0();
 lean_mark_persistent(l_Lean_withExporting___at___00Lean_withoutExporting___at___00Lean_Compiler_initFn_00___x40_Lean_Compiler_InlineAttrs_1525986753____hygCtx___hyg_2__spec__0_spec__0___redArg___closed__0);
 l_Lean_withExporting___at___00Lean_withoutExporting___at___00Lean_Compiler_initFn_00___x40_Lean_Compiler_InlineAttrs_1525986753____hygCtx___hyg_2__spec__0_spec__0___redArg___closed__1 = _init_l_Lean_withExporting___at___00Lean_withoutExporting___at___00Lean_Compiler_initFn_00___x40_Lean_Compiler_InlineAttrs_1525986753____hygCtx___hyg_2__spec__0_spec__0___redArg___closed__1();

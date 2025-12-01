@@ -24,6 +24,7 @@ static lean_object* l_Lean_Elab_Tactic_Omega_Problem_instToString___lam__3___clo
 static lean_object* l_Lean_Elab_Tactic_Omega_Problem_proveFalse___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_Justification_tidy_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkSorry(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instFunctorOfMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_Problem_isEmpty___boxed(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___closed__2;
@@ -525,7 +526,6 @@ static lean_object* l_Lean_Elab_Tactic_Omega_Justification_bmodProof___closed__3
 size_t lean_array_size(lean_object*);
 lean_object* l_Lean_instToExprInt_mkNat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_Justification_ctorIdx(lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_Problem_dealWithHardEquality___closed__4;
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_Fact_instToString___lam__0(lean_object*);

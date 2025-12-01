@@ -23,6 +23,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 static lean_object* l_Lean_Elab_Command_elabSyntax___closed__31;
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__88;
 static lean_object* l_Lean_Elab_Term_ensureUnaryOutput___closed__6;
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instFunctorOfMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Command_expandNoKindMacroRulesAux_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___00Lean_Elab_liftMacroM___at___00Lean_Elab_Term_checkLeftRec_spec__0_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -911,7 +912,6 @@ size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_strLitToPattern___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_processSepBy___closed__3;
 lean_object* l_Lean_Elab_mkUnusedBaseName(lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__54;
 lean_object* lean_st_ref_set(lean_object*, lean_object*);

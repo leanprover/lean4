@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_GitRepo_getFilteredRemoteUrl_x3f(lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_GitRepo_resolveRevision_x3f___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_GitRepo_getHeadRevisions___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_GitRepo_testGit(lean_object*, lean_object*);
@@ -167,7 +168,6 @@ static lean_object* l_Lake_GitRepo_captureGit___closed__1;
 static lean_object* l_Lake_GitRepo_resolveRevision_x3f___closed__2;
 LEAN_EXPORT lean_object* l_Lake_GitRepo_testGit___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_GitRepo_checkoutDetach___closed__2;
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators_Iter_toStringArray___at___00Lake_GitRepo_getHeadRevisions_spec__1___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lake_GitRepo_getTags(lean_object*);
 static lean_object* l_Lake_GitRepo_getTags___closed__0;

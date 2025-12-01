@@ -18,6 +18,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Command_0__Lean_Elab_Command_lift
 static lean_object* l_Lean_Elab_Command_mkMetaContext___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabCommandTopLevel___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_initFn___closed__8_00___x40_Lean_Elab_Command_3618451543____hygCtx___hyg_2_;
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instFunctorOfMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_instMonadLiftTIOCommandElabM___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_instMonadDeclNameGeneratorCommandElabM___lam__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -1197,7 +1198,6 @@ lean_object* l_Lean_Language_SnapshotTask_map___redArg(lean_object*, lean_object
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forInAux___at___00Lean_PersistentArray_forIn___at___00Lean_addTraceAsMessages___at___00Lean_Elab_Command_wrapAsyncAsSnapshot_spec__0_spec__9_spec__9_spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_trace_profiler;
 lean_object* l_Lean_Kernel_resetDiag(lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_foldArgsM___at___00Lean_Syntax_forArgsM___at___00__private_Lean_Elab_Command_0__Lean_Elab_Command_recordUsedSyntaxKinds_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommand_go_spec__19(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);

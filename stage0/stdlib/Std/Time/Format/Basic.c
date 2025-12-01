@@ -22,6 +22,7 @@ LEAN_EXPORT lean_object* l_Std_Time_OffsetO_ctorIdx(uint8_t);
 static lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_formatWith___closed__0;
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___00List_repr___at___00Std_Time_instReprGenericFormat_repr_spec__0_spec__0(lean_object*, lean_object*);
 static lean_object* l_Std_Time_instReprModifier_repr___closed__60;
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__0;
 static lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_parseModifier___closed__68;
 static lean_object* l_Std_Time_instReprModifier_repr___closed__39;
@@ -1081,7 +1082,6 @@ static lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_parseModifier_
 static lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__3;
 static lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_parseModifier___closed__59;
 lean_object* lean_int_add(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instReprZoneId_repr(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Modifier_w_elim___redArg(lean_object*, lean_object*);
 static lean_object* l_Std_Time_instReprZoneId_repr___closed__1;

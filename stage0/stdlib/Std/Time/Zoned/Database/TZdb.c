@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Std_Time_TimeZone_TZif_parse(lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_inst___lam__2___closed__2;
@@ -74,7 +75,6 @@ static lean_object* l_Std_Time_Database_TZdb_default___closed__2;
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_readRulesFromDisk(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_ofExcept___at___00Std_Time_Database_TZdb_parseTZIfFromDisk_spec__0(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_default___closed__3;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);

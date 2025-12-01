@@ -19,6 +19,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 static lean_object* l_Array_Array_repr___at___00__private_Lake_Build_Module_0__Lake_instReprModuleDeps_repr_spec__0___closed__5;
 LEAN_EXPORT lean_object* l___private_Lake_Build_Module_0__Lake_Module_restoreAllArtifacts_restoreSome___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ImportArtifacts_size(lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Module_0__Lake_ModuleOutputDescrs_getArtifactsFrom___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Module_0__Lake_setupEditedModule___lam__4(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, size_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_formatQuery___at___00Lake_Module_importsFacetConfig_spec__0_spec__0(lean_object*, size_t, size_t, lean_object*);
@@ -792,7 +793,6 @@ static lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_In
 lean_object* l_Lake_ModuleOutputDescrs_fromJson_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_prepareLeanCommand___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Module_0__Lake_fetchTransImportArts_enqueue(uint8_t, uint8_t, lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Module_0__Lake_Module_recComputePrecompileImports___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instToJsonModuleSetup_toJson(lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);

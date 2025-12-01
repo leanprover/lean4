@@ -19,6 +19,7 @@ lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_x27(
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_pushToken(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_setLhsPrec_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___00Lean_PrettyPrinter_Formatter_categoryFormatterCore_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instFunctorOfMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at___00__private_Init_Data_Format_Basic_0__Std_Format_be___at___00Std_Format_prettyM___at___00Lean_PrettyPrinter_OneLine_pretty_spec__1_spec__1_spec__4___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_goUp___at___00Lean_PrettyPrinter_Formatter_visitArgs_spec__0___redArg___boxed(lean_object*, lean_object*);
@@ -811,7 +812,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoTree___at___00Lean_Elab_pushInfoLea
 static lean_object* l_Lean_Name_toStringWithToken___at___00Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter_spec__0___closed__0;
 static lean_object* l_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___closed__3;
 lean_object* lean_int_add(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_withFn_formatter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_categoryFormatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

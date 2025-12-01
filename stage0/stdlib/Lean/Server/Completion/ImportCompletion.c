@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_JsonNumber_fromNat(lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ImportCompletion_collectAvailableImports();
 lean_object* l_Lean_determineLakePath();
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00ImportCompletion_computePartialImportCompletions_spec__3___redArg___lam__0___closed__0;
@@ -164,7 +165,6 @@ static lean_object* l_ImportCompletion_collectAvailableImportsFromLake___closed_
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00ImportCompletion_find_spec__0(size_t, size_t, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ImportCompletion_collectAvailableImportsFromLake();
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_NameTrie_toArray___redArg(lean_object*);

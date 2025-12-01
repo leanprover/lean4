@@ -22,6 +22,7 @@ LEAN_EXPORT lean_object* l_Lean_instInhabitedBaseMessage_default(lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_MessageLog_toArray___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MessageData_ofWidget_elim___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Kernel_Exception_toMessageData___closed__16;
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MessageData_instCoeList;
 static lean_object* l_Lean_instToMessageDataSubarray___redArg___closed__5;
 static lean_object* l_Lean_instFromJsonMessageSeverity_fromJson___closed__0;
@@ -718,7 +719,6 @@ static lean_object* l_Lean_instFromJsonSerialMessage_fromJson___closed__18;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Message_0__Lean_MessageData_hasSyntheticSorry_visit_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MessageLog_forM(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MessageData_instCoeOptionExpr___lam__0(lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instToJsonMessageSeverity_toJson___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_PersistentArray_mapMAux___at___00Lean_PersistentArray_mapM___at___00Lean_MessageLog_errorsToInfos_spec__0_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___00Lean_instFromJsonSerialMessage_fromJson_spec__2___boxed(lean_object*, lean_object*);

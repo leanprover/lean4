@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_rawProc___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_logOutput___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
@@ -64,7 +65,6 @@ LEAN_EXPORT lean_object* l_Lake_proc(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_rawProc___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Lake_mkCmdLog_spec__0(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_logOutput___lam__1(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);

@@ -1151,7 +1151,7 @@ relevant information. They may insert links as needed. This section
 should fully explain the scope of the tactic: its syntax format,
 on which goals it works and what the resulting goal(s) look like. It
 should be clear whether the tactic fails if it does not close the main
-goal and if it creates any side goals. The details may include
+goal and whether it creates any side goals. The details may include
 explanatory examples that can’t necessarily be machine checked and
 don’t fit the format.
 

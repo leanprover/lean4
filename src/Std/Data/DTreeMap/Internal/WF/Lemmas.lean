@@ -1673,7 +1673,7 @@ theorem eraseManyEntries_eq_foldl {_ : Ord α} {l : List ((a : α) × β a)} {t 
     (t.eraseManyEntries l h).val = l.foldl (init := t) fun acc ⟨k, _⟩ => acc.erase! k := by
   simp [eraseManyEntries, erase_eq_erase!, ← List.foldl_hom Subtype.val, List.forIn_pure_yield_eq_foldl]
 
-theorem eraseManyEntries_eq_foldl_impl {_ : Ord α} {t₁ : Impl α β} (h₁ : t₁.Balanced) {t₂ : Impl α β} :
+theorem eraseManyEntries_impl_eq_foldl {_ : Ord α} {t₁ : Impl α β} (h₁ : t₁.Balanced) {t₂ : Impl α β} :
     (t₁.eraseManyEntries t₂ h₁).val = t₂.foldl (init := t₁) fun acc k _ => acc.erase! k := by
   simp [foldl_eq_foldl]
   rw [← eraseManyEntries_eq_foldl]
@@ -1683,7 +1683,7 @@ theorem eraseManyEntries_eq_foldl_impl {_ : Ord α} {t₁ : Impl α β} (h₁ : 
     rw [forIn_eq_forIn_toListModel]
     congr
 
-theorem eraseManyEntries!_eq_foldl_impl {_ : Ord α} {t₁ : Impl α β} {t₂ : Impl α β} :
+theorem eraseManyEntries!_impl_eq_foldl {_ : Ord α} {t₁ : Impl α β} {t₂ : Impl α β} :
     (t₁.eraseManyEntries! t₂).val = t₂.foldl (init := t₁) fun acc k _ => acc.erase! k := by
   simp [foldl_eq_foldl]
   rw [← eraseManyEntries!_eq_foldl]
@@ -1691,15 +1691,15 @@ theorem eraseManyEntries!_eq_foldl_impl {_ : Ord α} {t₁ : Impl α β} {t₂ :
   rw [forIn_eq_forIn_toListModel]
   congr
 
-theorem eraseManyEntries_eq_eraseManyEntries!_impl {_ : Ord α}
+theorem eraseManyEntries_impl_eq_eraseManyEntries! {_ : Ord α}
     {t₁ t₂ : Impl α β} (h : t₁.Balanced) :
     (t₁.eraseManyEntries t₂ h).val = (t₁.eraseManyEntries! t₂).val := by
-  simp only [eraseManyEntries_eq_foldl_impl, eraseManyEntries!_eq_foldl_impl]
+  simp only [eraseManyEntries_impl_eq_foldl, eraseManyEntries!_impl_eq_foldl]
 
 theorem eraseManyEntries_impl_perm_eraseList {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
     {t₁ : Impl α β} (h₁ : t₁.WF) {t₂ : Impl α β} :
     List.Perm (t₁.eraseManyEntries t₂ h₁.balanced).val.toListModel (t₁.toListModel.eraseList (t₂.toListModel.map (·.1))) := by
-  rw [eraseManyEntries_eq_foldl_impl]
+  rw [eraseManyEntries_impl_eq_foldl]
   rw [foldl_eq_foldl]
   induction t₂.toListModel generalizing t₁ with
   | nil => rfl
@@ -1723,7 +1723,7 @@ theorem toListModel_eraseManyEntries_impl {_ : Ord α} [BEq α] [LawfulBEqOrd α
 theorem toListModel_eraseManyEntries!_impl {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
     {t₁ : Impl α β} (h₁ : t₁.WF) {t₂ : Impl α β} :
     List.Perm (t₁.eraseManyEntries! t₂).val.toListModel (t₁.toListModel.filter (fun p => !List.contains (t₂.toListModel.map Sigma.fst) p.fst)) := by
-  rw [← eraseManyEntries_eq_eraseManyEntries!_impl h₁.balanced]
+  rw [← eraseManyEntries_impl_eq_eraseManyEntries! h₁.balanced]
   apply toListModel_eraseManyEntries_impl h₁
 
 theorem WF.eraseManyEntries! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ ((a : α) × β a)] {l : ρ}
@@ -2142,7 +2142,7 @@ theorem diff_eq_diff! [Ord α]
   simp only [diff, diff!]
   split
   · rw [filter_eq_filter!]
-  . rw [eraseManyEntries_eq_eraseManyEntries!_impl h₁.balanced]
+  . rw [eraseManyEntries_impl_eq_eraseManyEntries! h₁.balanced]
 
 theorem WF.diff! {_ : Ord α} [TransOrd α]
     {t₁ : Impl α β} (h₁ : t₁.WF) {t₂ : Impl α β} : (t₁.diff! t₂).WF := by

@@ -1173,15 +1173,17 @@ clear from the code, you can use code comments to describe this.
 `rw [e]` uses the expression `e` as a rewrite rule on the main goal,
 then tries to close the goal by "cheap" (reducible) `rfl`.
 
-If `e` is a defined constant, then the equational theorems associated with `e` are used. This provides a convenient way to unfold `e`.
-If `e` has parameters, the tactic will try to fill these in by unification with the matching part of the target.
-Parameters are only filled in once per rule, restricting which later rewrites can be found.
-Parameters that are not filled in after unification will create side goals.
-If the `rfl` fails to close the main goal, no error is raised.
+If `e` is a defined constant, then the equational theorems associated with `e`
+are used. This provides a convenient way to unfold `e`. If `e` has parameters,
+the tactic will try to fill these in by unification with the matching part of
+the target. Parameters are only filled in once per rule, restricting which
+later rewrites can be found. Parameters that are not filled in after
+unification will create side goals. If the `rfl` fails to close the main goal,
+no error is raised.
 
-`rw` may fail to rewrite terms "under binders", such as `∀ x, ...` or `∃ x, ...`.
-`rw` can also fail with a "motive is type incorrect" error in the context of dependent types.
-In these cases, consider using `simp only`.
+`rw` may fail to rewrite terms "under binders", such as `∀ x, ...` or `∃ x,
+...`. `rw` can also fail with a "motive is type incorrect" error in the context
+of dependent types. In these cases, consider using `simp only`.
 
 * `rw [e₁, ... eₙ]` applies the given rules sequentially.
 * `rw [← e]` or `rw [<- e]` applies the rewrite in the reverse direction.

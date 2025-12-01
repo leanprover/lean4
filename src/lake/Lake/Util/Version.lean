@@ -88,7 +88,7 @@ def parseSpecialDescr? (s : String) : EStateM String s.Pos (Option String) := do
       let p := p.next h
       let p' := nextUntilWhitespace p
       set p'
-      let specialDescr := p.extract p'
+      let specialDescr := s.extract p p'
       return some specialDescr
     else
       return none
@@ -256,7 +256,7 @@ public def ofString (ver : String) : ToolchainVer := Id.run do
   let (origin, tag) :=
     if h : ¬colonPos.IsAtEnd then
       let pos := colonPos.next h
-      (ver.startPos.extract colonPos, pos.extract ver.endPos)
+      (ver.extract ver.startPos colonPos, ver.extract pos ver.endPos)
     else
       ("", ver)
   let noOrigin := origin.isEmpty

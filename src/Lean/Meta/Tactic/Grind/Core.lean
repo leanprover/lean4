@@ -240,6 +240,16 @@ where
         propagateDown e
       propagateUnitConstFuns lams₁ lams₂
       toPropagateSolvers.propagate
+      if rhsNode.root.isTrue then
+        checkDelayedThmInsts toPropagateDown
+  checkDelayedThmInsts (toPropagateDown : List Expr) : GoalM Unit := do
+    if (← isInconsistent) then return ()
+    if (← get).delayedThmInsts.isEmpty then return ()
+    for e in toPropagateDown do
+      let some delayedThms := (← get).delayedThmInsts.find? { expr := e } | pure ()
+      modify fun s => { s with delayedThmInsts := s.delayedThmInsts.erase { expr := e } }
+      delayedThms.forM (·.check)
+
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do
     let isFalseRoot ← isFalseExpr rootNew
     traverseEqc lhs fun n => do

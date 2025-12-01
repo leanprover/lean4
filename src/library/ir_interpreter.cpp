@@ -216,7 +216,8 @@ string_ref get_symbol_stem(elab_environment const & env, name const & fn) {
 
 extern "C" object * lean_ir_format_fn_body_head(object * b);
 std::string format_fn_body_head(fn_body const & b) {
-    return string_to_std(lean_ir_format_fn_body_head(b.to_obj_arg()));
+    object_ref s(lean_ir_format_fn_body_head(b.to_obj_arg()));
+    return string_to_std(s.raw());
 }
 
 static bool type_is_scalar(type t) {

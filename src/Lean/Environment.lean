@@ -1718,7 +1718,7 @@ passing (a prefix of) the file names to `readModuleDataParts`. `mod` is used to 
 arbitrary but deterministic base address for `mmap`.
 -/
 @[extern "lean_save_module_data_parts"]
-opaque saveModuleDataParts (mod : @& Name) (parts : Array (System.FilePath × ModuleData)) : IO Unit
+opaque saveModuleDataParts (mod : @& Name) (parts : @& Array (System.FilePath × ModuleData)) : IO Unit
 
 /--
 Loads the module data from the given file names. The files must be (a prefix of) the result of a

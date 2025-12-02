@@ -47,7 +47,7 @@ private meta def baseNames : Array Name :=
     ``getKey?_eq, ``getKey_eq, ``getKey!_eq, ``getKeyD_eq,
     ``insertMany_eq, ``Const.insertMany_eq, ``Const.insertManyIfNewUnit_eq, ``ofArray_eq, ``Const.ofArray_eq,
     ``ofList_eq, ``Const.ofList_eq, ``Const.unitOfList_eq, ``Const.unitOfArray_eq,
-    ``alter_eq, ``Const.alter_eq, ``modify_eq, ``Const.modify_eq, ``union_eq, ``inter_eq, `diff_eq, ``beq_eq, ``Const.beq_eq]
+    ``alter_eq, ``Const.alter_eq, ``modify_eq, ``Const.modify_eq, ``union_eq, ``inter_eq, ``diff_eq, ``beq_eq, ``Const.beq_eq]
 
 
 /-- Internal implementation detail of the hash map -/
@@ -3766,8 +3766,8 @@ theorem Equiv.beq [∀ k, ReflBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : m�
   intro h
   exact Raw₀.Equiv.beq h₁ h₂ h
 
-theorem Equiv_of_beq_eq_true [∀ k, LawfulBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : beq m₁ m₂ = true → m₁ ~m m₂ := by
-  simp_to_raw using Raw₀.Equiv_of_beq_eq_true
+theorem equiv_of_beq [∀ k, LawfulBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : beq m₁ m₂ = true → m₁ ~m m₂ := by
+  simp_to_raw using Raw₀.equiv_of_beq
 
 theorem Equiv.beq_congr {m₃ m₄ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) :
     m₁ ~m m₃ → m₂ ~m m₄ → Raw.beq m₁ m₂ = Raw.beq m₃ m₄ := by
@@ -3785,8 +3785,8 @@ theorem Const.Equiv.beq [LawfulHashable α] [EquivBEq α] [BEq β] [ReflBEq β] 
   intro h
   exact Raw₀.Const.Equiv.beq h₁ h₂ h
 
-theorem Const.Equiv_of_beq_eq_true [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : beq m₁ m₂ = true → m₁ ~m m₂ := by
-  simp_to_raw using Raw₀.Const.Equiv_of_beq_eq_true
+theorem Const.equiv_of_beq [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : beq m₁ m₂ = true → m₁ ~m m₂ := by
+  simp_to_raw using Raw₀.Const.equiv_of_beq
 
 theorem Const.Equiv.beq_congr [LawfulBEq α] [BEq β] {m₃ m₄ : Raw  α (fun _ => β)} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF)  :
     m₁ ~m m₃ → m₂ ~m m₄ → Raw.Const.beq m₁ m₂ = Raw.Const.beq m₃ m₄ := by

@@ -3577,7 +3577,7 @@ theorem insertList_insertEntry_right_equiv_insertEntry_insertList [BEq α] [Equi
   . simp only [Option.some_or]
   . rw [@getEntry?_insertList α β _ _ l toInsert distinct_l (DistinctKeys_impl_Pairwise_distinct distinct_toInsert) a]
 
-theorem length_le_of_keys_subset [BEq α] [EquivBEq α]
+theorem length_le_length_of_containsKey [BEq α] [EquivBEq α]
     {l₁ l₂ : List ((a : α) × β a)}
     (dl₁ : DistinctKeys l₁)
     (dl₂ : DistinctKeys l₂)
@@ -3625,7 +3625,7 @@ theorem containsKey_of_subset_of_length_eq [BEq α] [EquivBEq α] {l₁ l₂ : L
   suffices l₁.length < l₂.length by omega
   suffices l₁.length ≤ (eraseKey a l₂).length ∧ 1 + (eraseKey a l₂).length = l₂.length by omega
   apply And.intro
-  · apply length_le_of_keys_subset dl₁ (DistinctKeys.eraseKey dl₂)
+  · apply length_le_length_of_containsKey dl₁ (DistinctKeys.eraseKey dl₂)
     intro a₂ mem₂
     rw [containsKey_eraseKey dl₂]
     simp only [Bool.and_eq_true, Bool.not_eq_eq_eq_not, Bool.not_true]
@@ -7769,7 +7769,7 @@ theorem Const.beqModel_congr {β : Type v} [BEq α] [LawfulBEq α] [BEq β] {l�
     rw [this]
     apply all_congr p₁
 
-theorem beqModel_eq_beqModel_const {β : Type v} [BEq α] [LawfulBEq α] [BEq β] {l₁ l₂ : List ((_ : α) × β)} : beqModel l₁ l₂ = Const.beqModel l₁ l₂ := by
+theorem beqModel_eq_constBeqModel {β : Type v} [BEq α] [LawfulBEq α] [BEq β] {l₁ l₂ : List ((_ : α) × β)} : beqModel l₁ l₂ = Const.beqModel l₁ l₂ := by
   rw [beqModel, Const.beqModel]
   congr
   ext x
@@ -7777,7 +7777,7 @@ theorem beqModel_eq_beqModel_const {β : Type v} [BEq α] [LawfulBEq α] [BEq β
 
 theorem Const.perm_of_beqModel {β : Type v} [BEq α] [LawfulBEq α] [BEq β] [LawfulBEq β] {l₁ l₂ : List ((_ : α) × β)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
     beqModel l₁ l₂ → l₁.Perm l₂ := by
-  rw [← beqModel_eq_beqModel_const]
+  rw [← beqModel_eq_constBeqModel]
   intro hyp
   apply List.perm_of_beqModel
   · exact hl₁

@@ -1352,8 +1352,8 @@ variable {β : Type v} {m₁ m₂ : HashMap α β} [BEq β]
 theorem Equiv.beq [LawfulHashable α] [EquivBEq α] [ReflBEq β] (h : m₁ ~m m₂) : m₁ == m₂ :=
   DHashMap.Const.Equiv.beq h.1
 
-theorem Equiv_of_beq_eq_true [LawfulBEq α] [LawfulBEq β] (h : m₁ == m₂) : m₁ ~m m₂ :=
-  ⟨DHashMap.Const.Equiv_of_beq_eq_true h⟩
+theorem equiv_of_beq [LawfulBEq α] [LawfulBEq β] (h : m₁ == m₂) : m₁ ~m m₂ :=
+  ⟨DHashMap.Const.equiv_of_beq h⟩
 
 theorem Equiv.beq_congr [LawfulBEq α] {m₃ m₄ : HashMap α β} : m₁ ~m m₃ → m₂ ~m m₄ → (m₁ == m₂) = (m₃ == m₄) := fun h1 h2 =>
   DHashMap.Const.Equiv.beq_congr h1.1 h2.1

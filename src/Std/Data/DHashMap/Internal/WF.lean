@@ -1597,7 +1597,7 @@ theorem Const.wf_insertManyIfNewUnit₀ [BEq α] [Hashable α] [EquivBEq α] [La
     {l : ρ} (h' : m.WF) : (Const.insertManyIfNewUnit ⟨m, h⟩ l).1.1.WF :=
   (Raw₀.Const.insertManyIfNewUnit ⟨m, h⟩ l).2 _ Raw.WF.insertIfNew₀ h'
 
-theorem toListModel_beq [BEq α] [LawfulBEq α] [Hashable α] [∀ k, BEq (β k)] {m₁ m₂ : Raw₀ α β}  (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1) :
+theorem beq_eq_beqModel [BEq α] [LawfulBEq α] [Hashable α] [∀ k, BEq (β k)] {m₁ m₂ : Raw₀ α β}  (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1) :
     beq m₁ m₂ = beqModel m₁.1.toList m₂.1.toList := by
   rw [beq, beqModel]
   split
@@ -1616,7 +1616,7 @@ theorem toListModel_beq [BEq α] [LawfulBEq α] [Hashable α] [∀ k, BEq (β k)
     · exact h₂
     · exact h₁
 
-theorem Const.toListModel_beq {β : Type v} [BEq α] [PartialEquivBEq α] [Hashable α] [LawfulHashable α] [BEq β] {m₁ m₂ : Raw₀ α (fun _ => β)}  (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1) :
+theorem Const.beq_eq_beqModel {β : Type v} [BEq α] [PartialEquivBEq α] [Hashable α] [LawfulHashable α] [BEq β] {m₁ m₂ : Raw₀ α (fun _ => β)}  (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1) :
     beq m₁ m₂ = Const.beqModel m₁.1.toList m₂.1.toList := by
   rw [beq, Const.beqModel]
   split

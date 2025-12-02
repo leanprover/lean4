@@ -788,8 +788,8 @@ variable {m₁ m₂ : HashSet α}
 theorem Equiv.beq [LawfulHashable α] [EquivBEq α] (h : m₁ ~m m₂) : m₁ == m₂ :=
   HashMap.Equiv.beq h.1
 
-theorem Equiv_of_beq_eq_true [LawfulBEq α] (h : m₁ == m₂) : m₁ ~m m₂ :=
-  ⟨HashMap.Equiv_of_beq_eq_true h⟩
+theorem equiv_of_beq [LawfulBEq α] (h : m₁ == m₂) : m₁ ~m m₂ :=
+  ⟨HashMap.equiv_of_beq h⟩
 
 theorem Equiv.beq_congr [LawfulBEq α] {m₃ m₄ : HashSet α} : m₁ ~m m₃ → m₂ ~m m₄ → (m₁ == m₂) = (m₃ == m₄) := fun h1 h2 =>
   HashMap.Equiv.beq_congr h1.1 h2.1

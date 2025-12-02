@@ -8,10 +8,10 @@ set_option pp.mvars false
 Basic usage.
 -/
 
-/-- warning: declaration `example` uses `sorry` -/
+/-- warning: declaration `«example»` uses `sorry` -/
 #guard_msgs in example : False := sorry
 
-/-- warning: declaration `example` uses `sorry` -/
+/-- warning: declaration `«example»` uses `sorry` -/
 #guard_msgs in example : False := by sorry
 
 /-!
@@ -31,7 +31,7 @@ Pretty printing
 Uniqueness
 -/
 
-/-- warning: declaration `example` uses `sorry` -/
+/-- warning: declaration `«example»` uses `sorry` -/
 #guard_msgs in
 example : (sorry : Nat) = sorry := by
   fail_if_success rfl
@@ -122,7 +122,7 @@ https://github.com/leanprover/lean4/issues/6715
 trace: n : Nat := sorry
 ⊢ True
 ---
-warning: declaration `example` uses `sorry`
+warning: declaration `«example»` uses `sorry`
 -/
 #guard_msgs in
 example : True := by

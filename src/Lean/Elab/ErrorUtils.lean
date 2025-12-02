@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Rob Simmons
+-/
 module
 
 prelude
@@ -33,7 +38,16 @@ private def _root_.List.toOxford : List String -> String
   | [a, b, c] => a ++ ", " ++ b  ++ ", and " ++ c
   | a :: as => a ++ ", " ++ toOxford as
 
-/- Give alternative forms of a string if the `count` is 1 or not. -/
+/--
+Give alternative forms of a string if the `count` is 1 or not.
+
+ - `(1).plural == ""`
+ - `(2).plural == "s"`
+ - `(1).plural "wug" == "wug"`
+ - `(2).plural "wug" == "wugs"`
+ - `(1).plural "it" "they" == "it"`
+ - `(2).plural "it" "they" == "they"`
+-/
 private def _root_.Nat.plural (count : Nat) (singular : String := "") (plural : String := singular ++ "s") :=
   if count = 1 then
     singular

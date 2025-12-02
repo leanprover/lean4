@@ -2455,7 +2455,6 @@ def extractAndExtendPopulateAux (k len : Nat) (x : BitVec w) (acc : BitVec (k * 
     ⟨res, proof⟩
 
 
-
 theorem extractAndExtendPopulateAux_zero_eq (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (heq : k = w)
     (hacc : ∀ i (_ : i < k), acc.extractLsb' (i * len) len = (x.extractLsb' i 1).setWidth len) :
     (extractAndExtendPopulateAux k len x acc (by omega) hacc).val = acc.cast (by simp [heq]):= by
@@ -2503,8 +2502,6 @@ theorem extractLsb'_extractAndExtendPopulate_zero_eq (x : BitVec w) :
   rw [show 0 = 0 * w by omega, extractLsb'_extractAndExtendPopulate_eq (i := 0)]
   simp
 
-
-
 theorem append_extractLsb'_self (x : BitVec (w + 1)) :
     x = (extractLsb' 1 w x).append (extractLsb' 0 1 x) := by
   simp
@@ -2513,8 +2510,6 @@ theorem append_extractLsb'_self (x : BitVec (w + 1)) :
   by_cases hklt : k = 0
   · simp [hklt]
   · simp [hklt, show 1 + (k - 1) = k by omega, getLsbD_eq_getElem (by omega)]
-
-
 
 /-- recursive addition on a flattened bitvec -/
 def recursive_addition (x : BitVec (l * w)) (remaining_elements : Nat) : BitVec w :=
@@ -3000,5 +2995,16 @@ def pps (l : BitVec (l_length * w)) (k: BitVec w)
       rw [← proof]
       apply rec_add_eq_rec_add_iff (a := new_layer) (by omega) (b := l) (by omega) (by omega) (by omega) (n := (l_length + 1) / 2) (by omega)
     pps new_layer k proof_sum_eq proof_new_layer_length hw
+
+theorem cpop_eq_recursive_addition {x : BitVec w} :
+    have hcast : w = 1 * w := by simp
+    x.cpop = (x.cast hcast).recursive_addition w := by
+  simp [cpop]
+  induction w
+  · simp [recursive_addition, cpopNatRec]
+  · case _ w' ihw' =>
+
+    sorry
+
 
 end BitVec

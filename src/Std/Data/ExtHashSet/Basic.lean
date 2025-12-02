@@ -222,7 +222,7 @@ instance [LawfulBEq α] : LawfulBEq (ExtHashSet α) where
     have ⟨⟨a⟩⟩ := a
     have ⟨⟨b⟩⟩ := b
     simp only [mk.injEq, ExtHashMap.mk.injEq] at |- hyp
-    exact ExtDHashMap.Const.eq_of_beq_unit_eq_true _ _ hyp
+    exact ExtDHashMap.Const.eq_of_beq_unit _ _ hyp
 
 /--
 Computes the intersection of the given hash sets.

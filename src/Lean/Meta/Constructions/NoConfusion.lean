@@ -269,25 +269,19 @@ declaration to equalities between two applications of the same constructor, to e
 the computation of `noConfusionType` for that constructor:
 
 ```
-def L.cons.noConfusion.{u_1, u} : {α : Type u} → (P : Sort u_1) →
-  (x : α) → (xs : L α) → (x' : α) → (xs' : L α) →
+def L.cons.noConfusion.{u_1, u} : {α : Type u} → {P : Sort u_1} →
+  {x : α} → {xs : L α} → {x' : α} → {xs' : L α} →
   L.cons x xs = L.cons x' xs' →
   (x = x' → xs = xs' → P) →
   P
-```
 
-TODO: Update
-These definitions are less expressive than the general `noConfusion` principle when there are
-complicated indices. In particular they assume that all fields of the constructor that appear
-in its type are equal already. The `mkNoConfusion` app builder falls back to the general principle
-if the per-constructor one does not apply. Example:
+def Vec.cons.noConfusion.{u_1, u} : {α : Type u} → {P : Sort u_1} →
+  {n : Nat} → {x : α} → {xs : Vec α n} →
+  {n' : Nat} → {x' : α} → {xs' : Vec α n'} →
+  n + 1 = n' + 1 → Vec.cons x xs ≍ Vec.cons x' xs' →
+  (n = n' → x = x' → xs ≍ xs' → P)
+  → P
 ```
-inductive T : Nat → Type where | mk n : T (n - 2)
-example (h : T.mk 1 = T.mk 2) : False := T.noConfusion h (fun h12 => by contradiction)
-```
-
-At some point I tried to be clever and remove hypotheses that are trivial (`n = n →`), but that
-made it harder for, say, `injection` to know how often to `intro`. So we just keep them.
 -/
 def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
   -- Do not do anything unless can_elim_to_type.

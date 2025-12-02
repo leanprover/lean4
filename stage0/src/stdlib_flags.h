@@ -1,5 +1,6 @@
 #include "util/options.h"
 
+// dear CI, please do a stage0 update after merging my PR
 // stage0 update needed for grind_annotated command
 namespace lean {
 options get_default_options() {

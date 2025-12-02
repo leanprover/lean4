@@ -348,7 +348,7 @@ def collectRecCalls (unaryPreDef : PreDefinition) (fixedParamPerms : FixedParamP
   lambdaBoundedTelescope unaryPreDef.value (fixedParamPerms.numFixed + 1) fun xs body => do
     unless xs.size == fixedParamPerms.numFixed + 1 do
       throwError "Unexpected number of lambdas in unary pre-definition"
-    let ys := xs[*...fixedParamPerms.numFixed].copy
+    let ys := xs[*...fixedParamPerms.numFixed]
     let param := xs[fixedParamPerms.numFixed]!
     withRecApps unaryPreDef.declName fixedParamPerms.numFixed param body fun param args => do
       unless args.size ≥ fixedParamPerms.numFixed + 1 do

@@ -96,7 +96,7 @@ def mkExtIffType (extThmName : Name) : MetaM Expr := withLCtx {} {} do
       if (← fvar.fvarId!.getBinderInfo) matches .default | .strictImplicit then
         newBis := newBis.push (fvar.fvarId!, .implicit)
     withNewBinderInfos newBis do
-      mkForallFVars args[*...startIdx].copy <| mkIff ty conj
+      mkForallFVars args[*...startIdx] <| mkIff ty conj
 
 /--
 Ensures that the given structure has an ext theorem, without validating any pre-existing theorems.

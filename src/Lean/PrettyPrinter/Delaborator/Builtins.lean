@@ -659,7 +659,7 @@ def delabStructureInstance : Delab := do
     let .const _ levels := (← getExpr).getAppFn | failure
     let args := (← getExpr).getAppArgs
     let params := args[*...s.numParams]
-    let (_, fields) ← collectStructFields s.induct levels params.copy #[] {} s
+    let (_, fields) ← collectStructFields s.induct levels params #[] {} s
     let tyStx? : Option Term ← withType do
       if ← getPPOption getPPStructureInstanceType then delab else pure none
     withFnRefWhenTagAppFns `({ $fields,* $[: $tyStx?]? })
@@ -942,7 +942,7 @@ private partial def delabLamAux (allNames : NameSet) : Delab := do
           | BinderInfo.default, _ =>
             -- "default" binder group is the only one that expects binder names as a term,
             -- i.e. a single `Syntax.ident` or an application.
-            let stxCurNames := Syntax.mkApp curNames[0]! curNames[1:].copy
+            let stxCurNames := Syntax.mkApp curNames[0]! curNames[1:]
             `(funBinder| ($stxCurNames : $(← mstxT)))
           | BinderInfo.implicit, true  => `(funBinder| {$curNames* : $(← mstxT)})
           | BinderInfo.implicit, false => `(funBinder| {$curNames*})

@@ -24,9 +24,9 @@ def mkRecOn (n : Name) : MetaM Unit := do
     -- fow:    As Cs indices major-premise minor-premises
     let AC_size := xs.size - recInfo.numMinors - recInfo.numIndices - 1
     let vs :=
-      xs[*...AC_size].copy ++
-      xs[(AC_size + recInfo.numMinors)...(AC_size + recInfo.numMinors + 1 + recInfo.numIndices)].copy ++
-      xs[(AC_size)...(AC_size + recInfo.numMinors)].copy
+      xs[*...AC_size] ++
+      xs[(AC_size + recInfo.numMinors)...(AC_size + recInfo.numMinors + 1 + recInfo.numIndices)] ++
+      xs[(AC_size)...(AC_size + recInfo.numMinors)]
     let type ← mkForallFVars vs t
     let value ← mkLambdaFVars vs e
     mkDefinitionValInferringUnsafe (mkRecOnName n) recInfo.levelParams type value .abbrev

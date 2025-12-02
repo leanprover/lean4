@@ -242,7 +242,7 @@ def tell (x : Expr) : M Unit := fun xs => pure ((), xs.push x)
 def localM (f : Array Expr → MetaM (Array Expr)) (act : M α) : M α := fun xs => do
   let n := xs.size
   let (b, xs') ← act xs
-  pure (b, xs'[*...n].copy ++ (← f xs'[n...*].copy))
+  pure (b, xs'[*...n] ++ (← f xs'[n...*]))
 
 def localMapM (f : Expr → MetaM Expr) (act : M α) : M α :=
   localM (·.mapM f) act
@@ -968,9 +968,9 @@ where doRealize (inductName : Name) := do
           forallTelescope (← inferType e').bindingDomain! fun xs goal => do
             if xs.size ≠ 2 then
               throwError "expected recursor argument to take 2 parameters, got {xs}" else
-            let targets := xs[*...1].copy
+            let targets : Array Expr := xs[*...1]
             let genIH := xs[1]!
-            let extraParams := xs[2...*].copy
+            let extraParams := xs[2...*]
             -- open body with the same arg
             let body ← instantiateLambda body targets
             lambdaTelescope1 body fun oldIH body => do
@@ -1091,7 +1091,7 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
       if 5 ≤ args.size then
         let scrut := args[3]!
         let k := args[4]!
-        let extra := args[5...*].copy
+        let extra := args[5...*]
         if scrut.isAppOfArity ``PSigma.mk 4 then
           let #[_, _, x, y] := scrut.getAppArgs | unreachable!
           let e' := (k.beta #[x, y]).beta extra
@@ -1100,7 +1100,7 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
     if f.isConstOf ``PSigma.fst then
       if h : 3 ≤ args.size then
         let scrut := args[2]
-        let extra := args[3...*].copy
+        let extra := args[3...*]
         if scrut.isAppOfArity ``PSigma.mk 4 then
           let #[_, _, x, _y] := scrut.getAppArgs | unreachable!
           let e' := x.beta extra
@@ -1108,7 +1108,7 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
     if f.isConstOf ``PSigma.snd then
       if h : 3 ≤ args.size then
         let scrut := args[2]
-        let extra := args[3...*].copy
+        let extra := args[3...*]
         if scrut.isAppOfArity ``PSigma.mk 4 then
           let #[_, _, _x, y] := scrut.getAppArgs | unreachable!
           let e' := y.beta extra
@@ -1126,7 +1126,7 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
         let scrut := args[3]!
         let k₁ := args[4]!
         let k₂ := args[5]!
-        let extra := args[6...*].copy
+        let extra := args[6...*]
         if scrut.isAppOfArity ``PSum.inl 3 then
           let e' := (k₁.beta #[scrut.appArg!]).beta extra
           return .visit e'
@@ -1136,9 +1136,9 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
     -- Look for _unary redexes
     if f.isConstOf eqnInfo.declNameNonRec then
       if h : args.size ≥ eqnInfo.fixedParamPerms.numFixed + 1 then
-        let xs := args[*...eqnInfo.fixedParamPerms.numFixed].copy
+        let xs := args[*...eqnInfo.fixedParamPerms.numFixed]
         let packedArg := args[eqnInfo.fixedParamPerms.numFixed]
-        let extraArgs := args[eqnInfo.fixedParamPerms.numFixed<...*].copy
+        let extraArgs := args[eqnInfo.fixedParamPerms.numFixed<...*]
         let some (funIdx, ys) := eqnInfo.argsPacker.unpack packedArg
           | throwError "Unexpected packedArg:{indentExpr packedArg}"
         let args' := eqnInfo.fixedParamPerms.perms[funIdx]!.buildArgs xs ys
@@ -1261,14 +1261,14 @@ where doRealize inductName := do
       let recInfo ← getConstInfoRec (mkRecName indName)
       if args.size < recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 + recInfo.numMotives then
         throwError "insufficient arguments to .brecOn:{indentExpr body}"
-      let brecOnArgs     := args[*...recInfo.numParams].copy
-      let _brecOnMotives := args[recInfo.numParams...(recInfo.numParams + recInfo.numMotives)].copy
-      let brecOnTargets  := args[(recInfo.numParams + recInfo.numMotives)...
-        (recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1)].copy
-      let brecOnMinors   := args[(recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1)...
-        (recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 + recInfo.numMotives)].copy
-      let brecOnExtras   := args[(recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 +
-        recInfo.numMotives)...*].copy
+      let brecOnArgs    : Array Expr := args[*...recInfo.numParams]
+      let _brecOnMotives : Array Expr := args[recInfo.numParams...(recInfo.numParams + recInfo.numMotives)]
+      let brecOnTargets : Array Expr := args[(recInfo.numParams + recInfo.numMotives)...
+        (recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1)]
+      let brecOnMinors  : Array Expr := args[(recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1)...
+        (recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 + recInfo.numMotives)]
+      let brecOnExtras  : Array Expr := args[(recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 +
+        recInfo.numMotives)...*]
       unless brecOnTargets.all (·.isFVar) do
         throwError "the indices and major argument of the brecOn application are not variables:{indentExpr body}"
       unless brecOnExtras.all (·.isFVar) do
@@ -1368,9 +1368,9 @@ where doRealize inductName := do
               let minor' ← forallTelescope goal fun xs goal => do
                 unless xs.size ≥ numTargets do
                   throwError ".brecOn argument has too few parameters, expected at least {numTargets}: {xs}"
-                let targets := xs[*...numTargets].copy
+                let targets : Array Expr := xs[*...numTargets]
                 let genIH := xs[numTargets]!
-                let extraParams := xs[numTargets<...*].copy
+                let extraParams := xs[numTargets<...*]
                 -- open body with the same arg
                 let body ← instantiateLambda brecOnMinor targets
                 lambdaTelescope1 body fun oldIH body => do

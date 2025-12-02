@@ -68,7 +68,7 @@ where
     | .const declName us =>
       if let some info ← hasTrivialStructure? declName then
         let ctorType ← getOtherDeclBaseType info.ctorName []
-        toMonoType (getParamTypes (← instantiateForall ctorType args[*...info.numParams].copy))[info.fieldIdx]!
+        toMonoType (getParamTypes (← instantiateForall ctorType args[*...info.numParams]))[info.fieldIdx]!
       else
         let mut result := mkConst declName
         let mut type ← getOtherDeclBaseType declName us

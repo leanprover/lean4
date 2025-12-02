@@ -30,7 +30,7 @@ This means that both `H args` and `T args` have type `SPred []`.
 def getSPredGoalHypsAndTarget (type : Expr) : MetaM (Option (Level × Expr × Expr)) := do
   let args := type.getAppArgs
   if (type.isAppOf ``Std.Tactic.Do.MGoalEntails || type.isAppOf ``SPred.entails) && args.size > 2 then
-    return (type.getAppFn.constLevels![0]!, (type.getArg! 1).beta args[3...*].copy, (type.getArg! 2).beta args[3...*].copy)
+    return (type.getAppFn.constLevels![0]!, (type.getArg! 1).beta args[3:], (type.getArg! 2).beta args[3:])
   let some decl := (← getLCtx).lastDecl | return none
   let hyps := decl.type.consumeMData
   let lvl := (getULiftDownLevel type <|> getULiftDownLevel hyps).getD .zero
@@ -84,7 +84,7 @@ def classifyInvariantUse (assertion : Expr) (inv : MVarId) : ClassifyInvariantUs
   -- logWarning m!"Found Prod.fst. Args: {args}"
   if args.size < 4 then return .notAnInvariantUse -- not an overapplication of `Prod.fst`. Types should prohibit this case
   let payload := args[3]!
-  let stateArgs := args[4...*].copy
+  let stateArgs := args[4:]
   -- `stateArgs` can be non-empty when `σs` is non-empty.
   -- logWarning m!"Payload: {payload}"
 

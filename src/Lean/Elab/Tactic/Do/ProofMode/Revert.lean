@@ -72,7 +72,7 @@ partial def mRevertForallN (goal : MGoal) (n : Nat) (hypName : Name) (k : MGoal 
   let (H, hand) := SPred.mkAnd u σs' H φ
 
   -- Prove `((fun s₁ ... sₙ => H) ∧ (fun s₁ ... sₙ => ⌜s₁ = e₁ ∧ ... ∧ sₙ = eₙ⌝)) ⊢ₛ T`
-  let goal' := { u, σs := σs', hyps := H, target := mkAppRev f args[n...*].copy }
+  let goal' := { u, σs := σs', hyps := H, target := mkAppRev f args[n:] }
   let prf ← k goal'
 
   -- Build the proof for `H ⊢ₛ T e₁ ... eₙ`

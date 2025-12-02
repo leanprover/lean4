@@ -152,8 +152,8 @@ def mkNoConfusionCoreImp (indName : Name) : MetaM Unit := do
   let casesOnInfo ← getConstVal casesOnName
   let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
   let e ← forallBoundedTelescope (← inferType (mkConst noConfusionTypeName (v::us))) (info.numParams + info.numIndices) fun xs _ => do
-    let params := xs[*...info.numParams].copy
-    let is := xs[info.numParams...*].copy
+    let params : Array Expr := xs[:info.numParams]
+    let is : Array Expr := xs[info.numParams:]
     let PType := mkSort v
     withLocalDecl `P .implicit PType fun P =>
     withLocalDecl `x1 .implicit (mkAppN (mkConst indName us) xs) fun x1 =>

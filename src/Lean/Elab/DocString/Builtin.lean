@@ -1052,7 +1052,7 @@ def option (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
       let (id, val) ← optionNameAndVal stx
       -- For completion purposes, we discard `val` and any later arguments. We include the first
       -- argument (the keyword) for position information in case `id` is `missing`.
-      addCompletionInfo <| CompletionInfo.option (stx.setArgs (stx.getArgs[*...3].copy))
+      addCompletionInfo <| CompletionInfo.option (stx.setArgs (stx.getArgs[*...3]))
       let optionName := id.getId.eraseMacroScopes
       try
         let decl ← getOptionDecl optionName

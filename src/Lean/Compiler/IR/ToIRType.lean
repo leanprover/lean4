@@ -124,7 +124,7 @@ where
   visitApp (declName : Name) (args : Array Lean.Expr) : CoreM IRType := do
     if let some info ← hasTrivialStructure? declName then
       let ctorType ← LCNF.getOtherDeclBaseType info.ctorName []
-      let monoType ← LCNF.toMonoType (LCNF.getParamTypes (← LCNF.instantiateForall ctorType args[*...info.numParams].copy))[info.fieldIdx]!
+      let monoType ← LCNF.toMonoType (LCNF.getParamTypes (← LCNF.instantiateForall ctorType args[*...info.numParams]))[info.fieldIdx]!
       toIRType monoType
     else
       nameToIRType declName

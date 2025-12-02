@@ -139,9 +139,9 @@ where
 /-- Create the arguments for a jump to an auxiliary join point created using `mkJpAlt`. -/
 private def mkJmpNewArgs (args : Array Arg) (targetParamIdx : Nat) (fields : Array Arg) (dependsOnTarget : Bool) : Array Arg :=
   if dependsOnTarget then
-    args[*...=targetParamIdx].copy ++ fields ++ args[targetParamIdx<...*].copy
+    args[*...=targetParamIdx] ++ fields ++ args[targetParamIdx<...*]
   else
-    args[*...targetParamIdx].copy ++ fields ++ args[targetParamIdx<...*].copy
+    args[*...targetParamIdx] ++ fields ++ args[targetParamIdx<...*]
 
 /--
 Create the arguments for a jump to an auxiliary join point created using `mkJpAlt`.
@@ -285,7 +285,7 @@ where
     else
       match ctorInfo with
       | .ctor ctorVal ctorArgs =>
-         let fields := ctorArgs[ctorVal.numParams...*].copy
+         let fields := ctorArgs[ctorVal.numParams...*]
          let argsNew := mkJmpNewArgs args info.paramIdx fields jpAlt.dependsOnDiscr
          return some <| .jmp jpAlt.decl.fvarId argsNew
       | .natVal 0 =>

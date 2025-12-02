@@ -70,7 +70,7 @@ private partial def mkCongrThm (origTag : Name) (f : Expr) (args : Array Expr) (
     if congrThm.argKinds.size == 0 then
       throwError "'congr' conv tactic failed to create congruence theorem"
     let (proof', mvarIdsNew', mvarIdsNewInsts') ←
-      mkCongrThm origTag eNew args[funInfo.getArity...*].copy addImplicitArgs nameSubgoals
+      mkCongrThm origTag eNew args[funInfo.getArity...*] addImplicitArgs nameSubgoals
     for arg in args[funInfo.getArity...*] do
       proof ← Meta.mkCongrFun proof arg
     proof ← mkEqTrans proof proof'
@@ -206,7 +206,7 @@ where
       if i < 0 || i ≥ xs.size then
         throwError "invalid `{tacticName}` tactic, application has {xs.size} argument(s) but the index is out of bounds"
       let idx := i.natAbs
-      return (mkAppN f xs[*...idx].copy, xs[idx...*].copy)
+      return (mkAppN f xs[*...idx], xs[idx...*])
     else
       let mut fType ← inferType f
       let mut j := 0
@@ -223,7 +223,7 @@ where
       if i < 0 || i ≥ explicitIdxs.size then
         throwError "invalid `{tacticName}` tactic, application has {explicitIdxs.size} explicit argument(s) but the index is out of bounds"
       let idx := explicitIdxs[i.natAbs]!
-      return (mkAppN f xs[*...idx].copy, xs[idx...*].copy)
+      return (mkAppN f xs[*...idx], xs[idx...*])
 
 def evalArg (tacticName : String) (i : Int) (explicit : Bool) : TacticM Unit := do
   if i == 0 then

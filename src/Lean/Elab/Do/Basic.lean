@@ -125,12 +125,12 @@ abbrev DoElabM := ReaderT Context <| StateRefT State Term.TermElabM
 
 /--
 Whether the continuation of a `do` element is duplicable and if so whether it is just `pure r` for
-the result variable `r`. Saying `nonDuplicable` is always safe; the other variants allow for more
+the result variable `r`. Saying `nonDuplicable` is always safe; `duplicable` allows for more
 optimizations.
 -/
 inductive DoElemContKind
   | nonDuplicable
-  | duplicable (pure : Bool := false)
+  | duplicable
   deriving Inhabited
 
 /--
@@ -236,7 +236,7 @@ def DoElemCont.mkPure (resultType : Expr) : TermElabM DoElemCont := do
     resultName := r,
     resultType,
     k := do mkPureApp resultType (← getFVarFromUserName r),
-    kind := .duplicable true
+    kind := .duplicable
   }
 
 /-- The cached `@Bind.bind m instBind` expression. -/
@@ -493,11 +493,7 @@ Return `$e >>= fun ($dec.resultName : $dec.resultType) => $(← dec.k)`, cancell
 the bind if `$(← dec.k)` is `pure $dec.resultName`.
 -/
 def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := do
---  match dec.kind with
---  | .duplicable (pure := true) =>
---    return e
---  | _ => -- might still resolve to `pure $dec.resultName` "dynamically".
-    mkBindCancellingPure dec.resultName dec.resultType e (fun _ => dec.k)
+  mkBindCancellingPure dec.resultName dec.resultType e (fun _ => dec.k)
 
 /--
 Return `let $k.resultName : PUnit := PUnit.unit; $(← k.k)`, ensuring that the result type of `k.k`
@@ -551,7 +547,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
   let mutVars := (← read).mutVars
   let mutVarNames := mutVars.map (·.getId)
   let contVarId ← mkFreshContVar γ (mutVarNames.push nondupDec.resultName)
-  let duplicableDec := { nondupDec with k := contVarId.mkJump, kind := .duplicable (pure := false) }
+  let duplicableDec := { nondupDec with k := contVarId.mkJump, kind := .duplicable }
 --  let e ← withSynthesizeForDo (caller duplicableDec)
   let e ← caller duplicableDec
 

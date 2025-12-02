@@ -481,7 +481,7 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
       if let some (ctorA, ys1) ← constructorApp? a then
        if let some (ctorB, ys2) ← constructorApp? b then
         let inductVal ← getConstInfoInduct ctorA.induct
-        -- Special case for different manifest constructors, where we can use `ctorIdx`
+        -- Different constructors: Use use `ctorIdx`
         if ctorA.cidx ≠ ctorB.cidx then
           let ctorIdxName := Name.mkStr indVal.name "ctorIdx"
           if (← hasConst ctorIdxName) && (← hasConst `noConfusion_of_Nat) then
@@ -489,38 +489,36 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
             let v ← getLevel α
             return mkApp2 (mkConst ``False.elim [u]) target <|
               mkAppN (mkConst `noConfusion_of_Nat [v]) #[α, ctorIdx, a, b, h]
-
-        -- Special case for same constructors, where we can maybe use the per-constructor
-        -- noConfusion definition with its type already manifest
-        if ctorA.cidx = ctorB.cidx then
+        else
+          -- Same constructors: use per-constructor noConfusion
           -- Nullary constructors, the construction is trivial
           if ctorA.numFields = 0 then
             return ← withLocalDeclD `P target fun P => mkLambdaFVars #[P] P
 
           let noConfusionName := ctorA.name.str "noConfusion"
-          if (← hasConst noConfusionName) then
-            let xs := α.getAppArgs[:ctorA.numParams]
-            let noConfusion := mkAppN (mkConst noConfusionName (u :: us)) xs
-            let fields1 : Array Expr := ys1[ctorA.numParams:]
-            let fields2 : Array Expr := ys2[ctorA.numParams:]
-            let mut e := mkAppN noConfusion (#[target] ++ fields1 ++ fields2)
-            for _ in [:inductVal.numIndices] do
-              let eq := (← whnfForall (← inferType e)).bindingDomain!
-              if let some (_,i,_,_) := eq.heq? then
-                e := mkApp e (← mkHEqRefl i)
-              if let some (_,i,_) := eq.eq? then
-                e := mkApp e (← mkEqRefl i)
-              else
-                throwError "mkNoConfusion: unexpected equality as next argument to {← inferType e}"
-            let eq := (← whnfForall (← inferType e)).bindingDomain!
-            if eq.isHEq then
-              e := mkApp e (← mkHEqOfEq h)
-            else
-              e := mkApp e h
-            return e
+          unless (← hasConst noConfusionName) do
+            throwError "mkNoConfusion: Missing {noConfusionName}"
 
-      -- Fall back: Use generic theorem
-      return mkAppN (mkConst (Name.mkStr indVal.name "noConfusion") (u :: us)) (α.getAppArgs ++ #[target, a, b, h])
+          let xs := α.getAppArgs[:ctorA.numParams]
+          let noConfusion := mkAppN (mkConst noConfusionName (u :: us)) xs
+          let fields1 : Array Expr := ys1[ctorA.numParams:]
+          let fields2 : Array Expr := ys2[ctorA.numParams:]
+          let mut e := mkAppN noConfusion (#[target] ++ fields1 ++ fields2)
+          for _ in [:inductVal.numIndices] do
+            let eq := (← whnfForall (← inferType e)).bindingDomain!
+            if let some (_,i,_,_) := eq.heq? then
+              e := mkApp e (← mkHEqRefl i)
+            if let some (_,i,_) := eq.eq? then
+              e := mkApp e (← mkEqRefl i)
+            else
+              throwError "mkNoConfusion: unexpected equality as next argument to {← inferType e}"
+          let eq := (← whnfForall (← inferType e)).bindingDomain!
+          if eq.isHEq then
+            e := mkApp e (← mkHEqOfEq h)
+          else
+            e := mkApp e h
+          return e
+      throwError "mkNoConfusion: No manifest constructors in {type}"
 
 /-- Given a `monad` and `e : α`, makes `pure e`.-/
 def mkPure (monad : Expr) (e : Expr) : MetaM Expr :=

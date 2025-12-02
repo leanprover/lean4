@@ -952,17 +952,38 @@ def isCharLit : Expr → Bool
   | app (const c _) a => c == ``Char.ofNat && a.isRawNatLit
   | _                 => false
 
+/--
+If the expression is a constant, return that name.
+Otherwise panic.
+-/
 def constName! : Expr → Name
   | const n _ => n
   | _         => panic! "constant expected"
 
+/--
+If the expression is a constant, return that name.
+Otherwise return `Option.none`.
+-/
 def constName? : Expr → Option Name
   | const n _ => some n
   | _         => none
 
-/-- If the expression is a constant, return that name. Otherwise return `Name.anonymous`. -/
+/--
+If the expression is a constant, return that name.
+Otherwise return `Name.anonymous`.
+-/
 def constName (e : Expr) : Name :=
   e.constName?.getD Name.anonymous
+
+/--
+If the expression is a series of applications applied to a constant, return the constant's name.
+Otherwise return `Option.none`.
+ -/
+def rootConstName? : Expr → Option Name
+  | const n _ => some n
+  | app e _ => rootConstName? e
+  | _ => none
+
 
 def constLevels! : Expr → List Level
   | const _ ls => ls

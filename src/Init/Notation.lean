@@ -634,6 +634,15 @@ syntax (name := deprecated) "deprecated" (ppSpace ident)? (ppSpace str)?
     (" (" &"since" " := " str ")")? : attr
 
 /--
+The attribute `@[suggest_for]` on a declaration suggests likely ways in which
+someone might **incorrectly** refer to a definition.
+
+* `@[suggest_for String.endPos]` on the definition of `String.rawEndPos` suggests that `"str".endPos` might be correctable to `"str".rawEndPos`.
+* `@[suggest_for Either, Result]` on the definition of `Except` suggests that `Either Nat String` might be correctable to `Except Nat String`.
+-/
+syntax (name := suggest_for) "suggest_for" ident,+,? : attr
+
+/--
 The `@[coe]` attribute on a function (which should also appear in a
 `instance : Coe A B := ⟨myFn⟩` declaration) allows the delaborator to show
 applications of this function as `↑` when printing expressions.

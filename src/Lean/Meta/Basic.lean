@@ -1892,8 +1892,8 @@ def mapLetDecl [MonadLiftT MetaM n] (name : Name) (type : Expr) (val : Expr) (k 
 Runs `k x` with the local declaration `<name> : <type> := <val>` added to the local context, where `x` is the new free variable.
 Afterwards, the local declaration is zeta-reduced into the result.
 -/
-def mapLetDeclZeta [MonadLiftT MetaM n] (name : Name) (type rhs : Expr) (k : Expr → n Expr) : n Expr := do
-  withLetDecl (n:=n) name type rhs fun x => do
+def mapLetDeclZeta [MonadLiftT MetaM n] (name : Name) (type rhs : Expr) (k : Expr → n Expr) (nondep : Bool := false) (kind : LocalDeclKind := .default) : n Expr := do
+  withLetDecl (n:=n) name type rhs (nondep := nondep) (kind := kind) fun x => do
     let e ← Expr.abstractM (← k x) #[x]
     return e.instantiate1 rhs
 

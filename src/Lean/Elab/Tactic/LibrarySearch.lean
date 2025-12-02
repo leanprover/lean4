@@ -38,7 +38,7 @@ def exact? (ref : Syntax) (config : Parser.Tactic.LibrarySearchConfig)
   goal.withContext do
     let required := (← (required.getD #[]).mapM getFVarId).toList.map .fvar
     let tactic := fun goals =>
-      solveByElim required (exfalso := false) goals (maxDepth := 6) (grind := config.grind)
+      solveByElim required (exfalso := false) goals (maxDepth := 6) (grind := config.grind) (try? := config.try?)
     let allowFailure := fun g => do
       let g ← g.withContext (instantiateMVars (.mvar g))
       return required.all fun e => e.occurs g

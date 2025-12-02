@@ -1697,6 +1697,9 @@ structure LibrarySearchConfig where
   /-- If true, use `grind` as a discharger for subgoals that cannot be closed
   by `solve_by_elim` alone. -/
   grind : Bool := false
+  /-- If true, use `try?` as a discharger for subgoals that cannot be closed
+  by `solve_by_elim` alone. -/
+  try? : Bool := false
 
 /--
 Searches environment for definitions or theorems that can solve the goal using `exact`
@@ -1707,6 +1710,7 @@ used by `exact?` when closing the goal.  This is most useful if there are multip
 ways to resolve the goal, and one wants to guide which lemma is used.
 
 Use `+grind` to enable `grind` as a fallback discharger for subgoals.
+Use `+try?` to enable `try?` as a fallback discharger for subgoals.
 -/
 syntax (name := exact?) "exact?" optConfig (" using " (colGt ident),+)? : tactic
 
@@ -1718,6 +1722,7 @@ The optional `using` clause provides identifiers in the local context that must 
 used when closing the goal.
 
 Use `+grind` to enable `grind` as a fallback discharger for subgoals.
+Use `+try?` to enable `try?` as a fallback discharger for subgoals.
 -/
 syntax (name := apply?) "apply?" optConfig (" using " (colGt term),+)? : tactic
 

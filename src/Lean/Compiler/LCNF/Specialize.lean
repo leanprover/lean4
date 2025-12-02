@@ -14,7 +14,8 @@ public import Lean.Compiler.LCNF.MonadScope
 public import Lean.Compiler.LCNF.Closure
 public import Lean.Compiler.LCNF.FVarUtil
 import all Lean.Compiler.LCNF.ToExpr
-import Std.Data.Iterators
+import Std.Data.Iterators.Combinators
+import Std.Data.Iterators.Producers.Monadic.Array
 
 public section
 
@@ -484,11 +485,20 @@ def updateSpecParamInfo : SpecializeM Unit := do
 
   trace[Compiler.specialize.step] m!"Info for next round: {(← get).localSpecParamInfo.toList}"
 
+-- TODO: share with saveSpecParamInfo
+def endOfLoop : SpecializeM Unit := do
+  for (declName, paramsInfo) in (← get).localSpecParamInfo do
+    if paramsInfo.any (· matches .user | .fixedInst | .fixedHO ) then
+      trace[Compiler.specialize.info] "{declName} {paramsInfo}"
+      modifyEnv fun env => specExtension.addEntry env { declName, paramsInfo }
+
 partial def loop (n : Nat := 0) : SpecializeM Unit := do
   let targets ← modifyGet (fun s => (s.workingDecls, { s with workingDecls := #[] }))
   if targets.isEmpty then
     trace[Compiler.specialize.step] m!"Termination after {n} rounds"
+    endOfLoop
     return ()
+  -- TODO: flexible
   else if n > 64 then
     throwError "Lost in specialization"
 

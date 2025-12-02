@@ -359,6 +359,17 @@ def beq (t₁ t₂ : Raw α cmp) : Bool :=
 
 instance : BEq (Raw α cmp) := ⟨beq⟩
 
+/--
+Computes the difference of the given tree sets.
+
+This function always iterates through the smaller set.
+-/
+def diff (t₁ t₂ : Raw α cmp) : Raw α cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨TreeMap.Raw.diff t₁.inner t₂.inner⟩
+
+instance : SDiff (Raw α cmp) := ⟨diff⟩
+
+
 @[inline, inherit_doc TreeSet.empty]
 def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α cmp) (l : ρ) : Raw α cmp :=
   ⟨t.inner.eraseMany l⟩

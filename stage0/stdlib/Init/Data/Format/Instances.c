@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_instToFormatArray___redArg(lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToFormatProd___redArg(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_instToFormatProd___redArg___lam__0___closed__3;
@@ -68,7 +69,6 @@ LEAN_EXPORT lean_object* l_instToFormatRaw___lam__0(lean_object*);
 static lean_object* l_List_format___redArg___closed__3;
 LEAN_EXPORT lean_object* l_instToFormatRaw;
 static lean_object* l_instToFormatProd___redArg___lam__0___closed__1;
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToFormatArray(lean_object*, lean_object*);
 static lean_object* l_List_format___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Option_format___redArg(lean_object*, lean_object*);

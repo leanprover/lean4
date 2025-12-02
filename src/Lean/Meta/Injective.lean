@@ -85,6 +85,7 @@ private def throwInjectiveTheoremFailure {α} (ctorName : Name) (mvarId : MVarId
   throwError "{injTheoremFailureHeader ctorName}{indentD <| MessageData.ofGoal mvarId}"
 
 private def solveEqOfCtorEq (ctorName : Name) (mvarId : MVarId) (h : FVarId) : MetaM Unit := do
+  trace[Meta.injective] "solving injectivity goal for {ctorName} with hypothesis {mkFVar h} at\n{mvarId}"
   match (← injection mvarId h) with
   | InjectionResult.solved => unreachable!
   | InjectionResult.subgoal mvarId .. =>
@@ -102,10 +103,12 @@ def mkInjectiveTheoremNameFor (ctorName : Name) : Name :=
   ctorName ++ `inj
 
 private def mkInjectiveTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
+  let name := mkInjectiveTheoremNameFor ctorVal.name
+  withTraceNode `Meta.injective (msg := (return m!"{exceptEmoji ·} generating `{name}`")) do
   let some type ← mkInjectiveTheoremType? ctorVal
     | return ()
+  trace[Meta.injective] "type: {type}"
   let value ← mkInjectiveTheoremValue ctorVal.name type
-  let name := mkInjectiveTheoremNameFor ctorVal.name
   addDecl <| Declaration.thmDecl {
     name
     levelParams := ctorVal.levelParams
@@ -133,10 +136,12 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
     mkLambdaFVars xs mvar
 
 private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
+  let name := mkInjectiveEqTheoremNameFor ctorVal.name
+  withTraceNode `Meta.injective (msg := (return m!"{exceptEmoji ·} generating `{name}`")) do
   let some type ← mkInjectiveEqTheoremType? ctorVal
     | return ()
+  trace[Meta.injective] "type: {type}"
   let value ← mkInjectiveEqTheoremValue ctorVal.name type
-  let name := mkInjectiveEqTheoremNameFor ctorVal.name
   addDecl <| Declaration.thmDecl {
     name
     levelParams := ctorVal.levelParams
@@ -154,7 +159,7 @@ register_builtin_option genInjectivity : Bool := {
 
 def mkInjectiveTheorems (declName : Name) : MetaM Unit := do
   if (← getEnv).contains ``Eq.propIntro && genInjectivity.get (← getOptions) &&  !(← isInductivePredicate declName) then
-    withTraceNode `Meta.injective (fun _ => return m!"{declName}") do
+    withTraceNode `Meta.injective (return m!"{exceptEmoji ·} {declName}") do
     let info ← getConstInfoInduct declName
     unless info.isUnsafe do
       -- We need to reset the local context here because `solveEqOfCtorEq` uses

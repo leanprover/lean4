@@ -140,6 +140,8 @@ theorem contains_insert_self [EquivBEq α] [LawfulHashable α] {k : α} : (m.ins
 
 theorem mem_insert_self [EquivBEq α] [LawfulHashable α] {k : α} : k ∈ m.insert k := by simp
 
+theorem mem_of_get_eq {k v : α} {w} (_ : m.get k w = v) : k ∈ m := w
+
 @[simp, grind =]
 theorem size_emptyWithCapacity {c} : (emptyWithCapacity c : HashSet α).size = 0 :=
   HashMap.size_emptyWithCapacity

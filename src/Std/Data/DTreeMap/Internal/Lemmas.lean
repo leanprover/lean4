@@ -47,7 +47,7 @@ macro_rules
     | apply WF.constInsertMany | apply WF.constInsertManyIfNewUnit
     | apply WF.alter | apply WF.constAlter
     | apply WF.modify | apply WF.constModify
-    | apply WF.filterMap | apply WF.filter | apply WF.map | apply WF.union | apply WF.inter) <;> wf_trivial)
+    | apply WF.filterMap | apply WF.filter | apply WF.map | apply WF.union | apply WF.inter | apply WF.diff) <;> wf_trivial)
 
 /-- Internal implementation detail of the tree map -/
 scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff] } )
@@ -68,6 +68,7 @@ private meta def modifyMap : Std.HashMap Name Name :=
      ⟨`insertIfNew, ``toListModel_insertIfNew⟩,
      ⟨`union, ``toListModel_union_list⟩,
      ⟨`inter, ``toListModel_inter⟩,
+     ⟨`diff, ``toListModel_diff⟩,
      ⟨`erase, ``toListModel_erase⟩,
      (`insertMany, ``toListModel_insertMany_list),
      (`Const.insertMany, ``Const.toListModel_insertMany_list),
@@ -4881,6 +4882,731 @@ theorem Const.Equiv.beq_congr [TransOrd α] [LawfulEqOrd α] {m₃ m₄ : Impl �
     m₁.Equiv m₃ → m₂.Equiv m₄ → Const.beq m₁ m₂ = Const.beq m₃ m₄ := by
   simp_to_model using List.Const.beqModel_congr
 end
+
+section Diff
+
+variable {m₁ m₂ : Impl α β}
+
+/- contains -/
+theorem contains_diff [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} :
+    (m₁.diff m₂ h₁.balanced).contains k = (m₁.contains k && !m₂.contains k) := by
+  simp_to_model [diff, contains]
+  using List.containsKey_filter_not_contains_map_fst
+
+theorem contains_diff! [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} :
+    (m₁.diff! m₂).contains k = (m₁.contains k && !m₂.contains k) := by
+  rw [← diff_eq_diff!]
+  apply contains_diff h₁ h₂
+  all_goals wf_trivial
+
+theorem contains_diff_iff [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} :
+    (m₁.diff m₂ h₁.balanced).contains k ↔ m₁.contains k ∧ ¬m₂.contains k := by
+  simp_to_model [diff, contains]
+  have := @List.containsKey_filter_not_contains_map_fst_iff α β _ _ m₁.toListModel m₂.toListModel h₁.ordered.distinctKeys k
+  simp only [Bool.not_eq_true] at this
+  exact this
+
+theorem contains_diff!_iff [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} :
+    (m₁.diff! m₂).contains k ↔ m₁.contains k ∧ ¬m₂.contains k := by
+  rw [← diff_eq_diff!]
+  apply contains_diff_iff h₁ h₂
+  all_goals wf_trivial
+
+theorem contains_diff_eq_false_of_contains_eq_false_left [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α}
+    (h : m₁.contains k = false) :
+    (m₁.diff m₂ h₁.balanced).contains k = false := by
+  revert h
+  simp_to_model [diff, contains] using List.containsKey_filter_not_contains_map_fst_eq_false_left
+
+theorem contains_diff!_eq_false_of_contains_eq_false_left [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α}
+    (h : m₁.contains k = false) :
+    (m₁.diff! m₂).contains k = false := by
+  rw [← diff_eq_diff!]
+  apply contains_diff_eq_false_of_contains_eq_false_left h₁ h₂
+  all_goals wf_trivial
+
+theorem contains_diff_eq_false_of_contains_right [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α}
+    (h : m₂.contains k) :
+    (m₁.diff m₂ h₁.balanced).contains k = false := by
+  revert h
+  simp_to_model [diff, contains] using List.containsKey_filter_not_contains_map_fst_of_contains_map_fst_right
+
+theorem contains_diff!_eq_false_of_contains_right [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α}
+    (h : m₂.contains k) :
+    (m₁.diff! m₂).contains k = false := by
+  rw [← diff_eq_diff!]
+  apply contains_diff_eq_false_of_contains_right h₁ h₂
+  all_goals wf_trivial
+
+/- Equiv -/
+theorem Equiv.diff_left {m₃ : Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₁.Equiv m₂) :
+    (m₁.diff m₃ h₁.balanced).Equiv (m₂.diff m₃ h₂.balanced) := by
+  revert equiv
+  simp_to_model [Equiv, diff]
+  intro equiv
+  apply List.Perm.filter
+  wf_trivial
+
+theorem Equiv.diff!_left {m₃ : Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₁.Equiv m₂) :
+    (m₁.diff! m₃).Equiv (m₂.diff! m₃) := by
+  rw [← diff_eq_diff!, ← diff_eq_diff!]
+  apply Equiv.diff_left
+  all_goals wf_trivial
+
+theorem Equiv.diff_right {m₃ : Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₂.Equiv m₃) :
+    (m₁.diff m₂ h₁.balanced).Equiv (m₁.diff m₃ h₁.balanced) := by
+  revert equiv
+  simp_to_model [Equiv, diff]
+  intro equiv
+  apply List.perm_filter_not_contains_map_fst_of_perm equiv
+  all_goals wf_trivial
+
+theorem Equiv.diff!_right {m₃ : Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (equiv : m₂.Equiv m₃) :
+    (m₁.diff! m₂).Equiv (m₁.diff! m₃) := by
+  rw [← diff_eq_diff!, ← diff_eq_diff!]
+  apply Equiv.diff_right
+  all_goals wf_trivial
+
+theorem Equiv.diff_congr {m₃ m₄ : Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF)
+    (equiv₁ : m₁.Equiv m₃) (equiv₂ : m₂.Equiv m₄) :
+    (m₁.diff m₂ h₁.balanced).Equiv (m₃.diff m₄ h₃.balanced) := by
+  revert equiv₁ equiv₂
+  simp_to_model [Equiv, diff]
+  intro equiv₁ equiv₂
+  apply List.congr_filter_not_contains_map_fst_of_perm
+  all_goals wf_trivial
+
+theorem Equiv.diff!_congr {m₃ m₄ : Impl α β} [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF)
+    (equiv₁ : m₁.Equiv m₃) (equiv₂ : m₂.Equiv m₄) :
+    (m₁.diff! m₂).Equiv (m₃.diff! m₄) := by
+  rw [← diff_eq_diff!, ← diff_eq_diff!]
+  apply Equiv.diff_congr
+  all_goals wf_trivial
+
+/- get? -/
+theorem get?_diff [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
+    (m₁.diff m₂ h₁.balanced).get? k =
+    if m₂.contains k then none else m₁.get? k := by
+  simp_to_model [diff, get?, contains] using List.getValueCast?_filter_not_contains_map_fst
+
+theorem get?_diff! [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
+    (m₁.diff! m₂).get? k =
+    if m₂.contains k then none else m₁.get? k := by
+  rw [← diff_eq_diff!]
+  apply get?_diff h₁ h₂
+  all_goals wf_trivial
+
+theorem get?_diff_of_contains_eq_false_right [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (h : m₂.contains k = false) :
+    (m₁.diff m₂ h₁.balanced).get? k = m₁.get? k := by
+  revert h
+  simp_to_model [diff, contains, get?] using List.getValueCast?_filter_not_contains_map_fst_of_containsKey_eq_false_right
+
+theorem get?_diff!_of_contains_eq_false_right [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (h : m₂.contains k = false) :
+    (m₁.diff! m₂).get? k = m₁.get? k := by
+  rw [← diff_eq_diff!]
+  apply get?_diff_of_contains_eq_false_right h₁ h₂
+  all_goals wf_trivial
+
+theorem get?_diff_of_contains_eq_false_left [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (h : m₁.contains k = false) :
+    (m₁.diff m₂ h₁.balanced).get? k = none := by
+  revert h
+  simp_to_model [diff, contains, get?] using List.getValueCast?_filter_not_contains_map_fst_of_containsKey_eq_false_left
+
+theorem get?_diff!_of_contains_eq_false_left [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (h : m₁.contains k = false) :
+    (m₁.diff! m₂).get? k = none := by
+  rw [← diff_eq_diff!]
+  apply get?_diff_of_contains_eq_false_left h₁ h₂
+  all_goals wf_trivial
+
+theorem get?_diff_of_contains_right [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (h : m₂.contains k) :
+    (m₁.diff m₂ h₁.balanced).get? k = none := by
+  revert h
+  simp_to_model [diff, get?, contains] using List.getValueCast?_filter_not_contains_map_fst_of_containsKey_right
+
+theorem get?_diff!_of_contains_right [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (h : m₂.contains k) :
+    (m₁.diff! m₂).get? k = none := by
+  rw [← diff_eq_diff!]
+  apply get?_diff_of_contains_right h₁ h₂
+  all_goals wf_trivial
+
+/- get -/
+theorem get_diff [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {h_contains : (m₁.diff m₂ h₁.balanced).contains k} :
+    (m₁.diff m₂ h₁.balanced).get k h_contains =
+    m₁.get k ((contains_diff_iff h₁ h₂).1 h_contains).1 := by
+  simp_to_model [diff, get, contains] using List.getValueCast_filter_not_contains_map_fst
+
+theorem get_diff! [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {h_contains : (m₁.diff! m₂).contains k} :
+    (m₁.diff! m₂).get k h_contains =
+    m₁.get k ((contains_diff!_iff h₁ h₂).1 h_contains).1 := by
+  conv =>
+    lhs
+    arg 1
+    rw [← diff_eq_diff!]
+    . skip
+    . apply h₁
+  simp_to_model [diff, get, contains] using List.getValueCast_filter_not_contains_map_fst
+
+/- getD -/
+theorem getD_diff [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β k} :
+    (m₁.diff m₂ h₁.balanced).getD k fallback =
+    if m₂.contains k then fallback else m₁.getD k fallback := by
+  simp_to_model [diff, getD, contains] using List.getValueCastD_filter_not_contains_map_fst
+
+theorem getD_diff! [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β k} :
+    (m₁.diff! m₂).getD k fallback =
+    if m₂.contains k then fallback else m₁.getD k fallback := by
+  rw [← diff_eq_diff!]
+  apply getD_diff h₁ h₂
+  all_goals wf_trivial
+
+theorem getD_diff_of_contains_eq_false_right [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β k} (h : m₂.contains k = false) :
+    (m₁.diff m₂ h₁.balanced).getD k fallback = m₁.getD k fallback := by
+  revert h
+  simp_to_model [diff, contains, getD] using List.getValueCastD_filter_not_contains_map_fst_of_containsKey_eq_false_right
+
+theorem getD_diff!_of_contains_eq_false_right [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β k} (h : m₂.contains k = false) :
+    (m₁.diff! m₂).getD k fallback = m₁.getD k fallback := by
+  rw [← diff_eq_diff!]
+  apply getD_diff_of_contains_eq_false_right h₁ h₂
+  all_goals wf_trivial
+
+theorem getD_diff_of_contains_right [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β k} (h : m₂.contains k) :
+    (m₁.diff m₂ h₁.balanced).getD k fallback = fallback := by
+  revert h
+  simp_to_model [diff, getD, contains] using List.getValueCastD_filter_not_contains_map_fst_of_contains_map_fst_right
+
+theorem getD_diff!_of_contains_right [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β k} (h : m₂.contains k) :
+    (m₁.diff! m₂).getD k fallback = fallback := by
+  rw [← diff_eq_diff!]
+  apply getD_diff_of_contains_right h₁ h₂
+  all_goals wf_trivial
+
+theorem getD_diff_of_contains_eq_false_left [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β k} (h : m₁.contains k = false) :
+    (m₁.diff m₂ h₁.balanced).getD k fallback = fallback := by
+  revert h
+  simp_to_model [diff, getD, contains] using List.getValueCastD_filter_not_contains_map_fst_of_containsKey_eq_false_left
+
+theorem getD_diff!_of_contains_eq_false_left [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β k} (h : m₁.contains k = false) :
+    (m₁.diff! m₂).getD k fallback = fallback := by
+  rw [← diff_eq_diff!]
+  apply getD_diff_of_contains_eq_false_left h₁ h₂
+  all_goals wf_trivial
+
+/- get! -/
+theorem get!_diff [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} [Inhabited (β k)] :
+    (m₁.diff m₂ h₁.balanced).get! k =
+    if m₂.contains k then default else m₁.get! k := by
+  simp_to_model [diff, get!, contains] using List.getValueCastD_filter_not_contains_map_fst
+
+theorem get!_diff! [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} [Inhabited (β k)] :
+    (m₁.diff! m₂).get! k =
+    if m₂.contains k then default else m₁.get! k := by
+  rw [← diff_eq_diff!]
+  apply get!_diff h₁ h₂
+  all_goals wf_trivial
+
+theorem get!_diff_of_contains_eq_false_right [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} [Inhabited (β k)] (h : m₂.contains k = false) :
+    (m₁.diff m₂ h₁.balanced).get! k = m₁.get! k := by
+  revert h
+  simp_to_model [diff, contains, get!] using List.getValueCastD_filter_not_contains_map_fst_of_containsKey_eq_false_right
+
+theorem get!_diff!_of_contains_eq_false_right [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} [Inhabited (β k)] (h : m₂.contains k = false) :
+    (m₁.diff! m₂).get! k = m₁.get! k := by
+  rw [← diff_eq_diff!]
+  apply get!_diff_of_contains_eq_false_right h₁ h₂
+  all_goals wf_trivial
+
+theorem get!_diff_of_contains_right [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} [Inhabited (β k)] (h : m₂.contains k) :
+    (m₁.diff m₂ h₁.balanced).get! k = default := by
+  revert h
+  simp_to_model [diff, get!, contains] using List.getValueCastD_filter_not_contains_map_fst_of_contains_map_fst_right
+
+theorem get!_diff!_of_contains_right [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} [Inhabited (β k)] (h : m₂.contains k) :
+    (m₁.diff! m₂).get! k = default := by
+  rw [← diff_eq_diff!]
+  apply get!_diff_of_contains_right h₁ h₂
+  all_goals wf_trivial
+
+theorem get!_diff_of_contains_eq_false_left [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} [Inhabited (β k)] (h : m₁.contains k = false) :
+    (m₁.diff m₂ h₁.balanced).get! k = default := by
+  revert h
+  simp_to_model [diff, get!, contains] using List.getValueCastD_filter_not_contains_map_fst_of_containsKey_eq_false_left
+
+theorem get!_diff!_of_contains_eq_false_left [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} [Inhabited (β k)] (h : m₁.contains k = false) :
+    (m₁.diff! m₂).get! k = default := by
+  rw [← diff_eq_diff!]
+  apply get!_diff_of_contains_eq_false_left h₁ h₂
+  all_goals wf_trivial
+
+/- getKey? -/
+theorem getKey?_diff [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
+    (m₁.diff m₂ h₁.balanced).getKey? k =
+    if m₂.contains k then none else m₁.getKey? k := by
+  simp_to_model [diff, contains, getKey?] using List.getKey?_filter_not_contains_map_fst
+
+theorem getKey?_diff! [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
+    (m₁.diff! m₂).getKey? k =
+    if m₂.contains k then none else m₁.getKey? k := by
+  rw [← diff_eq_diff!]
+  apply getKey?_diff h₁ h₂
+  all_goals wf_trivial
+
+theorem getKey?_diff_of_contains_eq_false_right [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} (h : m₂.contains k = false) :
+    (m₁.diff m₂ h₁.balanced).getKey? k = m₁.getKey? k := by
+  revert h
+  simp_to_model [contains, getKey?, diff] using List.getKey?_filter_not_contains_map_fst_of_containsKey_eq_false_right
+
+theorem getKey?_diff!_of_contains_eq_false_right [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} (h : m₂.contains k = false) :
+    (m₁.diff! m₂).getKey? k = m₁.getKey? k := by
+  rw [← diff_eq_diff!]
+  apply getKey?_diff_of_contains_eq_false_right h₁ h₂
+  all_goals wf_trivial
+
+theorem getKey?_diff_of_contains_eq_false_left [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} (h : m₁.contains k = false) :
+    (m₁.diff m₂ h₁.balanced).getKey? k = none := by
+  revert h
+  simp_to_model [contains, getKey?, diff] using List.getKey?_filter_not_contains_map_fst_of_containsKey_eq_false_left
+
+theorem getKey?_diff!_of_contains_eq_false_left [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} (h : m₁.contains k = false) :
+    (m₁.diff! m₂).getKey? k = none := by
+  rw [← diff_eq_diff!]
+  apply getKey?_diff_of_contains_eq_false_left h₁ h₂
+  all_goals wf_trivial
+
+theorem getKey?_diff_of_contains_right [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} (h : m₂.contains k) :
+    (m₁.diff m₂ h₁.balanced).getKey? k = none := by
+  revert h
+  simp_to_model [contains, getKey?, diff] using List.getKey?_filter_not_contains_map_fst_of_containsKey_right
+
+theorem getKey?_diff!_of_contains_right [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} (h : m₂.contains k) :
+    (m₁.diff! m₂).getKey? k = none := by
+  rw [← diff_eq_diff!]
+  apply getKey?_diff_of_contains_right h₁ h₂
+  all_goals wf_trivial
+
+/- getKey -/
+theorem getKey_diff [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {h_contains : (m₁.diff m₂ h₁.balanced).contains k} :
+    (m₁.diff m₂ h₁.balanced).getKey k h_contains =
+    m₁.getKey k ((contains_diff_iff h₁ h₂).1 h_contains).1 := by
+  simp_to_model [diff, contains, getKey] using List.getKey_filter_not_contains_map_fst
+
+theorem getKey_diff! [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {h_contains : (m₁.diff! m₂).contains k} :
+    (m₁.diff! m₂).getKey k h_contains =
+    m₁.getKey k ((contains_diff!_iff h₁ h₂).1 h_contains).1 := by
+  conv =>
+    lhs
+    arg 1
+    rw [← diff_eq_diff!]
+    . skip
+    . apply h₁
+  simp_to_model [diff, contains, getKey] using List.getKey_filter_not_contains_map_fst
+
+/- getKeyD -/
+theorem getKeyD_diff [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k fallback : α} :
+    (m₁.diff m₂ h₁.balanced).getKeyD k fallback =
+    if m₂.contains k then fallback else m₁.getKeyD k fallback := by
+  simp_to_model [diff, getKeyD, contains] using List.getKeyD_filter_not_contains_map_fst
+
+theorem getKeyD_diff! [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k fallback : α} :
+    (m₁.diff! m₂).getKeyD k fallback =
+    if m₂.contains k then fallback else m₁.getKeyD k fallback := by
+  rw [← diff_eq_diff!]
+  apply getKeyD_diff h₁ h₂
+  all_goals wf_trivial
+
+theorem getKeyD_diff_of_contains_eq_false_right [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k fallback : α} (h : m₂.contains k = false) :
+    (m₁.diff m₂ h₁.balanced).getKeyD k fallback = m₁.getKeyD k fallback := by
+  revert h
+  simp_to_model [contains, diff, getKeyD] using List.getKeyD_filter_not_contains_map_fst_of_contains_eq_false_right
+
+theorem getKeyD_diff!_of_contains_eq_false_right [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k fallback : α} (h : m₂.contains k = false) :
+    (m₁.diff! m₂).getKeyD k fallback = m₁.getKeyD k fallback := by
+  rw [← diff_eq_diff!]
+  apply getKeyD_diff_of_contains_eq_false_right h₁ h₂
+  all_goals wf_trivial
+
+theorem getKeyD_diff_of_contains_right [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k fallback : α} (h : m₂.contains k) :
+    (m₁.diff m₂ h₁.balanced).getKeyD k fallback = fallback := by
+  revert h
+  simp_to_model [diff, getKeyD, contains] using List.getKeyD_filter_not_contains_map_fst_of_contains_right
+
+theorem getKeyD_diff!_of_contains_right [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k fallback : α} (h : m₂.contains k) :
+    (m₁.diff! m₂).getKeyD k fallback = fallback := by
+  rw [← diff_eq_diff!]
+  apply getKeyD_diff_of_contains_right h₁ h₂
+  all_goals wf_trivial
+
+theorem getKeyD_diff_of_contains_eq_false_left [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k fallback : α} (h : m₁.contains k = false) :
+    (m₁.diff m₂ h₁.balanced).getKeyD k fallback = fallback := by
+  revert h
+  simp_to_model [diff, getKeyD, contains] using getKeyD_filter_not_contains_map_fst_of_contains_eq_false_left
+
+theorem getKeyD_diff!_of_contains_eq_false_left [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k fallback : α} (h : m₁.contains k = false) :
+    (m₁.diff! m₂).getKeyD k fallback = fallback := by
+  rw [← diff_eq_diff!]
+  apply getKeyD_diff_of_contains_eq_false_left h₁ h₂
+  all_goals wf_trivial
+
+/- getKey! -/
+theorem getKey!_diff [Inhabited α] [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} :
+    (m₁.diff m₂ h₁.balanced).getKey! k =
+    if m₂.contains k then default else m₁.getKey! k := by
+  simp_to_model [diff, getKey!, contains] using List.getKeyD_filter_not_contains_map_fst
+
+theorem getKey!_diff! [Inhabited α] [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} :
+    (m₁.diff! m₂).getKey! k =
+    if m₂.contains k then default else m₁.getKey! k := by
+  rw [← diff_eq_diff!]
+  apply getKey!_diff h₁ h₂
+  all_goals wf_trivial
+
+theorem getKey!_diff_of_contains_eq_false_right [Inhabited α] [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} (h : m₂.contains k = false) :
+    (m₁.diff m₂ h₁.balanced).getKey! k = m₁.getKey! k := by
+  revert h
+  simp_to_model [diff, getKey!, contains] using List.getKeyD_filter_not_contains_map_fst_of_contains_eq_false_right
+
+theorem getKey!_diff!_of_contains_eq_false_right [Inhabited α] [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} (h : m₂.contains k = false) :
+    (m₁.diff! m₂).getKey! k = m₁.getKey! k := by
+  rw [← diff_eq_diff!]
+  apply getKey!_diff_of_contains_eq_false_right h₁ h₂
+  all_goals wf_trivial
+
+theorem getKey!_diff_of_contains_right [Inhabited α] [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} (h : m₂.contains k) :
+    (m₁.diff m₂ h₁.balanced).getKey! k = default := by
+  revert h
+  simp_to_model [diff, getKey!, contains] using List.getKeyD_filter_not_contains_map_fst_of_contains_right
+
+theorem getKey!_diff!_of_contains_right [Inhabited α] [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} (h : m₂.contains k) :
+    (m₁.diff! m₂).getKey! k = default := by
+  rw [← diff_eq_diff!]
+  apply getKey!_diff_of_contains_right h₁ h₂
+  all_goals wf_trivial
+
+theorem getKey!_diff_of_contains_eq_false_left [Inhabited α] [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} (h : m₁.contains k = false) :
+    (m₁.diff m₂ h₁.balanced).getKey! k = default := by
+  revert h
+  simp_to_model [diff, getKey!, contains] using List.getKeyD_filter_not_contains_map_fst_of_contains_eq_false_left
+
+theorem getKey!_diff!_of_contains_eq_false_left [Inhabited α] [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} (h : m₁.contains k = false) :
+    (m₁.diff! m₂).getKey! k = default := by
+  rw [← diff_eq_diff!]
+  apply getKey!_diff_of_contains_eq_false_left h₁ h₂
+  all_goals wf_trivial
+
+/- size -/
+theorem size_diff_le_size_left [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁.diff m₂ h₁.balanced).size ≤ m₁.size := by
+  simp_to_model [diff, size] using List.length_filter_le
+
+theorem size_diff!_le_size_left [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁.diff! m₂).size ≤ m₁.size := by
+  rw [← diff_eq_diff!]
+  apply size_diff_le_size_left h₁ h₂
+  all_goals wf_trivial
+
+theorem size_diff_eq_size_left [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF)
+    (h : ∀ (a : α), m₁.contains a → m₂.contains a = false) :
+    (m₁.diff m₂ h₁.balanced).size = m₁.size := by
+  revert h
+  simp_to_model [diff, size, contains] using List.length_filter_not_contains_map_fst_eq_length_left
+
+theorem size_diff!_eq_size_left [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF)
+    (h : ∀ (a : α), m₁.contains a → m₂.contains a = false) :
+    (m₁.diff! m₂).size = m₁.size := by
+  rw [← diff_eq_diff!]
+  apply size_diff_eq_size_left h₁ h₂
+  all_goals wf_trivial
+
+theorem size_diff_add_size_inter_eq_size_left [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁.diff m₂ h₁.balanced).size + (m₁.inter m₂ h₁.balanced).size = m₁.size := by
+  simp_to_model [diff, inter, size] using List.size_filter_not_contains_map_fst_add_size_inter_eq_size_left
+
+theorem size_diff!_add_size_inter!_eq_size_left [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁.diff! m₂).size + (m₁.inter! m₂).size = m₁.size := by
+  rw [← diff_eq_diff!, ← inter_eq_inter!]
+  apply size_diff_add_size_inter_eq_size_left h₁ h₂
+  all_goals wf_trivial
+
+/- isEmpty -/
+@[simp]
+theorem isEmpty_diff_left [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁.isEmpty) :
+    (m₁.diff m₂ h₁.balanced).isEmpty = true := by
+  revert h
+  simp_to_model [isEmpty, diff] using List.isEmpty_filter_not_contains_map_fst_left
+
+@[simp]
+theorem isEmpty_diff!_left [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁.isEmpty) :
+    (m₁.diff! m₂).isEmpty = true := by
+  rw [← diff_eq_diff!]
+  apply isEmpty_diff_left h₁ h₂
+  all_goals wf_trivial
+
+theorem isEmpty_diff_iff [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁.diff m₂ h₁.balanced).isEmpty ↔ ∀ k, m₁.contains k → m₂.contains k := by
+  simp_to_model [diff, contains, isEmpty] using List.isEmpty_filter_not_contains_map_fst_iff
+
+theorem isEmpty_diff!_iff [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁.diff! m₂).isEmpty ↔ ∀ k, m₁.contains k → m₂.contains k := by
+  rw [← diff_eq_diff!]
+  apply isEmpty_diff_iff h₁ h₂
+  all_goals wf_trivial
+
+end Diff
+
+namespace Const
+
+variable {β : Type v} {m₁ m₂ : Impl α (fun _ => β)}
+
+/- get? -/
+theorem get?_diff [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
+    Const.get? (m₁.diff m₂ h₁.balanced) k =
+    if m₂.contains k then none else Const.get? m₁ k := by
+  simp_to_model [diff, Const.get?, contains] using List.getValue?_filter_not_contains_map_fst
+
+theorem get?_diff! [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
+    Const.get? (m₁.diff! m₂) k =
+    if m₂.contains k then none else Const.get? m₁ k := by
+  rw [← diff_eq_diff!]
+  apply get?_diff h₁ h₂
+  all_goals wf_trivial
+
+theorem get?_diff_of_contains_eq_false_right [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (h : m₂.contains k = false) :
+    Const.get? (m₁.diff m₂ h₁.balanced) k = Const.get? m₁ k := by
+  revert h
+  simp_to_model [diff, contains, Const.get?] using List.getValue?_filter_not_contains_map_fst_of_contains_eq_false_right
+
+theorem get?_diff!_of_contains_eq_false_right [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (h : m₂.contains k = false) :
+    Const.get? (m₁.diff! m₂) k = Const.get? m₁ k := by
+  rw [← diff_eq_diff!]
+  apply get?_diff_of_contains_eq_false_right h₁ h₂
+  all_goals wf_trivial
+
+theorem get?_diff_of_contains_eq_false_left [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (h : m₁.contains k = false) :
+    Const.get? (m₁.diff m₂ h₁.balanced) k = none := by
+  revert h
+  simp_to_model [diff, Const.get?, contains] using List.getValue?_filter_not_contains_map_fst_of_containsKey_eq_false_left
+
+theorem get?_diff!_of_contains_eq_false_left [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (h : m₁.contains k = false) :
+    Const.get? (m₁.diff! m₂) k = none := by
+  rw [← diff_eq_diff!]
+  apply get?_diff_of_contains_eq_false_left h₁ h₂
+  all_goals wf_trivial
+
+theorem get?_diff_of_contains_right [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (h : m₂.contains k) :
+    Const.get? (m₁.diff m₂ h₁.balanced) k = none := by
+  revert h
+  simp_to_model [diff, Const.get?, contains] using List.getValue?_filter_not_contains_map_fst_of_contains_right
+
+theorem get?_diff!_of_contains_right [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (h : m₂.contains k) :
+    Const.get? (m₁.diff! m₂) k = none := by
+  rw [← diff_eq_diff!]
+  apply get?_diff_of_contains_right h₁ h₂
+  all_goals wf_trivial
+
+/- get -/
+theorem get_diff [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {h_contains : (m₁.diff m₂ h₁.balanced).contains k} :
+    Const.get (m₁.diff m₂ h₁.balanced) k h_contains =
+    Const.get m₁ k ((contains_diff_iff h₁ h₂).1 h_contains).1 := by
+  simp_to_model [diff, Const.get, contains] using List.getValue_filter_not_contains
+
+theorem get_diff! [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {h_contains : (m₁.diff! m₂).contains k} :
+    Const.get (m₁.diff! m₂) k h_contains =
+    Const.get m₁ k ((contains_diff!_iff h₁ h₂).1 h_contains).1 := by
+  conv =>
+    lhs
+    arg 1
+    rw [← diff_eq_diff!]
+    . skip
+    . apply h₁
+  simp_to_model [diff, Const.get, contains] using List.getValue_filter_not_contains
+
+/- getD -/
+theorem getD_diff [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β} :
+    Const.getD (m₁.diff m₂ h₁.balanced) k fallback =
+    if m₂.contains k then fallback else Const.getD m₁ k fallback := by
+  simp_to_model [diff, Const.getD, contains] using List.getValueD_filter_not_contains_map_fst
+
+theorem getD_diff! [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β} :
+    Const.getD (m₁.diff! m₂) k fallback =
+    if m₂.contains k then fallback else Const.getD m₁ k fallback := by
+  rw [← diff_eq_diff!]
+  apply getD_diff h₁ h₂
+  all_goals wf_trivial
+
+theorem getD_diff_of_contains_eq_false_right [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β} (h : m₂.contains k = false) :
+    Const.getD (m₁.diff m₂ h₁.balanced) k fallback = Const.getD m₁ k fallback := by
+  revert h
+  simp_to_model [diff, contains, Const.getD] using List.getValueD_filter_not_contains_map_fst_of_containsKey_eq_false_right
+
+theorem getD_diff!_of_contains_eq_false_right [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β} (h : m₂.contains k = false) :
+    Const.getD (m₁.diff! m₂) k fallback = Const.getD m₁ k fallback := by
+  rw [← diff_eq_diff!]
+  apply getD_diff_of_contains_eq_false_right h₁ h₂
+  all_goals wf_trivial
+
+theorem getD_diff_of_contains_right [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β} (h : m₂.contains k) :
+    Const.getD (m₁.diff m₂ h₁.balanced) k fallback = fallback := by
+  revert h
+  simp_to_model [diff, Const.getD, contains] using List.getValueD_filter_not_contains_map_fst_of_contains_map_fst_right
+
+theorem getD_diff!_of_contains_right [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β} (h : m₂.contains k) :
+    Const.getD (m₁.diff! m₂) k fallback = fallback := by
+  rw [← diff_eq_diff!]
+  apply getD_diff_of_contains_right h₁ h₂
+  all_goals wf_trivial
+
+theorem getD_diff_of_contains_eq_false_left [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β} (h : m₁.contains k = false) :
+    Const.getD (m₁.diff m₂ h₁.balanced) k fallback = fallback := by
+  revert h
+  simp_to_model [diff, Const.getD, contains] using List.getValueD_filter_not_contains_map_fst_of_containsKey_eq_false_left
+
+theorem getD_diff!_of_contains_eq_false_left [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β} (h : m₁.contains k = false) :
+    Const.getD (m₁.diff! m₂) k fallback = fallback := by
+  rw [← diff_eq_diff!]
+  apply getD_diff_of_contains_eq_false_left h₁ h₂
+  all_goals wf_trivial
+
+/- get! -/
+theorem get!_diff [TransOrd α] [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
+    Const.get! (m₁.diff m₂ h₁.balanced) k =
+    if m₂.contains k then default else Const.get! m₁ k := by
+  simp_to_model [diff, Const.get!, contains] using List.getValueD_filter_not_contains_map_fst
+
+theorem get!_diff! [TransOrd α] [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
+    Const.get! (m₁.diff! m₂) k =
+    if m₂.contains k then default else Const.get! m₁ k := by
+  rw [← diff_eq_diff!]
+  apply get!_diff h₁ h₂
+  all_goals wf_trivial
+
+theorem get!_diff_of_contains_eq_false_right [TransOrd α] [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (h : m₂.contains k = false) :
+    Const.get! (m₁.diff m₂ h₁.balanced) k = Const.get! m₁ k := by
+  revert h
+  simp_to_model [diff, contains, Const.get!] using List.getValueD_filter_not_contains_map_fst_of_containsKey_eq_false_right
+
+theorem get!_diff!_of_contains_eq_false_right [TransOrd α] [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (h : m₂.contains k = false) :
+    Const.get! (m₁.diff! m₂) k = Const.get! m₁ k := by
+  rw [← diff_eq_diff!]
+  apply get!_diff_of_contains_eq_false_right h₁ h₂
+  all_goals wf_trivial
+
+theorem get!_diff_of_contains_right [TransOrd α] [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (h : m₂.contains k) :
+    Const.get! (m₁.diff m₂ h₁.balanced) k = default := by
+  revert h
+  simp_to_model [diff, Const.get!, contains] using List.getValueD_filter_not_contains_map_fst_of_contains_map_fst_right
+
+theorem get!_diff!_of_contains_right [TransOrd α] [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (h : m₂.contains k) :
+    Const.get! (m₁.diff! m₂) k = default := by
+  rw [← diff_eq_diff!]
+  apply get!_diff_of_contains_right h₁ h₂
+  all_goals wf_trivial
+
+theorem get!_diff_of_contains_eq_false_left [TransOrd α] [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (h : m₁.contains k = false) :
+    Const.get! (m₁.diff m₂ h₁.balanced) k = default := by
+  revert h
+  simp_to_model [diff, Const.get!, contains] using List.getValueD_filter_not_contains_map_fst_of_containsKey_eq_false_left
+
+theorem get!_diff!_of_contains_eq_false_left [TransOrd α] [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (h : m₁.contains k = false) :
+    Const.get! (m₁.diff! m₂) k = default := by
+  rw [← diff_eq_diff!]
+  apply get!_diff_of_contains_eq_false_left h₁ h₂
+  all_goals wf_trivial
+
+end Const
 
 section Alter
 

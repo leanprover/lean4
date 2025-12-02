@@ -433,7 +433,7 @@ def get (t : Raw α β cmp) (a : α) (h : a ∈ t) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get t.inner a h
 
 @[inline, inherit_doc DTreeMap.Const.get!]
-def get! (t : Raw α β cmp) (a : α) [Inhabited β] : β :=
+def get! [Inhabited β] (t : Raw α β cmp) (a : α) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get! t.inner a
 
 @[inline, inherit_doc DTreeMap.Const.getD]
@@ -737,6 +737,15 @@ instance [LawfulEqCmp cmp] [∀ k, BEq (β k)] : BEq (Raw α β cmp) := ⟨beq�
 /-- Internal implementation detail of the hash map. -/
 def Const.beq {β : Type v} [BEq β] (t₁ t₂ : Raw α (fun _ => β) cmp) : Bool :=
   letI : Ord α := ⟨cmp⟩; Internal.Impl.Const.beq t₁.inner t₂.inner
+  
+/--
+Computes the diffrence of the given tree maps.
+This function always iteraters through the smaller map.
+-/
+def diff (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.diff! t₂.inner⟩
+
+instance : SDiff (Raw α β cmp) := ⟨diff⟩
 
 @[inline, inherit_doc DTreeMap.eraseMany]
 def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=

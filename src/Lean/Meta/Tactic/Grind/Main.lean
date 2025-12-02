@@ -262,7 +262,7 @@ def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
   return { failure?, issues, config := params.config, counters, simp, splitDiags }
 
 def GrindM.runAtGoal (mvarId : MVarId) (params : Params) (k : Goal → GrindM α) (evalTactic? : Option EvalTactic := none) : MetaM α := do
-  let go : GrindM α := withReducible do
+  let go : GrindM α := withGTransparency do
     let goal ← initCore mvarId params
     k goal
   go.run params (evalTactic? := evalTactic?)

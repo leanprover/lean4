@@ -167,7 +167,7 @@ def get (t : Raw α β cmp) (a : α) (h : a ∈ t) : β :=
   DTreeMap.Raw.Const.get t.inner a h
 
 @[inline, inherit_doc DTreeMap.Raw.Const.get!]
-def get! (t : Raw α β cmp) (a : α) [Inhabited β]  : β :=
+def get! [Inhabited β] (t : Raw α β cmp) (a : α) : β :=
   DTreeMap.Raw.Const.get! t.inner a
 
 @[inline, inherit_doc DTreeMap.Raw.Const.getD]
@@ -508,6 +508,12 @@ def beq [BEq β] (t₁ t₂ : Raw α β cmp) : Bool :=
   letI : Ord α := ⟨cmp⟩; DTreeMap.Raw.Const.beq t₁.inner t₂.inner
 
 instance [BEq β] : BEq (Raw α β cmp) := ⟨beq⟩
+
+@[inline, inherit_doc DTreeMap.Raw.diff]
+def diff (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
+  ⟨DTreeMap.Raw.diff t₁.inner t₂.inner⟩
+
+instance : SDiff (Raw α β cmp) := ⟨diff⟩
 
 @[inline, inherit_doc DTreeMap.Raw.Const.insertManyIfNewUnit]
 def insertManyIfNewUnit {ρ} [ForIn Id ρ α] (t : Raw α Unit cmp) (l : ρ) : Raw α Unit cmp :=

@@ -15,6 +15,7 @@ extern "C" {
 #endif
 static lean_object* l_Lake_ArtifactDescr_fromJson_x3f___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedArtifact;
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_relPath(lean_object*);
 extern lean_object* l_System_instInhabitedFilePath_default;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -103,7 +104,6 @@ LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at__
 static lean_object* l_Lake_Artifact_trace___closed__0;
 static lean_object* l_Lake_instReprArtifact_repr___redArg___closed__8;
 static lean_object* l_Lake_instInhabitedArtifactDescr_default___closed__1;
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_artifactPath___closed__0;
 LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_instToString___lam__0___boxed(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);

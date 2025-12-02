@@ -685,7 +685,7 @@ def get (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get t.inner a h
 
 @[inline, inherit_doc DTreeMap.get!]
-def get! (t : DTreeMap α β cmp) (a : α) [Inhabited β] : β :=
+def get! [Inhabited β] (t : DTreeMap α β cmp) (a : α) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get! t.inner a
 
 @[inline, inherit_doc DTreeMap.getD]
@@ -1057,6 +1057,15 @@ instance [LawfulEqCmp cmp] [∀ k, BEq (β k)] : BEq (DTreeMap α β cmp) := ⟨
 /-- Internal implementation detail of the hash map. -/
 def Const.beq {β : Type v} [BEq β] (t₁ t₂ : DTreeMap α (fun _ => β) cmp) : Bool :=
   letI : Ord α := ⟨cmp⟩; Internal.Impl.Const.beq t₁.inner t₂.inner
+  
+/--
+Computes the difference of the given tree maps.
+This function always iterates through the smaller map.
+-/
+def diff (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
+    letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.diff t₂.inner t₁.wf.balanced, @Impl.WF.diff α β _ t₁.inner t₁.wf t₂.inner⟩
+
+instance : SDiff (DTreeMap α β cmp) := ⟨diff⟩
 
 /--
 Erases multiple mappings from the tree map by iterating over the given collection and calling
@@ -1065,7 +1074,6 @@ Erases multiple mappings from the tree map by iterating over the given collectio
 @[inline]
 def eraseMany {ρ} [ForIn Id ρ α] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseMany l t.wf.balanced, t.wf.eraseMany⟩
-
 namespace Const
 
 variable {β : Type v}

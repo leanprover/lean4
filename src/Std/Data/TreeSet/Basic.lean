@@ -510,6 +510,16 @@ def beq (t₁ t₂ : TreeSet α cmp) : Bool :=
 instance : BEq (TreeSet α cmp) := ⟨beq⟩
 
 /--
+Computes the difference of the given tree sets.
+
+This function always iterates through the smaller set.
+-/
+def diff (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
+  ⟨TreeMap.diff t₁.inner t₂.inner⟩
+
+instance : SDiff (TreeSet α cmp) := ⟨diff⟩
+
+/--
 Erases multiple items from the tree set by iterating over the given collection and calling erase.
 -/
 @[inline]

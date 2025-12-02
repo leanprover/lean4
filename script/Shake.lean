@@ -40,7 +40,9 @@ Options:
 
   --keep-prefix
     If an import `X` would be replaced in favor of a more specific import `X.Y...` it implies,
-    preserves the original import instead
+    preserves the original import instead. More generally, prefers inserting `import X` even if it
+    was not part of the original imports as long as it was in the original transitive import closure
+    of the current module.
 
   --keep-public
     Preserves all `public` imports to avoid breaking changes for external downstream modules
@@ -304,8 +306,6 @@ where
             for indMod in (indirectModUseExt.getState env)[c]?.getD #[] do
               if s.transDeps[i]!.has k indMod then
                 deps := deps.union k {indMod}
-                if args.trace then
-                  dbg_trace s!"adding {s.modNames[indMod]!} as indirect dependency of {s.modNames[i]!} via {c}"
       return deps
 
 /--
@@ -442,8 +442,6 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
   let s ← get
 
   let addOnly := addOnly || module?.any (·.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep-all"))
-  -- tries of import names for each kind, used for `--keep-prefix` and empty otherwise
-  let mut impTries : Std.HashMap NeedsKind (NameTrie (Import × ModuleIdx)) := {}
   let mut deps := needs
 
   -- Add additional preserved imports
@@ -451,12 +449,6 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
     let imp := decodeImport impStx
     let j := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
-    if args.keepPrefix then
-      impTries := impTries.alter k (·.getD NameTrie.empty |>.insert imp.module (imp, j))
-      if k.isMeta then
-        let k := { k with isMeta := false }
-        let imp := { imp with isMeta := false }
-        impTries := impTries.alter k (·.getD NameTrie.empty |>.insert imp.module (imp, j))
     if addOnly ||
         args.keepPublic && imp.isExported ||
         impStx.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep") then
@@ -522,18 +514,22 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
           if args.trace then
             IO.eprintln s!"* upgrading to `{imp}` because of `--add-public`"
         if args.keepPrefix then
-          if let some (prfx, j') := impTries.get? k |>.bind (·.findShortestPrefix? imp.module) then
-            if prfx != imp then
-              let j'transDeps := addTransitiveImps .empty prfx j' s.transDeps[j']!
-              if !j'transDeps.has k j then
-                if args.trace then
-                  IO.eprintln s!"cannot prefix-upgrade `{imp}` to `{prfx}` because it is not implied"
-              else
-                imp := prfx
-                j := j'
-                keptPrefix := true
-                if args.trace then
-                  IO.eprintln s!"* upgrading to `{imp}` because of `--keep-prefix`"
+          let rec tryPrefix : Name → Option ModuleIdx
+            | .str p _ => tryPrefix p <|> (do
+              let j' ← s.env.getModuleIdx? p
+              -- `j'` must be reachable from `i` (allow downgrading from `meta`)
+              guard <| s.transDepsOrig[i]!.has k j' || s.transDepsOrig[i]!.has { k with isMeta := true } j'
+              let j'transDeps := addTransitiveImps .empty p j' s.transDeps[j']!
+              -- `j` must be reachable from `j'` (now downgrading must be done in the other direction)
+              guard <| j'transDeps.has k j || j'transDeps.has { k with isMeta := false } j
+              return j')
+            | _ => none
+          if let some j' := tryPrefix imp.module then
+            imp := { imp with module := s.modNames[j']! }
+            j := j'
+            keptPrefix := true
+            if args.trace then
+              IO.eprintln s!"* upgrading to `{imp}` because of `--keep-prefix`"
         if !s.mods[i]!.imports.contains imp then
           toAdd := toAdd.push imp
         deps := deps.union k {j}

@@ -68,9 +68,10 @@ structure Context where
 
 structure State where
   processedDecls : Array Decl := #[]
-  newDecls : Array Decl := #[]
+  workingDecls : Array Decl := #[]
   localSpecParamInfo : Std.HashMap Name (Array SpecParamInfo) := {}
   parentMask : Std.HashMap Name (Array Bool) := {}
+  changed : Bool := false
 
 abbrev SpecializeM := ReaderT Context $ StateRefT State CompilerM
 
@@ -270,7 +271,7 @@ def mkSpecDecl (decl : Decl) (us : List Level) (argMask : Array (Option Arg)) (p
   let nameNew := decl.name.appendCore `_at_
     |>.appendCore (← read).declName
     |>.appendCore `spec
-    |>.appendIndexAfter ((← get).processedDecls.size + (← get).newDecls.size)
+    |>.appendIndexAfter ((← get).processedDecls.size + (← get).workingDecls.size)
   /-
   Recall that we have just retrieved `decl` using `getDecl?`, and it may have free variable identifiers that overlap with the free-variables
   in `params` and `decls` (i.e., the "closure").
@@ -366,7 +367,7 @@ mutual
       let specDecl ← specDecl.simp { etaPoly := true, inlinePartial := true, implementedBy := true }
       modify fun s => {
         s with
-          newDecls := s.newDecls.push specDecl,
+          workingDecls := s.workingDecls.push specDecl,
           -- TODO: correct mask
           parentMask := s.parentMask.insert specDecl.name (Array.replicate specDecl.params.size true)
       }
@@ -381,6 +382,7 @@ mutual
     | .let decl k =>
       let mut decl := decl
       if let some value ← specializeApp? decl.value then
+        modify fun s => { s with changed := true }
         decl ← decl.updateValue value
       let k ← withLetDecl decl <| visitCode k
       return code.updateLet! decl k
@@ -402,19 +404,23 @@ mutual
 
 end
 
-def specializeDecl (decl : Decl) : SpecializeM Decl := do
+def specializeDecl (decl : Decl) : SpecializeM (Decl × Bool) := do
   trace[Compiler.specialize.step] m!"Working {decl.name}"
   -- TODO: conside a different heuristic here
   if (← decl.isTemplateLike) then
-    return decl
+    return (decl, false)
   else
+    modify fun s => { s with changed := false }
     let value ← withParams decl.params <| decl.value.mapCodeM visitCode
-    let updated := { decl with value }
+    let changed := (← get).changed
+    let mut updated := { decl with value }
+    if changed then
+      updated ← updated.simp {}
     trace[Compiler.specialize.step] m!"Result {decl.name}: {← ppDecl updated}"
-    return updated
+    return (updated, changed)
 
 def updateSpecParamInfo : SpecializeM Unit := do
-  let decls := (← get).processedDecls ++ (← get).newDecls
+  let decls := (← get).processedDecls ++ (← get).workingDecls
   let masks := (← get).parentMask
   let infos ← computeSpecParamInfo decls fun declName specArgs? =>
     specArgs? == some #[] || (masks[declName]?.getD #[] |>.any (· == true))
@@ -436,19 +442,22 @@ def updateSpecParamInfo : SpecializeM Unit := do
   trace[Compiler.specialize.step] m!"Info for next round: {(← get).localSpecParamInfo.toList}"
 
 partial def loop (n : Nat := 0) : SpecializeM Unit := do
-  let targets ← modifyGet (fun s => (s.newDecls, { s with newDecls := #[] }))
+  let targets ← modifyGet (fun s => (s.workingDecls, { s with workingDecls := #[] }))
   if targets.isEmpty then
     trace[Compiler.specialize.step] m!"Termination after {n} rounds"
     return ()
-  else if n > 3 then
+  else if n > 64 then
     throwError "Lost in specialization"
 
   trace[Compiler.specialize.step] m!"Round: {n}"
   for decl in targets do
     let ground ← Specialize.paramsToGroundVars decl.params
-    let processed ← withReader (fun ctx => { ctx with ground, declName := decl.name }) do
+    let (newDecl, changed) ← withReader (fun ctx => { ctx with ground, declName := decl.name }) do
       specializeDecl decl
-    modify fun s => { s with processedDecls := s.processedDecls.push processed }
+    if changed then
+      modify fun s => { s with workingDecls := s.workingDecls.push newDecl }
+    else
+      modify fun s => { s with processedDecls := s.processedDecls.push newDecl }
 
   updateSpecParamInfo
 
@@ -456,7 +465,7 @@ partial def loop (n : Nat := 0) : SpecializeM Unit := do
 
 def main (decls : Array Decl) : CompilerM (Array Decl) := do
   saveSpecParamInfo decls
-  let (_, s) ← loop |>.run { declName := .anonymous } |>.run { newDecls := decls }
+  let (_, s) ← loop |>.run { declName := .anonymous } |>.run { workingDecls := decls }
   return s.processedDecls
 
 end Specialize

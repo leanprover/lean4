@@ -368,25 +368,20 @@ def beq [LawfulBEq α] [∀ k, BEq (β k)] (m₁ m₂ : ExtDHashMap α β) : Boo
 
 instance [LawfulBEq α] [∀ k, BEq (β k)] : BEq (ExtDHashMap α β) := ⟨beq⟩
 
-theorem beq_of_eq [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] (m₁ m₂ : ExtDHashMap α β) (hyp : m₁ = m₂) : m₁ == m₂ := by
-  induction m₁
-  case mk a =>
-    induction m₂
-    case mk b =>
-      exact DHashMap.Equiv.beq <| exact hyp
-
-theorem eq_of_beq_true [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] (m₁ m₂ : ExtDHashMap α β) (hyp : (m₁ == m₂) = true) : m₁ = m₂ := by
-  induction m₁
-  case mk a =>
-    induction m₂
-    case mk b =>
-      apply sound <| DHashMap.Equiv_of_beq_eq_true hyp
-
 instance [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] : ReflBEq (ExtDHashMap α β) where
-  rfl {a} := by apply beq_of_eq; rfl
+  rfl {a} := by
+    induction a
+    case mk a =>
+      apply DHashMap.Equiv.beq
+      · apply DHashMap.Equiv.refl
 
 instance [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] : LawfulBEq (ExtDHashMap α β) where
-  eq_of_beq := fun hyp => eq_of_beq_true _ _ hyp
+  eq_of_beq {m₁} {m₂} hyp := by
+    induction m₁
+    case mk a =>
+      induction m₂
+      case mk b =>
+        apply sound <| DHashMap.equiv_of_beq hyp
 
 namespace Const
 
@@ -407,7 +402,7 @@ theorem eq_of_beq_eq_true [LawfulBEq α] [BEq β] [LawfulBEq β] (m₁ m₂ : Ex
   case mk a =>
     induction m₂
     case mk b =>
-      exact sound <| DHashMap.Const.Equiv_of_beq_eq_true h
+      exact sound <| DHashMap.Const.equiv_of_beq h
 
 end Const
 

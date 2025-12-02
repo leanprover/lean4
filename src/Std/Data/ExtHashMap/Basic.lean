@@ -258,15 +258,11 @@ instance [LawfulBEq α] [BEq β] [ReflBEq β] : ReflBEq (ExtHashMap α β) where
   rfl := by intro a; apply ExtDHashMap.Const.beq_of_eq; rfl
 
 instance [LawfulBEq α] [BEq β] [LawfulBEq β] : LawfulBEq (ExtHashMap α β) where
-  eq_of_beq := by
-    intro a b hyp
-    cases a
-    case mk a₀ =>
-      cases b
-      case mk b₀ =>
-        simp only [mk.injEq]
-        apply ExtDHashMap.Const.eq_of_beq_eq_true
-        exact hyp
+  eq_of_beq {a} {b} hyp := by
+    have ⟨a⟩ := a
+    have ⟨b⟩ := b
+    simp only [mk.injEq] at |- hyp
+    exact ExtDHashMap.Const.eq_of_beq_eq_true _ _ hyp
 
 @[inline, inherit_doc ExtDHashMap.inter]
 def inter [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashMap α β) : ExtHashMap α β := ⟨ExtDHashMap.inter m₁.inner m₂.inner⟩

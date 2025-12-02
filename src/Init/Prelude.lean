@@ -1837,6 +1837,8 @@ def Nat.ble : @& Nat → @& Nat → Bool
   | succ _, zero   => false
   | succ n, succ m => ble n m
 
+attribute [gen_constructor_elims] Bool
+
 /--
 Non-strict, or weak, inequality of natural numbers, usually accessed via the `≤` operator.
 -/
@@ -1860,9 +1862,14 @@ protected def Nat.lt (n m : Nat) : Prop :=
 instance instLTNat : LT Nat where
   lt := Nat.lt
 
-theorem Nat.not_succ_le_zero : ∀ (n : Nat), LE.le (succ n) 0 → False
-  | 0      => nofun
-  | succ _ => nofun
+theorem Nat.not_succ_le_zero (n : Nat) : LE.le (succ n) 0 → False :=
+  -- No injectivity tactic until `attribute [gen_constructor_elims] Nat`
+  have : ∀ m, Eq m 0 → LE.le (succ n) m → False := fun _ hm hle =>
+    Nat.le.casesOn (motive := fun m _ => Eq m 0 → False) hle
+      (fun h => Nat.noConfusion h)
+      (fun _ h => Nat.noConfusion h)
+      hm
+  this 0 rfl
 
 theorem Nat.not_lt_zero (n : Nat) : Not (LT.lt n 0) :=
   not_succ_le_zero n
@@ -1999,10 +2006,12 @@ protected theorem Nat.lt_of_not_le {a b : Nat} (h : Not (LE.le a b)) : LT.lt b a
 
 protected theorem Nat.add_pos_right :
     {b : Nat} → (a : Nat) → (hb : LT.lt 0 b) → LT.lt 0 (HAdd.hAdd a b)
+  | zero, _, h => (Nat.not_succ_le_zero _ h).elim
   | succ _, _, _ => Nat.zero_lt_succ _
 
 protected theorem Nat.mul_pos :
     {n m : Nat} → (hn : LT.lt 0 n) → (hm : LT.lt 0 m) → LT.lt 0 (HMul.hMul n m)
+  | _, zero, _, hb => (Nat.not_succ_le_zero _ hb).elim
   | _, succ _, ha, _ => Nat.add_pos_right _ ha
 
 protected theorem Nat.pow_pos {a : Nat} : {n : Nat} → (h : LT.lt 0 a) → LT.lt 0 (HPow.hPow a n)
@@ -2058,6 +2067,8 @@ Examples:
 protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
   | a, 0      => a
   | a, succ b => pred (Nat.sub a b)
+
+attribute [gen_constructor_elims] Nat
 
 instance instSubNat : Sub Nat where
   sub := Nat.sub
@@ -2215,9 +2226,6 @@ theorem Nat.mod_lt : (x : Nat) →  {y : Nat} → (hy : LT.lt 0 y) → LT.lt (HM
       match Nat.decLe m (succ n) with
       | .isTrue _ => Nat.modCore_lt hm
       | .isFalse h => Nat.lt_of_not_le h
-
-attribute [gen_constructor_elims] Nat
-attribute [gen_constructor_elims] Bool
 
 /--
 Gets the word size of the current platform. The word size may be 64 or 32 bits.

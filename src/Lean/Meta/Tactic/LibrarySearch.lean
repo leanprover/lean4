@@ -8,7 +8,9 @@ module
 prelude
 public import Lean.Meta.LazyDiscrTree
 public import Lean.Meta.Tactic.SolveByElim
+public import Lean.Meta.Tactic.Grind.Main
 public import Lean.Util.Heartbeats
+import Init.Grind.Util
 
 public section
 
@@ -37,15 +39,45 @@ builtin_initialize registerTraceClass `Tactic.librarySearch.lemmas
 open SolveByElim
 
 /--
+A discharger that tries `grind` on the goal.
+The proof is wrapped in `Grind.Marker` so that suggestions display `(by grind)`
+instead of the complex grind proof term.
+Returns `some []` if grind succeeds, `none` otherwise (leaving the goal as a subgoal).
+-/
+def grindDischarger (mvarId : MVarId) : MetaM (Option (List MVarId)) := do
+  try
+    -- Apply the marker wrapper, creating a subgoal for grind to solve
+    let type ← mvarId.getType
+    let u ← getLevel type
+    let markerExpr := mkApp (.const ``Lean.Grind.Marker [u]) type
+    let [subgoal] ← mvarId.apply markerExpr
+      | return none
+    -- Solve the subgoal with grind
+    let params ← Grind.mkParams {}
+    let result ← Grind.main subgoal params
+    if result.hasFailed then
+      return none
+    else
+      return some []
+  catch _ =>
+    return none
+
+/--
 Wrapper for calling `Lean.Meta.SolveByElim.solveByElim with
 appropriate arguments for library search.
+
+If `grind` is true, `grind` will be used as a fallback discharger for subgoals
+that cannot be closed by other means.
 -/
-def solveByElim (required : List Expr) (exfalso : Bool) (goals : List MVarId) (maxDepth : Nat) := do
+def solveByElim (required : List Expr) (exfalso : Bool) (goals : List MVarId)
+    (maxDepth : Nat) (grind : Bool := false) := do
   let cfg : SolveByElimConfig :=
     { maxDepth, exfalso := exfalso, symm := true, commitIndependentGoals := true,
       transparency := ← getTransparency,
       -- `constructor` has been observed to significantly slow down `exact?` in Mathlib.
       constructor := false }
+  -- Add grind as a fallback discharger (tried after intro/constructor fail)
+  let cfg := if grind then cfg.withDischarge grindDischarger else cfg
   let ⟨lemmas, ctx⟩ ← SolveByElim.mkAssumptionSet false false [] [] #[]
   let cfg := if !required.isEmpty then cfg.requireUsingAll required else cfg
   SolveByElim.solveByElim cfg lemmas ctx goals

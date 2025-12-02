@@ -6352,7 +6352,7 @@ theorem cpopNatRec_le_of_le {x : BitVec w} (n : Nat) (h : n ≤ w) :
     simp [cpopNatRec_succ]
     omega
 
-theorem cpopNatRec_eq_of_le {x : BitVec w} (n : Nat) (hn : w ≤ n) :
+theorem cpopNatRec_eq_cpopNatRec_add_of_le {x : BitVec w} (n : Nat) (hn : w ≤ n) :
     x.cpopNatRec n acc = x.cpopNatRec (n + k) acc := by
   induction k
   · simp
@@ -6404,6 +6404,14 @@ theorem toNat_cpop_le (x : BitVec w) :
   exact hle
 
 @[simp]
+theorem cpopNatRec_cons_eq_cpopNatRec_of_le {x : BitVec w} {b : Bool} (hn : n ≤ w) :
+    (cons b x).cpopNatRec n acc = x.cpopNatRec n acc := by
+  induction n generalizing acc
+  · simp
+  · case _ n ihn =>
+    specialize ihn (acc := acc + ((cons b x).getLsbD n).toNat) (by omega)
+    rw [cpopNatRec_succ, ihn, getLsbD_cons]
+    simp [show ¬ n = w by omega, cpopNatRec_succ]
 
 theorem cpopNatRec_cons_eq_add_cpopNatRec_of_lt {x : BitVec w} {b : Bool} (hn : w < n) :
     (cons b x).cpopNatRec n acc = b.toNat + x.cpopNatRec n acc := by
@@ -6510,7 +6518,8 @@ theorem cpopNatRec_cast_eq_cpopNatRec_of_eq {x : BitVec w} (p : w = v) :
   congr
   · omega
   · omega
-  · exact heq_of_eqRec_eq (congrArg (Eq w) (id (Eq.symm p))) rfl
+  ·
+    exact heq_of_eqRec_eq (congrArg (Eq w) (id (Eq.symm p))) rfl
 
 @[simp]
 theorem cpop_cast (h : w = v) (x : BitVec w) :

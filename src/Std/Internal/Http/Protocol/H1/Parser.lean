@@ -219,6 +219,17 @@ public inductive TakeResult
   | complete (data : ByteSlice)
   | incomplete (data : ByteSlice) (remaining : Nat)
 
+/-
+This function parses a single chunk in chunked transfer encoding
+-/
+public def parseChunk (limits : H1.Config) : Parser (Option (Nat × Array (String × Option String) × ByteSlice)) := do
+  let (size, ext) ← parseChunkSize limits
+  if size == 0 then
+    return none
+  else
+    let data ← take size
+    return some ⟨size, ext, data⟩
+
 /--
 Parses a fixed size data that can be incomplete.
 -/

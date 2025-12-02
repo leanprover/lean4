@@ -543,7 +543,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
 
     -- Elaborate the loop body, which must have result type `PUnit`.
     let body ← enterLoopBody γ (← getReturnCont) breakKVar.mkJump continueKVar.mkJump do
-      elabDoSeq body { dec with k := continueKVar.mkJump, kind := .duplicable (pure := false) }
+      elabDoSeq body { dec with k := continueKVar.mkJump, kind := .duplicable }
 
     -- Compute the set of mut vars that were reassigned on the path to a back jump (`continue`).
     -- Take care to preserve the declaration order that is manifest in the array `mutVars`.

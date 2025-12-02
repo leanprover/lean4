@@ -478,9 +478,10 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
     let α ← whnfD α
     matchConstInduct α.getAppFn (fun _ => throwAppBuilderException `noConfusion ("inductive type expected" ++ indentExpr α)) fun indVal us => do
       let u ← getLevel target
+      let a ← whnfD a
+      let b ← whnfD b
       if let some (ctorA, ys1) ← constructorApp? a then
        if let some (ctorB, ys2) ← constructorApp? b then
-        let inductVal ← getConstInfoInduct ctorA.induct
         -- Different constructors: Use use `ctorIdx`
         if ctorA.cidx ≠ ctorB.cidx then
           let ctorIdxName := Name.mkStr indVal.name "ctorIdx"
@@ -489,6 +490,8 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
             let v ← getLevel α
             return mkApp2 (mkConst ``False.elim [u]) target <|
               mkAppN (mkConst `noConfusion_of_Nat [v]) #[α, ctorIdx, a, b, h]
+          else
+            throwError "mkNoConfusion: Missing {ctorIdxName} or {`noConfusion_of_Nat}"
         else
           -- Same constructors: use per-constructor noConfusion
           -- Nullary constructors, the construction is trivial
@@ -504,7 +507,7 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
           let fields1 : Array Expr := ys1[ctorA.numParams:]
           let fields2 : Array Expr := ys2[ctorA.numParams:]
           let mut e := mkAppN noConfusion (#[target] ++ fields1 ++ fields2)
-          for _ in [:inductVal.numIndices] do
+          for _ in [:indVal.numIndices] do
             let eq := (← whnfForall (← inferType e)).bindingDomain!
             if let some (_,i,_,_) := eq.heq? then
               e := mkApp e (← mkHEqRefl i)
@@ -518,7 +521,7 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
           else
             e := mkApp e h
           return e
-      throwError "mkNoConfusion: No manifest constructors in {type}"
+      throwError "mkNoConfusion: No manifest constructors in {a} = {b}"
 
 /-- Given a `monad` and `e : α`, makes `pure e`.-/
 def mkPure (monad : Expr) (e : Expr) : MetaM Expr :=

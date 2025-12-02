@@ -502,7 +502,7 @@ is `PUnit` and then immediately zeta-reduce the `let`.
 def DoElemCont.continueWithUnit (dec : DoElemCont) : DoElabM Expr := do
   let unit ← mkPUnitUnit
   discard <| Term.ensureHasType dec.resultType unit
-  mapLetDeclZeta dec.resultName (← mkPUnit) unit fun _ => dec.k
+  mapLetDeclZeta dec.resultName (← mkPUnit) unit (nondep := true) (kind := .implDetail) (fun _ => dec.k)
 
 private partial def withSynthesizeForDo (k : DoElabM α) : DoElabM α :=
   controlAtTermElabM fun runInBase => do

@@ -576,7 +576,7 @@ return x_50;
 else
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; 
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_51 = lean_unsigned_to_nat(0u);
 x_52 = lean_string_utf8_byte_size(x_13);
 x_53 = lean_alloc_ctor(0, 3, 0);

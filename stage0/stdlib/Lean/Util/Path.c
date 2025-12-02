@@ -894,7 +894,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 x_12 = lean_array_uget(x_2, x_3);
-lean_inc_ref(x_12);
+lean_inc(x_12);
 x_13 = l_System_FilePath_extension(x_12);
 lean_inc_ref(x_1);
 x_14 = lean_alloc_ctor(1, 1, 0);
@@ -904,7 +904,7 @@ lean_dec_ref(x_14);
 lean_dec(x_13);
 if (x_15 == 0)
 {
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_6 = x_5;
 goto block_10;
 }

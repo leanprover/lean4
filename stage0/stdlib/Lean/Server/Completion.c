@@ -396,7 +396,7 @@ goto block_9;
 else
 {
 lean_object* x_22; 
-lean_dec_ref(x_16);
+lean_dec(x_16);
 if (lean_is_scalar(x_13)) {
  x_22 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -748,7 +748,7 @@ x_28 = lean_ctor_get(x_27, 0);
 lean_inc(x_28);
 x_29 = lean_ctor_get(x_27, 1);
 lean_inc(x_29);
-lean_dec_ref(x_27);
+lean_dec(x_27);
 x_30 = l_Lean_Server_CancellableM_checkCancelled(x_9);
 if (lean_obj_tag(x_30) == 0)
 {
@@ -1324,7 +1324,7 @@ lean_inc_ref(x_3);
 lean_inc_ref(x_2);
 lean_inc(x_1);
 x_17 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_Completion_find_x3f_spec__0(x_1, x_2, x_3, x_4, x_14, x_15, x_16, x_8, x_9);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; 

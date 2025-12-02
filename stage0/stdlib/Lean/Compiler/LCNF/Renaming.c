@@ -536,7 +536,7 @@ else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; uint8_t x_14; 
 x_9 = lean_array_fget_borrowed(x_3, x_2);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 x_10 = l_Lean_Compiler_LCNF_Param_applyRenaming___redArg(x_9, x_1, x_4);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);

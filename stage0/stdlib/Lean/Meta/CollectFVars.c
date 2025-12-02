@@ -81,7 +81,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_instantiateMVarsCore(x_7, x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -251,7 +251,7 @@ x_4 = lean_st_ref_get(x_2);
 x_5 = lean_st_ref_get(x_1);
 x_6 = lean_ctor_get(x_4, 2);
 lean_inc_ref(x_6);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_7 = lean_array_get_size(x_6);
 x_8 = lean_nat_dec_lt(x_5, x_7);
 lean_dec(x_7);
@@ -567,7 +567,7 @@ x_26 = l_Std_DTreeMap_Internal_Impl_contains___at___00Lean_Meta_removeUnused_spe
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; 
-lean_dec_ref(x_24);
+lean_dec(x_24);
 lean_inc(x_25);
 x_27 = lean_local_ctx_erase(x_15, x_25);
 x_28 = l_Lean_LocalInstances_erase(x_18, x_25);
@@ -594,7 +594,7 @@ lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_6);
 lean_inc_ref(x_5);
-lean_inc_ref(x_24);
+lean_inc(x_24);
 x_33 = lean_infer_type(x_24, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_33) == 0)
 {
@@ -617,7 +617,7 @@ else
 {
 uint8_t x_40; 
 lean_free_object(x_12);
-lean_dec_ref(x_24);
+lean_dec(x_24);
 lean_dec(x_20);
 lean_free_object(x_11);
 lean_dec(x_18);
@@ -653,7 +653,7 @@ lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_6);
 lean_inc_ref(x_5);
-lean_inc_ref(x_24);
+lean_inc(x_24);
 x_43 = lean_infer_type(x_24, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_43) == 0)
 {
@@ -677,7 +677,7 @@ goto _start;
 else
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; 
-lean_dec_ref(x_24);
+lean_dec(x_24);
 lean_dec(x_20);
 lean_free_object(x_11);
 lean_dec(x_18);
@@ -724,7 +724,7 @@ x_61 = l_Std_DTreeMap_Internal_Impl_contains___at___00Lean_Meta_removeUnused_spe
 if (x_61 == 0)
 {
 lean_object* x_62; lean_object* x_63; lean_object* x_64; 
-lean_dec_ref(x_59);
+lean_dec(x_59);
 lean_inc(x_60);
 x_62 = lean_local_ctx_erase(x_15, x_60);
 x_63 = l_Lean_LocalInstances_erase(x_54, x_60);
@@ -754,7 +754,7 @@ lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_6);
 lean_inc_ref(x_5);
-lean_inc_ref(x_59);
+lean_inc(x_59);
 x_67 = lean_infer_type(x_59, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_67) == 0)
 {
@@ -786,7 +786,7 @@ else
 {
 lean_object* x_76; lean_object* x_77; lean_object* x_78; 
 lean_dec(x_66);
-lean_dec_ref(x_59);
+lean_dec(x_59);
 lean_dec(x_55);
 lean_dec(x_54);
 lean_free_object(x_4);
@@ -843,7 +843,7 @@ x_89 = l_Std_DTreeMap_Internal_Impl_contains___at___00Lean_Meta_removeUnused_spe
 if (x_89 == 0)
 {
 lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; 
-lean_dec_ref(x_87);
+lean_dec(x_87);
 lean_inc(x_88);
 x_90 = lean_local_ctx_erase(x_80, x_88);
 x_91 = l_Lean_LocalInstances_erase(x_81, x_88);
@@ -879,7 +879,7 @@ lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_6);
 lean_inc_ref(x_5);
-lean_inc_ref(x_87);
+lean_inc(x_87);
 x_96 = lean_infer_type(x_87, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_96) == 0)
 {
@@ -918,7 +918,7 @@ else
 {
 lean_object* x_106; lean_object* x_107; lean_object* x_108; 
 lean_dec(x_95);
-lean_dec_ref(x_87);
+lean_dec(x_87);
 lean_dec(x_83);
 lean_dec(x_82);
 lean_dec(x_81);

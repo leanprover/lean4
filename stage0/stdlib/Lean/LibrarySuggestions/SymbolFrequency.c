@@ -919,7 +919,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_4);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 lean_inc_ref(x_7);
 x_8 = l_Lean_Environment_constants(x_7);
 x_9 = lean_ctor_get(x_8, 1);
@@ -1439,7 +1439,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; uint8_t x_1
 x_8 = lean_st_ref_get(x_6);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc_ref(x_9);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_10 = lean_ctor_get_uint8(x_9, sizeof(void*)*8);
 lean_dec_ref(x_9);
 x_11 = lean_st_ref_take(x_6);
@@ -2245,7 +2245,7 @@ x_26 = lean_st_ref_get(x_25);
 x_27 = lean_st_ref_get(x_19);
 x_28 = lean_ctor_get(x_27, 0);
 lean_inc_ref(x_28);
-lean_dec_ref(x_27);
+lean_dec(x_27);
 x_29 = l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM_unsafe__1___redArg___lam__0___closed__1;
 x_30 = l_Lean_Option_get___at___00__private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM_unsafe__1_spec__0(x_2, x_29);
 x_64 = l_Lean_Kernel_isDiagnosticsEnabled(x_28);
@@ -2276,7 +2276,7 @@ block_24:
 lean_object* x_22; lean_object* x_23; 
 x_22 = lean_st_ref_get(x_19);
 lean_dec(x_19);
-lean_dec_ref(x_22);
+lean_dec(x_22);
 x_23 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_23, 0, x_20);
 return x_23;
@@ -2316,7 +2316,7 @@ lean_inc(x_38);
 lean_dec_ref(x_37);
 x_39 = lean_st_ref_get(x_33);
 lean_dec(x_33);
-lean_dec_ref(x_39);
+lean_dec(x_39);
 x_20 = x_38;
 x_21 = lean_box(0);
 goto block_24;
@@ -3120,7 +3120,7 @@ x_14 = lean_nat_dec_lt(x_12, x_13);
 if (x_14 == 0)
 {
 lean_dec(x_13);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_5 = x_4;
 goto block_9;
 }
@@ -3131,7 +3131,7 @@ x_15 = lean_nat_dec_le(x_13, x_13);
 if (x_15 == 0)
 {
 lean_dec(x_13);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_5 = x_4;
 goto block_9;
 }
@@ -3142,7 +3142,7 @@ x_16 = 0;
 x_17 = lean_usize_of_nat(x_13);
 lean_dec(x_13);
 x_18 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_LibrarySuggestions_symbolFrequencyMap_spec__2(x_11, x_16, x_17, x_4);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_5 = x_18;
 goto block_9;
 }
@@ -3175,7 +3175,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_11; lean_object* x_12; lean_o
 x_5 = lean_st_ref_get(x_1);
 x_11 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_11);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_12 = l_Lean_LibrarySuggestions_symbolFrequencyMap___redArg___closed__1;
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc_ref(x_13);
@@ -3193,7 +3193,7 @@ x_21 = lean_nat_dec_lt(x_19, x_20);
 if (x_21 == 0)
 {
 lean_dec(x_20);
-lean_dec_ref(x_17);
+lean_dec(x_17);
 x_6 = x_18;
 goto block_10;
 }
@@ -3204,7 +3204,7 @@ x_22 = lean_nat_dec_le(x_20, x_20);
 if (x_22 == 0)
 {
 lean_dec(x_20);
-lean_dec_ref(x_17);
+lean_dec(x_17);
 x_6 = x_18;
 goto block_10;
 }
@@ -3215,7 +3215,7 @@ x_23 = 0;
 x_24 = lean_usize_of_nat(x_20);
 lean_dec(x_20);
 x_25 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_LibrarySuggestions_symbolFrequencyMap_spec__3(x_17, x_23, x_24, x_18);
-lean_dec_ref(x_17);
+lean_dec(x_17);
 x_6 = x_25;
 goto block_10;
 }

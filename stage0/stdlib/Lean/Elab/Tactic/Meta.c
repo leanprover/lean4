@@ -637,7 +637,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_instantiateMVarsCore(x_7, x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -1711,7 +1711,7 @@ lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
 lean_inc_ref(x_6);
-lean_inc_ref(x_15);
+lean_inc(x_15);
 x_22 = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00Lean_LocalContext_foldlM___at___00Lean_instantiateLCtxMVars___at___00Lean_instantiateMVarDeclMVars___at___00Lean_Elab_runTactic_spec__0_spec__0_spec__3_spec__3_spec__3(x_1, x_15, x_19, x_21, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_22) == 0)
 {
@@ -2246,7 +2246,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_7 = lean_st_ref_get(x_3);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = l_Lean_MetavarContext_getDecl(x_8, x_1);
 x_10 = !lean_is_exclusive(x_9);
 if (x_10 == 0)
@@ -2282,7 +2282,7 @@ x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 x_26 = lean_ctor_get(x_24, 1);
 lean_inc(x_26);
-lean_dec_ref(x_24);
+lean_dec(x_24);
 x_27 = lean_st_ref_take(x_3);
 x_28 = !lean_is_exclusive(x_27);
 if (x_28 == 0)
@@ -2439,7 +2439,7 @@ x_71 = lean_ctor_get(x_70, 0);
 lean_inc(x_71);
 x_72 = lean_ctor_get(x_70, 1);
 lean_inc(x_72);
-lean_dec_ref(x_70);
+lean_dec(x_70);
 x_73 = lean_st_ref_take(x_3);
 x_74 = lean_ctor_get(x_73, 0);
 lean_inc_ref(x_74);
@@ -2605,7 +2605,7 @@ x_114 = lean_ctor_get(x_113, 0);
 lean_inc(x_114);
 x_115 = lean_ctor_get(x_113, 1);
 lean_inc(x_115);
-lean_dec_ref(x_113);
+lean_dec(x_113);
 x_116 = lean_st_ref_take(x_3);
 x_117 = lean_ctor_get(x_116, 0);
 lean_inc_ref(x_117);

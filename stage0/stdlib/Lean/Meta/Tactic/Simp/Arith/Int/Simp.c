@@ -369,7 +369,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_array_get_borrowed(x_1, x_2, x_3);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 return x_4;
 }
 }
@@ -1660,7 +1660,7 @@ x_206 = l_Int_toNat(x_205);
 lean_dec(x_205);
 x_207 = l_Lean_instToExprInt_mkNat(x_206);
 x_208 = l_Lean_mkApp3(x_202, x_203, x_204, x_207);
-lean_inc_ref(x_198);
+lean_inc(x_198);
 x_58 = x_193;
 x_59 = x_198;
 x_60 = x_208;
@@ -1672,7 +1672,7 @@ lean_object* x_209; lean_object* x_210;
 x_209 = l_Int_toNat(x_199);
 lean_dec(x_199);
 x_210 = l_Lean_instToExprInt_mkNat(x_209);
-lean_inc_ref(x_198);
+lean_inc(x_198);
 x_58 = x_193;
 x_59 = x_198;
 x_60 = x_210;
@@ -6874,7 +6874,7 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_Lean_instInhabitedExpr;
 x_4 = lean_array_get_borrowed(x_3, x_1, x_2);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 return x_4;
 }
 }

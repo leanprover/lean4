@@ -1218,7 +1218,7 @@ if (x_5 == 0)
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_uget(x_2, x_3);
 x_7 = l_Std_DHashMap_Internal_Raw_u2080_contains___at___00__private_Lean_Server_Logging_0__Lean_Server_Logging_isMsgAllowed_spec__0___redArg(x_1, x_6);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 if (x_7 == 0)
 {
 size_t x_8; size_t x_9; 
@@ -1251,7 +1251,7 @@ uint8_t x_8; uint8_t x_9; lean_object* x_14; uint8_t x_15;
 x_8 = 1;
 x_14 = lean_array_uget(x_4, x_5);
 x_15 = l_Std_DHashMap_Internal_Raw_u2080_contains___at___00__private_Lean_Server_Logging_0__Lean_Server_Logging_isMsgAllowed_spec__0___redArg(x_1, x_14);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 if (x_15 == 0)
 {
 x_9 = x_2;

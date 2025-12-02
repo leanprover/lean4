@@ -1892,7 +1892,7 @@ _start:
 lean_object* x_5; lean_object* x_13; 
 x_5 = lean_st_ref_get(x_3);
 x_13 = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00__private_Lean_Compiler_LCNF_FloatLetIn_0__Lean_Compiler_LCNF_FloatLetIn_initialDecisions_goFVar_spec__6___redArg(x_5, x_2);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 if (lean_obj_tag(x_13) == 1)
 {
 uint8_t x_14; 
@@ -4970,7 +4970,7 @@ x_7 = 1;
 x_8 = lean_usize_sub(x_3, x_7);
 x_9 = lean_array_uget(x_2, x_8);
 x_10 = l_Lean_Compiler_LCNF_FloatLetIn_Decision_ofAlt(x_9);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 lean_inc(x_1);
 x_11 = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_Compiler_LCNF_FloatLetIn_initialNewArms_spec__0___redArg(x_5, x_10, x_1);
 x_3 = x_8;
@@ -5108,7 +5108,7 @@ lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_6 = l_Std_DHashMap_Internal_Raw_u2080_contains___at___00Lean_Compiler_LCNF_FloatLetIn_initialDecisions_spec__1___redArg(x_5, x_1);
 lean_dec_ref(x_5);
 if (x_6 == 0)
@@ -7470,7 +7470,7 @@ lean_object* x_5; lean_object* x_23; lean_object* x_24;
 x_5 = lean_st_ref_get(x_3);
 x_23 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_23);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_24 = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00__private_Lean_Compiler_LCNF_FloatLetIn_0__Lean_Compiler_LCNF_FloatLetIn_initialDecisions_goFVar_spec__6___redArg(x_23, x_1);
 lean_dec_ref(x_23);
 if (lean_obj_tag(x_24) == 1)
@@ -8029,7 +8029,7 @@ lean_dec_ref(x_3);
 x_15 = lean_st_ref_get(x_5);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc_ref(x_16);
-lean_dec_ref(x_15);
+lean_dec(x_15);
 x_17 = l_Lean_Compiler_LCNF_CodeDecl_fvarId(x_13);
 lean_inc(x_1);
 x_18 = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x21___at___00Lean_Compiler_LCNF_FloatLetIn_float_spec__0___redArg(x_1, x_16, x_17);
@@ -8286,7 +8286,7 @@ x_9 = lean_st_ref_get(x_5);
 x_10 = lean_st_ref_get(x_3);
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_11);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_12 = !lean_is_exclusive(x_10);
 if (x_12 == 0)
 {
@@ -8965,7 +8965,7 @@ x_70 = lean_st_ref_get(x_68);
 lean_dec(x_68);
 x_71 = lean_ctor_get(x_70, 1);
 lean_inc_ref(x_71);
-lean_dec_ref(x_70);
+lean_dec(x_70);
 x_72 = lean_ctor_get(x_63, 0);
 lean_inc(x_72);
 x_73 = lean_ctor_get(x_63, 1);

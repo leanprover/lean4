@@ -3174,11 +3174,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -3752,7 +3752,7 @@ lean_dec_ref(x_67);
 x_113 = l_Lean_Meta_Grind_Goal_hasSameRoot(x_71, x_74, x_76);
 if (x_113 == 0)
 {
-lean_dec_ref(x_72);
+lean_dec(x_72);
 x_94 = x_113;
 goto block_112;
 }
@@ -4278,7 +4278,7 @@ lean_dec_ref(x_149);
 x_187 = l_Lean_Meta_Grind_Goal_hasSameRoot(x_153, x_156, x_158);
 if (x_187 == 0)
 {
-lean_dec_ref(x_154);
+lean_dec(x_154);
 x_172 = x_187;
 goto block_186;
 }
@@ -6145,7 +6145,7 @@ lean_dec_ref(x_67);
 x_113 = l_Lean_Meta_Grind_Goal_hasSameRoot(x_71, x_74, x_77);
 if (x_113 == 0)
 {
-lean_dec_ref(x_72);
+lean_dec(x_72);
 x_94 = x_113;
 goto block_112;
 }
@@ -6671,7 +6671,7 @@ lean_dec_ref(x_149);
 x_187 = l_Lean_Meta_Grind_Goal_hasSameRoot(x_153, x_156, x_159);
 if (x_187 == 0)
 {
-lean_dec_ref(x_154);
+lean_dec(x_154);
 x_172 = x_187;
 goto block_186;
 }

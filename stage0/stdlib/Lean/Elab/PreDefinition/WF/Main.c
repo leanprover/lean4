@@ -321,7 +321,7 @@ lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
 lean_inc_ref(x_6);
-lean_inc_ref(x_14);
+lean_inc(x_14);
 lean_inc(x_4);
 lean_inc_ref(x_1);
 x_15 = l_Lean_Elab_WF_varyingVarNames(x_1, x_4, x_14, x_6, x_7, x_8, x_9);
@@ -750,11 +750,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -1951,7 +1951,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13;
 x_10 = lean_st_ref_get(x_8);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc_ref(x_11);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 x_12 = l_Lean_setEnv___at___00Lean_withEnv___at___00Lean_Elab_wfRecursion_spec__11_spec__11___redArg(x_1, x_6, x_8);
 lean_dec_ref(x_12);
 lean_inc(x_8);
@@ -2154,7 +2154,7 @@ lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; uint8_t x
 x_10 = lean_st_ref_get(x_8);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc_ref(x_11);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*8);
 lean_dec_ref(x_11);
 x_13 = lean_st_ref_take(x_8);
@@ -2607,7 +2607,7 @@ x_22 = lean_ctor_get(x_21, 0);
 lean_inc(x_22);
 x_23 = lean_ctor_get(x_21, 1);
 lean_inc(x_23);
-lean_dec_ref(x_21);
+lean_dec(x_21);
 x_35 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_wfRecursion_spec__18___redArg___closed__3;
 x_36 = lean_name_eq(x_22, x_35);
 if (x_36 == 0)
@@ -2689,7 +2689,7 @@ x_22 = lean_ctor_get(x_21, 0);
 lean_inc(x_22);
 x_23 = lean_ctor_get(x_21, 1);
 lean_inc(x_23);
-lean_dec_ref(x_21);
+lean_dec(x_21);
 x_35 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_wfRecursion_spec__18___redArg___closed__3;
 x_36 = lean_name_eq(x_22, x_35);
 if (x_36 == 0)
@@ -2841,7 +2841,7 @@ return x_29;
 }
 else
 {
-lean_dec_ref(x_20);
+lean_dec(x_20);
 x_12 = x_2;
 x_13 = lean_box(0);
 goto block_17;
@@ -2850,7 +2850,7 @@ goto block_17;
 else
 {
 uint8_t x_30; 
-lean_dec_ref(x_20);
+lean_dec(x_20);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);
@@ -2876,7 +2876,7 @@ return x_32;
 else
 {
 lean_dec_ref(x_23);
-lean_dec_ref(x_20);
+lean_dec(x_20);
 x_12 = x_2;
 x_13 = lean_box(0);
 goto block_17;
@@ -2885,7 +2885,7 @@ goto block_17;
 else
 {
 lean_dec_ref(x_23);
-lean_dec_ref(x_20);
+lean_dec(x_20);
 x_12 = x_2;
 x_13 = lean_box(0);
 goto block_17;
@@ -2931,7 +2931,7 @@ x_11 = lean_array_uget(x_2, x_4);
 lean_inc(x_7);
 lean_inc_ref(x_6);
 x_12 = l_Lean_Elab_addAsAxiom___redArg(x_11, x_6, x_7);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 size_t x_13; size_t x_14; 
@@ -3517,7 +3517,7 @@ lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean
 x_25 = lean_array_uget(x_7, x_8);
 x_26 = lean_ctor_get(x_25, 2);
 lean_inc_ref(x_26);
-lean_dec_ref(x_25);
+lean_dec(x_25);
 x_27 = lean_ctor_get(x_26, 2);
 lean_inc_ref(x_27);
 lean_dec_ref(x_26);
@@ -3666,7 +3666,7 @@ x_31 = lean_nat_add(x_21, x_30);
 lean_inc_ref(x_20);
 lean_ctor_set(x_4, 1, x_31);
 x_32 = l_Array_isEmpty___redArg(x_29);
-lean_dec_ref(x_29);
+lean_dec(x_29);
 if (x_32 == 0)
 {
 lean_dec(x_21);
@@ -3684,7 +3684,7 @@ lean_dec(x_21);
 lean_dec_ref(x_20);
 x_34 = lean_ctor_get(x_33, 3);
 lean_inc(x_34);
-lean_dec_ref(x_33);
+lean_dec(x_33);
 x_35 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_wfRecursion_spec__8___closed__1;
 x_36 = l_Lean_MessageData_ofName(x_34);
 x_37 = lean_alloc_ctor(7, 2, 0);
@@ -3725,7 +3725,7 @@ lean_ctor_set(x_47, 0, x_20);
 lean_ctor_set(x_47, 1, x_46);
 lean_ctor_set(x_47, 2, x_22);
 x_48 = l_Array_isEmpty___redArg(x_44);
-lean_dec_ref(x_44);
+lean_dec(x_44);
 if (x_48 == 0)
 {
 lean_dec(x_21);
@@ -3743,7 +3743,7 @@ lean_dec(x_21);
 lean_dec_ref(x_20);
 x_50 = lean_ctor_get(x_49, 3);
 lean_inc(x_50);
-lean_dec_ref(x_49);
+lean_dec(x_49);
 x_51 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_wfRecursion_spec__8___closed__1;
 x_52 = l_Lean_MessageData_ofName(x_50);
 x_53 = lean_alloc_ctor(7, 2, 0);
@@ -4351,7 +4351,7 @@ x_47 = l_Lean_setEnv___at___00Lean_withEnv___at___00Lean_Elab_wfRecursion_spec__
 lean_dec_ref(x_47);
 x_48 = lean_ctor_get(x_46, 0);
 lean_inc_ref(x_48);
-lean_dec_ref(x_46);
+lean_dec(x_46);
 lean_inc(x_37);
 lean_inc_ref(x_48);
 x_49 = l_Lean_Meta_unfoldDeclsFrom(x_48, x_45, x_43, x_37);
@@ -4814,7 +4814,7 @@ lean_object* x_174; lean_object* x_175; lean_object* x_176;
 x_174 = lean_st_ref_get(x_172);
 x_175 = lean_ctor_get(x_174, 0);
 lean_inc_ref(x_175);
-lean_dec_ref(x_174);
+lean_dec(x_174);
 lean_inc(x_172);
 lean_inc_ref(x_171);
 x_176 = l_Lean_Elab_addAsAxiom___redArg(x_3, x_171, x_172);
@@ -5414,7 +5414,7 @@ lean_dec_ref(x_13);
 x_15 = lean_st_ref_get(x_9);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc_ref(x_16);
-lean_dec_ref(x_15);
+lean_dec(x_15);
 x_17 = l_Lean_Elab_wfRecursion___closed__0;
 x_18 = lean_box(0);
 x_33 = lean_array_size(x_14);
@@ -6110,7 +6110,7 @@ lean_object* x_157; lean_object* x_158; lean_object* x_159; lean_object* x_160;
 x_157 = lean_st_ref_get(x_155);
 x_158 = lean_ctor_get(x_157, 0);
 lean_inc_ref(x_158);
-lean_dec_ref(x_157);
+lean_dec(x_157);
 x_159 = l_Lean_Environment_unlockAsync(x_158);
 lean_inc(x_155);
 lean_inc_ref(x_154);

@@ -4063,6 +4063,7 @@ lean_closure_set(x_4, 0, x_2);
 x_5 = l_Lean_Compiler_LCNF_anyFVar___redArg___closed__9;
 x_6 = l_Lean_Compiler_LCNF_anyFVarM___redArg(x_5, x_1, x_4, x_3);
 x_7 = lean_unbox(x_6);
+lean_dec(x_6);
 return x_7;
 }
 }
@@ -4101,6 +4102,7 @@ lean_closure_set(x_4, 0, x_2);
 x_5 = l_Lean_Compiler_LCNF_anyFVar___redArg___closed__9;
 x_6 = l_Lean_Compiler_LCNF_allFVarM___redArg(x_5, x_1, x_4, x_3);
 x_7 = lean_unbox(x_6);
+lean_dec(x_6);
 return x_7;
 }
 }

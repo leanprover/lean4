@@ -781,7 +781,7 @@ lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = 1;
 x_9 = l_Lean_Name_toString(x_7, x_8);
 x_10 = lean_string_append(x_4, x_9);
@@ -1452,7 +1452,7 @@ x_14 = lean_array_uget(x_2, x_3);
 x_15 = lean_ctor_get(x_10, 1);
 x_16 = lean_ctor_get(x_14, 0);
 lean_inc(x_16);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_17 = lean_ctor_get(x_15, 5);
 x_18 = l_Std_DTreeMap_Internal_Impl_get_x3f___at___00__private_Lake_Build_Package_0__Lake_Package_recFetchDeps_spec__0___redArg(x_17, x_16);
 if (lean_obj_tag(x_18) == 1)

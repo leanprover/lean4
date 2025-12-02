@@ -2764,7 +2764,7 @@ if (x_12 == 0)
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_13 = lean_array_uget(x_2, x_3);
 x_14 = l_Lean_Compiler_LCNF_Alt_getCode(x_13);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_15 = l___private_Lean_Compiler_LCNF_Simp_FunDeclInfo_0__Lean_Compiler_LCNF_Simp_FunDeclInfoMap_update_go(x_1, x_14, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_15) == 0)
 {

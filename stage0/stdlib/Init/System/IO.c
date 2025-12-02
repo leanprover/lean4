@@ -11489,6 +11489,7 @@ _start:
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_st_ref_get(x_1);
 x_4 = lean_unbox(x_3);
+lean_dec(x_3);
 return x_4;
 }
 }
@@ -11509,6 +11510,7 @@ lean_object* x_3; uint8_t x_4;
 x_3 = lean_st_ref_get(x_1);
 lean_dec(x_1);
 x_4 = lean_unbox(x_3);
+lean_dec(x_3);
 return x_4;
 }
 }

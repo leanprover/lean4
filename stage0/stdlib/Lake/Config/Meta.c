@@ -4642,7 +4642,7 @@ lean_inc(x_24);
 x_25 = lean_ctor_get(x_21, 5);
 lean_inc(x_25);
 x_26 = lean_ctor_get_uint8(x_21, sizeof(void*)*7);
-lean_dec_ref(x_21);
+lean_dec(x_21);
 x_856 = l_Lean_TSyntax_getId(x_22);
 x_1071 = l_Lean_Name_hasMacroScopes(x_856);
 if (x_1071 == 0)
@@ -7772,7 +7772,7 @@ lean_inc(x_24);
 x_25 = lean_ctor_get(x_21, 5);
 lean_inc(x_25);
 x_26 = lean_ctor_get_uint8(x_21, sizeof(void*)*7);
-lean_dec_ref(x_21);
+lean_dec(x_21);
 x_856 = l_Lean_TSyntax_getId(x_22);
 x_1071 = l_Lean_Name_hasMacroScopes(x_856);
 if (x_1071 == 0)
@@ -15000,7 +15000,7 @@ lean_object* x_11; lean_object* x_12;
 x_11 = lean_array_uget(x_1, x_2);
 x_12 = lean_ctor_get(x_11, 6);
 lean_inc(x_12);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 x_5 = x_4;

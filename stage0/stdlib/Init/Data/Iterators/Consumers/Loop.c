@@ -1014,6 +1014,7 @@ lean_closure_set(x_8, 0, x_6);
 x_9 = l_Std_Iterators_Iter_any___closed__9;
 x_10 = l_Std_Iterators_Iter_anyM___redArg(x_9, x_4, x_8, x_7);
 x_11 = lean_unbox(x_10);
+lean_dec(x_10);
 return x_11;
 }
 }
@@ -1026,6 +1027,7 @@ lean_closure_set(x_4, 0, x_2);
 x_5 = l_Std_Iterators_Iter_any___closed__9;
 x_6 = l_Std_Iterators_Iter_anyM___redArg(x_5, x_1, x_4, x_3);
 x_7 = lean_unbox(x_6);
+lean_dec(x_6);
 return x_7;
 }
 }
@@ -1147,6 +1149,7 @@ lean_closure_set(x_8, 0, x_6);
 x_9 = l_Std_Iterators_Iter_any___closed__9;
 x_10 = l_Std_Iterators_Iter_allM___redArg(x_9, x_4, x_8, x_7);
 x_11 = lean_unbox(x_10);
+lean_dec(x_10);
 return x_11;
 }
 }
@@ -1159,6 +1162,7 @@ lean_closure_set(x_4, 0, x_2);
 x_5 = l_Std_Iterators_Iter_any___closed__9;
 x_6 = l_Std_Iterators_Iter_allM___redArg(x_5, x_1, x_4, x_3);
 x_7 = lean_unbox(x_6);
+lean_dec(x_6);
 return x_7;
 }
 }

@@ -1598,7 +1598,7 @@ lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13;
 x_10 = lean_array_uget(x_4, x_5);
 lean_inc_ref(x_1);
 x_11 = l_Lake_logToStream(x_10, x_1, x_2, x_3);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 x_12 = 1;
 x_13 = lean_usize_add(x_5, x_12);
 x_5 = x_13;
@@ -28673,7 +28673,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11;
 x_8 = lean_array_uget(x_1, x_2);
 x_9 = lean_ctor_get(x_8, 14);
 lean_inc(x_9);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_10 = lean_box(0);
 x_11 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00__private_Lake_CLI_Main_0__Lake_lake_script_list_spec__0(x_10, x_9, x_5);
 if (lean_obj_tag(x_11) == 0)
@@ -32656,7 +32656,7 @@ lean_dec_ref(x_6);
 lean_dec(x_5);
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_11);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_12 = l_Lake_BuildInfo_key(x_11);
 x_13 = l_Lake_BuildKey_toSimpleString(x_12);
 x_14 = lean_alloc_ctor(18, 1, 0);
@@ -32670,7 +32670,7 @@ return x_16;
 else
 {
 lean_object* x_17; size_t x_18; size_t x_19; 
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_17 = lean_box(0);
 x_18 = 1;
 x_19 = lean_usize_add(x_2, x_18);
@@ -36614,7 +36614,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11;
 x_9 = lean_array_uget(x_1, x_2);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = l_IO_println___at___00__private_Lake_CLI_Main_0__Lake_lake_queryKind_spec__1(x_10);
 if (lean_obj_tag(x_11) == 0)
 {
@@ -36824,7 +36824,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12;
 x_9 = lean_array_uget(x_1, x_2);
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc_ref(x_11);
 lean_dec(x_10);
@@ -48943,7 +48943,7 @@ x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_CLI_Main_0__Lake_lake_env_spec__0___closed__0;
 x_13 = lean_string_append(x_10, x_12);
 if (lean_obj_tag(x_11) == 0)
@@ -53401,14 +53401,14 @@ if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; 
 x_9 = lean_array_uget(x_2, x_3);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 lean_inc_ref(x_1);
 x_10 = l_Lake_joinRelative(x_1, x_9);
 x_11 = l_System_FilePath_pathExists(x_10);
 lean_dec_ref(x_10);
 if (x_11 == 0)
 {
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_12 = x_5;
 x_13 = x_6;
 goto block_17;

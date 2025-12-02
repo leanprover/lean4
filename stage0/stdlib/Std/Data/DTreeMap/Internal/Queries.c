@@ -2328,28 +2328,28 @@ return x_6;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x21___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-if (lean_obj_tag(x_2) == 0)
+if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-x_5 = lean_ctor_get(x_2, 1);
+x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
-x_6 = lean_ctor_get(x_2, 2);
+x_6 = lean_ctor_get(x_3, 2);
 lean_inc(x_6);
-x_7 = lean_ctor_get(x_2, 3);
+x_7 = lean_ctor_get(x_3, 3);
 lean_inc(x_7);
-x_8 = lean_ctor_get(x_2, 4);
+x_8 = lean_ctor_get(x_3, 4);
 lean_inc(x_8);
-lean_dec_ref(x_2);
+lean_dec_ref(x_3);
 lean_inc_ref(x_1);
-lean_inc(x_3);
-x_9 = lean_apply_2(x_1, x_3, x_5);
+lean_inc(x_4);
+x_9 = lean_apply_2(x_1, x_4, x_5);
 x_10 = lean_unbox(x_9);
 switch (x_10) {
 case 0:
 {
 lean_dec(x_8);
 lean_dec(x_6);
-x_2 = x_7;
+x_3 = x_7;
 goto _start;
 }
 case 1:
@@ -2357,7 +2357,7 @@ case 1:
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_4);
-lean_dec(x_3);
+lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_6;
 }
@@ -2365,7 +2365,7 @@ default:
 {
 lean_dec(x_7);
 lean_dec(x_6);
-x_2 = x_8;
+x_3 = x_8;
 goto _start;
 }
 }
@@ -2373,10 +2373,10 @@ goto _start;
 else
 {
 lean_object* x_13; lean_object* x_14; 
-lean_dec(x_3);
+lean_dec(x_4);
 lean_dec_ref(x_1);
 x_13 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___redArg___closed__1;
-x_14 = l_panic___redArg(x_4, x_13);
+x_14 = l_panic___redArg(x_2, x_13);
 return x_14;
 }
 }

@@ -1507,7 +1507,7 @@ _start:
 lean_object* x_12; uint8_t x_13; uint8_t x_14; 
 x_12 = lean_st_ref_get(x_2);
 x_13 = l_Lean_Elab_Tactic_Conv_PatternMatchState_isDone(x_12);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_14 = 1;
 if (x_13 == 0)
 {
@@ -1540,7 +1540,7 @@ lean_inc(x_21);
 lean_dec(x_19);
 x_22 = lean_st_ref_get(x_2);
 x_23 = l_Lean_Elab_Tactic_Conv_PatternMatchState_isReady(x_22);
-lean_dec_ref(x_22);
+lean_dec(x_22);
 if (x_23 == 0)
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
@@ -1689,7 +1689,7 @@ lean_inc(x_58);
 lean_dec(x_56);
 x_59 = lean_st_ref_get(x_2);
 x_60 = l_Lean_Elab_Tactic_Conv_PatternMatchState_isReady(x_59);
-lean_dec_ref(x_59);
+lean_dec(x_59);
 if (x_60 == 0)
 {
 lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; 
@@ -1853,7 +1853,7 @@ lean_inc(x_95);
 lean_dec(x_92);
 x_96 = lean_st_ref_get(x_2);
 x_97 = l_Lean_Elab_Tactic_Conv_PatternMatchState_isReady(x_96);
-lean_dec_ref(x_96);
+lean_dec(x_96);
 if (x_97 == 0)
 {
 lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; 
@@ -2110,11 +2110,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);

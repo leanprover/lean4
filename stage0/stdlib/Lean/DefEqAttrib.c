@@ -533,7 +533,7 @@ if (lean_is_exclusive(x_5)) {
 }
 x_24 = lean_ctor_get(x_8, 0);
 lean_inc_ref(x_24);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_25 = 1;
 x_26 = l___private_Lean_DefEqAttrib_0__Lean_isDefEqCareful___closed__0;
 x_27 = 0;
@@ -1524,7 +1524,7 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = l_Lean_Name_isAnonymous(x_2);
 if (x_7 == 0)
 {
@@ -1767,7 +1767,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = lean_ctor_get(x_2, 2);
 x_8 = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_validateDefEqAttr_spec__4_spec__4_spec__4_spec__4_spec__6_spec__6_spec__6___closed__2;
 x_9 = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_validateDefEqAttr_spec__4_spec__4_spec__4_spec__4_spec__6_spec__6_spec__6___closed__6;
@@ -1835,11 +1835,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -2271,7 +2271,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; uint8_t x_1
 x_8 = lean_st_ref_get(x_6);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc_ref(x_9);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_10 = lean_ctor_get_uint8(x_9, sizeof(void*)*8);
 lean_dec_ref(x_9);
 x_11 = lean_st_ref_take(x_6);
@@ -2658,7 +2658,7 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8;
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = 0;
 lean_inc(x_1);
 x_8 = l_Lean_Environment_findConstVal_x3f(x_6, x_1, x_7);
@@ -2778,7 +2778,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_st_ref_get(x_7);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc_ref(x_16);
-lean_dec_ref(x_15);
+lean_dec(x_15);
 x_17 = lean_ctor_get_uint8(x_16, sizeof(void*)*8);
 lean_dec_ref(x_16);
 x_18 = l_Lean_validateDefEqAttr___lam__0___closed__1;
@@ -2902,7 +2902,7 @@ lean_dec(x_11);
 x_42 = lean_st_ref_get(x_7);
 x_43 = lean_ctor_get(x_42, 0);
 lean_inc_ref(x_43);
-lean_dec_ref(x_42);
+lean_dec(x_42);
 x_44 = lean_ctor_get_uint8(x_43, sizeof(void*)*8);
 lean_dec_ref(x_43);
 x_45 = l_Lean_validateDefEqAttr___lam__0___closed__1;
@@ -3025,7 +3025,7 @@ if (lean_is_exclusive(x_64)) {
 x_68 = lean_st_ref_get(x_7);
 x_69 = lean_ctor_get(x_68, 0);
 lean_inc_ref(x_69);
-lean_dec_ref(x_68);
+lean_dec(x_68);
 x_70 = lean_ctor_get_uint8(x_69, sizeof(void*)*8);
 lean_dec_ref(x_69);
 x_71 = l_Lean_validateDefEqAttr___lam__0___closed__1;
@@ -3655,7 +3655,7 @@ if (x_24 == 0)
 lean_object* x_25; 
 x_25 = lean_st_ref_get(x_10);
 lean_dec(x_10);
-lean_dec_ref(x_25);
+lean_dec(x_25);
 return x_23;
 }
 else
@@ -3666,7 +3666,7 @@ lean_inc(x_26);
 lean_dec(x_23);
 x_27 = lean_st_ref_get(x_10);
 lean_dec(x_10);
-lean_dec_ref(x_27);
+lean_dec(x_27);
 x_28 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_28, 0, x_26);
 return x_28;
@@ -3753,7 +3753,7 @@ if (lean_is_exclusive(x_53)) {
 }
 x_56 = lean_st_ref_get(x_10);
 lean_dec(x_10);
-lean_dec_ref(x_56);
+lean_dec(x_56);
 if (lean_is_scalar(x_55)) {
  x_57 = lean_alloc_ctor(0, 1, 0);
 } else {
@@ -4418,7 +4418,7 @@ lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint
 x_28 = lean_st_ref_get(x_3);
 x_29 = lean_ctor_get(x_28, 0);
 lean_inc_ref(x_29);
-lean_dec_ref(x_28);
+lean_dec(x_28);
 x_30 = l___private_Lean_DefEqAttrib_0__Lean_isRflProofCore___redArg___closed__6;
 x_31 = l_Lean_Expr_constName_x21(x_24);
 lean_dec_ref(x_24);
@@ -4497,7 +4497,7 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = l_Lean_Name_isAnonymous(x_2);
 if (x_7 == 0)
 {
@@ -5768,7 +5768,7 @@ lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10;
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = 0;
 lean_inc(x_1);
 x_10 = l_Lean_Environment_find_x3f(x_8, x_1, x_9);
@@ -5851,7 +5851,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_8 = lean_st_ref_get(x_6);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc_ref(x_9);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_10 = l_Lean_Environment_getModuleIdxFor_x3f(x_9, x_2);
 if (lean_obj_tag(x_10) == 0)
 {

@@ -3186,7 +3186,7 @@ else
 {
 lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_19 = lean_array_uget(x_3, x_5);
-lean_inc_ref(x_19);
+lean_inc(x_19);
 x_20 = l_IO_FS_DirEntry_path(x_19);
 x_21 = l_System_FilePath_isDir(x_20);
 if (x_21 == 0)
@@ -3198,7 +3198,7 @@ x_24 = l_Option_instBEq_beq___at___00Lean_forEachModuleInDir___at___00ImportComp
 lean_dec(x_22);
 if (x_24 == 0)
 {
-lean_dec_ref(x_19);
+lean_dec(x_19);
 x_9 = x_1;
 x_10 = x_7;
 x_11 = lean_box(0);
@@ -3209,7 +3209,7 @@ else
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 x_25 = lean_ctor_get(x_19, 1);
 lean_inc_ref(x_25);
-lean_dec_ref(x_19);
+lean_dec(x_19);
 x_26 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00ImportCompletion_computePartialImportCompletions_spec__3___redArg___lam__0___closed__4;
 x_27 = l_System_FilePath_withExtension(x_25, x_26);
 x_28 = lean_box(0);
@@ -3242,7 +3242,7 @@ else
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 x_33 = lean_ctor_get(x_19, 1);
 lean_inc_ref(x_33);
-lean_dec_ref(x_19);
+lean_dec(x_19);
 x_34 = lean_box(0);
 x_35 = l_Lean_Name_str___override(x_34, x_33);
 lean_inc_ref(x_2);

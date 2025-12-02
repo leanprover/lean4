@@ -3054,7 +3054,7 @@ x_13 = 0;
 lean_inc_ref(x_6);
 lean_inc_ref(x_1);
 x_14 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_ScopedEnvExtension_addImportedFn_spec__0___redArg(x_1, x_11, x_12, x_13, x_5, x_6);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; size_t x_16; size_t x_17; 
@@ -3091,7 +3091,7 @@ x_24 = 0;
 lean_inc_ref(x_6);
 lean_inc_ref(x_1);
 x_25 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_ScopedEnvExtension_addImportedFn_spec__0___redArg(x_1, x_21, x_23, x_24, x_22, x_6);
-lean_dec_ref(x_21);
+lean_dec(x_21);
 if (lean_obj_tag(x_25) == 0)
 {
 lean_object* x_26; size_t x_27; size_t x_28; 
@@ -5362,7 +5362,7 @@ x_7 = lean_box(0);
 x_8 = l_Lean_PersistentEnvExtension_getState___redArg(x_6, x_5, x_3, x_4, x_7);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 if (lean_obj_tag(x_9) == 1)
 {
 lean_object* x_10; lean_object* x_11; 

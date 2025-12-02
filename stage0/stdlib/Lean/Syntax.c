@@ -2545,6 +2545,7 @@ x_21 = lean_string_append(x_18, x_20);
 lean_dec_ref(x_20);
 x_22 = lean_dbg_trace(x_21, x_9);
 x_23 = lean_unbox(x_22);
+lean_dec(x_22);
 return x_23;
 }
 }
@@ -2902,6 +2903,7 @@ x_21 = lean_string_append(x_18, x_20);
 lean_dec_ref(x_20);
 x_22 = lean_dbg_trace(x_21, x_9);
 x_23 = lean_unbox(x_22);
+lean_dec(x_22);
 return x_23;
 }
 }

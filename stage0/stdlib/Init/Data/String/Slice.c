@@ -3916,6 +3916,7 @@ x_6 = lean_apply_1(x_1, x_2);
 x_7 = l_String_Slice_contains___redArg___closed__9;
 x_8 = l_Std_Iterators_Iter_anyM___redArg(x_7, x_6, x_4, x_5);
 x_9 = lean_unbox(x_8);
+lean_dec(x_8);
 return x_9;
 }
 }

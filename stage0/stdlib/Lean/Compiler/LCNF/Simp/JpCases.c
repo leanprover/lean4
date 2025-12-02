@@ -2078,7 +2078,7 @@ lean_inc_ref(x_11);
 lean_inc(x_10);
 lean_inc_ref(x_9);
 lean_inc(x_8);
-lean_inc_ref(x_35);
+lean_inc(x_35);
 x_37 = l_Lean_Compiler_LCNF_Internalize_internalizeParam(x_35, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_37) == 0)
 {
@@ -2143,7 +2143,7 @@ lean_inc_ref(x_11);
 lean_inc(x_10);
 lean_inc_ref(x_9);
 lean_inc(x_8);
-lean_inc_ref(x_35);
+lean_inc(x_35);
 x_45 = l_Lean_Compiler_LCNF_Internalize_internalizeParam(x_35, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_45) == 0)
 {
@@ -2340,7 +2340,7 @@ if (x_5 == 0)
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_uget(x_2, x_3);
 x_7 = l_Lean_Compiler_LCNF_CodeDecl_dependsOn(x_6, x_1);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 if (x_7 == 0)
 {
 size_t x_8; size_t x_9; 
@@ -2893,7 +2893,7 @@ if (x_15 == 0)
 lean_object* x_16; 
 x_16 = lean_st_ref_get(x_13);
 lean_dec(x_13);
-lean_dec_ref(x_16);
+lean_dec(x_16);
 return x_14;
 }
 else
@@ -2904,7 +2904,7 @@ lean_inc(x_17);
 lean_dec(x_14);
 x_18 = lean_st_ref_get(x_13);
 lean_dec(x_13);
-lean_dec_ref(x_18);
+lean_dec(x_18);
 x_19 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_19, 0, x_17);
 return x_19;
@@ -8453,7 +8453,7 @@ x_9 = lean_st_ref_get(x_5);
 x_10 = lean_st_ref_get(x_3);
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_11);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_12 = !lean_is_exclusive(x_10);
 if (x_12 == 0)
 {

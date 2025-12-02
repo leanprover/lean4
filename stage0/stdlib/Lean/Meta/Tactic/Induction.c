@@ -664,7 +664,7 @@ else
 lean_object* x_41; lean_object* x_42; 
 x_41 = lean_array_fget_borrowed(x_2, x_35);
 lean_dec(x_35);
-lean_inc_ref(x_41);
+lean_inc(x_41);
 x_42 = l_Lean_Expr_app___override(x_4, x_41);
 x_3 = x_12;
 x_4 = x_42;
@@ -1656,11 +1656,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -1716,7 +1716,7 @@ goto _start;
 else
 {
 uint8_t x_22; 
-lean_dec_ref(x_15);
+lean_dec(x_15);
 lean_free_object(x_5);
 lean_dec(x_13);
 lean_dec(x_9);
@@ -1775,7 +1775,7 @@ goto _start;
 else
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; 
-lean_dec_ref(x_27);
+lean_dec(x_27);
 lean_dec(x_25);
 lean_dec(x_9);
 lean_dec_ref(x_8);
@@ -2446,7 +2446,7 @@ else
 {
 lean_object* x_220; 
 x_220 = lean_array_fget_borrowed(x_2, x_11);
-lean_inc_ref(x_220);
+lean_inc(x_220);
 x_164 = x_206;
 x_165 = x_208;
 x_166 = x_203;
@@ -4171,7 +4171,7 @@ lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_23; lean_object*
 x_5 = lean_st_ref_get(x_3);
 x_29 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_29);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_30 = lean_alloc_closure((void*)(l_Lean_exprDependsOn___at___00Lean_Meta_getMajorTypeIndices_spec__2___redArg___lam__0___boxed), 1, 0);
 x_31 = lean_alloc_closure((void*)(l_Lean_exprDependsOn___at___00Lean_Meta_getMajorTypeIndices_spec__2___redArg___lam__1___boxed), 2, 1);
 lean_closure_set(x_31, 0, x_2);
@@ -4297,7 +4297,7 @@ lean_dec_ref(x_1);
 x_34 = lean_st_ref_get(x_4);
 x_58 = lean_ctor_get(x_34, 0);
 lean_inc_ref(x_58);
-lean_dec_ref(x_34);
+lean_dec(x_34);
 x_59 = l_Lean_exprDependsOn___at___00Lean_Meta_getMajorTypeIndices_spec__2___redArg___closed__4;
 lean_inc_ref(x_58);
 x_60 = lean_alloc_ctor(0, 2, 0);
@@ -4421,7 +4421,7 @@ lean_dec_ref(x_66);
 x_91 = lean_st_ref_get(x_4);
 x_115 = lean_ctor_get(x_91, 0);
 lean_inc_ref(x_115);
-lean_dec_ref(x_91);
+lean_dec(x_91);
 x_116 = l_Lean_exprDependsOn___at___00Lean_Meta_getMajorTypeIndices_spec__2___redArg___closed__4;
 lean_inc_ref(x_115);
 x_117 = lean_alloc_ctor(0, 2, 0);
@@ -4590,7 +4590,7 @@ lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; uint
 x_82 = lean_st_ref_get(x_4);
 x_83 = lean_ctor_get(x_82, 0);
 lean_inc_ref(x_83);
-lean_dec_ref(x_82);
+lean_dec(x_82);
 x_84 = l_Lean_exprDependsOn___at___00Lean_Meta_getMajorTypeIndices_spec__2___redArg___closed__4;
 x_85 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_85, 0, x_84);
@@ -5116,7 +5116,7 @@ else
 {
 lean_object* x_90; lean_object* x_91; uint8_t x_92; 
 x_90 = l_Lean_Expr_fvarId_x21(x_2);
-lean_inc_ref(x_26);
+lean_inc(x_26);
 x_91 = l_Lean_exprDependsOn___at___00Lean_Meta_getMajorTypeIndices_spec__2___redArg(x_26, x_90, x_85);
 x_92 = !lean_is_exclusive(x_91);
 if (x_92 == 0)
@@ -5342,7 +5342,7 @@ if (x_39 == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 
 x_40 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Meta_getMajorTypeIndices_spec__4___closed__1;
-lean_inc_ref(x_28);
+lean_inc(x_28);
 x_41 = l_Lean_MessageData_ofExpr(x_28);
 x_42 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_42, 0, x_40);
@@ -5416,14 +5416,14 @@ lean_inc(x_26);
 lean_inc_ref(x_5);
 lean_inc(x_3);
 lean_inc(x_2);
-lean_inc_ref(x_28);
+lean_inc(x_28);
 x_34 = l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lean_Meta_getMajorTypeIndices_spec__3___redArg(x_1, x_28, x_2, x_3, x_16, x_4, x_5, x_26, x_26, x_29, x_30, x_31, x_32);
 lean_dec(x_26);
 lean_dec(x_16);
 if (lean_obj_tag(x_34) == 0)
 {
 lean_dec_ref(x_34);
-lean_inc_ref(x_28);
+lean_inc(x_28);
 x_19 = x_28;
 x_20 = lean_box(0);
 goto block_25;
@@ -7681,7 +7681,7 @@ x_9 = lean_ctor_get(x_6, 0);
 x_10 = lean_ctor_get(x_6, 1);
 x_11 = lean_array_uget(x_3, x_5);
 x_12 = l_Lean_Expr_fvarId_x21(x_11);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 lean_inc(x_1);
 x_13 = lean_array_get_borrowed(x_1, x_2, x_9);
 lean_inc(x_13);
@@ -7707,7 +7707,7 @@ lean_inc(x_21);
 lean_dec(x_6);
 x_23 = lean_array_uget(x_3, x_5);
 x_24 = l_Lean_Expr_fvarId_x21(x_23);
-lean_dec_ref(x_23);
+lean_dec(x_23);
 lean_inc(x_1);
 x_25 = lean_array_get_borrowed(x_1, x_2, x_21);
 lean_inc(x_25);

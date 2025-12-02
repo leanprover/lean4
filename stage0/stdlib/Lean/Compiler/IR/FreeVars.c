@@ -1085,7 +1085,7 @@ if (x_6 == 0)
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; 
 x_7 = lean_array_uget(x_1, x_2);
 x_8 = l_Lean_IR_Alt_body(x_7);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = l_Lean_IR_MaxIndex_visitFnBody(x_8, x_5);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
@@ -3308,7 +3308,7 @@ if (x_6 == 0)
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; 
 x_7 = lean_array_uget(x_1, x_2);
 x_8 = l_Lean_IR_Alt_body(x_7);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = l_Lean_IR_FreeIndices_visitFnBody(x_8, x_5);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
@@ -3644,7 +3644,7 @@ lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_6 = lean_array_uget(x_2, x_3);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = lean_nat_dec_eq(x_1, x_7);
 lean_dec(x_7);
 if (x_8 == 0)
@@ -4103,7 +4103,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_array_uget(x_2, x_3);
 x_7 = l_Lean_IR_Alt_body(x_6);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_IR_HasIndex_visitFnBody(x_1, x_7);
 lean_dec(x_7);
 if (x_8 == 0)

@@ -1696,7 +1696,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11;
 x_9 = lean_array_uget(x_2, x_4);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = l_Lean_findOLean(x_10);
 if (lean_obj_tag(x_11) == 0)
 {
@@ -1868,7 +1868,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12;
 x_10 = lean_array_uget(x_3, x_5);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 lean_inc(x_1);
 x_12 = l_Lean_findLean(x_1, x_11);
 if (lean_obj_tag(x_12) == 0)

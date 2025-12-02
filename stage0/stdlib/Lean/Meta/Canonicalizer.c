@@ -351,7 +351,7 @@ if (x_12 == 0)
 lean_object* x_13; 
 x_13 = lean_st_ref_get(x_9);
 lean_dec(x_9);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 return x_11;
 }
 else
@@ -362,7 +362,7 @@ lean_inc(x_14);
 lean_dec(x_11);
 x_15 = lean_st_ref_get(x_9);
 lean_dec(x_9);
-lean_dec_ref(x_15);
+lean_dec(x_15);
 x_16 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_16, 0, x_14);
 return x_16;
@@ -1205,7 +1205,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_instantiateMVarsCore(x_7, x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -1285,7 +1285,7 @@ _start:
 lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint64_t x_34; lean_object* x_35; lean_object* x_36; lean_object* x_44; lean_object* x_45; 
 x_44 = lean_st_ref_get(x_3);
 x_45 = l___private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey_unsafe__1(x_1, x_44);
-lean_dec_ref(x_44);
+lean_dec(x_44);
 if (lean_obj_tag(x_45) == 1)
 {
 uint8_t x_46; 
@@ -2970,7 +2970,7 @@ x_11 = lean_ctor_get(x_9, 0);
 x_12 = lean_st_ref_get(x_3);
 x_13 = lean_unbox_uint64(x_11);
 x_14 = l___private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_canon_unsafe__1(x_13, x_12);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 if (lean_obj_tag(x_14) == 1)
 {
 lean_object* x_15; lean_object* x_16; uint8_t x_17; 
@@ -3660,7 +3660,7 @@ lean_dec(x_9);
 x_195 = lean_st_ref_get(x_3);
 x_196 = lean_unbox_uint64(x_194);
 x_197 = l___private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_canon_unsafe__1(x_196, x_195);
-lean_dec_ref(x_195);
+lean_dec(x_195);
 if (lean_obj_tag(x_197) == 1)
 {
 lean_object* x_198; lean_object* x_199; uint8_t x_200; uint8_t x_201; uint8_t x_202; uint8_t x_203; uint8_t x_204; uint8_t x_205; uint8_t x_206; uint8_t x_207; uint8_t x_208; uint8_t x_209; uint8_t x_210; uint8_t x_211; uint8_t x_212; uint8_t x_213; uint8_t x_214; uint8_t x_215; uint8_t x_216; uint8_t x_217; lean_object* x_218; uint8_t x_219; lean_object* x_220; lean_object* x_221; lean_object* x_222; lean_object* x_223; lean_object* x_224; lean_object* x_225; uint8_t x_226; uint8_t x_227; lean_object* x_228; lean_object* x_229; lean_object* x_230; uint64_t x_231; lean_object* x_232; uint64_t x_233; uint64_t x_234; uint64_t x_235; uint64_t x_236; uint64_t x_237; lean_object* x_238; lean_object* x_239; lean_object* x_240; 

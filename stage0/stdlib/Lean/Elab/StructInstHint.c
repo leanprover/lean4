@@ -1590,7 +1590,7 @@ x_41 = lean_ctor_get_uint8(x_6, sizeof(void*)*14 + 1);
 x_42 = lean_ctor_get(x_6, 13);
 x_43 = lean_ctor_get(x_28, 0);
 lean_inc_ref(x_43);
-lean_dec_ref(x_28);
+lean_dec(x_28);
 x_44 = lean_box(1);
 x_45 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__1;
 x_46 = 0;

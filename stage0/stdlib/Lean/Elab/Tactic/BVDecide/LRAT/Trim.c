@@ -1231,6 +1231,7 @@ x_15 = l_instInhabitedUInt8;
 x_16 = lean_box(x_15);
 x_17 = l_outOfBounds___redArg(x_16);
 x_18 = lean_unbox(x_17);
+lean_dec(x_17);
 x_4 = x_18;
 goto block_9;
 }
@@ -2027,7 +2028,7 @@ x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_9 = lean_array_push(x_4, x_7);
 x_10 = l_Array_append___redArg(x_9, x_8);
 lean_dec(x_8);
@@ -2072,6 +2073,7 @@ x_58 = l_instInhabitedUInt8;
 x_59 = lean_box(x_58);
 x_60 = l_outOfBounds___redArg(x_59);
 x_61 = lean_unbox(x_60);
+lean_dec(x_60);
 x_41 = x_61;
 goto block_54;
 }
@@ -2433,6 +2435,7 @@ x_55 = l_instInhabitedUInt8;
 x_56 = lean_box(x_55);
 x_57 = l_outOfBounds___redArg(x_56);
 x_58 = lean_unbox(x_57);
+lean_dec(x_57);
 x_31 = x_58;
 goto block_51;
 }

@@ -338,8 +338,8 @@ x_22 = lean_nat_add(x_12, x_21);
 lean_dec(x_12);
 lean_ctor_set(x_9, 1, x_22);
 x_23 = l_Lean_Compiler_LCNF_AlphaEqv_eqvType(x_19, x_20, x_6);
-lean_dec_ref(x_20);
-lean_dec_ref(x_19);
+lean_dec(x_20);
+lean_dec(x_19);
 if (x_23 == 0)
 {
 lean_object* x_24; lean_object* x_25; 
@@ -375,8 +375,8 @@ lean_ctor_set(x_33, 0, x_11);
 lean_ctor_set(x_33, 1, x_32);
 lean_ctor_set(x_33, 2, x_13);
 x_34 = l_Lean_Compiler_LCNF_AlphaEqv_eqvType(x_29, x_30, x_6);
-lean_dec_ref(x_30);
-lean_dec_ref(x_29);
+lean_dec(x_30);
+lean_dec(x_29);
 if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; 
@@ -449,8 +449,8 @@ lean_ctor_set(x_51, 0, x_41);
 lean_ctor_set(x_51, 1, x_50);
 lean_ctor_set(x_51, 2, x_43);
 x_52 = l_Lean_Compiler_LCNF_AlphaEqv_eqvType(x_47, x_48, x_6);
-lean_dec_ref(x_48);
-lean_dec_ref(x_47);
+lean_dec(x_48);
+lean_dec(x_47);
 if (x_52 == 0)
 {
 lean_object* x_53; lean_object* x_54; lean_object* x_55; 
@@ -1601,7 +1601,7 @@ goto block_11;
 }
 else
 {
-lean_dec_ref(x_25);
+lean_dec(x_25);
 lean_dec_ref(x_24);
 lean_dec(x_14);
 lean_dec(x_6);
@@ -1684,7 +1684,7 @@ goto block_11;
 }
 else
 {
-lean_dec_ref(x_25);
+lean_dec(x_25);
 lean_dec_ref(x_24);
 lean_dec(x_6);
 lean_dec(x_1);
@@ -1819,7 +1819,7 @@ goto block_11;
 }
 else
 {
-lean_dec_ref(x_66);
+lean_dec(x_66);
 lean_dec_ref(x_65);
 lean_dec(x_14);
 lean_dec(x_6);
@@ -1878,7 +1878,7 @@ goto block_11;
 }
 else
 {
-lean_dec_ref(x_66);
+lean_dec(x_66);
 lean_dec_ref(x_65);
 lean_dec(x_6);
 lean_dec(x_1);

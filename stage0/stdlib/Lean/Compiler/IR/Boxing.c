@@ -280,7 +280,7 @@ if (x_9 == 0)
 lean_object* x_10; uint8_t x_11; 
 x_10 = lean_ctor_get(x_5, 1);
 lean_inc(x_10);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_11 = l_Lean_IR_IRType_isVoid(x_10);
 lean_dec(x_10);
 if (x_11 == 0)
@@ -298,7 +298,7 @@ return x_8;
 }
 else
 {
-lean_dec_ref(x_5);
+lean_dec(x_5);
 return x_8;
 }
 }
@@ -1100,7 +1100,7 @@ lean_inc_ref(x_1);
 x_13 = l_Lean_IR_ExplicitBoxing_requiresBoxedVersion(x_1, x_12);
 if (x_13 == 0)
 {
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_6 = x_5;
 goto block_10;
 }
@@ -1108,7 +1108,7 @@ else
 {
 lean_object* x_14; lean_object* x_15; 
 x_14 = l_Lean_IR_ExplicitBoxing_mkBoxedVersion(x_12);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_15 = lean_array_push(x_5, x_14);
 x_6 = x_15;
 goto block_10;
@@ -5640,7 +5640,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7;
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_6 = l_Lean_IR_ExplicitBoxing_run(x_5, x_1);
 x_7 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_7, 0, x_6);

@@ -1257,6 +1257,7 @@ lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_4 = lean_alloc_closure((void*)(l_Std_DTreeMap_Internal_Impl_contains_u2098___redArg___lam__0___boxed), 2, 0);
 x_5 = l_Std_DTreeMap_Internal_Impl_applyCell___redArg(x_1, x_3, x_2, x_4);
 x_6 = lean_unbox(x_5);
+lean_dec(x_5);
 return x_6;
 }
 }

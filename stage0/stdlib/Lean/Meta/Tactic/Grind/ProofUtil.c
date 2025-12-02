@@ -326,7 +326,7 @@ x_17 = 0;
 lean_inc_ref(x_14);
 x_18 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_box(0), lean_box(0), lean_box(0), x_15, x_11, x_16, x_17, x_14);
 x_19 = lean_expr_abstract(x_2, x_18);
-lean_dec_ref(x_18);
+lean_dec(x_18);
 x_20 = lean_array_get_size(x_14);
 x_21 = l_Array_reverse___redArg(x_14);
 if (lean_is_scalar(x_8)) {
@@ -340,7 +340,7 @@ x_23 = lean_array_size(x_21);
 x_24 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_15, x_21, x_13, x_23, x_17, x_22);
 x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
-lean_dec_ref(x_24);
+lean_dec(x_24);
 return x_25;
 }
 }

@@ -6235,7 +6235,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l_Lake_LogEntry_toString(x_6, x_5);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = lean_string_append(x_4, x_7);
 lean_dec_ref(x_7);
 x_9 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Log_toString_spec__0___closed__0;
@@ -6655,6 +6655,7 @@ x_9 = lean_usize_of_nat(x_4);
 lean_dec(x_4);
 x_10 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_5, x_7, x_2, x_8, x_9);
 x_11 = lean_unbox(x_10);
+lean_dec(x_10);
 return x_11;
 }
 }
@@ -6679,7 +6680,7 @@ if (x_10 == 0)
 lean_object* x_11; uint8_t x_12; uint8_t x_13; 
 x_11 = lean_array_uget(x_1, x_2);
 x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*1);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_13 = l_Lake_instOrdLogLevel_ord(x_4, x_12);
 if (x_13 == 2)
 {

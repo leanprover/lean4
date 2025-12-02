@@ -101,7 +101,7 @@ x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 2);
 lean_inc_ref(x_8);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_9 = l_Lean_instHashableFVarId_hash(x_7);
 lean_dec(x_7);
 x_10 = l_Lean_Expr_hash(x_8);
@@ -457,7 +457,7 @@ if (x_5 == 0)
 lean_object* x_6; uint64_t x_7; uint64_t x_8; size_t x_9; size_t x_10; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l_Lean_Compiler_LCNF_hashAlt(x_6);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = lean_uint64_mix_hash(x_4, x_7);
 x_9 = 1;
 x_10 = lean_usize_add(x_2, x_9);

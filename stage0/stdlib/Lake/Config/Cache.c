@@ -4308,10 +4308,10 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_st_ref_take(x_2);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_5 = lean_st_ref_set(x_2, x_4);
 x_6 = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lake_CacheMap_get_x3f_spec__0___redArg(x_4, x_1);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 return x_6;
 }
 }
@@ -7429,7 +7429,7 @@ lean_inc_ref(x_2);
 lean_inc_ref(x_1);
 lean_inc_ref(x_9);
 x_13 = l_Lake_CacheService_downloadArtifacts___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheService_downloadArtifacts_spec__0_spec__0(x_9, x_1, x_2, x_3, x_4, x_8, x_12);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 lean_dec_ref(x_13);
@@ -8295,7 +8295,7 @@ lean_object* x_8; uint64_t x_9; lean_object* x_10; lean_object* x_11;
 x_8 = lean_array_fget_borrowed(x_2, x_6);
 x_9 = lean_ctor_get_uint64(x_8, sizeof(void*)*1);
 x_10 = lean_array_fget_borrowed(x_3, x_6);
-lean_inc_ref(x_10);
+lean_inc(x_10);
 x_11 = l_Lake_CacheService_uploadArtifact___at___00Lake_CacheService_uploadArtifacts___elam__0_spec__0(x_1, x_9, x_10, x_4, x_5);
 return x_11;
 }
@@ -8366,7 +8366,7 @@ lean_object* x_8; uint64_t x_9; lean_object* x_10; lean_object* x_11;
 x_8 = lean_array_fget_borrowed(x_1, x_5);
 x_9 = lean_ctor_get_uint64(x_8, sizeof(void*)*1);
 x_10 = lean_array_fget_borrowed(x_2, x_5);
-lean_inc_ref(x_10);
+lean_inc(x_10);
 x_11 = l_Lake_CacheService_uploadArtifact___at___00Lake_CacheService_uploadArtifacts___elam__0_spec__0(x_6, x_9, x_10, x_3, x_4);
 return x_11;
 }

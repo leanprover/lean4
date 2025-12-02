@@ -944,6 +944,7 @@ x_2 = l_instInhabitedUInt8;
 x_3 = lean_box(x_2);
 x_4 = lean_panic_fn(x_3, x_1);
 x_5 = lean_unbox(x_4);
+lean_dec(x_4);
 return x_5;
 }
 }

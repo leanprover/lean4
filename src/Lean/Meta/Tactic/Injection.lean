@@ -58,8 +58,12 @@ def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCor
               /- Recall that `noConfusion` does not include equalities for
                  propositions since they are trivial due to proof irrelevance. -/
               let numPropFields ← getCtorNumPropFields aCtor
-              return InjectionResultCore.subgoal mvarId (aCtor.numFields - numPropFields)
-            | _ => throwTacticEx `injection mvarId "ill-formed noConfusion auxiliary construction"
+              let numNonPropFields := aCtor.numFields - numPropFields
+              trace[Meta.Tactic.injection] "subgoal with {numNonPropFields} fields:\n{mvarId}"
+              return InjectionResultCore.subgoal mvarId numNonPropFields
+            | _ =>
+              trace[Meta.Tactic.injection] "ill-formed noConfusion auxiliary construction with type:{indentExpr valType}"
+              throwTacticEx `injection mvarId "ill-formed noConfusion auxiliary construction"
         | _, _ => throwTacticEx `injection mvarId "equality of constructor applications expected"
     let prf := mkFVar fvarId
     if let some (α, a, β, b) := type.heq? then

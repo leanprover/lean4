@@ -499,17 +499,18 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
           let noConfusionName := ctorA.name.str "noConfusion"
           unless (← hasConst noConfusionName) do
             throwError "mkNoConfusion: Missing {noConfusionName}"
+          let noConfusionNameInfo ← getConstVal noConfusionName
 
           let xs := α.getAppArgs[:ctorA.numParams]
           let noConfusion := mkAppN (mkConst noConfusionName (u :: us)) xs
           let fields1 : Array Expr := ys1[ctorA.numParams:]
           let fields2 : Array Expr := ys2[ctorA.numParams:]
           let mut e := mkAppN noConfusion (#[target] ++ fields1 ++ fields2)
-          let arity := (← inferType e).getNumHeadForalls
+          let arity := noConfusionNameInfo.type.getNumHeadForalls
           -- Index equalities expected. Can be less than `indVal.numIndices` when this constructor
           -- has fixed indices.
-          assert! arity ≥ 2
-          let numIndEqs := arity - 2 -- 2 for `h` and the continuation
+          assert! arity ≥ xs.size + fields1.size + fields2.size + 3
+          let numIndEqs := arity - (xs.size + fields1.size + fields2.size + 3) -- 3 for `target`, `h` and the continuation
           for _ in [:numIndEqs] do
             let eq ← whnf (← whnfForall (← inferType e)).bindingDomain!
             if let some (_,i,_,_) := eq.heq? then

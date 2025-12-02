@@ -275,8 +275,8 @@ theorem forIn_eq_forIn_toListModel {δ : Type w} {l : Raw α β} {m : Type w →
       · simp
       · simpa using ih'
 
-theorem all_toList {p : (a : α) → β a → Bool} {m : Raw α β}:
-    m.toList.all (fun x => p x.1 x.2) = m.all p := by
+theorem all_eq_all_toListModel {p : (a: α) → β a → Bool} {m : Raw α β} :
+    m.all p = (toListModel m.buckets).all (fun x => p x.1 x.2) := by
   simp only [Raw.all, ForIn.forIn, Bool.not_eq_true, bind_pure_comp, map_pure, Id.run_bind]
   rw [forIn_eq_forIn_toListModel, ← toList_eq_toListModel, forIn_eq_forIn']
   induction m.toList with
@@ -1598,41 +1598,12 @@ theorem Const.wf_insertManyIfNewUnit₀ [BEq α] [Hashable α] [EquivBEq α] [La
   (Raw₀.Const.insertManyIfNewUnit ⟨m, h⟩ l).2 _ Raw.WF.insertIfNew₀ h'
 
 theorem beq_eq_beqModel [BEq α] [LawfulBEq α] [Hashable α] [∀ k, BEq (β k)] {m₁ m₂ : Raw₀ α β}  (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1) :
-    beq m₁ m₂ = beqModel m₁.1.toList m₂.1.toList := by
-  rw [beq, beqModel]
-  split
-  case isTrue h =>
-    rw [Raw.size_eq_length, Raw.size_eq_length] at h
-    rw [Raw.toList_eq_toListModel, Raw.toList_eq_toListModel]
-    · simp only [ne_eq, h, not_false_eq_true, ↓reduceIte]
-    · exact h₂
-    · exact h₁
-  case isFalse h =>
-    rw [Raw.size_eq_length, Raw.size_eq_length] at h
-    simp [Raw.toList_eq_toListModel, h, ← Raw.all_toList]
-    congr
-    · ext x
-      rw [get?_eq_getValueCast? h₂]
-    · exact h₂
-    · exact h₁
+    beq m₁ m₂ = beqModel (toListModel m₁.1.buckets) (toListModel m₂.1.buckets) := by
+  simp [beq, beqModel, Raw.size_eq_length h₁, Raw.size_eq_length h₂, Raw.all_eq_all_toListModel,
+    get?_eq_getValueCast? h₂]
 
-theorem Const.beq_eq_beqModel {β : Type v} [BEq α] [PartialEquivBEq α] [Hashable α] [LawfulHashable α] [BEq β] {m₁ m₂ : Raw₀ α (fun _ => β)}  (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1) :
-    beq m₁ m₂ = Const.beqModel m₁.1.toList m₂.1.toList := by
-  rw [beq, Const.beqModel]
-  split
-  case isTrue h =>
-    rw [Raw.size_eq_length, Raw.size_eq_length] at h
-    rw [Raw.toList_eq_toListModel, Raw.toList_eq_toListModel]
-    · simp only [ne_eq, h, not_false_eq_true, ↓reduceIte]
-    · exact h₂
-    · exact h₁
-  case isFalse h =>
-    rw [Raw.size_eq_length, Raw.size_eq_length] at h
-    simp [Raw.toList_eq_toListModel, h, ← Raw.all_toList]
-    congr
-    · ext x
-      rw [get?_eq_getValue? h₂]
-    · exact h₂
-    · exact h₁
+theorem Const.beq_eq_beqModel {β : Type v} [BEq α] [PartialEquivBEq α] [Hashable α] [LawfulHashable α] [BEq β] {m₁ m₂ : Raw₀ α (fun _ => β)} (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1) :
+    beq m₁ m₂ = Const.beqModel (toListModel m₁.1.buckets) (toListModel m₂.1.buckets) := by
+  simp [beq, Const.beqModel, Raw.size_eq_length h₁, Raw.size_eq_length h₂, Raw.all_eq_all_toListModel, get?_eq_getValue? h₂]
 
 end Raw₀

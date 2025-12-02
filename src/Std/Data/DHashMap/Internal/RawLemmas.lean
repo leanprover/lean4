@@ -163,6 +163,7 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
      ⟨`getEntry?, (``getEntry?_eq_getEntry?, #[`(getEntry?_of_perm _)])⟩,
      ⟨`getEntryD, (``getEntryD_eq_getEntryD, #[`(getEntryD_of_perm _)])⟩,
      ⟨`getEntry!, (``getEntry!_eq_getEntry!, #[`(getEntry!_of_perm _)])⟩,
+     ⟨`all, (``Raw.all_eq_all_toListModel, #[])⟩,
      ⟨`toList, (``Raw.toList_eq_toListModel, #[])⟩,
      ⟨`Const.beq, (``Raw₀.Const.beq_eq_beqModel, #[])⟩,
      ⟨`beq, (``beq_eq_beqModel, #[])⟩,
@@ -1455,8 +1456,8 @@ theorem any_eq_false [LawfulBEq α] {p : (a : α) → β a → Bool} (h : m.1.WF
 
 omit [Hashable α] [BEq α] in
 theorem all_toList {p : (a : α) → β a → Bool} :
-    m.1.toList.all (fun x => p x.1 x.2) = m.1.all p :=
-  DHashMap.Internal.Raw.all_toList
+    m.1.toList.all (fun x => p x.1 x.2) = m.1.all p := by
+  simp_to_model
 
 omit [Hashable α] [BEq α] in
 theorem all_eq_not_any_not {p : (a : α) → β a → Bool} :

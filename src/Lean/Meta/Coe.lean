@@ -78,11 +78,11 @@ partial def expandCoe' (e : Expr) : MetaM (Expr × List Name) := StateT.run (s :
           recordExtraModUseFromDecl (isMeta := false) (← recProjTarget e)
           if let some e' ← unfoldDefinition? e then
             if declName = ``Coe.coe then
-              let inst := (e.getAppArgsN 4)[2]!
-              let g := inst.getAppFn
-              if g.isConst then
-                let instName := g.constName!
-                StateT.set (instName :: (← StateT.get))
+              if let some inst := e.getAppArgs[2]? then
+                let g := inst.getAppFn
+                if g.isConst then
+                  let instName := g.constName!
+                  StateT.set (instName :: (← StateT.get))
             return .visit e'.headBeta
       return .continue
 

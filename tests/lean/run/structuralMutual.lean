@@ -512,13 +512,13 @@ Too many possible combinations of parameters of type Nattish (or please indicate
 Could not find a decreasing measure.
 The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-Call from ManyCombinations.f to ManyCombinations.g at 543:15-29:
+Call from ManyCombinations.f to ManyCombinations.g at 544:15-29:
    #1 #2 #3 #4
 #5  ?  ?  ?  ?
 #6  ?  ?  =  ?
 #7  ?  ?  ?  =
 #8  ?  =  ?  ?
-Call from ManyCombinations.g to ManyCombinations.f at 546:15-29:
+Call from ManyCombinations.g to ManyCombinations.f at 547:15-29:
    #5 #6 #7 #8
 #1  _  _  _  _
 #2  _  _  _  ?

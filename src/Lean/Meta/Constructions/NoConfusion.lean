@@ -10,9 +10,6 @@ public import Lean.Meta.Basic
 import Lean.AddDecl
 import Lean.Meta.AppBuilder
 import Lean.Meta.CompletionName
-import Lean.Meta.NatTable
-import Lean.Meta.Constructions.CtorIdx
-import Lean.Meta.SameCtorUtils
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CtorElim
 import Lean.Meta.Tactic.Subst

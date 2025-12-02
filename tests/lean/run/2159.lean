@@ -3,7 +3,7 @@ trace: ⊢ 1.2 < 2
 ---
 trace: ⊢ 1.2 < 2
 ---
-warning: declaration `example` uses `sorry`
+warning: declaration `«example»` uses `sorry`
 -/
 #guard_msgs in
 example : 1.2 < 2 := by

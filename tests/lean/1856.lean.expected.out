@@ -1,8 +1,8 @@
 case h
-α : Type ?u.2234
+α : Type ?u
 inst✝ : DecidableEq α
 i : α
-β : α → Type ?u.2250
+β : α → Type ?u
 f : (j : α) → β j
 x : α
 ⊢ (if h : x = i then ⋯ ▸ f i else f x) = f x

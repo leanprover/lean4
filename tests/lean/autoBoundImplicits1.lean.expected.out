@@ -23,5 +23,5 @@ autoBoundImplicits1.lean:24:48-24:49: error(lean.unknownIdentifier): Unknown ide
 
 Note: It is not possible to treat `n` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
 f {α : Type} {n : Nat} (xs : Vec α n) : Vec α n
-f mkVec : Vec ?m.5 0
+f mkVec : Vec ?m 0
 f mkVec : Vec Nat 0

@@ -17,7 +17,7 @@ inductive Term (L: Nat → Type) (n : Nat) : Nat → Type _
 
 /--
 info: @[reducible] def Term.var.noConfusion.{u} : {L : Nat → Type} →
-  {n : Nat} → {P : Sort u} → {k k' : Fin n} → 0 = 0 → Term.var k = Term.var k' → (k = k' → P) → P
+  {n : Nat} → {P : Sort u} → {k k' : Fin n} → Term.var k = Term.var k' → (k = k' → P) → P
 -/
 #guard_msgs in
 #print sig Term.var.noConfusion
@@ -32,7 +32,7 @@ inductive HVect : (n : Nat) -> (Vector' (Type v) n) -> Type (v+1)  where
 
 /--
 info: @[reducible] def HVect.Nil.noConfusion.{u, v} : {P : Sort u} →
-  {simp simp' : [].length = 0} → 0 = 0 → ⟨[], simp⟩ = ⟨[], simp'⟩ → HVect.Nil = HVect.Nil → P → P
+  {simp simp' : [].length = 0} → HVect.Nil = HVect.Nil → P → P
 -/
 #guard_msgs in
 #print sig HVect.Nil.noConfusion

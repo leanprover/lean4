@@ -239,17 +239,6 @@ public def parseChunkedSizedData (size : Nat) : Parser TakeResult := do
   | .incomplete data res => return .incomplete data res
 
 /--
-This function parses a single chunk in chunked transfer encoding
--/
-public def parseChunk (limits : H1.Config) : Parser (Option (Nat × Array (String × Option String) × ByteSlice)) := do
-  let (size, ext) ← parseChunkSize limits
-  if size == 0 then
-    return none
-  else
-    let data ← take size
-    return some ⟨size, ext, data⟩
-
-/--
 This function parses a trailer header (used after chunked body)
 -/
 def parseTrailerHeader (limits : H1.Config) : Parser (Option (String × String)) := parseSingleHeader limits
@@ -290,6 +279,13 @@ public def parseStatusLine (limits : H1.Config) : Parser Response.Head := do
   let status ← parseStatusCode <* rsp limits
   discard <| parseReasonPhrase limits <* crlf
   return ⟨status, version, .empty⟩
+
+/--
+This function parses the body of the last chunk.
+-/
+public def parseLastChunkBody (limits : H1.Config) : Parser Unit := do
+  discard <| manyItems (parseTrailerHeader limits) limits.maxTrailerHeaders
+  crlf
 
 end H1
 end Protocol

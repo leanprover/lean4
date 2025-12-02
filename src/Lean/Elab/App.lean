@@ -1376,8 +1376,17 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       has function type{inlineExprTrailing eType}"
 
   | .mvar .., .fieldName _ fieldName _ _ =>
-    throwNamedError lean.invalidField m!"Invalid field notation: Type of{indentExpr e}\nis not \
-      known; cannot resolve field `{fieldName}`"
+    let possibleConstants := (← getEnv).constants.fold (fun accum name _ =>
+      match name with
+      | .str _ s => if s = fieldName && !name.isInternal then accum.push name else accum
+      | _ => accum) #[]
+    let hint := match possibleConstants with
+      | #[] => MessageData.nil
+      | #[opt] => .hint' m!"Consider replacing the field projection `.{fieldName}` with a call to the function `{.ofConstName opt}`."
+      | opts => .hint' m!"Consider replacing the field projection with a call to one of the following:\
+          {MessageData.joinSep (opts.toList.map (indentD m!"• `{.ofConstName ·}`")) .nil}"
+    throwNamedError lean.invalidField (m!"Invalid field notation: Type of{indentExpr e}\nis not \
+      known; cannot resolve field `{fieldName}`" ++ hint)
   | .mvar .., .fieldIdx _ i  =>
     throwError m!"Invalid projection: Type of{indentExpr e}\nis not known; cannot resolve \
       projection `{i}`"

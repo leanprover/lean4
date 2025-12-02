@@ -11,14 +11,17 @@ public import Std.Data.ExtDHashMap.Lemmas
 public import Std.Data.DHashMap.DecidableEq
 
 public section
+
+/-!
+# Decidable equality for `ExtDHashMap`
+-/
+
 namespace Std.ExtDHashMap
 
 open scoped Std.DHashMap
 
-variable {α : Type u} {β : α → Type v} [DecidableEq α] [Hashable α] [∀ k, DecidableEq (β k)] (m₁ m₂ : ExtDHashMap α β)
+instance {α : Type u} {β : α → Type v} [DecidableEq α] [Hashable α] [∀ k, DecidableEq (β k)] : DecidableEq (ExtDHashMap α β) :=
+  fun m₁ m₂ => @decidable_of_decidable_of_iff (m₁ == m₂) _ _ ⟨by apply ExtDHashMap.eq_of_beq_true, by apply ExtDHashMap.beq_of_eq⟩
 
-def decidableEq : Decidable (m₁ = m₂) := @decidable_of_decidable_of_iff _ _ _ ⟨by apply ExtDHashMap.eq_of_beq_true, by apply ExtDHashMap.beq_of_eq⟩
-
-instance : DecidableEq (ExtDHashMap α β) := decidableEq
 
 end Std.ExtDHashMap

@@ -14,7 +14,7 @@ import all Std.Data.DHashMap.AdditionalOperations
 public section
 
 /-!
-# Decidable equivalence for DHashMaps
+# Decidable equivalence for `DHashMap`
 -/
 
 open Std.DHashMap.Internal

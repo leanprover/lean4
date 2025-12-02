@@ -1183,6 +1183,10 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
     else
       throwNamedError lean.synthInstanceFailed "failed to synthesize instance of type class{indentExpr type}{extraErrorMsg}{useTraceSynthMsg}"
 
+structure CoeExpansionTrace where
+  expandedCoeDecls : List Name
+deriving TypeName
+
 def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none)
     (mkErrorMsg? : Option (MVarId → (expectedType e : Expr) → MetaM MessageData) := none)
     (mkImmedErrorMsg? : Option ((errorMsg? : Option MessageData) → (expectedType e : Expr) → MetaM MessageData) := none) : TermElabM Expr := do
@@ -1190,7 +1194,12 @@ def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgH
   try
     withoutMacroStackAtErr do
       match ← coerce? e expectedType with
-      | .some eNew => return eNew
+      | .some (eNew, expandedCoeDecls) =>
+        pushInfoLeaf (.ofCustomInfo {
+          stx := ← getRef
+          value := Dynamic.mk <| CoeExpansionTrace.mk expandedCoeDecls
+        })
+        return eNew
       | .none => failure
       | .undef =>
         let mvarAux ← mkFreshExprMVar expectedType MetavarKind.syntheticOpaque

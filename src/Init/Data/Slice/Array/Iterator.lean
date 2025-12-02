@@ -135,8 +135,12 @@ def Subarray.forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
 /--
 Allocates a new array that contains the contents of the subarray.
 -/
+@[coe]
 def Subarray.toArray (s : Subarray α) : Array α :=
   Slice.toArray s
+
+instance instCoeSubarrayArray : Coe (Subarray α) (Array α) :=
+  ⟨Subarray.toArray⟩
 
 @[inherit_doc Subarray.toArray]
 def Subarray.copy (s : Subarray α) : Array α :=

@@ -563,11 +563,7 @@ mutual
         if (← occursCheck mvarId e) then
           mvarId.assign e
           return true
-      if let .some (coerced, expandedCoeDecls) ← coerce? e expectedType then
-        pushInfoLeaf (.ofCustomInfo {
-          stx := mvarSyntheticDecl.stx
-          value := Dynamic.mk <| CoeExpansionTrace.mk expandedCoeDecls
-        })
+      if let .some coerced ← coerce? e expectedType then
         if (← occursCheck mvarId coerced) then
           mvarId.assign coerced
           return true

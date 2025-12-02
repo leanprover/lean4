@@ -128,9 +128,9 @@ def mkLocalInstanceLetDecls (ctx : Context) (className : Name) (argNames : Array
     let auxFunName   := ctx.auxFunNames[i]!
     let currArgNames ← mkInductArgNames indVal
     let numParams    := indVal.numParams
-    let currIndices  := currArgNames[numParams...*].copy
+    let currIndices  := currArgNames[numParams...*]
     let binders      ← mkImplicitBinders currIndices
-    let argNamesNew  := argNames[*...numParams].copy ++ currIndices
+    let argNamesNew  := argNames[*...numParams] ++ currIndices
     let indType      ← mkInductiveApp indVal argNamesNew
     let type         ← `($(mkCIdent className) $indType)
     let val          ← `(⟨$(mkIdent auxFunName)⟩)

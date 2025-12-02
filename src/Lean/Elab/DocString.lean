@@ -436,7 +436,7 @@ protected def getPositional [FromDocArg α] (name : Name) :
   let args ← get
   for h : i in [0:args.size] do
     if let `(doc_arg|$v:arg_val) := args[i] then
-      set (σ := Array (TSyntax `doc_arg)) (args[*...i].copy ++ args[(i+1)...*].copy)
+      set (σ := Array (TSyntax `doc_arg)) (args[:i] ++ args[i+1:])
       let v ← DocArg.ofSyntax v
       return (← FromDocArg.fromDocArg v)
   throwError "Missing positional argument `{name}`"
@@ -457,7 +457,7 @@ protected def getNamed [FromDocArg α] (name : Name) (default : α) :
   for h : i in [0:args.size] do
     if let some (x, v) := asNamed args[i] then
       if x.getId.eraseMacroScopes == name then
-        set (σ := Array (TSyntax `doc_arg)) (args[*...i].copy ++ args[(i+1)...*].copy)
+        set (σ := Array (TSyntax `doc_arg)) (args[:i] ++ args[i+1:])
         let v ← DocArg.ofSyntax v
         return (← FromDocArg.fromDocArg v)
   return default
@@ -491,7 +491,7 @@ protected def getFlag (name : Name) (default : Bool) : StateT (Array (TSyntax `d
   for h : i in [0:args.size] do
     if let some (x, v) := asFlag args[i] then
       if x.getId.eraseMacroScopes == name then
-        set (σ := Array (TSyntax `doc_arg)) (args[*...i].copy ++ args[(i+1)...*].copy)
+        set (σ := Array (TSyntax `doc_arg)) (args[:i] ++ args[i+1:])
         return v
   return default
 where
@@ -530,7 +530,7 @@ private def genWrapper (declName : Name) (argType : Option Expr) (retType : Expr
     let argSpec ← forallTelescope c.type fun args ret => do
       let mut argSpec : Array ArgSpec := #[]
 
-      for arg in (if argType.isSome then args[*...(args.size-1)].copy else args) do
+      for arg in (if argType.isSome then (args[:args.size-1] : Array _) else args) do
         let localDecl ← arg.fvarId!.getDecl
         let name := localDecl.userName
         let argType := localDecl.type

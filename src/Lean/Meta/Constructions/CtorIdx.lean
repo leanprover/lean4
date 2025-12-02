@@ -47,8 +47,8 @@ public def mkCtorIdx (indName : Name) : MetaM Unit :=
     let us := info.levelParams.map mkLevelParam
     forallBoundedTelescope info.type (info.numParams + info.numIndices) fun xs _ => do
       withNewBinderInfos (xs.map (⟨·.fvarId!, .implicit⟩)) do
-      let params : Array Expr := xs[:info.numParams].copy
-      let indices : Array Expr := xs[info.numParams:].copy
+      let params : Array Expr := xs[:info.numParams]
+      let indices : Array Expr := xs[info.numParams:]
       let indType := mkAppN (mkConst indName us) xs
       let natType  := mkConst ``Nat
       let declType ← mkArrow indType natType

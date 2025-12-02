@@ -84,11 +84,11 @@ def mkCtorElimType (indName : Name) : MetaM Unit := do
   let casesOnName := mkCasesOnName indName
   let casesOnInfo ← getConstVal casesOnName
   let e ← forallTelescope casesOnInfo.type fun xs _ =>
-    let params := xs[*...info.numParams].copy
+    let params : Array Expr := xs[:info.numParams]
     let motive := xs[info.numParams]!
     -- let indices : Array Expr := xs[info.numParams + 1:info.numParams + 1 + info.numIndices]
     -- let majorArg := xs[info.numParams + 1 + info.numIndices]!
-    let alts := xs[(info.numParams + 1 + info.numIndices + 1)...*].copy
+    let alts : Array Expr := xs[info.numParams + 1 + info.numIndices + 1:]
     withLocalDeclD `ctorIdx (mkConst ``Nat) fun ctorIdx => do
       let es ← alts.mapM inferType
       let e ← mkNatLookupTableLifting ctorIdx es
@@ -113,9 +113,9 @@ def mkIndCtorElim (indName : Name) : MetaM Unit := do
   let casesOnInfo ← getConstVal casesOnName
   let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
   let e ← forallTelescope casesOnInfo.type fun xs _ =>
-    let params := xs[*...info.numParams].copy
+    let params : Array Expr := xs[:info.numParams]
     let motive := xs[info.numParams]!
-    let indices := xs[(info.numParams + 1)...(info.numParams + 1 + info.numIndices)].copy
+    let indices : Array Expr := xs[info.numParams + 1:info.numParams + 1 + info.numIndices]
     let majorArg := xs[info.numParams + 1 + info.numIndices]!
     let ism := indices.push majorArg
     withLocalDeclD `ctorIdx (mkConst ``Nat) fun ctorIdx => do
@@ -175,9 +175,9 @@ def mkConstructorElim (indName : Name) : MetaM Unit := do
   for i in [:info.numCtors] do
     let declName := mkConstructorElimName indName info.ctors[i]!
     let e ← forallTelescope casesOnInfo.type fun xs _ => do
-      let params := xs[*...info.numParams].copy
+      let params : Array Expr := xs[:info.numParams]
       let motive := xs[info.numParams]!
-      let indices := xs[(info.numParams + 1)...(info.numParams + 1 + info.numIndices)].copy
+      let indices : Array Expr := xs[info.numParams + 1:info.numParams + 1 + info.numIndices]
       let majorArg := xs[info.numParams + 1 + info.numIndices]!
       let ism := indices.push majorArg
       let alts := xs[info.numParams + 1 + info.numIndices + 1:]

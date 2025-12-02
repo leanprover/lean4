@@ -538,7 +538,7 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
   let mut f ← instantiateValueLevelParams constInfo declLevels
   if (← getTransparency) matches .instances | .reducible then
     f ← unfoldNestedDIte f
-  let auxApp := mkAppN f args[*...prefixSz].copy
+  let auxApp := mkAppN f args[*...prefixSz]
   let auxAppType ← inferType auxApp
   forallBoundedTelescope auxAppType info.numAlts fun hs _ => do
     let auxApp ← whnfMatcher (mkAppN auxApp hs)
@@ -547,7 +547,7 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
     for h in hs do
       if auxAppFn == h then
         let result := mkAppN args[i]! auxApp.getAppArgs
-        let result := mkAppN result args[(prefixSz + info.numAlts)...args.size].copy
+        let result := mkAppN result args[(prefixSz + info.numAlts)...args.size]
         return ReduceMatcherResult.reduced result.headBeta
       i := i + 1
     return ReduceMatcherResult.stuck auxApp

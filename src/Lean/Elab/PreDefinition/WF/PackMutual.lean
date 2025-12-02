@@ -28,8 +28,8 @@ open Meta
 def withAppN (n : Nat) (e : Expr) (k : Array Expr → MetaM Expr) : MetaM Expr := do
   let args := e.getAppArgs
   if n ≤ args.size then
-    let e' ← k args[*...n].copy
-    return mkAppN e' args[n...*].copy
+    let e' ← k args[*...n]
+    return mkAppN e' args[n...*]
   else
     let missing := n - args.size
     forallBoundedTelescope (← inferType e) missing fun xs _ => do

@@ -1691,14 +1691,28 @@ syntax (name := applyRules) "apply_rules" optConfig (&" only")? (args)? (using_)
 end SolveByElim
 
 /--
+Configuration for the `exact?` and `apply?` tactics.
+-/
+structure LibrarySearchConfig where
+  /-- If true, use `grind` as a discharger for subgoals that cannot be closed
+  by `solve_by_elim` alone. -/
+  grind : Bool := false
+  /-- If true, use `try?` as a discharger for subgoals that cannot be closed
+  by `solve_by_elim` alone. -/
+  try? : Bool := false
+
+/--
 Searches environment for definitions or theorems that can solve the goal using `exact`
 with conditions resolved by `solve_by_elim`.
 
 The optional `using` clause provides identifiers in the local context that must be
 used by `exact?` when closing the goal.  This is most useful if there are multiple
 ways to resolve the goal, and one wants to guide which lemma is used.
+
+Use `+grind` to enable `grind` as a fallback discharger for subgoals.
+Use `+try?` to enable `try?` as a fallback discharger for subgoals.
 -/
-syntax (name := exact?) "exact?" (" using " (colGt ident),+)? : tactic
+syntax (name := exact?) "exact?" optConfig (" using " (colGt ident),+)? : tactic
 
 /--
 Searches environment for definitions or theorems that can refine the goal using `apply`
@@ -1706,8 +1720,11 @@ with conditions resolved when possible with `solve_by_elim`.
 
 The optional `using` clause provides identifiers in the local context that must be
 used when closing the goal.
+
+Use `+grind` to enable `grind` as a fallback discharger for subgoals.
+Use `+try?` to enable `try?` as a fallback discharger for subgoals.
 -/
-syntax (name := apply?) "apply?" (" using " (colGt term),+)? : tactic
+syntax (name := apply?) "apply?" optConfig (" using " (colGt term),+)? : tactic
 
 /--
 Syntax for excluding some names, e.g. `[-my_lemma, -my_theorem]`.

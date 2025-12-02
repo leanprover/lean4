@@ -1,8 +1,5 @@
-module
+structure X
+def X.x (_ : X) : BaseIO Bool := sorry
 
-prelude
-public import Init.System.IO
-
-noncomputable def findWithExt : IO Unit := do
-  let _ ← ([] : List System.FilePath).findM? fun p => p.isDir
-  return
+noncomputable def f : IO Unit := do
+  let _ ← ([] : List X).findM? fun p => p.x

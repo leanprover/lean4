@@ -3032,15 +3032,7 @@ theorem extractAndExtendPopulate_sumPackedVec_eq_add (x : BitVec (w + 1)):
 -- need lemma to push extractandextend populate inside the appned afer whichb sumpackedvec simp lemmas should just rewrite, we finish the goal by usign ih
 -- the popcount equals the result of summing the packed vector.
 theorem popCount_eq_sumPackedVec (x : BitVec w) :
-  x.popCount = sumPackedVec (extractAndExtendPopulate w x) := by
-  induction w
-  · case zero => simp
-  · case succ w' ihw' =>
-    rw [popCount_append]
-    simp
-    rw [ihw']
-    apply extractAndExtendPopulate_sumPackedVec_eq_add
-
+  x.popCount = sumPackedVec (extractAndExtendPopulate w x) := by sorry
 /-!
   we should keep the proof strategy intact and not delete written proofs, we should fix the defs correctly
   so thatproofs that are not about EEP gothrough while proofs about EEP we can sorry and this is bc the new def
@@ -3148,7 +3140,7 @@ theorem popCount_eq_popCountParSum {x : BitVec w} :
 def recursive_addition (x : BitVec (l * w)) (remaining_elements : Nat) : BitVec w :=
   match remaining_elements with
   | 0 => 0
-  | n + 1 => x.extractLsb' n w + x.recursive_addition n
+  | n + 1 => x.extractLsb' (n * w) w + x.recursive_addition n
 
 /-- given a flattened list of bitvectors `old_layer`, produce a `new_layer` adding
   the elements of `old_layer` two-by-two. -/
@@ -3209,12 +3201,6 @@ def pps_layer {w : Nat}  (iter_num : Nat) (old_layer : BitVec (old_length * w))
                                     proof_new_layer_elements_eq_old_layer_add
 termination_by old_length - (iter_num * 2)
 
-theorem recursive_addition_concat {a : BitVec ((a_length + 1) * w)} :
-    ((a.extractLsb' (a_length * w) w ++ a.extractLsb' 0 (a_length * w)).cast (by simp [Nat.add_mul]; omega)).recursive_addition
-      (l := a_length + 1) (w := w) (a_length + 1)
-    =
-      a.extractLsb' (a_length * w) w + (a.extractLsb' 0 (a_length * w)).recursive_addition (l := a_length) (w := w) a_length
-     := by sorry
 
 theorem recursive_addition_concat_of_lt_two {a : BitVec (a_length * w)} (h : 2 ≤ a_length):
     ((a.extractLsb' ((a_length - 1) * w) w ++ (a.extractLsb' ((a_length - 1 - 1) * w) w ++ a.extractLsb' 0 ((a_length - 1 - 1) * w))).cast
@@ -3248,6 +3234,89 @@ theorem extractLsb'_append_extractLsb'_eq_of_lt (a : BitVec (a_length * w)) (ha 
   · simp [show (a_length - 1) * w + (i - (a_length - 1) * w) = i by omega]
     rw [← getLsbD_eq_getElem]
 
+theorem recursive_addition_succ (x : BitVec (l * w)) (n : Nat) :
+  x.recursive_addition (n + 1) = x.extractLsb' (n * w) w + x.recursive_addition n := by rfl
+
+theorem recursive_addition_eq_of_le (a : BitVec (length * w)) (h : r ≤ length):
+    a.recursive_addition r =
+    (extractLsb' 0 (r * w) a).recursive_addition r := by sorry
+
+theorem recursive_addition_eq_of_le' (a : BitVec (length * w)) (h : r ≤ length) (hk : r ≤ k ):
+    a.recursive_addition r =
+    (extractLsb' 0 (k * w) a).recursive_addition r := by sorry
+
+
+theorem cast_recursive_addition_eq_of_le' {a_length' : Nat} {newEl : BitVec w}:
+    let hcast : w + (a_length'.succ + 1 - 1) * w = (a_length'.succ + 1) * w := by
+      simp [Nat.add_mul]
+      omega
+    (BitVec.cast hcast (newEl ++ extractLsb' 0 (a_length'.succ * w) a)).recursive_addition a_length' =
+    (extractLsb' 0 (a_length' * w) a).recursive_addition a_length' := by
+  induction a_length'
+  · simp [recursive_addition]
+  · case _ a_length' iha =>
+    simp [recursive_addition_succ]
+
+    sorry
+
+
+
+theorem recursive_addition_concat {a : BitVec (a_length * w)} (ha : 0 < a_length) :
+    let hc : w + (a_length - 1) * w = a_length * w := by
+      simp [Nat.sub_mul]; rw [← Nat.add_sub_assoc (by exact Nat.le_mul_of_pos_left w ha)]; omega
+    ((a.extractLsb' ((a_length - 1) * w) w ++ a.extractLsb' 0 ((a_length - 1) * w)).cast hc).recursive_addition
+      (l := a_length) (w := w) (a_length)
+    =
+      a.extractLsb' ((a_length - 1) * w) w + (a.extractLsb' 0 ((a_length - 1) * w)).recursive_addition
+        (l := (a_length - 1)) (w := w) (a_length - 1)
+     := by
+  let newEl := a.extractLsb' ((a_length - 1) * w) w
+  rw [show a.extractLsb' ((a_length - 1) * w) w  = newEl by rfl]
+  induction a_length
+  · omega
+  · case _ a_length' iha' =>
+    simp
+    conv =>
+      rhs
+      unfold recursive_addition
+    split
+    · ext k hk
+      simp [newEl, getLsbD_append, recursive_addition]
+      omega
+    · case _ a_length' =>
+      simp only [recursive_addition_succ]
+      have hc1 : w + (a_length'.succ + 1 - 1) * w = (a_length'.succ + 1) * w := by simp [Nat.add_mul, Nat.add_assoc]; omega
+      have hadd1 :
+        extractLsb' ((a_length' + 1) * w) w (BitVec.cast hc1 (newEl ++ extractLsb' 0 ((a_length' + 1) * w) a)) =
+          newEl := by
+        ext k hk
+        simp [getLsbD_append]
+        have : ¬ ((a_length' + 1) * w + k < (a_length' + 1) * w) := by omega
+        simp [this, ← getLsbD_eq_getElem]
+      rw [hadd1]
+      have hc2 : w + (a_length'.succ + 1 - 1) * w = (a_length'.succ + 1) * w := by simp [Nat.add_mul, Nat.add_assoc]; omega
+      have hadd2 :
+        extractLsb' (a_length' * w) w (BitVec.cast hc2 (newEl ++ extractLsb' 0 ((a_length' + 1) * w) a)) =
+          extractLsb' (a_length' * w) w a := by
+        ext k hk
+        simp [getLsbD_append, show a_length' * w + k < (a_length' + 1) * w by simp [Nat.add_mul]; omega]
+      rw [hadd2]
+      have hadd3 : extractLsb' (a_length' * w) w (extractLsb' 0 ((a_length' + 1) * w) a) =
+          extractLsb' (a_length' * w) w a := by
+        ext k hk
+        simp [Nat.add_mul]
+        intros
+        omega
+      simp at iha'
+      specialize iha' (a := extractLsb' 0 ((a_length' + 1) * w) a)
+      rw [hadd3]
+      congr 2
+      rw [cast_recursive_addition_eq_of_le' ]
+      rw [← recursive_addition_eq_of_le]
+      rw [← recursive_addition_eq_of_le']
+      <;> omega
+      omega
+
 theorem rec_add_eq_rec_add_iff
     (a : BitVec (a_length * w))
     (halen : a_length = (b_length + 1) / 2)
@@ -3267,10 +3336,28 @@ theorem rec_add_eq_rec_add_iff
     simp [ha, hb, recursive_addition]
   · case _ n' ihn =>
     rw [extractLsb'_append_extractLsb'_eq_of_lt (a := a) (by omega)]
-    have : a_length - 1 + 1 = a_length := by omega
-    rw [this] at *
-    rw [recursive_addition_concat (a_length := a_length - 1) (w := w) (a := a)]
-    sorry
+    rw [recursive_addition_concat (by omega)]
+    have hadd1 := hadd (i := a_length - 1) (by omega) (by omega)
+    rw [hadd1]
+    split
+    · case _ ht =>
+      let op1 := extractLsb' (2 * (a_length - 1) * w) w b
+      let op2 := extractLsb' ((2 * (a_length - 1) + 1) * w) w b
+      let taila := extractLsb' 0 ((a_length - 1) * w) a
+      conv =>
+        rhs
+        rw [extractLsb'_append_extractLsb'_eq_of_lt (a := b) (by omega)]
+        rw [extractLsb'_append_extractLsb'_eq_of_lt (a := b) (by omega)]
+      rw [show extractLsb' (2 * (a_length - 1) * w) w b  = op1 by rfl]
+      rw [show extractLsb' ((2 * (a_length - 1) + 1) * w) w b = op2 by rfl]
+      rw [show extractLsb' 0 ((a_length - 1) * w) a = taila by rfl]
+
+      have hext1 : (extractLsb' ((b_length - 1) * w) w b ++ extractLsb' 0 ((b_length - 1) * w) b) =
+            (extractLsb' ((b_length - 1) * w) w b ++ extractLsb' 0 ((b_length - 1) * w) b) := by
+          sorry
+      sorry
+    · case _ hf =>
+      sorry
 
 /-- construct the parallel prefix sum circuit of the flattend bitvectors in `l` -/
 def pps (l : BitVec (l_length * w)) (k: BitVec w)

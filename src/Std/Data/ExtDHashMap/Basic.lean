@@ -380,7 +380,7 @@ theorem eq_of_beq_true [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β 
   case mk a =>
     induction m₂
     case mk b =>
-      apply sound <| DHashMap.Equiv_of_beq_eq_true hyp
+      apply sound <| DHashMap.equiv_of_beq hyp
 
 instance [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] : ReflBEq (ExtDHashMap α β) where
   rfl {a} := by apply beq_of_eq; rfl
@@ -407,7 +407,7 @@ theorem eq_of_beq_eq_true [LawfulBEq α] [BEq β] [LawfulBEq β] (m₁ m₂ : Ex
   case mk a =>
     induction m₂
     case mk b =>
-      exact sound <| DHashMap.Const.Equiv_of_beq_eq_true h
+      exact sound <| DHashMap.Const.equiv_of_beq h
 
 end Const
 

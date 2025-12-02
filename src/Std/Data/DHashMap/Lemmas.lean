@@ -1845,9 +1845,9 @@ theorem Equiv.beq [∀ k, ReflBEq (β k)] (h : m₁ ~m m₂) : m₁ == m₂ := b
   simp [BEq.beq]
   apply Raw₀.Equiv.beq m₁.2 m₂.2 h.1
 
-theorem Equiv_of_beq_eq_true [∀ k, LawfulBEq (β k)] (h : m₁ == m₂) : m₁ ~m m₂ := by
+theorem equiv_of_beq [∀ k, LawfulBEq (β k)] (h : m₁ == m₂) : m₁ ~m m₂ := by
   constructor
-  have := @Raw₀.Equiv_of_beq_eq_true α β _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 h
+  have := @Raw₀.equiv_of_beq α β _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 h
   simp only at this
   exact this
 
@@ -1862,9 +1862,9 @@ variable {β : Type v} {m₁ m₂ : DHashMap α (fun _ => β)} [BEq β]
 theorem Const.Equiv.beq [LawfulHashable α] [EquivBEq α] [ReflBEq β] (h : m₁ ~m m₂) : DHashMap.Const.beq m₁ m₂ := by
   apply Raw₀.Const.Equiv.beq m₁.2 m₂.2 h.1
 
-theorem Const.Equiv_of_beq_eq_true [LawfulBEq α] [LawfulBEq β] (h : Const.beq m₁ m₂) : m₁ ~m m₂ := by
+theorem Const.equiv_of_beq [LawfulBEq α] [LawfulBEq β] (h : Const.beq m₁ m₂) : m₁ ~m m₂ := by
   constructor
-  have := @Raw₀.Const.Equiv_of_beq_eq_true α _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 h
+  have := @Raw₀.Const.equiv_of_beq α _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 h
   simp only at this
   exact this
 

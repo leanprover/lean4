@@ -548,7 +548,6 @@ This function always iterates through the smaller map, so the expected runtime i
   else
     m₂
 
-
 instance [BEq α] [Hashable α] : SDiff (Raw α β) := ⟨diff⟩
 section Unverified
 

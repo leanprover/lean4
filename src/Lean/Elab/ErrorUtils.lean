@@ -42,7 +42,7 @@ Make an oxford-comma-separated list of strings.
  - `["eats", "shoots"].toOxford == "eats and shoots"`
  - `["eats", "shoots", "leaves"] == "eats, shoots, and leaves"`
 -/
-private def _root_.List.toOxford : List String -> String
+def _root_.List.toOxford : List String -> String
   | [] => ""
   | [a] => a
   | [a, b] => a ++ " and " ++ b
@@ -59,7 +59,7 @@ Give alternative forms of a string if the `count` is 1 or not.
  - `(1).plural "it" "they" == "it"`
  - `(2).plural "it" "they" == "they"`
 -/
-private def _root_.Nat.plural (count : Nat) (singular : String := "") (plural : String := singular ++ "s") :=
+def _root_.Nat.plural (count : Nat) (singular : String := "") (plural : String := singular ++ "s") :=
   if count = 1 then
     singular
   else

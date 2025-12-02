@@ -79,7 +79,6 @@ def app : List α → List α → List α
 /--
 info: Try these:
   [apply] rfl
-  [apply] solve_by_elim
   [apply] grind [= app]
   [apply] grind only [app]
   [apply] grind =>
@@ -141,9 +140,16 @@ attribute [simp] concat
 
 /--
 info: Try these:
-  [apply] (fun_induction concat) <;> solve_by_elim
   [apply] (fun_induction concat) <;> simp_all
   [apply] (fun_induction concat) <;> simp [*]
+  [apply] ·
+    fun_induction concat
+    · rfl
+    · solve_by_elim
+  [apply] ·
+    fun_induction concat
+    · grind
+    · solve_by_elim
 -/
 #guard_msgs (info) in
 example (as : List α) (a : α) : concat as a = as ++ [a] := by
@@ -151,12 +157,19 @@ example (as : List α) (a : α) : concat as a = as ++ [a] := by
 
 /--
 info: Try these:
-  [apply] (fun_induction concat) <;> solve_by_elim
   [apply] (fun_induction concat) <;> simp_all
   [apply] ·
     fun_induction concat
     · simp
     · simp [*]
+  [apply] ·
+    fun_induction concat
+    · rfl
+    · solve_by_elim
+  [apply] ·
+    fun_induction concat
+    · grind
+    · solve_by_elim
 -/
 #guard_msgs (info) in
 example (as : List α) (a : α) : concat as a = as ++ [a] := by

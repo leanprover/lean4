@@ -6,7 +6,6 @@ import Lean.LibrarySuggestions
 /--
 info: Try these:
   [apply] rfl
-  [apply] solve_by_elim
   [apply] simp
   [apply] simp only
   [apply] grind

@@ -9,8 +9,11 @@ set_option pp.mvars false
 
 def foo : α → α := id
 
-/-- error: Unknown constant `foo.bar` -/
-#guard_msgs in
+/--
+@ +1:11...18
+error: Unknown constant `foo.bar`
+-/
+#guard_msgs (positions := true) in
 example := foo.bar
 
 /--
@@ -22,12 +25,22 @@ of type `?_ → ?_`
 example (f : α → α) := (fun x => x).foo
 
 /--
+@ +1:25...28
 error: Invalid field `foo`: The environment does not contain `Function.foo`, so it is not possible to project the field `foo` from an expression
   f
 of type `α → α`
 -/
-#guard_msgs in
+#guard_msgs (positions := true) in
 example (f : α → α) := f.foo
+
+/--
+@ +1:25...28
+error: Invalid field `foo`: The environment does not contain `Function.foo`, so it is not possible to project the field `foo` from an expression
+  f
+of type `α → α`
+-/
+#guard_msgs (positions := true) in
+example (f : α → α) := f.foo.bar
 
 /--
 error: Invalid field notation: Field projection operates on types of the form `C ...` where C is a constant. The expression
@@ -96,3 +109,5 @@ of type `List Nat`
 -/
 #guard_msgs in
 example (n : Nat) := (@List.nil Nat).foo
+
+#check Nat.add.uncurry

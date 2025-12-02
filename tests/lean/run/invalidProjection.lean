@@ -20,6 +20,14 @@ has type `P m h'` which has only 1 field
 example (h1 : P n h) (h2 : P m h') := h1.1 = h2.2
 
 /--
+error: Invalid projection: Projection operates on types of the form `C ...` where C is a constant. The expression
+  Nat
+has type `Type` which does not have the necessary form.
+-/
+#guard_msgs in
+#check Nat.3
+
+/--
 error: Invalid projection: Index `3` is invalid for this structure; it must be between 1 and 2
 
 Note: The expression

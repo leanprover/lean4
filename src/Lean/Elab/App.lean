@@ -1312,25 +1312,6 @@ where
     | some (_, p2) => prodArity p2 + 1
 
 private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM LValResolution := do
-
-  -- Functions can use generalized field notation via the `Function` namespace: the `uncurry`
-  -- field projection in `Nat.add.uncurry` refers to `Function.uncurry`.
-  if eType.isForall then
-    match lval with
-    | LVal.fieldName ref fieldName suffix? _fullRef =>
-      let fullName := Name.str `Function fieldName
-      if (← getEnv).contains fullName then
-        return LValResolution.const `Function `Function fullName
-      else if suffix?.isNone || e.getAppFn.isFVar then
-        /- If there's no suffix, or the head is a function-typed free variable, this could only have
-           been a field in the `Function` namespace, so we needn't wait to check if this is actually
-           a constant. If `suffix?` is non-`none`, we prefer to throw the "unknown constant" error
-           (because of monad namespaces like `IO` and auxiliary declarations like `mutual_induct`) -/
-        throwInvalidFieldAt ref fieldName fullName
-    | .fieldIdx .. =>
-      throwError "Invalid projection: Projections cannot be used on functions, and{indentExpr e}\n\
-        has function type{inlineExprTrailing eType}"
-
   match eType.getAppFn, lval with
   | .const structName _, LVal.fieldIdx ref idx =>
     if idx == 0 then
@@ -1357,7 +1338,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
         let tupleHint ← mkTupleHint eType idx ref
         throwError m!"Invalid projection: Index `{idx}` is invalid for this structure; \
           {numFields.plural "the only valid index is 1" s!"it must be between 1 and {numFields}"}"
-          ++ .note m!"The expression{indentExpr e}\nhas type{inlineExpr eType}which has only \
+          ++ MessageData.note m!"The expression{indentExpr e}\nhas type{inlineExpr eType}which has only \
           {numFields} field{numFields.plural}"
           ++ tupleHint
   | .const structName _, LVal.fieldName ref fieldName _ _ => withRef ref do
@@ -1380,19 +1361,39 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       -- Suggest a potential unreachable private name as hint. This does not cover structure
       -- inheritance, nor `import all`.
       (declHint := (mkPrivateName env structName).mkStr fieldName)
-  | .mvar .., .fieldName _ fieldName _ _  =>
-    throwError "Invalid field notation: Type of{indentExpr e}\nis not known; cannot resolve field `{fieldName}`"
-  | .mvar .., .fieldIdx _ i =>
-    throwError "Invalid projection: Type of{indentExpr e}\nis not known; cannot resolve projection `{i}`"
-  | _, LVal.fieldName ref _ (some suffix) _fullRef =>
-    -- This may be a function constant whose implicit arguments have already been filled in:
-    let c := e.getAppFn
-    if c.isConst then
-      throwUnknownConstantAt ref (c.constName! ++ suffix)
-    else
-      throwInvalidFieldNotation e eType
-  | _, _ => throwInvalidFieldNotation e eType
+
+  | .forallE .., LVal.fieldName ref fieldName suffix? _fullRef =>
+    let fullName := Name.str `Function fieldName
+    if (← getEnv).contains fullName then
+      return LValResolution.const `Function `Function fullName
+    match e.getAppFn, suffix? with
+    | Expr.const c _, some suffix =>
+      throwUnknownConstant (c ++ suffix)
+    | _, _ =>
+      throwInvalidFieldAt ref fieldName fullName
+  | .forallE .., .fieldIdx .. =>
+    throwError "Invalid projection: Projections cannot be used on functions, and{indentExpr e}\n\
+      has function type{inlineExprTrailing eType}"
+
+  | .mvar .., lval =>
+    let (notationKind, _, projKind, projName) := getLValDesc lval
+    throwError m!"Invalid {notationKind}: Type of{indentExpr e}\nis not known; cannot resolve {projKind} `{projName}`"
+
+  | _, _ =>
+    match e.getAppFn, lval with
+    | Expr.const c _, .fieldName _ref _fieldName (some suffix) _fullRef =>
+      throwUnknownConstant (c ++ suffix)
+    | _, _ =>
+      let (notationKind, notationDesc, _, _) := getLValDesc lval
+      throwNamedError lean.invalidField m!"Invalid {notationKind}: {notationDesc} operates on \
+      types of the form `C ...` where C is a constant. The expression{indentExpr e}\nhas \
+      type{inlineExpr eType}which does not have the necessary form."
+
 where
+  getLValDesc : LVal → String × String × String × String
+  | .fieldName _ fieldName _ _  => ("field notation", "Field projection", "field", s!"{fieldName}")
+  | .fieldIdx _ i => ("projection", "Projection", "projection", s!"{i}")
+
   throwInvalidFieldAt {α : Type} (ref : Syntax) (fieldName : String) (fullName : Name)
       (declHint := Name.anonymous) : TermElabM α := do
     let msg ←
@@ -1406,11 +1407,6 @@ where
     -- code action. The "outermost" lean.invalidField name is the only one that triggers an error
     -- explanation.
     throwNamedErrorAt ref lean.invalidField msg
-
-  throwInvalidFieldNotation (e eType : Expr) :=
-    throwNamedError lean.invalidField "Invalid field notation: Field projection operates on types \
-    of the form `C ...` where C is a constant. The expression{indentExpr e}\nhas \
-    type{inlineExpr eType}which does not have the necessary form."
 
 
 /-- whnfCore + implicit consumption.

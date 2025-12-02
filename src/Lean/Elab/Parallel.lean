@@ -156,6 +156,38 @@ namespace Lean.Core.CoreM
 open Std.Iterators
 
 /--
+Internal state for an iterator over chunked tasks for CoreM.
+Yields individual results while internally managing chunk boundaries.
+-/
+private structure ChunkedTaskIterator (α : Type) where
+  chunkTasks : List (Task (CoreM (List (Except Exception α))))
+  currentResults : List (Except Exception α)
+
+private instance {α : Type} : Iterator (ChunkedTaskIterator α) CoreM (Except Exception α) where
+  IsPlausibleStep _
+    | .yield _ _ => True
+    | .skip _ => True  -- Allow skip for empty chunks
+    | .done => True
+  step it := do
+    match it.internalState.currentResults with
+    | r :: rest =>
+      pure <| .deflate ⟨.yield (toIterM { it.internalState with currentResults := rest } CoreM (Except Exception α)) r, trivial⟩
+    | [] =>
+      match it.internalState.chunkTasks with
+      | [] => pure <| .deflate ⟨.done, trivial⟩
+      | task :: rest =>
+        try
+          let chunkResults ← task.get
+          match chunkResults with
+          | [] =>
+            -- Empty chunk, skip to try next
+            pure <| .deflate ⟨.skip (toIterM { chunkTasks := rest, currentResults := [] } CoreM (Except Exception α)), trivial⟩
+          | r :: rs =>
+            pure <| .deflate ⟨.yield (toIterM { chunkTasks := rest, currentResults := rs } CoreM (Except Exception α)) r, trivial⟩
+        catch e =>
+          pure <| .deflate ⟨.yield (toIterM { chunkTasks := rest, currentResults := [] } CoreM (Except Exception α)) (.error e), trivial⟩
+
+/--
 Runs a list of CoreM computations in parallel and returns:
 * a combined cancellation hook for all tasks, and
 * an iterator that yields results in original order.
@@ -179,6 +211,29 @@ def parIterWithCancel {α : Type} (jobs : List (CoreM α)) := do
     catch e =>
       pure (Except.error e)
   return (combinedCancel, iterWithErrors)
+
+/--
+Runs a list of CoreM computations in parallel with chunking and returns:
+* a combined cancellation hook for all tasks, and
+* an iterator that yields results in original order.
+
+Unlike `parIterWithCancel`, this groups jobs into chunks to reduce task overhead.
+Each chunk runs its jobs sequentially, but chunks run in parallel.
+
+**Parameters:**
+- `maxTasks`: Maximum number of parallel tasks (chunks). Default 0 means one task per job.
+- `minChunkSize`: Minimum jobs per chunk. Default 1.
+-/
+def parIterWithCancelChunked {α : Type} (jobs : List (CoreM α))
+    (maxTasks : Nat := 0) (minChunkSize : Nat := 1) := do
+  let chunkSize := computeChunkSize jobs.length maxTasks minChunkSize
+  let chunks := toChunks jobs chunkSize
+  let chunkJobs : List (CoreM (List (Except Exception α))) :=
+    chunks.map fun (chunk : List (CoreM α)) => chunk.mapM (observing ·)
+  let (cancels, tasks) := (← chunkJobs.mapM asTask).unzip
+  let combinedCancel := cancels.forM id
+  let flatIter := toIterM (ChunkedTaskIterator.mk tasks []) CoreM (Except Exception α)
+  return (combinedCancel, flatIter)
 
 /--
 Runs a list of CoreM computations in parallel (without cancellation hook).
@@ -347,6 +402,41 @@ namespace Lean.Meta.MetaM
 
 open Std.Iterators
 
+/--
+Internal state for an iterator over chunked tasks for MetaM.
+Yields individual results while internally managing chunk boundaries.
+-/
+structure ChunkedTaskIterator (α : Type) where
+  chunkTasks : List (Task (MetaM (List (Except Exception α))))
+  currentResults : List (Except Exception α)
+
+instance {α : Type} : Iterator (ChunkedTaskIterator α) MetaM (Except Exception α) where
+  IsPlausibleStep _
+    | .yield _ _ => True
+    | .skip _ => True
+    | .done => True
+  step it := do
+    match it.internalState.currentResults with
+    | r :: rest =>
+      pure <| .deflate ⟨.yield (toIterM { it.internalState with currentResults := rest } MetaM (Except Exception α)) r, trivial⟩
+    | [] =>
+      match it.internalState.chunkTasks with
+      | [] => pure <| .deflate ⟨.done, trivial⟩
+      | task :: rest =>
+        try
+          let chunkResults ← task.get
+          match chunkResults with
+          | [] =>
+            pure <| .deflate ⟨.skip (toIterM { chunkTasks := rest, currentResults := [] } MetaM (Except Exception α)), trivial⟩
+          | r :: rs =>
+            pure <| .deflate ⟨.yield (toIterM { chunkTasks := rest, currentResults := rs } MetaM (Except Exception α)) r, trivial⟩
+        catch e =>
+          pure <| .deflate ⟨.yield (toIterM { chunkTasks := rest, currentResults := [] } MetaM (Except Exception α)) (.error e), trivial⟩
+
+instance {α : Type} {n : Type → Type u} [Monad n] [MonadLiftT MetaM n] :
+    IteratorLoopPartial (ChunkedTaskIterator α) MetaM n :=
+  .defaultImplementation
+
 /-- Internal: run jobs in parallel without chunking, returning state. -/
 private def parCore {α : Type} (jobs : List (MetaM α)) :
     MetaM (List (Except Exception (α × Meta.SavedState))) := do
@@ -467,7 +557,6 @@ The iterator will terminate after all jobs complete (assuming they all do comple
 def parIterWithCancel {α : Type} (jobs : List (MetaM α)) := do
   let (cancels, tasks) := (← jobs.mapM asTask).unzip
   let combinedCancel := cancels.forM id
-  -- Create iterator that processes tasks sequentially
   let iterWithErrors := tasks.iter.mapM fun (task : Task (MetaM α)) => do
     try
       let result ← task.get
@@ -475,6 +564,29 @@ def parIterWithCancel {α : Type} (jobs : List (MetaM α)) := do
     catch e =>
       pure (Except.error e)
   return (combinedCancel, iterWithErrors)
+
+/--
+Runs a list of MetaM computations in parallel with chunking and returns:
+* a combined cancellation hook for all tasks, and
+* an iterator that yields results in original order.
+
+Unlike `parIterWithCancel`, this groups jobs into chunks to reduce task overhead.
+Each chunk runs its jobs sequentially, but chunks run in parallel.
+
+**Parameters:**
+- `maxTasks`: Maximum number of parallel tasks (chunks). Default 0 means one task per job.
+- `minChunkSize`: Minimum jobs per chunk. Default 1.
+-/
+def parIterWithCancelChunked {α : Type} (jobs : List (MetaM α))
+    (maxTasks : Nat := 0) (minChunkSize : Nat := 1) := do
+  let chunkSize := computeChunkSize jobs.length maxTasks minChunkSize
+  let chunks := toChunks jobs chunkSize
+  let chunkJobs : List (MetaM (List (Except Exception α))) :=
+    chunks.map fun (chunk : List (MetaM α)) => chunk.mapM (observing ·)
+  let (cancels, tasks) := (← chunkJobs.mapM asTask).unzip
+  let combinedCancel := cancels.forM id
+  let flatIter := toIterM (ChunkedTaskIterator.mk tasks []) MetaM (Except Exception α)
+  return (combinedCancel, flatIter)
 
 /--
 Runs a list of MetaM computations in parallel (without cancellation hook).
@@ -541,6 +653,37 @@ namespace Lean.Elab.Term.TermElabM
 open Std.Iterators
 
 /--
+Internal state for an iterator over chunked tasks for TermElabM.
+Yields individual results while internally managing chunk boundaries.
+-/
+private structure ChunkedTaskIterator (α : Type) where
+  chunkTasks : List (Task (TermElabM (List (Except Exception α))))
+  currentResults : List (Except Exception α)
+
+private instance {α : Type} : Iterator (ChunkedTaskIterator α) TermElabM (Except Exception α) where
+  IsPlausibleStep _
+    | .yield _ _ => True
+    | .skip _ => True
+    | .done => True
+  step it := do
+    match it.internalState.currentResults with
+    | r :: rest =>
+      pure <| .deflate ⟨.yield (toIterM { it.internalState with currentResults := rest } TermElabM (Except Exception α)) r, trivial⟩
+    | [] =>
+      match it.internalState.chunkTasks with
+      | [] => pure <| .deflate ⟨.done, trivial⟩
+      | task :: rest =>
+        try
+          let chunkResults ← task.get
+          match chunkResults with
+          | [] =>
+            pure <| .deflate ⟨.skip (toIterM { chunkTasks := rest, currentResults := [] } TermElabM (Except Exception α)), trivial⟩
+          | r :: rs =>
+            pure <| .deflate ⟨.yield (toIterM { chunkTasks := rest, currentResults := rs } TermElabM (Except Exception α)) r, trivial⟩
+        catch e =>
+          pure <| .deflate ⟨.yield (toIterM { chunkTasks := rest, currentResults := [] } TermElabM (Except Exception α)) (.error e), trivial⟩
+
+/--
 Runs a list of TermElabM computations in parallel and returns:
 * a combined cancellation hook for all tasks, and
 * an iterator that yields results in original order.
@@ -557,7 +700,6 @@ The iterator will terminate after all jobs complete (assuming they all do comple
 def parIterWithCancel {α : Type} (jobs : List (TermElabM α)) := do
   let (cancels, tasks) := (← jobs.mapM asTask).unzip
   let combinedCancel := cancels.forM id
-  -- Create iterator that processes tasks sequentially
   let iterWithErrors := tasks.iter.mapM fun (task : Task (TermElabM α)) => do
     try
       let result ← task.get
@@ -565,6 +707,34 @@ def parIterWithCancel {α : Type} (jobs : List (TermElabM α)) := do
     catch e =>
       pure (Except.error e)
   return (combinedCancel, iterWithErrors)
+
+/--
+Runs a list of TermElabM computations in parallel with chunking and returns:
+* a combined cancellation hook for all tasks, and
+* an iterator that yields results in original order.
+
+Unlike `parIterWithCancel`, this groups jobs into chunks to reduce task overhead.
+Each chunk runs its jobs sequentially, but chunks run in parallel.
+
+**Parameters:**
+- `maxTasks`: Maximum number of parallel tasks (chunks). Default 0 means one task per job.
+- `minChunkSize`: Minimum jobs per chunk. Default 1.
+-/
+def parIterWithCancelChunked {α : Type} (jobs : List (TermElabM α))
+    (maxTasks : Nat := 0) (minChunkSize : Nat := 1) := do
+  let chunkSize := computeChunkSize jobs.length maxTasks minChunkSize
+  let chunks := toChunks jobs chunkSize
+  let chunkJobs : List (TermElabM (List (Except Exception α))) :=
+    chunks.map fun (chunk : List (TermElabM α)) => chunk.mapM fun job => do
+      try
+        let a ← job
+        pure (.ok a)
+      catch e =>
+        pure (.error e)
+  let (cancels, tasks) := (← chunkJobs.mapM asTask).unzip
+  let combinedCancel := cancels.forM id
+  let flatIter := toIterM (ChunkedTaskIterator.mk tasks []) TermElabM (Except Exception α)
+  return (combinedCancel, flatIter)
 
 /--
 Runs a list of TermElabM computations in parallel (without cancellation hook).
@@ -742,6 +912,37 @@ namespace Lean.Elab.Tactic.TacticM
 open Std.Iterators
 
 /--
+Internal state for an iterator over chunked tasks for TacticM.
+Yields individual results while internally managing chunk boundaries.
+-/
+private structure ChunkedTaskIterator (α : Type) where
+  chunkTasks : List (Task (TacticM (List (Except Exception α))))
+  currentResults : List (Except Exception α)
+
+private instance {α : Type} : Iterator (ChunkedTaskIterator α) TacticM (Except Exception α) where
+  IsPlausibleStep _
+    | .yield _ _ => True
+    | .skip _ => True
+    | .done => True
+  step it := do
+    match it.internalState.currentResults with
+    | r :: rest =>
+      pure <| .deflate ⟨.yield (toIterM { it.internalState with currentResults := rest } TacticM (Except Exception α)) r, trivial⟩
+    | [] =>
+      match it.internalState.chunkTasks with
+      | [] => pure <| .deflate ⟨.done, trivial⟩
+      | task :: rest =>
+        try
+          let chunkResults ← task.get
+          match chunkResults with
+          | [] =>
+            pure <| .deflate ⟨.skip (toIterM { chunkTasks := rest, currentResults := [] } TacticM (Except Exception α)), trivial⟩
+          | r :: rs =>
+            pure <| .deflate ⟨.yield (toIterM { chunkTasks := rest, currentResults := rs } TacticM (Except Exception α)) r, trivial⟩
+        catch e =>
+          pure <| .deflate ⟨.yield (toIterM { chunkTasks := rest, currentResults := [] } TacticM (Except Exception α)) (.error e), trivial⟩
+
+/--
 Runs a list of TacticM computations in parallel and returns:
 * a combined cancellation hook for all tasks, and
 * an iterator that yields results in original order.
@@ -758,7 +959,6 @@ The iterator will terminate after all jobs complete (assuming they all do comple
 def parIterWithCancel {α : Type} (jobs : List (TacticM α)) := do
   let (cancels, tasks) := (← jobs.mapM asTask).unzip
   let combinedCancel := cancels.forM id
-  -- Create iterator that processes tasks sequentially
   let iterWithErrors := tasks.iter.mapM fun (task : Task (TacticM α)) => do
     try
       let result ← task.get
@@ -766,6 +966,34 @@ def parIterWithCancel {α : Type} (jobs : List (TacticM α)) := do
     catch e =>
       pure (Except.error e)
   return (combinedCancel, iterWithErrors)
+
+/--
+Runs a list of TacticM computations in parallel with chunking and returns:
+* a combined cancellation hook for all tasks, and
+* an iterator that yields results in original order.
+
+Unlike `parIterWithCancel`, this groups jobs into chunks to reduce task overhead.
+Each chunk runs its jobs sequentially, but chunks run in parallel.
+
+**Parameters:**
+- `maxTasks`: Maximum number of parallel tasks (chunks). Default 0 means one task per job.
+- `minChunkSize`: Minimum jobs per chunk. Default 1.
+-/
+def parIterWithCancelChunked {α : Type} (jobs : List (TacticM α))
+    (maxTasks : Nat := 0) (minChunkSize : Nat := 1) := do
+  let chunkSize := computeChunkSize jobs.length maxTasks minChunkSize
+  let chunks := toChunks jobs chunkSize
+  let chunkJobs : List (TacticM (List (Except Exception α))) :=
+    chunks.map fun (chunk : List (TacticM α)) => chunk.mapM fun job => do
+      try
+        let a ← job
+        pure (.ok a)
+      catch e =>
+        pure (.error e)
+  let (cancels, tasks) := (← chunkJobs.mapM asTask).unzip
+  let combinedCancel := cancels.forM id
+  let flatIter := toIterM (ChunkedTaskIterator.mk tasks []) TacticM (Except Exception α)
+  return (combinedCancel, flatIter)
 
 /--
 Runs a list of TacticM computations in parallel (without cancellation hook).

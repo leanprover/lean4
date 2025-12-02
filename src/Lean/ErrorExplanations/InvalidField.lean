@@ -35,7 +35,8 @@ of type `Nat`
 #eval (4 + 1).succ
 ```
 
-The simplest reason fo
+The simplest reason for an invalid field error is that the function being sought, like `Nat.suc`,
+does not exist.
 
 ## Projecting from the Wrong Expression
 
@@ -51,8 +52,8 @@ of type `Char`
 #eval ['a', 'b', 'c'].leftpad 10 '>'
 ```
 
-The type of the expression before the dot determines the function being called by the field after
-the dot. There is no `Char.leftpad`, and the only way to invoke `List.leftpad` with generalized
+The type of the expression before the dot entirely determines the function being called by the field
+projection. There is no `Char.leftpad`, and the only way to invoke `List.leftpad` with generalized
 field notation is to have the list come before the dot.
 
 ## Type is Not Specific
@@ -71,7 +72,7 @@ def double_plus_one (x : Nat) :=
    (x + x).succ
 ```
 
-The `Add` typeclass is sufficient to for the addition `x + x`, but the `.succ` field notation
+The `Add` typeclass is sufficient for performing the addition `x + x`, but the `.succ` field notation
 cannot operate without knowing more about the actual type from which `succ` is being projected.
 
 ## Insufficient Type Information
@@ -89,7 +90,7 @@ example := fun (n : Nat) => n.succ.succ
 ```
 
 Generalized field notation can only be used when it is possible to determine the type that is being
-projected. Type annotations may therefore need to be added to make generalized field notation work.
+projected. Type annotations may need to be added to make generalized field notation work.
 
 -/
 register_error_explanation lean.invalidField {

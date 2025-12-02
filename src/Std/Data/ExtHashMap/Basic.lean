@@ -258,15 +258,11 @@ instance [LawfulBEq α] [BEq β] [ReflBEq β] : ReflBEq (ExtHashMap α β) where
   rfl := by intro a; apply ExtDHashMap.Const.beq_of_eq; rfl
 
 instance [LawfulBEq α] [BEq β] [LawfulBEq β] : LawfulBEq (ExtHashMap α β) where
-  eq_of_beq := by
-    intro a b hyp
-    cases a
-    case mk a₀ =>
-      cases b
-      case mk b₀ =>
-        simp only [mk.injEq]
-        apply ExtDHashMap.Const.eq_of_beq_eq_true
-        exact hyp
+  eq_of_beq {a} {b} hyp := by
+    have ⟨a⟩ := a
+    have ⟨b⟩ := b
+    simp only [mk.injEq] at |- hyp
+    exact ExtDHashMap.Const.eq_of_beq_eq_true _ _ hyp
 
 instance {α : Type u} {β : α → Type v} [DecidableEq α] [Hashable α] [∀ k, DecidableEq (β k)] : DecidableEq (ExtDHashMap α β) :=
   fun m₁ m₂ => @decidable_of_decidable_of_iff (m₁ == m₂) _ _ ⟨by simp, by simp⟩

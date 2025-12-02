@@ -14,6 +14,7 @@ public import Lean.Compiler.LCNF.MonadScope
 public import Lean.Compiler.LCNF.Closure
 public import Lean.Compiler.LCNF.FVarUtil
 import all Lean.Compiler.LCNF.ToExpr
+import Std.Data.Iterators
 
 public section
 
@@ -203,19 +204,46 @@ end Collector
 /--
 Return `true` if it is worth using arguments `args` for specialization given the parameter specialization information.
 -/
-def shouldSpecialize (paramsInfo : Array SpecParamInfo) (args : Array Arg) : SpecializeM Bool := do
+def shouldSpecialize (declName : Name) (paramsInfo : Array SpecParamInfo) (args : Array Arg) :
+    SpecializeM Bool := do
+  let hoCheck :=
+    if (← get).localSpecParamInfo.contains declName then
+      fun arg => do
+        /-
+        If we have `f p` where `p` is a param it makes no sense to specialize as we will just
+        close over `p` again and will have made no progress.
+
+        The reason for doing this only for declarations which have `localSpecParamInfo` (i.e. have
+        already been specialised themselves) is, that we *must* always specialize declarations that
+        are marked with `@[specialize]`. This is because the specializer will not specialize their
+        bodies because it waits for the bodies to be specialized at the call site. This is for example
+        important in the following situation:
+        ```
+        @[specialize]
+        def test (f : ... -> ...) :=
+           ...
+           HashMap.get? inst1 inst2 xs ys
+        ```
+        Here the call to `HashMap.get?` will not be specialized unless `test` is specialized. Thus,
+        even when `f` is just going to be re-abstracted, it makes sense to specialize a call to `test`
+        that closes over parameters, in order to optimize the `HashMap` invocation.
+
+        We thought about lifting this restriction and instead always specializing `@[specialize]`
+        decls twice, once at their definition site and once at their call site. However, almost all
+        `@[specialize]` function declarations will indeed get specialized properly. Hence keeping
+        the first version around is likely a waste of space.
+        -/
+        match arg with
+        | .erased | .type .. => return false
+        | .fvar fvar => return (← findParam? fvar).isNone
+    else
+      fun _ => pure true
   for paramInfo in paramsInfo, arg in args do
     match paramInfo with
     | .other => pure ()
     | .fixedNeutral => pure () -- If we want to monomorphize types such as `Array`, we need to change here
     | .fixedInst | .user => if (← isGround arg) then return true
-    | .fixedHO =>
-      match arg with
-      | .erased | .type .. => pure ()
-      | .fvar fvar =>
-        -- If we have `f p` where `p` is a param it makes no sense to specialize as we will just
-        -- close over `p` again and will have made no progress.
-        if (← findParam? fvar).isNone then return true
+    | .fixedHO => if ← hoCheck arg then return true
 
   return false
 
@@ -341,12 +369,13 @@ mutual
     if args.isEmpty then return none
     if (← Meta.isInstance declName) then return none
     let some paramsInfo ← getSpecParamInfo? declName | return none
-    unless (← shouldSpecialize paramsInfo args) do return none
+    unless (← shouldSpecialize declName paramsInfo args) do return none
     let some decl ← getDecl? declName | return none
     let .code _ := decl.value | return none
     trace[Compiler.specialize.candidate] "{e.toExpr}, {paramsInfo}"
     let (argMask, params, decls) ← Collector.collect paramsInfo args
-    let keyBody := .const declName us (argMask.filterMap id)
+    let targetArgs := argMask.filterMap id
+    let keyBody := .const declName us targetArgs
     let (key, levelParamsNew) ← mkKey params decls keyBody
     trace[Compiler.specialize.candidate] "key: {key}"
     assert! !key.hasLooseBVars
@@ -358,6 +387,21 @@ mutual
       return some (.const declName usNew argsNew)
     else
       let specDecl ← mkSpecDecl decl us argMask params decls levelParamsNew
+      let targetParams : Std.HashSet Arg ←
+        args.iterM SpecializeM
+          |>.zip (paramsInfo.iterM _)
+          |>.foldM (init := {}) fun acc (arg, info) => do
+            match info with
+            | .fixedInst | .fixedNeutral | .other => return acc
+            | .fixedHO | .user =>
+              match arg with
+              | .type .. | .erased => return acc
+              | .fvar fvar =>
+                if (← findParam? fvar).isSome then
+                  return acc.insert arg
+                else
+                  return acc
+      let parentMask := argsNew.map targetParams.contains
       trace[Compiler.specialize.step] "new: {specDecl.name}: {← ppDecl specDecl}"
       cacheSpec key specDecl.name
       specDecl.saveBase
@@ -365,11 +409,11 @@ mutual
       specDecl.saveBase
       let specDecl ← specDecl.simp {}
       let specDecl ← specDecl.simp { etaPoly := true, inlinePartial := true, implementedBy := true }
+
       modify fun s => {
         s with
           workingDecls := s.workingDecls.push specDecl,
-          -- TODO: correct mask
-          parentMask := s.parentMask.insert specDecl.name (Array.replicate specDecl.params.size true)
+          parentMask := s.parentMask.insert specDecl.name parentMask
       }
       return some (.const specDecl.name usNew argsNew)
 
@@ -406,7 +450,6 @@ end
 
 def specializeDecl (decl : Decl) : SpecializeM (Decl × Bool) := do
   trace[Compiler.specialize.step] m!"Working {decl.name}"
-  -- TODO: conside a different heuristic here
   if (← decl.isTemplateLike) then
     return (decl, false)
   else

@@ -10,13 +10,13 @@ public import Init.Data.Iterators.Producers.Monadic.List
 
 @[expose] public section
 
+open Std Std.Iterators Std.Iterators.Types
+
 /-!
 # List iterator
 
 This module provides an iterator for lists that is accessible via `List.iter`.
 -/
-
-namespace Std.Iterators
 
 /--
 Returns a finite iterator for the given list.
@@ -30,8 +30,6 @@ The monadic version of this iterator is `List.iterM`.
 * `Productive` instance: always
 -/
 @[always_inline, inline]
-def _root_.List.iter {α : Type w} (l : List α) :
+def List.iter {α : Type w} (l : List α) :
     Iter (α := ListIterator α) α :=
   ((l.iterM Id).toIter : Iter α)
-
-end Std.Iterators

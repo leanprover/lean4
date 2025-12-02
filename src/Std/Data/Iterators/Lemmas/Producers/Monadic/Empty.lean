@@ -11,7 +11,7 @@ public import Init.Data.Iterators.Lemmas.Consumers.Monadic
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
 
 @[simp]
 theorem IterM.step_empty {m β} [Monad m] :
@@ -62,4 +62,4 @@ theorem IterM.drain_empty {m β} [Monad m] [LawfulMonad m] :
     (IterM.empty m β).drain = pure .unit := by
   simp [IterM.drain_eq_fold]
 
-end Std.Iterators
+end Std

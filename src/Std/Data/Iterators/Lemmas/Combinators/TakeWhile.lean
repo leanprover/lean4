@@ -12,7 +12,8 @@ public import Std.Data.Iterators.Lemmas.Consumers
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 theorem Iter.takeWhile_eq {α β} [Iterator α Id β] {P}
     {it : Iter (α := α) β} :
@@ -135,4 +136,4 @@ theorem Iter.toArray_takeWhile_of_finite {α β} [Iterator α Id β] {P}
     (it.takeWhile P).toArray = it.toArray.takeWhile P := by
   rw [← toArray_toList, ← toArray_toList, List.takeWhile_toArray, toList_takeWhile_of_finite]
 
-end Std.Iterators
+end Std

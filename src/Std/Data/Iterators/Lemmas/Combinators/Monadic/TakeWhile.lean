@@ -11,7 +11,8 @@ public import Std.Data.Iterators.Lemmas.Consumers.Monadic
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 theorem IterM.step_takeWhileWithPostcondition {α m β} [Monad m] [Iterator α m β]
     {it : IterM (α := α) m β} {P} :
@@ -66,4 +67,4 @@ theorem IterM.step_takeWhile {α m β} [Monad m] [LawfulMonad m] [Iterator α m 
   · simp
   · simp
 
-end Std.Iterators
+end Std

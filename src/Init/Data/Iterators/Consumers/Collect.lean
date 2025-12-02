@@ -25,7 +25,8 @@ Some operations are implemented using the `IteratorCollect` and `IteratorCollect
 typeclasses.
 -/
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 @[always_inline, inline, inherit_doc IterM.toArray]
 def Iter.toArray {α : Type w} {β : Type w}
@@ -57,4 +58,4 @@ def Iter.Partial.toList {α : Type w} {β : Type w}
     [Iterator α Id β] [IteratorCollectPartial α Id Id] (it : Iter.Partial (α := α) β) : List β :=
   it.it.toIterM.allowNontermination.toList.run
 
-end Std.Iterators
+end Std

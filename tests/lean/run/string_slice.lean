@@ -222,7 +222,7 @@ Tests for `String.Slice` functions
 section
 open String.Slice.Pattern
 
-instance [Monad n]{s : String.Slice} : Std.Iterators.IteratorCollect (ForwardSliceSearcher s) Id n :=
+instance [Monad n] {s : String.Slice} : Std.IteratorCollect (ForwardSliceSearcher s) Id n :=
   .defaultImplementation
 
 #guard (ToForwardSearcher.toSearcher "" "".toSlice).toList == [.matched "".toSlice.startPos "".toSlice.startPos]

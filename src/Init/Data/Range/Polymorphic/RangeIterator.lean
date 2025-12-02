@@ -97,7 +97,7 @@ theorem Iterator.Monadic.isPlausibleStep_iff [UpwardEnumerable α] [LE α] [Deci
 theorem Iterator.Monadic.step_eq_step [UpwardEnumerable α] [LE α] [DecidableLE α]
     {it : IterM (α := Rxc.Iterator α) Id α} :
     it.step = pure (.deflate ⟨Iterator.Monadic.step it, isPlausibleStep_iff.mpr rfl⟩) := by
-  simp [IterM.step, Iterators.Iterator.step]
+  simp [IterM.step, Std.Iterator.step]
 
 theorem Iterator.isPlausibleStep_iff [UpwardEnumerable α] [LE α] [DecidableLE α]
     {it : Iter (α := Rxc.Iterator α) α} {step} :
@@ -674,7 +674,7 @@ theorem Iterator.Monadic.isPlausibleStep_iff [UpwardEnumerable α] [LT α] [Deci
 theorem Iterator.Monadic.step_eq_step [UpwardEnumerable α] [LT α] [DecidableLT α]
     {it : IterM (α := Rxo.Iterator α) Id α} :
     it.step = pure (.deflate ⟨Iterator.Monadic.step it, isPlausibleStep_iff.mpr rfl⟩) := by
-  simp [IterM.step, Iterators.Iterator.step]
+  simp [IterM.step, Std.Iterator.step]
 
 theorem Iterator.isPlausibleStep_iff [UpwardEnumerable α] [LT α] [DecidableLT α]
     {it : Iter (α := Rxo.Iterator α) α} {step} :
@@ -1241,7 +1241,7 @@ theorem Iterator.Monadic.isPlausibleStep_iff [UpwardEnumerable α]
 theorem Iterator.Monadic.step_eq_step [UpwardEnumerable α]
     {it : IterM (α := Rxi.Iterator α) Id α} :
     it.step = pure (.deflate ⟨Iterator.Monadic.step it, isPlausibleStep_iff.mpr rfl⟩) := by
-  simp [IterM.step, Iterators.Iterator.step]
+  simp [IterM.step, Std.Iterator.step]
 
 theorem Iterator.isPlausibleStep_iff [UpwardEnumerable α]
     {it : Iter (α := Rxi.Iterator α) α} {step} :

@@ -11,7 +11,8 @@ public import Init.Data.Iterators.Consumers.Monadic.Access
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 /--
 If possible, takes `n` steps with the iterator `it` and
@@ -62,4 +63,4 @@ def Iter.atIdx? {α β} [Iterator α Id β] [Productive α Id] [IteratorAccess �
   | .skip _ => none
   | .done => none
 
-end Std.Iterators
+end Std

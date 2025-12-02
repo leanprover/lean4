@@ -12,7 +12,8 @@ public import Std.Data.Iterators.Lemmas.Equivalence.HetT
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 section Definition
 
@@ -276,4 +277,4 @@ theorem IterM.Equiv.of_morphism {α₁ α₂} {m : Type w → Type w'} [Monad m]
   case hf =>
     exact ⟨ita, rfl, rfl⟩
 
-end Std.Iterators
+end Std

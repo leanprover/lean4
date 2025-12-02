@@ -508,13 +508,13 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
           let fields2 : Array Expr := ys2[ctorA.numParams:]
           let mut e := mkAppN noConfusion (#[target] ++ fields1 ++ fields2)
           for _ in [:indVal.numIndices] do
-            let eq := (← whnfForall (← inferType e)).bindingDomain!
+            let eq ← whnf (← whnfForall (← inferType e)).bindingDomain!
             if let some (_,i,_,_) := eq.heq? then
               e := mkApp e (← mkHEqRefl i)
-            if let some (_,i,_) := eq.eq? then
+            else if let some (_,i,_) := eq.eq? then
               e := mkApp e (← mkEqRefl i)
             else
-              throwError "mkNoConfusion: unexpected equality as next argument to {← inferType e}"
+              throwError "mkNoConfusion: unexpected equality `{eq}` as next argument to{inlineExpr (← inferType e)}"
           let eq := (← whnfForall (← inferType e)).bindingDomain!
           if eq.isHEq then
             e := mkApp e (← mkHEqOfEq h)

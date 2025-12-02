@@ -478,10 +478,8 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
     let α ← whnfD α
     matchConstInduct α.getAppFn (fun _ => throwAppBuilderException `noConfusion ("inductive type expected" ++ indentExpr α)) fun indVal us => do
       let u ← getLevel target
-      let a ← whnfD a
-      let b ← whnfD b
-      if let some (ctorA, ys1) ← constructorApp? a then
-       if let some (ctorB, ys2) ← constructorApp? b then
+      if let some (ctorA, ys1) ← constructorApp'? a then
+       if let some (ctorB, ys2) ← constructorApp'? b then
         -- Different constructors: Use use `ctorIdx`
         if ctorA.cidx ≠ ctorB.cidx then
           let ctorIdxName := Name.mkStr indVal.name "ctorIdx"

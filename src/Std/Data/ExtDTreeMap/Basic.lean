@@ -930,25 +930,19 @@ def beq [LawfulEqCmp cmp] [TransCmp cmp] [∀ k, BEq (β k)] (m₁ m₂ : ExtDTr
 
 instance [LawfulEqCmp cmp] [TransCmp cmp] [∀ k, BEq (β k)] : BEq (ExtDTreeMap α β cmp) := ⟨beq⟩
 
-theorem beq_of_eq [LawfulEqCmp cmp] [TransCmp cmp] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] (m₁ m₂ : ExtDTreeMap α β cmp) (hyp : m₁ = m₂) : m₁ == m₂ := by
-  induction m₁
-  case mk a =>
-    induction m₂
-    case mk b =>
-      exact DTreeMap.Equiv.beq <| exact hyp
-
-theorem eq_of_beq_true [LawfulEqCmp cmp] [TransCmp cmp] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] (m₁ m₂ : ExtDTreeMap α β cmp) (hyp : (m₁ == m₂) = true) : m₁ = m₂ := by
-  induction m₁
-  case mk a =>
-    induction m₂
-    case mk b =>
-      apply sound <| DTreeMap.Equiv_of_beq_eq_true hyp
-
 instance [LawfulEqCmp cmp] [TransCmp cmp] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] : ReflBEq (ExtDTreeMap α β cmp) where
-  rfl {a} := by apply beq_of_eq; rfl
+  rfl {a} := by
+    induction a
+    case mk a =>
+      apply DTreeMap.Equiv.beq <| DTreeMap.Equiv.rfl
 
 instance [LawfulEqCmp cmp] [TransCmp cmp] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] : LawfulBEq (ExtDTreeMap α β cmp) where
-  eq_of_beq := fun hyp => eq_of_beq_true _ _ hyp
+  eq_of_beq {a} {b} hyp := by
+    induction a
+    case mk a =>
+      induction b
+      case mk b =>
+        apply sound <| DTreeMap.equiv_of_beq hyp
 
 namespace Const
 variable {β : Type v}
@@ -969,7 +963,7 @@ theorem eq_of_beq_eq_true [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] [LawfulBEq �
   case mk a =>
     induction m₂
     case mk b =>
-      exact sound <| DTreeMap.Const.Equiv_of_beq_eq_true h
+      exact sound <| DTreeMap.Const.equiv_of_beq h
 
 end Const
 

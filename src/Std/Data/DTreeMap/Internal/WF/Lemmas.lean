@@ -1844,7 +1844,7 @@ theorem all_toList {p : (a : α) → β a → Bool} {m : Impl α β}:
     · simp only [forIn'_eq_forIn] at ih
       simp [h, ih]
 
-theorem toListModel_beq {_ : Ord α} [BEq α] [TransOrd α] [LawfulBEq α] [LawfulBEqOrd α] [∀ k, BEq (β k)] {m₁ m₂ : Impl α β} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+theorem beq_eq_beqModel {_ : Ord α} [BEq α] [TransOrd α] [LawfulBEq α] [LawfulBEqOrd α] [∀ k, BEq (β k)] {m₁ m₂ : Impl α β} (h₁ : m₁.WF) (h₂ : m₂.WF) :
     Impl.beq m₁ m₂ = beqModel m₁.toListModel m₂.toListModel := by
   rw [beq, beqModel]
   split
@@ -1862,7 +1862,7 @@ theorem toListModel_beq {_ : Ord α} [BEq α] [TransOrd α] [LawfulBEq α] [Lawf
     · exact h₂.balanced
     · exact h₁.balanced
 
-theorem Const.toListModel_beq {β : Type v} {_ : Ord α} [BEq α] [TransOrd α] [LawfulBEqOrd α] [BEq β] {m₁ m₂ : Impl α (fun _ => β)}  (h₁ : m₁.WF) (h₂ : m₂.WF) :
+theorem Const.beq_eq_beqModel {β : Type v} {_ : Ord α} [BEq α] [TransOrd α] [LawfulBEqOrd α] [BEq β] {m₁ m₂ : Impl α (fun _ => β)}  (h₁ : m₁.WF) (h₂ : m₂.WF) :
     beq m₁ m₂ = Const.beqModel m₁.toListModel m₂.toListModel := by
   rw [beq, Const.beqModel]
   split

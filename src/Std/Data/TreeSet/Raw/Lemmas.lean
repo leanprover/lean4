@@ -817,8 +817,8 @@ variable {m₁ m₂ : Raw α cmp}
 theorem Equiv.beq [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁ ~m m₂ → beq m₁ m₂ := fun hyp =>
   @TreeMap.Raw.Const.Equiv.beq _ cmp _ m₁.1 m₂.1 _ _ _ h₁ h₂ hyp.1
 
-theorem Equiv_of_beq_eq_true [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁ == m₂ → m₁ ~m m₂ := fun hyp =>
-  ⟨@TreeMap.Raw.Const.Equiv_of_beq_eq_true α cmp _ m₁.1 m₂.1 _ _ _ _ h₁.1 h₂.1 hyp⟩
+theorem equiv_of_beq [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁ == m₂ → m₁ ~m m₂ := fun hyp =>
+  ⟨@TreeMap.Raw.Const.equiv_of_beq α cmp _ m₁.1 m₂.1 _ _ _ _ h₁.1 h₂.1 hyp⟩
 
 theorem Equiv.beq_congr [TransCmp cmp] [LawfulEqCmp cmp] {m₃ m₄ : Raw α cmp} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) :
     m₁ ~m m₃ → m₂ ~m m₄ → (m₁ == m₂) = (m₃ == m₄) := fun hyp1 hyp2 =>

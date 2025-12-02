@@ -99,8 +99,8 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
      ⟨`getKeyD, (``getKeyD_eq_getKeyD, #[``(getKeyD_of_perm _)])⟩,
      ⟨`getKey!, (``getKey!_eq_getKey!, #[``(getKey!_of_perm _)])⟩,
      ⟨`toList, (``toList_eq_toListModel, #[])⟩,
-     ⟨`beq, (``toListModel_beq, #[])⟩,
-     ⟨`Const.beq, (``Internal.Impl.Const.toListModel_beq, #[])⟩,
+     ⟨`beq, (``beq_eq_beqModel, #[])⟩,
+     ⟨`Const.beq, (``Internal.Impl.Const.beq_eq_beqModel, #[])⟩,
      ⟨`keys, (``keys_eq_keys, #[])⟩,
      ⟨`Const.toList, (``Const.toList_eq_toListModel_map, #[])⟩,
      ⟨`foldlM, (``foldlM_eq_foldlM_toListModel, #[])⟩,
@@ -4858,7 +4858,7 @@ variable {m₁ m₂ : Impl α β} [TransOrd α] [LawfulEqOrd α] [∀ k, BEq (β
 theorem Equiv.beq [∀ k, ReflBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁.Equiv m₂ → beq m₁ m₂ := by
   simp_to_model using List.beqModel_eq_true_of_perm
 
-theorem Equiv_of_beq_eq_true [∀ k, LawfulBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : beq m₁ m₂ = true → m₁.Equiv m₂ := by
+theorem equiv_of_beq [∀ k, LawfulBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : beq m₁ m₂ = true → m₁.Equiv m₂ := by
   simp_to_model using List.perm_of_beqModel
 
 theorem Equiv.beq_congr {m₃ m₄ : Impl α β} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) :
@@ -4874,7 +4874,7 @@ variable {β : Type v} {m₁ m₂ : Impl α (fun _ => β)}
 theorem Const.Equiv.beq [TransOrd α] [BEq β] [ReflBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁.Equiv m₂ → Const.beq m₁ m₂ := by
   simp_to_model using List.Const.beqModel_eq_true_of_perm
 
-theorem Const.Equiv_of_beq_eq_true [TransOrd α] [LawfulEqOrd α] [BEq β] [LawfulBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : Const.beq m₁ m₂ = true → m₁.Equiv m₂ := by
+theorem Const.equiv_of_beq [TransOrd α] [LawfulEqOrd α] [BEq β] [LawfulBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : Const.beq m₁ m₂ = true → m₁.Equiv m₂ := by
   simp_to_model using List.Const.perm_of_beqModel
 
 theorem Const.Equiv.beq_congr [TransOrd α] [LawfulEqOrd α] {m₃ m₄ : Impl α (fun _ => β)} [BEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) :

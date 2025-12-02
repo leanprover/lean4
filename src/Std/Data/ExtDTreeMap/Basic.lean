@@ -958,7 +958,7 @@ theorem beq_of_eq [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] [ReflBEq β] (m₁ m
     case mk b =>
       exact DTreeMap.Const.Equiv.beq <| exact h
 
-theorem eq_of_beq_eq_true [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] [LawfulBEq β] (m₁ m₂ : ExtDTreeMap α (fun _ => β) cmp) (h : Const.beq m₁ m₂) : m₁ = m₂ := by
+theorem eq_of_beq [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] [LawfulBEq β] (m₁ m₂ : ExtDTreeMap α (fun _ => β) cmp) (h : Const.beq m₁ m₂) : m₁ = m₂ := by
   induction m₁
   case mk a =>
     induction m₂

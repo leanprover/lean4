@@ -544,15 +544,11 @@ instance [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] [ReflBEq β] : ReflBEq (ExtTr
   rfl := by intro a; apply ExtDTreeMap.Const.beq_of_eq; rfl
 
 instance [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] [LawfulBEq β] : LawfulBEq (ExtTreeMap α β cmp) where
-  eq_of_beq := by
-    intro a b hyp
-    cases a
-    case mk a₀ =>
-      cases b
-      case mk b₀ =>
-        simp only [mk.injEq]
-        apply ExtDTreeMap.Const.eq_of_beq_eq_true
-        exact hyp
+  eq_of_beq {a} {b} hyp := by
+    have ⟨a⟩ := a
+    have ⟨b⟩ := b
+    simp only [mk.injEq]
+    exact ExtDTreeMap.Const.eq_of_beq _ _ hyp
 
 @[inline, inherit_doc ExtDTreeMap.eraseMany]
 def eraseMany [TransCmp cmp] {ρ} [ForIn Id ρ α] (t : ExtTreeMap α β cmp) (l : ρ) : ExtTreeMap α β cmp :=

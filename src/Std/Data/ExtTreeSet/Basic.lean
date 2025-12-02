@@ -543,20 +543,11 @@ instance [TransCmp cmp] [LawfulEqCmp cmp] : ReflBEq (ExtTreeSet α cmp) where
       rfl
 
 instance [TransCmp cmp] [LawfulEqCmp cmp] : LawfulBEq (ExtTreeSet α cmp) where
-  eq_of_beq := by
-    intro a b hyp
-    cases a
-    case mk a₀ =>
-      cases b
-      case mk b₀ =>
-        cases a₀
-        case mk a₁ =>
-          cases b₀
-          case mk b₁ =>
-            simp only [mk.injEq, ExtTreeMap.mk.injEq]
-            simp only [BEq.beq, beq] at hyp
-            apply ExtDTreeMap.Const.eq_of_beq_eq_true
-            · exact hyp
+  eq_of_beq {a} {b} hyp := by
+    have ⟨⟨a⟩⟩ := a
+    have ⟨⟨b⟩⟩ := b
+    simp only [mk.injEq, ExtTreeMap.mk.injEq] at |- hyp
+    exact ExtDTreeMap.Const.eq_of_beq _ _ hyp
 
 /--
 Erases multiple items from the tree set by iterating over the given collection and calling erase.

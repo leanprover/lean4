@@ -988,10 +988,20 @@ theorem monotone_stateTRun [PartialOrder γ]
     monotone (fun (x : γ) => StateT.run (f x) s) :=
   monotone_apply s _ hmono
 
--- TODO: axiomatize these instances (ideally without `Nonempty ε`) when EIO and friends are opaque
+noncomputable def EST.bot [Nonempty ε] : EST ε σ α :=
+  fun s => .error Classical.ofNonempty (Classical.choice ⟨s⟩)
 
-noncomputable instance [Nonempty ε] : CCPO (EST ε σ α) :=
-  inferInstanceAs (CCPO ((s : _) → FlatOrder (.error Classical.ofNonempty (Classical.choice ⟨s⟩))))
+-- Essentially
+--   instance [Nonempty ε] : CCPO (EST ε σ α) :=
+--     inferInstanceAs (CCPO ((s : _) → FlatOrder (EST.bot s)))
+-- but hat would incur a noncomputable on the instance
+
+instance [Nonempty ε] : CCPO (EST ε σ α) where
+  rel := PartialOrder.rel (α := ∀ s, FlatOrder (EST.bot s))
+  rel_refl := PartialOrder.rel_refl
+  rel_antisymm := PartialOrder.rel_antisymm
+  rel_trans := PartialOrder.rel_trans
+  has_csup hchain := CCPO.has_csup (α := ∀ s, FlatOrder (EST.bot s)) hchain
 
 instance [Nonempty ε] : MonoBind (EST ε σ) where
   bind_mono_left {_ _ a₁ a₂ f} h₁₂ := by
@@ -1011,39 +1021,17 @@ instance [Nonempty ε] : MonoBind (EST ε σ) where
     · apply h₁₂
     · exact .refl
 
-noncomputable instance [Nonempty α] : CCPO (ST σ α) :=
-  inferInstanceAs (CCPO ((s : _) → FlatOrder (.mk Classical.ofNonempty (Classical.choice ⟨s⟩))))
-
-noncomputable instance [Nonempty α] : CCPO (BaseIO α) :=
-  inferInstanceAs (CCPO (ST IO.RealWorld α))
-
-noncomputable instance [Nonempty ε] : CCPO (EIO ε α) :=
+instance [Nonempty ε] : CCPO (EIO ε α) :=
   inferInstanceAs (CCPO (EST ε IO.RealWorld α))
 
-noncomputable instance [Nonempty ε] : MonoBind (EIO ε) :=
+instance [Nonempty ε] : MonoBind (EIO ε) :=
   inferInstanceAs (MonoBind (EST ε IO.RealWorld))
 
--- Quick hack to get a computable instance
 instance : CCPO (IO α) :=
-  inferInstanceAs (CCPO ((s : _) → FlatOrder (.error (.userError "csup ∅") (Classical.choice ⟨s⟩))))
+  inferInstanceAs (CCPO (EIO IO.Error α))
 
-instance : MonoBind IO where
-  bind_mono_left {_ _ a₁ a₂ f} h₁₂ := by
-    intro s
-    specialize h₁₂ s
-    change FlatOrder.rel (a₁.bind f s) (a₂.bind f s)
-    simp only [EST.bind]
-    generalize a₁ s = a₁ at h₁₂; generalize a₂ s = a₂ at h₁₂
-    cases h₁₂
-    · exact .bot
-    · exact .refl
-  bind_mono_right {_ _ a f₁ f₂} h₁₂ := by
-    intro w
-    change FlatOrder.rel (a.bind f₁ w) (a.bind f₂ w)
-    simp only [EST.bind]
-    split
-    · apply h₁₂
-    · exact .refl
+instance : MonoBind IO :=
+  inferInstanceAs (MonoBind (EIO IO.Error))
 
 end mono_bind
 

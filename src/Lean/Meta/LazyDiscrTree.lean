@@ -675,16 +675,27 @@ def getMatchCore (root : Std.HashMap Key TrieIndex) (e : Expr) :
     MatchM α (MatchResult α) := do
   let result ← getStarResult root
   let (k, args) ← MatchClone.getMatchKeyArgs e (root := true) (← read)
-  let cases :=
-    match k with
+  let cases ← match k with
     | .star  =>
-      #[]
+      pure #[]
+    /- When goal has fvar head like `p (ite c t e)`, also search by first argument's key.
+       This finds "eliminator-style" theorems indexed by argument structure. -/
+    | .fvar _ _ =>
+      if h : 0 < args.size then
+        let firstArg := args[args.size - 1]  -- args are reversed
+        let (argK, argArgs) ← MatchClone.getMatchKeyArgs firstArg (root := true) (← read)
+        if argK != .star && argK != .other then
+          pure (#[] |> pushRootCase root argK argArgs)
+        else
+          pure #[]
+      else
+        pure #[]
     /- See note about "dep-arrow vs arrow" at `getMatchLoop` -/
     | .arrow =>
-      #[] |> pushRootCase root .other #[]
-          |> pushRootCase root k args
+      pure (#[] |> pushRootCase root .other #[]
+                |> pushRootCase root k args)
     | _ =>
-      #[] |> pushRootCase root k args
+      pure (#[] |> pushRootCase root k args)
   getMatchLoop cases result
 
 /--

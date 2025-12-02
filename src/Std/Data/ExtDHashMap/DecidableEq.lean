@@ -21,6 +21,6 @@ namespace Std.ExtDHashMap
 open scoped Std.DHashMap
 
 instance {α : Type u} {β : α → Type v} [DecidableEq α] [Hashable α] [∀ k, DecidableEq (β k)] : DecidableEq (ExtDHashMap α β) :=
-  fun m₁ m₂ => @decidable_of_decidable_of_iff (m₁ == m₂) _ _ ⟨by apply ExtDHashMap.eq_of_beq_true, by apply ExtDHashMap.beq_of_eq⟩
+  fun m₁ m₂ => @decidable_of_decidable_of_iff (m₁ == m₂) _ _ ⟨by simp, by simp⟩
 
 end Std.ExtDHashMap

@@ -36,3 +36,28 @@ info: @[reducible] def HVect.Nil.noConfusion.{u, v} : {P : Sort u} →
 -/
 #guard_msgs in
 #print sig HVect.Nil.noConfusion
+
+inductive Vec (α : Type u) : Nat → Type u where
+  | nil : Vec α 0
+  | cons : {n : Nat} → (x : α) → (xs : Vec α n) → Vec α (n + 1)
+
+/--
+info: Vec.cons.noConfusion.{u_1, u} {α : Type u} {P : Sort u_1} {n : Nat} {x : α} {xs : Vec α n} {n' : Nat} {x' : α}
+  {xs' : Vec α n'} (eq_1 : n + 1 = n' + 1) (eq_2 : Vec.cons x xs ≍ Vec.cons x' xs')
+  (k : n = n' → x = x' → xs ≍ xs' → P) : P
+-/
+#guard_msgs in
+#check Vec.cons.noConfusion
+
+/--
+info: Vec.cons.inj.{u} {α : Type u} {n : Nat} {x : α} {xs : Vec α n} {x✝ : α} {xs✝ : Vec α n} :
+  Vec.cons x xs = Vec.cons x✝ xs✝ → x = x✝ ∧ xs = xs✝
+-/
+#guard_msgs in
+#check Vec.cons.inj
+
+theorem Vec.cons.hinj {α : Type u}
+  {x : α} {n : Nat} {xs : Vec α n} {x' : α} {n' : Nat} {xs' : Vec α n'} :
+  Vec.cons x xs ≍ Vec.cons x' xs' → (n + 1 = n' + 1 → (x = x' ∧ xs ≍ xs')) := by
+  intro h eq_1
+  apply Vec.cons.noConfusion eq_1 h (fun _ eq_x eq_xs => ⟨eq_x, eq_xs⟩)

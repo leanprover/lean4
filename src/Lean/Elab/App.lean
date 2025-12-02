@@ -1390,7 +1390,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       throwNamedError lean.invalidField m!"Invalid field notation: Field projection operates on \
         types of the form `C ...` where C is a constant. The expression{indentExpr e}\nhas \
         type{inlineExpr eType}which does not have the necessary form."
-    | _, .fieldIdx _ i =>
+    | _, .fieldIdx .. =>
       throwError  m!"Invalid projection: Projection operates on types of the form `C ...` where C \
         is a constant. The expression{indentExpr e}\nhas type{inlineExpr eType}which does not have \
         the necessary form."

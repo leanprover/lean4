@@ -850,12 +850,11 @@ private partial def hasNestedActionsToLift : Syntax → Bool
     else args.any hasNestedActionsToLift
   | _ => false
 
-variable (baseId : Name) in
-private partial def expandNestedActionsAux (inQuot : Bool) (inBinder : Bool) : Syntax → StateT (Array (TSyntax `doElem)) DoElabM Syntax
+private partial def expandNestedActionsAux (baseId : Name) (inQuot : Bool) (inBinder : Bool) : Syntax → StateT (Array (TSyntax `doElem)) DoElabM Syntax
   | stx@(Syntax.node i k args) =>
     if k == choiceKind then do
       -- choice node: check that lifts are consistent
-      let alts ← stx.getArgs.mapM (expandNestedActionsAux inQuot inBinder · |>.run #[])
+      let alts ← stx.getArgs.mapM (expandNestedActionsAux baseId inQuot inBinder · |>.run #[])
       let (_, lifts) := alts[0]!
       unless alts.all (·.2 == lifts) do
         throwErrorAt stx "cannot lift `(<- ...)` over inconsistent syntax variants, consider lifting out the binding manually"
@@ -866,14 +865,14 @@ private partial def expandNestedActionsAux (inQuot : Bool) (inBinder : Bool) : S
     -- For `pure` if-then-else, we only lift `(<- ...)` occurring in the condition.
     else if h : args.size >= 2 ∧ (k == ``termDepIfThenElse || k == ``termIfThenElse) then do
       let inAntiquot := stx.isAntiquot && !stx.isEscapedAntiquot
-      let arg1 ← expandNestedActionsAux (inQuot && !inAntiquot || stx.isQuot) inBinder args[1]
+      let arg1 ← expandNestedActionsAux baseId (inQuot && !inAntiquot || stx.isQuot) inBinder args[1]
       let args := args.set! 1 arg1
       return Syntax.node i k args
     else if k == ``Parser.Term.liftMethod && !inQuot then withFreshMacroScope do
       if inBinder then
         throwErrorAt stx "cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`"
       let term := args[1]!
-      let term ← expandNestedActionsAux inQuot inBinder term
+      let term ← expandNestedActionsAux baseId inQuot inBinder term
       -- keep name deterministic across choice branches
       let id ← mkIdentFromRef (.num baseId (← get).size)
       let auxDoElem ← `(doElem| let $id:ident ← $(⟨term⟩):term)
@@ -882,7 +881,7 @@ private partial def expandNestedActionsAux (inQuot : Bool) (inBinder : Bool) : S
     else do
       let inAntiquot := stx.isAntiquot && !stx.isEscapedAntiquot
       let inBinder   := inBinder || (!inQuot && liftMethodForbiddenBinder stx)
-      let args ← args.mapM (expandNestedActionsAux (inQuot && !inAntiquot || stx.isQuot) inBinder)
+      let args ← args.mapM (expandNestedActionsAux baseId (inQuot && !inAntiquot || stx.isQuot) inBinder)
       return Syntax.node i k args
   | stx => return stx
 
@@ -894,21 +893,6 @@ def expandNestedActions (doElem : TSyntax `doElem) : DoElabM (Array (TSyntax `do
     let (doElem, doElemsNew) ← (expandNestedActionsAux baseId false false doElem).run #[]
     return (doElemsNew, ⟨doElem⟩)
 
-/-
-def expandNestedActionsAux (stx : Syntax) : StateRefT (Array (TSyntax `doElem)) DoElabM Syntax := do
-  match stx.raw with
-  | .node i k args => do
-    let args ← args.mapM expandNestedActionsAux
-    return Syntax.node i k args
-  | _ => return stx
-
-def expandNestedActions (stx : TSyntax `doElem) : DoElabM (Array (TSyntax `doElem)) := do
-  match stx.raw with
-  | .node i k args => do
-    let (args, lifted) ← args.mapM expandNestedActionsAux |>.run #[]
-    return lifted.push ⟨Syntax.node i k args⟩
-  | _ => return #[stx]
--/
 private def elabDoElemFns (stx : TSyntax `doElem) (cont : DoElemCont)
     (fns : List (KeyedDeclsAttribute.AttributeEntry DoElab)) : DoElabM Expr := do
   let s ← saveState

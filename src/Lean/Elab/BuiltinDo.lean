@@ -235,7 +235,7 @@ def elabDoLetOrReassignElse (letOrReassign : LetOrReassign) (pattern rhs : Term)
 
 def elabDoIdDecl (x : Ident) (xType? : Option Term) (rhs : TSyntax `doElem) (k : DoElabM Expr)
     (kind : DoElemContKind := .nonDuplicable) : DoElabM Expr := do
-  let xType ← elabType xType?
+  let xType ← elabType (xType?.getD (mkHole x))
   let lctx ← getLCtx
   let ctx ← read
   elabDoElem rhs <| .mk (kind := kind) x.getId xType do
@@ -505,16 +505,16 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
   checkMutVarsForShadowing #[x]
   let uα ← mkFreshLevelMVar
   let uρ ← mkFreshLevelMVar
-  let α ← mkFreshExprMVar (mkSort (mkLevelSucc uα)) (userName := `α)
-  let ρ ← mkFreshExprMVar (mkSort (mkLevelSucc uρ)) (userName := `ρ)
+  let α ← mkFreshExprMVar (mkSort (mkLevelSucc uα)) (userName := `α) -- assigned by outParam
+  let ρ ← mkFreshExprMVar (mkSort (mkLevelSucc uρ)) (userName := `ρ) -- assigned in the next line
   let xs ← Term.elabTermEnsuringType xs ρ
   let mi := (← read).monadInfo
-  let σ ← mkFreshExprMVar (mkSort (mkLevelSucc mi.u)) (userName := `σ)
+  let σ ← mkFreshExprMVar (mkSort (mkLevelSucc mi.u)) (userName := `σ) -- assigned below
   let γ := (← read).doBlockResultType
   let β ← mkArrow σ (← mkMonadicType γ)
   let mutVars := (← read).mutVars
   let mutVarNames := mutVars.map (·.getId)
-  let breakRhs ← mkFreshExprMVar β
+  let breakRhs ← mkFreshExprMVar β -- assigned below
   let (app, p?) ← match h? with
     | none =>
       let instForIn ← Term.mkInstMVar <| mkApp3 (mkConst ``ForInNew [uρ, uα, mi.u, mi.v]) mi.m ρ α
@@ -522,7 +522,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
       let app := mkApp7 app mi.m ρ α instForIn σ γ xs -- 3 args remaining: preS, kcons, knil
       pure (app, none)
     | some _ =>
-      let p ← mkFreshExprMVar (← mkArrowN #[ρ, α] (mkSort .zero)) (userName := `p)
+      let p ← mkFreshExprMVar (← mkArrowN #[ρ, α] (mkSort .zero)) (userName := `p) -- outParam
       let instForIn ← Term.mkInstMVar <| mkApp4 (mkConst ``ForInNew' [uρ, uα, mi.u, mi.v]) mi.m ρ α p
       let app := mkConst ``ForInNew'.forInNew' [uρ, uα, mi.u, mi.v]
       let app := mkApp8 app mi.m ρ α p instForIn σ γ xs -- 3 args remaining: preS, kcons, knil
@@ -651,6 +651,7 @@ private def elabDoCatch (lifter : ControlLifter) (body : Expr) (catch_ : TSyntax
     | none => pure body
     | some finSeq => do
       let β ← mkFreshResultType `β
+      Term.registerMVarErrorHoleInfo β.mvarId! finSeq
       let fin ← enterFinally β <| elabDoSeq finSeq (← DoElemCont.mkPure β)
       let instMonadFinally ← Term.mkInstMVar <| mkApp (mkConst ``MonadFinally [mi.u, mi.v]) mi.m
       let instFunctor ← Term.mkInstMVar <| mkApp (mkConst ``Functor [mi.u, mi.v]) mi.m

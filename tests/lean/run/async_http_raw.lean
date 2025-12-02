@@ -9,20 +9,17 @@ structure Result where
   data : ByteArray
 
 /-- Convert an HTTP request to a byte array, optionally using chunked encoding. -/
-def toByteArray (req : Request (Array Chunk)) (chunked := false) : IO ByteArray := Async.block do
+def requestToByteArray (req : Request (Array Chunk)) (chunked := false) : IO ByteArray := Async.block do
   let mut data := String.toUTF8 <| toString req.head
   let toByteArray (part : Chunk) := Internal.Encode.encode .v11 .empty part |>.toByteArray
   for part in req.body do data := data ++ (if chunked then toByteArray part else part.data)
   if chunked then data := data ++ toByteArray (Chunk.mk .empty .empty)
   return data
 
-/-- Send multiple requests through a mock connection and return the response data. -/
-def sendRequests (pair : Mock.Client × Mock.Server) (reqs : Array (Request (Array Chunk)))
-    (onRequest : Request Body → Async (Response Body))
-    (chunked : Bool := false) : IO ByteArray := Async.block do
+/-- Send raw byte stream through a mock connection and return the response data. -/
+def sendRawBytes (pair : Mock.Client × Mock.Server) (data : ByteArray)
+    (onRequest : Request Body → Async (Response Body)) : IO ByteArray := Async.block do
   let (client, server) := pair
-  let mut data := .empty
-  for req in reqs do data := data ++ (← toByteArray req chunked)
 
   client.send data
   Std.Http.Server.serveConnection server onRequest (config := { lingeringTimeout := 3000 })
@@ -45,24 +42,29 @@ def testSizeLimit (pair : Mock.Client × Mock.Server) : IO Unit := do
       |>.status .ok
       |>.body "hello robert"
 
-  let response ← sendRequests pair #[
+  -- Manually construct the byte stream
+  let mut data := .empty
+  data := data ++ (← requestToByteArray (
      Request.new
       |>.uri! "/ata/po"
       |>.header! "Content-Length" "4"
       |>.header! "Host" "."
-      |>.body #[.mk "test".toUTF8 #[]],
+      |>.body #[.mk "test".toUTF8 #[]]))
+  data := data ++ (← requestToByteArray (
     Request.new
       |>.uri! "/ata/po"
       |>.header! "Content-Length" "13"
       |>.header! "Connection" "close"
       |>.header! "Host" "."
-      |>.body #[.mk "testtesttests".toUTF8 #[]],
+      |>.body #[.mk "testtesttests".toUTF8 #[]]))
+  data := data ++ (← requestToByteArray (
      Request.new
       |>.uri! "/ata/po"
       |>.header! "Content-Length" "4"
       |>.header! "Host" "."
-      |>.body #[.mk "test".toUTF8 #[]],
-  ] handler
+      |>.body #[.mk "test".toUTF8 #[]]))
+
+  let response ← sendRawBytes pair data handler
 
   let responseData := String.fromUTF8! response
   IO.println <| String.quote responseData
@@ -83,7 +85,7 @@ def testBasicRequest : IO Unit := do
       |>.header! "Connection" "close"
       |>.body "Hello World"
 
-  let response ← sendRequests pair #[
+  let data ← requestToByteArray (
     Request.new
       |>.uri! "/hello"
       |>.header! "Host" "localhost"
@@ -91,8 +93,9 @@ def testBasicRequest : IO Unit := do
       |>.header! "Connection" "close"
       |>.header! "Content-Length" "0"
       |>.method .get
-      |>.body #[.mk "".toUTF8 #[]]
-  ] handler
+      |>.body #[.mk "".toUTF8 #[]])
+
+  let response ← sendRawBytes pair data handler
 
   let responseData := String.fromUTF8! response
   IO.println s!"{responseData.quote}"
@@ -117,7 +120,7 @@ def testPostRequest : IO Unit := do
       |>.header! "Connection" "close"
       |>.body s!"Received: {body}"
 
-  let response ← sendRequests pair #[
+  let data ← requestToByteArray (
     Request.new
       |>.uri! "/api/data"
       |>.method .post
@@ -125,8 +128,9 @@ def testPostRequest : IO Unit := do
       |>.header! "Content-Type" "application/json"
       |>.header! "Content-Length" "25"
       |>.header! "Connection" "close"
-      |>.body #[.mk "{\"name\": \"test\", \"id\": 1}".toUTF8 #[]]
-  ] handler
+      |>.body #[.mk "{\"name\": \"test\", \"id\": 1}".toUTF8 #[]])
+
+  let response ← sendRawBytes pair data handler
 
   let responseData := String.fromUTF8! response
   IO.println s!"{responseData.quote}"
@@ -146,7 +150,7 @@ def test100Continue : IO Unit := do
         |>.status .ok
         |>.body "Request processed"
 
-  let response ← sendRequests pair #[
+  let data ← requestToByteArray (
     Request.new
       |>.uri! "/"
       |>.method .get
@@ -154,8 +158,9 @@ def test100Continue : IO Unit := do
       |>.header! "Content-Length" "1"
       |>.header! "Expect" "100-continue"
       |>.header! "Connection" "close"
-      |>.body #[.mk "a".toUTF8 #[]]
-  ] handler
+      |>.body #[.mk "a".toUTF8 #[]])
+
+  let response ← sendRawBytes pair data handler
 
   let responseData := String.fromUTF8! response
   IO.println s!"{responseData.quote}"
@@ -189,7 +194,7 @@ def testMaxRequestSize : IO Unit := do
     |> ByteArray.mk
     |> String.fromUTF8!
 
-  let response ← sendRequests pair #[
+  let data ← requestToByteArray (
     Request.new
       |>.uri! "/upload"
       |>.method .post
@@ -197,8 +202,9 @@ def testMaxRequestSize : IO Unit := do
       |>.header! "Content-Type" "text/plain"
       |>.header! "Content-Length" s!"{largeData.length}"
       |>.header! "Connection" "close"
-      |>.body #[.mk largeData.toUTF8 #[]]
-  ] handler
+      |>.body #[.mk largeData.toUTF8 #[]])
+
+  let response ← sendRawBytes pair data handler
 
   let responseData := String.fromUTF8! response
   IO.println s!"{responseData.quote}"
@@ -209,60 +215,37 @@ info: "HTTP/1.1 413 Request Entity Too Large\x0d\nContent-Length: 48\x0d\nConnec
 #guard_msgs in
 #eval show IO _ from do testMaxRequestSize
 
-def testCut : IO Unit := do
+def testChunkedWithTrailer : IO Unit := do
   let pair ← Mock.new
 
   let handler := fun (req : Request Body) => do
-    if req.head.headers.hasEntry (.new "Accept") "application/json" then
-      return Response.new
-        |>.status .accepted
-        |>.header! "Content-Type" "application/json"
-        |>.body "{\"message\": \"JSON response\", \"status\": \"accepted\"}"
-    else if req.head.headers.hasEntry (.new "Accept") "text/xml" then
-      return Response.new
-        |>.status .ok
-        |>.header! "Content-Type" "application/xml"
-        |>.body "<?xml version=\"1.0\"?><response><message>XML response</message></response>"
-    else
-      return Response.new
-        |>.status .ok
-        |>.header! "Content-Type" "text/plain"
-        |>.body "Plain text response"
+    let mut body := ""
+    for chunk in req.body do
+      body := body ++ String.fromUTF8! chunk.data
 
-  let response ← sendRequests pair #[
-    Request.new
-      |>.uri! "/api/content"
-      |>.method .post
-      |>.header! "Host" "localhost"
-      |>.header! "Accept" "application/json"
-      |>.header! "Content-Type" "application/json"
-      |>.header! "Content-Length" "18"
-      |>.body #[.mk "{\"request\": \"data\"}".toUTF8 #[]],
-    Request.new
-      |>.uri! "/api/content"
-      |>.method .get
-      |>.header! "Host" "localhost"
-      |>.header! "Accept" "text/xml"
-      |>.header! "Content-Length" "1"
-      |>.body #[.mk "a".toUTF8 #[]]
-  ] handler
+    let checksum := req.head.headers.getLast? (.new "X-Checksum") |>.map (·.value) |>.getD ""
+
+    return Response.new
+      |>.status .ok
+      |>.header! "Content-Type" "text/plain"
+      |>.header! "Connection" "close"
+      |>.body s!"hello: {body.quote}."
+
+  -- Construct raw ByteArray for chunked request with trailer
+  -- This cannot be done with Request builder since it doesn't support trailers
+  let rawRequest := "POST / HTTP/1.1\r\nHost: localhost\r\nUser-Agent: TestClient/1.0\r\nTransfer-Encoding: chunked\r\nTrailer: X-Checksum\r\nAccept: */*\r\n\r\n5\r\nHello\r\n6\r\n World\r\n0\r\nX-Checksum: abcd\r\n\r\n"
+  let data : ByteArray := rawRequest.toUTF8
+
+  let response ← sendRawBytes pair data handler
 
   let responseData := String.fromUTF8! response
   IO.println s!"{responseData.quote}"
 
-/-
 /--
-info: "HTTP/1.1 202 Accepted\x0d\nContent-Length: 50\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: application/json\x0d\n\x0d\n{\"message\": \"JSON response\", \"status\": \"accepted\"}HTTP/1.1 400 Bad Request\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+info: "HTTP/1.1 200 OK\x0d\nContent-Length: 21\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: text/plain\x0d\n\x0d\nhello: \"Hello World\"."
 -/
 #guard_msgs in
-#eval show IO _ from do testCut
-
-/--
-info: "HTTP/1.1 200 OK\x0d\nContent-Length: 35\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: application/json\x0d\n\x0d\nReceived: {\"name\": \"test\", \"id\": 1}"
--/
-#guard_msgs in
-#eval show IO _ from do testPostRequest
--/
+#eval show IO _ from do testChunkedWithTrailer
 
 def testContentNegotiation : IO Unit := do
   let pair ← Mock.new
@@ -284,7 +267,9 @@ def testContentNegotiation : IO Unit := do
         |>.header! "Content-Type" "text/plain"
         |>.body "Plain text response"
 
-  let response ← sendRequests pair #[
+  let mut data := .empty
+
+  data := data ++ (← requestToByteArray (
     Request.new
       |>.uri! "/api/content"
       |>.method .post
@@ -292,18 +277,22 @@ def testContentNegotiation : IO Unit := do
       |>.header! "Accept" "application/json"
       |>.header! "Content-Type" "application/json"
       |>.header! "Content-Length" "19"
-      |>.body #[.mk "{\"request\": \"data\"}".toUTF8 #[]],
+      |>.body #[.mk "{\"request\": \"data\"}".toUTF8 #[]]))
+
+  data := data ++ (← requestToByteArray (
     Request.new
       |>.uri! "/api/content"
       |>.method .get
       |>.header! "Host" "localhost"
       |>.header! "Accept" "text/xml"
       |>.header! "Content-Length" "1"
-      |>.body #[.mk "a".toUTF8 #[]]
-  ] handler
+      |>.body #[.mk "a".toUTF8 #[]]))
+
+  let response ← sendRawBytes pair data handler
 
   let responseData := String.fromUTF8! response
   IO.println s!"{responseData.quote}"
+
 
 /--
 info: "HTTP/1.1 202 Accepted\x0d\nContent-Length: 50\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: application/json\x0d\n\x0d\n{\"message\": \"JSON response\", \"status\": \"accepted\"}HTTP/1.1 200 OK\x0d\nContent-Length: 73\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: application/xml\x0d\n\x0d\n<?xml version=\"1.0\"?><response><message>XML response</message></response>"
@@ -331,8 +320,9 @@ def testContentNegotiationError : IO Unit := do
         |>.header! "Content-Type" "text/plain"
         |>.body "Plain text response"
 
-  -- Size is 19 of the first so it's wrong.
-  let response ← sendRequests pair #[
+  -- Size is 19 of the first so it's wrong (Content-Length says 18).
+  let mut data := .empty
+  data := data ++ (← requestToByteArray (
     Request.new
       |>.uri! "/api/content"
       |>.method .post
@@ -340,15 +330,17 @@ def testContentNegotiationError : IO Unit := do
       |>.header! "Accept" "application/json"
       |>.header! "Content-Type" "application/json"
       |>.header! "Content-Length" "18"
-      |>.body #[.mk "{\"request\": \"data\"}".toUTF8 #[]],
+      |>.body #[.mk "{\"request\": \"data\"}".toUTF8 #[]]))
+  data := data ++ (← requestToByteArray (
     Request.new
       |>.uri! "/api/content"
       |>.method .get
       |>.header! "Host" "localhost"
       |>.header! "Accept" "text/xml"
       |>.header! "Content-Length" "1"
-      |>.body #[.mk "a".toUTF8 #[]]
-  ] handler
+      |>.body #[.mk "a".toUTF8 #[]]))
+
+  let response ← sendRawBytes pair data handler
 
   let responseData := String.fromUTF8! response
   IO.println s!"{responseData.quote}"

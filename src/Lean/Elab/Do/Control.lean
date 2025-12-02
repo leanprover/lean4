@@ -179,7 +179,7 @@ def ControlLifter.ofCont (dec : DoElemCont) : DoElabM ControlLifter := do
   -- to restore reassigned mut vars, early `return`, `break` and `continue`.
   let γ ← mkFreshResultType `γ
   let mγ ← mkMonadicType γ
-  let mutVars := (← read).mutVars
+  let mutVars := (← read).mutVars |>.map (·.getId)
   let pureKVar ← mkFreshContVar γ (mutVars.push dec.resultName)
   let returns ← IO.mkRef false
   let breakKVar ← mkFreshContVar γ mutVars

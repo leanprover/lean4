@@ -47,8 +47,8 @@ structure Context where
   /-- Inferred and cached information about the monad. -/
   monadInfo : MonadInfo
   /-- The mutable variables in declaration order. -/
-  mutVars : Array Name := #[]
-  /-- The mutable variables as a set. -/
+  mutVars : Array Ident := #[]
+  /-- The mutable variable names as a set. -/
   mutVarsSet : Std.HashSet Name := {}
   /--
   The expected type of the current `do` block.
@@ -261,14 +261,14 @@ def mkBindApp (α β e k : Expr) : DoElabM Expr := do
 /-- Register the given name as that of a `mut` variable. -/
 def declareMutVar (x : Ident) : DoElabM α → DoElabM α :=
   withReader fun ctx => { ctx with
-    mutVars := ctx.mutVars.push x.getId,
+    mutVars := ctx.mutVars.push x,
     mutVarsSet := ctx.mutVarsSet.insert x.getId
   }
 
 /-- Register the given names as that of `mut` variables. -/
 def declareMutVars (xs : Array Ident) : DoElabM α → DoElabM α :=
   withReader fun ctx => { ctx with
-    mutVars := ctx.mutVars ++ xs.map (·.getId),
+    mutVars := ctx.mutVars ++ xs,
     mutVarsSet := ctx.mutVarsSet.insertMany (xs.map (·.getId))
   }
 
@@ -447,7 +447,7 @@ variable relative to `rootCtx`. The result array has the same order as `(← rea
 def ContVarId.getReassignedMutVars (contVarId : ContVarId) (rootCtx : LocalContext) : DoElabM (Std.HashSet Name) := do
   let info ← contVarId.find
   let childCtxs ← info.jumps.mapM fun j => return (← j.mvar.mvarId!.getDecl).lctx
-  return Lean.Elab.Do.getReassignedMutVars rootCtx (.ofArray (← read).mutVars) childCtxs
+  return Lean.Elab.Do.getReassignedMutVars rootCtx (.ofArray <| (← read).mutVars.map (·.getId)) childCtxs
 
 /--
 Restores the local context to `oldCtx` and adds the new reaching definitions of the mut vars and
@@ -549,7 +549,8 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
   let mγ ← mkMonadicType γ
   let rootCtx ← getLCtx
   let mutVars := (← read).mutVars
-  let contVarId ← mkFreshContVar γ (mutVars.push nondupDec.resultName)
+  let mutVarNames := mutVars.map (·.getId)
+  let contVarId ← mkFreshContVar γ (mutVarNames.push nondupDec.resultName)
   let duplicableDec := { nondupDec with k := contVarId.mkJump, kind := .duplicable (pure := false) }
 --  let e ← withSynthesizeForDo (caller duplicableDec)
   let e ← caller duplicableDec
@@ -572,10 +573,10 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
     -- of the join point. We take a little care to preserve the declaration order that is manifest
     -- in the array `(← read).mutVars`.
     let reassignedMutVars ← contVarId.getReassignedMutVars rootCtx
-    let reassignedMutVars := mutVars.filter reassignedMutVars.contains
+    let reassignedMutVars := mutVars.filter (reassignedMutVars.contains ·.getId)
 
     -- Assign the `joinTy` based on the types of the reassigned mut vars and the result type.
-    let reassignedDecls ← reassignedMutVars.mapM (getLocalDeclFromUserName ·)
+    let reassignedDecls ← reassignedMutVars.mapM (getLocalDeclFromUserName ·.getId)
     let reassignedTys := reassignedDecls.map (·.type)
     let joinTy ← mkArrowN (reassignedTys.push nondupDec.resultType) mγ
 
@@ -595,8 +596,9 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
       contVarId.synthesizeJumps do
         let r ← getFVarFromUserName nondupDec.resultName
         let mut jump := jp
-        for name in reassignedMutVars do
-          let newDefn ← getLocalDeclFromUserName name
+        for x in reassignedMutVars do
+          let newDefn ← getLocalDeclFromUserName x.getId
+          Term.addTermInfo' x newDefn.toExpr
           jump := mkApp jump newDefn.toExpr
         return mkApp jump (← Term.ensureHasType nondupDec.resultType r "Mismatched result type for match arm. It")
       -- Now instantiate the metavariables in `e` to ensure that `abstract` sees all FVar
@@ -658,7 +660,7 @@ the actual reassigned or original definitions.
 def withProxyMutVarDefs [Inhabited α] (k : (Expr → MetaM Expr) → DoElabM α) : DoElabM α := do
   let mutVars := (← read).mutVars
   let outerCtx ← getLCtx
-  let outerDecls := mutVars.map outerCtx.getFromUserName!
+  let outerDecls := mutVars.map (outerCtx.getFromUserName! ·.getId)
   withLocalDeclsDND (← outerDecls.mapM fun x => do return (x.userName, x.type)) (kind := .implDetail) fun proxyDefs => do
     let proxyCtx ← getLCtx
     let elimProxyDefs e : MetaM Expr := do

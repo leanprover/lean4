@@ -513,6 +513,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
   let γ := (← read).doBlockResultType
   let β ← mkArrow σ (← mkMonadicType γ)
   let mutVars := (← read).mutVars
+  let mutVarNames := mutVars.map (·.getId)
   let breakRhs ← mkFreshExprMVar β
   let (app, p?) ← match h? with
     | none =>
@@ -537,8 +538,8 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
     let rootCtx ← getLCtx
     -- We will use `continueKVar` to stand in for the `DoElemCont` `dec` below.
     -- Adding `dec.resultName` to the list of tunneled vars helps with some MVar assignment issues.
-    let continueKVar ← mkFreshContVar γ (mutVars.push dec.resultName)
-    let breakKVar ← mkFreshContVar γ mutVars
+    let continueKVar ← mkFreshContVar γ (mutVarNames.push dec.resultName)
+    let breakKVar ← mkFreshContVar γ mutVarNames
 
     -- Elaborate the loop body, which must have result type `PUnit`.
     let body ← enterLoopBody γ (← getReturnCont) breakKVar.mkJump continueKVar.mkJump do
@@ -550,23 +551,31 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
       let ctn ← continueKVar.getReassignedMutVars rootCtx
       let brk ← breakKVar.getReassignedMutVars rootCtx
       pure (ctn.union brk)
-    let loopMutVars := mutVars.filter loopMutVars.contains
+    let loopMutVars := mutVars.filter (loopMutVars.contains ·.getId)
+    let loopMutVarNames := loopMutVars.map (·.getId) |>.toList
+
+    let useLoopMutVars : TermElabM (Array Expr) := do
+      let mut defs := #[]
+      for x in loopMutVars do
+        let defn ← getFVarFromUserName x.getId
+        Term.addTermInfo' x defn
+        defs := defs.push defn
+      return defs
 
     -- Assign the state tuple type and the initial tuple of states.
     let preS ← σ.mvarId!.withContext do
-      let defs ← loopMutVars.mapM (getFVarFromUserName ·)
-      let (tuple, tupleTy) ← mkProdMkN defs
+      let (tuple, tupleTy) ← mkProdMkN (← useLoopMutVars)
       synthUsingDefEq "state tuple type" σ tupleTy
       discard <| Term.ensureHasType (mkSort (mkLevelSucc mi.u)) σ
       pure tuple
 
     -- Synthesize the `continue` and `break` jumps.
     continueKVar.synthesizeJumps do
-      let (tuple, _tupleTy) ← mkProdMkN (← loopMutVars.mapM (getFVarFromUserName ·))
+      let (tuple, _tupleTy) ← mkProdMkN (← useLoopMutVars)
       discard <| Term.ensureHasType σ tuple -- instantiate `?u` in `PUnit.unit.{?u}`
       return mkApp kcontinue tuple
     breakKVar.synthesizeJumps do
-      let (tuple, _tupleTy) ← mkProdMkN (← loopMutVars.mapM (getFVarFromUserName ·))
+      let (tuple, _tupleTy) ← mkProdMkN (← useLoopMutVars)
       discard <| Term.ensureHasType σ tuple -- instantiate `?u` in `PUnit.unit.{?u}`
       return mkApp kbreak tuple
 
@@ -574,7 +583,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
     -- If there is a `break`, the code will be shared in the `kbreak` join point.
     breakRhs.mvarId!.withContext do
       let e ← withLocalDeclD (← mkFreshUserName `s) σ fun postS => do mkLambdaFVars #[postS] <| ← do
-        bindMutVarsFromTuple loopMutVars.toList postS.fvarId! do
+        bindMutVarsFromTuple loopMutVarNames postS.fvarId! do
           dec.continueWithUnit
       synthUsingDefEq "break RHS" breakRhs e
 
@@ -582,7 +591,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
     -- * Point non-reassigned mut var defs to the pre state
     -- * Point the initial defs of reassigned mut vars to the loop state
     -- Done by `elimProxyDefs` below.
-    let body ← bindMutVarsFromTuple loopMutVars.toList loopS.fvarId! do
+    let body ← bindMutVarsFromTuple loopMutVarNames loopS.fvarId! do
       elimProxyDefs body
 
     let hadBreak := (← breakKVar.jumpCount) > 0

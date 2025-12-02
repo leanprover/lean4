@@ -1,5 +1,12 @@
 import Lean
+import Lean.Linter.Coe
 open Lean
+
+#check Lean.Linter.Coe.shouldWarnOnDeprecatedCoercions
+
+#check coercionsBannedInCore
+
+set_option linter.deprecatedCoercions true
 
 structure X
 structure Y

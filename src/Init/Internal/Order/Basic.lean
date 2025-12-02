@@ -64,25 +64,24 @@ This is intended to be used in the construction of `partial_fixpoint`, and not m
 -/
 def chain (c : α → Prop) : Prop := ∀ x y , c x → c y → x ⊑ y ∨ y ⊑ x
 
+def is_sup {α : Sort u} [PartialOrder α] (c : α → Prop) (s : α) : Prop :=
+  ∀ x, s ⊑ x ↔ (∀ y, c y → y ⊑ x)
+
+theorem is_sup_unique {α} [PartialOrder α] {c : α → Prop} {s₁ s₂ : α}
+    (h₁ : is_sup c s₁) (h₂ : is_sup c s₂) : s₁ = s₂ := by
+  apply PartialOrder.rel_antisymm
+  · apply (h₁ s₂).mpr
+    intro y hy
+    apply (h₂ s₂).mp PartialOrder.rel_refl y hy
+  · apply (h₂ s₁).mpr
+    intro y hy
+    apply (h₁ s₁).mp PartialOrder.rel_refl y hy
+
 end PartialOrder
 
 section CCPO
 
 open PartialOrder
-
-def is_csup {α : Sort u} [PartialOrder α] (c : α → Prop) (s : α) : Prop :=
-  ∀ x, s ⊑ x ↔ (∀ y, c y → y ⊑ x)
-
-theorem is_csup_unique {α} [PartialOrder α] {c : α → Prop} {s₁ s₂ : α}
-    (h₁ : is_csup c s₁) (h₂ : is_csup c s₂) : s₁ = s₂ := by
-  apply rel_antisymm
-  · apply (h₁ s₂).mpr
-    intro y hy
-    apply (h₂ s₂).mp rel_refl y hy
-  · apply (h₂ s₁).mpr
-    intro y hy
-    apply (h₁ s₁).mp rel_refl y hy
-
 
 /--
 A chain-complete partial order (CCPO) is a partial order where every chain has a least upper bound.
@@ -95,7 +94,7 @@ class CCPO (α : Sort u) extends PartialOrder α where
   `csup c` is the least upper bound of the chain `c` when all elements `x` that are at
   least as large as `csup c` are at least as large as all elements of `c`, and vice versa.
   -/
-  has_csup {c : α → Prop} (hc : chain c) : Exists (is_csup c)
+  has_csup {c : α → Prop} (hc : chain c) : Exists (is_sup c)
 
 open  CCPO
 
@@ -104,7 +103,7 @@ variable {α  : Sort u} [CCPO α]
 noncomputable def CCPO.csup {c : α → Prop} (hc : chain c) : α :=
   Classical.choose (CCPO.has_csup hc)
 
-theorem CCPO.csup_spec {c : α → Prop} (hc : chain c) : is_csup c (csup hc) :=
+theorem CCPO.csup_spec {c : α → Prop} (hc : chain c) : is_sup c (csup hc) :=
   @fun x => Classical.choose_spec (CCPO.has_csup hc) x
 
 theorem csup_le {c : α → Prop} (hc : chain c) : (∀ y, c y → y ⊑ x) → csup hc ⊑ x :=
@@ -135,6 +134,7 @@ end CCPO
 
 
 section CompleteLattice
+
 /--
 A complete lattice is a partial order where every subset has a least upper bound.
 -/
@@ -142,20 +142,25 @@ class CompleteLattice (α : Sort u) extends PartialOrder α where
   /--
   The least upper bound of an arbitrary subset in the complete_lattice.
   -/
-  sup : (α → Prop) → α
-  sup_spec {c : α → Prop} : sup c ⊑ x ↔ (∀ y, c y → y ⊑ x)
+  has_sup (c : α → Prop) : Exists (is_sup c)
 
 open PartialOrder CompleteLattice
 
 variable {α  : Sort u} [CompleteLattice α]
 
-theorem sup_le {c : α → Prop} : (∀ y, c y → y ⊑ x) → sup c ⊑ x :=
-  (sup_spec).mpr
+noncomputable def CompleteLattice.sup (c : α → Prop) : α :=
+  Classical.choose (CompleteLattice.has_sup c)
 
-theorem le_sup {c : α → Prop} {y : α} (hy : c y) : y ⊑ sup c :=
-  sup_spec.mp rel_refl y hy
+theorem CompleteLattice.sup_spec (c : α → Prop) : is_sup c (sup c) :=
+  @fun x => Classical.choose_spec (CompleteLattice.has_sup c) x
 
-def inf (c : α → Prop) : α := sup (∀ y, c y → · ⊑ y)
+theorem sup_le (c : α → Prop) : (∀ y, c y → y ⊑ x) → sup c ⊑ x :=
+  Iff.mpr (sup_spec c x)
+
+theorem le_sup (c : α → Prop) {y : α} (hy : c y) : y ⊑ sup c :=
+  Iff.mp (sup_spec c (sup c)) rel_refl y hy
+
+noncomputable def inf (c : α → Prop) : α := sup (∀ y, c y → · ⊑ y)
 
 theorem inf_spec {c : α → Prop} : x ⊑ inf c ↔ (∀ y, c y → x ⊑ y) where
   mp := by
@@ -300,12 +305,12 @@ variable {c : α → Prop}
 -- Note that monotonicity is not required for the definition of `lfp`
 -- but it is required to show that `lfp` is a fixpoint of `f`.
 
-def lfp (f : α → α) : α :=
+noncomputable def lfp (f : α → α) : α :=
   inf (fun c => f c ⊑ c)
 
 set_option linter.unusedVariables false in
 -- The following definition takes a witness that a function is monotone
-def lfp_monotone (f : α → α) (hm : monotone f) : α :=
+noncomputable def lfp_monotone (f : α → α) (hm : monotone f) : α :=
   lfp f
 
 -- Showing that `lfp` is a prefixed point makes use of monotonicity
@@ -510,8 +515,8 @@ theorem chain_apply [∀ x, PartialOrder (β x)] {c : (∀ x, β x) → Prop} (h
 noncomputable def fun_csup [∀ x, CCPO (β x)] (c : (∀ x, β x) → Prop) (hc : chain c) (x : α) :=
   CCPO.csup (chain_apply hc x)
 
-theorem fun_csup_is_csup [∀ x, CCPO (β x)] (c : (∀ x, β x) → Prop) (hc : chain c) :
-    is_csup c (fun_csup c hc) := by
+theorem fun_csup_is_sup [∀ x, CCPO (β x)] (c : (∀ x, β x) → Prop) (hc : chain c) :
+    is_sup c (fun_csup c hc) := by
   intro f
   constructor
   next =>
@@ -526,34 +531,42 @@ theorem fun_csup_is_csup [∀ x, CCPO (β x)] (c : (∀ x, β x) → Prop) (hc :
     subst y
     apply h z hz
 
-def fun_sup [∀ x, CompleteLattice (β x)] (c : (∀ x, β x) → Prop) (x : α) :=
-  CompleteLattice.sup (fun y => ∃ f, c f ∧ f x = y)
-
 instance instCCPOPi [∀ x, CCPO (β x)] : CCPO (∀ x, β x) where
-  has_csup hc := ⟨fun_csup _ hc, fun_csup_is_csup _ hc⟩
+  has_csup hc := ⟨fun_csup _ hc, fun_csup_is_sup _ hc⟩
 
 theorem fun_csup_eq [∀ x, CCPO (β x)] (c : (∀ x, β x) → Prop) (hc : chain c) :
     fun_csup c hc = CCPO.csup hc := by
-  apply is_csup_unique (c := c)
-  · apply fun_csup_is_csup
+  apply is_sup_unique (c := c)
+  · apply fun_csup_is_sup
   · apply CCPO.csup_spec
 
+noncomputable def fun_sup [∀ x, CompleteLattice (β x)] (c : (∀ x, β x) → Prop) (x : α) :=
+  CompleteLattice.sup (fun y => ∃ f, c f ∧ f x = y)
+
+theorem fun_sup_is_sup [∀ x, CompleteLattice (β x)] (c : (∀ x, β x) → Prop) :
+    is_sup c (fun_sup c) := by
+  intro f
+  constructor
+  case mp =>
+    intro hf g hg x
+    apply rel_trans _ (hf x)
+    apply le_sup
+    exact ⟨g, hg, rfl⟩
+  case mpr =>
+    intro h x
+    apply sup_le
+    intro y ⟨z, hz, hyz⟩
+    subst y
+    apply h z hz
+
 instance instCompleteLatticePi [∀ x, CompleteLattice (β x)] : CompleteLattice (∀ x, β x) where
-  sup := fun_sup
-  sup_spec := by
-    intro f c
-    constructor
-    case mp =>
-      intro hf g hg x
-      apply rel_trans _ (hf x)
-      apply le_sup
-      exact ⟨g, hg, rfl⟩
-    case mpr =>
-      intro h x
-      apply sup_le
-      intro y ⟨z, hz, hyz⟩
-      subst y
-      apply h z hz
+  has_sup c := ⟨fun_sup c, fun_sup_is_sup c⟩
+
+theorem fun_sup_eq [∀ x, CompleteLattice (β x)] (c : (∀ x, β x) → Prop) :
+    fun_sup c = CompleteLattice.sup c := by
+  apply is_sup_unique (c := c)
+  · apply fun_sup_is_sup
+  · apply CompleteLattice.sup_spec
 
 def admissible_apply [∀ x, CCPO (β x)] (P : ∀ x, β x → Prop) (x : α)
   (hadm : admissible (P x)) : admissible (fun (f : ∀ x, β x) => P x (f x)) := by
@@ -650,45 +663,11 @@ theorem PProd.chain.chain_snd [CCPO α] [CCPO β] {c : α ×' β → Prop} (hcha
   case inl h => left; exact h.2
   case inr h => right; exact h.2
 
-instance instCompleteLatticePProd [CompleteLattice α] [CompleteLattice β] : CompleteLattice (α ×' β) where
-  sup c := ⟨CompleteLattice.sup (PProd.fst c), CompleteLattice.sup (PProd.snd c)⟩
-  sup_spec := by
-    intro ⟨a, b⟩ c
-    constructor
-    case mp =>
-      intro ⟨h₁, h₂⟩ ⟨a', b'⟩ cab
-      constructor <;> dsimp only at *
-      · apply rel_trans ?_ h₁
-        unfold PProd.fst at *
-        apply le_sup
-        apply Exists.intro b'
-        exact cab
-      . apply rel_trans ?_ h₂
-        apply le_sup
-        unfold PProd.snd at *
-        apply Exists.intro a'
-        exact cab
-    case mpr =>
-      intro h
-      constructor <;> dsimp only
-      . apply sup_le
-        unfold PProd.fst
-        intro y' ex
-        apply Exists.elim ex
-        intro b' hc
-        apply (h ⟨y', b' ⟩ hc).1
-      . apply sup_le
-        unfold PProd.snd
-        intro b' ex
-        apply Exists.elim ex
-        intro y' hc
-        apply (h ⟨y', b' ⟩ hc).2
-
 noncomputable def prod_csup [CCPO α] [CCPO β] (c : α ×' β → Prop) (hchain : chain c) : α ×' β :=
   ⟨CCPO.csup (PProd.chain.chain_fst hchain), CCPO.csup (PProd.chain.chain_snd hchain)⟩
 
-theorem prod_csup_is_csup [CCPO α] [CCPO β] (c : α ×' β → Prop) (hchain : chain c) :
-    is_csup c (prod_csup c hchain) := by
+theorem prod_csup_is_sup [CCPO α] [CCPO β] (c : α ×' β → Prop) (hchain : chain c) :
+    is_sup c (prod_csup c hchain) := by
   intro ⟨a, b⟩
   constructor
   next =>
@@ -711,13 +690,52 @@ theorem prod_csup_is_csup [CCPO α] [CCPO β] (c : α ×' β → Prop) (hchain :
       apply (h _ hcab).2
 
 instance instCCPOPProd [CCPO α] [CCPO β] : CCPO (α ×' β) where
-  has_csup hchain := ⟨prod_csup _ hchain, prod_csup_is_csup _ hchain⟩
+  has_csup hchain := ⟨prod_csup _ hchain, prod_csup_is_sup _ hchain⟩
 
 theorem prod_csup_eq [CCPO α] [CCPO β] (c : α ×' β → Prop) (hchain : chain c) :
     prod_csup c hchain = CCPO.csup hchain := by
-  apply is_csup_unique (c := c)
-  · apply prod_csup_is_csup
+  apply is_sup_unique (c := c)
+  · apply prod_csup_is_sup
   · apply CCPO.csup_spec
+
+noncomputable def prod_sup [CompleteLattice α] [CompleteLattice β] (c : α ×' β → Prop) : α ×' β :=
+  ⟨CompleteLattice.sup (PProd.fst c), CompleteLattice.sup (PProd.snd c)⟩
+
+theorem prod_sup_is_sup [CompleteLattice α] [CompleteLattice β] (c : α ×' β → Prop) :
+    is_sup c (prod_sup c) := by
+  intro ⟨a, b⟩
+  constructor
+  case mp =>
+    intro ⟨h₁, h₂⟩ ⟨a', b'⟩ cab
+    constructor <;> dsimp only at *
+    · apply rel_trans ?_ h₁
+      unfold prod_sup PProd.fst at *
+      apply le_sup
+      apply Exists.intro b'
+      exact cab
+    . apply rel_trans ?_ h₂
+      apply le_sup
+      unfold PProd.snd at *
+      apply Exists.intro a'
+      exact cab
+  case mpr =>
+    intro h
+    constructor <;> dsimp only
+    . apply sup_le
+      unfold PProd.fst
+      intro y' ex
+      apply Exists.elim ex
+      intro b' hc
+      apply (h ⟨y', b' ⟩ hc).1
+    . apply sup_le
+      unfold PProd.snd
+      intro b' ex
+      apply Exists.elim ex
+      intro y' hc
+      apply (h ⟨y', b' ⟩ hc).2
+
+instance instCompleteLatticePProd [CompleteLattice α] [CompleteLattice β] : CompleteLattice (α ×' β) where
+  has_sup c := ⟨prod_sup c, prod_sup_is_sup c⟩
 
 theorem admissible_pprod_fst {α : Sort u} {β : Sort v} [CCPO α] [CCPO β] (P : α → Prop)
     (hadm : admissible P) : admissible (fun (x : α ×' β) => P x.1) := by
@@ -777,8 +795,8 @@ noncomputable def flat_csup (c : FlatOrder b → Prop) : FlatOrder b := by
   · exact Classical.choose h
   · exact b
 
-theorem flat_csup_is_csup (c : FlatOrder b → Prop) (hc : chain c) :
-    is_csup c (flat_csup c) := by
+theorem flat_csup_is_sup (c : FlatOrder b → Prop) (hc : chain c) :
+    is_sup c (flat_csup c) := by
   intro x
   unfold flat_csup
   split
@@ -812,12 +830,12 @@ theorem flat_csup_is_csup (c : FlatOrder b → Prop) (hc : chain c) :
     · intro; exact FlatOrder.rel.bot
 
 instance FlatOrder.instCCPO : CCPO (FlatOrder b) where
-  has_csup hchain := ⟨flat_csup _ , flat_csup_is_csup _ hchain⟩
+  has_csup hchain := ⟨flat_csup _ , flat_csup_is_sup _ hchain⟩
 
 theorem flat_csup_eq (c : FlatOrder b → Prop) (hchain : chain c) :
     flat_csup c = CCPO.csup hchain := by
-  apply is_csup_unique (c := c)
-  · apply flat_csup_is_csup _ hchain
+  apply is_sup_unique (c := c)
+  · apply flat_csup_is_sup _ hchain
   · apply CCPO.csup_spec
 
 theorem admissible_flatOrder (P : FlatOrder b → Prop) (hnot : P b) : admissible P := by
@@ -1041,9 +1059,9 @@ instance ImplicationOrder.instOrder : PartialOrder ImplicationOrder where
 
 -- This defines a complete lattice on `Prop`, used to define inductive predicates
 instance ImplicationOrder.instCompleteLattice : CompleteLattice ImplicationOrder where
-  sup c := ∃ p, c p ∧ p
-  sup_spec := by
-    intro x c
+  has_sup c := by
+    exists ∃ p, c p ∧ p
+    intro x
     constructor
     case mp =>
       intro h y cy hy
@@ -1103,9 +1121,9 @@ instance ReverseImplicationOrder.instOrder : PartialOrder ReverseImplicationOrde
 
 -- This defines a complete lattice on `Prop`, used to define coinductive predicates
 instance ReverseImplicationOrder.instCompleteLattice : CompleteLattice ReverseImplicationOrder where
-  sup c := ∀ p, c p → p
-  sup_spec := by
-    intro x c
+  has_sup c := by
+    exists ∀ p, c p → p
+    intro x
     constructor
     case mp =>
       intro h y cy l

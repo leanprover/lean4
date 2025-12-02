@@ -8,3 +8,4 @@ module
 prelude
 public import Std.Data.ExtHashSet.Basic
 public import Std.Data.ExtHashSet.Lemmas
+public import Std.Data.ExtHashSet.DecidableEq

@@ -23,6 +23,9 @@ structure Overlaps where
   map : Std.HashMap Nat (Std.TreeSet Nat) := {}
 deriving Inhabited, Repr
 
+def Overlaps.isEmpty (o : Overlaps) : Bool :=
+  o.map.isEmpty
+
 def Overlaps.insert (o : Overlaps) (overlapping overlapped : Nat) : Overlaps where
   map := o.map.alter overlapped fun s? => some ((s?.getD {}).insert overlapping)
 
@@ -41,7 +44,7 @@ structure AltParamInfo where
   numOverlaps : Nat
   /-- Whether this alternatie has an artifcial `Unit` parameter -/
   hasUnitThunk : Bool
-deriving Inhabited, Repr
+deriving Inhabited, Repr, BEq
 
 /--
 A "matcher" auxiliary declaration has the following structure:

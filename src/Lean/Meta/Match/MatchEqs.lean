@@ -496,6 +496,16 @@ where
    else
      k altsNew
 
+/--
+Does this matcher need a dedicated splitter?
+We generate a splitter only if during match compilation, we (conservatively) detected that some
+alternativs are overlapped or if the matcher type contains named patterns.
+-/
+def needsSplitter (matchDeclName : Name) : MetaM Bool := do
+  let some matchInfo ← getMatcherInfo? matchDeclName | throwError "`{matchDeclName}` is not a matcher function"
+  let constInfo ← getConstVal matchDeclName
+  return !matchInfo.overlaps.isEmpty || (constInfo.type.find? isNamedPattern).isSome
+
 /-
 Creates conditional equations and splitter for the given match auxiliary declaration.
 
@@ -503,6 +513,13 @@ See also `getEquationsFor`.
 -/
 @[export lean_get_match_equations_for]
 def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
+  let some matchInfo ← getMatcherInfo? matchDeclName | throwError "`{matchDeclName}` is not a matcher function"
+  if matchInfo.numAlts = 0 then
+    -- Special case of no alternatives, do not bother creating anything
+    let result := { eqnNames := #[], splitterName := matchDeclName, splitterMatchInfo := matchInfo }
+    registerMatchEqns matchDeclName result
+    return result
+
   /-
   Remark: users have requested the `split` tactic to be available for writing code.
   Thus, the `splitter` declaration must be a definition instead of a theorem.
@@ -511,13 +528,17 @@ def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
   keep `splitter` as a private declaration to prevent import failures.
   -/
   let baseName := mkPrivateName (← getEnv) matchDeclName
-  let splitterName := baseName ++ `splitter
+
+  -- Use the first equation as the key for realizeConst
+  -- (We used to use the splitter, but we are only generating it on demand now)
+  let realizeKey := Name.str baseName eqnThmSuffixBase |>.appendIndexAfter 1
+
   -- NOTE: `go` will generate both splitter and equations but we use the splitter as the "key" for
   -- `realizeConst` as well as for looking up the resultant environment extension state via
   -- `getState`.
-  realizeConst matchDeclName splitterName (go baseName splitterName)
-  return matchEqnsExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := splitterName) (← getEnv) |>.map.find! matchDeclName
-where go baseName splitterName := withConfig (fun c => { c with etaStruct := .none }) do
+  realizeConst matchDeclName realizeKey (go baseName)
+  return matchEqnsExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := realizeKey) (← getEnv) |>.map.find! matchDeclName
+where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
   let some matchInfo ← getMatcherInfo? matchDeclName | throwError "`{matchDeclName}` is not a matcher function"
@@ -588,30 +609,38 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
       altArgMasks := altArgMasks.push argMask
       trace[Meta.Match.matchEqs] "splitterAltType: {splitterAltType}"
       idx := idx + 1
-    -- Define splitter with conditional/refined alternatives
-    withSplitterAlts splitterAltTypes fun altsNew => do
-      let splitterParams := params.toArray ++ #[motive] ++ discrs.toArray ++ altsNew
-      let splitterType ← mkForallFVars splitterParams matchResultType
-      trace[Meta.Match.matchEqs] "splitterType: {splitterType}"
-      let splitterVal ←
-        if (← isDefEq splitterType constInfo.type) then
-          pure <| mkConst constInfo.name us
-        else
-          let template := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
-          let template ← deltaExpand template (· == constInfo.name)
-          let template := template.headBeta
-          mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew splitterAltInfos altArgMasks)
-      addAndCompile <| Declaration.defnDecl {
-        name        := splitterName
-        levelParams := constInfo.levelParams
-        type        := splitterType
-        value       := splitterVal
-        hints       := .abbrev
-        safety      := .safe
-      }
-      setInlineAttribute splitterName
-      let splitterMatchInfo := { matchInfo with altInfos := splitterAltInfos }
+    if (← needsSplitter matchDeclName) then
+      let splitterName := baseName ++ `splitter
+      -- Define splitter with conditional/refined alternatives
+      withSplitterAlts splitterAltTypes fun altsNew => do
+        let splitterParams := params.toArray ++ #[motive] ++ discrs.toArray ++ altsNew
+        let splitterType ← mkForallFVars splitterParams matchResultType
+        trace[Meta.Match.matchEqs] "splitterType: {splitterType}"
+        let template := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
+        let template ← deltaExpand template (· == constInfo.name)
+        let template := template.headBeta
+        let splitterVal ←
+          if (← isDefEq splitterType constInfo.type) then
+            pure <| mkConst constInfo.name us
+          else
+            mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew splitterAltInfos altArgMasks)
+        addAndCompile <| Declaration.defnDecl {
+          name        := splitterName
+          levelParams := constInfo.levelParams
+          type        := splitterType
+          value       := splitterVal
+          hints       := .abbrev
+          safety      := .safe
+        }
+        setInlineAttribute splitterName
+      let splitterMatchInfo := { matchInfo with altInfos := splitterAltInfos, overlaps := {} }
       let result := { eqnNames, splitterName, splitterMatchInfo }
+      registerMatchEqns matchDeclName result
+    else
+      -- No dedicated splitter
+      unless splitterAltInfos == matchInfo.altInfos do
+        panic s!"internal error: altNumParams for {matchDeclName} changed from {repr matchInfo.altInfos} to {repr splitterAltInfos} even though no splitter is needed"
+      let result := { eqnNames, splitterName := matchDeclName, splitterMatchInfo := matchInfo }
       registerMatchEqns matchDeclName result
 
 /- We generate the equations and splitter on demand, and do not save them on .olean files. -/

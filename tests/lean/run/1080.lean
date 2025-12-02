@@ -21,4 +21,3 @@ attribute [simp] Bar.check
 #check Bar.check.eq_2
 #check Bar.check.match_1.eq_1
 #check Bar.check.match_1.eq_2
-#check Bar.check.match_1.splitter

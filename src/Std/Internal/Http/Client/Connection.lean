@@ -22,8 +22,6 @@ This module defines a `Client.Connection` that is a structure used to handle a s
 possibly multiple requests/responses from the client side.
 -/
 
-set_option linter.all true
-
 /--
 A single HTTP client connection.
 -/
@@ -42,7 +40,6 @@ public structure Connection (α : Type) where
 A request packet to be sent through the persistent connection channel.
 -/
 structure RequestPacket where
-
   /--
   ?
   -/
@@ -51,7 +48,7 @@ structure RequestPacket where
   /--
   ?
   -/
-  responsePromise : IO.Promise (Except IO.Error (Response Body))
+  responsePromise : Std.Promise (Except Error (Response Body))
 
   /--
   ?
@@ -63,14 +60,14 @@ namespace RequestPacket
 /--
 Resolve the response promise with an error.
 -/
-def onError (packet : RequestPacket) (error : IO.Error) : IO Unit :=
-  packet.responsePromise.resolve (.error error)
+def onError (packet : RequestPacket) (error : Error) : BaseIO Unit :=
+  discard <| packet.responsePromise.resolve (.error error)
 
 /--
 Resolve the response promise with a successful response.
 -/
-def onResponse (packet : RequestPacket) (response : Response Body) : IO Unit :=
-  packet.responsePromise.resolve (.ok response)
+def onResponse (packet : RequestPacket) (response : Response Body) : BaseIO Unit :=
+  discard <| packet.responsePromise.resolve (.ok response)
 
 end RequestPacket
 
@@ -91,7 +88,7 @@ public structure PersistentConnection (α : Type) where
   /--
   Shutdown Promise, resolves when the connection shuts down.
   -/
-  shutdown : IO.Promise Unit
+  shutdown : Std.Promise Unit
 
 namespace PersistentConnection
 
@@ -107,7 +104,10 @@ def send [Transport α] (pc : PersistentConnection α) (request : Request Body) 
   let .ok _ ← await task
     | throw (.userError "connection closed, cannot send more requests")
 
-  Async.ofPromise (pure responsePromise)
+  let result ← Selectable.one #[.case responsePromise.selector pure]
+  match result with
+  | .ok response => pure response
+  | .error e => throw e
 
 /--
 Close the persistent connection by closing the request channel.
@@ -134,9 +134,10 @@ private def processNeedMoreData
     [Transport α] (config : Client.Config) (socket : α) (expect : Option Nat) :
     Async (Except Protocol.H1.Machine.Error (Option ByteArray)) := do
   try
-    let expect := expect
+    let expectedBytes := expect
       |>.getD config.defaultRequestBufferSize
       |>.min config.maxRecvChunkSize
+      |>.toUInt64
 
     let data ← receiveWithTimeout socket expect.toUInt64 config.readTimeout
 
@@ -245,8 +246,12 @@ private def handle [Transport α] (connection : Connection α) (config : Client.
         if final then
           responseStream.close
 
-      | .chunkExt _ =>
-        pure ()
+      | .next => do
+        requestTimer := (← Timestamp.now) + config.requestTimeout.val
+        responseStream ← Body.ByteStream.emptyWithCapacity
+        reqStream := none
+        currentRequest := none
+        needRequest := true
 
       | .failed e =>
         if let some packet := currentRequest then
@@ -293,10 +298,16 @@ private def handle [Transport α] (connection : Connection α) (config : Client.
   connectionTimer.stop
   requestTimer.stop
 
+  dbg_trace "end connection client"
+
 end Connection
 
 /--
 Create a persistent connection that can handle multiple sequential requests.
+
+This is the entry point for creating a client connection. It can be used with a `TCP.Socket` or any
+other type that implements `Transport` to create an HTTP client capable of handling multiple
+sequential requests on a single connection.
 
 # Example
 

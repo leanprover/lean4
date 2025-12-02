@@ -205,7 +205,14 @@ def shouldSpecialize (paramsInfo : Array SpecParamInfo) (args : Array Arg) : Spe
     | .other => pure ()
     | .fixedNeutral => pure () -- If we want to monomorphize types such as `Array`, we need to change here
     | .fixedInst | .user => if (← isGround arg) then return true
-    | .fixedHO => return true -- TODO: check whether this is too aggressive
+    | .fixedHO =>
+      match arg with
+      | .erased | .type .. => pure ()
+      | .fvar fvar =>
+        -- If we have `f p` where `p` is a param it makes no sense to specialize as we will just
+        -- close over `p` again and will have made no progress.
+        if (← findParam? fvar).isNone then return true
+
   return false
 
 /--

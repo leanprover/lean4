@@ -666,11 +666,11 @@ where
     let .const declName _ := e.getAppFn | unreachable!
     let typeName := declName.getPrefix
     let .inductInfo inductVal ← getConstInfo typeName | unreachable!
-    let arity := inductVal.numParams + inductVal.numIndices + 1 /- motive -/ + 2 /- lhs/rhs-/ + 1 /- equality -/
+    let arity := inductVal.numParams + 1 /- motive -/ + 3*(inductVal.numIndices + 1) /- lhs/rhs and equalities -/
     etaIfUnderApplied e arity do
       let args := e.getAppArgs
-      let lhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 1]!
-      let rhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 2]!
+      let lhs ← liftMetaM do Meta.whnf args[inductVal.numParams + 1 + inductVal.numIndices]!
+      let rhs ← liftMetaM do Meta.whnf args[inductVal.numParams + 1 + inductVal.numIndices + 1 + inductVal.numIndices]!
       let lhs ← liftMetaM lhs.toCtorIfLit
       let rhs ← liftMetaM rhs.toCtorIfLit
       match (← liftMetaM <| Meta.isConstructorApp? lhs), (← liftMetaM <| Meta.isConstructorApp? rhs) with

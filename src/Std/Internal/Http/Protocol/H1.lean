@@ -559,6 +559,18 @@ partial def processRead (machine : Machine dir) : Machine dir :=
       | none =>
           machine
 
+  | .needChunkedBody 0 =>
+    let (machine, result) := parseWith machine (parseLastChunkBody machine.config) (limit := some 1)
+
+    match result with
+    | some _ =>
+        machine
+        |>.setReaderState .complete
+        |>.addEvent (.gotData true .empty)
+        |> processRead
+    | none =>
+        machine
+
   | .needChunkedBody size =>
       let (machine, result) := parseWith machine
         (parseChunkedSizedData size) (limit := none) (some size)
@@ -566,16 +578,10 @@ partial def processRead (machine : Machine dir) : Machine dir :=
       if let some body := result then
         match body with
         | .complete body =>
-            if size ≠ 0 then
-              machine
-              |>.setReaderState .needChunkedSize
-              |>.addEvent (.gotData false body)
-              |> processRead
-            else
-              machine
-              |>.setReaderState .complete
-              |>.addEvent (.gotData true .empty)
-              |> processRead
+            machine
+            |>.setReaderState .needChunkedSize
+            |>.addEvent (.gotData false body)
+            |> processRead
         | .incomplete body remaining =>
             machine
             |>.setReaderState (.needChunkedBody remaining)

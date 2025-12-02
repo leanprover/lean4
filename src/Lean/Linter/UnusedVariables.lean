@@ -388,7 +388,7 @@ structure References where
 See `References` for more information about the return value. -/
 partial def collectReferences (infoTrees : Array Elab.InfoTree) (cmdStxRange : Lean.Syntax.Range)
     (linterSets : LinterSets) :
-    StateRefT References IO Unit := ReaderT.run (r := false) <| go infoTrees none
+    StateRefT References IO Unit := do println! toString (← (infoTrees.toList.mapM (fun x : Elab.InfoTree => do return toString (← x.format)))); ReaderT.run (r := false) <| go infoTrees none
 where
   go infoTrees ctx? := do
     for tree in infoTrees do
@@ -398,7 +398,9 @@ where
         match info with
         | .ofCustomInfo ti =>
           if !linter.unusedVariables.analyzeTactics.get ci.options then
+            println! "test"
             if let some bodyInfo := ti.value.get? Elab.Term.BodyInfo then
+              println! "bodyInfo"
               if let some value := bodyInfo.value? then
                 -- the body is the only `Expr` we will analyze in this case
                 -- NOTE: we include it even if no tactics are present as at least for parameters we want
@@ -411,7 +413,9 @@ where
                   go children.toArray ci
                 return false
         | .ofTermInfo ti =>
+          println! ("ti " ++ (← ti.format ci))
           if ignored then return true
+          println! ("checkpt 0")
           match ti.expr with
           | .const .. =>
             if ti.isBinder then
@@ -419,9 +423,11 @@ where
               let .original .. := info.stx.getHeadInfo | return true -- we are not interested in canonical syntax here
               modify fun s => { s with constDecls := s.constDecls.insert range }
           | .fvar id .. =>
+            println! ("checkpt 1" ++ id.name.toString ++ " " ++ toString ti.isBinder)
             let some range := info.range? | return true
             let .original .. := info.stx.getHeadInfo | return true -- we are not interested in canonical syntax here
             if ti.isBinder then
+              println! ("checkpt 2" ++ id.name.toString)
               -- This is a local variable declaration.
               if ignored then return true
               let some ldecl := ti.lctx.find? id | return true
@@ -443,6 +449,7 @@ where
                 else
                   { s with fvarDefs := s.fvarDefs.insert range { userName := ldecl.userName, stx, opts := opts.toOptions, aliases := #[id] } }
             else
+              println! ("insert " ++ toString id.name)
               -- Found a direct use, keep track of it
               modify fun s => { s with fvarUses := s.fvarUses.insert id }
           | _ => pure ()
@@ -499,6 +506,8 @@ def unusedVariables : Linter where
     -- Run the main collection pass, resulting in `s : References`.
     let (_, s) ← (collectReferences infoTrees cmdStxRange linterSets).run {}
 
+    logInfo m!"{s.fvarUses.toList.map FVarId.name}"
+
     -- If there are no local defs then there is nothing to do
     if s.fvarDefs.isEmpty then return
 
@@ -523,19 +532,27 @@ def unusedVariables : Linter where
     -- For each variable definition, check to see if it is used
     for (range, { userName, stx := declStx, opts, aliases }) in s.fvarDefs.toArray do
       let fvarUses ← fvarUsesRef.get
+      if userName = `p then logInfo m!"checkpoint 0 {fvarUses.toList.map (FVarId.name)} aliases {aliases.map FVarId.name}"
       -- If any of the `fvar`s corresponding to this declaration is (an alias of) a variable in
       -- `fvarUses`, then it is used
       if aliases.any fun id => fvarUses.contains (getCanonVar id) then continue
+      if userName = `p then logInfo "checkpoint 0.5"
       -- If this is a global declaration then it is (potentially) used after the command
       if s.constDecls.contains range then continue
+
+      if userName = `p then logInfo "checkpoint 1"
 
       -- Get the syntax stack for this variable declaration
       let some ((id', _) :: stack) := cmdStx.findStack? (·.getRange?.any (·.includes range))
         | continue
 
+      if userName = `p then logInfo "checkpoint 2"
+
       -- If it is blacklisted by an `ignoreFn` then skip it
       let linterOpts ← opts.toLinterOptions
       if id'.isIdent && ignoreFns.any (· declStx stack linterOpts) then continue
+
+      if userName = `p then logInfo "checkpoint 3"
 
       -- Evaluate ignore functions again on macro expansion outputs
       if ← infoTrees.anyM fun tree => do
@@ -554,6 +571,8 @@ def unusedVariables : Linter where
       then
         continue
 
+      if userName = `p then logInfo "checkpoint 4"
+
       -- Visiting the metavariable assignments is expensive so we delay initialization
       if !initializedMVars then
         -- collect additional `fvarUses` from tactic assignments
@@ -564,6 +583,8 @@ def unusedVariables : Linter where
         let fvarUses ← fvarUsesRef.get
         -- Redo the initial check because `fvarUses` could be bigger now
         if aliases.any fun id => fvarUses.contains (getCanonVar id) then continue
+
+      if userName = `p then logInfo "checkpoint 5"
 
       -- If we made it this far then the variable is unused and not ignored
       unused := unused.push (declStx, userName)

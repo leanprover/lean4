@@ -1194,11 +1194,8 @@ def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgH
   try
     withoutMacroStackAtErr do
       match ← coerce? e expectedType with
-      | .some (eNew, expandedCoeDecls) =>
-        pushInfoLeaf (.ofCustomInfo {
-          stx := ← getRef
-          value := Dynamic.mk <| CoeExpansionTrace.mk expandedCoeDecls
-        })
+      | .some eNew =>
+        pushInfoLeaf (.ofCustomInfo { stx := (← getRef), value := Dynamic.mk (CoeExpansionTrace.mk []) })
         return eNew
       | .none => failure
       | .undef =>
@@ -1443,6 +1440,7 @@ is a constant they will see the constant's doc string.
 def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
     (lctx? : Option LocalContext := none) (elaborator := Name.anonymous)
     (isBinder := false) (force := false) (isDisplayableTerm := false): TermElabM Expr := do
+  logInfo m!"addTermInfo {stx} {e}"
   if (← read).inPattern && !force then
     return mkPatternWithRef e stx
   else
@@ -1461,6 +1459,7 @@ def addTermInfo' (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
 def withInfoContext' (stx : Syntax) (x : TermElabM Expr)
     (mkInfo : Expr → TermElabM (Sum Info MVarId)) (mkInfoOnError : TermElabM Info) :
     TermElabM Expr := do
+  logInfo m!"withInfoContext' {stx}"
   if (← read).inPattern then
     let e ← x
     return mkPatternWithRef e stx
@@ -1485,7 +1484,8 @@ def getBodyInfo? : Info → Option BodyInfo
 def withTermInfoContext' (elaborator : Name) (stx : Syntax) (x : TermElabM Expr)
     (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none)
     (isBinder : Bool := false) (isDisplayableTerm : Bool := false):
-    TermElabM Expr :=
+    TermElabM Expr := do
+  logInfo m!"withTermInfoContext' {stx}"
   withInfoContext' stx x
     (mkTermInfo elaborator stx (expectedType? := expectedType?) (lctx? := lctx?)
       (isBinder := isBinder) (isDisplayableTerm := isDisplayableTerm))
@@ -1497,6 +1497,7 @@ ensures the info tree is updated and a hole id is introduced.
 When `stx` is elaborated, new info nodes are created and attached to the new hole id in the info tree.
 -/
 def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+  logInfo m!"postponeElabTerm {stx}"
   withTermInfoContext' .anonymous stx (expectedType? := expectedType?) do
     postponeElabTermCore stx expectedType?
 
@@ -1509,6 +1510,7 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
   | (elabFn::elabFns) =>
     try
       -- record elaborator in info tree, but only when not backtracking to other elaborators (outer `try`)
+      logInfo m!"elabUsingElabFnsAux {stx}"
       withTermInfoContext' elabFn.declName stx (expectedType? := expectedType?)
         (try
           elabFn.value stx expectedType?
@@ -1556,7 +1558,9 @@ private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catch
   let k := stx.getKind
   match termElabAttribute.getEntries (← getEnv) k with
   | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
-  | elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
+  | elabFns => do
+    logInfo m!"elabUsingElabFns {stx}"
+    elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
 
 instance : MonadMacroAdapter TermElabM where
   getNextMacroScope := return (← getThe Core.State).nextMacroScope
@@ -1690,6 +1694,7 @@ private def decorateErrorMessageWithLambdaImplicitVars (ex : Exception) (impFVar
   | _ => return ex
 
 private def elabImplicitLambdaAux (stx : Syntax) (catchExPostpone : Bool) (expectedType : Expr) (impFVars : Array Expr) : TermElabM Expr := do
+  logInfo m!"elabImplicitLambdaAux {stx}"
   let body ← elabUsingElabFns stx expectedType catchExPostpone
   try
     let body ← ensureHasType expectedType body
@@ -1726,6 +1731,7 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     let result ← match (← liftMacroM (expandMacroImpl? env stx)) with
     | some (decl, stxNew?) =>
       let stxNew ← liftMacroM <| liftExcept stxNew?
+      logInfo m!"elabTermAux {stx}"
       withTermInfoContext' decl stx (expectedType? := expectedType?) <|
         withMacroExpansion stx stxNew <|
           withRef stxNew <|
@@ -1734,7 +1740,9 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
       let useImplicitResult ← if implicitLambda && (← read).implicitLambda then useImplicitLambda stx expectedType? else pure .no
       match useImplicitResult with
       | .yes expectedType => elabImplicitLambda stx catchExPostpone expectedType
-      | .no => elabUsingElabFns stx expectedType? catchExPostpone
+      | .no => do
+        logInfo m!"elabTermAux {stx}"
+        elabUsingElabFns stx expectedType? catchExPostpone
       | .postpone =>
         /-
         Try to postpone elaboration, and if we cannot postpone anymore disable implicit lambdas.
@@ -1772,7 +1780,9 @@ def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr)
   We use this flag to implement, for example, the `@` modifier. If `Context.implicitLambda == false`, then this parameter has no effect.
   -/
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) : TermElabM Expr :=
-  withRef stx <| elabTermAux expectedType? catchExPostpone implicitLambda stx
+  withRef stx do
+    logInfo m!"elabTerm {stx}"
+    elabTermAux expectedType? catchExPostpone implicitLambda stx
 
 /--
 Similar to `Lean.Elab.Term.elabTerm`, but ensures that the type of the elaborated term is `expectedType?`

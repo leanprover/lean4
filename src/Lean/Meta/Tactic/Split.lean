@@ -175,12 +175,12 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
               if xs.size < altNumParams || xs.size < numDiscrEqs then
                 throwError m!"Internal error in `split` tactic: Encountered an unexpected `match` expression alternative"
                   ++ .note m!"This error typically occurs when the `match` expression has been constructed using metaprogramming."
-              let body ← mkLambdaFVars xs[altNumParams...*] (← mkNewTarget body)
-              let ys  := xs[*...(altNumParams - numDiscrEqs)]
+              let body ← mkLambdaFVars xs[altNumParams...*].copy (← mkNewTarget body)
+              let ys  := xs[*...(altNumParams - numDiscrEqs)].copy
               if numDiscrEqs == 0 then
                 mkLambdaFVars ys body
               else
-                let altEqs := xs[(altNumParams - numDiscrEqs)...altNumParams]
+                let altEqs := xs[(altNumParams - numDiscrEqs)...altNumParams].copy
                 withNewAltEqs matcherInfo eqs altEqs fun altEqsNew subst => do
                   let body := body.replaceFVars altEqs subst
                   mkLambdaFVars (ys++altEqsNew) body

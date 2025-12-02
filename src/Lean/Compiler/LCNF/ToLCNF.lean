@@ -557,7 +557,7 @@ where
   visitCases (casesInfo : CasesInfo) (e : Expr) : M Arg :=
     etaIfUnderApplied e casesInfo.arity do
       let args := e.getAppArgs
-      let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args[*...casesInfo.arity]))
+      let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args[*...casesInfo.arity].copy))
       let typeName := casesInfo.indName
       let .inductInfo indVal ← getConstInfo typeName | unreachable!
       if casesInfo.numAlts == 0 then
@@ -660,7 +660,7 @@ where
       let hb := mkLcProof args[1]!
       let minor := args[minorPos]!
       let minor := minor.beta #[ha, hb]
-      visit (mkAppN minor args[arity...*])
+      visit (mkAppN minor args[arity...*].copy)
 
   visitNoConfusion (e : Expr) : M Arg := do
     let .const declName _ := e.getAppFn | unreachable!
@@ -683,7 +683,7 @@ where
                 let type ← param.fvarId!.getType
                 return if !(← Meta.isProp type) then n + 1 else n
             let major ← expandNoConfusionMajor major numNonPropFields
-            let major := mkAppN major args[(arity+1)...*]
+            let major := mkAppN major args[(arity+1)...*].copy
             visit major
         else
           let type ← toLCNFType (← liftMetaM <| Meta.inferType e)

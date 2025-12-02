@@ -182,7 +182,7 @@ mutual
         if structVal.numParams + structVal.numIndices != structTypeArgs.size then
           failed ()
         else do
-          let mut ctorType ← inferAppType (mkAppN (mkConst ctorVal.name structLvls) structTypeArgs[*...structVal.numParams])
+          let mut ctorType ← inferAppType (mkAppN (mkConst ctorVal.name structLvls) structTypeArgs[*...structVal.numParams].copy)
           for _ in *...idx do
             match ctorType with
             | .forallE _ _ body _ =>

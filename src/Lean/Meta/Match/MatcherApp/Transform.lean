@@ -424,7 +424,7 @@ def inferMatchType (matcherApp : MatcherApp) : MetaM MatcherApp := do
       let propAlts ← matcherApp.alts.mapM fun termAlt =>
         lambdaTelescope termAlt fun xs termAltBody => do
           -- We have alt parameters and parameters corresponding to the extra args
-          let xs1 := xs[*...(xs.size - nExtra)]
+          let xs1 := xs[*...(xs.size - nExtra)].copy
           let xs2 := xs[(xs.size - nExtra)...xs.size]
           -- logInfo m!"altIH: {xs} => {altIH}"
           let altType ← inferType termAltBody

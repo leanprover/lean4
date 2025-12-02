@@ -95,7 +95,7 @@ def mkMatchArgPusher (matcherName : Name) (matcherInfo : MatcherInfo) : MetaM Na
     prependError m!"Cannot create match arg pusher for {matcherName}" do
     let matcherVal ← getConstVal matcherName
     forallBoundedTelescope matcherVal.type (some (matcherInfo.numParams + 1)) fun xs _ => do
-      let params := xs[*...matcherInfo.numParams]
+      let params := xs[*...matcherInfo.numParams].copy
       let motive' := xs[matcherInfo.numParams]!
       let u ← mkFreshUserName `u
       let v ← mkFreshUserName `v
@@ -189,7 +189,7 @@ builtin_simproc_decl matcherPushArg (_) := fun e => do
     argPusher ((matcherApp.params ++ #[motive', alpha, beta, fExpr, rel] ++ matcherApp.discrs ++ matcherApp.alts).map some)
   let some (_, _, rhs) := (← inferType proof).eq? | throwError "matcherPushArg: expected equality:{indentExpr (← inferType proof)}"
   let step : Simp.Result := { expr := rhs, proof? := some proof }
-  let step ← step.addExtraArgs matcherApp.remaining[1...*]
+  let step ← step.addExtraArgs matcherApp.remaining[1...*].copy
   return .continue (some step)
 
 def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := withTransparency .all do

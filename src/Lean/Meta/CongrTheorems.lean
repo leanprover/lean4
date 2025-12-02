@@ -334,7 +334,7 @@ where
                 go (i+1) (rhss.push rhs) (eqs.push <| some <| .hyp eq.fvarId!) (hyps.push rhs |>.push eq)
             | .fixed => go (i+1) (rhss.push lhss[i]!) (eqs.push none) hyps
             | .cast =>
-              let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[*...rhss.size]) rhss
+              let rhsType := (← inferType lhss[i]!).replaceFVars lhss[*...rhss.size].copy rhss
               let rhs ← mkCast lhss[i]!.fvarId! rhsType info.paramInfo[i]!.backDeps eqs
               go (i+1) (rhss.push rhs) (eqs.push none) hyps
             | .subsingletonInst =>
@@ -342,7 +342,7 @@ where
               withNewBinderInfos #[(lhss[i]!.fvarId!, .implicit)] do
                 let lhs := lhss[i]!
                 let lhsType ← inferType lhs
-                let rhsType := lhsType.replaceFVars (lhss[*...rhss.size]) rhss
+                let rhsType := lhsType.replaceFVars lhss[*...rhss.size].copy rhss
                 let rhsBi   := if subsingletonInstImplicitRhs then .instImplicit else .implicit
                 withLocalDecl (← lhss[i]!.fvarId!.getDecl).userName rhsBi rhsType fun rhs => do
                   go (i+1) (rhss.push rhs) (eqs.push <| some <| .decSubsingleton lhs.fvarId! rhs.fvarId!) (hyps.push rhs)

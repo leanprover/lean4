@@ -173,7 +173,7 @@ def withDeclInContext (fvarId : FVarId) (k : M α) : M α := do
     -- Is either pre-existing or already added.
     k
   else if let some idx := decls.findIdx? (·.decl.fvarId == fvarId) then
-    withEnsuringDeclsInContext decls[*...(idx+1)] k
+    withEnsuringDeclsInContext decls[*...(idx+1)].copy k
   else
     k
 

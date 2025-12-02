@@ -345,7 +345,7 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
           let configCtx' := filterSuggestionsFromGrindConfig configStx
           let tacs ← Grind.mkGrindOnlyTactics configCtx' seq
           let seq := Grind.Action.mkGrindSeq seq
-          let tac ← `(tactic| grind => $seq:grindSeq)
+          let tac ← `(tactic| grind $configStx:optConfig => $seq:grindSeq)
           let tacs := tacs.push tac
           return tacs
         | .stuck gs =>

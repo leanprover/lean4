@@ -116,6 +116,8 @@ theorem contains_insert_self [TransCmp cmp] (h : t.WF) {k : α} :
     (t.insert k).contains k :=
   TreeMap.Raw.contains_insertIfNew_self h
 
+theorem mem_of_get_eq  {k v : α} {w} (_ : t.get k w = v) : k ∈ t := w
+
 theorem mem_insert_self [TransCmp cmp] (h : t.WF) {k : α} :
     k ∈ t.insert k :=
   TreeMap.Raw.mem_insertIfNew_self h

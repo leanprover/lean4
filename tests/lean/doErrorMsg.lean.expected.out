@@ -28,9 +28,35 @@ has type
   ExceptT String (StateT Nat Id) Nat
 but is expected to have type
   ExceptT String (StateT Nat Id) String
-doErrorMsg.lean:28:2-28:26: error: Type mismatch
-  n
+doErrorMsg.lean:28:7-28:12: error: Type mismatch
+  false
 has type
   Bool
 but is expected to have type
   Nat
+doErrorMsg.lean:29:2-29:3: error: Type mismatch
+  n
+has type
+  Nat
+but is expected to have type
+  Char
+doErrorMsg.lean:29:14-29:19: error: Type mismatch
+  false
+has type
+  Bool
+but is expected to have type
+  Nat
+doErrorMsg.lean:30:13-30:18: error: Application type mismatch: The argument
+  false
+has type
+  Bool
+but is expected to have type
+  Nat
+in the application
+  Prod.mk false
+doErrorMsg.lean:31:3-31:13: error: Type mismatch
+  n
+has type
+  Nat
+but is expected to have type
+  Char

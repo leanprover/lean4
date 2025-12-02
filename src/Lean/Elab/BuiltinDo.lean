@@ -170,32 +170,33 @@ inductive LetOrReassign
 def LetOrReassign.getLetMutTk? (letOrReassign : LetOrReassign) : Option Syntax :=
   match letOrReassign with
   | .let mutTk? => mutTk?
-  | .have => none
-  | .reassign => none
+  | _           => none
 
 def LetOrReassign.checkMutVars (letOrReassign : LetOrReassign) (vars : Array Ident) : DoElabM Unit :=
   match letOrReassign with
-  | .let _    => checkMutVarsForShadowing vars
-  | .have => checkMutVarsForShadowing vars
   | .reassign => throwUnlessMutVarsDeclared vars
+  | _         => checkMutVarsForShadowing vars
 
 @[inline]
 def LetOrReassign.ensureReassignsPreserveType (letOrReassign : LetOrReassign) (vars : Array Ident) : MetaM (TermElabM Unit) := do
   match letOrReassign with
-  | .let _    => return pure ()
-  | .have => return pure ()
   | .reassign => do
-    let decls := (← getLCtx).findFromUserNames (.ofArray <| vars.map (·.getId))
+    let oldDecls := (← getLCtx).findFromUserNames (.ofArray <| vars.map (·.getId))
     return do
       for var in vars do
-        let fvar ← getFVarFromUserName var.getId
-        let some decl := decls.find? (fun (decl : LocalDecl) => decl.userName == var.getId)
+        let newDecl ← getLocalDeclFromUserName var.getId
+        let some oldDecl := oldDecls.find? (fun (decl : LocalDecl) => decl.userName == var.getId)
           | continue
-        discard <| Term.ensureHasType decl.type fvar
+        -- We inline `Term.ensureHasType oldDecl.type newDecl` here, because the error message would say
+        -- that the `mut` var has type `newDecl.type`, when really it has type `oldDecl.type`.
+        -- Hence we flip the order of arguments to `mkCoe`.
+        -- unless (← isDefEq newDecl.type oldDecl.type) do
+        --   Term.mkCoe oldDecl.type newDecl.toExpr
+  | _ => return pure ()
 
 def elabDoLetOrReassignWith (letOrReassign : LetOrReassign) (vars : Array Ident)
     (dec : DoElemCont) (elabBody : (body : Term) → TermElabM Expr) : DoElabM Expr := do
-  letOrReassign.checkMutVars vars
+  -- letOrReassign.checkMutVars vars -- Should be done by the caller!
   let ensure ← letOrReassign.ensureReassignsPreserveType vars
   controlAtTermElabM fun runInBase => do
     let elabCont : TermElabM Expr := do
@@ -206,18 +207,31 @@ def elabDoLetOrReassignWith (letOrReassign : LetOrReassign) (vars : Array Ident)
 def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl)
     (dec : DoElemCont) : DoElabM Expr := do
   let vars ← getLetDeclVars decl
+  letOrReassign.checkMutVars vars
   let mγ ← mkMonadicType (← read).doBlockResultType
-  -- For plain variable reassignment, we know the expected type of the reassigned variable and
-  -- propagate it eagerly via type ascription if the user hasn't provided one themselves:
+  -- For plain variable reassignment, we infer the LHS as a term and use that as the expected type
+  -- of the RHS:
   let decl ←
     if letOrReassign matches .reassign then
-      if let `(letDecl| $x:ident := $rhs) := decl then
-        let some decl := (← getLCtx).findFromUserName? x.getId
-          | pure decl -- want to report "undeclared mutable variable" rather than "unknown local declaration"
-        let xType ← Term.exprToSyntax decl.type
+      match decl with
+      | `(letDecl| $x:ident $[: $xType?]? := $rhs) =>
+        -- We use `Term.elabTermEnsuringType` instead of `Term.ensureHasType` to turn type
+        -- mismatches into sorrys.
+        discard <| Term.elabTermEnsuringType (← `($x:ident)) (← xType?.mapM (Term.elabType ·))
+        let xType ← Term.exprToSyntax (← getLocalDeclFromUserName x.getId).type
         `(letDecl| $x:ident : $xType := $rhs)
-      else
-        pure decl
+      | `(letDecl| $pattern:term $[: $xType?]? := $rhs) =>
+        let pattern ← match xType? with
+          | some xType => `(($pattern : $xType))
+          | none       => pure pattern
+        -- `Term.withoutErrToSorry` prevents a confusing secondary error message when elaborating
+        -- the `match` pattern, where the mut vars potentially get a different type.
+        -- Example: `let mut n : Nat := 0; ((n : Char), _) := (false, false)`. We don't want to see
+        --          "`n` has type `Char` but was expected to have type `Bool`".
+        let e ← Term.withoutErrToSorry <| Term.elabTerm pattern none
+        let patType ← Term.exprToSyntax (← inferType e)
+        `(letDecl| $pattern:term := ($rhs : $patType))
+      | _ => throwError m!"Impossible case in elabDoLetOrReassign. This is an elaborator bug.\n{decl}"
     else
       pure decl
   elabDoLetOrReassignWith letOrReassign vars dec fun body => do
@@ -226,10 +240,20 @@ def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDec
 def elabDoLetOrReassignElse (letOrReassign : LetOrReassign) (pattern rhs : Term)
     (otherwise : TSyntax ``doSeq) (dec : DoElemCont) : DoElabM Expr := do
   let vars ← getPatternVarsEx pattern
+  letOrReassign.checkMutVars vars
   let γ := (← read).doBlockResultType
   let mγ ← mkMonadicType γ
   let otherwise ← elabDoSeq otherwise (← DoElemCont.mkPure γ)
   let otherwise ← Term.exprToSyntax otherwise
+  -- For plain variable reassignment, we infer the LHS as a term and use that as the expected type
+  -- of the RHS:
+  let pattern ←
+    if letOrReassign matches .reassign then
+      let e ← Term.withoutErrToSorry <| Term.elabTerm pattern none
+      let patType ← Term.exprToSyntax (← inferType e)
+      `(($pattern : $patType))
+    else
+      pure pattern
   elabDoLetOrReassignWith letOrReassign vars dec fun body => do
     Term.elabTerm (← `(match $rhs:term with | $pattern => $body | _ => $otherwise)) mγ (catchExPostpone := false)
 

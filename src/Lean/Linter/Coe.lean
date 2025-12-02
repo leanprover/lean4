@@ -26,11 +26,16 @@ register_builtin_option linter.deprecatedCoercions : Bool := {
   descr := "Validate that no deprecated coercions are used."
 }
 
+/--
+Checks whether the "deprecated coercions" linter is enabled.
+-/
 def shouldWarnOnDeprecatedCoercions [Monad m] [MonadOptions m] : m Bool :=
   return (← getOptions).get linter.deprecatedCoercions.name true
 
+/-- A list of coercion names that must not be used in core. -/
 def coercionsBannedInCore : List Name := [``optionCoe, ``instCoeSubarrayArray]
 
+/-- Validates that no coercions are used that are either deprecated or are banned in core. -/
 def coeLinter : Linter where
   run := fun _ => do
     let mainModule ← getMainModule
@@ -45,7 +50,7 @@ def coeLinter : Linter where
             for coeDecl in trace.expandedCoeDecls do
               if isCoreModule && coeDecl ∈ coercionsBannedInCore then
                 logWarningAt ci.stx m!"This term uses the coercion `{coeDecl}`, which is banned in Lean's core library."
-              if true then
+              if shouldWarnOnDeprecated then
                 let some attr := deprecatedAttr.getParam? (← getEnv) coeDecl | pure ()
                 logWarningAt ci.stx <| .tagged ``deprecatedAttr <|
                   m!"This term uses the deprecated coercion `{.ofConstName coeDecl true}`."

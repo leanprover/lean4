@@ -1831,8 +1831,8 @@ theorem WF.union! {_ : Ord α} [TransOrd α]
   . exact WF.insertManyIfNew! h₂
   . exact WF.insertMany! h₁
 
-theorem all_toList {p : (a : α) → β a → Bool} {m : Impl α β}:
-    m.toList.all (fun x => p x.1 x.2) = m.all p := by
+theorem all_eq_all_toListModel {p : (a : α) → β a → Bool} {m : Impl α β} :
+    m.all p = m.toListModel.all (fun x => p x.1 x.2) := by
   simp [all, ForIn.forIn, bind_pure_comp, map_pure, Id.run_bind]
   rw [forIn_eq_forIn_toListModel, ← toList_eq_toListModel, forIn_eq_forIn']
   induction m.toList with
@@ -1846,39 +1846,13 @@ theorem all_toList {p : (a : α) → β a → Bool} {m : Impl α β}:
 
 theorem beq_eq_beqModel {_ : Ord α} [BEq α] [TransOrd α] [LawfulBEq α] [LawfulBEqOrd α] [∀ k, BEq (β k)] {m₁ m₂ : Impl α β} (h₁ : m₁.WF) (h₂ : m₂.WF) :
     Impl.beq m₁ m₂ = beqModel m₁.toListModel m₂.toListModel := by
-  rw [beq, beqModel]
-  split
-  case isTrue h =>
-    rw [size_eq_length, size_eq_length] at h
-    · simp only [ne_eq, h, not_false_eq_true, ↓reduceIte]
-    · exact h₂.balanced
-    · exact h₁.balanced
-  case isFalse h =>
-    rw [size_eq_length, size_eq_length] at h
-    simp [h, ← all_toList, toList_eq_toListModel]
-    congr
-    · ext x
-      rw [get?_eq_getValueCast? h₂.ordered]
-    · exact h₂.balanced
-    · exact h₁.balanced
+  simp [beq, beqModel, size_eq_length _ h₁.balanced, size_eq_length _ h₂.balanced, all_eq_all_toListModel,
+    get?_eq_getValueCast? h₂.ordered]
 
 theorem Const.beq_eq_beqModel {β : Type v} {_ : Ord α} [BEq α] [TransOrd α] [LawfulBEqOrd α] [BEq β] {m₁ m₂ : Impl α (fun _ => β)}  (h₁ : m₁.WF) (h₂ : m₂.WF) :
     beq m₁ m₂ = Const.beqModel m₁.toListModel m₂.toListModel := by
-  rw [beq, Const.beqModel]
-  split
-  case isTrue h =>
-    rw [size_eq_length, size_eq_length] at h
-    · simp only [ne_eq, h, not_false_eq_true, ↓reduceIte]
-    · exact h₂.balanced
-    · exact h₁.balanced
-  case isFalse h =>
-    rw [size_eq_length, size_eq_length] at h
-    simp [h, ← all_toList, toList_eq_toListModel]
-    congr
-    · ext x
-      rw [get?_eq_getValue? h₂.ordered]
-    · exact h₂.balanced
-    · exact h₁.balanced
+  simp [beq, Const.beqModel, size_eq_length _ h₁.balanced, size_eq_length _ h₂.balanced, all_eq_all_toListModel,
+    get?_eq_getValue? h₂.ordered]
 
 theorem WF.constInsertMany! {β : Type v} {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ (α × β)] {l : ρ}
     {t : Impl α β} (h : t.WF) : (Const.insertMany! t l).1.WF :=

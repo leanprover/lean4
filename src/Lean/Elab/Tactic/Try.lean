@@ -61,7 +61,7 @@ def evalSuggestExact : TacticM (TSyntax `tactic) := do
   let mvarId :: mvarIds ← getGoals
     | throwError "no goals"
   mvarId.withContext do
-    let tactic := fun exfalso => LibrarySearch.solveByElim [] (exfalso := exfalso) (maxDepth := 6)
+    let tactic := fun goals => LibrarySearch.solveByElim [] (exfalso := false) goals (maxDepth := 6)
     let allowFailure := fun _ => return false
     let .none ← LibrarySearch.librarySearch mvarId tactic allowFailure
       | throwError "`exact?` failed"

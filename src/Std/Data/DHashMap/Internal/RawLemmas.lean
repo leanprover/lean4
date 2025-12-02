@@ -5145,7 +5145,7 @@ def Equiv.decide [DecidableEq α] [Hashable α] [∀ k, DecidableEq (β k)]
   have decBEq : Decidable (Raw₀.beq m₁ m₂ = true) := inferInstance
   apply @decidable_of_decidable_of_iff (Raw₀.beq m₁ m₂ = true) (m₁.1.Equiv m₂.1) decBEq
   constructor
-  · apply Raw₀.Equiv_of_beq_eq_true h₁ h₂
+  · apply Raw₀.equiv_of_beq h₁ h₂
   · apply Raw₀.Equiv.beq h₁ h₂
 
 end Raw₀

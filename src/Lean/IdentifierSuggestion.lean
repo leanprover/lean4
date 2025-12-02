@@ -10,13 +10,13 @@ builtin_initialize identifierSuggestionForAttr : ParametricAttribute (Name × Ar
   registerParametricAttribute {
     name := `suggest_for,
     descr := "suggest other (incorrect, not-existing) identifiers that someone might use when they actually want this definition",
-    getParam := fun declName stx => do
+    getParam := fun trueDeclName stx => do
       let `(attr| suggest_for $[$ids],* ) := stx
         | throwError "Invalid `[suggest_for]` attribute syntax"
-      let ns ← getCurrNamespace
+      let ns := trueDeclName.getPrefix
       let altNames ← ids.mapM fun id => withRef id do
         Elab.mkDeclName ns {} id.getId
-      return (declName, altNames)
+      return (trueDeclName, altNames)
     }
 
 public def getSuggestions (fullName : Name) : CoreM (Array Name) :=  do

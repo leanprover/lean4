@@ -1,50 +1,98 @@
 import Lean
 
+
+@[suggest_for test0, test1, test2]
+public def String.foo (x: String) := x.length + 1
+
+@[suggest_for String.test1, test2]
+public def String.bar (x: String) := x.length + 1
+
+@[suggest_for _root_.String.test1, test2]
+public def String.baz (x: String) := x.length + 1
+
+/--
+error: Invalid field `test0`: The environment does not contain `String.test0`, so it is not possible to project the field `test0` from an expression
+  "abc"
+of type `String`
+
+Hint: One of these replacements for `String.test0` may be appropriate:
+  [apply] `String.foo`: "abc".foo
+-/
+#guard_msgs in
+#check "abc".test0
+
+/--
+error: Invalid field `test1`: The environment does not contain `String.test1`, so it is not possible to project the field `test1` from an expression
+  "abc"
+of type `String`
+
+Hint: One of these replacements for `String.test1` may be appropriate:
+  [apply] `String.baz`: "abc".baz
+  [apply] `String.foo`: "abc".foo
+-/
+#guard_msgs in
+#check "abc".test1
+
 namespace Foo
 inductive Bar where | one | two | three
+
+attribute [suggest_for first] Bar.one
 end Foo
 
 namespace Foo.Bar
+attribute [suggest_for second, more] Bar.two
 
-/--
-error: invalid declaration name `_root_`, `_root_` is a prefix used to refer to the 'root' namespace
--/
-#guard_msgs in
-@[suggest_for x, y.z, _root_.q.x, _root_, ff]
-public def _root_.String.blah (x: String) := x.length + 1
+@[suggest_for toStr]
+def toString : Foo.Bar → String
+ | .one => "one"
+ | .two => "two"
+ | .three => "three"
+end Foo.Bar
 
-@[suggest_for gloom, fidget, whiz]
-public def baz : Bar → Nat
+attribute [suggest_for third, more] Foo.Bar.three
+
+@[suggest_for toNum]
+def Foo.Bar.toNat : Foo.Bar → Nat
   | .one => 1
   | .two => 2
   | .three => 3
 
-@[suggest_for gloom, bang, kaboom,]
-public def beep : Bar → Nat
-  | .one => 10
-  | .two => 20
-  | .three => 30
+/--
+error: Invalid field `toNum`: The environment does not contain `Foo.Bar.toNum`, so it is not possible to project the field `toNum` from an expression
+  Foo.Bar.three
+of type `Foo.Bar`
 
-@[suggest_for _root_.String.test1, test2]
-public def _root_.String.test3 (x : String) := x ++ "3"
-
-end Foo.Bar
-
-@[suggest_for x, y, test2,]
-public def blah (x: String) := x.length + 1
-
-/-- info: #[`Foo.Bar.baz, `Foo.Bar.beep] -/
+Hint: One of these replacements for `Foo.Bar.toNum` may be appropriate:
+  [apply] `Foo.Bar.toNat`: Foo.Bar.three.toNat
+-/
 #guard_msgs in
-#eval Lean.getSuggestions `Foo.Bar.gloom
+#eval Foo.Bar.three.toNum
 
-/-- info: #[`Foo.Bar.beep] -/
+/--
+error: Invalid field `toStr`: The environment does not contain `Foo.Bar.toStr`, so it is not possible to project the field `toStr` from an expression
+  Foo.Bar.two
+of type `Foo.Bar`
+
+Hint: One of these replacements for `Foo.Bar.toStr` may be appropriate:
+  [apply] `Foo.Bar.toString`: Foo.Bar.two.toString
+-/
 #guard_msgs in
-#eval Lean.getSuggestions `Foo.Bar.kaboom
+#eval Foo.Bar.two.toStr
 
-#eval Foo.Bar.three.whiz
+/-
+#check Foo.Bar.first
+#check Bar.second
+#check third
 
-#eval [1,2,7].flibbet
+namespace Foo
+#check Foo.Bar.first
+#check Bar.second
+#check third
+end Foo
 
-#eval ``_root_.String.blah
-
-#check HAdd.hAdd.curry
+namespace Foo.Bar
+#check Foo.Bar.first
+#check Bar.second
+#check third
+end Foo
+-/

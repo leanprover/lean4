@@ -637,8 +637,13 @@ syntax (name := deprecated) "deprecated" (ppSpace ident)? (ppSpace str)?
 The attribute `@[suggest_for]` on a declaration suggests likely ways in which
 someone might **incorrectly** refer to a definition.
 
-* `@[suggest_for String.endPos]` on the definition of `String.rawEndPos` suggests that `"str".endPos` might be correctable to `"str".rawEndPos`.
+* `@[suggest_for endPos]` on the definition of `String.rawEndPos` suggests that `"str".endPos` might be correctable to `"str".rawEndPos`.
 * `@[suggest_for Either, Result]` on the definition of `Except` suggests that `Either Nat String` might be correctable to `Except Nat String`.
+
+Note that the namespace of the suggestions is influenced by the definition itself. In the namespace
+`X.Y`, adding an annotation `@[suggest_for bar]` to `def Z.foo` will suggest `X.Y.Z.foo` as a
+replacement for `X.Y.Z.bar`. If your intent is to suggest `X.Y.Z.foo` as a replacement for
+`X.Y.bar`, you must instead use the annotation `@[suggest_for _root_.X.Y.bar]`.
 -/
 syntax (name := suggest_for) "suggest_for" ident,+,? : attr
 

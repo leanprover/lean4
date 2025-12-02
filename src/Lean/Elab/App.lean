@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Tactic.ElimInfo
 public import Lean.Elab.Binders
 public import Lean.Elab.RecAppSyntax
+public import Lean.IdentifierSuggestion
 import all Lean.Elab.ErrorUtils
 
 public section
@@ -1404,10 +1405,24 @@ where
         m!"Invalid field `{fieldName}`: The environment does not contain `{fullName}`, so it is not \
           possible to project the field `{fieldName}` from an expression{indentExpr e}\nof \
           type{inlineExprTrailing eType}"
+
+    -- Possible alternatives provided with `@[suggest_for]` annotations
+    let suggestions := (← Lean.getSuggestions fullName).filter (·.getPrefix = fullName.getPrefix)
+    let suggestForHint ←
+      if suggestions.size = 0 then
+        pure .nil
+      else
+        m!"One of these replacements for `{fullName}` may be appropriate:".hint (suggestions.map fun suggestion => {
+          suggestion := suggestion.getString!,
+          toCodeActionTitle? := .some (s!"Suggested replacement: {e}.{·}"),
+          diffGranularity := .all,
+          messageData? := .some m!"`{.ofConstName suggestion}`: {e}.{suggestion.getString!}",
+        }) ref
+
     -- By using `mkUnknownIdentifierMessage`, the tag `Lean.unknownIdentifierMessageTag` is
     -- incorporated within the message, as required for the "import unknown identifier" code action.
     -- The "outermost" lean.invalidField name is the only one that triggers an error explanation.
-    throwNamedErrorAt ref lean.invalidField msg
+    throwNamedErrorAt ref lean.invalidField (msg ++ suggestForHint)
 
 
 /-- whnfCore + implicit consumption.

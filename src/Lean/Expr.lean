@@ -975,15 +975,6 @@ Otherwise return `Name.anonymous`.
 def constName (e : Expr) : Name :=
   e.constName?.getD Name.anonymous
 
-/--
-If the expression is a series of applications applied to a constant, return the constant's name.
-Otherwise return `Option.none`.
- -/
-def rootConstName? : Expr → Option Name
-  | const n _ => some n
-  | app e _ => rootConstName? e
-  | _ => none
-
 
 def constLevels! : Expr → List Level
   | const _ ls => ls

@@ -789,8 +789,6 @@ theorem getThenInsertIfNew?_snd [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
     (getThenInsertIfNew? t k v).2 = t.insertIfNew k v :=
   ext <| DTreeMap.Raw.Const.getThenInsertIfNew?_snd h
 
-theorem mem_of_get_eq  {k : α} {v : β} {w} (_ : t.get k w = v) : k ∈ t := w
-
 @[simp, grind =]
 theorem length_keys [TransCmp cmp] (h : t.WF) :
     t.keys.length = t.size :=

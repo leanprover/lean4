@@ -49,6 +49,7 @@ public def f : Nat → Nat
 
 /--
 info: Try these:
+  [apply] solve_by_elim
   [apply] grind [= f]
   [apply] grind only [f]
   [apply] grind => instantiate only [f]
@@ -78,6 +79,7 @@ def app : List α → List α → List α
 /--
 info: Try these:
   [apply] rfl
+  [apply] solve_by_elim
   [apply] grind [= app]
   [apply] grind only [app]
   [apply] grind =>
@@ -139,6 +141,7 @@ attribute [simp] concat
 
 /--
 info: Try these:
+  [apply] (fun_induction concat) <;> solve_by_elim
   [apply] (fun_induction concat) <;> simp_all
   [apply] (fun_induction concat) <;> simp [*]
 -/
@@ -148,6 +151,7 @@ example (as : List α) (a : α) : concat as a = as ++ [a] := by
 
 /--
 info: Try these:
+  [apply] (fun_induction concat) <;> solve_by_elim
   [apply] (fun_induction concat) <;> simp_all
   [apply] ·
     fun_induction concat
@@ -180,6 +184,10 @@ def foo : Nat → Nat
 
 /--
 info: Try these:
+  [apply] ·
+    fun_induction foo
+    · solve_by_elim
+    · sorry
   [apply] ·
     fun_induction foo
     · simp

@@ -8,6 +8,7 @@ import Lean.Elab.Tactic.Try
 /--
 info: Try these:
   [apply] rfl
+  [apply] solve_by_elim
   [apply] simp
   [apply] simp only [Nat.reduceAdd]
   [apply] grind
@@ -22,6 +23,7 @@ example : 1 + 1 = 2 := by
 /--
 info: Try these:
   [apply] by rfl
+  [apply] by solve_by_elim
   [apply] by simp
   [apply] by simp only [Nat.reduceAdd]
   [apply] by grind
@@ -35,6 +37,7 @@ example : 1 + 1 = 2 :=
 -- With hypotheses in term mode
 /--
 info: Try these:
+  [apply] by solve_by_elim
   [apply] by simp [*]
   [apply] by simp only [h]
   [apply] by grind

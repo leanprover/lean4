@@ -507,7 +507,12 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
           let fields1 : Array Expr := ys1[ctorA.numParams:]
           let fields2 : Array Expr := ys2[ctorA.numParams:]
           let mut e := mkAppN noConfusion (#[target] ++ fields1 ++ fields2)
-          for _ in [:indVal.numIndices] do
+          let arity := (← inferType e).getNumHeadForalls
+          -- Index equalities expected. Can be less than `indVal.numIndices` when this constructor
+          -- has fixed indices.
+          assert! arity ≥ 2
+          let numIndEqs := arity - 2 -- 2 for `h` and the continuation
+          for _ in [:numIndEqs] do
             let eq ← whnf (← whnfForall (← inferType e)).bindingDomain!
             if let some (_,i,_,_) := eq.heq? then
               e := mkApp e (← mkHEqRefl i)

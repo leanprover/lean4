@@ -21,6 +21,15 @@ namespace Lean
 
 open Meta
 
+def withPrimedNames (xs : Array Expr) (k : MetaM α) : MetaM α := do
+  let lctx ← getLCtx
+  let lctx := lctx.modifyLocalDecls fun decl =>
+    if xs.contains (mkFVar decl.fvarId) then
+      decl.setUserName (decl.userName.appendAfter "'")
+    else
+      decl
+  withLCtx lctx (← getLocalInstances) k
+
 /--
 Constructs a lambda expression that returns the argument to the `noConfusion` principle for a given
 constructor. In particular, returns
@@ -37,6 +46,7 @@ def mkNoConfusionCtorArg (ctorName : Name) (P : Expr) : MetaM Expr := do
   forallBoundedTelescope ctorInfo.type ctorInfo.numParams fun xs t => do
     forallTelescopeReducing t fun fields1 _ => do
     forallTelescopeReducing t fun fields2 _ => do
+    withPrimedNames fields2 do
     let mut t := P
     for f1 in fields1.reverse, f2 in fields2.reverse do
       if (← isProof f1) then
@@ -92,6 +102,7 @@ def mkNoConfusionType (indName : Name) : MetaM Unit := do
       let e := mkApp e motive
       forallBoundedTelescope ti (some (info.numIndices + 1)) fun ysx1 t => do -- indices and major
       forallBoundedTelescope ti (some (info.numIndices + 1)) fun ysx2 _ => do -- indices and major
+      withPrimedNames ysx2 do
         let e := mkAppN e ysx1
         let altTypes ← arrowDomainsN info.numCtors t
         let alts ← altTypes.mapIdxM fun i altType => do
@@ -196,6 +207,7 @@ def mkNoConfusionCoreImp (indName : Name) : MetaM Unit := do
     let P := xs[info.numParams]!
     forallBoundedTelescope t (some (info.numIndices + 1)) fun ysx1 _ => do -- indices and major
     forallBoundedTelescope t (some (info.numIndices + 1)) fun ysx2 _ => do -- indices and major
+    withPrimedNames ysx2 do
       withImplicitBinderInfos ((ysx1 ++ ysx2).push P) do
       let target1 := mkAppN (mkConst noConfusionTypeName (v :: us)) (params ++ #[P] ++ ysx1 ++ ysx1)
       let motive1 ← mkLambdaFVars ysx1 target1
@@ -271,10 +283,13 @@ def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
   for ctor in indVal.ctors do
     let ctorInfo ← getConstInfoCtor ctor
     if ctorInfo.numFields > 0 then
-      let e ← withLocalDeclD `P (.sort v) fun P =>
+      let e ←
         forallBoundedTelescope ctorInfo.type ctorInfo.numParams fun xs t => do
+        withLocalDeclD `P (.sort v) fun P =>
         forallBoundedTelescope t ctorInfo.numFields fun fields1 _ => do
         forallBoundedTelescope t ctorInfo.numFields fun fields2 _ => do
+        withPrimedNames fields2 do
+        withImplicitBinderInfos (xs ++ #[P] ++ fields1 ++ fields2) do
           let ctor1 := mkAppN (mkConst ctor us) (xs ++ fields1)
           let ctor2 := mkAppN (mkConst ctor us) (xs ++ fields2)
           let is1 := (← whnf (← inferType ctor1)).getAppArgsN indVal.numIndices

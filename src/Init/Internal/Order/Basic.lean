@@ -91,8 +91,7 @@ otherwise.
 -/
 class CCPO (α : Sort u) extends PartialOrder α where
   /--
-  `csup c` is the least upper bound of the chain `c` when all elements `x` that are at
-  least as large as `csup c` are at least as large as all elements of `c`, and vice versa.
+  The least upper bound of chains exists.
   -/
   has_csup {c : α → Prop} (hc : chain c) : Exists (is_sup c)
 
@@ -140,7 +139,7 @@ A complete lattice is a partial order where every subset has a least upper bound
 -/
 class CompleteLattice (α : Sort u) extends PartialOrder α where
   /--
-  The least upper bound of an arbitrary subset in the complete_lattice.
+  The least upper bound of an arbitrary subset exists.
   -/
   has_sup (c : α → Prop) : Exists (is_sup c)
 

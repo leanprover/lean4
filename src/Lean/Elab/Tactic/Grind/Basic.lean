@@ -282,7 +282,10 @@ def tryTactic (tac : GrindTacticM α) : GrindTacticM Bool := do
 
 open Grind
 
-def liftGrindM (k : GrindM α) : GrindTacticM α := do
+/-
+**Note**: Recall that `grind` uses `Reducible` setting to avoid expensive definitionally equality tests.
+-/
+def liftGrindM (k : GrindM α) : GrindTacticM α := withReducible do
   let ctx ← read
   let s ← get
   let (a, state) ← liftMetaM <| k ctx.methods.toMethodsRef ctx.ctx |>.run s.state

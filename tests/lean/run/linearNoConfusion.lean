@@ -20,6 +20,10 @@ inductive Vec.{u} (α : Type) : Nat → Type u where
   | cons1 {n} : α → Vec α n → Vec α (n + 1)
   | cons2 {n} : α → Vec α n → Vec α (n + 1)
 
+#check Vec.cons1.noConfusion
+#check Vec.cons1.inj
+#check Vec.cons1.injEq
+
 @[reducible] protected def Vec.noConfusionType'.{u_1, u} : {α : Type} →
   Sort u_1 → {a : Nat} → Vec.{u} α a → {a : Nat} → Vec α a → Sort u_1 :=
 fun P _ x1 _ x2 =>

@@ -1834,6 +1834,9 @@ private def withNewBinderInfosImp (bs : Array (FVarId × BinderInfo)) (k : MetaM
 def withNewBinderInfos (bs : Array (FVarId × BinderInfo)) (k : n α) : n α :=
   mapMetaM (fun k => withNewBinderInfosImp bs k) k
 
+def withImplicitBinderInfos (bs : Array Expr) (k : n α) : n α :=
+  withNewBinderInfos (bs.map (·.fvarId!, BinderInfo.implicit)) k
+
 /--
  Execute `k` using a local context where any `x` in `xs` that is tagged as
  instance implicit is treated as a regular implicit. -/

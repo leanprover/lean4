@@ -505,10 +505,19 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
             let fields2 : Array Expr := ys2[ctorA.numParams:]
             let mut e := mkAppN noConfusion (#[target] ++ fields1 ++ fields2)
             for _ in [:inductVal.numIndices] do
-              let some (_,i,_,_) := (← whnfForall (← inferType e)).bindingDomain!.heq?
-                | throwError "mkNoConfusion: unexpected equality as next argument to {← inferType e}"
-              e := mkApp e (← mkHEqRefl i)
-            return mkApp e (← mkHEqOfEq h)
+              let eq := (← whnfForall (← inferType e)).bindingDomain!
+              if let some (_,i,_,_) := eq.heq? then
+                e := mkApp e (← mkHEqRefl i)
+              if let some (_,i,_) := eq.eq? then
+                e := mkApp e (← mkEqRefl i)
+              else
+                throwError "mkNoConfusion: unexpected equality as next argument to {← inferType e}"
+            let eq := (← whnfForall (← inferType e)).bindingDomain!
+            if eq.isHEq then
+              e := mkApp e (← mkHEqOfEq h)
+            else
+              e := mkApp e h
+            return e
 
       -- Fall back: Use generic theorem
       return mkAppN (mkConst (Name.mkStr indVal.name "noConfusion") (u :: us)) (α.getAppArgs ++ #[target, a, b, h])

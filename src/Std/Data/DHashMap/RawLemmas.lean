@@ -6030,6 +6030,9 @@ end Const
 
 end map
 
+instance {α : Type u} {β : α → Type v} [DecidableEq α] [Hashable α] [∀ k, DecidableEq (β k)] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : Decidable (m₁.Equiv m₂) :=
+  @Raw₀.Equiv.decide _ _ _ _ _ ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩ h₁ h₂
+
 attribute [simp] contains_eq_false_iff_not_mem
 end Raw
 end Std.DHashMap

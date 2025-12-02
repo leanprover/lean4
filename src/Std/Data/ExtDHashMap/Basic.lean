@@ -383,6 +383,9 @@ instance [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] : LawfulBE
       case mk b =>
         apply sound <| DHashMap.equiv_of_beq hyp
 
+instance {α : Type u} {β : α → Type v} [DecidableEq α] [Hashable α] [∀ k, DecidableEq (β k)] : DecidableEq (ExtDHashMap α β) :=
+  fun m₁ m₂ => @decidable_of_decidable_of_iff (m₁ == m₂) _ _ ⟨by simp, by simp⟩
+
 namespace Const
 
 variable {β : Type v}

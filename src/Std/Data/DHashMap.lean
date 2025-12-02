@@ -11,4 +11,3 @@ public import Std.Data.DHashMap.AdditionalOperations
 public import Std.Data.DHashMap.Iterator
 public import Std.Data.DHashMap.Lemmas
 public import Std.Data.DHashMap.IteratorLemmas
-public import Std.Data.DHashMap.DecidableEq

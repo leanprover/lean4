@@ -594,6 +594,27 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
     else
       return (← elimMVarDeps #[kbreak] app).replaceFVar kbreak breakRhs
 
+private def elabDoCatch (lifter : ControlLifter) (body : Expr) (catch_ : TSyntax ``doCatch) : DoElabM Expr := do
+  let mi := (← read).monadInfo
+  let `(doCatch| catch $x $[: $eType?]? => $catchSeq) := catch_ | throwUnsupportedSyntax
+  let x := Term.mkExplicitBinder x <| match eType? with
+    | some eType => eType
+    | none => mkHole x
+  let (catch_, ε, uε) ← controlAtTermElabM fun runInBase => do
+    Term.elabBinder x fun x => runInBase do
+      let ε ← inferType x
+      let uε ← getDecLevel ε
+      let catch_ ← lifter.lift (elabDoSeq catchSeq)
+      let catch_ ← mkLambdaFVars #[x] catch_
+      return (catch_, ε, uε)
+  if eType?.isSome then
+    let inst ← Term.mkInstMVar <| mkApp2 (mkConst ``MonadExceptOf [uε, mi.u, mi.v]) ε mi.m
+    return mkApp6 (mkConst ``tryCatchThe [uε, mi.u, mi.v])
+      ε mi.m inst lifter.resultType body catch_
+  else
+    let inst ← Term.mkInstMVar <| mkApp2 (mkConst ``MonadExcept [uε, mi.u, mi.v]) ε mi.m
+    return mkApp6 (mkConst ``MonadExcept.tryCatch [uε, mi.u, mi.v])
+      ε mi.m inst lifter.resultType body catch_
 
 @[builtin_doElem_elab Lean.Parser.Term.doTry] def elabDoTry : DoElab := fun stx dec => do
   let `(doTry| try $trySeq:doSeq $[$catches]* $[finally $finSeq?]?) := stx | throwUnsupportedSyntax
@@ -612,25 +633,11 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
   let lifter ← Lean.Elab.Do.ControlLifter.ofCont dec
   let body ← lifter.lift (elabDoSeq trySeq)
   let body ← catches.foldlM (init := body) fun body catch_ => do
-    let `(doCatch| catch $x $[: $eType?]? => $catchSeq) := catch_ | throwUnsupportedSyntax
-    let x := Term.mkExplicitBinder x <| match eType? with
-      | some eType => eType
-      | none => mkHole x
-    let (catch_, ε, uε) ← controlAtTermElabM fun runInBase => do
-      Term.elabBinder x fun x => runInBase do
-        let ε ← inferType x
-        let uε ← getDecLevel ε
-        let catch_ ← lifter.lift (elabDoSeq catchSeq)
-        let catch_ ← mkLambdaFVars #[x] catch_
-        return (catch_, ε, uε)
-    if eType?.isSome then
-      let inst ← Term.mkInstMVar <| mkApp2 (mkConst ``MonadExceptOf [uε, mi.u, mi.v]) ε mi.m
-      return mkApp6 (mkConst ``tryCatchThe [uε, mi.u, mi.v])
-        ε mi.m inst lifter.resultType body catch_
-    else
-      let inst ← Term.mkInstMVar <| mkApp2 (mkConst ``MonadExcept [uε, mi.u, mi.v]) ε mi.m
-      return mkApp6 (mkConst ``MonadExcept.tryCatch [uε, mi.u, mi.v])
-        ε mi.m inst lifter.resultType body catch_
+    match catch_ with
+    | `(doCatchMatch| catch $matchAlts) =>
+      elabDoCatch lifter body (← `(doCatch| catch x => match x with $matchAlts))
+    | `(doCatch| $catch_) =>
+      elabDoCatch lifter body catch_
   let body ← match finSeq? with
     | none => pure body
     | some finSeq => do

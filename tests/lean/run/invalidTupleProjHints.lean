@@ -9,9 +9,11 @@ def p : Nat × Nat × Nat := (3, 4, 5)
 /--
 error: Invalid projection: Index `3` is invalid for this structure; it must be between 1 and 2
 
-Note: The expression `p` has type `Nat × Nat × Nat` which has only 2 fields
+Note: The expression
+  p
+has type `Nat × Nat × Nat` which has only 2 fields
 
-Hint: n-tuples in Lean are actually nested pairs. To access the 3rd component of this tuple, use the projection `.2.2` instead:
+Hint: n-tuples in Lean are actually nested pairs. To access the third component of this tuple, use the projection `.2.2` instead:
   3̵2̲.̲2̲
 -/
 #guard_msgs in
@@ -20,7 +22,9 @@ Hint: n-tuples in Lean are actually nested pairs. To access the 3rd component of
 /--
 error: Invalid projection: Index `17` is invalid for this structure; it must be between 1 and 2
 
-Note: The expression `p` has type `Nat × Nat × Nat` which has only 2 fields
+Note: The expression
+  p
+has type `Nat × Nat × Nat` which has only 2 fields
 
 Hint: n-tuples in Lean are actually nested pairs. For example, to access the "third" component of `(a, b, c)`, write `(a, b, c).2.2` instead of `(a, b, c).3`.
 -/
@@ -30,9 +34,11 @@ Hint: n-tuples in Lean are actually nested pairs. For example, to access the "th
 /--
 error: Invalid projection: Index `3` is invalid for this structure; it must be between 1 and 2
 
-Note: The expression `p` has type `Nat × Nat × Nat` which has only 2 fields
+Note: The expression
+  p
+has type `Nat × Nat × Nat` which has only 2 fields
 
-Hint: n-tuples in Lean are actually nested pairs. To access the 3rd component of this tuple, use the projection `.2.2` instead:
+Hint: n-tuples in Lean are actually nested pairs. To access the third component of this tuple, use the projection `.2.2` instead:
   3̵2̲.̲2̲
 -/
 #guard_msgs in
@@ -48,9 +54,11 @@ def mp : MyProd := (1, 2, 3, 4, 5)
 /--
 error: Invalid projection: Index `4` is invalid for this structure; it must be between 1 and 2
 
-Note: The expression `mp` has type `Nat × Nat × Nat × Nat × Nat` which has only 2 fields
+Note: The expression
+  mp
+has type `Nat × Nat × Nat × Nat × Nat` which has only 2 fields
 
-Hint: n-tuples in Lean are actually nested pairs. To access the 4th component of this tuple, use the projection `.2.2.2.1` instead:
+Hint: n-tuples in Lean are actually nested pairs. To access the fourth component of this tuple, use the projection `.2.2.2.1` instead:
   4̵2̲.̲2̲.̲2̲.̲1̲
 -/
 #guard_msgs in
@@ -62,7 +70,9 @@ macro "illegally_project_from_a_tuple" : term => `((true, true, false).3)
 /--
 error: Invalid projection: Index `3` is invalid for this structure; it must be between 1 and 2
 
-Note: The expression `(true, true, false)` has type `Bool × Bool × Bool` which has only 2 fields
+Note: The expression
+  (true, true, false)
+has type `Bool × Bool × Bool` which has only 2 fields
 
 Hint: n-tuples in Lean are actually nested pairs. For example, to access the "third" component of `(a, b, c)`, write `(a, b, c).2.2` instead of `(a, b, c).3`.
 -/

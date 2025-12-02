@@ -290,12 +290,10 @@ private def librarySearch' (goal : MVarId)
     tryOnEach act candidates
 
 /--
-Tries to solve the goal either by:
-* calling `tactic true`
-* or applying a library lemma then calling `tactic false` on the resulting goals.
+Tries to solve the goal by applying a library lemma
+then calling `tactic` on the resulting goals.
 
-Typically here `tactic` is `solveByElim`,
-with the `Bool` flag indicating whether it may retry with `exfalso`.
+Typically here `tactic` is `solveByElim`.
 
 If it successfully closes the goal, returns `none`.
 Otherwise, it returns `some a`, where `a : Array (List MVarId × MetavarContext)`,
@@ -309,13 +307,12 @@ unless the goal was completely solved.)
 this is not currently tracked.)
 -/
 def librarySearch (goal : MVarId)
-    (tactic : Bool → List MVarId → MetaM (List MVarId) :=
-      fun initial g => solveByElim [] (maxDepth := 6) (exfalso := initial) g)
+    (tactic : List MVarId → MetaM (List MVarId) :=
+      fun g => solveByElim [] (maxDepth := 6) (exfalso := false) g)
     (allowFailure : MVarId → MetaM Bool := fun _ => pure true)
     (leavePercentHeartbeats : Nat := 10) :
     MetaM (Option (Array (List MVarId × MetavarContext))) := do
-  (tactic true [goal] *> pure none) <|>
-  librarySearch' goal (tactic false) allowFailure leavePercentHeartbeats
+  librarySearch' goal tactic allowFailure leavePercentHeartbeats
 
 end LibrarySearch
 

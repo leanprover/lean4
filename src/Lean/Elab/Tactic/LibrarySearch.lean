@@ -32,8 +32,7 @@ def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireCl
   let (_, goal) ← (← getMainGoal).intros
   goal.withContext do
     let required := (← (required.getD #[]).mapM getFVarId).toList.map .fvar
-    let tactic := fun exfalso =>
-      solveByElim required (exfalso := exfalso) (maxDepth := 6)
+    let tactic := fun goals => solveByElim required (exfalso := false) goals (maxDepth := 6)
     let allowFailure := fun g => do
       let g ← g.withContext (instantiateMVars (.mvar g))
       return required.all fun e => e.occurs g

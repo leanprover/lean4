@@ -232,7 +232,7 @@ namespace ReaderT
   simp [run] at h
   exact funext h
 
-@[simp, grind =] theorem run_mk (x : ρ → m α) (ctx : ρ) : run (.mk x) p = x p :=
+@[simp, grind =] theorem run_mk (x : ρ → m α) (ctx : ρ) : run (.mk x : ReaderT ρ m α) ctx = x ctx :=
   rfl
 
 @[simp, grind =] theorem run_pure [Monad m] (a : α) (ctx : ρ) : (pure a : ReaderT ρ m α).run ctx = pure a := rfl

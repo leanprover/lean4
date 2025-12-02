@@ -6448,6 +6448,7 @@ theorem toNat_cpop (x : BitVec w) :
   rw [cpop, toNat_ofNat, Nat.mod_eq_of_lt]
   omega
 
+@[simp]
 theorem toNat_cpop_cons {x : BitVec w} {b : Bool} :
     (x.cons b).cpop.toNat = b.toNat + x.cpop.toNat := by
   simp only [toNat_cpop]
@@ -6515,16 +6516,12 @@ theorem cpop_reverse (x : BitVec w) :
 @[simp]
 theorem cpopNatRec_cast_eq_cpopNatRec_of_eq {x : BitVec w} (p : w = v) :
     (x.cast p).cpopNatRec n = x.cpopNatRec n := by
-  congr
-  · omega
-  · omega
-  ·
-    exact heq_of_eqRec_eq (congrArg (Eq w) (id (Eq.symm p))) rfl
+  subst p; simp
 
 @[simp]
 theorem cpop_cast (h : w = v) (x : BitVec w) :
-  (x.cast h).cpop = x.cpop.cast h := by
-  subst h; simp
+    (x.cast h).cpop = x.cpop.cast h := by
+  simp [cpop, cpopNatRec_cast_eq_cpopNatRec_of_eq, h]
 
 @[simp]
 theorem toNat_cpop_append_eq {x : BitVec w} {y : BitVec u} :

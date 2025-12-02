@@ -45,13 +45,6 @@ def commitWhenSome? [Monad m] [MonadBacktrack s m] [MonadExcept ε m] (x? : m (O
     restoreState s
     throw ex
 
-set_option pp.all true in
-set_option trace.Elab.do true in
-/--
-Execute `x?`, but backtrack state if result is `none` or an exception was thrown.
-If an exception is thrown, `none` is returned.
-That is, this function is similar to `commitWhenSome?`, but swallows the exception and returns `none`.
--/
 def commitWhenSomeNoEx? {m s α ε} [Monad m] [MonadBacktrack s m] [MonadExcept ε m] (x? : m (Option α)) : m (Option α) := do
   let mut a := 0
   try
@@ -72,11 +65,6 @@ def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f 
     | _      => pure ⟨⟩
   return none
 
-/--
-Applies the monadic action `f` to every element in the array, left-to-right, and returns the array
-of results. Furthermore, the resulting array's type guarantees that it contains the same number of
-elements as the input array.
--/
 def Array.mapM' [Monad m] (f : α → m β) (as : Array α) : m { bs : Array β // bs.size = as.size } :=
   go 0 ⟨Array.mkEmpty as.size, rfl⟩ (by simp)
 where
@@ -115,12 +103,6 @@ end Array
 
 section Tactic
 
--- set_option trace.Elab.do true in
-set_option trace.Elab.postpone true in
-set_option trace.Elab.step true in
--- set_option pp.rawOnError true in
--- set_option pp.mvars.delayed true in
--- set_option trace.Meta.isDefEq.assign true in
 private meta def expandIfThenElse'
     (ifTk thenTk elseTk pos neg : Syntax)
     (mkIf : Term → Term → MacroM Term) : MacroM (TSyntax `term) := do
@@ -131,7 +113,6 @@ private meta def expandIfThenElse'
     else
       pure hole
   mkCase thenTk pos `(?pos)
-  -- `(tactic| ((open Classical in refine%$ifTk $(← mkIf posHole negHole)); $[$(posCase ++ negCase)]*))
 
 
 end Tactic
@@ -186,15 +167,6 @@ elab_rules : doElem <= dec
     let success ← Term.elabFun (← `(fun ($cursorBinder, $mutVarsTuple) $stateBinders* => $body)) (← mkArrow cursorσ assertion)
     let inv := mkApp3 (mkConst ``Std.Do.PostCond.noThrow [mkLevelMax v mi.u]) ps cursorσ success
     return mkApp5 app instMonad instForIn ps instWP inv
-
-set_option trace.Elab.do true in
-partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (_ : Loop) (init : β) (f : Unit → β → m (ForInStep β)) : m β :=
-  let rec @[specialize] loop (b : β) : m β := do
-    let x ← f () b
-    match x with
-      | ForInStep.done b  => pure b
-      | ForInStep.yield b => pure b
-  loop init
 
 set_option trace.Elab.do true in
 example (elems : Syntax.TSepArray `term ",") : MacroM Syntax := doo
@@ -1903,7 +1875,8 @@ trace: [Meta.Tactic.simp] [7]
 run_meta do
   foo 5
 
-def bar (n : Nat) : MetaM (List Nat) := do
+set_option backward.do.legacy true in
+def bar (n : Nat) : MetaM (List Nat) := doo
   let mut result : Foo n := ⟨[7], rfl⟩
   trace[Meta.Tactic.simp] "{result.l}"
   result := ⟨List.range n, rfl⟩

@@ -500,9 +500,9 @@ where
       -- which is not reducible.
       proof := mkExpectedPropHint proof prop
     /-
-    **Note**: Must restore `reducible` setting because with use `withDefault` at `instantiateTheorem`.
+    **Note**: Restores grind transparency setting because with use `withDefault` at `instantiateTheorem`.
     -/
-    withReducible do
+    withGTransparency do
       addTheoremInstance thm proof prop (generation+1) guards
 
 private def synthesizeInsts (mvars : Array Expr) (bis : Array BinderInfo) : OptionT M Unit := do

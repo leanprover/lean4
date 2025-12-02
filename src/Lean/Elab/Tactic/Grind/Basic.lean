@@ -283,12 +283,12 @@ def tryTactic (tac : GrindTacticM α) : GrindTacticM Bool := do
 open Grind
 
 /-
-**Note**: Recall that `grind` uses `Reducible` setting to avoid expensive definitionally equality tests.
+**Note**: Recall that `grind` uses the reducibility specified at `Config.reducible`
 -/
-def liftGrindM (k : GrindM α) : GrindTacticM α := withReducible do
+def liftGrindM (k : GrindM α) : GrindTacticM α := do
   let ctx ← read
   let s ← get
-  let (a, state) ← liftMetaM <| k ctx.methods.toMethodsRef ctx.ctx |>.run s.state
+  let (a, state) ← liftMetaM <| (Grind.withGTransparency k) ctx.methods.toMethodsRef ctx.ctx |>.run s.state
   modify fun s => { s with state }
   return a
 

@@ -76,8 +76,8 @@ example (x y : BitVec 32) (a : Bool) (h : x < y) : (x = y) ↔ a := by
 error: The prover found a potentially spurious counterexample:
 - The following potentially relevant hypotheses could not be used: [h]
 Consider the following assignment:
-x = 4294967295#32
-y = 2147483647#32
+x = 0#32
+y = 2147483648#32
 -/
 #guard_msgs in
 example (x y : BitVec 32) (h : x.toNat = y.toNat) : x = y := by
@@ -89,8 +89,8 @@ def zeros (w : Nat) : BitVec w := 0#w
 error: The prover found a potentially spurious counterexample:
 - It abstracted the following unsupported expressions as opaque variables: [zeros 32]
 Consider the following assignment:
-x = 4294967295#32
-zeros 32 = 4294967295#32
+x = 2147483648#32
+zeros 32 = 2147483648#32
 -/
 #guard_msgs in
 example (x : BitVec 32) (h : x = zeros 32) : x = 0 := by
@@ -101,9 +101,9 @@ error: The prover found a potentially spurious counterexample:
 - It abstracted the following unsupported expressions as opaque variables: [zeros 32]
 - The following potentially relevant hypotheses could not be used: [h1]
 Consider the following assignment:
-x = 4294967295#32
-zeros 32 = 4294967295#32
-y = 4294967295#32
+x = 0#32
+zeros 32 = 0#32
+y = 2147483648#32
 -/
 #guard_msgs in
 example (x y : BitVec 32) (h1 : x.toNat = y.toNat) (h2 : x = zeros 32) : y = 0 := by
@@ -111,7 +111,7 @@ example (x y : BitVec 32) (h1 : x.toNat = y.toNat) (h2 : x = zeros 32) : y = 0 :
 
 /--
 error: The prover found a counterexample, consider the following assignment:
-x = 3#2
+x = 0#2
 -/
 #guard_msgs in
 example (x : BitVec 2) : (bif x.ult 1#2 then 1#2 else 2#2) == 3#2 := by

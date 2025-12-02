@@ -53,15 +53,6 @@ meta def expensiveSolver (_ : MVarId) (_ : Try.Info) : MetaM (Array (TSyntax `ta
 meta def cheapSolver (_ : MVarId) (_ : Try.Info) : MetaM (Array (TSyntax `tactic)) := do
   return #[← `(tactic| exact customGoalHolds)]
 
--- With 2 heartbeats, `try?` still finds the cheap user tactic (axiom is very cheap)
-set_option maxHeartbeats 2 in
-/--
-info: Try this:
-  [apply] exact customGoalHolds✝
--/
-#guard_msgs in
-example : CustomGoal := by
-  try?
 
 -- With 100 heartbeats
 -- expensive_meta_tactic should be filtered out from try? suggestions

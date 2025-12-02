@@ -41,7 +41,7 @@ section Typeclasses
 
 /--
 Relation that needs to be well-formed in order for a loop over an iterator to terminate.
-It is assumed that the `plausible_forInStep` predicate relates the input and output of the
+It is assumed that the `plausible_transition` predicate relates the input and output of the
 stepper function.
 -/
 @[expose]
@@ -78,6 +78,31 @@ Asserts that `IteratorLoop.rel` is well-founded.
 def IteratorLoop.WellFounded (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
     {γ : Type x} (plausible_forInStep : β → γ → ForInStep γ → Prop) : Prop :=
     _root_.WellFounded (IteratorLoop.rel α m plausible_forInStep)
+
+theorem IteratorLoop.rel.of_relNew {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    {γ : Type x} {plausible_forInStep : β → γ → ForInStep γ → Prop} {p' p : IterM (α := α) m β × γ}
+    (h : IteratorLoop.relNew α m (fun b s₁ s₂ => plausible_forInStep b s₁ (.yield s₂)) p' p) :
+    IteratorLoop.rel α m plausible_forInStep p' p := h
+
+theorem IteratorLoop.relNew.of_rel {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    {σ : Type x} {plausible_transition : β → σ → σ → Prop} {p' p : IterM (α := α) m β × σ}
+    (h : IteratorLoop.rel α m (fun b s₁ st => ∃ s₂, st = .yield s₂ ∧ plausible_transition b s₁ s₂) p' p) :
+    IteratorLoop.relNew α m plausible_transition p' p := by
+  simp_all [rel, relNew]
+
+theorem IteratorLoop.WellFounded.of_WellFoundedNew {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    {σ : Type x} {plausible_transition : β → σ → σ → Prop}
+    (hwf : IteratorLoop.WellFoundedNew α m plausible_transition) :
+    IteratorLoop.WellFounded α m (fun b s₁ st => ∃ s₂, st = .yield s₂ ∧ plausible_transition b s₁ s₂) := by
+  apply Subrelation.wf _ hwf
+  intro _ _ hnew
+  simp [hnew, relNew.of_rel]
+
+theorem IteratorLoop.WellFoundedNew.of_WellFounded {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    {γ : Type x} {plausible_forInStep : β → γ → ForInStep γ → Prop}
+    (hwf : IteratorLoop.WellFounded α m plausible_forInStep) :
+    IteratorLoop.WellFoundedNew α m (fun b s₁ s₂ => plausible_forInStep b s₁ (.yield s₂)) := by
+  exact hwf
 
 /--
 `IteratorLoopNew α m` provides efficient implementations of loop-based consumers for `α`-based

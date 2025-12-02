@@ -42,6 +42,61 @@ theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
         it.toIterM init _ (fun _ => id) (fun out _ acc => return ⟨← f out acc, trivial⟩) := by
   simp [ForIn.forIn, forIn'_eq, -forIn'_eq_forIn]
 
+theorem Iter.forIn'_eq_forInNew' {α β : Type w} [Iterator α Id β] [Finite α Id]
+    {m : Type x → Type x'} [Monad m] [LawfulMonad m] [IteratorLoop α Id m] [hl : LawfulIteratorLoop α Id m]
+    {γ : Type x} {it : Iter (α := α) β} {init : γ}
+    {f : (b : β) → it.IsPlausibleIndirectOutput b → γ → m (ForInStep γ)} :
+    letI : ForIn' m (Iter (α := α) β) β _ := Iter.instForIn'
+    letI : ForInNew' m (Iter (α := α) β) β _ := Iter.instForInNew'
+    ForIn'.forIn' it init f =
+      ForInNew'.forInNew' it init (kbreak := pure) (fun x m k s => do
+        match ← f x m s with
+        | .yield s => k s
+        | .done c => pure c)
+      := by
+  simp [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn', instForInNew', ForInNew'.forInNew', IteratorLoop.finiteForInNew',
+    IteratorLoop.defaultImplementation,
+    hl.lawful (fun γ δ f x => f x.run), hl.lawfulNew (fun γ δ f x => f x.run)]
+  rw [IterM.DefaultConsumers.forIn'_eq_forInNew']
+  simp
+  congr
+  ext
+  congr
+  ext step
+  congr
+  cases step <;> rfl
+
+@[congr] theorem Iter.forInNew'_congr {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m]
+    {it₁ it₂ : Iter (α := α) β} (w : it₁ = it₂)
+    {s₁ s₂ : σ} (hs : s₁ = s₂)
+    {kcons₁ : (a' : β) → _ → (σ → m γ) → σ → m γ}
+    {kcons₂ : (a' : β) → _ → (σ → m γ) → σ → m γ}
+    (hcons : ∀ a m k s, kcons₁ a (by simpa [w] using m) k s = kcons₂ a m k s)
+    {knil₁ : σ → m γ}
+    {knil₂ : σ → m γ}
+    (hnil : ∀ s, knil₁ s = knil₂ s) :
+    letI : ForInNew' m (Iter (α := α) β) β _ := Iter.instForInNew'
+    forInNew' it₁ s₁ kcons₁ knil₁ = forInNew' it₂ s₂ kcons₂ knil₂ := by
+  subst_eqs
+  simp only [← funext_iff] at hcons hnil
+  rw [← hcons, hnil]
+
+@[congr] theorem Iter.forInNew_congr {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m]
+    {it₁ it₂ : Iter (α := α) β} (w : it₁ = it₂)
+    {s₁ s₂ : σ} (hs : s₁ = s₂)
+    {kcons₁ : (a' : β) → (σ → m γ) → σ → m γ}
+    {kcons₂ : (a' : β) → (σ → m γ) → σ → m γ}
+    (hcons : ∀ a k s, kcons₁ a k s = kcons₂ a k s)
+    {knil₁ : σ → m γ}
+    {knil₂ : σ → m γ}
+    (hnil : ∀ s, knil₁ s = knil₂ s) :
+    forInNew it₁ s₁ kcons₁ knil₁ = forInNew it₂ s₂ kcons₂ knil₂ := by
+  subst_eqs
+  simp only [← funext_iff] at hcons hnil
+  rw [hcons, hnil]
+
 @[congr] theorem Iter.forIn'_congr {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m]
     {ita itb : Iter (α := α) β} (w : ita = itb)
@@ -394,6 +449,15 @@ theorem Iter.fold_eq_fold_toIterM {α β : Type w} {γ : Type w} [Iterator α Id
     {f : γ → β → γ} {init : γ} {it : Iter (α := α) β} :
     it.fold (init := init) f = (it.toIterM.fold (init := init) f).run := by
   rw [fold_eq_foldM, foldM_eq_foldM_toIterM, IterM.fold_eq_foldM]
+
+@[simp]
+theorem Iter.forInNew_pure_yield_eq_fold {α β : Type w} {γ : Type x} [Iterator α Id β]
+    [Finite α Id] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id] {f : β → γ → γ} {init : γ}
+    {it : Iter (α := α) β} :
+    ForInNew.forInNew (m := Id) it init (fun c k s => k (f c s)) pure =
+      pure (it.fold (fun b c => f c b) init) := by
+  simp only [ForIn.forIn, forIn'_eq_forInNew', fold_eq_forIn]
+  rfl
 
 @[simp]
 theorem Iter.forIn_pure_yield_eq_fold {α β : Type w} {γ : Type x} [Iterator α Id β]

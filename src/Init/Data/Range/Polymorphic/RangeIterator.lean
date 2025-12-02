@@ -605,6 +605,7 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LE α] [Decidabl
         apply IterM.DefaultConsumers.forIn'_eq_forIn' Pl wf <;> all_goals (intros; rfl)
       · simp
     · simp
+  lawfulNew := fun _ => rfl
 
 end IteratorLoop
 
@@ -1177,6 +1178,7 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LT α] [Decidabl
         apply IterM.DefaultConsumers.forIn'_eq_forIn' Pl wf <;> all_goals (intros; rfl)
       · simp
     · simp
+  lawfulNew := fun _ => rfl
 
 end IteratorLoop
 
@@ -1641,6 +1643,7 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α]
       rw [← IterM.DefaultConsumers.forIn'_eq_wf Pl wf _]
       apply IterM.DefaultConsumers.forIn'_eq_forIn' Pl wf <;> all_goals (intros; rfl)
     · simp
+  lawfulNew := fun _ => rfl
 
 end IteratorLoop
 

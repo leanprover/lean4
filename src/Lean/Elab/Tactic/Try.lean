@@ -886,7 +886,7 @@ private def mkAtomicWithSuggestionsStx : CoreM (TSyntax `tactic) :=
 
 /-- `simple` tactics -/
 private def mkSimpleTacStx : CoreM (TSyntax `tactic) :=
-  `(tactic| attempt_all | rfl | assumption)
+  `(tactic| attempt_all | rfl | (first | assumption | solve_by_elim))
 
 /-! Function induction generators -/
 

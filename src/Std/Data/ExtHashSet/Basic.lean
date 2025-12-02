@@ -222,7 +222,7 @@ instance [LawfulBEq α] : LawfulBEq (ExtHashSet α) where
     have ⟨⟨a⟩⟩ := a
     have ⟨⟨b⟩⟩ := b
     simp only [mk.injEq, ExtHashMap.mk.injEq] at |- hyp
-    exact ExtDHashMap.Const.eq_of_beq_unit_eq_true _ _ hyp
+    exact ExtDHashMap.Const.eq_of_beq_unit _ _ hyp
 
 instance {α : Type u} [DecidableEq α] [Hashable α] : DecidableEq (ExtHashSet α) :=
   fun m₁ m₂ => @decidable_of_decidable_of_iff (m₁ == m₂) _ _ ⟨by simp, by simp⟩

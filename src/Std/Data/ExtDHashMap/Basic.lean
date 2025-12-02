@@ -400,7 +400,7 @@ theorem beq_of_eq [LawfulBEq α] [BEq β] [ReflBEq β] (m₁ m₂ : ExtDHashMap 
     case mk b =>
       exact DHashMap.Const.Equiv.beq <| exact h
 
-theorem eq_of_beq_eq_true [LawfulBEq α] [BEq β] [LawfulBEq β] (m₁ m₂ : ExtDHashMap α fun _ => β) (h : Const.beq m₁ m₂) : m₁ = m₂ := by
+theorem eq_of_beq [LawfulBEq α] [BEq β] [LawfulBEq β] (m₁ m₂ : ExtDHashMap α fun _ => β) (h : Const.beq m₁ m₂) : m₁ = m₂ := by
   induction m₁
   case mk a =>
     induction m₂
@@ -419,8 +419,8 @@ theorem beq_unit_of_eq [LawfulBEq α] (m₁ m₂ : ExtDHashMap α fun _ => Unit)
   apply beq_of_eq
   exact h
 
-theorem eq_of_beq_unit_eq_true [LawfulBEq α] (m₁ m₂ : ExtDHashMap α fun _ => Unit) (h : Const.beq_unit m₁ m₂) : m₁ = m₂ := by
-  apply eq_of_beq_eq_true
+theorem eq_of_beq_unit [LawfulBEq α] (m₁ m₂ : ExtDHashMap α fun _ => Unit) (h : Const.beq_unit m₁ m₂) : m₁ = m₂ := by
+  apply eq_of_beq
   exact h
 
 end Const

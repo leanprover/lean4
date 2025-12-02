@@ -357,7 +357,7 @@ mutual
       return some (.const declName usNew argsNew)
     else
       let specDecl ← mkSpecDecl decl us argMask params decls levelParamsNew
-      trace[Compiler.specialize.step] "new: {specDecl.name}"
+      trace[Compiler.specialize.step] "new: {specDecl.name}: {← ppDecl specDecl}"
       cacheSpec key specDecl.name
       specDecl.saveBase
       let specDecl ← specDecl.etaExpand
@@ -368,7 +368,7 @@ mutual
         s with
           newDecls := s.newDecls.push specDecl,
           -- TODO: correct mask
-          parentMask := s.parentMask.insert specDecl.name (Array.replicate specDecl.params.size false)
+          parentMask := s.parentMask.insert specDecl.name (Array.replicate specDecl.params.size true)
       }
       return some (.const specDecl.name usNew argsNew)
 
@@ -409,14 +409,16 @@ def specializeDecl (decl : Decl) : SpecializeM Decl := do
     return decl
   else
     let value ← withParams decl.params <| decl.value.mapCodeM visitCode
-    return { decl with value }
+    let updated := { decl with value }
+    trace[Compiler.specialize.step] m!"Result {decl.name}: {← ppDecl updated}"
+    return updated
 
 def updateSpecParamInfo : SpecializeM Unit := do
   let decls := (← get).processedDecls ++ (← get).newDecls
   let masks := (← get).parentMask
   let infos ← computeSpecParamInfo decls fun declName specArgs? =>
     specArgs? == some #[] || (masks[declName]?.getD #[] |>.any (· == true))
-  
+
   for entry in infos do
     if let some mask := (← get).parentMask[entry.declName]? then
       let maskInfo info :=
@@ -438,6 +440,8 @@ partial def loop (n : Nat := 0) : SpecializeM Unit := do
   if targets.isEmpty then
     trace[Compiler.specialize.step] m!"Termination after {n} rounds"
     return ()
+  else if n > 3 then
+    throwError "Lost in specialization"
 
   trace[Compiler.specialize.step] m!"Round: {n}"
   for decl in targets do

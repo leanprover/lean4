@@ -606,6 +606,7 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LE α] [Decidabl
         · simp
       · simp
     · simp
+  lawfulNew := fun _ => rfl
 
 end IteratorLoop
 
@@ -1184,6 +1185,7 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LT α] [Decidabl
         · simp
       · simp
     · simp
+  lawfulNew := fun _ => rfl
 
 end IteratorLoop
 
@@ -1654,6 +1656,7 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α]
         congr
       · simp
     · simp
+  lawfulNew := fun _ => rfl
 
 end IteratorLoop
 

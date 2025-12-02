@@ -337,8 +337,10 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
       | `(doIfCond|$h : $cond) =>
         Term.elabTerm (← `(if $h:ident : $cond then $then_ else $else_)) mγ (catchExPostpone := false)
       | `(doIfCond|let $pat := $d) =>
+        runInBase <| checkMutVarsForShadowing (← getPatternVarsEx pat)
         Term.elabTerm (← `(match $d:term with | $pat => $then_ | _ => $else_)) mγ (catchExPostpone := false)
       | `(doIfCond|let $pat ← $rhs) =>
+        runInBase <| checkMutVarsForShadowing (← getPatternVarsEx pat)
         let x ← Term.mkFreshIdent pat
         runInBase <| elabDoIdDecl x none (← `(doElem| $rhs:term)) do
           Term.elabTerm (← `(match $x:term with | $pat => $then_ | _ => $else_)) mγ (catchExPostpone := false)
@@ -500,6 +502,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
 
 @[builtin_doElem_elab Lean.Parser.Term.doFor] def elabDoFor : DoElab := fun stx dec => do
   let `(doFor| for $[$h? : ]? $x:ident in $xs do $body) := stx | throwUnsupportedSyntax
+  checkMutVarsForShadowing #[x]
   let uα ← mkFreshLevelMVar
   let uρ ← mkFreshLevelMVar
   let α ← mkFreshExprMVar (mkSort (mkLevelSucc uα)) (userName := `α)

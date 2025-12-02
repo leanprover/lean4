@@ -35,7 +35,13 @@ def _root_.Nat.toOrdinal : Nat -> String
     else
       s!"{n}th"
 
-/-- Make an oxford-comma-separated list of strings. -/
+/--
+Make an oxford-comma-separated list of strings.
+
+ - `["eats"].toOxford == "eats"`
+ - `["eats", "shoots"].toOxford == "eats and shoots"`
+ - `["eats", "shoots", "leaves"] == "eats, shoots, and leaves"`
+-/
 private def _root_.List.toOxford : List String -> String
   | [] => ""
   | [a] => a

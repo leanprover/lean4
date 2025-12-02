@@ -78,7 +78,7 @@ inductive SyntheticMVarKind where
     If `header?` is not provided, the default header is "type mismatch".
     If `f?` is provided, then throws an application type mismatch error.
   -/
-  | coe (header? : Option String) (expectedType : Expr) (e : Expr) (f? : Option Expr)
+  | coe (header? : Option MessageData) (expectedType : Expr) (e : Expr) (f? : Option Expr)
       (mkErrorMsg? : Option (MVarId → Expr → Expr → MetaM MessageData))
   /--
   Use tactic to synthesize value for metavariable.
@@ -1209,7 +1209,8 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
             pure <| extraErrorMsg ++ useTraceSynthMsg
       throwNamedError lean.synthInstanceFailed "failed to synthesize instance of type class{indentExpr type}{msg}"
 
-def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none)
+def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none)
+    (errorMsgHeader? : Option MessageData := none)
     (mkErrorMsg? : Option (MVarId → (expectedType e : Expr) → MetaM MessageData) := none)
     (mkImmedErrorMsg? : Option ((errorMsg? : Option MessageData) → (expectedType e : Expr) → MetaM MessageData) := none) : TermElabM Expr := do
   withTraceNode `Elab.coe (fun _ => return m!"adding coercion for {e} : {← inferType e} =?= {expectedType}") do
@@ -1245,7 +1246,7 @@ If `expectedType?` is `some t`, then ensures `t` and `eType` are definitionally 
 Argument `f?` is used only for generating error messages when inserting coercions fails.
 -/
 def ensureHasType (expectedType? : Option Expr) (e : Expr)
-    (errorMsgHeader? : Option String := none) (f? : Option Expr := none) : TermElabM Expr := do
+    (errorMsgHeader? : Option MessageData := none) (f? : Option Expr := none) : TermElabM Expr := do
   let some expectedType := expectedType? | return e
   if (← isDefEq (← inferType e) expectedType) then
     return e
@@ -1798,7 +1799,7 @@ by inserting coercions if necessary.
 If `errToSorry` is true, then if coercion insertion fails, this function returns `sorry` and logs the error.
 Otherwise, it throws the error.
 -/
-def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
+def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) (errorMsgHeader? : Option MessageData := none) : TermElabM Expr := do
   let e ← elabTerm stx expectedType? catchExPostpone implicitLambda
   try
     withRef stx <| ensureHasType expectedType? e errorMsgHeader?

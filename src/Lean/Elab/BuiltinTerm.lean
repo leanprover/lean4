@@ -354,8 +354,7 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
 
 @[builtin_term_elab withAnnotateTerm] def elabWithAnnotateTerm : TermElab := fun stx expectedType? => do
   match stx with
-  | `(with_annotate_term $stx $e) => do
-    logInfo m!"elabWithAnnotateTerm {stx}"
+  | `(with_annotate_term $stx $e) =>
     withTermInfoContext' .anonymous stx (expectedType? := expectedType?) (elabTerm e expectedType?)
   | _ => throwUnsupportedSyntax
 

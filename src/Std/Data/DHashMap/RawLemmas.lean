@@ -3761,7 +3761,8 @@ open Internal.Raw Internal.Raw₀
 section BEq
 variable {m₁ m₂ : Raw α β} [LawfulBEq α] [∀ k, BEq (β k)]
 
-theorem Equiv.beq [∀ k, ReflBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁ ~m m₂ → beq m₁ m₂ := by
+theorem Equiv.beq [∀ k, ReflBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁ ~m m₂ → m₁ == m₂ := by
+  simp only [BEq.beq]
   simp_to_raw
   intro h
   exact Raw₀.Equiv.beq h₁ h₂ h

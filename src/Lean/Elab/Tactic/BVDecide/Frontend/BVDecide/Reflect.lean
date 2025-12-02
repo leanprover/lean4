@@ -44,7 +44,7 @@ instance : ToExpr BVUnOp where
     | .arithShiftRightConst n => mkApp (mkConst ``BVUnOp.arithShiftRightConst) (toExpr n)
     | .reverse => mkConst ``BVUnOp.reverse
     | .clz => mkConst ``BVUnOp.clz
-    | .popCount => mkConst ``BVUnOp.popCount
+    | .cpop => mkConst ``BVUnOp.cpop
   toTypeExpr := mkConst ``BVUnOp
 
 instance : ToExpr (BVExpr w) where

@@ -10,9 +10,9 @@ import Init.Notation
 import Init.Data.String
 
 /--
-Translate numbers (1, 2, 3, ...) to ordinals ("first", "second", "third", ...). Not appropriate for
-numbers that could conceivably be larger
-than 19 in real examples.
+Translate numbers (1, 2, 3, 212, 322 ...) to ordinals with appropriate English-language names for
+small ordinals (0 through 10 become "zeroth" through "tenth") and postfixes for other numbers
+(212 becomes "212th" and 1292 becomes "1292nd").
 -/
 def _root_.Nat.toOrdinal : Nat -> String
   | 0 => "zeroth"
@@ -21,6 +21,11 @@ def _root_.Nat.toOrdinal : Nat -> String
   | 3 => "third"
   | 4 => "fourth"
   | 5 => "fifth"
+  | 6 => "sixth"
+  | 7 => "seventh"
+  | 8 => "eighth"
+  | 9 => "ninth"
+  | 10 => "tenth"
   | n => if n % 100 > 10 && n % 100 < 20 then
       s!"{n}th"
     else if n % 10 == 2 then

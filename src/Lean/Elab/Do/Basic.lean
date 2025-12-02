@@ -309,16 +309,17 @@ def synthUsingDefEq (msg : String) (expected : Expr) (actual : Expr) : DoElabM U
 
 /--
 Has the effect of ``e >>= fun (x : eResultTy) => $(← k `(x))``.
-Ensures that `e` has type `m eResultTy`.
 -/
 def mkBindCancellingPure (x : Name) (eResultTy e : Expr) (k : Expr → DoElabM Expr) : DoElabM Expr := do
-  withLocalDeclD x eResultTy fun x => do
+  -- The .ofBinderName below is mainly to interpret `__do_lift` binders as implementation details.
+  withLocalDecl x .default eResultTy (kind := .ofBinderName x) fun x => do
     let body ← k x
     let body' := body.consumeMData
     if body.isAppOfArity ``Pure.pure 4 && body'.getArg! 3 == x then
       if ← isDefEq body' (← mkPureApp eResultTy x) then
         return e
     let kResultTy ← mkFreshResultType `kResultTy
+    let body ← Term.ensureHasType (← mkMonadicType kResultTy) body
     let k ← mkLambdaFVars #[x] body
     mkBindApp eResultTy kResultTy e k
 
@@ -332,13 +333,12 @@ def controlAtTermElabM (k : (runInBase : ∀ {β}, DoElabM β → TermElabM β) 
 /--
 A variant of `Term.elabType` that takes the universe of the monad into account, unless
 `freshLevel` is set.
+If you are elaborating a binder `x` without a type ascription, use `mkHole x` instead for the type.
 -/
-def elabType (ty? : Option (TSyntax `term)) (freshLevel := false) : DoElabM Expr := do
+def elabType (ty : TSyntax `term) (freshLevel := false) : DoElabM Expr := do
   let u ← if freshLevel then mkFreshLevelMVar else (mkLevelSucc ·.monadInfo.u) <$> read
   let sort := mkSort u
-  match ty? with
-  | none => mkFreshExprMVar sort
-  | some ty => Term.elabTermEnsuringType ty sort
+  Term.elabTermEnsuringType ty sort
 
 private partial def withPendingMVars (k : TermElabM α) : TermElabM (α × List MVarId) := do
   let pendingMVarsSaved := (← get).pendingMVars
@@ -395,7 +395,7 @@ def ContVarId.find (contVarId : ContVarId) : DoElabM ContVarInfo := do
 def ContVarId.mkJump (contVarId : ContVarId) : DoElabM Expr := do
   let info ← contVarId.find
   let lctx := addReachingDefsAsNonDep info.lctx (← getLCtx) info.tunneledVars
-  let mvar ← withLCtx' lctx (mkFreshExprMVar info.type)
+  let mvar ← withLCtx' lctx (mkFreshExprMVar info.type) -- assigned by `synthesizeJumps`
   let jumps := info.jumps.push { mvar, ref := (← getRef) }
   modify fun s => { s with contVars := s.contVars.insert contVarId { info with jumps } }
   return mvar

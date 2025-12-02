@@ -1,6 +1,5 @@
 import Lean
 
-
 @[suggest_for test0, test1, test2]
 public def String.foo (x: String) := x.length + 1
 

@@ -232,6 +232,9 @@ namespace ReaderT
   simp [run] at h
   exact funext h
 
+@[simp, grind =] theorem run_mk (x : ρ → m α) (ctx : ρ) : run (.mk x) p = x p :=
+  rfl
+
 @[simp, grind =] theorem run_pure [Monad m] (a : α) (ctx : ρ) : (pure a : ReaderT ρ m α).run ctx = pure a := rfl
 
 @[simp, grind =] theorem run_bind [Monad m] (x : ReaderT ρ m α) (f : α → ReaderT ρ m β) (ctx : ρ)
@@ -292,6 +295,9 @@ namespace StateT
 
 @[ext, grind ext] theorem ext {x y : StateT σ m α} (h : ∀ s, x.run s = y.run s) : x = y :=
   funext h
+
+@[simp, grind =] theorem run_mk [Monad m] (x : σ → m (α × σ)) (s : σ) : run (.mk x) s = x s :=
+  rfl
 
 @[simp, grind =] theorem run'_eq [Monad m] (x : StateT σ m α) (s : σ) : run' x s = (·.1) <$> run x s :=
   rfl

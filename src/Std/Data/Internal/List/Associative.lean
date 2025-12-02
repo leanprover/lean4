@@ -7635,45 +7635,32 @@ theorem isEmpty_filter_key_iff [BEq α] [EquivBEq α] {f : α → Bool}
 
 theorem beqModel_eq_true_of_perm [BEq α] [LawfulBEq α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) : l₁.Perm l₂ → beqModel l₁ l₂ := by
   intro hyp
-  rw [beqModel]
-  split
-  case isTrue hlen =>
-    rw [ne_eq] at hlen
-    apply Classical.byContradiction
-    intro _
-    exact hlen <| List.Perm.length_eq hyp
-  case isFalse hlen =>
-    simp only [List.all_eq_true]
-    intro ⟨k,v⟩ mem
-    have hv := getValueCast_of_mem mem hl₁
-    have hc := containsKey_of_mem mem
-    apply beq_of_eq
-    simp only at |- hc hv
-    rw [← hv, ← getValueCast?_eq_some_getValueCast]
-    symm
+  rw [beqModel, if_neg (by simpa using hyp.length_eq)]
+  simp only [List.all_eq_true]
+  intro ⟨k,v⟩ mem
+  have hv := @getValueCast_of_mem α β _ _ l₁ ⟨k,v⟩ mem
+  have hc := containsKey_of_mem mem
+  apply beq_of_eq
+  simp only at |- hc hv
+  rw [← hv, ← getValueCast?_eq_some_getValueCast]
+  · symm
     apply getValueCast?_of_perm hl₁ hyp
+  · exact hl₁
 
 theorem Const.beqModel_eq_true_of_perm {β : Type v} [BEq α] [EquivBEq α] [BEq β] [ReflBEq β] {l₁ l₂ : List ((_ : α) × β )} (hl₁ : DistinctKeys l₁) : l₁.Perm l₂ → Const.beqModel l₁ l₂ := by
   intro hyp
-  rw [beqModel]
-  split
-  case isTrue hlen =>
-    rw [ne_eq] at hlen
-    apply Classical.byContradiction
-    intro _
-    exact hlen <| List.Perm.length_eq hyp
-  case isFalse hlen =>
-    simp only [List.all_eq_true]
-    intro ⟨k,v⟩ mem
-    have hv := @getValue_of_mem α β _ _ l₁ ⟨k,v⟩ mem
-    have hc := containsKey_of_mem mem
-    apply beq_of_eq
-    simp only at |- hc hv
-    rw [← hv, ← getValue?_eq_some_getValue]
-    · symm
-      apply getValue?_of_perm hl₁ hyp
-    · exact hl₁
-    · exact hc
+  rw [beqModel, if_neg (by simpa using hyp.length_eq)]
+  simp only [List.all_eq_true]
+  intro ⟨k,v⟩ mem
+  have hv := @getValue_of_mem α β _ _ l₁ ⟨k,v⟩ mem
+  have hc := containsKey_of_mem mem
+  apply beq_of_eq
+  simp only at |- hc hv
+  rw [← hv, ← getValue?_eq_some_getValue]
+  · symm
+    apply getValue?_of_perm hl₁ hyp
+  · exact hl₁
+  · exact hc
 
 theorem perm_of_beqModel [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
     beqModel l₁ l₂ → l₁.Perm l₂ := by
@@ -7726,7 +7713,7 @@ theorem all_congr [BEq α] {l₁ l₂ : List ((a : α) × β a)} {f : (a : α) �
     exact hyp ⟨k,v⟩ (@Perm.mem_iff _ ⟨k,v⟩ l₂ l₁ hp.symm |>.2 mem)
 
 theorem beqModel_congr [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] {l₁ l₂ l₃ l₄ : List ((a : α) × β a)}
-(hl : DistinctKeys l₂) (p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel l₁ l₂ = beqModel l₃ l₄ := by
+    (hl : DistinctKeys l₂) (p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel l₁ l₂ = beqModel l₃ l₄ := by
   rw [beqModel]
   split
   case isTrue h =>
@@ -7748,7 +7735,7 @@ theorem beqModel_congr [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] {l₁ l₂ l�
     apply all_congr p₁
 
 theorem Const.beqModel_congr {β : Type v} [BEq α] [LawfulBEq α] [BEq β] {l₁ l₂ l₃ l₄ : List ((_ : α) × β)}
-(hl : DistinctKeys l₂) (p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel l₁ l₂ = beqModel l₃ l₄ := by
+    (hl : DistinctKeys l₂) (p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel l₁ l₂ = beqModel l₃ l₄ := by
   rw [beqModel]
   split
   case isTrue h =>

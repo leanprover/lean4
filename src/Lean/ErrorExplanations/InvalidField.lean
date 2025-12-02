@@ -27,7 +27,9 @@ and be a calling a function on the value `color` with
 #eval (4 + 2).suc
 ```
 ```output
-Invalid field `suc`: The environment does not contain `Nat.suc`, so it is not possible to project the field `suc` from an expression `4 + 2` of type `Nat`
+Invalid field `suc`: The environment does not contain `Nat.suc`, so it is not possible to project the field `suc` from an expression
+  4 + 2
+of type `Nat`
 ```
 ```lean fixed
 #eval (4 + 1).succ
@@ -41,7 +43,9 @@ The simplest reason fo
 #eval '>'.leftpad 10 ['a', 'b', 'c']
 ```
 ```output
-Invalid field `leftpad`: The environment does not contain `Char.leftpad`, so it is not possible to project the field `leftpad` from an expression `'>'` of type `Char`
+Invalid field `leftpad`: The environment does not contain `Char.leftpad`, so it is not possible to project the field `leftpad` from an expression
+  '>'
+of type `Char`
 ```
 ```lean fixed
 #eval ['a', 'b', 'c'].leftpad 10 '>'
@@ -51,17 +55,16 @@ The type of the expression before the dot determines the function being called b
 the dot. There is no `Char.leftpad`, and the only way to invoke `List.leftpad` with generalized
 field notation is to have the list come before the dot.
 
-## Insufficient Type Information
+## Type is Not Specific
 
 ```lean broken
 def double_plus_one {α} [Add α] (x : α) :=
    (x + x).succ
 ```
 ```output
-Invalid field notation: Type is not of the form `C ...` where C is a constant
+Invalid field notation: Field projection operates on types of the form `C ...` where C is a constant. The expression
   x + x
-has type
-  α
+has type `α` which does not have the necessary form.
 ```
 ```lean fixed
 def double_plus_one (x : Nat) :=
@@ -70,6 +73,23 @@ def double_plus_one (x : Nat) :=
 
 The `Add` typeclass is sufficient to for the addition `x + x`, but the `.succ` field notation
 cannot operate without knowing more about the actual type from which `succ` is being projected.
+
+## Insufficient Type Information
+
+```lean broken
+example := fun (n) => n.succ.succ
+```
+```output
+Invalid field notation: Type of
+  n
+is not known; cannot resolve field `succ`
+```
+```lean fixed
+example := fun (n : Nat) => n.succ.succ
+```
+
+Generalized field notation can only be used when it is possible to determine the type that is being
+projected. Type annotations may therefore need to be added to make generalized field notation work.
 
 -/
 register_error_explanation lean.invalidField {

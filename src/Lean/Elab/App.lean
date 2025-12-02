@@ -1375,25 +1375,27 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     throwError "Invalid projection: Projections cannot be used on functions, and{indentExpr e}\n\
       has function type{inlineExprTrailing eType}"
 
-  | .mvar .., lval =>
-    let (notationKind, _, projKind, projName) := getLValDesc lval
-    throwError m!"Invalid {notationKind}: Type of{indentExpr e}\nis not known; cannot resolve {projKind} `{projName}`"
+  | .mvar .., .fieldName _ fieldName _ _ =>
+    throwNamedError lean.invalidField m!"Invalid field notation: Type of{indentExpr e}\nis not \
+      known; cannot resolve field `{fieldName}`"
+  | .mvar .., .fieldIdx _ i  =>
+    throwError m!"Invalid projection: Type of{indentExpr e}\nis not known; cannot resolve \
+      projection `{i}`"
 
   | _, _ =>
     match e.getAppFn, lval with
     | Expr.const c _, .fieldName _ref _fieldName (some suffix) _fullRef =>
       throwUnknownConstant (c ++ suffix)
-    | _, _ =>
-      let (notationKind, notationDesc, _, _) := getLValDesc lval
-      throwNamedError lean.invalidField m!"Invalid {notationKind}: {notationDesc} operates on \
-      types of the form `C ...` where C is a constant. The expression{indentExpr e}\nhas \
-      type{inlineExpr eType}which does not have the necessary form."
+    | _, .fieldName .. =>
+      throwNamedError lean.invalidField m!"Invalid field notation: Field projection operates on \
+        types of the form `C ...` where C is a constant. The expression{indentExpr e}\nhas \
+        type{inlineExpr eType}which does not have the necessary form."
+    | _, .fieldIdx _ i =>
+      throwError  m!"Invalid projection: Projection operates on types of the form `C ...` where C \
+        is a constant. The expression{indentExpr e}\nhas type{inlineExpr eType}which does not have \
+        the necessary form."
 
 where
-  getLValDesc : LVal → String × String × String × String
-  | .fieldName _ fieldName _ _  => ("field notation", "Field projection", "field", s!"{fieldName}")
-  | .fieldIdx _ i => ("projection", "Projection", "projection", s!"{i}")
-
   throwInvalidFieldAt {α : Type} (ref : Syntax) (fieldName : String) (fullName : Name)
       (declHint := Name.anonymous) : TermElabM α := do
     let msg ←
@@ -1403,9 +1405,8 @@ where
           possible to project the field `{fieldName}` from an expression{indentExpr e}\nof \
           type{inlineExprTrailing eType}"
     -- By using `mkUnknownIdentifierMessage`, the tag `Lean.unknownIdentifierMessageTag` is
-    -- incorporated tag included within the message, as required for the "import unknown identifier"
-    -- code action. The "outermost" lean.invalidField name is the only one that triggers an error
-    -- explanation.
+    -- incorporated within the message, as required for the "import unknown identifier" code action.
+    -- The "outermost" lean.invalidField name is the only one that triggers an error explanation.
     throwNamedErrorAt ref lean.invalidField msg
 
 

@@ -6313,10 +6313,10 @@ theorem two_pow_ctz_le_toNat_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
 
 @[simp]
 theorem cpopNatRec_zero_eq_self {x : BitVec w} :
-    x.cpopNatRec 0 acc = acc := by simp [BitVec.cpopNatRec]
+    x.cpopNatRec 0 acc = acc := by rfl
 
 theorem cpopNatRec_succ {n : Nat} {x : BitVec w} :
-    x.cpopNatRec (n + 1) acc = x.cpopNatRec n (acc + (x.getLsbD n).toNat):= by simp [BitVec.cpopNatRec]
+    x.cpopNatRec (n + 1) acc = x.cpopNatRec n (acc + (x.getLsbD n).toNat):= by rfl
 
 @[simp]
 theorem cpopNatRec_zero :

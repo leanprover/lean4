@@ -1689,9 +1689,9 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
 
     theorem p_of_q : q x → p x := sorry
 
-    theorem pletfun : p (let_fun x := 0; x + 1) := by
-      -- ⊢ p (let_fun x := 0; x + 1)
-      apply p_of_q -- If we eagerly consume all metadata, the let_fun annotation is lost during `isDefEq`
+    theorem phave : p (have x := 0; x + 1) := by
+      -- ⊢ p (have x := 0; x + 1)
+      apply p_of_q -- If we eagerly consume all metadata, the `have` annotation is lost during `isDefEq`
       -- ⊢ q ((fun x => x + 1) 0)
       sorry
     ```

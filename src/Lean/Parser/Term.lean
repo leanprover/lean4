@@ -519,11 +519,6 @@ creating a *nondependent* let expression.
 @[builtin_term_parser] def «have» := leading_parser:leadPrec
   withPosition ("have" >> letConfig >> letDecl) >> optSemicolon termParser
 /--
-`let_fun x := v; b` is deprecated syntax sugar for `have x := v; b`.
--/
-@[builtin_term_parser] def «let_fun»     := leading_parser:leadPrec
-  withPosition ((symbol "let_fun " <|> "let_λ ") >> letDecl) >> optSemicolon termParser
-/--
 `let_delayed x := v; b` is similar to `let x := v; b`, but `b` is elaborated before `v`.
 -/
 @[builtin_term_parser] def «let_delayed» := leading_parser:leadPrec

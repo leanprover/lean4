@@ -220,10 +220,10 @@ def showRhs := fromTerm <|> byTactic'
 /-- A `sufficesDecl` represents everything that comes after the `suffices` keyword:
 an optional `x :`, then a term `ty`, then `from val` or `by tac`. -/
 @[builtin_doc] def sufficesDecl := leading_parser
-  (atomic (group (binderIdent >> " : ")) <|> hygieneInfo) >> termParser >> ppSpace >> showRhs
+  (atomic (group (binderIdent >> " : ")) <|> hygieneInfo) >> termBeforeBy >> ppSpace >> showRhs
 @[builtin_term_parser] def «suffices» := leading_parser:leadPrec
   withPosition ("suffices " >> sufficesDecl) >> optSemicolon termParser
-@[builtin_term_parser] def «show»     := leading_parser:leadPrec "show " >> termParser >> ppSpace >> showRhs
+@[builtin_term_parser] def «show»     := leading_parser:leadPrec "show " >> termBeforeBy >> ppSpace >> showRhs
 /--
 `@x` disables automatic insertion of implicit parameters of the constant `x`.
 `@e` for any term `e` also disables the insertion of implicit lambdas at this position.

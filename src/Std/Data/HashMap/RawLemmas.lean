@@ -3554,9 +3554,6 @@ theorem getD_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
 
 end map
 
-instance {α : Type u} {β : Type v} [DecidableEq α] [Hashable α] [DecidableEq β] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : Decidable (m₁.Equiv m₂) :=
-  @decidable_of_iff _ _ ⟨fun h => ⟨h⟩, fun h => h.1⟩ <| DHashMap.Raw.instDecidableEquivOfDecidableEqOfWF h₁.out h₂.out
-
 attribute [simp] contains_eq_false_iff_not_mem
 end Raw
 

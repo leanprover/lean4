@@ -1607,9 +1607,6 @@ theorem get_filter [EquivBEq α] [LawfulHashable α]
 
 end filter
 
-instance {α : Type u} [DecidableEq α] [Hashable α] {m₁ m₂ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) : Decidable (m₁.Equiv m₂) :=
-  @decidable_of_iff _ _ ⟨fun h => ⟨h⟩, fun h => h.1⟩ <| HashMap.Raw.instDecidableEquivOfDecidableEqOfWF h₁.out h₂.out
-
 attribute [simp] contains_eq_false_iff_not_mem
 end Raw
 

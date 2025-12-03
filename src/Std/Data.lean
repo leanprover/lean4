@@ -23,8 +23,11 @@ public import Std.Data.ExtTreeSet
 -- the well-formedness invariant, so we need to additionally import the files that deal with the
 -- unbundled version
 public import Std.Data.DHashMap.RawLemmas
+public import Std.Data.DHashMap.DecidableEquiv
 public import Std.Data.HashMap.RawLemmas
+public import Std.Data.HashMap.DecidableEquiv
 public import Std.Data.HashSet.RawLemmas
+public import Std.Data.HashSet.DecidableEquiv
 public import Std.Data.DTreeMap.Raw
 public import Std.Data.TreeMap.Raw
 public import Std.Data.TreeSet.Raw

@@ -1,0 +1,23 @@
+/-
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Wojciech Różowski
+-/
+module
+
+prelude
+public import Std.Data.DHashMap.DecidableEquiv
+public import Std.Data.HashMap.Basic
+
+public section
+
+/-!
+# Decidable equivalence for `HashMap`
+-/
+
+namespace Std.HashMap
+
+instance {α : Type u} {β : Type v} [DecidableEq α] [Hashable α] [DecidableEq β] (m₁ m₂ : HashMap α β) : Decidable (m₁ ~m m₂) :=
+  @decidable_of_iff _ _ ⟨fun h => ⟨h⟩, fun h => h.1⟩ <| DHashMap.instDecidableEquivOfDecidableEq m₁.inner m₂.inner
+
+end Std.HashMap

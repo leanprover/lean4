@@ -1536,8 +1536,5 @@ theorem getD_filter [EquivBEq α] [LawfulHashable α]
 
 end filter
 
-instance {α : Type u} [DecidableEq α] [Hashable α] (m₁ m₂ : HashSet α) : Decidable (m₁ ~m m₂) :=
-  @decidable_of_iff _ _ ⟨fun h => ⟨h⟩, fun h => h.1⟩ <| HashMap.instDecidableEquivOfDecidableEq m₁.inner m₂.inner
-
 attribute [simp] contains_eq_false_iff_not_mem
 end Std.HashSet

@@ -3493,8 +3493,5 @@ theorem getKeyD_map [EquivBEq α] [LawfulHashable α]
 
 end map
 
-instance {α : Type u} {β : Type v} [DecidableEq α] [Hashable α] [DecidableEq β] (m₁ m₂ : HashMap α β) : Decidable (m₁ ~m m₂) :=
-  @decidable_of_iff _ _ ⟨fun h => ⟨h⟩, fun h => h.1⟩ <| DHashMap.instDecidableEquivOfDecidableEq m₁.inner m₂.inner
-
 attribute [simp] contains_eq_false_iff_not_mem
 end Std.HashMap

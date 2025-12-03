@@ -18,7 +18,7 @@ public section
 /-!
 # Request
 
-This module provides the `Request` type, which represents am HTTP request. It also defines ways
+This module provides the `Request` type, which represents an HTTP request. It also defines ways
 to build a `Request` using functions that make it easier.
 -/
 

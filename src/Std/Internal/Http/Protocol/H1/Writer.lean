@@ -52,7 +52,7 @@ inductive Writer.State
   -/
   | shuttingDown
 
-  /-
+  /--
   State that it completed a single request and can go to the next one
   -/
   | complete

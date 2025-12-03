@@ -24,7 +24,7 @@ open Time
 /-!
 # Connection
 
-This module defines a `Server.Connection` that is a structure used to handle a single HTTP connection with
+This module defines `Server.Connection`, a structure used to handle a single HTTP connection with
 possibly multiple requests.
 -/
 

@@ -13,8 +13,8 @@ public section
 /-!
 # Status
 
-This module contains `Status` that is a representation of HTTP status codes. Status codes are three-digit
-integer codes that describes the result of a HTTP request. In this implementation we do not treat status
+This module defines the `Status` type, which is a representation of HTTP status codes. Status codes are three-digit
+integer codes that describe the result of an HTTP request. In this implementation we do not treat status
 code as extensible.
 
 * Reference: https://httpwg.org/specs/rfc9110.html#status.codes
@@ -27,7 +27,7 @@ set_option linter.all true
 open Internal
 
 /--
-HTTP Status codes. Status codes are three-digit integer codes that describes the result of a
+HTTP Status codes. Status codes are three-digit integer codes that describe the result of an
 HTTP request. In this implementation we do not treat status code as extensible.
 
 * Reference: https://httpwg.org/specs/rfc9110.html#status.codes

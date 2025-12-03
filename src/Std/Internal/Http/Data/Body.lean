@@ -14,7 +14,7 @@ public section
 /-!
 # Body
 
-This module defines the `Body` type, which represents the body of a HTTP request or response.
+This module defines the `Body` type, which represents the body of an HTTP request or response.
 -/
 
 namespace Std.Http
@@ -101,7 +101,7 @@ def collectByteArray (body : Body) : Async ByteArray := do
 
 /--
 Collect all data from the body into a single `String`. This reads the entire body content into memory,
-so use with caution for large bodies as it may consume significant memory. If it's a valid UTF8 string
+so use with caution for large bodies as it may consume significant memory. If it is a valid UTF-8 string
 then it will return `some` otherwise `none`.
 -/
 def collectString (body : Body) : Async (Option String) := do

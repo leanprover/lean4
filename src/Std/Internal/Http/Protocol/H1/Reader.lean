@@ -49,7 +49,7 @@ inductive Reader.State (dir : Direction) : Type
   -/
   | requireOutgoing : Body.Length → State dir
 
-  /-
+  /--
   State that it completed a single request and can go to the next one
   -/
   | complete

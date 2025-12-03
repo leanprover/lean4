@@ -13,8 +13,8 @@ public section
 /-!
 # Length
 
-This module defines the `Length` structure, that represents the content-length or transfer-encoding
-of a HTTP Request or response.
+This module defines the `Length` structure, that represents the Content-Length or Transfer-Encoding
+of an HTTP Request or response.
 -/
 
 namespace Std.Http.Body

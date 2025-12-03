@@ -14,8 +14,8 @@ public section
 /-!
 # Config
 
-This module exposes the `Config` that is a structure that describes all the timeout, request, headers
-configuration of a HTTP Server.
+This module exposes the `Config`, a structure that describes all the timeout, request, headers
+configuration of an HTTP Server.
 -/
 
 namespace Std.Http

@@ -181,7 +181,7 @@ def mkInjectiveTheorems (declName : Name) : MetaM Unit := do
 builtin_initialize
   registerTraceClass `Meta.injective
 
-private def getIndices? (ctorApp : Expr) : MetaM (Option (Array Expr)) := do
+def getCtorAppIndices? (ctorApp : Expr) : MetaM (Option (Array Expr)) := do
   let type ← whnfD (← inferType ctorApp)
   type.withApp fun typeFn typeArgs => do
     let .const declName _ := typeFn | return none
@@ -209,8 +209,8 @@ private def mkHInjType? (ctorVal : ConstructorVal) : MetaM (Option MkHInjTypeRes
       let eqs ← mkEqs args1 args2
       if let some andEqs := mkAnd? eqs then
         let result ← mkArrow eq andEqs
-        let some idxs1 ← getIndices? lhs | return none
-        let some idxs2 ← getIndices? rhs | return none
+        let some idxs1 ← getCtorAppIndices? lhs | return none
+        let some idxs2 ← getCtorAppIndices? rhs | return none
         -- **Note**: We dot not skip here because the type of `noConfusion` does not.
         let idxEqs ← mkEqs idxs1 idxs2 (skipIfPropOrEq := false)
         let result ← mkArrows idxEqs result

@@ -1005,16 +1005,4 @@ def elabDooBlock : Term.TermElab := fun e expectedType? => do
 
 def elabNestedAction (stx : Syntax) (_expectedType? : Option Expr) : TermElabM Expr := do
   let `(← $_rhs) := stx | throwUnsupportedSyntax
-  let some ctx := (← read).liftActionCtx
-    | throwError "Nested action `{stx}` must be nested inside a `do` expression."
-  let newLCtx := (← getLCtx)
-  let allowed := Id.run <| ExceptT.runCatch do
-    newLCtx.foldlM (start := ctx.numIndices) (init := ()) fun _ decl => do
-      if decl matches .cdecl .. then
-        throw false
-      else
-        pure ()
-    return true
-  unless allowed do
-    throwError "Nested action is not allowed. A lambda binder is between it and the `do` sequence."
-  throwError "Should be unreachable"
+  throwError "Nested action `{stx}` must be nested inside a `do` expression."

@@ -6,30 +6,27 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.LCNF.Simp
 public import Lean.Compiler.LCNF.SpecInfo
-public import Lean.Compiler.LCNF.ToExpr
-public import Lean.Compiler.LCNF.Level
 public import Lean.Compiler.LCNF.MonadScope
-public import Lean.Compiler.LCNF.Closure
 public import Lean.Compiler.LCNF.FVarUtil
-import all Lean.Compiler.LCNF.ToExpr
+import Lean.Compiler.LCNF.Simp
+import Lean.Compiler.LCNF.ToExpr
+import Lean.Compiler.LCNF.Level
+import Lean.Compiler.LCNF.Closure
 import Std.Data.Iterators.Combinators
 import Std.Data.Iterators.Producers.Monadic.Array
-
-public section
 
 namespace Lean.Compiler.LCNF
 namespace Specialize
 
-abbrev Cache := SMap Expr Name
+public abbrev Cache := SMap Expr Name
 
-structure CacheEntry where
+public structure CacheEntry where
   key : Expr
   declName : Name
   deriving Inhabited
 
-def addEntry (cache : Cache) (e : CacheEntry) : Cache :=
+public def addEntry (cache : Cache) (e : CacheEntry) : Cache :=
   cache.insert e.key e.declName
 
 builtin_initialize specCacheExt : SimplePersistentEnvExtension CacheEntry Cache ←
@@ -46,10 +43,10 @@ builtin_initialize specCacheExt : SimplePersistentEnvExtension CacheEntry Cache 
       (!·.contains ·.key) addEntry
   }
 
-def cacheSpec (key : Expr) (declName : Name) : CoreM Unit :=
+public def cacheSpec (key : Expr) (declName : Name) : CoreM Unit :=
   modifyEnv fun env => specCacheExt.addEntry env { key, declName }
 
-def findSpecCache? (key : Expr) : CoreM (Option Name) :=
+public def findSpecCache? (key : Expr) : CoreM (Option Name) :=
   return specCacheExt.getState (← getEnv) |>.find? key
 
 structure Context where
@@ -69,10 +66,28 @@ structure Context where
   declName : Name
 
 structure State where
+  /--
+  The set of `Decl` that we are done processing.
+  -/
   processedDecls : Array Decl := #[]
+  /--
+  The set of `Decl` that we will attempt recursive specialization in next iteration.
+  -/
   workingDecls : Array Decl := #[]
+  /--
+  Specialization information about specialized declarations generated in this SCC so far.
+  -/
   localSpecParamInfo : Std.HashMap Name (Array SpecParamInfo) := {}
-  parentMask : Std.HashMap Name (Array Bool) := {}
+  /--
+  If we specialize a declaration but leave some specializable parameters unspecialized, we store
+  them as a mask here. This mask is used to determine which parameters we specialize for
+  recursively.
+  -/
+  parentMasks : Std.HashMap Name (Array Bool) := {}
+  /--
+  Whether we made a change to a declaration in this specialization run so far. This is periodically
+  reset in the fixpoint loop and the signal for the loop to continue running.
+  -/
   changed : Bool := false
 
 abbrev SpecializeM := ReaderT Context $ StateRefT State CompilerM
@@ -205,20 +220,19 @@ end Collector
 /--
 Return `true` if it is worth using arguments `args` for specialization given the parameter specialization information.
 -/
-def shouldSpecialize (declName : Name) (paramsInfo : Array SpecParamInfo) (args : Array Arg) :
-    SpecializeM Bool := do
+def shouldSpecialize (specEntry : SpecEntry) (args : Array Arg) : SpecializeM Bool := do
   let hoCheck :=
-    if (← get).localSpecParamInfo.contains declName then
+    if specEntry.alreadySpecialized then
       fun arg => do
         /-
         If we have `f p` where `p` is a param it makes no sense to specialize as we will just
         close over `p` again and will have made no progress.
 
-        The reason for doing this only for declarations which have `localSpecParamInfo` (i.e. have
-        already been specialised themselves) is, that we *must* always specialize declarations that
-        are marked with `@[specialize]`. This is because the specializer will not specialize their
-        bodies because it waits for the bodies to be specialized at the call site. This is for example
-        important in the following situation:
+        The reason for doing this only for declarations which have have already been specialised
+        themselves is, that we *must* always specialize declarations that are marked with
+        `@[specialize]`. This is because the specializer will not specialize their bodies because it
+        waits for the bodies to be specialized at the call site. This is for example important in
+        the following situation:
         ```
         @[specialize]
         def test (f : ... -> ...) :=
@@ -239,11 +253,11 @@ def shouldSpecialize (declName : Name) (paramsInfo : Array SpecParamInfo) (args 
         | .fvar fvar => return (← findParam? fvar).isNone
     else
       fun _ => pure true
-  for paramInfo in paramsInfo, arg in args do
+  for paramInfo in specEntry.paramsInfo, arg in args do
     match paramInfo with
     | .other => pure ()
     | .fixedNeutral => pure () -- If we want to monomorphize types such as `Array`, we need to change here
-    | .fixedInst | .user => if (← isGround arg) then return true
+    | .fixedInst | .user => if ← isGround arg then return true
     | .fixedHO => if ← hoCheck arg then return true
 
   return false
@@ -357,8 +371,23 @@ def paramsToGroundVars (params : Array Param) : CompilerM FVarIdSet :=
     else
       return r
 
-def getSpecParamInfo? (declName : Name) : SpecializeM (Option (Array SpecParamInfo)) := do
-  (pure (← get).localSpecParamInfo[declName]?) <||> (LCNF.getSpecParamInfo? declName)
+def getSpecEntry? (declName : Name) : SpecializeM (Option SpecEntry) := do
+  if let some paramsInfo := (← get).localSpecParamInfo[declName]? then
+    return some { declName, paramsInfo, alreadySpecialized := true }
+  else
+    LCNF.getSpecEntry? declName
+
+@[inline]
+def markChanged : SpecializeM Unit :=
+  modify fun s => { s with changed := true }
+
+@[inline]
+def resetChanged : SpecializeM Unit :=
+  modify fun s => { s with changed := false }
+
+@[inline]
+def hasChanged : SpecializeM Bool :=
+  return (← get).changed
 
 mutual
   /--
@@ -369,11 +398,12 @@ mutual
     let .const declName us args := e | return none
     if args.isEmpty then return none
     if (← Meta.isInstance declName) then return none
-    let some paramsInfo ← getSpecParamInfo? declName | return none
-    unless (← shouldSpecialize declName paramsInfo args) do return none
+    let some specEntry ← getSpecEntry? declName | return none
+    unless (← shouldSpecialize specEntry args) do return none
     let some decl ← getDecl? declName | return none
     let .code _ := decl.value | return none
-    trace[Compiler.specialize.candidate] "{e.toExpr}, {paramsInfo}"
+    trace[Compiler.specialize.candidate] "{e.toExpr}, {specEntry}"
+    let paramsInfo := specEntry.paramsInfo
     let (argMask, params, decls) ← Collector.collect paramsInfo args
     let targetArgs := argMask.filterMap id
     let keyBody := .const declName us targetArgs
@@ -395,6 +425,7 @@ mutual
             match info with
             | .fixedInst | .fixedNeutral | .other => return acc
             | .fixedHO | .user =>
+              -- TODO: check fixedInst matching here
               match arg with
               | .type .. | .erased => return acc
               | .fvar fvar =>
@@ -403,18 +434,17 @@ mutual
                 else
                   return acc
       let parentMask := argsNew.map targetParams.contains
-      trace[Compiler.specialize.step] "new: {specDecl.name}: {← ppDecl specDecl}"
       cacheSpec key specDecl.name
       specDecl.saveBase
       let specDecl ← specDecl.etaExpand
       specDecl.saveBase
       let specDecl ← specDecl.simp {}
       let specDecl ← specDecl.simp { etaPoly := true, inlinePartial := true, implementedBy := true }
-
+      trace[Compiler.specialize.step] "new: {specDecl.name}: {← ppDecl specDecl}"
       modify fun s => {
         s with
           workingDecls := s.workingDecls.push specDecl,
-          parentMask := s.parentMask.insert specDecl.name parentMask
+          parentMasks := s.parentMasks.insert specDecl.name parentMask
       }
       return some (.const specDecl.name usNew argsNew)
 
@@ -427,7 +457,7 @@ mutual
     | .let decl k =>
       let mut decl := decl
       if let some value ← specializeApp? decl.value then
-        modify fun s => { s with changed := true }
+        markChanged
         decl ← decl.updateValue value
       let k ← withLetDecl decl <| visitCode k
       return code.updateLet! decl k
@@ -449,34 +479,38 @@ mutual
 
 end
 
+/--
+Run specialization on the body of `decl`.
+-/
 def specializeDecl (decl : Decl) : SpecializeM (Decl × Bool) := do
   trace[Compiler.specialize.step] m!"Working {decl.name}"
   if (← decl.isTemplateLike) then
     return (decl, false)
   else
-    modify fun s => { s with changed := false }
+    resetChanged
     let value ← withParams decl.params <| decl.value.mapCodeM visitCode
-    let changed := (← get).changed
+    let changed ← hasChanged
     let mut updated := { decl with value }
     if changed then
       updated ← updated.simp {}
     trace[Compiler.specialize.step] m!"Result {decl.name}: {← ppDecl updated}"
     return (updated, changed)
 
-def updateSpecParamInfo : SpecializeM Unit := do
+/--
+Recompute specialization information for the current SCC.
+-/
+def updateLocalSpecParamInfo : SpecializeM Unit := do
   let decls := (← get).processedDecls ++ (← get).workingDecls
-  let masks := (← get).parentMask
-  let infos ← computeSpecParamInfo decls fun declName specArgs? =>
-    specArgs? == some #[] || (masks[declName]?.getD #[] |>.any (· == true))
+  let masks := (← get).parentMasks
+  let infos ← computeSpecEntries
+    decls
+    (fun declName specArgs? => specArgs? == some #[] || (masks[declName]?.getD #[] |>.any (· == true)))
+    (decls.map (masks.contains ·.name))
 
   for entry in infos do
-    if let some mask := (← get).parentMask[entry.declName]? then
+    if let some mask := (← get).parentMasks[entry.declName]? then
       let maskInfo info :=
-        mask.zipWith info (f := fun b i =>
-          if (i matches .user | .fixedInst | .fixedHO) && !b then
-            .other
-          else
-            i)
+        mask.zipWith info (f := fun b i => if i.causesSpecialization && !b then .other else i)
       let entry := { entry with paramsInfo := maskInfo entry.paramsInfo }
       modify fun s => {
         s with
@@ -485,12 +519,15 @@ def updateSpecParamInfo : SpecializeM Unit := do
 
   trace[Compiler.specialize.step] m!"Info for next round: {(← get).localSpecParamInfo.toList}"
 
--- TODO: share with saveSpecParamInfo
 def endOfLoop : SpecializeM Unit := do
   for (declName, paramsInfo) in (← get).localSpecParamInfo do
-    if paramsInfo.any (· matches .user | .fixedInst | .fixedHO ) then
+    if paramsInfo.any SpecParamInfo.causesSpecialization then
       trace[Compiler.specialize.info] "{declName} {paramsInfo}"
-      modifyEnv fun env => specExtension.addEntry env { declName, paramsInfo }
+      modifyEnv fun env => specExtension.addEntry env {
+        declName,
+        paramsInfo,
+        alreadySpecialized := true
+      }
 
 partial def loop (n : Nat := 0) : SpecializeM Unit := do
   let targets ← modifyGet (fun s => (s.workingDecls, { s with workingDecls := #[] }))
@@ -512,18 +549,18 @@ partial def loop (n : Nat := 0) : SpecializeM Unit := do
     else
       modify fun s => { s with processedDecls := s.processedDecls.push newDecl }
 
-  updateSpecParamInfo
+  updateLocalSpecParamInfo
 
   loop (n + 1)
 
 def main (decls : Array Decl) : CompilerM (Array Decl) := do
-  saveSpecParamInfo decls
+  saveSpecEntries decls
   let (_, s) ← loop |>.run { declName := .anonymous } |>.run { workingDecls := decls }
   return s.processedDecls
 
 end Specialize
 
-def specialize : Pass where
+public def specialize : Pass where
   phase := .base
   name  := `specialize
   run   := Specialize.main

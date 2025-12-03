@@ -18,6 +18,7 @@ public import Lean.Compiler.LCNF.ElimDeadBranches
 public import Lean.Compiler.LCNF.StructProjCases
 public import Lean.Compiler.LCNF.ExtractClosed
 public import Lean.Compiler.LCNF.Visibility
+public import Lean.Compiler.LCNF.Simp
 
 public section
 

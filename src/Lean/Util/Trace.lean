@@ -140,6 +140,7 @@ def addRawTrace (msg : MessageData) : m Unit := do
   let msg ← addMessageContext msg
   modifyTraces (·.push { ref, msg })
 
+@[nospecialize]
 def addTrace (cls : Name) (msg : MessageData) : m Unit := do
   let ref ← getRef
   let msg ← addMessageContext msg

@@ -127,6 +127,10 @@ def f2 (x : Nat) : ExceptT String (StateT Nat Id) Nat := do
   modify (· + x)
   get
 
+def f9 (xs : List Nat) : IO (List Nat) := do
+return xs
+return xs -- warn unreachable
+
 end Blah
 
 set_option trace.Meta.synthInstance true in

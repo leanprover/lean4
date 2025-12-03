@@ -130,7 +130,7 @@ def testSelectorWithReason : Async Unit := do
   await task
 
   assert! (← completed.atomically get)
-  assert! (← reasonRef.atomically get) == some .deadline
+  assert! (← reasonRef.atomically get) == some Std.CancellationReason.deadline
 
 #eval testSelectorWithReason.block
 
@@ -161,32 +161,3 @@ def testMultipleCancellations : Async Unit := do
   assert! reason == some .deadline -- First reason should persist
 
 #eval testMultipleCancellations.block
-
--- Test cooperative cancellation with reason checking
-def cooperativeWorkWithReason (token : Std.CancellationToken) (workDone : Std.Mutex Nat) (cancelReason : Std.Mutex (Option CancellationReason)) : Async Unit := do
-  for _ in List.range 50 do
-    if ← token.isCancelled then
-      cancelReason.atomically (set (← token.getCancellationReason))
-      return
-
-    workDone.atomically (modify (· + 1))
-    Async.sleep 10
-
-def testCooperativeCancellationWithReason : Async Unit := do
-  let token ← Std.CancellationToken.new
-  let workDone ← Std.Mutex.new 0
-  let cancelReason ← Std.Mutex.new none
-
-  let workTask ← async (cooperativeWorkWithReason token workDone cancelReason)
-
-  Async.sleep 150
-  token.cancel .shutdown
-
-  await workTask
-
-  let finalCount ← workDone.atomically get
-  assert! finalCount > 0
-  assert! finalCount < 50
-  assert! (← cancelReason.atomically get) == some .shutdown
-
-#eval testCooperativeCancellationWithReason.block

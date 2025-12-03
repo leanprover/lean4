@@ -107,60 +107,55 @@ theorem extractAndExtendPopulate_decl_eq  (aig : AIG α) (idx' : Nat) (x : AIG.R
     omega
   · simp [← hres]
 
-/-- Given a vector of references belonging to the same AIG `oldParSum`, we create a node to add the `curr`-th couple of elements and push the add node to `newParSum` -/
-def blastAddVec (aig : AIG α) (usedNodes validNodes : Nat)
-      (oldParSum : AIG.RefVec aig (validNodes * w)) (newParSum : AIG.RefVec aig ((usedNodes / 2) * w))
-      (hval : validNodes ≤ w) (hused : usedNodes ≤ validNodes + 1) (hmod : usedNodes % 2 = 0) :
-   AIG.RefVecEntry α (((validNodes+1)/2) * w) :=
-  if hc1 : usedNodes < validNodes then
+/-- Given a vector of references belonging to the same AIG `oldParSum`, we create a node to add the
+  `curr`-th couple of elements and push the add node to `newParSum` -/
+def blastAddVec (aig : AIG α)
+  (iter_num : Nat)
+  (old_layer : AIG.RefVec aig (old_length * w))
+  (new_layer : AIG.RefVec aig (iter_num * w))
+  (hold : 2 * (iter_num - 1) < old_length) :
+   AIG.RefVecEntry α (((old_length + 1) / 2) * w) :=
+  if  hlen : 0 < old_length - (iter_num * 2) then
     -- rhs
-    let rhs := if h : usedNodes + 1 < validNodes then
-                let targetExtract : ExtractTarget aig w := {vec := oldParSum, start := (usedNodes + 1) * w}
+    let op2 := if h : 2 * iter_num + 1 < old_length then
+                let targetExtract : ExtractTarget aig w := {vec := old_layer, start := (2 * iter_num + 1) * w}
                 let res := blastExtract aig targetExtract
                 let aig := res.aig
                 have := AIG.LawfulVecOperator.le_size (f := blastExtract) (input := targetExtract)
-                let oldParSum := oldParSum.cast this
-                let newParSum := newParSum.cast this
+                let old_layer := old_layer.cast this
+                let new_layer := new_layer.cast this
                 res.vec
               else blastConst aig (w := w) 0
     -- lhs
-    let targetExtract : ExtractTarget aig w := {vec := oldParSum, start := usedNodes * w}
+    let targetExtract : ExtractTarget aig w := {vec := old_layer, start := 2 * iter_num * w}
     let res := blastExtract aig targetExtract
     let aig := res.aig
-    let lhs := res.vec
+    let op1 := res.vec
     have := AIG.LawfulVecOperator.le_size (f := blastExtract) ..
-    let oldParSum := oldParSum.cast this
-    let newParSum := newParSum.cast this
-    let rhs := rhs.cast this
+    let old_layer := old_layer.cast (aig2 := aig) this
+    let new_layer := new_layer.cast (aig2 := aig) this
+    let op2 := op2.cast (aig2 := aig) this
     -- add
-    let res := blastAdd aig ⟨lhs, rhs⟩
+    let res := blastAdd aig ⟨op1, op2⟩
     let aig := res.aig
     let add := res.vec
     have := AIG.LawfulVecOperator.le_size (f := blastAdd) ..
-    let oldParSum := oldParSum.cast this
-    let newParSum := newParSum.cast this
-    let rhs := rhs.cast this
-    let lhs := lhs.cast this
-    let newVec := newParSum.append add
-    have hcast : usedNodes / 2 * w + w = (usedNodes + 2) / 2 * w := by
-        simp [show usedNodes / 2 * w + w = usedNodes / 2 * w + 1 * w by omega,
-            show (usedNodes + 2) / 2 = usedNodes/2 + 1 by omega, Nat.add_mul]
-    blastAddVec aig (usedNodes + 2) validNodes oldParSum (hcast▸newVec) hval (by omega) (by omega)
+    let old_layer := old_layer.cast this
+    let new_layer := new_layer.cast this
+    let op1 := op1.cast this
+    let op2 := op2.cast this
+    have hcast : w + iter_num * w = (iter_num + 1) * w:= by simp [Nat.add_mul]; omega
+    let new_layer' := hcast▸(add.append new_layer)
+    blastAddVec aig (iter_num + 1) old_layer (hcast▸new_layer') (by omega)
   else
-    have hor : usedNodes = validNodes ∨ usedNodes = validNodes + 1 := by omega
-    have hcast : usedNodes / 2 * w = (validNodes + 1) / 2 * w := by
-      simp_all
-      rcases hor with hor|hor
-      · simp [hor] at *
-        rw [show (validNodes + 1) / 2 = validNodes / 2 by omega]
-      · simp [hor] at *
-    let newParSum := hcast▸newParSum
-    ⟨aig, newParSum⟩
+    have : old_length - iter_num * 2 = 0 := by omega
+    have hcast: iter_num = ((old_length) + 1) / 2 := by omega
+    ⟨aig, hcast▸new_layer⟩
 
-theorem addVec_le_size (aig : AIG α) (usedNodes validNodes: Nat)
-      (oldParSum : AIG.RefVec aig (validNodes * w)) (newParSum : AIG.RefVec aig ((usedNodes / 2) * w))
-      (hval : validNodes ≤ w) (hused : usedNodes ≤ validNodes + 1) (hmod : usedNodes % 2 = 0) :
-    aig.decls.size ≤ (blastAddVec aig usedNodes validNodes oldParSum newParSum hval hused hmod).aig.decls.size := by
+theorem addVec_le_size (aig : AIG α) (old_length iter_num: Nat)
+      (old_layer : AIG.RefVec aig (old_length * w)) (new_layer : AIG.RefVec aig (iter_num * w))
+      (hold : 2 * (iter_num - 1) < old_length) :
+    aig.decls.size ≤ (blastAddVec aig iter_num old_layer new_layer hold).aig.decls.size := by
   unfold blastAddVec
   dsimp only
   split
@@ -168,12 +163,12 @@ theorem addVec_le_size (aig : AIG α) (usedNodes validNodes: Nat)
     <;> (refine Nat.le_trans ?_ (by apply addVec_le_size); apply AIG.LawfulVecOperator.le_size)
   · simp
 
-theorem addVec_decl_eq (aig : AIG α) (usedNodes validNodes: Nat)
-    (oldParSum : AIG.RefVec aig (validNodes * w)) (newParSum : AIG.RefVec aig ((usedNodes / 2) * w))
-    (hval : validNodes ≤ w) (hused : usedNodes ≤ validNodes + 1) (hmod : usedNodes % 2 = 0) :
+theorem addVec_decl_eq (aig : AIG α) (old_length iter_num: Nat)
+      (old_layer : AIG.RefVec aig (old_length * w)) (new_layer : AIG.RefVec aig (iter_num * w))
+      (hold : 2 * (iter_num - 1) < old_length) :
     ∀ (idx : Nat) (h1) (h2),
-        (blastAddVec aig usedNodes validNodes oldParSum newParSum hval hused hmod).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
-  generalize hres : blastAddVec aig usedNodes validNodes oldParSum newParSum hval hused hmod = res
+        (blastAddVec aig iter_num old_layer new_layer hold).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
+  generalize hres : blastAddVec aig iter_num old_layer new_layer hold = res
   unfold blastAddVec at hres
   dsimp only at hres
   split at hres
@@ -186,7 +181,6 @@ theorem addVec_decl_eq (aig : AIG α) (usedNodes validNodes: Nat)
         assumption
   · simp [← hres]
 
-
 /-- We first extend all the single bits in the input BitVec w to have width `w`, then compute
 the parallel prefix sum given these bits.-/
 def blastCpop (aig : AIG α) (x : AIG.RefVec aig w) : AIG.RefVecEntry α w :=
@@ -198,7 +192,7 @@ def blastCpop (aig : AIG α) (x : AIG.RefVec aig w) : AIG.RefVecEntry α w :=
     let extendedBits := res.vec
     have := extractAndExtendPopulate_le_size
     let x := x.cast (aig2 := res.aig) (by apply this)
-    go aig w extendedBits (by omega) (by omega) (by omega)
+    go aig w extendedBits (by omega)
   else
     if hw' : 0 < w then
       ⟨aig, x⟩
@@ -206,23 +200,21 @@ def blastCpop (aig : AIG α) (x : AIG.RefVec aig w) : AIG.RefVecEntry α w :=
       let zero := blastConst aig (w := w) 0
       ⟨aig, zero⟩
 where
-  go (aig : AIG α) (validNodes : Nat) (parSum : AIG.RefVec aig (validNodes * w))
-      (hin : 1 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes) : AIG.RefVecEntry α w :=
-  if hlt : 1 < validNodes  then
+  go (aig : AIG α) (l_length : Nat) (l : AIG.RefVec aig (l_length * w)) (h : 0 < l_length) : AIG.RefVecEntry α w :=
+  if hlt : 1 < l_length  then
     have hcastZero : 0 = 0 / 2 * w := by omega
     let initAcc := blastConst (aig := aig) (w := 0) (val := 0)
-    let res := blastAddVec aig 0 validNodes parSum (hcastZero▸initAcc) hval (by omega) (by omega)
+    let res := blastAddVec aig 0 l (hcastZero▸initAcc) (by omega)
     let aig := res.aig
-    let parSum := res.vec
-    go (aig := aig) (validNodes := (validNodes + 1)/2) (parSum := parSum) (hin := hin) (hval := by omega) (by omega)
+    let new_layer := res.vec
+    go (aig := aig) (l_length := (l_length + 1)/2) (l := new_layer) (by omega)
   else
-    have hcast : validNodes * w = w := by
-      simp [show validNodes = 1 by omega]
-    ⟨aig, hcast▸parSum⟩
+    have hcast : l_length * w = w := by simp [show l_length = 1 by omega]
+    ⟨aig, hcast▸l⟩
 
-theorem blastCpop.go_le_size (aig : AIG α) (validNodes : Nat) (parSum : AIG.RefVec aig (validNodes * w))
-      (hin : 1 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes) :
-    aig.decls.size ≤ (go aig validNodes parSum hin hval hval').aig.decls.size := by
+theorem blastCpop.go_le_size (aig : AIG α) (l_length : Nat) (l : AIG.RefVec aig (l_length * w))
+      (hlen : 0 < l_length) :
+    aig.decls.size ≤ (go aig l_length l hlen).aig.decls.size := by
   unfold go
   dsimp only
   split
@@ -230,13 +222,12 @@ theorem blastCpop.go_le_size (aig : AIG α) (validNodes : Nat) (parSum : AIG.Ref
     apply addVec_le_size
   · simp
 
-
 theorem blastCpop.go_le_size' (aig : AIG α) (input : aig.RefVec w) (h : 1 < w) :
     let initAcc := blastConst (aig := aig) (w := 0) (val := 0)
   aig.decls.size ≤
     (go (blastExtractAndExtendPopulate aig 0 input initAcc (by omega)).aig w
         (blastExtractAndExtendPopulate aig 0 input initAcc (by omega)).vec
-        h (by omega) (by omega)).aig.decls.size:= by
+        (by omega)).aig.decls.size:= by
   unfold go
   dsimp only
   split
@@ -245,11 +236,11 @@ theorem blastCpop.go_le_size' (aig : AIG α) (input : aig.RefVec w) (h : 1 < w) 
     apply extractAndExtendPopulate_le_size
   · omega
 
-theorem blastCpop.go_decl_eq {w : Nat} (validNodes : Nat) (aig : AIG α) (parSum : AIG.RefVec aig (validNodes * w))
-      (hin : 1 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes)  : ∀ (idx : Nat) h1 h2,
-    (go aig validNodes parSum hin hval hval').aig.decls[idx]'h1 =
+theorem blastCpop.go_decl_eq {w : Nat} (l_length : Nat) (aig : AIG α) (l : AIG.RefVec aig (l_length * w))
+      (hlen : 0 < l_length)  : ∀ (idx : Nat) h1 h2,
+    (go aig l_length l hlen).aig.decls[idx]'h1 =
     aig.decls[idx]'h2 := by
-  generalize hgo : go aig validNodes parSum hin hval hval' = res
+  generalize hgo : go aig l_length l hlen = res
   unfold go at hgo
   dsimp only at hgo
   split at hgo
@@ -259,10 +250,9 @@ theorem blastCpop.go_decl_eq {w : Nat} (validNodes : Nat) (aig : AIG α) (parSum
     · apply addVec_decl_eq
     · let initAcc := blastConst (aig := aig) (w := 0) (val := 0)
       have hcast : 0 = 0/2*w := by omega
-      have := addVec_le_size aig 0 validNodes parSum (hcast▸initAcc) (by omega) (by omega) (by omega)
+      have := addVec_le_size aig l_length 0 l (hcast▸initAcc) (by omega)
       exact Nat.lt_of_lt_of_le hidx' this
   · simp [← hgo]
-
 
 instance : AIG.LawfulVecOperator α AIG.RefVec blastCpop where
   le_size := by
@@ -270,6 +260,7 @@ instance : AIG.LawfulVecOperator α AIG.RefVec blastCpop where
     unfold blastCpop
     split
     · apply blastCpop.go_le_size'
+      omega
     · split <;> simp
   decl_eq := by
     intros

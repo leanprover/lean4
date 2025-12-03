@@ -1,13 +1,13 @@
-@[suggest_for String.test0, String.test1, String.test2]
+@[suggest_for String.test0 String.test1 String.test2]
 public def String.foo (x: String) := x.length + 1
 
-@[suggest_for test1, String.test2]
+@[simp, grind, suggest_for test1 String.test2]
 public def String.bar (x: String) := x.length + 1
 
-@[suggest_for String.test1, String.test2]
+@[suggest_for String.test1 String.test2, inline]
 public def String.baz (x: String) := x.length + 1
 
-@[suggest_for String.test2]
+@[suggest_for String.test2, always_inline]
 public def otherFoo (x: String) := x.length + 1
 
 @[suggest_for String.test2]
@@ -96,7 +96,7 @@ attribute [suggest_for Foo.Bar.first] Bar.one
 end Foo
 
 namespace Foo.Bar
-attribute [suggest_for Foo.Bar.second, Foo.more] Bar.two
+attribute [suggest_for Foo.Bar.second Foo.more] Bar.two
 
 @[suggest_for Foo.Bar.toStr]
 def toString : Foo.Bar → String
@@ -105,7 +105,7 @@ def toString : Foo.Bar → String
  | .three => "three"
 end Foo.Bar
 
-attribute [suggest_for Foo.Bar.third, Foo.more] Foo.Bar.three
+attribute [suggest_for Foo.Bar.third Foo.more] Foo.Bar.three
 
 @[suggest_for Foo.Bar.toNum]
 def Foo.Bar.toNat : Foo.Bar → Nat
@@ -247,3 +247,34 @@ Hint: Perhaps you meant `Bar.one` in place of `Bar.first`:
 #guard_msgs in
 #eval Bar.first
 end Foo
+
+
+inductive MyBool where | tt | ff
+
+attribute [suggest_for MyBool.true] MyBool.tt
+attribute [suggest_for MyBool.false] MyBool.ff
+
+@[suggest_for MyBool.not]
+def MyBool.swap : MyBool → MyBool
+  | tt => ff
+  | ff => tt
+
+/--
+error: Unknown constant `MyBool.true`
+
+Hint: Perhaps you meant `MyBool.tt` in place of `MyBool.true`:
+  M̵y̵B̵o̵o̵l̵.̵t̵r̵u̵e̵M̲y̲B̲o̲o̲l̲.̲t̲t̲
+-/
+#guard_msgs in
+example := MyBool.true
+
+/--
+error: Invalid field `not`: The environment does not contain `MyBool.not`, so it is not possible to project the field `not` from an expression
+  MyBool.tt
+of type `MyBool`
+
+Hint: Perhaps you meant one of these in place of `MyBool.not`:
+  [apply] `MyBool.swap`: MyBool.tt.swap
+-/
+#guard_msgs in
+example := MyBool.tt.not

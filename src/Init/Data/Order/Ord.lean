@@ -6,7 +6,10 @@ Authors: Markus Himmel, Paul Reichert, Robin Arnez
 module
 
 prelude
-public import Init.Data.Ord.Basic
+import Init.Data.List.Lemmas
+import Init.Data.Array.DecidableEq
+public import Init.Data.Ord.Array
+public import Init.Data.BEq
 
 public section
 
@@ -267,6 +270,7 @@ theorem TransCmp.gt_of_gt_of_isGE [TransCmp cmp] {a b c : α} (hab : cmp a b = .
   rw [OrientedCmp.gt_iff_lt, OrientedCmp.isGE_iff_isLE] at *
   exact TransCmp.lt_of_isLE_of_lt hbc hab
 
+@[deprecated TransCmp.gt_trans (since := "2025-10-26")]
 theorem TransCmp.gt_of_gt_of_gt [TransCmp cmp] {a b c : α} (hab : cmp a b = .gt)
     (hbc : cmp b c = .gt) : cmp a c = .gt := by
   apply gt_of_gt_of_isGE hab (Ordering.isGE_of_eq_gt hbc)
@@ -349,13 +353,13 @@ theorem LawfulEqCmp.compare_beq_iff_eq {a b : α} : cmp a b == .eq ↔ a = b :=
   beq_iff_eq.trans compare_eq_iff_eq
 
 /-- The corresponding lemma for `LawfulEqCmp` is `LawfulEqCmp.compare_eq_iff_eq` -/
-@[simp, grind]
+@[simp, grind =]
 theorem LawfulEqOrd.compare_eq_iff_eq [Ord α] [LawfulEqOrd α] {a b : α} :
     compare a b = .eq ↔ a = b :=
   LawfulEqCmp.compare_eq_iff_eq
 
 /-- The corresponding lemma for `LawfulEqCmp` is `LawfulEqCmp.compare_beq_iff_eq` -/
-@[grind]
+@[grind =]
 theorem LawfulEqOrd.compare_beq_iff_eq [Ord α] [LawfulEqOrd α] {a b : α} :
     compare a b == .eq ↔ a = b :=
   LawfulEqCmp.compare_beq_iff_eq

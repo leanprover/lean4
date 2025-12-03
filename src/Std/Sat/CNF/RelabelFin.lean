@@ -6,7 +6,6 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Nat.Basic
 public import Init.Data.Nat.Order
 public import Std.Sat.CNF.Relabel
 

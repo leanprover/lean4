@@ -4,13 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.Lemmas
 public import Lean.Meta.Tactic.Grind.Types
-
+import Init.Grind.Lemmas
 public section
-
 namespace Lean.Meta.Grind
 
 private def isEqProof (h : Expr) : MetaM Bool := do
@@ -141,6 +138,26 @@ mutual
     let h  := mkApp5 (mkConst ``Lean.Grind.nestedDecidable_congr) p q (← mkEqProofCore p q false) hp hq
     mkEqOfHEqIfNeeded h heq
 
+  partial def mkEqCongrProof (lhs rhs : Expr) : GoalM Expr := withIncRecDepth do
+    let_expr f@Eq α₁ a₁ b₁ := lhs | unreachable!
+    let_expr Eq α₂ a₂ b₂ := rhs | unreachable!
+    assert! (← get).hasSameRoot a₁ a₂ && (← get).hasSameRoot b₁ b₂
+    let us := f.constLevels!
+    if !isSameExpr α₁ α₂ then
+      return mkApp8 (mkConst ``Grind.heq_congr us) α₁ α₂ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ a₂ true) (← mkEqProofCore b₁ b₂ true)
+    else
+      return mkApp7 (mkConst ``Grind.eq_congr us) α₁ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ a₂ false) (← mkEqProofCore b₁ b₂ false)
+
+  partial def mkEqCongrSymmProof (lhs rhs : Expr) : GoalM Expr := withIncRecDepth do
+    let_expr f@Eq α₁ a₁ b₁ := lhs | unreachable!
+    let_expr Eq α₂ a₂ b₂ := rhs | unreachable!
+    assert! (← get).hasSameRoot a₁ b₂ && (← get).hasSameRoot b₁ a₂
+    let us := f.constLevels!
+    if !isSameExpr α₁ α₂ then
+      return mkApp8 (mkConst ``Grind.heq_congr' us) α₁ α₂ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ b₂ true) (← mkEqProofCore b₁ a₂ true)
+    else
+      return mkApp7 (mkConst ``Grind.eq_congr' us) α₁ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ b₂ false) (← mkEqProofCore b₁ a₂ false)
+
   /--
   Constructs a congruence proof for `lhs` and `rhs` using `congr`, `congrFun`, and `congrArg`.
   This function assumes `isCongrDefaultProofTarget` returned `true`.
@@ -175,6 +192,25 @@ mutual
     else
       return thm.proof
 
+  private partial def mkHCongrProof' (f g : Expr) (numArgs : Nat) (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
+    let thm ← mkHCongrWithArity f numArgs
+    assert! thm.argKinds.size == numArgs
+    let proof ← mkHCongrProofHelper thm lhs rhs numArgs
+    if isSameExpr f g then
+      mkEqOfHEqIfNeeded proof heq
+    else
+      /-
+      `lhs` is of the form `f a_1 ... a_n`
+      `rhs` is of the form `g b_1 ... b_n`
+      `proof : f a_1 ... a_n ≍ f b_1 ... b_n`
+      We construct a proof for `f a_1 ... a_n ≍ g b_1 ... b_n` using `Eq.ndrec`
+      -/
+      let motive ← withLocalDeclD (← mkFreshUserName `x) (← inferType f) fun x => do
+        mkLambdaFVars #[x] (← mkHEq lhs (mkAppN x (rhs.getAppArgsN numArgs)))
+      let fEq ← mkEqProofCore f g false
+      let proof ← mkEqNDRec motive proof fEq
+      mkEqOfHEqIfNeeded proof heq
+
   private partial def mkHCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
     let f := lhs.getAppFn
     let g := rhs.getAppFn
@@ -192,38 +228,20 @@ mutual
       let proof ← mkHCongrProofHelper thm lhs rhs numArgs
       mkEqOfHEqIfNeeded proof heq
     else
-      let thm ← mkHCongrWithArity f numArgs
-      assert! thm.argKinds.size == numArgs
-      let proof ← mkHCongrProofHelper thm lhs rhs numArgs
-      if isSameExpr f g then
-        mkEqOfHEqIfNeeded proof heq
-      else
-        /-
-        `lhs` is of the form `f a_1 ... a_n`
-        `rhs` is of the form `g b_1 ... b_n`
-        `proof : f a_1 ... a_n ≍ f b_1 ... b_n`
-        We construct a proof for `f a_1 ... a_n ≍ g b_1 ... b_n` using `Eq.ndrec`
-        -/
-        let motive ← withLocalDeclD (← mkFreshUserName `x) (← inferType f) fun x => do
-          mkLambdaFVars #[x] (← mkHEq lhs (mkAppN x rhs.getAppArgs))
-        let fEq ← mkEqProofCore f g false
-        let proof ← mkEqNDRec motive proof fEq
-        mkEqOfHEqIfNeeded proof heq
+      mkHCongrProof' f g numArgs lhs rhs heq
 
-  private partial def mkEqCongrProof (lhs rhs : Expr) : GoalM Expr := do
-    let_expr f@Eq α₁ a₁ b₁ := lhs | unreachable!
-    let_expr Eq α₂ a₂ b₂ := rhs | unreachable!
-    let us := f.constLevels!
-    if !isSameExpr α₁ α₂ then
-      if (← get).hasSameRoot a₁ a₂ && (← get).hasSameRoot b₁ b₂ then
-        return mkApp8 (mkConst ``Grind.heq_congr us) α₁ α₂ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ a₂ true) (← mkEqProofCore b₁ b₂ true)
+  private partial def mkCongrProofFunCC (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
+    let rec go (e₁ e₂ : Expr) (numArgs : Nat) : GoalM Expr := do
+      let .app f _ := e₁ | unreachable!
+      let .app g _ := e₂ | unreachable!
+      let numArgs := numArgs + 1
+      if isSameExpr f g then
+        mkHCongrProof' f g numArgs lhs rhs heq
+      else if (← hasSameType f g) then
+        mkHCongrProof' f g numArgs lhs rhs heq
       else
-        return mkApp8 (mkConst ``Grind.heq_congr' us) α₁ α₂ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ b₂ true) (← mkEqProofCore b₁ a₂ true)
-    else if (← get).hasSameRoot a₁ a₂ && (← get).hasSameRoot b₁ b₂ then
-      return mkApp7 (mkConst ``Grind.eq_congr us) α₁ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ a₂ false) (← mkEqProofCore b₁ b₂ false)
-    else
-      assert! (← get).hasSameRoot a₁ b₂ && (← get).hasSameRoot b₁ a₂
-      return mkApp7 (mkConst ``Grind.eq_congr' us) α₁ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ b₂ false) (← mkEqProofCore b₁ a₂ false)
+        go f g numArgs
+    go lhs rhs 0
 
   /-- Constructs a congruence proof for `lhs` and `rhs`. -/
   private partial def mkCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
@@ -232,6 +250,8 @@ mutual
       let u ← withDefault <| getLevel p₁
       let v ← withDefault <| getLevel q₁
       return mkApp6 (mkConst ``implies_congr [u, v]) p₁ p₂ q₁ q₂ (← mkEqProofCore p₁ p₂ false) (← mkEqProofCore q₁ q₂ false)
+    else if (← useFunCC lhs) then
+      mkCongrProofFunCC lhs rhs heq
     else
       let f := lhs.getAppFn
       let g := rhs.getAppFn
@@ -250,8 +270,11 @@ mutual
         mkHCongrProof lhs rhs heq
 
   private partial def realizeEqProof (lhs rhs : Expr) (h : Expr) (flipped : Bool) (heq : Bool) : GoalM Expr := do
-    let h ← if h == congrPlaceholderProof then
+    if h == congrPlaceholderProof then
       mkCongrProof lhs rhs heq
+    else if h == eqCongrSymmPlaceholderProof then
+      let r ← mkEqCongrSymmProof lhs rhs
+      if heq then mkHEqOfEq r else return r
     else
       flipProof h flipped heq
 

@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.AC.Util
 import Lean.Meta.Tactic.Grind.AC.DenoteExpr
 public section
@@ -22,8 +21,7 @@ partial def reify (e : Expr) : ACM Grind.AC.Expr := do
   else
     return .var (← mkVar e)
 
-@[export lean_grind_ac_internalize]
-def internalizeImpl (e : Expr) (parent? : Option Expr) : GoalM Unit := do
+def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).ac do return ()
   unless e.isApp && e.appFn!.isApp do return ()
   let op := e.appFn!.appFn!
@@ -39,6 +37,6 @@ def internalizeImpl (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     }
     trace[grind.ac.internalize] "[{id}] {← e'.denoteExpr}"
     addTermOpId e
-    markAsACTerm e
+    acExt.markTerm e
 
 end Lean.Meta.Grind.AC

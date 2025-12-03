@@ -9,5 +9,3 @@ prelude
 public import Std.Time.Time.Basic
 public import Std.Time.Time.HourMarker
 public import Std.Time.Time.PlainTime
-
-public section

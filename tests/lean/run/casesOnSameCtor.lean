@@ -27,8 +27,8 @@ info: Vec.match_on_same_ctor.het.{u_1, u} {α : Type u} {motive : {a : Nat} → 
 /--
 info: Vec.match_on_same_ctor.{u_1, u} {α : Type u}
   {motive : {a : Nat} → (t t_1 : Vec α a) → t.ctorIdx = t_1.ctorIdx → Sort u_1} {a✝ : Nat} (t t✝ : Vec α a✝)
-  (h : t.ctorIdx = t✝.ctorIdx) (nil : motive nil nil ⋯)
-  (cons : (a : α) → {n : Nat} → (a_1 : Vec α n) → (a_2 : α) → (a_3 : Vec α n) → motive (cons a a_1) (cons a_2 a_3) ⋯) :
+  (h : t.ctorIdx = t✝.ctorIdx) (nil : Unit → motive nil nil ⋯)
+  (cons : (a : α) → {n : Nat} → (a_1 : Vec α n) → (a' : α) → (a'_1 : Vec α n) → motive (cons a a_1) (cons a' a'_1) ⋯) :
   motive t t✝ h
 -/
 #guard_msgs in
@@ -38,26 +38,28 @@ info: Vec.match_on_same_ctor.{u_1, u} {α : Type u}
 /--
 info: Vec.match_on_same_ctor.splitter.{u_1, u} {α : Type u}
   {motive : {a : Nat} → (t t_1 : Vec α a) → t.ctorIdx = t_1.ctorIdx → Sort u_1} {a✝ : Nat} (t t✝ : Vec α a✝)
-  (h : t.ctorIdx = t✝.ctorIdx) (h_1 : motive nil nil ⋯)
-  (h_2 : (a : α) → (n : Nat) → (a_1 : Vec α n) → (a_2 : α) → (a_3 : Vec α n) → motive (cons a a_1) (cons a_2 a_3) ⋯) :
+  (h : t.ctorIdx = t✝.ctorIdx) (h_1 : Unit → motive nil nil ⋯)
+  (h_2 : (a : α) → (n : Nat) → (a_1 : Vec α n) → (a' : α) → (a'_1 : Vec α n) → motive (cons a a_1) (cons a' a'_1) ⋯) :
   motive t t✝ h
 -/
 #guard_msgs in
 #check Vec.match_on_same_ctor.splitter
 
--- Since there is no overlap, the splitter is equal to the matcher
--- (I wonder if we should use this in general in MatchEq)
-example : @Vec.match_on_same_ctor = @Vec.match_on_same_ctor.splitter := by rfl
+-- After #11211 this is no longer true. Should we thunk the same-ctor-construction?
+
+-- -- Since there is no overlap, the splitter is equal to the matcher
+-- -- (I wonder if we should use this in general in MatchEq)
+-- example : @Vec.match_on_same_ctor = @Vec.match_on_same_ctor.splitter := by rfl
 
 /--
 info: Vec.match_on_same_ctor.eq_2.{u_1, u} {α : Type u}
   {motive : {a : Nat} → (t t_1 : Vec α a) → t.ctorIdx = t_1.ctorIdx → Sort u_1} (a✝ : α) (n : Nat) (a✝¹ : Vec α n)
-  (a✝² : α) (a✝³ : Vec α n) (nil : motive nil nil ⋯)
-  (cons : (a : α) → {n : Nat} → (a_1 : Vec α n) → (a_2 : α) → (a_3 : Vec α n) → motive (cons a a_1) (cons a_2 a_3) ⋯) :
-  (match n + 1, Vec.cons a✝ a✝¹, Vec.cons a✝² a✝³ with
-    | 0, Vec.nil, Vec.nil, ⋯ => nil
-    | n + 1, Vec.cons a a_1, Vec.cons a_2 a_3, ⋯ => cons a a_1 a_2 a_3) =
-    cons a✝ a✝¹ a✝² a✝³
+  (a'✝ : α) (a'✝¹ : Vec α n) (nil : Unit → motive nil nil ⋯)
+  (cons : (a : α) → {n : Nat} → (a_1 : Vec α n) → (a' : α) → (a'_1 : Vec α n) → motive (cons a a_1) (cons a' a'_1) ⋯) :
+  (match n + 1, Vec.cons a✝ a✝¹, Vec.cons a'✝ a'✝¹ with
+    | 0, Vec.nil, Vec.nil, ⋯ => nil ()
+    | n + 1, Vec.cons a a_1, Vec.cons a' a'_1, ⋯ => cons a a_1 a' a'_1) =
+    cons a✝ a✝¹ a'✝ a'✝¹
 -/
 #guard_msgs in
 #check Vec.match_on_same_ctor.eq_2
@@ -70,7 +72,7 @@ info: Vec.match_on_same_ctor.eq_2.{u_1, u} {α : Type u}
 
 def decEqVec {α} {a} [DecidableEq α] (x : @Vec α a) (x_1 : @Vec α a) : Decidable (x = x_1) :=
   if h : Vec.ctorIdx x = Vec.ctorIdx x_1 then
-    Vec.match_on_same_ctor x x_1 h (isTrue rfl)
+    Vec.match_on_same_ctor x x_1 h (fun _ => isTrue rfl)
       @fun a_1 _ a_2 b b_1 =>
         if h_1 : @a_1 = @b then by
           subst h_1
@@ -135,9 +137,8 @@ run_meta mkCasesOnSameCtor `List.match_on_same_ctor ``List
 
 /--
 info: List.match_on_same_ctor.{u_1, u} {α : Type u} {motive : (t t_1 : List α) → t.ctorIdx = t_1.ctorIdx → Sort u_1}
-  (t t✝ : List α) (h : t.ctorIdx = t✝.ctorIdx) (nil : motive [] [] ⋯)
-  (cons :
-    (head : α) → (tail : List α) → (head_1 : α) → (tail_1 : List α) → motive (head :: tail) (head_1 :: tail_1) ⋯) :
+  (t t✝ : List α) (h : t.ctorIdx = t✝.ctorIdx) (nil : Unit → motive [] [] ⋯)
+  (cons : (head : α) → (tail : List α) → (head' : α) → (tail' : List α) → motive (head :: tail) (head' :: tail') ⋯) :
   motive t t✝ h
 -/
 #guard_msgs in

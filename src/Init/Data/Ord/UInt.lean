@@ -23,6 +23,9 @@ open Std
 
 namespace UInt8
 
+instance : Ord UInt8 where
+  compare x y := compareOfLessAndEq x y
+
 instance : TransOrd UInt8 :=
   TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     UInt8.le_antisymm UInt8.le_trans UInt8.le_total UInt8.not_le
@@ -33,6 +36,9 @@ instance : LawfulEqOrd UInt8 where
 end UInt8
 
 namespace UInt16
+
+instance : Ord UInt16 where
+  compare x y := compareOfLessAndEq x y
 
 instance : TransOrd UInt16 :=
   TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
@@ -45,6 +51,9 @@ end UInt16
 
 namespace UInt32
 
+instance : Ord UInt32 where
+  compare x y := compareOfLessAndEq x y
+
 instance : TransOrd UInt32 :=
   TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     UInt32.le_antisymm UInt32.le_trans UInt32.le_total UInt32.not_le
@@ -56,6 +65,9 @@ end UInt32
 
 namespace UInt64
 
+instance : Ord UInt64 where
+  compare x y := compareOfLessAndEq x y
+
 instance : TransOrd UInt64 :=
   TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     UInt64.le_antisymm UInt64.le_trans UInt64.le_total UInt64.not_le
@@ -66,6 +78,9 @@ instance : LawfulEqOrd UInt64 where
 end UInt64
 
 namespace USize
+
+instance : Ord USize where
+  compare x y := compareOfLessAndEq x y
 
 instance : TransOrd USize :=
   TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le

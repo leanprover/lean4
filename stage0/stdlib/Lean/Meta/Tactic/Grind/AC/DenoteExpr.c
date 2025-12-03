@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.AC.DenoteExpr
-// Imports: Lean.Meta.Tactic.Grind.AC.Util Lean.Meta.AppBuilder
+// Imports: public import Lean.Meta.Tactic.Grind.AC.Util import Lean.Meta.AppBuilder
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -74,6 +74,15 @@ return x_11;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Grind_AC_Seq_denoteExpr___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Grind_AC_Seq_denoteExpr___redArg___lam__0(x_1, x_2, x_3, x_4);
+lean_dec(x_1);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Grind_AC_Seq_denoteExpr___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -108,6 +117,15 @@ x_9 = l_Lean_mkAppB(x_7, x_8, x_6);
 x_10 = lean_apply_2(x_3, lean_box(0), x_9);
 return x_10;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_AC_Seq_denoteExpr___redArg___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_Grind_AC_Seq_denoteExpr___redArg___lam__1(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_4);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_AC_Seq_denoteExpr___redArg___lam__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
@@ -197,24 +215,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Grind_AC_Seq_denoteExpr___redArg(x_2, x_3, x_4);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_AC_Seq_denoteExpr___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_Grind_AC_Seq_denoteExpr___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_1);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_AC_Seq_denoteExpr___redArg___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l_Lean_Grind_AC_Seq_denoteExpr___redArg___lam__1(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_4);
-return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_AC_Expr_denoteExpr___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -527,17 +527,17 @@ x_5 = l_Lean_Meta_Grind_AC_DiseqCnstr_denoteExpr___redArg(x_2, x_3, x_4);
 return x_5;
 }
 }
-lean_object* initialize_Lean_Meta_Tactic_Grind_AC_Util(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_AC_Util(uint8_t builtin);
+lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_AC_DenoteExpr(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_AC_DenoteExpr(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Tactic_Grind_AC_Util(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Grind_AC_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_AppBuilder(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_AppBuilder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Grind_AC_EqCnstr_denoteExpr___redArg___lam__0___closed__0 = _init_l_Lean_Meta_Grind_AC_EqCnstr_denoteExpr___redArg___lam__0___closed__0();

@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Util.ForEachExprWhere
 public import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
 
@@ -84,7 +83,7 @@ where
     let ctx ← mkContext ``Inhabited "default" inductiveTypeName
     let auxFunName := ctx.auxFunNames[0]!
     `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type := $val
-      instance $binders:bracketedBinder* : Inhabited $type := ⟨$(mkIdent auxFunName)⟩)
+      instance $(mkIdent ctx.instName):ident $binders:bracketedBinder* : Inhabited $type := ⟨$(mkIdent auxFunName)⟩)
 
 
   mkInstanceCmd? : TermElabM (Option Syntax) := do

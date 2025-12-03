@@ -5,9 +5,9 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
 public import Lean.Meta.Tactic.Grind.Arith.Linear.OfNatModule
 import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
@@ -91,12 +91,13 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   let some type := getType? e | return ()
   if isForbiddenParent parent? then return ()
   if let some structId ← getStructId? type then LinearM.run structId do
+    trace[grind.linarith.internalize] "{e}"
     setTermStructId e
-    markAsLinarithTerm e
+    linearExt.markTerm e
     markVars e
   else if let some natStructId ← getNatStructId? type then OfNatModuleM.run natStructId do
     let (e', _) ← ofNatModule e
     trace[grind.linarith.internalize] "{e} ==> {e'}"
-    markAsLinarithTerm e
+    linearExt.markTerm e
 
 end Lean.Meta.Grind.Arith.Linear

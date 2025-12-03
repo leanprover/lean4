@@ -6,10 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Consumers.Access
-public import Init.Data.Iterators.Consumers.Collect
 public import Init.Data.Iterators.Lemmas.Consumers.Collect
-public import Init.Data.Iterators.Lemmas.Basic
 public import Std.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 
 @[expose] public section

@@ -21,7 +21,6 @@ info: • [Command] @ ⟨77, 0⟩-⟨77, 40⟩ @ Lean.Elab.Command.elabDeclarati
             • [Completion-Id] n : none @ ⟨77, 26⟩-⟨77, 27⟩
             • [Term] n : Nat @ ⟨77, 26⟩-⟨77, 27⟩
   • [CustomInfo(Lean.Elab.Term.AsyncBodyInfo)]
-    • [Term] t (isBinder := true) : ∀ (n : Nat), 0 ≤ n @ ⟨77, 8⟩-⟨77, 9⟩
     • [Term] n (isBinder := true) : Nat @ ⟨77, 11⟩-⟨77, 12⟩
     • [CustomInfo(Lean.Elab.Term.BodyInfo)]
       • [Tactic] @ ⟨77, 31⟩-⟨77, 40⟩
@@ -68,9 +67,10 @@ info: • [Command] @ ⟨77, 0⟩-⟨77, 40⟩ @ Lean.Elab.Command.elabDeclarati
                       • [Term] n : Nat @ ⟨1, 5⟩†-⟨1, 5⟩†
                 • [CustomInfo(Lean.Meta.Tactic.TryThis.TryThisInfo)]
     • [Term] t (isBinder := true) : ∀ (n : Nat), 0 ≤ n @ ⟨77, 8⟩-⟨77, 9⟩
+    • [Term] t (isBinder := true) : ∀ (n : Nat), 0 ≤ n @ ⟨77, 8⟩-⟨77, 9⟩
 ---
 info: Try this:
-  exact Nat.zero_le n
+  [apply] exact Nat.zero_le n
 -/
 #guard_msgs in
 #info_trees in

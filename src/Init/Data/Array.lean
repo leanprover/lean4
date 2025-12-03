@@ -30,5 +30,3 @@ public import Init.Data.Array.Erase
 public import Init.Data.Array.Zip
 public import Init.Data.Array.InsertIdx
 public import Init.Data.Array.Extract
-
-public section

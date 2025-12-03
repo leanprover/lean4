@@ -6,9 +6,7 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Array.Basic
 public import Init.Data.Float
-public import Init.Data.Option.Basic
 import Init.Ext
 public import Init.Data.Array.DecidableEq
 
@@ -30,9 +28,6 @@ attribute [ext] FloatArray
 @[extern "lean_mk_empty_float_array"]
 def emptyWithCapacity (c : @& Nat) : FloatArray :=
   { data := #[] }
-
-@[deprecated emptyWithCapacity (since := "2025-03-12")]
-abbrev mkEmpty := emptyWithCapacity
 
 def empty : FloatArray :=
   emptyWithCapacity 0
@@ -134,7 +129,7 @@ protected def forIn {β : Type v} {m : Type v → Type w} [Monad m] (as : FloatA
       | ForInStep.yield b => loop i (Nat.le_of_lt h') b
   loop as.size (Nat.le_refl _) b
 
-instance : ForIn m FloatArray Float where
+instance [Monad m] : ForIn m FloatArray Float where
   forIn := FloatArray.forIn
 
 /-- See comment at `forInUnsafe` -/

@@ -1,4 +1,4 @@
-def showChars : Nat → String → String.Pos → IO Unit
+def showChars : Nat → String → String.Pos.Raw → IO Unit
 | 0,     _, _   => pure ()
 | n+1,   s, idx => do
   unless s.atEnd idx  do
@@ -7,14 +7,14 @@ def showChars : Nat → String → String.Pos → IO Unit
 
 def main : IO UInt32 :=
 let s₁             := "hello α_world_β";
-let b : String.Pos := 0;
-let e              := s₁.endPos;
+let b : String.Pos.Raw := 0;
+let e              := s₁.rawEndPos;
 IO.println (s₁.extract b e) *>
 IO.println (s₁.extract (b+ "  ") e) *>
-IO.println (s₁.extract (b+ "  ") (e-⟨1⟩)) *>
-IO.println (s₁.extract (b+⟨2⟩) (e-⟨2⟩)) *>
-IO.println (s₁.extract (b+⟨7⟩) e) *>
-IO.println (s₁.extract (b+⟨8⟩) e) *>
+IO.println (s₁.extract (b+ "  ") (e.unoffsetBy ⟨1⟩)) *>
+IO.println (s₁.extract (b.offsetBy ⟨2⟩) (e.unoffsetBy ⟨2⟩)) *>
+IO.println (s₁.extract (b.offsetBy ⟨7⟩) e) *>
+IO.println (s₁.extract (b.offsetBy ⟨8⟩) e) *>
 IO.println (toString e) *>
 IO.println (repr "   aaa   ".trim) *>
 showChars s₁.length s₁ 0  *>

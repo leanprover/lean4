@@ -7,18 +7,13 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Var
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Not
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftLeft
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftRight
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Append
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Replicate
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateLeft
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateRight
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Umod
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Reverse
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Clz
@@ -333,14 +328,14 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
     | .and | .or | .xor =>
       rw [AIG.RefVec.zip_decl_eq]
       rw [goCache_decl_eq, goCache_decl_eq]
-      · omega
+      · exact Nat.lt_of_lt_of_le h1 hl
       · apply Nat.lt_of_lt_of_le
         · exact h1
         · apply Nat.le_trans <;> assumption
     | .add | .mul | .udiv | .umod =>
       rw [AIG.LawfulVecOperator.decl_eq]
       rw [goCache_decl_eq, goCache_decl_eq]
-      · omega
+      · exact Nat.lt_of_lt_of_le h1 hl
       · apply Nat.lt_of_lt_of_le
         · exact h1
         · apply Nat.le_trans <;> assumption
@@ -350,13 +345,13 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
       rw [AIG.LawfulVecOperator.decl_eq]
       rw [goCache_decl_eq]
       have := (goCache aig expr cache).result.property
-      omega
+      exact Nat.lt_of_lt_of_le h1 this
   next lhsExpr rhsExpr h =>
     have hl := (goCache aig lhsExpr cache).result.property
     have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
     rw [AIG.LawfulVecOperator.decl_eq]
     rw [goCache_decl_eq, goCache_decl_eq]
-    · omega
+    · exact Nat.lt_of_lt_of_le h1 hl
     · apply Nat.lt_of_lt_of_le
       · exact h1
       · apply Nat.le_trans <;> assumption
@@ -364,18 +359,18 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
     rw [AIG.LawfulVecOperator.decl_eq (f := blastReplicate)]
     rw [goCache_decl_eq]
     have := (goCache aig inner cache).result.property
-    omega
+    exact Nat.lt_of_lt_of_le h1 this
   next hi lo inner =>
     rw [AIG.LawfulVecOperator.decl_eq (f := blastExtract)]
     rw [goCache_decl_eq]
     have := (goCache aig inner cache).result.property
-    omega
+    exact Nat.lt_of_lt_of_le h1 this
   next rhsExpr lhsExpr =>
     have hl := (goCache aig lhsExpr cache).result.property
     have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
     rw [AIG.LawfulVecOperator.decl_eq (f := blastShiftLeft)]
     rw [goCache_decl_eq, goCache_decl_eq]
-    · omega
+    · exact Nat.lt_of_lt_of_le h1 hl
     · apply Nat.lt_of_lt_of_le
       · exact h1
       · apply Nat.le_trans <;> assumption
@@ -384,7 +379,7 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
     have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
     rw [AIG.LawfulVecOperator.decl_eq (f := blastShiftRight)]
     rw [goCache_decl_eq, goCache_decl_eq]
-    · omega
+    · exact Nat.lt_of_lt_of_le h1 hl
     · apply Nat.lt_of_lt_of_le
       · exact h1
       · apply Nat.le_trans <;> assumption
@@ -393,7 +388,7 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
     have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
     rw [AIG.LawfulVecOperator.decl_eq (f := blastArithShiftRight)]
     rw [goCache_decl_eq, goCache_decl_eq]
-    · omega
+    · exact Nat.lt_of_lt_of_le h1 hl
     · apply Nat.lt_of_lt_of_le
       · exact h1
       · apply Nat.le_trans <;>  assumption

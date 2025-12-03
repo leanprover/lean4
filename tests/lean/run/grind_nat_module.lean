@@ -54,3 +54,15 @@ end
 example [NatModule α] [AddRightCancel α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedAdd α] (a b c d : α)
     : a ≤ b → a ≥ c + d → d ≤ 0 → d ≥ 0 → b = c → a = b := by
   grind
+
+/--
+trace: [grind.linarith.model] a := 0
+[grind.linarith.model] b := 1
+[grind.linarith.model] c := 1
+[grind.linarith.model] d := -2
+-/
+#guard_msgs (drop error, trace) in
+set_option trace.grind.linarith.model true in
+example [NatModule α] [AddRightCancel α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedAdd α] (a b c d : α)
+    : a ≤ b → a ≥ c + d → b = c → a = b := by
+  grind

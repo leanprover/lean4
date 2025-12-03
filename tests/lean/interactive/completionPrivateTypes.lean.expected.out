@@ -10,3 +10,13 @@
     1,
     "c_private.«external:file:///completionPrivateTypes.lean».0.Foo.x"]}],
  "isIncomplete": false}
+Resolution of x:
+{"label": "x",
+ "kind": 5,
+ "detail": "Foo → Nat",
+ "data":
+ ["«external:file:///completionPrivateTypes.lean»",
+  3,
+  26,
+  1,
+  "c_private.«external:file:///completionPrivateTypes.lean».0.Foo.x"]}

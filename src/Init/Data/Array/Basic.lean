@@ -6,10 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.WFTactics
-public import Init.Data.Nat.Basic
-public import Init.Data.Fin.Basic
-public import Init.Data.UInt.BasicAux
 public import Init.GetElem
 public import Init.Data.List.ToArrayImpl
 import all Init.Data.List.ToArrayImpl
@@ -40,11 +36,11 @@ namespace Array
 
 /-! ### Preliminary theorems -/
 
-@[simp, grind] theorem size_set {xs : Array α} {i : Nat} {v : α} (h : i < xs.size) :
+@[simp, grind =] theorem size_set {xs : Array α} {i : Nat} {v : α} (h : i < xs.size) :
     (set xs i v h).size = xs.size :=
   List.length_set ..
 
-@[simp, grind] theorem size_push {xs : Array α} (v : α) : (push xs v).size = xs.size + 1 :=
+@[simp, grind =] theorem size_push {xs : Array α} (v : α) : (push xs v).size = xs.size + 1 :=
   List.length_concat ..
 
 theorem ext {xs ys : Array α}
@@ -108,12 +104,18 @@ instance : Membership α (Array α) where
 theorem mem_def {a : α} {as : Array α} : a ∈ as ↔ a ∈ as.toList :=
   ⟨fun | .mk h => h, Array.Mem.mk⟩
 
-@[simp, grind =] theorem mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l := by
+@[simp, grind =] theorem _root_.List.mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l := by
   simp [mem_def]
 
-@[simp, grind] theorem getElem_mem {xs : Array α} {i : Nat} (h : i < xs.size) : xs[i] ∈ xs := by
+@[deprecated List.mem_toArray (since := "2025-09-04")]
+theorem mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l :=
+  List.mem_toArray
+
+@[simp] theorem getElem_mem {xs : Array α} {i : Nat} (h : i < xs.size) : xs[i] ∈ xs := by
   rw [Array.mem_def, ← getElem_toList]
   apply List.getElem_mem
+
+grind_pattern getElem_mem => xs[i] ∈ xs
 
 @[simp, grind =] theorem emptyWithCapacity_eq {α n} : @emptyWithCapacity α n = #[] := rfl
 
@@ -123,19 +125,10 @@ end Array
 
 namespace List
 
-@[deprecated Array.toArray_toList (since := "2025-02-17")]
-abbrev toArray_toList := @Array.toArray_toList
-
 -- This does not need to be a simp lemma, as already after the `whnfR` the right hand side is `as`.
 theorem toList_toArray {as : List α} : as.toArray.toList = as := rfl
 
-@[deprecated toList_toArray (since := "2025-02-17")]
-abbrev _root_.Array.toList_toArray := @List.toList_toArray
-
-@[simp, grind] theorem size_toArray {as : List α} : as.toArray.size = as.length := by simp [Array.size]
-
-@[deprecated size_toArray (since := "2025-02-17")]
-abbrev _root_.Array.size_toArray := @List.size_toArray
+@[simp, grind =] theorem size_toArray {as : List α} : as.toArray.size = as.length := by simp [Array.size]
 
 @[simp, grind =] theorem getElem_toArray {xs : List α} {i : Nat} (h : i < xs.toArray.size) :
     xs.toArray[i] = xs[i]'(by simpa using h) := rfl
@@ -197,7 +190,7 @@ Examples:
 def pop (xs : Array α) : Array α where
   toList := xs.toList.dropLast
 
-@[simp, grind] theorem size_pop {xs : Array α} : xs.pop.size = xs.size - 1 := by
+@[simp, grind =] theorem size_pop {xs : Array α} : xs.pop.size = xs.size - 1 := by
   match xs with
   | ⟨[]⟩ => rfl
   | ⟨a::as⟩ => simp [pop, Nat.succ_sub_succ_eq_sub, size]
@@ -217,20 +210,6 @@ def replicate {α : Type u} (n : Nat) (v : α) : Array α where
   toList := List.replicate n v
 
 /--
-Creates an array that contains `n` repetitions of `v`.
-
-The corresponding `List` function is `List.replicate`.
-
-Examples:
- * `Array.mkArray 2 true = #[true, true]`
- * `Array.mkArray 3 () = #[(), (), ()]`
- * `Array.mkArray 0 "anything" = #[]`
--/
-@[extern "lean_mk_array", deprecated replicate (since := "2025-03-18")]
-def mkArray {α : Type u} (n : Nat) (v : α) : Array α where
-  toList := List.replicate n v
-
-/--
 Swaps two elements of an array. The modification is performed in-place when the reference to the
 array is unique.
 
@@ -247,7 +226,7 @@ def swap (xs : Array α) (i j : @& Nat) (hi : i < xs.size := by get_elem_tactic)
   let xs'  := xs.set i v₂
   xs'.set j v₁ (Nat.lt_of_lt_of_eq hj (size_set _).symm)
 
-@[simp] theorem size_swap {xs : Array α} {i j : Nat} {hi hj} : (xs.swap i j hi hj).size = xs.size := by
+@[simp, grind =] theorem size_swap {xs : Array α} {i j : Nat} {hi hj} : (xs.swap i j hi hj).size = xs.size := by
   change ((xs.set i xs[j]).set j xs[i]
     (Nat.lt_of_lt_of_eq hj (size_set _).symm)).size = xs.size
   rw [size_set, size_set]
@@ -263,7 +242,7 @@ Examples:
 * `#["red", "green", "blue", "brown"].swapIfInBounds 0 4 = #["red", "green", "blue", "brown"]`
 * `#["red", "green", "blue", "brown"].swapIfInBounds 9 2 = #["red", "green", "blue", "brown"]`
 -/
-@[extern "lean_array_swap", grind]
+@[extern "lean_array_swap", expose]
 def swapIfInBounds (xs : Array α) (i j : @& Nat) : Array α :=
   if h₁ : i < xs.size then
   if h₂ : j < xs.size then swap xs i j
@@ -406,10 +385,6 @@ that requires a proof the array is non-empty.
 def back? (xs : Array α) : Option α :=
   xs[xs.size - 1]?
 
-@[deprecated "Use `a[i]?` instead." (since := "2025-02-12"), expose]
-def get? (xs : Array α) (i : Nat) : Option α :=
-  if h : i < xs.size then some xs[i] else none
-
 /--
 Swaps a new element with the element at the given index.
 
@@ -441,7 +416,7 @@ def swapAt! (xs : Array α) (i : Nat) (v : α) : α × Array α :=
     swapAt xs i v
   else
     have : Inhabited (α × Array α) := ⟨(v, xs)⟩
-    panic! ("index " ++ toString i ++ " out of bounds")
+    panic! String.Internal.append (String.Internal.append "index " (toString i)) " out of bounds"
 
 /--
 Returns the first `n` elements of an array. The resulting array is produced by repeatedly calling
@@ -473,7 +448,7 @@ Examples:
 -/
 abbrev take (xs : Array α) (i : Nat) : Array α := extract xs 0 i
 
-@[simp] theorem take_eq_extract {xs : Array α} {i : Nat} : xs.take i = xs.extract 0 i := rfl
+@[simp, grind =] theorem take_eq_extract {xs : Array α} {i : Nat} : xs.take i = xs.extract 0 i := rfl
 
 /--
 Removes the first `i` elements of `xs`. If `xs` has fewer than `i` elements, the new array is empty.
@@ -487,7 +462,7 @@ Examples:
 -/
 abbrev drop (xs : Array α) (i : Nat) : Array α := extract xs i xs.size
 
-@[simp] theorem drop_eq_extract {xs : Array α} {i : Nat} : xs.drop i = xs.extract i xs.size := rfl
+@[simp, grind =] theorem drop_eq_extract {xs : Array α} {i : Nat} : xs.drop i = xs.extract i xs.size := rfl
 
 @[inline]
 unsafe def modifyMUnsafe [Monad m] (xs : Array α) (i : Nat) (f : α → m α) : m (Array α) := do
@@ -595,7 +570,7 @@ protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad 
       | ForInStep.yield b => loop i (Nat.le_of_lt h') b
   loop as.size (Nat.le_refl _) b
 
-instance : ForIn' m (Array α) α inferInstance where
+instance [Monad m] : ForIn' m (Array α) α inferInstance where
   forIn' := Array.forIn'
 
 -- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
@@ -759,8 +734,7 @@ of results.
 def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m β) (as : Array α) : m (Array β) :=
   -- Note: we cannot use `foldlM` here for the reference implementation because this calls
   -- `bind` and `pure` too many times. (We are not assuming `m` is a `LawfulMonad`)
-  let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
-    map (i : Nat) (bs : Array β) : m (Array β) := do
+  let rec map (i : Nat) (bs : Array β) : m (Array β) := do
       if hlt : i < as.size then
         map (i+1) (bs.push (← f as[i]))
       else
@@ -920,8 +894,7 @@ entire array is checked.
 @[implemented_by anyMUnsafe, expose]
 def anyM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Array α) (start := 0) (stop := as.size) : m Bool :=
   let any (stop : Nat) (h : stop ≤ as.size) :=
-    let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
-    loop (j : Nat) : m Bool := do
+    let rec loop (j : Nat) : m Bool := do
       if hlt : j < stop then
         have : j < as.size := Nat.lt_of_lt_of_le hlt h
         if (← p as[j]) then
@@ -1028,7 +1001,7 @@ unless `start < stop`. By default, the entire array is used.
 protected def forM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Array α) (start := 0) (stop := as.size) : m PUnit :=
   as.foldlM (fun _ => f) ⟨⟩ start stop
 
-instance : ForM m (Array α) α where
+instance [Monad m] : ForM m (Array α) α where
   forM xs f := Array.forM f xs
 
 -- We simplify `Array.forM` to `forM`.
@@ -1259,8 +1232,7 @@ Examples:
 -/
 @[inline, expose]
 def findIdx? {α : Type u} (p : α → Bool) (as : Array α) : Option Nat :=
-  let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
-  loop (j : Nat) :=
+  let rec loop (j : Nat) :=
     if h : j < as.size then
       if p as[j] then some j else loop (j + 1)
     else none
@@ -1277,8 +1249,7 @@ Examples:
 -/
 @[inline]
 def findFinIdx? {α : Type u} (p : α → Bool) (as : Array α) : Option (Fin as.size) :=
-  let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
-  loop (j : Nat) :=
+  let rec loop (j : Nat) :=
     if h : j < as.size then
       if p as[j] then some ⟨j, h⟩ else loop (j + 1)
     else none
@@ -1314,7 +1285,6 @@ Examples:
 @[inline, expose]
 def findIdx (p : α → Bool) (as : Array α) : Nat := (as.findIdx? p).getD as.size
 
-@[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 def idxOfAux [BEq α] (xs : Array α) (v : α) (i : Nat) : Option (Fin xs.size) :=
   if h : i < xs.size then
     if xs[i] == v then some ⟨i, h⟩
@@ -1325,7 +1295,7 @@ decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 
 /--
-Returns the index of the first element equal to `a`, or the size of the array if no element is equal
+Returns the index of the first element equal to `a`, or `none` if no element is equal
 to `a`. The index is returned as a `Fin`, which guarantees that it is in bounds.
 
 Examples:
@@ -1724,7 +1694,6 @@ Examples:
  * `#[3, 2, 3, 4].popWhile (· > 2) = #[3, 2]`
  * `(#[] : Array Nat).popWhile (· > 2) = #[]`
 -/
-@[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 def popWhile (p : α → Bool) (as : Array α) : Array α :=
   if h : as.size > 0 then
     if p (as[as.size - 1]'(Nat.sub_lt h (by decide))) then
@@ -1735,7 +1704,7 @@ def popWhile (p : α → Bool) (as : Array α) : Array α :=
     as
 decreasing_by simp_wf; decreasing_trivial_pre_omega
 
-@[simp] theorem popWhile_empty {p : α → Bool} :
+@[simp, grind =] theorem popWhile_empty {p : α → Bool} :
     popWhile p #[] = #[] := by
   simp [popWhile]
 
@@ -1749,8 +1718,7 @@ Examples:
  * `#[0, 1, 2, 3, 2, 1].takeWhile (· < 0) = #[]`
 -/
 def takeWhile (p : α → Bool) (as : Array α) : Array α :=
-  let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
-  go (i : Nat) (acc : Array α) : Array α :=
+  let rec go (i : Nat) (acc : Array α) : Array α :=
     if h : i < as.size then
       let a := as[i]
       if p a then
@@ -1773,7 +1741,6 @@ Examples:
 * `#["apple", "pear", "orange"].eraseIdx 1 = #["apple", "orange"]`
 * `#["apple", "pear", "orange"].eraseIdx 2 = #["apple", "pear"]`
 -/
-@[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 def eraseIdx (xs : Array α) (i : Nat) (h : i < xs.size := by get_elem_tactic) : Array α :=
   if h' : i + 1 < xs.size then
     let xs' := xs.swap (i + 1) i
@@ -1784,7 +1751,8 @@ termination_by xs.size - i
 decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ h
 
 -- This is required in `Lean.Data.PersistentHashMap`.
-@[simp] theorem size_eraseIdx {xs : Array α} (i : Nat) (h) : (xs.eraseIdx i h).size = xs.size - 1 := by
+@[simp, grind =]
+theorem size_eraseIdx {xs : Array α} (i : Nat) (h) : (xs.eraseIdx i h).size = xs.size - 1 := by
   induction xs, i, h using Array.eraseIdx.induct with
   | @case1 xs i h h' xs' ih =>
     unfold eraseIdx
@@ -1806,7 +1774,6 @@ Examples:
 * `#["apple", "pear", "orange"].eraseIdxIfInBounds 3 = #["apple", "pear", "orange"]`
 * `#["apple", "pear", "orange"].eraseIdxIfInBounds 5 = #["apple", "pear", "orange"]`
 -/
-@[grind]
 def eraseIdxIfInBounds (xs : Array α) (i : Nat) : Array α :=
   if h : i < xs.size then xs.eraseIdx i h else xs
 
@@ -1869,8 +1836,7 @@ Examples:
  * `#["tues", "thur", "sat"].insertIdx 3 "wed" = #["tues", "thur", "sat", "wed"]`
 -/
 @[inline] def insertIdx (as : Array α) (i : Nat) (a : α) (_ : i ≤ as.size := by get_elem_tactic) : Array α :=
-  let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
-  loop (as : Array α) (j : Fin as.size) :=
+  let rec loop (as : Array α) (j : Fin as.size) :=
     if i < j then
       let j' : Fin as.size := ⟨j-1, Nat.lt_of_le_of_lt (Nat.pred_le _) j.2⟩
       let as := as.swap j' j
@@ -1924,7 +1890,6 @@ def insertIdxIfInBounds (as : Array α) (i : Nat) (a : α) : Array α :=
   else
     as
 
-@[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) (i : Nat) : Bool :=
   if h : i < as.size then
     let a := as[i]
@@ -1953,7 +1918,7 @@ def isPrefixOf [BEq α] (as bs : Array α) : Bool :=
   else
     false
 
-@[semireducible, specialize] -- This is otherwise irreducible because it uses well-founded recursion.
+@[specialize]
 def zipWithMAux {m : Type v → Type w} [Monad m] (as : Array α) (bs : Array β) (f : α → β → m γ) (i : Nat) (cs : Array γ) : m (Array γ) := do
   if h : i < as.size then
     let a := as[i]
@@ -2116,7 +2081,6 @@ private def allDiffAuxAux [BEq α] (as : Array α) (a : α) : forall (i : Nat), 
     have : i < as.size := Nat.lt_trans (Nat.lt_succ_self _) h;
     a != as[i] && allDiffAuxAux as a i this
 
-@[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 private def allDiffAux [BEq α] (as : Array α) (i : Nat) : Bool :=
   if h : i < as.size then
     allDiffAuxAux as as[i] i h && allDiffAux as (i+1)
@@ -2167,8 +2131,6 @@ instance {α : Type u} [Repr α] : Repr (Array α) where
   reprPrec xs _ := Array.repr xs
 
 instance [ToString α] : ToString (Array α) where
-  toString xs := "#" ++ toString xs.toList
+  toString xs := String.Internal.append "#" (toString xs.toList)
 
 end Array
-
-export Array (mkArray)

@@ -8,7 +8,6 @@ module
 
 prelude
 public import Init.Data.List.TakeDrop
-public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
 
 public section
@@ -24,29 +23,6 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 
 namespace Array
 
-/--
-Use the indexing notation `a[i]` instead.
-
-Access an element from an array without needing a runtime bounds checks,
-using a `Nat` index and a proof that it is in bounds.
-
-This function does not use `get_elem_tactic` to automatically find the proof that
-the index is in bounds. This is because the tactic itself needs to look up values in
-arrays.
--/
-@[deprecated "Use indexing notation `as[i]` instead" (since := "2025-02-17")]
-def get {α : Type u} (xs : @& Array α) (i : @& Nat) (h : LT.lt i xs.size) : α :=
-  xs.toList.get ⟨i, h⟩
-
-/--
-Use the indexing notation `a[i]!` instead.
-
-Access an element from an array, or panic if the index is out of bounds.
--/
-@[deprecated "Use indexing notation `as[i]!` instead" (since := "2025-02-17"), expose]
-def get! {α : Type u} [Inhabited α] (xs : @& Array α) (i : @& Nat) : α :=
-  Array.getD xs i default
-
 theorem foldlM_toList.aux [Monad m]
     {f : β → α → m β} {xs : Array α} {i j} (H : xs.size ≤ i + j) {b} :
     foldlM.loop f xs xs.size (Nat.le_refl _) i j b = (xs.toList.drop j).foldlM f b := by
@@ -55,7 +31,7 @@ theorem foldlM_toList.aux [Monad m]
   · cases Nat.not_le_of_gt ‹_› (Nat.zero_add _ ▸ H)
   · rename_i i; rw [Nat.succ_add] at H
     simp [foldlM_toList.aux (j := j+1) H]
-    rw (occs := [2]) [← List.getElem_cons_drop_succ_eq_drop ‹_›]
+    rw (occs := [2]) [← List.getElem_cons_drop ‹_›]
     simp
   · rw [List.drop_of_length_le (Nat.ge_of_not_lt ‹_›)]; simp
 
@@ -108,9 +84,6 @@ abbrev push_toList := @toList_push
 
 @[simp, grind =] theorem toList_pop {xs : Array α} : xs.pop.toList = xs.toList.dropLast := rfl
 
-@[deprecated toList_pop (since := "2025-02-17")]
-abbrev pop_toList := @Array.toList_pop
-
 @[simp] theorem append_eq_append {xs ys : Array α} : xs.append ys = xs ++ ys := rfl
 
 @[simp, grind =] theorem toList_append {xs ys : Array α} :
@@ -127,8 +100,14 @@ abbrev pop_toList := @Array.toList_pop
 @[simp, grind =] theorem empty_append {xs : Array α} : #[] ++ xs = xs := by
   apply ext'; simp only [toList_append, List.nil_append]
 
-@[simp, grind _=_] theorem append_assoc {xs ys zs : Array α} : xs ++ ys ++ zs = xs ++ (ys ++ zs) := by
+@[simp] theorem append_assoc {xs ys zs : Array α} : xs ++ ys ++ zs = xs ++ (ys ++ zs) := by
   apply ext'; simp only [toList_append, List.append_assoc]
+
+grind_pattern append_assoc => (xs ++ ys) ++ zs where
+  xs =/= #[]; ys =/= #[]; zs =/= #[]
+
+grind_pattern append_assoc => xs ++ (ys ++ zs) where
+  xs =/= #[]; ys =/= #[]; zs =/= #[]
 
 @[simp] theorem appendList_eq_append {xs : Array α} {l : List α} : xs.appendList l = xs ++ l := rfl
 
@@ -136,7 +115,5 @@ abbrev pop_toList := @Array.toList_pop
     (xs ++ l).toList = xs.toList ++ l := by
   rw [← appendList_eq_append]; unfold Array.appendList
   induction l generalizing xs <;> simp [*]
-
-
 
 end Array

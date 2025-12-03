@@ -72,14 +72,14 @@ builtin_initialize inlineAttrs : EnumAttributes InlineAttributeKind ←
      (`macro_inline, "mark definition to always be inlined before ANF conversion", .macroInline),
      (`always_inline, "mark definition to be always inlined", .alwaysInline)]
     fun declName kind => do
-      ofExcept <| (checkIsDefinition (← getEnv) declName).mapError fun e =>
-        s!"Cannot add attribute `[{kind.toAttrString}]`: {e}"
       if kind matches .macroInline then
+        if !(checkIsDefinition (← getEnv) declName |>.isOk) then
+          throwError "invalid `[macro_inline]` attribute, `{.ofConstName declName}` must be an exposed definition"
         unless (← isValidMacroInline declName) do
           throwError "Cannot add `[macro_inline]` attribute to `{.ofConstName declName}`: This attribute does not support this kind of declaration; only non-recursive definitions are supported"
-        withExporting (isExporting := !isPrivateName declName) do
-          if !(← getConstInfo declName).isDefinition then
-            throwError "invalid `[macro_inline]` attribute, `{.ofConstName declName}` must be an exposed definition"
+      else
+        ofExcept <| (checkIsDefinition (← withoutExporting <| getEnv) declName).mapError fun e =>
+          s!"Cannot add attribute `[{kind.toAttrString}]`: {e}"
 
 def setInlineAttribute (env : Environment) (declName : Name) (kind : InlineAttributeKind) : Except String Environment :=
   inlineAttrs.setValue env declName kind

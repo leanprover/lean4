@@ -18,3 +18,23 @@
     0,
     "cAVerySpecificStructureName"]}],
  "isIncomplete": false}
+Resolution of AVerySpecificStructureName2:
+{"label": "AVerySpecificStructureName2",
+ "kind": 22,
+ "detail": "Type",
+ "data":
+ ["«external:file:///completionCheck.lean»",
+  6,
+  33,
+  0,
+  "cAVerySpecificStructureName2"]}
+Resolution of AVerySpecificStructureName:
+{"label": "AVerySpecificStructureName",
+ "kind": 22,
+ "detail": "Type",
+ "data":
+ ["«external:file:///completionCheck.lean»",
+  6,
+  33,
+  0,
+  "cAVerySpecificStructureName"]}

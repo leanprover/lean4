@@ -8,5 +8,3 @@ module
 prelude
 public import Std.Data.ExtTreeSet.Basic
 public import Std.Data.ExtTreeSet.Lemmas
-
-@[expose] public section

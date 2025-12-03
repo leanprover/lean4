@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
+import Lean.Meta.Tactic.Grind.Arith.Util
+import Init.Data.Int.Gcd
 public section
 namespace Lean.Meta.Grind.Arith.Linear
 
@@ -38,7 +40,10 @@ def setTermStructId (e : Expr) : LinearM Unit := do
     unless structId' == structId do
       reportIssue! "expression in two different structure in linarith module{indentExpr e}"
     return ()
-  modify' fun s => { s with exprToStructId := s.exprToStructId.insert { expr := e } structId }
+  modify' fun s => { s with
+    exprToStructId := s.exprToStructId.insert { expr := e } structId
+    exprToStructIdEntries := s.exprToStructIdEntries.push (e, structId)
+  }
 
 def getNoNatDivInst : LinearM Expr := do
   let some inst := (← getStruct).noNatDivInst?

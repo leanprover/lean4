@@ -8,29 +8,37 @@ error: `grind` failed
 case grind
 a b c : Bool
 p q : Prop
-left : a = true
-right : b = true ∨ c = true
-left_1 : p
-right_1 : q
+h : (f a && (b || f (f c))) = true
+h' : p ∧ q
 h_1 : (b && a) = false
 ⊢ False
 [grind] Goal diagnostics
   [facts] Asserted facts
-    [prop] a = true
-    [prop] b = true ∨ c = true
-    [prop] p
-    [prop] q
+    [prop] a = true ∧ (b = true ∨ c = true)
+    [prop] p ∧ q
     [prop] (b && a) = false
   [eqc] True propositions
     [prop] p
     [prop] q
+    [prop] p ∧ q
+    [prop] a = true ∧ (b = true ∨ c = true)
     [prop] b = true ∨ c = true
+    [prop] a = true
     [prop] c = true
   [eqc] False propositions
     [prop] b = true
   [eqc] Equivalence classes
     [eqc] {a, c, true}
     [eqc] {b, false, b && a}
+  [assoc] Operator `and`
+    [basis] Basis
+      [_] a = true
+    [diseqs] Disequalities
+      [_] b ≠ true
+    [properties] Properties
+      [_] commutative
+      [_] idempotent
+      [_] identity: `true`
 -/
 #guard_msgs (error) in
 theorem ex (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
@@ -41,31 +49,40 @@ attribute [local grind cases eager] Or
 
 /--
 error: `grind` failed
-case grind.2
+case grind
 a b c : Bool
 p q : Prop
-left : a = true
-h_1 : c = true
-left_1 : p
-right_1 : q
-h_2 : (b && a) = false
+h : (f a && (b || f (f c))) = true
+h' : p ∧ q
+h_1 : (b && a) = false
 ⊢ False
 [grind] Goal diagnostics
   [facts] Asserted facts
-    [prop] a = true
-    [prop] c = true
-    [prop] p
-    [prop] q
+    [prop] a = true ∧ (b = true ∨ c = true)
+    [prop] p ∧ q
     [prop] (b && a) = false
   [eqc] True propositions
     [prop] p
     [prop] q
+    [prop] p ∧ q
+    [prop] a = true ∧ (b = true ∨ c = true)
+    [prop] b = true ∨ c = true
+    [prop] a = true
+    [prop] c = true
+  [eqc] False propositions
+    [prop] b = true
   [eqc] Equivalence classes
     [eqc] {a, c, true}
     [eqc] {b, false, b && a}
-[grind] Diagnostics
-  [cases] Cases instances
-    [cases] Or ↦ 1
+  [assoc] Operator `and`
+    [basis] Basis
+      [_] a = true
+    [diseqs] Disequalities
+      [_] b ≠ true
+    [properties] Properties
+      [_] commutative
+      [_] idempotent
+      [_] identity: `true`
 -/
 #guard_msgs (error) in
 theorem ex2 (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
@@ -74,20 +91,6 @@ theorem ex2 (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
 end
 
 def g (i : Nat) (j : Nat) (_ : i > j := by omega) := i + j
-
-/--
-trace: [grind.offset.model] i := 1
-[grind.offset.model] j := 0
-[grind.offset.model] 「0」 := 0
-[grind.offset.model] 「i + j」 := 0
-[grind.offset.model] 「i + 1」 := 2
-[grind.offset.model] 「i + j + 1」 := 1
--/
-#guard_msgs (trace) in
-set_option trace.grind.offset.model true in
-example (i j : Nat) (h : i + 1 > j + 1) : g (i+1) j = f ((fun x => x) i) + f j + 1 := by
-  fail_if_success grind
-  sorry
 
 structure Point where
   x : Nat
@@ -104,22 +107,19 @@ b₁ : Point
 bs : List Point
 b₂ : Nat
 b₃ : Int
-head_eq : a₁ = b₁
-x_eq : a₂ = b₂
-y_eq : a₃ = b₃
-tail_eq_1 : as = bs
+h : a₁ :: { x := a₂, y := a₃ } :: as = b₁ :: { x := b₂, y := b₃ } :: bs
 ⊢ False
 [grind] Goal diagnostics
   [facts] Asserted facts
-    [prop] a₁ = b₁
-    [prop] a₂ = b₂
-    [prop] a₃ = b₃
-    [prop] as = bs
+    [prop] a₁ :: { x := a₂, y := a₃ } :: as = b₁ :: { x := b₂, y := b₃ } :: bs
   [eqc] Equivalence classes
     [eqc] {a₁, b₁}
     [eqc] {a₂, b₂}
     [eqc] {a₃, b₃}
     [eqc] {as, bs}
+    [eqc] {{ x := a₂, y := a₃ }, { x := b₂, y := b₃ }}
+    [eqc] {a₁ :: { x := a₂, y := a₃ } :: as, b₁ :: { x := b₂, y := b₃ } :: bs}
+    [eqc] {{ x := a₂, y := a₃ } :: as, { x := b₂, y := b₃ } :: bs}
 -/
 #guard_msgs (error) in
 theorem ex3 (h : a₁ :: { x := a₂, y := a₃ : Point } :: as = b₁ :: { x := b₂, y := b₃} :: bs) : False := by

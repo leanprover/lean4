@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.ErrorExplanation
+meta import Lean.ErrorExplanation
 
 public section
 
@@ -34,7 +35,7 @@ will never attempt to use the theorem body to infer the proposition being proved
 
 # Examples
 
-## Implicit argument cannot be inferred
+## Implicit Argument Cannot be Inferred
 
 ```lean broken
 def emptyNats :=
@@ -59,7 +60,7 @@ the expected type of the definition allows Lean to infer the appropriate implici
 `List.nil` constructor; alternatively, making this implicit argument explicit in the function body
 provides sufficient information for Lean to infer the definition's type.
 
-## Definition type uninferrable due to unknown parameter type
+## Definition Type Uninferrable Due to Unknown Parameter Type
 
 ```lean broken
 def identity x :=

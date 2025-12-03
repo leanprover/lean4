@@ -143,10 +143,10 @@ Can catch mixin failure
 instance (inst : DecidableEq (Type _)) : C1 List := {}
 
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   DecidableEq (Type u_1)
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ---
 error: Failed to delta derive `C1` instance for `MyList'`.
 
@@ -281,10 +281,10 @@ No such definition
 Delta deriving fails due to synthesis failure.
 -/
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   Inhabited (Fin n)
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ---
 error: Failed to delta derive `Inhabited` instance for `D2`.
 
@@ -295,10 +295,10 @@ def D2 (n : Nat) := Fin n
 deriving Inhabited
 
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   Inhabited (D2 n)
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ---
 error: Failed to delta derive `Inhabited` instance for `D2'`.
 

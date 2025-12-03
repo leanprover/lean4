@@ -89,7 +89,7 @@ in the context found at `hoverPos` in `infoTree`.
 -/
 def resolveCompletionItem?
     (fileMap           : FileMap)
-    (hoverPos          : String.Pos)
+    (hoverPos          : String.Pos.Raw)
     (cmdStx            : Syntax)
     (infoTree          : InfoTree)
     (item              : CompletionItem)

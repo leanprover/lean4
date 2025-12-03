@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.GrindInstances.Ring.BitVec
-// Imports: Init.Grind.Ring.Basic Init.Grind.Ordered.Order Init.GrindInstances.ToInt Init.Data.BitVec.Basic Init.Data.BitVec.Basic Init.Grind.ToInt Init.Grind.ToInt
+// Imports: public import Init.Grind.Ordered.Order public import Init.GrindInstances.ToInt import all Init.Data.BitVec.Basic import all Init.Grind.ToInt
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -48,6 +48,28 @@ x_4 = l_BitVec_ofInt(x_1, x_2);
 x_5 = l_BitVec_mul(x_1, x_4, x_3);
 lean_dec(x_4);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Grind_instCommRingBitVec___lam__0(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Grind_instCommRingBitVec___lam__1(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec(lean_object* x_1) {
@@ -100,59 +122,25 @@ lean_ctor_set(x_14, 4, x_3);
 return x_14;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Grind_instCommRingBitVec___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Grind_instCommRingBitVec___lam__1(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_4;
-}
-}
-lean_object* initialize_Init_Grind_Ring_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Ordered_Order(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_ToInt(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_ToInt(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Ordered_Order(uint8_t builtin);
+lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin);
+lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin);
+lean_object* initialize_Init_Grind_ToInt(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_GrindInstances_Ring_BitVec(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_GrindInstances_Ring_BitVec(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Grind_Ring_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Ordered_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ordered_Order(builtin, lean_io_mk_world());
+res = initialize_Init_GrindInstances_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GrindInstances_ToInt(builtin, lean_io_mk_world());
+res = initialize_Init_Data_BitVec_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Grind_ToInt(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Grind_ToInt(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

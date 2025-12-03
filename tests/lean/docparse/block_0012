@@ -1,0 +1,15 @@
+* `structure` and `inductive` commands
+  * [#5842](https://github.com/leanprover/lean4/pull/5842) and [#5783](https://github.com/leanprover/lean4/pull/5783) implement a feature where the `structure` command can now define recursive inductive types:
+    ```lean
+    structure Tree where
+      n : Nat
+      children : Fin n → Tree
+
+    def Tree.size : Tree → Nat
+      | {n, children} => Id.run do
+        let mut s := 0
+        for h : i in [0 : n] do
+          s := s + (children ⟨i, h.2⟩).size
+        pure s
+    ```
+  * [#5814](https://github.com/leanprover/lean4/pull/5814) 

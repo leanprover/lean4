@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Consumers.Collect
 public import Init.Data.Iterators.Consumers.Loop
 public import Init.Data.Iterators.Internal.Termination
 
@@ -44,7 +43,7 @@ def Empty.PlausibleStep (_ : IterM (α := Empty m β) m β)
 
 instance Empty.instIterator [Monad m] : Iterator (Empty m β) m β where
   IsPlausibleStep := Empty.PlausibleStep
-  step _ := return .done rfl
+  step _ := return .deflate (.done rfl)
 
 private def Empty.instFinitenessRelation [Monad m] :
     FinitenessRelation (Empty m β) m where

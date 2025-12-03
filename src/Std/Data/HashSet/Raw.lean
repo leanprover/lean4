@@ -69,9 +69,6 @@ the empty collection notations `∅` and `{}` to create an empty hash set with t
 @[inline] def emptyWithCapacity (capacity := 8) : Raw α :=
   ⟨HashMap.Raw.emptyWithCapacity capacity⟩
 
-@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
-abbrev empty := @emptyWithCapacity
-
 instance : EmptyCollection (Raw α) where
   emptyCollection := emptyWithCapacity
 
@@ -210,10 +207,10 @@ order.
     (init : β) (b : Raw α) : m β :=
   b.inner.forIn (fun a _ acc => f a acc) init
 
-instance {m : Type v → Type w} : ForM m (Raw α) α where
+instance {m : Type v → Type w} [Monad m] : ForM m (Raw α) α where
   forM m f := m.forM f
 
-instance {m : Type v → Type w} : ForIn m (Raw α) α where
+instance {m : Type v → Type w} [Monad m] : ForIn m (Raw α) α where
   forIn m init f := m.forIn f init
 
 /-- Removes all elements from the hash set for which the given function returns `false`. -/
@@ -224,21 +221,50 @@ instance {m : Type v → Type w} : ForIn m (Raw α) α where
 @[inline] def toArray (m : Raw α) : Array α :=
   m.inner.keysArray
 
+/--
+Computes the union of the given hash sets.
+
+This function always merges the smaller set into the larger set, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α) : Raw α :=
+  ⟨HashMap.Raw.union m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : Union (Raw α) := ⟨union⟩
+
+/--
+Computes the intersection of the given hash sets. The result will only contain entries from the first map.
+
+This function always merges the smaller set into the larger set, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def inter [BEq α] [Hashable α] (m₁ m₂ : Raw α) : Raw α :=
+  ⟨HashMap.Raw.inter m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : Inter (Raw α) := ⟨inter⟩
+
+/--
+Computes the difference of the given hash sets.
+
+This function always iterates through the smaller, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def diff [BEq α] [Hashable α] (m₁ m₂ : Raw α) : Raw α :=
+  ⟨HashMap.Raw.diff m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : SDiff (Raw α) := ⟨diff⟩
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
 
 /-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
-@[inline] def all (m : Raw α) (p : α → Bool) : Bool := Id.run do
-  for a in m do
-    if ¬ p a then return false
-  return true
+@[inline] def all (m : Raw α) (p : α → Bool) : Bool := m.inner.all (fun x _ => p x)
 
 /-- Check if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
-@[inline] def any (m : Raw α) (p : α → Bool) : Bool := Id.run do
-  for a in m do
-    if p a then return true
-  return false
+@[inline] def any (m : Raw α) (p : α → Bool) : Bool := m.inner.any (fun x _ => p x)
+
+/-! We currently do not provide lemmas for the functions below. -/
 
 /--
 Inserts multiple mappings into the hash set by iterating over the given collection and calling
@@ -259,12 +285,6 @@ in the collection will be present in the returned hash set.
 -/
 @[inline] def ofArray [BEq α] [Hashable α] (l : Array α) : Raw α :=
   ⟨HashMap.Raw.unitOfArray l⟩
-
-/-- Computes the union of the given hash sets, by traversing `m₂` and inserting its elements into `m₁`. -/
-@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α) : Raw α :=
-  m₂.fold (init := m₁) fun acc x => acc.insert x
-
-instance [BEq α] [Hashable α] : Union (Raw α) := ⟨union⟩
 
 /--
 Returns the number of buckets in the internal representation of the hash set. This function may
@@ -295,10 +315,6 @@ theorem WF.emptyWithCapacity [BEq α] [Hashable α] {c} : (emptyWithCapacity c :
 theorem WF.empty [BEq α] [Hashable α] : (∅ : Raw α).WF :=
   WF.emptyWithCapacity
 
-set_option linter.missingDocs false in
-@[deprecated WF.empty (since := "2025-03-12")]
-abbrev WF.emptyc := @WF.empty
-
 theorem WF.insert [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.insert a).WF :=
   ⟨HashMap.Raw.WF.insertIfNew h.out⟩
 
@@ -319,6 +335,15 @@ theorem WF.insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] {m :
 theorem WF.ofList [BEq α] [Hashable α] {l : List α} :
     (ofList l : Raw α).WF :=
   ⟨HashMap.Raw.WF.unitOfList⟩
+
+theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ ∪ m₂).WF :=
+  ⟨HashMap.Raw.WF.union h₁.out h₂.out⟩
+
+theorem WF.inter [BEq α] [Hashable α] {m₁ m₂ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ ∩ m₂).WF :=
+  ⟨HashMap.Raw.WF.inter h₁.out h₂.out⟩
+
+theorem WF.diff [BEq α] [Hashable α] {m₁ m₂ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ \ m₂).WF :=
+  ⟨HashMap.Raw.WF.diff h₁.out h₂.out⟩
 
 end Raw
 

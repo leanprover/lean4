@@ -13,7 +13,6 @@ public section
 namespace Std
 namespace Time
 namespace Nanosecond
-open Std.Internal
 open Internal
 
 set_option linter.all true

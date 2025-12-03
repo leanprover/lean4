@@ -118,9 +118,6 @@ instance : Mod Int where
 
 @[simp, norm_cast] theorem natCast_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := rfl
 
-@[deprecated natCast_ediv (since := "2025-04-17")]
-theorem ofNat_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := natCast_ediv m n
-
 theorem ofNat_ediv_ofNat {a b : Nat} : (↑a / ↑b : Int) = (a / b : Nat) := rfl
 @[norm_cast]
 theorem negSucc_ediv_ofNat_succ {a b : Nat} : ((-[a+1]) / ↑(b+1) : Int) = -[a / succ b +1] := rfl

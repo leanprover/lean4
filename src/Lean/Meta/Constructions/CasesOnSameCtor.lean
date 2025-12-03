@@ -8,12 +8,11 @@ module
 
 prelude
 public import Lean.Meta.Basic
-import Lean.AddDecl
-import Lean.Meta.AppBuilder
 import Lean.Meta.CompletionName
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CtorElim
 import Lean.Elab.App
+import Lean.Meta.SameCtorUtils
 
 /-!
 See `mkCasesOnSameCtor` below.
@@ -109,23 +108,6 @@ public def mkCasesOnSameCtorHet (declName : Name) (indName : Name) : MetaM Unit 
   Elab.Term.elabAsElim.setTag declName
   setReducibleAttribute declName
 
-def withSharedIndices (ctor : Expr) (k : Array Expr → Expr → Expr → MetaM α) : MetaM α := do
-  let ctorType ← inferType ctor
-  forallTelescopeReducing ctorType fun zs ctorRet => do
-    let ctor1 := mkAppN ctor zs
-    let rec go ctor2 todo acc := do
-      match todo with
-      | [] => k acc ctor1 ctor2
-      | z::todo' =>
-        if ctorRet.containsFVar z.fvarId! then
-          go (mkApp ctor2 z) todo' acc
-        else
-          let t ← whnfForall (← inferType ctor2)
-          assert! t.isForall
-          withLocalDeclD t.bindingName! t.bindingDomain! fun z' => do
-            go (mkApp ctor2 z') todo' (acc.push z')
-    go ctor zs.toList zs
-
 /--
 This constructs a matcher for a match statement that matches on the constructors of
 a data type in parallel. So if `h : x1.ctorIdx = x2.ctorIdx`, then it implements
@@ -171,17 +153,19 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
       let motiveType ← mkForallFVars (is ++ #[x1,x2,heq]) (mkSort v)
       withLocalDecl `motive .implicit motiveType fun motive => do
 
-      let altTypes ← info.ctors.toArray.mapIdxM fun i ctorName => do
+      let (altTypes, altInfos) ← Array.unzip <$> info.ctors.toArray.mapIdxM fun i ctorName => do
         let ctor := mkAppN (mkConst ctorName us) params
-        withSharedIndices ctor fun zs12 ctorApp1 ctorApp2 => do
-          let ctorRet1 ← whnf (← inferType ctorApp1)
-          let is : Array Expr := ctorRet1.getAppArgs[info.numParams:]
+        withSharedCtorIndices ctor fun zs12 is fields1 fields2 => do
+          let ctorApp1 := mkAppN ctor fields1
+          let ctorApp2 := mkAppN ctor fields2
           let e := mkAppN motive (is ++ #[ctorApp1, ctorApp2, (← mkEqRefl (mkNatLit i))])
           let e ← mkForallFVars zs12 e
+          let e ← if zs12.isEmpty then mkArrow (mkConst ``Unit) e else pure e
           let name := match ctorName with
             | Name.str _ s => Name.mkSimple s
             | _ => Name.mkSimple s!"alt{i+1}"
-          return (name, e)
+          let altInfo := { numFields := zs12.size, numOverlaps := 0, hasUnitThunk := zs12.isEmpty : Match.AltParamInfo}
+          return ((name, e), altInfo)
       withLocalDeclsDND altTypes fun alts => do
         forallBoundedTelescope t0 (some (info.numIndices + 1)) fun ism1' _ =>
         forallBoundedTelescope t0 (some (info.numIndices + 1)) fun ism2' _ => do
@@ -208,8 +192,10 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
             let goal := alt.mvarId!
             let some (goal, _) ← Cases.unifyEqs? newRefls.size goal {}
                 | throwError "unifyEqns? unexpectedly closed goal"
-            let [] ← goal.apply alts[i]!
-              | throwError "could not apply {alts[i]!} to close\n{goal}"
+            let hyp := alts[i]!
+            let hyp := if zs1.isEmpty && zs2.isEmpty then mkApp hyp (mkConst ``Unit.unit) else hyp
+            let [] ← goal.apply hyp
+              | throwError "could not apply {hyp} to close\n{goal}"
             mkLambdaFVars (zs1 ++ zs2) (← instantiateMVars alt)
         let casesOn2 := mkAppN casesOn2 alts'
         let casesOn2 := mkAppN casesOn2 newRefls
@@ -225,7 +211,7 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
         let matcherInfo : MatcherInfo := {
           numParams := info.numParams
           numDiscrs := info.numIndices + 3
-          altNumParams := altTypes.map (·.2.getNumHeadForalls)
+          altInfos
           uElimPos? := some 0
           discrInfos := #[{}, {}, {}]}
 
@@ -235,13 +221,6 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
         Elab.Term.elabAsElim.setTag declName
         Match.addMatcherInfo declName matcherInfo
         setInlineAttribute declName
-
-        -- Pragmatic hack:
-        -- Normally a matcher is not marked as an aux recursor. We still do that here
-        -- because this makes the elaborator unfold it more eagerily, it seems,
-        -- and this works around issues with the structural recursion equation generator
-        -- (see #10195).
-        modifyEnv fun env => markAuxRecursor env declName
 
         enableRealizationsForConst declName
         compileDecl decl

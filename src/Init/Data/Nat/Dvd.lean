@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 module
 
 prelude
-public import Init.Data.Nat.Div.Basic
 public import Init.Meta
 
 public section

@@ -6,7 +6,6 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Array.DecidableEq
 public import Init.Data.Vector.Lemmas
 
 public section

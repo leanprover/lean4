@@ -46,7 +46,7 @@ def unusedSimpArgs : Linter where
     let some cmdStxRange := cmdStx.getRange?  | return
 
     let infoTrees := (← get).infoState.trees.toArray
-    let masksMap : IO.Ref (Std.HashMap String.Range (Syntax × Array Bool)) ← IO.mkRef {}
+    let masksMap : IO.Ref (Std.HashMap Lean.Syntax.Range (Syntax × Array Bool)) ← IO.mkRef {}
 
     for tree in infoTrees do
       tree.visitM' (postNode := fun ci info _ => do

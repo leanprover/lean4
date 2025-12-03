@@ -6,12 +6,10 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-import Init.Grind.Ordered.Module
 import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.SynthInstance
+import Lean.Meta.Tactic.Grind.OrderInsts
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
-import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 import Lean.Meta.Tactic.Grind.Arith.Insts
@@ -62,7 +60,7 @@ private def isNonTrivialIsCharInst (isCharInst? : Option (Expr × Nat)) : Bool :
   | none => false
 
 private def isCutsatType (type : Expr) : GoalM Bool := do
-  if (← getConfig).cutsat then
+  if (← getConfig).lia then
     if (← Cutsat.isSupportedType type) then
       -- If `type` is supported by cutsat, let it handle
       return true
@@ -70,7 +68,7 @@ private def isCutsatType (type : Expr) : GoalM Bool := do
 
 private def getCommRingInst? (ringId? : Option Nat) : GoalM (Option Expr) := do
   let some ringId := ringId? | return none
-  return some (← CommRing.RingM.run ringId do return (← CommRing.getRing).commRingInst)
+  return some (← CommRing.RingM.run ringId do return (← CommRing.getCommRing).commRingInst)
 
 private def mkRingInst? (u : Level) (type : Expr) (commRingInst? : Option Expr) : GoalM (Option Expr) := do
   if let some commRingInst := commRingInst? then
@@ -97,39 +95,6 @@ private def mkOne? (u : Level) (type : Expr) : GoalM (Option Expr) := do
   unless (← isDefEqD one one') do reportIssue! (← mkExpectedDefEqMsg one one')
   return some one
 
-private def mkLawfulOrderLTInst? (u : Level) (type : Expr) (ltInst? leInst? : Option Expr) : GoalM (Option Expr) := do
-  let some ltInst := ltInst? | return none
-  let some leInst := leInst? | return none
-  let lawfulOrderLTType := mkApp3 (mkConst ``Std.LawfulOrderLT [u]) type ltInst leInst
-  let some inst ← synthInstance? lawfulOrderLTType
-    | reportIssue! "type has `LE` and `LT`, but the `LT` instance is not lawful, failed to synthesize{indentExpr lawfulOrderLTType}"
-      return none
-  return some inst
-
-private def mkIsPreorderInst? (u : Level) (type : Expr) (leInst? : Option Expr) : GoalM (Option Expr) := do
-  let some leInst := leInst? | return none
-  let isPreorderType := mkApp2 (mkConst ``Std.IsPreorder [u]) type leInst
-  let some inst ← synthInstance? isPreorderType
-    | reportIssue! "type has `LE`, but is not a preorder, failed to synthesize{indentExpr isPreorderType}"
-      return none
-  return some inst
-
-private def mkIsPartialOrderInst? (u : Level) (type : Expr) (leInst? : Option Expr) : GoalM (Option Expr) := do
-  let some leInst := leInst? | return none
-  let isPartialOrderType := mkApp2 (mkConst ``Std.IsPartialOrder [u]) type leInst
-  let some inst ← synthInstance? isPartialOrderType
-    | reportIssue! "type has `LE`, but is not a partial order, failed to synthesize{indentExpr isPartialOrderType}"
-      return none
-  return some inst
-
-private def mkIsLinearOrderInst? (u : Level) (type : Expr) (leInst?  : Option Expr) : GoalM (Option Expr) := do
-  let some leInst := leInst? | return none
-  let isLinearOrderType := mkApp2 (mkConst ``Std.IsLinearOrder [u]) type leInst
-  let some inst ← synthInstance? isLinearOrderType
-    | reportIssue! "type has `LE`, but is not a linear order, failed to synthesize{indentExpr isLinearOrderType}"
-      return none
-  return some inst
-
 private def mkOrderedRingInst? (u : Level) (type : Expr) (semiringInst? leInst? ltInst? preorderInst? : Option Expr) : GoalM (Option Expr) := do
   let some semiringInst := semiringInst? | return none
   let some leInst := leInst? | return none
@@ -137,7 +102,8 @@ private def mkOrderedRingInst? (u : Level) (type : Expr) (semiringInst? leInst? 
   let some preorderInst := preorderInst? | return none
   let isOrdType := mkApp5 (mkConst ``Grind.OrderedRing [u]) type semiringInst leInst ltInst preorderInst
   let some inst ← synthInstance? isOrdType
-    | reportIssue! "type has a `Preorder` and is a `Semiring`, but is not an ordered ring, failed to synthesize{indentExpr isOrdType}"
+    | -- TODO: this issue message should explain which behaviours are disabled when then ordered ring instance is not available.
+      reportIssue! "type has a `Preorder` and is a `Semiring`, but is not an ordered ring, failed to synthesize{indentExpr isOrdType}"
       return none
   return some inst
 
@@ -205,8 +171,8 @@ def getStructId? (type : Expr) : GoalM (Option Nat) := do
     return id?
 where
   go? : GoalM (Option Nat) := do
-    let u ← getDecLevel type
-    let ringId? ← CommRing.getRingId? type
+    let some u ← getDecLevel? type | return none
+    let ringId? ← CommRing.getCommRingId? type
     let leInst? ← getInst? ``LE u type
     let ltInst? ← getInst? ``LT u type
     let lawfulOrderLTInst? ← mkLawfulOrderLTInst? u type ltInst? leInst?
@@ -214,8 +180,14 @@ where
     let isPartialInst? ← mkIsPartialOrderInst? u type leInst?
     let isLinearInst? ← mkIsLinearOrderInst? u type leInst?
     if (← getConfig).ring && ringId?.isSome && isPreorderInst?.isNone then
-      -- If `type` is a `CommRing`, but it is not even a preorder, there is no point in use this module.
-      -- `ring` module should handle it.
+      /-
+      If the type is a `Ring` **and** is not even a preorder **and** `grind ring` is enabled,
+      we let `grind ring` process the equalities and disequalities. There is no
+      point in using `linarith` in this case.
+      **IMPORTANT** We mark the type as a "forbiddenNatModule". It would be pointless to recheck everything in
+      in `getNatStructId?`
+      -/
+      modify' fun s => { s with forbiddenNatModules := s.forbiddenNatModules.insert { expr := type } }
       return none
     let commRingInst? ← getCommRingInst? ringId?
     let ringInst? ← mkRingInst? u type commRingInst?
@@ -229,6 +201,8 @@ where
     let isPreorderInst? := if orderedAddInst?.isNone then none else isPreorderInst?
     -- preorderInst? may have been reset, check again whether this module is needed.
     if (← getConfig).ring && ringId?.isSome && isPreorderInst?.isNone then
+      -- See comment above
+      modify' fun s => { s with forbiddenNatModules := s.forbiddenNatModules.insert { expr := type } }
       return none
     let isPartialInst? ← checkToFieldDefEq? leInst? isPreorderInst? isPartialInst? ``Std.IsPartialOrder.toIsPreorder u type
     let isLinearInst? ← checkToFieldDefEq? leInst? isPartialInst? isLinearInst? ``Std.IsLinearOrder.toIsPartialOrder u type
@@ -280,7 +254,7 @@ where
     let id := (← get').structs.size
     let struct : Struct := {
       id, type, u, intModuleInst, leInst?, ltInst?, lawfulOrderLTInst?, isPreorderInst?,
-      orderedAddInst?, isPartialInst?, isLinearInst?, noNatDivInst?
+      orderedAddInst?, isLinearInst?, noNatDivInst?,
       leFn?, ltFn?, addFn, subFn, negFn, zsmulFn, nsmulFn, zsmulFn?, nsmulFn?, zero, one?
       ringInst?, commRingInst?, orderedRingInst?, charInst?, ringId?, fieldInst?, ofNatZero, homomulFn?
     }
@@ -303,6 +277,7 @@ private def mkNatModuleInst? (u : Level) (type : Expr) : GoalM (Option Expr) := 
 
 def getNatStructId? (type : Expr) : GoalM (Option Nat) := do
   unless (← getConfig).linarith do return none
+  if (← get').forbiddenNatModules.contains { expr := type } then return none
   if (← isCutsatType type) then return none
   if let some id? := (← get').natTypeIdOf.find? { expr := type } then
     return id?

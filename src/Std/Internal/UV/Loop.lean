@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init.System.IO
 public import Init.System.Promise
 
 @[expose] public section

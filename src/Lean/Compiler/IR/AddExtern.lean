@@ -7,14 +7,8 @@ Authors: Cameron Zwarich
 module
 
 prelude
-public import Lean.CoreM
-public import Lean.Compiler.BorrowedAnnotation
-public import Lean.Compiler.ExternAttr
-public import Lean.Compiler.IR.Basic
 public import Lean.Compiler.IR.Boxing
-public import Lean.Compiler.IR.CompilerM
-public import Lean.Compiler.IR.ToIRType
-public import Lean.Compiler.LCNF.MonoTypes
+import Lean.Compiler.IR.RC
 
 public section
 
@@ -33,11 +27,12 @@ def addExtern (declName : Name) (externAttrData : ExternAttrData) : CoreM Unit :
     type := b
     nextVarIndex := nextVarIndex + 1
   let irType ← toIRType type
-  let decl := .extern declName params irType externAttrData
-  addDecl decl
-  if !isPrivateName decl.name then
-    modifyEnv (Compiler.LCNF.setDeclPublic · decl.name)
-  if ExplicitBoxing.requiresBoxedVersion (← Lean.getEnv) decl then
-    addDecl (ExplicitBoxing.mkBoxedVersion decl)
+  let decls := #[.extern declName params irType externAttrData]
+  if !isPrivateName declName then
+    modifyEnv (Compiler.LCNF.setDeclPublic · declName)
+  let decls := ExplicitBoxing.addBoxedVersions (← Lean.getEnv) decls
+  let decls ← explicitRC decls
+  logDecls `result decls
+  addDecls decls
 
 end Lean.IR

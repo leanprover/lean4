@@ -9,5 +9,4 @@ prelude
 public import Init.Data.Int.DivMod.Basic
 public import Init.Data.Int.DivMod.Bootstrap
 public import Init.Data.Int.DivMod.Lemmas
-
-public section
+public import Init.Data.Int.DivMod.Pow

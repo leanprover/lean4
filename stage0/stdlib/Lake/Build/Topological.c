@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Topological
-// Imports: Lake.Util.Cycle Lake.Util.Store Lake.Util.EquipT
+// Imports: public import Lake.Util.Cycle public import Lake.Util.Store public import Lake.Util.EquipT
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -89,6 +89,16 @@ uint8_t x_7;
 x_7 = 0;
 return x_7;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lake_recFetchAcyclic___redArg___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; uint8_t x_6; lean_object* x_7; 
+x_5 = lean_unbox(x_3);
+x_6 = l_Lake_recFetchAcyclic___redArg___lam__2(x_1, x_2, x_5, x_4);
+x_7 = lean_box(x_6);
+return x_7;
 }
 }
 static lean_object* _init_l_Lake_recFetchAcyclic___redArg___lam__3___closed__0() {
@@ -234,16 +244,6 @@ x_11 = l_Lake_recFetchAcyclic___redArg(x_5, x_6, x_7, x_8, x_9, x_10);
 return x_11;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_recFetchAcyclic___redArg___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; uint8_t x_6; lean_object* x_7; 
-x_5 = lean_unbox(x_3);
-x_6 = l_Lake_recFetchAcyclic___redArg___lam__2(x_1, x_2, x_5, x_4);
-x_7 = lean_box(x_6);
-return x_7;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_recFetchMemoize___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -358,21 +358,21 @@ x_12 = l_Lake_recFetchMemoize___redArg(x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_12;
 }
 }
-lean_object* initialize_Lake_Util_Cycle(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Util_Store(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Util_EquipT(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Util_Cycle(uint8_t builtin);
+lean_object* initialize_Lake_Util_Store(uint8_t builtin);
+lean_object* initialize_Lake_Util_EquipT(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Build_Topological(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Build_Topological(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Util_Cycle(builtin, lean_io_mk_world());
+res = initialize_Lake_Util_Cycle(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Store(builtin, lean_io_mk_world());
+res = initialize_Lake_Util_Store(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_EquipT(builtin, lean_io_mk_world());
+res = initialize_Lake_Util_EquipT(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_recFetchAcyclic___redArg___lam__3___closed__0 = _init_l_Lake_recFetchAcyclic___redArg___lam__3___closed__0();

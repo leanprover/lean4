@@ -14,3 +14,19 @@
     0,
     "cveryLongDefinitionNameVeryLongDefinitionName"]}],
  "isIncomplete": false}
+Resolution of veryLongDefinitionName:
+{"label": "veryLongDefinitionName",
+ "kind": 6,
+ "detail": "Nat",
+ "data":
+ ["«external:file:///completionPrefixIssue.lean»", 1, 64, 0, "f_uniq.35"]}
+Resolution of veryLongDefinitionNameVeryLongDefinitionName:
+{"label": "veryLongDefinitionNameVeryLongDefinitionName",
+ "kind": 21,
+ "detail": "Nat",
+ "data":
+ ["«external:file:///completionPrefixIssue.lean»",
+  1,
+  64,
+  0,
+  "cveryLongDefinitionNameVeryLongDefinitionName"]}

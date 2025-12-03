@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.ExportAttr
 public import Lean.Compiler.IR.CompilerM
 public import Lean.Compiler.IR.NormIds
 

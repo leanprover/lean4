@@ -6,7 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Compiler.LCNF.PassManager
 public import Lean.Compiler.LCNF.PrettyPrinter
 
 public section

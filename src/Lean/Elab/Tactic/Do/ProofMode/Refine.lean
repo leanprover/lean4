@@ -6,10 +6,7 @@ Authors: Lars König, Mario Carneiro, Sebastian Graf
 module
 
 prelude
-public import Std.Tactic.Do.Syntax
-public import Lean.Elab.Tactic.Do.ProofMode.Focus
 public import Lean.Elab.Tactic.Do.ProofMode.Assumption
-public import Lean.Elab.Tactic.Do.ProofMode.Exact
 
 public section
 
@@ -70,7 +67,7 @@ partial def mRefineCore (goal : MGoal) (pat : MRefinePat) (k : MGoal → TSyntax
 def elabMRefine : Tactic
   | `(tactic| mrefine $pat:mrefinePat) => do
     let pat ← liftMacroM <| MRefinePat.parse pat
-    let (mvar, goal) ← mStartMVar (← getMainGoal)
+    let (mvar, goal) ← mStartMainGoal
     mvar.withContext do
 
     let goals ← IO.mkRef #[]

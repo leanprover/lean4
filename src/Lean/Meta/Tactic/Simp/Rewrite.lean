@@ -8,13 +8,8 @@ module
 prelude
 public import Lean.Meta.ACLt
 public import Lean.Meta.Match.MatchEqsExt
-public import Lean.Meta.AppBuilder
-public import Lean.Meta.SynthInstance
-public import Lean.Meta.Tactic.Util
 public import Lean.Meta.Tactic.UnifyEq
-public import Lean.Meta.Tactic.Simp.Types
 public import Lean.Meta.Tactic.Simp.Arith
-public import Lean.Meta.Tactic.Simp.Simproc
 public import Lean.Meta.Tactic.Simp.Attr
 public import Lean.Meta.BinderNameHint
 
@@ -122,6 +117,7 @@ private def useImplicitDefEqProof (thm : SimpTheorem) : SimpM Bool := do
 private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) := do
   recordTriedSimpTheorem thm.origin
   let rec go (e : Expr) : SimpM (Option Result) := do
+    trace[Debug.Meta.Tactic.simp] "trying {← ppSimpTheorem thm} to rewrite{indentExpr e}"
     if (← withSimpMetaConfig <| isDefEq lhs e) then
       unless (← synthesizeArgs thm.origin bis xs) do
         return none
@@ -142,6 +138,9 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
       we seldom have assigned metavariables in goals.
       -/
       if (← instantiateMVars e) == rhs then
+        trace[Debug.Meta.Tactic.simp] "Not applying {← ppSimpTheorem thm} with type\
+          {indentExpr type}\nto{indentExpr e}\nas the result is structurally equal \
+          to the original expression"
         return none
       if thm.perm then
         /-

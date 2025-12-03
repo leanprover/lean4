@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Tactic.Assert
 public import Lean.Meta.Match.CaseValues
 
 public section

@@ -6,7 +6,6 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.UInt.Lemmas
 public import Init.Data.UInt.Bitwise
 
 public section

@@ -11,6 +11,7 @@ public import Lean.Parser.StrInterpolation
 public import Lean.ParserCompiler.Attribute
 public import Lean.PrettyPrinter.Basic
 public import Lean.PrettyPrinter.Delaborator.Options
+import Lean.ExtraModUses
 
 public section
 
@@ -139,8 +140,10 @@ unsafe builtin_initialize parenthesizerAttribute : KeyedDeclsAttribute Parenthes
       -- synthesize a parenthesizer for it immediately, so we just check for a declaration in this case
       unless (builtin && (env.find? id).isSome) || Parser.isValidSyntaxNodeKind env id do
         throwError "Invalid `[parenthesizer]` argument: Unknown syntax kind `{id}`"
-      if (← getEnv).contains id && (← Elab.getInfoState).enabled then
-        Elab.addConstInfo stx id none
+      if (← getEnv).contains id then
+        recordExtraModUseFromDecl (isMeta := false) id
+        if (← Elab.getInfoState).enabled then
+          Elab.addConstInfo stx id none
       pure id
   }
 
@@ -168,8 +171,10 @@ unsafe builtin_initialize categoryParenthesizerAttribute : KeyedDeclsAttribute C
       let id := stx.getId
       let some cat := (Parser.parserExtension.getState env).categories.find? id
         | throwError "Invalid `[category_parenthesizer]` argument: Unknown parser category `{toString id}`"
-      if (← Elab.getInfoState).enabled && (← getEnv).contains cat.declName then
-        Elab.addConstInfo stx cat.declName none
+      if (← getEnv).contains cat.declName then
+        recordExtraModUseFromDecl (isMeta := false) cat.declName
+        if (← Elab.getInfoState).enabled then
+          Elab.addConstInfo stx cat.declName none
       pure id
   }
 
@@ -251,14 +256,14 @@ def maybeParenthesize (cat : Name) (canJuxtapose : Bool) (mkParen : Syntax → S
       let mut stx ← getCur
       -- Move leading/trailing whitespace of `stx` outside of parentheses
       if let SourceInfo.original _ pos trail endPos := stx.getHeadInfo then
-        stx := stx.setHeadInfo (SourceInfo.original "".toSubstring pos trail endPos)
+        stx := stx.setHeadInfo (SourceInfo.original "".toRawSubstring pos trail endPos)
       if let SourceInfo.original lead pos _ endPos := stx.getTailInfo then
-        stx := stx.setTailInfo (SourceInfo.original lead pos "".toSubstring endPos)
+        stx := stx.setTailInfo (SourceInfo.original lead pos "".toRawSubstring endPos)
       let mut stx' := mkParen stx
       if let SourceInfo.original lead pos _ endPos := stx.getHeadInfo then
-        stx' := stx'.setHeadInfo (SourceInfo.original lead pos "".toSubstring endPos)
+        stx' := stx'.setHeadInfo (SourceInfo.original lead pos "".toRawSubstring endPos)
       if let SourceInfo.original _ pos trail endPos := stx.getTailInfo then
-        stx' := stx'.setTailInfo (SourceInfo.original "".toSubstring pos trail endPos)
+        stx' := stx'.setTailInfo (SourceInfo.original "".toRawSubstring pos trail endPos)
       trace[PrettyPrinter.parenthesize] "parenthesized: {stx'.formatStx none}"
       setCur stx'
       goLeft
@@ -469,13 +474,25 @@ def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec lhsPrec : Nat) (p : Pa
 
 @[combinator_parenthesizer rawCh, expose] def rawCh.parenthesizer (_ch : Char) := visitToken
 
-@[combinator_parenthesizer symbolNoAntiquot, expose] def symbolNoAntiquot.parenthesizer (_sym : String) := visitToken
-@[combinator_parenthesizer unicodeSymbolNoAntiquot, expose] def unicodeSymbolNoAntiquot.parenthesizer (_sym _asciiSym : String) := visitToken
+@[combinator_parenthesizer symbolNoAntiquot, expose] def symbolNoAntiquot.parenthesizer (sym : String) := do
+  let stx ← getCur
+  if stx.isToken sym then
+    visitToken
+  else
+    trace[PrettyPrinter.parenthesize.backtrack] "unexpected syntax '{format stx}', expected symbol '{sym}'"
+    throwBacktrack
+@[combinator_parenthesizer nonReservedSymbolNoAntiquot, expose] def nonReservedSymbolNoAntiquot.parenthesizer := symbolNoAntiquot.parenthesizer
+@[combinator_parenthesizer unicodeSymbolNoAntiquot, expose] def unicodeSymbolNoAntiquot.parenthesizer (sym asciiSym : String) (_preserveForPP : Bool) := do
+  let stx ← getCur
+  if stx.isToken sym || stx.isToken asciiSym then
+    visitToken
+  else
+    trace[PrettyPrinter.parenthesize.backtrack] "unexpected syntax '{format stx}', expected symbol '{sym}' or '{asciiSym}'"
+    throwBacktrack
 
 @[combinator_parenthesizer identNoAntiquot, expose] def identNoAntiquot.parenthesizer := do checkKind identKind; visitToken
 @[combinator_parenthesizer rawIdentNoAntiquot, expose] def rawIdentNoAntiquot.parenthesizer := visitToken
 @[combinator_parenthesizer identEq, expose] def identEq.parenthesizer (_id : Name) := visitToken
-@[combinator_parenthesizer nonReservedSymbolNoAntiquot, expose] def nonReservedSymbolNoAntiquot.parenthesizer (_sym : String) (_includeIdent : Bool) := visitToken
 
 @[combinator_parenthesizer charLitNoAntiquot, expose] def charLitNoAntiquot.parenthesizer := visitToken
 @[combinator_parenthesizer strLitNoAntiquot, expose] def strLitNoAntiquot.parenthesizer := visitToken
@@ -545,6 +562,8 @@ def interpolatedStr.parenthesizer (p : Parenthesizer) : Parenthesizer := do
       goLeft
     else
       p
+
+@[combinator_parenthesizer hexnumNoAntiquot, expose] def hexnum.parenthesizer := visitToken
 
 @[combinator_parenthesizer _root_.ite, expose, macro_inline] def ite {_ : Type} (c : Prop) [Decidable c] (t e : Parenthesizer) : Parenthesizer :=
   if c then t else e

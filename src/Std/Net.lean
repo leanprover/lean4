@@ -7,5 +7,3 @@ module
 
 prelude
 public import Std.Net.Addr
-
-@[expose] public section

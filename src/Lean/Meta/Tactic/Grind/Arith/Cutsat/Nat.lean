@@ -5,10 +5,9 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Init.Data.Int.OfNat
 import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Simp.Arith.Nat.Basic
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 import Lean.Meta.NatInstTesters
@@ -25,7 +24,7 @@ def mkNatVar (e : Expr) : GoalM (Expr × Expr) := do
   modify' fun s => { s with
     natToIntMap := s.natToIntMap.insert { expr := e } r
   }
-  markAsCutsatTerm e
+  cutsatExt.markTerm e
   return r
 
 private def intIte : Expr := mkApp (mkConst ``ite [1]) Int.mkType

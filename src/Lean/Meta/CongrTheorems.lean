@@ -7,14 +7,8 @@ module
 
 prelude
 public import Lean.AddDecl
-public import Lean.Class
 public import Lean.ReservedNameAction
-public import Lean.ResolveName
-public import Lean.Meta.Basic
-import Lean.Meta.AppBuilder
 import Lean.Meta.Tactic.Subst
-import Lean.Meta.Tactic.Intro
-import Lean.Meta.Tactic.Assert
 
 public section
 
@@ -411,13 +405,13 @@ builtin_initialize congrKindsExt : MapDeclarationExtension (Array CongrArgKind) 
 
 builtin_initialize registerReservedNamePredicate fun env n =>
   match n with
-  | .str p s => (isHCongrReservedNameSuffix s || s == congrSimpSuffix) && env.isSafeDefinition p
+  | .str p s => (isHCongrReservedNameSuffix s || s == congrSimpSuffix) && env.contains p
   | _ => false
 
 builtin_initialize
   registerReservedNameAction fun name => do
     let .str p s := name | return false
-    unless (← getEnv).isSafeDefinition p do return false
+    unless (← getEnv).contains p do return false
     if isHCongrReservedNameSuffix s then
       let numArgs := (s.drop 7).toNat!
       try MetaM.run' do
@@ -425,7 +419,7 @@ builtin_initialize
         let f := mkConst p (info.levelParams.map mkLevelParam)
         let congrThm ← mkHCongrWithArity f numArgs
         realizeConst p name do
-          addDecl <| Declaration.thmDecl {
+          addDecl <| ← mkThmOrUnsafeDef {
             name, type := congrThm.type, value := congrThm.proof
             levelParams := info.levelParams
           }
@@ -441,7 +435,7 @@ builtin_initialize
         let some congrThm ← mkCongrSimpCore? f info (← getCongrSimpKinds f info)
           | return false
         realizeConst p name do
-          addDecl <| Declaration.thmDecl {
+          addDecl <| ← mkThmOrUnsafeDef {
             name, type := congrThm.type, value := congrThm.proof
             levelParams := cinfo.levelParams
           }

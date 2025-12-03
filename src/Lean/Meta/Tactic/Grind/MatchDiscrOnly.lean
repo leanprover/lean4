@@ -4,15 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.Util
-public import Init.Simproc
 public import Lean.Meta.Tactic.Simp.Simproc
-public import Lean.Meta.Tactic.Simp.Rewrite
-
+import Init.Grind.Util
+import Init.Simproc
+import Lean.Meta.Tactic.Simp.Rewrite
 public section
-
 namespace Lean.Meta.Grind
 /--
 Returns `Grind.simpMatchDiscrsOnly e`. Recall that `Grind.simpMatchDiscrsOnly` is

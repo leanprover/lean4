@@ -1,6 +1,6 @@
 (some Init.Prelude)
 (some Lean.CoreM)
-(some Lean.Elab.Term)
+(some Lean.Elab.Term.TermElabM)
 (some Std.Data.HashMap.Basic)
 none
 none

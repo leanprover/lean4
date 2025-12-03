@@ -1,0 +1,36 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.ul
+   "ul{"
+   [(Lean.Doc.Syntax.li
+     "*"
+     [(Lean.Doc.Syntax.para
+       "para{"
+       [(Lean.Doc.Syntax.text
+         (str "\"Here's a bullet\""))]
+       "}")])
+    (Lean.Doc.Syntax.li
+     "*"
+     [(Lean.Doc.Syntax.para
+       "para{"
+       [(Lean.Doc.Syntax.text
+         (str
+          "\"and another with some code in it\""))]
+       "}")
+      (Lean.Doc.Syntax.codeblock
+       "````"
+       [`lean []]
+       "\n"
+       (str "\"hey\\n\\nthere\\n\"")
+       "````")])
+    (Lean.Doc.Syntax.li
+     "*"
+     [(Lean.Doc.Syntax.para
+       "para{"
+       [(Lean.Doc.Syntax.text
+         (str "\"and another one\""))
+        (Lean.Doc.Syntax.linebreak
+         "line!"
+         (str "\"\\n\""))]
+       "}")])]
+   "}")
+All input consumed.

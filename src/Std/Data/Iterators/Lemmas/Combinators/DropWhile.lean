@@ -48,19 +48,19 @@ theorem Iter.step_intermediateDropWhile {α β} [Iterator α Id β]
       | .done h =>
         .done (.done h)) := by
   simp [Intermediate.dropWhile_eq_dropWhile_toIterM, Iter.step, IterM.step_intermediateDropWhile]
-  cases it.toIterM.step.run using PlausibleIterStep.casesOn
+  cases it.toIterM.step.run.inflate using PlausibleIterStep.casesOn
   · simp only [IterM.Step.toPure_yield, PlausibleIterStep.yield, toIter_toIterM, toIterM_toIter]
     split
     · split
       · split
-        · rfl
+        · simp
         · exfalso; simp_all
       · split
         · exfalso; simp_all
-        · rfl
-    · rfl
-  · rfl
-  · rfl
+        · simp
+    · simp
+  · simp
+  · simp
 
 theorem Iter.step_dropWhile {α β} [Iterator α Id β] {P}
     {it : Iter (α := α) β} :

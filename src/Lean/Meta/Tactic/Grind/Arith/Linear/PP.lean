@@ -5,8 +5,9 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.Linear.Types
 import Lean.Meta.Tactic.Grind.Arith.Linear.Model
+import Lean.Meta.Tactic.Grind.Arith.Util
 public section
 namespace Lean.Meta.Grind.Arith.Linear
 
@@ -20,7 +21,7 @@ def ppStruct? (goal : Goal) (s : Struct) : MetaM (Option MessageData) := do
 
 def pp? (goal : Goal) : MetaM (Option MessageData) := do
   let mut msgs := #[]
-  for struct in goal.arith.linear.structs do
+  for struct in (← linearExt.getStateCore goal).structs do
     let some msg ← ppStruct? goal struct | pure ()
     msgs := msgs.push msg
   if msgs.isEmpty then

@@ -1,0 +1,744 @@
+[{"item":
+  {"uri": "file:///outgoingCallHierarchy.lean",
+   "selectionRange":
+   {"start": {"line": 16, "character": 4},
+    "end": {"line": 16, "character": 10}},
+   "range":
+   {"start": {"line": 16, "character": 0},
+    "end": {"line": 16, "character": 37}},
+   "name": "barfoo",
+   "kind": 14,
+   "data":
+   {"name": "barfoo",
+    "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+  "fromRanges": [],
+  "children":
+  [{"item":
+    {"uri": "file:///outgoingCallHierarchy.lean",
+     "selectionRange":
+     {"start": {"line": 6, "character": 10},
+      "end": {"line": 6, "character": 14}},
+     "range":
+     {"start": {"line": 6, "character": 10},
+      "end": {"line": 6, "character": 14}},
+     "name": "Sum'",
+     "kind": 14,
+     "data":
+     {"name": "Sum'",
+      "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+    "fromRanges":
+    [{"start": {"line": 16, "character": 16},
+      "end": {"line": 16, "character": 20}}],
+    "children": []},
+   {"item":
+    {"uri": "file:///outgoingCallHierarchy.lean",
+     "selectionRange":
+     {"start": {"line": 12, "character": 4},
+      "end": {"line": 12, "character": 10}},
+     "range":
+     {"start": {"line": 12, "character": 4},
+      "end": {"line": 12, "character": 10}},
+     "name": "foobar",
+     "kind": 14,
+     "data":
+     {"name": "foobar",
+      "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+    "fromRanges":
+    [{"start": {"line": 16, "character": 29},
+      "end": {"line": 16, "character": 35}}],
+    "children":
+    [{"item":
+      {"uri": "file:///outgoingCallHierarchy.lean",
+       "selectionRange":
+       {"start": {"line": 6, "character": 10},
+        "end": {"line": 6, "character": 14}},
+       "range":
+       {"start": {"line": 6, "character": 10},
+        "end": {"line": 6, "character": 14}},
+       "name": "Sum'",
+       "kind": 14,
+       "data":
+       {"name": "Sum'",
+        "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+      "fromRanges":
+      [{"start": {"line": 12, "character": 16},
+        "end": {"line": 12, "character": 20}}],
+      "children": []},
+     {"item":
+      {"uri": "file:///outgoingCallHierarchy.lean",
+       "selectionRange":
+       {"start": {"line": 7, "character": 4},
+        "end": {"line": 7, "character": 8}},
+       "range":
+       {"start": {"line": 7, "character": 4},
+        "end": {"line": 7, "character": 8}},
+       "name": "Sum'.left",
+       "kind": 14,
+       "data":
+       {"name": "Sum'.left",
+        "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+      "fromRanges":
+      [{"start": {"line": 14, "character": 4},
+        "end": {"line": 14, "character": 9}}],
+      "children": []},
+     {"item":
+      {"uri": "file:///outgoingCallHierarchy.lean",
+       "selectionRange":
+       {"start": {"line": 8, "character": 4},
+        "end": {"line": 8, "character": 9}},
+       "range":
+       {"start": {"line": 8, "character": 4},
+        "end": {"line": 8, "character": 9}},
+       "name": "Sum'.right",
+       "kind": 14,
+       "data":
+       {"name": "Sum'.right",
+        "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+      "fromRanges":
+      [{"start": {"line": 15, "character": 4},
+        "end": {"line": 15, "character": 10}}],
+      "children": []},
+     {"item":
+      {"uri": "file:///outgoingCallHierarchy.lean",
+       "selectionRange":
+       {"start": {"line": 3, "character": 10},
+        "end": {"line": 3, "character": 15}},
+       "range":
+       {"start": {"line": 3, "character": 10},
+        "end": {"line": 3, "character": 15}},
+       "name": "Unit'",
+       "kind": 14,
+       "data":
+       {"name": "Unit'",
+        "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+      "fromRanges":
+      [{"start": {"line": 12, "character": 28},
+        "end": {"line": 12, "character": 33}}],
+      "children": []},
+     {"item":
+      {"uri": "file:///outgoingCallHierarchy.lean",
+       "selectionRange":
+       {"start": {"line": 11, "character": 4},
+        "end": {"line": 11, "character": 7}},
+       "range":
+       {"start": {"line": 11, "character": 4},
+        "end": {"line": 11, "character": 7}},
+       "name": "bar",
+       "kind": 14,
+       "data":
+       {"name": "bar",
+        "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+      "fromRanges":
+      [{"start": {"line": 15, "character": 16},
+        "end": {"line": 15, "character": 19}}],
+      "children":
+      [{"item":
+        {"uri": "file:///outgoingCallHierarchy.lean",
+         "selectionRange":
+         {"start": {"line": 10, "character": 4},
+          "end": {"line": 10, "character": 7}},
+         "range":
+         {"start": {"line": 10, "character": 4},
+          "end": {"line": 10, "character": 7}},
+         "name": "foo",
+         "kind": 14,
+         "data":
+         {"name": "foo",
+          "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+        "fromRanges":
+        [{"start": {"line": 11, "character": 11},
+          "end": {"line": 11, "character": 14}}],
+        "children":
+        [{"item":
+          {"uri": "file:///outgoingCallHierarchy.lean",
+           "selectionRange":
+           {"start": {"line": 3, "character": 10},
+            "end": {"line": 3, "character": 15}},
+           "range":
+           {"start": {"line": 3, "character": 10},
+            "end": {"line": 3, "character": 15}},
+           "name": "Unit'",
+           "kind": 14,
+           "data":
+           {"name": "Unit'",
+            "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+          "fromRanges":
+          [{"start": {"line": 10, "character": 10},
+            "end": {"line": 10, "character": 15}}],
+          "children": []},
+         {"item":
+          {"uri": "file:///outgoingCallHierarchy.lean",
+           "selectionRange":
+           {"start": {"line": 4, "character": 4},
+            "end": {"line": 4, "character": 6}},
+           "range":
+           {"start": {"line": 4, "character": 4},
+            "end": {"line": 4, "character": 6}},
+           "name": "Unit'.mk",
+           "kind": 14,
+           "data":
+           {"name": "Unit'.mk",
+            "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+          "fromRanges":
+          [{"start": {"line": 10, "character": 19},
+            "end": {"line": 10, "character": 22}}],
+          "children": []}]}]},
+     {"item":
+      {"uri": "file:///outgoingCallHierarchy.lean",
+       "selectionRange":
+       {"start": {"line": 10, "character": 4},
+        "end": {"line": 10, "character": 7}},
+       "range":
+       {"start": {"line": 10, "character": 4},
+        "end": {"line": 10, "character": 7}},
+       "name": "foo",
+       "kind": 14,
+       "data":
+       {"name": "foo",
+        "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+      "fromRanges":
+      [{"start": {"line": 14, "character": 15},
+        "end": {"line": 14, "character": 18}}],
+      "children":
+      [{"item":
+        {"uri": "file:///outgoingCallHierarchy.lean",
+         "selectionRange":
+         {"start": {"line": 3, "character": 10},
+          "end": {"line": 3, "character": 15}},
+         "range":
+         {"start": {"line": 3, "character": 10},
+          "end": {"line": 3, "character": 15}},
+         "name": "Unit'",
+         "kind": 14,
+         "data":
+         {"name": "Unit'",
+          "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+        "fromRanges":
+        [{"start": {"line": 10, "character": 10},
+          "end": {"line": 10, "character": 15}}],
+        "children": []},
+       {"item":
+        {"uri": "file:///outgoingCallHierarchy.lean",
+         "selectionRange":
+         {"start": {"line": 4, "character": 4},
+          "end": {"line": 4, "character": 6}},
+         "range":
+         {"start": {"line": 4, "character": 4},
+          "end": {"line": 4, "character": 6}},
+         "name": "Unit'.mk",
+         "kind": 14,
+         "data":
+         {"name": "Unit'.mk",
+          "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+        "fromRanges":
+        [{"start": {"line": 10, "character": 19},
+          "end": {"line": 10, "character": 22}}],
+        "children": []}]}]}]}]
+[{"item":
+  {"uri": "file:///outgoingCallHierarchy.lean",
+   "selectionRange":
+   {"start": {"line": 26, "character": 4},
+    "end": {"line": 26, "character": 10}},
+   "range":
+   {"start": {"line": 26, "character": 0},
+    "end": {"line": 26, "character": 37}},
+   "name": "test13",
+   "kind": 14,
+   "data":
+   {"name": "test13",
+    "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+  "fromRanges": [],
+  "children":
+  [{"item":
+    {"uri": "file:///outgoingCallHierarchy.lean",
+     "selectionRange":
+     {"start": {"line": 6, "character": 10},
+      "end": {"line": 6, "character": 14}},
+     "range":
+     {"start": {"line": 6, "character": 10},
+      "end": {"line": 6, "character": 14}},
+     "name": "Sum'",
+     "kind": 14,
+     "data":
+     {"name": "Sum'",
+      "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+    "fromRanges":
+    [{"start": {"line": 26, "character": 16},
+      "end": {"line": 26, "character": 20}}],
+    "children": []},
+   {"item":
+    {"uri": "file:///outgoingCallHierarchy.lean",
+     "selectionRange":
+     {"start": {"line": 21, "character": 4},
+      "end": {"line": 21, "character": 10}},
+     "range":
+     {"start": {"line": 21, "character": 4},
+      "end": {"line": 21, "character": 10}},
+     "name": "test11",
+     "kind": 14,
+     "data":
+     {"name": "test11",
+      "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+    "fromRanges":
+    [{"start": {"line": 26, "character": 29},
+      "end": {"line": 26, "character": 35}}],
+    "children":
+    [{"item":
+      {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+       "selectionRange":
+       {"start": {"line": 28, "character": 11},
+        "end": {"line": 28, "character": 17}},
+       "range":
+       {"start": {"line": 28, "character": 11},
+        "end": {"line": 28, "character": 17}},
+       "name": "Lean.Server.Test.Refs.test10",
+       "kind": 14,
+       "data":
+       {"name": "Lean.Server.Test.Refs.test10",
+        "module": "Lean.Server.Test.Refs"}},
+      "fromRanges":
+      [{"start": {"line": 24, "character": 23},
+        "end": {"line": 24, "character": 51}}],
+      "children":
+      [{"item":
+        {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+         "selectionRange":
+         {"start": {"line": 27, "character": 11},
+          "end": {"line": 27, "character": 16}},
+         "range":
+         {"start": {"line": 27, "character": 11},
+          "end": {"line": 27, "character": 16}},
+         "name": "Lean.Server.Test.Refs.test9",
+         "kind": 14,
+         "data":
+         {"name": "Lean.Server.Test.Refs.test9",
+          "module": "Lean.Server.Test.Refs"}},
+        "fromRanges":
+        [{"start": {"line": 28, "character": 21},
+          "end": {"line": 28, "character": 26}}],
+        "children":
+        [{"item":
+          {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+           "selectionRange":
+           {"start": {"line": 25, "character": 11},
+            "end": {"line": 25, "character": 16}},
+           "range":
+           {"start": {"line": 25, "character": 11},
+            "end": {"line": 25, "character": 16}},
+           "name": "Lean.Server.Test.Refs.test7",
+           "kind": 14,
+           "data":
+           {"name": "Lean.Server.Test.Refs.test7",
+            "module": "Lean.Server.Test.Refs"}},
+          "fromRanges":
+          [{"start": {"line": 27, "character": 20},
+            "end": {"line": 27, "character": 25}}],
+          "children":
+          [{"item":
+            {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+             "selectionRange":
+             {"start": {"line": 23, "character": 17},
+              "end": {"line": 23, "character": 22}},
+             "range":
+             {"start": {"line": 23, "character": 17},
+              "end": {"line": 23, "character": 22}},
+             "name": "Lean.Server.Test.Refs.Test6",
+             "kind": 14,
+             "data":
+             {"name": "Lean.Server.Test.Refs.Test6",
+              "module": "Lean.Server.Test.Refs"}},
+            "fromRanges":
+            [{"start": {"line": 25, "character": 19},
+              "end": {"line": 25, "character": 24}}],
+            "children": []},
+           {"item":
+            {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+             "selectionRange":
+             {"start": {"line": 24, "character": 4},
+              "end": {"line": 24, "character": 6}},
+             "range":
+             {"start": {"line": 24, "character": 4},
+              "end": {"line": 24, "character": 6}},
+             "name": "Lean.Server.Test.Refs.Test6.mk",
+             "kind": 14,
+             "data":
+             {"name": "Lean.Server.Test.Refs.Test6.mk",
+              "module": "Lean.Server.Test.Refs"}},
+            "fromRanges":
+            [{"start": {"line": 25, "character": 28},
+              "end": {"line": 25, "character": 31}}],
+            "children": []}]}]}]},
+     {"item":
+      {"uri": "file:///outgoingCallHierarchy.lean",
+       "selectionRange":
+       {"start": {"line": 6, "character": 10},
+        "end": {"line": 6, "character": 14}},
+       "range":
+       {"start": {"line": 6, "character": 10},
+        "end": {"line": 6, "character": 14}},
+       "name": "Sum'",
+       "kind": 14,
+       "data":
+       {"name": "Sum'",
+        "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+      "fromRanges":
+      [{"start": {"line": 21, "character": 16},
+        "end": {"line": 21, "character": 20}}],
+      "children": []},
+     {"item":
+      {"uri": "file:///outgoingCallHierarchy.lean",
+       "selectionRange":
+       {"start": {"line": 7, "character": 4},
+        "end": {"line": 7, "character": 8}},
+       "range":
+       {"start": {"line": 7, "character": 4},
+        "end": {"line": 7, "character": 8}},
+       "name": "Sum'.left",
+       "kind": 14,
+       "data":
+       {"name": "Sum'.left",
+        "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+      "fromRanges":
+      [{"start": {"line": 23, "character": 4},
+        "end": {"line": 23, "character": 9}}],
+      "children": []},
+     {"item":
+      {"uri": "file:///outgoingCallHierarchy.lean",
+       "selectionRange":
+       {"start": {"line": 8, "character": 4},
+        "end": {"line": 8, "character": 9}},
+       "range":
+       {"start": {"line": 8, "character": 4},
+        "end": {"line": 8, "character": 9}},
+       "name": "Sum'.right",
+       "kind": 14,
+       "data":
+       {"name": "Sum'.right",
+        "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+      "fromRanges":
+      [{"start": {"line": 24, "character": 4},
+        "end": {"line": 24, "character": 10}}],
+      "children": []},
+     {"item":
+      {"uri": "file:///outgoingCallHierarchy.lean",
+       "selectionRange":
+       {"start": {"line": 3, "character": 10},
+        "end": {"line": 3, "character": 15}},
+       "range":
+       {"start": {"line": 3, "character": 10},
+        "end": {"line": 3, "character": 15}},
+       "name": "Unit'",
+       "kind": 14,
+       "data":
+       {"name": "Unit'",
+        "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+      "fromRanges":
+      [{"start": {"line": 21, "character": 28},
+        "end": {"line": 21, "character": 33}}],
+      "children": []},
+     {"item":
+      {"uri": "file:///outgoingCallHierarchy.lean",
+       "selectionRange":
+       {"start": {"line": 16, "character": 4},
+        "end": {"line": 16, "character": 10}},
+       "range":
+       {"start": {"line": 16, "character": 4},
+        "end": {"line": 16, "character": 10}},
+       "name": "barfoo",
+       "kind": 14,
+       "data":
+       {"name": "barfoo",
+        "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+      "fromRanges":
+      [{"start": {"line": 23, "character": 15},
+        "end": {"line": 23, "character": 21}}],
+      "children":
+      [{"item":
+        {"uri": "file:///outgoingCallHierarchy.lean",
+         "selectionRange":
+         {"start": {"line": 6, "character": 10},
+          "end": {"line": 6, "character": 14}},
+         "range":
+         {"start": {"line": 6, "character": 10},
+          "end": {"line": 6, "character": 14}},
+         "name": "Sum'",
+         "kind": 14,
+         "data":
+         {"name": "Sum'",
+          "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+        "fromRanges":
+        [{"start": {"line": 16, "character": 16},
+          "end": {"line": 16, "character": 20}}],
+        "children": []},
+       {"item":
+        {"uri": "file:///outgoingCallHierarchy.lean",
+         "selectionRange":
+         {"start": {"line": 12, "character": 4},
+          "end": {"line": 12, "character": 10}},
+         "range":
+         {"start": {"line": 12, "character": 4},
+          "end": {"line": 12, "character": 10}},
+         "name": "foobar",
+         "kind": 14,
+         "data":
+         {"name": "foobar",
+          "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+        "fromRanges":
+        [{"start": {"line": 16, "character": 29},
+          "end": {"line": 16, "character": 35}}],
+        "children":
+        [{"item":
+          {"uri": "file:///outgoingCallHierarchy.lean",
+           "selectionRange":
+           {"start": {"line": 6, "character": 10},
+            "end": {"line": 6, "character": 14}},
+           "range":
+           {"start": {"line": 6, "character": 10},
+            "end": {"line": 6, "character": 14}},
+           "name": "Sum'",
+           "kind": 14,
+           "data":
+           {"name": "Sum'",
+            "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+          "fromRanges":
+          [{"start": {"line": 12, "character": 16},
+            "end": {"line": 12, "character": 20}}],
+          "children": []},
+         {"item":
+          {"uri": "file:///outgoingCallHierarchy.lean",
+           "selectionRange":
+           {"start": {"line": 7, "character": 4},
+            "end": {"line": 7, "character": 8}},
+           "range":
+           {"start": {"line": 7, "character": 4},
+            "end": {"line": 7, "character": 8}},
+           "name": "Sum'.left",
+           "kind": 14,
+           "data":
+           {"name": "Sum'.left",
+            "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+          "fromRanges":
+          [{"start": {"line": 14, "character": 4},
+            "end": {"line": 14, "character": 9}}],
+          "children": []},
+         {"item":
+          {"uri": "file:///outgoingCallHierarchy.lean",
+           "selectionRange":
+           {"start": {"line": 8, "character": 4},
+            "end": {"line": 8, "character": 9}},
+           "range":
+           {"start": {"line": 8, "character": 4},
+            "end": {"line": 8, "character": 9}},
+           "name": "Sum'.right",
+           "kind": 14,
+           "data":
+           {"name": "Sum'.right",
+            "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+          "fromRanges":
+          [{"start": {"line": 15, "character": 4},
+            "end": {"line": 15, "character": 10}}],
+          "children": []},
+         {"item":
+          {"uri": "file:///outgoingCallHierarchy.lean",
+           "selectionRange":
+           {"start": {"line": 3, "character": 10},
+            "end": {"line": 3, "character": 15}},
+           "range":
+           {"start": {"line": 3, "character": 10},
+            "end": {"line": 3, "character": 15}},
+           "name": "Unit'",
+           "kind": 14,
+           "data":
+           {"name": "Unit'",
+            "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+          "fromRanges":
+          [{"start": {"line": 12, "character": 28},
+            "end": {"line": 12, "character": 33}}],
+          "children": []},
+         {"item":
+          {"uri": "file:///outgoingCallHierarchy.lean",
+           "selectionRange":
+           {"start": {"line": 11, "character": 4},
+            "end": {"line": 11, "character": 7}},
+           "range":
+           {"start": {"line": 11, "character": 4},
+            "end": {"line": 11, "character": 7}},
+           "name": "bar",
+           "kind": 14,
+           "data":
+           {"name": "bar",
+            "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+          "fromRanges":
+          [{"start": {"line": 15, "character": 16},
+            "end": {"line": 15, "character": 19}}],
+          "children":
+          [{"item":
+            {"uri": "file:///outgoingCallHierarchy.lean",
+             "selectionRange":
+             {"start": {"line": 10, "character": 4},
+              "end": {"line": 10, "character": 7}},
+             "range":
+             {"start": {"line": 10, "character": 4},
+              "end": {"line": 10, "character": 7}},
+             "name": "foo",
+             "kind": 14,
+             "data":
+             {"name": "foo",
+              "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+            "fromRanges":
+            [{"start": {"line": 11, "character": 11},
+              "end": {"line": 11, "character": 14}}],
+            "children":
+            [{"item":
+              {"uri": "file:///outgoingCallHierarchy.lean",
+               "selectionRange":
+               {"start": {"line": 3, "character": 10},
+                "end": {"line": 3, "character": 15}},
+               "range":
+               {"start": {"line": 3, "character": 10},
+                "end": {"line": 3, "character": 15}},
+               "name": "Unit'",
+               "kind": 14,
+               "data":
+               {"name": "Unit'",
+                "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+              "fromRanges":
+              [{"start": {"line": 10, "character": 10},
+                "end": {"line": 10, "character": 15}}],
+              "children": []},
+             {"item":
+              {"uri": "file:///outgoingCallHierarchy.lean",
+               "selectionRange":
+               {"start": {"line": 4, "character": 4},
+                "end": {"line": 4, "character": 6}},
+               "range":
+               {"start": {"line": 4, "character": 4},
+                "end": {"line": 4, "character": 6}},
+               "name": "Unit'.mk",
+               "kind": 14,
+               "data":
+               {"name": "Unit'.mk",
+                "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+              "fromRanges":
+              [{"start": {"line": 10, "character": 19},
+                "end": {"line": 10, "character": 22}}],
+              "children": []}]}]},
+         {"item":
+          {"uri": "file:///outgoingCallHierarchy.lean",
+           "selectionRange":
+           {"start": {"line": 10, "character": 4},
+            "end": {"line": 10, "character": 7}},
+           "range":
+           {"start": {"line": 10, "character": 4},
+            "end": {"line": 10, "character": 7}},
+           "name": "foo",
+           "kind": 14,
+           "data":
+           {"name": "foo",
+            "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+          "fromRanges":
+          [{"start": {"line": 14, "character": 15},
+            "end": {"line": 14, "character": 18}}],
+          "children":
+          [{"item":
+            {"uri": "file:///outgoingCallHierarchy.lean",
+             "selectionRange":
+             {"start": {"line": 3, "character": 10},
+              "end": {"line": 3, "character": 15}},
+             "range":
+             {"start": {"line": 3, "character": 10},
+              "end": {"line": 3, "character": 15}},
+             "name": "Unit'",
+             "kind": 14,
+             "data":
+             {"name": "Unit'",
+              "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+            "fromRanges":
+            [{"start": {"line": 10, "character": 10},
+              "end": {"line": 10, "character": 15}}],
+            "children": []},
+           {"item":
+            {"uri": "file:///outgoingCallHierarchy.lean",
+             "selectionRange":
+             {"start": {"line": 4, "character": 4},
+              "end": {"line": 4, "character": 6}},
+             "range":
+             {"start": {"line": 4, "character": 4},
+              "end": {"line": 4, "character": 6}},
+             "name": "Unit'.mk",
+             "kind": 14,
+             "data":
+             {"name": "Unit'.mk",
+              "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+            "fromRanges":
+            [{"start": {"line": 10, "character": 19},
+              "end": {"line": 10, "character": 22}}],
+            "children": []}]}]}]},
+     {"item":
+      {"uri": "file:///outgoingCallHierarchy.lean",
+       "selectionRange":
+       {"start": {"line": 19, "character": 4},
+        "end": {"line": 19, "character": 10}},
+       "range":
+       {"start": {"line": 19, "character": 4},
+        "end": {"line": 19, "character": 10}},
+       "name": "test12",
+       "kind": 14,
+       "data":
+       {"name": "test12",
+        "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+      "fromRanges":
+      [{"start": {"line": 24, "character": 16},
+        "end": {"line": 24, "character": 22}}],
+      "children":
+      [{"item":
+        {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+         "selectionRange":
+         {"start": {"line": 23, "character": 17},
+          "end": {"line": 23, "character": 22}},
+         "range":
+         {"start": {"line": 23, "character": 17},
+          "end": {"line": 23, "character": 22}},
+         "name": "Lean.Server.Test.Refs.Test6",
+         "kind": 14,
+         "data":
+         {"name": "Lean.Server.Test.Refs.Test6",
+          "module": "Lean.Server.Test.Refs"}},
+        "fromRanges":
+        [{"start": {"line": 19, "character": 16},
+          "end": {"line": 19, "character": 43}}],
+        "children": []},
+       {"item":
+        {"uri": "file:///outgoingCallHierarchy.lean",
+         "selectionRange":
+         {"start": {"line": 3, "character": 10},
+          "end": {"line": 3, "character": 15}},
+         "range":
+         {"start": {"line": 3, "character": 10},
+          "end": {"line": 3, "character": 15}},
+         "name": "Unit'",
+         "kind": 14,
+         "data":
+         {"name": "Unit'",
+          "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+        "fromRanges":
+        [{"start": {"line": 19, "character": 47},
+          "end": {"line": 19, "character": 52}}],
+        "children": []},
+       {"item":
+        {"uri": "file:///outgoingCallHierarchy.lean",
+         "selectionRange":
+         {"start": {"line": 4, "character": 4},
+          "end": {"line": 4, "character": 6}},
+         "range":
+         {"start": {"line": 4, "character": 4},
+          "end": {"line": 4, "character": 6}},
+         "name": "Unit'.mk",
+         "kind": 14,
+         "data":
+         {"name": "Unit'.mk",
+          "module": "«external:file:///outgoingCallHierarchy.lean»"}},
+        "fromRanges":
+        [{"start": {"line": 19, "character": 56},
+          "end": {"line": 19, "character": 59}}],
+        "children": []}]}]}]}]

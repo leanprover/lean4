@@ -78,10 +78,10 @@ section
 variable [ToString α] [ToString β]
 
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   ToString α
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs in
 omit [ToString α] in
@@ -89,10 +89,10 @@ theorem t8 (a : α) (b : β) : True :=
   let _ := toString a; let _ := toString b; trivial
 
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   ToString β
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs in
 omit [ToString β] in
@@ -100,15 +100,15 @@ theorem t9 (a : α) (b : β) : True :=
   let _ := toString a; let _ := toString b; trivial
 
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   ToString α
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ---
-error: failed to synthesize
+error: failed to synthesize instance of type class
   ToString β
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs in
 omit [ToString _] in

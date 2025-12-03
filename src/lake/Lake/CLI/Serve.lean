@@ -8,13 +8,12 @@ module
 prelude
 public import Lake.Load.Config
 public import Lake.Build.Context
-public import Lake.Util.MainM
+public import Lake.Util.Exit
 import Lake.Build.Run
 import Lake.Build.Module
 import Lake.Load.Package
 import Lake.Load.Lean.Elab
 import Lake.Load.Workspace
-import Lake.Util.MainM
 import Lake.Util.IO
 
 open Lean
@@ -44,27 +43,45 @@ The `setup-file` command is used internally by the Lean server.
 public def setupFile
   (loadConfig : LoadConfig) (leanFile : FilePath)
   (header? : Option ModuleHeader := none) (buildConfig : BuildConfig := {})
-: MainM PUnit := do
+: BaseIO ExitCode := do
   let path ← resolvePath leanFile
   let configFile ← realConfigFile loadConfig.configFile
   if configFile.toString.isEmpty then
-    exit noConfigFileCode
+    return noConfigFileCode
   else if configFile == path then do
     let setup : ModuleSetup := {
       name := configModuleName
       plugins :=  #[loadConfig.lakeEnv.lake.sharedLib]
     }
-    IO.println (toJson setup).compress
+    print! (toJson setup).compress
   else if let some errLog := (← IO.getEnv invalidConfigEnvVar) then
-    IO.eprint errLog
-    IO.eprintln s!"Failed to configure the Lake workspace. Please restart the server after fixing the error above."
-    exit 1
+    eprint! errLog
+    eprint! "Failed to configure the Lake workspace. \
+      Please restart the server after fixing the error above.\n"
+    return 1
   else
-    let some ws ← loadWorkspace loadConfig |>.toBaseIO buildConfig.outLv buildConfig.ansiMode
-      | error "failed to load workspace"
-    let setup ← ws.runBuild (cfg := buildConfig) do
+    let some ws ← loadWorkspace loadConfig |>.toBaseIO buildConfig.toLogConfig
+      | eprint! "Failed to load the Lake workspace.\n"
+        return 1
+    let setup := ws.runBuild (cfg := buildConfig) do
       setupServerModule leanFile.toString path header?
-    IO.println (toJson setup).compress
+    match (← setup.toBaseIO) with
+    | .ok setup =>
+      print! (toJson setup).compress
+    | .error _ =>
+      eprint! "Failed to build module dependencies.\n"
+      return 1
+where
+  print! msg := do
+    match (← IO.println msg |>.toBaseIO) with
+    | .ok _ =>
+      return 0
+    | .error e =>
+      panic! s!"Failed to print `setup-file` result: {e}"
+      return 1
+  eprint! msg := do
+    IO.eprint msg |>.catchExceptions fun e =>
+      panic! s!"Failed to print `setup-file` error: {e}\nOriginal error:\n{msg}"
 
 /--
 Start the Lean LSP for the `Workspace` loaded from `config`

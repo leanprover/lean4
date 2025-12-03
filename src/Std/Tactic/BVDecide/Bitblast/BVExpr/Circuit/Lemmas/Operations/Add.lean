@@ -75,7 +75,7 @@ theorem mkFullAdder_denote_mem_prefix (aig : AIG α) (input : FullAdderInput aig
     ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
   unfold mkFullAdder
   dsimp only
-  rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderCarry)]
+  rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderCarry) (LawfulOperator.lt_size_of_lt_aig_size aig input hstart)]
   rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderOut)]
 
 theorem go_denote_mem_prefix (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref aig)
@@ -110,13 +110,11 @@ theorem go_get_aux (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref a
   split at hgo
   · rw [← hgo]
     intro hfoo
-    rw [go_get_aux]
-    rw [AIG.RefVec.get_push_ref_lt]
-    · simp only [Ref.cast, Ref.mk.injEq]
-      rw [AIG.RefVec.get_cast]
-      · simp
-      · assumption
-    · apply go_le_size
+    rw [go_get_aux (hidx := Nat.lt_succ_of_lt hidx) (hfoo := go_le_size ..)]
+    rw [AIG.RefVec.get_push_ref_lt (hidx := hidx)]
+    simp only [Ref.cast, Ref.mk.injEq]
+    rw [AIG.RefVec.get_cast]
+    simp
   · rw [← hgo]
     simp only [Nat.le_refl]
     obtain rfl : curr = w := by omega
@@ -196,9 +194,9 @@ theorem go_denote_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref
         simp only [Ref.cast_eq, denote_projected_entry, denote_mkFullAdderCarry,
           FullAdderInput.lhs_cast, FullAdderInput.rhs_cast, FullAdderInput.cin_cast,
           BitVec.carry_succ]
-        rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderOut)]
-        rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderOut)]
-        rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderOut)]
+        rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderOut) (h := Ref.hgate _)]
+        rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderOut) (h := Ref.hgate _)]
+        rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderOut) (h := Ref.hgate _)]
         rw [hleft, hright, hcin]
         simp [atLeastTwo_eq_halfAdder]
       · omega

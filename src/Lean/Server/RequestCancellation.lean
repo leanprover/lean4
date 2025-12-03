@@ -6,7 +6,6 @@ Authors: Marc Huisinga
 module
 
 prelude
-public import Init.System.Promise
 public import Lean.Server.ServerTask
 
 public section

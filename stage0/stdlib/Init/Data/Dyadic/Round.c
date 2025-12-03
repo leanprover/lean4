@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Dyadic.Round
-// Imports: Init.Data.Dyadic.Basic Init.Data.Dyadic.Instances Init.Data.Int.Bitwise.Lemmas Init.Grind.Ordered.Rat Init.Grind.Ordered.Field
+// Imports: public import Init.Data.Dyadic.Basic import all Init.Data.Dyadic.Instances import Init.Grind.Ordered.Rat import Init.Grind.Ordered.Field
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -66,15 +66,6 @@ x_5 = l___private_Init_Data_Dyadic_Round_0__Rat_toDyadic_match__1_splitter___red
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Round_0__Rat_toDyadic_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l___private_Init_Data_Dyadic_Round_0__Rat_toDyadic_match__1_splitter___redArg(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Round_0__Rat_toDyadic_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -84,29 +75,34 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* initialize_Init_Data_Dyadic_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Dyadic_Instances(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Int_Bitwise_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Ordered_Rat(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Ordered_Field(uint8_t builtin, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Round_0__Rat_toDyadic_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Init_Data_Dyadic_Round_0__Rat_toDyadic_match__1_splitter___redArg(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
+lean_object* initialize_Init_Data_Dyadic_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Dyadic_Instances(uint8_t builtin);
+lean_object* initialize_Init_Grind_Ordered_Rat(uint8_t builtin);
+lean_object* initialize_Init_Grind_Ordered_Field(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Dyadic_Round(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Dyadic_Round(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Dyadic_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Dyadic_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Dyadic_Instances(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Dyadic_Instances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Bitwise_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Ordered_Rat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ordered_Rat(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Grind_Ordered_Field(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Ordered_Field(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Init_Data_Dyadic_Round_0__Rat_toDyadic_match__1_splitter___redArg___closed__0 = _init_l___private_Init_Data_Dyadic_Round_0__Rat_toDyadic_match__1_splitter___redArg___closed__0();

@@ -139,6 +139,23 @@ public def getLeanArgs : m (Array String) :=
 @[inline] public def getAugmentedEnv : m (Array (String × Option String)) :=
   (·.augmentedEnvVars) <$> getWorkspace
 
+/-- Returns the Lake cache for the environment. -/
+@[inline] public def getLakeCache : m Cache :=
+  (·.lakeCache) <$> getWorkspace
+
+@[inline, inherit_doc Cache.getArtifact?]
+public def getArtifact? [Bind m] [MonadLiftT BaseIO m] (descr : ArtifactDescr) : m (Option Artifact) :=
+  getLakeCache >>= (·.getArtifact? descr)
+
+/--
+Returns whether the package the artifact cache is enabled for the package.
+
+If the package has not configured the artifact cache itself through `Package.enableArtifactCache?`,
+this will default to the workspace configuration.
+-/
+public def Package.isArtifactCacheEnabled [MonadWorkspace m] (self : Package) : m Bool :=
+  (self.enableArtifactCache?.getD ·.enableArtifactCache) <$> getWorkspace
+
 end
 
 section
@@ -170,13 +187,6 @@ variable [Functor m]
 @[inline] public def getElanToolchain : m String :=
   (·.toolchain) <$> getLakeEnv
 
-/-- Returns the Lake cache for the environment. May be disabled. -/
-@[inline] public def getLakeCache : m Cache :=
-  (·.lakeCache) <$> getLakeEnv
-
-@[inline, inherit_doc Cache.getArtifact?]
-public def getArtifact? [Bind m] [MonadLiftT BaseIO m] (contentHash : Hash) (ext := "art") : m (Option Artifact) :=
-  getLakeEnv >>= (·.lakeCache.getArtifact? contentHash ext)
 
 /-! ### Search Path Helpers -/
 

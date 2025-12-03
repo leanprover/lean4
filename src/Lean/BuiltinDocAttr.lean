@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Compiler.InitAttr
-public import Lean.DocString.Extension
 
 public section
 
@@ -34,6 +33,7 @@ builtin_initialize
     add   := fun decl stx _ => do
       Attribute.Builtin.ensureNoArgs stx
       declareBuiltinDocStringAndRanges decl
+    applicationTime := AttributeApplicationTime.afterCompilation
   }
 
 end Lean

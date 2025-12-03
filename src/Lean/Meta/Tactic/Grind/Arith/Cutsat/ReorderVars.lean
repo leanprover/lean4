@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
@@ -162,8 +162,8 @@ def reorderVars : GoalM Unit := do
   for c in dvds do c.assert
   for c in ineqs do c.assert
   for c in diseqs do c.assert
-  trace[grind.debug.cutsat.search.reorder] "new2old: {new2old}"
-  trace[grind.debug.cutsat.search.reorder] "old2new: {old2new}"
+  trace[grind.debug.lia.search.reorder] "new2old: {new2old}"
+  trace[grind.debug.lia.search.reorder] "old2new: {old2new}"
   checkInvariants
 
 end Lean.Meta.Grind.Arith.Cutsat

@@ -5,11 +5,9 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.SearchM
 import Lean.Meta.Tactic.Simp.Arith.Int.Simp
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
@@ -61,7 +59,7 @@ private def checkIsNextVar (x : Var) : GoalM Unit := do
     throwError "`grind` internal error, assigning variable out of order"
 
 private def traceAssignment (x : Var) (v : Rat) : GoalM Unit := do
-  trace[grind.debug.cutsat.search.assign] "{quoteIfArithTerm (← getVar x)} := {v}"
+  trace[grind.debug.lia.search.assign] "{quoteIfArithTerm (← getVar x)} := {v}"
 
 private def setAssignment (x : Var) (v : Rat) : GoalM Unit := do
   checkIsNextVar x
@@ -212,7 +210,7 @@ def DvdCnstr.getSolutions? (c : DvdCnstr) : SearchM (Option DvdSolution) := do
   return some { d, b := -b*a' }
 
 def resolveDvdConflict (c : DvdCnstr) : GoalM Unit := do
-  trace[grind.debug.cutsat.search.conflict] "{← c.pp}"
+  trace[grind.debug.lia.search.conflict] "{← c.pp}"
   let d := c.d
   let .add a _ p := c.p | c.throwUnexpected
   { d := a.gcd d, p, h := .elim c : DvdCnstr }.assert
@@ -298,12 +296,12 @@ partial def findRatVal (lower upper : Rat) (diseqVals : Array (Rat × DiseqCnstr
     v
 
 def resolveRealLowerUpperConflict (c₁ c₂ : LeCnstr) : GoalM Bool := do
-  trace[grind.debug.cutsat.search.conflict] "{← c₁.pp}, {← c₂.pp}"
+  trace[grind.debug.lia.search.conflict] "{← c₁.pp}, {← c₂.pp}"
   let .add a₁ _ p₁ := c₁.p | c₁.throwUnexpected
   let .add a₂ _ p₂ := c₂.p | c₂.throwUnexpected
   let p := p₁.mul a₂.natAbs |>.combine (p₂.mul a₁.natAbs)
   if (← p.satisfiedLe) != .false then
-    trace[grind.cutsat.conflict] "not resolved"
+    trace[grind.lia.conflict] "not resolved"
     return false
   else
     let k := p.gcdCoeffs'
@@ -311,7 +309,7 @@ def resolveRealLowerUpperConflict (c₁ c₂ : LeCnstr) : GoalM Bool := do
       { p, h := .combine c₁ c₂ : LeCnstr }
     else
       { p := p.div k, h := .combineDivCoeffs c₁ c₂ k : LeCnstr }
-    trace[grind.debug.cutsat.search.conflict] "resolved: {← c.pp}"
+    trace[grind.debug.lia.search.conflict] "resolved: {← c.pp}"
     c.assert
     return true
 
@@ -328,7 +326,7 @@ def resolveCooperUnary (pred : CooperSplitPred) : SearchM Bool := do
   return true
 
 def resolveCooperPred (pred : CooperSplitPred) : SearchM Unit := do
-  trace[grind.debug.cutsat.search.conflict] "[{pred.numCases}]: {← pred.pp}"
+  trace[grind.debug.lia.search.conflict] "[{pred.numCases}]: {← pred.pp}"
   if (← resolveCooperUnary pred) then
     return
   let n := pred.numCases
@@ -345,11 +343,11 @@ def resolveCooperDvd (c₁ c₂ : LeCnstr) (c₃ : DvdCnstr) : SearchM Unit := d
 
 def DiseqCnstr.split (c : DiseqCnstr) : SearchM LeCnstr := do
   let fvarId ← if let some fvarId := (← get').diseqSplits.find? c.p then
-    trace[grind.debug.cutsat.search.split] "{← c.pp}, reusing {fvarId.name}"
+    trace[grind.debug.lia.search.split] "{← c.pp}, reusing {fvarId.name}"
     pure fvarId
   else
     let fvarId ← mkCase (.diseq c)
-    trace[grind.debug.cutsat.search.split] "{← c.pp}, {fvarId.name}"
+    trace[grind.debug.lia.search.split] "{← c.pp}, {fvarId.name}"
     modify' fun s => { s with diseqSplits := s.diseqSplits.insert c.p fvarId }
     pure fvarId
   let p₂ := c.p.addConst 1
@@ -389,7 +387,7 @@ def resolveRatDiseq (c₁ : LeCnstr) (c : DiseqCnstr) : SearchM Unit := do
 
 def processVar (x : Var) : SearchM Unit := do
   if (← eliminated x) then
-    trace[grind.debug.cutsat.search] "eliminated: {← getVar x}"
+    trace[grind.debug.lia.search] "eliminated: {← getVar x}"
     /-
     Variable has been eliminated, and will be assigned later after we have assigned
     variables that have not been eliminated.
@@ -402,7 +400,7 @@ def processVar (x : Var) : SearchM Unit := do
     if let some solutions ← c.getSolutions? then
       pure solutions
     else
-      trace[grind.debug.cutsat.search] "dvd conflict: {← c.pp}"
+      trace[grind.debug.lia.search] "dvd conflict: {← c.pp}"
       resolveDvdConflict c
       return ()
   else
@@ -417,15 +415,15 @@ def processVar (x : Var) : SearchM Unit := do
   | some (lower, _), none =>
     let lower := lower.ceil
     let v := dvdSol.geAvoiding lower diseqVals
-    trace[grind.debug.cutsat.search] "{lower} ≤ {quoteIfArithTerm (← getVar x)} := {v}"
+    trace[grind.debug.lia.search] "{lower} ≤ {quoteIfArithTerm (← getVar x)} := {v}"
     setAssignment x v
   | none, some (upper, _) =>
     let upper := upper.floor
     let v := dvdSol.leAvoiding upper diseqVals
-    trace[grind.debug.cutsat.search] "{quoteIfArithTerm (← getVar x)} := {v} ≤ {upper}"
+    trace[grind.debug.lia.search] "{quoteIfArithTerm (← getVar x)} := {v} ≤ {upper}"
     setAssignment x v
   | some (lower, c₁), some (upper, c₂) =>
-    trace[grind.debug.cutsat.search] "{lower} ≤ {lower.ceil} ≤ {quoteIfArithTerm (← getVar x)} ≤ {upper.floor} ≤ {upper}"
+    trace[grind.debug.lia.search] "{lower} ≤ {lower.ceil} ≤ {quoteIfArithTerm (← getVar x)} ≤ {upper.floor} ≤ {upper}"
     if lower > upper then
       let .true ← resolveRealLowerUpperConflict c₁ c₂
         | throwError "`grind` internal error, conflict resolution failed"
@@ -469,46 +467,46 @@ private def findCase (decVars : FVarIdSet) : SearchM Case := do
     if decVars.contains case.fvarId then
       return case
     -- Conflict does not depend on this case.
-    trace[grind.debug.cutsat.search.backtrack] "skipping {case.fvarId.name}"
+    trace[grind.debug.lia.search.backtrack] "skipping {case.fvarId.name}"
   unreachable!
 
 def resolveConflict (h : UnsatProof) : SearchM Unit := do
-  trace[grind.debug.cutsat.search.backtrack] "resolve conflict, decision stack: {(← get).cases.toList.map fun c => c.fvarId.name}"
+  trace[grind.debug.lia.search.backtrack] "resolve conflict, decision stack: {(← get).cases.toList.map fun c => c.fvarId.name}"
   let decVars := h.collectDecVars.run (← get).decVars
-  trace[grind.debug.cutsat.search.backtrack] "dec vars: {decVars.toList.map (·.name)}"
+  trace[grind.debug.lia.search.backtrack] "dec vars: {decVars.toList.map (·.name)}"
   if decVars.isEmpty then
-    trace[grind.debug.cutsat.search.backtrack] "close goal: {← h.pp}"
+    trace[grind.debug.lia.search.backtrack] "close goal: {← h.pp}"
     closeGoal (← h.toExprProof)
     return ()
   let c ← findCase decVars
   modify' fun _  => c.saved
-  trace[grind.debug.cutsat.search.backtrack] "backtracking {c.fvarId.name}"
+  trace[grind.debug.lia.search.backtrack] "backtracking {c.fvarId.name}"
   let decVars := decVars.erase c.fvarId
   match c.kind with
   | .diseq c₁ =>
     let decVars := decVars.toArray
     let p' := c₁.p.mul (-1) |>.addConst 1
     let c' := { p := p', h := .ofDiseqSplit c₁ c.fvarId h decVars : LeCnstr }
-    trace[grind.debug.cutsat.search.backtrack] "resolved diseq split: {← c'.pp}"
+    trace[grind.debug.lia.search.backtrack] "resolved diseq split: {← c'.pp}"
     c'.assert
   | .cooper pred hs decVars' =>
     let decVars' := decVars.merge decVars'
     let n := pred.numCases
     let hs := hs.push (c.fvarId, h)
-    trace[grind.debug.cutsat.search.backtrack] "cooper #{hs.size + 1}, {← pred.pp}, {hs.map fun p => p.1.name}"
+    trace[grind.debug.lia.search.backtrack] "cooper #{hs.size + 1}, {← pred.pp}, {hs.map fun p => p.1.name}"
     let s ← if hs.size + 1 < n then
       let fvarId ← mkCase (.cooper pred hs decVars')
       pure { pred, k := n - hs.size - 1, h := .dec fvarId : CooperSplit }
     else
       let decVars' := decVars'.toArray
-      trace[grind.debug.cutsat.search.backtrack] "cooper last case, {← pred.pp}, dec vars: {decVars'.map (·.name)}"
+      trace[grind.debug.lia.search.backtrack] "cooper last case, {← pred.pp}, dec vars: {decVars'.map (·.name)}"
       pure { pred, k := 0, h := .last hs decVars' : CooperSplit }
     s.assert
 
 /-- Search for an assignment/model for the linear constraints. -/
 private def searchAssignmentMain : SearchM Unit := do
   repeat
-    trace[grind.debug.cutsat.search] "main loop"
+    trace[grind.debug.lia.search] "main loop"
     checkSystem "cutsat"
     if (← hasAssignment) then
       return ()
@@ -519,7 +517,7 @@ private def searchAssignmentMain : SearchM Unit := do
       resolveConflict c
     else
       let x : Var := (← get').assignment.size
-      trace[grind.debug.cutsat.search] "next var: {← getVar x}, {x}, {(← get').assignment.toList}"
+      trace[grind.debug.lia.search] "next var: {← getVar x}, {x}, {(← get').assignment.toList}"
       processVar x
 
 private def resetDecisionStack : SearchM Unit := do
@@ -539,18 +537,18 @@ private def searchQLiaAssignment : GoalM Bool := do
   go .rat |>.run' {}
 
 private def traceActiveCnstrs : GoalM Unit := do
-  unless (← isTracingEnabledFor `grind.debug.cutsat.search.cnstrs) do return ()
+  unless (← isTracingEnabledFor `grind.debug.lia.search.cnstrs) do return ()
   let s ← get'
   for x in [: s.vars.size] do
     unless (← eliminated x) do
       if let some dvd := s.dvds[x]! then
-        trace[grind.debug.cutsat.search.cnstrs] "{← dvd.pp}"
+        trace[grind.debug.lia.search.cnstrs] "{← dvd.pp}"
       for c in s.lowers[x]! do
-        trace[grind.debug.cutsat.search.cnstrs] "{← c.pp}"
+        trace[grind.debug.lia.search.cnstrs] "{← c.pp}"
       for c in s.uppers[x]! do
-        trace[grind.debug.cutsat.search.cnstrs] "{← c.pp}"
+        trace[grind.debug.lia.search.cnstrs] "{← c.pp}"
       for c in s.diseqs[x]! do
-        trace[grind.debug.cutsat.search.cnstrs] "{← c.pp}"
+        trace[grind.debug.lia.search.cnstrs] "{← c.pp}"
 
 private def searchLiaAssignment : GoalM Unit := do
   let go : SearchM Unit := do
@@ -566,10 +564,10 @@ def searchAssignment : GoalM Unit := do
   if (← isInconsistent) then return ()
   if !(← getConfig).qlia && !precise then
     -- Search for a new model using `.int` mode.
-    trace[grind.debug.cutsat.search] "restart using Cooper resolution"
+    trace[grind.debug.lia.search] "restart using Cooper resolution"
     modify' fun s => { s with assignment := {} }
     searchLiaAssignment
-    trace[grind.debug.cutsat.search] "after search int model, inconsistent: {← isInconsistent}"
+    trace[grind.debug.lia.search] "after search int model, inconsistent: {← isInconsistent}"
     if (← isInconsistent) then return ()
   -- TODO: constructing a model is only worth if `grind` will **not** continue searching.
   assignElimVars

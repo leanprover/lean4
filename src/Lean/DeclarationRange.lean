@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Data.DeclarationRange
 public import Lean.MonadEnv
 
 public section

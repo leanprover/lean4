@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lake.Config.Env
-public import Lake.Config.Module
 public import Lake.Config.LeanExe
 public import Lake.Config.ExternLib
 public import Lake.Config.FacetConfig
@@ -25,13 +24,20 @@ public structure Workspace : Type where
   root : Package
   /-- The detected `Lake.Env` of the workspace. -/
   lakeEnv : Lake.Env
+  /-- The Lake cache. -/
+  lakeCache : Cache :=
+    if root.bootstrap then lakeEnv.lakeSystemCache?.getD ⟨root.lakeDir / "cache"⟩
+    else lakeEnv.lakeCache?.getD ⟨root.lakeDir / "cache"⟩
   /--
   The CLI arguments Lake was run with.
   Used by `lake update` to perform a restart of Lake on a toolchain update.
   A value of `none` means that Lake is not restartable via the CLI.
   -/
   lakeArgs? : Option (Array String) := none
-  /-- The packages within the workspace (in `require` declaration order). -/
+  /--
+  The packages within the workspace
+  (in `require` declaration order with the root coming first).
+  -/
   packages : Array Package := {}
   /-- Name-package map of packages within the workspace. -/
   packageMap : DNameMap NPackage := {}
@@ -50,10 +56,6 @@ namespace Workspace
 @[inline] def bootstrap (ws : Workspace) : Bool :=
   ws.root.bootstrap
 
-/-- The Lake cache. May be disabled. -/
-@[inline] public def lakeCache (ws : Workspace) : Cache :=
-  ws.lakeEnv.lakeCache
-
 /-- The path to the workspace's directory (i.e., the directory of the root package). -/
 @[inline] public def dir (self : Workspace) : FilePath :=
   self.root.dir
@@ -69,6 +71,14 @@ namespace Workspace
 /-- The full path to the workspace's Lake directory (e.g., `.lake`). -/
 @[inline] public def lakeDir (self : Workspace) : FilePath :=
   self.root.lakeDir
+
+/-- Whether the Lake artifact cache should be enabled by default for packages in the workspace. -/
+@[inline] public def enableArtifactCache (ws : Workspace) : Bool :=
+  ws.lakeEnv.enableArtifactCache
+
+/-- Whether the Lake artifact cache should is enabled for workspace's root package. -/
+public def isRootArtifactCacheEnabled (ws : Workspace) : Bool :=
+  ws.root.enableArtifactCache?.getD ws.enableArtifactCache
 
 /-- The path to the workspace's remote packages directory relative to `dir`. -/
 @[inline] public def relPkgsDir (self : Workspace) : FilePath :=
@@ -248,6 +258,7 @@ These are the settings use by `lake env` / `Lake.env` to run executables.
 -/
 public def augmentedEnvVars (self : Workspace) : Array (String × Option String) :=
   let vars := self.lakeEnv.baseVars ++ #[
+    ("LAKE_CACHE_DIR", some self.lakeCache.dir.toString),
     ("LEAN_PATH", some self.augmentedLeanPath.toString),
     ("LEAN_SRC_PATH", some self.augmentedLeanSrcPath.toString),
     -- Allow the Lean version to change dynamically within core

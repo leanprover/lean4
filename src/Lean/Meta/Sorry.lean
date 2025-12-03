@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Data.Lsp.Utf16
+public import Lean.Meta.ForEachExpr
 public import Lean.Meta.InferType
 public import Lean.Util.Recognizers
 
@@ -123,3 +124,42 @@ def isLabeledSorry? (e : Expr) : Option SorryLabelView := do
     guard <| arg.appFn!.appArg!.isAppOfArity ``Unit.unit 0
     let tag ← arg.appArg!.name?
     SorryLabelView.decode? tag
+
+end Meta
+
+/--
+If `e` is a sorry application, returns the sorry itself,
+stripping off any arguments in case the `sorry` is standing in for a function.
+
+For labeled sorries, includes the label information.
+-/
+def Expr.getSorry? (e : Expr) : Option Expr :=
+  if e.isSorry then
+    if (Meta.isLabeledSorry? e).isSome then
+      e.getBoundedAppFn (e.getAppNumArgs - 3)
+    else
+      e.getBoundedAppFn (e.getAppNumArgs - 2)
+  else
+    none
+
+/--
+Evaluates `fn` on each `sorry` in the expression.
+Instantiates bound variables with free variables.
+-/
+def Meta.forEachSorryM {m : Type → Type} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m] (input : Expr)
+    (fn : Expr → m Unit) : m Unit := do
+  Meta.forEachExpr' input fun e => do
+    if let some e' := e.getSorry? then
+      fn e'
+      return false
+    else
+      return true
+
+/--
+Evaluates `fn` on each `sorry` in the declaration.
+-/
+def Declaration.forEachSorryM {m : Type → Type} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m] (decl : Declaration)
+    (fn : Expr → m Unit) : m Unit := do
+  decl.forExprM (Meta.forEachSorryM · fn)
+
+end Lean

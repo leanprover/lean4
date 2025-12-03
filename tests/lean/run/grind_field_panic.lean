@@ -177,7 +177,13 @@ class DivisionRing (K : Type) extends Semiring K, DivInvMonoid K where
 
 class Field (K : Type) extends Semiring K, DivisionRing K
 
-instance {K : Type} [Field K] : Lean.Grind.Field K := sorry
+instance {K : Type} [inst : Field K] : Lean.Grind.Field K :=
+  let r : Lean.Grind.Field K := sorry
+  -- **Note**: HACK to ensure we can bypass `grind` sanity checks.
+  -- The `inv` field must match the one in `
+  { r with
+    inv := inst.inv, div_eq_mul_inv := sorry, inv_zero := sorry, mul_inv_cancel := sorry, zpow_neg := sorry }
+
 instance {K : Type} [Field K] : IsDomain K := sorry
 instance [IsDomain R] : MonoidWithZero R := sorry
 noncomputable def normalizedFactors {α : Type} [MonoidWithZero α] (a : α) : List α := sorry

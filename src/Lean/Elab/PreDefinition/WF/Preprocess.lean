@@ -6,8 +6,6 @@ Authors: Joachim Breitner
 module
 
 prelude
-public import Lean.Meta.Transform
-public import Lean.Meta.Match.MatcherApp.Basic
 public import Lean.Elab.Tactic.Simp
 
 public section

@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Order.ClassesExtra
 public import Init.Data.Order.Ord
+import Init.Data.Order.Lemmas
 
 namespace Std
 
@@ -64,7 +65,6 @@ public theorem compare_eq_gt {α : Type u} [Ord α] [LT α] [LE α] [LawfulOrder
 
 public theorem compare_eq_eq {α : Type u} [Ord α] [BEq α] [LE α] [LawfulOrderOrd α] [LawfulOrderBEq α]
     {a b : α} : compare a b = .eq ↔ a == b := by
-  open Classical.Order in
   rw [LawfulOrderBEq.beq_iff_le_and_ge, ← isLE_compare, ← isGE_compare]
   cases compare a b <;> simp
 

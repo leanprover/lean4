@@ -1,4 +1,18 @@
-def U {shape : Std.PRange.RangeShape} (b : Std.PRange.Bound shape.upper α) : Unit := sorry
+inductive BoundShape where
+  | «open» : BoundShape
+  | closed : BoundShape
+  | unbounded : BoundShape
+
+structure RangeShape where
+  lower : BoundShape
+  upper : BoundShape
+
+abbrev Bound (shape : BoundShape) (α : Type u) : Type u :=
+  match shape with
+  | .open | .closed => α
+  | .unbounded => PUnit
+
+def U {shape : RangeShape} (b : Bound shape.upper α) : Unit := sorry
 
 structure T (l : α) : Type u where
 

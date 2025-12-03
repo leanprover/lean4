@@ -21,13 +21,6 @@ namespace BitVec
 
 section Nat
 
-/--
-The bitvector with value `i mod 2^n`.
--/
-@[expose, match_pattern]
-protected def ofNat (n : Nat) (i : Nat) : BitVec n where
-  toFin := Fin.ofNat (2^n) i
-
 instance instOfNat : OfNat (BitVec n) i where ofNat := .ofNat n i
 
 /-- Return the bound in terms of toNat. -/

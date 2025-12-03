@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.SizeOf
 public import Init.BinderNameHint
 public import Init.Data.Nat.Basic
 
@@ -102,9 +101,6 @@ noncomputable def fixF (x : α) (a : Acc r x) : C x := by
 theorem fixF_eq (x : α) (acx : Acc r x) : fixF F x acx = F x (fun (y : α) (p : r y x) => fixF F y (Acc.inv acx p)) := by
   induction acx with
   | intro x r _ => exact rfl
-
-@[deprecated fixF_eq (since := "2025-04-04")]
-abbrev fixFEq := @fixF_eq
 
 end
 

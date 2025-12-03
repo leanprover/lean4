@@ -99,3 +99,19 @@ on to `nightly-with-manual` branch. (It is fine to force push after rebasing.)
 CI will generate a branch of the reference manual called `lean-pr-testing-NNNN`
 in `leanprover/reference-manual`. This branch uses the toolchain for your PR,
 and will report back to the Lean PR with results from Mathlib CI.
+
+### Avoiding rebuilds for downstream projects
+
+If you want to test changes to Lean on downstream projects and would like to avoid rebuilding modules you have already built/fetched using the project's configured Lean toolchain, you can often do so as long as your build of Lean is close enough to that Lean toolchain (compatible .olean format including structure of all relevant environment extensions).
+
+To override the toolchain without rebuilding for a single command, for example `lake build` or `lake lean`, you can use the prefix
+```
+LEAN_GITHASH=$(lean --githash) lake +lean4 ...
+```
+Alternatively, use
+```
+export LEAN_GITHASH=$(lean --githash)
+export ELAN_TOOLCHAIN=lean4
+```
+to persist these changes for the lifetime of the current shell, which will affect any processes spawned from it such as VS Code started via `code .`.
+If you use a setup where you cannot directly start your editor from the command line, such as VS Code Remote, you might want to consider using [direnv](https://direnv.net/) together with an editor extension for it instead so that you can put the lines above into `.envrc`.

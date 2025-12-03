@@ -6,7 +6,6 @@ Authors: Henrik Böving, Sofia Rodrigues
 module
 
 prelude
-public import Init.System.IO
 public import Init.System.Promise
 public import Init.Data.SInt
 public import Std.Net
@@ -47,7 +46,7 @@ opaque connect (socket : @& Socket) (addr : @& SocketAddress) : IO (IO.Promise (
 Sends data through a TCP socket.
 -/
 @[extern "lean_uv_tcp_send"]
-opaque send (socket : @& Socket) (data : ByteArray) : IO (IO.Promise (Except IO.Error Unit))
+opaque send (socket : @& Socket) (data : Array ByteArray) : IO (IO.Promise (Except IO.Error Unit))
 
 /--
 Receives data from a TCP socket with a maximum size of size bytes. The promise resolves when data is
@@ -95,6 +94,18 @@ Accepts an incoming connection on a listening TCP socket.
 -/
 @[extern "lean_uv_tcp_accept"]
 opaque accept (socket : @& Socket) : IO (IO.Promise (Except IO.Error Socket))
+
+/--
+Tries to accept an incoming connection on a listening TCP socket.
+-/
+@[extern "lean_uv_tcp_try_accept"]
+opaque tryAccept (socket : @& Socket) : IO (Except IO.Error (Option Socket))
+
+/--
+Cancels the accept request of a socket.
+-/
+@[extern "lean_uv_tcp_cancel_accept"]
+opaque cancelAccept (socket : @& Socket) : IO Unit
 
 /--
 Shuts down an incoming connection on a listening TCP socket.

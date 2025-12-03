@@ -4,16 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.SimpLemmas
-public import Init.PropLemmas
-public import Init.Classical
-public import Init.ByCases
 public import Init.Data.Int.Linear
-public import Init.Data.Int.Pow
 public import Init.Grind.Ring.Field
-
+public import Init.Data.Rat.Lemmas
+public import Init.Grind.Ring.OfScientific
 public section
 
 namespace Lean.Grind
@@ -158,7 +153,7 @@ init_grind_norm
   /- Pre theorems -/
   |
   /- Post theorems -/
-  iff_eq heq_eq_eq
+  iff_eq heq_eq_eq eq_self
   -- And
   and_true true_and and_false false_and and_assoc
   -- ite
@@ -182,7 +177,7 @@ init_grind_norm
   Nat.add_eq Nat.sub_eq Nat.mul_eq Nat.zero_eq Nat.le_eq
   Nat.div_zero Nat.mod_zero Nat.div_one Nat.mod_one
   Nat.sub_sub Nat.pow_zero Nat.pow_one Nat.sub_self
-  Nat.one_pow Nat.zero_sub
+  Nat.one_pow Nat.zero_sub Nat.sub_zero
   -- Int
   Int.lt_eq
   Int.emod_neg Int.ediv_neg
@@ -205,5 +200,17 @@ init_grind_norm
   Field.inv_zero Field.inv_inv Field.inv_one Field.inv_neg
   -- SMul normalizer
   smul_int_eq_mul smul_nat_eq_mul
+  -- NatCast & IntCast for algebraic structures
+  Semiring.natCast_add
+  Semiring.natCast_pow
+  Semiring.natCast_mul
+  Ring.intCast_add
+  Ring.intCast_mul
+  Ring.intCast_pow
+  Ring.intCast_sub
+  -- OfScientific
+  LawfulOfScientific.ofScientific_def
+  -- Rationals
+  Rat.zpow_neg
 
 end Lean.Grind

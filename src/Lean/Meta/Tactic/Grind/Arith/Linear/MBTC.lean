@@ -36,7 +36,7 @@ private def getAssignmentExt? (s : Struct) (a : Expr) : Option Rat := do
     toRatValue? a
 
 private def hasTheoryVar (e : Expr) : GoalM Bool := do
-  return (← getRootENode e).linarith?.isSome || (toRatValue? e).isSome
+  return (← linearExt.hasTermAtRoot e) || (toRatValue? e).isSome
 
 private def isInterpreted (e : Expr) : GoalM Bool := do
   if isInterpretedTerm e then return true
@@ -44,10 +44,10 @@ private def isInterpreted (e : Expr) : GoalM Bool := do
   return f.isConstOf ``LE.le || f.isConstOf ``LT.lt || f.isConstOf ``Dvd.dvd
 
 private def eqAssignment (a b : Expr) : GoalM Bool := do
-  let structId₁? := (← get).arith.linear.exprToStructId.find? { expr := a }
-  let structId₂? := (← get).arith.linear.exprToStructId.find? { expr := b }
+  let structId₁? := (← get').exprToStructId.find? { expr := a }
+  let structId₂? := (← get').exprToStructId.find? { expr := b }
   let some structId := structId₁? <|> structId₂? | return false
-  let s := (← get).arith.linear.structs[structId]!
+  let s := (← get').structs[structId]!
   -- It is pointless to generate case-splits unless we have support for disequality.
   unless s.isLinearInst?.isSome do return false
   let some v₁ := getAssignmentExt? s a | return false

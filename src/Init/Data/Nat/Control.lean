@@ -6,8 +6,6 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Control.Basic
-public import Init.Data.Nat.Basic
 public import Init.Omega
 
 public section

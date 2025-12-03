@@ -7,7 +7,6 @@ module
 
 prelude
 public import Std.Time.Date
-public import Std.Time.Time
 
 public section
 

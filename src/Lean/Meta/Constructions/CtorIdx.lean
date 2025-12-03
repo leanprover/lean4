@@ -11,7 +11,6 @@ public import Lean.Meta.Basic
 import Lean.AddDecl
 import Lean.Meta.AppBuilder
 import Lean.Meta.CompletionName
-import Lean.Meta.Injective
 import Lean.Linter.Deprecated
 
 open Lean Meta
@@ -33,7 +32,8 @@ returns the constructor index of the given value.
 Does nothing if `T` does not eliminate into `Type` or if `T` is unsafe.
 Assumes `T.casesOn` to be defined already.
 -/
-public def mkCtorIdx (indName : Name) : MetaM Unit := do
+public def mkCtorIdx (indName : Name) : MetaM Unit :=
+  withExporting (isExporting := ! isPrivateName indName) do
   prependError m!"failed to construct `T.ctorIdx` for `{.ofConstName indName}`:" do
     unless genCtorIdx.get (← getOptions) do return
     let declName := mkCtorIdxName indName
@@ -71,16 +71,20 @@ public def mkCtorIdx (indName : Name) : MetaM Unit := do
             value := mkApp value alt
           pure value
         mkLambdaFVars (xs.push x) value
-      addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+      let decl := .defnDecl (← mkDefinitionValInferringUnsafe
         (name        := declName)
         (levelParams := info.levelParams)
         (type        := declType)
         (value       := declValue)
         (hints       := ReducibilityHints.abbrev)
-      ))
+      )
+      addDecl decl
       modifyEnv fun env => addToCompletionBlackList env declName
       modifyEnv fun env => addProtected env declName
       setReducibleAttribute declName
+      if info.numCtors = 1 then
+        setInlineAttribute declName .macroInline
+      compileDecl decl
 
       -- Deprecated alias for enumeration types (which used to have `toCtorIdx`)
       if (← isEnumType indName) then

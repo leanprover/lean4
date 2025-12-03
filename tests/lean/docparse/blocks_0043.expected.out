@@ -1,0 +1,14 @@
+Success! Final stack:
+  [(Lean.Doc.Syntax.blockquote
+    ">"
+    [(Lean.Doc.Syntax.para
+      "para{"
+      [(Lean.Doc.Syntax.text
+        (str "\"Quotation\""))]
+      "}")
+     (Lean.Doc.Syntax.para
+      "para{"
+      [(Lean.Doc.Syntax.text
+        (str "\"and contained\""))]
+      "}")])]
+All input consumed.

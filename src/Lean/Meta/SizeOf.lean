@@ -4,16 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Data.List.BasicAux
 public import Lean.AddDecl
 public import Lean.Meta.AppBuilder
-public import Lean.Meta.Instances
 public import Lean.DefEqAttrib
-
 public section
-
 namespace Lean.Meta
 
 /-- Create `SizeOf` local instances for applicable parameters, and execute `k` using them. -/
@@ -163,6 +158,7 @@ partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
               safety      := DefinitionSafety.safe
               hints       := ReducibilityHints.abbrev
             }
+            enableRealizationsForConst declName
 
 /--
   Create `sizeOf` functions for all inductive datatypes in the mutual inductive declaration containing `typeName`
@@ -431,6 +427,8 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
   let ctorInfo ← getConstInfoCtor ctorName
   let us := ctorInfo.levelParams.map mkLevelParam
   let simpAttr ← ofExcept <| getAttributeImpl (← getEnv) `simp
+  let grindAttr ← ofExcept <| getAttributeImpl (← getEnv) `grind
+  let grindAttrStx ← `(attr| grind =)
   forallTelescopeReducing ctorInfo.type fun xs _ => do
     let params := xs[*...ctorInfo.numParams]
     let fields := xs[ctorInfo.numParams...*]
@@ -465,7 +463,8 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
         value       := thmValue
       }
       inferDefEqAttr thmName
-      simpAttr.add thmName default AttributeKind.global
+      simpAttr.add thmName default .global
+      grindAttr.add thmName grindAttrStx .global
 
 private def mkSizeOfSpecTheorems (indTypeNames : Array Name) (sizeOfFns : Array Name) (recMap : NameMap Name) : MetaM Unit := do
   for indTypeName in indTypeNames do
@@ -520,6 +519,7 @@ def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
                         hints       := .abbrev
                       }
                     addInstance instDeclName AttributeKind.global (eval_prio default)
+                    enableRealizationsForConst instDeclName
           if genSizeOfSpec.get (← getOptions) then
             mkSizeOfSpecTheorems indInfo.all.toArray fns recMap
 

@@ -6,33 +6,34 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Tactic.Rewrite
-public import Lean.Meta.Tactic.Split
-public import Lean.Elab.PreDefinition.Basic
-public import Lean.Elab.PreDefinition.Eqns
-public import Lean.Meta.ArgsPacker.Basic
 public import Lean.Elab.PreDefinition.FixedParams
-public import Init.Data.Array.Basic
-
-public section
+public import Lean.Meta.ArgsPacker.Basic
+import Lean.Elab.PreDefinition.EqnsUtils
+import Lean.Meta.Tactic.Rewrite
+import Lean.Meta.Tactic.Split
+import Lean.Elab.PreDefinition.Basic
 
 namespace Lean.Elab.WF
 open Meta
 open Eqns
 
-structure EqnInfo extends EqnInfoCore where
+public structure EqnInfo where
+  declName    : Name
+  levelParams : List Name
+  type        : Expr
+  value       : Expr
   declNames       : Array Name
   declNameNonRec  : Name
   argsPacker      : ArgsPacker
   fixedParamPerms : FixedParamPerms
   deriving Inhabited
 
-builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ←
+public builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ←
   mkMapDeclarationExtension (exportEntriesFn := fun env s _ =>
     -- Do not export for non-exposed defs
     s.filter (fun n _ => env.find? n |>.any (·.hasValue)) |>.toArray)
 
-def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedParamPerms : FixedParamPerms)
+public def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedParamPerms : FixedParamPerms)
     (argsPacker : ArgsPacker) : MetaM Unit := do
   preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
   /-
@@ -47,16 +48,6 @@ def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fi
         preDefs.foldl (init := env) fun env preDef =>
           eqnInfoExt.insert env preDef.declName { preDef with
             declNames, declNameNonRec, argsPacker, fixedParamPerms }
-
-def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
-  if let some info := eqnInfoExt.find? (← getEnv) declName then
-    mkEqns declName info.declNames (tryRefl := false)
-  else
-    return none
-
-builtin_initialize
-  registerGetEqnsFn getEqnsFor?
-
 
 /--
 This is a hack to fix fallout from #8519, where a non-exposed wfrec definition `foo`

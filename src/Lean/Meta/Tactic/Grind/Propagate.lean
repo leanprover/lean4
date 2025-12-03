@@ -4,20 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind
-public import Lean.Meta.Tactic.Grind.Proof
-public import Lean.Meta.Tactic.Grind.PropagatorAttr
-public import Lean.Meta.Tactic.Grind.Simp
-public import Lean.Meta.Tactic.Grind.Ext
-public import Lean.Meta.Tactic.Grind.Internalize
+public import Lean.Meta.Tactic.Grind.Types
+import Init.Grind
+import Lean.Meta.Tactic.Grind.PropagatorAttr
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Ext
 import Lean.Meta.Tactic.Grind.Diseq
-
 public section
-
 namespace Lean.Meta.Grind
-
 /--
 Propagates equalities for a conjunction `a ∧ b` based on the truth values
 of its components `a` and `b`. This function checks the truth value of `a` and `b`,
@@ -166,12 +161,50 @@ builtin_grind_propagator propagateEqUp ↑Eq := fun e => do
   else unless (← isEqFalse e) do
     if aRoot.ctor && bRoot.ctor && aRoot.self.getAppFn != bRoot.self.getAppFn then
       -- ¬a = b
-      let hne ← withLocalDeclD `h (← mkEq a b) fun h => do
-        let hf ← mkEqTrans (← mkEqProof aRoot.self a) h
-        let hf ← mkEqTrans hf (← mkEqProof b bRoot.self)
-        let hf ← mkNoConfusion (← getFalseExpr) hf
-        mkLambdaFVars #[h] hf
-      pushEqFalse e <| mkApp2 (mkConst ``eq_false) e hne
+      /-
+      **Note**: `a` and `b` have the same type because `e` is a type correct term and is of the form `@Eq α a b`
+      However, `a` and `aRoot` may not. Same for `b` and `bRoot`, and `aRoot` and `bRoot`.
+      We must check that. If this is not the case, we should search their equivalence classes looking
+      for distinct constructor applications with the same type.
+      -/
+
+      /-
+      Helper function. Give `aCtor` and `bCtor` s.t.
+      - `a` and `aCtor` are in the same equivalence class.
+      - `b` and `bCtor` are in the same equivalence class.
+      - `aCtor` and `bCtor` have the same type **and** are distinct constructor applications
+
+      Returns a proof that `a ≠ b`
+      -/
+      let mkNe (aCtor bCtor : Expr) : GoalM Expr := do
+        withLocalDeclD `h (← mkEq a b) fun hab => do
+          let hf ← match (← hasSameType a aCtor), (← hasSameType b bCtor) with
+          | true,  true  =>
+            let hf ← mkEqTrans (← mkEqProof aCtor a) hab
+            mkEqTrans hf (← mkEqProof b bCtor)
+          | _,  _ =>
+            let hf ← mkHEqTrans (← mkHEqProof aCtor a) (← mkHEqOfEq hab)
+            let hf ← mkHEqTrans hf (← mkHEqProof b bCtor)
+            mkEqOfHEq hf
+          let hf ← mkNoConfusion (← getFalseExpr) hf
+          mkLambdaFVars #[hab] hf
+      if (← hasSameType aRoot.self bRoot.self) then
+        let hne ← mkNe aRoot.self bRoot.self
+        pushEqFalse e <| mkApp2 (mkConst ``eq_false) e hne
+      else
+        /-
+        `aRoot.self` and `bRoot.self` do **not** have the same type. Thus, we search
+        if there are other constructor applications in their equivalence classes.
+        -/
+        discard <| findEqc a fun aNode' => do
+          unless aNode'.ctor do return false
+          findEqc b fun bNode' => do
+            unless bNode'.ctor do return false
+            if aNode'.self.getAppFn == bNode'.self.getAppFn then return false
+            unless (← hasSameType aNode'.self bNode'.self) do return false
+            let hne ← mkNe aNode'.self bNode'.self
+            pushEqFalse e <| mkApp2 (mkConst ``eq_false) e hne
+            return true
 
 /-- Propagates `Eq` downwards -/
 builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
@@ -183,10 +216,7 @@ builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
     let_expr Eq α lhs rhs := e | return ()
     if α.isConstOf ``Bool then
       propagateBoolDiseq e lhs rhs
-    propagateCutsatDiseq lhs rhs
-    propagateCommRingDiseq lhs rhs
-    propagateLinarithDiseq lhs rhs
-    propagateACDiseq lhs rhs
+    Solvers.propagateDiseqs lhs rhs
     let thms ← getExtTheorems α
     if !thms.isEmpty then
       /-
@@ -270,8 +300,13 @@ Helper function for propagating over-applied `ite` and `dite`-applications.
 `prefixSize <= args.size`
 -/
 private def applyCongrFun (e rhs : Expr) (h : Expr) (prefixSize : Nat) (args : Array Expr) : GoalM Unit := do
+  /-
+  **Note**: We did not use to set `e` as the parent for `rhs`. This was incorrect because some
+  solvers will inspect the parent to decide whether the term should be internalized or not in the
+  solver.
+  -/
   if prefixSize == args.size then
-    internalize rhs (← getGeneration e)
+    internalize rhs (← getGeneration e) e
     pushEq e rhs h
   else
     go rhs h prefixSize
@@ -284,7 +319,7 @@ where
       go rhs' h' (i+1)
     else
       let rhs ← preprocessLight rhs
-      internalize rhs (← getGeneration e)
+      internalize rhs (← getGeneration e) e
       pushEq e rhs h
 
 /-- Propagates `ite` upwards -/

@@ -11,5 +11,3 @@ public import Init.Omega.IntList
 public import Init.Omega.LinearCombo
 public import Init.Omega.Constraint
 public import Init.Omega.Logic
-
-public section

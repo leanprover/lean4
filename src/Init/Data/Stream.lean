@@ -13,6 +13,8 @@ import Init.Data.Slice.Array.Basic
 
 public section
 
+namespace Std
+
 /-!
 Remark: we considered using the following alternative design
 ```
@@ -64,7 +66,7 @@ protected partial def Stream.forIn [Stream ρ α] [Monad m] (s : ρ) (b : β) (f
     | none => return b
   visit s b
 
-instance (priority := low) [Stream ρ α] : ForIn m ρ α where
+instance (priority := low) [Monad m] [Stream ρ α] : ForIn m ρ α where
   forIn := Stream.forIn
 
 instance : ToStream (List α) (List α) where
@@ -77,8 +79,8 @@ instance : ToStream (Array α) (Subarray α) where
 instance : ToStream (Subarray α) (Subarray α) where
   toStream a := a
 
-instance : ToStream String Substring where
-  toStream s := s.toSubstring
+instance : ToStream String Substring.Raw where
+  toStream s := s.toRawSubstring
 
 instance : ToStream Std.Range Std.Range where
   toStream r := r
@@ -113,9 +115,18 @@ instance : Stream Std.Range Nat where
     else
       none
 
-instance : Stream Substring Char where
-  next? s :=
-    if s.startPos < s.stopPos then
-      some (s.str.get s.startPos, { s with startPos := s.str.next s.startPos })
-    else
-      none
+end Std
+
+@[deprecated Std.Stream (since := "2025-10-01")]
+abbrev Stream := Std.Stream
+
+-- Not deprecated to avoid bootstrapping annoyances
+abbrev Stream.next? {stream : Type u} {value : outParam (Type v)} [self : Std.Stream stream value] :
+    stream → Option (value × stream) := Std.Stream.next?
+
+@[deprecated Std.ToStream (since := "2025-10-01")]
+abbrev ToStream := Std.ToStream
+
+-- Not deprecated to avoid bootstrapping annoyances
+abbrev ToStream.toStream {collection : Type u} {stream : outParam (Type u)}
+  [self : Std.ToStream collection stream] : collection → stream := Std.ToStream.toStream

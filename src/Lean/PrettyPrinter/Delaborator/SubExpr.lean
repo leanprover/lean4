@@ -6,7 +6,6 @@ Authors: Sebastian Ullrich, Daniel Selsam, Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Meta.Basic
 public import Lean.SubExpr
 
 public section

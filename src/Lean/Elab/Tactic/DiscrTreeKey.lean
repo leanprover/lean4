@@ -6,7 +6,6 @@ Authors: Tomas Skrivan, Matthew Robert Ballard
 module
 
 prelude
-public import Init.Tactics
 public import Lean.Elab.Command
 public import Lean.Meta.Tactic.Simp.SimpTheorems
 

@@ -26,12 +26,14 @@ public nonempty_type OpaquePostUpdateHook (pkg : Name)
 public structure Package where
   /-- The name of the package. -/
   name : Name
+  /-- The name specified by the package. -/
+  origName : Name
   /-- The absolute path to the package's directory. -/
   dir : FilePath
   /-- The path to the package's directory relative to the workspace. -/
   relDir : FilePath
   /-- The package's user-defined configuration. -/
-  config : PackageConfig name
+  config : PackageConfig name origName
   /-- The absolute path to the package's configuration file. -/
   configFile : FilePath
   /-- The path to the package's configuration file (relative to `dir`). -/
@@ -71,10 +73,15 @@ public structure Package where
   /-- The driver used for `lake lint` when this package is the workspace root. -/
   lintDriver : String := config.lintDriver
   /--
-  Input-to-content map for hashes of package artifacts.
+  Input-to-output(s) map for hashes of package artifacts.
   If `none`, the artifact cache is disabled for the package.
   -/
-  cacheRef? : Option CacheRef := none
+  inputsRef? : Option CacheRef := none
+  /--
+  Input-to-output(s) map for hashes of package artifacts.
+  If `none`, the artifact cache is disabled for the package.
+  -/
+  outputsRef? : Option CacheRef := none
 
 deriving Inhabited
 
@@ -121,6 +128,10 @@ namespace Package
 /-- **For internal use.** Whether this package is Lean itself.  -/
 @[inline] public def bootstrap (self : Package) : Bool  :=
   self.config.bootstrap
+
+/-- The identifier passed to Lean to disambiguate the package's native symbols. -/
+public def id? (self : Package) : Option PkgId :=
+  if self.bootstrap then none else some <| self.name.toString (escape := false)
 
 /-- The package version. -/
 @[inline] public def version (self : Package) : LeanVer  :=
@@ -206,6 +217,10 @@ namespace Package
 @[inline] public def platformIndependent (self : Package) : Option Bool :=
   self.config.platformIndependent
 
+/-- Whether the package's  has been configured with `platformIndependent = true`. -/
+@[inline] public def isPlatformIndependent (self : Package) : Bool :=
+  self.config.platformIndependent == some true
+
 /-- The package's `releaseRepo`/`releaseRepo?` configuration. -/
 @[inline] public def releaseRepo? (self : Package) : Option String :=
   self.config.releaseRepo
@@ -245,6 +260,10 @@ namespace Package
 /-- The package's `backend` configuration. -/
 @[inline] public def backend (self : Package) : Backend :=
   self.config.backend
+
+/-- The package's `allowImportAll` configuration. -/
+@[inline] public def allowImportAll (self : Package) : Bool :=
+  self.config.allowImportAll
 
 /-- The package's `dynlibs` configuration. -/
 @[inline] public def dynlibs (self : Package) : TargetArray Dynlib :=
@@ -316,11 +335,6 @@ The package's `buildDir` joined with its `nativeLibDir` configuration.
 @[inline] public def sharedLibDir (self : Package) : FilePath :=
   self.buildDir / self.config.nativeLibDir.normalize
 
-/-- The package's `buildDir` joined with its `nativeLibDir` configuration. -/
-@[inline, deprecated "Use staticLibDir or sharedLibDir instead." (since := "2025-03-29")]
-public def nativeLibDir (self : Package) : FilePath :=
-  self.buildDir / self.config.nativeLibDir.normalize
-
 /-- The package's `buildDir` joined with its `binDir` configuration. -/
 @[inline] public def binDir (self : Package) : FilePath :=
   self.buildDir / self.config.binDir.normalize
@@ -337,10 +351,13 @@ public def nativeLibDir (self : Package) : FilePath :=
 @[inline] public def enableArtifactCache? (self : Package) : Option Bool :=
   self.config.enableArtifactCache?
 
-/-- The file where the package's input-to-content mapping is stored in the Lake cache. -/
-public def inputsFileIn (cache : Cache) (self : Package) : FilePath :=
-  let pkgName := self.name.toString (escape := false)
-  cache.inputsFile pkgName
+/-- The package's `restoreAllArtifacts` configuration. -/
+@[inline] public def restoreAllArtifacts (self : Package) : Bool :=
+  self.config.restoreAllArtifacts
+
+/-- The directory within the Lake cache were package-scoped files are stored. -/
+public def cacheScope (self : Package) :=
+  self.name.toString (escape := false)
 
 /-- Try to find a target configuration in the package with the given name. -/
 public def findTargetDecl? (name : Name) (self : Package) : Option (NConfigDecl self.name name) :=

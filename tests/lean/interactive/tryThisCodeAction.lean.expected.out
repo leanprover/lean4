@@ -1,0 +1,14 @@
+{"textDocument": {"uri": "file:///tryThisCodeAction.lean"},
+ "range":
+ {"start": {"line": 0, "character": 22}, "end": {"line": 0, "character": 22}},
+ "context": {"diagnostics": []}}
+[{"title": "Try this: simp only",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///tryThisCodeAction.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 0, "character": 21},
+        "end": {"line": 0, "character": 26}},
+       "newText": "simp only"}]}]}}]

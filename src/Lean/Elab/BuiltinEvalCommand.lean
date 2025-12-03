@@ -6,9 +6,8 @@ Authors: Kyle Miller
 module
 
 prelude
-public import Lean.Util.CollectAxioms
-public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.MutualDef
+import Lean.Compiler.Options
 
 public section
 
@@ -82,16 +81,21 @@ where
     let (args, _, _) ← forallMetaBoundedTelescope (← inferType m) 1
     return mkAppN m args
 
-private def addAndCompileExprForEval (declName : Name) (value : Expr) (allowSorry := false) : TermElabM Unit := do
+private def addAndCompileExprForEval (declName : Name) (value : Expr) (allowSorry := false) : TermElabM Name := do
   -- Use the `elabMutualDef` machinery to be able to support `let rec`.
   -- Hack: since we are using the `TermElabM` version, we can insert the `value` as a metavariable via `exprToSyntax`.
   -- An alternative design would be to make `elabTermForEval` into a term elaborator and elaborate the command all at once
   -- with `unsafe def _eval := term_for_eval% $t`, which we did try, but unwanted error messages
   -- such as "failed to infer definition type" can surface.
-  let defView := mkDefViewOfDef { isUnsafe := true, visibility := .public }
+  let defView := mkDefViewOfDef { isUnsafe := true, visibility := .private }
     (← `(Parser.Command.definition|
           def $(mkIdent <| `_root_ ++ declName) := $(← Term.exprToSyntax value)))
-  Term.elabMutualDef #[] { header := "" } #[defView]
+  let declName := mkPrivateName (← getEnv) declName
+  -- Allow access to both `meta` and non-`meta` declarations as the compilation result does not
+  -- escape the current module.
+  withOptions (Compiler.compiler.checkMeta.set · false) do
+    Term.elabMutualDef #[] { header := "" } #[defView]
+  assert! (← getEnv).contains declName
   unless allowSorry do
     let axioms ← collectAxioms declName
     if axioms.contains ``sorryAx then
@@ -99,6 +103,7 @@ private def addAndCompileExprForEval (declName : Name) (value : Expr) (allowSorr
         aborting evaluation since the expression depends on the 'sorry' axiom, \
         which can lead to runtime instability and crashes.\n\n\
         To attempt to evaluate anyway despite the risks, use the '#eval!' command."
+  return declName
 
 /--
 Try to make a `@projFn ty inst e` application, even if it takes unfolding the type `ty` of `e` to synthesize the instance `inst`.
@@ -177,14 +182,14 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
         | return none
       let eType := e.appFn!.appArg!
       if ← isDefEq eType (mkConst ``Unit) then
-        addAndCompileExprForEval declName e (allowSorry := bang)
-        let mf : m Unit ← evalConst (m Unit) declName
+        let declName ← addAndCompileExprForEval declName e (allowSorry := bang)
+        let mf : m Unit ← evalConst (m Unit) declName (checkMeta := !Elab.inServer.get (← getOptions))
         return some { eval := do MonadEvalT.monadEval mf; pure "", printVal := none }
       else
         let rf ← withLocalDeclD `x eType fun x => do mkLambdaFVars #[x] (← mkT x)
         let r ← mkAppM ``Functor.map #[rf, e]
-        addAndCompileExprForEval declName r (allowSorry := bang)
-        let mf : m t ← evalConst (m t) declName
+        let declName ← addAndCompileExprForEval declName r (allowSorry := bang)
+        let mf : m t ← evalConst (m t) declName (checkMeta := !Elab.inServer.get (← getOptions))
         return some { eval := toMessageData <$> MonadEvalT.monadEval mf, printVal := some eType }
     if let some act ← mkMAct? ``CommandElabM CommandElabM e
                     -- Fallbacks in case we are in the Lean package but don't have `CommandElabM` yet
@@ -208,7 +213,7 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
         throwError m!"unable to synthesize `{.ofConstName ``MonadEval}` instance \
           to adapt{indentExpr (← inferType e)}\n\
           to `{.ofConstName ``IO}` or `{.ofConstName ``CommandElabM}`."
-      addAndCompileExprForEval declName r (allowSorry := bang)
+      let declName ← addAndCompileExprForEval declName r (allowSorry := bang)
       -- `evalConst` may emit IO, but this is collected by `withIsolatedStreams` below.
       let r ← toMessageData <$> evalConst t declName (checkMeta := !Elab.inServer.get (← getOptions))
       return { eval := pure r, printVal := some (← inferType e) }
@@ -216,7 +221,7 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
     try
       -- Generate an action without executing it. We use `withoutModifyingEnv` to ensure
       -- we don't pollute the environment with auxiliary declarations.
-      let act : EvalAction ← liftTermElabM do Term.withDeclName declName do withoutModifyingEnv do
+      let act : EvalAction ← liftTermElabM do Term.withDeclName (mkPrivateName (← getEnv) declName) do withoutModifyingEnv do
         withSaveInfoContext do -- save the environment post-elaboration (for matchers, let rec, etc.)
           let e ← elabTermForEval term expectedType?
           -- If there is an elaboration error, don't evaluate!

@@ -13,3 +13,14 @@
     0,
     "cveryLongNameForCompletion"]}],
  "isIncomplete": false}
+Resolution of veryLongNam:
+{"label": "veryLongNam",
+ "kind": 6,
+ "detail": "Sort u_1",
+ "data": ["«external:file:///compHeader.lean»", 2, 22, 0, "f_uniq.7"]}
+Resolution of veryLongNameForCompletion:
+{"label": "veryLongNameForCompletion",
+ "kind": 21,
+ "detail": "Type",
+ "data":
+ ["«external:file:///compHeader.lean»", 2, 22, 0, "cveryLongNameForCompletion"]}

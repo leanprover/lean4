@@ -164,7 +164,6 @@ private def addTraceNode (oldTraces : PersistentArray TraceElem)
 
 register_builtin_option trace.profiler : Bool := {
   defValue := false
-  group    := "profiler"
   descr    :=
     "activate nested traces with execution time above `trace.profiler.threshold` and annotate with \
     time"
@@ -172,7 +171,6 @@ register_builtin_option trace.profiler : Bool := {
 
 register_builtin_option trace.profiler.threshold : Nat := {
   defValue := 10
-  group    := "profiler"
   descr    :=
     "threshold in milliseconds (or heartbeats if `trace.profiler.useHeartbeats` is true), \
     traces below threshold will not be activated"
@@ -180,21 +178,18 @@ register_builtin_option trace.profiler.threshold : Nat := {
 
 register_builtin_option trace.profiler.useHeartbeats : Bool := {
   defValue := false
-  group    := "profiler"
   descr    :=
     "if true, measure and report heartbeats instead of seconds"
 }
 
 register_builtin_option trace.profiler.output : String := {
   defValue := ""
-  group    := "profiler"
   descr    :=
     "output `trace.profiler` data in Firefox Profiler-compatible format to given file path"
 }
 
 register_builtin_option trace.profiler.output.pp : Bool := {
   defValue := false
-  group    := "profiler"
   descr    :=
     "if false, limit text in exported trace nodes to trace class name and `TraceData.tag`, if any
 
@@ -309,15 +304,15 @@ on an opt-in basis.
 def registerTraceClass (traceClassName : Name) (inherited := false) (ref : Name := by exact decl_name%) : IO Unit := do
   let optionName := `trace ++ traceClassName
   registerOption optionName {
+    name := optionName
     declName := ref
-    group := "trace"
     defValue := false
     descr := "enable/disable tracing for the given module and submodules"
   }
   if inherited then
     inheritedTraceOptions.modify (·.insert optionName)
 
-def expandTraceMacro (id : Syntax) (s : Syntax) : MacroM (TSyntax `doElem) := do
+private meta def expandTraceMacro (id : Syntax) (s : Syntax) : MacroM (TSyntax `doElem) := do
   let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
   `(doElem| do
     let cls := $(quote id.getId.eraseMacroScopes)
@@ -407,7 +402,7 @@ def addTraceAsMessages [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] : m Un
   let traces ← getResetTraces
   if traces.isEmpty then
     return
-  let mut pos2traces : Std.HashMap (String.Pos × String.Pos) (Array MessageData) := ∅
+  let mut pos2traces : Std.HashMap (String.Pos.Raw × String.Pos.Raw) (Array MessageData) := ∅
   for traceElem in traces do
     let ref := replaceRef traceElem.ref (← getRef)
     let pos := ref.getPos?.getD 0

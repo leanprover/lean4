@@ -6,87 +6,16 @@ Authors: Leonardo de Moura, Gabriel Ebner
 module
 
 prelude
-public import Init.Data.Range.Polymorphic.Stream
 public import Lean.Meta.Diagnostics
 public import Lean.Elab.Binders
-public import Lean.Elab.SyntheticMVars
+public import Lean.Elab.Command.Scope
 public import Lean.Elab.SetOption
-public import Lean.Language.Basic
-public import Lean.Meta.ForEachExpr
 public meta import Lean.Parser.Command
+import Lean.ExtraModUses
 
 public section
 
 namespace Lean.Elab.Command
-
-/--
-A `Scope` records the part of the `CommandElabM` state that respects scoping,
-such as the data for `universe`, `open`, and `variable` declarations, the current namespace,
-and currently enabled options.
-The `CommandElabM` state contains a stack of scopes, and only the top `Scope`
-on the stack is read from or modified. There is always at least one `Scope` on the stack,
-even outside any `section` or `namespace`, and each new pushed `Scope`
-starts as a modified copy of the previous top scope.
--/
-structure Scope where
-  /--
-  The component of the `namespace` or `section` that this scope is associated to.
-  For example, `section a.b.c` and `namespace a.b.c` each create three scopes with headers
-  named `a`, `b`, and `c`.
-  This is used for checking the `end` command. The "base scope" has `""` as its header.
-  -/
-  header        : String
-  /--
-  The current state of all set options at this point in the scope. Note that this is the
-  full current set of options and does *not* simply contain the options set
-  while this scope has been active.
-  -/
-  opts          : Options := {}
-  /-- The current namespace. The top-level namespace is represented by `Name.anonymous`. -/
-  currNamespace : Name := Name.anonymous
-  /-- All currently `open`ed namespaces and names. -/
-  openDecls     : List OpenDecl := []
-  /-- The current list of names for universe level variables to use for new declarations. This is managed by the `universe` command. -/
-  levelNames    : List Name := []
-  /--
-  The current list of binders to use for new declarations.
-  This is managed by the `variable` command.
-  Each binder is represented in `Syntax` form, and it is re-elaborated
-  within each command that uses this information.
-
-  This is also used by commands, such as `#check`, to create an initial local context,
-  even if they do not work with binders per se.
-  -/
-  varDecls      : Array (TSyntax ``Parser.Term.bracketedBinder) := #[]
-  /--
-  Globally unique internal identifiers for the `varDecls`.
-  There is one identifier per variable introduced by the binders
-  (recall that a binder such as `(a b c : Ty)` can produce more than one variable),
-  and each identifier is the user-provided variable name with a macro scope.
-  This is used by `TermElabM` in `Lean.Elab.Term.Context` to help with processing macros
-  that capture these variables.
-  -/
-  varUIds       : Array Name := #[]
-  /-- `include`d section variable names (from `varUIds`) -/
-  includedVars  : List Name := []
-  /-- `omit`ted section variable names (from `varUIds`) -/
-  omittedVars  : List Name := []
-  /--
-  If true (default: false), all declarations that fail to compile
-  automatically receive the `noncomputable` modifier.
-  A scope with this flag set is created by `noncomputable section`.
-
-  Recall that a new scope inherits all values from its parent scope,
-  so all sections and namespaces nested within a `noncomputable` section also have this flag set.
-  -/
-  isNoncomputable : Bool := false
-  isPublic : Bool := false
-  /--
-  Attributes that should be applied to all matching declaration in the section. Inherited from
-  parent scopes.
-  -/
-  attrs : List (TSyntax ``Parser.Term.attrInstance) := []
-  deriving Inhabited
 
 structure State where
   env            : Environment
@@ -106,7 +35,7 @@ structure Context where
   fileName       : String
   fileMap        : FileMap
   currRecDepth   : Nat := 0
-  cmdPos         : String.Pos := 0
+  cmdPos         : String.Pos.Raw := 0
   macroStack     : MacroStack := []
   quotContext?   : Option Name := none
   currMacroScope : MacroScope := firstFrontendMacroScope
@@ -257,6 +186,8 @@ private def runCore (x : CoreM α) : CommandElabM α := do
     auxDeclNGen := s.auxDeclNGen
     nextMacroScope := s.nextMacroScope
     infoState.enabled := s.infoState.enabled
+    -- accumulate lazy assignments from all `CoreM` lifts
+    infoState.lazyAssignment := s.infoState.lazyAssignment
     traceState := s.traceState
     snapshotTasks := s.snapshotTasks
   }
@@ -368,7 +299,7 @@ def wrapAsyncAsSnapshot {α : Type} (act : α → CommandElabM Unit) (cancelTk? 
         withTraceNode `Elab.async (fun _ => return desc) do
           act a
       catch e =>
-        logError e.toMessageData
+        logException e
       finally
         addTraceAsMessages
       get
@@ -650,6 +581,13 @@ def withInitQuotContext (hint? : Option UInt64) (act : CommandElabM Unit) : Comm
   finally
     modify ({ · with nextMacroScope })
 
+private partial def recordUsedSyntaxKinds (stx : Syntax) : CommandElabM Unit := do
+  if let .node _ k .. := stx then
+    -- do not record builtin parsers, they do not have to be imported
+    if !(← Parser.builtinSyntaxNodeKindSetRef.get).contains k then
+      recordExtraModUseFromDecl (isMeta := true) k
+  stx.forArgsM recordUsedSyntaxKinds
+
 /--
 `elabCommand` wrapper that should be used for the initial invocation, not for recursive calls after
 macro expansion etc.
@@ -659,33 +597,31 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
     stx.hasMissing && !showPartialSyntaxErrors.get (← getOptions) }) do
   -- initialize quotation context using hash of input string
   let ss? := stx.getSubstring? (withLeading := false) (withTrailing := false)
-  withInitQuotContext (ss?.map (hash ·.toString.trim)) do
-  let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
-  let initInfoTrees ← getResetInfoTrees
+  withInitQuotContext (ss?.map (hash ·.toString.trimAscii.copy)) do
+  -- Reset messages and info state, which are both per-command
+  modify fun st => { st with messages := {}, infoState := { enabled := st.infoState.enabled } }
   try
-    try
-      -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error
-      -- recovery more coarse. In particular, if `c` in `set_option ... in $c` fails, the remaining
-      -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
-      elabCommand stx
-    finally
-      -- Make sure `snap?` is definitely resolved; we do not use it for reporting as `#guard_msgs` may
-      -- be the caller of this function and add new messages and info trees
-      if let some snap := (← read).snap? then
-        snap.new.resolve default
-
-    -- Run the linters, unless `#guard_msgs` is present, which is special and runs `elabCommandTopLevel` itself,
-    -- so it is a "super-top-level" command. This is the only command that does this, so we just special case it here
-    -- rather than engineer a general solution.
-    unless (stx.find? (·.isOfKind ``Lean.guardMsgsCmd)).isSome do
-      withLogging do
-        runLintersAsync stx
+    -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error
+    -- recovery more coarse. In particular, if `c` in `set_option ... in $c` fails, the remaining
+    -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
+    elabCommand stx
   finally
-    let msgs := (← get).messages
-    modify fun st => { st with
-      messages := initMsgs ++ msgs
-      infoState := { st.infoState with trees := initInfoTrees ++ st.infoState.trees }
-    }
+    -- This call could be placed at a prior point in this function except that it
+    -- would then record uses of `#guard_msgs` before that elaborator is run, which
+    -- would increase noise in related tests. Thus all other things being equal, we
+    -- place it here.
+    recordUsedSyntaxKinds stx
+    -- Make sure `snap?` is definitely resolved; we do not use it for reporting as `#guard_msgs` may
+    -- be the caller of this function and add new messages and info trees
+    if let some snap := (← read).snap? then
+      snap.new.resolve default
+
+  -- Run the linters, unless `#guard_msgs` is present, which is special and runs `elabCommandTopLevel` itself,
+  -- so it is a "super-top-level" command. This is the only command that does this, so we just special case it here
+  -- rather than engineer a general solution.
+  unless (stx.find? (·.isOfKind ``Lean.guardMsgsCmd)).isSome do
+    withLogging do
+      runLintersAsync stx
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
 def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab := fun stx => do

@@ -6,7 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Init.Data.Bool
 public import Init.Data.BitVec.Lemmas
 
 @[expose] public section

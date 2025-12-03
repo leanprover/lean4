@@ -8,5 +8,3 @@ module
 prelude
 public import Std.Data.ExtDTreeMap.Basic
 public import Std.Data.ExtDTreeMap.Lemmas
-
-@[expose] public section

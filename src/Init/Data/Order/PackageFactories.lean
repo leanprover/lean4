@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Order.FactoriesExtra
 public import Init.Data.Order.LemmasExtra
 
 namespace Std

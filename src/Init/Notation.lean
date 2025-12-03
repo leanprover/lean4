@@ -6,20 +6,17 @@ Authors: Leonardo de Moura, Mario Carneiro
 Notation for operators defined at Prelude.lean
 -/
 module
-
 prelude
 public import Init.Coe
-
 public section
 set_option linter.missingDocs true -- keep it documented
-
 namespace Lean
 
 /--
 Auxiliary type used to represent syntax categories. We mainly use auxiliary
 definitions with this type to attach doc strings to syntax categories.
 -/
-structure Parser.Category
+meta structure Parser.Category
 
 namespace Parser.Category
 
@@ -405,6 +402,7 @@ recommended_spelling "ge" for "≥" in [GE.ge, «term_≥_»]
 recommended_spelling "ge" for ">=" in [GE.ge, «term_>=_»]
 recommended_spelling "eq" for "=" in [Eq, «term_=_»]
 recommended_spelling "beq" for "==" in [BEq.beq, «term_==_»]
+recommended_spelling "heq" for "≍" in [HEq, «term_≍_»]
 
 @[inherit_doc] infixr:35 " /\\ " => And
 @[inherit_doc] infixr:35 " ∧ "   => And
@@ -643,7 +641,7 @@ applications of this function as `↑` when printing expressions.
 syntax (name := Attr.coe) "coe" : attr
 
 /--
-This attribute marks a code action, which is used to suggest new tactics or replace existing ones.
+This attribute marks a code action that triggers on specific commands.
 
 * `@[command_code_action kind]`: This is a code action which applies to applications of the command
   `kind` (a command syntax kind), which can replace the command or insert things before or after it.
@@ -844,7 +842,7 @@ Position reporting:
   `#guard_msgs` appears.
 - `positions := false` does not report position info.
 
-For example, `#guard_msgs (error, drop all) in cmd` means to check warnings and drop
+For example, `#guard_msgs (error, drop all) in cmd` means to check errors and drop
 everything else.
 
 The command elaborator has special support for `#guard_msgs` for linting.
@@ -855,7 +853,7 @@ which would include `#guard_msgs` itself, and would cause duplicate and/or uncap
 The top-level command elaborator only runs the linters if `#guard_msgs` is not present.
 -/
 syntax (name := guardMsgsCmd)
-  (docComment)? "#guard_msgs" (ppSpace guardMsgsSpec)? " in" ppLine command : command
+  (plainDocComment)? "#guard_msgs" (ppSpace guardMsgsSpec)? " in" ppLine command : command
 
 /--
 Format and print the info trees for a given command.
@@ -865,12 +863,12 @@ syntax (name := infoTreesCmd)
   "#info_trees" " in" ppLine command : command
 
 /--
-Specify a premise selection engine.
-Note that Lean does not ship a default premise selection engine,
+Specify a library suggestion engine.
+Note that Lean does not ship a default library suggestion engine,
 so this is only useful in conjunction with a downstream package which provides one.
 -/
-syntax (name := setPremiseSelectorCmd)
-  "set_premise_selector" term : command
+syntax (name := setLibrarySuggestionsCmd)
+  "set_library_suggestions" term : command
 
 namespace Parser
 

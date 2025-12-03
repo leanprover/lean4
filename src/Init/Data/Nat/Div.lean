@@ -8,5 +8,3 @@ module
 prelude
 public import Init.Data.Nat.Div.Basic
 public import Init.Data.Nat.Div.Lemmas
-
-public section

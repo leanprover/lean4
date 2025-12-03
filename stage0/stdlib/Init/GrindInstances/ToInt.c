@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.GrindInstances.ToInt
-// Imports: Init.Grind.ToInt Init.Grind.ToInt Init.Grind.Module.Basic Init.Grind.Ring.ToInt Init.Data.Int.DivMod.Basic Init.Data.Int.Lemmas Init.Data.Int.Order Init.Data.Fin.Lemmas Init.Data.UInt.Lemmas Init.Data.SInt.Lemmas
+// Imports: import all Init.Grind.ToInt public import Init.Grind.Ring.ToInt public import Init.Data.SInt.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -145,14 +145,6 @@ x_3 = l_instNatCastInt___lam__0(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Grind_instToIntUInt8UintOfNatNat() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntUInt8UintOfNatNat___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt8UintOfNatNat___lam__0___boxed(lean_object* x_1) {
 _start:
 {
@@ -160,6 +152,14 @@ uint8_t x_2; lean_object* x_3;
 x_2 = lean_unbox(x_1);
 x_3 = l_Lean_Grind_instToIntUInt8UintOfNatNat___lam__0(x_2);
 return x_3;
+}
+}
+static lean_object* _init_l_Lean_Grind_instToIntUInt8UintOfNatNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntUInt8UintOfNatNat___lam__0___boxed), 1, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt16UintOfNatNat___lam__0(uint16_t x_1) {
@@ -171,14 +171,6 @@ x_3 = l_instNatCastInt___lam__0(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Grind_instToIntUInt16UintOfNatNat() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntUInt16UintOfNatNat___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt16UintOfNatNat___lam__0___boxed(lean_object* x_1) {
 _start:
 {
@@ -188,6 +180,14 @@ x_3 = l_Lean_Grind_instToIntUInt16UintOfNatNat___lam__0(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_Grind_instToIntUInt16UintOfNatNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntUInt16UintOfNatNat___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt32UintOfNatNat___lam__0(uint32_t x_1) {
 _start:
 {
@@ -195,14 +195,6 @@ lean_object* x_2; lean_object* x_3;
 x_2 = lean_uint32_to_nat(x_1);
 x_3 = l_instNatCastInt___lam__0(x_2);
 return x_3;
-}
-}
-static lean_object* _init_l_Lean_Grind_instToIntUInt32UintOfNatNat() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntUInt32UintOfNatNat___lam__0___boxed), 1, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt32UintOfNatNat___lam__0___boxed(lean_object* x_1) {
@@ -215,6 +207,14 @@ x_3 = l_Lean_Grind_instToIntUInt32UintOfNatNat___lam__0(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_Grind_instToIntUInt32UintOfNatNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntUInt32UintOfNatNat___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt64UintOfNatNat___lam__0(uint64_t x_1) {
 _start:
 {
@@ -222,14 +222,6 @@ lean_object* x_2; lean_object* x_3;
 x_2 = lean_uint64_to_nat(x_1);
 x_3 = l_instNatCastInt___lam__0(x_2);
 return x_3;
-}
-}
-static lean_object* _init_l_Lean_Grind_instToIntUInt64UintOfNatNat() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntUInt64UintOfNatNat___lam__0___boxed), 1, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt64UintOfNatNat___lam__0___boxed(lean_object* x_1) {
@@ -242,6 +234,14 @@ x_3 = l_Lean_Grind_instToIntUInt64UintOfNatNat___lam__0(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_Grind_instToIntUInt64UintOfNatNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntUInt64UintOfNatNat___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUSizeUintNumBits___lam__0(size_t x_1) {
 _start:
 {
@@ -249,14 +249,6 @@ lean_object* x_2; lean_object* x_3;
 x_2 = lean_usize_to_nat(x_1);
 x_3 = l_instNatCastInt___lam__0(x_2);
 return x_3;
-}
-}
-static lean_object* _init_l_Lean_Grind_instToIntUSizeUintNumBits() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntUSizeUintNumBits___lam__0___boxed), 1, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUSizeUintNumBits___lam__0___boxed(lean_object* x_1) {
@@ -269,20 +261,20 @@ x_3 = l_Lean_Grind_instToIntUSizeUintNumBits___lam__0(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_Grind_instToIntUSizeUintNumBits() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntUSizeUintNumBits___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntInt8SintOfNatNat___lam__0(uint8_t x_1) {
 _start:
 {
 lean_object* x_2; 
 x_2 = lean_int8_to_int(x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_Lean_Grind_instToIntInt8SintOfNatNat() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntInt8SintOfNatNat___lam__0___boxed), 1, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntInt8SintOfNatNat___lam__0___boxed(lean_object* x_1) {
@@ -294,20 +286,20 @@ x_3 = l_Lean_Grind_instToIntInt8SintOfNatNat___lam__0(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_Grind_instToIntInt8SintOfNatNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntInt8SintOfNatNat___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntInt16SintOfNatNat___lam__0(uint16_t x_1) {
 _start:
 {
 lean_object* x_2; 
 x_2 = lean_int16_to_int(x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_Lean_Grind_instToIntInt16SintOfNatNat() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntInt16SintOfNatNat___lam__0___boxed), 1, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntInt16SintOfNatNat___lam__0___boxed(lean_object* x_1) {
@@ -319,20 +311,20 @@ x_3 = l_Lean_Grind_instToIntInt16SintOfNatNat___lam__0(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_Grind_instToIntInt16SintOfNatNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntInt16SintOfNatNat___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntInt32SintOfNatNat___lam__0(uint32_t x_1) {
 _start:
 {
 lean_object* x_2; 
 x_2 = lean_int32_to_int(x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_Lean_Grind_instToIntInt32SintOfNatNat() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntInt32SintOfNatNat___lam__0___boxed), 1, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntInt32SintOfNatNat___lam__0___boxed(lean_object* x_1) {
@@ -345,20 +337,20 @@ x_3 = l_Lean_Grind_instToIntInt32SintOfNatNat___lam__0(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_Grind_instToIntInt32SintOfNatNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntInt32SintOfNatNat___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntInt64SintOfNatNat___lam__0(uint64_t x_1) {
 _start:
 {
 lean_object* x_2; 
 x_2 = lean_int64_to_int_sint(x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_Lean_Grind_instToIntInt64SintOfNatNat() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntInt64SintOfNatNat___lam__0___boxed), 1, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntInt64SintOfNatNat___lam__0___boxed(lean_object* x_1) {
@@ -369,6 +361,14 @@ x_2 = lean_unbox_uint64(x_1);
 lean_dec(x_1);
 x_3 = l_Lean_Grind_instToIntInt64SintOfNatNat___lam__0(x_2);
 return x_3;
+}
+}
+static lean_object* _init_l_Lean_Grind_instToIntInt64SintOfNatNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntInt64SintOfNatNat___lam__0___boxed), 1, 0);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Grind_instToIntBitVecUint___closed__0() {
@@ -404,14 +404,6 @@ x_2 = lean_isize_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Grind_instToIntISizeSintNumBits() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntISizeSintNumBits___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntISizeSintNumBits___lam__0___boxed(lean_object* x_1) {
 _start:
 {
@@ -422,49 +414,29 @@ x_3 = l_Lean_Grind_instToIntISizeSintNumBits___lam__0(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Grind_ToInt(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_ToInt(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Module_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Ring_ToInt(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Int_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Int_Order(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Fin_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_SInt_Lemmas(uint8_t builtin, lean_object*);
+static lean_object* _init_l_Lean_Grind_instToIntISizeSintNumBits() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntISizeSintNumBits___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
+lean_object* initialize_Init_Grind_ToInt(uint8_t builtin);
+lean_object* initialize_Init_Grind_Ring_ToInt(uint8_t builtin);
+lean_object* initialize_Init_Data_SInt_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Grind_ToInt(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_ToInt(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Ring_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Module_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Grind_Ring_ToInt(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Int_DivMod_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Int_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Int_Order(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Fin_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_UInt_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_SInt_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_SInt_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Grind_instToIntIntIi___closed__0 = _init_l_Lean_Grind_instToIntIntIi___closed__0();

@@ -9,7 +9,6 @@ prelude
 public import Std.Time.Notation.Spec
 public import Std.Time.Format.Basic
 import all Std.Time.Format.Basic
-public import Std.Time.Internal.Bounded
 
 public section
 

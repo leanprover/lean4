@@ -4,32 +4,41 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Ring.Basic
 public import Init.Simproc
 public import Lean.Meta.Tactic.Simp.Simproc
 public import Lean.Meta.Tactic.Grind.SynthInstance
-
+import Init.Grind.Ring.Field
+import Init.Grind.FieldNormNum
+import Lean.Meta.Tactic.Grind.Arith.FieldNormNum
 public section
-
 namespace Lean.Meta.Grind.Arith
 
-private def mkSemiringThm (declName : Name) (α : Expr) : MetaM (Option Expr) := do
+def mkSemiringThm (declName : Name) (α : Expr) : MetaM (Option Expr) := do
   let some u ← getDecLevel? α | return none
   let semiring := mkApp (mkConst ``Grind.Semiring [u]) α
   let some semiringInst ← synthInstanceMeta? semiring | return none
   return mkApp2 (mkConst declName [u]) α semiringInst
 
 /--
-Applies `a^(m+n) = a^m * a^n`, `a^0 = 1`, `a^1 = a`.
+Applies `a^0 = 1`, `a^1 = a`.
 
 We do normalize `a^0` and `a^1` when converting expressions into polynomials,
 but we need to normalize them here when for other preprocessing steps such as
 `a / b = a*b⁻¹`. If `b` is of the form `c^1`, it will be treated as an
-atom in the comm ring module.
+atom in the ring module.
+
+**Note**: We used to expand `a^(n+m)` here, but it prevented `grind` from solving
+simple problems such as
+```
+example {k : Nat} (h : k - 1 + 1 = k) :
+    2 ^ (k - 1 + 1) = 2 ^ k := by
+  grind
+```
+We now use a propagator for `a^(n+m)` which adds the `a^n*a^m` to the equivalence class.
 -/
-builtin_simproc_decl expandPowAdd (_ ^ _) := fun e => do
+builtin_simproc_decl expandPow01 (_ ^ _) := fun e => do
   let_expr HPow.hPow α nat α' _ a k := e | return .continue
   let_expr Nat ← nat | return .continue
   if let some k ← getNatValue? k then
@@ -44,13 +53,7 @@ builtin_simproc_decl expandPowAdd (_ ^ _) := fun e => do
       return .done { expr := a, proof? := some (mkApp h a) }
     else
       return .continue
-  else
-    let_expr HAdd.hAdd _ _ _ _ m n := k | return .continue
-    unless (← isDefEq α α') do return .continue
-    let some h ← mkSemiringThm ``Grind.Semiring.pow_add α | return .continue
-    let pwFn := e.appFn!.appFn!
-    let r ← mkMul (mkApp2 pwFn a m) (mkApp2 pwFn a n)
-    return .visit { expr := r, proof? := some (mkApp3 h a m n) }
+  return .continue
 
 private def notField : Std.HashSet Name :=
   [``Nat, ``Int, ``BitVec, ``UInt8, ``UInt16, ``UInt32, ``Int64, ``Int8, ``Int16, ``Int32, ``Int64].foldl (init := {}) (·.insert ·)
@@ -72,6 +75,17 @@ builtin_simproc_decl expandDiv (_ / _) := fun e => do
   let expr := mkApp6 (mkConst ``HMul.hMul us) α α α mulInst a (mkApp3 (mkConst ``Inv.inv [u]) α invInst b)
   return .visit { expr, proof? := some <| mkApp4 (mkConst ``Grind.Field.div_eq_mul_inv [u]) α fieldInst a b }
 
+builtin_simproc_decl normFieldInv (_ ⁻¹) := fun e => do
+  let_expr Inv.inv α _ a ← e | return .continue
+  if isNotFieldQuick α then return .continue
+  match_expr a with
+  | NatCast.natCast _ _ _ => return .continue -- Already normalized
+  | OfNat.ofNat _ _ _ => return .continue -- Already normalized
+  | _ =>
+  let some (expr, h) ← normFieldExpr? e α | return .continue
+  checkWithKernel h
+  return .done { expr, proof? := h }
+
 /-!
 Normalize arithmetic instances for `Nat` and `Int` operations.
 Recall that both `Nat` and `Int` have builtin support in `grind`,
@@ -89,7 +103,7 @@ def normInst (instPos : Nat) (inst : Expr) (e : Expr) : SimpM Simp.DStep := do
   unless instPos < e.getAppNumArgs do return .continue
   let instCurr := e.getArg! instPos
   if inst == instCurr then return .continue
-  unless (← isDefEq inst instCurr) do return .continue
+  unless (← withReducibleAndInstances <| isDefEq inst instCurr) do return .continue
   e.withApp fun f args => do
     let args := args.set! instPos inst
     return .visit (mkAppN f args)
@@ -124,6 +138,7 @@ builtin_dsimproc_decl normIntSubInst ((_ - _ : Int)) := normInst 3 Int.mkInstHSu
 builtin_dsimproc_decl normIntDivInst ((_ / _ : Int)) := normInst 3 Int.mkInstHDiv
 builtin_dsimproc_decl normIntModInst ((_ % _ : Int)) := normInst 3 Int.mkInstMod
 builtin_dsimproc_decl normIntPowInst ((_ ^ _ : Int)) := normInst 3 Int.mkInstHPow
+builtin_dsimproc_decl normNatCastInst ((NatCast.natCast _ : Int)) := normInst 1 Int.mkInstNatCast
 
 /--
 Returns `true`, if `@OfNat.ofNat α n inst` is the standard way we represent `Int` numerals in Lean.
@@ -148,6 +163,7 @@ builtin_simproc_decl normNatCastNum (NatCast.natCast _) := fun e => do
   let semiring := mkApp (mkConst ``Grind.Semiring us) α
   let some semiringInst ← synthInstanceMeta? semiring | return .continue
   let n ← mkNumeral α k
+  -- **Note**: TODO missing sanity check on instances
   let h := mkApp3 (mkConst ``Grind.Semiring.natCast_eq_ofNat us) α semiringInst a
   return .done { expr := n, proof? := some h }
 
@@ -158,6 +174,7 @@ builtin_simproc_decl normIntCastNum (IntCast.intCast _) := fun e => do
   let ring := mkApp (mkConst ``Grind.Ring us) α
   let some ringInst ← synthInstanceMeta? ring | return .continue
   let n ← mkNumeral α k.natAbs
+  -- **Note**: TODO missing sanity check on instances
   if k < 0 then
     let some negInst ← synthInstanceMeta? (mkApp (mkConst ``Neg us) α) | return .continue
     let n := mkApp3 (mkConst ``Neg.neg us) α negInst n
@@ -167,12 +184,24 @@ builtin_simproc_decl normIntCastNum (IntCast.intCast _) := fun e => do
     let h := mkApp4 (mkConst ``Grind.Ring.intCast_eq_ofNat_of_nonneg us) α ringInst a eagerReflBoolTrue
     return .done { expr := n, proof? := some h }
 
+builtin_dsimproc [simp, seval] normPowRatInt ((_ : Rat) ^ (_ : Int)) := fun e => do
+  let_expr HPow.hPow _ _ _ _ a b ← e | return .continue
+  let some v₁ ← getRatValue? a | return .continue
+  let some v₂ ← getIntValue? b | return .continue
+  let warning := (← Simp.getConfig).warnExponents
+  unless (← checkExponent v₂.natAbs (warning := warning)) do return .continue
+  if v₂ < 0 then
+    -- **Note**: we use `Rat.zpow_neg` as a normalization rule
+    return .continue
+  else
+    return .done <| toExpr (v₁ ^ v₂)
+
 /-!
 Add additional arithmetic simprocs
 -/
 
 def addSimproc (s : Simprocs) : CoreM Simprocs := do
-  let s ← s.add ``expandPowAdd (post := true)
+  let s ← s.add ``expandPow01 (post := true)
   let s ← s.add ``expandDiv (post := true)
   let s ← s.add ``normNatAddInst (post := false)
   let s ← s.add ``normNatMulInst (post := false)
@@ -188,9 +217,12 @@ def addSimproc (s : Simprocs) : CoreM Simprocs := do
   let s ← s.add ``normIntDivInst (post := false)
   let s ← s.add ``normIntModInst (post := false)
   let s ← s.add ``normIntPowInst (post := false)
+  let s ← s.add ``normNatCastInst (post := false)
   let s ← s.add ``normIntOfNatInst (post := false)
   let s ← s.add ``normNatCastNum (post := false)
   let s ← s.add ``normIntCastNum (post := false)
+  let s ← s.add ``normPowRatInt (post := false)
+  let s ← s.add ``normFieldInv (post := false)
   return s
 
 end Lean.Meta.Grind.Arith

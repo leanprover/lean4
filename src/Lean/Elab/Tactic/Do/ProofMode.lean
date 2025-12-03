@@ -24,5 +24,3 @@ public import Lean.Elab.Tactic.Do.ProofMode.Cases
 public import Lean.Elab.Tactic.Do.ProofMode.Exfalso
 public import Lean.Elab.Tactic.Do.ProofMode.Have
 public import Lean.Elab.Tactic.Do.ProofMode.Refine
-
-public section

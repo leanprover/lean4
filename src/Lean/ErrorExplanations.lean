@@ -16,6 +16,5 @@ public import Lean.ErrorExplanations.InvalidDottedIdent
 public import Lean.ErrorExplanations.ProjNonPropFromProp
 public import Lean.ErrorExplanations.PropRecLargeElim
 public import Lean.ErrorExplanations.RedundantMatchAlt
+public import Lean.ErrorExplanations.SynthInstanceFailed
 public import Lean.ErrorExplanations.UnknownIdentifier
-
-public section

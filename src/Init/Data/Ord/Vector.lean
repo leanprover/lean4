@@ -16,14 +16,34 @@ public section
 
 -/
 
-set_option autoImplicit false
-set_option linter.missingDocs true
-
 universe u
 
 namespace Vector
 
 open Std
+
+@[expose]
+protected def compareLex {α n} (cmp : α → α → Ordering) (a b : Vector α n) : Ordering :=
+  Array.compareLex cmp a.toArray b.toArray
+
+instance {α n} [Ord α] : Ord (Vector α n) where
+  compare := Vector.compareLex compare
+
+protected theorem compareLex_eq_compareLex_toArray {α n cmp} {a b : Vector α n} :
+    Vector.compareLex cmp a b = Array.compareLex cmp a.toArray b.toArray :=
+  rfl
+
+protected theorem compareLex_eq_compareLex_toList {α n cmp} {a b : Vector α n} :
+    Vector.compareLex cmp a b = List.compareLex cmp a.toList b.toList :=
+  Array.compareLex_eq_compareLex_toList
+
+protected theorem compare_eq_compare_toArray {α n} [Ord α] {a b : Vector α n} :
+    compare a b = compare a.toArray b.toArray :=
+  rfl
+
+protected theorem compare_eq_compare_toList {α n} [Ord α] {a b : Vector α n} :
+    compare a b = compare a.toList b.toList :=
+  Array.compare_eq_compare_toList
 
 variable {α} {cmp : α → α → Ordering}
 

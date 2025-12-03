@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Attributes
 public import Lean.ScopedEnvExtension
 
 public section
@@ -37,6 +36,12 @@ builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × Reducib
     statsFn         := fun s => "reducibility attribute core extension" ++ Format.line ++ "number of local entries: " ++ format s.size
     -- attribute is set by `addPreDefinitions`
     asyncMode       := .async .asyncEnv
+    replay? := some <| fun _oldState newState newItems otherState =>
+      newItems.foldl (init := otherState) fun otherState k =>
+        if let some v := newState.find? k then
+          otherState.insert k v
+        else
+          otherState
   }
 
 builtin_initialize reducibilityExtraExt : SimpleScopedEnvExtension (Name × ReducibilityStatus) (SMap Name ReducibilityStatus) ←

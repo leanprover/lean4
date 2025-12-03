@@ -6,7 +6,7 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.Hashable
+public import Init.Data.LawfulHashable
 public import Std.Data.Internal.List.Associative
 public import Std.Data.DHashMap.Internal.Defs
 

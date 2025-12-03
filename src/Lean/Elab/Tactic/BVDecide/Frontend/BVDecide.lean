@@ -6,10 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Sat.AIG.CNF
-public import Std.Sat.AIG.RelabelNat
-public import Std.Tactic.BVDecide.Bitblast
-public import Std.Tactic.BVDecide.Syntax
 public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.SatAtBVLogical
 public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize
 public import Lean.Elab.Tactic.BVDecide.Frontend.LRAT

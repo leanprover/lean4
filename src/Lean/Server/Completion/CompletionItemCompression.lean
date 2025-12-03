@@ -86,7 +86,7 @@ def compressItemFast (acc : String) (item : ResolvableCompletionItem) : String :
   if let some kind := item.kind? then
     acc := acc ++ ",\"kind\":" ++ (kind.ctorIdx + 1).repr
   if let some textEdit := item.textEdit? then
-    acc := acc ++ ",\"edit\":"
+    acc := acc ++ ",\"textEdit\":"
     acc := compressEditFast acc textEdit
   if let some sortText := item.sortText? then
     acc := acc ++ ",\"sortText\":"

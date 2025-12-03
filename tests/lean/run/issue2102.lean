@@ -35,6 +35,10 @@ failed to prove termination, possible solutions:
 T✝ : Type
 head✝ : T✝
 tl : List T✝
+x✝ :
+  (y : (T : Type) ×' List T) →
+    (invImage (fun x => PSigma.casesOn x fun T ls => sizeOf ls) sizeOfWFRel).1 y ⟨T✝, head✝ :: tl⟩ → Option (List y.1)
+res : Option { x // x✝ ⟨T✝, tl⟩ ⋯ = some x } := (x✝ ⟨T✝, tl⟩ ⋯).attach
 T : Type
 ls : List T
 ⊢ sizeOf ls < 1 + sizeOf tl
@@ -55,6 +59,10 @@ error: failed to prove termination, possible solutions:
 T✝ : Type
 head✝ : T✝
 tl : List T✝
+x✝ :
+  (y : (T : Type) ×' List T) →
+    (invImage (fun x => PSigma.casesOn x fun T ls => sizeOf ls) sizeOfWFRel).1 y ⟨T✝, head✝ :: tl⟩ → Option (List y.1)
+res : Option { x // x✝ ⟨T✝, tl⟩ ⋯ = some x } := (x✝ ⟨T✝, tl⟩ ⋯).attach
 T : Type
 ls : List T
 ⊢ sizeOf ls < 1 + sizeOf tl

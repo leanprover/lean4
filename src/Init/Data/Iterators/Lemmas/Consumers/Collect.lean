@@ -10,7 +10,6 @@ public import Init.Data.Iterators.Lemmas.Basic
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 public import Init.Data.Iterators.Consumers.Access
 import all Init.Data.Iterators.Consumers.Access
-public import Init.Data.Iterators.Consumers.Collect
 import all Init.Data.Iterators.Consumers.Collect
 
 public section
@@ -44,11 +43,13 @@ theorem IterM.toListRev_toIter {α β} [Iterator α Id β] [Finite α Id]
     it.toIter.toListRev = it.toListRev.run :=
   (rfl)
 
+@[simp]
 theorem Iter.toList_toArray {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id]
     [LawfulIteratorCollect α Id Id] {it : Iter (α := α) β} :
     it.toArray.toList = it.toList := by
   simp [toArray_eq_toArray_toIterM, toList_eq_toList_toIterM, ← IterM.toList_toArray]
 
+@[simp]
 theorem Iter.toArray_toList {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id]
     [LawfulIteratorCollect α Id Id] {it : Iter (α := α) β} :
     it.toList.toArray = it.toArray := by
@@ -75,7 +76,7 @@ theorem Iter.toArray_eq_match_step {α β} [Iterator α Id β] [Finite α Id] [I
   simp only [Iter.toArray_eq_toArray_toIterM, Iter.step]
   rw [IterM.toArray_eq_match_step, Id.run_bind]
   generalize it.toIterM.step.run = step
-  cases step using PlausibleIterStep.casesOn <;> simp
+  cases step.inflate using PlausibleIterStep.casesOn <;> simp
 
 theorem Iter.toList_eq_match_step {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id]
     [LawfulIteratorCollect α Id Id] {it : Iter (α := α) β} :
@@ -93,7 +94,7 @@ theorem Iter.toListRev_eq_match_step {α β} [Iterator α Id β] [Finite α Id] 
       | .done => [] := by
   rw [Iter.toListRev_eq_toListRev_toIterM, IterM.toListRev_eq_match_step, Iter.step, Id.run_bind]
   generalize it.toIterM.step.run = step
-  cases step using PlausibleIterStep.casesOn <;> simp
+  cases step.inflate using PlausibleIterStep.casesOn <;> simp
 
 theorem Iter.getElem?_toList_eq_atIdxSlow? {α β}
     [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]

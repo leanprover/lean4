@@ -806,8 +806,12 @@ protected def _root_.Lean.Parser.Term.elabToSyntax : Lean.Parser.Parser := leadi
   "elabToSyntax% " >> Parser.numLit
 
 /-- Refer to the given term elaborator by a scoped `Syntax` object. -/
-def elabToSyntax (fixedTermElab : FixedTermElab) (k : Term → TermElabM α) : TermElabM α := do
+def elabToSyntax (fixedTermElab : FixedTermElab) (k : Term → TermElabM α) (hint? : Option MessageData := none) : TermElabM α := do
   let ctx ← read
+  let fixedTermElab : FixedTermElab := fun ty? => do
+    if let some hint := hint? then
+      trace[Elab.step] "elabToSyntax hint: {hint}"
+    fixedTermElab ty?
   withReader (fun ctx => { ctx with fixedTermElabs := ctx.fixedTermElabs.push fixedTermElab.toFixedTermElabRef }) do
     k ⟨mkNode ``Lean.Parser.Term.elabToSyntax #[mkAtom "elabToSyntax% ", Syntax.mkNatLit ctx.fixedTermElabs.size]⟩
 

@@ -48,7 +48,7 @@ private meta def baseNames : Array Name :=
     ``getKey?_eq, ``getKey_eq, ``getKey!_eq, ``getKeyD_eq,
     ``insertMany_eq, ``Const.insertMany_eq, ``Const.insertManyIfNewUnit_eq,
     ``ofList_eq, ``Const.ofList_eq, ``Const.unitOfList_eq,
-    ``alter_eq, ``Const.alter_eq, ``modify_eq, ``Const.modify_eq, ``union_eq, ``inter_eq, ``diff_eq
+    ``alter_eq, ``Const.alter_eq, ``modify_eq, ``Const.modify_eq, ``union_eq, ``inter_eq, ``diff_eq,
     ``fst_partition_eq, ``snd_partition_eq]
 
 /-- Internal implementation detail of the hash map -/

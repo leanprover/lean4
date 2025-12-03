@@ -1042,6 +1042,7 @@ builtin_initialize
   register_parser_alias attrKind
   register_parser_alias optSemicolon
   register_parser_alias structInstFields
+  register_parser_alias termBeforeBy
 
 end Parser
 end Lean

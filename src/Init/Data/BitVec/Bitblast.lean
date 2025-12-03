@@ -3174,7 +3174,7 @@ theorem thm1 {x : BitVec (w' + 1)} (hn : n ≤ w'):
       conv =>
         rhs
         rw [← addRecAux_zero_add]
-      have := th3 (x := x) (n := w') (w := w' + 1)
+
 
 
       sorry

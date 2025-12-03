@@ -3055,8 +3055,6 @@ theorem cpopNatRec_cons_eq_cpopNatRec_of_le {x : BitVec w} {b : Bool} (hn : n �
     rw [cpopNatRec_succ, ihn, getLsbD_cons]
     simp [show ¬ n = w by omega, cpopNatRec_succ]
 
-
-
 theorem getLsbD_extractAndExtendPopulate_add  {x : BitVec w} (hk : k < w):
     (x.extractAndExtendPopulate w).getLsbD (pos * w + k) = ((x.extractLsb' pos 1).zeroExtend w).getLsbD k := by
   simp [← extractLsb'_extractAndExtendPopulate_eq (w := w) (len := w) (i := pos) (x := x)]
@@ -3221,5 +3219,28 @@ theorem cpop_eq_recursive_addition {x : BitVec w} :
           simp
       rw [this]
       by_cases hk0 : k = 0 <;> simp [hk0]
+
+theorem extractLsb'_pps_eq_cast {x : BitVec w} (h : 0 < w) :
+    let res := ((extractAndExtendPopulate w x).pps ((extractAndExtendPopulate w x).addRecAux w 0#w) (by simp) (by omega) (by omega)).val
+    extractLsb' 0 w res =
+    (res).cast (by simp) := by
+  simp
+  ext k hk
+  simp [← getLsbD_eq_getElem, hk]
+
+theorem cpop_eq_pps {x : BitVec w} :
+  let arg := extractAndExtendPopulate w x;
+  let k := arg.addRecAux w 0#w;
+    (x.cpop) =
+      if hw : w = 0 then 0#w
+      else ((pps (l := arg) (k := k) (by rfl) (by omega) (by omega)).val).cast (by simp) := by
+  simp
+  split
+  · case _ hw =>
+    subst hw
+    simp [of_length_zero]
+  · rw [cpop_eq_recursive_addition]
+    have proof := (pps (l := (extractAndExtendPopulate w x)) (k := (extractAndExtendPopulate w x).addRecAux w 0#w) (by rfl) (by omega) (by omega)).property
+    simp [← proof, extractLsb'_pps_eq_cast]
 
 end BitVec

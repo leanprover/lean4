@@ -56,8 +56,15 @@ info: Vec.cons.inj.{u} {α : Type u} {n : Nat} {x : α} {xs : Vec α n} {x✝ : 
 #guard_msgs in
 #check Vec.cons.inj
 
-theorem Vec.cons.hinj {α : Type u}
+theorem Vec.cons.hinj' {α : Type u}
   {x : α} {n : Nat} {xs : Vec α n} {x' : α} {n' : Nat} {xs' : Vec α n'} :
   Vec.cons x xs ≍ Vec.cons x' xs' → (n + 1 = n' + 1 → (x = x' ∧ xs ≍ xs')) := by
   intro h eq_1
   apply Vec.cons.noConfusion eq_1 h (fun _ eq_x eq_xs => ⟨eq_x, eq_xs⟩)
+
+/--
+info: Vec.cons.hinj.{u} {α : Type u} {n : Nat} {x : α} {xs : Vec α n} {n✝ : Nat} {x✝ : α} {xs✝ : Vec α n✝} :
+  n + 1 = n✝ + 1 → Vec.cons x xs ≍ Vec.cons x✝ xs✝ → n = n✝ ∧ x = x✝ ∧ xs ≍ xs✝
+-/
+#guard_msgs in
+#check Vec.cons.hinj

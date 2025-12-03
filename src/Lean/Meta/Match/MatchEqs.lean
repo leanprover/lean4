@@ -19,6 +19,7 @@ import Lean.Meta.Match.NamedPatterns
 import Lean.Meta.Tactic.Rewrite
 import Lean.Meta.Constructions.SparseCasesOn
 import Lean.Meta.Constructions.SparseCasesOnEq
+import Lean.Meta.Tactic.Grind.Main
 
 public section
 
@@ -164,6 +165,10 @@ where
           return #[mvarId'])
       <|>
       (substSomeVar mvarId)
+      <|>
+      (do let r ← Grind.main mvarId (← Grind.mkParams {})
+          if r.hasFailed then throwError "grind failed"
+          return #[])
       <|>
       (throwError "failed to generate equality theorem {thmName} for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
     subgoals.forM (go · (depth+1))

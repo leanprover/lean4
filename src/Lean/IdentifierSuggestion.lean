@@ -10,30 +10,29 @@ public import Lean.Attributes
 public import Lean.Exception
 public import Lean.Meta.Hint
 public import Lean.Elab.DeclModifiers
+public import Lean.ResolveName
 import all Lean.Elab.ErrorUtils
 
 namespace Lean
 
 set_option doc.verso true
 
-builtin_initialize identifierSuggestionForAttr : ParametricAttribute (Name × Array (Name × Name)) ←
+builtin_initialize identifierSuggestionForAttr : ParametricAttribute (Name × Array Name) ←
   registerParametricAttribute {
     name := `suggest_for,
     descr := "suggest other (incorrect, not-existing) identifiers that someone might use when they actually want this definition",
     getParam := fun trueDeclName stx => do
-      let `(attr| suggest_for $[$ids],* ) := stx
+      let `(attr| suggest_for $[$altNames],* ) := stx
         | throwError "Invalid `[suggest_for]` attribute syntax"
       let ns := trueDeclName.getPrefix
-      let altNames ← ids.mapM fun id => withRef id do
-        Elab.mkDeclName ns {} id.getId
-      return (trueDeclName, altNames)
+      return (trueDeclName, altNames.map (·.getId))
     }
 
 public def getSuggestions [Monad m] [MonadEnv m] (fullName : Name) : m (Array Name) := do
   let mut possibleReplacements := #[]
   let (_, allSuggestions) := identifierSuggestionForAttr.ext.getState (← getEnv)
   for (_, trueName, suggestions) in allSuggestions do
-    for (suggestion, _) in suggestions do
+    for suggestion in suggestions do
       if fullName = suggestion then
         possibleReplacements := possibleReplacements.push trueName
   return possibleReplacements.qsort (lt := lt)
@@ -51,6 +50,8 @@ where
 /--
 Throw an unknown constant error message, potentially suggesting alternatives using
 {name}`suggest_for` attributes. (Like {name}`throwUnknownConstantAt` but with suggestions.)
+
+The "Unknown constant `<id>`" message will fully qualify the name, whereas the
 -/
 public def throwUnknownConstantWithSuggestions (constName : Name) : CoreM α := do
   let suggestions ← getSuggestions constName
@@ -58,11 +59,28 @@ public def throwUnknownConstantWithSuggestions (constName : Name) : CoreM α := 
   let hint ← if suggestions.size = 0 then
       pure MessageData.nil
     else
+      -- Modify suggestions to have the same structure as the user-provided identifier, but only
+      -- if that doesn't cause ambiguity.
+      let rawId := (← getRef).getId
+      let env ← getEnv
+      let ns ← getCurrNamespace
+      let openDecls ← getOpenDecls
+      let modifySuggestion := match constName.eraseSuffix? rawId with
+        | .none => id
+        | .some prefixName => fun (suggestion : Name) =>
+            let candidate := suggestion.replacePrefix prefixName .anonymous
+            if (ResolveName.resolveGlobalName env {} ns openDecls candidate |>.length) != 1 then
+              suggestion
+            else
+              candidate
+
       let alternative := if h : suggestions.size = 1 then m!"`{.ofConstName suggestions[0]}`" else m!"one of these"
-      m!"Perhaps you meant {alternative} in place of `{constName}`:".hint (suggestions.map fun suggestion => {
-        suggestion := s!"{suggestion}",
-        toCodeActionTitle? := .some (s!"Suggested replacement: {·}"),
-        diffGranularity := .all,
-        messageData? := .some m!"`{.ofConstName suggestion}`",
-      }) ref
+      m!"Perhaps you meant {alternative} in place of `{.ofName rawId}`:".hint (suggestions.map fun suggestion =>
+        let modified := modifySuggestion suggestion
+        {
+          suggestion := s!"{modified}",
+          toCodeActionTitle? := .some (s!"Suggested replacement: {·}"),
+          diffGranularity := .all,
+          -- messageData? := .some m!"replace `{.ofName rawId}` with `{.ofName modified}`",
+        }) ref
   throwUnknownIdentifierAt (declHint := constName) ref (m!"Unknown constant `{.ofConstName constName}`" ++ hint)

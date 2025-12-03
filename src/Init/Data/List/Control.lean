@@ -187,7 +187,7 @@ theorem filterM_append {m : Type → Type v} [Monad m] [LawfulMonad m] {as bs : 
   induction as with
   | nil =>
     have : HAppend.hAppend ([] : List α) = id := funext List.nil_append
-    simp [filterM_cons, pure_seq, this]
+    simp [pure_seq, this]
   | cons a' as ih =>
     simp only [cons_append, filterM_cons, ih, bind_pure_comp, map_bind, Functor.map_map, bind_assoc,
       bind_map_left, seq_eq_bind_map]

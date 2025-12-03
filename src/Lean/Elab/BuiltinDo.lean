@@ -611,6 +611,8 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
     breakRhs.mvarId!.withContext do
       let e ← withLocalDeclD (← mkFreshUserName `s) σ fun postS => do mkLambdaFVars #[postS] <| ← do
         bindMutVarsFromTuple loopMutVarNames postS.fvarId! do
+          unless ← isDefEq dec.resultType (← mkPUnit) do
+            throwError m!"Type mismatch. `for` loops have result type {← mkPUnit}, but the rest of the `do` sequence expected {dec.resultType}."
           dec.continueWithUnit
       synthUsingDefEq "break RHS" breakRhs e
 

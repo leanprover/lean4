@@ -42,10 +42,18 @@ def registerMatchEqns (matchDeclName : Name) (matchEqns : MatchEqns) : CoreM Uni
   }
 
 /-
-  Forward definition. We want to use `getEquationsFor` in the simplifier,
- `getEquationsFor` depends on `mkEquationsFor` which uses the simplifier. -/
+Forward definition of `getEquationsForImpl`.
+We want to use `getEquationsFor` in the simplifier,
+getEquationsFor` depends on `mkEquationsFor` which uses the simplifier.
+-/
 @[extern "lean_get_match_equations_for"]
 opaque getEquationsFor (matchDeclName : Name) : MetaM MatchEqns
+
+/-
+Forward definition of `genMatchCongrEqnsImpl`.
+-/
+@[extern "lean_get_congr_match_equations_for"]
+opaque genMatchCongrEqns (matchDeclName : Name) : MetaM (Array Name)
 
 /--
 Returns `true` if `declName` is the name of a `match` equational theorem.

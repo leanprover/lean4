@@ -657,7 +657,8 @@ The code duplicates a fair bit of the logic above, and has to repeat the calcula
 `notAlts`. One could avoid that and generate the generalized equations eagerly above, but they are
 not always needed, so for now we live with the code duplication.
 -/
-def genMatchCongrEqns (matchDeclName : Name) : MetaM (Array Name) := do
+@[export lean_get_congr_match_equations_for]
+def genMatchCongrEqnsImpl (matchDeclName : Name) : MetaM (Array Name) := do
   let baseName := mkPrivateName (← getEnv) matchDeclName
   let firstEqnName := .str baseName congrEqn1ThmSuffix
   realizeConst matchDeclName firstEqnName (go baseName)
@@ -741,7 +742,7 @@ builtin_initialize registerReservedNameAction fun name => do
   let some (p, isGenEq) := isMatchEqName? (← getEnv) name |
     return false
   if isGenEq then
-    let _ ← MetaM.run' <| genMatchCongrEqns p
+    let _ ← MetaM.run' <| genMatchCongrEqnsImpl p
   else
     let _ ← MetaM.run' <| getEquationsFor p
   return true

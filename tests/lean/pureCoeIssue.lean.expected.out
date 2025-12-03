@@ -3,10 +3,10 @@ pureCoeIssue.lean:6:2-6:4: error: Type mismatch
 has type
   Nat → IO Unit
 but is expected to have type
-  IO PUnit
+  IO Unit
 pureCoeIssue.lean:14:2-14:7: error: Type mismatch
   f2 10
 has type
   Nat → IO Unit
 but is expected to have type
-  IO PUnit
+  IO Unit

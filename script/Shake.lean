@@ -12,13 +12,12 @@ import Lake.CLI.Main
 import Lean.Parser.Module
 import Lake.Load.Workspace
 
-/-! # `lake exe shake` command
+/-! # Shake: A Lean import minimizer
 
 This command will check the current project (or a specified target module) and all dependencies for
 unused imports. This works by looking at generated `.olean` files to deduce required imports and
 ensuring that every import is used to contribute some constant or other elaboration dependency
-recorded by `recordExtraModUse`. Because recompilation is not needed this is quite fast (about 8
-seconds to check `Mathlib` and all dependencies).
+recorded by `recordExtraModUse` and friends.
 -/
 
 /-- help string for the command line interface -/
@@ -63,6 +62,35 @@ Options:
 
   --gh-style
     Outputs messages that can be parsed by `gh-problem-matcher-wrap`
+
+Annotations:
+  The following annotations can be added to Lean files in order to configure the behavior of
+  `shake`. Only the substring `shake: ` directly followed by a directive is checked for, so multiple
+  directives can be mixed in one line such as `-- shake: keep-downstream, shake: keep-all`, and they
+  can be surrounded by arbitrary comments such as `-- shake: keep (metaprogram output dependency)`.
+
+  * `module -- shake: keep-downstream`:
+    Preserves this module in all (current) downstream modules, adding new imports of it if needed.
+
+  * `module -- shake: keep-all`:
+    Preserves all existing imports in this module as is. New imports now needed because of upstream
+    changes may still be added.
+
+  * `import X -- shake: keep`:
+    Preserves this specific import in the current module. The most common use case is to preserve a
+    public import that will be needed in downstream modules to make sense of the output of a
+    metaprogram defined in this module. For example, if a tactic is defined that may synthesize a
+    reference to a theorem when run, there is no way for `shake` to detect this by itself and the
+    module of that theorem should be publicly imported and annotated with `keep` in the tactic's
+    module.
+    ```
+    public import X  -- shake: keep (metaprogram output dependency)
+
+    ...
+
+    elab \"my_tactic\" : tactic => do
+      ... mkConst ``f -- `f`, defined in `X`, may appear in the output of this tactic
+    ```
 "
 
 open Lean
@@ -253,7 +281,7 @@ def addTransitiveImps (transImps : Needs) (imp : Import) (j : Nat) (impTransImps
 def isDeclMeta' (env : Environment) (declName : Name) : Bool :=
   -- Matchers are not compiled by themselves but inlined by the compiler, so there is no IR decl
   -- to be tagged as `meta`.
-  -- TODO: It might be better to base the entire `meta` inference on the IR only and consider module
+  -- TODO: It would be better to base the entire `meta` inference on the IR only and consider module
   -- references from any other context as compatible with both phases.
   let inferFor :=
     if declName.isStr && (declName.getString!.startsWith "match_" || declName.getString! == "_unsafe_rec") then declName.getPrefix else declName
@@ -273,7 +301,7 @@ def getDepConstName? (env : Environment) (ref : Name) : Option Name := do
     ref
 
 /-- Calculates the needs for a given module `mod` from constants and recorded extra uses. -/
-def calcNeeds (s : State) (args : Args) (i : ModuleIdx) : Needs := Id.run do
+def calcNeeds (s : State) (i : ModuleIdx) : Needs := Id.run do
   let env := s.env
   let mut needs := default
   for ci in env.header.moduleData[i]!.constants do
@@ -388,8 +416,8 @@ def parseHeaderFromString (text path : String) :
     throw <| .userError "parse errors in file"
   -- the insertion point for `add` is the first newline after the imports
   let insertion := header.raw.getTailPos?.getD parserState.pos
-  let insertion := text.findAux (· == '\n') text.rawEndPos insertion + '\n'
-  pure (path, inputCtx, header, insertion)
+  let insertion := text.pos! insertion |>.find (· == '\n') |>.next!
+  pure (path, inputCtx, header, insertion.offset)
 
 /-- Parse a source file to extract the location of the import lines, for edits and error messages.
 
@@ -417,14 +445,15 @@ def decodeImport : TSyntax ``Parser.Module.import → Import
 
 /-- Analyze and report issues from module `i`. Arguments:
 
+* `pkg`: the first component of the module name
 * `srcSearchPath`: Used to find the path for error reporting purposes
 * `i`: the module index
 * `needs`: the module's calculated needs
 * `addOnly`: if true, only add missing imports, do not remove unused ones
 -/
 def visitModule (pkg : Name) (srcSearchPath : SearchPath)
-    (i : Nat) (needs : Needs) (headerStx : TSyntax ``Parser.Module.header)
-    (addOnly := false) (args : Args) : StateT State IO Unit := do
+    (i : Nat) (needs : Needs) (headerStx : TSyntax ``Parser.Module.header) (args : Args)
+    (addOnly := false) : StateT State IO Unit := do
   if isExtraRevModUse (← get).env i then
     modify fun s => { s with preserve := s.preserve.union (if args.addPublic then .pub else .priv) {i} }
     if args.trace then
@@ -719,7 +748,7 @@ public def main (args : List String) : IO UInt32 := do
   let s ← get
   -- Run the calculation of the `needs` array in parallel
   let needs := s.mods.mapIdx fun i _ =>
-    Task.spawn fun _ => calcNeeds s args i
+    Task.spawn fun _ => calcNeeds s i
 
   -- Parse headers in parallel
   let headers ← s.mods.mapIdxM fun i _ =>

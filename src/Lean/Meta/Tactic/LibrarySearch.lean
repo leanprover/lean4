@@ -137,37 +137,19 @@ to find candidate lemmas.
 
 open LazyDiscrTree (InitEntry findMatches)
 
-/-- When conclusion is fvar-headed, create an entry keyed by the first concrete argument.
-    For `motive (ite c t e)`, creates entry with key `.const ite 4`.
-    This enables `exact?` to find "eliminator-style" theorems like `iteInduction`. -/
-private def getFirstArgEntry (type : Expr) (value : Name × DeclMod) :
-    MetaM (Option (InitEntry (Name × DeclMod))) := do
-  let type ← DiscrTree.reduceDT type true
-  let fn := type.getAppFn
-  if !fn.isFVar then return none
-  let args := type.getAppArgs
-  if args.isEmpty then return none
-  let firstArg := args[0]!
-  let firstArg ← DiscrTree.reduceDT firstArg false
-  let argFn := firstArg.getAppFn
-  if !argFn.isConst then return none
-  some <$> InitEntry.fromExpr firstArg value
-
 private def addImport (name : Name) (constInfo : ConstantInfo) :
     MetaM (Array (InitEntry (Name × DeclMod))) :=
   -- Don't report lemmas from metaprogramming namespaces.
   if name.isMetaprogramming then return #[] else
   forallTelescope constInfo.type fun _ type => do
     let e ← InitEntry.fromExpr type (name, DeclMod.none)
-    let mut a := #[e]
-    -- If root key is star (fvar-headed), also index by argument structure
-    if e.key == .star then
-      if let some argEntry ← getFirstArgEntry type (name, DeclMod.none) then
-        a := a.push argEntry
+    let a := #[e]
     if e.key == .const ``Iff 2 then
-      a := a.push (← e.mkSubEntry 0 (name, DeclMod.mp))
-      a := a.push (← e.mkSubEntry 1 (name, DeclMod.mpr))
-    pure a
+      let a := a.push (← e.mkSubEntry 0 (name, DeclMod.mp))
+      let a := a.push (← e.mkSubEntry 1 (name, DeclMod.mpr))
+      pure a
+    else
+      pure a
 
 /-- Stores import discrimination tree. -/
 private def LibSearchState := IO.Ref (Option (LazyDiscrTree (Name × DeclMod)))

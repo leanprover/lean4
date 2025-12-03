@@ -69,7 +69,7 @@ structure State where
   -/
   processedDecls : Array Decl := #[]
   /--
-  The set of `Decl` that we will attempt recursive specialization in next iteration.
+  The set of `Decl` that we will attempt recursive specialization on in the next iteration.
   -/
   workingDecls : Array Decl := #[]
   /--
@@ -519,17 +519,16 @@ def endOfLoop : SpecializeM Unit := do
         alreadySpecialized := true
       }
 
-partial def loop (n : Nat := 0) : SpecializeM Unit := do
+partial def loop (round : Nat := 0) : SpecializeM Unit := do
   let targets ← modifyGet (fun s => (s.workingDecls, { s with workingDecls := #[] }))
   if targets.isEmpty then
-    trace[Compiler.specialize.step] m!"Termination after {n} rounds"
+    trace[Compiler.specialize.step] m!"Termination after {round} rounds"
     endOfLoop
     return ()
-  -- TODO: flexible
-  else if n > 64 then
+  else if round > (← getConfig).maxRecSpecialize then
     throwError "Lost in specialization"
 
-  trace[Compiler.specialize.step] m!"Round: {n}"
+  trace[Compiler.specialize.step] m!"Round: {round}"
   for decl in targets do
     let ground ← Specialize.paramsToGroundVars decl.params
     let (newDecl, changed) ← withReader (fun ctx => { ctx with ground, declName := decl.name }) do
@@ -541,7 +540,7 @@ partial def loop (n : Nat := 0) : SpecializeM Unit := do
 
   updateLocalSpecParamInfo
 
-  loop (n + 1)
+  loop (round + 1)
 
 def main (decls : Array Decl) : CompilerM (Array Decl) := do
   saveSpecEntries decls

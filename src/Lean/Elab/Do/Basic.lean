@@ -57,6 +57,10 @@ structure Context where
   doBlockResultType : Expr
   /-- Information about `return`, `break` and `continue` continuations. -/
   contInfo : ContInfoRef
+  /--
+  Whether the current `do` element is dead code. `elabDoElem` will emit a warning if this is `true`.
+  -/
+  deadCode : Bool := false
 
 structure MonadInstanceCache where
   /-- The inferred `Pure` instance of `(← read).monadInfo.m`. -/
@@ -235,7 +239,11 @@ def DoElemCont.mkPure (resultType : Expr) : TermElabM DoElemCont := do
   return {
     resultName := r,
     resultType,
-    k := do mkPureApp resultType (← getFVarFromUserName r),
+    k := do
+      if (← read).deadCode then
+        -- There is no dead syntax here. Just return a fresh metavariable.
+        return ← mkFreshExprMVar (← mkMonadicType resultType)
+      mkPureApp resultType (← getFVarFromUserName r),
     kind := .duplicable
   }
 
@@ -283,7 +291,9 @@ def declareMutVars? (mutTk? : Option Syntax) (xs : Array Ident) (k : DoElabM α)
 /-- Throw an error if the given name is not a declared `mut` variable. -/
 def throwUnlessMutVarDeclared (x : Ident) : DoElabM Unit := do
   unless (← read).mutVarsSet.contains x.getId do
-    throwErrorAt x "undeclared mutable variable `{x.getId.simpMacroScopes}`"
+    let xName := x.getId.simpMacroScopes
+    throwErrorAt x "Variable `{xName}` cannot be mutated. Only variables declared using `let mut` can be mutated.
+      If you did not intend to mutate but define `{xName}`, consider using `let {xName}` instead"
 
 /-- Throw an error if the given names are not declared `mut` variables. -/
 def throwUnlessMutVarsDeclared (xs : Array Ident) : DoElabM Unit := do
@@ -396,8 +406,9 @@ def ContVarId.mkJump (contVarId : ContVarId) : DoElabM Expr := do
   let info ← contVarId.find
   let lctx := addReachingDefsAsNonDep info.lctx (← getLCtx) info.tunneledVars
   let mvar ← withLCtx' lctx (mkFreshExprMVar info.type) -- assigned by `synthesizeJumps`
-  let jumps := info.jumps.push { mvar, ref := (← getRef) }
-  modify fun s => { s with contVars := s.contVars.insert contVarId { info with jumps } }
+  unless (← read).deadCode do -- If it's dead code, don't even bother registering the jump
+    let jumps := info.jumps.push { mvar, ref := (← getRef) }
+    modify fun s => { s with contVars := s.contVars.insert contVarId { info with jumps } }
   return mvar
 
 /-- The number of jump sites allocated for the continuation variable. -/
@@ -530,6 +541,16 @@ where
           Term.tryPostpone
     loop ()
 
+/-- Elaborate the `DoElemCont` with the `deadCode` flag set to `true` to emit warnings. -/
+def DoElemCont.elabAsDeadCode (dec : DoElemCont) : DoElabM Unit := do
+  withReader (fun ctx => { ctx with deadCode := true }) do
+    withLocalDecl dec.resultName .default (← mkFreshResultType) (kind := .implDetail) fun _ => do
+      let s ← Term.saveState
+      discard <| dec.k
+      let msg ← Core.getMessageLog -- case in point! capture it
+      s.restore
+      Core.setMessageLog msg
+
 /--
 Call `caller` with a duplicable proxy of `dec`.
 When the proxy is elaborated more than once, a join point is introduced so that `dec` is only
@@ -554,7 +575,9 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
   -- Now determine whether we need to realize the join point.
   let jumpCount ← contVarId.jumpCount
   if jumpCount = 0 then
-    -- Do nothing. No MVar needs to be assigned.
+    -- Do nothing. No MVar needs to be assigned. However, do elaborate the continuation as dead code
+    -- for warnings.
+    nondupDec.elabAsDeadCode
     Term.ensureHasType mγ e
   else if jumpCount = 1 then
     -- Linear use of the continuation. Do not introduce a join point; just emit the continuation
@@ -661,7 +684,6 @@ def withProxyMutVarDefs [Inhabited α] (k : (Expr → MetaM Expr) → DoElabM α
     let proxyCtx ← getLCtx
     let elimProxyDefs e : MetaM Expr := do
       let innerCtx ← getLCtx
-
       let actualDefs := proxyDefs.map fun pDef =>
         let x := (proxyCtx.getFVar! pDef).userName
         let iDef := (innerCtx.getFromUserName! x).toExpr
@@ -920,6 +942,9 @@ partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) : DoElabM Exp
   checkSystem "do element elaborator"
   profileitM Exception "do element elaborator" (decl := k) (← getOptions) <|
   withRef stx <| withIncRecDepth <| withFreshMacroScope <| do
+  if (← read).deadCode then
+    logWarningAt stx "This `do` element and its control-flow region are dead code. Consider removing it."
+    return ← mkFreshExprMVar (← mkMonadicType (← read).doBlockResultType)
   let env ← getEnv
   let result ← match (← liftMacroM (expandMacroImpl? env stx)) with
   | some (_decl, stxNew?) =>
@@ -946,7 +971,10 @@ partial def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont)
   doElems.pop.foldr (init := elabDoElem back cont) fun el k => elabDoElem el (.mk r unit k .nonDuplicable)
 end
 
-def elabDoSeq (doSeq : TSyntax ``Lean.Parser.Term.doSeq) (cont : DoElemCont) : DoElabM Expr :=
+def elabDoSeq (doSeq : TSyntax ``Lean.Parser.Term.doSeq) (cont : DoElemCont) : DoElabM Expr := do
+  if (← read).deadCode then
+    logWarningAt doSeq "This `do` sequence is dead code. Consider removing it."
+    return ← mkFreshExprMVar (← mkMonadicType (← read).doBlockResultType)
   elabDoElems1 (Lean.Parser.Term.getDoElems doSeq) cont
 
 @[builtin_doElem_elab doElemNoNestedAction] def elabDoElemNoNestedAction : DoElab := fun stx cont => do

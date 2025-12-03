@@ -27,13 +27,24 @@ open Std.Internal.IO.Async
 Reasons for cancellation.
 -/
 inductive CancellationReason where
-  /-- Cancelled due to a deadline or timeout -/
+  /--
+  Cancelled due to a deadline or timeout
+  -/
   | deadline
-  /-- Cancelled due to shutdown -/
+
+  /--
+  Cancelled due to shutdown
+  -/
   | shutdown
-  /-- Explicitly cancelled -/
+
+  /--
+  Explicitly cancelled
+  -/
   | cancel
-  /-- Custom cancellation reason -/
+
+  /--
+  Custom cancellation reason
+  -/
   | custom (msg : String)
   deriving Repr, BEq
 

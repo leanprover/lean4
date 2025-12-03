@@ -13,7 +13,7 @@ public section
 /-!
 # Status
 
-This module contains `Status` that is a repreesntation of HTTP status codes. Status codes are three-digit
+This module contains `Status` that is a representation of HTTP status codes. Status codes are three-digit
 integer codes that describes the result of a HTTP request. In this implementation we do not treat status
 code as extensible.
 

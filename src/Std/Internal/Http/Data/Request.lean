@@ -18,8 +18,8 @@ public section
 /-!
 # Request
 
-This module provides the `Request` type, which representation a HTTP request. It also defines ways
-to build a `Request` using functiosn that make it easier.
+This module provides the `Request` type, which represents am HTTP request. It also defines ways
+to build a `Request` using functions that make it easier.
 -/
 
 namespace Std.Http

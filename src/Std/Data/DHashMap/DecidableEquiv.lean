@@ -18,7 +18,6 @@ open Std.DHashMap.Internal
 
 namespace Std.DHashMap
 
-instance {α : Type u} {β : α → Type v} [DecidableEq α] [Hashable α] [∀ k, DecidableEq (β k)] (m₁ m₂ : DHashMap α β) : Decidable (m₁ ~m m₂) := @decidable_of_iff _ _ ⟨fun h => ⟨h⟩, fun h => h.1⟩ <|
-    @Raw₀.Equiv.decide _ _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ m₁.2 m₂.2
+instance {α : Type u} {β : α → Type v} [DecidableEq α] [Hashable α] [∀ k, DecidableEq (β k)] (m₁ m₂ : DHashMap α β) : Decidable (m₁ ~m m₂) := @decidable_of_iff _ _ ⟨fun h => ⟨h⟩, fun h => h.1⟩ <| Raw₀.decidable_equiv ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ m₁.2 m₂.2
 
 end Std.DHashMap

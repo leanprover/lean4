@@ -5140,10 +5140,10 @@ end Raw₀
 namespace Raw₀
 
 /-- Internal implementation detail -/
-def Equiv.decide [DecidableEq α] [Hashable α] [∀ k, DecidableEq (β k)]
+def decidable_equiv [DecidableEq α] [Hashable α] [∀ k, DecidableEq (β k)]
     (m₁ m₂ : Raw₀ α β) (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : Decidable (m₁.1.Equiv m₂.1) := by
   have decBEq : Decidable (Raw₀.beq m₁ m₂ = true) := inferInstance
-  apply @decidable_of_decidable_of_iff (Raw₀.beq m₁ m₂ = true) (m₁.1.Equiv m₂.1) decBEq
+  apply decidable_of_iff (Raw₀.beq m₁ m₂ = true)
   constructor
   · apply Raw₀.equiv_of_beq h₁ h₂
   · apply Raw₀.Equiv.beq h₁ h₂

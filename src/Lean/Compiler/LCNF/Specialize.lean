@@ -13,8 +13,6 @@ import Lean.Compiler.LCNF.Simp
 import Lean.Compiler.LCNF.ToExpr
 import Lean.Compiler.LCNF.Level
 import Lean.Compiler.LCNF.Closure
-import Std.Data.Iterators.Combinators
-import Std.Data.Iterators.Producers.Monadic.Array
 
 namespace Lean.Compiler.LCNF
 namespace Specialize
@@ -418,22 +416,14 @@ mutual
       return some (.const declName usNew argsNew)
     else
       let specDecl ← mkSpecDecl decl us argMask params decls levelParamsNew
-      let targetParams : Std.HashSet Arg ←
-        args.iterM SpecializeM
-          |>.zip (paramsInfo.iterM _)
-          |>.foldM (init := {}) fun acc (arg, info) => do
-            match info with
-            | .fixedInst | .fixedNeutral | .other => return acc
-            | .fixedHO | .user =>
-              -- TODO: check fixedInst matching here
-              match arg with
-              | .type .. | .erased => return acc
-              | .fvar fvar =>
-                if (← findParam? fvar).isSome then
-                  return acc.insert arg
-                else
-                  return acc
-      let parentMask := argsNew.map targetParams.contains
+      let parentMask ← argsNew.mapM
+        fun
+          | .type .. | .erased => return false
+          | .fvar fvar => do
+            if let some param ← findParam? fvar then
+              return (param.type matches .forallE ..) && !(← isArrowClass? param.type).isSome
+            else
+              return false
       cacheSpec key specDecl.name
       specDecl.saveBase
       let specDecl ← specDecl.etaExpand

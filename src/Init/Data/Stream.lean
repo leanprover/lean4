@@ -56,6 +56,18 @@ export ToStream (toStream)
 class Stream (stream : Type u) (value : outParam (Type v)) : Type (max u v) where
   next? : stream → Option (value × stream)
 
+protected partial def Stream.forInNew {ρ α} {m : Type u → Type v} {σ β} [Stream ρ α]
+    (str : ρ) (init : σ) (kcons : α → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
+  let rec @[specialize] visit [Nonempty (m β)] (str : ρ) (s : σ) : m β :=
+    match Stream.next? str with
+    | some (a, str) => kcons a (visit str) s
+    | none => knil s
+  haveI : Nonempty (m β) := ⟨knil init⟩
+  visit str init
+
+instance (priority := low) [Stream ρ α] : ForInNew m ρ α where
+  forInNew := Stream.forInNew
+
 protected partial def Stream.forIn [Stream ρ α] [Monad m] (s : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β := do
   let _ : Inhabited (m β) := ⟨pure b⟩
   let rec visit (s : ρ) (b : β) : m β := do

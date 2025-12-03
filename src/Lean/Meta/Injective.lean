@@ -40,7 +40,7 @@ private def mkEqs (args1 args2 : Array Expr) (skipIfPropOrEq : Bool := true) : M
       eqs := eqs.push (← mkEqHEq arg1 arg2)
   return eqs
 
-private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useEq : Bool) : MetaM (Option Expr) := do
+private def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useEq : Bool) : MetaM (Option Expr) := do
   let us := ctorVal.levelParams.map mkLevelParam
   let type ← elimOptParam ctorVal.type
   forallBoundedTelescope type ctorVal.numParams fun params type =>
@@ -197,11 +197,11 @@ private structure MkHInjTypeResult where
   us : List Level
   numIndices : Nat
 
-private partial def mkHInjType? (ctorVal : ConstructorVal) : MetaM (Option MkHInjTypeResult) := do
+private def mkHInjType? (ctorVal : ConstructorVal) : MetaM (Option MkHInjTypeResult) := do
   let us := ctorVal.levelParams.map mkLevelParam
   let type ← elimOptParam ctorVal.type
   forallBoundedTelescope type ctorVal.numParams fun params type =>
-  forallTelescope type fun args1 resultType => do
+  forallTelescope type fun args1 _ => do
     let k (args2 : Array Expr) : MetaM (Option MkHInjTypeResult) := do
       let lhs := mkAppN (mkAppN (mkConst ctorVal.name us) params) args1
       let rhs := mkAppN (mkAppN (mkConst ctorVal.name us) params) args2
@@ -254,7 +254,6 @@ private partial def mkHInjectiveTheoremValue? (ctorVal : ConstructorVal) (typeIn
     let mvarId := mvar.mvarId!
     let (_, mvarId) ← mvarId.intros
     splitAndAssumption mvarId ctorVal.name
-    check noConfusion
     let result ← instantiateMVars noConfusion
     mkLambdaFVars xs result
 

@@ -137,19 +137,37 @@ to find candidate lemmas.
 
 open LazyDiscrTree (InitEntry findMatches)
 
+/-- When conclusion is fvar-headed, create an entry keyed by the first concrete argument.
+    For `motive (ite c t e)`, creates entry with key `.const ite 4`.
+    This enables `exact?` to find "eliminator-style" theorems like `iteInduction`. -/
+private def getFirstArgEntry (type : Expr) (value : Name × DeclMod) :
+    MetaM (Option (InitEntry (Name × DeclMod))) := do
+  let type ← DiscrTree.reduceDT type true
+  let fn := type.getAppFn
+  if !fn.isFVar then return none
+  let args := type.getAppArgs
+  if args.isEmpty then return none
+  let firstArg := args[0]!
+  let firstArg ← DiscrTree.reduceDT firstArg false
+  let argFn := firstArg.getAppFn
+  if !argFn.isConst then return none
+  some <$> InitEntry.fromExpr firstArg value
+
 private def addImport (name : Name) (constInfo : ConstantInfo) :
     MetaM (Array (InitEntry (Name × DeclMod))) :=
   -- Don't report lemmas from metaprogramming namespaces.
   if name.isMetaprogramming then return #[] else
   forallTelescope constInfo.type fun _ type => do
     let e ← InitEntry.fromExpr type (name, DeclMod.none)
-    let a := #[e]
+    let mut a := #[e]
+    -- If root key is star (fvar-headed), also index by argument structure
+    if e.key == .star then
+      if let some argEntry ← getFirstArgEntry type (name, DeclMod.none) then
+        a := a.push argEntry
     if e.key == .const ``Iff 2 then
-      let a := a.push (← e.mkSubEntry 0 (name, DeclMod.mp))
-      let a := a.push (← e.mkSubEntry 1 (name, DeclMod.mpr))
-      pure a
-    else
-      pure a
+      a := a.push (← e.mkSubEntry 0 (name, DeclMod.mp))
+      a := a.push (← e.mkSubEntry 1 (name, DeclMod.mpr))
+    pure a
 
 /-- Stores import discrimination tree. -/
 private def LibSearchState := IO.Ref (Option (LazyDiscrTree (Name × DeclMod)))
@@ -179,23 +197,33 @@ initialization performance.
 -/
 private def constantsPerImportTask : Nat := 6500
 
-/-- Create function for finding relevant declarations. -/
-def libSearchFindDecls : Expr → MetaM (Array (Name × DeclMod)) :=
+/-- Environment extension for caching star-indexed lemmas.
+    Used for fallback when primary search finds nothing for fvar-headed goals. -/
+private builtin_initialize starLemmasExt : EnvExtension (IO.Ref (Option (Array (Name × DeclMod)))) ←
+  registerEnvExtension (IO.mkRef .none)
+
+/-- Create function for finding relevant declarations.
+    Also captures dropped entries in starLemmasExt for fallback search. -/
+def libSearchFindDecls (ty : Expr) : MetaM (Array (Name × DeclMod)) := do
+  let _ : Inhabited (IO.Ref (Option (Array (Name × DeclMod)))) := ⟨← IO.mkRef none⟩
+  let droppedRef := starLemmasExt.getState (←getEnv)
   findMatches ext addImport
       (droppedKeys := droppedKeys)
       (constantsPerTask := constantsPerImportTask)
+      (droppedEntriesRef := some droppedRef)
+      ty
 
-/-- Environment extension for full discrimination tree (no dropped keys).
-    Used as fallback when primary search finds nothing. -/
-private builtin_initialize fullExt : EnvExtension LibSearchState ←
-  registerEnvExtension (IO.mkRef .none)
-
-/-- Find declarations including star-indexed lemmas (no droppedKeys).
-    Used as fallback when `libSearchFindDecls` finds nothing. -/
-def libSearchFindDeclsFull : Expr → MetaM (Array (Name × DeclMod)) :=
-  findMatches fullExt addImport
-      (droppedKeys := [])  -- Don't drop anything
-      (constantsPerTask := constantsPerImportTask)
+/-- Get star-indexed lemmas (lazily computed during tree initialization). -/
+def getStarLemmas : MetaM (Array (Name × DeclMod)) := do
+  let _ : Inhabited (IO.Ref (Option (Array (Name × DeclMod)))) := ⟨← IO.mkRef none⟩
+  let ref := starLemmasExt.getState (←getEnv)
+  match ←ref.get with
+  | some lemmas => return lemmas
+  | none =>
+    -- If star lemmas aren't cached yet, trigger tree initialization by searching for a dummy type
+    -- This will populate starLemmasExt as a side effect
+    let _ ← libSearchFindDecls (mkConst ``True)
+    pure ((←ref.get).getD #[])
 
 /--
 Return an action that returns true when the remaining heartbeats is less
@@ -372,17 +400,15 @@ private def librarySearch' (goal : MVarId)
       -- Only do star fallback if:
       -- 1. No results from primary search
       -- 2. includeStar is true
-      -- 3. Goal type is fvar-headed (would be keyed as [*] in the tree)
-      -- This avoids flooding with noise for goals like `Eq x y` where the
-      -- dropped [Eq,*,*,*] pattern would match too broadly.
-      let goalType ← goal.getType
-      let isStarLike := goalType.getAppFn.isFVar
-      if !results.isEmpty || !includeStar || !isStarLike then
+      if !results.isEmpty || !includeStar then
         return some results
-      -- Second pass: search full tree for fvar-headed goals only
-      let fullCandidates ← librarySearchSymm libSearchFindDeclsFull goal
-      if fullCandidates.isEmpty then return some results
-      tryOnEach act fullCandidates
+      -- Second pass: try star-indexed lemmas (those with [*] or [Eq,*,*,*] keys)
+      -- No need for librarySearchSymm since getStarLemmas ignores the goal type
+      let starLemmas ← getStarLemmas
+      if starLemmas.isEmpty then return some results
+      let mctx ← getMCtx
+      let starCandidates := starLemmas.map ((goal, mctx), ·)
+      tryOnEach act starCandidates
 
 /--
 Tries to solve the goal by applying a library lemma

@@ -685,11 +685,21 @@ def getMatchCore (root : Std.HashMap Key TrieIndex) (e : Expr) :
     | .star  =>
       pure #[]
     /- When goal has fvar head like `p (ite c t e)`, follow the star edge with the fvar's arguments.
-       This finds "eliminator-style" theorems indexed by argument structure. -/
-    | .fvar _ _ =>
-      match root[Key.star]? with
-      | some c => pure #[{ todo := args, score := 0, c }]
-      | none => pure #[]
+       This finds "eliminator-style" theorems indexed by argument structure.
+       We also check the first argument's const key directly, which enables finding
+       eliminator-style theorems even with -star (when star entries are dropped). -/
+    | .fvar _ _ => do
+      let mut cases := #[]
+      -- Follow star edge if available (for generic fvar-headed lemmas)
+      if let some c := root[Key.star]? then
+        cases := cases.push { todo := args, score := 0, c }
+      -- Also check first argument's const key (for eliminator-style theorems)
+      if !args.isEmpty then
+        let firstArg := args[0]!
+        let (argKey, argArgs) ← MatchClone.getMatchKeyArgs firstArg (root := false)
+        if let some c := root[argKey]? then
+          cases := cases.push { todo := argArgs, score := 1, c }
+      pure cases
     /- See note about "dep-arrow vs arrow" at `getMatchLoop` -/
     | .arrow =>
       pure (#[] |> pushRootCase root .other #[]
@@ -939,6 +949,57 @@ def createLocalPreDiscrTree
 def dropKeys (t : LazyDiscrTree α) (keys : List (List LazyDiscrTree.Key)) : MetaM (LazyDiscrTree α) := do
   keys.foldlM (init := t) (·.dropKey ·)
 
+/-- Collect all values from a subtree recursively and clear them. -/
+partial def collectSubtreeAux (next : TrieIndex) : MatchM α (Array α) :=
+  if next = 0 then
+    pure #[]
+  else do
+    let (values, star, children) ← evalNode next
+    -- Collect from star subtrie
+    let starVals ← collectSubtreeAux star
+    -- Collect from all children
+    let mut childVals : Array α := #[]
+    for (_, childIdx) in children do
+      childVals := childVals ++ (← collectSubtreeAux childIdx)
+    -- Clear this node (keep structure but remove values)
+    modify (·.set! next {values := #[], star, children})
+    return values ++ starVals ++ childVals
+
+/-- Navigate to a key path and return all values in that subtree, then drop them. -/
+def extractKeyAux (next : TrieIndex) (rest : List Key) :
+    MatchM α (Array α) :=
+  if next = 0 then
+    pure #[]
+  else do
+    let (_, star, children) ← evalNode next
+    match rest with
+    | [] =>
+      -- At the target node: collect ALL values from entire subtree
+      collectSubtreeAux next
+    | k :: r => do
+      let next := if k == .star then star else children.getD k 0
+      extractKeyAux next r
+
+/-- Extract and drop entries at a specific key, returning the dropped entries. -/
+def extractKey (t : LazyDiscrTree α) (path : List LazyDiscrTree.Key) :
+    MetaM (Array α × LazyDiscrTree α) :=
+  match path with
+  | [] => pure (#[], t)
+  | rootKey :: rest => do
+    let idx := t.roots.getD rootKey 0
+    runMatch t (extractKeyAux idx rest)
+
+/-- Extract entries at the given keys and also drop them from the tree. -/
+def extractKeys (t : LazyDiscrTree α) (keys : List (List LazyDiscrTree.Key)) :
+    MetaM (Array α × LazyDiscrTree α) := do
+  let mut allExtracted : Array α := #[]
+  let mut tree := t
+  for path in keys do
+    let (extracted, newTree) ← extractKey tree path
+    allExtracted := allExtracted ++ extracted
+    tree := newTree
+  return (allExtracted, tree)
+
 def logImportFailure [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] (f : ImportFailure) : m Unit :=
   logError m!"Processing failure with {f.const} in {f.module}:\n  {f.exception.toMessageData}"
 
@@ -990,6 +1051,7 @@ def findImportMatches
       (addEntry : Name → ConstantInfo → MetaM (Array (InitEntry α)))
       (droppedKeys : List (List LazyDiscrTree.Key) := [])
       (constantsPerTask : Nat := 1000)
+      (droppedEntriesRef : Option (IO.Ref (Option (Array α))) := none)
       (ty : Expr) : MetaM (MatchResult α) := do
   let cctx ← (read : CoreM Core.Context)
   let ngen ← getNGen
@@ -1001,7 +1063,13 @@ def findImportMatches
     profileitM Exception  "lazy discriminator import initialization" (←getOptions) $ do
       let t ← createImportedDiscrTree (createTreeCtx cctx) cNGen (←getEnv) addEntry
                 (constantsPerTask := constantsPerTask)
-      dropKeys t droppedKeys
+      -- If a reference is provided, extract and store dropped entries
+      if let some droppedRef := droppedEntriesRef then
+        let (extracted, t) ← extractKeys t droppedKeys
+        droppedRef.set (some extracted)
+        pure t
+      else
+        dropKeys t droppedKeys
   let (importCandidates, importTree) ← importTree.getMatch ty
   ref.set (some importTree)
   pure importCandidates
@@ -1075,10 +1143,11 @@ def findMatchesExt
     (addEntry : Name → ConstantInfo → MetaM (Array (InitEntry α)))
     (droppedKeys : List (List LazyDiscrTree.Key) := [])
     (constantsPerTask : Nat := 1000)
+    (droppedEntriesRef : Option (IO.Ref (Option (Array α))) := none)
     (adjustResult : Nat → α → β)
     (ty : Expr) : MetaM (Array β) := do
   let moduleMatches ← findModuleMatches moduleTreeRef ty
-  let importMatches ← findImportMatches ext addEntry droppedKeys constantsPerTask ty
+  let importMatches ← findImportMatches ext addEntry droppedKeys constantsPerTask droppedEntriesRef ty
   return Array.mkEmpty (moduleMatches.size + importMatches.size)
           |> moduleMatches.appendResultsAux (f := adjustResult)
           |> importMatches.appendResultsAux (f := adjustResult)
@@ -1091,13 +1160,15 @@ def findMatchesExt
 * `addEntry` is the function for creating discriminator tree entries from constants.
 * `droppedKeys` contains keys we do not want to consider when searching for matches.
   It is used for dropping very general keys.
+* `droppedEntriesRef` optionally stores entries dropped from the tree for later use.
 -/
 def findMatches (ext : EnvExtension (IO.Ref (Option (LazyDiscrTree α))))
     (addEntry : Name → ConstantInfo → MetaM (Array (InitEntry α)))
     (droppedKeys : List (List LazyDiscrTree.Key) := [])
     (constantsPerTask : Nat := 1000)
+    (droppedEntriesRef : Option (IO.Ref (Option (Array α))) := none)
     (ty : Expr) : MetaM (Array α) := do
 
   let moduleTreeRef ← createModuleTreeRef addEntry droppedKeys
   let incPrio _ v := v
-  findMatchesExt moduleTreeRef ext addEntry droppedKeys constantsPerTask incPrio ty
+  findMatchesExt moduleTreeRef ext addEntry droppedKeys constantsPerTask droppedEntriesRef incPrio ty

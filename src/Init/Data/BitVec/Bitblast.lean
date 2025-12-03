@@ -3061,7 +3061,6 @@ theorem getLsbD_extractAndExtendPopulate_add  {x : BitVec w} (hk : k < w):
   simp [← extractLsb'_extractAndExtendPopulate_eq (w := w) (len := w) (i := pos) (x := x)]
   omega
 
-
 theorem getLsbD_extractAndExtendPopulate {x : BitVec w} (hw : 0 < w) (hk : k ≤ w * w):
     (x.extractAndExtendPopulate w).getLsbD k =
       let idx := k % w

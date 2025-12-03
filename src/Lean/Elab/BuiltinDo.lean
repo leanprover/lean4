@@ -133,23 +133,26 @@ def getDoReassignArrowVars (doReassignArrow : TSyntax ``doReassignArrow) : TermE
   | `(doReassignArrow| $decl:doPatDecl) => getDoPatDeclVars decl
   | _ => throwUnsupportedSyntax
 
-@[builtin_doElem_elab Lean.Parser.Term.doReturn] def elabDoReturn : DoElab := fun stx _dec => do
+@[builtin_doElem_elab Lean.Parser.Term.doReturn] def elabDoReturn : DoElab := fun stx dec => do
   let `(doReturn| return $[$e?]?) := stx | throwUnsupportedSyntax
   let returnCont ← getReturnCont
   let e ← match e? with
     | some e => Term.elabTermEnsuringType e returnCont.resultType
     | none   => mkPUnitUnit
+  dec.elabAsDeadCode -- emit dead code warnings
   mapLetDeclZeta returnCont.resultName returnCont.resultType e fun _ =>
     returnCont.k
 
-@[builtin_doElem_elab Lean.Parser.Term.doBreak] def elabDoBreak : DoElab := fun _stx _dec => do
+@[builtin_doElem_elab Lean.Parser.Term.doBreak] def elabDoBreak : DoElab := fun _stx dec => do
   let some breakCont := (← getBreakCont)
     | throwError "`break` must be nested inside a loop"
+  dec.elabAsDeadCode -- emit dead code warnings
   breakCont
 
-@[builtin_doElem_elab Lean.Parser.Term.doContinue] def elabDoContinue : DoElab := fun _stx _dec => do
+@[builtin_doElem_elab Lean.Parser.Term.doContinue] def elabDoContinue : DoElab := fun _stx dec => do
   let some continueCont := (← getContinueCont)
     | throwError "`continue` must be nested inside a loop"
+  dec.elabAsDeadCode -- emit dead code warnings
   continueCont
 
 @[builtin_doElem_elab Lean.Parser.Term.doExpr] def elabDoExpr : DoElab := fun stx dec => do
@@ -618,11 +621,11 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
     let body ← bindMutVarsFromTuple loopMutVarNames loopS.fvarId! do
       elimProxyDefs body
 
-    let hadBreak := (← breakKVar.jumpCount) > 0
+    let needBreakJoin := (← breakKVar.jumpCount) > 0 && dec.kind matches .nonDuplicable
     let kcons ← mkLambdaFVars (xh ++ #[kcontinue, loopS]) body
-    let knil := if hadBreak /- && dec.kind matches .nonDuplicable -/ then kbreak else breakRhs
+    let knil := if needBreakJoin then kbreak else breakRhs
     let app := mkApp3 app preS kcons knil
-    if hadBreak then
+    if needBreakJoin then
       mkLetFVars (generalizeNondepLet := false) #[kbreak] app
     else
       return (← elimMVarDeps #[kbreak] app).replaceFVar kbreak breakRhs

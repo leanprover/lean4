@@ -180,14 +180,13 @@ def LetOrReassign.checkMutVars (letOrReassign : LetOrReassign) (vars : Array Ide
   | .reassign => throwUnlessMutVarsDeclared vars
   | _         => checkMutVarsForShadowing vars
 
+def elabDoLetOrReassignWith (hint : MessageData) (letOrReassign : LetOrReassign) (vars : Array Ident)
     (dec : DoElemCont) (elabBody : (body : Term) → TermElabM Expr) : DoElabM Expr := do
   -- letOrReassign.checkMutVars vars -- Should be done by the caller!
-  let ensure ← letOrReassign.ensureReassignsPreserveType vars
   controlAtTermElabM fun runInBase => do
     let elabCont : TermElabM Expr := do
-      ensure
       runInBase <| declareMutVars? letOrReassign.getLetMutTk? vars dec.continueWithUnit
-    Term.elabToSyntax (fun _ty? => elabCont) fun body => elabBody body
+    Term.elabToSyntax (hint? := hint) (fun _ty? => elabCont) fun body => elabBody body
 
 def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl)
     (dec : DoElemCont) : DoElabM Expr := do
@@ -219,7 +218,7 @@ def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDec
       | _ => throwError m!"Impossible case in elabDoLetOrReassign. This is an elaborator bug.\n{decl}"
     else
       pure decl
-  elabDoLetOrReassignWith letOrReassign vars dec fun body => do
+  elabDoLetOrReassignWith m!"let body of {vars}" letOrReassign vars dec fun body => do
     Term.elabLetDecl (← `(let $decl:letDecl; $body)) mγ
 
 def elabDoLetOrReassignElse (letOrReassign : LetOrReassign) (pattern rhs : Term)
@@ -239,7 +238,7 @@ def elabDoLetOrReassignElse (letOrReassign : LetOrReassign) (pattern rhs : Term)
       `(($pattern : $patType))
     else
       pure pattern
-  elabDoLetOrReassignWith letOrReassign vars dec fun body => do
+  elabDoLetOrReassignWith m!"let body of {pattern}" letOrReassign vars dec fun body => do
     Term.elabTerm (← `(match $rhs:term with | $pattern => $body | _ => $otherwise)) mγ (catchExPostpone := false)
 
 def elabDoIdDecl (x : Ident) (xType? : Option Term) (rhs : TSyntax `doElem) (k : DoElabM Expr)
@@ -294,7 +293,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   let `(doLetRec| let rec $decls:letRecDecls) := stx | throwUnsupportedSyntax
   let vars ← getLetRecDeclsVars decls
   let mγ ← mkMonadicType (← read).doBlockResultType
-  elabDoLetOrReassignWith (.let none) vars dec fun body => do
+  elabDoLetOrReassignWith m!"let rec body of group {vars}" (.let none) vars dec fun body => do
     Term.elabTerm (← `(let rec $decls:letRecDecls; $body)) mγ (catchExPostpone := false)
 
 @[builtin_doElem_elab Lean.Parser.Term.doReassign] def elabDoReassign : DoElab := fun stx dec => do
@@ -328,14 +327,14 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   let mγ ← mkMonadicType (← read).doBlockResultType
   dec.withDuplicableCont fun dec => do
   controlAtTermElabM fun runInBase => do
-  let elabToTerm termElab := Term.elabToSyntax (fun _ => termElab)
-  let doElemToTerm doElem := elabToTerm (runInBase <| elabDoSeq doElem dec)
+  let elabToTerm hint termElab := Term.elabToSyntax (hint? := hint) (fun _ => termElab)
+  let doElemToTerm doElem := elabToTerm m!"if branch {doElem}" (runInBase <| elabDoSeq doElem dec)
   let condsThens := #[(cond, thenSeq)] ++ Array.zip conds thenSeqs
   let rec loop (i : Nat) : TermElabM Expr := do
     if h : i < condsThens.size then
       let (cond, thenSeq) := condsThens[i]
       doElemToTerm thenSeq fun then_ => do
-      elabToTerm (loop (i + 1)) fun else_ => do
+      elabToTerm m!"else branch of {cond}" (loop (i + 1)) fun else_ => do
       match cond with
       | `(doIfCond|$cond) =>
         try
@@ -378,7 +377,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
         | `(matchAltExpr| | $patterns,* => $seq) =>
           let vars ← getPatternsVarsEx patterns
           runInBase <| checkMutVarsForShadowing vars
-          Term.elabToSyntax (fun _ => runInBase <| elabDoSeq ⟨seq⟩ dec) fun rhs => do
+          Term.elabToSyntax (hint? := m!"match alternative {patterns.getElems}") (fun _ => runInBase <| elabDoSeq ⟨seq⟩ dec) fun rhs => do
             elabMatch (i + 1) (alts.set i (← `(matchAltExpr| | $patterns,* => $rhs)))
         | _ => throwUnsupportedSyntax
       else
@@ -403,7 +402,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
         | `(matchExprAltExpr| | $pattern => $seq) =>
           let vars ← getExprPatternVarsEx pattern
           runInBase <| checkMutVarsForShadowing vars
-          Term.elabToSyntax (fun _ => runInBase <| elabDoSeq ⟨seq⟩ dec) fun rhs => do
+          Term.elabToSyntax (hint? := m!"match_expr alternative {pattern}") (fun _ => runInBase <| elabDoSeq ⟨seq⟩ dec) fun rhs => do
             elabMatch (i + 1) (altsArr.set i (← `(matchExprAltExpr| | $pattern => $rhs)))
         | _ => throwUnsupportedSyntax
       else
@@ -420,7 +419,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
   controlAtTermElabM fun runInBase => do
     let vars ← getExprPatternVarsEx pattern
     runInBase <| checkMutVarsForShadowing vars
-    Term.elabToSyntax (fun _ => runInBase <| dec.continueWithUnit) fun body => do
+    Term.elabToSyntax (hint? := m!"let_expr body of {pattern}") (fun _ => runInBase <| dec.continueWithUnit) fun body => do
       Term.elabTerm (← `(match_expr $rhs with | $pattern => $body | _ => $otherwise)) mγ (catchExPostpone := false)
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetMetaExpr] def elabDoLetMetaExpr : DoElab := fun stx dec => do
@@ -551,7 +550,8 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
     let breakKVar ← mkFreshContVar γ mutVarNames
 
     -- Elaborate the loop body, which must have result type `PUnit`.
-    let body ← enterLoopBody γ (← getReturnCont) breakKVar.mkJump continueKVar.mkJump do
+    -- The `withSynthesizeForDo` is so that we see all jump sites before continuing elaboration.
+    let body ← withSynthesizeForDo <| enterLoopBody γ (← getReturnCont) breakKVar.mkJump continueKVar.mkJump do
       elabDoSeq body { dec with k := continueKVar.mkJump, kind := .duplicable }
 
     -- Compute the set of mut vars that were reassigned on the path to a back jump (`continue`).

@@ -515,7 +515,7 @@ def DoElemCont.continueWithUnit (dec : DoElemCont) : DoElabM Expr := do
   discard <| Term.ensureHasType dec.resultType unit
   mapLetDeclZeta dec.resultName (← mkPUnit) unit (nondep := true) (kind := .implDetail) (fun _ => dec.k)
 
-private partial def withSynthesizeForDo (k : DoElabM α) : DoElabM α :=
+partial def withSynthesizeForDo (k : DoElabM α) : DoElabM α :=
   controlAtTermElabM fun runInBase => do
     let pendingMVarsSaved := (← get).pendingMVars
     modify fun s => { s with pendingMVars := [] }
@@ -526,6 +526,10 @@ private partial def withSynthesizeForDo (k : DoElabM α) : DoElabM α :=
     finally
       modify fun s => { s with pendingMVars := s.pendingMVars ++ pendingMVarsSaved }
 where
+  isPostponedSyntheticMVar (mvarId : MVarId) : TermElabM Bool := do
+    let some decl ← Term.getSyntheticMVarDecl? mvarId | return false
+    return decl.kind matches .postponed ..
+
   getSomeSyntheticMVarsRef : TermElabM Syntax := do
     for mvarId in (← get).pendingMVars do
       if let some decl ← Term.getSyntheticMVarDecl? mvarId then
@@ -535,7 +539,7 @@ where
   synth : TermElabM Unit := do
     let rec loop (_ : Unit) : TermElabM Unit := do
       withRef (← getSomeSyntheticMVarsRef) <| withIncRecDepth do
-        unless (← get).pendingMVars.isEmpty do
+        if ← (← get).pendingMVars.anyM isPostponedSyntheticMVar then
           if ← Term.synthesizeSyntheticMVarsStep (postponeOnError := true) (runTactics := false) then
             loop ()
           Term.tryPostpone
@@ -569,8 +573,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
   let mutVarNames := mutVars.map (·.getId)
   let contVarId ← mkFreshContVar γ (mutVarNames.push nondupDec.resultName)
   let duplicableDec := { nondupDec with k := contVarId.mkJump, kind := .duplicable }
---  let e ← withSynthesizeForDo (caller duplicableDec)
-  let e ← caller duplicableDec
+  let e ← withSynthesizeForDo (caller duplicableDec)
 
   -- Now determine whether we need to realize the join point.
   let jumpCount ← contVarId.jumpCount

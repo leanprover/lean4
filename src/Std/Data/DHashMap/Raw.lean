@@ -527,7 +527,7 @@ section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
 
-/-- Partition a hash map into two hash map based on a predicate. -/
+/-- Partitions a hash map into two hash map based on a predicate. -/
 @[inline] def partition [BEq α] [Hashable α] (f : (a : α) → β a → Bool)
     (m : Raw α β) : Raw α β × Raw α β :=
   if h : 0 < m.buckets.size then

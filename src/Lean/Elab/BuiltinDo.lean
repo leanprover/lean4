@@ -219,7 +219,9 @@ def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDec
     else
       pure decl
   elabDoLetOrReassignWith m!"let body of {vars}" letOrReassign vars dec fun body => do
-    Term.elabLetDecl (← `(let $decl:letDecl; $body)) mγ
+    match letOrReassign with
+    | .have => Term.elabHaveDecl (← `(have $decl:letDecl; $body)) mγ
+    | _     => Term.elabLetDecl (← `(let $decl:letDecl; $body)) mγ
 
 def elabDoLetOrReassignElse (letOrReassign : LetOrReassign) (pattern rhs : Term)
     (otherwise : TSyntax ``doSeq) (dec : DoElemCont) : DoElabM Expr := do

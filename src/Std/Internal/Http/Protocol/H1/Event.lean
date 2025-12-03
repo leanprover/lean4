@@ -38,8 +38,7 @@ inductive Event (dir : Direction)
   | gotData (final : Bool) (data : ByteSlice)
 
   /--
-  Need more data is an event that arrives when the input ended and it requires more
-  data to continue
+  Event received when the input ends and more data is required to continue
   -/
   | needMoreData (size : Option Nat)
 

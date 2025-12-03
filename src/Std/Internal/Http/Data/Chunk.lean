@@ -57,7 +57,7 @@ def withExtension (chunk : Chunk) (key : String) (value : String) : Chunk :=
 
 /--
 Returns the total size of the chunk including data and formatted extensions. Extensions are formatted
-as: ;name=value;name=value Plus 2 bytes for \r\n at the end.
+as: ;name=value;name=value. Plus 2 bytes for \r\n at the end.
 -/
 def size (chunk : Chunk) : Nat :=
   let extensionsSize := chunk.extensions.foldl (fun acc (name, value) => acc + name.length + (value.map (fun v => v.length + 1) |>.getD 0) + 1) 0

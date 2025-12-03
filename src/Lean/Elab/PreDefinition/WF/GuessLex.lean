@@ -17,6 +17,7 @@ public import Lean.Elab.PreDefinition.TerminationMeasure
 public import Lean.Elab.PreDefinition.FixedParams
 public import Lean.Elab.PreDefinition.WF.Basic
 public import Lean.Data.Array
+import Lean.Meta.Tactic.Refl
 
 public section
 

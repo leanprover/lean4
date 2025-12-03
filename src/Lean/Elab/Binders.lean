@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Elab.Match
 meta import Lean.Parser.Tactic
-import Lean.Linter.Basic
 
 public section
 

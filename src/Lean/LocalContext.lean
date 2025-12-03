@@ -506,7 +506,7 @@ def getAt? (lctx : LocalContext) (i : Nat) : Option LocalDecl :=
     | none      => pure none
     | some decl => f decl
 
-instance : ForIn m LocalContext LocalDecl where
+instance [Monad m] : ForIn m LocalContext LocalDecl where
   forIn lctx init f := lctx.decls.forIn init fun d? b => match d? with
     | none   => return ForInStep.yield b
     | some d => f d b

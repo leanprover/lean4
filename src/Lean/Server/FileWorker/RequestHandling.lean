@@ -266,12 +266,12 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
 
   let highlightRefs? (snaps : Array Snapshot) : IO (Option (Array DocumentHighlight)) := do
     let trees := snaps.map (·.infoTree)
-    let refs : Lsp.ModuleRefs ← findModuleRefs text trees |>.toLspModuleRefs
+    let (refs, _) ← findModuleRefs text trees |>.toLspModuleRefs
     let mut ranges := #[]
     for ident in refs.findAt p.position (includeStop := true) do
       if let some info := refs.get? ident then
-        if let some ⟨definitionRange, _⟩ := info.definition? then
-          ranges := ranges.push definitionRange
+        if let some loc := info.definition? then
+          ranges := ranges.push loc.range
         ranges := ranges.append <| info.usages.map (·.range)
     if ranges.isEmpty then
       return none

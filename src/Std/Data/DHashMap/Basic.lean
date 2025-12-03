@@ -235,10 +235,10 @@ end
     (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (b : DHashMap α β) : m δ :=
   b.1.forIn f init
 
-instance [BEq α] [Hashable α] : ForM m (DHashMap α β) ((a : α) × β a) where
+instance [Monad m] [BEq α] [Hashable α] : ForM m (DHashMap α β) ((a : α) × β a) where
   forM m f := m.forM (fun a b => f ⟨a, b⟩)
 
-instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) where
+instance [Monad m] [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
 namespace Const
@@ -346,8 +346,19 @@ This function always iterates through the smaller map, so the expected runtime i
   inner := Raw₀.inter ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩
   wf := Std.DHashMap.Raw.WF.inter₀ m₁.2 m₂.2
 
+/--
+Computes the difference of the given hash maps.
+
+This function always iterates through the smaller map, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def diff [BEq α] [Hashable α] (m₁ m₂ : DHashMap α β) : DHashMap α β where
+  inner := Raw₀.diff ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩
+  wf := Std.DHashMap.Raw.WF.diff₀ m₁.2 m₂.2
+
 instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
 instance [BEq α] [Hashable α] : Inter (DHashMap α β) := ⟨inter⟩
+instance [BEq α] [Hashable α] : SDiff (DHashMap α β) := ⟨diff⟩
 
 section Unverified
 
@@ -382,8 +393,16 @@ end Unverified
     DHashMap α β :=
   insertMany ∅ l
 
+@[inline, inherit_doc Raw.ofArray] def ofArray [BEq α] [Hashable α] (l : Array ((a : α) × β a)) :
+    DHashMap α β :=
+  insertMany ∅ l
+
 @[inline, inherit_doc Raw.Const.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
     (l : List (α × β)) : DHashMap α (fun _ => β) :=
+  Const.insertMany ∅ l
+
+@[inline, inherit_doc Raw.Const.ofArray] def Const.ofArray {β : Type v} [BEq α] [Hashable α]
+    (l : Array (α × β)) : DHashMap α (fun _ => β) :=
   Const.insertMany ∅ l
 
 @[inline, inherit_doc Raw.Const.unitOfList] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :

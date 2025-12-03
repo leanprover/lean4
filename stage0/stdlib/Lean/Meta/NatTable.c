@@ -396,19 +396,19 @@ x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Nat", 3, 3);
-return x_1;
-}
-}
 static lean_object* _init_l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__3() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("ble", 3, 3);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
@@ -507,7 +507,7 @@ lean_dec(x_4);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_38 = lean_array_fget_borrowed(x_3, x_5);
-lean_inc_ref(x_38);
+lean_inc(x_38);
 x_39 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_39, 0, x_38);
 return x_39;
@@ -520,17 +520,6 @@ _start:
 lean_object* x_14; 
 x_14 = l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
 return x_14;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; 
-x_8 = l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec_ref(x_3);
-return x_8;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
@@ -546,6 +535,17 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_3);
 return x_14;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec_ref(x_3);
+return x_8;
 }
 }
 static lean_object* _init_l_panic___at___00mkNatLookupTable_spec__0___closed__0() {
@@ -752,10 +752,10 @@ l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__0 = _in
 lean_mark_persistent(l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__0);
 l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__1 = _init_l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__1();
 lean_mark_persistent(l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__1);
-l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__2 = _init_l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__2();
-lean_mark_persistent(l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__2);
 l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__3 = _init_l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__3();
 lean_mark_persistent(l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__3);
+l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__2 = _init_l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__2();
+lean_mark_persistent(l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__2);
 l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__4 = _init_l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__4();
 lean_mark_persistent(l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__4);
 l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__5 = _init_l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__5();

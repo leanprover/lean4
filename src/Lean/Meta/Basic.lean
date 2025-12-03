@@ -1834,6 +1834,9 @@ private def withNewBinderInfosImp (bs : Array (FVarId × BinderInfo)) (k : MetaM
 def withNewBinderInfos (bs : Array (FVarId × BinderInfo)) (k : n α) : n α :=
   mapMetaM (fun k => withNewBinderInfosImp bs k) k
 
+def withImplicitBinderInfos (bs : Array Expr) (k : n α) : n α :=
+  withNewBinderInfos (bs.map (·.fvarId!, BinderInfo.implicit)) k
+
 /--
  Execute `k` using a local context where any `x` in `xs` that is tagged as
  instance implicit is treated as a regular implicit. -/
@@ -2534,6 +2537,9 @@ generated diagnostics is deterministic). Note that, as `realize` is run using th
 declaration time of `forConst`, trace options must be set prior to that (or, for imported constants,
 on the cmdline) in order to be active. If `realize` throws an exception, it is rethrown at all
 callers.
+
+CAVEAT: `realize` MUST NOT reference the current environment (the result of `getEnv`) in its result
+to avoid creating an un-collectable promise cycle.
 -/
 def realizeValue [BEq α] [Hashable α] [TypeName α] [TypeName β] (forConst : Name) (key : α) (realize : MetaM β) :
     MetaM β := do

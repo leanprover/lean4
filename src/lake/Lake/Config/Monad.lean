@@ -83,6 +83,10 @@ public def findPackage? (name : Name) : m (Option (NPackage name)) :=
 public def findModule? (name : Name) : m (Option Module) :=
   (·.findModule? name) <$> getWorkspace
 
+@[inherit_doc Workspace.findModules, inline]
+public def findModules (name : Name) : m (Array Module) :=
+  (·.findModules name) <$> getWorkspace
+
 @[inherit_doc Workspace.findModuleBySrc?, inline]
 public def findModuleBySrc? (path : FilePath) : m (Option Module) :=
   (·.findModuleBySrc? path) <$> getWorkspace

@@ -10,6 +10,7 @@ public import Lean.Meta.Tactic.Try
 public import Lean.Elab.Tactic.SimpTrace
 public import Lean.Elab.Tactic.LibrarySearch
 public import Lean.Elab.Tactic.Grind.Main
+public import Lean.Elab.Parallel
 meta import Lean.Elab.Command
 public section
 namespace Lean.Elab.Tactic
@@ -60,7 +61,7 @@ def evalSuggestExact : TacticM (TSyntax `tactic) := do
   let mvarId :: mvarIds ← getGoals
     | throwError "no goals"
   mvarId.withContext do
-    let tactic := fun exfalso => LibrarySearch.solveByElim [] (exfalso := exfalso) (maxDepth := 6)
+    let tactic := fun goals => LibrarySearch.solveByElim [] (exfalso := false) goals (maxDepth := 6)
     let allowFailure := fun _ => return false
     let .none ← LibrarySearch.librarySearch mvarId tactic allowFailure
       | throwError "`exact?` failed"
@@ -697,6 +698,39 @@ where
       else
         throwError "`attempt_all` failed"
 
+/-- `evalSuggest` for `attempt_all_par` tactic (parallel version). -/
+private partial def evalSuggestAttemptAllPar (tacs : Array (TSyntax ``Parser.Tactic.tacticSeq)) : TryTacticM (TSyntax `tactic) := do
+  unless (← read).terminal do
+    throwError "invalid occurrence of `attempt_all_par` in non-terminal position for `try?` script{indentD (← read).root}"
+
+  let ctx ← read
+
+  -- Create jobs that each try one tactic and return the suggestion
+  let jobs : List (TacticM (TSyntax `tactic)) := tacs.toList.map fun tacSeq =>
+    withOriginalHeartbeats (evalSuggestTacticSeq tacSeq) ctx
+
+  -- Run all jobs in parallel - par returns (result, SavedState) for each
+  let results ← TacticM.par jobs
+
+  -- Collect successful results (maintaining order)
+  let mut acc : Array (TSyntax `tactic) := #[]
+  let mut firstSaved? : Option SavedState := none
+  for result in results do
+    match result with
+    | .ok (tac, s) =>
+      trace[try.debug] "`attempt_all_par` argument succeeded{indentD tac}"
+      acc := appendSuggestion acc tac
+      if firstSaved?.isNone then
+        firstSaved? := some s
+    | .error _ => pure ()
+
+  -- Restore first successful state and return suggestions
+  if let some saved := firstSaved? then
+    saved.restore
+    mkTrySuggestions acc
+  else
+    throwError "`attempt_all_par` failed"
+
 private partial def evalSuggestDefault (tac : TSyntax `tactic) : TryTacticM (TSyntax `tactic) := do
   let kind := tac.raw.getKind
   match (← getEvalFns kind) with
@@ -743,6 +777,7 @@ private partial def evalSuggestImpl : TryTactic := fun tac => do
   | `(tactic| ($tac:tacticSeq)) => evalSuggestTacticSeq tac
   | `(tactic| try $tac:tacticSeq) => evalSuggestTry tac
   | `(tactic| attempt_all $[| $tacs]*) => evalSuggestAttemptAll tacs
+  | `(tactic| attempt_all_par $[| $tacs]*) => evalSuggestAttemptAllPar tacs
   | _ =>
     let k := tac.raw.getKind
     if k == ``Parser.Tactic.seq1 then
@@ -851,7 +886,7 @@ private def mkAtomicWithSuggestionsStx : CoreM (TSyntax `tactic) :=
 
 /-- `simple` tactics -/
 private def mkSimpleTacStx : CoreM (TSyntax `tactic) :=
-  `(tactic| attempt_all | rfl | assumption)
+  `(tactic| first | (attempt_all | rfl | assumption) | solve_by_elim)
 
 /-! Function induction generators -/
 
@@ -910,7 +945,7 @@ private unsafe def mkTryEvalSuggestStxUnsafe (goal : MVarId) (info : Try.Info) :
   let simp ← mkSimpStx
   let grind ← mkGrindStx info
 
-  let atomic ← `(tactic| attempt_all | $simple:tactic | $simp:tactic | $grind:tactic | simp_all)
+  let atomic ← `(tactic| attempt_all_par | $simple:tactic | $simp:tactic | $grind:tactic | simp_all)
   let atomicSuggestions ← mkAtomicWithSuggestionsStx
   let funInds ← mkAllFunIndStx info atomic
   let inds ← mkAllIndStx info atomic
@@ -934,7 +969,7 @@ private unsafe def mkTryEvalSuggestStxUnsafe (goal : MVarId) (info : Try.Info) :
   if userTactics.isEmpty then
     `(tactic| first | $atomic:tactic | $atomicSuggestions:tactic | $funInds:tactic | $inds:tactic | $extra:tactic)
   else
-    let userAttemptAll ← `(tactic| attempt_all $[| $userTactics:tactic]*)
+    let userAttemptAll ← `(tactic| attempt_all_par $[| $userTactics:tactic]*)
     `(tactic| first | $atomic:tactic | $atomicSuggestions:tactic | $funInds:tactic | $inds:tactic | $extra:tactic | $userAttemptAll:tactic)
 
 @[implemented_by mkTryEvalSuggestStxUnsafe]

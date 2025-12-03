@@ -461,6 +461,16 @@ def insertMany {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [BEq α] [Hashable
   return r
 
 /-- Internal implementation detail of the hash map -/
+def eraseManyEntries {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [BEq α] [Hashable α]
+    (m : Raw₀ α β) (l : ρ) : { m' : Raw₀ α β // ∀ (P : Raw₀ α β → Prop),
+      (∀ {m'' a}, P m'' → P (m''.erase a)) → P m → P m' } := Id.run do
+  let mut r : { m' : Raw₀ α β // ∀ (P : Raw₀ α β → Prop),
+      (∀ {m'' a}, P m'' → P (m''.erase a)) → P m → P m' } := ⟨m, fun _ _ => id⟩
+  for ⟨a, _⟩ in l do
+    r := ⟨r.1.erase a, fun _ h hm => h (r.2 _ h hm)⟩
+  return r
+
+/-- Internal implementation detail of the hash map -/
 @[inline] def insertManyIfNew {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [BEq α] [Hashable α]
     (m : Raw₀ α β) (l : ρ) : { m' : Raw₀ α β // ∀ (P : Raw₀ α β → Prop),
       (∀ {m'' a b}, P m'' → P (m''.insertIfNew a b)) → P m → P m' } := Id.run do
@@ -488,6 +498,11 @@ def interSmaller [BEq α] [Hashable α] (m₁ : Raw₀ α β) (m₂ : Raw α β)
 /-- Internal implementation detail of the hash map -/
 def inter [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
   if m₁.1.size ≤ m₂.1.size then m₁.filter fun k _ => m₂.contains k else interSmaller m₁ m₂
+
+/-- Internal implementation detail of the hash map -/
+@[inline] def diff [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
+  if m₁.1.size ≤ m₂.1.size then m₁.filter (fun k _ => !m₂.contains k) else (eraseManyEntries m₁ m₂.1).1
+
 
 section
 

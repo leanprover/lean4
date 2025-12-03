@@ -11,6 +11,7 @@ public import Lake.Toml.Data.Dict
 public import Lake.Toml.Data.DateTime
 import Lake.Util.String
 import Init.Data.String.TakeDrop
+import Init.Data.String.Search
 
 /-!
 # TOML Value

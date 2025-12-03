@@ -47,6 +47,15 @@ x_4 = l_Std_Sat_AIG_instDecidableEqDecl_decEq___redArg(x_1, x_2, x_3);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkAtomCached___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Std_Sat_AIG_mkAtomCached___redArg___lam__0(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkAtomCached___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -179,13 +188,15 @@ x_6 = l_Std_Sat_AIG_mkAtomCached___redArg(x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkAtomCached___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkConstCached(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5) {
 _start:
 {
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Std_Sat_AIG_mkAtomCached___redArg___lam__0(x_1, x_2, x_3);
-x_5 = lean_box(x_4);
-return x_5;
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(x_7, 0, x_6);
+lean_ctor_set_uint8(x_7, sizeof(void*)*1, x_5);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkConstCached___redArg(uint8_t x_1) {
@@ -199,26 +210,6 @@ lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkConstCached(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5) {
-_start:
-{
-lean_object* x_6; lean_object* x_7; 
-x_6 = lean_unsigned_to_nat(0u);
-x_7 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_7, 0, x_6);
-lean_ctor_set_uint8(x_7, sizeof(void*)*1, x_5);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkConstCached___redArg___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = lean_unbox(x_1);
-x_3 = l_Std_Sat_AIG_mkConstCached___redArg(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkConstCached___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -229,6 +220,15 @@ lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkConstCached___redArg___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = lean_unbox(x_1);
+x_3 = l_Std_Sat_AIG_mkConstCached___redArg(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Std_Sat_AIG_mkGateCached_go___redArg___closed__0() {

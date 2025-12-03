@@ -46,6 +46,7 @@ public import Lean.Elab.Notation
 public import Lean.Elab.Mixfix
 public import Lean.Elab.MacroRules
 public import Lean.Elab.BuiltinCommand
+public import Lean.Elab.Command.WithWeakNamespace
 public import Lean.Elab.BuiltinEvalCommand
 public import Lean.Elab.RecAppSyntax
 public import Lean.Elab.Eval
@@ -62,3 +63,4 @@ public import Lean.Elab.InfoTrees
 public import Lean.Elab.ErrorExplanation
 public import Lean.Elab.DocString
 public import Lean.Elab.DocString.Builtin
+public import Lean.Elab.Parallel

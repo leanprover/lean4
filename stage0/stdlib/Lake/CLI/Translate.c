@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__10;
 static lean_object* l_Lake_Package_mkConfigString___closed__27;
@@ -88,7 +89,6 @@ static lean_object* l_Lake_Package_mkConfigString___closed__4;
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
@@ -218,20 +218,20 @@ x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__priva
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_0__Lake_descopeTSyntax___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Lake_CLI_Translate_0__Lake_descopeSyntax(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_0__Lake_descopeTSyntax(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
 x_3 = l___private_Lake_CLI_Translate_0__Lake_descopeSyntax(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_0__Lake_descopeTSyntax___redArg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l___private_Lake_CLI_Translate_0__Lake_descopeSyntax(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_0__Lake_descopeTSyntax___boxed(lean_object* x_1, lean_object* x_2) {
@@ -692,7 +692,7 @@ x_37 = lean_st_ref_get(x_36);
 x_38 = lean_st_ref_get(x_35);
 x_39 = lean_ctor_get(x_38, 0);
 lean_inc_ref(x_39);
-lean_dec_ref(x_38);
+lean_dec(x_38);
 x_40 = l_Lake_Package_mkLeanConfig(x_1);
 x_41 = l___private_Lake_CLI_Translate_0__Lake_descopeSyntax(x_40);
 x_42 = l_Lake_Package_mkConfigString___closed__24;
@@ -755,7 +755,7 @@ lean_inc(x_55);
 lean_dec_ref(x_54);
 x_56 = lean_st_ref_get(x_35);
 lean_dec(x_35);
-lean_dec_ref(x_56);
+lean_dec(x_56);
 x_57 = l_Lake_Package_mkConfigString___closed__29;
 x_58 = l_Std_Format_pretty(x_55, x_57, x_23, x_23);
 x_59 = lean_string_utf8_byte_size(x_58);

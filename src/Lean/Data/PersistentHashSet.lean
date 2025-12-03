@@ -61,7 +61,7 @@ protected def forIn {_ : BEq α} {_ : Hashable α} [Monad m]
     (s : PersistentHashSet α) (init : σ) (f : α → σ → m (ForInStep σ)) : m σ := do
   PersistentHashMap.forIn s.set init fun p s => f p.1 s
 
-instance {_ : BEq α} {_ : Hashable α} : ForIn m (PersistentHashSet α) α where
+instance {_ : BEq α} {_ : Hashable α} [Monad m] : ForIn m (PersistentHashSet α) α where
   forIn := PersistentHashSet.forIn
 
 end PersistentHashSet

@@ -206,10 +206,10 @@ order.
     (f : α → β → m (ForInStep β)) (init : β) (b : HashSet α) : m β :=
   b.inner.forIn (fun a _ acc => f a acc) init
 
-instance [BEq α] [Hashable α] {m : Type v → Type w} : ForM m (HashSet α) α where
+instance [BEq α] [Hashable α] {m : Type v → Type w} [Monad m] : ForM m (HashSet α) α where
   forM m f := m.forM f
 
-instance [BEq α] [Hashable α] {m : Type v → Type w} : ForIn m (HashSet α) α where
+instance [BEq α] [Hashable α] {m : Type v → Type w} [Monad m] : ForIn m (HashSet α) α where
   forIn m init f := m.forIn f init
 
 /-- Removes all elements from the hash set for which the given function returns `false`. -/
@@ -260,6 +260,16 @@ instance [BEq α] [Hashable α] : Inter (HashSet α) := ⟨inter⟩
 @[inline, inherit_doc HashMap.partition] def partition (f : α → Bool) (m : HashSet α) : HashSet α × HashSet α :=
   let ⟨l, r⟩ := m.inner.partition fun a _ => f a
   ⟨⟨l⟩, ⟨r⟩⟩
+/--
+Computes the difference of the given hash sets.
+
+This function always iterates through the smaller set, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def diff [BEq α] [Hashable α] (m₁ m₂ : HashSet α) : HashSet α :=
+  ⟨HashMap.diff m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : SDiff (HashSet α) := ⟨diff⟩
 
 section Unverified
 

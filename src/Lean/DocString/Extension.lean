@@ -66,7 +66,6 @@ deriving Inhabited
 register_builtin_option doc.verso : Bool := {
   defValue := false,
   descr := "whether to use Verso syntax in docstrings"
-  group := "doc"
 }
 
 private builtin_initialize builtinDocStrings : IO.Ref (NameMap String) ← IO.mkRef {}

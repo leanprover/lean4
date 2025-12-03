@@ -94,7 +94,7 @@ where
   prior to the next whitespace.
   -/
   upToWs (nonempty : Bool) : Parser String := fun it =>
-    let it' := (it.2.find? fun (c : Char) => c.isWhitespace).getD it.1.endValidPos
+    let it' := (it.2.find? fun (c : Char) => c.isWhitespace).getD it.1.endPos
     if nonempty && it' == it.2 then
       .error ⟨_, it'⟩ (.other "Expected a nonempty string")
     else

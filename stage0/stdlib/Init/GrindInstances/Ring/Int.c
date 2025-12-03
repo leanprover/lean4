@@ -140,6 +140,15 @@ x_1 = lean_alloc_closure((void*)(l_instOfNat), 1, 0);
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingInt___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Grind_instCommRingInt___lam__0(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
 static lean_object* _init_l_Lean_Grind_instCommRingInt() {
 _start:
 {
@@ -168,15 +177,6 @@ lean_ctor_set(x_12, 2, x_7);
 lean_ctor_set(x_12, 3, x_8);
 lean_ctor_set(x_12, 4, x_9);
 return x_12;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingInt___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Grind_instCommRingInt___lam__0(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 lean_object* initialize_Init_Grind_Ring_Basic(uint8_t builtin);

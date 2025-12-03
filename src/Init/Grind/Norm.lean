@@ -8,6 +8,7 @@ prelude
 public import Init.Data.Int.Linear
 public import Init.Grind.Ring.Field
 public import Init.Data.Rat.Lemmas
+public import Init.Grind.Ring.OfScientific
 public section
 
 namespace Lean.Grind
@@ -207,7 +208,9 @@ init_grind_norm
   Ring.intCast_mul
   Ring.intCast_pow
   Ring.intCast_sub
+  -- OfScientific
+  LawfulOfScientific.ofScientific_def
   -- Rationals
-  Rat.ofScientific_def_eq_if Rat.zpow_neg
+  Rat.zpow_neg
 
 end Lean.Grind

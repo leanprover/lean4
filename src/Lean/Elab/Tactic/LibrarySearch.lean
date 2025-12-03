@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Tactic.LibrarySearch
 public import Lean.Meta.Tactic.TryThis
 public import Lean.Elab.Tactic.ElabTerm
+public import Lean.Elab.Tactic.Config
 
 public section
 
@@ -17,23 +18,27 @@ namespace Lean.Elab.LibrarySearch
 open Lean Meta LibrarySearch
 open Elab Tactic Term TryThis
 
+declare_config_elab elabLibrarySearchConfig Parser.Tactic.LibrarySearchConfig
+
 /--
 Implementation of the `exact?` tactic.
 
 * `ref` contains the input syntax and is used for locations in error reporting.
+* `config` contains configuration options (e.g., `grind` for using grind as a discharger).
 * `required` contains an optional list of terms that should be used in closing the goal.
 * `requireClose` indicates if the goal must be closed.
   It is `true` for `exact?` and `false` for `apply?`.
 -/
-def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireClose : Bool) :
+def exact? (ref : Syntax) (config : Parser.Tactic.LibrarySearchConfig)
+    (required : Option (Array (TSyntax `term))) (requireClose : Bool) :
     TacticM Unit := do
   let mvar ← getMainGoal
   let initialState ← saveState
   let (_, goal) ← (← getMainGoal).intros
   goal.withContext do
     let required := (← (required.getD #[]).mapM getFVarId).toList.map .fvar
-    let tactic := fun exfalso =>
-      solveByElim required (exfalso := exfalso) (maxDepth := 6)
+    let tactic := fun goals =>
+      solveByElim required (exfalso := false) goals (maxDepth := 6) (grind := config.grind) (try? := config.try?)
     let allowFailure := fun g => do
       let g ← g.withContext (instantiateMVars (.mvar g))
       return required.all fun e => e.occurs g
@@ -56,16 +61,18 @@ def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireCl
 
 @[builtin_tactic Lean.Parser.Tactic.exact?]
 def evalExact : Tactic := fun stx => do
-  let `(tactic| exact? $[using $[$required],*]?) := stx
+  let `(tactic| exact? $cfg:optConfig $[using $[$required],*]?) := stx
         | throwUnsupportedSyntax
-  exact? (← getRef) required true
+  let config ← elabLibrarySearchConfig cfg
+  exact? (← getRef) config required true
 
 
 @[builtin_tactic Lean.Parser.Tactic.apply?]
 def evalApply : Tactic := fun stx => do
-  let `(tactic| apply? $[using $[$required],*]?) := stx
+  let `(tactic| apply? $cfg:optConfig $[using $[$required],*]?) := stx
         | throwUnsupportedSyntax
-  exact? (← getRef) required false
+  let config ← elabLibrarySearchConfig cfg
+  exact? (← getRef) config required false
 
 @[builtin_term_elab Lean.Parser.Syntax.exact?]
 def elabExact?Term : TermElab := fun stx expectedType? => do

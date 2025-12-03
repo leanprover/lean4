@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 static lean_object* l_Lean_doElemWhile___x3a__Do___00__closed__3;
+LEAN_EXPORT lean_object* l_Lean_instForInLoopUnitOfMonad___redArg(lean_object*);
 static lean_object* l_Lean_doElemRepeat____Until___00__closed__10;
 static lean_object* l_Lean_doElemWhile___x3a__Do___00__closed__10;
 static lean_object* l_Lean_doElemRepeat___00__closed__11;
@@ -39,14 +40,13 @@ static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemRepea
 static lean_object* l_Lean_doElemWhile___x3a__Do___00__closed__14;
 static lean_object* l_Lean_doElemRepeat___00__closed__0;
 lean_object* l_Array_mkArray0(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instForInLoopUnit(lean_object*);
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__13;
+LEAN_EXPORT lean_object* l_Lean_instForInLoopUnitOfMonad(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_doElemRepeat____Until__;
 static lean_object* l_Lean_doElemRepeat____Until___00__closed__9;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemWhile___x3a__Do____1___closed__6;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__14;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instForInLoopUnit___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_doElemRepeat___00__closed__8;
 static lean_object* l_Lean_doElemRepeat___00__closed__2;
 static lean_object* l_Lean_doElemWhile___x3a__Do___00__closed__18;
@@ -65,6 +65,7 @@ static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemRepea
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemWhile___x3a__Do____1___closed__7;
 static lean_object* l_Lean_doElemRepeat____Until___00__closed__4;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemWhile___x3a__Do____1___closed__5;
+LEAN_EXPORT lean_object* l_Lean_instForInLoopUnitOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_doElemWhile__Do___00__closed__2;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__17;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemWhile___x3a__Do____1___closed__3;
@@ -82,7 +83,6 @@ static lean_object* l_Lean_doElemRepeat____Until___00__closed__16;
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_doElemRepeat___00__closed__6;
-LEAN_EXPORT lean_object* l_Lean_Loop_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_toRawSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemWhile__Do____1(lean_object*, lean_object*, lean_object*);
@@ -150,27 +150,12 @@ static lean_object* l_Lean_doElemRepeat____Until___00__closed__14;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemWhile___x3a__Do____1___closed__0;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemWhile___x3a__Do____1___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Loop_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Loop_toCtorIdx(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
 x_2 = lean_unsigned_to_nat(0u);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Loop_noConfusion___redArg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Loop_noConfusion(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -180,13 +165,11 @@ lean_inc(x_5);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Loop_noConfusion___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Loop_noConfusion___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lean_Loop_noConfusion___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Loop_noConfusion___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -196,6 +179,15 @@ lean_object* x_6;
 x_6 = l_Lean_Loop_noConfusion(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Loop_noConfusion___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Loop_noConfusion___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -252,14 +244,6 @@ x_6 = l___private_Init_While_0__Lean_Loop_forIn_loop___redArg(x_3, x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Loop_forIn___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l___private_Init_While_0__Lean_Loop_forIn_loop___redArg(x_1, x_3, x_2);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -268,20 +252,37 @@ x_7 = l___private_Init_While_0__Lean_Loop_forIn_loop___redArg(x_3, x_6, x_5);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instForInLoopUnit___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lean_Loop_forIn___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Init_While_0__Lean_Loop_forIn_loop___redArg(x_1, x_3, x_2);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_instForInLoopUnitOfMonad___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l___private_Init_While_0__Lean_Loop_forIn_loop___redArg(x_2, x_5, x_4);
+x_6 = l___private_Init_While_0__Lean_Loop_forIn_loop___redArg(x_1, x_5, x_4);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instForInLoopUnit(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_instForInLoopUnitOfMonad___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_instForInLoopUnit___lam__0), 5, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_instForInLoopUnitOfMonad___redArg___lam__0), 5, 1);
+lean_closure_set(x_2, 0, x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_instForInLoopUnitOfMonad(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_instForInLoopUnitOfMonad___redArg(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_doElemRepeat___00__closed__0() {

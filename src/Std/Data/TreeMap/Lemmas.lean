@@ -1562,13 +1562,18 @@ theorem mem_of_mem_union_of_not_mem_left [TransCmp cmp]
   DTreeMap.mem_of_mem_union_of_not_mem_left
 
 /- Equiv -/
-theorem union_equiv_congr_left {t₃ : TreeMap α β cmp} [TransCmp cmp] (equiv : t₁.Equiv t₂) :
+theorem Equiv.union_left {t₃ : TreeMap α β cmp} [TransCmp cmp] (equiv : t₁.Equiv t₂) :
     (t₁ ∪ t₃).Equiv (t₂ ∪ t₃) :=
-  ⟨DTreeMap.union_equiv_congr_left equiv.1⟩
+  ⟨DTreeMap.Equiv.union_left equiv.1⟩
 
-theorem union_equiv_congr_right {t₃ : TreeMap α β cmp} [TransCmp cmp] (equiv : t₂.Equiv t₃) :
+theorem Equiv.union_right {t₃ : TreeMap α β cmp} [TransCmp cmp] (equiv : t₂.Equiv t₃) :
     (t₁ ∪ t₂).Equiv (t₁ ∪ t₃) :=
-  ⟨DTreeMap.union_equiv_congr_right equiv.1⟩
+  ⟨DTreeMap.Equiv.union_right equiv.1⟩
+
+theorem Equiv.union_congr {t₃ t₄ : TreeMap α β cmp} [TransCmp cmp]
+    (equiv₁ : t₁.Equiv t₃) (equiv₂ : t₂.Equiv t₄) :
+    (t₁ ∪ t₂).Equiv (t₃ ∪ t₄) :=
+  ⟨DTreeMap.Equiv.union_congr equiv₁.1 equiv₂.1⟩
 
 theorem union_insert_right_equiv_insert_union [TransCmp cmp] {p : (_ : α) × β} :
     (t₁ ∪ (t₂.insert p.fst p.snd)).Equiv ((t₁ ∪ t₂).insert p.fst p.snd) :=
@@ -1755,6 +1760,25 @@ theorem not_mem_inter_of_not_mem_right [TransCmp cmp] {k : α}
     k ∉ t₁ ∩ t₂ :=
   DTreeMap.not_mem_inter_of_not_mem_right not_mem
 
+/- Equiv -/
+theorem Equiv.inter_left {t₃ : TreeMap α β cmp} [TransCmp cmp]
+    (equiv : t₁ ~m t₂) :
+    (t₁ ∩ t₃).Equiv (t₂ ∩ t₃) := by
+  constructor
+  apply DTreeMap.Equiv.inter_left equiv.1
+
+theorem Equiv.inter_right {t₃ : TreeMap α β cmp} [TransCmp cmp]
+    (equiv : t₂ ~m t₃) :
+    (t₁ ∩ t₂).Equiv (t₁ ∩ t₃) := by
+  constructor
+  apply DTreeMap.Equiv.inter_right equiv.1
+
+theorem Equiv.inter_congr {t₃ t₄ : TreeMap α β cmp} [TransCmp cmp]
+    (equiv₁ : t₁ ~m t₃) (equiv₂ : t₂ ~m t₄) :
+    (t₁ ∩ t₂).Equiv (t₃ ∩ t₄) := by
+  constructor
+  apply DTreeMap.Equiv.inter_congr equiv₁.1 equiv₂.1
+
 /- get? -/
 theorem get?_inter [TransCmp cmp] {k : α} :
     (t₁ ∩ t₂).get? k =
@@ -1936,6 +1960,221 @@ theorem isEmpty_inter_iff [TransCmp cmp] :
   DTreeMap.isEmpty_inter_iff
 
 end Inter
+
+section Diff
+
+variable {t₁ t₂ : TreeMap α β cmp}
+
+@[simp]
+theorem diff_eq : t₁.diff t₂ = t₁ \ t₂ := by
+  simp only [SDiff.sdiff]
+
+/- contains -/
+@[simp]
+theorem contains_diff [TransCmp cmp] {k : α} :
+    (t₁ \ t₂).contains k = (t₁.contains k && !t₂.contains k) :=
+  DTreeMap.contains_diff
+
+/- mem -/
+@[simp]
+theorem mem_diff_iff [TransCmp cmp] {k : α} :
+    k ∈ t₁ \ t₂ ↔ k ∈ t₁ ∧ k ∉ t₂ :=
+  DTreeMap.mem_diff_iff
+
+theorem not_mem_diff_of_not_mem_left [TransCmp cmp] {k : α}
+    (not_mem : k ∉ t₁) :
+    k ∉ t₁ \ t₂ :=
+  DTreeMap.not_mem_diff_of_not_mem_left not_mem
+
+theorem not_mem_diff_of_mem_right [TransCmp cmp] {k : α}
+    (mem : k ∈ t₂) :
+    k ∉ t₁ \ t₂ :=
+  DTreeMap.not_mem_diff_of_mem_right mem
+
+/- Equiv -/
+theorem Equiv.diff_left {t₃ : TreeMap α β cmp} [TransCmp cmp]
+    (equiv : t₁ ~m t₂) :
+    (t₁ \ t₃).Equiv (t₂ \ t₃) := by
+  constructor
+  apply DTreeMap.Equiv.diff_left equiv.1
+
+theorem Equiv.diff_right {t₃ : TreeMap α β cmp} [TransCmp cmp]
+    (equiv : t₂ ~m t₃) :
+    (t₁ \ t₂).Equiv (t₁ \ t₃) := by
+  constructor
+  apply DTreeMap.Equiv.diff_right equiv.1
+
+theorem Equiv.diff_congr {t₃ t₄ : TreeMap α β cmp} [TransCmp cmp]
+    (equiv₁ : t₁ ~m t₃) (equiv₂ : t₂ ~m t₄) :
+    (t₁ \ t₂).Equiv (t₃ \ t₄) := by
+  constructor
+  apply DTreeMap.Equiv.diff_congr equiv₁.1 equiv₂.1
+
+/- get? -/
+theorem get?_diff [TransCmp cmp] {k : α} :
+    (t₁ \ t₂).get? k =
+    if k ∈ t₂ then none else t₁.get? k :=
+  DTreeMap.Const.get?_diff
+
+theorem get?_diff_of_not_mem_right [TransCmp cmp]
+    {k : α} (not_mem : k ∉ t₂) :
+    (t₁ \ t₂).get? k = t₁.get? k :=
+  DTreeMap.Const.get?_diff_of_not_mem_right not_mem
+
+theorem get?_diff_of_not_mem_left [TransCmp cmp]
+    {k : α} (not_mem : k ∉ t₁) :
+    (t₁ \ t₂).get? k = none :=
+  DTreeMap.Const.get?_diff_of_not_mem_left not_mem
+
+theorem get?_diff_of_mem_right [TransCmp cmp]
+    {k : α} (mem : k ∈ t₂) :
+    (t₁ \ t₂).get? k = none :=
+  DTreeMap.Const.get?_diff_of_mem_right mem
+
+/- get -/
+theorem get_diff [TransCmp cmp]
+    {k : α} {h_mem : k ∈ t₁ \ t₂} :
+    (t₁ \ t₂).get k h_mem =
+    t₁.get k (mem_diff_iff.1 h_mem).1 :=
+  DTreeMap.Const.get_diff
+
+/- getD -/
+theorem getD_diff [TransCmp cmp] {k : α} {fallback : β} :
+    (t₁ \ t₂).getD k fallback =
+    if k ∈ t₂ then fallback else t₁.getD k fallback :=
+  DTreeMap.Const.getD_diff
+
+theorem getD_diff_of_not_mem_right [TransCmp cmp]
+    {k : α} {fallback : β} (not_mem : k ∉ t₂) :
+    (t₁ \ t₂).getD k fallback = t₁.getD k fallback :=
+  DTreeMap.Const.getD_diff_of_not_mem_right not_mem
+
+theorem getD_diff_of_mem_right [TransCmp cmp]
+    {k : α} {fallback : β} (mem : k ∈ t₂) :
+    (t₁ \ t₂).getD k fallback = fallback :=
+  DTreeMap.Const.getD_diff_of_mem_right mem
+
+theorem getD_diff_of_not_mem_left [TransCmp cmp]
+    {k : α} {fallback : β} (not_mem : k ∉ t₁) :
+    (t₁ \ t₂).getD k fallback = fallback :=
+  DTreeMap.Const.getD_diff_of_not_mem_left not_mem
+
+/- get! -/
+theorem get!_diff [TransCmp cmp] {k : α} [Inhabited β] :
+    (t₁ \ t₂).get! k =
+    if k ∈ t₂ then default else t₁.get! k :=
+  DTreeMap.Const.get!_diff
+
+theorem get!_diff_of_not_mem_right [TransCmp cmp]
+    {k : α} [Inhabited β] (not_mem : k ∉ t₂) :
+    (t₁ \ t₂).get! k = t₁.get! k :=
+  DTreeMap.Const.get!_diff_of_not_mem_right not_mem
+
+theorem get!_diff_of_mem_right [TransCmp cmp]
+    {k : α} [Inhabited β] (mem : k ∈ t₂) :
+    (t₁ \ t₂).get! k = default :=
+  DTreeMap.Const.get!_diff_of_mem_right mem
+
+theorem get!_diff_of_not_mem_left [TransCmp cmp]
+    {k : α} [Inhabited β] (not_mem : k ∉ t₁) :
+    (t₁ \ t₂).get! k = default :=
+  DTreeMap.Const.get!_diff_of_not_mem_left not_mem
+
+/- getKey? -/
+theorem getKey?_diff [TransCmp cmp] {k : α} :
+    (t₁ \ t₂).getKey? k =
+    if k ∈ t₂ then none else t₁.getKey? k :=
+  DTreeMap.getKey?_diff
+
+theorem getKey?_diff_of_not_mem_right [TransCmp cmp]
+    {k : α} (not_mem : k ∉ t₂) :
+    (t₁ \ t₂).getKey? k = t₁.getKey? k :=
+  DTreeMap.getKey?_diff_of_not_mem_right not_mem
+
+theorem getKey?_diff_of_not_mem_left [TransCmp cmp]
+    {k : α} (not_mem : k ∉ t₁) :
+    (t₁ \ t₂).getKey? k = none :=
+  DTreeMap.getKey?_diff_of_not_mem_left not_mem
+
+theorem getKey?_diff_of_mem_right [TransCmp cmp]
+    {k : α} (mem : k ∈ t₂) :
+    (t₁ \ t₂).getKey? k = none :=
+  DTreeMap.getKey?_diff_of_mem_right mem
+
+/- getKey -/
+theorem getKey_diff [TransCmp cmp]
+    {k : α} {h_mem : k ∈ t₁ \ t₂} :
+    (t₁ \ t₂).getKey k h_mem =
+    t₁.getKey k (mem_diff_iff.1 h_mem).1 :=
+  DTreeMap.getKey_diff
+
+/- getKeyD -/
+theorem getKeyD_diff [TransCmp cmp] {k fallback : α} :
+    (t₁ \ t₂).getKeyD k fallback =
+    if k ∈ t₂ then fallback else t₁.getKeyD k fallback :=
+  DTreeMap.getKeyD_diff
+
+theorem getKeyD_diff_of_not_mem_right [TransCmp cmp]
+    {k fallback : α} (not_mem : k ∉ t₂) :
+    (t₁ \ t₂).getKeyD k fallback = t₁.getKeyD k fallback :=
+  DTreeMap.getKeyD_diff_of_not_mem_right not_mem
+
+theorem getKeyD_diff_of_mem_right [TransCmp cmp]
+    {k fallback : α} (mem : k ∈ t₂) :
+    (t₁ \ t₂).getKeyD k fallback = fallback :=
+  DTreeMap.getKeyD_diff_of_mem_right mem
+
+theorem getKeyD_diff_of_not_mem_left [TransCmp cmp]
+    {k fallback : α} (not_mem : k ∉ t₁) :
+    (t₁ \ t₂).getKeyD k fallback = fallback :=
+  DTreeMap.getKeyD_diff_of_not_mem_left not_mem
+
+/- getKey! -/
+theorem getKey!_diff [TransCmp cmp] [Inhabited α] {k : α} :
+    (t₁ \ t₂).getKey! k =
+    if k ∈ t₂ then default else t₁.getKey! k :=
+  DTreeMap.getKey!_diff
+
+theorem getKey!_diff_of_not_mem_right [TransCmp cmp] [Inhabited α]
+    {k : α} (not_mem : k ∉ t₂) :
+    (t₁ \ t₂).getKey! k = t₁.getKey! k :=
+  DTreeMap.getKey!_diff_of_not_mem_right not_mem
+
+theorem getKey!_diff_of_mem_right [TransCmp cmp] [Inhabited α]
+    {k : α} (mem : k ∈ t₂) :
+    (t₁ \ t₂).getKey! k = default :=
+  DTreeMap.getKey!_diff_of_mem_right mem
+
+theorem getKey!_diff_of_not_mem_left [TransCmp cmp] [Inhabited α]
+    {k : α} (not_mem : k ∉ t₁) :
+    (t₁ \ t₂).getKey! k = default :=
+  DTreeMap.getKey!_diff_of_not_mem_left not_mem
+
+/- size -/
+theorem size_diff_le_size_left [TransCmp cmp] :
+    (t₁ \ t₂).size ≤ t₁.size :=
+  DTreeMap.size_diff_le_size_left
+
+theorem size_diff_eq_size_left [TransCmp cmp]
+    (h : ∀ (a : α), a ∈ t₁ → a ∉ t₂) :
+    (t₁ \ t₂).size = t₁.size :=
+  DTreeMap.size_diff_eq_size_left h
+
+theorem size_diff_add_size_inter_eq_size_left [TransCmp cmp] :
+    (t₁ \ t₂).size + (t₁ ∩ t₂).size = t₁.size :=
+  DTreeMap.size_diff_add_size_inter_eq_size_left
+
+/- isEmpty -/
+@[simp]
+theorem isEmpty_diff_left [TransCmp cmp] (h : t₁.isEmpty) :
+    (t₁ \ t₂).isEmpty = true :=
+  DTreeMap.isEmpty_diff_left h
+
+theorem isEmpty_diff_iff [TransCmp cmp] :
+    (t₁ \ t₂).isEmpty ↔ ∀ k, k ∈ t₁ → k ∈ t₂ :=
+  DTreeMap.isEmpty_diff_iff
+
+end Diff
 
 section Alter
 

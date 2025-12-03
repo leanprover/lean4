@@ -46,7 +46,7 @@ def withExtHyps (struct : Name) (flat : Bool)
     throwError "Internal error when constructing `ext` hypotheses: `{struct}` is not a structure"
   let structC ← mkConstWithLevelParams struct
   forallTelescope (← inferType structC) fun params _ => do
-  withNewBinderInfos (params.map (·.fvarId!, BinderInfo.implicit)) do
+  withImplicitBinderInfos params do
   withLocalDecl `x .implicit (mkAppN structC params) fun x => do
   withLocalDecl `y .implicit (mkAppN structC params) fun y => do
     let mut hyps := #[]

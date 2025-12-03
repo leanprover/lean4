@@ -477,7 +477,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
           let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ patterns ++ alts)
           let rhs := mkAppN alt rhsArgs
           let thmType ← mkEq lhs rhs
-          let thmType ← hs.foldrM (init := thmType) (mkArrow · ·)
+          let thmType ← mkArrowN hs thmType
           let thmType ← mkForallFVars (params ++ #[motive] ++ ys ++ alts) thmType
           let thmType ← unfoldNamedPattern thmType
           let thmVal ← proveCondEqThm matchDeclName thmName thmType
@@ -593,7 +593,7 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
           notAlt ← mkForallFVars (discrs ++ altVars) notAlt
           let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
           let thmType ← mkHEq lhs rhs
-          let thmType ← hs.foldrM (init := thmType) (mkArrow · ·)
+          let thmType ← mkArrowN hs thmType
           let thmType ← mkForallFVars (params ++ #[motive] ++ discrs ++ alts ++ altVars ++ heqs) thmType
           let thmType ← Match.unfoldNamedPattern thmType
           -- Here we prove the theorem from scratch. One could likely also use the (non-generalized)

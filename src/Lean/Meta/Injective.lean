@@ -40,7 +40,7 @@ private def mkEqs (args1 args2 : Array Expr) (skipIfPropOrEq : Bool := true) : M
       eqs := eqs.push (← mkEqHEq arg1 arg2)
   return eqs
 
-private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useEq : Bool) : MetaM (Option Expr) := do
+private def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useEq : Bool) : MetaM (Option Expr) := do
   let us := ctorVal.levelParams.map mkLevelParam
   let type ← elimOptParam ctorVal.type
   forallBoundedTelescope type ctorVal.numParams fun params type =>
@@ -181,7 +181,7 @@ def mkInjectiveTheorems (declName : Name) : MetaM Unit := do
 builtin_initialize
   registerTraceClass `Meta.injective
 
-private def getIndices? (ctorApp : Expr) : MetaM (Option (Array Expr)) := do
+def getCtorAppIndices? (ctorApp : Expr) : MetaM (Option (Array Expr)) := do
   let type ← whnfD (← inferType ctorApp)
   type.withApp fun typeFn typeArgs => do
     let .const declName _ := typeFn | return none
@@ -197,11 +197,11 @@ private structure MkHInjTypeResult where
   us : List Level
   numIndices : Nat
 
-private partial def mkHInjType? (ctorVal : ConstructorVal) : MetaM (Option MkHInjTypeResult) := do
+private def mkHInjType? (ctorVal : ConstructorVal) : MetaM (Option MkHInjTypeResult) := do
   let us := ctorVal.levelParams.map mkLevelParam
   let type ← elimOptParam ctorVal.type
   forallBoundedTelescope type ctorVal.numParams fun params type =>
-  forallTelescope type fun args1 resultType => do
+  forallTelescope type fun args1 _ => do
     let k (args2 : Array Expr) : MetaM (Option MkHInjTypeResult) := do
       let lhs := mkAppN (mkAppN (mkConst ctorVal.name us) params) args1
       let rhs := mkAppN (mkAppN (mkConst ctorVal.name us) params) args2
@@ -209,8 +209,8 @@ private partial def mkHInjType? (ctorVal : ConstructorVal) : MetaM (Option MkHIn
       let eqs ← mkEqs args1 args2
       if let some andEqs := mkAnd? eqs then
         let result ← mkArrow eq andEqs
-        let some idxs1 ← getIndices? lhs | return none
-        let some idxs2 ← getIndices? rhs | return none
+        let some idxs1 ← getCtorAppIndices? lhs | return none
+        let some idxs2 ← getCtorAppIndices? rhs | return none
         -- **Note**: We dot not skip here because the type of `noConfusion` does not.
         let idxEqs ← mkEqs idxs1 idxs2 (skipIfPropOrEq := false)
         let result ← mkArrows idxEqs result
@@ -254,7 +254,6 @@ private partial def mkHInjectiveTheoremValue? (ctorVal : ConstructorVal) (typeIn
     let mvarId := mvar.mvarId!
     let (_, mvarId) ← mvarId.intros
     splitAndAssumption mvarId ctorVal.name
-    check noConfusion
     let result ← instantiateMVars noConfusion
     mkLambdaFVars xs result
 

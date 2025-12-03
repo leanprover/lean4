@@ -530,11 +530,10 @@ section Unverified
 /-- Partition a hash map into two hash map based on a predicate. -/
 @[inline] def partition [BEq α] [Hashable α] (f : (a : α) → β a → Bool)
     (m : Raw α β) : Raw α β × Raw α β :=
-  m.fold (init := (∅, ∅)) fun ⟨l, r⟩  a b =>
-    if f a b then
-      (l.insert a b, r)
-    else
-      (l, r.insert a b)
+  if h : 0 < m.buckets.size then
+    let res := Raw₀.partition f ⟨m, h⟩
+    (res.1.1, res.2.1)
+  else (m, m) -- will never happen for well-formed inputs
 
 /-- Returns a list of all values present in the hash map in some order. -/
 @[inline] def values {β : Type v} (m : Raw α (fun _ => β)) : List β :=
@@ -681,6 +680,12 @@ inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable
       {f : Option β → Option β} : WF m → WF (Raw₀.Const.alter ⟨m, h⟩ a f).1
   /-- Internal implementation detail of the hash map -/
   | inter₀ {α β} [BEq α] [Hashable α] {m₁ m₂ : Raw α β} {h₁ h₂} : WF m₁ → WF m₂ → WF (Raw₀.inter ⟨m₁, h₁⟩ ⟨m₂, h₂⟩).1
+  /-- Internal implementation detail of the hash map -/
+  | fst_partition₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {f : (a : α) → β a → Bool} {h} :
+    WF (Raw₀.partition f ⟨m, h⟩).1.1
+  /-- Internal implementation detail of the hash map -/
+  | snd_partition₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {f : (a : α) → β a → Bool} {h}:
+    WF (Raw₀.partition f ⟨m, h⟩).2.1
 
 -- TODO: this needs to be deprecated, but there is a bootstrapping issue.
 -- @[deprecated WF.emptyWithCapacity₀ (since := "2025-03-12")]
@@ -704,6 +709,8 @@ theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 
   | alter₀ _ => (Raw₀.alter _ _ _).2
   | constAlter₀ _ => (Raw₀.Const.alter _ _ _).2
   | inter₀ _ _ => (Raw₀.inter _ _).2
+  | fst_partition₀ => (Raw₀.partition _ ⟨_, _⟩).1.2
+  | snd_partition₀ => (Raw₀.partition _ ⟨_, _⟩).2.2
 
 @[simp] theorem WF.emptyWithCapacity [BEq α] [Hashable α] {c : Nat} : (Raw.emptyWithCapacity c : Raw α β).WF :=
   .emptyWithCapacity₀
@@ -784,6 +791,14 @@ theorem WF.inter [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF)
   simp only [Inter.inter]
   simp [Std.DHashMap.Raw.inter, h₁.size_buckets_pos, h₂.size_buckets_pos]
   exact WF.inter₀ h₁ h₂
+
+theorem WF.fst_partition [BEq α] [Hashable α] {m : Raw α β} {f : (a : α) → β a → Bool} (h : m.WF) :
+    (m.partition f).1.WF := by
+  simpa [Raw.partition, h.size_buckets_pos] using .fst_partition₀
+
+theorem WF.snd_partition [BEq α] [Hashable α] {m : Raw α β} {f : (a : α) → β a → Bool} (h : m.WF) :
+    (m.partition f).2.WF := by
+  simpa [Raw.partition, h.size_buckets_pos] using .snd_partition₀
 
 end WF
 

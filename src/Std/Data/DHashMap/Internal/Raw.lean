@@ -149,6 +149,14 @@ theorem inter_eq [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF)
     m₁.inter m₂ = Raw₀.inter ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩ := by
   simp [Raw.inter, h₁.size_buckets_pos, h₂.size_buckets_pos]
 
+theorem fst_partition_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {f : (a : α) → β a → Bool} :
+    (m.partition f).1 = (Raw₀.partition f ⟨m, h.size_buckets_pos⟩).1 := by
+  simp [Raw.partition, h.size_buckets_pos]
+
+theorem snd_partition_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {f : (a : α) → β a → Bool} :
+    (m.partition f).2 = (Raw₀.partition f ⟨m, h.size_buckets_pos⟩).2 := by
+  simp [Raw.partition, h.size_buckets_pos]
+
 section
 
 variable {β : Type v}

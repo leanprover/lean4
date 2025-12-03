@@ -277,7 +277,7 @@ def forM {m} [Monad m] (f : (a : α) → β a → m PUnit) (t : Impl α β) : m 
   t.foldlM (fun _ k v => f k v) ⟨⟩
 
 /-- Support for the `for` construct in `do` blocks. -/
-@[inline]
+@[specialize]
 def forInNew (t : Impl α β) (init : σ) (kcons : (a : α) → β a → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
   match t with
   | .leaf => knil init

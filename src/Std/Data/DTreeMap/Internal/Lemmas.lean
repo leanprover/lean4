@@ -109,6 +109,7 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
      ⟨`foldl, (``foldl_eq_foldl, #[])⟩,
      ⟨`foldrM, (``foldrM_eq_foldrM, #[])⟩,
      ⟨`foldr, (``foldr_eq_foldr, #[])⟩,
+     ⟨`forInNew, (``forInNew_eq_forInNew_toListModel, #[])⟩,
      ⟨`forIn, (``forIn_eq_forIn_toListModel, #[])⟩,
      ⟨`forM, (``forM_eq_forM, #[])⟩,
      ⟨`minKey?, (``minKey?_eq_minKey?, #[``(minKey?_of_perm _)])⟩,
@@ -8533,7 +8534,7 @@ end Max
 
 namespace Equiv
 
-variable {t₁ t₂ t₃ t₄ : Impl α β} {δ : Type w} {m : Type w → Type w'}
+variable {t₁ t₂ t₃ t₄ : Impl α β} {δ σ : Type w} {m : Type w → Type w'}
 
 @[refl, simp] theorem rfl : Equiv t t := ⟨.rfl⟩
 
@@ -8634,6 +8635,12 @@ theorem foldr_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t�
     {f : (a : α) → β a → δ → δ} {init : δ} :
     t₁.foldr f init = t₂.foldr f init := by
   simp_to_model [foldr]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem forInNew_eq [TransOrd α] [Monad m] [LawfulMonad m] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {kcons : (a : α) → β a → (σ → m δ) → σ → m δ} {knil : σ → m δ} {init : σ} :
+    t₁.forInNew init kcons knil = t₂.forInNew init kcons knil := by
+  simp_to_model [forInNew]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
 theorem forIn_eq [TransOrd α] [Monad m] [LawfulMonad m] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)

@@ -450,7 +450,7 @@ def letEqnsDecl := leading_parser (withAnonymousAntiquot := false)
   -- Remark: we disable anonymous antiquotations here to make sure
   -- anonymous antiquotations (e.g., `$x`) are not `letDecl`
   notFollowedBy (nonReservedSymbol "rec") "rec" >>
-  (letPatDecl true <|> letIdDecl <|> letPatDecl <|> letEqnsDecl)
+  withoutForbidden (letPatDecl true <|> letIdDecl <|> letPatDecl <|> letEqnsDecl)
 /--
 `+nondep` elaborates as a nondependent `let`, a `have` expression.
 -/

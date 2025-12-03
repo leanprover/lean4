@@ -51,7 +51,6 @@ structure SavedContext where
   errToSorry     : Bool
   levelNames     : List Name
   fixedTermElabs : Array FixedTermElabRef
-  liftActionCtx  : Option LocalContext
 
 /-- The kind of a tactic metavariable, used for additional error reporting. -/
 inductive TacticMVarKind
@@ -338,10 +337,6 @@ structure Context where
   Fixed term elaborators for supporting `elabToSyntax`.
   -/
   fixedTermElabs : Array FixedTermElabRef := #[]
-  /--
-  The context for lifting a nested action into a surrounding `do` block.
-  -/
-  liftActionCtx : Option LocalContext := none
 
 abbrev TermElabM := ReaderT Context $ StateRefT State MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
@@ -1357,7 +1352,6 @@ def saveContext : TermElabM SavedContext :=
     errToSorry     := (← read).errToSorry
     levelNames     := (← get).levelNames
     fixedTermElabs := (← read).fixedTermElabs
-    liftActionCtx  := (← read).liftActionCtx
   }
 
 /--
@@ -1369,7 +1363,6 @@ def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α
         macroStack := savedCtx.macroStack,
         errToSorry := savedCtx.errToSorry,
         fixedTermElabs := savedCtx.fixedTermElabs,
-        liftActionCtx := savedCtx.liftActionCtx
       }) <|
     withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls }) <|
       withLevelNames savedCtx.levelNames x

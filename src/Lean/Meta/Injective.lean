@@ -72,8 +72,7 @@ private def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useEq : Bool
     if useEq then
       mkArgs2 0 type #[] #[]
     else
-      withNewBinderInfos (params.map fun param => (param.fvarId!, BinderInfo.implicit)) <|
-      withNewBinderInfos (args1.map fun arg1 => (arg1.fvarId!, BinderInfo.implicit)) <|
+      withImplicitBinderInfos (params ++ args1) do
         mkArgs2 0 type #[] #[]
 
 private def mkInjectiveTheoremType? (ctorVal : ConstructorVal) : MetaM (Option Expr) :=
@@ -189,9 +188,6 @@ def getCtorAppIndices? (ctorApp : Expr) : MetaM (Option (Array Expr)) := do
     if val.numIndices == 0 then return some #[]
     return some typeArgs[val.numParams...*].toArray
 
-private def mkArrows (hs : Array Expr) (type : Expr) : CoreM Expr := do
-  hs.foldrM (init := type) mkArrow
-
 private structure MkHInjTypeResult where
   thmType : Expr
   us : List Level
@@ -202,6 +198,7 @@ private def mkHInjType? (ctorVal : ConstructorVal) : MetaM (Option MkHInjTypeRes
   let type ← elimOptParam ctorVal.type
   forallBoundedTelescope type ctorVal.numParams fun params type =>
   forallTelescope type fun args1 _ => do
+  withImplicitBinderInfos (params ++ args1) do
     let k (args2 : Array Expr) : MetaM (Option MkHInjTypeResult) := do
       let lhs := mkAppN (mkAppN (mkConst ctorVal.name us) params) args1
       let rhs := mkAppN (mkAppN (mkConst ctorVal.name us) params) args2
@@ -213,7 +210,7 @@ private def mkHInjType? (ctorVal : ConstructorVal) : MetaM (Option MkHInjTypeRes
         let some idxs2 ← getCtorAppIndices? rhs | return none
         -- **Note**: We dot not skip here because the type of `noConfusion` does not.
         let idxEqs ← mkEqs idxs1 idxs2 (skipIfPropOrEq := false)
-        let result ← mkArrows idxEqs result
+        let result ← mkArrowN idxEqs result
         let thmType ← mkForallFVars params (← mkForallFVars args1 (← mkForallFVars args2 result))
         return some { thmType, us, numIndices := idxs1.size }
       else
@@ -226,9 +223,7 @@ private def mkHInjType? (ctorVal : ConstructorVal) : MetaM (Option MkHInjTypeRes
           mkArgs2 (i + 1) (b.instantiate1 arg2) (args2.push arg2)
       else
         k args2
-    withNewBinderInfos (params.map fun param => (param.fvarId!, BinderInfo.implicit)) <|
-    withNewBinderInfos (args1.map fun arg1 => (arg1.fvarId!, BinderInfo.implicit)) <|
-      mkArgs2 0 type #[]
+    mkArgs2 0 type #[]
 
 private def failedToGenHInj (ctorVal : ConstructorVal) : MetaM α :=
   throwError "failed to generate heterogeneous injectivity theorem for `{ctorVal.name}`"

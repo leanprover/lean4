@@ -86,7 +86,16 @@ private def propagateCtorHetero (a b : Expr) : GoalM Unit := do
     let proof := mkAppN (mkConst hinjDeclName us₁) params₁
     let proof := mkAppN (mkAppN proof fields₁) fields₂
     addNewRawFact proof (← inferType proof) gen (.inj (.decl hinjDeclName))
-  -- **TODO**: Contradiction
+  else
+    let some indices₁ ← getCtorAppIndices? a | return ()
+    let some indices₂ ← getCtorAppIndices? b | return ()
+    let noConfusionName := ctorVal₁.induct.str "noConfusion"
+    let noConfusion := mkAppN (mkConst noConfusionName (0 :: us₁)) params₁
+    let noConfusion := mkApp noConfusion (← getFalseExpr)
+    let noConfusion := mkApp (mkAppN noConfusion indices₁) a
+    let noConfusion := mkApp (mkAppN noConfusion indices₂) b
+    let proof := noConfusion
+    addNewRawFact proof (← inferType proof) gen (.inj (.decl noConfusionName))
 
 /--
 Given constructors `a` and `b`, propagate equalities if they are the same,
@@ -99,6 +108,5 @@ def propagateCtor (a b : Expr) : GoalM Unit := do
     propagateCtorHomo aType a b
   else
     propagateCtorHetero a b
-
 
 end Lean.Meta.Grind

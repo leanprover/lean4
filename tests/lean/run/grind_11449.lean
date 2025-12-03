@@ -16,6 +16,15 @@ example (α β : Type) (a₁ a₂ : α)
     a₁ = a₂ ∧ n₁ = n₂ ∧ v₁ ≍ v₂ ∧ h₁ ≍ h₂ := by
   grind
 
+example (α β : Type) (a : α) (b : β)
+    (n₁ n₂ : Nat)
+    (v₁ : T n₁) (v₂ : T n₂)
+    (h₁ : P n₁)
+    (h_1 : double n₁ = (double n₂).succ)
+    (h_2 : Foo'.even (β := β) a n₁ v₁ h₁ ≍ Foo'.odd (α := α) b n₂ v₂)
+    : False := by
+  grind
+
 inductive Parity : Nat -> Type
   | even (n) : Parity (double n)
   | odd  (n) : Parity (Nat.succ (double n))

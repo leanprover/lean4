@@ -13,6 +13,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extrac
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ZeroExtend
 public import Std.Sat.AIG.If
 
+@[expose] public section
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec.cpop`.
@@ -219,7 +220,6 @@ where
       simp [show validNodes = 1 by omega]
     ⟨aig, hcast▸parSum⟩
 
-
 theorem blastCpop.go_le_size (aig : AIG α) (validNodes : Nat) (parSum : AIG.RefVec aig (validNodes * w))
       (hin : 1 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes) :
     aig.decls.size ≤ (go aig validNodes parSum hin hval hval').aig.decls.size := by
@@ -263,6 +263,7 @@ theorem blastCpop.go_decl_eq {w : Nat} (validNodes : Nat) (aig : AIG α) (parSum
       exact Nat.lt_of_lt_of_le hidx' this
   · simp [← hgo]
 
+
 instance : AIG.LawfulVecOperator α AIG.RefVec blastCpop where
   le_size := by
     intros
@@ -270,18 +271,18 @@ instance : AIG.LawfulVecOperator α AIG.RefVec blastCpop where
     split
     · apply blastCpop.go_le_size'
     · split <;> simp
-  decl_eq := by sorry
-    -- intros
-    -- unfold blastPopCount
-    -- dsimp only
-    -- expose_names
-    -- split
-    -- · let initAcc := blastConst (aig := aig) (w := 0) (val := 0)
-    --   have := extractAndExtendPopulate_le_size (idx := 0) aig input initAcc (by omega)
-    --   rw [blastPopCount.go_decl_eq]
-    --   apply extractAndExtendPopulate_decl_eq (idx' := 0) aig input
-    --   exact Nat.lt_of_lt_of_le h1 this
-    -- · split <;> simp
+  decl_eq := by
+    intros
+    unfold blastCpop
+    dsimp only
+    expose_names
+    split
+    · let initAcc := blastConst (aig := aig) (w := 0) (val := 0)
+      have := extractAndExtendPopulate_le_size (idx := 0) aig input initAcc (by omega)
+      rw [blastCpop.go_decl_eq]
+      apply extractAndExtendPopulate_decl_eq (idx' := 0) aig input
+      exact Nat.lt_of_lt_of_le h1 this
+    · split <;> simp
 
 end bitblast
 end BVExpr

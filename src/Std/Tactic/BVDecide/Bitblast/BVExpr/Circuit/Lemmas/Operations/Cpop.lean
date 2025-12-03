@@ -14,6 +14,8 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Eq
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ZeroExtend
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Extract
 
+@[expose] public section
+
 
 /-!
 This module contains the verification of the bitblaster for `BitVec.popCountAuxRec` from
@@ -27,12 +29,13 @@ namespace Std.Tactic.BVDecide
 open Std.Sat
 open Std.Sat.AIG
 
+variable [Hashable α] [DecidableEq α]
+
 namespace BVExpr
 
 namespace bitblast
-namespace blastPopCount
+namespace blastCpop
 
-variable [Hashable α] [DecidableEq α]
 
 theorem denote_append {aig : AIG α} {n m : Nat} (assign : α → Bool)
   (acc : AIG.RefVec aig n) (elem : AIG.RefVec aig m)
@@ -448,51 +451,53 @@ theorem denote_append {aig : AIG α} {n m : Nat} (assign : α → Bool)
 --   --   rw [hcasteq]
 --   --   simp [hpar]
 
--- @[simp]
--- theorem denote_blastPopCount (aig : AIG α) (xc : RefVec aig w) (x : BitVec w) (assign : α → Bool)
---       (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
---       :
---       ∀ (idx : Nat) (hidx : idx < w),
---         ⟦(blastPopCount aig xc).aig, (blastPopCount aig xc).vec.get idx hidx, assign⟧
---           =
---         (BitVec.popCount x).getLsbD idx := by sorry
---   -- intros idx hidx
---   -- generalize hgen : blastPopCount aig xc = res
---   -- unfold blastPopCount at hgen
---   -- rw [BitVec.popCount_eq_popCountParSum]
---   -- split at hgen
---   -- · rw [← hgen]
---   --   let initAcc := blastConst (w := 0) aig 0
---   --   let res1 := blastExtractAndExtendPopulate aig 0 xc initAcc (by omega)
---   --   let aig1 := res.aig
---   --   have extendedBits := res.vec
---   --   let initAcc := 0#0
---   --   let bvRes := BitVec.extractAndExtendPopulateAux 0 x initAcc (by omega) (by intros; omega)
---   --   rw [denote_go (parSumBv := bvRes.val)]
---   --   · unfold BitVec.popCountParSum
---   --     simp [show 1 < w by omega, bvRes, initAcc]
---   --   · intros idx hidx
---   --     rw [denote_blastExtractAndExtendPopulate]
---   --     · simp
---   --     · intros idx hidx
---   --       apply hx
---   -- · split at hgen
---   --   · rw [← hgen]
---   --     have hw1: w = 1 := by omega
---   --     simp [BitVec.popCountParSum]
---   --     conv =>
---   --       rhs
---   --       simp [hw1]
---   --     apply hx
---   --   · rw [← hgen]
---   --     have hw0: w = 0 := by omega
---   --     simp [BitVec.popCountParSum]
---   --     conv =>
---   --       rhs
---   --       simp [hw0]
---   --     omega
+end blastCpop
 
-end blastPopCount
+
+@[simp]
+theorem denote_blastCpop (aig : AIG α) (xc : RefVec aig w) (x : BitVec w) (assign : α → Bool)
+      (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
+      :
+      ∀ (idx : Nat) (hidx : idx < w),
+        ⟦(blastCpop aig xc).aig, (blastCpop aig xc).vec.get idx hidx, assign⟧
+          =
+        (BitVec.cpop x).getLsbD idx := by sorry
+  -- intros idx hidx
+  -- generalize hgen : blastPopCount aig xc = res
+  -- unfold blastPopCount at hgen
+  -- rw [BitVec.popCount_eq_popCountParSum]
+  -- split at hgen
+  -- · rw [← hgen]
+  --   let initAcc := blastConst (w := 0) aig 0
+  --   let res1 := blastExtractAndExtendPopulate aig 0 xc initAcc (by omega)
+  --   let aig1 := res.aig
+  --   have extendedBits := res.vec
+  --   let initAcc := 0#0
+  --   let bvRes := BitVec.extractAndExtendPopulateAux 0 x initAcc (by omega) (by intros; omega)
+  --   rw [denote_go (parSumBv := bvRes.val)]
+  --   · unfold BitVec.popCountParSum
+  --     simp [show 1 < w by omega, bvRes, initAcc]
+  --   · intros idx hidx
+  --     rw [denote_blastExtractAndExtendPopulate]
+  --     · simp
+  --     · intros idx hidx
+  --       apply hx
+  -- · split at hgen
+  --   · rw [← hgen]
+  --     have hw1: w = 1 := by omega
+  --     simp [BitVec.popCountParSum]
+  --     conv =>
+  --       rhs
+  --       simp [hw1]
+  --     apply hx
+  --   · rw [← hgen]
+  --     have hw0: w = 0 := by omega
+  --     simp [BitVec.popCountParSum]
+  --     conv =>
+  --       rhs
+  --       simp [hw0]
+  --     omega
+
 end bitblast
 end BVExpr
 

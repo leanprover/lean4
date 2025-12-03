@@ -2991,7 +2991,7 @@ theorem rec_add_eq_rec_add_iff
         simp [show b_length - 1 = 0 by omega]
 
 /-- construct the parallel prefix sum circuit of the flattend bitvectors in `l` -/
-def pps (l : BitVec (l_length * w)) (k: BitVec w)
+def pps (l : BitVec (l_length * w)) (k : BitVec w)
       (proof : addRecAux l l_length 0#w  = k)
       (proof_length : 0 < l_length) (hw : 0 < w) :
     {ls : BitVec (1 * w) // addRecAux ls 1 0#w = k} :=

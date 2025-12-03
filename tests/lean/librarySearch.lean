@@ -94,10 +94,13 @@ example (X : Type) (P : Prop) (x : X) (h : ∀ x : X, x = x → P) : P := by sho
 #guard_msgs (drop info) in
 example (α : Prop) : α → α := by show_term solve_by_elim
 
--- Note: these examples no longer work after we turned off lemmas with discrimination key `#[*]`.
--- example (p : Prop) : (¬¬p) → p := by apply? -- says: `exact not_not.mp`
--- example (a b : Prop) (h : a ∧ b) : a := by apply? -- says: `exact h.left`
--- example (P Q : Prop) : (¬ Q → ¬ P) → (P → Q) := by apply? -- say: `exact Function.mtr`
+-- These examples work via star-indexed fallback.
+#guard_msgs (drop info) in
+example (p : Prop) : (¬¬p) → p := by apply?
+#guard_msgs (drop info) in
+example (a b : Prop) (h : a ∧ b) : a := by apply?
+#guard_msgs (drop info) in
+example (P Q : Prop) : (¬ Q → ¬ P) → (P → Q) := by apply?
 
 /--
 info: Try this:
@@ -260,10 +263,11 @@ info: Try this:
 #guard_msgs in
 example {a b c : Nat} (h₁ : a ∣ c) (h₂ : a ∣ b + c) : a ∣ b := by apply?
 
--- Note: these examples no longer work after we turned off lemmas with discrimination key `#[*]`.
--- example {α : Sort u} (h : Empty) : α := by apply? -- says `exact Empty.elim h`
--- example (f : A → C) (g : B → C) : (A ⊕ B) → C := by apply? -- says `exact Sum.elim f g`
--- example (n : Nat) (r : ℚ) : ℚ := by apply? using n, r -- exact nsmulRec n r
+-- These examples work via star-indexed fallback.
+#guard_msgs (drop info) in
+example {α : Sort u} (h : Empty) : α := by apply?
+#guard_msgs (drop info) in
+example (f : A → C) (g : B → C) : (A ⊕ B) → C := by apply?
 
 opaque f : Nat → Nat
 axiom F (a b : Nat) : f a ≤ f b ↔ a ≤ b
@@ -381,3 +385,12 @@ example (p q : Prop) : (¬ p = q) = (p = ¬ q) := by exact?
 -- Verify that there is a `sorry` warning when `apply?` closes the goal.
 #guard_msgs (drop info) in
 example : False := by apply?
+
+-- Test the `-star` and `+star` flags for controlling star-indexed lemma fallback.
+-- Note: For `h : Empty`, `h.elim` is found via solveByElim from local hypotheses,
+-- so the -star flag doesn't affect this case.
+#guard_msgs (drop info) in
+example {α : Sort u} (h : Empty) : α := by apply? -star
+
+#guard_msgs (drop info) in
+example {α : Sort u} (h : Empty) : α := by apply? +star

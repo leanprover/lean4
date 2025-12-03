@@ -18,6 +18,8 @@ import Lean.Meta.Tactic.ElimInfo
 import Lean.Meta.Tactic.FunIndInfo
 import Lean.Data.Array
 import Lean.Meta.Tactic.Simp.Rewrite
+import Lean.Meta.Tactic.Refl
+import Lean.Meta.Tactic.Replace
 
 /-!
 This module contains code to derive, from the definition of a recursive function (structural or

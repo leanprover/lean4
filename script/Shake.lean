@@ -407,8 +407,8 @@ Returns `(path, inputCtx, imports, endPos)` where `imports` is the `Lean.Parser.
 and `endPos` is the position of the end of the header.
 -/
 def parseHeaderFromString (text path : String) :
-    IO (System.FilePath × Parser.InputContext ×
-      TSyntax ``Parser.Module.header × String.Pos.Raw) := do
+    IO (System.FilePath × (ictx : Parser.InputContext) ×
+      TSyntax ``Parser.Module.header × String.Pos ictx.fileMap.source) := do
   let inputCtx := Parser.mkInputContext text path
   let (header, parserState, msgs) ← Parser.parseHeader inputCtx
   if !msgs.toList.isEmpty then -- skip this file if there are parse errors
@@ -416,8 +416,8 @@ def parseHeaderFromString (text path : String) :
     throw <| .userError "parse errors in file"
   -- the insertion point for `add` is the first newline after the imports
   let insertion := header.raw.getTailPos?.getD parserState.pos
-  let insertion := text.pos! insertion |>.find (· == '\n') |>.next!
-  pure (path, inputCtx, header, insertion.offset)
+  let insertion := inputCtx.fileMap.source.pos! insertion |>.find (· == '\n') |>.next!
+  pure ⟨path, inputCtx, header, insertion⟩
 
 /-- Parse a source file to extract the location of the import lines, for edits and error messages.
 
@@ -425,8 +425,8 @@ Returns `(path, inputCtx, imports, endPos)` where `imports` is the `Lean.Parser.
 and `endPos` is the position of the end of the header.
 -/
 def parseHeader (srcSearchPath : SearchPath) (mod : Name) :
-    IO (System.FilePath × Parser.InputContext ×
-      TSyntax ``Parser.Module.header × String.Pos.Raw) := do
+    IO (System.FilePath × (ictx : Parser.InputContext) ×
+      TSyntax ``Parser.Module.header × String.Pos ictx.fileMap.source) := do
   -- Parse the input file
   let some path ← srcSearchPath.findModuleWithExt "lean" mod
     | throw <| .userError s!"error: failed to find source file for {mod}"
@@ -465,12 +465,12 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
     return
 
   let (module?, prelude?, imports) := decodeHeader headerStx
-  if module?.any (·.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep-downstream")) then
+  if module?.any (·.raw.getTrailing?.any (·.toString.contains "shake: keep-downstream")) then
     modify fun s => { s with preserve := s.preserve.union .pub {i} }
 
   let s ← get
 
-  let addOnly := addOnly || module?.any (·.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep-all"))
+  let addOnly := addOnly || module?.any (·.raw.getTrailing?.any (·.toString.contains "shake: keep-all"))
   let mut deps := needs
 
   -- Add additional preserved imports
@@ -480,7 +480,7 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
     let k := NeedsKind.ofImport imp
     if addOnly ||
         args.keepPublic && imp.isExported ||
-        impStx.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep") then
+        impStx.raw.getTrailing?.any (·.toString.contains "shake: keep") then
       deps := deps.union k {j}
   for j in [0:s.mods.size] do
     for k in NeedsKind.all do
@@ -503,14 +503,14 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
 
   -- Accumulate `transDeps` which is the non-reflexive transitive closure of the still-live imports
   let mut transDeps := Needs.empty
-  let mut alwaysAdd : Array Import := #[]
+  let mut alwaysAdd : Array Import := #[]  -- to be added even if implied by other imports
   for imp in s.mods[i]!.imports do
     let j := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
     if deps.has k j || imp.importAll then
       transDeps := addTransitiveImps transDeps imp j s.transDeps[j]!
       deps := deps.union k {j}
-    -- skip folder-nested `public import`s but remove `meta`
+    -- skip folder-nested `public (meta)? import`s but remove `meta`
     else if s.modNames[i]!.isPrefixOf imp.module then
       let imp := { imp with isMeta := false }
       let k := { k with isMeta := false }
@@ -523,7 +523,7 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
 
   -- If `transDeps` does not cover `deps`, then we have to add back some imports until it does.
   -- To minimize new imports we pick only new imports which are not transitively implied by
-  -- another new import
+  -- another new import, so we visit module indices in descending order.
   let mut keptPrefix := false
   let mut newTransDeps := transDeps
   let mut toAdd : Array Import := #[]
@@ -537,6 +537,7 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
         if args.trace then
           IO.eprintln s!"`{imp}` is needed"
         if args.addPublic && !k.isExported &&
+            -- also add as public if previously `public meta`, which could be from automatic porting
             (s.transDepsOrig[i]!.has { k with isExported := true } j || s.transDepsOrig[i]!.has { k with isExported := true, isMeta := true } j) then
           k := { k with isExported := true }
           imp := { imp with isExported := true }
@@ -565,8 +566,8 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
         newTransDeps := addTransitiveImps newTransDeps imp j s.transDeps[j]!
 
   if keptPrefix then
-    -- if an import was replaced by `--keep-prefix`, we did not visit the modules in dependency
-    -- order anymore and so we have to redo the transitive closure checking
+    -- if an import was replaced by `--keep-prefix`, we did not necessarily visit the modules in
+    -- dependency order anymore and so we have to redo the transitive closure checking
     newTransDeps := transDeps
     for j in (0...s.mods.size).toArray.reverse do
       for k in NeedsKind.all do
@@ -617,7 +618,7 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
 
   if args.githubStyle then
     try
-      let (path, inputCtx, stx, endHeader) ← parseHeader srcSearchPath s.modNames[i]!
+      let ⟨path, inputCtx, stx, endHeader⟩ ← parseHeader srcSearchPath s.modNames[i]!
       let (_, _, imports) := decodeHeader stx
       for stx in imports do
         if toRemove.any fun imp => imp == decodeImport stx then
@@ -626,7 +627,7 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
             (use `lake exe shake --fix` to fix this, or `lake exe shake --update` to ignore)"
       if !toAdd.isEmpty then
         -- we put the insert message on the beginning of the last import line
-        let pos := inputCtx.fileMap.toPosition endHeader
+        let pos := inputCtx.fileMap.toPosition endHeader.offset
         println! "{path}:{pos.line-1}:1: warning: \
           add {toAdd} instead"
     catch _ => pure ()
@@ -753,7 +754,7 @@ public def main (args : List String) : IO UInt32 := do
   -- Parse headers in parallel
   let headers ← s.mods.mapIdxM fun i _ =>
     if !pkg.isPrefixOf s.modNames[i]! then
-      pure <| Task.pure <| .ok default
+      pure <| Task.pure <| .ok ⟨default, default, default, default⟩
     else
       BaseIO.asTask (parseHeader srcSearchPath s.modNames[i]! |>.toBaseIO)
 
@@ -763,8 +764,8 @@ public def main (args : List String) : IO UInt32 := do
   -- Check all selected modules
   for i in [0:s.mods.size], t in needs, header in headers do
     match header.get with
-    | .ok (_, _, stx, _) =>
-      visitModule (addOnly := false) pkg srcSearchPath i t.get stx args
+    | .ok ⟨_, _, stx, _⟩ =>
+      visitModule pkg srcSearchPath i t.get stx args
     | .error e =>
       println! e.toString
 
@@ -779,27 +780,27 @@ public def main (args : List String) : IO UInt32 := do
     let add : Array Import := add.qsortOrd
 
     -- Parse the input file
-    let .ok (path, inputCtx, stx, insertion) := header?.get | continue
+    let .ok ⟨path, inputCtx, stx, insertion⟩ := header?.get | continue
     let (_, _, imports) := decodeHeader stx
     let text := inputCtx.fileMap.source
 
     -- Calculate the edit result
-    let mut pos : String.Pos.Raw := 0
+    let mut pos : String.Pos text := text.startPos
     let mut out : String := ""
     let mut seen : Std.HashSet Import := {}
     for stx in imports do
       let mod := decodeImport stx
       if remove.contains mod || seen.contains mod then
-        out := out ++ pos.extract text stx.raw.getPos?.get!
+        out := out ++ pos.extract (text.pos! stx.raw.getPos?.get!)
         -- We use the end position of the syntax, but include whitespace up to the first newline
-        pos := text.findAux (· == '\n') text.rawEndPos stx.raw.getTailPos?.get! + '\n'
+        pos := text.pos! stx.raw.getTailPos?.get! |>.find '\n' |>.next!
       seen := seen.insert mod
-    out := out ++ pos.extract text insertion
+    out := out ++ pos.extract insertion
     for mod in add do
       if !seen.contains mod then
         seen := seen.insert mod
         out := out ++ s!"{mod}\n"
-    out := out ++ insertion.extract text text.rawEndPos
+    out := out ++ insertion.extract text.endPos
 
     IO.FS.writeFile path out
     count := count + 1

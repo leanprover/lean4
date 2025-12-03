@@ -55,179 +55,130 @@ theorem denote_append {aig : AIG α} {n m : Nat} (assign : α → Bool)
   · simp [hidx]
     apply helem
 
--- theorem denote_blastExtractAndExtend (aig : AIG α) (xc : AIG.RefVec aig w) (x : BitVec w) (start : Nat)
---     (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx) :
---   ∀ (idx : Nat) (hidx : idx < w),
---     ⟦
---       (blastExtractAndExtend aig xc start).aig,
---       (blastExtractAndExtend aig xc start).vec.get idx hidx,
---       assign
---      ⟧ = (BitVec.zeroExtend w (BitVec.extractLsb' start 1 x)).getLsbD idx := by sorry
-  -- intros idx hidx
-  -- generalize hext: blastExtractAndExtend aig xc start = res
-  -- unfold blastExtractAndExtend at hext
-  -- dsimp only [Lean.Elab.WF.paramLet] at hext
-  -- rw [← hext]
-  -- simp only [denote_blastZeroExtend, Nat.lt_one_iff, denote_blastExtract, dite_eq_ite,
-  --   Bool.if_false_right, BitVec.truncate_eq_setWidth, BitVec.getLsbD_setWidth,
-  --   BitVec.getLsbD_extractLsb']
-  -- split
-  -- · by_cases hidx0 : idx = 0
-  --   · simp [hidx0, show 0 < w by omega, hx]
-  --   · simp [hidx0]
-  -- · intros
-  --   simp [show w ≤ start + idx by omega]
+theorem denote_blastExtractAndExtend (aig : AIG α) (xc : AIG.RefVec aig w) (x : BitVec w) (start : Nat)
+    (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx) :
+  ∀ (idx : Nat) (hidx : idx < w),
+    ⟦
+      (blastExtractAndExtend aig xc start).aig,
+      (blastExtractAndExtend aig xc start).vec.get idx hidx,
+      assign
+     ⟧ = (BitVec.zeroExtend w (BitVec.extractLsb' start 1 x)).getLsbD idx := by
+  intros idx hidx
+  generalize hext: blastExtractAndExtend aig xc start = res
+  unfold blastExtractAndExtend at hext
+  dsimp only [Lean.Elab.WF.paramLet] at hext
+  rw [← hext]
+  simp only [denote_blastZeroExtend, Nat.lt_one_iff, denote_blastExtract, dite_eq_ite,
+    Bool.if_false_right, BitVec.truncate_eq_setWidth, BitVec.getLsbD_setWidth,
+    BitVec.getLsbD_extractLsb']
+  split
+  · by_cases hidx0 : idx = 0
+    · simp [hidx0, show 0 < w by omega, hx]
+    · simp [hidx0]
+  · intros
+    simp [show w ≤ start + idx by omega]
 
--- theorem blastExtractAndExtend_denote_mem_prefix {w : Nat} (aig : AIG α) (curr : Nat)
---     (xc : RefVec aig w) hstart :
---     ⟦
---       (blastExtractAndExtend aig xc curr).aig,
---       ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply extractAndExtend_le_size⟩,
---       assign
---     ⟧
---       =
---     ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by sorry
-  -- apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
-  -- apply IsPrefix.of
-  -- · intros
-  --   apply extractAndExtend_decl_eq
-  -- · intros
-  --   apply extractAndExtend_le_size
+theorem blastExtractAndExtend_denote_mem_prefix {w : Nat} (aig : AIG α) (curr : Nat)
+    (xc : RefVec aig w) hstart :
+    ⟦
+      (blastExtractAndExtend aig xc curr).aig,
+      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply extractAndExtend_le_size⟩,
+      assign
+    ⟧
+      =
+    ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
+  apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
+  apply IsPrefix.of
+  · intros
+    apply extractAndExtend_decl_eq
+  · intros
+    apply extractAndExtend_le_size
 
--- theorem BitVec.getLsbD_extractAndExtend_of_le_of_lt (w idx currIdx : Nat) (hw : 0 < w) (x : BitVec w) (hcurr : currIdx < w)
---     (hlt : idx < w * (currIdx + 1)) (hle : w * currIdx ≤ idx) :
---     (BitVec.zeroExtend w (BitVec.extractLsb' currIdx 1 x)).getLsbD (idx - w * currIdx) =
---     (BitVec.extractAndExtendPopulateAux 0 x 0#0 (by omega) (by intros; omega)).val.getLsbD idx := by
---   let ⟨res,proof⟩ := BitVec.extractAndExtendPopulateAux 0 x 0#0 (by omega) (by intros; omega)
---   simp
---   specialize proof
---       currIdx hcurr
---       (idx - w * currIdx) (by simp [Nat.mul_add] at hlt; omega)
---   simp at proof
---   simp [← proof]
---   congr
---   omega
+theorem BitVec.getLsbD_extractAndExtend_of_le_of_lt (w idx currIdx : Nat) (hw : 0 < w) (x : BitVec w)
+    (hcurr : currIdx < w)
+    (hlt : idx < w * (currIdx + 1)) (hle : w * currIdx ≤ idx) :
+    (BitVec.zeroExtend w (BitVec.extractLsb' currIdx 1 x)).getLsbD (idx - w * currIdx) =
+    (BitVec.extractAndExtendPopulate w x).getLsbD idx := by
+  have ⟨res, proof⟩ := BitVec.extractAndExtendPopulateAux 0 w x (BitVec.cast (by omega) 0#0) (by omega) (by omega)
+  sorry
 
+theorem denote_blastExtractAndExtendPopulate
+  (assign : α → Bool)
+  (aig : AIG α) (currIdx w : Nat) (xc : AIG.RefVec aig w) (x : BitVec w)
+  (acc : AIG.RefVec aig (w * currIdx)) (hlt : currIdx ≤ w)
+  -- the bits added already denote to the corresponding entry in acc
+  (hacc : ∀ (idx : Nat) (hidx : idx < w * currIdx),
+              ⟦aig, acc.get idx hidx, assign⟧ =
+              (BitVec.extractAndExtendPopulate w x).getLsbD idx )
+  (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
+   :
+    ∀ (idx : Nat) (hidx : idx < w * w),
+      ⟦
+        (blastExtractAndExtendPopulate aig currIdx xc acc hlt).aig,
+        (blastExtractAndExtendPopulate aig currIdx xc acc hlt).vec.get idx hidx,
+        assign
+      ⟧ =
+        (BitVec.extractAndExtendPopulate w x).getLsbD idx := by
+  intros idx hidx
+  generalize hgen : blastExtractAndExtendPopulate aig currIdx xc acc hlt = gen
+  unfold blastExtractAndExtendPopulate at hgen
+  split at hgen
+  · case _ h =>
+    rw [← hgen]
+    let res := blastExtractAndExtend aig xc currIdx
+    have hcast : w + w * currIdx = w * (currIdx + 1) := by simp [Nat.mul_add]; omega
+    have := denote_blastExtractAndExtendPopulate
+            (assign := assign)
+            (aig := res.aig)
+            (currIdx := currIdx + 1)
+            (w := w)
+            (xc := xc.cast (by simp [res]; apply extractAndExtend_le_size))
+            (x := x)
+            (acc := (acc.cast (by simp [res]; apply extractAndExtend_le_size)).append res.vec)
+            (hlt := by omega)
+    rw [this]
+    · intros idx hidx
+      simp only [res, RefVec.get_append]
+      by_cases hidx' : idx < w * currIdx
+      · rw [dite_cond_eq_true (by simp [hidx'])]
+        specialize hacc idx hidx'
+        rw [blastExtractAndExtend_denote_mem_prefix (xc := xc)]
+        apply hacc
+        simp
+        exact
+          (acc.get idx
+              (of_eq_true
+                (of_eq_true
+                  (Eq.trans (congrArg (fun x => x = True) (eq_true hidx')) (eq_self True))))).hgate
+      · rw [dite_cond_eq_false (by simp [hidx'])]
+        rw [denote_blastExtractAndExtend (xc := xc) (x := x)]
+        · simp at hidx'
+          rw [BitVec.getLsbD_extractAndExtend_of_le_of_lt (hlt := hidx) (hle := hidx') (hcurr := by omega)]
+          omega
+        · intros j hj
+          apply hx
+    · intros i hi
+      simp only [res]
+      rw [blastExtractAndExtend_denote_mem_prefix (xc := xc)]
+      apply hx
+      simp
+      exact (xc.get i hi).hgate
+  · case _ h =>
+    rw [← hgen]
+    have : currIdx = w := by omega
+    simp [this] at *
+    specialize hacc idx hidx
+    rw [← hacc]
+    congr
+    · omega
+    · simp_all
+      exact
+        eqRec_heq
+          (blastExtractAndExtendPopulate._proof_6 currIdx
+            (blastExtractAndExtendPopulate._proof_5 currIdx hlt h))
+          acc
+    · simp_all
 
--- theorem denote_blastExtractAndExtendPopulate
---   (assign : α → Bool)
---   (aig : AIG α) (currIdx w : Nat) (xc : AIG.RefVec aig w) (x : BitVec w)
---   (acc : AIG.RefVec aig (w * currIdx)) (hlt : currIdx ≤ w)
---   -- the bits added already denote to the corresponding entry in acc
---   (hacc : ∀ (idx : Nat) (hidx : idx < w * currIdx),
---               ⟦aig, acc.get idx hidx, assign⟧ =
---               (BitVec.extractAndExtendPopulateAux 0 x 0#0 (by omega) (by intros; omega)).val.getLsbD idx )
---   (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
---    :
---     ∀ (idx : Nat) (hidx : idx < w * w),
---       ⟦
---         (blastExtractAndExtendPopulate aig currIdx xc acc hlt).aig,
---         (blastExtractAndExtendPopulate aig currIdx xc acc hlt).vec.get idx hidx,
---         assign
---       ⟧ =
---         (BitVec.extractAndExtendPopulateAux 0 x 0#0 (by omega) (by intros; omega)).val.getLsbD idx := by
---   intros idx hidx
---   generalize hgen : blastExtractAndExtendPopulate aig currIdx xc acc hlt = gen
---   unfold blastExtractAndExtendPopulate at hgen
---   split at hgen
---   · case _ h =>
---     rw [← hgen]
---     let res := blastExtractAndExtend aig xc currIdx
---     have hcast : w + w * currIdx = w * (currIdx + 1) := by simp [Nat.mul_add]; omega
---     have := denote_blastExtractAndExtendPopulate
---             (assign := assign)
---             (aig := res.aig)
---             (currIdx := currIdx + 1)
---             (w := w)
---             (xc := xc.cast (by simp [res]; apply extractAndExtend_le_size))
---             (x := x)
---             (acc := (acc.cast (by simp [res]; apply extractAndExtend_le_size)).append res.vec)
---             (hlt := by omega)
---     rw [this]
---     · intros idx hidx
---       simp only [res, RefVec.get_append]
---       by_cases hidx' : idx < w * currIdx
---       · rw [dite_cond_eq_true (by simp [hidx'])]
---         specialize hacc idx hidx'
---         rw [blastExtractAndExtend_denote_mem_prefix (xc := xc)]
---         apply hacc
---       · rw [dite_cond_eq_false (by simp [hidx'])]
---         rw [denote_blastExtractAndExtend (xc := xc) (x := x)]
---         · simp at hidx'
---           rw [BitVec.getLsbD_extractAndExtend_of_le_of_lt (hlt := hidx) (hle := hidx') (hcurr := by omega)]
---           omega
---         · intros j hj
---           apply hx
---     · intros i hi
---       simp only [res]
---       rw [blastExtractAndExtend_denote_mem_prefix (xc := xc)]
---       apply hx
---   · case _ h =>
---     rw [← hgen]
---     have : currIdx = w := by omega
---     simp [this] at *
---     specialize hacc idx hidx
---     rw [← hacc]
---     congr
---     · omega
---     · simp_all
---       exact
---         eqRec_heq
---           (blastExtractAndExtendPopulate._proof_6 currIdx
---             (blastExtractAndExtendPopulate._proof_5 currIdx hlt h))
---           acc
---     · simp_all
-
--- theorem blastAddVec_denote_mem_prefix {w : Nat} (aig : AIG α)
---     (oldParSum : AIG.RefVec aig (validNodes * w)) (newParSum : AIG.RefVec aig ((usedNodes / 2) * w)) hstart
---     (hval : validNodes ≤ w) (hused : usedNodes ≤ validNodes + 1) (hmod : usedNodes % 2 = 0)
---      :
---     ⟦
---       (blastAddVec aig usedNodes validNodes oldParSum newParSum hval hused hmod).aig,
---       ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply addVec_le_size⟩,
---       assign
---     ⟧
---       =
---     ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
---   apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
---   apply IsPrefix.of
---   · intros
---     apply addVec_decl_eq
---   · intros
---     apply addVec_le_size
-
-
--- theorem BitVec.getLsbD_addVecAux_of_lt (w usedNodes validNodes idx : Nat)
---     (hw : 1 < w)
---     (hval : validNodes ≤ w)
---     (oldParSumBv : BitVec (validNodes * w))
---     (bvl : BitVec (usedNodes / 2 * w))
---     (bvel : BitVec w)
---     (hbvl : bvl = BitVec.extractLsb' 0 (usedNodes / 2 * w)
---                           (let hcastZero : 0 = 0 / 2 * w := by omega
---                                 (BitVec.addVecAux 0 validNodes hw oldParSumBv (hcastZero▸0#0) (by intros; omega) (by omega) (by omega) (by omega)).val))
---     (hbvel : bvel = BitVec.extractLsb' (usedNodes / 2 * w) w
---                           (let hcastZero : 0 = 0 / 2 * w := by omega
---                                 (BitVec.addVecAux 0 validNodes hw oldParSumBv (hcastZero▸0#0) (by intros; omega) (by omega) (by omega) (by omega)).val))
---     (hlt : idx < (usedNodes / 2 * w) + w) :
---     let hcastZero : 0 = 0 / 2 * w := by omega
---     (bvel ++ bvl).getLsbD idx = (BitVec.addVecAux 0 validNodes hw oldParSumBv (hcastZero ▸ 0#0) (by intros; omega) hval (by omega) (by omega)).val.getLsbD idx := by
---   let hcastZero : 0 = 0 / 2 * w := by omega
---   have ⟨_, proof⟩ := (BitVec.addVecAux 0 validNodes hw oldParSumBv (hcastZero ▸ 0#0) (by intros; omega) hval (by omega) (by omega))
---   simp
---   rw [BitVec.getLsbD_append]
---   split
---   · case _ hsplit =>
---     simp [hbvl]
---     intros
---     omega
---   · case _ hsplit =>
---     simp [hbvel, show idx - usedNodes / 2 * w < w by omega]
---     congr
---     omega
-
--- theorem BitVec.getLsbD_extractLsb'_eq_getLsbD (i start len : Nat) (hi : i < len) (x : BitVec w):
---   (BitVec.extractLsb' start len x).getLsbD i = x.getLsbD (start + i) := by simp; intros; exact hi
 
 -- theorem denote_blastAddVec
 --   (aig : AIG α) (usedNodes validNodes : Nat) (hw : 1 < w)
@@ -460,10 +411,17 @@ theorem denote_blastCpop (aig : AIG α) (xc : RefVec aig w) (x : BitVec w) (assi
       :
       ∀ (idx : Nat) (hidx : idx < w),
         ⟦(blastCpop aig xc).aig, (blastCpop aig xc).vec.get idx hidx, assign⟧
-          = (BitVec.cpop x).getLsbD idx := by sorry
-  -- intros idx hidx
-  -- generalize hgen : blastPopCount aig xc = res
-  -- unfold blastPopCount at hgen
+          = (BitVec.cpop x).getLsbD idx := by
+    generalize hgen : blastCpop aig xc = res
+    unfold blastCpop at hgen
+    rw [BitVec.cpop_eq_pps]
+    split at hgen
+    · rw [← hgen]
+      let initAcc := blastConst (w := 0) aig 0
+      let res1 := blastExtractAndExtendPopulate aig 0 xc initAcc (by omega)
+      let aig1 := res.aig
+      sorry
+    · sorry
   -- rw [BitVec.popCount_eq_popCountParSum]
   -- split at hgen
   -- · rw [← hgen]

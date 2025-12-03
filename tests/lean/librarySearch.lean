@@ -393,3 +393,71 @@ example {α : Sort u} (h : Empty) : α := by apply? -star
 -- With `+star`, we find `Empty.elim` via star-indexed lemma fallback.
 #guard_msgs (drop info) in
 example {α : Sort u} (h : Empty) : α := by apply? +star
+
+-- Verify that `-star` doesn't break normal (non-star-indexed) lemma search.
+section MinusStar
+
+/--
+info: Try this:
+  [apply] exact Nat.add_comm x y
+-/
+#guard_msgs in
+example (x y : Nat) : x + y = y + x := by apply? -star
+
+/--
+info: Try this:
+  [apply] exact fun a => Nat.add_le_add_right a k
+-/
+#guard_msgs in
+example (n m k : Nat) : n ≤ m → n + k ≤ m + k := by apply? -star
+
+/--
+info: Try this:
+  [apply] exact Nat.mul_dvd_mul_left a w
+-/
+#guard_msgs in
+example (_ha : a > 0) (w : b ∣ c) : a * b ∣ a * c := by apply? -star
+
+/--
+info: Try this:
+  [apply] exact Nat.lt_add_one x
+-/
+#guard_msgs in
+example : x < x + 1 := by exact? -star
+
+/--
+info: Try this:
+  [apply] exact eq_comm
+-/
+#guard_msgs in
+example {α : Type} (x y : α) : x = y ↔ y = x := by apply? -star
+
+/--
+info: Try this:
+  [apply] exact (p_iff_q a).mp h
+-/
+#guard_msgs in
+example {a : Nat} (h : P a) : Q a := by apply? -star
+
+/--
+info: Try this:
+  [apply] exact (Nat.dvd_add_iff_left h₁).mpr h₂
+-/
+#guard_msgs in
+example {a b c : Nat} (h₁ : a ∣ c) (h₂ : a ∣ b + c) : a ∣ b := by apply? -star
+
+/--
+info: Try this:
+  [apply] exact L.flatten
+-/
+#guard_msgs in
+example (L : List (List Nat)) : List Nat := by apply? -star using L
+
+/--
+info: Try this:
+  [apply] exact Bool_eq_iff
+-/
+#guard_msgs in
+example {A B : Bool} : (A = B) = (A ↔ B) := by apply? -star
+
+end MinusStar

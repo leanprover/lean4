@@ -882,4 +882,14 @@ def cpopNatRec (x : BitVec w) (pos acc : Nat) : Nat :=
 /-- Count the number of bits with value `1` in `x`. -/
 def cpop (x : BitVec w) : BitVec w := BitVec.ofNat w (cpopNatRec x w 0)
 
+/-- Recursive addition of the elements in a flattened bitvec, starting from the `rem`-th element. -/
+def addRecAux (x : BitVec (l * w)) (rem : Nat) (acc : BitVec w) : BitVec w :=
+  match rem with
+  | 0 => acc
+  | n + 1 => x.addRecAux n (acc + x.extractLsb' (n * w) w)
+
+/-- Recursive addition of the elements in a flattened bitvec. -/
+def addRec (x : BitVec (l * w)) : BitVec w := addRecAux x l 0#w
+
+
 end BitVec

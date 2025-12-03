@@ -460,8 +460,7 @@ theorem denote_blastCpop (aig : AIG α) (xc : RefVec aig w) (x : BitVec w) (assi
       :
       ∀ (idx : Nat) (hidx : idx < w),
         ⟦(blastCpop aig xc).aig, (blastCpop aig xc).vec.get idx hidx, assign⟧
-          =
-        (BitVec.cpop x).getLsbD idx := by sorry
+          = (BitVec.cpop x).getLsbD idx := by sorry
   -- intros idx hidx
   -- generalize hgen : blastPopCount aig xc = res
   -- unfold blastPopCount at hgen

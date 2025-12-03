@@ -12,6 +12,9 @@ public def String.baz (x: String) := x.length + 1
 @[suggest_for _root_.String.test2]
 public def otherFoo (x: String) := x.length + 1
 
+@[suggest_for String.test2]
+public def otherBaz (x: String) := x.length + 1
+
 @[suggest_for _root_.String.test2]
 public def Nat.otherBar (x: String) := x.length + 1
 
@@ -73,7 +76,7 @@ Hint: Perhaps you meant one of these in place of `String.test2`:
 #guard_msgs in
 #check "abc".test2
 
--- Five suggested replacements: does not filter out non-`String` functions
+-- Six suggested replacements: does not filter out non-`String` functions
 /--
 error: Unknown constant `String.test2`
 
@@ -82,6 +85,7 @@ Hint: Perhaps you meant one of these in place of `String.test2`:
   [apply] `String.baz`
   [apply] `String.foo`
   [apply] `Nat.otherBar`
+  [apply] `otherBaz`
   [apply] `otherFoo`
 -/
 #guard_msgs in

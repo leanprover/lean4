@@ -17,8 +17,8 @@ public section
 /-!
 # Response
 
-This module provides the `Response` type, which representation a HTTP request. It also defines ways
-to build a `Request` using functiosn that make it easier.
+This module provides the `Response` type, which represents an HTTP response. It also defines
+builder functions and convenience methods for constructing responses with various content types.
 -/
 
 namespace Std.Http
@@ -55,12 +55,12 @@ HTTP response structure parameterized by body type
 -/
 structure Response (t : Type) where
   /--
-  The information of the status-line of the request.
+  The information of the status-line of the response
   -/
   head : Response.Head := {}
 
   /--
-  The content of the request.
+  The content of the response.
   -/
   body : t
 deriving Inhabited
@@ -70,7 +70,7 @@ Builds a HTTP Response.
 -/
 structure Response.Builder where
   /--
-  The information of the status-line of the request.
+  The information of the status-line of the response
   -/
   head : Head := {}
 
@@ -108,7 +108,7 @@ def version (builder : Builder) (version : Version) : Builder :=
   { builder with head := { builder.head with version := version } }
 
 /--
-Adds a single header to the response being built
+Sets the headers for the response being built
 -/
 def headers (builder : Builder) (headers : Headers) : Builder :=
   { builder with head := { builder.head with headers } }
@@ -174,7 +174,7 @@ def html (builder : Builder) (body : String) : Response Body :=
 end Builder
 
 /--
-Creates a new HTTP Response with OK status and the provided string body
+Creates a new HTTP Response with OK status and the provided body
 -/
 def ok (body : t) (headers : Headers := Headers.empty) : Response t :=
   new
@@ -182,7 +182,7 @@ def ok (body : t) (headers : Headers := Headers.empty) : Response t :=
   |>.body body
 
 /--
-Creates a new HTTP Response with the specified status and string body
+Creates a new HTTP Response with the specified status and body
 -/
 def buildWithStatus (status : Status) (body : t) : Response t :=
   new

@@ -116,6 +116,12 @@ namespace Term
 def byTactic' := leading_parser
   "by " >> Tactic.tacticSeqIndentGt
 
+/-- `termBeforeBy` is defined as `withForbidden("by", term)`, which will parse a term but
+disallows `by` outside of a bracketing construct. This is used for parsers like `show p by ...`
+or `suffices p by ...`, where we do not want `p by ...` to be parsed as an application of `p` to a
+`by` block, which would otherwise be allowed. -/
+def termBeforeBy := withForbidden "by" termParser
+
 -- TODO: rename to e.g. `afterSemicolonOrLinebreak`
 def optSemicolon (p : Parser) : Parser :=
   ppDedent $ semicolonOrLinebreak >> ppLine >> p
@@ -1036,6 +1042,7 @@ builtin_initialize
   register_parser_alias attrKind
   register_parser_alias optSemicolon
   register_parser_alias structInstFields
+  register_parser_alias termBeforeBy
 
 end Parser
 end Lean

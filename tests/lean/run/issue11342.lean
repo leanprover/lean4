@@ -25,3 +25,46 @@ info: private theorem natToBin3.match_1.congr_eq_1.{u_1} : ∀ (motive : (x : Na
 -/
 #guard_msgs(pass trace, all) in
 #print sig natToBin3.match_1.congr_eq_1
+
+
+def f : List Nat → List Nat → Nat
+  | _, 1 :: _ :: _ => 1
+  | _, a :: _ => if a > 1 then 2 else 3
+  | _, _  => 0
+
+/--
+info: private theorem f.match_1.eq_2.{u_1} : ∀ (motive : List Nat → List Nat → Sort u_1) (x : List Nat) (a : Nat)
+  (tail : List Nat) (h_1 : (x : List Nat) → (head : Nat) → (tail : List Nat) → motive x (1 :: head :: tail))
+  (h_2 : (x : List Nat) → (a : Nat) → (tail : List Nat) → motive x (a :: tail))
+  (h_3 : (x x_1 : List Nat) → motive x x_1),
+  (∀ (head : Nat) (tail_1 : List Nat), a = 1 → tail = head :: tail_1 → False) →
+    (match x, a :: tail with
+      | x, 1 :: head :: tail => h_1 x head tail
+      | x, a :: tail => h_2 x a tail
+      | x, x_2 => h_3 x x_2) =
+      h_2 x a tail
+-/
+#guard_msgs in
+#print sig f.match_1.eq_2
+
+/--
+error: Failed to realize constant f.match_1.congr_eq_2:
+  failed to generate equality theorem _private.lean.run.issue11342.0.f.match_1.congr_eq_2 for `match` expression `f.match_1`
+  case cons.isTrue.cons
+  motive✝ : List Nat → List Nat → Sort u_1
+  h_1✝ : (x : List Nat) → (head : Nat) → (tail : List Nat) → motive✝ x (1 :: head :: tail)
+  h_2✝ : (x : List Nat) → (a : Nat) → (tail : List Nat) → motive✝ x (a :: tail)
+  h_3✝ : (x x_1 : List Nat) → motive✝ x x_1
+  x✝¹ : List Nat
+  a✝ : Nat
+  tail✝¹ : List Nat
+  x✝ : ∀ (x : List Nat) (head : Nat) (tail : List Nat), x✝¹ = x → a✝ :: tail✝¹ = 1 :: head :: tail → False
+  head✝ : Nat
+  tail✝ : List Nat
+  heq_2✝ : 1 :: head✝ :: tail✝ = a✝ :: tail✝¹
+  ⊢ h_1✝ x✝¹ head✝ tail✝ ≍ h_2✝ x✝¹ a✝ tail✝¹
+---
+error: Unknown constant `f.match_1.congr_eq_2`
+-/
+#guard_msgs in
+#print sig f.match_1.congr_eq_2

@@ -20,6 +20,7 @@ import Lean.Meta.Tactic.Rewrite
 import Lean.Meta.Constructions.SparseCasesOn
 import Lean.Meta.Constructions.SparseCasesOnEq
 import Lean.Meta.Tactic.Grind.Main
+import Lean.Meta.HasNotBit
 
 public section
 
@@ -28,6 +29,32 @@ namespace Lean.Meta.Match
 private def rewriteGoalUsingEq (goal : MVarId) (eq : Expr) (symm : Bool := false) : MetaM MVarId := do
   let rewriteResult ← goal.rewrite (←goal.getType) eq symm
   goal.replaceTargetEq rewriteResult.eNew rewriteResult.eqProof
+
+private def reduceSparseCasesOn (mvarId : MVarId) : MetaM (Array MVarId) := do
+  let some (_, lhs) ← matchEqHEqLHS? (← mvarId.getType) | throwError "Target not an equality"
+  lhs.withApp fun f xs => do
+  let .const matchDeclName _  := f | throwError "Not a const application"
+  let some sparseCasesOnInfo ← getSparseCasesOnInfo matchDeclName | throwError "Not a sparse casesOn application"
+  withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} splitSparseCasesOn")) do
+  if xs.size < sparseCasesOnInfo.arity then
+    throwError "Not enough arguments for sparse casesOn application"
+  let majorIdx := sparseCasesOnInfo.majorPos
+  let major := xs[majorIdx]!
+  let some ctorInfo  ← isConstructorApp'? major
+    | throwError "Major premise is not a constructor application:{indentExpr major}"
+  if sparseCasesOnInfo.insterestingCtors.contains ctorInfo.name then
+    let mvarId' ← mvarId.modifyTargetEqLHS fun lhs =>
+      unfoldDefinition lhs
+    return #[mvarId']
+  else
+    let sparseCasesOnEqName ← getSparseCasesOnEq matchDeclName
+    let eqProof := mkConst sparseCasesOnEqName lhs.getAppFn.constLevels!
+    let eqProof := mkAppN eqProof lhs.getAppArgs[:sparseCasesOnInfo.arity]
+    let eqProof := mkApp eqProof (← mkHasNotBitProof (mkRawNatLit ctorInfo.cidx) (←  sparseCasesOnInfo.insterestingCtors.mapM (fun n => return (← getConstInfoCtor n).cidx)))
+    let mvarId' ← rewriteGoalUsingEq mvarId eqProof
+    return #[mvarId']
+
+
 
 private def splitSparseCasesOn (mvarId : MVarId) : MetaM (Array MVarId) := do
   let some (_, lhs) ← matchEqHEqLHS? (← mvarId.getType) | throwError "Target not an equality"
@@ -57,7 +84,6 @@ private def splitSparseCasesOn (mvarId : MVarId) : MetaM (Array MVarId) := do
       else
         s.mvarId.modifyTargetEqLHS fun lhs =>
           unfoldDefinition lhs
-
   catch e =>
     trace[Meta.Match.matchEqs] "splitSparseCasesOn failed{indentD e.toMessageData}"
     throw e
@@ -147,6 +173,8 @@ where
       (do let mvarId ← unfoldElimOffset mvarId; return #[mvarId])
       <|>
       (casesOnStuckLHS mvarId)
+      <|>
+      (reduceSparseCasesOn mvarId)
       <|>
       (splitSparseCasesOn mvarId)
       <|>
@@ -586,7 +614,11 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
           let mut hs := #[]
           for overlappedBy in matchInfo.overlaps.overlapping i do
             let notAlt := notAlts[overlappedBy]!
-            let h ← instantiateForall notAlt discrs -- We want these to be general during the proof
+            -- We want these assumptions to be general during the proof (discrs)
+            -- so that contradiction can recognize them,
+            -- but specific in the final theorem (patterns)
+            -- so that they match the splitter
+            let h ← instantiateForall notAlt discrs
             -- if let some h ← simpH? h patterns.size then
               -- hs := hs.push h
             -- TODO: We still should simplify them before creating the declaration

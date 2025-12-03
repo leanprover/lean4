@@ -1,3 +1,5 @@
+// please update stage0
+
 #include "util/options.h"
 
 // stage0 update needed for grind_annotated command

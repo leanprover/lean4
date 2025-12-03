@@ -12,12 +12,13 @@ public import Lean.Meta.GeneralizeTelescope
 public import Lean.Meta.Match.Basic
 public import Lean.Meta.Match.MatcherApp.Basic
 public import Lean.Meta.Match.MVarRenaming
+import Lean.Meta.HasNotBit
 
 public section
 
 namespace Lean.Meta.Match
 
-register_builtin_option backwards.match.sparseCases : Bool := {
+register_builtin_option backward.match.sparseCases : Bool := {
   defValue := true
   descr := "if true (the default), generate and use sparse case constructs when splitting inductive
     types. In some cases this will prevent Lean from noticing that a match statement is complete
@@ -26,7 +27,7 @@ register_builtin_option backwards.match.sparseCases : Bool := {
      ,"
 }
 
-register_builtin_option backwards.match.rowMajor : Bool := {
+register_builtin_option backward.match.rowMajor : Bool := {
   defValue := true
   descr := "If true (the default), match compilation will split the discrimnants based \
     on position of the first constructor pattern in the first alternative. If false, \
@@ -90,8 +91,9 @@ where
       k hs
 
 /-- Given a list of `AltLHS`, create a minor premise for each one, convert them into `Alt`, and then execute `k` -/
-private def withAlts {α} (motive : Expr) (discrs : Array Expr) (discrInfos : Array DiscrInfo) (lhss : List AltLHS) (k : List Alt → Array (Expr × Nat) → MetaM α) : MetaM α :=
-  loop lhss [] #[]
+private def withAlts {α} (motive : Expr) (discrs : Array Expr) (discrInfos : Array DiscrInfo)
+  (lhss : List AltLHS) (k : List Alt → Array Expr → Array AltParamInfo → MetaM α) : MetaM α :=
+  loop lhss [] #[] #[]
 where
   mkMinorType (xs : Array Expr) (lhs : AltLHS) : MetaM Expr :=
     withExistingLocalDecls lhs.fvarDecls do
@@ -100,26 +102,34 @@ where
       withEqs discrs args discrInfos fun eqs => do
         mkForallFVars (xs ++ eqs) minorType
 
-  loop (lhss : List AltLHS) (alts : List Alt) (minors : Array (Expr × Nat)) : MetaM α := do
+  loop (lhss : List AltLHS) (alts : List Alt) (minors : Array Expr) (altInfos : Array AltParamInfo) : MetaM α := do
     match lhss with
-    | [] => k alts.reverse minors
+    | [] => k alts.reverse minors altInfos
     | lhs::lhss =>
       let xs := lhs.fvarDecls.toArray.map LocalDecl.toExpr
       let minorType ← mkMinorType xs lhs
       let hasParams := !xs.isEmpty || discrInfos.any fun info => info.hName?.isSome
-      let (minorType, minorNumParams) := if hasParams then (minorType, xs.size) else (mkSimpleThunkType minorType, 1)
+      let minorType := if hasParams then minorType else mkSimpleThunkType minorType
       let idx       := alts.length
       let minorName := (`h).appendIndexAfter (idx+1)
       trace[Meta.Match.debug] "minor premise {minorName} : {minorType}"
       withLocalDeclD minorName minorType fun minor => do
         let rhs    := if hasParams then mkAppN minor xs else mkApp minor (mkConst `Unit.unit)
-        let minors := minors.push (minor, minorNumParams)
+        let minors := minors.push minor
+        let altInfos := altInfos.push { numFields := xs.size, numOverlaps := 0, hasUnitThunk := !hasParams }
         let fvarDecls ← lhs.fvarDecls.mapM instantiateLocalDeclMVars
         let alts   := { ref := lhs.ref, idx := idx, rhs := rhs, fvarDecls := fvarDecls, patterns := lhs.patterns, cnstrs := [] } :: alts
-        loop lhss alts minors
+        loop lhss alts minors altInfos
 
 structure State where
+  /-- Used alternatives -/
   used            : Std.HashSet Nat := {} -- used alternatives
+  /--
+  Overlapped alternatives.
+  Stored as ordered pairs `(overlapping,overlapped) ∈ overlaps`.
+  Used during splitter generation to avoid going through all pairs of patterns.
+  -/
+  overlaps        : Overlaps := {}
   counterExamples : List (List Example) := []
 
 /-- Return true if the given (sub-)problem has been solved. -/
@@ -328,8 +338,8 @@ where
       return (p, (lhs, rhs) :: cnstrs)
 
 /--
-Solve pending alternative constraints. If all constraints can be solved perform assignment
-`mvarId := alt.rhs`, and return true.
+Solve pending alternative constraints.
+If all constraints can be solved perform assignment `mvarId := alt.rhs`, else throw error.
 -/
 private partial def solveCnstrs (mvarId : MVarId) (alt : Alt) : StateRefT State MetaM Unit := do
   go (reorientCnstrs alt)
@@ -354,16 +364,13 @@ where
           msg := msg ++ m!"\n  {lhs} ≋ {rhs}"
         throwErrorAt alt.ref msg
 
-private abbrev isCtorIdxIneq? (e : Expr) : Option FVarId := do
-  if let some (_, lhs, _rhs) := e.ne? then
-    if
-      lhs.isApp &&
-      lhs.getAppFn.isConst &&
-      (`ctorIdx).isSuffixOf lhs.getAppFn.constName! && -- This should be an env extension maybe
-      lhs.appArg!.isFVar
-    then
-      return lhs.appArg!.fvarId!
-  none
+private def isCtorIdxHasNotBit? (e : Expr) : Option FVarId := do
+  let ctorIdxApp ← isHasNotBit? e
+  guard ctorIdxApp.isApp
+  guard ctorIdxApp.getAppFn.isConst
+  guard <| (`ctorIdx).isSuffixOf ctorIdxApp.getAppFn.constName! -- This should be an env extension maybe
+  guard ctorIdxApp.appArg!.isFVar
+  return ctorIdxApp.appArg!.fvarId!
 
 private partial def contradiction (mvarId : MVarId) : MetaM Bool := do
   mvarId.withContext do
@@ -375,7 +382,7 @@ private partial def contradiction (mvarId : MVarId) : MetaM Bool := do
     else
       -- Try harder by splitting `ctorIdx x ≠ 23` assumptions
       for localDecl in (← getLCtx) do
-        if let some fvarId := isCtorIdxIneq? localDecl.type then
+        if let some fvarId := isCtorIdxHasNotBit? localDecl.type then
           trace[Meta.Match.match] "splitting ctorIdx assumption {localDecl.type}"
           let subgoals ← mvarId.cases fvarId
           return ← subgoals.allM (contradiction ·.mvarId)
@@ -399,8 +406,10 @@ where
       unless (← contradiction mvarId) do
         trace[Meta.Match.match] "contradiction failed, missing alternative"
         modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
-    | alt :: _ =>
+    | alt :: overlapped =>
       solveCnstrs p.mvarId alt
+      for otherAlt in overlapped do
+        modify fun s => { s with overlaps := s.overlaps.insert alt.idx otherAlt.idx }
 
 private def processAsPattern (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: _ := p.vars | unreachable!
@@ -571,7 +580,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
     -- We use a sparse case analysis only if there is at least one non-constructor pattern,
     -- but not just because there are constructors missing (in that case we benefit from
     -- the eager split in ruling out constructors by type or by a more explicit error message)
-    if backwards.match.sparseCases.get (← getOptions) && hasVarOrInaccessiblePattern p then
+    if backward.match.sparseCases.get (← getOptions) && hasVarOrInaccessiblePattern p then
       let ctors := collectCtors p
       trace[Meta.Match.match] "using sparse cases: {ctors}"
       pure (some ctors)
@@ -819,14 +828,15 @@ private def checkNextPatternTypes (p : Problem) : MetaM Unit := do
   | x::_ => withGoalOf p do
     for alt in p.alts do
       withRef alt.ref do
-        match alt.patterns with
-        | []   => return ()
-        | p::_ =>
-          let e ← p.toExpr
-          let xType ← inferType x
-          let eType ← inferType e
-          unless (← isDefEq xType eType) do
-            throwError "Type mismatch in pattern: Pattern{indentExpr e}\n{← mkHasTypeButIsExpectedMsg eType xType}"
+        withExistingLocalDecls alt.fvarDecls do
+          match alt.patterns with
+          | []   => return ()
+          | p::_ =>
+            let e ← p.toExpr
+            let xType ← inferType x
+            let eType ← inferType e
+            unless (← isDefEq xType eType) do
+              throwError "Type mismatch in pattern: Pattern{indentExpr e}\n{← mkHasTypeButIsExpectedMsg eType xType}"
 
 private def List.moveToFront [Inhabited α] (as : List α) (i : Nat) : List α :=
   let rec loop : (as : List α) → (i : Nat) → α × List α
@@ -908,7 +918,7 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
     process p
     return
 
-  if backwards.match.rowMajor.get (← getOptions) then
+  if backward.match.rowMajor.get (← getOptions) then
     match firstRefutablePattern p with
     | some i =>
       if i > 0 then
@@ -916,10 +926,12 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
         process (moveToFront p i)
         return
     | none =>
-      if 1 < p.alts.length then
+      if let alt::(overlapped@(_::_)) := p.alts then
         traceStep ("drop all but first alt")
-        -- all patterns are irrefutable, we can drop all other alts
-        let p := { p with alts := p.alts.take 1 }
+        -- all patterns in first alternative are irrefutable, we can drop all other alts
+        let p := { p with alts := [alt] }
+        for otherAlt in overlapped do
+          modify fun s => { s with overlaps := s.overlaps.insert alt.idx otherAlt.idx }
         process p
         return
 
@@ -990,7 +1002,6 @@ private def getUElimPos? (matcherLevels : List Level) (uElim : Level) : MetaM (O
 /- See comment at `mkMatcher` before `mkAuxDefinition` -/
 register_builtin_option bootstrap.genMatcherCode : Bool := {
   defValue := true
-  group := "bootstrap"
   descr := "disable code generation for auxiliary matcher function"
 }
 
@@ -1084,7 +1095,6 @@ where `v` is a universe parameter or 0 if `B[a_1, ..., a_n]` is a proposition.
 def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor input do
   let ⟨matcherName, matchType, discrInfos, lhss⟩ := input
   let numDiscrs := discrInfos.size
-  let numEqs := getNumEqsFromDiscrInfos discrInfos
   checkNumPatterns numDiscrs lhss
   forallBoundedTelescope matchType numDiscrs fun discrs matchTypeBody => do
   /- We generate an matcher that can eliminate using different motives with different universe levels.
@@ -1093,9 +1103,8 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
      This is useful for implementing `MatcherApp.addArg` because it may have to change the universe level. -/
   let uElim ← getLevel matchTypeBody
   let uElimGen ← if uElim == levelZero then pure levelZero else mkFreshLevelMVar
-  let mkMatcher (type val : Expr) (minors : Array (Expr × Nat)) (s : State) : MetaM MatcherResult := do
+  let mkMatcher (type val : Expr) (altInfos : Array AltParamInfo) (s : State) : MetaM MatcherResult := do
     trace[Meta.Match.debug] "matcher value: {val}\ntype: {type}"
-    trace[Meta.Match.debug] "minors num params: {minors.map (·.2)}"
     /- The option `bootstrap.gen_matcher_code` is a helper hack. It is useful, for example,
        for compiling `src/Init/Data/Int`. It is needed because the compiler uses `Int.decLt`
        for generating code for `Int.casesOn` applications, but `Int.casesOn` is used to
@@ -1115,10 +1124,11 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
       match addMatcher with
       | some addMatcher => addMatcher <|
         { numParams := matcher.getAppNumArgs
-          altNumParams := minors.map fun minor => minor.2 + numEqs
+          altInfos
           discrInfos
           numDiscrs
           uElimPos?
+          overlaps := s.overlaps
           }
       | none => pure ()
 
@@ -1142,7 +1152,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
       let isEqMask ← eqs.mapM fun eq => return (← inferType eq).isEq
       return (mvarType, isEqMask)
     trace[Meta.Match.debug] "target: {mvarType}"
-    withAlts motive discrs discrInfos lhss fun alts minors => do
+    withAlts motive discrs discrInfos lhss fun alts minors altInfos => do
       let mvar ← mkFreshExprMVar mvarType
       trace[Meta.Match.debug] "goal\n{mvar.mvarId!}"
       let examples := discrs'.toList.map fun discr => Example.var discr.fvarId!
@@ -1159,21 +1169,21 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
             rfls := rfls.push (← mkHEqRefl discr)
           isEqMaskIdx := isEqMaskIdx + 1
       let val := mkAppN (mkAppN val discrs) rfls
-      let args := #[motive] ++ discrs ++ minors.map Prod.fst
+      let args := #[motive] ++ discrs ++ minors
       let val ← mkLambdaFVars args val
       let type ← mkForallFVars args (mkAppN motive discrs)
-      mkMatcher type val minors s
+      mkMatcher type val altInfos s
   else
     let mvarType  := mkAppN motive discrs
     trace[Meta.Match.debug] "target: {mvarType}"
-    withAlts motive discrs discrInfos lhss fun alts minors => do
+    withAlts motive discrs discrInfos lhss fun alts minors altInfos => do
       let mvar ← mkFreshExprMVar mvarType
       let examples := discrs.toList.map fun discr => Example.var discr.fvarId!
       let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs.toList, alts := alts, examples := examples }).run {}
-      let args := #[motive] ++ discrs ++ minors.map Prod.fst
+      let args := #[motive] ++ discrs ++ minors
       let type ← mkForallFVars args mvarType
       let val  ← mkLambdaFVars args mvar
-      mkMatcher type val minors s
+      mkMatcher type val altInfos s
 
 def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput := do
   let matcherName := matcherApp.matcherName

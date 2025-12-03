@@ -481,6 +481,7 @@ private def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := en
     return {
       name := mod.name
       isModule := header.isModule
+      package? := mod.pkg.id?
       imports? := none
       importArts := info.directArts
       dynlibs := dynlibs.map (·.path)
@@ -635,7 +636,8 @@ private def Module.computeArtifacts (mod : Module) (isModule : Bool) : FetchM Mo
   }
 where
   @[inline] compute file ext := do
-    computeArtifact file ext
+    -- Note: Lean produces LF-only line endings for `.c` and `.ilean`, so no normalization.
+    computeArtifact file ext (text := false)
   computeIf c file ext := do
      if c then return some (← compute file ext) else return none
 
@@ -977,6 +979,7 @@ private def setupEditedModule
     let transImpArts ← fetchTransImportArts directImports info.directArts !header.isModule
     return {
       name := mod.name
+      package? := mod.pkg.id?
       isModule := header.isModule
       imports? := none
       importArts := transImpArts

@@ -30,7 +30,6 @@ LEAN_EXPORT lean_object* l_wfParam(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_measure___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_wfParam___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_instWellFoundedRelation(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFoundedRelation_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_emptyWf(lean_object*);
 LEAN_EXPORT lean_object* l_PSigma_instWellFoundedRelation___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_PSigma_skipLeft(lean_object*, lean_object*, lean_object*);
@@ -38,14 +37,6 @@ LEAN_EXPORT lean_object* l_PSigma_instWellFoundedRelation(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_sizeOfWFRel___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_Lex_instDecidableRelOfDecidableEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_lex(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFoundedRelation_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_emptyWf(lean_object* x_1) {
 _start:
 {
@@ -175,15 +166,6 @@ x_10 = l_Prod_Lex_instDecidableRelOfDecidableEq___redArg(x_3, x_5, x_7, x_8, x_9
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Prod_Lex_instDecidableRelOfDecidableEq___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-uint8_t x_6; lean_object* x_7; 
-x_6 = l_Prod_Lex_instDecidableRelOfDecidableEq___redArg(x_1, x_2, x_3, x_4, x_5);
-x_7 = lean_box(x_6);
-return x_7;
-}
-}
 LEAN_EXPORT lean_object* l_Prod_Lex_instDecidableRelOfDecidableEq___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -191,6 +173,15 @@ uint8_t x_10; lean_object* x_11;
 x_10 = l_Prod_Lex_instDecidableRelOfDecidableEq(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 x_11 = lean_box(x_10);
 return x_11;
+}
+}
+LEAN_EXPORT lean_object* l_Prod_Lex_instDecidableRelOfDecidableEq___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; lean_object* x_7; 
+x_6 = l_Prod_Lex_instDecidableRelOfDecidableEq___redArg(x_1, x_2, x_3, x_4, x_5);
+x_7 = lean_box(x_6);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Prod_lex(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -259,13 +250,6 @@ x_4 = lean_box(0);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_wfParam___redArg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_wfParam(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -273,13 +257,11 @@ lean_inc(x_2);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_wfParam___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_wfParam___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_wfParam___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_wfParam___boxed(lean_object* x_1, lean_object* x_2) {
@@ -289,6 +271,15 @@ lean_object* x_3;
 x_3 = l_wfParam(x_1, x_2);
 lean_dec(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_wfParam___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_wfParam___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* initialize_Init_BinderNameHint(uint8_t builtin);

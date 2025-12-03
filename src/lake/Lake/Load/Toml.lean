@@ -47,7 +47,7 @@ public instance [DecodeToml α] [ConfigField σ name α] : DecodeField σ name w
 
 /-! ## Value Decoders -/
 
-def takeNamePart (ss : Substring) (pre : Name) : (Substring × Name) :=
+def takeNamePart (ss : Substring.Raw) (pre : Name) : (Substring.Raw × Name) :=
   if ss.isEmpty then
     (ss, .anonymous)
   else
@@ -75,7 +75,7 @@ def takeNamePart (ss : Substring) (pre : Name) : (Substring × Name) :=
     else
       (ss, .anonymous)
 
-partial def takeName (ss : Substring) : (Substring × Name) :=
+partial def takeName (ss : Substring.Raw) : (Substring.Raw × Name) :=
   let rec takeRest ss pre :=
     if ss.front == '.' then
       let startPos := ss.startPos
@@ -87,7 +87,7 @@ partial def takeName (ss : Substring) : (Substring × Name) :=
   if n.isAnonymous then (ss, .anonymous) else takeRest ss n
 
 def Glob.ofString? (v : String) : Option Glob := do
-  let (ss, n) := takeName v.toSubstring
+  let (ss, n) := takeName v.toRawSubstring
   if n.isAnonymous then failure
   if h : ss.startPos.atEnd ss.str then
     return .one n

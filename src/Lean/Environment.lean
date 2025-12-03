@@ -71,7 +71,6 @@ paths back together.
 namespace Lean
 register_builtin_option debug.skipKernelTC : Bool := {
   defValue := false
-  group    := "debug"
   descr    := "skip kernel type checker. WARNING: setting this option to true may compromise soundness because your proofs will not be checked by the Lean kernel"
 }
 
@@ -1719,7 +1718,7 @@ passing (a prefix of) the file names to `readModuleDataParts`. `mod` is used to 
 arbitrary but deterministic base address for `mmap`.
 -/
 @[extern "lean_save_module_data_parts"]
-opaque saveModuleDataParts (mod : @& Name) (parts : Array (System.FilePath × ModuleData)) : IO Unit
+opaque saveModuleDataParts (mod : @& Name) (parts : @& Array (System.FilePath × ModuleData)) : IO Unit
 
 /--
 Loads the module data from the given file names. The files must be (a prefix of) the result of a
@@ -2002,7 +2001,7 @@ partial def importModulesCore
     for i in imports do
       if let some mod := (← get).moduleNameMap[i.module]?.bind (·.mainModule?) then
         if !mod.isModule then
-          throw <| IO.userError s!"cannot import non`-module` {i.module} from `module`"
+          throw <| IO.userError s!"cannot import non-`module` {i.module} from `module`"
 /-
 When the module system is disabled for the root, we import all transitively referenced modules and
 ignore any module system annotations on the way.
@@ -2444,13 +2443,17 @@ def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExistin
         else
           consts.add c
     }
-    checked := dest.checked.map fun kenv => replayKernel exts newPrivateConsts kenv |>.toOption.getD kenv
+    checked := dest.checked.map fun kenv =>
+      replayKernel
+        oldEnv.toKernelEnv.extensions newEnv.toKernelEnv.extensions exts newPrivateConsts kenv
+      |>.toOption.getD kenv
     allRealizations := dest.allRealizations.map (sync := true) fun allRealizations =>
       newPrivateConsts.foldl (init := allRealizations) fun allRealizations c =>
         allRealizations.insert c.constInfo.name c
   }
 where
-  replayKernel (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)
+  replayKernel (oldState newState : Array EnvExtensionState)
+      (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)
       (kenv : Kernel.Environment) : Except Kernel.Exception Kernel.Environment := do
     let mut kenv := kenv
     -- replay extensions first in case kernel checking needs them (`IR.declMapExt`)
@@ -2460,8 +2463,8 @@ where
           -- safety: like in `modifyState`, but that one takes an elab env instead of a kernel env
           extensions := unsafe (ext.modifyStateImpl kenv.extensions <|
             replay
-              (ext.getStateImpl oldEnv.toKernelEnv.extensions)
-              (ext.getStateImpl newEnv.toKernelEnv.extensions)
+              (ext.getStateImpl oldState)
+              (ext.getStateImpl newState)
               (consts.map (·.constInfo.name))) }
     for c in consts do
       if skipExisting && (kenv.find? c.constInfo.name).isSome then
@@ -2603,7 +2606,11 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
         { c with exts? := some <| .pure realizeEnv'.base.private.extensions }
       else c
     let exts ← EnvExtension.envExtensionsRef.get
-    let replayKernel := replayConsts.replayKernel (skipExisting := true) realizeEnv realizeEnv' exts newPrivateConsts
+    -- NOTE: We must ensure that `realizeEnv.localRealizationCtxMap` is not reachable via `res`
+    -- (such as by storing `realizeEnv` or `realizeEnv'` in a field or the closure) as `res` will be
+    -- stored in a promise in there, creating a cycle.
+    let replayKernel := replayConsts.replayKernel (skipExisting := true)
+      realizeEnv.toKernelEnv.extensions realizeEnv'.toKernelEnv.extensions exts newPrivateConsts
     let res : RealizeConstResult := { newConsts.private := newPrivateConsts, newConsts.public := newPublicConsts, replayKernel, dyn }
     pure (.mk res)
   let some res := res.get? RealizeConstResult | unreachable!

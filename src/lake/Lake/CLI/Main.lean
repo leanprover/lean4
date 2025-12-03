@@ -30,6 +30,7 @@ import Lake.CLI.Error
 import Lake.CLI.Actions
 import Lake.CLI.Translate
 import Lake.CLI.Serve
+import Init.Data.String.Search
 
 -- # CLI
 
@@ -190,12 +191,12 @@ def getWantsHelp : CliStateM Bool :=
   (·.wantsHelp) <$> get
 
 def setConfigOpt (kvPair : String) : CliM PUnit :=
-  let pos := kvPair.posOf '='
+  let pos := kvPair.find '='
   let (key, val) :=
-    if pos = kvPair.rawEndPos then
+    if h : pos.IsAtEnd then
       (kvPair.toName, "")
     else
-      (String.Pos.Raw.extract kvPair 0 pos |>.toName, String.Pos.Raw.extract kvPair (pos.next kvPair) kvPair.rawEndPos)
+      (kvPair.startPos.extract pos |>.toName, (pos.next h).extract kvPair.endPos)
   modifyThe LakeOptions fun opts =>
     {opts with configOpts := opts.configOpts.insert key val}
 
@@ -220,7 +221,7 @@ def lakeShortOption : (opt : Char) → CliM PUnit
 def validateRepo? (repo : String) : Option String := Id.run do
   unless repo.all isValidRepoChar do
     return "invalid characters in repository name"
-  match repo.splitToList (· == '/') with
+  match repo.split '/' |>.toStringList with
   | [owner, name] =>
     if owner.length > 39 then
       return "invalid repository name; owner must be at most 390 characters long"
@@ -323,7 +324,7 @@ def verifyInstall (opts : LakeOptions) : ExceptT CliError MainM PUnit := do
   verifyLeanVersion leanInstall
 
 def parseScriptSpec (ws : Workspace) (spec : String) : Except CliError Script :=
-  match spec.splitOn "/" with
+  match spec.split '/' |>.toStringList with
   | [scriptName] =>
     match ws.findScript? (stringToLegalOrSimpleName scriptName) with
     | some script => return script
@@ -352,7 +353,7 @@ def parseLangSpec (spec : String) : Except CliError ConfigLang :=
     throw <| CliError.unknownConfigLang spec
 
 def parseTemplateLangSpec (spec : String) : Except CliError (InitTemplate × ConfigLang) := do
-  match spec.splitOn "." with
+  match spec.split '.' |>.toStringList with
   | [tmp, lang] => return (← parseTemplateSpec tmp, ← parseLangSpec lang)
   | [tmp] => return (← parseTemplateSpec tmp, default)
   | _ => return default

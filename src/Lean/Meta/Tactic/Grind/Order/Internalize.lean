@@ -111,7 +111,7 @@ def mkCommRingCnstr? (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : RingM (O
     return some { u := lhs, v := rhs, k := 0, e, kind, h? := some (mkCnstrNorm0 s (← getRing).ringInst kind lhs rhs)  }
   let some lhs ← reify? lhs (skipVar := false) | return none
   let some rhs ← reify? rhs (skipVar := false) | return none
-  let p ← lhs.sub rhs |>.toPolyM
+  let some p ← lhs.sub rhs |>.toPolyM? | return none
   let (lhs', rhs', k) := split p
   let lhs' := lhs'.toExpr
   let rhs' := rhs'.toExpr
@@ -245,7 +245,7 @@ structure OffsetTermResult where
 
 def toOffsetTermCommRing? (e : Expr) : RingM (Option OffsetTermResult) := do
   let some e ← reify? e (skipVar := false) | return none
-  let p ← e.toPolyM
+  let some p ← e.toPolyM? | return none
   let k := p.getConst
   let p := p.addConst (-k)
   let a ← shareCommon (← p.denoteExpr)

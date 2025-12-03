@@ -66,7 +66,6 @@ if (x_8 == 0)
 {
 lean_object* x_9; uint8_t x_10; 
 x_9 = lean_ctor_get(x_7, 0);
-lean_inc(x_9);
 x_10 = lean_string_validate_utf8(x_9);
 if (x_10 == 0)
 {
@@ -91,7 +90,6 @@ lean_object* x_13; uint8_t x_14;
 x_13 = lean_ctor_get(x_7, 0);
 lean_inc(x_13);
 lean_dec(x_7);
-lean_inc(x_13);
 x_14 = lean_string_validate_utf8(x_13);
 if (x_14 == 0)
 {
@@ -218,7 +216,6 @@ if (x_8 == 0)
 {
 lean_object* x_9; uint8_t x_10; 
 x_9 = lean_ctor_get(x_7, 0);
-lean_inc(x_9);
 x_10 = lean_string_validate_utf8(x_9);
 if (x_10 == 0)
 {
@@ -245,7 +242,6 @@ lean_object* x_15; uint8_t x_16;
 x_15 = lean_ctor_get(x_7, 0);
 lean_inc(x_15);
 lean_dec(x_7);
-lean_inc(x_15);
 x_16 = lean_string_validate_utf8(x_15);
 if (x_16 == 0)
 {
@@ -287,20 +283,20 @@ return x_24;
 }
 }
 }
-LEAN_EXPORT lean_object* l_IO_ofExcept___at___00IO_FS_Stream_readJson_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_IO_ofExcept___at___00IO_FS_Stream_readJson_spec__0___redArg(x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_IO_ofExcept___at___00IO_FS_Stream_readJson_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
 x_4 = l_IO_ofExcept___at___00IO_FS_Stream_readJson_spec__0(x_1, x_2);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_IO_ofExcept___at___00IO_FS_Stream_readJson_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_IO_ofExcept___at___00IO_FS_Stream_readJson_spec__0___redArg(x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_IO_FS_Stream_readJson___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

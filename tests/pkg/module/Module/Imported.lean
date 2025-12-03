@@ -65,10 +65,10 @@ info: theorem trfl : f = 1 :=
 
 -- Should not fail with 'unknown constant `inst*`
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   X
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs in
 def fX : X := inferInstance
@@ -203,3 +203,10 @@ public meta def delab' : Lean.PrettyPrinter.Delaborator.Delab :=
 
 -- Used to complain about `_boxed` not being meta
 attribute [local delab Nat] delab'
+
+/--
+error: Invalid `meta` definition `metaUsingNonMeta`, `f` is not accessible here; consider adding `public meta import Module.Basic`
+-/
+#guard_msgs in
+public meta def metaUsingNonMeta : Nat :=
+  f

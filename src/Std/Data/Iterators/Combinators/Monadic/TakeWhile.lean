@@ -244,12 +244,4 @@ instance TakeWhile.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
     IteratorLoopPartial (TakeWhile α m β P) m n :=
   .defaultImplementation
 
-instance {α : Type w} [Monad m] [Iterator α m β] [Finite α m] [IteratorLoop α m m] {P} :
-    IteratorSize (TakeWhile α m β P) m :=
-  .defaultImplementation
-
-instance {α : Type w} [Monad m] [Iterator α m β] [IteratorLoopPartial α m m] {P} :
-    IteratorSizePartial (TakeWhile α m β P) m :=
-  .defaultImplementation
-
 end Std.Iterators

@@ -678,6 +678,7 @@ Given this typeclass, termination proofs for well-founded recursion over an iter
 `it.finitelyManySteps` as a termination measure.
 -/
 class Finite (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] : Prop where
+  /-- The relation of plausible successors is well-founded. -/
   wf : WellFounded (IterM.IsPlausibleSuccessorOf (α := α) (m := m))
 
 theorem Finite.wf_of_id {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] :
@@ -797,6 +798,7 @@ Given this typeclass, termination proofs for well-founded recursion over an iter
 `it.finitelyManySkips` as a termination measure.
 -/
 class Productive (α m) {β} [Iterator α m β] : Prop where
+  /-- The relation of plausible successors during skips is well-founded. -/
   wf : WellFounded (IterM.IsPlausibleSkipSuccessorOf (α := α) (m := m))
 
 /--
@@ -816,6 +818,24 @@ def IterM.TerminationMeasures.Productive.Rel
     {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β] :
     TerminationMeasures.Productive α m → TerminationMeasures.Productive α m → Prop :=
   Relation.TransGen <| InvImage IterM.IsPlausibleSkipSuccessorOf IterM.TerminationMeasures.Productive.it
+
+theorem IterM.TerminationMeasures.Finite.Rel.of_productive
+    {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β] {a b : Finite α m} :
+    Productive.Rel ⟨a.it⟩ ⟨b.it⟩ → Finite.Rel a b := by
+  generalize ha' : Productive.mk a.it = a'
+  generalize hb' : Productive.mk b.it = b'
+  have ha : a = ⟨a'.it⟩ := by simp [← ha']
+  have hb : b = ⟨b'.it⟩ := by simp [← hb']
+  rw [ha, hb]
+  clear ha hb ha' hb' a b
+  rw [Productive.Rel, Finite.Rel]
+  intro h
+  induction h
+  · rename_i ih
+    exact .single ⟨_, rfl, ih⟩
+  · rename_i hab ih
+    refine .trans ih ?_
+    exact .single ⟨_, rfl, hab⟩
 
 instance {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     [Productive α m] : WellFoundedRelation (IterM.TerminationMeasures.Productive α m) where

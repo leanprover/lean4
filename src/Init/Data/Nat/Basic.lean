@@ -473,8 +473,13 @@ protected theorem eq_iff_le_and_ge : ∀{a b : Nat}, a = b ↔ a ≤ b ∧ b ≤
 instance : Std.Antisymm ( . ≤ . : Nat → Nat → Prop) where
   antisymm _ _ h₁ h₂ := Nat.le_antisymm h₁ h₂
 
-instance : Std.Antisymm (¬ . < . : Nat → Nat → Prop) where
-  antisymm _ _ h₁ h₂ := Nat.le_antisymm (Nat.ge_of_not_lt h₂) (Nat.ge_of_not_lt h₁)
+instance : Std.Trichotomous (. < . : Nat → Nat → Prop) where
+  trichotomous _ _ h₁ h₂ := Nat.le_antisymm (Nat.ge_of_not_lt h₂) (Nat.ge_of_not_lt h₁)
+
+set_option linter.missingDocs false in
+@[deprecated Nat.instTrichotomousLt (since := "2025-10-27")]
+def Nat.instAntisymmNotLt : Std.Antisymm (¬ . < . : Nat → Nat → Prop) where
+  antisymm := Nat.instTrichotomousLt.trichotomous
 
 protected theorem add_le_add_left {n m : Nat} (h : n ≤ m) (k : Nat) : k + n ≤ k + m :=
   match le.dest h with
@@ -816,6 +821,8 @@ protected theorem two_pow_pos (w : Nat) : 0 < 2^w := Nat.pow_pos (by decide)
 
 instance {n m : Nat} [NeZero n] : NeZero (n^m) :=
   ⟨Nat.ne_zero_iff_zero_lt.mpr (Nat.pow_pos (pos_of_neZero _))⟩
+
+instance {n : Nat} : NeZero (n^0) := ⟨Nat.one_ne_zero⟩
 
 protected theorem mul_pow (a b n : Nat) : (a * b) ^ n = a ^ n * b ^ n := by
   induction n with

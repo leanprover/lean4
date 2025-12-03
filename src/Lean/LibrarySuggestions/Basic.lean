@@ -9,7 +9,9 @@ prelude
 public import Lean.Elab.Command
 public import Lean.Meta.Eval
 public import Lean.Meta.CompletionName
+public import Lean.Linter.Deprecated
 public import Init.Data.Random
+public import Lean.Elab.Tactic.Grind.Annotated
 
 /-!
 # An API for library suggestion algorithms.
@@ -146,7 +148,7 @@ structure Config where
   The tactic that is calling the premise selection, e.g. `simp`, `grind`, or `aesop`.
   This may be used to adjust the score of the suggestions
   -/
-  caller : Option Name := none
+  caller : Option String := none
   /--
   A filter on suggestions; only suggestions returning `true` should be returned.
   (It can be better to filter on the premise selection side, to ensure that enough suggestions are returned.)
@@ -210,6 +212,25 @@ def combine (selector₁ selector₂ : Selector) : Selector := fun g c => do
   let sorted := deduped.qsort (fun s₁ s₂ => s₁.score > s₂.score)
 
   return sorted.take c.maxSuggestions
+
+/--
+Filter out theorems from grind-annotated modules when the caller is "grind".
+Modules marked with `grind_annotated` contain manually reviewed/annotated theorems,
+so they should be excluded from automatic premise selection for grind.
+Other callers (like "simp") still receive suggestions from these modules.
+-/
+def filterGrindAnnotated (selector : Selector) : Selector := fun g c => do
+  let suggestions ← selector g c
+  -- Only filter when caller is "grind"
+  if c.caller == some "grind" then
+    let env ← getEnv
+    suggestions.filterM fun s => do
+      -- Check if the suggestion's module is grind-annotated
+      match env.getModuleIdxFor? s.name with
+      | none => return true  -- Keep suggestions with no module info
+      | some modIdx => return !Lean.Elab.Tactic.Grind.isGrindAnnotatedModule env modIdx
+  else
+    return suggestions
 
 /--
 Combine two premise selectors by interspersing their results (ignoring scores).
@@ -299,6 +320,7 @@ def isDeniedPremise (env : Environment) (name : Name) : Bool := Id.run do
   if name == ``sorryAx then return true
   if name.isInternalDetail then return true
   if Lean.Meta.isInstanceCore env name then return true
+  if Lean.Linter.isDeprecated env name then return true
   if (nameDenyListExt.getState env).any (fun p => name.anyS (· == p)) then return true
   if let some moduleIdx := env.getModuleIdxFor? name then
     let moduleName := env.header.moduleNames[moduleIdx.toNat]!
@@ -346,37 +368,36 @@ def currentFile : Selector := fun _ cfg => do
     | _ => continue
   return suggestions
 
-builtin_initialize librarySuggestionsExt : SimplePersistentEnvExtension Syntax (Option Syntax) ←
+builtin_initialize librarySuggestionsExt : SimplePersistentEnvExtension Name (Option Name) ←
   registerSimplePersistentEnvExtension {
-    addEntryFn := fun _ stx => some stx  -- Last entry wins
+    addEntryFn := fun _ name => some name  -- Last entry wins
     addImportedFn := fun entries =>
-      -- Take the last selector syntax from all imported modules
+      -- Take the last selector name from all imported modules
       entries.foldl (init := none) fun acc moduleEntries =>
-        moduleEntries.foldl (init := acc) fun _ stx => some stx
+        moduleEntries.foldl (init := acc) fun _ name => some name
   }
 
-/--
-Helper function to elaborate and evaluate selector syntax.
-This is shared by both validation (`elabSetLibrarySuggestions`) and retrieval (`getSelector`).
--/
-def elabAndEvalSelector (stx : Syntax) : MetaM Selector :=
-  Elab.Term.TermElabM.run' do
-    let selectorTerm ← Elab.Term.elabTermEnsuringType stx (some (Expr.const ``Selector []))
-    unsafe Meta.evalExpr Selector (Expr.const ``Selector []) selectorTerm
+/-- Attribute for registering library suggestions selectors. -/
+builtin_initialize librarySuggestionsAttr : TagAttribute ←
+  registerTagAttribute `library_suggestions "library suggestions selector" fun declName => do
+    let decl ← getConstInfo declName
+    unless decl.type == mkConst ``Selector do
+      throwError "declaration '{declName}' must have type `Selector`"
+    modifyEnv fun env => librarySuggestionsExt.addEntry env declName
 
 /--
-Get the currently registered library suggestions selector by evaluating the stored syntax.
+Get the currently registered library suggestions selector by looking up the stored declaration name.
 Returns `none` if no selector is registered or if evaluation fails.
-
-Uses `Term.elabTermEnsuringType` to elaborate arbitrary syntax (not just identifiers).
 -/
-def getSelector : MetaM (Option Selector) := do
-  let some stx := librarySuggestionsExt.getState (← getEnv) | return none
+unsafe def getSelectorImpl : MetaM (Option Selector) := do
+  let some declName := librarySuggestionsExt.getState (← getEnv) | return none
   try
-    let selector ← elabAndEvalSelector stx
-    return some selector
+    evalConstCheck Selector ``Selector declName
   catch _ =>
     return none
+
+@[implemented_by getSelectorImpl]
+opaque getSelector : MetaM (Option Selector)
 
 /-- Generate library suggestions for the given metavariable, using the currently registered library suggestions engine. -/
 def select (m : MVarId) (c : Config := {}) : MetaM (Array Suggestion) := do
@@ -403,14 +424,12 @@ def elabSetLibrarySuggestions : CommandElab
   | `(command| set_library_suggestions $selector) => do
     if `Lean.LibrarySuggestions.Basic ∉ (← getEnv).header.moduleNames then
       logWarning "Add `import Lean.LibrarySuggestions.Basic` before using the `set_library_suggestions` command."
-    -- Validate that the syntax can be elaborated (to catch errors early)
-    liftTermElabM do
-      try
-        discard <| elabAndEvalSelector selector
-      catch _ =>
-        throwError "Failed to elaborate {selector} as a `MVarId → Config → MetaM (Array Suggestion)`."
-    -- Store the syntax (not the evaluated Selector) for persistence
-    modifyEnv fun env => librarySuggestionsExt.addEntry env selector
+    -- Generate a fresh name for the selector definition
+    let name ← liftMacroM <| Macro.addMacroScope `_librarySuggestions
+    -- Elaborate the definition with the library_suggestions attribute
+    -- Note: @[expose] public, to ensure visibility across module boundaries
+    -- Use fully qualified `Lean.LibrarySuggestions.Selector` for module compatibility
+    elabCommand (← `(@[expose, library_suggestions] public def $(mkIdent name) : Lean.LibrarySuggestions.Selector := $selector))
   | _ => throwUnsupportedSyntax
 
 open Lean.Elab.Tactic in

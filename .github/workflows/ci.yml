@@ -106,9 +106,54 @@ jobs:
           TAG_NAME="${GITHUB_REF##*/}"
           echo "RELEASE_TAG=$TAG_NAME" >> "$GITHUB_OUTPUT"
 
+      - name: Validate CMakeLists.txt version matches tag
+        if: steps.set-release.outputs.RELEASE_TAG != ''
+        run: |
+          echo "Validating CMakeLists.txt version matches tag ${{ steps.set-release.outputs.RELEASE_TAG }}"
+
+          # Extract version values from CMakeLists.txt
+          CMAKE_MAJOR=$(grep -E "^set\(LEAN_VERSION_MAJOR " src/CMakeLists.txt | grep -oE '[0-9]+')
+          CMAKE_MINOR=$(grep -E "^set\(LEAN_VERSION_MINOR " src/CMakeLists.txt | grep -oE '[0-9]+')
+          CMAKE_PATCH=$(grep -E "^set\(LEAN_VERSION_PATCH " src/CMakeLists.txt | grep -oE '[0-9]+')
+          CMAKE_IS_RELEASE=$(grep -E "^set\(LEAN_VERSION_IS_RELEASE " src/CMakeLists.txt | grep -oE '[0-9]+')
+
+          # Expected values from tag parsing
+          TAG_MAJOR="${{ steps.set-release.outputs.LEAN_VERSION_MAJOR }}"
+          TAG_MINOR="${{ steps.set-release.outputs.LEAN_VERSION_MINOR }}"
+          TAG_PATCH="${{ steps.set-release.outputs.LEAN_VERSION_PATCH }}"
+
+          ERRORS=""
+
+          if [[ "$CMAKE_MAJOR" != "$TAG_MAJOR" ]]; then
+            ERRORS+="LEAN_VERSION_MAJOR: expected $TAG_MAJOR, found $CMAKE_MAJOR\n"
+          fi
+          if [[ "$CMAKE_MINOR" != "$TAG_MINOR" ]]; then
+            ERRORS+="LEAN_VERSION_MINOR: expected $TAG_MINOR, found $CMAKE_MINOR\n"
+          fi
+          if [[ "$CMAKE_PATCH" != "$TAG_PATCH" ]]; then
+            ERRORS+="LEAN_VERSION_PATCH: expected $TAG_PATCH, found $CMAKE_PATCH\n"
+          fi
+          if [[ "$CMAKE_IS_RELEASE" != "1" ]]; then
+            ERRORS+="LEAN_VERSION_IS_RELEASE: expected 1, found $CMAKE_IS_RELEASE\n"
+          fi
+
+          if [[ -n "$ERRORS" ]]; then
+            echo "::error::Version mismatch between tag and src/CMakeLists.txt"
+            echo ""
+            echo "Tag ${{ steps.set-release.outputs.RELEASE_TAG }} expects version $TAG_MAJOR.$TAG_MINOR.$TAG_PATCH"
+            echo "But src/CMakeLists.txt has mismatched values:"
+            echo -e "$ERRORS"
+            echo ""
+            echo "Fix src/CMakeLists.txt, delete the tag, and re-tag."
+            exit 1
+          fi
+
+          echo "Version validation passed: $TAG_MAJOR.$TAG_MINOR.$TAG_PATCH"
+
       # 0: PRs without special label
       # 1: PRs with `merge-ci` label, merge queue checks, master commits
-      # 2: PRs with `release-ci` label, releases (incl. nightlies)
+      # 2: nightlies
+      # 3: PRs with `release-ci` label, full releases
       - name: Set check level
         id: set-level
         # We do not use github.event.pull_request.labels.*.name here because
@@ -118,14 +163,16 @@ jobs:
           check_level=0
           fast=false
 
-          if [[ -n "${{ steps.set-nightly.outputs.nightly }}" || -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.outputs.RELEASE_TAG }}" ]]; then
+          if [[ -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.outputs.RELEASE_TAG }}" ]]; then
+            check_level=3
+          elif [[ -n "${{ steps.set-nightly.outputs.nightly }}" ]]; then
             check_level=2
           elif [[ "${{ github.event_name }}" != "pull_request" ]]; then
             check_level=1
           else
             labels="$(gh api repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/${{ github.event.pull_request.number }} --jq '.labels')"
             if echo "$labels" | grep -q "release-ci"; then
-              check_level=2
+              check_level=3
             elif echo "$labels" | grep -q "merge-ci"; then
               check_level=1
             fi
@@ -210,17 +257,22 @@ jobs:
                 "test": true,
                 "CMAKE_PRESET": "reldebug",
               },
-              // TODO: suddenly started failing in CI
-              /*{
+              {
                 "name": "Linux fsanitize",
-                "os": "ubuntu-latest",
+                // Always run on large if available, more reliable regarding timeouts
+                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
                 "enabled": level >= 2,
+                // do not fail nightlies on this for now
+                "secondary": level <= 2,
                 "test": true,
                 // turn off custom allocator & symbolic functions to make LSAN do its magic
                 "CMAKE_PRESET": "sanitize",
-                // exclude seriously slow/problematic tests (laketests crash)
-                "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
-              },*/
+                // `StackOverflow*` correctly triggers ubsan
+                // `reverse-ffi` fails to link in sanitizers
+                // `interactive` and `async_select_channel` fail nondeterministically, would need to
+                // be investigated.
+                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel'"
+              },
               {
                 "name": "macOS",
                 "os": "macos-15-intel",
@@ -252,7 +304,7 @@ jobs:
               },
               {
                 "name": "Windows",
-                "os": large && (fast || level == 2) ? "namespace-profile-windows-amd64-4x16" : "windows-2022",
+                "os": large && (fast || level >= 2) ? "namespace-profile-windows-amd64-4x16" : "windows-2022",
                 "release": true,
                 "enabled": level >= 2,
                 "test": true,
@@ -375,11 +427,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           path: artifacts
       - name: Release
-        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836
+        uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090
         with:
           files: artifacts/*/*
           fail_on_unmatched_files: true
@@ -407,7 +459,7 @@ jobs:
           # Doesn't seem to be working when additionally fetching from lean4-nightly
           #filter: tree:0
           token: ${{ secrets.PUSH_NIGHTLY_TOKEN }}
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           path: artifacts
       - name: Prepare Nightly Release
@@ -425,7 +477,7 @@ jobs:
           echo -e "\n*Full commit log*\n" >> diff.md
           git log --oneline "$last_tag"..HEAD | sed 's/^/* /' >> diff.md
       - name: Release Nightly
-        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836
+        uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090
         with:
           body_path: diff.md
           prerelease: true

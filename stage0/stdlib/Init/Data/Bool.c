@@ -61,6 +61,7 @@ static lean_object* l_Bool___aux__Init__Data__Bool______macroRules__Bool__term__
 LEAN_EXPORT uint8_t l_Bool_xor(uint8_t, uint8_t);
 static lean_object* l_Bool___aux__Init__Data__Bool______macroRules__Bool__term___x5e_x5e____1___closed__10;
 static lean_object* l_Bool_term___x5e_x5e___00__closed__1;
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Bool___aux__Init__Data__Bool______unexpand__Bool__xor__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Bool_term___x5e_x5e___00__closed__3;
 LEAN_EXPORT uint8_t l_Bool_instDecidableForallOfDecidablePred___redArg(lean_object*);
@@ -86,7 +87,6 @@ static lean_object* l_Bool_term___x5e_x5e___00__closed__11;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Bool_instDecidableExistsOfDecidablePred(lean_object*, lean_object*);
 static lean_object* l_Bool_term___x5e_x5e___00__closed__7;
-lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT uint8_t l_Bool_xor(uint8_t x_1, uint8_t x_2) {
 _start:
 {
@@ -304,7 +304,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Bool___aux__Init__Data__Bool______macroRules__Bool__term___x5e_x5e____1___closed__5;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
@@ -570,15 +570,6 @@ x_3 = l_Bool_instDecidableForallOfDecidablePred___redArg(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Bool_instDecidableForallOfDecidablePred___redArg___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Bool_instDecidableForallOfDecidablePred___redArg(x_1);
-x_3 = lean_box(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Bool_instDecidableForallOfDecidablePred___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -586,6 +577,15 @@ uint8_t x_3; lean_object* x_4;
 x_3 = l_Bool_instDecidableForallOfDecidablePred(x_1, x_2);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Bool_instDecidableForallOfDecidablePred___redArg___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Bool_instDecidableForallOfDecidablePred___redArg(x_1);
+x_3 = lean_box(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT uint8_t l_Bool_instDecidableExistsOfDecidablePred___redArg(lean_object* x_1) {
@@ -621,15 +621,6 @@ x_3 = l_Bool_instDecidableExistsOfDecidablePred___redArg(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Bool_instDecidableExistsOfDecidablePred___redArg___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Bool_instDecidableExistsOfDecidablePred___redArg(x_1);
-x_3 = lean_box(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Bool_instDecidableExistsOfDecidablePred___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -637,6 +628,15 @@ uint8_t x_3; lean_object* x_4;
 x_3 = l_Bool_instDecidableExistsOfDecidablePred(x_1, x_2);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Bool_instDecidableExistsOfDecidablePred___redArg___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Bool_instDecidableExistsOfDecidablePred___redArg(x_1);
+x_3 = lean_box(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Bool_instLE() {
@@ -720,14 +720,6 @@ return x_1;
 }
 }
 }
-static lean_object* _init_l_Bool_instMax() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Bool_instMax___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Bool_instMax___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -737,6 +729,14 @@ x_4 = lean_unbox(x_2);
 x_5 = l_Bool_instMax___lam__0(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
+}
+}
+static lean_object* _init_l_Bool_instMax() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Bool_instMax___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 LEAN_EXPORT uint8_t l_Bool_instMin___lam__0(uint8_t x_1, uint8_t x_2) {
@@ -752,14 +752,6 @@ return x_2;
 }
 }
 }
-static lean_object* _init_l_Bool_instMin() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Bool_instMin___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Bool_instMin___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -769,6 +761,14 @@ x_4 = lean_unbox(x_2);
 x_5 = l_Bool_instMin___lam__0(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
+}
+}
+static lean_object* _init_l_Bool_instMin() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Bool_instMin___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Bool_toNat(uint8_t x_1) {

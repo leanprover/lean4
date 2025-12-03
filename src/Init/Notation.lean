@@ -842,7 +842,7 @@ Position reporting:
   `#guard_msgs` appears.
 - `positions := false` does not report position info.
 
-For example, `#guard_msgs (error, drop all) in cmd` means to check warnings and drop
+For example, `#guard_msgs (error, drop all) in cmd` means to check errors and drop
 everything else.
 
 The command elaborator has special support for `#guard_msgs` for linting.

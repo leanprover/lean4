@@ -295,6 +295,15 @@ theorem add_def (a b : Rat) :
 theorem add_def' (a b : Rat) : a + b = mkRat (a.num * b.den + b.num * a.den) (a.den * b.den) := by
   rw [add_def, normalize_eq_mkRat]
 
+theorem num_add (a b : Rat) : (a + b).num =
+    (a.num * ↑b.den + b.num * ↑a.den) /
+      ↑((a.num * ↑b.den + b.num * ↑a.den).natAbs.gcd (a.den * b.den)) := by
+  rw [add_def, num_normalize]
+
+theorem den_add (a b : Rat) : (a + b).den =
+    a.den * b.den / (a.num * ↑b.den + b.num * ↑a.den).natAbs.gcd (a.den * b.den) := by
+  rw [add_def, den_normalize]
+
 @[local simp]
 protected theorem add_zero (a : Rat) : a + 0 = a := by simp [add_def', mkRat_self]
 @[local simp]
@@ -405,6 +414,13 @@ theorem mul_def (a b : Rat) :
 
 theorem mul_def' (a b : Rat) : a * b = mkRat (a.num * b.num) (a.den * b.den) := by
   rw [mul_def, normalize_eq_mkRat]
+
+theorem num_mul (a b : Rat) :
+    (a * b).num = a.num * b.num / ↑((a.num * b.num).natAbs.gcd (a.den * b.den)) := by
+  rw [mul_def, num_normalize]
+theorem den_mul (a b : Rat) :
+    (a * b).den = a.den * b.den / (a.num * b.num).natAbs.gcd (a.den * b.den) := by
+  rw [mul_def, den_normalize]
 
 protected theorem mul_comm (a b : Rat) : a * b = b * a := by
   simp [mul_def, normalize_eq_mkRat, Int.mul_comm, Nat.mul_comm]
@@ -551,7 +567,9 @@ theorem pow_def (q : Rat) (n : Nat) :
 @[simp] theorem num_pow (q : Rat) (n : Nat) : (q ^ n).num = q.num ^ n := rfl
 @[simp] theorem den_pow (q : Rat) (n : Nat) : (q ^ n).den = q.den ^ n := rfl
 
-@[simp] protected theorem pow_zero (q : Rat) : q ^ 0 = 1 := rfl
+@[simp] protected theorem pow_zero (q : Rat) : q ^ 0 = 1 := by
+  simp only [pow_def, Int.pow_zero, Nat.pow_zero, mk_den_one]
+  rfl
 
 protected theorem pow_succ (q : Rat) (n : Nat) : q ^ (n + 1) = q ^ n * q := by
   rcases q with ⟨n, d, hn, r⟩
@@ -567,7 +585,8 @@ protected theorem zpow_natCast (q : Rat) (n : Nat) : q ^ (n : Int) = q ^ n := rf
 
 protected theorem zpow_neg (q : Rat) (n : Int) : q ^ (-n : Int) = (q ^ n)⁻¹ := by
   rcases n with (_ | n) | n
-  · with_unfolding_all rfl
+  · simp only [Int.ofNat_eq_natCast, Int.cast_ofNat_Int, Int.neg_zero, Rat.zpow_zero]
+    with_unfolding_all rfl
   · rfl
   · exact (Rat.inv_inv _).symm
 

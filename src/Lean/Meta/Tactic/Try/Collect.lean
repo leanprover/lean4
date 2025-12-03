@@ -123,7 +123,9 @@ def visitApp (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
   saveLibSearchCandidates e
 
 def checkInductive (localDecl : LocalDecl) : M Unit := do
-  let .const declName _ ← whnfD localDecl.type | return ()
+  let type ← whnfD localDecl.type
+  -- Use getAppFn to handle both `T` and `T α β ...` cases
+  let .const declName _ := type.getAppFn | return ()
   let .inductInfo val ← getConstInfo declName | return ()
   if (← isEligible declName) then
     unless (← Grind.isSplit declName) do

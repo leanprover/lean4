@@ -58,10 +58,10 @@ info: RegularBEq.instLawfulBEqWithHEq.{u_1} {α✝ : Type u_1} {a✝ : Nat} [BEq
 -- No `BEq` derived? Not a great error message yet, but the error location helps, so good enough.
 
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   BEq Foo
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs in
 structure Foo where
@@ -71,10 +71,10 @@ structure Foo where
 
 /--
 @ +2:16...25
-error: failed to synthesize
+error: failed to synthesize instance of type class
   ReflBEq Bar
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs (positions := true) in
 structure Bar where
@@ -159,10 +159,10 @@ info: LinearBEq.instLawfulBEqWithHEq.{u_1} {α✝ : Type u_1} {a✝ : Nat} [BEq 
 -- No `BEq` derived? Not a great error message yet, but the error location helps, so good enough.
 
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   BEq Foo
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs in
 structure Foo where
@@ -172,10 +172,10 @@ structure Foo where
 
 /--
 @ +2:16...25
-error: failed to synthesize
+error: failed to synthesize instance of type class
   ReflBEq Bar
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs (positions := true) in
 structure Bar where

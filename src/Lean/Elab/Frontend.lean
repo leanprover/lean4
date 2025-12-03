@@ -157,6 +157,7 @@ def runFrontend
       liftM <| setup.dynlibs.forM Lean.loadDynlib
       return .ok {
         trustLevel
+        package? := setup.package?
         mainModuleName := setup.name
         isModule := strictOr setup.isModule stx.isModule
         imports := setup.imports?.getD stx.imports

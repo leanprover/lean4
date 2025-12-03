@@ -433,7 +433,7 @@ def processEdit : RunnerM Unit := do
     | "insert" => pure ("\"\"", s.params)
     | "change" =>
       -- TODO: allow spaces in strings
-      let [delete, insert] := s.params.splitOn " "
+      let [delete, insert] := s.params.split ' ' |>.toStringList
         | throw <| IO.userError s!"expected two arguments in {s.params}"
       pure (delete, insert)
     | _ => unreachable!
@@ -637,12 +637,15 @@ def processGenericRequest : RunnerM Unit := do
 
 def processDirective (ws directive : String) (directiveTargetLineNo : Nat) : RunnerM Unit := do
   let directive := directive.drop 1
-  let colon := directive.posOf ':'
-  let method := String.Pos.Raw.extract directive 0 colon |>.trim
+  let colon := directive.find ':'
+  let method := directive.sliceTo colon |>.trimAscii |>.copy
   -- TODO: correctly compute in presence of Unicode
   let directiveTargetColumn := ws.rawEndPos + "--"
   let pos : Lsp.Position := { line := directiveTargetLineNo, character := directiveTargetColumn.byteIdx }
-  let params := if colon < directive.rawEndPos then String.Pos.Raw.extract directive (colon + ':') directive.rawEndPos |>.trim else "{}"
+  let params :=
+    if h : ¬colon.IsAtEnd then
+      directive.sliceFrom (colon.next h) |>.trimAscii.copy
+    else "{}"
   modify fun s => { s with pos, method, params }
   match method with
   -- `delete: "foo"` deletes the given string's number of characters at the given position.
@@ -670,7 +673,7 @@ def processDirective (ws directive : String) (directiveTargetLineNo : Nat) : Run
   | _ => processGenericRequest
 
 def processLine (line : String) : RunnerM Unit := do
-  let [ws, directive] := line.splitOn "--"
+  let [ws, directive] := line.split "--" |>.toStringList
     | skipLineWithoutDirective
       return
   let directiveTargetLineNo ←
@@ -730,12 +733,12 @@ partial def main (args : List String) : IO Unit := do
       requestNo := 1
     }
     RunnerM.run (init := init) do
-      for text in text.splitOn "-- RESET" do
+      for text in text.split "-- RESET" do
         Ipc.writeNotification ⟨"textDocument/didOpen", {
-          textDocument := { uri := uri, languageId := "lean", version := 1, text := text } : DidOpenTextDocumentParams }⟩
+          textDocument := { uri := uri, languageId := "lean", version := 1, text := text.copy } : DidOpenTextDocumentParams }⟩
         reset
-        for line in text.splitOn "\n" do
-          processLine line
+        for line in text.split '\n' do
+          processLine line.copy
         let _ ← Ipc.collectDiagnostics (← get).requestNo uri ((← get).versionNo - 1)
         advanceRequestNo
         Ipc.writeNotification ⟨"textDocument/didClose", {

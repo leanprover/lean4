@@ -6,20 +6,25 @@ Authors: Kim Morrison
 module
 
 prelude
+public import Lean.LibrarySuggestions.Basic
+public import Lean.LibrarySuggestions.SineQuaNon
 import all Lean.LibrarySuggestions.SineQuaNon
 
 /-!
 # Default library suggestions engine
 
-This module sets the default library suggestions engine to Sine Qua Non.
+This module sets the default library suggestions engine to "Sine Qua Non",
+along with the theorems from the current file.
+.
 Any module that imports this (directly or transitively) will have library suggestions enabled.
 -/
 
 namespace Lean.LibrarySuggestions
 
-open Lean LibrarySuggestions SineQuaNon
-
--- Set the default library suggestions engine to Sine Qua Non
-set_library_suggestions Lean.LibrarySuggestions.sineQuaNonSelector
+-- Set the default library suggestions engine to
+-- a combination of "Sine Qua Non" and the theorems from the current file.
+-- For now we just intersperse the results, but in future we should re-rank them.
+-- Note: We filter out grind-annotated modules from sineQuaNonSelector when caller is "grind".
+set_library_suggestions open Lean.LibrarySuggestions in sineQuaNonSelector.filterGrindAnnotated.intersperse currentFile
 
 end Lean.LibrarySuggestions

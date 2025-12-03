@@ -2,6 +2,8 @@ module
 import UseA
 import UseB
 
-def main : IO Unit := do
-  IO.println useA
-  IO.println useB
+public def main : IO Unit := do
+  IO.print useA
+  IO.print "; "
+  IO.print useB
+  IO.print "\n"

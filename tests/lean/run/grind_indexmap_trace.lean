@@ -154,7 +154,7 @@ info: Try these:
       · instantiate only
       · instantiate only
         instantiate only [= HashMap.contains_insert]
-    · cases #95a0
+    · cases #10d8
       · cases #2688
         · instantiate only
         · instantiate only
@@ -164,7 +164,7 @@ info: Try these:
         · instantiate only
           instantiate only [= HashMap.contains_insert]
   [apply] finish only [= mem_indices_of_mem, insert, =_ HashMap.contains_iff_mem, = getElem?_neg, = getElem?_pos,
-    = HashMap.contains_insert, #4ed2, #ffdf, #95a0, #2688]
+    = HashMap.contains_insert, #4ed2, #ffdf, #10d8, #2688]
 -/
 #guard_msgs in
 example (m : IndexMap α β) (a a' : α) (b : β) :
@@ -181,7 +181,7 @@ info: Try these:
       · instantiate only
       · instantiate only
         instantiate only [= HashMap.contains_insert]
-    · cases #95a0
+    · cases #10d8
       · cases #2688
         · instantiate only
         · instantiate only
@@ -191,7 +191,7 @@ info: Try these:
         · instantiate only
           instantiate only [= HashMap.contains_insert]
   [apply] finish only [= mem_indices_of_mem, insert, =_ HashMap.contains_iff_mem, = getElem?_neg, = getElem?_pos,
-    = HashMap.contains_insert, #4ed2, #ffdf, #95a0, #2688]
+    = HashMap.contains_insert, #4ed2, #ffdf, #10d8, #2688]
 -/
 #guard_msgs in
 example (m : IndexMap α β) (a a' : α) (b : β) :
@@ -207,11 +207,10 @@ example (m : IndexMap α β) (a a' : α) (b : β) :
     · cases #ffdf
       · instantiate only
       · instantiate only
-        set_option trace.grind.ematch.instance true in
         instantiate only [= HashMap.contains_insert]
-    · cases #95a0
-      · cases #2688 <;> finish [= HashMap.contains_insert]
-      · cases #ffdf <;> finish
+    · cases #10d8
+      · cases #2688 <;> finish only [= HashMap.contains_insert]
+      · cases #ffdf <;> finish only [= HashMap.contains_insert]
 
 example (m : IndexMap α β) (a a' : α) (b : β) :
     a' ∈ m.insert a b ↔ a' = a ∨ a' ∈ m := by
@@ -369,6 +368,26 @@ info: Try these:
 example (m : IndexMap α β) (a : α) (b : β) :
     (m.insert a b).findIdx a = if h : a ∈ m then m.findIdx a else m.size := by
   grind => finish?
+
+/--
+info: Try these:
+  [apply] grind
+  [apply] grind only [findIdx, insert, = mem_indices_of_mem, = getElem?_neg, = getElem?_pos, = HashMap.mem_insert,
+    = HashMap.getElem_insert, #1bba]
+  [apply] grind only [findIdx, insert, = mem_indices_of_mem, = getElem?_neg, = getElem?_pos, = HashMap.mem_insert,
+    = HashMap.getElem_insert]
+  [apply] grind =>
+    instantiate only [findIdx, insert, = mem_indices_of_mem]
+    instantiate only [= getElem?_neg, = getElem?_pos]
+    cases #1bba
+    · instantiate only [findIdx]
+    · instantiate only
+      instantiate only [= HashMap.mem_insert, = HashMap.getElem_insert]
+-/
+#guard_msgs in
+example (m : IndexMap α β) (a : α) (b : β) :
+    (m.insert a b).findIdx a = if h : a ∈ m then m.findIdx a else m.size := by
+  try?
 
 example (m : IndexMap α β) (a : α) (b : β) :
     (m.insert a b).findIdx a = if h : a ∈ m then m.findIdx a else m.size := by

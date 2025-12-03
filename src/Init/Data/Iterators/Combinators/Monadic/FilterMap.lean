@@ -604,30 +604,4 @@ def IterM.filter {α β : Type w} {m : Type w → Type w'} [Iterator α m β] [M
     (f : β → Bool) (it : IterM (α := α) m β) :=
   (it.filterMap (fun b => if f b then some b else none) : IterM m β)
 
-instance {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
-    {f : β → PostconditionT n (Option γ)} [Finite α m] :
-    IteratorSize (FilterMap α m n lift f) n :=
-  .defaultImplementation
-
-instance {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
-    {f : β → PostconditionT n (Option γ)} :
-    IteratorSizePartial (FilterMap α m n lift f) n :=
-  .defaultImplementation
-
-instance {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β]
-    {lift : ⦃α : Type w⦄ → m α → n α}
-    {f : β → PostconditionT n γ} [IteratorSize α m] :
-    IteratorSize (Map α m n lift f) n where
-  size it := lift (IteratorSize.size it.internalState.inner)
-
-instance {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β]
-    {lift : ⦃α : Type w⦄ → m α → n α}
-    {f : β → PostconditionT n γ} [IteratorSizePartial α m] :
-    IteratorSizePartial (Map α m n lift f) n where
-  size it := lift (IteratorSizePartial.size it.internalState.inner)
-
 end Std.Iterators

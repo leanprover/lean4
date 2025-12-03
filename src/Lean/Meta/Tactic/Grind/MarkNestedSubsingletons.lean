@@ -92,6 +92,10 @@ where
 
   preprocess (e : Expr) : M Expr := do
     /-
+    **Note**: We must use `instantiateMVars` here because this function is called using the result of `inferType`.
+    -/
+    let e ← instantiateMVars e
+    /-
     We must unfold reducible constants occurring in `prop` because the congruence closure
     module in `grind` assumes they have been expanded.
     See `grind_mark_nested_proofs_bug.lean` for an example.

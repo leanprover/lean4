@@ -63,12 +63,6 @@ public instance {α : Type u} {β : α → Type v} {m : Type (max u v) → Type 
     IteratorLoopPartial (AssocListIterator α β) Id m :=
   .defaultImplementation
 
-public instance : IteratorSize (AssocListIterator α β) Id :=
-  .defaultImplementation
-
-public instance : IteratorSizePartial (AssocListIterator α β) Id :=
-  .defaultImplementation
-
 /--
 Internal implementation detail of the hash map. Returns a finite iterator on an associative list.
 -/

@@ -182,6 +182,22 @@ def get! [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) [Inhabited (β a)]  : β
 def getD [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (fallback : β a) : β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.getD a fallback
 
+@[inline, inherit_doc DTreeMap.getEntry?]
+def getEntry? (t : Raw α β cmp) (a : α) : Option ((a : α) × β a) :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getEntry? a
+
+@[inline, inherit_doc DTreeMap.getEntry]
+def getEntry [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (h : a ∈ t) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getEntry a h
+
+@[inline, inherit_doc DTreeMap.getEntry!]
+def getEntry! [Inhabited ((a : α) × β a)](t : Raw α β cmp) (a : α) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getEntry! a
+
+@[inline, inherit_doc DTreeMap.getEntryD]
+def getEntryD (t : Raw α β cmp) (a : α) (fallback : (a : α) × β a) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getEntryD a fallback
+
 @[inline, inherit_doc DTreeMap.getKey?]
 def getKey? (t : Raw α β cmp) (a : α) : Option α :=
   letI : Ord α := ⟨cmp⟩; t.inner.getKey? a
@@ -561,10 +577,10 @@ def forM (f : (a : α) → β a → m PUnit) (t : Raw α β cmp) : m PUnit :=
 def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (t : Raw α β cmp) : m δ :=
   t.inner.forIn f init
 
-instance : ForM m (Raw α β cmp) ((a : α) × β a) where
+instance [Monad m] : ForM m (Raw α β cmp) ((a : α) × β a) where
   forM t f := t.forM (fun a b => f ⟨a, b⟩)
 
-instance : ForIn m (Raw α β cmp) ((a : α) × β a) where
+instance [Monad m] : ForIn m (Raw α β cmp) ((a : α) × β a) where
   forIn t init f := t.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
 namespace Const
@@ -705,6 +721,16 @@ def union (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.union! t₂.inner⟩
 
 instance : Union (Raw α β cmp) := ⟨union⟩
+
+/--
+Computes the intersection of the given tree maps. The result will only contain entries from the first map.
+
+This function always merges the smaller map into the larger map.
+-/
+def inter (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.inter! t₂.inner⟩
+
+instance : Inter (Raw α β cmp) := ⟨inter⟩
 
 @[inline, inherit_doc DTreeMap.eraseMany]
 def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=

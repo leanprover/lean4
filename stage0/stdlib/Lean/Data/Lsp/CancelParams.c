@@ -48,33 +48,14 @@ static lean_object* l_Lean_Lsp_instFromJsonCancelParams_fromJson___closed__6;
 lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(lean_object*, uint8_t);
 static lean_object* l_Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonCancelParams_fromJson_spec__0___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instInhabitedCancelParams_default;
-LEAN_EXPORT lean_object* l_Lean_Lsp_CancelParams_ctorIdx(lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonCancelParams_fromJson___closed__5;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Lsp_CancelParams_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonCancelParams_fromJson_spec__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonCancelParams_fromJson_spec__0___closed__0;
 static lean_object* l_Lean_Lsp_instToJsonCancelParams_toJson___closed__1;
 static lean_object* l_Lean_Lsp_instToJsonCancelParams___closed__0;
 static lean_object* l_Lean_Lsp_instFromJsonCancelParams___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Lsp_CancelParams_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Lsp_CancelParams_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Lsp_CancelParams_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Lsp_instInhabitedCancelParams_default___closed__0() {
 _start:
 {
@@ -293,14 +274,14 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_Json_getObjValD(x_1, x_2);
 switch (lean_obj_tag(x_3)) {
-case 2:
+case 3:
 {
 uint8_t x_4; 
 x_4 = !lean_is_exclusive(x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; 
-lean_ctor_set_tag(x_3, 1);
+lean_ctor_set_tag(x_3, 0);
 x_5 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_5, 0, x_3);
 return x_5;
@@ -311,21 +292,21 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_6 = lean_ctor_get(x_3, 0);
 lean_inc(x_6);
 lean_dec(x_3);
-x_7 = lean_alloc_ctor(1, 1, 0);
+x_7 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 x_8 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
 return x_8;
 }
 }
-case 3:
+case 2:
 {
 uint8_t x_9; 
 x_9 = !lean_is_exclusive(x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; 
-lean_ctor_set_tag(x_3, 0);
+lean_ctor_set_tag(x_3, 1);
 x_10 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_10, 0, x_3);
 return x_10;
@@ -336,7 +317,7 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13;
 x_11 = lean_ctor_get(x_3, 0);
 lean_inc(x_11);
 lean_dec(x_3);
-x_12 = lean_alloc_ctor(0, 1, 0);
+x_12 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_12, 0, x_11);
 x_13 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_13, 0, x_12);

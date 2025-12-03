@@ -15,6 +15,7 @@ open Lean
 
 namespace Lake
 
+set_option linter.deprecated false in
 variable (defaultPkg : Package) (root : BuildKey) in
 private def PartialBuildKey.fetchInCoreAux
   (self : PartialBuildKey) (facetless : Bool := false)
@@ -27,30 +28,30 @@ private def PartialBuildKey.fetchInCoreAux
   | .package pkgName =>
     let pkg ← resolveTargetPackageD pkgName
     return ⟨.package pkg.name, cast (by simp) <| Job.pure pkg⟩
+  | .packageModule pkgName modName =>
+    let pkg ← resolveTargetPackageD pkgName
+    let some mod := pkg.findTargetModule? modName
+      | error s!"invalid target '{root}': module target '{modName}' not found in package '{pkg.name}'"
+    return ⟨.packageModule pkg.name modName, cast (by simp) <| Job.pure mod⟩
   | .packageTarget pkgName target =>
     let pkg ← resolveTargetPackageD pkgName
-    if let some modName := target.eraseSuffix? PartialBuildKey.moduleTargetIndicator then
-      let some mod := pkg.findTargetModule? modName
-        | error s!"invalid target '{root}': module target '{modName}' not found in package '{pkg.name}'"
-      return ⟨.module mod.keyName, cast (by simp) <| Job.pure mod⟩
-    else
-      let key := BuildKey.packageTarget pkg.name target
-      if facetless then
-        if let some decl := pkg.findTargetDecl? target then
-          if h : decl.kind.isAnonymous then
-            let job ← ( pkg.target target).fetch
-            return ⟨key, cast (by simp) job⟩
-          else
-            let facet := decl.kind.str "default"
-            let tgt := decl.mkConfigTarget pkg
-            let tgt := cast (by simp [decl.target_eq_type h]) tgt
-            let info := BuildInfo.facet key decl.kind tgt facet
-            return ⟨key.facet facet, ← info.fetch⟩
+    let key := BuildKey.packageTarget pkg.name target
+    if facetless then
+      if let some decl := pkg.findTargetDecl? target then
+        if h : decl.kind.isAnonymous then
+          let job ← ( pkg.target target).fetch
+          return ⟨key, cast (by simp) job⟩
         else
-          error s!"invalid target '{root}': target not found in package '{pkg.name}'"
+          let facet := decl.kind.str "default"
+          let tgt := decl.mkConfigTarget pkg
+          let tgt := cast (by simp [decl.target_eq_type h]) tgt
+          let info := BuildInfo.facet key decl.kind tgt facet
+          return ⟨key.facet facet, ← info.fetch⟩
       else
-        let job ← (pkg.target target).fetch
-        return ⟨key, cast (by simp) job⟩
+        error s!"invalid target '{root}': target not found in package '{pkg.name}'"
+    else
+      let job ← (pkg.target target).fetch
+      return ⟨key, cast (by simp) job⟩
   | .facet target shortFacet =>
       let ⟨key, job⟩ ← PartialBuildKey.fetchInCoreAux target false
       let kind := job.kind
@@ -92,6 +93,7 @@ Fetches the target specified by this key, resolving gaps as needed.
 @[inline] public def PartialBuildKey.fetchIn (defaultPkg : Package) (self : PartialBuildKey) : FetchM OpaqueJob :=
   (·.2.toOpaque) <$> fetchInCore defaultPkg self
 
+set_option linter.deprecated false in
 variable (root : BuildKey) in
 private def BuildKey.fetchCore
   (self : BuildKey)
@@ -105,6 +107,12 @@ private def BuildKey.fetchCore
     let some pkg ← findPackage? pkgName
       | error s!"invalid target '{root}': package '{pkgName}' not found in workspace"
     return cast (by simp) <| Job.pure pkg.toPackage
+  | packageModule pkgName modName =>
+    let some pkg ← findPackage? pkgName
+      | error s!"invalid target '{root}': package '{pkgName}' not found in workspace"
+    let some mod := pkg.findTargetModule? modName
+      | error s!"invalid target '{root}': module '{modName}' not found in package '{pkg.name}'"
+    return cast (by simp) <| Job.pure mod
   | packageTarget pkgName target =>
     let some pkg ← findPackage? pkgName
       | error s!"invalid target '{root}': package '{pkgName}' not found in workspace"
@@ -136,7 +144,7 @@ public protected def Target.fetchIn
     return cast h job
   else
     let actual := if job.kind.name.isAnonymous then "unknown" else s!"'{job.kind.name}'"
-    error s!"type mismtach in target '{self.key}': expected '{kind}', got {actual}"
+    error s!"type mismatch in target '{self.key}': expected '{kind}', got {actual}"
 
 public protected def TargetArray.fetchIn
   [DataKind α] (defaultPkg : Package) (self : TargetArray α) (traceCaption := "<targets>")

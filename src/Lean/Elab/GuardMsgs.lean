@@ -166,7 +166,7 @@ def WhitespaceMode.apply (mode : WhitespaceMode) (s : String) : String :=
   match mode with
   | .exact => s
   | .normalized => s.replace "\n" " "
-  | .lax => String.intercalate " " <| (s.splitToList Char.isWhitespace).filter (!·.isEmpty)
+  | .lax => " ".toSlice.intercalate <| (s.split Char.isWhitespace).filter (!·.isEmpty) |>.toList
 
 /--
 Applies a message ordering mode.
@@ -179,7 +179,7 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
 @[builtin_command_elab Lean.guardMsgsCmd] def elabGuardMsgs : CommandElab
   | `(command| $[$dc?:docComment]? #guard_msgs%$tk $(spec?)? in $cmd) => do
     let expected : String := (← dc?.mapM (getDocStringText ·)).getD ""
-        |>.trim |> removeTrailingWhitespaceMarker
+        |>.trimAscii |>.copy |> removeTrailingWhitespaceMarker
     let { whitespace, ordering, filterFn, reportPositions } ← parseGuardMsgsSpec spec?
     -- do not forward snapshot as we don't want messages assigned to it to leak outside
     withReader ({ · with snap? := none }) do
@@ -206,7 +206,7 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
       else none
     let strings ← toCheck.toList.mapM (messageToString · reportPos?)
     let strings := ordering.apply strings
-    let res := "---\n".intercalate strings |>.trim
+    let res := "---\n".intercalate strings |>.trimAscii |>.copy
     if whitespace.apply expected == whitespace.apply res then
       -- Passed. Only put toPassthrough messages back on the message log
       modify fun st => { st with messages := toPassthrough }
@@ -215,7 +215,7 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
       modify fun st => { st with messages := msgs }
       let feedback :=
         if guard_msgs.diff.get (← getOptions) then
-          let diff := Diff.diff (expected.splitToList (· == '\n')).toArray (res.splitToList (· == '\n')).toArray
+          let diff := Diff.diff (expected.split '\n').toStringArray (res.split '\n').toStringArray
           Diff.linesToString diff
         else res
       logErrorAt tk m!"❌️ Docstring on `#guard_msgs` does not match generated message:\n\n{feedback}"

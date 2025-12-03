@@ -10,7 +10,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
-set(LEAN_VERSION_MINOR 26)
+set(LEAN_VERSION_MINOR 27)
 set(LEAN_VERSION_PATCH 0)
 set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -42,7 +42,7 @@ if(LLD_PATH)
 endif()
 
 set(LEAN_EXTRA_LINKER_FLAGS ${LEAN_EXTRA_LINKER_FLAGS_DEFAULT} CACHE STRING "Additional flags used by the linker")
-set(LEAN_EXTRA_CXX_FLAGS "" CACHE STRING "Additional flags used by the C++ compiler")
+set(LEAN_EXTRA_CXX_FLAGS "" CACHE STRING "Additional flags used by the C++ compiler. Unlike `CMAKE_CXX_FLAGS`, these will not be used to build e.g. cadical.")
 set(LEAN_TEST_VARS "LEAN_CC=${CMAKE_C_COMPILER}" CACHE STRING "Additional environment variables used when running tests")
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -191,7 +191,7 @@ endif()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
 # Initialize CXXFLAGS.
-set(CMAKE_CXX_FLAGS                "${LEAN_EXTRA_CXX_FLAGS} -DLEAN_BUILD_TYPE=\"${CMAKE_BUILD_TYPE}\" -DLEAN_EXPORTING")
+set(CMAKE_CXX_FLAGS                "${CMAKE_CXX_FLAGS} ${LEAN_EXTRA_CXX_FLAGS} -DLEAN_BUILD_TYPE=\"${CMAKE_BUILD_TYPE}\" -DLEAN_EXPORTING")
 set(CMAKE_CXX_FLAGS_DEBUG          "-DLEAN_DEBUG")
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "-DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE        "-DNDEBUG")

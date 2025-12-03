@@ -19,9 +19,10 @@ def findStructCtorInfo? (typeName : Name) : CoreM (Option ConstructorVal) := do
   let some (.ctorInfo ctorInfo) := (← getEnv).find? ctorName | return none
   return ctorInfo
 
-def mkFieldParamsForCtorType (ctorType : Expr) (numParams : Nat) (numFields : Nat)
-    : CompilerM (Array Param) := do
-  let mut type := ctorType
+def mkFieldParamsForCtorType (ctorType : Expr) (numParams : Nat) (numFields : Nat) :
+    CompilerM (Array Param) := do
+  let mut type ← Meta.MetaM.run' <| toLCNFType ctorType
+  type ← toMonoType type
   for _ in *...numParams do
     match type with
     | .forallE _ _ body _ =>
@@ -31,7 +32,7 @@ def mkFieldParamsForCtorType (ctorType : Expr) (numParams : Nat) (numFields : Na
   for _ in *...numFields do
     match type with
     | .forallE name fieldType body _ =>
-      let param ← mkParam name (← toMonoType fieldType) false
+      let param ← mkParam name fieldType false
       fields := fields.push param
       type := body
     | _ => unreachable!

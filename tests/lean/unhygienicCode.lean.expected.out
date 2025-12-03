@@ -27,9 +27,9 @@
       let _x.1 := "a";
       return _x.1
 [Compiler.result] size: 2
-    def foo._closed_6 : Substring :=
+    def foo._closed_6 : Substring.Raw :=
       let _x.1 := foo._closed_5;
-      let _x.2 := String.toSubstring' _x.1;
+      let _x.2 := String.toRawSubstring' _x.1;
       return _x.2
 [Compiler.result] size: 2
     def foo._closed_7 : Name :=

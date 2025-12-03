@@ -80,10 +80,10 @@ def forM [Monad m] (s : SMap α β) (f : α → β → m PUnit) : m PUnit := do
   s.map₁.forM f
   s.map₂.forM f
 
-instance : ForM m (SMap α β) (α × β) where
+instance [Monad m] : ForM m (SMap α β) (α × β) where
   forM s f := forM s fun x y => f (x, y)
 
-instance : ForIn m (SMap α β) (α × β) where
+instance [Monad m] : ForIn m (SMap α β) (α × β) where
   forIn := ForM.forIn
 
 /-- Move from stage 1 into stage 2. -/

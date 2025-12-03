@@ -1369,7 +1369,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       return LValResolution.const `Function `Function fullName
     match e.getAppFn, suffix? with
     | Expr.const c _, some suffix =>
-      throwUnknownConstant (c ++ suffix)
+      throwUnknownConstantWithSuggestions (c ++ suffix)
     | _, _ =>
       throwInvalidFieldAt ref fieldName fullName
   | .forallE .., .fieldIdx .. =>
@@ -1386,7 +1386,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
   | _, _ =>
     match e.getAppFn, lval with
     | Expr.const c _, .fieldName _ref _fieldName (some suffix) _fullRef =>
-      throwUnknownConstant (c ++ suffix)
+      throwUnknownConstantWithSuggestions (c ++ suffix)
     | _, .fieldName .. =>
       throwNamedError lean.invalidField m!"Invalid field notation: Field projection operates on \
         types of the form `C ...` where C is a constant. The expression{indentExpr e}\nhas \
@@ -1412,7 +1412,7 @@ where
       if suggestions.size = 0 then
         pure .nil
       else
-        m!"One of these replacements for `{fullName}` may be appropriate:".hint (suggestions.map fun suggestion => {
+        m!"Perhaps you meant one of these in place of `{fullName}`:".hint (suggestions.map fun suggestion => {
           suggestion := suggestion.getString!,
           toCodeActionTitle? := .some (s!"Suggested replacement: {e}.{·}"),
           diffGranularity := .all,

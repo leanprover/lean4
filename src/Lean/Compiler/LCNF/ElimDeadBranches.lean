@@ -84,12 +84,12 @@ choice node further down the tree.
 partial def addChoice (env : Environment) (vs : List Value) (v : Value) : List Value :=
   match vs, v with
   | [], v => [v]
-  | v1@(ctor i1 _ ) :: cs, ctor i2 _ =>
+  | v1@(ctor i1 vs1) :: cs, ctor i2 vs2 =>
     if i1 == i2 then
-      (merge env v1 v) :: cs
+      ctor i1 (Array.zipWith (merge env) vs1 vs2) :: cs
     else
       v1 :: addChoice env cs v
-  | _, _ => panic! "invalid addChoice"
+  | _, _ => panic! s!"invalid addChoice {repr v} into {repr vs}"
 
 /--
 Merge two values into one. `bot` is the neutral element, `top` the annihilator.
@@ -581,7 +581,9 @@ def inferStep : InterpM Bool := do
     withReader (fun ctx => { ctx with currFnIdx := idx }) do
       decl.params.forM fun p => updateVarAssignment p.fvarId .top
       match decl.value with
-      | .code code .. => interpCode code
+      | .code code .. =>
+        withTraceNode `Compiler.elimDeadBranches (fun _ => return m!"Analyzing {decl.name}") do
+          interpCode code
       | .extern .. => updateCurrFnSummary .top
     let newVal ← getFunVal idx
     if currentVal != newVal then
@@ -591,13 +593,14 @@ def inferStep : InterpM Bool := do
 /--
 Run `inferStep` until it reaches a fix point.
 -/
-partial def inferMain : InterpM Unit := do
+partial def inferMain (n : Nat := 0) : InterpM Unit := do
   let ctx ← read
   modify fun s => { s with assignments := ctx.decls.map fun _ => {} }
   let modified ← inferStep
   if modified then
-    inferMain
+    inferMain (n + 1)
   else
+    trace[Compiler.elimDeadBranches] m!"Termination after {n} steps"
     return ()
 
 /--
@@ -647,6 +650,11 @@ end UnreachableBranches
 
 open UnreachableBranches in
 def Decl.elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
+  /-
+  We sort declarations by size here to ensure that when we restart in inferStep it will mostly be
+  small declarations that get re-analyzed.
+  -/
+  let decls := decls.qsort (fun l r => (l.size, l.name.toString).lexLt (r.size, r.name.toString))
   let mut assignments := decls.map fun _ => {}
   let initialVal i :=
     /-
@@ -659,7 +667,9 @@ def Decl.elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
   let mut funVals := decls.size.fold (init := .empty) fun i _ p => p.push (initialVal i)
   let ctx := { decls }
   let mut state := { assignments, funVals }
-  (_, state) ← inferMain |>.run ctx |>.run state
+  (_, state) ←
+    withTraceNode `Compiler.elimDeadBranches (fun _ => return m!"Analyzing block: {decls.map (·.name)}")
+      inferMain |>.run ctx |>.run state
   funVals := state.funVals
   assignments := state.assignments
   modifyEnv fun e =>

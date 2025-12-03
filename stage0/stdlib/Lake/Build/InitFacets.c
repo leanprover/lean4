@@ -1023,14 +1023,6 @@ return x_213;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Std_DTreeMap_Internal_Impl_insert___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__0___redArg(x_2, x_3, x_4);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__1_spec__1___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1058,6 +1050,14 @@ return x_1;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__1_spec__1___redArg(x_2, x_3);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__1_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1066,12 +1066,12 @@ x_4 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_fo
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_4; 
-x_4 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__1_spec__1___redArg(x_2, x_3);
-return x_4;
+lean_object* x_6; 
+x_6 = l_Std_DTreeMap_Internal_Impl_insert___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__0___redArg(x_2, x_3, x_4);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert___redArg(lean_object* x_1, lean_object* x_2) {
@@ -1090,20 +1090,20 @@ x_4 = l___private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert___redArg
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__1_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__1_spec__1(x_1, x_2, x_3);
-lean_dec_ref(x_1);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__1(x_1, x_2, x_3);
+lean_dec_ref(x_1);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__1_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__1_spec__1(x_1, x_2, x_3);
 lean_dec_ref(x_1);
 return x_4;
 }

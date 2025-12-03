@@ -9611,6 +9611,29 @@ x_1 = l_Std_Time_termDatespec_x28___x2c___x29___closed__10;
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_List_foldl___at___00__private_Std_Time_Notation_Spec_0__Std_Time_formatStringToFormat_spec__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+return x_1;
+}
+else
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_2, 1);
+lean_inc(x_4);
+lean_dec_ref(x_2);
+x_5 = l_Std_Time_termDatespec_x28___x2c___x29___closed__2;
+x_6 = l_Lean_Syntax_TSepArray_push___redArg(x_5, x_1, x_3);
+x_1 = x_6;
+x_2 = x_4;
+goto _start;
+}
+}
+}
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___00__private_Std_Time_Notation_Spec_0__Std_Time_formatStringToFormat_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -9675,29 +9698,6 @@ x_2 = x_19;
 x_4 = x_18;
 goto _start;
 }
-}
-}
-}
-LEAN_EXPORT lean_object* l_List_foldl___at___00__private_Std_Time_Notation_Spec_0__Std_Time_formatStringToFormat_spec__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-if (lean_obj_tag(x_2) == 0)
-{
-return x_1;
-}
-else
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_2, 1);
-lean_inc(x_4);
-lean_dec_ref(x_2);
-x_5 = l_Std_Time_termDatespec_x28___x2c___x29___closed__2;
-x_6 = l_Lean_Syntax_TSepArray_push___redArg(x_5, x_1, x_3);
-x_1 = x_6;
-x_2 = x_4;
-goto _start;
 }
 }
 }

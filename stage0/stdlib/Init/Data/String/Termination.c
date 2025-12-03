@@ -198,13 +198,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pos_down___redArg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_String_Slice_Pos_down(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -212,13 +205,11 @@ lean_inc(x_2);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pos_down___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_String_Slice_Pos_down___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_String_Slice_Pos_down___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_String_Slice_Pos_down___boxed(lean_object* x_1, lean_object* x_2) {
@@ -229,6 +220,15 @@ x_3 = l_String_Slice_Pos_down(x_1, x_2);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_String_Slice_Pos_down___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_String_Slice_Pos_down___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_String_Slice_Pos_instWellFoundedRelationDown(lean_object* x_1) {
@@ -289,13 +289,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_String_Pos_down___redArg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_String_Pos_down(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -303,13 +296,11 @@ lean_inc(x_2);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_String_Pos_down___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_String_Pos_down___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_String_Pos_down___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_String_Pos_down___boxed(lean_object* x_1, lean_object* x_2) {
@@ -320,6 +311,15 @@ x_3 = l_String_Pos_down(x_1, x_2);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_String_Pos_down___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_String_Pos_down___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_String_Pos_instWellFoundedRelationDown(lean_object* x_1) {

@@ -539,14 +539,6 @@ x_5 = l_List_foldlM___at___00Lake_mkMessageLogString_spec__0(x_3, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_List_foldlM___at___00Lake_mkMessageLogString_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_List_foldlM___at___00Lake_mkMessageLogString_spec__0(x_1, x_2);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_mkMessageLogString___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -554,6 +546,14 @@ lean_object* x_3;
 x_3 = l_Lake_mkMessageLogString(x_1);
 lean_dec_ref(x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_List_foldlM___at___00Lake_mkMessageLogString_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_List_foldlM___at___00Lake_mkMessageLogString_spec__0(x_1, x_2);
+return x_4;
 }
 }
 lean_object* initialize_Lean_Parser_Basic(uint8_t builtin);

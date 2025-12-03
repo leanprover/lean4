@@ -55,6 +55,17 @@ lean_object* l_Lean_mkAtom(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l___auto___closed__11_00___x40_Init_Data_Vector_OfFn_3765769318____hygCtx___hyg_108_;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Vector_OfFn_0__Vector_ofFnM_go___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_7 = lean_unsigned_to_nat(1u);
+x_8 = lean_nat_add(x_1, x_7);
+x_9 = lean_array_push(x_2, x_6);
+x_10 = l___private_Init_Data_Vector_OfFn_0__Vector_ofFnM_go___redArg(x_3, x_4, x_5, x_8, x_9);
+return x_10;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_OfFn_0__Vector_ofFnM_go___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -101,17 +112,6 @@ x_12 = lean_apply_1(x_3, x_4);
 x_13 = lean_apply_4(x_10, lean_box(0), lean_box(0), x_12, x_11);
 return x_13;
 }
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Vector_OfFn_0__Vector_ofFnM_go___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_7 = lean_unsigned_to_nat(1u);
-x_8 = lean_nat_add(x_1, x_7);
-x_9 = lean_array_push(x_2, x_6);
-x_10 = l___private_Init_Data_Vector_OfFn_0__Vector_ofFnM_go___redArg(x_3, x_4, x_5, x_8, x_9);
-return x_10;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_OfFn_0__Vector_ofFnM_go(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {

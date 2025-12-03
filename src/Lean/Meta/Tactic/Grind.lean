@@ -61,6 +61,7 @@ builtin_initialize registerTraceClass `grind.ematch
 builtin_initialize registerTraceClass `grind.ematch.pattern
 builtin_initialize registerTraceClass `grind.ematch.instance
 builtin_initialize registerTraceClass `grind.ematch.instance.assignment
+builtin_initialize registerTraceClass `grind.ematch.instance.delayed
 builtin_initialize registerTraceClass `grind.eqResolution
 builtin_initialize registerTraceClass `grind.issues
 builtin_initialize registerTraceClass `grind.simp

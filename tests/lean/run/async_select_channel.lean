@@ -78,6 +78,9 @@ def testIt (capacity : Option Nat) : Async Bool := do
       ch2.sync.send msg
 
   let acc ← await recvTask
+  -- TODO: we seem to nondeterministically create reference cycles without these, investigate
+  ch1.close
+  ch2.close
   return acc == messages.sum
 
 /-- info: true -/

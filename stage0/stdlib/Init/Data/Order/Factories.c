@@ -53,6 +53,7 @@ LEAN_EXPORT lean_object* l_Min_leftLeaningOfLE___redArg(lean_object*);
 static lean_object* l___auto___closed__14_00___x40_Init_Data_Order_Factories_1757136802____hygCtx___hyg_42_;
 static lean_object* l___auto___closed__13_00___x40_Init_Data_Order_Factories_1757136802____hygCtx___hyg_9_;
 static lean_object* l___auto___closed__7_00___x40_Init_Data_Order_Factories_819826709____hygCtx___hyg_6_;
+LEAN_EXPORT lean_object* l_Max_leftLeaningOfLE___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___auto_00___x40_Init_Data_Order_Factories_2704679011____hygCtx___hyg_23_;
 LEAN_EXPORT lean_object* l___auto_00___x40_Init_Data_Order_Factories_819826709____hygCtx___hyg_23_;
 static lean_object* l___auto___closed__4_00___x40_Init_Data_Order_Factories_819826709____hygCtx___hyg_6_;
@@ -66,7 +67,6 @@ static lean_object* l___auto___closed__20_00___x40_Init_Data_Order_Factories_819
 LEAN_EXPORT lean_object* l___auto_00___x40_Init_Data_Order_Factories_3488733340____hygCtx___hyg_9_;
 static lean_object* l___auto___closed__10_00___x40_Init_Data_Order_Factories_1757136802____hygCtx___hyg_9_;
 LEAN_EXPORT lean_object* l___auto_00___x40_Init_Data_Order_Factories_819826712____hygCtx___hyg_23_;
-LEAN_EXPORT lean_object* l_Max_leftLeaningOfLE___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__3_00___x40_Init_Data_Order_Factories_1757136802____hygCtx___hyg_9_;
 static lean_object* l___auto___closed__10_00___x40_Init_Data_Order_Factories_1757136802____hygCtx___hyg_42_;
 static lean_object* l___auto___closed__3_00___x40_Init_Data_Order_Factories_819826709____hygCtx___hyg_6_;
@@ -87,9 +87,9 @@ LEAN_EXPORT lean_object* l___auto_00___x40_Init_Data_Order_Factories_2704679010_
 static lean_object* l___auto___closed__8_00___x40_Init_Data_Order_Factories_1757136802____hygCtx___hyg_42_;
 static lean_object* l___auto___closed__18_00___x40_Init_Data_Order_Factories_819826709____hygCtx___hyg_6_;
 static lean_object* l___auto___closed__0_00___x40_Init_Data_Order_Factories_1757136802____hygCtx___hyg_42_;
+LEAN_EXPORT lean_object* l_Min_leftLeaningOfLE___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__10_00___x40_Init_Data_Order_Factories_819826709____hygCtx___hyg_6_;
 static lean_object* l___auto___closed__17_00___x40_Init_Data_Order_Factories_819826709____hygCtx___hyg_6_;
-LEAN_EXPORT lean_object* l_Min_leftLeaningOfLE___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__4_00___x40_Init_Data_Order_Factories_1757136802____hygCtx___hyg_9_;
 static lean_object* l___auto___closed__11_00___x40_Init_Data_Order_Factories_819826709____hygCtx___hyg_6_;
 static lean_object* l___auto___closed__10_00___x40_Init_Data_Order_Factories_3488733340____hygCtx___hyg_42_;
@@ -120,7 +120,7 @@ static lean_object* l___auto___closed__4_00___x40_Init_Data_Order_Factories_3488
 static lean_object* l___auto___closed__14_00___x40_Init_Data_Order_Factories_1757136802____hygCtx___hyg_9_;
 static lean_object* l___auto___closed__16_00___x40_Init_Data_Order_Factories_819826709____hygCtx___hyg_6_;
 static lean_object* l___auto___closed__12_00___x40_Init_Data_Order_Factories_1757136802____hygCtx___hyg_42_;
-LEAN_EXPORT lean_object* l_Min_leftLeaningOfLE___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Min_leftLeaningOfLE___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -140,25 +140,25 @@ return x_2;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Min_leftLeaningOfLE___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Min_leftLeaningOfLE___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Min_leftLeaningOfLE(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Min_leftLeaningOfLE___redArg___lam__0), 3, 1);
+x_4 = lean_alloc_closure((void*)(l_Min_leftLeaningOfLE___lam__0), 3, 1);
 lean_closure_set(x_4, 0, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Max_leftLeaningOfLE___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Min_leftLeaningOfLE___redArg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Min_leftLeaningOfLE___lam__0), 3, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Max_leftLeaningOfLE___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -178,22 +178,22 @@ return x_2;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Max_leftLeaningOfLE___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Max_leftLeaningOfLE___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Max_leftLeaningOfLE(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Max_leftLeaningOfLE___redArg___lam__0), 3, 1);
+x_4 = lean_alloc_closure((void*)(l_Max_leftLeaningOfLE___lam__0), 3, 1);
 lean_closure_set(x_4, 0, x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Max_leftLeaningOfLE___redArg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Max_leftLeaningOfLE___lam__0), 3, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
 }
 }
 static lean_object* _init_l___auto___closed__0_00___x40_Init_Data_Order_Factories_819826709____hygCtx___hyg_6_() {

@@ -1,30 +1,30 @@
 # The `size` benchmark
 
 This benchmark measures the number and size of a few kinds of files.
-It expects to be executed after the `stdlib` benchmark.
+It expects to be executed after the `build` benchmark.
 
 The following general metrics are collected:
 
 - `size/libleanshared.so//bytes`
 
-The following metrics are collected for the entirety of stdlib:
+The following metrics are collected from the entire build process:
 
-- `size/stdlib/.c//files`
-- `size/stdlib/.c//lines`
-- `size/stdlib/.cpp//files`
-- `size/stdlib/.cpp//lines`
-- `size/stdlib/.lean//files`
-- `size/stdlib/.lean//lines`
-- `size/stdlib/.ilean//files`
-- `size/stdlib/.ilean//bytes`
-- `size/stdlib/.olean//files`
-- `size/stdlib/.olean//bytes`
-- `size/stdlib/.olean.server//files`
-- `size/stdlib/.olean.server//bytes`
-- `size/stdlib/.olean.private//files`
-- `size/stdlib/.olean.private//bytes`
-- `size/stdlib/.ir//files`
-- `size/stdlib/.ir//bytes`
+- `size/all/.c//files`
+- `size/all/.c//lines`
+- `size/all/.cpp//files`
+- `size/all/.cpp//lines`
+- `size/all/.lean//files`
+- `size/all/.lean//lines`
+- `size/all/.ilean//files`
+- `size/all/.ilean//bytes`
+- `size/all/.olean//files`
+- `size/all/.olean//bytes`
+- `size/all/.olean.server//files`
+- `size/all/.olean.server//bytes`
+- `size/all/.olean.private//files`
+- `size/all/.olean.private//bytes`
+- `size/all/.ir//files`
+- `size/all/.ir//bytes`
 
 The following metrics are collected only for the `Init` library.
 

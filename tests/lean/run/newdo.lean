@@ -119,11 +119,13 @@ end Tactic
 
 section Blah
 
-@[simp, grind =] theorem run_bind (f : α → OptionT m β) [Monad m] :
-    (x >>= f).run = Option.elimM x.run (pure none) (fun x => (f x).run) := by
-  change x.run >>= _ = _
-  simp [Option.elimM]
-  exact bind_congr fun |some _ => rfl | none => rfl
+def f1 : ExceptT String (StateT Nat Id) Nat := do
+  modify (· + 1)
+  get
+
+def f2 (x : Nat) : ExceptT String (StateT Nat Id) Nat := do
+  modify (· + x)
+  get
 
 end Blah
 
@@ -1602,6 +1604,7 @@ example :
   f 0 ∧ f 10 ∧ f 20 ∧ f 30 ∧ f 31 ∧ f 45 ∧ f 1023948 := by trivial
 
 -- Parallel for loops
+set_option backward.do.legacy false in
 example :
   let f n m :=
     (Id.run doo
@@ -1639,7 +1642,7 @@ Postponing Monad instance resolution appropriately
 
 /--
 error: typeclass instance problem is stuck
-  Pure ?m.9
+  Pure ?m.10
 
 Note: Lean will not try to resolve this typeclass instance problem because the type argument to `Pure` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
 
@@ -1741,7 +1744,10 @@ example := (Id.run doo if true then {pure ()} else {pure false}; pure ())
 
 -- Additional error tests
 
-/-- error: undeclared mutable variable `foo` -/
+/--
+error: Variable `foo` cannot be mutated. Only variables declared using `let mut` can be mutated.
+      If you did not intend to mutate but define `foo`, consider using `let foo` instead
+-/
 #guard_msgs (error) in
 example := (Id.run doo foo := 42; pure ())
 

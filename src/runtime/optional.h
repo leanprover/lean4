@@ -63,9 +63,12 @@ public:
     template<typename... Args>
     void emplace(Args&&... args) {
         if (m_some) {
-            m_value.~T();
             m_some = false;
+            m_value.~T();
         }
+        // Note that `new` could throw, in which case we need `~optional()` to run with
+        // `m_some = false` to avoid incorrectly calling `~T()`; so this must come second.
+        // This applies throughout
         new (&m_value) T(args...);
         m_some = true;
     }
@@ -79,8 +82,8 @@ public:
                 m_some = true;
             }
         } else if (m_some) {
-            m_value.~T();
             m_some = false;
+            m_value.~T();
         }
         return *this;
     }
@@ -95,8 +98,8 @@ public:
                 m_some = true;
             }
         } else if (m_some) {
-            m_value.~T();
             m_some = false;
+            m_value.~T();
         }
         return *this;
     }

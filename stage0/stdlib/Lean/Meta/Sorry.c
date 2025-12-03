@@ -33,7 +33,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_mkLabeledSorry(lean_object*, uint8_t, uint8
 static lean_object* l_Lean_Meta_mkLabeledSorry___closed__7;
 static lean_object* l_Lean_Elab_throwAbortCommand___at___00Lean_Meta_mkSorry_spec__1___redArg___closed__1;
 static lean_object* l_Lean_Meta_SorryLabelView_encode___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Meta_SorryLabelView_ctorIdx(lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwAbortCommand___at___00Lean_Meta_mkSorry_spec__1___redArg___boxed(lean_object*);
 lean_object* l_Lean_Syntax_getTailPos_x3f(lean_object*, uint8_t);
@@ -98,7 +97,6 @@ static lean_object* l_Lean_Meta_mkLabeledSorry___closed__9;
 static lean_object* l_Lean_Meta_mkLabeledSorry___closed__18;
 LEAN_EXPORT lean_object* l_Lean_Declaration_forEachSorryM___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_erase_macro_scopes(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_SorryLabelView_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Meta_mkLabeledSorry___closed__6;
 static lean_object* l_Lean_Meta_mkLabeledSorry___closed__1;
 LEAN_EXPORT lean_object* l_Lean_getMainModule___at___00Lean_Meta_mkLabeledSorry_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -114,29 +112,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_SorryLabelView_encode___boxed(lean_object*,
 LEAN_EXPORT lean_object* l_Lean_Meta_isLabeledSorry_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Declaration_forEachSorryM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forEachSorryM___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_hasConst___at___00Lean_Meta_mkSorry_spec__0___redArg(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; 
-x_5 = lean_st_ref_get(x_3);
-x_6 = lean_ctor_get(x_5, 0);
-lean_inc_ref(x_6);
-lean_dec_ref(x_5);
-x_7 = l_Lean_Environment_contains(x_6, x_1, x_2);
-x_8 = lean_box(x_7);
-x_9 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_9, 0, x_8);
-return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_hasConst___at___00Lean_Meta_mkSorry_spec__0(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_8; 
-x_8 = l_Lean_hasConst___at___00Lean_Meta_mkSorry_spec__0___redArg(x_1, x_2, x_6);
-return x_8;
-}
-}
 static lean_object* _init_l_Lean_Elab_throwAbortCommand___at___00Lean_Meta_mkSorry_spec__1___redArg___closed__0() {
 _start:
 {
@@ -173,6 +148,29 @@ _start:
 lean_object* x_7; 
 x_7 = l_Lean_Elab_throwAbortCommand___at___00Lean_Meta_mkSorry_spec__1___redArg();
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_hasConst___at___00Lean_Meta_mkSorry_spec__0___redArg(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; 
+x_5 = lean_st_ref_get(x_3);
+x_6 = lean_ctor_get(x_5, 0);
+lean_inc_ref(x_6);
+lean_dec(x_5);
+x_7 = l_Lean_Environment_contains(x_6, x_1, x_2);
+x_8 = lean_box(x_7);
+x_9 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_9, 0, x_8);
+return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_hasConst___at___00Lean_Meta_mkSorry_spec__0(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_Lean_hasConst___at___00Lean_Meta_mkSorry_spec__0___redArg(x_1, x_2, x_6);
+return x_8;
 }
 }
 static lean_object* _init_l_Lean_Meta_mkSorry___closed__0() {
@@ -359,14 +357,16 @@ return x_12;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_hasConst___at___00Lean_Meta_mkSorry_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_Elab_throwAbortCommand___at___00Lean_Meta_mkSorry_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-uint8_t x_5; lean_object* x_6; 
-x_5 = lean_unbox(x_2);
-x_6 = l_Lean_hasConst___at___00Lean_Meta_mkSorry_spec__0___redArg(x_1, x_5, x_3);
+lean_object* x_7; 
+x_7 = l_Lean_Elab_throwAbortCommand___at___00Lean_Meta_mkSorry_spec__1(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_5);
+lean_dec_ref(x_4);
 lean_dec(x_3);
-return x_6;
+lean_dec_ref(x_2);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_hasConst___at___00Lean_Meta_mkSorry_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -390,16 +390,14 @@ x_2 = l_Lean_Elab_throwAbortCommand___at___00Lean_Meta_mkSorry_spec__1___redArg(
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_throwAbortCommand___at___00Lean_Meta_mkSorry_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Lean_hasConst___at___00Lean_Meta_mkSorry_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_7; 
-x_7 = l_Lean_Elab_throwAbortCommand___at___00Lean_Meta_mkSorry_spec__1(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
-lean_dec_ref(x_4);
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_2);
+x_6 = l_Lean_hasConst___at___00Lean_Meta_mkSorry_spec__0___redArg(x_1, x_5, x_3);
 lean_dec(x_3);
-lean_dec_ref(x_2);
-return x_7;
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_mkSorry___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -409,23 +407,6 @@ uint8_t x_8; lean_object* x_9;
 x_8 = lean_unbox(x_2);
 x_9 = l_Lean_Meta_mkSorry(x_1, x_8, x_3, x_4, x_5, x_6);
 return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_SorryLabelView_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_SorryLabelView_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_SorryLabelView_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_Meta_SorryLabelView_encode___closed__0() {
@@ -690,7 +671,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_st_ref_get(x_1);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_5 = l_Lean_Environment_header(x_4);
 lean_dec_ref(x_4);
 x_6 = lean_ctor_get(x_5, 0);
@@ -1336,15 +1317,6 @@ return x_61;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_getMainModule___at___00Lean_Meta_mkLabeledSorry_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_getMainModule___at___00Lean_Meta_mkLabeledSorry_spec__0___redArg(x_1);
-lean_dec(x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_getMainModule___at___00Lean_Meta_mkLabeledSorry_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -1355,6 +1327,15 @@ lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_getMainModule___at___00Lean_Meta_mkLabeledSorry_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_getMainModule___at___00Lean_Meta_mkLabeledSorry_spec__0___redArg(x_1);
+lean_dec(x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_mkLabeledSorry___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -1612,6 +1593,15 @@ return x_12;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Meta_forEachSorryM___redArg___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_Meta_forEachSorryM___redArg___lam__1(x_1, x_2, x_3, x_4, x_5);
+lean_dec_ref(x_5);
+return x_6;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_forEachSorryM___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -1639,15 +1629,6 @@ _start:
 lean_object* x_7; 
 x_7 = l_Lean_Meta_forEachSorryM___redArg(x_2, x_3, x_4, x_5, x_6);
 return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_forEachSorryM___redArg___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Lean_Meta_forEachSorryM___redArg___lam__1(x_1, x_2, x_3, x_4, x_5);
-lean_dec_ref(x_5);
-return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Declaration_forEachSorryM___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {

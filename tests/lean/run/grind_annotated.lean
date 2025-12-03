@@ -25,12 +25,17 @@ Expected format: YYYY-MM-DD (e.g., "2025-01-15")
 #guard_msgs in
 grind_annotated "invalid-date"
 
-/-- info: Extension state contains `Init.Data.List.Lemmas: true -/
+/-- info: Init.Data.List.Lemmas is grind-annotated: true -/
 #guard_msgs in
 #eval do
   let env ← getEnv
-  let state := Lean.Elab.Tactic.Grind.grindAnnotatedExt.getState env
-  logInfo m!"Extension state contains `Init.Data.List.Lemmas: {state.contains `Init.Data.List.Lemmas}"
+  -- Use the public API to check if a module is grind-annotated
+  -- First we need to get the module index for a theorem from Init.Data.List.Lemmas
+  match env.getModuleIdxFor? `List.eq_nil_of_length_eq_zero with
+  | none => logInfo "Could not find module"
+  | some modIdx =>
+    let isAnnotated := Lean.Elab.Tactic.Grind.isGrindAnnotatedModule env modIdx
+    logInfo m!"Init.Data.List.Lemmas is grind-annotated: {isAnnotated}"
 
 /-! ## Filtering logic -/
 
@@ -58,9 +63,9 @@ example : True := by
     match env.getModuleIdxFor? theoremName with
     | none => logInfo "Theorem has no module index"
     | some modIdx =>
-      let moduleName := env.header.moduleNames[modIdx.toNat]!
-      let isAnnotated := Selector.isGrindAnnotatedModule env modIdx
-      let state := Lean.Elab.Tactic.Grind.grindAnnotatedExt.getState env
+      let _moduleName := env.header.moduleNames[modIdx.toNat]!
+      let _isAnnotated := Grind.isGrindAnnotatedModule env modIdx
+      pure ()
 
     -- Test 1: Without filter, suggestion should be returned
     let suggestions1 ← testSelector mvarId {}

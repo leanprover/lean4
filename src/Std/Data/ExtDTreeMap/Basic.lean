@@ -521,7 +521,7 @@ def get [TransCmp cmp] (t : ExtDTreeMap α β cmp) (a : α) (h : a ∈ t) : β :
     (fun _ _ _ _ h => h.constGet_eq)
 
 @[inline, inherit_doc ExtDTreeMap.get!]
-def get! [TransCmp cmp] (t : ExtDTreeMap α β cmp) (a : α) [Inhabited β] : β :=
+def get! [TransCmp cmp] [Inhabited β] (t : ExtDTreeMap α β cmp) (a : α) : β :=
   t.lift (fun m => DTreeMap.Const.get! m a)
     (fun _ _ h => h.constGet!_eq)
 
@@ -727,16 +727,11 @@ def forM [TransCmp cmp] (f : (a : α) → β a → m PUnit) (t : ExtDTreeMap α 
 def forIn [TransCmp cmp] (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (t : ExtDTreeMap α β cmp) : m δ :=
   t.lift (fun m => m.forIn f init) (fun _ _ h => h.forIn_eq (f := fun x => f x.1 x.2))
 
-/-
-Note: We ignore the monad instance provided by `forM` / `forIn` and instead use the one from the
-instance in order to get the `LawfulMonad m` assumption
--/
+instance [TransCmp cmp] [Monad m] [LawfulMonad m] : ForM m (ExtDTreeMap α β cmp) ((a : α) × β a) where
+  forM t f := forM (fun a b => f ⟨a, b⟩) t
 
-instance [TransCmp cmp] [inst : Monad m] [LawfulMonad m] : ForM m (ExtDTreeMap α β cmp) ((a : α) × β a) where
-  forM t f := @forM _ _ _ _ inst _ _ (fun a b => f ⟨a, b⟩) t
-
-instance [TransCmp cmp] [inst : Monad m] [LawfulMonad m] : ForIn m (ExtDTreeMap α β cmp) ((a : α) × β a) where
-  forIn m init f := @forIn _ _ _ _ _ inst _ _ (fun a b acc => f ⟨a, b⟩ acc) init m
+instance [TransCmp cmp] [Monad m] [LawfulMonad m] : ForIn m (ExtDTreeMap α β cmp) ((a : α) × β a) where
+  forIn m init f := forIn (fun a b acc => f ⟨a, b⟩ acc) init m
 
 namespace Const
 

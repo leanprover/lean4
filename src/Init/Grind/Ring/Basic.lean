@@ -82,6 +82,10 @@ class Semiring (α : Type u) extends Add α, Mul α where
   ofNat_succ : ∀ a : Nat, OfNat.ofNat (α := α) (a + 1) = OfNat.ofNat a + 1 := by intros; rfl
   /-- Numerals are consistently defined with respect to the canonical map from natural numbers. -/
   ofNat_eq_natCast : ∀ n : Nat, OfNat.ofNat (α := α) n = Nat.cast n := by intros; rfl
+  /--
+  Multiplying by a numeral is consistently defined with respect to the canonical map from natural
+  numbers.
+  -/
   nsmul_eq_natCast_mul : ∀ n : Nat, ∀ a : α, n • a = Nat.cast n * a := by intros; rfl
 
 /--
@@ -203,6 +207,11 @@ theorem pow_add (a : α) (k₁ k₂ : Nat) : a ^ (k₁ + k₂) = a^k₁ * a^k₂
 
 theorem pow_add_congr (a r : α) (k k₁ k₂ : Nat) : k = k₁ + k₂ → a^k₁ * a^k₂ = r → a ^ k = r := by
   intros; subst k r; rw [pow_add]
+
+theorem one_pow (n : Nat) : (1 : α) ^ n = 1 := by
+  induction n
+  next => simp [pow_zero]
+  next => simp [pow_succ, *, mul_one]
 
 theorem natCast_pow (x : Nat) (k : Nat) : ((x ^ k : Nat) : α) = (x : α) ^ k := by
   induction k
@@ -375,6 +384,11 @@ variable {α : Type u} [CommSemiring α]
 
 theorem mul_left_comm (a b c : α) : a * (b * c) = b * (a * c) := by
   rw [← mul_assoc, ← mul_assoc, mul_comm a]
+
+theorem mul_pow (a b : α) (n : Nat) : (a*b)^n = a^n * b^n := by
+  induction n
+  next => simp [pow_zero, mul_one]
+  next n ih => simp [pow_succ, ih, mul_comm, mul_assoc, mul_left_comm]
 
 end CommSemiring
 

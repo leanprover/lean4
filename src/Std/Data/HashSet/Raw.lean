@@ -207,10 +207,10 @@ order.
     (init : β) (b : Raw α) : m β :=
   b.inner.forIn (fun a _ acc => f a acc) init
 
-instance {m : Type v → Type w} : ForM m (Raw α) α where
+instance {m : Type v → Type w} [Monad m] : ForM m (Raw α) α where
   forM m f := m.forM f
 
-instance {m : Type v → Type w} : ForIn m (Raw α) α where
+instance {m : Type v → Type w} [Monad m] : ForIn m (Raw α) α where
   forIn m init f := m.forIn f init
 
 /-- Removes all elements from the hash set for which the given function returns `false`. -/
@@ -242,6 +242,17 @@ This function always merges the smaller set into the larger set, so the expected
   ⟨HashMap.Raw.inter m₁.inner m₂.inner⟩
 
 instance [BEq α] [Hashable α] : Inter (Raw α) := ⟨inter⟩
+
+/--
+Computes the difference of the given hash sets.
+
+This function always iterates through the smaller, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def diff [BEq α] [Hashable α] (m₁ m₂ : Raw α) : Raw α :=
+  ⟨HashMap.Raw.diff m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : SDiff (Raw α) := ⟨diff⟩
 
 section Unverified
 
@@ -330,6 +341,9 @@ theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α} (h₁ : m₁.WF) (h
 
 theorem WF.inter [BEq α] [Hashable α] {m₁ m₂ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ ∩ m₂).WF :=
   ⟨HashMap.Raw.WF.inter h₁.out h₂.out⟩
+
+theorem WF.diff [BEq α] [Hashable α] {m₁ m₂ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ \ m₂).WF :=
+  ⟨HashMap.Raw.WF.diff h₁.out h₂.out⟩
 
 end Raw
 

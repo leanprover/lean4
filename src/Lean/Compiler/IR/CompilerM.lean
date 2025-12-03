@@ -139,10 +139,20 @@ def findEnvDecl (env : Environment) (declName : Name) (includeServer := false): 
 private def findInterpDecl (env : Environment) (declName : Name) : Option Decl :=
   findEnvDecl (includeServer := true) env declName
 
+namespace ExplicitBoxing
+
+def mkBoxedName (n : Name) : Name :=
+  Name.mkStr n "_boxed"
+
+def isBoxedName (name : Name) : Bool :=
+  name matches .str _ "_boxed"
+
+end ExplicitBoxing
+
 /-- Like ``findInterpDecl env (declName ++ `_boxed)`` but with optimized negative lookup. -/
 @[export lean_ir_find_env_decl_boxed]
 private def findInterpDeclBoxed (env : Environment) (declName : Name) : Option Decl :=
-  let boxed := declName ++ `_boxed
+  let boxed := ExplicitBoxing.mkBoxedName declName
   -- Important: get module index of base name, not boxed version. Usually the interpreter never
   -- does negative lookups except in the case of `call_boxed` which must check whether a boxed
   -- version exists. If `declName` exists as an imported declaration but `declName'` doesn't, the

@@ -95,7 +95,6 @@ LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Meta_Tactic_Grind_Order
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkPropagateEqTrueProofCore___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkTransCoreProof(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkTransCoreProof___closed__2;
-lean_object* l_instInhabitedForall___redArg___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkPropagateSelfEqFalseProofOffset___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkLeLtPrefix(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
@@ -203,6 +202,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkPropagateEqTrueProofCore___closed__0;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkTransCoreProof___closed__6;
 static lean_object* l_Lean_Meta_Grind_Order_mkEqProofOfLeOfLeCore___closed__1;
+lean_object* l_instInhabitedForall___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkPropagateEqTrueProofCore___closed__5;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkUnsatProofCore___closed__0;
 static lean_object* l_Lean_Meta_Grind_Order_mkPropagateSelfEqFalseProof___closed__2;
@@ -1999,20 +1999,20 @@ block_61:
 {
 lean_object* x_50; uint8_t x_51; 
 x_50 = l___private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkTransCore___closed__0;
-x_51 = lean_int_dec_le(x_50, x_45);
+x_51 = lean_int_dec_le(x_50, x_47);
 if (x_51 == 0)
 {
 lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; 
 x_52 = l___private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkTransOffsetProof___closed__6;
 x_53 = l___private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkTransOffsetProof___closed__9;
 x_54 = l___private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkTransOffsetProof___closed__12;
-x_55 = lean_int_neg(x_45);
+x_55 = lean_int_neg(x_47);
 x_56 = l_Int_toNat(x_55);
 lean_dec(x_55);
 x_57 = l_Lean_instToExprInt_mkNat(x_56);
 x_58 = l_Lean_mkApp3(x_52, x_53, x_54, x_57);
 x_28 = x_49;
-x_29 = x_46;
+x_29 = x_45;
 x_30 = lean_box(0);
 x_31 = x_48;
 x_32 = x_58;
@@ -2021,10 +2021,10 @@ goto block_44;
 else
 {
 lean_object* x_59; lean_object* x_60; 
-x_59 = l_Int_toNat(x_45);
+x_59 = l_Int_toNat(x_47);
 x_60 = l_Lean_instToExprInt_mkNat(x_59);
 x_28 = x_49;
-x_29 = x_46;
+x_29 = x_45;
 x_30 = lean_box(0);
 x_31 = x_48;
 x_32 = x_60;
@@ -2049,9 +2049,9 @@ x_74 = l_Int_toNat(x_73);
 lean_dec(x_73);
 x_75 = l_Lean_instToExprInt_mkNat(x_74);
 x_76 = l_Lean_mkApp3(x_70, x_71, x_72, x_75);
-x_45 = x_66;
-x_46 = x_64;
-x_47 = lean_box(0);
+x_45 = x_64;
+x_46 = lean_box(0);
+x_47 = x_66;
 x_48 = x_67;
 x_49 = x_76;
 goto block_61;
@@ -2061,9 +2061,9 @@ else
 lean_object* x_77; lean_object* x_78; 
 x_77 = l_Int_toNat(x_62);
 x_78 = l_Lean_instToExprInt_mkNat(x_77);
-x_45 = x_66;
-x_46 = x_64;
-x_47 = lean_box(0);
+x_45 = x_64;
+x_46 = lean_box(0);
+x_47 = x_66;
 x_48 = x_67;
 x_49 = x_78;
 goto block_61;
@@ -2415,7 +2415,7 @@ _start:
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = l_panic___at___00__private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkPropagateEqTrueProofCore_spec__0___closed__0;
-x_13 = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
+x_13 = lean_alloc_closure((void*)(l_instInhabitedForall___lam__0___boxed), 2, 1);
 lean_closure_set(x_13, 0, x_12);
 x_14 = lean_panic_fn(x_13, x_1);
 x_15 = lean_apply_10(x_14, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, lean_box(0));

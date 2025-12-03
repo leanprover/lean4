@@ -81,14 +81,6 @@ lean_dec(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_String_instHSubRaw() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_instHSubRaw___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_String_instHSubRaw___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -97,6 +89,14 @@ x_3 = l_String_instHSubRaw___lam__0(x_1, x_2);
 lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
+}
+}
+static lean_object* _init_l_String_instHSubRaw() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_String_instHSubRaw___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_String_instHSubRawChar___lam__0(lean_object* x_1, uint32_t x_2) {
@@ -109,14 +109,6 @@ lean_dec(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_String_instHSubRawChar() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_instHSubRawChar___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_String_instHSubRawChar___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -126,6 +118,14 @@ lean_dec(x_2);
 x_4 = l_String_instHSubRawChar___lam__0(x_1, x_3);
 lean_dec(x_1);
 return x_4;
+}
+}
+static lean_object* _init_l_String_instHSubRawChar() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_String_instHSubRawChar___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* lean_string_pos_sub(lean_object* x_1, lean_object* x_2) {
@@ -148,14 +148,6 @@ lean_dec(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_String_instHAddRawChar() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_instHAddRawChar___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_String_instHAddRawChar___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -167,6 +159,14 @@ lean_dec(x_1);
 return x_4;
 }
 }
+static lean_object* _init_l_String_instHAddRawChar() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_String_instHAddRawChar___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_String_instHAddCharRaw___lam__0(uint32_t x_1, lean_object* x_2) {
 _start:
 {
@@ -175,14 +175,6 @@ x_3 = l_Char_utf8Size(x_1);
 x_4 = lean_nat_add(x_3, x_2);
 lean_dec(x_3);
 return x_4;
-}
-}
-static lean_object* _init_l_String_instHAddCharRaw() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_instHAddCharRaw___lam__0___boxed), 2, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_String_instHAddCharRaw___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
@@ -196,6 +188,14 @@ lean_dec(x_2);
 return x_4;
 }
 }
+static lean_object* _init_l_String_instHAddCharRaw() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_String_instHAddCharRaw___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_String_instHAddRaw___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -204,14 +204,6 @@ x_3 = lean_string_utf8_byte_size(x_1);
 x_4 = lean_nat_add(x_3, x_2);
 lean_dec(x_3);
 return x_4;
-}
-}
-static lean_object* _init_l_String_instHAddRaw() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_instHAddRaw___lam__0___boxed), 2, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_String_instHAddRaw___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
@@ -224,6 +216,14 @@ lean_dec_ref(x_1);
 return x_3;
 }
 }
+static lean_object* _init_l_String_instHAddRaw() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_String_instHAddRaw___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_String_instHAddRaw__1___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -234,14 +234,6 @@ lean_dec(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_String_instHAddRaw__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_instHAddRaw__1___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_String_instHAddRaw__1___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -250,6 +242,14 @@ x_3 = l_String_instHAddRaw__1___lam__0(x_1, x_2);
 lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
+}
+}
+static lean_object* _init_l_String_instHAddRaw__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_String_instHAddRaw__1___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 static lean_object* _init_l_String_instLERaw() {
@@ -323,14 +323,6 @@ return x_1;
 }
 }
 }
-static lean_object* _init_l_String_instMinRaw() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_instMinRaw___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_String_instMinRaw___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -339,6 +331,14 @@ x_3 = l_String_instMinRaw___lam__0(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
+}
+}
+static lean_object* _init_l_String_instMinRaw() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_String_instMinRaw___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_String_instMaxRaw___lam__0(lean_object* x_1, lean_object* x_2) {
@@ -358,14 +358,6 @@ return x_2;
 }
 }
 }
-static lean_object* _init_l_String_instMaxRaw() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_instMaxRaw___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_String_instMaxRaw___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -374,6 +366,14 @@ x_3 = l_String_instMaxRaw___lam__0(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
+}
+}
+static lean_object* _init_l_String_instMaxRaw() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_String_instMaxRaw___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_String_Pos_Raw_byteDistance(lean_object* x_1, lean_object* x_2) {

@@ -106,6 +106,12 @@ extern "C" LEAN_EXPORT void lean_set_exit_on_panic(bool flag) {
     g_exit_on_panic = flag;
 }
 
+/* setExitOnPanic (exit : Bool) : BaseIO Unit */
+extern "C" LEAN_EXPORT obj_res lean_internal_set_exit_on_panic(uint8 exit) {
+    g_exit_on_panic = exit;
+    return box(0);
+}
+
 extern "C" LEAN_EXPORT void lean_set_panic_messages(bool flag) {
     g_panic_messages = flag;
 }
@@ -1011,6 +1017,11 @@ static unsigned get_lean_num_threads() {
         return atoi(num_threads);
     }
 #endif
+    return hardware_concurrency();
+}
+
+/* getHardwareConcurrency (_ : Unit) : UInt32 */
+extern "C" LEAN_EXPORT uint32 lean_internal_get_hardware_concurrency(obj_arg) {
     return hardware_concurrency();
 }
 

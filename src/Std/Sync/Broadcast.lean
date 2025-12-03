@@ -633,7 +633,7 @@ partial def forIn [Inhabited α] [Monad m] [MonadLiftT BaseIO m]
     | .yield b => ch.forIn f b
 
 /-- `for msg in ch.sync do ...` receives all messages in the channel until it is closed. -/
-instance [Inhabited α] [MonadLiftT BaseIO m] : ForIn m (Sync.Receiver α) α where
+instance [Inhabited α] [Monad m] [MonadLiftT BaseIO m] : ForIn m (Sync.Receiver α) α where
   forIn ch b f := Receiver.forIn ch f b
 
 end Receiver

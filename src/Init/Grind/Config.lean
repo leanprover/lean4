@@ -202,6 +202,15 @@ structure Config where
   ```
   -/
   funCC := true
+  /--
+  When `true`, use reducible transparency when trying to close goals.
+  In this setting, only declarations marked with `@[reducible]` are unfolded during
+  definitional equality tests.
+
+  This option does not affect the canonicalizer or how theorem patterns are internalized;
+  reducible declarations are always unfolded in those contexts.
+  -/
+  reducible := true
   deriving Inhabited, BEq
 
 /--

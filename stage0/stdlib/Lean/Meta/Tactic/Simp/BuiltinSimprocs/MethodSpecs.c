@@ -572,7 +572,7 @@ x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsN_loop(x_12, x_2, x_13);
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_array_get(x_11, x_14, x_15);
 x_17 = l_Lean_Expr_getAppFn(x_16);
-lean_dec_ref(x_16);
+lean_dec(x_16);
 x_18 = l_Lean_Expr_isConst(x_17);
 if (x_18 == 0)
 {

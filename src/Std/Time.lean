@@ -171,7 +171,7 @@ The supported formats include:
   - `EEEE`: Displays the full day name (e.g., "Tuesday").
   - `EEEEE`: Displays the narrow day name (e.g., "T" for Tuesday).
 - `e`: Represents the weekday as number or text.
-  - `e`, `ee`: Displays the the as a number, starting from 1 (Monday) to 7 (Sunday).
+  - `e`, `ee`: Displays the weekday as a number, starting from 1 (Monday) to 7 (Sunday).
   - `eee`, `eeee`, `eeeee`: Displays the weekday as text (same format as `E`).
 - `F`: Represents the week of the month that the first week starts on the first day of the month (e.g., "3").
 - `a`: Represents the AM or PM designation of the day.

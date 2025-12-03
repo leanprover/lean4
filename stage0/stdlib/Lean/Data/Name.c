@@ -1230,15 +1230,6 @@ return x_16;
 }
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardPattern_defaultDropPrefix_x3f___at___00__private_Init_Data_String_Slice_0__String_Slice_dropWhile_go___at___00__private_Lean_Data_Name_0__Lean_Name_isInternalDetail_matchPrefix_spec__0_spec__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_String_Slice_Pattern_ForwardPattern_defaultDropPrefix_x3f___at___00__private_Init_Data_String_Slice_0__String_Slice_dropWhile_go___at___00__private_Lean_Data_Name_0__Lean_Name_isInternalDetail_matchPrefix_spec__0_spec__0(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_dropWhile_go___at___00__private_Lean_Data_Name_0__Lean_Name_isInternalDetail_matchPrefix_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1256,6 +1247,15 @@ x_3 = l___private_Lean_Data_Name_0__Lean_Name_isInternalDetail_matchPrefix(x_1, 
 lean_dec_ref(x_2);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardPattern_defaultDropPrefix_x3f___at___00__private_Init_Data_String_Slice_0__String_Slice_dropWhile_go___at___00__private_Lean_Data_Name_0__Lean_Name_isInternalDetail_matchPrefix_spec__0_spec__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_String_Slice_Pattern_ForwardPattern_defaultDropPrefix_x3f___at___00__private_Init_Data_String_Slice_0__String_Slice_dropWhile_go___at___00__private_Lean_Data_Name_0__Lean_Name_isInternalDetail_matchPrefix_spec__0_spec__0(x_1);
+lean_dec_ref(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Name_isInternalDetail___closed__0() {
@@ -1800,6 +1800,16 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Name_isMetaprogramming___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Name_isMetaprogramming___lam__0(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT uint8_t l_Lean_Name_isMetaprogramming(lean_object* x_1) {
 _start:
 {
@@ -1832,16 +1842,6 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Name_isMetaprogramming___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lean_Name_isMetaprogramming___lam__0(x_1);
-lean_dec(x_1);
-x_3 = lean_box(x_2);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Name_isMetaprogramming___boxed(lean_object* x_1) {

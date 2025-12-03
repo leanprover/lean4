@@ -192,6 +192,10 @@ instance [BEq α] [Hashable α] : GetElem? (Raw α β) α β (fun m a => a ∈ m
     (l : List α) : Raw α Unit :=
   ⟨DHashMap.Raw.Const.unitOfList l⟩
 
+@[inline, inherit_doc DHashMap.Raw.Const.ofList] def ofArray [BEq α] [Hashable α]
+    (a : Array (α × β)) : Raw α β :=
+  ⟨DHashMap.Raw.Const.ofArray a⟩
+
 @[inline, inherit_doc DHashMap.Raw.Const.alter] def alter [BEq α] [EquivBEq α] [Hashable α]
     (m : Raw α β) (a : α) (f : Option β → Option β) : Raw α β :=
   ⟨DHashMap.Raw.Const.alter m.inner a f⟩
@@ -219,10 +223,10 @@ instance [BEq α] [Hashable α] : GetElem? (Raw α β) α β (fun m a => a ∈ m
     (f : (a : α) → β → γ → m (ForInStep γ)) (init : γ) (b : Raw α β) : m γ :=
   b.inner.forIn f init
 
-instance {m : Type w → Type w'} : ForM m (Raw α β) (α × β) where
+instance {m : Type w → Type w'} [Monad m] : ForM m (Raw α β) (α × β) where
   forM m f := m.forM (fun a b => f (a, b))
 
-instance {m : Type w → Type w'} : ForIn m (Raw α β) (α × β) where
+instance {m : Type w → Type w'} [Monad m] : ForIn m (Raw α β) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
 
 @[inline, inherit_doc DHashMap.Raw.all] def all (m : Raw α β) (p : α → β → Bool) : Bool :=
@@ -237,9 +241,14 @@ instance {m : Type w → Type w'} : ForIn m (Raw α β) (α × β) where
 @[inherit_doc DHashMap.Raw.inter, inline] def inter [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
   ⟨DHashMap.Raw.inter m₁.inner m₂.inner⟩
 
+@[inherit_doc DHashMap.Raw.inter, inline] def diff [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
+  ⟨DHashMap.Raw.diff m₁.inner m₂.inner⟩
+
 instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
 
 instance [BEq α] [Hashable α] : Inter (Raw α β) := ⟨inter⟩
+
+instance [BEq α] [Hashable α] : SDiff (Raw α β) := ⟨diff⟩
 
 section Unverified
 
@@ -342,14 +351,24 @@ theorem WF.insertManyIfNewUnit [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ
 theorem WF.ofList [BEq α] [Hashable α] {l : List (α × β)} : (ofList l).WF :=
   ⟨DHashMap.Raw.WF.Const.ofList⟩
 
+theorem WF.ofArray [BEq α] [Hashable α] {a : Array (α × β)} : (ofArray a).WF :=
+  ⟨DHashMap.Raw.WF.Const.ofArray⟩
+
 theorem WF.unitOfList [BEq α] [Hashable α] {l : List α} : (unitOfList l).WF :=
   ⟨DHashMap.Raw.WF.Const.unitOfList⟩
+
+theorem WF.unitOfArray [BEq α] [Hashable α] {a : Array α} : (unitOfArray a).WF :=
+  ⟨DHashMap.Raw.WF.Const.unitOfArray⟩
 
 theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ ∪ m₂).WF :=
   ⟨DHashMap.Raw.WF.union h₁.out h₂.out⟩
 
 theorem WF.inter [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ ∩ m₂).WF :=
   ⟨DHashMap.Raw.WF.inter h₁.out h₂.out⟩
+
+theorem WF.diff [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ \ m₂).WF :=
+  ⟨DHashMap.Raw.WF.diff h₁.out h₂.out⟩
+
 end Raw
 
 end HashMap

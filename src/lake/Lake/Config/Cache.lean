@@ -49,7 +49,7 @@ def checkSchemaVersion (inputName : String) (line : String) : LogIO Unit := do
 public partial def parse (inputName : String) (contents : String) : LoggerIO CacheMap := do
   let rec loop (i : Nat) (cache : CacheMap) {contents : String} (pos : contents.Pos) := do
     let lfPos := pos.find '\n'
-    let line := contents.slice! pos lfPos
+    let line := contents.slice pos lfPos (by simp [lfPos])
     if line.trimAscii.isEmpty then
       return cache
     let cache ← id do
@@ -90,7 +90,7 @@ public partial def parse (inputName : String) (contents : String) : LoggerIO Cac
 
 /--
 Loads a `CacheMap` from a JSON Lines file.
-Errors if the the file is ill-formatted or the read fails for other reasons.
+Errors if the file is ill-formatted or the read fails for other reasons.
 -/
 public def load (file : FilePath) : LogIO CacheMap := do
   match (← IO.FS.Handle.mk file .read |>.toBaseIO) with
@@ -255,7 +255,7 @@ public def getArtifactPaths
 @[inline] public def outputsDir (cache : Cache) : FilePath :=
   cache.dir / "outputs"
 
-/-- The file containing the outputs of the the given input for the package. -/
+/-- The file containing the outputs of the given input for the package. -/
 @[inline] public def outputsFile (cache : Cache) (scope : String) (inputHash : Hash) : FilePath  :=
   cache.outputsDir / scope / s!"{inputHash}.json"
 
@@ -359,7 +359,7 @@ namespace CacheService
 /--
 Reconfigures the cache service to interpret scopes as repositories (or not if `false`).
 
-For custom endpoints, if `true`, Lake wil augment the provided scope with
+For custom endpoints, if `true`, Lake will augment the provided scope with
 toolchain and platform information in a manner similar to Reservoir.
 -/
 @[inline] public def withRepoScope (service : CacheService) (repoScope := true) : CacheService :=

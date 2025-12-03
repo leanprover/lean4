@@ -471,7 +471,7 @@ theorem findM?_eq_findSomeM? [Monad m] [LawfulMonad m] {p : α → m Bool} {as :
         loop as' b this
   loop as init ⟨[], rfl⟩
 
-instance : ForIn' m (List α) α inferInstance where
+instance [Monad m] : ForIn' m (List α) α inferInstance where
   forIn' := List.forIn'
 
 -- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
@@ -485,7 +485,7 @@ instance : ForIn' m (List α) α inferInstance where
 @[simp, grind =] theorem forIn_nil [Monad m] {f : α → β → m (ForInStep β)} {b : β} : forIn [] b f = pure b :=
   rfl
 
-instance : ForM m (List α) α where
+instance [Monad m] : ForM m (List α) α where
   forM := List.forM
 
 -- We simplify `List.forM` to `forM`.

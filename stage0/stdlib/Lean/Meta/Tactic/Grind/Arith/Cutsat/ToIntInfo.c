@@ -31,7 +31,6 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_isFinite___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getIntValue_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_ToIntInfo_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedSymbolicIntInterval;
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_lo_x3f(lean_object*);
@@ -44,18 +43,13 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedSymbolicInt
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_ctorElim___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap___closed__3;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedSymbolicBound_default___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_ToIntThms_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_ToIntInfo_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedToIntInfo_default;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedSymbolicIntInterval_default___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicBound_ctorIdx___boxed(lean_object*);
 lean_object* l_Lean_mkIntLit(lean_object*);
 lean_object* l_Lean_mkIntAdd(lean_object*, lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap___closed__4;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_ToIntTermInfo_ctorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_ToIntThms_ctorIdx(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedToIntThms_default___closed__0;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_ctorIdx___boxed(lean_object*);
@@ -67,7 +61,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_ctor
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_io_elim___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedSymbolicBound_default___closed__2;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedToIntInfo_default___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_ToIntTermInfo_ctorIdx___boxed(lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap___closed__0;
@@ -76,29 +69,11 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedSymbolicBou
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_co_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_ii_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicBound_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_co_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_ci_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_ctorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_ToIntThms_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_ToIntThms_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_Grind_Arith_Cutsat_ToIntThms_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedToIntThms_default___closed__0() {
 _start:
 {
@@ -126,23 +101,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedToIntThms_default;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicBound_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicBound_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_Grind_Arith_Cutsat_SymbolicBound_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedSymbolicBound_default___closed__0() {
@@ -317,14 +275,6 @@ lean_dec(x_2);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_co_elim___redArg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_ctorElim___redArg(x_1, x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_co_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -333,7 +283,7 @@ x_5 = l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_ctorElim___redArg(x_2, 
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_ci_elim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_co_elim___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -349,7 +299,7 @@ x_5 = l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_ctorElim___redArg(x_2, 
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_io_elim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_ci_elim___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -365,7 +315,7 @@ x_5 = l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_ctorElim___redArg(x_2, 
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_ii_elim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_io_elim___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -379,6 +329,14 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_ctorElim___redArg(x_2, x_4);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_ii_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_ctorElim___redArg(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedSymbolicIntInterval_default___closed__0() {
@@ -537,11 +495,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -968,16 +926,16 @@ return x_80;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap_spec__0_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_7; 
-x_7 = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap_spec__0_spec__0(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
-lean_dec_ref(x_4);
-lean_dec(x_3);
-lean_dec_ref(x_2);
-return x_7;
+lean_object* x_8; 
+x_8 = l_Lean_throwError___at___00Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap_spec__0(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_6);
+lean_dec_ref(x_5);
+lean_dec(x_4);
+lean_dec_ref(x_3);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -992,16 +950,16 @@ lean_dec_ref(x_2);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap_spec__0_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_8; 
-x_8 = l_Lean_throwError___at___00Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap_spec__0(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
-lean_dec_ref(x_5);
-lean_dec(x_4);
-lean_dec_ref(x_3);
-return x_8;
+lean_object* x_7; 
+x_7 = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap_spec__0_spec__0(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_5);
+lean_dec_ref(x_4);
+lean_dec(x_3);
+lean_dec_ref(x_2);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -1010,23 +968,6 @@ _start:
 lean_object* x_8; 
 x_8 = l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap(x_1, x_2, x_3, x_4, x_5, x_6);
 return x_8;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_ToIntInfo_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_ToIntInfo_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_Grind_Arith_Cutsat_ToIntInfo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedToIntInfo_default___closed__0() {
@@ -1082,23 +1023,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedToIntInfo_default;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_ToIntTermInfo_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_ToIntTermInfo_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_Grind_Arith_Cutsat_ToIntTermInfo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Util(uint8_t builtin);

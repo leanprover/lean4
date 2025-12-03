@@ -35,7 +35,6 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_conta
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEval___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_unit___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_isUnit___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate___redArg(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEval(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -56,7 +55,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_T
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_nodupkey___autoParam___closed__18;
 LEAN_EXPORT lean_object* l_List_beq___at___00Std_Tactic_BVDecide_LRAT_Internal_instBEqDefaultClause_beq_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEval___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ctorIdx(lean_object*, lean_object*);
 lean_object* l_instBEqProd___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_nodupkey___autoParam___closed__3;
@@ -68,6 +66,7 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduc
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_nodupkey___autoParam___closed__20;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_nodupkey___autoParam;
 size_t lean_usize_of_nat(lean_object*);
+static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate___closed__0;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_encounteredBoth_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_empty___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_toList(lean_object*, lean_object*);
@@ -91,7 +90,6 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_unit_
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_isUnit___redArg(lean_object*);
-static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate___redArg___closed__0;
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Clause_eval___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__1___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_instClausePosFin(lean_object*);
@@ -126,11 +124,9 @@ LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHas
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_spec__1(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringDefaultClause___closed__0;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_toList___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Clause_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_reducedToUnit_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Clause_ctorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_ctorIdx___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce__fold__fn___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_reducedToNonunit_elim___redArg(lean_object*, lean_object*);
@@ -241,15 +237,6 @@ x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_ctorIdx___redArg(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_ctorIdx___redArg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_ctorIdx___redArg(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -257,6 +244,15 @@ lean_object* x_3;
 x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_ctorIdx(x_1, x_2);
 lean_dec(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_ctorIdx___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_ctorIdx___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_ctorElim___redArg(lean_object* x_1, lean_object* x_2) {
@@ -295,14 +291,6 @@ lean_dec(x_3);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_encounteredBoth_elim___redArg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_ctorElim___redArg(x_1, x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_encounteredBoth_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -311,7 +299,7 @@ x_6 = l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_ctorElim___redArg(x_3, x_
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_reducedToEmpty_elim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_encounteredBoth_elim___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -327,7 +315,7 @@ x_6 = l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_ctorElim___redArg(x_3, x_
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_reducedToUnit_elim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_reducedToEmpty_elim___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -343,7 +331,7 @@ x_6 = l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_ctorElim___redArg(x_3, x_
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_reducedToNonunit_elim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_reducedToUnit_elim___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -359,21 +347,12 @@ x_6 = l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_ctorElim___redArg(x_3, x_
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Clause_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_reducedToNonunit_elim___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Clause_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_Clause_ctorIdx(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-return x_4;
+lean_object* x_3; 
+x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_ReduceResult_ctorElim___redArg(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instEntailsLiteral(lean_object* x_1) {
@@ -430,15 +409,6 @@ x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEvalLiteral___redA
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEvalLiteral___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEvalLiteral___redArg(x_1, x_2);
-x_4 = lean_box(x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEvalLiteral___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -448,12 +418,30 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEvalLiteral___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEvalLiteral___redArg(x_1, x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Clause_eval___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
 x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEvalLiteral___redArg(x_1, x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Clause_eval___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_Clause_eval___redArg___lam__0(x_1, x_2);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Clause_eval___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -478,13 +466,13 @@ x_6 = l_Std_Tactic_BVDecide_LRAT_Internal_Clause_eval___redArg(x_3, x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Clause_eval___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Clause_eval___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_Clause_eval___redArg___lam__0(x_1, x_2);
-x_4 = lean_box(x_3);
-return x_4;
+uint8_t x_6; lean_object* x_7; 
+x_6 = l_Std_Tactic_BVDecide_LRAT_Internal_Clause_eval(x_1, x_2, x_3, x_4, x_5);
+x_7 = lean_box(x_6);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Clause_eval___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -494,15 +482,6 @@ uint8_t x_4; lean_object* x_5;
 x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_Clause_eval___redArg(x_1, x_2, x_3);
 x_5 = lean_box(x_4);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Clause_eval___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-uint8_t x_6; lean_object* x_7; 
-x_6 = l_Std_Tactic_BVDecide_LRAT_Internal_Clause_eval(x_1, x_2, x_3, x_4, x_5);
-x_7 = lean_box(x_6);
-return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instEntails(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -522,14 +501,6 @@ lean_dec_ref(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEval___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; 
-x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_Clause_eval___redArg(x_1, x_2, x_3);
-return x_4;
-}
-}
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEval(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -538,13 +509,12 @@ x_6 = l_Std_Tactic_BVDecide_LRAT_Internal_Clause_eval___redArg(x_3, x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEval___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEval___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEval___redArg(x_1, x_2, x_3);
-x_5 = lean_box(x_4);
-return x_5;
+uint8_t x_4; 
+x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_Clause_eval___redArg(x_1, x_2, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEval___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -554,6 +524,15 @@ uint8_t x_6; lean_object* x_7;
 x_6 = l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEval(x_1, x_2, x_3, x_4, x_5);
 x_7 = lean_box(x_6);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEval___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEval___redArg(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
 }
 }
 static lean_object* _init_l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_nodupkey___autoParam___closed__0() {
@@ -884,24 +863,6 @@ x_1 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_nodupkey___autoParam___c
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ctorIdx(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
 LEAN_EXPORT uint8_t l_List_beq___at___00Std_Tactic_BVDecide_LRAT_Internal_instBEqDefaultClause_beq_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1006,17 +967,6 @@ x_4 = l_List_beq___at___00Std_Tactic_BVDecide_LRAT_Internal_instBEqDefaultClause
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_List_beq___at___00Std_Tactic_BVDecide_LRAT_Internal_instBEqDefaultClause_beq_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_List_beq___at___00Std_Tactic_BVDecide_LRAT_Internal_instBEqDefaultClause_beq_spec__0___redArg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-x_4 = lean_box(x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_List_beq___at___00Std_Tactic_BVDecide_LRAT_Internal_instBEqDefaultClause_beq_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1039,6 +989,17 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_5 = lean_box(x_4);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_List_beq___at___00Std_Tactic_BVDecide_LRAT_Internal_instBEqDefaultClause_beq_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_List_beq___at___00Std_Tactic_BVDecide_LRAT_Internal_instBEqDefaultClause_beq_spec__0___redArg(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instBEqDefaultClause(lean_object* x_1) {
@@ -1104,13 +1065,6 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_toList___redArg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_toList(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1118,13 +1072,11 @@ lean_inc(x_2);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_toList___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_toList___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_toList___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_toList___boxed(lean_object* x_1, lean_object* x_2) {
@@ -1135,6 +1087,15 @@ x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_toList(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_toList___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_toList___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_empty(lean_object* x_1) {
@@ -1154,17 +1115,6 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_unit___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_box(0);
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_unit(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1176,6 +1126,17 @@ lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_unit___redArg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_box(0);
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_unit___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1183,37 +1144,6 @@ lean_object* x_3;
 x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_unit(x_1, x_2);
 lean_dec(x_1);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_isUnit___redArg(lean_object* x_1) {
-_start:
-{
-if (lean_obj_tag(x_1) == 1)
-{
-lean_object* x_2; 
-x_2 = lean_ctor_get(x_1, 1);
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_4, 0, x_3);
-return x_4;
-}
-else
-{
-lean_object* x_5; 
-x_5 = lean_box(0);
-return x_5;
-}
-}
-else
-{
-lean_object* x_6; 
-x_6 = lean_box(0);
-return x_6;
-}
 }
 }
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_isUnit(lean_object* x_1, lean_object* x_2) {
@@ -1247,13 +1177,35 @@ return x_7;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_isUnit___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_isUnit___redArg(lean_object* x_1) {
 _start:
 {
+if (lean_obj_tag(x_1) == 1)
+{
 lean_object* x_2; 
-x_2 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_isUnit___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+x_2 = lean_ctor_get(x_1, 1);
+if (lean_obj_tag(x_2) == 0)
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+x_4 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_4, 0, x_3);
+return x_4;
+}
+else
+{
+lean_object* x_5; 
+x_5 = lean_box(0);
+return x_5;
+}
+}
+else
+{
+lean_object* x_6; 
+x_6 = lean_box(0);
+return x_6;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_isUnit___boxed(lean_object* x_1, lean_object* x_2) {
@@ -1264,6 +1216,15 @@ x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_isUnit(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_isUnit___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_isUnit___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_Clause_0__Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_isUnit_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1317,7 +1278,7 @@ lean_dec(x_1);
 return x_6;
 }
 }
-static lean_object* _init_l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate___redArg___closed__0() {
+static lean_object* _init_l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -1326,24 +1287,24 @@ lean_closure_set(x_1, 0, lean_box(0));
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate___redArg___closed__0;
-x_3 = lean_box(0);
-x_4 = l_List_mapTR_loop___redArg(x_2, x_1, x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate___redArg___closed__0;
+x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate___closed__0;
 x_4 = lean_box(0);
 x_5 = l_List_mapTR_loop___redArg(x_3, x_2, x_4);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate___redArg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate___closed__0;
+x_3 = lean_box(0);
+x_4 = l_List_mapTR_loop___redArg(x_2, x_1, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate___boxed(lean_object* x_1, lean_object* x_2) {
@@ -1353,46 +1314,6 @@ lean_object* x_3;
 x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate(x_1, x_2);
 lean_dec(x_1);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_3; 
-x_3 = lean_box(0);
-return x_3;
-}
-else
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_4 = lean_ctor_get(x_2, 0);
-x_5 = lean_ctor_get(x_2, 1);
-x_6 = lean_ctor_get(x_2, 2);
-x_7 = lean_nat_dec_eq(x_4, x_1);
-if (x_7 == 0)
-{
-x_2 = x_6;
-goto _start;
-}
-else
-{
-lean_object* x_9; 
-lean_inc(x_5);
-x_9 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_9, 0, x_5);
-return x_9;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__0___redArg(x_3, x_4);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00__private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__1_spec__1_spec__1___redArg(lean_object* x_1, lean_object* x_2) {
@@ -1477,6 +1398,46 @@ x_4 = l_Std_DHashMap_Internal_AssocList_foldlM___at___00__private_Std_Data_DHash
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+lean_object* x_3; 
+x_3 = lean_box(0);
+return x_3;
+}
+else
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_4 = lean_ctor_get(x_2, 0);
+x_5 = lean_ctor_get(x_2, 1);
+x_6 = lean_ctor_get(x_2, 2);
+x_7 = lean_nat_dec_eq(x_4, x_1);
+if (x_7 == 0)
+{
+x_2 = x_6;
+goto _start;
+}
+else
+{
+lean_object* x_9; 
+lean_inc(x_5);
+x_9 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_9, 0, x_5);
+return x_9;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__0___redArg(x_3, x_4);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__1_spec__1___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1507,14 +1468,6 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__1_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__1_spec__1___redArg(x_3, x_4, x_5);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__1___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1536,6 +1489,14 @@ _start:
 lean_object* x_4; 
 x_4 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__1___redArg(x_1, x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__1_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__1_spec__1___redArg(x_3, x_4, x_5);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1801,16 +1762,6 @@ return x_29;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__0___redArg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1820,6 +1771,15 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__1(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__1_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -1840,13 +1800,14 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_4; 
-x_4 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__1(x_1, x_2, x_3);
+lean_object* x_3; 
+x_3 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_spec__0___redArg(x_1, x_2);
+lean_dec(x_2);
 lean_dec(x_1);
-return x_4;
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1926,6 +1887,29 @@ return x_8;
 }
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_spec__2(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; 
+x_6 = lean_usize_dec_eq(x_3, x_4);
+if (x_6 == 0)
+{
+lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; 
+x_7 = lean_array_uget(x_2, x_3);
+x_8 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder(x_1, x_5, x_7);
+lean_dec(x_7);
+x_9 = 1;
+x_10 = lean_usize_add(x_3, x_9);
+x_3 = x_10;
+x_5 = x_8;
+goto _start;
+}
+else
+{
+return x_5;
+}
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_spec__1(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
@@ -1947,29 +1931,6 @@ goto _start;
 else
 {
 return x_4;
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_spec__2(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
-_start:
-{
-uint8_t x_6; 
-x_6 = lean_usize_dec_eq(x_3, x_4);
-if (x_6 == 0)
-{
-lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; 
-x_7 = lean_array_uget(x_2, x_3);
-x_8 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder(x_1, x_5, x_7);
-lean_dec_ref(x_7);
-x_9 = 1;
-x_10 = lean_usize_add(x_3, x_9);
-x_3 = x_10;
-x_5 = x_8;
-goto _start;
-}
-else
-{
-return x_5;
 }
 }
 }
@@ -2087,19 +2048,6 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-size_t x_5; size_t x_6; lean_object* x_7; 
-x_5 = lean_unbox_usize(x_2);
-lean_dec(x_2);
-x_6 = lean_unbox_usize(x_3);
-lean_dec(x_3);
-x_7 = l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_spec__1(x_1, x_5, x_6, x_4);
-lean_dec_ref(x_1);
-return x_7;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -2112,6 +2060,19 @@ x_8 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_
 lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_8;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+size_t x_5; size_t x_6; lean_object* x_7; 
+x_5 = lean_unbox_usize(x_2);
+lean_dec(x_2);
+x_6 = lean_unbox_usize(x_3);
+lean_dec(x_3);
+x_7 = l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_spec__1(x_1, x_5, x_6, x_4);
+lean_dec_ref(x_1);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray___boxed(lean_object* x_1, lean_object* x_2) {
@@ -2355,16 +2316,6 @@ x_5 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce__fold__fn___redAr
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce__fold__fn___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce__fold__fn___redArg(x_1, x_2, x_3);
-lean_dec(x_2);
-lean_dec_ref(x_1);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce__fold__fn___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -2374,6 +2325,16 @@ lean_dec(x_3);
 lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce__fold__fn___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce__fold__fn___redArg(x_1, x_2, x_3);
+lean_dec(x_2);
+lean_dec_ref(x_1);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_List_foldl___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2416,15 +2377,6 @@ x_5 = l_List_foldl___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_redu
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_List_foldl___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_List_foldl___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce_spec__0___redArg(x_1, x_2, x_3);
-lean_dec_ref(x_1);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_List_foldl___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -2442,6 +2394,15 @@ lean_object* x_4;
 x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce(x_1, x_2, x_3);
 lean_dec_ref(x_3);
 lean_dec(x_1);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_List_foldl___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_List_foldl___at___00Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce_spec__0___redArg(x_1, x_2, x_3);
+lean_dec_ref(x_1);
 return x_4;
 }
 }
@@ -2573,8 +2534,8 @@ l_Std_Tactic_BVDecide_LRAT_Internal_instToStringDefaultClause___closed__1 = _ini
 lean_mark_persistent(l_Std_Tactic_BVDecide_LRAT_Internal_instToStringDefaultClause___closed__1);
 l_Std_Tactic_BVDecide_LRAT_Internal_instToStringDefaultClause___closed__2 = _init_l_Std_Tactic_BVDecide_LRAT_Internal_instToStringDefaultClause___closed__2();
 lean_mark_persistent(l_Std_Tactic_BVDecide_LRAT_Internal_instToStringDefaultClause___closed__2);
-l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate___redArg___closed__0 = _init_l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate___redArg___closed__0();
-lean_mark_persistent(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate___redArg___closed__0);
+l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate___closed__0 = _init_l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate___closed__0();
+lean_mark_persistent(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate___closed__0);
 l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray___closed__0 = _init_l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray___closed__0();
 lean_mark_persistent(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray___closed__0);
 l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_delete___closed__0 = _init_l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_delete___closed__0();

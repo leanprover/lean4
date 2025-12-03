@@ -44,7 +44,7 @@ Tactic `cases` failed with a nested error:
 Tactic `induction` failed: recursor `Nonempty.casesOn` can only eliminate into `Prop`
 
 α : Type
-motive : Nonempty α → Sort ?u.52
+motive : Nonempty α → Sort ?u.48
 h_1 : (x : α) → motive ⋯
 inst✝ : Nonempty α
 ⊢ motive inst✝
@@ -81,7 +81,7 @@ Tactic `induction` failed: recursor `Exists.casesOn` can only eliminate into `Pr
 
 α : Type u
 p : α → Prop
-motive : (∃ x, p x) → Sort ?u.48
+motive : (∃ x, p x) → Sort ?u.52
 h_1 : (x : α) → (h : p x) → motive ⋯
 h✝ : ∃ x, p x
 ⊢ motive h✝

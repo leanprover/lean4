@@ -247,10 +247,10 @@ This `ForIn'`-style loop construct traverses a finite iterator using an `Iterato
 -/
 @[always_inline, inline]
 def IteratorLoop.finiteForIn' {m : Type w → Type w'} {n : Type x → Type x'}
-    {α : Type w} {β : Type w} [Iterator α m β] [Finite α m] [IteratorLoop α m n]
+    {α : Type w} {β : Type w} [Iterator α m β] [Finite α m] [IteratorLoop α m n] [Monad n]
     (lift : ∀ γ δ, (γ → n δ) → m γ → n δ) :
     ForIn' n (IterM (α := α) m β) β ⟨fun it out => it.IsPlausibleIndirectOutput out⟩ where
-  forIn' {γ} [Monad n] it init f :=
+  forIn' {γ} it init f :=
     IteratorLoop.forIn (α := α) (m := m) lift γ (fun _ _ _ => True)
       wellFounded_of_finite
       it init (fun out h acc => (⟨·, .intro⟩) <$> f out h acc)
@@ -288,13 +288,13 @@ instance {m : Type w → Type w'} {n : Type w → Type w''}
   instForInOfForIn'
 
 instance {m : Type w → Type w'} {n : Type w → Type w''}
-    {α : Type w} {β : Type w} [Iterator α m β] [Finite α m] [IteratorLoop α m n]
+    {α : Type w} {β : Type w} [Iterator α m β] [Finite α m] [IteratorLoop α m n] [Monad n]
     [MonadLiftT m n] :
     ForM n (IterM (α := α) m β) β where
   forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
 
 instance {m : Type w → Type w'} {n : Type w → Type w''}
-    {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoopPartial α m n]
+    {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoopPartial α m n] [Monad n]
     [MonadLiftT m n] :
     ForM n (IterM.Partial (α := α) m β) β where
   forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)

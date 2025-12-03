@@ -274,4 +274,12 @@ where
     | .num k => .add acc (.num k)
     | .add k m p => go p (.add acc (goTerm k m))
 
+def Poly.maxDegreeOf (p : Poly) (x : Var) : Nat :=
+  go p 0
+where
+  go (p : Poly) (max : Nat) : Nat :=
+    match p with
+    | .num _ => max
+    | .add _ m p => go p (Nat.max max (m.degreeOf x))
+
 end Lean.Grind.CommRing

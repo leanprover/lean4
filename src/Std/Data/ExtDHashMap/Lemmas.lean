@@ -951,6 +951,8 @@ theorem getThenInsertIfNew?_snd [LawfulBEq α] {k : α} {v : β k} :
     (m.getThenInsertIfNew? k v).2 = m.insertIfNew k v :=
   m.inductionOn fun _ => congrArg mk DHashMap.getThenInsertIfNew?_snd
 
+theorem mem_of_get_eq [LawfulBEq α] {k : α} {v : β k} {w} (_ : m.get k w = v) : k ∈ m := w
+
 namespace Const
 
 variable {β : Type v} {m : ExtDHashMap α (fun _ => β)}

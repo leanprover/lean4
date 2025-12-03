@@ -59,11 +59,11 @@ private def lines (s : String) : Array String := Id.run do
     let c := iter.get h
     iter := iter.next h
     if c == '\n' then
-      result := result.push <| lineStart.extract iter
+      result := result.push <| s.extract lineStart iter
       lineStart := iter
 
   if iter != lineStart then
-    result := result.push <| lineStart.extract iter
+    result := result.push <| s.extract lineStart iter
   return result
 
 private inductive RWState where

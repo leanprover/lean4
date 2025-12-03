@@ -153,7 +153,7 @@ def eraseIrrelevantMData (e : Expr) : CoreM Expr := do
   let pre (e : Expr) := do
     match e with
     | .letE .. | .lam .. => return .done e
-    | .mdata _ e => return .continue e
+    | .mdata _ e => return .visit e
     | _ => return .continue e
   Core.transform e (pre := pre)
 

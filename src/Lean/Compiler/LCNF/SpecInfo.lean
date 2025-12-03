@@ -219,7 +219,6 @@ def computeSpecEntries (decls : Array Decl) (autoSpecialize : Name → Option (A
       let decl := decls[i]
       let mut paramsInfo := declsInfo[i]!
       let some mask := m.find? decl.name | unreachable!
-      trace[Compiler.specialize.info] "{decl.name} {mask}"
       paramsInfo := Array.zipWith (as := paramsInfo) (bs := mask) fun info fixed =>
         if fixed || info matches .user then
           info

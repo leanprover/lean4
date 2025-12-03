@@ -1,7 +1,4 @@
-/--
-trace: [Compiler.specialize.info] pmap [true, true, false, true]
-[Compiler.specialize.info] pmap [N, N, O, H]
--/
+/-- trace: [Compiler.specialize.info] pmap [N, N, O, H] -/
 #guard_msgs in
 set_option trace.Compiler.specialize.info true in
 @[specialize]

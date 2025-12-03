@@ -3,7 +3,6 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
-
 module
 
 prelude
@@ -17,14 +16,15 @@ public import Std.Internal.Async.Select
 public section
 
 /-!
-Context interface for cancellation and deadline management
+This module provides the `Context` type for hierarchical cancellation management with a tree-structured
+cancellation context where cancelling a parent automatically cancels all child contexts.
 -/
 
 namespace Std
 open Std.Internal.IO.Async
 
 /--
-The central state structure shared by all context types.cc
+The central state structure shared by all context types.
 -/
 structure ContextState where
   /--
@@ -39,9 +39,8 @@ structure ContextState where
   id : UInt64 := 1
 
 /--
-A cancellation context that allows multiple consumers to wait
-until cancellation is requested. Forms a tree structure where
-cancelling a parent cancels all children.
+A cancellation context that allows multiple consumers to wait until cancellation is requested. Forms
+a tree structure where cancelling a parent cancels all children.
 -/
 structure Context where
   state : Std.Mutex ContextState
@@ -62,9 +61,8 @@ def new : BaseIO Context := do
   }
 
 /--
-Fork a child context from a parent. If the parent is already cancelled,
-returns the parent context. Otherwise, creates a new child that will be
-cancelled when the parent is cancelled.
+Fork a child context from a parent. If the parent is already cancelled, returns the parent context.
+Otherwise, creates a new child that will be cancelled when the parent is cancelled.
 -/
 def fork (root : Context) : BaseIO Context := do
   if ← root.token.isCancelled then

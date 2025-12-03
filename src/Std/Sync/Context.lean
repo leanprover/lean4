@@ -16,8 +16,8 @@ public import Std.Internal.Async.Select
 public section
 
 /-!
-This module provides the `Context` type for hierarchical cancellation management with a tree-structured
-cancellation context where cancelling a parent automatically cancels all child contexts.
+This module provides a tree-structured cancellation context called `Context` where cancelling a parent
+automatically cancels all child contexts.
 -/
 
 namespace Std

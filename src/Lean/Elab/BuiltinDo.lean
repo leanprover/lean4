@@ -180,24 +180,6 @@ def LetOrReassign.checkMutVars (letOrReassign : LetOrReassign) (vars : Array Ide
   | .reassign => throwUnlessMutVarsDeclared vars
   | _         => checkMutVarsForShadowing vars
 
-@[inline]
-def LetOrReassign.ensureReassignsPreserveType (letOrReassign : LetOrReassign) (vars : Array Ident) : MetaM (TermElabM Unit) := do
-  match letOrReassign with
-  | .reassign => do
-    let oldDecls := (← getLCtx).findFromUserNames (.ofArray <| vars.map (·.getId))
-    return do
-      for var in vars do
-        let newDecl ← getLocalDeclFromUserName var.getId
-        let some oldDecl := oldDecls.find? (fun (decl : LocalDecl) => decl.userName == var.getId)
-          | continue
-        -- We inline `Term.ensureHasType oldDecl.type newDecl` here, because the error message would say
-        -- that the `mut` var has type `newDecl.type`, when really it has type `oldDecl.type`.
-        -- Hence we flip the order of arguments to `mkCoe`.
-        -- unless (← isDefEq newDecl.type oldDecl.type) do
-        --   Term.mkCoe oldDecl.type newDecl.toExpr
-  | _ => return pure ()
-
-def elabDoLetOrReassignWith (letOrReassign : LetOrReassign) (vars : Array Ident)
     (dec : DoElemCont) (elabBody : (body : Term) → TermElabM Expr) : DoElabM Expr := do
   -- letOrReassign.checkMutVars vars -- Should be done by the caller!
   let ensure ← letOrReassign.ensureReassignsPreserveType vars

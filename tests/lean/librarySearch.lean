@@ -63,7 +63,7 @@ info: Try this:
 #guard_msgs in
 example : x < x + 1 := exact?%
 
-/-- error: `exact?%` didn't find any relevant lemmas -/
+/-- error: `exact?%` could not close the goal. Try `by apply?` to see partial suggestions. -/
 #guard_msgs in
 example {α : Sort u} (x y : α) : Eq x y := exact?%
 
@@ -370,10 +370,8 @@ info: Try this:
 example (_h : List.range 10000 = List.range 10000) (n m : Nat) : n + m = m + n := by
   with_reducible exact?
 
-/--
-error: apply? didn't find any relevant lemmas
--/
-#guard_msgs in
+-- Now finds star-indexed lemmas (e.g., noConfusion) as partial proofs
+#guard_msgs (drop info) in
 example {α : Sort u} (x y : α) : Eq x y := by apply?
 
 -- If this lemma is added later to the library, please update this `#guard_msgs`.
@@ -387,10 +385,11 @@ example (p q : Prop) : (¬ p = q) = (p = ¬ q) := by exact?
 example : False := by apply?
 
 -- Test the `-star` and `+star` flags for controlling star-indexed lemma fallback.
--- Note: For `h : Empty`, `h.elim` is found via solveByElim from local hypotheses,
--- so the -star flag doesn't affect this case.
-#guard_msgs (drop info) in
+-- `Empty.elim` is a star-indexed lemma (polymorphic result type), so `-star` prevents finding it.
+/-- error: apply? didn't find any relevant lemmas -/
+#guard_msgs in
 example {α : Sort u} (h : Empty) : α := by apply? -star
 
+-- With `+star`, we find `Empty.elim` via star-indexed lemma fallback.
 #guard_msgs (drop info) in
 example {α : Sort u} (h : Empty) : α := by apply? +star

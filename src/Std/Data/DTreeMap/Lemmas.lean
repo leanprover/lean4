@@ -5296,7 +5296,7 @@ end Max
 
 namespace Equiv
 
-variable {t₁ t₂ t₃ t₄ : DTreeMap α β cmp} {δ : Type w} {m : Type w → Type w'}
+variable {t₁ t₂ t₃ t₄ : DTreeMap α β cmp} {δ σ : Type w} {m : Type w → Type w'}
 
 @[refl, simp] theorem rfl : Equiv t t := ⟨.rfl⟩
 
@@ -5390,6 +5390,11 @@ theorem foldrM_eq [TransCmp cmp] [Monad m] [LawfulMonad m] {f : (a : α) → β 
 theorem foldr_eq [TransCmp cmp] {f : (a : α) → β a → δ → δ} {init : δ} (h : t₁ ~m t₂) :
     t₁.foldr f init = t₂.foldr f init :=
   h.1.foldr_eq t₁.2 t₂.2
+
+theorem forInNew_eq [TransCmp cmp] [Monad m] [LawfulMonad m]
+    {init : σ} {kcons : (a : α) × β a → (σ → m δ) → σ → m δ} {knil : σ → m δ} (h : t₁ ~m t₂) :
+    ForInNew.forInNew t₁ init kcons knil = ForInNew.forInNew t₂ init kcons knil :=
+  h.1.forInNew_eq t₁.2 t₂.2
 
 theorem forIn_eq [TransCmp cmp] [Monad m] [LawfulMonad m]
     {b : δ} {f : (a : α) × β a → δ → m (ForInStep δ)} (h : t₁ ~m t₂) :

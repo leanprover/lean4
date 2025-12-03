@@ -408,7 +408,7 @@ def getKeyLED [TransCmp cmp] (t : ExtTreeMap α β cmp) (k : α) (fallback : α)
 def getKeyLTD [TransCmp cmp] (t : ExtTreeMap α β cmp) (k : α) (fallback : α) : α :=
   ExtDTreeMap.getKeyLTD t.inner k fallback
 
-variable {δ : Type w} {m : Type w → Type w₂} [Monad m] [LawfulMonad m]
+variable {δ σ : Type w} {m : Type w → Type w₂} [Monad m] [LawfulMonad m]
 
 @[inline, inherit_doc ExtDTreeMap.filter]
 def filter (f : α → β → Bool) (m : ExtTreeMap α β cmp) : ExtTreeMap α β cmp :=
@@ -447,12 +447,19 @@ def partition [TransCmp cmp] (f : (a : α) → β → Bool) (t : ExtTreeMap α �
 def forM [TransCmp cmp] (f : α → β → m PUnit) (t : ExtTreeMap α β cmp) : m PUnit :=
   t.inner.forM f
 
+@[inline, inherit_doc ExtDTreeMap.forInNew]
+def forInNew [TransCmp cmp] (t : ExtTreeMap α β cmp) (init : σ) (kcons : (a : α) → β → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  t.inner.forInNew init kcons knil
+
 @[inline, inherit_doc ExtDTreeMap.forIn]
 def forIn [TransCmp cmp] (f : α → β → δ → m (ForInStep δ)) (init : δ) (t : ExtTreeMap α β cmp) : m δ :=
   t.inner.forIn (fun a b c => f a b c) init
 
 instance [TransCmp cmp] [Monad m] [LawfulMonad m] : ForM m (ExtTreeMap α β cmp) (α × β) where
   forM t f := forM (fun a b => f ⟨a, b⟩) t
+
+instance [TransCmp cmp] : ForInNew m (ExtTreeMap α β cmp) (α × β) where
+  forInNew m init kcons knil := m.forInNew init (fun a b => kcons ⟨a, b⟩) knil
 
 instance [TransCmp cmp] [Monad m] [LawfulMonad m] : ForIn m (ExtTreeMap α β cmp) (α × β) where
   forIn m init f := forIn (fun a b acc => f ⟨a, b⟩ acc) init m

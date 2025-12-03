@@ -7,11 +7,7 @@ import Std.Data.ExtTreeMap
 open Std
 
 /-!
-The `ForIn` instance elaborates correctly for lawful monads.
-
-Note: We require the `Monad` instance to be synthesized for the `ForIn` instance to make sure that
-`LawfulMonad` is available. `forIn` still provides another monad instance which we ignore. This
-results in one redundant instance synthesis (which should be cached though).
+Tests that the `ForIn` instance elaborates correctly.
 -/
 
 def test (x : ExtTreeMap Nat Nat) : StateM Nat Nat := do

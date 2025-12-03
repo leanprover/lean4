@@ -185,6 +185,18 @@ def libSearchFindDecls : Expr → MetaM (Array (Name × DeclMod)) :=
       (droppedKeys := droppedKeys)
       (constantsPerTask := constantsPerImportTask)
 
+/-- Environment extension for full discrimination tree (no dropped keys).
+    Used as fallback when primary search finds nothing. -/
+private builtin_initialize fullExt : EnvExtension LibSearchState ←
+  registerEnvExtension (IO.mkRef .none)
+
+/-- Find declarations including star-indexed lemmas (no droppedKeys).
+    Used as fallback when `libSearchFindDecls` finds nothing. -/
+def libSearchFindDeclsFull : Expr → MetaM (Array (Name × DeclMod)) :=
+  findMatches fullExt addImport
+      (droppedKeys := [])  -- Don't drop anything
+      (constantsPerTask := constantsPerImportTask)
+
 /--
 Return an action that returns true when the remaining heartbeats is less
 than the currently remaining heartbeats * leavePercent / 100.
@@ -341,19 +353,36 @@ def tryOnEach
 private def librarySearch' (goal : MVarId)
     (tactic : List MVarId → MetaM (List MVarId))
     (allowFailure : MVarId → MetaM Bool)
-    (leavePercentHeartbeats : Nat) :
+    (leavePercentHeartbeats : Nat)
+    (includeStar : Bool := true) :
     MetaM (Option (Array (List MVarId × MetavarContext))) := do
   withTraceNode `Tactic.librarySearch (return m!"{librarySearchEmoji ·} {← goal.getType}") do
   profileitM Exception "librarySearch" (← getOptions) do
-    -- Create predicate that returns true when running low on heartbeats.
-    let candidates ← librarySearchSymm libSearchFindDecls goal
     let cfg : ApplyConfig := { allowSynthFailures := true }
     let shouldAbort ← mkHeartbeatCheck leavePercentHeartbeats
     let act := fun cand => do
         if ←shouldAbort then
           abortSpeculation
         librarySearchLemma cfg tactic allowFailure cand
-    tryOnEach act candidates
+    -- First pass: search with droppedKeys (excludes star-indexed lemmas)
+    let candidates ← librarySearchSymm libSearchFindDecls goal
+    match ← tryOnEach act candidates with
+    | none => return none  -- Found a complete solution
+    | some results =>
+      -- Only do star fallback if:
+      -- 1. No results from primary search
+      -- 2. includeStar is true
+      -- 3. Goal type is fvar-headed (would be keyed as [*] in the tree)
+      -- This avoids flooding with noise for goals like `Eq x y` where the
+      -- dropped [Eq,*,*,*] pattern would match too broadly.
+      let goalType ← goal.getType
+      let isStarLike := goalType.getAppFn.isFVar
+      if !results.isEmpty || !includeStar || !isStarLike then
+        return some results
+      -- Second pass: search full tree for fvar-headed goals only
+      let fullCandidates ← librarySearchSymm libSearchFindDeclsFull goal
+      if fullCandidates.isEmpty then return some results
+      tryOnEach act fullCandidates
 
 /--
 Tries to solve the goal by applying a library lemma
@@ -376,9 +405,10 @@ def librarySearch (goal : MVarId)
     (tactic : List MVarId → MetaM (List MVarId) :=
       fun g => solveByElim [] (maxDepth := 6) (exfalso := false) g)
     (allowFailure : MVarId → MetaM Bool := fun _ => pure true)
-    (leavePercentHeartbeats : Nat := 10) :
+    (leavePercentHeartbeats : Nat := 10)
+    (includeStar : Bool := true) :
     MetaM (Option (Array (List MVarId × MetavarContext))) := do
-  librarySearch' goal tactic allowFailure leavePercentHeartbeats
+  librarySearch' goal tactic allowFailure leavePercentHeartbeats includeStar
 
 end LibrarySearch
 

@@ -247,7 +247,9 @@ def elabDoIdDecl (x : Ident) (xType? : Option Term) (rhs : TSyntax `doElem) (k :
   let lctx ← getLCtx
   let ctx ← read
   elabDoElem rhs <| .mk (kind := kind) x.getId xType do
-    withLCtxKeepingMutVarDefs lctx ctx x.getId k
+    withLCtxKeepingMutVarDefs lctx ctx x.getId do
+      Term.addTermInfo' (isBinder := true) x (← getFVarFromUserName x.getId)
+      k
 
 def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``doPatDecl]) (dec : DoElemCont) : DoElabM Expr := do
   match stx with
@@ -337,11 +339,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
       elabToTerm m!"else branch of {cond}" (loop (i + 1)) fun else_ => do
       match cond with
       | `(doIfCond|$cond) =>
-        try
-          Term.elabTerm (← `(if $cond then $then_ else $else_)) mγ (catchExPostpone := false)
-        catch ex =>
-          logException ex
-          throw ex
+        Term.elabTerm (← `(if $cond then $then_ else $else_)) mγ (catchExPostpone := false)
       | `(doIfCond|$h : $cond) =>
         Term.elabTerm (← `(if $h:ident : $cond then $then_ else $else_)) mγ (catchExPostpone := false)
       | `(doIfCond|let $pat := $d) =>

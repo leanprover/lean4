@@ -78,7 +78,7 @@ register_builtin_option autoLift : Bool := {
 }
 
 /-- Coerces `expr` to `expectedType` using `CoeT`. -/
-def coerceSimple? (expr expectedType : Expr) : MetaM (LOption (Expr × List Name)) := do
+def coerceSimpleRecordingNames? (expr expectedType : Expr) : MetaM (LOption (Expr × List Name)) := do
   let eType ← inferType expr
   let u ← getLevel eType
   let v ← getLevel expectedType
@@ -91,6 +91,13 @@ def coerceSimple? (expr expectedType : Expr) : MetaM (LOption (Expr × List Name
     return .some result
   | .undef => return .undef
   | .none => return .none
+
+/-- Coerces `expr` to `expectedType` using `CoeT`. -/
+def coerceSimple? (expr expectedType : Expr) : MetaM (LOption Expr) := do
+  match ← coerceSimpleRecordingNames? expr expectedType with
+  | .some (result, _) => return .some result
+  | .none => return .none
+  | .undef => return .undef
 
 /-- Coerces `expr` to a function type. -/
 def coerceToFunction? (expr : Expr) : MetaM (Option Expr) := do
@@ -259,7 +266,7 @@ def coerceCollectingNames? (expr expectedType : Expr) : MetaM (LOption (Expr × 
     if let some fn ← coerceToFunction? expr then
       if ← isDefEq (← inferType fn) expectedType then
         return .some (fn, [])
-  coerceSimple? expr expectedType
+  coerceSimpleRecordingNames? expr expectedType
 
 /--
 Coerces `expr` to the type `expectedType`.

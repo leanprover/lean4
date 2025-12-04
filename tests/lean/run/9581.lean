@@ -13,7 +13,6 @@ theorem F_spec :
    ⦃⌜True⌝⦄
    F
    ⦃⇓ _ => ⌜1 < 2⌝⦄ := by
-  set_option trace.Elab.Tactic.Do.vcgen true in
   mvcgen [F]
   case inv1 => exact fun _ _ => ⌜1 < 2⌝
   -- it would be nice if we had a tactic wrapper around `case inv => exact ...` that does `mleave`
@@ -21,9 +20,9 @@ theorem F_spec :
   case vc1 =>
     mleave
     omega
-  case vc2 spec _ =>
-    intro h
-    mvcgen [spec]
+  case vc2 =>
+    mleave
+    omega
   case vc3 =>
     mleave
     omega
@@ -36,4 +35,3 @@ theorem F_spec_using_with :
   invariants
   | inv1 => fun _ _ => ⌜1 < 2⌝
   with omega
-  | vc2 spec _ => intro _; mvcgen [spec]

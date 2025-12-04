@@ -12,7 +12,11 @@ public import Lean.Meta.GeneralizeTelescope
 public import Lean.Meta.Match.Basic
 public import Lean.Meta.Match.MatcherApp.Basic
 public import Lean.Meta.Match.MVarRenaming
+public import Lean.Meta.Match.MVarRenaming
+import Lean.Meta.Match.SimpH
+import Lean.Meta.Match.SolveOverlap
 import Lean.Meta.HasNotBit
+import Lean.Meta.Match.NamedPatterns
 
 public section
 
@@ -92,34 +96,62 @@ where
 
 /-- Given a list of `AltLHS`, create a minor premise for each one, convert them into `Alt`, and then execute `k` -/
 private def withAlts {α} (motive : Expr) (discrs : Array Expr) (discrInfos : Array DiscrInfo)
-  (lhss : List AltLHS) (k : List Alt → Array Expr → Array AltParamInfo → MetaM α) : MetaM α :=
-  loop lhss [] #[] #[]
+    (lhss : List AltLHS) (isSplitter : Option Overlaps)
+    (k : List Alt → Array Expr → Array AltParamInfo → MetaM α) : MetaM α :=
+  loop lhss [] #[] #[] #[]
 where
-  mkMinorType (xs : Array Expr) (lhs : AltLHS) : MetaM Expr :=
+  mkSplitterHyps (idx : Nat) (lhs : AltLHS) (notAlts : Array Expr) : MetaM (Array Expr × Array Nat) := do
+    withExistingLocalDecls lhs.fvarDecls do
+      let patterns ← lhs.patterns.toArray.mapM (Pattern.toExpr · (annotate := true))
+      let mut hs := #[]
+      let mut notAltIdxs := #[]
+      for overlappingIdx in isSplitter.get!.overlapping idx do
+        let notAlt := notAlts[overlappingIdx]!
+        let h ← instantiateForall notAlt patterns
+        if let some h ← simpH? h patterns.size then
+          notAltIdxs := notAltIdxs.push overlappingIdx
+          hs := hs.push h
+      trace[Meta.Match.debug] "hs for {lhs.ref}: {hs}"
+      return (hs, notAltIdxs)
+
+  mkMinorType (xs : Array Expr) (lhs : AltLHS) (notAltHs : Array Expr): MetaM Expr :=
     withExistingLocalDecls lhs.fvarDecls do
       let args ← lhs.patterns.toArray.mapM (Pattern.toExpr · (annotate := true))
       let minorType := mkAppN motive args
       withEqs discrs args discrInfos fun eqs => do
-        mkForallFVars (xs ++ eqs) minorType
+        let minorType ← mkForallFVars eqs minorType
+        let minorType ← mkArrowN notAltHs minorType
+        mkForallFVars xs minorType
 
-  loop (lhss : List AltLHS) (alts : List Alt) (minors : Array Expr) (altInfos : Array AltParamInfo) : MetaM α := do
+  mkNotAlt (xs : Array Expr) (lhs : AltLHS) : MetaM Expr := do
+    withExistingLocalDecls lhs.fvarDecls do
+      let mut notAlt := mkConst ``False
+      for discr in discrs.reverse, pattern in lhs.patterns.reverse do
+        notAlt ← mkArrow (← mkEqHEq discr (← pattern.toExpr)) notAlt
+      notAlt ← mkForallFVars (discrs ++ xs) notAlt
+      return notAlt
+
+  loop (lhss : List AltLHS) (alts : List Alt) (minors : Array Expr) (altInfos : Array AltParamInfo) (notAlts : Array Expr) : MetaM α := do
     match lhss with
     | [] => k alts.reverse minors altInfos
     | lhs::lhss =>
-      let xs := lhs.fvarDecls.toArray.map LocalDecl.toExpr
-      let minorType ← mkMinorType xs lhs
-      let hasParams := !xs.isEmpty || discrInfos.any fun info => info.hName?.isSome
-      let minorType := if hasParams then minorType else mkSimpleThunkType minorType
       let idx       := alts.length
+      let xs := lhs.fvarDecls.toArray.map LocalDecl.toExpr
+      let (notAltHs, notAltIdxs) ← if isSplitter.isSome then mkSplitterHyps idx lhs notAlts else pure (#[], #[])
+      let minorType ← mkMinorType xs lhs notAltHs
+      let notAlt ← mkNotAlt xs lhs
+      let hasParams := !xs.isEmpty || !notAltHs.isEmpty || discrInfos.any fun info => info.hName?.isSome
+      let minorType := if hasParams then minorType else mkSimpleThunkType minorType
       let minorName := (`h).appendIndexAfter (idx+1)
       trace[Meta.Match.debug] "minor premise {minorName} : {minorType}"
       withLocalDeclD minorName minorType fun minor => do
         let rhs    := if hasParams then mkAppN minor xs else mkApp minor (mkConst `Unit.unit)
         let minors := minors.push minor
-        let altInfos := altInfos.push { numFields := xs.size, numOverlaps := 0, hasUnitThunk := !hasParams }
+        let altInfos := altInfos.push { numFields := xs.size, numOverlaps := notAltHs.size, hasUnitThunk := !hasParams }
         let fvarDecls ← lhs.fvarDecls.mapM instantiateLocalDeclMVars
-        let alts   := { ref := lhs.ref, idx := idx, rhs := rhs, fvarDecls := fvarDecls, patterns := lhs.patterns, cnstrs := [] } :: alts
-        loop lhss alts minors altInfos
+        let alt    := { ref := lhs.ref, idx := idx, rhs := rhs, fvarDecls := fvarDecls, patterns := lhs.patterns, cnstrs := [], notAltIdxs := notAltIdxs }
+        let alts   := alt :: alts
+        loop lhss alts minors altInfos (notAlts.push notAlt)
 
 structure State where
   /-- Used alternatives -/
@@ -338,7 +370,7 @@ where
       return (p, (lhs, rhs) :: cnstrs)
 
 /--
-Solve pending alternative constraints.
+Solve pending alternative constraints and overlap assumptions.
 If all constraints can be solved perform assignment `mvarId := alt.rhs`, else throw error.
 -/
 private partial def solveCnstrs (mvarId : MVarId) (alt : Alt) : StateRefT State MetaM Unit := do
@@ -350,13 +382,19 @@ where
     | none =>
       let alt ← filterTrivialCnstrs alt
       if alt.cnstrs.isEmpty then
-        let eType ← inferType alt.rhs
-        let targetType ← mvarId.getType
-        unless (← isDefEqGuarded targetType eType) do
-          trace[Meta.Match.match] "assignGoalOf failed {eType} =?= {targetType}"
-          throwErrorAt alt.ref "Dependent elimination failed: Type mismatch when solving this alternative: it {← mkHasTypeButIsExpectedMsg eType targetType}"
-        mvarId.assign alt.rhs
-        modify fun s => { s with used := s.used.insert alt.idx }
+        mvarId.withContext do
+          let eType ← inferType alt.rhs
+          let (notAltsMVarIds, _, eType) ← forallMetaBoundedTelescope eType alt.notAltIdxs.size
+          unless notAltsMVarIds.size = alt.notAltIdxs.size do
+            throwErrorAt alt.ref "Incorrect number of overlap hypotheses in the right-hand-side, expected {alt.notAltIdxs.size}:{indentExpr eType}"
+          let targetType ← mvarId.getType
+          unless (← isDefEqGuarded targetType eType) do
+            trace[Meta.Match.match] "assignGoalOf failed {eType} =?= {targetType}"
+            throwErrorAt alt.ref "Dependent elimination failed: Type mismatch when solving this alternative: it {← mkHasTypeButIsExpectedMsg eType targetType}"
+          for notAltMVarId in notAltsMVarIds do
+            solveOverlap notAltMVarId.mvarId!
+          mvarId.assign (mkAppN alt.rhs notAltsMVarIds)
+          modify fun s => { s with used := s.used.insert alt.idx }
       else
         trace[Meta.Match.match] "alt has unsolved cnstrs:\n{← alt.toMessageData}"
         let mut msg := m!"Dependent match elimination failed: Could not solve constraints"
@@ -636,7 +674,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
         | .var _ :: _               => expandVarIntoCtor alt ctorName
         | .inaccessible _ :: _      => processInaccessibleAsCtor alt ctorName
         | _                         => unreachable!
-      return { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
+      return { p with mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
     else
       -- A catch-all case
       let subst := subgoal.subst
@@ -647,7 +685,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
         | .ctor .. :: _ => false
         | _             => true
       let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst
-      return { mvarId := subgoal.mvarId, alts := newAlts, vars := newVars, examples := examples }
+      return { p with mvarId := subgoal.mvarId, alts := newAlts, vars := newVars, examples := examples }
 
 private def processNonVariable (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: xs := p.vars | unreachable!
@@ -708,7 +746,7 @@ private def processValue (p : Problem) : MetaM (Array Problem) := do
           alt.replaceFVarId fvarId value
         | _  => unreachable!
       let newVars := xs.map fun x => x.applyFVarSubst subst
-      return { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
+      return { p with mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
     else
       -- else branch for value
       let newAlts := p.alts.filter isFirstPatternVar
@@ -764,7 +802,7 @@ private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
           let α ← getArrayArgType <| subst.apply x
           expandVarIntoArrayLit { alt with patterns := ps } fvarId α size
         | _  => unreachable!
-      return { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
+      return { p with mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
     else
       -- else branch
       let newAlts := p.alts.filter isFirstPatternVar
@@ -1018,7 +1056,7 @@ private builtin_initialize matcherExt : EnvExtension (PHashMap MatcherKey Name) 
 
 /-- Similar to `mkAuxDefinition`, but uses the cache `matcherExt`.
    It also returns an Boolean that indicates whether a new matcher function was added to the environment or not. -/
-def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (Expr × Option (MatcherInfo → MetaM Unit)) := do
+def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) (isSplitter : Bool) : MetaM (Expr × Option (MatcherInfo → MetaM Unit)) := do
   trace[Meta.Match.debug] "{name} : {type} := {value}"
   let compile := bootstrap.genMatcherCode.get (← getOptions)
   let result ← Closure.mkValueTypeClosure type value (zetaDelta := false)
@@ -1026,10 +1064,12 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
   let mkMatcherConst name :=
     mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
   let key := { value := result.value, compile, isPrivate := env.header.isModule && isPrivateName name }
-  let mut nameNew? := (matcherExt.getState env).find? key
-  if nameNew?.isNone && key.isPrivate then
-    -- private contexts may reuse public matchers
-    nameNew? := (matcherExt.getState env).find? { key with isPrivate := false }
+  let mut nameNew? := none
+  unless isSplitter do
+    nameNew? := (matcherExt.getState env).find? key
+    if nameNew?.isNone && key.isPrivate then
+      -- private contexts may reuse public matchers
+      nameNew? := (matcherExt.getState env).find? { key with isPrivate := false }
   match nameNew? with
   | some nameNew => return (mkMatcherConst nameNew, none)
   | none =>
@@ -1040,8 +1080,9 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
       -- matcher bodies should always be exported, if not private anyway
       withExporting do
         addDecl decl
-      modifyEnv fun env => matcherExt.modifyState env fun s => s.insert key name
-      addMatcherInfo name mi
+      unless isSplitter do
+        modifyEnv fun env => matcherExt.modifyState env fun s => s.insert key name
+        addMatcherInfo name mi
       setInlineAttribute name
       enableRealizationsForConst name
       if compile then
@@ -1053,6 +1094,7 @@ structure MkMatcherInput where
   matchType   : Expr
   discrInfos  : Array DiscrInfo
   lhss        : List AltLHS
+  isSplitter  : Option Overlaps := none
 
 def MkMatcherInput.numDiscrs (m : MkMatcherInput) :=
   m.discrInfos.size
@@ -1093,7 +1135,7 @@ The generated matcher has the structure described at `MatcherInfo`. The motive a
 where `v` is a universe parameter or 0 if `B[a_1, ..., a_n]` is a proposition.
 -/
 def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor input do
-  let ⟨matcherName, matchType, discrInfos, lhss⟩ := input
+  let {matcherName, matchType, discrInfos, lhss, isSplitter} := input
   let numDiscrs := discrInfos.size
   checkNumPatterns numDiscrs lhss
   forallBoundedTelescope matchType numDiscrs fun discrs matchTypeBody => do
@@ -1116,7 +1158,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
        | negSucc n => succ n
        ```
        which is defined **before** `Int.decLt` -/
-    let (matcher, addMatcher) ← mkMatcherAuxDefinition matcherName type val
+    let (matcher, addMatcher) ← mkMatcherAuxDefinition matcherName type val (isSplitter := input.isSplitter.isSome)
     trace[Meta.Match.debug] "matcher levels: {matcher.getAppFn.constLevels!}, uElim: {uElimGen}"
     let uElimPos? ← getUElimPos? matcher.getAppFn.constLevels! uElimGen
     discard <| isLevelDefEq uElimGen uElim
@@ -1152,7 +1194,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
       let isEqMask ← eqs.mapM fun eq => return (← inferType eq).isEq
       return (mvarType, isEqMask)
     trace[Meta.Match.debug] "target: {mvarType}"
-    withAlts motive discrs discrInfos lhss fun alts minors altInfos => do
+    withAlts motive discrs discrInfos lhss isSplitter fun alts minors altInfos => do
       let mvar ← mkFreshExprMVar mvarType
       trace[Meta.Match.debug] "goal\n{mvar.mvarId!}"
       let examples := discrs'.toList.map fun discr => Example.var discr.fvarId!
@@ -1176,7 +1218,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
   else
     let mvarType  := mkAppN motive discrs
     trace[Meta.Match.debug] "target: {mvarType}"
-    withAlts motive discrs discrInfos lhss fun alts minors altInfos => do
+    withAlts motive discrs discrInfos lhss isSplitter fun alts minors altInfos => do
       let mvar ← mkFreshExprMVar mvarType
       let examples := discrs.toList.map fun discr => Example.var discr.fvarId!
       let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs.toList, alts := alts, examples := examples }).run {}
@@ -1185,7 +1227,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
       let val  ← mkLambdaFVars args mvar
       mkMatcher type val altInfos s
 
-def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput := do
+def getMkMatcherInputInContext (matcherApp : MatcherApp) (unfoldNamed : Bool) : MetaM MkMatcherInput := do
   let matcherName := matcherApp.matcherName
   let some matcherInfo ← getMatcherInfo? matcherName
     | throwError "Internal error during match expression elaboration: Could not find a matcher named `{matcherName}`"
@@ -1204,6 +1246,7 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput 
   let lhss ← forallBoundedTelescope matcherType (some matcherApp.alts.size) fun alts _ =>
     alts.mapM fun alt => do
     let ty ← inferType alt
+    let ty ← if unfoldNamed then unfoldNamedPattern ty else pure ty
     forallTelescope ty fun xs body => do
     let xs ← xs.filterM fun x => dependsOn body x.fvarId!
     body.withApp fun _ args => do
@@ -1217,18 +1260,17 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput 
 
   return { matcherName, matchType, discrInfos := matcherInfo.discrInfos, lhss := lhss.toList }
 
-/-- This function is only used for testing purposes -/
-def withMkMatcherInput (matcherName : Name) (k : MkMatcherInput → MetaM α) : MetaM α := do
+def withMkMatcherInput (matcherName : Name) (unfoldNamed : Bool) (k : MkMatcherInput → MetaM α) : MetaM α := do
   let some matcherInfo ← getMatcherInfo? matcherName
-    | throwError "Internal error during match expression elaboration: Could not find a matcher named `{matcherName}`"
+    | throwError "withMkMatcherInput: {.ofConstName matcherName} is not a matcher"
   let matcherConst ← getConstInfo matcherName
-  forallBoundedTelescope matcherConst.type (some matcherInfo.arity) fun xs _ => do
-  let matcherApp ← mkConstWithLevelParams matcherConst.name
-  let matcherApp := mkAppN matcherApp xs
-  let some matcherApp ← matchMatcherApp? matcherApp
-    | throwError "Internal error during match expression elaboration: Could not find a matcher app named `{matcherApp}`"
-  let mkMatcherInput ← getMkMatcherInputInContext matcherApp
-  k mkMatcherInput
+  forallBoundedTelescope matcherConst.type matcherInfo.arity fun xs _ => do
+    let matcherApp ← mkConstWithLevelParams matcherConst.name
+    let matcherApp := mkAppN matcherApp xs
+    let some matcherApp ← matchMatcherApp? matcherApp
+      | throwError "withMkMatcherInput: {.ofConstName matcherName} does not produce a matcher application"
+    let mkMatcherInput ← getMkMatcherInputInContext matcherApp unfoldNamed
+    k mkMatcherInput
 
 end Match
 

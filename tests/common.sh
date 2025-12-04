@@ -86,9 +86,10 @@ function diff_produced {
         else
             echo "ERROR: file $f.produced.out does not match $f.expected.out"
             if [ $INTERACTIVE == "yes" ]; then
-                meld "$f.produced.out" "$f.expected.out"
-                if diff -I "executing external script" "$f.expected.out" "$f.produced.out"; then
-                    echo "-- mismatch was fixed"
+                read -p "copy $f.produced.out (y/n)? "
+                if [ $REPLY == "y" ]; then
+                    cp -- "$f.produced.out" "$f.expected.out"
+                    echo "-- copied $f.produced.out --> $f.expected.out"
                 fi
             fi
             exit 1

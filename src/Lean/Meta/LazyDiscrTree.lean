@@ -368,7 +368,13 @@ def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) :
       let nargs := e.getAppNumArgs
       push (.proj s i nargs) nargs (todo.push a)
     | .fvar _fvarId   =>
-      return (.star, todo)
+      let nargs := e.getAppNumArgs
+      if nargs == 0 then
+        return (.star, todo)
+      else
+        let info ← getFunInfoNArgs fn nargs
+        let todo ← MatchClone.pushArgsAux info.paramInfo (nargs-1) e todo
+        return (.star, todo)
     | .mvar mvarId   =>
       if mvarId == MatchClone.tmpMVarId then
         -- We use `tmp to mark implicit arguments and proofs
@@ -675,16 +681,21 @@ def getMatchCore (root : Std.HashMap Key TrieIndex) (e : Expr) :
     MatchM α (MatchResult α) := do
   let result ← getStarResult root
   let (k, args) ← MatchClone.getMatchKeyArgs e (root := true) (← read)
-  let cases :=
-    match k with
+  let cases ← match k with
     | .star  =>
-      #[]
+      pure #[]
+    /- When goal has fvar head like `p (ite c t e)`, follow the star edge with the fvar's arguments.
+       This finds "eliminator-style" theorems indexed by argument structure. -/
+    | .fvar _ _ =>
+      match root[Key.star]? with
+      | some c => pure #[{ todo := args, score := 0, c }]
+      | none => pure #[]
     /- See note about "dep-arrow vs arrow" at `getMatchLoop` -/
     | .arrow =>
-      #[] |> pushRootCase root .other #[]
-          |> pushRootCase root k args
+      pure (#[] |> pushRootCase root .other #[]
+                |> pushRootCase root k args)
     | _ =>
-      #[] |> pushRootCase root k args
+      pure (#[] |> pushRootCase root k args)
   getMatchLoop cases result
 
 /--

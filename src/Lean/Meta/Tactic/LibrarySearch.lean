@@ -143,13 +143,10 @@ private def addImport (name : Name) (constInfo : ConstantInfo) :
   if name.isMetaprogramming then return #[] else
   forallTelescope constInfo.type fun _ type => do
     let e ← InitEntry.fromExpr type (name, DeclMod.none)
-    let a := #[e]
     if e.key == .const ``Iff 2 then
-      let a := a.push (← e.mkSubEntry 0 (name, DeclMod.mp))
-      let a := a.push (← e.mkSubEntry 1 (name, DeclMod.mpr))
-      pure a
+      return #[e, ← e.mkSubEntry 0 (name, DeclMod.mp), ← e.mkSubEntry 1 (name, DeclMod.mpr)]
     else
-      pure a
+      return #[e]
 
 /-- Stores import discrimination tree. -/
 private def LibSearchState := IO.Ref (Option (LazyDiscrTree (Name × DeclMod)))

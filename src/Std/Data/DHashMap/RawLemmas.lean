@@ -1318,6 +1318,21 @@ theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.Pairwise (fun a b => (a.1 == b.1) = false) := by
   apply Raw₀.distinct_keys_toList ⟨m, h.size_buckets_pos⟩ h
 
+theorem nodup_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toList.Nodup := by
+  apply Raw₀.nodup_toList ⟨m, h.size_buckets_pos⟩ h
+
+theorem mem_toList_insert_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {k : α} {v : β k} {x : (a : α) × β a} : m.contains k = false →
+    (x ∈ (m.insert k v).toList ↔ x = ⟨k, v⟩ ∨ x ∈ m.toList) := by
+  simp_to_raw using Raw₀.mem_toList_insert_of_contains_eq_false ⟨m, h.size_buckets_pos⟩ h
+
+theorem mem_toList_insert_of_not_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {k : α} {v : β k} {x : (a : α) × β a} : ¬ k ∈ m →
+    (x ∈ (m.insert k v).toList ↔ x = ⟨k, v⟩ ∨ x ∈ m.toList) := by
+  rw [mem_iff_contains, Bool.not_eq_true]
+  apply mem_toList_insert_of_contains_eq_false h
+
 namespace Const
 
 variable {β : Type v} {m : Raw α (fun _ => β)}
@@ -1379,6 +1394,21 @@ theorem find?_toList_eq_none_iff_not_mem [EquivBEq α] [LawfulHashable α]
 theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     (Raw.Const.toList m).Pairwise (fun a b => (a.1 == b.1) = false) := by
   apply Raw₀.Const.distinct_keys_toList ⟨m, h.size_buckets_pos⟩ h
+
+theorem nodup_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    (Raw.Const.toList m).Nodup := by
+  apply Raw₀.Const.nodup_toList ⟨m, h.size_buckets_pos⟩ h
+
+theorem mem_toList_insert_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {k : α} {v : β} {x : α × β} : m.contains k = false →
+    (x ∈ (Raw.Const.toList (m.insert k v)) ↔ x = ⟨k, v⟩ ∨ x ∈ Raw.Const.toList m) := by
+  simp_to_raw using Raw₀.Const.mem_toList_insert_of_contains_eq_false ⟨m, h.size_buckets_pos⟩ h
+
+theorem mem_toList_insert_of_not_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {k : α} {v : β} {x : α × β} : ¬ k ∈ m →
+    (x ∈ (Raw.Const.toList (m.insert k v)) ↔ x = ⟨k, v⟩ ∨ x ∈ Raw.Const.toList m) := by
+  rw [mem_iff_contains, Bool.not_eq_true]
+  apply mem_toList_insert_of_contains_eq_false h
 
 end Const
 
@@ -5994,20 +6024,21 @@ end Const
 
 end map
 
+@[simp]
 theorem size_fst_partition_add_size_snd_partition_eq_size [EquivBEq α] [LawfulHashable α]
     {p : (a : α) → β a → Bool} (h : m.WF) :
     (m.partition p).1.size + (m.partition p).2.size = m.size := by
   simp_to_raw using Raw₀.size_partition
 
 @[simp]
-theorem fst_partition_not_eq_partition_snd [EquivBEq α] [LawfulHashable α]
+theorem fst_partition_not_eq_snd_partition [EquivBEq α] [LawfulHashable α]
     {p : (a : α) → β a → Bool} (h : m.WF) :
     (m.partition (fun a b => ! p a b)).fst = (m.partition p).snd := by
   simp_to_raw
   rw [Raw₀.fst_partition_not_eq_snd_partition]
 
 @[simp]
-theorem snd_partition_not_eq_partition_fst [EquivBEq α] [LawfulHashable α]
+theorem snd_partition_not_eq_fst_partition [EquivBEq α] [LawfulHashable α]
     {p : (a : α) → β a → Bool} (h : m.WF) :
     (m.partition (fun a b => ! p a b)).snd = (m.partition p).fst := by
   simp_to_raw

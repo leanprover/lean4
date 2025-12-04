@@ -1032,6 +1032,20 @@ theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.toList.Pairwise (fun a b => (a.1 == b.1) = false) := by
   simp_to_model [toList] using List.pairwise_fst_eq_false
 
+theorem nodup_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.toList.Nodup := by
+  simp_to_model [toList] using List.nodup_of_distinctKeys
+
+theorem mem_toList_insert_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {k : α} {v : β k} {x : (a : α) × β a} (h' : m.contains k = false) :
+    x ∈ (m.insert k v).1.toList ↔ x = ⟨k, v⟩ ∨ x ∈ m.1.toList := by
+  rw [contains_eq_containsₘ] at h'
+  simp [Raw.toList, insert_eq_insertₘ, insertₘ, h', Bool.false_eq_true, ↓reduceIte,
+    Raw.foldRev_cons, List.append_nil]
+  rw [List.Perm.mem_iff (toListModel_expandIfNecessary (consₘ m k v))]
+  rw [List.Perm.mem_iff (toListModel_consₘ m (Raw.WF.out h) k v)]
+  simp
+
 namespace Const
 
 variable {β : Type v} (m : Raw₀ α (fun _ => β))
@@ -1080,6 +1094,28 @@ theorem mem_toList_iff_getKey?_eq_some_and_get?_eq_some [EquivBEq α] [LawfulHas
 theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     (Raw.Const.toList m.1).Pairwise (fun a b => (a.1 == b.1) = false) := by
   simp_to_model [Const.toList] using List.pairwise_fst_eq_false_map_toProd
+
+theorem nodup_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    (Raw.Const.toList m.1).Nodup := by
+  simp_to_model [Const.toList] using List.nodup_map_of_distinctKeys
+
+theorem mem_toList_insert_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {k : α} {v : β} {x : α × β} (h' : m.contains k = false) :
+    x ∈ (Raw.Const.toList (m.insert k v).1) ↔ x = ⟨k, v⟩ ∨ x ∈ Raw.Const.toList m.1 := by
+  rw [contains_eq_containsₘ] at h'
+  simp only [Raw.Const.toList, insert_eq_insertₘ, insertₘ, h', Bool.false_eq_true, ↓reduceIte,
+    Raw.foldRev_cons_mk, List.append_nil]
+  rw [← List.mem_map_toProd_iff_mem, ← List.mem_map_toProd_iff_mem]
+  rw [List.Perm.mem_iff (toListModel_expandIfNecessary (consₘ m k v))]
+  rw [List.Perm.mem_iff (toListModel_consₘ m (Raw.WF.out h) k v)]
+  simp only [List.mem_cons, Sigma.mk.injEq, heq_eq_eq]
+  have : x.fst = k ∧ x.snd = v ↔ x = (k,v) := by
+    constructor
+    · intro h
+      simp [← h.1, ← h.2]
+    · intro h
+      simp [h]
+  rw [this]
 
 end Const
 
@@ -5184,16 +5220,6 @@ theorem snd_partition_not_eq_fst_partition [EquivBEq α] [LawfulHashable α]
   rw [← fst_partition_not_eq_snd_partition]
   simp
 
-private theorem mem_toList_insert_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
-    {k : α} {v : β k} {x : (a : α) × β a} (h' : m.contains k = false) :
-    x ∈ (m.insert k v).1.toList ↔ x ∈ m.1.toList ∨ x = ⟨k, v⟩ := by
-  rw [contains_eq_containsₘ] at h'
-  simp only [Raw.toList, insert_eq_insertₘ, insertₘ, h', Bool.false_eq_true, ↓reduceIte,
-    Raw.foldRev_cons, List.append_nil]
-  rw [List.Perm.mem_iff (toListModel_expandIfNecessary (consₘ m k v))]
-  rw [List.Perm.mem_iff (toListModel_consₘ m (Raw.WF.out h) k v)]
-  simp [Or.comm]
-
 private theorem mem_toList_fst_partition [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {p : (a : α) → β a → Bool} (x : (a : α) × β a) :
     x ∈ (m.partition p).1.1.toList ↔ x ∈ m.1.toList ∧ p x.1 x.2 = true := by
@@ -5228,10 +5254,10 @@ private theorem mem_toList_fst_partition [EquivBEq α] [LawfulHashable α] (h : 
           | inr h =>
             cases h with
             | inl h =>
-              apply Or.inr h
-            | inr h =>
               rw [h]
               simp [hhd]
+            | inr h =>
+              apply Or.inr h
         · intro h
           cases h with
           | inl h =>
@@ -5277,23 +5303,6 @@ private theorem mem_toList_fst_partition [EquivBEq α] [LawfulHashable α] (h : 
         apply h₃.2
       · simp only [List.pairwise_cons] at h₄
         apply h₄.2
-
-private theorem nodup_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) : m.1.toList.Nodup := by
-  simp only [List.Nodup, ne_eq]
-  suffices ∀ (l : List ((a :α) × β a)) (h₁ : List.Pairwise (fun a b => (a.1 == b.1) = false) l),
-    List.Pairwise (fun a b => a ≠ b) l from this m.1.toList (distinct_keys_toList _ h)
-  intro l
-  induction l with
-  | nil => simp
-  | cons hd tl ih =>
-    simp
-    intro h₁ h₂
-    refine And.intro ?_ (ih h₂)
-    intro a ha
-    false_or_by_contra
-    rename_i h'
-    specialize h₁ a ha
-    simp [h'] at h₁
 
 theorem fst_partition_equiv_filter [EquivBEq α] [LawfulHashable α]
     {p : (a : α) → β a → Bool} (h : m.1.WF)  :

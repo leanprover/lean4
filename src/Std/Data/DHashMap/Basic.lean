@@ -366,7 +366,8 @@ section Unverified
 
 @[inline, inherit_doc Raw.partition] def partition (f : (a : α) → β a → Bool)
     (m : DHashMap α β) : DHashMap α β × DHashMap α β :=
-  ⟨⟨(m.1.partition f).1, Raw.WF.fst_partition m.2⟩, ⟨(m.1.partition f).2, Raw.WF.snd_partition m.2⟩⟩
+  ⟨⟨(Raw₀.partition f ⟨m.1, m.2.size_buckets_pos⟩).1, Raw.WF.fst_partition₀⟩,
+    ⟨(Raw₀.partition f ⟨m.1, m.2.size_buckets_pos⟩).2, Raw.WF.snd_partition₀⟩⟩
 
 @[inline, inherit_doc Raw.values] def values {β : Type v}
     (m : DHashMap α (fun _ => β)) : List β :=

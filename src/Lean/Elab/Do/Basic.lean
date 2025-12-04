@@ -748,6 +748,24 @@ def mkContext (expectedType? : Option Expr) : TermElabM Context := do
   return { monadInfo := mi, doBlockResultType := resultType, contInfo }
 
 /--
+Inside a dependent `match` arm, the expected type can be refined. This function takes apart the
+new expected type and runs the action with an updated `doBlockResultType` accordingly.
+-/
+def withRefinedExpectedType (ty? : Option Expr) (k : DoElabM α) : DoElabM α := do
+  let some ty := ty? | return (← k)
+  let (mi, resultType) ← extractMonadInfo ty
+  unless ← isDefEq (← read).monadInfo.m mi.m do
+    throwError "The expected type {ty} changes the monad from {(← read).monadInfo.m} to {mi.m}. This is not supported by the `do` elaborator."
+  -- If we ever support more fine-grained `return`-to-`do`-label, the following will become more complicated.
+  let returnCont ← DoElemCont.mkPure resultType
+  let contInfo := { (← read).contInfo.toContInfo with returnCont }
+  withReader (fun ctx => { ctx with doBlockResultType := resultType, contInfo := contInfo.toContInfoRef }) k
+
+def doElabToSyntax (hint : MessageData) (doElab : DoElabM Expr) (k : Term → DoElabM α) : DoElabM α :=
+  controlAtTermElabM fun runInBase =>
+    Term.elabToSyntax (hint? := hint) (runInBase <| withRefinedExpectedType · doElab) (runInBase ∘ k)
+
+/--
   Backtrackable state for the `TermElabM` monad.
 -/
 structure SavedState where

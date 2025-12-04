@@ -1208,17 +1208,10 @@ def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgH
     withoutMacroStackAtErr do
       match ← coerce? e expectedType with
       | .some eNew =>
-        let trees ← getInfoTrees
-        let strs ← trees.toArray.mapM (fun t => do return (← t.format'))
-        logInfo m!"{strs}"
         pushInfoLeaf (.ofCustomInfo {
           stx := ← getRef
           value := Dynamic.mk <| CoeExpansionTrace.mk []
         })
-        logInfo m!"pushed info leaf"
-        let trees ← getInfoTrees
-        let strs ← trees.toArray.mapM (fun t => do return (← t.format'))
-        logInfo m!"{strs}"
         return eNew
       | .none => failure
       | .undef =>
@@ -1529,7 +1522,6 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
   | (elabFn::elabFns) =>
     try
       -- record elaborator in info tree, but only when not backtracking to other elaborators (outer `try`)
-      logInfo m!"enter term info context for {stx}"
       let ret ← withTermInfoContext' elabFn.declName stx (expectedType? := expectedType?)
         (try
           elabFn.value stx expectedType?
@@ -1563,7 +1555,6 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
               postponeElabTermCore stx expectedType?
             else
               throw ex)
-      logInfo m!"leave term info context for {stx}"
       pure ret
     catch ex => match ex with
       | .internal id _ =>

@@ -1187,6 +1187,19 @@ structure CoeExpansionTrace where
   expandedCoeDecls : List Name
 deriving TypeName
 
+partial def _root_.Lean.Elab.InfoTree.format' (tree : InfoTree) (ctx? : Option ContextInfo := none) : TermElabM Format := do
+  match tree with
+  | .hole id     => return .nestD f!"• ?{toString id.name}"
+  | .context i t => t.format' <| i.mergeIntoOuter? ctx?
+  | .node i cs   =>
+    let ctx := ctx?.getD { env := (← getEnv), fileMap := (← getFileMap), ngen := NameGenerator.mk `dummy 0 }
+    let fmt ← i.format ctx
+    if cs.size == 0 then
+      return .nestD f!"• {fmt}"
+    else
+      let ctx? := i.updateContext? ctx?
+      return .nestD f!"• {fmt}{Std.Format.prefixJoin .line (← cs.toList.mapM fun c => c.format' ctx?)}"
+
 def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none)
     (mkErrorMsg? : Option (MVarId → (expectedType e : Expr) → MetaM MessageData) := none)
     (mkImmedErrorMsg? : Option ((errorMsg? : Option MessageData) → (expectedType e : Expr) → MetaM MessageData) := none) : TermElabM Expr := do
@@ -1195,10 +1208,17 @@ def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgH
     withoutMacroStackAtErr do
       match ← coerce? e expectedType with
       | .some eNew =>
+        let trees ← getInfoTrees
+        let strs ← trees.toArray.mapM (fun t => do return (← t.format'))
+        logInfo m!"{strs}"
         pushInfoLeaf (.ofCustomInfo {
           stx := ← getRef
           value := Dynamic.mk <| CoeExpansionTrace.mk []
         })
+        logInfo m!"pushed info leaf"
+        let trees ← getInfoTrees
+        let strs ← trees.toArray.mapM (fun t => do return (← t.format'))
+        logInfo m!"{strs}"
         return eNew
       | .none => failure
       | .undef =>
@@ -1509,7 +1529,8 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
   | (elabFn::elabFns) =>
     try
       -- record elaborator in info tree, but only when not backtracking to other elaborators (outer `try`)
-      withTermInfoContext' elabFn.declName stx (expectedType? := expectedType?)
+      logInfo m!"enter term info context for {stx}"
+      let ret ← withTermInfoContext' elabFn.declName stx (expectedType? := expectedType?)
         (try
           elabFn.value stx expectedType?
         catch ex => match ex with
@@ -1542,6 +1563,8 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
               postponeElabTermCore stx expectedType?
             else
               throw ex)
+      logInfo m!"leave term info context for {stx}"
+      pure ret
     catch ex => match ex with
       | .internal id _ =>
         if id == unsupportedSyntaxExceptionId then

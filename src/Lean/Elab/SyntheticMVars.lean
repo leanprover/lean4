@@ -36,17 +36,38 @@ private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId
       withSavedContext savedContext do
         let mvarDecl     ← getMVarDecl mvarId
         let expectedType ← instantiateMVars mvarDecl.type
-        withInfoHole mvarId do
+        let ret ← withInfoHole mvarId do
+          logInfo m!"resumeElabTerm..."
           let result ← resumeElabTerm stx expectedType (!postponeOnError)
           /- We must ensure `result` has the expected type because it is the one expected by the method that postponed stx.
             That is, the method does not have an opportunity to check whether `result` has the expected type or not. -/
-          let result ← withRef stx <| ensureHasType expectedType result
+          logInfo m!"ensureHasType..."
+          let result ← do
+            if (← getInfoState).enabled then
+              let savedInfoTrees ← getResetInfoTrees
+              -- withRef stx <| ensureHasType expectedType result
+              Prod.fst <$> MonadFinally.tryFinally' (withRef stx <| ensureHasType expectedType result) fun a? => do
+                modifyInfoState fun state =>
+                  if savedInfoTrees.size > 0 then
+                    let mod (t : InfoTree) : InfoTree :=
+                      match t with
+                      | .node i ts => .node i (ts.append state.trees)
+                      | _ => t -- TODO?
+                    { state with trees := savedInfoTrees.modify (savedInfoTrees.size - 1) mod }
+                  else
+                    { state with trees := savedInfoTrees }
+            else
+              withRef stx <| ensureHasType expectedType result
+          let trees ← getInfoTrees
+          let strs ← trees.toArray.mapM (·.format')
+          logInfo m!"withInfoHole inner {strs}"
           /- We must perform `occursCheck` here since `result` may contain `mvarId` when it has synthetic `sorry`s. -/
           if (← occursCheck mvarId result) then
             mvarId.assign result
             return true
           else
             return false
+        pure ret
     catch
      | ex@(.internal id _) =>
        if id == postponeExceptionId then

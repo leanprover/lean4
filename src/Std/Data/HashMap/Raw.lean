@@ -256,7 +256,6 @@ def beq {β : Type v} [BEq α] [Hashable α] [BEq β] (m₁ m₂ : Raw α β) : 
 
 instance [BEq α] [Hashable α] [BEq β] : BEq (Raw α β) := ⟨beq⟩
 
-
 section Unverified
 
 @[inline, inherit_doc DHashMap.Raw.filterMap] def filterMap {γ : Type w} (f : α → β → Option γ)

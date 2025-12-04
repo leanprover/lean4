@@ -7703,15 +7703,6 @@ theorem perm_of_beqModel [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, Law
         rw [Bool.not_eq_true] at hc₂
         rw [getValueCast?_eq_none hc₁, getValueCast?_eq_none hc₂]
 
-theorem all_congr [BEq α] {l₁ l₂ : List ((a : α) × β a)} {f : (a : α) × β a → Bool} (hp : l₁.Perm l₂) : l₁.all f = l₂.all f := by
-  rw [Bool.eq_iff_iff, Bool.eq_iff_iff, List.all_eq_true, List.all_eq_true]
-  simp only [iff_true]
-  constructor
-  · intro hyp ⟨k,v⟩ mem
-    exact hyp ⟨k,v⟩ (@Perm.mem_iff _ ⟨k,v⟩ l₁ l₂ hp |>.2 mem)
-  · intro hyp ⟨k,v⟩ mem
-    exact hyp ⟨k,v⟩ (@Perm.mem_iff _ ⟨k,v⟩ l₂ l₁ hp.symm |>.2 mem)
-
 theorem beqModel_congr [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] {l₁ l₂ l₃ l₄ : List ((a : α) × β a)}
     (hl : DistinctKeys l₂) (p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel l₁ l₂ = beqModel l₃ l₄ := by
   rw [beqModel]
@@ -7732,7 +7723,7 @@ theorem beqModel_congr [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] {l₁ l₂ l�
       ext x
       rw [getValueCast?_of_perm hl p₂]
     rw [this]
-    apply all_congr p₁
+    apply List.Perm.all_eq p₁
 
 theorem Const.beqModel_congr {β : Type v} [BEq α] [LawfulBEq α] [BEq β] {l₁ l₂ l₃ l₄ : List ((_ : α) × β)}
     (hl : DistinctKeys l₂) (p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel l₁ l₂ = beqModel l₃ l₄ := by
@@ -7754,7 +7745,7 @@ theorem Const.beqModel_congr {β : Type v} [BEq α] [LawfulBEq α] [BEq β] {l�
       ext x
       rw [getValue?_of_perm hl p₂]
     rw [this]
-    apply all_congr p₁
+    apply List.Perm.all_eq p₁
 
 theorem beqModel_eq_constBeqModel {β : Type v} [BEq α] [LawfulBEq α] [BEq β] {l₁ l₂ : List ((_ : α) × β)} : beqModel l₁ l₂ = Const.beqModel l₁ l₂ := by
   rw [beqModel, Const.beqModel]

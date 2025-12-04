@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Tactic.ElimInfo
 public import Lean.Elab.Binders
 public import Lean.Elab.RecAppSyntax
+public import Lean.IdentifierSuggestion
 import all Lean.Elab.ErrorUtils
 
 public section
@@ -1368,7 +1369,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       return LValResolution.const `Function `Function fullName
     match e.getAppFn, suffix? with
     | Expr.const c _, some suffix =>
-      throwUnknownConstant (c ++ suffix)
+      throwUnknownConstantWithSuggestions (c ++ suffix)
     | _, _ =>
       throwInvalidFieldAt ref fieldName fullName
   | .forallE .., .fieldIdx .. =>
@@ -1376,8 +1377,17 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       has function type{inlineExprTrailing eType}"
 
   | .mvar .., .fieldName _ fieldName _ _ =>
-    throwNamedError lean.invalidField m!"Invalid field notation: Type of{indentExpr e}\nis not \
-      known; cannot resolve field `{fieldName}`"
+    let possibleConstants := (← getEnv).constants.fold (fun accum name _ =>
+      match name with
+      | .str _ s => if s = fieldName && !name.isInternal then accum.push name else accum
+      | _ => accum) #[]
+    let hint := match possibleConstants with
+      | #[] => MessageData.nil
+      | #[opt] => .hint' m!"Consider replacing the field projection `.{fieldName}` with a call to the function `{.ofConstName opt}`."
+      | opts => .hint' m!"Consider replacing the field projection with a call to one of the following:\
+          {MessageData.joinSep (opts.toList.map (indentD m!"• `{.ofConstName ·}`")) .nil}"
+    throwNamedError lean.invalidField (m!"Invalid field notation: Type of{indentExpr e}\nis not \
+      known; cannot resolve field `{fieldName}`" ++ hint)
   | .mvar .., .fieldIdx _ i  =>
     throwError m!"Invalid projection: Type of{indentExpr e}\nis not known; cannot resolve \
       projection `{i}`"
@@ -1385,7 +1395,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
   | _, _ =>
     match e.getAppFn, lval with
     | Expr.const c _, .fieldName _ref _fieldName (some suffix) _fullRef =>
-      throwUnknownConstant (c ++ suffix)
+      throwUnknownConstantWithSuggestions (c ++ suffix)
     | _, .fieldName .. =>
       throwNamedError lean.invalidField m!"Invalid field notation: Field projection operates on \
         types of the form `C ...` where C is a constant. The expression{indentExpr e}\nhas \
@@ -1404,10 +1414,24 @@ where
         m!"Invalid field `{fieldName}`: The environment does not contain `{fullName}`, so it is not \
           possible to project the field `{fieldName}` from an expression{indentExpr e}\nof \
           type{inlineExprTrailing eType}"
+
+    -- Possible alternatives provided with `@[suggest_for]` annotations
+    let suggestions := (← Lean.getSuggestions fullName).filter (·.getPrefix = fullName.getPrefix)
+    let suggestForHint ←
+      if suggestions.size = 0 then
+        pure .nil
+      else
+        m!"Perhaps you meant one of these in place of `{fullName}`:".hint (suggestions.map fun suggestion => {
+          suggestion := suggestion.getString!,
+          toCodeActionTitle? := .some (s!"Suggested replacement: {e}.{·}"),
+          diffGranularity := .all,
+          messageData? := .some m!"`{.ofConstName suggestion}`: {e}.{suggestion.getString!}",
+        }) ref
+
     -- By using `mkUnknownIdentifierMessage`, the tag `Lean.unknownIdentifierMessageTag` is
     -- incorporated within the message, as required for the "import unknown identifier" code action.
     -- The "outermost" lean.invalidField name is the only one that triggers an error explanation.
-    throwNamedErrorAt ref lean.invalidField msg
+    throwNamedErrorAt ref lean.invalidField (msg ++ suggestForHint)
 
 
 /-- whnfCore + implicit consumption.

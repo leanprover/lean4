@@ -338,8 +338,11 @@ structure Iterator where
   `Iterator.next` when `Iterator.atEnd` is true. If the position is not valid, then the
   current byte is `(default : UInt8)`. -/
   idx : Nat
-  deriving Inhabited
 set_option doc.verso true
+
+/-- Noncomputable because it depends on the custom `SizeOf` instance which uses runtime array size. -/
+noncomputable instance : Inhabited Iterator where
+  default := ⟨default, default⟩
 
 /-- Creates an iterator at the beginning of an array. -/
 def mkIterator (arr : ByteArray) : Iterator :=

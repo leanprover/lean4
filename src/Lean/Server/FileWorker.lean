@@ -151,13 +151,17 @@ section Elab
   -- Placed here instead of Lean.Server.Utils because of an import loop
   private def mkIleanInfoNotification (method : String) (m : DocumentMeta)
       (trees : Array Elab.InfoTree) : BaseIO (JsonRpc.Notification Lsp.LeanIleanInfoParams) := do
-    let references ← findModuleRefs m.text trees (localVars := true) |>.toLspModuleRefs
-    let param := { version := m.version, references }
+    let (references, decls) ← findModuleRefs m.text trees (localVars := true) |>.toLspModuleRefs
+    let param := { version := m.version, references, decls }
     return { method, param }
 
-  private def mkInitialIleanInfoUpdateNotification (m : DocumentMeta)
+  private def mkIleanHeaderInfoNotification (m : DocumentMeta)
       (directImports : Array ImportInfo) : JsonRpc.Notification Lsp.LeanILeanHeaderInfoParams :=
     { method := "$/lean/ileanHeaderInfo", param := { version := m.version, directImports } }
+
+  private def mkIleanHeaderSetupInfoNotification (m : DocumentMeta)
+      (isSetupFailure : Bool) : JsonRpc.Notification Lsp.LeanILeanHeaderSetupInfoParams :=
+    { method := "$/lean/ileanHeaderSetupInfo", param := { version := m.version, isSetupFailure } }
 
   private def mkIleanInfoUpdateNotification : DocumentMeta → Array Elab.InfoTree →
       BaseIO (JsonRpc.Notification Lsp.LeanIleanInfoParams) :=
@@ -396,7 +400,7 @@ def setupImports
     return .error { diagnostics := .empty, result? := none, metaSnap := default }
 
   let header := stx.toModuleHeader
-  chanOut.sync.send <| .ofMsg <| mkInitialIleanInfoUpdateNotification doc <| collectImports stx
+  chanOut.sync.send <| .ofMsg <| mkIleanHeaderInfoNotification doc <| collectImports stx
   let fileSetupResult ← setupFile doc header fun stderrLine => do
     let progressDiagnostic := {
       range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
@@ -406,6 +410,9 @@ def setupImports
       message    := stderrLine
     }
     chanOut.sync.send <| .ofMsg <| mkPublishDiagnosticsNotification doc #[progressDiagnostic]
+  let isSetupError := fileSetupResult.kind matches .importsOutOfDate
+    || fileSetupResult.kind matches .error ..
+  chanOut.sync.send <| .ofMsg <| mkIleanHeaderSetupInfoNotification doc isSetupError
   -- clear progress notifications in the end
   chanOut.sync.send <| .ofMsg <| mkPublishDiagnosticsNotification doc #[]
   match fileSetupResult.kind with

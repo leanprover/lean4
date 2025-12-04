@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.MutualDef
 import Lean.Compiler.Options
+import Lean.Meta.Reduce
 
 public section
 

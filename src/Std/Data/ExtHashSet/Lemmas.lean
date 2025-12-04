@@ -123,6 +123,8 @@ theorem mem_of_mem_insert' [EquivBEq α] [LawfulHashable α] {k a : α} :
 theorem contains_insert_self [EquivBEq α] [LawfulHashable α] {k : α} : (m.insert k).contains k := by
   simp
 
+theorem mem_of_get_eq [LawfulBEq α] (m : ExtHashSet α) {k v : α} {w} (_ : m.get k w = v) : k ∈ m := w
+
 theorem mem_insert_self [EquivBEq α] [LawfulHashable α] {k : α} : k ∈ m.insert k := by simp
 
 @[simp, grind =]

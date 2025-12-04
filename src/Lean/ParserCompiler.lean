@@ -107,7 +107,7 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
           name := c', levelParams := []
           type := ty, value := value, hints := ReducibilityHints.opaque, safety := DefinitionSafety.safe
         }
-        -- usually `meta` is infered during compilation for auxiliary definitions, but as
+        -- usually `meta` is inferred during compilation for auxiliary definitions, but as
         -- `ctx.combinatorAttr` may enforce correct use of the modifier, infer now.
         if isMarkedMeta (← getEnv) c then
           modifyEnv (markMeta · c')

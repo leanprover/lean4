@@ -153,7 +153,7 @@ jobs:
       # 0: PRs without special label
       # 1: PRs with `merge-ci` label, merge queue checks, master commits
       # 2: nightlies
-      # 2: PRs with `release-ci` label, full releases
+      # 3: PRs with `release-ci` label, full releases
       - name: Set check level
         id: set-level
         # We do not use github.event.pull_request.labels.*.name here because
@@ -259,15 +259,20 @@ jobs:
               },
               {
                 "name": "Linux fsanitize",
-                "os": "ubuntu-latest",
+                // Always run on large if available, more reliable regarding timeouts
+                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
                 "enabled": level >= 2,
-                // do not have nightly release wait for this
+                // do not fail nightlies on this for now
                 "secondary": level <= 2,
                 "test": true,
                 // turn off custom allocator & symbolic functions to make LSAN do its magic
                 "CMAKE_PRESET": "sanitize",
-                // exclude seriously slow/problematic tests (laketests crash, async_base_functions timeouts)
-                "CTEST_OPTIONS": "-E '(interactive|pkg|lake|bench)/|treemap|StackOverflow|async_base_functions'"
+                // `StackOverflow*` correctly triggers ubsan
+                // `reverse-ffi` fails to link in sanitizers
+                // `interactive` and `async_select_channel` fail nondeterministically, would need to
+                // be investigated.
+                // 9366 is too close to timeout
+                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel|9366'"
               },
               {
                 "name": "macOS",

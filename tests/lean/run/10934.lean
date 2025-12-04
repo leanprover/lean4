@@ -17,7 +17,7 @@ trace: [Compiler.IR] [result]
       let x_3 : u8 := unbox x_1;
       let x_4 : u8 := unbox x_2;
       let x_5 : u8 := _example x_3 x_4;
-      let x_6 : tobj := box x_5;
+      let x_6 : tagged := box x_5;
       ret x_6
 -/
 #guard_msgs in
@@ -36,7 +36,7 @@ trace: [Compiler.IR] [result]
       let x_3 : u8 := unbox x_1;
       let x_4 : u8 := unbox x_2;
       let x_5 : u8 := _example x_3 x_4;
-      let x_6 : tobj := box x_5;
+      let x_6 : tagged := box x_5;
       ret x_6
 -/
 #guard_msgs in
@@ -54,7 +54,7 @@ trace: [Compiler.IR] [result]
       let x_3 : u8 := unbox x_1;
       let x_4 : u8 := unbox x_2;
       let x_5 : u8 := _example x_3 x_4;
-      let x_6 : tobj := box x_5;
+      let x_6 : tagged := box x_5;
       ret x_6
 -/
 #guard_msgs in
@@ -67,7 +67,7 @@ trace: [Compiler.IR] [result]
     def _example._boxed (x_1 : tagged) : tagged :=
       let x_2 : u8 := unbox x_1;
       let x_3 : u8 := _example x_2;
-      let x_4 : tobj := box x_3;
+      let x_4 : tagged := box x_3;
       ret x_4
 -/
 #guard_msgs in

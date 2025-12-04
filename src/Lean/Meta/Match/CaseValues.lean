@@ -26,8 +26,6 @@ structure CaseValueSubgoal where
   where `fvarId` is `x`s id.
   The type of `x` must have decidable equality.
 
-  If `substNewEq = false`, then the first case remains `C x`.
-
   Remark: `subst` field of the second subgoal is equal to the input `subst`. -/
 private def caseValueAux (mvarId : MVarId) (fvarId : FVarId) (value : Expr) (hName : Name := `h)
     (subst : FVarSubst := {})

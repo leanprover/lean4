@@ -1,21 +1,21 @@
-[Elab.info] 
+[Elab.info]
   • [Command] @ ⟨3, 0⟩-⟨3, 31⟩ @ Lean.Elab.Command.elabSetOption
     • [Completion] (Command.set_option "set_option" `trace.Elab.info []) @ ⟨3, 0⟩-⟨3, 26⟩
     • [Option] trace.Elab.info @ ⟨3, 11⟩-⟨3, 26⟩
 1 + 2 + 3 : Nat
-[Elab.info] 
+[Elab.info]
   • [Command] @ ⟨5, 0⟩-⟨5, 16⟩ @ Lean.Elab.Command.elabCheck
     • [Term] 1 + 2 + 3 : Nat @ ⟨5, 7⟩-⟨5, 16⟩ @ «_aux_Init_Notation___macroRules_term_+__2»
       • [MacroExpansion]
         1 + 2 +
           3
             -- should propagate through multiple macro expansions
-            
+
         ===>
         binop% HAdd.hAdd✝ (1 + 2)
           3
             -- should propagate through multiple macro expansions
-            
+
         • [Term] 1 + 2 + 3 : Nat @ ⟨5, 7⟩†-⟨5, 16⟩† @ Lean.Elab.Term.Op.elabBinOp
           • [Term] 1 + 2 + 3 : Nat @ ⟨5, 7⟩†-⟨5, 16⟩†
             • [Term] 1 + 2 : Nat @ ⟨5, 7⟩-⟨5, 12⟩ @ «_aux_Init_Notation___macroRules_term_+__2»
@@ -30,7 +30,7 @@
                   • [Term] 2 : Nat @ ⟨5, 11⟩-⟨5, 12⟩ @ Lean.Elab.Term.elabNumLit
             • [Term] 3 : Nat @ ⟨5, 15⟩-⟨5, 16⟩ @ Lean.Elab.Term.elabNumLit
 fun n m l => ↑n + (↑m + ↑l) : Nat → Nat → Nat → Int
-[Elab.info] 
+[Elab.info]
   • [Command] @ ⟨7, 0⟩-⟨7, 48⟩ @ Lean.Elab.Command.elabCheck
     • [Term] fun n m l => ↑n + (↑m + ↑l) : Nat → Nat → Nat → Int @ ⟨7, 7⟩-⟨7, 48⟩ @ Lean.Elab.Term.elabFun
       • [Term] Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩ @ Lean.Elab.Term.elabIdent
@@ -55,6 +55,9 @@ fun n m l => ↑n + (↑m + ↑l) : Nat → Nat → Nat → Int
             ===>
             binop% HAdd.hAdd✝ n (m +' l)
             • [Term] ↑n + (↑m + ↑l) : Int @ ⟨7, 29⟩†-⟨7, 41⟩† @ Lean.Elab.Term.Op.elabBinOp
+              • [CustomInfo(Lean.Elab.Term.CoeExpansionTrace)]
+              • [CustomInfo(Lean.Elab.Term.CoeExpansionTrace)]
+              • [CustomInfo(Lean.Elab.Term.CoeExpansionTrace)]
               • [Term] ↑n + (↑m + ↑l) : Int @ ⟨7, 29⟩†-⟨7, 41⟩†
                 • [Completion-Id] HAdd.hAdd✝ : none @ ⟨7, 29⟩†-⟨7, 41⟩†
                 • [Term] n : Nat @ ⟨7, 29⟩-⟨7, 30⟩ @ Lean.Elab.Term.elabIdent
@@ -78,5 +81,5 @@ fun n m l => ↑n + (↑m + ↑l) : Nat → Nat → Nat → Int
                           • [Term] l : Nat @ ⟨7, 39⟩-⟨7, 40⟩ @ Lean.Elab.Term.elabIdent
                             • [Completion-Id] l : none @ ⟨7, 39⟩-⟨7, 40⟩
                             • [Term] l : Nat @ ⟨7, 39⟩-⟨7, 40⟩
-[Elab.info] 
+[Elab.info]
   • [Command] @ ⟨8, 0⟩-⟨8, 0⟩ @ Lean.Elab.Command.elabEoi

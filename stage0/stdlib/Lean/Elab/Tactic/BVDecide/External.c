@@ -4512,12 +4512,12 @@ block_20:
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_12 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__0;
-x_13 = lean_string_append(x_12, x_9);
-lean_dec_ref(x_9);
+x_13 = lean_string_append(x_12, x_10);
+lean_dec_ref(x_10);
 x_14 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__1;
 x_15 = lean_string_append(x_13, x_14);
-x_16 = lean_string_append(x_15, x_11);
-lean_dec_ref(x_11);
+x_16 = lean_string_append(x_15, x_9);
+lean_dec_ref(x_9);
 x_17 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
 x_18 = l_Lean_MessageData_ofFormat(x_17);
@@ -4532,26 +4532,26 @@ if (x_25 == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; 
 x_26 = l_Lean_Elab_Tactic_BVDecide_External_ModelParser_parseHeader___closed__0;
-x_27 = lean_string_utf8_byte_size(x_21);
+x_27 = lean_string_utf8_byte_size(x_23);
 x_28 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__2;
 x_29 = lean_nat_dec_le(x_28, x_27);
 lean_dec(x_27);
 if (x_29 == 0)
 {
-x_9 = x_21;
-x_10 = lean_box(0);
-x_11 = x_22;
+x_9 = x_22;
+x_10 = x_23;
+x_11 = lean_box(0);
 goto block_20;
 }
 else
 {
 uint8_t x_30; 
-x_30 = lean_string_memcmp(x_21, x_26, x_24, x_24, x_28);
+x_30 = lean_string_memcmp(x_23, x_26, x_21, x_21, x_28);
 if (x_30 == 0)
 {
-x_9 = x_21;
-x_10 = lean_box(0);
-x_11 = x_22;
+x_9 = x_22;
+x_10 = x_23;
+x_11 = lean_box(0);
 goto block_20;
 }
 else
@@ -4559,7 +4559,7 @@ else
 lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 lean_dec_ref(x_22);
 x_31 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_BVDecide_External_ModelParser_parse), 1, 0);
-x_32 = lean_string_to_utf8(x_21);
+x_32 = lean_string_to_utf8(x_23);
 x_33 = l_Std_Internal_Parsec_ByteArray_Parser_run___redArg(x_31, x_32);
 if (lean_obj_tag(x_33) == 0)
 {
@@ -4574,8 +4574,8 @@ x_37 = lean_string_append(x_36, x_35);
 lean_dec(x_35);
 x_38 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__4;
 x_39 = lean_string_append(x_37, x_38);
-x_40 = lean_string_append(x_39, x_21);
-lean_dec_ref(x_21);
+x_40 = lean_string_append(x_39, x_23);
+lean_dec_ref(x_23);
 lean_ctor_set_tag(x_33, 3);
 lean_ctor_set(x_33, 0, x_40);
 x_41 = l_Lean_MessageData_ofFormat(x_33);
@@ -4595,8 +4595,8 @@ x_45 = lean_string_append(x_44, x_43);
 lean_dec(x_43);
 x_46 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__4;
 x_47 = lean_string_append(x_45, x_46);
-x_48 = lean_string_append(x_47, x_21);
-lean_dec_ref(x_21);
+x_48 = lean_string_append(x_47, x_23);
+lean_dec_ref(x_23);
 x_49 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_49, 0, x_48);
 x_50 = l_Lean_MessageData_ofFormat(x_49);
@@ -4609,7 +4609,7 @@ return x_51;
 else
 {
 uint8_t x_52; 
-lean_dec_ref(x_21);
+lean_dec_ref(x_23);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 x_52 = !lean_is_exclusive(x_33);
@@ -4640,8 +4640,8 @@ return x_56;
 else
 {
 lean_object* x_57; lean_object* x_58; 
+lean_dec_ref(x_23);
 lean_dec_ref(x_22);
-lean_dec_ref(x_21);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 x_57 = lean_box(1);
@@ -4716,10 +4716,10 @@ x_94 = lean_nat_dec_le(x_93, x_92);
 lean_dec(x_92);
 if (x_94 == 0)
 {
-x_21 = x_87;
+x_21 = x_77;
 x_22 = x_88;
-x_23 = lean_box(0);
-x_24 = x_77;
+x_23 = x_87;
+x_24 = lean_box(0);
 x_25 = x_90;
 goto block_59;
 }
@@ -4727,10 +4727,10 @@ else
 {
 uint8_t x_95; 
 x_95 = lean_string_memcmp(x_87, x_91, x_77, x_77, x_93);
-x_21 = x_87;
+x_21 = x_77;
 x_22 = x_88;
-x_23 = lean_box(0);
-x_24 = x_77;
+x_23 = x_87;
+x_24 = lean_box(0);
 x_25 = x_95;
 goto block_59;
 }
@@ -4775,10 +4775,10 @@ x_109 = lean_nat_dec_le(x_108, x_107);
 lean_dec(x_107);
 if (x_109 == 0)
 {
-x_21 = x_102;
+x_21 = x_77;
 x_22 = x_103;
-x_23 = lean_box(0);
-x_24 = x_77;
+x_23 = x_102;
+x_24 = lean_box(0);
 x_25 = x_105;
 goto block_59;
 }
@@ -4786,10 +4786,10 @@ else
 {
 uint8_t x_110; 
 x_110 = lean_string_memcmp(x_102, x_106, x_77, x_77, x_108);
-x_21 = x_102;
+x_21 = x_77;
 x_22 = x_103;
-x_23 = lean_box(0);
-x_24 = x_77;
+x_23 = x_102;
+x_24 = lean_box(0);
 x_25 = x_110;
 goto block_59;
 }

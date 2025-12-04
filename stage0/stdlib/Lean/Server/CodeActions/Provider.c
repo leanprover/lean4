@@ -1908,13 +1908,13 @@ block_66:
 {
 lean_object* x_63; lean_object* x_64; lean_object* x_65; 
 x_63 = lean_unsigned_to_nat(1u);
-x_64 = lean_nat_add(x_59, x_63);
-lean_dec(x_59);
+x_64 = lean_nat_add(x_62, x_63);
+lean_dec(x_62);
 x_65 = lean_nat_shiftr(x_64, x_63);
 lean_dec(x_64);
-x_52 = x_60;
-x_53 = x_61;
-x_54 = x_62;
+x_52 = x_59;
+x_53 = x_60;
+x_54 = x_61;
 x_55 = x_65;
 goto block_58;
 }
@@ -1961,10 +1961,10 @@ x_78 = l_Lean_Syntax_getNumArgs(x_72);
 x_79 = lean_nat_dec_lt(x_23, x_78);
 if (x_79 == 0)
 {
-x_59 = x_78;
-x_60 = x_72;
-x_61 = x_71;
-x_62 = x_77;
+x_59 = x_72;
+x_60 = x_71;
+x_61 = x_77;
+x_62 = x_78;
 goto block_66;
 }
 else
@@ -1979,10 +1979,10 @@ lean_inc(x_83);
 lean_dec_ref(x_82);
 if (lean_obj_tag(x_83) == 0)
 {
-x_59 = x_78;
-x_60 = x_72;
-x_61 = x_71;
-x_62 = x_77;
+x_59 = x_72;
+x_60 = x_71;
+x_61 = x_77;
+x_62 = x_78;
 goto block_66;
 }
 else

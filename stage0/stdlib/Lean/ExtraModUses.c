@@ -20,7 +20,7 @@ static lean_object* l_Lean_initFn___closed__2_00___x40_Lean_ExtraModUses_1766255
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___redArg___lam__3___closed__8;
 LEAN_EXPORT lean_object* l_Lean_getExtraModUses(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_recordIndirectModUse___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__3_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__3_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__2_00___x40_Lean_ExtraModUses_1766255300____hygCtx___hyg_2_(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__0_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2____boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__2_00___x40_Lean_ExtraModUses_2233475121____hygCtx___hyg_2_(lean_object*);
@@ -35,7 +35,7 @@ static lean_object* l_Lean_recordIndirectModUse___redArg___lam__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNode___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_initFn_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2__spec__4_spec__4_spec__4___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___redArg___lam__3___closed__12;
 lean_object* l_Lean_Environment_header(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_initFn___lam__2_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2_(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__2_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2_(lean_object*);
 uint8_t lean_usize_dec_le(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00__private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_Const_alter___at___00Lean_initFn_00___x40_Lean_ExtraModUses_1766255300____hygCtx___hyg_2__spec__0_spec__1_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___redArg(lean_object*);
@@ -74,7 +74,6 @@ lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_initFn___closed__17_00___x40_Lean_ExtraModUses_4259277863____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_initFn_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2__spec__4_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_recordExtraModUseFromDecl___redArg___lam__2(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__4_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2_(lean_object*, lean_object*);
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___redArg___lam__3___closed__3;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_initFn_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2__spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_initFn_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2__spec__4_spec__4___redArg___closed__0;
@@ -187,7 +186,6 @@ LEAN_EXPORT lean_object* l___private_Lean_ExtraModUses_0__Lean_extraModUses;
 uint8_t l_Lean_PersistentHashMap_contains___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instReprExtraModUse_repr___redArg___closed__17;
 LEAN_EXPORT lean_object* l___private_Lean_ExtraModUses_0__Lean_initFn_00___x40_Lean_ExtraModUses_4259277863____hygCtx___hyg_2____boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__3_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2____boxed(lean_object*);
 static lean_object* l_Lean_initFn___lam__2___closed__1_00___x40_Lean_ExtraModUses_1766255300____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_initFn___closed__3_00___x40_Lean_ExtraModUses_4259277863____hygCtx___hyg_2_;
 lean_object* lean_usize_to_nat(size_t);
@@ -315,7 +313,7 @@ LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_ExtraModUses_1766255300____
 LEAN_EXPORT lean_object* l_Lean_recordExtraModUseFromDecl___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00Lean_copyExtraModUses_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__2_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2____boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__2_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2____boxed(lean_object*);
 static lean_object* l_Lean_instReprExtraModUse_repr___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Lean_recordExtraModUseFromDecl___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
@@ -2685,15 +2683,7 @@ x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_initFn___lam__2_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2_(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = l_Lean_PersistentHashMap_contains___at___00Lean_initFn_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2__spec__0___redArg(x_1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__3_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__2_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -2701,7 +2691,7 @@ x_2 = l_Lean_PersistentHashMap_empty___at___00Lean_initFn_00___x40_Lean_ExtraMod
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__4_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__3_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
@@ -2731,21 +2721,21 @@ lean_dec_ref(x_1);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__2_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_contains___at___00Lean_initFn_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2__spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_initFn___lam__2_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2_(x_1, x_2);
+x_3 = l_Lean_PersistentHashMap_contains___at___00Lean_initFn_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2__spec__0___redArg(x_1, x_2);
 lean_dec_ref(x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__3_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2____boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__2_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2____boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_initFn___lam__3_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2_(x_1);
+x_2 = l_Lean_initFn___lam__2_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2_(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -2756,9 +2746,9 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_2 = lean_alloc_closure((void*)(l_Lean_initFn___lam__0_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2____boxed), 4, 0);
 x_3 = lean_alloc_closure((void*)(l_Lean_initFn___lam__1_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2_), 1, 0);
-x_4 = lean_alloc_closure((void*)(l_Lean_initFn___lam__2_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2____boxed), 2, 0);
-x_5 = lean_alloc_closure((void*)(l_Lean_initFn___lam__3_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2____boxed), 1, 0);
-x_6 = lean_alloc_closure((void*)(l_Lean_initFn___lam__4_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2_), 2, 0);
+x_4 = lean_alloc_closure((void*)(l_Lean_PersistentHashMap_contains___at___00Lean_initFn_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2__spec__0___redArg___boxed), 2, 0);
+x_5 = lean_alloc_closure((void*)(l_Lean_initFn___lam__2_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2____boxed), 1, 0);
+x_6 = lean_alloc_closure((void*)(l_Lean_initFn___lam__3_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2_), 2, 0);
 x_7 = l_Lean_initFn___closed__0_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2_;
 x_8 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_8, 0, x_2);
@@ -2839,16 +2829,6 @@ x_9 = l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAu
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_contains___at___00Lean_initFn_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2__spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_PersistentHashMap_contains___at___00Lean_initFn_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2__spec__0___redArg(x_1, x_2);
-lean_dec_ref(x_2);
-x_4 = lean_box(x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAtAux___at___00Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_initFn_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2__spec__0_spec__0_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Do.VCGen.Split
-// Imports: public import Lean.Meta.Tactic.FunInd public import Lean.Meta.Match.MatcherApp.Transform import Lean.Meta.Tactic.Simp.Rewrite
+// Imports: public import Lean.Meta.Tactic.FunInd public import Lean.Meta.Match.MatcherApp.Transform import Lean.Meta.Tactic.Simp.Rewrite import Lean.Meta.Tactic.Assumption
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -40,10 +40,10 @@ LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___00Lean_Elab_Tactic_Do_Spl
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_instInhabitedSplitInfo;
 static lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__9___closed__0;
 static lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__11___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_matchMatcherApp_x3f___at___00Lean_Elab_Tactic_Do_getSplitInfo_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___redArg___closed__18;
 lean_object* l_Lean_Environment_header(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_matchMatcherApp_x3f___at___00Lean_Elab_Tactic_Do_getSplitInfo_x3f_spec__0_spec__0_spec__0_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_matchMatcherApp_x3f___at___00Lean_Elab_Tactic_Do_getSplitInfo_x3f_spec__0_spec__0_spec__0_spec__0___redArg___closed__2;
 static lean_object* l_Lean_Meta_matchMatcherApp_x3f___at___00Lean_Elab_Tactic_Do_getSplitInfo_x3f_spec__0___closed__2;
 lean_object* l_Lean_Tactic_FunInd_rwMatcher(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -131,12 +131,13 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_matchMatcherApp_x3f___at___00Lean_Elab_Tactic_Do_getSplitInfo_x3f_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__0___closed__1;
+static lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___closed__0;
 static lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__1___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_ofSubarray___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_rwIfOrMatcher___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__14(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__14(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_matchMatcherApp_x3f___at___00Lean_Elab_Tactic_Do_getSplitInfo_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___redArg___closed__8;
 lean_object* l_Lean_Meta_withLocalDecl___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__9___closed__1;
@@ -261,7 +262,6 @@ static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_getSplitInfo_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___at___00Lean_Elab_Tactic_Do_getSplitInfo_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__15(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Meta_matchMatcherApp_x3f___at___00Lean_Elab_Tactic_Do_getSplitInfo_x3f_spec__0_spec__11___closed__1;
 lean_object* l_ReaderT_instFunctorOfMonad___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_ctorIdx(lean_object* x_1) {
@@ -1348,15 +1348,15 @@ lean_dec_ref(x_3);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__14(lean_object* x_1) {
+static lean_object* _init_l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___closed__0() {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lean_Meta_MatcherApp_toExpr(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_MatcherApp_toExpr), 1, 0);
+return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__15(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__14(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
@@ -1364,11 +1364,11 @@ x_5 = lean_apply_2(x_1, lean_box(0), x_2);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__15___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__14___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__15(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__14(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 return x_5;
@@ -1469,9 +1469,9 @@ x_35 = lean_ctor_get(x_32, 0);
 lean_inc(x_35);
 x_36 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__12___boxed), 5, 1);
 lean_closure_set(x_36, 0, x_11);
-x_37 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__14), 1, 0);
+x_37 = l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___closed__0;
 lean_inc(x_33);
-x_38 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__15___boxed), 4, 2);
+x_38 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__14___boxed), 4, 2);
 lean_closure_set(x_38, 0, x_33);
 lean_closure_set(x_38, 1, x_10);
 lean_inc(x_33);
@@ -4829,6 +4829,7 @@ return x_8;
 lean_object* initialize_Lean_Meta_Tactic_FunInd(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Match_MatcherApp_Transform(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Simp_Rewrite(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Assumption(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Do_VCGen_Split(uint8_t builtin) {
 lean_object * res;
@@ -4841,6 +4842,9 @@ res = initialize_Lean_Meta_Match_MatcherApp_Transform(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Simp_Rewrite(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Assumption(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Tactic_Do_instInhabitedSplitInfo_default___closed__0 = _init_l_Lean_Elab_Tactic_Do_instInhabitedSplitInfo_default___closed__0();
@@ -4881,6 +4885,8 @@ l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__9___clos
 lean_mark_persistent(l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__9___closed__1);
 l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__11___closed__0 = _init_l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__11___closed__0();
 lean_mark_persistent(l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___lam__11___closed__0);
+l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___closed__0 = _init_l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___closed__0();
+lean_mark_persistent(l_Lean_Elab_Tactic_Do_SplitInfo_splitWithConstantMotive___redArg___closed__0);
 l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_matchMatcherApp_x3f___at___00Lean_Elab_Tactic_Do_getSplitInfo_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___redArg___closed__0 = _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_matchMatcherApp_x3f___at___00Lean_Elab_Tactic_Do_getSplitInfo_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___redArg___closed__0();
 lean_mark_persistent(l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_matchMatcherApp_x3f___at___00Lean_Elab_Tactic_Do_getSplitInfo_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___redArg___closed__0);
 l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_matchMatcherApp_x3f___at___00Lean_Elab_Tactic_Do_getSplitInfo_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___redArg___closed__1 = _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_matchMatcherApp_x3f___at___00Lean_Elab_Tactic_Do_getSplitInfo_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___redArg___closed__1();

@@ -69,7 +69,6 @@ LEAN_EXPORT lean_object* l_Lake_instReprHash_repr___redArg___boxed(lean_object*)
 LEAN_EXPORT lean_object* l_Lake_BuildTrace_instCoeMTime___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instComputeTraceArrayOfMonad(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Hash_toJson___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instComputeHashTextFilePathIO___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Hash_ofNat___boxed(lean_object*);
 static lean_object* l_Lake_instReprHash_repr___redArg___closed__10;
 lean_object* l_IO_FS_instReprSystemTime_repr___redArg(lean_object*);
@@ -138,6 +137,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at_
 LEAN_EXPORT lean_object* l_Lake_BuildTrace_checkAgainstTime___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MTime_instNilTrace;
 LEAN_EXPORT lean_object* l_Lake_instReprHash_repr___boxed(lean_object*, lean_object*);
+static lean_object* l_Lake_instComputeHashTextFilePathIO___closed__0;
 uint64_t lean_uint8_to_uint64(uint8_t);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_computeArrayHash___redArg___boxed__const__1;
@@ -321,7 +321,6 @@ lean_object* l_IO_FS_instBEqSystemTime_beq___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_instReprBuildTrace_repr___redArg___closed__10;
 LEAN_EXPORT lean_object* l_Lake_Hash_instMixTrace;
 LEAN_EXPORT lean_object* l_Lake_Hash_ofString___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instComputeHashTextFilePathIO___lam__0(lean_object*);
 LEAN_EXPORT uint64_t l_Lake_Hash_ofByteArray(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instCoeTextFilePathFilePath;
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2245,28 +2244,19 @@ x_1 = lean_alloc_closure((void*)(l_Lake_instCoeTextFilePathFilePath___lam__0___b
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instComputeHashTextFilePathIO___lam__0(lean_object* x_1) {
+static lean_object* _init_l_Lake_instComputeHashTextFilePathIO___closed__0() {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Lake_computeTextFileHash(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_instComputeHashTextFilePathIO___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_instComputeHashTextFilePathIO___lam__0(x_1);
-lean_dec_ref(x_1);
-return x_3;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lake_computeTextFileHash___boxed), 2, 0);
+return x_1;
 }
 }
 static lean_object* _init_l_Lake_instComputeHashTextFilePathIO() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_instComputeHashTextFilePathIO___lam__0___boxed), 2, 0);
+x_1 = l_Lake_instComputeHashTextFilePathIO___closed__0;
 return x_1;
 }
 }
@@ -4207,6 +4197,8 @@ l_Lake_instComputeHashFilePathIO = _init_l_Lake_instComputeHashFilePathIO();
 lean_mark_persistent(l_Lake_instComputeHashFilePathIO);
 l_Lake_instCoeTextFilePathFilePath = _init_l_Lake_instCoeTextFilePathFilePath();
 lean_mark_persistent(l_Lake_instCoeTextFilePathFilePath);
+l_Lake_instComputeHashTextFilePathIO___closed__0 = _init_l_Lake_instComputeHashTextFilePathIO___closed__0();
+lean_mark_persistent(l_Lake_instComputeHashTextFilePathIO___closed__0);
 l_Lake_instComputeHashTextFilePathIO = _init_l_Lake_instComputeHashTextFilePathIO();
 lean_mark_persistent(l_Lake_instComputeHashTextFilePathIO);
 l_Lake_instToStringTextFilePath___closed__0 = _init_l_Lake_instToStringTextFilePath___closed__0();

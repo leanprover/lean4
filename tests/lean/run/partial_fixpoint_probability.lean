@@ -67,9 +67,10 @@ noncomputable instance : PartialOrder (Distr α) where
   rel_antisymm h1 h2 := funext (fun _ => ENNReal.le_antisymm (h1 _) (h2 _))
 
 noncomputable instance : CCPO (Distr α) where
-  csup c x := ENNReal.sup fun (Distr : Subtype c) => Distr.val x
-  csup_spec := by
-    intro d₁ c hchain
+  has_csup := by
+    intro c hchain
+    exists fun x => ENNReal.sup fun (Distr : Subtype c) => Distr.val x
+    intro d₁
     constructor
     next =>
       intro h d₂ hd₂ x

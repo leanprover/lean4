@@ -213,7 +213,9 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
           numDiscrs := info.numIndices + 3
           altInfos
           uElimPos? := some 0
-          discrInfos := #[{}, {}, {}]}
+          discrInfos := #[{}, {}, {}]
+          overlaps := {}
+        }
 
         -- Compare attributes with `mkMatcherAuxDefinition`
         withExporting (isExporting := !isPrivateName declName) do

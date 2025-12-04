@@ -312,7 +312,7 @@ extern "C" LEAN_EXPORT object * lean_read_module_data_parts(b_obj_arg ofnames, o
             std::string const & olean_fn = file.m_fname;
             try {
                 file.m_buffer = big_buffer + (file.m_base_addr - files[0].m_base_addr);
-                if (read(file.m_fd.get(), file.m_buffer, file.m_size) != file.m_size) {
+                if (read(file.m_fd.get(), file.m_buffer, file.m_size) != static_cast<ssize_t>(file.m_size)) {
                     return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "'").str());
                 }
             } catch (exception & ex) {

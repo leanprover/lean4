@@ -82,8 +82,11 @@ structure CaseValuesSubgoal where
   Remark: the field `newHs` has size 1 forall but the last subgoal.
 
   If `substNewEqs = true`, then the new `h_i` equality hypotheses are substituted in the first `n` cases.
+
+  If `needsHyps = false` then the else case has the hypotheses cleared.
 -/
-def caseValues (mvarId : MVarId) (fvarId : FVarId) (values : Array Expr) (hNamePrefix := `h) (substNewEqs := false) : MetaM (Array CaseValuesSubgoal) :=
+def caseValues (mvarId : MVarId) (fvarId : FVarId) (values : Array Expr) (hNamePrefix := `h)
+    (substNewEqs := false) (needHyps := true) : MetaM (Array CaseValuesSubgoal) :=
   let rec loop : Nat → MVarId → List Expr → Array FVarId → Array CaseValuesSubgoal → MetaM (Array CaseValuesSubgoal)
     | _, mvarId, [],    _,  _        => throwTacticEx `caseValues mvarId "list of values must not be empty"
     | i, mvarId, v::vs, hs, subgoals => do
@@ -103,7 +106,14 @@ def caseValues (mvarId : MVarId) (fvarId : FVarId) (values : Array Expr) (hNameP
       | [] => do
         appendTagSuffix elseSubgoal.mvarId ((`case).appendIndexAfter (i+1))
         pure $ subgoals.push { mvarId := elseSubgoal.mvarId, newHs := hs.push elseSubgoal.newH, subst := {} }
-      | vs => loop (i+1) elseSubgoal.mvarId vs (hs.push elseSubgoal.newH) subgoals
+      | vs =>
+        let (mvarId', hs') ←
+          if needHyps then
+            pure (elseSubgoal.mvarId, hs.push elseSubgoal.newH)
+          else
+            pure (← elseSubgoal.mvarId.tryClear elseSubgoal.newH, hs)
+        loop (i+1) mvarId' vs hs' subgoals
+
   loop 1 mvarId values.toList #[] #[]
 
 end Lean.Meta

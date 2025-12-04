@@ -16,6 +16,8 @@ public import Lean.Meta.Match.MVarRenaming
 import Lean.Meta.Match.SimpH
 import Lean.Meta.Match.SolveOverlap
 import Lean.Meta.HasNotBit
+import Lean.Meta.Match.CaseArraySizes
+import Lean.Meta.Match.CaseValues
 import Lean.Meta.Match.NamedPatterns
 
 public section
@@ -724,7 +726,7 @@ private def processValue (p : Problem) : MetaM (Array Problem) := do
   trace[Meta.Match.match] "value step"
   let x :: xs := p.vars | unreachable!
   let values := collectValues p
-  let subgoals ← caseValues p.mvarId x.fvarId! values (substNewEqs := true)
+  let subgoals ← caseValues p.mvarId x.fvarId! values
   subgoals.mapIdxM fun i subgoal => do
     trace[Meta.Match.match] "processValue subgoal\n{MessageData.ofGoal subgoal.mvarId}"
     if h : i < values.size then

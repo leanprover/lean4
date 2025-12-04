@@ -342,7 +342,9 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
       match cond with
       | `(doIfCond|$cond) =>
         Term.elabTerm (← `(if $cond then $then_ else $else_)) mγ (catchExPostpone := false)
-      | `(doIfCond|$h : $cond) =>
+      | `(doIfCond|_ : $cond) =>
+        Term.elabTerm (← `(if _ : $cond then $then_ else $else_)) mγ (catchExPostpone := false)
+      | `(doIfCond|$h:ident : $cond) =>
         Term.elabTerm (← `(if $h:ident : $cond then $then_ else $else_)) mγ (catchExPostpone := false)
       | `(doIfCond|let $pat := $d) =>
         runInBase <| checkMutVarsForShadowing (← getPatternVarsEx pat)

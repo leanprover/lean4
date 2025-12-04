@@ -147,7 +147,7 @@ def doIfLetBind := leading_parser leftArrow >> termParser
 def doIfLet     := leading_parser (withAnonymousAntiquot := false)
   "let " >> termParser >> (doIfLetPure <|> doIfLetBind)
 def doIfProp    := leading_parser (withAnonymousAntiquot := false)
-  optIdent >> termParser
+  optional (atomic (binderIdent >> " : ")) >> termParser
 def doIfCond    :=
   withAntiquot (mkAntiquot "doIfCond" decl_name% (anonymous := false) (isPseudoKind := true)) <|
     doIfLet <|> doIfProp

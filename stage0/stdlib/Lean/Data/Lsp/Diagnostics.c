@@ -5921,15 +5921,15 @@ return x_5;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; uint8_t x_11; uint8_t x_12; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; uint8_t x_11; uint8_t x_12; 
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
 x_8 = lean_array_fget_borrowed(x_1, x_7);
-x_9 = lean_unbox(x_8);
-x_10 = lean_array_fget_borrowed(x_2, x_7);
-x_11 = lean_unbox(x_10);
-x_12 = l_Lean_Lsp_instBEqDiagnosticTag_beq(x_9, x_11);
+x_9 = lean_array_fget_borrowed(x_2, x_7);
+x_10 = lean_unbox(x_8);
+x_11 = lean_unbox(x_9);
+x_12 = l_Lean_Lsp_instBEqDiagnosticTag_beq(x_10, x_11);
 if (x_12 == 0)
 {
 lean_dec(x_7);
@@ -6006,15 +6006,15 @@ return x_5;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; uint8_t x_11; uint8_t x_12; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; uint8_t x_11; uint8_t x_12; 
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
 x_8 = lean_array_fget_borrowed(x_1, x_7);
-x_9 = lean_unbox(x_8);
-x_10 = lean_array_fget_borrowed(x_2, x_7);
-x_11 = lean_unbox(x_10);
-x_12 = l_Lean_Lsp_instBEqLeanDiagnosticTag_beq(x_9, x_11);
+x_9 = lean_array_fget_borrowed(x_2, x_7);
+x_10 = lean_unbox(x_8);
+x_11 = lean_unbox(x_9);
+x_12 = l_Lean_Lsp_instBEqLeanDiagnosticTag_beq(x_10, x_11);
 if (x_12 == 0)
 {
 lean_dec(x_7);

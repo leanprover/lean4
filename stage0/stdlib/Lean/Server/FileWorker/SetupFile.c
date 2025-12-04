@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_determineLakePath();
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResult_ofSuccess___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_setupFile___closed__2;
@@ -80,7 +81,6 @@ size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResultKind_importsOutOfDate_elim___redArg(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResultKind_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_FileWorker_setupFile_spec__0(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_runLakeSetupFile___closed__5;

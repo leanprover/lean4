@@ -15,6 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_Env_vars(lean_object*);
 static lean_object* l_Lake_Env_noToolchainVars___closed__16;
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Env_noToolchainVars___closed__8;
 static lean_object* l_Lake_Env_noToolchainVars___closed__10;
 lean_object* l_Lean_Json_compress(lean_object*);
@@ -152,7 +153,6 @@ static lean_object* l_Lake_Env_compute___closed__3;
 lean_object* l_String_Slice_Pos_prev_x3f(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Config_Env_0__Lake_Env_computeEnvCache_x3f___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Env_computeToolchain();
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Env_sharedLibPath(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lake_Env_computeToolchain___closed__1;

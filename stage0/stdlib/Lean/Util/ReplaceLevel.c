@@ -255,7 +255,7 @@ x_7 = lean_ptr_addr(x_3);
 x_8 = lean_usize_mod(x_7, x_2);
 x_9 = lean_array_uget(x_5, x_8);
 x_10 = lean_ptr_addr(x_9);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_usize_dec_eq(x_10, x_7);
 if (x_11 == 0)
 {

@@ -5165,7 +5165,7 @@ x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_8 = lean_nat_dec_eq(x_6, x_1);
 if (x_8 == 0)
 {

@@ -519,7 +519,7 @@ if (x_9 == 0)
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_10 = lean_array_uget(x_1, x_2);
 x_11 = l_Lean_IR_Alt_body(x_10);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 x_12 = l_Lean_IR_Sorry_visitFnBody(x_11, x_5, x_6, x_7);
 if (lean_obj_tag(x_12) == 0)
 {

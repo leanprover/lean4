@@ -406,7 +406,7 @@ Artifacts are uploaded to the artifact endpoint with a file name derived
 from their Lake content hash (and prefixed by the repository or scope).
 The mappings file is uploaded to the revision endpoint with a file name
 derived from the package's current Git revision (and prefixed by the
-full scope). As such, the command will warn if the the work tree currently
+full scope). As such, the command will warn if the work tree currently
 has changes."
 
 def helpScriptCli :=

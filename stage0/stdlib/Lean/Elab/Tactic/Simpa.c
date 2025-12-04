@@ -650,7 +650,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t 
 x_3 = lean_st_ref_get(x_1);
 x_4 = lean_ctor_get(x_3, 7);
 lean_inc_ref(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_5 = lean_ctor_get(x_4, 2);
 lean_inc_ref(x_5);
 lean_dec_ref(x_4);
@@ -811,7 +811,7 @@ lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16;
 x_13 = lean_st_ref_get(x_1);
 x_14 = lean_ctor_get(x_13, 7);
 lean_inc_ref(x_14);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_15 = lean_ctor_get(x_14, 2);
 lean_inc_ref(x_15);
 lean_dec_ref(x_14);
@@ -1047,7 +1047,7 @@ lean_object* x_12; lean_object* x_13; uint8_t x_14;
 x_12 = lean_st_ref_get(x_10);
 x_13 = lean_ctor_get(x_12, 7);
 lean_inc_ref(x_13);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*3);
 lean_dec_ref(x_13);
 if (x_14 == 0)
@@ -1908,7 +1908,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_6 = l_Lean_Options_toLinterOptions___at___00Lean_Linter_getLinterOptions___at___00Lean_Elab_Tactic_Simpa_evalSimpa_spec__18_spec__18___redArg___closed__0;
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
@@ -1974,7 +1974,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = l_Lean_MetavarContext_getDelayedMVarAssignmentCore_x3f(x_6, x_1);
 x_8 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -2001,7 +2001,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = l_Lean_MetavarContext_getExprAssignmentCore_x3f(x_6, x_1);
 x_8 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -2028,11 +2028,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -4767,7 +4767,7 @@ lean_dec_ref(x_1);
 x_214 = lean_st_ref_get(x_21);
 x_215 = lean_ctor_get(x_214, 7);
 lean_inc_ref(x_215);
-lean_dec_ref(x_214);
+lean_dec(x_214);
 x_216 = lean_ctor_get_uint8(x_215, sizeof(void*)*3);
 lean_dec_ref(x_215);
 if (x_216 == 0)
@@ -4875,7 +4875,7 @@ lean_inc(x_81);
 x_82 = l_Lean_occursCheck___at___00Lean_Elab_Tactic_Simpa_evalSimpa_spec__1(x_2, x_81, x_69, x_70, x_71, x_72, x_73, x_74, x_75, x_76);
 x_83 = lean_ctor_get(x_78, 0);
 lean_inc_ref(x_83);
-lean_dec_ref(x_78);
+lean_dec(x_78);
 x_84 = lean_ctor_get(x_82, 0);
 lean_inc(x_84);
 lean_dec_ref(x_82);
@@ -5804,7 +5804,7 @@ return x_209;
 else
 {
 uint8_t x_210; 
-lean_dec_ref(x_78);
+lean_dec(x_78);
 lean_dec(x_76);
 lean_dec_ref(x_75);
 lean_dec(x_74);

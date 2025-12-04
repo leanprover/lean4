@@ -223,7 +223,7 @@ lean_object* x_16;
 lean_dec(x_13);
 lean_dec(x_12);
 x_16 = lean_array_fget_borrowed(x_1, x_4);
-lean_inc_ref(x_16);
+lean_inc(x_16);
 lean_ctor_set(x_3, 1, x_16);
 lean_ctor_set(x_3, 0, x_14);
 x_5 = x_3;
@@ -256,7 +256,7 @@ lean_object* x_22; lean_object* x_23;
 lean_dec(x_18);
 lean_dec(x_17);
 x_22 = lean_array_fget_borrowed(x_1, x_4);
-lean_inc_ref(x_22);
+lean_inc(x_22);
 x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_19);
 lean_ctor_set(x_23, 1, x_22);
@@ -308,7 +308,7 @@ if (x_8 == 0)
 {
 lean_object* x_9; 
 lean_dec(x_4);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_6);
 lean_ctor_set(x_9, 1, x_7);
@@ -317,7 +317,7 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-lean_inc_ref(x_6);
+lean_inc(x_6);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_7);
 lean_ctor_set(x_10, 1, x_6);
@@ -396,7 +396,7 @@ return x_6;
 }
 else
 {
-lean_dec_ref(x_7);
+lean_dec(x_7);
 if (x_1 == 0)
 {
 size_t x_8; size_t x_9; 
@@ -1091,7 +1091,7 @@ return x_46;
 else
 {
 lean_object* x_47; lean_object* x_48; 
-lean_dec_ref(x_30);
+lean_dec(x_30);
 lean_dec(x_25);
 x_47 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Compiler_LCNF_Simp_addDefaultAlt_spec__1___closed__3;
 lean_inc(x_13);

@@ -156,6 +156,7 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_PullFunDecls_0__Lean_Compiler_LCNF_initFn___closed__25_00___x40_Lean_Compiler_LCNF_PullFunDecls_1553090079____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Compiler_LCNF_PullFunDecls_findParamsDeps_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Compiler_LCNF_pullFunDecls___closed__1;
 static lean_object* l___private_Lean_Compiler_LCNF_PullFunDecls_0__Lean_Compiler_LCNF_initFn___closed__24_00___x40_Lean_Compiler_LCNF_PullFunDecls_1553090079____hygCtx___hyg_2_;
@@ -675,7 +676,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_
 x_9 = lean_array_uget(x_1, x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = l_Lean_Compiler_LCNF_PullFunDecls_findFVarDeps___redArg(x_10, x_5);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
@@ -794,17 +795,15 @@ return x_3;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_PullFunDecls_0__Lean_Compiler_LCNF_PullFunDecls_attach_visited(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; 
+lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_3 = lean_ctor_get(x_2, 1);
 x_4 = 0;
 x_5 = lean_box(x_4);
-x_6 = lean_array_get_borrowed(x_5, x_3, x_1);
-x_7 = lean_unbox(x_6);
-x_8 = lean_box(x_7);
-x_9 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_9, 0, x_8);
-lean_ctor_set(x_9, 1, x_2);
-return x_9;
+x_6 = lean_array_get(x_5, x_3, x_1);
+x_7 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_7, 0, x_6);
+lean_ctor_set(x_7, 1, x_2);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_PullFunDecls_0__Lean_Compiler_LCNF_PullFunDecls_attach_visited___boxed(lean_object* x_1, lean_object* x_2) {

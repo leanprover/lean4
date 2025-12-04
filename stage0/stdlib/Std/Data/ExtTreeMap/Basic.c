@@ -1526,7 +1526,7 @@ LEAN_EXPORT lean_object* l_Std_ExtTreeMap_instGetElem_x3fMem___redArg___lam__2(l
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___redArg(x_1, x_3, x_4, x_2);
+x_5 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___redArg(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
@@ -4351,7 +4351,7 @@ lean_closure_set(x_16, 2, x_14);
 x_17 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_13, x_16, x_15, x_5);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
-lean_dec_ref(x_17);
+lean_dec(x_17);
 x_7 = x_18;
 goto block_12;
 block_12:
@@ -4393,7 +4393,7 @@ lean_closure_set(x_12, 2, x_10);
 x_13 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_9, x_12, x_11, x_1);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_3 = x_14;
 goto block_8;
 block_8:
@@ -4491,7 +4491,7 @@ lean_closure_set(x_16, 2, x_15);
 x_17 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_13, x_16, x_15, x_5);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
-lean_dec_ref(x_17);
+lean_dec(x_17);
 x_7 = x_18;
 goto block_12;
 block_12:
@@ -4533,7 +4533,7 @@ lean_closure_set(x_12, 2, x_11);
 x_13 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_9, x_12, x_11, x_1);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_3 = x_14;
 goto block_8;
 block_8:

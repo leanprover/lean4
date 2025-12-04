@@ -81,6 +81,7 @@ LEAN_EXPORT lean_object* l_Std_TreeSet_minD___boxed(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Std_TreeSet_instForMOfMonad___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_empty___boxed(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_foldrM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeSet_diff(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_minD(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_any___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_max_x3f___boxed(lean_object*, lean_object*, lean_object*);
@@ -104,6 +105,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 LEAN_EXPORT lean_object* l_Std_TreeSet_ofList(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_toList___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_TreeSet_all___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeSet_diff___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__0_00___x40_Std_Data_TreeSet_Basic_2624796985____hygCtx___hyg_15_;
 static lean_object* l_Std_TreeSet___aux__Std__Data__TreeSet__Basic______macroRules__Std__TreeSet__term___x7em____1___closed__9;
 LEAN_EXPORT lean_object* l_Std_TreeSet___aux__Std__Data__TreeSet__Basic______unexpand__Std__TreeSet__Equiv__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -154,6 +156,7 @@ LEAN_EXPORT lean_object* l_Std_TreeSet_getGE_x3f(lean_object*, lean_object*, lea
 static lean_object* l___auto___closed__21_00___x40_Std_Data_TreeSet_Basic_2624796985____hygCtx___hyg_15_;
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_TreeSet_ofArray_spec__0___redArg(lean_object*, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeSet_instSDiff(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_maxD(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_TreeSet_foldr___closed__2;
 LEAN_EXPORT lean_object* l_Std_TreeSet_atIdx_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -189,6 +192,7 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00Std_TreeSet_ofList_spec_
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_max___redArg(lean_object*);
 static lean_object* l___auto___closed__2_00___x40_Std_Data_TreeSet_Basic_2624796985____hygCtx___hyg_15_;
+LEAN_EXPORT lean_object* l_Std_TreeSet_instSDiff___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_size___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_instMembership___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_instInsert___redArg___lam__0(lean_object*, lean_object*, lean_object*);
@@ -277,6 +281,7 @@ LEAN_EXPORT lean_object* l_Std_TreeSet_forIn___redArg(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Std_TreeSet_getGT_x21(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_minD___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_merge(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_diff___at___00Std_DTreeMap_diff_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_getGED___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_ofArray___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_insertMany(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3255,7 +3260,7 @@ lean_closure_set(x_14, 2, x_12);
 x_15 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_11, x_14, x_13, x_3);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
-lean_dec_ref(x_15);
+lean_dec(x_15);
 x_5 = x_16;
 goto block_10;
 block_10:
@@ -3297,7 +3302,7 @@ lean_closure_set(x_12, 2, x_10);
 x_13 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_9, x_12, x_11, x_1);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_3 = x_14;
 goto block_8;
 block_8:
@@ -3395,7 +3400,7 @@ lean_closure_set(x_14, 2, x_13);
 x_15 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_11, x_14, x_13, x_3);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
-lean_dec_ref(x_15);
+lean_dec(x_15);
 x_5 = x_16;
 goto block_10;
 block_10:
@@ -3437,7 +3442,7 @@ lean_closure_set(x_12, 2, x_11);
 x_13 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_9, x_12, x_11, x_1);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_3 = x_14;
 goto block_8;
 block_8:
@@ -5055,6 +5060,42 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Std_TreeSet_inter), 4, 2);
+lean_closure_set(x_2, 0, lean_box(0));
+lean_closure_set(x_2, 1, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeSet_diff(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_DTreeMap_Internal_Impl_diff___at___00Std_DTreeMap_diff_spec__0___redArg(x_2, x_3, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeSet_diff___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_DTreeMap_Internal_Impl_diff___at___00Std_DTreeMap_diff_spec__0___redArg(x_1, x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeSet_instSDiff(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Std_TreeSet_diff), 4, 2);
+lean_closure_set(x_3, 0, lean_box(0));
+lean_closure_set(x_3, 1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeSet_instSDiff___redArg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Std_TreeSet_diff), 4, 2);
 lean_closure_set(x_2, 0, lean_box(0));
 lean_closure_set(x_2, 1, x_1);
 return x_2;

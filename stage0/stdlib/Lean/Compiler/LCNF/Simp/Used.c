@@ -841,7 +841,7 @@ if (x_13 == 0)
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; size_t x_18; size_t x_19; 
 x_14 = lean_array_uget(x_1, x_2);
 x_15 = l_Lean_Compiler_LCNF_Alt_getCode(x_14);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_16 = l_Lean_Compiler_LCNF_Simp_markUsedCode(x_15, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 x_17 = lean_ctor_get(x_16, 0);
 lean_inc(x_17);
@@ -1232,7 +1232,7 @@ lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* 
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 1);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_6 = l_Std_DHashMap_Internal_Raw_u2080_contains___at___00Lean_Compiler_LCNF_Simp_isUsed_spec__0___redArg(x_5, x_1);
 lean_dec_ref(x_5);
 x_7 = lean_box(x_6);

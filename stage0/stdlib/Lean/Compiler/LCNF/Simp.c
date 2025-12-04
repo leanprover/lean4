@@ -210,7 +210,7 @@ x_9 = lean_st_ref_get(x_5);
 x_10 = lean_st_ref_get(x_3);
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_11);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_12 = !lean_is_exclusive(x_10);
 if (x_12 == 0)
 {
@@ -800,7 +800,7 @@ lean_object* x_206; lean_object* x_207; lean_object* x_208;
 x_206 = lean_st_ref_get(x_3);
 x_207 = lean_ctor_get(x_206, 3);
 lean_inc_ref(x_207);
-lean_dec_ref(x_206);
+lean_dec(x_206);
 x_208 = l_Lean_Compiler_LCNF_Simp_FunDeclInfoMap_format(x_207, x_5, x_6, x_7, x_8);
 lean_dec_ref(x_207);
 if (lean_obj_tag(x_208) == 0)
@@ -1073,7 +1073,7 @@ x_161 = lean_ctor_get(x_158, 5);
 lean_inc(x_161);
 x_162 = lean_ctor_get(x_158, 6);
 lean_inc(x_162);
-lean_dec_ref(x_158);
+lean_dec(x_158);
 x_163 = l_Lean_Compiler_LCNF_Code_applyRenaming(x_157, x_159, x_5, x_6, x_7, x_8);
 lean_dec(x_159);
 if (lean_obj_tag(x_163) == 0)
@@ -1529,7 +1529,7 @@ lean_dec_ref(x_20);
 x_51 = lean_st_ref_get(x_19);
 lean_dec(x_19);
 x_52 = lean_ctor_get_uint8(x_51, sizeof(void*)*7);
-lean_dec_ref(x_51);
+lean_dec(x_51);
 if (x_52 == 0)
 {
 lean_object* x_53; 
@@ -1655,7 +1655,7 @@ lean_dec_ref(x_20);
 x_70 = lean_st_ref_get(x_19);
 lean_dec(x_19);
 x_71 = lean_ctor_get_uint8(x_70, sizeof(void*)*7);
-lean_dec_ref(x_70);
+lean_dec(x_70);
 if (x_71 == 0)
 {
 lean_object* x_72; lean_object* x_73; 
@@ -1902,7 +1902,7 @@ lean_object* x_17; lean_object* x_18;
 x_17 = lean_ctor_get(x_15, 0);
 x_18 = lean_st_ref_get(x_9);
 lean_dec(x_9);
-lean_dec_ref(x_18);
+lean_dec(x_18);
 if (lean_obj_tag(x_17) == 1)
 {
 lean_object* x_19; 
@@ -1934,7 +1934,7 @@ lean_inc(x_21);
 lean_dec(x_15);
 x_22 = lean_st_ref_get(x_9);
 lean_dec(x_9);
-lean_dec_ref(x_22);
+lean_dec(x_22);
 if (lean_obj_tag(x_21) == 1)
 {
 lean_object* x_23; 

@@ -820,7 +820,7 @@ lean_inc_ref(x_12);
 lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc_ref(x_5);
-lean_inc_ref(x_26);
+lean_inc(x_26);
 x_27 = l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lt(x_4, x_26, x_5, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_27) == 0)
 {
@@ -1926,8 +1926,8 @@ lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);
 lean_inc_ref(x_9);
-lean_inc_ref(x_16);
-lean_inc_ref(x_15);
+lean_inc(x_16);
+lean_inc(x_15);
 x_17 = l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lt(x_3, x_15, x_16, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_17) == 0)
 {
@@ -1946,8 +1946,8 @@ lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);
 lean_inc_ref(x_9);
-lean_inc_ref(x_15);
-lean_inc_ref(x_16);
+lean_inc(x_15);
+lean_inc(x_16);
 x_21 = l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lt(x_3, x_16, x_15, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_21) == 0)
 {
@@ -2117,8 +2117,8 @@ lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);
 lean_inc_ref(x_9);
-lean_inc_ref(x_15);
-lean_inc_ref(x_16);
+lean_inc(x_15);
+lean_inc(x_16);
 x_49 = l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lt(x_3, x_16, x_15, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_49) == 0)
 {
@@ -2282,8 +2282,8 @@ lean_inc(x_13);
 lean_inc_ref(x_12);
 lean_inc(x_11);
 lean_inc_ref(x_10);
-lean_inc_ref(x_28);
-lean_inc_ref(x_27);
+lean_inc(x_28);
+lean_inc(x_27);
 x_29 = l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lt(x_4, x_27, x_28, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_29) == 0)
 {
@@ -2302,8 +2302,8 @@ lean_inc(x_13);
 lean_inc_ref(x_12);
 lean_inc(x_11);
 lean_inc_ref(x_10);
-lean_inc_ref(x_27);
-lean_inc_ref(x_28);
+lean_inc(x_27);
+lean_inc(x_28);
 x_33 = l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lt(x_4, x_28, x_27, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_33) == 0)
 {
@@ -2439,8 +2439,8 @@ lean_inc(x_13);
 lean_inc_ref(x_12);
 lean_inc(x_11);
 lean_inc_ref(x_10);
-lean_inc_ref(x_27);
-lean_inc_ref(x_28);
+lean_inc(x_27);
+lean_inc(x_28);
 x_52 = l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lt(x_4, x_28, x_27, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_52) == 0)
 {
@@ -4078,7 +4078,7 @@ lean_inc_ref(x_10);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc_ref(x_3);
-lean_inc_ref(x_13);
+lean_inc(x_13);
 x_14 = l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lt(x_2, x_13, x_3, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_14) == 0)
 {

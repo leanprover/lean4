@@ -1262,6 +1262,7 @@ x_19 = lean_usize_of_nat(x_12);
 lean_dec(x_12);
 x_20 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_13, x_17, x_10, x_18, x_19);
 x_21 = lean_unbox(x_20);
+lean_dec(x_20);
 if (x_21 == 0)
 {
 return x_14;
@@ -1312,6 +1313,7 @@ x_30 = lean_usize_of_nat(x_25);
 lean_dec(x_25);
 x_31 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_26, x_28, x_23, x_29, x_30);
 x_32 = lean_unbox(x_31);
+lean_dec(x_31);
 return x_32;
 }
 }
@@ -2019,7 +2021,7 @@ if (x_5 == 0)
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_uget(x_2, x_3);
 x_7 = lean_string_dec_eq(x_1, x_6);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 if (x_7 == 0)
 {
 size_t x_8; size_t x_9; 

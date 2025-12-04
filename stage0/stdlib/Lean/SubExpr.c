@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_SubExpr_instFromJsonGoalsLocation_fromJson___closed__17;
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_instToString;
 static lean_object* l_Lean_SubExpr_Pos_fromString_x21___closed__0;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_instToJsonMVarId;
@@ -252,7 +253,6 @@ lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_GoalLocation_target_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_GoalLocation_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_SubExpr_instToJsonGoalLocation_toJson___closed__0;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushNaryFn(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);

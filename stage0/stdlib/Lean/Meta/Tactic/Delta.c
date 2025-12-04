@@ -175,7 +175,7 @@ lean_dec_ref(x_10);
 x_13 = lean_st_ref_get(x_4);
 x_17 = lean_ctor_get(x_13, 0);
 lean_inc_ref(x_17);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_18 = 0;
 x_19 = l_Lean_Environment_find_x3f(x_17, x_11, x_18);
 if (lean_obj_tag(x_19) == 0)

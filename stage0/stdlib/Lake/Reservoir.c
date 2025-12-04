@@ -1147,7 +1147,7 @@ x_9 = l_Lake_RegistrySrc_isGit(x_8);
 if (x_9 == 0)
 {
 size_t x_10; size_t x_11; 
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_10 = 1;
 x_11 = lean_usize_add(x_5, x_10);
 {

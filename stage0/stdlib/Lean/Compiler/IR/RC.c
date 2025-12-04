@@ -5600,7 +5600,7 @@ if (x_6 == 0)
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; 
 x_7 = lean_array_uget(x_1, x_2);
 x_8 = l_Lean_IR_Alt_body(x_7);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = l___private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_CollectDerivedValInfo_visitFnBody(x_8, x_5);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
@@ -6124,33 +6124,33 @@ return x_6;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___00Lean_IR_ExplicitRC_getVarInfo_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_4 = lean_ctor_get(x_1, 1);
-x_5 = lean_ctor_get(x_1, 2);
-x_6 = lean_ctor_get(x_1, 3);
-x_7 = lean_ctor_get(x_1, 4);
-x_8 = lean_nat_dec_lt(x_2, x_4);
+x_4 = lean_ctor_get(x_2, 1);
+x_5 = lean_ctor_get(x_2, 2);
+x_6 = lean_ctor_get(x_2, 3);
+x_7 = lean_ctor_get(x_2, 4);
+x_8 = lean_nat_dec_lt(x_3, x_4);
 if (x_8 == 0)
 {
 uint8_t x_9; 
-x_9 = lean_nat_dec_eq(x_2, x_4);
+x_9 = lean_nat_dec_eq(x_3, x_4);
 if (x_9 == 0)
 {
-x_1 = x_7;
+x_2 = x_7;
 goto _start;
 }
 else
 {
-lean_dec(x_3);
+lean_dec(x_1);
 lean_inc(x_5);
 return x_5;
 }
 }
 else
 {
-x_1 = x_6;
+x_2 = x_6;
 goto _start;
 }
 }
@@ -6158,7 +6158,7 @@ else
 {
 lean_object* x_12; lean_object* x_13; 
 x_12 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___00Lean_IR_ExplicitRC_getVarInfo_spec__0___redArg___closed__3;
-x_13 = lean_panic_fn(x_3, x_12);
+x_13 = lean_panic_fn(x_1, x_12);
 return x_13;
 }
 }
@@ -6193,7 +6193,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_1, 4);
 x_4 = l_Lean_IR_ExplicitRC_instInhabitedVarInfo_default;
-x_5 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___00Lean_IR_ExplicitRC_getVarInfo_spec__0___redArg(x_3, x_2, x_4);
+x_5 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___00Lean_IR_ExplicitRC_getVarInfo_spec__0___redArg(x_4, x_3, x_2);
 return x_5;
 }
 }
@@ -6202,8 +6202,8 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___00Lean_IR_ExplicitRC_getVarInfo_spec__0(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 return x_5;
 }
 }
@@ -6222,8 +6222,8 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___00Lean_IR_ExplicitRC_getVarInfo_spec__0___redArg(x_1, x_2, x_3);
+lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -6533,33 +6533,33 @@ return x_4;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___00Lean_IR_ExplicitRC_getJPLiveVars_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_4 = lean_ctor_get(x_1, 1);
-x_5 = lean_ctor_get(x_1, 2);
-x_6 = lean_ctor_get(x_1, 3);
-x_7 = lean_ctor_get(x_1, 4);
-x_8 = lean_nat_dec_lt(x_2, x_4);
+x_4 = lean_ctor_get(x_2, 1);
+x_5 = lean_ctor_get(x_2, 2);
+x_6 = lean_ctor_get(x_2, 3);
+x_7 = lean_ctor_get(x_2, 4);
+x_8 = lean_nat_dec_lt(x_3, x_4);
 if (x_8 == 0)
 {
 uint8_t x_9; 
-x_9 = lean_nat_dec_eq(x_2, x_4);
+x_9 = lean_nat_dec_eq(x_3, x_4);
 if (x_9 == 0)
 {
-x_1 = x_7;
+x_2 = x_7;
 goto _start;
 }
 else
 {
-lean_dec(x_3);
+lean_dec(x_1);
 lean_inc(x_5);
 return x_5;
 }
 }
 else
 {
-x_1 = x_6;
+x_2 = x_6;
 goto _start;
 }
 }
@@ -6567,7 +6567,7 @@ else
 {
 lean_object* x_12; lean_object* x_13; 
 x_12 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___00Lean_IR_ExplicitRC_getVarInfo_spec__0___redArg___closed__3;
-x_13 = lean_panic_fn(x_3, x_12);
+x_13 = lean_panic_fn(x_1, x_12);
 return x_13;
 }
 }
@@ -6586,7 +6586,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_1, 5);
 x_4 = l_Lean_IR_ExplicitRC_instInhabitedLiveVars_default;
-x_5 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___00Lean_IR_ExplicitRC_getJPLiveVars_spec__0___redArg(x_3, x_2, x_4);
+x_5 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___00Lean_IR_ExplicitRC_getJPLiveVars_spec__0___redArg(x_4, x_3, x_2);
 return x_5;
 }
 }
@@ -6595,8 +6595,8 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___00Lean_IR_ExplicitRC_getJPLiveVars_spec__0(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 return x_5;
 }
 }
@@ -6615,8 +6615,8 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___00Lean_IR_ExplicitRC_getJPLiveVars_spec__0___redArg(x_1, x_2, x_3);
+lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -6944,6 +6944,7 @@ x_10 = lean_usize_of_nat(x_4);
 lean_dec(x_4);
 x_11 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_5, x_8, x_1, x_9, x_10);
 x_12 = lean_unbox(x_11);
+lean_dec(x_11);
 if (x_12 == 0)
 {
 return x_6;
@@ -9175,7 +9176,7 @@ block_31:
 lean_object* x_12; uint8_t x_13; 
 x_12 = lean_ctor_get(x_10, 0);
 lean_inc(x_12);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 x_13 = !lean_is_exclusive(x_8);
 if (x_13 == 0)
 {
@@ -9971,7 +9972,7 @@ x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_9 = l_Lean_IR_IRType_isPossibleRef(x_8);
 x_10 = l_Lean_IR_IRType_isDefiniteRef(x_8);
 lean_dec(x_8);
@@ -11308,7 +11309,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = lean_ctor_get(x_4, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_4, 1);
@@ -12033,9 +12034,9 @@ lean_object* x_153; lean_object* x_154; lean_object* x_155; lean_object* x_156; 
 x_153 = lean_ctor_get(x_151, 0);
 x_154 = lean_ctor_get(x_2, 4);
 x_155 = l_Lean_IR_ExplicitRC_instInhabitedVarInfo_default;
-x_156 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___00Lean_IR_ExplicitRC_getVarInfo_spec__0___redArg(x_154, x_153, x_155);
+x_156 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___00Lean_IR_ExplicitRC_getVarInfo_spec__0___redArg(x_155, x_154, x_153);
 x_157 = lean_ctor_get_uint8(x_156, 0);
-lean_dec_ref(x_156);
+lean_dec(x_156);
 lean_inc(x_153);
 x_158 = l___private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_useVar___at___00__private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_useExpr_spec__0(x_2, x_153, x_152);
 if (x_157 == 0)
@@ -12465,7 +12466,7 @@ lean_object* x_4; lean_object* x_5; size_t x_6; size_t x_7; lean_object* x_8; le
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_6 = lean_array_size(x_1);
 x_7 = 0;
 lean_inc_ref(x_1);

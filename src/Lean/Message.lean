@@ -619,18 +619,18 @@ def indentExpr (e : Expr) : MessageData :=
   indentD e
 
 /--
-Returns the character length of the message when rendered.
+Returns the string-formatted version of MessageData.
 
 Note: this is a potentially expensive operation that is only relevant to message data that are
 actually rendered. Consider using this function in lazy message data to avoid unnecessary
 computation for messages that are not displayed.
 -/
-private def MessageData.formatLength (ctx : PPContext) (msg : MessageData) : BaseIO Nat := do
+private def MessageData.formatExpensively (ctx : PPContext) (msg : MessageData) : BaseIO String := do
   let { env, mctx, lctx, opts, currNamespace, openDecls } := ctx
   -- Simulate the naming context that will be added to the actual message
   let msg := MessageData.withNamingContext { currNamespace, openDecls } msg
   let fmt ← msg.format (some { env, mctx, lctx, opts })
-  return fmt.pretty.length
+  return fmt.pretty
 
 
 /--
@@ -645,7 +645,8 @@ def inlineExpr (e : Expr) (maxInlineLength := 30) : MessageData :=
   .lazy
     (fun ctx => do
       let msg := MessageData.ofExpr e
-      if (← msg.formatLength ctx) > maxInlineLength then
+      let render ← msg.formatExpensively ctx
+      if render.length > maxInlineLength || render.any (· == '\n') then
         return indentD msg ++ "\n"
       else
         return " `" ++ msg ++ "` ")
@@ -660,7 +661,8 @@ def inlineExprTrailing (e : Expr) (maxInlineLength := 30) : MessageData :=
   .lazy
     (fun ctx => do
       let msg := MessageData.ofExpr e
-      if (← msg.formatLength ctx) > maxInlineLength then
+      let render ← msg.formatExpensively ctx
+      if render.length > maxInlineLength || render.any (· == '\n') then
         return indentD msg
       else
         return " `" ++ msg ++ "`")

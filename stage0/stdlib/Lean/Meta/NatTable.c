@@ -507,7 +507,7 @@ lean_dec(x_4);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_38 = lean_array_fget_borrowed(x_3, x_5);
-lean_inc_ref(x_38);
+lean_inc(x_38);
 x_39 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_39, 0, x_38);
 return x_39;

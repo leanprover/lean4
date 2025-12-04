@@ -98,8 +98,9 @@
     cwd: ../compiler/
     cmd: |
       set -eu
+      for f in *.lean; do ../bench/compile.sh $f > /dev/null; done
       printf 'sum binary sizes: '
-      for f in *.lean; do ../bench/compile.sh $f; printf '%s\0' "$f.out"; done | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      for f in *.lean; do printf '%s\0' "$f.out"; done | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
     max_runs: 1
     runner: output
 - attributes:
@@ -266,9 +267,19 @@
 - attributes:
     description: language server startup
     tags: [other]
+  build_config:
+    cmd: ./compile.sh server_startup.lean
   run_config:
     <<: *time
-    cmd: lean -Dlinter.all=false --run server_startup.lean
+    cmd: ./server_startup.lean.out
+- attributes:
+    description: language server startup with ileans
+    tags: [other]
+  build_config:
+    cmd: ./compile.sh watchdogRss.lean
+  run_config:
+    <<: *time
+    cmd: ./watchdogRss.lean.out
 - attributes:
     description: ilean roundtrip
     tags: [other]

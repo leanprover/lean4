@@ -2388,7 +2388,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6;
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 1);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_6 = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_IR_EmitLLVM_emitJp_spec__0___redArg(x_5, x_1);
 lean_dec_ref(x_5);
 if (lean_obj_tag(x_6) == 0)
@@ -8622,7 +8622,7 @@ goto block_41;
 }
 else
 {
-lean_dec_ref(x_21);
+lean_dec(x_21);
 x_12 = x_8;
 x_13 = lean_box(0);
 goto block_17;
@@ -8638,7 +8638,7 @@ block_41:
 lean_object* x_22; lean_object* x_23; 
 x_22 = lean_ctor_get(x_21, 1);
 lean_inc(x_22);
-lean_dec_ref(x_21);
+lean_dec(x_21);
 lean_inc_ref(x_10);
 lean_inc(x_9);
 x_23 = l_Lean_IR_EmitLLVM_toLLVMType(x_1, x_22, x_9, x_10);
@@ -10434,7 +10434,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6;
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_6 = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_IR_EmitLLVM_emitLhsSlot___00spec__0___redArg(x_5, x_1);
 lean_dec_ref(x_5);
 if (lean_obj_tag(x_6) == 0)
@@ -12962,7 +12962,7 @@ x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 x_26 = lean_ctor_get(x_24, 1);
 lean_inc(x_26);
-lean_dec_ref(x_24);
+lean_dec(x_24);
 x_27 = !lean_is_exclusive(x_6);
 if (x_27 == 0)
 {
@@ -27702,7 +27702,7 @@ x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 lean_inc_ref(x_9);
 lean_inc(x_8);
 x_17 = l_Lean_IR_EmitLLVM_declareVar(x_1, x_2, x_15, x_16, x_8, x_9);
@@ -29161,7 +29161,7 @@ x_20 = lean_ctor_get(x_19, 0);
 lean_inc(x_20);
 x_21 = lean_ctor_get(x_19, 1);
 lean_inc(x_21);
-lean_dec_ref(x_19);
+lean_dec(x_19);
 x_22 = l_Lean_IR_EmitLLVM_callLeanMarkPersistentFn___redArg___closed__1;
 x_23 = l_Lean_IR_EmitLLVM_emitArgVal(x_1, x_2, x_21, x_22, x_8, x_9);
 x_24 = lean_ctor_get(x_23, 0);
@@ -30369,7 +30369,7 @@ if (x_4 == 0)
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_array_uget(x_1, x_2);
 x_6 = l_Lean_IR_Alt_isDefault(x_5);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 if (x_6 == 0)
 {
 size_t x_7; size_t x_8; 
@@ -30442,7 +30442,7 @@ x_2 = l_Lean_IR_EmitLLVM_ensureHasDefault_x27___closed__0;
 x_3 = l_Array_back_x21___redArg(x_2, x_1);
 x_4 = lean_array_pop(x_1);
 x_5 = l_Lean_IR_Alt_body(x_3);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_6 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 x_7 = lean_array_push(x_4, x_6);
@@ -32492,7 +32492,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14;
 x_12 = lean_array_uget(x_2, x_4);
 x_13 = lean_ctor_get(x_12, 1);
 lean_inc(x_13);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 lean_inc_ref(x_7);
 lean_inc(x_6);
 x_14 = l_Lean_IR_EmitLLVM_toLLVMType(x_1, x_13, x_6, x_7);
@@ -39612,7 +39612,7 @@ lean_dec(x_25);
 x_27 = lean_array_uget(x_6, x_7);
 x_28 = lean_ctor_get(x_27, 0);
 lean_inc(x_28);
-lean_dec_ref(x_27);
+lean_dec(x_27);
 lean_inc(x_28);
 x_29 = l_Lean_Environment_getModuleIdx_x3f(x_4, x_28);
 if (lean_obj_tag(x_29) == 1)
@@ -39719,7 +39719,7 @@ lean_dec(x_55);
 x_57 = lean_array_uget(x_6, x_7);
 x_58 = lean_ctor_get(x_57, 0);
 lean_inc(x_58);
-lean_dec_ref(x_57);
+lean_dec(x_57);
 lean_inc(x_58);
 x_59 = l_Lean_Environment_getModuleIdx_x3f(x_4, x_58);
 if (lean_obj_tag(x_59) == 1)
@@ -44764,19 +44764,21 @@ if (x_13 == 0)
 lean_object* x_14; size_t x_15; uint8_t x_16; 
 x_14 = lean_array_uget(x_2, x_3);
 x_15 = lean_unbox_usize(x_14);
-lean_dec(x_14);
 x_16 = llvm_is_declaration(x_1, x_15);
 if (x_16 == 0)
 {
-lean_object* x_17; lean_object* x_18; 
-x_17 = lean_llvm_get_value_name2(x_1, x_15);
-x_18 = lean_array_push(x_5, x_17);
-x_7 = x_18;
+size_t x_17; lean_object* x_18; lean_object* x_19; 
+x_17 = lean_unbox_usize(x_14);
+lean_dec(x_14);
+x_18 = lean_llvm_get_value_name2(x_1, x_17);
+x_19 = lean_array_push(x_5, x_18);
+x_7 = x_19;
 x_8 = lean_box(0);
 goto block_12;
 }
 else
 {
+lean_dec(x_14);
 x_7 = x_5;
 x_8 = lean_box(0);
 goto block_12;
@@ -44784,10 +44786,10 @@ goto block_12;
 }
 else
 {
-lean_object* x_19; 
-x_19 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_19, 0, x_5);
-return x_19;
+lean_object* x_20; 
+x_20 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_20, 0, x_5);
+return x_20;
 }
 block_12:
 {
@@ -44873,7 +44875,7 @@ x_12 = lean_llvm_get_named_global(x_1, x_2, x_11);
 if (lean_obj_tag(x_12) == 1)
 {
 lean_object* x_13; uint64_t x_14; size_t x_15; lean_object* x_16; size_t x_17; size_t x_18; 
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
 lean_dec_ref(x_12);
@@ -44897,7 +44899,7 @@ lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean
 lean_dec(x_12);
 x_20 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_IR_emitLLVM_spec__3___closed__1;
 x_21 = lean_string_append(x_20, x_11);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_22 = l_Lean_IR_EmitLLVM_emitSProj___closed__8;
 x_23 = lean_string_append(x_21, x_22);
 x_24 = lean_alloc_ctor(18, 1, 0);
@@ -44937,7 +44939,7 @@ x_12 = lean_llvm_get_named_function(x_1, x_2, x_11);
 if (lean_obj_tag(x_12) == 1)
 {
 lean_object* x_13; uint64_t x_14; size_t x_15; lean_object* x_16; size_t x_17; size_t x_18; 
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
 lean_dec_ref(x_12);
@@ -44961,7 +44963,7 @@ lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean
 lean_dec(x_12);
 x_20 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_IR_emitLLVM_spec__4___closed__0;
 x_21 = lean_string_append(x_20, x_11);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_22 = l_Lean_IR_EmitLLVM_emitSProj___closed__8;
 x_23 = lean_string_append(x_21, x_22);
 x_24 = lean_alloc_ctor(18, 1, 0);
@@ -45048,7 +45050,7 @@ lean_free_object(x_17);
 lean_dec_ref(x_19);
 x_23 = lean_st_ref_get(x_13);
 lean_dec(x_13);
-lean_dec_ref(x_23);
+lean_dec(x_23);
 x_24 = l_Lean_IR_getLeanHBcPath();
 if (lean_obj_tag(x_24) == 0)
 {
@@ -45252,7 +45254,7 @@ lean_object* x_69; lean_object* x_70;
 lean_dec_ref(x_64);
 x_69 = lean_st_ref_get(x_13);
 lean_dec(x_13);
-lean_dec_ref(x_69);
+lean_dec(x_69);
 x_70 = l_Lean_IR_getLeanHBcPath();
 if (lean_obj_tag(x_70) == 0)
 {

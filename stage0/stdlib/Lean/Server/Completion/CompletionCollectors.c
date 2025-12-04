@@ -693,7 +693,7 @@ lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13;
 x_10 = lean_st_ref_get(x_8);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc_ref(x_11);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 x_12 = 0;
 lean_inc(x_2);
 x_13 = l_Lean_Environment_find_x3f(x_11, x_2, x_12);
@@ -1410,7 +1410,7 @@ lean_inc(x_7);
 x_8 = lean_st_ref_get(x_2);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc_ref(x_9);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_10 = l_Lean_mkPrivateName(x_9, x_7);
 lean_dec_ref(x_9);
 x_11 = lean_name_eq(x_10, x_1);
@@ -4174,7 +4174,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean
 x_12 = lean_st_ref_get(x_10);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc_ref(x_13);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_14 = lean_box(x_3);
 lean_inc_ref(x_13);
 x_15 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_CompletionCollectors_0__Lean_Server_Completion_completeNamespaces___lam__0___boxed), 14, 4);
@@ -6060,7 +6060,7 @@ lean_object* x_15; lean_object* x_16; lean_object* x_17;
 lean_dec_ref(x_7);
 x_15 = lean_array_uget(x_4, x_6);
 x_16 = l_Lean_Expr_fvarId_x21(x_15);
-lean_dec_ref(x_15);
+lean_dec(x_15);
 lean_inc_ref(x_8);
 x_17 = l_Lean_FVarId_getDecl___redArg(x_16, x_8, x_10, x_11);
 if (lean_obj_tag(x_17) == 0)
@@ -6443,7 +6443,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_instantiateMVarsCore(x_7, x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -10037,7 +10037,7 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13;
 x_11 = lean_st_ref_get(x_9);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc_ref(x_12);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
@@ -10932,7 +10932,7 @@ lean_inc(x_28);
 if (lean_obj_tag(x_28) == 0)
 {
 lean_dec_ref(x_28);
-lean_dec_ref(x_26);
+lean_dec(x_26);
 lean_dec_ref(x_24);
 lean_dec_ref(x_22);
 lean_dec(x_21);
@@ -10956,7 +10956,7 @@ lean_inc(x_30);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_dec_ref(x_30);
-lean_dec_ref(x_26);
+lean_dec(x_26);
 lean_dec_ref(x_24);
 lean_dec_ref(x_22);
 lean_dec(x_21);
@@ -10976,7 +10976,7 @@ lean_dec_ref(x_30);
 lean_dec_ref(x_29);
 x_31 = lean_ctor_get(x_26, 0);
 lean_inc_ref(x_31);
-lean_dec_ref(x_26);
+lean_dec(x_26);
 lean_inc(x_17);
 lean_inc_ref(x_14);
 lean_inc(x_21);
@@ -11188,7 +11188,7 @@ return x_58;
 }
 else
 {
-lean_dec_ref(x_26);
+lean_dec(x_26);
 lean_dec_ref(x_24);
 lean_dec_ref(x_22);
 lean_dec(x_21);
@@ -11869,7 +11869,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_2);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = l_Lean_instantiateMVarsCore(x_8, x_1);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
@@ -14148,7 +14148,7 @@ lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_obje
 x_11 = lean_st_ref_get(x_9);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc_ref(x_12);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_13 = 0;
 x_14 = l_Lean_getStructureFieldsFlattened(x_12, x_1, x_13);
 x_15 = lean_box(0);
@@ -15666,7 +15666,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = lean_st_ref_get(x_8);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc_ref(x_11);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 x_12 = l_Lean_getErrorExplanationsRaw(x_11);
 x_13 = l___private_Lean_Server_Completion_CompletionCollectors_0__Lean_Server_Completion_trailingDotCompletion___at___00Lean_Server_Completion_errorNameCompletion_spec__0(x_12, x_1, x_2, x_3, x_4);
 lean_dec_ref(x_12);

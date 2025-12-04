@@ -3269,7 +3269,7 @@ x_12 = l_Std_DTreeMap_Internal_Impl_get_x3f___at___00Lake_Package_loadFromEnv_sp
 if (lean_obj_tag(x_12) == 1)
 {
 lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
-lean_dec_ref(x_9);
+lean_dec(x_9);
 lean_dec(x_5);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);

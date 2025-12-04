@@ -1802,7 +1802,7 @@ goto block_9;
 }
 else
 {
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_5 = x_4;
 goto block_9;
 }
@@ -1844,7 +1844,7 @@ goto block_9;
 }
 else
 {
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_5 = x_4;
 goto block_9;
 }
@@ -3871,7 +3871,7 @@ block_23:
 lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; size_t x_20; size_t x_21; 
 x_12 = lean_ctor_get(x_7, 0);
 lean_inc(x_12);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_13 = lean_string_append(x_10, x_11);
 lean_dec_ref(x_11);
 x_14 = 1;
@@ -4627,7 +4627,7 @@ x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_10 = l_Lean_IR_EmitC_declareVar___redArg(x_8, x_9, x_5);
 lean_dec(x_9);
 x_11 = lean_ctor_get(x_10, 0);
@@ -5002,7 +5002,7 @@ return x_25;
 else
 {
 lean_object* x_26; 
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_26 = lean_box(0);
 return x_26;
 }
@@ -7777,7 +7777,7 @@ goto block_9;
 }
 else
 {
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_5 = x_4;
 goto block_9;
 }
@@ -10403,7 +10403,7 @@ goto block_9;
 }
 else
 {
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_5 = x_4;
 goto block_9;
 }
@@ -13743,7 +13743,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_o
 x_8 = lean_array_uget(x_2, x_3);
 x_9 = l_Lean_IR_EmitC_emitMainFn___closed__18;
 x_10 = lean_string_append(x_9, x_8);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_IR_EmitC_emitInitFn_spec__2___closed__0;
 x_12 = lean_string_append(x_10, x_11);
 x_13 = l_Lean_IR_EmitC_emitDeclInit___closed__1;
@@ -13929,7 +13929,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_
 x_9 = lean_array_uget(x_2, x_3);
 x_10 = l_Lean_IR_EmitC_emitMainFn___closed__18;
 x_11 = lean_string_append(x_10, x_9);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_IR_EmitC_emitInitFn_spec__2___closed__0;
 x_13 = lean_string_append(x_11, x_12);
 x_14 = l_Lean_IR_EmitC_emitDeclInit___closed__1;

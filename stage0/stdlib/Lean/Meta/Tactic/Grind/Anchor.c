@@ -318,7 +318,7 @@ lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* 
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_6 = lean_is_matcher(x_5, x_1);
 x_7 = lean_box(x_6);
 x_8 = lean_alloc_ctor(0, 1, 0);
@@ -720,7 +720,7 @@ x_17 = lean_usize_shift_right(x_11, x_16);
 x_18 = lean_nat_add(x_4, x_13);
 lean_dec(x_4);
 lean_inc(x_9);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_19 = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_getAnchor_spec__1_spec__1___redArg(x_5, x_17, x_1, x_8, x_9);
 x_4 = x_18;
 x_5 = x_19;
@@ -1238,7 +1238,7 @@ uint64_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_38; lean_obj
 x_59 = lean_st_ref_get(x_4);
 x_60 = lean_ctor_get(x_59, 9);
 lean_inc_ref(x_60);
-lean_dec_ref(x_59);
+lean_dec(x_59);
 x_61 = l_Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Grind_getAnchor_spec__6___redArg(x_60, x_1);
 if (lean_obj_tag(x_61) == 1)
 {
@@ -1735,7 +1735,7 @@ lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);
 lean_inc_ref(x_9);
-lean_inc_ref(x_23);
+lean_inc(x_23);
 x_26 = l_Lean_Meta_Grind_getAnchor(x_23, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_26) == 0)
 {
@@ -1772,7 +1772,7 @@ lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);
 lean_inc_ref(x_9);
-lean_inc_ref(x_23);
+lean_inc(x_23);
 x_32 = l_Lean_Meta_Grind_getAnchor(x_23, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_32) == 0)
 {
@@ -2417,7 +2417,7 @@ x_16 = 0;
 x_17 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_11, x_2, x_13, x_15, x_16, x_14);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
-lean_dec_ref(x_17);
+lean_dec(x_17);
 if (lean_obj_tag(x_18) == 0)
 {
 return x_3;

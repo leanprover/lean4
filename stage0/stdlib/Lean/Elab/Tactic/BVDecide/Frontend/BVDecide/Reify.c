@@ -3315,11 +3315,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -5261,7 +5261,7 @@ lean_object* x_9; lean_object* x_36; lean_object* x_37; lean_object* x_38;
 x_36 = lean_st_ref_get(x_2);
 x_37 = lean_ctor_get(x_36, 2);
 lean_inc_ref(x_37);
-lean_dec_ref(x_36);
+lean_dec(x_36);
 x_38 = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_Elab_Tactic_BVDecide_Frontend_LemmaM_withBVLogicalCache___at___00__private_Lean_Elab_Tactic_BVDecide_Frontend_BVDecide_Reify_0__Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_of_goOrAtom_spec__0_spec__0___redArg(x_37, x_1);
 lean_dec_ref(x_37);
 if (lean_obj_tag(x_38) == 0)
@@ -7428,7 +7428,7 @@ lean_object* x_9; lean_object* x_36; lean_object* x_37; lean_object* x_38;
 x_36 = lean_st_ref_get(x_2);
 x_37 = lean_ctor_get(x_36, 3);
 lean_inc_ref(x_37);
-lean_dec_ref(x_36);
+lean_dec(x_36);
 x_38 = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_Elab_Tactic_BVDecide_Frontend_LemmaM_withBVLogicalCache___at___00__private_Lean_Elab_Tactic_BVDecide_Frontend_BVDecide_Reify_0__Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_of_goOrAtom_spec__0_spec__0___redArg(x_37, x_1);
 lean_dec_ref(x_37);
 if (lean_obj_tag(x_38) == 0)
@@ -13049,7 +13049,7 @@ lean_object* x_9; lean_object* x_36; lean_object* x_37; lean_object* x_38;
 x_36 = lean_st_ref_get(x_2);
 x_37 = lean_ctor_get(x_36, 1);
 lean_inc_ref(x_37);
-lean_dec_ref(x_36);
+lean_dec(x_36);
 x_38 = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_Elab_Tactic_BVDecide_Frontend_LemmaM_withBVLogicalCache___at___00__private_Lean_Elab_Tactic_BVDecide_Frontend_BVDecide_Reify_0__Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_of_goOrAtom_spec__0_spec__0___redArg(x_37, x_1);
 lean_dec_ref(x_37);
 if (lean_obj_tag(x_38) == 0)

@@ -227,11 +227,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -326,7 +326,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_8 = lean_st_ref_get(x_6);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc_ref(x_9);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 lean_inc(x_1);
 x_10 = lean_has_compile_error(x_9, x_1);
 if (x_10 == 0)
@@ -335,7 +335,7 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean
 x_11 = lean_st_ref_get(x_6);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc_ref(x_12);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_13 = lean_ctor_get(x_5, 2);
 x_14 = l_Lean_Environment_evalConst___redArg(x_12, x_13, x_1, x_2);
 x_15 = l_Lean_ofExcept___at___00Lean_evalConst___at___00Lean_Meta_evalExprCore_spec__4_spec__4___redArg(x_14, x_3, x_4, x_5, x_6);
@@ -501,7 +501,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_instantiateMVarsCore(x_7, x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -706,7 +706,7 @@ if (x_219 == 0)
 {
 lean_dec(x_218);
 lean_dec_ref(x_216);
-lean_dec_ref(x_203);
+lean_dec(x_203);
 goto block_215;
 }
 else
@@ -715,7 +715,7 @@ if (x_219 == 0)
 {
 lean_dec(x_218);
 lean_dec_ref(x_216);
-lean_dec_ref(x_203);
+lean_dec(x_203);
 goto block_215;
 }
 else
@@ -723,7 +723,7 @@ else
 lean_object* x_220; size_t x_221; size_t x_222; uint8_t x_223; 
 x_220 = lean_ctor_get(x_203, 0);
 lean_inc_ref(x_220);
-lean_dec_ref(x_203);
+lean_dec(x_203);
 x_221 = 0;
 x_222 = lean_usize_of_nat(x_218);
 lean_dec(x_218);
@@ -978,7 +978,7 @@ lean_dec_ref(x_107);
 x_108 = lean_st_ref_get(x_103);
 x_109 = lean_ctor_get(x_108, 0);
 lean_inc_ref(x_109);
-lean_dec_ref(x_108);
+lean_dec(x_108);
 x_110 = lean_ctor_get(x_109, 2);
 lean_inc_ref(x_110);
 lean_dec_ref(x_109);
@@ -1007,7 +1007,7 @@ x_126 = lean_ctor_get_uint8(x_102, sizeof(void*)*14 + 1);
 x_127 = lean_ctor_get(x_102, 13);
 x_128 = lean_ctor_get(x_113, 0);
 lean_inc_ref(x_128);
-lean_dec_ref(x_113);
+lean_dec(x_113);
 x_129 = lean_array_to_list(x_97);
 lean_inc(x_99);
 x_130 = lean_alloc_ctor(0, 3, 0);
@@ -1373,7 +1373,7 @@ x_211 = lean_ctor_get(x_204, 7);
 lean_inc_ref(x_211);
 x_212 = lean_ctor_get(x_204, 8);
 lean_inc_ref(x_212);
-lean_dec_ref(x_204);
+lean_dec(x_204);
 lean_inc_ref(x_205);
 x_213 = l_Lean_Environment_importEnv_x3f(x_205);
 if (lean_obj_tag(x_213) == 0)
@@ -1554,7 +1554,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11;
 x_8 = lean_st_ref_get(x_6);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc_ref(x_9);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_10 = l_Lean_setEnv___at___00Lean_withEnv___at___00Lean_Meta_evalExprCore_spec__10_spec__10___redArg(x_1, x_4, x_6);
 lean_dec_ref(x_10);
 lean_inc(x_6);
@@ -1624,7 +1624,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = lean_st_ref_get(x_8);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc_ref(x_11);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 x_12 = lean_box(x_4);
 x_13 = lean_box(x_3);
 x_14 = lean_alloc_closure((void*)(l_Lean_Meta_evalExprCore___redArg___lam__0___boxed), 9, 4);

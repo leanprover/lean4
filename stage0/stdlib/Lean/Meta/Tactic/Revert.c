@@ -180,11 +180,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -347,7 +347,7 @@ goto block_15;
 else
 {
 lean_object* x_27; 
-lean_dec_ref(x_18);
+lean_dec(x_18);
 lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_6);
@@ -416,7 +416,7 @@ goto block_15;
 else
 {
 lean_object* x_37; 
-lean_dec_ref(x_18);
+lean_dec(x_18);
 lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_6);
@@ -467,7 +467,7 @@ else
 {
 uint8_t x_43; 
 lean_dec(x_19);
-lean_dec_ref(x_18);
+lean_dec(x_18);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
@@ -844,14 +844,14 @@ x_36 = lean_st_ref_get(x_15);
 x_37 = lean_ctor_get(x_12, 2);
 x_38 = lean_ctor_get(x_34, 0);
 lean_inc_ref(x_38);
-lean_dec_ref(x_34);
+lean_dec(x_34);
 x_39 = lean_ctor_get(x_35, 2);
 lean_inc_ref(x_39);
-lean_dec_ref(x_35);
+lean_dec(x_35);
 x_40 = lean_ctor_get(x_14, 10);
 x_41 = lean_ctor_get(x_36, 1);
 lean_inc(x_41);
-lean_dec_ref(x_36);
+lean_dec(x_36);
 x_42 = 2;
 lean_inc_ref(x_37);
 lean_inc(x_40);
@@ -1852,14 +1852,14 @@ x_252 = lean_st_ref_get(x_15);
 x_253 = lean_ctor_get(x_12, 2);
 x_254 = lean_ctor_get(x_250, 0);
 lean_inc_ref(x_254);
-lean_dec_ref(x_250);
+lean_dec(x_250);
 x_255 = lean_ctor_get(x_251, 2);
 lean_inc_ref(x_255);
-lean_dec_ref(x_251);
+lean_dec(x_251);
 x_256 = lean_ctor_get(x_14, 10);
 x_257 = lean_ctor_get(x_252, 1);
 lean_inc(x_257);
-lean_dec_ref(x_252);
+lean_dec(x_252);
 x_258 = 2;
 lean_inc_ref(x_253);
 lean_inc(x_256);
@@ -2673,7 +2673,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00Lean_LocalContext_foldlM___at___00Lean_MVarId_revertAfter_spec__0_spec__0_spec__0_spec__0(x_6, x_4);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = 1;
 x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;

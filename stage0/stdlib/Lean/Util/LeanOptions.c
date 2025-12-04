@@ -2395,7 +2395,7 @@ x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc_ref(x_8);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_9 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(x_7, x_8, x_4);
 x_10 = 1;
 x_11 = lean_usize_add(x_2, x_10);

@@ -465,11 +465,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -595,7 +595,7 @@ lean_dec_ref(x_7);
 x_9 = lean_st_ref_get(x_5);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 lean_inc(x_8);
 x_11 = l_Lean_isStructure(x_10, x_8);
 if (x_11 == 0)
@@ -896,7 +896,7 @@ lean_object* x_8; uint8_t x_9; uint8_t x_16; lean_object* x_20; uint8_t x_21;
 x_8 = lean_st_ref_get(x_6);
 x_20 = lean_ctor_get(x_8, 0);
 lean_inc_ref(x_20);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 lean_inc_ref(x_20);
 x_21 = l_Lean_Environment_hasUnsafe(x_20, x_3);
 if (x_21 == 0)
@@ -1174,7 +1174,7 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = l_Lean_Name_isAnonymous(x_2);
 if (x_7 == 0)
 {
@@ -1935,7 +1935,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; uint8_t x_1
 x_8 = lean_st_ref_get(x_6);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc_ref(x_9);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_10 = lean_ctor_get_uint8(x_9, sizeof(void*)*8);
 lean_dec_ref(x_9);
 x_11 = lean_st_ref_take(x_6);
@@ -2814,7 +2814,7 @@ lean_dec_ref(x_110);
 x_133 = lean_st_ref_get(x_113);
 x_134 = lean_ctor_get(x_133, 0);
 lean_inc_ref(x_134);
-lean_dec_ref(x_133);
+lean_dec(x_133);
 lean_inc_ref(x_120);
 lean_inc(x_2);
 x_135 = lean_alloc_ctor(0, 3, 0);
@@ -3006,7 +3006,7 @@ lean_dec_ref(x_110);
 x_174 = lean_st_ref_get(x_113);
 x_175 = lean_ctor_get(x_174, 0);
 lean_inc_ref(x_175);
-lean_dec_ref(x_174);
+lean_dec(x_174);
 lean_inc_ref(x_162);
 lean_inc(x_2);
 x_176 = lean_alloc_ctor(0, 3, 0);
@@ -3474,7 +3474,7 @@ else
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_12 = lean_array_uget(x_2, x_4);
 x_13 = l_Lean_Expr_fvarId_x21(x_12);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 lean_inc_ref(x_6);
 lean_inc(x_13);
 x_14 = l_Lean_FVarId_getDecl___redArg(x_13, x_6, x_7, x_8);
@@ -3638,7 +3638,7 @@ lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10;
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = 0;
 lean_inc(x_1);
 x_10 = l_Lean_Environment_find_x3f(x_8, x_1, x_9);
@@ -5060,7 +5060,7 @@ lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
 lean_inc_ref(x_6);
-lean_inc_ref(x_26);
+lean_inc(x_26);
 x_27 = l_Lean_Meta_isExprDefEqGuarded(x_25, x_26, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_27) == 0)
 {
@@ -5181,7 +5181,7 @@ lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
 lean_inc_ref(x_6);
-lean_inc_ref(x_50);
+lean_inc(x_50);
 x_51 = l_Lean_Meta_isExprDefEqGuarded(x_49, x_50, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_51) == 0)
 {
@@ -5314,7 +5314,7 @@ lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
 lean_inc_ref(x_6);
-lean_inc_ref(x_75);
+lean_inc(x_75);
 x_76 = l_Lean_Meta_isExprDefEqGuarded(x_74, x_75, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_76) == 0)
 {
@@ -5598,7 +5598,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7;
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_6 = lean_get_projection_info(x_5, x_1);
 x_7 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
@@ -6162,7 +6162,7 @@ lean_inc(x_17);
 lean_inc_ref(x_16);
 lean_inc(x_15);
 lean_inc_ref(x_14);
-lean_inc_ref(x_20);
+lean_inc(x_20);
 lean_inc_ref(x_6);
 x_21 = l___private_Lean_Meta_Structure_0__Lean_Meta_etaStruct_x3f_getProjectedExpr(x_4, x_5, x_6, x_13, x_20, x_7, x_14, x_15, x_16, x_17);
 if (lean_obj_tag(x_21) == 0)
@@ -6468,7 +6468,7 @@ lean_dec_ref(x_12);
 x_14 = lean_st_ref_get(x_6);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc_ref(x_15);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_16 = 0;
 lean_inc(x_13);
 x_17 = l_Lean_Environment_find_x3f(x_15, x_13, x_16);
@@ -7382,7 +7382,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_instantiateMVarsCore(x_7, x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);

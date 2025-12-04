@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_ppModuleHeader_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instQueryJsonOfToJson___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OutFormat_noConfusion___redArg___lam__0___boxed(lean_object*);
@@ -107,7 +108,6 @@ LEAN_EXPORT lean_object* l_Lake_instQueryTextUnit___lam__0(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lake_OutFormat_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lake_instQueryText(lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instFormatQueryOfQueryTextOfQueryJson(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Config_OutFormat_0__Lake_instQueryTextModuleHeader;
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -413,7 +413,7 @@ x_5 = lean_unsigned_to_nat(1u);
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_string_utf8_byte_size(x_4);
 lean_inc(x_7);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_8 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_8, 0, x_4);
 lean_ctor_set(x_8, 1, x_6);
@@ -422,7 +422,7 @@ x_9 = l_String_Slice_Pos_prevn(x_8, x_7, x_5);
 lean_dec_ref(x_8);
 x_10 = lean_string_utf8_extract(x_4, x_6, x_9);
 lean_dec(x_9);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 return x_10;
 }
 }

@@ -17426,7 +17426,7 @@ lean_dec(x_5);
 x_15 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_10, x_2, x_13, x_14, x_12);
 x_16 = lean_ctor_get(x_15, 1);
 lean_inc(x_16);
-lean_dec_ref(x_15);
+lean_dec(x_15);
 return x_16;
 }
 }
@@ -17473,7 +17473,7 @@ lean_dec(x_4);
 x_14 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_5, x_9, x_1, x_12, x_13, x_11);
 x_15 = lean_ctor_get(x_14, 1);
 lean_inc(x_15);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 return x_15;
 }
 }

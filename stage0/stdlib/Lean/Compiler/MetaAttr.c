@@ -1082,7 +1082,7 @@ return x_1;
 LEAN_EXPORT uint8_t l_panic___at___00Lean_getIRPhases_spec__0(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
 x_2 = l_panic___at___00Lean_getIRPhases_spec__0___closed__0;
 x_3 = l_panic___at___00Lean_getIRPhases_spec__0___closed__1;
 x_4 = l_panic___at___00Lean_getIRPhases_spec__0___closed__2;
@@ -1105,11 +1105,10 @@ lean_ctor_set(x_11, 1, x_8);
 x_12 = 0;
 x_13 = lean_box(x_12);
 x_14 = l_instInhabitedOfMonad___redArg(x_11, x_13);
-x_15 = lean_unbox(x_14);
-x_16 = lean_box(x_15);
-x_17 = lean_panic_fn(x_16, x_1);
-x_18 = lean_unbox(x_17);
-return x_18;
+x_15 = lean_panic_fn(x_14, x_1);
+x_16 = lean_unbox(x_15);
+lean_dec(x_15);
+return x_16;
 }
 }
 static lean_object* _init_l_Lean_getIRPhases___closed__0() {
@@ -1242,7 +1241,7 @@ x_24 = lean_array_fget(x_6, x_18);
 lean_dec(x_18);
 lean_dec_ref(x_6);
 x_25 = lean_ctor_get_uint8(x_24, sizeof(void*)*1);
-lean_dec_ref(x_24);
+lean_dec(x_24);
 return x_25;
 }
 }

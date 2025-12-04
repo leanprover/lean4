@@ -1316,7 +1316,7 @@ goto block_16;
 else
 {
 lean_object* x_32; 
-lean_inc_ref(x_30);
+lean_inc(x_30);
 lean_dec_ref(x_26);
 lean_dec_ref(x_24);
 x_32 = l_Lean_Expr_rawNatLit_x3f(x_30);
@@ -1747,7 +1747,7 @@ _start:
 lean_object* x_11; lean_object* x_12; 
 x_11 = lean_st_ref_get(x_5);
 x_12 = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00__private_Lean_Meta_Reduce_0__Lean_Meta_reduce_visit_spec__0___redArg(x_11, x_4);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
@@ -1857,7 +1857,7 @@ lean_inc_ref(x_12);
 lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc(x_9);
-lean_inc_ref(x_40);
+lean_inc(x_40);
 x_41 = l___private_Lean_Meta_Reduce_0__Lean_Meta_reduce_visit(x_1, x_2, x_3, x_40, x_9, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_41) == 0)
 {
@@ -1978,7 +1978,7 @@ lean_inc_ref(x_12);
 lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc(x_9);
-lean_inc_ref(x_25);
+lean_inc(x_25);
 x_26 = l___private_Lean_Meta_Reduce_0__Lean_Meta_reduce_visit(x_1, x_2, x_3, x_25, x_9, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_26) == 0)
 {
@@ -2299,7 +2299,7 @@ if (x_13 == 0)
 lean_object* x_14; 
 x_14 = lean_st_ref_get(x_11);
 lean_dec(x_11);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 return x_12;
 }
 else
@@ -2310,7 +2310,7 @@ lean_inc(x_15);
 lean_dec(x_12);
 x_16 = lean_st_ref_get(x_11);
 lean_dec(x_11);
-lean_dec_ref(x_16);
+lean_dec(x_16);
 x_17 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_17, 0, x_15);
 return x_17;

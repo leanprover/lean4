@@ -892,7 +892,7 @@ lean_object* x_15; lean_object* x_16; size_t x_17; size_t x_18; uint8_t x_19;
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 lean_dec_ref(x_14);
-lean_inc_ref(x_12);
+lean_inc(x_12);
 x_16 = l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_updateAltCodeImp(x_12, x_15);
 x_17 = lean_ptr_addr(x_12);
 x_18 = lean_ptr_addr(x_16);
@@ -967,7 +967,7 @@ x_80 = lean_st_ref_get(x_2);
 x_81 = lean_ctor_get(x_75, 0);
 x_82 = lean_ctor_get(x_75, 3);
 x_83 = l_Std_DHashMap_Internal_Raw_u2080_contains___at___00Lean_Compiler_LCNF_ElimDead_elimDead_spec__0___redArg(x_80, x_81);
-lean_dec_ref(x_80);
+lean_dec(x_80);
 if (x_83 == 0)
 {
 lean_object* x_84; 
@@ -1073,7 +1073,7 @@ x_102 = lean_st_ref_get(x_2);
 x_103 = lean_ctor_get(x_75, 0);
 x_104 = lean_ctor_get(x_75, 3);
 x_105 = l_Std_DHashMap_Internal_Raw_u2080_contains___at___00Lean_Compiler_LCNF_ElimDead_elimDead_spec__0___redArg(x_102, x_103);
-lean_dec_ref(x_102);
+lean_dec(x_102);
 if (x_105 == 0)
 {
 lean_object* x_106; 
@@ -1580,7 +1580,7 @@ lean_dec_ref(x_32);
 x_34 = lean_st_ref_get(x_26);
 x_35 = lean_ctor_get(x_24, 0);
 x_36 = l_Std_DHashMap_Internal_Raw_u2080_contains___at___00Lean_Compiler_LCNF_ElimDead_elimDead_spec__0___redArg(x_34, x_35);
-lean_dec_ref(x_34);
+lean_dec(x_34);
 if (x_36 == 0)
 {
 uint8_t x_37; lean_object* x_38; 
@@ -1915,7 +1915,7 @@ if (x_10 == 0)
 lean_object* x_11; 
 x_11 = lean_st_ref_get(x_8);
 lean_dec(x_8);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 return x_9;
 }
 else
@@ -1926,7 +1926,7 @@ lean_inc(x_12);
 lean_dec(x_9);
 x_13 = lean_st_ref_get(x_8);
 lean_dec(x_8);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_14 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_14, 0, x_12);
 return x_14;

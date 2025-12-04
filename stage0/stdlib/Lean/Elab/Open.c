@@ -2890,7 +2890,7 @@ lean_dec(x_114);
 x_125 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_115, x_120, x_112, x_123, x_124, x_122);
 x_126 = lean_ctor_get(x_125, 1);
 lean_inc(x_126);
-lean_dec_ref(x_125);
+lean_dec(x_125);
 x_51 = x_126;
 goto block_111;
 }

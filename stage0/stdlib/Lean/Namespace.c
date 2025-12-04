@@ -1196,7 +1196,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = lean_array_get_size(x_6);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = lean_nat_add(x_4, x_7);
 lean_dec(x_7);
 lean_dec(x_4);
@@ -1227,7 +1227,7 @@ x_16 = lean_nat_dec_lt(x_14, x_15);
 if (x_16 == 0)
 {
 lean_dec(x_15);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_7 = x_6;
 goto block_11;
 }
@@ -1238,7 +1238,7 @@ x_17 = lean_nat_dec_le(x_15, x_15);
 if (x_17 == 0)
 {
 lean_dec(x_15);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_7 = x_6;
 goto block_11;
 }
@@ -1249,7 +1249,7 @@ x_18 = 0;
 x_19 = lean_usize_of_nat(x_15);
 lean_dec(x_15);
 x_20 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_mkStateFromImportedEntries___at___00Lean_initFn_00___x40_Lean_Namespace_3179752022____hygCtx___hyg_2__spec__12_spec__12___redArg(x_13, x_18, x_19, x_6);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_7 = x_20;
 goto block_11;
 }

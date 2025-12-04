@@ -3892,7 +3892,7 @@ lean_dec_ref(x_10);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; 
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_12 = 1;
 x_13 = lean_usize_add(x_6, x_12);
 {

@@ -114,11 +114,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -1680,7 +1680,7 @@ x_5 = 1;
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l_Lean_Meta_mkInstPiOfInstForall___closed__3;
 x_8 = l_Lean_Expr_isAppOf(x_6, x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 if (x_8 == 0)
 {
 return x_5;
@@ -1721,7 +1721,7 @@ x_7 = 1;
 x_13 = lean_array_uget(x_3, x_4);
 x_14 = l_Lean_Meta_mkInstPiOfInstForall___closed__5;
 x_15 = l_Lean_Expr_isAppOf(x_13, x_14);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 if (x_15 == 0)
 {
 x_8 = x_1;

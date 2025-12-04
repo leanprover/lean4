@@ -271,7 +271,8 @@ jobs:
                 // `reverse-ffi` fails to link in sanitizers
                 // `interactive` and `async_select_channel` fail nondeterministically, would need to
                 // be investigated.
-                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel'"
+                // 9366 is too close to timeout
+                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel|9366'"
               },
               {
                 "name": "macOS",

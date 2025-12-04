@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_Doc_getRecommendedSpellingString___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Parser_Term_Doc_getRecommendedSpellingsForName_spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Parser_Term_Doc_initFn___lam__1___closed__0_00___x40_Lean_Parser_Term_Doc_383197578____hygCtx___hyg_2_;
@@ -132,7 +133,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___00__private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet_spec__5___boxed(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Parser_Term_Doc_initFn_00___x40_Lean_Parser_Term_Doc_383197578____hygCtx___hyg_2__spec__4___closed__0;
 static lean_object* l_String_Slice_split___at___00__private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet_spec__0___closed__0;
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -969,7 +969,7 @@ if (x_10 == 0)
 lean_object* x_11; 
 lean_dec(x_7);
 lean_dec(x_3);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_11 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_11, 0, x_8);
 return x_11;
@@ -1070,7 +1070,7 @@ x_16 = lean_nat_dec_lt(x_14, x_15);
 if (x_16 == 0)
 {
 lean_dec(x_15);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_7 = x_6;
 goto block_11;
 }
@@ -1084,7 +1084,7 @@ x_19 = lean_nat_dec_le(x_14, x_18);
 if (x_19 == 0)
 {
 lean_dec(x_18);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_7 = x_6;
 goto block_11;
 }
@@ -1098,7 +1098,7 @@ lean_ctor_set(x_20, 0, x_1);
 lean_ctor_set(x_20, 1, x_2);
 x_21 = l_Array_binSearchAux___at___00Lean_Parser_Term_Doc_getRecommendedSpellingsForName_spec__0___redArg(x_13, x_20, x_14, x_18);
 lean_dec_ref(x_20);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 if (lean_obj_tag(x_21) == 1)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
@@ -1150,7 +1150,7 @@ x_9 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(
 lean_dec_ref(x_4);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Parser_Term_Doc_initFn_00___x40_Lean_Parser_Term_Doc_383197578____hygCtx___hyg_2__spec__4___closed__0;
 x_12 = lean_array_size(x_10);
 x_13 = 0;

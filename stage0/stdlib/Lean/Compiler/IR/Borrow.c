@@ -2119,7 +2119,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; 
 x_8 = lean_array_uget(x_2, x_3);
 x_9 = l_Lean_IR_Alt_body(x_8);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 lean_inc(x_1);
 x_10 = l_Lean_IR_Borrow_InitParamMap_visitFnBody(x_1, x_9, x_6);
 x_11 = lean_ctor_get(x_10, 0);
@@ -2220,7 +2220,7 @@ goto block_12;
 else
 {
 lean_object* x_25; 
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_25 = lean_box(0);
 x_7 = x_25;
 x_8 = x_6;
@@ -5795,7 +5795,7 @@ lean_object* x_11; lean_object* x_12; uint8_t x_13;
 x_11 = lean_array_uget(x_1, x_2);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_13 = l_Std_DTreeMap_Internal_Impl_contains___at___00Lean_IR_Borrow_ownArgsIfParam_spec__0___redArg(x_12, x_4);
 if (x_13 == 0)
 {
@@ -6154,7 +6154,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; 
 x_8 = lean_array_uget(x_1, x_2);
 x_9 = l_Lean_IR_Alt_body(x_8);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 lean_inc_ref(x_5);
 x_10 = l_Lean_IR_Borrow_collectFnBody(x_9, x_5, x_6);
 x_11 = lean_ctor_get(x_10, 0);
@@ -6575,7 +6575,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 lean_inc_ref(x_1);
 x_6 = l_Lean_IR_Borrow_infer(x_5, x_1);
 x_7 = l_Lean_IR_Borrow_ApplyParamMap_visitDecls(x_1, x_6);

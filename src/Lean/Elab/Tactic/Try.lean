@@ -61,7 +61,7 @@ def evalSuggestExact : TacticM (TSyntax `tactic) := do
   let mvarId :: mvarIds ← getGoals
     | throwError "no goals"
   mvarId.withContext do
-    let tactic := fun exfalso => LibrarySearch.solveByElim [] (exfalso := exfalso) (maxDepth := 6)
+    let tactic := fun goals => LibrarySearch.solveByElim [] (exfalso := false) goals (maxDepth := 6)
     let allowFailure := fun _ => return false
     let .none ← LibrarySearch.librarySearch mvarId tactic allowFailure
       | throwError "`exact?` failed"
@@ -886,7 +886,7 @@ private def mkAtomicWithSuggestionsStx : CoreM (TSyntax `tactic) :=
 
 /-- `simple` tactics -/
 private def mkSimpleTacStx : CoreM (TSyntax `tactic) :=
-  `(tactic| attempt_all | rfl | assumption)
+  `(tactic| first | (attempt_all | rfl | assumption) | solve_by_elim)
 
 /-! Function induction generators -/
 

@@ -170,7 +170,7 @@ instance : FromJson DeclInfo where
 
 /-- Declarations of a file with associated position information. -/
 @[expose] def Decls := Std.TreeMap String DeclInfo
-  deriving EmptyCollection, ForIn Id
+  deriving EmptyCollection, ForIn Id, ForInNew Id
 
 instance : ToJson Decls where
   toJson m := Json.mkObj <| m.toList.map fun (declName, info) => (declName, toJson info)

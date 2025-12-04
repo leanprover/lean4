@@ -39,7 +39,7 @@ def coercionsBannedInCore : List Name := [``optionCoe, ``instCoeSubarrayArray]
 def coeLinter : Linter where
   run := fun _ => do
     let mainModule ← getMainModule
-    let isCoreModule := mainModule = `lean.run.coeLinter ∨ (mainModule.getRoot ∈ [`Init, `Std])
+    let isCoreModule := mainModule = `lean.run.linterCoe ∨ (mainModule.getRoot ∈ [`Init, `Std])
     let shouldWarnOnDeprecated := getLinterValue linter.deprecatedCoercions (← getLinterOptions)
     let trees ← Elab.getInfoTrees
     for tree in trees do

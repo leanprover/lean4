@@ -1,7 +1,7 @@
 module
 
 -- by default, linters are disabled when running tests
-set_option linter.deprecatedCoercions true
+set_option linter.all true
 
 structure X
 structure Y
@@ -27,6 +27,7 @@ Note: This linter can be disabled with `set_option linter.deprecatedCoercions fa
 #guard_msgs in
 def h (foo : X) : Y := foo
 
+/-- -/
 notation a " +' " b => a + b
 
 @[deprecated "" (since := "")]

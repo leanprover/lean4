@@ -299,14 +299,6 @@ grind_pattern Nodup.sublist => l₁ <+ l₂, Nodup l₂
 theorem Sublist.nodup : l₁ <+ l₂ → Nodup l₂ → Nodup l₁ :=
   Nodup.sublist
 
-theorem nodup_filter_of_nodup {α : Type u} {l : List α} (h : l.Nodup) {p : α → Bool} :
-    (l.filter p).Nodup := by
-  induction l with
-  | nil => simp
-  | cons hd tl ih =>
-    simp only [List.nodup_cons, List.filter] at h ⊢
-    split <;> simp [h, ih]
-
 theorem getElem?_inj {xs : List α}
     (h₀ : i < xs.length) (h₁ : Nodup xs) (h₂ : xs[i]? = xs[j]?) : i = j := by
   induction xs generalizing i j with

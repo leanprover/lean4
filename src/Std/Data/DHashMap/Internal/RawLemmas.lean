@@ -5301,9 +5301,8 @@ theorem fst_partition_equiv_filter [EquivBEq α] [LawfulHashable α]
   rw [equiv_iff_toList_perm_toList]
   apply List.Perm.trans _ (toList_filter m).symm
   apply List.Perm.of_nodup_of_nodup_of_forall_mem_iff_mem
-  · apply nodup_toList
-    apply Raw.WF.fst_partition₀
-  · apply List.nodup_filter_of_nodup (nodup_toList _ h)
+  · apply nodup_toList _ Raw.WF.fst_partition₀
+  · apply List.Sublist.nodup List.filter_sublist (nodup_toList m h)
   · intro a
     simp [mem_toList_fst_partition _ h]
 

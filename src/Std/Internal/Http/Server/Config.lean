@@ -44,12 +44,12 @@ structure Config where
   /--
   Timeout for keep-alive connections
   -/
-  keepAliveTimeout : { x : Time.Millisecond.Offset // 0 < x } :=  ⟨45000, by decide⟩
+  keepAliveTimeout : { x : Time.Millisecond.Offset // 0 < x } :=  ⟨12000, by decide⟩
 
   /--
   Maximum timeout time for request more data.
   -/
-  requestTimeout : { x : Time.Millisecond.Offset // 0 < x } := ⟨10000, by decide⟩
+  requestTimeout : { x : Time.Millisecond.Offset // 0 < x } := ⟨13000, by decide⟩
 
   /--
   Whether to enable keep-alive connections by default.

@@ -37,17 +37,12 @@ inductive Reader.State (dir : Direction) : Type
   /--
   State waiting for chunk body data of specified size.
   -/
-  | needChunkedBody : Nat → State dir
+  | needChunkedBody : Array (String × Option String) → Nat → State dir
 
   /--
   State waiting for fixed-length body data of specified size.
   -/
   | needFixedBody : Nat → State dir
-
-  /--
-  Requires the outgoing message to continue.
-  -/
-  | requireOutgoing : Body.Length → State dir
 
   /--
   State that it completed a single request and can go to the next one

@@ -103,11 +103,6 @@ structure Writer (dir : Direction) where
   -/
   userClosedBody : Bool := false
 
-  /--
-  Can send data to the output, it's used when the connection is closed and cannot send more data.
-  -/
-  canSendData : Bool := true
-
 namespace Writer
 
 /--

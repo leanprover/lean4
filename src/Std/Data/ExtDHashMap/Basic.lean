@@ -409,22 +409,6 @@ theorem eq_of_beq [LawfulBEq α] [BEq β] [LawfulBEq β] (m₁ m₂ : ExtDHashMa
 
 end Const
 
-namespace Const
-
-@[inline, inherit_doc DHashMap.beq]
-def beqUnit [LawfulBEq α] (m₁ m₂ : ExtDHashMap α fun _ => Unit) : Bool := lift₂ (fun x y : DHashMap α fun _ => Unit => DHashMap.Const.beq x y)
-  (fun _ _ _ _ => DHashMap.Const.Equiv.beq_congr) m₁ m₂
-
-theorem beqUnit_of_eq [LawfulBEq α] (m₁ m₂ : ExtDHashMap α fun _ => Unit) (h : m₁ = m₂) : Const.beqUnit m₁ m₂ := by
-  apply beq_of_eq
-  exact h
-
-theorem eq_of_beqUnit [LawfulBEq α] (m₁ m₂ : ExtDHashMap α fun _ => Unit) (h : Const.beqUnit m₁ m₂) : m₁ = m₂ := by
-  apply eq_of_beq
-  exact h
-
-end Const
-
 @[inline, inherit_doc DHashMap.inter]
 def inter [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtDHashMap α β) : ExtDHashMap α β := lift₂ (fun x y : DHashMap α β => mk (x.inter y))
   (fun a b c d equiv₁ equiv₂ => by

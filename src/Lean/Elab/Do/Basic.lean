@@ -316,7 +316,6 @@ def synthUsingDefEq (msg : String) (expected : Expr) (actual : Expr) : DoElabM U
   unless ← isDefEq expected actual do
     throwError "Failed to synthesize {msg}. {expected} is not definitionally equal to {actual}."
 
-
 /--
 Has the effect of ``e >>= fun (x : eResultTy) => $(← k `(x))``.
 -/
@@ -339,26 +338,6 @@ in the `TermElabM` result. This makes it possible to run multiple `DoElabM` comp
 -/
 def controlAtTermElabM (k : (runInBase : ∀ {β}, DoElabM β → TermElabM β) → TermElabM α) : DoElabM α := fun ctx ref => do
   k (· ctx ref)
-
-/--
-A variant of `Term.elabType` that takes the universe of the monad into account, unless
-`freshLevel` is set.
-If you are elaborating a binder `x` without a type ascription, use `mkHole x` instead for the type.
--/
-def elabType (ty : TSyntax `term) (freshLevel := false) : DoElabM Expr := do
-  let u ← if freshLevel then mkFreshLevelMVar else (mkLevelSucc ·.monadInfo.u) <$> read
-  let sort := mkSort u
-  Term.elabTermEnsuringType ty sort
-
-private partial def withPendingMVars (k : TermElabM α) : TermElabM (α × List MVarId) := do
-  let pendingMVarsSaved := (← get).pendingMVars
-  modify fun s => { s with pendingMVars := [] }
-  try
-    let a ← k
-    let pendingMVars := (← get).pendingMVars
-    return (a, pendingMVars)
-  finally
-    modify fun s => { s with pendingMVars := s.pendingMVars ++ pendingMVarsSaved }
 
 /--
 The subset of `mutVars` that were reassigned in any of the `childCtxs` relative to the given

@@ -8250,23 +8250,23 @@ theorem containsKey_minKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l
   obtain ⟨e, ⟨hm, _⟩, rfl⟩ := hkm
   exact containsKey_of_mem hm
 
-theorem le_of_min_eq [Ord α] [TransOrd α] [LE α] [Min α] [Std.LawfulOrderOrd α] [Std.LawfulOrderMin α] [Std.LawfulOrderLeftLeaningMin α] (a b : α) (h1 : min a b = a) (h2 : a ≠ b) : a ≤ b := by
+theorem Std.LawfulOrderLeftLeaningMin.le_of_min_eq [LE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] (a b : α) (h1 : min a b = a) (h2 : a ≠ b) : a ≤ b := by
   apply Classical.byContradiction
   intro hyp
   rw [LawfulOrderLeftLeaningMin.min_eq_right a b hyp] at h1
   rw [eq_comm] at h1
   exact h2 h1
 
-theorem le_of_min_eq2 [Ord α] [TransOrd α] [LE α] [Min α] [Std.LawfulOrderOrd α] [Std.LawfulOrderMin α] [Std.LawfulOrderLeftLeaningMin α] (a b : α) (h1 : min a b = b) (h2 : a ≠ b) : ¬ a ≤ b := by
+theorem Std.LawfulOrderLeftLeaningMin.not_le_of_min_eq [LE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] (a b : α) (h1 : min a b = b) (h2 : a ≠ b) : ¬ a ≤ b := by
   intro hyp
   rw [LawfulOrderLeftLeaningMin.min_eq_left a b hyp] at h1
   exact h2 h1
 
-theorem trans_lemma [Ord α] [TransOrd α] [LE α] [Std.LawfulOrderOrd α] {a b c : α} : a ≤ b → b ≤ c → a ≤ c := by
+theorem Std.LawfulOrderOrd.le_trans [Ord α] [TransOrd α] [LE α] [Std.LawfulOrderOrd α] {a b c : α} : a ≤ b → b ≤ c → a ≤ c := by
   intro h1 h2
   exact (LawfulOrderOrd.isLE_compare a c).1 <| TransOrd.isLE_trans ((LawfulOrderOrd.isLE_compare a b).2 h1) ((LawfulOrderOrd.isLE_compare b c).2 h2)
 
-theorem total [Ord α] [OrientedOrd α] [LE α] [Std.LawfulOrderOrd α] (a b : α) : a ≤ b ∨ b ≤ a := by
+theorem Std.LawfulOrderOrd.le_total [Ord α] [OrientedOrd α] [LE α] [Std.LawfulOrderOrd α] (a b : α) : a ≤ b ∨ b ≤ a := by
   rw [← LawfulOrderOrd.isLE_compare a b, ← LawfulOrderOrd.isLE_compare b a]
   rw [OrientedOrd.eq_swap]
   simp
@@ -8300,7 +8300,7 @@ instance [Ord α] [OrientedOrd α] [TransOrd α] [Std.LawfulEqOrd α] [LE α] [M
         simp [a_eq_b, IdempotentOp.idempotent]
       case neg =>
         apply LawfulOrderLeftLeaningMin.min_eq_left
-        have := total a b
+        have := Std.LawfulOrderOrd.le_total a b
         simp [a_le_b] at this
         exact this
 
@@ -8333,9 +8333,9 @@ instance [Ord α] [TransOrd α] [LE α] [Min α] [Std.LawfulOrderOrd α] [Std.La
           case pos =>
             rw [← hbc, h1]
           case neg =>
-            have w1 := le_of_min_eq a b h1 hab
-            have w2 := le_of_min_eq b c h2 hbc
-            exact LawfulOrderLeftLeaningMin.min_eq_left a c (trans_lemma w1 w2)
+            have w1 := Std.LawfulOrderLeftLeaningMin.le_of_min_eq a b h1 hab
+            have w2 := Std.LawfulOrderLeftLeaningMin.le_of_min_eq b c h2 hbc
+            exact LawfulOrderLeftLeaningMin.min_eq_left a c (Std.LawfulOrderOrd.le_trans w1 w2)
         case right =>
           intro h2
           rw [h2]
@@ -8370,14 +8370,14 @@ instance [Ord α] [TransOrd α] [LE α] [Min α] [Std.LawfulOrderOrd α] [Std.La
             case left =>
               intro h3
               rw [h3]
-              have w1 := le_of_min_eq2 a b h1 hab
-              have w2 := le_of_min_eq2 b c h2 hbc
-              have w3 := le_of_min_eq a c h3
+              have w1 := Std.LawfulOrderLeftLeaningMin.not_le_of_min_eq a b h1 hab
+              have w2 := Std.LawfulOrderLeftLeaningMin.not_le_of_min_eq b c h2 hbc
+              have w3 := Std.LawfulOrderLeftLeaningMin.le_of_min_eq a c h3
               apply Classical.byContradiction
               intro hn
               specialize w3 (Ne.symm hn)
-              have v1 := total a b
-              have v2 := total b c
+              have v1 := Std.LawfulOrderOrd.le_total a b
+              have v2 := Std.LawfulOrderOrd.le_total b c
               simp [w1] at v1
               simp [w2] at v2
               have a_leq_b := (LawfulOrderOrd.isLE_compare a b).1 <| TransOrd.isLE_trans ((LawfulOrderOrd.isLE_compare a c).2 w3) ((LawfulOrderOrd.isLE_compare c b).2 v2)

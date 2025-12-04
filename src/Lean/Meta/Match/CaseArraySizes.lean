@@ -68,7 +68,7 @@ def caseArraySizes (mvarId : MVarId) (fvarId : FVarId) (sizes : Array Nat) (xNam
     let mvarId ← mvarId.assertExt `aSize (mkConst `Nat) aSize
     let (aSizeFVarId, mvarId) ← mvarId.intro1
     let (hEq, mvarId) ← mvarId.intro1
-    let subgoals ← caseValues mvarId aSizeFVarId (sizes.map mkRawNatLit) hNamePrefix
+    let subgoals ← caseValues mvarId aSizeFVarId (sizes.map mkRawNatLit) hNamePrefix (substNewEqs := false)
     subgoals.mapIdxM fun i subgoal => do
       let subst  := subgoal.subst
       let mvarId := subgoal.mvarId

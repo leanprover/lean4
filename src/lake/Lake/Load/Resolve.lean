@@ -71,8 +71,7 @@ abbrev DepStackT m := CallStackT Name m
 
 @[inline] nonrec def DepStackT.run
   (x : DepStackT m α) (stack : DepStack := {})
-: m α :=
-  x.run stack
+: m α := x.run stack
 
 /-- Log dependency cycle and error. -/
 @[specialize] def depCycleError [MonadError m] (cycle : Cycle Name) : m α :=
@@ -86,8 +85,7 @@ abbrev ResolveT m := DepStackT <| StateT Workspace m
 
 @[inline] nonrec def ResolveT.run
   (ws : Workspace) (x : ResolveT m α) (stack : DepStack := {})
-: m (α × Workspace) :=
-  x.run stack |>.run ws
+: m (α × Workspace) := x.run stack |>.run ws
 
 /-- Recursively run a `ResolveT` monad starting from the workspace's root. -/
 @[specialize] private def Workspace.runResolveT
@@ -102,7 +100,7 @@ abbrev ResolveT m := DepStackT <| StateT Workspace m
 /-
 Recursively visits each node in a package's dependency graph, starting from
 the workspace package `root`. Each dependency missing from the workspace is
-resolved using the `resolve` function and added into the workspace.
+resolved using the `load` function and added into the workspace.
 
 Recursion occurs breadth-first. Each direct dependency of a package is
 resolved in reverse order before recursing to the dependencies' dependencies.
@@ -121,7 +119,7 @@ where
     -- Materialize and load the missing direct dependencies of `pkg`
     pkg.depConfigs.forRevM fun dep => do
       let ws ← getWorkspace
-      if ws.packageMap.contains dep.name then
+      if ws.packages.any (·.baseName == dep.name) then
         return -- already handled in another branch
       if pkg.baseName = dep.name then
         error s!"{pkg.prettyName}: package requires itself (or a package with the same name)"

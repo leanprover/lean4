@@ -28,7 +28,7 @@ open Lean (Name)
 /-- Fetch the package's direct dependencies. -/
 private def Package.recFetchDeps (self : Package) : FetchM (Job (Array Package)) := ensureJob do
   (pure ·) <$> self.depConfigs.mapM fun cfg => do
-    let some dep ← findPackageByKey? cfg.name
+    let some dep ← findPackageByName? cfg.name
       | error s!"{self.prettyName}: package not found for dependency '{cfg.name}' \
         (this is likely a bug in Lake)"
     return dep
@@ -40,7 +40,7 @@ public def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
 /-- Compute a topological ordering of the package's transitive dependencies. -/
 private def Package.recComputeTransDeps (self : Package) : FetchM (Job (Array Package)) := ensureJob do
   (pure ·.toArray) <$> self.depConfigs.foldlM (init := OrdPackageSet.empty) fun deps cfg => do
-    let some dep ← findPackageByKey? cfg.name
+    let some dep ← findPackageByName? cfg.name
       | error s!"{self.prettyName}: package not found for dependency '{cfg.name}' \
         (this is likely a bug in Lake)"
     let depDeps ← (← fetch <| dep.transDeps).await

@@ -183,10 +183,9 @@ def LetOrReassign.checkMutVars (letOrReassign : LetOrReassign) (vars : Array Ide
 def elabDoLetOrReassignWith (hint : MessageData) (letOrReassign : LetOrReassign) (vars : Array Ident)
     (dec : DoElemCont) (elabBody : (body : Term) → TermElabM Expr) : DoElabM Expr := do
   -- letOrReassign.checkMutVars vars -- Should be done by the caller!
-  controlAtTermElabM fun runInBase => do
-    let elabCont : TermElabM Expr := do
-      runInBase <| declareMutVars? letOrReassign.getLetMutTk? vars dec.continueWithUnit
-    Term.elabToSyntax (hint? := hint) (fun _ty? => elabCont) fun body => elabBody body
+  let elabCont : DoElabM Expr := do
+    declareMutVars? letOrReassign.getLetMutTk? vars dec.continueWithUnit
+  doElabToSyntax hint elabCont fun body => elabBody body
 
 def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl)
     (dec : DoElemCont) : DoElabM Expr := do
@@ -227,10 +226,6 @@ def elabDoLetOrReassignElse (letOrReassign : LetOrReassign) (pattern rhs : Term)
     (otherwise : TSyntax ``doSeq) (dec : DoElemCont) : DoElabM Expr := do
   let vars ← getPatternVarsEx pattern
   letOrReassign.checkMutVars vars
-  let γ := (← read).doBlockResultType
-  let mγ ← mkMonadicType γ
-  let otherwise ← elabDoSeq otherwise (← DoElemCont.mkPure γ)
-  let otherwise ← Term.exprToSyntax otherwise
   -- For plain variable reassignment, we infer the LHS as a term and use that as the expected type
   -- of the RHS:
   let pattern ←
@@ -240,6 +235,12 @@ def elabDoLetOrReassignElse (letOrReassign : LetOrReassign) (pattern rhs : Term)
       `(($pattern : $patType))
     else
       pure pattern
+  -- It's important we take the `doBlockResultType` from within the `match` arm here!
+  let otherwiseElab := do elabDoSeq otherwise (← DoElemCont.mkPure (← read).doBlockResultType)
+  -- ... and not this one, which might be refined by a dependent `match` as in test case `doLetElse`
+  let γ := (← read).doBlockResultType
+  let mγ ← mkMonadicType γ
+  doElabToSyntax m!"else case of {pattern}" otherwiseElab fun otherwise => do
   elabDoLetOrReassignWith m!"let body of {pattern}" letOrReassign vars dec fun body => do
     Term.elabTerm (← `(match $rhs:term with | $pattern => $body | _ => $otherwise)) mγ (catchExPostpone := false)
 
@@ -330,15 +331,13 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   let `(doIf|if $cond:doIfCond then $thenSeq $[else if $conds:doIfCond then $thenSeqs]* $[else $elseSeq?]?) := stx | throwUnsupportedSyntax
   let mγ ← mkMonadicType (← read).doBlockResultType
   dec.withDuplicableCont fun dec => do
-  controlAtTermElabM fun runInBase => do
-  let elabToTerm hint termElab := Term.elabToSyntax (hint? := hint) (fun _ => termElab)
-  let doElemToTerm doElem := elabToTerm m!"if branch {doElem}" (runInBase <| elabDoSeq doElem dec)
+  let doElemToTerm doElem := doElabToSyntax m!"if branch {doElem}" (elabDoSeq doElem dec)
   let condsThens := #[(cond, thenSeq)] ++ Array.zip conds thenSeqs
-  let rec loop (i : Nat) : TermElabM Expr := do
+  let rec loop (i : Nat) : DoElabM Expr := do
     if h : i < condsThens.size then
       let (cond, thenSeq) := condsThens[i]
       doElemToTerm thenSeq fun then_ => do
-      elabToTerm m!"else branch of {cond}" (loop (i + 1)) fun else_ => do
+      doElabToSyntax m!"else branch of {cond}" (loop (i + 1)) fun else_ => do
       match cond with
       | `(doIfCond|$cond) =>
         Term.elabTerm (← `(if $cond then $then_ else $else_)) mγ (catchExPostpone := false)
@@ -347,16 +346,16 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
       | `(doIfCond|$h:ident : $cond) =>
         Term.elabTerm (← `(if $h:ident : $cond then $then_ else $else_)) mγ (catchExPostpone := false)
       | `(doIfCond|let $pat := $d) =>
-        runInBase <| checkMutVarsForShadowing (← getPatternVarsEx pat)
+        checkMutVarsForShadowing (← getPatternVarsEx pat)
         Term.elabTerm (← `(match $d:term with | $pat => $then_ | _ => $else_)) mγ (catchExPostpone := false)
       | `(doIfCond|let $pat ← $rhs) =>
-        runInBase <| checkMutVarsForShadowing (← getPatternVarsEx pat)
+        checkMutVarsForShadowing (← getPatternVarsEx pat)
         let x ← Term.mkFreshIdent pat
-        runInBase <| elabDoIdDecl x none (← `(doElem| $rhs:term)) do
+        elabDoIdDecl x none (← `(doElem| $rhs:term)) do
           Term.elabTerm (← `(match $x:term with | $pat => $then_ | _ => $else_)) mγ (catchExPostpone := false)
       | _ => throwUnsupportedSyntax
     else
-      runInBase <| match elseSeq? with
+      match elseSeq? with
       | some elseSeq => elabDoSeq elseSeq dec
       | none         => dec.continueWithUnit
   loop 0
@@ -372,14 +371,13 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
       alts
   let mγ ← mkMonadicType (← read).doBlockResultType
   dec.withDuplicableCont fun dec => do
-  controlAtTermElabM fun runInBase => do
     let rec elabMatch i (alts : Array (TSyntax ``Term.matchAlt)) := do
       if h : i < alts.size then
         match alts[i] with
         | `(matchAltExpr| | $patterns,* => $seq) =>
           let vars ← getPatternsVarsEx patterns
-          runInBase <| checkMutVarsForShadowing vars
-          Term.elabToSyntax (hint? := m!"match alternative {patterns.getElems}") (fun _ => runInBase <| elabDoSeq ⟨seq⟩ dec) fun rhs => do
+          checkMutVarsForShadowing vars
+          doElabToSyntax m!"match alternative {patterns.getElems}" (elabDoSeq ⟨seq⟩ dec) fun rhs => do
             elabMatch (i + 1) (alts.set i (← `(matchAltExpr| | $patterns,* => $rhs)))
         | _ => throwUnsupportedSyntax
       else
@@ -397,14 +395,13 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
 where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts) (dec : DoElemCont) : DoElabM Expr := do
   let mγ ← mkMonadicType (← read).doBlockResultType
   dec.withDuplicableCont fun dec => do
-  controlAtTermElabM fun runInBase => do
     let rec elabMatch i (altsArr : Array (TSyntax ``Term.matchExprAlt)) := do
       if h : i < altsArr.size then
         match altsArr[i] with
         | `(matchExprAltExpr| | $pattern => $seq) =>
           let vars ← getExprPatternVarsEx pattern
-          runInBase <| checkMutVarsForShadowing vars
-          Term.elabToSyntax (hint? := m!"match_expr alternative {pattern}") (fun _ => runInBase <| elabDoSeq ⟨seq⟩ dec) fun rhs => do
+          checkMutVarsForShadowing vars
+          doElabToSyntax m!"match_expr alternative {pattern}" (elabDoSeq ⟨seq⟩ dec) fun rhs => do
             elabMatch (i + 1) (altsArr.set i (← `(matchExprAltExpr| | $pattern => $rhs)))
         | _ => throwUnsupportedSyntax
       else
@@ -418,11 +415,10 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
   let mγ ← mkMonadicType γ
   let otherwise ← elabDoSeq otherwise (← DoElemCont.mkPure γ)
   let otherwise ← Term.exprToSyntax otherwise
-  controlAtTermElabM fun runInBase => do
-    let vars ← getExprPatternVarsEx pattern
-    runInBase <| checkMutVarsForShadowing vars
-    Term.elabToSyntax (hint? := m!"let_expr body of {pattern}") (fun _ => runInBase <| dec.continueWithUnit) fun body => do
-      Term.elabTerm (← `(match_expr $rhs with | $pattern => $body | _ => $otherwise)) mγ (catchExPostpone := false)
+  let vars ← getExprPatternVarsEx pattern
+  checkMutVarsForShadowing vars
+  doElabToSyntax m!"let_expr body of {pattern}" dec.continueWithUnit fun body => do
+    Term.elabTerm (← `(match_expr $rhs with | $pattern => $body | _ => $otherwise)) mγ (catchExPostpone := false)
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetMetaExpr] def elabDoLetMetaExpr : DoElab := fun stx dec => do
   let `(doLetMetaExpr| let_expr $pattern:matchExprPat ← $rhs:term | $otherwise) := stx | throwUnsupportedSyntax

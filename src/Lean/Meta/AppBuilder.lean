@@ -37,25 +37,6 @@ def mkExpectedTypeHint (e : Expr) (expectedType : Expr) : MetaM Expr := do
   let u ← getLevel expectedType
   return mkExpectedTypeHintCore e expectedType u
 
-/--
-`mkLetFun x v e` creates `letFun v (fun x => e)`.
-The expression `x` can either be a free variable or a metavariable, and the function suitably abstracts `x` in `e`.
--/
-@[deprecated mkLetFVars (since := "2026-06-29")]
-def mkLetFun (x : Expr) (v : Expr) (e : Expr) : MetaM Expr := do
-  -- If `x` is an `ldecl`, then the result of `mkLambdaFVars` is a let expression.
-  let ensureLambda : Expr → Expr
-    | .letE n t _ b _ => .lam n t b .default
-    | e@(.lam ..)     => e
-    | _               => unreachable!
-  let f ← ensureLambda <$> mkLambdaFVars (usedLetOnly := false) #[x] e
-  let ety ← inferType e
-  let α ← inferType x
-  let β ← ensureLambda <$> mkLambdaFVars (usedLetOnly := false) #[x] ety
-  let u1 ← getLevel α
-  let u2 ← getLevel ety
-  return mkAppN (.const ``letFun [u1, u2]) #[α, β, v, f]
-
 /-- Returns `a = b`. -/
 def mkEq (a b : Expr) : MetaM Expr := do
   let aType ← inferType a

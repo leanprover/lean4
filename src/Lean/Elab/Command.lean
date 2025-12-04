@@ -859,19 +859,6 @@ def liftCommandElabM (cmd : CommandElabM α) (throwOnError : Bool := true) : Cor
   -- `observing` ensures that if `cmd` throws an exception we still thread state back to `CoreM`.
   MonadExcept.ofExcept (← liftCommandElabMCore (observing cmd) throwOnError)
 
-/--
-Given a command elaborator `cmd`, returns a new command elaborator that
-first evaluates any local `set_option ... in ...` clauses and then invokes `cmd` on what remains.
--/
-partial def withSetOptionIn (cmd : CommandElab) : CommandElab := fun stx => do
-  if stx.getKind == ``Lean.Parser.Command.in &&
-     stx[0].getKind == ``Lean.Parser.Command.set_option then
-      let opts ← Elab.elabSetOption stx[0][1] stx[0][3]
-      Command.withScope (fun scope => { scope with opts }) do
-        withSetOptionIn cmd stx[2]
-  else
-    cmd stx
-
 export Elab.Command (Linter addLinter)
 
 end Lean

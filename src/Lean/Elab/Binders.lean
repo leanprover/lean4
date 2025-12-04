@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Elab.Match
 meta import Lean.Parser.Tactic
-import Lean.Linter.Basic
 
 public section
 
@@ -942,12 +941,6 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (initConfig : L
 
 @[builtin_term_elab «have»] def elabHaveDecl : TermElab :=
   fun stx expectedType? => elabLetDeclCore stx expectedType? { nondep := true }
-
-@[builtin_term_elab «let_fun»] def elabLetFunDecl : TermElab :=
-  fun stx expectedType? => do
-    withRef stx <| Linter.logLintIf Linter.linter.deprecated stx[0]
-      "`let_fun` has been deprecated in favor of `have`"
-    elabLetDeclCore stx expectedType? { nondep := true }
 
 @[builtin_term_elab «let_delayed»] def elabLetDelayedDecl : TermElab :=
   fun stx expectedType? => elabLetDeclCore stx expectedType? { postponeValue := true }

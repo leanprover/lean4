@@ -52,7 +52,7 @@ def coeLinter : Linter where
                 logWarningAt ci.stx m!"This term uses the coercion `{coeDecl}`, which is banned in Lean's core library."
               if shouldWarnOnDeprecated then
                 let some attr := deprecatedAttr.getParam? (← getEnv) coeDecl | pure ()
-                logWarningAt ci.stx <| .tagged ``deprecatedAttr <|
+                logLint linter.deprecatedCoercions ci.stx <| .tagged ``deprecatedAttr <|
                   m!"This term uses the deprecated coercion `{.ofConstName coeDecl true}`."
         | _ => pure ()
         return true) (fun _ _ _ _ => return)

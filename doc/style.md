@@ -1183,7 +1183,9 @@ part of the syntax.
 there’s exactly one). The section should consist of a sequence of code
 blocks, each showing a Lean declaration (usually with the `example`
 keyword) that invokes the tactic. When the effect of the tactic is not
-clear from the code, you can use code comments to describe this.
+clear from the code, you can use code comments to describe this. Do
+not include text between examples, because it can be unclear whether
+the text refers to the code before or after the example.
 
 ##### Example
 

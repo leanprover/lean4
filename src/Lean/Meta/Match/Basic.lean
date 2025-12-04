@@ -6,8 +6,14 @@ Authors: Leonardo de Moura
 module
 
 prelude
+public import Lean.Meta.Basic
+public import Lean.Meta.Tactic.FVarSubst
 public import Lean.Meta.CollectFVars
-public import Lean.Meta.Match.CaseArraySizes
+import Lean.Meta.Match.Value
+import Lean.Meta.AppBuilder
+import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Assert
+import Lean.Meta.Tactic.Subst
 
 public section
 

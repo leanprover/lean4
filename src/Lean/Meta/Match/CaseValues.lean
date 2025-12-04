@@ -6,29 +6,25 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Tactic.Subst
-public import Lean.Meta.Match.Value
-
-public section
+public import Lean.Meta.Basic
+public import Lean.Meta.Tactic.FVarSubst
+import Lean.Meta.Tactic.Subst
 
 namespace Lean.Meta
 
 structure CaseValueSubgoal where
   mvarId : MVarId
   newH   : FVarId
-  subst  : FVarSubst := {}
   deriving Inhabited
 
 /--
   Split goal `... |- C x` into two subgoals
-  `..., (h : x = value)  |- C value`
+  `..., (h : x = value)  |- C x`
   `..., (h : x != value) |- C x`
   where `fvarId` is `x`s id.
   The type of `x` must have decidable equality.
-
-  Remark: `subst` field of the second subgoal is equal to the input `subst`. -/
-private def caseValueAux (mvarId : MVarId) (fvarId : FVarId) (value : Expr) (hName : Name := `h)
-    (subst : FVarSubst := {})
+ -/
+def caseValue (mvarId : MVarId) (fvarId : FVarId) (value : Expr) (hName : Name := `h)
     : MetaM (CaseValueSubgoal × CaseValueSubgoal) :=
   mvarId.withContext do
     let tag ← mvarId.getTag
@@ -43,18 +39,16 @@ private def caseValueAux (mvarId : MVarId) (fvarId : FVarId) (value : Expr) (hNa
     let val ← mkAppOptM `dite #[none, xEqValue, none, thenMVar, elseMVar]
     mvarId.assign val
     let (elseH, elseMVarId) ← elseMVar.mvarId!.intro1P
-    let elseSubgoal := { mvarId := elseMVarId, newH := elseH, subst := subst : CaseValueSubgoal }
+    let elseSubgoal := { mvarId := elseMVarId, newH := elseH }
     let (thenH, thenMVarId) ← thenMVar.mvarId!.intro1P
     thenMVarId.withContext do
-      trace[Meta] "subst domain: {subst.domain.map (·.name)}"
-      let thenH := (subst.get thenH).fvarId!
       trace[Meta] "searching for decl"
       let _ ← thenH.getDecl
       trace[Meta] "found decl"
-    let thenSubgoal := { mvarId := thenMVarId, newH := (subst.get thenH).fvarId!, subst : CaseValueSubgoal }
+    let thenSubgoal := { mvarId := thenMVarId, newH := thenH }
     pure (thenSubgoal, elseSubgoal)
 
-structure CaseValuesSubgoal where
+public structure CaseValuesSubgoal where
   mvarId : MVarId
   newHs  : Array FVarId := #[]
   subst  : FVarSubst := {}
@@ -75,18 +69,14 @@ structure CaseValuesSubgoal where
 
   If `substNewEqs = true`, then the new `h_i` equality hypotheses are substituted in the first `n` cases.
 -/
-def caseValues (mvarId : MVarId) (fvarId : FVarId) (values : Array Expr) (hNamePrefix := `h) : MetaM (Array CaseValuesSubgoal) :=
+public def caseValues (mvarId : MVarId) (fvarId : FVarId) (values : Array Expr) (hNamePrefix := `h) : MetaM (Array CaseValuesSubgoal) :=
   let rec loop : Nat → MVarId → List Expr → Array FVarId → Array CaseValuesSubgoal → MetaM (Array CaseValuesSubgoal)
     | _, mvarId, [],    _,  _        => throwTacticEx `caseValues mvarId "list of values must not be empty"
     | i, mvarId, v::vs, hs, subgoals => do
-      let (thenSubgoal, elseSubgoal) ← caseValueAux mvarId fvarId v (hNamePrefix.appendIndexAfter i) {}
+      let (thenSubgoal, elseSubgoal) ← caseValue mvarId fvarId v (hNamePrefix.appendIndexAfter i)
       appendTagSuffix thenSubgoal.mvarId ((`case).appendIndexAfter i)
-      let thenMVarId ← hs.foldlM
-        (fun thenMVarId h => match thenSubgoal.subst.get h with
-          | Expr.fvar fvarId => thenMVarId.tryClear fvarId
-          | _                => pure thenMVarId)
-        thenSubgoal.mvarId
-      let (subst, mvarId) ← substCore thenMVarId thenSubgoal.newH (symm := false) thenSubgoal.subst (clearH := true)
+      let thenMVarId ← thenSubgoal.mvarId.tryClearMany  hs
+      let (subst, mvarId) ← substCore thenMVarId thenSubgoal.newH (symm := false) {} (clearH := true)
       let subgoals := subgoals.push { mvarId := mvarId, newHs := #[], subst := subst }
       match vs with
       | [] => do

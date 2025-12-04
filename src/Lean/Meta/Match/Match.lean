@@ -13,6 +13,8 @@ public import Lean.Meta.Match.Basic
 public import Lean.Meta.Match.MatcherApp.Basic
 public import Lean.Meta.Match.MVarRenaming
 import Lean.Meta.HasNotBit
+import Lean.Meta.Match.CaseArraySizes
+import Lean.Meta.Match.CaseValues
 
 public section
 

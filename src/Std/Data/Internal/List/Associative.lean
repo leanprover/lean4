@@ -3617,7 +3617,7 @@ theorem length_le_length_of_containsKey [BEq α] [EquivBEq α]
           simp [mem]
       · exact dl₂
 
-theorem containsKey_of_subset_of_length_eq [BEq α] [EquivBEq α] {l₁ l₂ : List ((a : α) × β a)} (dl₁ : DistinctKeys l₁) (dl₂ : DistinctKeys l₂) (hl : l₂.length = l₁.length) (hs : ∀ (a : α), containsKey a l₁ → containsKey a l₂)  : ∀ (a : α), containsKey a l₂ → containsKey a l₁ := by
+theorem containsKey_of_length_eq [BEq α] [EquivBEq α] {l₁ l₂ : List ((a : α) × β a)} (dl₁ : DistinctKeys l₁) (dl₂ : DistinctKeys l₂) (hl : l₂.length = l₁.length) (hs : ∀ (a : α), containsKey a l₁ → containsKey a l₂)  : ∀ (a : α), containsKey a l₂ → containsKey a l₁ := by
   intro a ha
   apply Classical.byContradiction
   intro hb
@@ -7692,7 +7692,7 @@ theorem perm_of_beqModel [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, Law
       by_cases hc₂ : containsKey a l₂
       case pos =>
         suffices (∀ (a : α), containsKey a l₁ = true → containsKey a l₂ = true) by
-          rw [@containsKey_of_subset_of_length_eq α β _ _ l₁ l₂ hl₁ hl₂ he.symm this a hc₂] at hc₁
+          rw [@containsKey_of_length_eq α β _ _ l₁ l₂ hl₁ hl₂ he.symm this a hc₂] at hc₁
           contradiction
         intro k' mem
         have := eq_of_beq <| hyp2 k' mem

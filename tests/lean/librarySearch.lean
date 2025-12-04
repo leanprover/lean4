@@ -350,7 +350,7 @@ info: Try this:
   -- Remaining subgoals:
   -- ⊢ 2 ≠ 0
 ---
-warning: declaration uses 'sorry'
+warning: declaration `«example»` uses `sorry`
 -/
 #guard_msgs in
 example {x : Int} (h : x ≠ 0) : 2 * x ≠ 0 := by

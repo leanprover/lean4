@@ -7,7 +7,7 @@ s.b - s.a
 /--
 info: 25
 ---
-warning: declaration uses 'sorry'
+warning: declaration `_private.lean.run.compiler_proj_bug.0._eval` uses `sorry`
 -/
 #guard_msgs in
 #eval! f {a := 5, b := 30, h := sorry }

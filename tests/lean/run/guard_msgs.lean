@@ -19,16 +19,16 @@ error: Unknown identifier `x`
 example : α := x
 
 #guard_msgs in
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration `«example»` uses `sorry` -/
 #guard_msgs in
 example : α := sorry
 
 #guard_msgs in
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration `«example»` uses `sorry` -/
 #guard_msgs(warning) in
 example : α := sorry
 
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration `«example»` uses `sorry` -/
 #guard_msgs in
 #guard_msgs(error) in
 example : α := sorry

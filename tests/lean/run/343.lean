@@ -23,7 +23,7 @@ unif_hint (mvar : CatIsh) where
 structure CtxSyntaxLayerParamsObj where
   Ct : CatIsh
 
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration `CtxSyntaxLayerParams` uses `sorry` -/
 #guard_msgs in
 def CtxSyntaxLayerParams : CatIsh :=
   {

@@ -68,20 +68,55 @@ def wasOriginallyTheorem (env : Environment) (declName : Name) : Bool :=
   getOriginalConstKind? env declName |>.map (· matches .thm) |>.getD false
 
 /-- If `warn.sorry` is set to true, then, so long as the message log does not already have any errors,
-declarations with `sorryAx` generate the "declaration uses 'sorry'" warning. -/
+declarations with `sorryAx` generate the "declaration uses `sorry`" warning. -/
 register_builtin_option warn.sorry : Bool := {
   defValue := true
   descr    := "warn about uses of `sorry` in declarations added to the environment"
 }
 
+/-- Returns true if a name component is an internal auxiliary suffix that should
+be stripped for user-facing messages. Uses the same criteria as `Name.isInternalDetail`
+for leaf components: names starting with `_`, or matching patterns like `proof_N`, `eq_N`, etc. -/
+private def isAuxiliarySuffix (s : String) : Bool :=
+  s.startsWith "_" ||
+  matchPrefix s "eq_" ||
+  matchPrefix s "match_" ||
+  matchPrefix s "proof_" ||
+  matchPrefix s "omega_"
+where
+  /-- Check that a string begins with the given prefix, and then is only digits/'_'. -/
+  matchPrefix (s : String) (pre : String) :=
+    s.startsWith pre && (s.drop pre.length).all fun c => c.isDigit || c == '_'
+
+/-- Get displayable names for a declaration, for use in sorry warnings.
+Strips auxiliary suffixes from the leaf component so users see the original declaration name.
+For anonymous declarations like `_example`, displays as `example`. -/
+def Declaration.namesForSorry (decl : Declaration) : List Name :=
+  let stripAuxiliarySuffix (n : Name) : Name := match n with
+    | .str parent s =>
+      -- Only strip if parent is not anonymous (to avoid stripping the entire name)
+      if !parent.isAnonymous && isAuxiliarySuffix s then parent else n
+    | _ => n
+  let cleanupName (n : Name) : Name :=
+    let n := stripAuxiliarySuffix n
+    if n == `_example then `example else n
+  decl.getTopLevelNames.map cleanupName
+
 /--
 If the `warn.sorry` option is set to true and there are no errors in the log already,
-logs a warning if the declaration uses `sorry`.
+logs a warning if the declaration uses `sorry`, including the declaration name(s).
 -/
 def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
   if warn.sorry.get (← getOptions) then
     if !(← MonadLog.hasErrors) && decl.hasSorry then
-      -- Find an actual sorry expression to use for 'sorry'.
+      let declNames := decl.namesForSorry
+      -- Format declaration names, each individually quoted so they're clickable
+      -- Use proper grammar: "declaration ... uses" vs "declarations ... use"
+      let (declWord, useWord, declNamesMsg) : String × String × MessageData := match declNames with
+        | [] => ("declaration", "uses", m!"<anonymous>")
+        | [n] => ("declaration", "uses", m!"`{.ofConstName n}`")
+        | ns => ("declarations", "use", MessageData.joinSep (ns.map fun n => m!"`{.ofConstName n}`") ", ")
+      -- Find an actual sorry expression to use for `sorry`.
       -- That way the user can hover over it to see its type and use "go to definition" if it is a labeled sorry.
       let findSorry : StateRefT (Array (Bool × MessageData)) MetaM Unit := decl.forEachSorryM fun s => do
         let s' ← addMessageContext s
@@ -91,10 +126,10 @@ def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
       -- These can appear without logged errors if `decl` is referring to declarations with elaboration errors;
       -- that's where a user should direct their focus.
       if let some (_, s) := sorries.find? (·.1) <|> sorries[0]? then
-        logWarning <| .tagged `hasSorry m!"declaration uses '{s}'"
+        logWarning <| .tagged `hasSorry m!"{declWord} {declNamesMsg} {useWord} `{s}`"
       else
         -- This case should not happen, but it ensures a warning will get logged no matter what.
-        logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
+        logWarning <| .tagged `hasSorry m!"{declWord} {declNamesMsg} {useWord} `sorry`"
 
 builtin_initialize
   registerTraceClass `addDecl

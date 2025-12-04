@@ -34,20 +34,20 @@ fun n m l => ↑n + (↑m + ↑l) : Nat → Nat → Nat → Int
   • [Command] @ ⟨7, 0⟩-⟨7, 48⟩ @ Lean.Elab.Command.elabCheck
     • [Term] fun n m l => ↑n + (↑m + ↑l) : Nat → Nat → Nat → Int @ ⟨7, 7⟩-⟨7, 48⟩ @ Lean.Elab.Term.elabFun
       • [Term] Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩ @ Lean.Elab.Term.elabIdent
-        • [Completion-Id] Nat : some Sort.{?_uniq.815} @ ⟨7, 20⟩-⟨7, 23⟩
+        • [Completion-Id] Nat : some Sort.{?_uniq} @ ⟨7, 20⟩-⟨7, 23⟩
         • [Term] Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩
       • [Term] n (isBinder := true) : Nat @ ⟨7, 12⟩-⟨7, 13⟩
       • [Term] Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩ @ Lean.Elab.Term.elabIdent
-        • [Completion-Id] Nat : some Sort.{?_uniq.817} @ ⟨7, 20⟩-⟨7, 23⟩
+        • [Completion-Id] Nat : some Sort.{?_uniq} @ ⟨7, 20⟩-⟨7, 23⟩
         • [Term] Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩
       • [Term] m (isBinder := true) : Nat @ ⟨7, 14⟩-⟨7, 15⟩
       • [Term] Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩ @ Lean.Elab.Term.elabIdent
-        • [Completion-Id] Nat : some Sort.{?_uniq.819} @ ⟨7, 20⟩-⟨7, 23⟩
+        • [Completion-Id] Nat : some Sort.{?_uniq} @ ⟨7, 20⟩-⟨7, 23⟩
         • [Term] Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩
       • [Term] l (isBinder := true) : Nat @ ⟨7, 16⟩-⟨7, 17⟩
       • [Term] ↑n + (↑m + ↑l) : Int @ ⟨7, 28⟩-⟨7, 48⟩ @ Lean.Elab.Term.elabTypeAscription
         • [Term] Int : Type @ ⟨7, 44⟩-⟨7, 47⟩ @ Lean.Elab.Term.elabIdent
-          • [Completion-Id] Int : some Sort.{?_uniq.821} @ ⟨7, 44⟩-⟨7, 47⟩
+          • [Completion-Id] Int : some Sort.{?_uniq} @ ⟨7, 44⟩-⟨7, 47⟩
           • [Term] Int : Type @ ⟨7, 44⟩-⟨7, 47⟩
         • [Term] ↑n + (↑m + ↑l) : Int @ ⟨7, 29⟩-⟨7, 41⟩ @ «_aux_Init_Notation___macroRules_term_+__2»
           • [MacroExpansion]
@@ -63,7 +63,7 @@ fun n m l => ↑n + (↑m + ↑l) : Nat → Nat → Nat → Int
                 • [Term] n : Nat @ ⟨7, 29⟩-⟨7, 30⟩ @ Lean.Elab.Term.elabIdent
                   • [Completion-Id] n : none @ ⟨7, 29⟩-⟨7, 30⟩
                   • [Term] n : Nat @ ⟨7, 29⟩-⟨7, 30⟩
-                • [Term] ↑m + ↑l : Int @ ⟨7, 34⟩-⟨7, 40⟩ @ «_aux_binopInfoTree___macroRules_term_+'__1»
+                • [Term] ↑m + ↑l : Int @ ⟨7, 34⟩-⟨7, 40⟩ @ «_aux_lean_binopInfoTree___macroRules_term_+'__1»
                   • [MacroExpansion]
                     m +' l
                     ===>

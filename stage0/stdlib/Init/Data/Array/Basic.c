@@ -538,7 +538,6 @@ LEAN_EXPORT lean_object* l_Array_all___lam__0___boxed(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Array_allM___lam__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__List_toArrayAux_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_isEqvAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_flatten___lam__0(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Data__Array__Basic______macroRules__term_x23_x5b___x2c_x5d__1___closed__9;
 static lean_object* l_Array_insertIdx_x21___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Array_findSomeM_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -561,6 +560,7 @@ LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_allDiffAuxAux(lea
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_toListImpl___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_findSomeM_x3f___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Array_flatten___closed__0;
 static lean_object* l___auto___closed__3_00___x40_Init_Data_Array_Basic_2605673588____hygCtx___hyg_9_;
 LEAN_EXPORT lean_object* l_Array_zipWithAll(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -728,7 +728,6 @@ LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f(lean_object*, lean_object*, le
 static lean_object* l_Array_zip___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Array_zipWithMAux___at___00Array_zip_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Data__Array__Basic______macroRules__term_x23_x5b___x2c_x5d__1___closed__2;
-LEAN_EXPORT lean_object* l_Array_flatten___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_any___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapIdxM___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -8601,21 +8600,12 @@ return x_12;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_flatten___lam__0(lean_object* x_1, lean_object* x_2) {
+static lean_object* _init_l_Array_flatten___closed__0() {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Array_append___redArg(x_1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Array_flatten___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Array_flatten___lam__0(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Array_append___redArg___boxed), 2, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Array_flatten(lean_object* x_1, lean_object* x_2) {
@@ -8646,7 +8636,7 @@ return x_3;
 else
 {
 lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; 
-x_9 = lean_alloc_closure((void*)(l_Array_flatten___lam__0___boxed), 2, 0);
+x_9 = l_Array_flatten___closed__0;
 x_10 = 0;
 x_11 = lean_usize_of_nat(x_5);
 lean_dec(x_5);
@@ -8684,7 +8674,7 @@ return x_2;
 else
 {
 lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
-x_8 = lean_alloc_closure((void*)(l_Array_flatten___lam__0___boxed), 2, 0);
+x_8 = l_Array_flatten___closed__0;
 x_9 = 0;
 x_10 = lean_usize_of_nat(x_4);
 lean_dec(x_4);
@@ -12000,6 +11990,8 @@ l_Array_instAppend___closed__0 = _init_l_Array_instAppend___closed__0();
 lean_mark_persistent(l_Array_instAppend___closed__0);
 l_Array_instHAppendList___closed__0 = _init_l_Array_instHAppendList___closed__0();
 lean_mark_persistent(l_Array_instHAppendList___closed__0);
+l_Array_flatten___closed__0 = _init_l_Array_flatten___closed__0();
+lean_mark_persistent(l_Array_flatten___closed__0);
 l_Array_filter___closed__0 = _init_l_Array_filter___closed__0();
 lean_mark_persistent(l_Array_filter___closed__0);
 l_Array_filterRevM___closed__0 = _init_l_Array_filterRevM___closed__0();

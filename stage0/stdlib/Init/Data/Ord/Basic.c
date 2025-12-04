@@ -28,7 +28,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__List_compareLex_matc
 LEAN_EXPORT lean_object* l_instDecidableRelLe___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ord_opposite___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instInhabitedOrdering;
-LEAN_EXPORT lean_object* l_instOrdOrdering___lam__0___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_compareOn___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprOrdering_repr(uint8_t, lean_object*);
 LEAN_EXPORT uint8_t l_Ord_opposite___redArg___lam__0(lean_object*, lean_object*, lean_object*);
@@ -68,7 +67,7 @@ LEAN_EXPORT uint8_t l_Ord_lex_x27___redArg___lam__0(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_compareOn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__Ordering_swap_match__1_splitter___redArg(uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_lt_elim(lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instOrdOrdering___lam__0(uint8_t);
+static lean_object* l_instOrdOrdering___closed__0;
 LEAN_EXPORT lean_object* l_Ord_lex(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprOrdering;
 LEAN_EXPORT uint8_t l_instDecidableRelLt___redArg(lean_object*, lean_object*, lean_object*);
@@ -162,6 +161,7 @@ LEAN_EXPORT uint8_t l_List_compareLex___redArg(lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Ord_toLT___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_compareOfLessAndBEq(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT uint8_t l_Ordering_instDecidableForallOfDecidablePred(lean_object*, lean_object*);
+static lean_object* l_instOrdOrdering___closed__1;
 LEAN_EXPORT lean_object* l_instOrdNat;
 LEAN_EXPORT lean_object* l_Ord_on(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_compareLex(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1694,28 +1694,19 @@ x_3 = l_instOrdOption___redArg(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_instOrdOrdering___lam__0(uint8_t x_1) {
+static lean_object* _init_l_instOrdOrdering___closed__0() {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Ordering_ctorIdx(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Ordering_ctorIdx___boxed), 1, 0);
+return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_instOrdOrdering___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = lean_unbox(x_1);
-x_3 = l_instOrdOrdering___lam__0(x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_instOrdOrdering() {
+static lean_object* _init_l_instOrdOrdering___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_alloc_closure((void*)(l_instOrdOrdering___lam__0___boxed), 1, 0);
+x_1 = l_instOrdOrdering___closed__0;
 x_2 = l_instOrdFin___closed__0;
 x_3 = lean_alloc_closure((void*)(l_compareOn___boxed), 6, 4);
 lean_closure_set(x_3, 0, lean_box(0));
@@ -1723,6 +1714,14 @@ lean_closure_set(x_3, 1, lean_box(0));
 lean_closure_set(x_3, 2, x_2);
 lean_closure_set(x_3, 3, x_1);
 return x_3;
+}
+}
+static lean_object* _init_l_instOrdOrdering() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_instOrdOrdering___closed__1;
+return x_1;
 }
 }
 LEAN_EXPORT uint8_t l_List_compareLex___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2466,6 +2465,10 @@ l_instOrdFin___closed__0 = _init_l_instOrdFin___closed__0();
 lean_mark_persistent(l_instOrdFin___closed__0);
 l_instOrdChar = _init_l_instOrdChar();
 lean_mark_persistent(l_instOrdChar);
+l_instOrdOrdering___closed__0 = _init_l_instOrdOrdering___closed__0();
+lean_mark_persistent(l_instOrdOrdering___closed__0);
+l_instOrdOrdering___closed__1 = _init_l_instOrdOrdering___closed__1();
+lean_mark_persistent(l_instOrdOrdering___closed__1);
 l_instOrdOrdering = _init_l_instOrdOrdering();
 lean_mark_persistent(l_instOrdOrdering);
 return lean_io_result_mk_ok(lean_box(0));

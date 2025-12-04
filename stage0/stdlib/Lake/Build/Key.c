@@ -78,10 +78,10 @@ LEAN_EXPORT lean_object* l_Lake_BuildKey_facet_elim___redArg(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___00__private_Lake_Build_Key_0__Lake_PartialBuildKey_parse_parseTarget_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_PartialBuildKey_parse___closed__5;
 LEAN_EXPORT lean_object* l___private_Lake_Build_Key_0__Lake_PartialBuildKey_parse_parsePackageTarget___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_BuildKey_instToString___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PartialBuildKey_toString(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedBuildKey_default;
+static lean_object* l_Lake_BuildKey_instToString___closed__0;
 LEAN_EXPORT lean_object* l_Lake_BuildKey_toSimpleString(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildKey_packageModule_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instReprBuildKey_repr___boxed(lean_object*, lean_object*);
@@ -2630,19 +2630,19 @@ return x_13;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_BuildKey_instToString___lam__0(lean_object* x_1) {
+static lean_object* _init_l_Lake_BuildKey_instToString___closed__0() {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lake_BuildKey_toString(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lake_BuildKey_toString), 1, 0);
+return x_1;
 }
 }
 static lean_object* _init_l_Lake_BuildKey_instToString() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_BuildKey_instToString___lam__0), 1, 0);
+x_1 = l_Lake_BuildKey_instToString___closed__0;
 return x_1;
 }
 }
@@ -3304,6 +3304,8 @@ l_Lake_PartialBuildKey_instToString___closed__0 = _init_l_Lake_PartialBuildKey_i
 lean_mark_persistent(l_Lake_PartialBuildKey_instToString___closed__0);
 l_Lake_PartialBuildKey_instToString = _init_l_Lake_PartialBuildKey_instToString();
 lean_mark_persistent(l_Lake_PartialBuildKey_instToString);
+l_Lake_BuildKey_instToString___closed__0 = _init_l_Lake_BuildKey_instToString___closed__0();
+lean_mark_persistent(l_Lake_BuildKey_instToString___closed__0);
 l_Lake_BuildKey_instToString = _init_l_Lake_BuildKey_instToString();
 lean_mark_persistent(l_Lake_BuildKey_instToString);
 return lean_io_result_mk_ok(lean_box(0));

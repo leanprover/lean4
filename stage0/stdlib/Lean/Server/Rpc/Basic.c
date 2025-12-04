@@ -31,7 +31,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_erase___at___00Lean_Server_rpc
 lean_object* l_Lean_Json_mkObj(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_eraseAux___at___00Lean_PersistentHashMap_erase___at___00Lean_Server_rpcReleaseRef_spec__12_spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_rpcGetRef___redArg___closed__6;
-lean_object* l_instHashableUSize___lam__0___boxed(lean_object*);
 static lean_object* l_Lean_Server_instRpcEncodableArray___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedWithRpcRef_default___redArg(lean_object*);
 lean_object* l_Prod_toJson___redArg(lean_object*, lean_object*, lean_object*);
@@ -172,6 +171,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodableProd___redArg___lam__1(le
 lean_object* l_instMonadExceptOfExceptTOfMonad___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_rpcGetRef___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_finIdxOf_x3f___at___00Lean_PersistentHashMap_eraseAux___at___00Lean_PersistentHashMap_erase___at___00Lean_Server_rpcReleaseRef_spec__8_spec__8_spec__8___boxed(lean_object*, lean_object*);
+lean_object* l_USize_toUInt64___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_erase___at___00Lean_Server_rpcReleaseRef_spec__12___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_bind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_instRpcEncodableOfFromJsonOfToJson___redArg___closed__9;
@@ -855,7 +855,7 @@ static lean_object* _init_l_Lean_Server_rpcStoreRef___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instHashableUSize___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_USize_toUInt64___boxed), 1, 0);
 return x_1;
 }
 }

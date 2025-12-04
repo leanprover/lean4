@@ -73,7 +73,6 @@ static lean_object* l_Vector___aux__Init__Data__Vector__Basic______macroRules__V
 static lean_object* l___auto___closed__47_00___x40_Init_Data_Vector_Basic_1499792475____hygCtx___hyg_20_;
 LEAN_EXPORT lean_object* l_Vector_zip(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__16_00___x40_Init_Data_Vector_Basic_1499792475____hygCtx___hyg_20_;
-LEAN_EXPORT lean_object* l_Vector_flatten___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_emptyWithCapacity___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_rightpad___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_pop___boxed(lean_object*, lean_object*, lean_object*);
@@ -201,6 +200,7 @@ static lean_object* l_instReprVector_repr___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Vector_findSome_x3f___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_cast___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instForIn_x27InferInstanceMembershipOfMonad(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_append___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_zip___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Vector_foldl___closed__7;
 static lean_object* l_Vector_swapAt_x21___closed__2;
@@ -450,7 +450,6 @@ LEAN_EXPORT lean_object* l_Vector_insertIdx_x21___boxed(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Vector_take(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___auto_00___x40_Init_Data_Vector_Basic_3103831426____hygCtx___hyg_12_;
 LEAN_EXPORT lean_object* l_Vector_push___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Vector_flatten___lam__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_findM_x3f___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instForIn_x27InferInstanceMembershipOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -469,6 +468,7 @@ lean_object* l_Array_replace___redArg(lean_object*, lean_object*, lean_object*, 
 static lean_object* l_instReprVector_repr___redArg___closed__12;
 LEAN_EXPORT lean_object* l___auto_00___x40_Init_Data_Vector_Basic_487995779____hygCtx___hyg_12_;
 LEAN_EXPORT lean_object* l_Vector_toList___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Vector_flatten___closed__1;
 static lean_object* l_Vector___aux__Init__Data__Vector__Basic______macroRules__Vector__term_x23v_x5b___x2c_x5d__1___closed__21;
 LEAN_EXPORT lean_object* l_Vector_findRev_x3f___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_findSomeM_x3f___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4116,19 +4116,19 @@ lean_inc_ref(x_1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_flatten___lam__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Array_append___redArg(x_1, x_2);
-return x_3;
-}
-}
 static lean_object* _init_l_Vector_flatten___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = l_Array_empty(lean_box(0));
+return x_1;
+}
+}
+static lean_object* _init_l_Vector_flatten___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Array_append___redArg___boxed), 2, 0);
 return x_1;
 }
 }
@@ -4139,15 +4139,6 @@ lean_object* x_2;
 x_2 = l_Vector_flatten___lam__0(x_1);
 lean_dec_ref(x_1);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Vector_flatten___lam__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Vector_flatten___lam__1(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Vector_flatten(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -4182,7 +4173,7 @@ return x_10;
 else
 {
 lean_object* x_15; size_t x_16; lean_object* x_17; 
-x_15 = lean_alloc_closure((void*)(l_Vector_flatten___lam__1___boxed), 2, 0);
+x_15 = l_Vector_flatten___closed__1;
 x_16 = lean_usize_of_nat(x_12);
 lean_dec(x_12);
 x_17 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_15, x_9, x_8, x_16, x_10);
@@ -4223,7 +4214,7 @@ return x_7;
 else
 {
 lean_object* x_12; size_t x_13; lean_object* x_14; 
-x_12 = lean_alloc_closure((void*)(l_Vector_flatten___lam__1___boxed), 2, 0);
+x_12 = l_Vector_flatten___closed__1;
 x_13 = lean_usize_of_nat(x_9);
 lean_dec(x_9);
 x_14 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_3, x_12, x_6, x_5, x_13, x_7);
@@ -8252,6 +8243,8 @@ l_Vector_mapM___closed__0 = _init_l_Vector_mapM___closed__0();
 lean_mark_persistent(l_Vector_mapM___closed__0);
 l_Vector_flatten___closed__0 = _init_l_Vector_flatten___closed__0();
 lean_mark_persistent(l_Vector_flatten___closed__0);
+l_Vector_flatten___closed__1 = _init_l_Vector_flatten___closed__1();
+lean_mark_persistent(l_Vector_flatten___closed__1);
 l___auto_00___x40_Init_Data_Vector_Basic_2605673588____hygCtx___hyg_12_ = _init_l___auto_00___x40_Init_Data_Vector_Basic_2605673588____hygCtx___hyg_12_();
 lean_mark_persistent(l___auto_00___x40_Init_Data_Vector_Basic_2605673588____hygCtx___hyg_12_);
 l___auto_00___x40_Init_Data_Vector_Basic_2605673588____hygCtx___hyg_20_ = _init_l___auto_00___x40_Init_Data_Vector_Basic_2605673588____hygCtx___hyg_20_();

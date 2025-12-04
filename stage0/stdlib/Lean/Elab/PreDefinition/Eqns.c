@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.Eqns
-// Imports: import Lean.Elab.PreDefinition.EqnsUtils import Lean.Meta.Match.MatchEqs import Lean.Meta.Tactic.Simp.Main import Lean.Meta.Tactic.Split
+// Imports: import Lean.Elab.PreDefinition.EqnsUtils import Lean.Meta.Match.MatchEqsExt import Lean.Meta.Match.NamedPatterns import Lean.Meta.Tactic.Simp.Main import Lean.Meta.Tactic.Split import Lean.Meta.Tactic.CasesOnStuckLHS
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2969,7 +2969,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_unfoldLHS___lam__0___closed__9;
 x_2 = lean_unsigned_to_nat(53u);
-x_3 = lean_unsigned_to_nat(48u);
+x_3 = lean_unsigned_to_nat(50u);
 x_4 = l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_unfoldLHS___lam__0___closed__8;
 x_5 = l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_unfoldLHS___lam__0___closed__7;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -9620,7 +9620,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_unfoldLHS___lam__0___closed__9;
 x_2 = lean_unsigned_to_nat(48u);
-x_3 = lean_unsigned_to_nat(145u);
+x_3 = lean_unsigned_to_nat(147u);
 x_4 = l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_simpEqnType_collect___lam__0___closed__0;
 x_5 = l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_unfoldLHS___lam__0___closed__7;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -25546,9 +25546,11 @@ return x_2;
 }
 }
 lean_object* initialize_Lean_Elab_PreDefinition_EqnsUtils(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Match_MatchEqs(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Match_MatchEqsExt(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Match_NamedPatterns(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Simp_Main(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Split(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_CasesOnStuckLHS(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_PreDefinition_Eqns(uint8_t builtin) {
 lean_object * res;
@@ -25557,13 +25559,19 @@ _G_initialized = true;
 res = initialize_Lean_Elab_PreDefinition_EqnsUtils(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Match_MatchEqs(builtin);
+res = initialize_Lean_Meta_Match_MatchEqsExt(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Match_NamedPatterns(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Simp_Main(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Split(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_CasesOnStuckLHS(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_unfoldThmType_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___redArg___closed__0 = _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_unfoldThmType_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___redArg___closed__0();

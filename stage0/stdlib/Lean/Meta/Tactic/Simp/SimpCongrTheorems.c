@@ -210,7 +210,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_Persiste
 LEAN_EXPORT lean_object* l_List_repr___at___00Lean_Meta_instReprSimpCongrTheorems_repr_spec__9___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_switch___at___00Lean_Meta_initFn_00___x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_3898756595____hygCtx___hyg_2__spec__0___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00__private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_SMap_insert___at___00Lean_Meta_addSimpCongrTheoremEntry_spec__0_spec__5_spec__6_spec__6_spec__6(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_initFn___lam__1_00___x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_3898756595____hygCtx___hyg_2_(lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_SMap_find_x3f___at___00Lean_Meta_SimpCongrTheorems_get_spec__0_spec__3___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isMVar(lean_object*);
@@ -4350,14 +4349,6 @@ lean_ctor_set(x_3, 0, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_initFn___lam__1_00___x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_3898756595____hygCtx___hyg_2_(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_SMap_switch___at___00Lean_Meta_initFn_00___x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_3898756595____hygCtx___hyg_2__spec__0___redArg(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Meta_initFn___closed__0_00___x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_3898756595____hygCtx___hyg_2_() {
 _start:
 {
@@ -4415,7 +4406,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_2 = lean_alloc_closure((void*)(l_Lean_Meta_initFn___lam__0_00___x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_3898756595____hygCtx___hyg_2____boxed), 2, 0);
-x_3 = lean_alloc_closure((void*)(l_Lean_Meta_initFn___lam__1_00___x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_3898756595____hygCtx___hyg_2_), 1, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_SMap_switch___at___00Lean_Meta_initFn_00___x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_3898756595____hygCtx___hyg_2__spec__0___redArg), 1, 0);
 x_4 = l_Lean_Meta_initFn___closed__3_00___x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_3898756595____hygCtx___hyg_2_;
 x_5 = l_Lean_Meta_initFn___closed__4_00___x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_3898756595____hygCtx___hyg_2_;
 x_6 = l_Lean_Meta_instInhabitedSimpCongrTheorems_default___closed__7;
@@ -6116,18 +6107,18 @@ block_36:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; size_t x_25; size_t x_26; lean_object* x_27; 
 x_18 = l_Lean_Expr_withAppAux___at___00Lean_Expr_withAppAux___at___00Lean_Meta_mkSimpCongrTheorem_spec__18_spec__18___closed__0;
-x_19 = l_Lean_Expr_getAppNumArgs(x_12);
+x_19 = l_Lean_Expr_getAppNumArgs(x_11);
 lean_inc(x_19);
 x_20 = lean_mk_array(x_19, x_18);
 x_21 = lean_unsigned_to_nat(1u);
 x_22 = lean_nat_sub(x_19, x_21);
 lean_dec(x_19);
-lean_inc_ref(x_12);
-x_23 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_12, x_20, x_22);
+lean_inc_ref(x_11);
+x_23 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_11, x_20, x_22);
 x_24 = lean_box(0);
 x_25 = lean_array_size(x_23);
 x_26 = 0;
-x_27 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_mkSimpCongrTheorem_spec__13(x_1, x_12, x_24, x_23, x_25, x_26, x_24, x_13, x_14, x_15, x_16);
+x_27 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_mkSimpCongrTheorem_spec__13(x_1, x_11, x_24, x_23, x_25, x_26, x_24, x_13, x_14, x_15, x_16);
 lean_dec(x_16);
 lean_dec_ref(x_15);
 lean_dec(x_14);
@@ -6143,7 +6134,7 @@ lean_object* x_29; lean_object* x_30;
 x_29 = lean_ctor_get(x_27, 0);
 lean_dec(x_29);
 x_30 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_30, 0, x_11);
+lean_ctor_set(x_30, 0, x_12);
 lean_ctor_set(x_27, 0, x_30);
 return x_27;
 }
@@ -6152,7 +6143,7 @@ else
 lean_object* x_31; lean_object* x_32; 
 lean_dec(x_27);
 x_31 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_31, 0, x_11);
+lean_ctor_set(x_31, 0, x_12);
 x_32 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_32, 0, x_31);
 return x_32;
@@ -6161,7 +6152,7 @@ return x_32;
 else
 {
 uint8_t x_33; 
-lean_dec_ref(x_11);
+lean_dec_ref(x_12);
 x_33 = !lean_is_exclusive(x_27);
 if (x_33 == 0)
 {
@@ -6182,7 +6173,7 @@ return x_35;
 block_61:
 {
 lean_object* x_44; uint8_t x_45; 
-x_44 = l_Lean_Expr_mvarId_x21(x_37);
+x_44 = l_Lean_Expr_mvarId_x21(x_38);
 x_45 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_mkSimpCongrTheorem_onlyMVarsAt_spec__0___redArg(x_44, x_2);
 lean_dec(x_2);
 lean_dec(x_44);
@@ -6200,7 +6191,7 @@ goto block_36;
 else
 {
 lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; uint8_t x_58; 
-lean_dec_ref(x_37);
+lean_dec_ref(x_38);
 x_46 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_mkSimpCongrTheorem_spec__13___closed__1;
 x_47 = lean_unsigned_to_nat(1u);
 x_48 = lean_nat_add(x_1, x_47);
@@ -6215,7 +6206,7 @@ x_53 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00
 x_54 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_54, 0, x_52);
 lean_ctor_set(x_54, 1, x_53);
-x_55 = l_Lean_indentExpr(x_38);
+x_55 = l_Lean_indentExpr(x_37);
 x_56 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_56, 0, x_54);
 lean_ctor_set(x_56, 1, x_55);
@@ -6292,8 +6283,8 @@ return x_80;
 }
 else
 {
-x_37 = x_64;
-x_38 = x_62;
+x_37 = x_62;
+x_38 = x_64;
 x_39 = x_6;
 x_40 = x_7;
 x_41 = x_8;

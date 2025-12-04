@@ -659,11 +659,30 @@ abbrev Invariant.withEarlyReturn
       ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜xs.suffix = []⌝ ∧ onReturn r b)),
    onExcept⟩
 
+/--
+The type of loop invariants used by the specifications of `for ... in ...` loops elaborated by the
+new `do` elaborator.
+A loop invariant is an `Assertion ps` indexed by
+
+* A `List.Cursor xs` representing the iteration state of the loop. It is parameterized by the list
+  of elements `xs` that the `for` loop iterates over.
+* A state tuple of type `σ`, which will be a nesting of `MProd`s representing the elaboration of
+  `let mut` variables and early return.
+
+The loop specification lemmas will use this in the following way:
+Before entering the loop, the cursor's prefix is empty and the suffix is `xs`.
+After leaving the loop, the cursor's prefix is `xs` and the suffix is empty.
+During the induction step, the invariant holds for a suffix with head element `x`.
+When continuing the loop, the invariant then holds after shifting `x` to the prefix.
+-/
+abbrev InvariantNew {α : Type u₁} (xs : List α) (σ : Type u₂) (ps : PostShape.{max u₁ u₂}) :=
+  List.Cursor xs → σ → Assertion ps
+
 set_option linter.unusedVariables false in
 @[spec]
 theorem Spec.forInNew'_list
     {xs : List α} {init : σ} {kcons : (a : α) → a ∈ xs → (σ → m β) → σ → m β} {knil : σ → m β}
-    (inv : xs.Cursor → σ → Assertion ps) {Q : PostCond β ps}
+    (inv : InvariantNew xs σ ps) {Q : PostCond β ps}
     (hcons : ∀ pref cur suff (h : xs = pref ++ cur :: suff) s kcontinue
         (hcontinue : ∀ s', Triple (m:=m) (kcontinue s') (inv ⟨pref ++ [cur], suff, by simp [h]⟩ s') Q),
       Triple (m:=m)
@@ -710,7 +729,7 @@ set_option linter.unusedVariables false in
 @[spec]
 theorem Spec.forInNew_list
     {xs : List α} {init : σ} {kcons : α → (σ → m β) → σ → m β} {knil : σ → m β}
-    (inv : xs.Cursor → σ → Assertion ps) {Q : PostCond β ps}
+    (inv : InvariantNew xs σ ps) {Q : PostCond β ps}
     (hcons : ∀ pref cur suff (h : xs = pref ++ cur :: suff) s kcontinue
         (hcontinue : ∀ s', Triple (m:=m) (kcontinue s') (inv ⟨pref ++ [cur], suff, by simp [h]⟩ s') Q),
       Triple (m:=m)
@@ -775,7 +794,7 @@ set_option linter.unusedVariables false in
 @[spec]
 theorem Spec.forInNew'_range
     {xs : Std.Range} {init : σ} {kcons : (a : Nat) → a ∈ xs → (σ → m β) → σ → m β} {knil : σ → m β}
-    (inv : xs.toList.Cursor → σ → Assertion ps) {Q : PostCond β ps}
+    (inv : InvariantNew xs.toList σ ps) {Q : PostCond β ps}
     (hcons : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) s kcontinue
         (hcontinue : ∀ s', Triple (m:=m) (kcontinue s') (inv ⟨pref ++ [cur], suff, by simp [h]⟩ s') Q),
       Triple (m:=m)
@@ -791,7 +810,7 @@ set_option linter.unusedVariables false in
 @[spec]
 theorem Spec.forInNew_range
     {xs : Std.Range} {init : σ} {kcons : Nat → (σ → m β) → σ → m β} {knil : σ → m β}
-    (inv : xs.toList.Cursor → σ → Assertion ps) {Q : PostCond β ps}
+    (inv : InvariantNew xs.toList σ ps) {Q : PostCond β ps}
     (hcons : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) s kcontinue
         (hcontinue : ∀ s', Triple (m:=m) (kcontinue s') (inv ⟨pref ++ [cur], suff, by simp [h]⟩ s') Q),
       Triple (m:=m)
@@ -2035,7 +2054,7 @@ set_option linter.unusedVariables false in
 @[spec]
 theorem Spec.forInNew'_array
     {xs : Array α} {init : σ} {kcons : (a : α) → a ∈ xs → (σ → m β) → σ → m β} {knil : σ → m β}
-    (inv : xs.toList.Cursor → σ → Assertion ps) {Q : PostCond β ps}
+    (inv : InvariantNew xs.toList σ ps) {Q : PostCond β ps}
     (hcons : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) s kcontinue
         (hcontinue : ∀ s', Triple (m:=m) (kcontinue s') (inv ⟨pref ++ [cur], suff, by simp [h]⟩ s') Q),
       Triple (m:=m)
@@ -2052,7 +2071,7 @@ set_option linter.unusedVariables false in
 @[spec]
 theorem Spec.forInNew_array
     {xs : Array α} {init : σ} {kcons : α → (σ → m β) → σ → m β} {knil : σ → m β}
-    (inv : xs.toList.Cursor → σ → Assertion ps) {Q : PostCond β ps}
+    (inv : InvariantNew xs.toList σ ps) {Q : PostCond β ps}
     (hcons : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) s kcontinue
         (hcontinue : ∀ s', Triple (m:=m) (kcontinue s') (inv ⟨pref ++ [cur], suff, by simp [h]⟩ s') Q),
       Triple (m:=m)

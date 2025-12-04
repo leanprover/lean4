@@ -71,7 +71,7 @@ withLocalDeclD `y nat fun y => do
 let vType ← mkAppM `Vec #[nat, x];
 withLocalDeclD `v vType fun v => do
 let m ← mkFreshExprSyntheticOpaqueMVar vType;
-let subgoals ← caseValues m.mvarId! x.fvarId! #[mkNatLit 2, mkNatLit 3, mkNatLit 5] (substNewEqs := false);
+let subgoals ← caseValues m.mvarId! x.fvarId! #[mkNatLit 2, mkNatLit 3, mkNatLit 5];
 subgoals.forM fun s => do {
   print (MessageData.ofGoal s.mvarId);
   s.mvarId.assumption

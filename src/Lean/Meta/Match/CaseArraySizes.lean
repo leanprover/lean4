@@ -68,26 +68,24 @@ def caseArraySizes (mvarId : MVarId) (fvarId : FVarId) (sizes : Array Nat) (xNam
     let mvarId ← mvarId.assertExt `aSize (mkConst `Nat) aSize
     let (aSizeFVarId, mvarId) ← mvarId.intro1
     let (hEq, mvarId) ← mvarId.intro1
-    let subgoals ← caseValues mvarId aSizeFVarId (sizes.map mkRawNatLit) hNamePrefix (substNewEqs := false)
+    let subgoals ← caseValues mvarId aSizeFVarId (sizes.map mkRawNatLit) hNamePrefix
     subgoals.mapIdxM fun i subgoal => do
       let subst  := subgoal.subst
       let mvarId := subgoal.mvarId
-      let hEqSz  := (subst.get hEq).fvarId!
       if h : i < sizes.size then
-         let n := sizes[i]
-         let mvarId ← mvarId.clear subgoal.newHs[0]!
-         let mvarId ← mvarId.clear (subst.get aSizeFVarId).fvarId!
-         mvarId.withContext do
-           let hEqSzSymm ← mkEqSymm (mkFVar hEqSz)
-           let mvarId ← introArrayLit mvarId a n xNamePrefix hEqSzSymm
-           let (xs, mvarId)  ← mvarId.introN n
-           let (hEqLit, mvarId) ← mvarId.intro1
-           let mvarId ← mvarId.clear hEqSz
-           let (subst, mvarId) ← substCore mvarId hEqLit false subst
-           pure { mvarId := mvarId, elems := xs, subst := subst }
+        let hEqSz  := (subst.get hEq).fvarId!
+        let n := sizes[i]
+        mvarId.withContext do
+          let hEqSzSymm ← mkEqSymm (mkFVar hEqSz)
+          let mvarId ← introArrayLit mvarId a n xNamePrefix hEqSzSymm
+          let (xs, mvarId)  ← mvarId.introN n
+          let (hEqLit, mvarId) ← mvarId.intro1
+          let mvarId ← mvarId.clear hEqSz
+          let (subst, mvarId) ← substCore mvarId hEqLit (symm := false) subst
+          pure { mvarId := mvarId, elems := xs, subst := subst }
       else
-         let (subst, mvarId) ← substCore mvarId hEq false subst
-         let diseqs := subgoal.newHs.map fun fvarId => (subst.get fvarId).fvarId!
-         pure { mvarId := mvarId, diseqs := diseqs, subst := subst }
+        let (subst, mvarId) ← substCore mvarId hEq (symm := false) subst
+        let diseqs := subgoal.newHs.map fun fvarId => (subst.get fvarId).fvarId!
+        pure { mvarId := mvarId, diseqs := diseqs, subst := subst }
 
 end Lean.Meta

@@ -30,7 +30,7 @@ structure CaseValueSubgoal where
 
   Remark: `subst` field of the second subgoal is equal to the input `subst`. -/
 private def caseValueAux (mvarId : MVarId) (fvarId : FVarId) (value : Expr) (hName : Name := `h)
-    (subst : FVarSubst := {}) (substNewEq : Bool)
+    (subst : FVarSubst := {})
     : MetaM (CaseValueSubgoal × CaseValueSubgoal) :=
   mvarId.withContext do
     let tag ← mvarId.getTag
@@ -47,25 +47,14 @@ private def caseValueAux (mvarId : MVarId) (fvarId : FVarId) (value : Expr) (hNa
     let (elseH, elseMVarId) ← elseMVar.mvarId!.intro1P
     let elseSubgoal := { mvarId := elseMVarId, newH := elseH, subst := subst : CaseValueSubgoal }
     let (thenH, thenMVarId) ← thenMVar.mvarId!.intro1P
-    let (thenSubst, thenMVarId) ←
-      if substNewEq then
-        substCore thenMVarId thenH (symm := false) subst (clearH := false)
-      else
-        pure (subst, thenMVarId)
     thenMVarId.withContext do
-      trace[Meta] "subst domain: {thenSubst.domain.map (·.name)}"
-      let thenH := (thenSubst.get thenH).fvarId!
+      trace[Meta] "subst domain: {subst.domain.map (·.name)}"
+      let thenH := (subst.get thenH).fvarId!
       trace[Meta] "searching for decl"
       let _ ← thenH.getDecl
       trace[Meta] "found decl"
-    let thenSubgoal := { mvarId := thenMVarId, newH := (thenSubst.get thenH).fvarId!, subst := thenSubst : CaseValueSubgoal }
+    let thenSubgoal := { mvarId := thenMVarId, newH := (subst.get thenH).fvarId!, subst : CaseValueSubgoal }
     pure (thenSubgoal, elseSubgoal)
-
-def caseValue (mvarId : MVarId) (fvarId : FVarId) (value : Expr) : MetaM (CaseValueSubgoal × CaseValueSubgoal) := do
-  let s ← caseValueAux mvarId fvarId value (substNewEq := true)
-  appendTagSuffix s.1.mvarId `thenBranch
-  appendTagSuffix s.2.mvarId `elseBranch
-  pure s
 
 structure CaseValuesSubgoal where
   mvarId : MVarId
@@ -88,22 +77,19 @@ structure CaseValuesSubgoal where
 
   If `substNewEqs = true`, then the new `h_i` equality hypotheses are substituted in the first `n` cases.
 -/
-def caseValues (mvarId : MVarId) (fvarId : FVarId) (values : Array Expr) (hNamePrefix := `h) (substNewEqs : Bool) : MetaM (Array CaseValuesSubgoal) :=
+def caseValues (mvarId : MVarId) (fvarId : FVarId) (values : Array Expr) (hNamePrefix := `h) : MetaM (Array CaseValuesSubgoal) :=
   let rec loop : Nat → MVarId → List Expr → Array FVarId → Array CaseValuesSubgoal → MetaM (Array CaseValuesSubgoal)
     | _, mvarId, [],    _,  _        => throwTacticEx `caseValues mvarId "list of values must not be empty"
     | i, mvarId, v::vs, hs, subgoals => do
-      let (thenSubgoal, elseSubgoal) ← caseValueAux mvarId fvarId v (hNamePrefix.appendIndexAfter i) (substNewEq := !substNewEqs) {}
+      let (thenSubgoal, elseSubgoal) ← caseValueAux mvarId fvarId v (hNamePrefix.appendIndexAfter i) {}
       appendTagSuffix thenSubgoal.mvarId ((`case).appendIndexAfter i)
       let thenMVarId ← hs.foldlM
         (fun thenMVarId h => match thenSubgoal.subst.get h with
           | Expr.fvar fvarId => thenMVarId.tryClear fvarId
           | _                => pure thenMVarId)
         thenSubgoal.mvarId
-      let subgoals ← if substNewEqs then
-         let (subst, mvarId) ← substCore thenMVarId thenSubgoal.newH (symm := false) thenSubgoal.subst (clearH := true)
-         pure <| subgoals.push { mvarId := mvarId, newHs := #[], subst := subst }
-      else
-         pure <| subgoals.push { mvarId := thenMVarId, newHs := #[thenSubgoal.newH], subst := thenSubgoal.subst }
+      let (subst, mvarId) ← substCore thenMVarId thenSubgoal.newH (symm := false) thenSubgoal.subst (clearH := true)
+      let subgoals := subgoals.push { mvarId := mvarId, newHs := #[], subst := subst }
       match vs with
       | [] => do
         appendTagSuffix elseSubgoal.mvarId ((`case).appendIndexAfter (i+1))

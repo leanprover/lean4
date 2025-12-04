@@ -78,8 +78,9 @@ def token (limit : Nat) : Parser ByteSlice :=
   takeWhileUpTo1 isTokenCharacter limit
 
 @[inline]
-def crlf : Parser Unit :=
-  skipBytes "\r\n".toUTF8
+def crlf : Parser Unit := do
+  discard <| optional (skipByte '\r'.toUInt8)
+  skipByte '\n'.toUInt8
 
 @[inline]
 def rsp (limits : H1.Config) : Parser Unit :=
@@ -118,9 +119,16 @@ def parseHttpVersion : Parser Version := do
   opt <| Version.fromNumber? (major - 48 |>.toNat) (minor - 48 |>.toNat)
 
 --   method         = token
-def parseMethod (limits : H1.Config) : Parser Method := do
-  let method ← token limits.maxMethodLength
-  opt <| Method.fromString? =<< (String.fromUTF8? method.toByteArray)
+def parseMethod : Parser Method :=
+  (skipBytes "GET".toUTF8 <&> fun _ => Method.get)
+  <|> (skipBytes "HEAD".toUTF8 <&> fun _ => Method.head)
+  <|> (attempt <| skipBytes "POST".toUTF8 <&> fun _ => Method.post)
+  <|> (skipBytes "PUT".toUTF8 <&> fun _ => Method.put)
+  <|> (skipBytes "DELETE".toUTF8 <&> fun _ => Method.delete)
+  <|> (skipBytes "CONNECT".toUTF8 <&> fun _ => Method.connect)
+  <|> (skipBytes "OPTIONS".toUTF8 <&> fun _ => Method.options)
+  <|> (skipBytes "TRACE".toUTF8 <&> fun _ => Method.trace)
+  <|> (skipBytes "PATCH".toUTF8 <&> fun _ => Method.patch)
 
 def parseURI (limits : H1.Config) : Parser ByteArray := do
   let uri ← takeUntilUpTo (· == ' '.toUInt8) limits.maxUriLength
@@ -132,7 +140,7 @@ Parses a request line
 request-line   = method SP request-target SP HTTP-version
 -/
 public def parseRequestLine (limits : H1.Config) : Parser Request.Head := do
-  let method ← parseMethod limits <* rsp limits
+  let method ← parseMethod <* rsp limits
   let uri ← parseURI limits <* rsp limits
 
   let uri ← match (Std.Http.Parser.parseRequestTarget <* eof).run uri with
@@ -157,8 +165,12 @@ Parses a single header.
 
 field-line CRLF / CRLF
 -/
-public def parseSingleHeader (limits : H1.Config) : Parser (Option (String × String)) :=
-  optional (attempt <| parseFieldLine limits) <* crlf
+public def parseSingleHeader (limits : H1.Config) : Parser (Option (String × String)) := do
+  if (← peek?) == some '\r'.toUInt8 ∨ (← peek?) == some '\n'.toUInt8 then
+    crlf
+    pure none
+  else
+    some <$> (parseFieldLine limits <* crlf)
 
 -- quoted-pair = "\" ( HTAB / SP / VCHAR / obs-text )
 def parseQuotedPair : Parser UInt8 := do

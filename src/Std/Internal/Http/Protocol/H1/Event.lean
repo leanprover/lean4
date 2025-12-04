@@ -23,11 +23,6 @@ Events that can occur during HTTP message processing.
 -/
 inductive Event (dir : Direction)
   /--
-  Event received when chunk extension data is encountered in chunked encoding.
-  -/
-  | chunkExt (ext : Array (String × Option String))
-
-  /--
   Event received when the headers end.
   -/
   | endHeaders (head : Message.Head dir)
@@ -35,7 +30,7 @@ inductive Event (dir : Direction)
   /--
   Event received when some data arrives from the received message.
   -/
-  | gotData (final : Bool) (data : ByteSlice)
+  | gotData (final : Bool) (ext : Array (String × Option String)) (data : ByteSlice)
 
   /--
   Event received when the input ends and more data is required to continue

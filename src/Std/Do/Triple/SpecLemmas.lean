@@ -610,7 +610,7 @@ end Std.Do
 namespace Std.Do
 
 universe u₁ u₂ v
-variable {α : Type u₁} {β : Type (max u₁ u₂)} {m : Type (max u₁ u₂) → Type v} {ps : PostShape.{max u₁ u₂}}
+variable {α : Type u₁} {β σ : Type (max u₁ u₂)} {m : Type (max u₁ u₂) → Type v} {ps : PostShape.{max u₁ u₂}}
 variable [Monad m] [WPMonad m ps]
 
 /--
@@ -658,6 +658,150 @@ abbrev Invariant.withEarlyReturn
         (⌜x = none⌝ ∧ onContinue xs b)
       ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜xs.suffix = []⌝ ∧ onReturn r b)),
    onExcept⟩
+
+set_option linter.unusedVariables false in
+@[spec]
+theorem Spec.forInNew'_list
+    {xs : List α} {init : σ} {kcons : (a : α) → a ∈ xs → (σ → m β) → σ → m β} {knil : σ → m β}
+    (inv : xs.Cursor → σ → Assertion ps) {Q : PostCond β ps}
+    (hcons : ∀ pref cur suff (h : xs = pref ++ cur :: suff) s kcontinue
+        (hcontinue : ∀ s', Triple (m:=m) (kcontinue s') (inv ⟨pref ++ [cur], suff, by simp [h]⟩ s') Q),
+      Triple (m:=m)
+        (kcons cur (by simp [h]) kcontinue s)
+        (inv ⟨pref, cur::suff, h.symm⟩ s)
+        Q)
+    (hnil : ∀ s, Triple (m:=m) (knil s) (inv ⟨xs, [], by simp⟩ s) Q) :
+    Triple (forInNew' xs init kcons knil) (inv ⟨[], xs, rfl⟩ init) Q := by
+  suffices h : ∀ c,
+      Triple
+        (forInNew' (m:=m) c.suffix init (fun a ha => kcons a (by simp [←c.property, ha])) knil)
+        (inv c init)
+        Q
+    from h ⟨[], xs, rfl⟩
+  rintro ⟨pref, suff, h⟩
+  induction suff generalizing pref init
+  case nil =>
+    simp only [List.append_nil] at h
+    exact h.symm ▸ hnil init
+  case cons x suff ih =>
+    simp only [List.forInNew'_cons]
+    apply hcons
+    case h => exact h.symm
+    case hcontinue =>
+      intro s'
+      exact @ih s' (pref ++ [x]) (by simp [h])
+
+-- using the precondition of hnil as a constant invariant:
+set_option linter.unusedVariables false in
+theorem Spec.forInNew'_list_const_inv
+    {xs : List α} {init : σ} {kcons : (a : α) → a ∈ xs → (σ → m β) → σ → m β} {knil : σ → m β}
+    {P : σ → Assertion ps} {Q : PostCond β ps}
+    (hnil : ∀ s, Triple (m:=m) (knil s) (P s) Q)
+    (hcons : ∀ pref cur suff (h : xs = pref ++ cur :: suff) s kcontinue
+        (hcontinue : ∀ s', Triple (m:=m) (kcontinue s') (P s') Q),
+      Triple (m:=m)
+        (kcons cur (by simp [h]) kcontinue s)
+        (P s)
+        Q) :
+    Triple (forInNew' xs init kcons knil) (P init) Q :=
+  Spec.forInNew'_list (fun _xs => P) hcons hnil
+
+set_option linter.unusedVariables false in
+@[spec]
+theorem Spec.forInNew_list
+    {xs : List α} {init : σ} {kcons : α → (σ → m β) → σ → m β} {knil : σ → m β}
+    (inv : xs.Cursor → σ → Assertion ps) {Q : PostCond β ps}
+    (hcons : ∀ pref cur suff (h : xs = pref ++ cur :: suff) s kcontinue
+        (hcontinue : ∀ s', Triple (m:=m) (kcontinue s') (inv ⟨pref ++ [cur], suff, by simp [h]⟩ s') Q),
+      Triple (m:=m)
+        (kcons cur kcontinue s)
+        (inv ⟨pref, cur::suff, h.symm⟩ s)
+        Q)
+    (hnil : ∀ s, Triple (m:=m) (knil s) (inv ⟨xs, [], by simp⟩ s) Q) :
+    Triple (forInNew xs init kcons knil) (inv ⟨[], xs, rfl⟩ init) Q := by
+  simp only [← forInNew'_eq_forInNew]
+  exact Spec.forInNew'_list inv hcons hnil
+
+-- using the precondition of hnil as a constant invariant:
+set_option linter.unusedVariables false in
+theorem Spec.forInNew_list_const_inv
+    {xs : List α} {init : σ} {kcons : α → (σ → m β) → σ → m β} {knil : σ → m β}
+    {P : σ → Assertion ps} {Q : PostCond β ps}
+    (hnil : ∀ s, Triple (m:=m) (knil s) (P s) Q)
+    (hcons : ∀ pref cur suff (h : xs = pref ++ cur :: suff) s kcontinue
+        (hcontinue : ∀ s', Triple (m:=m) (kcontinue s') (P s') Q),
+      Triple (m:=m)
+        (kcons cur kcontinue s)
+        (P s)
+        Q) :
+    Triple (forInNew xs init kcons knil) (P init) Q :=
+  Spec.forInNew_list (fun _xs => P) hcons hnil
+
+/-
+@[spec]
+theorem Spec.foldlM_list
+    {xs : List α} {init : β} {f : β → α → m β}
+    (inv : xs.Cursor → β → Assertion ps) {e : ExceptConds ps}
+    (step : ∀ pref cur suff (h : xs = pref ++ cur :: suff) b,
+      Triple
+        (f b cur)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
+        (fun b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b', e)) :
+    Triple (List.foldlM f init xs) (inv ⟨[], xs, rfl⟩ init) (fun b => inv ⟨xs, [], by simp⟩ b, e) := by
+  have : xs.foldlM f init = forInNew xs init (fun a k b => f b a >>= k) Pure.pure := by
+    simp only [List.forInNew_bind_pure_eq_foldlM]
+  rw[this]
+  apply Spec.forInNew_list inv _ (fun s => Triple.pure s .rfl)
+  intro pref cur suff h b kcontinue hcontinue
+  apply Triple.bind
+  · apply step
+    exact h
+  · exact hcontinue
+
+-- using the postcondition as a constant invariant:
+theorem Spec.foldlM_list_const_inv
+    {xs : List α} {init : β} {f : β → α → m β}
+    {Q : PostCond β ps}
+    (step : ∀ hd b,
+      Triple
+        (f b hd)
+        (Q.1 b)
+        (fun b' => Q.1 b', Q.2)) :
+    Triple (List.foldlM f init xs) (Q.1 init) Q :=
+    Spec.foldlM_list (fun _xs => Q.1) (fun _pref cur _suff _h b => step cur b)
+-/
+
+set_option linter.unusedVariables false in
+@[spec]
+theorem Spec.forInNew'_range
+    {xs : Std.Range} {init : σ} {kcons : (a : Nat) → a ∈ xs → (σ → m β) → σ → m β} {knil : σ → m β}
+    (inv : xs.toList.Cursor → σ → Assertion ps) {Q : PostCond β ps}
+    (hcons : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) s kcontinue
+        (hcontinue : ∀ s', Triple (m:=m) (kcontinue s') (inv ⟨pref ++ [cur], suff, by simp [h]⟩ s') Q),
+      Triple (m:=m)
+        (kcons cur (by simp [Std.Range.mem_of_mem_range', h]) kcontinue s)
+        (inv ⟨pref, cur::suff, h.symm⟩ s)
+        Q)
+    (hnil : ∀ s, Triple (m:=m) (knil s) (inv ⟨xs.toList, [], by simp⟩ s) Q) :
+    Triple (forInNew' xs init kcons knil) (inv ⟨[], xs.toList, rfl⟩ init) Q := by
+  simp only [Std.Range.forInNew'_eq_forInNew'_range', Std.Range.size, Std.Range.size.eq_1]
+  apply Spec.forInNew'_list inv hcons hnil
+
+set_option linter.unusedVariables false in
+@[spec]
+theorem Spec.forInNew_range
+    {xs : Std.Range} {init : σ} {kcons : Nat → (σ → m β) → σ → m β} {knil : σ → m β}
+    (inv : xs.toList.Cursor → σ → Assertion ps) {Q : PostCond β ps}
+    (hcons : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) s kcontinue
+        (hcontinue : ∀ s', Triple (m:=m) (kcontinue s') (inv ⟨pref ++ [cur], suff, by simp [h]⟩ s') Q),
+      Triple (m:=m)
+        (kcons cur kcontinue s)
+        (inv ⟨pref, cur::suff, h.symm⟩ s)
+        Q)
+    (hnil : ∀ s, Triple (m:=m) (knil s) (inv ⟨xs.toList, [], by simp⟩ s) Q) :
+    Triple (forInNew xs init kcons knil) (inv ⟨[], xs.toList, rfl⟩ init) Q := by
+  simp only [Std.Range.forInNew_eq_forInNew_range', Std.Range.size]
+  apply Spec.forInNew'_list inv hcons hnil
 
 @[spec]
 theorem Spec.forIn'_list
@@ -1886,6 +2030,40 @@ theorem Iter.fold_filterM {α β δ : Type w} {n : Type w → Type w''}
   rwa [Std.Iter.fold_filterM]
 
 end Iterators
+
+set_option linter.unusedVariables false in
+@[spec]
+theorem Spec.forInNew'_array
+    {xs : Array α} {init : σ} {kcons : (a : α) → a ∈ xs → (σ → m β) → σ → m β} {knil : σ → m β}
+    (inv : xs.toList.Cursor → σ → Assertion ps) {Q : PostCond β ps}
+    (hcons : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) s kcontinue
+        (hcontinue : ∀ s', Triple (m:=m) (kcontinue s') (inv ⟨pref ++ [cur], suff, by simp [h]⟩ s') Q),
+      Triple (m:=m)
+        (kcons cur (by simp [←Array.mem_toList_iff, h]) kcontinue s)
+        (inv ⟨pref, cur::suff, h.symm⟩ s)
+        Q)
+    (hnil : ∀ s, Triple (m:=m) (knil s) (inv ⟨xs.toList, [], by simp⟩ s) Q) :
+    Triple (forInNew' xs init kcons knil) (inv ⟨[], xs.toList, rfl⟩ init) Q := by
+  cases xs
+  simp
+  apply Spec.forInNew'_list inv hcons hnil
+
+set_option linter.unusedVariables false in
+@[spec]
+theorem Spec.forInNew_array
+    {xs : Array α} {init : σ} {kcons : α → (σ → m β) → σ → m β} {knil : σ → m β}
+    (inv : xs.toList.Cursor → σ → Assertion ps) {Q : PostCond β ps}
+    (hcons : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) s kcontinue
+        (hcontinue : ∀ s', Triple (m:=m) (kcontinue s') (inv ⟨pref ++ [cur], suff, by simp [h]⟩ s') Q),
+      Triple (m:=m)
+        (kcons cur kcontinue s)
+        (inv ⟨pref, cur::suff, h.symm⟩ s)
+        Q)
+    (hnil : ∀ s, Triple (m:=m) (knil s) (inv ⟨xs.toList, [], by simp⟩ s) Q) :
+    Triple (forInNew xs init kcons knil) (inv ⟨[], xs.toList, rfl⟩ init) Q := by
+  cases xs
+  simp
+  apply Spec.forInNew_list inv hcons hnil
 
 @[spec]
 theorem Spec.forIn'_array {α β : Type u} {m : Type u → Type v} {ps : PostShape}

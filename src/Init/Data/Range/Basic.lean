@@ -30,10 +30,10 @@ universe u v
 
 @[inline] protected def forInNew' {m : Type u → Type v} {σ β} (range : Range) (init : σ)
     (kcons : (i : Nat) → i ∈ range → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
-  have := range.step_pos
   let rec @[specialize] loop (i : Nat)
       (hs : (i - range.start) % range.step = 0) (hl : range.start ≤ i := by omega) : σ → m β :=
     if h : i < range.stop then
+      have := range.step_pos
       kcons i ⟨hl, by omega, hs⟩ (loop (i + range.step) (by rwa [Nat.add_comm, Nat.add_sub_assoc hl, Nat.add_mod_left]))
     else
       knil

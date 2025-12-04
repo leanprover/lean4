@@ -554,7 +554,7 @@ def modifyOp (xs : Array α) (idx : Nat) (f : α → α) : Array α :=
       knil s
   loop 0 s
 
-/-- Reference implementation for `forIn'` -/
+/-- Reference implementation for `forInNew'` -/
 @[implemented_by Array.forInNew'Unsafe, expose]
 protected def forInNew' {α : Type u} {σ β : Type v} {m : Type v → Type w}
     (as : Array α) (s : σ) (kcons : (a : α) → (h : a ∈ as) → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
@@ -571,7 +571,7 @@ protected def forInNew' {α : Type u} {σ β : Type v} {m : Type v → Type w}
 instance : ForInNew' m (Array α) α Membership.mem where
   forInNew' := Array.forInNew'
 
--- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
+-- No separate `ForInNew` instance is required because it can be derived from `ForInNew'`.
 
 -- We simplify `Array.forIn'` to `forIn'`.
 @[simp] theorem forInNew'_eq_forInNew' : @Array.forInNew' α σ β m = ForInNew'.forInNew' := rfl

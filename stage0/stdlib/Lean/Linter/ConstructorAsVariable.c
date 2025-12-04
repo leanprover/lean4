@@ -584,17 +584,17 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 2);
 lean_inc(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_addMessageContextPartial___at___00Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Linter_constructorNameAsVariable_spec__14_spec__14_spec__14_spec__14___redArg___closed__0;
 x_9 = l_List_head_x21___redArg(x_8, x_7);
 lean_dec(x_7);
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = l_Lean_addMessageContextPartial___at___00Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Linter_constructorNameAsVariable_spec__14_spec__14_spec__14_spec__14___redArg___closed__3;
 x_12 = l_Lean_addMessageContextPartial___at___00Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Linter_constructorNameAsVariable_spec__14_spec__14_spec__14_spec__14___redArg___closed__7;
 x_13 = lean_alloc_ctor(0, 4, 0);
@@ -636,7 +636,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_instantiateMVarsCore(x_7, x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -1087,7 +1087,7 @@ if (lean_is_exclusive(x_8)) {
 x_29 = lean_st_ref_get(x_10);
 x_30 = lean_ctor_get(x_29, 0);
 lean_inc_ref(x_30);
-lean_dec_ref(x_29);
+lean_dec(x_29);
 lean_inc(x_13);
 x_31 = l_Lean_Environment_find_x3f(x_30, x_13, x_7);
 if (lean_obj_tag(x_31) == 1)
@@ -2690,13 +2690,13 @@ lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; 
 x_146 = lean_st_ref_get(x_6);
 x_147 = lean_ctor_get(x_146, 2);
 lean_inc(x_147);
-lean_dec_ref(x_146);
+lean_dec(x_146);
 x_148 = l_Lean_addMessageContextPartial___at___00Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Linter_constructorNameAsVariable_spec__14_spec__14_spec__14_spec__14___redArg___closed__0;
 x_149 = l_List_head_x21___redArg(x_148, x_147);
 lean_dec(x_147);
 x_150 = lean_ctor_get(x_149, 1);
 lean_inc(x_150);
-lean_dec_ref(x_149);
+lean_dec(x_149);
 x_151 = 1;
 x_152 = l_Lean_instBEqMessageSeverity_beq(x_3, x_151);
 if (x_152 == 0)
@@ -3543,7 +3543,7 @@ lean_object* x_18; lean_object* x_19; uint8_t x_20;
 x_18 = lean_ctor_get(x_16, 0);
 x_19 = lean_st_ref_get(x_1);
 x_20 = l_Std_DHashMap_Internal_Raw_u2080_contains___at___00Lean_Linter_constructorNameAsVariable_spec__0___redArg(x_19, x_18);
-lean_dec_ref(x_19);
+lean_dec(x_19);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
@@ -3807,7 +3807,7 @@ lean_dec_ref(x_48);
 x_50 = lean_st_ref_get(x_42);
 x_51 = lean_ctor_get(x_50, 0);
 lean_inc_ref(x_51);
-lean_dec_ref(x_50);
+lean_dec(x_50);
 x_52 = l_Lean_Environment_find_x3f(x_51, x_49, x_31);
 if (lean_obj_tag(x_52) == 1)
 {
@@ -3896,7 +3896,7 @@ lean_dec_ref(x_61);
 x_63 = lean_st_ref_get(x_42);
 x_64 = lean_ctor_get(x_63, 0);
 lean_inc_ref(x_64);
-lean_dec_ref(x_63);
+lean_dec(x_63);
 x_65 = l_Lean_Environment_find_x3f(x_64, x_62, x_31);
 if (lean_obj_tag(x_65) == 1)
 {
@@ -4168,7 +4168,7 @@ lean_inc(x_126);
 lean_dec(x_16);
 x_127 = lean_st_ref_get(x_1);
 x_128 = l_Std_DHashMap_Internal_Raw_u2080_contains___at___00Lean_Linter_constructorNameAsVariable_spec__0___redArg(x_127, x_126);
-lean_dec_ref(x_127);
+lean_dec(x_127);
 if (x_128 == 0)
 {
 lean_object* x_129; lean_object* x_130; 
@@ -4397,7 +4397,7 @@ lean_dec_ref(x_157);
 x_159 = lean_st_ref_get(x_151);
 x_160 = lean_ctor_get(x_159, 0);
 lean_inc_ref(x_160);
-lean_dec_ref(x_159);
+lean_dec(x_159);
 x_161 = l_Lean_Environment_find_x3f(x_160, x_158, x_140);
 if (lean_obj_tag(x_161) == 1)
 {
@@ -4780,7 +4780,7 @@ x_12 = l_Lean_Linter_constructorNameAsVariable___lam__0___closed__4;
 x_13 = lean_st_mk_ref(x_12);
 x_14 = lean_ctor_get(x_10, 8);
 lean_inc_ref(x_14);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 x_15 = lean_ctor_get(x_14, 2);
 lean_inc_ref(x_15);
 lean_dec_ref(x_14);
@@ -4804,7 +4804,7 @@ x_48 = lean_ctor_get(x_21, 0);
 lean_inc(x_48);
 x_49 = lean_ctor_get(x_21, 1);
 lean_inc_ref(x_49);
-lean_dec_ref(x_21);
+lean_dec(x_21);
 x_50 = lean_mk_empty_array_with_capacity(x_48);
 lean_dec(x_48);
 x_51 = lean_array_get_size(x_49);

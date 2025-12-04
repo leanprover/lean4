@@ -403,9 +403,8 @@ opaque getSelector : MetaM (Option Selector)
 def select (m : MVarId) (c : Config := {}) : MetaM (Array Suggestion) := do
   let some selector ← getSelector |
     throwError "No library suggestions engine registered. \
-      (Note that Lean does not provide a default library suggestions engine, \
-      these must be provided by a downstream library, \
-      and configured using `set_library_suggestions`.)"
+      (Add `import Lean.LibrarySuggestions.Default` to use Lean's built-in engine, \
+      or use `set_library_suggestions` to configure a custom one.)"
   selector m c
 
 /-!

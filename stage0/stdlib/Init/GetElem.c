@@ -3635,7 +3635,7 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean
 lean_dec(x_3);
 x_11 = l_outOfBounds___redArg___closed__0;
 x_12 = l_List_get_x21Internal___redArg___closed__0;
-x_13 = lean_unsigned_to_nat(328u);
+x_13 = lean_unsigned_to_nat(331u);
 x_14 = lean_unsigned_to_nat(18u);
 x_15 = l_List_get_x21Internal___redArg___closed__1;
 x_16 = l_mkPanicMessageWithDecl(x_11, x_12, x_13, x_14, x_15);

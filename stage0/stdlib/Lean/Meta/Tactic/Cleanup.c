@@ -202,7 +202,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_instantiateMVarsCore(x_7, x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -394,7 +394,7 @@ x_13 = lean_st_ref_get(x_11);
 lean_dec(x_11);
 x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_15 = lean_box(0);
 x_16 = l_Std_DTreeMap_Internal_Impl_forInStep___at___00__private_Lean_Meta_Tactic_Cleanup_0__Lean_Meta_cleanupCore_addUsedFVars_spec__1(x_15, x_15, x_14, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_16) == 0)
@@ -557,7 +557,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_8 = lean_st_ref_get(x_2);
 x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_10 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Meta_Tactic_Cleanup_0__Lean_Meta_cleanupCore_addUsedFVar_spec__0___redArg(x_1, x_9);
 lean_dec(x_9);
 if (x_10 == 0)
@@ -1068,7 +1068,7 @@ lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_24; lean_object*
 x_6 = lean_st_ref_get(x_4);
 x_30 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_30);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_31 = l___private_Lean_Meta_Tactic_Cleanup_0__Lean_Meta_cleanupCore_addUsedFVars___closed__4;
 lean_inc_ref(x_30);
 x_32 = lean_alloc_ctor(0, 2, 0);
@@ -1207,7 +1207,7 @@ lean_dec_ref(x_23);
 x_25 = lean_st_ref_get(x_7);
 x_26 = lean_ctor_get(x_25, 1);
 lean_inc(x_26);
-lean_dec_ref(x_25);
+lean_dec(x_25);
 x_27 = l_Lean_LocalDecl_fvarId(x_24);
 x_28 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Meta_Tactic_Cleanup_0__Lean_Meta_cleanupCore_addUsedFVar_spec__0___redArg(x_27, x_26);
 if (x_28 == 0)
@@ -1503,7 +1503,7 @@ lean_dec_ref(x_23);
 x_25 = lean_st_ref_get(x_7);
 x_26 = lean_ctor_get(x_25, 1);
 lean_inc(x_26);
-lean_dec_ref(x_25);
+lean_dec(x_25);
 x_27 = l_Lean_LocalDecl_fvarId(x_24);
 x_28 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Meta_Tactic_Cleanup_0__Lean_Meta_cleanupCore_addUsedFVar_spec__0___redArg(x_27, x_26);
 if (x_28 == 0)
@@ -2173,7 +2173,7 @@ lean_dec_ref(x_23);
 x_25 = lean_st_ref_get(x_7);
 x_26 = lean_ctor_get(x_25, 1);
 lean_inc(x_26);
-lean_dec_ref(x_25);
+lean_dec(x_25);
 x_27 = l_Lean_LocalDecl_fvarId(x_24);
 x_28 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Meta_Tactic_Cleanup_0__Lean_Meta_cleanupCore_addUsedFVar_spec__0___redArg(x_27, x_26);
 if (x_28 == 0)
@@ -2469,7 +2469,7 @@ lean_dec_ref(x_23);
 x_25 = lean_st_ref_get(x_7);
 x_26 = lean_ctor_get(x_25, 1);
 lean_inc(x_26);
-lean_dec_ref(x_25);
+lean_dec(x_25);
 x_27 = l_Lean_LocalDecl_fvarId(x_24);
 x_28 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Meta_Tactic_Cleanup_0__Lean_Meta_cleanupCore_addUsedFVar_spec__0___redArg(x_27, x_26);
 if (x_28 == 0)
@@ -3198,7 +3198,7 @@ lean_dec(x_15);
 x_16 = lean_st_ref_get(x_1);
 x_17 = lean_ctor_get(x_16, 0);
 lean_inc(x_17);
-lean_dec_ref(x_16);
+lean_dec(x_16);
 x_18 = lean_unbox(x_17);
 lean_dec(x_17);
 if (x_18 == 0)
@@ -3225,7 +3225,7 @@ lean_dec(x_13);
 x_21 = lean_st_ref_get(x_1);
 x_22 = lean_ctor_get(x_21, 0);
 lean_inc(x_22);
-lean_dec_ref(x_21);
+lean_dec(x_21);
 x_23 = lean_unbox(x_22);
 lean_dec(x_22);
 if (x_23 == 0)
@@ -3285,7 +3285,7 @@ if (lean_is_exclusive(x_32)) {
 x_34 = lean_st_ref_get(x_1);
 x_35 = lean_ctor_get(x_34, 0);
 lean_inc(x_35);
-lean_dec_ref(x_34);
+lean_dec(x_34);
 x_36 = lean_unbox(x_35);
 lean_dec(x_35);
 if (x_36 == 0)
@@ -3503,7 +3503,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14;
 x_12 = lean_st_ref_get(x_10);
 x_13 = lean_ctor_get(x_12, 1);
 lean_inc(x_13);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_14 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_14, 0, x_13);
 return x_14;
@@ -4277,7 +4277,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_instantiateMVarsCore(x_7, x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -4506,7 +4506,7 @@ x_15 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Meta_Tactic
 lean_dec(x_14);
 if (x_15 == 0)
 {
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_6 = x_5;
 goto block_10;
 }
@@ -5308,7 +5308,7 @@ lean_inc(x_17);
 lean_dec_ref(x_16);
 x_18 = lean_st_ref_get(x_15);
 lean_dec(x_15);
-lean_dec_ref(x_18);
+lean_dec(x_18);
 x_19 = lean_ctor_get(x_6, 2);
 x_20 = lean_ctor_get(x_19, 1);
 lean_inc_ref(x_19);

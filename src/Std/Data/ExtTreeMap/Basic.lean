@@ -152,7 +152,7 @@ def get [TransCmp cmp] (t : ExtTreeMap α β cmp) (a : α) (h : a ∈ t) : β :=
   ExtDTreeMap.Const.get t.inner a h
 
 @[inline, inherit_doc ExtDTreeMap.Const.get!]
-def get! [TransCmp cmp] (t : ExtTreeMap α β cmp) (a : α) [Inhabited β] : β :=
+def get! [TransCmp cmp] [Inhabited β] (t : ExtTreeMap α β cmp) (a : α) : β :=
   ExtDTreeMap.Const.get! t.inner a
 
 @[inline, inherit_doc ExtDTreeMap.Const.getD]

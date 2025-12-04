@@ -586,7 +586,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_instantiateMVarsCore(x_7, x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -2458,7 +2458,7 @@ lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
 lean_inc_ref(x_6);
-lean_inc_ref(x_15);
+lean_inc(x_15);
 x_22 = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00Lean_LocalContext_foldlM___at___00Lean_instantiateLCtxMVars___at___00Lean_MVarId_instantiateGoalMVars_spec__0_spec__2_spec__2_spec__2(x_1, x_15, x_19, x_21, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_22) == 0)
 {
@@ -4182,7 +4182,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7;
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_6 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_isUnfoldReducibleTarget___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(x_6, 0, x_5);
 x_7 = lean_find_expr(x_6, x_1);
@@ -4260,7 +4260,7 @@ lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* 
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_6 = lean_get_reducibility_status(x_5, x_1);
 x_7 = lean_box(x_6);
 x_8 = lean_alloc_ctor(0, 1, 0);
@@ -4387,7 +4387,7 @@ lean_object* x_15; lean_object* x_16; uint8_t x_17;
 x_15 = lean_st_ref_get(x_5);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc_ref(x_16);
-lean_dec_ref(x_15);
+lean_dec(x_15);
 x_17 = l_Lean_Environment_isProjectionFn(x_16, x_8);
 if (x_17 == 0)
 {
@@ -4550,7 +4550,7 @@ lean_object* x_42; lean_object* x_43; uint8_t x_44;
 x_42 = lean_st_ref_get(x_5);
 x_43 = lean_ctor_get(x_42, 0);
 lean_inc_ref(x_43);
-lean_dec_ref(x_42);
+lean_dec(x_42);
 x_44 = l_Lean_Environment_isProjectionFn(x_43, x_8);
 if (x_44 == 0)
 {
@@ -12141,11 +12141,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -12570,7 +12570,7 @@ x_17 = lean_ctor_get(x_1, 2);
 x_18 = lean_st_ref_get(x_5);
 x_19 = lean_ctor_get(x_18, 0);
 lean_inc_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec(x_18);
 lean_inc(x_15);
 x_20 = l_Lean_getStructureInfo_x3f(x_19, x_15);
 if (lean_obj_tag(x_20) == 1)

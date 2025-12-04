@@ -1310,7 +1310,7 @@ x_7 = lean_box(0);
 x_8 = l_Lean_PersistentEnvExtension_getState___redArg(x_6, x_2, x_3, x_4, x_7);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 return x_9;
 }
 }
@@ -1353,7 +1353,7 @@ lean_ctor_set(x_7, 1, x_1);
 x_8 = l_Lean_PersistentEnvExtension_getState___redArg(x_7, x_2, x_3, x_4, x_5);
 x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 return x_9;
 }
 }
@@ -2746,6 +2746,7 @@ x_22 = l_Lean_MapDeclarationExtension_contains___redArg___closed__1;
 x_23 = l_Array_binSearchAux___redArg(x_20, x_22, x_13, x_21, x_14, x_18);
 lean_dec_ref(x_13);
 x_24 = lean_unbox(x_23);
+lean_dec(x_23);
 return x_24;
 }
 }

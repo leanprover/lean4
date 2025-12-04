@@ -4236,7 +4236,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00Lean_LocalContext_getFVarIds_spec__0_spec__0_spec__0(x_6, x_4);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = 1;
 x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
@@ -8590,7 +8590,7 @@ lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10;
 x_7 = lean_array_uget(x_2, x_3);
 lean_inc_ref(x_1);
 x_8 = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00Lean_LocalContext_modifyLocalDecls_spec__0_spec__0_spec__0(x_1, x_7, x_5);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = 1;
 x_10 = lean_usize_add(x_3, x_9);
 x_3 = x_10;
@@ -9697,7 +9697,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00Lean_LocalContext_foldlM___at___00Lean_LocalContext_size_spec__0_spec__0_spec__0_spec__0(x_6, x_4);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = 1;
 x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
@@ -10072,7 +10072,7 @@ uint8_t x_6; uint8_t x_7; lean_object* x_12; lean_object* x_13; lean_object* x_1
 x_6 = 1;
 x_12 = lean_array_uget(x_2, x_3);
 x_13 = l_Lean_Expr_fvarId_x21(x_12);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_14 = lean_ctor_get(x_1, 1);
 x_15 = l_Lean_instBEqFVarId_beq(x_13, x_14);
 lean_dec(x_13);
@@ -11400,6 +11400,7 @@ x_5 = lean_alloc_closure((void*)(l_Lean_LocalContext_any___lam__0___boxed), 2, 1
 lean_closure_set(x_5, 0, x_2);
 x_6 = l_Lean_PersistentArray_anyM___redArg(x_3, x_4, x_5);
 x_7 = lean_unbox(x_6);
+lean_dec(x_6);
 return x_7;
 }
 }
@@ -11466,6 +11467,7 @@ x_5 = lean_alloc_closure((void*)(l_Lean_LocalContext_all___lam__0___boxed), 2, 1
 lean_closure_set(x_5, 0, x_2);
 x_6 = l_Lean_PersistentArray_anyM___redArg(x_3, x_4, x_5);
 x_7 = lean_unbox(x_6);
+lean_dec(x_6);
 if (x_7 == 0)
 {
 uint8_t x_8; 

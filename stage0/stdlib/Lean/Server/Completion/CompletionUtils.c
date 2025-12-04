@@ -3187,7 +3187,7 @@ x_13 = 0;
 x_14 = lean_array_get(x_9, x_1, x_11);
 lean_dec_ref(x_1);
 x_15 = lean_array_get(x_8, x_14, x_11);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_16 = lean_box(x_13);
 x_17 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_17, 0, x_16);
@@ -3317,7 +3317,7 @@ goto block_9;
 }
 else
 {
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_5 = x_4;
 goto block_9;
 }
@@ -3356,7 +3356,7 @@ goto block_9;
 }
 else
 {
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_5 = x_4;
 goto block_9;
 }
@@ -3664,7 +3664,7 @@ if (x_17 == 0)
 lean_dec(x_16);
 lean_dec_ref(x_15);
 lean_dec(x_14);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_7 = x_6;
 goto block_11;
 }
@@ -3679,7 +3679,7 @@ x_20 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__priv
 lean_dec_ref(x_15);
 if (x_20 == 0)
 {
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_7 = x_6;
 goto block_11;
 }
@@ -3695,7 +3695,7 @@ goto block_11;
 block_32:
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; 
-lean_inc_ref(x_13);
+lean_inc(x_13);
 x_25 = l_Array_toSubarray___redArg(x_13, x_23, x_24);
 x_26 = lean_ctor_get(x_25, 0);
 lean_inc_ref(x_26);
@@ -3710,7 +3710,7 @@ if (x_29 == 0)
 lean_dec(x_28);
 lean_dec(x_27);
 lean_dec_ref(x_26);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_7 = x_6;
 goto block_11;
 }
@@ -4836,7 +4836,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11;
 x_9 = lean_st_ref_get(x_7);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 lean_inc_ref(x_10);
 x_11 = l___private_Lean_Structure_0__Lean_getStructureResolutionOrder_x3f(x_10, x_1);
 if (lean_obj_tag(x_11) == 1)
@@ -5041,7 +5041,7 @@ x_33 = lean_st_ref_set(x_2, x_32);
 x_34 = lean_st_ref_get(x_6);
 x_35 = lean_ctor_get(x_34, 0);
 lean_inc_ref(x_35);
-lean_dec_ref(x_34);
+lean_dec(x_34);
 lean_inc(x_30);
 x_36 = l_Lean_isStructure(x_35, x_30);
 if (x_36 == 0)
@@ -5956,7 +5956,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_instantiateMVarsCore(x_7, x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);

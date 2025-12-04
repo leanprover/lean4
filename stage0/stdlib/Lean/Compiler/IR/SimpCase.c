@@ -119,7 +119,7 @@ if (x_4 == 0)
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_array_uget(x_1, x_2);
 x_6 = l_Lean_IR_Alt_isDefault(x_5);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 if (x_6 == 0)
 {
 size_t x_7; size_t x_8; 
@@ -196,7 +196,7 @@ x_6 = l_Lean_IR_ensureHasDefault___closed__0;
 x_7 = l_Array_back_x21___redArg(x_6, x_1);
 x_8 = lean_array_pop(x_1);
 x_9 = l_Lean_IR_Alt_body(x_7);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_10 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_10, 0, x_9);
 x_11 = lean_array_push(x_8, x_10);
@@ -357,7 +357,7 @@ lean_object* x_16;
 lean_dec(x_13);
 lean_dec(x_12);
 x_16 = lean_array_fget_borrowed(x_1, x_4);
-lean_inc_ref(x_16);
+lean_inc(x_16);
 lean_ctor_set(x_3, 1, x_16);
 lean_ctor_set(x_3, 0, x_14);
 x_5 = x_3;
@@ -390,7 +390,7 @@ lean_object* x_22; lean_object* x_23;
 lean_dec(x_18);
 lean_dec(x_17);
 x_22 = lean_array_fget_borrowed(x_1, x_4);
-lean_inc_ref(x_22);
+lean_inc(x_22);
 x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_19);
 lean_ctor_set(x_23, 1, x_22);
@@ -442,7 +442,7 @@ if (x_8 == 0)
 {
 lean_object* x_9; 
 lean_dec(x_4);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_6);
 lean_ctor_set(x_9, 1, x_7);
@@ -451,7 +451,7 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-lean_inc_ref(x_6);
+lean_inc(x_6);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_7);
 lean_ctor_set(x_10, 1, x_6);
@@ -534,7 +534,7 @@ goto block_10;
 }
 else
 {
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_6 = x_5;
 goto block_10;
 }
@@ -724,7 +724,7 @@ goto block_9;
 }
 else
 {
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_5 = x_4;
 goto block_9;
 }
@@ -835,7 +835,7 @@ lean_dec(x_1);
 x_13 = lean_array_fget(x_6, x_8);
 lean_dec_ref(x_6);
 x_14 = l_Lean_IR_Alt_body(x_13);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 return x_14;
 }
 }

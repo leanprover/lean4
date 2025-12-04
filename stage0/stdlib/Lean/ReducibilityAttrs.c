@@ -2859,7 +2859,7 @@ if (x_10 == 0)
 lean_object* x_11; 
 lean_dec(x_7);
 lean_dec(x_3);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_11 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_11, 0, x_8);
 return x_11;
@@ -4245,7 +4245,7 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = l_Lean_Name_isAnonymous(x_2);
 if (x_7 == 0)
 {
@@ -4488,7 +4488,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = lean_ctor_get(x_2, 2);
 x_8 = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_ReducibilityAttrs_0__Lean_validate_spec__1_spec__1_spec__1_spec__1_spec__3_spec__3_spec__3___closed__2;
 x_9 = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_ReducibilityAttrs_0__Lean_validate_spec__1_spec__1_spec__1_spec__1_spec__3_spec__3_spec__3___closed__6;
@@ -4816,7 +4816,7 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8;
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = 0;
 lean_inc(x_1);
 x_8 = l_Lean_Environment_find_x3f(x_6, x_1, x_7);
@@ -5222,7 +5222,7 @@ if (lean_is_exclusive(x_19)) {
 x_23 = lean_st_ref_get(x_5);
 x_30 = lean_ctor_get(x_23, 0);
 lean_inc_ref(x_30);
-lean_dec_ref(x_23);
+lean_dec(x_23);
 lean_inc(x_1);
 x_31 = lean_get_reducibility_status(x_30, x_1);
 switch (x_3) {
@@ -5234,7 +5234,7 @@ lean_dec(x_20);
 x_32 = lean_st_ref_get(x_5);
 x_41 = lean_ctor_get(x_32, 0);
 lean_inc_ref(x_41);
-lean_dec_ref(x_32);
+lean_dec(x_32);
 x_42 = l_Lean_Environment_getModuleIdxFor_x3f(x_41, x_1);
 lean_dec_ref(x_41);
 if (lean_obj_tag(x_42) == 1)

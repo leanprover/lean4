@@ -487,7 +487,7 @@ if (lean_is_exclusive(x_4)) {
 }
 x_29 = lean_ctor_get(x_13, 0);
 lean_inc_ref(x_29);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_30 = 1;
 x_31 = l_Lean_Elab_Eqns_tryURefl___closed__0;
 x_32 = 0;

@@ -2477,7 +2477,7 @@ else
 lean_object* x_11; 
 x_11 = lean_array_fget_borrowed(x_1, x_7);
 lean_dec(x_7);
-lean_inc_ref(x_11);
+lean_inc(x_11);
 lean_ctor_set(x_3, 0, x_11);
 return x_3;
 }
@@ -2506,7 +2506,7 @@ else
 lean_object* x_18; lean_object* x_19; 
 x_18 = lean_array_fget_borrowed(x_1, x_14);
 lean_dec(x_14);
-lean_inc_ref(x_18);
+lean_inc(x_18);
 x_19 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
 return x_19;

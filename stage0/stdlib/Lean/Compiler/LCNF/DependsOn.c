@@ -675,7 +675,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l_Lean_Compiler_LCNF_Alt_getCode(x_6);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_depOn(x_7, x_4);
 lean_dec_ref(x_7);
 if (x_8 == 0)

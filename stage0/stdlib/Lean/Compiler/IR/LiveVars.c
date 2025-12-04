@@ -709,7 +709,7 @@ if (x_6 == 0)
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_7 = lean_array_uget(x_2, x_3);
 x_8 = l_Lean_IR_Alt_body(x_7);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = l_Lean_IR_IsLive_visitFnBody(x_1, x_8, x_5);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
@@ -4477,7 +4477,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_array_uget(x_1, x_2);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindVar(x_8, x_5);
 lean_dec(x_8);
 x_10 = lean_ctor_get(x_9, 0);
@@ -6334,7 +6334,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; 
 x_8 = lean_array_uget(x_2, x_3);
 x_9 = l_Lean_IR_Alt_body(x_8);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 lean_inc(x_1);
 x_10 = l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitFnBody(x_9, x_1, x_6);
 x_11 = lean_ctor_get(x_10, 0);

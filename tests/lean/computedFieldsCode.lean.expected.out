@@ -287,7 +287,7 @@
     def g._boxed (x_1 : tobj) : tagged :=
       let x_2 : u8 := g x_1;
       dec x_1;
-      let x_3 : tobj := box x_2;
+      let x_3 : tagged := box x_2;
       ret x_3
 [Compiler.IR] [result]
     def hash' (x_1 : @& tobj) : tobj :=

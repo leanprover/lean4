@@ -67,6 +67,7 @@ public structure ModuleImport extends Import where
 /-- A module's source file path plus its parsed header. -/
 public structure ModuleInput where
   path : FilePath
+  trace : BuildTrace
   header : ModuleHeader
   imports : Array ModuleImport
 

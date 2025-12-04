@@ -1698,7 +1698,7 @@ if (lean_is_exclusive(x_9)) {
 x_31 = lean_array_uget(x_6, x_8);
 x_32 = lean_ctor_get(x_31, 0);
 lean_inc(x_32);
-lean_dec_ref(x_31);
+lean_dec(x_31);
 lean_inc(x_18);
 lean_inc_ref(x_17);
 lean_inc(x_16);
@@ -2043,7 +2043,7 @@ if (lean_is_exclusive(x_9)) {
 x_31 = lean_array_uget(x_6, x_8);
 x_32 = lean_ctor_get(x_31, 0);
 lean_inc(x_32);
-lean_dec_ref(x_31);
+lean_dec(x_31);
 lean_inc(x_18);
 lean_inc_ref(x_17);
 lean_inc(x_16);
@@ -2762,7 +2762,7 @@ if (lean_is_exclusive(x_9)) {
 x_31 = lean_array_uget(x_6, x_8);
 x_32 = lean_ctor_get(x_31, 0);
 lean_inc(x_32);
-lean_dec_ref(x_31);
+lean_dec(x_31);
 lean_inc(x_18);
 lean_inc_ref(x_17);
 lean_inc(x_16);
@@ -3143,7 +3143,7 @@ if (lean_is_exclusive(x_9)) {
 x_31 = lean_array_uget(x_6, x_8);
 x_32 = lean_ctor_get(x_31, 0);
 lean_inc(x_32);
-lean_dec_ref(x_31);
+lean_dec(x_31);
 lean_inc(x_18);
 lean_inc_ref(x_17);
 lean_inc(x_16);
@@ -10015,7 +10015,7 @@ lean_object* x_30; lean_object* x_31; uint8_t x_32;
 x_30 = l_Lean_instInhabitedExpr;
 x_31 = l_Lean_PersistentArray_get_x21___redArg(x_30, x_1, x_22);
 x_32 = l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(x_21, x_31);
-lean_dec_ref(x_31);
+lean_dec(x_31);
 if (x_32 == 0)
 {
 lean_object* x_33; lean_object* x_34; 

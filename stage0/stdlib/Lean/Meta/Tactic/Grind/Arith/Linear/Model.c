@@ -3091,7 +3091,7 @@ x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 x_26 = lean_ctor_get(x_24, 1);
 lean_inc(x_26);
-lean_dec_ref(x_24);
+lean_dec(x_24);
 x_36 = lean_nat_dec_eq(x_4, x_26);
 lean_dec(x_26);
 if (x_36 == 0)
@@ -3235,7 +3235,7 @@ x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 x_26 = lean_ctor_get(x_24, 1);
 lean_inc(x_26);
-lean_dec_ref(x_24);
+lean_dec(x_24);
 x_36 = lean_nat_dec_eq(x_3, x_26);
 lean_dec(x_26);
 if (x_36 == 0)
@@ -3753,7 +3753,7 @@ x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 x_26 = lean_ctor_get(x_24, 1);
 lean_inc(x_26);
-lean_dec_ref(x_24);
+lean_dec(x_24);
 x_36 = lean_nat_dec_eq(x_4, x_26);
 lean_dec(x_26);
 if (x_36 == 0)
@@ -3897,7 +3897,7 @@ x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 x_26 = lean_ctor_get(x_24, 1);
 lean_inc(x_26);
-lean_dec_ref(x_24);
+lean_dec(x_24);
 x_36 = lean_nat_dec_eq(x_3, x_26);
 lean_dec(x_26);
 if (x_36 == 0)
@@ -4299,7 +4299,7 @@ x_14 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Model_0__Lean_Meta_Grind_
 x_15 = lean_array_get(x_14, x_12, x_2);
 lean_dec_ref(x_12);
 x_16 = l_Lean_PersistentArray_forIn___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Model_0__Lean_Meta_Grind_Arith_Linear_assignTerms_spec__2(x_15, x_1, x_2, x_13, x_3, x_4, x_5, x_6, x_7);
-lean_dec_ref(x_15);
+lean_dec(x_15);
 return x_16;
 }
 else
@@ -7518,7 +7518,7 @@ lean_inc_ref(x_5);
 lean_inc(x_4);
 lean_inc_ref(x_3);
 lean_inc_ref(x_12);
-lean_inc_ref(x_15);
+lean_inc(x_15);
 lean_inc_ref(x_1);
 x_16 = l_Lean_PersistentArray_forIn___at___00Lean_Meta_Grind_Arith_Linear_mkModel_spec__0(x_1, x_15, x_12, x_14, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_16) == 0)
@@ -7550,7 +7550,7 @@ lean_inc(x_21);
 lean_dec_ref(x_20);
 x_22 = lean_ctor_get(x_15, 2);
 lean_inc_ref(x_22);
-lean_dec_ref(x_15);
+lean_dec(x_15);
 x_23 = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Model_0__Lean_Meta_Grind_Arith_Linear_hasType___boxed), 7, 1);
 lean_closure_set(x_23, 0, x_22);
 lean_inc(x_6);
@@ -7624,7 +7624,7 @@ return x_24;
 else
 {
 uint8_t x_34; 
-lean_dec_ref(x_15);
+lean_dec(x_15);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -7650,7 +7650,7 @@ return x_36;
 else
 {
 uint8_t x_37; 
-lean_dec_ref(x_15);
+lean_dec(x_15);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -7676,7 +7676,7 @@ return x_39;
 else
 {
 uint8_t x_40; 
-lean_dec_ref(x_15);
+lean_dec(x_15);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);

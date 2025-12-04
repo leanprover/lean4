@@ -904,7 +904,7 @@ x_72 = lean_st_ref_get(x_12);
 lean_dec(x_12);
 x_73 = lean_ctor_get(x_72, 0);
 lean_inc_ref(x_73);
-lean_dec_ref(x_72);
+lean_dec(x_72);
 x_90 = lean_string_validate_utf8(x_73);
 if (x_90 == 0)
 {

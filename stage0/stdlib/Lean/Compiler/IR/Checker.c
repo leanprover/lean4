@@ -425,7 +425,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = lean_ctor_get(x_2, 2);
 x_8 = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_IR_Checker_throwCheckerError_spec__0_spec__0___closed__2;
 x_9 = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_IR_Checker_throwCheckerError_spec__0_spec__0___closed__6;
@@ -1773,7 +1773,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_ctor_get(x_2, 2);
 lean_inc(x_1);
 x_10 = l_Lean_IR_findEnvDecl_x27(x_8, x_1, x_9);
@@ -4557,7 +4557,7 @@ goto _start;
 else
 {
 uint8_t x_18; 
-lean_dec_ref(x_11);
+lean_dec(x_11);
 lean_dec(x_4);
 x_18 = !lean_is_exclusive(x_13);
 if (x_18 == 0)
@@ -5165,7 +5165,7 @@ if (x_10 == 0)
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_11 = lean_array_uget(x_1, x_2);
 x_12 = l_Lean_IR_Alt_body(x_11);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 lean_inc_ref(x_5);
 x_13 = l_Lean_IR_Checker_checkFnBody(x_12, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_13) == 0)

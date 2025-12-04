@@ -22,6 +22,7 @@ static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_Dependency_mkReq
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_LeanConfig_mkDeclFields___closed__2;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_CLI_Translate_Lean_0__Lake_quoteArray_x3f___at___00__private_Lake_CLI_Translate_Lean_0__Lake_PatternDescr_toLean_x3f___at___00__private_Lake_CLI_Translate_Lean_0__Lake_Pattern_toLean_x3f___at___00__private_Lake_CLI_Translate_Lean_0__Lake_PathPatDescr_toLean_x3f_spec__0_spec__0_spec__1_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_filterMapM___at___00Lake_Package_mkLeanConfig_spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___closed__30;
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_mkDeclValWhere_x3f___closed__4;
@@ -875,7 +876,6 @@ extern lean_object* l_Lake_LeanConfig_plugins___proj;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_PackageConfig_mkCommand(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_PackageConfig_irDir___proj(lean_object*, lean_object*);
 lean_object* l_Lake_PackageConfig_versionTags___proj(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_Glob_toLean___closed__12;
 lean_object* l_Lake_LeanLibConfig_extraDepTargets___proj(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_instAddDeclFieldOfToLeanMkStr1OfConfigFieldOption___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1331,7 +1331,7 @@ x_10 = l___private_Lake_CLI_Translate_Lean_0__Lake_instToLeanArrayMkStr1___redAr
 x_11 = l___private_Lake_CLI_Translate_Lean_0__Lake_instToLeanArrayMkStr1___redArg___lam__1___closed__17;
 x_12 = l___private_Lake_CLI_Translate_Lean_0__Lake_instToLeanArrayMkStr1___redArg___lam__1___closed__18;
 x_13 = l_Lean_Syntax_SepArray_ofElems(x_12, x_6);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_14 = l_Array_append___redArg(x_11, x_13);
 lean_dec_ref(x_13);
 x_15 = lean_alloc_ctor(1, 3, 0);
@@ -1632,7 +1632,7 @@ x_12 = l___private_Lake_CLI_Translate_Lean_0__Lake_instToLeanArrayMkStr1___redAr
 x_13 = l___private_Lake_CLI_Translate_Lean_0__Lake_instToLeanArrayMkStr1___redArg___lam__1___closed__17;
 x_14 = l___private_Lake_CLI_Translate_Lean_0__Lake_instToLeanArrayMkStr1___redArg___lam__1___closed__18;
 x_15 = l_Lean_Syntax_SepArray_ofElems(x_14, x_8);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_16 = l_Array_append___redArg(x_13, x_15);
 lean_dec_ref(x_15);
 x_17 = lean_alloc_ctor(1, 3, 0);
@@ -1844,7 +1844,7 @@ x_17 = l___private_Lake_CLI_Translate_Lean_0__Lake_instToLeanArrayMkStr1___redAr
 x_18 = l___private_Lake_CLI_Translate_Lean_0__Lake_instToLeanArrayMkStr1___redArg___lam__1___closed__17;
 x_19 = l___private_Lake_CLI_Translate_Lean_0__Lake_instToLeanArrayMkStr1___redArg___lam__1___closed__18;
 x_20 = l_Lean_Syntax_SepArray_ofElems(x_19, x_11);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_21 = l_Array_append___redArg(x_18, x_20);
 lean_dec_ref(x_20);
 lean_inc(x_13);
@@ -1896,7 +1896,7 @@ x_16 = l___private_Lake_CLI_Translate_Lean_0__Lake_instToLeanArrayMkStr1___redAr
 x_17 = l___private_Lake_CLI_Translate_Lean_0__Lake_instToLeanArrayMkStr1___redArg___lam__1___closed__17;
 x_18 = l___private_Lake_CLI_Translate_Lean_0__Lake_instToLeanArrayMkStr1___redArg___lam__1___closed__18;
 x_19 = l_Lean_Syntax_SepArray_ofElems(x_18, x_10);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 x_20 = l_Array_append___redArg(x_17, x_19);
 lean_dec_ref(x_19);
 lean_inc(x_12);
@@ -1950,7 +1950,7 @@ x_18 = l___private_Lake_CLI_Translate_Lean_0__Lake_instToLeanArrayMkStr1___redAr
 x_19 = l___private_Lake_CLI_Translate_Lean_0__Lake_instToLeanArrayMkStr1___redArg___lam__1___closed__17;
 x_20 = l___private_Lake_CLI_Translate_Lean_0__Lake_instToLeanArrayMkStr1___redArg___lam__1___closed__18;
 x_21 = l_Lean_Syntax_SepArray_ofElems(x_20, x_12);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_22 = l_Array_append___redArg(x_19, x_21);
 lean_dec_ref(x_21);
 lean_inc(x_14);
@@ -10527,7 +10527,7 @@ x_15 = lean_array_uget(x_2, x_3);
 x_16 = lean_ctor_get_uint8(x_15, sizeof(void*)*2);
 if (x_16 == 0)
 {
-lean_dec_ref(x_15);
+lean_dec(x_15);
 x_8 = x_5;
 x_9 = x_7;
 goto block_13;
@@ -10537,7 +10537,7 @@ else
 lean_object* x_17; uint8_t x_18; 
 x_17 = lean_ctor_get(x_15, 0);
 lean_inc(x_17);
-lean_dec_ref(x_15);
+lean_dec(x_15);
 x_18 = l_Array_contains___at___00__private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___at___00__private_Lake_CLI_Translate_Lean_0__Lake___aux__Lake__CLI__Translate__Lean______macroRules____private__Lake__CLI__Translate__Lean__0__Lake__commandGen__lean__encoders_x25__1_spec__0_spec__0(x_1, x_17);
 if (x_18 == 0)
 {
@@ -27519,9 +27519,9 @@ x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
 x_8 = lean_array_fget_borrowed(x_1, x_7);
 x_9 = lean_array_fget_borrowed(x_2, x_7);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_10 = l_System_FilePath_normalize(x_8);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 x_11 = l_System_FilePath_normalize(x_9);
 x_12 = lean_string_dec_eq(x_10, x_11);
 lean_dec_ref(x_11);
@@ -31897,7 +31897,7 @@ x_15 = lean_ctor_get(x_13, 2);
 lean_inc(x_15);
 x_16 = lean_ctor_get(x_13, 3);
 lean_inc(x_16);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_17 = lean_name_eq(x_15, x_1);
 lean_dec(x_15);
 if (x_17 == 0)
@@ -31978,7 +31978,7 @@ x_15 = lean_ctor_get(x_13, 2);
 lean_inc(x_15);
 x_16 = lean_ctor_get(x_13, 3);
 lean_inc(x_16);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_17 = lean_name_eq(x_15, x_1);
 lean_dec(x_15);
 if (x_17 == 0)
@@ -32059,7 +32059,7 @@ x_15 = lean_ctor_get(x_13, 2);
 lean_inc(x_15);
 x_16 = lean_ctor_get(x_13, 3);
 lean_inc(x_16);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_17 = lean_name_eq(x_15, x_1);
 lean_dec(x_15);
 if (x_17 == 0)
@@ -32140,7 +32140,7 @@ x_15 = lean_ctor_get(x_13, 2);
 lean_inc(x_15);
 x_16 = lean_ctor_get(x_13, 3);
 lean_inc(x_16);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_17 = lean_name_eq(x_15, x_1);
 lean_dec(x_15);
 if (x_17 == 0)

@@ -10481,7 +10481,7 @@ x_7 = lean_nat_add(x_3, x_6);
 x_8 = l_Lean_instInhabitedExpr;
 x_9 = lean_array_get_borrowed(x_8, x_2, x_3);
 lean_dec(x_3);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 x_10 = l_Lean_Expr_app___override(x_4, x_9);
 x_3 = x_7;
 x_4 = x_10;
@@ -12514,6 +12514,7 @@ x_2 = 0;
 x_3 = lean_box(x_2);
 x_4 = lean_panic_fn(x_3, x_1);
 x_5 = lean_unbox(x_4);
+lean_dec(x_4);
 return x_5;
 }
 }
@@ -12939,6 +12940,7 @@ x_2 = 0;
 x_3 = lean_box(x_2);
 x_4 = lean_panic_fn(x_3, x_1);
 x_5 = lean_unbox(x_4);
+lean_dec(x_4);
 return x_5;
 }
 }
@@ -15386,7 +15388,7 @@ x_7 = lean_nat_sub(x_4, x_6);
 lean_dec(x_4);
 x_8 = l_Lean_instInhabitedExpr;
 x_9 = lean_array_get_borrowed(x_8, x_1, x_7);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 x_10 = l_Lean_Expr_app___override(x_3, x_9);
 x_3 = x_10;
 x_4 = x_7;
@@ -18962,7 +18964,7 @@ else
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
 x_30 = lean_box(0);
 x_31 = lean_expr_lift_loose_bvars(x_20, x_15, x_12);
-lean_dec_ref(x_20);
+lean_dec(x_20);
 x_32 = l_Lean_Expr_letFun_x3f___closed__0;
 x_33 = l_Lean_Expr_app___override(x_31, x_32);
 x_34 = lean_alloc_ctor(0, 2, 0);

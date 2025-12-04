@@ -171,7 +171,7 @@ else
 {
 lean_object* x_38; 
 x_38 = lean_array_fget_borrowed(x_5, x_1);
-lean_inc_ref(x_38);
+lean_inc(x_38);
 x_29 = x_38;
 goto block_34;
 }
@@ -275,7 +275,7 @@ x_12 = lean_unbox(x_11);
 x_13 = lean_uint8_to_nat(x_12);
 x_14 = lean_array_get_borrowed(x_8, x_1, x_13);
 lean_dec(x_13);
-lean_inc_ref(x_14);
+lean_inc(x_14);
 lean_inc(x_9);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_9);

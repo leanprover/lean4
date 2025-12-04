@@ -1897,7 +1897,7 @@ if (x_6 == 0)
 lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; 
 x_7 = lean_array_uget(x_2, x_3);
 x_8 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder(x_1, x_5, x_7);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = 1;
 x_10 = lean_usize_add(x_3, x_9);
 x_3 = x_10;

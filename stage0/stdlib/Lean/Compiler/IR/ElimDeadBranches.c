@@ -4665,7 +4665,7 @@ if (x_10 == 0)
 lean_object* x_11; 
 lean_dec(x_7);
 lean_dec(x_3);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_11 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_11, 0, x_8);
 return x_11;
@@ -8436,7 +8436,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_o
 x_8 = lean_array_uget(x_1, x_2);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_10 = lean_box(1);
 x_11 = l_Lean_IR_UnreachableBranches_updateVarAssignment(x_9, x_10, x_5, x_6);
 x_12 = lean_ctor_get(x_11, 0);
@@ -9354,7 +9354,7 @@ lean_dec(x_4);
 x_11 = lean_array_fget_borrowed(x_3, x_5);
 lean_inc_ref(x_1);
 x_12 = lean_array_get_borrowed(x_1, x_2, x_5);
-lean_inc_ref(x_11);
+lean_inc(x_11);
 x_13 = l_Lean_IR_UnreachableBranches_elimDead(x_12, x_11);
 x_14 = lean_nat_add(x_5, x_9);
 lean_dec(x_5);
@@ -9460,7 +9460,7 @@ lean_object* x_4; lean_object* x_5; size_t x_6; size_t x_7; lean_object* x_8; le
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_6 = lean_array_size(x_1);
 x_7 = 0;
 lean_inc_ref(x_1);

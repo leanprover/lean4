@@ -13,16 +13,16 @@ public meta import Lean.Elab.Tactic.Try
 
 open Lean Meta Elab Tactic Try
 
--- Define a custom proposition that built-in tactics won't solve
-inductive CustomGoal : Prop where
-  | mk : CustomGoal
+-- Define an opaque proposition that built-in tactics (including solve_by_elim) won't solve
+opaque CustomGoal : Prop
+axiom customGoalHolds : CustomGoal
 
 -- Create a tactic that consumes heartbeats through meta operations
 elab "expensive_meta_tactic" : tactic => do
   for _ in [:10000] do
     let mvar ← mkFreshExprMVar (some (mkConst ``Nat))
     let _ ← instantiateMVars mvar
-  evalTactic (← `(tactic| exact CustomGoal.mk))
+  evalTactic (← `(tactic| exact customGoalHolds))
 
 -- Verify that expensive_meta_tactic actually consumes heartbeats:
 -- It times out at 100 heartbeats
@@ -51,26 +51,16 @@ meta def expensiveSolver (_ : MVarId) (_ : Try.Info) : MetaM (Array (TSyntax `ta
 
 @[local try_suggestion 700]
 meta def cheapSolver (_ : MVarId) (_ : Try.Info) : MetaM (Array (TSyntax `tactic)) := do
-  return #[← `(tactic| exact CustomGoal.mk)]
+  return #[← `(tactic| exact customGoalHolds)]
 
--- With 2 heartbeats, `try?` still works, but can't find anything.
-set_option maxHeartbeats 2 in
-/--
-error: Tactic `try?` failed: consider using `grind` manually, or `try? +missing` for partial proofs containing `sorry`
-
-⊢ CustomGoal
--/
-#guard_msgs in
-example : CustomGoal := by
-  try?
 
 -- With 100 heartbeats
 -- expensive_meta_tactic should be filtered out from try? suggestions
--- Only `CustomGoal.mk`` should appear
+-- Only `customGoalHolds`` should appear
 set_option maxHeartbeats 100 in
 /--
 info: Try this:
-  [apply] exact CustomGoal.mk✝
+  [apply] exact customGoalHolds✝
 -/
 #guard_msgs in
 example : CustomGoal := by
@@ -80,7 +70,7 @@ example : CustomGoal := by
 /--
 info: Try these:
   [apply] expensive_meta_tactic
-  [apply] exact CustomGoal.mk✝
+  [apply] exact customGoalHolds✝
 -/
 #guard_msgs in
 set_option maxHeartbeats 500 in

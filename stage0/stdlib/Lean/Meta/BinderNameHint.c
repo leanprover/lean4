@@ -1379,7 +1379,7 @@ _start:
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_15; lean_object* x_19; lean_object* x_20; 
 x_19 = lean_st_ref_get(x_2);
 x_20 = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00__private_Lean_Meta_BinderNameHint_0__Lean_Expr_resolveBinderNameHint_go_spec__6___redArg(x_19, x_1);
-lean_dec_ref(x_19);
+lean_dec(x_19);
 if (lean_obj_tag(x_20) == 0)
 {
 lean_object* x_21; lean_object* x_22; uint8_t x_23; 
@@ -2357,7 +2357,7 @@ lean_inc(x_11);
 lean_dec(x_10);
 x_12 = lean_st_ref_get(x_6);
 lean_dec(x_6);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 lean_ctor_set(x_8, 0, x_11);
 return x_8;
 }
@@ -2372,7 +2372,7 @@ lean_inc(x_14);
 lean_dec(x_13);
 x_15 = lean_st_ref_get(x_6);
 lean_dec(x_6);
-lean_dec_ref(x_15);
+lean_dec(x_15);
 x_16 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_16, 0, x_14);
 return x_16;

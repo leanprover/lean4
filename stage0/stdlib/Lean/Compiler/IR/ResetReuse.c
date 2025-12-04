@@ -1400,7 +1400,7 @@ case 0:
 {
 uint8_t x_40; 
 x_40 = lean_ctor_get_uint8(x_38, sizeof(void*)*2);
-lean_dec_ref(x_38);
+lean_dec(x_38);
 if (x_40 == 0)
 {
 uint8_t x_41; 
@@ -1421,7 +1421,7 @@ goto block_34;
 case 1:
 {
 uint8_t x_43; 
-lean_dec_ref(x_38);
+lean_dec(x_38);
 x_43 = lean_unbox(x_16);
 lean_dec(x_16);
 x_31 = x_43;
@@ -1432,7 +1432,7 @@ default:
 uint8_t x_44; 
 lean_dec(x_16);
 x_44 = lean_ctor_get_uint8(x_38, sizeof(void*)*2);
-lean_dec_ref(x_38);
+lean_dec(x_38);
 if (x_44 == 0)
 {
 uint8_t x_45; 
@@ -1525,7 +1525,7 @@ case 0:
 {
 uint8_t x_61; 
 x_61 = lean_ctor_get_uint8(x_59, sizeof(void*)*2);
-lean_dec_ref(x_59);
+lean_dec(x_59);
 if (x_61 == 0)
 {
 uint8_t x_62; 
@@ -1546,7 +1546,7 @@ goto block_55;
 case 1:
 {
 uint8_t x_64; 
-lean_dec_ref(x_59);
+lean_dec(x_59);
 x_64 = lean_unbox(x_16);
 lean_dec(x_16);
 x_52 = x_64;
@@ -1557,7 +1557,7 @@ default:
 uint8_t x_65; 
 lean_dec(x_16);
 x_65 = lean_ctor_get_uint8(x_59, sizeof(void*)*2);
-lean_dec_ref(x_59);
+lean_dec(x_59);
 if (x_65 == 0)
 {
 uint8_t x_66; 
@@ -4625,7 +4625,7 @@ if (x_6 == 0)
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; 
 x_7 = lean_array_uget(x_1, x_2);
 x_8 = l_Lean_IR_Alt_body(x_7);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = l_Lean_IR_ResetReuse_collectResets(x_8, x_5);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);

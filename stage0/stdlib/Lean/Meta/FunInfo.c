@@ -793,7 +793,7 @@ if (lean_is_exclusive(x_9)) {
 x_12 = lean_st_ref_get(x_5);
 x_13 = lean_ctor_get(x_12, 1);
 lean_inc_ref(x_13);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_14 = lean_ctor_get(x_13, 1);
 lean_inc_ref(x_14);
 lean_dec_ref(x_13);
@@ -2422,7 +2422,7 @@ x_17 = lean_usize_shift_right(x_11, x_16);
 x_18 = lean_nat_add(x_4, x_13);
 lean_dec(x_4);
 lean_inc(x_9);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_19 = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Environment_realizeValue___at___00Lean_Meta_realizeValue___at___00__private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__13_spec__13_spec__16_spec__16___redArg(x_5, x_17, x_1, x_8, x_9);
 x_4 = x_18;
 x_5 = x_19;
@@ -3183,7 +3183,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_realizeValue___at___00__private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__13___redArg___closed__10;
 x_2 = lean_unsigned_to_nat(36u);
-x_3 = lean_unsigned_to_nat(2563u);
+x_3 = lean_unsigned_to_nat(2566u);
 x_4 = l_Lean_Meta_realizeValue___at___00__private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__13___redArg___closed__9;
 x_5 = l_Lean_Meta_realizeValue___at___00__private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__13___redArg___closed__8;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3214,7 +3214,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_realizeValue___at___00__private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__13___redArg___closed__10;
 x_2 = lean_unsigned_to_nat(48u);
-x_3 = lean_unsigned_to_nat(2554u);
+x_3 = lean_unsigned_to_nat(2557u);
 x_4 = l_Lean_Meta_realizeValue___at___00__private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__13___redArg___closed__9;
 x_5 = l_Lean_Meta_realizeValue___at___00__private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__13___redArg___closed__8;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3228,7 +3228,7 @@ lean_object* x_11; lean_object* x_12; uint8_t x_13;
 x_11 = lean_st_ref_get(x_9);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc_ref(x_12);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_13 = l_Lean_Environment_areRealizationsEnabledForConst(x_12, x_3);
 if (x_13 == 0)
 {
@@ -3930,7 +3930,7 @@ x_17 = lean_usize_shift_right(x_11, x_16);
 x_18 = lean_nat_add(x_4, x_13);
 lean_dec(x_4);
 lean_inc(x_9);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_19 = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__5_spec__5___redArg(x_5, x_17, x_1, x_8, x_9);
 x_4 = x_18;
 x_5 = x_19;
@@ -4368,7 +4368,7 @@ lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc(x_9);
 lean_inc_ref(x_8);
-lean_inc_ref(x_26);
+lean_inc(x_26);
 x_29 = lean_infer_type(x_26, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_29) == 0)
 {
@@ -4811,7 +4811,7 @@ lean_dec_ref(x_43);
 x_45 = lean_st_ref_get(x_8);
 x_46 = lean_ctor_get(x_45, 0);
 lean_inc_ref(x_46);
-lean_dec_ref(x_45);
+lean_dec(x_45);
 x_47 = l_Lean_getOutParamPositions_x3f(x_46, x_44);
 lean_dec(x_44);
 if (lean_obj_tag(x_47) == 1)
@@ -5484,7 +5484,7 @@ if (lean_is_exclusive(x_8)) {
 x_50 = lean_st_ref_get(x_4);
 x_51 = lean_ctor_get(x_50, 1);
 lean_inc_ref(x_51);
-lean_dec_ref(x_50);
+lean_dec(x_50);
 x_52 = lean_ctor_get(x_51, 1);
 lean_inc_ref(x_52);
 lean_dec_ref(x_51);

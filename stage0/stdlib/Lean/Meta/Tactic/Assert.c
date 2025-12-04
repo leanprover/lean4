@@ -2464,7 +2464,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10;
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = lean_ctor_get(x_6, 2);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_Expr_app___override(x_4, x_7);
 x_9 = 1;
 x_10 = lean_usize_add(x_2, x_9);
@@ -2494,7 +2494,7 @@ lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc_ref(x_10);
 x_11 = lean_ctor_get_uint8(x_8, sizeof(void*)*3);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_12 = l_Lean_Expr_forallE___override(x_9, x_10, x_4, x_11);
 x_2 = x_7;
 x_4 = x_12;
@@ -3476,7 +3476,7 @@ goto block_22;
 }
 else
 {
-lean_dec_ref(x_16);
+lean_dec(x_16);
 x_17 = x_14;
 goto block_22;
 }
@@ -3587,7 +3587,7 @@ _start:
 lean_object* x_10; lean_object* x_11; lean_object* x_17; lean_object* x_20; lean_object* x_21; 
 x_20 = lean_st_ref_get(x_3);
 x_21 = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_ForEachExpr_visit___at___00__private_Lean_Meta_Tactic_Assert_0__Lean_MVarId_replace_findMaxFVar_spec__0_spec__0___redArg(x_20, x_2);
-lean_dec_ref(x_20);
+lean_dec(x_20);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; 
@@ -3908,7 +3908,7 @@ if (x_12 == 0)
 lean_object* x_13; 
 x_13 = lean_st_ref_get(x_9);
 lean_dec(x_9);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 return x_11;
 }
 else
@@ -3919,7 +3919,7 @@ lean_inc(x_14);
 lean_dec(x_11);
 x_15 = lean_st_ref_get(x_9);
 lean_dec(x_9);
-lean_dec_ref(x_15);
+lean_dec(x_15);
 x_16 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_16, 0, x_14);
 return x_16;
@@ -4040,7 +4040,7 @@ lean_dec_ref(x_13);
 x_14 = lean_st_ref_get(x_12);
 lean_dec(x_12);
 x_15 = l_Lean_LocalDecl_fvarId(x_14);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_16 = l_Lean_LocalDecl_userName(x_11);
 lean_dec(x_11);
 lean_inc(x_8);

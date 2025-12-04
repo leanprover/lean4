@@ -12976,8 +12976,8 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9;
 x_6 = l_Lean_IR_instInhabitedParam_default;
 x_7 = lean_array_get_borrowed(x_6, x_1, x_5);
 x_8 = lean_array_get_borrowed(x_6, x_2, x_5);
-lean_inc_ref(x_8);
-lean_inc_ref(x_7);
+lean_inc(x_8);
+lean_inc(x_7);
 x_9 = l_Lean_IR_addParamRename(x_4, x_7, x_8);
 if (lean_obj_tag(x_9) == 0)
 {

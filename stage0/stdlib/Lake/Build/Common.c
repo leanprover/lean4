@@ -3887,7 +3887,7 @@ block_14:
 lean_object* x_8; lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; 
 x_8 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_8);
 lean_ctor_set(x_9, 1, x_7);
@@ -19385,12 +19385,12 @@ if (x_17 == 0)
 {
 lean_object* x_18; uint8_t x_19; 
 lean_inc_ref(x_1);
-lean_inc_ref(x_16);
+lean_inc(x_16);
 x_18 = lean_apply_1(x_1, x_16);
 x_19 = lean_unbox(x_18);
 if (x_19 == 0)
 {
-lean_dec_ref(x_16);
+lean_dec(x_16);
 x_8 = x_5;
 x_9 = x_6;
 x_10 = lean_box(0);
@@ -19408,7 +19408,7 @@ goto block_14;
 }
 else
 {
-lean_dec_ref(x_16);
+lean_dec(x_16);
 x_8 = x_5;
 x_9 = x_6;
 x_10 = lean_box(0);
@@ -20557,7 +20557,7 @@ lean_object* x_6; uint64_t x_7; uint64_t x_8; uint64_t x_9; uint64_t x_10; size_
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l_Lake_platformTrace___closed__1;
 x_8 = lean_string_hash(x_6);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_9 = lean_uint64_mix_hash(x_7, x_8);
 x_10 = lean_uint64_mix_hash(x_4, x_9);
 x_11 = 1;
@@ -21381,7 +21381,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_16; 
 x_6 = lean_array_uget(x_1, x_3);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 x_16 = l_Lake_Dynlib_dir_x3f(x_6);
 if (lean_obj_tag(x_16) == 1)
 {
@@ -21407,7 +21407,7 @@ block_15:
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; 
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc_ref(x_8);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_9 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lake_Build_Common_0__Lake_mkLinkObjArgs_spec__1___closed__0;
 x_10 = lean_string_append(x_9, x_8);
 lean_dec_ref(x_8);

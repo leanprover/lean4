@@ -936,7 +936,7 @@ lean_object* x_118; lean_object* x_119; size_t x_120; lean_object* x_121; lean_o
 x_118 = lean_st_ref_get(x_3);
 x_119 = lean_ctor_get(x_118, 0);
 lean_inc_ref(x_119);
-lean_dec_ref(x_118);
+lean_dec(x_118);
 x_120 = lean_array_size(x_16);
 x_121 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_IR_compile_spec__6(x_119, x_120, x_15, x_16);
 x_122 = l_Lean_IR_compile___closed__33;

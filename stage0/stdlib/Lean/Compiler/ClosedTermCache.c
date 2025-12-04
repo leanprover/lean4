@@ -546,7 +546,7 @@ x_17 = lean_usize_shift_right(x_11, x_16);
 x_18 = lean_nat_add(x_4, x_13);
 lean_dec(x_4);
 lean_inc(x_9);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_19 = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_initFn_00___x40_Lean_Compiler_ClosedTermCache_3608529163____hygCtx___hyg_2__spec__0_spec__0___redArg(x_5, x_17, x_1, x_8, x_9);
 x_4 = x_18;
 x_5 = x_19;
@@ -1272,7 +1272,7 @@ x_7 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(
 lean_dec(x_4);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = l_Lean_PersistentHashMap_find_x3f___at___00Lean_initFn_00___x40_Lean_Compiler_ClosedTermCache_3608529163____hygCtx___hyg_2__spec__5___redArg(x_8, x_2);
 return x_9;
 }
@@ -1299,7 +1299,7 @@ x_7 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(
 lean_dec(x_4);
 x_8 = lean_ctor_get(x_7, 1);
 lean_inc(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = l_Lean_NameSet_contains(x_8, x_2);
 lean_dec(x_8);
 return x_9;

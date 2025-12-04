@@ -3333,7 +3333,7 @@ x_17 = lean_usize_sub(x_16, x_15);
 x_18 = lean_usize_land(x_6, x_17);
 x_19 = 5;
 x_20 = lean_usize_sub(x_7, x_19);
-lean_inc_ref(x_14);
+lean_inc(x_14);
 x_21 = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00__private_Lean_Language_Basic_0__Lean_Language_reportMessages_spec__4_spec__4(x_1, x_2, x_3, x_4, x_14, x_18, x_20, x_8);
 if (lean_obj_tag(x_21) == 0)
 {

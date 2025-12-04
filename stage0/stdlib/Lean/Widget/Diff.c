@@ -2977,11 +2977,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -7323,7 +7323,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_instantiateMVarsCore(x_7, x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -7446,7 +7446,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11;
 x_9 = lean_st_ref_get(x_5);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = l_Lean_MetavarContext_findDecl_x3f(x_10, x_2);
 if (lean_obj_tag(x_11) == 1)
 {
@@ -7525,7 +7525,7 @@ x_40 = lean_ctor_get(x_38, 0);
 x_41 = lean_st_ref_get(x_5);
 x_42 = lean_ctor_get(x_41, 0);
 lean_inc_ref(x_42);
-lean_dec_ref(x_41);
+lean_dec(x_41);
 x_43 = l_Lean_MetavarContext_findDecl_x3f(x_42, x_25);
 if (lean_obj_tag(x_43) == 1)
 {
@@ -7681,7 +7681,7 @@ lean_dec(x_38);
 x_66 = lean_st_ref_get(x_5);
 x_67 = lean_ctor_get(x_66, 0);
 lean_inc_ref(x_67);
-lean_dec_ref(x_66);
+lean_dec(x_66);
 x_68 = l_Lean_MetavarContext_findDecl_x3f(x_67, x_25);
 if (lean_obj_tag(x_68) == 1)
 {
@@ -7938,7 +7938,7 @@ if (lean_is_exclusive(x_103)) {
 x_106 = lean_st_ref_get(x_5);
 x_107 = lean_ctor_get(x_106, 0);
 lean_inc_ref(x_107);
-lean_dec_ref(x_106);
+lean_dec(x_106);
 x_108 = l_Lean_MetavarContext_findDecl_x3f(x_107, x_25);
 if (lean_obj_tag(x_108) == 1)
 {
@@ -8218,7 +8218,7 @@ if (lean_is_exclusive(x_149)) {
 x_152 = lean_st_ref_get(x_5);
 x_153 = lean_ctor_get(x_152, 0);
 lean_inc_ref(x_153);
-lean_dec_ref(x_152);
+lean_dec(x_152);
 x_154 = l_Lean_MetavarContext_findDecl_x3f(x_153, x_138);
 if (lean_obj_tag(x_154) == 1)
 {
@@ -8521,7 +8521,7 @@ if (lean_is_exclusive(x_198)) {
 x_201 = lean_st_ref_get(x_5);
 x_202 = lean_ctor_get(x_201, 0);
 lean_inc_ref(x_202);
-lean_dec_ref(x_201);
+lean_dec(x_201);
 x_203 = l_Lean_MetavarContext_findDecl_x3f(x_202, x_186);
 if (lean_obj_tag(x_203) == 1)
 {
@@ -8884,7 +8884,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_8 = lean_st_ref_get(x_4);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc_ref(x_9);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_10 = l_Lean_MetavarContext_findDecl_x3f(x_9, x_1);
 if (lean_obj_tag(x_10) == 1)
 {

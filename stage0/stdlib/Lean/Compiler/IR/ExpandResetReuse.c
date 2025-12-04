@@ -778,7 +778,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l_Lean_IR_Alt_body(x_6);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody(x_7, x_4);
 x_9 = 1;
 x_10 = lean_usize_add(x_2, x_9);
@@ -1042,7 +1042,7 @@ uint8_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9;
 x_6 = 1;
 x_7 = lean_array_uget(x_2, x_3);
 x_8 = l_Lean_IR_Alt_body(x_7);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = l_Lean_IR_ExpandResetReuse_consumed(x_1, x_8);
 if (x_9 == 0)
 {

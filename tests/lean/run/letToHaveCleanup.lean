@@ -171,11 +171,11 @@ def fnWFRec (n : Nat) : let α := Nat; α :=
 info: @[irreducible] def fnWFRec : Nat →
   have α : Type := Nat;
   α :=
-fnWFRec._proof_1.fix fun n a =>
+WellFounded.Nat.fix (fun x => x) fun n a =>
   (match (motive :=
       (n : Nat) →
         ((y : Nat) →
-            (invImage (fun x => x) sizeOfWFRel).1 y n →
+            InvImage (fun x1 x2 => x1 < x2) (fun x => x) y n →
               let α : Type := Nat;
               α) →
           let α : Type := Nat;

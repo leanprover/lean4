@@ -1206,7 +1206,7 @@ lean_object* x_7; lean_object* x_8; uint8_t x_9; uint8_t x_10;
 x_7 = lean_array_uget(x_3, x_4);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = 1;
 x_10 = l_Lean_Syntax_Range_overlaps(x_1, x_8, x_9, x_2);
 lean_dec_ref(x_8);
@@ -1242,7 +1242,7 @@ lean_object* x_7; lean_object* x_8; uint8_t x_9; uint8_t x_10;
 x_7 = lean_array_uget(x_3, x_4);
 x_8 = lean_ctor_get(x_7, 2);
 lean_inc(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = 1;
 if (lean_obj_tag(x_8) == 0)
 {
@@ -3536,7 +3536,7 @@ x_16 = lean_alloc_closure((void*)(l_Std_Iterators_IterM_DefaultConsumers_forIn_x
 lean_closure_set(x_16, 0, x_1);
 x_17 = lean_array_fget_borrowed(x_8, x_9);
 x_18 = lean_box(0);
-lean_inc_ref(x_17);
+lean_inc(x_17);
 x_19 = l_Lean_Server_Snapshots_Snapshot_infoTree(x_17);
 lean_inc_ref(x_5);
 x_20 = l_Lean_Elab_InfoTree_visitM_x27___at___00Lean_Server_FileWorker_handleInlayHints_spec__3(x_15, x_16, x_18, x_19, x_4, x_5);
@@ -3607,7 +3607,7 @@ x_34 = lean_alloc_closure((void*)(l_Std_Iterators_IterM_DefaultConsumers_forIn_x
 lean_closure_set(x_34, 0, x_1);
 x_35 = lean_array_fget_borrowed(x_26, x_27);
 x_36 = lean_box(0);
-lean_inc_ref(x_35);
+lean_inc(x_35);
 x_37 = l_Lean_Server_Snapshots_Snapshot_infoTree(x_35);
 lean_inc_ref(x_5);
 x_38 = l_Lean_Elab_InfoTree_visitM_x27___at___00Lean_Server_FileWorker_handleInlayHints_spec__3(x_33, x_34, x_36, x_37, x_4, x_5);
@@ -3787,7 +3787,7 @@ goto block_11;
 }
 else
 {
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_7 = x_6;
 goto block_11;
 }
@@ -3823,7 +3823,7 @@ x_15 = l_Lean_Syntax_Range_contains(x_1, x_13, x_14);
 lean_dec(x_13);
 if (x_15 == 0)
 {
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_6 = x_5;
 goto block_10;
 }
@@ -4263,7 +4263,7 @@ lean_object* x_134; lean_object* x_135; uint8_t x_136;
 x_134 = lean_array_fget(x_124, x_130);
 lean_dec(x_130);
 x_135 = l_Lean_Server_Snapshots_Snapshot_endPos(x_134);
-lean_dec_ref(x_134);
+lean_dec(x_134);
 x_136 = lean_unbox(x_121);
 lean_dec(x_121);
 x_101 = x_123;
@@ -4405,7 +4405,7 @@ lean_object* x_161; lean_object* x_162; uint8_t x_163;
 x_161 = lean_array_fget(x_151, x_157);
 lean_dec(x_157);
 x_162 = l_Lean_Server_Snapshots_Snapshot_endPos(x_161);
-lean_dec_ref(x_161);
+lean_dec(x_161);
 x_163 = lean_unbox(x_149);
 lean_dec(x_149);
 x_101 = x_150;
@@ -4935,7 +4935,7 @@ return x_29;
 else
 {
 lean_object* x_30; lean_object* x_31; 
-lean_dec_ref(x_18);
+lean_dec(x_18);
 lean_dec(x_3);
 x_30 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_30, 0, x_4);
@@ -5005,7 +5005,7 @@ return x_47;
 else
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; 
-lean_dec_ref(x_34);
+lean_dec(x_34);
 lean_dec(x_3);
 x_48 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_48, 0, x_4);
@@ -5101,7 +5101,7 @@ return x_70;
 else
 {
 lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; 
-lean_dec_ref(x_55);
+lean_dec(x_55);
 lean_dec(x_3);
 x_71 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_71, 0, x_4);
@@ -5545,7 +5545,7 @@ if (x_5 == 0)
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_uget(x_2, x_3);
 x_7 = l_Lean_Elab_instBEqInlayHintTextEdit_beq(x_1, x_6);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 if (x_7 == 0)
 {
 size_t x_8; size_t x_9; 
@@ -5609,7 +5609,7 @@ lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_6 = lean_array_uget(x_2, x_3);
 x_7 = lean_ctor_get(x_6, 3);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Array_contains___at___00__private_Lean_Server_FileWorker_InlayHints_0__Lean_Server_FileWorker_handleInlayHintsDidChange_determineLastEditTimestamp_x3f_spec__0(x_7, x_1);
 lean_dec_ref(x_7);
 if (x_8 == 0)
@@ -5769,7 +5769,7 @@ return x_7;
 }
 else
 {
-lean_dec_ref(x_8);
+lean_dec(x_8);
 return x_7;
 }
 }
@@ -6330,7 +6330,7 @@ x_17 = lean_usize_shift_right(x_11, x_16);
 x_18 = lean_nat_add(x_4, x_13);
 lean_dec(x_4);
 lean_inc(x_9);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_19 = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at___00__private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___00Lean_Server_registerPartialStatefulLspRequestHandler___at___00__private_Lean_Server_FileWorker_InlayHints_0__Lean_Server_FileWorker_initFn_00___x40_Lean_Server_FileWorker_InlayHints_453813542____hygCtx___hyg_2__spec__0_spec__0_spec__3_spec__8_spec__8___redArg(x_5, x_17, x_1, x_8, x_9);
 x_4 = x_18;
 x_5 = x_19;

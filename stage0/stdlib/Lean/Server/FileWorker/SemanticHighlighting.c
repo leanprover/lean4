@@ -2752,7 +2752,7 @@ lean_inc(x_15);
 x_16 = lean_ctor_get_uint8(x_14, sizeof(void*)*2);
 x_17 = lean_ctor_get(x_14, 1);
 lean_inc(x_17);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_18 = l_Lean_Syntax_getPos_x3f(x_15, x_13);
 if (lean_obj_tag(x_18) == 0)
 {
@@ -3953,7 +3953,7 @@ lean_inc(x_9);
 x_10 = lean_ctor_get(x_7, 1);
 lean_inc_ref(x_10);
 x_11 = lean_ctor_get_uint8(x_7, sizeof(void*)*3);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_12 = lean_ctor_get(x_5, 0);
 lean_inc(x_12);
 if (lean_is_exclusive(x_5)) {
@@ -8337,7 +8337,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l_Array_append___redArg(x_4, x_6);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = 1;
 x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
@@ -12047,7 +12047,7 @@ goto block_10;
 else
 {
 lean_dec(x_15);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_6 = x_5;
 goto block_10;
 }
@@ -13311,7 +13311,7 @@ x_17 = lean_usize_shift_right(x_11, x_16);
 x_18 = lean_nat_add(x_4, x_13);
 lean_dec(x_4);
 lean_inc(x_9);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_19 = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Server_registerLspRequestHandler___at___00__private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn_00___x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0_spec__5_spec__5___redArg(x_5, x_17, x_1, x_8, x_9);
 x_4 = x_18;
 x_5 = x_19;

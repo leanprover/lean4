@@ -107,7 +107,7 @@ x_8 = lean_nat_sub(x_2, x_7);
 lean_dec(x_2);
 x_9 = lean_array_fget_borrowed(x_1, x_3);
 lean_inc(x_3);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_3);

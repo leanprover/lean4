@@ -264,7 +264,7 @@ section Unverified
 
 @[inline, inherit_doc HashMap.Raw.partition] def partition [BEq α] [Hashable α] (f : α → Bool)
     (m : Raw α) : Raw α × Raw α :=
-  let ⟨l, r⟩ := m.inner.partition f
+  let ⟨l, r⟩ := m.inner.partition (fun a _ => f a)
   ⟨⟨l⟩, ⟨r⟩⟩
 
 /-! We currently do not provide lemmas for the functions below. -/

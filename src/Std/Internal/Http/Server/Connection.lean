@@ -131,9 +131,6 @@ private def handle
     if step.output.size > 0 then
       Transport.sendAll socket step.output.data
 
-    if machine.reader.state == .closed ∧ ¬waitingResponse then
-      machine := machine.closeWriter
-
     for event in step.events do
       match event with
       | .needMoreData expect => do
@@ -157,8 +154,8 @@ private def handle
 
         BaseIO.chainTask task fun x => discard <| response.resolve x
 
-      | .gotData final data =>
-        discard <| requestStream.write data.toByteArray
+      | .gotData final ext data =>
+        requestStream.writeChunk { data := data.toByteArray, extensions := ext }
 
         if final then
           requestStream.close
@@ -170,13 +167,10 @@ private def handle
         respStream := none
 
       | .failed _ =>
-        do pure ()
+        pure ()
 
       | .close =>
-        do pure ()
-
-      | .chunkExt _=>
-        do pure ()
+        pure ()
 
     if requiresData ∨ needAnswer ∨ respStream.isSome then
       let socket := if requiresData then some socket else none
@@ -204,18 +198,24 @@ private def handle
         machine := machine.closeReader
         if machine.isWaitingMessage ∧ waitingResponse then
           waitingResponse := false
-          machine := machine.send { status := .requestTimeout }
+          machine := machine.send { status := .requestTimeout, headers := .empty |>.insert (.new "connection") (.new "close") }
           machine := machine.userClosedBody
+          machine := machine.noMoreInput
           respStream := none
         else
           machine := machine.closeWriter
+          |>.noMoreInput
 
       | .response (.error _) =>
         if machine.isWaitingMessage ∧ waitingResponse then
           waitingResponse := false
-          machine := machine.send { status := .internalServerError }
+          machine := machine.send { status := .internalServerError, headers := .empty |>.insert (.new "connection") (.new "close") }
           machine := machine.userClosedBody
           machine := machine.closeReader
+          machine := machine.noMoreInput
+        else
+          machine := machine.closeWriter
+          |>.noMoreInput
 
       | .response (.ok res) =>
         machine := machine.send res.head

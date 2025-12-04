@@ -247,7 +247,6 @@ private def resetForNextMessage (machine : Machine ty) : Machine ty :=
         knownSize := none,
         messageHead := {},
         userClosedBody := false,
-        canSendData := true,
         sentMessage := false
       },
       events := machine.events.push .next,
@@ -347,7 +346,7 @@ def closeReader (machine : Machine dir) : Machine dir :=
 /-- Signal that the writer cannot send more messages because the socket closed. -/
 @[inline]
 def closeWriter (machine : Machine dir) : Machine dir :=
-  machine.modifyWriter ({ · with canSendData := false })
+  machine.modifyWriter ({ · with state := .closed, userClosedBody := true })
 
 /-- Signal that the user is not sending data anymore. -/
 @[inline]
@@ -416,16 +415,9 @@ def startNextCycle (machine : Machine dir) : Machine dir :=
 partial def processWrite (machine : Machine dir) : Machine dir :=
   match machine.writer.state with
   | .pending =>
-      if ¬machine.writer.canSendData ∨ machine.isReaderClosed then
-        machine.setWriterState .closed
-      else
-        machine
+      machine
   | .waitingHeaders =>
-      if ¬machine.writer.canSendData then
-        machine.setWriterState .closed
-      else
-        machine.addEvent .needAnswer
-
+      machine.addEvent .needAnswer
   | .waitingForFlush =>
       if machine.shouldFlush then
         machine.setHeaders machine.writer.messageHead
@@ -553,25 +545,24 @@ partial def processRead (machine : Machine dir) : Machine dir :=
       match result with
       | some (size, ext) =>
           machine
-          |>.setReaderState (.needChunkedBody size)
-          |>.setEvent (some ext <&> .chunkExt)
+          |>.setReaderState (.needChunkedBody ext size)
           |> processRead
       | none =>
           machine
 
-  | .needChunkedBody 0 =>
+  | .needChunkedBody ext 0 =>
     let (machine, result) := parseWith machine (parseLastChunkBody machine.config) (limit := some 1)
 
     match result with
     | some _ =>
         machine
         |>.setReaderState .complete
-        |>.addEvent (.gotData true .empty)
+        |>.addEvent (.gotData true ext .empty)
         |> processRead
     | none =>
         machine
 
-  | .needChunkedBody size =>
+  | .needChunkedBody ext size =>
       let (machine, result) := parseWith machine
         (parseChunkedSizedData size) (limit := none) (some size)
 
@@ -580,19 +571,19 @@ partial def processRead (machine : Machine dir) : Machine dir :=
         | .complete body =>
             machine
             |>.setReaderState .needChunkedSize
-            |>.addEvent (.gotData false body)
+            |>.addEvent (.gotData false ext body)
             |> processRead
         | .incomplete body remaining =>
             machine
-            |>.setReaderState (.needChunkedBody remaining)
-            |>.addEvent (.gotData false body)
+            |>.setReaderState (.needChunkedBody ext remaining)
+            |>.addEvent (.gotData false ext body)
       else
         machine
 
   | .needFixedBody 0 =>
       machine
       |>.setReaderState .complete
-      |>.addEvent (.gotData true .empty)
+      |>.addEvent (.gotData true #[] .empty)
       |> processRead
 
   | .needFixedBody size =>
@@ -603,20 +594,17 @@ partial def processRead (machine : Machine dir) : Machine dir :=
         | .complete body =>
             machine
             |>.setReaderState .complete
-            |>.addEvent (.gotData true body)
+            |>.addEvent (.gotData true #[] body)
             |> processRead
         | .incomplete body remaining =>
             machine
             |>.setReaderState (.needFixedBody remaining)
-            |>.addEvent (.gotData false body)
+            |>.addEvent (.gotData false #[] body)
       else
         machine
 
-  | .requireOutgoing _ =>
-      machine
-
   | .complete =>
-      if ¬machine.keepAlive then
+      if ¬machine.keepAlive ∨ machine.reader.noMoreInput then
         machine.setReaderState .closed
       else
         machine

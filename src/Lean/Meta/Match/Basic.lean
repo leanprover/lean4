@@ -156,6 +156,11 @@ structure Alt where
   After we perform additional case analysis, their types become definitionally equal.
   -/
   cnstrs    : List (Expr × Expr)
+  /--
+  Indices of previous alternatives that this alternative expects a not-that-proofs.
+  (When producing a splitter, and in the future also for source-level overlap hypotheses.)
+  -/
+  notAltIdxs : Array Nat
   deriving Inhabited
 
 namespace Alt

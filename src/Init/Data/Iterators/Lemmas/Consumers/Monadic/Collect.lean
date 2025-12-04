@@ -11,7 +11,7 @@ public import Init.Data.Iterators.Lemmas.Monadic.Basic
 public import Init.Data.Iterators.Consumers.Monadic.Collect
 import all Init.Data.Iterators.Consumers.Monadic.Collect
 import all Init.Data.Iterators.Consumers.Monadic.Total
-import all Init.Internal.ExtrinsicTermination2
+import all Init.Internal.ExtrinsicTermination
 
 public section
 

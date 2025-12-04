@@ -11,7 +11,7 @@ public import Init.Data.Iterators.Consumers.Access
 import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 public import Init.Data.Range.Polymorphic.PRange
 public import Init.Data.List.Sublist
-public import Init.Internal.ExtrinsicTermination2
+public import Init.Internal.ExtrinsicTermination
 
 set_option doc.verso true
 

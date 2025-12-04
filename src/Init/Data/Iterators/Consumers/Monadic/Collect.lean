@@ -9,7 +9,7 @@ prelude
 public import Init.Data.Iterators.Consumers.Monadic.Partial
 public import Init.Data.Iterators.Consumers.Monadic.Total
 public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
-public import Init.Internal.ExtrinsicTermination2
+public import Init.Internal.ExtrinsicTermination
 
 @[expose] public section
 

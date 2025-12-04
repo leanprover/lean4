@@ -89,7 +89,7 @@ If {lean}`xs.size ≤ n`, then {lean}`rot n xs = rot (n % xs.size) xs`.
 Read more about {manual section "Array"}[arrays] in the Lean language reference.
 -/
 def rot (n : Nat) (xs : Array α) : Array α :=
-  xs[n...*].copy ++ xs[*...n].copy
+  xs[n...*] ++ xs[*...n]
 
 #eval rot 2 #[1, 2, 3]
 

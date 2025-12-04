@@ -57,6 +57,35 @@ private theorem size_eq (r : Range) (h : i < r.stop) :
       rw [Nat.div_eq_iff] <;> omega
     omega
 
+private theorem forInNew'_loop_eq_forInNew'_range' [Monad m] (r : Range)
+    (init : σ) (kcons : (a : Nat) → a ∈ r → (σ → m β) → σ → m β) (knil : σ → m β) i w₁ w₂ :
+    forInNew'.loop r kcons knil i w₁ w₂ init =
+      forInNew' (List.range' i ((r.stop - i + r.step - 1) / r.step) r.step) init
+        (fun a h => kcons a (mem_of_mem_range'_aux w₁ w₂ h)) knil := by
+  have w := r.step_pos
+  rw [forInNew'.loop]
+  split <;> rename_i h
+  · simp only [size_eq r h, List.range'_succ, List.forInNew'_cons]
+    congr 1
+    funext s
+    rw [forInNew'_loop_eq_forInNew'_range']
+  · have : (r.stop - i + r.step - 1) / r.step = 0 := by
+      rw [Nat.div_eq_iff] <;> omega
+    simp [this]
+
+@[simp] theorem forInNew'_eq_forInNew'_range' [Monad m] (r : Range)
+    (init : σ) (kcons : (a : Nat) → a ∈ r → (σ → m β) → σ → m β) (knil : σ → m β) :
+    forInNew' r init kcons knil =
+      forInNew' (List.range' r.start r.size r.step) init (fun a h => kcons a (mem_of_mem_range' h)) knil := by
+  conv => lhs; simp only [forInNew', Range.forInNew']
+  simp only [size]
+  rw [forInNew'_loop_eq_forInNew'_range']
+
+@[simp] theorem forInNew_eq_forInNew_range' [Monad m] (r : Range)
+    (init : σ) (kcons : Nat → (σ → m β) → σ → m β) (knil : σ → m β) :
+    forInNew r init kcons knil = forInNew (List.range' r.start r.size r.step) init kcons knil := by
+  simp only [forInNew, forInNew'_eq_forInNew'_range']
+
 private theorem forIn'_loop_eq_forIn'_range' [Monad m] (r : Range)
     (init : β) (f : (a : Nat) → a ∈ r → β → m (ForInStep β)) (i) (w₁) (w₂) :
     forIn'.loop r f init i w₁ w₂ =

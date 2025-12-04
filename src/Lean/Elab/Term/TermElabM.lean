@@ -1219,7 +1219,7 @@ def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgH
   withTraceNode `Elab.coe (fun _ => return m!"adding coercion for {e} : {← inferType e} =?= {expectedType}") do
   try
     withoutMacroStackAtErr do
-      match ← coerce? e expectedType with
+      match ← coerceCollectingNames? e expectedType with
       | .some (eNew, expandedCoeDecls) =>
         pushInfoLeaf (.ofCustomInfo {
           stx := ← getRef

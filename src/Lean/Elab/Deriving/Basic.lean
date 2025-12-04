@@ -223,6 +223,7 @@ example, `deriving instance Foo for Bar, Baz` invokes ``fooHandler #[`Bar, `Baz]
 def registerDerivingHandler (className : Name) (handler : DerivingHandler) : IO Unit := do
   unless (← initializing) do
     throw (IO.userError "failed to register deriving handler, it can only be registered during initialization")
+  Term.registerDerivableClass className
   derivingHandlersRef.modify fun m => match m.find? className with
     | some handlers => m.insert className (handler :: handlers)
     | none => m.insert className [handler]

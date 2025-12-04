@@ -30,7 +30,7 @@ line comment marker.
 -/
 private def addCommentAt (indent : Nat) (line : String) : String := Id.run do
   let s := "".pushn ' ' indent ++ "-- "
-  let mut iter := line.startValidPos
+  let mut iter := line.startPos
   for _i in *...indent do
     if h : ¬iter.IsAtEnd then
       if iter.get h == ' ' then
@@ -42,7 +42,7 @@ private def addCommentAt (indent : Nat) (line : String) : String := Id.run do
     else
       -- The line was entirely ' ', and was shorter than the indentation level. No `--` added.
       return line
-  let remaining := line.replaceStart iter
+  let remaining := line.sliceFrom iter
   if remaining.all (· == ' ') then
     return line
   else
@@ -53,17 +53,17 @@ Splits a string into lines, preserving newline characters.
 -/
 private def lines (s : String) : Array String := Id.run do
   let mut result := #[]
-  let mut lineStart := s.startValidPos
+  let mut lineStart := s.startPos
   let mut iter := lineStart
   while h : ¬iter.IsAtEnd do
     let c := iter.get h
     iter := iter.next h
     if c == '\n' then
-      result := result.push <| lineStart.extract iter
+      result := result.push <| s.extract lineStart iter
       lineStart := iter
 
   if iter != lineStart then
-    result := result.push <| lineStart.extract iter
+    result := result.push <| s.extract lineStart iter
   return result
 
 private inductive RWState where
@@ -88,11 +88,11 @@ def rewriteExamples (docstring : String) : String := Id.run do
   -- The current state, which tracks the context of the line being processed
   let mut inOutput : RWState := .normal
   for l in lines do
-    let indent := l.takeWhile (· == ' ') |>.copy |>.length
+    let indent := l.takeWhile (· == ' ') |>.utf8ByteSize -- this makes sense because we know the slice consists only of spaces
     let mut l' := l.trimAsciiStart
     -- Is this a code block fence?
     if l'.startsWith "```" then
-      let count := l'.takeWhile (· == '`') |>.copy |>.length
+      let count := l'.takeWhile (· == '`') |>.utf8ByteSize -- this makes sense because we know the slice consists only of ticks
       l' := l'.dropWhile (· == '`')
       l' := l'.dropWhile (· == ' ')
       match inOutput with

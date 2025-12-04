@@ -10,6 +10,7 @@ public import Init.Data.Ord.Basic
 import Init.Data.String.TakeDrop
 import Init.Data.Ord.String
 import Init.Data.Ord.UInt
+import Init.Data.String.Search
 
 public section
 namespace Lean

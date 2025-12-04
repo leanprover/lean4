@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.Meta.CollectFVars
 public import Lean.Meta.Match.CaseArraySizes
-public import Lean.Meta.Match.NamedPatterns
+import Lean.Meta.Match.NamedPatterns
 
 public section
 

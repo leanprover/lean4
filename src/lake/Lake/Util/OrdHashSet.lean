@@ -73,4 +73,4 @@ public def ofArray (arr : Array α) : OrdHashSet α :=
 @[inline] public protected def forIn [Monad m] (self : OrdHashSet α) (init : β) (f : α → β → m (ForInStep β)) : m β :=
   ForIn.forIn self.toArray init f
 
-public instance : ForIn m (OrdHashSet α) α := ⟨OrdHashSet.forIn⟩
+public instance [Monad m] : ForIn m (OrdHashSet α) α := ⟨OrdHashSet.forIn⟩

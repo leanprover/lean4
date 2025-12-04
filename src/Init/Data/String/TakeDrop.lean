@@ -69,6 +69,10 @@ Examples:
 def dropRight (s : String) (n : Nat) : String :=
   (s.dropEnd n).copy
 
+@[deprecated Slice.dropEnd (since := "2025-11-20")]
+def Slice.dropRight (s : Slice) (n : Nat) : Slice :=
+  s.dropEnd n
+
 @[export lean_string_dropright]
 def Internal.dropRightImpl (s : String) (n : Nat) : String :=
   (String.dropEnd s n).copy
@@ -115,6 +119,10 @@ Examples:
 def takeRight (s : String) (n : Nat) : String :=
   (s.takeEnd n).toString
 
+@[deprecated Slice.takeEnd (since := "2025-11-20")]
+def Slice.takeRight (s : Slice) (n : Nat) : Slice :=
+  s.takeEnd n
+
 /--
 Creates a string slice that contains the longest prefix of {name}`s` in which {name}`pat` matched
 (potentially repeatedly).
@@ -130,7 +138,7 @@ Examples:
  * {lean}`"red red green blue".takeWhile "red " == "red red ".toSlice`
  * {lean}`"red green blue".takeWhile (fun (_ : Char) => true) == "red green blue".toSlice`
 -/
-@[inline] def takeWhile [ForwardPattern ρ] (s : String) (pat : ρ) : String.Slice :=
+@[inline] def takeWhile (s : String) (pat : ρ) [ForwardPattern pat] : String.Slice :=
   s.toSlice.takeWhile pat
 
 /--
@@ -148,7 +156,7 @@ Examples:
  * {lean}`"red red green blue".dropWhile "red " == "green blue".toSlice`
  * {lean}`"red green blue".dropWhile (fun (_ : Char) => true) == "".toSlice`
 -/
-@[inline] def dropWhile [ForwardPattern ρ] (s : String) (pat : ρ) : String.Slice :=
+@[inline] def dropWhile (s : String) (pat : ρ) [ForwardPattern pat] : String.Slice :=
   s.toSlice.dropWhile pat
 
 /--
@@ -165,12 +173,16 @@ Examples:
  * {lean}`"red green blue".takeEndWhile 'e' == "e".toSlice`
  * {lean}`"red green blue".takeEndWhile (fun (_ : Char) => true) == "red green blue".toSlice`
 -/
-@[inline] def takeEndWhile [BackwardPattern ρ] (s : String) (pat : ρ) : String.Slice :=
+@[inline] def takeEndWhile (s : String) (pat : ρ) [BackwardPattern pat] : String.Slice :=
   s.toSlice.takeEndWhile pat
 
 @[deprecated String.takeEndWhile (since := "2025-11-17")]
 def takeRightWhile (s : String) (p : Char → Bool) : String :=
   (s.takeEndWhile p).toString
+
+@[deprecated Slice.takeEndWhile (since := "2025-11-20")]
+def Slice.takeRightWhile (s : Slice) (p : Char → Bool) : Slice :=
+  s.takeEndWhile p
 
 /--
 Creates a new string by removing the longest suffix from {name}`s` in which {name}`pat` matches
@@ -186,12 +198,16 @@ Examples:
  * {lean}`"red green blue".dropEndWhile 'e' == "red green blu".toSlice`
  * {lean}`"red green blue".dropEndWhile (fun (_ : Char) => true) == "".toSlice`
 -/
-@[inline] def dropEndWhile [BackwardPattern ρ] (s : String) (pat : ρ) : String.Slice :=
+@[inline] def dropEndWhile (s : String) (pat : ρ) [BackwardPattern pat] : String.Slice :=
   s.toSlice.dropEndWhile pat
 
 @[deprecated String.dropEndWhile (since := "2025-11-17")]
 def dropRightWhile (s : String) (p : Char → Bool) : String :=
   (s.dropEndWhile p).toString
+
+@[deprecated Slice.dropEndWhile (since := "2025-11-20")]
+def Slice.dropRightWhile (s : Slice) (p : Char → Bool) : Slice :=
+  s.dropEndWhile p
 
 /--
 Checks whether the first string ({name}`s`) begins with the pattern ({name}`pat`).
@@ -206,7 +222,7 @@ Examples:
  * {lean}`"red green blue".startsWith 'r' = true`
  * {lean}`"red green blue".startsWith Char.isLower = true`
 -/
-@[inline] def startsWith [ForwardPattern ρ] (s : String) (pat : ρ) : Bool :=
+@[inline] def startsWith (s : String) (pat : ρ) [ForwardPattern pat] : Bool :=
   s.toSlice.startsWith pat
 
 /--
@@ -240,7 +256,7 @@ Examples:
  * {lean}`"red green blue".endsWith 'e' = true`
  * {lean}`"red green blue".endsWith Char.isLower = true`
 -/
-@[inline] def endsWith [BackwardPattern ρ] (s : String) (pat : ρ) : Bool :=
+@[inline] def endsWith (s : String) (pat : ρ) [BackwardPattern pat] : Bool :=
   s.toSlice.endsWith pat
 
 /--
@@ -263,6 +279,10 @@ Examples:
 def trimRight (s : String) : String :=
   s.trimAsciiEnd.copy
 
+@[deprecated Slice.trimAsciiEnd (since := "2025-11-20")]
+def Slice.trimRight (s : Slice) : Slice :=
+  s.trimAsciiEnd
+
 /--
 Removes leading whitespace from a string by returning a slice whose start position is the first
 non-whitespace character, or the end position if there is no non-whitespace character.
@@ -283,6 +303,10 @@ Examples:
 def trimLeft (s : String) : String :=
   s.trimAsciiStart.copy
 
+@[deprecated Slice.trimAsciiStart (since := "2025-11-20")]
+def Slice.trimLeft (s : Slice) : Slice :=
+  s.trimAsciiStart
+
 /--
 Removes leading and trailing whitespace from a string.
 
@@ -301,6 +325,10 @@ Examples:
 @[deprecated String.trimAscii (since := "2025-11-17")]
 def trim (s : String) : String :=
   s.trimAscii.copy
+
+@[deprecated Slice.trimAscii (since := "2025-11-20")]
+def Slice.trim (s : Slice) : Slice :=
+  s.trimAscii
 
 @[export lean_string_trim]
 def Internal.trimImpl (s : String) : String :=
@@ -361,7 +389,7 @@ Examples:
  * {lean}`"red green blue".dropPrefix? 'r' == some "ed green blue".toSlice`
  * {lean}`"red green blue".dropPrefix? Char.isLower == some "ed green blue".toSlice`
 -/
-def dropPrefix? [ForwardPattern ρ] (s : String) (pat : ρ) : Option String.Slice :=
+def dropPrefix? (s : String) (pat : ρ) [ForwardPattern pat] : Option String.Slice :=
   s.toSlice.dropPrefix? pat
 
 /--
@@ -381,7 +409,7 @@ Examples:
  * {lean}`"red green blue".dropSuffix? 'e' == some "red green blu".toSlice`
  * {lean}`"red green blue".dropSuffix? Char.isLower == some "red green blu".toSlice`
 -/
-def dropSuffix? [BackwardPattern ρ] (s : String) (pat : ρ) : Option String.Slice :=
+def dropSuffix? (s : String) (pat : ρ) [BackwardPattern pat] : Option String.Slice :=
   s.toSlice.dropSuffix? pat
 
 /--
@@ -401,12 +429,16 @@ Examples:
  * {lean}`"red green blue".dropPrefix 'r' == "ed green blue".toSlice`
  * {lean}`"red green blue".dropPrefix Char.isLower == "ed green blue".toSlice`
 -/
-def dropPrefix [ForwardPattern ρ] (s : String) (pat : ρ) : String.Slice :=
+def dropPrefix (s : String) (pat : ρ) [ForwardPattern pat] : String.Slice :=
   s.toSlice.dropPrefix pat
 
 @[deprecated String.dropPrefix (since := "2025-11-17")]
 def stripPrefix (s pre : String) : String :=
   (s.dropPrefix pre).toString
+
+@[deprecated Slice.dropPrefix (since := "2025-11-20")]
+def Slice.stripPrefix (s pre : Slice) : Slice :=
+  s.dropPrefix pre
 
 /--
 If {name}`pat` matches a suffix of {name}`s`, returns the remainder. Returns {name}`s` unmodified
@@ -425,11 +457,15 @@ Examples:
  * {lean}`"red green blue".dropSuffix 'e' == "red green blu".toSlice`
  * {lean}`"red green blue".dropSuffix Char.isLower == "red green blu".toSlice`
 -/
-def dropSuffix [BackwardPattern ρ] (s : String) (pat : ρ) : String.Slice :=
+def dropSuffix (s : String) (pat : ρ) [BackwardPattern pat] : String.Slice :=
   s.toSlice.dropSuffix pat
 
 @[deprecated String.dropSuffix (since := "2025-11-17")]
 def stripSuffix (s : String) (suff : String) : String :=
   (s.dropSuffix suff).toString
+
+@[deprecated Slice.dropSuffix (since := "2025-11-20")]
+def Slice.stripSuffix (s : Slice) (suff : Slice) : Slice :=
+  s.dropSuffix suff
 
 end String

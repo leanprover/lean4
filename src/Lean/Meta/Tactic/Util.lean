@@ -16,7 +16,6 @@ namespace Lean.Meta
 
 register_builtin_option debug.terminalTacticsAsSorry : Bool := {
   defValue := false
-  group    := "debug"
   descr    := "when enabled, terminal tactics such as `grind` and `omega` are replaced with `sorry`. Useful for debugging and fixing bootstrapping issues"
 }
 
@@ -175,7 +174,6 @@ def _root_.Lean.MVarId.isSubsingleton (g : MVarId) : MetaM Bool := do
 
 register_builtin_option tactic.skipAssignedInstances : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr    := "in the `rw` and `simp` tactics, if an instance implicit argument is assigned, do not try to synthesize instance."
 }
 

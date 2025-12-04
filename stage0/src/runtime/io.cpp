@@ -1499,8 +1499,8 @@ extern "C" LEAN_EXPORT uint8_t lean_st_ref_ptr_eq(b_obj_arg ref1, b_obj_arg ref2
     return lean_to_ref(ref1) == lean_to_ref(ref2);
 }
 
-/* {α : Type} (act : BaseIO α) : α */
-static obj_res lean_io_as_task_fn(obj_arg act) {
+/* {α : Type} (act : BaseIO α) (_ : IO.RealWorld) : α */
+static obj_res lean_io_as_task_fn(obj_arg act, obj_arg) {
     object_ref r(apply_1(act, io_mk_world()));
     return object_ref(r.raw(), true).steal();
 }

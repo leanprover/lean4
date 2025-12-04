@@ -19,14 +19,12 @@ LEAN_EXPORT lean_object* l_Lean_CollectAxioms_collect(lean_object*, lean_object*
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_environment_find(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_CollectAxioms_State_ctorIdx(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_collectAxioms___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_CollectAxioms_collect___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_collectAxioms___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
 lean_object* lean_task_get_own(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_CollectAxioms_State_ctorIdx___boxed(lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
@@ -41,23 +39,6 @@ lean_object* l_Lean_Expr_getUsedConstants(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forM___at___00Lean_CollectAxioms_collect_spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_collectAxioms(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_CollectAxioms_State_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_CollectAxioms_State_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_CollectAxioms_State_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_CollectAxioms_collect_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -89,38 +70,6 @@ x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_4);
 lean_ctor_set(x_15, 1, x_6);
 return x_15;
-}
-}
-}
-LEAN_EXPORT lean_object* l_List_forM___at___00Lean_CollectAxioms_collect_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec_ref(x_2);
-x_4 = lean_box(0);
-x_5 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_5, 0, x_4);
-lean_ctor_set(x_5, 1, x_3);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_1, 1);
-lean_inc(x_7);
-lean_dec_ref(x_1);
-lean_inc_ref(x_2);
-x_8 = l_Lean_CollectAxioms_collect(x_6, x_2, x_3);
-x_9 = lean_ctor_get(x_8, 1);
-lean_inc(x_9);
-lean_dec_ref(x_8);
-x_1 = x_7;
-x_3 = x_9;
-goto _start;
 }
 }
 }
@@ -518,6 +467,38 @@ return x_86;
 }
 }
 }
+LEAN_EXPORT lean_object* l_List_forM___at___00Lean_CollectAxioms_collect_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_4; lean_object* x_5; 
+lean_dec_ref(x_2);
+x_4 = lean_box(0);
+x_5 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_5, 0, x_4);
+lean_ctor_set(x_5, 1, x_3);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_1, 1);
+lean_inc(x_7);
+lean_dec_ref(x_1);
+lean_inc_ref(x_2);
+x_8 = l_Lean_CollectAxioms_collect(x_6, x_2, x_3);
+x_9 = lean_ctor_get(x_8, 1);
+lean_inc(x_9);
+lean_dec_ref(x_8);
+x_1 = x_7;
+x_3 = x_9;
+goto _start;
+}
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_CollectAxioms_collect_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -531,14 +512,6 @@ lean_dec_ref(x_1);
 return x_9;
 }
 }
-static lean_object* _init_l_Lean_collectAxioms___redArg___lam__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_NameSet_empty;
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_collectAxioms___redArg___lam__0___closed__1() {
 _start:
 {
@@ -546,6 +519,14 @@ lean_object* x_1; lean_object* x_2;
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
+}
+}
+static lean_object* _init_l_Lean_collectAxioms___redArg___lam__0___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_NameSet_empty;
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_collectAxioms___redArg___lam__0___closed__2() {
@@ -615,10 +596,10 @@ _G_initialized = true;
 res = initialize_Lean_MonadEnv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_collectAxioms___redArg___lam__0___closed__0 = _init_l_Lean_collectAxioms___redArg___lam__0___closed__0();
-lean_mark_persistent(l_Lean_collectAxioms___redArg___lam__0___closed__0);
 l_Lean_collectAxioms___redArg___lam__0___closed__1 = _init_l_Lean_collectAxioms___redArg___lam__0___closed__1();
 lean_mark_persistent(l_Lean_collectAxioms___redArg___lam__0___closed__1);
+l_Lean_collectAxioms___redArg___lam__0___closed__0 = _init_l_Lean_collectAxioms___redArg___lam__0___closed__0();
+lean_mark_persistent(l_Lean_collectAxioms___redArg___lam__0___closed__0);
 l_Lean_collectAxioms___redArg___lam__0___closed__2 = _init_l_Lean_collectAxioms___redArg___lam__0___closed__2();
 lean_mark_persistent(l_Lean_collectAxioms___redArg___lam__0___closed__2);
 return lean_io_result_mk_ok(lean_box(0));

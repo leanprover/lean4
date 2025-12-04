@@ -60,15 +60,6 @@ x_5 = l_Lean_Grind_Fin_npow___redArg(x_1, x_3, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_npow___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Grind_Fin_npow___redArg(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Grind_Fin_npow___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -78,14 +69,13 @@ lean_dec(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instHPowFinNatOfNeZero___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_npow___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Grind_Fin_npow___boxed), 4, 2);
-lean_closure_set(x_2, 0, x_1);
-lean_closure_set(x_2, 1, lean_box(0));
-return x_2;
+lean_object* x_4; 
+x_4 = l_Lean_Grind_Fin_npow___redArg(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instHPowFinNatOfNeZero(lean_object* x_1, lean_object* x_2) {
@@ -98,7 +88,7 @@ lean_closure_set(x_3, 1, lean_box(0));
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instPowFinNatOfNeZero___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instHPowFinNatOfNeZero___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -118,11 +108,31 @@ lean_closure_set(x_3, 1, lean_box(0));
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instPowFinNatOfNeZero___redArg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Grind_Fin_npow___boxed), 4, 2);
+lean_closure_set(x_2, 0, x_1);
+lean_closure_set(x_2, 1, lean_box(0));
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
 x_3 = lean_nat_mod(x_2, x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__0(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -139,6 +149,15 @@ lean_dec(x_1);
 return x_6;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__1(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -147,6 +166,17 @@ x_4 = l_Fin_intCast___redArg(x_1, x_2);
 x_5 = l_Fin_mul(x_1, x_4, x_3);
 lean_dec(x_4);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__2(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg(lean_object* x_1) {
@@ -205,36 +235,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg(x_1);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__0(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__1(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__2(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_4;
 }
 }
 lean_object* initialize_Init_Data_Zero(uint8_t builtin);

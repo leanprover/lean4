@@ -1,7 +1,7 @@
 import Lean.LibrarySuggestions.Basic
 
 /--
-error: No library suggestions engine registered. (Note that Lean does not provide a default library suggestions engine, these must be provided by a downstream library, and configured using `set_library_suggestions`.)
+error: No library suggestions engine registered. (Add `import Lean.LibrarySuggestions.Default` to use Lean's built-in engine, or use `set_library_suggestions` to configure a custom one.)
 -/
 #guard_msgs in
 example : True := by

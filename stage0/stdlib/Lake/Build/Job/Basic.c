@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_Job_getTrace___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Job_mapOk___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JobAction_fetch_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JobResult_prependLog___redArg(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -30,7 +31,6 @@ LEAN_EXPORT uint8_t l_Lake_instOrdJobAction_ord(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_JobAction_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_cast___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___redArg(uint8_t, uint8_t);
-LEAN_EXPORT lean_object* l_Lake_Job_map___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 static lean_object* l_Lake_instReprJobAction_repr___closed__3;
 LEAN_EXPORT lean_object* l_Lake_instCoeOutJobOpaqueJob(lean_object*);
@@ -51,7 +51,6 @@ lean_object* l_Lake_BuildTrace_mix(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_getTrace(lean_object*, lean_object*);
 static lean_object* l_Lake_instReprJobAction_repr___closed__0;
 static lean_object* l_Lake_JobAction_verb___closed__1;
-LEAN_EXPORT lean_object* l_Lake_JobState_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lake_instOrdJobAction___closed__0;
 LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_instFunctor___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -63,7 +62,6 @@ LEAN_EXPORT lean_object* l_Lake_Job_mapResult___redArg(lean_object*, lean_object
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JobAction_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JobResult_prependLog(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_JobState_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instReprJobAction_repr(uint8_t, lean_object*);
 extern lean_object* l_Lake_instDataKindUnit;
 static lean_object* l_Lake_instReprJobAction_repr___closed__5;
@@ -112,6 +110,7 @@ LEAN_EXPORT lean_object* l_Lake_instCoeOutJobTaskOpaqueJobTask(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_instFunctor;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedJobState_default;
 LEAN_EXPORT lean_object* l_Lake_JobAction_unknown_elim(lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Job_map___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_setCaption_x3f(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instCoeOutJobTaskOpaqueJobTask___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Job_mapResult(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
@@ -137,7 +136,6 @@ LEAN_EXPORT lean_object* l_Lake_JobAction_instLE;
 LEAN_EXPORT lean_object* l_Lake_Job_nil(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JobAction_toCtorIdx(uint8_t);
-LEAN_EXPORT lean_object* l_Lake_Job_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_pure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lake_JobAction_verb___closed__6;
@@ -147,7 +145,6 @@ static lean_object* l_Lake_JobAction_verb___closed__5;
 LEAN_EXPORT uint8_t l_Lake_JobAction_merge(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Job_Basic_0__Lake_JobTask_toOpaqueImpl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JobAction_ctorElim___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Job_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_toOpaque___redArg(lean_object*);
 static lean_object* l_Lake_JobAction_verb___closed__3;
 LEAN_EXPORT lean_object* l_Lake_JobAction_ctorIdx(uint8_t);
@@ -178,7 +175,6 @@ static lean_object* l_Lake_instInhabitedJob___closed__4;
 LEAN_EXPORT lean_object* l_Lake_JobAction_build_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_traceRoot(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedJobState;
-LEAN_EXPORT lean_object* l_Lake_Job_mapOk___redArg___lam__0(lean_object*, lean_object*);
 static lean_object* l_Lake_Job_instPure___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lake_JobAction_ctorIdx(uint8_t x_1) {
 _start:
@@ -237,13 +233,6 @@ x_3 = l_Lake_JobAction_toCtorIdx(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_JobAction_ctorElim___redArg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_JobAction_ctorElim(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -251,13 +240,11 @@ lean_inc(x_5);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_JobAction_ctorElim___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_JobAction_ctorElim___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lake_JobAction_ctorElim___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_JobAction_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -271,11 +258,13 @@ lean_dec(x_2);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_JobAction_unknown_elim___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_JobAction_ctorElim___redArg___boxed(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
-return x_1;
+lean_object* x_2; 
+x_2 = l_Lake_JobAction_ctorElim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_JobAction_unknown_elim(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
@@ -285,13 +274,11 @@ lean_inc(x_4);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_JobAction_unknown_elim___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_JobAction_unknown_elim___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lake_JobAction_unknown_elim___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_JobAction_unknown_elim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -304,11 +291,13 @@ lean_dec(x_4);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_JobAction_replay_elim___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_JobAction_unknown_elim___redArg___boxed(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
-return x_1;
+lean_object* x_2; 
+x_2 = l_Lake_JobAction_unknown_elim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_JobAction_replay_elim(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
@@ -318,13 +307,11 @@ lean_inc(x_4);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_JobAction_replay_elim___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_JobAction_replay_elim___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lake_JobAction_replay_elim___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_JobAction_replay_elim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -337,11 +324,13 @@ lean_dec(x_4);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_JobAction_fetch_elim___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_JobAction_replay_elim___redArg___boxed(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
-return x_1;
+lean_object* x_2; 
+x_2 = l_Lake_JobAction_replay_elim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_JobAction_fetch_elim(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
@@ -351,13 +340,11 @@ lean_inc(x_4);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_JobAction_fetch_elim___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_JobAction_fetch_elim___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lake_JobAction_fetch_elim___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_JobAction_fetch_elim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -370,11 +357,13 @@ lean_dec(x_4);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_JobAction_build_elim___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_JobAction_fetch_elim___redArg___boxed(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
-return x_1;
+lean_object* x_2; 
+x_2 = l_Lake_JobAction_fetch_elim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_JobAction_build_elim(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
@@ -384,13 +373,11 @@ lean_inc(x_4);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_JobAction_build_elim___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_JobAction_build_elim___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lake_JobAction_build_elim___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_JobAction_build_elim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -403,11 +390,29 @@ lean_dec(x_4);
 return x_6;
 }
 }
+LEAN_EXPORT lean_object* l_Lake_JobAction_build_elim___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lake_JobAction_build_elim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___redArg___lam__0(lean_object* x_1) {
 _start:
 {
 lean_inc(x_1);
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___redArg___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lake_JobAction_noConfusion___redArg___lam__0(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
@@ -431,13 +436,14 @@ x_5 = l_Lake_JobAction_noConfusion___redArg(x_2, x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___redArg___lam__0___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lake_JobAction_noConfusion___redArg___lam__0(x_1);
-lean_dec(x_1);
-return x_2;
+uint8_t x_5; uint8_t x_6; lean_object* x_7; 
+x_5 = lean_unbox(x_2);
+x_6 = lean_unbox(x_3);
+x_7 = l_Lake_JobAction_noConfusion(x_1, x_5, x_6, x_4);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___redArg___boxed(lean_object* x_1, lean_object* x_2) {
@@ -448,16 +454,6 @@ x_3 = lean_unbox(x_1);
 x_4 = lean_unbox(x_2);
 x_5 = l_Lake_JobAction_noConfusion___redArg(x_3, x_4);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; uint8_t x_6; lean_object* x_7; 
-x_5 = lean_unbox(x_2);
-x_6 = lean_unbox(x_3);
-x_7 = l_Lake_JobAction_noConfusion(x_1, x_5, x_6, x_4);
-return x_7;
 }
 }
 static uint8_t _init_l_Lake_instInhabitedJobAction_default() {
@@ -907,14 +903,6 @@ return x_1;
 }
 }
 }
-static lean_object* _init_l_Lake_JobAction_instMin() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_JobAction_instMin___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_JobAction_instMin___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -924,6 +912,14 @@ x_4 = lean_unbox(x_2);
 x_5 = l_Lake_JobAction_instMin___lam__0(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
+}
+}
+static lean_object* _init_l_Lake_JobAction_instMin() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lake_JobAction_instMin___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 LEAN_EXPORT uint8_t l_Lake_JobAction_instMax___lam__0(uint8_t x_1, uint8_t x_2) {
@@ -941,14 +937,6 @@ return x_2;
 }
 }
 }
-static lean_object* _init_l_Lake_JobAction_instMax() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_JobAction_instMax___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_JobAction_instMax___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -958,6 +946,14 @@ x_4 = lean_unbox(x_2);
 x_5 = l_Lake_JobAction_instMax___lam__0(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
+}
+}
+static lean_object* _init_l_Lake_JobAction_instMax() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lake_JobAction_instMax___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 LEAN_EXPORT uint8_t l_Lake_JobAction_merge(uint8_t x_1, uint8_t x_2) {
@@ -1125,23 +1121,6 @@ x_3 = lean_unbox(x_1);
 x_4 = lean_unbox(x_2);
 x_5 = l_Lake_JobAction_verb(x_3, x_4);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_JobState_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_JobState_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_JobState_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lake_instInhabitedJobState_default___closed__0() {
@@ -1520,23 +1499,6 @@ x_4 = l_Lake_JobResult_prependLog___redArg(x_2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Job_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Job_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_Job_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
 static lean_object* _init_l_Lake_instInhabitedJob___closed__0() {
 _start:
 {
@@ -1598,13 +1560,6 @@ x_2 = l_Lake_instInhabitedJob___closed__4;
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Job_cast___redArg(lean_object* x_1) {
-_start:
-{
-lean_inc_ref(x_1);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_Job_cast(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1612,13 +1567,11 @@ lean_inc_ref(x_2);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Job_cast___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_Job_cast___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lake_Job_cast___redArg(x_1);
-lean_dec_ref(x_1);
-return x_2;
+lean_inc_ref(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Job_cast___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1630,17 +1583,13 @@ lean_dec_ref(x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Job_ofTask___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lake_Job_cast___redArg___boxed(lean_object* x_1) {
 _start:
 {
-uint8_t x_4; lean_object* x_5; 
-x_4 = 0;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_2);
-lean_ctor_set(x_5, 1, x_1);
-lean_ctor_set(x_5, 2, x_3);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_4);
-return x_5;
+lean_object* x_2; 
+x_2 = l_Lake_Job_cast___redArg(x_1);
+lean_dec_ref(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Job_ofTask(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -1656,29 +1605,17 @@ lean_ctor_set_uint8(x_6, sizeof(void*)*3, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Job_error___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lake_Job_ofTask___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; 
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = 0;
-x_6 = l_Lake_instInhabitedJobState_default___closed__2;
-x_7 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_7, 0, x_2);
-lean_ctor_set(x_7, 1, x_6);
-lean_ctor_set(x_7, 2, x_4);
-lean_ctor_set_uint8(x_7, sizeof(void*)*3, x_5);
-x_8 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_8, 0, x_4);
-lean_ctor_set(x_8, 1, x_7);
-x_9 = lean_task_pure(x_8);
-x_10 = 0;
-x_11 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_11, 0, x_9);
-lean_ctor_set(x_11, 1, x_1);
-lean_ctor_set(x_11, 2, x_3);
-lean_ctor_set_uint8(x_11, sizeof(void*)*3, x_10);
-return x_11;
+uint8_t x_4; lean_object* x_5; 
+x_4 = 0;
+x_5 = lean_alloc_ctor(0, 3, 1);
+lean_ctor_set(x_5, 0, x_2);
+lean_ctor_set(x_5, 1, x_1);
+lean_ctor_set(x_5, 2, x_3);
+lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Job_error(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -1706,29 +1643,29 @@ lean_ctor_set_uint8(x_12, sizeof(void*)*3, x_11);
 return x_12;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Job_pure___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lake_Job_error___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; 
+lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; 
+x_4 = lean_unsigned_to_nat(0u);
 x_5 = 0;
 x_6 = l_Lake_instInhabitedJobState_default___closed__2;
-x_7 = lean_unsigned_to_nat(0u);
-x_8 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_8, 0, x_3);
-lean_ctor_set(x_8, 1, x_6);
-lean_ctor_set(x_8, 2, x_7);
-lean_ctor_set_uint8(x_8, sizeof(void*)*3, x_5);
-x_9 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_9, 0, x_2);
-lean_ctor_set(x_9, 1, x_8);
-x_10 = lean_task_pure(x_9);
-x_11 = 0;
-x_12 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_12, 0, x_10);
-lean_ctor_set(x_12, 1, x_1);
-lean_ctor_set(x_12, 2, x_4);
-lean_ctor_set_uint8(x_12, sizeof(void*)*3, x_11);
-return x_12;
+x_7 = lean_alloc_ctor(0, 3, 1);
+lean_ctor_set(x_7, 0, x_2);
+lean_ctor_set(x_7, 1, x_6);
+lean_ctor_set(x_7, 2, x_4);
+lean_ctor_set_uint8(x_7, sizeof(void*)*3, x_5);
+x_8 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_8, 0, x_4);
+lean_ctor_set(x_8, 1, x_7);
+x_9 = lean_task_pure(x_8);
+x_10 = 0;
+x_11 = lean_alloc_ctor(0, 3, 1);
+lean_ctor_set(x_11, 0, x_9);
+lean_ctor_set(x_11, 1, x_1);
+lean_ctor_set(x_11, 2, x_3);
+lean_ctor_set_uint8(x_11, sizeof(void*)*3, x_10);
+return x_11;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Job_pure(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -1754,6 +1691,31 @@ lean_ctor_set(x_13, 1, x_2);
 lean_ctor_set(x_13, 2, x_5);
 lean_ctor_set_uint8(x_13, sizeof(void*)*3, x_12);
 return x_13;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Job_pure___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; 
+x_5 = 0;
+x_6 = l_Lake_instInhabitedJobState_default___closed__2;
+x_7 = lean_unsigned_to_nat(0u);
+x_8 = lean_alloc_ctor(0, 3, 1);
+lean_ctor_set(x_8, 0, x_3);
+lean_ctor_set(x_8, 1, x_6);
+lean_ctor_set(x_8, 2, x_7);
+lean_ctor_set_uint8(x_8, sizeof(void*)*3, x_5);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_2);
+lean_ctor_set(x_9, 1, x_8);
+x_10 = lean_task_pure(x_9);
+x_11 = 0;
+x_12 = lean_alloc_ctor(0, 3, 1);
+lean_ctor_set(x_12, 0, x_10);
+lean_ctor_set(x_12, 1, x_1);
+lean_ctor_set(x_12, 2, x_4);
+lean_ctor_set_uint8(x_12, sizeof(void*)*3, x_11);
+return x_12;
 }
 }
 static lean_object* _init_l_Lake_Job_instPure___lam__0___closed__0() {
@@ -1809,34 +1771,6 @@ x_1 = lean_alloc_closure((void*)(l_Lake_Job_instPure___lam__0), 2, 0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Job_traceRoot___redArg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; 
-x_3 = lean_box(0);
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = l_Lake_Job_instPure___lam__0___closed__0;
-x_6 = 0;
-x_7 = l_Lake_BuildTrace_nil(x_2);
-x_8 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_8, 0, x_5);
-lean_ctor_set(x_8, 1, x_7);
-lean_ctor_set(x_8, 2, x_4);
-lean_ctor_set_uint8(x_8, sizeof(void*)*3, x_6);
-x_9 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_9, 0, x_1);
-lean_ctor_set(x_9, 1, x_8);
-x_10 = lean_task_pure(x_9);
-x_11 = l_Lake_instInhabitedJob___closed__3;
-x_12 = 0;
-x_13 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_13, 0, x_10);
-lean_ctor_set(x_13, 1, x_3);
-lean_ctor_set(x_13, 2, x_11);
-lean_ctor_set_uint8(x_13, sizeof(void*)*3, x_12);
-return x_13;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_Job_traceRoot(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1863,6 +1797,34 @@ lean_ctor_set(x_14, 1, x_4);
 lean_ctor_set(x_14, 2, x_12);
 lean_ctor_set_uint8(x_14, sizeof(void*)*3, x_13);
 return x_14;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Job_traceRoot___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; 
+x_3 = lean_box(0);
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = l_Lake_Job_instPure___lam__0___closed__0;
+x_6 = 0;
+x_7 = l_Lake_BuildTrace_nil(x_2);
+x_8 = lean_alloc_ctor(0, 3, 1);
+lean_ctor_set(x_8, 0, x_5);
+lean_ctor_set(x_8, 1, x_7);
+lean_ctor_set(x_8, 2, x_4);
+lean_ctor_set_uint8(x_8, sizeof(void*)*3, x_6);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_1);
+lean_ctor_set(x_9, 1, x_8);
+x_10 = lean_task_pure(x_9);
+x_11 = l_Lake_instInhabitedJob___closed__3;
+x_12 = 0;
+x_13 = lean_alloc_ctor(0, 3, 1);
+lean_ctor_set(x_13, 0, x_10);
+lean_ctor_set(x_13, 1, x_3);
+lean_ctor_set(x_13, 2, x_11);
+lean_ctor_set_uint8(x_13, sizeof(void*)*3, x_12);
+return x_13;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Job_nop(lean_object* x_1, lean_object* x_2) {
@@ -1921,23 +1883,6 @@ lean_ctor_set_uint8(x_13, sizeof(void*)*3, x_12);
 return x_13;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Job_getTrace___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_2);
-lean_dec_ref(x_1);
-x_3 = lean_task_get_own(x_2);
-x_4 = lean_ctor_get(x_3, 1);
-lean_inc(x_4);
-lean_dec_ref(x_3);
-x_5 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_5);
-lean_dec(x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_Job_getTrace(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1948,42 +1893,28 @@ lean_dec_ref(x_2);
 x_4 = lean_task_get_own(x_3);
 x_5 = lean_ctor_get(x_4, 1);
 lean_inc(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc_ref(x_6);
 lean_dec(x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Job_setCaption___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_Job_getTrace___redArg(lean_object* x_1) {
 _start:
 {
-uint8_t x_3; 
-x_3 = !lean_is_exclusive(x_2);
-if (x_3 == 0)
-{
-lean_object* x_4; 
-x_4 = lean_ctor_get(x_2, 2);
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_2);
+lean_dec_ref(x_1);
+x_3 = lean_task_get_own(x_2);
+x_4 = lean_ctor_get(x_3, 1);
+lean_inc(x_4);
+lean_dec(x_3);
+x_5 = lean_ctor_get(x_4, 1);
+lean_inc_ref(x_5);
 lean_dec(x_4);
-lean_ctor_set(x_2, 2, x_1);
-return x_2;
-}
-else
-{
-lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
-x_5 = lean_ctor_get(x_2, 0);
-x_6 = lean_ctor_get(x_2, 1);
-x_7 = lean_ctor_get_uint8(x_2, sizeof(void*)*3);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_dec(x_2);
-x_8 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_8, 0, x_5);
-lean_ctor_set(x_8, 1, x_6);
-lean_ctor_set(x_8, 2, x_1);
-lean_ctor_set_uint8(x_8, sizeof(void*)*3, x_7);
-return x_8;
-}
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Job_setCaption(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2017,52 +1948,34 @@ return x_9;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Job_setCaption_x3f___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_Job_setCaption___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_3 = lean_ctor_get(x_2, 0);
-x_4 = lean_ctor_get(x_2, 1);
-x_5 = lean_ctor_get(x_2, 2);
-x_6 = lean_ctor_get_uint8(x_2, sizeof(void*)*3);
-x_7 = lean_string_utf8_byte_size(x_5);
-x_8 = lean_unsigned_to_nat(0u);
-x_9 = lean_nat_dec_eq(x_7, x_8);
-lean_dec(x_7);
-if (x_9 == 0)
+uint8_t x_3; 
+x_3 = !lean_is_exclusive(x_2);
+if (x_3 == 0)
 {
-lean_dec_ref(x_1);
-return x_2;
-}
-else
-{
-uint8_t x_10; 
-lean_inc(x_4);
-lean_inc_ref(x_3);
-x_10 = !lean_is_exclusive(x_2);
-if (x_10 == 0)
-{
-lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_11 = lean_ctor_get(x_2, 2);
-lean_dec(x_11);
-x_12 = lean_ctor_get(x_2, 1);
-lean_dec(x_12);
-x_13 = lean_ctor_get(x_2, 0);
-lean_dec(x_13);
+lean_object* x_4; 
+x_4 = lean_ctor_get(x_2, 2);
+lean_dec(x_4);
 lean_ctor_set(x_2, 2, x_1);
 return x_2;
 }
 else
 {
-lean_object* x_14; 
+lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
+x_5 = lean_ctor_get(x_2, 0);
+x_6 = lean_ctor_get(x_2, 1);
+x_7 = lean_ctor_get_uint8(x_2, sizeof(void*)*3);
+lean_inc(x_6);
+lean_inc(x_5);
 lean_dec(x_2);
-x_14 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_14, 0, x_3);
-lean_ctor_set(x_14, 1, x_4);
-lean_ctor_set(x_14, 2, x_1);
-lean_ctor_set_uint8(x_14, sizeof(void*)*3, x_6);
-return x_14;
-}
+x_8 = lean_alloc_ctor(0, 3, 1);
+lean_ctor_set(x_8, 0, x_5);
+lean_ctor_set(x_8, 1, x_6);
+lean_ctor_set(x_8, 2, x_1);
+lean_ctor_set_uint8(x_8, sizeof(void*)*3, x_7);
+return x_8;
 }
 }
 }
@@ -2115,38 +2028,52 @@ return x_15;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Job_mapResult___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5) {
+LEAN_EXPORT lean_object* l_Lake_Job_setCaption_x3f___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_6; 
-x_6 = !lean_is_exclusive(x_3);
-if (x_6 == 0)
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_3 = lean_ctor_get(x_2, 0);
+x_4 = lean_ctor_get(x_2, 1);
+x_5 = lean_ctor_get(x_2, 2);
+x_6 = lean_ctor_get_uint8(x_2, sizeof(void*)*3);
+x_7 = lean_string_utf8_byte_size(x_5);
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = lean_nat_dec_eq(x_7, x_8);
+lean_dec(x_7);
+if (x_9 == 0)
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = lean_ctor_get(x_3, 0);
-x_8 = lean_ctor_get(x_3, 1);
-lean_dec(x_8);
-x_9 = lean_task_map(x_2, x_7, x_4, x_5);
-lean_ctor_set(x_3, 1, x_1);
-lean_ctor_set(x_3, 0, x_9);
-return x_3;
+lean_dec_ref(x_1);
+return x_2;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; 
-x_10 = lean_ctor_get(x_3, 0);
-x_11 = lean_ctor_get(x_3, 2);
-x_12 = lean_ctor_get_uint8(x_3, sizeof(void*)*3);
-lean_inc(x_11);
-lean_inc(x_10);
-lean_dec(x_3);
-x_13 = lean_task_map(x_2, x_10, x_4, x_5);
+uint8_t x_10; 
+lean_inc(x_4);
+lean_inc_ref(x_3);
+x_10 = !lean_is_exclusive(x_2);
+if (x_10 == 0)
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_11 = lean_ctor_get(x_2, 2);
+lean_dec(x_11);
+x_12 = lean_ctor_get(x_2, 1);
+lean_dec(x_12);
+x_13 = lean_ctor_get(x_2, 0);
+lean_dec(x_13);
+lean_ctor_set(x_2, 2, x_1);
+return x_2;
+}
+else
+{
+lean_object* x_14; 
+lean_dec(x_2);
 x_14 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_1);
-lean_ctor_set(x_14, 2, x_11);
-lean_ctor_set_uint8(x_14, sizeof(void*)*3, x_12);
+lean_ctor_set(x_14, 0, x_3);
+lean_ctor_set(x_14, 1, x_4);
+lean_ctor_set(x_14, 2, x_1);
+lean_ctor_set_uint8(x_14, sizeof(void*)*3, x_6);
 return x_14;
+}
 }
 }
 }
@@ -2185,13 +2112,39 @@ return x_16;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Job_mapResult___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lake_Job_mapResult___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5) {
 _start:
 {
-uint8_t x_6; lean_object* x_7; 
-x_6 = lean_unbox(x_5);
-x_7 = l_Lake_Job_mapResult___redArg(x_1, x_2, x_3, x_4, x_6);
-return x_7;
+uint8_t x_6; 
+x_6 = !lean_is_exclusive(x_3);
+if (x_6 == 0)
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_7 = lean_ctor_get(x_3, 0);
+x_8 = lean_ctor_get(x_3, 1);
+lean_dec(x_8);
+x_9 = lean_task_map(x_2, x_7, x_4, x_5);
+lean_ctor_set(x_3, 1, x_1);
+lean_ctor_set(x_3, 0, x_9);
+return x_3;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; 
+x_10 = lean_ctor_get(x_3, 0);
+x_11 = lean_ctor_get(x_3, 2);
+x_12 = lean_ctor_get_uint8(x_3, sizeof(void*)*3);
+lean_inc(x_11);
+lean_inc(x_10);
+lean_dec(x_3);
+x_13 = lean_task_map(x_2, x_10, x_4, x_5);
+x_14 = lean_alloc_ctor(0, 3, 1);
+lean_ctor_set(x_14, 0, x_13);
+lean_ctor_set(x_14, 1, x_1);
+lean_ctor_set(x_14, 2, x_11);
+lean_ctor_set_uint8(x_14, sizeof(void*)*3, x_12);
+return x_14;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Job_mapResult___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -2203,7 +2156,16 @@ x_9 = l_Lake_Job_mapResult(x_1, x_2, x_3, x_4, x_5, x_6, x_8);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Job_mapOk___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_Job_mapResult___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; lean_object* x_7; 
+x_6 = lean_unbox(x_5);
+x_7 = l_Lake_Job_mapResult___redArg(x_1, x_2, x_3, x_4, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Job_mapOk___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -2242,45 +2204,6 @@ return x_9;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Job_mapOk___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5) {
-_start:
-{
-uint8_t x_6; 
-x_6 = !lean_is_exclusive(x_3);
-if (x_6 == 0)
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_7 = lean_ctor_get(x_3, 0);
-x_8 = lean_ctor_get(x_3, 1);
-lean_dec(x_8);
-x_9 = lean_alloc_closure((void*)(l_Lake_Job_mapOk___redArg___lam__0), 2, 1);
-lean_closure_set(x_9, 0, x_2);
-x_10 = lean_task_map(x_9, x_7, x_4, x_5);
-lean_ctor_set(x_3, 1, x_1);
-lean_ctor_set(x_3, 0, x_10);
-return x_3;
-}
-else
-{
-lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_11 = lean_ctor_get(x_3, 0);
-x_12 = lean_ctor_get(x_3, 2);
-x_13 = lean_ctor_get_uint8(x_3, sizeof(void*)*3);
-lean_inc(x_12);
-lean_inc(x_11);
-lean_dec(x_3);
-x_14 = lean_alloc_closure((void*)(l_Lake_Job_mapOk___redArg___lam__0), 2, 1);
-lean_closure_set(x_14, 0, x_2);
-x_15 = lean_task_map(x_14, x_11, x_4, x_5);
-x_16 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_1);
-lean_ctor_set(x_16, 2, x_12);
-lean_ctor_set_uint8(x_16, sizeof(void*)*3, x_13);
-return x_16;
-}
-}
-}
 LEAN_EXPORT lean_object* l_Lake_Job_mapOk(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, uint8_t x_7) {
 _start:
 {
@@ -2292,7 +2215,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12;
 x_9 = lean_ctor_get(x_5, 0);
 x_10 = lean_ctor_get(x_5, 1);
 lean_dec(x_10);
-x_11 = lean_alloc_closure((void*)(l_Lake_Job_mapOk___redArg___lam__0), 2, 1);
+x_11 = lean_alloc_closure((void*)(l_Lake_Job_mapOk___lam__0), 2, 1);
 lean_closure_set(x_11, 0, x_4);
 x_12 = lean_task_map(x_11, x_9, x_6, x_7);
 lean_ctor_set(x_5, 1, x_3);
@@ -2308,7 +2231,7 @@ x_15 = lean_ctor_get_uint8(x_5, sizeof(void*)*3);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_dec(x_5);
-x_16 = lean_alloc_closure((void*)(l_Lake_Job_mapOk___redArg___lam__0), 2, 1);
+x_16 = lean_alloc_closure((void*)(l_Lake_Job_mapOk___lam__0), 2, 1);
 lean_closure_set(x_16, 0, x_4);
 x_17 = lean_task_map(x_16, x_13, x_6, x_7);
 x_18 = lean_alloc_ctor(0, 3, 1);
@@ -2320,13 +2243,43 @@ return x_18;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Job_mapOk___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lake_Job_mapOk___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5) {
 _start:
 {
-uint8_t x_6; lean_object* x_7; 
-x_6 = lean_unbox(x_5);
-x_7 = l_Lake_Job_mapOk___redArg(x_1, x_2, x_3, x_4, x_6);
-return x_7;
+uint8_t x_6; 
+x_6 = !lean_is_exclusive(x_3);
+if (x_6 == 0)
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_7 = lean_ctor_get(x_3, 0);
+x_8 = lean_ctor_get(x_3, 1);
+lean_dec(x_8);
+x_9 = lean_alloc_closure((void*)(l_Lake_Job_mapOk___lam__0), 2, 1);
+lean_closure_set(x_9, 0, x_2);
+x_10 = lean_task_map(x_9, x_7, x_4, x_5);
+lean_ctor_set(x_3, 1, x_1);
+lean_ctor_set(x_3, 0, x_10);
+return x_3;
+}
+else
+{
+lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+x_11 = lean_ctor_get(x_3, 0);
+x_12 = lean_ctor_get(x_3, 2);
+x_13 = lean_ctor_get_uint8(x_3, sizeof(void*)*3);
+lean_inc(x_12);
+lean_inc(x_11);
+lean_dec(x_3);
+x_14 = lean_alloc_closure((void*)(l_Lake_Job_mapOk___lam__0), 2, 1);
+lean_closure_set(x_14, 0, x_2);
+x_15 = lean_task_map(x_14, x_11, x_4, x_5);
+x_16 = lean_alloc_ctor(0, 3, 1);
+lean_ctor_set(x_16, 0, x_15);
+lean_ctor_set(x_16, 1, x_1);
+lean_ctor_set(x_16, 2, x_12);
+lean_ctor_set_uint8(x_16, sizeof(void*)*3, x_13);
+return x_16;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Job_mapOk___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -2338,7 +2291,16 @@ x_9 = l_Lake_Job_mapOk(x_1, x_2, x_3, x_4, x_5, x_6, x_8);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Job_map___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_Job_mapOk___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; lean_object* x_7; 
+x_6 = lean_unbox(x_5);
+x_7 = l_Lake_Job_mapOk___redArg(x_1, x_2, x_3, x_4, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Job_map___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -2393,45 +2355,6 @@ return x_13;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Job_map___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5) {
-_start:
-{
-uint8_t x_6; 
-x_6 = !lean_is_exclusive(x_3);
-if (x_6 == 0)
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_7 = lean_ctor_get(x_3, 0);
-x_8 = lean_ctor_get(x_3, 1);
-lean_dec(x_8);
-x_9 = lean_alloc_closure((void*)(l_Lake_Job_map___redArg___lam__0), 2, 1);
-lean_closure_set(x_9, 0, x_2);
-x_10 = lean_task_map(x_9, x_7, x_4, x_5);
-lean_ctor_set(x_3, 1, x_1);
-lean_ctor_set(x_3, 0, x_10);
-return x_3;
-}
-else
-{
-lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_11 = lean_ctor_get(x_3, 0);
-x_12 = lean_ctor_get(x_3, 2);
-x_13 = lean_ctor_get_uint8(x_3, sizeof(void*)*3);
-lean_inc(x_12);
-lean_inc(x_11);
-lean_dec(x_3);
-x_14 = lean_alloc_closure((void*)(l_Lake_Job_map___redArg___lam__0), 2, 1);
-lean_closure_set(x_14, 0, x_2);
-x_15 = lean_task_map(x_14, x_11, x_4, x_5);
-x_16 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_1);
-lean_ctor_set(x_16, 2, x_12);
-lean_ctor_set_uint8(x_16, sizeof(void*)*3, x_13);
-return x_16;
-}
-}
-}
 LEAN_EXPORT lean_object* l_Lake_Job_map(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, uint8_t x_7) {
 _start:
 {
@@ -2443,7 +2366,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12;
 x_9 = lean_ctor_get(x_5, 0);
 x_10 = lean_ctor_get(x_5, 1);
 lean_dec(x_10);
-x_11 = lean_alloc_closure((void*)(l_Lake_Job_map___redArg___lam__0), 2, 1);
+x_11 = lean_alloc_closure((void*)(l_Lake_Job_map___lam__0), 2, 1);
 lean_closure_set(x_11, 0, x_4);
 x_12 = lean_task_map(x_11, x_9, x_6, x_7);
 lean_ctor_set(x_5, 1, x_3);
@@ -2459,7 +2382,7 @@ x_15 = lean_ctor_get_uint8(x_5, sizeof(void*)*3);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_dec(x_5);
-x_16 = lean_alloc_closure((void*)(l_Lake_Job_map___redArg___lam__0), 2, 1);
+x_16 = lean_alloc_closure((void*)(l_Lake_Job_map___lam__0), 2, 1);
 lean_closure_set(x_16, 0, x_4);
 x_17 = lean_task_map(x_16, x_13, x_6, x_7);
 x_18 = lean_alloc_ctor(0, 3, 1);
@@ -2471,13 +2394,43 @@ return x_18;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Job_map___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lake_Job_map___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5) {
 _start:
 {
-uint8_t x_6; lean_object* x_7; 
-x_6 = lean_unbox(x_5);
-x_7 = l_Lake_Job_map___redArg(x_1, x_2, x_3, x_4, x_6);
-return x_7;
+uint8_t x_6; 
+x_6 = !lean_is_exclusive(x_3);
+if (x_6 == 0)
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_7 = lean_ctor_get(x_3, 0);
+x_8 = lean_ctor_get(x_3, 1);
+lean_dec(x_8);
+x_9 = lean_alloc_closure((void*)(l_Lake_Job_map___lam__0), 2, 1);
+lean_closure_set(x_9, 0, x_2);
+x_10 = lean_task_map(x_9, x_7, x_4, x_5);
+lean_ctor_set(x_3, 1, x_1);
+lean_ctor_set(x_3, 0, x_10);
+return x_3;
+}
+else
+{
+lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+x_11 = lean_ctor_get(x_3, 0);
+x_12 = lean_ctor_get(x_3, 2);
+x_13 = lean_ctor_get_uint8(x_3, sizeof(void*)*3);
+lean_inc(x_12);
+lean_inc(x_11);
+lean_dec(x_3);
+x_14 = lean_alloc_closure((void*)(l_Lake_Job_map___lam__0), 2, 1);
+lean_closure_set(x_14, 0, x_2);
+x_15 = lean_task_map(x_14, x_11, x_4, x_5);
+x_16 = lean_alloc_ctor(0, 3, 1);
+lean_ctor_set(x_16, 0, x_15);
+lean_ctor_set(x_16, 1, x_1);
+lean_ctor_set(x_16, 2, x_12);
+lean_ctor_set_uint8(x_16, sizeof(void*)*3, x_13);
+return x_16;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Job_map___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -2487,6 +2440,15 @@ uint8_t x_8; lean_object* x_9;
 x_8 = lean_unbox(x_7);
 x_9 = l_Lake_Job_map(x_1, x_2, x_3, x_4, x_5, x_6, x_8);
 return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Job_map___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; lean_object* x_7; 
+x_6 = lean_unbox(x_5);
+x_7 = l_Lake_Job_map___redArg(x_1, x_2, x_3, x_4, x_6);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Job_instFunctor___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -2500,7 +2462,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_ctor_get(x_4, 0);
 x_7 = lean_ctor_get(x_4, 1);
 lean_dec(x_7);
-x_8 = lean_alloc_closure((void*)(l_Lake_Job_map___redArg___lam__0), 2, 1);
+x_8 = lean_alloc_closure((void*)(l_Lake_Job_map___lam__0), 2, 1);
 lean_closure_set(x_8, 0, x_3);
 x_9 = lean_box(0);
 x_10 = lean_unsigned_to_nat(0u);
@@ -2519,7 +2481,7 @@ x_15 = lean_ctor_get_uint8(x_4, sizeof(void*)*3);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_dec(x_4);
-x_16 = lean_alloc_closure((void*)(l_Lake_Job_map___redArg___lam__0), 2, 1);
+x_16 = lean_alloc_closure((void*)(l_Lake_Job_map___lam__0), 2, 1);
 lean_closure_set(x_16, 0, x_3);
 x_17 = lean_box(0);
 x_18 = lean_unsigned_to_nat(0u);
@@ -2560,13 +2522,6 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lake_Build_Job_Basic_0__Lake_JobTask_toOpaqueImpl___redArg(lean_object* x_1) {
-_start:
-{
-lean_inc_ref(x_1);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lake_Build_Job_Basic_0__Lake_JobTask_toOpaqueImpl(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2574,13 +2529,11 @@ lean_inc_ref(x_2);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lake_Build_Job_Basic_0__Lake_JobTask_toOpaqueImpl___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lake_Build_Job_Basic_0__Lake_JobTask_toOpaqueImpl___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l___private_Lake_Build_Job_Basic_0__Lake_JobTask_toOpaqueImpl___redArg(x_1);
-lean_dec_ref(x_1);
-return x_2;
+lean_inc_ref(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lake_Build_Job_Basic_0__Lake_JobTask_toOpaqueImpl___boxed(lean_object* x_1, lean_object* x_2) {
@@ -2590,6 +2543,15 @@ lean_object* x_3;
 x_3 = l___private_Lake_Build_Job_Basic_0__Lake_JobTask_toOpaqueImpl(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lake_Build_Job_Basic_0__Lake_JobTask_toOpaqueImpl___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l___private_Lake_Build_Job_Basic_0__Lake_JobTask_toOpaqueImpl___redArg(x_1);
+lean_dec_ref(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lake_instCoeOutJobTaskOpaqueJobTask___closed__0() {

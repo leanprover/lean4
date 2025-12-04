@@ -179,43 +179,20 @@ return x_21;
 }
 }
 }
-static lean_object* _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__0() {
+LEAN_EXPORT lean_object* l_Lake_BuildStore_collectModuleFacetArray___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lake_BuildStore_collectModuleFacetArray___redArg___lam__0(x_1, x_2, x_3, x_4);
+lean_dec(x_1);
+return x_5;
+}
+}
+static lean_object* _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__0), 4, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__1___boxed), 4, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__2___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__3), 4, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__4___boxed), 4, 0);
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__6), 4, 0);
 return x_1;
 }
 }
@@ -227,11 +204,43 @@ x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__5___boxed), 4, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__6() {
+static lean_object* _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__6), 4, 0);
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__4___boxed), 4, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__3), 4, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__2___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__1___boxed), 4, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__0), 4, 0);
 return x_1;
 }
 }
@@ -297,7 +306,7 @@ x_5 = l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10;
 x_6 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_4, x_3, x_5, x_1);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 return x_7;
 }
 }
@@ -306,15 +315,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lake_BuildStore_collectModuleFacetArray___redArg(x_2, x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_BuildStore_collectModuleFacetArray___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lake_BuildStore_collectModuleFacetArray___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_1);
 return x_5;
 }
 }
@@ -436,6 +436,15 @@ return x_23;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lake_BuildStore_collectModuleFacetMap___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lake_BuildStore_collectModuleFacetMap___redArg___lam__0(x_1, x_2, x_3, x_4);
+lean_dec(x_1);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_BuildStore_collectModuleFacetMap___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -447,7 +456,7 @@ x_5 = lean_box(1);
 x_6 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_4, x_3, x_5, x_1);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 return x_7;
 }
 }
@@ -456,15 +465,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lake_BuildStore_collectModuleFacetMap___redArg(x_2, x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_BuildStore_collectModuleFacetMap___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lake_BuildStore_collectModuleFacetMap___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_1);
 return x_5;
 }
 }
@@ -550,6 +550,15 @@ return x_16;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lake_BuildStore_collectPackageFacetArray___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lake_BuildStore_collectPackageFacetArray___redArg___lam__0(x_1, x_2, x_3, x_4);
+lean_dec(x_1);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_BuildStore_collectPackageFacetArray___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -561,7 +570,7 @@ x_5 = l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10;
 x_6 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_4, x_3, x_5, x_1);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 return x_7;
 }
 }
@@ -570,15 +579,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lake_BuildStore_collectPackageFacetArray___redArg(x_2, x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_BuildStore_collectPackageFacetArray___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lake_BuildStore_collectPackageFacetArray___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_1);
 return x_5;
 }
 }
@@ -630,6 +630,16 @@ return x_12;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lake_BuildStore_collectTargetFacetArray___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lake_BuildStore_collectTargetFacetArray___redArg___lam__0(x_1, x_2, x_3, x_4);
+lean_dec_ref(x_2);
+lean_dec(x_1);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_BuildStore_collectTargetFacetArray___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -641,7 +651,7 @@ x_5 = l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10;
 x_6 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_4, x_3, x_5, x_1);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 return x_7;
 }
 }
@@ -653,14 +663,12 @@ x_5 = l_Lake_BuildStore_collectTargetFacetArray___redArg(x_2, x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_BuildStore_collectTargetFacetArray___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+static lean_object* _init_l_Lake_BuildStore_collectSharedExternLibs___redArg___closed__1() {
 _start:
 {
-lean_object* x_5; 
-x_5 = l_Lake_BuildStore_collectTargetFacetArray___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec_ref(x_2);
-lean_dec(x_1);
-return x_5;
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("shared", 6, 6);
+return x_1;
 }
 }
 static lean_object* _init_l_Lake_BuildStore_collectSharedExternLibs___redArg___closed__0() {
@@ -668,14 +676,6 @@ _start:
 {
 lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("externLib", 9, 9);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_BuildStore_collectSharedExternLibs___redArg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("shared", 6, 6);
 return x_1;
 }
 }
@@ -729,20 +729,20 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_BuildStore_empty = _init_l_Lake_BuildStore_empty();
 lean_mark_persistent(l_Lake_BuildStore_empty);
-l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__0 = _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__0();
-lean_mark_persistent(l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__0);
-l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__1 = _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__1();
-lean_mark_persistent(l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__1);
-l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__2 = _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__2();
-lean_mark_persistent(l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__2);
-l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__3 = _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__3();
-lean_mark_persistent(l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__3);
-l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__4 = _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__4();
-lean_mark_persistent(l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__4);
-l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__5 = _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__5();
-lean_mark_persistent(l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__5);
 l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__6 = _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__6();
 lean_mark_persistent(l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__6);
+l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__5 = _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__5();
+lean_mark_persistent(l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__5);
+l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__4 = _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__4();
+lean_mark_persistent(l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__4);
+l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__3 = _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__3();
+lean_mark_persistent(l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__3);
+l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__2 = _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__2();
+lean_mark_persistent(l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__2);
+l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__1 = _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__1();
+lean_mark_persistent(l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__1);
+l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__0 = _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__0();
+lean_mark_persistent(l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__0);
 l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__7 = _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__7();
 lean_mark_persistent(l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__7);
 l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__8 = _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__8();
@@ -751,10 +751,10 @@ l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__9 = _init_l_Lake_Bu
 lean_mark_persistent(l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__9);
 l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10 = _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10();
 lean_mark_persistent(l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10);
-l_Lake_BuildStore_collectSharedExternLibs___redArg___closed__0 = _init_l_Lake_BuildStore_collectSharedExternLibs___redArg___closed__0();
-lean_mark_persistent(l_Lake_BuildStore_collectSharedExternLibs___redArg___closed__0);
 l_Lake_BuildStore_collectSharedExternLibs___redArg___closed__1 = _init_l_Lake_BuildStore_collectSharedExternLibs___redArg___closed__1();
 lean_mark_persistent(l_Lake_BuildStore_collectSharedExternLibs___redArg___closed__1);
+l_Lake_BuildStore_collectSharedExternLibs___redArg___closed__0 = _init_l_Lake_BuildStore_collectSharedExternLibs___redArg___closed__0();
+lean_mark_persistent(l_Lake_BuildStore_collectSharedExternLibs___redArg___closed__0);
 l_Lake_BuildStore_collectSharedExternLibs___redArg___closed__2 = _init_l_Lake_BuildStore_collectSharedExternLibs___redArg___closed__2();
 lean_mark_persistent(l_Lake_BuildStore_collectSharedExternLibs___redArg___closed__2);
 return lean_io_result_mk_ok(lean_box(0));

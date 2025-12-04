@@ -1,5 +1,5 @@
 import Std
-import Lean.Elab.Tactic.Grind.Lint
+import Lean.Elab.Tactic.Grind.LintExceptions
 
 /-! Check remaining Std sub-namespaces: -/
 

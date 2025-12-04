@@ -54,7 +54,6 @@ register_builtin_option inductive.autoPromoteIndices : Bool := {
 
 register_builtin_option bootstrap.inductiveCheckResultingUniverse : Bool := {
   defValue := true,
-  group    := "bootstrap",
   descr    := "by default the `inductive`/`structure` commands report an error if the resulting universe is not zero, \
     but may be zero for some universe parameters. Reason: unless this type is a subsingleton, \
     it is hardly what the user wants since it can only eliminate into `Prop`. \
@@ -1174,7 +1173,7 @@ private def checkNoInductiveNameConflicts (elabs : Array InductiveElabStep1) (is
   let throwErrorsAt (init cur : Syntax) (msg : MessageData) : TermElabM Unit := do
     logErrorAt init msg
     throwErrorAt cur msg
-  -- Maps names of inductive types to to `true` and those of constructors to `false`, along with syntax refs
+  -- Maps names of inductive types to `true` and those of constructors to `false`, along with syntax refs
   let mut uniqueNames : Std.HashMap Name (Bool × Syntax) := {}
   let declString := if isCoinductive then "coinductive predicate" else "inductive type"
   trace[Elab.inductive] "deckString: {declString}"

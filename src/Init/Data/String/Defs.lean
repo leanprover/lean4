@@ -74,11 +74,11 @@ Encodes a string in UTF-8 as an array of bytes.
 -/
 @[extern "lean_string_to_utf8"]
 def String.toUTF8 (a : @& String) : ByteArray :=
-  a.bytes
+  a.toByteArray
 
-@[simp] theorem String.toUTF8_eq_bytes {s : String} : s.toUTF8 = s.bytes := (rfl)
+@[simp] theorem String.toUTF8_eq_toByteArray {s : String} : s.toUTF8 = s.toByteArray := (rfl)
 
-@[simp] theorem String.bytes_empty : "".bytes = ByteArray.empty := (rfl)
+@[simp] theorem String.toByteArray_empty : "".toByteArray = ByteArray.empty := (rfl)
 
 /--
 Appends two strings. Usually accessed via the `++` operator.
@@ -92,33 +92,33 @@ Examples:
 -/
 @[extern "lean_string_append", expose]
 def String.append (s : String) (t : @& String) : String where
-  bytes := s.bytes ++ t.bytes
+  toByteArray := s.toByteArray ++ t.toByteArray
   isValidUTF8 := s.isValidUTF8.append t.isValidUTF8
 
 instance : Append String where
   append s t := s.append t
 
 @[simp]
-theorem String.bytes_append {s t : String} : (s ++ t).bytes = s.bytes ++ t.bytes := (rfl)
+theorem String.toByteArray_append {s t : String} : (s ++ t).toByteArray = s.toByteArray ++ t.toByteArray := (rfl)
 
-theorem String.bytes_inj {s t : String} : s.bytes = t.bytes ↔ s = t := by
+theorem String.toByteArray_inj {s t : String} : s.toByteArray = t.toByteArray ↔ s = t := by
   refine ⟨fun h => ?_, (· ▸ rfl)⟩
   rcases s with ⟨s⟩
   rcases t with ⟨t⟩
   subst h
   rfl
 
-@[simp] theorem String.bytes_ofList {l : List Char} : (String.ofList l).bytes = l.utf8Encode := by
+@[simp] theorem String.toByteArray_ofList {l : List Char} : (String.ofList l).toByteArray = l.utf8Encode := by
   simp [String.ofList]
 
-@[deprecated String.bytes_ofList (since := "2025-10-30")]
-theorem List.bytes_asString {l : List Char} : (String.ofList l).bytes = l.utf8Encode :=
-  String.bytes_ofList
+@[deprecated String.toByteArray_ofList (since := "2025-10-30")]
+theorem List.toByteArray_asString {l : List Char} : (String.ofList l).toByteArray = l.utf8Encode :=
+  String.toByteArray_ofList
 
 theorem String.exists_eq_ofList (s : String) :
     ∃ l : List Char, s = String.ofList l := by
   rcases s with ⟨_, ⟨l, rfl⟩⟩
-  refine ⟨l, by simp [← String.bytes_inj]⟩
+  refine ⟨l, by simp [← String.toByteArray_inj]⟩
 
 @[deprecated String.exists_eq_ofList (since := "2025-10-30")]
 theorem String.exists_eq_asString (s : String) :
@@ -134,17 +134,13 @@ theorem String.utf8ByteSize_append {s t : String} :
   simp [utf8ByteSize]
 
 @[simp]
-theorem String.size_bytes {s : String} : s.bytes.size = s.utf8ByteSize := rfl
+theorem String.size_toByteArray {s : String} : s.toByteArray.size = s.utf8ByteSize := rfl
 
 @[simp]
-theorem String.bytes_push {s : String} {c : Char} : (s.push c).bytes = s.bytes ++ [c].utf8Encode := by
+theorem String.toByteArray_push {s : String} {c : Char} : (s.push c).toByteArray = s.toByteArray ++ [c].utf8Encode := by
   simp [push]
 
 namespace String
-
-@[deprecated rawEndPos (since := "2025-10-20")]
-def endPos (s : String) : String.Pos.Raw :=
-  s.rawEndPos
 
 /-- The start position of the string, as a `String.Pos.Raw.` -/
 def rawStartPos (_s : String) : String.Pos.Raw :=
@@ -164,11 +160,11 @@ theorem utf8ByteSize_ofByteArray {b : ByteArray} {h} :
     (String.ofByteArray b h).utf8ByteSize = b.size := rfl
 
 @[simp]
-theorem bytes_singleton {c : Char} : (String.singleton c).bytes = [c].utf8Encode := by
+theorem toByteArray_singleton {c : Char} : (String.singleton c).toByteArray = [c].utf8Encode := by
   simp [singleton]
 
 theorem singleton_eq_ofList {c : Char} : String.singleton c = String.ofList [c] := by
-  simp [← String.bytes_inj]
+  simp [← String.toByteArray_inj]
 
 @[deprecated singleton_eq_ofList (since := "2025-10-30")]
 theorem singleton_eq_asString {c : Char} : String.singleton c = String.ofList [c] :=
@@ -176,20 +172,20 @@ theorem singleton_eq_asString {c : Char} : String.singleton c = String.ofList [c
 
 @[simp]
 theorem append_singleton {s : String} {c : Char} : s ++ singleton c = s.push c := by
-  simp [← bytes_inj]
+  simp [← toByteArray_inj]
 
 @[simp]
 theorem append_left_inj {s₁ s₂ : String} (t : String) :
     s₁ ++ t = s₂ ++ t ↔ s₁ = s₂ := by
-  simp [← bytes_inj]
+  simp [← toByteArray_inj]
 
 theorem append_assoc {s₁ s₂ s₃ : String} : s₁ ++ s₂ ++ s₃ = s₁ ++ (s₂ ++ s₃) := by
-  simp [← bytes_inj, ByteArray.append_assoc]
+  simp [← toByteArray_inj, ByteArray.append_assoc]
 
 @[simp]
 theorem utf8ByteSize_eq_zero_iff {s : String} : s.utf8ByteSize = 0 ↔ s = "" := by
   refine ⟨fun h => ?_, fun h => h ▸ utf8ByteSize_empty⟩
-  simpa [← bytes_inj, ← ByteArray.size_eq_zero_iff] using h
+  simpa [← toByteArray_inj, ← ByteArray.size_eq_zero_iff] using h
 
 theorem rawEndPos_eq_zero_iff {b : String} : b.rawEndPos = 0 ↔ b = "" := by
   simp
@@ -300,14 +296,14 @@ Examples:
 -/
 structure Pos.Raw.IsValid (s : String) (off : String.Pos.Raw) : Prop where private mk ::
   le_rawEndPos : off ≤ s.rawEndPos
-  isValidUTF8_extract_zero : (s.bytes.extract 0 off.byteIdx).IsValidUTF8
+  isValidUTF8_extract_zero : (s.toByteArray.extract 0 off.byteIdx).IsValidUTF8
 
 theorem Pos.Raw.IsValid.le_utf8ByteSize {s : String} {off : String.Pos.Raw} (h : off.IsValid s) :
     off.byteIdx ≤ s.utf8ByteSize := by
   simpa [Pos.Raw.le_iff] using h.le_rawEndPos
 
 theorem Pos.Raw.isValid_iff_isValidUTF8_extract_zero {s : String} {p : Pos.Raw} :
-    p.IsValid s ↔ p ≤ s.rawEndPos ∧ (s.bytes.extract 0 p.byteIdx).IsValidUTF8 :=
+    p.IsValid s ↔ p ≤ s.rawEndPos ∧ (s.toByteArray.extract 0 p.byteIdx).IsValidUTF8 :=
   ⟨fun ⟨h₁, h₂⟩ => ⟨h₁, h₂⟩, fun ⟨h₁, h₂⟩ => ⟨h₁, h₂⟩⟩
 
 @[deprecated le_rawEndPos (since := "2025-10-20")]
@@ -323,7 +319,7 @@ theorem Pos.Raw.isValid_zero {s : String} : (0 : Pos.Raw).IsValid s where
 @[simp]
 theorem Pos.Raw.isValid_rawEndPos {s : String} : s.rawEndPos.IsValid s where
   le_rawEndPos := by simp
-  isValidUTF8_extract_zero := by simp [← size_bytes, s.isValidUTF8]
+  isValidUTF8_extract_zero := by simp [← size_toByteArray, s.isValidUTF8]
 
 theorem Pos.Raw.isValid_of_eq_rawEndPos {s : String} {p : Pos.Raw} (h : p = s.rawEndPos) :
     p.IsValid s := by
@@ -341,55 +337,55 @@ theorem Pos.Raw.isValid_empty_iff {p : Pos.Raw} : p.IsValid "" ↔ p = 0 := by
     simp
 
 /--
-A `ValidPos s` is a byte offset in `s` together with a proof that this position is at a UTF-8
+A `Pos s` is a byte offset in `s` together with a proof that this position is at a UTF-8
 character boundary.
 -/
 @[ext]
-structure ValidPos (s : String) where
-  /-- The underlying byte offset of the `ValidPos`. -/
+structure Pos (s : String) where
+  /-- The underlying byte offset of the `Pos`. -/
   offset : Pos.Raw
   /-- The proof that `offset` is valid for the string `s`. -/
   isValid : offset.IsValid s
 deriving @[expose] DecidableEq
 
-/-- The start position of `s`, as an `s.ValidPos`. -/
+/-- The start position of `s`, as an `s.Pos`. -/
 @[inline, expose]
-def startValidPos (s : String) : s.ValidPos where
+def startPos (s : String) : s.Pos where
   offset := 0
   isValid := by simp
 
 @[simp]
-theorem offset_startValidPos {s : String} : s.startValidPos.offset = 0 := (rfl)
+theorem offset_startPos {s : String} : s.startPos.offset = 0 := (rfl)
 
-instance {s : String} : Inhabited s.ValidPos where
-  default := s.startValidPos
+instance {s : String} : Inhabited s.Pos where
+  default := s.startPos
 
-/-- The past-the-end position of `s`, as an `s.ValidPos`. -/
+/-- The past-the-end position of `s`, as an `s.Pos`. -/
 @[inline, expose]
-def endValidPos (s : String) : s.ValidPos where
+def endPos (s : String) : s.Pos where
   offset := s.rawEndPos
   isValid := by simp
 
 @[simp]
-theorem offset_endValidPos {s : String} : s.endValidPos.offset = s.rawEndPos := (rfl)
+theorem offset_endPos {s : String} : s.endPos.offset = s.rawEndPos := (rfl)
 
-instance {s : String} : LE s.ValidPos where
+instance {s : String} : LE s.Pos where
   le l r := l.offset ≤ r.offset
 
-instance {s : String} : LT s.ValidPos where
+instance {s : String} : LT s.Pos where
   lt l r := l.offset < r.offset
 
-theorem ValidPos.le_iff {s : String} {l r : s.ValidPos} : l ≤ r ↔ l.offset ≤ r.offset :=
+theorem Pos.le_iff {s : String} {l r : s.Pos} : l ≤ r ↔ l.offset ≤ r.offset :=
   Iff.rfl
 
-theorem ValidPos.lt_iff {s : String} {l r : s.ValidPos} : l < r ↔ l.offset < r.offset :=
+theorem Pos.lt_iff {s : String} {l r : s.Pos} : l < r ↔ l.offset < r.offset :=
   Iff.rfl
 
-instance {s : String} (l r : s.ValidPos) : Decidable (l ≤ r) :=
-  decidable_of_iff' _ ValidPos.le_iff
+instance {s : String} (l r : s.Pos) : Decidable (l ≤ r) :=
+  decidable_of_iff' _ Pos.le_iff
 
-instance {s : String} (l r : s.ValidPos) : Decidable (l < r) :=
-decidable_of_iff' _ ValidPos.lt_iff
+instance {s : String} (l r : s.Pos) : Decidable (l < r) :=
+decidable_of_iff' _ Pos.lt_iff
 
 /--
 A region or slice of some underlying string.
@@ -406,14 +402,14 @@ structure Slice where
   /-- The underlying strings. -/
   str : String
   /-- The byte position of the start of the string slice. -/
-  startInclusive : str.ValidPos
+  startInclusive : str.Pos
   /-- The byte position of the end of the string slice. -/
-  endExclusive : str.ValidPos
+  endExclusive : str.Pos
   /-- The slice is not degenerate (but it may be empty). -/
   startInclusive_le_endExclusive : startInclusive ≤ endExclusive
 
 instance : Inhabited Slice where
-  default := ⟨"", "".startValidPos, "".startValidPos, by simp [ValidPos.le_iff]⟩
+  default := ⟨"", "".startPos, "".startPos, by simp [Pos.le_iff]⟩
 
 /--
 Returns a slice that contains the entire string.
@@ -421,15 +417,18 @@ Returns a slice that contains the entire string.
 @[inline, expose] -- expose for the defeq `s.toSlice.str = s`.
 def toSlice (s : String) : Slice where
   str := s
-  startInclusive := s.startValidPos
-  endExclusive := s.endValidPos
-  startInclusive_le_endExclusive := by simp [ValidPos.le_iff, Pos.Raw.le_iff]
+  startInclusive := s.startPos
+  endExclusive := s.endPos
+  startInclusive_le_endExclusive := by simp [Pos.le_iff, Pos.Raw.le_iff]
+
+instance : Coe String String.Slice where
+  coe := String.toSlice
 
 @[simp]
-theorem startInclusive_toSlice {s : String} : s.toSlice.startInclusive = s.startValidPos := rfl
+theorem startInclusive_toSlice {s : String} : s.toSlice.startInclusive = s.startPos := rfl
 
 @[simp]
-theorem endExclusive_toSlice {s : String} : s.toSlice.endExclusive = s.endValidPos := rfl
+theorem endExclusive_toSlice {s : String} : s.toSlice.endExclusive = s.endPos := rfl
 
 @[simp]
 theorem str_toSlice {s : String} : s.toSlice.str = s := rfl
@@ -532,7 +531,7 @@ instance {s : Slice} : Inhabited s.Pos where
 theorem Slice.offset_startInclusive_add_self {s : Slice} :
     s.startInclusive.offset + s = s.endExclusive.offset := by
   have := s.startInclusive_le_endExclusive
-  simp_all [String.Pos.Raw.ext_iff, ValidPos.le_iff, Pos.Raw.le_iff, utf8ByteSize_eq]
+  simp_all [String.Pos.Raw.ext_iff, Pos.le_iff, Pos.Raw.le_iff, utf8ByteSize_eq]
 
 @[simp]
 theorem Pos.Raw.offsetBy_rawEndPos_left {p : Pos.Raw} {s : String} :
@@ -591,18 +590,18 @@ instance {s : Slice} (l r : s.Pos) : Decidable (l < r) :=
   decidable_of_iff' _ Slice.Pos.lt_iff
 
 /--
-`pos.IsAtEnd` is just shorthand for `pos = s.endValidPos` that is easier to write if `s` is long.
+`pos.IsAtEnd` is just shorthand for `pos = s.endPos` that is easier to write if `s` is long.
 -/
-abbrev ValidPos.IsAtEnd {s : String} (pos : s.ValidPos) : Prop :=
-  pos = s.endValidPos
+abbrev Pos.IsAtEnd {s : String} (pos : s.Pos) : Prop :=
+  pos = s.endPos
 
 @[simp]
-theorem ValidPos.isAtEnd_iff {s : String} {pos : s.ValidPos} :
-    pos.IsAtEnd ↔ pos = s.endValidPos := Iff.rfl
+theorem Pos.isAtEnd_iff {s : String} {pos : s.Pos} :
+    pos.IsAtEnd ↔ pos = s.endPos := Iff.rfl
 
 @[inline]
-instance {s : String} {pos : s.ValidPos} : Decidable pos.IsAtEnd :=
-  decidable_of_iff _ ValidPos.isAtEnd_iff
+instance {s : String} {pos : s.Pos} : Decidable pos.IsAtEnd :=
+  decidable_of_iff _ Pos.isAtEnd_iff
 
 /--
 `pos.IsAtEnd` is just shorthand for `pos = s.endPos` that is easier to write if `s` is long.
@@ -638,5 +637,21 @@ def toSubstring (s : String) : Substring.Raw :=
 @[deprecated String.toRawSubstring' (since := "2025-11-18")]
 def toSubstring' (s : String) : Substring.Raw :=
   s.toRawSubstring'
+
+@[deprecated String.Pos (since := "2025-11-24")]
+abbrev ValidPos (s : String) : Type :=
+  s.Pos
+
+@[deprecated String.startPos (since := "2025-11-24")]
+abbrev startValidPos (s : String) : s.Pos :=
+  s.startPos
+
+@[deprecated String.endPos (since := "2025-11-24")]
+abbrev endValidPos (s : String) : s.Pos :=
+  s.endPos
+
+@[deprecated String.toByteArray (since := "2025-11-24")]
+abbrev String.bytes (s : String) : ByteArray :=
+  s.toByteArray
 
 end String

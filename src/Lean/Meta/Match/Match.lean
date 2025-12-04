@@ -16,12 +16,13 @@ public import Lean.Meta.Match.MVarRenaming
 import Lean.Meta.Match.SimpH
 import Lean.Meta.Match.SolveOverlap
 import Lean.Meta.HasNotBit
+import Lean.Meta.Match.NamedPatterns
 
 public section
 
 namespace Lean.Meta.Match
 
-register_builtin_option backwards.match.sparseCases : Bool := {
+register_builtin_option backward.match.sparseCases : Bool := {
   defValue := true
   descr := "if true (the default), generate and use sparse case constructs when splitting inductive
     types. In some cases this will prevent Lean from noticing that a match statement is complete
@@ -30,7 +31,7 @@ register_builtin_option backwards.match.sparseCases : Bool := {
      ,"
 }
 
-register_builtin_option backwards.match.rowMajor : Bool := {
+register_builtin_option backward.match.rowMajor : Bool := {
   defValue := true
   descr := "If true (the default), match compilation will split the discrimnants based \
     on position of the first constructor pattern in the first alternative. If false, \
@@ -617,7 +618,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
     -- We use a sparse case analysis only if there is at least one non-constructor pattern,
     -- but not just because there are constructors missing (in that case we benefit from
     -- the eager split in ruling out constructors by type or by a more explicit error message)
-    if backwards.match.sparseCases.get (← getOptions) && hasVarOrInaccessiblePattern p then
+    if backward.match.sparseCases.get (← getOptions) && hasVarOrInaccessiblePattern p then
       let ctors := collectCtors p
       trace[Meta.Match.match] "using sparse cases: {ctors}"
       pure (some ctors)
@@ -955,7 +956,7 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
     process p
     return
 
-  if backwards.match.rowMajor.get (← getOptions) then
+  if backward.match.rowMajor.get (← getOptions) then
     match firstRefutablePattern p with
     | some i =>
       if i > 0 then
@@ -1039,7 +1040,6 @@ private def getUElimPos? (matcherLevels : List Level) (uElim : Level) : MetaM (O
 /- See comment at `mkMatcher` before `mkAuxDefinition` -/
 register_builtin_option bootstrap.genMatcherCode : Bool := {
   defValue := true
-  group := "bootstrap"
   descr := "disable code generation for auxiliary matcher function"
 }
 

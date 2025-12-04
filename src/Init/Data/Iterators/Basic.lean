@@ -678,6 +678,7 @@ Given this typeclass, termination proofs for well-founded recursion over an iter
 `it.finitelyManySteps` as a termination measure.
 -/
 class Finite (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] : Prop where
+  /-- The relation of plausible successors is well-founded. -/
   wf : WellFounded (IterM.IsPlausibleSuccessorOf (α := α) (m := m))
 
 theorem Finite.wf_of_id {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] :
@@ -797,6 +798,7 @@ Given this typeclass, termination proofs for well-founded recursion over an iter
 `it.finitelyManySkips` as a termination measure.
 -/
 class Productive (α m) {β} [Iterator α m β] : Prop where
+  /-- The relation of plausible successors during skips is well-founded. -/
   wf : WellFounded (IterM.IsPlausibleSkipSuccessorOf (α := α) (m := m))
 
 /--

@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Range.Polymorphic.PRange
 
 set_option doc.verso true
+set_option linter.missingDocs true
 
 public section
 
@@ -30,6 +31,9 @@ This typeclass indicates how to obtain slices of elements of {lit}`α` over rang
 The type of the resulting slices is {lit}`γ`.
 -/
 class Rcc.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
+  /--
+  Slices {name}`carrier` from {lean}`range.lower` to {lean}`range.upper`, both inclusive.
+  -/
   mkSlice (carrier : α) (range : Rcc β) : γ
 
 /--
@@ -39,6 +43,9 @@ This typeclass indicates how to obtain slices of elements of {lit}`α` over rang
 The type of resulting the slices is {lit}`γ`.
 -/
 class Rco.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
+  /--
+  Slices {name}`carrier` from {lean}`range.lower` (inclusive) to {lean}`range.upper` (exclusive).
+  -/
   mkSlice (carrier : α) (range : Rco β) : γ
 
 /--
@@ -48,6 +55,9 @@ This typeclass indicates how to obtain slices of elements of {lit}`α` over rang
 The type of the resulting slices is {lit}`γ`.
 -/
 class Rci.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
+  /--
+  Slices {name}`carrier` from {lean}`range.lower` (inclusive).
+  -/
   mkSlice (carrier : α) (range : Rci β) : γ
 
 /--
@@ -57,6 +67,9 @@ This typeclass indicates how to obtain slices of elements of {lit}`α` over rang
 The type of the resulting slices is {lit}`γ`.
 -/
 class Roc.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
+  /--
+  Slices {name}`carrier` from {lean}`range.lower` (exclusive) to {lean}`range.upper` (inclusive).
+  -/
   mkSlice (carrier : α) (range : Roc β) : γ
 
 /--
@@ -66,6 +79,9 @@ This typeclass indicates how to obtain slices of elements of {lit}`α` over rang
 The type of the resulting slices is {lit}`γ`.
 -/
 class Roo.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
+  /--
+  Slices {name}`carrier` from {lean}`range.lower` to {lean}`range.upper`, both exclusive.
+  -/
   mkSlice (carrier : α) (range : Roo β) : γ
 
 /--
@@ -75,6 +91,9 @@ This typeclass indicates how to obtain slices of elements of {lit}`α` over rang
 The type of the resulting slices is {lit}`γ`.
 -/
 class Roi.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
+  /--
+  Slices {name}`carrier` from {lean}`range.lower` (exclusive).
+  -/
   mkSlice (carrier : α) (range : Roi β) : γ
 
 /--
@@ -84,6 +103,9 @@ This typeclass indicates how to obtain slices of elements of {lit}`α` over rang
 The type of the resulting slices is {lit}`γ`.
 -/
 class Ric.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
+  /--
+  Slices {name}`carrier` up to {lean}`range.upper` (inclusive).
+  -/
   mkSlice (carrier : α) (range : Ric β) : γ
 
 /--
@@ -93,6 +115,9 @@ This typeclass indicates how to obtain slices of elements of {lit}`α` over rang
 The type of the resulting slices is {lit}`γ`.
 -/
 class Rio.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
+  /--
+  Slices {name}`carrier` up to {lean}`range.upper` (exclusive).
+  -/
   mkSlice (carrier : α) (range : Rio β) : γ
 
 /--
@@ -102,6 +127,9 @@ index type {lit}`β`.
 The type of the resulting slices is {lit}`γ`.
 -/
 class Rii.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
+  /--
+  Slices {name}`carrier` with no bounds.
+  -/
   mkSlice (carrier : α) (range : Rii β) : γ
 
 macro_rules

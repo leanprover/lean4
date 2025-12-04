@@ -68,7 +68,7 @@ public def insert (self : RBArray α β cmp) (a : α) (b : β) : RBArray α β c
   [Monad m] (self : RBArray α β cmp) (init : σ) (f : β → σ → m (ForInStep σ))
 : m σ := ForIn.forIn self.toArray init f
 
-instance : ForIn m (RBArray α β cmp) β := ⟨RBArray.forIn⟩
+instance [Monad m] : ForIn m (RBArray α β cmp) β := ⟨RBArray.forIn⟩
 
 end RBArray
 

@@ -44,7 +44,9 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     set(CADICAL_CXX c++)
     if (CADICAL_USE_CUSTOM_CXX)
       set(CADICAL_CXX ${CMAKE_CXX_COMPILER})
-      set(CADICAL_CXXFLAGS "${LEAN_EXTRA_CXX_FLAGS}")
+      # Use same platform flags as for Lean executables, in particular from `prepare-llvm-linux.sh`,
+      # but not Lean-specific `LEAN_EXTRA_CXX_FLAGS` such as fsanitize.
+      set(CADICAL_CXXFLAGS "${CMAKE_CXX_FLAGS}")
       set(CADICAL_LDFLAGS "-Wl,-rpath=\\$$ORIGIN/../lib")
     endif()
     find_program(CCACHE ccache)

@@ -76,23 +76,23 @@ info: Try this:
   [apply] exact p
 -/
 #guard_msgs in
-example (P : Prop) (p : P) : P := by apply?
+example (P : Prop) (p : P) : P := by show_term solve_by_elim
 /--
 info: Try this:
   [apply] exact False.elim (np p)
 -/
 #guard_msgs in
-example (P : Prop) (p : P) (np : ¬P) : false := by apply?
+example (P : Prop) (p : P) (np : ¬P) : false := by show_term solve_by_elim
 /--
 info: Try this:
   [apply] exact h x rfl
 -/
 #guard_msgs in
-example (X : Type) (P : Prop) (x : X) (h : ∀ x : X, x = x → P) : P := by apply?
+example (X : Type) (P : Prop) (x : X) (h : ∀ x : X, x = x → P) : P := by show_term solve_by_elim
 
 -- Could be any number of results (`fun x => x`, `id`, etc)
 #guard_msgs (drop info) in
-example (α : Prop) : α → α := by apply?
+example (α : Prop) : α → α := by show_term solve_by_elim
 
 -- Note: these examples no longer work after we turned off lemmas with discrimination key `#[*]`.
 -- example (p : Prop) : (¬¬p) → p := by apply? -- says: `exact not_not.mp`

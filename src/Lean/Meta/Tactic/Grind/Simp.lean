@@ -45,7 +45,8 @@ def dsimpCore (e : Expr) : GrindM Expr := do profileitM Exception "grind dsimp" 
 Preprocesses `e` using `grind` normalization theorems and simprocs,
 and then applies several other preprocessing steps.
 -/
-def preprocess (e : Expr) : GoalM Simp.Result := do
+@[export lean_grind_preprocess]
+def preprocessImpl (e : Expr) : GoalM Simp.Result := do
   let e ← instantiateMVars e
   let r ← simpCore e
   /-

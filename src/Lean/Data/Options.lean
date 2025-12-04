@@ -20,15 +20,26 @@ def Options.empty : Options  := {}
 instance : Inhabited Options where
   default := {}
 instance : ToString Options := inferInstanceAs (ToString KVMap)
-instance : ForIn m Options (Name × DataValue) := inferInstanceAs (ForIn _ KVMap _)
+instance [Monad m] : ForIn m Options (Name × DataValue) := inferInstanceAs (ForIn _ KVMap _)
 instance : BEq Options := inferInstanceAs (BEq KVMap)
 
 structure OptionDecl where
+  name     : Name
   declName : Name := by exact decl_name%
   defValue : DataValue
-  group    : String := ""
   descr    : String := ""
   deriving Inhabited
+
+def OptionDecl.fullDescr (self : OptionDecl) : String := Id.run do
+  let mut descr := self.descr
+  if (`backward).isPrefixOf self.name then
+    unless descr.isEmpty do
+      descr := descr ++ "\n\n"
+    descr := descr ++ "\
+      This is a backwards compatibility option, intended to help migrating to new Lean releases. \
+      It may be removed without further notice 6 months after their introduction. \
+      Please report an issue if you rely on this option."
+  pure descr
 
 @[expose] def OptionDecls := NameMap OptionDecl
 
@@ -112,7 +123,6 @@ namespace Option
 
 protected structure Decl (α : Type) where
   defValue : α
-  group    : String := ""
   descr    : String := ""
 
 protected def get? [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : Option α :=
@@ -133,9 +143,9 @@ protected def setIfNotSet [KVMap.Value α] (opts : Options) (opt : Lean.Option �
 
 protected def register [KVMap.Value α] (name : Name) (decl : Lean.Option.Decl α) (ref : Name := by exact decl_name%) : IO (Lean.Option α) := do
   registerOption name {
+    name
     declName := ref
     defValue := KVMap.Value.toDataValue decl.defValue
-    group := decl.group
     descr := decl.descr
   }
   return { name := name, defValue := decl.defValue }

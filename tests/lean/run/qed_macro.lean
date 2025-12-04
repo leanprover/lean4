@@ -35,6 +35,7 @@ example : 1 + 1 = 2 :=
 -- With hypotheses in term mode
 /--
 info: Try these:
+  [apply] by solve_by_elim
   [apply] by simp [*]
   [apply] by simp only [h]
   [apply] by grind

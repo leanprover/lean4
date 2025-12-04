@@ -172,6 +172,45 @@ structure Config where
   and then reintroduces them while simplifying and applying eager `cases`.
   -/
   revert := false
+  /--
+  When `true`, it enables **function-valued congruence closure**.
+  `grind` treats equalities of partially applied functions as first-class equalities
+  and propagates them through further applications.
+  Given an application `f a₁ a₂ … aₙ`, when `funCC := true` *and* function equality is enabled for `f`,
+  `grind` generates and tracks equalities for all partial applications:
+  - `f a₁`
+  - `f a₁ a₂`
+  - `…`
+  - `f a₁ a₂ … aₙ`
+
+  This allows equalities such as `f a₁ = g` to propagate to
+  `f a₁ a₂ = g a₂`.
+
+  **When is function equality enabled for a symbol?**
+  Function equality is automatically enabled in the following cases:
+  1. **`f` is not a constant.** (For example, a lambda expression, a local variable, or a function parameter.)
+  2. **`f` is a structure field projection**, *provided the structure is not a `class`.*
+  3. **`f` is a constant marked with the attribute:** `@[grind funCC]`
+
+  If none of the above conditions apply, function equality is disabled for `f`, and congruence
+  closure behaves almost like it does in SMT solvers for first-order logic.
+  Here is an example, `grind` can solve when `funCC := true`
+  ```
+  example (a b : Nat) (g : Nat → Nat) (f : Nat → Nat → Nat) (h : f a = g) :
+    f a b = g b := by
+  grind
+  ```
+  -/
+  funCC := true
+  /--
+  When `true`, use reducible transparency when trying to close goals.
+  In this setting, only declarations marked with `@[reducible]` are unfolded during
+  definitional equality tests.
+
+  This option does not affect the canonicalizer or how theorem patterns are internalized;
+  reducible declarations are always unfolded in those contexts.
+  -/
+  reducible := true
   deriving Inhabited, BEq
 
 /--

@@ -12,6 +12,7 @@ public import Lean.Meta.Tactic.Simp.Diagnostics
 public import Lean.Meta.Match.Value
 public import Lean.Util.CollectLooseBVars
 import Lean.PrettyPrinter
+import Lean.ExtraModUses
 
 public section
 
@@ -1069,15 +1070,29 @@ def simpImpl (e : Expr) : SimpM Result := withIncRecDepth do
   else
     x
 
+/--
+For `rfl` theorems and simprocs, there might not be an explicit reference in the proof term, so
+we record (all non-builtin) usages explicitly.
+-/
+private def recordSimpUses (s : State) : MetaM Unit := do
+  for (thm, _) in s.usedTheorems.map do
+    if let .decl declName .. := thm then
+      if !(← isBuiltinSimproc declName) then
+        recordExtraModUseFromDecl (isMeta := false) declName
+
 def mainCore (e : Expr) (ctx : Context) (s : State := {}) (methods : Methods := {}) : MetaM (Result × State) := do
-  SimpM.run ctx s methods <| withCatchingRuntimeEx <| simp e
+  let (r, s) ← SimpM.run ctx s methods <| withCatchingRuntimeEx <| simp e
+  recordSimpUses s
+  return (r, s)
 
 def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Result × Stats) := do
   let (r, s) ← mainCore e ctx { stats with } methods
   return (r, { s with })
 
 def dsimpMainCore (e : Expr) (ctx : Context) (s : State := {}) (methods : Methods := {}) : MetaM (Expr × State) := do
-  SimpM.run ctx s methods <| withCatchingRuntimeEx <| dsimp e
+  let (r, s) ← SimpM.run ctx s methods <| withCatchingRuntimeEx <| dsimp e
+  recordSimpUses s
+  return (r, s)
 
 def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Expr × Stats) := do
   let (r, s) ← dsimpMainCore e ctx { stats with } methods

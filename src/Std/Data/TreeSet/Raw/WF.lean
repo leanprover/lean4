@@ -80,7 +80,15 @@ theorem merge {t₁ t₂ : Raw α cmp} (h : t₁.WF) :
   ⟨InnerWF.mergeWith h⟩
 
 theorem union [TransCmp cmp] {t₁ t₂ : Raw α cmp} (h₁ : t₁.WF) (h₂ : t₂.WF) :
-  (t₁.union t₂).WF :=
+  (t₁ ∪ t₂).WF :=
   ⟨InnerWF.union h₁ h₂⟩
+
+theorem inter [TransCmp cmp] {t₁ t₂ : Raw α cmp} (h₁ : t₁.WF) :
+    (t₁ ∩ t₂).WF :=
+  ⟨InnerWF.inter h₁⟩
+
+theorem diff [TransCmp cmp] {t₁ t₂ : Raw α cmp} (h₁ : t₁.WF) :
+    (t₁ \ t₂).WF :=
+  ⟨InnerWF.diff h₁⟩
 
 end Std.TreeSet.Raw.WF

@@ -40,7 +40,7 @@ error: Docstring errors for 'check': ⏎
     if let some str ← findSimpleDocString? env x (includeBuiltin := true) then
       let (errs, _) ← rewriteManualLinksCore str
       if !errs.isEmpty then
-        let errMsgs := errs.map fun (⟨s, e⟩, msg) => m!" • {repr <| str.extract s e}:{indentD msg}"
+        let errMsgs := errs.map fun (⟨s, e⟩, msg) => m!" • {repr <| s.extract str e}:{indentD msg}"
         logError <| m!"Docstring errors for '{x}': {indentD <| MessageData.joinSep errMsgs.toList "\n"}\n\n"
 
 
@@ -58,7 +58,7 @@ def checkResult (str : String) : CommandElabM Unit := do
   let result ← rewriteManualLinksCore str
 
   if !result.1.isEmpty then
-    let errMsgs := result.1.map fun (⟨s, e⟩, msg) => m!" • {repr <| str.extract s e}:{indentD msg}"
+    let errMsgs := result.1.map fun (⟨s, e⟩, msg) => m!" • {repr <| s.extract str e}:{indentD msg}"
     logInfo <| m!"Errors: {indentD <| MessageData.joinSep errMsgs.toList "\n"}\n\n"
 
   let root := manualRoot

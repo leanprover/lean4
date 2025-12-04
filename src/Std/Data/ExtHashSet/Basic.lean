@@ -205,7 +205,7 @@ def union [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashSet α) : ExtHas
 instance [EquivBEq α] [LawfulHashable α] : Union (ExtHashSet α) := ⟨union⟩
 
 @[inline, inherit_doc ExtHashMap.beq]
-def beq [LawfulBEq α] (m₁ m₂ : ExtHashSet α) : Bool := ExtDHashMap.Const.beq_unit m₁.inner.inner m₂.inner.inner
+def beq [LawfulBEq α] (m₁ m₂ : ExtHashSet α) : Bool := ExtDHashMap.Const.beqUnit m₁.inner.inner m₂.inner.inner
 
 instance [LawfulBEq α] : BEq (ExtHashSet α) := ⟨beq⟩
 
@@ -214,7 +214,7 @@ instance [LawfulBEq α] : ReflBEq (ExtHashSet α) where
     intro a
     cases a
     case mk a =>
-      apply ExtDHashMap.Const.beq_unit_of_eq
+      apply ExtDHashMap.Const.beqUnit_of_eq
       rfl
 
 instance [LawfulBEq α] : LawfulBEq (ExtHashSet α) where
@@ -222,7 +222,7 @@ instance [LawfulBEq α] : LawfulBEq (ExtHashSet α) where
     have ⟨⟨a⟩⟩ := a
     have ⟨⟨b⟩⟩ := b
     simp only [mk.injEq, ExtHashMap.mk.injEq] at |- hyp
-    exact ExtDHashMap.Const.eq_of_beq_unit _ _ hyp
+    exact ExtDHashMap.Const.eq_of_beqUnit _ _ hyp
 
 instance {α : Type u} [DecidableEq α] [Hashable α] : DecidableEq (ExtHashSet α) :=
   fun m₁ m₂ => decidable_of_iff (m₁ == m₂) ⟨by simp, by simp⟩

@@ -266,7 +266,6 @@ def beq [BEq α] (m₁ m₂ : HashSet α) : Bool :=
 
 instance [BEq α] : BEq (HashSet α) := ⟨beq⟩
 
-
 /--
 Computes the difference of the given hash sets.
 

@@ -601,6 +601,15 @@ theorem sum_nat {l₁ l₂ : List Nat} (h : l₁ ~ l₂) : l₁.sum = l₂.sum :
   | swap => simpa [List.sum_cons] using Nat.add_left_comm ..
   | trans _ _ ih₁ ih₂ => simp [ih₁, ih₂]
 
+theorem all_eq {l₁ l₂ : List α} {f : α → Bool} (hp : l₁.Perm l₂) : l₁.all f = l₂.all f := by
+  rw [Bool.eq_iff_iff, Bool.eq_iff_iff, List.all_eq_true, List.all_eq_true]
+  simp only [iff_true]
+  constructor
+  · intro hyp e mem
+    exact hyp e (@Perm.mem_iff _ e l₁ l₂ hp |>.2 mem)
+  · intro hyp e mem
+    exact hyp e (@Perm.mem_iff _ e l₂ l₁ hp.symm |>.2 mem)
+
 grind_pattern Perm.sum_nat => l₁ ~ l₂, l₁.sum
 grind_pattern Perm.sum_nat => l₁ ~ l₂, l₂.sum
 

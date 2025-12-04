@@ -2569,7 +2569,6 @@ def pps_layer {w : Nat}  (iter_num : Nat) (old_layer : BitVec (old_length * w))
 termination_by old_length - (iter_num * 2)
 
 
-
 theorem extractLsb'_extractLsb'_eq_of_lt (a : BitVec w) (hlt : i + k ≤ len) :
       extractLsb' i k (extractLsb' 0 len a) =
       extractLsb' i k a := by
@@ -3009,6 +3008,7 @@ def pps (l : BitVec (l_length * w)) (k : BitVec w)
       rw [← proof]
       apply rec_add_eq_rec_add_iff (a := new_layer) (by omega) (b := l) (by omega) (by omega) (by omega) (n := (l_length + 1) / 2) (by omega)
     pps new_layer k proof_sum_eq proof_new_layer_length hw
+
 
 @[simp]
 theorem cpopNatRec_zero_eq_self {x : BitVec w} :

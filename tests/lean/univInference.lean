@@ -90,3 +90,15 @@ def ex7 (h : Stx = Nat) : True :=
   trivial
 
 end Induct
+
+inductive Sorry1 where
+  | x (a : Bool)
+  | y (b : sorry)
+
+inductive Sorry2 where
+  | x (a : Array Sorry2)
+  | y (b : sorry)
+
+inductive Sorry3 where
+  | x (a : Array Sorry3)
+  | y {x} (b : x Err3)

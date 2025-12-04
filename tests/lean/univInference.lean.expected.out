@@ -31,3 +31,26 @@ univInference.lean:81:48-81:62: error: Invalid universe polymorphic resulting ty
   Sort (max u v)
 
 Hint: A possible solution is to use levels of the form `max 1 _` or `_ + 1` to ensure the universe is of the form `Type _`
+univInference.lean:94:0-96:17: warning: declaration uses 'sorry'
+univInference.lean:94:0-96:17: warning: declaration uses 'sorry'
+univInference.lean:94:0-96:17: warning: declaration uses 'sorry'
+univInference.lean:94:0-96:17: warning: declaration uses 'sorry'
+univInference.lean:94:0-96:17: warning: declaration uses 'sorry'
+univInference.lean:94:0-96:17: warning: declaration uses 'sorry'
+univInference.lean:94:0-96:17: warning: declaration uses 'sorry'
+univInference.lean:94:0-96:17: warning: declaration uses 'sorry'
+univInference.lean:94:0-96:17: warning: declaration uses 'sorry'
+univInference.lean:94:0-96:17: warning: declaration uses 'sorry'
+univInference.lean:94:0-96:17: warning: declaration uses 'sorry'
+univInference.lean:94:0-96:17: warning: declaration uses 'sorry'
+univInference.lean:94:0-96:17: warning: declaration uses 'sorry'
+univInference.lean:94:0-96:17: warning: declaration uses 'sorry'
+univInference.lean:98:0-100:17: error: Type cannot be determined: some part of the definition contains `sorry`
+univInference.lean:104:15-104:21: error: Function expected at
+  x
+but this term has type
+  ?m
+
+Note: Expected a function because this term is being applied to the argument
+  Err3
+univInference.lean:102:0-104:22: error: Type cannot be determined: some part of the definition contains an error

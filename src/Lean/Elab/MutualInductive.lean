@@ -614,6 +614,10 @@ private def collectUniverses (views : Array InductiveView) (r : Level) (rOffset 
   let (_, acc) ← go |>.run {}
   if !acc.badLevels.isEmpty then
     withViewTypeRef views do
+      if indTypes.any (·.ctors.any (·.type.hasSyntheticSorry)) then
+        throwError "Type cannot be determined: some part of the definition contains an error"
+      if indTypes.any (·.ctors.any (·.type.hasSorry)) then
+        throwError "Type cannot be determined: some part of the definition contains `sorry`"
       let goodPart := Level.addOffset (Level.mkNaryMax acc.levels.toList) rOffset
       let badPart := Level.mkNaryMax (acc.badLevels.toList.map fun (u, k) => Level.max (Level.ofNat rOffset) (Level.addOffset u (rOffset - k)))
       let inferred := (Level.max goodPart badPart).normalize

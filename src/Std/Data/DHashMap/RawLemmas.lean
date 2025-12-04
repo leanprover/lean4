@@ -46,8 +46,8 @@ private meta def baseNames : Array Name :=
     ``get?_eq, ``get_eq, ``get!_eq, ``getD_eq,
     ``Const.get?_eq, ``Const.get_eq, ``Const.getD_eq, ``Const.get!_eq,
     ``getKey?_eq, ``getKey_eq, ``getKey!_eq, ``getKeyD_eq,
-    ``insertMany_eq, ``Const.insertMany_eq, ``Const.insertManyIfNewUnit_eq,
-    ``ofList_eq, ``Const.ofList_eq, ``Const.unitOfList_eq,
+    ``insertMany_eq, ``Const.insertMany_eq, ``Const.insertManyIfNewUnit_eq, ``ofArray_eq, ``Const.ofArray_eq,
+    ``ofList_eq, ``Const.ofList_eq, ``Const.unitOfList_eq, ``Const.unitOfArray_eq,
     ``alter_eq, ``Const.alter_eq, ``modify_eq, ``Const.modify_eq, ``union_eq, ``inter_eq, ``diff_eq,
     ``fst_partition_eq, ``snd_partition_eq]
 

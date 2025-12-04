@@ -245,7 +245,7 @@ def elabDoLetOrReassignElse (letOrReassign : LetOrReassign) (pattern rhs : Term)
 
 def elabDoIdDecl (x : Ident) (xType? : Option Term) (rhs : TSyntax `doElem) (k : DoElabM Expr)
     (kind : DoElemContKind := .nonDuplicable) : DoElabM Expr := do
-  let xType ← elabType (xType?.getD (mkHole x))
+  let xType ← Term.elabType (xType?.getD (mkHole x))
   let lctx ← getLCtx
   let ctx ← read
   elabDoElem rhs <| .mk (kind := kind) x.getId xType do

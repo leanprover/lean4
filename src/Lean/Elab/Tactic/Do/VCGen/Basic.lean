@@ -68,7 +68,7 @@ structure State where
   fuel : Fuel := .unlimited
   simpState : Simp.State := {}
   /--
-  Holes of type `Invariant` that have been generated so far.
+  Holes of type `Invariant` or `InvariantNew` that have been generated so far.
   -/
   invariants : Array MVarId := #[]
   /--
@@ -102,7 +102,7 @@ def addSubGoalAsVC (goal : MVarId) : VCGenM PUnit := do
     -- But it's wrong for, e.g., schematic variables. The latter should never be PostConds,
     -- Invariants or SPreds, hence the condition.
     goal.setKind .syntheticOpaque
-  if ty.isAppOf ``Std.Do.Invariant then
+  if ty.isAppOf ``Std.Do.Invariant || ty.isAppOf ``Std.Do.InvariantNew then
     modify fun s => { s with invariants := s.invariants.push goal }
   else
     modify fun s => { s with vcs := s.vcs.push goal }

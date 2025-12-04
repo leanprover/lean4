@@ -187,7 +187,7 @@ public def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag
   -- To prevent accidental instantiation, we mark all `Invariant` MVars as synthetic opaque.
   for mvar in mvars do
     let ty ← mvar.mvarId!.getType
-    if ty.isAppOf ``Invariant then mvar.mvarId!.setKind .syntheticOpaque
+    if ty.isAppOf ``Invariant || ty.isAppOf ``InvariantNew then mvar.mvarId!.setKind .syntheticOpaque
 
   -- Apply the spec to the excess arguments of the `wp⟦e⟧ Q` application
   let T := goal.target.consumeMData

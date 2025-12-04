@@ -482,6 +482,8 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
         args.keepPublic && imp.isExported ||
         impStx.raw.getTrailing?.any (·.toString.contains "shake: keep") then
       deps := deps.union k {j}
+      if args.trace then
+        IO.eprintln s!"Adding `{imp}` as additional dependency"
   for j in [0:s.mods.size] do
     for k in NeedsKind.all do
       -- remove `meta` while preserving, no use-case for preserving `meta` so far

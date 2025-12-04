@@ -36,7 +36,7 @@ theorem IterM.DefaultConsumers.forIn'_eq_match_step {α β : Type w} {m : Type w
               (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') f
           | .done _ => return init) := by
   haveI : Nonempty γ := ⟨init⟩
-  rw [forIn', Internal.extrinsicFixE₃_eq]
+  rw [forIn', Internal.extrinsicFix₃_eq]
   · congr; ext step
     cases step.inflate using PlausibleIterStep.casesOn
     · simp only
@@ -59,7 +59,7 @@ theorem IterM.DefaultConsumers.forIn'_eq_wf {m : Type w → Type w'} {α : Type 
     forIn' lift γ Pl it init P hP f =
       forIn'.wf lift γ Pl wf it init P hP f := by
   haveI : Nonempty γ := ⟨init⟩
-  rw [forIn', Internal.extrinsicFixE₃_eq_wellFoundedFix]; rotate_left
+  rw [forIn', Internal.extrinsicFix₃_eq_wellFoundedFix]; rotate_left
   · apply InvImage.wf
     exact wf
   · fun_induction forIn'.wf lift γ Pl wf it init P hP f

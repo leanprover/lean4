@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Data.Iterators.Consumers.Monadic.Partial
 public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
-public import Init.Internal.ExtrinsicTermination
+public import Init.Internal.ExtrinsicTermination2
 public import Init.Data.Iterators.Consumers.Monadic.Total
 
 public section
@@ -106,7 +106,7 @@ def IterM.DefaultConsumers.forIn' {m : Type w → Type w'} {α : Type w} {β : T
     (P : β → Prop) (hP : ∀ b, it.IsPlausibleIndirectOutput b → P b)
     (f : (b : β) → P b → (c : γ) → n (Subtype (plausible_forInStep b c))) : n γ :=
   haveI : Nonempty γ := ⟨init⟩
-  extrinsicFixE₃ (C₃ := fun _ _ _ => n γ) (InvImage (IteratorLoop.rel α m plausible_forInStep) (fun x => (x.1, x.2.1)))
+  extrinsicFix₃ (C₃ := fun _ _ _ => n γ) (InvImage (IteratorLoop.rel α m plausible_forInStep) (fun x => (x.1, x.2.1)))
     (fun it acc (hP : ∀ b, it.IsPlausibleIndirectOutput b → P b) recur => (lift _ _ · it.step) fun s => do
       match s.inflate with
       | .yield it' out h =>

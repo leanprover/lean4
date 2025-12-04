@@ -11,7 +11,7 @@ public import Init.Data.Iterators.Lemmas.Monadic.Basic
 public import Init.Data.Iterators.Consumers.Monadic.Collect
 import all Init.Data.Iterators.Consumers.Monadic.Collect
 import all Init.Data.Iterators.Consumers.Monadic.Total
-import all Init.Internal.ExtrinsicTermination
+import all Init.Internal.ExtrinsicTermination2
 
 public section
 
@@ -30,7 +30,7 @@ private theorem IterM.DefaultConsumers.toArrayMapped.go_eq [Monad n]
       | .skip it' => go lift f it' acc
       | .done => return acc) := by
   letI : MonadLift m n := ⟨lift (δ := _)⟩
-  rw [toArrayMapped.go, extrinsicFixE₂_eq]
+  rw [toArrayMapped.go, extrinsicFix₂_eq]
   · simp only
     apply bind_congr; intro step
     cases step.inflate using PlausibleIterStep.casesOn
@@ -51,7 +51,7 @@ private theorem IterM.DefaultConsumers.toArrayMapped.go_eq [Monad n]
 --       | .skip it' => go lift f it' acc
 --       | .done => return acc) := by
 --   letI : MonadLift m n := ⟨lift (δ := _)⟩
---   rw [toArrayMapped.go, extrinsicFixE₂_eq]
+--   rw [toArrayMapped.go, extrinsicFix₂_eq]
 --   · simp only
 --     simp only [← MonadAttach.map_val_attach (x := liftM it.step), map_eq_pure_bind, bind_assoc]
 --     apply bind_congr; rintro ⟨step, hs⟩
@@ -195,7 +195,7 @@ private theorem IterM.toListRev.go_eq [Monad m] [LawfulMonad m] [Iterator α m �
       | .yield it' out => go it' (out :: bs)
       | .skip it' => go it' bs
       | .done => return bs) := by
-  rw [go, extrinsicFixE₂_eq]
+  rw [go, extrinsicFix₂_eq]
   · apply bind_congr; intro step
     cases step.inflate using PlausibleIterStep.casesOn <;> simp [go]
   · simp only [show (IterM.finitelyManySteps! = IterM.finitelyManySteps) by rfl]

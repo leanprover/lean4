@@ -9,7 +9,7 @@ prelude
 public import Init.Data.Iterators.Consumers.Monadic.Partial
 public import Init.Data.Iterators.Consumers.Monadic.Total
 public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
-public import Init.Internal.ExtrinsicTermination
+public import Init.Internal.ExtrinsicTermination2
 
 @[expose] public section
 
@@ -82,7 +82,7 @@ where
   @[always_inline]
   go it (acc : Array γ) : n (Array γ) :=
     letI : MonadLift m n := ⟨lift (α := _)⟩
-    extrinsicFixE₂ (C₂ := fun _ _ => n (Array γ)) (InvImage TerminationMeasures.Finite.Rel (·.1.finitelyManySteps!))
+    extrinsicFix₂ (C₂ := fun _ _ => n (Array γ)) (InvImage TerminationMeasures.Finite.Rel (·.1.finitelyManySteps!))
     (fun (it : IterM (α := α) m β) acc recur => do
       match (← it.step).inflate with
       | .yield it' out h =>
@@ -101,7 +101,7 @@ where
 --   @[always_inline]
 --   go it (acc : Array γ) : n (Array γ) :=
 --     letI : MonadLift m n := ⟨lift (α := _)⟩
---     extrinsicFixE₂ (C₂ := fun _ _ => n (Array γ))
+--     extrinsicFix₂ (C₂ := fun _ _ => n (Array γ))
 --     (fun x' x => (∃ out, x.1.IsPlausibleStepE (.yield x'.1 out) ∧ ∃ fx, MonadAttach.CanReturn (f out) fx ∧ x'.2 = x.2.push fx) ∨ (∃ h, MonadAttach.CanReturn (m := n) x.1.step (.deflate <| .skip x'.1 h) ∧ x'.2 = x.2))
 --     (fun (it : IterM (α := α) m β) acc recur => do
 --       let ⟨step, hs⟩ ← MonadAttach.attach (m := n) it.step
@@ -208,7 +208,7 @@ def IterM.toListRev {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type 
 where
   @[always_inline, inline]
   go (it : IterM m β) acc :=
-    extrinsicFixE₂ (InvImage TerminationMeasures.Finite.Rel (·.1.finitelyManySteps!))
+    extrinsicFix₂ (InvImage TerminationMeasures.Finite.Rel (·.1.finitelyManySteps!))
       (fun it acc recur => do
         match (← it.step).inflate with
         | .yield it' out h => recur it' (out :: acc) (TerminationMeasures.Finite.rel_of_yield h)

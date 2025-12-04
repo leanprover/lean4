@@ -33,6 +33,7 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #ifdef LEAN_WINDOWS
 #include <windows.h>
 #include <io.h>
+#include <fcntl.h>
 #else
 #include <sys/mman.h>
 #include <unistd.h>
@@ -196,6 +197,9 @@ extern "C" LEAN_EXPORT object * lean_save_module_data_parts(b_obj_arg mod, b_obj
 struct module_file {
     std::string m_fname;
     file_descriptor m_fd;
+#ifdef LEAN_WINDOWS
+    HANDLE m_handle;  // store the original Windows for mmap
+#endif
     char * m_base_addr;
     size_t m_size;
     char * m_buffer;
@@ -210,10 +214,25 @@ extern "C" LEAN_EXPORT object * lean_read_module_data_parts(b_obj_arg ofnames, o
     for (auto const & fname : fnames) {
         std::string olean_fn = fname.to_std_string();
         try {
+#ifdef LEAN_WINDOWS
+            // Use CreateFile with proper sharing flags, then convert to POSIX fd for shared code
+            // `FILE_SHARE_DELETE` is necessary to allow the file to (be marked to) be deleted while in use
+            HANDLE h_file = CreateFile(olean_fn.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+            if (h_file == INVALID_HANDLE_VALUE) {
+                return io_result_mk_error((sstream() << "failed to open file '" << olean_fn << "': " << GetLastError()).str());
+            }
+            int raw_fd = _open_osfhandle((intptr_t)h_file, _O_RDONLY);
+            if (raw_fd == -1) {
+                CloseHandle(h_file);
+                return io_result_mk_error((sstream() << "failed to convert handle to fd for '" << olean_fn << "'").str());
+            }
+            file_descriptor fd(raw_fd);
+#else
             file_descriptor fd(open(olean_fn.c_str(), O_RDONLY));
             if (!fd) {
                 return io_result_mk_error((sstream() << "failed to open file '" << olean_fn << "': " << strerror(errno)).str());
             }
+#endif
 
             /* Get file size */
             struct stat st;
@@ -237,7 +256,11 @@ extern "C" LEAN_EXPORT object * lean_read_module_data_parts(b_obj_arg ofnames, o
                 return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "', incompatible header").str());
             }
             char * base_addr = reinterpret_cast<char *>(header.base_addr);
+#ifdef LEAN_WINDOWS
+            files.push_back({olean_fn, std::move(fd), h_file, base_addr, size, nullptr, nullptr});
+#else
             files.push_back({olean_fn, std::move(fd), base_addr, size, nullptr, nullptr});
+#endif
         } catch (exception & ex) {
             return io_result_mk_error((sstream() << "failed to read '" << olean_fn << "': " << ex.what()).str());
         }
@@ -253,16 +276,15 @@ extern "C" LEAN_EXPORT object * lean_read_module_data_parts(b_obj_arg ofnames, o
         char * base_addr = file.m_base_addr;
         try {
 #ifdef LEAN_WINDOWS
-            HANDLE h_olean_fn = (HANDLE)_get_osfhandle(file.m_fd.get());
-            if (h_olean_fn == INVALID_HANDLE_VALUE) {
-                return io_result_mk_error((sstream() << "failed to get Windows handle for '" << olean_fn << "': " << GetLastError()).str());
-            }
+            // Use the stored handle that was created with proper sharing flags
+            HANDLE h_olean_fn = file.m_handle;
             HANDLE h_map = CreateFileMapping(h_olean_fn, NULL, PAGE_READONLY, 0, 0, NULL);
             if (h_map == NULL) {
                 return io_result_mk_error((sstream() << "failed to map '" << olean_fn << "': " << GetLastError()).str());
             }
             char * buffer = static_cast<char *>(MapViewOfFileEx(h_map, FILE_MAP_READ, 0, 0, 0, base_addr));
             lean_always_assert(CloseHandle(h_map));
+            // NOTE: no need to close `h_olean_fn` as it's owned by `file.m_fd`
             if (!buffer) {
                 is_mmap = false;
                 break;

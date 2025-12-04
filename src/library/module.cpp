@@ -32,6 +32,7 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 
 #ifdef LEAN_WINDOWS
 #include <windows.h>
+#include <io.h>
 #else
 #include <sys/mman.h>
 #include <unistd.h>
@@ -252,18 +253,16 @@ extern "C" LEAN_EXPORT object * lean_read_module_data_parts(b_obj_arg ofnames, o
         char * base_addr = file.m_base_addr;
         try {
 #ifdef LEAN_WINDOWS
-            // `FILE_SHARE_DELETE` is necessary to allow the file to (be marked to) be deleted while in use
-            HANDLE h_olean_fn = CreateFile(olean_fn.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+            HANDLE h_olean_fn = (HANDLE)_get_osfhandle(file.m_fd.get());
             if (h_olean_fn == INVALID_HANDLE_VALUE) {
-                return io_result_mk_error((sstream() << "failed to open '" << olean_fn << "': " << GetLastError()).str());
+                return io_result_mk_error((sstream() << "failed to get Windows handle for '" << olean_fn << "': " << GetLastError()).str());
             }
             HANDLE h_map = CreateFileMapping(h_olean_fn, NULL, PAGE_READONLY, 0, 0, NULL);
-            if (h_olean_fn == NULL) {
+            if (h_map == NULL) {
                 return io_result_mk_error((sstream() << "failed to map '" << olean_fn << "': " << GetLastError()).str());
             }
             char * buffer = static_cast<char *>(MapViewOfFileEx(h_map, FILE_MAP_READ, 0, 0, 0, base_addr));
             lean_always_assert(CloseHandle(h_map));
-            lean_always_assert(CloseHandle(h_olean_fn));
             if (!buffer) {
                 is_mmap = false;
                 break;

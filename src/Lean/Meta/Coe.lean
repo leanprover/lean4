@@ -252,7 +252,7 @@ or `.undef` if we need more metavariable assignments.
 `appliedCoeDecls` is a list of names representing the names of the `Coe` instances that were
 applied.
 -/
-def coerce? (expr expectedType : Expr) : MetaM (LOption (Expr × List Name)) := do
+def coerceCollectingNames? (expr expectedType : Expr) : MetaM (LOption (Expr × List Name)) := do
   if let some lifted ← coerceMonadLift? expr expectedType then
     return .some (lifted, [])
   if (← whnfR expectedType).isForall then
@@ -260,5 +260,17 @@ def coerce? (expr expectedType : Expr) : MetaM (LOption (Expr × List Name)) := 
       if ← isDefEq (← inferType fn) expectedType then
         return .some (fn, [])
   coerceSimple? expr expectedType
+
+/--
+Coerces `expr` to the type `expectedType`.
+Returns `.some coerced` on successful coercion,
+`.none` if the expression cannot by coerced to that type,
+or `.undef` if we need more metavariable assignments.
+-/
+def coerce? (expr expectedType : Expr) : MetaM (LOption Expr) := do
+  match ← coerceCollectingNames? expr expectedType with
+  | .some (result, _) => return .some result
+  | .none => return .none
+  | .undef => return .undef
 
 end Lean.Meta
